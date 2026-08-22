@@ -15,12 +15,13 @@
 
 package org.agmas.noellesroles.client.hud.roles;
 
+import io.wifi.starrailexpress.api.data.RoleData;
 import io.wifi.starrailexpress.client.SREClient;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import org.agmas.noellesroles.client.event.RoleHudRenderCallback;
-import org.agmas.noellesroles.game.roles.killer.silencer.SilencerPlayerComponent;
+import org.agmas.noellesroles.role_data.killer.SilencerRoleData;
 import org.agmas.noellesroles.role.ModRoles;
 
 public class SilencerHud {
@@ -30,7 +31,8 @@ public class SilencerHud {
             if (SREClient.isPlayerSpectator())
                 return;
 
-            final var comp = SilencerPlayerComponent.KEY.get(client.player);
+            final var comp = RoleData.getNullable(SilencerRoleData.class, client.player);
+            if (comp == null) return;
 
             MutableComponent content;
             if (comp.phase > 0) {

@@ -68,7 +68,7 @@ public class C4BackComponent implements AutoSyncedComponent {
     /** 静态便捷方法：检查实体（玩家）身上是否有C4 */
     public static boolean hasC4(Entity entity) {
         if (!(entity instanceof Player player)) return false;
-        C4BackComponent comp = KEY.getNullable(player.level());
+        C4BackComponent comp = C4BackComponent.KEY.get(player.level());
         return comp != null && comp.hasC4(player.getUUID());
     }
 

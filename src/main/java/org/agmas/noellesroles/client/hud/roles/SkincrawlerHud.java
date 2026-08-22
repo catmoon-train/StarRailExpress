@@ -15,13 +15,14 @@
 
 package org.agmas.noellesroles.client.hud.roles;
 
+import io.wifi.starrailexpress.api.data.RoleData;
 import io.wifi.starrailexpress.client.SREClient;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.network.chat.Component;
 import org.agmas.noellesroles.client.event.RoleHudRenderCallback;
-import org.agmas.noellesroles.game.roles.killer.skincrawler.SkincrawlerPlayerComponent;
+import org.agmas.noellesroles.role_data.killer.SkincrawlerRoleData;
 import org.agmas.noellesroles.role.ModRoles;
 
 public class SkincrawlerHud {
@@ -29,7 +30,8 @@ public class SkincrawlerHud {
         RoleHudRenderCallback.EVENT.register(ModRoles.SKINCRAWLER_ID, (context, deltaTracker) -> {
             Minecraft client = Minecraft.getInstance();
             if (SREClient.isPlayerSpectator()) return;
-            var comp = SkincrawlerPlayerComponent.KEY.get(client.player);
+            var comp = RoleData.getNullable(SkincrawlerRoleData.class, client.player);
+            if (comp == null) return;
             Font font = client.font;
             int sw = client.getWindow().getGuiScaledWidth();
             int sy = client.getWindow().getGuiScaledHeight();

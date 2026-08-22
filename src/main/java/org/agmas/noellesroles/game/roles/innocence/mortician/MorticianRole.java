@@ -15,6 +15,8 @@
 
 package org.agmas.noellesroles.game.roles.innocence.mortician;
 
+import org.agmas.noellesroles.role_data.innocence.MorticianRoleData;
+import io.wifi.starrailexpress.api.data.RoleData;
 import io.wifi.starrailexpress.api.NormalRole;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.content.entity.PlayerBodyEntity;
@@ -55,8 +57,8 @@ public class MorticianRole extends NormalRole {
             return false;
         }
         // 检查冷却
-        var morticianComponent = org.agmas.noellesroles.component.ModComponents.MORTICIAN.get(serverPlayer);
-        if (!morticianComponent.isCooldownReady()) {
+        var morticianComponent = RoleData.getNullable(MorticianRoleData.class, serverPlayer);
+        if (!RoleData.isAttached(morticianComponent) || !morticianComponent.isCooldownReady()) {
             return false;
         }
         // 检查这具尸体是否已被打开过
@@ -76,8 +78,8 @@ public class MorticianRole extends NormalRole {
             PlayerBodyEntityContainer container) {
         if (corpseEntity != null) {
             UUID corpseUuid = corpseEntity.getUUID();
-            MorticianPlayerComponent mortician = ModComponents.MORTICIAN.get(player);
-            if (mortician != null) {
+            MorticianRoleData mortician = RoleData.getNullable(MorticianRoleData.class, player);
+            if (RoleData.isAttached(mortician)) {
                 mortician.onCorpseOpened(corpseUuid);
                 // 发送消息提示
                 if (player instanceof ServerPlayer serverPlayer) {
@@ -96,8 +98,8 @@ public class MorticianRole extends NormalRole {
     @Override
     public boolean canGetBodyContent(int slotId, int button, ClickType clickType, Player player,
             PlayerBodyEntityContainer container, int rows, NonNullList<Slot> slots) {
-        MorticianPlayerComponent mortician = ModComponents.MORTICIAN.get(player);
-        if (mortician == null || !mortician.isCooldownReady()) {
+        MorticianRoleData mortician = RoleData.getNullable(MorticianRoleData.class, player);
+        if (!RoleData.isAttached(mortician) || !mortician.isCooldownReady()) {
             // 冷却中，禁止任何操作
             if (player instanceof ServerPlayer serverPlayer) {
                 serverPlayer.displayClientMessage(
@@ -202,39 +204,42 @@ public class MorticianRole extends NormalRole {
     /**
      * 记录殡仪员拿取了一个物品
      */
-    public MorticianPlayerComponent MoCCA(Player player) {
-        return MorticianPlayerComponent.KEY.get(player);
+    public MorticianRoleData MoCCA(Player player) {
+        return RoleData.getNullable(MorticianRoleData.class, player);
     }
 
     public void morticianTookItem(Player player) {
-        MoCCA(player).morticianItemsTaken++;
+        RoleData.ifPresent(MorticianRoleData.class, player, d -> d.morticianItemsTaken++);
     }
 
     /**
      * 获取殡仪员已拿取的物品数量
      */
     public int getMorticianItemsTaken(Player player) {
-        return MoCCA(player).morticianItemsTaken;
+        return RoleData.map(MorticianRoleData.class, player, d -> d.morticianItemsTaken, 0);
     }
 
     /**
      * 检查殡仪员是否还能拿取物品
      */
     public boolean canMorticianTakeMore(Player player) {
-        return MoCCA(player).morticianItemsTaken < 1;
+        return RoleData.test(MorticianRoleData.class, player, d -> d.morticianItemsTaken < 1);
     }
 
     @Override
     public void startOpenPlayerBody(Player player) {
-        MoCCA(player).morticianLooting = true;
-        MoCCA(player).morticianItemsTaken = 0;
+        RoleData.ifPresent(MorticianRoleData.class, player, d -> {
+            d.morticianLooting = true;
+            d.morticianItemsTaken = 0;
+        });
     }
 
     @Override
     public boolean canTakePlayerBodyItem(Player player, Container container, int slot, ItemStack stack) {
 
         // 检查是否已达到拿取上限（最多1个）
-        if (MoCCA(player).morticianItemsTaken >= 1) {
+        MorticianRoleData data = MoCCA(player);
+        if (data == null || data.morticianItemsTaken >= 1) {
             return false;
         }
 
@@ -260,8 +265,10 @@ public class MorticianRole extends NormalRole {
 
     @Override
     public void stopOpenPlayerBody(Player player) {
-        MoCCA(player).morticianLooting = false;
-        MoCCA(player).morticianItemsTaken = 0;
+        RoleData.ifPresent(MorticianRoleData.class, player, d -> {
+            d.morticianLooting = false;
+            d.morticianItemsTaken = 0;
+        });
     }
 
     /**

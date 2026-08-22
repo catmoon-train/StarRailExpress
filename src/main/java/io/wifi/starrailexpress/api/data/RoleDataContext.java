@@ -20,10 +20,26 @@ import org.jetbrains.annotations.Nullable;
 import io.wifi.starrailexpress.api.SRERole;
 import net.minecraft.world.entity.player.Player;
 
-public record RoleDataContext(Player player, @Nullable SRERole role, @Nullable Runnable syncFunc) {
+public record RoleDataContext(
+        @Nullable Player player,
+        @Nullable SRERole role,
+        @Nullable Runnable syncFunc,
+        boolean placeholder) {
+
+    public RoleDataContext(Player player, @Nullable SRERole role, @Nullable Runnable syncFunc) {
+        this(player, role, syncFunc, false);
+    }
+
+    /** 未持有该职业时使用的空上下文：不同步、无玩家。 */
+    public static RoleDataContext empty() {
+        return EmptyHolder.INSTANCE;
+    }
+
     public void sync() {
-        if (syncFunc != null)
-            syncFunc.run();
+        if (placeholder || syncFunc == null) {
+            return;
+        }
+        syncFunc.run();
     }
 
     public Player getPlayer() {
@@ -31,6 +47,10 @@ public record RoleDataContext(Player player, @Nullable SRERole role, @Nullable R
     }
 
     public boolean isClientSide() {
-        return player.level().isClientSide;
+        return player != null && player.level().isClientSide;
+    }
+
+    private static final class EmptyHolder {
+        private static final RoleDataContext INSTANCE = new RoleDataContext(null, null, null, true);
     }
 }

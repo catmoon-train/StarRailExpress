@@ -15,6 +15,12 @@
 
 package org.agmas.noellesroles.content.entity;
 
+import org.agmas.noellesroles.role_data.killer.UndeadLordRoleData;
+
+import io.wifi.starrailexpress.api.data.RoleData;
+
+import io.wifi.starrailexpress.api.hit.HitType;
+import io.wifi.starrailexpress.api.hit.IsTargetObject;
 import io.wifi.starrailexpress.cca.SREGameTimeComponent;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.game.GameUtils;
@@ -39,7 +45,6 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
-import org.agmas.noellesroles.component.ModComponents;
 import org.agmas.noellesroles.config.NoellesRolesConfig;
 
 import java.util.Comparator;
@@ -59,7 +64,7 @@ import java.util.UUID;
  * <li>无实体碰撞（穿墙、无重力悬浮），无法开门、无法使用道具。</li>
  * </ul>
  */
-public class UndeadEntity extends PathfinderMob {
+public class UndeadEntity extends PathfinderMob implements IsTargetObject {
 
     /** 皮肤所属玩家 UUID（死者），仅用于客户端渲染外观。 */
     private static final EntityDataAccessor<Optional<UUID>> SKIN_UUID = SynchedEntityData.defineId(
@@ -316,7 +321,7 @@ public class UndeadEntity extends PathfinderMob {
         attackCooldown = ATTACK_INTERVAL;
         this.swing(net.minecraft.world.InteractionHand.MAIN_HAND);
 
-        ModComponents.UNDEAD_LORD.maybeGet(owner).ifPresent(comp -> comp.addInfection(victim, INFECTION_PER_HIT));
+        RoleData.getOptional(org.agmas.noellesroles.role_data.killer.UndeadLordRoleData.class, owner).ifPresent(comp -> comp.addInfection(victim, INFECTION_PER_HIT));
 
         float damage = (float) NoellesRolesConfig.HANDLER.instance().undeadLordUndeadAttackDamage;
         if (damage > 0f) {
@@ -346,14 +351,27 @@ public class UndeadEntity extends PathfinderMob {
                 SoundSource.HOSTILE, 0.7f, 0.6f);
         Player owner = getOwner();
         if (owner != null) {
-            ModComponents.UNDEAD_LORD.maybeGet(owner).ifPresent(comp -> comp.onUndeadRemoved(this.getUUID()));
+            RoleData.getOptional(org.agmas.noellesroles.role_data.killer.UndeadLordRoleData.class, owner).ifPresent(comp -> comp.onUndeadRemoved(this.getUUID()));
         }
         discard();
     }
 
+    @Override
+    public boolean isValidTarget(Player attacker, HitType type) {
+        return type.isRanged();
+    }
+
+    @Override
+    public boolean onWeaponHit(Player attacker, HitType type) {
+        if (attacker instanceof ServerPlayer sp) {
+            shotByGun(sp);
+            return true;
+        }
+        return false;
+    }
+
     /**
      * 被左轮等枪械命中：直接摧毁该亡灵（任意持枪玩家均可击杀）。
-     * 由 {@code UndeadGunPayloadMixin} 在收到开枪数据包时调用，绕过常规伤害免疫。
      */
     public void shotByGun(ServerPlayer shooter) {
         if (level() instanceof ServerLevel serverLevel) {

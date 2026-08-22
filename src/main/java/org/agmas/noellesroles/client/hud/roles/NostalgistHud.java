@@ -15,12 +15,13 @@
 
 package org.agmas.noellesroles.client.hud.roles;
 
+import io.wifi.starrailexpress.api.data.RoleData;
 import io.wifi.starrailexpress.client.SREClient;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import org.agmas.noellesroles.client.event.RoleHudRenderCallback;
-import org.agmas.noellesroles.game.roles.killer.nostalgist.NostalgistPlayerComponent;
+import org.agmas.noellesroles.role_data.killer.NostalgistRoleData;
 import org.agmas.noellesroles.role.ModRoles;
 
 public class NostalgistHud {
@@ -32,7 +33,7 @@ public class NostalgistHud {
             if (client.player == null)
                 return;
 
-            final var comp = NostalgistPlayerComponent.KEY.get(client.player);
+            final var comp = RoleData.getNullable(NostalgistRoleData.class, client.player);
             if (comp == null)
                 return;
 

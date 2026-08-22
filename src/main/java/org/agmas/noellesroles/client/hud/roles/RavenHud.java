@@ -15,6 +15,7 @@
 
 package org.agmas.noellesroles.client.hud.roles;
 
+import io.wifi.starrailexpress.api.data.RoleData;
 import io.wifi.starrailexpress.client.SREClient;
 import io.wifi.starrailexpress.client.network.CustomRoleClientNetwork;
 import io.wifi.starrailexpress.customrole.CustomRoleLoader;
@@ -23,7 +24,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import org.agmas.noellesroles.client.event.RoleHudRenderCallback;
 import org.agmas.noellesroles.component.ModComponents;
-import org.agmas.noellesroles.game.roles.neutral.raven.RavenPlayerComponent;
+import org.agmas.noellesroles.role_data.neutral.RavenRoleData;
 import org.agmas.noellesroles.role.ModRoles;
 
 import java.util.Locale;
@@ -33,7 +34,8 @@ public final class RavenHud {
         RoleHudRenderCallback.EVENT.register(ModRoles.RAVEN_ID, (context, tickCounter) -> {
             if (SREClient.isPlayerSpectator()) return;
             var player = Minecraft.getInstance().player;
-            RavenPlayerComponent raven = ModComponents.RAVEN.get(player);
+            RavenRoleData raven = RoleData.getNullable(RavenRoleData.class, player);
+            if (raven == null) return;
             int x = context.guiWidth() - 180;
             int y = context.guiHeight() - 55;
 
@@ -45,7 +47,7 @@ public final class RavenHud {
 
             // Hunt charges
             context.drawString(Minecraft.getInstance().font,
-                    Component.translatable("hud.noellesroles.raven.charges", raven.charges, RavenPlayerComponent.MAX_CHARGES),
+                    Component.translatable("hud.noellesroles.raven.charges", raven.charges, RavenRoleData.MAX_CHARGES),
                     x, y + 11, 0x6B4B9E);
 
             // Kill progress

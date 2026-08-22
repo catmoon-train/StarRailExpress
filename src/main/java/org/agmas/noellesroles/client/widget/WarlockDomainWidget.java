@@ -15,6 +15,7 @@
 
 package org.agmas.noellesroles.client.widget;
 
+import io.wifi.starrailexpress.api.data.RoleData;
 import io.wifi.starrailexpress.client.SREClient;
 import io.wifi.starrailexpress.client.gui.screen.ingame.LimitedInventoryScreen;
 import io.wifi.starrailexpress.util.ShopEntry;
@@ -27,7 +28,7 @@ import net.minecraft.client.gui.components.PlayerFaceRenderer;
 import net.minecraft.client.multiplayer.PlayerInfo;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.network.chat.Component;
-import org.agmas.noellesroles.game.roles.killer.warlock.WarlockPlayerComponent;
+import org.agmas.noellesroles.role_data.killer.WarlockRoleData;
 import org.agmas.noellesroles.packet.WarlockDomainC2SPacket;
 import org.jetbrains.annotations.NotNull;
 
@@ -53,9 +54,9 @@ public class WarlockDomainWidget extends Button {
     }
 
     private static boolean isReady(AbstractClientPlayer player) {
-        WarlockPlayerComponent comp = WarlockPlayerComponent.KEY.get(player);
+        WarlockRoleData comp = RoleData.getNullable(WarlockRoleData.class, player);
         long now = SREClient.getTicksFromGameStart();
-        return comp != null && now >= comp.domainCooldownEndTick;
+        return RoleData.isAttached(comp) && now >= comp.domainCooldownEndTick;
     }
 
     @Override
@@ -63,8 +64,8 @@ public class WarlockDomainWidget extends Button {
         AbstractClientPlayer player = Minecraft.getInstance().player;
         if (player == null)
             return;
-        WarlockPlayerComponent comp = WarlockPlayerComponent.KEY.get(player);
-        if (comp == null)
+        WarlockRoleData comp = RoleData.getNullable(WarlockRoleData.class, player);
+        if (!RoleData.isAttached(comp))
             return;
         long now = SREClient.getTicksFromGameStart();
         boolean ready = now >= comp.domainCooldownEndTick;

@@ -15,6 +15,7 @@
 
 package org.agmas.noellesroles.client.hud.roles;
 
+import io.wifi.starrailexpress.api.data.RoleData;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
@@ -22,7 +23,7 @@ import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.CommonColors;
 import org.agmas.noellesroles.client.event.RoleHudRenderCallback;
-import org.agmas.noellesroles.game.roles.killer.executioner.ExecutionerPlayerComponent;
+import org.agmas.noellesroles.role_data.killer.ExecutionerRoleData;
 import org.agmas.noellesroles.role.ModRoles;
 
 public abstract class ExecutionerHud {
@@ -32,7 +33,8 @@ public abstract class ExecutionerHud {
             Minecraft client = Minecraft.getInstance();
             final Font renderer = client.font;
             final LocalPlayer player = client.player;
-            ExecutionerPlayerComponent component = ExecutionerPlayerComponent.KEY.get(player);
+            ExecutionerRoleData component = RoleData.getNullable(ExecutionerRoleData.class, player);
+            if (component == null) return;
 
             context.pose().pushPose();
 

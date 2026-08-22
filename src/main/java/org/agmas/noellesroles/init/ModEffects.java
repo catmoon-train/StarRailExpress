@@ -15,6 +15,8 @@
 
 package org.agmas.noellesroles.init;
 
+import org.agmas.noellesroles.role_data.killer.NostalgistRoleData;
+
 import io.wifi.starrailexpress.api.TMMRoles;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.event.AllowPlayerDeathWithKiller;
@@ -197,7 +199,7 @@ public class ModEffects {
     /**
      * 怀旧者·里世界状态标记
      * - 中性效果，灰白色
-     * - 由 {@code NostalgistPlayerComponent} 在里世界期间每 tick 维持，驱动客户端独立的灰白滤镜
+     * - 由 {@code NostalgistRoleData} 在里世界期间每 tick 维持，驱动客户端独立的灰白滤镜
      * shader（{@code TimeStopShader} 的 {@code nostalgist_gray} pass）并隐藏手持物品
      * （{@code InvisbleHandItem}）。禁止说话/使用物品则由 {@link #CHAT_BAN} /
      * {@link #VOICE_SILENCE}

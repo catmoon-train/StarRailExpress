@@ -15,6 +15,9 @@
 
 package org.agmas.noellesroles.init.events;
 
+import org.agmas.noellesroles.role_data.innocence.MeatballRoleData;
+import org.agmas.noellesroles.role_data.innocence.BuilderRoleData;
+import io.wifi.starrailexpress.api.data.RoleData;
 import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.cca.AreasWorldComponent;
@@ -58,9 +61,9 @@ import org.agmas.noellesroles.game.modifier.NRModifiers;
 import org.agmas.noellesroles.game.modifier.expedition.ExpeditionComponent;
 import org.agmas.noellesroles.game.roles.innocence.fool.TarotAssemblyManager;
 import org.agmas.noellesroles.game.roles.innocence.hoan_meirin.HoanMeirinFistPunchHandler;
-import org.agmas.noellesroles.game.roles.killer.delayer.DelayerPlayerComponent;
+import org.agmas.noellesroles.role_data.killer.DelayerRoleData;
 import org.agmas.noellesroles.game.roles.neutral.pelican.PelicanManager;
-import org.agmas.noellesroles.game.roles.neutral.thief.ThiefPlayerComponent;
+import org.agmas.noellesroles.role_data.neutral.ThiefRoleData;
 import org.agmas.noellesroles.init.ModEventsRegister;
 import org.agmas.noellesroles.init.ModItems;
 import org.agmas.noellesroles.init.NRSounds;
@@ -146,7 +149,7 @@ public class NRGameStateEvents {
             nianShouFirecrackersDistributedThisGame = false;
             HoanMeirinFistPunchHandler.PUNCH_RECORDS.clear();
             RoleShopHandler.resetOldmanEasterEggState();
-            DelayerPlayerComponent.timeBoostTriggered = false;
+            DelayerRoleData.timeBoostTriggered = false;
 
             // 清除感染状态
             for (ServerPlayer player : world.players()) {
@@ -159,8 +162,10 @@ public class NRGameStateEvents {
 
             // 清除建筑师客户端墙
             for (ServerPlayer player : world.players()) {
-                var builderComp = ModComponents.BUILDER.get(player);
-                builderComp.clearAllWalls();
+                var builderComp = RoleData.getNullable(BuilderRoleData.class, player);
+                if (builderComp != null) {
+                    builderComp.clearAllWalls();
+                }
             }
             org.agmas.noellesroles.game.roles.innocence.builder.BuilderWallPositions.clearAll();
 
@@ -179,7 +184,10 @@ public class NRGameStateEvents {
 
             // 清除所有肉汁的悬赏
             for (ServerPlayer player : world.players()) {
-                ModComponents.MEATBALL.get(player).init();
+                var meatball = RoleData.getNullable(MeatballRoleData.class, player);
+                if (meatball != null) {
+                    meatball.init();
+                }
             }
 
             // 重置实体交互方块内置冷却
@@ -250,7 +258,7 @@ public class NRGameStateEvents {
                 }
 
                 if (gameWorldComponent.isRole(p, ModRoles.THIEF)) {
-                    ThiefPlayerComponent.KEY.get(p).updateHonorCost(serverLevel.players().size());
+                    RoleData.ifPresent(ThiefRoleData.class, p, d -> d.updateHonorCost(serverLevel.players().size()));
                 } else if (gameWorldComponent.isRole(p, ModRoles.ATTENDANT)) {
                     SRE.SendRoomInfoToPlayer(p);
                 } else if (gameWorldComponent.isRole(p, ModRoles.DIO)) {

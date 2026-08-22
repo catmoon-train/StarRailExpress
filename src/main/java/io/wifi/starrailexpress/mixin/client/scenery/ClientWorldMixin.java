@@ -15,6 +15,7 @@
 
 package io.wifi.starrailexpress.mixin.client.scenery;
 
+import io.wifi.starrailexpress.api.data.RoleData;
 import io.wifi.starrailexpress.cca.SREGameTimeComponent;
 import io.wifi.starrailexpress.client.SREClient;
 import io.wifi.starrailexpress.index.SREBlocks;
@@ -56,7 +57,7 @@ import java.util.function.Supplier;
 public abstract class ClientWorldMixin extends Level {
     @Inject(method = "tickTime", at = @At("HEAD"), require = 0, cancellable = true)
     private void tickTime(CallbackInfo ci) {
-        SREGameTimeComponent cca = SREGameTimeComponent.KEY.getNullable((Object) this);
+        SREGameTimeComponent cca = SREGameTimeComponent.KEY.get((Object) this);
         if (cca != null) {
             if (cca.levelGameTimeFrozen) {
                 ci.cancel();

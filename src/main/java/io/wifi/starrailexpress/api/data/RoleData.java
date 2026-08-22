@@ -16,6 +16,9 @@ package io.wifi.starrailexpress.api.data;
 
 import java.lang.reflect.Constructor;
 import java.util.Optional;
+import java.util.function.Consumer;
+import java.util.function.Function;
+import java.util.function.Predicate;
 
 import org.jetbrains.annotations.Nullable;
 
@@ -55,7 +58,36 @@ public interface RoleData {
      */
     @Nullable
     public static RoleData getNullable(Player player) {
-        return SRERoleDataPlayerComponent.KEY.get(player).roleData;
+        if (player == null) {
+            return null;
+        }
+        SRERoleDataPlayerComponent component = SRERoleDataPlayerComponent.KEY.get(player);
+        if (component == null) {
+            return null;
+        }
+        return component.roleData;
+    }
+
+    /**
+     * 玩家是否真正持有该职业数据（非空、非占位实例）。
+     */
+    public static boolean isAttached(@Nullable RoleData data) {
+        return data != null && !data.isPlaceholder();
+    }
+
+    /**
+     * 获取玩家真正持有的指定类型职业数据。类型不匹配或尚未初始化时返回 {@code null}。
+     */
+    @Nullable
+    public static <T extends RoleData> T getAttached(Class<T> clazz, Player player) {
+        if (player == null || clazz == null) {
+            return null;
+        }
+        RoleData roleData = getNullable(player);
+        if (roleData != null && clazz.isInstance(roleData) && !roleData.isPlaceholder()) {
+            return clazz.cast(roleData);
+        }
+        return null;
     }
 
     /**
@@ -68,28 +100,56 @@ public interface RoleData {
      */
     @Nullable
     public static <T extends RoleData> Optional<T> getOptional(Class<T> clazz, Player player) {
-        RoleData roleData = SRERoleDataPlayerComponent.KEY.get(player).roleData;
-        if (roleData != null && clazz.isInstance(roleData)) {
-            return Optional.ofNullable(clazz.cast(roleData));
-        }
-        return Optional.empty();
+        return Optional.ofNullable(getAttached(clazz, player));
     }
 
     /**
-     * 获取玩家当前的职业数据，并将其转换为指定类型，若数据不存在或类型不匹配则返回 {@code null}。
+     * 获取指定类型的职业数据。
+     * <p>
+     * 玩家未持有该职业时返回该类型的<strong>空占位实例</strong>（字段为默认值，
+     * {@link #isPlaceholder()} 为 {@code true}），因此可以直接读字段而不会 NPE。
+     * 需要执行技能/写回同步时请用 {@link #ifPresent}、{@link #test} 或 {@link #getAttached}。
+     * </p>
      *
-     * @param clazz  期望的职业数据类型
-     * @param player 目标玩家
-     * @param <T>    职业数据类型
-     * @return 转换后的数据，若不存在或类型不匹配则返回 {@code null}
+     * @return 真实数据或空占位；仅当无法构造占位实例时才返回 {@code null}
      */
     @Nullable
     public static <T extends RoleData> T getNullable(Class<T> clazz, Player player) {
-        RoleData roleData = SRERoleDataPlayerComponent.KEY.get(player).roleData;
-        if (roleData != null && clazz.isInstance(roleData)) {
-            return clazz.cast(roleData);
+        T attached = getAttached(clazz, player);
+        if (attached != null) {
+            return attached;
         }
-        return null;
+        return emptyOf(clazz);
+    }
+
+    /**
+     * 若玩家持有指定类型的职业数据则执行 {@code action}，否则忽略。
+     */
+    public static <T extends RoleData> void ifPresent(Class<T> clazz, Player player, Consumer<T> action) {
+        T data = getAttached(clazz, player);
+        if (data != null && action != null) {
+            action.accept(data);
+        }
+    }
+
+    /**
+     * 若玩家持有指定类型的职业数据则用其测试 {@code predicate}，否则返回 {@code false}。
+     */
+    public static <T extends RoleData> boolean test(Class<T> clazz, Player player, Predicate<T> predicate) {
+        T data = getAttached(clazz, player);
+        return data != null && predicate != null && predicate.test(data);
+    }
+
+    /**
+     * 若玩家持有指定类型的职业数据则映射为结果，否则返回 {@code defaultValue}。
+     */
+    @Nullable
+    public static <T extends RoleData, R> R map(Class<T> clazz, Player player, Function<T, R> mapper, R defaultValue) {
+        T data = getAttached(clazz, player);
+        if (data == null || mapper == null) {
+            return defaultValue;
+        }
+        return mapper.apply(data);
     }
 
     /**
@@ -106,9 +166,9 @@ public interface RoleData {
      */
     @Nullable
     public static <T extends RoleData> T getOrCreate(Class<T> clazz, Player player) {
-        RoleData roleData = SRERoleDataPlayerComponent.KEY.get(player).roleData;
-        if (roleData != null && clazz.isInstance(roleData)) {
-            return clazz.cast(roleData);
+        T existing = getAttached(clazz, player);
+        if (existing != null) {
+            return existing;
         }
         return create(clazz, player);
     }
@@ -135,6 +195,39 @@ public interface RoleData {
     }
 
     /**
+     * 指定类型的空占位实例（按类缓存）。只用于读默认字段，不会同步到玩家。
+     */
+    @Nullable
+    @SuppressWarnings("unchecked")
+    static <T extends RoleData> T emptyOf(Class<T> clazz) {
+        if (clazz == null || clazz.isInterface()) {
+            return null;
+        }
+        RoleData empty = EmptyCache.INSTANCES.get(clazz);
+        return empty != null ? (T) empty : null;
+    }
+
+    final class EmptyCache {
+        static final ClassValue<RoleData> INSTANCES = new ClassValue<>() {
+            @Override
+            protected RoleData computeValue(Class<?> type) {
+                try {
+                    Constructor<?> ctor = type.getDeclaredConstructor(RoleDataContext.class);
+                    ctor.setAccessible(true);
+                    Object instance = ctor.newInstance(RoleDataContext.empty());
+                    if (instance instanceof RoleData roleData) {
+                        return roleData;
+                    }
+                    return null;
+                } catch (Exception e) {
+                    SRE.LOGGER.error("Failed to create empty RoleData for {}", type.getName(), e);
+                    return null;
+                }
+            }
+        };
+    }
+
+    /**
      * 获取玩家当前的职业数据（任意类型）的 {@code Optional} 包装。
      *
      * @param player 目标玩家
@@ -142,7 +235,7 @@ public interface RoleData {
      */
     @Nullable
     public static Optional<RoleData> getOptional(Player player) {
-        return Optional.ofNullable(SRERoleDataPlayerComponent.KEY.get(player).roleData);
+        return Optional.ofNullable(getNullable(player));
     }
 
     /**
@@ -151,6 +244,14 @@ public interface RoleData {
      * @return 持有该数据的玩家
      */
     Player getPlayer();
+
+    /**
+     * 是否为 {@link #getNullable(Class, Player)} 在玩家未持有该职业时返回的空占位。
+     * 占位实例字段为默认值，调用 sync 不会写回玩家。
+     */
+    default boolean isPlaceholder() {
+        return false;
+    }
 
     /**
      * 判断此数据是否应与指定的服务器玩家同步。
@@ -180,6 +281,36 @@ public interface RoleData {
      * @param registryLookup 注册表查找提供者，用于反序列化注册表对象
      */
     void readFromSyncNbt(CompoundTag tag, HolderLookup.Provider registryLookup);
+
+    /**
+     * Optional server-side representation. This is separate from client sync so
+     * private role state does not have to be exposed over the network.
+     */
+    default void writeToNbt(CompoundTag tag, HolderLookup.Provider registryLookup) {
+    }
+
+    /** Reads the optional server-side representation written by {@link #writeToNbt}. */
+    default void readFromNbt(CompoundTag tag, HolderLookup.Provider registryLookup) {
+    }
+
+    /**
+     * Writes the server-authoritative state used by an in-memory time rewind.
+     *
+     * <p>The default keeps existing role implementations compatible by reusing
+     * their sync representation. Roles with server-only mutable state can
+     * override this method without exposing that state to clients or normal
+     * player saves.
+     */
+    default void writeToRewindNbt(CompoundTag tag, HolderLookup.Provider registryLookup) {
+        writeToSyncNbt(tag, registryLookup);
+        writeToNbt(tag, registryLookup);
+    }
+
+    /** Restores state previously written by {@link #writeToRewindNbt}. */
+    default void readFromRewindNbt(CompoundTag tag, HolderLookup.Provider registryLookup) {
+        readFromNbt(tag, registryLookup);
+        readFromSyncNbt(tag, registryLookup);
+    }
 
     /**
      * 客户端侧每 tick 调用的更新逻辑。

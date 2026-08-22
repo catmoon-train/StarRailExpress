@@ -16,6 +16,7 @@
 package org.agmas.noellesroles.role;
 
 import io.wifi.starrailexpress.api.InstinctType;
+import org.agmas.noellesroles.role_data.killer.MissionaryRoleData;
 import io.wifi.starrailexpress.api.NormalRole;
 import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.api.TMMRoles;
@@ -76,6 +77,7 @@ public class ModMeetingRoles {
                     false, true, SRERole.MoodType.FAKE,
                     Integer.MAX_VALUE, true)
     ).setSpecialMapRole(SRERole.SpecialMapRoleMap.MEETING_VOTE)
+            .setRoleData(MissionaryRoleData::new)
             .setCanBeRandomedByOtherRoles(false).setDefaultMax(1);
 
     public static void init() {

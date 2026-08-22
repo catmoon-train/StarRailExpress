@@ -22,7 +22,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
-import org.agmas.noellesroles.game.roles.innocence.adventurer.AdventurerPlayerComponent;
+import org.agmas.noellesroles.role_data.innocence.AdventurerRoleData;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -49,7 +49,7 @@ public abstract class AdventurerDeathImmunityMixin {
             Player victim, boolean spawnBody, Player _killer,
             ResourceLocation deathReason, boolean forceDeath, CallbackInfo ci) {
         if (!forceDeath) return;
-        if (!AdventurerPlayerComponent.isEnvironmentalDeath(deathReason)) return;
+        if (!AdventurerRoleData.isEnvironmentalDeath(deathReason)) return;
         if (!(victim instanceof ServerPlayer sp)) return;
 
         var gameWorld = SREGameWorldComponent.KEY.get(sp.level());

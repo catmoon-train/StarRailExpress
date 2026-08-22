@@ -25,7 +25,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.PlayerInfo;
 import net.minecraft.util.Mth;
 
-import org.agmas.noellesroles.game.roles.neutral.amon.AmonPlayerComponent;
+import org.agmas.noellesroles.role_data.neutral.AmonRoleData;
 import org.agmas.noellesroles.packet.AmonFinaleS2CPacket;
 import org.agmas.noellesroles.packet.AmonSkinS2CPacket;
 
@@ -43,7 +43,7 @@ public class ClientAmonState {
     public static volatile boolean finaleActive = false;
     private static long finaleStartTicks = 0L;
     /** 终幕总时长（毫秒），与服务端 FINALE_TICKS(80 秒) 对应。 */
-    private static final long FINALE_DURATION_MS = AmonPlayerComponent.FINALE_TICKS;
+    private static final long FINALE_DURATION_MS = AmonRoleData.FINALE_TICKS;
 
     public static void register() {
         OnGettingPlayerSkin.EVENT.register((player, originalSkin) -> {

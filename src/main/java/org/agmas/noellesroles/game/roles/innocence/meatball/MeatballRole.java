@@ -15,6 +15,8 @@
 
 package org.agmas.noellesroles.game.roles.innocence.meatball;
 
+import org.agmas.noellesroles.role_data.innocence.MeatballRoleData;
+import io.wifi.starrailexpress.api.data.RoleData;
 import io.wifi.starrailexpress.api.ExtraEffectRole;
 import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
@@ -49,8 +51,8 @@ public class MeatballRole extends ExtraEffectRole {
         }
         
         // 增加赏金
-        MeatballPlayerComponent component = ModComponents.MEATBALL.get(player);
-        if (component != null) {
+        MeatballRoleData component = RoleData.getNullable(MeatballRoleData.class, player);
+        if (RoleData.isAttached(component)) {
             component.addBounty();
             
             // 发送消息提示
@@ -74,8 +76,8 @@ public class MeatballRole extends ExtraEffectRole {
         }
         
         // 收集赏金（无论谁击杀都要清空）
-        MeatballPlayerComponent meatballComponent = ModComponents.MEATBALL.get(victim);
-        if (meatballComponent == null) {
+        MeatballRoleData meatballComponent = RoleData.getNullable(MeatballRoleData.class, victim);
+        if (!RoleData.isAttached(meatballComponent)) {
             return;
         }
         

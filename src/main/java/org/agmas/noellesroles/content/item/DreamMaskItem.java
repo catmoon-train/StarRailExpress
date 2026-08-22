@@ -22,13 +22,13 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
-import org.agmas.noellesroles.game.roles.killer.dream.DreamPlayerComponent;
+import org.agmas.noellesroles.role_data.killer.DreamRoleData;
 
 /**
  * 巨幕面具（Dream 商店 350 金币）。
  *
  * <p>正常流程下<b>不会进入背包</b>：商店购买即触发
- * {@link DreamPlayerComponent#activateMaskBerserk}（Psycho/疯魔逻辑，Dream 角色
+ * {@link DreamRoleData#activateMaskBerserk}（Psycho/疯魔逻辑，Dream 角色
  * 不发球棒），冷却挂在本物品上。保留 use() 仅供创造模式测试。
  */
 public class DreamMaskItem extends Item {
@@ -42,7 +42,7 @@ public class DreamMaskItem extends Item {
         if (level.isClientSide) {
             return InteractionResultHolder.consume(stack);
         }
-        if (player instanceof ServerPlayer sp && DreamPlayerComponent.activateMaskBerserk(sp)) {
+        if (player instanceof ServerPlayer sp && DreamRoleData.activateMaskBerserk(sp)) {
             return InteractionResultHolder.consume(stack);
         }
         return InteractionResultHolder.fail(stack);

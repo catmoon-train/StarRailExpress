@@ -15,86 +15,168 @@
 
 package org.agmas.noellesroles.role;
 
+import org.agmas.noellesroles.role_data.killer.YouluRoleData;
+
+import org.agmas.noellesroles.role_data.killer.WraithAssassinRoleData;
+
+import org.agmas.noellesroles.role_data.killer.WizardRoleData;
+
+import org.agmas.noellesroles.role_data.neutral.WayfarerRoleData;
+
+import org.agmas.noellesroles.role_data.killer.WaterGhostRoleData;
+
+import org.agmas.noellesroles.role_data.killer.WatcherRoleData;
+
+import org.agmas.noellesroles.role_data.killer.WarlockRoleData;
+
+import org.agmas.noellesroles.role_data.killer.UndeadLordRoleData;
+
+import org.agmas.noellesroles.role_data.killer.SwapperRoleData;
+
+import org.agmas.noellesroles.role_data.killer.SkincrawlerRoleData;
+
+import org.agmas.noellesroles.role_data.killer.SilencerRoleData;
+
+import org.agmas.noellesroles.role_data.killer.ShadowFalconRoleData;
+
+import org.agmas.noellesroles.role_data.innocence.PilotRoleData;
+
+import org.agmas.noellesroles.role_data.neutral.PhantomMusicianRoleData;
+
+import org.agmas.noellesroles.role_data.killer.PartyRoleData;
+
+import org.agmas.noellesroles.role_data.killer.NostalgistRoleData;
+
+import org.agmas.noellesroles.role_data.killer.NinjaRoleData;
+
+import org.agmas.noellesroles.role_data.innocence.MorticianRoleData;
+
+import org.agmas.noellesroles.role_data.neutral.MorticianBodyMakerRoleData;
+
+import org.agmas.noellesroles.role_data.innocence.MeatballRoleData;
+
+import org.agmas.noellesroles.role_data.innocence.JadeGeneralRoleData;
+
+import org.agmas.noellesroles.role_data.killer.ImitatorRoleData;
+
+import org.agmas.noellesroles.role_data.killer.HunterRoleData;
+
+import org.agmas.noellesroles.role_data.vigilante.GhostEyeRoleData;
+
+import org.agmas.noellesroles.role_data.killer.EmbalmerRoleData;
+
+import org.agmas.noellesroles.role_data.killer.DreamRoleData;
+
+import org.agmas.noellesroles.role_data.innocence.DivinerRoleData;
+
+import org.agmas.noellesroles.role_data.killer.DelayerRoleData;
+
+import org.agmas.noellesroles.role_data.killer.DIORoleData;
+
+import org.agmas.noellesroles.role_data.neutral.CupidRoleData;
+
+import org.agmas.noellesroles.role_data.neutral.CuckooRoleData;
+
+import org.agmas.noellesroles.role_data.innocence.BuilderRoleData;
+
+import org.agmas.noellesroles.role_data.killer.BloodFeudistRoleData;
+
+import org.agmas.noellesroles.role_data.killer.BanditRoleData;
+
+import org.agmas.noellesroles.role_data.neutral.AmonRoleData;
+
 import java.awt.Color;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
 import org.agmas.noellesroles.Noellesroles;
-import org.agmas.noellesroles.component.FoodDrinkGlowComponent;
+import org.agmas.noellesroles.role_data.innocence.FoodDrinkGlowRoleData;
+import org.agmas.noellesroles.role_data.innocence.AthleteRoleData;
+import org.agmas.noellesroles.role_data.innocence.AwesomeRoleData;
+import org.agmas.noellesroles.role_data.innocence.CakeMakerRoleData;
+import org.agmas.noellesroles.role_data.innocence.FortunetellerRoleData;
+import org.agmas.noellesroles.role_data.innocence.GhostRoleData;
+import org.agmas.noellesroles.role_data.innocence.LeatherPigRoleData;
+import org.agmas.noellesroles.role_data.innocence.MagicianRoleData;
+import org.agmas.noellesroles.role_data.innocence.NoiseMakerRoleData;
+import org.agmas.noellesroles.role_data.neutral.SlipperyGhostRoleData;
 import org.agmas.noellesroles.component.ModComponents;
 import org.agmas.noellesroles.content.item.StalkerKnifeItem;
-import org.agmas.noellesroles.game.roles.innocence.accountant.AccountantPlayerComponent;
-import org.agmas.noellesroles.game.roles.innocence.adventurer.AdventurerPlayerComponent;
+import org.agmas.noellesroles.role_data.innocence.AccountantRoleData;
+import org.agmas.noellesroles.role_data.innocence.AdventurerRoleData;
 import org.agmas.noellesroles.game.roles.innocence.adventurer.AdventurerRole;
-import org.agmas.noellesroles.game.roles.innocence.alchemist.AlchemistPlayerComponent;
-import org.agmas.noellesroles.game.roles.innocence.avenger.AvengerPlayerComponent;
-import org.agmas.noellesroles.game.roles.innocence.boxer.BoxerPlayerComponent;
-import org.agmas.noellesroles.game.roles.innocence.broadcaster.BroadcasterPlayerComponent;
+import org.agmas.noellesroles.role_data.innocence.AlchemistRoleData;
+import org.agmas.noellesroles.role_data.innocence.AvengerRoleData;
+import org.agmas.noellesroles.role_data.innocence.BoxerRoleData;
+import org.agmas.noellesroles.role_data.innocence.BroadcasterRoleData;
 import org.agmas.noellesroles.game.roles.innocence.cake_maker.CakeMakerRole;
-import org.agmas.noellesroles.game.roles.innocence.clock_maker.ClockmakerPlayerComponent;
-import org.agmas.noellesroles.game.roles.innocence.detective.AgentPlayerComponent;
-import org.agmas.noellesroles.game.roles.innocence.driver.DiverPlayerComponent;
-import org.agmas.noellesroles.game.roles.innocence.fool.FoolPlayerComponent;
-import org.agmas.noellesroles.game.roles.innocence.glitch_robot.GlitchRobotPlayerComponent;
-import org.agmas.noellesroles.game.roles.innocence.great_detective.GreatDetectivePlayerComponent;
+import org.agmas.noellesroles.role_data.innocence.ClockmakerRoleData;
+import org.agmas.noellesroles.role_data.innocence.AgentRoleData;
+import org.agmas.noellesroles.role_data.innocence.DiverRoleData;
+import org.agmas.noellesroles.role_data.innocence.FoolRoleData;
+import org.agmas.noellesroles.role_data.innocence.GlitchRobotRoleData;
+import org.agmas.noellesroles.role_data.innocence.GreatDetectiveRoleData;
 import org.agmas.noellesroles.game.roles.innocence.great_detective.GreatDetectiveRole;
-import org.agmas.noellesroles.game.roles.innocence.locksmith_inspiration.LocksmithInspirationComponent;
-import org.agmas.noellesroles.game.roles.innocence.monitor.MonitorPlayerComponent;
+import org.agmas.noellesroles.role_data.innocence.LocksmithInspirationRoleData;
+import org.agmas.noellesroles.role_data.innocence.MonitorRoleData;
 import org.agmas.noellesroles.game.roles.innocence.mortician.MorticianRole;
-import org.agmas.noellesroles.game.roles.innocence.painter.PainterPlayerComponent;
-import org.agmas.noellesroles.game.roles.innocence.photographer.PhotographerPlayerComponent;
-import org.agmas.noellesroles.game.roles.innocence.psychologist.PsychologistPlayerComponent;
-import org.agmas.noellesroles.game.roles.innocence.recaller.RecallerPlayerComponent;
-import org.agmas.noellesroles.game.roles.innocence.return_traveler.ReturnTravelerPlayerComponent;
-import org.agmas.noellesroles.game.roles.innocence.salted_fish.SaltedFishPlayerComponent;
-import org.agmas.noellesroles.game.roles.innocence.singer.SingerPlayerComponent;
-import org.agmas.noellesroles.game.roles.innocence.super_star.SuperStarPlayerComponent;
+import org.agmas.noellesroles.role_data.innocence.PainterRoleData;
+import org.agmas.noellesroles.role_data.innocence.PhotographerRoleData;
+import org.agmas.noellesroles.role_data.innocence.PsychologistRoleData;
+import org.agmas.noellesroles.role_data.innocence.RecallerRoleData;
+import org.agmas.noellesroles.role_data.innocence.ReturnTravelerRoleData;
+import org.agmas.noellesroles.role_data.innocence.SaltedFishRoleData;
+import org.agmas.noellesroles.role_data.innocence.SingerRoleData;
+import org.agmas.noellesroles.role_data.innocence.SuperStarRoleData;
 import org.agmas.noellesroles.game.roles.innocence.veteran.VeteranKnifeHandler;
-import org.agmas.noellesroles.game.roles.innocence.voodoo.VoodooPlayerComponent;
-import org.agmas.noellesroles.game.roles.killer.bomber.BomberPlayerComponent;
-import org.agmas.noellesroles.game.roles.killer.conspirator.ConspiratorPlayerComponent;
-import org.agmas.noellesroles.game.roles.killer.executioner.ExecutionerPlayerComponent;
-import org.agmas.noellesroles.game.roles.killer.insane_killer.InsaneKillerPlayerComponent;
-import org.agmas.noellesroles.game.roles.killer.ma_chen_xu.MaChenXuPlayerComponent;
-import org.agmas.noellesroles.game.roles.killer.manipulator.ManipulatorPlayerComponent;
+import org.agmas.noellesroles.role_data.innocence.VoodooRoleData;
+import org.agmas.noellesroles.role_data.killer.BomberRoleData;
+import org.agmas.noellesroles.role_data.killer.ConspiratorRoleData;
+import org.agmas.noellesroles.role_data.killer.ExecutionerRoleData;
+import org.agmas.noellesroles.role_data.killer.InsaneKillerRoleData;
+import org.agmas.noellesroles.role_data.killer.MaChenXuRoleData;
+import org.agmas.noellesroles.role_data.killer.ManipulatorRoleData;
 import org.agmas.noellesroles.game.roles.killer.manipulator.ManipulatorRole;
-import org.agmas.noellesroles.game.roles.killer.morphling.MorphlingPlayerComponent;
+import org.agmas.noellesroles.role_data.killer.MorphlingRoleData;
 import org.agmas.noellesroles.game.roles.killer.ninja.NinjaRole;
 import org.agmas.noellesroles.game.roles.killer.nostalgist.NostalgistRole;
-import org.agmas.noellesroles.game.roles.killer.spellbreaker.SpellbreakerPlayerComponent;
-import org.agmas.noellesroles.game.roles.killer.stalker.StalkerPlayerComponent;
-import org.agmas.noellesroles.game.roles.killer.trapper.TrapperPlayerComponent;
+import org.agmas.noellesroles.role_data.killer.SpellbreakerRoleData;
+import org.agmas.noellesroles.role_data.killer.StalkerRoleData;
+import org.agmas.noellesroles.role_data.killer.TrapperRoleData;
 import org.agmas.noellesroles.game.roles.killer.undead_lord.UndeadLordRole;
 import org.agmas.noellesroles.game.roles.killer.watcher.WatcherRole;
 import org.agmas.noellesroles.game.roles.killer.wraith_assassin.WraithAssassinRole;
-import org.agmas.noellesroles.game.roles.neutral.admirer.AdmirerPlayerComponent;
-import org.agmas.noellesroles.game.roles.neutral.candlebearer.CandleBearerPlayerComponent;
+import org.agmas.noellesroles.role_data.neutral.AdmirerRoleData;
+import org.agmas.noellesroles.role_data.neutral.CandleBearerRoleData;
 import org.agmas.noellesroles.game.roles.neutral.chef.ChefRole;
-import org.agmas.noellesroles.game.roles.neutral.doomedsinner.DoomedSinnerPlayerComponent;
-import org.agmas.noellesroles.game.roles.neutral.gambler.GamblerPlayerComponent;
+import org.agmas.noellesroles.role_data.neutral.DoomedSinnerRoleData;
+import org.agmas.noellesroles.role_data.neutral.GamblerRoleData;
 import org.agmas.noellesroles.game.roles.neutral.gambler.GamblerRole;
 import org.agmas.noellesroles.game.roles.neutral.jester.JesterHandler;
 import org.agmas.noellesroles.game.roles.neutral.jester.JesterRole;
 import org.agmas.noellesroles.game.roles.neutral.leader.LeaderRole;
 import org.agmas.noellesroles.game.roles.neutral.mafia.MafiaRole;
-import org.agmas.noellesroles.game.roles.neutral.mercenary.MercenaryPlayerComponent;
+import org.agmas.noellesroles.role_data.neutral.MercenaryRoleData;
 import org.agmas.noellesroles.game.roles.neutral.monokuma.MonokumaRole;
-import org.agmas.noellesroles.game.roles.neutral.nian_shou.NianShouPlayerComponent;
+import org.agmas.noellesroles.role_data.neutral.NianShouRoleData;
 import org.agmas.noellesroles.game.roles.neutral.nian_shou.NianShouRole;
-import org.agmas.noellesroles.game.roles.neutral.puppeteer.PuppeteerPlayerComponent;
-import org.agmas.noellesroles.game.roles.neutral.raven.RavenPlayerComponent;
-import org.agmas.noellesroles.game.roles.neutral.reasoner.ReasonerPlayerComponent;
-import org.agmas.noellesroles.game.roles.neutral.recorder.RecorderPlayerComponent;
-import org.agmas.noellesroles.game.roles.neutral.thief.ThiefPlayerComponent;
-import org.agmas.noellesroles.game.roles.neutral.voice_changer.VoiceChangerPlayerComponent;
-import org.agmas.noellesroles.game.roles.neutral.vulture.VulturePlayerComponent;
-import org.agmas.noellesroles.game.roles.special.better_vigilante.BetterVigilantePlayerComponent;
-import org.agmas.noellesroles.game.roles.vigilante.patroller.PatrollerPlayerComponent;
+import org.agmas.noellesroles.role_data.neutral.PuppeteerRoleData;
+import org.agmas.noellesroles.role_data.neutral.RavenRoleData;
+import org.agmas.noellesroles.role_data.neutral.ReasonerRoleData;
+import org.agmas.noellesroles.role_data.neutral.RecorderRoleData;
+import org.agmas.noellesroles.role_data.neutral.ThiefRoleData;
+import org.agmas.noellesroles.role_data.neutral.VoiceChangerRoleData;
+import org.agmas.noellesroles.role_data.neutral.VultureRoleData;
+import org.agmas.noellesroles.role_data.special.BetterVigilanteRoleData;
+import org.agmas.noellesroles.role_data.vigilante.PatrollerRoleData;
 import org.agmas.noellesroles.init.ModEffects;
 import org.agmas.noellesroles.init.ModItems;
 import org.agmas.noellesroles.role_data.neutral.LeaderRoleData;
 import org.agmas.noellesroles.role_data.neutral.LinFamilyRoleData;
+import org.agmas.noellesroles.role_data.neutral.PelicanRoleData;
+import org.agmas.noellesroles.role_data.neutral.GodfatherRoleData;
+import org.agmas.noellesroles.role_data.neutral.MonokumaRoleData;
 import org.agmas.noellesroles.role_data.vigilante.LeonRoleData;
 import org.agmas.noellesroles.utils.MCItemsUtils;
 import org.agmas.noellesroles.utils.RandomColorUtil;
@@ -375,7 +457,7 @@ public class ModRoles {
             false // 显示计分板
     )).setCanSeeCoin(true).setCanBeRandomedByOtherRoles(false)
             .setSpecialMapRole(SRERole.SpecialMapRoleMap.FLY).setDefaultMax(0)
-            .setComponentKey(org.agmas.noellesroles.component.ModComponents.PILOT);
+            .setRoleData(PilotRoleData::new);
 
     /**
      * 影隼角色 - 杀手阵营
@@ -403,7 +485,7 @@ public class ModRoles {
             true // 隐藏计分板
     )).setCanSeeCoin(true).setCanBeRandomedByOtherRoles(false)
             .setSpecialMapRole(SRERole.SpecialMapRoleMap.FLY).setDefaultMax(1)
-            .setComponentKey(org.agmas.noellesroles.component.ModComponents.SHADOW_FALCON);
+            .setRoleData(ShadowFalconRoleData::new);
 
     /**
      * 肉汁角色 - 乘客阵营
@@ -453,7 +535,7 @@ public class ModRoles {
                                     false, // showParticles（显示粒子）
                                     false // showIcon（显示图标）
                             )))
-            .setCanSeeCoin(true).setComponentKey(ModComponents.MEATBALL).setDefaultMax(1)
+            .setCanSeeCoin(true).setRoleData(MeatballRoleData::new).setDefaultMax(1)
             .setCanBeRandomedByOtherRoles(false)
             .setDefaultEnableChance(2500).setDefaultEnableNeededPlayerCount(12);
 
@@ -482,7 +564,7 @@ public class ModRoles {
             SRERole.MoodType.REAL, // 真实心情
             TMMRoles.CIVILIAN.getMaxSprintTime(), // 标准冲刺时间
             false // 不隐藏计分板
-    )).setCanSeeCoin(true).setComponentKey(ModComponents.MORTICIAN).setDefaultMax(1);
+    )).setCanSeeCoin(true).setRoleData(MorticianRoleData::new).setDefaultMax(1);
 
     /**
      * 大侦探角色 - 平民阵营
@@ -501,7 +583,7 @@ public class ModRoles {
             SRERole.MoodType.REAL, // 真实心情
             TMMRoles.CIVILIAN.getMaxSprintTime(), // 标准冲刺时间
             false // 不隐藏计分板
-    )).setComponentKey(GreatDetectivePlayerComponent.KEY).setDefaultMax(1);
+    )).setRoleData(GreatDetectiveRoleData::new).setDefaultMax(1);
 
     /**
      * 建筑师角色 - 平民阵营
@@ -527,7 +609,7 @@ public class ModRoles {
             SRERole.MoodType.REAL, // 真实心情
             TMMRoles.CIVILIAN.getMaxSprintTime(), // 标准冲刺时间
             false // 不隐藏计分板
-    )).setCanSeeCoin(true).setComponentKey(ModComponents.BUILDER).setDefaultMax(1)
+    )).setCanSeeCoin(true).setRoleData(BuilderRoleData::new).setDefaultMax(1)
             .setDefaultEnableChance(7000).setDefaultEnableNeededPlayerCount(12);
 
     /**
@@ -544,7 +626,7 @@ public class ModRoles {
             SRERole.MoodType.REAL, // 真实心情
             TMMRoles.CIVILIAN.getMaxSprintTime(), // 标准冲刺时间
             false // 不隐藏计分板
-    )).setCanSeeCoin(true).setComponentKey(ModComponents.JADE_GENERAL).setDefaultMax(1)
+    )).setCanSeeCoin(true).setRoleData(JadeGeneralRoleData::new).setDefaultMax(1)
             .setDefaultEnableChance(9000).setDefaultEnableNeededPlayerCount(8);
 
     /**
@@ -560,7 +642,7 @@ public class ModRoles {
             SRERole.MoodType.FAKE, // 假心情
             Integer.MAX_VALUE, // 无限冲刺
             true // 隐藏计分板
-    )).setCanSeeCoin(false).setComponentKey(ModComponents.WIZARD).setCanBeRandomedByOtherRoles(false)
+    )).setCanSeeCoin(false).setRoleData(WizardRoleData::new).setCanBeRandomedByOtherRoles(false)
             .setNoCoinSystem(true) // 不拥有金币系统，金币数始终为 0
             .setDefaultMax(1).setDefaultEnableChance(2500);
 
@@ -579,7 +661,7 @@ public class ModRoles {
                     SRERole.MoodType.FAKE, // 假心情
                     Integer.MAX_VALUE, // 无限冲刺
                     true // 隐藏计分板
-            )).setCanSeeCoin(true).setComponentKey(ModComponents.UNDEAD_LORD)
+            )).setCanSeeCoin(true).setRoleData(UndeadLordRoleData::new)
             .setCanBeRandomedByOtherRoles(false).setDefaultMax(1).setDefaultEnableChance(5000)
             .setDefaultEnableNeededPlayerCount(12);
 
@@ -601,11 +683,11 @@ public class ModRoles {
             SRERole.MoodType.FAKE, // 假心情
             Integer.MAX_VALUE, // 无限冲刺时间
             true // 隐藏计分板
-    )).setComponentKey(ModComponents.MA_CHEN_XU).setCanSeeCoin(true).setOccupiedRoleCount(2)
+    )).setRoleData(MaChenXuRoleData::new).setCanSeeCoin(true).setOccupiedRoleCount(2)
             .setCanBeRandomedByOtherRoles(false).setSpecialMapRole(SRERole.SpecialMapRoleMap.QIYUCUN)
             .setDefaultMax(1).setToggledOnInstinctType(
                     InstinctType.customWithFunction((self, target, selfRole, targetRole) -> {
-                        MaChenXuPlayerComponent macComp = MaChenXuPlayerComponent.KEY.get(self);
+                        MaChenXuRoleData macComp = RoleData.getNullable(MaChenXuRoleData.class, self);
                         if (macComp != null && macComp.otherworldActive) {
                             return InstinctType.NONE;
                         }
@@ -621,7 +703,7 @@ public class ModRoles {
             SRERole.MoodType.FAKE, // 真实心情
             Integer.MAX_VALUE, // 无限冲刺时间
             true // 不隐藏计分板
-    )).setCanSeeCoin(true).setComponentKey(ModComponents.DIO).setOccupiedRoleCount(2).setCanSeeBodyDeathReason(true)
+    )).setCanSeeCoin(true).setRoleData(DIORoleData::new).setOccupiedRoleCount(2).setCanSeeBodyDeathReason(true)
             .setCanBeRandomedByOtherRoles(false).setDefaultMax(1);
     // JOJO 承太郎
     public static SRERole JOJO = TMMRoles.registerRole(new EggRole(
@@ -654,7 +736,7 @@ public class ModRoles {
             new NormalRole(LOCKSMITH_ID, new Color(100, 200, 200).getRGB(),
                     true, false, SRERole.MoodType.REAL,
                     TMMRoles.CIVILIAN.getMaxSprintTime(), false))
-            .setCanSeeCoin(true).setComponentKey(LocksmithInspirationComponent.KEY)
+            .setCanSeeCoin(true).setRoleData(LocksmithInspirationRoleData::new)
             .setCanSetSpawnInfoInConfig(true)
             .setDefaultMax(0);
 
@@ -676,7 +758,8 @@ public class ModRoles {
             new NormalRole(FORTUNETELLER_ID, new Color(239, 228, 176).getRGB(),
                     true, false, SRERole.MoodType.REAL,
                     TMMRoles.CIVILIAN.getMaxSprintTime(), false))
-            .setCanSeeCoin(true).setCanSeeTime(false);
+            .setCanSeeCoin(true).setCanSeeTime(false)
+            .setRoleData(FortunetellerRoleData::new);
 
     /**
      * 占卜家（乘客阵营）。开局携带【晶球】，右键对准尸体开始 10 秒施法，获知死者死亡时间 + 随机凶手线索；
@@ -687,7 +770,7 @@ public class ModRoles {
             new NormalRole(DIVINER_ID, new Color(148, 0, 211).getRGB(), // 紫水晶色
                     true, false, SRERole.MoodType.REAL,
                     TMMRoles.CIVILIAN.getMaxSprintTime(), false))
-            .setCanSeeCoin(true).setComponentKey(ModComponents.DIVINER)
+            .setCanSeeCoin(true).setRoleData(DivinerRoleData::new)
             .setDefaultMax(1).setDefaultEnableChance(7000);
 
     public static SRERole SALTED_FISH = TMMRoles.registerRole(
@@ -695,13 +778,13 @@ public class ModRoles {
                     true, false, SRERole.MoodType.REAL,
                     TMMRoles.CIVILIAN.getMaxSprintTime(), false))
             .setCanSeeCoin(true)
-            .setComponentKey(SaltedFishPlayerComponent.KEY)
+            .setRoleData(SaltedFishRoleData::new)
             .setDefaultMax(1)
             .setDefaultEnableChance(5000);
 
     /**
      * 归途旅人（乘客阵营）。
-     * - 拥有两个可切换技能「旧日渡口」「末班车」，玩法见 {@code ReturnTravelerPlayerComponent}。
+     * - 拥有两个可切换技能「旧日渡口」「末班车」，玩法见 {@code ReturnTravelerRoleData}。
      * - 旧日渡口：把附近最近的 2 名玩家拉入里世界 10 秒，结束后自身隐匿 15 秒。
      * - 末班车：一局一次，把 12 格内除自己外的玩家拉入里世界 30 秒，期间再次按键转为平民。
      */
@@ -710,7 +793,7 @@ public class ModRoles {
                     true, false, SRERole.MoodType.REAL,
                     TMMRoles.CIVILIAN.getMaxSprintTime(), false))
             .setCanSeeCoin(true)
-            .setComponentKey(ReturnTravelerPlayerComponent.KEY)
+            .setRoleData(ReturnTravelerRoleData::new)
             .setDefaultMax(1)
             .setDefaultEnableChance(4000);
 
@@ -726,8 +809,7 @@ public class ModRoles {
                     TMMRoles.CIVILIAN.getMaxSprintTime(), false)
                     // registerRole 在此刻读取 componentKey 填 TMMRoles.COMPONENT_KEYS，
                     // 放到链式调用后面会漏掉，开局/结算的 clear()+sync() 就不会覆盖本组件
-                    .setComponentKey(
-                            org.agmas.noellesroles.game.roles.innocence.leather_pig.LeatherPigPlayerComponent.KEY))
+                    .setRoleData(LeatherPigRoleData::new))
             .setCanSeeCoin(true)
             .setDefaultMax(1)
             .setDefaultEnableChance(5000)
@@ -743,7 +825,7 @@ public class ModRoles {
                     SRERole.MoodType.FAKE,
                     Integer.MAX_VALUE,
                     true)
-                    .setComponentKey(ModComponents.NINJA)
+                    .setRoleData(NinjaRoleData::new)
                     .setCanSeeCoin(true)
                     .setDefaultMax(1));
 
@@ -763,7 +845,7 @@ public class ModRoles {
             Integer.MAX_VALUE, // 无限冲刺
             true // 隐藏计分板
     ).addEffect(new MobEffectInstance(ModEffects.NO_COLLIDE, 99999, 0, false, false, false)))
-            .setComponentKey(ModComponents.NOSTALGIST).setCanSeeCoin(true)
+            .setRoleData(NostalgistRoleData::new).setCanSeeCoin(true)
             .setCanBeRandomedByOtherRoles(false).setDefaultMax(1).setDefaultEnableChance(2500);
 
     public static SRERole WRAITH_ASSASSIN = TMMRoles.registerRole(new WraithAssassinRole(
@@ -774,7 +856,7 @@ public class ModRoles {
             SRERole.MoodType.FAKE,
             Integer.MAX_VALUE,
             true))
-            .setComponentKey(ModComponents.WRAITH_ASSASSIN)
+            .setRoleData(WraithAssassinRoleData::new)
             .setCanSeeCoin(true)
             .setCanUseInstinctAndNightVision(true)
             .setCanSeeTeammateKillerRole(true)
@@ -791,7 +873,7 @@ public class ModRoles {
             SRERole.MoodType.FAKE,
             Integer.MAX_VALUE, // 无限冲刺 / 疲劳
             true // 隐藏计分板
-    )).setComponentKey(ModComponents.DELAYER).setCanSeeCoin(true).setDefaultMax(1).setDefaultEnableChance(8000);
+    )).setRoleData(DelayerRoleData::new).setCanSeeCoin(true).setDefaultMax(1).setDefaultEnableChance(8000);
     public static SRERole ELF = TMMRoles.registerRole(
             new NormalRole(ELF_ID, new Color(106, 255, 179).getRGB(),
                     true, false, SRERole.MoodType.REAL,
@@ -862,7 +944,7 @@ public class ModRoles {
                 }
             })
             .setVigilanteTeam(true).setCanPickUpRevolver(true).setCanAutoAddMoney(true)
-            .setComponentKey(ModComponents.GHOST_EYE)
+            .setRoleData(GhostEyeRoleData::new)
             .setSpecialVigilante(true).setDefaultMax(1).setDefaultEnableChance(5000)
             .setDefaultEnableNeededPlayerCount(8)
             .setTaskReward(2, 1, io.wifi.starrailexpress.index.TMMItems.REVOLVER.getDefaultInstance())
@@ -905,19 +987,20 @@ public class ModRoles {
                     true, false, SRERole.MoodType.REAL,
                     TMMRoles.CIVILIAN.getMaxSprintTime(), false))
             .setCanSeeCoin(true).setCanPickUpRevolver(true)
-            .setComponentKey(FoodDrinkGlowComponent.KEY)
+            .setRoleData(FoodDrinkGlowRoleData::new)
             .setTaskReward(1, -1, ModItems.FOOD_STUFF.getDefaultInstance())
             .setTaskRewardSilent(true); // 每完成一个任务给 1 个食材，不限次数，静默发放
     public static SRERole CAKE_MAKER = TMMRoles.registerRole(
             new CakeMakerRole(CAKE_MAKER_ID, new Color(244, 173, 193).getRGB(), true, false,
                     SRERole.MoodType.REAL, TMMRoles.CIVILIAN.getMaxSprintTime(), false))
-            .setCanSeeCoin(true).setCanPickUpRevolver(true).setDefaultEnableNeededPlayerCount(8);
+            .setCanSeeCoin(true).setCanPickUpRevolver(true).setDefaultEnableNeededPlayerCount(8)
+            .setRoleData(CakeMakerRoleData::new);
     // 冒险家
     public static SRERole ADVENTURER = TMMRoles.registerRole(
             new AdventurerRole(ADVENTURER_ID, new Color(34, 139, 34).getRGB(), true, false,
                     SRERole.MoodType.REAL, TMMRoles.CIVILIAN.getMaxSprintTime() * 2, false))
             .setCanSeeCoin(true).setCanPickUpRevolver(true).setCanJumpManhole(true).setCanAcrossFog(true)
-            .setComponentKey(AdventurerPlayerComponent.KEY).setDefaultEnableNeededPlayerCount(6)
+            .setRoleData(AdventurerRoleData::new).setDefaultEnableNeededPlayerCount(6)
             .setSpecialMapRole(SRERole.SpecialMapRoleMap.TRAP).setDefaultMax(1)
             .setCanBeRandomedByOtherRoles(false)
             .setEnvironmentalImmunity(true);
@@ -927,7 +1010,7 @@ public class ModRoles {
                     false, false, SRERole.MoodType.FAKE,
                     Integer.MAX_VALUE, false))
             .setCanSeeCoin(true).setNeutrals(true).setCanPickUpRevolver(false)
-            .setComponentKey(ModComponents.WAYFARER).setCanUseInstinctAndNightVision(false)
+            .setRoleData(WayfarerRoleData::new).setCanUseInstinctAndNightVision(false)
             .setCanSeeBodyDeathReason(true)
             .setDefaultEnableChance(2500).setDefaultEnableNeededPlayerCount(10);
     public static final ResourceLocation CUCKOO_ID = Noellesroles.id("cuckoo");
@@ -936,7 +1019,7 @@ public class ModRoles {
             new NormalRole(CUCKOO_ID, new Color(200, 170, 60).getRGB(),
                     false, false, SRERole.MoodType.FAKE,
                     Integer.MAX_VALUE, true))
-            .setCanSeeCoin(true).setComponentKey(ModComponents.CUCKOO).setCanBeRandomedByOtherRoles(false)
+            .setCanSeeCoin(true).setRoleData(CuckooRoleData::new).setCanBeRandomedByOtherRoles(false)
             .setCanUseInstinctAndNightVision(true).setNeutrals(true).setDefaultMax(1)
             .setDefaultEnableChance(4500);
     public static SRERole JESTER = TMMRoles
@@ -957,7 +1040,7 @@ public class ModRoles {
     public static SRERole BARTENDER = TMMRoles
             .registerRole(new NormalRole(BARTENDER_ID, new Color(217, 241, 240).getRGB(), true,
                     false, SRERole.MoodType.REAL, TMMRoles.CIVILIAN.getMaxSprintTime(), false))
-            .setComponentKey(FoodDrinkGlowComponent.KEY).setDefaultMax(1);
+            .setRoleData(FoodDrinkGlowRoleData::new).setDefaultMax(1);
     public static SRERole NOISEMAKER = TMMRoles
             .registerRole(new NormalRole(NOISEMAKER_ID, new Color(200, 255, 0).getRGB(), true,
                     false, SRERole.MoodType.REAL, TMMRoles.CIVILIAN.getMaxSprintTime(), false) {
@@ -990,35 +1073,36 @@ public class ModRoles {
                         }
                     }
                 }
-            }).setDefaultMax(1);
+            }).setDefaultMax(1).setRoleData(NoiseMakerRoleData::new);
     public static SRERole AWESOME_BINGLUS = TMMRoles
             .registerRole(new NormalRole(AWESOME_BINGLUS_ID, new Color(155, 255, 168).getRGB(), true, false,
                     SRERole.MoodType.REAL, TMMRoles.CIVILIAN.getMaxSprintTime(), false))
-            .setDefaultMax(1);
+            .setDefaultMax(1).setRoleData(AwesomeRoleData::new);
     public static SRERole VOODOO = TMMRoles
             .registerRole(new NormalRole(VOODOO_ID, new Color(128, 114, 253).getRGB(), true,
                     false, SRERole.MoodType.REAL, TMMRoles.CIVILIAN.getMaxSprintTime(), false)
-                    .setComponentKey(VoodooPlayerComponent.KEY))
+                    .setRoleData(VoodooRoleData::new))
             .setDefaultMax(1);
     public static SRERole RECALLER = TMMRoles
             .registerRole(new NormalRole(RECALLER_ID, new Color(135, 206, 235).getRGB(), true,
                     false, SRERole.MoodType.REAL, TMMRoles.CIVILIAN.getMaxSprintTime(), false)
-                    .setComponentKey(RecallerPlayerComponent.KEY))
+                    .setRoleData(RecallerRoleData::new))
             .setDefaultMax(1);
     public static SRERole BETTER_VIGILANTE = TMMRoles
             .registerRole(new NormalRole(BETTER_VIGILANTE_ID, new Color(0, 255, 255).getRGB(), true, false,
                     SRERole.MoodType.FAKE, TMMRoles.CIVILIAN.getMaxSprintTime(), false)
-                    .setComponentKey(BetterVigilantePlayerComponent.KEY))
+                    .setRoleData(BetterVigilanteRoleData::new))
             .setCanBeRandomedByOtherRoles(false).setDefaultMax(0);
     public static SRERole BROADCASTER = TMMRoles
             .registerRole(new NormalRole(BROADCASTER_ID, new Color(0, 255, 0).getRGB(), true,
                     false, SRERole.MoodType.REAL, TMMRoles.CIVILIAN.getMaxSprintTime(), true)
-                    .setComponentKey(BroadcasterPlayerComponent.KEY))
+                    .setRoleData(BroadcasterRoleData::new))
             .setDefaultMax(1);
     public static SRERole GHOST = TMMRoles
             .registerRole(new NormalRole(GHOST_ID, new Color(200, 200, 200).getRGB(), true, false,
                     SRERole.MoodType.REAL, TMMRoles.CIVILIAN.getMaxSprintTime(), true))
             .setDefaultMax(1).setHiddenForRoleRotation(true)
+            .setRoleData(GhostRoleData::new)
             .setBeSeenInstinctType(InstinctType.DEFAULT, InstinctType.NONE);
     public static SRERole DOCTOR = TMMRoles
             .registerRole(new NormalRole(DOCTOR_ID, new Color(30, 144, 255).getRGB(), true,
@@ -1031,7 +1115,7 @@ public class ModRoles {
     public static SRERole PATROLLER = TMMRoles
             .registerRole(new NormalRole(PATROLLER_ID, 0x2F6BFF, true, false, SRERole.MoodType.REAL,
                     io.wifi.starrailexpress.game.GameConstants.getInTicks(0, 10), false)
-                    .setVigilanteTeam(true).setComponentKey(PatrollerPlayerComponent.KEY))
+                    .setVigilanteTeam(true).setRoleData(PatrollerRoleData::new))
             .setCanPickUpRevolver(true).setSpecialVigilante(true).setDefaultMax(1)
             .setDefaultEnableChance(8000)
             .setRefreshableSpecialVigilante(2000, true);
@@ -1120,7 +1204,7 @@ public class ModRoles {
             SRERole.MoodType.REAL, // 真实心情
             TMMRoles.CIVILIAN.getMaxSprintTime(), // 标准冲刺时间
             false // 不隐藏计分板
-    )).setCanSeeCoin(true).setComponentKey(AccountantPlayerComponent.KEY);
+    )).setCanSeeCoin(true).setRoleData(AccountantRoleData::new);
 
     /**
      * 药剂师角色
@@ -1143,7 +1227,7 @@ public class ModRoles {
             SRERole.MoodType.REAL, // 真实心情
             TMMRoles.CIVILIAN.getMaxSprintTime(), // 标准冲刺时间
             false // 不隐藏计分板
-    )).setCanSeeCoin(true).setComponentKey(AlchemistPlayerComponent.KEY);
+    )).setCanSeeCoin(true).setRoleData(AlchemistRoleData::new);
 
     /**
      * 潜水员角色
@@ -1174,7 +1258,7 @@ public class ModRoles {
                     true // showIcon（显示图标）
             )))
             .setCanSeeCoin(true).setCanBeRandomedByOtherRoles(false)
-            .setComponentKey(DiverPlayerComponent.KEY)
+            .setRoleData(DiverRoleData::new)
             .setSpecialMapRole(SRERole.SpecialMapRoleMap.UNDERWATER).setDefaultMax(0);
 
     /**
@@ -1291,7 +1375,7 @@ public class ModRoles {
                     false, // showParticles（显示粒子）
                     true // showIcon（显示图标）
             )))
-            .setComponentKey(ModComponents.WATER_GHOST).setCanSeeCoin(true)
+            .setRoleData(WaterGhostRoleData::new).setCanSeeCoin(true)
             .setCanBeRandomedByOtherRoles(false).setSpecialMapRole(SRERole.SpecialMapRoleMap.UNDERWATER)
             .setDefaultMax(1)
             .setCanKillWithTrident(true);
@@ -1304,7 +1388,7 @@ public class ModRoles {
     public static SRERole MORPHLING = TMMRoles
             .registerRole(new NormalRole(MORPHLING_ID, new Color(220, 20, 60).getRGB(), false,
                     true, SRERole.MoodType.FAKE, Integer.MAX_VALUE, true)
-                    .setComponentKey(MorphlingPlayerComponent.KEY))
+                    .setRoleData(MorphlingRoleData::new))
             .setDefaultMax(1);
 
     /**
@@ -1321,8 +1405,7 @@ public class ModRoles {
     public static SRERole SILENCER = TMMRoles
             .registerRole(new NormalRole(SILENCER_ID, new Color(160, 40, 100).getRGB(), false,
                     true, SRERole.MoodType.FAKE, Integer.MAX_VALUE, true)
-                    .setComponentKey(
-                            org.agmas.noellesroles.game.roles.killer.silencer.SilencerPlayerComponent.KEY))
+                    .setRoleData(SilencerRoleData::new))
             .setDefaultEnableChance(6000).setDefaultMax(1);
 
     public static SRERole PARTY_KILLER = TMMRoles.registerRole(new NormalRole(PARTY_KILLER_ID,
@@ -1331,12 +1414,12 @@ public class ModRoles {
             true, // 有杀手功能
             SRERole.MoodType.FAKE,
             Integer.MAX_VALUE,
-            true)).setComponentKey(ModComponents.PARTY).setCanSeeCoin(true).setDefaultMax(1);
+            true)).setRoleData(PartyRoleData::new).setCanSeeCoin(true).setDefaultMax(1);
     public static SRERole MANIPULATOR = TMMRoles
             .registerRole(new ManipulatorRole(MANIPULATOR_ID, new Color(90, 20, 61).getRGB(), false,
                     true, SRERole.MoodType.FAKE, Integer.MAX_VALUE, true)
-                    .setComponentKey(ManipulatorPlayerComponent.KEY))
-            .setComponentKey(ModComponents.MANIPULATOR).setDefaultMax(0);
+                    .setRoleData(ManipulatorRoleData::new))
+            .setRoleData(ManipulatorRoleData::new).setDefaultMax(0);
     public static SRERole PHANTOM = TMMRoles
             .registerRole(new NormalRole(PHANTOM_ID, new Color(80, 5, 5, 192).getRGB(), false,
                     true, SRERole.MoodType.FAKE, Integer.MAX_VALUE, true))
@@ -1344,7 +1427,7 @@ public class ModRoles {
     public static SRERole SWAPPER = TMMRoles
             .registerRole(new NormalRole(SWAPPER_ID, new Color(255, 0, 255).getRGB(), false,
                     true, SRERole.MoodType.FAKE, Integer.MAX_VALUE, true))
-            .setComponentKey(ModComponents.SWAPPER).setDefaultMax(1);
+            .setRoleData(SwapperRoleData::new).setDefaultMax(1);
     public static SRERole EXECUTIONER = TMMRoles
             .registerRole(new NormalRole(EXECUTIONER_ID, new Color(74, 27, 5).getRGB(),
                     false, true, SRERole.MoodType.FAKE, Integer.MAX_VALUE, true) {
@@ -1354,12 +1437,12 @@ public class ModRoles {
                     return TMMItems.REVOLVER;
                 };
             }
-                    .setComponentKey(ExecutionerPlayerComponent.KEY))
+                    .setRoleData(ExecutionerRoleData::new))
             .setDefaultMax(1);
     public static SRERole GAMBLER = TMMRoles
             .registerRole(new GamblerRole(GAMBLER_ID, new Color(72, 61, 139).getRGB(), false,
                     false, SRERole.MoodType.FAKE, TMMRoles.CIVILIAN.getMaxSprintTime(), true))
-            .setCanPickUpRevolver(true).setComponentKey(GamblerPlayerComponent.KEY).setNeutrals(true)
+            .setCanPickUpRevolver(true).setRoleData(GamblerRoleData::new).setNeutrals(true)
             .setBeSeenInstinctType(InstinctType.DEFAULT, InstinctType.NONE)
             .setDefaultMax(1).setHiddenForRoleRotation(true);
     /**
@@ -1429,7 +1512,7 @@ public class ModRoles {
             .setNeutrals(false).setCanSeeCoin(true)
             .setSpecialMapRole(SRERole.SpecialMapRoleMap.HORSE).setDefaultMax(1)
             .setCanBeRandomedByOtherRoles(false)
-            .setComponentKey(org.agmas.noellesroles.component.ModComponents.HUNTER)
+            .setRoleData(HunterRoleData::new)
             .setCanKillWithBowAndCrossbow(true);
     public static SRERole POISONER = TMMRoles
             .registerRole(new NormalRole(POISONER_ID, (new Color(115, 0, 57)).getRGB(), false,
@@ -1471,7 +1554,7 @@ public class ModRoles {
     public static SRERole MORTICIAN_BODYMAKER = TMMRoles
             .registerRole(new NormalRole(MORTICIAN_BODYMAKER_ID, new Color(180, 160, 220).getRGB(), false,
                     false, SRERole.MoodType.FAKE, Integer.MAX_VALUE, true))
-            .setComponentKey(ModComponents.MORTICIAN_BODYMAKER)
+            .setRoleData(MorticianBodyMakerRoleData::new)
             .setNeutralForKiller(true)
             .setCanUseInstinctAndNightVision(true)
             .setCanSeeCoin(true)
@@ -1480,7 +1563,7 @@ public class ModRoles {
     public static SRERole CUPID = TMMRoles
             .registerRole(new NormalRole(CUPID_ID, new Color(255, 105, 180).getRGB(), false,
                     false, SRERole.MoodType.FAKE, Integer.MAX_VALUE, true))
-            .setComponentKey(ModComponents.CUPID)
+            .setRoleData(CupidRoleData::new)
             .setNeutralForKiller(true)
             .setCanUseInstinctAndNightVision(true)
             .setCanSeeCoin(true)
@@ -1490,14 +1573,14 @@ public class ModRoles {
     public static SRERole SPELLBREAKER = TMMRoles
             .registerRole(new NormalRole(SPELLBREAKER_ID, (new Color(132, 46, 170)).getRGB(), false,
                     true, SRERole.MoodType.FAKE, Integer.MAX_VALUE, true)
-                    .setComponentKey(SpellbreakerPlayerComponent.KEY))
+                    .setRoleData(SpellbreakerRoleData::new))
             .setCanSeeCoin(true).setDefaultMax(1);
 
     public static SRERole INSANE_KILLER = TMMRoles
             .registerRole(new NormalRole(
                     INSANE_KILLER_ID,
                     new Color(255, 0, 0, 192).getRGB(), false, true, SRERole.MoodType.FAKE,
-                    Integer.MAX_VALUE, true).setComponentKey(InsaneKillerPlayerComponent.KEY));
+                    Integer.MAX_VALUE, true).setRoleData(InsaneKillerRoleData::new));
 
     // 中立阵营角色
     public static SRERole COMMANDER = TMMRoles.registerRole(
@@ -1509,7 +1592,7 @@ public class ModRoles {
     public static SRERole VULTURE = TMMRoles
             .registerRole(new NormalRole(VULTURE_ID, new Color(210, 105, 30).getRGB(), false,
                     false, SRERole.MoodType.FAKE, Integer.MAX_VALUE, true)
-                    .setComponentKey(VulturePlayerComponent.KEY))
+                    .setRoleData(VultureRoleData::new))
             .setNeutralForKiller(true).setCanSeeTeammateKillerRole(false).setCanSeeBodyDeathReason(true)
             .setDefaultEnableNeededPlayerCount(8).setDefaultMax(1);
 
@@ -1527,8 +1610,7 @@ public class ModRoles {
     public static SRERole PELICAN = TMMRoles
             .registerRole(new NormalRole(PELICAN_ID, new Color(111, 138, 36).getRGB(), false,
                     false, SRERole.MoodType.FAKE, Integer.MAX_VALUE, true)
-                    .setComponentKey(
-                            org.agmas.noellesroles.game.roles.neutral.pelican.PelicanPlayerComponent.KEY))
+                    .setRoleData(PelicanRoleData::new))
             .setNeutrals(true).setNeutralForKiller(false).setCanSeeTeammateKillerRole(false)
             .setDefaultMax(1)
             .setCanUseInstinctAndNightVision(true).setCanSeeCoin(true).setCanPickUpRevolver(false)
@@ -1545,7 +1627,8 @@ public class ModRoles {
             .setNeutrals(true).setCanSeeTeammateKillerRole(false).setCanUseInstinctAndNightVision(true)
             .setCanSeeCoin(true).setOccupiedRoleCount(3).setDefaultMax(1)
             .setCanBeRandomedByOtherRoles(false)
-            .setDefaultEnableNeededPlayerCount(18).setDefaultEnableChance(2000).setKillExtraCoinAwards(50);
+            .setDefaultEnableNeededPlayerCount(18).setDefaultEnableChance(2000).setKillExtraCoinAwards(50)
+            .setRoleData(GodfatherRoleData::new);
     public static SRERole MAFIOSO = TMMRoles
             .registerRole(new MafiaRole(MAFIOSO_ID, new Color(218, 112, 214).getRGB(), false,
                     false, SRERole.MoodType.FAKE, TMMRoles.CIVILIAN.getMaxSprintTime() * 2, true)
@@ -1600,7 +1683,7 @@ public class ModRoles {
             SRERole.MoodType.REAL, // 真实心情
             TMMRoles.CIVILIAN.getMaxSprintTime(), // 标准冲刺时间
             false // 不显示计分板
-    ).setComponentKey(AvengerPlayerComponent.KEY));
+    ).setRoleData(AvengerRoleData::new));
 
     /**
      * 捣蛋鬼角色
@@ -1622,6 +1705,7 @@ public class ModRoles {
             TMMRoles.CIVILIAN.getMaxSprintTime(), // 标准冲刺时间
             true // 隐藏计分板
     )).setNeutralForKiller(true).setCanSeeTeammateKillerRole(false)
+            .setRoleData(SlipperyGhostRoleData::new)
             .setBeSeenInstinctType(InstinctType.DEFAULT, InstinctType.NONE);
 
     /**
@@ -1668,7 +1752,7 @@ public class ModRoles {
             SRERole.MoodType.REAL, // 真实心情
             TMMRoles.CIVILIAN.getMaxSprintTime(), // 标准冲刺时间
             false // 不显示计分板
-    ).setComponentKey(BoxerPlayerComponent.KEY));;
+    ).setRoleData(BoxerRoleData::new));;
 
     /**
      * 探员角色
@@ -1692,7 +1776,7 @@ public class ModRoles {
             SRERole.MoodType.REAL, // 真实心情
             TMMRoles.CIVILIAN.getMaxSprintTime(), // 标准冲刺时间
             false // 不显示计分板
-    ).setComponentKey(AgentPlayerComponent.KEY));;
+    ).setRoleData(AgentRoleData::new));;
 
     /**
      * 运动员角色
@@ -1713,7 +1797,7 @@ public class ModRoles {
             SRERole.MoodType.REAL, // 真实心情
             Integer.MAX_VALUE, // 无限冲刺
             false // 不显示计分板
-    ));;
+    ).setRoleData(AthleteRoleData::new));;
 
     /**
      * 明星角色
@@ -1735,7 +1819,7 @@ public class ModRoles {
             SRERole.MoodType.REAL, // 真实心情
             TMMRoles.CIVILIAN.getMaxSprintTime(), // 标准冲刺时间
             false // 不显示计分板
-    ).setComponentKey(SuperStarPlayerComponent.KEY));
+    ).setRoleData(SuperStarRoleData::new));
 
     /**
      * 退伍军人角色
@@ -1779,7 +1863,7 @@ public class ModRoles {
             SRERole.MoodType.REAL, // 真实心情
             TMMRoles.CIVILIAN.getMaxSprintTime(), // 标准冲刺时间
             false // 不显示计分板
-    ).setComponentKey(SingerPlayerComponent.KEY));
+    ).setRoleData(SingerRoleData::new));
 
     /**
      * 心理学家角色
@@ -1801,7 +1885,7 @@ public class ModRoles {
             SRERole.MoodType.REAL, // 真实心情
             TMMRoles.CIVILIAN.getMaxSprintTime(), // 标准冲刺时间
             false // 不显示计分板
-    ).setComponentKey(PsychologistPlayerComponent.KEY));
+    ).setRoleData(PsychologistRoleData::new));
 
     /**
      * 摄影师角色
@@ -1824,7 +1908,7 @@ public class ModRoles {
             SRERole.MoodType.REAL, // 真实心情
             TMMRoles.CIVILIAN.getMaxSprintTime(), // 标准冲刺时间
             false // 不显示计分板
-    ).setComponentKey(PhotographerPlayerComponent.KEY));
+    ).setRoleData(PhotographerRoleData::new));
 
     /**
      * 画家角色
@@ -1848,7 +1932,7 @@ public class ModRoles {
             SRERole.MoodType.REAL, // 真实心情
             TMMRoles.CIVILIAN.getMaxSprintTime(), // 标准冲刺时间
             false // 不隐藏计分板
-    )).setComponentKey(PainterPlayerComponent.KEY).setCanSeeCoin(true).setDefaultMax(1)
+    )).setRoleData(PainterRoleData::new).setCanSeeCoin(true).setDefaultMax(1)
             .setDefaultEnableNeededPlayerCount(12)
             .setDefaultEnableChance(5000);
 
@@ -1869,7 +1953,7 @@ public class ModRoles {
             SRERole.MoodType.FAKE, // 假心情
             Integer.MAX_VALUE, // 标准冲刺时间
             true // 隐藏计分板
-    ).setComponentKey(ConspiratorPlayerComponent.KEY)).setCanBeRandomedByOtherRoles(false);
+    ).setRoleData(ConspiratorRoleData::new)).setCanBeRandomedByOtherRoles(false);
 
     /**
      * 设陷者角色
@@ -1893,7 +1977,7 @@ public class ModRoles {
             SRERole.MoodType.FAKE, // 假心情
             Integer.MAX_VALUE, // 标准冲刺时间
             true // 隐藏计分板
-    ).setComponentKey(TrapperPlayerComponent.KEY));
+    ).setRoleData(TrapperRoleData::new));
 
     /**
      * 炸弹客角色
@@ -1910,7 +1994,7 @@ public class ModRoles {
             SRERole.MoodType.FAKE, // 假心情
             Integer.MAX_VALUE, // 标准冲刺时间
             true // 隐藏计分板
-    ).setComponentKey(BomberPlayerComponent.KEY));
+    ).setRoleData(BomberRoleData::new));
 
     /**
      * 迷失杀手角色 - 杀手阵营
@@ -2003,8 +2087,8 @@ public class ModRoles {
             }
             super.serverTick(player);
         }
-    }.setComponentKey(StalkerPlayerComponent.KEY))
-            .setMaxSprintTime(StalkerPlayerComponent.MAX_SPRINT_TIME_IntSupplier);
+    }.setRoleData(StalkerRoleData::new))
+            .setMaxSprintTime(StalkerRoleData.MAX_SPRINT_TIME_IntSupplier);
 
     /**
      * 慕恋者角色
@@ -2020,7 +2104,7 @@ public class ModRoles {
     public static SRERole ADMIRER = TMMRoles.registerRole(new NormalRole(
             ADMIRER_ID, // 角色 ID
             new Color(255, 192, 203).getRGB(), false, false, SRERole.MoodType.FAKE, Integer.MAX_VALUE,
-            true)).setComponentKey(AdmirerPlayerComponent.KEY).setNeutralForKiller(true)
+            true)).setRoleData(AdmirerRoleData::new).setNeutralForKiller(true)
             .setCanUseInstinctAndNightVision(true)
             .setCanSeeTeammateKillerRole(false)
             .setToggledOnInstinctType(InstinctType.OBSERVER_ROLE_COLOR);
@@ -2057,7 +2141,7 @@ public class ModRoles {
         public int getMoodColor() {
             return PUPPETEER_COLOR.getOrRandomColor();
         }
-    }).setComponentKey(PuppeteerPlayerComponent.KEY).setAutoReset(false).setNeutralForKiller(true)
+    }).setRoleData(PuppeteerRoleData::new).setAutoReset(false).setNeutralForKiller(true)
             .setCanUseInstinctAndNightVision(true);
 
     /**
@@ -2073,7 +2157,7 @@ public class ModRoles {
             SRERole.MoodType.REAL, // 真实心情
             TMMRoles.CIVILIAN.getMaxSprintTime(), // 标准冲刺时间
             false // 不显示计分板
-    ).setComponentKey(MonitorPlayerComponent.KEY).setCanSeeCoin(true))
+    ).setRoleData(MonitorRoleData::new).setCanSeeCoin(true))
             .setDefaultEnableChance(7500);
 
     /**
@@ -2092,7 +2176,7 @@ public class ModRoles {
             SRERole.MoodType.FAKE, // 假心情
             TMMRoles.CIVILIAN.getMaxSprintTime(), // 标准冲刺时间
             true // 隐藏计分板
-    )).setComponentKey(RecorderPlayerComponent.KEY).setCanUseInstinctAndNightVision(true).setNeutrals(true)
+    )).setRoleData(RecorderRoleData::new).setCanUseInstinctAndNightVision(true).setNeutrals(true)
             .setDefaultEnableNeededPlayerCount(10);
 
     /**
@@ -2114,7 +2198,7 @@ public class ModRoles {
             SRERole.MoodType.FAKE, // 小丑心情（假心情）
             TMMRoles.CIVILIAN.getMaxSprintTime() * 2, // 双倍体力上限
             false // 不隐藏计分板
-    ), "slay_the_spire").setComponentKey(GlitchRobotPlayerComponent.KEY).setCanSeeCoin(true)
+    ), "slay_the_spire").setRoleData(GlitchRobotRoleData::new).setCanSeeCoin(true)
             .setCanBePoisoned(false)
             .setDefaultMax(1);
 
@@ -2140,7 +2224,7 @@ public class ModRoles {
             SRERole.MoodType.REAL, // 真实心情
             (int) (TMMRoles.CIVILIAN.getMaxSprintTime() * 1.5), // 1.5倍体力
             true // 隐藏计分板
-    ).setComponentKey(NianShouPlayerComponent.KEY).setCanSeeCoin(true).setNeutrals(true))
+    ).setRoleData(NianShouRoleData::new).setCanSeeCoin(true).setNeutrals(true))
             .setDefaultEnableChance(2000);
 
     /**
@@ -2170,7 +2254,7 @@ public class ModRoles {
             itemStacks.add(new ItemStack(Items.BUNDLE));
             return itemStacks;
         }
-    }).setComponentKey(ThiefPlayerComponent.KEY).setCanSeeCoin(true).setNeutrals(true)
+    }).setRoleData(ThiefRoleData::new).setCanSeeCoin(true).setNeutrals(true)
             .setCanSeeTeammateKillerRole(false).setDefaultEnableChance(5000)
             .setDefaultEnableNeededPlayerCount(10).setKillExtraCoinAwards(200);
 
@@ -2187,7 +2271,7 @@ public class ModRoles {
             false,
             SRERole.MoodType.FAKE,
             Integer.MAX_VALUE,
-            true)).setComponentKey(MercenaryPlayerComponent.KEY).setCanSeeCoin(true).setNeutrals(true)
+            true)).setRoleData(MercenaryRoleData::new).setCanSeeCoin(true).setNeutrals(true)
             .setCanSeeTeammateKillerRole(false).setCanUseInstinctAndNightVision(false).setDefaultMax(1)
             .setDefaultEnableChance(1000).setDefaultEnableNeededPlayerCount(12)
             .setBeSeenInstinctType(InstinctType.DEFAULT, InstinctType.NONE);
@@ -2205,7 +2289,7 @@ public class ModRoles {
             false,
             SRERole.MoodType.FAKE,
             Integer.MAX_VALUE,
-            true)).setComponentKey(CandleBearerPlayerComponent.KEY).setCanSeeCoin(true).setNeutrals(true)
+            true)).setRoleData(CandleBearerRoleData::new).setCanSeeCoin(true).setNeutrals(true)
             .setCanSeeTeammateKillerRole(false).setCanUseInstinctAndNightVision(true)
             .setDefaultEnableNeededPlayerCount(12)
             .setBeSeenInstinctType(InstinctType.DEFAULT, InstinctType.NONE);
@@ -2217,7 +2301,7 @@ public class ModRoles {
             false,
             SRERole.MoodType.FAKE,
             Integer.MAX_VALUE,
-            true)).setComponentKey(RavenPlayerComponent.KEY).setCanSeeCoin(true).setNeutrals(true)
+            true)).setRoleData(RavenRoleData::new).setCanSeeCoin(true).setNeutrals(true)
             .setCanSeeTeammateKillerRole(false).setCanUseInstinctAndNightVision(true)
             .setDefaultEnableNeededPlayerCount(10);
 
@@ -2228,7 +2312,7 @@ public class ModRoles {
             false,
             SRERole.MoodType.FAKE,
             Integer.MAX_VALUE,
-            true)).setComponentKey(ReasonerPlayerComponent.KEY).setCanSeeCoin(true).setNeutrals(true)
+            true)).setRoleData(ReasonerRoleData::new).setCanSeeCoin(true).setNeutrals(true)
             .setCanSeeTeammateKillerRole(false).setCanUseInstinctAndNightVision(true)
             .setDefaultMax(1).setDefaultEnableNeededPlayerCount(10).setDefaultEnableChance(6500);
 
@@ -2255,7 +2339,7 @@ public class ModRoles {
             SRERole.MoodType.FAKE, // 假心情
             Integer.MAX_VALUE, // 无限体力（冲刺时间）
             true // 隐藏计分板
-    )).setComponentKey(VoiceChangerPlayerComponent.KEY)
+    )).setRoleData(VoiceChangerRoleData::new)
             .setCanUseInstinctAndNightVision(true)
             .setToggledOnInstinctType(InstinctType.OBSERVER_ROLE_COLOR)
             .setNeutrals(true)
@@ -2283,7 +2367,7 @@ public class ModRoles {
             return itemStacks;
         }
     }, "lord_of_mysteries")
-            .setComponentKey(org.agmas.noellesroles.game.roles.neutral.amon.AmonPlayerComponent.KEY)
+            .setRoleData(AmonRoleData::new)
             .setNeutrals(true).setNeutralForKiller(false)
             .setCanSeeTeammateKillerRole(false).setCanPickUpRevolver(false)
             .setCanUseInstinctAndNightVision(false)
@@ -2310,7 +2394,7 @@ public class ModRoles {
             SRERole.MoodType.FAKE,
             Integer.MAX_VALUE,
             true), "lord_of_mysteries")
-            .setComponentKey(DoomedSinnerPlayerComponent.KEY)
+            .setRoleData(DoomedSinnerRoleData::new)
             .setNeutrals(true).setCanSeeTeammateKillerRole(false)
             .setCanUseInstinctAndNightVision(true)
             .setCanSeeCoin(true)
@@ -2390,7 +2474,8 @@ public class ModRoles {
             .setCanBeRandomedByOtherRoles(false)
             .setDefaultEnableChance(2500)
             .setDefaultEnableNeededPlayerCount(16)
-            .setHiddenForRoleRotation(true);
+            .setHiddenForRoleRotation(true)
+            .setRoleData(MagicianRoleData::new);
 
     /**
      * 钟表匠角色 - 好人阵营
@@ -2413,7 +2498,7 @@ public class ModRoles {
             SRERole.MoodType.REAL, // 真实心情
             TMMRoles.CIVILIAN.getMaxSprintTime(), // 标准冲刺时间
             true // 不显示计分板
-    )).setComponentKey(ClockmakerPlayerComponent.KEY).setCanSeeTime(true).setCanSeeCoin(true)
+    )).setRoleData(ClockmakerRoleData::new).setCanSeeTime(true).setCanSeeCoin(true)
             .setDefaultEnableNeededPlayerCount(12);
 
     /**
@@ -2441,7 +2526,7 @@ public class ModRoles {
             SRERole.MoodType.FAKE, // 假心情
             Integer.MAX_VALUE, // 无限冲刺时间
             true // 隐藏计分板
-    )).setComponentKey(ModComponents.BANDIT);
+    )).setRoleData(BanditRoleData::new);
 
     /**
      * 悍匪角色
@@ -2492,7 +2577,7 @@ public class ModRoles {
             SRERole.MoodType.FAKE, // 假心情
             Integer.MAX_VALUE, // 无限冲刺时间
             true // 隐藏计分板
-    )).setComponentKey(ModComponents.BLOOD_FEUDIST).setCanSeeCoin(true)
+    )).setRoleData(BloodFeudistRoleData::new).setCanSeeCoin(true)
             .setDefaultEnableNeededPlayerCount(12);
     public static SRERole WATCHER = TMMRoles.registerRole(new WatcherRole(
             WATCHER_ID,
@@ -2501,7 +2586,7 @@ public class ModRoles {
             true,
             SRERole.MoodType.FAKE,
             Integer.MAX_VALUE,
-            true), "slay_the_spire").setComponentKey(ModComponents.WATCHER).setCanSeeCoin(true);
+            true), "slay_the_spire").setRoleData(WatcherRoleData::new).setCanSeeCoin(true);
 
     // 幽露 - 杀手角色：锚点传送（不请自来）/ 穿墙烟雾（遮天闭目）/ 自由摄像机球烟（G键）
     public static SRERole YOULU = TMMRoles.registerRole(new EggRole(
@@ -2512,7 +2597,7 @@ public class ModRoles {
             SRERole.MoodType.FAKE, // 假心情
             Integer.MAX_VALUE, // 无限冲刺时间
             true // 隐藏计分板
-    )).setComponentKey(ModComponents.YOULU).setCanSeeCoin(true).setDefaultEnableChance(5000);
+    )).setRoleData(YouluRoleData::new).setCanSeeCoin(true).setDefaultEnableChance(5000);
 
     // 模仿者 - 杀手角色，右键尸体吃掉获得永久能力
     public static SRERole IMITATOR = TMMRoles.registerRole(new NormalRole(
@@ -2530,16 +2615,15 @@ public class ModRoles {
             if (!(player instanceof net.minecraft.server.level.ServerPlayer sp))
                 return InteractionResult.PASS;
             if (target instanceof io.wifi.starrailexpress.content.entity.PlayerBodyEntity body) {
-                org.agmas.noellesroles.game.roles.killer.imitator.ImitatorPlayerComponent comp = ModComponents.IMITATOR
-                        .get(sp);
-                if (!comp.isCharging) {
+                org.agmas.noellesroles.role_data.killer.ImitatorRoleData comp = RoleData.getNullable(org.agmas.noellesroles.role_data.killer.ImitatorRoleData.class, sp);
+                if (comp != null && !comp.isCharging) {
                     comp.startCharging(body.getUUID());
                     return InteractionResult.SUCCESS;
                 }
             }
             return InteractionResult.PASS;
         }
-    }).setComponentKey(ModComponents.IMITATOR).setCanSeeCoin(true);
+    }).setRoleData(ImitatorRoleData::new).setCanSeeCoin(true);
 
     /**
      * 愚者角色 - 好人阵营
@@ -2561,7 +2645,7 @@ public class ModRoles {
                     TMMRoles.CIVILIAN.getMaxSprintTime(), // 标准冲刺时间
                     false // 不隐藏计分板
             ), "lord_of_mysteries")
-            .setComponentKey(org.agmas.noellesroles.game.roles.innocence.fool.FoolPlayerComponent.KEY)
+            .setRoleData(FoolRoleData::new)
             .setCanSeeCoin(true)
             .setCanPickUpRevolver(true)
             .setCanUseSkillWhileSpectator(true)
@@ -2592,7 +2676,8 @@ public class ModRoles {
             .setCanSeeCoin(true)
             .setDefaultMax(0)
             .setCanBeRandomedByOtherRoles(false).addBothRelatedModifier(SEModifiers.BLACK_WHITE)
-            .setAllBeSeenInstinctType(InstinctType.NONE);
+            .setAllBeSeenInstinctType(InstinctType.NONE)
+            .setRoleData(MonokumaRoleData::new);
 
     // ─────────────────────── 信使 Courier ───────────────────────
     public static final ResourceLocation COURIER_ID = Noellesroles.id("courier");
@@ -2614,7 +2699,7 @@ public class ModRoles {
     public static SRERole WARLOCK = TMMRoles.registerRole(new NormalRole(
             WARLOCK_ID, new java.awt.Color(139, 0, 139).getRGB(), false,
             true, SRERole.MoodType.FAKE, Integer.MAX_VALUE, true)
-            .setComponentKey(org.agmas.noellesroles.game.roles.killer.warlock.WarlockPlayerComponent.KEY))
+            .setRoleData(WarlockRoleData::new))
             .setCanUseKiller(true).setCanSeeTeammateKillerRole(true).setCanBeRandomedByOtherRoles(false)
             .setDefaultMax(1)
             .setCanUseInstinctAndNightVision(true).setCanSeeCoin(true);
@@ -2636,7 +2721,7 @@ public class ModRoles {
             // 疯魔结束时的清理目标：面具从不入包，等于什么都不清理（避免误清球棒）
             return org.agmas.noellesroles.init.ModItems.DREAM_MASK;
         }
-    }).setComponentKey(org.agmas.noellesroles.game.roles.killer.dream.DreamPlayerComponent.KEY)
+    }).setRoleData(DreamRoleData::new)
             .setCanUseKiller(true).setCanSeeTeammateKillerRole(true).setCanBeRandomedByOtherRoles(false)
             .setDefaultMax(1)
             .setCanUseInstinctAndNightVision(true).setCanSeeCoin(true).setCanUseSpVanillaWeapon(true);
@@ -2645,7 +2730,7 @@ public class ModRoles {
     public static SRERole EMBALMER = TMMRoles.registerRole(new NormalRole(
             EMBALMER_ID, new java.awt.Color(255, 140, 140).getRGB(), false,
             false, SRERole.MoodType.FAKE, Integer.MAX_VALUE, true)
-            .setComponentKey(org.agmas.noellesroles.game.roles.killer.embalmer.EmbalmerPlayerComponent.KEY))
+            .setRoleData(EmbalmerRoleData::new))
             .setNeutralForKiller(true).setCanSeeTeammateKillerRole(true)
             .setCanUseInstinctAndNightVision(true).setCanSeeCoin(true).setDefaultEnableChance(4500);
 
@@ -2653,8 +2738,7 @@ public class ModRoles {
     public static SRERole SKINCRAWLER = TMMRoles.registerRole(new NormalRole(
             SKINCRAWLER_ID, new java.awt.Color(204, 68, 68).getRGB(), false,
             true, SRERole.MoodType.FAKE, Integer.MAX_VALUE, true)
-            .setComponentKey(
-                    org.agmas.noellesroles.game.roles.killer.skincrawler.SkincrawlerPlayerComponent.KEY))
+            .setRoleData(SkincrawlerRoleData::new))
             .setCanUseKiller(true).setCanSeeTeammateKillerRole(true)
             .setCanUseInstinctAndNightVision(true).setCanSeeCoin(true);
 
@@ -2681,8 +2765,7 @@ public class ModRoles {
             .registerRole(new NormalRole(PHANTOM_MUSICIAN_ID, new java.awt.Color(180, 120, 220).getRGB(),
                     false,
                     false, SRERole.MoodType.FAKE, Integer.MAX_VALUE, true)
-                    .setComponentKey(
-                            org.agmas.noellesroles.game.roles.neutral.musician_phantom.PhantomMusicianPlayerComponent.KEY))
+                    .setRoleData(PhantomMusicianRoleData::new))
             .setNeutralForKiller(true)
             .setNeutrals(true)
             .setCanUseInstinctAndNightVision(true)
@@ -2738,7 +2821,7 @@ public class ModRoles {
         // 设置林家子弟与小偷互斥
         ModRoles.LIN_FAMILY.addTwoWayOpposingRole(ModRoles.THIEF);
 
-        RoleSkill.register(ModRoles.THE_FOOL, FoolPlayerComponent::useSkill);
+        RoleSkill.register(ModRoles.THE_FOOL, FoolRoleData::useSkill);
 
         // 初始化叛徒职业和新修饰符
         TraitorAndModifiers.init();

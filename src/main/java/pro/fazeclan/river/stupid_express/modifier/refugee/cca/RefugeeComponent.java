@@ -15,6 +15,9 @@
 
 package pro.fazeclan.river.stupid_express.modifier.refugee.cca;
 
+import org.agmas.noellesroles.role_data.neutral.RavenRoleData;
+
+import io.wifi.starrailexpress.api.data.RoleData;
 import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.SREConfig;
 import io.wifi.starrailexpress.api.TMMRoles;
@@ -23,6 +26,7 @@ import io.wifi.starrailexpress.compat.TrainVoicePlugin;
 import io.wifi.starrailexpress.content.entity.PlayerBodyEntity;
 import io.wifi.starrailexpress.game.GameConstants;
 import io.wifi.starrailexpress.game.GameUtils;
+import io.wifi.starrailexpress.index.TMMItems;
 import io.wifi.starrailexpress.network.RemoveStatusBarPayload;
 import io.wifi.starrailexpress.network.TriggerStatusBarPayload;
 import io.wifi.starrailexpress.util.SRENetworkMessageUtils;
@@ -50,9 +54,15 @@ import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.Level;
 import org.agmas.harpymodloader.component.WorldModifierComponent;
 import org.agmas.noellesroles.component.DefibrillatorComponent;
-import org.agmas.noellesroles.game.roles.neutral.monokuma.MonokumaPlayerComponent;
+import org.agmas.noellesroles.api.time.TimeRewind;
+import org.agmas.noellesroles.api.time.TimeRewindAreaResult;
+import org.agmas.noellesroles.api.time.TimeRewindAreaSnapshot;
+import org.agmas.noellesroles.api.time.TimeRewindResult;
+import org.agmas.noellesroles.api.time.TimeRewindSnapshot;
+import org.agmas.noellesroles.role_data.neutral.MonokumaRoleData;
 import org.agmas.noellesroles.init.ModEffects;
 import org.agmas.noellesroles.init.ModEventsRegister;
+import org.agmas.noellesroles.role.BounsRoles;
 import org.agmas.noellesroles.role.ModRoles;
 import org.agmas.noellesroles.utils.RoleUtils;
 import org.ladysnake.cca.api.v3.component.ComponentKey;
@@ -77,6 +87,9 @@ public class RefugeeComponent implements AutoSyncedComponent, ServerTickingCompo
             RefugeeComponent.class);
 
     public HashMap<UUID, PlayerStatsBeforeRefugee> players_stats = new HashMap<>();
+    /** Full snapshots replacing the old partial loose-end rewind. */
+    private final HashMap<UUID, TimeRewindSnapshot> playerTimeRewindSnapshots = new HashMap<>();
+    private TimeRewindAreaSnapshot areaTimeRewindSnapshot;
     private final Level level;
 
     @Override
@@ -89,6 +102,8 @@ public class RefugeeComponent implements AutoSyncedComponent, ServerTickingCompo
         this.pendingWho = null;
         this.isPendingRestore = false;
         this.players_stats.clear();
+        this.playerTimeRewindSnapshots.clear();
+        this.areaTimeRewindSnapshot = null;
     }
 
     public List<RefugeeData> getPendingRevivals() {
@@ -214,7 +229,7 @@ public class RefugeeComponent implements AutoSyncedComponent, ServerTickingCompo
         if (i == null) {
             i = 1;
         }
-        MonokumaPlayerComponent.KEY.get(player).clear();
+        RoleData.ifPresent(MonokumaRoleData.class, player, MonokumaRoleData::clear);
         WorldModifierComponent.KEY.get(player.serverLevel()).removeModifier(data.uuid, SEModifiers.REFUGEE);
 
         final var areasWorldComponent = AreasWorldComponent.KEY.get(serverLevel);
@@ -252,7 +267,7 @@ public class RefugeeComponent implements AutoSyncedComponent, ServerTickingCompo
 
         // 亡命徒复活倒计时归零时，释放鹈鹕肚子里的所有玩家
         org.agmas.noellesroles.game.roles.neutral.pelican.PelicanManager.onLastStand(serverLevel);
-        org.agmas.noellesroles.game.roles.neutral.raven.RavenPlayerComponent.onLastStand(serverLevel);
+        org.agmas.noellesroles.role_data.neutral.RavenRoleData.onLastStand(serverLevel);
 
         TrainVoicePlugin.resetPlayer(player.getUUID());
         SREGameTimeComponent gameTimeComponent = SREGameTimeComponent.KEY.get(serverLevel);
@@ -302,6 +317,7 @@ public class RefugeeComponent implements AutoSyncedComponent, ServerTickingCompo
         }
         List<ServerPlayer> players = serverLevel.getServer().getPlayerList().getPlayers();
         players_stats.clear();
+        playerTimeRewindSnapshots.clear();
         for (var player : players) {
             var ppc = SREPlayerPsychoComponent.KEY.get(player);
             if (ppc.psychoTicks > 0) {
@@ -314,7 +330,20 @@ public class RefugeeComponent implements AutoSyncedComponent, ServerTickingCompo
             boolean isAlive = GameUtils.isPlayerAliveAndSurvival(player);
             if (isAlive) {
                 players_stats.put(player.getUUID(), PlayerStatsBeforeRefugee.SaveFromPlayer(player, true));
+                try {
+                    playerTimeRewindSnapshots.put(player.getUUID(), TimeRewind.capture(player));
+                } catch (RuntimeException exception) {
+                    StupidExpress.LOGGER.error("Failed to capture full loose-end rewind for {}",
+                            player.getScoreboardName(), exception);
+                }
             }
+        }
+        try {
+            areaTimeRewindSnapshot = TimeRewind.captureArea(serverLevel,
+                    AreasWorldComponent.KEY.get(serverLevel).getPlayArea());
+        } catch (RuntimeException exception) {
+            areaTimeRewindSnapshot = null;
+            StupidExpress.LOGGER.error("Failed to capture loose-end game-area rewind", exception);
         }
         SREGameWorldComponent.KEY.get(level).sync();
     }
@@ -323,6 +352,8 @@ public class RefugeeComponent implements AutoSyncedComponent, ServerTickingCompo
         if (!(level instanceof ServerLevel serverLevel)) {
             return;
         }
+        TimeRewindAreaSnapshot capturedArea = areaTimeRewindSnapshot;
+        areaTimeRewindSnapshot = null;
         List<ServerPlayer> players = serverLevel.getServer().getPlayerList().getPlayers();
         var gameWorldComponent = SREGameWorldComponent.KEY.get(level);
         var entities = serverLevel.getAllEntities();
@@ -333,6 +364,14 @@ public class RefugeeComponent implements AutoSyncedComponent, ServerTickingCompo
             }
         }
         WorldModifierComponent worldModifierComponent = WorldModifierComponent.KEY.get(this.level);
+        var pendingSmoothRestores = new java.util.concurrent.atomic.AtomicInteger();
+        var schedulingFinished = new AtomicBoolean(false);
+        Runnable finishWhenReady = () -> {
+            if (schedulingFinished.get() && pendingSmoothRestores.get() == 0) {
+                finishLooseEndRestore(serverLevel, capturedArea, bodies);
+            }
+        };
+
         for (var player : players) {
             var ppc = SREPlayerPsychoComponent.KEY.get(player);
             if (ppc.psychoTicks > 0) {
@@ -346,18 +385,98 @@ public class RefugeeComponent implements AutoSyncedComponent, ServerTickingCompo
                 }
             }
             var data = players_stats.get(player.getUUID());
+            var snapshot = playerTimeRewindSnapshots.get(player.getUUID());
 
-            if (data != null) {
-                PlayerStatsBeforeRefugee.LoadToPlayer(player, data, r, this, worldModifierComponent);
-                // 删除玩家尸体
-                // List<PlayerBodyEntity> bodies
-                var body = bodies.get(player.getUUID());
-                if (body != null)
-                    body.remove(Entity.RemovalReason.DISCARDED);
+            if (data != null || snapshot != null) {
+                boolean wasAlive = GameUtils.isPlayerAliveAndSurvival(player);
+
+                if (snapshot != null) {
+                    PlayerStatsBeforeRefugee.invokeBeforeLoad(player);
+                    pendingSmoothRestores.incrementAndGet();
+                    boolean started = TimeRewind.restoreSmooth(player, snapshot, 50, result -> {
+                        finishLooseEndPlayer(player, r, data, wasAlive, true, result,
+                                gameWorldComponent, worldModifierComponent, bodies);
+                        if (pendingSmoothRestores.decrementAndGet() == 0) {
+                            finishWhenReady.run();
+                        }
+                    });
+                    if (!started) {
+                        TimeRewindResult result = TimeRewind.restore(player, snapshot);
+                        finishLooseEndPlayer(player, r, data, wasAlive, true, result,
+                                gameWorldComponent, worldModifierComponent, bodies);
+                        pendingSmoothRestores.decrementAndGet();
+                    }
+                } else {
+                    // Original partial rewind remains the compatibility fallback.
+                    PlayerStatsBeforeRefugee.LoadToPlayer(player, data, r, this,
+                            worldModifierComponent, true);
+                    removeBody(player, bodies);
+                }
+            }
+        }
+        schedulingFinished.set(true);
+        finishWhenReady.run();
+    }
+
+    private void finishLooseEndPlayer(ServerPlayer player, io.wifi.starrailexpress.api.SRERole role,
+            PlayerStatsBeforeRefugee legacyData, boolean wasAlive, boolean beforeLoadInvoked,
+            TimeRewindResult result, SREGameWorldComponent gameWorldComponent,
+            WorldModifierComponent worldModifierComponent, HashMap<UUID, PlayerBodyEntity> bodies) {
+        boolean vanillaRestored = result.failures().stream()
+                .noneMatch(failure -> failure.scope().equals("player")
+                        || failure.scope().equals("vanilla")
+                        || failure.scope().equals("playback"));
+        if (!result.isSuccess()) {
+            StupidExpress.LOGGER.warn(
+                    "Loose-end rewind for {} completed with {} recoverable issue(s): {}",
+                    player.getScoreboardName(), result.failures().size(), result.failures());
+        }
+        if (player.hasDisconnected()) {
+            removeBody(player, bodies);
+            return;
+        }
+        if (vanillaRestored) {
+            if (!wasAlive) {
+                SRE.REPLAY_MANAGER.recordPlayerRevival(player.getUUID(), role);
+            }
+            if (!gameWorldComponent.isRole(player, BounsRoles.BASEBALL_PLAYER)) {
+                RoleUtils.clearAllSatisfiedItems(player, TMMItems.BAT);
+            }
+            player.setCamera(player);
+            player.addEffect(ModEffects.of(ModEffects.SAFE_TIME, 20, 0, true, false, true));
+            TrainVoicePlugin.resetPlayer(player.getUUID());
+        } else if (legacyData != null) {
+            PlayerStatsBeforeRefugee.LoadToPlayer(player, legacyData, role, this,
+                    worldModifierComponent, !beforeLoadInvoked);
+        }
+        removeBody(player, bodies);
+    }
+
+    private static void removeBody(ServerPlayer player, HashMap<UUID, PlayerBodyEntity> bodies) {
+        var body = bodies.remove(player.getUUID());
+        if (body != null) {
+            body.remove(Entity.RemovalReason.DISCARDED);
+        }
+    }
+
+    private void finishLooseEndRestore(ServerLevel serverLevel,
+            TimeRewindAreaSnapshot capturedArea, HashMap<UUID, PlayerBodyEntity> bodies) {
+        if (capturedArea != null) {
+            try {
+                TimeRewindAreaResult result = TimeRewind.restoreArea(serverLevel, capturedArea);
+                if (!result.isSuccess()) {
+                    StupidExpress.LOGGER.warn(
+                            "Loose-end area rewind completed with {} recoverable issue(s): {}",
+                            result.failures().size(), result.failures());
+                }
+            } catch (RuntimeException exception) {
+                StupidExpress.LOGGER.error("Failed to restore loose-end game-area rewind", exception);
             }
         }
         SREGameWorldComponent.KEY.get(level).sync();
         bodies.clear();
+        ModEventsRegister.reJudgeSpectatorsPenalty(level);
+        this.sync();
     }
 
     public void onLooseEndDeath(Player who, ResourceLocation deathReason) {
@@ -443,7 +562,10 @@ public class RefugeeComponent implements AutoSyncedComponent, ServerTickingCompo
 
         LoadPlayersStats();
         players_stats.clear(); // 清空玩家位置信息，避免浪费资源
-        ModEventsRegister.reJudgeSpectatorsPenalty(level); // 重新送上1新鲜的penalty
+        playerTimeRewindSnapshots.clear();
+        areaTimeRewindSnapshot = null;
+        // Penalty re-evaluation runs after every smooth player and the area have
+        // reached their rewind nodes.
         this.sync();
     }
 

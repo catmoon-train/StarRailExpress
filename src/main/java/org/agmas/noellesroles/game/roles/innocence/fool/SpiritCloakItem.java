@@ -15,6 +15,8 @@
 
 package org.agmas.noellesroles.game.roles.innocence.fool;
 
+import org.agmas.noellesroles.role_data.innocence.FoolRoleData;
+import io.wifi.starrailexpress.api.data.RoleData;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
@@ -65,7 +67,9 @@ public class SpiritCloakItem extends Item {
                 return InteractionResultHolder.fail(stack);
             }
 
-            FoolPlayerComponent comp = FoolPlayerComponent.KEY.get(serverPlayer);
+            FoolRoleData comp = RoleData.getNullable(FoolRoleData.class, serverPlayer);
+            if (!RoleData.isAttached(comp))
+                return InteractionResultHolder.fail(stack);
             long currentTick = world.getGameTime();
 
             // 检查冷却

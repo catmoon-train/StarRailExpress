@@ -15,6 +15,8 @@
 
 package org.agmas.noellesroles.game.roles.neutral.gambler;
 
+import org.agmas.noellesroles.role_data.neutral.GamblerRoleData;
+import io.wifi.starrailexpress.api.data.RoleData;
 import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.api.TMMRoles;
@@ -71,7 +73,9 @@ public class GamblerHandler {
         if (!SREGameWorldComponent.KEY.get(victim.level()).isSkillAvailable){
             return true;
         }
-        GamblerPlayerComponent gamblerPlayerComponent = GamblerPlayerComponent.KEY.get(victim);
+        GamblerRoleData gamblerPlayerComponent = RoleData.getNullable(GamblerRoleData.class, victim);
+        if (!RoleData.isAttached(gamblerPlayerComponent))
+            return true;
         // 掉枪
         RoleUtils.dropAndClearAllSatisfiedItems((ServerPlayer) victim, TMMItemTags.GUNS);
 

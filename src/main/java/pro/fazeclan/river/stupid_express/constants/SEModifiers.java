@@ -15,6 +15,7 @@
 
 package pro.fazeclan.river.stupid_express.constants;
 
+import io.wifi.starrailexpress.api.data.RoleData;
 import io.wifi.starrailexpress.SREConfig;
 import io.wifi.starrailexpress.api.TMMRoles;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
@@ -32,7 +33,7 @@ import org.agmas.harpymodloader.events.ModifierRemoved;
 import org.agmas.harpymodloader.events.ResetPlayerEvent;
 import org.agmas.harpymodloader.modifiers.HMLModifiers;
 import org.agmas.harpymodloader.modifiers.SREModifier;
-import org.agmas.noellesroles.game.roles.neutral.monokuma.MonokumaPlayerComponent;
+import org.agmas.noellesroles.role_data.neutral.MonokumaRoleData;
 import org.agmas.noellesroles.init.ModEffects;
 import org.agmas.noellesroles.role.ModRoles;
 import org.agmas.noellesroles.role.TraitorAndModifiers;
@@ -273,7 +274,7 @@ public class SEModifiers {
             if (!modifier.equals(BLACK_WHITE)) {
                 return;
             }
-            MonokumaPlayerComponent.KEY.get(player).init();
+            RoleData.ifPresent(MonokumaRoleData.class, player, MonokumaRoleData::init);
         });
         /// LOVERS
         ModifierAssigned.EVENT.register(((player, modifier) -> {

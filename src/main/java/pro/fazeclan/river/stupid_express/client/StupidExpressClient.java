@@ -338,7 +338,7 @@ public class StupidExpressClient implements ClientModInitializer {
         }
         for (Player p : client.level.players()) {
             LeaderRoleData data = RoleData.getNullable(LeaderRoleData.class, p);
-            if (data != null && data.followers.contains(self.getUUID())) {
+            if (RoleData.isAttached(data) && data.followers.contains(self.getUUID())) {
                 return true;
             }
         }

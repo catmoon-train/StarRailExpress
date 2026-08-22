@@ -15,6 +15,8 @@
 
 package org.agmas.noellesroles.voice;
 
+import org.agmas.noellesroles.role_data.killer.WraithAssassinRoleData;
+import io.wifi.starrailexpress.api.data.RoleData;
 import de.maxhenkel.voicechat.api.VoicechatApi;
 import de.maxhenkel.voicechat.api.VoicechatConnection;
 import de.maxhenkel.voicechat.api.VoicechatPlugin;
@@ -32,7 +34,7 @@ import org.agmas.noellesroles.component.ModComponents;
 import org.agmas.noellesroles.component.PlayerVolumeComponent;
 import org.agmas.noellesroles.content.effects.TimeStopEffect;
 import org.agmas.noellesroles.content.item.RadioItem;
-import org.agmas.noellesroles.game.roles.killer.embalmer.EmbalmerPlayerComponent;
+import org.agmas.noellesroles.role_data.killer.EmbalmerRoleData;
 import org.agmas.noellesroles.game.roles.neutral.commander.CommanderHandler;
 import org.agmas.noellesroles.game.roles.neutral.pelican.PelicanManager;
 import org.agmas.noellesroles.init.ModEffects;
@@ -96,10 +98,10 @@ public class NoellesrolesVoiceChatPlugin implements VoicechatPlugin {
       return true;
     }
     if (SREGameWorldComponent.KEY.get(senderPlayer.level()).isRole(senderPlayer, ModRoles.WRAITH_ASSASSIN)) {
-      var wraith = ModComponents.WRAITH_ASSASSIN.get(senderPlayer);
-      if (!wraith.isManifested()
-          && !org.agmas.noellesroles.game.roles.killer.wraith_assassin.WraithAssassinPlayerComponent
-              .canPerceiveWraith(receiverPlayer)) {
+      var wraith = RoleData.getNullable(WraithAssassinRoleData.class, senderPlayer);
+      if (!RoleData.isAttached(wraith) || (!wraith.isManifested()
+          && !org.agmas.noellesroles.role_data.killer.WraithAssassinRoleData
+              .canPerceiveWraith(receiverPlayer))) {
         return true;
       }
     }
@@ -305,7 +307,7 @@ public class NoellesrolesVoiceChatPlugin implements VoicechatPlugin {
   public static float getEmbalmerVoicePitch(Player player) {
     if (player == null)
       return 1.0F;
-    return EmbalmerPlayerComponent.getVoicePitch(player);
+    return EmbalmerRoleData.getVoicePitch(player);
   }
 
   /**

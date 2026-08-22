@@ -22,7 +22,6 @@ import io.wifi.starrailexpress.client.particle.HandParticle;
 import io.wifi.starrailexpress.client.render.TMMRenderLayers;
 import io.wifi.starrailexpress.compat.CrosshairaddonsCompat;
 import io.wifi.starrailexpress.event.AllowShootRevolverDrop;
-import io.wifi.starrailexpress.game.GameUtils;
 import io.wifi.starrailexpress.index.TMMItems;
 import io.wifi.starrailexpress.network.original.GunShootPayload;
 import io.wifi.starrailexpress.util.TrueFalseResult;
@@ -32,15 +31,10 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.entity.projectile.ProjectileUtil;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.HitResult;
-import org.agmas.noellesroles.content.entity.PuppeteerBodyEntity;
-import org.agmas.noellesroles.content.entity.RainbowHorseEntity;
-import org.agmas.noellesroles.content.entity.CanyuesaHorseEntity;
-import org.agmas.noellesroles.content.entity.SuperPigHorseEntity;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -115,24 +109,7 @@ public class StandardRevolverItem extends SkinableItem {
     }
 
     public static HitResult getGunTarget(Player user) {
-        // 优先判定玩家等常规目标；设陷者绊线只作兜底，避免挡在玩家前面的绊线抢走子弹
-        HitResult result = ProjectileUtil.getHitResultOnViewVector(user,
-                entity -> {
-                    return entity instanceof Player player && GameUtils.isPlayerAliveAndSurvivalIgnoreShitSplit(player)
-                            || entity instanceof PuppeteerBodyEntity
-                            || entity instanceof org.agmas.noellesroles.content.entity.PigeonEntity
-                            || entity instanceof RainbowHorseEntity
-                            || entity instanceof CanyuesaHorseEntity
-                            || entity instanceof SuperPigHorseEntity;
-                }, 20f);
-        if (!(result instanceof net.minecraft.world.phys.EntityHitResult)) {
-            HitResult wireResult = ProjectileUtil.getHitResultOnViewVector(user,
-                    entity -> entity instanceof org.agmas.noellesroles.content.entity.TripwireTrapEntity, 20f);
-            if (wireResult instanceof net.minecraft.world.phys.EntityHitResult) {
-                result = wireResult;
-            }
-        }
-        return result;
+        return RevolverItem.getGunTarget(user);
     }
 
     @Override

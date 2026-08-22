@@ -15,6 +15,11 @@
 
 package org.agmas.noellesroles;
 
+import org.agmas.noellesroles.role_data.killer.MorphlingRoleData;
+
+import org.agmas.noellesroles.role_data.innocence.CakeMakerRoleData;
+import org.agmas.noellesroles.role_data.innocence.AdventurerRoleData;
+import org.agmas.noellesroles.role_data.killer.NostalgistRoleData;
 import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.api.data.RoleData;
 import io.wifi.starrailexpress.api.replay.GameReplayUtils;
@@ -35,13 +40,13 @@ import org.agmas.noellesroles.component.ModComponents;
 import org.agmas.noellesroles.config.NoellesRolesConfig;
 import org.agmas.noellesroles.content.effects.TimeStopEffect;
 import org.agmas.noellesroles.content.entity.WheelchairEntity;
-import org.agmas.noellesroles.game.roles.innocence.jade_general.JadeGeneralPlayerComponent;
-import org.agmas.noellesroles.game.roles.innocence.recaller.RecallerPlayerComponent;
-import org.agmas.noellesroles.game.roles.killer.imitator.ImitatorPlayerComponent;
-import org.agmas.noellesroles.game.roles.killer.spellbreaker.SpellbreakerPlayerComponent;
-import org.agmas.noellesroles.game.roles.killer.wizard.WizardPlayerComponent;
-import org.agmas.noellesroles.game.roles.neutral.raven.RavenPlayerComponent;
-import org.agmas.noellesroles.game.roles.vigilante.ghost_eye.GhostEyePlayerComponent;
+import org.agmas.noellesroles.role_data.innocence.JadeGeneralRoleData;
+import org.agmas.noellesroles.role_data.innocence.RecallerRoleData;
+import org.agmas.noellesroles.role_data.killer.ImitatorRoleData;
+import org.agmas.noellesroles.role_data.killer.SpellbreakerRoleData;
+import org.agmas.noellesroles.role_data.killer.WizardRoleData;
+import org.agmas.noellesroles.role_data.neutral.RavenRoleData;
+import org.agmas.noellesroles.role_data.vigilante.GhostEyeRoleData;
 import org.agmas.noellesroles.init.ModEffects;
 import org.agmas.noellesroles.init.ModItems;
 import org.agmas.noellesroles.packet.ProblemScreenOpenC2SPacket;
@@ -141,7 +146,7 @@ public class AbilityHandler {
         if (player.hasEffect(ModEffects.TIME_STOP) && !TimeStopEffect.canMovePlayers.contains(player.getUUID())) {
             return;
         }
-        if (SpellbreakerPlayerComponent.consumePendingSkillFail(player)) {
+        if (SpellbreakerRoleData.consumePendingSkillFail(player)) {
             return;
         }
         if (!possessed && player.hasEffect(ModEffects.SKILL_BANED)) {
@@ -306,8 +311,9 @@ public class AbilityHandler {
             }
             NoellesRolesConfig cfg = NoellesRolesConfig.HANDLER.instance();
             net.minecraft.server.level.ServerLevel level = player.serverLevel();
-            org.agmas.noellesroles.game.roles.killer.morphling.MorphlingPlayerComponent morphComp = org.agmas.noellesroles.game.roles.killer.morphling.MorphlingPlayerComponent.KEY
-                    .get(player);
+            org.agmas.noellesroles.role_data.killer.MorphlingRoleData morphComp = RoleData.getNullable(org.agmas.noellesroles.role_data.killer.MorphlingRoleData.class, player);
+            if (!RoleData.isAttached(morphComp))
+                return;
             // 从所有存活玩家中随机选择一个作为皮肤（排除召唤者自身）
             List<ServerPlayer> aliveOthers = level.players().stream()
                     .filter(p -> GameUtils.isPlayerAliveAndSurvival(p) && !p.getUUID().equals(player.getUUID()))
@@ -344,25 +350,27 @@ public class AbilityHandler {
 
         if (gameWorldComponent.isRole(player, ModRoles.RECALLER)
                 && abilityPlayerComponent.cooldown <= 0) {
-            RecallerPlayerComponent recallerPlayerComponent = RecallerPlayerComponent.KEY.get(player);
+            RecallerRoleData recallerPlayerComponent = RoleData.getNullable(RecallerRoleData.class, player);
             SREPlayerShopComponent playerShopComponent = SREPlayerShopComponent.KEY.get(player);
-            if (!recallerPlayerComponent.placed) {
-                abilityPlayerComponent.cooldown = GameConstants.getInTicks(0,
-                        NoellesRolesConfig.HANDLER.instance().recallerMarkCooldown);
-                recallerPlayerComponent.setPosition();
-            } else if (playerShopComponent.balance >= 100) {
-                playerShopComponent.balance -= 100;
-                playerShopComponent.sync();
-                abilityPlayerComponent.cooldown = GameConstants.getInTicks(0,
-                        NoellesRolesConfig.HANDLER.instance().recallerTeleportCooldown);
-                recallerPlayerComponent.teleport();
+            if (RoleData.isAttached(recallerPlayerComponent)) {
+                if (!recallerPlayerComponent.placed) {
+                    abilityPlayerComponent.cooldown = GameConstants.getInTicks(0,
+                            NoellesRolesConfig.HANDLER.instance().recallerMarkCooldown);
+                    recallerPlayerComponent.setPosition();
+                } else if (playerShopComponent.balance >= 100) {
+                    playerShopComponent.balance -= 100;
+                    playerShopComponent.sync();
+                    abilityPlayerComponent.cooldown = GameConstants.getInTicks(0,
+                            NoellesRolesConfig.HANDLER.instance().recallerTeleportCooldown);
+                    recallerPlayerComponent.teleport();
+                }
+                abilityPlayerComponent.sync();
             }
-            abilityPlayerComponent.sync();
         }
         if (gameWorldComponent.isRole(player, ModRoles.JADE_GENERAL)
                 && abilityPlayerComponent.cooldown <= 0) {
-            JadeGeneralPlayerComponent jadeGeneral = ModComponents.JADE_GENERAL.get(player);
-            if (jadeGeneral.useSkill()) {
+            JadeGeneralRoleData jadeGeneral = RoleData.getNullable(JadeGeneralRoleData.class, player);
+            if (RoleData.isAttached(jadeGeneral) && jadeGeneral.useSkill()) {
                 abilityPlayerComponent.cooldown = GameConstants.getInTicks(0, 35);
                 abilityPlayerComponent.sync();
                 ConfigWorldComponent.onPlayerUsedSkill(player);
@@ -371,8 +379,8 @@ public class AbilityHandler {
         }
         if (isGhostEyeRole(gameWorldComponent, player)
                 && abilityPlayerComponent.cooldown <= 0) {
-            GhostEyePlayerComponent ghostEye = ModComponents.GHOST_EYE.get(player);
-            if (ghostEye.deployDomain()) {
+            GhostEyeRoleData ghostEye = RoleData.getNullable(GhostEyeRoleData.class, player);
+            if (RoleData.isAttached(ghostEye) && ghostEye.deployDomain()) {
                 abilityPlayerComponent.cooldown = GameConstants.getInTicks(0,
                         NoellesRolesConfig.HANDLER.instance().ghostEyeDomainCooldown);
                 abilityPlayerComponent.sync();
@@ -387,25 +395,28 @@ public class AbilityHandler {
         // 滞时鬼（Delayer）已迁移至统一技能系统（见 ModRolesInitialEventRegister），
         // 通过 RoleSkill.useUnified 分发并显示 HUD，此处不再单独处理。
         if (gameWorldComponent.isRole(player, ModRoles.WIZARD)) {
-            WizardPlayerComponent wizard = ModComponents.WIZARD.get(player);
-            wizard.castSelectedSpell();
+            WizardRoleData wizard = RoleData.getNullable(WizardRoleData.class, player);
+            if (RoleData.isAttached(wizard))
+                wizard.castSelectedSpell();
             return;
         }
         if (gameWorldComponent.isRole(player, ModRoles.RAVEN)) {
-            RavenPlayerComponent raven = ModComponents.RAVEN.get(player);
-            if (raven.isHunting()) {
-                raven.returnFromHunt();
-            } else {
-                raven.useAbility();
+            RavenRoleData raven = RoleData.getNullable(RavenRoleData.class, player);
+            if (RoleData.isAttached(raven)) {
+                if (raven.isHunting()) {
+                    raven.returnFromHunt();
+                } else {
+                    raven.useAbility();
+                }
             }
             return;
         }
         if (gameWorldComponent.isRole(player, ModRoles.CAKE_MAKER)) {
-            ModComponents.CAKE_MAKER.get(player).useSmoker();
+            RoleData.ifPresent(CakeMakerRoleData.class, player, d -> d.useSmoker());
             return;
         }
         if (gameWorldComponent.isRole(player, ModRoles.ADVENTURER)) {
-            ModComponents.ADVENTURER.get(player).useWaypointAbility();
+            RoleData.ifPresent(AdventurerRoleData.class, player, d -> d.useWaypointAbility());
             return;
         }
         if (gameWorldComponent.isRole(player, ModRoles.OLDMAN)) {
@@ -426,17 +437,19 @@ public class AbilityHandler {
             return;
         }
         if (gameWorldComponent.isRole(player, ModRoles.IMITATOR)) {
-            ImitatorPlayerComponent comp = ModComponents.IMITATOR.get(player);
-            if (player.isShiftKeyDown()) {
-                comp.switchSlot();
-            } else {
-                comp.useActiveAbility(player, null);
+            ImitatorRoleData comp = RoleData.getNullable(ImitatorRoleData.class, player);
+            if (RoleData.isAttached(comp)) {
+                if (player.isShiftKeyDown()) {
+                    comp.switchSlot();
+                } else {
+                    comp.useActiveAbility(player, null);
+                }
             }
             return;
         }
         if (gameWorldComponent.isRole(player, ModRoles.NOSTALGIST)) {
             // 里世界中按技能键：主动让里世界崩塌并现身
-            ModComponents.NOSTALGIST.get(player).tryManualCollapse(player);
+            RoleData.ifPresent(NostalgistRoleData.class, player, d -> d.tryManualCollapse(player));
             return;
         }
         // 处理超级亡命徒技能
@@ -457,7 +470,7 @@ public class AbilityHandler {
         if (player.hasEffect(ModEffects.TIME_STOP) && !TimeStopEffect.canMovePlayers.contains(player.getUUID())) {
             return;
         }
-        if (SpellbreakerPlayerComponent.consumePendingSkillFail(player)) {
+        if (SpellbreakerRoleData.consumePendingSkillFail(player)) {
             return;
         }
         if (!possessed && player.hasEffect(ModEffects.SKILL_BANED)) {
@@ -493,11 +506,13 @@ public class AbilityHandler {
             return;
         }
         if (gameWorldComponent.isRole(player, ModRoles.IMITATOR)) {
-            ImitatorPlayerComponent comp = ModComponents.IMITATOR.get(player);
-            if (comp.isCopyMode) {
-                comp.tryCopyAbility(player, targetUUID);
-            } else {
-                comp.useActiveAbility(player, targetUUID);
+            ImitatorRoleData comp = RoleData.getNullable(ImitatorRoleData.class, player);
+            if (RoleData.isAttached(comp)) {
+                if (comp.isCopyMode) {
+                    comp.tryCopyAbility(player, targetUUID);
+                } else {
+                    comp.useActiveAbility(player, targetUUID);
+                }
             }
             return;
         }

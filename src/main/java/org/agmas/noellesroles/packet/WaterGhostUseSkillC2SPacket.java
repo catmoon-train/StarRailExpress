@@ -15,6 +15,8 @@
 
 package org.agmas.noellesroles.packet;
 
+import org.agmas.noellesroles.role_data.innocence.GhostRoleData;
+import io.wifi.starrailexpress.api.data.RoleData;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.game.GameUtils;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
@@ -23,7 +25,7 @@ import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.server.level.ServerPlayer;
 import org.agmas.noellesroles.Noellesroles;
-import org.agmas.noellesroles.game.roles.killer.water_ghost.WaterGhostPlayerComponent;
+import org.agmas.noellesroles.role_data.killer.WaterGhostRoleData;
 import org.agmas.noellesroles.role.ModRoles;
 
 public record WaterGhostUseSkillC2SPacket() implements CustomPacketPayload {
@@ -58,8 +60,9 @@ public record WaterGhostUseSkillC2SPacket() implements CustomPacketPayload {
             }
 
             // 使用技能
-            WaterGhostPlayerComponent component = WaterGhostPlayerComponent.KEY.get(player);
-            component.useSkill();
+            WaterGhostRoleData component = RoleData.getNullable(WaterGhostRoleData.class, player);
+            if (component != null)
+                component.useSkill();
         });
     }
 }

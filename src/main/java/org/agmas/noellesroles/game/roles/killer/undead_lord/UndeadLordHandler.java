@@ -15,6 +15,8 @@
 
 package org.agmas.noellesroles.game.roles.killer.undead_lord;
 
+import org.agmas.noellesroles.role_data.killer.UndeadLordRoleData;
+import io.wifi.starrailexpress.api.data.RoleData;
 import io.wifi.starrailexpress.cca.PlayerBodyEntityComponent;
 import io.wifi.starrailexpress.cca.SREAbilityPlayerComponent;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
@@ -45,7 +47,7 @@ public class UndeadLordHandler {
     public static void init() {
         ModdedRoleAssigned.EVENT.register((player, role) -> {
             if (role.equals(ModRoles.UNDEAD_LORD)) {
-                UndeadLordPlayerComponent.KEY.maybeGet(player).ifPresent(UndeadLordPlayerComponent::init);
+                RoleData.getOptional(UndeadLordRoleData.class, player).ifPresent(UndeadLordRoleData::init);
             }
         });
 
@@ -75,7 +77,7 @@ public class UndeadLordHandler {
                 return InteractionResult.PASS;
             }
 
-            UndeadLordPlayerComponent comp = UndeadLordPlayerComponent.KEY.maybeGet(serverPlayer).orElse(null);
+            UndeadLordRoleData comp = RoleData.getNullable(UndeadLordRoleData.class, serverPlayer);
             if (comp == null) {
                 return InteractionResult.PASS;
             }

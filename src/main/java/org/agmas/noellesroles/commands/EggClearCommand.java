@@ -15,6 +15,8 @@
 
 package org.agmas.noellesroles.commands;
 
+import org.agmas.noellesroles.role_data.innocence.CakeMakerRoleData;
+
 import com.mojang.brigadier.arguments.FloatArgumentType;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 import net.minecraft.ChatFormatting;
@@ -117,10 +119,10 @@ public class EggClearCommand {
         }
 
         // 清理蛋糕师烟熏炉方块展示实体和交互实体
-        cleared += org.agmas.noellesroles.game.roles.innocence.cake_maker.CakeMakerComponent
+        cleared += org.agmas.noellesroles.role_data.innocence.CakeMakerRoleData
                 .removeSmokerEntitiesInRange(level, origin, range);
         // 清理蛋糕师蛋糕实体
-        cleared += org.agmas.noellesroles.game.roles.innocence.cake_maker.CakeMakerComponent
+        cleared += org.agmas.noellesroles.role_data.innocence.CakeMakerRoleData
                 .removeCakeEntitiesInRange(level, origin, range);
 
         final int finalCleared = cleared;

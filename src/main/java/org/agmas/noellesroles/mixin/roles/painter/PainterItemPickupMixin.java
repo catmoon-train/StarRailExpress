@@ -15,6 +15,8 @@
 
 package org.agmas.noellesroles.mixin.roles.painter;
 
+import org.agmas.noellesroles.role_data.innocence.PainterRoleData;
+import io.wifi.starrailexpress.api.data.RoleData;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.entity.item.ItemEntity;
@@ -50,8 +52,8 @@ public abstract class PainterItemPickupMixin {
             String itemId = BuiltInRegistries.ITEM.getKey(itemStack.getItem()).toString();
 
             // 获取画家组件并触发绘画灵感
-            var painterComponent = ModComponents.PAINTER.maybeGet(player).orElse(null);
-            if (painterComponent != null) {
+            var painterComponent = RoleData.getNullable(PainterRoleData.class, player);
+            if (RoleData.isAttached(painterComponent)) {
                 painterComponent.onItemPickup(itemId);
             }
         } catch (Exception ignored) {

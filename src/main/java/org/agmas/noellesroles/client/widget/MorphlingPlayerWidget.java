@@ -15,6 +15,7 @@
 
 package org.agmas.noellesroles.client.widget;
 
+import io.wifi.starrailexpress.api.data.RoleData;
 import io.wifi.starrailexpress.client.SREClient;
 import io.wifi.starrailexpress.client.gui.screen.ingame.LimitedInventoryScreen;
 import io.wifi.starrailexpress.util.ShopEntry;
@@ -30,7 +31,7 @@ import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.level.GameType;
-import org.agmas.noellesroles.game.roles.killer.morphling.MorphlingPlayerComponent;
+import org.agmas.noellesroles.role_data.killer.MorphlingRoleData;
 import org.agmas.noellesroles.init.ModEffects;
 import org.agmas.noellesroles.packet.MorphC2SPacket;
 import org.jetbrains.annotations.NotNull;
@@ -51,7 +52,8 @@ public class MorphlingPlayerWidget extends Button {
     public MorphlingPlayerWidget(LimitedInventoryScreen screen, int x, int y, @NotNull PlayerInfo disguiseTarget) {
         super(x, y, 16, 16, Component.nullToEmpty(disguiseTarget.getProfile().getName()), (a) -> {
             AbstractClientPlayer player = Minecraft.getInstance().player;
-            if (player != null && (MorphlingPlayerComponent.KEY.get(player)).getMorphTicks() == 0) {
+            MorphlingRoleData morphComp = player != null ? RoleData.getNullable(MorphlingRoleData.class, player) : null;
+            if (morphComp != null && morphComp.getMorphTicks() == 0) {
                 ClientPlayNetworking.send(new MorphC2SPacket(disguiseTarget.getProfile().getId()));
             }
         }, DEFAULT_NARRATION);
@@ -75,7 +77,8 @@ public class MorphlingPlayerWidget extends Button {
         if (player == null)
             return;
 
-        MorphlingPlayerComponent component = MorphlingPlayerComponent.KEY.get(player);
+        MorphlingRoleData component = RoleData.getNullable(MorphlingRoleData.class, player);
+        if (!RoleData.isAttached(component)) return;
 
         if (component.getMorphTicks() == 0 && !player.hasEffect(ModEffects.SAFE_TIME)) {
             super.renderWidget(context, mouseX, mouseY, delta);

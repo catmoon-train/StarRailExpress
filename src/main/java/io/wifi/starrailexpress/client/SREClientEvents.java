@@ -15,6 +15,7 @@
 
 package io.wifi.starrailexpress.client;
 
+import io.wifi.starrailexpress.api.data.RoleData;
 import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.api.TMMRoles;
 import io.wifi.starrailexpress.cca.SREAbilityPlayerComponent;
@@ -47,10 +48,10 @@ import org.agmas.noellesroles.client.NoellesrolesClient;
 import org.agmas.noellesroles.client.hud.ForensicHud;
 import org.agmas.noellesroles.client.hud.PlayerBodyHud;
 import org.agmas.noellesroles.component.DeathPenaltyComponent;
-import org.agmas.noellesroles.game.roles.innocence.magician.MagicianPlayerComponent;
-import org.agmas.noellesroles.game.roles.killer.morphling.MorphlingPlayerComponent;
+import org.agmas.noellesroles.role_data.innocence.MagicianRoleData;
+import org.agmas.noellesroles.role_data.killer.MorphlingRoleData;
 import org.agmas.noellesroles.game.roles.neutral.pelican.PelicanManager;
-import org.agmas.noellesroles.game.roles.neutral.wayfarer.WayfarerPlayerComponent;
+import org.agmas.noellesroles.role_data.neutral.WayfarerRoleData;
 import org.agmas.noellesroles.init.ModEffects;
 import org.agmas.noellesroles.init.RoleShopHandler;
 import org.agmas.noellesroles.role.BounsRoles;
@@ -136,7 +137,7 @@ public class SREClientEvents {
                 var selfRole = SREClient.gameComponent.getRole(player);
                 if (SREClient.gameComponent.isRole(target, ModRoles.MAGICIAN)
                         || SREClient.gameComponent.isRole(target, THLostForestRoles.KAGUYA)) {
-                    var roleR = MagicianPlayerComponent.KEY.get(target).getDisguiseRoleId();
+                    var roleR = RoleData.map(MagicianRoleData.class, target, MagicianRoleData::getDisguiseRoleId, null);
                     if (roleR == null) {
                         roleR = SERoles.NECROMANCER.getIdentifier();
                     }
@@ -313,8 +314,8 @@ public class SREClientEvents {
                     return TrueFalseAndCustomResult.custom(getDisplayName(targetInfo));
                 }
             }
-            var mocca = MorphlingPlayerComponent.KEY.get(target);
-            if ((mocca).getMorphTicks() > 0) {
+            var mocca = RoleData.getNullable(MorphlingRoleData.class, target);
+            if (mocca != null && mocca.getMorphTicks() > 0) {
                 PlayerInfo targetInfo = ClientSkinCache.getCachedPlayerInfo(mocca.disguise);
                 if (targetInfo != null && targetInfo.getProfile() != null && targetInfo.getProfile().getId() != null) {
                     return TrueFalseAndCustomResult.custom(getDisplayName(targetInfo));
@@ -362,7 +363,9 @@ public class SREClientEvents {
                 return;
             }
             if (SREClient.isRole(ModRoles.WAYFARER)) {
-                var wayC = WayfarerPlayerComponent.KEY.get(player);
+                var wayC = RoleData.getNullable(WayfarerRoleData.class, player);
+                if (wayC == null)
+                    return;
                 context.pose().pushPose();
                 context.pose().translate(context.guiWidth() / 2.0f, context.guiHeight() / 2.0f + 24.0f, 0.0f);
                 context.pose().scale(0.6f, 0.6f, 1.0f);
@@ -372,8 +375,7 @@ public class SREClientEvents {
                 }
                 Component status = Component.translatable("hud.noellesroles.wayfarer.select");
 
-                WayfarerPlayerComponent nc = WayfarerPlayerComponent.KEY.get(player);
-                if (nc.phase > 1) {
+                if (wayC.phase > 1) {
                     context.pose().popPose();
                     return;
                 }

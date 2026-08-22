@@ -15,6 +15,36 @@
 
 package org.agmas.noellesroles.init;
 
+import org.agmas.noellesroles.role_data.killer.YouluRoleData;
+
+import org.agmas.noellesroles.role_data.killer.WarlockRoleData;
+
+import org.agmas.noellesroles.role_data.neutral.PhantomMusicianRoleData;
+
+import org.agmas.noellesroles.role_data.killer.PartyRoleData;
+
+import org.agmas.noellesroles.role_data.neutral.LinFamilyRoleData;
+
+import org.agmas.noellesroles.role_data.neutral.GamblerRoleData;
+
+import org.agmas.noellesroles.role_data.neutral.DoomedSinnerRoleData;
+
+import org.agmas.noellesroles.role_data.killer.DelayerRoleData;
+
+import org.agmas.noellesroles.role_data.neutral.CuckooRoleData;
+
+import org.agmas.noellesroles.role_data.neutral.AmonRoleData;
+
+import org.agmas.noellesroles.role_data.innocence.NoiseMakerRoleData;
+import org.agmas.noellesroles.role_data.innocence.ClockmakerRoleData;
+import org.agmas.noellesroles.role_data.innocence.CakeMakerRoleData;
+import org.agmas.noellesroles.role_data.innocence.BuilderRoleData;
+import org.agmas.noellesroles.role_data.innocence.AdventurerRoleData;
+import org.agmas.noellesroles.role_data.killer.ImitatorRoleData;
+import org.agmas.noellesroles.role_data.killer.BomberRoleData;
+import org.agmas.noellesroles.role_data.neutral.WayfarerRoleData;
+import org.agmas.noellesroles.role_data.neutral.RavenRoleData;
+import io.wifi.starrailexpress.api.data.RoleData;
 import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.api.RoleSkill;
 import io.wifi.starrailexpress.api.TMMRoles;
@@ -40,47 +70,47 @@ import org.agmas.harpymodloader.events.ModdedRoleAssigned;
 import org.agmas.harpymodloader.events.ModdedRoleRemoved;
 import org.agmas.noellesroles.ConfigWorldComponent;
 import org.agmas.noellesroles.RicesRoleRhapsody;
-import org.agmas.noellesroles.component.FoodDrinkGlowComponent;
+import org.agmas.noellesroles.role_data.innocence.FoodDrinkGlowRoleData;
 import org.agmas.noellesroles.component.InfectedPlayerComponent;
 import org.agmas.noellesroles.component.ModComponents;
 import org.agmas.noellesroles.component.PlayerVolumeComponent;
 import org.agmas.noellesroles.config.NoellesRolesConfig;
 import org.agmas.noellesroles.content.effects.TimeStopEffect;
-import org.agmas.noellesroles.game.roles.innocence.accountant.AccountantPlayerComponent;
-import org.agmas.noellesroles.game.roles.innocence.alchemist.AlchemistPlayerComponent;
+import org.agmas.noellesroles.role_data.innocence.AccountantRoleData;
+import org.agmas.noellesroles.role_data.innocence.AlchemistRoleData;
 import org.agmas.noellesroles.game.roles.innocence.attendant.AttendantHandler;
-import org.agmas.noellesroles.game.roles.innocence.fortuneteller.FortunetellerPlayerComponent;
-import org.agmas.noellesroles.game.roles.innocence.ghost.GhostPlayerComponent;
-import org.agmas.noellesroles.game.roles.innocence.monitor.MonitorPlayerComponent;
-import org.agmas.noellesroles.game.roles.innocence.painter.PainterPlayerComponent;
-import org.agmas.noellesroles.game.roles.innocence.leather_pig.LeatherPigPlayerComponent;
-import org.agmas.noellesroles.game.roles.innocence.magician.MagicianPlayerComponent;
-import org.agmas.noellesroles.game.roles.innocence.salted_fish.SaltedFishPlayerComponent;
-import org.agmas.noellesroles.game.roles.innocence.return_traveler.ReturnTravelerPlayerComponent;
-import org.agmas.noellesroles.game.roles.killer.blood_feudist.BloodFeudistPlayerComponent;
-import org.agmas.noellesroles.game.roles.killer.dio.DIOPlayerComponent;
-import org.agmas.noellesroles.game.roles.killer.executioner.ExecutionerPlayerComponent;
-import org.agmas.noellesroles.game.roles.killer.insane_killer.InsaneKillerPlayerComponent;
-import org.agmas.noellesroles.game.roles.killer.ma_chen_xu.MaChenXuPlayerComponent;
+import org.agmas.noellesroles.role_data.innocence.FortunetellerRoleData;
+import org.agmas.noellesroles.role_data.innocence.GhostRoleData;
+import org.agmas.noellesroles.role_data.innocence.MonitorRoleData;
+import org.agmas.noellesroles.role_data.innocence.PainterRoleData;
+import org.agmas.noellesroles.role_data.innocence.LeatherPigRoleData;
+import org.agmas.noellesroles.role_data.innocence.MagicianRoleData;
+import org.agmas.noellesroles.role_data.innocence.SaltedFishRoleData;
+import org.agmas.noellesroles.role_data.innocence.ReturnTravelerRoleData;
+import org.agmas.noellesroles.role_data.killer.BloodFeudistRoleData;
+import org.agmas.noellesroles.role_data.killer.DIORoleData;
+import org.agmas.noellesroles.role_data.killer.ExecutionerRoleData;
+import org.agmas.noellesroles.role_data.killer.InsaneKillerRoleData;
+import org.agmas.noellesroles.role_data.killer.MaChenXuRoleData;
 import org.agmas.noellesroles.game.roles.killer.manipulator.InControlCCA;
-import org.agmas.noellesroles.game.roles.killer.manipulator.ManipulatorPlayerComponent;
-import org.agmas.noellesroles.game.roles.killer.spellbreaker.SpellbreakerPlayerComponent;
-import org.agmas.noellesroles.game.roles.killer.stalker.StalkerPlayerComponent;
-import org.agmas.noellesroles.game.roles.killer.trapper.TrapperPlayerComponent;
-import org.agmas.noellesroles.game.roles.killer.watcher.WatcherPlayerComponent;
-import org.agmas.noellesroles.game.roles.killer.wraith_assassin.WraithAssassinPlayerComponent;
-import org.agmas.noellesroles.game.roles.neutral.candlebearer.CandleBearerPlayerComponent;
+import org.agmas.noellesroles.role_data.killer.ManipulatorRoleData;
+import org.agmas.noellesroles.role_data.killer.SpellbreakerRoleData;
+import org.agmas.noellesroles.role_data.killer.StalkerRoleData;
+import org.agmas.noellesroles.role_data.killer.TrapperRoleData;
+import org.agmas.noellesroles.role_data.killer.WatcherRoleData;
+import org.agmas.noellesroles.role_data.killer.WraithAssassinRoleData;
+import org.agmas.noellesroles.role_data.neutral.CandleBearerRoleData;
 import org.agmas.noellesroles.game.roles.neutral.commander.CommanderHandler;
-import org.agmas.noellesroles.game.roles.neutral.mercenary.MercenaryPlayerComponent;
-import org.agmas.noellesroles.game.roles.neutral.mortician.MorticianBodyMakerPlayerComponent;
-import org.agmas.noellesroles.game.roles.neutral.nian_shou.NianShouPlayerComponent;
-import org.agmas.noellesroles.game.roles.neutral.pelican.PelicanPlayerComponent;
-import org.agmas.noellesroles.game.roles.neutral.puppeteer.PuppeteerPlayerComponent;
-import org.agmas.noellesroles.game.roles.neutral.recorder.RecorderPlayerComponent;
-import org.agmas.noellesroles.game.roles.neutral.thief.ThiefPlayerComponent;
-import org.agmas.noellesroles.game.roles.neutral.vulture.VulturePlayerComponent;
-import org.agmas.noellesroles.game.roles.neutral.voice_changer.VoiceChangerPlayerComponent;
-import org.agmas.noellesroles.game.roles.special.super_loose_end.SuperLooseEndPlayerComponent;
+import org.agmas.noellesroles.role_data.neutral.MercenaryRoleData;
+import org.agmas.noellesroles.role_data.neutral.MorticianBodyMakerRoleData;
+import org.agmas.noellesroles.role_data.neutral.NianShouRoleData;
+import org.agmas.noellesroles.role_data.neutral.PelicanRoleData;
+import org.agmas.noellesroles.role_data.neutral.PuppeteerRoleData;
+import org.agmas.noellesroles.role_data.neutral.RecorderRoleData;
+import org.agmas.noellesroles.role_data.neutral.ThiefRoleData;
+import org.agmas.noellesroles.role_data.neutral.VultureRoleData;
+import org.agmas.noellesroles.role_data.neutral.VoiceChangerRoleData;
+import org.agmas.noellesroles.role_data.special.SuperLooseEndRoleData;
 import org.agmas.noellesroles.role.ModRoles;
 import org.agmas.noellesroles.role.touhou.THRedHouseRoles;
 import org.agmas.noellesroles.role.touhou.THLostForestRoles;
@@ -100,9 +130,9 @@ public class ModRolesInitialEventRegister {
         org.agmas.noellesroles.game.roles.killer.undead_lord.UndeadLordHandler.init();
 
         // 初始化仇杀客事件
-        BloodFeudistPlayerComponent.registerEvents();
+        BloodFeudistRoleData.registerEvents();
         // 初始化皮革噶的事件（疯魔推开致死→平民则小脑归因）
-        LeatherPigPlayerComponent.registerEvents();
+        LeatherPigRoleData.registerEvents();
         // 初始化操纵师操控限制（被拖入水/岩浆/虚空/摔落致死时否决并弹回）
         InControlCCA.registerEvents();
         ModdedRoleAssigned.EVENT.register((player, role) -> {
@@ -118,15 +148,15 @@ public class ModRolesInitialEventRegister {
                 ModEventsRegister.reJudgeSpectatorsPenalty(player.level());
             }
             if (role.identifier().equals(ModRoles.BARTENDER.identifier())) {
-                FoodDrinkGlowComponent.KEY.get(player).init();
+                RoleData.ifPresent(FoodDrinkGlowRoleData.class, player, d -> d.init());
             }
             // 魔术师角色初始化
             if (role.identifier().equals(ModRoles.CHEF.identifier())) {
-                FoodDrinkGlowComponent.KEY.get(player).init();
+                RoleData.ifPresent(FoodDrinkGlowRoleData.class, player, d -> d.init());
             }
             if (RoleUtils.compareRole(role, THLostForestRoles.KAGUYA)
                     || RoleUtils.compareRole(role, ModRoles.MAGICIAN)) {
-                var magicianComponent = MagicianPlayerComponent.KEY.get(player);
+                var magicianComponent = RoleData.getNullable(MagicianRoleData.class, player);
                 {
                     // 停止疯狂模式（如果之前存在）
                     var psychoComponent = SREPlayerPsychoComponent.KEY.get(player);
@@ -134,7 +164,8 @@ public class ModRolesInitialEventRegister {
                         psychoComponent.init();
                     }
                     // 随机分配一个杀手身份给魔术师（原版杀手、毒师和清道夫除外）
-                    magicianComponent.startDisguiseRandomRole();
+                    if (magicianComponent != null)
+                        magicianComponent.startDisguiseRandomRole();
                 }
                 // 检查是否有指挥官，如果有则加入指挥官频道
                 boolean hasCommander = player.getServer().getPlayerList().getPlayers().stream()
@@ -154,12 +185,10 @@ public class ModRolesInitialEventRegister {
             }
 
             if (role.identifier().equals(ModRoles.DIO.identifier())) {
-                var tpc = DIOPlayerComponent.KEY.get(player);
-                tpc.init();
+                RoleData.ifPresent(DIORoleData.class, player, d -> d.init());
             }
             if (role.identifier().equals(THRedHouseRoles.FURANDORU.identifier())) {
-                var tpc = GhostPlayerComponent.KEY.get(player);
-                tpc.init();
+                RoleData.ifPresent(GhostRoleData.class, player, d -> d.init());
             }
             if (role.identifier().equals(THRedHouseRoles.MAID_SAKUYA.identifier())) {
                 SREPlayerShopComponent.KEY.get(player).setBalance(100);
@@ -169,8 +198,7 @@ public class ModRolesInitialEventRegister {
             }
             // 初始化记录员
             if (role.identifier().equals(ModRoles.RECORDER.identifier())) {
-                var tpc = RecorderPlayerComponent.KEY.get(player);
-                tpc.initRecorder();
+                RoleData.ifPresent(RecorderRoleData.class, player, d -> d.initRecorder());
             }
             if (role.identifier().equals(ModRoles.EXAMPLER.identifier())) {
                 var tpc = SREAbilityPlayerComponent.KEY.get(player);
@@ -181,23 +209,22 @@ public class ModRolesInitialEventRegister {
             }
             if (role.identifier().equals(ModRoles.THIEF.identifier())) {
                 int totalPlayers = SREGameWorldComponent.KEY.get(player.level()).getPlayerCount();
-                var tpc = ThiefPlayerComponent.KEY.get(player);
-                tpc.updateHonorCost(totalPlayers);
+                RoleData.ifPresent(ThiefRoleData.class, player, d -> d.updateHonorCost(totalPlayers));
             }
             if (role.identifier().equals(ModRoles.WATCHER.identifier())) {
-                var tpc = WatcherPlayerComponent.KEY.get(player);
-                tpc.init();
+                RoleData.ifPresent(WatcherRoleData.class, player, d -> d.init());
             }
             if (role.identifier().equals(ModRoles.MERCENARY.identifier())) {
-                var mercenary = MercenaryPlayerComponent.KEY.get(player);
-                mercenary.init();
-                mercenary.sync();
+                RoleData.ifPresent(MercenaryRoleData.class, player, d -> {
+                    d.init();
+                    d.sync();
+                });
             }
             if (role.identifier().equals(ModRoles.WAYFARER.identifier())) {
                 MCItemsUtils.clearItem(player);
                 RoleUtils.insertStackInFreeSlot(player, ModItems.FAKE_REVOLVER.getDefaultInstance());
                 RoleUtils.insertStackInFreeSlot(player, ModItems.FAKE_KNIFE.getDefaultInstance());
-                // (WayfarerPlayerComponent.KEY.get(player)).reset();
+                // (RoleData.getNullable(WayfarerRoleData.class, player)).reset();
                 return;
             }
             if (role.identifier().equals(ModRoles.WIND_YAOSE.identifier())) {
@@ -206,22 +233,19 @@ public class ModRolesInitialEventRegister {
             }
             if (role.identifier().equals(ModRoles.ACCOUNTANT.identifier())) {
                 // 会计角色初始化
-                var accountantComponent = AccountantPlayerComponent.KEY.get(player);
-                accountantComponent.init();
+                RoleData.ifPresent(AccountantRoleData.class, player, d -> d.init());
                 return;
             }
             if (role.identifier().equals(ModRoles.ALCHEMIST.identifier())) {
                 // 药剂师角色初始化
-                var alchemistComponent = AlchemistPlayerComponent.KEY.get(player);
-                alchemistComponent.init();
+                RoleData.ifPresent(AlchemistRoleData.class, player, d -> d.init());
                 return;
             }
             // 派对狂角色初始化 - 基于开局玩家数设置threshold
             if (role.identifier().equals(ModRoles.PARTY_KILLER.identifier())) {
                 int totalPlayers = SREGameWorldComponent.KEY.get(player.level()).getPlayerCount();
-                var partyComponent = org.agmas.noellesroles.game.roles.killer.party.PartyPlayerComponent.KEY
-                        .get(player);
-                partyComponent.initThreshold(totalPlayers);
+                RoleData.ifPresent(org.agmas.noellesroles.role_data.killer.PartyRoleData.class, player,
+                        d -> d.initThreshold(totalPlayers));
                 return;
             }
             if (role.identifier().equals(TMMRoles.KILLER.identifier())) {
@@ -257,17 +281,18 @@ public class ModRolesInitialEventRegister {
                 playerShopComponent.sync();
             }
             if (role.equals(ModRoles.EXECUTIONER)) {
-                ExecutionerPlayerComponent executionerPlayerComponent = (ExecutionerPlayerComponent) ExecutionerPlayerComponent.KEY
-                        .get(player);
+                ExecutionerRoleData executionerPlayerComponent = RoleData.getNullable(ExecutionerRoleData.class, player);
                 SREPlayerShopComponent playerShopComponent = (SREPlayerShopComponent) SREPlayerShopComponent.KEY
                         .get(player);
-                executionerPlayerComponent.init();
+                if (executionerPlayerComponent != null) {
+                    executionerPlayerComponent.init();
+                    executionerPlayerComponent.sync();
+                }
                 playerShopComponent.setBalance(100);
-                executionerPlayerComponent.sync();
             }
             if (role.equals(ModRoles.VULTURE)) {
-                if (VulturePlayerComponent.KEY.isProvidedBy(player)) {
-                    VulturePlayerComponent vulturePlayerComponent = VulturePlayerComponent.KEY.get(player);
+                if (RoleData.getNullable(VultureRoleData.class, player) != null) {
+                    VultureRoleData vulturePlayerComponent = RoleData.getNullable(VultureRoleData.class, player);
                     vulturePlayerComponent.init();
                     vulturePlayerComponent.bodiesRequired = Math.max(1, (int) ((player.level().players().size() / 3f)
                             - Math.floor(player.level().players().size() / 6f)));
@@ -275,83 +300,86 @@ public class ModRolesInitialEventRegister {
                 }
             }
             if (role.equals(ModRoles.PELICAN)) {
-                if (PelicanPlayerComponent.KEY.isProvidedBy(player)) {
-                    var pelicanComponent = PelicanPlayerComponent.KEY.get(player);
-                    pelicanComponent.init();
+                PelicanRoleData pelicanData = io.wifi.starrailexpress.api.data.RoleData
+                        .getNullable(PelicanRoleData.class, player);
+                if (pelicanData != null) {
                     int totalPlayers = SREGameWorldComponent.KEY.get(player.level()).getPlayerCount();
                     double percent = NoellesRolesConfig.HANDLER.instance().pelicanEatPercentage;
-                    pelicanComponent.requiredEaten = Math.max(1,
+                    pelicanData.requiredEaten = Math.max(1,
                             (int) Math.ceil(totalPlayers * (percent / 100.0D)) - 1);
-                    pelicanComponent.sync();
+                    pelicanData.sync();
                 }
             }
             if (role.equals(ModRoles.INSANE_KILLER)) {
-                final var insaneKillerPlayerComponent = InsaneKillerPlayerComponent.KEY.get(player);
-                insaneKillerPlayerComponent.init();
-                insaneKillerPlayerComponent.sync();
+                RoleData.ifPresent(InsaneKillerRoleData.class, player, d -> {
+                    d.init();
+                    d.sync();
+                });
             }
             if (role.equals(ModRoles.RECORDER)) {
-                final var recorderPlayerComponent = RecorderPlayerComponent.KEY.get(player);
-                recorderPlayerComponent.initializeRoles();
+                RoleData.ifPresent(RecorderRoleData.class, player, d -> d.initializeRoles());
             }
 
             // 更新所有记录员的可用角色列表
             for (ServerPlayer p : player.getServer().getPlayerList().getPlayers()) {
                 if (SREGameWorldComponent.KEY.get(p.level()).isRole(p, ModRoles.RECORDER)) {
-                    RecorderPlayerComponent.KEY.get(p).updateAvailableRoles();
+                    RoleData.ifPresent(RecorderRoleData.class, p, d -> d.updateAvailableRoles());
                 }
             }
             if (role.equals(ModRoles.RECORDER)) {
-                final var recorderPlayerComponent = RecorderPlayerComponent.KEY.get(player);
-                recorderPlayerComponent.init();
-                recorderPlayerComponent.sync();
+                RoleData.ifPresent(RecorderRoleData.class, player, d -> {
+                    d.init();
+                    d.sync();
+                });
             }
 
             if (role.equals(ModRoles.GAMBLER)) {
-                org.agmas.noellesroles.game.roles.neutral.gambler.GamblerPlayerComponent gamblerPlayerComponent = org.agmas.noellesroles.game.roles.neutral.gambler.GamblerPlayerComponent.KEY
-                        .get(player);
-                gamblerPlayerComponent.init();
-                gamblerPlayerComponent.sync();
+                RoleData.ifPresent(org.agmas.noellesroles.role_data.neutral.GamblerRoleData.class, player, d -> {
+                    d.init();
+                    d.sync();
+                });
             }
 
             if (role.equals(ModRoles.NOISEMAKER)) {
-                org.agmas.noellesroles.game.roles.innocence.noise_maker.NoiseMakerPlayerComponent noiseMakerPlayerComponent = org.agmas.noellesroles.game.roles.innocence.noise_maker.NoiseMakerPlayerComponent.KEY
-                        .get(player);
-                noiseMakerPlayerComponent.init();
-                noiseMakerPlayerComponent.sync();
+                RoleData.ifPresent(org.agmas.noellesroles.role_data.innocence.NoiseMakerRoleData.class, player, d -> {
+                    d.init();
+                    d.sync();
+                });
             }
             if (role.equals(ModRoles.GHOST)) {
-                org.agmas.noellesroles.game.roles.innocence.ghost.GhostPlayerComponent ghostPlayerComponent = org.agmas.noellesroles.game.roles.innocence.ghost.GhostPlayerComponent.KEY
-                        .get(player);
-                ghostPlayerComponent.init();
-                ghostPlayerComponent.sync();
+                RoleData.ifPresent(org.agmas.noellesroles.role_data.innocence.GhostRoleData.class, player, d -> {
+                    d.init();
+                    d.sync();
+                });
             }
             if (role.equals(ModRoles.CANDLE_BEARER)) {
-                CandleBearerPlayerComponent candleBearer = CandleBearerPlayerComponent.KEY.get(player);
-                candleBearer.init();
-                RoleUtils.insertStackInFreeSlot(player, Items.CANDLE.getDefaultInstance());
-                candleBearer.sync();
+                RoleData.ifPresent(CandleBearerRoleData.class, player, d -> {
+                    d.init();
+                    RoleUtils.insertStackInFreeSlot(player, Items.CANDLE.getDefaultInstance());
+                    d.sync();
+                });
             }
             if (role.equals(ModRoles.CAKE_MAKER)) {
-                ModComponents.CAKE_MAKER.get(player).init();
+                RoleData.ifPresent(CakeMakerRoleData.class, player, d -> d.init());
             }
             if (role.equals(ModRoles.RAVEN)) {
-                ModComponents.RAVEN.get(player).init();
+                RoleData.ifPresent(RavenRoleData.class, player, d -> d.init());
             }
             if (role.equals(ModRoles.AMON)) {
-                ModComponents.AMON.get(player).init();
+                RoleData.ifPresent(org.agmas.noellesroles.role_data.neutral.AmonRoleData.class, player, d -> d.init());
             }
             if (role.equals(ModRoles.WRAITH_ASSASSIN)) {
-                ModComponents.WRAITH_ASSASSIN.get(player).init();
+                RoleData.ifPresent(WraithAssassinRoleData.class, player, d -> d.init());
             }
             if (role.equals(ModRoles.ADVENTURER)) {
-                ModComponents.ADVENTURER.get(player).init();
+                RoleData.ifPresent(AdventurerRoleData.class, player, d -> d.init());
             }
             // 操纵师角色初始化
             if (role.equals(ModRoles.MANIPULATOR)) {
-                ManipulatorPlayerComponent manipulatorPlayerComponent = ManipulatorPlayerComponent.KEY.get(player);
-                manipulatorPlayerComponent.init();
-                manipulatorPlayerComponent.sync();
+                RoleData.ifPresent(ManipulatorRoleData.class, player, d -> {
+                    d.init();
+                    d.sync();
+                });
             }
             // 巫毒师角色初始化 - 开局75秒冷却
             if (role.equals(ModRoles.VOODOO)) {
@@ -361,12 +389,13 @@ public class ModRolesInitialEventRegister {
             }
             if (role.equals(ModRoles.BOMBER)) {
                 if (role.equals(ModRoles.MONITOR)) {
-                    MonitorPlayerComponent monitorComponent = MonitorPlayerComponent.KEY.get(player);
-                    monitorComponent.init();
-                    monitorComponent.sync();
+                    RoleData.ifPresent(MonitorRoleData.class, player, d -> {
+                        d.init();
+                        d.sync();
+                    });
                 }
                 // bomberPlayerComponent.reset(); // 如果有 reset 方法
-                ModComponents.BOMBER.sync(player);
+                { var __rd = RoleData.getNullable(BomberRoleData.class, player); if (__rd != null) __rd.sync(); }
             }
             // if (role.equals(SHERIFF)) {
             // player.giveItemStack(TMMItems.REVOLVER.getDefaultStack());
@@ -378,14 +407,14 @@ public class ModRolesInitialEventRegister {
             // }
             // 在角色分配时清除之前的跟踪者状态（如果有）
             // 但是如果跟踪者正在进化（切换角色），不清除状态
-            StalkerPlayerComponent stalkerComp = ModComponents.STALKER.get(player);
-            if (!stalkerComp.isActiveStalker()) {
+            StalkerRoleData stalkerComp = RoleData.getNullable(StalkerRoleData.class, player);
+            if (stalkerComp != null && !stalkerComp.isActiveStalker()) {
                 stalkerComp.clearAll();
             }
 
             // // 在角色分配时清除之前的傀儡师状态（如果有）
             // // 但是如果傀儡师正在操控假人（临时切换角色），不清除状态
-            // PuppeteerPlayerComponent puppeteerComp = ModComponents.PUPPETEER.get(player);
+            // PuppeteerRoleData puppeteerComp = RoleData.getNullable(PuppeteerRoleData.class, player);
             // if (!puppeteerComp.isPuppeteerMarked) {
             // puppeteerComp.clearAll();
             // }
@@ -402,13 +431,13 @@ public class ModRolesInitialEventRegister {
                 player.addItem(SEItems.LIGHTER.getDefaultInstance().copy());
             }
             if (role.equals(ModRoles.NIAN_SHOU)) {
-                var comc = NianShouPlayerComponent.KEY.maybeGet(player).orElse(null);
+                var comc = RoleData.getNullable(NianShouRoleData.class, player);
                 if (comc != null) {
                     comc.init();
                 }
             }
             if (role.equals(ModRoles.PUPPETEER)) {
-                var comc = PuppeteerPlayerComponent.KEY.maybeGet(player).orElse(null);
+                var comc = RoleData.getNullable(PuppeteerRoleData.class, player);
                 if (comc != null) {
                     if (!comc.isActivePuppeteer())
                         comc.init();
@@ -416,22 +445,24 @@ public class ModRolesInitialEventRegister {
             }
             // 画家角色初始化
             if (role.equals(ModRoles.PAINTER)) {
-                var painterComponent = PainterPlayerComponent.KEY.get(player);
-                painterComponent.init();
-                painterComponent.sync();
+                RoleData.ifPresent(PainterRoleData.class, player, d -> {
+                    d.init();
+                    d.sync();
+                });
             }
             // 葬仪角色初始化
             if (role.equals(ModRoles.MORTICIAN_BODYMAKER)) {
-                var morticianComponent = MorticianBodyMakerPlayerComponent.KEY.get(player);
-                morticianComponent.init();
-                morticianComponent.sync();
+                RoleData.ifPresent(MorticianBodyMakerRoleData.class, player, d -> {
+                    d.init();
+                    d.sync();
+                });
             }
             // 幻音师角色初始化
             if (role.equals(ModRoles.PHANTOM_MUSICIAN)) {
-                var pmComponent = org.agmas.noellesroles.game.roles.neutral.musician_phantom.PhantomMusicianPlayerComponent.KEY
-                        .get(player);
-                pmComponent.init();
-                pmComponent.sync();
+                RoleData.ifPresent(org.agmas.noellesroles.role_data.neutral.PhantomMusicianRoleData.class, player, d -> {
+                    d.init();
+                    d.sync();
+                });
             }
             if (role.equals(ModRoles.GODFATHER)) {
                 if (player instanceof ServerPlayer sp) {
@@ -471,7 +502,7 @@ public class ModRolesInitialEventRegister {
                                     && player.level().getPlayerByUUID(context.target()) instanceof ServerPlayer sp
                                             ? sp
                                             : null;
-                            return org.agmas.noellesroles.game.roles.neutral.doomedsinner.DoomedSinnerPlayerComponent
+                            return org.agmas.noellesroles.role_data.neutral.DoomedSinnerRoleData
                                     .revealFate(player, target);
                         }).cooldownSeconds(40).showOnHud(true).announceToSelf(false).build(),
                 RoleSkill.skill(SRE.id("doomed_sinner_reboot"),
@@ -481,7 +512,7 @@ public class ModRolesInitialEventRegister {
                             if (player.isSpectator()) {
                                 return false;
                             }
-                            return org.agmas.noellesroles.game.roles.neutral.doomedsinner.DoomedSinnerPlayerComponent
+                            return org.agmas.noellesroles.role_data.neutral.DoomedSinnerRoleData
                                     .reboot(player);
                         }).cooldownSeconds(75).shifted(true).showOnHud(true).announceToSelf(true).build());
 
@@ -558,8 +589,9 @@ public class ModRolesInitialEventRegister {
                     ServerPlayer player = context.player();
                     if (player.isSpectator())
                         return false;
-                    PelicanPlayerComponent comp = PelicanPlayerComponent.KEY.get(player);
-                    if (comp == null || context.target() == null)
+                    PelicanRoleData data = io.wifi.starrailexpress.api.data.RoleData
+                            .getNullable(PelicanRoleData.class, player);
+                    if (data == null || context.target() == null)
                         return false;
                     Player candidate = player.level().getPlayerByUUID(context.target());
                     if (!(candidate instanceof ServerPlayer target)
@@ -572,14 +604,15 @@ public class ModRolesInitialEventRegister {
                                 true);
                         return false;
                     }
-                    return comp.tryEat(target);
+                    return data.tryEat(target);
                     // 不在此处设统一技能冷却：统一技能系统无论 handler 是否成功都会进入冷却
                     // （见 RoleSkill.useUnified），会导致"没吃到人也进CD"。鹈鹕冷却由
-                    // PelicanPlayerComponent.eatCooldownUntil 管理，仅在成功吞噬后生效（并由 PelicanHud 显示）。
+                    // PelicanRoleData.eatCooldownUntil 管理，仅在成功吞噬后生效（并由 PelicanHud 显示）。
                 }).announceToSelf(false).build(),
                 RoleSkill.skill(SRE.id("pelican_release"), "skill.noellesroles.pelican.release", context -> {
-                    PelicanPlayerComponent comp = PelicanPlayerComponent.KEY.get(context.player());
-                    return comp != null && comp.releaseLast();
+                    PelicanRoleData data = io.wifi.starrailexpress.api.data.RoleData
+                            .getNullable(PelicanRoleData.class, context.player());
+                    return data != null && data.releaseLast();
                 }).shifted(true).announceToSelf(false).build());
 
         // 阿蒙技能：
@@ -590,7 +623,7 @@ public class ModRolesInitialEventRegister {
                     ServerPlayer player = context.player();
                     if (player.isSpectator())
                         return false;
-                    var comp = org.agmas.noellesroles.game.roles.neutral.amon.AmonPlayerComponent.KEY.get(player);
+                    var comp = RoleData.getNullable(org.agmas.noellesroles.role_data.neutral.AmonRoleData.class, player);
                     if (comp == null)
                         return false;
                     // G 键始终执行种时之虫（附身期间不夺舍，夺舍改用 潜行+技能键）
@@ -606,7 +639,7 @@ public class ModRolesInitialEventRegister {
                     ServerPlayer player = context.player();
                     if (player.isSpectator())
                         return false;
-                    var comp = org.agmas.noellesroles.game.roles.neutral.amon.AmonPlayerComponent.KEY.get(player);
+                    var comp = RoleData.getNullable(org.agmas.noellesroles.role_data.neutral.AmonRoleData.class, player);
                     if (comp == null)
                         return false;
                     if (!comp.isPossessing())
@@ -617,7 +650,7 @@ public class ModRolesInitialEventRegister {
         // 葬仪技能注册：使用当前模式的技能
         RoleSkill.register(ModRoles.MORTICIAN_BODYMAKER, context -> {
             ServerPlayer player = context.player();
-            MorticianBodyMakerPlayerComponent morticianComponent = MorticianBodyMakerPlayerComponent.KEY.get(player);
+            MorticianBodyMakerRoleData morticianComponent = RoleData.getNullable(MorticianBodyMakerRoleData.class, player);
             if (morticianComponent != null) {
                 morticianComponent.useAbility();
             }
@@ -630,8 +663,8 @@ public class ModRolesInitialEventRegister {
                     ServerPlayer player = context.player();
                     if (player.isSpectator())
                         return false;
-                    var comp = org.agmas.noellesroles.game.roles.killer.warlock.WarlockPlayerComponent.KEY.get(player);
-                    if (comp == null)
+                    var comp = RoleData.getNullable(org.agmas.noellesroles.role_data.killer.WarlockRoleData.class, player);
+                    if (!RoleData.isAttached(comp))
                         return false;
                     ServerPlayer target = context.target() != null
                             && player.level().getPlayerByUUID(context.target()) instanceof ServerPlayer sp ? sp : null;
@@ -641,7 +674,7 @@ public class ModRolesInitialEventRegister {
                     ServerPlayer player = context.player();
                     if (player.isSpectator())
                         return false;
-                    var comp = org.agmas.noellesroles.game.roles.killer.warlock.WarlockPlayerComponent.KEY.get(player);
+                    var comp = RoleData.getNullable(org.agmas.noellesroles.role_data.killer.WarlockRoleData.class, player);
                     if (comp == null)
                         return false;
                     ServerPlayer target = context.target() != null
@@ -691,12 +724,11 @@ public class ModRolesInitialEventRegister {
                     ServerPlayer player = context.player();
                     if (player.isSpectator())
                         return false;
-                    return org.agmas.noellesroles.game.roles.killer.youlu.YouluPlayerComponent.KEY
-                            .get(player).useCamSkill(player);
+                    return RoleData.test(org.agmas.noellesroles.role_data.killer.YouluRoleData.class, player, d -> d.useCamSkill(player));
                 }).cooldownSeconds(60).showOnHud(true).announceToSelf(true).build());
 
         // 滞时鬼（Delayer）技能注册：【时间锚点】——消耗金币锚定当前状态，
-        // delayerRewindDelaySeconds 秒后自动沿原路平滑回溯（详见 DelayerPlayerComponent）。
+        // delayerRewindDelaySeconds 秒后自动沿原路平滑回溯（详见 DelayerRoleData）。
         RoleSkill.register(ModRoles.DELAYER,
                 RoleSkill.skill(SRE.id("delayer_anchor"), "skill.noellesroles.delayer.anchor", context -> {
                     ServerPlayer player = context.player();
@@ -704,8 +736,8 @@ public class ModRolesInitialEventRegister {
                         return false;
                     if (!GameUtils.isPlayerAliveAndSurvival(player))
                         return false;
-                    var delayer = ModComponents.DELAYER.get(player);
-                    if (delayer.isAnchored())
+                    var delayer = RoleData.getNullable(org.agmas.noellesroles.role_data.killer.DelayerRoleData.class, player);
+                    if (delayer == null || delayer.isAnchored())
                         return false; // 已锚定，等待回溯
                     SREPlayerShopComponent shop = SREPlayerShopComponent.KEY.get(player);
                     int cost = 75;
@@ -726,8 +758,7 @@ public class ModRolesInitialEventRegister {
         // 幻音师技能注册：花费100金币传送到30格外随机一人的身边
         RoleSkill.register(ModRoles.PHANTOM_MUSICIAN, context -> {
             ServerPlayer player = context.player();
-            var comp = org.agmas.noellesroles.game.roles.neutral.musician_phantom.PhantomMusicianPlayerComponent.KEY
-                    .get(player);
+            var comp = RoleData.getNullable(org.agmas.noellesroles.role_data.neutral.PhantomMusicianRoleData.class, player);
             if (comp == null)
                 return;
             comp.useTeleport();
@@ -809,7 +840,7 @@ public class ModRolesInitialEventRegister {
                     ServerPlayer player = context.player();
                     if (!(player instanceof ServerPlayer sp))
                         return false;
-                    var comp = org.agmas.noellesroles.game.roles.neutral.cuckoo.CuckooPlayerComponent.KEY.get(player);
+                    var comp = RoleData.getNullable(org.agmas.noellesroles.role_data.neutral.CuckooRoleData.class, player);
                     if (comp == null)
                         return false;
                     return comp.placeEgg(sp);
@@ -835,8 +866,8 @@ public class ModRolesInitialEventRegister {
                 "skill.noellesroles.noisemaker.ability",
                 context -> {
                     ServerPlayer player = context.player();
-                    var comp = ModComponents.NOISEMAKER.get(player);
-                    if (comp == null)
+                    var comp = RoleData.getNullable(NoiseMakerRoleData.class, player);
+                    if (!RoleData.isAttached(comp))
                         return false;
                     comp.useAbility(); // 组件内部已管理效果逻辑
                     return true;
@@ -848,8 +879,8 @@ public class ModRolesInitialEventRegister {
                 "skill.noellesroles.ghost.invisibility",
                 context -> {
                     ServerPlayer player = context.player();
-                    var comp = org.agmas.noellesroles.game.roles.innocence.ghost.GhostPlayerComponent.KEY.get(player);
-                    if (comp == null)
+                    var comp = RoleData.getNullable(org.agmas.noellesroles.role_data.innocence.GhostRoleData.class, player);
+                    if (!RoleData.isAttached(comp))
                         return false;
                     if (!comp.abilityUnlocked) {
                         player.displayClientMessage(
@@ -867,8 +898,8 @@ public class ModRolesInitialEventRegister {
                 "skill.noellesroles.candlebearer.invisibility",
                 context -> {
                     ServerPlayer player = context.player();
-                    var comp = CandleBearerPlayerComponent.KEY.get(player);
-                    if (comp == null)
+                    var comp = RoleData.getNullable(CandleBearerRoleData.class, player);
+                    if (!RoleData.isAttached(comp))
                         return false;
                     return comp.useAbility();
                 }).build());
@@ -879,7 +910,7 @@ public class ModRolesInitialEventRegister {
                 "skill.noellesroles.spellbreaker.silence",
                 context -> {
                     ServerPlayer player = context.player();
-                    SpellbreakerPlayerComponent.KEY.get(player).useAbility();
+                    RoleData.ifPresent(SpellbreakerRoleData.class, player, d -> d.useAbility());
                     return true;
                 }).cooldownSeconds(130).build());
 
@@ -899,7 +930,7 @@ public class ModRolesInitialEventRegister {
                 "skill.noellesroles.watcher.stance",
                 context -> {
                     ServerPlayer player = context.player();
-                    WatcherPlayerComponent.KEY.get(player).toggleStance();
+                    RoleData.ifPresent(WatcherRoleData.class, player, d -> d.toggleStance());
                     return true;
                 }).cooldownSeconds(30).build());
 
@@ -917,12 +948,12 @@ public class ModRolesInitialEventRegister {
                 RoleSkill.skill(SRE.id("thief_ability"),
                         "skill.noellesroles.thief.ability",
                         context -> {
-                            return ThiefPlayerComponent.KEY.get(context.player()).useAbility();
+                            return RoleData.test(ThiefRoleData.class, context.player(), d -> d.useAbility());
                         }).build(),
                 RoleSkill.skill(SRE.id("thief_toggle_mode"),
                         "skill.noellesroles.thief.toggle_mode",
                         context -> {
-                            ThiefPlayerComponent.KEY.get(context.player()).toggleMode();
+                            RoleData.ifPresent(ThiefRoleData.class, context.player(), d -> d.toggleMode());
                             return true;
                         }).shifted(true).modeSwitch(true).announceToSelf(false).showOnHud(false).build());
 
@@ -935,20 +966,20 @@ public class ModRolesInitialEventRegister {
                 RoleSkill.skill(SRE.id("voice_changer_apply"),
                         "skill.noellesroles.voice_changer.apply",
                         context -> {
-                            return VoiceChangerPlayerComponent.KEY.get(context.player()).applyVoice();
+                            return RoleData.test(VoiceChangerRoleData.class, context.player(), d -> d.applyVoice());
                         }).cooldownSeconds(60).showOnHud(true).announceToSelf(false).build(),
                 RoleSkill.skill(SRE.id("voice_changer_mark"),
                         "skill.noellesroles.voice_changer.mark",
                         context -> {
-                            return VoiceChangerPlayerComponent.KEY.get(context.player()).markTarget(context.target());
+                            return RoleData.test(VoiceChangerRoleData.class, context.player(), d -> d.markTarget(context.target()));
                         }).shifted(true).cooldownSeconds(20).showOnHud(true).announceToSelf(false).build(),
                 RoleSkill.skill(SRE.id("voice_changer_switch"),
                         "skill.noellesroles.voice_changer.switch",
                         context -> {
                             if (context.player().isShiftKeyDown()) {
-                                VoiceChangerPlayerComponent.KEY.get(context.player()).switchVoiceLevel();
+                                RoleData.ifPresent(VoiceChangerRoleData.class, context.player(), d -> d.switchVoiceLevel());
                             } else {
-                                VoiceChangerPlayerComponent.KEY.get(context.player()).switchVoiceType();
+                                RoleData.ifPresent(VoiceChangerRoleData.class, context.player(), d -> d.switchVoiceType());
                             }
                             return true;
                         }).shifted(true).modeSwitch(true).announceToSelf(false).build());
@@ -958,12 +989,12 @@ public class ModRolesInitialEventRegister {
                 RoleSkill.skill(SRE.id("accountant_ability"),
                         "skill.noellesroles.accountant.ability",
                         context -> {
-                            return AccountantPlayerComponent.KEY.get(context.player()).useAbility();
+                            return RoleData.test(AccountantRoleData.class, context.player(), d -> d.useAbility());
                         }).announceToSelf(false).showOnHud(false).build(),
                 RoleSkill.skill(SRE.id("accountant_toggle_mode"),
                         "skill.noellesroles.accountant.toggle_mode",
                         context -> {
-                            AccountantPlayerComponent.KEY.get(context.player()).toggleMode();
+                            RoleData.ifPresent(AccountantRoleData.class, context.player(), d -> d.toggleMode());
                             return true;
                         }).shifted(true).modeSwitch(true).announceToSelf(false).build());
 
@@ -972,13 +1003,13 @@ public class ModRolesInitialEventRegister {
                 RoleSkill.skill(SRE.id("alchemist_craft"),
                         "skill.noellesroles.alchemist.craft",
                         context -> {
-                            AlchemistPlayerComponent.KEY.get(context.player()).craftPotion();
+                            RoleData.ifPresent(AlchemistRoleData.class, context.player(), d -> d.craftPotion());
                             return true;
                         }).build(),
                 RoleSkill.skill(SRE.id("alchemist_switch_potion"),
                         "skill.noellesroles.alchemist.switch_potion",
                         context -> {
-                            AlchemistPlayerComponent.KEY.get(context.player()).switchPotion();
+                            RoleData.ifPresent(AlchemistRoleData.class, context.player(), d -> d.switchPotion());
                             return true;
                         }).shifted(true).modeSwitch(true).announceToSelf(false).showOnHud(false).build());
 
@@ -987,7 +1018,9 @@ public class ModRolesInitialEventRegister {
                 RoleSkill.skill(SRE.id("builder_ability"),
                         "skill.noellesroles.builder.ability",
                         context -> {
-                            var comp = org.agmas.noellesroles.component.ModComponents.BUILDER.get(context.player());
+                            var comp = RoleData.getNullable(BuilderRoleData.class, context.player());
+                            if (comp == null)
+                                return false;
                             if (comp.isBuildMode()) {
                                 return comp.useBuildAbility();
                             } else {
@@ -997,7 +1030,7 @@ public class ModRolesInitialEventRegister {
                 RoleSkill.skill(SRE.id("builder_toggle_mode"),
                         "skill.noellesroles.builder.toggle_mode",
                         context -> {
-                            org.agmas.noellesroles.component.ModComponents.BUILDER.get(context.player()).switchMode();
+                            RoleData.ifPresent(BuilderRoleData.class, context.player(), d -> d.switchMode());
                             return true;
                         }).shifted(true).modeSwitch(true).announceToSelf(false).showOnHud(false).build());
 
@@ -1006,12 +1039,12 @@ public class ModRolesInitialEventRegister {
                 RoleSkill.skill(SRE.id("mortician_bodymaker_ability"),
                         "skill.noellesroles.mortician_bodymaker.ability",
                         context -> {
-                            return MorticianBodyMakerPlayerComponent.KEY.get(context.player()).useAbility();
+                            return RoleData.test(MorticianBodyMakerRoleData.class, context.player(), d -> d.useAbility());
                         }).build(),
                 RoleSkill.skill(SRE.id("mortician_bodymaker_toggle_mode"),
                         "skill.noellesroles.mortician_bodymaker.toggle_mode",
                         context -> {
-                            MorticianBodyMakerPlayerComponent.KEY.get(context.player()).toggleMode();
+                            RoleData.ifPresent(MorticianBodyMakerRoleData.class, context.player(), d -> d.toggleMode());
                             return true;
                         }).shifted(true).modeSwitch(true).announceToSelf(false).showOnHud(false).build());
 
@@ -1020,12 +1053,12 @@ public class ModRolesInitialEventRegister {
                 RoleSkill.skill(SRE.id("trapper_ability"),
                         "skill.noellesroles.trapper.ability",
                         context -> {
-                            return TrapperPlayerComponent.KEY.get(context.player()).tryPlaceTrap();
+                            return RoleData.test(TrapperRoleData.class, context.player(), d -> d.tryPlaceTrap());
                         }).build(),
                 RoleSkill.skill(SRE.id("trapper_toggle_mode"),
                         "skill.noellesroles.trapper.toggle_mode",
                         context -> {
-                            TrapperPlayerComponent.KEY.get(context.player()).switchTrapType();
+                            RoleData.ifPresent(TrapperRoleData.class, context.player(), d -> d.switchTrapType());
                             return true;
                         }).shifted(true).modeSwitch(true).announceToSelf(false).showOnHud(false).build());
 
@@ -1034,18 +1067,20 @@ public class ModRolesInitialEventRegister {
                 RoleSkill.skill(SRE.id("imitator_ability"),
                         "skill.noellesroles.imitator.ability",
                         context -> {
-                            var comp = org.agmas.noellesroles.component.ModComponents.IMITATOR.get(context.player());
-                            if (context.target() != null) {
-                                comp.tryCopyAbility(context.player(), context.target());
-                            } else {
-                                comp.useActiveAbility(context.player(), null);
+                            var comp = RoleData.getNullable(ImitatorRoleData.class, context.player());
+                            if (comp != null) {
+                                if (context.target() != null) {
+                                    comp.tryCopyAbility(context.player(), context.target());
+                                } else {
+                                    comp.useActiveAbility(context.player(), null);
+                                }
                             }
                             return true;
                         }).build(),
                 RoleSkill.skill(SRE.id("imitator_toggle_slot"),
                         "skill.noellesroles.imitator.toggle_slot",
                         context -> {
-                            org.agmas.noellesroles.component.ModComponents.IMITATOR.get(context.player()).switchSlot();
+                            RoleData.ifPresent(ImitatorRoleData.class, context.player(), d -> d.switchSlot());
                             return true;
                         }).shifted(true).modeSwitch(true).announceToSelf(false).showOnHud(false).build());
 
@@ -1087,7 +1122,7 @@ public class ModRolesInitialEventRegister {
                 SRE.id("bomber_buy_bomb"),
                 "skill.noellesroles.bomber.buy_bomb",
                 context -> {
-                    ModComponents.BOMBER.get(context.player()).buyBomb();
+                    RoleData.ifPresent(BomberRoleData.class, context.player(), d -> d.buyBomb());
                     return true;
                 }).build());
 
@@ -1096,7 +1131,7 @@ public class ModRolesInitialEventRegister {
                 SRE.id("blood_feudist_toggle"),
                 "skill.noellesroles.blood_feudist.toggle",
                 context -> {
-                    ModComponents.BLOOD_FEUDIST.get(context.player()).toggleEffects();
+                    RoleData.ifPresent(BloodFeudistRoleData.class, context.player(), d -> d.toggleEffects());
                     return true;
                 }).toggleable(true).build());
 
@@ -1105,7 +1140,7 @@ public class ModRolesInitialEventRegister {
                 SRE.id("clockmaker_use_skill"),
                 "skill.noellesroles.clockmaker.use_skill",
                 context -> {
-                    ModComponents.CLOCKMAKER.get(context.player()).useSkill();
+                    RoleData.ifPresent(ClockmakerRoleData.class, context.player(), d -> d.useSkill());
                     return true;
                 }).build());
 
@@ -1114,69 +1149,69 @@ public class ModRolesInitialEventRegister {
                 RoleSkill.skill(SRE.id("super_loose_end_ability"),
                         "skill.noellesroles.super_loose_end.ability",
                         context -> {
-                            SuperLooseEndPlayerComponent.KEY.get(context.player()).useAbility(false);
+                            RoleData.ifPresent(SuperLooseEndRoleData.class, context.player(), d -> d.useAbility(false));
                             return true;
                         }).build(),
                 RoleSkill.skill(SRE.id("super_loose_end_shift"),
                         "skill.noellesroles.super_loose_end.shift",
                         context -> {
-                            SuperLooseEndPlayerComponent.KEY.get(context.player()).useAbility(true);
+                            RoleData.ifPresent(SuperLooseEndRoleData.class, context.player(), d -> d.useAbility(true));
                             return true;
                         }).shifted(true).build());
 
         // 布袋鬼鬼术注册：4 个鬼术作为可选槽位（V 切换、G 释放、Sneak+G 开里世界大招）。
-        // 冷却/门控由 MaChenXuPlayerComponent 自有逻辑负责（cooldownTicks=0 让引擎不拦截），
-        // announceToSelf(false) 由组件自定义提示。槽位顺序须与 MaChenXuPlayerComponent.ART_ORDER 一致。
+        // 冷却/门控由 MaChenXuRoleData 自有逻辑负责（cooldownTicks=0 让引擎不拦截），
+        // announceToSelf(false) 由组件自定义提示。槽位顺序须与 MaChenXuRoleData.ART_ORDER 一致。
         RoleSkill.register(ModRoles.MA_CHEN_XU,
                 RoleSkill.skill(SRE.id("ma_chen_xu_veil"), "hud.noellesroles.ma_chen_xu.skill.veil",
-                        context -> MaChenXuPlayerComponent.KEY.get(context.player()).onGhostArt("veil"))
+                        context -> RoleData.test(MaChenXuRoleData.class, context.player(), d -> d.onGhostArt("veil")))
                         .announceToSelf(false).build(),
                 RoleSkill.skill(SRE.id("ma_chen_xu_effigy"), "hud.noellesroles.ma_chen_xu.skill.effigy",
-                        context -> MaChenXuPlayerComponent.KEY.get(context.player()).onGhostArt("effigy"))
+                        context -> RoleData.test(MaChenXuRoleData.class, context.player(), d -> d.onGhostArt("effigy")))
                         .announceToSelf(false).build(),
                 RoleSkill.skill(SRE.id("ma_chen_xu_wail"), "hud.noellesroles.ma_chen_xu.skill.wail",
-                        context -> MaChenXuPlayerComponent.KEY.get(context.player()).onGhostArt("wail"))
+                        context -> RoleData.test(MaChenXuRoleData.class, context.player(), d -> d.onGhostArt("wail")))
                         .announceToSelf(false).build(),
                 RoleSkill.skill(SRE.id("ma_chen_xu_seize"), "hud.noellesroles.ma_chen_xu.skill.seize",
-                        context -> MaChenXuPlayerComponent.KEY.get(context.player()).onGhostArt("seize"))
+                        context -> RoleData.test(MaChenXuRoleData.class, context.player(), d -> d.onGhostArt("seize")))
                         .announceToSelf(false).build());
 
         RoleSkill.register(ModRoles.WRAITH_ASSASSIN,
                 RoleSkill.skill(SRE.id("wraith_assault"), "skill.noellesroles.wraith_assassin.assault",
-                        context -> WraithAssassinPlayerComponent.KEY.get(context.player()).useAssault(context.player()))
+                        context -> RoleData.test(WraithAssassinRoleData.class, context.player(), d -> d.useAssault(context.player())))
                         .cooldownSeconds(4).showOnHud(true).announceToSelf(false).build(),
                 RoleSkill.skill(SRE.id("wraith_wail"), "skill.noellesroles.wraith_assassin.wail",
-                        context -> WraithAssassinPlayerComponent.KEY.get(context.player()).useWail(context.player()))
+                        context -> RoleData.test(WraithAssassinRoleData.class, context.player(), d -> d.useWail(context.player())))
                         .cooldownSeconds(50).showOnHud(true).announceToSelf(false).build(),
                 RoleSkill.skill(SRE.id("wraith_manifest"), "skill.noellesroles.wraith_assassin.manifest",
-                        context -> WraithAssassinPlayerComponent.KEY.get(context.player())
-                                .useManifest(context.player()))
+                        context -> RoleData.test(WraithAssassinRoleData.class, context.player(),
+                                d -> d.useManifest(context.player())))
                         .cooldownSeconds(110).showOnHud(true).announceToSelf(false).build());
 
         RoleSkill.register(ModRoles.SALTED_FISH,
-                RoleSkill.skill(SaltedFishPlayerComponent.SKILL_ID, "skill.noellesroles.salted_fish.sunbathe",
-                        context -> SaltedFishPlayerComponent.KEY.get(context.player()).useSkill(context.player()))
-                        .cooldownTicks(SaltedFishPlayerComponent.COOLDOWN_TICKS)
+                RoleSkill.skill(SaltedFishRoleData.SKILL_ID, "skill.noellesroles.salted_fish.sunbathe",
+                        context -> RoleData.test(SaltedFishRoleData.class, context.player(), d -> d.useSkill(context.player())))
+                        .cooldownTicks(SaltedFishRoleData.COOLDOWN_TICKS)
                         .toggleable(true).showOnHud(true).announceToSelf(false).build());
 
         // 归途旅人技能注册：普通按 G 释放当前技能，按技能切换键(Y) 直接切换技能
         RoleSkill.register(ModRoles.RETURN_TRAVELER,
-                RoleSkill.skill(ReturnTravelerPlayerComponent.SKILL_ID,
+                RoleSkill.skill(ReturnTravelerRoleData.SKILL_ID,
                         "skill.noellesroles.return_traveler.ability",
-                        context -> ReturnTravelerPlayerComponent.KEY.get(context.player()).useAbility())
+                        context -> RoleData.test(ReturnTravelerRoleData.class, context.player(), d -> d.useAbility()))
                         .showOnHud(true).announceToSelf(false).build(),
                 RoleSkill.skill(SRE.id("return_traveler_toggle_mode"),
                         "skill.noellesroles.return_traveler.toggle_mode",
                         context -> {
-                            ReturnTravelerPlayerComponent.KEY.get(context.player()).toggleMode();
+                            RoleData.ifPresent(ReturnTravelerRoleData.class, context.player(), d -> d.toggleMode());
                             return true;
                         }).shifted(true).modeSwitch(true).announceToSelf(false).build());
 
         // 皮革噶的技能注册：消耗 150 金币进入疯魔模式（直觉 + 速度 III + 追杀音效）
         RoleSkill.register(ModRoles.LEATHER_PIG,
-                RoleSkill.skill(LeatherPigPlayerComponent.SKILL_ID, "skill.noellesroles.leather_pig.frenzy",
-                        context -> LeatherPigPlayerComponent.KEY.get(context.player()).useSkill(context.player()))
-                        .cooldownSeconds(LeatherPigPlayerComponent.COOLDOWN_SECONDS)
+                RoleSkill.skill(LeatherPigRoleData.SKILL_ID, "skill.noellesroles.leather_pig.frenzy",
+                        context -> RoleData.test(LeatherPigRoleData.class, context.player(), d -> d.useSkill(context.player())))
+                        .cooldownSeconds(LeatherPigRoleData.COOLDOWN_SECONDS)
                         .showOnHud(true).announceToSelf(false).build());
 
         // 出题人不适用于统一的技能注册：其需要不同的触发方式但这个api不兼容。
@@ -1197,8 +1232,8 @@ public class ModRolesInitialEventRegister {
                     Player target = player.level().getPlayerByUUID(targetUuid);
                     if (!(target instanceof ServerPlayer targetPlayer))
                         return false;
-                    NianShouPlayerComponent comp = NianShouPlayerComponent.KEY.get(player);
-                    if (comp.getRedPacketCount() <= 0) {
+                    NianShouRoleData comp = RoleData.getNullable(NianShouRoleData.class, player);
+                    if (comp == null || comp.getRedPacketCount() <= 0) {
                         player.displayClientMessage(
                                 Component.translatable("message.noellesroles.nianshou.no_red_packet")
                                         .withStyle(ChatFormatting.RED),
@@ -1236,7 +1271,7 @@ public class ModRolesInitialEventRegister {
                         return false;
                     }
                     shop.addToBalance(-200);
-                    FortunetellerPlayerComponent.KEY.get(player).protectPlayer(target);
+                    RoleData.ifPresent(FortunetellerRoleData.class, player, d -> d.protectPlayer(target));
                     return true;
                 }).cooldownSeconds(120).build());
 
@@ -1271,7 +1306,7 @@ public class ModRolesInitialEventRegister {
                 SRE.id("dio_timestop"),
                 "skill.noellesroles.dio.timestop",
                 context -> {
-                    DIOPlayerComponent.KEY.get(context.player()).tryActivateTimeStop();
+                    RoleData.ifPresent(DIORoleData.class, context.player(), d -> d.tryActivateTimeStop());
                     return true;
                 }).build());
     }

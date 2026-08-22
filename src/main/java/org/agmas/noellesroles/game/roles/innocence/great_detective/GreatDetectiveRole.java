@@ -15,6 +15,8 @@
 
 package org.agmas.noellesroles.game.roles.innocence.great_detective;
 
+import org.agmas.noellesroles.role_data.innocence.GreatDetectiveRoleData;
+import io.wifi.starrailexpress.api.data.RoleData;
 import io.wifi.starrailexpress.api.NormalRole;
 import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.cca.AreasWorldComponent;
@@ -91,7 +93,9 @@ public class GreatDetectiveRole extends NormalRole {
             return InteractionResult.PASS;
         }
 
-        GreatDetectivePlayerComponent comp = GreatDetectivePlayerComponent.KEY.get(serverPlayer);
+        GreatDetectiveRoleData comp = RoleData.getNullable(GreatDetectiveRoleData.class, serverPlayer);
+        if (!RoleData.isAttached(comp))
+            return InteractionResult.PASS;
         UUID corpseUuid = body.getUUID();
         if (comp.isInCooldown()) {
             serverPlayer.displayClientMessage(

@@ -15,6 +15,7 @@
 
 package org.agmas.noellesroles.client.rolescreen;
 
+import io.wifi.starrailexpress.api.data.RoleData;
 import io.wifi.starrailexpress.client.gui.screen.ingame.LimitedInventoryScreen;
 import io.wifi.starrailexpress.client.gui.screen.ingame.RoleScreenHelper;
 import net.minecraft.client.Minecraft;
@@ -24,7 +25,7 @@ import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.level.GameType;
 import org.agmas.noellesroles.client.widget.AmonPlayerWidget;
-import org.agmas.noellesroles.game.roles.neutral.amon.AmonPlayerComponent;
+import org.agmas.noellesroles.role_data.neutral.AmonRoleData;
 import org.agmas.noellesroles.role.ModRoles;
 
 import java.awt.Color;
@@ -77,7 +78,8 @@ public final class AmonRoleScreenExtension extends PlayerListRoleScreenExtension
         }
 
         // 只显示已成熟、可夺舍的宿主（成熟宿主 UUID 仅同步给阿蒙本人）。
-        AmonPlayerComponent comp = AmonPlayerComponent.KEY.get(client.player);
+        AmonRoleData comp = RoleData.getNullable(AmonRoleData.class, client.player);
+        if (!RoleData.isAttached(comp)) return List.of();
         java.util.Set<java.util.UUID> matured = comp.clientMaturedHosts;
         if (matured.isEmpty()) {
             return List.of();

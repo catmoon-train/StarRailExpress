@@ -15,6 +15,21 @@
 
 package org.agmas.noellesroles.init.events;
 
+import org.agmas.noellesroles.role_data.killer.WraithAssassinRoleData;
+
+import org.agmas.noellesroles.role_data.neutral.WayfarerRoleData;
+
+import org.agmas.noellesroles.role_data.innocence.ReturnTravelerRoleData;
+
+import org.agmas.noellesroles.role_data.killer.NostalgistRoleData;
+
+import org.agmas.noellesroles.role_data.neutral.LinFamilyRoleData;
+
+import org.agmas.noellesroles.role_data.killer.DelayerRoleData;
+
+import org.agmas.noellesroles.role_data.innocence.AwesomeRoleData;
+
+import io.wifi.starrailexpress.api.data.RoleData;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.content.item.StandardRevolverItem;
 import io.wifi.starrailexpress.event.*;
@@ -43,16 +58,16 @@ import org.agmas.noellesroles.component.ModComponents;
 import org.agmas.noellesroles.content.item.*;
 import org.agmas.noellesroles.events.OnShopPurchase;
 import org.agmas.noellesroles.events.OnVendingMachinesBuyItems;
-import org.agmas.noellesroles.game.roles.innocence.cake_maker.CakeMakerComponent;
+import org.agmas.noellesroles.role_data.innocence.CakeMakerRoleData;
 import org.agmas.noellesroles.game.roles.killer.conspirator.ConspiratorKilledPlayer;
-import org.agmas.noellesroles.game.roles.killer.insane_killer.InsaneKillerPlayerComponent;
-import org.agmas.noellesroles.game.roles.killer.ninja.NinjaPlayerComponent;
-import org.agmas.noellesroles.game.roles.killer.stalker.StalkerPlayerComponent;
+import org.agmas.noellesroles.role_data.killer.InsaneKillerRoleData;
+import org.agmas.noellesroles.role_data.killer.NinjaRoleData;
+import org.agmas.noellesroles.role_data.killer.StalkerRoleData;
 import org.agmas.noellesroles.game.roles.neutral.commander.CommanderHandler;
-import org.agmas.noellesroles.game.roles.neutral.cupid.CupidPlayerComponent;
-import org.agmas.noellesroles.game.roles.neutral.doomedsinner.DoomedSinnerPlayerComponent;
+import org.agmas.noellesroles.role_data.neutral.CupidRoleData;
+import org.agmas.noellesroles.role_data.neutral.DoomedSinnerRoleData;
 import org.agmas.noellesroles.TrueKillerFinder;
-import org.agmas.noellesroles.game.roles.neutral.mafia.GodfatherComponent;
+import org.agmas.noellesroles.role_data.neutral.GodfatherRoleData;
 import org.agmas.noellesroles.handler.THEventHandler;
 import org.agmas.noellesroles.ModDataComponentTypes;
 import org.agmas.noellesroles.init.*;
@@ -93,24 +108,24 @@ public class NRInteractionEvents {
                 return InteractionResult.PASS;
 
             // 烟熏炉交互方块 - 添加原料
-            if (CakeMakerComponent.isSmokerInteractionEntity(entity)) {
-                UUID ownerId = CakeMakerComponent.getSmokerOwner(entity);
+            if (CakeMakerRoleData.isSmokerInteractionEntity(entity)) {
+                UUID ownerId = CakeMakerRoleData.getSmokerOwner(entity);
                 if (ownerId != null && ownerId.equals(player.getUUID())) {
-                    if (ModComponents.CAKE_MAKER.get(player).addIngredient(player, entity)) {
+                    if (RoleData.test(CakeMakerRoleData.class, player, d -> d.addIngredient(player, entity))) {
                         return InteractionResult.SUCCESS;
                     }
                 }
             }
 
             // 蛋糕交互实体 - 食用
-            if (CakeMakerComponent.isCakeInteractionEntity(entity)) {
+            if (CakeMakerRoleData.isCakeInteractionEntity(entity)) {
                 if (player.isSpectator())
                     return InteractionResult.PASS;
-                UUID ownerId = CakeMakerComponent.getCakeOwner(entity);
+                UUID ownerId = CakeMakerRoleData.getCakeOwner(entity);
                 if (ownerId != null) {
                     ServerPlayer cakeOwner = world.getServer().getPlayerList().getPlayer(ownerId);
                     if (cakeOwner != null) {
-                        if (ModComponents.CAKE_MAKER.get(cakeOwner).eat(entity, (ServerPlayer) player)) {
+                        if (RoleData.test(CakeMakerRoleData.class, cakeOwner, d -> d.eat(entity, (ServerPlayer) player))) {
                             return InteractionResult.SUCCESS;
                         }
                     }
@@ -324,19 +339,19 @@ public class NRInteractionEvents {
     // --- 角色组件事件注册 ---
 
     private static void registerRoleComponentEvents() {
-        DoomedSinnerPlayerComponent.registerEvents();
-        GodfatherComponent.registerEvents();
+        DoomedSinnerRoleData.registerEvents();
+        GodfatherRoleData.registerEvents();
         StandardRevolverItem.registerEvents();
         RefugeeComponent.register();
         THEventHandler.registerEvents();
-        NinjaPlayerComponent.registerEvents();
-        org.agmas.noellesroles.game.roles.killer.nostalgist.NostalgistPlayerComponent.registerEvents();
-        org.agmas.noellesroles.game.roles.killer.wraith_assassin.WraithAssassinPlayerComponent.registerEvents();
-        StalkerPlayerComponent.registerEvents();
-        org.agmas.noellesroles.game.roles.killer.delayer.DelayerPlayerComponent.registerEvents();
-        CupidPlayerComponent.registerEvents();
+        NinjaRoleData.registerEvents();
+        org.agmas.noellesroles.role_data.killer.NostalgistRoleData.registerEvents();
+        org.agmas.noellesroles.role_data.killer.WraithAssassinRoleData.registerEvents();
+        StalkerRoleData.registerEvents();
+        org.agmas.noellesroles.role_data.killer.DelayerRoleData.registerEvents();
+        CupidRoleData.registerEvents();
         CommanderHandler.registerChatEvent();
-        InsaneKillerPlayerComponent.registerEvent();
+        InsaneKillerRoleData.registerEvent();
         ConspiratorKilledPlayer.registerEvents();
         org.agmas.noellesroles.game.roles.neutral.infected.InfectedWinChecker.registerEvent();
         EntityClearUtils.registerResetEvent();
@@ -344,8 +359,8 @@ public class NRInteractionEvents {
         MapScanner.registerMapScanEvent();
         CustomWinnerClass.registerCustomWinners();
         XiaoNaoHandler.registerEvent();
-        org.agmas.noellesroles.game.roles.innocence.awesome_binglus.AwesomePlayerComponent.registerEvents();
-        org.agmas.noellesroles.game.roles.innocence.return_traveler.ReturnTravelerPlayerComponent.registerEvents();
+        org.agmas.noellesroles.role_data.innocence.AwesomeRoleData.registerEvents();
+        org.agmas.noellesroles.role_data.innocence.ReturnTravelerRoleData.registerEvents();
         TrueKillerFinder.registerEvents();
 
         // 难民逃生前状态保存
@@ -356,7 +371,7 @@ public class NRInteractionEvents {
         // 精神病杀手职业移除清理
         ModdedRoleRemoved.EVENT.register((player, role) -> {
             if (role != null && role.identifier().equals(ModRoles.INSANE_KILLER.identifier())) {
-                InsaneKillerPlayerComponent.KEY.get(player).clear();
+                RoleData.ifPresent(InsaneKillerRoleData.class, player, d -> d.clear());
             }
         });
 
@@ -367,6 +382,6 @@ public class NRInteractionEvents {
 
     private static void registerOtherEvents() {
         // 漫游者事件
-        org.agmas.noellesroles.game.roles.neutral.wayfarer.WayfarerPlayerComponent.registerEvents();
+        org.agmas.noellesroles.role_data.neutral.WayfarerRoleData.registerEvents();
     }
 }

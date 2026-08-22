@@ -26,7 +26,7 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.PotionItem;
 import net.minecraft.world.level.Level;
-import org.agmas.noellesroles.component.FoodDrinkGlowComponent;
+import org.agmas.noellesroles.role_data.innocence.FoodDrinkGlowRoleData;
 import org.agmas.noellesroles.scene.MapStatusBarRuntime;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
@@ -46,11 +46,11 @@ public class FoodItemMixin {
             }
             if (stack.getItem() instanceof PotionItem || stack.getItem() instanceof HoneyBottleItem) {
                 SREPlayerMoodComponent.KEY.get(p).drinkCocktail();
-                FoodDrinkGlowComponent.playerDrink(p, stack);
+                FoodDrinkGlowRoleData.playerDrink(p, stack);
                 return;
             }
             if (stack.get(DataComponents.FOOD) != null) {
-                FoodDrinkGlowComponent.playerEat(p, stack);
+                FoodDrinkGlowRoleData.playerEat(p, stack);
                 return;
             }
         }
