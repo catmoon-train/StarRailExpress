@@ -2342,7 +2342,7 @@ public class ModRoles {
             .setCanSeeCoin(true)
             .setCanPickUpRevolver(false)
             .setCanAutoAddMoney(false)
-            .setCanBeRandomedByOtherRoles(false);
+            .setCanBeRandomedByOtherRoles(false)
             .setCanHavePassiveIncome(false)
             .setToggledOffInstinctType(InstinctType.NONE)
             .setToggledOnInstinctType(
