@@ -111,7 +111,7 @@ public interface RoleData {
      * 需要执行技能/写回同步时请用 {@link #ifPresent}、{@link #test} 或 {@link #getAttached}。
      * </p>
      *
-     * @return 真实数据或空占位；仅当无法构造占位实例时才返回 {@code null}
+     * @return 不存在必定返回NULL
      */
     @Nullable
     public static <T extends RoleData> T getNullable(Class<T> clazz, Player player) {
