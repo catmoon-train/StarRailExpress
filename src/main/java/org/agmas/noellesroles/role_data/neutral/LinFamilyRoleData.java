@@ -179,9 +179,9 @@ public class LinFamilyRoleData extends SimpleRoleData {
     public final Set<UUID> xrayTargets = new HashSet<>();
 
     @Nullable
-    public UUID pendingOfferId;
+    public UUID pendingOfferId = null;
     @Nullable
-    public UUID pendingOfferTarget;
+    public UUID pendingOfferTarget = null;
     @Nullable
     public ItemStack pendingGift = ItemStack.EMPTY;
     public int pendingOfferCost = 0;
@@ -382,12 +382,7 @@ public class LinFamilyRoleData extends SimpleRoleData {
 
     @Override
     public void init() {
-        startingGoldGranted = false;
-        lastShieldBuyGameTime = Long.MIN_VALUE / 4;
-        xrayTargets.clear();
-        clearPendingOffer();
         grantStartingGold();
-        sync();
     }
 
     @Override
@@ -398,7 +393,6 @@ public class LinFamilyRoleData extends SimpleRoleData {
         if (!GameUtils.isPlayerAliveAndSurvival(serverPlayer)) {
             return;
         }
-        grantStartingGold();
         tickPendingOffer(serverPlayer);
         if (serverPlayer.tickCount % XRAY_REFRESH_INTERVAL == 0) {
             refreshXrayTargets(serverPlayer);
