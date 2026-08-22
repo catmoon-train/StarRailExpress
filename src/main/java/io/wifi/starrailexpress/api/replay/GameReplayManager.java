@@ -619,6 +619,25 @@ public class GameReplayManager implements IGameReplayRecorder {
     addEvent(GameReplayData.EventType.ARMOR_BREAK, playerUuid, null, "unknown", null, false);
   }
 
+  public void recordSkillUsedId(Player player, @Nullable String id) {
+    recordSkillUsedId(player, id, false);
+  }
+
+  public void recordSkillUsedId(Player player, @Nullable String id, boolean hidden) {
+    if (id == null) {
+      recordCustomEvent(
+          Component.translatable("replay.event.player.use_skill",
+              GameReplayUtils.getReplayPlayerDisplayText(player, true)),
+          hidden);
+    } else {
+      recordCustomEvent(
+          Component.translatable("sre.replay.event.skill_release",
+              GameReplayUtils.getReplayPlayerDisplayText(player, true),
+              Component.translatableWithFallback(id, "")),
+          hidden);
+    }
+  }
+
   public void recordSkillUsed(UUID playerUuid, ResourceLocation skillUsed) {
     recordSkillUsed(playerUuid, skillUsed, false);
   }

@@ -190,7 +190,7 @@ public class SingerPlayerComponent implements RoleComponent, ServerTickingCompon
         if (!(player instanceof ServerPlayer serverPlayer)) {
             return false;
         }
-        ConfigWorldComponent.onPlayerUsedSkill(serverPlayer);
+        ConfigWorldComponent.onPlayerUsedSkill(serverPlayer, false);
         ServerLevel world = serverPlayer.serverLevel();
 
         // 随机选择一首音乐

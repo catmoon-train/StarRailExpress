@@ -17,7 +17,6 @@ package org.agmas.noellesroles;
 
 import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.api.SRERole;
-import io.wifi.starrailexpress.api.replay.GameReplayUtils;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.event.OnPlayerUsedSkill;
 import io.wifi.starrailexpress.game.GameUtils;
@@ -103,11 +102,14 @@ public class ConfigWorldComponent implements AutoSyncedComponent, ServerTickingC
     }
 
     public static void onPlayerUsedSkill(ServerPlayer player) {
+        onPlayerUsedSkill(player, true);
+    }
+
+    public static void onPlayerUsedSkill(ServerPlayer player, boolean record) {
         OnPlayerUsedSkill.EVENT.invoker().onPlayerUsedSkill(player);
         // 回放记录：玩家释放技能
-        SRE.REPLAY_MANAGER.recordCustomEvent(
-            Component.translatable("replay.event.player.use_skill",
-                GameReplayUtils.getReplayPlayerDisplayText(player, true)));
+        if (record)
+            SRE.REPLAY_MANAGER.recordSkillUsedId(player, null);
     }
 
     private void processSkillEchoRandomBroadcast() {
