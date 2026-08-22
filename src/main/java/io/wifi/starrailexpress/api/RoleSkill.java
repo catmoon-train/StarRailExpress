@@ -626,10 +626,11 @@ public final class RoleSkill {
                 skillReady, target);
         afterUse(player, role);
         // 回放记录：玩家释放技能（统一技能系统入口；以下角色已在组件内部记录，避免重复）
-        if (!ROLE_SKILL_REPLAY_EXCLUDED.contains(role.identifier().toString())) {
+        if (!ROLE_SKILL_REPLAY_EXCLUDED.contains(role.identifier().toString()) && !definition.toggleable()) {
             SRE.REPLAY_MANAGER.recordCustomEvent(
-                    Component.translatable("replay.event.player.use_skill",
-                            GameReplayUtils.getReplayPlayerDisplayText(player, true)));
+                    Component.translatable("replay.event.player.use_skill.with_name",
+                            GameReplayUtils.getReplayPlayerDisplayText(player, true),
+                            Component.translatableWithFallback(definition.nameKey(), "")));
         }
         return true;
     }
