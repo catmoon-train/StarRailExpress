@@ -19,10 +19,7 @@ import net.fabricmc.fabric.api.event.Event;
 
 import static net.fabricmc.fabric.api.event.EventFactory.createArrayBacked;
 
-
 public interface OnGameFinishedClient {
-
-
 
     Event<OnGameFinishedClient> EVENT = createArrayBacked(OnGameFinishedClient.class,
             listeners -> () -> {
@@ -30,8 +27,6 @@ public interface OnGameFinishedClient {
                     listener.gameFinished();
                 }
             });
-
-
 
     @SuppressWarnings("BooleanMethodIsAlwaysInverted")
     void gameFinished();

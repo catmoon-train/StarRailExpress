@@ -106,6 +106,7 @@ public class SREClientEvents {
         });
         OnGameFinishedClient.EVENT.register(() -> {
             NoellesrolesClient.clearTimeStopCache();
+            Minecraft.getInstance().getSoundManager().stop();
         });
     }
 
