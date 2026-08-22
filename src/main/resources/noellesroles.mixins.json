@@ -73,6 +73,7 @@
     "roles.warlock.WarlockDomainDeathImmunityMixin",
     "roles.writter.WrittenBookMixin",
     "scene.SnowballWarmthMixin",
+    "time_rewind.ServerPlayerTimeRewindMixin",
     "time_stop.PlayerMixin",
     "time_stop.ServerPacketBlocker"
   ],
