@@ -179,9 +179,6 @@ InteractionResultHolder<ItemStack> onItemUse(Player player, Level world, Interac
 // 右键使用方块
 InteractionResult onUseBlock(Player player, Level world, InteractionHand hand, BlockHitResult hitResult)
 
-// 限定哪些物品不能被该职业拾取
-Predicate<Item> cantPickupItem(Player player)
-
 // 获取角色初始物品列表
 List<ItemStack> getDefaultItems()
 

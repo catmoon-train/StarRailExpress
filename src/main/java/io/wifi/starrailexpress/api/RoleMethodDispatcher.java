@@ -148,9 +148,6 @@ public class RoleMethodDispatcher {
         
         SRERole role = getCurrentRole(player);
         if (role != null) {
-            if (role.cantPickupItem(player).test(item.getItem())) {
-                return TrueFalseResult.FALSE;
-            }
             return role.onPickUpItem(player, item);
         }
         return TrueFalseResult.PASS;

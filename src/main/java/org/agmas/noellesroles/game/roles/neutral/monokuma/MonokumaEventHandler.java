@@ -222,7 +222,7 @@ public class MonokumaEventHandler {
      * 物品拾取限制：黑白熊形态无法捡起左轮
      */
     private static void registerPickupRestriction() {
-        // 通过 Role.cantPickupItem 处理
+        // 通过 Role.onPickUpItems 处理
     }
 
     /**

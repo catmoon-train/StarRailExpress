@@ -15,32 +15,11 @@
 
 package org.agmas.noellesroles.role;
 
-import com.mojang.serialization.Codec;
-import io.wifi.starrailexpress.api.*;
-import io.wifi.starrailexpress.api.data.RoleData;
-import io.wifi.starrailexpress.cca.SREArmorPlayerComponent;
-import io.wifi.starrailexpress.cca.SREGameWorldComponent;
-import io.wifi.starrailexpress.cca.SREPlayerMoodComponent;
-import io.wifi.starrailexpress.cca.SREPlayerPoisonComponent;
-import io.wifi.starrailexpress.client.gui.RoleAnnouncementTexts;
-import io.wifi.starrailexpress.content.entity.PlayerBodyEntity;
-import io.wifi.starrailexpress.game.GameUtils;
-import io.wifi.starrailexpress.index.TMMItems;
-import net.fabricmc.fabric.api.attachment.v1.AttachmentRegistry;
-import net.fabricmc.fabric.api.attachment.v1.AttachmentType;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.sounds.SoundEvents;
-import net.minecraft.sounds.SoundSource;
-import net.minecraft.world.InteractionHand;
-import net.minecraft.world.InteractionResult;
-import net.minecraft.world.effect.MobEffectInstance;
-import net.minecraft.world.effect.MobEffects;
-import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.Item;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Items;
+import java.awt.Color;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+
 import org.agmas.noellesroles.Noellesroles;
 import org.agmas.noellesroles.component.FoodDrinkGlowComponent;
 import org.agmas.noellesroles.component.ModComponents;
@@ -95,10 +74,10 @@ import org.agmas.noellesroles.game.roles.neutral.chef.ChefRole;
 import org.agmas.noellesroles.game.roles.neutral.doomedsinner.DoomedSinnerPlayerComponent;
 import org.agmas.noellesroles.game.roles.neutral.gambler.GamblerPlayerComponent;
 import org.agmas.noellesroles.game.roles.neutral.gambler.GamblerRole;
-import org.agmas.noellesroles.game.roles.neutral.leader.LeaderRole;
-import org.agmas.noellesroles.game.roles.neutral.mafia.MafiaRole;
 import org.agmas.noellesroles.game.roles.neutral.jester.JesterHandler;
 import org.agmas.noellesroles.game.roles.neutral.jester.JesterRole;
+import org.agmas.noellesroles.game.roles.neutral.leader.LeaderRole;
+import org.agmas.noellesroles.game.roles.neutral.mafia.MafiaRole;
 import org.agmas.noellesroles.game.roles.neutral.mercenary.MercenaryPlayerComponent;
 import org.agmas.noellesroles.game.roles.neutral.monokuma.MonokumaRole;
 import org.agmas.noellesroles.game.roles.neutral.nian_shou.NianShouPlayerComponent;
@@ -116,16 +95,48 @@ import org.agmas.noellesroles.init.ModEffects;
 import org.agmas.noellesroles.init.ModItems;
 import org.agmas.noellesroles.role_data.neutral.LeaderRoleData;
 import org.agmas.noellesroles.role_data.vigilante.LeonRoleData;
+import org.agmas.noellesroles.utils.MCItemsUtils;
 import org.agmas.noellesroles.utils.RandomColorUtil;
 import org.agmas.noellesroles.utils.RoleUtils;
 import org.jetbrains.annotations.Nullable;
+
+import com.mojang.serialization.Codec;
+
+import io.wifi.starrailexpress.api.EggRole;
+import io.wifi.starrailexpress.api.ExtraEffectRole;
+import io.wifi.starrailexpress.api.InstinctType;
+import io.wifi.starrailexpress.api.NormalRole;
+import io.wifi.starrailexpress.api.RoleSkill;
+import io.wifi.starrailexpress.api.SRERole;
+import io.wifi.starrailexpress.api.TMMRoles;
+import io.wifi.starrailexpress.api.data.RoleData;
+import io.wifi.starrailexpress.cca.SREArmorPlayerComponent;
+import io.wifi.starrailexpress.cca.SREGameWorldComponent;
+import io.wifi.starrailexpress.cca.SREPlayerMoodComponent;
+import io.wifi.starrailexpress.cca.SREPlayerPoisonComponent;
+import io.wifi.starrailexpress.client.gui.RoleAnnouncementTexts;
+import io.wifi.starrailexpress.content.entity.PlayerBodyEntity;
+import io.wifi.starrailexpress.game.GameUtils;
+import io.wifi.starrailexpress.index.TMMItems;
+import io.wifi.starrailexpress.index.tag.TMMItemTags;
+import io.wifi.starrailexpress.util.TrueFalseResult;
+import net.fabricmc.fabric.api.attachment.v1.AttachmentRegistry;
+import net.fabricmc.fabric.api.attachment.v1.AttachmentType;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.effect.MobEffects;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import pro.fazeclan.river.stupid_express.constants.SEModifiers;
 import pro.fazeclan.river.stupid_express.constants.SERoles;
-
-import java.awt.*;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
 
 /**
  * 角色定义类
@@ -791,28 +802,19 @@ public class ModRoles {
     public static SRERole GUARD = TMMRoles.registerRole(new NormalRole(GUARD_ID, new Color(170, 170, 170).getRGB(),
             true, false, SRERole.MoodType.REAL, TMMRoles.CIVILIAN.getMaxSprintTime(), false) {
         @Override
-        public java.util.function.Predicate<net.minecraft.world.item.Item> cantPickupItem(
-                net.minecraft.world.entity.player.Player player) {
-            return item -> {
-                // 检查是否是左轮手枪或巡警手枪
-                if (item == io.wifi.starrailexpress.index.TMMItems.REVOLVER
-                        || item == org.agmas.noellesroles.init.ModItems.PATROLLER_REVOLVER) {
-                    // 检查主手、副手和背包是否有警棍
-                    if (player.getMainHandItem().is(org.agmas.noellesroles.init.ModItems.BATON))
-                        return true;
-                    if (player.getOffhandItem().is(org.agmas.noellesroles.init.ModItems.BATON))
-                        return true;
-                    for (int i = 0; i < player.getInventory().getContainerSize(); i++) {
-                        if (player.getInventory().getItem(i)
-                                .is(org.agmas.noellesroles.init.ModItems.BATON))
-                            return true;
-                    }
-                    return false;
+        public TrueFalseResult onPickUpItem(Player player, ItemStack item) {
+            if (item.is(TMMItemTags.GUNS)) {
+                if (MCItemsUtils.hasItem(player, ModItems.BATON)) {
+                    return TrueFalseResult.FALSE;
                 }
-                return false;
-            };
+            }
+            return TrueFalseResult.PASS;
         }
-    }).setCanSeeCoin(true).setCanPickUpRevolver(true).setCanAutoAddMoney(false).setVigilanteTeam(true)
+    })
+            .setCanSeeCoin(true)
+            .setCanPickUpRevolver(true)
+            .setCanAutoAddMoney(false)
+            .setVigilanteTeam(true)
             .setDefaultMax(1)
             .setCanSetSpawnInfoInConfig(false);
 

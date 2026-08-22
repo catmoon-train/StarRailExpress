@@ -1073,10 +1073,6 @@ public abstract class SRERole extends SREAbstractInfoClass {
         return TrueFalseResult.PASS;
     }
 
-    public Predicate<Item> cantPickupItem(Player player) {
-        return a -> false;
-    }
-
     // public boolean onPickupItem(Player player, Item item) {
     // return true;
     // }
