@@ -57,7 +57,6 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.component.CustomData;
-import org.agmas.noellesroles.config.NoellesRolesConfig;
 import org.agmas.noellesroles.events.OnVendingMachinesBuyItems;
 import org.agmas.noellesroles.init.ModEffects;
 import org.agmas.noellesroles.init.ModItems;
@@ -286,7 +285,7 @@ public class LinFamilyRoleData extends SimpleRoleData {
 
     public boolean canBuyShield(long gameTime) {
         return gameTime >= lastShieldBuyGameTime
-                + NoellesRolesConfig.instance().linFamilyShieldCooldownSeconds * 20L;
+                + 60 * 20L;
     }
 
     public void markShieldBought(long gameTime) {
@@ -295,7 +294,7 @@ public class LinFamilyRoleData extends SimpleRoleData {
 
     public boolean canBuyVending(long gameTime) {
         return gameTime >= lastVendingBuyGameTime
-                + NoellesRolesConfig.instance().linFamilyVendingCooldownSeconds * 20L;
+                + 60 * 20L;
     }
 
     public void markVendingBought(long gameTime) {
@@ -338,7 +337,7 @@ public class LinFamilyRoleData extends SimpleRoleData {
             return;
         }
         int playerCount = Math.max(1, game.getPlayerCount());
-        int gold = playerCount * NoellesRolesConfig.instance().linFamilyGoldPerPlayer;
+        int gold = playerCount * 250;
         SREPlayerShopComponent.KEY.get(serverPlayer).setBalance(gold);
         startingGoldGranted = true;
         serverPlayer.displayClientMessage(
@@ -388,8 +387,7 @@ public class LinFamilyRoleData extends SimpleRoleData {
                     true);
             return false;
         }
-        NoellesRolesConfig config = NoellesRolesConfig.instance();
-        if (self.distanceTo(target) > config.linFamilySkillRange) {
+        if (self.distanceToSqr(target) > 144) {
             self.displayClientMessage(
                     Component.translatable("message.noellesroles.lin_family.too_far")
                             .withStyle(ChatFormatting.RED),
@@ -453,7 +451,7 @@ public class LinFamilyRoleData extends SimpleRoleData {
         if (data == null || !GameUtils.isPlayerAliveAndSurvival(self)) {
             return false;
         }
-        int price = NoellesRolesConfig.instance().linFamilyCollectorPrice;
+        int price = 400;
         if (!trySpend(self, price)) {
             self.displayClientMessage(
                     Component.translatable("message.noellesroles.lin_family.not_enough_gold")
@@ -476,12 +474,11 @@ public class LinFamilyRoleData extends SimpleRoleData {
 
     @Nullable
     private GiftChoice chooseGift(ServerPlayer self, @Nullable SRERole targetRole) {
-        NoellesRolesConfig config = NoellesRolesConfig.instance();
         boolean killer = targetRole != null && targetRole.canUseKiller() && !targetRole.isNeutrals();
         if (killer) {
             boolean preferKnife = self.getRandom().nextBoolean();
-            GiftChoice knife = new GiftChoice(createDurabilityKnife(), config.linFamilyKnifePrice);
-            GiftChoice gun = new GiftChoice(createMisfireGun(false), config.linFamilyMisfireGunPrice);
+            GiftChoice knife = new GiftChoice(createDurabilityKnife(), 150);
+            GiftChoice gun = new GiftChoice(createMisfireGun(false), 300);
             GiftChoice first = preferKnife ? knife : gun;
             GiftChoice second = preferKnife ? gun : knife;
             if (getBalance(self) >= first.cost) {
@@ -492,7 +489,7 @@ public class LinFamilyRoleData extends SimpleRoleData {
             }
             return null;
         }
-        int cost = config.linFamilyInnocentGunPrice;
+        int cost = 200;
         if (getBalance(self) < cost) {
             return null;
         }
@@ -506,7 +503,7 @@ public class LinFamilyRoleData extends SimpleRoleData {
         pendingGift = choice.gift.copy();
         pendingOfferCost = choice.cost;
         pendingOfferExpireGameTime = self.level().getGameTime()
-                + NoellesRolesConfig.instance().linFamilyOfferTimeoutSeconds * 20L;
+                + 15 * 20L;
 
         ItemStack newspaper = createOfferNewspaper(self, offerId);
         RoleUtils.insertStackInFreeSlot(target, newspaper);
@@ -635,7 +632,7 @@ public class LinFamilyRoleData extends SimpleRoleData {
             return;
         }
         attacker.getCooldowns().addCooldown(Items.GOLD_NUGGET, 20);
-        int ticks = NoellesRolesConfig.instance().linFamilyBindSeconds * 20;
+        int ticks = 10 * 20;
         victim.addEffect(new MobEffectInstance(ModEffects.MOVE_BANED, ticks, 0, false, false, true));
         victim.addEffect(new MobEffectInstance(MobEffects.GLOWING, ticks, 0, false, true, true));
         victim.displayClientMessage(
@@ -649,7 +646,7 @@ public class LinFamilyRoleData extends SimpleRoleData {
     }
 
     private static void applyInvisibility(ServerPlayer linFamily) {
-        int ticks = NoellesRolesConfig.instance().linFamilyInvisSeconds * 20;
+        int ticks = 20 * 20;
         linFamily.addEffect(new MobEffectInstance(MobEffects.INVISIBILITY, ticks, 0, false, false, true));
         linFamily.displayClientMessage(
                 Component.translatable("message.noellesroles.lin_family.invis")

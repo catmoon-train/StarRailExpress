@@ -3482,7 +3482,7 @@ public class RoleShopHandler {
             ItemStack shieldItem = Items.SHIELD.getDefaultInstance();
             shieldItem.set(DataComponents.ITEM_NAME,
                     Component.translatable("item.noellesroles.lin_family_shield").withStyle(ChatFormatting.GOLD));
-            shop.add(new ShopEntry(shieldItem, NoellesRolesConfig.instance().linFamilyShieldPrice,
+            shop.add(new ShopEntry(shieldItem, 400,
                     ShopEntry.Type.TOOL) {
                 @Override
                 public boolean canBuy(@NotNull Player player) {
