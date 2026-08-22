@@ -15,6 +15,20 @@
 
 package org.agmas.noellesroles.game.roles.neutral.recorder;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
+
+import org.agmas.noellesroles.Noellesroles;
+import org.agmas.noellesroles.component.ModComponents;
+import org.agmas.noellesroles.init.ModItems;
+import org.agmas.noellesroles.role.ModRoles;
+import org.agmas.noellesroles.utils.RoleUtils;
+import org.ladysnake.cca.api.v3.component.ComponentKey;
+import org.ladysnake.cca.api.v3.component.tick.ServerTickingComponent;
+
 import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.api.RoleComponent;
 import io.wifi.starrailexpress.api.SRERole;
@@ -28,15 +42,6 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
-import org.agmas.noellesroles.Noellesroles;
-import org.agmas.noellesroles.component.ModComponents;
-import org.agmas.noellesroles.init.ModItems;
-import org.agmas.noellesroles.role.ModRoles;
-import org.agmas.noellesroles.utils.RoleUtils;
-import org.ladysnake.cca.api.v3.component.ComponentKey;
-import org.ladysnake.cca.api.v3.component.tick.ServerTickingComponent;
-
-import java.util.*;
 
 public class RecorderPlayerComponent implements RoleComponent, ServerTickingComponent {
 
@@ -153,6 +158,13 @@ public class RecorderPlayerComponent implements RoleComponent, ServerTickingComp
                             GameReplayUtils.getReplayPlayerDisplayText(target, true)));
             checkWinCondition();
         } else {
+            
+            // 回放记录：记录员使用记录笔记记录了某玩家身份
+            SRE.REPLAY_MANAGER.recordCustomEvent(
+                    Component.translatable("replay.event.recorder.record_identity.wrong",
+                            GameReplayUtils.getReplayPlayerDisplayText(serverPlayer, true),
+                            GameReplayUtils.getReplayPlayerDisplayText(target, true)));
+
             wrongGuessCount++;
             serverPlayer.displayClientMessage(
                     Component

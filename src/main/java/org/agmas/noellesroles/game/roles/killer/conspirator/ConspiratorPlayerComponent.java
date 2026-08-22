@@ -155,7 +155,7 @@ public class ConspiratorPlayerComponent implements RoleComponent, ServerTickingC
         Player target = player.level().getPlayerByUUID(targetUuid);
         if (target == null)
             return false;
-        ConfigWorldComponent.onPlayerUsedSkill( (ServerPlayer) player);
+        ConfigWorldComponent.onPlayerUsedSkill((ServerPlayer) player, false);
         // 获取目标的实际角色
         SREGameWorldComponent gameWorld = SREGameWorldComponent.KEY.get(player.level());
         SRERole actualRole = gameWorld.getRole(target);
@@ -184,12 +184,6 @@ public class ConspiratorPlayerComponent implements RoleComponent, ServerTickingC
             targetList.add(newTarget);
         }
 
-        // 回放记录：阴谋家使用阴谋书页记录了某玩家身份
-        SRE.REPLAY_MANAGER.recordCustomEvent(
-                Component.translatable("replay.event.conspirator.record_identity",
-                        GameReplayUtils.getReplayPlayerDisplayText(serverPlayer, true),
-                        GameReplayUtils.getReplayPlayerDisplayText(target, true)));
-
         // 检查是否猜测正确
         if (actualRole.identifier().equals(roleId)) {
             // 猜测正确！开始死亡倒计时
@@ -209,6 +203,11 @@ public class ConspiratorPlayerComponent implements RoleComponent, ServerTickingC
                             .withStyle(ChatFormatting.GREEN, ChatFormatting.BOLD),
                     true);
 
+            // 回放记录：阴谋家使用阴谋书页记录了某玩家身份
+            SRE.REPLAY_MANAGER.recordCustomEvent(
+                    Component.translatable("replay.event.conspirator.record_identity",
+                            GameReplayUtils.getReplayPlayerDisplayText(serverPlayer, true),
+                            GameReplayUtils.getReplayPlayerDisplayText(target, true)));
             // 通知目标玩家他们被诅咒了（但不告诉是谁）
             if (target instanceof ServerPlayer targetServer) {
                 targetServer.displayClientMessage(
@@ -230,6 +229,12 @@ public class ConspiratorPlayerComponent implements RoleComponent, ServerTickingC
             this.sync();
             return true;
         } else {
+
+            // 回放记录：阴谋家使用阴谋书页记录了某玩家身份
+            SRE.REPLAY_MANAGER.recordCustomEvent(
+                    Component.translatable("replay.event.conspirator.record_identity.wrong",
+                            GameReplayUtils.getReplayPlayerDisplayText(serverPlayer, true),
+                            GameReplayUtils.getReplayPlayerDisplayText(target, true)));
             // 猜测错误
             this.wrongGuessCount++;
 
