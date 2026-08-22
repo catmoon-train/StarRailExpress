@@ -17,8 +17,10 @@ package org.agmas.noellesroles.client.screen;
 
 import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.cca.SREPlayerTaskComponent;
+import io.wifi.starrailexpress.client.util.PinYinUtils;
 import io.wifi.starrailexpress.game.GameConstants;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
+import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.EditBox;
@@ -30,7 +32,9 @@ import org.agmas.noellesroles.Noellesroles;
 import org.agmas.noellesroles.client.widget.ConspiratorRoleWidget;
 import org.agmas.noellesroles.packet.ReasonerOpenScreenS2CPacket;
 import org.agmas.noellesroles.packet.ReasonerSubmitC2SPacket;
+import org.agmas.noellesroles.utils.RoleUtils;
 
+import java.awt.Color;
 import java.util.*;
 
 public class ReasonerCompassScreen extends Screen {
@@ -56,6 +60,8 @@ public class ReasonerCompassScreen extends Screen {
     private String selectedTask = "";
     private int selectionQuestion = 0; // 0=主页, 2=角色, 3=死因, 4=任务
     private int selectionPage = 0;
+    private EditBox searchWidget = null;
+    private String searchContent = null;
     private List<SRERole> allRoles = List.of();
     private List<String> allRoleIds = List.of();
     private List<String> allDeathReasonIds = allDeathReasonIds();
@@ -192,6 +198,8 @@ public class ReasonerCompassScreen extends Screen {
     private void openSelection(int question) {
         selectionQuestion = question;
         selectionPage = 0;
+        searchWidget = null;
+        searchContent = null;
         if (question == 2) {
             drawRolePage();
         } else {
@@ -202,20 +210,27 @@ public class ReasonerCompassScreen extends Screen {
     // ───── 角色选择（ConspiratorRoleWidget 网格，与 GuessRoleScreen 一致） ─────
 
     private void drawRolePage() {
-        clearWidgets();
+        clearContentExceptSearch();
         int left = panelX();
         int top = panelY();
-        List<SRERole> roles = allRoles;
+        List<SRERole> roles = filteredRolesForSearch();
+
+        int totalGridW = ROLE_COLS * (ROLE_WIDGET_W + ROLE_SPACING_X) - ROLE_SPACING_X;
+        int startX = left + (PANEL_WIDTH - totalGridW) / 2;
+        int startY = top + 68;
+
+        if (searchWidget == null) {
+            createSearchBox(startX, top + 42, totalGridW);
+        }
+
         if (roles.isEmpty()) {
+            searchWidget.setTextColor(Color.RED.getRGB());
             addRenderableWidget(backBtn(left + PANEL_WIDTH - 108, top + PANEL_HEIGHT - 30));
             return;
         }
+        searchWidget.setTextColor(Color.WHITE.getRGB());
 
         int totalPages = (roles.size() + ROLES_PER_PAGE - 1) / ROLES_PER_PAGE;
-        int totalGridW = ROLE_COLS * (ROLE_WIDGET_W + ROLE_SPACING_X) - ROLE_SPACING_X;
-        int startX = left + (PANEL_WIDTH - totalGridW) / 2;
-        int startY = top + 44;
-
         int startIdx = selectionPage * ROLES_PER_PAGE;
         for (int i = 0; i < ROLES_PER_PAGE; i++) {
             int idx = startIdx + i;
@@ -245,16 +260,23 @@ public class ReasonerCompassScreen extends Screen {
     // ───── 死因 / 任务选择 ─────
 
     private void rebuildSelection() {
-        clearWidgets();
-        List<String> options = optionsFor(selectionQuestion);
+        clearContentExceptSearch();
         int left = panelX();
         int top = panelY();
+        List<String> options = filteredOptionsFor(selectionQuestion);
+
+        if (searchWidget == null) {
+            createSearchBox(left + 36, top + 42, PANEL_WIDTH - 72);
+        }
+        searchWidget.setTextColor(
+                options.isEmpty() && searchContent != null ? Color.RED.getRGB() : Color.WHITE.getRGB());
+
         int start = selectionPage * OPTION_PAGE_SIZE;
         int end = Math.min(start + OPTION_PAGE_SIZE, options.size());
 
         for (int i = start; i < end; i++) {
             String option = options.get(i);
-            int wy = top + 48 + (i - start) * 24;
+            int wy = top + 68 + (i - start) * 24;
             addRenderableWidget(Button.builder(displayFor(selectionQuestion, option), button -> {
                 setSelected(selectionQuestion, option);
                 rebuildMain();
@@ -285,6 +307,62 @@ public class ReasonerCompassScreen extends Screen {
     private Button backBtn(int x, int y) {
         return Button.builder(Component.translatable("gui.back"), button -> rebuildMain())
                 .bounds(x, y, 54, 20).build();
+    }
+
+    // ───── 搜索栏（与记录笔记/阴谋书页的搜索职业一致） ─────
+
+    private void clearContentExceptSearch() {
+        if (searchWidget == null) {
+            clearWidgets();
+            return;
+        }
+        // 保留搜索框（避免刷新时丢失输入焦点），重建其余组件
+        clearWidgets();
+        addRenderableWidget(searchWidget);
+    }
+
+    private void createSearchBox(int x, int y, int width) {
+        searchWidget = new EditBox(font, x, y, width, 20, Component.nullToEmpty(""));
+        searchWidget.setHint(Component.translatable("screen.noellesroles.search.placeholder")
+                .withStyle(ChatFormatting.GRAY));
+        searchWidget.setEditable(true);
+        searchWidget.setResponder(this::onSearchChanged);
+        addRenderableWidget(searchWidget);
+    }
+
+    private void onSearchChanged(String text) {
+        searchContent = text.isEmpty() ? null : text;
+        selectionPage = 0;
+        if (selectionQuestion == 2) {
+            drawRolePage();
+        } else {
+            rebuildSelection();
+        }
+    }
+
+    private List<SRERole> filteredRolesForSearch() {
+        if (searchContent == null)
+            return allRoles;
+        return allRoles.stream().filter(this::roleMatchesSearch).toList();
+    }
+
+    private boolean roleMatchesSearch(SRERole role) {
+        String roleId = role.identifier().toString();
+        String roleName = RoleUtils.getRoleName(role).getString();
+        return roleName.contains(searchContent) || roleId.contains(searchContent)
+                || PinYinUtils.contains(searchContent, roleName);
+    }
+
+    private List<String> filteredOptionsFor(int question) {
+        if (searchContent == null)
+            return optionsFor(question);
+        return optionsFor(question).stream().filter(o -> optionMatchesSearch(question, o)).toList();
+    }
+
+    private boolean optionMatchesSearch(int question, String value) {
+        String displayName = displayFor(question, value).getString();
+        return displayName.contains(searchContent) || value.contains(searchContent)
+                || PinYinUtils.contains(searchContent, displayName);
     }
 
     private List<String> optionsFor(int question) {
@@ -339,7 +417,7 @@ public class ReasonerCompassScreen extends Screen {
     public boolean mouseScrolled(double mouseX, double mouseY, double h, double verticalAmount) {
         if (selectionQuestion != 0) {
             if (selectionQuestion == 2) {
-                int totalPages = (allRoles.size() + ROLES_PER_PAGE - 1) / ROLES_PER_PAGE;
+                int totalPages = (filteredRolesForSearch().size() + ROLES_PER_PAGE - 1) / ROLES_PER_PAGE;
                 if (verticalAmount < 0 && selectionPage < totalPages - 1) {
                     selectionPage++;
                     drawRolePage();
@@ -352,7 +430,7 @@ public class ReasonerCompassScreen extends Screen {
                 }
             } else {
                 int totalPages = Math.max(1,
-                        (optionsFor(selectionQuestion).size() + OPTION_PAGE_SIZE - 1) / OPTION_PAGE_SIZE);
+                        (filteredOptionsFor(selectionQuestion).size() + OPTION_PAGE_SIZE - 1) / OPTION_PAGE_SIZE);
                 if (verticalAmount < 0 && selectionPage < totalPages - 1) {
                     selectionPage++;
                     rebuildSelection();
@@ -473,7 +551,8 @@ public class ReasonerCompassScreen extends Screen {
             default -> Component.translatable("screen.noellesroles.reasoner.select_role");
         };
         g.drawCenteredString(font, label, left + PANEL_WIDTH / 2, top + 34, 0xFFEBDFAE);
-        int totalPages = Math.max(1, (optionsFor(selectionQuestion).size() + OPTION_PAGE_SIZE - 1) / OPTION_PAGE_SIZE);
+        int totalPages = Math.max(1,
+                (filteredOptionsFor(selectionQuestion).size() + OPTION_PAGE_SIZE - 1) / OPTION_PAGE_SIZE);
         g.drawString(font, Component.literal((selectionPage + 1) + "/" + totalPages),
                 left + 140, top + PANEL_HEIGHT - 24, 0xFFBBA86D, false);
     }
@@ -483,7 +562,8 @@ public class ReasonerCompassScreen extends Screen {
         int top = panelY();
         g.drawCenteredString(font, Component.translatable("screen.noellesroles.reasoner.select_role"),
                 left + PANEL_WIDTH / 2, top + 34, 0xFFEBDFAE);
-        int totalPages = Math.max(1, (allRoles.size() + ROLES_PER_PAGE - 1) / ROLES_PER_PAGE);
+        int totalPages = Math.max(1,
+                (filteredRolesForSearch().size() + ROLES_PER_PAGE - 1) / ROLES_PER_PAGE);
         g.drawString(font, Component.literal((selectionPage + 1) + "/" + totalPages),
                 left + 140, top + PANEL_HEIGHT - 24, 0xFFBBA86D, false);
     }
