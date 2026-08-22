@@ -219,7 +219,6 @@ public class GameConstants {
         public static ResourceLocation REVOLVER = SRE.id("revolver_shot");
         public static ResourceLocation DERRINGER = SRE.id("derringer_shot");
         public static ResourceLocation GENERAL_ATTACK = SRE.id("general_attack");
-        public static ResourceLocation GROSELL_TRAVELOG = Noellesroles.id("grosell_travelog");
         public static ResourceLocation MORTICIAN_BODYMAKER = Noellesroles.id("mortician_bodymaker");
         public static ResourceLocation BAT = SRE.id("bat_hit");
         public static ResourceLocation GRENADE = SRE.id("grenade");

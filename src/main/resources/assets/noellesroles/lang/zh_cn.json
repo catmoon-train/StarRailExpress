@@ -1073,7 +1073,7 @@
   "stalker.shop_blocked": "潜行者无法使用商店",
   "hud.noellesroles.stalker.attack_cooldown": "杀戮冷却：%s秒",
   "hud.noellesroles.stalker.dash_cooldown": "突进冷却：%s秒",
-  "death_reason.starrailexpress.stalker_execution": "被潜行者献祭",
+  "death_reason.noellesroles.mortician_bodymaker": "伪造的尸体",
   "==================== 慕恋者角色 ====================": "",
   "announcement.star.role.admirer": "爱慕者",
   "announcement.star.goals.admirer": "观察你的绑定对象来积累能量，满能量后转化为操纵师！",
