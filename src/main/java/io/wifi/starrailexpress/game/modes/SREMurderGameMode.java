@@ -743,28 +743,30 @@ public class SREMurderGameMode extends GameMode {
         boolean civilianAlive = false;
         boolean killerAlive = false;
         boolean anyAlive = false;
-        for (ServerPlayer player : serverWorld.players()) {
-            // passive money
-            if (gameWorldComponent.canAutoAddMoney(player)) {
-                Integer balanceToAdd = GameConstants.getPassiveMoneyTicker().apply(serverWorld.getGameTime());
-                if (balanceToAdd > 0)
-                    SREPlayerShopComponent.KEY.get(player).addToBalance(balanceToAdd);
-            }
-            if (gameWorldComponent.isRole(player, TMMRoles.VIGILANTE)
-                    && !GameUtils.isPlayerEliminated(player)
-                    && serverWorld.getGameTime() % VIGILANTE_PASSIVE_MONEY_INTERVAL_TICKS == 0) {
-                SREPlayerShopComponent.KEY.get(player).addToBalance(VIGILANTE_PASSIVE_MONEY_AMOUNT);
-            }
+        {
+            for (ServerPlayer player : serverWorld.players()) {
+                // passive money
+                if (gameWorldComponent.canAutoAddMoney(player)) {
+                    Integer balanceToAdd = GameConstants.getPassiveMoneyTicker().apply(serverWorld.getGameTime());
+                    if (balanceToAdd > 0)
+                        SREPlayerShopComponent.KEY.get(player).addToBalance(balanceToAdd);
+                }
+                if (gameWorldComponent.isRole(player, TMMRoles.VIGILANTE)
+                        && !GameUtils.isPlayerEliminated(player)
+                        && serverWorld.getGameTime() % VIGILANTE_PASSIVE_MONEY_INTERVAL_TICKS == 0) {
+                    SREPlayerShopComponent.KEY.get(player).addToBalance(VIGILANTE_PASSIVE_MONEY_AMOUNT);
+                }
 
-            // check if some civilians are still alive
-            if (gameWorldComponent.canIncreaseSurvivingInnocents(player) && !GameUtils.isPlayerEliminated(player)) {
-                civilianAlive = true;
-            }
-            if (gameWorldComponent.canIncreaseSurvivingKillers(player) && !GameUtils.isPlayerEliminated(player)) {
-                killerAlive = true;
-            }
-            if (GameUtils.isPlayerAliveAndSurvival(player)) {
-                anyAlive = true;
+                // check if some civilians are still alive
+                if (gameWorldComponent.canIncreaseSurvivingInnocents(player) && !GameUtils.isPlayerEliminated(player)) {
+                    civilianAlive = true;
+                }
+                if (gameWorldComponent.canIncreaseSurvivingKillers(player) && !GameUtils.isPlayerEliminated(player)) {
+                    killerAlive = true;
+                }
+                if (GameUtils.isPlayerAliveAndSurvival(player)) {
+                    anyAlive = true;
+                }
             }
         }
 

@@ -16,6 +16,7 @@
 package io.wifi.starrailexpress.content.item;
 
 import io.wifi.starrailexpress.SRE;
+import io.wifi.starrailexpress.SREConfig;
 import io.wifi.starrailexpress.content.block.LockableButtonBlock;
 import io.wifi.starrailexpress.content.block.SmallDoorBlock;
 import io.wifi.starrailexpress.content.block_entity.LockableButtonBlockEntity;
@@ -61,7 +62,7 @@ public class LockpickItem extends Item implements AdventureUsable {
 
                     if (!player.isCreative()) {
                         player.getCooldowns().addCooldown(this,
-                               getCooldownTicks());
+                                getCooldownTicks());
                     }
 
                     if (!world.isClientSide)
@@ -100,9 +101,9 @@ public class LockpickItem extends Item implements AdventureUsable {
     }
 
     public int getCooldownTicks() {
-        return GameConstants.ITEM_COOLDOWNS.getOrDefault(this, 40);
+        return GameConstants.ITEM_COOLDOWNS.getOrDefault(this, SREConfig.instance().lockpickCooldown * 20);
     }
-    
+
     public int getOpenCooldownTicks() {
         return 0;
     }
