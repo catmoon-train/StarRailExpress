@@ -2334,7 +2334,14 @@ public class ModRoles {
             false,
             SRERole.MoodType.FAKE,
             Integer.MAX_VALUE,
-            true))
+            true){
+                @Override
+                public List<ItemStack> getDefaultItems() {
+                    var list = new ArrayList<ItemStack>();
+                    list.add(Items.BUNDLE.getDefaultInstance().copy());
+                    return list;
+                }
+            })
             .setRoleData(LinFamilyRoleData::new)
             .setNeutrals(true)
             .setCanSeeTeammateKillerRole(false)
