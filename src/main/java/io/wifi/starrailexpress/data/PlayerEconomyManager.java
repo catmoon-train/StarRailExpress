@@ -38,6 +38,7 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
+// 请注意这个不是游戏内的金币，游戏内的金币是SREPlayerShopComponent在管理！
 public final class PlayerEconomyManager {
     public static final String PART = "economy";
     private static final Gson GSON = new GsonBuilder().create();
@@ -74,6 +75,7 @@ public final class PlayerEconomyManager {
         mirrorToSkinsComponent(player, sc -> sc.addLootChance(delta));
     }
 
+    // 请注意这个不是游戏内的金币，游戏内的金币是SREPlayerShopComponent在管理！
     public static void addCoinNum(Player player, int delta) {
         Entry entry = get(player.getUUID());
         entry.state.coinNum = Math.max(0, entry.state.coinNum + delta);

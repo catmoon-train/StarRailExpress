@@ -155,12 +155,14 @@ public final class PelicanManager {
                                     .withStyle(ChatFormatting.GREEN),
                             Component.literal(message.signedContent()).withStyle(ChatFormatting.WHITE))
                     .withStyle(ChatFormatting.DARK_PURPLE);
-            BroadcastCommand.BroadcastMessage(serverPlayer, broadcastMessage);
+            // BroadcastCommand.BroadcastMessage(serverPlayer, broadcastMessage);
             serverPlayer.server.getPlayerList().getPlayers().forEach((p) -> {
                 if (gameWorldComponent.isRole(p, ModRoles.PELICAN)) {
                     { // 鹈鹕
                         BroadcastCommand.BroadcastMessage(p, broadcastMessage);
                     }
+                } else if (PelicanManager.isStashed(p)) {
+                    BroadcastCommand.BroadcastMessage(p, broadcastMessage);
                 }
             });
             return true;

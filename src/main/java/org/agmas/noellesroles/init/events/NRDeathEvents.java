@@ -32,6 +32,7 @@ import io.wifi.starrailexpress.api.TMMRoles;
 import io.wifi.starrailexpress.api.replay.GameReplayUtils;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.cca.SREPlayerPsychoComponent;
+import io.wifi.starrailexpress.cca.SREPlayerShopComponent;
 import io.wifi.starrailexpress.content.block.SmallDoorBlock;
 import io.wifi.starrailexpress.content.item.api.SREItemProperties.DropRevolverWhenDead;
 import io.wifi.starrailexpress.content.item.api.SREItemProperties.DropWhenDead;
@@ -1398,7 +1399,7 @@ public class NRDeathEvents {
                 if (inControlCCA != null && inControlCCA.isControlling && inControlCCA.controller != null) {
                     var controllerPlayer = level.getPlayerByUUID(inControlCCA.controller);
                     if (controllerPlayer != null) {
-                        io.wifi.starrailexpress.data.PlayerEconomyManager.addCoinNum(controllerPlayer,
+                        SREPlayerShopComponent.KEY.get(controllerPlayer).addToBalance(
                                 NoellesRolesConfig.HANDLER.instance().manipulatorTargetDeathReward);
                         controllerPlayer.displayClientMessage(Component.translatable(
                                 "message.noellesroles.manipulator.target_died", victim.getName())
@@ -1442,9 +1443,9 @@ public class NRDeathEvents {
                             true);
                     // 回放记录：雇佣兵将玩家设定为目标
                     SRE.REPLAY_MANAGER.recordCustomEvent(
-                        Component.translatable("replay.event.mercenary.set_target",
-                            GameReplayUtils.getReplayPlayerDisplayText(victim, true),
-                            GameReplayUtils.getReplayPlayerDisplayText(killer, true)));
+                            Component.translatable("replay.event.mercenary.set_target",
+                                    GameReplayUtils.getReplayPlayerDisplayText(victim, true),
+                                    GameReplayUtils.getReplayPlayerDisplayText(killer, true)));
                 }
             }
             // 影隼临时护盾破碎
