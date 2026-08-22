@@ -159,6 +159,8 @@ public final class PelicanManager {
                     { // 鹈鹕
                         BroadcastCommand.BroadcastMessage(p, broadcastMessage);
                     }
+                } else if (PelicanManager.isStashed(p)) {
+                    BroadcastCommand.BroadcastMessage(p, broadcastMessage);
                 }
             });
             return true;
