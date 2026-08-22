@@ -62,6 +62,7 @@ public class SimpleRoleData implements RoleData {
      * 当玩家赋予该职业时触发
      */
     public void init() {
+        // 不需要初始化各field也不需要同步，服务端和客户端均会使用该类初始值作为玩家变成此职业后的初始值。
     }
 
     /**
