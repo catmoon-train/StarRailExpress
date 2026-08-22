@@ -630,15 +630,24 @@ public class GameReplayManager implements IGameReplayRecorder {
               GameReplayUtils.getReplayPlayerDisplayText(player, true)),
           hidden);
     } else {
-      recordCustomEvent(
-          Component.translatable("sre.replay.event.skill_release",
-              GameReplayUtils.getReplayPlayerDisplayText(player, true),
-              Component
-                  .translatable("sre.replay.event.skill_release.warp",
-                      Component.translatableWithFallback(id, "Skill"))
-                  .withStyle(ChatFormatting.WHITE)),
-          hidden);
+      recordSkillUsed(player, Component.translatableWithFallback(id, "Skill"), hidden);
     }
+  }
+
+  /** 以字面技能名记录技能释放（自定义职业优先显示用户填写的技能名）。 */
+  public void recordSkillUsed(Player player, Component skillName) {
+    recordSkillUsed(player, skillName, false);
+  }
+
+  public void recordSkillUsed(Player player, Component skillName, boolean hidden) {
+    recordCustomEvent(
+        Component.translatable("sre.replay.event.skill_release",
+            GameReplayUtils.getReplayPlayerDisplayText(player, true),
+            Component
+                .translatable("sre.replay.event.skill_release.warp",
+                    skillName)
+                .withStyle(ChatFormatting.WHITE)),
+        hidden);
   }
 
   public void recordSkillUsed(UUID playerUuid, ResourceLocation skillUsed) {

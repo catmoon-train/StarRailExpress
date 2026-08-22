@@ -187,7 +187,8 @@ public final class RoleSkill {
             boolean showOnHud,
             boolean withTarget,
             boolean noRecord,
-            Handler handler) {
+            Handler handler,
+            String recordName) {
         public Definition {
             if (id == null || nameKey == null || handler == null) {
                 throw new IllegalArgumentException("Skill id, name key and handler are required");
@@ -220,6 +221,7 @@ public final class RoleSkill {
         private boolean shifted;
         private boolean modeSwitch;
         private boolean showOnHud = false;
+        private String recordName;
 
         private Builder(ResourceLocation id, String nameKey, Handler handler) {
             this.id = id;
@@ -350,11 +352,20 @@ public final class RoleSkill {
             return this;
         }
 
+        /**
+         * 指定技能的字面显示名（用于回放直接显示用户填写的技能名，而非当作翻译键解析）。
+         * 可为 null / 空串，此时回放回退用 nameKey 翻译。
+         */
+        public Builder recordName(String recordName) {
+            this.recordName = recordName;
+            return this;
+        }
+
         public Definition build() {
             return new Definition(id, nameKey, cooldownTicks, maxCharges, continuous,
                     holdIntervalTicks, noCastCCA, announceInfo, toggleable, shifted, modeSwitch, showOnHud, withTarget,
                     noRecord,
-                    handler);
+                    handler, recordName);
         }
     }
 
@@ -638,7 +649,13 @@ public final class RoleSkill {
         afterUse(player, role);
         // 回放记录：玩家释放技能（统一技能系统入口；以下角色已在组件内部记录，避免重复）
         if (!ROLE_SKILL_REPLAY_EXCLUDED.contains(role.identifier().toString()) && !definition.toggleable() && !definition.noRecord() && !definition.modeSwitch()) {
-            SRE.REPLAY_MANAGER.recordSkillUsedId(player, definition.nameKey());
+            String literalName = definition.recordName();
+            if (literalName != null && !literalName.isEmpty()) {
+                // 自定义职业等：优先显示用户填写的技能名（字面文本）
+                SRE.REPLAY_MANAGER.recordSkillUsed(player, Component.literal(literalName));
+            } else {
+                SRE.REPLAY_MANAGER.recordSkillUsedId(player, definition.nameKey());
+            }
         }
         return true;
     }
