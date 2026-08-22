@@ -38,6 +38,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
+import org.agmas.noellesroles.init.ModEffects;
 import org.agmas.noellesroles.role.ModRoles;
 
 import java.util.HashMap;
@@ -50,7 +51,7 @@ import java.util.UUID;
  * 设陷者「绊线」陷阱实体（重做版）。
  *
  * <p>贴墙放置：锚点在墙面上，绊线沿墙面法线（水平方向）向外延伸至对面墙壁
- * （或最大长度）。踩中绊线的玩家速度 -90%（缓慢 VI）持续 4s；绊线不因触发消失，
+ * （或最大长度）。踩中绊线的玩家速度 -90% 持续 4s；绊线不因触发消失，
  * <b>只有被枪击落才会消失</b>（见 {@code TrapperTrapGunPayloadMixin}），近战无法拆除。
  *
  * <p>可见性（见 {@code TripwireTrapEntityRenderer}）：所有玩家只能看到墙面锚点的
@@ -68,9 +69,7 @@ public class TripwireTrapEntity extends Entity {
     private static final EntityDataAccessor<Float> WIRE_LENGTH = SynchedEntityData.defineId(
             TripwireTrapEntity.class, EntityDataSerializers.FLOAT);
 
-    /** 触发后给予的缓慢等级：缓慢 VI = -90% 移速。 */
-    public static final int SLOW_AMPLIFIER = 5;
-    /** 缓慢持续时间（4s）。 */
+    /** 绊线减速持续时间（4s）。移速 -90% 由 {@link ModEffects#TRIPWIRE_SLOW} 实现。 */
     public static final int SLOW_DURATION = 4 * 20;
     /** 绊线判定盒半厚度（格）。 */
     public static final double WIRE_HALF_THICKNESS = 0.2;
@@ -182,7 +181,7 @@ public class TripwireTrapEntity extends Entity {
         checkTrigger();
     }
 
-    /** 玩家碰到绊线：缓慢 VI（-90%）4s；绊线保留。 */
+    /** 玩家碰到绊线：速度 -90% 持续 4s；绊线保留。 */
     private void checkTrigger() {
         Level world = level();
         AABB wireBox = getBoundingBox().inflate(0.1);
@@ -215,7 +214,7 @@ public class TripwireTrapEntity extends Entity {
         }
         victimThrottle.put(victim.getUUID(), RETRIGGER_THROTTLE);
         victim.addEffect(new MobEffectInstance(
-                MobEffects.MOVEMENT_SLOWDOWN, SLOW_DURATION, SLOW_AMPLIFIER, false, true, true));
+                ModEffects.TRIPWIRE_SLOW, SLOW_DURATION, 0, false, true, true));
 
         // 记录陷阱触发事件（低频关键事件）
         Player owner = getOwner();
@@ -231,9 +230,9 @@ public class TripwireTrapEntity extends Entity {
         }
         if (victim instanceof ServerPlayer serverVictim) {
             serverVictim.addEffect(new MobEffectInstance(
-                    MobEffects.GLOWING, SLOW_DURATION, SLOW_AMPLIFIER, false, true, true));
+                    MobEffects.GLOWING, SLOW_DURATION, 0, false, true, true));
             serverVictim.addEffect(new MobEffectInstance(
-                    MobEffects.BLINDNESS, SLOW_DURATION, SLOW_AMPLIFIER, false, true, true));
+                    MobEffects.BLINDNESS, SLOW_DURATION, 0, false, true, true));
             serverVictim.displayClientMessage(
                     Component.translatable("message.noellesroles.trapper.tripwire_slowed")
                             .withStyle(ChatFormatting.RED),

@@ -179,6 +179,8 @@ public class ModPacketsReciever {
                     SRE.REPLAY_MANAGER.recordStoreBuy(player.getUUID(),
                         BuiltInRegistries.ITEM.getKey(entry.stack().getItem()),
                         entry.stack().getCount(), entry.price());
+                    org.agmas.noellesroles.role_data.neutral.LinFamilyRoleData
+                        .markMachinePurchased(player);
 
                   } else {
                     player.displayClientMessage(Component.translatable("noellesroles.cant_buy_item")
@@ -226,6 +228,11 @@ public class ModPacketsReciever {
                     pos, false, "noellesroles.lottery.empty", ItemStack.EMPTY));
             return;
         }
+        if (!org.agmas.noellesroles.role_data.neutral.LinFamilyRoleData.allowMachinePurchase(player)) {
+            ServerPlayNetworking.send(player, new LotteryMachineResultS2CPacket(
+                    pos, false, "message.noellesroles.lin_family.vending_cooldown", ItemStack.EMPTY));
+            return;
+        }
         if (!lottery.canAfford(player)) {
             ServerPlayNetworking.send(player, new LotteryMachineResultS2CPacket(
                     pos, false, "noellesroles.not_enough_money", ItemStack.EMPTY));
@@ -240,9 +247,12 @@ public class ModPacketsReciever {
         }
         ShopEntry entry = result.get();
         ItemStack prize = entry.stack().copy();
-        if (!player.getInventory().add(prize)) {
+        if (org.agmas.noellesroles.role_data.neutral.LinFamilyRoleData.isLinFamily(player)) {
+            org.agmas.noellesroles.role_data.neutral.LinFamilyRoleData.givePurchasedItem(player, prize);
+        } else if (!player.getInventory().add(prize)) {
             player.drop(prize, false);
         }
+        org.agmas.noellesroles.role_data.neutral.LinFamilyRoleData.markMachinePurchased(player);
         ServerPlayNetworking.send(player, new LotteryMachineResultS2CPacket(
                 pos, true, "noellesroles.lottery.won", prize));
         player.connection.send(new ClientboundSoundPacket(

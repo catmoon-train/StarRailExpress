@@ -270,38 +270,46 @@ public class TrapperPlayerComponent implements RoleComponent, ServerTickingCompo
                     MAX_TOTAL_TRAPS).withStyle(ChatFormatting.RED), true);
             return false;
         }
+        WireGeometry tripwireGeo = null;
+        BlockHitResult mudHit = null;
         if (tripwire) {
             if (placedTripwires.size() >= MAX_TRIPWIRES) {
                 sp.displayClientMessage(Component.translatable("message.noellesroles.trapper.tripwire_limit",
                         MAX_TRIPWIRES).withStyle(ChatFormatting.RED), true);
                 return false;
             }
-            // 预校验：对墙 / 长度 / 与现有绊线的间距（失败时已向玩家提示）
-            if (validateTripwire(sp, serverLevel) == null) {
+            // 预校验并锁定按下时的落点（对墙 / 长度 / 与现有绊线的间距）
+            tripwireGeo = validateTripwire(sp, serverLevel);
+            if (tripwireGeo == null) {
                 return false;
             }
         } else {
-            // 泥沼：预校验金币与地面
+            // 泥沼：预校验金币与地面，并锁定按下时的落点
             if (SREPlayerShopComponent.KEY.get(sp).balance < MUD_COST) {
                 sp.displayClientMessage(Component.translatable("message.noellesroles.trapper.no_money",
                         MUD_COST).withStyle(ChatFormatting.RED), true);
                 return false;
             }
-            if (findGroundSpot(sp, serverLevel) == null) {
+            mudHit = findGroundSpot(sp, serverLevel);
+            if (mudHit == null) {
                 sp.displayClientMessage(Component.translatable("message.noellesroles.trapper.no_ground")
                         .withStyle(ChatFormatting.RED), true);
                 return false;
             }
         }
 
-        startWindup(sp, serverLevel, tripwire);
+        startWindup(sp, serverLevel, tripwire, tripwireGeo, mudHit);
         return true;
     }
 
     // ==================== 前摇 ====================
 
-    /** 1s 前摇：期间无法移动，播放粒子与音效，结束后按最新瞄准落点放置。 */
-    private void startWindup(ServerPlayer sp, ServerLevel serverLevel, boolean tripwire) {
+    /**
+     * 1s 前摇：期间无法移动，播放粒子与音效。
+     * 落点在按下技能时锁定，前摇结束仍放到该位置，而不是前摇后的瞄准点。
+     */
+    private void startWindup(ServerPlayer sp, ServerLevel serverLevel, boolean tripwire,
+                             WireGeometry tripwireGeo, BlockHitResult mudHit) {
         windupActive = true;
         sp.addEffect(new MobEffectInstance(ModEffects.MOVE_BANED, WINDUP_TICKS, 0, false, false, true));
         sp.displayClientMessage(Component.translatable("message.noellesroles.trapper.windup_start")
@@ -324,9 +332,9 @@ public class TrapperPlayerComponent implements RoleComponent, ServerTickingCompo
                 return;
             }
             if (tripwire) {
-                finishPlaceTripwire(sp, serverLevel);
+                finishPlaceTripwire(sp, serverLevel, tripwireGeo);
             } else {
-                finishPlaceMud(sp, serverLevel);
+                finishPlaceMud(sp, serverLevel, mudHit);
             }
         }, WINDUP_TICKS);
     }
@@ -400,15 +408,29 @@ public class TrapperPlayerComponent implements RoleComponent, ServerTickingCompo
         return false;
     }
 
-    private void finishPlaceTripwire(ServerPlayer sp, ServerLevel serverLevel) {
-        // 以前摇结束时的最新瞄准重新校验（对墙/长度/间距）
-        WireGeometry geo = validateTripwire(sp, serverLevel);
+    private void finishPlaceTripwire(ServerPlayer sp, ServerLevel serverLevel, WireGeometry geo) {
         if (geo == null) {
+            return;
+        }
+        pruneTraps(serverLevel);
+        if (placedTripwires.size() >= MAX_TRIPWIRES) {
+            sp.displayClientMessage(Component.translatable("message.noellesroles.trapper.tripwire_limit",
+                    MAX_TRIPWIRES).withStyle(ChatFormatting.RED), true);
+            return;
+        }
+        if (placedTripwires.size() + placedMuds.size() >= MAX_TOTAL_TRAPS) {
+            sp.displayClientMessage(Component.translatable("message.noellesroles.trapper.total_limit",
+                    MAX_TOTAL_TRAPS).withStyle(ChatFormatting.RED), true);
             return;
         }
         Direction outward = geo.outward();
         Vec3 anchor = geo.anchor();
         double length = geo.length();
+        if (wireTooClose(serverLevel, anchor, outward, length)) {
+            sp.displayClientMessage(Component.translatable("message.noellesroles.trapper.wire_too_close")
+                    .withStyle(ChatFormatting.RED), true);
+            return;
+        }
 
         TripwireTrapEntity wire = new TripwireTrapEntity(ModEntities.TRIPWIRE_TRAP, serverLevel);
         wire.setPos(anchor.x, anchor.y, anchor.z);
@@ -442,11 +464,16 @@ public class TrapperPlayerComponent implements RoleComponent, ServerTickingCompo
         return hit;
     }
 
-    private void finishPlaceMud(ServerPlayer sp, ServerLevel serverLevel) {
-        BlockHitResult hit = findGroundSpot(sp, serverLevel);
+    private void finishPlaceMud(ServerPlayer sp, ServerLevel serverLevel, BlockHitResult hit) {
         if (hit == null) {
             sp.displayClientMessage(Component.translatable("message.noellesroles.trapper.no_ground")
                     .withStyle(ChatFormatting.RED), true);
+            return;
+        }
+        pruneTraps(serverLevel);
+        if (placedTripwires.size() + placedMuds.size() >= MAX_TOTAL_TRAPS) {
+            sp.displayClientMessage(Component.translatable("message.noellesroles.trapper.total_limit",
+                    MAX_TOTAL_TRAPS).withStyle(ChatFormatting.RED), true);
             return;
         }
         SREPlayerShopComponent shop = SREPlayerShopComponent.KEY.get(sp);

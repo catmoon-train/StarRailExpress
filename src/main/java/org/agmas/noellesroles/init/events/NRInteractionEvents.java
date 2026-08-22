@@ -209,6 +209,8 @@ public class NRInteractionEvents {
                         return true;
                     } else if (role == SpecialGameModeRoles.DIRT) {
                         return true;
+                    } else if (role == ModRoles.LIN_FAMILY) {
+                        return true;
                     } else {
                         return false;
                     }

@@ -506,7 +506,12 @@ public class ModRolesInitialEventRegister {
                             }
                             return org.agmas.noellesroles.role_data.neutral.LinFamilyRoleData
                                     .useCollector(player);
-                        }).cooldownSeconds(90).shifted(true).showOnHud(true).announceToSelf(false).build());
+                        }).cooldownSeconds(90).shifted(true).showOnHud(true).announceToSelf(false).build(),
+                RoleSkill.skill(org.agmas.noellesroles.role_data.neutral.LinFamilyRoleData.MACHINE_SKILL_ID,
+                        "skill.noellesroles.lin_family.machine",
+                        context -> false)
+                        .cooldownSeconds(60).shifted(true).noCastCCA(true)
+                        .showOnHud(true).announceToSelf(false).build());
 
         // 疫使技能注册：按技能键感染目标玩家
         RoleSkill.register(ModRoles.INFECTED, RoleSkill.skill(

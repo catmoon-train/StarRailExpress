@@ -15,10 +15,12 @@
 
 package org.agmas.noellesroles.role_data.neutral;
 
+import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.api.data.RoleData;
 import io.wifi.starrailexpress.api.data.RoleDataContext;
 import io.wifi.starrailexpress.api.impl.SimpleRoleData;
+import io.wifi.starrailexpress.cca.SREAbilityPlayerComponent;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.cca.SREPlayerShopComponent;
 import io.wifi.starrailexpress.content.item.KnifeItem;
@@ -42,6 +44,7 @@ import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.StringTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.network.Filterable;
@@ -88,12 +91,16 @@ public class LinFamilyRoleData extends SimpleRoleData {
     private static final String WILL_MISFIRE_KEY = "lin_family_will_misfire";
     private static final int XRAY_REFRESH_INTERVAL = 20;
 
+    /** 售货机 / 抽奖机购买冷却（技能 HUD 显示，不通过技能键触发）。 */
+    public static final ResourceLocation MACHINE_SKILL_ID = SRE.id("lin_family_machine");
+    public static final int MACHINE_COOLDOWN_TICKS = 60 * 20;
+
     /** 射击瞬间记录哑火结果（枪可能已被一次性消耗）。 */
     private static final ConcurrentHashMap<UUID, Boolean> PENDING_MISFIRE = new ConcurrentHashMap<>();
 
     private static boolean eventsRegistered = false;
 
-    /** 内定的可购买职业物品池。 */
+    /** 内定的可购买职业物品池（通用可用道具，不含钥匙与真刀真枪）。 */
     private static final List<Supplier<ItemStack>> COLLECTOR_POOL = List.of(
             () -> TMMItems.LOCKPICK.getDefaultInstance(),
             () -> ModItems.INFERIOR_LOCKPICK.getDefaultInstance(),
@@ -101,7 +108,16 @@ public class LinFamilyRoleData extends SimpleRoleData {
             () -> TMMItems.NOTE.getDefaultInstance(),
             () -> TMMItems.SCOPE.getDefaultInstance(),
             () -> TMMItems.WEAK_DEFENSE_VIAL.getDefaultInstance(),
+            () -> TMMItems.DEFENSE_VIAL.getDefaultInstance(),
             () -> TMMItems.FIRECRACKER.getDefaultInstance(),
+            () -> TMMItems.BODY_BAG.getDefaultInstance(),
+            () -> TMMItems.BLACKOUT.getDefaultInstance(),
+            () -> TMMItems.MONITOR_BROKEN.getDefaultInstance(),
+            () -> TMMItems.POISON_VIAL.getDefaultInstance(),
+            () -> TMMItems.SCORPION.getDefaultInstance(),
+            () -> TMMItems.DISGUISE_1.getDefaultInstance(),
+            () -> TMMItems.DISGUISE_2.getDefaultInstance(),
+            () -> TMMItems.DISGUISE_3.getDefaultInstance(),
             () -> ModItems.RADIO.getDefaultInstance(),
             () -> ModItems.NEWSPAPER.getDefaultInstance(),
             () -> ModItems.DELIVERY_BOX.getDefaultInstance(),
@@ -109,13 +125,57 @@ public class LinFamilyRoleData extends SimpleRoleData {
             () -> ModItems.FAKE_KNIFE.getDefaultInstance(),
             () -> ModItems.FAKE_LOCKPICK.getDefaultInstance(),
             () -> ModItems.FAKE_CROWBAR.getDefaultInstance(),
+            () -> ModItems.FAKE_BAT.getDefaultInstance(),
+            () -> ModItems.FAKE_GRENADE.getDefaultInstance(),
+            () -> ModItems.FAKE_BODY_BAG.getDefaultInstance(),
+            () -> ModItems.FAKE_PSYCHO_MODE.getDefaultInstance(),
             () -> ModItems.ALARM_TRAP.getDefaultInstance(),
             () -> ModItems.NIGHT_VISION_GLASSES.getDefaultInstance(),
-            () -> TMMItems.DISGUISE_1.getDefaultInstance());
+            () -> ModItems.FLASHLIGHT.getDefaultInstance(),
+            () -> ModItems.HANDCUFFS.getDefaultInstance(),
+            () -> ModItems.ANTIDOTE.getDefaultInstance(),
+            () -> ModItems.BLOOD_BOTTLE.getDefaultInstance(),
+            () -> ModItems.FLASH_GRENADE.getDefaultInstance(),
+            () -> ModItems.DECOY_GRENADE.getDefaultInstance(),
+            () -> ModItems.SMOKE_GRENADE.getDefaultInstance(),
+            () -> ModItems.PURIFY_BOMB.getDefaultInstance(),
+            () -> ModItems.BLANK_CARTRIDGE.getDefaultInstance(),
+            () -> ModItems.REINFORCEMENT.getDefaultInstance(),
+            () -> ModItems.SCREWDRIVER.getDefaultInstance(),
+            () -> ModItems.LOCK_ITEM.getDefaultInstance(),
+            () -> ModItems.NOELL_PAPERCLIP.getDefaultInstance(),
+            () -> ModItems.SMOKE_PELLET.getDefaultInstance(),
+            () -> ModItems.DECOY_BEACON.getDefaultInstance(),
+            () -> ModItems.FLARE.getDefaultInstance(),
+            () -> ModItems.HALLUCINATION_BOTTLE.getDefaultInstance(),
+            () -> ModItems.GIANT_NOTE.getDefaultInstance(),
+            () -> ModItems.POCKET_WATCH.getDefaultInstance(),
+            () -> ModItems.CRYSTAL_BALL.getDefaultInstance(),
+            () -> ModItems.MINT_CANDIES.getDefaultInstance(),
+            () -> ModItems.CHOCOLATE.getDefaultInstance(),
+            () -> ModItems.CALMING_TEA.getDefaultInstance(),
+            () -> ModItems.ENERGIZING_COFFEE.getDefaultInstance(),
+            () -> ModItems.TALISMAN.getDefaultInstance(),
+            () -> ModItems.SHILIJIA.getDefaultInstance(),
+            () -> ModItems.ADRENALINE.getDefaultInstance(),
+            () -> ModItems.ANTIBIOTIC.getDefaultInstance(),
+            () -> ModItems.DOGSKIN_PLASTER.getDefaultInstance(),
+            () -> ModItems.ALCHEMIST_BUFF_POTION.getDefaultInstance(),
+            () -> ModItems.TOILET_POISON.getDefaultInstance(),
+            () -> ModItems.SILENCE_TOTEM.getDefaultInstance(),
+            () -> ModItems.ROPE.getDefaultInstance(),
+            () -> ModItems.PASSBOOK.getDefaultInstance(),
+            () -> ModItems.WREATH.getDefaultInstance(),
+            () -> ModItems.SANITY_MEDS.getDefaultInstance(),
+            () -> ModItems.AREA_MAP.getDefaultInstance(),
+            () -> ModItems.BOXING_GLOVE.getDefaultInstance(),
+            () -> ModItems.RIOT_SHIELD.getDefaultInstance(),
+            () -> ModItems.BATON.getDefaultInstance(),
+            () -> ModItems.WHEELCHAIR.getDefaultInstance(),
+            () -> ModItems.createPillStack(false));
 
     public boolean startingGoldGranted = false;
     public long lastShieldBuyGameTime = Long.MIN_VALUE / 4;
-    public long lastVendingBuyGameTime = Long.MIN_VALUE / 4;
     public final Set<UUID> xrayTargets = new HashSet<>();
 
     @Nullable
@@ -204,24 +264,7 @@ public class LinFamilyRoleData extends SimpleRoleData {
             return InteractionResultHolder.pass(stack);
         });
 
-        OnVendingMachinesBuyItems.EVENT.register((player, entry) -> {
-            LinFamilyRoleData data = RoleData.getNullable(LinFamilyRoleData.class, player);
-            if (data == null) {
-                return true;
-            }
-            long now = player.level().getGameTime();
-            if (!data.canBuyVending(now)) {
-                player.displayClientMessage(
-                        Component.translatable("message.noellesroles.lin_family.vending_cooldown")
-                                .withStyle(ChatFormatting.RED),
-                        true);
-                return false;
-            }
-            if (entry.hasEnoughCurrency(player)) {
-                data.markVendingBought(now);
-            }
-            return true;
-        });
+        OnVendingMachinesBuyItems.EVENT.register((player, entry) -> allowMachinePurchase(player));
     }
 
     public static boolean isLinFamily(Player player) {
@@ -290,20 +333,57 @@ public class LinFamilyRoleData extends SimpleRoleData {
         lastShieldBuyGameTime = gameTime;
     }
 
-    public boolean canBuyVending(long gameTime) {
-        return gameTime >= lastVendingBuyGameTime
-                + 60 * 20L;
+    /**
+     * 林家子弟购买售货机 / 抽奖机前的冷却检查。非本职业直接放行。
+     * 冷却只在 {@link #markMachinePurchased} 于购买成功后写入，避免失败购买提前上 CD。
+     */
+    public static boolean allowMachinePurchase(Player player) {
+        if (!(player instanceof ServerPlayer serverPlayer)) {
+            return true;
+        }
+        LinFamilyRoleData data = RoleData.getNullable(LinFamilyRoleData.class, serverPlayer);
+        if (data == null) {
+            return true;
+        }
+        if (SREAbilityPlayerComponent.KEY.get(serverPlayer).getSkillState(MACHINE_SKILL_ID).cooldown > 0) {
+            serverPlayer.displayClientMessage(
+                    Component.translatable("message.noellesroles.lin_family.vending_cooldown")
+                            .withStyle(ChatFormatting.RED),
+                    true);
+            return false;
+        }
+        return true;
     }
 
-    public void markVendingBought(long gameTime) {
-        lastVendingBuyGameTime = gameTime;
+    /** 售货机 / 抽奖机购买成功后进入 60 秒冷却，并检查是否花光金币。 */
+    public static void markMachinePurchased(Player player) {
+        if (!(player instanceof ServerPlayer serverPlayer)) {
+            return;
+        }
+        LinFamilyRoleData data = RoleData.getNullable(LinFamilyRoleData.class, serverPlayer);
+        if (data == null) {
+            return;
+        }
+        SREAbilityPlayerComponent.KEY.get(serverPlayer)
+                .setSkillCooldown(MACHINE_SKILL_ID, MACHINE_COOLDOWN_TICKS);
+        data.tryWin();
+    }
+
+    /** 将售货机 / 抽奖机物品放入快捷栏，满则掉在脚下。 */
+    public static void givePurchasedItem(ServerPlayer player, ItemStack stack) {
+        if (stack == null || stack.isEmpty()) {
+            return;
+        }
+        ItemStack copy = stack.copy();
+        if (!RoleUtils.insertStackInFreeSlot(player, copy)) {
+            spawnAtFeet(player, copy);
+        }
     }
 
     @Override
     public void init() {
         startingGoldGranted = false;
         lastShieldBuyGameTime = Long.MIN_VALUE / 4;
-        lastVendingBuyGameTime = Long.MIN_VALUE / 4;
         xrayTargets.clear();
         clearPendingOffer();
         grantStartingGold();

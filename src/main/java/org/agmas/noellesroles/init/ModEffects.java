@@ -86,6 +86,13 @@ public class ModEffects {
                     return super.applyEffectTick(livingEntity, i);
                 }
             });
+    /**
+     * 绊线减速：本游戏 {@code Player#getSpeed} 把原版缓慢按每级 -20% 计算，
+     * 缓慢 VI 会被乘到 0（完全无法移动）。此效果配合
+     * {@code TrapperTripwireSlowMixin} 将移速乘以 0.1（-90%）。
+     */
+    public static final Holder<MobEffect> TRIPWIRE_SLOW = register("tripwire_slow",
+            new SimpleMobEffect(MobEffectCategory.HARMFUL, 0xB41E14));
     public static final Holder<MobEffect> MOVE_BANED = register("move_baned",
             new SimpleMobEffect(MobEffectCategory.HARMFUL, 0xFFFFFF) {
                 @Override
