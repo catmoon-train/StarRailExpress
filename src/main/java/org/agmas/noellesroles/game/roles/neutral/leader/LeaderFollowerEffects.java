@@ -187,6 +187,7 @@ public final class LeaderFollowerEffects {
             case "arsonist" -> applyArsonist(leader, follower);
             case "morichika_rinnosuke", "kawashiro_nitori" -> applyCoinDependent(leader, follower);
             case "furandoru" -> applyFurandoru(leader, follower);
+            case "lin_family" -> applyLinFamily(leader, follower);
             default -> applyGeneric(leader, follower);
         }
     }
@@ -377,6 +378,29 @@ public final class LeaderFollowerEffects {
     private static void applyFurandoru(ServerPlayer leader, ServerPlayer follower) {
         giveItem(follower, TMMItems.STANDARD_REVOLVER.getDefaultInstance());
         giveItem(leader, TMMItems.KNIFE.getDefaultInstance());
+    }
+
+    /** 林家子弟：追随者获得 3 本存折（存折堆叠数为 1，逐本发放），领袖获得一层护盾 */
+    private static void applyLinFamily(ServerPlayer leader, ServerPlayer follower) {
+        for (int i = 0; i < 3; i++) {
+            ItemStack passbook = ModItems.PASSBOOK.getDefaultInstance();
+            if (!RoleUtils.insertStackInFreeSlot(follower, passbook)) {
+                spawnAtFeet(follower, passbook);
+            }
+        }
+        SREArmorPlayerComponent.KEY.get(leader).addArmor();
+        follower.displayClientMessage(
+                Component.translatable("message.noellesroles.leader.lin_family_passbook"), true);
+        leader.displayClientMessage(
+                Component.translatable("message.noellesroles.leader.lin_family_shield"), true);
+    }
+
+    /** 在玩家脚下生成物品（背包满时的兜底） */
+    private static void spawnAtFeet(ServerPlayer player, ItemStack stack) {
+        net.minecraft.world.entity.item.ItemEntity entity = new net.minecraft.world.entity.item.ItemEntity(
+                player.level(), player.getX(), player.getY() + 0.2D, player.getZ(), stack.copy());
+        entity.setPickUpDelay(5);
+        player.level().addFreshEntity(entity);
     }
 
     /** 其它非杀手方中立：追随者永久速度 1；双方各得 150 金币 */
