@@ -206,7 +206,6 @@ public class GameConstants {
     }
 
     public static class DeathReasons {
-        public static ResourceLocation DANMUKU = SRE.id("danmuku");
         public static ResourceLocation FALL_DAMAGE = SRE.id("fall_damage");
         public static ResourceLocation DISCONNECT = SRE.id("disconnected");
         public static ResourceLocation DEATH_AFK = SRE.id("death_afk");
@@ -273,7 +272,6 @@ public class GameConstants {
         public static ResourceLocation C4_EXPLOSION = Noellesroles.id("c4_explosion");
         public static ResourceLocation FIRE_AXE = Noellesroles.id("fire_axe");
         public static ResourceLocation NINJA_KNIFE_KILL = Noellesroles.id("ninja_knife_kill");
-        public static ResourceLocation NINJA_SHURIKEN_KILL = Noellesroles.id("ninja_shuriken_kill");
         public static ResourceLocation SHORT_SHOTGUN = Noellesroles.id("short_shotgun");
         public static ResourceLocation THROWING_KNIFE_HIT = Noellesroles.id("throwing_knife_hit");
         public static ResourceLocation YINYANG_SWORD_AOE = Noellesroles.id("yinyang_sword_aoe");
