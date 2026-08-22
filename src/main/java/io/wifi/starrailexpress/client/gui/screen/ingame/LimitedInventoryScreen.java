@@ -43,6 +43,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
+import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.components.PlayerFaceRenderer;
 import net.minecraft.client.gui.components.Renderable;
 import net.minecraft.client.gui.components.Tooltip;
@@ -608,6 +609,16 @@ public class LimitedInventoryScreen extends LimitedHandledScreen<InventoryMenu> 
         super.resize(minecraft, width, height);
         refreshShopLayout();
         layoutWaitingMenu();
+    }
+
+    @Override
+    public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
+        // 搜索框（EditBox）聚焦时，背包键 E 用于输入字母，不应关闭背包
+        if (this.getFocused() instanceof EditBox && this.minecraft != null
+                && this.minecraft.options.keyInventory.matches(keyCode, scanCode)) {
+            return false;
+        }
+        return super.keyPressed(keyCode, scanCode, modifiers);
     }
 
     @Override

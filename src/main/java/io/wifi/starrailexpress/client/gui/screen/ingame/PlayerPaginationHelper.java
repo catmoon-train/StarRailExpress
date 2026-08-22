@@ -151,11 +151,12 @@ public class PlayerPaginationHelper<T> {
         return searchBox;
     }
 
-    /** 便捷重载：搜索框默认放在选人列表上方居中。 */
+    /** 便捷重载：搜索框默认放在选人列表上方居中（避免与头像控件重叠）。 */
     public EditBox attachSearchBox(LimitedInventoryScreen screen) {
         int width = 120;
         int centerY = (screen.height - 32) / 2;
-        return attachSearchBox(screen, screen.width / 2 - width / 2, centerY + 58, width, 16);
+        // 提示文字在 centerY+40，头像控件贴图顶部约在 centerY+73；搜索框放在两者之间
+        return attachSearchBox(screen, screen.width / 2 - width / 2, centerY + 52, width, 16);
     }
 
     // ===== 条目 =====
