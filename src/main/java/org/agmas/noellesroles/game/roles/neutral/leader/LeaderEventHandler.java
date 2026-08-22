@@ -149,6 +149,38 @@ public final class LeaderEventHandler {
             }
             return true;
         });
+
+        // 领袖被他人杀死（killer != null，与巫毒师触发判定一致）：追随者林家子弟扣除当前金币的 30%
+        io.wifi.starrailexpress.event.OnPlayerDeathWithKiller.EVENT.register((victim, killer, deathReason) -> {
+            if (!(victim instanceof ServerPlayer sv) || killer == null) {
+                return;
+            }
+            SREGameWorldComponent game = SREGameWorldComponent.KEY.get(sv.level());
+            if (!game.isRunning() || !game.isRole(sv, ModRoles.LEADER)) {
+                return;
+            }
+            LeaderRoleData data = RoleData.getNullable(LeaderRoleData.class, sv);
+            if (data == null) {
+                return;
+            }
+            for (UUID followerId : data.followers) {
+                ServerPlayer follower = sv.serverLevel().getServer().getPlayerList().getPlayer(followerId);
+                if (follower == null || !game.isRole(follower, ModRoles.LIN_FAMILY)
+                        || !GameUtils.isPlayerAliveAndSurvival(follower)) {
+                    continue;
+                }
+                SREPlayerShopComponent shop = SREPlayerShopComponent.KEY.get(follower);
+                int deduct = (int) Math.round(shop.balance * 0.3);
+                if (deduct <= 0) {
+                    continue;
+                }
+                shop.addToBalance(-deduct);
+                follower.displayClientMessage(
+                        Component.translatable("message.noellesroles.leader.lin_family_penalty",
+                                sv.getName(), deduct),
+                        true);
+            }
+        });
     }
 
     /**
