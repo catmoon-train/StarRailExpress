@@ -17,6 +17,7 @@ package org.agmas.noellesroles.init;
 
 import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.api.RoleSkill;
+import io.wifi.starrailexpress.api.replay.GameReplayUtils;
 import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.api.TMMRoles;
 import io.wifi.starrailexpress.cca.*;
@@ -381,6 +382,12 @@ public class ModPacketsReciever {
             .get(context.player());
         voodooPlayerComponent.setTarget(payload.player());
 
+        // 回放记录：巫毒师/冷笑绑定玩家
+        SRE.REPLAY_MANAGER.recordCustomEvent(
+            Component.translatable("replay.event.voodoo.bind",
+                GameReplayUtils.getReplayPlayerDisplayText(context.player(), true),
+                GameReplayUtils.getReplayPlayerDisplayText(context.player().level().getPlayerByUUID(payload.player()), true)));
+
       }
       if (gameWorldComponent.isRole(context.player(), ModRoles.MORPHLING)) {
         MorphlingPlayerComponent morphlingPlayerComponent = (MorphlingPlayerComponent) MorphlingPlayerComponent.KEY
@@ -486,8 +493,9 @@ public class ModPacketsReciever {
       if (RoleSkill.blockForSpectator(context.player()))
         return;
       NinjaPlayerComponent comp = NinjaPlayerComponent.KEY.get(context.player());
-      if (comp != null)
-        comp.useAbility();
+      if (comp != null && comp.useAbility()) {
+        ConfigWorldComponent.onPlayerUsedSkill(context.player());
+      }
     });
     // 巫师“盔甲护身”：在背包选择玩家后赋予护盾
     ServerPlayNetworking.registerGlobalReceiver(org.agmas.noellesroles.packet.WizardShieldC2SPacket.ID,
@@ -1034,7 +1042,6 @@ public class ModPacketsReciever {
             return;
           }
           org.agmas.noellesroles.packet.WaterGhostUseSkillC2SPacket.handle(payload, context);
-          ConfigWorldComponent.onPlayerUsedSkill(context.player());
         });
 
     // 苦力怕技能包处理
@@ -1056,7 +1063,9 @@ public class ModPacketsReciever {
 
           if (gameWorldComponent.isRole(player, BounsRoles.CREEPER)) {
             CreeperPlayerComponent creeperComponent = CreeperPlayerComponent.KEY.get(player);
-            creeperComponent.ignite();
+            if (creeperComponent.ignite()) {
+              ConfigWorldComponent.onPlayerUsedSkill(player);
+            }
           }
         });
 
@@ -1104,7 +1113,9 @@ public class ModPacketsReciever {
               return;
             }
             // 使用技能
-            shadowFalconComponent.useAbility();
+            if (shadowFalconComponent.useAbility()) {
+              ConfigWorldComponent.onPlayerUsedSkill(player);
+            }
           }
         });
 
@@ -1180,6 +1191,12 @@ public class ModPacketsReciever {
             pc.addAffectedTarget(target.getUUID());
             pc.schedulePartySound(6 * 20); // 6秒后从当前位置播放
             pc.sync();
+
+            // 回放记录：派对狂对玩家使用氦气变声
+            SRE.REPLAY_MANAGER.recordCustomEvent(
+                Component.translatable("replay.event.party.helium_voice",
+                    GameReplayUtils.getReplayPlayerDisplayText(player, true),
+                    GameReplayUtils.getReplayPlayerDisplayText(target, true)));
 
             // 检查是否达到触发阈值
             if (pc.getCount() >= threshold) {
@@ -1311,12 +1328,15 @@ public class ModPacketsReciever {
             }
 
             // 根据当前模式使用技能
+            boolean skillUsed;
             if (builderComponent.isBuildMode()) {
-              builderComponent.useBuildAbility();
+              skillUsed = builderComponent.useBuildAbility();
             } else {
-              builderComponent.useDemolishAbility();
+              skillUsed = builderComponent.useDemolishAbility();
             }
-            ConfigWorldComponent.onPlayerUsedSkill(player);
+            if (skillUsed) {
+              ConfigWorldComponent.onPlayerUsedSkill(player);
+            }
           }
         });
 
@@ -1521,6 +1541,13 @@ public class ModPacketsReciever {
                   new org.agmas.noellesroles.packet.SkincrawlerSkinS2CPacket(player.getUUID(), comp.stolenSkin));
             }
             comp.sync();
+            // 回放记录：窃皮者改变自身皮肤
+            Player skincrawlerTarget = player.serverLevel().getPlayerByUUID(comp.stolenSkin);
+            SRE.REPLAY_MANAGER.recordCustomEvent(
+                Component.translatable("replay.event.skincrawler.change_skin",
+                    GameReplayUtils.getReplayPlayerDisplayText(player, true),
+                    skincrawlerTarget != null ? GameReplayUtils.getReplayPlayerDisplayText(skincrawlerTarget, true)
+                        : Component.literal("<???>")));
             player.serverLevel().playSound(null, player.getX(), player.getY(), player.getZ(),
                 net.minecraft.sounds.SoundEvents.ARMOR_EQUIP_LEATHER, net.minecraft.sounds.SoundSource.PLAYERS, 0.8f,
                 1.0f);

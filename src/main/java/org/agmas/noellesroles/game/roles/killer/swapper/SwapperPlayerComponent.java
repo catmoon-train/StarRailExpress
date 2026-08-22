@@ -15,7 +15,9 @@
 
 package org.agmas.noellesroles.game.roles.killer.swapper;
 
+import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.api.RoleComponent;
+import io.wifi.starrailexpress.api.replay.GameReplayUtils;
 import io.wifi.starrailexpress.cca.SREAbilityPlayerComponent;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.game.GameConstants;
@@ -158,6 +160,12 @@ public class SwapperPlayerComponent implements RoleComponent, ServerTickingCompo
         }
         sp.teleportTo(targetPos.x, targetPos.y, targetPos.z);
         target.teleportTo(selfPos.x, selfPos.y, selfPos.z);
+
+        // 回放记录：交换者交换两名玩家位置
+        SRE.REPLAY_MANAGER.recordCustomEvent(
+            Component.translatable("replay.event.swapper.swap_position",
+                GameReplayUtils.getReplayPlayerDisplayText(sp, true),
+                GameReplayUtils.getReplayPlayerDisplayText(target, true)));
 
         frontSwapCooldown = GameConstants.getInTicks(0, cfg.swapperFrontSwapCooldown);
         ModComponents.SWAPPER.sync(sp);

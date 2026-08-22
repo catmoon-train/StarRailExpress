@@ -57,10 +57,10 @@ public class BomberPlayerComponent implements RoleComponent {
     public void buyBomb() {
         if (player.level().isClientSide)
             return;
-        ConfigWorldComponent.onPlayerUsedSkill( (ServerPlayer) player);
         SREPlayerShopComponent shopComponent = SREPlayerShopComponent.KEY.get(player);
         if (shopComponent.balance >= BOMB_COST) {
             shopComponent.addToBalance(-BOMB_COST);
+            ConfigWorldComponent.onPlayerUsedSkill( (ServerPlayer) player);
 
             ItemStack bombStack = ModItems.BOMB.getDefaultInstance();
             CompoundTag tag = new CompoundTag();

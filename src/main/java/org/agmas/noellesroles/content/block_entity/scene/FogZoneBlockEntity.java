@@ -135,17 +135,17 @@ public class FogZoneBlockEntity extends BlockEntity {
                     continue;
                 }
 
-                // 25 秒：红色广播警告
+                // 25 秒：红色 actionbar 警告（仅发给身处迷雾中即将迷失方向的玩家）
                 if (elapsed >= WARNING_25S_TICKS && player.tickCount % 20 == 0) {
                     Component msg = Component.translatable("message.noellesroles.fog.warning_25s")
                             .withStyle(ChatFormatting.RED);
-                    serverLevel.getServer().getPlayerList().broadcastSystemMessage(msg, false);
+                    player.displayClientMessage(msg, true);
                 }
-                // 15 秒：红色广播警告
+                // 15 秒：红色 actionbar 警告（仅发给身处迷雾中即将迷失方向的玩家）
                 else if (elapsed >= WARNING_15S_TICKS && player.tickCount % 20 == 0) {
                     Component msg = Component.translatable("message.noellesroles.fog.warning_15s")
                             .withStyle(ChatFormatting.RED);
-                    serverLevel.getServer().getPlayerList().broadcastSystemMessage(msg, false);
+                    player.displayClientMessage(msg, true);
                 }
 
                 // 区域内低可视度（致盲），本能由客户端 SceneFogClient 关闭

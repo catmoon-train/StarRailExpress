@@ -17,6 +17,7 @@ package org.agmas.noellesroles.game.roles.neutral.infected;
 
 import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.api.TMMRoles;
+import io.wifi.starrailexpress.api.replay.GameReplayUtils;
 import io.wifi.starrailexpress.cca.SREAbilityPlayerComponent;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.event.AllowGameEnd;
@@ -312,6 +313,15 @@ public class InfectedWinChecker {
                             .withStyle(ChatFormatting.DARK_GREEN, ChatFormatting.BOLD);
                     for (ServerPlayer p : level.getServer().getPlayerList().getPlayers()) {
                         ServerPlayNetworking.send(p, new BroadcastMessageS2CPacket(broadcast));
+                    }
+                    // 回放记录：进入疫使时刻
+                    for (ServerPlayer p : level.getPlayers(GameUtils::isPlayerAliveAndSurvival)) {
+                        if (gameWorldComponent.isRole(p, ModRoles.INFECTED)) {
+                            SRE.REPLAY_MANAGER.recordCustomEvent(
+                                Component.translatable("replay.event.infected.plague_time",
+                                    GameReplayUtils.getReplayPlayerDisplayText(p, true)));
+                            break;
+                        }
                     }
                     // 疫使技能冷却立刻清零（同时重置统一冷却和独立技能状态冷却）
                     for (ServerPlayer p : level.getPlayers(GameUtils::isPlayerAliveAndSurvival)) {

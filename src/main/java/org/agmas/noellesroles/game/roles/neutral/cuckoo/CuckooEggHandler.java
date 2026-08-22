@@ -15,7 +15,9 @@
 
 package org.agmas.noellesroles.game.roles.neutral.cuckoo;
 
+import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
+import io.wifi.starrailexpress.api.replay.GameReplayUtils;
 import io.wifi.starrailexpress.game.GameUtils;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.minecraft.ChatFormatting;
@@ -107,6 +109,12 @@ public class CuckooEggHandler {
                     }
 
                     if (info.breakProgress >= BREAK_TICKS) {
+                        // 回放记录：布谷鸟蛋被玩家踩碎
+                        if (player instanceof net.minecraft.server.level.ServerPlayer sp) {
+                            SRE.REPLAY_MANAGER.recordCustomEvent(
+                                Component.translatable("replay.event.cuckoo.egg_crushed",
+                                    GameReplayUtils.getReplayPlayerDisplayText(sp, true)));
+                        }
                         breakEgg(eggEntity, info, server);
                         iter.remove();
                         hasActiveBreaker = false;

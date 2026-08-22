@@ -385,7 +385,6 @@
     "info.screen.modifier.black_white": "Modifier\nYour role becomes Monokuma (see Monokuma description).",
     "info.screen.modifier.tnt_tagged": "Modifier\nHot Potato mode: marks the player holding the potato.",
     "info.screen.modifier.split_personality": "Modifier\nTwo personalities share one body; switch every 60s or manually.\nDefault skin is first personality. Other personality can hear and see.\nOn death, both choose 'Deceive' or 'Devote'.\nIf both Deceive: die.\nIf one Deceive, one Devote: Deceive revives, Devote dies.\nIf both Devote: both revive but only survive 60s, keep inventory.\n§c§lDuring Desperado time, you cannot revive.",
-    "info.screen.modifier.split_personality.simple": "Modifier\nTwo personalities; switch every 60s or manually.\nOn death, make choices to revive or not.",
     "info.screen.modifier.expedition": "Modifier\nWhen only 2 good players remain, your role switches to Red Navy.\nOnly for civilians.",
     "info.screen.modifier.vigorous": "Modifier\nMore stamina max, faster regen when not sprinting.",
     "info.screen.modifier.unyielding": "Modifier\nUnknown to player.\nIf civilian, avoid one friendly fire death.\nIf killer, cannot be killed by killers.\nIf neutral, gain Stamina Boost II.",

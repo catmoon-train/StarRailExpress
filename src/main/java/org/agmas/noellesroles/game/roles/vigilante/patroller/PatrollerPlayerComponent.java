@@ -120,7 +120,6 @@ public class PatrollerPlayerComponent implements RoleComponent, ServerTickingCom
             // true);
             return;
         }
-        ConfigWorldComponent.onPlayerUsedSkill( (ServerPlayer) player);
         if (this.hasTriggered)
             return;
         if (player instanceof ServerPlayer serverPlayer) {
@@ -130,6 +129,7 @@ public class PatrollerPlayerComponent implements RoleComponent, ServerTickingCom
                     // 给予乘务员钥匙 (master_key_p)
                     serverPlayer.addItem(new ItemStack(ModItems.MASTER_KEY_P));
                     this.hasTriggered = true;
+                    ConfigWorldComponent.onPlayerUsedSkill(serverPlayer);
                     sync();
                 } else {
                     this.clear();

@@ -15,8 +15,10 @@
 
 package org.agmas.noellesroles.game.roles.innocence.return_traveler;
 
+import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.api.RoleComponent;
 import io.wifi.starrailexpress.api.TMMRoles;
+import io.wifi.starrailexpress.api.replay.GameReplayUtils;
 
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.event.AllowPlayerDeathWithKiller;
@@ -295,6 +297,11 @@ public class ReturnTravelerPlayerComponent implements RoleComponent, ServerTicki
                     Component.translatable("message.noellesroles.return_traveler.dragged")
                             .withStyle(ChatFormatting.DARK_GRAY),
                     true);
+            // 回放记录：归途旅人拉人入里世界
+            SRE.REPLAY_MANAGER.recordCustomEvent(
+                Component.translatable("replay.event.wayfarer.pull_shadow",
+                    GameReplayUtils.getReplayPlayerDisplayText(serverPlayer, true),
+                    GameReplayUtils.getReplayPlayerDisplayText(target, true)));
         }
 
         // 归途旅人本人也拉入里世界（与受害者身处同一里世界，获得隐身/禁言/禁用物品等效果）

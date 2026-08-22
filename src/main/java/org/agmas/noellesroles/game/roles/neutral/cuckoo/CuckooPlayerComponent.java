@@ -16,7 +16,9 @@
 package org.agmas.noellesroles.game.roles.neutral.cuckoo;
 
 import com.mojang.math.Transformation;
+import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.api.RoleComponent;
+import io.wifi.starrailexpress.api.replay.GameReplayUtils;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.game.GameUtils;
 import net.minecraft.core.HolderLookup;
@@ -160,6 +162,10 @@ public class CuckooPlayerComponent implements RoleComponent, ServerTickingCompon
         placeCooldown = 20 * 20;
         sync();
         serverPlayer.displayClientMessage(Component.translatable("message.noellesroles.cuckoo.place_success"), true);
+        // 回放记录：布谷鸟下了一颗蛋
+        SRE.REPLAY_MANAGER.recordCustomEvent(
+            Component.translatable("replay.event.cuckoo.lay_egg",
+                GameReplayUtils.getReplayPlayerDisplayText(serverPlayer, true)));
         return true;
     }
 

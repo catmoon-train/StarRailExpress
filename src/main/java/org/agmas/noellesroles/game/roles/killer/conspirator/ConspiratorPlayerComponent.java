@@ -15,8 +15,10 @@
 
 package org.agmas.noellesroles.game.roles.killer.conspirator;
 
+import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.api.RoleComponent;
 import io.wifi.starrailexpress.api.SRERole;
+import io.wifi.starrailexpress.api.replay.GameReplayUtils;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.cca.SREPlayerShopComponent;
 import io.wifi.starrailexpress.game.GameUtils;
@@ -181,6 +183,12 @@ public class ConspiratorPlayerComponent implements RoleComponent, ServerTickingC
             TargetInfo newTarget = new TargetInfo(targetUuid, roleId, targetName);
             targetList.add(newTarget);
         }
+
+        // 回放记录：阴谋家使用阴谋书页记录了某玩家身份
+        SRE.REPLAY_MANAGER.recordCustomEvent(
+                Component.translatable("replay.event.conspirator.record_identity",
+                        GameReplayUtils.getReplayPlayerDisplayText(serverPlayer, true),
+                        GameReplayUtils.getReplayPlayerDisplayText(target, true)));
 
         // 检查是否猜测正确
         if (actualRole.identifier().equals(roleId)) {

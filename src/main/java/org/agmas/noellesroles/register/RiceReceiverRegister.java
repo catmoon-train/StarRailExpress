@@ -15,7 +15,9 @@
 
 package org.agmas.noellesroles.register;
 
+import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.api.RoleSkill;
+import io.wifi.starrailexpress.api.replay.GameReplayUtils;
 import io.wifi.starrailexpress.cca.SREAbilityPlayerComponent;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.cca.SREPlayerShopComponent;
@@ -414,6 +416,11 @@ public class RiceReceiverRegister {
                         // 重置双方状态（这会触发 isDeliveryActive() 返回 false）
                         postmanComp.init();
                         targetComp.init();
+                        // 回放记录：传递盒双方交换物品
+                        SRE.REPLAY_MANAGER.recordCustomEvent(
+                            Component.translatable("replay.event.shameimaru.exchange_box",
+                                GameReplayUtils.getReplayPlayerDisplayText(postmanPlayer, true),
+                                GameReplayUtils.getReplayPlayerDisplayText(receiverPlayer, true)));
 
                         // 关闭双方界面
                         if (context.player() instanceof ServerPlayer serverPlayer) {
@@ -496,6 +503,11 @@ public class RiceReceiverRegister {
 
             // 开始审查
             component.startInspecting((ServerPlayer) target);
+            // 回放记录：探员审查玩家物品栏
+            SRE.REPLAY_MANAGER.recordCustomEvent(
+                Component.translatable("replay.event.agent.inspect_inventory",
+                    GameReplayUtils.getReplayPlayerDisplayText(context.player(), true),
+                    GameReplayUtils.getReplayPlayerDisplayText(target, true)));
 
             // 打开只读的侦探审查界面
             if (context.player() instanceof ServerPlayer serverPlayer) {
@@ -576,8 +588,9 @@ public class RiceReceiverRegister {
             BoxerPlayerComponent boxerComponent = ModComponents.FIGHTER.get(context.player());
 
             // 在服务端使用技能
-            boxerComponent.useAbility();
-            ConfigWorldComponent.onPlayerUsedSkill(context.player());
+            if (boxerComponent.useAbility()) {
+                ConfigWorldComponent.onPlayerUsedSkill(context.player());
+            }
         });
 
         // 处理跟踪者窥视包
@@ -652,8 +665,9 @@ public class RiceReceiverRegister {
             AthletePlayerComponent athleteComponent = ModComponents.ATHLETE.get(context.player());
 
             // 在服务端使用技能
-            athleteComponent.useAbility();
-            ConfigWorldComponent.onPlayerUsedSkill(context.player());
+            if (athleteComponent.useAbility()) {
+                ConfigWorldComponent.onPlayerUsedSkill(context.player());
+            }
         });
 
         // 处理慕恋者窥视包
@@ -694,8 +708,9 @@ public class RiceReceiverRegister {
 
             // 获取设陷者组件并尝试放置陷阱
             TrapperPlayerComponent trapperComp = ModComponents.TRAPPER.get(context.player());
-            trapperComp.tryPlaceTrap();
-            ConfigWorldComponent.onPlayerUsedSkill(context.player());
+            if (trapperComp.tryPlaceTrap()) {
+                ConfigWorldComponent.onPlayerUsedSkill(context.player());
+            }
         });
 
         // 处理设陷者切换陷阱类型包
@@ -712,10 +727,9 @@ public class RiceReceiverRegister {
             if (!GameUtils.isPlayerAliveAndSurvival(context.player()))
                 return;
 
-            // 获取设陷者组件并切换陷阱类型
+            // 获取设陷者组件并切换陷阱类型（模式切换，不计入技能释放）
             TrapperPlayerComponent trapperComp = ModComponents.TRAPPER.get(context.player());
             trapperComp.switchTrapType();
-            ConfigWorldComponent.onPlayerUsedSkill(context.player());
         });
 
         // 处理明星技能包
@@ -734,8 +748,9 @@ public class RiceReceiverRegister {
 
             // 获取明星组件并使用技能
             SuperStarPlayerComponent starComp = ModComponents.STAR.get(context.player());
-            starComp.useAbility();
-            ConfigWorldComponent.onPlayerUsedSkill(context.player());
+            if (starComp.useAbility()) {
+                ConfigWorldComponent.onPlayerUsedSkill(context.player());
+            }
         });
 
         // 处理歌手技能包
@@ -752,10 +767,9 @@ public class RiceReceiverRegister {
             if (!GameUtils.isPlayerAliveAndSurvival(context.player()))
                 return;
 
-            // 获取歌手组件并使用技能
+            // 获取歌手组件并使用技能（组件内部已在成功分支记录技能释放）
             SingerPlayerComponent singerComp = ModComponents.SINGER.get(context.player());
             singerComp.useAbility();
-            ConfigWorldComponent.onPlayerUsedSkill(context.player());
         });
 
         // 处理退伍军人持刀冲刺包

@@ -16,6 +16,7 @@
 package org.agmas.noellesroles.game.roles.killer.wizard;
 
 import io.wifi.starrailexpress.api.RoleComponent;
+import org.agmas.noellesroles.ConfigWorldComponent;
 import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.cca.SREPlayerShopComponent;
@@ -223,12 +224,18 @@ public class WizardPlayerComponent implements RoleComponent, ServerTickingCompon
         if (!(player instanceof ServerPlayer sp) || !GameUtils.isPlayerAliveAndSurvival(sp)) {
             return;
         }
-        switch (selectedSpell) {
-            case ARMOR -> castArmorPrompt(sp);
+        boolean used = switch (selectedSpell) {
+            case ARMOR -> {
+                castArmorPrompt(sp);
+                yield false;
+            }
             case FROST -> castFrost(sp);
             case SHADOW -> castShadow(sp);
             case EXPLOSION -> castExplosion(sp);
             case BLINK -> castBlink(sp);
+        };
+        if (used) {
+            ConfigWorldComponent.onPlayerUsedSkill(sp);
         }
     }
 

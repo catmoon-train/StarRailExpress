@@ -15,6 +15,8 @@
 
 package pro.fazeclan.river.stupid_express.role.arsonist;
 
+import io.wifi.starrailexpress.SRE;
+import io.wifi.starrailexpress.api.replay.GameReplayUtils;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.game.GameUtils;
 import net.fabricmc.fabric.api.event.player.UseEntityCallback;
@@ -79,6 +81,12 @@ public class OilDousingHandler {
             }
             DousedPlayerComponent doused = DousedPlayerComponent.KEY.get(victim);
             doused.setDoused(true);
+
+            // 回放记录：为玩家浇上汽油
+            SRE.REPLAY_MANAGER.recordCustomEvent(
+                Component.translatable("replay.event.arsonist.douse_gasoline",
+                    GameReplayUtils.getReplayPlayerDisplayText(interacting, true),
+                    GameReplayUtils.getReplayPlayerDisplayText(victim, true)));
 
             interacting.playNotifySound(SoundEvents.BREWING_STAND_BREW, SoundSource.PLAYERS, 1.0f, 1.0f);
 

@@ -15,7 +15,9 @@
 
 package org.agmas.noellesroles.game.roles.killer.ma_chen_xu;
 
+import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.api.RoleComponent;
+import io.wifi.starrailexpress.api.replay.GameReplayUtils;
 import io.wifi.starrailexpress.cca.SREAbilityPlayerComponent;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent.GameStatus;
@@ -743,6 +745,11 @@ public class MaChenXuPlayerComponent implements RoleComponent, ServerTickingComp
                 Component.translatable("message.noellesroles.ma_chen_xu.li_shi_jie_activated")
                         .withStyle(ChatFormatting.DARK_PURPLE, ChatFormatting.BOLD)));
         world.playSound(null, sp.blockPosition(), SoundEvents.WARDEN_EMERGE, SoundSource.HOSTILE, 1.5F, 0.6F);
+
+        // 回放记录：布袋鬼开启里世界
+        SRE.REPLAY_MANAGER.recordCustomEvent(
+            Component.translatable("replay.event.sackghost.open_shadow",
+                GameReplayUtils.getReplayPlayerDisplayText(sp, true)));
 
         this.sync(SYNC_OTHERWORLD);
     }

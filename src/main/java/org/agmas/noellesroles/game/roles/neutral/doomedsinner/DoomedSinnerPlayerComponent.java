@@ -25,6 +25,8 @@ import io.wifi.starrailexpress.content.entity.PlayerBodyEntity;
 import io.wifi.starrailexpress.event.OnPlayerDeathWithKiller;
 import io.wifi.starrailexpress.event.ShouldGiveKillerBalance;
 import io.wifi.starrailexpress.game.GameConstants;
+import io.wifi.starrailexpress.SRE;
+import io.wifi.starrailexpress.api.replay.GameReplayUtils;
 import io.wifi.starrailexpress.game.GameUtils;
 import io.wifi.starrailexpress.index.TMMEntities;
 import io.wifi.starrailexpress.util.TrueFalseResult;
@@ -55,6 +57,7 @@ import org.agmas.noellesroles.content.entity.DoomedSinnerBodyEntity;
 import org.agmas.noellesroles.init.ModEffects;
 import org.agmas.noellesroles.init.ModEntities;
 import org.agmas.noellesroles.init.ModItems;
+import org.agmas.noellesroles.packet.BroadcastMessageS2CPacket;
 import org.agmas.noellesroles.packet.DoomedSinnerFateRevealS2CPacket;
 import org.agmas.noellesroles.packet.SkincrawlerSkinS2CPacket;
 import org.agmas.noellesroles.role.ModRoles;
@@ -435,6 +438,14 @@ public class DoomedSinnerPlayerComponent implements RoleComponent, ServerTicking
         for (ServerPlayer viewer : level.players()) {
             ServerPlayNetworking.send(viewer, packet);
         }
+
+        // 回放记录：宿命的罪人改变自身皮肤
+        Player skinTarget = level.getPlayerByUUID(skinUuid);
+        SRE.REPLAY_MANAGER.recordCustomEvent(
+                Component.translatable("replay.event.doomed_sinner.change_skin",
+                        GameReplayUtils.getReplayPlayerDisplayText(player, true),
+                        skinTarget != null ? GameReplayUtils.getReplayPlayerDisplayText(skinTarget, true)
+                                : Component.literal("<???>")));
     }
 
     private static void grantRandomFalseItem(ServerPlayer player) {
@@ -542,8 +553,12 @@ public class DoomedSinnerPlayerComponent implements RoleComponent, ServerTicking
                 player.getDisplayName(), Component.translatable(deathReasonKey(deathReason)))
                 .withStyle(ChatFormatting.DARK_RED);
         for (ServerPlayer p : serverLevel.players()) {
-            p.sendSystemMessage(message);
+            p.playNotifySound(SoundEvents.ENDER_DRAGON_GROWL, SoundSource.PLAYERS, 0.5F, 1.3F);
+            ServerPlayNetworking.send(p, new BroadcastMessageS2CPacket(message));
         }
+        SRE.REPLAY_MANAGER.recordCustomEvent(
+                Component.translatable("replay.event.doomed_sinner.real_dead",
+                        GameReplayUtils.getReplayPlayerDisplayText(player, true)));
     }
 
     // ── 胜利判定（供 CustomWinnerClass 调用） ──────────────────────

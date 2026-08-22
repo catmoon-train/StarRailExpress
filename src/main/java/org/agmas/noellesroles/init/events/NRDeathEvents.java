@@ -1430,6 +1430,11 @@ public class NRDeathEvents {
                                     killer.getName())
                                     .withStyle(ChatFormatting.RED),
                             true);
+                    // 回放记录：雇佣兵将玩家设定为目标
+                    SRE.REPLAY_MANAGER.recordCustomEvent(
+                        Component.translatable("replay.event.mercenary.set_target",
+                            GameReplayUtils.getReplayPlayerDisplayText(victim, true),
+                            GameReplayUtils.getReplayPlayerDisplayText(killer, true)));
                 }
             }
             // 影隼临时护盾破碎

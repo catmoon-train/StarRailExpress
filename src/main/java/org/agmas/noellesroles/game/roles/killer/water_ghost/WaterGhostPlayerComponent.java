@@ -263,7 +263,6 @@ public class WaterGhostPlayerComponent implements RoleComponent, ServerTickingCo
     public void useSkill() {
         if (!(player instanceof ServerPlayer serverPlayer))
             return;
-        ConfigWorldComponent.onPlayerUsedSkill(serverPlayer);
         // 检查冷却
         if (skillCooldown > 0) {
             serverPlayer.displayClientMessage(
@@ -277,6 +276,7 @@ public class WaterGhostPlayerComponent implements RoleComponent, ServerTickingCo
         // 播放技能音效
         player.level().playSound(null, player.getX(), player.getY(), player.getZ(),
                 SoundEvents.DOLPHIN_PLAY, SoundSource.PLAYERS, 1.0F, 1.0F);
+        ConfigWorldComponent.onPlayerUsedSkill(serverPlayer);
 
         // 给予海豚的恩惠效果，持续10秒
         player.addEffect(new MobEffectInstance(MobEffects.DOLPHINS_GRACE, SKILL_DURATION, 0, true, true));

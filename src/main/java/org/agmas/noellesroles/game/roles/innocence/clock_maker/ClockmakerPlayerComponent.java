@@ -117,7 +117,6 @@ public class ClockmakerPlayerComponent implements RoleComponent, ServerTickingCo
             player.displayClientMessage(Component.translatable("message.noellesroles.clockmaker.already_using").withStyle(ChatFormatting.RED), true);
             return true;
         }
-        ConfigWorldComponent.onPlayerUsedSkill( (ServerPlayer) player);
         // 检查游戏时间是否已到最小值
         SREGameTimeComponent gameTime = SREGameTimeComponent.KEY.get(player.level());
         long currentTime = gameTime.getTime();
@@ -136,6 +135,7 @@ public class ClockmakerPlayerComponent implements RoleComponent, ServerTickingCo
         // 扣除金币
         shopComponent.balance -= SKILL_COST;
         shopComponent.sync();
+        ConfigWorldComponent.onPlayerUsedSkill( (ServerPlayer) player);
 
         // 执行时间削减
         executeTimeReduction();

@@ -23,6 +23,7 @@ import io.wifi.starrailexpress.event.AllowPlayerDeath;
 import io.wifi.starrailexpress.event.AllowPlayerDeathWithKiller;
 import io.wifi.starrailexpress.game.GameConstants;
 import io.wifi.starrailexpress.game.GameUtils;
+import org.agmas.noellesroles.ConfigWorldComponent;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.particles.ParticleTypes;
@@ -209,6 +210,7 @@ public class NostalgistPlayerComponent implements RoleComponent, ServerTickingCo
             return; // 已在退出过程中
         }
         startCollapseWindup(serverPlayer);
+        ConfigWorldComponent.onPlayerUsedSkill(serverPlayer);
     }
 
     /** 开始主动退出里世界的前摇：起手音效 + 提示，倒数在 {@link #serverTick()} 中推进。 */

@@ -15,6 +15,8 @@
 
 package org.agmas.noellesroles.packet;
 
+import io.wifi.starrailexpress.SRE;
+import io.wifi.starrailexpress.api.replay.GameReplayUtils;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.cca.SREPlayerShopComponent;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
@@ -115,6 +117,11 @@ public record MercenaryContractSignC2SPacket(UUID targetUuid) implements CustomP
                     signer.getScoreboardName(),
                     target.getUUID(),
                     target.getScoreboardName());
+            // 回放记录：玩家使用未签订契约花费金币指定通缉目标
+            SRE.REPLAY_MANAGER.recordCustomEvent(
+                net.minecraft.network.chat.Component.translatable("replay.event.contract.wanted",
+                    GameReplayUtils.getReplayPlayerDisplayText(signer, true),
+                    GameReplayUtils.getReplayPlayerDisplayText(target, true)));
 
             signer.displayClientMessage(
                     net.minecraft.network.chat.Component.translatable("message.noellesroles.mercenary.contract_signed_success", target.getDisplayName())

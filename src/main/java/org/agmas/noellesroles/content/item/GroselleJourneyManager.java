@@ -16,6 +16,7 @@
 package org.agmas.noellesroles.content.item;
 
 import io.wifi.starrailexpress.SRE;
+import io.wifi.starrailexpress.api.replay.GameReplayUtils;
 import io.wifi.starrailexpress.event.EarlyKillPlayer;
 import io.wifi.starrailexpress.event.OnGameEnd;
 import io.wifi.starrailexpress.game.GameConstants;
@@ -165,6 +166,11 @@ public final class GroselleJourneyManager {
         target.displayClientMessage(Component
                 .translatable("message.noellesroles.grosell_travelog.banished")
                 .withStyle(ChatFormatting.DARK_PURPLE), false);
+        // 回放记录：冒险家使用游记放逐玩家
+        SRE.REPLAY_MANAGER.recordCustomEvent(
+            Component.translatable("replay.event.adventurer.exile",
+                GameReplayUtils.getReplayPlayerDisplayText(banisher, true),
+                GameReplayUtils.getReplayPlayerDisplayText(target, true)));
         return true;
     }
 

@@ -17,6 +17,8 @@ package io.wifi.starrailexpress.api;
 
 import io.wifi.starrailexpress.api.RoleSkill.AnnounceInfo.AnnounceContext;
 import io.wifi.starrailexpress.api.RoleSkill.AnnounceInfo.AnnounceType;
+import io.wifi.starrailexpress.SRE;
+import io.wifi.starrailexpress.api.replay.GameReplayUtils;
 import io.wifi.starrailexpress.cca.SREAbilityPlayerComponent;
 import io.wifi.starrailexpress.cca.SRERoleWorldComponent;
 import io.wifi.starrailexpress.cca.SREAbilityPlayerComponent.SkillState;
@@ -352,6 +354,22 @@ public final class RoleSkill {
     private static final Map<ResourceLocation, Consumer<RoleSkillContext>> LEGACY_SKILLS = new HashMap<>();
     private static final Map<ResourceLocation, List<Definition>> UNIFIED_SKILLS = new HashMap<>();
     private static final Map<ResourceLocation, SkillEntry> SKILL_REGISTRY = new HashMap<>();
+    /**
+     * 已在组件内部直接调用 onPlayerUsedSkill 记录技能释放的职业，
+     * 统一技能入口记录时需排除，避免同一技能双重记录。
+     */
+    private static final java.util.Set<String> ROLE_SKILL_REPLAY_EXCLUDED = java.util.Set.of(
+            "noellesroles:thief",
+            "noellesroles:candlebearer",
+            "noellesroles:bomber",
+            "noellesroles:blood_feudist",
+            "noellesroles:clockmaker",
+            "noellesroles:fortuneteller",
+            "noellesroles:noisemaker",
+            "noellesroles:builder",
+            "noellesroles:trapper",
+            "noellesroles:musician_phantom",
+            "xiaoheihand:super_loose_end");
 
     private RoleSkill() {
     }
@@ -607,6 +625,12 @@ public final class RoleSkill {
         definition.announceInfo().doAnnounce(player, definition, ability.getSkillState(definition.id()),
                 skillReady, target);
         afterUse(player, role);
+        // 回放记录：玩家释放技能（统一技能系统入口；以下角色已在组件内部记录，避免重复）
+        if (!ROLE_SKILL_REPLAY_EXCLUDED.contains(role.identifier().toString())) {
+            SRE.REPLAY_MANAGER.recordCustomEvent(
+                    Component.translatable("replay.event.player.use_skill",
+                            GameReplayUtils.getReplayPlayerDisplayText(player, true)));
+        }
         return true;
     }
 

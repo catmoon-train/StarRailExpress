@@ -15,6 +15,8 @@
 
 package org.agmas.noellesroles.game.roles.killer.warlock;
 
+import io.wifi.starrailexpress.SRE;
+import io.wifi.starrailexpress.api.replay.GameReplayUtils;
 import io.wifi.starrailexpress.content.entity.PlayerBodyEntity;
 import io.wifi.starrailexpress.event.OnGameEnd;
 import io.wifi.starrailexpress.game.GameUtils;
@@ -146,6 +148,11 @@ public final class WarlockDomainManager {
         warlock.displayClientMessage(Component
                 .translatable("message.noellesroles.warlock.domain_open")
                 .withStyle(ChatFormatting.DARK_PURPLE), true);
+        // 回放记录：咒术师将玩家拉入角斗领域
+        SRE.REPLAY_MANAGER.recordCustomEvent(
+            Component.translatable("replay.event.warlock.pull_arena",
+                GameReplayUtils.getReplayPlayerDisplayText(warlock, true),
+                GameReplayUtils.getReplayPlayerDisplayText(victim, true)));
         return true;
     }
 

@@ -17,6 +17,7 @@ package org.agmas.noellesroles.game.roles.innocence.cake_maker;
 
 import com.mojang.math.Transformation;
 import io.wifi.starrailexpress.api.RoleComponent;
+import org.agmas.noellesroles.ConfigWorldComponent;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.cca.SREPlayerMoodComponent;
 import io.wifi.starrailexpress.util.PlayerStaminaGetter;
@@ -397,6 +398,7 @@ public final class CakeMakerComponent implements RoleComponent, ServerTickingCom
                 Component.translatable("message.noellesroles.cake_maker.smoker_ready")
                         .withStyle(ChatFormatting.GOLD),
                 true);
+        ConfigWorldComponent.onPlayerUsedSkill(sp);
         return true;
     }
 

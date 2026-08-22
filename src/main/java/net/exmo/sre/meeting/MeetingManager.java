@@ -18,6 +18,7 @@ package net.exmo.sre.meeting;
 import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.SREConfig;
 import io.wifi.starrailexpress.api.AreasSettings;
+import io.wifi.starrailexpress.api.replay.GameReplayUtils;
 import io.wifi.starrailexpress.cca.AreasWorldComponent;
 import io.wifi.starrailexpress.cca.SREGameTimeComponent;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
@@ -401,6 +402,10 @@ public final class MeetingManager {
         broadcastState(serverLevel);
         broadcastSkipState(serverLevel);
         MeetingStartEvent.EVENT.invoker().onMeetingStart(serverLevel, reporter);
+        // 回放记录：玩家发起会议
+        SRE.REPLAY_MANAGER.recordCustomEvent(
+            Component.translatable("replay.event.corpse.call_meeting",
+                GameReplayUtils.getReplayPlayerDisplayText(reporter, true)));
         return true;
     }
 
