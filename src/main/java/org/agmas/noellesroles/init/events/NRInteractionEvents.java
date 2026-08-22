@@ -275,6 +275,9 @@ public class NRInteractionEvents {
                 return true;
             if (RoleShopHandler.isOldmanEasterEggRod(mainHandItem))
                 return true;
+            if (gameWorldComponent.isRole(player, ModRoles.LIN_FAMILY)) {
+                return !org.agmas.noellesroles.role_data.neutral.LinFamilyRoleData.isKeyOrLetter(mainHandItem);
+            }
             return false;
         });
     }

@@ -467,6 +467,31 @@ public class NoellesRolesConfig implements ConfigData {
     /** 宿命的罪人 - 复活 / 重启后的短暂无敌时间（秒） */
     public int doomedSinnerReviveInvincibleSeconds = 3;
 
+    /** 林家子弟 - 开局每人折算金币 */
+    public int linFamilyGoldPerPlayer = 250;
+    /** 林家子弟 - 商店护盾价格 */
+    public int linFamilyShieldPrice = 400;
+    /** 林家子弟 - 护盾购买冷却（秒） */
+    public int linFamilyShieldCooldownSeconds = 60;
+    /** 林家子弟 - 售货机购买冷却（秒） */
+    public int linFamilyVendingCooldownSeconds = 60;
+    /** 林家子弟 - 全收集之癖价格 */
+    public int linFamilyCollectorPrice = 400;
+    /** 林家子弟 - 给杀手买刀的价格 */
+    public int linFamilyKnifePrice = 150;
+    /** 林家子弟 - 给杀手买哑火手枪的价格 */
+    public int linFamilyMisfireGunPrice = 300;
+    /** 林家子弟 - 给好人买伪装左轮的价格 */
+    public int linFamilyInnocentGunPrice = 200;
+    /** 林家子弟 - 金钱禁锢秒数 */
+    public int linFamilyBindSeconds = 10;
+    /** 林家子弟 - 被攻击后隐身秒数 */
+    public int linFamilyInvisSeconds = 20;
+    /** 林家子弟 - 报纸交易超时秒数 */
+    public int linFamilyOfferTimeoutSeconds = 15;
+    /** 林家子弟 - 慷慨解囊技能距离（格） */
+    public double linFamilySkillRange = 12.0;
+
     /** Morphling (变形者) - Knife dummy skill cooldown in seconds */
     public int morphlingDummyCooldown = 90;
     /** Morphling (变形者) - Knife dummy max lifetime / forward-rush time in seconds */
