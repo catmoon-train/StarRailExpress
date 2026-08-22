@@ -2872,7 +2872,7 @@
     "message.replay.pachuri.be_known_role": "\u00a7d📖\u00a7r %s 已被帕秋莉 %s 得知身份。",
     "replay.event.gambler.miracle": "\u00a76🎲\u00a7r %s 触发了赌徒的奇迹",
     "replay.event.thief.steal_money": "\u00a7e💰\u00a7r %s 偷了 %s %s 金币",
-    "replay.event.thief.steal_item": "\u00a7e🕵️\u00a7r %s 偷了 %s 的物品",
+    "replay.event.thief.steal_item": "\u00a7e🕵️\u00a7r %s 偷了 %s 的 %s",
     "replay.event.shapeshifter.change_skin": "\u00a7d🎭\u00a7r %s 变成了 %s 的模样",
     "replay.event.skincrawler.change_skin": "\u00a7d🎭\u00a7r %s 变成了 %s 的模样",
     "replay.event.doomed_sinner.change_skin": "\u00a7d🎭\u00a7r %s 变成了 %s 的模样",
