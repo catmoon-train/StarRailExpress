@@ -31,6 +31,8 @@ import io.wifi.starrailexpress.game.GameUtils;
 import io.wifi.starrailexpress.game.PlayerMountainHandler;
 import io.wifi.starrailexpress.game.data.ServerMapConfig;
 import io.wifi.starrailexpress.game.modes.SREMurderGameMode;
+import io.wifi.starrailexpress.game.modes.funny.SRERoleRotationGameMode;
+import io.wifi.starrailexpress.game.modes.funny.SRERoleRotationSingleSelectGameMode;
 import io.wifi.starrailexpress.network.*;
 import io.wifi.starrailexpress.scenery.server.SceneAssetServer;
 import net.exmo.sre.sync.MysqlPlayerDataStore;
@@ -39,8 +41,10 @@ import net.fabricmc.fabric.api.entity.event.v1.ServerPlayerEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionResult;
+import net.minecraft.world.level.GameType;
 import pro.fazeclan.river.stupid_express.StupidExpressConfig;
 import pro.fazeclan.river.stupid_express.modifier.refugee.cca.RefugeeComponent;
 
@@ -66,15 +70,21 @@ public class SREEventRegister {
         });
         OnGameStarted.EVENT.register(serverLevel -> {
             RefugeeComponent.KEY.get(serverLevel).clear();
+            boolean deferIntro = defersIntroUntilRolesChosen(serverLevel);
             for (ServerPlayer player : serverLevel.players()) {
                 PacketTracker.sendToClient(player, new OnGameStartedPayload());
-                // 仅向本局参与者（冒险模式）播放"由远及近到玩家位置"的开场镜头
-                if (player.gameMode.getGameModeForPlayer() == net.minecraft.world.level.GameType.ADVENTURE) {
-                    net.exmo.sre.camera.AdvancedCameraCommand.sendIntro(player,
-                            net.exmo.sre.camera.AdvancedCameraCommand.DEFAULT_INTRO_DURATION,
-                            net.exmo.sre.camera.AdvancedCameraCommand.DEFAULT_INTRO_DISTANCE,
-                            net.exmo.sre.camera.AdvancedCameraCommand.DEFAULT_INTRO_HEIGHT);
+                // 轮选模式职业尚未确定，开场镜头延后到 OnGameTrueStarted
+                if (!deferIntro) {
+                    sendDefaultIntroIfParticipant(player);
                 }
+            }
+        });
+        OnGameTrueStarted.EVENT.register(serverLevel -> {
+            if (!defersIntroUntilRolesChosen(serverLevel)) {
+                return;
+            }
+            for (ServerPlayer player : serverLevel.players()) {
+                sendDefaultIntroIfParticipant(player);
             }
         });
     }
@@ -195,5 +205,21 @@ public class SREEventRegister {
         ServerPlayerEvents.COPY_FROM.register((oldPlayer, newPlayer, alive) -> {
             SyncMapConfigPayload.sendToPlayer(newPlayer);
         });
+    }
+
+    /** 轮选（闪电轮抽 / 单选）在 OnGameStarted 时职业尚未确定，开场镜头应延后。 */
+    private static boolean defersIntroUntilRolesChosen(ServerLevel serverLevel) {
+        var mode = SREGameWorldComponent.KEY.get(serverLevel).getGameMode();
+        return mode instanceof SRERoleRotationGameMode
+                || mode instanceof SRERoleRotationSingleSelectGameMode;
+    }
+
+    private static void sendDefaultIntroIfParticipant(ServerPlayer player) {
+        if (player.gameMode.getGameModeForPlayer() == GameType.ADVENTURE) {
+            net.exmo.sre.camera.AdvancedCameraCommand.sendIntro(player,
+                    net.exmo.sre.camera.AdvancedCameraCommand.DEFAULT_INTRO_DURATION,
+                    net.exmo.sre.camera.AdvancedCameraCommand.DEFAULT_INTRO_DISTANCE,
+                    net.exmo.sre.camera.AdvancedCameraCommand.DEFAULT_INTRO_HEIGHT);
+        }
     }
 }
