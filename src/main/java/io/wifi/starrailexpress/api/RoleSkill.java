@@ -18,7 +18,6 @@ package io.wifi.starrailexpress.api;
 import io.wifi.starrailexpress.api.RoleSkill.AnnounceInfo.AnnounceContext;
 import io.wifi.starrailexpress.api.RoleSkill.AnnounceInfo.AnnounceType;
 import io.wifi.starrailexpress.SRE;
-import io.wifi.starrailexpress.api.replay.GameReplayUtils;
 import io.wifi.starrailexpress.cca.SREAbilityPlayerComponent;
 import io.wifi.starrailexpress.cca.SRERoleWorldComponent;
 import io.wifi.starrailexpress.cca.SREAbilityPlayerComponent.SkillState;
@@ -627,10 +626,7 @@ public final class RoleSkill {
         afterUse(player, role);
         // 回放记录：玩家释放技能（统一技能系统入口；以下角色已在组件内部记录，避免重复）
         if (!ROLE_SKILL_REPLAY_EXCLUDED.contains(role.identifier().toString()) && !definition.toggleable()) {
-            SRE.REPLAY_MANAGER.recordCustomEvent(
-                    Component.translatable("replay.event.player.use_skill.with_name",
-                            GameReplayUtils.getReplayPlayerDisplayText(player, true),
-                            Component.translatableWithFallback(definition.nameKey(), "")));
+            SRE.REPLAY_MANAGER.recordSkillUsedId(player, definition.nameKey());
         }
         return true;
     }
