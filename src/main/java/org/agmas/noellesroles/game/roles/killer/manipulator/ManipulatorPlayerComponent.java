@@ -13,13 +13,12 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-
 package org.agmas.noellesroles.game.roles.killer.manipulator;
 
 import io.wifi.starrailexpress.api.RoleComponent;
 import io.wifi.starrailexpress.cca.SREAbilityPlayerComponent;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
-import io.wifi.starrailexpress.data.PlayerEconomyManager;
+import io.wifi.starrailexpress.cca.SREPlayerShopComponent;
 import io.wifi.starrailexpress.event.AllowPlayerControlled;
 import io.wifi.starrailexpress.game.GameConstants;
 import io.wifi.starrailexpress.game.GameUtils;
@@ -56,7 +55,8 @@ import java.util.UUID;
 /**
  * 操纵师组件（操控者侧）。
  *
- * <p>玩法：潜行盯着目标 4 秒进行标记（标记后目标短暂反胃、操纵师 +15 金币），可标记保存多个目标；
+ * <p>
+ * 玩法：潜行盯着目标 4 秒进行标记（标记后目标短暂反胃、操纵师 +15 金币），可标记保存多个目标；
  * 之后在 100 格内，于背包点击任一已标记目标头像即可附身操控——相机绑定到目标、远程驱动其移动、
  * 可以目标身份释放目标技能（冷却记在目标身上）。附身期间操纵师本体被冻结并获得无敌保护。
  *
@@ -154,7 +154,8 @@ public class ManipulatorPlayerComponent implements RoleComponent, ServerTickingC
     /**
      * 施放操控：对目标附加"傀儡游走"药水组合——身体自动朝随机方向乱走且拥有者无法控制、黑屏。
      *
-     * <p>包含：距离校验、{@link AllowPlayerControlled} 否决、冷却设置。
+     * <p>
+     * 包含：距离校验、{@link AllowPlayerControlled} 否决、冷却设置。
      * 相比旧版"远程直接驾驶"（{@link InControlCCA}，已弃用但保留代码），
      * 新版操控者施法后即自由行动，不再冻结本体 / 绑定相机。
      */
@@ -359,7 +360,7 @@ public class ManipulatorPlayerComponent implements RoleComponent, ServerTickingC
             if (markedTargets.add(candidate.getUUID())) {
                 candidate.addEffect(new MobEffectInstance(MobEffects.CONFUSION,
                         GameConstants.getInTicks(0, config().manipulatorMarkNauseaSeconds), 0));
-                PlayerEconomyManager.addCoinNum(sp, config().manipulatorMarkReward);
+                SREPlayerShopComponent.KEY.get(sp).addToBalance(config().manipulatorMarkReward);
                 sp.displayClientMessage(Component.translatable("message.noellesroles.manipulator.mark_success",
                         candidate.getName()).withStyle(ChatFormatting.GREEN), true);
                 sp.level().playSound(null, sp.blockPosition(),

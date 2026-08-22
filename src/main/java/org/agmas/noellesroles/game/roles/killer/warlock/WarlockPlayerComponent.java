@@ -17,7 +17,6 @@ package org.agmas.noellesroles.game.roles.killer.warlock;
 
 import io.wifi.starrailexpress.api.RoleComponent;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
-import io.wifi.starrailexpress.data.PlayerEconomyManager;
 import io.wifi.starrailexpress.event.OnPlayerDeath;
 import io.wifi.starrailexpress.event.OnPlayerDeathWithKiller;
 import io.wifi.starrailexpress.game.GameUtils;
@@ -34,6 +33,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import io.wifi.starrailexpress.cca.SREPlayerMoodComponent;
+import io.wifi.starrailexpress.cca.SREPlayerShopComponent;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.player.Player;
@@ -342,7 +342,7 @@ public class WarlockPlayerComponent implements RoleComponent, ServerTickingCompo
             if (end == null || GameUtils.getTicksFromGameStart(sv.level()) >= end)
                 continue;
             comp.cursedPlayers.remove(sv.getUUID());
-            PlayerEconomyManager.addCoinNum(candidate, CURSE_REWARD_COINS);
+            SREPlayerShopComponent.KEY.get(candidate).addToBalance(CURSE_REWARD_COINS);
             candidate.displayClientMessage(Component
                     .translatable("message.noellesroles.warlock.curse_reward", CURSE_REWARD_COINS)
                     .withStyle(ChatFormatting.GOLD), true);
