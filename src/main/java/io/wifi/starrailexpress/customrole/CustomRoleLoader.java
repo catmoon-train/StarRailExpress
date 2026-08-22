@@ -660,7 +660,7 @@ public class CustomRoleLoader {
 
                             return true;
                         }).cooldownSeconds(cooldownSeconds)
-                        .recordName(sd.name).build());
+                        .recordName(Component.literal(sd.name)).build());
 
                 // 存储技能初始冷却（游戏开始后首次分配角色时按技能分别应用）
                 if (sd.initialCooldownSeconds > 0) {
