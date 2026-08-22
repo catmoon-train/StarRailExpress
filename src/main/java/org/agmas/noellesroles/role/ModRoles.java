@@ -94,6 +94,7 @@ import org.agmas.noellesroles.game.roles.vigilante.patroller.PatrollerPlayerComp
 import org.agmas.noellesroles.init.ModEffects;
 import org.agmas.noellesroles.init.ModItems;
 import org.agmas.noellesroles.role_data.neutral.LeaderRoleData;
+import org.agmas.noellesroles.role_data.neutral.LinFamilyRoleData;
 import org.agmas.noellesroles.role_data.vigilante.LeonRoleData;
 import org.agmas.noellesroles.utils.MCItemsUtils;
 import org.agmas.noellesroles.utils.RandomColorUtil;
@@ -329,6 +330,7 @@ public class ModRoles {
     public static final ResourceLocation AMON_ID = Noellesroles.id("amon");
     public static final ResourceLocation VOICE_CHANGER_ID = Noellesroles.id("voice_changer");
     public static final ResourceLocation DOOMED_SINNER_ID = Noellesroles.id("doomed_sinner");
+    public static final ResourceLocation LIN_FAMILY_ID = Noellesroles.id("lin_family");
     public static final ResourceLocation FORTUNETELLER_ID = Noellesroles.id("fortuneteller");
     // 占卜家角色 ID
     public static final ResourceLocation DIVINER_ID = Noellesroles.id("diviner");
@@ -2317,6 +2319,47 @@ public class ModRoles {
             .setDefaultEnableChance(5000);
 
     /**
+     * 林家子弟 —— 中立独立胜利角色。
+     * - 中立独立胜利（setNeutrals(true)，杀手视角不视为队友）
+     * - 仅在 12 人及以上对局刷新，与小偷互斥生成
+     * - 开局获得人数 × 250 金币，花光全部金币即获胜
+     * - 可丢弃钥匙/信封以外的物品；商店购买一层护盾；售货机购买有冷却
+     * - 被动透视未持械平民/杀手；无法杀人，攻击会金钱禁锢，被攻击获得隐身
+     * - 技能见 ModRolesInitialEventRegister
+     */
+    public static SRERole LIN_FAMILY = TMMRoles.registerRole(new NormalRole(
+            LIN_FAMILY_ID,
+            new Color(196, 148, 39).getRGB(),
+            false,
+            false,
+            SRERole.MoodType.FAKE,
+            Integer.MAX_VALUE,
+            true))
+            .setRoleData(LinFamilyRoleData::new)
+            .setNeutrals(true)
+            .setCanSeeTeammateKillerRole(false)
+            .setCanUseInstinctAndNightVision(true)
+            .setCanSeeCoin(true)
+            .setCanPickUpRevolver(false)
+            .setCanAutoAddMoney(false)
+            .setCanHavePassiveIncome(false)
+            .setToggledOffInstinctType(InstinctType.NONE)
+            .setToggledOnInstinctType(
+                    InstinctType.customWithFunction((self, target, selfRole, targetRole) -> {
+                        if (target == null) {
+                            return InstinctType.NONE;
+                        }
+                        LinFamilyRoleData data = RoleData.getNullable(LinFamilyRoleData.class, self);
+                        if (data != null && data.isXrayTarget(target.getUUID())) {
+                            return InstinctType.custom(selfRole.color());
+                        }
+                        return InstinctType.NONE;
+                    }))
+            .setDefaultMax(1)
+            .setDefaultEnableNeededPlayerCount(12)
+            .setDefaultEnableChance(5000);
+
+    /**
      * 魔术师角色 - 好人阵营（从模仿者移植）
      * - 好人阵营 (isInnocent = true)
      * - 能捡枪 (setCanPickUpRevolver(true))
@@ -2683,6 +2726,9 @@ public class ModRoles {
         ModRoles.PELICAN.addTwoWayOpposingRole(ModRoles.PUPPETEER);
         // 设置鹈鹕与渡鸦互斥
         ModRoles.PELICAN.addTwoWayOpposingRole(ModRoles.RAVEN);
+
+        // 设置林家子弟与小偷互斥
+        ModRoles.LIN_FAMILY.addTwoWayOpposingRole(ModRoles.THIEF);
 
         RoleSkill.register(ModRoles.THE_FOOL, FoolPlayerComponent::useSkill);
 

@@ -485,6 +485,29 @@ public class ModRolesInitialEventRegister {
                                     .reboot(player);
                         }).cooldownSeconds(75).shifted(true).showOnHud(true).announceToSelf(true).build());
 
+        RoleSkill.register(ModRoles.LIN_FAMILY,
+                RoleSkill.skill(SRE.id("lin_family_generosity"),
+                        "skill.noellesroles.lin_family.generosity",
+                        context -> {
+                            ServerPlayer player = context.player();
+                            if (player.isSpectator()) {
+                                return false;
+                            }
+                            ServerPlayer target = context.getTargetAsPlayer();
+                            return org.agmas.noellesroles.role_data.neutral.LinFamilyRoleData
+                                    .useGenerosity(player, target);
+                        }).cooldownSeconds(45).withTarget().showOnHud(true).announceToSelf(false).build(),
+                RoleSkill.skill(SRE.id("lin_family_collector"),
+                        "skill.noellesroles.lin_family.collector",
+                        context -> {
+                            ServerPlayer player = context.player();
+                            if (player.isSpectator()) {
+                                return false;
+                            }
+                            return org.agmas.noellesroles.role_data.neutral.LinFamilyRoleData
+                                    .useCollector(player);
+                        }).cooldownSeconds(60).shifted(true).showOnHud(true).announceToSelf(false).build());
+
         // 疫使技能注册：按技能键感染目标玩家
         RoleSkill.register(ModRoles.INFECTED, RoleSkill.skill(
                 SRE.id("infected_infect"),

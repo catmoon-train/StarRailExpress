@@ -3475,6 +3475,49 @@ public class RoleShopHandler {
                     ShopEntry.Type.TOOL));
             ShopContent.customEntries.put(ModRoles.MORTICIAN_BODYMAKER_ID, MORTICIAN_BODYMAKER_SHOP);
         }
+
+        // 林家子弟商店：一层护盾 - 400金币，已有护盾不可买，冷却60秒
+        {
+            var shop = new ArrayList<ShopEntry>();
+            ItemStack shieldItem = Items.SHIELD.getDefaultInstance();
+            shieldItem.set(DataComponents.ITEM_NAME,
+                    Component.translatable("item.noellesroles.lin_family_shield").withStyle(ChatFormatting.GOLD));
+            shop.add(new ShopEntry(shieldItem, NoellesRolesConfig.instance().linFamilyShieldPrice,
+                    ShopEntry.Type.TOOL) {
+                @Override
+                public boolean canBuy(@NotNull Player player) {
+                    if (SREArmorPlayerComponent.KEY.get(player).getArmor() > 0) {
+                        setFailedMessage(Component.translatable("message.noellesroles.lin_family.shield_owned")
+                                .withStyle(ChatFormatting.RED));
+                        return false;
+                    }
+                    var roleData = io.wifi.starrailexpress.api.data.RoleData
+                            .getNullable(org.agmas.noellesroles.role_data.neutral.LinFamilyRoleData.class, player);
+                    if (roleData != null && !roleData.canBuyShield(player.level().getGameTime())) {
+                        setFailedMessage(Component.translatable("message.noellesroles.lin_family.shield_cooldown")
+                                .withStyle(ChatFormatting.RED));
+                        return false;
+                    }
+                    return true;
+                }
+
+                @Override
+                public boolean onBuy(@NotNull Player player) {
+                    if (SREArmorPlayerComponent.KEY.get(player).getArmor() > 0) {
+                        return false;
+                    }
+                    var roleData = io.wifi.starrailexpress.api.data.RoleData
+                            .getNullable(org.agmas.noellesroles.role_data.neutral.LinFamilyRoleData.class, player);
+                    SREArmorPlayerComponent.KEY.get(player).addArmor();
+                    if (roleData != null) {
+                        roleData.markShieldBought(player.level().getGameTime());
+                        roleData.tryWin();
+                    }
+                    return true;
+                }
+            });
+            ShopContent.customEntries.put(ModRoles.LIN_FAMILY_ID, shop);
+        }
     }
 
     /**

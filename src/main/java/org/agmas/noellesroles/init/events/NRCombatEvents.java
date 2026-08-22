@@ -195,6 +195,7 @@ public class NRCombatEvents {
         CuckooEggHandler.register();
         GuardPlayerHandler.register();
         GroselleJourneyManager.register();
+        org.agmas.noellesroles.role_data.neutral.LinFamilyRoleData.registerEvents();
     }
 
     // --- 战斗相关的角色事件 ---

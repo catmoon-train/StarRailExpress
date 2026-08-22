@@ -126,6 +126,11 @@ public class CustomWinnerClass {
                 return WinStatus.CUSTOM;
             }
 
+            if (org.agmas.noellesroles.role_data.neutral.LinFamilyRoleData
+                    .checkLinFamilyVictory(serverLevel)) {
+                return WinStatus.CUSTOM;
+            }
+
             for (ServerPlayer player : serverLevel.players()) {
                 if (!GameUtils.isPlayerAliveAndSurvival(player) || !gameComponent.isRole(player, ModRoles.RAVEN))
                     continue;
