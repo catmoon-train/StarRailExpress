@@ -15,7 +15,6 @@
 
 package org.agmas.noellesroles.content.entity;
 
-import io.wifi.starrailexpress.api.data.RoleData;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.content.entity.no_water_influenced.NoHeavyWaterInfluencedThrowableItemProjectile;
 import io.wifi.starrailexpress.game.GameUtils;
@@ -33,7 +32,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
-import org.agmas.noellesroles.role_data.killer.SpellbreakerRoleData;
+import org.agmas.noellesroles.game.roles.killer.spellbreaker.SpellbreakerPlayerComponent;
 import org.agmas.noellesroles.init.ModItems;
 
 public class SilenceTotemEntity extends NoHeavyWaterInfluencedThrowableItemProjectile {
@@ -96,7 +95,7 @@ public class SilenceTotemEntity extends NoHeavyWaterInfluencedThrowableItemProje
         for (ServerPlayer target : serverLevel.getEntitiesOfClass(ServerPlayer.class, area,
                 GameUtils::isPlayerAliveAndSurvival)) {
             if (target.distanceToSqr(this) > RADIUS * RADIUS
-                    || !SpellbreakerRoleData.isNonKiller(target, gameWorld)) {
+                    || !SpellbreakerPlayerComponent.isNonKiller(target, gameWorld)) {
                 continue;
             }
 
@@ -117,7 +116,7 @@ public class SilenceTotemEntity extends NoHeavyWaterInfluencedThrowableItemProje
     private void clearOwnerTotem() {
         Entity owner = getOwner();
         if (owner instanceof ServerPlayer player) {
-            RoleData.ifPresent(SpellbreakerRoleData.class, player, d -> d.clearActiveTotem(getUUID()));
+            SpellbreakerPlayerComponent.KEY.get(player).clearActiveTotem(getUUID());
         }
     }
 }

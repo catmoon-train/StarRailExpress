@@ -15,7 +15,6 @@
 
 package org.agmas.noellesroles.client.hud.roles;
 
-import io.wifi.starrailexpress.api.data.RoleData;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.cca.SREWorldBlackoutComponent;
 import io.wifi.starrailexpress.client.SREClient;
@@ -29,7 +28,7 @@ import net.minecraft.util.Mth;
 import org.agmas.noellesroles.Noellesroles;
 import org.agmas.noellesroles.client.event.RoleHudRenderCallback;
 import org.agmas.noellesroles.config.NoellesRolesConfig;
-import org.agmas.noellesroles.role_data.killer.WizardRoleData;
+import org.agmas.noellesroles.game.roles.killer.wizard.WizardPlayerComponent;
 import org.agmas.noellesroles.role.ModRoles;
 
 public class WizardHud {
@@ -57,8 +56,7 @@ public class WizardHud {
                 return;
             }
 
-            WizardRoleData comp = RoleData.getNullable(WizardRoleData.class, client.player);
-            if (comp == null) return;
+            WizardPlayerComponent comp = WizardPlayerComponent.KEY.get(client.player);
             Font font = client.font;
             int screenWidth = context.guiWidth();
             int barX = screenWidth / 2 - BAR_WIDTH / 2;
@@ -98,7 +96,7 @@ public class WizardHud {
         });
     }
 
-    private static Component getSpellStatus(WizardRoleData comp, Minecraft client, NoellesRolesConfig config) {
+    private static Component getSpellStatus(WizardPlayerComponent comp, Minecraft client, NoellesRolesConfig config) {
         int mana = Math.round(comp.mana);
         Component cdText;
 

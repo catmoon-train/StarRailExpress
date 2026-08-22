@@ -15,7 +15,6 @@
 
 package org.agmas.noellesroles.content.item;
 
-import io.wifi.starrailexpress.api.data.RoleData;
 import io.wifi.starrailexpress.util.AdventureUsable;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerPlayer;
@@ -26,7 +25,7 @@ import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 import org.agmas.noellesroles.config.NoellesRolesConfig;
-import org.agmas.noellesroles.role_data.killer.DreamRoleData;
+import org.agmas.noellesroles.game.roles.killer.dream.DreamPlayerComponent;
 
 /**
  * Dream 的船（商店 100 金币）。
@@ -34,7 +33,7 @@ import org.agmas.noellesroles.role_data.killer.DreamRoleData;
  * <p>对地面右键放置一条船：{@code dreamBoatDurationSeconds}（默认 10s）内
  * 半径 {@code dreamBoatRadius} 格的玩家会被强制拽上船（挣脱也会被拽回来），
  * 到点后船消失。使用冷却 {@code dreamBoatCooldownSeconds}（默认 60s），物品不消耗。
- * 乘坐/消失逻辑见 {@link DreamRoleData#placeBoat}。
+ * 乘坐/消失逻辑见 {@link DreamPlayerComponent#placeBoat}。
  * 实现 {@code AdventureUsable} 以通过冒险模式的物品对方块使用门禁。
  */
 public class DreamBoatItem extends Item implements AdventureUsable {
@@ -60,7 +59,7 @@ public class DreamBoatItem extends Item implements AdventureUsable {
         }
         BlockPos placePos = context.getClickedPos().relative(context.getClickedFace());
         Vec3 pos = Vec3.atBottomCenterOf(placePos);
-        if (!RoleData.test(DreamRoleData.class, sp, d -> d.placeBoat(sp, pos))) {
+        if (!DreamPlayerComponent.KEY.get(sp).placeBoat(sp, pos)) {
             return InteractionResult.FAIL;
         }
         player.getCooldowns().addCooldown(this,

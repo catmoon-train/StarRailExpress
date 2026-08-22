@@ -15,30 +15,6 @@
 
 package org.agmas.noellesroles.init;
 
-import org.agmas.noellesroles.role_data.killer.YouluRoleData;
-
-import org.agmas.noellesroles.role_data.killer.WarlockRoleData;
-
-import org.agmas.noellesroles.role_data.killer.SkincrawlerRoleData;
-
-import org.agmas.noellesroles.role_data.killer.SilencerRoleData;
-
-import org.agmas.noellesroles.role_data.neutral.PelicanRoleData;
-
-import org.agmas.noellesroles.role_data.neutral.MonokumaRoleData;
-
-import org.agmas.noellesroles.role_data.neutral.LinFamilyRoleData;
-
-import org.agmas.noellesroles.role_data.killer.ImitatorRoleData;
-
-import org.agmas.noellesroles.role_data.killer.EmbalmerRoleData;
-
-import org.agmas.noellesroles.role_data.innocence.BuilderRoleData;
-
-import org.agmas.noellesroles.role_data.neutral.AmonRoleData;
-
-import org.agmas.noellesroles.role_data.killer.WizardRoleData;
-import io.wifi.starrailexpress.api.data.RoleData;
 import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.api.RoleSkill;
 import io.wifi.starrailexpress.api.replay.GameReplayUtils;
@@ -93,22 +69,22 @@ import org.agmas.noellesroles.content.item.StalkerKnifeItem;
 import org.agmas.noellesroles.content.item.ThrowingKnife;
 import org.agmas.noellesroles.content.item.ZeroOneFiveShootPayload;
 import org.agmas.noellesroles.events.OnVendingMachinesBuyItems;
-import org.agmas.noellesroles.role_data.innocence.BroadcasterRoleData;
-import org.agmas.noellesroles.role_data.innocence.MonitorRoleData;
-import org.agmas.noellesroles.role_data.innocence.PilotRoleData;
-import org.agmas.noellesroles.role_data.innocence.VoodooRoleData;
-import org.agmas.noellesroles.role_data.killer.CreeperRoleData;
-import org.agmas.noellesroles.role_data.killer.ExecutionerRoleData;
-import org.agmas.noellesroles.role_data.killer.InsaneKillerRoleData;
-import org.agmas.noellesroles.role_data.killer.ManipulatorRoleData;
-import org.agmas.noellesroles.role_data.killer.MorphlingRoleData;
-import org.agmas.noellesroles.role_data.killer.NinjaRoleData;
-import org.agmas.noellesroles.role_data.killer.PartyRoleData;
-import org.agmas.noellesroles.role_data.killer.ShadowFalconRoleData;
-import org.agmas.noellesroles.role_data.killer.StalkerRoleData;
-import org.agmas.noellesroles.role_data.killer.SwapperRoleData;
-import org.agmas.noellesroles.role_data.neutral.MorticianBodyMakerRoleData;
-import org.agmas.noellesroles.role_data.neutral.VultureRoleData;
+import org.agmas.noellesroles.game.roles.innocence.broadcaster.BroadcasterPlayerComponent;
+import org.agmas.noellesroles.game.roles.innocence.monitor.MonitorPlayerComponent;
+import org.agmas.noellesroles.game.roles.innocence.pilot.PilotPlayerComponent;
+import org.agmas.noellesroles.game.roles.innocence.voodoo.VoodooPlayerComponent;
+import org.agmas.noellesroles.game.roles.killer.creeper.CreeperPlayerComponent;
+import org.agmas.noellesroles.game.roles.killer.executioner.ExecutionerPlayerComponent;
+import org.agmas.noellesroles.game.roles.killer.insane_killer.InsaneKillerPlayerComponent;
+import org.agmas.noellesroles.game.roles.killer.manipulator.ManipulatorPlayerComponent;
+import org.agmas.noellesroles.game.roles.killer.morphling.MorphlingPlayerComponent;
+import org.agmas.noellesroles.game.roles.killer.ninja.NinjaPlayerComponent;
+import org.agmas.noellesroles.game.roles.killer.party.PartyPlayerComponent;
+import org.agmas.noellesroles.game.roles.killer.shadow_falcon.ShadowFalconPlayerComponent;
+import org.agmas.noellesroles.game.roles.killer.stalker.StalkerPlayerComponent;
+import org.agmas.noellesroles.game.roles.killer.swapper.SwapperPlayerComponent;
+import org.agmas.noellesroles.game.roles.neutral.mortician.MorticianBodyMakerPlayerComponent;
+import org.agmas.noellesroles.game.roles.neutral.vulture.VulturePlayerComponent;
 import org.agmas.noellesroles.packet.*;
 import org.agmas.noellesroles.role.BounsRoles;
 import org.agmas.noellesroles.role.ModRoles;
@@ -131,8 +107,8 @@ public class ModPacketsReciever {
         if (!gameWorld.isRunning() || !gameWorld.isRole(player, ModRoles.YOULU)) {
           return;
         }
-        RoleData.ifPresent(org.agmas.noellesroles.role_data.killer.YouluRoleData.class, player,
-            d -> d.reportCamPos(player, payload.pos()));
+        org.agmas.noellesroles.game.roles.killer.youlu.YouluPlayerComponent.KEY.get(player)
+            .reportCamPos(player, payload.pos());
       });
     });
 
@@ -144,8 +120,8 @@ public class ModPacketsReciever {
         if (!gameWorld.isRunning() || !gameWorld.isRole(player, ModRoles.YOULU)) {
           return;
         }
-        RoleData.ifPresent(org.agmas.noellesroles.role_data.killer.YouluRoleData.class, player,
-            d -> d.cancelFreeCam(player));
+        org.agmas.noellesroles.game.roles.killer.youlu.YouluPlayerComponent.KEY.get(player)
+            .cancelFreeCam(player);
       });
     });
 
@@ -412,9 +388,9 @@ public class ModPacketsReciever {
           return;
         abilityPlayerComponent.cooldown = 15 * 20;
         abilityPlayerComponent.sync();
-        VoodooRoleData voodooPlayerComponent = RoleData.getNullable(VoodooRoleData.class, context.player());
-        if (voodooPlayerComponent != null)
-          voodooPlayerComponent.setTarget(payload.player());
+        VoodooPlayerComponent voodooPlayerComponent = (VoodooPlayerComponent) VoodooPlayerComponent.KEY
+            .get(context.player());
+        voodooPlayerComponent.setTarget(payload.player());
 
         // 回放记录：巫毒师/冷笑绑定玩家
         SRE.REPLAY_MANAGER.recordCustomEvent(
@@ -424,9 +400,10 @@ public class ModPacketsReciever {
 
       }
       if (gameWorldComponent.isRole(context.player(), ModRoles.MORPHLING)) {
-        MorphlingRoleData morphlingPlayerComponent = RoleData.getNullable(MorphlingRoleData.class, context.player());
+        MorphlingPlayerComponent morphlingPlayerComponent = (MorphlingPlayerComponent) MorphlingPlayerComponent.KEY
+            .get(context.player());
         // 变形使用自身独立冷却（morphTicks，负值表示冷却中），不受举刀假人共享技能冷却影响。
-        if (morphlingPlayerComponent == null || morphlingPlayerComponent.getMorphTicks() != 0)
+        if (morphlingPlayerComponent.getMorphTicks() != 0)
           return;
         morphlingPlayerComponent.startMorph(payload.player());
       }
@@ -484,7 +461,8 @@ public class ModPacketsReciever {
       if (context.player().level().getPlayerByUUID(payload.targetPlayer()) == null)
         return;
       if (gameWorldComponent.isRole(context.player(), ModRoles.SILENCER)) {
-        org.agmas.noellesroles.role_data.killer.SilencerRoleData silencerComponent = RoleData.getNullable(org.agmas.noellesroles.role_data.killer.SilencerRoleData.class, context.player());
+        org.agmas.noellesroles.game.roles.killer.silencer.SilencerPlayerComponent silencerComponent = org.agmas.noellesroles.game.roles.killer.silencer.SilencerPlayerComponent.KEY
+            .get(context.player());
         if (silencerComponent != null) {
           silencerComponent.startSkill(payload.targetPlayer());
         }
@@ -507,7 +485,8 @@ public class ModPacketsReciever {
         if (p instanceof ServerPlayer sp && GameUtils.isPlayerAliveAndSurvival(sp)) {
           SREGameWorldComponent gw = SREGameWorldComponent.KEY.get(sp.level());
           if (gw.isRole(sp, ModRoles.SILENCER)) {
-            org.agmas.noellesroles.role_data.killer.SilencerRoleData sc = RoleData.getNullable(org.agmas.noellesroles.role_data.killer.SilencerRoleData.class, sp);
+            org.agmas.noellesroles.game.roles.killer.silencer.SilencerPlayerComponent sc = org.agmas.noellesroles.game.roles.killer.silencer.SilencerPlayerComponent.KEY
+                .get(sp);
             if (sc != null && sc.phase == 2 && targetPlayer.getUUID().equals(sc.targetUUID)) {
               sc.helpTarget();
               // 提示帮助者
@@ -523,7 +502,7 @@ public class ModPacketsReciever {
     ServerPlayNetworking.registerGlobalReceiver(NinjaAbilityC2SPacket.ID, (payload, context) -> {
       if (RoleSkill.blockForSpectator(context.player()))
         return;
-      NinjaRoleData comp = RoleData.getNullable(NinjaRoleData.class, context.player());
+      NinjaPlayerComponent comp = NinjaPlayerComponent.KEY.get(context.player());
       if (comp != null && comp.useAbility()) {
         ConfigWorldComponent.onPlayerUsedSkill(context.player());
       }
@@ -538,8 +517,8 @@ public class ModPacketsReciever {
             return;
           if (!gameWorldComponent.isRole(context.player(), ModRoles.WIZARD))
             return;
-          var wizard = RoleData.getNullable(WizardRoleData.class, context.player());
-          if (wizard == null || wizard.selectedSpell != org.agmas.noellesroles.role_data.killer.WizardRoleData.Spell.ARMOR)
+          var wizard = org.agmas.noellesroles.component.ModComponents.WIZARD.get(context.player());
+          if (wizard.selectedSpell != org.agmas.noellesroles.game.roles.killer.wizard.WizardPlayerComponent.Spell.ARMOR)
             return;
           var target = context.player().level().getPlayerByUUID(payload.player());
           if (target instanceof ServerPlayer stp) {
@@ -559,7 +538,7 @@ public class ModPacketsReciever {
         return;
       if (!gameWorldComponent.isRole(player, ModRoles.WIZARD))
         return;
-      RoleData.ifPresent(WizardRoleData.class, player, d -> d.cycleSpell());
+      ModComponents.WIZARD.get(player).cycleSpell();
     });
 
     ServerPlayNetworking.registerGlobalReceiver(ModPackets.MANIPULATOR_PACKET, (payload, context) -> {
@@ -579,9 +558,9 @@ public class ModPacketsReciever {
 
       if (gameWorldComponent.isRole(context.player(), ModRoles.MANIPULATOR)) {
         // 获取操纵师组件并设置目标；校验（标记/距离/事件）与冷却由 setTarget 内部处理
-        ManipulatorRoleData manipulatorPlayerComponent = RoleData.getNullable(ManipulatorRoleData.class, context.player());
-        if (manipulatorPlayerComponent != null)
-          manipulatorPlayerComponent.setTarget(payload.player());
+        ManipulatorPlayerComponent manipulatorPlayerComponent = (ManipulatorPlayerComponent) ManipulatorPlayerComponent.KEY
+            .get(context.player());
+        manipulatorPlayerComponent.setTarget(payload.player());
       }
     });
 
@@ -595,8 +574,8 @@ public class ModPacketsReciever {
           SREGameWorldComponent gameWorldComponent = (SREGameWorldComponent) SREGameWorldComponent.KEY
               .get(context.player().level());
           if (gameWorldComponent.isRole(context.player(), ModRoles.WARLOCK)) {
-            RoleData.ifPresent(org.agmas.noellesroles.role_data.killer.WarlockRoleData.class, context.player(),
-                d -> d.tryOpenDomainOn(payload.target()));
+            org.agmas.noellesroles.game.roles.killer.warlock.WarlockPlayerComponent.KEY
+                .get(context.player()).tryOpenDomainOn(payload.target());
           }
         });
 
@@ -609,16 +588,17 @@ public class ModPacketsReciever {
       SREGameWorldComponent gameWorldComponent = (SREGameWorldComponent) SREGameWorldComponent.KEY
           .get(context.player().level());
       if (gameWorldComponent.isRole(context.player(), ModRoles.AMON)) {
-        RoleData.ifPresent(org.agmas.noellesroles.role_data.neutral.AmonRoleData.class, context.player(),
-            d -> d.setPossessTarget(payload.player()));
+        org.agmas.noellesroles.game.roles.neutral.amon.AmonPlayerComponent.KEY
+            .get(context.player()).setPossessTarget(payload.player());
       }
     });
 
     // 操纵师附身移动输入包：驱动被操控目标移动，或请求结束操控
     ServerPlayNetworking.registerGlobalReceiver(
         org.agmas.noellesroles.packet.ManipulatorControlInputC2SPacket.ID, (payload, context) -> {
-          ManipulatorRoleData manipulatorPlayerComponent = RoleData.getNullable(ManipulatorRoleData.class, context.player());
-          if (manipulatorPlayerComponent == null || !manipulatorPlayerComponent.isControlling || manipulatorPlayerComponent.target == null)
+          ManipulatorPlayerComponent manipulatorPlayerComponent = (ManipulatorPlayerComponent) ManipulatorPlayerComponent.KEY
+              .get(context.player());
+          if (!manipulatorPlayerComponent.isControlling || manipulatorPlayerComponent.target == null)
             return;
           if (payload.stop()) {
             manipulatorPlayerComponent.stopControl(false);
@@ -637,8 +617,9 @@ public class ModPacketsReciever {
     // 操纵师附身期间：以目标身份释放目标自身技能（冷却记在目标身上）
     ServerPlayNetworking.registerGlobalReceiver(
         org.agmas.noellesroles.packet.ManipulatorAbilityC2SPacket.ID, (payload, context) -> {
-          ManipulatorRoleData manipulatorPlayerComponent = RoleData.getNullable(ManipulatorRoleData.class, context.player());
-          if (!RoleData.isAttached(manipulatorPlayerComponent) || !manipulatorPlayerComponent.isControlling || manipulatorPlayerComponent.target == null)
+          ManipulatorPlayerComponent manipulatorPlayerComponent = (ManipulatorPlayerComponent) ManipulatorPlayerComponent.KEY
+              .get(context.player());
+          if (!manipulatorPlayerComponent.isControlling || manipulatorPlayerComponent.target == null)
             return;
           var targetPlayer = context.player().level().getPlayerByUUID(manipulatorPlayerComponent.target);
           if (!(targetPlayer instanceof net.minecraft.server.level.ServerPlayer targetServerPlayer))
@@ -685,8 +666,8 @@ public class ModPacketsReciever {
       }
       if (player.getMainHandItem().getItem() instanceof StalkerKnifeItem stalkerKnifeItem) {
         if (SREGameWorldComponent.KEY.get(player.level()).isRole(player.getUUID(), ModRoles.STALKER)) {
-          StalkerRoleData stalkerPlayerComponent = RoleData.getNullable(StalkerRoleData.class, player);
-          if (stalkerPlayerComponent != null && stalkerPlayerComponent.phase == 3 && !stalkerPlayerComponent.isDashOnCooldown()) {
+          StalkerPlayerComponent stalkerPlayerComponent = StalkerPlayerComponent.KEY.get(player);
+          if (stalkerPlayerComponent.phase == 3 && !stalkerPlayerComponent.isDashOnCooldown()) {
             if (stalkerKnifeItem.tryDashAttack(player, player.getMainHandItem(), player.serverLevel())) {
               stalkerPlayerComponent.dashCooldown = 50;
             }
@@ -697,7 +678,7 @@ public class ModPacketsReciever {
       if (player.getMainHandItem()
           .getItem() instanceof org.agmas.noellesroles.game.roles.neutral.monokuma.YinYangSwordItem) {
         if (SREGameWorldComponent.KEY.get(player.level()).isRole(player.getUUID(), ModRoles.MONOKUMA)) {
-          var comp = RoleData.getOptional(org.agmas.noellesroles.role_data.neutral.MonokumaRoleData.class, player)
+          var comp = org.agmas.noellesroles.game.roles.neutral.monokuma.MonokumaPlayerComponent.KEY.maybeGet(player)
               .orElse(null);
           if (comp != null && comp.phase == 2) {
             org.agmas.noellesroles.game.roles.neutral.monokuma.YinYangSwordItem.performDashAttack(player);
@@ -735,9 +716,8 @@ public class ModPacketsReciever {
           if (!bodyDeathReasonComponent.vultured) {
             abilityPlayerComponent.cooldown = GameConstants.getInTicks(0,
                 NoellesRolesConfig.HANDLER.instance().vultureEatCooldown);
-            VultureRoleData vulturePlayerComponent = RoleData.getNullable(VultureRoleData.class, player);
-            if (vulturePlayerComponent == null)
-              return;
+            VulturePlayerComponent vulturePlayerComponent = VulturePlayerComponent.KEY
+                .get(player);
             vulturePlayerComponent.bodiesEaten++;
             vulturePlayerComponent.sync();
             player.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SLOWDOWN, 40, 2));
@@ -797,8 +777,8 @@ public class ModPacketsReciever {
           if (context.player().level().getPlayerByUUID(payload.player()) != null &&
               context.player().level().getPlayerByUUID(payload.player2()) != null) {
 
-            SwapperRoleData swapperComponent = RoleData.getNullable(SwapperRoleData.class, context.player());
-            if (swapperComponent != null && !swapperComponent.isSwapping) {
+            SwapperPlayerComponent swapperComponent = ModComponents.SWAPPER.get(context.player());
+            if (!swapperComponent.isSwapping) {
               swapperComponent.startSwap(payload.player(), payload.player2());
             }
           }
@@ -815,8 +795,9 @@ public class ModPacketsReciever {
           SREGameWorldComponent gameWorldComponent = (SREGameWorldComponent) SREGameWorldComponent.KEY
               .get(context.player().level());
           if (gameWorldComponent.isRole(context.player(), ModRoles.EXECUTIONER)) {
-            ExecutionerRoleData executionerPlayerComponent = RoleData.getNullable(ExecutionerRoleData.class, context.player());
-            if (executionerPlayerComponent == null || executionerPlayerComponent.targetSelected)
+            ExecutionerPlayerComponent executionerPlayerComponent = ExecutionerPlayerComponent.KEY
+                .get(context.player());
+            if (executionerPlayerComponent.targetSelected)
               return;
 
             if (payload.target() != null) {
@@ -857,17 +838,16 @@ public class ModPacketsReciever {
 
           // 模仿者使用广播员能力
           if (gameWorldComponent.isRole(context.player(), ModRoles.IMITATOR)) {
-            org.agmas.noellesroles.role_data.killer.ImitatorRoleData imitComp = RoleData.getNullable(org.agmas.noellesroles.role_data.killer.ImitatorRoleData.class, context.player());
-            if (imitComp != null && !payload.onlySave()) {
+            org.agmas.noellesroles.game.roles.killer.imitator.ImitatorPlayerComponent imitComp = org.agmas.noellesroles.component.ModComponents.IMITATOR
+                .get(context.player());
+            if (!payload.onlySave()) {
               imitComp.useMessageAbility(context.player(), payload.message());
             }
             return;
           }
 
           if (gameWorldComponent.isRole(context.player(), ModRoles.BROADCASTER)) {
-            BroadcasterRoleData comp = RoleData.getNullable(BroadcasterRoleData.class, context.player());
-            if (comp == null)
-              return;
+            BroadcasterPlayerComponent comp = BroadcasterPlayerComponent.KEY.get(context.player());
             String message = payload.message();
             boolean onlySave = payload.onlySave();
             if (onlySave) {
@@ -943,9 +923,7 @@ public class ModPacketsReciever {
         return;
       }
       RoleSkill.beforeUse(player, ModRoles.INSANE_KILLER);
-      InsaneKillerRoleData component = RoleData.getNullable(InsaneKillerRoleData.class, player);
-      if (component == null)
-        return;
+      InsaneKillerPlayerComponent component = InsaneKillerPlayerComponent.KEY.get(player);
 
       // 检查冷却
       if (component.cooldown > 0 && !component.isActive)
@@ -1034,9 +1012,7 @@ public class ModPacketsReciever {
       SREGameWorldComponent gameWorldComponent = (SREGameWorldComponent) SREGameWorldComponent.KEY
           .get(context.player().level());
       if (gameWorldComponent.isRole(context.player(), ModRoles.MONITOR)) {
-        MonitorRoleData monitorComponent = RoleData.getNullable(MonitorRoleData.class, context.player());
-        if (monitorComponent == null)
-          return;
+        MonitorPlayerComponent monitorComponent = MonitorPlayerComponent.KEY.get(context.player());
 
         // 检查冷却
         if (monitorComponent.canUseAbility()) {
@@ -1096,8 +1072,8 @@ public class ModPacketsReciever {
           }
 
           if (gameWorldComponent.isRole(player, BounsRoles.CREEPER)) {
-            CreeperRoleData creeperComponent = RoleData.getNullable(CreeperRoleData.class, player);
-            if (creeperComponent != null && creeperComponent.ignite()) {
+            CreeperPlayerComponent creeperComponent = CreeperPlayerComponent.KEY.get(player);
+            if (creeperComponent.ignite()) {
               ConfigWorldComponent.onPlayerUsedSkill(player);
             }
           }
@@ -1119,7 +1095,7 @@ public class ModPacketsReciever {
             return;
           }
           if (gameWorldComponent.isRole(player, ModRoles.SWAPPER)) {
-            RoleData.ifPresent(SwapperRoleData.class, player, d -> d.frontSwap(player));
+            ModComponents.SWAPPER.get(player).frontSwap(player);
           }
         });
 
@@ -1140,9 +1116,7 @@ public class ModPacketsReciever {
           }
 
           if (gameWorldComponent.isRole(player, ModRoles.SHADOW_FALCON)) {
-            ShadowFalconRoleData shadowFalconComponent = RoleData.getNullable(ShadowFalconRoleData.class, player);
-            if (shadowFalconComponent == null)
-              return;
+            ShadowFalconPlayerComponent shadowFalconComponent = ShadowFalconPlayerComponent.KEY.get(player);
             // 蹲下优先脱下喷气背包和鞘翅，无条件优先执行
             if (player.isShiftKeyDown()) {
               shadowFalconComponent.removeJetpack();
@@ -1164,9 +1138,11 @@ public class ModPacketsReciever {
           SREGameWorldComponent gameWorldComponent = SREGameWorldComponent.KEY.get(player.level());
 
           if (gameWorldComponent.isRole(player, ModRoles.PILOT)) {
-            RoleData.ifPresent(PilotRoleData.class, player, d -> d.removeJetpack());
+            PilotPlayerComponent pilotComponent = PilotPlayerComponent.KEY.get(player);
+            pilotComponent.removeJetpack();
           } else if (gameWorldComponent.isRole(player, ModRoles.SHADOW_FALCON)) {
-            RoleData.ifPresent(ShadowFalconRoleData.class, player, d -> d.removeJetpack());
+            ShadowFalconPlayerComponent shadowFalconComponent = ShadowFalconPlayerComponent.KEY.get(player);
+            shadowFalconComponent.removeJetpack();
           }
         });
 
@@ -1214,9 +1190,7 @@ public class ModPacketsReciever {
             ability.sync();
 
             // 获取基于开局玩家数计算的阈值（已在游戏开始时初始化）
-            PartyRoleData pc = RoleData.getNullable(PartyRoleData.class, player);
-            if (pc == null)
-              return;
+            PartyPlayerComponent pc = PartyPlayerComponent.KEY.get(player);
             int threshold = pc.getThreshold();
 
             // 为目标设置氦气变声（4分钟 = 240秒 = 4800 ticks）
@@ -1236,7 +1210,7 @@ public class ModPacketsReciever {
 
             // 检查是否达到触发阈值
             if (pc.getCount() >= threshold) {
-              PartyRoleData.triggerPartyTime((ServerLevel) player.level(), player);
+              PartyPlayerComponent.triggerPartyTime((ServerLevel) player.level(), player);
               pc.clearCount(); // 只清零自己的计数
             }
           }
@@ -1261,13 +1235,11 @@ public class ModPacketsReciever {
           }
           if (!gameWorldComponent.isRole(player, ModRoles.PELICAN))
             return;
-          org.agmas.noellesroles.role_data.neutral.PelicanRoleData data = io.wifi.starrailexpress.api.data.RoleData
-              .getNullable(org.agmas.noellesroles.role_data.neutral.PelicanRoleData.class, player);
-          if (data == null)
-            return;
+          org.agmas.noellesroles.game.roles.neutral.pelican.PelicanPlayerComponent comp = org.agmas.noellesroles.game.roles.neutral.pelican.PelicanPlayerComponent.KEY
+              .get(player);
           // 蹲下释放，否则对鼠标准星目标吞噬
           if (player.isShiftKeyDown()) {
-            data.releaseLast();
+            comp.releaseLast();
           } else {
             // 寻找2.15格内有视线的最近存活玩家
             ServerPlayer target = null;
@@ -1281,7 +1253,7 @@ public class ModPacketsReciever {
               }
             }
             if (target != null) {
-              data.tryEat(target);
+              comp.tryEat(target);
             } else {
               player.displayClientMessage(
                   Component.translatable("message.noellesroles.pelican.no_target").withStyle(ChatFormatting.RED), true);
@@ -1356,9 +1328,8 @@ public class ModPacketsReciever {
           }
 
           if (gameWorldComponent.isRole(player, ModRoles.BUILDER)) {
-            org.agmas.noellesroles.role_data.innocence.BuilderRoleData builderComponent = RoleData.getNullable(org.agmas.noellesroles.role_data.innocence.BuilderRoleData.class, player);
-            if (builderComponent == null)
-              return;
+            org.agmas.noellesroles.game.roles.innocence.builder.BuilderPlayerComponent builderComponent = org.agmas.noellesroles.component.ModComponents.BUILDER
+                .get(player);
 
             // 蹲下按技能键切换模式（不受冷却影响）
             if (payload.shiftDown()) {
@@ -1391,7 +1362,7 @@ public class ModPacketsReciever {
       }
 
       if (gameWorldComponent.isRole(player, ModRoles.MORTICIAN_BODYMAKER)) {
-        MorticianBodyMakerRoleData morticianComponent = RoleData.getNullable(MorticianBodyMakerRoleData.class, player);
+        MorticianBodyMakerPlayerComponent morticianComponent = MorticianBodyMakerPlayerComponent.KEY.get(player);
         if (morticianComponent != null) {
           morticianComponent.toggleMode();
         }
@@ -1410,7 +1381,8 @@ public class ModPacketsReciever {
       }
 
       if (gameWorldComponent.isRole(player, ModRoles.IMITATOR)) {
-        org.agmas.noellesroles.role_data.killer.ImitatorRoleData imitatorComponent = RoleData.getNullable(org.agmas.noellesroles.role_data.killer.ImitatorRoleData.class, player);
+        org.agmas.noellesroles.game.roles.killer.imitator.ImitatorPlayerComponent imitatorComponent = org.agmas.noellesroles.component.ModComponents.IMITATOR
+            .get(player);
         if (imitatorComponent != null) {
           imitatorComponent.switchSlot();
         }
@@ -1427,13 +1399,13 @@ public class ModPacketsReciever {
       SREGameWorldComponent gameWorldComponent = SREGameWorldComponent.KEY.get(player.level());
 
       if (gameWorldComponent.isRole(player, ModRoles.MORTICIAN_BODYMAKER)) {
-        MorticianBodyMakerRoleData morticianComponent = RoleData.getNullable(MorticianBodyMakerRoleData.class, player);
+        MorticianBodyMakerPlayerComponent morticianComponent = MorticianBodyMakerPlayerComponent.KEY.get(player);
         if (morticianComponent == null)
           return;
 
         // 安全时间内直接进入造尸冷却（必须在isSkillAvailable判断之前）
         if (context.player().hasEffect(ModEffects.SAFE_TIME)) {
-          morticianComponent.bodyCreationCooldown = MorticianBodyMakerRoleData.BODY_CREATION_COOLDOWN;
+          morticianComponent.bodyCreationCooldown = MorticianBodyMakerPlayerComponent.BODY_CREATION_COOLDOWN;
           morticianComponent.sync();
           return;
         }
@@ -1485,9 +1457,7 @@ public class ModPacketsReciever {
             return;
           if (!GameUtils.isPlayerAliveAndSurvival(player))
             return;
-          var comp = RoleData.getNullable(org.agmas.noellesroles.role_data.killer.EmbalmerRoleData.class, player);
-          if (comp == null)
-            return;
+          var comp = org.agmas.noellesroles.game.roles.killer.embalmer.EmbalmerPlayerComponent.KEY.get(player);
           if (comp.masqueradeCooldown > 0) {
             player.displayClientMessage(
                 Component.translatable("message.noellesroles.embalmer.cooldown", (comp.masqueradeCooldown + 19) / 20)
@@ -1519,8 +1489,8 @@ public class ModPacketsReciever {
           comp.skinSwaps = swaps;
           comp.voicePitches = pitches;
           comp.masqueradeActive = true;
-          comp.masqueradeTicksLeft = org.agmas.noellesroles.role_data.killer.EmbalmerRoleData.MASQUERADE_DURATION;
-          comp.masqueradeCooldown = org.agmas.noellesroles.role_data.killer.EmbalmerRoleData.MASQUERADE_COOLDOWN;
+          comp.masqueradeTicksLeft = org.agmas.noellesroles.game.roles.killer.embalmer.EmbalmerPlayerComponent.MASQUERADE_DURATION;
+          comp.masqueradeCooldown = org.agmas.noellesroles.game.roles.killer.embalmer.EmbalmerPlayerComponent.MASQUERADE_COOLDOWN;
           comp.sync();
           // 全场播放音效（遍历所有玩家，绕过距离衰减）
           for (ServerPlayer p : player.serverLevel().getPlayers(p2 -> true)) {
@@ -1528,7 +1498,7 @@ public class ModPacketsReciever {
           }
           // 广播皮肤交换数据给所有玩家
           EmbalmerSkinSwapS2CPacket swapPacket = new EmbalmerSkinSwapS2CPacket(swaps, pitches,
-              org.agmas.noellesroles.role_data.killer.EmbalmerRoleData.MASQUERADE_DURATION);
+              org.agmas.noellesroles.game.roles.killer.embalmer.EmbalmerPlayerComponent.MASQUERADE_DURATION);
           for (ServerPlayer p : player.serverLevel().getPlayers(p2 -> true)) {
             ServerPlayNetworking.send(p, swapPacket);
           }
@@ -1554,9 +1524,7 @@ public class ModPacketsReciever {
             return;
           if (!GameUtils.isPlayerAliveAndSurvival(player))
             return;
-          var comp = RoleData.getNullable(org.agmas.noellesroles.role_data.killer.SkincrawlerRoleData.class, player);
-          if (!RoleData.isAttached(comp))
-            return;
+          var comp = org.agmas.noellesroles.game.roles.killer.skincrawler.SkincrawlerPlayerComponent.KEY.get(player);
           if (comp.stealCooldown > 0) {
             player.displayClientMessage(
                 Component.translatable("message.noellesroles.skincrawler.cooldown", (comp.stealCooldown + 19) / 20)
@@ -1576,7 +1544,7 @@ public class ModPacketsReciever {
             UUID prev = comp.stolenSkin != null ? comp.stolenSkin : player.getUUID();
             comp.stolenSkin = body.getPlayerUuid();
             body.getComponent().setSkinUuid(prev);
-            comp.stealCooldown = org.agmas.noellesroles.role_data.killer.SkincrawlerRoleData.STEAL_COOLDOWN;
+            comp.stealCooldown = org.agmas.noellesroles.game.roles.killer.skincrawler.SkincrawlerPlayerComponent.STEAL_COOLDOWN;
             // 广播皮肤给所有玩家
             for (ServerPlayer p : player.serverLevel().getPlayers(p2 -> true)) {
               ServerPlayNetworking.send(p,

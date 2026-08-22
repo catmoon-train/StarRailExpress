@@ -30,7 +30,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.ItemUtils;
 import net.minecraft.world.item.UseAnim;
 import net.minecraft.world.level.Level;
-import org.agmas.noellesroles.role_data.innocence.FoodDrinkGlowRoleData;
+import org.agmas.noellesroles.component.FoodDrinkGlowComponent;
 
 public class CocktailItem extends Item {
     public CocktailItem(Item.Properties settings) {
@@ -41,7 +41,7 @@ public class CocktailItem extends Item {
     public ItemStack finishUsingItem(ItemStack stack, Level world, LivingEntity user) {
 
         if (user instanceof ServerPlayer serverPlayerEntity) {
-            FoodDrinkGlowRoleData.playerDrink(serverPlayerEntity, stack);
+            FoodDrinkGlowComponent.playerDrink(serverPlayerEntity, stack);
             CriteriaTriggers.CONSUME_ITEM.trigger(serverPlayerEntity, stack);
             serverPlayerEntity.awardStat(Stats.ITEM_USED.get(this));
             SREPlayerMoodComponent.KEY.get(serverPlayerEntity).drinkCocktail();

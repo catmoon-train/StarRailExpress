@@ -15,8 +15,6 @@
 
 package org.agmas.noellesroles.mixin.roles.elf;
 
-import org.agmas.noellesroles.role_data.killer.HunterRoleData;
-import io.wifi.starrailexpress.api.data.RoleData;
 import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.content.entity.PlayerBodyEntity;
@@ -36,7 +34,7 @@ import net.minecraft.world.item.alchemy.PotionContents;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.EntityHitResult;
-import org.agmas.noellesroles.role_data.neutral.CupidRoleData;
+import org.agmas.noellesroles.game.roles.neutral.cupid.CupidPlayerComponent;
 import org.agmas.noellesroles.role.ModRoles;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
@@ -79,7 +77,7 @@ public class ArrowMixin {
                     }
                 }
                 if (arrow.getOwner() instanceof ServerPlayer serverPlayer) {
-                    if (CupidRoleData.handleArrowHit((Arrow) arrow, serverPlayer, player)) {
+                    if (CupidPlayerComponent.handleArrowHit((Arrow) arrow, serverPlayer, player)) {
                         ci.cancel();
                         return;
                     }
@@ -93,7 +91,8 @@ public class ArrowMixin {
                         isHit = true;
                         GameUtils.killPlayer(player, true, serverPlayer, SRE.id("arrow"));
                         // 猎人击杀处理：弓冷却 + 杀敌计数 + 每3杀奖励毒箭
-                        RoleData.ifPresent(HunterRoleData.class, serverPlayer, HunterRoleData::onKill);
+                        var hunterComp = org.agmas.noellesroles.component.ModComponents.HUNTER.get(serverPlayer);
+                        hunterComp.onKill();
                     }
                 }
             }

@@ -15,7 +15,6 @@
 
 package org.agmas.noellesroles.client.hud.roles;
 
-import io.wifi.starrailexpress.api.data.RoleData;
 import io.wifi.starrailexpress.client.SREClient;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
@@ -26,7 +25,7 @@ import org.agmas.noellesroles.client.NoellesrolesClient;
 import org.agmas.noellesroles.client.event.CommonHudRenderCallback;
 import org.agmas.noellesroles.client.event.RoleHudRenderCallback;
 import org.agmas.noellesroles.game.roles.innocence.fool.ExecutionerGunItem;
-import org.agmas.noellesroles.role_data.innocence.FoolRoleData;
+import org.agmas.noellesroles.game.roles.innocence.fool.FoolPlayerComponent;
 import org.agmas.noellesroles.init.ModEffects;
 import org.agmas.noellesroles.role.ModRoles;
 
@@ -54,8 +53,7 @@ public abstract class FoolHud {
             if (SREClient.gameComponent != null && SREClient.gameComponent.isRole(player, ModRoles.THE_FOOL))
                 return;
 
-            FoolRoleData comp = RoleData.getNullable(FoolRoleData.class, player);
-            if (comp == null) return;
+            FoolPlayerComponent comp = FoolPlayerComponent.KEY.get(player);
             if (!player.hasEffect(ModEffects.TAROT_ASSEMBLY) || !comp.voteInProgress || comp.voteEndTick <= 0)
                 return;
 
@@ -79,8 +77,7 @@ public abstract class FoolHud {
             if (player == null)
                 return;
 
-            FoolRoleData comp = RoleData.getNullable(FoolRoleData.class, player);
-            if (!RoleData.isAttached(comp)) return;
+            FoolPlayerComponent comp = FoolPlayerComponent.KEY.get(player);
 
             context.pose().pushPose();
 

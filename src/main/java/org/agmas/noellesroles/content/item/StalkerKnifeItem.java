@@ -15,7 +15,6 @@
 
 package org.agmas.noellesroles.content.item;
 
-import io.wifi.starrailexpress.api.data.RoleData;
 import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.client.SREClient;
@@ -45,7 +44,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
-import org.agmas.noellesroles.role_data.killer.StalkerRoleData;
+import org.agmas.noellesroles.game.roles.killer.stalker.StalkerPlayerComponent;
 import org.agmas.noellesroles.role.ModRoles;
 import org.jetbrains.annotations.NotNull;
 
@@ -110,7 +109,7 @@ public class StalkerKnifeItem extends KnifeItem {
         if (hand == InteractionHand.OFF_HAND)
             return InteractionResultHolder.pass(user.getItemInHand(hand));
         if ((SREGameWorldComponent.KEY.get(world).isRole(user, ModRoles.STALKER)
-                && RoleData.test(StalkerRoleData.class, user, d -> d.phase == 3))) {
+                && StalkerPlayerComponent.KEY.get(user).phase == 3)) {
             user.getMainHandItem().set(SREDataComponentTypes.WEAPON_USED_TIME, 2);
         } else
             user.getMainHandItem().set(SREDataComponentTypes.WEAPON_USED_TIME, 10);

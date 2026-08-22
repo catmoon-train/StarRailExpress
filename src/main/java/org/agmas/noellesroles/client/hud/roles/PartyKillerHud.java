@@ -15,13 +15,12 @@
 
 package org.agmas.noellesroles.client.hud.roles;
 
-import io.wifi.starrailexpress.api.data.RoleData;
 import io.wifi.starrailexpress.client.SREClient;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.CommonColors;
 import org.agmas.noellesroles.client.event.RoleHudRenderCallback;
-import org.agmas.noellesroles.role_data.killer.PartyRoleData;
+import org.agmas.noellesroles.game.roles.killer.party.PartyPlayerComponent;
 import org.agmas.noellesroles.role.ModRoles;
 
 public class PartyKillerHud {
@@ -36,8 +35,7 @@ public class PartyKillerHud {
             if (!SREClient.isPlayerAliveAndInSurvival()) return;
 
             // 获取派对狂组件
-            PartyRoleData partyComponent = RoleData.getNullable(PartyRoleData.class, client.player);
-            if (partyComponent == null) return;
+            PartyPlayerComponent partyComponent = PartyPlayerComponent.KEY.get(client.player);
 
             // 渲染位置 - 右下角
             int screenWidth = client.getWindow().getGuiScaledWidth();

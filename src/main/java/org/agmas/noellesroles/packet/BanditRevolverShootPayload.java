@@ -15,8 +15,6 @@
 
 package org.agmas.noellesroles.packet;
 
-import io.wifi.starrailexpress.api.hit.HitType;
-import io.wifi.starrailexpress.api.hit.SREHitManager;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.game.GameConstants;
 import io.wifi.starrailexpress.game.GameUtils;
@@ -40,7 +38,7 @@ import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import org.agmas.noellesroles.Noellesroles;
-import org.agmas.noellesroles.role_data.killer.ExecutionerRoleData;
+import org.agmas.noellesroles.game.roles.killer.executioner.ShootingFrenzyPlayerComponent;
 import org.agmas.noellesroles.init.ModItems;
 import org.agmas.noellesroles.role.ModRoles;
 import org.jetbrains.annotations.NotNull;
@@ -89,7 +87,7 @@ public record BanditRevolverShootPayload(int target) implements CustomPacketPayl
                             if (game.isRole(player, ModRoles.BANDIT)) {
                                 shouldDrop = player.getRandom().nextInt(0, 100) <= 80;
                             } else {
-                                if (ExecutionerRoleData.isInFrenzy(player)) {
+                                if (ShootingFrenzyPlayerComponent.isInFrenzy(player)) {
                                     shouldDrop = false;
                                 } else {
                                     shouldDrop = player.getRandom().nextFloat() <= 0.2F;
@@ -121,8 +119,6 @@ public record BanditRevolverShootPayload(int target) implements CustomPacketPayl
                             GameUtils.killPlayer(target, true, player, GameConstants.DeathReasons.REVOLVER);
                         }
                     }
-                } else {
-                    SREHitManager.tryHit(player, var6, HitType.GUN);
                 }
 
                 player.level().playSound((Player) null, player.getX(), player.getEyeY(), player.getZ(),
@@ -130,7 +126,7 @@ public record BanditRevolverShootPayload(int target) implements CustomPacketPayl
                         1.0F + player.getRandom().nextFloat() * 0.1F - 0.05F);
 
                 if (!player.isCreative()) {
-                    if (ExecutionerRoleData.isInFrenzy(player)) {
+                    if (ShootingFrenzyPlayerComponent.isInFrenzy(player)) {
                         player.getCooldowns().addCooldown(ModItems.BANDIT_REVOLVER, 20 * 5);
                     }else{
                         player.getCooldowns().addCooldown(ModItems.BANDIT_REVOLVER, GameConstants.getRevolverDefaultTicks());

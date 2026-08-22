@@ -15,7 +15,6 @@
 
 package org.agmas.noellesroles.client.hud;
 
-import io.wifi.starrailexpress.api.data.RoleData;
 import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.api.TMMRoles;
 import io.wifi.starrailexpress.cca.PlayerBodyEntityComponent;
@@ -44,7 +43,7 @@ import net.minecraft.world.phys.HitResult;
 import org.agmas.harpymodloader.component.WorldModifierComponent;
 import org.agmas.noellesroles.client.NoellesrolesClient;
 import org.agmas.noellesroles.component.ModComponents;
-import org.agmas.noellesroles.role_data.killer.InsaneKillerRoleData;
+import org.agmas.noellesroles.game.roles.killer.insane_killer.InsaneKillerPlayerComponent;
 import org.agmas.noellesroles.role.ModRoles;
 import org.agmas.noellesroles.utils.RoleUtils;
 import pro.fazeclan.river.stupid_express.constants.SEModifiers;
@@ -341,8 +340,8 @@ public class PlayerBodyHud {
                     NoellesrolesClient.targetBody = targetBody;// 用于秃鹫兼容
                 } else if (ehr.getEntity() instanceof Player targetPlayer) {
                     NoellesrolesClient.targetPlayer = targetPlayer;
-                    InsaneKillerRoleData component = RoleData.getNullable(InsaneKillerRoleData.class, targetPlayer);
-                    if (component != null && component.isActive) {
+                    InsaneKillerPlayerComponent component = InsaneKillerPlayerComponent.KEY.get(targetPlayer);
+                    if (component.isActive) {
                         targetFakeBody = targetPlayer;
                     }
                 }

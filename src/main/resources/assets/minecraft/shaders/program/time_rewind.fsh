@@ -2,9 +2,8 @@
 
 uniform sampler2D DiffuseSampler;
 uniform vec2 OutSize;
-uniform float Strength;
-uniform float Time;
-uniform float Progress;
+uniform float Strength; // 0..1 effect intensity
+uniform float Time;     // accumulated time
 
 in vec2 texCoord;
 out vec4 fragColor;
@@ -12,59 +11,39 @@ out vec4 fragColor;
 void main() {
     vec2 uv = texCoord;
     vec2 center = vec2(0.5, 0.5);
-    float aspect = OutSize.x / max(OutSize.y, 1.0);
-    vec2 radial = uv - center;
-    radial.x *= aspect;
-    float dist = length(radial);
-    vec2 dir = radial / max(dist, 0.0001);
+    vec2 toCenter = uv - center;
+    float dist = length(toCenter);
 
-    // The scene winds backwards into a cyan/violet temporal vortex.
-    float direction = mix(-1.0, 1.0, smoothstep(0.46, 0.54, Progress));
-    float spiralBands = sin(dist * 72.0 - Time * 11.0 - Progress * 28.0);
-    float ang = direction * Strength * (1.0 - smoothstep(0.05, 0.82, dist))
-            * (0.34 + spiralBands * 0.055);
+    // 时间回溯漩涡：随时间旋转、随强度增强的螺旋扭曲
+    float swirl = (1.0 - dist) * Strength * 1.6;
+    float ang = swirl * sin(Time * 2.0) * 0.9;
     float ca = cos(ang);
     float sa = sin(ang);
-    vec2 spun = vec2(radial.x * ca - radial.y * sa,
-                     radial.x * sa + radial.y * ca);
-    spun.x /= aspect;
-    vec2 warped = center + spun;
+    vec2 swirled = vec2(
+        toCenter.x * ca - toCenter.y * sa,
+        toCenter.x * sa + toCenter.y * ca
+    ) + center;
 
-    float shock = sin(dist * 92.0 - Progress * 42.0 + Time * 4.0);
-    float ring = exp(-95.0 * abs(dist - (0.08 + Progress * 0.72)));
-    vec2 waveOffset = (dir / vec2(aspect, 1.0))
-            * Strength * (shock * 0.0027 + ring * 0.012);
-    warped = clamp(warped + waveOffset, vec2(0.001), vec2(0.999));
+    // 波动 + 径向脉冲，营造时间扭曲感
+    float wave = sin(dist * 40.0 - Time * 6.0) * 0.004 * Strength;
+    vec2 distortUv = swirled + normalize(toCenter + 0.0001) * wave;
 
-    // Four backwards samples make a short temporal echo instead of a flat blur.
-    vec2 echoStep = (dir / vec2(aspect, 1.0)) * Strength * 0.0035;
-    vec3 echo = texture(DiffuseSampler, warped).rgb * 0.52;
-    echo += texture(DiffuseSampler, clamp(warped + echoStep, 0.0, 1.0)).rgb * 0.24;
-    echo += texture(DiffuseSampler, clamp(warped + echoStep * 2.2, 0.0, 1.0)).rgb * 0.15;
-    echo += texture(DiffuseSampler, clamp(warped + echoStep * 4.0, 0.0, 1.0)).rgb * 0.09;
+    // 色差（chromatic aberration）随强度增大
+    float ab = 0.006 * Strength * (0.6 + 0.4 * sin(Time * 3.0));
+    vec2 dir = normalize(toCenter + 0.0001);
+    float r = texture(DiffuseSampler, distortUv + dir * ab).r;
+    float g = texture(DiffuseSampler, distortUv).g;
+    float b = texture(DiffuseSampler, distortUv - dir * ab).b;
+    vec3 col = vec3(r, g, b);
 
-    float aberration = Strength * (0.0035 + ring * 0.010 + abs(spiralBands) * 0.0015);
-    float r = texture(DiffuseSampler, clamp(warped + dir / vec2(aspect, 1.0) * aberration, 0.0, 1.0)).r;
-    float g = echo.g;
-    float b = texture(DiffuseSampler, clamp(warped - dir / vec2(aspect, 1.0) * aberration, 0.0, 1.0)).b;
-    vec3 col = mix(echo, vec3(r, g, b), 0.72);
-
+    // 紫青色调 + 轻微去饱和，呈现“恍惚/时空”滤镜
     float gray = dot(col, vec3(0.299, 0.587, 0.114));
-    vec3 cyan = vec3(0.10, 0.88, 1.15);
-    vec3 violet = vec3(0.72, 0.18, 1.08);
-    vec3 temporalTint = mix(cyan, violet, 0.5 + 0.5 * sin(Time * 2.4 + dist * 18.0));
-    vec3 dazed = mix(col, vec3(gray) * 0.45 + temporalTint * 0.68, Strength * 0.52);
+    vec3 tint = mix(vec3(gray), vec3(0.45, 0.35, 0.85), 0.5);
+    vec3 dazed = mix(col, tint, 0.45);
 
-    float scanline = 0.94 + 0.06 * sin(uv.y * OutSize.y * 1.35 - Time * 18.0);
-    dazed *= mix(1.0, scanline, Strength);
-    dazed += temporalTint * (ring * 0.48 + max(spiralBands, 0.0) * 0.025) * Strength;
-
-    float vignette = 1.0 - smoothstep(0.32, 0.90, dist) * 0.72 * Strength;
-    dazed *= vignette;
-
-    // A controlled arrival flash hides the exact authoritative NBT restore tick.
-    float arrival = smoothstep(0.82, 0.96, Progress) * (1.0 - smoothstep(0.985, 1.0, Progress));
-    dazed = mix(dazed, vec3(0.78, 0.96, 1.0), arrival * 0.72);
+    // 暗角，强化漩涡中心
+    float vignette = smoothstep(0.85, 0.2, dist);
+    dazed *= mix(1.0, vignette, Strength * 0.6);
 
     vec4 base = texture(DiffuseSampler, uv);
     vec3 finalColor = mix(base.rgb, dazed, clamp(Strength, 0.0, 1.0));

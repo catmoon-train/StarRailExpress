@@ -23,8 +23,6 @@ import io.wifi.starrailexpress.client.particle.HandParticle;
 import io.wifi.starrailexpress.client.render.TMMRenderLayers;
 import io.wifi.starrailexpress.compat.CrosshairaddonsCompat;
 import io.wifi.starrailexpress.content.item.SkinableItem;
-import io.wifi.starrailexpress.api.hit.HitType;
-import io.wifi.starrailexpress.api.hit.SREHitManager;
 import io.wifi.starrailexpress.game.GameConstants;
 import io.wifi.starrailexpress.game.GameUtils;
 import io.wifi.starrailexpress.index.TMMSounds;
@@ -44,6 +42,7 @@ import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.entity.projectile.ProjectileUtil;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
@@ -332,7 +331,12 @@ public class ZeroOneFiveGunItem extends SkinableItem {
     }
     
     public static HitResult getGunTarget(Player user) {
-        return SREHitManager.getTarget(user, HitType.GUN, RANGE);
+        return ProjectileUtil.getHitResultOnViewVector(user, entity -> {
+            if (entity instanceof Player player) {
+                return GameUtils.isPlayerAliveAndSurvival(player);
+            }
+            return false;
+        }, RANGE);
     }
     
     public static void spawnHandParticle() {

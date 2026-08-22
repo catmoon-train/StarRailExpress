@@ -15,7 +15,6 @@
 
 package org.agmas.noellesroles.role.touhou;
 
-import io.wifi.starrailexpress.api.data.RoleData;
 import io.wifi.starrailexpress.api.InstinctType;
 import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.api.TMMRoles;
@@ -30,7 +29,7 @@ import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 
-import org.agmas.noellesroles.role_data.innocence.GhostRoleData;
+import org.agmas.noellesroles.game.roles.innocence.ghost.GhostPlayerComponent;
 import org.agmas.noellesroles.init.ModEffects;
 import org.agmas.noellesroles.init.ModItems;
 import org.agmas.noellesroles.role.ModRoles;
@@ -117,13 +116,10 @@ public class THRedHouseRoles {
         public void serverTick(ServerPlayer player) {
           if (player.isSpectator())
             return;
-          GhostRoleData ghost = RoleData.getNullable(GhostRoleData.class, player);
-          if (ghost != null) {
-            ghost.checkFuranLastStand(SREGameWorldComponent.KEY.get(player.level()));
-          }
+          // 复用cca
+          GhostPlayerComponent.KEY.get(player).checkFuranLastStand(SREGameWorldComponent.KEY.get(player.level()));
         }
       }, "th_redhouse").setHiddenForRoleRotation(true)
-      .setRoleData(GhostRoleData::new)
       .setCanSeeCoin(true).setNeutrals(true).setCanUseInstinctAndNightVision(true).setCanIgnoreBlackout(true);
   // 好人：MAID_SAKUYA 十六夜咲夜
   public static SRERole MAID_SAKUYA = TMMRoles.registerRole(new TouhouRole(

@@ -15,8 +15,6 @@
 
 package org.agmas.noellesroles.game.roles.neutral.cuckoo;
 
-import org.agmas.noellesroles.role_data.neutral.CuckooRoleData;
-import io.wifi.starrailexpress.api.data.RoleData;
 import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.api.replay.GameReplayUtils;
@@ -151,8 +149,8 @@ public class CuckooEggHandler {
         if (owner != null) {
             var ownerPlayer = server.getPlayerList().getPlayer(owner);
             if (ownerPlayer != null) {
-                var comp = RoleData.getNullable(CuckooRoleData.class, ownerPlayer);
-                if (RoleData.isAttached(comp)) comp.onEggBroken(eggEntity);
+                var comp = CuckooPlayerComponent.KEY.get(ownerPlayer);
+                if (comp != null) comp.onEggBroken(eggEntity);
             }
         }
         if (eggEntity != null && !eggEntity.isRemoved()) {

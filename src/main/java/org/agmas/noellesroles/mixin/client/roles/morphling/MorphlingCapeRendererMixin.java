@@ -15,7 +15,6 @@
 
 package org.agmas.noellesroles.mixin.client.roles.morphling;
 
-import io.wifi.starrailexpress.api.data.RoleData;
 import com.mojang.blaze3d.vertex.PoseStack;
 import io.wifi.starrailexpress.client.SREClient;
 import io.wifi.starrailexpress.client.util.ClientSkinCache;
@@ -28,7 +27,7 @@ import net.minecraft.resources.ResourceLocation;
 import org.agmas.harpymodloader.component.WorldModifierComponent;
 import org.agmas.noellesroles.ConfigWorldComponent;
 import org.agmas.noellesroles.client.NoellesrolesClient;
-import org.agmas.noellesroles.role_data.killer.MorphlingRoleData;
+import org.agmas.noellesroles.game.roles.killer.morphling.MorphlingPlayerComponent;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
@@ -123,9 +122,9 @@ public abstract class MorphlingCapeRendererMixin {
             }
             
 
-            final var morphlingPlayerComponent = RoleData.getNullable(MorphlingRoleData.class, abstractClientPlayerEntity);
-            if (RoleData.isAttached(morphlingPlayerComponent) && morphlingPlayerComponent.getMorphTicks() > 0) {
-                UUID disguiseUuid = morphlingPlayerComponent.disguise;
+            final var morphlingPlayerComponent = MorphlingPlayerComponent.KEY.get(abstractClientPlayerEntity);
+            if (morphlingPlayerComponent != null && morphlingPlayerComponent.getMorphTicks() > 0) {
+                UUID disguiseUuid = MorphlingPlayerComponent.KEY.get(abstractClientPlayerEntity).disguise;
                 if (disguiseUuid != null) {
                     // 尝试通过 TMMClient 获取玩家信息，而不是直接获取世界中的玩家
                     final var playerInfo = ClientSkinCache.getCachedPlayerInfo(disguiseUuid);

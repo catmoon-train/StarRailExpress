@@ -51,8 +51,6 @@ public class ModPackets {
     public static final CustomPacketPayload.Type<ImitatorSwitchSlotC2SPacket> IMITATOR_SWITCH_SLOT_PACKET = ImitatorSwitchSlotC2SPacket.TYPE;
 
     public static void registerPackets() {
-        PayloadTypeRegistry.playS2C().register(TimeRewindVisualS2CPacket.ID,
-                TimeRewindVisualS2CPacket.CODEC);
         PayloadTypeRegistry.playS2C().register(ProblemScreenOpenC2SPacket.ID,
                 ProblemScreenOpenC2SPacket.CODEC);
         PayloadTypeRegistry.playC2S().register(ExecutionerSelectTargetC2SPacket.ID,

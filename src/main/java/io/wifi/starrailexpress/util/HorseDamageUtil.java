@@ -15,7 +15,6 @@
 
 package io.wifi.starrailexpress.util;
 
-import io.wifi.starrailexpress.api.hit.HitType;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.animal.horse.Horse;
 import net.minecraft.world.entity.player.Player;
@@ -30,15 +29,6 @@ import org.agmas.noellesroles.content.entity.SuperPigHorseEntity;
 public final class HorseDamageUtil {
 
     private HorseDamageUtil() {
-    }
-
-    /**
-     * {@link io.wifi.starrailexpress.api.hit.IsTargetObject#onWeaponHit} 入口：按武器类型选伤害与距离。
-     */
-    public static boolean onWeaponHit(Entity hitEntity, Player attacker, HitType type) {
-        float damage = type == HitType.SNIPER ? 20.0F : 8.0F;
-        double range = type == HitType.SNIPER ? 200.0 : 30.0;
-        return tryDamageHorse(hitEntity, attacker, damage, range);
     }
 
     /**

@@ -15,8 +15,6 @@
 
 package io.wifi.starrailexpress.game.roles;
 
-import org.agmas.noellesroles.role_data.special.SuperLooseEndRoleData;
-
 import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.api.InstinctType;
 import io.wifi.starrailexpress.api.NormalRole;
@@ -63,7 +61,7 @@ public class SpecialGameModeRoles {
       SRERole.MoodType.NONE,
       -1,
       true))
-      .setRoleData(SuperLooseEndRoleData::new)
+      .setComponentKey(ModComponents.SUPER_LOOSE_END)
       .setCanSeeCoin(true)
       .setCanUseInstinctAndNightVision(true)
       .setCanAutoAddMoney(true).setDefaultMax(0).setCanBeRandomedByOtherRoles(false).setOtherModeRole(true)

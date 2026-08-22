@@ -15,7 +15,6 @@
 
 package org.agmas.noellesroles.client.widget;
 
-import io.wifi.starrailexpress.api.data.RoleData;
 import io.wifi.starrailexpress.cca.SREAbilityPlayerComponent;
 import io.wifi.starrailexpress.client.SREClient;
 import io.wifi.starrailexpress.client.gui.screen.ingame.LimitedInventoryScreen;
@@ -33,7 +32,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.Level;
 
-import org.agmas.noellesroles.role_data.innocence.VoodooRoleData;
+import org.agmas.noellesroles.game.roles.innocence.voodoo.VoodooPlayerComponent;
 import org.agmas.noellesroles.init.ModEffects;
 import org.agmas.noellesroles.packet.AbilityWithTargetC2SPacket;
 
@@ -92,8 +91,7 @@ public class ShikieikiPlayerWidget extends Button {
         if (targetPlayer == null)
             return;
 
-        VoodooRoleData voodooPlayerComponent = (VoodooRoleData) RoleData.getNullable(VoodooRoleData.class, player);
-        if (!RoleData.isAttached(voodooPlayerComponent)) return;
+        VoodooPlayerComponent voodooPlayerComponent = (VoodooPlayerComponent) VoodooPlayerComponent.KEY.get(player);
 
         final var abilityPlayerComponent = SREAbilityPlayerComponent.KEY.get(player);
         if (abilityPlayerComponent == null)

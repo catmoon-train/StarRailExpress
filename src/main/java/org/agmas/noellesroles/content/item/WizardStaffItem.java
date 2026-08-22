@@ -15,7 +15,6 @@
 
 package org.agmas.noellesroles.content.item;
 
-import io.wifi.starrailexpress.api.data.RoleData;
 import io.wifi.starrailexpress.api.ChargeableItem;
 import io.wifi.starrailexpress.content.item.api.SREItemProperties;
 import net.minecraft.core.particles.ParticleTypes;
@@ -32,7 +31,7 @@ import net.minecraft.world.item.UseAnim;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 import org.agmas.noellesroles.config.NoellesRolesConfig;
-import org.agmas.noellesroles.role_data.killer.WizardRoleData;
+import org.agmas.noellesroles.game.roles.killer.wizard.WizardPlayerComponent;
 
 /**
  * 巫师法杖：右键蓄力释放魔法火焰箭（或就绪时的九环火球术），左键击退目标。
@@ -61,7 +60,7 @@ public class WizardStaffItem extends Item implements ChargeableItem, SREItemProp
         if (chargeTime < MAX_CHARGE_TICKS / 2) {
             return; // 蓄力不足
         }
-        RoleData.ifPresent(WizardRoleData.class, sp, d -> d.castStaff(sp));
+        WizardPlayerComponent.KEY.get(sp).castStaff(sp);
     }
 
     @Override

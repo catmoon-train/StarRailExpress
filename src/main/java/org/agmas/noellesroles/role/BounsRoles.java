@@ -15,8 +15,6 @@
 
 package org.agmas.noellesroles.role;
 
-import org.agmas.noellesroles.role_data.killer.CreeperRoleData;
-
 import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.api.EggRole;
 import io.wifi.starrailexpress.api.SRERole;
@@ -28,7 +26,7 @@ import io.wifi.starrailexpress.game.GameUtils;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
 import org.agmas.noellesroles.component.ModComponents;
-import org.agmas.noellesroles.role_data.innocence.TelegrapherRoleData;
+import org.agmas.noellesroles.game.roles.innocence.telegrapher.TelegrapherPlayerComponent;
 import org.agmas.noellesroles.game.roles.killer.creeper.RainbowCreeperRole;
 import org.agmas.noellesroles.modifier.BounsModifiers;
 import org.agmas.noellesroles.role.touhou.THMagicForestRoles;
@@ -99,7 +97,7 @@ public class BounsRoles {
         public int getMoodColor() {
             return ModRoles.PUPPETEER_COLOR.getOrRandomColor();
         }
-    }, "creator_team").setRoleData(CreeperRoleData::new).setCanBeRandomedByOtherRoles(false).setDefaultMax(1)
+    }, "creator_team").setComponentKey(ModComponents.CREEPER).setCanBeRandomedByOtherRoles(false).setDefaultMax(1)
             .setDefaultEnableChance(5000).setCanSeeTime(true);
     /**
      * 作家角色
@@ -141,7 +139,7 @@ public class BounsRoles {
             SRERole.MoodType.REAL, // 真实心情
             TMMRoles.CIVILIAN.getMaxSprintTime(), // 标准冲刺时间
             false // 不隐藏计分板
-    )).setCanSeeCoin(true).setRoleData(TelegrapherRoleData::new)
+    )).setCanSeeCoin(true).setComponentKey(TelegrapherPlayerComponent.KEY)
             .setDefaultEnableChance(200);
 
     public static SRERole CAT_KILLER = TMMRoles.registerRole(new EggRole(

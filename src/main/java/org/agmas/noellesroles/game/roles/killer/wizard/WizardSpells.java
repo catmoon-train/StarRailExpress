@@ -15,8 +15,6 @@
 
 package org.agmas.noellesroles.game.roles.killer.wizard;
 
-import org.agmas.noellesroles.role_data.killer.WizardRoleData;
-import io.wifi.starrailexpress.api.data.RoleData;
 import io.wifi.starrailexpress.game.GameUtils;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ParticleTypes;
@@ -52,7 +50,7 @@ public final class WizardSpells {
      * 魔法火焰箭：从视线方向射出一道火焰，遇墙停止，最多贯穿
      * {@link NoellesRolesConfig#wizardFireArrowMaxPierce} 名玩家；命中即直接造成死亡。
      */
-    public static void castFireArrow(WizardRoleData comp, ServerPlayer sp) {
+    public static void castFireArrow(WizardPlayerComponent comp, ServerPlayer sp) {
         if (!(sp.level() instanceof ServerLevel level)) {
             return;
         }
@@ -111,7 +109,7 @@ public final class WizardSpells {
      * 九环火球术（Explosion!）：沿视线方向飞出（无视墙体），到达首个玩家或最大射程处引爆；
      * 引爆点半径内的玩家（无视墙体阻挡）全部被秒杀。引爆呈“九环”火焰粒子。
      */
-    public static void castNineRingFireball(WizardRoleData comp, ServerPlayer sp) {
+    public static void castNineRingFireball(WizardPlayerComponent comp, ServerPlayer sp) {
         if (!(sp.level() instanceof ServerLevel level)) {
             return;
         }
@@ -146,7 +144,7 @@ public final class WizardSpells {
     }
 
     private static void explode(ServerLevel level, Vec3 center, double radius, ServerPlayer caster,
-                                WizardRoleData comp) {
+                                WizardPlayerComponent comp) {
         // “九环”火焰环 + 大爆炸粒子
         for (int ring = 1; ring <= 9; ring++) {
             double r = radius * ring / 9.0;
@@ -179,7 +177,7 @@ public final class WizardSpells {
             }
         }
         if (killed > 0) {
-            // var comp = RoleData.getNullable(WizardRoleData.class, caster);
+            // var comp = WizardPlayerComponent.KEY.get(caster);
             comp.sync();
             comp.onKillWhileShielded();
             caster.getCooldowns().addCooldown(ModItems.WIZARD_STAFF,

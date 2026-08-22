@@ -15,7 +15,6 @@
 
 package org.agmas.noellesroles.client.screen;
 
-import io.wifi.starrailexpress.api.data.RoleData;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.GuiGraphics;
@@ -25,7 +24,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
 
-import org.agmas.noellesroles.role_data.innocence.AyayayaRoleData;
+import org.agmas.noellesroles.game.roles.innocence.ayayaya.AyayayaPlayerComponent;
 import org.agmas.noellesroles.packet.PostmanC2SPacket;
 
 /**
@@ -42,7 +41,7 @@ public class PostmanHandledScreen extends AbstractContainerScreen<PostmanScreenH
     @SuppressWarnings("unused")
     private static final ResourceLocation TEXTURE = ResourceLocation.fromNamespaceAndPath("minecraft", "textures/gui/container/hopper.png");
     
-    private AyayayaRoleData postmanComponent;
+    private AyayayaPlayerComponent postmanComponent;
     private Button confirmButton;
     
     public PostmanHandledScreen(PostmanScreenHandler handler, Inventory inventory, Component title) {
@@ -56,7 +55,7 @@ public class PostmanHandledScreen extends AbstractContainerScreen<PostmanScreenH
     protected void init() {
         super.init();
         
-        this.postmanComponent = RoleData.getNullable(AyayayaRoleData.class, minecraft.player);
+        this.postmanComponent = AyayayaPlayerComponent.KEY.get(minecraft.player);
         
         // 确认交换按钮 - 放在槽位右侧
         int buttonWidth = 70;
@@ -107,9 +106,9 @@ public class PostmanHandledScreen extends AbstractContainerScreen<PostmanScreenH
         super.render(context, mouseX, mouseY, delta);
         
         // 每次渲染时重新获取组件，确保读取最新数据
-        this.postmanComponent = RoleData.getNullable(AyayayaRoleData.class, minecraft.player);
+        this.postmanComponent = AyayayaPlayerComponent.KEY.get(minecraft.player);
         
-        if (!RoleData.isAttached(postmanComponent) || !postmanComponent.isDeliveryActive()) {
+        if (postmanComponent == null || !postmanComponent.isDeliveryActive()) {
             this.onClose();
             return;
         }
@@ -217,12 +216,12 @@ public class PostmanHandledScreen extends AbstractContainerScreen<PostmanScreenH
         super.containerTick();
         
         // 每次 tick 重新获取组件，确保读取最新同步数据
-        this.postmanComponent = RoleData.getNullable(AyayayaRoleData.class, minecraft.player);
+        this.postmanComponent = AyayayaPlayerComponent.KEY.get(minecraft.player);
         
         updateButtonState();
         
         // 检查传递是否仍然激活
-        if (RoleData.isAttached(postmanComponent) && !postmanComponent.isDeliveryActive()) {
+        if (postmanComponent != null && !postmanComponent.isDeliveryActive()) {
             this.onClose();
         }
         

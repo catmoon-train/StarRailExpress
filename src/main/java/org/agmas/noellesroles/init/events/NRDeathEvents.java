@@ -15,16 +15,6 @@
 
 package org.agmas.noellesroles.init.events;
 
-import org.agmas.noellesroles.role_data.killer.SkincrawlerRoleData;
-
-import org.agmas.noellesroles.role_data.neutral.MorticianBodyMakerRoleData;
-
-import org.agmas.noellesroles.role_data.killer.ManipulatorRoleData;
-
-import org.agmas.noellesroles.role_data.killer.WizardRoleData;
-import org.agmas.noellesroles.role_data.killer.ImitatorRoleData;
-import org.agmas.noellesroles.role_data.killer.BanditRoleData;
-import io.wifi.starrailexpress.api.data.RoleData;
 import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.api.SREGameModes;
 import io.wifi.starrailexpress.api.SRERole;
@@ -72,24 +62,24 @@ import org.agmas.noellesroles.component.DeathPenaltyComponent;
 import org.agmas.noellesroles.component.DefibrillatorComponent;
 import org.agmas.noellesroles.component.ModComponents;
 import org.agmas.noellesroles.config.NoellesRolesConfig;
-import org.agmas.noellesroles.role_data.innocence.AvengerRoleData;
-import org.agmas.noellesroles.role_data.innocence.BoxerRoleData;
-import org.agmas.noellesroles.role_data.innocence.BroadcasterRoleData;
-import org.agmas.noellesroles.role_data.innocence.CakeMakerRoleData;
+import org.agmas.noellesroles.game.roles.innocence.avenger.AvengerPlayerComponent;
+import org.agmas.noellesroles.game.roles.innocence.boxer.BoxerPlayerComponent;
+import org.agmas.noellesroles.game.roles.innocence.broadcaster.BroadcasterPlayerComponent;
+import org.agmas.noellesroles.game.roles.innocence.cake_maker.CakeMakerComponent;
 import org.agmas.noellesroles.game.roles.innocence.fool.TarotAssemblyManager;
-import org.agmas.noellesroles.role_data.innocence.FortunetellerRoleData;
-import org.agmas.noellesroles.role_data.innocence.GlitchRobotRoleData;
-import org.agmas.noellesroles.role_data.killer.InsaneKillerRoleData;
+import org.agmas.noellesroles.game.roles.innocence.fortuneteller.FortunetellerPlayerComponent;
+import org.agmas.noellesroles.game.roles.innocence.glitch_robot.GlitchRobotPlayerComponent;
+import org.agmas.noellesroles.game.roles.killer.insane_killer.InsaneKillerPlayerComponent;
 import org.agmas.noellesroles.game.roles.killer.manipulator.InControlCCA;
-import org.agmas.noellesroles.role_data.killer.ShadowFalconRoleData;
-import org.agmas.noellesroles.role_data.killer.StalkerRoleData;
-import org.agmas.noellesroles.role_data.killer.WatcherRoleData;
-import org.agmas.noellesroles.role_data.neutral.MercenaryRoleData;
-import org.agmas.noellesroles.role_data.neutral.PuppeteerRoleData;
-import org.agmas.noellesroles.role_data.neutral.RavenRoleData;
-import org.agmas.noellesroles.role_data.neutral.ThiefRoleData;
-import org.agmas.noellesroles.role_data.special.BetterVigilanteRoleData;
-import org.agmas.noellesroles.role_data.vigilante.PatrollerRoleData;
+import org.agmas.noellesroles.game.roles.killer.shadow_falcon.ShadowFalconPlayerComponent;
+import org.agmas.noellesroles.game.roles.killer.stalker.StalkerPlayerComponent;
+import org.agmas.noellesroles.game.roles.killer.watcher.WatcherPlayerComponent;
+import org.agmas.noellesroles.game.roles.neutral.mercenary.MercenaryPlayerComponent;
+import org.agmas.noellesroles.game.roles.neutral.puppeteer.PuppeteerPlayerComponent;
+import org.agmas.noellesroles.game.roles.neutral.raven.RavenPlayerComponent;
+import org.agmas.noellesroles.game.roles.neutral.thief.ThiefPlayerComponent;
+import org.agmas.noellesroles.game.roles.special.better_vigilante.BetterVigilantePlayerComponent;
+import org.agmas.noellesroles.game.roles.vigilante.patroller.PatrollerPlayerComponent;
 import org.agmas.noellesroles.init.ModEffects;
 import org.agmas.noellesroles.init.FunnyItems;
 import org.agmas.noellesroles.init.ModItems;
@@ -125,8 +115,8 @@ public class NRDeathEvents {
             return false;
         if (!GameConstants.DeathReasons.REVOLVER.equals(deathReason))
             return false;
-        var comp = RoleData.getNullable(org.agmas.noellesroles.role_data.killer.SkincrawlerRoleData.class, sp);
-        if (!RoleData.isAttached(comp) || comp.stolenSkin == null || comp.stolenSkin.equals(sp.getUUID()))
+        var comp = org.agmas.noellesroles.game.roles.killer.skincrawler.SkincrawlerPlayerComponent.KEY.get(sp);
+        if (comp == null || comp.stolenSkin == null || comp.stolenSkin.equals(sp.getUUID()))
             return false;
         if (comp.blockCharges <= 0)
             return false;
@@ -154,8 +144,8 @@ public class NRDeathEvents {
 
         // 模仿者斗士无敌检测
         if (gameWorld.isRole(victim, ModRoles.IMITATOR)) {
-            var imitComp = RoleData.getNullable(ImitatorRoleData.class, victim);
-            if (RoleData.isAttached(imitComp) && imitComp.isImitatorInvulnerable()) {
+            var imitComp = ModComponents.IMITATOR.get(victim);
+            if (imitComp.isImitatorInvulnerable()) {
                 victim.level().playSound(null, victim.blockPosition(),
                         io.wifi.starrailexpress.index.TMMSounds.ITEM_PSYCHO_ARMOUR,
                         SoundSource.MASTER, 5.0F, 1.0F);
@@ -171,8 +161,8 @@ public class NRDeathEvents {
         if (!gameWorld.isRole(victim, ModRoles.FIGHTER))
             return false;
 
-        BoxerRoleData boxerComponent = RoleData.getNullable(BoxerRoleData.class, victim);
-        if (!RoleData.isAttached(boxerComponent) || !boxerComponent.isInvulnerable)
+        BoxerPlayerComponent boxerComponent = ModComponents.FIGHTER.get(victim);
+        if (!boxerComponent.isInvulnerable)
             return false;
 
         if (deathReason.equals(GameConstants.DeathReasons.FELL_OUT_OF_TRAIN)
@@ -203,8 +193,8 @@ public class NRDeathEvents {
         if (victim == null || victim.level().isClientSide())
             return false;
 
-        StalkerRoleData stalkerComp = RoleData.getNullable(StalkerRoleData.class, victim);
-        if (!RoleData.isAttached(stalkerComp) || !stalkerComp.isActiveStalker())
+        StalkerPlayerComponent stalkerComp = ModComponents.STALKER.get(victim);
+        if (!stalkerComp.isActiveStalker())
             return false;
         if (stalkerComp.phase != 1)
             return false;
@@ -234,8 +224,8 @@ public class NRDeathEvents {
         if (victim == null || victim.level().isClientSide())
             return false;
 
-        PuppeteerRoleData puppeteerComp = RoleData.getNullable(PuppeteerRoleData.class, victim);
-        if (!RoleData.isAttached(puppeteerComp) || !puppeteerComp.isActivePuppeteer())
+        PuppeteerPlayerComponent puppeteerComp = ModComponents.PUPPETEER.get(victim);
+        if (!puppeteerComp.isActivePuppeteer())
             return false;
         if (!puppeteerComp.isControllingPuppet)
             return false;
@@ -261,7 +251,7 @@ public class NRDeathEvents {
         SREGameWorldComponent gameWorldComponent = SREGameWorldComponent.KEY.get(victim.level());
         if (!gameWorldComponent.isRole(victim, ModRoles.GLITCH_ROBOT))
             return;
-        GlitchRobotRoleData.onKnockOut(victim);
+        GlitchRobotPlayerComponent.onKnockOut(victim);
     }
 
     private static void handleCakeMakerDeath(Player victim) {
@@ -270,7 +260,7 @@ public class NRDeathEvents {
         SREGameWorldComponent gameWorldComponent = SREGameWorldComponent.KEY.get(victim.level());
         if (!gameWorldComponent.isRole(victim, ModRoles.CAKE_MAKER))
             return;
-        RoleData.ifPresent(CakeMakerRoleData.class, victim, d -> d.onDeath());
+        CakeMakerComponent.KEY.get(victim).onDeath();
     }
 
     /**
@@ -675,7 +665,7 @@ public class NRDeathEvents {
                     if (GameUtils.isPlayerAliveAndSurvival(p)
                             || (worldModifierComponent.isModifier(p, SEModifiers.SPLIT_PERSONALITY)
                                     && !SplitPersonalityComponent.KEY.get(p).isDeath())) {
-                        if (RoleData.test(FortunetellerRoleData.class, p, d -> d.triggerProtect(player))) {
+                        if (FortunetellerPlayerComponent.KEY.get(p).triggerProtect(player)) {
                             return false;
                         }
                     }
@@ -769,13 +759,13 @@ public class NRDeathEvents {
             }
 
             ServerPlayNetworking.send(player, new CloseUiPayload());
-            RoleData.ifPresent(FortunetellerRoleData.class, player, d -> d.init());
+            FortunetellerPlayerComponent.KEY.get(player).init();
             SREGameWorldComponent gameWorldComponent = SREGameWorldComponent.KEY.get(player.level());
 
             if (!RefugeeComponent.KEY.get(player.level()).isAnyRevivals) {
-                RoleData.ifPresent(PuppeteerRoleData.class, player, d -> d.clear());
+                PuppeteerPlayerComponent.KEY.get(player).clear();
                 if (gameWorldComponent.isRole(player, ModRoles.INSANE_KILLER)) {
-                    RoleData.ifPresent(InsaneKillerRoleData.class, player, d -> d.init());
+                    InsaneKillerPlayerComponent.KEY.get(player).init();
                 }
             }
 
@@ -783,7 +773,7 @@ public class NRDeathEvents {
 
             // 葬仪死亡清除拖动状态
             if (gameWorldComponent.isRole(player, ModRoles.MORTICIAN_BODYMAKER)) {
-                var morticianComponent = RoleData.getNullable(org.agmas.noellesroles.role_data.neutral.MorticianBodyMakerRoleData.class, player);
+                var morticianComponent = ModComponents.MORTICIAN_BODYMAKER.get(player);
                 if (morticianComponent != null && morticianComponent.draggedBodyUuid != null) {
                     morticianComponent.draggedBodyUuid = null;
                     morticianComponent.sync();
@@ -874,7 +864,7 @@ public class NRDeathEvents {
             }
         }
         if (gameWorldComponent.isRole(player, ModRoles.BETTER_VIGILANTE)) {
-            RoleData.ifPresent(BetterVigilanteRoleData.class, player, d -> d.init());
+            BetterVigilantePlayerComponent.KEY.get(player).init();
         }
     }
 
@@ -911,8 +901,8 @@ public class NRDeathEvents {
         OnPlayerDeathWithKiller.EVENT.register((victim, killer, reason) -> {
             if (killer == null || !SREGameWorldComponent.KEY.get(killer.level()).isRole(killer, ModRoles.RAVEN))
                 return;
-            RavenRoleData raven = RoleData.getNullable(RavenRoleData.class, killer);
-            if (raven != null && raven.canKill(victim))
+            RavenPlayerComponent raven = ModComponents.RAVEN.get(killer);
+            if (raven.canKill(victim))
                 raven.onTargetKilled(victim);
         });
         // 携带C4的玩家死亡/变成旁观者后，C4由 C4Detonation.dropCarrierCharge 直接贴在最近的墙面上
@@ -961,11 +951,10 @@ public class NRDeathEvents {
                 if (!GameUtils.isPlayerAliveAndSurvival(player))
                     continue;
                 if (player.distanceToSqr(victim) > 50 * 50
-                        || !PatrollerRoleData.isBoundTargetVisible(victim, player))
+                        || !PatrollerPlayerComponent.isBoundTargetVisible(victim, player))
                     continue;
-                PatrollerRoleData patrollerComponent = RoleData.getNullable(PatrollerRoleData.class, player);
-                if (patrollerComponent != null)
-                    patrollerComponent.onNearbyDeath();
+                PatrollerPlayerComponent patrollerComponent = ModComponents.PATROLLER.get(player);
+                patrollerComponent.onNearbyDeath();
             }
         });
 
@@ -977,7 +966,7 @@ public class NRDeathEvents {
             SREGameWorldComponent gameWorldComponent = SREGameWorldComponent.KEY.get(world);
             if (gameWorldComponent.isRole(victim, ModRoles.BROADCASTER)) {
                 String last_message = null;
-                BroadcasterRoleData comp = RoleData.getNullable(BroadcasterRoleData.class, victim);
+                BroadcasterPlayerComponent comp = BroadcasterPlayerComponent.KEY.get(victim);
                 if (comp != null) {
                     last_message = comp.getStoredStr();
                 }
@@ -1015,8 +1004,8 @@ public class NRDeathEvents {
                     continue;
                 if (player.equals(victim))
                     continue;
-                AvengerRoleData avengerComponent = RoleData.getNullable(AvengerRoleData.class, player);
-                if (avengerComponent != null && avengerComponent.targetPlayer != null &&
+                AvengerPlayerComponent avengerComponent = ModComponents.AVENGER.get(player);
+                if (avengerComponent.targetPlayer != null &&
                         avengerComponent.targetPlayer.equals(victim.getUUID()) &&
                         !avengerComponent.activated) {
                     if (killer != null) {
@@ -1040,8 +1029,8 @@ public class NRDeathEvents {
         OnPlayerDeathWithKiller.EVENT.register((victim, killer, deathReason) -> {
             var gameWorldComponent = SREGameWorldComponent.KEY.get(victim.level());
             if (gameWorldComponent.isRole(victim, ModRoles.WATCHER)) {
-                var watcher = RoleData.getNullable(WatcherRoleData.class, victim);
-                if (watcher != null && watcher.isInCalmStance()) {
+                var watcher = WatcherPlayerComponent.KEY.get(victim);
+                if (watcher.isInCalmStance()) {
                     if (gameWorldComponent.isInnocent(killer)) {
                         GameUtils.killPlayer(killer, true, victim, Noellesroles.id("shot_innocent"));
                     }
@@ -1051,7 +1040,7 @@ public class NRDeathEvents {
 
         // 影隼死亡发放喷气背包
         OnPlayerDeathWithKiller.EVENT.register((victim, killer, deathReason) -> {
-            ShadowFalconRoleData.onDeathGiveJetpacks(victim);
+            ShadowFalconPlayerComponent.onDeathGiveJetpacks(victim);
         });
 
         // 监视者 - 杀手击杀后冷却
@@ -1125,8 +1114,8 @@ public class NRDeathEvents {
         AllowPlayerDeathWithKiller.EVENT.register((victim, killer, reason) -> {
             if (killer == null || !SREGameWorldComponent.KEY.get(killer.level()).isRole(killer, ModRoles.RAVEN))
                 return true;
-            RavenRoleData raven = RoleData.getNullable(RavenRoleData.class, killer);
-            if (raven == null || !raven.isHunting())
+            RavenPlayerComponent raven = ModComponents.RAVEN.get(killer);
+            if (!raven.isHunting())
                 return true;
             if (!raven.canKill(victim)) {
                 raven.endHunt(true);
@@ -1139,8 +1128,8 @@ public class NRDeathEvents {
         AllowPlayerDeathWithKiller.EVENT.register((victim, killer, reason) -> {
             if (!SREGameWorldComponent.KEY.get(victim.level()).isRole(victim, ModRoles.RAVEN))
                 return true;
-            RavenRoleData raven = RoleData.getNullable(RavenRoleData.class, victim);
-            return !RoleData.isAttached(raven) || !raven.isHunting();
+            RavenPlayerComponent raven = ModComponents.RAVEN.get(victim);
+            return !raven.isHunting();
         });
 
         // 肉汁独处保护
@@ -1346,7 +1335,7 @@ public class NRDeathEvents {
 
             // 雇佣兵契约目标击杀
             if (gameWorldComponent.isRole(killer, ModRoles.MERCENARY)) {
-                var mercenary = RoleData.getNullable(MercenaryRoleData.class, killer);
+                var mercenary = MercenaryPlayerComponent.KEY.get(killer);
                 if (mercenary != null && mercenary.isContractTarget(victim)) {
                     mercenary.onContractTargetKilled();
                 }
@@ -1354,8 +1343,8 @@ public class NRDeathEvents {
 
             // 观者冷静姿态误杀惩罚
             if (gameWorldComponent.isRole(killer, ModRoles.WATCHER)) {
-                var watcher = RoleData.getNullable(WatcherRoleData.class, killer);
-                if (watcher != null && watcher.isInCalmStance()) {
+                var watcher = WatcherPlayerComponent.KEY.get(killer);
+                if (watcher.isInCalmStance()) {
                     if (!deathReason.getPath().equals("shot_innocent")) {
                         if (gameWorldComponent.isInnocent(victim)) {
                             GameUtils.killPlayer(killer, true, null, Noellesroles.id("watcher_calm_kill"));
@@ -1366,7 +1355,7 @@ public class NRDeathEvents {
 
             // 强盗金钱盗取
             if (gameWorldComponent.isRole(killer, ModRoles.BANDIT)) {
-                var banditComponent = RoleData.getNullable(BanditRoleData.class, killer);
+                var banditComponent = ModComponents.BANDIT.get(killer);
                 if (banditComponent != null) {
                     banditComponent.handleKilledVictim(victim);
                 }
@@ -1374,7 +1363,7 @@ public class NRDeathEvents {
 
             // 小偷击杀奖励
             if (gameWorldComponent.isRole(killer, ModRoles.THIEF)) {
-                var thiefComponent = RoleData.getNullable(ThiefRoleData.class, killer);
+                var thiefComponent = ThiefPlayerComponent.KEY.get(killer);
                 if (thiefComponent != null) {
                     thiefComponent.handleKilledVictim(victim);
                 }
@@ -1404,7 +1393,8 @@ public class NRDeathEvents {
                         controllerPlayer.displayClientMessage(Component.translatable(
                                 "message.noellesroles.manipulator.target_died", victim.getName())
                                 .withStyle(ChatFormatting.GOLD), true);
-                        var controllerComp = RoleData.getNullable(org.agmas.noellesroles.role_data.killer.ManipulatorRoleData.class, controllerPlayer);
+                        var controllerComp = org.agmas.noellesroles.game.roles.killer.manipulator.ManipulatorPlayerComponent.KEY
+                                .get(controllerPlayer);
                         if (controllerComp != null) {
                             controllerComp.stopControl(false);
                         }
@@ -1425,15 +1415,15 @@ public class NRDeathEvents {
 
             // 巫师魔药护盾破碎
             if (gameWorldComponent.isRole(victim, ModRoles.WIZARD)) {
-                RoleData.ifPresent(WizardRoleData.class, victim, d -> d.onPotionShieldBroken());
+                ModComponents.WIZARD.get(victim).onPotionShieldBroken();
             }
             // 观者护盾破碎标记
             if (gameWorldComponent.isRole(victim, ModRoles.WATCHER)) {
-                RoleData.ifPresent(WatcherRoleData.class, victim, d -> d.markShieldConsumed());
+                WatcherPlayerComponent.KEY.get(victim).markShieldConsumed();
             }
             // 雇佣兵强制目标
             if (killer != null && gameWorldComponent.isRole(victim, ModRoles.MERCENARY)) {
-                var mercenary = RoleData.getNullable(MercenaryRoleData.class, victim);
+                var mercenary = MercenaryPlayerComponent.KEY.get(victim);
                 if (mercenary != null) {
                     mercenary.setForcedTarget(killer);
                     victim.displayClientMessage(
@@ -1450,9 +1440,8 @@ public class NRDeathEvents {
             }
             // 影隼临时护盾破碎
             if (gameWorldComponent.isRole(victim, ModRoles.SHADOW_FALCON)) {
-                ShadowFalconRoleData shadowFalconComponent = RoleData.getNullable(ShadowFalconRoleData.class, victim);
-                if (shadowFalconComponent != null)
-                    shadowFalconComponent.onShieldBroken();
+                ShadowFalconPlayerComponent shadowFalconComponent = ShadowFalconPlayerComponent.KEY.get(victim);
+                shadowFalconComponent.onShieldBroken();
             }
         });
     }

@@ -15,7 +15,6 @@
 
 package org.agmas.noellesroles.content.item;
 
-import io.wifi.starrailexpress.api.data.RoleData;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.component.DataComponents;
@@ -28,7 +27,7 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.component.CustomData;
 import net.minecraft.world.level.Level;
-import org.agmas.noellesroles.role_data.neutral.MercenaryRoleData;
+import org.agmas.noellesroles.game.roles.neutral.mercenary.MercenaryPlayerComponent;
 import org.agmas.noellesroles.role.ModRoles;
 
 import java.util.UUID;
@@ -98,9 +97,7 @@ public class MercenaryContractItem extends Item {
             return InteractionResultHolder.fail(stack);
         }
 
-        var comp = RoleData.getNullable(MercenaryRoleData.class, player);
-        if (!RoleData.isAttached(comp))
-            return InteractionResultHolder.fail(stack);
+        var comp = MercenaryPlayerComponent.KEY.get(player);
         if (comp.contractActive) {
             player.displayClientMessage(
                     Component.translatable("message.noellesroles.mercenary.contract_already_active")

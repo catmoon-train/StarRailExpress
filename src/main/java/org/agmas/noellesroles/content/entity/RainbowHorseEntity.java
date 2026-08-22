@@ -15,9 +15,6 @@
 
 package org.agmas.noellesroles.content.entity;
 
-import io.wifi.starrailexpress.api.hit.HitType;
-import io.wifi.starrailexpress.api.hit.IsTargetObject;
-import io.wifi.starrailexpress.util.HorseDamageUtil;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerLevel;
@@ -42,7 +39,7 @@ import org.agmas.noellesroles.content.item.PredecessorHorseArmorItem;
  * 海曼彩虹马 - 彩虹马蹄铁召唤的临时坐骑。
  * 从天而降，落地时爆炸（仅视觉/音效），可两人乘骑，120 秒后消失。
  */
-public class RainbowHorseEntity extends Horse implements IsTargetObject {
+public class RainbowHorseEntity extends Horse {
 
     /** 存在时间上限：120 秒 */
     public static final int LIFETIME_TICKS = 120 * 20;
@@ -53,16 +50,6 @@ public class RainbowHorseEntity extends Horse implements IsTargetObject {
     public RainbowHorseEntity(EntityType<? extends Horse> entityType, Level level) {
         super(entityType, level);
         this.setTamed(true);
-    }
-
-    @Override
-    public boolean isValidTarget(Player attacker, HitType type) {
-        return type.isRanged();
-    }
-
-    @Override
-    public boolean onWeaponHit(Player attacker, HitType type) {
-        return HorseDamageUtil.onWeaponHit(this, attacker, type);
     }
 
     public static AttributeSupplier.Builder createAttributes() {

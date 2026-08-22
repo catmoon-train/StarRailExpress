@@ -15,9 +15,6 @@
 
 package org.agmas.noellesroles.client;
 
-import org.agmas.noellesroles.role_data.killer.ImitatorRoleData;
-
-import io.wifi.starrailexpress.api.data.RoleData;
 import net.exmo.sre.repair.network.*;
 import io.wifi.starrailexpress.api.RoleSkill;
 import io.wifi.starrailexpress.api.SREGameModes;
@@ -30,8 +27,8 @@ import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.minecraft.client.Minecraft;
 import org.agmas.noellesroles.component.ModComponents;
 import net.exmo.sre.repair.role.RepairRoleDefinition;
-import org.agmas.noellesroles.role_data.killer.ManipulatorRoleData;
-import org.agmas.noellesroles.role_data.neutral.PuppeteerRoleData;
+import org.agmas.noellesroles.game.roles.killer.manipulator.ManipulatorPlayerComponent;
+import org.agmas.noellesroles.game.roles.neutral.puppeteer.PuppeteerPlayerComponent;
 import org.agmas.noellesroles.packet.*;
 import org.agmas.noellesroles.role.ModRoles;
 
@@ -47,8 +44,8 @@ public class ClientAbilityHandler {
                 .get(client.player.level());
 
         // 操纵师附身：技能键改为以被操控目标的身份释放目标自身技能（冷却记在目标身上）
-        ManipulatorRoleData manipulatorComp = RoleData.getNullable(ManipulatorRoleData.class, client.player);
-        if (RoleData.isAttached(manipulatorComp) && manipulatorComp.isControlling && manipulatorComp.target != null) {
+        ManipulatorPlayerComponent manipulatorComp = ManipulatorPlayerComponent.KEY.get(client.player);
+        if (manipulatorComp.isControlling && manipulatorComp.target != null) {
             ClientPlayNetworking.send(new ManipulatorAbilityC2SPacket());
             return;
         }
@@ -73,8 +70,8 @@ public class ClientAbilityHandler {
         // 模仿者客户端前置逻辑：复制模式无目标→提示，消息技能→打开界面
         if (currentRole != null
                 && gameWorldComponent.isRole(client.player, org.agmas.noellesroles.role.ModRoles.IMITATOR)) {
-            var comp = RoleData.getNullable(org.agmas.noellesroles.role_data.killer.ImitatorRoleData.class, client.player);
-            if (RoleData.isAttached(comp) && comp.isCopyMode) {
+            var comp = org.agmas.noellesroles.game.roles.killer.imitator.ImitatorPlayerComponent.KEY.get(client.player);
+            if (comp.isCopyMode) {
                 var hitResult = client.hitResult;
                 if (hitResult != null && hitResult.getType() == net.minecraft.world.phys.HitResult.Type.ENTITY) {
                     net.minecraft.world.phys.EntityHitResult entityHit = (net.minecraft.world.phys.EntityHitResult) hitResult;
@@ -94,27 +91,25 @@ public class ClientAbilityHandler {
                         true);
                 return;
             }
-            if (RoleData.isAttached(comp)) {
-                // 非复制模式：检查当前能力是否是消息技能
-                var currentAbility = comp.getCurrentAbilityRoleId();
-                if (currentAbility != null && org.agmas.noellesroles.game.roles.killer.imitator.ImitatorSkillRegistry
-                        .isMessageSkill(currentAbility)) {
-                    int cd = comp.getCurrentSkillCooldown();
-                    if (cd > 0) {
-                        client.player.displayClientMessage(net.minecraft.network.chat.Component.translatable(
-                                "message.noellesroles.imitator.cooldown", (cd + 19) / 20)
-                                .withStyle(net.minecraft.ChatFormatting.RED), true);
-                        return;
-                    }
-                    if (currentAbility.equals(org.agmas.noellesroles.role.BounsRoles.TELEGRAPHER_ID)) {
-                        client.execute(
-                                () -> client.setScreen(new org.agmas.noellesroles.client.screen.TelegrapherScreen()));
-                    } else if (currentAbility.equals(org.agmas.noellesroles.role.ModRoles.BROADCASTER_ID)) {
-                        client.execute(
-                                () -> client.setScreen(new org.agmas.noellesroles.client.screen.BroadcasterScreen()));
-                    }
+            // 非复制模式：检查当前能力是否是消息技能
+            var currentAbility = comp.getCurrentAbilityRoleId();
+            if (currentAbility != null && org.agmas.noellesroles.game.roles.killer.imitator.ImitatorSkillRegistry
+                    .isMessageSkill(currentAbility)) {
+                int cd = comp.getCurrentSkillCooldown();
+                if (cd > 0) {
+                    client.player.displayClientMessage(net.minecraft.network.chat.Component.translatable(
+                            "message.noellesroles.imitator.cooldown", (cd + 19) / 20)
+                            .withStyle(net.minecraft.ChatFormatting.RED), true);
                     return;
                 }
+                if (currentAbility.equals(org.agmas.noellesroles.role.BounsRoles.TELEGRAPHER_ID)) {
+                    client.execute(
+                            () -> client.setScreen(new org.agmas.noellesroles.client.screen.TelegrapherScreen()));
+                } else if (currentAbility.equals(org.agmas.noellesroles.role.ModRoles.BROADCASTER_ID)) {
+                    client.execute(
+                            () -> client.setScreen(new org.agmas.noellesroles.client.screen.BroadcasterScreen()));
+                }
+                return;
             }
         }
 
@@ -184,8 +179,8 @@ public class ClientAbilityHandler {
         // ==================== 傀儡师：优先检测操控假人状态 ====================
         // 必须放在所有角色之前，因为傀儡师操控假人时角色会临时变成其他杀手
         // 如果不优先检测，假人角色的按键处理会拦截G键
-        PuppeteerRoleData puppeteerComp = RoleData.getNullable(PuppeteerRoleData.class, client.player);
-        if (RoleData.isAttached(puppeteerComp) && puppeteerComp.isControllingPuppet && client.player.isShiftKeyDown()) {
+        PuppeteerPlayerComponent puppeteerComp = PuppeteerPlayerComponent.KEY.get(client.player);
+        if (puppeteerComp.isControllingPuppet && client.player.isShiftKeyDown()) {
             // 检查玩家是否存活
             if (GameUtils.isPlayerAliveAndSurvival(client.player)) {
                 // 正在操控假人，按G返回本体

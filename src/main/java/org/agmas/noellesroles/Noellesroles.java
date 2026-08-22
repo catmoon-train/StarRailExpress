@@ -42,7 +42,6 @@ import org.agmas.noellesroles.role.ModRoles;
 import org.agmas.noellesroles.utils.RightClickBlockManager;
 import org.agmas.noellesroles.utils.RoleUtils;
 import org.agmas.noellesroles.utils.ServerManager;
-import org.agmas.noellesroles.api.time.TimeRewind;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -174,7 +173,6 @@ public class Noellesroles implements ModInitializer {
 
     @Override
     public void onInitialize() {
-        TimeRewind.initialize();
         ModItems.init();
         RightClickBlockManager.init();
         org.agmas.noellesroles.content.item.ZeroOneFiveGunItem.register();

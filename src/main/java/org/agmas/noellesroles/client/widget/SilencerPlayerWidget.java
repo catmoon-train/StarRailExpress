@@ -15,7 +15,6 @@
 
 package org.agmas.noellesroles.client.widget;
 
-import io.wifi.starrailexpress.api.data.RoleData;
 import io.wifi.starrailexpress.client.SREClient;
 import io.wifi.starrailexpress.client.gui.screen.ingame.LimitedInventoryScreen;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
@@ -29,7 +28,7 @@ import net.minecraft.client.multiplayer.PlayerInfo;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.level.GameType;
-import org.agmas.noellesroles.role_data.killer.SilencerRoleData;
+import org.agmas.noellesroles.game.roles.killer.silencer.SilencerPlayerComponent;
 import org.agmas.noellesroles.packet.SilencerC2SPacket;
 import org.jetbrains.annotations.NotNull;
 
@@ -45,8 +44,7 @@ public class SilencerPlayerWidget extends Button {
         super(x, y, 16, 16, Component.nullToEmpty(skillTarget.getProfile().getName()), (a) -> {
             var player = Minecraft.getInstance().player;
             if (player != null) {
-                SilencerRoleData component = RoleData.getNullable(SilencerRoleData.class, player);
-                if (component == null) return;
+                SilencerPlayerComponent component = SilencerPlayerComponent.KEY.get(player);
                 if (component.skillCooldownTicks == 0 && component.phase == 0) {
                     ClientPlayNetworking.send(new SilencerC2SPacket(skillTarget.getProfile().getId()));
                 }
@@ -71,8 +69,7 @@ public class SilencerPlayerWidget extends Button {
         var player = Minecraft.getInstance().player;
         if (player == null) return;
 
-        SilencerRoleData component = RoleData.getNullable(SilencerRoleData.class, player);
-        if (!RoleData.isAttached(component)) return;
+        SilencerPlayerComponent component = SilencerPlayerComponent.KEY.get(player);
 
         if (component.skillCooldownTicks == 0 && component.phase == 0) {
             // Ready to use

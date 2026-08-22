@@ -15,7 +15,6 @@
 
 package org.agmas.noellesroles.client.widget;
 
-import io.wifi.starrailexpress.api.data.RoleData;
 import io.wifi.starrailexpress.client.SREClient;
 import io.wifi.starrailexpress.client.gui.screen.ingame.LimitedInventoryScreen;
 import io.wifi.starrailexpress.util.ShopEntry;
@@ -31,7 +30,7 @@ import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.level.GameType;
-import org.agmas.noellesroles.role_data.killer.MissionaryRoleData;
+import org.agmas.noellesroles.game.roles.killer.missionary.MissionaryPlayerComponent;
 import org.agmas.noellesroles.init.ModEffects;
 import org.agmas.noellesroles.packet.MissionaryConvertC2SPacket;
 import org.agmas.noellesroles.role.ModRoles;
@@ -41,7 +40,7 @@ import java.awt.*;
 
 /**
  * 传教士玩家选择组件 — 视觉与变形者一致：背景、头像、冷却变暗+倒计时。
- * 冷却使用传教士自身的 MissionaryRoleData#getCooldownRemaining()。
+ * 冷却使用传教士自身的 MissionaryPlayerComponent#getCooldownRemaining()。
  */
 public class MissionaryPlayerWidget extends Button {
     public final LimitedInventoryScreen screen;
@@ -53,7 +52,7 @@ public class MissionaryPlayerWidget extends Button {
         super(x, y, 16, 16, Component.nullToEmpty(convertTarget.getProfile().getName()), (a) -> {
             AbstractClientPlayer player = Minecraft.getInstance().player;
             if (player != null) {
-                var comp = RoleData.getNullable(MissionaryRoleData.class, player);
+                var comp = MissionaryPlayerComponent.KEY.get(player);
                 if (comp != null && comp.getCooldownRemaining() <= 0 && !player.hasEffect(ModEffects.SAFE_TIME)) {
                     ClientPlayNetworking.send(new MissionaryConvertC2SPacket(convertTarget.getProfile().getId()));
                 }
@@ -79,8 +78,7 @@ public class MissionaryPlayerWidget extends Button {
         if (player == null)
             return;
 
-        MissionaryRoleData component = RoleData.getNullable(MissionaryRoleData.class, player);
-        if (!RoleData.isAttached(component)) return;
+        MissionaryPlayerComponent component = MissionaryPlayerComponent.KEY.get(player);
         long cooldown = component.getCooldownRemaining();
 
         if (cooldown <= 0 && !player.hasEffect(ModEffects.SAFE_TIME)) {

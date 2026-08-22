@@ -15,12 +15,6 @@
 
 package org.agmas.noellesroles;
 
-import org.agmas.noellesroles.role_data.killer.SilencerRoleData;
-
-import org.agmas.noellesroles.role_data.innocence.GhostRoleData;
-import org.agmas.noellesroles.role_data.innocence.BuilderRoleData;
-import org.agmas.noellesroles.role_data.innocence.AvengerRoleData;
-import io.wifi.starrailexpress.api.data.RoleData;
 import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.api.TMMRoles;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
@@ -32,19 +26,19 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import org.agmas.noellesroles.client.screen.ModScreenHandlers;
 import org.agmas.noellesroles.component.ModComponents;
-import org.agmas.noellesroles.role_data.innocence.AthleteRoleData;
-import org.agmas.noellesroles.role_data.innocence.BoxerRoleData;
-import org.agmas.noellesroles.role_data.innocence.AgentRoleData;
-import org.agmas.noellesroles.role_data.innocence.PsychologistRoleData;
-import org.agmas.noellesroles.role_data.innocence.SingerRoleData;
-import org.agmas.noellesroles.role_data.innocence.SuperStarRoleData;
-import org.agmas.noellesroles.role_data.innocence.TelegrapherRoleData;
-import org.agmas.noellesroles.role_data.killer.ConspiratorRoleData;
-import org.agmas.noellesroles.role_data.killer.StalkerRoleData;
-import org.agmas.noellesroles.role_data.killer.TrapperRoleData;
-import org.agmas.noellesroles.role_data.neutral.AdmirerRoleData;
-import org.agmas.noellesroles.role_data.neutral.PuppeteerRoleData;
-import org.agmas.noellesroles.role_data.neutral.SlipperyGhostRoleData;
+import org.agmas.noellesroles.game.roles.innocence.athlete.AthletePlayerComponent;
+import org.agmas.noellesroles.game.roles.innocence.boxer.BoxerPlayerComponent;
+import org.agmas.noellesroles.game.roles.innocence.detective.AgentPlayerComponent;
+import org.agmas.noellesroles.game.roles.innocence.psychologist.PsychologistPlayerComponent;
+import org.agmas.noellesroles.game.roles.innocence.singer.SingerPlayerComponent;
+import org.agmas.noellesroles.game.roles.innocence.super_star.SuperStarPlayerComponent;
+import org.agmas.noellesroles.game.roles.innocence.telegrapher.TelegrapherPlayerComponent;
+import org.agmas.noellesroles.game.roles.killer.conspirator.ConspiratorPlayerComponent;
+import org.agmas.noellesroles.game.roles.killer.stalker.StalkerPlayerComponent;
+import org.agmas.noellesroles.game.roles.killer.trapper.TrapperPlayerComponent;
+import org.agmas.noellesroles.game.roles.neutral.admirer.AdmirerPlayerComponent;
+import org.agmas.noellesroles.game.roles.neutral.puppeteer.PuppeteerPlayerComponent;
+import org.agmas.noellesroles.game.roles.neutral.slippery_ghost.SlipperyGhostPlayerComponent;
 import org.agmas.noellesroles.init.FunnyItems;
 import org.agmas.noellesroles.init.ModEffects;
 import org.agmas.noellesroles.init.ModEntities;
@@ -259,16 +253,16 @@ public class RicesRoleRhapsody implements ModInitializer {
 
         // 如果新角色不是跟踪者，清除跟踪者组件状态
         if (!role.equals(ModRoles.STALKER)) {
-            StalkerRoleData stalkerComp = RoleData.getNullable(StalkerRoleData.class, player);
-            if (RoleData.isAttached(stalkerComp) && stalkerComp.isActiveStalker()) {
+            StalkerPlayerComponent stalkerComp = ModComponents.STALKER.get(player);
+            if (stalkerComp.isActiveStalker()) {
                 stalkerComp.clearAll();
             }
         }
 
         // 如果新角色不是慕恋者，清除慕恋者组件状态
         if (!role.equals(ModRoles.ADMIRER)) {
-            AdmirerRoleData admirerComp = RoleData.getNullable(AdmirerRoleData.class, player);
-            if (RoleData.isAttached(admirerComp) && admirerComp.isActiveAdmirer()) {
+            AdmirerPlayerComponent admirerComp = ModComponents.ADMIRER.get(player);
+            if (admirerComp.isActiveAdmirer()) {
                 admirerComp.clearAll();
             }
         }
@@ -277,9 +271,9 @@ public class RicesRoleRhapsody implements ModInitializer {
         // 注意：傀儡师操控假人时角色会临时变成其他杀手，但不应该清除傀儡师组件
         // 所以这里只在完全不是傀儡师相关的角色变化时才清除
         if (!role.equals(ModRoles.PUPPETEER)) {
-            PuppeteerRoleData puppeteerComp = RoleData.getNullable(PuppeteerRoleData.class, player);
+            PuppeteerPlayerComponent puppeteerComp = ModComponents.PUPPETEER.get(player);
             // 只有在不是操控假人状态时才清除（操控假人时需要保留状态以便返回）
-            if (RoleData.isAttached(puppeteerComp) && puppeteerComp.isActivePuppeteer() && !puppeteerComp.isControllingPuppet) {
+            if (puppeteerComp.isActivePuppeteer() && !puppeteerComp.isControllingPuppet) {
                 puppeteerComp.clearAll();
             }
         }
@@ -288,7 +282,7 @@ public class RicesRoleRhapsody implements ModInitializer {
         // ==================== 复仇者角色处理 ====================
         if (role.equals(ModRoles.AVENGER)) {
             // 重置复仇者组件
-            // AvengerRoleData avengerComponent = RoleData.getNullable(AvengerRoleData.class, player);
+            // AvengerPlayerComponent avengerComponent = ModComponents.AVENGER.get(player);
             // avengerComponent.reset();
             //
             // // 随机绑定一个无辜玩家作为保护目标
@@ -302,17 +296,15 @@ public class RicesRoleRhapsody implements ModInitializer {
         // ==================== 阴谋家角色处理 ====================
         if (role.equals(ModRoles.CONSPIRATOR)) {
             // 重置阴谋家组件
-            ConspiratorRoleData conspiratorComponent = RoleData.getNullable(ConspiratorRoleData.class, player);
-            if (RoleData.isAttached(conspiratorComponent))
-                conspiratorComponent.init();
+            ConspiratorPlayerComponent conspiratorComponent = ModComponents.CONSPIRATOR.get(player);
+            conspiratorComponent.init();
         }
 
         // ==================== 捣蛋鬼角色处理 ====================
         if (role.equals(ModRoles.PRANKSTER)) {
             // 重置捣蛋鬼组件
-            SlipperyGhostRoleData slipperyGhostComponent = RoleData.getNullable(SlipperyGhostRoleData.class, player);
-            if (RoleData.isAttached(slipperyGhostComponent))
-                slipperyGhostComponent.init();
+            SlipperyGhostPlayerComponent slipperyGhostComponent = ModComponents.PRANKSTER.get(player);
+            slipperyGhostComponent.init();
         }
 
         // ==================== 工程师角色处理 ====================
@@ -324,73 +316,64 @@ public class RicesRoleRhapsody implements ModInitializer {
         // ==================== 斗士角色处理 ====================
         if (role.equals(ModRoles.FIGHTER)) {
             // 重置斗士组件 - 设置开局冷却
-            BoxerRoleData boxerComponent = RoleData.getNullable(BoxerRoleData.class, player);
-            if (RoleData.isAttached(boxerComponent))
-                boxerComponent.init();
+            BoxerPlayerComponent boxerComponent = ModComponents.FIGHTER.get(player);
+            boxerComponent.init();
         }
 
         // ==================== 静语者角色处理 ====================
         if (role.equals(ModRoles.SILENCER)) {
-            org.agmas.noellesroles.role_data.killer.SilencerRoleData silencerComponent =
-                RoleData.getNullable(org.agmas.noellesroles.role_data.killer.SilencerRoleData.class, player);
-            if (silencerComponent != null)
-                silencerComponent.init();
+            org.agmas.noellesroles.game.roles.killer.silencer.SilencerPlayerComponent silencerComponent =
+                org.agmas.noellesroles.game.roles.killer.silencer.SilencerPlayerComponent.KEY.get(player);
+            silencerComponent.init();
         }
 
         // ==================== 探员角色处理 ====================
         if (role.equals(ModRoles.AGENT)) {
             // 重置探员组件
-            AgentRoleData detectiveComponent = RoleData.getNullable(AgentRoleData.class, player);
-            if (RoleData.isAttached(detectiveComponent))
-                detectiveComponent.init();
+            AgentPlayerComponent detectiveComponent = ModComponents.AGENT.get(player);
+            detectiveComponent.init();
         }
 
         // ==================== 电报员角色处理 ====================
         if (role.equals(BounsRoles.TELEGRAPHER)) {
             // 重置电报员组件
-            TelegrapherRoleData telegrapherComponent = RoleData.getNullable(TelegrapherRoleData.class, player);
-            if (RoleData.isAttached(telegrapherComponent))
-                telegrapherComponent.init();
+            TelegrapherPlayerComponent telegrapherComponent = ModComponents.TELEGRAPHER.get(player);
+            telegrapherComponent.init();
         }
 
         // ==================== 跟踪者角色处理 ====================
         if (role.equals(ModRoles.STALKER)) {
             // 重置跟踪者组件
-            StalkerRoleData stalkerComponent = RoleData.getNullable(StalkerRoleData.class, player);
-            if (RoleData.isAttached(stalkerComponent))
-                stalkerComponent.init();
+            StalkerPlayerComponent stalkerComponent = ModComponents.STALKER.get(player);
+            stalkerComponent.init();
         }
 
         // ==================== 运动员角色处理 ====================
         if (role.equals(ModRoles.ATHLETE)) {
             // 重置运动员组件
-            AthleteRoleData athleteComponent = RoleData.getNullable(AthleteRoleData.class, player);
-            if (RoleData.isAttached(athleteComponent))
-                athleteComponent.init();
+            AthletePlayerComponent athleteComponent = ModComponents.ATHLETE.get(player);
+            athleteComponent.init();
         }
 
         // ==================== 慕恋者角色处理 ====================
         if (role.equals(ModRoles.ADMIRER)) {
             // 重置慕恋者组件
-            AdmirerRoleData admirerComponent = RoleData.getNullable(AdmirerRoleData.class, player);
-            if (RoleData.isAttached(admirerComponent))
-                admirerComponent.init();
+            AdmirerPlayerComponent admirerComponent = ModComponents.ADMIRER.get(player);
+            admirerComponent.init();
         }
 
         // ==================== 设陷者角色处理 ====================
         if (role.equals(ModRoles.TRAPPER)) {
             // 重置设陷者组件
-            TrapperRoleData trapperComponent = RoleData.getNullable(TrapperRoleData.class, player);
-            if (RoleData.isAttached(trapperComponent))
-                trapperComponent.init();
+            TrapperPlayerComponent trapperComponent = ModComponents.TRAPPER.get(player);
+            trapperComponent.init();
         }
 
         // ==================== 明星角色处理 ====================
         if (role.equals(ModRoles.SUPERSTAR)) {
             // 重置明星组件
-            SuperStarRoleData starComponent = RoleData.getNullable(SuperStarRoleData.class, player);
-            if (RoleData.isAttached(starComponent))
-                starComponent.init();
+            SuperStarPlayerComponent starComponent = ModComponents.STAR.get(player);
+            starComponent.init();
         }
 
         // ==================== 退伍军人角色处理 ====================
@@ -402,34 +385,30 @@ public class RicesRoleRhapsody implements ModInitializer {
         // ==================== 歌手角色处理 ====================
         if (role.equals(ModRoles.SINGER)) {
             // 重置歌手组件
-            SingerRoleData singerComponent = RoleData.getNullable(SingerRoleData.class, player);
-            if (RoleData.isAttached(singerComponent))
-                singerComponent.init();
+            SingerPlayerComponent singerComponent = ModComponents.SINGER.get(player);
+            singerComponent.init();
         }
 
         // ==================== 心理学家角色处理 ====================
         if (role.equals(ModRoles.PSYCHOLOGIST)) {
             // 重置心理学家组件
-            PsychologistRoleData psychComponent = RoleData.getNullable(PsychologistRoleData.class, player);
-            if (RoleData.isAttached(psychComponent))
-                psychComponent.init();
+            PsychologistPlayerComponent psychComponent = ModComponents.PSYCHOLOGIST.get(player);
+            psychComponent.init();
         }
 
         // ==================== 傀儡师角色处理 ====================
         if (role.equals(ModRoles.PUPPETEER)) {
-            PuppeteerRoleData puppeteerComponent = RoleData.getNullable(PuppeteerRoleData.class, player);
+            PuppeteerPlayerComponent puppeteerComponent = ModComponents.PUPPETEER.get(player);
             SREGameWorldComponent gameWorld = SREGameWorldComponent.KEY.get(player.level());
 
             // 只有在游戏进行中且傀儡师已被标记时才保留状态（假人死亡返回本体的情况）
             // 游戏结束或新分配角色时都应该重置组件
             boolean isGameRunning = gameWorld != null && gameWorld.isRunning();
-            if (RoleData.isAttached(puppeteerComponent)) {
-                if (isGameRunning && puppeteerComponent.isPuppeteerMarked) {
-                    LOGGER.info("Puppeteer returned to body - keeping existing state");
-                } else {
-                    LOGGER.info("Puppeteer reset - new game or new puppeteer assignment");
-                    puppeteerComponent.init();
-                }
+            if (isGameRunning && puppeteerComponent.isPuppeteerMarked) {
+                LOGGER.info("Puppeteer returned to body - keeping existing state");
+            } else {
+                LOGGER.info("Puppeteer reset - new game or new puppeteer assignment");
+                puppeteerComponent.init();
             }
         }
 
@@ -438,9 +417,8 @@ public class RicesRoleRhapsody implements ModInitializer {
 
         // ==================== 建筑师角色处理 ====================
         if (role.equals(ModRoles.BUILDER)) {
-            org.agmas.noellesroles.role_data.innocence.BuilderRoleData builderComponent = RoleData.getNullable(BuilderRoleData.class, player);
-            if (RoleData.isAttached(builderComponent))
-                builderComponent.init();
+            org.agmas.noellesroles.game.roles.innocence.builder.BuilderPlayerComponent builderComponent = org.agmas.noellesroles.component.ModComponents.BUILDER.get(player);
+            builderComponent.init();
         }
         // if (role.equals(ModRoles.EXAMPLE_ROLE)) {
         // // 给予物品

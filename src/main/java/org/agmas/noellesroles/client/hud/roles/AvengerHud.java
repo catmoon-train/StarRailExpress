@@ -15,7 +15,6 @@
 
 package org.agmas.noellesroles.client.hud.roles;
 
-import io.wifi.starrailexpress.api.data.RoleData;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
@@ -23,7 +22,7 @@ import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.CommonColors;
 import org.agmas.noellesroles.client.event.RoleHudRenderCallback;
-import org.agmas.noellesroles.role_data.innocence.AvengerRoleData;
+import org.agmas.noellesroles.game.roles.innocence.avenger.AvengerPlayerComponent;
 import org.agmas.noellesroles.role.ModRoles;
 import pro.fazeclan.river.stupid_express.modifier.refugee.cca.RefugeeComponent;
 
@@ -38,7 +37,7 @@ public class AvengerHud {
             Minecraft client = Minecraft.getInstance();
             final Font renderer = client.font;
             final LocalPlayer player = client.player;
-            AvengerRoleData avengerComponent = RoleData.getNullable(AvengerRoleData.class, player);
+            AvengerPlayerComponent avengerComponent = AvengerPlayerComponent.KEY.get(player);
 
             context.pose().pushPose();
 
@@ -56,7 +55,7 @@ public class AvengerHud {
                         .withStyle(ChatFormatting.GRAY);
                 context.drawString(renderer, waitingText, screenWidth - 18 - renderer.width(waitingText), yOffset,
                         CommonColors.GRAY);
-            } else if (avengerComponent != null && avengerComponent.activated) {
+            } else if (avengerComponent.activated) {
                 // 复仇已激活 - 显示凶手信息
                 Component statusText = Component.translatable("tip.noellesroles.avenger.activated",
                         avengerComponent.getKillerName().isEmpty() ? "???" : avengerComponent.getKillerName())
@@ -75,7 +74,7 @@ public class AvengerHud {
                             .withStyle(ChatFormatting.RED);
                     context.drawString(renderer, killerName, xOffset + 16, yOffset - 12, CommonColors.RED);
                 }
-            } else if (avengerComponent != null && avengerComponent.bound && avengerComponent.targetPlayer != null) {
+            } else if (avengerComponent.bound && avengerComponent.targetPlayer != null) {
                 // 已绑定目标 - 显示保护目标
                 var target = client.player.connection.getPlayerInfo(avengerComponent.targetPlayer);
                 if (target != null) {
@@ -87,7 +86,7 @@ public class AvengerHud {
                             avengerComponent.targetName).withStyle(ChatFormatting.GOLD);
                     context.drawString(renderer, targetText, xOffset + 16, yOffset + 2, 0xFFAA00);
                 }
-            } else if (avengerComponent != null) {
+            } else {
                 // 等待绑定目标
                 Component waitingText = Component.translatable("tip.noellesroles.avenger.waiting")
                         .withStyle(ChatFormatting.GRAY);

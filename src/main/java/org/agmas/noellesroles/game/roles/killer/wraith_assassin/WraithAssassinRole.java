@@ -15,8 +15,6 @@
 
 package org.agmas.noellesroles.game.roles.killer.wraith_assassin;
 
-import org.agmas.noellesroles.role_data.killer.WraithAssassinRoleData;
-import io.wifi.starrailexpress.api.data.RoleData;
 import io.wifi.starrailexpress.api.ExtraEffectRole;
 import io.wifi.starrailexpress.util.TrueFalseResult;
 import net.minecraft.resources.ResourceLocation;
@@ -33,8 +31,8 @@ public class WraithAssassinRole extends ExtraEffectRole {
 
     @Override
     public TrueFalseResult onPickUpItem(Player player, ItemStack item) {
-        var comp = RoleData.getNullable(WraithAssassinRoleData.class, player);
-        if (RoleData.isAttached(comp) && comp.isInDimension()) {
+        var comp = WraithAssassinPlayerComponent.KEY.maybeGet(player).orElse(null);
+        if (comp != null && comp.isInDimension()) {
             return TrueFalseResult.FALSE;
         }
         return super.onPickUpItem(player, item);

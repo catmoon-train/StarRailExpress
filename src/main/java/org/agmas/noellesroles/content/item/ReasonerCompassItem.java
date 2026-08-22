@@ -15,7 +15,6 @@
 
 package org.agmas.noellesroles.content.item;
 
-import io.wifi.starrailexpress.api.data.RoleData;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.game.GameUtils;
 import net.minecraft.ChatFormatting;
@@ -27,7 +26,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
-import org.agmas.noellesroles.role_data.neutral.ReasonerRoleData;
+import org.agmas.noellesroles.game.roles.neutral.reasoner.ReasonerPlayerComponent;
 import org.agmas.noellesroles.role.ModRoles;
 
 public class ReasonerCompassItem extends Item {
@@ -49,7 +48,7 @@ public class ReasonerCompassItem extends Item {
             return InteractionResultHolder.fail(stack);
         }
 
-        RoleData.ifPresent(ReasonerRoleData.class, player, d -> d.openCompass(serverPlayer));
+        ReasonerPlayerComponent.KEY.get(player).openCompass(serverPlayer);
         return InteractionResultHolder.sidedSuccess(stack, level.isClientSide);
     }
 }

@@ -15,8 +15,6 @@
 
 package org.agmas.noellesroles.game.roles.neutral.gambler;
 
-import org.agmas.noellesroles.role_data.neutral.GamblerRoleData;
-import io.wifi.starrailexpress.api.data.RoleData;
 import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.cca.AreasWorldComponent;
@@ -59,7 +57,7 @@ public class GamblerRole extends SRERole {
     public void onFinishQuest(Player player, String quest) {
         if (player.level().isClientSide())
             return;
-        RoleData.ifPresent(GamblerRoleData.class, player, GamblerRoleData::drawNewRole);
+        GamblerPlayerComponent.KEY.get(player).drawNewRole();
     }
 
     /**
@@ -78,9 +76,7 @@ public class GamblerRole extends SRERole {
             return false;
 
         if (player.isShiftKeyDown()) {
-            GamblerRoleData gamblerPlayerComponent = RoleData.getNullable(GamblerRoleData.class, player);
-            if (!RoleData.isAttached(gamblerPlayerComponent))
-                return false;
+            GamblerPlayerComponent gamblerPlayerComponent = GamblerPlayerComponent.KEY.get(player);
             gamblerPlayerComponent.usedAbility = true;
             if (player instanceof ServerPlayer)
                 ConfigWorldComponent.onPlayerUsedSkill((ServerPlayer) player);

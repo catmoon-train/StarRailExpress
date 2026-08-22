@@ -15,7 +15,6 @@
 
 package org.agmas.noellesroles.init.events;
 
-import io.wifi.starrailexpress.api.data.RoleData;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.client.SREClient;
 import io.wifi.starrailexpress.event.OnPlayerDeath;
@@ -30,8 +29,8 @@ import org.agmas.noellesroles.content.entity.PuppeteerBodyEntity;
 import org.agmas.noellesroles.content.entity.SREMinecart;
 import org.agmas.noellesroles.content.entity.WheelchairEntity;
 import org.agmas.noellesroles.game.modes.ChairWheelRaceGame;
-import org.agmas.noellesroles.role_data.innocence.SaltedFishRoleData;
-import org.agmas.noellesroles.role_data.killer.InsaneKillerRoleData;
+import org.agmas.noellesroles.game.roles.innocence.salted_fish.SaltedFishPlayerComponent;
+import org.agmas.noellesroles.game.roles.killer.insane_killer.InsaneKillerPlayerComponent;
 import org.agmas.noellesroles.init.ModEffects;
 import org.agmas.noellesroles.init.ModItems;
 import org.agmas.noellesroles.role.ModRoles;
@@ -103,12 +102,12 @@ public class NRRulePredicateEvents {
         CollisionRules.cantCollide.add(a -> {
             final var gameWorldComponent = SREGameWorldComponent.KEY.get(a.level());
             if (gameWorldComponent.isRole(a, ModRoles.INSANE_KILLER)) {
-                if (RoleData.test(InsaneKillerRoleData.class, a, d -> d.isActive)) {
+                if (InsaneKillerPlayerComponent.KEY.get(a).isActive) {
                     return true;
                 }
             }
             if (gameWorldComponent.isRole(a, ModRoles.SALTED_FISH)) {
-                if (RoleData.test(SaltedFishRoleData.class, a, d -> d.isActive())) {
+                if (SaltedFishPlayerComponent.KEY.get(a).isActive()) {
                     return true;
                 }
             }
@@ -142,14 +141,14 @@ public class NRRulePredicateEvents {
                         return true;
                     }
                     if (gameComp.isRole(player, ModRoles.SALTED_FISH)) {
-                        if (RoleData.test(SaltedFishRoleData.class, player, d -> d.isActive())) {
+                        if (SaltedFishPlayerComponent.KEY.get(player).isActive()) {
                             return true;
                         }
 
                     }
                     if (gameComp.isRole(player, ModRoles.INSANE_KILLER)) {
-                        InsaneKillerRoleData insaneKiller = RoleData.getNullable(InsaneKillerRoleData.class, player);
-                        if (insaneKiller != null && insaneKiller.isActive) {
+                        InsaneKillerPlayerComponent insaneKiller = InsaneKillerPlayerComponent.KEY.get(player);
+                        if (insaneKiller.isActive) {
                             return true;
                         }
                     }

@@ -15,7 +15,6 @@
 
 package org.agmas.noellesroles.client;
 
-import io.wifi.starrailexpress.api.data.RoleData;
 import io.wifi.starrailexpress.client.SREClient;
 import io.wifi.starrailexpress.game.GameUtils;
 import net.minecraft.ChatFormatting;
@@ -23,7 +22,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Player;
 import org.agmas.noellesroles.client.event.RoleHudRenderCallback;
-import org.agmas.noellesroles.role_data.neutral.WayfarerRoleData;
+import org.agmas.noellesroles.game.roles.neutral.wayfarer.WayfarerPlayerComponent;
 import org.agmas.noellesroles.role.ModRoles;
 
 import java.awt.*;
@@ -49,9 +48,7 @@ public class WayfarerHudRenderer {
             final int lineHeight = (font.lineHeight + 8);
             int yOffset = screenHeight - lineHeight * 4; // 左下角
             int xOffset = 30; // 距离左边缘
-            var wayC = RoleData.getNullable(WayfarerRoleData.class, client.player);
-            if (wayC == null)
-                return;
+            var wayC = WayfarerPlayerComponent.KEY.get(client.player);
             Component phaseText = Component
                     .translatable("hud.noellesroles.wayfarer.phase." + wayC.phase + ".title")
                     .withStyle(ChatFormatting.AQUA, ChatFormatting.BOLD);

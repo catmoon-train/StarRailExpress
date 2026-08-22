@@ -1,0 +1,1188 @@
+/*
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ */
+
+package org.agmas.noellesroles.game.roles.neutral.thief;
+
+import io.wifi.starrailexpress.SRE;
+import io.wifi.starrailexpress.api.RoleComponent;
+import io.wifi.starrailexpress.api.replay.GameReplayUtils;
+import io.wifi.starrailexpress.cca.SREGameWorldComponent;
+import io.wifi.starrailexpress.cca.SREPlayerShopComponent;
+import io.wifi.starrailexpress.game.GameUtils;
+import io.wifi.starrailexpress.index.TMMItems;
+import io.wifi.starrailexpress.index.tag.TMMItemTags;
+import net.minecraft.ChatFormatting;
+import net.minecraft.core.HolderLookup;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
+import org.agmas.noellesroles.ConfigWorldComponent;
+import org.agmas.noellesroles.Noellesroles;
+import org.agmas.noellesroles.init.FunnyItems;
+import org.agmas.noellesroles.init.ModEffects;
+import org.agmas.noellesroles.init.ModItems;
+import org.agmas.noellesroles.role.ModRoles;
+import org.agmas.noellesroles.utils.RoleUtils;
+import org.jetbrains.annotations.NotNull;
+import org.ladysnake.cca.api.v3.component.ComponentKey;
+import org.ladysnake.cca.api.v3.component.ComponentRegistry;
+import org.ladysnake.cca.api.v3.component.tick.ClientTickingComponent;
+import org.ladysnake.cca.api.v3.component.tick.ServerTickingComponent;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.OptionalInt;
+
+/**
+ * 小偷玩家组件
+ *
+ * 中立阵营，假心情，无限冲刺时间
+ *
+ * 技能：
+ * - 蹲下按技能键切换偷钱/偷物品模式
+ * - 按技能键释放技能（冷却30s，偷取失败不进入冷却）
+ * - 偷钱：偷取目标100金币（目标必须至少有100金币）
+ * - 偷物品：仿照StupidExpress2的小偷机制
+ *
+ * 被动：
+ * - 杀一人获得100金币
+ *
+ * 独立胜利条件：
+ * - 场上存在小偷时游戏不结束
+ * - 手持小偷的荣誉（金锭）回房间睡觉则独立胜利
+ * - 小偷的荣誉所需金币数 = 游戏开始总人数 * 75
+ */
+public class ThiefPlayerComponent implements RoleComponent, ServerTickingComponent, ClientTickingComponent {
+
+    public int honorCost = 0;
+    /** 组件键 */
+    public static final ComponentKey<ThiefPlayerComponent> KEY = ComponentRegistry.getOrCreate(
+            ResourceLocation.fromNamespaceAndPath(Noellesroles.MOD_ID, "thief"),
+            ThiefPlayerComponent.class);
+
+    /** 技能冷却时间（30秒 = 600 tick） */
+    public static final int ABILITY_COOLDOWN = 30 * 20;
+
+    /** 每次偷钱金额 */
+    public static final int STEAL_MONEY_AMOUNT = 100;
+
+    /** 购买小偷的荣誉所需的金币基数 */
+    public static final int HONOR_COST_PER_PLAYER = 55;
+
+    /** 偷钱模式 */
+    public static final int MODE_STEAL_MONEY = 0;
+
+    /** 偷物品模式 */
+    public static final int MODE_STEAL_ITEM = 1;
+
+    /** 卖物品模式 */
+    public static final int MODE_SELL_ITEM = 2;
+
+    /** 通知延迟时间（10秒 = 200 tick） */
+    public static final int NOTIFICATION_DELAY = 10 * 20;
+
+    private final Player player;
+
+    /** 技能冷却 */
+    public int cooldown = 0;
+
+    /** 当前模式：0=偷钱, 1=偷物品 */
+    public int currentMode = MODE_STEAL_MONEY;
+
+    /** 是否在偷取选择界面（蹲下状态） */
+    public boolean isInSelectionMode = false;
+
+    /** 待通知的被偷取信息列表 */
+    public java.util.List<PendingNotification> pendingNotifications = new java.util.ArrayList<>();
+
+    /**
+     * 待通知的被偷取信息
+     */
+    public static class PendingNotification {
+        public ServerPlayer targetPlayer;
+        public String messageKey;
+        public Object[] messageArgs;
+        public int delayTicks;
+
+        public PendingNotification(ServerPlayer targetPlayer, String messageKey, Object[] messageArgs, int delayTicks) {
+            this.targetPlayer = targetPlayer;
+            this.messageKey = messageKey;
+            this.messageArgs = messageArgs;
+            this.delayTicks = delayTicks;
+        }
+    }
+
+    /**
+     * 构造函数
+     */
+    public ThiefPlayerComponent(Player player) {
+        this.player = player;
+    }
+
+    @Override
+    public Player getPlayer() {
+        return player;
+    }
+
+    @Override
+    public void init() {
+        this.cooldown = ABILITY_COOLDOWN;
+        this.currentMode = MODE_STEAL_MONEY;
+        this.isInSelectionMode = false;
+        this.sync();
+    }
+
+    @Override
+    public void clear() {
+        this.init();
+        this.pendingNotifications.clear();
+    }
+
+    public void updateHonorCost(int allPlayer) {
+        this.honorCost = getHonorCost(allPlayer);
+        sync();
+    }
+
+    /**
+     * 切换偷取模式（蹲下按技能键）- 不受冷却影响
+     */
+    public void toggleMode() {
+        if (this.currentMode == MODE_STEAL_MONEY) {
+            this.currentMode = MODE_STEAL_ITEM;
+        } else if (this.currentMode == MODE_STEAL_ITEM) {
+            this.currentMode = MODE_SELL_ITEM;
+        } else {
+            this.currentMode = MODE_STEAL_MONEY;
+        }
+
+        if (player instanceof ServerPlayer serverPlayer) {
+            Component message;
+            if (this.currentMode == MODE_STEAL_MONEY) {
+                message = Component.translatable("message.noellesroles.thief.mode.money")
+                        .withStyle(ChatFormatting.GOLD);
+            } else if (this.currentMode == MODE_STEAL_ITEM) {
+                message = Component.translatable("message.noellesroles.thief.mode.item")
+                        .withStyle(ChatFormatting.AQUA);
+            } else {
+                message = Component.translatable("message.noellesroles.thief.mode.sell")
+                        .withStyle(ChatFormatting.GREEN);
+            }
+            serverPlayer.displayClientMessage(message, true);
+        }
+
+        this.sync();
+    }
+
+    /**
+     * 尝试使用技能（按技能键释放）
+     *
+     * @return 是否成功释放技能
+     */
+    public boolean useAbility() {
+        if (!(player instanceof ServerPlayer serverPlayer)) {
+            return false;
+        }
+        var gameWorldComponent = SREGameWorldComponent.KEY.get(player.level());
+        if (!gameWorldComponent.isSkillAvailable) {
+            return false;
+        }
+        // 检查冷却（卖物品模式不需要冷却）
+        if (this.cooldown > 0 && this.currentMode != MODE_SELL_ITEM) {
+            return false;
+        }
+
+        SREGameWorldComponent gameWorld = SREGameWorldComponent.KEY.get(player.level());
+
+        // 检查角色
+        if (!gameWorld.isRole(player, ModRoles.THIEF)) {
+            return false;
+        }
+
+        if (this.currentMode == MODE_SELL_ITEM) {
+            return sellItem();
+        }
+
+        // 获取当前看向的目标玩家
+        Player target = getLookedAtPlayer();
+        if (target == null) {
+            serverPlayer.displayClientMessage(
+                    Component.translatable("message.noellesroles.thief.no_target")
+                            .withStyle(ChatFormatting.RED),
+                    true);
+            return true; // 失败不进入冷却
+        }
+        ConfigWorldComponent.onPlayerUsedSkill((ServerPlayer) serverPlayer);
+        if (this.currentMode == MODE_STEAL_MONEY) {
+            return stealMoney(target);
+        } else {
+            return stealItem(target);
+        }
+    }
+
+    /**
+     * 偷钱
+     */
+    private boolean stealMoney(Player target) {
+        if (!(player instanceof ServerPlayer serverPlayer) || !(target instanceof ServerPlayer targetPlayer)) {
+            return false;
+        }
+
+        // 检查目标是否被淘汰
+        if (GameUtils.isPlayerEliminated(target)) {
+            serverPlayer.displayClientMessage(
+                    Component.translatable("message.noellesroles.thief.target_eliminated")
+                            .withStyle(ChatFormatting.RED),
+                    true);
+            return true; // 失败不进入冷却
+        }
+
+        // 获取目标金钱
+        SREPlayerShopComponent targetShop = SREPlayerShopComponent.KEY.get(target);
+        int targetBalance = targetShop.balance;
+
+        // 计算偷取金额：目标40%的金币，最低为100金币
+        int stealAmount = Math.max(STEAL_MONEY_AMOUNT, targetBalance * 40 / 100);
+
+        // 检查目标金币是否足够
+        if (targetBalance < STEAL_MONEY_AMOUNT) {
+            serverPlayer.displayClientMessage(
+                    Component.translatable("message.noellesroles.thief.not_enough_money",
+                            target.getName())
+                            .withStyle(ChatFormatting.RED),
+                    true);
+            return true; // 失败不进入冷却
+        }
+
+        // 偷取金币
+        targetShop.balance -= stealAmount;
+        targetShop.sync();
+
+        SREPlayerShopComponent thiefShop = SREPlayerShopComponent.KEY.get(player);
+        thiefShop.balance += stealAmount;
+        thiefShop.sync();
+
+        // 通知小偷
+        serverPlayer.displayClientMessage(
+                Component.translatable("message.noellesroles.thief.stole_money",
+                        target.getName(),
+                        stealAmount)
+                        .withStyle(ChatFormatting.GOLD),
+                true);
+
+        // 延迟10秒通知被偷者
+        pendingNotifications.add(new PendingNotification(
+                targetPlayer,
+                "message.noellesroles.thief.money_stolen",
+                new Object[] { stealAmount },
+                NOTIFICATION_DELAY));
+
+        // 成功偷取，进入冷却
+        this.cooldown = ABILITY_COOLDOWN;
+        this.sync();
+
+        // 回放记录：小偷偷钱
+        SRE.REPLAY_MANAGER.recordCustomEvent(
+                Component.translatable("replay.event.thief.steal_money",
+                        GameReplayUtils.getReplayPlayerDisplayText(player, true),
+                        GameReplayUtils.getReplayPlayerDisplayText(targetPlayer, true),
+                        Component.literal(String.valueOf(stealAmount))));
+
+        return true;
+    }
+
+    /**
+     * 偷物品（仿照StupidExpress2的小偷）
+     */
+    public static class StolenableItemInfo {
+        public int slot;
+        public ItemStack itemStack;
+
+        public StolenableItemInfo(int slot, ItemStack itemStack) {
+            this.slot = slot;
+            this.itemStack = itemStack;
+        }
+    }
+
+    private boolean stealItem(Player target) {
+        if (!(player instanceof ServerPlayer serverPlayer) || !(target instanceof ServerPlayer targetPlayer)) {
+            return false;
+        }
+
+        // 检查目标是否被淘汰
+        if (GameUtils.isPlayerEliminated(target)) {
+            serverPlayer.displayClientMessage(
+                    Component.translatable("message.noellesroles.thief.target_eliminated")
+                            .withStyle(ChatFormatting.RED),
+                    true);
+            return true;
+        }
+
+        // 统计可偷取物品数量
+        var gameWorldComponent = SREGameWorldComponent.KEY.get(target.level());
+
+        ArrayList<StolenableItemInfo> arr = new ArrayList<>();
+        for (int i = 0; i < target.getInventory().items.size(); i++) {
+            ItemStack stack = target.getInventory().items.get(i);
+            if (!stack.isEmpty() && canStealItem(stack, target, gameWorldComponent)) {
+                arr.add(new StolenableItemInfo(i, stack));
+            }
+        }
+
+        // 如果没有可偷物品
+        if (arr.size() <= 0) {
+            serverPlayer.displayClientMessage(
+                    Component.translatable("message.noellesroles.thief.no_stealable_items",
+                            target.getName())
+                            .withStyle(ChatFormatting.YELLOW),
+                    true);
+            return true; // 没有物品可偷，不进入冷却
+        }
+        // 优先偷钥匙以外的物品，如果没有则偷钥匙
+        ArrayList<StolenableItemInfo> nonKeyItems = new ArrayList<>();
+        ArrayList<StolenableItemInfo> keyItems = new ArrayList<>();
+        for (StolenableItemInfo info : arr) {
+            if (info.itemStack.is(TMMItems.KEY)) {
+                keyItems.add(info);
+            } else {
+                nonKeyItems.add(info);
+            }
+        }
+
+        StolenableItemInfo stoleninfo;
+        if (!nonKeyItems.isEmpty()) {
+            Collections.shuffle(nonKeyItems);
+            stoleninfo = nonKeyItems.getFirst();
+        } else {
+            Collections.shuffle(keyItems);
+            stoleninfo = keyItems.getFirst();
+        }
+
+        if (stoleninfo.slot == -1 || stoleninfo.itemStack.isEmpty()) {
+            return true;
+        }
+
+        // 先获取物品名称（在移除之前）
+        Component itemName = stoleninfo.itemStack.getDisplayName();
+
+        // 检查是否是球棒（需要特殊处理）
+        boolean isBat = stoleninfo.itemStack.is(TMMItems.BAT);
+
+        // 检查小偷背包是否有空间
+        if (isBat) {
+            stoleninfo.itemStack = ItemStack.EMPTY;
+        }
+        final var item = stoleninfo.itemStack.copy();
+        boolean canAdd = RoleUtils.insertStackInFreeSlot(serverPlayer, item);
+
+        if (!canAdd) {
+            // 背包满了，归还物品给目标
+            serverPlayer.displayClientMessage(
+                    Component.translatable("message.noellesroles.thief.inventory_full")
+                            .withStyle(ChatFormatting.RED),
+                    true);
+            return true; // 失败不进入冷却
+        }
+
+        // 检查是否真正偷到了物品（不是EMPTY）
+        if (stoleninfo.itemStack.isEmpty()) {
+            // 没有真正偷到物品
+            if (isBat) {
+                // 偷到了球棒，显示球棒氧化消息
+                serverPlayer.displayClientMessage(
+                        Component.translatable("message.noellesroles.thief.stole_item_failed",
+                                target.getName(),
+                                itemName)
+                                .withStyle(ChatFormatting.AQUA),
+                        true);
+            } else {
+                // 其他情况显示偷取失败
+                serverPlayer.displayClientMessage(
+                        Component.translatable("message.noellesroles.thief.steal_failed",
+                                target.getName())
+                                .withStyle(ChatFormatting.RED),
+                        true);
+            }
+            return true; // 失败不进入冷却，不通知被偷者
+        }
+
+        // 成功从目标背包移除物品
+        target.getInventory().items.set(stoleninfo.slot, ItemStack.EMPTY);
+        // 通知小偷
+        serverPlayer.displayClientMessage(
+                Component.translatable("message.noellesroles.thief.stole_item",
+                        target.getName(),
+                        itemName)
+                        .withStyle(ChatFormatting.AQUA),
+                true);
+
+        // 延迟10秒通知被偷者
+        pendingNotifications.add(new PendingNotification(
+                targetPlayer,
+                "message.noellesroles.thief.item_stolen",
+                new Object[] { itemName },
+                NOTIFICATION_DELAY));
+
+        // 成功偷取，进入冷却
+        this.cooldown = ABILITY_COOLDOWN;
+        this.sync();
+
+        // 回放记录：小偷偷物品
+        SRE.REPLAY_MANAGER.recordCustomEvent(
+                Component.translatable("replay.event.thief.steal_item",
+                        GameReplayUtils.getReplayPlayerDisplayText(player, true),
+                        GameReplayUtils.getReplayPlayerDisplayText(targetPlayer, true), item.getDisplayName()));
+
+        return true;
+    }
+
+    /**
+     * 判断物品是否可以被偷取
+     * 只允许偷取指定的武器和道具
+     */
+    private boolean canStealItem(ItemStack stack, Player target, SREGameWorldComponent gameWorldComponent) {
+        if (stack.isEmpty())
+            return false;
+
+        // 禁止偷取的物品
+        // 金锭（小偷的荣誉）
+        if (stack.is(Items.GOLD_INGOT))
+            return false;
+        // 只允许偷取以下物品：
+
+        // 枪械类
+
+        if (stack.is(ModItems.BANDIT_REVOLVER))
+            return true; // 匪徒手枪
+        if (stack.is(ModItems.ONCE_REVOLVER))
+            return true; // 一次性手枪
+        if (stack.is(TMMItemTags.GUNS)) {
+            if (gameWorldComponent.isKillerTeam(target)) {
+                return true;
+            }
+            return false;
+        }
+
+        // 武器类
+        if (stack.is(TMMItems.KNIFE))
+            return true; // 匕首
+        if (stack.is(TMMItems.BAT))
+            return true; // 球棒（小巧思）
+
+        // 投掷物类
+        if (stack.is(TMMItems.GRENADE))
+            return true; // 手榴弹
+        if (stack.is(TMMItems.FIRECRACKER))
+            return true; // 鞭炮
+        if (stack.is(ModItems.BOMB))
+            return true; // 炸弹
+        if (stack.is(ModItems.C4))
+            return true; // C4炸药
+
+        // 道具类
+        if (stack.is(TMMItems.SCORPION))
+            return true; // 蝎子
+        if (stack.is(TMMItems.POISON_VIAL))
+            return true; // 毒药瓶
+        if (stack.is(TMMItems.CROWBAR))
+            return true; // 撬棍
+        if (stack.is(TMMItems.LOCKPICK))
+            return true; // 开锁器
+        if (stack.is(ModItems.INFERIOR_LOCKPICK))
+            return true; // 劣质开锁器
+        if (stack.is(TMMItems.BODY_BAG))
+            return true; // 裹尸袋
+        if (stack.is(TMMItems.NOTE))
+            return true; // 纸条
+        if (stack.is(ModItems.HANDCUFFS))
+            return true; // 手铐
+
+        // 特殊物品类（来自HSRItems）
+        if (stack.is(ModItems.TOXIN))
+            return true; // 毒针
+        if (stack.is(ModItems.ANTIDOTE))
+            return true; // 解药
+
+        // NoellesRoles 特殊物品
+        if (stack.is(ModItems.BOXING_GLOVE))
+            return true; // 拳套
+        if (stack.is(ModItems.DEFIBRILLATOR))
+            return true; // 除颤仪
+        if (stack.is(ModItems.DELUSION_VIAL))
+            return true; // 幻觉试剂
+        if (stack.is(ModItems.ANTIDOTE_REAGENT))
+            return true; // 解药试剂
+        if (stack.is(ModItems.BLANK_CARTRIDGE))
+            return true; // 空包弹
+        if (stack.is(ModItems.SMOKE_GRENADE))
+            return true; // 烟雾弹
+        if (stack.is(ModItems.SCREWDRIVER))
+            return true; // 加固门道具
+        if (stack.is(ModItems.REINFORCEMENT))
+            return true; // 加固门道具
+        if (stack.is(ModItems.ALARM_TRAP))
+            return true; // 警报陷阱
+        if (stack.is(ModItems.LOCK_ITEM))
+            return true; // 锁
+        if (stack.is(ModItems.DELIVERY_BOX))
+            return true; // 传递盒
+        if (stack.is(ModItems.HALLUCINATION_BOTTLE))
+            return true; // 迷幻瓶
+        if (stack.is(ModItems.NIGHT_VISION_GLASSES))
+            return true; // 夜视镜
+        if (stack.is(ModItems.WHEELCHAIR))
+            return true; // 轮椅
+
+        // 投掷物
+        if (stack.is(ModItems.CHLORINE_BOMB))
+            return true; // 毒气弹
+        if (stack.is(ModItems.PURIFY_BOMB))
+            return true; // 净化弹
+        if (stack.is(ModItems.FLASH_GRENADE))
+            return true; // 闪光弹
+        if (stack.is(ModItems.DECOY_GRENADE))
+            return true; // 诱饵弹
+        if (stack.is(ModItems.POISON_GAS_TANK))
+            return true; // 毒气瓶
+
+        // 护盾试剂（来自TMM）
+        if (stack.is(TMMItems.DEFENSE_VIAL))
+            return true; // 护盾试剂
+        if (stack.is(TMMItems.WEAK_DEFENSE_VIAL))
+            return true; // 弱效护盾试剂
+
+        if (stack.is(TMMItems.KEY))
+            return true;
+        // 万能钥匙和乘务员钥匙
+        if (stack.is(ModItems.MASTER_KEY))
+            return true;
+        if (stack.is(ModItems.MASTER_KEY_P))
+            return true;
+
+        // ==================== 新增可偷物品 ====================
+
+        // 血瓶
+        if (stack.is(ModItems.BLOOD_BOTTLE))
+            return true;
+        // 画板
+        if (stack.is(TMMItems.DRAWING_BOARD))
+            return true;
+        // 巨大便签
+        if (stack.is(ModItems.GIANT_NOTE))
+            return true;
+        // 药丸
+        if (stack.is(ModItems.PILL))
+            return true;
+        // 硫酸桶
+        if (stack.is(ModItems.BUCKET_OF_H2SO4))
+            return true;
+        // 苦无 / 手里剑
+        if (stack.is(ModItems.NINJA_KNIFE))
+            return true;
+        if (stack.is(ModItems.NINJA_SHURIKEN))
+            return true;
+        // 潜水头盔 / 潜水靴
+        if (stack.is(ModItems.DIVING_HELMET))
+            return true;
+        if (stack.is(ModItems.DIVING_BOOTS))
+            return true;
+        // 喷气背包
+        if (stack.is(ModItems.JETPACK))
+            return true;
+        // 毒液试剂（毒师）
+        if (stack.is(ModItems.TOILET_POISON))
+            return true;
+        // 短管霰弹枪
+        if (stack.is(ModItems.SHORT_SHOTGUN))
+            return true;
+        // 防暴盾牌 / 警棍 / 对讲机 / 远程监控终端
+        if (stack.is(ModItems.RIOT_SHIELD))
+            return true;
+        if (stack.is(ModItems.BATON))
+            return true;
+        if (stack.is(ModItems.RADIO))
+            return true;
+        if (stack.is(ModItems.MONITORING_TERMINAL))
+            return true;
+        // 怀表
+        if (stack.is(ModItems.POCKET_WATCH))
+            return true;
+        // 肾上腺素 / 抗生素 / 鹤顶红 / 狗皮膏药 / 维生素
+        if (stack.is(ModItems.ADRENALINE))
+            return true;
+        if (stack.is(ModItems.ANTIBIOTIC))
+            return true;
+        if (stack.is(ModItems.HEDINGHONG))
+            return true;
+        if (stack.is(ModItems.DOGSKIN_PLASTER))
+            return true;
+        if (stack.is(ModItems.ALCHEMIST_BUFF_POTION))
+            return true;
+        // 消防斧 / 飞刀 / 绳索 / 钳子 / 灭火器
+        if (stack.is(ModItems.FIRE_AXE))
+            return true;
+        if (stack.is(ModItems.THROWING_KNIFE))
+            return true;
+        if (stack.is(ModItems.ROPE))
+            return true;
+        if (stack.is(ModItems.CAMERA_SHEARS))
+            return true;
+        if (stack.is(ModItems.EXTINGUISHER))
+            return true;
+        // 存折 / 空白签名纸 / 生死状 / 不知道谁的签名纸 / 未签订的契约
+        if (stack.is(ModItems.PASSBOOK))
+            return true;
+        if (stack.is(ModItems.SIGNATURE_PAPER))
+            return true;
+        if (stack.is(ModItems.LIFE_AND_DEATH_SHAPE))
+            return true;
+        if (stack.is(ModItems.SIGNED_PAPER))
+            return true;
+        if (stack.is(ModItems.MERCENARY_CONTRACT))
+            return true;
+        // 零一五 / 尊名纸条 / 灵性斗篷
+        if (stack.is(ModItems.ZERO_ONE_FIVE_GUN))
+            return true;
+        if (stack.is(ModItems.HONORED_NOTE))
+            return true;
+        if (stack.is(ModItems.SPIRIT_CLOAK))
+            return true;
+
+        // 拆弹钳
+        if (stack.is(ModItems.PLIERS))
+            return true;
+        // 铁门钥匙
+        if (stack.is(TMMItems.IRON_DOOR_KEY))
+            return true;
+        // 巧匠钥匙
+        if (stack.is(ModItems.NOELL_ARTISAN_KEY))
+            return true;
+        // 回形针
+        if (stack.is(ModItems.NOELL_PAPERCLIP))
+            return true;
+        // 习题集
+        if (stack.is(FunnyItems.PROBLEM_SET))
+            return true;
+        // 十四夜
+        if (stack.is(FunnyItems.SHISIYE))
+            return true;
+        // 照明弹
+        if (stack.is(ModItems.FLARE))
+            return true;
+        // 催化剂
+        if (stack.is(ModItems.CATALYST))
+            return true;
+        // 假刀
+        if (stack.is(ModItems.FAKE_KNIFE))
+            return true;
+        // 假左轮手枪
+        if (stack.is(ModItems.FAKE_REVOLVER))
+            return true;
+        // 假球棒
+        if (stack.is(ModItems.FAKE_BAT))
+            return true;
+        // 假手雷
+        if (stack.is(ModItems.FAKE_GRENADE))
+            return true;
+        // 假开锁器
+        if (stack.is(ModItems.FAKE_LOCKPICK))
+            return true;
+        // 假撬棍
+        if (stack.is(ModItems.FAKE_CROWBAR))
+            return true;
+        // 假裹尸袋
+        if (stack.is(ModItems.FAKE_BODY_BAG))
+            return true;
+        // 沉默图腾
+        if (stack.is(ModItems.SILENCE_TOTEM))
+            return true;
+        // 破法药剂
+        if (stack.is(ModItems.SPELLBREAKER_POTION))
+            return true;
+        // 时停钟
+        if (stack.is(ModItems.TIME_STOP_CLOCK))
+            return true;
+
+        // 弹幕 / 石粒架 / 前人留下的马铠 / 花圈
+        if (stack.is(ModItems.DANMUKU))
+            return true;
+        if (stack.is(ModItems.SHILIJIA))
+            return true;
+        if (stack.is(ModItems.PREDECESSOR_HORSE_ARMOR))
+            return true;
+        if (stack.is(ModItems.WREATH))
+            return true;
+        // 巧克力 / 安神茶 / 蓝色草药 / 红色草药 / 提神咖啡
+        if (stack.is(ModItems.CHOCOLATE))
+            return true;
+        if (stack.is(ModItems.CALMING_TEA))
+            return true;
+        if (stack.is(ModItems.LEON_BLUE_HERB))
+            return true;
+        if (stack.is(ModItems.LEON_RED_HERB))
+            return true;
+        if (stack.is(ModItems.ENERGIZING_COFFEE))
+            return true;
+        // 护身符 / 荷官包裹 / 飞斧 / 迷你八卦炉
+        if (stack.is(ModItems.TALISMAN))
+            return true;
+        if (stack.is(ModItems.DEALER_PACKAGE))
+            return true;
+        if (stack.is(ModItems.THROWING_AXE))
+            return true;
+        if (stack.is(ModItems.MINI_BAGUALU))
+            return true;
+        // dream 系列：铁斧 / 钻石剑 / 重锤 / 钻石镐 / 船 / 酒
+        if (stack.is(ModItems.DREAM_AXE))
+            return true;
+        if (stack.is(ModItems.DREAM_DIAMOND_SWORD))
+            return true;
+        if (stack.is(ModItems.DREAM_MACE))
+            return true;
+        if (stack.is(ModItems.DREAM_PICKAXE))
+            return true;
+        if (stack.is(ModItems.DREAM_BOAT))
+            return true;
+        if (stack.is(ModItems.DREAM_WINE))
+            return true;
+        // 磁铁
+        if (stack.is(ModItems.MAGNET))
+            return true;
+        // 彩虹马蹄铁
+        if (stack.is(FunnyItems.RAINBOW_HORSESHOE))
+            return true;
+        // 残月萨马蹄铁
+        if (stack.is(FunnyItems.CANYUESA_HORSESHOE))
+            return true;
+        // 超级猪马蹄铁
+        if (stack.is(FunnyItems.SUPER_PIG_HORSESHOE))
+            return true;
+
+        // 其他物品不可偷取
+        return false;
+    }
+
+    /**
+     * 卖物品（手上的物品卖50金币，只能卖可偷取的物品）
+     */
+    private boolean sellItem() {
+        if (!(player instanceof ServerPlayer serverPlayer)) {
+            return false;
+        }
+
+        // 获取手持物品
+        ItemStack heldItem = player.getMainHandItem();
+
+        // 检查是否空手
+        if (heldItem.isEmpty()) {
+            serverPlayer.displayClientMessage(
+                    Component.translatable("message.noellesroles.thief.no_item_to_sell")
+                            .withStyle(ChatFormatting.RED),
+                    true);
+            return false;
+        }
+
+        // 检查物品是否可以出售（使用与偷物品相同的逻辑）
+        SREGameWorldComponent gameWorld = SREGameWorldComponent.KEY.get(player.level());
+        if (!canSellItem(heldItem, gameWorld)) {
+            serverPlayer.displayClientMessage(
+                    Component.translatable("message.noellesroles.thief.cannot_sell_item")
+                            .withStyle(ChatFormatting.RED),
+                    true);
+            return false;
+        }
+
+        // 移除物品
+        player.setItemInHand(net.minecraft.world.InteractionHand.MAIN_HAND, ItemStack.EMPTY);
+
+        // 给予50金币
+        SREPlayerShopComponent thiefShop = SREPlayerShopComponent.KEY.get(player);
+        thiefShop.balance += 50;
+        thiefShop.sync();
+
+        // 获取物品名称
+        Component itemName = heldItem.getDisplayName();
+
+        // 通知小偷
+        serverPlayer.displayClientMessage(
+                Component.translatable("message.noellesroles.thief.item_sold", itemName, 50)
+                        .withStyle(ChatFormatting.GREEN),
+                true);
+
+        return true;
+    }
+
+    /**
+     * 判断物品是否可以出售
+     * 只允许出售可偷取的物品（不检查目标阵营）
+     */
+    private boolean canSellItem(ItemStack stack, SREGameWorldComponent gameWorldComponent) {
+        if (stack.isEmpty())
+            return false;
+
+        // 禁止偷取/出售的物品
+        // 金锭（小偷的荣誉）
+        if (stack.is(Items.GOLD_INGOT))
+            return false;
+
+        // 枪械类
+        if (stack.is(ModItems.BANDIT_REVOLVER))
+            return true; // 匪徒手枪
+        if (stack.is(ModItems.ONCE_REVOLVER))
+            return true; // 一次性手枪
+        if (stack.is(TMMItemTags.GUNS))
+            return true; // 枪械（小偷可以偷任何枪械来卖）
+
+        // 武器类
+        if (stack.is(TMMItems.KNIFE))
+            return true; // 匕首
+        if (stack.is(TMMItems.BAT))
+            return true; // 球棒
+
+        // 投掷物类
+        if (stack.is(TMMItems.GRENADE))
+            return true; // 手榴弹
+        if (stack.is(TMMItems.FIRECRACKER))
+            return true; // 鞭炮
+        if (stack.is(ModItems.BOMB))
+            return true; // 炸弹
+        if (stack.is(ModItems.C4))
+            return true; // C4炸药
+
+        // 道具类
+        if (stack.is(TMMItems.SCORPION))
+            return true; // 蝎子
+        if (stack.is(TMMItems.POISON_VIAL))
+            return true; // 毒药瓶
+        if (stack.is(TMMItems.CROWBAR))
+            return true; // 撬棍
+        if (stack.is(TMMItems.LOCKPICK))
+            return true; // 开锁器
+        if (stack.is(ModItems.INFERIOR_LOCKPICK))
+            return true; // 劣质开锁器
+        if (stack.is(TMMItems.BODY_BAG))
+            return true; // 裹尸袋
+        if (stack.is(TMMItems.NOTE))
+            return true; // 纸条
+        if (stack.is(ModItems.HANDCUFFS))
+            return true; // 手铐
+
+        // 特殊物品类（来自HSRItems）
+        if (stack.is(ModItems.TOXIN))
+            return true; // 毒针
+        if (stack.is(ModItems.ANTIDOTE))
+            return true; // 解药
+
+        // NoellesRoles 特殊物品
+        if (stack.is(ModItems.BOXING_GLOVE))
+            return true; // 拳套
+        if (stack.is(ModItems.DEFIBRILLATOR))
+            return true; // 除颤仪
+        if (stack.is(ModItems.DELUSION_VIAL))
+            return true; // 幻觉试剂
+        if (stack.is(ModItems.ANTIDOTE_REAGENT))
+            return true; // 解药试剂
+        if (stack.is(ModItems.BLANK_CARTRIDGE))
+            return true; // 空包弹
+        if (stack.is(ModItems.SMOKE_GRENADE))
+            return true; // 烟雾弹
+        if (stack.is(ModItems.REINFORCEMENT))
+            return true; // 加固门道具
+        if (stack.is(ModItems.ALARM_TRAP))
+            return true; // 警报陷阱
+        if (stack.is(ModItems.LOCK_ITEM))
+            return true; // 锁
+        if (stack.is(ModItems.DELIVERY_BOX))
+            return true; // 传递盒
+        if (stack.is(ModItems.HALLUCINATION_BOTTLE))
+            return true; // 迷幻瓶
+        if (stack.is(ModItems.NIGHT_VISION_GLASSES))
+            return true; // 夜视镜
+        if (stack.is(ModItems.WHEELCHAIR))
+            return true; // 轮椅
+
+        // 投掷物
+        if (stack.is(ModItems.CHLORINE_BOMB))
+            return true; // 毒气弹
+        if (stack.is(ModItems.PURIFY_BOMB))
+            return true; // 净化弹
+        if (stack.is(ModItems.FLASH_GRENADE))
+            return true; // 闪光弹
+        if (stack.is(ModItems.DECOY_GRENADE))
+            return true; // 诱饵弹
+        if (stack.is(ModItems.POISON_GAS_TANK))
+            return true; // 毒气瓶
+
+        // 护盾试剂（来自TMM）
+        if (stack.is(TMMItems.DEFENSE_VIAL))
+            return true; // 护盾试剂
+        if (stack.is(TMMItems.WEAK_DEFENSE_VIAL))
+            return true; // 弱效护盾试剂
+
+        if (stack.is(TMMItems.KEY))
+            return true; // 钥匙
+
+        // 万能钥匙和乘务员钥匙
+        if (stack.is(ModItems.MASTER_KEY))
+            return true;
+        if (stack.is(ModItems.MASTER_KEY_P))
+            return true;
+
+        // 铁门钥匙
+        if (stack.is(io.wifi.starrailexpress.index.TMMItems.IRON_DOOR_KEY))
+            return true;
+        // 巧匠钥匙
+        if (stack.is(ModItems.NOELL_ARTISAN_KEY))
+            return true;
+        // 回形针
+        if (stack.is(ModItems.NOELL_PAPERCLIP))
+            return true;
+        // 拆弹钳
+        if (stack.is(ModItems.PLIERS))
+            return true;
+        // 习题集
+        if (stack.is(FunnyItems.PROBLEM_SET))
+            return true;
+        // 十四夜
+        if (stack.is(FunnyItems.SHISIYE))
+            return true;
+        // 照明弹
+        if (stack.is(ModItems.FLARE))
+            return true;
+        // 催化剂
+        if (stack.is(ModItems.CATALYST))
+            return true;
+        // 假刀
+        if (stack.is(ModItems.FAKE_KNIFE))
+            return true;
+        // 假左轮手枪
+        if (stack.is(ModItems.FAKE_REVOLVER))
+            return true;
+        // 假球棒
+        if (stack.is(ModItems.FAKE_BAT))
+            return true;
+        // 假手雷
+        if (stack.is(ModItems.FAKE_GRENADE))
+            return true;
+        // 假开锁器
+        if (stack.is(ModItems.FAKE_LOCKPICK))
+            return true;
+        // 假撬棍
+        if (stack.is(ModItems.FAKE_CROWBAR))
+            return true;
+        // 假裹尸袋
+        if (stack.is(ModItems.FAKE_BODY_BAG))
+            return true;
+        // 沉默图腾
+        if (stack.is(ModItems.SILENCE_TOTEM))
+            return true;
+        // 破法药剂
+        if (stack.is(ModItems.SPELLBREAKER_POTION))
+            return true;
+        // 时停钟
+        if (stack.is(ModItems.TIME_STOP_CLOCK))
+            return true;
+
+        // 其他物品不可出售
+        return false;
+    }
+
+    /**
+     * 获取当前看向的玩家
+     */
+    private Player getLookedAtPlayer() {
+        double maxDistance = 4.0;
+        Player closestPlayer = null;
+        double closestDistance = maxDistance;
+
+        for (Player otherPlayer : player.level().players()) {
+            if (otherPlayer == player)
+                continue;
+            if (GameUtils.isPlayerEliminated(otherPlayer))
+                continue;
+
+            double distance = player.distanceTo(otherPlayer);
+            if (distance < closestDistance && player.hasLineOfSight(otherPlayer)) {
+                closestDistance = distance;
+                closestPlayer = otherPlayer;
+            }
+        }
+
+        return closestPlayer;
+    }
+
+    /**
+     * 处理小偷击杀目标（获得200金币）
+     */
+    public void handleKilledVictim(Player victim) {
+        if (!(player instanceof ServerPlayer serverPlayer)) {
+            return;
+        }
+
+        SREGameWorldComponent gameWorld = SREGameWorldComponent.KEY.get(player.level());
+        if (!gameWorld.isRole(player, ModRoles.THIEF)) {
+            return;
+        }
+
+        // 中立击杀金币已由 GameMode 在击杀处理中统一发放（数值由 THIEF 职业的 setNeutralKillCoin 决定）
+
+        // 通知小偷
+        serverPlayer.displayClientMessage(
+                Component.translatable("message.noellesroles.thief.kill_reward",
+                        ModRoles.THIEF.getKillCoinExtraAwards())
+                        .withStyle(ChatFormatting.GOLD),
+                true);
+    }
+
+    /**
+     * 检查小偷独立胜利条件
+     * 手持小偷的荣誉（金锭）回房间睡觉则胜利
+     */
+    public static boolean checkThiefVictory(ServerLevel serverLevel) {
+        SREGameWorldComponent gameWorld = SREGameWorldComponent.KEY.get(serverLevel);
+
+        // 检查是否有小偷存活
+        boolean hasThiefAlive = false;
+        ServerPlayer thief = null;
+
+        for (ServerPlayer p : serverLevel.players()) {
+            if (gameWorld.isRole(p, ModRoles.THIEF)
+                    && !GameUtils.isPlayerEliminated(p)) {
+                hasThiefAlive = true;
+                thief = p;
+                break;
+            }
+        }
+
+        if (!hasThiefAlive || thief == null) {
+            return false;
+        }
+
+        // 检查小偷是否手持小偷的荣誉（金锭）
+        ItemStack heldItem = thief.getMainHandItem();
+        if (!heldItem.is(Items.GOLD_INGOT)) {
+            return false;
+        }
+
+        // 检查小偷是否在睡觉
+        if (!thief.isSleeping()) {
+            return false;
+        }
+
+        // 小偷胜利！
+        RoleUtils.customWinnerWin(serverLevel, GameUtils.WinStatus.CUSTOM, "thief",
+                OptionalInt.of(new java.awt.Color(255, 215, 0).getRGB()));
+
+        return true;
+    }
+
+    /**
+     * 获取购买小偷的荣誉所需金币数
+     */
+    public static int getHonorCost(int totalPlayers) {
+        return totalPlayers * HONOR_COST_PER_PLAYER;
+    }
+
+    @Override
+    public void serverTick() {
+        // 减少冷却
+        var gwc = SREGameWorldComponent.KEY.get(player.level());
+        if (!gwc.isRole(player, ModRoles.THIEF))
+            return;
+
+        if (player.hasEffect(ModEffects.SAFE_TIME)) // 安全时间
+            return;
+        if (this.honorCost < 100)
+            return;
+
+        if (this.cooldown > 0) {
+            this.cooldown--;
+            if (this.cooldown % 60 == 0 || this.cooldown == 0) {
+                this.sync();
+            }
+        }
+
+        // 处理延迟通知
+        if (!pendingNotifications.isEmpty()) {
+            java.util.Iterator<PendingNotification> iterator = pendingNotifications.iterator();
+            while (iterator.hasNext()) {
+                PendingNotification notification = iterator.next();
+                notification.delayTicks--;
+                if (notification.delayTicks <= 0) {
+                    if (notification.targetPlayer != null
+                            && !GameUtils.isPlayerEliminated(notification.targetPlayer)) {
+                        notification.targetPlayer.displayClientMessage(
+                                Component.translatable(notification.messageKey, notification.messageArgs)
+                                        .withStyle(ChatFormatting.RED),
+                                true);
+                    }
+                    iterator.remove();
+                }
+            }
+        }
+
+        var psc = SREPlayerShopComponent.KEY.get(player);
+        if (player.level().getGameTime() % 20 == 0) {
+            if (psc.balance >= this.honorCost) {
+                if (RoleUtils.insertStackInFreeSlot(player, Items.GOLD_INGOT.getDefaultInstance())) {
+                    psc.addToBalance(-honorCost);
+                    player.displayClientMessage(
+                            Component.translatable("message.thief.honor_got").withStyle(ChatFormatting.GOLD), true);
+                }
+            }
+        }
+    }
+
+    public void clientTick() {
+        if (player.hasEffect(ModEffects.SAFE_TIME)) // 安全时间
+            return;
+        if (this.cooldown > 1) {
+            this.cooldown--;
+        }
+    }
+
+    public void sync() {
+        KEY.sync(this.player);
+    }
+
+    @Override
+    public void writeToSyncNbt(@NotNull CompoundTag tag, @NotNull HolderLookup.Provider registryLookup) {
+        tag.putInt("Cooldown", this.cooldown);
+        tag.putInt("CurrentMode", this.currentMode);
+        tag.putBoolean("IsInSelectionMode", this.isInSelectionMode);
+
+        tag.putInt("honorCost", honorCost);
+    }
+
+    @Override
+    public void readFromSyncNbt(@NotNull CompoundTag tag, @NotNull HolderLookup.Provider registryLookup) {
+        honorCost = tag.contains("honorCost") ? tag.getInt("honorCost") : -1;
+        this.cooldown = tag.getInt("Cooldown");
+        this.currentMode = tag.getInt("CurrentMode");
+        this.isInSelectionMode = tag.getBoolean("IsInSelectionMode");
+    }
+
+    @Override
+    public void writeToNbt(CompoundTag tag, HolderLookup.Provider registryLookup) {
+    }
+
+    @Override
+    public void readFromNbt(CompoundTag tag, HolderLookup.Provider registryLookup) {
+    }
+}

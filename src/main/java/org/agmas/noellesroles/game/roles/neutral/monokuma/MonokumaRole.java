@@ -15,8 +15,6 @@
 
 package org.agmas.noellesroles.game.roles.neutral.monokuma;
 
-import org.agmas.noellesroles.role_data.neutral.MonokumaRoleData;
-import io.wifi.starrailexpress.api.data.RoleData;
 import io.wifi.starrailexpress.api.CustomWinnerRole;
 import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
@@ -56,7 +54,7 @@ public class MonokumaRole extends CustomWinnerRole {
   public void onKill(Player victim, boolean spawnBody, Player killer, ResourceLocation deathReason) {
     if (killer == null)
       return;
-    RoleData.getOptional(MonokumaRoleData.class, killer).ifPresent(MonokumaRoleData::onKillPlayer);
+    MonokumaPlayerComponent.KEY.maybeGet(killer).ifPresent(MonokumaPlayerComponent::onKillPlayer);
     return;
   }
 
@@ -74,7 +72,7 @@ public class MonokumaRole extends CustomWinnerRole {
   @Override
   public TrueFalseResult onPickUpItem(Player player, ItemStack item) {
     // 黑白熊形态无法捡起任何物品
-    var comp = RoleData.getOptional(org.agmas.noellesroles.role_data.neutral.MonokumaRoleData.class, player)
+    var comp = org.agmas.noellesroles.game.roles.neutral.monokuma.MonokumaPlayerComponent.KEY.maybeGet(player)
         .orElse(null);
     if (comp != null && comp.phase == 3) {
       return TrueFalseResult.FALSE; // 禁止捡起所有物品
@@ -94,8 +92,8 @@ public class MonokumaRole extends CustomWinnerRole {
     ServerLevel serverLevel = player.serverLevel();
     SREGameWorldComponent gameComponent = SREGameWorldComponent.KEY.get(serverLevel);
     if (!winStatus.equals(WinStatus.NONE)) {
-      MonokumaRoleData comp = RoleData.getNullable(MonokumaRoleData.class, player);
-      if (!RoleData.isAttached(comp) || comp.phase != 3) {
+      MonokumaPlayerComponent comp = MonokumaPlayerComponent.KEY.get(player);
+      if (comp.phase != 3) {
         // 未变身 → 失败
         return false;
       }
@@ -150,7 +148,7 @@ public class MonokumaRole extends CustomWinnerRole {
   // public ResourceLocation getDisplayRole(Player player) {
   // // 对所有人（包括自己）显示为义警
   // var comp =
-  // RoleData.getOptional(org.agmas.noellesroles.role_data.neutral.MonokumaRoleData.class, player).orElse(null);
+  // org.agmas.noellesroles.game.roles.neutral.monokuma.MonokumaPlayerComponent.KEY.maybeGet(player).orElse(null);
   // if (comp != null && comp.phase <= 2) {
   // return TMMRoles.VIGILANTE.identifier();
   // }

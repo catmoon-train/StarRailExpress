@@ -15,8 +15,6 @@
 
 package org.agmas.noellesroles.content.entity;
 
-import io.wifi.starrailexpress.api.hit.HitType;
-import io.wifi.starrailexpress.api.hit.IsTargetObject;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
@@ -51,7 +49,7 @@ import java.util.UUID;
  *   <li>持续时间耗尽（默认 10 秒）或召唤者死亡/掉线时静默消散。</li>
  * </ul>
  */
-public class MorphlingKnifeDummyEntity extends PathfinderMob implements IsTargetObject {
+public class MorphlingKnifeDummyEntity extends PathfinderMob {
 
     /** 皮肤所属玩家 UUID，仅用于客户端渲染外观。 */
     private static final EntityDataAccessor<Optional<UUID>> SKIN_UUID = SynchedEntityData.defineId(
@@ -187,22 +185,6 @@ public class MorphlingKnifeDummyEntity extends PathfinderMob implements IsTarget
         serverLevel.playSound(null, blockPosition(), SoundEvents.ENDERMAN_TELEPORT,
                 SoundSource.HOSTILE, 0.6f, 1.2f);
         discard();
-    }
-
-    @Override
-    public boolean isValidTarget(Player attacker, HitType type) {
-        return type.isRanged();
-    }
-
-    @Override
-    public double getMaxHitRange(HitType type) {
-        return type == HitType.SNIPER ? type.defaultRange : 65.0;
-    }
-
-    @Override
-    public boolean onWeaponHit(Player attacker, HitType type) {
-        hurt(attacker.damageSources().playerAttack(attacker), 20.0F);
-        return true;
     }
 
     @Override

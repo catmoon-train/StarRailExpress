@@ -15,9 +15,6 @@
 
 package org.agmas.noellesroles.client.hud;
 
-import org.agmas.noellesroles.role_data.neutral.MorticianBodyMakerRoleData;
-
-import org.agmas.noellesroles.role_data.killer.CreeperRoleData;
 import net.exmo.sre.repair.client.*;
 import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.SREClientConfig;
@@ -53,25 +50,25 @@ import org.agmas.noellesroles.component.InfectedPlayerComponent;
 import org.agmas.noellesroles.component.ModComponents;
 import org.agmas.noellesroles.content.entity.WheelchairEntity;
 import org.agmas.noellesroles.content.item.RiotShieldHandler;
-import org.agmas.noellesroles.role_data.innocence.AccountantRoleData;
-import org.agmas.noellesroles.role_data.innocence.AlchemistRoleData;
-import org.agmas.noellesroles.role_data.innocence.AthleteRoleData;
+import org.agmas.noellesroles.game.roles.innocence.accountant.AccountantPlayerComponent;
+import org.agmas.noellesroles.game.roles.innocence.alchemist.AlchemistPlayerComponent;
+import org.agmas.noellesroles.game.roles.innocence.athlete.AthletePlayerComponent;
 import org.agmas.noellesroles.game.roles.innocence.attendant.AttendantHandler;
-import org.agmas.noellesroles.role_data.innocence.ClockmakerRoleData;
-import org.agmas.noellesroles.role_data.innocence.FortunetellerRoleData;
-import org.agmas.noellesroles.role_data.innocence.GhostRoleData;
-import org.agmas.noellesroles.role_data.innocence.LocksmithInspirationRoleData;
-import org.agmas.noellesroles.role_data.killer.BloodFeudistRoleData;
-import org.agmas.noellesroles.role_data.killer.MaChenXuRoleData;
-import org.agmas.noellesroles.role_data.killer.NinjaRoleData;
-import org.agmas.noellesroles.role_data.killer.ShadowFalconRoleData;
-import org.agmas.noellesroles.role_data.killer.StalkerRoleData;
-import org.agmas.noellesroles.role_data.killer.WatcherRoleData;
-import org.agmas.noellesroles.role_data.neutral.CandleBearerRoleData;
+import org.agmas.noellesroles.game.roles.innocence.clock_maker.ClockmakerPlayerComponent;
+import org.agmas.noellesroles.game.roles.innocence.fortuneteller.FortunetellerPlayerComponent;
+import org.agmas.noellesroles.game.roles.innocence.ghost.GhostPlayerComponent;
+import org.agmas.noellesroles.game.roles.innocence.locksmith_inspiration.LocksmithInspirationComponent;
+import org.agmas.noellesroles.game.roles.killer.blood_feudist.BloodFeudistPlayerComponent;
+import org.agmas.noellesroles.game.roles.killer.ma_chen_xu.MaChenXuPlayerComponent;
+import org.agmas.noellesroles.game.roles.killer.ninja.NinjaPlayerComponent;
+import org.agmas.noellesroles.game.roles.killer.shadow_falcon.ShadowFalconPlayerComponent;
+import org.agmas.noellesroles.game.roles.killer.stalker.StalkerPlayerComponent;
+import org.agmas.noellesroles.game.roles.killer.watcher.WatcherPlayerComponent;
+import org.agmas.noellesroles.game.roles.neutral.candlebearer.CandleBearerPlayerComponent;
 import org.agmas.noellesroles.game.roles.neutral.commander.CommanderHudRender;
-import org.agmas.noellesroles.role_data.neutral.MercenaryRoleData;
-import org.agmas.noellesroles.role_data.neutral.RecorderRoleData;
-import org.agmas.noellesroles.role_data.neutral.ThiefRoleData;
+import org.agmas.noellesroles.game.roles.neutral.mercenary.MercenaryPlayerComponent;
+import org.agmas.noellesroles.game.roles.neutral.recorder.RecorderPlayerComponent;
+import org.agmas.noellesroles.game.roles.neutral.thief.ThiefPlayerComponent;
 import org.agmas.noellesroles.init.ModEffects;
 import org.agmas.noellesroles.init.ModItems;
 import org.agmas.noellesroles.role.BounsRoles;
@@ -303,8 +300,7 @@ public class CommonClientHudRenderer {
     RoleHudRenderCallback.EVENT.register(ModRoles.STALKER_ID, (context, tickCounter) -> {
       var client = Minecraft.getInstance();
       // 获取跟踪者组件
-      StalkerRoleData stalkerComp = RoleData.getNullable(StalkerRoleData.class, client.player);
-      if (stalkerComp == null) return;
+      StalkerPlayerComponent stalkerComp = StalkerPlayerComponent.KEY.get(client.player);
       // 检查是否是跟踪者
       if (!stalkerComp.isActiveStalker())
         return;
@@ -401,7 +397,7 @@ public class CommonClientHudRenderer {
       // 蓄力进度（三阶段）
       if (stalkerComp.isCharging) {
         float chargeSeconds = stalkerComp.getChargeSeconds();
-        float maxSeconds = StalkerRoleData.MAX_CHARGE_TIME / 20.0f;
+        float maxSeconds = StalkerPlayerComponent.MAX_CHARGE_TIME / 20.0f;
         Component chargeText = Component.translatable("hud.noellesroles.stalker.charging",
             String.format("%.1f", chargeSeconds), String.format("%.1f", maxSeconds));
         int chargeColor = chargeSeconds >= 1.0f ? 0x00FF00 : 0xFFFF00;
@@ -417,8 +413,7 @@ public class CommonClientHudRenderer {
     });
     RoleHudRenderCallback.EVENT.register(ModRoles.MA_CHEN_XU_ID, (context, tickCounter) -> {
       var client = Minecraft.getInstance();
-      MaChenXuRoleData component = RoleData.getNullable(MaChenXuRoleData.class, client.player);
-      if (component == null) return;
+      MaChenXuPlayerComponent component = MaChenXuPlayerComponent.KEY.get(client.player);
       if (!GameUtils.isPlayerAliveAndSurvival(client.player))
         return;
       if (component.stage <= 0)
@@ -465,8 +460,8 @@ public class CommonClientHudRenderer {
       // 鬼术槽位行（V 切换、G 释放）
       String selectedArt = component.getSelectedArtId();
       int slotSize = 18, slotGap = 3, iconOff = 1;
-      for (int i = 0; i < MaChenXuRoleData.ART_ORDER.length; i++) {
-        String art = MaChenXuRoleData.ART_ORDER[i];
+      for (int i = 0; i < MaChenXuPlayerComponent.ART_ORDER.length; i++) {
+        String art = MaChenXuPlayerComponent.ART_ORDER[i];
         int sx = x + i * (slotSize + slotGap);
         int sy = y;
         boolean unlocked = component.ghostSkills.contains(art);
@@ -572,8 +567,8 @@ public class CommonClientHudRenderer {
             component.otherworldDuration / 20).withStyle(ChatFormatting.DARK_RED, ChatFormatting.BOLD);
         context.drawString(textRenderer, liShiJieText, x, y, 0xFFFFFFFF);
         y += 11;
-        int dur = component.stage >= 4 ? MaChenXuRoleData.ULTIMATE_DURATION_STAGE_4
-            : MaChenXuRoleData.ULTIMATE_DURATION_STAGE_3;
+        int dur = component.stage >= 4 ? MaChenXuPlayerComponent.ULTIMATE_DURATION_STAGE_4
+            : MaChenXuPlayerComponent.ULTIMATE_DURATION_STAGE_3;
         float opct = Math.max(0f, Math.min(1f, (float) component.otherworldDuration / dur));
         int barW = 92, barH = 5;
         context.fill(x - 1, y - 1, x + barW + 1, y + barH + 1, 0xAA000000);
@@ -651,8 +646,7 @@ public class CommonClientHudRenderer {
       int color = 0xFFFFFFFF;
       if (client.player.hasEffect(ModEffects.SKILL_BANED))
         return;
-      GhostRoleData ghostComponent = RoleData.getNullable(GhostRoleData.class, client.player);
-      if (ghostComponent == null) return;
+      GhostPlayerComponent ghostComponent = GhostPlayerComponent.KEY.get(client.player);
       if (!ghostComponent.abilityUnlocked) {
         text = Component.translatable("gui.noellesroles.ghost.locked");
         color = 0xFFFF00; // 黄色
@@ -768,8 +762,7 @@ public class CommonClientHudRenderer {
       if (client.player == null) {
         return;
       }
-      CandleBearerRoleData component = RoleData.getNullable(CandleBearerRoleData.class, client.player);
-      if (component == null) return;
+      CandleBearerPlayerComponent component = CandleBearerPlayerComponent.KEY.get(client.player);
 
       int screenWidth = client.getWindow().getGuiScaledWidth();
       int screenHeight = client.getWindow().getGuiScaledHeight();
@@ -785,7 +778,7 @@ public class CommonClientHudRenderer {
 
       Component chargeText = Component.translatable("gui.noellesroles.candlebearer.charges",
           component.invisibilityCharges,
-          CandleBearerRoleData.MAX_INVISIBILITY_CHARGES).withStyle(ChatFormatting.YELLOW);
+          CandleBearerPlayerComponent.MAX_INVISIBILITY_CHARGES).withStyle(ChatFormatting.YELLOW);
       context.drawString(font, chargeText, x - font.width(chargeText), y - font.lineHeight * 3 - 8,
           Color.WHITE.getRGB());
 
@@ -827,8 +820,7 @@ public class CommonClientHudRenderer {
       var font = client.font;
       int yOffset = screenHeight - 10 - font.lineHeight; // 右下角
       int xOffset = screenWidth - 10; // 距离右边缘
-      var abpc = RoleData.getNullable(RecorderRoleData.class, client.player);
-      if (abpc == null) return;
+      var abpc = RecorderPlayerComponent.KEY.get(client.player);
       // hud.noellesroles.recorder.process
       Component text = Component
           .translatable("hud.noellesroles.recorder.requirement",
@@ -851,8 +843,7 @@ public class CommonClientHudRenderer {
       var font = client.font;
       int yOffset = screenHeight - 10 - font.lineHeight; // 右下角
       int xOffset = screenWidth - 10; // 距离右边缘
-      var abpc = RoleData.getNullable(ClockmakerRoleData.class, client.player);
-      if (!RoleData.isAttached(abpc)) return;
+      var abpc = ClockmakerPlayerComponent.KEY.get(client.player);
       Component text = Component
           .translatable("hud.noellesroles.clockmaker.use",
               NoellesrolesClient.abilityBind.getTranslatedKeyMessage())
@@ -896,7 +887,7 @@ public class CommonClientHudRenderer {
       if (client.player == null)
         return;
 
-      NinjaRoleData ninjaComp = RoleData.getNullable(NinjaRoleData.class, client.player);
+      NinjaPlayerComponent ninjaComp = NinjaPlayerComponent.KEY.get(client.player);
       if (ninjaComp == null)
         return;
 
@@ -991,8 +982,7 @@ public class CommonClientHudRenderer {
       var font = client.font;
       int yOffset = screenHeight - 10 - font.lineHeight; // 右下角
       int xOffset = screenWidth - 10; // 距离右边缘
-      var abpc = RoleData.getNullable(AthleteRoleData.class, client.player);
-      if (abpc == null) return;
+      var abpc = AthletePlayerComponent.KEY.get(client.player);
       if (abpc.speedTicks > 0) {
         var text = Component
             .translatable("hud.noellesroles.athlete.active",
@@ -1023,10 +1013,9 @@ public class CommonClientHudRenderer {
       if (!GameUtils.isPlayerAliveAndSurvival(client.player))
         return;
 
-      LocksmithInspirationRoleData component = RoleData.getNullable(LocksmithInspirationRoleData.class, client.player);
-      if (component == null) return;
+      LocksmithInspirationComponent component = ModComponents.LOCKSMITH_INSPIRATION.get(client.player);
       Component text = Component.translatable("hud.noellesroles.locksmith.inspiration",
-          component.getInspirationPoints(), LocksmithInspirationRoleData.MAX_POINTS)
+          component.getInspirationPoints(), LocksmithInspirationComponent.MAX_POINTS)
           .withStyle(ChatFormatting.GOLD);
 
       int screenWidth = guiGraphics.guiWidth();
@@ -1045,7 +1034,7 @@ public class CommonClientHudRenderer {
       int xOffset = screenWidth - 10; // 右下角
       int yOffset = screenHeight - 10 - font.lineHeight; // 右下角
       var abpc = SREArmorPlayerComponent.KEY.get(client.player);
-      var wtpc = RoleData.getNullable(WatcherRoleData.class, client.player);
+      var wtpc = WatcherPlayerComponent.KEY.get(client.player);
       {
         var text = Component
             .translatable("hud.bartender.has_armor",
@@ -1054,8 +1043,6 @@ public class CommonClientHudRenderer {
         guiGraphics.drawString(font, text, 10, yOffset - font.lineHeight - 4,
             Color.WHITE.getRGB());
       }
-      if (wtpc == null)
-        return;
       {
         if (wtpc.getCooldown() > 0) {
           var text = Component
@@ -1244,8 +1231,8 @@ public class CommonClientHudRenderer {
       int yOffset = screenHeight - 10 - font.lineHeight; // 右下角
       int xOffset = screenWidth - 10; // 距离右边缘
       var abpc = SREAbilityPlayerComponent.KEY.get(client.player);
-      var fpc = RoleData.getNullable(FortunetellerRoleData.class, client.player);
-      if (fpc != null && !fpc.protectedPlayers.isEmpty()) {
+      var fpc = FortunetellerPlayerComponent.KEY.get(client.player);
+      if (!fpc.protectedPlayers.isEmpty()) {
         int dy = yOffset - font.lineHeight * 2 - 12;
         for (var po : fpc.protectedPlayers) {
           var pl = client.level.getPlayerByUUID(po.player);
@@ -1352,7 +1339,7 @@ public class CommonClientHudRenderer {
       int yOffset = screenHeight - 10 - font.lineHeight; // 右下角
       int xOffset = screenWidth - 10; // 距离右边缘
 
-      var thiefComponent = RoleData.getNullable(ThiefRoleData.class, client.player);
+      var thiefComponent = ThiefPlayerComponent.KEY.maybeGet(client.player).orElse(null);
       if (thiefComponent == null)
         return;
 
@@ -1362,9 +1349,9 @@ public class CommonClientHudRenderer {
       progress = Component.translatable("message.thief.honor_cost", shopC.balance, thiefComponent.honorCost)
           .withStyle(ChatFormatting.GOLD);
       Component modeText;
-      if (thiefComponent.currentMode == ThiefRoleData.MODE_STEAL_MONEY) {
+      if (thiefComponent.currentMode == ThiefPlayerComponent.MODE_STEAL_MONEY) {
         modeText = Component.translatable("hud.thief.mode.money").withStyle(ChatFormatting.GOLD);
-      } else if (thiefComponent.currentMode == ThiefRoleData.MODE_STEAL_ITEM) {
+      } else if (thiefComponent.currentMode == ThiefPlayerComponent.MODE_STEAL_ITEM) {
         modeText = Component.translatable("hud.thief.mode.item").withStyle(ChatFormatting.AQUA);
       } else {
         modeText = Component.translatable("hud.thief.mode.sell").withStyle(ChatFormatting.LIGHT_PURPLE);
@@ -1420,7 +1407,7 @@ public class CommonClientHudRenderer {
         return;
       }
 
-      var mercenary = RoleData.getNullable(MercenaryRoleData.class, client.player);
+      var mercenary = MercenaryPlayerComponent.KEY.maybeGet(client.player).orElse(null);
       if (mercenary == null) {
         return;
       }
@@ -1474,7 +1461,7 @@ public class CommonClientHudRenderer {
       int yOffset = screenHeight - 10 - font.lineHeight; // 右下角
       int xOffset = screenWidth - 10; // 距离右边缘
 
-      BloodFeudistRoleData bfComponent = RoleData.getNullable(BloodFeudistRoleData.class, client.player);
+      BloodFeudistPlayerComponent bfComponent = ModComponents.BLOOD_FEUDIST.maybeGet(client.player).orElse(null);
       if (bfComponent == null)
         return;
 
@@ -1557,7 +1544,8 @@ public class CommonClientHudRenderer {
       int yOffset = screenHeight - 10 - font.lineHeight; // 右下角
       int xOffset = screenWidth - 10; // 距离右边缘
 
-      var accountantComponent = RoleData.getOptional(AccountantRoleData.class, client.player).orElse(null);
+      var accountantComponent = AccountantPlayerComponent.KEY
+          .maybeGet(client.player).orElse(null);
       if (accountantComponent == null)
         return;
       int dy = yOffset;
@@ -1565,7 +1553,7 @@ public class CommonClientHudRenderer {
       // 显示当前模式
       Component modeText;
       if (accountantComponent
-          .getCurrentMode() == AccountantRoleData.MODE_INCOME) {
+          .getCurrentMode() == AccountantPlayerComponent.MODE_INCOME) {
         modeText = Component.translatable("hud.accountant.mode.income").withStyle(ChatFormatting.GOLD);
       } else {
         modeText = Component.translatable("hud.accountant.mode.expense").withStyle(ChatFormatting.AQUA);
@@ -1616,7 +1604,8 @@ public class CommonClientHudRenderer {
       int yOffset = screenHeight - 10 - font.lineHeight; // 右下角
       int xOffset = screenWidth - 10; // 距离右边缘
 
-      var alchemistComponent = RoleData.getOptional(AlchemistRoleData.class, client.player).orElse(null);
+      var alchemistComponent = AlchemistPlayerComponent.KEY
+          .maybeGet(client.player).orElse(null);
       if (alchemistComponent == null)
         return;
 
@@ -1625,7 +1614,7 @@ public class CommonClientHudRenderer {
       // 显示当前选择的药剂
       int currentPotionIndex = alchemistComponent.getCurrentPotionIndex();
       Component potionName = Component.translatable("potion.noellesroles."
-          + AlchemistRoleData.getPotionKey(currentPotionIndex));
+          + AlchemistPlayerComponent.getPotionKey(currentPotionIndex));
       Component potionLabel = Component.translatable("hud.alchemist.current_potion")
           .withStyle(ChatFormatting.WHITE);
       guiGraphics.drawString(font, potionLabel, xOffset - font.width(potionLabel) - font.width(potionName), dy,
@@ -1634,16 +1623,16 @@ public class CommonClientHudRenderer {
       dy -= font.lineHeight + 4;
 
       // 显示调制花费
-      int goldCost = AlchemistRoleData.getPotionCost(currentPotionIndex);
+      int goldCost = AlchemistPlayerComponent.getPotionCost(currentPotionIndex);
       Component costText = Component.translatable("hud.alchemist.craft_cost", goldCost,
-          AlchemistRoleData.MATERIALS_TO_CRAFT)
+          AlchemistPlayerComponent.MATERIALS_TO_CRAFT)
           .withStyle(ChatFormatting.GOLD);
       guiGraphics.drawString(font, costText, xOffset - font.width(costText), dy, Color.WHITE.getRGB());
       dy -= font.lineHeight + 4;
 
       // 显示当前药剂的调制次数
       int craftCount = alchemistComponent.getCurrentPotionCraftCount();
-      int maxCraftCount = AlchemistRoleData.MAX_CRAFT_COUNT;
+      int maxCraftCount = AlchemistPlayerComponent.MAX_CRAFT_COUNT;
       Component countText = Component.translatable("hud.alchemist.craft_count", craftCount, maxCraftCount)
           .withStyle(ChatFormatting.LIGHT_PURPLE);
       guiGraphics.drawString(font, countText, xOffset - font.width(countText), dy, Color.WHITE.getRGB());
@@ -1698,7 +1687,7 @@ public class CommonClientHudRenderer {
         return;
       }
 
-      var creeperComponent = RoleData.getNullable(CreeperRoleData.class, client.player);
+      var creeperComponent = ModComponents.CREEPER.maybeGet(client.player).orElse(null);
       if (creeperComponent == null) {
         return;
       }
@@ -1741,7 +1730,7 @@ public class CommonClientHudRenderer {
         return;
       }
 
-      var shadowFalconComponent = RoleData.getNullable(ShadowFalconRoleData.class, client.player);
+      var shadowFalconComponent = ShadowFalconPlayerComponent.KEY.maybeGet(client.player).orElse(null);
       if (shadowFalconComponent == null) {
         return;
       }
@@ -1799,7 +1788,7 @@ public class CommonClientHudRenderer {
       if (!SREClient.isPlayerAliveAndInSurvival())
         return;
 
-      var morticianComponent = RoleData.getNullable(org.agmas.noellesroles.role_data.neutral.MorticianBodyMakerRoleData.class, client.player);
+      var morticianComponent = ModComponents.MORTICIAN_BODYMAKER.get(client.player);
       if (morticianComponent == null)
         return;
 

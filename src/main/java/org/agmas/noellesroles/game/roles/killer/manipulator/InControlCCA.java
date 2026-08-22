@@ -15,8 +15,6 @@
 
 package org.agmas.noellesroles.game.roles.killer.manipulator;
 
-import org.agmas.noellesroles.role_data.killer.ManipulatorRoleData;
-import io.wifi.starrailexpress.api.data.RoleData;
 import io.wifi.starrailexpress.api.RoleComponent;
 import io.wifi.starrailexpress.event.AllowPlayerDeathWithKiller;
 import io.wifi.starrailexpress.game.GameConstants;
@@ -260,8 +258,8 @@ public class InControlCCA implements RoleComponent, ServerTickingComponent {
             if ((player instanceof ServerPlayer sp)) {
                 var controller_p = sp.level().getPlayerByUUID(this.controller);
                 if (controller_p != null) {
-                    var controllerComponent = RoleData.getNullable(ManipulatorRoleData.class, controller_p);
-                    if (RoleData.isAttached(controllerComponent)) {
+                    var controllerComponent = ManipulatorPlayerComponent.KEY.get(controller_p);
+                    if (controllerComponent != null) {
                         controllerComponent.stopControl(isTimeout);
                         this.controller = null;
                     }

@@ -15,7 +15,6 @@
 
 package org.agmas.noellesroles.client.screen;
 
-import io.wifi.starrailexpress.api.data.RoleData;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
@@ -25,7 +24,7 @@ import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 
-import org.agmas.noellesroles.role_data.innocence.TelegrapherRoleData;
+import org.agmas.noellesroles.game.roles.innocence.telegrapher.TelegrapherPlayerComponent;
 import org.agmas.noellesroles.packet.TelegrapherC2SPacket;
 
 /**
@@ -56,8 +55,8 @@ public class TelegrapherScreen extends Screen {
         
         // 获取剩余使用次数
         if (minecraft != null && minecraft.player != null) {
-            TelegrapherRoleData comp = RoleData.getNullable(TelegrapherRoleData.class, minecraft.player);
-            if (RoleData.isAttached(comp))
+            TelegrapherPlayerComponent comp = TelegrapherPlayerComponent.KEY.get(minecraft.player);
+            if (comp != null)
                 remainingUses = comp.remainingUses;
         }
 

@@ -15,11 +15,10 @@
 
 package org.agmas.noellesroles.mixin.client.roles.manipulator;
 
-import io.wifi.starrailexpress.api.data.RoleData;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.Input;
 import net.minecraft.client.player.KeyboardInput;
-import org.agmas.noellesroles.role_data.killer.ManipulatorRoleData;
+import org.agmas.noellesroles.game.roles.killer.manipulator.ManipulatorPlayerComponent;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -39,8 +38,8 @@ public abstract class ManipulatorControllerInputMixin {
         Minecraft client = Minecraft.getInstance();
         if (client == null || client.player == null)
             return;
-        ManipulatorRoleData comp = RoleData.getNullable(ManipulatorRoleData.class, client.player);
-        if (RoleData.isAttached(comp) && comp.isControlling && comp.target != null) {
+        ManipulatorPlayerComponent comp = ManipulatorPlayerComponent.KEY.get(client.player);
+        if (comp.isControlling && comp.target != null) {
             Input self = (Input) (Object) this;
             self.up = false;
             self.down = false;

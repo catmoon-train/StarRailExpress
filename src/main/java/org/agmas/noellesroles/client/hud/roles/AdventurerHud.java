@@ -15,13 +15,12 @@
 
 package org.agmas.noellesroles.client.hud.roles;
 
-import io.wifi.starrailexpress.api.data.RoleData;
 import io.wifi.starrailexpress.client.SREClient;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;
 import org.agmas.noellesroles.client.event.RoleHudRenderCallback;
 import org.agmas.noellesroles.component.ModComponents;
-import org.agmas.noellesroles.role_data.innocence.AdventurerRoleData;
+import org.agmas.noellesroles.game.roles.innocence.adventurer.AdventurerPlayerComponent;
 import org.agmas.noellesroles.role.ModRoles;
 
 public final class AdventurerHud {
@@ -29,8 +28,7 @@ public final class AdventurerHud {
         RoleHudRenderCallback.EVENT.register(ModRoles.ADVENTURER_ID, (context, tickCounter) -> {
             if (SREClient.isPlayerSpectator()) return;
             var player = Minecraft.getInstance().player;
-            AdventurerRoleData adv = RoleData.getNullable(AdventurerRoleData.class, player);
-            if (adv == null) return;
+            AdventurerPlayerComponent adv = ModComponents.ADVENTURER.get(player);
 
             int x = context.guiWidth() - 180;
             int y = context.guiHeight() - 40;

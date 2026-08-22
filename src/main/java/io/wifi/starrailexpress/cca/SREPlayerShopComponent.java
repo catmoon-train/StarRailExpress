@@ -15,8 +15,6 @@
 
 package io.wifi.starrailexpress.cca;
 
-import org.agmas.noellesroles.role_data.killer.WizardRoleData;
-import io.wifi.starrailexpress.api.data.RoleData;
 import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.SREConfig;
 import io.wifi.starrailexpress.api.RoleComponent;
@@ -140,8 +138,8 @@ public class SREPlayerShopComponent implements RoleComponent, ServerTickingCompo
         }
         // 巫师专属：正向金额转换为魔素
         if (role == org.agmas.noellesroles.role.ModRoles.WIZARD && amount > 0) {
-            RoleData.ifPresent(WizardRoleData.class, this.player, d -> d.addMana(
-                    amount * org.agmas.noellesroles.config.NoellesRolesConfig.HANDLER.instance().wizardManaPerCoin));
+            org.agmas.noellesroles.component.ModComponents.WIZARD.get(this.player).addMana(
+                    amount * org.agmas.noellesroles.config.NoellesRolesConfig.HANDLER.instance().wizardManaPerCoin);
         }
         if (this.balance != 0) {
             this.balance = 0;

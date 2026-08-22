@@ -15,7 +15,6 @@
 
 package org.agmas.noellesroles.client.widget;
 
-import io.wifi.starrailexpress.api.data.RoleData;
 import io.wifi.starrailexpress.client.gui.screen.ingame.LimitedInventoryScreen;
 import io.wifi.starrailexpress.util.ShopEntry;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
@@ -29,7 +28,7 @@ import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.network.chat.Component;
 import org.agmas.noellesroles.config.NoellesRolesConfig;
-import org.agmas.noellesroles.role_data.killer.WizardRoleData;
+import org.agmas.noellesroles.game.roles.killer.wizard.WizardPlayerComponent;
 import org.agmas.noellesroles.init.ModItems;
 import org.agmas.noellesroles.packet.WizardShieldC2SPacket;
 import org.jetbrains.annotations.NotNull;
@@ -46,9 +45,8 @@ public class WizardShieldWidget extends Button {
         super(x, y, 16, 16, Component.literal(targetPlayer.getProfile().getName()), (button) -> {
             AbstractClientPlayer player = Minecraft.getInstance().player;
             if (player != null) {
-                WizardRoleData comp = RoleData.getNullable(WizardRoleData.class, player);
-                if (comp == null) return;
-                if (comp.selectedSpell == WizardRoleData.Spell.ARMOR && isArmorUsable(comp)) {
+                WizardPlayerComponent comp = WizardPlayerComponent.KEY.get(player);
+                if (comp.selectedSpell == WizardPlayerComponent.Spell.ARMOR && isArmorUsable(comp)) {
                     ClientPlayNetworking.send(new WizardShieldC2SPacket(targetPlayer.getProfile().getId()));
                 }
             }
@@ -57,14 +55,14 @@ public class WizardShieldWidget extends Button {
         this.targetPlayer = targetPlayer;
     }
 
-    private static boolean isArmorUsable(WizardRoleData comp) {
+    private static boolean isArmorUsable(WizardPlayerComponent comp) {
         if (comp.armorUsed) return false;
         NoellesRolesConfig config = NoellesRolesConfig.HANDLER.instance();
         if (comp.mana < config.wizardArmorMinMana) return false;
         return true;
     }
 
-    private static Component getArmorUnavailableReason(WizardRoleData comp) {
+    private static Component getArmorUnavailableReason(WizardPlayerComponent comp) {
         if (comp.armorUsed) {
             return Component.translatable("hud.wizard.armor_used");
         }
@@ -91,12 +89,10 @@ public class WizardShieldWidget extends Button {
         boolean armorAvailable = false;
         Component reason = null;
         if (player != null) {
-            WizardRoleData comp = RoleData.getNullable(WizardRoleData.class, player);
-            if (RoleData.isAttached(comp)) {
-                armorAvailable = isArmorUsable(comp);
-                if (!armorAvailable) {
-                    reason = getArmorUnavailableReason(comp);
-                }
+            WizardPlayerComponent comp = WizardPlayerComponent.KEY.get(player);
+            armorAvailable = isArmorUsable(comp);
+            if (!armorAvailable) {
+                reason = getArmorUnavailableReason(comp);
             }
         }
 

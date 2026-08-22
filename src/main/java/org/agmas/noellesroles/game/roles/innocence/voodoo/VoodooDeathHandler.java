@@ -15,10 +15,6 @@
 
 package org.agmas.noellesroles.game.roles.innocence.voodoo;
 
-import org.agmas.noellesroles.role_data.innocence.VoodooRoleData;
-
-import io.wifi.starrailexpress.api.data.RoleData;
-
 import io.wifi.starrailexpress.api.SREGameModes;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.event.OnPlayerDeathWithKiller;
@@ -43,8 +39,9 @@ public class VoodooDeathHandler {
                 boolean isLengxiao = gameWorldComponent.isRole(victim, BounsRoles.LENGXIAO);
                 boolean isVoodoo = gameWorldComponent.isRole(victim, ModRoles.VOODOO);
                 if (isLengxiao || isVoodoo) {
-                    VoodooRoleData voodooPlayerComponent = RoleData.getNullable(VoodooRoleData.class, victim);
-                    if (voodooPlayerComponent != null && voodooPlayerComponent.target != null) {
+                    VoodooPlayerComponent voodooPlayerComponent = (VoodooPlayerComponent) VoodooPlayerComponent.KEY
+                            .get(victim);
+                    if (voodooPlayerComponent.target != null) {
                         Player voodooed = victim.level().getPlayerByUUID(voodooPlayerComponent.target);
                         if (voodooed != null) {
                             if (GameUtils.isPlayerAliveAndSurvival(voodooed) && voodooed != victim) {

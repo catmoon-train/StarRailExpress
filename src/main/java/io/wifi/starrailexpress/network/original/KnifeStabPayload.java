@@ -16,9 +16,8 @@
 package io.wifi.starrailexpress.network.original;
 
 import io.wifi.starrailexpress.SRE;
+
 import io.wifi.starrailexpress.api.TMMRoles;
-import io.wifi.starrailexpress.api.hit.HitType;
-import io.wifi.starrailexpress.api.hit.SREHitManager;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.game.GameConstants;
 import io.wifi.starrailexpress.game.GameUtils;
@@ -37,6 +36,8 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.item.ItemStack;
+
+import org.agmas.noellesroles.content.entity.PuppeteerBodyEntity;
 import org.jetbrains.annotations.NotNull;
 
 public record KnifeStabPayload(int target) implements CustomPacketPayload {
@@ -59,9 +60,15 @@ public record KnifeStabPayload(int target) implements CustomPacketPayload {
                 target = ts;
             }
 
-            if (targetEntity != null && target == null
-                    && SREHitManager.tryHit(player, targetEntity, HitType.KNIFE)) {
-                targetEntity.playSound(TMMSounds.ITEM_KNIFE_STAB, 1.0f, 1.0f);
+            if ((targetEntity instanceof PuppeteerBodyEntity bodyEntity)) {
+
+                if (bodyEntity.distanceTo(player) > 4.0)
+                    return;
+
+                // 对傀儡本体造成致命伤害（20点以上确保击杀）
+                bodyEntity.playerHurt(player, GameConstants.DeathReasons.PUPPETEER_KNIFE);
+
+                bodyEntity.playSound(TMMSounds.ITEM_KNIFE_STAB, 1.0f, 1.0f);
                 player.swing(InteractionHand.MAIN_HAND);
 
                 if (!player.isCreative()

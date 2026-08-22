@@ -15,7 +15,6 @@
 
 package org.agmas.noellesroles.client.hud.roles;
 
-import io.wifi.starrailexpress.api.data.RoleData;
 import io.wifi.starrailexpress.client.SREClient;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
@@ -23,7 +22,7 @@ import net.minecraft.network.chat.Component;
 
 import org.agmas.noellesroles.client.NoellesrolesClient;
 import org.agmas.noellesroles.client.event.RoleHudRenderCallback;
-import org.agmas.noellesroles.role_data.innocence.MonitorRoleData;
+import org.agmas.noellesroles.game.roles.innocence.monitor.MonitorPlayerComponent;
 import org.agmas.noellesroles.role.ModRoles;
 
 import java.util.UUID;
@@ -34,8 +33,7 @@ public class MonitorHud {
             Minecraft client = Minecraft.getInstance();
             if (SREClient.isPlayerSpectator())
                 return;
-            MonitorRoleData monitorComponent = RoleData.getNullable(MonitorRoleData.class, client.player);
-            if (monitorComponent == null) return;
+            MonitorPlayerComponent monitorComponent = MonitorPlayerComponent.KEY.get(client.player);
             UUID target = monitorComponent.markedTarget;
 
             Component text;

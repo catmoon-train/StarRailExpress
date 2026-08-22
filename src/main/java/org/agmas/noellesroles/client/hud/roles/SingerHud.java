@@ -15,7 +15,6 @@
 
 package org.agmas.noellesroles.client.hud.roles;
 
-import io.wifi.starrailexpress.api.data.RoleData;
 import io.wifi.starrailexpress.client.SREClient;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
@@ -23,7 +22,7 @@ import net.minecraft.client.gui.Font;
 import net.minecraft.network.chat.Component;
 import org.agmas.noellesroles.client.event.RoleHudRenderCallback;
 import org.agmas.noellesroles.component.ModComponents;
-import org.agmas.noellesroles.role_data.innocence.SingerRoleData;
+import org.agmas.noellesroles.game.roles.innocence.singer.SingerPlayerComponent;
 import org.agmas.noellesroles.role.ModRoles;
 
 /**
@@ -40,8 +39,7 @@ public class SingerHud {
             if (SREClient.isPlayerSpectator())
                 return;
             // 获取歌手组件
-            SingerRoleData singerComp = RoleData.getNullable(SingerRoleData.class, client.player);
-            if (singerComp == null) return;
+            SingerPlayerComponent singerComp = ModComponents.SINGER.get(client.player);
             if (!singerComp.isActive)
                 return;
 

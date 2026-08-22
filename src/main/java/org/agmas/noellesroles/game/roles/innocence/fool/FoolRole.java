@@ -15,8 +15,6 @@
 
 package org.agmas.noellesroles.game.roles.innocence.fool;
 
-import org.agmas.noellesroles.role_data.innocence.FoolRoleData;
-import io.wifi.starrailexpress.api.data.RoleData;
 import io.wifi.starrailexpress.api.NormalRole;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.util.ShopEntry;
@@ -87,9 +85,7 @@ public class FoolRole extends NormalRole {
 
     @Override
     public void serverTick(ServerPlayer player) {
-        FoolRoleData comp = RoleData.getNullable(FoolRoleData.class, player);
-        if (!RoleData.isAttached(comp))
-            return;
+        FoolPlayerComponent comp = FoolPlayerComponent.KEY.get(player);
         if (!comp.starterGunGranted) {
             ExecutionerGunItem.ensureExecutionerGun(player);
             comp.executionerBullets = 1;

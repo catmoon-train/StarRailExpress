@@ -22,8 +22,7 @@ import io.wifi.starrailexpress.client.particle.HandParticle;
 import io.wifi.starrailexpress.client.render.TMMRenderLayers;
 import io.wifi.starrailexpress.compat.CrosshairaddonsCompat;
 import io.wifi.starrailexpress.content.item.api.SREItemProperties.HeldLikeRevolver;
-import io.wifi.starrailexpress.api.hit.HitType;
-import io.wifi.starrailexpress.api.hit.SREHitManager;
+import io.wifi.starrailexpress.game.GameUtils;
 import io.wifi.starrailexpress.index.SREDataComponentTypes;
 import io.wifi.starrailexpress.index.TMMItems;
 import io.wifi.starrailexpress.network.original.SniperShootPayload;
@@ -41,6 +40,9 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.HitResult;
+import org.agmas.noellesroles.content.entity.RainbowHorseEntity;
+import org.agmas.noellesroles.content.entity.CanyuesaHorseEntity;
+import org.agmas.noellesroles.content.entity.SuperPigHorseEntity;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
@@ -181,7 +183,11 @@ public class SniperRifleItem extends Item implements HeldLikeRevolver {
     }
 
     public static HitResult getGunTarget(Player user) {
-        return SREHitManager.getTarget(user, HitType.SNIPER, 200.0, SniperProjectileUtil::getSniperHitResult);
+        return SniperProjectileUtil.getSniperHitResult(user,
+                entity -> entity instanceof Player player && GameUtils.isPlayerAliveAndSurvival(player)
+                        || entity instanceof RainbowHorseEntity
+                        || entity instanceof CanyuesaHorseEntity
+                        || entity instanceof SuperPigHorseEntity, 200F);
     }
 
     // 倍镜相关方法

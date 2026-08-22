@@ -15,14 +15,13 @@
 
 package org.agmas.noellesroles.client.hud.roles;
 
-import io.wifi.starrailexpress.api.data.RoleData;
 import io.wifi.starrailexpress.client.SREClient;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;
 import org.agmas.noellesroles.client.event.RoleHudRenderCallback;
 import org.agmas.noellesroles.component.ModComponents;
-import org.agmas.noellesroles.role_data.innocence.MorticianRoleData;
+import org.agmas.noellesroles.game.roles.innocence.mortician.MorticianPlayerComponent;
 import org.agmas.noellesroles.role.ModRoles;
 
 public class MorticianHud {
@@ -37,7 +36,7 @@ public class MorticianHud {
                 return;
             }
 
-            MorticianRoleData component = RoleData.getNullable(MorticianRoleData.class, client.player);
+            MorticianPlayerComponent component = ModComponents.MORTICIAN.get(client.player);
             if (component == null) {
                 return;
             }

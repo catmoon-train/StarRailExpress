@@ -16,8 +16,6 @@
 package io.wifi.starrailexpress.network.original;
 
 import io.wifi.starrailexpress.SRE;
-import io.wifi.starrailexpress.api.hit.HitType;
-import io.wifi.starrailexpress.api.hit.SREHitManager;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.cca.SREPlayerMoodComponent;
 import io.wifi.starrailexpress.event.AllowShootRevolverDrop;
@@ -26,6 +24,7 @@ import io.wifi.starrailexpress.event.OnRevolverUsed;
 import io.wifi.starrailexpress.game.GameConstants;
 import io.wifi.starrailexpress.game.GameUtils;
 import io.wifi.starrailexpress.index.SREDataComponentTypes;
+import io.wifi.starrailexpress.util.HorseDamageUtil;
 import io.wifi.starrailexpress.index.TMMItems;
 import io.wifi.starrailexpress.index.TMMSounds;
 import io.wifi.starrailexpress.index.tag.TMMItemTags;
@@ -49,6 +48,7 @@ import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 
+import org.agmas.noellesroles.content.entity.PuppeteerBodyEntity;
 import org.agmas.noellesroles.content.item.SheriffRevolverItem;
 import org.agmas.noellesroles.init.ModItems;
 import org.jetbrains.annotations.NotNull;
@@ -171,8 +171,11 @@ public record GunShootPayload(int target) implements CustomPacketPayload {
                 }
                 OnRevolverUsed.EVENT.invoker().onPlayerShoot(player, target);
 
-            } else if (SREHitManager.asProxyPlayer(hitEntity) instanceof ServerPlayer target) {
-                if (hitEntity.distanceTo(player) > SREHitManager.getMaxRange(hitEntity, HitType.GUN))
+            } else if (hitEntity instanceof PuppeteerBodyEntity bodyEntity) {
+                // 检查目标是否是傀儡本体实体
+                if (bodyEntity.distanceTo(player) > 65.0)
+                    return;
+                if (!(bodyEntity.getOwner() instanceof ServerPlayer target))
                     return;
                 // 播放枪声
                 player.level().playSound(null, player.getX(), player.getEyeY(), player.getZ(),
@@ -234,12 +237,19 @@ public record GunShootPayload(int target) implements CustomPacketPayload {
                 }
 
                 if (!backfire) {
-                    SREHitManager.tryHit(player, hitEntity, HitType.GUN);
+                    // if (!isGodfather(player)) {
+                    // mainHandStack.set(SREDataComponentTypes.USED, false);
+                    // }
+                    // 德林加不在这里补充
+
+                    // 对傀儡本体造成致命伤害
+                    bodyEntity.playerHurt(player, GameConstants.DeathReasons.PUPPETEER_GUN);
                 }
                 OnRevolverUsed.EVENT.invoker().onPlayerShoot(player, target);
             } else {
                 OnRevolverUsed.EVENT.invoker().onPlayerShoot(player, null);
-                SREHitManager.tryHit(player, hitEntity, HitType.GUN);
+                // 通用马匹伤害处理
+                HorseDamageUtil.tryDamageHorse(hitEntity, player, 8.0F, 30.0);
             }
 
             player.level().playSound(null, player.getX(), player.getEyeY(), player.getZ(),

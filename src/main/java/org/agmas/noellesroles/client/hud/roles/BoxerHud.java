@@ -15,7 +15,6 @@
 
 package org.agmas.noellesroles.client.hud.roles;
 
-import io.wifi.starrailexpress.api.data.RoleData;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.network.chat.Component;
@@ -23,7 +22,7 @@ import net.minecraft.util.CommonColors;
 
 import org.agmas.noellesroles.client.NoellesrolesClient;
 import org.agmas.noellesroles.client.event.RoleHudRenderCallback;
-import org.agmas.noellesroles.role_data.innocence.BoxerRoleData;
+import org.agmas.noellesroles.game.roles.innocence.boxer.BoxerPlayerComponent;
 import org.agmas.noellesroles.role.ModRoles;
 
 /**
@@ -41,8 +40,7 @@ public class BoxerHud {
             Minecraft client = Minecraft.getInstance();
 
             // 获取斗士组件
-            BoxerRoleData boxerComponent = RoleData.getNullable(BoxerRoleData.class, client.player);
-            if (boxerComponent == null) return;
+            BoxerPlayerComponent boxerComponent = BoxerPlayerComponent.KEY.get(client.player);
 
             // 渲染位置 - 右下角
             int screenWidth = client.getWindow().getGuiScaledWidth();

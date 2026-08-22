@@ -15,7 +15,6 @@
 
 package org.agmas.noellesroles.mixin.client.roles.salted_fish;
 
-import io.wifi.starrailexpress.api.data.RoleData;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
 import io.wifi.starrailexpress.client.render.entity.PlayerBodyEntityRenderer;
@@ -23,7 +22,7 @@ import io.wifi.starrailexpress.content.entity.PlayerBodyEntity;
 import net.minecraft.client.Minecraft;
 import net.minecraft.world.entity.player.Player;
 import org.agmas.noellesroles.content.entity.SaltedFishBodyEntity;
-import org.agmas.noellesroles.role_data.innocence.SaltedFishRoleData;
+import org.agmas.noellesroles.game.roles.innocence.salted_fish.SaltedFishPlayerComponent;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -43,8 +42,8 @@ public abstract class SaltedFishBodyRenderMixin {
             return;
         }
         Player owner = client.level.getPlayerByUUID(body.getPlayerUuid());
-        SaltedFishRoleData component = owner == null ? null
-                : RoleData.getNullable(SaltedFishRoleData.class, owner);
+        SaltedFishPlayerComponent component = owner == null ? null
+                : SaltedFishPlayerComponent.KEY.maybeGet(owner).orElse(null);
         if (component == null || !component.isActive()) {
             return;
         }

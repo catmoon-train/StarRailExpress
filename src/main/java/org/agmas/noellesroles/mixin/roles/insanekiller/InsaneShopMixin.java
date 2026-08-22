@@ -15,11 +15,10 @@
 
 package org.agmas.noellesroles.mixin.roles.insanekiller;
 
-import io.wifi.starrailexpress.api.data.RoleData;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.util.ShopEntry;
 import net.minecraft.world.entity.player.Player;
-import org.agmas.noellesroles.role_data.killer.InsaneKillerRoleData;
+import org.agmas.noellesroles.game.roles.killer.insane_killer.InsaneKillerPlayerComponent;
 import org.agmas.noellesroles.role.ModRoles;
 import org.jetbrains.annotations.NotNull;
 import org.spongepowered.asm.mixin.Mixin;
@@ -34,8 +33,8 @@ public abstract class InsaneShopMixin {
     private void cantBuy(@NotNull Player player, CallbackInfoReturnable<Boolean> cir) {
         if (SREGameWorldComponent.KEY.get(player.level()).isRole(player,
                 ModRoles.INSANE_KILLER)) {
-            var ikpc = RoleData.getNullable(InsaneKillerRoleData.class, player);
-            if (RoleData.isAttached(ikpc) && ikpc.inNearDeath()) {
+            var ikpc = InsaneKillerPlayerComponent.KEY.get(player);
+            if(ikpc.inNearDeath()){
                 cir.setReturnValue(false);
                 return;
             }

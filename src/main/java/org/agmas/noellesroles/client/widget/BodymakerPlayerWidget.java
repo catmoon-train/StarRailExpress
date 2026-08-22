@@ -15,8 +15,6 @@
 
 package org.agmas.noellesroles.client.widget;
 
-import io.wifi.starrailexpress.api.data.RoleData;
-
 import io.wifi.starrailexpress.client.gui.screen.ingame.LimitedInventoryScreen;
 import io.wifi.starrailexpress.util.ShopEntry;
 import net.minecraft.client.Minecraft;
@@ -25,7 +23,8 @@ import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.PlayerFaceRenderer;
 import net.minecraft.client.multiplayer.PlayerInfo;
 import net.minecraft.network.chat.Component;
-import org.agmas.noellesroles.role_data.neutral.MorticianBodyMakerRoleData;
+import org.agmas.noellesroles.component.ModComponents;
+import org.agmas.noellesroles.game.roles.neutral.mortician.MorticianBodyMakerPlayerComponent;
 import org.jetbrains.annotations.NotNull;
 
 import java.awt.*;
@@ -47,7 +46,7 @@ public class BodymakerPlayerWidget extends Button {
         super(x, y, 16, 16, Component.empty(), (button) -> {
             if (Minecraft.getInstance().player == null) return;
             
-            MorticianBodyMakerRoleData component = RoleData.getNullable(org.agmas.noellesroles.role_data.neutral.MorticianBodyMakerRoleData.class, Minecraft.getInstance().player);
+            MorticianBodyMakerPlayerComponent component = ModComponents.MORTICIAN_BODYMAKER.get(Minecraft.getInstance().player);
             if (component == null) return;
             
             // 技能冷却时不允许选择
@@ -66,8 +65,8 @@ public class BodymakerPlayerWidget extends Button {
         if (Minecraft.getInstance().player == null) return;
         super.renderWidget(context, mouseX, mouseY, delta);
         
-        MorticianBodyMakerRoleData component = RoleData.getNullable(org.agmas.noellesroles.role_data.neutral.MorticianBodyMakerRoleData.class, Minecraft.getInstance().player);
-        if (!RoleData.isAttached(component)) return;
+        MorticianBodyMakerPlayerComponent component = ModComponents.MORTICIAN_BODYMAKER.get(Minecraft.getInstance().player);
+        if (component == null) return;
 
         // 造尸冷却时显示灰色 + 倒计时（完全类似变形者）
         if (component.bodyCreationCooldown > 0) {

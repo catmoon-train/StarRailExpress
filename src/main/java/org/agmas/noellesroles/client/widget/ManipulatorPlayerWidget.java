@@ -15,7 +15,6 @@
 
 package org.agmas.noellesroles.client.widget;
 
-import io.wifi.starrailexpress.api.data.RoleData;
 import io.wifi.starrailexpress.cca.SREAbilityPlayerComponent;
 import io.wifi.starrailexpress.client.SREClient;
 import io.wifi.starrailexpress.client.gui.screen.ingame.LimitedInventoryScreen;
@@ -32,7 +31,7 @@ import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.level.GameType;
-import org.agmas.noellesroles.role_data.killer.ManipulatorRoleData;
+import org.agmas.noellesroles.game.roles.killer.manipulator.ManipulatorPlayerComponent;
 import org.agmas.noellesroles.init.ModEffects;
 import org.agmas.noellesroles.packet.ManipulatorC2SPacket;
 import org.jetbrains.annotations.NotNull;
@@ -54,8 +53,7 @@ public class ManipulatorPlayerWidget extends Button {
         super(x, y, 16, 16, Component.literal(targetPlayer.getProfile().getName()), (button) -> {
             AbstractClientPlayer player = Minecraft.getInstance().player;
             if (player != null) {
-                ManipulatorRoleData manipulatorComp = RoleData.getNullable(ManipulatorRoleData.class, player);
-                if (manipulatorComp == null) return;
+                ManipulatorPlayerComponent manipulatorComp = ManipulatorPlayerComponent.KEY.get(player);
                 SREAbilityPlayerComponent abilityComp = SREAbilityPlayerComponent.KEY.get(player);
 
                 if (abilityComp.cooldown <= 0 && !manipulatorComp.isControlling) {
@@ -81,8 +79,7 @@ public class ManipulatorPlayerWidget extends Button {
         AbstractClientPlayer player = Minecraft.getInstance().player;
         if (player == null) return;
         
-        ManipulatorRoleData manipulatorComp = RoleData.getNullable(ManipulatorRoleData.class, player);
-        if (!RoleData.isAttached(manipulatorComp)) return;
+        ManipulatorPlayerComponent manipulatorComp = ManipulatorPlayerComponent.KEY.get(player);
         SREAbilityPlayerComponent abilityComp = SREAbilityPlayerComponent.KEY.get(player);
 
         boolean canControl = abilityComp.cooldown <= 0 && !manipulatorComp.isControlling && !player.hasEffect(ModEffects.SAFE_TIME);

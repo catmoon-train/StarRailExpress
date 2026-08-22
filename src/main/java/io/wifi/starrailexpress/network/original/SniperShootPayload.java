@@ -16,8 +16,6 @@
 package io.wifi.starrailexpress.network.original;
 
 import io.wifi.starrailexpress.SRE;
-import io.wifi.starrailexpress.api.hit.HitType;
-import io.wifi.starrailexpress.api.hit.SREHitManager;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.cca.SREPlayerMoodComponent;
 import io.wifi.starrailexpress.content.item.SniperRifleItem;
@@ -28,6 +26,7 @@ import io.wifi.starrailexpress.game.GameUtils;
 import io.wifi.starrailexpress.index.TMMItems;
 import io.wifi.starrailexpress.index.TMMSounds;
 import io.wifi.starrailexpress.network.PacketTracker;
+import io.wifi.starrailexpress.util.HorseDamageUtil;
 import io.wifi.starrailexpress.util.SREItemUtils;
 import io.wifi.starrailexpress.util.Scheduler;
 import io.wifi.starrailexpress.util.TrueFalseResult;
@@ -193,7 +192,8 @@ public record SniperShootPayload(Action action, int targetOrShooterId, @Nullable
                         }
                         GameUtils.killPlayer(target, true, player, GameConstants.DeathReasons.SNIPER_RIFLE);
                     } else {
-                        SREHitManager.tryHit(player, hitEntity, HitType.SNIPER);
+                        // 通用马匹伤害处理
+                        HorseDamageUtil.tryDamageHorse(hitEntity, player, 20.0F, 200.0);
                     }
                 }
                 case RELOAD -> {

@@ -15,7 +15,6 @@
 
 package org.agmas.noellesroles.client.screen;
 
-import io.wifi.starrailexpress.api.data.RoleData;
 import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.client.util.PinYinUtils;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
@@ -34,7 +33,7 @@ import org.agmas.noellesroles.Noellesroles;
 import org.agmas.noellesroles.client.widget.RecorderPlayerWidget;
 import org.agmas.noellesroles.client.widget.RecorderRoleWidget;
 import org.agmas.noellesroles.component.ModComponents;
-import org.agmas.noellesroles.role_data.neutral.RecorderRoleData;
+import org.agmas.noellesroles.game.roles.neutral.recorder.RecorderPlayerComponent;
 import org.agmas.noellesroles.packet.RecorderC2SPacket;
 import org.agmas.noellesroles.utils.RoleUtils;
 
@@ -65,7 +64,7 @@ public class RecorderScreen extends Screen {
     // 搜索框
     EditBox searchWidget = null;
     String searchContent = null;
-    private RecorderRoleData recorderPlayerComponent = null;
+    private RecorderPlayerComponent recorderPlayerComponent = null;
 
     // 角色列表
     private List<SRERole> roles = new ArrayList<>();
@@ -84,8 +83,8 @@ public class RecorderScreen extends Screen {
     public RecorderScreen(Player player) {
         super(Component.translatable("screen.noellesroles.recorder.title"));
         if (player != null) {
-            var recorderC = RoleData.getNullable(RecorderRoleData.class, player);
-            if (RoleData.isAttached(recorderC)) {
+            var recorderC = RecorderPlayerComponent.KEY.get(player);
+            if (recorderC != null) {
                 recorderPlayerComponent = recorderC;
             } else {
                 // onClose();
@@ -137,8 +136,8 @@ public class RecorderScreen extends Screen {
             return;
 
         // 尝试从组件获取开局玩家列表
-        RecorderRoleData recorder = RoleData.getNullable(RecorderRoleData.class, minecraft.player);
-        Map<UUID, String> startPlayers = RoleData.isAttached(recorder) ? recorder.getStartPlayers() : Map.of();
+        RecorderPlayerComponent recorder = ModComponents.RECORDER.get(minecraft.player);
+        Map<UUID, String> startPlayers = recorder.getStartPlayers();
 
         List<UUID> playerUuids = new ArrayList<>();
         Map<UUID, String> playerNames = new HashMap<>();
@@ -284,8 +283,8 @@ public class RecorderScreen extends Screen {
             return;
 
         // 从组件获取当前局有的身份
-        // RecorderRoleData recorder =
-        // RoleData.getNullable(RecorderRoleData.class, minecraft.player);
+        // RecorderPlayerComponent recorder =
+        // ModComponents.RECORDER.get(minecraft.player);
         var availableRoleIds = Noellesroles.getAllRolesSorted(false);
 
         roles.clear();

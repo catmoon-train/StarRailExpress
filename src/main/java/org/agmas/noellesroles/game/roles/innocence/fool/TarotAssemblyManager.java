@@ -15,8 +15,6 @@
 
 package org.agmas.noellesroles.game.roles.innocence.fool;
 
-import org.agmas.noellesroles.role_data.innocence.FoolRoleData;
-import io.wifi.starrailexpress.api.data.RoleData;
 import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.api.replay.GameReplayUtils;
@@ -81,9 +79,7 @@ public class TarotAssemblyManager {
      * 愚者按G键召开塔罗会
      */
     public static void startAssembly(ServerPlayer fool) {
-        FoolRoleData comp = RoleData.getNullable(FoolRoleData.class, fool);
-        if (!RoleData.isAttached(comp))
-            return;
+        FoolPlayerComponent comp = FoolPlayerComponent.KEY.get(fool);
         if(comp.isExited){
             fool.displayClientMessage(
                     Component.translatable("message.noellesroles.fool.disconnected")
@@ -206,9 +202,7 @@ public class TarotAssemblyManager {
         if (fool == null)
             return;
 
-        FoolRoleData comp = RoleData.getNullable(FoolRoleData.class, fool);
-        if (!RoleData.isAttached(comp))
-            return;
+        FoolPlayerComponent comp = FoolPlayerComponent.KEY.get(fool);
         long currentTick = GameUtils.getTicksFromGameStart(serverLevel);
         if (!comp.inMeeting)
             return;
@@ -229,7 +223,7 @@ public class TarotAssemblyManager {
     /**
      * 传送玩家到会议室，并在原位生成傀儡
      */
-    private static void teleportToMeeting(ServerPlayer player, FoolRoleData foolComp,
+    private static void teleportToMeeting(ServerPlayer player, FoolPlayerComponent foolComp,
             ServerLevel serverLevel) {
         player.stopSleeping();
         player.stopRiding();
@@ -288,9 +282,7 @@ public class TarotAssemblyManager {
         if (fool == null)
             return;
 
-        FoolRoleData comp = RoleData.getNullable(FoolRoleData.class, fool);
-        if (!RoleData.isAttached(comp))
-            return;
+        FoolPlayerComponent comp = FoolPlayerComponent.KEY.get(fool);
         if (!comp.inMeeting)
             return;
 
@@ -310,9 +302,7 @@ public class TarotAssemblyManager {
      * 结束会议并将玩家送回原位
      */
     public static void endMeeting(ServerPlayer fool) {
-        FoolRoleData comp = RoleData.getNullable(FoolRoleData.class, fool);
-        if (!RoleData.isAttached(comp))
-            return;
+        FoolPlayerComponent comp = FoolPlayerComponent.KEY.get(fool);
         if (!comp.inMeeting)
             return;
 
@@ -342,7 +332,7 @@ public class TarotAssemblyManager {
     /**
      * 传送玩家回原位并移除傀儡
      */
-    private static void teleportBack(ServerPlayer player, FoolRoleData foolComp,
+    private static void teleportBack(ServerPlayer player, FoolPlayerComponent foolComp,
             ServerLevel serverLevel) {
         double[] pos = foolComp.meetingOriginalPositions.remove(player.getUUID());
         if (pos != null) {
@@ -377,9 +367,7 @@ public class TarotAssemblyManager {
      */
     @SuppressWarnings("unused")
     public static void processVoteResults(ServerPlayer fool, Map<UUID, UUID> votes, Set<UUID> eligibleVoters) {
-        FoolRoleData comp = RoleData.getNullable(FoolRoleData.class, fool);
-        if (!RoleData.isAttached(comp))
-            return;
+        FoolPlayerComponent comp = FoolPlayerComponent.KEY.get(fool);
         ServerLevel serverLevel = (ServerLevel) fool.level();
         long currentTick = GameUtils.getTicksFromGameStart(fool.level());
         Set<UUID> candidateTargets = collectVoteTargets(serverLevel, fool.getUUID());
@@ -455,9 +443,7 @@ public class TarotAssemblyManager {
      * 服务端Tick处理
      */
     public static void serverTick(ServerPlayer player, SREGameWorldComponent gameComponent) {
-        FoolRoleData comp = RoleData.getNullable(FoolRoleData.class, player);
-        if (!RoleData.isAttached(comp))
-            return;
+        FoolPlayerComponent comp = FoolPlayerComponent.KEY.get(player);
         long currentTick = GameUtils.getTicksFromGameStart(player.level());
         // 检查灵性斗篷效果是否过期
         if (comp.cloakActive && currentTick >= comp.cloakEndTick) {
@@ -484,9 +470,7 @@ public class TarotAssemblyManager {
     }
 
     private static void tickMeetingState(ServerPlayer fool, ServerLevel serverLevel) {
-        FoolRoleData comp = RoleData.getNullable(FoolRoleData.class, fool);
-        if (!RoleData.isAttached(comp))
-            return;
+        FoolPlayerComponent comp = FoolPlayerComponent.KEY.get(fool);
 
         if (!comp.inMeeting) {
             return;
@@ -516,9 +500,7 @@ public class TarotAssemblyManager {
         if (fool == null)
             return;
 
-        FoolRoleData comp = RoleData.getNullable(FoolRoleData.class, fool);
-        if (!RoleData.isAttached(comp))
-            return;
+        FoolPlayerComponent comp = FoolPlayerComponent.KEY.get(fool);
         if (!comp.inMeeting || !comp.voteInProgress)
             return;
         if (!comp.canVote(player.getUUID()))
@@ -546,9 +528,7 @@ public class TarotAssemblyManager {
         if (fool == null)
             return;
 
-        FoolRoleData comp = RoleData.getNullable(FoolRoleData.class, fool);
-        if (!RoleData.isAttached(comp))
-            return;
+        FoolPlayerComponent comp = FoolPlayerComponent.KEY.get(fool);
         long currentTick = GameUtils.getTicksFromGameStart(serverLevel);
         if (!comp.inMeeting)
             return;
@@ -561,16 +541,14 @@ public class TarotAssemblyManager {
     }
 
     private static void finalizeVotingAndEndMeeting(ServerPlayer fool) {
-        FoolRoleData comp = RoleData.getNullable(FoolRoleData.class, fool);
-        if (!RoleData.isAttached(comp))
-            return;
+        FoolPlayerComponent comp = FoolPlayerComponent.KEY.get(fool);
         Set<UUID> eligibleVoters = new HashSet<>(comp.voteEligibleParticipants);
         Map<UUID, UUID> votes = new HashMap<>(comp.meetingVotes);
         processVoteResults(fool, votes, eligibleVoters);
         endMeeting(fool);
     }
 
-    private static Set<UUID> collectMeetingParticipants(FoolRoleData comp) {
+    private static Set<UUID> collectMeetingParticipants(FoolPlayerComponent comp) {
         Set<UUID> participants = new HashSet<>();
         for (UUID participantUuid : comp.meetingOriginalPositions.keySet()) {
             participants.add(participantUuid);
@@ -578,7 +556,7 @@ public class TarotAssemblyManager {
         return participants;
     }
 
-    private static void refreshVoteParticipants(ServerLevel serverLevel, FoolRoleData comp) {
+    private static void refreshVoteParticipants(ServerLevel serverLevel, FoolPlayerComponent comp) {
         Set<UUID> participants = collectMeetingParticipants(comp);
         comp.voteEligibleParticipants.clear();
         comp.voteEligibleParticipants.addAll(participants);
@@ -587,7 +565,7 @@ public class TarotAssemblyManager {
                 entry -> !participants.contains(entry.getKey()) || !candidateTargets.contains(entry.getValue()));
     }
 
-    private static void openVoteScreenForPlayer(ServerPlayer voter, FoolRoleData comp, long currentTick) {
+    private static void openVoteScreenForPlayer(ServerPlayer voter, FoolPlayerComponent comp, long currentTick) {
         if (!comp.canVote(voter.getUUID()))
             return;
 
@@ -684,9 +662,7 @@ public class TarotAssemblyManager {
             return;
         }
 
-        FoolRoleData comp = RoleData.getNullable(FoolRoleData.class, fool);
-        if (!RoleData.isAttached(comp))
-            return;
+        FoolPlayerComponent comp = FoolPlayerComponent.KEY.get(fool);
         boolean changed = false;
         if (targetUuid.equals(comp.hereticTarget)) {
             comp.hereticTarget = null;
@@ -704,9 +680,7 @@ public class TarotAssemblyManager {
 
     private static void syncParticipantMeetingState(ServerPlayer player, boolean inMeeting, long meetingEndTick,
             boolean voteInProgress, long voteEndTick) {
-        FoolRoleData participantComp = RoleData.getNullable(FoolRoleData.class, player);
-        if (!RoleData.isAttached(participantComp))
-            return;
+        FoolPlayerComponent participantComp = FoolPlayerComponent.KEY.get(player);
         participantComp.inMeeting = inMeeting;
         participantComp.meetingEndTick = meetingEndTick;
         participantComp.voteInProgress = voteInProgress;
@@ -717,7 +691,7 @@ public class TarotAssemblyManager {
         participantComp.sync();
     }
 
-    private static void spawnMeetingPuppet(ServerPlayer player, FoolRoleData foolComp, ServerLevel serverLevel) {
+    private static void spawnMeetingPuppet(ServerPlayer player, FoolPlayerComponent foolComp, ServerLevel serverLevel) {
         PuppeteerBodyEntity puppet = new PuppeteerBodyEntity(ModEntities.PUPPETEER_BODY, serverLevel);
         puppet.setPos(player.getX(), player.getY(), player.getZ());
         puppet.setYRot(player.getYRot());

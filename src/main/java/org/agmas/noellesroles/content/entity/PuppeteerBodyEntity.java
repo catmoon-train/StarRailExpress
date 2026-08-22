@@ -15,13 +15,8 @@
 
 package org.agmas.noellesroles.content.entity;
 
-import org.agmas.noellesroles.role_data.neutral.RavenRoleData;
-import io.wifi.starrailexpress.api.data.RoleData;
 import com.mojang.authlib.GameProfile;
-import io.wifi.starrailexpress.api.hit.HitType;
-import io.wifi.starrailexpress.api.hit.IsTargetObject;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
-import io.wifi.starrailexpress.game.GameConstants;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.syncher.EntityDataAccessor;
@@ -37,7 +32,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import org.agmas.noellesroles.Noellesroles;
 import org.agmas.noellesroles.component.ModComponents;
-import org.agmas.noellesroles.role_data.neutral.PuppeteerRoleData;
+import org.agmas.noellesroles.game.roles.neutral.puppeteer.PuppeteerPlayerComponent;
 import org.agmas.noellesroles.role.ModRoles;
 import org.jspecify.annotations.Nullable;
 
@@ -51,7 +46,7 @@ import java.util.UUID;
  * 这个实体使用玩家的模型和皮肤，可以被攻击。
  * 如果本体被杀死，傀儡师也会死亡。
  */
-public class PuppeteerBodyEntity extends LivingEntity implements IsTargetObject {
+public class PuppeteerBodyEntity extends LivingEntity {
 
     @Override
     public void kill() {
@@ -219,33 +214,6 @@ public class PuppeteerBodyEntity extends LivingEntity implements IsTargetObject 
         }
     }
 
-    @Override
-    public boolean isValidTarget(Player attacker, HitType type) {
-        return true;
-    }
-
-    @Override
-    public double getMaxHitRange(HitType type) {
-        return switch (type) {
-            case KNIFE -> 4.0;
-            case GUN -> 65.0;
-            case SNIPER -> type.defaultRange;
-        };
-    }
-
-    @Override
-    public @Nullable Player getProxyPlayer() {
-        return getOwner();
-    }
-
-    @Override
-    public boolean onWeaponHit(Player attacker, HitType type) {
-        ResourceLocation reason = type == HitType.KNIFE
-                ? GameConstants.DeathReasons.PUPPETEER_KNIFE
-                : GameConstants.DeathReasons.PUPPETEER_GUN;
-        return playerHurt(attacker, reason);
-    }
-
     public boolean playerHurt(Player player, ResourceLocation deathReason) {
         if (level().isClientSide())
             return false;
@@ -254,9 +222,10 @@ public class PuppeteerBodyEntity extends LivingEntity implements IsTargetObject 
             // 通知傀儡师组件本体死亡
             SREGameWorldComponent gameWorld = SREGameWorldComponent.KEY.get(level());
             if (gameWorld.isRole(owner, ModRoles.PUPPETEER)) {
-                RoleData.ifPresent(PuppeteerRoleData.class, owner, d -> d.onBodyDeath(player, deathReason));
+                PuppeteerPlayerComponent puppeteerComp = ModComponents.PUPPETEER.get(owner);
+                puppeteerComp.onBodyDeath(player, deathReason);
             } else if (gameWorld.isRole(owner, ModRoles.RAVEN)) {
-                RoleData.ifPresent(RavenRoleData.class, owner, d -> d.onBodyDeath(player, deathReason));
+                ModComponents.RAVEN.get(owner).onBodyDeath(player, deathReason);
             } else {
                 owner.teleportTo(owner.getX(), owner.getY(), owner.getZ());
                 // ModEffects.pierceDeath = true;
@@ -293,9 +262,9 @@ public class PuppeteerBodyEntity extends LivingEntity implements IsTargetObject 
                 // 通知傀儡师组件本体死亡
                 SREGameWorldComponent gameWorld = SREGameWorldComponent.KEY.get(level());
                 if (gameWorld.isRole(owner, ModRoles.PUPPETEER)) {
-                    RoleData.ifPresent(PuppeteerRoleData.class, owner, PuppeteerRoleData::onBodyDeath);
+                    ModComponents.PUPPETEER.get(owner).onBodyDeath();
                 } else if (gameWorld.isRole(owner, ModRoles.RAVEN)) {
-                    RoleData.ifPresent(RavenRoleData.class, owner, d -> d.onBodyDeath(null, Noellesroles.id("raven_body_death")));
+                    ModComponents.RAVEN.get(owner).onBodyDeath(null, Noellesroles.id("raven_body_death"));
                 } else {
                     owner.teleportTo(owner.getX(), owner.getY(), owner.getZ());
                     // ModEffects.pierceDeath = true;
@@ -324,9 +293,9 @@ public class PuppeteerBodyEntity extends LivingEntity implements IsTargetObject 
         if (owner != null) {
             SREGameWorldComponent gameWorld = SREGameWorldComponent.KEY.get(level());
             if (gameWorld.isRole(owner, ModRoles.PUPPETEER)) {
-                RoleData.ifPresent(PuppeteerRoleData.class, owner, PuppeteerRoleData::onBodyDeath);
+                ModComponents.PUPPETEER.get(owner).onBodyDeath();
             } else if (gameWorld.isRole(owner, ModRoles.RAVEN)) {
-                RoleData.ifPresent(RavenRoleData.class, owner, d -> d.onBodyDeath(null, Noellesroles.id("raven_body_death")));
+                ModComponents.RAVEN.get(owner).onBodyDeath(null, Noellesroles.id("raven_body_death"));
             }
         }
     }

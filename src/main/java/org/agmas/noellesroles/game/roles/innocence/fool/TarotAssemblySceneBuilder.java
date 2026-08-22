@@ -21,7 +21,7 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 
-public final class TarotAssemblySceneBuilder {
+final class TarotAssemblySceneBuilder {
     /**
      * x宽度
      */

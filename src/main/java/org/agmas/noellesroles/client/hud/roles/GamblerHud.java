@@ -15,14 +15,13 @@
 
 package org.agmas.noellesroles.client.hud.roles;
 
-import io.wifi.starrailexpress.api.data.RoleData;
 import io.wifi.starrailexpress.client.SREClient;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.CommonColors;
 import org.agmas.noellesroles.client.event.RoleHudRenderCallback;
-import org.agmas.noellesroles.role_data.neutral.GamblerRoleData;
+import org.agmas.noellesroles.game.roles.neutral.gambler.GamblerPlayerComponent;
 import org.agmas.noellesroles.role.ModRoles;
 import org.agmas.noellesroles.utils.RoleUtils;
 
@@ -40,8 +39,7 @@ public class GamblerHud {
             if (SREClient.isPlayerSpectator())
                 return;
             // 获取赌徒组件
-            GamblerRoleData gamblerComponent = RoleData.getNullable(GamblerRoleData.class, client.player);
-            if (gamblerComponent == null) return;
+            GamblerPlayerComponent gamblerComponent = GamblerPlayerComponent.KEY.get(client.player);
 
             // 渲染位置 - 右下角
             int screenWidth = client.getWindow().getGuiScaledWidth();

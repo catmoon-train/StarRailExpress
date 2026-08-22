@@ -15,7 +15,6 @@
 
 package org.agmas.noellesroles.client.hud.roles;
 
-import io.wifi.starrailexpress.api.data.RoleData;
 import io.wifi.starrailexpress.client.SREClient;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
@@ -25,7 +24,7 @@ import net.minecraft.network.chat.Component;
 import org.agmas.noellesroles.client.NoellesrolesClient;
 import org.agmas.noellesroles.client.event.CommonHudRenderCallback;
 import org.agmas.noellesroles.component.ModComponents;
-import org.agmas.noellesroles.role_data.neutral.PuppeteerRoleData;
+import org.agmas.noellesroles.game.roles.neutral.puppeteer.PuppeteerPlayerComponent;
 import org.agmas.noellesroles.role.ModRoles;
 
 /**
@@ -44,8 +43,7 @@ public class PuppeteerHud {
             if (SREClient.isPlayerSpectator())
                 return;
             final var client = Minecraft.getInstance();
-            PuppeteerRoleData puppeteerComp = RoleData.getNullable(PuppeteerRoleData.class, client.player);
-            if (puppeteerComp == null) return;
+            PuppeteerPlayerComponent puppeteerComp = ModComponents.PUPPETEER.get(client.player);
 
             // 检查玩家是否是傀儡师（包括操控假人时角色临时变更的情况）
             // 操控假人时角色会变成其他杀手，但 isActivePuppeteer() 仍然返回 true

@@ -15,7 +15,6 @@
 
 package org.agmas.noellesroles.client.hud.roles;
 
-import io.wifi.starrailexpress.api.data.RoleData;
 import io.wifi.starrailexpress.client.SREClient;
 import io.wifi.starrailexpress.content.block.SmallDoorBlock;
 import net.minecraft.ChatFormatting;
@@ -25,7 +24,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Player;
 import org.agmas.noellesroles.client.event.RoleHudRenderCallback;
 import org.agmas.noellesroles.component.ModComponents;
-import org.agmas.noellesroles.role_data.innocence.MeatballRoleData;
+import org.agmas.noellesroles.game.roles.innocence.meatball.MeatballPlayerComponent;
 import org.agmas.noellesroles.role.ModRoles;
 
 public class MeatballHud {
@@ -42,7 +41,7 @@ public class MeatballHud {
                 return;
             }
 
-            MeatballRoleData component = RoleData.getNullable(MeatballRoleData.class, client.player);
+            MeatballPlayerComponent component = ModComponents.MEATBALL.get(client.player);
             if (component == null) {
                 return;
             }

@@ -15,7 +15,6 @@
 
 package org.agmas.noellesroles.client.hud.roles;
 
-import io.wifi.starrailexpress.api.data.RoleData;
 import io.wifi.starrailexpress.cca.SREAbilityPlayerComponent;
 import io.wifi.starrailexpress.cca.SREPlayerShopComponent;
 import io.wifi.starrailexpress.client.SREClient;
@@ -23,7 +22,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;
 import org.agmas.noellesroles.client.NoellesrolesClient;
 import org.agmas.noellesroles.client.event.RoleHudRenderCallback;
-import org.agmas.noellesroles.role_data.innocence.RecallerRoleData;
+import org.agmas.noellesroles.game.roles.innocence.recaller.RecallerPlayerComponent;
 import org.agmas.noellesroles.role.ModRoles;
 
 public class RecallerHud {
@@ -36,8 +35,7 @@ public class RecallerHud {
 
             SREAbilityPlayerComponent abilityPlayerComponent = (SREAbilityPlayerComponent) SREAbilityPlayerComponent.KEY
                     .get(client.player);
-            RecallerRoleData recallerPlayerComponent = RoleData.getNullable(RecallerRoleData.class, client.player);
-            if (recallerPlayerComponent == null) return;
+            RecallerPlayerComponent recallerPlayerComponent = RecallerPlayerComponent.KEY.get(client.player);
             SREPlayerShopComponent playerShopComponent = SREPlayerShopComponent.KEY.get(client.player);
 
             int drawY = context.guiHeight();

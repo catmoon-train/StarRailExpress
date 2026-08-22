@@ -15,13 +15,12 @@
 
 package org.agmas.noellesroles.client.hud.roles;
 
-import io.wifi.starrailexpress.api.data.RoleData;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.CommonColors;
 import org.agmas.noellesroles.client.event.RoleHudRenderCallback;
-import org.agmas.noellesroles.role_data.innocence.AgentRoleData;
+import org.agmas.noellesroles.game.roles.innocence.detective.AgentPlayerComponent;
 import org.agmas.noellesroles.role.ModRoles;
 
 /**
@@ -37,8 +36,7 @@ public class AgentHud {
             Minecraft client = Minecraft.getInstance();
 
             // 获取探员组件
-            AgentRoleData detectiveComponent = RoleData.getNullable(AgentRoleData.class, client.player);
-            if (detectiveComponent == null) return;
+            AgentPlayerComponent detectiveComponent = AgentPlayerComponent.KEY.get(client.player);
 
             // 渲染位置 - 右下角
             int screenWidth = client.getWindow().getGuiScaledWidth();

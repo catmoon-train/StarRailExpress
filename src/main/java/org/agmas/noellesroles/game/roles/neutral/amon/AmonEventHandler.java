@@ -15,8 +15,6 @@
 
 package org.agmas.noellesroles.game.roles.neutral.amon;
 
-import org.agmas.noellesroles.role_data.neutral.AmonRoleData;
-import io.wifi.starrailexpress.api.data.RoleData;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.event.AfterShieldAllowPlayerDeath;
 import io.wifi.starrailexpress.event.AfterShieldAllowPlayerDeathWithKiller;
@@ -63,9 +61,7 @@ public final class AmonEventHandler {
         SREGameWorldComponent game = SREGameWorldComponent.KEY.get(amon.level());
         if (!game.isRunning() || !game.isRole(amon, ModRoles.AMON)) return true;
 
-        AmonRoleData comp = RoleData.getNullable(AmonRoleData.class, amon);
-        if (!RoleData.isAttached(comp))
-            return true;
+        AmonPlayerComponent comp = AmonPlayerComponent.KEY.get(amon);
         // 终幕：消耗备用能力逃脱续命；否则中途夺舍续命。两者均无可用资源时真正死亡。
         if (comp.finalePhase) {
             if (comp.tryFinaleEscape()) {

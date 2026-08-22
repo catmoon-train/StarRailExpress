@@ -16,11 +16,10 @@
 package io.wifi.starrailexpress.content.item;
 
 import io.wifi.starrailexpress.SRE;
-import io.wifi.starrailexpress.api.hit.HitType;
-import io.wifi.starrailexpress.api.hit.SREHitManager;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.compat.CrosshairaddonsCompat;
 import io.wifi.starrailexpress.content.item.api.SREItemProperties.TrainWeapon;
+import io.wifi.starrailexpress.game.GameUtils;
 import io.wifi.starrailexpress.game.KillerKnifeDurability;
 import io.wifi.starrailexpress.index.TMMSounds;
 import io.wifi.starrailexpress.network.original.KnifeStabPayload;
@@ -34,6 +33,7 @@ import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.entity.projectile.ProjectileUtil;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.UseAnim;
 import net.minecraft.world.level.Level;
@@ -103,7 +103,15 @@ public class KnifeItem extends SkinableItem implements TrainWeapon {
     }
 
     public static HitResult getKnifeTarget(Player user) {
-        return SREHitManager.getTarget(user, HitType.KNIFE, 4.0);
+        return ProjectileUtil.getHitResultOnViewVector(user,
+                entity -> {
+                    // if (entity instanceof PuppeteerBodyEntity puppeteerBodyEntity){
+                    // var owner = puppeteerBodyEntity.getOwner();
+                    // return owner != null && GameUtils.isPlayerAliveAndSurvival(owner);
+                    // }
+                    return entity instanceof Player player && GameUtils.isPlayerAliveAndSurvival(player);
+
+                }, 4f);
     }
 
     @Override

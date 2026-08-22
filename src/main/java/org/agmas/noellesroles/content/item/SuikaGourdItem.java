@@ -15,7 +15,7 @@
 
 package org.agmas.noellesroles.content.item;
 
-import org.agmas.noellesroles.role_data.innocence.FoodDrinkGlowRoleData;
+import org.agmas.noellesroles.component.FoodDrinkGlowComponent;
 
 import io.wifi.starrailexpress.cca.SREPlayerMoodComponent;
 import io.wifi.starrailexpress.content.item.CocktailItem;
@@ -63,7 +63,7 @@ public class SuikaGourdItem extends CocktailItem {
         }
         user.gameEvent(GameEvent.EAT);
         if (user instanceof ServerPlayer serverPlayerEntity) {
-            FoodDrinkGlowRoleData.playerDrink(serverPlayerEntity, stack);
+            FoodDrinkGlowComponent.playerDrink(serverPlayerEntity, stack);
             CriteriaTriggers.CONSUME_ITEM.trigger(serverPlayerEntity, stack);
             serverPlayerEntity.awardStat(Stats.ITEM_USED.get(this));
             SREPlayerMoodComponent.KEY.get(serverPlayerEntity).drinkCocktail();

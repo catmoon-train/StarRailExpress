@@ -15,14 +15,13 @@
 
 package org.agmas.noellesroles.client.hud.roles;
 
-import io.wifi.starrailexpress.api.data.RoleData;
 import io.wifi.starrailexpress.cca.SREPlayerShopComponent;
 import io.wifi.starrailexpress.client.SREClient;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;
 import org.agmas.noellesroles.client.event.RoleHudRenderCallback;
-import org.agmas.noellesroles.role_data.neutral.PhantomMusicianRoleData;
+import org.agmas.noellesroles.game.roles.neutral.musician_phantom.PhantomMusicianPlayerComponent;
 import org.agmas.noellesroles.role.ModRoles;
 
 /**
@@ -40,8 +39,7 @@ public class PhantomMusicianHud {
             if (SREClient.isPlayerSpectator())
                 return;
 
-            PhantomMusicianRoleData comp = RoleData.getNullable(PhantomMusicianRoleData.class, client.player);
-            if (comp == null) return;
+            PhantomMusicianPlayerComponent comp = PhantomMusicianPlayerComponent.KEY.get(client.player);
             SREPlayerShopComponent shop = SREPlayerShopComponent.KEY.get(client.player);
 
             int screenRight = context.guiWidth();
@@ -56,7 +54,7 @@ public class PhantomMusicianHud {
                 int seconds = (comp.teleportCooldown + 19) / 20;
                 line = Component.translatable("hud.noellesroles.musician_phantom.teleport_cooldown", seconds)
                         .withStyle(ChatFormatting.RED);
-            } else if (shop.balance >= PhantomMusicianRoleData.TELEPORT_COST) {
+            } else if (shop.balance >= PhantomMusicianPlayerComponent.TELEPORT_COST) {
                 line = Component.translatable("hud.noellesroles.musician_phantom.teleport_ready")
                         .withStyle(ChatFormatting.GREEN);
             } else {

@@ -22,7 +22,6 @@ import io.wifi.starrailexpress.cca.SREPlayerMinigameTaskComponent;
 import io.wifi.starrailexpress.cca.SREPlayerShopComponent;
 import io.wifi.starrailexpress.util.ShopEntry;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
-import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.renderer.entity.ItemRenderer;
@@ -35,13 +34,11 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.item.ItemDisplayContext;
-import net.minecraft.util.Mth;
 import net.minecraft.world.item.ItemStack;
 import org.agmas.noellesroles.packet.VendingMachinesBuyC2SPacket;
 import org.jspecify.annotations.NonNull;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -51,8 +48,8 @@ import java.util.function.Consumer;
 import java.util.function.Predicate;
 
 public class VendingMachinesGui extends AbstractPixelScreen {
-    private static final int MAX_PANEL_WIDTH = 360;
-    private static final int MAX_PANEL_HEIGHT = 248;
+    private static final int MAX_PANEL_WIDTH = 300;
+    private static final int MAX_PANEL_HEIGHT = 208;
     private static final int GRID_COLUMNS = 5;
     private static final int DEFAULT_VISIBLE_ROWS = 3;
     private static final int SLOT_GAP = 6;
@@ -60,22 +57,6 @@ public class VendingMachinesGui extends AbstractPixelScreen {
     private static final int MAX_SLOT_SIZE = 28;
     private static final int KNOB_ANIMATION_TICKS = 10;
     private static final int DROP_FALL_ANIMATION_TICKS = 24;
-    private static final int SCROLL_W = 5;
-
-    private static final int BG_TOP = 0xC018120A;
-    private static final int BG_BOTTOM = 0xE0061018;
-    private static final int PANEL_BG_TOP = 0xD81A1008;
-    private static final int PANEL_BG_BOTTOM = 0xD820140A;
-    private static final int BORDER = 0xFF8B6914;
-    private static final int DECOR = 0x33FFE8C0;
-    private static final int GOLD = 0xFFD4AF37;
-    private static final int TEXT = 0xFFFFF4DC;
-    private static final int MUTED = 0xFF9E8B6E;
-    private static final int BODY = 0xFFC8B898;
-    private static final int GREEN = 0xFF72C17B;
-    private static final int CARD_BORDER = 0xFF5A4530;
-    private static final int HOVER_FILL = 0x22FFFFFF;
-    private static final int DIVIDER = 0x20FFFFFF;
 
     // Reserved texture layers (safe to replace with real textures later).
     private static final ResourceLocation LAYER_BG_TEXTURE = ResourceLocation.fromNamespaceAndPath("noellesroles",
@@ -150,11 +131,6 @@ public class VendingMachinesGui extends AbstractPixelScreen {
     private int collectClickAnimation = 0;
     private static final int COLLECT_CLICK_DURATION = 8;
     private long lastCollectClickTime = 0;
-
-    private float openAnim;
-    private float knobHoverAnim;
-    private float dropHoverAnim;
-    private float[] slotHover = new float[0];
 
     // 购买信息提示
     private Map<Long, String> purchaseMessages = new HashMap<>();
@@ -269,42 +245,24 @@ public class VendingMachinesGui extends AbstractPixelScreen {
     @Override
     public void tick() {
         super.tick();
-        this.openAnim = Math.min(1.0f, this.openAnim + 0.125f);
-        if (this.slotHover.length != this.goods.size()) {
-            this.slotHover = Arrays.copyOf(this.slotHover, this.goods.size());
-        }
-        for (int i = 0; i < this.slotHover.length; i++) {
-            float target = i == this.hoveredGoodsIndex ? 1.0f : 0.0f;
-            this.slotHover[i] += (target - this.slotHover[i]) * 0.22f;
-        }
-        this.knobHoverAnim += ((this.isKnobHovered ? 1.0f : 0.0f) - this.knobHoverAnim) * 0.22f;
-        this.dropHoverAnim += ((this.isDropSlotHovered ? 1.0f : 0.0f) - this.dropHoverAnim) * 0.22f;
         if (this.knobAnimationTick < KNOB_ANIMATION_TICKS) {
             this.knobAnimationTick++;
         }
         updateDropAnimation();
 
+        // 更新Collect点击动画
         if (collectClickAnimation > 0) {
             collectClickAnimation--;
         }
 
+        // 清理过期的购买提示信息
         cleanupExpiredPurchaseMessages();
     }
 
     @Override
-    public void renderBackground(@NonNull GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
-        guiGraphics.fillGradient(0, 0, this.width, this.height, BG_TOP, BG_BOTTOM);
-    }
-
-    @Override
     public void render(@NonNull GuiGraphics guiGraphics, int mouseX, int mouseY, float delta) {
+        this.renderBackground(guiGraphics, mouseX, mouseY, delta);
         super.render(guiGraphics, mouseX, mouseY, delta);
-        this.isKnobHovered = isInsideKnob(mouseX, mouseY);
-        this.isDropSlotHovered = isInsideDropSlot(mouseX, mouseY);
-
-        float intro = easeOutCubic(this.openAnim);
-        guiGraphics.pose().pushPose();
-        guiGraphics.pose().translate(0.0f, (1.0f - intro) * 22.0f, 0.0f);
         renderLayerBackground(guiGraphics);
         renderLayerMachineBase(guiGraphics);
         renderLayerGoodsSlots(guiGraphics, mouseX, mouseY);
@@ -312,10 +270,14 @@ public class VendingMachinesGui extends AbstractPixelScreen {
         renderLayerControl(guiGraphics, delta);
         renderLayerDropZone(guiGraphics, delta);
         renderLayerText(guiGraphics, mouseX, mouseY);
-        guiGraphics.pose().popPose();
 
+        // 渲染tooltip
         renderTooltips(guiGraphics, mouseX, mouseY);
+
+        // 渲染购买信息提示
         renderPurchaseMessages(guiGraphics);
+
+        // 渲染玩家金钱
         renderPlayerMoney(guiGraphics);
     }
 
@@ -373,17 +335,17 @@ public class VendingMachinesGui extends AbstractPixelScreen {
     }
 
     private void rebuildLayout() {
-        this.panelWidth = Math.min(MAX_PANEL_WIDTH, Math.max(280, (int) (this.width * 0.72f)));
-        this.panelHeight = Mth.clamp((int) (this.height * 0.72f), 208, MAX_PANEL_HEIGHT);
+        this.panelWidth = Math.min(MAX_PANEL_WIDTH, this.width - 16);
+        this.panelHeight = Math.min(MAX_PANEL_HEIGHT, this.height - 16);
         this.panelLeft = (this.width - this.panelWidth) / 2;
         this.panelTop = (this.height - this.panelHeight) / 2;
 
         this.gridLeft = this.panelLeft + 14;
-        this.gridTop = this.panelTop + 22;
+        this.gridTop = this.panelTop + 18;
         this.gridWidth = this.panelWidth - this.controlWidth - 30;
 
-        int reservedBottomSpace = 58;
-        int availableGridHeight = this.panelHeight - 22 - reservedBottomSpace;
+        int reservedBottomSpace = 56;
+        int availableGridHeight = this.panelHeight - 18 - reservedBottomSpace;
 
         int widthLimitedSize = (this.gridWidth - SLOT_GAP * (GRID_COLUMNS - 1)) / GRID_COLUMNS;
         int heightLimitedSize = (availableGridHeight - SLOT_GAP * (DEFAULT_VISIBLE_ROWS - 1)) / DEFAULT_VISIBLE_ROWS;
@@ -399,7 +361,7 @@ public class VendingMachinesGui extends AbstractPixelScreen {
         this.controlLeft = this.panelLeft + this.panelWidth - this.controlWidth;
         this.previewSize = Math.min(42, this.slotSize + 14);
         this.previewX = this.controlLeft + (this.controlWidth - this.previewSize) / 2;
-        this.previewY = this.panelTop + 28;
+        this.previewY = this.panelTop + 26;
 
         this.knobRadius = 16;
         this.knobCenterX = this.controlLeft + this.controlWidth / 2;
@@ -413,20 +375,20 @@ public class VendingMachinesGui extends AbstractPixelScreen {
     }
 
     private void renderLayerBackground(GuiGraphics guiGraphics) {
+        guiGraphics.fill(0, 0, this.width, this.height, 0xD0101010);
         if (this.hasBgLayerTexture) {
             blitLayer(guiGraphics, LAYER_BG_TEXTURE, this.panelLeft, this.panelTop, this.panelWidth, this.panelHeight);
         }
     }
 
     private void renderLayerMachineBase(GuiGraphics guiGraphics) {
-        guiGraphics.fillGradient(this.panelLeft, this.panelTop, this.panelLeft + this.panelWidth,
-                this.panelTop + this.panelHeight, PANEL_BG_TOP, PANEL_BG_BOTTOM);
-        guiGraphics.renderOutline(this.panelLeft, this.panelTop, this.panelWidth, this.panelHeight, BORDER);
-        guiGraphics.fill(this.panelLeft + 1, this.panelTop + 1, this.panelLeft + this.panelWidth - 1,
-                this.panelTop + 2, DECOR);
+        guiGraphics.fill(this.panelLeft, this.panelTop, this.panelLeft + this.panelWidth,
+                this.panelTop + this.panelHeight, 0xFF1F2328);
+        guiGraphics.fill(this.panelLeft + 2, this.panelTop + 2, this.panelLeft + this.panelWidth - 2,
+                this.panelTop + this.panelHeight - 2, 0xFF2A2F36);
 
         int splitX = this.controlLeft - 8;
-        guiGraphics.fill(splitX, this.panelTop + 10, splitX + 1, this.panelTop + this.panelHeight - 10, DIVIDER);
+        guiGraphics.fill(splitX, this.panelTop + 8, splitX + 2, this.panelTop + this.panelHeight - 8, 0x80202020);
 
         if (this.hasMachineLayerTexture) {
             blitLayer(guiGraphics, LAYER_MACHINE_TEXTURE, this.panelLeft, this.panelTop, this.panelWidth,
@@ -441,8 +403,6 @@ public class VendingMachinesGui extends AbstractPixelScreen {
         // 更新悬停的商品索引
         hoveredGoodsIndex = -1;
 
-        guiGraphics.enableScissor(this.gridLeft, this.gridTop, this.gridLeft + this.gridWidth,
-                this.gridTop + this.gridHeight);
         for (int index = startIndex; index < endExclusive; index++) {
             int displayIndex = index - startIndex;
             int row = displayIndex / GRID_COLUMNS;
@@ -459,17 +419,12 @@ public class VendingMachinesGui extends AbstractPixelScreen {
                 hoveredGoodsIndex = index;
             }
 
-            float hoverBlend = index < this.slotHover.length ? this.slotHover[index] : (hovered ? 1.0f : 0.0f);
-            float selectT = selected ? 1.0f : 0.0f;
-            int slotTop = blendColors(0xFF1A1008, 0xFFC9A84C, Math.max(selectT * 0.32f, hoverBlend * 0.25f));
-            int slotBottom = blendColors(0xFF120A04, 0xFFC9A84C, Math.max(selectT * 0.18f, hoverBlend * 0.12f));
-            guiGraphics.fillGradient(slotX, slotY, slotX + this.slotSize, slotY + this.slotSize, slotTop, slotBottom);
-            if (hoverBlend > 0.05f) {
-                guiGraphics.fill(slotX, slotY, slotX + this.slotSize, slotY + this.slotSize,
-                        withAlpha(HOVER_FILL, hoverBlend));
-            }
-            guiGraphics.renderOutline(slotX, slotY, this.slotSize, this.slotSize,
-                    selected || hoverBlend > 0.4f ? GOLD : CARD_BORDER);
+            // 悬停效果颜色
+            int slotColor = selected ? 0xFF5A7090 : hovered ? 0xFF697587 : 0xFF343D4A;
+            int innerColor = hovered ? 0xFF2D333B : 0xFF1D232B;
+
+            guiGraphics.fill(slotX, slotY, slotX + this.slotSize, slotY + this.slotSize, slotColor);
+            guiGraphics.fill(slotX + 1, slotY + 1, slotX + this.slotSize - 1, slotY + this.slotSize - 1, innerColor);
 
             VendingGoods goods = this.goods.get(index);
             int itemX = slotX + (this.slotSize - 16) / 2;
@@ -486,7 +441,7 @@ public class VendingMachinesGui extends AbstractPixelScreen {
             guiGraphics.drawString(this.font, goodStackCountsText,
                     (int) ((slotX + this.slotSize) / textScale) - font.width(goodStackCountsText) - 2,
                     (int) ((slotY + this.slotSize) / textScale) - font.lineHeight - 2,
-                    TEXT,
+                    java.awt.Color.WHITE.getRGB(),
                     false);
 
             guiGraphics.pose().popPose();
@@ -507,22 +462,23 @@ public class VendingMachinesGui extends AbstractPixelScreen {
             guiGraphics.pose().popPose();
 
         }
-        guiGraphics.disableScissor();
 
         if (getMaxScrollRows() > 0) {
             int trackX = this.gridLeft + this.gridWidth + 2;
             int trackTop = this.gridTop;
             int trackBottom = this.gridTop + this.gridHeight;
-            guiGraphics.fill(trackX, trackTop, trackX + SCROLL_W, trackBottom, 0x661A1008);
+            guiGraphics.fill(trackX, trackTop, trackX + 4, trackBottom, 0xFF222831);
 
-            int thumbHeight = Math.max(18, this.gridHeight / (getMaxScrollRows() + this.visibleRows));
+            int thumbHeight = Math.max(12, this.gridHeight / (getMaxScrollRows() + this.visibleRows));
             int range = Math.max(1, this.gridHeight - thumbHeight);
             int thumbY = trackTop + range * this.scrollRows / Math.max(1, getMaxScrollRows());
-            guiGraphics.fill(trackX, thumbY, trackX + SCROLL_W, thumbY + thumbHeight, GOLD);
+            guiGraphics.fill(trackX, thumbY, trackX + 4, thumbY + thumbHeight, 0xFF8FA7C8);
         }
     }
 
     private void renderLayerFrontOverlay(GuiGraphics guiGraphics) {
+        guiGraphics.fill(this.gridLeft - 4, this.gridTop - 4,
+                this.gridLeft + this.gridWidth + 6, this.gridTop + this.gridHeight + 4, 0x22000000);
         if (this.hasForegroundLayerTexture) {
             blitLayer(guiGraphics, LAYER_FOREGROUND_TEXTURE, this.panelLeft, this.panelTop, this.panelWidth,
                     this.panelHeight);
@@ -530,14 +486,13 @@ public class VendingMachinesGui extends AbstractPixelScreen {
     }
 
     private void renderLayerControl(GuiGraphics guiGraphics, float delta) {
-        guiGraphics.fillGradient(this.controlLeft, this.panelTop + 10, this.panelLeft + this.panelWidth - 10,
-                this.panelTop + this.panelHeight - 10, 0x661A1008, 0x66120A04);
+        guiGraphics.fill(this.controlLeft, this.panelTop + 10, this.panelLeft + this.panelWidth - 10,
+                this.panelTop + this.panelHeight - 10, 0x44303030);
 
-        int previewTop = blendColors(0xFF1A1008, 0xFFC9A84C, 0.18f);
-        int previewBottom = blendColors(0xFF120A04, 0xFFC9A84C, 0.08f);
-        guiGraphics.fillGradient(this.previewX, this.previewY, this.previewX + this.previewSize,
-                this.previewY + this.previewSize, previewTop, previewBottom);
-        guiGraphics.renderOutline(this.previewX, this.previewY, this.previewSize, this.previewSize, CARD_BORDER);
+        guiGraphics.fill(this.previewX, this.previewY, this.previewX + this.previewSize,
+                this.previewY + this.previewSize, 0xFF38404C);
+        guiGraphics.fill(this.previewX + 1, this.previewY + 1, this.previewX + this.previewSize - 1,
+                this.previewY + this.previewSize - 1, 0xFF1E242C);
 
         if (isSelectedIndexValid()) {
             VendingGoods selected = this.goods.get(this.selectedIndex);
@@ -553,7 +508,7 @@ public class VendingMachinesGui extends AbstractPixelScreen {
                 guiGraphics.drawString(this.font, goodStackCountsText,
                         (int) ((this.previewX + this.previewSize) / textScale) - font.width(goodStackCountsText) - 2,
                         (int) ((this.previewY + this.previewSize) / textScale) - font.lineHeight - 2,
-                        TEXT,
+                        java.awt.Color.WHITE.getRGB(),
                         false);
 
 
@@ -596,47 +551,55 @@ public class VendingMachinesGui extends AbstractPixelScreen {
                     this.knobRadius * 2,
                     this.knobRadius * 2);
         } else {
-            int outer = blendColors(0xFF3A2C1E, GOLD, this.knobHoverAnim);
-            int inner = blendColors(0xFF1A1008, 0xFFC9A84C, 0.10f + this.knobHoverAnim * 0.22f);
-            int highlight = blendColors(0xFFC8B898, TEXT, this.knobHoverAnim);
+            // 基础旋钮颜色
+            int knobColor = isKnobHovered ? 0xFF6A6A6A : 0xFF4A4A4A;
+            int innerColor = isKnobHovered ? 0xFF3A3A3A : 0xFF2A2A2A;
+            int highlightColor = isKnobHovered ? 0xFFFFFFFF : 0xFFE5E5E5;
 
-            guiGraphics.fill(0, 0, this.knobRadius * 2, this.knobRadius * 2, outer);
-            guiGraphics.fill(3, 3, this.knobRadius * 2 - 3, this.knobRadius * 2 - 3, inner);
-            guiGraphics.fill(this.knobRadius - 1, 5, this.knobRadius + 1, this.knobRadius + 2, highlight);
-            guiGraphics.renderOutline(0, 0, this.knobRadius * 2, this.knobRadius * 2,
-                    blendColors(CARD_BORDER, GOLD, this.knobHoverAnim));
+            guiGraphics.fill(0, 0, this.knobRadius * 2, this.knobRadius * 2, knobColor);
+            guiGraphics.fill(3, 3, this.knobRadius * 2 - 3, this.knobRadius * 2 - 3, innerColor);
+            guiGraphics.fill(this.knobRadius - 1, 5, this.knobRadius + 1, this.knobRadius + 2, highlightColor);
         }
 
         poseStack.popPose();
     }
 
     private void renderLayerDropZone(GuiGraphics guiGraphics, float delta) {
-        float readyPulse = this.droppedItem.phase == DropPhase.READY_TO_COLLECT
-                ? 0.65f + 0.35f * (0.5f + 0.5f * (float) Math.sin((this.droppedItem.tick + delta) * Math.PI / 3.6))
-                : 1.0f;
-        int bgTop = blendColors(0xFF1A1008, GOLD, 0.08f + this.dropHoverAnim * 0.22f);
-        int bgBottom = blendColors(0xFF120A04, GOLD, 0.04f + this.dropHoverAnim * 0.12f);
+        // 背景色根据悬停状态变化
+        int bgColor = isDropSlotHovered ? 0xFF4F5762 : 0xFF2F3742;
+        int innerColor = isDropSlotHovered ? 0xFF242830 : 0xFF141820;
 
+        // 应用Collect点击动画效果
         float collectScale = 1.0f;
+        int collectAlpha = 255;
         if (collectClickAnimation > 0) {
             float progress = (float) collectClickAnimation / COLLECT_CLICK_DURATION;
             collectScale = 1.0f + 0.1f * (1.0f - progress);
+            collectAlpha = (int) (255 * (0.7f + 0.3f * progress));
         }
 
-        int drawX = this.dropSlotX;
-        int drawY = this.dropSlotY;
-        int drawSize = this.dropSlotSize;
+        // 渲染背景（带动画缩放）
         if (collectClickAnimation > 0) {
             int centerX = this.dropSlotX + this.dropSlotSize / 2;
             int centerY = this.dropSlotY + this.dropSlotSize / 2;
-            drawSize = (int) (this.dropSlotSize * collectScale);
-            drawX = centerX - drawSize / 2;
-            drawY = centerY - drawSize / 2;
-        }
+            int scaledWidth = (int) (this.dropSlotSize * collectScale);
+            int scaledHeight = (int) (this.dropSlotSize * collectScale);
+            int scaledX = centerX - scaledWidth / 2;
+            int scaledY = centerY - scaledHeight / 2;
 
-        guiGraphics.fillGradient(drawX, drawY, drawX + drawSize, drawY + drawSize, bgTop, bgBottom);
-        guiGraphics.renderOutline(drawX, drawY, drawSize, drawSize,
-                blendColors(CARD_BORDER, GOLD, Math.max(this.dropHoverAnim, 1.0f - readyPulse + 0.2f)));
+            // 动画背景色
+            int animBgColor = (collectAlpha << 24) | (bgColor & 0x00FFFFFF);
+            int animInnerColor = (collectAlpha << 24) | (innerColor & 0x00FFFFFF);
+
+            guiGraphics.fill(scaledX, scaledY, scaledX + scaledWidth, scaledY + scaledHeight, animBgColor);
+            guiGraphics.fill(scaledX + 1, scaledY + 1, scaledX + scaledWidth - 1, scaledY + scaledHeight - 1,
+                    animInnerColor);
+        } else {
+            guiGraphics.fill(this.dropSlotX, this.dropSlotY, this.dropSlotX + this.dropSlotSize,
+                    this.dropSlotY + this.dropSlotSize, bgColor);
+            guiGraphics.fill(this.dropSlotX + 1, this.dropSlotY + 1, this.dropSlotX + this.dropSlotSize - 1,
+                    this.dropSlotY + this.dropSlotSize - 1, innerColor);
+        }
 
         if (this.hasDropSlotLayerTexture) {
             guiGraphics.blit(
@@ -697,26 +660,25 @@ public class VendingMachinesGui extends AbstractPixelScreen {
     }
 
     private void renderLayerText(GuiGraphics guiGraphics, int mouseX, int mouseY) {
-        Component title = Component.translatable("block.noellesroles.vending_machines")
-                .withStyle(ChatFormatting.BOLD);
+        Component title = Component.translatable("VENDING MACHINE");
         guiGraphics.drawString(this.font, title,
                 this.panelLeft + 10,
                 this.panelTop + 8,
-                GOLD,
+                0xFFEAEAEA,
                 false);
 
-        Component buyLabel = Component.translatable("BUY").withStyle(ChatFormatting.BOLD);
+        Component buyLabel = Component.translatable("BUY");
         guiGraphics.drawString(this.font, buyLabel,
                 this.knobCenterX - this.font.width(buyLabel) / 2,
                 this.knobCenterY + this.knobRadius + 6,
-                blendColors(BODY, TEXT, this.knobHoverAnim),
+                0xFFE9E9E9,
                 false);
 
         Component dropLabel = Component.translatable("Collect");
         guiGraphics.drawString(this.font, dropLabel,
                 this.dropSlotX + this.dropSlotSize / 2 - this.font.width(dropLabel) / 2,
                 this.dropSlotY + this.dropSlotSize + 4,
-                blendColors(MUTED, TEXT, this.dropHoverAnim),
+                0xFFB8C6DC,
                 false);
 
         VendingGoods infoGoods = null;
@@ -733,17 +695,16 @@ public class VendingMachinesGui extends AbstractPixelScreen {
             guiGraphics.drawString(this.font, text,
                     this.panelLeft + 10,
                     this.panelTop + this.panelHeight - this.font.lineHeight - 8,
-                    BODY,
+                    0xFFD9E6F5,
                     false);
         }
 
         if (this.droppedItem.phase == DropPhase.READY_TO_COLLECT) {
-            float pulse = 0.65f + 0.35f * (0.5f + 0.5f * (float) Math.sin(this.droppedItem.tick * Math.PI / 3.6));
             Component hint = Component.translatable("screen.vending_machine.click_to_pick");
             guiGraphics.drawString(this.font, hint,
                     this.panelLeft + this.panelWidth - this.font.width(hint) - 10,
                     this.panelTop + this.panelHeight - this.font.lineHeight - 8,
-                    withAlpha(GREEN, pulse),
+                    0xFF95F28A,
                     false);
         }
     }
@@ -1002,45 +963,40 @@ public class VendingMachinesGui extends AbstractPixelScreen {
         return 1.0f - inverse * inverse * inverse;
     }
 
-    private static int blendColors(int c1, int c2, float t) {
-        t = Mth.clamp(t, 0.0f, 1.0f);
-        int a1 = c1 >>> 24, r1 = (c1 >> 16) & 0xFF, g1 = (c1 >> 8) & 0xFF, b1 = c1 & 0xFF;
-        int a2 = c2 >>> 24, r2 = (c2 >> 16) & 0xFF, g2 = (c2 >> 8) & 0xFF, b2 = c2 & 0xFF;
-        return ((int) (a1 + (a2 - a1) * t) << 24)
-                | ((int) (r1 + (r2 - r1) * t) << 16)
-                | ((int) (g1 + (g2 - g1) * t) << 8)
-                | (int) (b1 + (b2 - b1) * t);
-    }
-
-    private static int withAlpha(int color, float alpha) {
-        int a = Mth.clamp((int) (((color >>> 24) & 0xFF) * alpha), 0, 255);
-        return (a << 24) | (color & 0x00FFFFFF);
-    }
-
     /**
      * 渲染悬停效果
      */
     private void renderHoverEffects(GuiGraphics guiGraphics) {
-        if (this.knobHoverAnim > 0.05f) {
-            int glow = withAlpha(0x40D4AF37, this.knobHoverAnim);
+        // 可以在这里添加额外的悬停视觉效果
+        if (isKnobHovered) {
+            // 旋钮悬停时的发光效果
             guiGraphics.fill(this.knobCenterX - this.knobRadius - 2, this.knobCenterY - this.knobRadius - 2,
-                    this.knobCenterX + this.knobRadius + 2, this.knobCenterY + this.knobRadius + 2, glow);
+                    this.knobCenterX + this.knobRadius + 2, this.knobCenterY + this.knobRadius + 2, 0x40FFFFFF);
         }
 
-        if (this.droppedItem.phase == DropPhase.READY_TO_COLLECT) {
-            float pulse = 0.65f + 0.35f * (0.5f + 0.5f * (float) Math.sin(this.droppedItem.tick * Math.PI / 3.6));
+        if (isDropSlotHovered) {
+            // 收集槽悬停时的边框效果
             guiGraphics.renderOutline(this.dropSlotX - 1, this.dropSlotY - 1,
-                    this.dropSlotSize + 2, this.dropSlotSize + 2, withAlpha(GOLD, pulse));
-        } else if (this.dropHoverAnim > 0.4f) {
-            guiGraphics.renderOutline(this.dropSlotX - 1, this.dropSlotY - 1,
-                    this.dropSlotSize + 2, this.dropSlotSize + 2, GOLD);
+                    this.dropSlotSize + 2, this.dropSlotSize + 2, 0xFFAAAAAA);
+
+            // 添加脉冲效果当准备好收集时
+            if (this.droppedItem.phase == DropPhase.READY_TO_COLLECT) {
+                long currentTime = System.currentTimeMillis();
+                float pulse = (float) (Math.sin((currentTime - lastCollectClickTime) * 0.01) * 0.3 + 0.7);
+                int pulseColor = (int) (255 * pulse) << 24 | 0x00FFAA00;
+                guiGraphics.fill(this.dropSlotX - 2, this.dropSlotY - 2,
+                        this.dropSlotX + this.dropSlotSize + 2, this.dropSlotY + this.dropSlotSize + 2, pulseColor);
+            }
         }
 
+        // Collect点击动画效果
         if (collectClickAnimation > 0) {
             float progress = (float) collectClickAnimation / COLLECT_CLICK_DURATION;
+            int pulseIntensity = (int) (100 * progress);
+            int pulseColor = (pulseIntensity << 24) | 0x00FFFF88;
+
             guiGraphics.fill(this.dropSlotX - 3, this.dropSlotY - 3,
-                    this.dropSlotX + this.dropSlotSize + 3, this.dropSlotY + this.dropSlotSize + 3,
-                    withAlpha(0x55D4AF37, progress));
+                    this.dropSlotX + this.dropSlotSize + 3, this.dropSlotY + this.dropSlotSize + 3, pulseColor);
         }
     }
 
@@ -1075,13 +1031,20 @@ public class VendingMachinesGui extends AbstractPixelScreen {
      */
     private void renderTooltip(GuiGraphics guiGraphics, Component text, int x, int y) {
         int tooltipWidth = this.font.width(text);
-        int tooltipHeight = this.font.lineHeight + 6;
-        int left = x + 8;
-        int top = y - 14;
-        guiGraphics.fillGradient(left, top, left + tooltipWidth + 12, top + tooltipHeight, PANEL_BG_TOP, PANEL_BG_BOTTOM);
-        guiGraphics.renderOutline(left, top, tooltipWidth + 12, tooltipHeight, BORDER);
-        guiGraphics.fill(left + 1, top + 1, left + tooltipWidth + 11, top + 2, DECOR);
-        guiGraphics.drawString(this.font, text, left + 6, top + 3, TEXT, false);
+        int tooltipHeight = this.font.lineHeight + 4;
+
+        // 背景
+        guiGraphics.fill(x + 8, y - 12, x + tooltipWidth + 16, y - 12 + tooltipHeight, 0xF0100010);
+        guiGraphics.fill(x + 9, y - 11, x + tooltipWidth + 15, y - 11 + tooltipHeight - 2, 0xF0100010);
+
+        // 边框
+        guiGraphics.fill(x + 8, y - 12, x + tooltipWidth + 16, y - 11, 0xFF505050);
+        guiGraphics.fill(x + 8, y - 12 + tooltipHeight - 1, x + tooltipWidth + 16, y - 12 + tooltipHeight, 0xFF505050);
+        guiGraphics.fill(x + 8, y - 12, x + 9, y - 12 + tooltipHeight, 0xFF505050);
+        guiGraphics.fill(x + tooltipWidth + 15, y - 12, x + tooltipWidth + 16, y - 12 + tooltipHeight, 0xFF505050);
+
+        // 文本
+        guiGraphics.drawString(this.font, text, x + 12, y - 10, 0xFFFFFF);
     }
 
     private static final class VendingGoods {
@@ -1171,16 +1134,21 @@ public class VendingMachinesGui extends AbstractPixelScreen {
             int bgWidth = textWidth + 16;
             int bgHeight = this.font.lineHeight + 8;
 
-            int bgColor = withAlpha(PANEL_BG_TOP, Math.min(1.0f, alpha + 0.15f));
-            int borderColor = withAlpha(GOLD, alpha);
+            // 背景颜色（带透明度）
+            int bgColor = ((int) (alpha * 200) << 24) | 0x000000; // 黑色背景
+            int borderColor = ((int) (alpha * 255) << 24) | 0xAAAAAA; // 灰色边框
 
-            guiGraphics.fillGradient(xPos - bgWidth / 2, yPos, xPos + bgWidth / 2, yPos + bgHeight,
-                    bgColor, withAlpha(PANEL_BG_BOTTOM, alpha));
-            guiGraphics.renderOutline(xPos - bgWidth / 2, yPos, bgWidth, bgHeight, borderColor);
-            guiGraphics.fill(xPos - bgWidth / 2 + 1, yPos + 1, xPos + bgWidth / 2 - 1, yPos + 2, withAlpha(DECOR, alpha));
+            // 绘制背景
+            guiGraphics.fill(xPos - bgWidth / 2, yPos, xPos + bgWidth / 2, yPos + bgHeight, bgColor);
+            guiGraphics.fill(xPos - bgWidth / 2, yPos, xPos + bgWidth / 2, yPos + 1, borderColor);
+            guiGraphics.fill(xPos - bgWidth / 2, yPos + bgHeight - 1, xPos + bgWidth / 2, yPos + bgHeight, borderColor);
+            guiGraphics.fill(xPos - bgWidth / 2, yPos, xPos - bgWidth / 2 + 1, yPos + bgHeight, borderColor);
+            guiGraphics.fill(xPos + bgWidth / 2 - 1, yPos, xPos + bgWidth / 2, yPos + bgHeight, borderColor);
 
+            // 绘制文本（带透明度）
+            int textColor = ((int) (alpha * 255) << 24) | 0xFFFFFF; // 白色文本
             guiGraphics.drawString(this.font, message,
-                    xPos - textWidth / 2, yPos + 4, withAlpha(TEXT, alpha), false);
+                    xPos - textWidth / 2, yPos + 4, textColor, false);
 
             messageIndex++;
         }
@@ -1206,10 +1174,7 @@ public class VendingMachinesGui extends AbstractPixelScreen {
 
         int bgWidth = textWidth + 12;
         int bgHeight = this.font.lineHeight * 2 + 9;
-        guiGraphics.fillGradient(xPos - 6, yPos - 3, xPos + bgWidth - 6, yPos + bgHeight - 3,
-                PANEL_BG_TOP, PANEL_BG_BOTTOM);
-        guiGraphics.renderOutline(xPos - 6, yPos - 3, bgWidth, bgHeight, BORDER);
-        guiGraphics.fill(xPos - 5, yPos - 2, xPos + bgWidth - 7, yPos - 1, DECOR);
+        guiGraphics.fill(xPos - 6, yPos - 3, xPos + bgWidth - 6, yPos + bgHeight - 3, 0xA0000000);
 
         guiGraphics.drawString(this.font, moneyText, xPos, yPos, ShopEntry.Currency.MONEY.color(), false);
         guiGraphics.drawString(this.font, tokenText, xPos, yPos + this.font.lineHeight + 3,

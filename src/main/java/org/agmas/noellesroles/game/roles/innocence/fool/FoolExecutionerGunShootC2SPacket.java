@@ -16,8 +16,6 @@
 package org.agmas.noellesroles.game.roles.innocence.fool;
 
 import io.wifi.starrailexpress.SRE;
-import io.wifi.starrailexpress.api.hit.HitType;
-import io.wifi.starrailexpress.api.hit.SREHitManager;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.game.GameConstants;
 import io.wifi.starrailexpress.game.GameUtils;
@@ -33,7 +31,6 @@ import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundSource;
-import net.minecraft.world.entity.Entity;
 import net.minecraft.world.item.ItemStack;
 import org.agmas.noellesroles.init.ModItems;
 import org.agmas.noellesroles.role.ModRoles;
@@ -70,8 +67,7 @@ public record FoolExecutionerGunShootC2SPacket(int targetId) implements CustomPa
                     1f + shooter.getRandom().nextFloat() * .1f - .05f);
 
             ServerPlayer target = null;
-            Entity hitEntity = shooter.serverLevel().getEntity(payload.targetId());
-            if (hitEntity instanceof ServerPlayer foundTarget
+            if (shooter.serverLevel().getEntity(payload.targetId()) instanceof ServerPlayer foundTarget
                     && foundTarget.distanceTo(shooter) < 70.0) {
                 target = foundTarget;
             }
@@ -84,8 +80,6 @@ public record FoolExecutionerGunShootC2SPacket(int targetId) implements CustomPa
                         GameUtils.killPlayer(target, true, shooter, GameConstants.DeathReasons.EXECUTE);
                     }
                 }
-            } else {
-                SREHitManager.tryHit(shooter, hitEntity, HitType.GUN);
             }
 
             shooter.level().playSound(null, shooter.getX(), shooter.getEyeY(), shooter.getZ(),

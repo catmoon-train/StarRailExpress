@@ -15,7 +15,6 @@
 
 package org.agmas.noellesroles.mixin.roles.stalker;
 
-import io.wifi.starrailexpress.api.data.RoleData;
 
 import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
@@ -31,8 +30,8 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import org.agmas.noellesroles.component.ModComponents;
 import org.agmas.noellesroles.content.item.StalkerKnifeItem;
-import org.agmas.noellesroles.role_data.killer.MaChenXuRoleData;
-import org.agmas.noellesroles.role_data.killer.StalkerRoleData;
+import org.agmas.noellesroles.game.roles.killer.ma_chen_xu.MaChenXuPlayerComponent;
+import org.agmas.noellesroles.game.roles.killer.stalker.StalkerPlayerComponent;
 import org.agmas.noellesroles.role.ModRoles;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
@@ -69,9 +68,7 @@ public abstract class StalkerLeftClickKillMixin {
             return;
 
         // 获取跟踪者组件
-        StalkerRoleData stalkerComp = RoleData.getNullable(StalkerRoleData.class, attacker);
-        if (!RoleData.isAttached(stalkerComp))
-            return;
+        StalkerPlayerComponent stalkerComp = ModComponents.STALKER.get(attacker);
 
         // 检查是否是活跃的跟踪者且处于二阶段
         if (!stalkerComp.isActiveStalker())
@@ -136,9 +133,7 @@ public abstract class StalkerLeftClickKillMixin {
         // 检查目标是否存活
         if (!GameUtils.isPlayerAliveAndSurvivalIgnoreShitSplit(targetPlayer))
             return;
-        var mcxpc = RoleData.getNullable(MaChenXuRoleData.class, attacker);
-        if (!RoleData.isAttached(mcxpc))
-            return;
+        var mcxpc = MaChenXuPlayerComponent.KEY.get(attacker);
 
         if (mcxpc.otherworldActive) {
             // 里世界中：标记玩家

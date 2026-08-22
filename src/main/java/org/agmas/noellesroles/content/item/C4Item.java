@@ -15,7 +15,6 @@
 
 package org.agmas.noellesroles.content.item;
 
-import io.wifi.starrailexpress.api.data.RoleData;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -114,7 +113,7 @@ public class C4Item extends Item {
         if (!(serverUser.level() instanceof ServerLevel level))
             return InteractionResult.PASS;
 
-        C4BackComponent comp = C4BackComponent.KEY.get(level);
+        C4BackComponent comp = C4BackComponent.KEY.getNullable(level);
         if (comp == null)
             return InteractionResult.FAIL;
 

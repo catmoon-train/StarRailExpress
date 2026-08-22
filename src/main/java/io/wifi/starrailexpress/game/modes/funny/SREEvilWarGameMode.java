@@ -15,8 +15,6 @@
 
 package io.wifi.starrailexpress.game.modes.funny;
 
-import org.agmas.noellesroles.role_data.killer.ExecutionerRoleData;
-import io.wifi.starrailexpress.api.data.RoleData;
 import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.SREConfig;
 import io.wifi.starrailexpress.api.SRERole;
@@ -49,12 +47,12 @@ import org.agmas.harpymodloader.component.WorldModifierComponent;
 import org.agmas.harpymodloader.modded_murder.RoleAssignmentPool;
 import org.agmas.noellesroles.commands.BroadcastCommand;
 import org.agmas.noellesroles.content.item.TimeStopClock;
-import org.agmas.noellesroles.role_data.killer.BloodFeudistRoleData;
-import org.agmas.noellesroles.role_data.killer.ImitatorRoleData;
+import org.agmas.noellesroles.game.roles.killer.blood_feudist.BloodFeudistPlayerComponent;
+import org.agmas.noellesroles.game.roles.killer.imitator.ImitatorPlayerComponent;
 import org.agmas.noellesroles.game.roles.killer.imitator.ImitatorSkillRegistry;
-import org.agmas.noellesroles.role_data.killer.InsaneKillerRoleData;
-import org.agmas.noellesroles.role_data.killer.StalkerRoleData;
-import org.agmas.noellesroles.role_data.killer.TrapperRoleData;
+import org.agmas.noellesroles.game.roles.killer.insane_killer.InsaneKillerPlayerComponent;
+import org.agmas.noellesroles.game.roles.killer.stalker.StalkerPlayerComponent;
+import org.agmas.noellesroles.game.roles.killer.trapper.TrapperPlayerComponent;
 import org.agmas.noellesroles.init.ModItems;
 import org.agmas.noellesroles.role.BounsRoles;
 import org.agmas.noellesroles.role.ModRoles;
@@ -420,22 +418,20 @@ public class SREEvilWarGameMode extends WTLooseEndsGameMode {
             // 组件等数据初始化
             if (role == ModRoles.IMITATOR) {
                 // 模仿者初始化：随机3个技能，目前没有合适的公有修改方法
-                ImitatorRoleData imitatorPlayerComponent = RoleData.getNullable(ImitatorRoleData.class, player);
-                if (RoleData.isAttached(imitatorPlayerComponent)) {
-                    // 获取所有可复制技能并打乱
-                    List<ResourceLocation> roleIds = new ArrayList<>(ImitatorSkillRegistry.ALLOWED_ROLES);
-                    Collections.shuffle(roleIds);
-                    for (int slotIndex = 0; slotIndex < ImitatorRoleData.MAX_SLOTS; ++slotIndex) {
-                        // 每个槽插入一个技能
-                        imitatorPlayerComponent.slotRoleId[slotIndex] = roleIds
-                                .get(Math.min(slotIndex, roleIds.size() - 1));
-                        imitatorPlayerComponent.slotCooldown[slotIndex] = 0;
-                        imitatorPlayerComponent.slotFillOrder[slotIndex] = slotIndex;
-                        imitatorPlayerComponent.activeSlotIndex = slotIndex;
-                        imitatorPlayerComponent.filledSlots++;
-                    }
-                    imitatorPlayerComponent.sync();
+                ImitatorPlayerComponent imitatorPlayerComponent = ImitatorPlayerComponent.KEY.get(player);
+                // 获取所有可复制技能并打乱
+                List<ResourceLocation> roleIds = new ArrayList<>(ImitatorSkillRegistry.ALLOWED_ROLES);
+                Collections.shuffle(roleIds);
+                for (int slotIndex = 0; slotIndex < ImitatorPlayerComponent.MAX_SLOTS; ++slotIndex) {
+                    // 每个槽插入一个技能
+                    imitatorPlayerComponent.slotRoleId[slotIndex] = roleIds
+                            .get(Math.min(slotIndex, roleIds.size() - 1));
+                    imitatorPlayerComponent.slotCooldown[slotIndex] = 0;
+                    imitatorPlayerComponent.slotFillOrder[slotIndex] = slotIndex;
+                    imitatorPlayerComponent.activeSlotIndex = slotIndex;
+                    imitatorPlayerComponent.filledSlots++;
                 }
+                imitatorPlayerComponent.sync();
             }
             // 蕾米莉亚开局获得20分钟速度2
             else if (role == THRedHouseRoles.REMILIA) {
@@ -452,12 +448,10 @@ public class SREEvilWarGameMode extends WTLooseEndsGameMode {
             }
             // 削弱设陷者：开局即进入放置冷却，无法立刻布陷阱
             else if (role == ModRoles.TRAPPER) {
-                TrapperRoleData trapperPlayerComponent = RoleData.getNullable(TrapperRoleData.class, player);
-                if (RoleData.isAttached(trapperPlayerComponent)) {
-                    trapperPlayerComponent.tripwireCooldownTicks = TrapperRoleData.PLACE_COOLDOWN_TICKS;
-                    trapperPlayerComponent.mudCooldownTicks = TrapperRoleData.PLACE_COOLDOWN_TICKS;
-                    trapperPlayerComponent.sync();
-                }
+                TrapperPlayerComponent trapperPlayerComponent = TrapperPlayerComponent.KEY.get(player);
+                trapperPlayerComponent.tripwireCooldownTicks = TrapperPlayerComponent.PLACE_COOLDOWN_TICKS;
+                trapperPlayerComponent.mudCooldownTicks = TrapperPlayerComponent.PLACE_COOLDOWN_TICKS;
+                trapperPlayerComponent.sync();
             }
             // 强盗开局自带1层护盾
             else if (role == ModRoles.BANDIT) {
@@ -538,10 +532,9 @@ public class SREEvilWarGameMode extends WTLooseEndsGameMode {
                 }
                 // 仇杀客每10s涨一个误杀数
                 else if (role == ModRoles.BLOOD_FEUDIST) {
-                    BloodFeudistRoleData bloodFeudistPlayerComponent = RoleData.getNullable(BloodFeudistRoleData.class, player);
-                    if (RoleData.isAttached(bloodFeudistPlayerComponent)) {
-                        bloodFeudistPlayerComponent.onAccidentalKill();
-                    }
+                    BloodFeudistPlayerComponent bloodFeudistPlayerComponent = BloodFeudistPlayerComponent.KEY
+                            .get(player);
+                    bloodFeudistPlayerComponent.onAccidentalKill();
                 }
                 // 派对狂和扒手每10s额外获得200
                 else if (role == SERoles.AVARICIOUS || role == ModRoles.PARTY_KILLER || role == ModRoles.NINJA) {
@@ -586,8 +579,9 @@ public class SREEvilWarGameMode extends WTLooseEndsGameMode {
                         continue;
                     SRERole role = gameWorldComponent.getRole(player);
                     if (role == ModRoles.INSANE_KILLER) {
-                        InsaneKillerRoleData insaneKillerPlayerComponent = RoleData.getNullable(InsaneKillerRoleData.class, player);
-                        if (RoleData.isAttached(insaneKillerPlayerComponent) && insaneKillerPlayerComponent.isActive) {
+                        InsaneKillerPlayerComponent insaneKillerPlayerComponent = InsaneKillerPlayerComponent.KEY
+                                .get(player);
+                        if (insaneKillerPlayerComponent.isActive) {
                             insaneKillerPlayerComponent.toggleAbility();
                         }
                     }
@@ -621,22 +615,20 @@ public class SREEvilWarGameMode extends WTLooseEndsGameMode {
                 }
                 // 判断是否是特定角色，进行特定操作，每30秒判断一次
                 else if (role == ModRoles.STALKER) {
-                    StalkerRoleData stalkerPlayerComponent = RoleData.getNullable(StalkerRoleData.class, player);
-                    if (RoleData.isAttached(stalkerPlayerComponent)) {
-                        // 潜行每30s获得 500 能量
-                        stalkerPlayerComponent.energy += 500;
-                        // 每30s获得 4 击杀数
-                        stalkerPlayerComponent.phase2Kills += 4;
-                        stalkerPlayerComponent.sync();
-                    }
+                    StalkerPlayerComponent stalkerPlayerComponent = StalkerPlayerComponent.KEY.get(player);
+                    // 潜行每30s获得 500 能量
+                    stalkerPlayerComponent.energy += 500;
+                    // 每30s获得 4 击杀数
+                    stalkerPlayerComponent.phase2Kills += 4;
+                    stalkerPlayerComponent.sync();
                     // 30s获得1个盾
                     SREArmorPlayerComponent armor = SREArmorPlayerComponent.KEY.get(player);
                     armor.giveArmor();
                 }
                 // 刽子手每30秒重新锁定目标为超级亡命徒：现已能自动锁定
                 else if (role == ModRoles.EXECUTIONER) {
-                    // ExecutionerRoleData executionerPlayerComponent =
-                    // RoleData.getNullable(ExecutionerRoleData.class, player);
+                    // ExecutionerPlayerComponent executionerPlayerComponent =
+                    // ExecutionerPlayerComponent.KEY.get(player);
                     // for (ServerPlayer target : serverWorld.players())
                     // if (!GameUtils.isPlayerEliminated(target)
                     // && gameWorldComponent.isRole(target, SpecialGameModeRoles.SUPER_LOOSE_END)) {

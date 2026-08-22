@@ -15,7 +15,6 @@
 
 package org.agmas.noellesroles.client.hud.roles;
 
-import io.wifi.starrailexpress.api.data.RoleData;
 import io.wifi.starrailexpress.client.SREClient;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
@@ -25,7 +24,7 @@ import net.minecraft.network.chat.Component;
 import org.agmas.noellesroles.client.NoellesrolesClient;
 import org.agmas.noellesroles.client.event.RoleHudRenderCallback;
 import org.agmas.noellesroles.component.ModComponents;
-import org.agmas.noellesroles.role_data.innocence.SuperStarRoleData;
+import org.agmas.noellesroles.game.roles.innocence.super_star.SuperStarPlayerComponent;
 import org.agmas.noellesroles.role.ModRoles;
 
 /**
@@ -44,8 +43,7 @@ public class SuperStarHud {
                 return;
 
             // 获取明星组件
-            SuperStarRoleData starComp = RoleData.getNullable(SuperStarRoleData.class, client.player);
-            if (starComp == null) return;
+            SuperStarPlayerComponent starComp = ModComponents.STAR.get(client.player);
             if (!starComp.isActive)
                 return;
 

@@ -15,8 +15,6 @@
 
 package org.agmas.noellesroles.client.hud.roles;
 
-import org.agmas.noellesroles.role_data.killer.SwapperRoleData;
-import io.wifi.starrailexpress.api.data.RoleData;
 import io.wifi.starrailexpress.cca.SREAbilityPlayerComponent;
 import io.wifi.starrailexpress.client.SREClient;
 import net.minecraft.ChatFormatting;
@@ -33,8 +31,7 @@ public final class SwapperHud {
             Minecraft client = Minecraft.getInstance();
             if (client.player == null || SREClient.isPlayerSpectator()) return;
 
-            var swapper = RoleData.getNullable(SwapperRoleData.class, client.player);
-            if (swapper == null) return;
+            var swapper = ModComponents.SWAPPER.get(client.player);
             var ability = SREAbilityPlayerComponent.KEY.get(client.player);
             Font font = client.font;
             int sw = context.guiWidth();

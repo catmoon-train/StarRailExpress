@@ -15,7 +15,6 @@
 
 package org.agmas.noellesroles.packet;
 
-import io.wifi.starrailexpress.api.data.RoleData;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
@@ -23,7 +22,7 @@ import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import org.agmas.noellesroles.Noellesroles;
-import org.agmas.noellesroles.role_data.killer.MissionaryRoleData;
+import org.agmas.noellesroles.game.roles.killer.missionary.MissionaryPlayerComponent;
 import org.agmas.noellesroles.init.ModEffects;
 
 import java.util.UUID;
@@ -58,6 +57,6 @@ public record MissionaryConvertC2SPacket(UUID targetId) implements CustomPacketP
         if (player.hasEffect(ModEffects.SAFE_TIME)) return;
         ServerPlayer target = player.server.getPlayerList().getPlayer(packet.targetId());
         if (target == null) return;
-        RoleData.ifPresent(MissionaryRoleData.class, player, d -> d.convert(target));
+        MissionaryPlayerComponent.KEY.get(player).convert(target);
     }
 }

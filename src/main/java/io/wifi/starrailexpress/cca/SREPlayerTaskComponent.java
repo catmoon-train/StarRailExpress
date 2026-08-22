@@ -15,7 +15,6 @@
 
 package io.wifi.starrailexpress.cca;
 
-import io.wifi.starrailexpress.api.data.RoleData;
 import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.SREConfig;
 import io.wifi.starrailexpress.api.RoleComponent;
@@ -42,7 +41,7 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import org.agmas.harpymodloader.component.WorldModifierComponent;
 import org.agmas.noellesroles.component.ModComponents;
-import org.agmas.noellesroles.role_data.neutral.RavenRoleData;
+import org.agmas.noellesroles.game.roles.neutral.raven.RavenPlayerComponent;
 import org.agmas.noellesroles.init.ModEffects;
 import org.agmas.noellesroles.role.ModRoles;
 import org.agmas.noellesroles.role.ModifierEffects;
@@ -373,12 +372,12 @@ public class SREPlayerTaskComponent implements RoleComponent, ServerTickingCompo
         if (gameWorld != null) {
             for (Player nearby : completingPlayer.level().players()) {
                 if (nearby != completingPlayer
-                        && nearby.distanceToSqr(completingPlayer) <= RavenRoleData.CHARGE_RADIUS
-                                * RavenRoleData.CHARGE_RADIUS
+                        && nearby.distanceToSqr(completingPlayer) <= RavenPlayerComponent.CHARGE_RADIUS
+                                * RavenPlayerComponent.CHARGE_RADIUS
                         && nearby instanceof ServerPlayer nearbySp
                         && GameUtils.isPlayerAliveAndSurvival(nearbySp)
                         && gameWorld.isRole(nearbySp, ModRoles.RAVEN)) {
-                    RoleData.ifPresent(RavenRoleData.class, nearbySp, RavenRoleData::onNearbyTaskComplete);
+                    ModComponents.RAVEN.get(nearbySp).onNearbyTaskComplete();
                 }
             }
         }

@@ -53,7 +53,7 @@ public class ImmersiveFilterShader {
     }
 
     public void renderPostProcess(float partialTicks) {
-        if (post != null) post.render(partialTicks, TimeRewindClientEffect.isActive());
+        if (post != null) post.render(partialTicks);
     }
 
     private boolean process(LocalPlayer player, BooleanSupplier action) {
@@ -68,40 +68,12 @@ public class ImmersiveFilterShader {
             bindAfterlifeTextures(mc, afterlife.getInPass());
         }
         addPass(mc, "dreamcore", ModEffects.DREAMCORE_FILTER, 0.7f);
-        addTimeRewindPass(mc);
         var backrooms = addPass(mc, "backrooms", ModEffects.BACKROOMS_FILTER, 1.0f);
         if (backrooms != null) {
             backrooms.getInPass().addAuxAsset("VhsNoiseSampler",
                     () -> mc.getTextureManager().getTexture(BACKROOMS_VHS_NOISE).getId(), 256, 256);
         }
         addRepairEscapePass(mc);
-    }
-
-    private void addTimeRewindPass(Minecraft mc) {
-        post.addSinglePassEntry("time_rewind", pass -> process(mc.player, () -> {
-            if (!TimeRewindClientEffect.isActive()) {
-                return false;
-            }
-            totalTime += 0.016f;
-            var effect = pass.getEffect();
-            if (effect == null) {
-                return false;
-            }
-            float partialTick = mc.getTimer().getGameTimeDeltaPartialTick(true);
-            var strength = effect.safeGetUniform("Strength");
-            if (strength != null) {
-                strength.set(TimeRewindClientEffect.strength(partialTick));
-            }
-            var progress = effect.safeGetUniform("Progress");
-            if (progress != null) {
-                progress.set(TimeRewindClientEffect.progress(partialTick));
-            }
-            var time = effect.safeGetUniform("Time");
-            if (time != null) {
-                time.set(totalTime);
-            }
-            return true;
-        }));
     }
 
     private PostProcessor.PostPassEntry addPass(Minecraft mc, String passName, net.minecraft.core.Holder<net.minecraft.world.effect.MobEffect> effectHolder, float defaultStrength) {

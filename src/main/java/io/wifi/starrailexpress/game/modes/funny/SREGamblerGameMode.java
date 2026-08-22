@@ -15,7 +15,6 @@
 
 package io.wifi.starrailexpress.game.modes.funny;
 
-import io.wifi.starrailexpress.api.data.RoleData;
 import io.wifi.starrailexpress.SREConfig;
 import io.wifi.starrailexpress.api.TMMRoles;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
@@ -32,7 +31,7 @@ import org.agmas.harpymodloader.events.ModdedRoleAssigned;
 import org.agmas.harpymodloader.events.ResetPlayerEvent;
 import org.agmas.harpymodloader.modded_murder.PlayerRoleWeightManager;
 import org.agmas.noellesroles.Noellesroles;
-import org.agmas.noellesroles.role_data.neutral.GamblerRoleData;
+import org.agmas.noellesroles.game.roles.neutral.gambler.GamblerPlayerComponent;
 import org.agmas.noellesroles.init.ModEffects;
 import org.agmas.noellesroles.init.ModItems;
 import org.agmas.noellesroles.role.ModRoles;
@@ -95,7 +94,7 @@ public class SREGamblerGameMode extends SREMurderGameMode {
             gameWorldComponent.addRole(player, ModRoles.GAMBLER, false);
             // ModdedRoleAssigned.EVENT.invoker().assignModdedRole(player,
             // ModRoles.GAMBLER);
-            RoleData.ifPresent(GamblerRoleData.class, player, d -> d.initWithDrawInterval(20 * 15));
+            GamblerPlayerComponent.KEY.get(player).initWithDrawInterval(20 * 15);
             RoleUtils.sendWelcomeAnnouncement(player);
             MCItemsUtils.insertStackInFreeSlot(player, ModItems.ONCE_REVOLVER.getDefaultInstance());
             player.addEffect(new MobEffectInstance(

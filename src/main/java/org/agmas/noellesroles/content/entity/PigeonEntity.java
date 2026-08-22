@@ -15,8 +15,6 @@
 
 package org.agmas.noellesroles.content.entity;
 
-import io.wifi.starrailexpress.api.hit.HitType;
-import io.wifi.starrailexpress.api.hit.IsTargetObject;
 import io.wifi.starrailexpress.cca.SREPlayerShopComponent;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
@@ -47,7 +45,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 /** 信鸽实体：手动飞行递送信件，可被击杀。 */
-public class PigeonEntity extends LivingEntity implements IsTargetObject {
+public class PigeonEntity extends LivingEntity {
     private static final double FLY_SPEED = 0.4;
     private static final EntityDataAccessor<Boolean> HAS_DELIVERED = SynchedEntityData.defineId(PigeonEntity.class, EntityDataSerializers.BOOLEAN);
 
@@ -207,17 +205,6 @@ public class PigeonEntity extends LivingEntity implements IsTargetObject {
             }
         }
         this.discard();
-    }
-
-    @Override
-    public boolean isValidTarget(Player attacker, HitType type) {
-        return type.isRanged();
-    }
-
-    @Override
-    public boolean onWeaponHit(Player attacker, HitType type) {
-        hurt(attacker.damageSources().playerAttack(attacker), 20.0F);
-        return true;
     }
 
     @Override

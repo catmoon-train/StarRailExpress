@@ -15,7 +15,6 @@
 
 package io.wifi.starrailexpress.mixin.world;
 
-import io.wifi.starrailexpress.api.data.RoleData;
 import net.minecraft.server.level.ServerLevel;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
@@ -27,7 +26,7 @@ import io.wifi.starrailexpress.cca.SREGameTimeComponent;
 public class ServerLevelMixin {
     @Inject(method = "tickTime", at = @At("HEAD"), require = 0, cancellable = true)
     private void tickTime(CallbackInfo ci) {
-        SREGameTimeComponent cca = SREGameTimeComponent.KEY.get((Object) this);
+        SREGameTimeComponent cca = SREGameTimeComponent.KEY.getNullable((Object) this);
         if (cca != null) {
             if (cca.levelGameTimeFrozen) {
                 ci.cancel();

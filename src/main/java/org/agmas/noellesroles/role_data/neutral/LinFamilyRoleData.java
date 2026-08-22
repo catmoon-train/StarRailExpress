@@ -28,7 +28,6 @@ import io.wifi.starrailexpress.content.item.component.SREWrittenBookContent;
 import io.wifi.starrailexpress.event.AllowPlayerDeathWithKiller;
 import io.wifi.starrailexpress.event.AllowPlayerPunching;
 import io.wifi.starrailexpress.event.OnRevolverUsed;
-import io.wifi.starrailexpress.event.OnShieldBroken;
 import io.wifi.starrailexpress.game.GameUtils;
 import io.wifi.starrailexpress.game.KillerKnifeDurability;
 import io.wifi.starrailexpress.index.SREDataComponentTypes;
@@ -266,16 +265,6 @@ public class LinFamilyRoleData extends SimpleRoleData {
         });
 
         OnVendingMachinesBuyItems.EVENT.register((player, entry) -> allowMachinePurchase(player));
-
-        OnShieldBroken.EVENT.register((victim, killer) -> {
-            if (!(victim instanceof ServerPlayer serverPlayer) || !isLinFamily(serverPlayer)) {
-                return;
-            }
-            LinFamilyRoleData data = RoleData.getNullable(LinFamilyRoleData.class, serverPlayer);
-            if (data != null) {
-                data.markShieldBroken(serverPlayer.level().getGameTime());
-            }
-        });
     }
 
     public static boolean isLinFamily(Player player) {
@@ -340,8 +329,7 @@ public class LinFamilyRoleData extends SimpleRoleData {
                 + 60 * 20L;
     }
 
-    /** 护盾破碎后开始 60 秒购买冷却。 */
-    public void markShieldBroken(long gameTime) {
+    public void markShieldBought(long gameTime) {
         lastShieldBuyGameTime = gameTime;
     }
 
@@ -354,7 +342,7 @@ public class LinFamilyRoleData extends SimpleRoleData {
             return true;
         }
         LinFamilyRoleData data = RoleData.getNullable(LinFamilyRoleData.class, serverPlayer);
-        if (!RoleData.isAttached(data)) {
+        if (data == null) {
             return true;
         }
         if (SREAbilityPlayerComponent.KEY.get(serverPlayer).getSkillState(MACHINE_SKILL_ID).cooldown > 0) {
@@ -373,7 +361,7 @@ public class LinFamilyRoleData extends SimpleRoleData {
             return;
         }
         LinFamilyRoleData data = RoleData.getNullable(LinFamilyRoleData.class, serverPlayer);
-        if (!RoleData.isAttached(data)) {
+        if (data == null) {
             return;
         }
         SREAbilityPlayerComponent.KEY.get(serverPlayer)
@@ -461,7 +449,7 @@ public class LinFamilyRoleData extends SimpleRoleData {
 
     public static boolean useGenerosity(ServerPlayer self, @Nullable ServerPlayer target) {
         LinFamilyRoleData data = RoleData.getNullable(LinFamilyRoleData.class, self);
-        if (!RoleData.isAttached(data) || !GameUtils.isPlayerAliveAndSurvival(self)) {
+        if (data == null || !GameUtils.isPlayerAliveAndSurvival(self)) {
             return false;
         }
         if (target == null || !GameUtils.isPlayerAliveAndSurvival(target)) {
@@ -532,7 +520,7 @@ public class LinFamilyRoleData extends SimpleRoleData {
 
     public static boolean useCollector(ServerPlayer self) {
         LinFamilyRoleData data = RoleData.getNullable(LinFamilyRoleData.class, self);
-        if (!RoleData.isAttached(data) || !GameUtils.isPlayerAliveAndSurvival(self)) {
+        if (data == null || !GameUtils.isPlayerAliveAndSurvival(self)) {
             return false;
         }
         int price = 400;
@@ -701,7 +689,7 @@ public class LinFamilyRoleData extends SimpleRoleData {
                 continue;
             }
             LinFamilyRoleData data = RoleData.getNullable(LinFamilyRoleData.class, sp);
-            if (RoleData.isAttached(data) && data.startingGoldGranted && data.pendingOfferId == null
+            if (data != null && data.startingGoldGranted && data.pendingOfferId == null
                     && getBalance(sp) <= 0) {
                 RoleUtils.customWinnerWin(serverLevel, GameUtils.WinStatus.CUSTOM,
                         ModRoles.LIN_FAMILY_ID.getPath(), OptionalInt.of(ModRoles.LIN_FAMILY.color()));
