@@ -100,6 +100,7 @@ public abstract class PlayerEntityMixin extends LivingEntity implements PlayerSt
         if (SRE.isLobby) {
             return original;
         }
+
         final var player = (Player) (Object) this;
         if (GameUtils.isPlayerAliveAndSurvivalIgnoreShitSplit(player)) {
             float speedModifier = 1.0f;
@@ -122,6 +123,9 @@ public abstract class PlayerEntityMixin extends LivingEntity implements PlayerSt
                     speedModifier = 0;
             }
 
+            if (player.hasEffect(ModEffects.TRIPWIRE_SLOW)) {
+                return speedModifier *= 0.1f;
+            }
             return this.isSprinting() ? 0.1f * speedModifier : 0.07f * speedModifier;
         } else {
             return original;
