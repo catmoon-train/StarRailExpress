@@ -17,7 +17,7 @@ package org.agmas.noellesroles.game.roles.killer.undead_lord;
 
 import io.wifi.starrailexpress.api.RoleComponent;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
-import io.wifi.starrailexpress.data.PlayerEconomyManager;
+import io.wifi.starrailexpress.cca.SREPlayerShopComponent;
 import io.wifi.starrailexpress.game.GameConstants;
 import io.wifi.starrailexpress.game.GameUtils;
 import net.minecraft.ChatFormatting;
@@ -214,7 +214,7 @@ public class UndeadLordPlayerComponent implements RoleComponent, ServerTickingCo
 
         int reward = config().undeadLordInfectionCoinReward;
         if (reward != 0 && player instanceof ServerPlayer lord) {
-            PlayerEconomyManager.addCoinNum(lord, reward);
+            SREPlayerShopComponent.KEY.get(lord).addToBalance(reward);
         }
     }
 

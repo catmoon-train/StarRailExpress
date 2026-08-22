@@ -15,16 +15,16 @@
 
 package org.agmas.noellesroles.content.item;
 
+import io.wifi.starrailexpress.api.hit.HitType;
+import io.wifi.starrailexpress.api.hit.SREHitManager;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.client.SREClient;
 import io.wifi.starrailexpress.content.item.SkinableItem;
-import io.wifi.starrailexpress.game.GameUtils;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.entity.projectile.ProjectileUtil;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
@@ -77,18 +77,7 @@ public class BanditRevolverItem extends SkinableItem {
     }
 
     public static HitResult getGunTarget(Player user) {
-        return ProjectileUtil.getHitResultOnViewVector(user, (entity) -> {
-            boolean var10000;
-            if (entity instanceof Player player) {
-                if (GameUtils.isPlayerAliveAndSurvival(player)) {
-                    var10000 = true;
-                    return var10000;
-                }
-            }
-
-            var10000 = false;
-            return var10000;
-        }, (double) 20.0F);
+        return SREHitManager.getTarget(user, HitType.GUN, 20f);
     }
 
     @Override

@@ -743,7 +743,7 @@ public class SREMurderGameMode extends GameMode {
         boolean civilianAlive = false;
         boolean killerAlive = false;
         boolean anyAlive = false;
-        {
+        if (!SREGameTimeComponent.KEY.get(serverWorld).levelGameTimeFrozen) {
             for (ServerPlayer player : serverWorld.players()) {
                 // passive money
                 if (gameWorldComponent.canAutoAddMoney(player)) {
