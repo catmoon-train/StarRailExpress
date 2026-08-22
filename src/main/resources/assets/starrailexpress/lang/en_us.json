@@ -2881,6 +2881,7 @@
     "replay.event.candlebearer.candle_player": "%s lit a candle for %s",
     "replay.event.candlebearer.candle_corpse": "%s completed a candle ritual",
     "replay.event.arsonist.douse_gasoline": "%s poured gasoline on %s",
+    "replay.event.arsonist.ignite": "%s ignited all doused players",
     "replay.event.reasoner.deduce_clue": "%s successfully deduced a clue",
     "replay.event.ghost.accelerate_time": "%s accelerated time",
     "replay.event.fool_meeting.heresy": "The Fool's Meeting declared %s a heretic",
@@ -2903,6 +2904,8 @@
     "replay.event.corpse.call_meeting": "%s called a meeting",
     "replay.event.canadagoose.force_meeting": "%s forcibly called a meeting",
     "replay.event.adventurer.exile": "%s exiled %s with the travelogue",
+    "replay.event.adventurer.recall": "%s was recalled from the travelogue",
+    "replay.event.diviner.divination": "%s successfully divined a corpse",
     "replay.event.agent.inspect_inventory": "%s inspected %s's inventory",
     "replay.event.voice_changer.voice": "%s released level %s %s voice on %s",
     "== 文件末尾 END ==": ""

@@ -2905,5 +2905,8 @@
     "replay.event.adventurer.exile": "\u00a7b✦\u00a7r %s 使用游记放逐了 %s",
     "replay.event.agent.inspect_inventory": "\u00a7b✦\u00a7r %s 审查了 %s 的物品栏",
     "replay.event.voice_changer.voice": "\u00a7b✦\u00a7r %s 对 %s 释放了 %s 级 %s 变声",
+    "replay.event.arsonist.ignite": "\u00a7b✦\u00a7r %s 点燃了所有被泼油的玩家",
+    "replay.event.adventurer.recall": "\u00a7b✦\u00a7r %s 从游记中被召回了",
+    "replay.event.diviner.divination": "\u00a7b✦\u00a7r %s 成功占卜了一具尸体",
     "== 文件末尾 END ==": ""
 }

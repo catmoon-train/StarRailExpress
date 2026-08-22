@@ -19,6 +19,7 @@ import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.cca.PlayerBodyEntityComponent;
 import io.wifi.starrailexpress.cca.SREAbilityPlayerComponent;
 import io.wifi.starrailexpress.api.replay.GameReplayUtils;
+import org.agmas.noellesroles.ConfigWorldComponent;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.content.entity.PlayerBodyEntity;
 import io.wifi.starrailexpress.game.GameConstants;
@@ -203,16 +204,16 @@ public class MorticianBodyMakerPlayerComponent extends SREAbilityPlayerComponent
             return false;
         }
 
-        switch (this.currentMode) {
-            case 0: // 曳柩
-                return useDragAbility(serverPlayer);
-            case 1: // 丧钟
-                return useFuneralAbility(serverPlayer);
-            case 2: // 清洗
-                return useCleanAbility(serverPlayer);
-            default:
-                return false;
+        boolean used = switch (this.currentMode) {
+            case 0 -> useDragAbility(serverPlayer); // 曳柩
+            case 1 -> useFuneralAbility(serverPlayer); // 丧钟
+            case 2 -> useCleanAbility(serverPlayer); // 清洗
+            default -> false;
+        };
+        if (used) {
+            ConfigWorldComponent.onPlayerUsedSkill(serverPlayer);
         }
+        return used;
     }
 
     /**

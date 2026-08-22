@@ -2819,6 +2819,7 @@
     "replay.event.candlebearer.candle_player": "%s 為 %s 秉燭",
     "replay.event.candlebearer.candle_corpse": "%s 完成了一次秉燭儀式",
     "replay.event.arsonist.douse_gasoline": "%s 為 %s 澆上了汽油",
+    "replay.event.arsonist.ignite": "%s 點燃了所有被潑油的玩家",
     "replay.event.reasoner.deduce_clue": "%s 成功推理出一條線索",
     "replay.event.ghost.accelerate_time": "%s 加速了時間",
     "replay.event.fool_meeting.heresy": "愚者會議將 %s 認定為異端",
@@ -2841,6 +2842,8 @@
     "replay.event.corpse.call_meeting": "%s 發起了會議",
     "replay.event.canadagoose.force_meeting": "%s 強制發起了會議",
     "replay.event.adventurer.exile": "%s 使用遊記放逐了 %s",
+    "replay.event.adventurer.recall": "%s 從遊記中被召回了",
+    "replay.event.diviner.divination": "%s 成功占卜了一具屍體",
     "replay.event.agent.inspect_inventory": "%s 審查了 %s 的物品欄",
     "replay.event.voice_changer.voice": "%s 對 %s 釋放了 %s 級 %s 變聲",
     "== 檔末尾 END ==": ""

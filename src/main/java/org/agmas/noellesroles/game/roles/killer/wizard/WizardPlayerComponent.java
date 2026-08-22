@@ -244,13 +244,17 @@ public class WizardPlayerComponent implements RoleComponent, ServerTickingCompon
         if (!(player instanceof ServerPlayer sp) || !GameUtils.isPlayerAliveAndSurvival(sp)) {
             return false;
         }
-        return switch (spell) {
+        boolean used = switch (spell) {
             case ARMOR -> false; // 屏障需要指定队友，走原有背包头像交互
             case FROST -> castFrost(sp);
             case SHADOW -> castShadow(sp);
             case EXPLOSION -> castExplosion(sp);
             case BLINK -> castBlink(sp);
         };
+        if (used) {
+            ConfigWorldComponent.onPlayerUsedSkill(sp);
+        }
+        return used;
     }
 
     private void castArmorPrompt(ServerPlayer sp) {
@@ -283,6 +287,7 @@ public class WizardPlayerComponent implements RoleComponent, ServerTickingCompon
         caster.getCooldowns().addCooldown(ModItems.WIZARD_STAFF,
                 io.wifi.starrailexpress.game.GameConstants.ITEM_COOLDOWNS.get(
                         io.wifi.starrailexpress.index.TMMItems.KNIFE));
+        ConfigWorldComponent.onPlayerUsedSkill(caster);
         return true;
     }
 

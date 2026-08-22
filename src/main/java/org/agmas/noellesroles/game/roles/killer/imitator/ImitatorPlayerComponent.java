@@ -16,6 +16,7 @@
 package org.agmas.noellesroles.game.roles.killer.imitator;
 
 import io.wifi.starrailexpress.api.RoleComponent;
+import org.agmas.noellesroles.ConfigWorldComponent;
 import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.content.entity.PlayerBodyEntity;
@@ -412,10 +413,12 @@ public class ImitatorPlayerComponent implements RoleComponent, ServerTickingComp
         switch (result) {
             case SUCCESS -> {
                 applySkillCooldownAndConsume(roleId, isPermanent);
+                ConfigWorldComponent.onPlayerUsedSkill(self);
             }
             case HANDLED -> {
                 slotCooldown[activeSlotIndex] = 90 * 20;
                 // 技能内部已处理
+                ConfigWorldComponent.onPlayerUsedSkill(self);
             }
             case FAIL -> {
                 // 执行失败，不做任何事
