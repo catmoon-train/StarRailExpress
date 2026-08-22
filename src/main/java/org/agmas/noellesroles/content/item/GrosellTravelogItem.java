@@ -148,6 +148,12 @@ public class GrosellTravelogItem extends Item {
                     .withStyle(ChatFormatting.DARK_PURPLE), true);
             player.level().playSound(null, player.blockPosition(), SoundEvents.EVOKER_CAST_SPELL,
                     SoundSource.PLAYERS, 1.0f, 0.8f);
+            // 回放记录：玩家从游记中被召回
+            if (player instanceof ServerPlayer serverPlayer) {
+                io.wifi.starrailexpress.SRE.REPLAY_MANAGER.recordCustomEvent(
+                        net.minecraft.network.chat.Component.translatable("replay.event.adventurer.recall",
+                                io.wifi.starrailexpress.api.replay.GameReplayUtils.getReplayPlayerDisplayText(serverPlayer, true)));
+            }
 
             // 释放后才进冷却。
             int cooldown = NoellesRolesConfig.HANDLER.instance().grosellTravelogCooldownSeconds * 20;

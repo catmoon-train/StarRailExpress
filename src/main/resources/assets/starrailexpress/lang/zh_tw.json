@@ -2842,6 +2842,8 @@
     "replay.event.corpse.call_meeting": "%s 發起了會議",
     "replay.event.canadagoose.force_meeting": "%s 強制發起了會議",
     "replay.event.adventurer.exile": "%s 使用遊記放逐了 %s",
+    "replay.event.adventurer.recall": "%s 從遊記中被召回了",
+    "replay.event.diviner.divination": "%s 成功占卜了一具屍體",
     "replay.event.agent.inspect_inventory": "%s 審查了 %s 的物品欄",
     "replay.event.voice_changer.voice": "%s 對 %s 釋放了 %s 級 %s 變聲",
     "== 檔末尾 END ==": ""

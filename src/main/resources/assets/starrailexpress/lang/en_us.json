@@ -2904,6 +2904,8 @@
     "replay.event.corpse.call_meeting": "%s called a meeting",
     "replay.event.canadagoose.force_meeting": "%s forcibly called a meeting",
     "replay.event.adventurer.exile": "%s exiled %s with the travelogue",
+    "replay.event.adventurer.recall": "%s was recalled from the travelogue",
+    "replay.event.diviner.divination": "%s successfully divined a corpse",
     "replay.event.agent.inspect_inventory": "%s inspected %s's inventory",
     "replay.event.voice_changer.voice": "%s released level %s %s voice on %s",
     "== 文件末尾 END ==": ""

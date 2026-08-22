@@ -2903,6 +2903,8 @@
     "replay.event.corpse.call_meeting": "%s 发起了会议",
     "replay.event.canadagoose.force_meeting": "%s 强制发起了会议",
     "replay.event.adventurer.exile": "%s 使用游记放逐了 %s",
+    "replay.event.adventurer.recall": "%s 从游记中被召回了",
+    "replay.event.diviner.divination": "%s 成功占卜了一具尸体",
     "replay.event.agent.inspect_inventory": "%s 审查了 %s 的物品栏",
     "replay.event.voice_changer.voice": "%s 对 %s 释放了 %s 级 %s 变声",
     "== 文件末尾 END ==": ""

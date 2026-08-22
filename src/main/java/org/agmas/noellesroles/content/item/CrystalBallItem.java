@@ -62,6 +62,10 @@ public class CrystalBallItem extends Item {
                 Entity target = ehr.getEntity();
                 DivinerPlayerComponent comp = DivinerPlayerComponent.KEY.get(sp);
                 comp.startChannel(sp, target);
+                // 回放记录：占卜家成功占卜了一具尸体
+                io.wifi.starrailexpress.SRE.REPLAY_MANAGER.recordCustomEvent(
+                        net.minecraft.network.chat.Component.translatable("replay.event.diviner.divination",
+                                io.wifi.starrailexpress.api.replay.GameReplayUtils.getReplayPlayerDisplayText(sp, true)));
             }
         }
         player.swing(hand, true);
