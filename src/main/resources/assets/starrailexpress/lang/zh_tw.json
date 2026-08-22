@@ -2819,6 +2819,7 @@
     "replay.event.candlebearer.candle_player": "%s 為 %s 秉燭",
     "replay.event.candlebearer.candle_corpse": "%s 完成了一次秉燭儀式",
     "replay.event.arsonist.douse_gasoline": "%s 為 %s 澆上了汽油",
+    "replay.event.arsonist.ignite": "%s 點燃了所有被潑油的玩家",
     "replay.event.reasoner.deduce_clue": "%s 成功推理出一條線索",
     "replay.event.ghost.accelerate_time": "%s 加速了時間",
     "replay.event.fool_meeting.heresy": "愚者會議將 %s 認定為異端",

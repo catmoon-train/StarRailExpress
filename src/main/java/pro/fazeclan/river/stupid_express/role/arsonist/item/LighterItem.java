@@ -93,6 +93,12 @@ public class LighterItem extends Item {
             player.playNotifySound(SoundEvents.FLINTANDSTEEL_USE, SoundSource.PLAYERS, 1.0f, 1.0f);
             player.displayClientMessage(Component.translatable("item.stupid_express.lighter.used"), true);
             player.playNotifySound(SoundEvents.FIRE_AMBIENT, SoundSource.BLOCKS, 1f, 1f);
+            // 回放记录：纵火犯点燃所有被泼油玩家
+            if (player instanceof ServerPlayer sp) {
+                io.wifi.starrailexpress.SRE.REPLAY_MANAGER.recordCustomEvent(
+                        net.minecraft.network.chat.Component.translatable("replay.event.arsonist.ignite",
+                                io.wifi.starrailexpress.api.replay.GameReplayUtils.getReplayPlayerDisplayText(sp, true)));
+            }
             var playersLeft = players1.stream().filter(GameUtils::isPlayerAliveAndSurvival).count();
             if (playersLeft <= 1) {
                 // 纵火犯独立胜利统计：使用 RoleUtils.customWinnerWin

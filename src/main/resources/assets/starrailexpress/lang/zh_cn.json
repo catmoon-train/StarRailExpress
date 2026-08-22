@@ -2880,6 +2880,7 @@
     "replay.event.candlebearer.candle_player": "%s 为 %s 秉烛",
     "replay.event.candlebearer.candle_corpse": "%s 完成了一次秉烛仪式",
     "replay.event.arsonist.douse_gasoline": "%s 为 %s 浇上了汽油",
+    "replay.event.arsonist.ignite": "%s 点燃了所有被泼油的玩家",
     "replay.event.reasoner.deduce_clue": "%s 成功推理出了一条线索",
     "replay.event.ghost.accelerate_time": "%s 加速了时间",
     "replay.event.fool_meeting.heresy": "愚者会议将 %s 认定为异端",

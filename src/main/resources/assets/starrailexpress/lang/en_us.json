@@ -2881,6 +2881,7 @@
     "replay.event.candlebearer.candle_player": "%s lit a candle for %s",
     "replay.event.candlebearer.candle_corpse": "%s completed a candle ritual",
     "replay.event.arsonist.douse_gasoline": "%s poured gasoline on %s",
+    "replay.event.arsonist.ignite": "%s ignited all doused players",
     "replay.event.reasoner.deduce_clue": "%s successfully deduced a clue",
     "replay.event.ghost.accelerate_time": "%s accelerated time",
     "replay.event.fool_meeting.heresy": "The Fool's Meeting declared %s a heretic",
