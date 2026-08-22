@@ -2907,5 +2907,6 @@
     "replay.event.diviner.divination": "%s successfully divined a corpse",
     "replay.event.agent.inspect_inventory": "%s inspected %s's inventory",
     "replay.event.voice_changer.voice": "%s released level %s %s voice on %s",
+    "replay.event.money_grubber.take": "%s was looted %s coins by %s",
     "== 文件末尾 END ==": ""
 }

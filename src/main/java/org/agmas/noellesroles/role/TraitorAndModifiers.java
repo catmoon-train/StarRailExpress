@@ -15,8 +15,10 @@
 
 package org.agmas.noellesroles.role;
 
+import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.api.TMMRoles;
+import io.wifi.starrailexpress.api.replay.GameReplayUtils;
 import io.wifi.starrailexpress.cca.AreasWorldComponent;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.cca.SREPlayerShopComponent;
@@ -576,6 +578,13 @@ public class TraitorAndModifiers {
                     if (coinsToTake > 0) {
                         killerShop.setBalance(killerCurrentCoins - coinsToTake);
                         killerShop.sync();
+
+                        // 回放记录：死者敛财了击杀者的金币
+                        SRE.REPLAY_MANAGER.recordCustomEvent(
+                                Component.translatable("replay.event.money_grubber.take",
+                                        GameReplayUtils.getReplayPlayerDisplayText(killer, true),
+                                        GameReplayUtils.getReplayPlayerDisplayText(victim, true),
+                                        coinsToTake));
 
                         if (killer instanceof ServerPlayer) {
                             ((ServerPlayer) killer).displayClientMessage(
