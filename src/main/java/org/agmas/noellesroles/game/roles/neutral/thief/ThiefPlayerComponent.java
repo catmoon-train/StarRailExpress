@@ -388,7 +388,8 @@ public class ThiefPlayerComponent implements RoleComponent, ServerTickingCompone
         if (isBat) {
             stoleninfo.itemStack = ItemStack.EMPTY;
         }
-        boolean canAdd = RoleUtils.insertStackInFreeSlot(serverPlayer, stoleninfo.itemStack.copy());
+        final var item = stoleninfo.itemStack.copy();
+        boolean canAdd = RoleUtils.insertStackInFreeSlot(serverPlayer, item);
 
         if (!canAdd) {
             // 背包满了，归还物品给目标
@@ -446,7 +447,7 @@ public class ThiefPlayerComponent implements RoleComponent, ServerTickingCompone
         SRE.REPLAY_MANAGER.recordCustomEvent(
                 Component.translatable("replay.event.thief.steal_item",
                         GameReplayUtils.getReplayPlayerDisplayText(player, true),
-                        GameReplayUtils.getReplayPlayerDisplayText(targetPlayer, true)));
+                        GameReplayUtils.getReplayPlayerDisplayText(targetPlayer, true), item.getDisplayName()));
 
         return true;
     }
