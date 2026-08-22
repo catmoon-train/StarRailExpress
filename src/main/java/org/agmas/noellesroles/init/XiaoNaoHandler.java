@@ -120,7 +120,6 @@ public class XiaoNaoHandler {
                 || deathReason.getPath().equals("fall_damage")
                 || deathReason.getPath().equals("cant_swim_drowned")
                 || deathReason.getPath().equals("swim_in_lava")
-                || deathReason.getPath().equals("general_attack")
                 || deathReason.getPath().equals("sniper_rifle")
                 || deathReason.getPath().equals("nunchuck_hit")
                 || deathReason.getPath().equals("bat_hit")

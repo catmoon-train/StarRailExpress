@@ -19,7 +19,6 @@ import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.api.replay.GameReplayUtils;
 import io.wifi.starrailexpress.event.EarlyKillPlayer;
 import io.wifi.starrailexpress.event.OnGameEnd;
-import io.wifi.starrailexpress.game.GameConstants;
 import io.wifi.starrailexpress.game.GameUtils;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.minecraft.ChatFormatting;
@@ -37,6 +36,7 @@ import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.level.Level;
+import org.agmas.noellesroles.Noellesroles;
 import org.agmas.noellesroles.config.NoellesRolesConfig;
 import org.agmas.noellesroles.init.ModEffects;
 
@@ -65,7 +65,7 @@ import java.util.concurrent.ConcurrentHashMap;
 public final class GroselleJourneyManager {
 
     /** 游记内死亡的死因（用于击杀改判与死亡信息）。 */
-    public static final ResourceLocation DEATH_REASON = GameConstants.DeathReasons.GROSELL_TRAVELOG;
+    public static final ResourceLocation DEATH_REASON = Noellesroles.id("grosell_travelog");
 
     /** 放逐记录：被放逐玩家 UUID -> 放逐信息（持有者 + 放逐前位置 + 放逐时间）。 */
     private static final Map<UUID, Banishment> banished = new ConcurrentHashMap<>();

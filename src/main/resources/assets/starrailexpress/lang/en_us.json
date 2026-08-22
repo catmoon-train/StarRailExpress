@@ -855,7 +855,6 @@
     "death_reason.starrailexpress.drowned": "Drowned",
     "death_reason.starrailexpress.cant_swim_drowned": "Tried to swim",
     "death_reason.starrailexpress.swim_in_lava": "Tried to swim in lava",
-    "death_reason.starrailexpress.general_attack": "Attack",
     "death_reason.starrailexpress.amon_usurp": "Usurped by an unknown entity",
     "death_reason.starrailexpress.backfire": "Gun backfire",
     "death_reason.starrailexpress.bat_hit": "Blunt force trauma",

@@ -246,7 +246,6 @@ public class GameConstants {
         public static ResourceLocation THIRST = SRE.id("thirst");
         public static ResourceLocation STARVED = SRE.id("starved");
         public static ResourceLocation GOD_COMMAND = Noellesroles.id("god_command");
-        public static ResourceLocation GENERAL_ATTACK = SRE.id("general_attack");
         public static ResourceLocation HOT_POTATO = SRE.id("hot_potato");
         public static ResourceLocation CAT_KILLER = SRE.wifiId("cat_killer");
 
@@ -254,12 +253,9 @@ public class GameConstants {
         public static ResourceLocation VOODOO = Noellesroles.id("voodoo");
         public static ResourceLocation SHOT_INNOCENT = Noellesroles.id("shot_innocent");
         public static ResourceLocation INSANE_KILLER_DEATH = Noellesroles.id("insane_killer_death");
-        public static ResourceLocation NOELLES_ARROW = Noellesroles.id("arrow");
         public static ResourceLocation HEART_ATTACK = Noellesroles.id("heart_attack");
         public static ResourceLocation CONSPIRACY_BACKFIRE = Noellesroles.id("conspiracy_backfire");
-        public static ResourceLocation STALKER_EXECUTION = Noellesroles.id("stalker_execution");
         public static ResourceLocation BOMB_DEATH = Noellesroles.id("bomb_death");
-        public static ResourceLocation PUPPETEER_PUPPET = Noellesroles.id("puppeteer_puppet");
         public static ResourceLocation PUPPETEER_KNIFE = Noellesroles.id("knife_puppeteer");
         public static ResourceLocation PUPPETEER_GUN = Noellesroles.id("gun_puppeteer");
         public static ResourceLocation RAVEN_BODY_DEATH = Noellesroles.id("raven_body_death");
@@ -281,7 +277,6 @@ public class GameConstants {
         public static ResourceLocation REPAIR_TRIAL_EXECUTION = Noellesroles.id("repair_trial_execution");
         public static ResourceLocation INFECTION = Noellesroles.id("infection");
         public static ResourceLocation UNDEAD_INFECTION = Noellesroles.id("undead_infection");
-        public static ResourceLocation GROSELL_TRAVELOG = Noellesroles.id("grosell_travelog");
         public static ResourceLocation WIZARD_FIREBALL = Noellesroles.id("wizard_fireball");
         public static ResourceLocation WIZARD_FIRE_ARROW = Noellesroles.id("wizard_fire_arrow");
         public static ResourceLocation DRY_DEATH = Noellesroles.id("dry_death");
@@ -290,7 +285,6 @@ public class GameConstants {
         public static ResourceLocation HOAN_MEIRIN_ATTACK = Noellesroles.id("hoan_meirin_attack");
         public static ResourceLocation DIO_FINAL_CARNIVAL_CANCEL = Noellesroles.id("dio_final_carnival_cancel");
         public static ResourceLocation WRAITH_ASSAULT = Noellesroles.id("wraith_assault");
-        public static ResourceLocation MORTICIAN_BODYMAKER = Noellesroles.id("mortician_bodymaker");
         public static ResourceLocation VOTED_OUT = Noellesroles.id("voted_out");
         public static ResourceLocation PELICAN_EATEN = Noellesroles.id("pelican_eaten");
 
