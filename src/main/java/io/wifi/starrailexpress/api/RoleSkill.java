@@ -186,6 +186,7 @@ public final class RoleSkill {
             boolean modeSwitch,
             boolean showOnHud,
             boolean withTarget,
+            boolean noRecord,
             Handler handler) {
         public Definition {
             if (id == null || nameKey == null || handler == null) {
@@ -209,6 +210,7 @@ public final class RoleSkill {
         private final Handler handler;
         private int cooldownTicks;
         private boolean noCastCCA = false;
+        private boolean noRecord = false;
         private boolean withTarget = false;
         private int maxCharges = -1;
         private boolean continuous;
@@ -223,6 +225,15 @@ public final class RoleSkill {
             this.id = id;
             this.nameKey = nameKey;
             this.handler = handler;
+        }
+
+        public Builder noRecord() {
+            return noRecord(true);
+        }
+
+        public Builder noRecord(boolean flag) {
+            noRecord = flag;
+            return this;
         }
 
         public Builder withTarget(boolean flag) {
@@ -342,6 +353,7 @@ public final class RoleSkill {
         public Definition build() {
             return new Definition(id, nameKey, cooldownTicks, maxCharges, continuous,
                     holdIntervalTicks, noCastCCA, announceInfo, toggleable, shifted, modeSwitch, showOnHud, withTarget,
+                    noRecord,
                     handler);
         }
     }
@@ -625,7 +637,7 @@ public final class RoleSkill {
                 skillReady, target);
         afterUse(player, role);
         // 回放记录：玩家释放技能（统一技能系统入口；以下角色已在组件内部记录，避免重复）
-        if (!ROLE_SKILL_REPLAY_EXCLUDED.contains(role.identifier().toString()) && !definition.toggleable()) {
+        if (!ROLE_SKILL_REPLAY_EXCLUDED.contains(role.identifier().toString()) && !definition.toggleable() && !definition.noRecord() && !definition.modeSwitch()) {
             SRE.REPLAY_MANAGER.recordSkillUsedId(player, definition.nameKey());
         }
         return true;

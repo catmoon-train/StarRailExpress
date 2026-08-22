@@ -1052,7 +1052,7 @@ public class ModRolesInitialEventRegister {
                 context -> {
                     CommanderHandler.tryActiveAbility(context.player());
                     return true;
-                }).build());
+                }).noRecord().build());
 
         // 炸弹人技能注册：购买炸弹
         RoleSkill.register(ModRoles.BOMBER, RoleSkill.skill(
