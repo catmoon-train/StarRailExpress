@@ -55,6 +55,7 @@ import org.agmas.noellesroles.content.entity.DoomedSinnerBodyEntity;
 import org.agmas.noellesroles.init.ModEffects;
 import org.agmas.noellesroles.init.ModEntities;
 import org.agmas.noellesroles.init.ModItems;
+import org.agmas.noellesroles.packet.BroadcastMessageS2CPacket;
 import org.agmas.noellesroles.packet.DoomedSinnerFateRevealS2CPacket;
 import org.agmas.noellesroles.packet.SkincrawlerSkinS2CPacket;
 import org.agmas.noellesroles.role.ModRoles;
@@ -542,7 +543,7 @@ public class DoomedSinnerPlayerComponent implements RoleComponent, ServerTicking
                 player.getDisplayName(), Component.translatable(deathReasonKey(deathReason)))
                 .withStyle(ChatFormatting.DARK_RED);
         for (ServerPlayer p : serverLevel.players()) {
-            p.sendSystemMessage(message);
+            ServerPlayNetworking.send(p, new BroadcastMessageS2CPacket(message));
         }
     }
 
