@@ -43,6 +43,8 @@ public class XiaoNaoHandler {
         OnTeammateKilledTeammate.EVENT.register((victim, killer, isInnocent, deathReason) -> {
             if (killer == null)
                 return;
+            if (victim.getUUID().equals(killer.getUUID()))
+                return;
             if (GameUtils.isPlayerAliveAndSurvival(killer)) {
                 if (isInnocent) {
                     SREGameWorldComponent gameWorldComponent = SREGameWorldComponent.KEY.get(victim.level());
