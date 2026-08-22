@@ -100,7 +100,7 @@ public interface RoleData {
      */
     @Nullable
     public static <T extends RoleData> Optional<T> getOptional(Class<T> clazz, Player player) {
-        return Optional.ofNullable(getAttached(clazz, player));
+        return Optional.ofNullable(getNullable(clazz, player));
     }
 
     /**
@@ -119,7 +119,7 @@ public interface RoleData {
         if (attached != null) {
             return attached;
         }
-        return emptyOf(clazz);
+        return null;
     }
 
     /**
