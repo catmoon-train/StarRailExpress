@@ -1417,10 +1417,6 @@ public abstract class SRERole extends SREAbstractInfoClass {
         return this;
     }
 
-    public boolean isGambler() {
-        return false;
-    }
-
     public boolean canAutoAddMoney() {
         return this.canAutoAddMoney;
     }
