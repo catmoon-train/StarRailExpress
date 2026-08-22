@@ -13,21 +13,27 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package org.agmas.noellesroles.client;
+package io.wifi.starrailexpress.client.gui.screen.ingame;
 
 import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.player.LocalPlayer;
 
-import java.awt.*;
+import java.awt.Point;
+import java.util.Comparator;
 import java.util.List;
 import java.util.function.BiConsumer;
+import java.util.function.Function;
 import java.util.function.Supplier;
 
 /**
- * 辅助类用于处理角色屏幕的通用逻辑，如分页和角色检查。
+ * 角色背包界面辅助类：处理角色专用选人列表的通用逻辑——角色激活判断、分页、
+ * 玩家名搜索与排序，内部使用 {@link PlayerPaginationHelper}。
+ *
+ * <p>配合 {@link io.wifi.starrailexpress.api.SRERole} 上的
+ * {@code setInventoryScreenInitHandler} 等钩子，在客户端注册使用。
  */
 public class RoleScreenHelper<T> {
     private final LocalPlayer player;
@@ -37,8 +43,6 @@ public class RoleScreenHelper<T> {
     private final Supplier<List<T>> entriesSupplier;
 
     /**
-     * 创建 RoleScreenHelper 实例。
-     * 
      * @param player          客户端玩家实体
      * @param role            对应的角色
      * @param widgetCreator   用于创建玩家小部件的回调
@@ -69,45 +73,61 @@ public class RoleScreenHelper<T> {
     }
 
     /**
-     * 在渲染时调用，绘制角色特定内容和分页。
-     * 
-     * @param context 绘制上下文
-     * @param screen  屏幕实例（必须实现 ScreenWithChildren）
+     * 渲染时调用：绘制角色特定内容与分页信息。
      */
-    public void onRender(GuiGraphics context, PlayerPaginationHelper.ScreenWithChildren screen) {
+    public void onRender(GuiGraphics context, LimitedInventoryScreen screen) {
         if (!isRoleActive()) {
             return;
         }
-        Screen screenAsScreen = (Screen) screen;
-        int y = (screenAsScreen.height - 32) / 2;
-        int x = screenAsScreen.width / 2;
+        int y = (screen.height - 32) / 2;
+        int x = screen.width / 2;
         if (extraDrawer != null) {
             extraDrawer.accept(context, new Point(x, y));
         }
-        // 绘制分页信息，需要 Screen 类型，可以安全转换
-        paginationHelper.drawPagination(context, screenAsScreen, y);
+        paginationHelper.drawPagination(context, screen, y);
     }
 
     /**
-     * 在初始化时调用，设置分页条目并添加小部件。
-     * 
-     * @param screen 屏幕实例（必须实现 ScreenWithChildren）
+     * 初始化时调用：清除旧控件、填充条目并添加当前页控件。
      */
-    public void onInit(PlayerPaginationHelper.ScreenWithChildren screen) {
+    public void onInit(LimitedInventoryScreen screen) {
         if (!isRoleActive()) {
             return;
         }
-        // 只清除由分页助手管理的小部件，而不是所有小部件
         paginationHelper.clearManagedWidgets(screen);
         List<T> entries = entriesSupplier.get();
         paginationHelper.setPlayerEntries(entries);
-        paginationHelper.addPageWidgets((Screen) screen);
+        paginationHelper.addPageWidgets(screen);
     }
 
     /**
-     * 获取分页助手，用于直接操作（例如刷新页面）。
+     * 获取分页助手，用于直接操作（例如翻页/刷新）。
      */
     public PlayerPaginationHelper<T> getPaginationHelper() {
         return paginationHelper;
+    }
+
+    // ===== 便捷方法（轮椅） =====
+
+    /** 启用按玩家名搜索与按名排序（忽略大小写）。 */
+    public RoleScreenHelper<T> setNameExtractor(Function<T, String> nameExtractor) {
+        paginationHelper.setNameExtractor(nameExtractor);
+        return this;
+    }
+
+    /** 自定义排序（覆盖默认的按名排序）。 */
+    public RoleScreenHelper<T> setSort(Comparator<T> sortComparator) {
+        paginationHelper.setSort(sortComparator);
+        return this;
+    }
+
+    /** 便捷：挂载玩家名搜索框（默认位置：列表上方居中）。 */
+    public EditBox attachSearchBox(LimitedInventoryScreen screen) {
+        return paginationHelper.attachSearchBox(screen);
+    }
+
+    /** 便捷：在指定位置挂载玩家名搜索框。 */
+    public EditBox attachSearchBox(LimitedInventoryScreen screen, int x, int y, int width, int height) {
+        return paginationHelper.attachSearchBox(screen, x, y, width, height);
     }
 }

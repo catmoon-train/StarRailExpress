@@ -37,6 +37,7 @@ import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.resources.PlayerSkin.Model;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
+import io.wifi.starrailexpress.event.client.LimitedInventoryScreenEvents;
 import net.minecraft.network.chat.Style;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.player.Player;
@@ -49,6 +50,7 @@ import org.agmas.noellesroles.utils.RoleUtils;
 
 import pro.fazeclan.river.stupid_express.StupidExpress;
 import pro.fazeclan.river.stupid_express.client.keybinds.SplitPersonalityKeybinds;
+import pro.fazeclan.river.stupid_express.client.modifier.split_personality.SplitPersonalityInventoryScreenExtension;
 import pro.fazeclan.river.stupid_express.constants.SEItems;
 import pro.fazeclan.river.stupid_express.constants.SERoles;
 import pro.fazeclan.river.stupid_express.modifier.refugee.cca.RefugeeComponent;
@@ -321,7 +323,10 @@ public class StupidExpressClient implements ClientModInitializer {
     }
 
     private static void registerInventoryEvents() {
-
+        // 双重人格：背包界面（LimitedInventoryScreen）选择按钮 + 提示文本（旧版 InventoryScreenSplitPersonalityMixin）
+        LimitedInventoryScreenEvents.INIT.register(SplitPersonalityInventoryScreenExtension.INSTANCE::onInit);
+        LimitedInventoryScreenEvents.RENDER_TAIL
+                .register(SplitPersonalityInventoryScreenExtension.INSTANCE::onRenderTail);
     }
 
     /** 本地玩家是否为领袖追随者（纵火犯 HUD 同步：追随者点燃所需 -2 人） */

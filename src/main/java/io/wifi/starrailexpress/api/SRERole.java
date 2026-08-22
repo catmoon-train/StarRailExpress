@@ -29,6 +29,9 @@ import io.wifi.starrailexpress.content.gui.PlayerBodyEntityContainer;
 import io.wifi.starrailexpress.index.TMMItems;
 import io.wifi.starrailexpress.util.ShopEntry;
 import io.wifi.starrailexpress.util.TrueFalseResult;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.loader.api.FabricLoader;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.core.NonNullList;
 import net.minecraft.locale.Language;
 import net.minecraft.network.chat.Component;
@@ -1279,6 +1282,75 @@ public abstract class SRERole extends SREAbstractInfoClass {
     public SRERole addChild(Consumer<LimitedInventoryScreen> addChild) {
         this.addChild = addChild;
         return this;
+    }
+
+    // ---------- 背包界面（LimitedInventoryScreen）扩展钩子 ----------
+    // 沿用 setClientGameTickEvent 的模式：注册方在客户端通过 setXxx 注册"客户端函数"，
+    // 调用处（LimitedInventoryScreen，仅客户端）在调用时先判断运行环境，避免在服务端加载客户端逻辑。
+    protected Consumer<LimitedInventoryScreen> inventoryScreenInitHandler = null;
+    protected Consumer<LimitedInventoryScreen> inventoryScreenInitTailHandler = null;
+    protected InventoryScreenRenderHandler inventoryScreenRenderHandler = null;
+
+    /**
+     * 背包界面渲染回调（仅客户端）。
+     */
+    @FunctionalInterface
+    public interface InventoryScreenRenderHandler {
+        void onRender(LimitedInventoryScreen screen, GuiGraphics graphics, int mouseX, int mouseY, float delta);
+    }
+
+    /** 注册背包界面 {@code init()} 开头（客户端）的回调。 */
+    public SRERole setInventoryScreenInitHandler(Consumer<LimitedInventoryScreen> handler) {
+        this.inventoryScreenInitHandler = handler;
+        return this;
+    }
+
+    /** 注册背包界面 {@code init()} 末尾（客户端）的回调。 */
+    public SRERole setInventoryScreenInitTailHandler(Consumer<LimitedInventoryScreen> handler) {
+        this.inventoryScreenInitTailHandler = handler;
+        return this;
+    }
+
+    /** 注册背包界面 {@code render()} 开头（客户端，每帧）的回调。 */
+    public SRERole setInventoryScreenRenderHandler(InventoryScreenRenderHandler handler) {
+        this.inventoryScreenRenderHandler = handler;
+        return this;
+    }
+
+    /** 背包界面 {@code init()} 开头时由 {@code LimitedInventoryScreen} 调用。 */
+    public void onInventoryScreenInit(LimitedInventoryScreen screen) {
+        if (!isClientEnvironment()) {
+            return;
+        }
+        if (inventoryScreenInitHandler != null) {
+            inventoryScreenInitHandler.accept(screen);
+        }
+    }
+
+    /** 背包界面 {@code init()} 末尾时由 {@code LimitedInventoryScreen} 调用。 */
+    public void onInventoryScreenInitTail(LimitedInventoryScreen screen) {
+        if (!isClientEnvironment()) {
+            return;
+        }
+        if (inventoryScreenInitTailHandler != null) {
+            inventoryScreenInitTailHandler.accept(screen);
+        }
+    }
+
+    /** 背包界面 {@code render()} 开头时由 {@code LimitedInventoryScreen} 调用（每帧）。 */
+    public void onInventoryScreenRender(LimitedInventoryScreen screen, GuiGraphics graphics, int mouseX, int mouseY,
+            float delta) {
+        if (!isClientEnvironment()) {
+            return;
+        }
+        if (inventoryScreenRenderHandler != null) {
+            inventoryScreenRenderHandler.onRender(screen, graphics, mouseX, mouseY, delta);
+        }
+    }
+
+    /** 判断当前运行环境是否为客户端（仅客户端才允许执行客户端钩子）。 */
+    private static boolean isClientEnvironment() {
+        return FabricLoader.getInstance().getEnvironmentType().equals(EnvType.CLIENT);
     }
 
     @Override

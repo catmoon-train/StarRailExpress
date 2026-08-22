@@ -571,11 +571,11 @@ public class ModRolesInitialEventRegister {
                     // 不在此处设统一技能冷却：统一技能系统无论 handler 是否成功都会进入冷却
                     // （见 RoleSkill.useUnified），会导致"没吃到人也进CD"。鹈鹕冷却由
                     // PelicanPlayerComponent.eatCooldownUntil 管理，仅在成功吞噬后生效（并由 PelicanHud 显示）。
-                }).announceToSelf(false).noRecord().build(),
+                }).announceToSelf(false).build(),
                 RoleSkill.skill(SRE.id("pelican_release"), "skill.noellesroles.pelican.release", context -> {
                     PelicanPlayerComponent comp = PelicanPlayerComponent.KEY.get(context.player());
                     return comp != null && comp.releaseLast();
-                }).shifted(true).noRecord().announceToSelf(false).build());
+                }).shifted(true).announceToSelf(false).build());
 
         // 阿蒙技能：
         // - G 键：对准星玩家静默种下时之虫（附身期间也可为其他人种虫）
@@ -644,7 +644,7 @@ public class ModRolesInitialEventRegister {
                     return comp.tryCurse(target);
                 }).cooldownSeconds(45).showOnHud(true).build());
         // 领域展开（技能三）改为在背包 LimitedInventoryScreen 点选已被诅咒且存活的目标触发，
-        // 见 WarlockDomainScreenMixin / WarlockDomainWidget /
+        // 见 WarlockRoleScreenExtension / WarlockDomainWidget /
         // WarlockDomainC2SPacket（冷却记在组件里，60s）。
 
         // Dream（梦魇）技能注册：制酒 —— 酿一瓶酒，喝下隐身10s（期间无法攻击/无法受伤）
@@ -1075,7 +1075,7 @@ public class ModRolesInitialEventRegister {
                 context -> {
                     CommanderHandler.tryActiveAbility(context.player());
                     return true;
-                }).noRecord().build());
+                }).build());
 
         // 炸弹人技能注册：购买炸弹
         RoleSkill.register(ModRoles.BOMBER, RoleSkill.skill(

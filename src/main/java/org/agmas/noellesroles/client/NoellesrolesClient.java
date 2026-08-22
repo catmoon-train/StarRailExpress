@@ -103,6 +103,7 @@ import net.exmo.sre.repair.client.HunterCageBlockEntityRenderer;
 import org.agmas.noellesroles.client.renderer.BreakingBridgeBlockEntityRenderer;
 import org.agmas.noellesroles.client.renderer.SREPlushBlockEntityRenderer;
 import org.agmas.noellesroles.client.renderer.VendingMachinesBlockEntityRenderer;
+import org.agmas.noellesroles.client.rolescreen.RoleScreenRegister;
 import org.agmas.noellesroles.client.screen.*;
 import org.agmas.noellesroles.component.DeathPenaltyComponent;
 import org.agmas.noellesroles.content.block_entity.LotteryMachineBlockEntity;
@@ -242,6 +243,8 @@ public class NoellesrolesClient implements ClientModInitializer {
     @Override
     public void onInitializeClient() {
         DynamiclightsEntry.registerClientEvents();
+        // 注册各职业的背包界面扩展（旧版 ScreenMixin 的替代：SRERole 钩子，客户端注册）
+        RoleScreenRegister.register();
         NoellesrolesClientAmbientSounds.register();
         // Dream（梦魇）：颤抖视角漂移 + 虚拟血量条（准星指向受伤玩家时显示）
         org.agmas.noellesroles.game.roles.killer.dream.client.DreamClientHandler.register();

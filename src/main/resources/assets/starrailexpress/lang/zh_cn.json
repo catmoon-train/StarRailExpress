@@ -2864,6 +2864,7 @@
     "sre.map_helper.settings.indoorSoundVolume": "室内声音大小",
     "sre.map_helper.settings.outdoorSoundVolume": "室外声音大小",
     "sre.map_helper.settings.customSoundId.@tooltip": "仅选择自定义时有效",
+    "gui.starrailexpress.role_screen.search": "搜索玩家名…",
     "== 地图设置末尾 END ==": "",
     "replay.pelican.eat": "\u00a7c🍴\u00a7r %s 吞噬了 %s",
     "replay.pelican.spit": "\u00a7a💨\u00a7r %s 吐出了 %s",

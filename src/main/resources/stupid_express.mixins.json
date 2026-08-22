@@ -18,7 +18,6 @@
   },
   "client": [
     "client.modifier.split_personality.BanSpectatorGuiMove",
-    "client.modifier.split_personality.InventoryScreenSplitPersonalityMixin",
     "client.modifier.split_personality.KeyBindingMixin",
     "client.modifier.split_personality.SplitPersonalityInputBlockMixin",
     "client.modifier.split_personality.SplitPersonalityPlayerHideMixin",

@@ -36,3 +36,21 @@ RoleData实例类：可以extends SimpleRoleData，或是 implements RoleData
 
 # 语言文件
 遵循使用翻译键，优先补全 `zh_cn.json`
+# 有关背包界面（LimitedInventoryScreen）API
+
+- 不要用 mixin 直接改 `LimitedInventoryScreen`！请使用事件或 SRERole 钩子。
+- 事件（纯客户端）：`io.wifi.starrailexpress.event.client.LimitedInventoryScreenEvents`
+  （INIT / INIT_TAIL / RENDER / RENDER_TAIL），非职业扩展（如 modifier）用。
+- 职业扩展：SRERole 上的
+  `.setInventoryScreenInitHandler(客户端函数)` /
+  `.setInventoryScreenInitTailHandler(客户端函数)` /
+  `.setInventoryScreenRenderHandler(客户端函数)`
+  在客户端注册（如 NoellesrolesClient.onInitializeClient），钩子调用时内部会先判断运行环境
+  （`FabricLoader.getInstance().getEnvironmentType().equals(EnvType.CLIENT)`），非客户端直接返回。
+- 服务端类严禁直接 import 客户端类！需要客户端执行客户端方法时：判别环境后经
+  SREClient（客户端入口，允许客户端 only 方法）执行。
+- 轮椅方法：`LimitedInventoryScreen.addRoleWidget/removeRoleWidget/clearRoleWidgets/reinit`（添加组件/重建界面）；
+  选人列表的分页、玩家名搜索（输入框）、按名排序见
+  `io.wifi.starrailexpress.client.gui.screen.ingame.PlayerPaginationHelper` 与 `RoleScreenHelper`
+  （翻页 nextPage/prevPage/jumpToPage、搜索 attachSearchBox、排序 setNameExtractor/setSort）。
+- 搜索框提示文字使用翻译键（`gui.starrailexpress.role_screen.search`），优先补全 zh_cn.json。

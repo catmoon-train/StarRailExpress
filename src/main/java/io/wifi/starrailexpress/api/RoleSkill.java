@@ -186,7 +186,7 @@ public final class RoleSkill {
             boolean modeSwitch,
             boolean showOnHud,
             boolean withTarget,
-            boolean noRecord,
+            boolean haveRecord,
             Handler handler,
             Component recordName) {
         public Definition {
@@ -211,7 +211,7 @@ public final class RoleSkill {
         private final Handler handler;
         private int cooldownTicks;
         private boolean noCastCCA = false;
-        private boolean noRecord = false;
+        private boolean haveRecord = false;
         private boolean withTarget = false;
         private int maxCharges = -1;
         private boolean continuous;
@@ -229,12 +229,12 @@ public final class RoleSkill {
             this.handler = handler;
         }
 
-        public Builder noRecord() {
-            return noRecord(true);
+        public Builder recordReplay() {
+            return recordReplay(true);
         }
 
-        public Builder noRecord(boolean flag) {
-            noRecord = flag;
+        public Builder recordReplay(boolean flag) {
+            haveRecord = flag;
             return this;
         }
 
@@ -364,7 +364,7 @@ public final class RoleSkill {
         public Definition build() {
             return new Definition(id, nameKey, cooldownTicks, maxCharges, continuous,
                     holdIntervalTicks, noCastCCA, announceInfo, toggleable, shifted, modeSwitch, showOnHud, withTarget,
-                    noRecord,
+                    haveRecord,
                     handler, recordName);
         }
     }
@@ -648,7 +648,7 @@ public final class RoleSkill {
                 skillReady, target);
         afterUse(player, role);
         // 回放记录：玩家释放技能（统一技能系统入口；以下角色已在组件内部记录，避免重复）
-        if (!ROLE_SKILL_REPLAY_EXCLUDED.contains(role.identifier().toString()) && !definition.toggleable() && !definition.noRecord() && !definition.modeSwitch()) {
+        if (!ROLE_SKILL_REPLAY_EXCLUDED.contains(role.identifier().toString()) && !definition.toggleable() && definition.haveRecord() && !definition.modeSwitch()) {
             Component literalName = definition.recordName();
             if (literalName != null) {
                 // 自定义职业等：优先显示用户填写的技能名（字面文本）

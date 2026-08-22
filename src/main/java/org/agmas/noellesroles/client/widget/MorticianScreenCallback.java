@@ -19,7 +19,7 @@ import java.util.UUID;
 
 /**
  * 葬仪屏幕回调接口
- * 用于BodymakerScreenMixin中的多阶段选择流程
+ * 用于BodymakerRoleScreenExtension（葬仪背包界面扩展）中的多阶段选择流程
  */
 public interface MorticianScreenCallback {
     /**
