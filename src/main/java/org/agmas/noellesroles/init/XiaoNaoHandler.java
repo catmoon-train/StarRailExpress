@@ -147,6 +147,7 @@ public class XiaoNaoHandler {
                 || deathReason.getPath().equals("danmuku")
                 || deathReason.getPath().equals("zero_one_five_shot")
                 || deathReason.getPath().equals("incinerator_pushed")
+                || deathReason.getPath().equals("general_attack")
                 || deathReason.getPath().equals("manhole_suffocation")
                 || deathReason.getPath().equals("stalactite_impale")
                 || deathReason.getPath().equals("flamethrower_burned")

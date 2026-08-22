@@ -848,6 +848,7 @@
     "commands.sre.setshield.multiple": "给 %s 个玩家设置了 %s 层护盾",
     "commands.sre.getshield": "总共有 %s 层护盾",
     "argument.game_mode.invalid": "无效的游戏模式",
+    "death_reason.starrailexpress.general_attack": "攻击",
     "death_reason.starrailexpress.death_in_darkness": "在黑暗中死去了",
     "death_reason.starrailexpress.fall_damage": "从高处掉了下来",
     "death_reason.starrailexpress.ancient_bite": "被远古生物咬死",
