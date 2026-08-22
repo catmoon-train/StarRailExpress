@@ -68,7 +68,6 @@
     "roles.thief.ThiefsHonorMixin",
     "roles.traitor.DesperateFaithKnifeCooldownMixin",
     "roles.trapper.TrapperTrapGunPayloadMixin",
-    "roles.trapper.TrapperTripwireSlowMixin",
     "roles.undead_lord.UndeadGunPayloadMixin",
     "roles.veteran.VeteranKnifeLeftClickMixin",
     "roles.warlock.WarlockDomainDeathImmunityMixin",
