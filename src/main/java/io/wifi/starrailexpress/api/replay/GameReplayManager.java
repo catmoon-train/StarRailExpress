@@ -633,7 +633,10 @@ public class GameReplayManager implements IGameReplayRecorder {
       recordCustomEvent(
           Component.translatable("sre.replay.event.skill_release",
               GameReplayUtils.getReplayPlayerDisplayText(player, true),
-              Component.translatableWithFallback(id, "")),
+              Component
+                  .translatable("sre.replay.event.skill_release.warp",
+                      Component.translatableWithFallback(id, "Skill"))
+                  .withStyle(ChatFormatting.WHITE)),
           hidden);
     }
   }

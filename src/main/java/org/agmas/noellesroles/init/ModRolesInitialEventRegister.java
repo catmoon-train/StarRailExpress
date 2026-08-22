@@ -548,11 +548,11 @@ public class ModRolesInitialEventRegister {
                     // 不在此处设统一技能冷却：统一技能系统无论 handler 是否成功都会进入冷却
                     // （见 RoleSkill.useUnified），会导致"没吃到人也进CD"。鹈鹕冷却由
                     // PelicanPlayerComponent.eatCooldownUntil 管理，仅在成功吞噬后生效（并由 PelicanHud 显示）。
-                }).announceToSelf(false).build(),
+                }).announceToSelf(false).noRecord().build(),
                 RoleSkill.skill(SRE.id("pelican_release"), "skill.noellesroles.pelican.release", context -> {
                     PelicanPlayerComponent comp = PelicanPlayerComponent.KEY.get(context.player());
                     return comp != null && comp.releaseLast();
-                }).shifted(true).announceToSelf(false).build());
+                }).shifted(true).noRecord().announceToSelf(false).build());
 
         // 阿蒙技能：
         // - G 键：对准星玩家静默种下时之虫（附身期间也可为其他人种虫）
