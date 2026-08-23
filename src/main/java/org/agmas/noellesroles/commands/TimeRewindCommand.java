@@ -137,7 +137,7 @@ public final class TimeRewindCommand {
                         + player.getScoreboardName() + " 的测试节点"));
                 continue;
             }
-            if (TimeRewind.restoreSmooth(player, snapshot, ticks, result -> {
+            if (TimeRewind.smoothRestore(player, snapshot, ticks, result -> {
                 ChatFormatting color = result.isSuccess() ? ChatFormatting.GREEN : ChatFormatting.YELLOW;
                 context.getSource().sendSuccess(() -> Component.literal("回溯完成: "
                         + player.getScoreboardName() + "，组件 " + result.restoredComponents()
