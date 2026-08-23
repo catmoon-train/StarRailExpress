@@ -44,8 +44,6 @@ import org.agmas.noellesroles.utils.RoleUtils;
 
 public class MonokumaRoleData extends SimpleRoleData {
 
-
-
     // ==================== 常量 ====================
 
     /** 狂暴前奏持续时间 35秒 = 1200 tick */
@@ -61,7 +59,6 @@ public class MonokumaRoleData extends SimpleRoleData {
     /** 仅服务端：杀人计数 */
     public int kill_count = 0;
     // ==================== 状态 ====================
-
 
     /**
      * 当前阶段
@@ -89,12 +86,10 @@ public class MonokumaRoleData extends SimpleRoleData {
         super(context);
     }
 
-
     @Override
     public boolean shouldSyncWith(ServerPlayer player) {
         return this.player == player;
     }
-
 
     // ==================== 生命周期 ====================
 
@@ -395,8 +390,6 @@ public class MonokumaRoleData extends SimpleRoleData {
     }
 
     // ==================== 序列化 ====================
-
-
 
     @Override
     public void writeToSyncNbt(CompoundTag tag, HolderLookup.Provider registryLookup) {

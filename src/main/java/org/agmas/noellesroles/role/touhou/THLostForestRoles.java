@@ -16,6 +16,7 @@
 package org.agmas.noellesroles.role.touhou;
 
 import org.agmas.noellesroles.role.touhou.roles.*;
+import org.agmas.noellesroles.role_data.innocence.MagicianRoleData;
 
 import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.api.InstinctType;
@@ -52,7 +53,8 @@ public class THLostForestRoles {
       .setToggledOnInstinctType(InstinctType.KILLER_INSTINCT)
       .setCanBeRandomedByOtherRoles(false)
       .setCanUseInstinctAndNightVision(true)
-      .setHiddenForRoleRotation(true);
+      .setHiddenForRoleRotation(true)
+      .setRoleData(MagicianRoleData::new);
 
   // 藤原妹红
   public static final ResourceLocation MOKOU_ID = id("huziwara_no_mokou");

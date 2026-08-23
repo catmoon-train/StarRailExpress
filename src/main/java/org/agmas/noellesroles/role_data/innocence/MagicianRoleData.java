@@ -31,6 +31,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import org.agmas.noellesroles.init.ModItems;
+import org.agmas.noellesroles.role.BounsRoles;
 import org.agmas.noellesroles.role.ModRoles;
 import org.agmas.noellesroles.utils.RoleUtils;
 import org.jetbrains.annotations.NotNull;
@@ -122,6 +123,9 @@ public class MagicianRoleData extends SimpleRoleData {
         killerRoles.add(ModRoles.EXAMPLER_ID);
         killerRoles.add(ModRoles.YOULU_ID);
         killerRoles.add(ModRoles.WARLOCK_ID);
+        killerRoles.add(BounsRoles.CREEPER.identifier());
+        killerRoles.add(SERoles.NECROMANCER.identifier());
+        killerRoles.add(BounsRoles.CAT_NECROMANCER.identifier());
 
         if (killerRoles.isEmpty()) {
             killerRoles.add(TMMRoles.KILLER.identifier());

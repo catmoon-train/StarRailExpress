@@ -53,7 +53,6 @@ import org.agmas.noellesroles.game.roles.innocence.attendant.AttendantHandler;
 import org.agmas.noellesroles.role_data.innocence.GhostRoleData;
 import org.agmas.noellesroles.role_data.innocence.ClockmakerRoleData;
 import org.agmas.noellesroles.role_data.innocence.NoiseMakerRoleData;
-import org.agmas.noellesroles.role_data.innocence.PainterRoleData;
 import org.agmas.noellesroles.role_data.innocence.ReturnTravelerRoleData;
 import org.agmas.noellesroles.role_data.innocence.SaltedFishRoleData;
 import org.agmas.noellesroles.role_data.killer.BloodFeudistRoleData;
@@ -66,8 +65,6 @@ import org.agmas.noellesroles.role_data.innocence.FortunetellerRoleData;
 import org.agmas.noellesroles.role_data.neutral.AmonRoleData;
 import org.agmas.noellesroles.role_data.neutral.CandleBearerRoleData;
 import org.agmas.noellesroles.role_data.neutral.CuckooRoleData;
-import org.agmas.noellesroles.role_data.neutral.GamblerRoleData;
-import org.agmas.noellesroles.role_data.neutral.RavenRoleData;
 import org.agmas.noellesroles.role_data.neutral.RecorderRoleData;
 import org.agmas.noellesroles.role_data.neutral.MorticianBodyMakerRoleData;
 import org.agmas.noellesroles.role_data.innocence.LeatherPigRoleData;
@@ -141,7 +138,7 @@ public class ModRolesInitialEventRegister {
                     // 停止疯狂模式（如果之前存在）
                     var psychoComponent = SREPlayerPsychoComponent.KEY.get(player);
                     if (psychoComponent != null) {
-                        psychoComponent.init();
+                        psychoComponent.clear();
                     }
                     // 随机分配一个杀手身份给魔术师（原版杀手、毒师和清道夫除外）
                     if (magicianComponent != null) {
