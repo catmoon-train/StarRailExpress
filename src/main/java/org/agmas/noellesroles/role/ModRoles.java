@@ -2275,7 +2275,22 @@ public class ModRoles {
             .setCanSeeCoin(true)
             .setDefaultMax(1)
             .setDefaultEnableNeededPlayerCount(12)
-            .setDefaultEnableChance(5000);
+            .setDefaultEnableChance(5000) {
+                @Override
+                public boolean onUseGun(Player player) {
+                    return false;
+                }
+
+                @Override
+                public boolean onUseDerringer(Player player) {
+                    return false;
+                }
+
+                @Override
+                public boolean onUseKnife(Player player) {
+                    return false;
+                }
+            };
 
     /**
      * 林家子弟 —— 中立独立胜利角色。
@@ -2310,7 +2325,7 @@ public class ModRoles {
             .setCanAutoAddMoney(true)
             .setCanBeRandomedByOtherRoles(false)
             .setCanHavePassiveIncome(false)
-            .setToggledOnInstinctType(
+                .setToggledOnInstinctType(
                     InstinctType.customWithFunction((self, target, selfRole, targetRole) -> {
                         if (target == null) {
                             return InstinctType.NONE;

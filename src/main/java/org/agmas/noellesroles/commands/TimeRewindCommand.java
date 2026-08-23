@@ -49,8 +49,14 @@ public final class TimeRewindCommand {
     }
 
     private static void register(CommandDispatcher<CommandSourceStack> dispatcher) {
-        dispatcher.register(Commands.literal("sre:rewind")
+        register(dispatcher, "sre:rewind");
+        register(dispatcher, "rewind");
+    }
+
+    private static void register(CommandDispatcher<CommandSourceStack> dispatcher, String root) {
+        dispatcher.register(Commands.literal(root)
                 .requires(source -> source.hasPermission(2))
+                .executes(TimeRewindCommand::help)
                 .then(Commands.literal("capture")
                         .executes(context -> capture(context, java.util.List.of(
                                 context.getSource().getPlayerOrException())))
@@ -92,6 +98,13 @@ public final class TimeRewindCommand {
                                         EntityArgument.getPlayers(context, "targets")))))
                 .then(Commands.literal("status").executes(TimeRewindCommand::status))
                 .then(Commands.literal("clear").executes(TimeRewindCommand::clear)));
+    }
+
+    private static int help(CommandContext<CommandSourceStack> context) {
+        context.getSource().sendSuccess(() -> Component.literal(
+                "回溯指令: capture | restore | cancel | visual | area capture/restore | roledata | status | clear")
+                .withStyle(ChatFormatting.AQUA), false);
+        return 1;
     }
 
     private static int capture(CommandContext<CommandSourceStack> context,

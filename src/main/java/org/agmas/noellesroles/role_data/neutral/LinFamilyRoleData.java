@@ -23,6 +23,7 @@ import io.wifi.starrailexpress.api.impl.SimpleRoleData;
 import io.wifi.starrailexpress.cca.SREAbilityPlayerComponent;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.cca.SREPlayerShopComponent;
+import io.wifi.starrailexpress.content.item.api.SREItemProperties.TrainWeapon;
 import io.wifi.starrailexpress.content.item.KnifeItem;
 import io.wifi.starrailexpress.content.item.component.SREWrittenBookContent;
 import io.wifi.starrailexpress.event.AllowPlayerDeathWithKiller;
@@ -95,6 +96,11 @@ public class LinFamilyRoleData extends SimpleRoleData {
     /** 售货机 / 抽奖机购买冷却（技能 HUD 显示，不通过技能键触发）。 */
     public static final ResourceLocation MACHINE_SKILL_ID = SRE.id("lin_family_machine");
     public static final int MACHINE_COOLDOWN_TICKS = 60 * 20;
+
+    /** 金钱禁锢冷却：10 秒。 */
+    private static final int MONEY_BIND_COOLDOWN_TICKS = 10 * 20;
+    /** 用于金钱禁锢冷却的物品占位符。 */
+    private static final Item MONEY_BIND_COOLDOWN_ITEM = Items.GOLD_NUGGET;
 
     /** 射击瞬间记录哑火结果（枪可能已被一次性消耗）。 */
     private static final ConcurrentHashMap<UUID, Boolean> PENDING_MISFIRE = new ConcurrentHashMap<>();
@@ -218,7 +224,10 @@ public class LinFamilyRoleData extends SimpleRoleData {
             }
             attacker.getCooldowns().addCooldown(Items.BARRIER, ATTACK_COOLDOWN_TICK);
             if (isLinFamily(attacker)) {
-                applyMoneyBind(attacker, victim);
+                ItemStack weapon = attacker.getMainHandItem();
+                if (isConsideredWeapon(weapon)) {
+                    applyMoneyBind(attacker, victim);
+                }
             }
             if (isLinFamily(victim)) {
                 applyInvisibility((ServerPlayer) victim);
@@ -304,6 +313,23 @@ public class LinFamilyRoleData extends SimpleRoleData {
 
     public static boolean hasKnife(Player player) {
         return SREItemUtils.hasItem(player, stack -> stack.is(TMMItems.KNIFE) || stack.getItem() instanceof KnifeItem);
+    }
+
+    /**
+     * 是否属于会触发“金钱禁锢”的武器：枪械、刀、球棒等 TrainWeapon，以及弓。
+     * 空手不属于武器。
+     */
+    public static boolean isConsideredWeapon(ItemStack stack) {
+        if (stack == null || stack.isEmpty()) {
+            return false;
+        }
+        if (stack.is(TMMItemTags.GUNS) || stack.is(TMMItemTags.BOWS)) {
+            return true;
+        }
+        if (stack.getItem() instanceof KnifeItem || stack.getItem() instanceof TrainWeapon) {
+            return true;
+        }
+        return false;
     }
 
     public static boolean isXrayable(Player observer, Player target) {
@@ -416,7 +442,7 @@ public class LinFamilyRoleData extends SimpleRoleData {
             return;
         }
         int playerCount = Math.max(1, game.getPlayerCount());
-        int gold = playerCount * 250;
+        int gold = playerCount * 300;
         SREPlayerShopComponent.KEY.get(serverPlayer).setBalance(gold);
         startingGoldGranted = true;
         serverPlayer.displayClientMessage(
@@ -707,10 +733,10 @@ public class LinFamilyRoleData extends SimpleRoleData {
     }
 
     private static void applyMoneyBind(Player attacker, Player victim) {
-        if (attacker.getCooldowns().isOnCooldown(Items.GOLD_NUGGET)) {
+        if (attacker.getCooldowns().isOnCooldown(MONEY_BIND_COOLDOWN_ITEM)) {
             return;
         }
-        attacker.getCooldowns().addCooldown(Items.GOLD_NUGGET, 20);
+        attacker.getCooldowns().addCooldown(MONEY_BIND_COOLDOWN_ITEM, MONEY_BIND_COOLDOWN_TICKS);
         int ticks = 10 * 20;
         victim.addEffect(new MobEffectInstance(ModEffects.MOVE_BANED, ticks, 0, false, false, true));
         victim.addEffect(new MobEffectInstance(MobEffects.GLOWING, ticks, 0, false, true, true));
