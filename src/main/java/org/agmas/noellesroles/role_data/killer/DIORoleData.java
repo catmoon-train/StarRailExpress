@@ -245,7 +245,7 @@ public class DIORoleData extends SimpleRoleData {
         if (!canUseTimeStop())
             return false;
 
-        if (TimeStopEffect.tryTriggerStart(serverPlayer, TIME_STOP_DURATION,
+        if (!TimeStopEffect.tryTriggerStart(serverPlayer, TIME_STOP_DURATION,
                 Component.translatable("message.noellesroles.time_stop.the_world").withStyle(ChatFormatting.GOLD,
                         ChatFormatting.BOLD))) {
             return false;
