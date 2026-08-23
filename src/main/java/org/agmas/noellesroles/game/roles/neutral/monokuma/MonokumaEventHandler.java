@@ -34,11 +34,6 @@ import org.agmas.noellesroles.role_data.neutral.MonokumaRoleData;
 import org.agmas.noellesroles.utils.RoleUtils;
 import pro.fazeclan.river.stupid_express.constants.SEModifiers;
 import pro.fazeclan.river.stupid_express.modifier.refugee.cca.RefugeeComponent;
-import pro.fazeclan.river.stupid_express.utils.StupidRoleUtils;
-
-import java.util.Set;
-import java.util.UUID;
-import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * 黑白角色事件注册
@@ -51,15 +46,6 @@ import java.util.concurrent.ConcurrentHashMap;
  * - 获胜条件判定
  */
 public class MonokumaEventHandler {
-
-    /**
-     * 黑白修饰符阶段一（伪装义警）玩家集合。
-     *
-     * 黑白修饰符会分配给仍为义警/警长的玩家，此时玩家尚未持有 MONOKUMA 职业，
-     * 因此 MonokumaRoleData 不存在。旧实现依赖全玩家挂载的 CCA 组件记录 phase，
-     * 迁移到 RoleData 后该状态改为在此独立追踪，直到首次致死攻击时变身。
-     */
-    public static final Set<UUID> BLACK_WHITE_PHASE1 = ConcurrentHashMap.newKeySet();
 
     public static void register() {
         registerHitTrigger();
@@ -109,7 +95,6 @@ public class MonokumaEventHandler {
             ServerPlayer sp = handler.getPlayer();
             if (sp == null)
                 return;
-            BLACK_WHITE_PHASE1.remove(sp.getUUID());
             MonokumaRoleData comp = RoleData.getNullable(MonokumaRoleData.class, sp);
             if (comp != null && comp.phase == 2) {
                 comp.clear();
@@ -131,29 +116,23 @@ public class MonokumaEventHandler {
             if (!worldModifierComponent.isModifier(sp, SEModifiers.BLACK_WHITE))
                 return true;
             MonokumaRoleData comp = RoleData.getNullable(MonokumaRoleData.class, sp);
-            // 黑白修饰符阶段一：玩家仍是义警/警长（尚未变身为 MONOKUMA），
-            // 状态记录在 BLACK_WHITE_PHASE1 中；已变身玩家的 phase==1 由 RoleData.init() 设置。
-            if (!RefugeeComponent.KEY.get(sp.level()).isAnyRevivals
-                    && (BLACK_WHITE_PHASE1.contains(sp.getUUID()) || (comp != null && comp.phase <= 1))) {
+            // 不能是难民
+            if (RefugeeComponent.KEY.get(sp.level()).isAnyRevivals)
+                return true;
+            // 玩家
+            if (!RoleUtils.isPlayerTheJob(player, ModRoles.MONOKUMA)
+                    && ((comp != null && comp.phase <= 1) || (comp == null))) {
                 // 注意：直接在死亡事件回调里同步执行换职业 / 启动疯狂，会让其中任何异常顺着
                 // “攻击者攻击封包”的调用栈抛出，导致触发黑白的玩家（如义警）掉线。
                 // 这里只同步取消死亡，把繁重的狂暴触发推迟到干净的服务端任务栈上执行并捕获异常。
                 if (sp.getServer() != null) {
                     sp.getServer().execute(() -> {
                         try {
-                            boolean fromPhase1Set = BLACK_WHITE_PHASE1.remove(sp.getUUID());
-                            if (!fromPhase1Set) {
-                                // 已变身玩家（roleData.phase==1）触发的分支：集合中不存在，
-                                // 校验当前仍处于阶段一并持有 MONOKUMA 职业后再继续。
-                                MonokumaRoleData already = RoleData.getNullable(MonokumaRoleData.class, sp);
-                                if (already == null || already.phase != 1)
-                                    return;
-                            }
                             RoleUtils.dropAndClearAllSatisfiedItems(sp, TMMItemTags.GUNS);
-                            StupidRoleUtils.changeRole(sp, ModRoles.MONOKUMA);
-                            StupidRoleUtils.sendWelcomeAnnouncement(sp);
+                            RoleUtils.changeRole(sp, ModRoles.MONOKUMA);
+                            RoleUtils.sendWelcomeAnnouncement(sp);
                             MonokumaRoleData c = RoleData.getNullable(MonokumaRoleData.class, sp);
-                            if (c != null && c.phase == 1) {
+                            if (c != null) {
                                 c.onHitTriggered();
                             }
                         } catch (Exception e) {
@@ -162,7 +141,9 @@ public class MonokumaEventHandler {
                     });
                 }
                 return false;
-            } else if (comp != null && comp.phase == 3) {
+            } else if (comp == null) {
+                return true;
+            } else if (comp.phase == 3) {
                 var gameCCA = SREGameWorldComponent.KEY.get(player.level());
                 if (!gameCCA.isRole(player, ModRoles.MONOKUMA))
                     return true;

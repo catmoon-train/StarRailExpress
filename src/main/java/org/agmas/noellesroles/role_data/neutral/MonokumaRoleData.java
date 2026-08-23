@@ -65,12 +65,10 @@ public class MonokumaRoleData extends SimpleRoleData {
 
     /**
      * 当前阶段
-     * 0 = 未初始化
-     * 1 = 伪装义警
      * 2 = 狂暴前奏
      * 3 = 黑白熊
      */
-    public int phase = 0;
+    public int phase = 1;
 
     /** 狂暴前奏剩余时间（tick） */
     public int frenzyTimer = 0;
@@ -79,7 +77,7 @@ public class MonokumaRoleData extends SimpleRoleData {
     public int auraCoinTimer = 0;
 
     /** 是否已标记为黑白角色 */
-    public boolean isMonokumaMarked = false;
+    public boolean isMonokumaMarked = true;
 
     /** 右键AOE蓄力计时器（>0 表示正在蓄力） */
     public int aoeChargeTimer = 0;
@@ -102,14 +100,6 @@ public class MonokumaRoleData extends SimpleRoleData {
 
     @Override
     public void init() {
-        this.phase = 1;
-        this.frenzyTimer = 0;
-        this.auraCoinTimer = 0;
-        this.aoeChargeTimer = 0;
-        this.dashAnimTimer = 0;
-        this.isMonokumaMarked = true;
-        this.kill_count = 0;
-        this.sync();
     }
 
     @Override
