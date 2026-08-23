@@ -2340,7 +2340,7 @@ public class ModRoles {
                     InstinctType.custom(new Color(196, 148, 39).getRGB()))
             .setDefaultMax(1)
             .setDefaultEnableNeededPlayerCount(12)
-            .setDefaultEnableChance(500);
+            .setDefaultEnableChance(5000);
 
     /**
      * 魔术师角色 - 好人阵营（从模仿者移植）
