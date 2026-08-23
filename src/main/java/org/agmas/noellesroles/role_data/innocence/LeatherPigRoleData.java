@@ -99,14 +99,12 @@ public class LeatherPigRoleData extends SimpleRoleData {
         super(context);
     }
 
-
-
     /**
      * 只同步给本人：疯魔倒计时只有本人关心（见 {@link #writeToSyncNbtWithPlayer}），
      * 伪装状态没变时不必对全场广播。
      */
     private void syncSelf() {
-        if (player instanceof ServerPlayer sp) {
+        if (player instanceof ServerPlayer) {
             sync();
         }
     }
@@ -340,5 +338,9 @@ public class LeatherPigRoleData extends SimpleRoleData {
         frenzyTicks = tag.getInt("frenzyTicks");
     }
 
+    @Override
+    public void initOnClient() {
+        setDisguised(disguised);
+    }
 
 }

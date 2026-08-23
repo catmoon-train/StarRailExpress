@@ -129,6 +129,7 @@ public class SRERoleDataPlayerComponent
         if (roleDataFunc != null) {
             roleData = roleDataFunc.apply(ctx);
         }
+        roleData.initOnClient();
     }
 
     @Override

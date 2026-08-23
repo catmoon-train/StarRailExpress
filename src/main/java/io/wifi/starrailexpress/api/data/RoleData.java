@@ -404,4 +404,10 @@ public interface RoleData {
     default boolean getBooleanTag(CompoundTag tag, String name, boolean defaultValue) {
         return RoleComponent.getBooleanTagOrDefault(tag, name, defaultValue);
     }
+
+    /**
+     * 客户端初始化时触发
+     */
+    default void initOnClient() {
+    }
 }
