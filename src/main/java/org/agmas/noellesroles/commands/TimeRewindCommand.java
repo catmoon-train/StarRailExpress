@@ -9,6 +9,8 @@ package org.agmas.noellesroles.commands;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.context.CommandContext;
+
+import io.wifi.starrailexpress.SREConfig;
 import io.wifi.starrailexpress.cca.AreasWorldComponent;
 import io.wifi.starrailexpress.cca.SRERoleDataPlayerComponent;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
@@ -55,7 +57,7 @@ public final class TimeRewindCommand {
 
     private static void register(CommandDispatcher<CommandSourceStack> dispatcher, String root) {
         dispatcher.register(Commands.literal(root)
-                .requires(source -> source.hasPermission(2))
+                .requires(source -> source.hasPermission(SREConfig.instance().timeRewindPermission))
                 .executes(TimeRewindCommand::help)
                 .then(Commands.literal("capture")
                         .executes(context -> capture(context, java.util.List.of(

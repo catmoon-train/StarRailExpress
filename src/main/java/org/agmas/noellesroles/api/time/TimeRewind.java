@@ -14,9 +14,8 @@
  */
 
 package org.agmas.noellesroles.api.time;
+
 import io.wifi.starrailexpress.api.RoleComponent;
-import io.wifi.starrailexpress.cca.SREGameWorldComponent;
-import io.wifi.starrailexpress.cca.SREPlayerPsychoComponent;
 import io.wifi.starrailexpress.cca.SRERoleDataPlayerComponent;
 import io.wifi.starrailexpress.compat.TrainVoicePlugin;
 import net.minecraft.core.HolderLookup;
@@ -152,11 +151,6 @@ public final class TimeRewind {
                 new Failure("capture", warning.componentId(), warning.message())));
 
         CompoundTag vanillaState = snapshot.rawVanillaState().copy();
-        boolean wasSpectator = player.isSpectator();
-        var ppc = SREPlayerPsychoComponent.KEY.get(player);
-        if (ppc.psychoTicks > 0) {
-            ppc.stopPsychoAndRefreshPsychoCount(false);
-        }
         try {
             moveToSnapshotDimension(player, snapshot, vanillaState);
             playerAccess(player).noellesroles$restoreTimeRewindState(vanillaState);
@@ -166,7 +160,7 @@ public final class TimeRewind {
                     player.getScoreboardName(), exception);
             return new TimeRewindResult(0, failures);
         }
-        if (wasSpectator && !player.isSpectator()) {
+        if (!player.isSpectator()) {
             TrainVoicePlugin.resetPlayer(player.getUUID());
         }
 
@@ -223,8 +217,6 @@ public final class TimeRewind {
                         key.getId(), exception);
             }
         }
-
-        SREGameWorldComponent.KEY.get(player.level()).refreshPsychoCount(true);
 
         return new TimeRewindResult(restoredKeys.size(), failures);
     }

@@ -418,6 +418,7 @@ public class RefugeeComponent implements AutoSyncedComponent, ServerTickingCompo
                 }
             }
         }
+        SREGameWorldComponent.getInstance(serverLevel).refreshPsychoCount(true);
         schedulingFinished.set(true);
         finishWhenReady.run();
     }

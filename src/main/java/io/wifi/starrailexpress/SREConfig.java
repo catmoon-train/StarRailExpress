@@ -36,6 +36,8 @@ public class SREConfig implements ConfigData {
             SREConfig.class);
 
 
+
+
     // 游戏模式设置
     @ConfigEntry.Category(value = "gamemodes")
     public int defaultStartTimeForMurder = 10;
@@ -95,6 +97,8 @@ public class SREConfig implements ConfigData {
     public int entityInteractionBlockEntityPlayerPermission = 2;
     @ConfigEntry.Category(value = "commands")
     public int entityInteractionBlockEntityPermission = 2;
+    @ConfigEntry.Category(value = "commands")
+    public int timeRewindPermission = 2;
     @ConfigEntry.Category(value = "commands")
     public int startGameRequiredPermission = 1;
     @ConfigEntry.Category(value = "commands")
