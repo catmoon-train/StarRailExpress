@@ -48,7 +48,6 @@ import org.agmas.noellesroles.game.roles.innocence.cake_maker.CakeMakerComponent
 import org.agmas.noellesroles.game.roles.killer.conspirator.ConspiratorKilledPlayer;
 import org.agmas.noellesroles.role_data.killer.InsaneKillerRoleData;
 import org.agmas.noellesroles.role_data.killer.NinjaRoleData;
-import org.agmas.noellesroles.role_data.killer.StalkerRoleData;
 import org.agmas.noellesroles.game.roles.neutral.commander.CommanderHandler;
 import org.agmas.noellesroles.role_data.neutral.CupidRoleData;
 import org.agmas.noellesroles.role_data.neutral.DoomedSinnerRoleData;

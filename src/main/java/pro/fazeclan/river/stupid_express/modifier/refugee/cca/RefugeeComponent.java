@@ -397,19 +397,9 @@ public class RefugeeComponent implements AutoSyncedComponent, ServerTickingCompo
                 if (snapshot != null) {
                     PlayerStatsBeforeRefugee.invokeBeforeLoad(player);
                     pendingSmoothRestores.incrementAndGet();
-                    boolean started = TimeRewind.restoreSmooth(player, snapshot, 50, result -> {
-                        finishLooseEndPlayer(player, r, data, wasAlive, true, result,
-                                gameWorldComponent, worldModifierComponent, bodies);
-                        if (pendingSmoothRestores.decrementAndGet() == 0) {
-                            finishWhenReady.run();
-                        }
-                    });
-                    if (!started) {
-                        TimeRewindResult result = TimeRewind.restore(player, snapshot);
-                        finishLooseEndPlayer(player, r, data, wasAlive, true, result,
-                                gameWorldComponent, worldModifierComponent, bodies);
-                        pendingSmoothRestores.decrementAndGet();
-                    }
+                    TimeRewindResult result = TimeRewind.restore(player, snapshot);
+                    finishLooseEndPlayer(player, r, data, wasAlive, true, result,
+                            gameWorldComponent, worldModifierComponent, bodies);
                 } else {
                     // Original partial rewind remains the compatibility fallback.
                     PlayerStatsBeforeRefugee.LoadToPlayer(player, data, r, this,

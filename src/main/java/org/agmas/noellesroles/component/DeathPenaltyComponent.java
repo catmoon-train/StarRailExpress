@@ -31,6 +31,7 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
+import org.agmas.noellesroles.api.time.TimeRewindPlayback;
 import org.agmas.noellesroles.init.ModEffects;
 import org.agmas.noellesroles.role.ModRoles;
 import org.ladysnake.cca.api.v3.component.ComponentKey;
@@ -211,10 +212,31 @@ public class DeathPenaltyComponent implements RoleComponent, ServerTickingCompon
     }
 
     public boolean hasStrictPenalty() {
+        if (player.hasEffect(ModEffects.TIME_REWIND_DAZE)) {
+            return true;
+        }
+        if (player.hasEffect(ModEffects.TIME_REWIND_MARK)) {
+            return true;
+        }
+
+        if (!player.level().isClientSide)
+            if (TimeRewindPlayback.isActive(player.getUUID())) {
+                return true;
+            }
         return this.hasPenalty() && (!chatEnabled || (this.limitCameraUUID != null || this.limitPos != null));
     }
 
     public boolean hasPenalty() {
+        if (player.hasEffect(ModEffects.TIME_REWIND_DAZE)) {
+            return true;
+        }
+        if (player.hasEffect(ModEffects.TIME_REWIND_MARK)) {
+            return true;
+        }
+        if (!player.level().isClientSide)
+            if (TimeRewindPlayback.isActive(player.getUUID())) {
+                return true;
+            }
         if (this.penaltyExpiry == 0)
             return false;
         if (this.penaltyExpiry < 0) {
