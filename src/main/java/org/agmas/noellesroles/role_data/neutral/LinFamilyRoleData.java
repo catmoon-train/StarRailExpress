@@ -82,7 +82,7 @@ import java.util.function.Supplier;
  * 林家子弟 —— 中立独立胜利职业数据。
  *
  * <p>
- * 开局获得「人数 × 250」金币，花光全部金币即独立获胜。无法杀人；攻击会金钱禁锢目标，
+ * 开局获得「人数 × 300」金币，花光全部金币即独立获胜。无法杀人；攻击会金钱禁锢目标，
  * 被攻击则获得隐身。被动透视未持械的平民/杀手。技能走统一技能系统。
  */
 public class LinFamilyRoleData extends SimpleRoleData {
