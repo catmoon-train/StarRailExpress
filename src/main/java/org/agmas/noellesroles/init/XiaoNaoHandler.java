@@ -128,8 +128,6 @@ public class XiaoNaoHandler {
                         return;
                     if (victimRole.isKiller() && !victimRole.isNeutrals() && killerRole.isKiller()
                             && !killerRole.isNeutrals()) {
-                        if (victimRole == null || killerRole == null)
-                            return;
                         if (victimRole.canBeXiaonao(victim, killer, deathReason))
                             return;
                         if (killerRole.canXiaonao(victim, killer, deathReason))
