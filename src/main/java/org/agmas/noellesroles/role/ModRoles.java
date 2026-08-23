@@ -2268,29 +2268,29 @@ public class ModRoles {
             false,
             SRERole.MoodType.FAKE,
             Integer.MAX_VALUE,
-            true), "lord_of_mysteries")
+            true) {
+        @Override
+        public boolean onUseGun(Player player) {
+            return false;
+        }
+
+        @Override
+        public boolean onUseDerringer(Player player) {
+            return false;
+        }
+
+        @Override
+        public boolean onUseKnife(Player player) {
+            return false;
+        }
+    }, "lord_of_mysteries")
             .setRoleData(DoomedSinnerRoleData::new)
             .setNeutrals(true).setCanSeeTeammateKillerRole(false)
             .setCanUseInstinctAndNightVision(true)
             .setCanSeeCoin(true)
             .setDefaultMax(1)
             .setDefaultEnableNeededPlayerCount(12)
-            .setDefaultEnableChance(5000) {
-                @Override
-                public boolean onUseGun(Player player) {
-                    return false;
-                }
-
-                @Override
-                public boolean onUseDerringer(Player player) {
-                    return false;
-                }
-
-                @Override
-                public boolean onUseKnife(Player player) {
-                    return false;
-                }
-            };
+            .setDefaultEnableChance(5000);
 
     /**
      * 林家子弟 —— 中立独立胜利角色。
@@ -2325,7 +2325,7 @@ public class ModRoles {
             .setCanAutoAddMoney(true)
             .setCanBeRandomedByOtherRoles(false)
             .setCanHavePassiveIncome(false)
-                .setToggledOnInstinctType(
+            .setToggledOnInstinctType(
                     InstinctType.customWithFunction((self, target, selfRole, targetRole) -> {
                         if (target == null) {
                             return InstinctType.NONE;
