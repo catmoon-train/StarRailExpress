@@ -46,18 +46,15 @@ import java.util.Set;
 
 public class GhostEyeRoleData extends SimpleRoleData {
 
-
-
     /** 被动扫描半径（格）。客户端轮廓判定与服务端一致。 */
     public static final int SCAN_RADIUS = 20;
     /** 单次扫描的轮廓显示时长（tick）= 2 秒。 */
     public static final int REVEAL_TICKS = 40;
     /** 领域内效果每 tick 续期的时长（tick），离开后约 0.5 秒自然消退。 */
     private static final int EFFECT_REFRESH = 10;
-    private static final EntityDataAccessor<Byte> SHARED_FLAGS =
-            new EntityDataAccessor<>(0, EntityDataSerializers.BYTE);
+    private static final EntityDataAccessor<Byte> SHARED_FLAGS = new EntityDataAccessor<>(0,
+            EntityDataSerializers.BYTE);
     private static final byte GLOWING_FLAG = 0x40;
-
 
     /** 距下一次扫描的剩余 tick（同步给本人客户端，供 HUD 显示）。 */
     public int scanCountdown = REVEAL_TICKS;
@@ -73,10 +70,18 @@ public class GhostEyeRoleData extends SimpleRoleData {
         super(context);
     }
 
-    @Override public Player getPlayer() { return player; }
-    @Override public boolean shouldSyncWith(ServerPlayer p) { return p == player; }
+    @Override
+    public Player getPlayer() {
+        return player;
+    }
 
-    @Override public void init() {
+    @Override
+    public boolean shouldSyncWith(ServerPlayer p) {
+        return p == player;
+    }
+
+    @Override
+    public void init() {
         scanCountdown = GameConstants.getInTicks(0, NoellesRolesConfig.HANDLER.instance().ghostEyeScanInterval);
         revealTicks = 0;
         domainTicks = 0;
@@ -84,15 +89,20 @@ public class GhostEyeRoleData extends SimpleRoleData {
         sync();
     }
 
-    @Override public void clear() { init(); }
+    @Override
+    public void clear() {
+        init();
+    }
 
     // ==================== 主动·诡域入口 ====================
 
     /** 由 {@code AbilityHandler} 调用：在脚下展开诡域。成功返回 true。 */
     public boolean deployDomain() {
-        if (!(player instanceof ServerPlayer sp) || !GameUtils.isPlayerAliveAndSurvival(player)) return false;
+        if (!(player instanceof ServerPlayer sp) || !GameUtils.isPlayerAliveAndSurvival(player))
+            return false;
         SREGameWorldComponent gameWorld = SREGameWorldComponent.KEY.get(player.level());
-        if (!isGhostEyeRole(gameWorld)) return false;
+        if (!isGhostEyeRole(gameWorld))
+            return false;
 
         this.domainX = sp.getX();
         this.domainY = sp.getY();
@@ -107,7 +117,8 @@ public class GhostEyeRoleData extends SimpleRoleData {
 
     @Override
     public void serverTick() {
-        if (!(player instanceof ServerPlayer sp)) return;
+        if (!(player instanceof ServerPlayer sp))
+            return;
         SREGameWorldComponent gameWorld = SREGameWorldComponent.KEY.get(player.level());
         if (!isGhostEyeRole(gameWorld) || !GameUtils.isPlayerAliveAndSurvival(player)) {
             clearGhostEyeGlow();
@@ -115,7 +126,8 @@ public class GhostEyeRoleData extends SimpleRoleData {
         }
 
         // 被动·鬼眼：周期性扫描
-        if (scanCountdown > 0) scanCountdown--;
+        if (scanCountdown > 0)
+            scanCountdown--;
         if (scanCountdown <= 0) {
             scanCountdown = GameConstants.getInTicks(0, NoellesRolesConfig.HANDLER.instance().ghostEyeScanInterval);
             revealTicks = REVEAL_TICKS;
@@ -144,25 +156,30 @@ public class GhostEyeRoleData extends SimpleRoleData {
     }
 
     private boolean isGhostEyeRole(SREGameWorldComponent gameWorld) {
-        if (gameWorld == null || player == null) return false;
+        if (gameWorld == null || player == null)
+            return false;
         var role = gameWorld.getRole(player);
         return role != null && role.identifier().equals(ModRoles.GHOST_EYE_ID);
     }
 
     private void sendGhostEyeGlow(ServerPlayer viewer) {
-        if (!(viewer.level() instanceof ServerLevel level)) return;
+        if (!(viewer.level() instanceof ServerLevel level))
+            return;
         double radiusSq = SCAN_RADIUS * SCAN_RADIUS;
         AABB box = viewer.getBoundingBox().inflate(SCAN_RADIUS);
 
         for (ServerPlayer target : level.getEntitiesOfClass(ServerPlayer.class, box,
                 GameUtils::isPlayerAliveAndSurvival)) {
-            if (target == viewer || target.isSpectator()) continue;
-            if (target.distanceToSqr(viewer) > radiusSq) continue;
+            if (target == viewer || target.isSpectator())
+                continue;
+            if (target.distanceToSqr(viewer) > radiusSq)
+                continue;
 
             byte flags = target.getEntityData().get(SHARED_FLAGS);
             byte glowingFlags = (byte) (flags | GLOWING_FLAG);
             viewer.connection.send(new ClientboundSetEntityDataPacket(target.getId(),
-                    List.of(new SynchedEntityData.DataValue<>(SHARED_FLAGS.id(), SHARED_FLAGS.serializer(), glowingFlags))));
+                    List.of(new SynchedEntityData.DataValue<>(SHARED_FLAGS.id(), SHARED_FLAGS.serializer(),
+                            glowingFlags))));
             ghostEyeGlowingEntityIds.add(target.getId());
         }
     }
@@ -174,7 +191,8 @@ public class GhostEyeRoleData extends SimpleRoleData {
         }
 
         for (Integer entityId : new HashSet<>(ghostEyeGlowingEntityIds)) {
-            if (level.getEntity(entityId) == null) continue;
+            if (level.getEntity(entityId) == null)
+                continue;
             byte flags = level.getEntity(entityId).getEntityData().get(SHARED_FLAGS);
             viewer.connection.send(new ClientboundSetEntityDataPacket(entityId,
                     List.of(new SynchedEntityData.DataValue<>(SHARED_FLAGS.id(), SHARED_FLAGS.serializer(), flags))));
@@ -183,7 +201,8 @@ public class GhostEyeRoleData extends SimpleRoleData {
     }
 
     private void applyDomain(ServerPlayer sp) {
-        if (!(sp.level() instanceof ServerLevel level)) return;
+        if (!(sp.level() instanceof ServerLevel level))
+            return;
         double radius = NoellesRolesConfig.HANDLER.instance().ghostEyeDomainRadius;
         double radiusSq = radius * radius;
         AABB box = new AABB(domainX - radius, domainY - radius, domainZ - radius,
@@ -191,12 +210,14 @@ public class GhostEyeRoleData extends SimpleRoleData {
 
         for (ServerPlayer target : level.getEntitiesOfClass(ServerPlayer.class, box,
                 GameUtils::isPlayerAliveAndSurvival)) {
-            if (target.distanceToSqr(domainX, domainY, domainZ) > radiusSq) continue;
-
+            if (target.distanceToSqr(domainX, domainY, domainZ) > radiusSq)
+                continue;
 
             target.addEffect(new MobEffectInstance(ModEffects.VISION_FOG, EFFECT_REFRESH, 5, false, false, false));
-            if (target == player) continue; // 杨间本人保留视野与透视
-            target.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SLOWDOWN, EFFECT_REFRESH, 1, false, false, false));
+            if (target == player)
+                continue; // 杨间本人保留视野与透视
+            target.addEffect(
+                    new MobEffectInstance(MobEffects.MOVEMENT_SLOWDOWN, EFFECT_REFRESH, 1, false, false, false));
 
             target.addEffect(new MobEffectInstance(MobEffects.DARKNESS, EFFECT_REFRESH, 0, false, false, false));
             target.addEffect(new MobEffectInstance(ModEffects.VISION_FOG, EFFECT_REFRESH, 1, false, false, false));
@@ -218,21 +239,25 @@ public class GhostEyeRoleData extends SimpleRoleData {
                 SREClient.cachedHighLightMap.clear();
             }
         }
-        if (scanCountdown > 0) scanCountdown--;
+        if (scanCountdown > 0)
+            scanCountdown--;
     }
 
     // ==================== NBT ====================
 
-    @Override public void writeToSyncNbt(@NotNull CompoundTag tag, HolderLookup.Provider p) {
+    @Override
+    public void writeToSyncNbt(@NotNull CompoundTag tag, HolderLookup.Provider p) {
         tag.putInt("revealTicks", revealTicks);
         tag.putInt("scanCountdown", scanCountdown);
     }
 
-    @Override public void readFromSyncNbt(@NotNull CompoundTag tag, HolderLookup.Provider p) {
+    @Override
+    public void readFromSyncNbt(@NotNull CompoundTag tag, HolderLookup.Provider p) {
         revealTicks = tag.getInt("revealTicks");
         scanCountdown = tag.getInt("scanCountdown");
-        // 立即刷新本能高亮缓存，使白色轮廓的出现/消失更跟手
-        SREClient.cachedHighLightMap.clear();
+        if (player.level().isClientSide)
+            // 立即刷新本能高亮缓存，使白色轮廓的出现/消失更跟手
+            SREClient.cachedHighLightMap.clear();
     }
 
 }
