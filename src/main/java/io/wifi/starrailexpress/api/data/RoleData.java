@@ -238,34 +238,6 @@ public interface RoleData {
     void readFromSyncNbt(CompoundTag tag, HolderLookup.Provider registryLookup);
 
     /**
-     * 将会随时间回溯恢复的职业状态写入 NBT。
-     * <p>
-     * 默认复用同步数据，保证现有 RoleData 无需逐个迁移即可参与回溯。若某些字段属于
-     * 跨局进度或其他不应回溯的数据，实现类可覆写此方法并只写入局内状态。
-     * </p>
-     *
-     * @param tag            目标 NBT 标签
-     * @param registryLookup 注册表查找提供者
-     */
-    default void writeToRewindNbt(CompoundTag tag, HolderLookup.Provider registryLookup) {
-        writeToSyncNbt(tag, registryLookup);
-    }
-
-    /**
-     * 从时间节点恢复职业状态。
-     * <p>
-     * 默认读取同步数据，与 {@link #writeToRewindNbt(CompoundTag, HolderLookup.Provider)}
-     * 成对使用；具有特殊跨局字段的实现类可覆写。
-     * </p>
-     *
-     * @param tag            源 NBT 标签
-     * @param registryLookup 注册表查找提供者
-     */
-    default void readFromRewindNbt(CompoundTag tag, HolderLookup.Provider registryLookup) {
-        readFromSyncNbt(tag, registryLookup);
-    }
-
-    /**
      * 将职业数据写入时间回溯快照的 NBT 标签。
      * <p>
      * 默认实现委托给 {@link #writeToSyncNbt}，需要额外快照状态的实现可自行覆盖。
