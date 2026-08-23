@@ -35,9 +35,7 @@ import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.player.Player;
 import org.agmas.noellesroles.Noellesroles;
-import org.agmas.noellesroles.component.ModComponents;
 import org.agmas.noellesroles.packet.ToggleInsaneSkillC2SPacket;
 import org.agmas.noellesroles.role.ModRoles;
 import org.jetbrains.annotations.NotNull;
@@ -105,7 +103,8 @@ public class InsaneKillerRoleData extends SimpleRoleData {
                     // true);
                     return true;
                 }
-                InsaneKillerRoleData insaneKillerPlayerComponent = RoleData.getNullable(InsaneKillerRoleData.class, playerEntity);
+                InsaneKillerRoleData insaneKillerPlayerComponent = RoleData.getNullable(InsaneKillerRoleData.class,
+                        playerEntity);
                 if (insaneKillerPlayerComponent == null)
                     return true;
                 if (insaneKillerPlayerComponent.getDeathState() == 0) {
@@ -115,8 +114,9 @@ public class InsaneKillerRoleData extends SimpleRoleData {
                         ServerPlayNetworking.send(sp, new ToggleInsaneSkillC2SPacket(true));
                     }
                     insaneKillerPlayerComponent.sync();
-                    playerEntity.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SLOWDOWN, 99999, 3,false,false,false));
-                    playerEntity.addEffect(new MobEffectInstance(MobEffects.DARKNESS, 99999, 4,false,false));
+                    playerEntity.addEffect(
+                            new MobEffectInstance(MobEffects.MOVEMENT_SLOWDOWN, 99999, 3, false, false, false));
+                    playerEntity.addEffect(new MobEffectInstance(MobEffects.DARKNESS, 99999, 4, false, false));
                     // insaneKillerPlayerComponent.sync();
                     playerEntity.stopRiding();
                     return false;
@@ -125,7 +125,6 @@ public class InsaneKillerRoleData extends SimpleRoleData {
             return true;
         }));
     }
-
 
     public void revive() {
         this.deathState = -1;
@@ -228,13 +227,9 @@ public class InsaneKillerRoleData extends SimpleRoleData {
         sync();
     }
 
-
     @Override
     public boolean shouldSyncWith(ServerPlayer p) {
-        if (SREGameWorldComponent.KEY.get(player.level()).isRole(this.player,
-                ModRoles.INSANE_KILLER))
-            return true;
-        return p == this.player;
+        return true;
     }
 
     @Override
@@ -303,6 +298,5 @@ public class InsaneKillerRoleData extends SimpleRoleData {
     // }
     //
     // }
-
 
 }
