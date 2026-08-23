@@ -58,6 +58,7 @@ import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.component.CustomData;
@@ -91,7 +92,7 @@ public class LinFamilyRoleData extends SimpleRoleData {
     private static final String MISFIRE_GUN_KEY = "lin_family_misfire_gun";
     private static final String WILL_MISFIRE_KEY = "lin_family_will_misfire";
     private static final int XRAY_REFRESH_INTERVAL = 20;
-    private static final int ATTACK_COOLDOWN_TICK = 30 * 20;
+    private static final int ATTACK_COOLDOWN_TICK = 10 * 20;
 
     /** 售货机 / 抽奖机购买冷却（技能 HUD 显示，不通过技能键触发）。 */
     public static final ResourceLocation MACHINE_SKILL_ID = SRE.id("lin_family_machine");
@@ -737,7 +738,7 @@ public class LinFamilyRoleData extends SimpleRoleData {
             return;
         }
         attacker.getCooldowns().addCooldown(MONEY_BIND_COOLDOWN_ITEM, MONEY_BIND_COOLDOWN_TICKS);
-        int ticks = 10 * 20;
+        int ticks = 5 * 20;
         victim.addEffect(new MobEffectInstance(ModEffects.MOVE_BANED, ticks, 0, false, false, true));
         victim.addEffect(new MobEffectInstance(MobEffects.GLOWING, ticks, 0, false, true, true));
         victim.displayClientMessage(
