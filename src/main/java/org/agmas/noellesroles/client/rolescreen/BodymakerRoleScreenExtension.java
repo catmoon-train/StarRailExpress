@@ -92,8 +92,13 @@ public final class BodymakerRoleScreenExtension extends PlayerListRoleScreenExte
 
     @Override
     public void onInit(LimitedInventoryScreen screen) {
-        this.screen = screen;
-        this.selectedLevel = 0;
+        // 新的背包界面实例（重新打开背包）时回到阶段1（选择玩家）；
+        // resize / reinit 仍是同一实例，保持当前阶段（选择死因）。
+        if (this.screen != screen) {
+            this.selectedLevel = 0;
+            this.selectedPlayerUuid = null;
+            this.screen = screen;
+        }
         reinit();
     }
 
