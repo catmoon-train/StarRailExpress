@@ -16,6 +16,7 @@
 package org.agmas.noellesroles.api.time;
 import io.wifi.starrailexpress.api.RoleComponent;
 import io.wifi.starrailexpress.cca.SRERoleDataPlayerComponent;
+import io.wifi.starrailexpress.compat.TrainVoicePlugin;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
@@ -149,6 +150,7 @@ public final class TimeRewind {
                 new Failure("capture", warning.componentId(), warning.message())));
 
         CompoundTag vanillaState = snapshot.rawVanillaState().copy();
+        boolean wasSpectator = player.isSpectator();
         try {
             moveToSnapshotDimension(player, snapshot, vanillaState);
             playerAccess(player).noellesroles$restoreTimeRewindState(vanillaState);
@@ -157,6 +159,9 @@ public final class TimeRewind {
             Noellesroles.LOGGER.error("Failed to restore vanilla player state for {}",
                     player.getScoreboardName(), exception);
             return new TimeRewindResult(0, failures);
+        }
+        if (wasSpectator && !player.isSpectator()) {
+            TrainVoicePlugin.resetPlayer(player.getUUID());
         }
 
         HolderLookup.Provider registryLookup = player.registryAccess();

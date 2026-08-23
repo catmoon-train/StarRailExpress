@@ -280,8 +280,12 @@ public class TimeStopShader {
 
             totalTime += 0.016f;
 
-            boolean isActive = mc.player.hasEffect(ModEffects.TIME_REWIND_DAZE);
-            if (isActive) {
+            boolean packetActive = TimeRewindClientEffect.isActive();
+            boolean isActive = packetActive || mc.player.hasEffect(ModEffects.TIME_REWIND_DAZE);
+            if (packetActive) {
+                // 真正的回溯由服务器发包驱动；不依赖药水同步，单人回溯也能看到特效。
+                rewindStrength = TimeRewindClientEffect.strength(0.0f);
+            } else if (isActive) {
                 rewindStrength = Math.min(1.0f, rewindStrength + 0.08f); // 快速淡入
             } else {
                 rewindStrength = Math.max(0.0f, rewindStrength - 0.04f); // 缓慢淡出
