@@ -14,7 +14,6 @@
  */
 
 package org.agmas.noellesroles.api.time;
-
 import io.wifi.starrailexpress.api.RoleComponent;
 import io.wifi.starrailexpress.cca.SRERoleDataPlayerComponent;
 import net.minecraft.core.HolderLookup;
@@ -50,18 +49,19 @@ import java.util.function.Consumer;
 /**
  * Captures and restores a complete in-memory player state.
  *
- * <p>The interface deliberately has only two main operations. Vanilla state,
+ * <p>
+ * The interface deliberately has only two main operations. Vanilla state,
  * item cooldowns, CCA format selection, component synchronization and
  * cross-dimension restoration are implementation details hidden behind this
  * module.
  *
- * <p>Both capture and restore must be called on the server thread.
+ * <p>
+ * Both capture and restore must be called on the server thread.
  */
 public final class TimeRewind {
     private static final String CCA_ROOT_TAG = "cardinal_components";
     private static final ResourceLocation VANILLA_STATE_ID = Noellesroles.id("vanilla_player_state");
-    private static final Map<ResourceLocation, RegisteredAdapter<?>> COMPONENT_ADAPTERS =
-            new ConcurrentHashMap<>();
+    private static final Map<ResourceLocation, RegisteredAdapter<?>> COMPONENT_ADAPTERS = new ConcurrentHashMap<>();
     private static final AtomicBoolean INITIALIZED = new AtomicBoolean();
 
     private TimeRewind() {
@@ -161,8 +161,8 @@ public final class TimeRewind {
 
         HolderLookup.Provider registryLookup = player.registryAccess();
         List<ComponentKey<?>> restoredKeys = new ArrayList<>();
-        List<Map.Entry<ResourceLocation, ComponentState>> componentEntries =
-                new ArrayList<>(snapshot.rawComponentStates().entrySet());
+        List<Map.Entry<ResourceLocation, ComponentState>> componentEntries = new ArrayList<>(
+                snapshot.rawComponentStates().entrySet());
         componentEntries.sort(Comparator.comparingInt(entry -> restorePriority(entry.getKey())));
         for (Map.Entry<ResourceLocation, ComponentState> entry : componentEntries) {
             ResourceLocation componentId = entry.getKey();
@@ -275,7 +275,10 @@ public final class TimeRewind {
         return TimeRewindAreaEngine.restore(level, snapshot);
     }
 
-    /** Registers a specialized snapshot format for one CCA key. Register during mod initialization. */
+    /**
+     * Registers a specialized snapshot format for one CCA key. Register during mod
+     * initialization.
+     */
     public static <C extends Component> void registerComponentAdapter(ComponentKey<C> key,
             TimeRewindComponentAdapter<C> adapter) {
         Objects.requireNonNull(key, "key");
