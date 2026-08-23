@@ -17,10 +17,11 @@ package org.agmas.noellesroles.mixin.client.roles.insane;
 
 import com.llamalad7.mixinextras.injector.ModifyReturnValue;
 import io.wifi.starrailexpress.SRE;
+import io.wifi.starrailexpress.api.data.RoleData;
 import io.wifi.starrailexpress.client.SREClient;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
-import org.agmas.noellesroles.game.roles.killer.insane_killer.InsaneKillerPlayerComponent;
+import org.agmas.noellesroles.role_data.killer.InsaneKillerRoleData;
 import org.agmas.noellesroles.role.ModRoles;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -47,8 +48,8 @@ public abstract class KeyBindingMixin {
                 && SREClient.isPlayerAliveAndInSurvival()
                 && SREClient.gameComponent.isRole(player,
                         ModRoles.INSANE_KILLER)) {
-            final var insaneKillerPlayerComponent = InsaneKillerPlayerComponent.KEY.get(player);
-            if (insaneKillerPlayerComponent.isActive) {
+            final var insaneKillerPlayerComponent = RoleData.getNullable(InsaneKillerRoleData.class, player);
+            if (insaneKillerPlayerComponent != null && insaneKillerPlayerComponent.isActive) {
                 if (this.same(options.keyUse)) {
                     return true;
                 }

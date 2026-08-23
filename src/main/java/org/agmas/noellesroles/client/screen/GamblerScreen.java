@@ -36,7 +36,8 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.entity.player.Player;
 import org.agmas.noellesroles.Noellesroles;
 import org.agmas.noellesroles.client.widget.SelectedRoleIntroTextWidget;
-import org.agmas.noellesroles.game.roles.neutral.gambler.GamblerPlayerComponent;
+import io.wifi.starrailexpress.api.data.RoleData;
+import org.agmas.noellesroles.role_data.neutral.GamblerRoleData;
 import org.agmas.noellesroles.packet.GamblerSelectRoleC2SPacket;
 import org.agmas.noellesroles.utils.RoleUtils;
 
@@ -44,7 +45,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class GamblerScreen extends Screen {
-    private final GamblerPlayerComponent component;
+    private final GamblerRoleData component;
     private final List<SRERole> availableRoles = new ArrayList<>();
     private SRERole selectedRole;
     private int CARDS_PER_ROW = 5;
@@ -85,7 +86,10 @@ public class GamblerScreen extends Screen {
 
     public GamblerScreen(Player player) {
         super(Component.translatable("gui.noellesroles.gambler.title"));
-        this.component = GamblerPlayerComponent.KEY.get(player);
+        this.component = io.wifi.starrailexpress.api.data.RoleData.getNullable(GamblerRoleData.class, player);
+        if (this.component == null) {
+            return;
+        }
 
         // 加载可用角色
         for (ResourceLocation roleId : component.availableRoles) {

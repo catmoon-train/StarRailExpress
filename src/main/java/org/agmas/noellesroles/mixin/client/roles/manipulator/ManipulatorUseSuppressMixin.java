@@ -15,9 +15,10 @@
 
 package org.agmas.noellesroles.mixin.client.roles.manipulator;
 
+import io.wifi.starrailexpress.api.data.RoleData;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
-import org.agmas.noellesroles.game.roles.killer.manipulator.ManipulatorPlayerComponent;
+import org.agmas.noellesroles.role_data.killer.ManipulatorRoleData;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -41,8 +42,8 @@ public abstract class ManipulatorUseSuppressMixin {
         LocalPlayer player = client.player;
         if (player == null)
             return false;
-        ManipulatorPlayerComponent comp = ManipulatorPlayerComponent.KEY.get(player);
-        return comp.isControlling && comp.target != null;
+        ManipulatorRoleData comp = RoleData.getNullable(ManipulatorRoleData.class, player);
+        return comp != null && comp.isControlling && comp.target != null;
     }
 
     @Inject(method = "startUseItem", at = @At("HEAD"), cancellable = true)

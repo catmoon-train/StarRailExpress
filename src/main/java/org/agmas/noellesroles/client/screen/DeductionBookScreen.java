@@ -25,7 +25,8 @@ import net.minecraft.client.gui.screens.inventory.PageButton;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import org.agmas.noellesroles.game.roles.innocence.great_detective.DetectiveClue;
-import org.agmas.noellesroles.game.roles.innocence.great_detective.GreatDetectivePlayerComponent;
+import io.wifi.starrailexpress.api.data.RoleData;
+import org.agmas.noellesroles.role_data.innocence.GreatDetectiveRoleData;
 import org.agmas.noellesroles.packet.GreatDetectiveRevealC2SPacket;
 
 import java.util.List;
@@ -91,11 +92,11 @@ public class DeductionBookScreen extends Screen {
         super(GameNarrator.NO_TITLE);
     }
 
-    private GreatDetectivePlayerComponent component() {
+    private GreatDetectiveRoleData component() {
         if (minecraft == null || minecraft.player == null) {
             return null;
         }
-        return GreatDetectivePlayerComponent.KEY.get(minecraft.player);
+        return RoleData.getNullable(GreatDetectiveRoleData.class, minecraft.player);
     }
 
     // ==================== 初始化 ====================
@@ -185,7 +186,7 @@ public class DeductionBookScreen extends Screen {
     }
 
     private List<UUID> getKillerList() {
-        GreatDetectivePlayerComponent comp = component();
+        GreatDetectiveRoleData comp = component();
         return comp == null ? List.of() : comp.getKillerOrder();
     }
 
@@ -237,7 +238,7 @@ public class DeductionBookScreen extends Screen {
         Component titleComp = Component.translatable("screen.noellesroles.great_detective.title");
         drawScaledCentered(g, titleComp, titleY, 1.3f, 0xFFD4A344);
 
-        GreatDetectivePlayerComponent comp = component();
+        GreatDetectiveRoleData comp = component();
         List<UUID> killers = getKillerList();
 
         if (killers.isEmpty()) {

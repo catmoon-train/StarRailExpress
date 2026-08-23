@@ -15,11 +15,12 @@
 
 package org.agmas.noellesroles.mixin.client.general;
 
+import io.wifi.starrailexpress.api.data.RoleData;
 import io.wifi.starrailexpress.client.SREClient;
 import net.minecraft.client.Minecraft;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
-import org.agmas.noellesroles.game.roles.neutral.amon.AmonPlayerComponent;
+import org.agmas.noellesroles.role_data.neutral.AmonRoleData;
 import org.agmas.noellesroles.role.ModRoles;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
@@ -51,8 +52,8 @@ public class AmonHideTargetMixin {
         if (SREClient.gameComponent == null || !SREClient.gameComponent.isRole(mc.player, ModRoles.AMON)) {
             return;
         }
-        AmonPlayerComponent amon = AmonPlayerComponent.KEY.get(mc.player);
-        if (amon.clientPossessTarget != null && amon.clientPossessTarget.equals(target.getUUID())) {
+        AmonRoleData amon = RoleData.getNullable(AmonRoleData.class, mc.player);
+        if (amon != null && amon.clientPossessTarget != null && amon.clientPossessTarget.equals(target.getUUID())) {
             cir.setReturnValue(true);
         }
     }

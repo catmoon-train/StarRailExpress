@@ -31,14 +31,10 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundSource;
-import net.minecraft.world.entity.player.Player;
-import org.agmas.noellesroles.component.ModComponents;
 import org.agmas.noellesroles.role.ModRoles;
 import org.jetbrains.annotations.NotNull;
 
 public class NinjaRoleData extends SimpleRoleData {
-
-
 
     // 格挡常量
     private static final int ABILITY_COOLDOWN = 300 * 20; // 300秒

@@ -33,7 +33,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.phys.Vec3;
 import org.agmas.noellesroles.Noellesroles;
-import org.agmas.noellesroles.game.roles.neutral.thief.ThiefPlayerComponent;
+import org.agmas.noellesroles.role_data.neutral.ThiefRoleData;
 import org.agmas.noellesroles.role.ModRoles;
 import org.agmas.noellesroles.utils.Pair;
 import org.agmas.noellesroles.utils.RoleUtils;
@@ -189,8 +189,8 @@ public class SREThiefWarGameMode extends SREBaseCustomizationGameMode {
             SRERole role = gameWorldComponent.getRole(player);
             if (role == ModRoles.THIEF) {
                 SREPlayerShopComponent shop = SREPlayerShopComponent.KEY.get(player);
-                ThiefPlayerComponent thief = ThiefPlayerComponent.KEY.get(player);
-                if (thief.honorCost > 800)
+                ThiefRoleData thief = io.wifi.starrailexpress.api.data.RoleData.getNullable(ThiefRoleData.class, player);
+                if (thief != null && thief.honorCost > 800)
                     shop.setBalance(Math.min(thief.honorCost / 4, thief.honorCost - 800));
             }
         }

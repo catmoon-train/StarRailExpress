@@ -15,7 +15,6 @@
 
 package org.agmas.noellesroles.role_data.killer;
 
-import io.wifi.starrailexpress.api.data.RoleData;
 import io.wifi.starrailexpress.api.data.RoleDataContext;
 import io.wifi.starrailexpress.api.impl.SimpleRoleData;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
@@ -35,7 +34,6 @@ import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.Vec3;
-import org.agmas.noellesroles.component.ModComponents;
 import org.agmas.noellesroles.config.NoellesRolesConfig;
 import org.agmas.noellesroles.content.entity.YouluAnchorEntity;
 import org.agmas.noellesroles.content.entity.YouluSmokeBallEntity;

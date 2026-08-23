@@ -15,7 +15,6 @@
 
 package org.agmas.noellesroles.role_data.innocence;
 
-import io.wifi.starrailexpress.api.data.RoleData;
 import io.wifi.starrailexpress.api.data.RoleDataContext;
 import io.wifi.starrailexpress.api.impl.SimpleRoleData;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
@@ -24,13 +23,10 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
-import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
-import org.agmas.noellesroles.Noellesroles;
 import org.agmas.noellesroles.init.ModItems;
 import org.agmas.noellesroles.role.ModRoles;
 
@@ -124,6 +120,26 @@ public class AlchemistRoleData extends SimpleRoleData {
     @Override
     public void clear() {
         this.init();
+    }
+
+    @Override
+    public void writeToRewindNbt(CompoundTag tag, HolderLookup.Provider registryLookup) {
+        // 回溯快照：绕过 writeToSyncNbt 的 isRunning/isRole 守卫，始终写入完整状态
+        tag.putInt("MaterialGatherTimer", this.materialGatherTimer);
+        tag.putInt("CurrentPotionIndex", this.currentPotionIndex);
+        for (int i = 0; i < POTION_COUNT; i++) {
+            tag.putInt("PotionCraftCount_" + i, this.potionCraftCounts[i]);
+        }
+    }
+
+    @Override
+    public void readFromRewindNbt(CompoundTag tag, HolderLookup.Provider registryLookup) {
+        // 回溯恢复：纯回填字段，不触发 clear()/sync()
+        this.materialGatherTimer = tag.getInt("MaterialGatherTimer");
+        this.currentPotionIndex = tag.getInt("CurrentPotionIndex");
+        for (int i = 0; i < POTION_COUNT; i++) {
+            this.potionCraftCounts[i] = tag.getInt("PotionCraftCount_" + i);
+        }
     }
 
     @Override

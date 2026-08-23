@@ -15,11 +15,12 @@
 
 package org.agmas.noellesroles.client.hud.roles;
 
+import io.wifi.starrailexpress.api.data.RoleData;
 import io.wifi.starrailexpress.client.SREClient;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;
 import org.agmas.noellesroles.client.event.RoleHudRenderCallback;
-import org.agmas.noellesroles.game.roles.neutral.pelican.PelicanPlayerComponent;
+import org.agmas.noellesroles.role_data.neutral.PelicanRoleData;
 import org.agmas.noellesroles.role.ModRoles;
 
 public class PelicanHud {
@@ -30,7 +31,7 @@ public class PelicanHud {
             if (client.player == null || SREClient.isPlayerSpectator())
                 return;
 
-            PelicanPlayerComponent comp = PelicanPlayerComponent.KEY.maybeGet(client.player).orElse(null);
+            PelicanRoleData comp = RoleData.getNullable(PelicanRoleData.class, client.player);
             if (comp == null) return;
 
             int guiWidth = context.guiWidth();
@@ -44,9 +45,10 @@ public class PelicanHud {
             context.drawString(client.font, progressLine, progressX, progressY, ModRoles.PELICAN.color(), true);
 
             // 冷却信息（在进度上方显示）
-            if (comp.cooldownTicks > 0) {
+            int cooldownTicks = comp.getRemainingCooldownTicks();
+            if (cooldownTicks > 0) {
                 Component cooldownLine = Component.translatable("tip.noellesroles.cooldown",
-                        comp.cooldownTicks / 20);
+                        cooldownTicks / 20);
                 int cooldownX = guiWidth - client.font.width(cooldownLine) - 10;
                 int cooldownY = progressY - client.font.lineHeight - 2;
                 context.drawString(client.font, cooldownLine, cooldownX, cooldownY, 0xFF5555, true);

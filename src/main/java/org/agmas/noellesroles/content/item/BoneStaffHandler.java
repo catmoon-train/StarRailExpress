@@ -15,6 +15,7 @@
 
 package org.agmas.noellesroles.content.item;
 
+import io.wifi.starrailexpress.api.data.RoleData;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.game.GameUtils;
 import net.fabricmc.fabric.api.event.player.AttackEntityCallback;
@@ -31,7 +32,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.EntityHitResult;
 import org.agmas.noellesroles.config.NoellesRolesConfig;
-import org.agmas.noellesroles.game.roles.killer.undead_lord.UndeadLordPlayerComponent;
+import org.agmas.noellesroles.role_data.killer.UndeadLordRoleData;
 import org.agmas.noellesroles.init.ModItems;
 import org.agmas.noellesroles.role.ModRoles;
 
@@ -39,7 +40,7 @@ import org.agmas.noellesroles.role.ModRoles;
  * 骨杖攻击回调：亡灵之主手持骨杖左键攻击玩家时，为目标增加感染值并消耗 1 点耐久。
  * <p>
  * 采用 {@link AttackEntityCallback}（与警棍一致的可靠攻击钩子），避免依赖攻击力度判定导致漏触发。
- * 不造成普通击杀，仅注入感染（感染满值后由 {@link UndeadLordPlayerComponent} 结算转化为亡灵）。
+ * 不造成普通击杀，仅注入感染（感染满值后由 {@link UndeadLordRoleData} 结算转化为亡灵）。
  * 耐久耗尽后骨杖不会消失，而是进入充能冷却（攻击被阻止），冷却结束后由
  * {@link BoneStaffItem#inventoryTick} 自动恢复满耐久。
  * </p>
@@ -75,7 +76,7 @@ public class BoneStaffHandler {
         if (gameWorldComponent == null || !gameWorldComponent.isRole(serverAttacker, ModRoles.UNDEAD_LORD)) {
             return InteractionResult.PASS;
         }
-        UndeadLordPlayerComponent comp = UndeadLordPlayerComponent.KEY.maybeGet(serverAttacker).orElse(null);
+        UndeadLordRoleData comp = RoleData.getNullable(UndeadLordRoleData.class, serverAttacker);
         if (comp == null) {
             return InteractionResult.PASS;
         }

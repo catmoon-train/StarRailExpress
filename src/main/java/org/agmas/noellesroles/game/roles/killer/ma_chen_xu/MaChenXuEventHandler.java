@@ -17,10 +17,12 @@ package org.agmas.noellesroles.game.roles.killer.ma_chen_xu;
 
 import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.api.TMMRoles;
+import io.wifi.starrailexpress.api.data.RoleData;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.event.AfterShieldAllowPlayerDeath;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
+import org.agmas.noellesroles.role_data.killer.MaChenXuRoleData;
 import org.agmas.noellesroles.role.ModRoles;
 import org.agmas.noellesroles.utils.RoleUtils;
 
@@ -43,9 +45,9 @@ public class MaChenXuEventHandler {
         AfterShieldAllowPlayerDeath.EVENT.register((victim, deathReason) -> {
             SREGameWorldComponent sreGameWorldComponent = SREGameWorldComponent.KEY.get(victim.level());
             if (sreGameWorldComponent.isRole(victim, ModRoles.MA_CHEN_XU)) {
-                var compc = MaChenXuPlayerComponent.KEY.get(victim);
+                var compc = RoleData.getNullable(MaChenXuRoleData.class, victim);
                 // 永久护盾（阶段4获得，一次性抵挡致命伤害）
-                if (compc.permanentShield) {
+                if (compc != null && compc.permanentShield) {
                     compc.permanentShield = false;
                     compc.sync();
                     SRE.REPLAY_MANAGER.breakArmor(victim.getUUID());
@@ -54,7 +56,7 @@ public class MaChenXuEventHandler {
                     return false;
                 }
                 // 里世界中布袋鬼无敌
-                if (compc.otherworldActive) {
+                if (compc != null && compc.otherworldActive) {
                     return false;
                 }
                 if (SREGameWorldComponent.KEY.get(victim.level()).isSkillAvailable) {
@@ -90,7 +92,7 @@ public class MaChenXuEventHandler {
     // return InteractionResult.PASS;
     // }
     //
-    // MaChenXuPlayerComponent comp = MaChenXuPlayerComponent.KEY.get(attacker);
+    // MaChenXuRoleData comp = RoleData.getNullable(MaChenXuRoleData.class, attacker);
     // if (comp.stage <= 0) {
     // return InteractionResult.PASS;
     // }

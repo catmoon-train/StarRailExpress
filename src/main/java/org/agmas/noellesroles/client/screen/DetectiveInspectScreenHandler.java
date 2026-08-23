@@ -25,7 +25,8 @@ import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 import org.agmas.noellesroles.component.ModComponents;
-import org.agmas.noellesroles.game.roles.innocence.detective.AgentPlayerComponent;
+import io.wifi.starrailexpress.api.data.RoleData;
+import org.agmas.noellesroles.role_data.innocence.AgentRoleData;
 
 import java.util.UUID;
 
@@ -113,8 +114,8 @@ public class DetectiveInspectScreenHandler extends AbstractContainerMenu {
     @Override
     public boolean stillValid(Player player) {
         // 检查查看者是否还在审查状态
-        AgentPlayerComponent component = ModComponents.AGENT.get(player);
-        return component.isInspecting();
+        AgentRoleData component = RoleData.getNullable(AgentRoleData.class, player);
+        return component != null && component.isInspecting();
     }
     
     @Override
@@ -122,8 +123,10 @@ public class DetectiveInspectScreenHandler extends AbstractContainerMenu {
         super.removed(player);
         
         // 清除审查状态
-        AgentPlayerComponent component = ModComponents.AGENT.get(player);
-        component.stopInspecting();
+        AgentRoleData component = RoleData.getNullable(AgentRoleData.class, player);
+        if (component != null) {
+            component.stopInspecting();
+        }
     }
     
     /**

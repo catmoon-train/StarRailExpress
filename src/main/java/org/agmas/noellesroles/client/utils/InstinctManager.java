@@ -20,8 +20,9 @@ import java.util.OptionalInt;
 
 import org.agmas.noellesroles.content.entity.PuppeteerBodyEntity;
 import org.agmas.noellesroles.content.entity.YouluAnchorEntity;
-import org.agmas.noellesroles.game.roles.innocence.magician.MagicianPlayerComponent;
-import org.agmas.noellesroles.game.roles.killer.ma_chen_xu.MaChenXuPlayerComponent;
+import io.wifi.starrailexpress.api.data.RoleData;
+import org.agmas.noellesroles.role_data.innocence.MagicianRoleData;
+import org.agmas.noellesroles.role_data.killer.MaChenXuRoleData;
 import org.agmas.noellesroles.init.ModEffects;
 import org.agmas.noellesroles.role.ModRoles;
 import org.agmas.noellesroles.role.touhou.THRedHouseRoles;
@@ -288,7 +289,7 @@ public class InstinctManager {
             return TrueFalseAndCustomResult.pass();
         // 布袋鬼：里世界期间无杀手直觉
         if (SREClient.gameComponent.isRole(self, ModRoles.MA_CHEN_XU)) {
-            MaChenXuPlayerComponent macComp = MaChenXuPlayerComponent.KEY.get(self);
+            MaChenXuRoleData macComp = RoleData.getNullable(MaChenXuRoleData.class, self);
             if (macComp != null && macComp.otherworldActive) {
                 return TrueFalseAndCustomResult.disallow();
             }
@@ -314,7 +315,8 @@ public class InstinctManager {
         // 魔术师：杀手看魔术师时显示红色边框（像看其他杀手一样）
         if (SREClient.gameComponent.isRole(target_player, ModRoles.MAGICIAN)
                 || SREClient.gameComponent.isRole(target_player, THLostForestRoles.KAGUYA)) {
-            var roleR = MagicianPlayerComponent.KEY.get(target_player).getDisguiseRoleId();
+            var roleR = RoleData.getOptional(MagicianRoleData.class, target_player)
+                    .map(MagicianRoleData::getDisguiseRoleId).orElse(null);
             if (roleR == null)
                 roleR = SERoles.NECROMANCER.identifier();
             target_role = RoleUtils.getRole(roleR);

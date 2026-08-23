@@ -65,7 +65,7 @@ import org.agmas.harpymodloader.events.ModdedRoleAssigned;
 import org.agmas.harpymodloader.events.ModdedRoleRemoved;
 import org.agmas.noellesroles.client.utils.OpenScreenManager;
 import org.agmas.noellesroles.content.effects.TimeStopEffect;
-import org.agmas.noellesroles.game.roles.neutral.gambler.GamblerPlayerComponent;
+import org.agmas.noellesroles.role_data.neutral.GamblerRoleData;
 import org.agmas.noellesroles.init.ModEffects;
 import org.agmas.noellesroles.init.ModItems;
 import org.agmas.noellesroles.packet.ProblemScreenOpenC2SPacket;
@@ -304,7 +304,10 @@ public class GameUtilsCommand {
                     ctx.getSource().sendFailure(Component.literal("Not a gambler."));
                     return 0;
                   }
-                  GamblerPlayerComponent.KEY.get(player).drawNewRole();
+                  GamblerRoleData gamblerData = io.wifi.starrailexpress.api.data.RoleData.getNullable(GamblerRoleData.class, player);
+                  if (gamblerData != null) {
+                    gamblerData.drawNewRole();
+                  }
                   ctx.getSource()
                       .sendSuccess(() -> Component.literal("Successfully draw a new role to gambler."), false);
                   return 1;

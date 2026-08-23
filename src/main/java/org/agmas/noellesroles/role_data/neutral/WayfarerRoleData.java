@@ -46,7 +46,6 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.component.ItemLore;
 import net.minecraft.world.phys.Vec3;
 import org.agmas.noellesroles.Noellesroles;
-import org.agmas.noellesroles.component.ModComponents;
 import org.agmas.noellesroles.init.ModItems;
 import org.agmas.noellesroles.role.ModRoles;
 import org.agmas.noellesroles.utils.ModNBTUtils;

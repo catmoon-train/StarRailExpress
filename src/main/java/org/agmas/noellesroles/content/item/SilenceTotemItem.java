@@ -15,6 +15,7 @@
 
 package org.agmas.noellesroles.content.item;
 
+import io.wifi.starrailexpress.api.data.RoleData;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.game.GameUtils;
 import io.wifi.starrailexpress.index.TMMSounds;
@@ -32,9 +33,9 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.UseAnim;
 import net.minecraft.world.level.Level;
 import org.agmas.noellesroles.content.entity.SilenceTotemEntity;
-import org.agmas.noellesroles.game.roles.killer.spellbreaker.SpellbreakerPlayerComponent;
 import org.agmas.noellesroles.init.ModEntities;
 import org.agmas.noellesroles.role.ModRoles;
+import org.agmas.noellesroles.role_data.killer.SpellbreakerRoleData;
 import org.jetbrains.annotations.NotNull;
 
 public class SilenceTotemItem extends Item {
@@ -64,7 +65,8 @@ public class SilenceTotemItem extends Item {
                 return itemStack;
             }
 
-            SpellbreakerPlayerComponent component = SpellbreakerPlayerComponent.KEY.get(player);
+            var component = RoleData.getNullable(SpellbreakerRoleData.class, player);
+            if (component == null) return itemStack;
             component.discardActiveTotem((ServerLevel) level);
 
             SilenceTotemEntity totem = new SilenceTotemEntity(ModEntities.SILENCE_TOTEM, level);

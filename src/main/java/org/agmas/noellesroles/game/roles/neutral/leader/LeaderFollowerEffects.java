@@ -36,15 +36,15 @@ import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.item.ItemStack;
 import org.agmas.noellesroles.Noellesroles;
-import org.agmas.noellesroles.game.roles.neutral.candlebearer.CandleBearerPlayerComponent;
-import org.agmas.noellesroles.game.roles.neutral.mafia.GodfatherComponent;
-import org.agmas.noellesroles.game.roles.neutral.mercenary.MercenaryPlayerComponent;
-import org.agmas.noellesroles.game.roles.neutral.monokuma.MonokumaPlayerComponent;
+import org.agmas.noellesroles.role_data.neutral.CandleBearerRoleData;
+import org.agmas.noellesroles.role_data.neutral.GodfatherRoleData;
+import org.agmas.noellesroles.role_data.neutral.MercenaryRoleData;
+import org.agmas.noellesroles.role_data.neutral.MonokumaRoleData;
 import org.agmas.noellesroles.role_data.neutral.NianShouRoleData;
 import org.agmas.noellesroles.game.roles.neutral.panda.PandaComponent;
-import org.agmas.noellesroles.game.roles.neutral.pelican.PelicanPlayerComponent;
-import org.agmas.noellesroles.game.roles.neutral.raven.RavenPlayerComponent;
-import org.agmas.noellesroles.game.roles.neutral.reasoner.ReasonerPlayerComponent;
+import org.agmas.noellesroles.role_data.neutral.PelicanRoleData;
+import org.agmas.noellesroles.role_data.neutral.RavenRoleData;
+import org.agmas.noellesroles.role_data.neutral.ReasonerRoleData;
 import org.agmas.noellesroles.init.ModItems;
 import org.agmas.noellesroles.packet.BroadcastMessageS2CPacket;
 import org.agmas.noellesroles.role.ModRoles;
@@ -212,9 +212,11 @@ public final class LeaderFollowerEffects {
 
     /** 秉烛人：+1 隐身次数、永久速度1；领袖得刀 */
     private static void applyCandleBearer(ServerPlayer leader, ServerPlayer follower) {
-        CandleBearerPlayerComponent comp = CandleBearerPlayerComponent.KEY.get(follower);
-        comp.invisibilityCharges++;
-        comp.sync();
+        CandleBearerRoleData comp = RoleData.getNullable(CandleBearerRoleData.class, follower);
+        if (comp != null) {
+            comp.invisibilityCharges++;
+            comp.sync();
+        }
         permanentEffect(follower, MobEffects.MOVEMENT_SPEED, 0);
         giveItem(leader, TMMItems.KNIFE.getDefaultInstance());
     }
@@ -233,9 +235,11 @@ public final class LeaderFollowerEffects {
 
     /** 渡鸦：+1 充能、永久速度1；领袖假刀假枪 */
     private static void applyRaven(ServerPlayer leader, ServerPlayer follower) {
-        RavenPlayerComponent comp = RavenPlayerComponent.KEY.get(follower);
-        comp.charges = Math.min(RavenPlayerComponent.MAX_CHARGES, comp.charges + 1);
-        comp.sync();
+        RavenRoleData comp = RoleData.getNullable(RavenRoleData.class, follower);
+        if (comp != null) {
+            comp.charges = Math.min(RavenRoleData.MAX_CHARGES, comp.charges + 1);
+            comp.sync();
+        }
         permanentEffect(follower, MobEffects.MOVEMENT_SPEED, 0);
         giveItem(leader, ModItems.FAKE_KNIFE.getDefaultInstance());
         giveItem(leader, ModItems.FAKE_REVOLVER.getDefaultInstance());
@@ -245,7 +249,10 @@ public final class LeaderFollowerEffects {
 
     /** 雇佣兵：领袖不可成为通缉目标+从契约消失；≤4人时解锁帮助任意一方；全服广播 */
     private static void applyMercenary(ServerPlayer leader, ServerPlayer follower) {
-        MercenaryPlayerComponent comp = MercenaryPlayerComponent.KEY.get(follower);
+        MercenaryRoleData comp = RoleData.getNullable(MercenaryRoleData.class, follower);
+        if (comp == null) {
+            return;
+        }
         if (comp.contractTargetUuid != null && comp.contractTargetUuid.equals(leader.getUUID())) {
             comp.contractTargetUuid = null;
             comp.contractTargetName = "";
@@ -274,9 +281,11 @@ public final class LeaderFollowerEffects {
         PandaComponent panda = PandaComponent.KEY.get(leader);
         panda.isPanda = true;
         panda.sync();
-        MonokumaPlayerComponent monokuma = MonokumaPlayerComponent.KEY.get(follower);
-        monokuma.phase = 3;
-        monokuma.sync();
+        MonokumaRoleData monokuma = RoleData.getNullable(MonokumaRoleData.class, follower);
+        if (monokuma != null) {
+            monokuma.phase = 3;
+            monokuma.sync();
+        }
         // 与黑白熊猫形态一致，没有无敌：+ 隐身（隐藏气泡）
         permanentEffect(leader, MobEffects.INVISIBILITY, 0);
         // 清除领袖背包中所有武器/道具（与黑白一致）
@@ -305,9 +314,11 @@ public final class LeaderFollowerEffects {
         giveItem(follower, ModItems.ONCE_REVOLVER.getDefaultInstance());
         giveItem(leader, TMMItems.STANDARD_REVOLVER.getDefaultInstance());
         // 加入家族成员（家族透视显示家族色 + 互不可伤）
-        GodfatherComponent comp = GodfatherComponent.KEY.get(follower);
-        comp.familyMembers.add(leader.getUUID());
-        comp.sync();
+        GodfatherRoleData comp = RoleData.getNullable(GodfatherRoleData.class, follower);
+        if (comp != null) {
+            comp.familyMembers.add(leader.getUUID());
+            comp.sync();
+        }
     }
 
     /** 年兽：追随者 +1 护盾试剂、永久夜视 */
@@ -328,8 +339,10 @@ public final class LeaderFollowerEffects {
 
     /** 推理师：立即获得罗盘（视作已拥有，不再重复发放），并解决一条随机问题 */
     private static void applyReasoner(ServerPlayer leader, ServerPlayer follower) {
-        ReasonerPlayerComponent comp = ReasonerPlayerComponent.KEY.get(follower);
-        comp.forceGiveCompassAndSolveOne();
+        ReasonerRoleData comp = RoleData.getNullable(ReasonerRoleData.class, follower);
+        if (comp != null) {
+            comp.forceGiveCompassAndSolveOne();
+        }
     }
 
     /** 小偷：开锁器、领袖制式左轮；领袖每杀 1 人给小偷 100 金币；小偷死→领袖 GUN_SHOT 死 */
@@ -342,8 +355,10 @@ public final class LeaderFollowerEffects {
     /** 鹈鹕：技能 40% 不进入冷却；游戏 <2 分钟全服发光至结束 */
     private static void applyPelican(ServerPlayer leader, ServerPlayer follower) {
         // 40% 不冷却 + 全服发光见 LeaderEventHandler
-        PelicanPlayerComponent comp = PelicanPlayerComponent.KEY.get(follower);
-        comp.sync();
+        PelicanRoleData comp = RoleData.getNullable(PelicanRoleData.class, follower);
+        if (comp != null) {
+            comp.sync();
+        }
     }
 
     /** 初学者：其它初学者也自动成为追随者（由技能释放逻辑处理）；不再考核失败死；转型→领袖死；领袖得刀 */

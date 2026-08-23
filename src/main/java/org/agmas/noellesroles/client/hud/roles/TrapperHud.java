@@ -15,6 +15,7 @@
 
 package org.agmas.noellesroles.client.hud.roles;
 
+import io.wifi.starrailexpress.api.data.RoleData;
 import io.wifi.starrailexpress.client.SREClient;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
@@ -22,8 +23,8 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.util.CommonColors;
 import org.agmas.noellesroles.client.NoellesrolesClient;
 import org.agmas.noellesroles.client.event.RoleHudRenderCallback;
-import org.agmas.noellesroles.game.roles.killer.trapper.TrapperPlayerComponent;
 import org.agmas.noellesroles.role.ModRoles;
+import org.agmas.noellesroles.role_data.killer.TrapperRoleData;
 
 /**
  * 设陷者 HUD（重做版）：当前陷阱类型、绊线/泥沼各自的独立冷却、陷阱数量与大招状态。
@@ -38,7 +39,10 @@ public class TrapperHud {
             if (!SREClient.isPlayerAliveAndInSurvival())
                 return;
 
-            TrapperPlayerComponent comp = TrapperPlayerComponent.KEY.get(client.player);
+            var compOpt = RoleData.getOptional(TrapperRoleData.class, client.player);
+            if (compOpt.isEmpty())
+                return;
+            TrapperRoleData comp = compOpt.get();
 
             int screenWidth = client.getWindow().getGuiScaledWidth();
             int screenHeight = client.getWindow().getGuiScaledHeight();
@@ -54,17 +58,17 @@ public class TrapperHud {
 
             // 当前陷阱类型
             int typeColor = switch (comp.getSelectedTrapType()) {
-                case TrapperPlayerComponent.TRAP_TYPE_MUD -> 0x8B5A2B;
-                case TrapperPlayerComponent.TRAP_TYPE_NET -> 0xE0E0E0;
+                case TrapperRoleData.TRAP_TYPE_MUD -> 0x8B5A2B;
+                case TrapperRoleData.TRAP_TYPE_NET -> 0xE0E0E0;
                 default -> 0xFF8C00;
             };
             context.drawString(font, Component.translatable(comp.getTrapTypeName()), x, y + 12, typeColor);
 
             // 数量：绊线 x/4，总数 x/5
             context.drawString(font, Component.translatable("hud.noellesroles.trapper.tripwires",
-                    comp.syncedTripwireCount, TrapperPlayerComponent.MAX_TRIPWIRES), x, y + 24, 0xFF8C00);
+                    comp.syncedTripwireCount, TrapperRoleData.MAX_TRIPWIRES), x, y + 24, 0xFF8C00);
             context.drawString(font, Component.translatable("hud.noellesroles.trapper.total",
-                    comp.syncedTotalCount, TrapperPlayerComponent.MAX_TOTAL_TRAPS), x, y + 36, 0xFFFF00);
+                    comp.syncedTotalCount, TrapperRoleData.MAX_TOTAL_TRAPS), x, y + 36, 0xFFFF00);
 
             // 独立冷却：绊线 / 泥沼
             drawCooldown(context, font, x, y + 48, "hud.noellesroles.trapper.cd.tripwire",
@@ -78,7 +82,7 @@ public class TrapperHud {
                         comp.netGunCooldownTicks);
             } else {
                 context.drawString(font, Component.translatable("hud.noellesroles.trapper.net_cost",
-                        TrapperPlayerComponent.NET_GUN_COST, NoellesrolesClient.abilityBind.getTranslatedKeyMessage()),
+                        TrapperRoleData.NET_GUN_COST, NoellesrolesClient.abilityBind.getTranslatedKeyMessage()),
                         x, y + 72, 0xAAAAAA);
             }
         });

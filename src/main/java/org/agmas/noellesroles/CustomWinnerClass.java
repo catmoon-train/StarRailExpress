@@ -25,11 +25,11 @@ import io.wifi.starrailexpress.game.GameUtils;
 import io.wifi.starrailexpress.game.GameUtils.WinStatus;
 import net.minecraft.server.level.ServerPlayer;
 import org.agmas.noellesroles.component.ModComponents;
-import org.agmas.noellesroles.game.roles.neutral.candlebearer.CandleBearerPlayerComponent;
-import org.agmas.noellesroles.game.roles.neutral.cuckoo.CuckooPlayerComponent;
-import org.agmas.noellesroles.game.roles.neutral.pelican.PelicanPlayerComponent;
-import org.agmas.noellesroles.game.roles.neutral.raven.RavenPlayerComponent;
-import org.agmas.noellesroles.game.roles.neutral.thief.ThiefPlayerComponent;
+import org.agmas.noellesroles.role_data.neutral.CandleBearerRoleData;
+import org.agmas.noellesroles.role_data.neutral.CuckooRoleData;
+import org.agmas.noellesroles.role_data.neutral.PelicanRoleData;
+import org.agmas.noellesroles.role_data.neutral.RavenRoleData;
+import org.agmas.noellesroles.role_data.neutral.ThiefRoleData;
 import org.agmas.noellesroles.role.ModRoles;
 import org.agmas.noellesroles.role.touhou.THRedHouseRoles;
 import org.agmas.noellesroles.utils.RoleUtils;
@@ -98,7 +98,7 @@ public class CustomWinnerClass {
             // 如果有小偷存活，检查小偷独立胜利条件
             if (hasThiefAlive) {
                 // 检查小偷是否满足独立胜利条件
-                if (ThiefPlayerComponent.checkThiefVictory(serverLevel)) {
+                if (org.agmas.noellesroles.role_data.neutral.ThiefRoleData.checkThiefVictory(serverLevel)) {
                     return WinStatus.CUSTOM;
                 }
 
@@ -117,11 +117,11 @@ public class CustomWinnerClass {
                 // }
             }
 
-            if (CandleBearerPlayerComponent.checkCandleBearerVictory(serverLevel)) {
+            if (CandleBearerRoleData.checkCandleBearerVictory(serverLevel)) {
                 return WinStatus.CUSTOM;
             }
 
-            if (org.agmas.noellesroles.game.roles.neutral.doomedsinner.DoomedSinnerPlayerComponent
+            if (org.agmas.noellesroles.role_data.neutral.DoomedSinnerRoleData
                     .checkDoomedSinnerVictory(serverLevel)) {
                 return WinStatus.CUSTOM;
             }
@@ -134,8 +134,8 @@ public class CustomWinnerClass {
             for (ServerPlayer player : serverLevel.players()) {
                 if (!GameUtils.isPlayerAliveAndSurvival(player) || !gameComponent.isRole(player, ModRoles.RAVEN))
                     continue;
-                RavenPlayerComponent raven = ModComponents.RAVEN.get(player);
-                if (raven.kills >= raven.requiredKills && raven.requiredKills > 0) {
+                RavenRoleData raven = io.wifi.starrailexpress.api.data.RoleData.getNullable(RavenRoleData.class, player);
+                if (raven != null && raven.kills >= raven.requiredKills && raven.requiredKills > 0) {
                     RoleUtils.customWinnerWin(serverLevel, WinStatus.CUSTOM, ModRoles.RAVEN_ID.getPath(),
                             OptionalInt.of(ModRoles.RAVEN.color()));
                     return WinStatus.CUSTOM;
@@ -144,14 +144,14 @@ public class CustomWinnerClass {
 
             // 阿蒙「终幕·寻找阿蒙」：存在持有寄宿体的存活阿蒙时进入终幕并阻止常规结算；
             // 终幕结束（撑过 2 分钟或杀光众人）由组件自身宣布 CUSTOM 胜利。
-            WinStatus amonResult = org.agmas.noellesroles.game.roles.neutral.amon.AmonPlayerComponent
+            WinStatus amonResult = org.agmas.noellesroles.role_data.neutral.AmonRoleData
                     .handleGameEnd(serverLevel, winStatus);
             if (amonResult != WinStatus.NOT_MODIFY) {
                 return amonResult;
             }
 
             // 鹈鹕存活时检查独立胜利
-            if (PelicanPlayerComponent.checkPelicanVictory(serverLevel)) {
+            if (org.agmas.noellesroles.role_data.neutral.PelicanRoleData.checkPelicanVictory(serverLevel)) {
                 return WinStatus.CUSTOM;
             }
 
@@ -180,7 +180,7 @@ public class CustomWinnerClass {
             if (winStatus.equals(WinStatus.PASSENGERS) || winStatus.equals(WinStatus.KILLERS)
                     || winStatus.equals(WinStatus.TIME)
                     || winStatus.equals(WinStatus.NIAN_SHOU)) {
-                if (CuckooPlayerComponent.checkCuckooVictory(serverLevel)) {
+                if (CuckooRoleData.checkCuckooVictory(serverLevel)) {
                     return WinStatus.CUSTOM;
                 }
             }

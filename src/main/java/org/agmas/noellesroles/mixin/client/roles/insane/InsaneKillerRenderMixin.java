@@ -17,6 +17,7 @@ package org.agmas.noellesroles.mixin.client.roles.insane;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 
+import io.wifi.starrailexpress.api.data.RoleData;
 import io.wifi.starrailexpress.content.entity.PlayerBodyEntity;
 import io.wifi.starrailexpress.index.TMMEntities;
 import net.minecraft.client.model.PlayerModel;
@@ -28,14 +29,14 @@ import net.minecraft.client.renderer.entity.LivingEntityRenderer;
 import net.minecraft.client.renderer.entity.player.PlayerRenderer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.phys.Vec3;
-import org.agmas.noellesroles.game.roles.killer.insane_killer.InsaneKillerPlayerComponent;
+import org.agmas.noellesroles.role_data.killer.InsaneKillerRoleData;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-import static org.agmas.noellesroles.game.roles.killer.insane_killer.InsaneKillerPlayerComponent.isPlayerBodyEntity;
-import static org.agmas.noellesroles.game.roles.killer.insane_killer.InsaneKillerPlayerComponent.playerBodyEntities;
+import static org.agmas.noellesroles.role_data.killer.InsaneKillerRoleData.isPlayerBodyEntity;
+import static org.agmas.noellesroles.role_data.killer.InsaneKillerRoleData.playerBodyEntities;
 
 @Mixin(PlayerRenderer.class)
 public abstract class InsaneKillerRenderMixin
@@ -51,9 +52,9 @@ public abstract class InsaneKillerRenderMixin
             MultiBufferSource multiBufferSource, int i, CallbackInfo ci) {
         if (abstractClientPlayer.isSpectator())
             return;
-        InsaneKillerPlayerComponent component = InsaneKillerPlayerComponent.KEY.get(abstractClientPlayer);
+        InsaneKillerRoleData component = RoleData.getNullable(InsaneKillerRoleData.class, abstractClientPlayer);
         ClientLevel clientLevel = abstractClientPlayer.clientLevel;
-        if (component.isActive) {
+        if (component != null && component.isActive) {
             ci.cancel();
             isPlayerBodyEntity.put(abstractClientPlayer.getUUID(), true);
             if (!playerBodyEntities.containsKey(abstractClientPlayer.getUUID())) {

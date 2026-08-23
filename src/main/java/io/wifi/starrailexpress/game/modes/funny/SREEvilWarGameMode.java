@@ -19,6 +19,7 @@ import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.SREConfig;
 import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.api.TMMRoles;
+import io.wifi.starrailexpress.api.data.RoleData;
 import io.wifi.starrailexpress.cca.*;
 import io.wifi.starrailexpress.event.OnGameTrueStarted;
 import io.wifi.starrailexpress.game.GameConstants;
@@ -47,12 +48,12 @@ import org.agmas.harpymodloader.component.WorldModifierComponent;
 import org.agmas.harpymodloader.modded_murder.RoleAssignmentPool;
 import org.agmas.noellesroles.commands.BroadcastCommand;
 import org.agmas.noellesroles.content.item.TimeStopClock;
-import org.agmas.noellesroles.game.roles.killer.blood_feudist.BloodFeudistPlayerComponent;
-import org.agmas.noellesroles.game.roles.killer.imitator.ImitatorPlayerComponent;
+import org.agmas.noellesroles.role_data.killer.BloodFeudistRoleData;
+import org.agmas.noellesroles.role_data.killer.ImitatorRoleData;
 import org.agmas.noellesroles.game.roles.killer.imitator.ImitatorSkillRegistry;
-import org.agmas.noellesroles.game.roles.killer.insane_killer.InsaneKillerPlayerComponent;
-import org.agmas.noellesroles.game.roles.killer.stalker.StalkerPlayerComponent;
-import org.agmas.noellesroles.game.roles.killer.trapper.TrapperPlayerComponent;
+import org.agmas.noellesroles.role_data.killer.InsaneKillerRoleData;
+import org.agmas.noellesroles.role_data.killer.StalkerRoleData;
+import org.agmas.noellesroles.role_data.killer.TrapperRoleData;
 import org.agmas.noellesroles.init.ModItems;
 import org.agmas.noellesroles.role.BounsRoles;
 import org.agmas.noellesroles.role.ModRoles;
@@ -418,11 +419,14 @@ public class SREEvilWarGameMode extends WTLooseEndsGameMode {
             // 组件等数据初始化
             if (role == ModRoles.IMITATOR) {
                 // 模仿者初始化：随机3个技能，目前没有合适的公有修改方法
-                ImitatorPlayerComponent imitatorPlayerComponent = ImitatorPlayerComponent.KEY.get(player);
+                ImitatorRoleData imitatorPlayerComponent = RoleData.getNullable(ImitatorRoleData.class, player);
+                if (imitatorPlayerComponent == null) {
+                    return;
+                }
                 // 获取所有可复制技能并打乱
                 List<ResourceLocation> roleIds = new ArrayList<>(ImitatorSkillRegistry.ALLOWED_ROLES);
                 Collections.shuffle(roleIds);
-                for (int slotIndex = 0; slotIndex < ImitatorPlayerComponent.MAX_SLOTS; ++slotIndex) {
+                for (int slotIndex = 0; slotIndex < ImitatorRoleData.MAX_SLOTS; ++slotIndex) {
                     // 每个槽插入一个技能
                     imitatorPlayerComponent.slotRoleId[slotIndex] = roleIds
                             .get(Math.min(slotIndex, roleIds.size() - 1));
@@ -448,10 +452,12 @@ public class SREEvilWarGameMode extends WTLooseEndsGameMode {
             }
             // 削弱设陷者：开局即进入放置冷却，无法立刻布陷阱
             else if (role == ModRoles.TRAPPER) {
-                TrapperPlayerComponent trapperPlayerComponent = TrapperPlayerComponent.KEY.get(player);
-                trapperPlayerComponent.tripwireCooldownTicks = TrapperPlayerComponent.PLACE_COOLDOWN_TICKS;
-                trapperPlayerComponent.mudCooldownTicks = TrapperPlayerComponent.PLACE_COOLDOWN_TICKS;
-                trapperPlayerComponent.sync();
+                TrapperRoleData trapperPlayerComponent = RoleData.getNullable(TrapperRoleData.class, player);
+                if (trapperPlayerComponent != null) {
+                    trapperPlayerComponent.tripwireCooldownTicks = TrapperRoleData.PLACE_COOLDOWN_TICKS;
+                    trapperPlayerComponent.mudCooldownTicks = TrapperRoleData.PLACE_COOLDOWN_TICKS;
+                    trapperPlayerComponent.sync();
+                }
             }
             // 强盗开局自带1层护盾
             else if (role == ModRoles.BANDIT) {
@@ -532,9 +538,8 @@ public class SREEvilWarGameMode extends WTLooseEndsGameMode {
                 }
                 // 仇杀客每10s涨一个误杀数
                 else if (role == ModRoles.BLOOD_FEUDIST) {
-                    BloodFeudistPlayerComponent bloodFeudistPlayerComponent = BloodFeudistPlayerComponent.KEY
-                            .get(player);
-                    bloodFeudistPlayerComponent.onAccidentalKill();
+                    var bloodFeudistData = RoleData.getNullable(BloodFeudistRoleData.class, player);
+                    if (bloodFeudistData != null) bloodFeudistData.onAccidentalKill();
                 }
                 // 派对狂和扒手每10s额外获得200
                 else if (role == SERoles.AVARICIOUS || role == ModRoles.PARTY_KILLER || role == ModRoles.NINJA) {
@@ -579,9 +584,9 @@ public class SREEvilWarGameMode extends WTLooseEndsGameMode {
                         continue;
                     SRERole role = gameWorldComponent.getRole(player);
                     if (role == ModRoles.INSANE_KILLER) {
-                        InsaneKillerPlayerComponent insaneKillerPlayerComponent = InsaneKillerPlayerComponent.KEY
-                                .get(player);
-                        if (insaneKillerPlayerComponent.isActive) {
+                        InsaneKillerRoleData insaneKillerPlayerComponent = RoleData
+                                .getNullable(InsaneKillerRoleData.class, player);
+                        if (insaneKillerPlayerComponent != null && insaneKillerPlayerComponent.isActive) {
                             insaneKillerPlayerComponent.toggleAbility();
                         }
                     }
@@ -615,7 +620,9 @@ public class SREEvilWarGameMode extends WTLooseEndsGameMode {
                 }
                 // 判断是否是特定角色，进行特定操作，每30秒判断一次
                 else if (role == ModRoles.STALKER) {
-                    StalkerPlayerComponent stalkerPlayerComponent = StalkerPlayerComponent.KEY.get(player);
+                    StalkerRoleData stalkerPlayerComponent = RoleData.getNullable(StalkerRoleData.class, player);
+                    if (stalkerPlayerComponent == null)
+                        return;
                     // 潜行每30s获得 500 能量
                     stalkerPlayerComponent.energy += 500;
                     // 每30s获得 4 击杀数
@@ -627,14 +634,14 @@ public class SREEvilWarGameMode extends WTLooseEndsGameMode {
                 }
                 // 刽子手每30秒重新锁定目标为超级亡命徒：现已能自动锁定
                 else if (role == ModRoles.EXECUTIONER) {
-                    // ExecutionerPlayerComponent executionerPlayerComponent =
-                    // ExecutionerPlayerComponent.KEY.get(player);
+                    // ExecutionerRoleData executionerRoleData =
+                    // RoleData.getNullable(ExecutionerRoleData.class, player);
                     // for (ServerPlayer target : serverWorld.players())
                     // if (!GameUtils.isPlayerEliminated(target)
                     // && gameWorldComponent.isRole(target, SpecialGameModeRoles.SUPER_LOOSE_END)) {
-                    // executionerPlayerComponent.target = target.getUUID();
-                    // executionerPlayerComponent.targetSelected = true;
-                    // executionerPlayerComponent.sync();
+                    // executionerRoleData.target = target.getUUID();
+                    // executionerRoleData.targetSelected = true;
+                    // executionerRoleData.sync();
                     // }
 
                     // 刽子手每30s回复德林加子弹和消耗的德林加

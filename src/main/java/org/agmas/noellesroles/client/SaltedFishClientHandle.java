@@ -15,9 +15,10 @@
 
 package org.agmas.noellesroles.client;
 
+import io.wifi.starrailexpress.api.data.RoleData;
 import io.wifi.starrailexpress.event.AllowOtherCameraType;
 import net.minecraft.client.player.LocalPlayer;
-import org.agmas.noellesroles.game.roles.innocence.salted_fish.SaltedFishPlayerComponent;
+import org.agmas.noellesroles.role_data.innocence.SaltedFishRoleData;
 
 public class SaltedFishClientHandle {
     public static void register() {
@@ -33,7 +34,7 @@ public class SaltedFishClientHandle {
         if (localPlayer == null) {
             return false;
         }
-        SaltedFishPlayerComponent component = SaltedFishPlayerComponent.KEY.maybeGet(localPlayer).orElse(null);
+        SaltedFishRoleData component = RoleData.getNullable(SaltedFishRoleData.class, localPlayer);
         return component != null && component.isActive();
     }
 }

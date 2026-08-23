@@ -15,12 +15,13 @@
 
 package org.agmas.noellesroles.client.hud.roles;
 
+import io.wifi.starrailexpress.api.data.RoleData;
 import io.wifi.starrailexpress.client.SREClient;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import org.agmas.noellesroles.client.event.RoleHudRenderCallback;
-import org.agmas.noellesroles.game.roles.killer.silencer.SilencerPlayerComponent;
+import org.agmas.noellesroles.role_data.killer.SilencerRoleData;
 import org.agmas.noellesroles.role.ModRoles;
 
 public class SilencerHud {
@@ -30,17 +31,19 @@ public class SilencerHud {
             if (SREClient.isPlayerSpectator())
                 return;
 
-            final var comp = SilencerPlayerComponent.KEY.get(client.player);
+            final var comp = RoleData.getOptional(SilencerRoleData.class, client.player);
+            if (comp.isEmpty())
+                return;
 
             MutableComponent content;
-            if (comp.phase > 0) {
+            if (comp.get().phase > 0) {
                 // Skill active - show current phase
                 content = Component.translatable("hud.silencer.active",
-                        Component.translatable("hud.silencer.phase" + comp.phase),
-                        comp.phaseTimer / 20);
-            } else if (comp.skillCooldownTicks < 0) {
+                        Component.translatable("hud.silencer.phase" + comp.get().phase),
+                        comp.get().phaseTimer / 20);
+            } else if (comp.get().skillCooldownTicks < 0) {
                 content = Component.translatable("hud.silencer.cooldown",
-                        -comp.skillCooldownTicks / 20);
+                        -comp.get().skillCooldownTicks / 20);
             } else {
                 content = Component.translatable("hud.silencer.ready");
             }

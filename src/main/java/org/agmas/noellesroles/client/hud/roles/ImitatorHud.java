@@ -15,6 +15,7 @@
 
 package org.agmas.noellesroles.client.hud.roles;
 
+import io.wifi.starrailexpress.api.data.RoleData;
 import io.wifi.starrailexpress.client.SREClient;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
@@ -24,7 +25,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.CommonColors;
 import org.agmas.noellesroles.client.NoellesrolesClient;
 import org.agmas.noellesroles.client.event.RoleHudRenderCallback;
-import org.agmas.noellesroles.game.roles.killer.imitator.ImitatorPlayerComponent;
+import org.agmas.noellesroles.role_data.killer.ImitatorRoleData;
 import org.agmas.noellesroles.role.ModRoles;
 
 public class ImitatorHud {
@@ -35,7 +36,10 @@ public class ImitatorHud {
             if (SREClient.isPlayerSpectator()) return;
             if (!SREClient.isPlayerAliveAndInSurvival()) return;
 
-            ImitatorPlayerComponent comp = ImitatorPlayerComponent.KEY.get(client.player);
+            ImitatorRoleData comp = RoleData.getOptional(ImitatorRoleData.class, client.player).orElse(null);
+            if (comp == null) {
+                return;
+            }
 
             int screenWidth = client.getWindow().getGuiScaledWidth();
             int screenHeight = client.getWindow().getGuiScaledHeight();
@@ -74,7 +78,7 @@ public class ImitatorHud {
             // ==================== 充能进度 ====================
             if (comp.isCharging) {
                 y += 14;
-                int pct = (int) ((float) comp.chargeTicks / ImitatorPlayerComponent.MAX_CHARGE_TICKS * 100);
+                int pct = (int) ((float) comp.chargeTicks / ImitatorRoleData.MAX_CHARGE_TICKS * 100);
                 Component chargeText = Component.translatable("hud.noellesroles.imitator.charging", pct);
                 context.drawString(font, chargeText, x, y, 0xFFAA00);
             }
@@ -121,7 +125,7 @@ public class ImitatorHud {
                 context.drawString(font, Component.translatable("hud.noellesroles.imitator.copy_mode_slot_inactive"), x, y, 0x777755);
             }
 
-            for (int i = 0; i < ImitatorPlayerComponent.MAX_SLOTS; i++) {
+            for (int i = 0; i < ImitatorRoleData.MAX_SLOTS; i++) {
                 y += 12;
                 ResourceLocation slotRole = comp.getSlotRoleId(i);
                 boolean isActiveSlot = !comp.useTemp && (i == comp.activeSlotIndex);

@@ -17,6 +17,7 @@ package org.agmas.noellesroles.game.roles.neutral.monokuma;
 
 import io.wifi.starrailexpress.api.CustomWinnerRole;
 import io.wifi.starrailexpress.api.SRERole;
+import io.wifi.starrailexpress.api.data.RoleData;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.cca.SREPlayerPsychoComponent;
 import io.wifi.starrailexpress.game.GameUtils;
@@ -31,6 +32,7 @@ import net.minecraft.world.item.ItemStack;
 
 import org.agmas.noellesroles.Noellesroles;
 import org.agmas.noellesroles.role.ModRoles;
+import org.agmas.noellesroles.role_data.neutral.MonokumaRoleData;
 
 import java.awt.*;
 
@@ -54,7 +56,7 @@ public class MonokumaRole extends CustomWinnerRole {
   public void onKill(Player victim, boolean spawnBody, Player killer, ResourceLocation deathReason) {
     if (killer == null)
       return;
-    MonokumaPlayerComponent.KEY.maybeGet(killer).ifPresent(MonokumaPlayerComponent::onKillPlayer);
+    RoleData.ifPresent(MonokumaRoleData.class, killer, MonokumaRoleData::onKillPlayer);
     return;
   }
 
@@ -72,8 +74,7 @@ public class MonokumaRole extends CustomWinnerRole {
   @Override
   public TrueFalseResult onPickUpItem(Player player, ItemStack item) {
     // 黑白熊形态无法捡起任何物品
-    var comp = org.agmas.noellesroles.game.roles.neutral.monokuma.MonokumaPlayerComponent.KEY.maybeGet(player)
-        .orElse(null);
+    var comp = RoleData.getNullable(MonokumaRoleData.class, player);
     if (comp != null && comp.phase == 3) {
       return TrueFalseResult.FALSE; // 禁止捡起所有物品
     }
@@ -92,8 +93,8 @@ public class MonokumaRole extends CustomWinnerRole {
     ServerLevel serverLevel = player.serverLevel();
     SREGameWorldComponent gameComponent = SREGameWorldComponent.KEY.get(serverLevel);
     if (!winStatus.equals(WinStatus.NONE)) {
-      MonokumaPlayerComponent comp = MonokumaPlayerComponent.KEY.get(player);
-      if (comp.phase != 3) {
+      MonokumaRoleData comp = RoleData.getNullable(MonokumaRoleData.class, player);
+      if (comp == null || comp.phase != 3) {
         // 未变身 → 失败
         return false;
       }
@@ -148,7 +149,7 @@ public class MonokumaRole extends CustomWinnerRole {
   // public ResourceLocation getDisplayRole(Player player) {
   // // 对所有人（包括自己）显示为义警
   // var comp =
-  // org.agmas.noellesroles.game.roles.neutral.monokuma.MonokumaPlayerComponent.KEY.maybeGet(player).orElse(null);
+  // org.agmas.noellesroles.role_data.neutral.MonokumaRoleData monokumaComp = RoleData.getNullable(MonokumaRoleData.class, player);
   // if (comp != null && comp.phase <= 2) {
   // return TMMRoles.VIGILANTE.identifier();
   // }

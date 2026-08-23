@@ -15,7 +15,6 @@
 
 package org.agmas.noellesroles.role_data.killer;
 
-import io.wifi.starrailexpress.api.data.RoleData;
 import io.wifi.starrailexpress.api.data.RoleDataContext;
 import io.wifi.starrailexpress.api.impl.SimpleRoleData;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
@@ -30,17 +29,12 @@ import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.Vec3;
-import org.agmas.noellesroles.component.ModComponents;
 import org.agmas.noellesroles.packet.CreateCreeperBombAreaPacket;
 import org.agmas.noellesroles.role.BounsRoles;
 
 public class CreeperRoleData extends SimpleRoleData {
 
-    /** 组件键 - 用于从玩家获取此组件 */
-
-
     // ==================== 状态变量 ====================
-
 
     /** 是否已引燃 */
     public boolean ignited = false;
@@ -62,7 +56,6 @@ public class CreeperRoleData extends SimpleRoleData {
     private static final int INSTANT_DETONATE_COST = 75;
     /** 引燃花费 */
     private static final int IGNITE_COST = 300;
-
 
     /**
      * 构造函数

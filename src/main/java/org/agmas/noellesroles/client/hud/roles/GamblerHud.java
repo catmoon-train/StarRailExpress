@@ -21,7 +21,8 @@ import net.minecraft.client.gui.Font;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.CommonColors;
 import org.agmas.noellesroles.client.event.RoleHudRenderCallback;
-import org.agmas.noellesroles.game.roles.neutral.gambler.GamblerPlayerComponent;
+import io.wifi.starrailexpress.api.data.RoleData;
+import org.agmas.noellesroles.role_data.neutral.GamblerRoleData;
 import org.agmas.noellesroles.role.ModRoles;
 import org.agmas.noellesroles.utils.RoleUtils;
 
@@ -39,7 +40,10 @@ public class GamblerHud {
             if (SREClient.isPlayerSpectator())
                 return;
             // 获取赌徒组件
-            GamblerPlayerComponent gamblerComponent = GamblerPlayerComponent.KEY.get(client.player);
+            var gamblerOpt = RoleData.getOptional(GamblerRoleData.class, client.player);
+            if (gamblerOpt.isEmpty())
+                return;
+            GamblerRoleData gamblerComponent = gamblerOpt.get();
 
             // 渲染位置 - 右下角
             int screenWidth = client.getWindow().getGuiScaledWidth();

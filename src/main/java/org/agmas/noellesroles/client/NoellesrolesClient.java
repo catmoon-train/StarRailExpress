@@ -23,6 +23,7 @@ import io.wifi.ConfigCompact.ui.RoleManageConfigUI;
 import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.SREClientConfig;
 import io.wifi.starrailexpress.api.SRERole;
+import io.wifi.starrailexpress.api.data.RoleData;
 import io.wifi.starrailexpress.cca.SREGameTimeComponent;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.cca.SREPlayerMoodComponent;
@@ -116,10 +117,12 @@ import org.agmas.noellesroles.content.entity.WheelchairEntityModel;
 import org.agmas.noellesroles.content.entity.WheelchairEntityRenderer;
 import org.agmas.noellesroles.content.entity.WheelchairFieldItemRenderer;
 import org.agmas.noellesroles.content.item.*;
-import org.agmas.noellesroles.game.roles.killer.insane_killer.InsaneKillerPlayerComponent;
+import org.agmas.noellesroles.role_data.killer.InsaneKillerRoleData;
 import org.agmas.noellesroles.init.*;
 import org.agmas.noellesroles.packet.*;
 import org.agmas.noellesroles.role.ModRoles;
+import org.agmas.noellesroles.role_data.killer.ManipulatorRoleData;
+import org.agmas.noellesroles.role_data.neutral.MonokumaRoleData;
 import org.joml.Vector3f;
 import org.lwjgl.glfw.GLFW;
 import org.slf4j.LoggerFactory;
@@ -132,8 +135,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import static org.agmas.noellesroles.client.RicesRoleRhapsodyClient.*;
 import static org.agmas.noellesroles.content.effects.TimeStopEffect.clientPositions;
-import static org.agmas.noellesroles.game.roles.killer.insane_killer.InsaneKillerPlayerComponent.isPlayerBodyEntity;
-import static org.agmas.noellesroles.game.roles.killer.insane_killer.InsaneKillerPlayerComponent.playerBodyEntities;
+import static org.agmas.noellesroles.role_data.killer.InsaneKillerRoleData.isPlayerBodyEntity;
+import static org.agmas.noellesroles.role_data.killer.InsaneKillerRoleData.playerBodyEntities;
 
 public class NoellesrolesClient implements ClientModInitializer {
     public static boolean hasInitStatusBar = false;
@@ -452,7 +455,7 @@ public class NoellesrolesClient implements ClientModInitializer {
                     .get(target.level());
             if (gameWorldComponent.isRole(target,
                     ModRoles.INSANE_KILLER)) {
-                var insaneComponent = InsaneKillerPlayerComponent.KEY.get(target);
+                var insaneComponent = RoleData.getNullable(InsaneKillerRoleData.class, target);
                 if (insaneComponent != null) {
                     if (insaneComponent.isActive || insaneComponent.inNearDeath()) {
                         return false;
@@ -1149,9 +1152,8 @@ public class NoellesrolesClient implements ClientModInitializer {
         ClientTickEvents.END_CLIENT_TICK.register(client -> {
             if (client.player == null || client.level == null || SREClient.gameComponent == null)
                 return;
-            org.agmas.noellesroles.game.roles.killer.manipulator.ManipulatorPlayerComponent manipulatorComp = org.agmas.noellesroles.game.roles.killer.manipulator.ManipulatorPlayerComponent.KEY
-                    .get(client.player);
-            if (manipulatorComp.isControlling && manipulatorComp.target != null) {
+            ManipulatorRoleData manipulatorComp = RoleData.getNullable(ManipulatorRoleData.class, client.player);
+            if (manipulatorComp != null && manipulatorComp.isControlling && manipulatorComp.target != null) {
                 net.minecraft.world.entity.player.Player target = client.level.getPlayerByUUID(manipulatorComp.target);
                 if (target != null) {
                     if (client.getCameraEntity() != target) {
@@ -1430,9 +1432,7 @@ public class NoellesrolesClient implements ClientModInitializer {
                     if (!(entity instanceof Player player)) {
                         return 0.0F;
                     }
-                    var component = org.agmas.noellesroles.game.roles.neutral.monokuma.MonokumaPlayerComponent.KEY
-                            .maybeGet(player)
-                            .orElse(null);
+                    var component = RoleData.getNullable(MonokumaRoleData.class, player);
                     if (component == null) {
                         return 0.0F;
                     }
@@ -1443,9 +1443,7 @@ public class NoellesrolesClient implements ClientModInitializer {
                     if (!(entity instanceof Player player)) {
                         return 0.0F;
                     }
-                    var component = org.agmas.noellesroles.game.roles.neutral.monokuma.MonokumaPlayerComponent.KEY
-                            .maybeGet(player)
-                            .orElse(null);
+                    var component = RoleData.getNullable(MonokumaRoleData.class, player);
                     if (component == null || component.aoeChargeTimer <= 0) {
                         return 0.0F;
                     }
@@ -1457,9 +1455,7 @@ public class NoellesrolesClient implements ClientModInitializer {
                     if (!(entity instanceof Player player)) {
                         return 0.0F;
                     }
-                    var component = org.agmas.noellesroles.game.roles.neutral.monokuma.MonokumaPlayerComponent.KEY
-                            .maybeGet(player)
-                            .orElse(null);
+                    var component = RoleData.getNullable(MonokumaRoleData.class, player);
                     if (component == null || component.dashAnimTimer <= 0) {
                         return 0.0F;
                     }

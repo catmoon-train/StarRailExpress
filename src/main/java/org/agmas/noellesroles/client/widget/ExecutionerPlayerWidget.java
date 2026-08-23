@@ -15,6 +15,7 @@
 
 package org.agmas.noellesroles.client.widget;
 
+import io.wifi.starrailexpress.api.data.RoleData;
 import io.wifi.starrailexpress.util.ShopEntry;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.minecraft.client.Minecraft;
@@ -25,8 +26,8 @@ import net.minecraft.client.gui.components.PlayerFaceRenderer;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.renderer.RenderType;
 import org.agmas.noellesroles.config.NoellesRolesConfig;
-import org.agmas.noellesroles.game.roles.killer.executioner.ExecutionerPlayerComponent;
 import org.agmas.noellesroles.packet.ExecutionerSelectTargetC2SPacket;
+import org.agmas.noellesroles.role_data.killer.ExecutionerRoleData;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -43,8 +44,8 @@ public class ExecutionerPlayerWidget extends Button {
                 return; // 如果未启用，则忽略点击事件
             }
             
-            ExecutionerPlayerComponent component = ExecutionerPlayerComponent.KEY.get(Minecraft.getInstance().player);
-            if (!component.targetSelected) {
+            ExecutionerRoleData component = RoleData.getNullable(ExecutionerRoleData.class, Minecraft.getInstance().player);
+            if (component != null && !component.targetSelected) {
                 ClientPlayNetworking.send(new ExecutionerSelectTargetC2SPacket(targetCandidate.getUUID()));
             }
         }, DEFAULT_NARRATION);
@@ -52,10 +53,10 @@ public class ExecutionerPlayerWidget extends Button {
     }
 
     protected void renderWidget(GuiGraphics context, int mouseX, int mouseY, float delta) {
-        ExecutionerPlayerComponent component = ExecutionerPlayerComponent.KEY.get(Minecraft.getInstance().player);
+        ExecutionerRoleData component = RoleData.getNullable(ExecutionerRoleData.class, Minecraft.getInstance().player);
         
         // 如果还没有选择目标，显示可选择的玩家
-        if (!component.targetSelected) {
+        if (component != null && !component.targetSelected) {
             super.renderWidget(context, mouseX, mouseY, delta);
             context.blitSprite(ShopEntry.Type.POISON.getTexture(), this.getX() - 7, this.getY() - 7, 30, 30);
             PlayerFaceRenderer.draw(context, targetCandidate.getSkin().texture(), this.getX(), this.getY(), 16);

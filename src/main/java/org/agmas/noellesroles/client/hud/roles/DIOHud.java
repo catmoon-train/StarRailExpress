@@ -15,6 +15,7 @@
 
 package org.agmas.noellesroles.client.hud.roles;
 
+import io.wifi.starrailexpress.api.data.RoleData;
 import io.wifi.starrailexpress.client.SREClient;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
@@ -23,8 +24,8 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.util.CommonColors;
 import org.agmas.noellesroles.client.NoellesrolesClient;
 import org.agmas.noellesroles.client.event.RoleHudRenderCallback;
-import org.agmas.noellesroles.game.roles.killer.dio.DIOPlayerComponent;
 import org.agmas.noellesroles.role.ModRoles;
+import org.agmas.noellesroles.role_data.killer.DIORoleData;
 
 public class DIOHud {
 
@@ -39,7 +40,10 @@ public class DIOHud {
                 return;
 
             // 获取迪奥组件
-            DIOPlayerComponent dioComponent = DIOPlayerComponent.KEY.get(client.player);
+            var dioOpt = RoleData.getOptional(DIORoleData.class, client.player);
+            if (dioOpt.isEmpty())
+                return;
+            DIORoleData dioComponent = dioOpt.get();
 
             // 渲染位置 - 右下角
             int screenWidth = client.getWindow().getGuiScaledWidth();
@@ -51,7 +55,7 @@ public class DIOHud {
 
             // ==================== 显示 The World 技能状态 ====================
             int timeStopCharges = dioComponent.getTimeStopCharges();
-            int maxCharges = DIOPlayerComponent.MAX_TIME_STOP_CHARGES;
+            int maxCharges = DIORoleData.MAX_TIME_STOP_CHARGES;
             int cooldown = dioComponent.timeStopCooldown;
 
             // 标题
@@ -97,7 +101,7 @@ public class DIOHud {
 
             if (!dioComponent.hasFinalCarnival()) {
                 int feedCount = dioComponent.getTotalFeedCount();
-                int threshold = DIOPlayerComponent.FINAL_CARNIVAL_THRESHOLD;
+                int threshold = DIORoleData.FINAL_CARNIVAL_THRESHOLD;
                 Component progressText = Component.translatable(
                         "hud.noellesroles.dio.carnival_locked",
                         feedCount,

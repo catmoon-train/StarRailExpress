@@ -47,19 +47,20 @@ import org.agmas.noellesroles.component.ModComponents;
 import org.agmas.noellesroles.content.entity.LockEntityManager;
 import org.agmas.noellesroles.role_data.innocence.AthleteRoleData;
 import org.agmas.noellesroles.game.roles.innocence.ayayaya.AyayayaPlayerComponent;
-import org.agmas.noellesroles.game.roles.innocence.boxer.BoxerPlayerComponent;
-import org.agmas.noellesroles.game.roles.innocence.detective.AgentPlayerComponent;
-import org.agmas.noellesroles.game.roles.innocence.great_detective.GreatDetectivePlayerComponent;
+import org.agmas.noellesroles.role_data.innocence.BoxerRoleData;
+import org.agmas.noellesroles.role_data.innocence.AgentRoleData;
+import org.agmas.noellesroles.role_data.innocence.GreatDetectiveRoleData;
+import org.agmas.noellesroles.role_data.innocence.PsychologistRoleData;
 import org.agmas.noellesroles.game.roles.innocence.locksmith_inspiration.LocksmithInspirationComponent;
-import org.agmas.noellesroles.game.roles.innocence.psychologist.PsychologistPlayerComponent;
 import org.agmas.noellesroles.role_data.innocence.SingerRoleData;
 import org.agmas.noellesroles.role_data.innocence.SuperStarRoleData;
 import org.agmas.noellesroles.role_data.innocence.TelegrapherRoleData;
 import org.agmas.noellesroles.game.roles.innocence.veteran.VeteranKnifeHandler;
-import org.agmas.noellesroles.game.roles.killer.conspirator.ConspiratorPlayerComponent;
-import org.agmas.noellesroles.game.roles.killer.stalker.StalkerPlayerComponent;
-import org.agmas.noellesroles.game.roles.killer.trapper.TrapperPlayerComponent;
-import org.agmas.noellesroles.game.roles.neutral.admirer.AdmirerPlayerComponent;
+import org.agmas.noellesroles.role_data.killer.ConspiratorRoleData;
+import org.agmas.noellesroles.role_data.killer.StalkerRoleData;
+import org.agmas.noellesroles.role_data.killer.TrapperRoleData;
+import org.agmas.noellesroles.role_data.killer.ImitatorRoleData;
+import org.agmas.noellesroles.role_data.neutral.AdmirerRoleData;
 import org.agmas.noellesroles.game.roles.neutral.puppeteer.PuppeteerPlayerComponent;
 import org.agmas.noellesroles.init.ModItems;
 import org.agmas.noellesroles.packet.GreatDetectiveRevealC2SPacket;
@@ -241,11 +242,8 @@ public class RiceReceiverRegister {
                 return;
 
             // 执行猜测
-            ConspiratorPlayerComponent component = ModComponents.CONSPIRATOR.get(context.player());
-            boolean correct = component.makeGuess(payload.targetPlayer(), roleId);
-            if (correct) {
-                // 防止警告罢了
-            }
+            RoleData.getOptional(ConspiratorRoleData.class, context.player()).ifPresent(
+                    component -> component.makeGuess(payload.targetPlayer(), roleId));
             // 消耗书页物品
             if (mainHand.is(ModItems.CONSPIRACY_PAGE)) {
                 mainHand.shrink(1);
@@ -268,9 +266,8 @@ public class RiceReceiverRegister {
 
             // 模仿者使用电报员能力
             if (gameWorld.isRole(context.player(), ModRoles.IMITATOR)) {
-                org.agmas.noellesroles.game.roles.killer.imitator.ImitatorPlayerComponent imitComp =
-                        org.agmas.noellesroles.component.ModComponents.IMITATOR.get(context.player());
-                imitComp.useMessageAbility(context.player(), payload.message());
+                RoleData.getOptional(ImitatorRoleData.class, context.player())
+                        .ifPresent(d -> d.useMessageAbility(context.player(), payload.message()));
                 return;
             }
 
@@ -463,7 +460,9 @@ public class RiceReceiverRegister {
                 return;
 
             // 获取探员组件
-            AgentPlayerComponent component = ModComponents.AGENT.get(context.player());
+            AgentRoleData component = RoleData.getNullable(AgentRoleData.class, context.player());
+            if (component == null)
+                return;
 
             // 检查技能冷却
             if (!component.canUseAbility()) {
@@ -475,7 +474,7 @@ public class RiceReceiverRegister {
 
             // 获取玩家商店组件，检查金币
             SREPlayerShopComponent shopComponent = SREPlayerShopComponent.KEY.get(context.player());
-            if (shopComponent.balance < AgentPlayerComponent.INSPECT_COST) {
+            if (shopComponent.balance < AgentRoleData.INSPECT_COST) {
                 context.player().displayClientMessage(
                         Component.translatable("message.noellesroles.detective.insufficient_funds"), true);
                 return;
@@ -497,10 +496,10 @@ public class RiceReceiverRegister {
             }
 
             // 扣除金币
-            shopComponent.addToBalance(-AgentPlayerComponent.INSPECT_COST);
+            shopComponent.addToBalance(-AgentRoleData.INSPECT_COST);
 
             // 设置冷却
-            component.setCooldown(AgentPlayerComponent.INSPECT_COOLDOWN);
+            component.setCooldown(AgentRoleData.INSPECT_COOLDOWN);
 
             // 开始审查
             component.startInspecting((ServerPlayer) target);
@@ -548,7 +547,9 @@ public class RiceReceiverRegister {
             if (payload.killer() == null)
                 return;
 
-            GreatDetectivePlayerComponent comp = GreatDetectivePlayerComponent.KEY.get(player);
+            GreatDetectiveRoleData comp = RoleData.getNullable(GreatDetectiveRoleData.class, player);
+            if (comp == null)
+                return;
 
             // 至少 3 条线索才能查明目标情况
             if (comp.clueCount(payload.killer()) < 3)
@@ -586,10 +587,10 @@ public class RiceReceiverRegister {
                 return;
 
             // 获取斗士组件
-            BoxerPlayerComponent boxerComponent = ModComponents.FIGHTER.get(context.player());
+            var boxerData = RoleData.getOptional(BoxerRoleData.class, context.player());
 
             // 在服务端使用技能
-            if (boxerComponent.useAbility()) {
+            if (boxerData.map(BoxerRoleData::useAbility).orElse(false)) {
                 ConfigWorldComponent.onPlayerUsedSkill(context.player());
             }
         });
@@ -599,7 +600,9 @@ public class RiceReceiverRegister {
             if (RoleSkill.blockForSpectator(context.player()))
                 return;
             // 获取跟踪者组件
-            StalkerPlayerComponent stalkerComp = ModComponents.STALKER.get(context.player());
+            StalkerRoleData stalkerComp = RoleData.getNullable(StalkerRoleData.class, context.player());
+            if (stalkerComp == null)
+                return;
 
             // 验证是跟踪者
             if (!stalkerComp.isActiveStalker())
@@ -626,7 +629,9 @@ public class RiceReceiverRegister {
             if (RoleSkill.blockForSpectator(context.player()))
                 return;
             // 获取跟踪者组件
-            StalkerPlayerComponent stalkerComp = ModComponents.STALKER.get(context.player());
+            StalkerRoleData stalkerComp = RoleData.getNullable(StalkerRoleData.class, context.player());
+            if (stalkerComp == null)
+                return;
 
             // 验证是跟踪者
             if (!stalkerComp.isActiveStalker())
@@ -676,7 +681,9 @@ public class RiceReceiverRegister {
             if (RoleSkill.blockForSpectator(context.player()))
                 return;
             // 获取慕恋者组件
-            AdmirerPlayerComponent admirerComp = ModComponents.ADMIRER.get(context.player());
+            AdmirerRoleData admirerComp = RoleData.getNullable(AdmirerRoleData.class, context.player());
+            if (admirerComp == null)
+                return;
 
             // 验证是慕恋者
             if (!admirerComp.isActiveAdmirer())
@@ -708,8 +715,8 @@ public class RiceReceiverRegister {
                 return;
 
             // 获取设陷者组件并尝试放置陷阱
-            TrapperPlayerComponent trapperComp = ModComponents.TRAPPER.get(context.player());
-            if (trapperComp.tryPlaceTrap()) {
+            TrapperRoleData trapperComp = RoleData.getNullable(TrapperRoleData.class, context.player());
+            if (trapperComp != null && trapperComp.tryPlaceTrap()) {
                 ConfigWorldComponent.onPlayerUsedSkill(context.player());
             }
         });
@@ -729,8 +736,10 @@ public class RiceReceiverRegister {
                 return;
 
             // 获取设陷者组件并切换陷阱类型（模式切换，不计入技能释放）
-            TrapperPlayerComponent trapperComp = ModComponents.TRAPPER.get(context.player());
-            trapperComp.switchTrapType();
+            TrapperRoleData trapperComp = RoleData.getNullable(TrapperRoleData.class, context.player());
+            if (trapperComp != null) {
+                trapperComp.switchTrapType();
+            }
         });
 
         // 处理明星技能包
@@ -799,8 +808,10 @@ public class RiceReceiverRegister {
             }
 
             // 获取心理学家组件并开始治疗
-            PsychologistPlayerComponent psychComp = ModComponents.PSYCHOLOGIST.get(context.player());
-            psychComp.startHealing(target);
+            PsychologistRoleData psychComp = RoleData.getNullable(PsychologistRoleData.class, context.player());
+            if (psychComp != null) {
+                psychComp.startHealing(target);
+            }
             ConfigWorldComponent.onPlayerUsedSkill(context.player());
         });
 

@@ -16,6 +16,7 @@
 package org.agmas.noellesroles.game.roles.killer.undead_lord;
 
 import io.wifi.starrailexpress.api.EggRole;
+import io.wifi.starrailexpress.api.data.RoleData;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.index.TMMItems;
 import io.wifi.starrailexpress.util.ShopEntry;
@@ -31,6 +32,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.component.ItemLore;
 import org.agmas.noellesroles.config.NoellesRolesConfig;
+import org.agmas.noellesroles.role_data.killer.UndeadLordRoleData;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -83,7 +85,7 @@ public class UndeadLordRole extends EggRole {
      * 构造一个“即时效果”商店条目：购买后只执行效果、扣金币，不向背包发放物品。
      */
     private ShopEntry effectEntry(net.minecraft.world.item.Item icon, int price, String nameKey,
-            java.util.function.Consumer<UndeadLordPlayerComponent> effect) {
+            java.util.function.Consumer<UndeadLordRoleData> effect) {
         return conditionalEffectEntry(icon, price, nameKey, comp -> {
             effect.accept(comp);
             return true;
@@ -95,7 +97,7 @@ public class UndeadLordRole extends EggRole {
      * 不扣金币、不播放音效与提示（用于受冷却 / 上限约束的道具，如亡者召唤符）。
      */
     private ShopEntry conditionalEffectEntry(net.minecraft.world.item.Item icon, int price, String nameKey,
-            java.util.function.Predicate<UndeadLordPlayerComponent> effect) {
+            java.util.function.Predicate<UndeadLordRoleData> effect) {
         ItemStack stack = new ItemStack(icon);
         stack.set(DataComponents.CUSTOM_NAME,
                 Component.translatable("shop.noellesroles.undead_lord." + nameKey));
@@ -113,7 +115,7 @@ public class UndeadLordRole extends EggRole {
                 if (!gameWorldComponent.isRole(player, UndeadLordRole.this)) {
                     return false;
                 }
-                UndeadLordPlayerComponent comp = UndeadLordPlayerComponent.KEY.maybeGet(serverPlayer).orElse(null);
+                UndeadLordRoleData comp = RoleData.getNullable(UndeadLordRoleData.class, serverPlayer);
                 if (comp == null) {
                     return false;
                 }

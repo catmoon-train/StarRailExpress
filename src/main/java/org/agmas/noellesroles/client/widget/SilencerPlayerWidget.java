@@ -15,6 +15,7 @@
 
 package org.agmas.noellesroles.client.widget;
 
+import io.wifi.starrailexpress.api.data.RoleData;
 import io.wifi.starrailexpress.client.SREClient;
 import io.wifi.starrailexpress.client.gui.screen.ingame.LimitedInventoryScreen;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
@@ -28,8 +29,8 @@ import net.minecraft.client.multiplayer.PlayerInfo;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.level.GameType;
-import org.agmas.noellesroles.game.roles.killer.silencer.SilencerPlayerComponent;
 import org.agmas.noellesroles.packet.SilencerC2SPacket;
+import org.agmas.noellesroles.role_data.killer.SilencerRoleData;
 import org.jetbrains.annotations.NotNull;
 
 import java.awt.*;
@@ -44,10 +45,11 @@ public class SilencerPlayerWidget extends Button {
         super(x, y, 16, 16, Component.nullToEmpty(skillTarget.getProfile().getName()), (a) -> {
             var player = Minecraft.getInstance().player;
             if (player != null) {
-                SilencerPlayerComponent component = SilencerPlayerComponent.KEY.get(player);
-                if (component.skillCooldownTicks == 0 && component.phase == 0) {
-                    ClientPlayNetworking.send(new SilencerC2SPacket(skillTarget.getProfile().getId()));
-                }
+                RoleData.getOptional(SilencerRoleData.class, player).ifPresent(silencer -> {
+                    if (silencer.skillCooldownTicks == 0 && silencer.phase == 0) {
+                        ClientPlayNetworking.send(new SilencerC2SPacket(skillTarget.getProfile().getId()));
+                    }
+                });
             }
         }, DEFAULT_NARRATION);
         this.screen = screen;
@@ -69,9 +71,10 @@ public class SilencerPlayerWidget extends Button {
         var player = Minecraft.getInstance().player;
         if (player == null) return;
 
-        SilencerPlayerComponent component = SilencerPlayerComponent.KEY.get(player);
+        var component = RoleData.getOptional(SilencerRoleData.class, player);
+        if (component.isEmpty()) return;
 
-        if (component.skillCooldownTicks == 0 && component.phase == 0) {
+        if (component.get().skillCooldownTicks == 0 && component.get().phase == 0) {
             // Ready to use
             super.renderWidget(context, mouseX, mouseY, delta);
             context.blitSprite(io.wifi.starrailexpress.util.ShopEntry.Type.POISON.getTexture(), this.getX() - 7, this.getY() - 7, 30, 30);
@@ -83,7 +86,7 @@ public class SilencerPlayerWidget extends Button {
                         this.getX() - 4 - Minecraft.getInstance().font.width(skillTarget.getProfile().getName()) / 2,
                         this.getY() - 9);
             }
-        } else if (component.skillCooldownTicks < 0) {
+        } else if (component.get().skillCooldownTicks < 0) {
             // On cooldown
             super.renderWidget(context, mouseX, mouseY, delta);
             context.setColor(0.25f, 0.25f, 0.25f, 0.5f);
@@ -97,7 +100,7 @@ public class SilencerPlayerWidget extends Button {
                         this.getY() - 9);
             }
             context.setColor(1f, 1f, 1f, 1f);
-            context.drawString(Minecraft.getInstance().font, String.valueOf(-component.skillCooldownTicks / 20),
+            context.drawString(Minecraft.getInstance().font, String.valueOf(-component.get().skillCooldownTicks / 20),
                     this.getX(), this.getY(), Color.RED.getRGB(), true);
         }
 

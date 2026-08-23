@@ -16,13 +16,13 @@
 package org.agmas.noellesroles.client.hud.roles;
 
 import io.wifi.starrailexpress.SRE;
+import io.wifi.starrailexpress.api.data.RoleData;
 import io.wifi.starrailexpress.cca.SREAbilityPlayerComponent;
 import io.wifi.starrailexpress.client.SREClient;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;
 import org.agmas.noellesroles.client.event.RoleHudRenderCallback;
-import org.agmas.noellesroles.component.ModComponents;
-import org.agmas.noellesroles.game.roles.neutral.amon.AmonPlayerComponent;
+import org.agmas.noellesroles.role_data.neutral.AmonRoleData;
 import org.agmas.noellesroles.role.ModRoles;
 
 public final class AmonHud {
@@ -30,7 +30,9 @@ public final class AmonHud {
         RoleHudRenderCallback.EVENT.register(ModRoles.AMON_ID, (context, tickCounter) -> {
             if (SREClient.isPlayerSpectator()) return;
             var player = Minecraft.getInstance().player;
-            AmonPlayerComponent amon = ModComponents.AMON.get(player);
+            AmonRoleData amon = RoleData.getNullable(AmonRoleData.class, player);
+            if (amon == null)
+                return;
             int x = context.guiWidth() - 190;
             int y = context.guiHeight() - 57;
 

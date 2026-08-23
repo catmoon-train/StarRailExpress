@@ -35,7 +35,6 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 import org.agmas.noellesroles.ConfigWorldComponent;
-import org.agmas.noellesroles.component.ModComponents;
 import org.agmas.noellesroles.utils.Pair;
 import org.agmas.noellesroles.utils.RoleUtils;
 import java.util.ArrayList;

@@ -27,6 +27,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
 import org.agmas.noellesroles.component.ModComponents;
 import org.agmas.noellesroles.role_data.innocence.TelegrapherRoleData;
+import org.agmas.noellesroles.role_data.killer.CreeperRoleData;
 import org.agmas.noellesroles.game.roles.killer.creeper.RainbowCreeperRole;
 import org.agmas.noellesroles.modifier.BounsModifiers;
 import org.agmas.noellesroles.role.touhou.THMagicForestRoles;
@@ -97,7 +98,7 @@ public class BounsRoles {
         public int getMoodColor() {
             return ModRoles.PUPPETEER_COLOR.getOrRandomColor();
         }
-    }, "creator_team").setComponentKey(ModComponents.CREEPER).setCanBeRandomedByOtherRoles(false).setDefaultMax(1)
+    }, "creator_team").setRoleData(CreeperRoleData::new).setCanBeRandomedByOtherRoles(false).setDefaultMax(1)
             .setDefaultEnableChance(5000).setCanSeeTime(true);
     /**
      * 作家角色

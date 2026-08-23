@@ -15,6 +15,7 @@
 
 package org.agmas.noellesroles.client.rolescreen;
 
+import io.wifi.starrailexpress.api.data.RoleData;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.client.gui.screen.ingame.LimitedInventoryScreen;
 import io.wifi.starrailexpress.game.GameUtils;
@@ -22,7 +23,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.AbstractClientPlayer;
 import org.agmas.noellesroles.client.widget.ExecutionerPlayerWidget;
 import org.agmas.noellesroles.config.NoellesRolesConfig;
-import org.agmas.noellesroles.game.roles.killer.executioner.ExecutionerPlayerComponent;
+import org.agmas.noellesroles.role_data.killer.ExecutionerRoleData;
 import org.agmas.noellesroles.role.ModRoles;
 
 import java.util.List;
@@ -50,10 +51,10 @@ public final class ExecutionerRoleScreenExtension {
 
         // 检查是否是Executioner角色
         if (gameWorldComponent.isRole(screen.player, ModRoles.EXECUTIONER)) {
-            ExecutionerPlayerComponent executionerComponent = ExecutionerPlayerComponent.KEY.get(screen.player);
+            ExecutionerRoleData executionerComponent = RoleData.getNullable(ExecutionerRoleData.class, screen.player);
 
             // 只有在未选择目标时才显示选择界面
-            if (!executionerComponent.targetSelected) {
+            if (executionerComponent != null && !executionerComponent.targetSelected) {
                 List<AbstractClientPlayer> entries = Minecraft.getInstance().level.players();
 
                 // 筛选出平民阵营且存活的玩家
@@ -62,7 +63,7 @@ public final class ExecutionerRoleScreenExtension {
                         return true;
                     if (!GameUtils.isPlayerAliveAndSurvival(e))
                         return true;
-                    return ExecutionerPlayerComponent.judgeRole(screen.player.level(), gameWorldComponent.getRole(e));
+                    return ExecutionerRoleData.judgeRole(screen.player.level(), gameWorldComponent.getRole(e));
                 });
 
                 int apart = 36;

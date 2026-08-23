@@ -17,12 +17,13 @@ package org.agmas.noellesroles.mixin.client;
 
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.client.SREClient;
+import io.wifi.starrailexpress.api.data.RoleData;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
 import net.minecraft.world.entity.player.Player;
-import org.agmas.noellesroles.game.roles.killer.manipulator.ManipulatorPlayerComponent;
 import org.agmas.noellesroles.game.roles.neutral.pelican.PelicanManager;
-import org.agmas.noellesroles.game.roles.special.better_vigilante.BetterVigilantePlayerComponent;
+import org.agmas.noellesroles.role_data.killer.ManipulatorRoleData;
+import org.agmas.noellesroles.role_data.special.BetterVigilanteRoleData;
 import org.agmas.noellesroles.role.ModRoles;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -72,8 +73,8 @@ public abstract class InstinctMixin {
         }
         SREGameWorldComponent gameWorldComponent = (SREGameWorldComponent) SREGameWorldComponent.KEY.get(player.level());
         if (gameWorldComponent.isRole(player, ModRoles.BETTER_VIGILANTE)) {
-            var betterC = BetterVigilantePlayerComponent.KEY.get(player);
-            if (betterC.lastStandActivated) {
+            var betterC = RoleData.getNullable(BetterVigilanteRoleData.class, player);
+            if (betterC != null && betterC.lastStandActivated) {
                 cir.setReturnValue(true);
                 cir.cancel();
             }
@@ -92,8 +93,8 @@ public abstract class InstinctMixin {
         for (Player otherPlayer : player.level().players()) {
             SREGameWorldComponent gameWorldComponent = SREGameWorldComponent.KEY.get(otherPlayer.level());
             if (gameWorldComponent.isRole(otherPlayer, ModRoles.MANIPULATOR)) {
-                ManipulatorPlayerComponent manipulatorComponent = ManipulatorPlayerComponent.KEY.get(otherPlayer);
-                if (manipulatorComponent.isControlling &&
+                ManipulatorRoleData manipulatorComponent = RoleData.getNullable(ManipulatorRoleData.class, otherPlayer);
+                if (manipulatorComponent != null && manipulatorComponent.isControlling &&
                         manipulatorComponent.target != null &&
                         manipulatorComponent.target.equals(player.getUUID())) {
                     return true;

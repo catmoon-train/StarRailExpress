@@ -15,6 +15,7 @@
 
 package org.agmas.noellesroles.client;
 
+import io.wifi.starrailexpress.api.data.RoleData;
 import io.wifi.starrailexpress.client.SREClient;
 import io.wifi.starrailexpress.game.GameUtils;
 import net.minecraft.ChatFormatting;
@@ -22,7 +23,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Player;
 import org.agmas.noellesroles.client.event.RoleHudRenderCallback;
-import org.agmas.noellesroles.game.roles.neutral.wayfarer.WayfarerPlayerComponent;
+import org.agmas.noellesroles.role_data.neutral.WayfarerRoleData;
 import org.agmas.noellesroles.role.ModRoles;
 
 import java.awt.*;
@@ -48,22 +49,23 @@ public class WayfarerHudRenderer {
             final int lineHeight = (font.lineHeight + 8);
             int yOffset = screenHeight - lineHeight * 4; // 左下角
             int xOffset = 30; // 距离左边缘
-            var wayC = WayfarerPlayerComponent.KEY.get(client.player);
+            var wayC = RoleData.getOptional(WayfarerRoleData.class, client.player);
+            if (wayC.isEmpty()) return;
             Component phaseText = Component
-                    .translatable("hud.noellesroles.wayfarer.phase." + wayC.phase + ".title")
+                    .translatable("hud.noellesroles.wayfarer.phase." + wayC.get().phase + ".title")
                     .withStyle(ChatFormatting.AQUA, ChatFormatting.BOLD);
             Component descText = Component
-                    .translatable("hud.noellesroles.wayfarer.phase." + wayC.phase + ".desc")
+                    .translatable("hud.noellesroles.wayfarer.phase." + wayC.get().phase + ".desc")
                     .withStyle(ChatFormatting.WHITE);
             Component tipText = Component.translatable("hud.noellesroles.wayfarer.phase.0.tip")
                     .withStyle(ChatFormatting.YELLOW);
 
-            if (wayC.phase == 1) {
+            if (wayC.get().phase == 1) {
                 Component killerText = Component
                         .translatable("hud.noellesroles.wayfarer.phase.1.unknown_killer")
                         .withStyle(ChatFormatting.GRAY);
-                if (wayC.killer != null) {
-                    Player killer = client.level.getPlayerByUUID(wayC.killer);
+                if (wayC.get().killer != null) {
+                    Player killer = client.level.getPlayerByUUID(wayC.get().killer);
                     if (killer != null) {
                         killerText = Component.literal(killer.getName().getString())
                                 .withStyle(ChatFormatting.GOLD);
@@ -71,16 +73,16 @@ public class WayfarerHudRenderer {
                 }
                 tipText = Component.translatable("hud.noellesroles.wayfarer.phase.1.tip", killerText)
                         .withStyle(ChatFormatting.YELLOW);
-            } else if (wayC.phase == 2) {
+            } else if (wayC.get().phase == 2) {
                 Component killerText = Component
-                        .translatable("death_reason." + wayC.deathReason.toLanguageKey())
+                        .translatable("death_reason." + wayC.get().deathReason.toLanguageKey())
                         .withStyle(ChatFormatting.LIGHT_PURPLE);
                 tipText = Component.translatable("hud.noellesroles.wayfarer.phase.2.tip", killerText)
                         .withStyle(ChatFormatting.AQUA);
-            } else if (wayC.phase == 3) {
+            } else if (wayC.get().phase == 3) {
                 tipText = Component.translatable("hud.noellesroles.wayfarer.phase.3.tip")
                         .withStyle(ChatFormatting.GREEN);
-            } else if (wayC.phase == 4) {
+            } else if (wayC.get().phase == 4) {
                 tipText = Component.translatable("hud.noellesroles.wayfarer.phase.4.tip")
                         .withStyle(ChatFormatting.LIGHT_PURPLE);
             }

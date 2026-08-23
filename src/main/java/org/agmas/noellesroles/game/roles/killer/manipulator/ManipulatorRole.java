@@ -16,8 +16,10 @@
 package org.agmas.noellesroles.game.roles.killer.manipulator;
 
 import io.wifi.starrailexpress.api.NormalRole;
+import io.wifi.starrailexpress.api.data.RoleData;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
+import org.agmas.noellesroles.role_data.killer.ManipulatorRoleData;
 import org.jetbrains.annotations.Nullable;
 
 public class ManipulatorRole extends NormalRole {
@@ -29,8 +31,8 @@ public class ManipulatorRole extends NormalRole {
     @Override
     public void onDeath(Player victim, boolean spawnBody, @Nullable Player killer, ResourceLocation deathReason,
             boolean forceDeath) {
-        final var manipulatorPlayerComponent = ManipulatorPlayerComponent.KEY.get(victim);
-        final var target = manipulatorPlayerComponent.target;
+        final var manipulatorPlayerComponent = RoleData.getNullable(ManipulatorRoleData.class, victim);
+        final var target = manipulatorPlayerComponent != null ? manipulatorPlayerComponent.target : null;
         if (target != null) {
             final var playerByUUID = victim.level().getPlayerByUUID(target);
             if (playerByUUID != null) {

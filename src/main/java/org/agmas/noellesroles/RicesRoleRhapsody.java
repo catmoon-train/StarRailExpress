@@ -17,6 +17,7 @@ package org.agmas.noellesroles;
 
 import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.api.TMMRoles;
+import io.wifi.starrailexpress.api.data.RoleData;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.game.GameUtils;
 import net.fabricmc.api.ModInitializer;
@@ -26,19 +27,19 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import org.agmas.noellesroles.client.screen.ModScreenHandlers;
 import org.agmas.noellesroles.component.ModComponents;
-import org.agmas.noellesroles.game.roles.innocence.boxer.BoxerPlayerComponent;
-import org.agmas.noellesroles.game.roles.innocence.detective.AgentPlayerComponent;
-import org.agmas.noellesroles.game.roles.innocence.psychologist.PsychologistPlayerComponent;
-import org.agmas.noellesroles.game.roles.killer.conspirator.ConspiratorPlayerComponent;
-import org.agmas.noellesroles.game.roles.killer.stalker.StalkerPlayerComponent;
-import org.agmas.noellesroles.game.roles.killer.trapper.TrapperPlayerComponent;
-import org.agmas.noellesroles.game.roles.neutral.admirer.AdmirerPlayerComponent;
 import org.agmas.noellesroles.game.roles.neutral.puppeteer.PuppeteerPlayerComponent;
+import org.agmas.noellesroles.role_data.innocence.AgentRoleData;
+import org.agmas.noellesroles.role_data.innocence.BuilderRoleData;
+import org.agmas.noellesroles.role_data.innocence.PsychologistRoleData;
+import org.agmas.noellesroles.role_data.neutral.AdmirerRoleData;
 import org.agmas.noellesroles.init.FunnyItems;
 import org.agmas.noellesroles.init.ModEffects;
 import org.agmas.noellesroles.init.ModEntities;
 import org.agmas.noellesroles.init.ModMenus;
 import org.agmas.noellesroles.packet.*;
+import org.agmas.noellesroles.role_data.killer.ConspiratorRoleData;
+import org.agmas.noellesroles.role_data.killer.StalkerRoleData;
+import org.agmas.noellesroles.role_data.killer.TrapperRoleData;
 import org.agmas.noellesroles.register.RiceEventRegister;
 import org.agmas.noellesroles.register.RicePacketTypeRegister;
 import org.agmas.noellesroles.register.RiceReceiverRegister;
@@ -248,16 +249,16 @@ public class RicesRoleRhapsody implements ModInitializer {
 
         // 如果新角色不是跟踪者，清除跟踪者组件状态
         if (!role.equals(ModRoles.STALKER)) {
-            StalkerPlayerComponent stalkerComp = ModComponents.STALKER.get(player);
-            if (stalkerComp.isActiveStalker()) {
+            StalkerRoleData stalkerComp = RoleData.getNullable(StalkerRoleData.class, player);
+            if (stalkerComp != null && stalkerComp.isActiveStalker()) {
                 stalkerComp.clearAll();
             }
         }
 
         // 如果新角色不是慕恋者，清除慕恋者组件状态
         if (!role.equals(ModRoles.ADMIRER)) {
-            AdmirerPlayerComponent admirerComp = ModComponents.ADMIRER.get(player);
-            if (admirerComp.isActiveAdmirer()) {
+            AdmirerRoleData admirerComp = RoleData.getNullable(AdmirerRoleData.class, player);
+            if (admirerComp != null && admirerComp.isActiveAdmirer()) {
                 admirerComp.clearAll();
             }
         }
@@ -288,13 +289,6 @@ public class RicesRoleRhapsody implements ModInitializer {
 
         }
 
-        // ==================== 阴谋家角色处理 ====================
-        if (role.equals(ModRoles.CONSPIRATOR)) {
-            // 重置阴谋家组件
-            ConspiratorPlayerComponent conspiratorComponent = ModComponents.CONSPIRATOR.get(player);
-            conspiratorComponent.init();
-        }
-
         // ==================== 捣蛋鬼角色处理 ====================
         // ==================== 工程师角色处理 ====================
         if (role.equals(ModRoles.ENGINEER)) {
@@ -304,57 +298,13 @@ public class RicesRoleRhapsody implements ModInitializer {
 
         // ==================== 斗士角色处理 ====================
         if (role.equals(ModRoles.FIGHTER)) {
-            // 重置斗士组件 - 设置开局冷却
-            BoxerPlayerComponent boxerComponent = ModComponents.FIGHTER.get(player);
-            boxerComponent.init();
-        }
-
-        // ==================== 静语者角色处理 ====================
-        if (role.equals(ModRoles.SILENCER)) {
-            org.agmas.noellesroles.game.roles.killer.silencer.SilencerPlayerComponent silencerComponent =
-                org.agmas.noellesroles.game.roles.killer.silencer.SilencerPlayerComponent.KEY.get(player);
-            silencerComponent.init();
-        }
-
-        // ==================== 探员角色处理 ====================
-        if (role.equals(ModRoles.AGENT)) {
-            // 重置探员组件
-            AgentPlayerComponent detectiveComponent = ModComponents.AGENT.get(player);
-            detectiveComponent.init();
-        }
-
-        // ==================== 跟踪者角色处理 ====================
-        if (role.equals(ModRoles.STALKER)) {
-            // 重置跟踪者组件
-            StalkerPlayerComponent stalkerComponent = ModComponents.STALKER.get(player);
-            stalkerComponent.init();
-        }
-
-        // ==================== 慕恋者角色处理 ====================
-        if (role.equals(ModRoles.ADMIRER)) {
-            // 重置慕恋者组件
-            AdmirerPlayerComponent admirerComponent = ModComponents.ADMIRER.get(player);
-            admirerComponent.init();
-        }
-
-        // ==================== 设陷者角色处理 ====================
-        if (role.equals(ModRoles.TRAPPER)) {
-            // 重置设陷者组件
-            TrapperPlayerComponent trapperComponent = ModComponents.TRAPPER.get(player);
-            trapperComponent.init();
+            // 重置斗士组件 - 设置开局冷却（init 由 RoleData 在职业赋予时自动调用）
         }
 
         // ==================== 退伍军人角色处理 ====================
         if (role.equals(ModRoles.VETERAN)) {
             // 重置退伍军人组件
             // 不需要（谁写的啊！！！）
-        }
-
-        // ==================== 心理学家角色处理 ====================
-        if (role.equals(ModRoles.PSYCHOLOGIST)) {
-            // 重置心理学家组件
-            PsychologistPlayerComponent psychComponent = ModComponents.PSYCHOLOGIST.get(player);
-            psychComponent.init();
         }
 
         // ==================== 傀儡师角色处理 ====================
@@ -377,10 +327,7 @@ public class RicesRoleRhapsody implements ModInitializer {
         //
 
         // ==================== 建筑师角色处理 ====================
-        if (role.equals(ModRoles.BUILDER)) {
-            org.agmas.noellesroles.game.roles.innocence.builder.BuilderPlayerComponent builderComponent = org.agmas.noellesroles.component.ModComponents.BUILDER.get(player);
-            builderComponent.init();
-        }
+        // 建筑师数据在职业赋予时由 RoleData.init() 自动初始化
         // if (role.equals(ModRoles.EXAMPLE_ROLE)) {
         // // 给予物品
         // player.giveItemStack(new ItemStack(Items.PAPER));

@@ -43,7 +43,6 @@ import org.agmas.noellesroles.api.time.TimeRewind;
 import org.agmas.noellesroles.api.time.TimeRewindOptions;
 import org.agmas.noellesroles.api.time.TimeRewindResult;
 import org.agmas.noellesroles.api.time.TimeRewindSnapshot;
-import org.agmas.noellesroles.component.ModComponents;
 import org.agmas.noellesroles.init.ModEffects;
 import org.agmas.noellesroles.role.ModRoles;
 import org.jetbrains.annotations.NotNull;

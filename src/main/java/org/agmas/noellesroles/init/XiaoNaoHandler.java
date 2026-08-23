@@ -29,9 +29,10 @@ import pro.fazeclan.river.stupid_express.constants.SEModifiers;
 import org.agmas.harpymodloader.component.WorldModifierComponent;
 import org.agmas.noellesroles.Noellesroles;
 import org.agmas.noellesroles.component.ModComponents;
+import io.wifi.starrailexpress.api.data.RoleData;
 import org.agmas.noellesroles.config.NoellesRolesConfig;
-import org.agmas.noellesroles.game.roles.innocence.avenger.AvengerPlayerComponent;
-import org.agmas.noellesroles.game.roles.killer.blood_feudist.BloodFeudistPlayerComponent;
+import org.agmas.noellesroles.role_data.killer.BloodFeudistRoleData;
+import org.agmas.noellesroles.role_data.innocence.AvengerRoleData;
 import org.agmas.noellesroles.role.ModRoles;
 import org.agmas.noellesroles.role.touhou.THMiscRoles;
 import org.agmas.noellesroles.utils.RoleUtils;
@@ -78,7 +79,7 @@ public class XiaoNaoHandler {
                     }
                     // 检查是否是复仇者击杀复仇目标的凶手，如果是则不算误杀
                     if (gameWorldComponent.isRole(killer, ModRoles.AVENGER)) {
-                        AvengerPlayerComponent avengerComp = ModComponents.AVENGER.get(killer);
+                        AvengerRoleData avengerComp = RoleData.getNullable(AvengerRoleData.class, killer);
                         if (avengerComp != null && avengerComp.killerUuid != null
                                 && avengerComp.killerUuid.equals(victim.getUUID())) {
                             // 复仇者击杀的是杀死复仇目标的凶手，不算误杀
@@ -113,9 +114,9 @@ public class XiaoNaoHandler {
                             // 仇杀客事件：误杀发生时强化仇杀客
                             for (ServerPlayer player : victim.serverLevel().players()) {
                                 if (gameWorldComponent.isRole(player, ModRoles.BLOOD_FEUDIST)) {
-                                    BloodFeudistPlayerComponent bfComp = ModComponents.BLOOD_FEUDIST.get(player);
-                                    if (bfComp != null) {
-                                        bfComp.onAccidentalKill();
+                                    var bfData = RoleData.getNullable(BloodFeudistRoleData.class, player);
+                                    if (bfData != null) {
+                                        bfData.onAccidentalKill();
                                     }
                                 }
                             }

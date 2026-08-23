@@ -16,6 +16,7 @@
 package org.agmas.noellesroles;
 
 import io.wifi.starrailexpress.SRE;
+import io.wifi.starrailexpress.api.data.RoleData;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.cca.SREPlayerPoisonComponent;
 import io.wifi.starrailexpress.event.EarlyKillPlayer;
@@ -24,8 +25,8 @@ import net.minecraft.server.level.ServerPlayer;
 
 import net.minecraft.world.entity.player.Player;
 import org.agmas.noellesroles.content.item.BombItem;
-import org.agmas.noellesroles.game.roles.killer.conspirator.ConspiratorPlayerComponent;
 import org.agmas.noellesroles.role.ModRoles;
+import org.agmas.noellesroles.role_data.killer.ConspiratorRoleData;
 
 public class TrueKillerFinder {
 
@@ -65,9 +66,9 @@ public class TrueKillerFinder {
             // 是否为阴谋家击杀
             for (var player : serverVictim.level().players()) {
                 if (gameWorldComponent.isRole(player, ModRoles.CONSPIRATOR)) {
-                    var consC = ConspiratorPlayerComponent.KEY.maybeGet(player).orElse(null);
-                    if (consC != null) {
-                        if (consC.hasBeenGuessedToDie(victim.getUUID())) {
+                    var consC = RoleData.getOptional(ConspiratorRoleData.class, player);
+                    if (consC.isPresent()) {
+                        if (consC.get().hasBeenGuessedToDie(victim.getUUID())) {
                             return player;
                         }
                     }

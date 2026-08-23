@@ -133,6 +133,9 @@ public class SRERoleDataPlayerComponent
 
     @Override
     public void clear() {
+        if (roleData != null) {
+            roleData.clear();
+        }
         playerRole = null;
         roleData = null;
         initSync = false;
@@ -176,8 +179,6 @@ public class SRERoleDataPlayerComponent
     }
 
     public void onRemoveRole() {
-        if (roleData != null)
-            roleData.clear();
         this.clear();
     }
 

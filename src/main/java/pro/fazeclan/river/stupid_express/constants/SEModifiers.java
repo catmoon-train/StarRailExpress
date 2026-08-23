@@ -32,7 +32,7 @@ import org.agmas.harpymodloader.events.ModifierRemoved;
 import org.agmas.harpymodloader.events.ResetPlayerEvent;
 import org.agmas.harpymodloader.modifiers.HMLModifiers;
 import org.agmas.harpymodloader.modifiers.SREModifier;
-import org.agmas.noellesroles.game.roles.neutral.monokuma.MonokumaPlayerComponent;
+import org.agmas.noellesroles.game.roles.neutral.monokuma.MonokumaEventHandler;
 import org.agmas.noellesroles.init.ModEffects;
 import org.agmas.noellesroles.role.ModRoles;
 import org.agmas.noellesroles.role.TraitorAndModifiers;
@@ -273,7 +273,10 @@ public class SEModifiers {
             if (!modifier.equals(BLACK_WHITE)) {
                 return;
             }
-            MonokumaPlayerComponent.KEY.get(player).init();
+            // 黑白修饰符分配给义警/警长玩家，此时玩家尚未持有 MONOKUMA 职业，
+            // MonokumaRoleData 不存在；在 MonokumaEventHandler 中记录阶段一状态，
+            // 首次致死攻击时变身为黑白熊。
+            MonokumaEventHandler.BLACK_WHITE_PHASE1.add(player.getUUID());
         });
         /// LOVERS
         ModifierAssigned.EVENT.register(((player, modifier) -> {

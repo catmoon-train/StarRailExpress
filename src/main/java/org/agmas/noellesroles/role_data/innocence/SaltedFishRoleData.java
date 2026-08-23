@@ -348,11 +348,6 @@ public class SaltedFishRoleData extends SimpleRoleData {
 
     @Override
     public void writeToSyncNbt(@NotNull CompoundTag tag, HolderLookup.Provider registryLookup) {
-        SREGameWorldComponent gameWorld = SREGameWorldComponent.KEY.get(player.level());
-        if (!gameWorld.isRole(player, ModRoles.SALTED_FISH)) {
-            // 不是 RETURN_TRAVELER 职业则不执行职业CCA逻辑
-            return;
-        }
         tag.putInt("activeTicks", activeTicks);
         tag.putInt("cooldownTicks", cooldownTicks);
         tag.putInt("flipTicks", flipTicks);
@@ -370,6 +365,5 @@ public class SaltedFishRoleData extends SimpleRoleData {
         previousSide = tag.contains("previousSide") ? tag.getInt("previousSide") : 0;
         sunYaw = tag.contains("sunYaw") ? tag.getFloat("sunYaw") : 0;
     }
-
 
 }

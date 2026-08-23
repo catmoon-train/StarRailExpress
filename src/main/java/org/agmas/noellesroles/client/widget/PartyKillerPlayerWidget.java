@@ -31,7 +31,6 @@ import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.level.GameType;
-import org.agmas.noellesroles.game.roles.killer.party.PartyPlayerComponent;
 import org.agmas.noellesroles.init.ModEffects;
 import org.agmas.noellesroles.packet.PartyKillerC2SPacket;
 import org.jetbrains.annotations.NotNull;
@@ -54,7 +53,6 @@ public class PartyKillerPlayerWidget extends Button {
             AbstractClientPlayer player = Minecraft.getInstance().player;
             if (player != null) {
                 // 检查冷却
-                PartyPlayerComponent comp = PartyPlayerComponent.KEY.get(player);
                 SREAbilityPlayerComponent ability = SREAbilityPlayerComponent.KEY.get(player);
                 if (ability.canUseAbility()) {
                     ClientPlayNetworking.send(new PartyKillerC2SPacket(targetInfo.getProfile().getId()));

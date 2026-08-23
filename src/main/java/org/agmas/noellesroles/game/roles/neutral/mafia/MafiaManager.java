@@ -100,7 +100,10 @@ public final class MafiaManager {
         ServerPlayer tgt = player.server.getPlayerList().getPlayer(target);
         if (tgt == null || !GameUtils.isPlayerAliveAndSurvival(tgt))
             return;
-        var comp = GodfatherComponent.KEY.get(player);
+        var comp = io.wifi.starrailexpress.api.data.RoleData.getNullable(
+                org.agmas.noellesroles.role_data.neutral.GodfatherRoleData.class, player);
+        if (comp == null)
+            return;
         long now = SRE.getTicksFromGameStart();
 
         if (action == MafiaActionC2SPacket.RECRUIT_ROLE) {
@@ -190,25 +193,31 @@ public final class MafiaManager {
 
     // Bullet system
     public static int getLoadedBullets(ServerPlayer godfather) {
-        return GodfatherComponent.KEY.get(godfather).loadedBullets;
+        var comp = io.wifi.starrailexpress.api.data.RoleData.getNullable(
+                org.agmas.noellesroles.role_data.neutral.GodfatherRoleData.class, godfather);
+        return comp != null ? comp.loadedBullets : 0;
     }
 
     public static int getMaxLoadedBullets(ServerPlayer godfather) {
-        return GodfatherComponent.KEY.get(godfather).maxLoadedBullets;
+        var comp = io.wifi.starrailexpress.api.data.RoleData.getNullable(
+                org.agmas.noellesroles.role_data.neutral.GodfatherRoleData.class, godfather);
+        return comp != null ? comp.maxLoadedBullets : 0;
     }
 
     public static void consumeBullet(ServerPlayer godfather) {
-        var comp = GodfatherComponent.KEY.get(godfather);
-        if (comp.loadedBullets > 0) {
+        var comp = io.wifi.starrailexpress.api.data.RoleData.getNullable(
+                org.agmas.noellesroles.role_data.neutral.GodfatherRoleData.class, godfather);
+        if (comp != null && comp.loadedBullets > 0) {
             comp.loadedBullets--;
             comp.sync();
         }
-        syncDerringerUsed(godfather, comp.loadedBullets > 0);
+        syncDerringerUsed(godfather, comp != null && comp.loadedBullets > 0);
     }
 
     public static boolean tryLoadBullet(ServerPlayer godfather) {
-        var comp = GodfatherComponent.KEY.get(godfather);
-        if (comp.loadedBullets >= comp.maxLoadedBullets)
+        var comp = io.wifi.starrailexpress.api.data.RoleData.getNullable(
+                org.agmas.noellesroles.role_data.neutral.GodfatherRoleData.class, godfather);
+        if (comp == null || comp.loadedBullets >= comp.maxLoadedBullets)
             return false;
         comp.loadedBullets++;
         comp.sync();

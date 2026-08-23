@@ -25,7 +25,8 @@ import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.level.GameType;
 import org.agmas.noellesroles.client.widget.WarlockDomainWidget;
-import org.agmas.noellesroles.game.roles.killer.warlock.WarlockPlayerComponent;
+import io.wifi.starrailexpress.api.data.RoleData;
+import org.agmas.noellesroles.role_data.killer.WarlockRoleData;
 import org.agmas.noellesroles.role.ModRoles;
 
 import java.awt.Color;
@@ -74,7 +75,7 @@ public final class WarlockRoleScreenExtension extends PlayerListRoleScreenExtens
         if (client.level == null || self == null) {
             return List.of();
         }
-        WarlockPlayerComponent comp = WarlockPlayerComponent.KEY.get(self);
+        WarlockRoleData comp = RoleData.getOptional(WarlockRoleData.class, self).orElse(null);
         if (comp == null) {
             return List.of();
         }

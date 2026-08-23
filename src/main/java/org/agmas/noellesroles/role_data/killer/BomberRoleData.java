@@ -32,13 +32,11 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.component.CustomData;
 import org.agmas.noellesroles.ConfigWorldComponent;
-import org.agmas.noellesroles.component.ModComponents;
 import org.agmas.noellesroles.init.ModItems;
 import org.agmas.noellesroles.utils.RoleUtils;
 
 public class BomberRoleData extends SimpleRoleData {
     public static final int BOMB_COST = 100;
-
 
     public BomberRoleData(RoleDataContext context) {
         super(context);

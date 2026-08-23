@@ -15,6 +15,7 @@
 
 package org.agmas.noellesroles.content.item;
 
+import io.wifi.starrailexpress.api.data.RoleData;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.game.GameUtils;
 import net.minecraft.ChatFormatting;
@@ -35,9 +36,9 @@ import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 import org.agmas.noellesroles.content.entity.TrapperNetEntity;
-import org.agmas.noellesroles.game.roles.killer.trapper.TrapperPlayerComponent;
 import org.agmas.noellesroles.init.ModEntities;
 import org.agmas.noellesroles.role.ModRoles;
+import org.agmas.noellesroles.role_data.killer.TrapperRoleData;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
@@ -46,7 +47,7 @@ import java.util.List;
  * 设陷者大招物品「捕网枪」。
  *
  * <p>通过 G 键（选中「捕网」类型）花费 200 金币购得，到手即进入
- * {@link TrapperPlayerComponent#NET_GUN_COOLDOWN_SECONDS}s 初始冷却。
+ * {@link TrapperRoleData#NET_GUN_COOLDOWN_SECONDS}s 初始冷却。
  * 右键发射一张捕网（{@link TrapperNetEntity}，蜘蛛网方块外观）：命中玩家或落地后
  * 禁锢半径 5 格内的玩家 8s（无法移动/使用物品/使用技能）。每次发射后进入 150s 冷却。
  */
@@ -66,7 +67,9 @@ public class TrapperNetGunItem extends Item {
                 || !gameWorld.isRole(user, ModRoles.TRAPPER)) {
             return InteractionResultHolder.pass(itemStack);
         }
-        TrapperPlayerComponent comp = TrapperPlayerComponent.KEY.get(user);
+        TrapperRoleData comp = RoleData.getNullable(TrapperRoleData.class, user);
+        if (comp == null)
+            return InteractionResultHolder.pass(itemStack);
         if (comp.netGunCooldownTicks > 0) {
             if (!world.isClientSide()) {
                 user.displayClientMessage(
@@ -112,7 +115,7 @@ public class TrapperNetGunItem extends Item {
         sp.connection.send(new ClientboundSetEntityMotionPacket(sp));
 
         // ---- 进入冷却 ----
-        comp.netGunCooldownTicks = TrapperPlayerComponent.NET_GUN_COOLDOWN_TICKS;
+        comp.netGunCooldownTicks = TrapperRoleData.NET_GUN_COOLDOWN_TICKS;
         comp.sync();
         sp.displayClientMessage(
                 Component.translatable("message.noellesroles.trapper.net_fired")

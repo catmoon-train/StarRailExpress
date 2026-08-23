@@ -15,6 +15,7 @@
 
 package org.agmas.noellesroles.content.item;
 
+import io.wifi.starrailexpress.api.data.RoleData;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.game.GameConstants;
 import io.wifi.starrailexpress.game.GameUtils;
@@ -38,9 +39,9 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 import org.agmas.noellesroles.config.NoellesRolesConfig;
 import org.agmas.noellesroles.content.entity.YouluAnchorEntity;
-import org.agmas.noellesroles.game.roles.killer.youlu.YouluPlayerComponent;
 import org.agmas.noellesroles.init.ModEntities;
 import org.agmas.noellesroles.role.ModRoles;
+import org.agmas.noellesroles.role_data.killer.YouluRoleData;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
@@ -132,7 +133,8 @@ public class YouluAnchorItem extends Item {
     /** 前摇完成后执行技能逻辑。 */
     private void executeSkill(ServerPlayer sp, ServerLevel serverLevel, ItemStack itemStack) {
         NoellesRolesConfig config = NoellesRolesConfig.HANDLER.instance();
-        YouluPlayerComponent component = YouluPlayerComponent.KEY.get(sp);
+        var component = RoleData.getNullable(YouluRoleData.class, sp);
+        if (component == null) return;
         YouluAnchorEntity anchor = component.getAnchor();
 
         if (anchor == null) {

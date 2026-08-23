@@ -15,13 +15,13 @@
 
 package org.agmas.noellesroles.client.hud.roles;
 
+import io.wifi.starrailexpress.api.data.RoleData;
 import io.wifi.starrailexpress.client.SREClient;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;
 import org.agmas.noellesroles.client.event.RoleHudRenderCallback;
-import org.agmas.noellesroles.component.ModComponents;
-import org.agmas.noellesroles.game.roles.innocence.mortician.MorticianPlayerComponent;
+import org.agmas.noellesroles.role_data.innocence.MorticianRoleData;
 import org.agmas.noellesroles.role.ModRoles;
 
 public class MorticianHud {
@@ -36,8 +36,8 @@ public class MorticianHud {
                 return;
             }
 
-            MorticianPlayerComponent component = ModComponents.MORTICIAN.get(client.player);
-            if (component == null) {
+            var component = RoleData.getOptional(MorticianRoleData.class, client.player);
+            if (component.isEmpty()) {
                 return;
             }
 
@@ -48,13 +48,13 @@ public class MorticianHud {
             int x = screenWidth - 120;
             int y = screenHeight - 25;
 
-            if (component.isCooldownReady()) {
+            if (component.get().isCooldownReady()) {
                 Component readyText = Component.translatable("hud.noellesroles.mortician.ready")
                         .withStyle(ChatFormatting.GREEN);
                 guiGraphics.drawString(client.font, readyText, x, y, 0xFFFFFF);
             } else {
                 Component cooldownText = Component.translatable("hud.noellesroles.mortician.cooldown", 
-                        component.getRemainingCooldown())
+                        component.get().getRemainingCooldown())
                         .withStyle(ChatFormatting.RED);
                 guiGraphics.drawString(client.font, cooldownText, x, y, 0xAAAAAA);
             }

@@ -15,11 +15,12 @@
 
 package org.agmas.noellesroles.mixin.roles.raven;
 
+import io.wifi.starrailexpress.api.data.RoleData;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
-import org.agmas.noellesroles.component.ModComponents;
 import org.agmas.noellesroles.role.ModRoles;
+import org.agmas.noellesroles.role_data.neutral.RavenRoleData;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -41,7 +42,8 @@ public abstract class RavenKnifeLeftClickMixin {
             return;
         }
 
-        if (!ModComponents.RAVEN.get(attacker).isHunting()) {
+        RavenRoleData raven = RoleData.getNullable(RavenRoleData.class, attacker);
+        if (raven == null || !raven.isHunting()) {
             return;
         }
 

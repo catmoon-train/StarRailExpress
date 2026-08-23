@@ -15,14 +15,15 @@
 
 package org.agmas.noellesroles.client.hud.roles;
 
+import io.wifi.starrailexpress.api.data.RoleData;
 import io.wifi.starrailexpress.client.SREClient;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.network.chat.Component;
 import org.agmas.noellesroles.client.event.RoleHudRenderCallback;
-import org.agmas.noellesroles.game.roles.killer.embalmer.EmbalmerPlayerComponent;
 import org.agmas.noellesroles.role.ModRoles;
+import org.agmas.noellesroles.role_data.killer.EmbalmerRoleData;
 
 public class EmbalmerHud {
     // 客户端平滑：服务端只在状态边界同步，这里自行逐帧递减，收到新值时以服务端为准纠正
@@ -35,7 +36,10 @@ public class EmbalmerHud {
         RoleHudRenderCallback.EVENT.register(ModRoles.EMBALMER_ID, (context, deltaTracker) -> {
             Minecraft client = Minecraft.getInstance();
             if (SREClient.isPlayerSpectator()) return;
-            var comp = EmbalmerPlayerComponent.KEY.get(client.player);
+            var compOpt = RoleData.getOptional(EmbalmerRoleData.class, client.player);
+            if (compOpt.isEmpty())
+                return;
+            var comp = compOpt.get();
             Font font = client.font;
             int sw = client.getWindow().getGuiScaledWidth();
             int sy = client.getWindow().getGuiScaledHeight();

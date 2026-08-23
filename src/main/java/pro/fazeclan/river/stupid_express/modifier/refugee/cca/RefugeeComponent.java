@@ -51,8 +51,8 @@ import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.Level;
 import org.agmas.harpymodloader.component.WorldModifierComponent;
 import org.agmas.noellesroles.component.DefibrillatorComponent;
-import org.agmas.noellesroles.game.roles.neutral.monokuma.MonokumaPlayerComponent;
-import org.agmas.noellesroles.game.roles.neutral.raven.RavenPlayerComponent;
+import org.agmas.noellesroles.role_data.neutral.MonokumaRoleData;
+import org.agmas.noellesroles.role_data.neutral.RavenRoleData;
 import org.agmas.noellesroles.api.time.TimeRewind;
 import org.agmas.noellesroles.api.time.TimeRewindAreaResult;
 import org.agmas.noellesroles.api.time.TimeRewindAreaSnapshot;
@@ -227,7 +227,10 @@ public class RefugeeComponent implements AutoSyncedComponent, ServerTickingCompo
         if (i == null) {
             i = 1;
         }
-        MonokumaPlayerComponent.KEY.get(player).clear();
+        MonokumaRoleData monokumaData = io.wifi.starrailexpress.api.data.RoleData.getNullable(MonokumaRoleData.class, player);
+        if (monokumaData != null) {
+            monokumaData.clear();
+        }
         WorldModifierComponent.KEY.get(player.serverLevel()).removeModifier(data.uuid, SEModifiers.REFUGEE);
 
         final var areasWorldComponent = AreasWorldComponent.KEY.get(serverLevel);
@@ -265,7 +268,7 @@ public class RefugeeComponent implements AutoSyncedComponent, ServerTickingCompo
 
         // 亡命徒复活倒计时归零时，释放鹈鹕肚子里的所有玩家
         org.agmas.noellesroles.game.roles.neutral.pelican.PelicanManager.onLastStand(serverLevel);
-        RavenPlayerComponent.onLastStand(serverLevel);
+        org.agmas.noellesroles.role_data.neutral.RavenRoleData.onLastStand(serverLevel);
 
         TrainVoicePlugin.resetPlayer(player.getUUID());
         SREGameTimeComponent gameTimeComponent = SREGameTimeComponent.KEY.get(serverLevel);

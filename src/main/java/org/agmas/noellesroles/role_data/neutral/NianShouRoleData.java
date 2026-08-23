@@ -340,6 +340,27 @@ public class NianShouRoleData extends SimpleRoleData {
         tag.putInt("gongXiFaCaiTimer", gongXiFaCaiTimer);
     }
 
+    @Override
+    public void writeToRewindNbt(CompoundTag tag, HolderLookup.Provider registryLookup) {
+        // 回溯快照：绕过 writeToSyncNbt 的 isRunning/isRole 守卫，始终写入完整状态
+        tag.putInt("redPacketCount", redPacketCount);
+        tag.putInt("tasksCompleted", tasksCompleted);
+        tag.putBoolean("darknessShieldTriggered", darknessShieldTriggered);
+        tag.putInt("speedEffectCooldown", speedEffectCooldown);
+        tag.putBoolean("inDarkness", inDarkness);
+        tag.putBoolean("gongXiFaCaiPlaying", gongXiFaCaiPlaying);
+        tag.putInt("gongXiFaCaiTimer", gongXiFaCaiTimer);
+    }
 
-
+    @Override
+    public void readFromRewindNbt(CompoundTag tag, HolderLookup.Provider registryLookup) {
+        // 回溯恢复：纯回填字段，不触发 clear()/sync()，避免多余客户端同步
+        this.redPacketCount = tag.getInt("redPacketCount");
+        this.tasksCompleted = tag.getInt("tasksCompleted");
+        this.darknessShieldTriggered = tag.getBoolean("darknessShieldTriggered");
+        this.speedEffectCooldown = tag.getInt("speedEffectCooldown");
+        this.inDarkness = tag.getBoolean("inDarkness");
+        this.gongXiFaCaiPlaying = tag.getBoolean("gongXiFaCaiPlaying");
+        this.gongXiFaCaiTimer = tag.getInt("gongXiFaCaiTimer");
+    }
 }

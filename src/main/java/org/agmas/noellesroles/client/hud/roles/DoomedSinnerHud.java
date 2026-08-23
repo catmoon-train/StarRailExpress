@@ -15,11 +15,12 @@
 
 package org.agmas.noellesroles.client.hud.roles;
 
+import io.wifi.starrailexpress.api.data.RoleData;
 import io.wifi.starrailexpress.client.SREClient;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;
 import org.agmas.noellesroles.client.event.RoleHudRenderCallback;
-import org.agmas.noellesroles.game.roles.neutral.doomedsinner.DoomedSinnerPlayerComponent;
+import org.agmas.noellesroles.role_data.neutral.DoomedSinnerRoleData;
 import org.agmas.noellesroles.role.ModRoles;
 
 /**
@@ -31,7 +32,9 @@ public final class DoomedSinnerHud {
             if (SREClient.isPlayerSpectator()) return;
             var player = Minecraft.getInstance().player;
             if (player == null) return;
-            DoomedSinnerPlayerComponent component = DoomedSinnerPlayerComponent.KEY.get(player);
+            DoomedSinnerRoleData component = RoleData.getNullable(DoomedSinnerRoleData.class, player);
+            if (component == null)
+                return;
             int x = context.guiWidth() - 180;
             int y = context.guiHeight() - 40;
 

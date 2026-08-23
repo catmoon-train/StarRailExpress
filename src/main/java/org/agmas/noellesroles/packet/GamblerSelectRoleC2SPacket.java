@@ -25,7 +25,7 @@ import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.resources.ResourceLocation;
 import org.agmas.noellesroles.Noellesroles;
-import org.agmas.noellesroles.game.roles.neutral.gambler.GamblerPlayerComponent;
+import org.agmas.noellesroles.role_data.neutral.GamblerRoleData;
 import org.jetbrains.annotations.NotNull;
 
 public record GamblerSelectRoleC2SPacket(ResourceLocation roleId) implements CustomPacketPayload {
@@ -52,8 +52,10 @@ public record GamblerSelectRoleC2SPacket(ResourceLocation roleId) implements Cus
                 CustomRoleGameModeWorldComponent.KEY.get(player.level()).playerSelectedRole(player, payload.roleId());
                 return;
             }
-            GamblerPlayerComponent component = GamblerPlayerComponent.KEY.get(player);
-            component.selectRole(payload.roleId());
+            GamblerRoleData component = io.wifi.starrailexpress.api.data.RoleData.getNullable(GamblerRoleData.class, player);
+            if (component != null) {
+                component.selectRole(payload.roleId());
+            }
         }
     }
 }

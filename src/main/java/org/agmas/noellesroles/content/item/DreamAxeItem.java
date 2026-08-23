@@ -37,7 +37,7 @@ import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 import org.agmas.noellesroles.config.NoellesRolesConfig;
 import org.agmas.noellesroles.game.roles.killer.dream.DreamHealthComponent;
-import org.agmas.noellesroles.game.roles.killer.dream.DreamPlayerComponent;
+import org.agmas.noellesroles.role_data.killer.DreamRoleData;
 
 
 import java.util.List;
@@ -90,7 +90,7 @@ public class DreamAxeItem extends Item implements SREItemProperties.LeftClickHur
         }
 
         var config = NoellesRolesConfig.HANDLER.instance();
-        boolean berserk = DreamPlayerComponent.isBerserk(attacker);
+        boolean berserk = DreamRoleData.isBerserk(attacker);
         // 跳劈：与原版暴击一致 —— 下落中且不在地面
         boolean crit = attacker.fallDistance > 0.0F && !attacker.onGround() && !attacker.isPassenger();
 
@@ -102,7 +102,7 @@ public class DreamAxeItem extends Item implements SREItemProperties.LeftClickHur
         }
 
         if (!DreamHealthComponent.KEY.get(target).hurt(attacker, damage,
-                DreamPlayerComponent.DEATH_REASON_DREAM_AXE)) {
+                DreamRoleData.DEATH_REASON_DREAM_AXE)) {
             return false;
         }
 
@@ -115,7 +115,7 @@ public class DreamAxeItem extends Item implements SREItemProperties.LeftClickHur
             target.invulnerableTime = 0;
             target.hurt(target.damageSources().playerAttack(attacker), 1.0F);
             double stunSeconds = berserk ? config.dreamBerserkStunSeconds : config.dreamAxeStunSeconds;
-            DreamPlayerComponent.applyStun(target, (int) Math.round(stunSeconds * 20), berserk ? 1 : 0);
+            DreamRoleData.applyStun(target, (int) Math.round(stunSeconds * 20), berserk ? 1 : 0);
         }
 
         attacker.level().playSound(null, target.blockPosition(),

@@ -17,6 +17,7 @@ package org.agmas.noellesroles.game.roles.neutral.gambler;
 
 import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.api.SRERole;
+import io.wifi.starrailexpress.api.data.RoleData;
 import io.wifi.starrailexpress.cca.AreasWorldComponent;
 import io.wifi.starrailexpress.cca.SREPlayerShopComponent;
 import io.wifi.starrailexpress.game.GameUtils;
@@ -35,6 +36,7 @@ import org.agmas.noellesroles.Noellesroles;
 import org.agmas.noellesroles.init.ModEffects;
 import org.agmas.noellesroles.init.ModItems;
 import org.agmas.noellesroles.init.NRSounds;
+import org.agmas.noellesroles.role_data.neutral.GamblerRoleData;
 import org.agmas.noellesroles.utils.RoleUtils;
 
 import java.util.ArrayList;
@@ -57,7 +59,10 @@ public class GamblerRole extends SRERole {
     public void onFinishQuest(Player player, String quest) {
         if (player.level().isClientSide())
             return;
-        GamblerPlayerComponent.KEY.get(player).drawNewRole();
+        var gamblerData = RoleData.getNullable(GamblerRoleData.class, player);
+        if (gamblerData != null) {
+            gamblerData.drawNewRole();
+        }
     }
 
     /**
@@ -76,7 +81,9 @@ public class GamblerRole extends SRERole {
             return false;
 
         if (player.isShiftKeyDown()) {
-            GamblerPlayerComponent gamblerPlayerComponent = GamblerPlayerComponent.KEY.get(player);
+            GamblerRoleData gamblerPlayerComponent = RoleData.getNullable(GamblerRoleData.class, player);
+            if (gamblerPlayerComponent == null)
+                return false;
             gamblerPlayerComponent.usedAbility = true;
             if (player instanceof ServerPlayer)
                 ConfigWorldComponent.onPlayerUsedSkill((ServerPlayer) player);

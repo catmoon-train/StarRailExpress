@@ -23,6 +23,7 @@ import io.wifi.starrailexpress.api.TMMRoles;
 import org.agmas.noellesroles.component.ModComponents;
 import org.agmas.noellesroles.game.roles.special.dirt.DirtRole;
 import org.agmas.noellesroles.game.roles.special.super_loose_end.SuperLooseEnd;
+import org.agmas.noellesroles.role_data.special.SuperLooseEndRoleData;
 
 import java.awt.*;
 
@@ -61,7 +62,7 @@ public class SpecialGameModeRoles {
       SRERole.MoodType.NONE,
       -1,
       true))
-      .setComponentKey(ModComponents.SUPER_LOOSE_END)
+      .setRoleData(SuperLooseEndRoleData::new)
       .setCanSeeCoin(true)
       .setCanUseInstinctAndNightVision(true)
       .setCanAutoAddMoney(true).setDefaultMax(0).setCanBeRandomedByOtherRoles(false).setOtherModeRole(true)

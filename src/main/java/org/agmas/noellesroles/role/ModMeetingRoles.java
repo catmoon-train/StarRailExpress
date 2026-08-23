@@ -19,6 +19,7 @@ import io.wifi.starrailexpress.api.InstinctType;
 import io.wifi.starrailexpress.api.NormalRole;
 import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.api.TMMRoles;
+import org.agmas.noellesroles.role_data.killer.MissionaryRoleData;
 import net.minecraft.resources.ResourceLocation;
 
 import java.awt.*;
@@ -75,7 +76,8 @@ public class ModMeetingRoles {
             new NormalRole(id(MISSIONARY_ID), new Color(138, 43, 226).getRGB(),
                     false, true, SRERole.MoodType.FAKE,
                     Integer.MAX_VALUE, true)
-    ).setSpecialMapRole(SRERole.SpecialMapRoleMap.MEETING_VOTE)
+    ).setRoleData(MissionaryRoleData::new)
+            .setSpecialMapRole(SRERole.SpecialMapRoleMap.MEETING_VOTE)
             .setCanBeRandomedByOtherRoles(false).setDefaultMax(1);
 
     public static void init() {

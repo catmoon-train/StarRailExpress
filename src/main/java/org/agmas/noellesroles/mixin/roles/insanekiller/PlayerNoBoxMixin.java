@@ -25,10 +25,10 @@ public class PlayerNoBoxMixin {
     //     // Entity entity = (Entity) (Object) this;
     //     // if (entity instanceof ServerPlayer serverPlayer){
     //     //     if (GameWorldComponent.KEY.get(serverPlayer.level()).isRole(serverPlayer, ModRoles.THE_INSANE_DAMNED_PARANOID_KILLER_OF_DOOM_DEATH_DESTRUCTION_AND_WAFFLES)) {
-    //     //         final var insaneKillerPlayerComponent = InsaneKillerPlayerComponent.KEY.get(serverPlayer);
-    //     //         if (insaneKillerPlayerComponent.isActive) {
-    //     //             if (InsaneKillerPlayerComponent.skipPD) {
-    //     //                 InsaneKillerPlayerComponent.skipPD = false;
+    //     //         final var insaneKillerRoleData = RoleData.getNullable(InsaneKillerRoleData.class, serverPlayer);
+    //     //         if (insaneKillerRoleData.isActive) {
+    //     //             if (InsaneKillerRoleData.skipPD) {
+    //     //                 InsaneKillerRoleData.skipPD = false;
     //     //             } else {
 
     //     //                 cir.setReturnValue(AABB.ofSize(serverPlayer.position().add(0,0.3,0), 1, 0.3, 1));

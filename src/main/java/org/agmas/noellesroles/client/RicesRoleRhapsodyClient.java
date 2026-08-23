@@ -47,16 +47,16 @@ import org.agmas.noellesroles.content.item.ConspiracyPageItem;
 import org.agmas.noellesroles.content.item.DeductionBookItem;
 import org.agmas.noellesroles.content.item.WrittenNoteItem;
 import org.agmas.noellesroles.role_data.innocence.AthleteRoleData;
-import org.agmas.noellesroles.game.roles.innocence.boxer.BoxerPlayerComponent;
+import org.agmas.noellesroles.role_data.innocence.BoxerRoleData;
 import org.agmas.noellesroles.role_data.innocence.MonitorRoleData;
-import org.agmas.noellesroles.game.roles.innocence.psychologist.PsychologistPlayerComponent;
+import org.agmas.noellesroles.role_data.innocence.PsychologistRoleData;
 import org.agmas.noellesroles.role_data.innocence.SuperStarRoleData;
-import org.agmas.noellesroles.game.roles.killer.insane_killer.InsaneKillerPlayerComponent;
-import org.agmas.noellesroles.game.roles.killer.ninja.NinjaPlayerComponent;
-import org.agmas.noellesroles.game.roles.killer.shadow_falcon.ShadowFalconPlayerComponent;
-import org.agmas.noellesroles.game.roles.killer.stalker.StalkerPlayerComponent;
+import org.agmas.noellesroles.role_data.killer.InsaneKillerRoleData;
+import org.agmas.noellesroles.role_data.killer.NinjaRoleData;
+import org.agmas.noellesroles.role_data.killer.ShadowFalconRoleData;
+import org.agmas.noellesroles.role_data.killer.StalkerRoleData;
 import org.agmas.noellesroles.role_data.killer.WaterGhostRoleData;
-import org.agmas.noellesroles.game.roles.neutral.admirer.AdmirerPlayerComponent;
+import org.agmas.noellesroles.role_data.neutral.AdmirerRoleData;
 import org.agmas.noellesroles.game.roles.neutral.puppeteer.PuppeteerPlayerComponent;
 import org.agmas.noellesroles.init.ModEntities;
 import org.agmas.noellesroles.init.ModItems;
@@ -260,16 +260,18 @@ public class RicesRoleRhapsodyClient implements ClientModInitializer {
             if (!GameUtils.isPlayerAliveAndSurvival(client.player))
                 return true;
 
-            BoxerPlayerComponent boxerComponent = BoxerPlayerComponent.KEY.get(client.player);
+            var boxerData = RoleData.getOptional(BoxerRoleData.class, client.player);
+            if (boxerData.isEmpty())
+                return true;
             // 检查技能是否可用（客户端显示提示）
-            if (boxerComponent.canUseAbility()) {
+            if (boxerData.get().canUseAbility()) {
                 // 发送网络包到服务端激活技能
                 ClientPlayNetworking.send(new BoxerAbilityC2SPacket());
-            } else if (boxerComponent.cooldown > 0) {
+            } else if (boxerData.get().cooldown > 0) {
                 // 显示冷却提示
                 client.player.displayClientMessage(
                         net.minecraft.network.chat.Component.translatable("message.noellesroles.boxer.on_cooldown",
-                                String.format("%.1f", boxerComponent.getCooldownSeconds())),
+                                String.format("%.1f", boxerData.get().getCooldownSeconds())),
                         true);
             }
             return true;
@@ -318,9 +320,11 @@ public class RicesRoleRhapsodyClient implements ClientModInitializer {
         }
 
         // ==================== 慕恋者：窥视积能量 ====================
+        AdmirerRoleData admirerComp = RoleData.getNullable(AdmirerRoleData.class, client.player);
         if (gameWorld.isRole(client.player, ModRoles.ADMIRER) ||
-                AdmirerPlayerComponent.KEY.get(client.player).isActiveAdmirer()) {
-            AdmirerPlayerComponent admirerComp = AdmirerPlayerComponent.KEY.get(client.player);
+                (admirerComp != null && admirerComp.isActiveAdmirer())) {
+            if (admirerComp == null)
+                return true;
 
             // 按G开始/停止窥视
             if (!admirerComp.isGazing) {
@@ -332,9 +336,11 @@ public class RicesRoleRhapsodyClient implements ClientModInitializer {
         }
 
         // ==================== 跟踪者：窥视和突进 ====================
+        StalkerRoleData stalkerComp = RoleData.getNullable(StalkerRoleData.class, client.player);
         if (gameWorld.isRole(client.player, ModRoles.STALKER) ||
-                StalkerPlayerComponent.KEY.get(client.player).isActiveStalker()) {
-            StalkerPlayerComponent stalkerComp = StalkerPlayerComponent.KEY.get(client.player);
+                (stalkerComp != null && stalkerComp.isActiveStalker())) {
+            if (stalkerComp == null)
+                return true;
 
             // 一阶段和二阶段：按G开始/停止窥视
             if (stalkerComp.phase <= 2) {
@@ -366,15 +372,15 @@ public class RicesRoleRhapsodyClient implements ClientModInitializer {
         if (gameWorld.isRole(client.player, ModRoles.NINJA)) {
             if (!GameUtils.isPlayerAliveAndSurvival(client.player))
                 return true;
-            NinjaPlayerComponent ninjaComp = NinjaPlayerComponent.KEY.get(client.player);
-            if (ninjaComp == null)
+            var ninjaData = RoleData.getOptional(NinjaRoleData.class, client.player);
+            if (ninjaData.isEmpty())
                 return true;
-            if (ninjaComp.canUseAbility()) {
+            if (ninjaData.get().canUseAbility()) {
                 ClientPlayNetworking.send(new NinjaAbilityC2SPacket()); // 直接 new
-            } else if (ninjaComp.cooldown > 0) {
+            } else if (ninjaData.get().cooldown > 0) {
                 client.player.displayClientMessage(
                         Component.translatable("message.noellesroles.ninja.block_cooldown",
-                                String.format("%.1f", ninjaComp.getCooldownSeconds()))
+                                String.format("%.1f", ninjaData.get().getCooldownSeconds()))
                                 .withStyle(ChatFormatting.RED),
                         true);
             }
@@ -432,7 +438,9 @@ public class RicesRoleRhapsodyClient implements ClientModInitializer {
             if (!GameUtils.isPlayerAliveAndSurvival(client.player))
                 return true;
 
-            PsychologistPlayerComponent psychComponent = PsychologistPlayerComponent.KEY.get(client.player);
+            PsychologistRoleData psychComponent = RoleData.getNullable(PsychologistRoleData.class, client.player);
+            if (psychComponent == null)
+                return true;
 
             // 如果正在治疗，按G取消
             if (psychComponent.isHealing) {
@@ -482,8 +490,8 @@ public class RicesRoleRhapsodyClient implements ClientModInitializer {
             if (!GameUtils.isPlayerAliveAndSurvival(client.player))
                 return true;
 
-            InsaneKillerPlayerComponent component = InsaneKillerPlayerComponent.KEY.get(client.player);
-            if (component.cooldown <= 0) {
+            InsaneKillerRoleData component = RoleData.getNullable(InsaneKillerRoleData.class, client.player);
+            if (component != null && component.cooldown <= 0) {
                 ClientPlayNetworking.send(new InsaneKillerAbilityC2SPacket());
                 if (!component.inNearDeath()) {
                     if (!component.isActive) {
@@ -492,7 +500,7 @@ public class RicesRoleRhapsodyClient implements ClientModInitializer {
                         Minecraft.getInstance().options.setCameraType(CameraType.FIRST_PERSON);
                     }
                 }
-            } else {
+            } else if (component != null) {
                 client.player.displayClientMessage(
                         net.minecraft.network.chat.Component.translatable("message.noellesroles.cooldown",
                                 component.cooldown / 20),
@@ -568,23 +576,25 @@ public class RicesRoleRhapsodyClient implements ClientModInitializer {
             if (!GameUtils.isPlayerAliveAndSurvival(client.player))
                 return true;
 
-            ShadowFalconPlayerComponent shadowFalconComponent = ShadowFalconPlayerComponent.KEY.get(client.player);
+            var shadowFalconData = RoleData.getOptional(ShadowFalconRoleData.class, client.player);
+            if (shadowFalconData.isEmpty())
+                return true;
             // 蹲下优先脱下喷气背包
             if (client.player.isShiftKeyDown()) {
                 ClientPlayNetworking.send(new PilotRemoveJetpackC2SPacket());
                 return true;
             }
             // 检查技能是否可用
-            if (shadowFalconComponent.canUseAbility()) {
+            if (shadowFalconData.get().canUseAbility()) {
                 // 发送网络包到服务端激活技能
                 ClientPlayNetworking.send(new ShadowFalconAbilityC2SPacket());
-            } else if (shadowFalconComponent.cooldown > 0) {
+            } else if (shadowFalconData.get().cooldown > 0) {
                 // 显示冷却提示
                 client.player.displayClientMessage(
                         net.minecraft.network.chat.Component.translatable("message.noellesroles.shadow_falcon.on_cooldown",
-                                String.format("%.1f", shadowFalconComponent.getCooldownSeconds())),
+                                String.format("%.1f", shadowFalconData.get().getCooldownSeconds())),
                         true);
-            } else if (shadowFalconComponent.isPredationActive) {
+            } else if (shadowFalconData.get().isPredationActive) {
                 // 技能正在使用中
                 client.player.displayClientMessage(
                         net.minecraft.network.chat.Component.translatable("message.noellesroles.shadow_falcon.already_active"),
@@ -628,7 +638,9 @@ public class RicesRoleRhapsodyClient implements ClientModInitializer {
         if (client.player == null)
             return;
 
-        StalkerPlayerComponent stalkerComp = StalkerPlayerComponent.KEY.get(client.player);
+        StalkerRoleData stalkerComp = RoleData.getNullable(StalkerRoleData.class, client.player);
+        if (stalkerComp == null)
+            return;
         if (!stalkerComp.isActiveStalker())
             return;
         if (!GameUtils.isPlayerAliveAndSurvival(client.player))
@@ -662,8 +674,8 @@ public class RicesRoleRhapsodyClient implements ClientModInitializer {
     public static void handleAdmirerContinuousInput(Minecraft client) {
         if (client.player == null)
             return;
-        AdmirerPlayerComponent admirerComp = AdmirerPlayerComponent.KEY.get(client.player);
-        if (!admirerComp.isActiveAdmirer())
+        AdmirerRoleData admirerComp = RoleData.getNullable(AdmirerRoleData.class, client.player);
+        if (admirerComp == null || !admirerComp.isActiveAdmirer())
             return;
         if (!GameUtils.isPlayerAliveAndSurvival(client.player))
             return;

@@ -16,19 +16,20 @@
 package org.agmas.noellesroles.client.hud.roles;
 
 import io.wifi.starrailexpress.SRE;
+import io.wifi.starrailexpress.api.data.RoleData;
 import io.wifi.starrailexpress.client.SREClient;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;
 import org.agmas.noellesroles.client.event.RoleHudRenderCallback;
-import org.agmas.noellesroles.game.roles.neutral.mafia.GodfatherComponent;
 import org.agmas.noellesroles.role.ModRoles;
+import org.agmas.noellesroles.role_data.neutral.GodfatherRoleData;
 
 public class GodfatherHud {
     public static void register() {
         RoleHudRenderCallback.EVENT.register(ModRoles.GODFATHER_ID, (context, tickCounter) -> {
             Minecraft client = Minecraft.getInstance();
             if (client.player == null || SREClient.isPlayerSpectator()) return;
-            GodfatherComponent comp = GodfatherComponent.KEY.maybeGet(client.player).orElse(null);
+            GodfatherRoleData comp = RoleData.getNullable(GodfatherRoleData.class, client.player);
             if (comp == null) return;
             int y = context.guiHeight() - 30;
             // Cooldown display

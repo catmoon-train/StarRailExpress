@@ -31,7 +31,8 @@ import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.HitResult;
 
 import org.agmas.noellesroles.config.NoellesRolesConfig;
-import org.agmas.noellesroles.game.roles.innocence.diviner.DivinerPlayerComponent;
+import io.wifi.starrailexpress.api.data.RoleData;
+import org.agmas.noellesroles.role_data.innocence.DivinerRoleData;
 import org.agmas.noellesroles.role.ModRoles;
 
 /**
@@ -60,8 +61,10 @@ public class CrystalBallItem extends Item {
                     cfg.divinerRange);
             if (hr instanceof EntityHitResult ehr) {
                 Entity target = ehr.getEntity();
-                DivinerPlayerComponent comp = DivinerPlayerComponent.KEY.get(sp);
-                comp.startChannel(sp, target);
+                DivinerRoleData comp = RoleData.getNullable(DivinerRoleData.class, sp);
+                if (comp != null) {
+                    comp.startChannel(sp, target);
+                }
                 // 回放记录：占卜家成功占卜了一具尸体
                 io.wifi.starrailexpress.SRE.REPLAY_MANAGER.recordCustomEvent(
                         net.minecraft.network.chat.Component.translatable("replay.event.diviner.divination",

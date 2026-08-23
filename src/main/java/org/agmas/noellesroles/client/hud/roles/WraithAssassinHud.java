@@ -15,6 +15,7 @@
 
 package org.agmas.noellesroles.client.hud.roles;
 
+import io.wifi.starrailexpress.api.data.RoleData;
 import io.wifi.starrailexpress.client.SREClient;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
@@ -22,8 +23,8 @@ import net.minecraft.client.gui.Font;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.Mth;
 import org.agmas.noellesroles.client.event.RoleHudRenderCallback;
-import org.agmas.noellesroles.game.roles.killer.wraith_assassin.WraithAssassinPlayerComponent;
 import org.agmas.noellesroles.role.ModRoles;
+import org.agmas.noellesroles.role_data.killer.WraithAssassinRoleData;
 
 public class WraithAssassinHud {
 
@@ -34,7 +35,10 @@ public class WraithAssassinHud {
                 return;
             }
 
-            WraithAssassinPlayerComponent comp = WraithAssassinPlayerComponent.KEY.get(client.player);
+            var compOpt = RoleData.getOptional(WraithAssassinRoleData.class, client.player);
+            if (compOpt.isEmpty())
+                return;
+            WraithAssassinRoleData comp = compOpt.get();
             Font font = client.font;
             int x = 10;
             int y = client.getWindow().getGuiScaledHeight() - 88;
@@ -46,7 +50,7 @@ public class WraithAssassinHud {
 
             int energyColor = getEnergyColor(comp.getEnergyPercent());
             Component energy = Component.translatable("hud.noellesroles.wraith_assassin.energy",
-                    comp.energy, WraithAssassinPlayerComponent.MAX_ENERGY);
+                    comp.energy, WraithAssassinRoleData.MAX_ENERGY);
             context.drawString(font, energy, x, y, energyColor);
             y += 12;
 
@@ -58,9 +62,9 @@ public class WraithAssassinHud {
             y += 10;
 
             Component costs = Component.translatable("hud.noellesroles.wraith_assassin.costs",
-                    WraithAssassinPlayerComponent.ASSAULT_COST,
-                    WraithAssassinPlayerComponent.WAIL_COST,
-                    WraithAssassinPlayerComponent.MANIFEST_COST).withStyle(ChatFormatting.GRAY);
+                    WraithAssassinRoleData.ASSAULT_COST,
+                    WraithAssassinRoleData.WAIL_COST,
+                    WraithAssassinRoleData.MANIFEST_COST).withStyle(ChatFormatting.GRAY);
             context.drawString(font, costs, x, y, 0xFFFFFF);
             y += 12;
 

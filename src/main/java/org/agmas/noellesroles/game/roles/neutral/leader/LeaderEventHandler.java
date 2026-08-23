@@ -29,11 +29,12 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 import org.agmas.harpymodloader.events.ModdedRoleRemoved;
-import org.agmas.noellesroles.game.roles.neutral.mercenary.MercenaryPlayerComponent;
-import org.agmas.noellesroles.game.roles.neutral.raven.RavenPlayerComponent;
 import org.agmas.noellesroles.init.ModItems;
 import org.agmas.noellesroles.role.ModRoles;
+import org.agmas.noellesroles.role_data.neutral.GodfatherRoleData;
 import org.agmas.noellesroles.role_data.neutral.LeaderRoleData;
+import org.agmas.noellesroles.role_data.neutral.MercenaryRoleData;
+import org.agmas.noellesroles.role_data.neutral.RavenRoleData;
 
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import org.agmas.noellesroles.utils.RoleUtils;
@@ -254,7 +255,7 @@ public final class LeaderEventHandler {
                     && LeaderFollowerEffects.isFollowerOfLeader(killer)) {
                 long others = game.getPlayerCount() - 2; // 除雇佣兵与领袖外
                 if (others <= 4) {
-                    MercenaryPlayerComponent merc = MercenaryPlayerComponent.KEY.get(killer);
+                    MercenaryRoleData merc = RoleData.getNullable(MercenaryRoleData.class, killer);
                     if (merc != null) {
                         merc.onContractTargetKilled();
                     }
@@ -328,8 +329,8 @@ public final class LeaderEventHandler {
                 if (follower == null || !game.isRole(follower, ModRoles.RAVEN)) {
                     continue;
                 }
-                RavenPlayerComponent raven = RavenPlayerComponent.KEY.get(follower);
-                if (raven.isHunting() && RAVEN_HUNT_GUN_GIVEN.add(fid)) {
+                RavenRoleData raven = io.wifi.starrailexpress.api.data.RoleData.getNullable(RavenRoleData.class, follower);
+                if (raven != null && raven.isHunting() && RAVEN_HUNT_GUN_GIVEN.add(fid)) {
                     RoleUtils.insertStackInFreeSlot(follower, ModItems.ONCE_REVOLVER.getDefaultInstance());
                     follower.displayClientMessage(Component.translatable(
                             "message.noellesroles.leader.raven_hunt_gun"), true);
@@ -389,8 +390,7 @@ public final class LeaderEventHandler {
             if (!game.isRole(p, ModRoles.GODFATHER)) {
                 continue;
             }
-            org.agmas.noellesroles.game.roles.neutral.mafia.GodfatherComponent comp
-                    = org.agmas.noellesroles.game.roles.neutral.mafia.GodfatherComponent.KEY.get(p);
+            GodfatherRoleData comp = io.wifi.starrailexpress.api.data.RoleData.getNullable(GodfatherRoleData.class, p);
             if (comp != null && comp.familyMembers.contains(player.getUUID())) {
                 return true;
             }

@@ -149,7 +149,8 @@ public class CuckooEggHandler {
         if (owner != null) {
             var ownerPlayer = server.getPlayerList().getPlayer(owner);
             if (ownerPlayer != null) {
-                var comp = CuckooPlayerComponent.KEY.get(ownerPlayer);
+                var comp = io.wifi.starrailexpress.api.data.RoleData.getNullable(
+                        org.agmas.noellesroles.role_data.neutral.CuckooRoleData.class, ownerPlayer);
                 if (comp != null) comp.onEggBroken(eggEntity);
             }
         }

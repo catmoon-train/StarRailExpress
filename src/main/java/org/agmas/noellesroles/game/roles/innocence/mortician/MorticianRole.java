@@ -16,6 +16,7 @@
 package org.agmas.noellesroles.game.roles.innocence.mortician;
 
 import io.wifi.starrailexpress.api.NormalRole;
+import io.wifi.starrailexpress.api.data.RoleData;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.content.entity.PlayerBodyEntity;
 import io.wifi.starrailexpress.content.gui.PlayerBodyEntityContainer;
@@ -31,7 +32,7 @@ import net.minecraft.world.inventory.ClickType;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
-import org.agmas.noellesroles.component.ModComponents;
+import org.agmas.noellesroles.role_data.innocence.MorticianRoleData;
 import org.agmas.noellesroles.utils.MCItemsUtils;
 
 import java.util.UUID;
@@ -55,8 +56,8 @@ public class MorticianRole extends NormalRole {
             return false;
         }
         // 检查冷却
-        var morticianComponent = org.agmas.noellesroles.component.ModComponents.MORTICIAN.get(serverPlayer);
-        if (!morticianComponent.isCooldownReady()) {
+        var morticianComponent = RoleData.getNullable(MorticianRoleData.class, serverPlayer);
+        if (morticianComponent == null || !morticianComponent.isCooldownReady()) {
             return false;
         }
         // 检查这具尸体是否已被打开过
@@ -76,7 +77,7 @@ public class MorticianRole extends NormalRole {
             PlayerBodyEntityContainer container) {
         if (corpseEntity != null) {
             UUID corpseUuid = corpseEntity.getUUID();
-            MorticianPlayerComponent mortician = ModComponents.MORTICIAN.get(player);
+            MorticianRoleData mortician = RoleData.getNullable(MorticianRoleData.class, player);
             if (mortician != null) {
                 mortician.onCorpseOpened(corpseUuid);
                 // 发送消息提示
@@ -96,7 +97,7 @@ public class MorticianRole extends NormalRole {
     @Override
     public boolean canGetBodyContent(int slotId, int button, ClickType clickType, Player player,
             PlayerBodyEntityContainer container, int rows, NonNullList<Slot> slots) {
-        MorticianPlayerComponent mortician = ModComponents.MORTICIAN.get(player);
+        MorticianRoleData mortician = RoleData.getNullable(MorticianRoleData.class, player);
         if (mortician == null || !mortician.isCooldownReady()) {
             // 冷却中，禁止任何操作
             if (player instanceof ServerPlayer serverPlayer) {
@@ -202,19 +203,23 @@ public class MorticianRole extends NormalRole {
     /**
      * 记录殡仪员拿取了一个物品
      */
-    public MorticianPlayerComponent MoCCA(Player player) {
-        return MorticianPlayerComponent.KEY.get(player);
+    public MorticianRoleData MoCCA(Player player) {
+        return RoleData.getNullable(MorticianRoleData.class, player);
     }
 
     public void morticianTookItem(Player player) {
-        MoCCA(player).morticianItemsTaken++;
+        MorticianRoleData data = MoCCA(player);
+        if (data != null) {
+            data.morticianItemsTaken++;
+        }
     }
 
     /**
      * 获取殡仪员已拿取的物品数量
      */
     public int getMorticianItemsTaken(Player player) {
-        return MoCCA(player).morticianItemsTaken;
+        MorticianRoleData data = MoCCA(player);
+        return data != null ? data.morticianItemsTaken : 0;
     }
 
     /**

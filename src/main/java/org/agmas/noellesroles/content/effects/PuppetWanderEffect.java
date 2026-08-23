@@ -38,7 +38,7 @@ import java.util.Random;
  * 否则本 tick 原地不动，等待下一个随机方向。
  *
  * <p>该效果替代操控者早期"远程直接驾驶"（{@code InControlCCA}）的玩法——
- * 那套代码已弃用但保留（见 {@code ManipulatorPlayerComponent}）。
+ * 那套代码已弃用但保留（见 {@code ManipulatorRoleData}）。
  *
  * <p>纯服务端驱动：与被操控者侧一样在移动后用 {@code connection.teleport} 把权威坐标推回客户端，
  * 拥有者处于 {@code MOVE_BANED}，不会与之争抢输入。

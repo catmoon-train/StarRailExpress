@@ -15,14 +15,15 @@
 
 package org.agmas.noellesroles.client.hud.roles;
 
+import io.wifi.starrailexpress.api.data.RoleData;
 import io.wifi.starrailexpress.cca.SREAbilityPlayerComponent;
 import io.wifi.starrailexpress.client.SREClient;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import org.agmas.noellesroles.client.event.RoleHudRenderCallback;
-import org.agmas.noellesroles.game.roles.killer.morphling.MorphlingPlayerComponent;
 import org.agmas.noellesroles.role.ModRoles;
+import org.agmas.noellesroles.role_data.killer.MorphlingRoleData;
 
 public class MorphlingHud {
 
@@ -32,7 +33,10 @@ public class MorphlingHud {
             if (SREClient.isPlayerSpectator())
                 return;
 
-            final var morphComp = MorphlingPlayerComponent.KEY.get(client.player);
+            final var morphOpt = RoleData.getOptional(MorphlingRoleData.class, client.player);
+            if (morphOpt.isEmpty())
+                return;
+            final var morphComp = morphOpt.get();
 
             final var morphTicks = morphComp.getMorphTicks();
             int seconds = (int) (morphTicks * 0.05);

@@ -28,10 +28,8 @@ import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
-import net.minecraft.world.entity.player.Player;
 import org.agmas.harpymodloader.events.ModdedRoleAssigned;
 import org.agmas.noellesroles.ConfigWorldComponent;
-import org.agmas.noellesroles.component.ModComponents;
 import org.agmas.noellesroles.role.ModRoles;
 import org.jetbrains.annotations.NotNull;
 
@@ -327,6 +325,32 @@ public class BloodFeudistRoleData extends SimpleRoleData {
 
     @Override
     public void readFromSyncNbt(@NotNull CompoundTag tag, @NotNull HolderLookup.Provider registryLookup) {
+        this.accidentalKillCount = tag.contains("accidentalKillCount") ? tag.getInt("accidentalKillCount") : 0;
+        this.gotSpeed1 = tag.contains("gotSpeed1") && tag.getBoolean("gotSpeed1");
+        this.gotHaste2 = tag.contains("gotHaste2") && tag.getBoolean("gotHaste2");
+        this.gotExtra150 = tag.contains("gotExtra150") && tag.getBoolean("gotExtra150");
+        this.gotSpeed2 = tag.contains("gotSpeed2") && tag.getBoolean("gotSpeed2");
+        this.gotImmunity = tag.contains("gotImmunity") && tag.getBoolean("gotImmunity");
+        this.speedEnabled = tag.contains("speedEnabled") && tag.getBoolean("speedEnabled");
+        this.hasteEnabled = tag.contains("hasteEnabled") && tag.getBoolean("hasteEnabled");
+    }
+
+    @Override
+    public void writeToRewindNbt(@NotNull CompoundTag tag, @NotNull HolderLookup.Provider registryLookup) {
+        // 回溯快照：绕过 writeToSyncNbt 的 ACTIVE 状态守卫，始终写入完整状态
+        tag.putInt("accidentalKillCount", this.accidentalKillCount);
+        tag.putBoolean("gotSpeed1", this.gotSpeed1);
+        tag.putBoolean("gotHaste2", this.gotHaste2);
+        tag.putBoolean("gotExtra150", this.gotExtra150);
+        tag.putBoolean("gotSpeed2", this.gotSpeed2);
+        tag.putBoolean("gotImmunity", this.gotImmunity);
+        tag.putBoolean("speedEnabled", this.speedEnabled);
+        tag.putBoolean("hasteEnabled", this.hasteEnabled);
+    }
+
+    @Override
+    public void readFromRewindNbt(@NotNull CompoundTag tag, @NotNull HolderLookup.Provider registryLookup) {
+        // 回溯恢复：纯回填字段，不触发 sync()
         this.accidentalKillCount = tag.contains("accidentalKillCount") ? tag.getInt("accidentalKillCount") : 0;
         this.gotSpeed1 = tag.contains("gotSpeed1") && tag.getBoolean("gotSpeed1");
         this.gotHaste2 = tag.contains("gotHaste2") && tag.getBoolean("gotHaste2");

@@ -15,6 +15,7 @@
 
 package org.agmas.noellesroles.client.hud.roles;
 
+import io.wifi.starrailexpress.api.data.RoleData;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
@@ -22,7 +23,7 @@ import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.CommonColors;
 import org.agmas.noellesroles.client.event.RoleHudRenderCallback;
-import org.agmas.noellesroles.game.roles.innocence.avenger.AvengerPlayerComponent;
+import org.agmas.noellesroles.role_data.innocence.AvengerRoleData;
 import org.agmas.noellesroles.role.ModRoles;
 import pro.fazeclan.river.stupid_express.modifier.refugee.cca.RefugeeComponent;
 
@@ -37,7 +38,9 @@ public class AvengerHud {
             Minecraft client = Minecraft.getInstance();
             final Font renderer = client.font;
             final LocalPlayer player = client.player;
-            AvengerPlayerComponent avengerComponent = AvengerPlayerComponent.KEY.get(player);
+            var avengerData = RoleData.getOptional(AvengerRoleData.class, player);
+            if (avengerData.isEmpty()) return;
+            var avengerComponent = avengerData.get();
 
             context.pose().pushPose();
 

@@ -37,7 +37,7 @@ public class CameraMixin {
 //        LocalPlayer player = instance.player;
 //
 //        if (TMMClient.gameComponent!=null && TMMClient.gameComponent.isRunning() && TMMClient.isPlayerAliveAndInSurvival() && TMMClient.gameComponent.isRole(player, ModRoles.MANIPULATOR)){
-//            final var manipulatorPlayerComponent = ManipulatorPlayerComponent.KEY.get(player);
+//            final var manipulatorRoleData = RoleData.getNullable(ManipulatorRoleData.class, player);
 //            if (manipulatorPlayerComponent.isControlling) {
 //                if (manipulatorPlayerComponent.target != null){
 //                    Player target = instance.level.getPlayerByUUID(manipulatorPlayerComponent.target);

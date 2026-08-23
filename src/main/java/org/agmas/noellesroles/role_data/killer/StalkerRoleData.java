@@ -38,7 +38,6 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 import org.agmas.noellesroles.ConfigWorldComponent;
-import org.agmas.noellesroles.component.ModComponents;
 import org.agmas.noellesroles.init.ModItems;
 import org.agmas.noellesroles.role.ModRoles;
 import org.jetbrains.annotations.NotNull;
@@ -773,6 +772,57 @@ public class StalkerRoleData extends SimpleRoleData {
 
     @Override
     public void readFromSyncNbt(@NotNull CompoundTag tag, HolderLookup.Provider registryLookup) {
+        this.phase = tag.contains("phase") ? tag.getInt("phase") : 0;
+        this.energy = tag.contains("energy") ? tag.getInt("energy") : 0;
+        this.phase2Kills = tag.contains("phase2Kills") ? tag.getInt("phase2Kills") : 0;
+        this.immunityUsed = tag.contains("immunityUsed") && tag.getBoolean("immunityUsed");
+        this.phase3Timer = tag.contains("phase3Timer") ? tag.getInt("phase3Timer") : 0;
+        this.isGazing = tag.contains("isGazing") && tag.getBoolean("isGazing");
+        this.gazingTargetCount = tag.contains("gazingTargetCount") ? tag.getInt("gazingTargetCount") : 0;
+        this.dashModeActive = tag.contains("dashModeActive") && tag.getBoolean("dashModeActive");
+        this.isCharging = tag.contains("isCharging") && tag.getBoolean("isCharging");
+        this.chargeTime = tag.contains("chargeTime") ? tag.getInt("chargeTime") : 0;
+        this.isDashing = tag.contains("isDashing") && tag.getBoolean("isDashing");
+        this.dashDistanceRemaining = tag.contains("dashDistanceRemaining") ? tag.getDouble("dashDistanceRemaining") : 0;
+        double dirX = tag.contains("dashDirX") ? tag.getDouble("dashDirX") : 0;
+        double dirY = tag.contains("dashDirY") ? tag.getDouble("dashDirY") : 0;
+        double dirZ = tag.contains("dashDirZ") ? tag.getDouble("dashDirZ") : 0;
+        this.dashDirection = new Vec3(dirX, dirY, dirZ);
+        this.isStalkerMarked = tag.contains("isStalkerMarked") && tag.getBoolean("isStalkerMarked");
+        this.dashCooldown = tag.contains("dashCooldown") ? tag.getInt("dashCooldown") : 0;
+        this.ph1_energy_need = tag.contains("ph1_energy_need") ? tag.getInt("ph1_energy_need") : 500;
+        this.ph2_energy_need = tag.contains("ph2_energy_need") ? tag.getInt("ph2_energy_need") : 30;
+        this.ph2_kill_need = tag.contains("ph2_kill_need") ? tag.getInt("ph2_kill_need") : 2;
+    }
+
+    @Override
+    public void writeToRewindNbt(@NotNull CompoundTag tag, HolderLookup.Provider registryLookup) {
+        // 回溯快照：绕过 writeToSyncNbt 的 phase<=0 守卫，始终写入完整状态
+        tag.putInt("phase", this.phase);
+        tag.putInt("energy", this.energy);
+        tag.putInt("phase2Kills", this.phase2Kills);
+        tag.putBoolean("immunityUsed", this.immunityUsed);
+        tag.putInt("phase3Timer", this.phase3Timer);
+        tag.putBoolean("isGazing", this.isGazing);
+        tag.putInt("gazingTargetCount", this.gazingTargetCount);
+        tag.putBoolean("dashModeActive", this.dashModeActive);
+        tag.putBoolean("isCharging", this.isCharging);
+        tag.putInt("chargeTime", this.chargeTime);
+        tag.putBoolean("isDashing", this.isDashing);
+        tag.putDouble("dashDistanceRemaining", this.dashDistanceRemaining);
+        tag.putDouble("dashDirX", this.dashDirection.x);
+        tag.putDouble("dashDirY", this.dashDirection.y);
+        tag.putDouble("dashDirZ", this.dashDirection.z);
+        tag.putBoolean("isStalkerMarked", this.isStalkerMarked);
+        tag.putInt("dashCooldown", this.dashCooldown);
+        tag.putInt("ph1_energy_need", this.ph1_energy_need);
+        tag.putInt("ph2_energy_need", this.ph2_energy_need);
+        tag.putInt("ph2_kill_need", this.ph2_kill_need);
+    }
+
+    @Override
+    public void readFromRewindNbt(@NotNull CompoundTag tag, HolderLookup.Provider registryLookup) {
+        // 回溯恢复：纯回填字段，不触发 sync()
         this.phase = tag.contains("phase") ? tag.getInt("phase") : 0;
         this.energy = tag.contains("energy") ? tag.getInt("energy") : 0;
         this.phase2Kills = tag.contains("phase2Kills") ? tag.getInt("phase2Kills") : 0;

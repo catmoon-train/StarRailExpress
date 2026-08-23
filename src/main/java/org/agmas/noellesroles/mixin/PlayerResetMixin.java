@@ -29,33 +29,11 @@ import org.agmas.noellesroles.component.PlayerVolumeComponent;
 import org.agmas.noellesroles.component.TemporaryEffectPlayerComponent;
 import org.agmas.noellesroles.content.entity.MudTrapEntity;
 import org.agmas.noellesroles.content.entity.TripwireTrapEntity;
-import org.agmas.noellesroles.game.roles.innocence.avenger.AvengerPlayerComponent;
-import org.agmas.noellesroles.game.roles.innocence.awesome_binglus.AwesomePlayerComponent;
 import org.agmas.noellesroles.game.roles.innocence.ayayaya.AyayayaPlayerComponent;
-import org.agmas.noellesroles.game.roles.innocence.boxer.BoxerPlayerComponent;
-import org.agmas.noellesroles.game.roles.innocence.builder.BuilderPlayerComponent;
 import org.agmas.noellesroles.game.roles.innocence.cake_maker.CakeMakerComponent;
-import org.agmas.noellesroles.game.roles.innocence.detective.AgentPlayerComponent;
-import org.agmas.noellesroles.game.roles.innocence.fortuneteller.FortunetellerPlayerComponent;
-import org.agmas.noellesroles.game.roles.innocence.recaller.RecallerPlayerComponent;
-import org.agmas.noellesroles.game.roles.killer.blood_feudist.BloodFeudistPlayerComponent;
-import org.agmas.noellesroles.game.roles.killer.conspirator.ConspiratorPlayerComponent;
-import org.agmas.noellesroles.game.roles.killer.executioner.ExecutionerPlayerComponent;
-import org.agmas.noellesroles.game.roles.killer.insane_killer.InsaneKillerPlayerComponent;
 import org.agmas.noellesroles.game.roles.killer.manipulator.InControlCCA;
-import org.agmas.noellesroles.game.roles.killer.manipulator.ManipulatorPlayerComponent;
-import org.agmas.noellesroles.game.roles.killer.morphling.MorphlingPlayerComponent;
-import org.agmas.noellesroles.game.roles.killer.skincrawler.SkincrawlerPlayerComponent;
-import org.agmas.noellesroles.game.roles.killer.stalker.StalkerPlayerComponent;
-import org.agmas.noellesroles.game.roles.killer.trapper.TrapperPlayerComponent;
-import org.agmas.noellesroles.game.roles.neutral.admirer.AdmirerPlayerComponent;
-import org.agmas.noellesroles.game.roles.neutral.monokuma.MonokumaPlayerComponent;
 import org.agmas.noellesroles.game.roles.neutral.puppeteer.PuppeteerPlayerComponent;
-import org.agmas.noellesroles.game.roles.neutral.recorder.RecorderPlayerComponent;
-import org.agmas.noellesroles.game.roles.neutral.vulture.VulturePlayerComponent;
-import org.agmas.noellesroles.game.roles.neutral.wayfarer.WayfarerPlayerComponent;
 import org.agmas.noellesroles.packet.PlayerResetS2CPacket;
-import org.agmas.noellesroles.packet.SkincrawlerSkinS2CPacket;
 import org.agmas.noellesroles.utils.RoleUtils;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
@@ -110,85 +88,29 @@ public abstract class PlayerResetMixin {
         RoleUtils. removeAllEffects(player);
         player.setLastHurtMob(null);
         TemporaryEffectPlayerComponent.KEY.get(player).init();
-        BloodFeudistPlayerComponent.KEY.get(player).clear();
         SplitPersonalityComponent.KEY.get(player).clear();
         SkinSplitPersonalityComponent.KEY.get(player).clear();
         SkinSplitPersonalityComponent.KEY.get(player).sync();
-        MonokumaPlayerComponent.KEY.get(player).clear();
         (PlayerVolumeComponent.KEY.get(player)).clear();
-        (WayfarerPlayerComponent.KEY.get(player)).clear();
 
-        ((MorphlingPlayerComponent) MorphlingPlayerComponent.KEY.get(player)).init();
-        (RecallerPlayerComponent.KEY.get(player)).init();
-        (VulturePlayerComponent.KEY.get(player)).init();
-        (ExecutionerPlayerComponent.KEY.get(player)).init();
-
-        FortunetellerPlayerComponent.KEY.get(player).init();
-
-        AwesomePlayerComponent awesomeComp = ModComponents.AWESOME.get(player);
-        awesomeComp.init();
-
-        StalkerPlayerComponent stalkerComp = ModComponents.STALKER.get(player);
-        stalkerComp.clearAll();
         InControlCCA inControlCCA = InControlCCA.KEY.get(player);
         inControlCCA.clear();
-        ModComponents.MAGICIAN.get(player).clear();
-        ManipulatorPlayerComponent manipulatorComp = ManipulatorPlayerComponent.KEY.get(player);
-        manipulatorComp.clear();
         // 清除惩罚组件状态
         DeathPenaltyComponent deathPenalty = ModComponents.DEATH_PENALTY.get(player);
         deathPenalty.clear();
-
-        // 清除慕恋者组件状态
-        AdmirerPlayerComponent admirerComp = ModComponents.ADMIRER.get(player);
-        admirerComp.clear();
 
         // 清除其他自定义组件状态
         SREAbilityPlayerComponent abilityComp = ModComponents.ABILITY.get(player);
         abilityComp.clear();
 
-        AvengerPlayerComponent avengerComp = ModComponents.AVENGER.get(player);
-        avengerComp.clear();
-
-        ConspiratorPlayerComponent conspiratorComp = ModComponents.CONSPIRATOR.get(player);
-        conspiratorComp.clear();
-
         // Noellesroles.LOGGER.info("resetPlayer");
-        InsaneKillerPlayerComponent insaneKillerComp = ModComponents.INSANE_KILLER.get(player);
-        insaneKillerComp.clear();
 
         AyayayaPlayerComponent postmanComp = ModComponents.AYAYAYA.get(player);
         postmanComp.clear();
 
-        AgentPlayerComponent detectiveComp = ModComponents.AGENT.get(player);
-        detectiveComp.clear();
-
-        BoxerPlayerComponent boxerComp = ModComponents.FIGHTER.get(player);
-        boxerComp.clear();
-
-        // 清除设陷者组件状态
-        TrapperPlayerComponent trapperComp = ModComponents.TRAPPER.get(player);
-        trapperComp.clearAll();
-
-        // 清除窃皮者组件状态（重置抵挡次数等）并通知客户端还原皮肤
-        SkincrawlerPlayerComponent skincrawlerComp = ModComponents.SKINCRAWLER.get(player);
-        if (skincrawlerComp.stolenSkin != null) {
-            for (ServerPlayer sp : player.getServer().getPlayerList().getPlayers()) {
-                ServerPlayNetworking.send(sp, new SkincrawlerSkinS2CPacket(player.getUUID(), null));
-            }
-        }
-        skincrawlerComp.clear();
-
-        // 清除阿蒙组件状态并通知客户端还原伪装皮肤
-        ModComponents.AMON.get(player).clear();
-
         // 清除傀儡师组件状态
         PuppeteerPlayerComponent puppeteerComp = ModComponents.PUPPETEER.get(player);
         puppeteerComp.clear();
-
-        // 清除记录员组件状态
-        RecorderPlayerComponent recorderComp = ModComponents.RECORDER.get(player);
-        recorderComp.clear();
 
         // 清除蛋糕师组件状态（移除烟熏炉和已放置的蛋糕，防止残留到下一局）
         CakeMakerComponent.KEY.get(player).clear();

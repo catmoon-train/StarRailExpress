@@ -1713,7 +1713,7 @@ public class MaChenXuRoleData extends SimpleRoleData {
 
     public void sync(int mask) {
         this.pendingSyncMask = mask;
-        sync();
+        ctx.sync();
         this.pendingSyncMask = SYNC_ALL;
     }
 
@@ -1937,5 +1937,21 @@ public class MaChenXuRoleData extends SimpleRoleData {
         }
     }
 
+    @Override
+    public void writeToRewindNbt(CompoundTag tag, HolderLookup.Provider registryLookup) {
+        // 回溯快照：绕过增量掩码强制全量写入（保留 stage/ACTIVE 守卫，回溯只发生在进行中的对局）
+        int savedMask = this.pendingSyncMask;
+        this.pendingSyncMask = SYNC_ALL;
+        try {
+            writeToSyncNbt(tag, registryLookup);
+        } finally {
+            this.pendingSyncMask = savedMask;
+        }
+    }
 
+    @Override
+    public void readFromRewindNbt(CompoundTag tag, HolderLookup.Provider registryLookup) {
+        // 回溯恢复：纯回填字段，不触发 clear()/sync()
+        readFromSyncNbt(tag, registryLookup);
+    }
 }

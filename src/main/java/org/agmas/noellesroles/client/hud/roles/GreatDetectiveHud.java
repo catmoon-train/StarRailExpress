@@ -15,13 +15,14 @@
 
 package org.agmas.noellesroles.client.hud.roles;
 
+import io.wifi.starrailexpress.api.data.RoleData;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.CommonColors;
 import org.agmas.noellesroles.client.event.RoleHudRenderCallback;
-import org.agmas.noellesroles.game.roles.innocence.great_detective.GreatDetectivePlayerComponent;
 import org.agmas.noellesroles.role.ModRoles;
+import org.agmas.noellesroles.role_data.innocence.GreatDetectiveRoleData;
 
 /**
  * 大侦探 HUD Mixin
@@ -35,7 +36,10 @@ public class GreatDetectiveHud {
             Minecraft client = Minecraft.getInstance();
 
             // 获取探员组件
-            GreatDetectivePlayerComponent detectiveComponent = GreatDetectivePlayerComponent.KEY.get(client.player);
+            var detectiveOpt = RoleData.getOptional(GreatDetectiveRoleData.class, client.player);
+            if (detectiveOpt.isEmpty())
+                return;
+            GreatDetectiveRoleData detectiveComponent = detectiveOpt.get();
 
             // 渲染位置 - 右下角
             int screenWidth = client.getWindow().getGuiScaledWidth();

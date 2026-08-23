@@ -15,11 +15,12 @@
 
 package org.agmas.noellesroles.client.hud.roles;
 
+import io.wifi.starrailexpress.api.data.RoleData;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.effect.MobEffect;
 import org.agmas.noellesroles.client.event.RoleHudRenderCallback;
-import org.agmas.noellesroles.game.roles.neutral.voice_changer.VoiceChangerPlayerComponent;
+import org.agmas.noellesroles.role_data.neutral.VoiceChangerRoleData;
 import org.agmas.noellesroles.role.ModRoles;
 
 public class VoiceChangerHud {
@@ -30,8 +31,10 @@ public class VoiceChangerHud {
             if (client.player == null) {
                 return;
             }
-            VoiceChangerPlayerComponent vc = VoiceChangerPlayerComponent.KEY.get(client.player);
-            MobEffect effect = VoiceChangerPlayerComponent.VOICE_EFFECTS.get(vc.currentVoiceType).value();
+            var vcData = RoleData.getOptional(VoiceChangerRoleData.class, client.player);
+            if (vcData.isEmpty()) return;
+            var vc = vcData.get();
+            MobEffect effect = VoiceChangerRoleData.VOICE_EFFECTS.get(vc.currentVoiceType).value();
             int level = vc.currentVoiceLevel + 1; // 0 级 = 实际 1 级
             Component line = Component.translatable("tip.voice_changer",
                     Component.translatable(effect.getDescriptionId()), level);

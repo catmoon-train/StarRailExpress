@@ -39,7 +39,8 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
-import org.agmas.noellesroles.component.ModComponents;
+import org.agmas.noellesroles.role_data.killer.UndeadLordRoleData;
+import io.wifi.starrailexpress.api.data.RoleData;
 import org.agmas.noellesroles.config.NoellesRolesConfig;
 
 import java.util.Comparator;
@@ -316,7 +317,10 @@ public class UndeadEntity extends PathfinderMob {
         attackCooldown = ATTACK_INTERVAL;
         this.swing(net.minecraft.world.InteractionHand.MAIN_HAND);
 
-        ModComponents.UNDEAD_LORD.maybeGet(owner).ifPresent(comp -> comp.addInfection(victim, INFECTION_PER_HIT));
+        UndeadLordRoleData lordData = RoleData.getNullable(UndeadLordRoleData.class, owner);
+        if (lordData != null) {
+            lordData.addInfection(victim, INFECTION_PER_HIT);
+        }
 
         float damage = (float) NoellesRolesConfig.HANDLER.instance().undeadLordUndeadAttackDamage;
         if (damage > 0f) {
@@ -346,7 +350,10 @@ public class UndeadEntity extends PathfinderMob {
                 SoundSource.HOSTILE, 0.7f, 0.6f);
         Player owner = getOwner();
         if (owner != null) {
-            ModComponents.UNDEAD_LORD.maybeGet(owner).ifPresent(comp -> comp.onUndeadRemoved(this.getUUID()));
+            UndeadLordRoleData lordData = RoleData.getNullable(UndeadLordRoleData.class, owner);
+            if (lordData != null) {
+                lordData.onUndeadRemoved(this.getUUID());
+            }
         }
         discard();
     }

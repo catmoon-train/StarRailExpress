@@ -15,6 +15,7 @@
 
 package org.agmas.noellesroles.client.widget;
 
+import io.wifi.starrailexpress.api.data.RoleData;
 import io.wifi.starrailexpress.client.gui.screen.ingame.LimitedInventoryScreen;
 import io.wifi.starrailexpress.util.ShopEntry;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
@@ -26,7 +27,7 @@ import net.minecraft.client.gui.components.PlayerFaceRenderer;
 import net.minecraft.client.multiplayer.PlayerInfo;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.network.chat.Component;
-import org.agmas.noellesroles.game.roles.neutral.amon.AmonPlayerComponent;
+import org.agmas.noellesroles.role_data.neutral.AmonRoleData;
 import org.agmas.noellesroles.init.ModEffects;
 import org.agmas.noellesroles.packet.AmonSelectTargetC2SPacket;
 import org.jetbrains.annotations.NotNull;
@@ -57,8 +58,8 @@ public class AmonPlayerWidget extends Button {
         AbstractClientPlayer player = Minecraft.getInstance().player;
         if (player == null) return;
 
-        AmonPlayerComponent comp = AmonPlayerComponent.KEY.get(player);
-        boolean possessed = comp.clientPossessTarget != null
+        AmonRoleData comp = RoleData.getNullable(AmonRoleData.class, player);
+        boolean possessed = comp != null && comp.clientPossessTarget != null
                 && comp.clientPossessTarget.equals(targetPlayer.getProfile().getId());
 
         super.renderWidget(context, mouseX, mouseY, delta);

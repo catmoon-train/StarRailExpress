@@ -23,6 +23,7 @@ import io.wifi.starrailexpress.client.particle.HandParticle;
 import io.wifi.starrailexpress.client.render.TMMRenderLayers;
 import io.wifi.starrailexpress.compat.CrosshairaddonsCompat;
 import io.wifi.starrailexpress.content.item.SkinableItem;
+import io.wifi.starrailexpress.content.item.api.SREItemProperties.DropRevolverWhenDead;
 import io.wifi.starrailexpress.game.GameConstants;
 import io.wifi.starrailexpress.game.GameUtils;
 import io.wifi.starrailexpress.index.TMMSounds;
@@ -58,7 +59,8 @@ import java.util.Map;
 import java.util.UUID;
 
 /** 延迟执行的射击任务 */
-record DelayedShotTask(long executeTick, ServerPlayer shooter, ServerPlayer target, boolean needsCooldown) {}
+record DelayedShotTask(long executeTick, ServerPlayer shooter, ServerPlayer target, boolean needsCooldown) {
+}
 
 /**
  * 零一五 - 双发手枪
@@ -68,42 +70,42 @@ record DelayedShotTask(long executeTick, ServerPlayer shooter, ServerPlayer targ
  * 同一玩家被命中两次则造成击杀
  * 冷却15秒，射程30格
  */
-public class ZeroOneFiveGunItem extends SkinableItem {
-    
+public class ZeroOneFiveGunItem extends SkinableItem implements DropRevolverWhenDead {
+
     /** 第一次命中标记的持续时间（刻） = 3秒 */
     private static final int HIT_MARK_DURATION = 3 * 20;
     /** 射程30格 */
     private static final float RANGE = 30.0f;
     /** 冷却时间（刻） = 15秒 */
     private static final int COOLDOWN = 15 * 20;
-    
+
     /** 记录每个玩家被零一五命中的目标 <攻击者UUID, <目标UUID, 剩余标记时间>> */
     private static final Map<UUID, Map<UUID, Integer>> HIT_MARKS = new HashMap<>();
-    
+
     /** 延迟执行的射击任务列表 */
     private static final java.util.List<DelayedShotTask> DELAYED_SHOTS = new java.util.ArrayList<>();
-    
+
     public ZeroOneFiveGunItem(Item.Properties settings) {
         super(settings);
     }
-    
+
     /** 注册服务端tick事件 */
     public static void register() {
         ServerTickEvents.END_SERVER_TICK.register(ZeroOneFiveGunItem::onServerTick);
     }
-    
+
     private static void onServerTick(MinecraftServer server) {
         // 处理延迟射击任务
         processDelayedShots(server.getTickCount());
         // 每刻清理过期的命中标记
         tickCleanup();
     }
-    
+
     @Override
-    public @NotNull InteractionResultHolder<ItemStack> use(@NotNull Level world, @NotNull Player user, 
+    public @NotNull InteractionResultHolder<ItemStack> use(@NotNull Level world, @NotNull Player user,
             @NotNull InteractionHand hand) {
         ItemStack stack = user.getItemInHand(hand);
-        
+
         if (world.isClientSide) {
             SREGameWorldComponent gameComponent = SREClient.gameComponent;
             if (gameComponent != null) {
@@ -112,7 +114,7 @@ public class ZeroOneFiveGunItem extends SkinableItem {
                     return InteractionResultHolder.fail(stack);
                 }
             }
-            
+
             HitResult collision = getGunTarget(user);
             if (collision instanceof EntityHitResult entityHitResult) {
                 Entity target = entityHitResult.getEntity();
@@ -121,10 +123,10 @@ public class ZeroOneFiveGunItem extends SkinableItem {
             } else {
                 ClientPlayNetworking.send(new ZeroOneFiveShootPayload(-1, false));
             }
-            
+
             user.setXRot(user.getXRot() - 4.0F);
             spawnHandParticle();
-            
+
             // 播放枪响音效
             world.playSound(user, user.getX(), user.getY(), user.getZ(),
                     TMMSounds.ITEM_REVOLVER_SHOOT, SoundSource.PLAYERS, 1.0F, 1.0F);
@@ -136,20 +138,20 @@ public class ZeroOneFiveGunItem extends SkinableItem {
             }
             // 冷却在第二枪后添加，不在第一枪时
         }
-        
+
         return InteractionResultHolder.consume(stack);
     }
-    
+
     /**
      * 处理命中逻辑
      */
     public static void onHit(ServerPlayer shooter, ServerPlayer target) {
         UUID shooterUUID = shooter.getUUID();
         UUID targetUUID = target.getUUID();
-        
+
         // 检查目标是否已经有标记
         Map<UUID, Integer> shooterMarks = HIT_MARKS.computeIfAbsent(shooterUUID, k -> new HashMap<>());
-        
+
         if (shooterMarks.containsKey(targetUUID)) {
             // 第二次命中，直接击杀
             GameUtils.killPlayer(target, true, shooter, GameConstants.DeathReasons.ZERO_ONE_FIVE);
@@ -159,24 +161,21 @@ public class ZeroOneFiveGunItem extends SkinableItem {
             target.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SLOWDOWN, HIT_MARK_DURATION, 1, false, false));
             target.serverLevel().sendParticles(
                     ParticleTypes.CAMPFIRE_SIGNAL_SMOKE,
-                    target.getX(), target.getY()+1, target.getZ(),
-                    5,0.2,0.2,0.2,0.35
-            );
+                    target.getX(), target.getY() + 1, target.getZ(),
+                    5, 0.2, 0.2, 0.2, 0.35);
             // 标记目标
             shooterMarks.put(targetUUID, HIT_MARK_DURATION);
-            
+
             // 0.45秒后自动开第二枪，添加到延迟队列
             long currentTick = target.level().getServer().getTickCount();
             DELAYED_SHOTS.add(new DelayedShotTask(currentTick + 9, shooter, target, true));
         }
     }
 
-
-
     public static int getCooldown() {
         return COOLDOWN;
     }
-    
+
     /**
      * 自动开第二枪
      */
@@ -193,7 +192,7 @@ public class ZeroOneFiveGunItem extends SkinableItem {
             PacketTracker.sendToClient(tracking, new ShootMuzzleS2CPayload(shooter.getId()));
         }
         PacketTracker.sendToClient(shooter, new ShootMuzzleS2CPayload(shooter.getId()));
-        
+
         // 生成弹道粒子效果
         HitResult hitResult = getGunTarget(shooter);
         Vec3 hitPos;
@@ -205,13 +204,13 @@ public class ZeroOneFiveGunItem extends SkinableItem {
             hitPos = eyePos.add(lookVec.scale(RANGE));
         }
         spawnBulletTrail(shooter, hitPos);
-        
+
         // 如果目标仍然存活且在范围内，造成击杀
         if (GameUtils.isPlayerAliveAndSurvival(target)) {
             double distSq = shooter.distanceToSqr(target);
             if (distSq <= RANGE * RANGE) {
                 GameUtils.killPlayer(target, true, shooter, GameConstants.DeathReasons.ZERO_ONE_FIVE);
-                
+
                 // 移除标记
                 UUID shooterUUID = shooter.getUUID();
                 UUID targetUUID = target.getUUID();
@@ -224,7 +223,7 @@ public class ZeroOneFiveGunItem extends SkinableItem {
 
         // 两枪后进入15秒冷却
     }
-    
+
     /**
      * 在子弹路径上生成粒子轨迹
      */
@@ -232,23 +231,24 @@ public class ZeroOneFiveGunItem extends SkinableItem {
         Vec3 startPos = shooter.getEyePosition(1.0F);
         Vec3 direction = hitPos.subtract(startPos);
         double distance = direction.length();
-        if (distance <= 0) return;
+        if (distance <= 0)
+            return;
         direction = direction.normalize();
-        
+
         double stepSize = 0.5;
         int particleCount = (int) (distance / stepSize);
-        
+
         for (int i = 0; i < particleCount; i++) {
             double ratio = (double) i / particleCount;
             Vec3 particlePos = startPos.add(
                     direction.x * distance * ratio,
                     direction.y * distance * ratio,
                     direction.z * distance * ratio);
-            
+
             double offsetX = (shooter.level().getRandom().nextFloat() - 0.5) * 0.2;
             double offsetY = (shooter.level().getRandom().nextFloat() - 0.5) * 0.2;
             double offsetZ = (shooter.level().getRandom().nextFloat() - 0.5) * 0.2;
-            
+
             ((ServerLevel) shooter.level()).sendParticles(
                     ParticleTypes.SMOKE,
                     particlePos.x + offsetX,
@@ -257,7 +257,7 @@ public class ZeroOneFiveGunItem extends SkinableItem {
                     1, 0, 0.02, 0, 0.01);
         }
     }
-    
+
     /**
      * 清理过期标记（每刻调用）
      */
@@ -275,7 +275,7 @@ public class ZeroOneFiveGunItem extends SkinableItem {
             return entry.getValue().isEmpty();
         });
     }
-    
+
     /**
      * 处理延迟射击（在世界tick时调用）
      */
@@ -293,7 +293,7 @@ public class ZeroOneFiveGunItem extends SkinableItem {
                     if (!mainHand.is(ModItems.ZERO_ONE_FIVE_GUN) && !offHand.is(ModItems.ZERO_ONE_FIVE_GUN)) {
                         continue;
                     }
-                    
+
                     // 射线检测当前瞄准的目标
                     ServerPlayer currentTarget = findCurrentTarget(shooter);
                     if (currentTarget != null) {
@@ -304,7 +304,7 @@ public class ZeroOneFiveGunItem extends SkinableItem {
             }
         }
     }
-    
+
     /**
      * 查找当前瞄准的目标
      * 直接射线检测当前瞄准的目标
@@ -319,7 +319,7 @@ public class ZeroOneFiveGunItem extends SkinableItem {
         }
         return null;
     }
-    
+
     /**
      * 清理玩家数据
      */
@@ -329,7 +329,7 @@ public class ZeroOneFiveGunItem extends SkinableItem {
             marks.remove(playerUUID);
         }
     }
-    
+
     public static HitResult getGunTarget(Player user) {
         return ProjectileUtil.getHitResultOnViewVector(user, entity -> {
             if (entity instanceof Player player) {
@@ -338,7 +338,7 @@ public class ZeroOneFiveGunItem extends SkinableItem {
             return false;
         }, RANGE);
     }
-    
+
     public static void spawnHandParticle() {
         HandParticle handParticle = (new HandParticle())
                 .setTexture(StarRailExpressID.watheId("textures/particle/gunshot.png"))
@@ -346,7 +346,7 @@ public class ZeroOneFiveGunItem extends SkinableItem {
                 .setLight(15, 15).setAlpha(new float[] { 1.0F, 0.1F }).setRenderLayer(TMMRenderLayers::additive);
         SREClient.handParticleManager.spawn(handParticle);
     }
-    
+
     @Override
     public String getItemSkinType() {
         return "revolver"; // 沿用一次性手枪的材质

@@ -23,8 +23,7 @@ import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.PlayerFaceRenderer;
 import net.minecraft.client.multiplayer.PlayerInfo;
 import net.minecraft.network.chat.Component;
-import org.agmas.noellesroles.component.ModComponents;
-import org.agmas.noellesroles.game.roles.neutral.mortician.MorticianBodyMakerPlayerComponent;
+import org.agmas.noellesroles.role_data.neutral.MorticianBodyMakerRoleData;
 import org.jetbrains.annotations.NotNull;
 
 import java.awt.*;
@@ -46,7 +45,7 @@ public class BodymakerPlayerWidget extends Button {
         super(x, y, 16, 16, Component.empty(), (button) -> {
             if (Minecraft.getInstance().player == null) return;
             
-            MorticianBodyMakerPlayerComponent component = ModComponents.MORTICIAN_BODYMAKER.get(Minecraft.getInstance().player);
+            MorticianBodyMakerRoleData component = io.wifi.starrailexpress.api.data.RoleData.getNullable(MorticianBodyMakerRoleData.class, Minecraft.getInstance().player);
             if (component == null) return;
             
             // 技能冷却时不允许选择
@@ -65,7 +64,7 @@ public class BodymakerPlayerWidget extends Button {
         if (Minecraft.getInstance().player == null) return;
         super.renderWidget(context, mouseX, mouseY, delta);
         
-        MorticianBodyMakerPlayerComponent component = ModComponents.MORTICIAN_BODYMAKER.get(Minecraft.getInstance().player);
+        MorticianBodyMakerRoleData component = io.wifi.starrailexpress.api.data.RoleData.getNullable(MorticianBodyMakerRoleData.class, Minecraft.getInstance().player);
         if (component == null) return;
 
         // 造尸冷却时显示灰色 + 倒计时（完全类似变形者）

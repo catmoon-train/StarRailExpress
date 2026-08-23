@@ -65,16 +65,28 @@ public class NRSounds {
 
     // 未使用
     public static final SoundEvent MUSIC_SAKURA_MOYU = registrar.create("music.sakura_moyu");
-    // public static final SoundEvent MUSIC_DR_NIGULA = registrar.create("music.dr_nigula");
+    // public static final SoundEvent MUSIC_DR_NIGULA =
+    // registrar.create("music.dr_nigula");
     // public static final SoundEvent MUSIC_ENTRUST_THIS_WORLD_TO_IDOLS = registrar
-    //         .create("music.entrust_this_world_to_idols");
-    // public static final SoundEvent MUSIC_GO_TOWARDS_NIGHT = registrar.create("music.go_towards_night");
+    // .create("music.entrust_this_world_to_idols");
+    // public static final SoundEvent MUSIC_GO_TOWARDS_NIGHT =
+    // registrar.create("music.go_towards_night");
     // public static final SoundEvent MUSIC_IDOL = registrar.create("music.idol");
-    // public static final SoundEvent MUSIC_MAIDEN_S_CAPRICCIO = registrar.create("music.maiden_s_capriccio");
-    // public static final SoundEvent MUSIC_SECRET_BASE = registrar.create("music.secret_base");
+    // public static final SoundEvent MUSIC_MAIDEN_S_CAPRICCIO =
+    // registrar.create("music.maiden_s_capriccio");
+    // public static final SoundEvent MUSIC_SECRET_BASE =
+    // registrar.create("music.secret_base");
     public static final SoundEvent MUSIC_UNWELCOME_SCHOOL = registrar.create("music.unwelcome_school");
-    // public static final SoundEvent MUSIC_YUZU_FUN_FUN_RE_BOOT = registrar.create("music.yuzu_fun_fun_re_boot");
+    // public static final SoundEvent MUSIC_YUZU_FUN_FUN_RE_BOOT =
+    // registrar.create("music.yuzu_fun_fun_re_boot");
     public static final SoundEvent MUSIC_ZENRIANBANKA = registrar.create("music.zenrianbanka");
+
+    // ==================== 常量定义 ====================
+    public static final SoundEvent MUSIC_DISC_LAVA_CHICKEN_CUT = registrar.create("music_disc.lava_chicken_cut");
+    public static final SoundEvent MUSIC_DISC_CREATOR_CUT = registrar.create("music_disc.creator_cut");
+    public static final SoundEvent MUSIC_DISC_BROKEN_MOON = registrar.create("music_disc.broken_moon");
+    public static final SoundEvent MUSIC_DISC_PIGSTEP_CUT = registrar.create("music_disc.pigstep_cut");
+    public static final SoundEvent MUSIC_DISC_LUPINUS = registrar.create("music_disc.lupinus");
 
     public static void initialize() {
         registrar.registerEntries();

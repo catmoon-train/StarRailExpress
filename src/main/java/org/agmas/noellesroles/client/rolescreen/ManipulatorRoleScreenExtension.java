@@ -17,6 +17,7 @@ package org.agmas.noellesroles.client.rolescreen;
 
 import io.wifi.starrailexpress.client.gui.screen.ingame.LimitedInventoryScreen;
 import io.wifi.starrailexpress.client.gui.screen.ingame.RoleScreenHelper;
+import io.wifi.starrailexpress.api.data.RoleData;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
@@ -26,9 +27,9 @@ import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.level.GameType;
 import org.agmas.noellesroles.client.widget.ManipulatorPlayerWidget;
-import org.agmas.noellesroles.game.roles.killer.manipulator.ManipulatorPlayerComponent;
 import org.agmas.noellesroles.packet.ManipulatorControlInputC2SPacket;
 import org.agmas.noellesroles.role.ModRoles;
+import org.agmas.noellesroles.role_data.killer.ManipulatorRoleData;
 
 import java.awt.Color;
 import java.util.List;
@@ -93,15 +94,15 @@ public final class ManipulatorRoleScreenExtension extends PlayerListRoleScreenEx
             return false;
         }
         return client.level.getPlayerByUUID(info.getProfile().getId()) instanceof AbstractClientPlayer targetPlayer
-                && client.player.distanceTo(targetPlayer) <= ManipulatorPlayerComponent.DIRECT_CONTROL_RANGE;
+                && client.player.distanceTo(targetPlayer) <= ManipulatorRoleData.DIRECT_CONTROL_RANGE;
     }
 
     @Override
     public void onInit(LimitedInventoryScreen screen) {
         // 操控期间打开背包即取消操控
         if (screen.player != null && ModRoles.MANIPULATOR != null) {
-            ManipulatorPlayerComponent comp = ManipulatorPlayerComponent.KEY.get(screen.player);
-            if (comp.isControlling) {
+            ManipulatorRoleData comp = RoleData.getNullable(ManipulatorRoleData.class, screen.player);
+            if (comp != null && comp.isControlling) {
                 ClientPlayNetworking.send(new ManipulatorControlInputC2SPacket(0, 0f, 0f, true));
             }
         }

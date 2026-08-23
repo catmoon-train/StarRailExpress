@@ -27,12 +27,13 @@ import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.PlayerFaceRenderer;
 import net.minecraft.client.multiplayer.PlayerInfo;
 import net.minecraft.client.player.AbstractClientPlayer;
+import io.wifi.starrailexpress.api.data.RoleData;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.level.GameType;
-import org.agmas.noellesroles.game.roles.killer.morphling.MorphlingPlayerComponent;
 import org.agmas.noellesroles.init.ModEffects;
 import org.agmas.noellesroles.packet.MorphC2SPacket;
+import org.agmas.noellesroles.role_data.killer.MorphlingRoleData;
 import org.jetbrains.annotations.NotNull;
 
 import java.awt.*;
@@ -51,7 +52,8 @@ public class MorphlingPlayerWidget extends Button {
     public MorphlingPlayerWidget(LimitedInventoryScreen screen, int x, int y, @NotNull PlayerInfo disguiseTarget) {
         super(x, y, 16, 16, Component.nullToEmpty(disguiseTarget.getProfile().getName()), (a) -> {
             AbstractClientPlayer player = Minecraft.getInstance().player;
-            if (player != null && (MorphlingPlayerComponent.KEY.get(player)).getMorphTicks() == 0) {
+            if (player != null && RoleData.getOptional(MorphlingRoleData.class, player)
+                    .map(m -> m.getMorphTicks() == 0).orElse(false)) {
                 ClientPlayNetworking.send(new MorphC2SPacket(disguiseTarget.getProfile().getId()));
             }
         }, DEFAULT_NARRATION);
@@ -75,8 +77,7 @@ public class MorphlingPlayerWidget extends Button {
         if (player == null)
             return;
 
-        MorphlingPlayerComponent component = MorphlingPlayerComponent.KEY.get(player);
-
+        RoleData.getOptional(MorphlingRoleData.class, player).ifPresent(component -> {
         if (component.getMorphTicks() == 0 && !player.hasEffect(ModEffects.SAFE_TIME)) {
             super.renderWidget(context, mouseX, mouseY, delta);
             context.blitSprite(ShopEntry.Type.POISON.getTexture(), this.getX() - 7, this.getY() - 7, 30, 30);
@@ -108,6 +109,7 @@ public class MorphlingPlayerWidget extends Button {
         // 渲染下方的文字
 
         renderDisplayText(context);
+        });
     }
 
     private void drawShopSlotHighlight(GuiGraphics context, int x, int y, int z) {

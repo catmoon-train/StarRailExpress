@@ -46,7 +46,6 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
-import org.agmas.noellesroles.component.ModComponents;
 import org.agmas.noellesroles.config.NoellesRolesConfig;
 import org.agmas.noellesroles.content.item.CrystalBallItem;
 import org.agmas.noellesroles.role_data.killer.InsaneKillerRoleData;
@@ -509,9 +508,47 @@ public class DivinerRoleData extends SimpleRoleData {
 
     @Override
     public void writeToSyncNbt(@NotNull CompoundTag tag, HolderLookup.Provider registryLookup) {
+        // 已占卜过的尸体 UUID 列表
+        net.minecraft.nbt.ListTag divinedList = new net.minecraft.nbt.ListTag();
+        for (UUID id : this.divinedCorpses) {
+            CompoundTag entry = new CompoundTag();
+            entry.putUUID("id", id);
+            divinedList.add(entry);
+        }
+        tag.put("divinedCorpses", divinedList);
+
+        tag.putBoolean("gaveItem", this.gaveItem);
+        tag.putBoolean("isChanneling", this.isChanneling);
+        tag.putInt("channelTicks", this.channelTicks);
+        if (this.channelBodyId != null) {
+            tag.putUUID("channelBodyId", this.channelBodyId);
+        }
+        if (this.pendingRevealKiller != null) {
+            tag.putUUID("pendingRevealKiller", this.pendingRevealKiller);
+            tag.putBoolean("pendingRevealKillerAlive", this.pendingRevealKillerAlive);
+        }
+        tag.putBoolean("killerRevealed", this.killerRevealed);
     }
 
     @Override
     public void readFromSyncNbt(@NotNull CompoundTag tag, HolderLookup.Provider registryLookup) {
+        this.divinedCorpses.clear();
+        if (tag.contains("divinedCorpses")) {
+            net.minecraft.nbt.ListTag divinedList = tag.getList("divinedCorpses", net.minecraft.nbt.Tag.TAG_COMPOUND);
+            for (int i = 0; i < divinedList.size(); i++) {
+                CompoundTag entry = divinedList.getCompound(i);
+                if (entry.hasUUID("id")) {
+                    this.divinedCorpses.add(entry.getUUID("id"));
+                }
+            }
+        }
+        this.gaveItem = tag.contains("gaveItem") && tag.getBoolean("gaveItem");
+        this.isChanneling = tag.contains("isChanneling") && tag.getBoolean("isChanneling");
+        this.channelTicks = tag.contains("channelTicks") ? tag.getInt("channelTicks") : 0;
+        this.channelBodyId = tag.hasUUID("channelBodyId") ? tag.getUUID("channelBodyId") : null;
+        this.pendingRevealKiller = tag.hasUUID("pendingRevealKiller") ? tag.getUUID("pendingRevealKiller") : null;
+        this.pendingRevealKillerAlive = tag.contains("pendingRevealKillerAlive")
+                && tag.getBoolean("pendingRevealKillerAlive");
+        this.killerRevealed = tag.contains("killerRevealed") && tag.getBoolean("killerRevealed");
     }
 }

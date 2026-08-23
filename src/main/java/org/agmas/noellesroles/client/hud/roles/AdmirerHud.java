@@ -23,7 +23,8 @@ import net.minecraft.network.chat.Component;
 
 import org.agmas.noellesroles.client.NoellesrolesClient;
 import org.agmas.noellesroles.client.event.RoleHudRenderCallback;
-import org.agmas.noellesroles.game.roles.neutral.admirer.AdmirerPlayerComponent;
+import io.wifi.starrailexpress.api.data.RoleData;
+import org.agmas.noellesroles.role_data.neutral.AdmirerRoleData;
 import org.agmas.noellesroles.role.ModRoles;
 
 public class AdmirerHud {
@@ -34,7 +35,10 @@ public class AdmirerHud {
             if (SREClient.isPlayerSpectator())
                 return;
             // 获取慕恋者组件
-            AdmirerPlayerComponent admirerComp = AdmirerPlayerComponent.KEY.get(client.player);
+            var admirerOpt = RoleData.getOptional(AdmirerRoleData.class, client.player);
+            if (admirerOpt.isEmpty())
+                return;
+            AdmirerRoleData admirerComp = admirerOpt.get();
 
             // 检查是否是慕恋者
             if (!admirerComp.isActiveAdmirer())
@@ -67,7 +71,7 @@ public class AdmirerHud {
 
             // 能量条
             Component energyText = Component.translatable("hud.noellesroles.admirer.energy",
-                    admirerComp.energy, AdmirerPlayerComponent.MAX_ENERGY);
+                    admirerComp.energy, AdmirerRoleData.MAX_ENERGY);
             int energyColor = getEnergyColor(admirerComp.getEnergyPercent());
             context.drawString(textRenderer, energyText, x, y, energyColor);
             y += 12;

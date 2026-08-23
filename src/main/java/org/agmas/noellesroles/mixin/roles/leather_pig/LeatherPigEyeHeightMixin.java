@@ -19,7 +19,7 @@ import com.llamalad7.mixinextras.injector.ModifyReturnValue;
 import net.minecraft.world.entity.EntityDimensions;
 import net.minecraft.world.entity.Pose;
 import net.minecraft.world.entity.player.Player;
-import org.agmas.noellesroles.game.roles.innocence.leather_pig.LeatherPigPlayerComponent;
+import org.agmas.noellesroles.role_data.innocence.LeatherPigRoleData;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 
@@ -35,11 +35,11 @@ public abstract class LeatherPigEyeHeightMixin {
     @ModifyReturnValue(method = "getDefaultDimensions", at = @At("RETURN"))
     private EntityDimensions noellesroles$lowerEyeToPig(EntityDimensions dimensions, Pose pose) {
         Player self = (Player) (Object) this;
-        if (!LeatherPigPlayerComponent.isDisguised(self)) {
+        if (!LeatherPigRoleData.isDisguised(self)) {
             return dimensions;
         }
         // 取较小值：游泳、睡觉等姿态的眼高本就低于猪，不该被抬回来
-        float eyeHeight = Math.min(dimensions.eyeHeight(), LeatherPigPlayerComponent.PIG_EYE_HEIGHT);
+        float eyeHeight = Math.min(dimensions.eyeHeight(), LeatherPigRoleData.PIG_EYE_HEIGHT);
         return dimensions.withEyeHeight(eyeHeight);
     }
 }

@@ -15,12 +15,12 @@
 
 package org.agmas.noellesroles.mixin.roles.executioner;
 
+import io.wifi.starrailexpress.api.data.RoleData;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.game.GameUtils;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
-import org.agmas.noellesroles.game.roles.killer.executioner.ExecutionerPlayerComponent;
-import org.agmas.noellesroles.game.roles.killer.executioner.ShootingFrenzyPlayerComponent;
+import org.agmas.noellesroles.role_data.killer.ExecutionerRoleData;
 import org.agmas.noellesroles.role.ModRoles;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
@@ -45,8 +45,8 @@ public class ExecutionerConfirmMixin {
 
         if (gameWorldComponent.isRole(killer, ModRoles.EXECUTIONER)) {
             Player executioner = killer;
-            ExecutionerPlayerComponent executionerPlayerComponent = ExecutionerPlayerComponent.KEY.get(executioner);
-            if (executionerPlayerComponent.target != null
+            ExecutionerRoleData executionerPlayerComponent = RoleData.getNullable(ExecutionerRoleData.class, executioner);
+            if (executionerPlayerComponent != null && executionerPlayerComponent.target != null
                     && executionerPlayerComponent.target.equals(victim.getUUID())) {
                 executionerPlayerComponent.assignRandomTarget();
                 executionerPlayerComponent.sync();
@@ -61,10 +61,12 @@ public class ExecutionerConfirmMixin {
             if (victim != null) {
                 if (role.getIdentifier().equals(ModRoles.EXECUTIONER_ID)) {
                     // 射击狂热期间不受锁定目标影响，可以击杀任何玩家
-                    if (ShootingFrenzyPlayerComponent.isInFrenzy(killer)) {
+                    if (ExecutionerRoleData.isInFrenzy(killer)) {
                         return; // 不取消击杀
                     }
-                    if (!ExecutionerPlayerComponent.KEY.get(killer).target.equals(victim.getUUID())) {
+                    ExecutionerRoleData killerData = RoleData.getNullable(ExecutionerRoleData.class, killer);
+                    if (killerData != null && killerData.target != null
+                            && !killerData.target.equals(victim.getUUID())) {
                         ci.cancel();
                     }
                 }

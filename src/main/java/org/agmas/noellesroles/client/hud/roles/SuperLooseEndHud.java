@@ -15,13 +15,14 @@
 
 package org.agmas.noellesroles.client.hud.roles;
 
+import io.wifi.starrailexpress.api.data.RoleData;
 import io.wifi.starrailexpress.cca.SREArmorPlayerComponent;
 import io.wifi.starrailexpress.game.roles.SpecialGameModeRoles;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;
 import org.agmas.noellesroles.client.event.RoleHudRenderCallback;
-import org.agmas.noellesroles.game.roles.special.super_loose_end.SuperLooseEndPlayerComponent;
+import org.agmas.noellesroles.role_data.special.SuperLooseEndRoleData;
 
 import java.awt.*;
 
@@ -40,7 +41,9 @@ public class SuperLooseEndHud {
             guiGraphics.drawString(font, armorText, 10, yOffset - font.lineHeight - 4,
                     Color.WHITE.getRGB());
             // 渲染技能状态
-            SuperLooseEndPlayerComponent superLooseEndPlayerComponent = SuperLooseEndPlayerComponent.KEY.get(client.player);
+            var superLooseEndData = RoleData.getOptional(SuperLooseEndRoleData.class, client.player);
+            if (superLooseEndData.isEmpty()) return;
+            var superLooseEndPlayerComponent = superLooseEndData.get();
             // 渲染位置 - 右下角
             int x = guiGraphics.guiWidth() - guiGraphics.guiWidth() / 4;
             int y = guiGraphics.guiHeight() - font.lineHeight * 5 - 5;
@@ -73,7 +76,7 @@ public class SuperLooseEndHud {
                                     .withStyle(ChatFormatting.AQUA);
                         }
                         consumeText = Component.translatable("hud.super_loose_end.comsume.armor",
-                                SuperLooseEndPlayerComponent.RECALL_COST);
+                                SuperLooseEndRoleData.RECALL_COST);
                     }
                     // 交换技能
                     case 2 -> {

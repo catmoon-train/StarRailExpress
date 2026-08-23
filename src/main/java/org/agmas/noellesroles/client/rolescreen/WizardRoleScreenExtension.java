@@ -25,7 +25,8 @@ import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.level.GameType;
 import org.agmas.noellesroles.client.widget.WizardShieldWidget;
-import org.agmas.noellesroles.game.roles.killer.wizard.WizardPlayerComponent;
+import io.wifi.starrailexpress.api.data.RoleData;
+import org.agmas.noellesroles.role_data.killer.WizardRoleData;
 import org.agmas.noellesroles.role.ModRoles;
 
 import java.awt.Color;
@@ -67,9 +68,12 @@ public final class WizardRoleScreenExtension extends PlayerListRoleScreenExtensi
         if (client.player == null) {
             return;
         }
-        WizardPlayerComponent comp = WizardPlayerComponent.KEY.get(client.player);
+        WizardRoleData comp = RoleData.getOptional(WizardRoleData.class, client.player).orElse(null);
+        if (comp == null) {
+            return;
+        }
         // 仅当选中"盔甲护身"时才显示提示
-        if (comp.selectedSpell != WizardPlayerComponent.Spell.ARMOR) {
+        if (comp.selectedSpell != WizardRoleData.Spell.ARMOR) {
             return;
         }
         Component text = Component.translatable("hud.wizard.player_selection");
@@ -83,8 +87,11 @@ public final class WizardRoleScreenExtension extends PlayerListRoleScreenExtensi
             return List.of();
         }
         // 仅当选中"盔甲护身"法术时显示
-        WizardPlayerComponent comp = WizardPlayerComponent.KEY.get(client.player);
-        if (comp.selectedSpell != WizardPlayerComponent.Spell.ARMOR) {
+        WizardRoleData comp = RoleData.getOptional(WizardRoleData.class, client.player).orElse(null);
+        if (comp == null) {
+            return List.of();
+        }
+        if (comp.selectedSpell != WizardRoleData.Spell.ARMOR) {
             return List.of();
         }
         return client.getConnection().getOnlinePlayers().stream()

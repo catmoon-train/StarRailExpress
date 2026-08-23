@@ -19,9 +19,9 @@ import io.wifi.starrailexpress.client.SREClient;
 import net.minecraft.client.Minecraft;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
-import org.agmas.noellesroles.game.roles.killer.wraith_assassin.WraithAssassinPlayerComponent;
 import org.agmas.noellesroles.init.ModEffects;
 import org.agmas.noellesroles.role.ModRoles;
+import org.agmas.noellesroles.role_data.killer.WraithAssassinRoleData;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -46,6 +46,6 @@ public class WraithVisibilityMixin {
         if (!SREClient.gameComponent.isRole(target, ModRoles.WRAITH_ASSASSIN)) {
             return;
         }
-        cir.setReturnValue(!WraithAssassinPlayerComponent.canPerceiveWraith(viewer));
+        cir.setReturnValue(!WraithAssassinRoleData.canPerceiveWraith(viewer));
     }
 }

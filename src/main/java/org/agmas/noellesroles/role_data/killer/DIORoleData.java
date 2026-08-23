@@ -35,11 +35,9 @@ import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
 import org.agmas.noellesroles.Noellesroles;
-import org.agmas.noellesroles.component.ModComponents;
 import org.agmas.noellesroles.content.effects.TimeStopEffect;
 import org.agmas.noellesroles.init.ModEffects;
 import org.agmas.noellesroles.role.ModRoles;
@@ -586,6 +584,33 @@ public class DIORoleData extends SimpleRoleData {
         this.isFeeding = tag.contains("isFeeding") && tag.getBoolean("isFeeding");
         this.feedingRemaining = tag.contains("feedingRemaining") ? tag.getInt("feedingRemaining") : 0;
 
+    }
+
+    @Override
+    public void writeToRewindNbt(@NotNull CompoundTag tag, HolderLookup.Provider registryLookup) {
+        // 回溯快照：绕过 writeToSyncNbt 的 isRunning/isRole 守卫，始终写入完整状态
+        tag.putInt("totalFeedCount", this.totalFeedCount);
+        tag.putInt("timeStopCharges", this.timeStopCharges);
+        tag.putInt("timeStopCooldown", this.timeStopCooldown);
+        tag.putBoolean("isFinalCarnivalUnlocked", this.isFinalCarnivalUnlocked);
+        tag.putBoolean("isFinalCarnivalActive", this.isFinalCarnivalActive);
+        tag.putInt("tempLifeRemaining", this.tempLifeRemaining);
+        tag.putBoolean("isFeeding", this.isFeeding);
+        tag.putInt("feedingRemaining", this.feedingRemaining);
+    }
+
+    @Override
+    public void readFromRewindNbt(@NotNull CompoundTag tag, HolderLookup.Provider registryLookup) {
+        // 回溯恢复：纯回填字段，不触发 sync()
+        this.totalFeedCount = tag.contains("totalFeedCount") ? tag.getInt("totalFeedCount") : 0;
+        this.timeStopCharges = tag.contains("timeStopCharges") ? tag.getInt("timeStopCharges") : 0;
+        this.timeStopCooldown = tag.contains("timeStopCooldown") ? tag.getInt("timeStopCooldown") : 0;
+        this.isFinalCarnivalUnlocked = tag.contains("isFinalCarnivalUnlocked")
+                && tag.getBoolean("isFinalCarnivalUnlocked");
+        this.isFinalCarnivalActive = tag.contains("isFinalCarnivalActive") && tag.getBoolean("isFinalCarnivalActive");
+        this.tempLifeRemaining = tag.contains("tempLifeRemaining") ? tag.getInt("tempLifeRemaining") : 0;
+        this.isFeeding = tag.contains("isFeeding") && tag.getBoolean("isFeeding");
+        this.feedingRemaining = tag.contains("feedingRemaining") ? tag.getInt("feedingRemaining") : 0;
     }
 
     @Override

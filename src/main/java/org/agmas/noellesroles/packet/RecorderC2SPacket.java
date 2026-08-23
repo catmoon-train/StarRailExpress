@@ -24,8 +24,7 @@ import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import org.agmas.noellesroles.Noellesroles;
-import org.agmas.noellesroles.component.ModComponents;
-import org.agmas.noellesroles.game.roles.neutral.recorder.RecorderPlayerComponent;
+import org.agmas.noellesroles.role_data.neutral.RecorderRoleData;
 import org.agmas.noellesroles.role.ModRoles;
 
 import java.util.UUID;
@@ -62,10 +61,10 @@ public record RecorderC2SPacket(UUID targetUuid, String roleId) implements Custo
                 return;
             if (!GameUtils.isPlayerAliveAndSurvivalIgnoreShitSplit(player))
                 return;
-            RecorderPlayerComponent recorder = ModComponents.RECORDER.get(player);
+            RecorderRoleData recorder = io.wifi.starrailexpress.api.data.RoleData.getNullable(RecorderRoleData.class, player);
             ResourceLocation roleId = ResourceLocation.tryParse(payload.roleId());
 
-            if (roleId != null) {
+            if (recorder != null && roleId != null) {
                 recorder.addGuess(payload.targetUuid(), roleId);
             }
         });

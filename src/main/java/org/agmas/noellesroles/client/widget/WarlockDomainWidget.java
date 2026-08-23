@@ -27,7 +27,8 @@ import net.minecraft.client.gui.components.PlayerFaceRenderer;
 import net.minecraft.client.multiplayer.PlayerInfo;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.network.chat.Component;
-import org.agmas.noellesroles.game.roles.killer.warlock.WarlockPlayerComponent;
+import io.wifi.starrailexpress.api.data.RoleData;
+import org.agmas.noellesroles.role_data.killer.WarlockRoleData;
 import org.agmas.noellesroles.packet.WarlockDomainC2SPacket;
 import org.jetbrains.annotations.NotNull;
 
@@ -53,7 +54,7 @@ public class WarlockDomainWidget extends Button {
     }
 
     private static boolean isReady(AbstractClientPlayer player) {
-        WarlockPlayerComponent comp = WarlockPlayerComponent.KEY.get(player);
+        WarlockRoleData comp = RoleData.getOptional(WarlockRoleData.class, player).orElse(null);
         long now = SREClient.getTicksFromGameStart();
         return comp != null && now >= comp.domainCooldownEndTick;
     }
@@ -63,7 +64,7 @@ public class WarlockDomainWidget extends Button {
         AbstractClientPlayer player = Minecraft.getInstance().player;
         if (player == null)
             return;
-        WarlockPlayerComponent comp = WarlockPlayerComponent.KEY.get(player);
+        WarlockRoleData comp = RoleData.getOptional(WarlockRoleData.class, player).orElse(null);
         if (comp == null)
             return;
         long now = SREClient.getTicksFromGameStart();

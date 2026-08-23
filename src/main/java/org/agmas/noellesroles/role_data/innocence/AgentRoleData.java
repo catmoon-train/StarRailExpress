@@ -21,8 +21,8 @@ import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
-import org.agmas.noellesroles.component.ModComponents;
 import org.jetbrains.annotations.NotNull;
+import java.util.UUID;
 
 public class AgentRoleData extends SimpleRoleData {
 
@@ -42,7 +42,7 @@ public class AgentRoleData extends SimpleRoleData {
     public int cooldown = 0;
 
     // 当前正在查看的目标玩家UUID（null表示没有查看任何人）
-    private ServerPlayer inspectingTarget = null;
+    private UUID inspectingTarget = null;
 
     // 目标玩家的上一次位置（用于检测移动）
     private double lastTargetX = 0;
@@ -81,7 +81,7 @@ public class AgentRoleData extends SimpleRoleData {
      * @param target 目标玩家
      */
     public void startInspecting(ServerPlayer target) {
-        this.inspectingTarget = target;
+        this.inspectingTarget = target.getUUID();
         this.lastTargetX = target.getX();
         this.lastTargetY = target.getY();
         this.lastTargetZ = target.getZ();
@@ -95,9 +95,9 @@ public class AgentRoleData extends SimpleRoleData {
     }
 
     /**
-     * 获取当前正在查看的目标
+     * 获取当前正在查看的目标 UUID
      */
-    public ServerPlayer getInspectingTarget() {
+    public UUID getInspectingTarget() {
         return this.inspectingTarget;
     }
 
@@ -153,16 +153,18 @@ public class AgentRoleData extends SimpleRoleData {
 
         // 检查目标是否移动
         if (this.inspectingTarget != null) {
+            Player target = this.player.level().getPlayerByUUID(this.inspectingTarget);
             // 如果目标玩家已离线或死亡
-            if (this.inspectingTarget.hasDisconnected() || this.inspectingTarget.isDeadOrDying()) {
+            if (!(target instanceof ServerPlayer targetServer) || targetServer.hasDisconnected()
+                    || targetServer.isDeadOrDying()) {
                 closeInspectScreen();
                 return;
             }
 
             // 检测目标是否移动（允许小幅度的抖动，阈值0.1格）
-            double dx = Math.abs(this.inspectingTarget.getX() - this.lastTargetX);
-            double dy = Math.abs(this.inspectingTarget.getY() - this.lastTargetY);
-            double dz = Math.abs(this.inspectingTarget.getZ() - this.lastTargetZ);
+            double dx = Math.abs(targetServer.getX() - this.lastTargetX);
+            double dy = Math.abs(targetServer.getY() - this.lastTargetY);
+            double dz = Math.abs(targetServer.getZ() - this.lastTargetZ);
 
             if (dx > 0.5 || dy > 0.5 || dz > 0.5) {
                 // 目标移动了，关闭界面

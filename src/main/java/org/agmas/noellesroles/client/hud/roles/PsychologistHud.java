@@ -15,6 +15,7 @@
 
 package org.agmas.noellesroles.client.hud.roles;
 
+import io.wifi.starrailexpress.api.data.RoleData;
 import io.wifi.starrailexpress.cca.SREPlayerMoodComponent;
 import io.wifi.starrailexpress.client.SREClient;
 import net.minecraft.ChatFormatting;
@@ -24,9 +25,8 @@ import net.minecraft.network.chat.Component;
 
 import org.agmas.noellesroles.client.NoellesrolesClient;
 import org.agmas.noellesroles.client.event.RoleHudRenderCallback;
-import org.agmas.noellesroles.component.ModComponents;
-import org.agmas.noellesroles.game.roles.innocence.psychologist.PsychologistPlayerComponent;
 import org.agmas.noellesroles.role.ModRoles;
+import org.agmas.noellesroles.role_data.innocence.PsychologistRoleData;
 
 /**
  * 心理学家 HUD Mixin
@@ -44,7 +44,10 @@ public class PsychologistHud {
             if (SREClient.isPlayerSpectator())
                 return;
             // 获取心理学家组件
-            PsychologistPlayerComponent psychComp = ModComponents.PSYCHOLOGIST.get(client.player);
+            var psychOpt = RoleData.getOptional(PsychologistRoleData.class, client.player);
+            if (psychOpt.isEmpty())
+                return;
+            PsychologistRoleData psychComp = psychOpt.get();
 
             // 渲染位置 - 左下角
             int screenHeight = client.getWindow().getGuiScaledHeight();
@@ -72,7 +75,7 @@ public class PsychologistHud {
             // 正在治疗中
             if (psychComp.isHealing) {
                 int healedSeconds = (int) psychComp.getHealingSeconds();
-                int totalSeconds = PsychologistPlayerComponent.HEALING_DURATION / 20;
+                int totalSeconds = PsychologistRoleData.HEALING_DURATION / 20;
                 Component healingText = Component.translatable("hud.noellesroles.psychologist.healing",
                         psychComp.healingTargetName, healedSeconds, totalSeconds)
                         .withStyle(ChatFormatting.GREEN);
@@ -82,7 +85,7 @@ public class PsychologistHud {
                 // 进度条
                 int barWidth = 100;
                 int barHeight = 5;
-                float progress = (float) psychComp.healingTicks / PsychologistPlayerComponent.HEALING_DURATION;
+                float progress = (float) psychComp.healingTicks / PsychologistRoleData.HEALING_DURATION;
                 int filledWidth = (int) (barWidth * progress);
 
                 // 背景

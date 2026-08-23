@@ -15,6 +15,7 @@
 
 package org.agmas.noellesroles.client.hud.roles;
 
+import io.wifi.starrailexpress.api.data.RoleData;
 import io.wifi.starrailexpress.cca.SREAbilityPlayerComponent;
 import io.wifi.starrailexpress.client.SREClient;
 import net.minecraft.client.Minecraft;
@@ -22,7 +23,7 @@ import net.minecraft.client.gui.Font;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import org.agmas.noellesroles.client.event.RoleHudRenderCallback;
-import org.agmas.noellesroles.game.roles.vigilante.ghost_eye.GhostEyePlayerComponent;
+import org.agmas.noellesroles.role_data.vigilante.GhostEyeRoleData;
 import org.agmas.noellesroles.role.ModRoles;
 
 /**
@@ -37,7 +38,9 @@ public class GhostEyeHud {
                 return;
 
             Font font = client.font;
-            GhostEyePlayerComponent ghostComp = GhostEyePlayerComponent.KEY.get(client.player);
+            var ghostData = RoleData.getOptional(GhostEyeRoleData.class, client.player);
+            if (ghostData.isEmpty()) return;
+            var ghostComp = ghostData.get();
             int x = context.guiWidth() - 12;
             int color = ModRoles.GHOST_EYE.color();
 

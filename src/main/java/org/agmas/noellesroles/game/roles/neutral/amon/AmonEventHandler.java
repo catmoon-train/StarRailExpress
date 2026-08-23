@@ -15,6 +15,7 @@
 
 package org.agmas.noellesroles.game.roles.neutral.amon;
 
+import io.wifi.starrailexpress.api.data.RoleData;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.event.AfterShieldAllowPlayerDeath;
 import io.wifi.starrailexpress.event.AfterShieldAllowPlayerDeathWithKiller;
@@ -25,6 +26,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 import org.agmas.noellesroles.role.ModRoles;
+import org.agmas.noellesroles.role_data.neutral.AmonRoleData;
 
 /**
  * 阿蒙死亡转移事件：受致命伤（护盾后）时，若存在成熟宿主则夺舍续命并取消死亡。
@@ -61,7 +63,10 @@ public final class AmonEventHandler {
         SREGameWorldComponent game = SREGameWorldComponent.KEY.get(amon.level());
         if (!game.isRunning() || !game.isRole(amon, ModRoles.AMON)) return true;
 
-        AmonPlayerComponent comp = AmonPlayerComponent.KEY.get(amon);
+        AmonRoleData comp = RoleData.getNullable(AmonRoleData.class, amon);
+        if (comp == null) {
+            return true;
+        }
         // 终幕：消耗备用能力逃脱续命；否则中途夺舍续命。两者均无可用资源时真正死亡。
         if (comp.finalePhase) {
             if (comp.tryFinaleEscape()) {

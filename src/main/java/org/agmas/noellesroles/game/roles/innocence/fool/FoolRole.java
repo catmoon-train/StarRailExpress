@@ -16,6 +16,7 @@
 package org.agmas.noellesroles.game.roles.innocence.fool;
 
 import io.wifi.starrailexpress.api.NormalRole;
+import io.wifi.starrailexpress.api.data.RoleData;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.util.ShopEntry;
 import net.minecraft.resources.ResourceLocation;
@@ -23,6 +24,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import org.agmas.noellesroles.init.ModItems;
+import org.agmas.noellesroles.role_data.innocence.FoolRoleData;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -85,12 +87,14 @@ public class FoolRole extends NormalRole {
 
     @Override
     public void serverTick(ServerPlayer player) {
-        FoolPlayerComponent comp = FoolPlayerComponent.KEY.get(player);
-        if (!comp.starterGunGranted) {
-            ExecutionerGunItem.ensureExecutionerGun(player);
-            comp.executionerBullets = 1;
-            comp.starterGunGranted = true;
-            comp.sync();
+        FoolRoleData comp = RoleData.getNullable(FoolRoleData.class, player);
+        if (comp != null) {
+            if (!comp.starterGunGranted) {
+                ExecutionerGunItem.ensureExecutionerGun(player);
+                comp.executionerBullets = 1;
+                comp.starterGunGranted = true;
+                comp.sync();
+            }
         }
         SREGameWorldComponent gameComponent = SREGameWorldComponent.KEY.get(player.level());
         TarotAssemblyManager.serverTick(player, gameComponent);

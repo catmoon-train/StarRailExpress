@@ -26,7 +26,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
-import org.agmas.noellesroles.game.roles.neutral.reasoner.ReasonerPlayerComponent;
+import org.agmas.noellesroles.role_data.neutral.ReasonerRoleData;
 import org.agmas.noellesroles.role.ModRoles;
 
 public class ReasonerCompassItem extends Item {
@@ -48,7 +48,11 @@ public class ReasonerCompassItem extends Item {
             return InteractionResultHolder.fail(stack);
         }
 
-        ReasonerPlayerComponent.KEY.get(player).openCompass(serverPlayer);
+        var reasonerData = io.wifi.starrailexpress.api.data.RoleData
+                .getNullable(org.agmas.noellesroles.role_data.neutral.ReasonerRoleData.class, player);
+        if (reasonerData != null) {
+            reasonerData.openCompass(serverPlayer);
+        }
         return InteractionResultHolder.sidedSuccess(stack, level.isClientSide);
     }
 }

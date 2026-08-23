@@ -17,6 +17,7 @@ package org.agmas.noellesroles.client.hud.roles;
 
 import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.api.TMMRoles;
+import io.wifi.starrailexpress.api.data.RoleData;
 import io.wifi.starrailexpress.client.SREClient;
 import io.wifi.utils.client.betterrender.FakeGuiGraphics;
 import net.minecraft.ChatFormatting;
@@ -28,9 +29,9 @@ import net.minecraft.resources.ResourceLocation;
 import java.util.function.BiConsumer;
 
 import org.agmas.noellesroles.client.event.RoleHudRenderCallback;
-import org.agmas.noellesroles.component.ModComponents;
 import org.agmas.noellesroles.role.ModRoles;
 import org.agmas.noellesroles.role.touhou.THLostForestRoles;
+import org.agmas.noellesroles.role_data.innocence.MagicianRoleData;
 
 public class MagicianHud {
 
@@ -46,10 +47,11 @@ public class MagicianHud {
                 return;
             }
 
-            var magicianComponent = ModComponents.MAGICIAN.get(client.player);
-            if (magicianComponent == null) {
+            var magicianOpt = RoleData.getOptional(MagicianRoleData.class, client.player);
+            if (magicianOpt.isEmpty()) {
                 return;
             }
+            var magicianComponent = magicianOpt.get();
 
             ResourceLocation disguiseId = magicianComponent.getDisguiseRoleId();
             if (disguiseId == null) {

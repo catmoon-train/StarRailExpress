@@ -21,7 +21,8 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;
 import org.agmas.noellesroles.client.event.RoleHudRenderCallback;
-import org.agmas.noellesroles.game.roles.innocence.return_traveler.ReturnTravelerPlayerComponent;
+import io.wifi.starrailexpress.api.data.RoleData;
+import org.agmas.noellesroles.role_data.innocence.ReturnTravelerRoleData;
 import org.agmas.noellesroles.role.ModRoles;
 
 import java.awt.Color;
@@ -40,7 +41,10 @@ public class ReturnTravelerHudRenderer {
             if (!GameUtils.isPlayerAliveAndSurvival(client.player))
                 return;
 
-            var component = ReturnTravelerPlayerComponent.KEY.get(client.player);
+            var componentOpt = RoleData.getOptional(ReturnTravelerRoleData.class, client.player);
+            if (componentOpt.isEmpty())
+                return;
+            var component = componentOpt.get();
             var font = client.font;
 
             // 客户端平滑倒计时：以服务端同步值为锚点，逐帧递减，避免每 200 tick 才跳变一次
@@ -56,7 +60,7 @@ public class ReturnTravelerHudRenderer {
                 clientCdTicks = Math.max(0f, clientCdTicks - dtTicks);
             }
 
-            boolean oldFerry = component.currentMode == ReturnTravelerPlayerComponent.MODE_OLD_FERRY;
+            boolean oldFerry = component.currentMode == ReturnTravelerRoleData.MODE_OLD_FERRY;
 
             // 两个技能各自独立显示状态，选中项用 ▶ 标记，整体右对齐
             int rightX = graphics.guiWidth() - 30;

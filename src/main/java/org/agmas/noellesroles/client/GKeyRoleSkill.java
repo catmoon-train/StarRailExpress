@@ -17,6 +17,7 @@ package org.agmas.noellesroles.client;
 
 import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.api.SRERole;
+import io.wifi.starrailexpress.api.data.RoleData;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.game.GameUtils;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
@@ -35,6 +36,7 @@ import org.agmas.noellesroles.packet.VultureEatC2SPacket;
 import org.agmas.noellesroles.role.BounsRoles;
 import org.agmas.noellesroles.role.ModRoles;
 import org.agmas.noellesroles.role.touhou.THMountainRoles;
+import org.agmas.noellesroles.role_data.neutral.GodfatherRoleData;
 import org.agmas.noellesroles.utils.RoleUtils;
 
 import java.util.HashMap;
@@ -184,8 +186,7 @@ public final class GKeyRoleSkill {
             return true;
         });
         register(ModRoles.GODFATHER, true, (client, gameWorld) -> {
-            var comp = org.agmas.noellesroles.game.roles.neutral.mafia.GodfatherComponent.KEY.maybeGet(client.player)
-                    .orElse(null);
+            var comp = RoleData.getNullable(GodfatherRoleData.class, client.player);
             if (comp != null && client.player != null && client.player.level() != null) {
                 if (!GameUtils.isPlayerAliveAndSurvival(client.player)) {
                     return true;

@@ -19,7 +19,8 @@ import io.wifi.starrailexpress.client.PostProcessor;
 import io.wifi.starrailexpress.client.SREClient;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
-import org.agmas.noellesroles.game.roles.killer.ma_chen_xu.MaChenXuPlayerComponent;
+import io.wifi.starrailexpress.api.data.RoleData;
+import org.agmas.noellesroles.role_data.killer.MaChenXuRoleData;
 import org.agmas.noellesroles.init.ModEffects;
 import org.agmas.noellesroles.role.ModRoles;
 
@@ -66,18 +67,18 @@ public class OtherworldShader {
         // 好人通过 OTHERWORLD_AURA 药水效果检测
         if (mc.player.hasEffect(ModEffects.OTHERWORLD_AURA)) return true;
         // 布袋鬼自己通过组件状态检测
-        MaChenXuPlayerComponent localComp = getLocalMaChenXuComponent();
+        MaChenXuRoleData localComp = getLocalMaChenXuComponent();
         return localComp != null && localComp.otherworldActive;
     }
 
     /**
-     * 获取布袋鬼的MaChenXuPlayerComponent（本地玩家为布袋鬼时）
+     * 获取布袋鬼的MaChenXuRoleData（本地玩家为布袋鬼时）
      */
-    public static MaChenXuPlayerComponent getLocalMaChenXuComponent() {
+    public static MaChenXuRoleData getLocalMaChenXuComponent() {
         Minecraft mc = Minecraft.getInstance();
         if (mc.player == null || SREClient.gameComponent == null) return null;
         if (SREClient.gameComponent.isRole(mc.player, ModRoles.MA_CHEN_XU)) {
-            return MaChenXuPlayerComponent.KEY.get(mc.player);
+            return RoleData.getNullable(MaChenXuRoleData.class, mc.player);
         }
         return null;
     }
@@ -89,7 +90,7 @@ public class OtherworldShader {
             boolean isActive = isAnyOtherworldActive();
 
             // 布袋鬼自己不受shader影响（他是施法者）
-            MaChenXuPlayerComponent localComp = getLocalMaChenXuComponent();
+            MaChenXuRoleData localComp = getLocalMaChenXuComponent();
             if (localComp != null && localComp.otherworldActive) {
                 // 布袋鬼自己也显示轻微效果（更沉浸）
                 // 但使用减弱版

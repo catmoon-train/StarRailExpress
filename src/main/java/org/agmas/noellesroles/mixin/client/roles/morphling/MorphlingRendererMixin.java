@@ -22,6 +22,7 @@ import io.wifi.starrailexpress.client.util.ClientSkinCache;
 import net.fabricmc.loader.impl.util.log.Log;
 import net.fabricmc.loader.impl.util.log.LogCategory;
 import net.minecraft.client.player.AbstractClientPlayer;
+import io.wifi.starrailexpress.api.data.RoleData;
 import net.minecraft.client.renderer.entity.player.PlayerRenderer;
 import net.minecraft.client.resources.PlayerSkin;
 import net.minecraft.resources.ResourceLocation;
@@ -29,7 +30,7 @@ import org.agmas.harpymodloader.component.WorldModifierComponent;
 import org.agmas.noellesroles.ConfigWorldComponent;
 import org.agmas.noellesroles.Noellesroles;
 import org.agmas.noellesroles.client.NoellesrolesClient;
-import org.agmas.noellesroles.game.roles.killer.morphling.MorphlingPlayerComponent;
+import org.agmas.noellesroles.role_data.killer.MorphlingRoleData;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
@@ -121,9 +122,9 @@ public abstract class MorphlingRendererMixin {
                 }
             }
 
-            final var morphlingPlayerComponent = MorphlingPlayerComponent.KEY.get(abstractClientPlayerEntity);
-            if (morphlingPlayerComponent != null && morphlingPlayerComponent.getMorphTicks() > 0) {
-                final var disguise = (MorphlingPlayerComponent.KEY.get(abstractClientPlayerEntity)).disguise;
+            final var morphlingOpt = RoleData.getOptional(MorphlingRoleData.class, abstractClientPlayerEntity);
+            if (morphlingOpt.isPresent() && morphlingOpt.get().getMorphTicks() > 0) {
+                final var disguise = morphlingOpt.get().disguise;
                 final var playerInfo = ClientSkinCache.getCachedPlayerInfo(disguise);
                 if (playerInfo == null)
                     return;
@@ -173,8 +174,9 @@ public abstract class MorphlingRendererMixin {
                 }
             }
 
-            var component = MorphlingPlayerComponent.KEY.get(instance);
-            if (component != null && component.getMorphTicks() > 0 && component.disguise != null) {
+            var morphOpt = RoleData.getOptional(MorphlingRoleData.class, instance);
+            if (morphOpt.isPresent() && morphOpt.get().getMorphTicks() > 0 && morphOpt.get().disguise != null) {
+                final var component = morphOpt.get();
                 final var playerInfo = ClientSkinCache.getCachedPlayerInfo((component.disguise));
                 if (playerInfo != null) {
                     final var skin = playerInfo.getSkin();

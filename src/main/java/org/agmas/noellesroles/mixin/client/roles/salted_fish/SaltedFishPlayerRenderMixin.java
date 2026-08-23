@@ -16,10 +16,11 @@
 package org.agmas.noellesroles.mixin.client.roles.salted_fish;
 
 import com.mojang.blaze3d.vertex.PoseStack;
+import io.wifi.starrailexpress.api.data.RoleData;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.player.PlayerRenderer;
-import org.agmas.noellesroles.game.roles.innocence.salted_fish.SaltedFishPlayerComponent;
+import org.agmas.noellesroles.role_data.innocence.SaltedFishRoleData;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -31,7 +32,7 @@ public abstract class SaltedFishPlayerRenderMixin {
             at = @At("HEAD"), cancellable = true)
     private void noellesroles$hideActiveSaltedFishPlayer(AbstractClientPlayer player, float yaw, float tickDelta,
             PoseStack poseStack, MultiBufferSource bufferSource, int packedLight, CallbackInfo ci) {
-        SaltedFishPlayerComponent component = SaltedFishPlayerComponent.KEY.maybeGet(player).orElse(null);
+        SaltedFishRoleData component = RoleData.getNullable(SaltedFishRoleData.class, player);
         if (component != null && component.isActive()) {
             ci.cancel();
         }

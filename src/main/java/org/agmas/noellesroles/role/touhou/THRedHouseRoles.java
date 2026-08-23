@@ -29,10 +29,11 @@ import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 
-import org.agmas.noellesroles.game.roles.innocence.ghost.GhostPlayerComponent;
+import io.wifi.starrailexpress.api.data.RoleData;
 import org.agmas.noellesroles.init.ModEffects;
 import org.agmas.noellesroles.init.ModItems;
 import org.agmas.noellesroles.role.ModRoles;
+import org.agmas.noellesroles.role_data.innocence.GhostRoleData;
 import org.agmas.noellesroles.role.touhou.roles.*;
 import org.agmas.noellesroles.role_data.neutral.RemiliaBloodServantRoleData;
 import org.agmas.noellesroles.role_data.vigilante.HoanMeirinRoleData;
@@ -116,8 +117,9 @@ public class THRedHouseRoles {
         public void serverTick(ServerPlayer player) {
           if (player.isSpectator())
             return;
-          // 复用cca
-          GhostPlayerComponent.KEY.get(player).checkFuranLastStand(SREGameWorldComponent.KEY.get(player.level()));
+          // 复用 roledata
+          RoleData.getOptional(GhostRoleData.class, player).ifPresent(rd ->
+              rd.checkFuranLastStand(SREGameWorldComponent.KEY.get(player.level())));
         }
       }, "th_redhouse").setHiddenForRoleRotation(true)
       .setCanSeeCoin(true).setNeutrals(true).setCanUseInstinctAndNightVision(true).setCanIgnoreBlackout(true);

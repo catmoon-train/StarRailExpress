@@ -40,7 +40,8 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import org.agmas.noellesroles.config.NoellesRolesConfig;
 import org.agmas.noellesroles.game.roles.innocence.builder.BuilderWallPositions;
-import org.agmas.noellesroles.game.roles.innocence.noise_maker.NoiseMakerPlayerComponent;
+import org.agmas.noellesroles.role_data.innocence.NoiseMakerRoleData;
+import org.agmas.noellesroles.role_data.killer.ImitatorRoleData;
 import org.agmas.noellesroles.init.ModEffects;
 import org.agmas.noellesroles.init.ModItems;
 import org.agmas.noellesroles.packet.BuilderRemoveWallS2CPacket;
@@ -139,7 +140,7 @@ public class ImitatorSkillRegistry {
      * @return SkillResult
      */
     public static SkillResult execute(ResourceLocation roleId, ServerPlayer player,
-            @Nullable UUID target, ImitatorPlayerComponent comp,
+            @Nullable UUID target, ImitatorRoleData comp,
             boolean isPermanent) {
         if (roleId.equals(ModRoles.RECALLER_ID)) {
             return executeRecaller(player, comp, isPermanent);
@@ -190,7 +191,7 @@ public class ImitatorSkillRegistry {
      * 执行消息类技能(电报员/广播员) - 由服务端包处理器调用
      */
     public static SkillResult executeMessage(ResourceLocation roleId, ServerPlayer player,
-            String message, ImitatorPlayerComponent comp,
+            String message, ImitatorRoleData comp,
             boolean isPermanent) {
         if (roleId.equals(BounsRoles.TELEGRAPHER_ID)) {
             return executeTelegrapher(player, message);
@@ -207,7 +208,7 @@ public class ImitatorSkillRegistry {
      * - 第一次使用：标记当前位置（不设冷却，不扣次数）
      * - 第二次使用：传送回标记点（花费100金币，30秒冷却，扣临时次数）
      */
-    private static SkillResult executeRecaller(ServerPlayer player, ImitatorPlayerComponent comp,
+    private static SkillResult executeRecaller(ServerPlayer player, ImitatorRoleData comp,
             boolean isPermanent) {
         if (!comp.imitRecallerPlaced) {
             // 标记位置
@@ -335,7 +336,7 @@ public class ImitatorSkillRegistry {
     /**
      * 斗士：1.5秒无敌不死
      */
-    private static void executeBoxer(ServerPlayer player, ImitatorPlayerComponent comp) {
+    private static void executeBoxer(ServerPlayer player, ImitatorRoleData comp) {
         comp.imitBoxerInvulnTicks = 30; // 1.5秒
         player.level().playSound(null, player.blockPosition(),
                 TMMSounds.ITEM_PSYCHO_ARMOUR, SoundSource.MASTER, 5.0F, 1.0F);
@@ -408,7 +409,7 @@ public class ImitatorSkillRegistry {
                 double strength = cfg.noisemakerShockwaveKnockback;
                 target.push(to.x / dist * strength, 0.42D, to.z / dist * strength);
                 if (target instanceof ServerPlayer stp) {
-                    NoiseMakerPlayerComponent.markShockwavePushed(stp, player);
+                    NoiseMakerRoleData.markShockwavePushed(stp, player);
                     stp.hurtMarked = true;
                     stp.connection.send(new net.minecraft.network.protocol.game.ClientboundSetEntityMotionPacket(
                             stp.getId(), stp.getDeltaMovement()));

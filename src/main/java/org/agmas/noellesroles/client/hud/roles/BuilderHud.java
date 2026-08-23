@@ -15,14 +15,15 @@
 
 package org.agmas.noellesroles.client.hud.roles;
 
+import io.wifi.starrailexpress.api.data.RoleData;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.CommonColors;
 import org.agmas.noellesroles.client.NoellesrolesClient;
 import org.agmas.noellesroles.client.event.RoleHudRenderCallback;
-import org.agmas.noellesroles.game.roles.innocence.builder.BuilderPlayerComponent;
 import org.agmas.noellesroles.role.ModRoles;
+import org.agmas.noellesroles.role_data.innocence.BuilderRoleData;
 
 /**
  * 建筑师 HUD
@@ -36,7 +37,10 @@ public class BuilderHud {
             if (client.player == null)
                 return;
 
-            BuilderPlayerComponent builderComponent = BuilderPlayerComponent.KEY.get(client.player);
+            var builderOpt = RoleData.getOptional(BuilderRoleData.class, client.player);
+            if (builderOpt.isEmpty())
+                return;
+            BuilderRoleData builderComponent = builderOpt.get();
 
             // 渲染位置 - 右下角
             Font textRenderer = client.font;

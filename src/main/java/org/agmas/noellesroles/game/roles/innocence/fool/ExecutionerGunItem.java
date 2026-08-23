@@ -17,6 +17,7 @@ package org.agmas.noellesroles.game.roles.innocence.fool;
 
 import io.wifi.StarRailExpressID;
 import io.wifi.starrailexpress.api.SRERole;
+import io.wifi.starrailexpress.api.data.RoleData;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.client.SREClient;
 import io.wifi.starrailexpress.client.particle.HandParticle;
@@ -40,6 +41,7 @@ import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.HitResult;
 import org.agmas.noellesroles.init.ModItems;
 import org.agmas.noellesroles.role.ModRoles;
+import org.agmas.noellesroles.role_data.innocence.FoolRoleData;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -103,7 +105,10 @@ public class ExecutionerGunItem extends Item {
             return false;
         }
 
-        FoolPlayerComponent comp = FoolPlayerComponent.KEY.get(shooter);
+        FoolRoleData comp = RoleData.getNullable(FoolRoleData.class, shooter);
+        if (comp == null) {
+            return false;
+        }
 
         // 检查目标是否为当前异端
         long currentTick = shooter.level().getGameTime();

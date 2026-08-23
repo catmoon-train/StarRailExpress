@@ -39,7 +39,9 @@ import org.agmas.noellesroles.component.DeathPenaltyComponent;
 import org.agmas.noellesroles.component.DefibrillatorComponent;
 import org.agmas.noellesroles.component.InfectedPlayerComponent;
 import org.agmas.noellesroles.component.ModComponents;
-import org.agmas.noellesroles.game.roles.killer.executioner.ExecutionerPlayerComponent;
+import org.agmas.noellesroles.role_data.killer.ExecutionerRoleData;
+import org.agmas.noellesroles.role_data.neutral.PelicanRoleData;
+import io.wifi.starrailexpress.api.data.RoleData;
 import org.agmas.noellesroles.game.roles.neutral.infected.InfectedWinChecker;
 import org.agmas.noellesroles.init.ModEffects;
 import org.agmas.noellesroles.role.ModRoles;
@@ -244,8 +246,8 @@ public final class PelicanManager {
             if (candidateWorld == null || !candidateWorld.isRole(candidate, ModRoles.EXECUTIONER)) {
                 continue;
             }
-            ExecutionerPlayerComponent executioner = ExecutionerPlayerComponent.KEY.get(candidate);
-            if (stashedTargetId.equals(executioner.target)) {
+            ExecutionerRoleData executioner = RoleData.getNullable(ExecutionerRoleData.class, candidate);
+            if (executioner != null && stashedTargetId.equals(executioner.target)) {
                 executioner.target = pelican.getUUID();
                 executioner.targetSelected = true;
                 executioner.sync();
@@ -338,10 +340,12 @@ public final class PelicanManager {
 
         // 同步清理鹈鹕组件中的肚内玩家列表，防止再次按技能键时重复显示"吐出玩家"
         if (pelican != null) {
-            PelicanPlayerComponent comp = PelicanPlayerComponent.KEY.get(pelican);
-            comp.bellyPlayerIds.clear();
-            comp.bellyNames.clear();
-            comp.sync();
+            PelicanRoleData comp = RoleData.getNullable(PelicanRoleData.class, pelican);
+            if (comp != null) {
+                comp.bellyPlayerIds.clear();
+                comp.bellyNames.clear();
+                comp.sync();
+            }
         }
 
         // 如果被释放的玩家中有疫使，重新检查疫使时刻触发条件

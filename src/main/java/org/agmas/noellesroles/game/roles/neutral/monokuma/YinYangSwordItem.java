@@ -15,6 +15,7 @@
 
 package org.agmas.noellesroles.game.roles.neutral.monokuma;
 
+import io.wifi.starrailexpress.api.data.RoleData;
 import io.wifi.starrailexpress.game.GameUtils;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.particles.DustParticleOptions;
@@ -37,6 +38,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import org.agmas.noellesroles.Noellesroles;
+import org.agmas.noellesroles.role_data.neutral.MonokumaRoleData;
 import org.joml.Vector3f;
 
 import java.util.List;
@@ -73,8 +75,8 @@ public class YinYangSwordItem extends Item {
         if (sp.getCooldowns().isOnCooldown(this))
             return InteractionResultHolder.pass(stack);
 
-        // 启动蓄力计时器（在 MonokumaPlayerComponent 中管理）
-        var comp = MonokumaPlayerComponent.KEY.maybeGet(sp).orElse(null);
+        // 启动蓄力计时器（在 MonokumaRoleData 中管理）
+        var comp = RoleData.getNullable(MonokumaRoleData.class, sp);
         if (comp != null && comp.phase == 2 && comp.aoeChargeTimer <= 0) {
             comp.aoeChargeTimer = CHARGE_TIME;
             comp.sync();
@@ -201,7 +203,7 @@ public class YinYangSwordItem extends Item {
      * 参考 StalkerKnifeItem 的冲刺逻辑
      */
     private static void performDashAfterCharge(ServerLevel serverLevel, ServerPlayer sp) {
-        var comp = MonokumaPlayerComponent.KEY.maybeGet(sp).orElse(null);
+        var comp = RoleData.getNullable(MonokumaRoleData.class, sp);
         if (comp != null) {
             comp.dashAnimTimer = 8;
             comp.sync();
@@ -244,7 +246,7 @@ public class YinYangSwordItem extends Item {
         if (sp.getCooldowns().isOnCooldown(user.getMainHandItem().getItem()))
             return;
 
-        var comp = MonokumaPlayerComponent.KEY.maybeGet(sp).orElse(null);
+        var comp = RoleData.getNullable(MonokumaRoleData.class, sp);
         if (comp != null) {
             comp.dashAnimTimer = 8;
             comp.sync();

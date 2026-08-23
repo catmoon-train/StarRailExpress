@@ -16,11 +16,12 @@
 package org.agmas.noellesroles.mixin;
 
 import io.wifi.starrailexpress.SREConfig;
+import io.wifi.starrailexpress.api.data.RoleData;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.cca.SREPlayerPsychoComponent;
 import io.wifi.starrailexpress.index.TMMItems;
 import net.minecraft.world.entity.player.Player;
-import org.agmas.noellesroles.game.roles.killer.executioner.ShootingFrenzyPlayerComponent;
+import org.agmas.noellesroles.role_data.killer.ExecutionerRoleData;
 import org.agmas.noellesroles.role.ModRoles;
 import org.jetbrains.annotations.NotNull;
 import org.spongepowered.asm.mixin.Mixin;
@@ -63,8 +64,8 @@ public class PlayerPsychoComponentCooldownMixin {
         // 修改刽子手射击狂热的疯狂模式：一层护盾（护甲为1）、狂暴皮肤（type=1）
         if (gameWorld != null && gameWorld.isRole(player, ModRoles.EXECUTIONER)) {
             SREPlayerPsychoComponent psychoComponent = SREPlayerPsychoComponent.KEY.get(player);
-            ShootingFrenzyPlayerComponent frenzyComponent = ShootingFrenzyPlayerComponent.KEY.get(player);
-            if (frenzyComponent.inFrenzy) {
+            ExecutionerRoleData frenzyComponent = RoleData.getNullable(ExecutionerRoleData.class, player);
+            if (frenzyComponent != null && frenzyComponent.inFrenzy) {
                 psychoComponent.setArmour(1); // 一层护盾
                 psychoComponent.type = 1; // 狂暴皮肤
                 psychoComponent.sync();

@@ -16,6 +16,7 @@
 package org.agmas.noellesroles.game.roles.killer.manipulator;
 
 import io.wifi.starrailexpress.api.RoleComponent;
+import io.wifi.starrailexpress.api.data.RoleData;
 import io.wifi.starrailexpress.event.AllowPlayerDeathWithKiller;
 import io.wifi.starrailexpress.game.GameConstants;
 import io.wifi.starrailexpress.game.GameUtils;
@@ -38,6 +39,7 @@ import net.minecraft.world.phys.Vec3;
 import org.agmas.noellesroles.Noellesroles;
 import org.agmas.noellesroles.init.ModEffects;
 import org.agmas.noellesroles.packet.ManipulatorControlInputC2SPacket;
+import org.agmas.noellesroles.role_data.killer.ManipulatorRoleData;
 import org.ladysnake.cca.api.v3.component.ComponentKey;
 import org.ladysnake.cca.api.v3.component.ComponentRegistry;
 import org.ladysnake.cca.api.v3.component.tick.ServerTickingComponent;
@@ -258,7 +260,7 @@ public class InControlCCA implements RoleComponent, ServerTickingComponent {
             if ((player instanceof ServerPlayer sp)) {
                 var controller_p = sp.level().getPlayerByUUID(this.controller);
                 if (controller_p != null) {
-                    var controllerComponent = ManipulatorPlayerComponent.KEY.get(controller_p);
+                    var controllerComponent = RoleData.getNullable(ManipulatorRoleData.class, controller_p);
                     if (controllerComponent != null) {
                         controllerComponent.stopControl(isTimeout);
                         this.controller = null;

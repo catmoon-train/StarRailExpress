@@ -40,7 +40,6 @@ import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
-import org.agmas.noellesroles.component.ModComponents;
 import org.agmas.noellesroles.content.entity.MudTrapEntity;
 import org.agmas.noellesroles.content.entity.TripwireTrapEntity;
 import org.agmas.noellesroles.init.ModEffects;

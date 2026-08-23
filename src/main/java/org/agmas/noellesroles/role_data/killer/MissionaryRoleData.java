@@ -15,22 +15,17 @@
 
 package org.agmas.noellesroles.role_data.killer;
 
-import io.wifi.starrailexpress.api.data.RoleData;
 import io.wifi.starrailexpress.api.data.RoleDataContext;
 import io.wifi.starrailexpress.api.impl.SimpleRoleData;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import net.exmo.sre.meeting.MeetingManager;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
-import org.agmas.noellesroles.Noellesroles;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.resources.ResourceLocation;
 import java.util.UUID;
 
 public class MissionaryRoleData extends SimpleRoleData {
-
-
 
     /** 技能冷却结束时间 (gameTime) */
     private long cooldownEndTick;

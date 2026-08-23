@@ -16,6 +16,7 @@
 package io.wifi.starrailexpress.hat;
 
 import io.wifi.starrailexpress.SREClientConfig;
+import io.wifi.starrailexpress.api.data.RoleData;
 import io.wifi.starrailexpress.cca.SREPlayerSkinsComponent;
 import io.wifi.starrailexpress.client.hat.ClientHatEquipmentCache;
 import io.wifi.starrailexpress.event.OnResolveDisplayedSkinOwner;
@@ -24,6 +25,7 @@ import net.fabricmc.api.Environment;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.world.entity.player.Player;
+import org.agmas.noellesroles.role_data.killer.MorphlingRoleData;
 
 import java.util.UUID;
 
@@ -78,8 +80,7 @@ public final class HatEquipmentApi {
                 return splitComponent.getSkinToAppearAs();
             }
             // 3. 变形者变身中
-            var morphComponent = org.agmas.noellesroles.game.roles.killer.morphling.MorphlingPlayerComponent.KEY
-                    .getNullable(player);
+            var morphComponent = RoleData.getNullable(MorphlingRoleData.class, player);
             if (morphComponent != null && morphComponent.getMorphTicks() > 0 && morphComponent.disguise != null) {
                 return morphComponent.disguise;
             }

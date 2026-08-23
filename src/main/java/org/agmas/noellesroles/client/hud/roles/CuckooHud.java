@@ -20,7 +20,8 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.network.chat.Component;
 import org.agmas.noellesroles.client.event.RoleHudRenderCallback;
-import org.agmas.noellesroles.game.roles.neutral.cuckoo.CuckooPlayerComponent;
+import io.wifi.starrailexpress.api.data.RoleData;
+import org.agmas.noellesroles.role_data.neutral.CuckooRoleData;
 import org.agmas.noellesroles.role.ModRoles;
 
 import java.awt.*;
@@ -38,8 +39,9 @@ public abstract class CuckooHud {
             int yOffset = screenHeight - 10 - font.lineHeight;
             int xOffset = screenWidth - 10;
 
-            CuckooPlayerComponent comp = CuckooPlayerComponent.KEY.get(client.player);
-            if (comp == null) return;
+            var cuckooOpt = RoleData.getOptional(CuckooRoleData.class, client.player);
+            if (cuckooOpt.isEmpty()) return;
+            CuckooRoleData comp = cuckooOpt.get();
 
             // 蛋进度：当前蛋数/目标蛋数
             Component eggText = Component.translatable("hud.noellesroles.cuckoo.eggs",
