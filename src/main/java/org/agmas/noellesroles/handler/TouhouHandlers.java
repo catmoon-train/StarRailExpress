@@ -208,6 +208,20 @@ public class TouhouHandlers {
       }
       return TrueFalseResult.PASS;
     });
+
+    // 四季
+    AllowPlayerDeathWithKiller.EVENT.register((victim, killer, deathReasosn) -> {
+      if (killer == null)
+        return true;
+      if (!RoleUtils.isPlayerTheJob(victim, THMiscRoles.SHIKIEIKI))
+        return true;
+      if (SREAbilityPlayerComponent.KEY.get(victim).targetUUID == null)
+        return true;
+      if (SREAbilityPlayerComponent.KEY.get(victim).targetUUID == killer.getUUID()) {
+        return false;
+      }
+      return true;
+    });
     // 天子&小町
     OnPlayerDeathWithKiller.EVENT.register((player, killer, deathReason) -> {
       var gameWorldComponent = SREGameWorldComponent.KEY.get(player.level());
