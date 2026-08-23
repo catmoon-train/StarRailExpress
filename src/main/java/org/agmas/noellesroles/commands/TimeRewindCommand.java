@@ -13,41 +13,61 @@ import com.mojang.brigadier.context.CommandContext;
 import io.wifi.starrailexpress.SREConfig;
 import io.wifi.starrailexpress.cca.AreasWorldComponent;
 import io.wifi.starrailexpress.cca.SRERoleDataPlayerComponent;
+import io.wifi.starrailexpress.event.OnGameEnd;
+import io.wifi.starrailexpress.event.OnGameInitialized;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 import net.minecraft.ChatFormatting;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.arguments.EntityArgument;
+import net.minecraft.commands.arguments.ResourceLocationArgument;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.Level;
-import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.phys.AABB;
+import org.agmas.noellesroles.Noellesroles;
 import org.agmas.noellesroles.api.time.TimeRewind;
 import org.agmas.noellesroles.api.time.TimeRewindAreaResult;
 import org.agmas.noellesroles.api.time.TimeRewindAreaSnapshot;
+import org.agmas.noellesroles.api.time.TimeRewindResult;
 import org.agmas.noellesroles.api.time.TimeRewindSnapshot;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
-/** Operator-only capture, playback and verification controls for time rewind. */
+/**
+ * Operator-only capture, playback and verification controls for time rewind.
+ *
+ * <p>
+ * Snapshots are keyed by a {@link ResourceLocation} id so one player can hold
+ * several named rewind points. Sub-commands follow lowercase + underscore
+ * naming: {@code area_capture}, {@code clear_all} ...
+ */
 public final class TimeRewindCommand {
-    private static final int DEFAULT_DURATION = 50;
-    private static final Map<UUID, TimeRewindSnapshot> PLAYER_SNAPSHOTS =
-            new ConcurrentHashMap<>();
-    private static final Map<ResourceKey<Level>, TimeRewindAreaSnapshot> AREA_SNAPSHOTS =
-            new ConcurrentHashMap<>();
+    private static final int DEFAULT_TICKS = 50;
+    private static final ResourceLocation DEFAULT_ID = Noellesroles.id("default");
+    private static final Map<UUID, Map<ResourceLocation, TimeRewindSnapshot>> PLAYER_SNAPSHOTS = new ConcurrentHashMap<>();
+    private static final Map<ResourceKey<Level>, Map<ResourceLocation, TimeRewindAreaSnapshot>> AREA_SNAPSHOTS = new ConcurrentHashMap<>();
 
     private TimeRewindCommand() {
     }
 
     public static void register() {
-        CommandRegistrationCallback.EVENT.register((dispatcher, registryAccess, environment) ->
-                register(dispatcher));
+        CommandRegistrationCallback.EVENT.register((dispatcher, registryAccess, environment) -> register(dispatcher));
+        OnGameEnd.EVENT.register((a, b) -> {
+            PLAYER_SNAPSHOTS.clear();
+            AREA_SNAPSHOTS.clear();
+        });
+        OnGameInitialized.EVENT.register((a) -> {
+            PLAYER_SNAPSHOTS.clear();
+            AREA_SNAPSHOTS.clear();
+        });
     }
 
     private static void register(CommandDispatcher<CommandSourceStack> dispatcher) {
@@ -60,23 +80,46 @@ public final class TimeRewindCommand {
                 .requires(source -> source.hasPermission(SREConfig.instance().timeRewindPermission))
                 .executes(TimeRewindCommand::help)
                 .then(Commands.literal("capture")
-                        .executes(context -> capture(context, java.util.List.of(
-                                context.getSource().getPlayerOrException())))
+                        .executes(context -> capture(context, DEFAULT_ID,
+                                List.of(context.getSource().getPlayerOrException())))
                         .then(Commands.argument("targets", EntityArgument.players())
+                                .executes(context -> capture(context, DEFAULT_ID,
+                                        EntityArgument.getPlayers(context, "targets"))))
+                        .then(Commands.argument("id", ResourceLocationArgument.id())
                                 .executes(context -> capture(context,
-                                        EntityArgument.getPlayers(context, "targets")))))
+                                        ResourceLocationArgument.getId(context, "id"),
+                                        List.of(context.getSource().getPlayerOrException())))
+                                .then(Commands.argument("targets", EntityArgument.players())
+                                        .executes(context -> capture(context,
+                                                ResourceLocationArgument.getId(context, "id"),
+                                                EntityArgument.getPlayers(context, "targets"))))))
                 .then(Commands.literal("restore")
-                        .executes(context -> restore(context, java.util.List.of(
-                                context.getSource().getPlayerOrException()), DEFAULT_DURATION))
+                        .executes(context -> restore(context, DEFAULT_ID,
+                                List.of(context.getSource().getPlayerOrException()), null))
                         .then(Commands.argument("targets", EntityArgument.players())
-                                .executes(context -> restore(context,
-                                        EntityArgument.getPlayers(context, "targets"), DEFAULT_DURATION))
+                                .executes(context -> restore(context, DEFAULT_ID,
+                                        EntityArgument.getPlayers(context, "targets"), null))
                                 .then(Commands.argument("ticks", IntegerArgumentType.integer(1, 600))
-                                        .executes(context -> restore(context,
+                                        .executes(context -> restore(context, DEFAULT_ID,
                                                 EntityArgument.getPlayers(context, "targets"),
-                                                IntegerArgumentType.getInteger(context, "ticks"))))))
+                                                IntegerArgumentType.getInteger(context, "ticks")))))
+                        .then(Commands.argument("id", ResourceLocationArgument.id())
+                                .executes(context -> restore(context,
+                                        ResourceLocationArgument.getId(context, "id"),
+                                        List.of(context.getSource().getPlayerOrException()), null))
+                                .then(Commands.argument("targets", EntityArgument.players())
+                                        .executes(context -> restore(context,
+                                                ResourceLocationArgument.getId(context, "id"),
+                                                EntityArgument.getPlayers(context, "targets"), null))
+                                        .then(Commands.argument("ticks",
+                                                IntegerArgumentType.integer(1, 600))
+                                                .executes(context -> restore(context,
+                                                        ResourceLocationArgument.getId(context, "id"),
+                                                        EntityArgument.getPlayers(context, "targets"),
+                                                        IntegerArgumentType.getInteger(context,
+                                                                "ticks")))))))
                 .then(Commands.literal("cancel")
-                        .executes(context -> cancel(context, java.util.List.of(
+                        .executes(context -> cancel(context, List.of(
                                 context.getSource().getPlayerOrException())))
                         .then(Commands.argument("targets", EntityArgument.players())
                                 .executes(context -> cancel(context,
@@ -84,75 +127,134 @@ public final class TimeRewindCommand {
                 .then(Commands.literal("visual")
                         .then(Commands.argument("targets", EntityArgument.players())
                                 .executes(context -> visual(context,
-                                        EntityArgument.getPlayers(context, "targets"), DEFAULT_DURATION))
+                                        EntityArgument.getPlayers(context, "targets"), DEFAULT_TICKS))
                                 .then(Commands.argument("ticks", IntegerArgumentType.integer(1, 1200))
                                         .executes(context -> visual(context,
                                                 EntityArgument.getPlayers(context, "targets"),
                                                 IntegerArgumentType.getInteger(context, "ticks"))))))
-                .then(Commands.literal("area")
-                        .then(Commands.literal("capture").executes(TimeRewindCommand::captureArea))
-                        .then(Commands.literal("restore").executes(TimeRewindCommand::restoreArea)))
+                .then(Commands.literal("area_capture")
+                        .executes(context -> areaCapture(context, DEFAULT_ID))
+                        .then(Commands.argument("id", ResourceLocationArgument.id())
+                                .executes(context -> areaCapture(context,
+                                        ResourceLocationArgument.getId(context, "id")))))
+                .then(Commands.literal("area_restore")
+                        .executes(context -> areaRestore(context, DEFAULT_ID))
+                        .then(Commands.argument("id", ResourceLocationArgument.id())
+                                .executes(context -> areaRestore(context,
+                                        ResourceLocationArgument.getId(context, "id")))))
                 .then(Commands.literal("roledata")
-                        .executes(context -> roleData(context, java.util.List.of(
-                                context.getSource().getPlayerOrException())))
+                        .executes(context -> roleData(context, DEFAULT_ID,
+                                List.of(context.getSource().getPlayerOrException())))
                         .then(Commands.argument("targets", EntityArgument.players())
+                                .executes(context -> roleData(context, DEFAULT_ID,
+                                        EntityArgument.getPlayers(context, "targets"))))
+                        .then(Commands.argument("id", ResourceLocationArgument.id())
                                 .executes(context -> roleData(context,
-                                        EntityArgument.getPlayers(context, "targets")))))
+                                        ResourceLocationArgument.getId(context, "id"),
+                                        List.of(context.getSource().getPlayerOrException())))
+                                .then(Commands.argument("targets", EntityArgument.players())
+                                        .executes(context -> roleData(context,
+                                                ResourceLocationArgument.getId(context, "id"),
+                                                EntityArgument.getPlayers(context, "targets"))))))
                 .then(Commands.literal("status").executes(TimeRewindCommand::status))
-                .then(Commands.literal("clear").executes(TimeRewindCommand::clear)));
+                .then(Commands.literal("clear_all").executes(TimeRewindCommand::clearAll))
+                .then(Commands.literal("clear_player")
+                        .executes(context -> clearPlayer(context,
+                                List.of(context.getSource().getPlayerOrException()), null))
+                        .then(Commands.argument("targets", EntityArgument.players())
+                                .executes(context -> clearPlayer(context,
+                                        EntityArgument.getPlayers(context, "targets"), null)))
+                        .then(Commands.argument("id", ResourceLocationArgument.id())
+                                .executes(context -> clearPlayer(context,
+                                        List.of(context.getSource().getPlayerOrException()),
+                                        ResourceLocationArgument.getId(context, "id")))
+                                .then(Commands.argument("targets", EntityArgument.players())
+                                        .executes(context -> clearPlayer(context,
+                                                EntityArgument.getPlayers(context, "targets"),
+                                                ResourceLocationArgument.getId(context, "id"))))))
+                .then(Commands.literal("clear_area")
+                        .executes(context -> clearArea(context, null))
+                        .then(Commands.argument("id", ResourceLocationArgument.id())
+                                .executes(context -> clearArea(context,
+                                        ResourceLocationArgument.getId(context, "id"))))));
     }
 
     private static int help(CommandContext<CommandSourceStack> context) {
-        context.getSource().sendSuccess(() -> Component.literal(
-                "回溯指令: capture | restore | cancel | visual | area capture/restore | roledata | status | clear")
+        context.getSource().sendSuccess(() -> Component.translatable("sre.command.rewind.help")
                 .withStyle(ChatFormatting.AQUA), false);
         return 1;
     }
 
     private static int capture(CommandContext<CommandSourceStack> context,
-            Collection<ServerPlayer> targets) {
+            ResourceLocation id, Collection<ServerPlayer> targets) {
         int captured = 0;
         int warnings = 0;
         for (ServerPlayer player : targets) {
             TimeRewindSnapshot snapshot = TimeRewind.capture(player);
-            PLAYER_SNAPSHOTS.put(player.getUUID(), snapshot);
+            PLAYER_SNAPSHOTS.computeIfAbsent(player.getUUID(), k -> new ConcurrentHashMap<>())
+                    .put(id, snapshot);
             warnings += snapshot.warnings().size();
             captured++;
         }
         int finalCaptured = captured;
         int finalWarnings = warnings;
-        context.getSource().sendSuccess(() -> Component.literal("已捕获 " + finalCaptured
-                + " 个玩家回溯节点（警告 " + finalWarnings + "，局外组件保持当前值）")
+        context.getSource().sendSuccess(() -> Component.translatable(
+                "sre.command.rewind.capture.success", finalCaptured, id, finalWarnings)
                 .withStyle(ChatFormatting.AQUA), true);
         return captured;
     }
 
+    /**
+     * Restores the stored snapshot. Without {@code ticks} the snapshot is
+     * applied directly (instant, no animation); with {@code ticks} it becomes a
+     * smooth rewind that queues per player.
+     */
     private static int restore(CommandContext<CommandSourceStack> context,
-            Collection<ServerPlayer> targets, int ticks) {
-        int started = 0;
+            ResourceLocation id, Collection<ServerPlayer> targets, Integer ticks) {
+        int done = 0;
         for (ServerPlayer player : targets) {
-            TimeRewindSnapshot snapshot = PLAYER_SNAPSHOTS.get(player.getUUID());
+            Map<ResourceLocation, TimeRewindSnapshot> snapshots = PLAYER_SNAPSHOTS.get(player.getUUID());
+            TimeRewindSnapshot snapshot = snapshots == null ? null : snapshots.get(id);
             if (snapshot == null) {
-                context.getSource().sendFailure(Component.literal("没有 "
-                        + player.getScoreboardName() + " 的测试节点"));
+                context.getSource().sendFailure(Component.translatable(
+                        "sre.command.rewind.restore.not_found",
+                        player.getScoreboardName(), id));
+                continue;
+            }
+            if (ticks == null) {
+                TimeRewindResult result = TimeRewind.restore(player, snapshot);
+                if (result.isSuccess()) {
+                    done++;
+                }
+                ChatFormatting color = result.isSuccess() ? ChatFormatting.GREEN : ChatFormatting.YELLOW;
+                context.getSource().sendSuccess(() -> Component.translatable(
+                        "sre.command.rewind.restore.direct_complete", id,
+                        player.getScoreboardName(), result.restoredComponents(),
+                        result.failures().size()).withStyle(color), true);
                 continue;
             }
             if (TimeRewind.smoothRestore(player, snapshot, ticks, result -> {
                 ChatFormatting color = result.isSuccess() ? ChatFormatting.GREEN : ChatFormatting.YELLOW;
-                context.getSource().sendSuccess(() -> Component.literal("回溯完成: "
-                        + player.getScoreboardName() + "，组件 " + result.restoredComponents()
-                        + "，问题 " + result.failures().size()).withStyle(color), true);
+                context.getSource().sendSuccess(() -> Component.translatable(
+                        "sre.command.rewind.restore.smooth_complete", id,
+                        player.getScoreboardName(), result.restoredComponents(),
+                        result.failures().size()).withStyle(color), true);
             })) {
-                started++;
+                done++;
             } else {
-                context.getSource().sendFailure(Component.literal(player.getScoreboardName()
-                        + " 正在回溯或节点不匹配"));
+                context.getSource().sendFailure(Component.translatable(
+                        "sre.command.rewind.restore.mismatch", player.getScoreboardName()));
             }
         }
-        int finalStarted = started;
-        context.getSource().sendSuccess(() -> Component.literal("已启动 " + finalStarted
-                + " 个平滑回溯，时长 " + ticks + " tick").withStyle(ChatFormatting.LIGHT_PURPLE), true);
-        return started;
+        int finalDone = done;
+        boolean smooth = ticks != null;
+        var summary = smooth
+                ? Component.translatable("sre.command.rewind.restore.summary_smooth",
+                        finalDone, id, ticks)
+                : Component.translatable("sre.command.rewind.restore.summary_direct",
+                        finalDone, id);
+        context.getSource().sendSuccess(() -> summary.withStyle(ChatFormatting.LIGHT_PURPLE), true);
+        return done;
     }
 
     private static int cancel(CommandContext<CommandSourceStack> context,
@@ -164,64 +266,71 @@ public final class TimeRewindCommand {
             }
         }
         int finalCancelled = cancelled;
-        context.getSource().sendSuccess(() -> Component.literal("已取消 " + finalCancelled
-                + " 个回溯动画（不会应用节点）").withStyle(ChatFormatting.YELLOW), true);
+        context.getSource().sendSuccess(() -> Component.translatable(
+                "sre.command.rewind.cancel.success", finalCancelled)
+                .withStyle(ChatFormatting.YELLOW), true);
         return cancelled;
     }
 
     private static int visual(CommandContext<CommandSourceStack> context,
             Collection<ServerPlayer> targets, int ticks) {
         targets.forEach(player -> TimeRewind.playVisual(player, ticks));
-        context.getSource().sendSuccess(() -> Component.literal("已向 " + targets.size()
-                + " 名玩家预览回溯 shader，时长 " + ticks + " tick")
+        context.getSource().sendSuccess(() -> Component.translatable(
+                "sre.command.rewind.visual.success", targets.size(), ticks)
                 .withStyle(ChatFormatting.LIGHT_PURPLE), false);
         return targets.size();
     }
 
-    private static int captureArea(CommandContext<CommandSourceStack> context) {
+    private static int areaCapture(CommandContext<CommandSourceStack> context, ResourceLocation id) {
         ServerLevel level = context.getSource().getLevel();
         AABB area = AreasWorldComponent.KEY.get(level).getPlayArea();
         if (area == null) {
-            context.getSource().sendFailure(Component.literal("当前世界没有配置游戏区域"));
+            context.getSource().sendFailure(Component.translatable(
+                    "sre.command.rewind.area_capture.no_area"));
             return 0;
         }
         TimeRewindAreaSnapshot snapshot = TimeRewind.captureArea(level, area);
-        AREA_SNAPSHOTS.put(level.dimension(), snapshot);
-        context.getSource().sendSuccess(() -> Component.literal("已捕获区域节点：掉落物 "
-                + snapshot.itemCount() + "，SmallDoor " + snapshot.doorCount()
-                + "，警告 " + snapshot.warnings().size()).withStyle(ChatFormatting.AQUA), true);
+        AREA_SNAPSHOTS.computeIfAbsent(level.dimension(), k -> new ConcurrentHashMap<>())
+                .put(id, snapshot);
+        context.getSource().sendSuccess(() -> Component.translatable(
+                "sre.command.rewind.area_capture.success", id, snapshot.itemCount(),
+                snapshot.doorCount(), snapshot.warnings().size())
+                .withStyle(ChatFormatting.AQUA), true);
         return 1;
     }
 
-    private static int restoreArea(CommandContext<CommandSourceStack> context) {
+    private static int areaRestore(CommandContext<CommandSourceStack> context, ResourceLocation id) {
         ServerLevel level = context.getSource().getLevel();
-        TimeRewindAreaSnapshot snapshot = AREA_SNAPSHOTS.get(level.dimension());
+        Map<ResourceLocation, TimeRewindAreaSnapshot> snapshots = AREA_SNAPSHOTS.get(level.dimension());
+        TimeRewindAreaSnapshot snapshot = snapshots == null ? null : snapshots.get(id);
         if (snapshot == null) {
-            context.getSource().sendFailure(Component.literal("当前世界没有区域测试节点"));
+            context.getSource().sendFailure(Component.translatable(
+                    "sre.command.rewind.area_restore.not_found", id));
             return 0;
         }
         TimeRewindAreaResult result = TimeRewind.restoreArea(level, snapshot);
         ChatFormatting color = result.isSuccess() ? ChatFormatting.GREEN : ChatFormatting.YELLOW;
-        context.getSource().sendSuccess(() -> Component.literal("区域回溯完成：恢复掉落物 "
-                + result.restoredItems() + "，移除新增掉落物 " + result.removedCurrentItems()
-                + "，恢复门 " + result.restoredDoors() + "，问题 " + result.failures().size())
+        context.getSource().sendSuccess(() -> Component.translatable(
+                "sre.command.rewind.area_restore.result", result.restoredItems(),
+                result.removedCurrentItems(), result.restoredDoors(), result.failures().size())
                 .withStyle(color), true);
         return result.isSuccess() ? 1 : 0;
     }
 
     private static int roleData(CommandContext<CommandSourceStack> context,
-            Collection<ServerPlayer> targets) {
+            ResourceLocation id, Collection<ServerPlayer> targets) {
         int found = 0;
         for (ServerPlayer player : targets) {
-            TimeRewindSnapshot snapshot = PLAYER_SNAPSHOTS.get(player.getUUID());
+            Map<ResourceLocation, TimeRewindSnapshot> snapshots = PLAYER_SNAPSHOTS.get(player.getUUID());
+            TimeRewindSnapshot snapshot = snapshots == null ? null : snapshots.get(id);
             boolean included = snapshot != null
                     && snapshot.containsComponent(SRERoleDataPlayerComponent.KEY.getId());
             var current = SRERoleDataPlayerComponent.KEY.get(player).roleData;
             String roleDataClass = current == null ? "<none>" : current.getClass().getSimpleName();
             ChatFormatting color = included ? ChatFormatting.GREEN : ChatFormatting.RED;
-            context.getSource().sendSuccess(() -> Component.literal(player.getScoreboardName()
-                    + ": RoleData=" + roleDataClass + ", 节点专用适配=" + included)
-                    .withStyle(color), false);
+            context.getSource().sendSuccess(() -> Component.translatable(
+                    "sre.command.rewind.roledata.entry", player.getScoreboardName(),
+                    roleDataClass, included, id).withStyle(color), false);
             if (included) {
                 found++;
             }
@@ -230,19 +339,79 @@ public final class TimeRewindCommand {
     }
 
     private static int status(CommandContext<CommandSourceStack> context) {
-        context.getSource().sendSuccess(() -> Component.literal("回溯状态：玩家节点 "
-                + PLAYER_SNAPSHOTS.size() + "，区域节点 " + AREA_SNAPSHOTS.size()
-                + "，播放中 " + TimeRewind.activeSmoothRewinds())
-                .withStyle(ChatFormatting.AQUA), false);
-        return PLAYER_SNAPSHOTS.size();
+        int playerEntries = PLAYER_SNAPSHOTS.values().stream().mapToInt(Map::size).sum();
+        int areaEntries = AREA_SNAPSHOTS.values().stream().mapToInt(Map::size).sum();
+        context.getSource().sendSuccess(() -> Component.translatable(
+                "sre.command.rewind.status", playerEntries, areaEntries,
+                TimeRewind.activeSmoothRewinds()).withStyle(ChatFormatting.AQUA), false);
+        return playerEntries;
     }
 
-    private static int clear(CommandContext<CommandSourceStack> context) {
-        int count = PLAYER_SNAPSHOTS.size() + AREA_SNAPSHOTS.size();
+    /** Clears every stored player and area snapshot on the server. */
+    private static int clearAll(CommandContext<CommandSourceStack> context) {
+        int playerEntries = PLAYER_SNAPSHOTS.values().stream().mapToInt(Map::size).sum();
+        int areaEntries = AREA_SNAPSHOTS.values().stream().mapToInt(Map::size).sum();
         PLAYER_SNAPSHOTS.clear();
         AREA_SNAPSHOTS.clear();
-        context.getSource().sendSuccess(() -> Component.literal("已清空 " + count
-                + " 个测试节点；进行中的动画不受影响").withStyle(ChatFormatting.YELLOW), true);
+        int count = playerEntries + areaEntries;
+        context.getSource().sendSuccess(() -> Component.translatable(
+                "sre.command.rewind.clear_all.success", count, playerEntries, areaEntries)
+                .withStyle(ChatFormatting.YELLOW), true);
         return count;
+    }
+
+    /** Clears every snapshot of the given players, or only one id when given. */
+    private static int clearPlayer(CommandContext<CommandSourceStack> context,
+            Collection<ServerPlayer> targets, ResourceLocation id) {
+        int cleared = 0;
+        for (ServerPlayer player : targets) {
+            Map<ResourceLocation, TimeRewindSnapshot> snapshots = PLAYER_SNAPSHOTS.get(player.getUUID());
+            if (snapshots == null || snapshots.isEmpty()) {
+                continue;
+            }
+            if (id == null) {
+                cleared += snapshots.size();
+                PLAYER_SNAPSHOTS.remove(player.getUUID());
+            } else if (snapshots.remove(id) != null) {
+                cleared++;
+                if (snapshots.isEmpty()) {
+                    PLAYER_SNAPSHOTS.remove(player.getUUID());
+                }
+            }
+        }
+        int finalCleared = cleared;
+        var message = id == null
+                ? Component.translatable("sre.command.rewind.clear_player.success", finalCleared)
+                : Component.translatable("sre.command.rewind.clear_player.success_with_id",
+                        finalCleared, id);
+        context.getSource().sendSuccess(() -> message.withStyle(ChatFormatting.YELLOW), true);
+        return cleared;
+    }
+
+    /**
+     * Clears every area snapshot in the current level, or only one id when given.
+     */
+    private static int clearArea(CommandContext<CommandSourceStack> context, ResourceLocation id) {
+        ServerLevel level = context.getSource().getLevel();
+        Map<ResourceLocation, TimeRewindAreaSnapshot> snapshots = AREA_SNAPSHOTS.get(level.dimension());
+        int cleared = 0;
+        if (snapshots != null && !snapshots.isEmpty()) {
+            if (id == null) {
+                cleared = snapshots.size();
+                AREA_SNAPSHOTS.remove(level.dimension());
+            } else if (snapshots.remove(id) != null) {
+                cleared = 1;
+                if (snapshots.isEmpty()) {
+                    AREA_SNAPSHOTS.remove(level.dimension());
+                }
+            }
+        }
+        int finalCleared = cleared;
+        var message = id == null
+                ? Component.translatable("sre.command.rewind.clear_area.success", finalCleared)
+                : Component.translatable("sre.command.rewind.clear_area.success_with_id",
+                        finalCleared, id);
+        context.getSource().sendSuccess(() -> message.withStyle(ChatFormatting.YELLOW), true);
+        return cleared;
     }
 }

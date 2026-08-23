@@ -240,18 +240,23 @@ TimeRewindAreaResult areaResult = TimeRewind.restoreArea(level, areaSnapshot);
 
 ## 测试指令 / Test Command
 
-操作员（权限 ≥ `SREConfig.timeRewindPermission`，默认 2）可使用测试指令：
+操作员（权限 ≥ `SREConfig.timeRewindPermission`，默认 2）可使用测试指令。节点用 ResourceLocation 区分，每个玩家可存多个节点；未指定 id 时使用默认 id `noellesroles:default`。子命令为小写+下划线风格。
 
 ```
-/sre:rewind capture [targets]      捕获节点
-/sre:rewind restore [targets] [ticks]  平滑回溯（排队语义同样适用）
-/sre:rewind cancel [targets]       取消
-/sre:rewind visual [targets] [ticks]  只播放特效预览
-/sre:rewind status                 查看节点与播放状态
-/sre:rewind clear                  清空测试节点（不影响进行中动画）
+/sre:rewind capture [id] [targets]          捕获节点（可指定 id）
+/sre:rewind restore [id] [targets] [ticks]  不带 ticks = 直接回溯（立即生效）；带 ticks = 平滑回溯
+/sre:rewind cancel [targets]                取消进行中的平滑回溯
+/sre:rewind visual [targets] [ticks]        只播放特效预览
+/sre:rewind area_capture [id]               捕获当前世界区域节点
+/sre:rewind area_restore [id]               恢复当前世界区域节点
+/sre:rewind roledata [id] [targets]         检查节点是否包含 RoleData 适配
+/sre:rewind status                          查看节点总数与播放状态
+/sre:rewind clear_all                       清空服务器全部节点（不影响进行中动画）
+/sre:rewind clear_player [targets] [id]     清空指定玩家的全部节点（或仅指定 id）
+/sre:rewind clear_area [id]                 清空当前世界的区域节点（或仅指定 id）
 ```
 
-> 在排队语义下，`restore` 连续执行多次会把请求排队而不是报"正在回溯"。
+> 带 `ticks` 的平滑回溯在同一玩家连续执行时会排队而不是报"正在回溯"；不带 `ticks` 的直接回溯同步立即完成，无排队。
 
 ---
 

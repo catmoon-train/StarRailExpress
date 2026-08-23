@@ -212,21 +212,13 @@ public class DeathPenaltyComponent implements RoleComponent, ServerTickingCompon
     }
 
     public boolean hasStrictPenalty() {
-        if (player.hasEffect(ModEffects.TIME_REWIND_DAZE)) {
+        if (isRewinding())
             return true;
-        }
-        if (player.hasEffect(ModEffects.TIME_REWIND_MARK)) {
-            return true;
-        }
-
-        if (!player.level().isClientSide)
-            if (TimeRewindPlayback.isActive(player.getUUID())) {
-                return true;
-            }
         return this.hasPenalty() && (!chatEnabled || (this.limitCameraUUID != null || this.limitPos != null));
     }
 
-    public boolean hasPenalty() {
+    public boolean isRewinding() {
+
         if (player.hasEffect(ModEffects.TIME_REWIND_DAZE)) {
             return true;
         }
@@ -237,6 +229,12 @@ public class DeathPenaltyComponent implements RoleComponent, ServerTickingCompon
             if (TimeRewindPlayback.isActive(player.getUUID())) {
                 return true;
             }
+        return false;
+    }
+
+    public boolean hasPenalty() {
+        if (isRewinding())
+            return true;
         if (this.penaltyExpiry == 0)
             return false;
         if (this.penaltyExpiry < 0) {
@@ -308,6 +306,9 @@ public class DeathPenaltyComponent implements RoleComponent, ServerTickingCompon
 
     @Override
     public void serverTick() {
+        if (isRewinding())
+            return;
+
         if (!SREGameWorldComponent.KEY.get(this.player.level()).isRunning()) {
             if (this.hasPenalty()) {
                 this.clear();
@@ -375,6 +376,8 @@ public class DeathPenaltyComponent implements RoleComponent, ServerTickingCompon
 
     @Override
     public void clientTick() {
+        if (isRewinding())
+            return;
         if (limitPos != null && limitCameraUUID == null) {
             if (player.distanceToSqr(limitPos) >= 1) {
                 player.setPos(limitPos);
