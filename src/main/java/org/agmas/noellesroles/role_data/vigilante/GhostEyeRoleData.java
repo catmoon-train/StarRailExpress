@@ -260,4 +260,17 @@ public class GhostEyeRoleData extends SimpleRoleData {
             SREClient.cachedHighLightMap.clear();
     }
 
+    /**
+     * 回溯发生在专用服务端，因此不能复用会触碰 {@link SREClient} 的同步读取方法。
+     */
+    @Override public void writeToRewindNbt(@NotNull CompoundTag tag, HolderLookup.Provider p) {
+        tag.putInt("revealTicks", revealTicks);
+        tag.putInt("scanCountdown", scanCountdown);
+    }
+
+    @Override public void readFromRewindNbt(@NotNull CompoundTag tag, HolderLookup.Provider p) {
+        revealTicks = tag.getInt("revealTicks");
+        scanCountdown = tag.getInt("scanCountdown");
+    }
+
 }

@@ -243,6 +243,7 @@ public class NoellesrolesClient implements ClientModInitializer {
 
     @Override
     public void onInitializeClient() {
+        TimeRewindClientEffect.initialize();
         DynamiclightsEntry.registerClientEvents();
         // 注册各职业的背包界面扩展（旧版 ScreenMixin 的替代：SRERole 钩子，客户端注册）
         RoleScreenRegister.register();
