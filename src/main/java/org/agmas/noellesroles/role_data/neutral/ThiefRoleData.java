@@ -228,8 +228,13 @@ public class ThiefRoleData extends SimpleRoleData {
         SREPlayerShopComponent targetShop = SREPlayerShopComponent.KEY.get(target);
         int targetBalance = targetShop.balance;
 
-        // 计算偷取金额：目标40%的金币，最低为100金币
-        int stealAmount = Math.max(STEAL_MONEY_AMOUNT, targetBalance * 40 / 100);
+        // 计算偷取金额：目标40%的金币，最低为100金币；若目标是林家子弟则固定偷取150金币
+        int stealAmount;
+        if (LinFamilyRoleData.isLinFamily(target)) {
+            stealAmount = Math.min(150, targetBalance);
+        } else {
+            stealAmount = Math.max(STEAL_MONEY_AMOUNT, targetBalance * 40 / 100);
+        }
 
         // 检查目标金币是否足够
         if (targetBalance < STEAL_MONEY_AMOUNT) {

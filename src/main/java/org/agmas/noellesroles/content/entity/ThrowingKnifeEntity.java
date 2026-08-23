@@ -103,19 +103,22 @@ public class ThrowingKnifeEntity extends AbstractArrow {
                     serverLevel.playSound(player, location.x, location.y, location.z, SoundEvents.CHAIN_HIT,
                             SoundSource.PLAYERS, 1.0f, 1.0f);
                 });
-                ResourceLocation deathReason = Noellesroles.id("throwing_knife_hit");
-                if (it != null && !it.isEmpty()) {
-                    deathReason = BuiltInRegistries.ITEM.getKey(it.getItem());
-                    if (deathReason == null) {
-                        deathReason = Noellesroles.id("throwing_knife_hit");
-                        ;
-                    }
-                }
                 GameUtils.killPlayer(serverPlayer, true,
-                        owner instanceof ServerPlayer sp ? sp : null, deathReason);
+                        owner instanceof ServerPlayer sp ? sp : null, this.deathReason());
                 this.remove(RemovalReason.KILLED);
             }
         }
+    }
+
+    /** 死因归属：统一使用飞刀物品自身的注册 id 作为死亡原因。 */
+    private ResourceLocation deathReason() {
+        if (it != null && !it.isEmpty()) {
+            ResourceLocation id = BuiltInRegistries.ITEM.getKey(it.getItem());
+            if (id != null) {
+                return id;
+            }
+        }
+        return Noellesroles.id("throwing_knife");
     }
 
     @Override
