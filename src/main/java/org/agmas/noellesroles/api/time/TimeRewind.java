@@ -16,6 +16,7 @@
 package org.agmas.noellesroles.api.time;
 
 import io.wifi.starrailexpress.api.RoleComponent;
+import io.wifi.starrailexpress.cca.SREPlayerPsychoComponent;
 import io.wifi.starrailexpress.cca.SRERoleDataPlayerComponent;
 import io.wifi.starrailexpress.compat.TrainVoicePlugin;
 import net.minecraft.core.HolderLookup;
@@ -161,6 +162,12 @@ public final class TimeRewind {
             return new TimeRewindResult(0, failures);
         }
         if (!player.isSpectator()) {
+
+            var ppc = SREPlayerPsychoComponent.KEY.get(player);
+            if (ppc.psychoTicks > 0) {
+                ppc.stopPsycho(true);
+            }
+
             TrainVoicePlugin.resetPlayer(player.getUUID());
         }
 
@@ -205,7 +212,6 @@ public final class TimeRewind {
                         componentId, exception);
             }
         }
-
         // Synchronize only after every component has been restored, so clients never
         // observe a half-rewound graph of related CCA state.
         for (ComponentKey<?> key : restoredKeys) {
