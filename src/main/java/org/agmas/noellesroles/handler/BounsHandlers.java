@@ -15,9 +15,11 @@
 
 package org.agmas.noellesroles.handler;
 
+import org.agmas.noellesroles.role_data.neutral.LinFamilyRoleData;
+
 public class BounsHandlers {
-    
-    public static void register(){
-        
+
+    public static void register() {
+        LinFamilyRoleData.registerEvents();
     }
 }
