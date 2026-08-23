@@ -15,7 +15,6 @@
 
 package org.agmas.noellesroles.role_data.killer;
 
-import io.wifi.starrailexpress.api.data.RoleData;
 import io.wifi.starrailexpress.api.data.RoleDataContext;
 import io.wifi.starrailexpress.api.impl.SimpleRoleData;
 import io.wifi.starrailexpress.SRE;
@@ -46,7 +45,6 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import org.agmas.noellesroles.Noellesroles;
-import org.agmas.noellesroles.component.ModComponents;
 import org.agmas.noellesroles.component.PlayerVolumeComponent;
 import org.agmas.noellesroles.init.ModEffects;
 import org.agmas.noellesroles.role.ModRoles;

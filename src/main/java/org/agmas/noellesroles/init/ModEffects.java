@@ -119,7 +119,7 @@ public class ModEffects {
      * 傀儡游走（操控者·失控之躯）
      * - 有害效果
      * - 拥有者身体每 tick 自动朝随机方向缓慢走动、拥有者无法控制（配合 MOVE_BANED/TURN_BANED 等），
-     *   带悬崖/危险探测避免走进虚空。行为见 {@link PuppetWanderEffect}。
+     * 带悬崖/危险探测避免走进虚空。行为见 {@link PuppetWanderEffect}。
      */
     public static final Holder<MobEffect> PUPPET_WANDER = register("puppet_wander",
             new PuppetWanderEffect());
@@ -197,7 +197,8 @@ public class ModEffects {
     /**
      * 怀旧者·里世界状态标记
      * - 中性效果，灰白色
-     * - 由 {@code org.agmas.noellesroles.role_data.killer.NostalgistRoleData} 在里世界期间每 tick 维持，驱动客户端独立的灰白滤镜
+     * - 由 {@code org.agmas.noellesroles.role_data.killer.NostalgistRoleData}
+     * 在里世界期间每 tick 维持，驱动客户端独立的灰白滤镜
      * shader（{@code TimeStopShader} 的 {@code nostalgist_gray} pass）并隐藏手持物品
      * （{@code InvisbleHandItem}）。禁止说话/使用物品则由 {@link #CHAT_BAN} /
      * {@link #VOICE_SILENCE}
@@ -363,7 +364,8 @@ public class ModEffects {
             new SimpleMobEffect(MobEffectCategory.NEUTRAL, 0xFFD700));
     /**
      * 机器人音效：环形调制（ring modulation）+ 轻度低通，模拟机器人电子音，但保留可懂度。
-     * 客户端处理见 {@code org.agmas.noellesroles.voice.client.BeepRobotVoiceClientReceiver}。
+     * 客户端处理见
+     * {@code org.agmas.noellesroles.voice.client.BeepRobotVoiceClientReceiver}。
      */
     public static final Holder<MobEffect> VOICE_ROBOT = register("voice_robot",
             new SimpleMobEffect(MobEffectCategory.NEUTRAL, 0x00CED1));
@@ -426,6 +428,9 @@ public class ModEffects {
      * 变调倍率随等级提升（等级越高升得越尖）。
      * 客户端处理见 {@code org.agmas.noellesroles.voice.VoiceExtraEffectsPlugin}。
      */
+    public static final Holder<MobEffect> SKIN_MASK = register("skin_masked",
+            new SimpleMobEffect(MobEffectCategory.NEUTRAL, 0x5FFF7F));
+
     public static final Holder<MobEffect> VOICE_HELIUM = register("voice_helium",
             new SimpleMobEffect(MobEffectCategory.NEUTRAL, 0x9FE0FF));
     /**
@@ -537,7 +542,8 @@ public class ModEffects {
      * 颤抖
      * - 有害效果，暗红色
      * - 拥有者因恐惧而双手发抖：客户端准星/视角会缓慢随机漂移。
-     * 漂移逻辑见 {@code org.agmas.noellesroles.game.roles.killer.dream.client.DreamClientHandler}
+     * 漂移逻辑见
+     * {@code org.agmas.noellesroles.game.roles.killer.dream.client.DreamClientHandler}
      * （客户端 tick，纯本地视角偏移，不发包）。
      * Dream（梦魇）狂暴时被"看到"的玩家会获得此效果。
      */

@@ -19,6 +19,7 @@ import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.Mth;
 import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.phys.Vec3;
 import org.agmas.noellesroles.Noellesroles;
 import org.agmas.noellesroles.init.ModEffects;
@@ -31,7 +32,9 @@ import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Consumer;
 
-/** Server-side playback controller for visually moving a player into a snapshot. */
+/**
+ * Server-side playback controller for visually moving a player into a snapshot.
+ */
 final class TimeRewindPlayback {
     private static final ResourceLocation PLAYBACK_ID = Noellesroles.id("smooth_playback");
     private static final Map<UUID, ActiveRewind> ACTIVE = new ConcurrentHashMap<>();
@@ -114,9 +117,18 @@ final class TimeRewindPlayback {
         active.elapsed++;
         float linear = Mth.clamp((float) active.elapsed / active.duration, 0.0f, 1.0f);
         float eased = smootherStep(linear);
-
-        player.addEffect(new MobEffectInstance(ModEffects.MOVE_BANED, 6, 0, false, false, false));
-        player.addEffect(new MobEffectInstance(ModEffects.TURN_BANED, 6, 0, false, false, false));
+        if (!player.hasEffect(MobEffects.INVISIBILITY))
+            player.addEffect(new MobEffectInstance(MobEffects.INVISIBILITY, -1, 0, false, false, false));
+        if (!player.hasEffect(ModEffects.INVINCIBLE))
+            player.addEffect(new MobEffectInstance(ModEffects.INVINCIBLE, -1, 0, false, false, false));
+        if (!player.hasEffect(ModEffects.SAFE_TIME))
+            player.addEffect(new MobEffectInstance(ModEffects.SAFE_TIME, -1, 0, false, false, false));
+        if (!player.hasEffect(ModEffects.MOVE_BANED))
+            player.addEffect(new MobEffectInstance(ModEffects.MOVE_BANED, -1, 0, false, false, false));
+        if (!player.hasEffect(ModEffects.TURN_BANED))
+            player.addEffect(new MobEffectInstance(ModEffects.TURN_BANED, -1, 0, false, false, false));
+        if (!player.hasEffect(ModEffects.SKIN_MASK))
+            player.addEffect(new MobEffectInstance(ModEffects.SKIN_MASK, -1, 0, false, false, false));
         player.setDeltaMovement(Vec3.ZERO);
         player.fallDistance = 0.0f;
 
@@ -145,6 +157,12 @@ final class TimeRewindPlayback {
             player.serverLevel().sendParticles(ParticleTypes.END_ROD,
                     player.getX(), player.getY() + 1.0, player.getZ(), 36,
                     0.65, 1.0, 0.65, 0.07);
+            player.removeEffect(ModEffects.MOVE_BANED);
+            player.removeEffect(ModEffects.TURN_BANED);
+            player.removeEffect(ModEffects.SKIN_MASK);
+            player.removeEffect(ModEffects.INVINCIBLE);
+            player.removeEffect(ModEffects.SAFE_TIME);
+            player.removeEffect(MobEffects.INVISIBILITY);
             complete(active, result);
         }
     }
@@ -158,8 +176,8 @@ final class TimeRewindPlayback {
         level.sendParticles(ParticleTypes.REVERSE_PORTAL, px, player.getY() + 1.0, pz,
                 5, 0.18, 0.45, 0.18, 0.015);
         level.sendParticles(new DustColorTransitionOptions(
-                        new Vector3f(0.15f, 0.95f, 1.0f),
-                        new Vector3f(0.72f, 0.16f, 1.0f), 1.35f),
+                new Vector3f(0.15f, 0.95f, 1.0f),
+                new Vector3f(0.72f, 0.16f, 1.0f), 1.35f),
                 player.getX(), player.getY() + 0.9, player.getZ(),
                 3, radius * 0.35, 0.65, radius * 0.35, 0.0);
     }

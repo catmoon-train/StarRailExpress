@@ -52,7 +52,6 @@ import net.minecraft.world.level.Level;
 import org.agmas.harpymodloader.component.WorldModifierComponent;
 import org.agmas.noellesroles.component.DefibrillatorComponent;
 import org.agmas.noellesroles.role_data.neutral.MonokumaRoleData;
-import org.agmas.noellesroles.role_data.neutral.RavenRoleData;
 import org.agmas.noellesroles.api.time.TimeRewind;
 import org.agmas.noellesroles.api.time.TimeRewindAreaResult;
 import org.agmas.noellesroles.api.time.TimeRewindAreaSnapshot;
@@ -238,9 +237,9 @@ public class RefugeeComponent implements AutoSyncedComponent, ServerTickingCompo
         // Teleport to death location
         player.teleportTo(serverLevel, roomPosition.x, roomPosition.y, roomPosition.z, player.getYRot(),
                 player.getXRot());
-        SREArmorPlayerComponent bartenderPlayerComponent = SREArmorPlayerComponent.KEY.get(player);
+        SREArmorPlayerComponent armorCCA = SREArmorPlayerComponent.KEY.get(player);
         int size = serverLevel.getPlayers(GameUtils::isPlayerAliveAndSurvival).size();
-        bartenderPlayerComponent.removeArmor(-1 * (Math.clamp(size / 6, 1, 3)));
+        armorCCA.removeArmor(-1 * (Math.clamp(size / 6, 1, 3)));
         player.setGameMode(GameType.ADVENTURE);
         
         player.addEffect(ModEffects.of(ModEffects.SAFE_TIME, 10, 1, false, false, true));
@@ -276,6 +275,10 @@ public class RefugeeComponent implements AutoSyncedComponent, ServerTickingCompo
         gameTimeComponent.setTime(gameTimeComponent.getTime() + 120 * 20);
         WorldModifierComponent worldModifierComponent = WorldModifierComponent.KEY.get(serverLevel);
         worldModifierComponent.removeModifier(player.getUUID(), SEModifiers.REFUGEE);
+        // 给效果前保存状态
+        if (!isAnyRevivals) {
+            SavePlayersStats();
+        }
 
         // Effects and notifications
         // 变更：亡命徒发光时间由 30s 调整为 5 分钟（300s）
@@ -297,9 +300,6 @@ public class RefugeeComponent implements AutoSyncedComponent, ServerTickingCompo
             p.displayClientMessage(Component.translatable("hud.stupid_express.refugee.revived", player.getName()),
                     true);
         });
-        if (!isAnyRevivals) {
-            SavePlayersStats();
-        }
         isAnyRevivals = true;
         var gameWorldComponent = SREGameWorldComponent.KEY.get(this.level);
         // 给所有鹈鹕玩家施加技能禁用效果，持续时间与亡命徒时刻一致（3000 ticks = 150秒）
