@@ -15,8 +15,10 @@
 
 package org.agmas.noellesroles.role_data.innocence;
 
+import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.api.data.RoleDataContext;
 import io.wifi.starrailexpress.api.impl.SimpleRoleData;
+import io.wifi.starrailexpress.api.replay.GameReplayUtils;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.game.GameUtils;
 import net.minecraft.ChatFormatting;
@@ -39,7 +41,6 @@ public class FortunetellerRoleData extends SimpleRoleData {
     /** 过期时间 */
     public static final int MAX_PROTECT_TIME = 120 * 20;
 
-
     @Override
     public void init() {
         this.protectedPlayers.clear();
@@ -54,7 +55,6 @@ public class FortunetellerRoleData extends SimpleRoleData {
     public FortunetellerRoleData(RoleDataContext context) {
         super(context);
     }
-
 
     public void clientTick() {
         for (var ppi : protectedPlayers) {
@@ -75,6 +75,10 @@ public class FortunetellerRoleData extends SimpleRoleData {
                 Component.translatable("message.fortuneteller.been_protected", player.getDisplayName())
                         .withStyle(ChatFormatting.GOLD),
                 true);
+        SRE.REPLAY_MANAGER.recordCustomEvent(
+                Component.translatable("replay.event.fortuneteller",
+                        GameReplayUtils.getReplayPlayerDisplayText(player, true),
+                        GameReplayUtils.getReplayPlayerDisplayText(target, true)));
         this.sync();
     }
 
@@ -177,6 +181,5 @@ public class FortunetellerRoleData extends SimpleRoleData {
         }
         return false;
     }
-
 
 }

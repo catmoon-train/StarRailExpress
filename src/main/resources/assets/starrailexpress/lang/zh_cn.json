@@ -2917,5 +2917,6 @@
     "replay.event.adventurer.recall": "\u00a79📖\u00a7r %s 从游记中被召回了",
     "replay.event.diviner.divination": "\u00a7d🔮\u00a7r %s 成功占卜了一具尸体",
     "replay.event.money_grubber.take": "\u00a7b💰\u00a7r %s 被 %s 敛财了 %s 金币",
+    "replay.event.fortuneteller": "\u00a7b🛡️\u00a7r %s 保护了 %s",
     "== 文件末尾 END ==": ""
 }
