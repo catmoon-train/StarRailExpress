@@ -561,7 +561,8 @@ public class ModRoles {
             .setCanBeRandomedByOtherRoles(false).setSpecialMapRole(SRERole.SpecialMapRoleMap.QIYUCUN)
             .setDefaultMax(1).setToggledOnInstinctType(
                     InstinctType.customWithFunction((self, target, selfRole, targetRole) -> {
-                        MaChenXuRoleData macComp = RoleData.getNullable(MaChenXuRoleData.class, self);
+                        MaChenXuRoleData macComp = RoleData.getNullable(MaChenXuRoleData.class,
+                                self);
                         if (macComp != null && macComp.otherworldActive) {
                             return InstinctType.NONE;
                         }
@@ -2187,7 +2188,8 @@ public class ModRoles {
             Integer.MAX_VALUE,
             true)).setRoleData(ReasonerRoleData::new).setCanSeeCoin(true).setNeutrals(true)
             .setCanSeeTeammateKillerRole(false).setCanUseInstinctAndNightVision(true)
-            .setDefaultMax(1).setDefaultEnableNeededPlayerCount(10).setDefaultEnableChance(6500);
+            .setDefaultMax(1).setDefaultEnableNeededPlayerCount(10).setDefaultEnableChance(6500)
+            .setCanUseInstinctAndNightVision(true).setInstinctType(InstinctType.NONE, InstinctType.NONE);
 
     /**
      * 变声怪杰角色 - 杀手方中立阵营
@@ -2291,24 +2293,23 @@ public class ModRoles {
             false,
             SRERole.MoodType.FAKE,
             Integer.MAX_VALUE,
-            true){
-                @Override
-                public List<ItemStack> getDefaultItems() {
-                    var list = new ArrayList<ItemStack>();
-                    list.add(Items.BUNDLE.getDefaultInstance().copy());
-                    return list;
-                }
-            })
+            true) {
+        @Override
+        public List<ItemStack> getDefaultItems() {
+            var list = new ArrayList<ItemStack>();
+            list.add(Items.BUNDLE.getDefaultInstance().copy());
+            return list;
+        }
+    })
             .setRoleData(LinFamilyRoleData::new)
             .setNeutrals(true)
             .setCanSeeTeammateKillerRole(false)
             .setCanUseInstinctAndNightVision(true)
             .setCanSeeCoin(true)
             .setCanPickUpRevolver(false)
-            .setCanAutoAddMoney(false)
+            .setCanAutoAddMoney(true)
             .setCanBeRandomedByOtherRoles(false)
             .setCanHavePassiveIncome(false)
-            .setToggledOffInstinctType(InstinctType.NONE)
             .setToggledOnInstinctType(
                     InstinctType.customWithFunction((self, target, selfRole, targetRole) -> {
                         if (target == null) {
@@ -2320,9 +2321,11 @@ public class ModRoles {
                         }
                         return InstinctType.NONE;
                     }))
+            .setBeSeenInstinctType(InstinctType.DEFAULT,
+                    InstinctType.custom(new Color(196, 148, 39).getRGB()))
             .setDefaultMax(1)
             .setDefaultEnableNeededPlayerCount(12)
-            .setDefaultEnableChance(5000);
+            .setDefaultEnableChance(500);
 
     /**
      * 魔术师角色 - 好人阵营（从模仿者移植）
@@ -2693,6 +2696,7 @@ public class ModRoles {
 
         // 设置林家子弟与小偷互斥
         ModRoles.LIN_FAMILY.addTwoWayOpposingRole(ModRoles.THIEF);
+        ModRoles.LIN_FAMILY.addTwoWayOpposingRole(ModRoles.GODFATHER);
 
         RoleSkill.register(ModRoles.THE_FOOL, FoolRoleData::useSkill);
 

@@ -90,6 +90,7 @@ public class LinFamilyRoleData extends SimpleRoleData {
     private static final String MISFIRE_GUN_KEY = "lin_family_misfire_gun";
     private static final String WILL_MISFIRE_KEY = "lin_family_will_misfire";
     private static final int XRAY_REFRESH_INTERVAL = 20;
+    private static final int ATTACK_COOLDOWN_TICK = 30 * 20;
 
     /** 售货机 / 抽奖机购买冷却（技能 HUD 显示，不通过技能键触发）。 */
     public static final ResourceLocation MACHINE_SKILL_ID = SRE.id("lin_family_machine");
@@ -201,7 +202,9 @@ public class LinFamilyRoleData extends SimpleRoleData {
         }
         eventsRegistered = true;
 
-        AllowPlayerPunching.EVENT.register(player -> isLinFamily(player));
+        AllowPlayerPunching.EVENT.register(player -> {
+            return isLinFamily(player);
+        });
 
         AttackEntityCallback.EVENT.register((attacker, level, hand, entity, hitResult) -> {
             if (level.isClientSide || attacker == null || !(entity instanceof Player victim)) {
@@ -210,6 +213,10 @@ public class LinFamilyRoleData extends SimpleRoleData {
             if (!GameUtils.isPlayerAliveAndSurvival(attacker) || !GameUtils.isPlayerAliveAndSurvival(victim)) {
                 return InteractionResult.PASS;
             }
+            if (attacker.getCooldowns().isOnCooldown(Items.BARRIER)) {
+                return InteractionResult.PASS;
+            }
+            attacker.getCooldowns().addCooldown(Items.BARRIER, ATTACK_COOLDOWN_TICK);
             if (isLinFamily(attacker)) {
                 applyMoneyBind(attacker, victim);
             }

@@ -135,6 +135,8 @@ public class MonokumaEventHandler {
                             if (c != null) {
                                 c.onHitTriggered();
                             }
+                            worldModifierComponent.removeModifier(sp, SEModifiers.BLACK_WHITE);
+
                         } catch (Exception e) {
                             org.agmas.noellesroles.Noellesroles.LOGGER.error("黑白狂暴触发失败", e);
                         }
