@@ -199,7 +199,7 @@ public final class TimeRewindCommand {
         int finalCaptured = captured;
         int finalWarnings = warnings;
         context.getSource().sendSuccess(() -> Component.translatable(
-                "sre.command.rewind.capture.success", finalCaptured, id, finalWarnings)
+                "sre.command.rewind.capture.success", finalCaptured, id.toString(), finalWarnings)
                 .withStyle(ChatFormatting.AQUA), true);
         return captured;
     }
@@ -218,7 +218,7 @@ public final class TimeRewindCommand {
             if (snapshot == null) {
                 context.getSource().sendFailure(Component.translatable(
                         "sre.command.rewind.restore.not_found",
-                        player.getScoreboardName(), id));
+                        player.getScoreboardName(), id.toString()));
                 continue;
             }
             if (ticks == null) {
@@ -228,7 +228,7 @@ public final class TimeRewindCommand {
                 }
                 ChatFormatting color = result.isSuccess() ? ChatFormatting.GREEN : ChatFormatting.YELLOW;
                 context.getSource().sendSuccess(() -> Component.translatable(
-                        "sre.command.rewind.restore.direct_complete", id,
+                        "sre.command.rewind.restore.direct_complete", id.toString(),
                         player.getScoreboardName(), result.restoredComponents(),
                         result.failures().size()).withStyle(color), true);
                 continue;
@@ -236,7 +236,7 @@ public final class TimeRewindCommand {
             if (TimeRewind.smoothRestore(player, snapshot, ticks, result -> {
                 ChatFormatting color = result.isSuccess() ? ChatFormatting.GREEN : ChatFormatting.YELLOW;
                 context.getSource().sendSuccess(() -> Component.translatable(
-                        "sre.command.rewind.restore.smooth_complete", id,
+                        "sre.command.rewind.restore.smooth_complete", id.toString(),
                         player.getScoreboardName(), result.restoredComponents(),
                         result.failures().size()).withStyle(color), true);
             })) {
@@ -250,9 +250,9 @@ public final class TimeRewindCommand {
         boolean smooth = ticks != null;
         var summary = smooth
                 ? Component.translatable("sre.command.rewind.restore.summary_smooth",
-                        finalDone, id, ticks)
+                        finalDone, id.toString(), ticks)
                 : Component.translatable("sre.command.rewind.restore.summary_direct",
-                        finalDone, id);
+                        finalDone, id.toString());
         context.getSource().sendSuccess(() -> summary.withStyle(ChatFormatting.LIGHT_PURPLE), true);
         return done;
     }
@@ -293,7 +293,7 @@ public final class TimeRewindCommand {
         AREA_SNAPSHOTS.computeIfAbsent(level.dimension(), k -> new ConcurrentHashMap<>())
                 .put(id, snapshot);
         context.getSource().sendSuccess(() -> Component.translatable(
-                "sre.command.rewind.area_capture.success", id, snapshot.itemCount(),
+                "sre.command.rewind.area_capture.success", id.toString(), snapshot.itemCount(),
                 snapshot.doorCount(), snapshot.warnings().size())
                 .withStyle(ChatFormatting.AQUA), true);
         return 1;
@@ -305,7 +305,7 @@ public final class TimeRewindCommand {
         TimeRewindAreaSnapshot snapshot = snapshots == null ? null : snapshots.get(id);
         if (snapshot == null) {
             context.getSource().sendFailure(Component.translatable(
-                    "sre.command.rewind.area_restore.not_found", id));
+                    "sre.command.rewind.area_restore.not_found", id.toString()));
             return 0;
         }
         TimeRewindAreaResult result = TimeRewind.restoreArea(level, snapshot);
@@ -330,7 +330,7 @@ public final class TimeRewindCommand {
             ChatFormatting color = included ? ChatFormatting.GREEN : ChatFormatting.RED;
             context.getSource().sendSuccess(() -> Component.translatable(
                     "sre.command.rewind.roledata.entry", player.getScoreboardName(),
-                    roleDataClass, included, id).withStyle(color), false);
+                    roleDataClass, included, id.toString()).withStyle(color), false);
             if (included) {
                 found++;
             }
@@ -383,7 +383,7 @@ public final class TimeRewindCommand {
         var message = id == null
                 ? Component.translatable("sre.command.rewind.clear_player.success", finalCleared)
                 : Component.translatable("sre.command.rewind.clear_player.success_with_id",
-                        finalCleared, id);
+                        finalCleared, id.toString());
         context.getSource().sendSuccess(() -> message.withStyle(ChatFormatting.YELLOW), true);
         return cleared;
     }
@@ -410,7 +410,7 @@ public final class TimeRewindCommand {
         var message = id == null
                 ? Component.translatable("sre.command.rewind.clear_area.success", finalCleared)
                 : Component.translatable("sre.command.rewind.clear_area.success_with_id",
-                        finalCleared, id);
+                        finalCleared, id.toString());
         context.getSource().sendSuccess(() -> message.withStyle(ChatFormatting.YELLOW), true);
         return cleared;
     }
