@@ -226,7 +226,8 @@ public class RefugeeComponent implements AutoSyncedComponent, ServerTickingCompo
         if (i == null) {
             i = 1;
         }
-        MonokumaRoleData monokumaData = io.wifi.starrailexpress.api.data.RoleData.getNullable(MonokumaRoleData.class, player);
+        MonokumaRoleData monokumaData = io.wifi.starrailexpress.api.data.RoleData.getNullable(MonokumaRoleData.class,
+                player);
         if (monokumaData != null) {
             monokumaData.clear();
         }
@@ -241,9 +242,9 @@ public class RefugeeComponent implements AutoSyncedComponent, ServerTickingCompo
         int size = serverLevel.getPlayers(GameUtils::isPlayerAliveAndSurvival).size();
         armorCCA.removeArmor(-1 * (Math.clamp(size / 6, 1, 3)));
         player.setGameMode(GameType.ADVENTURE);
-        
+
         player.addEffect(ModEffects.of(ModEffects.SAFE_TIME, 10, 1, false, false, true));
-        
+
         SREWorldBlackoutComponent.KEY.get(player.level()).triggerBlackout();
         // Remove body entity
         var bodies = serverLevel.getAllEntities();
@@ -320,16 +321,18 @@ public class RefugeeComponent implements AutoSyncedComponent, ServerTickingCompo
         players_stats.clear();
         playerTimeRewindSnapshots.clear();
         for (var player : players) {
-            var ppc = SREPlayerPsychoComponent.KEY.get(player);
-            if (ppc.psychoTicks > 0) {
-                ppc.stopPsychoAndRefreshPsychoCount(true);
-                ppc.sync();
-                SREPlayerShopComponent srePlayerShopComponent = SREPlayerShopComponent.KEY.get(player);
-                srePlayerShopComponent.addToBalance((int) (SREConfig.instance().psychoModePrice * 0.75));
-                srePlayerShopComponent.sync();
-            }
             boolean isAlive = GameUtils.isPlayerAliveAndSurvival(player);
             if (isAlive) {
+                player.stopRiding();
+                player.stopSleeping();
+                var ppc = SREPlayerPsychoComponent.KEY.get(player);
+                if (ppc.psychoTicks > 0) {
+                    ppc.stopPsychoAndRefreshPsychoCount(true);
+                    ppc.sync();
+                    SREPlayerShopComponent srePlayerShopComponent = SREPlayerShopComponent.KEY.get(player);
+                    srePlayerShopComponent.addToBalance((int) (SREConfig.instance().psychoModePrice * 0.75));
+                    srePlayerShopComponent.sync();
+                }
                 players_stats.put(player.getUUID(), PlayerStatsBeforeRefugee.SaveFromPlayer(player, true));
                 try {
                     playerTimeRewindSnapshots.put(player.getUUID(), TimeRewind.capture(player));
