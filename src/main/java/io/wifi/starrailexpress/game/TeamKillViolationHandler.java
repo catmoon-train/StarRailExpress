@@ -28,6 +28,7 @@ import net.minecraft.server.level.ServerPlayer;
 import org.agmas.noellesroles.init.XiaoNaoHandler;
 
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * 队友击杀违规检测处理器。
@@ -46,7 +47,7 @@ public class TeamKillViolationHandler {
     private static final int SUBTITLE_DURATION = 60;
 
     /** 玩家 UUID -> 时间窗口内的队友击杀时间戳队列（毫秒） */
-    private static final Map<UUID, Deque<Long>> teamKillRecords = new HashMap<>();
+    private static final Map<UUID, Deque<Long>> teamKillRecords = new ConcurrentHashMap<>();
 
     /**
      * 从XiaonaoHandler中调用避免误判
@@ -78,10 +79,10 @@ public class TeamKillViolationHandler {
         SRERole killerRole = gameWorldComponent.getRole(killer);
         SRERole victimRole = gameWorldComponent.getRole(victim);
 
-        if (killerRole != null && killerRole.isNeutrals()) {
+        if (killerRole == null || killerRole.isNeutrals()) {
             return;
         }
-        if (victimRole != null && victimRole.isNeutrals()) {
+        if (victimRole == null || victimRole.isNeutrals()) {
             return;
         }
 

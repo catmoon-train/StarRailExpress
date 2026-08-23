@@ -24,6 +24,9 @@ import io.wifi.starrailexpress.game.GameUtils;
 import io.wifi.starrailexpress.game.TeamKillViolationHandler;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
+import pro.fazeclan.river.stupid_express.constants.SEModifiers;
+
+import org.agmas.harpymodloader.component.WorldModifierComponent;
 import org.agmas.noellesroles.Noellesroles;
 import org.agmas.noellesroles.component.ModComponents;
 import org.agmas.noellesroles.config.NoellesRolesConfig;
@@ -45,9 +48,17 @@ public class XiaoNaoHandler {
                 return;
             if (victim.getUUID().equals(killer.getUUID()))
                 return;
+
+            final SREGameWorldComponent gameWorldComponent = SREGameWorldComponent.KEY.get(victim.level());
+            final WorldModifierComponent worldModifierComponent = WorldModifierComponent.KEY.get(victim.level());
+            if (worldModifierComponent.isModifier(victim, SEModifiers.LOVERS)
+                    || worldModifierComponent.isModifier(killer, SEModifiers.LOVERS)) {
+                // 忽略链子（可能链子小脑有原因）
+                return;
+            }
             if (GameUtils.isPlayerAliveAndSurvival(killer)) {
+
                 if (isInnocent) {
-                    SREGameWorldComponent gameWorldComponent = SREGameWorldComponent.KEY.get(victim.level());
                     if (gameWorldComponent.isRole(victim, TMMRoles.DISCOVERY_CIVILIAN)) {
                         // 跳过游客惩罚
                         return;
@@ -110,6 +121,26 @@ public class XiaoNaoHandler {
                             }
                         }
                     }
+                } else {
+                    var victimRole = gameWorldComponent.getRole(victim);
+                    var killerRole = gameWorldComponent.getRole(victim);
+                    if (victimRole == null || killerRole == null)
+                        return;
+                    if (victimRole.isKiller() && !victimRole.isNeutrals() && killerRole.isKiller()
+                            && !killerRole.isNeutrals()) {
+                        if (victimRole == null || killerRole == null)
+                            return;
+                        if (victimRole.canBeXiaonao(victim, killer, deathReason))
+                            return;
+                        if (killerRole.canXiaonao(victim, killer, deathReason))
+                            return;
+                        if (deathReason.getPath().equals("trident")
+                                || deathReason.getPath().equals("knife_stab")
+                                || deathReason.getPath().equals("stalker_knife")
+                                || deathReason.getPath().equals("knife")) {
+                            TeamKillViolationHandler.handle(victim, killer, isInnocent, deathReason);
+                        }
+                    }
                 }
             }
         });
@@ -143,7 +174,6 @@ public class XiaoNaoHandler {
                 || deathReason.getPath().equals("ninja_knife_kill")
                 || deathReason.getPath().equals("ninja_shuriken")
                 || deathReason.getPath().equals("short_shotgun")
-                || deathReason.getPath().equals("grenade")
                 || deathReason.getPath().equals("danmuku")
                 || deathReason.getPath().equals("zero_one_five_shot")
                 || deathReason.getPath().equals("incinerator_pushed")
