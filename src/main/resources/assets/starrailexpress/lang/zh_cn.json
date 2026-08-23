@@ -14,7 +14,7 @@
     "sre.command.dummy.add.success": "成功生成 NPC %s，皮肤 %s%s",
     "sre.dummy.invincible_suffix": " [无敌]",
     "============ 时间回溯 ============": "",
-    "sre.command.rewind.help": "回溯指令: capture [id] [targets] | restore [id] [targets] [ticks]（不带 ticks 直接回溯）| cancel [targets] | visual [targets] [ticks] | area_capture/area_restore [id] | roledata [id] [targets] | status | clear_all | clear_player [targets] [id] | clear_area [id]",
+    "sre.command.rewind.help": "/sre:rewind capture [id] [targets] 捕获节点（可指定 id）\n/sre:rewind restore [id] [targets] [ticks] 不带 ticks = 直接回溯（立即生效）；带 ticks = 平滑回溯\n/sre:rewind cancel [targets] 取消进行中的平滑回溯\n/sre:rewind visual [targets] [ticks] 只播放特效预览\n/sre:rewind area_capture [id] 捕获当前世界区域节点\n/sre:rewind area_restore [id] 恢复当前世界区域节点\n/sre:rewind roledata [id] [targets] 检查节点是否包含 RoleData 适配\n/sre:rewind status 查看节点总数与播放状态\n/sre:rewind clear_all 清空服务器全部节点（不影响进行中动画）\n/sre:rewind clear_player [targets] [id] 清空指定玩家的全部节点（或仅指定 id）\n/sre:rewind clear_area [id] 清空当前世界的区域节点（或仅指定 id）",
     "sre.command.rewind.capture.success": "已捕获 %s 个玩家回溯节点 [%s]（警告 %s，局外组件保持当前值）",
     "sre.command.rewind.restore.not_found": "没有 %s 的节点 [%s]",
     "sre.command.rewind.restore.direct_complete": "直接回溯完成 [%s]: %s，组件 %s，问题 %s",
