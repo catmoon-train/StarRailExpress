@@ -217,7 +217,7 @@ public class TouhouHandlers {
         return true;
       if (SREAbilityPlayerComponent.KEY.get(victim).targetUUID == null)
         return true;
-      if (SREAbilityPlayerComponent.KEY.get(victim).targetUUID == killer.getUUID()) {
+      if (SREAbilityPlayerComponent.KEY.get(victim).targetUUID == killer.getUUID() && SREAbilityPlayerComponent.KEY.get(victim).hasDuration()) {
         return false;
       }
       return true;
