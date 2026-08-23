@@ -364,6 +364,7 @@ public class TarotAssemblyManager {
         player.removeEffect(MobEffects.BLINDNESS);
         player.removeEffect(ModEffects.TAROT_ASSEMBLY);
         player.removeEffect(ModEffects.DOMAIN_MARK);
+        player.removeEffect(MobEffects.NIGHT_VISION);
 
         player.displayClientMessage(
                 Component.translatable("message.noellesroles.fool.left_meeting").withStyle(ChatFormatting.GRAY),
