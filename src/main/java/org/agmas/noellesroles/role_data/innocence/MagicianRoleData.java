@@ -15,7 +15,6 @@
 
 package org.agmas.noellesroles.role_data.innocence;
 
-import io.wifi.starrailexpress.api.data.RoleData;
 import io.wifi.starrailexpress.api.data.RoleDataContext;
 import io.wifi.starrailexpress.api.impl.SimpleRoleData;
 import io.wifi.starrailexpress.SRE;
@@ -31,8 +30,6 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.entity.player.Player;
-import org.agmas.noellesroles.Noellesroles;
 import org.agmas.noellesroles.init.ModItems;
 import org.agmas.noellesroles.role.ModRoles;
 import org.agmas.noellesroles.utils.RoleUtils;
@@ -45,9 +42,7 @@ public class MagicianRoleData extends SimpleRoleData {
 
     /** 组件键 */
 
-
     public ResourceLocation disguiseRoleId = null; // 伪装的角色ID
-
 
     public MagicianRoleData(RoleDataContext context) {
         super(context);
@@ -84,7 +79,6 @@ public class MagicianRoleData extends SimpleRoleData {
         // 更新疯狂模式计数
         SREGameWorldComponent gameWorldComponent = SREGameWorldComponent.KEY.get(player.level());
         gameWorldComponent.refreshPsychoCount(true);
-        
 
         // 发送状态栏
         if (player instanceof ServerPlayer serverPlayer) {
@@ -182,11 +176,9 @@ public class MagicianRoleData extends SimpleRoleData {
         sync();
     }
 
-
     @Override
     public void clear() {
         this.init();
     }
-
 
 }

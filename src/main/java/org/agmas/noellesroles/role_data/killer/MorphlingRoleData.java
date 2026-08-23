@@ -15,7 +15,6 @@
 
 package org.agmas.noellesroles.role_data.killer;
 
-import io.wifi.starrailexpress.api.data.RoleData;
 import io.wifi.starrailexpress.api.data.RoleDataContext;
 import io.wifi.starrailexpress.api.impl.SimpleRoleData;
 import io.wifi.starrailexpress.SRE;
@@ -25,15 +24,12 @@ import io.wifi.starrailexpress.game.GameConstants;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 import org.agmas.noellesroles.ConfigWorldComponent;
-import org.agmas.noellesroles.Noellesroles;
 import org.agmas.noellesroles.config.NoellesRolesConfig;
 import org.agmas.noellesroles.role.ModRoles;
 import org.jetbrains.annotations.NotNull;
-import org.ladysnake.cca.api.v3.component.ComponentProvider;
 import java.util.UUID;
 
 public class MorphlingRoleData extends SimpleRoleData {
@@ -46,7 +42,6 @@ public class MorphlingRoleData extends SimpleRoleData {
     @Override
     public void init() {
         this.stopMorph(false);
-        this.sync();
     }
 
     public boolean checkIsGameRunning() {
@@ -68,11 +63,9 @@ public class MorphlingRoleData extends SimpleRoleData {
         this.init();
     }
 
-
     public MorphlingRoleData(RoleDataContext context) {
         super(context);
     }
-
 
     public void clientTick() {
         if (!checkIsGameRunning()) {
@@ -110,7 +103,7 @@ public class MorphlingRoleData extends SimpleRoleData {
                         return;
                     }
                 } else {
-                        stopMorph(false);
+                    stopMorph(false);
                     return;
                 }
 
@@ -133,7 +126,8 @@ public class MorphlingRoleData extends SimpleRoleData {
     }
 
     public boolean startMorph(UUID id) {
-        if (player instanceof ServerPlayer) ConfigWorldComponent.onPlayerUsedSkill( (ServerPlayer) player);
+        if (player instanceof ServerPlayer)
+            ConfigWorldComponent.onPlayerUsedSkill((ServerPlayer) player);
         setMorphTicks(GameConstants.getInTicks(0, NoellesRolesConfig.HANDLER.instance().morphlingMorphDuration));
         disguise = id;
         this.sync();
@@ -155,12 +149,14 @@ public class MorphlingRoleData extends SimpleRoleData {
     }
 
     /**
-     * Stop morphing. If {@code startCooldown} is true, start the configured cooldown (negative ticks).
+     * Stop morphing. If {@code startCooldown} is true, start the configured
+     * cooldown (negative ticks).
      * If false, simply end morphing without applying cooldown.
      */
     public void stopMorph(boolean startCooldown) {
         if (startCooldown) {
-            this.morphTicks = -GameConstants.getInTicks(0, NoellesRolesConfig.HANDLER.instance().morphlingMorphCooldown);
+            this.morphTicks = -GameConstants.getInTicks(0,
+                    NoellesRolesConfig.HANDLER.instance().morphlingMorphCooldown);
         } else {
             this.morphTicks = 0;
         }
@@ -177,7 +173,8 @@ public class MorphlingRoleData extends SimpleRoleData {
     }
 
     public void writeToSyncNbt(@NotNull CompoundTag tag, HolderLookup.Provider registryLookup) {
-        // Always sync morphTicks so clients can know cooldown (negative) or ready state (0).
+        // Always sync morphTicks so clients can know cooldown (negative) or ready state
+        // (0).
         tag.putInt("morphTicks", this.morphTicks);
         if (this.morphTicks > 0 && disguise != null) {
             tag.putUUID("disguise", this.disguise);
@@ -188,6 +185,5 @@ public class MorphlingRoleData extends SimpleRoleData {
         this.morphTicks = tag.contains("morphTicks") ? tag.getInt("morphTicks") : 0;
         this.disguise = tag.contains("disguise") ? tag.getUUID("disguise") : player.getUUID();
     }
-
 
 }
