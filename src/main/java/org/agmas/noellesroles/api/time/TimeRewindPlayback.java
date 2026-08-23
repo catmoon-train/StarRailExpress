@@ -35,7 +35,7 @@ import java.util.function.Consumer;
 /**
  * Server-side playback controller for visually moving a player into a snapshot.
  */
-final class TimeRewindPlayback {
+public final class TimeRewindPlayback {
     private static final ResourceLocation PLAYBACK_ID = Noellesroles.id("smooth_playback");
     private static final Map<UUID, ActiveRewind> ACTIVE = new ConcurrentHashMap<>();
     private static boolean initialized;
@@ -73,6 +73,7 @@ final class TimeRewindPlayback {
                 SoundSource.PLAYERS, 1.0f, 1.35f);
         level.sendParticles(ParticleTypes.FLASH, player.getX(), player.getEyeY(), player.getZ(),
                 1, 0.0, 0.0, 0.0, 0.0);
+        addPlayerEffects(player);
         return true;
     }
 
@@ -86,8 +87,12 @@ final class TimeRewindPlayback {
         return true;
     }
 
-    static boolean isActive(ServerPlayer player) {
+    public static boolean isActive(ServerPlayer player) {
         return ACTIVE.containsKey(player.getUUID());
+    }
+
+    public static boolean isActive(UUID player) {
+        return ACTIVE.containsKey(player);
     }
 
     static int activeCount() {
@@ -117,18 +122,7 @@ final class TimeRewindPlayback {
         active.elapsed++;
         float linear = Mth.clamp((float) active.elapsed / active.duration, 0.0f, 1.0f);
         float eased = smootherStep(linear);
-        if (!player.hasEffect(MobEffects.INVISIBILITY))
-            player.addEffect(new MobEffectInstance(MobEffects.INVISIBILITY, -1, 0, false, false, false));
-        if (!player.hasEffect(ModEffects.INVINCIBLE))
-            player.addEffect(new MobEffectInstance(ModEffects.INVINCIBLE, -1, 0, false, false, false));
-        if (!player.hasEffect(ModEffects.SAFE_TIME))
-            player.addEffect(new MobEffectInstance(ModEffects.SAFE_TIME, -1, 0, false, false, false));
-        if (!player.hasEffect(ModEffects.MOVE_BANED))
-            player.addEffect(new MobEffectInstance(ModEffects.MOVE_BANED, -1, 0, false, false, false));
-        if (!player.hasEffect(ModEffects.TURN_BANED))
-            player.addEffect(new MobEffectInstance(ModEffects.TURN_BANED, -1, 0, false, false, false));
-        if (!player.hasEffect(ModEffects.SKIN_MASK))
-            player.addEffect(new MobEffectInstance(ModEffects.SKIN_MASK, -1, 0, false, false, false));
+        addPlayerEffects(player);
         player.setDeltaMovement(Vec3.ZERO);
         player.fallDistance = 0.0f;
 
@@ -157,14 +151,36 @@ final class TimeRewindPlayback {
             player.serverLevel().sendParticles(ParticleTypes.END_ROD,
                     player.getX(), player.getY() + 1.0, player.getZ(), 36,
                     0.65, 1.0, 0.65, 0.07);
-            player.removeEffect(ModEffects.MOVE_BANED);
-            player.removeEffect(ModEffects.TURN_BANED);
-            player.removeEffect(ModEffects.SKIN_MASK);
-            player.removeEffect(ModEffects.INVINCIBLE);
-            player.removeEffect(ModEffects.SAFE_TIME);
-            player.removeEffect(MobEffects.INVISIBILITY);
+            removePlayerEffects(player);
             complete(active, result);
         }
+    }
+
+    private static void removePlayerEffects(ServerPlayer player) {
+        player.removeEffect(ModEffects.MOVE_BANED);
+        player.removeEffect(ModEffects.TIME_REWIND_MARK);
+        player.removeEffect(ModEffects.TURN_BANED);
+        player.removeEffect(ModEffects.SKIN_MASK);
+        player.removeEffect(ModEffects.INVINCIBLE);
+        player.removeEffect(ModEffects.SAFE_TIME);
+        player.removeEffect(MobEffects.INVISIBILITY);
+    }
+
+    private static void addPlayerEffects(ServerPlayer player) {
+        if (!player.hasEffect(MobEffects.INVISIBILITY))
+            player.addEffect(new MobEffectInstance(MobEffects.INVISIBILITY, 600, 0, false, false, false));
+        if (!player.hasEffect(ModEffects.TIME_REWIND_MARK))
+            player.addEffect(new MobEffectInstance(ModEffects.TIME_REWIND_MARK, -1, 0, false, false, false));
+        if (!player.hasEffect(ModEffects.INVINCIBLE))
+            player.addEffect(new MobEffectInstance(ModEffects.INVINCIBLE, 600, 0, false, false, false));
+        if (!player.hasEffect(ModEffects.SAFE_TIME))
+            player.addEffect(new MobEffectInstance(ModEffects.SAFE_TIME, 600, 0, false, false, false));
+        if (!player.hasEffect(ModEffects.MOVE_BANED))
+            player.addEffect(new MobEffectInstance(ModEffects.MOVE_BANED, 600, 0, false, false, false));
+        if (!player.hasEffect(ModEffects.TURN_BANED))
+            player.addEffect(new MobEffectInstance(ModEffects.TURN_BANED, 600, 0, false, false, false));
+        if (!player.hasEffect(ModEffects.SKIN_MASK))
+            player.addEffect(new MobEffectInstance(ModEffects.SKIN_MASK, 600, 0, false, false, false));
     }
 
     private static void spawnTrail(ServerPlayer player, float progress) {
