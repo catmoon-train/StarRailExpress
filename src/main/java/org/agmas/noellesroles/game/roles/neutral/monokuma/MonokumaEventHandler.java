@@ -134,7 +134,7 @@ public class MonokumaEventHandler {
             // 黑白修饰符阶段一：玩家仍是义警/警长（尚未变身为 MONOKUMA），
             // 状态记录在 BLACK_WHITE_PHASE1 中；已变身玩家的 phase==1 由 RoleData.init() 设置。
             if (!RefugeeComponent.KEY.get(sp.level()).isAnyRevivals
-                    && (BLACK_WHITE_PHASE1.contains(sp.getUUID()) || (comp != null && comp.phase == 1))) {
+                    && (BLACK_WHITE_PHASE1.contains(sp.getUUID()) || (comp != null && comp.phase <= 1))) {
                 // 注意：直接在死亡事件回调里同步执行换职业 / 启动疯狂，会让其中任何异常顺着
                 // “攻击者攻击封包”的调用栈抛出，导致触发黑白的玩家（如义警）掉线。
                 // 这里只同步取消死亡，把繁重的狂暴触发推迟到干净的服务端任务栈上执行并捕获异常。
