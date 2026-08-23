@@ -119,13 +119,14 @@ public class THSuikaRole extends TouhouRole {
                             // 检测碰撞箱是否相交（三维空间）
                             if (playerBox.intersects(other.getBoundingBox())) {
                                 // 疾跑冲撞人会击退玩家，CD 30s。此形态免疫手铐，其他处于控制状态的玩家若此时被撞到会直接死亡（包括杀手）CD 30s。
-                                if (triggeredKill < 3 && triggeredPush <= 0) {
+                                if (triggeredKill < 2 && triggeredPush < 1) {
                                     if (!player.getCooldowns().isOnCooldown(Items.REPEATING_COMMAND_BLOCK)) {
                                         GameUtils.killPlayer(other, true, player,
                                                 GameConstants.DeathReasons.SUIKA_RUSH);
                                         triggeredKill++;
                                     }
-                                } else {
+                                }
+                                {
                                     if (!player.getCooldowns().isOnCooldown(Items.COMMAND_BLOCK)) {
                                         Vec3 knockback = other.position()
                                                 .subtract(playerPos)
