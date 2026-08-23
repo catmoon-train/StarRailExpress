@@ -89,11 +89,11 @@ public class LeatherPigRoleData extends SimpleRoleData {
     }
 
     /** 是否以猪的形象示人（角色分配且存活期间为 true，同步给所有客户端） */
-    public boolean disguised;
+    public boolean disguised = true;
     /** 疯魔模式剩余时间（tick） */
-    public int frenzyTicks;
+    public int frenzyTicks = 0;
     /** 伪装翻转后的剩余补发时间（tick），仅服务端使用，不参与同步 */
-    private int disguiseResyncTicks;
+    private int disguiseResyncTicks = 0;
 
     public LeatherPigRoleData(RoleDataContext context) {
         super(context);
@@ -104,21 +104,21 @@ public class LeatherPigRoleData extends SimpleRoleData {
      * 伪装状态没变时不必对全场广播。
      */
     private void syncSelf() {
-        if (player instanceof ServerPlayer) {
-            sync();
+        if (player instanceof ServerPlayer sp) {
+            syncTo(sp);
         }
     }
 
     @Override
     public void init() {
-        // 开局/清场会对所有玩家统一 init，状态本就默认时跳过广播，避免 N² 个包
-        boolean dirty = disguised || frenzyTicks > 0;
+        // 因为init reset仅给对应玩家同步，此处给其他玩家同步。
         setDisguised(false);
-        frenzyTicks = 0;
-        disguiseResyncTicks = 0;
-        if (dirty) {
-            sync();
-        }
+    }
+
+    @Override
+    public void initOnClient() {
+        // 因为init reset仅给对应玩家同步，此处给其他玩家同步。
+        setDisguised(false);
     }
 
     @Override
@@ -142,7 +142,7 @@ public class LeatherPigRoleData extends SimpleRoleData {
     /** 供 mixin 在无组件实例时查询：该玩家当前是否顶着猪的皮。 */
     public static boolean isDisguised(Player player) {
         LeatherPigRoleData component = RoleData.getNullable(LeatherPigRoleData.class, player);
-        return RoleData.isAttached(component) && component.disguised;
+        return component != null && component.disguised;
     }
 
     public boolean isFrenzyActive() {
@@ -188,8 +188,7 @@ public class LeatherPigRoleData extends SimpleRoleData {
             return;
         }
         SREGameWorldComponent gameWorld = SREGameWorldComponent.KEY.get(sp.level());
-        boolean shouldDisguise = gameWorld.isRunning() && gameWorld.isRole(sp, ModRoles.LEATHER_PIG)
-                && GameUtils.isPlayerAliveAndSurvival(sp);
+        boolean shouldDisguise = gameWorld.isRunning() && GameUtils.isPlayerAliveAndSurvival(sp);
         if (shouldDisguise != disguised) {
             setDisguised(shouldDisguise);
             disguiseResyncTicks = DISGUISE_RESYNC_WINDOW;
@@ -321,7 +320,7 @@ public class LeatherPigRoleData extends SimpleRoleData {
     }
 
     @Override
-    public boolean shouldSyncWith(ServerPlayer player) {
+    public boolean shouldSyncWith(ServerPlayer p) {
         // 伪装状态必须同步给所有客户端，否则其他玩家看不到猪模型（此前只有本人能看到自己的猪模型）。
         return true;
     }
@@ -337,10 +336,4 @@ public class LeatherPigRoleData extends SimpleRoleData {
         setDisguised(tag.getBoolean("disguised"));
         frenzyTicks = tag.getInt("frenzyTicks");
     }
-
-    @Override
-    public void initOnClient() {
-        setDisguised(disguised);
-    }
-
 }

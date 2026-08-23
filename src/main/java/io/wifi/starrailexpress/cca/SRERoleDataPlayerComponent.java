@@ -53,11 +53,14 @@ public class SRERoleDataPlayerComponent
     }
 
     @Override
-    public boolean shouldSyncWith(ServerPlayer player) {
-        if (roleData != null && !initSync) {
-            return roleData.shouldSyncWith(player);
+    public boolean shouldSyncWith(ServerPlayer p) {
+        if (initSync) {
+            return true;
         }
-        return this.getPlayer() == player;
+        if (roleData != null && !initSync) {
+            return roleData.shouldSyncWith(p);
+        }
+        return player == p;
     }
 
     /**
@@ -106,6 +109,8 @@ public class SRERoleDataPlayerComponent
         final var roleDataFunc = playerRole.getRoleDataFunc();
         final RoleDataContext ctx = new RoleDataContext(player, playerRole, () -> {
             sync();
+        }, (p) -> {
+            syncTo(p);
         });
         if (roleDataFunc != null) {
             roleData = roleDataFunc.apply(ctx);
@@ -113,6 +118,7 @@ public class SRERoleDataPlayerComponent
         if (roleData != null) {
             initSync = true;
             sync();
+            initSync = false;
             roleData.init();
         }
     }
@@ -125,7 +131,7 @@ public class SRERoleDataPlayerComponent
             return;
         }
         final var roleDataFunc = playerRole.getRoleDataFunc();
-        final RoleDataContext ctx = new RoleDataContext(player, playerRole, null);
+        final RoleDataContext ctx = new RoleDataContext(player, playerRole, null, null);
         if (roleDataFunc != null) {
             roleData = roleDataFunc.apply(ctx);
             roleData.initOnClient();
@@ -141,6 +147,14 @@ public class SRERoleDataPlayerComponent
         roleData = null;
         initSync = false;
         sync();
+    }
+
+    /**
+     * 同步到指定玩家客户端
+     */
+    public void syncTo(ServerPlayer p) {
+        initSync = false;
+        KEY.syncWith(p, player.asComponentProvider());
     }
 
     /**

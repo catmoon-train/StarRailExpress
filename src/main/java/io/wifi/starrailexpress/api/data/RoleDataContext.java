@@ -15,12 +15,16 @@
 
 package io.wifi.starrailexpress.api.data;
 
+import java.util.function.Consumer;
+
 import org.jetbrains.annotations.Nullable;
 
 import io.wifi.starrailexpress.api.SRERole;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 
-public record RoleDataContext(Player player, @Nullable SRERole role, @Nullable Runnable syncFunc) {
+public record RoleDataContext(Player player, @Nullable SRERole role, @Nullable Runnable syncFunc,
+        @Nullable Consumer<ServerPlayer> syncToFunc) {
     public void sync() {
         if (syncFunc != null)
             syncFunc.run();
@@ -32,5 +36,10 @@ public record RoleDataContext(Player player, @Nullable SRERole role, @Nullable R
 
     public boolean isClientSide() {
         return player.level().isClientSide;
+    }
+
+    public void syncTo(ServerPlayer player2) {
+        if (syncToFunc != null)
+            syncToFunc.accept(player2);
     }
 }

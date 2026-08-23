@@ -127,7 +127,7 @@ public interface RoleData {
     public static <T extends RoleData> T create(Class<T> clazz, Player player) {
         try {
             Constructor<T> ctor = clazz.getDeclaredConstructor(RoleDataContext.class);
-            RoleDataContext ctx = new RoleDataContext(player, null, null);
+            RoleDataContext ctx = new RoleDataContext(player, null, null, null);
             return ctor.newInstance(ctx);
         } catch (ReflectiveOperationException e) {
             // 记录日志

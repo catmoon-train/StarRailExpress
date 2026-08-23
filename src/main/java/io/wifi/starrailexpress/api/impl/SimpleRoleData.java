@@ -18,6 +18,7 @@ package io.wifi.starrailexpress.api.impl;
 import io.wifi.starrailexpress.api.data.RoleData;
 import io.wifi.starrailexpress.api.data.RoleDataContext;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 
 /**
@@ -50,6 +51,10 @@ public class SimpleRoleData implements RoleData {
 
     public void sync() {
         ctx.sync();
+    }
+
+    public void syncTo(ServerPlayer serverPlayer) {
+        ctx.syncTo(serverPlayer);
     }
 
     @Override
