@@ -24,9 +24,6 @@ import io.wifi.starrailexpress.game.GameUtils;
 import io.wifi.starrailexpress.game.TeamKillViolationHandler;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
-import pro.fazeclan.river.stupid_express.constants.SEModifiers;
-
-import org.agmas.harpymodloader.component.WorldModifierComponent;
 import org.agmas.noellesroles.Noellesroles;
 import io.wifi.starrailexpress.api.data.RoleData;
 import org.agmas.noellesroles.config.NoellesRolesConfig;
@@ -50,14 +47,7 @@ public class XiaoNaoHandler {
                 return;
 
             final SREGameWorldComponent gameWorldComponent = SREGameWorldComponent.KEY.get(victim.level());
-            final WorldModifierComponent worldModifierComponent = WorldModifierComponent.KEY.get(victim.level());
-            if (worldModifierComponent.isModifier(victim, SEModifiers.LOVERS)
-                    || worldModifierComponent.isModifier(killer, SEModifiers.LOVERS)) {
-                // 忽略链子（可能链子小脑有原因）
-                return;
-            }
             if (GameUtils.isPlayerAliveAndSurvival(killer)) {
-
                 if (isInnocent) {
                     if (gameWorldComponent.isRole(victim, TMMRoles.DISCOVERY_CIVILIAN)) {
                         // 跳过游客惩罚
