@@ -184,6 +184,4 @@ public class AdventurerRoleData extends SimpleRoleData {
         waypointCooldown = tag.getInt("wpCd");
     }
 
-    @Override public void writeToNbt(CompoundTag tag, HolderLookup.Provider p) {}
-    @Override public void readFromNbt(CompoundTag tag, HolderLookup.Provider p) {}
 }

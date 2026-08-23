@@ -183,17 +183,7 @@ public class LocksmithInspirationRoleData extends SimpleRoleData {
         tag.putInt("observingDoorTicks", this.observingDoorTicks);
     }
 
-    @Override
-    public void writeToNbt(CompoundTag tag, HolderLookup.Provider registryLookup) {
-        tag.putInt("inspirationPoints", this.inspirationPoints);
-        tag.putInt("observingDoorTicks", this.observingDoorTicks);
-    }
 
-    @Override
-    public void readFromNbt(CompoundTag tag, HolderLookup.Provider registryLookup) {
-        this.inspirationPoints = Math.max(0, Math.min(MAX_POINTS, tag.getInt("inspirationPoints")));
-        this.observingDoorTicks = Math.max(0, tag.getInt("observingDoorTicks"));
-    }
 
     @Override
     public void readFromSyncNbt(@NotNull CompoundTag tag, HolderLookup.Provider registryLookup) {

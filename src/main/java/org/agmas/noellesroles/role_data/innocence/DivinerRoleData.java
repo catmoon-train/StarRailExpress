@@ -505,23 +505,7 @@ public class DivinerRoleData extends SimpleRoleData {
 
     // ==================== NBT 持久化 ====================
 
-    @Override
-    public void writeToNbt(CompoundTag tag, HolderLookup.Provider registryLookup) {
-        if (pendingRevealKiller != null) {
-            tag.putUUID("pendingRevealKiller", pendingRevealKiller);
-            tag.putBoolean("pendingRevealKillerAlive", pendingRevealKillerAlive);
-            tag.putBoolean("killerRevealed", killerRevealed);
-        }
-    }
 
-    @Override
-    public void readFromNbt(CompoundTag tag, HolderLookup.Provider registryLookup) {
-        if (tag.hasUUID("pendingRevealKiller")) {
-            pendingRevealKiller = tag.getUUID("pendingRevealKiller");
-            pendingRevealKillerAlive = tag.getBoolean("pendingRevealKillerAlive");
-            killerRevealed = tag.getBoolean("killerRevealed");
-        }
-    }
 
     @Override
     public void writeToSyncNbt(@NotNull CompoundTag tag, HolderLookup.Provider registryLookup) {

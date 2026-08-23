@@ -25,13 +25,10 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 import org.agmas.noellesroles.ConfigWorldComponent;
-import org.agmas.noellesroles.component.ModComponents;
 import org.jetbrains.annotations.NotNull;
 import java.util.UUID;
 
 public class MonitorRoleData extends SimpleRoleData {
-
-
 
     public UUID markedTarget = null;
 
@@ -43,7 +40,6 @@ public class MonitorRoleData extends SimpleRoleData {
     public MonitorRoleData(RoleDataContext context) {
         super(context);
     }
-
 
     /**
      * 标记目标玩家
@@ -133,6 +129,4 @@ public class MonitorRoleData extends SimpleRoleData {
         this.markedTarget = tag.contains("markedTarget") ? tag.getUUID("markedTarget") : null;
         this.cooldown = tag.contains("cooldown") ? tag.getInt("cooldown") : 0;
     }
-
-
 }

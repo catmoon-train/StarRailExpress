@@ -17,6 +17,7 @@ package org.agmas.noellesroles.init;
 
 import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.api.RoleSkill;
+import io.wifi.starrailexpress.api.data.RoleData;
 import io.wifi.starrailexpress.api.replay.GameReplayUtils;
 import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.api.TMMRoles;
@@ -69,10 +70,9 @@ import org.agmas.noellesroles.content.item.StalkerKnifeItem;
 import org.agmas.noellesroles.content.item.ThrowingKnife;
 import org.agmas.noellesroles.content.item.ZeroOneFiveShootPayload;
 import org.agmas.noellesroles.events.OnVendingMachinesBuyItems;
-import org.agmas.noellesroles.game.roles.innocence.broadcaster.BroadcasterPlayerComponent;
-import org.agmas.noellesroles.game.roles.innocence.monitor.MonitorPlayerComponent;
-import org.agmas.noellesroles.game.roles.innocence.pilot.PilotPlayerComponent;
-import org.agmas.noellesroles.game.roles.innocence.voodoo.VoodooPlayerComponent;
+import org.agmas.noellesroles.role_data.innocence.BroadcasterRoleData;
+import org.agmas.noellesroles.role_data.innocence.MonitorRoleData;
+import org.agmas.noellesroles.role_data.innocence.VoodooRoleData;
 import org.agmas.noellesroles.game.roles.killer.creeper.CreeperPlayerComponent;
 import org.agmas.noellesroles.game.roles.killer.executioner.ExecutionerPlayerComponent;
 import org.agmas.noellesroles.game.roles.killer.insane_killer.InsaneKillerPlayerComponent;
@@ -85,6 +85,7 @@ import org.agmas.noellesroles.game.roles.killer.stalker.StalkerPlayerComponent;
 import org.agmas.noellesroles.game.roles.killer.swapper.SwapperPlayerComponent;
 import org.agmas.noellesroles.game.roles.neutral.mortician.MorticianBodyMakerPlayerComponent;
 import org.agmas.noellesroles.game.roles.neutral.vulture.VulturePlayerComponent;
+import org.agmas.noellesroles.role_data.innocence.PilotRoleData;
 import org.agmas.noellesroles.packet.*;
 import org.agmas.noellesroles.role.BounsRoles;
 import org.agmas.noellesroles.role.ModRoles;
@@ -388,9 +389,8 @@ public class ModPacketsReciever {
           return;
         abilityPlayerComponent.cooldown = 15 * 20;
         abilityPlayerComponent.sync();
-        VoodooPlayerComponent voodooPlayerComponent = (VoodooPlayerComponent) VoodooPlayerComponent.KEY
-            .get(context.player());
-        voodooPlayerComponent.setTarget(payload.player());
+        RoleData.getOptional(VoodooRoleData.class, context.player())
+            .ifPresent(d -> d.setTarget(payload.player()));
 
         // 回放记录：巫毒师/冷笑绑定玩家
         SRE.REPLAY_MANAGER.recordCustomEvent(
@@ -847,18 +847,19 @@ public class ModPacketsReciever {
           }
 
           if (gameWorldComponent.isRole(context.player(), ModRoles.BROADCASTER)) {
-            BroadcasterPlayerComponent comp = BroadcasterPlayerComponent.KEY.get(context.player());
-            String message = payload.message();
+            var comp = RoleData.getOptional(BroadcasterRoleData.class, context.player());
+            final String originalMessage = payload.message();
+            String message = originalMessage;
             boolean onlySave = payload.onlySave();
             if (onlySave) {
-              comp.setStoredStr(message);
+              comp.ifPresent(d -> d.setStoredStr(originalMessage));
               return;
             }
             if (playerShopComponent.balance < 50) {
               context.player().displayClientMessage(
                   Component.translatable("message.noellesroles.insufficient_funds"),
                   true);
-              comp.setStoredStr(message);
+              comp.ifPresent(d -> d.setStoredStr(originalMessage));
               if (context.player() instanceof ServerPlayer) {
                 ServerPlayer player = (ServerPlayer) context.player();
                 player.connection.send(new ClientboundSoundPacket(
@@ -871,9 +872,7 @@ public class ModPacketsReciever {
             if (message.length() > 256) {
               message = message.substring(0, 256);
             }
-            if (comp != null) {
-              comp.setStoredStr("");
-            }
+            comp.ifPresent(d -> d.setStoredStr(""));
             playerShopComponent.balance -= 50;
             playerShopComponent.sync();
 
@@ -1012,15 +1011,15 @@ public class ModPacketsReciever {
       SREGameWorldComponent gameWorldComponent = (SREGameWorldComponent) SREGameWorldComponent.KEY
           .get(context.player().level());
       if (gameWorldComponent.isRole(context.player(), ModRoles.MONITOR)) {
-        MonitorPlayerComponent monitorComponent = MonitorPlayerComponent.KEY.get(context.player());
+        var monitorData = RoleData.getOptional(MonitorRoleData.class, context.player());
 
         // 检查冷却
-        if (monitorComponent.canUseAbility()) {
+        if (monitorData.isPresent() && monitorData.get().canUseAbility()) {
           if (payload.target() != null) {
             Player targetPlayer = context.player().level().getPlayerByUUID(payload.target());
             if (targetPlayer != null && GameUtils.isPlayerAliveAndSurvival(targetPlayer)) {
               // 标记目标
-              monitorComponent.markTarget(payload.target());
+              monitorData.get().markTarget(payload.target());
 
               // 发送成功消息
               context.player().displayClientMessage(
@@ -1038,7 +1037,7 @@ public class ModPacketsReciever {
           // 冷却中
           context.player().displayClientMessage(
               Component.translatable("message.noellesroles.monitor.cooldown",
-                  String.format("%.1f", monitorComponent.getCooldownSeconds())),
+                  String.format("%.1f", monitorData.map(MonitorRoleData::getCooldownSeconds).orElse(0f))),
               true);
         }
       }
@@ -1138,8 +1137,7 @@ public class ModPacketsReciever {
           SREGameWorldComponent gameWorldComponent = SREGameWorldComponent.KEY.get(player.level());
 
           if (gameWorldComponent.isRole(player, ModRoles.PILOT)) {
-            PilotPlayerComponent pilotComponent = PilotPlayerComponent.KEY.get(player);
-            pilotComponent.removeJetpack();
+            RoleData.getOptional(PilotRoleData.class, player).ifPresent(PilotRoleData::removeJetpack);
           } else if (gameWorldComponent.isRole(player, ModRoles.SHADOW_FALCON)) {
             ShadowFalconPlayerComponent shadowFalconComponent = ShadowFalconPlayerComponent.KEY.get(player);
             shadowFalconComponent.removeJetpack();

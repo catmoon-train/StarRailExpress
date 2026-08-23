@@ -26,7 +26,7 @@ import io.wifi.starrailexpress.game.GameUtils;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
 import org.agmas.noellesroles.component.ModComponents;
-import org.agmas.noellesroles.game.roles.innocence.telegrapher.TelegrapherPlayerComponent;
+import org.agmas.noellesroles.role_data.innocence.TelegrapherRoleData;
 import org.agmas.noellesroles.game.roles.killer.creeper.RainbowCreeperRole;
 import org.agmas.noellesroles.modifier.BounsModifiers;
 import org.agmas.noellesroles.role.touhou.THMagicForestRoles;
@@ -139,7 +139,7 @@ public class BounsRoles {
             SRERole.MoodType.REAL, // 真实心情
             TMMRoles.CIVILIAN.getMaxSprintTime(), // 标准冲刺时间
             false // 不隐藏计分板
-    )).setCanSeeCoin(true).setComponentKey(TelegrapherPlayerComponent.KEY)
+    )).setCanSeeCoin(true).setRoleData(TelegrapherRoleData::new)
             .setDefaultEnableChance(200);
 
     public static SRERole CAT_KILLER = TMMRoles.registerRole(new EggRole(

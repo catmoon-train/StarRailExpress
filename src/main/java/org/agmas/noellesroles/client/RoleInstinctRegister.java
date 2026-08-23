@@ -28,7 +28,7 @@ import org.agmas.noellesroles.game.roles.innocence.awesome_binglus.AwesomePlayer
 import org.agmas.noellesroles.game.roles.innocence.detective.AgentPlayerComponent;
 import org.agmas.noellesroles.game.roles.innocence.fool.FoolPlayerComponent;
 import org.agmas.noellesroles.game.roles.innocence.leather_pig.LeatherPigPlayerComponent;
-import org.agmas.noellesroles.game.roles.innocence.monitor.MonitorPlayerComponent;
+import org.agmas.noellesroles.role_data.innocence.MonitorRoleData;
 import org.agmas.noellesroles.game.roles.killer.executioner.ExecutionerPlayerComponent;
 import org.agmas.noellesroles.game.roles.killer.insane_killer.InsaneKillerPlayerComponent;
 import org.agmas.noellesroles.game.roles.killer.manipulator.ManipulatorPlayerComponent;
@@ -50,6 +50,7 @@ import org.agmas.noellesroles.utils.RoleUtils;
 import io.wifi.starrailexpress.api.InstinctType;
 import io.wifi.starrailexpress.api.SREGameModes;
 import io.wifi.starrailexpress.api.SRERole;
+import io.wifi.starrailexpress.api.data.RoleData;
 import io.wifi.starrailexpress.api.TMMRoles;
 import io.wifi.starrailexpress.cca.SREArmorPlayerComponent;
 import io.wifi.starrailexpress.cca.SREPlayerMoodComponent;
@@ -436,9 +437,9 @@ public class RoleInstinctRegister {
         // 监视者
         RoleInstinctEvents.OBSERVER_HIGHLIGHT_EVENT.register(ModRoles.MONITOR_ID,
                 (client, viewer, target, isInstinctEnabled) -> {
-                    MonitorPlayerComponent comp = MonitorPlayerComponent.KEY.get(viewer);
-                    if (comp != null && comp.getMarkedTarget() != null && target instanceof Player targetPlayer) {
-                        if (comp.getMarkedTarget().equals(targetPlayer.getUUID()))
+                    var comp = RoleData.getOptional(MonitorRoleData.class, viewer);
+                    if (comp.isPresent() && comp.get().getMarkedTarget() != null && target instanceof Player targetPlayer) {
+                        if (comp.get().getMarkedTarget().equals(targetPlayer.getUUID()))
                             return TrueFalseAndCustomResult.custom(Color.CYAN.getRGB());
                     }
                     return TrueFalseAndCustomResult.pass();

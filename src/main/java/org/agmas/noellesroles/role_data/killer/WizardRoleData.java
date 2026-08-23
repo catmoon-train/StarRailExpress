@@ -449,7 +449,7 @@ public class WizardRoleData extends SimpleRoleData {
         if (explosionArmed) {
             explosionArmed = false;
             sync();
-            WizardSpells.castNineRingFireball(this, sp);
+            WizardSpells.castNineRingFireball(null, sp);
         } else {
             if (sp.getCooldowns().isOnCooldown(ModItems.WIZARD_STAFF)) {
                 return;
@@ -458,7 +458,7 @@ public class WizardRoleData extends SimpleRoleData {
                 sl.playSound(null, sp.blockPosition(), SoundEvents.BLAZE_SHOOT,
                         SoundSource.PLAYERS, 0.8f, 1.2f);
             }
-            WizardSpells.castFireArrow(this, sp);
+            WizardSpells.castFireArrow(null, sp);
         }
     }
 

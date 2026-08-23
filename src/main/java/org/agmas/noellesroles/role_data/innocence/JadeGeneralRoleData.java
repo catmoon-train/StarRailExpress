@@ -15,7 +15,6 @@
 
 package org.agmas.noellesroles.role_data.innocence;
 
-import io.wifi.starrailexpress.api.data.RoleData;
 import io.wifi.starrailexpress.api.data.RoleDataContext;
 import io.wifi.starrailexpress.api.impl.SimpleRoleData;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
@@ -43,14 +42,11 @@ import net.minecraft.world.level.block.state.properties.DoubleBlockHalf;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
-import org.agmas.noellesroles.component.ModComponents;
 import org.agmas.noellesroles.config.NoellesRolesConfig;
 import org.agmas.noellesroles.role.ModRoles;
 import org.jetbrains.annotations.NotNull;
 
 public class JadeGeneralRoleData extends SimpleRoleData {
-
-
 
     private static final int DASH_TICKS = 5;
     private static final double TARGET_RANGE = 2.5D;
@@ -67,12 +63,10 @@ public class JadeGeneralRoleData extends SimpleRoleData {
         super(context);
     }
 
-
     @Override
     public boolean shouldSyncWith(ServerPlayer p) {
         return p == player;
     }
-
 
     @Override
     public void init() {

@@ -19,6 +19,7 @@ import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.api.SREGameModes;
 import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.api.TMMRoles;
+import io.wifi.starrailexpress.api.data.RoleData;
 import io.wifi.starrailexpress.api.replay.GameReplayUtils;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.cca.SREPlayerPsychoComponent;
@@ -64,7 +65,7 @@ import org.agmas.noellesroles.component.ModComponents;
 import org.agmas.noellesroles.config.NoellesRolesConfig;
 import org.agmas.noellesroles.game.roles.innocence.avenger.AvengerPlayerComponent;
 import org.agmas.noellesroles.game.roles.innocence.boxer.BoxerPlayerComponent;
-import org.agmas.noellesroles.game.roles.innocence.broadcaster.BroadcasterPlayerComponent;
+import org.agmas.noellesroles.role_data.innocence.BroadcasterRoleData;
 import org.agmas.noellesroles.game.roles.innocence.cake_maker.CakeMakerComponent;
 import org.agmas.noellesroles.game.roles.innocence.fool.TarotAssemblyManager;
 import org.agmas.noellesroles.game.roles.innocence.fortuneteller.FortunetellerPlayerComponent;
@@ -79,7 +80,8 @@ import org.agmas.noellesroles.game.roles.neutral.puppeteer.PuppeteerPlayerCompon
 import org.agmas.noellesroles.game.roles.neutral.raven.RavenPlayerComponent;
 import org.agmas.noellesroles.game.roles.neutral.thief.ThiefPlayerComponent;
 import org.agmas.noellesroles.game.roles.special.better_vigilante.BetterVigilantePlayerComponent;
-import org.agmas.noellesroles.game.roles.vigilante.patroller.PatrollerPlayerComponent;
+import org.agmas.noellesroles.role_data.killer.BanditRoleData;
+import org.agmas.noellesroles.role_data.vigilante.PatrollerRoleData;
 import org.agmas.noellesroles.init.ModEffects;
 import org.agmas.noellesroles.init.FunnyItems;
 import org.agmas.noellesroles.init.ModItems;
@@ -951,10 +953,10 @@ public class NRDeathEvents {
                 if (!GameUtils.isPlayerAliveAndSurvival(player))
                     continue;
                 if (player.distanceToSqr(victim) > 50 * 50
-                        || !PatrollerPlayerComponent.isBoundTargetVisible(victim, player))
+                        || !PatrollerRoleData.isBoundTargetVisible(victim, player))
                     continue;
-                PatrollerPlayerComponent patrollerComponent = ModComponents.PATROLLER.get(player);
-                patrollerComponent.onNearbyDeath();
+                RoleData.getOptional(PatrollerRoleData.class, player)
+                        .ifPresent(PatrollerRoleData::onNearbyDeath);
             }
         });
 
@@ -966,9 +968,9 @@ public class NRDeathEvents {
             SREGameWorldComponent gameWorldComponent = SREGameWorldComponent.KEY.get(world);
             if (gameWorldComponent.isRole(victim, ModRoles.BROADCASTER)) {
                 String last_message = null;
-                BroadcasterPlayerComponent comp = BroadcasterPlayerComponent.KEY.get(victim);
-                if (comp != null) {
-                    last_message = comp.getStoredStr();
+                var comp = RoleData.getOptional(BroadcasterRoleData.class, victim);
+                if (comp.isPresent()) {
+                    last_message = comp.get().getStoredStr();
                 }
                 Component msg;
                 if (last_message != null && !last_message.trim().isEmpty()) {
@@ -1355,10 +1357,8 @@ public class NRDeathEvents {
 
             // 强盗金钱盗取
             if (gameWorldComponent.isRole(killer, ModRoles.BANDIT)) {
-                var banditComponent = ModComponents.BANDIT.get(killer);
-                if (banditComponent != null) {
-                    banditComponent.handleKilledVictim(victim);
-                }
+                RoleData.getOptional(BanditRoleData.class, killer)
+                        .ifPresent(bandit -> bandit.handleKilledVictim(victim));
             }
 
             // 小偷击杀奖励

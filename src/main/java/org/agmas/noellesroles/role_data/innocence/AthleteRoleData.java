@@ -15,7 +15,6 @@
 
 package org.agmas.noellesroles.role_data.innocence;
 
-import io.wifi.starrailexpress.api.data.RoleData;
 import io.wifi.starrailexpress.api.data.RoleDataContext;
 import io.wifi.starrailexpress.api.impl.SimpleRoleData;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
@@ -25,15 +24,10 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
-import net.minecraft.world.entity.player.Player;
-import org.agmas.noellesroles.component.ModComponents;
 import org.agmas.noellesroles.role.ModRoles;
 import org.jetbrains.annotations.NotNull;
 
 public class AthleteRoleData extends SimpleRoleData {
-
-    /** 组件键 - 用于从玩家获取此组件 */
-
 
     // ==================== 常量定义 ====================
 
@@ -47,7 +41,6 @@ public class AthleteRoleData extends SimpleRoleData {
     public static final int SPEED_AMPLIFIER = 4;
 
     // ==================== 状态变量 ====================
-
 
     /** 技能冷却时间（tick） */
     public int cooldown = 0;

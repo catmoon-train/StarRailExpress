@@ -80,15 +80,7 @@ public class BomberRoleData extends SimpleRoleData {
         }
     }
 
-    @Override
-    public void readFromNbt(CompoundTag tag, HolderLookup.Provider registryLookup) {
-        // No persistent data needed for now
-    }
 
-    @Override
-    public void writeToNbt(CompoundTag tag, HolderLookup.Provider registryLookup) {
-        // No persistent data needed for now
-    }
 
 
     @Override

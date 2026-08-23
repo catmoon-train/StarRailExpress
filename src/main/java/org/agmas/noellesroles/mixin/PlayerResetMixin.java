@@ -29,17 +29,15 @@ import org.agmas.noellesroles.component.PlayerVolumeComponent;
 import org.agmas.noellesroles.component.TemporaryEffectPlayerComponent;
 import org.agmas.noellesroles.content.entity.MudTrapEntity;
 import org.agmas.noellesroles.content.entity.TripwireTrapEntity;
-import org.agmas.noellesroles.game.roles.innocence.athlete.AthletePlayerComponent;
 import org.agmas.noellesroles.game.roles.innocence.avenger.AvengerPlayerComponent;
 import org.agmas.noellesroles.game.roles.innocence.awesome_binglus.AwesomePlayerComponent;
 import org.agmas.noellesroles.game.roles.innocence.ayayaya.AyayayaPlayerComponent;
 import org.agmas.noellesroles.game.roles.innocence.boxer.BoxerPlayerComponent;
-import org.agmas.noellesroles.game.roles.innocence.broadcaster.BroadcasterPlayerComponent;
+import org.agmas.noellesroles.game.roles.innocence.builder.BuilderPlayerComponent;
 import org.agmas.noellesroles.game.roles.innocence.cake_maker.CakeMakerComponent;
 import org.agmas.noellesroles.game.roles.innocence.detective.AgentPlayerComponent;
 import org.agmas.noellesroles.game.roles.innocence.fortuneteller.FortunetellerPlayerComponent;
 import org.agmas.noellesroles.game.roles.innocence.recaller.RecallerPlayerComponent;
-import org.agmas.noellesroles.game.roles.innocence.voodoo.VoodooPlayerComponent;
 import org.agmas.noellesroles.game.roles.killer.blood_feudist.BloodFeudistPlayerComponent;
 import org.agmas.noellesroles.game.roles.killer.conspirator.ConspiratorPlayerComponent;
 import org.agmas.noellesroles.game.roles.killer.executioner.ExecutionerPlayerComponent;
@@ -54,7 +52,6 @@ import org.agmas.noellesroles.game.roles.neutral.admirer.AdmirerPlayerComponent;
 import org.agmas.noellesroles.game.roles.neutral.monokuma.MonokumaPlayerComponent;
 import org.agmas.noellesroles.game.roles.neutral.puppeteer.PuppeteerPlayerComponent;
 import org.agmas.noellesroles.game.roles.neutral.recorder.RecorderPlayerComponent;
-import org.agmas.noellesroles.game.roles.neutral.slippery_ghost.SlipperyGhostPlayerComponent;
 import org.agmas.noellesroles.game.roles.neutral.vulture.VulturePlayerComponent;
 import org.agmas.noellesroles.game.roles.neutral.wayfarer.WayfarerPlayerComponent;
 import org.agmas.noellesroles.packet.PlayerResetS2CPacket;
@@ -122,7 +119,6 @@ public abstract class PlayerResetMixin {
         (WayfarerPlayerComponent.KEY.get(player)).clear();
 
         ((MorphlingPlayerComponent) MorphlingPlayerComponent.KEY.get(player)).init();
-        ((VoodooPlayerComponent) VoodooPlayerComponent.KEY.get(player)).init();
         (RecallerPlayerComponent.KEY.get(player)).init();
         (VulturePlayerComponent.KEY.get(player)).init();
         (ExecutionerPlayerComponent.KEY.get(player)).init();
@@ -161,12 +157,6 @@ public abstract class PlayerResetMixin {
         InsaneKillerPlayerComponent insaneKillerComp = ModComponents.INSANE_KILLER.get(player);
         insaneKillerComp.clear();
 
-        SlipperyGhostPlayerComponent slipperyGhostComp = ModComponents.PRANKSTER.get(player);
-        slipperyGhostComp.clear();
-
-        BroadcasterPlayerComponent broadcasterComp = ModComponents.BROADCASTER.get(player);
-        broadcasterComp.clear();
-
         AyayayaPlayerComponent postmanComp = ModComponents.AYAYAYA.get(player);
         postmanComp.clear();
 
@@ -175,9 +165,6 @@ public abstract class PlayerResetMixin {
 
         BoxerPlayerComponent boxerComp = ModComponents.FIGHTER.get(player);
         boxerComp.clear();
-
-        AthletePlayerComponent athleteComp = ModComponents.ATHLETE.get(player);
-        athleteComp.clear();
 
         // 清除设陷者组件状态
         TrapperPlayerComponent trapperComp = ModComponents.TRAPPER.get(player);

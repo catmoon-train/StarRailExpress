@@ -177,10 +177,7 @@ public class NRGameStateEvents {
                 ServerPlayNetworking.send(p, EmbalmerSkinSwapS2CPacket.clear());
             }
 
-            // 清除所有肉汁的悬赏
-            for (ServerPlayer player : world.players()) {
-                ModComponents.MEATBALL.get(player).init();
-            }
+            // 肉汁的悬赏在职业赋予时由 RoleData.init() 自动重置
 
             // 重置实体交互方块内置冷却
             if (io.wifi.starrailexpress.content.block_entity.EntityInteractionBlockEntity.getCountForMap(world) > 0) {

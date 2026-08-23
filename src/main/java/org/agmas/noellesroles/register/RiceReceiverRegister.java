@@ -17,6 +17,7 @@ package org.agmas.noellesroles.register;
 
 import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.api.RoleSkill;
+import io.wifi.starrailexpress.api.data.RoleData;
 import io.wifi.starrailexpress.api.replay.GameReplayUtils;
 import io.wifi.starrailexpress.cca.SREAbilityPlayerComponent;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
@@ -44,16 +45,16 @@ import org.agmas.noellesroles.client.screen.DetectiveInspectScreenHandler;
 import org.agmas.noellesroles.client.screen.PostmanScreenHandler;
 import org.agmas.noellesroles.component.ModComponents;
 import org.agmas.noellesroles.content.entity.LockEntityManager;
-import org.agmas.noellesroles.game.roles.innocence.athlete.AthletePlayerComponent;
+import org.agmas.noellesroles.role_data.innocence.AthleteRoleData;
 import org.agmas.noellesroles.game.roles.innocence.ayayaya.AyayayaPlayerComponent;
 import org.agmas.noellesroles.game.roles.innocence.boxer.BoxerPlayerComponent;
 import org.agmas.noellesroles.game.roles.innocence.detective.AgentPlayerComponent;
 import org.agmas.noellesroles.game.roles.innocence.great_detective.GreatDetectivePlayerComponent;
 import org.agmas.noellesroles.game.roles.innocence.locksmith_inspiration.LocksmithInspirationComponent;
 import org.agmas.noellesroles.game.roles.innocence.psychologist.PsychologistPlayerComponent;
-import org.agmas.noellesroles.game.roles.innocence.singer.SingerPlayerComponent;
-import org.agmas.noellesroles.game.roles.innocence.super_star.SuperStarPlayerComponent;
-import org.agmas.noellesroles.game.roles.innocence.telegrapher.TelegrapherPlayerComponent;
+import org.agmas.noellesroles.role_data.innocence.SingerRoleData;
+import org.agmas.noellesroles.role_data.innocence.SuperStarRoleData;
+import org.agmas.noellesroles.role_data.innocence.TelegrapherRoleData;
 import org.agmas.noellesroles.game.roles.innocence.veteran.VeteranKnifeHandler;
 import org.agmas.noellesroles.game.roles.killer.conspirator.ConspiratorPlayerComponent;
 import org.agmas.noellesroles.game.roles.killer.stalker.StalkerPlayerComponent;
@@ -277,9 +278,9 @@ public class RiceReceiverRegister {
             if (!gameWorld.isRole(context.player(), BounsRoles.TELEGRAPHER))
                 return;
 
-            // 获取电报员组件并发送消息
-            TelegrapherPlayerComponent telegrapherComp = ModComponents.TELEGRAPHER.get(context.player());
-            telegrapherComp.sendAnonymousMessage(payload.message());
+            // 获取电报员数据并发送消息
+            RoleData.getOptional(TelegrapherRoleData.class, context.player())
+                    .ifPresent(d -> d.sendAnonymousMessage(payload.message()));
         });
 
         // 处理射命丸文传递包
@@ -661,11 +662,11 @@ public class RiceReceiverRegister {
             if (!GameUtils.isPlayerAliveAndSurvival(context.player()))
                 return;
 
-            // 获取运动员组件
-            AthletePlayerComponent athleteComponent = ModComponents.ATHLETE.get(context.player());
+            // 获取运动员数据
+            var athleteData = RoleData.getOptional(AthleteRoleData.class, context.player());
 
             // 在服务端使用技能
-            if (athleteComponent.useAbility()) {
+            if (athleteData.map(AthleteRoleData::useAbility).orElse(false)) {
                 ConfigWorldComponent.onPlayerUsedSkill(context.player());
             }
         });
@@ -746,9 +747,9 @@ public class RiceReceiverRegister {
             if (!GameUtils.isPlayerAliveAndSurvival(context.player()))
                 return;
 
-            // 获取明星组件并使用技能
-            SuperStarPlayerComponent starComp = ModComponents.STAR.get(context.player());
-            if (starComp.useAbility()) {
+            // 获取明星数据并使用技能
+            if (RoleData.getOptional(SuperStarRoleData.class, context.player())
+                    .map(SuperStarRoleData::useAbility).orElse(false)) {
                 ConfigWorldComponent.onPlayerUsedSkill(context.player());
             }
         });
@@ -767,9 +768,9 @@ public class RiceReceiverRegister {
             if (!GameUtils.isPlayerAliveAndSurvival(context.player()))
                 return;
 
-            // 获取歌手组件并使用技能（组件内部已在成功分支记录技能释放）
-            SingerPlayerComponent singerComp = ModComponents.SINGER.get(context.player());
-            singerComp.useAbility();
+            // 获取歌手数据并使用技能
+            RoleData.getOptional(SingerRoleData.class, context.player())
+                    .ifPresent(SingerRoleData::useAbility);
         });
 
         // 处理退伍军人持刀冲刺包

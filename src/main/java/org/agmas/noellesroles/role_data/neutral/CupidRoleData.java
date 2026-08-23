@@ -34,14 +34,12 @@ import net.minecraft.world.entity.projectile.Arrow;
 import net.minecraft.world.item.alchemy.PotionContents;
 import org.agmas.harpymodloader.component.WorldModifierComponent;
 import org.agmas.harpymodloader.events.ModifierAssigned;
-import org.agmas.noellesroles.component.ModComponents;
 import org.agmas.noellesroles.role.ModRoles;
 import pro.fazeclan.river.stupid_express.constants.SEModifiers;
 import pro.fazeclan.river.stupid_express.modifier.lovers.cca.LoversComponent;
 import java.util.UUID;
 
 public class CupidRoleData extends SimpleRoleData {
-
 
     private UUID markedPlayer;
 
@@ -204,13 +202,5 @@ public class CupidRoleData extends SimpleRoleData {
         markedPlayer = tag.contains("MarkedPlayer") ? tag.getUUID("MarkedPlayer") : null;
     }
 
-    @Override
-    public void writeToNbt(CompoundTag tag, HolderLookup.Provider registryLookup) {
-        writeToSyncNbt(tag, registryLookup);
-    }
 
-    @Override
-    public void readFromNbt(CompoundTag tag, HolderLookup.Provider registryLookup) {
-        readFromSyncNbt(tag, registryLookup);
-    }
 }

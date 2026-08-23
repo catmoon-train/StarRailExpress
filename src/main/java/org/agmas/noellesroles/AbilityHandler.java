@@ -35,7 +35,7 @@ import org.agmas.noellesroles.component.ModComponents;
 import org.agmas.noellesroles.config.NoellesRolesConfig;
 import org.agmas.noellesroles.content.effects.TimeStopEffect;
 import org.agmas.noellesroles.content.entity.WheelchairEntity;
-import org.agmas.noellesroles.game.roles.innocence.jade_general.JadeGeneralPlayerComponent;
+import org.agmas.noellesroles.role_data.innocence.JadeGeneralRoleData;
 import org.agmas.noellesroles.game.roles.innocence.recaller.RecallerPlayerComponent;
 import org.agmas.noellesroles.game.roles.killer.imitator.ImitatorPlayerComponent;
 import org.agmas.noellesroles.game.roles.killer.spellbreaker.SpellbreakerPlayerComponent;
@@ -361,8 +361,9 @@ public class AbilityHandler {
         }
         if (gameWorldComponent.isRole(player, ModRoles.JADE_GENERAL)
                 && abilityPlayerComponent.cooldown <= 0) {
-            JadeGeneralPlayerComponent jadeGeneral = ModComponents.JADE_GENERAL.get(player);
-            if (jadeGeneral.useSkill()) {
+            boolean used = RoleData.getOptional(JadeGeneralRoleData.class, player)
+                    .map(JadeGeneralRoleData::useSkill).orElse(false);
+            if (used) {
                 abilityPlayerComponent.cooldown = GameConstants.getInTicks(0, 35);
                 abilityPlayerComponent.sync();
                 ConfigWorldComponent.onPlayerUsedSkill(player);

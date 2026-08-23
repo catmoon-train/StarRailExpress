@@ -28,12 +28,10 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.alchemy.PotionContents;
 import net.minecraft.world.item.alchemy.Potions;
-import org.agmas.noellesroles.component.ModComponents;
 import org.agmas.noellesroles.utils.RoleUtils;
 import org.jetbrains.annotations.NotNull;
 
 public class HunterRoleData extends SimpleRoleData {
-
 
     // 杀敌计数
     public int killCount = 0;

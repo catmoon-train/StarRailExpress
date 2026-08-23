@@ -15,15 +15,15 @@
 
 package org.agmas.noellesroles.client.hud.roles;
 
+import io.wifi.starrailexpress.api.data.RoleData;
 import io.wifi.starrailexpress.client.SREClient;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.world.item.Items;
 import org.agmas.noellesroles.client.event.RoleHudRenderCallback;
-import org.agmas.noellesroles.component.ModComponents;
-import org.agmas.noellesroles.game.roles.killer.hunter.HunterPlayerComponent;
 import org.agmas.noellesroles.role.ModRoles;
+import org.agmas.noellesroles.role_data.killer.HunterRoleData;
 
 public class HunterHud {
 
@@ -33,7 +33,8 @@ public class HunterHud {
             if (SREClient.gameComponent == null) return;
             if (!SREClient.isPlayerAliveAndInSurvival()) return;
 
-            HunterPlayerComponent component = ModComponents.HUNTER.get(client.player);
+            var hunterData = RoleData.getOptional(HunterRoleData.class, client.player);
+            if (hunterData.isEmpty()) return;
 
             int screenWidth = client.getWindow().getGuiScaledWidth();
             int screenHeight = client.getWindow().getGuiScaledHeight();
@@ -41,7 +42,7 @@ public class HunterHud {
             int y = screenHeight - 60;
 
             // 显示杀敌进度：杀敌数/3
-            int kills = component.killCount;
+            int kills = hunterData.get().killCount;
             int progress = kills % 3;
 
             MutableComponent killText = Component.translatable("hud.noellesroles.hunter.kill_progress", progress, 3);

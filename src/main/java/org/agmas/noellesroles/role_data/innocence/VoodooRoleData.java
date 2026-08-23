@@ -19,15 +19,13 @@ import io.wifi.starrailexpress.api.data.RoleDataContext;
 import io.wifi.starrailexpress.api.impl.SimpleRoleData;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.entity.player.Player;
-import org.agmas.noellesroles.Noellesroles;
 import org.jetbrains.annotations.NotNull;
 import java.util.UUID;
 
 public class VoodooRoleData extends SimpleRoleData {
 
     public UUID target;
+
     @Override
     public void init() {
         this.target = player.getUUID();
@@ -43,7 +41,6 @@ public class VoodooRoleData extends SimpleRoleData {
         super(context);
     }
 
-
     public void setTarget(UUID target) {
         this.target = target;
         this.sync();
@@ -56,7 +53,4 @@ public class VoodooRoleData extends SimpleRoleData {
     public void readFromSyncNbt(@NotNull CompoundTag tag, HolderLookup.Provider registryLookup) {
         this.target = tag.contains("target") ? tag.getUUID("target") : player.getUUID();
     }
-
-    
-
 }

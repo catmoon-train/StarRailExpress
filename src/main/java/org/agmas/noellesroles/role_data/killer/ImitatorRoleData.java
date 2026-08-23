@@ -397,7 +397,7 @@ public class ImitatorRoleData extends SimpleRoleData {
         }
 
         boolean isPermanent = !isTemp;
-        ImitatorSkillRegistry.SkillResult result = ImitatorSkillRegistry.execute(roleId, self, target, this,
+        ImitatorSkillRegistry.SkillResult result = ImitatorSkillRegistry.execute(roleId, self, target, null,
                 isPermanent);
 
         switch (result) {
@@ -448,7 +448,7 @@ public class ImitatorRoleData extends SimpleRoleData {
         }
 
         boolean isPermanent = !isTemp;
-        ImitatorSkillRegistry.SkillResult result = ImitatorSkillRegistry.executeMessage(roleId, self, message, this,
+        ImitatorSkillRegistry.SkillResult result = ImitatorSkillRegistry.executeMessage(roleId, self, message, null,
                 isPermanent);
 
         if (result == ImitatorSkillRegistry.SkillResult.SUCCESS) {

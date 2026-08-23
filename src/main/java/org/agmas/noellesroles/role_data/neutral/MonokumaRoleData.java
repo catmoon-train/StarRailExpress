@@ -409,15 +409,7 @@ public class MonokumaRoleData extends SimpleRoleData {
 
     // ==================== 序列化 ====================
 
-    @Override
-    public void writeToNbt(@NotNull CompoundTag tag, HolderLookup.Provider registryLookup) {
-        // 不持久化
-    }
 
-    @Override
-    public void readFromNbt(@NotNull CompoundTag tag, HolderLookup.Provider registryLookup) {
-        // 不持久化
-    }
 
     @Override
     public void writeToSyncNbt(CompoundTag tag, HolderLookup.Provider registryLookup) {

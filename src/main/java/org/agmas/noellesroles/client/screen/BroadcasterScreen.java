@@ -15,6 +15,7 @@
 
 package org.agmas.noellesroles.client.screen;
 
+import io.wifi.starrailexpress.api.data.RoleData;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
@@ -23,7 +24,7 @@ import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
-import org.agmas.noellesroles.game.roles.innocence.broadcaster.BroadcasterPlayerComponent;
+import org.agmas.noellesroles.role_data.innocence.BroadcasterRoleData;
 import org.agmas.noellesroles.packet.BroadcasterC2SPacket;
 
 /**
@@ -57,9 +58,9 @@ public class BroadcasterScreen extends Screen {
         String stored_str = null;
         // 获取存储的文本
         if (minecraft != null && minecraft.player != null) {
-            BroadcasterPlayerComponent comp = BroadcasterPlayerComponent.KEY.get(minecraft.player);
-            if (comp != null)
-                stored_str = comp.getStoredStr();
+            var comp = RoleData.getOptional(BroadcasterRoleData.class, minecraft.player);
+            if (comp.isPresent())
+                stored_str = comp.get().getStoredStr();
         }
 
         // 创建文本输入框
@@ -128,10 +129,8 @@ public class BroadcasterScreen extends Screen {
             // 发送包到服务器
             ClientPlayNetworking.send(new BroadcasterC2SPacket(message));
         }
-        BroadcasterPlayerComponent comp = BroadcasterPlayerComponent.KEY.get(minecraft.player);
-        if (comp != null) {
-            comp.setStoredStr(message);
-        }
+        RoleData.getOptional(BroadcasterRoleData.class, minecraft.player)
+                .ifPresent(d -> d.setStoredStr(message));
         // 关闭屏幕
         if (this.minecraft != null)
             this.minecraft.setScreen((Screen) null);

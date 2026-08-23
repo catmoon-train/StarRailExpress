@@ -237,6 +237,4 @@ public class GhostEyeRoleData extends SimpleRoleData {
         SREClient.cachedHighLightMap.clear();
     }
 
-    @Override public void writeToNbt(CompoundTag tag, HolderLookup.Provider p) {}
-    @Override public void readFromNbt(CompoundTag tag, HolderLookup.Provider p) {}
 }

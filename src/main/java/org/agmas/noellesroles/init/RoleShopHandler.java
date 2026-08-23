@@ -18,6 +18,7 @@ package org.agmas.noellesroles.init;
 import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.SREConfig;
 import io.wifi.starrailexpress.api.SRERole;
+import io.wifi.starrailexpress.api.data.RoleData;
 import io.wifi.starrailexpress.api.replay.GameReplayUtils;
 import io.wifi.starrailexpress.cca.*;
 import io.wifi.starrailexpress.content.item.KnifeItem;
@@ -56,13 +57,14 @@ import net.minecraft.world.item.component.*;
 import org.agmas.noellesroles.commands.BroadcastCommand;
 import org.agmas.noellesroles.config.NoellesRolesConfig;
 import org.agmas.noellesroles.content.item.ToxinShopEntry;
-import org.agmas.noellesroles.game.roles.innocence.singer.SingerPlayerComponent;
+import org.agmas.noellesroles.role_data.innocence.SingerRoleData;
 import org.agmas.noellesroles.game.roles.killer.executioner.ExecutionerPlayerComponent;
 import org.agmas.noellesroles.game.roles.killer.executioner.ShootingFrenzyPlayerComponent;
 import org.agmas.noellesroles.game.roles.killer.ma_chen_xu.MaChenXuPlayerComponent;
 import org.agmas.noellesroles.game.roles.killer.stalker.StalkerPlayerComponent;
+import org.agmas.noellesroles.role_data.innocence.PhotographerRoleData;
 import org.agmas.noellesroles.game.roles.killer.watcher.WatcherPlayerComponent;
-import org.agmas.noellesroles.game.roles.killer.water_ghost.WaterGhostPlayerComponent;
+import org.agmas.noellesroles.role_data.killer.WaterGhostRoleData;
 import org.agmas.noellesroles.game.roles.killer.wraith_assassin.WraithAssassinPlayerComponent;
 import org.agmas.noellesroles.game.roles.neutral.candlebearer.CandleBearerPlayerComponent;
 import org.agmas.noellesroles.game.roles.neutral.mercenary.MercenaryPlayerComponent;
@@ -310,9 +312,9 @@ public class RoleShopHandler {
         WATER_GHOST_SHOP.add(new ShopEntry(rainItem, 150, ShopEntry.Type.TOOL) {
             @Override
             public boolean onBuy(@NotNull Player player) {
-                var component = WaterGhostPlayerComponent.KEY.get(player);
-                if (component != null) {
-                    return component.buyRain();
+                var component = RoleData.getOptional(WaterGhostRoleData.class, player);
+                if (component.isPresent()) {
+                    return component.get().buyRain();
                 }
                 return false;
             }
@@ -686,7 +688,7 @@ public class RoleShopHandler {
                 int price = (i == 5) ? 500 : 100;
                 SINGER_SHOP.add(new ShopEntry(singer_shop_item, price, ShopEntry.Type.TOOL) {
                     public boolean onBuy(@NotNull Player player) {
-                        return SingerPlayerComponent.buyDisc(player, idx);
+                        return SingerRoleData.buyDisc(player, idx);
                     }
                 });
             }
@@ -2614,13 +2616,12 @@ public class RoleShopHandler {
                     entries.add(new ShopEntry(frameStack, price, ShopEntry.Type.TOOL) {
                         @Override
                         public boolean onBuy(@NotNull Player player) {
-                            var comp = org.agmas.noellesroles.game.roles.innocence.photographer.PhotographerPlayerComponent.KEY
-                                    .get(player);
-                            if (comp == null || !comp.canBuyFrame()) {
+                            var photoData = RoleData.getOptional(PhotographerRoleData.class, player);
+                            if (photoData.isEmpty() || !photoData.get().canBuyFrame()) {
                                 return false;
                             }
                             player.addItem(frameStack.copy());
-                            comp.recordFrameBought();
+                            photoData.get().recordFrameBought();
                             return true;
                         }
                     });

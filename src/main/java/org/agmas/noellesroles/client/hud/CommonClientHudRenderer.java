@@ -52,7 +52,7 @@ import org.agmas.noellesroles.content.entity.WheelchairEntity;
 import org.agmas.noellesroles.content.item.RiotShieldHandler;
 import org.agmas.noellesroles.game.roles.innocence.accountant.AccountantPlayerComponent;
 import org.agmas.noellesroles.game.roles.innocence.alchemist.AlchemistPlayerComponent;
-import org.agmas.noellesroles.game.roles.innocence.athlete.AthletePlayerComponent;
+import org.agmas.noellesroles.role_data.innocence.AthleteRoleData;
 import org.agmas.noellesroles.game.roles.innocence.attendant.AttendantHandler;
 import org.agmas.noellesroles.game.roles.innocence.clock_maker.ClockmakerPlayerComponent;
 import org.agmas.noellesroles.game.roles.innocence.fortuneteller.FortunetellerPlayerComponent;
@@ -982,17 +982,17 @@ public class CommonClientHudRenderer {
       var font = client.font;
       int yOffset = screenHeight - 10 - font.lineHeight; // 右下角
       int xOffset = screenWidth - 10; // 距离右边缘
-      var abpc = AthletePlayerComponent.KEY.get(client.player);
-      if (abpc.speedTicks > 0) {
+      var abpc = RoleData.getOptional(AthleteRoleData.class, client.player);
+      if (abpc.map(d -> d.speedTicks).orElse(0) > 0) {
         var text = Component
             .translatable("hud.noellesroles.athlete.active",
-                abpc.speedTicks / 20)
+                abpc.get().speedTicks / 20)
             .withStyle(ChatFormatting.AQUA);
         guiGraphics.drawString(font, text, xOffset - font.width(text), yOffset - font.lineHeight - 4,
             Color.WHITE.getRGB());
-      } else if (abpc.cooldown > 0) {
+      } else if (abpc.map(d -> d.cooldown).orElse(0) > 0) {
         var text = Component
-            .translatable("hud.noellesroles.athlete.cooldown", abpc.cooldown / 20)
+            .translatable("hud.noellesroles.athlete.cooldown", abpc.get().cooldown / 20)
             .withStyle(ChatFormatting.RED);
         guiGraphics.drawString(font, text, xOffset - font.width(text), yOffset - font.lineHeight - 4,
             Color.WHITE.getRGB());

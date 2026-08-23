@@ -25,20 +25,14 @@ import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.entity.player.Player;
 import org.agmas.noellesroles.ConfigWorldComponent;
 import org.agmas.noellesroles.Noellesroles;
-import org.agmas.noellesroles.component.ModComponents;
 import org.jetbrains.annotations.NotNull;
 
 public class TelegrapherRoleData extends SimpleRoleData {
 
-    /** 组件键 - 用于从玩家获取此组件 */
-
-
     // 最大使用次数
     public static final int MAX_USES = 6;
-
 
     // 剩余使用次数
     public int remainingUses = MAX_USES;
@@ -46,7 +40,6 @@ public class TelegrapherRoleData extends SimpleRoleData {
     public TelegrapherRoleData(RoleDataContext context) {
         super(context);
     }
-
 
     /**
      * 重置组件状态
@@ -119,14 +112,14 @@ public class TelegrapherRoleData extends SimpleRoleData {
             if (!GameUtils.isPlayerAliveAndSurvival(targetPlayer)) {
                 continue;
             }
-            
+
             // 只使用主标题显示消息，淡蓝色
             // 参数：fadeIn(淡入), stay(停留), fadeOut(淡出) - 单位：tick
             targetPlayer.connection.send(
                     new net.minecraft.network.protocol.game.ClientboundSetTitleTextPacket(titleText));
             targetPlayer.connection.send(
                     new net.minecraft.network.protocol.game.ClientboundSetTitlesAnimationPacket(10, 60, 10));
-            
+
             // 同时以语音方式播报消息
             ServerPlayNetworking.send(targetPlayer, new CustomNarratorPacket(titleText, false));
         }
@@ -137,7 +130,6 @@ public class TelegrapherRoleData extends SimpleRoleData {
                         .withStyle(ChatFormatting.GREEN),
                 false);
     }
-
 
     // ==================== NBT 序列化 ====================
 
@@ -150,7 +142,4 @@ public class TelegrapherRoleData extends SimpleRoleData {
     public void readFromSyncNbt(@NotNull CompoundTag tag, HolderLookup.Provider registryLookup) {
         this.remainingUses = tag.getInt("remaining_uses");
     }
-
-    
-
 }

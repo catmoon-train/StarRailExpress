@@ -15,15 +15,15 @@
 
 package org.agmas.noellesroles.client.hud.roles;
 
+import io.wifi.starrailexpress.api.data.RoleData;
 import io.wifi.starrailexpress.client.SREClient;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.network.chat.Component;
 import org.agmas.noellesroles.client.event.RoleHudRenderCallback;
-import org.agmas.noellesroles.component.ModComponents;
-import org.agmas.noellesroles.game.roles.innocence.singer.SingerPlayerComponent;
 import org.agmas.noellesroles.role.ModRoles;
+import org.agmas.noellesroles.role_data.innocence.SingerRoleData;
 
 /**
  * 歌手 HUD 显示
@@ -38,9 +38,9 @@ public class SingerHud {
             Minecraft client = Minecraft.getInstance();
             if (SREClient.isPlayerSpectator())
                 return;
-            // 获取歌手组件
-            SingerPlayerComponent singerComp = ModComponents.SINGER.get(client.player);
-            if (!singerComp.isActive)
+            // 获取歌手数据
+            var singerData = RoleData.getOptional(SingerRoleData.class, client.player);
+            if (singerData.isEmpty() || !singerData.get().isActive)
                 return;
 
             Font textRenderer = client.font;
@@ -59,10 +59,10 @@ public class SingerHud {
 
             // ==================== 显示技能状态 ====================
             Component abilityText;
-            if (singerComp.isPlayingMusic()) {
+            if (singerData.map(SingerRoleData::isPlayingMusic).orElse(false)) {
                 // 冷却中
                 abilityText = Component.translatable("hud.noellesroles.singer.playing",
-                        String.format("%.0f", ((float) singerComp.musicRemainingTicks / 20)))
+                        String.format("%.0f", ((float) singerData.get().musicRemainingTicks / 20)))
                         .withStyle(ChatFormatting.AQUA);
             } else {
 

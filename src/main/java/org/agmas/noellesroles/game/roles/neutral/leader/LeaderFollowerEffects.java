@@ -40,7 +40,7 @@ import org.agmas.noellesroles.game.roles.neutral.candlebearer.CandleBearerPlayer
 import org.agmas.noellesroles.game.roles.neutral.mafia.GodfatherComponent;
 import org.agmas.noellesroles.game.roles.neutral.mercenary.MercenaryPlayerComponent;
 import org.agmas.noellesroles.game.roles.neutral.monokuma.MonokumaPlayerComponent;
-import org.agmas.noellesroles.game.roles.neutral.nian_shou.NianShouPlayerComponent;
+import org.agmas.noellesroles.role_data.neutral.NianShouRoleData;
 import org.agmas.noellesroles.game.roles.neutral.panda.PandaComponent;
 import org.agmas.noellesroles.game.roles.neutral.pelican.PelicanPlayerComponent;
 import org.agmas.noellesroles.game.roles.neutral.raven.RavenPlayerComponent;
@@ -312,8 +312,8 @@ public final class LeaderFollowerEffects {
 
     /** 年兽：追随者 +1 护盾试剂、永久夜视 */
     private static void applyNianShou(ServerPlayer leader, ServerPlayer follower) {
-        NianShouPlayerComponent comp = NianShouPlayerComponent.KEY.get(follower);
-        comp.addRedPacket();
+        RoleData.getOptional(NianShouRoleData.class, follower)
+                .ifPresent(NianShouRoleData::addRedPacket);
         permanentEffect(follower, MobEffects.NIGHT_VISION, 0);
     }
 

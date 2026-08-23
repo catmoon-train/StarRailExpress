@@ -26,19 +26,14 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import org.agmas.noellesroles.client.screen.ModScreenHandlers;
 import org.agmas.noellesroles.component.ModComponents;
-import org.agmas.noellesroles.game.roles.innocence.athlete.AthletePlayerComponent;
 import org.agmas.noellesroles.game.roles.innocence.boxer.BoxerPlayerComponent;
 import org.agmas.noellesroles.game.roles.innocence.detective.AgentPlayerComponent;
 import org.agmas.noellesroles.game.roles.innocence.psychologist.PsychologistPlayerComponent;
-import org.agmas.noellesroles.game.roles.innocence.singer.SingerPlayerComponent;
-import org.agmas.noellesroles.game.roles.innocence.super_star.SuperStarPlayerComponent;
-import org.agmas.noellesroles.game.roles.innocence.telegrapher.TelegrapherPlayerComponent;
 import org.agmas.noellesroles.game.roles.killer.conspirator.ConspiratorPlayerComponent;
 import org.agmas.noellesroles.game.roles.killer.stalker.StalkerPlayerComponent;
 import org.agmas.noellesroles.game.roles.killer.trapper.TrapperPlayerComponent;
 import org.agmas.noellesroles.game.roles.neutral.admirer.AdmirerPlayerComponent;
 import org.agmas.noellesroles.game.roles.neutral.puppeteer.PuppeteerPlayerComponent;
-import org.agmas.noellesroles.game.roles.neutral.slippery_ghost.SlipperyGhostPlayerComponent;
 import org.agmas.noellesroles.init.FunnyItems;
 import org.agmas.noellesroles.init.ModEffects;
 import org.agmas.noellesroles.init.ModEntities;
@@ -301,12 +296,6 @@ public class RicesRoleRhapsody implements ModInitializer {
         }
 
         // ==================== 捣蛋鬼角色处理 ====================
-        if (role.equals(ModRoles.PRANKSTER)) {
-            // 重置捣蛋鬼组件
-            SlipperyGhostPlayerComponent slipperyGhostComponent = ModComponents.PRANKSTER.get(player);
-            slipperyGhostComponent.init();
-        }
-
         // ==================== 工程师角色处理 ====================
         if (role.equals(ModRoles.ENGINEER)) {
             // 工程师不需要特殊组件，只需要商店访问权限
@@ -334,25 +323,11 @@ public class RicesRoleRhapsody implements ModInitializer {
             detectiveComponent.init();
         }
 
-        // ==================== 电报员角色处理 ====================
-        if (role.equals(BounsRoles.TELEGRAPHER)) {
-            // 重置电报员组件
-            TelegrapherPlayerComponent telegrapherComponent = ModComponents.TELEGRAPHER.get(player);
-            telegrapherComponent.init();
-        }
-
         // ==================== 跟踪者角色处理 ====================
         if (role.equals(ModRoles.STALKER)) {
             // 重置跟踪者组件
             StalkerPlayerComponent stalkerComponent = ModComponents.STALKER.get(player);
             stalkerComponent.init();
-        }
-
-        // ==================== 运动员角色处理 ====================
-        if (role.equals(ModRoles.ATHLETE)) {
-            // 重置运动员组件
-            AthletePlayerComponent athleteComponent = ModComponents.ATHLETE.get(player);
-            athleteComponent.init();
         }
 
         // ==================== 慕恋者角色处理 ====================
@@ -369,24 +344,10 @@ public class RicesRoleRhapsody implements ModInitializer {
             trapperComponent.init();
         }
 
-        // ==================== 明星角色处理 ====================
-        if (role.equals(ModRoles.SUPERSTAR)) {
-            // 重置明星组件
-            SuperStarPlayerComponent starComponent = ModComponents.STAR.get(player);
-            starComponent.init();
-        }
-
         // ==================== 退伍军人角色处理 ====================
         if (role.equals(ModRoles.VETERAN)) {
             // 重置退伍军人组件
             // 不需要（谁写的啊！！！）
-        }
-
-        // ==================== 歌手角色处理 ====================
-        if (role.equals(ModRoles.SINGER)) {
-            // 重置歌手组件
-            SingerPlayerComponent singerComponent = ModComponents.SINGER.get(player);
-            singerComponent.init();
         }
 
         // ==================== 心理学家角色处理 ====================

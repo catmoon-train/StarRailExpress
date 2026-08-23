@@ -250,7 +250,7 @@ public class WarlockRoleData extends SimpleRoleData {
             fail(sp, "message.noellesroles.domain.already_in_domain");
             return false;
         }
-        boolean opened = WarlockDomainManager.open(sp, this, victim);
+        boolean opened = WarlockDomainManager.open(sp, null, victim);
         if (opened) {
             domainCooldownEndTick = now + DOMAIN_COOLDOWN_TICKS;
             sync();

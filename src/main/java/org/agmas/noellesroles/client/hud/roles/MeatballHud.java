@@ -15,6 +15,7 @@
 
 package org.agmas.noellesroles.client.hud.roles;
 
+import io.wifi.starrailexpress.api.data.RoleData;
 import io.wifi.starrailexpress.client.SREClient;
 import io.wifi.starrailexpress.content.block.SmallDoorBlock;
 import net.minecraft.ChatFormatting;
@@ -23,9 +24,8 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Player;
 import org.agmas.noellesroles.client.event.RoleHudRenderCallback;
-import org.agmas.noellesroles.component.ModComponents;
-import org.agmas.noellesroles.game.roles.innocence.meatball.MeatballPlayerComponent;
 import org.agmas.noellesroles.role.ModRoles;
+import org.agmas.noellesroles.role_data.innocence.MeatballRoleData;
 
 public class MeatballHud {
 
@@ -41,12 +41,12 @@ public class MeatballHud {
                 return;
             }
 
-            MeatballPlayerComponent component = ModComponents.MEATBALL.get(client.player);
-            if (component == null) {
+            var meatballData = RoleData.getOptional(MeatballRoleData.class, client.player);
+            if (meatballData.isEmpty()) {
                 return;
             }
 
-            int bounty = component.getBounty();
+            int bounty = meatballData.get().getBounty();
             int screenWidth = client.getWindow().getGuiScaledWidth();
             int screenHeight = client.getWindow().getGuiScaledHeight();
 

@@ -15,25 +15,17 @@
 
 package org.agmas.noellesroles.role_data.innocence;
 
-import io.wifi.starrailexpress.api.data.RoleData;
 import io.wifi.starrailexpress.api.data.RoleDataContext;
 import io.wifi.starrailexpress.api.impl.SimpleRoleData;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.game.GameUtils;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.entity.player.Player;
-import org.agmas.noellesroles.Noellesroles;
-import org.agmas.noellesroles.component.ModComponents;
 import org.agmas.noellesroles.role.ModRoles;
 import org.jetbrains.annotations.NotNull;
 
 public class DiverRoleData extends SimpleRoleData {
-
-
-
 
     public DiverRoleData(RoleDataContext context) {
         super(context);
@@ -73,8 +65,6 @@ public class DiverRoleData extends SimpleRoleData {
         return this.player == player;
     }
 
-
-
     @Override
     public void clientTick() {
         var gameComp = SREGameWorldComponent.KEY.maybeGet(player.level()).orElse(null);
@@ -82,6 +72,4 @@ public class DiverRoleData extends SimpleRoleData {
             return;
         }
     }
-    
-
 }

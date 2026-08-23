@@ -16,6 +16,7 @@
 package org.agmas.noellesroles.game.roles.innocence.voodoo;
 
 import io.wifi.starrailexpress.api.SREGameModes;
+import io.wifi.starrailexpress.api.data.RoleData;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.event.OnPlayerDeathWithKiller;
 import io.wifi.starrailexpress.game.GameConstants;
@@ -27,6 +28,9 @@ import org.agmas.noellesroles.Noellesroles;
 import org.agmas.noellesroles.config.NoellesRolesConfig;
 import org.agmas.noellesroles.role.BounsRoles;
 import org.agmas.noellesroles.role.ModRoles;
+import org.agmas.noellesroles.role_data.innocence.VoodooRoleData;
+
+import java.util.UUID;
 
 public class VoodooDeathHandler {
     public static void registerEvents() {
@@ -39,10 +43,10 @@ public class VoodooDeathHandler {
                 boolean isLengxiao = gameWorldComponent.isRole(victim, BounsRoles.LENGXIAO);
                 boolean isVoodoo = gameWorldComponent.isRole(victim, ModRoles.VOODOO);
                 if (isLengxiao || isVoodoo) {
-                    VoodooPlayerComponent voodooPlayerComponent = (VoodooPlayerComponent) VoodooPlayerComponent.KEY
-                            .get(victim);
-                    if (voodooPlayerComponent.target != null) {
-                        Player voodooed = victim.level().getPlayerByUUID(voodooPlayerComponent.target);
+                    UUID voodooTarget = RoleData.getOptional(VoodooRoleData.class, victim)
+                            .map(d -> d.target).orElse(null);
+                    if (voodooTarget != null) {
+                        Player voodooed = victim.level().getPlayerByUUID(voodooTarget);
                         if (voodooed != null) {
                             if (GameUtils.isPlayerAliveAndSurvival(voodooed) && voodooed != victim) {
                                 ConfigWorldComponent.onPlayerUsedSkill((ServerPlayer) voodooed);

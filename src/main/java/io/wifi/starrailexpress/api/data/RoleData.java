@@ -16,6 +16,8 @@ package io.wifi.starrailexpress.api.data;
 
 import java.lang.reflect.Constructor;
 import java.util.Optional;
+import java.util.function.Consumer;
+import java.util.function.Predicate;
 
 import org.jetbrains.annotations.Nullable;
 
@@ -146,6 +148,60 @@ public interface RoleData {
     }
 
     /**
+     * 若玩家当前持有指定类型的职业数据，则对其执行消费操作。
+     *
+     * @param clazz    期望的职业数据类型
+     * @param player   目标玩家
+     * @param consumer 消费操作
+     * @param <T>      职业数据类型
+     */
+    public static <T extends RoleData> void ifPresent(Class<T> clazz, Player player, Consumer<T> consumer) {
+        T data = getNullable(clazz, player);
+        if (data != null) {
+            consumer.accept(data);
+        }
+    }
+
+    /**
+     * 判断玩家当前持有的职业数据是否满足指定谓词。
+     *
+     * @param clazz     期望的职业数据类型
+     * @param player    目标玩家
+     * @param predicate 判断谓词
+     * @param <T>       职业数据类型
+     * @return 数据存在且满足谓词时返回 {@code true}，否则返回 {@code false}
+     */
+    public static <T extends RoleData> boolean test(Class<T> clazz, Player player, Predicate<T> predicate) {
+        T data = getNullable(clazz, player);
+        return data != null && predicate.test(data);
+    }
+
+    /**
+     * 判断玩家当前是否持有指定类型的职业数据。
+     *
+     * @param clazz  期望的职业数据类型
+     * @param player 目标玩家
+     * @param <T>    职业数据类型
+     * @return 数据存在时返回 {@code true}，否则返回 {@code false}
+     */
+    public static <T extends RoleData> boolean isPresent(Class<T> clazz, Player player) {
+        return getNullable(clazz, player) != null;
+    }
+
+    /**
+     * 判断给定的职业数据实例是否仍为玩家当前挂载的实例。
+     *
+     * @param data 职业数据实例，可为 {@code null}
+     * @return 实例非空且与玩家当前挂载实例一致时返回 {@code true}
+     */
+    public static boolean isAttached(RoleData data) {
+        if (data == null) {
+            return false;
+        }
+        return SRERoleDataPlayerComponent.KEY.get(data.getPlayer()).roleData == data;
+    }
+
+    /**
      * 获取与此数据关联的玩家对象。
      *
      * @return 持有该数据的玩家
@@ -180,6 +236,32 @@ public interface RoleData {
      * @param registryLookup 注册表查找提供者，用于反序列化注册表对象
      */
     void readFromSyncNbt(CompoundTag tag, HolderLookup.Provider registryLookup);
+
+    /**
+     * 将职业数据写入时间回溯快照的 NBT 标签。
+     * <p>
+     * 默认实现委托给 {@link #writeToSyncNbt}，需要额外快照状态的实现可自行覆盖。
+     * </p>
+     *
+     * @param tag            目标 NBT 标签
+     * @param registryLookup 注册表查找提供者
+     */
+    default void writeToRewindNbt(CompoundTag tag, HolderLookup.Provider registryLookup) {
+        writeToSyncNbt(tag, registryLookup);
+    }
+
+    /**
+     * 从时间回溯快照的 NBT 标签读取职业数据。
+     * <p>
+     * 默认实现委托给 {@link #readFromSyncNbt}，需要额外快照状态的实现可自行覆盖。
+     * </p>
+     *
+     * @param tag            源 NBT 标签
+     * @param registryLookup 注册表查找提供者
+     */
+    default void readFromRewindNbt(CompoundTag tag, HolderLookup.Provider registryLookup) {
+        readFromSyncNbt(tag, registryLookup);
+    }
 
     /**
      * 客户端侧每 tick 调用的更新逻辑。

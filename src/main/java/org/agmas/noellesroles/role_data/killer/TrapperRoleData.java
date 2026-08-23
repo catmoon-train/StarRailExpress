@@ -545,25 +545,7 @@ public class TrapperRoleData extends SimpleRoleData {
 
     // ==================== NBT 序列化 ====================
 
-    @Override
-    public void writeToNbt(@NotNull CompoundTag tag, HolderLookup.Provider registryLookup) {
-        tag.putInt("selectedTrapType", this.selectedTrapType);
-        tag.putInt("tripwireCooldownTicks", this.tripwireCooldownTicks);
-        tag.putInt("mudCooldownTicks", this.mudCooldownTicks);
-        tag.putInt("netGunCooldownTicks", this.netGunCooldownTicks);
-        tag.putBoolean("hasNetGun", this.hasNetGun);
-        tag.putBoolean("isTrapperMarked", this.isTrapperMarked);
-    }
 
-    @Override
-    public void readFromNbt(@NotNull CompoundTag tag, HolderLookup.Provider registryLookup) {
-        this.selectedTrapType = tag.contains("selectedTrapType") ? tag.getInt("selectedTrapType") : TRAP_TYPE_TRIPWIRE;
-        this.tripwireCooldownTicks = tag.getInt("tripwireCooldownTicks");
-        this.mudCooldownTicks = tag.getInt("mudCooldownTicks");
-        this.netGunCooldownTicks = tag.getInt("netGunCooldownTicks");
-        this.hasNetGun = tag.getBoolean("hasNetGun");
-        this.isTrapperMarked = tag.contains("isTrapperMarked") && tag.getBoolean("isTrapperMarked");
-    }
 
     @Override
     public void writeToSyncNbt(CompoundTag tag, HolderLookup.Provider registryLookup) {

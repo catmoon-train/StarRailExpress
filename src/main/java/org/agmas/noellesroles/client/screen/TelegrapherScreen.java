@@ -24,8 +24,9 @@ import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 
-import org.agmas.noellesroles.game.roles.innocence.telegrapher.TelegrapherPlayerComponent;
+import io.wifi.starrailexpress.api.data.RoleData;
 import org.agmas.noellesroles.packet.TelegrapherC2SPacket;
+import org.agmas.noellesroles.role_data.innocence.TelegrapherRoleData;
 
 /**
  * 电报员消息编辑屏幕
@@ -55,9 +56,9 @@ public class TelegrapherScreen extends Screen {
         
         // 获取剩余使用次数
         if (minecraft != null && minecraft.player != null) {
-            TelegrapherPlayerComponent comp = TelegrapherPlayerComponent.KEY.get(minecraft.player);
-            if (comp != null)
-                remainingUses = comp.remainingUses;
+            var telegrapherData = RoleData.getOptional(TelegrapherRoleData.class, minecraft.player);
+            if (telegrapherData.isPresent())
+                remainingUses = telegrapherData.get().remainingUses;
         }
 
         // 创建文本输入框

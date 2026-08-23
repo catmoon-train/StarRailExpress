@@ -371,15 +371,5 @@ public class SaltedFishRoleData extends SimpleRoleData {
         sunYaw = tag.contains("sunYaw") ? tag.getFloat("sunYaw") : 0;
     }
 
-    @Override
-    public void writeToNbt(CompoundTag tag, HolderLookup.Provider registryLookup) {
-        if (fakeBodyUuid != null) {
-            tag.putUUID("fakeBodyUuid", fakeBodyUuid);
-        }
-    }
 
-    @Override
-    public void readFromNbt(CompoundTag tag, HolderLookup.Provider registryLookup) {
-        fakeBodyUuid = tag.hasUUID("fakeBodyUuid") ? tag.getUUID("fakeBodyUuid") : null;
-    }
 }

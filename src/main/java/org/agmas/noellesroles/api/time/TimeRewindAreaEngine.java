@@ -90,10 +90,8 @@ final class TimeRewindAreaEngine {
             }
         }
 
-        Set<UUID> itemIds = new HashSet<>();
-        items.forEach(item -> itemIds.add(item.entityId()));
         return new TimeRewindAreaSnapshot(level.dimension(), area, items, doors,
-                C4Detonation.snapshotForTimeRewind(itemIds), warnings);
+                C4Detonation.snapshotForTimeRewind(), warnings);
     }
 
     static TimeRewindAreaResult restore(ServerLevel level, TimeRewindAreaSnapshot snapshot) {
@@ -104,9 +102,7 @@ final class TimeRewindAreaEngine {
         Set<UUID> removedItemIds = removeCurrentItems(level, snapshot);
         int restoredDoors = restoreDoors(level, snapshot, failures);
         int restoredItems = restoreItems(level, snapshot, failures);
-        Set<UUID> managedItemIds = new HashSet<>(removedItemIds);
-        snapshot.rawItemStates().forEach(item -> managedItemIds.add(item.entityId()));
-        C4Detonation.restoreForTimeRewind(snapshot.rawC4State(), managedItemIds);
+        C4Detonation.restoreForTimeRewind(snapshot.rawC4State());
         return new TimeRewindAreaResult(restoredItems, restoredDoors, removedItemIds.size(), failures);
     }
 

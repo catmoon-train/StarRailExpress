@@ -553,19 +553,5 @@ public class ReasonerRoleData extends SimpleRoleData {
         killerQuestionUnlocked = tag.getBoolean("killerQuestionUnlocked");
     }
 
-    @Override
-    public void writeToNbt(@NotNull CompoundTag tag, HolderLookup.Provider registryLookup) {
-        writeToSyncNbt(tag, registryLookup);
-        if (roleQuestionTarget != null) tag.putUUID("roleQuestionTarget", roleQuestionTarget);
-        if (bodyQuestionTarget != null) tag.putUUID("bodyQuestionTarget", bodyQuestionTarget);
-        if (taskQuestionTarget != null) tag.putUUID("taskQuestionTarget", taskQuestionTarget);
-    }
 
-    @Override
-    public void readFromNbt(@NotNull CompoundTag tag, HolderLookup.Provider registryLookup) {
-        readFromSyncNbt(tag, registryLookup);
-        roleQuestionTarget = tag.hasUUID("roleQuestionTarget") ? tag.getUUID("roleQuestionTarget") : null;
-        bodyQuestionTarget = tag.hasUUID("bodyQuestionTarget") ? tag.getUUID("bodyQuestionTarget") : null;
-        taskQuestionTarget = tag.hasUUID("taskQuestionTarget") ? tag.getUUID("taskQuestionTarget") : null;
-    }
 }

@@ -19,8 +19,6 @@ import io.wifi.starrailexpress.api.data.RoleDataContext;
 import io.wifi.starrailexpress.api.impl.SimpleRoleData;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.world.entity.player.Player;
-import org.agmas.noellesroles.component.ModComponents;
 import org.jetbrains.annotations.NotNull;
 
 public class BroadcasterRoleData extends SimpleRoleData {
@@ -34,12 +32,8 @@ public class BroadcasterRoleData extends SimpleRoleData {
         this.sync();
     }
 
-    /** 组件键 - 用于从玩家获取此组件 */
-
-
     // 最大使用次数
     public static final int MAX_USES = 6;
-
 
     // 剩余使用次数
     public int remainingUses = MAX_USES;

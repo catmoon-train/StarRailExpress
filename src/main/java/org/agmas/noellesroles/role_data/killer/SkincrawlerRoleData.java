@@ -79,6 +79,4 @@ public class SkincrawlerRoleData extends SimpleRoleData {
         stolenSkin = tag.contains("stolenSkin") ? UUID.fromString(tag.getString("stolenSkin")) : null;
     }
 
-    @Override public void writeToNbt(CompoundTag tag, HolderLookup.Provider lookup) {}
-    @Override public void readFromNbt(CompoundTag tag, HolderLookup.Provider lookup) {}
 }

@@ -15,8 +15,6 @@
 
 package org.agmas.noellesroles.role_data.killer;
 
-import org.agmas.noellesroles.role_data.innocence.GhostRoleData;
-import io.wifi.starrailexpress.api.data.RoleData;
 import io.wifi.starrailexpress.api.data.RoleDataContext;
 import io.wifi.starrailexpress.api.impl.SimpleRoleData;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
@@ -26,7 +24,6 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
@@ -42,9 +39,6 @@ import org.agmas.noellesroles.role.ModRoles;
 
 public class WaterGhostRoleData extends SimpleRoleData {
 
-    /** 组件键 */
-
-
     /** 下雨持续时间（20秒 = 400 tick） */
     public static final int RAIN_DURATION = 20 * 20;
 
@@ -59,7 +53,6 @@ public class WaterGhostRoleData extends SimpleRoleData {
 
     /** 干涸死亡时间（35秒 = 700 tick） */
     public static final int DRY_DEATH_TIME = 35 * 20;
-
 
     /** 技能冷却计时器（tick） */
     private int skillCooldown = 0;

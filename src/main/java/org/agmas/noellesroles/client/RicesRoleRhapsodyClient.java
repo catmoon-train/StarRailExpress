@@ -15,6 +15,7 @@
 
 package org.agmas.noellesroles.client;
 
+import io.wifi.starrailexpress.api.data.RoleData;
 import io.wifi.starrailexpress.cca.SREAbilityPlayerComponent;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.client.gui.screen.map_dev.MapBuildHelperScreen;
@@ -45,16 +46,16 @@ import org.agmas.noellesroles.content.item.AreaMapItem;
 import org.agmas.noellesroles.content.item.ConspiracyPageItem;
 import org.agmas.noellesroles.content.item.DeductionBookItem;
 import org.agmas.noellesroles.content.item.WrittenNoteItem;
-import org.agmas.noellesroles.game.roles.innocence.athlete.AthletePlayerComponent;
+import org.agmas.noellesroles.role_data.innocence.AthleteRoleData;
 import org.agmas.noellesroles.game.roles.innocence.boxer.BoxerPlayerComponent;
-import org.agmas.noellesroles.game.roles.innocence.monitor.MonitorPlayerComponent;
+import org.agmas.noellesroles.role_data.innocence.MonitorRoleData;
 import org.agmas.noellesroles.game.roles.innocence.psychologist.PsychologistPlayerComponent;
-import org.agmas.noellesroles.game.roles.innocence.super_star.SuperStarPlayerComponent;
+import org.agmas.noellesroles.role_data.innocence.SuperStarRoleData;
 import org.agmas.noellesroles.game.roles.killer.insane_killer.InsaneKillerPlayerComponent;
 import org.agmas.noellesroles.game.roles.killer.ninja.NinjaPlayerComponent;
 import org.agmas.noellesroles.game.roles.killer.shadow_falcon.ShadowFalconPlayerComponent;
 import org.agmas.noellesroles.game.roles.killer.stalker.StalkerPlayerComponent;
-import org.agmas.noellesroles.game.roles.killer.water_ghost.WaterGhostPlayerComponent;
+import org.agmas.noellesroles.role_data.killer.WaterGhostRoleData;
 import org.agmas.noellesroles.game.roles.neutral.admirer.AdmirerPlayerComponent;
 import org.agmas.noellesroles.game.roles.neutral.puppeteer.PuppeteerPlayerComponent;
 import org.agmas.noellesroles.init.ModEntities;
@@ -280,16 +281,16 @@ public class RicesRoleRhapsodyClient implements ClientModInitializer {
             if (!GameUtils.isPlayerAliveAndSurvival(client.player))
                 return true;
 
-            AthletePlayerComponent athleteComponent = AthletePlayerComponent.KEY.get(client.player);
+            var athleteData = RoleData.getOptional(AthleteRoleData.class, client.player);
             // 检查技能是否可用（客户端显示提示）
-            if (athleteComponent.canUseAbility()) {
+            if (athleteData.map(AthleteRoleData::canUseAbility).orElse(false)) {
                 // 发送网络包到服务端激活技能
                 ClientPlayNetworking.send(new AthleteAbilityC2SPacket());
-            } else if (athleteComponent.cooldown > 0) {
+            } else if (athleteData.map(d -> d.cooldown).orElse(0) > 0) {
                 // 显示冷却提示
                 client.player.displayClientMessage(
                         net.minecraft.network.chat.Component.translatable("message.noellesroles.athlete.on_cooldown",
-                                String.format("%.1f", athleteComponent.getCooldownSeconds())),
+                                String.format("%.1f", athleteData.map(AthleteRoleData::getCooldownSeconds).orElse(0f))),
                         true);
             }
             return true;
@@ -301,16 +302,16 @@ public class RicesRoleRhapsodyClient implements ClientModInitializer {
             if (!GameUtils.isPlayerAliveAndSurvival(client.player))
                 return true;
 
-            WaterGhostPlayerComponent waterGhostComponent = WaterGhostPlayerComponent.KEY.get(client.player);
+            var waterGhostData = RoleData.getOptional(WaterGhostRoleData.class, client.player);
             // 检查技能是否可用（客户端发送请求）
-            if (waterGhostComponent.getSkillCooldownRemaining() == 0) {
+            if (waterGhostData.map(WaterGhostRoleData::getSkillCooldownRemaining).orElse(1) == 0) {
                 // 发送网络包到服务端激活技能
                 ClientPlayNetworking.send(new WaterGhostUseSkillC2SPacket());
             } else {
                 // 显示冷却提示（服务端会处理，这里只是辅助提示）
                 client.player.displayClientMessage(
                         net.minecraft.network.chat.Component.translatable("message.noellesroles.water_ghost.cooldown",
-                                waterGhostComponent.getSkillCooldownRemaining()),
+                                waterGhostData.map(WaterGhostRoleData::getSkillCooldownRemaining).orElse(0)),
                         true);
             }
             return true;
@@ -385,16 +386,16 @@ public class RicesRoleRhapsodyClient implements ClientModInitializer {
             if (!GameUtils.isPlayerAliveAndSurvival(client.player))
                 return true;
 
-            SuperStarPlayerComponent starComponent = SuperStarPlayerComponent.KEY.get(client.player);
+            var starData = RoleData.getOptional(SuperStarRoleData.class, client.player);
             // 检查技能是否可用
-            if (starComponent.canUseAbility()) {
+            if (starData.map(SuperStarRoleData::canUseAbility).orElse(false)) {
                 // 发送网络包到服务端激活技能
                 ClientPlayNetworking.send(new StarAbilityC2SPacket());
-            } else if (starComponent.abilityCooldown > 0) {
+            } else if (starData.map(d -> d.abilityCooldown).orElse(0) > 0) {
                 // 显示冷却提示
                 client.player.displayClientMessage(
                         net.minecraft.network.chat.Component.translatable("message.noellesroles.star.on_cooldown",
-                                String.format("%.0f", starComponent.getCooldownSeconds())),
+                                String.format("%.0f", starData.map(SuperStarRoleData::getCooldownSeconds).orElse(0f))),
                         true);
             }
             return true;
@@ -526,13 +527,16 @@ public class RicesRoleRhapsodyClient implements ClientModInitializer {
             if (!GameUtils.isPlayerAliveAndSurvival(client.player))
                 return true;
 
-            MonitorPlayerComponent monitorComponent = MonitorPlayerComponent.KEY.get(client.player);
+            var monitorData = RoleData.getOptional(MonitorRoleData.class, client.player);
+            if (monitorData.isEmpty()) {
+                return true;
+            }
 
             // 检查冷却
-            if (!monitorComponent.canUseAbility()) {
+            if (!monitorData.get().canUseAbility()) {
                 client.player.displayClientMessage(
                         net.minecraft.network.chat.Component.translatable("message.noellesroles.monitor.cooldown",
-                                String.format("%.1f", monitorComponent.getCooldownSeconds())),
+                                String.format("%.1f", monitorData.get().getCooldownSeconds())),
                         true);
                 return true;
             }

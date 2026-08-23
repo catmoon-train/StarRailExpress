@@ -49,7 +49,7 @@ import org.agmas.noellesroles.game.roles.killer.insane_killer.InsaneKillerPlayer
 import org.agmas.noellesroles.game.roles.killer.ninja.NinjaPlayerComponent;
 import org.agmas.noellesroles.game.roles.killer.stalker.StalkerPlayerComponent;
 import org.agmas.noellesroles.game.roles.neutral.commander.CommanderHandler;
-import org.agmas.noellesroles.game.roles.neutral.cupid.CupidPlayerComponent;
+import org.agmas.noellesroles.role_data.neutral.CupidRoleData;
 import org.agmas.noellesroles.game.roles.neutral.doomedsinner.DoomedSinnerPlayerComponent;
 import org.agmas.noellesroles.TrueKillerFinder;
 import org.agmas.noellesroles.game.roles.neutral.mafia.GodfatherComponent;
@@ -334,7 +334,7 @@ public class NRInteractionEvents {
         org.agmas.noellesroles.game.roles.killer.wraith_assassin.WraithAssassinPlayerComponent.registerEvents();
         StalkerPlayerComponent.registerEvents();
         org.agmas.noellesroles.game.roles.killer.delayer.DelayerPlayerComponent.registerEvents();
-        CupidPlayerComponent.registerEvents();
+        CupidRoleData.registerEvents();
         CommanderHandler.registerChatEvent();
         InsaneKillerPlayerComponent.registerEvent();
         ConspiratorKilledPlayer.registerEvents();

@@ -587,15 +587,7 @@ public class DoomedSinnerRoleData extends SimpleRoleData {
         }
     }
 
-    @Override
-    public void writeToNbt(@NotNull CompoundTag tag, HolderLookup.Provider registryLookup) {
-        // 不持久化
-    }
 
-    @Override
-    public void readFromNbt(@NotNull CompoundTag tag, HolderLookup.Provider registryLookup) {
-        // 不持久化
-    }
 
     // ── 客户端读取（HUD） ─────────────────────────────────────────
 

@@ -15,28 +15,20 @@
 
 package org.agmas.noellesroles.role_data.killer;
 
-import io.wifi.starrailexpress.api.data.RoleData;
 import io.wifi.starrailexpress.api.data.RoleDataContext;
 import io.wifi.starrailexpress.api.impl.SimpleRoleData;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.cca.SREPlayerShopComponent;
 import net.minecraft.ChatFormatting;
-import net.minecraft.core.HolderLookup;
 import net.minecraft.core.HolderLookup.Provider;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 import org.agmas.noellesroles.ConfigWorldComponent;
-import org.agmas.noellesroles.component.ModComponents;
 import org.agmas.noellesroles.role.ModRoles;
-import org.jetbrains.annotations.NotNull;
 
 public class BanditRoleData extends SimpleRoleData {
-
-    /** 组件键 - 用于从玩家获取此组件 */
-
-
 
     /**
      * 构造函数
@@ -113,23 +105,12 @@ public class BanditRoleData extends SimpleRoleData {
     /**
      * 同步到客户端
      */
-
     @Override
     public void serverTick() {
         // 强盗组件不需要每tick处理
     }
 
     // ==================== NBT 序列化 ====================
-
-    @Override
-    public void writeToNbt(@NotNull CompoundTag tag, @NotNull HolderLookup.Provider registryLookup) {
-        // 强盗组件目前不需要保存额外数据
-    }
-
-    @Override
-    public void readFromNbt(@NotNull CompoundTag tag, @NotNull HolderLookup.Provider registryLookup) {
-        // 强盗组件目前不需要读取额外数据
-    }
 
     @Override
     public void writeToSyncNbt(CompoundTag tag, Provider registryLookup) {

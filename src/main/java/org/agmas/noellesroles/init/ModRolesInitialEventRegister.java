@@ -18,6 +18,7 @@ package org.agmas.noellesroles.init;
 import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.api.RoleSkill;
 import io.wifi.starrailexpress.api.TMMRoles;
+import io.wifi.starrailexpress.api.data.RoleData;
 import io.wifi.starrailexpress.cca.SREAbilityPlayerComponent;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.cca.SREPlayerPsychoComponent;
@@ -51,7 +52,6 @@ import org.agmas.noellesroles.game.roles.innocence.alchemist.AlchemistPlayerComp
 import org.agmas.noellesroles.game.roles.innocence.attendant.AttendantHandler;
 import org.agmas.noellesroles.game.roles.innocence.fortuneteller.FortunetellerPlayerComponent;
 import org.agmas.noellesroles.game.roles.innocence.ghost.GhostPlayerComponent;
-import org.agmas.noellesroles.game.roles.innocence.monitor.MonitorPlayerComponent;
 import org.agmas.noellesroles.game.roles.innocence.painter.PainterPlayerComponent;
 import org.agmas.noellesroles.game.roles.innocence.leather_pig.LeatherPigPlayerComponent;
 import org.agmas.noellesroles.game.roles.innocence.magician.MagicianPlayerComponent;
@@ -73,7 +73,7 @@ import org.agmas.noellesroles.game.roles.neutral.candlebearer.CandleBearerPlayer
 import org.agmas.noellesroles.game.roles.neutral.commander.CommanderHandler;
 import org.agmas.noellesroles.game.roles.neutral.mercenary.MercenaryPlayerComponent;
 import org.agmas.noellesroles.game.roles.neutral.mortician.MorticianBodyMakerPlayerComponent;
-import org.agmas.noellesroles.game.roles.neutral.nian_shou.NianShouPlayerComponent;
+import org.agmas.noellesroles.role_data.neutral.NianShouRoleData;
 import org.agmas.noellesroles.game.roles.neutral.pelican.PelicanPlayerComponent;
 import org.agmas.noellesroles.game.roles.neutral.puppeteer.PuppeteerPlayerComponent;
 import org.agmas.noellesroles.game.roles.neutral.recorder.RecorderPlayerComponent;
@@ -360,11 +360,6 @@ public class ModRolesInitialEventRegister {
                 return;
             }
             if (role.equals(ModRoles.BOMBER)) {
-                if (role.equals(ModRoles.MONITOR)) {
-                    MonitorPlayerComponent monitorComponent = MonitorPlayerComponent.KEY.get(player);
-                    monitorComponent.init();
-                    monitorComponent.sync();
-                }
                 // bomberPlayerComponent.reset(); // 如果有 reset 方法
                 ModComponents.BOMBER.sync(player);
             }
@@ -400,12 +395,6 @@ public class ModRolesInitialEventRegister {
             if (role.equals(SERoles.ARSONIST)) {
                 player.addItem(SEItems.JERRY_CAN.getDefaultInstance().copy());
                 player.addItem(SEItems.LIGHTER.getDefaultInstance().copy());
-            }
-            if (role.equals(ModRoles.NIAN_SHOU)) {
-                var comc = NianShouPlayerComponent.KEY.maybeGet(player).orElse(null);
-                if (comc != null) {
-                    comc.init();
-                }
             }
             if (role.equals(ModRoles.PUPPETEER)) {
                 var comc = PuppeteerPlayerComponent.KEY.maybeGet(player).orElse(null);
@@ -1197,15 +1186,15 @@ public class ModRolesInitialEventRegister {
                     Player target = player.level().getPlayerByUUID(targetUuid);
                     if (!(target instanceof ServerPlayer targetPlayer))
                         return false;
-                    NianShouPlayerComponent comp = NianShouPlayerComponent.KEY.get(player);
-                    if (comp.getRedPacketCount() <= 0) {
+                    var comp = RoleData.getOptional(NianShouRoleData.class, player);
+                    if (comp.map(NianShouRoleData::getRedPacketCount).orElse(0) <= 0) {
                         player.displayClientMessage(
                                 Component.translatable("message.noellesroles.nianshou.no_red_packet")
                                         .withStyle(ChatFormatting.RED),
                                 true);
                         return false;
                     }
-                    comp.useRedPacket();
+                    comp.ifPresent(NianShouRoleData::useRedPacket);
                     ConfigWorldComponent configWorld = ConfigWorldComponent.KEY.get(targetPlayer.level());
                     configWorld.addRedPacketTimer(targetPlayer.getUUID());
                     player.displayClientMessage(

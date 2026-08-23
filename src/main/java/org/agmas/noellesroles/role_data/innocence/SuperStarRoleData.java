@@ -15,7 +15,6 @@
 
 package org.agmas.noellesroles.role_data.innocence;
 
-import io.wifi.starrailexpress.api.data.RoleData;
 import io.wifi.starrailexpress.api.data.RoleDataContext;
 import io.wifi.starrailexpress.api.impl.SimpleRoleData;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
@@ -32,14 +31,10 @@ import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.player.Player;
-import org.agmas.noellesroles.component.ModComponents;
 import org.agmas.noellesroles.role.ModRoles;
 import org.jetbrains.annotations.NotNull;
 
 public class SuperStarRoleData extends SimpleRoleData {
-
-    /** 组件键 - 用于从玩家获取此组件 */
-
 
     // ==================== 常量定义 ====================
 
@@ -53,7 +48,6 @@ public class SuperStarRoleData extends SimpleRoleData {
     public static final double ABILITY_RANGE = 15.0;
 
     // ==================== 状态变量 ====================
-
 
     /** 是否正在发光（主动技能触发） */
     public boolean isGlowing = false;

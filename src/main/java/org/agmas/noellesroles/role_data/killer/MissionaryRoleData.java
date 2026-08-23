@@ -105,21 +105,7 @@ public class MissionaryRoleData extends SimpleRoleData {
     /** 获取当前传教目标的 UUID */
     public UUID getCurrentTarget() { return currentTarget; }
 
-    @Override
-    public void writeToNbt(CompoundTag tag, HolderLookup.Provider provider) {
-        tag.putLong("cdEnd", cooldownEndTick);
-        tag.putBoolean("initCd", initialCooldownSet);
-        if (currentTarget != null) tag.putUUID("tgt", currentTarget);
-        tag.putInt("tgtBonus", currentTargetBonus);
-    }
 
-    @Override
-    public void readFromNbt(CompoundTag tag, HolderLookup.Provider provider) {
-        cooldownEndTick = tag.getLong("cdEnd");
-        initialCooldownSet = tag.getBoolean("initCd");
-        if (tag.hasUUID("tgt")) currentTarget = tag.getUUID("tgt");
-        currentTargetBonus = tag.getInt("tgtBonus");
-    }
 
     @Override
     public void writeToSyncNbt(CompoundTag tag, HolderLookup.Provider provider) {

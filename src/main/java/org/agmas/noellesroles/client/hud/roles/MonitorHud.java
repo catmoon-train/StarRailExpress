@@ -15,6 +15,7 @@
 
 package org.agmas.noellesroles.client.hud.roles;
 
+import io.wifi.starrailexpress.api.data.RoleData;
 import io.wifi.starrailexpress.client.SREClient;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
@@ -22,7 +23,7 @@ import net.minecraft.network.chat.Component;
 
 import org.agmas.noellesroles.client.NoellesrolesClient;
 import org.agmas.noellesroles.client.event.RoleHudRenderCallback;
-import org.agmas.noellesroles.game.roles.innocence.monitor.MonitorPlayerComponent;
+import org.agmas.noellesroles.role_data.innocence.MonitorRoleData;
 import org.agmas.noellesroles.role.ModRoles;
 
 import java.util.UUID;
@@ -33,14 +34,17 @@ public class MonitorHud {
             Minecraft client = Minecraft.getInstance();
             if (SREClient.isPlayerSpectator())
                 return;
-            MonitorPlayerComponent monitorComponent = MonitorPlayerComponent.KEY.get(client.player);
-            UUID target = monitorComponent.markedTarget;
+            var monitorData = RoleData.getOptional(MonitorRoleData.class, client.player);
+            if (monitorData.isEmpty()) {
+                return;
+            }
+            UUID target = monitorData.get().markedTarget;
 
             Component text;
             int color;
 
-            if (monitorComponent.cooldown > 0) {
-                int seconds = (monitorComponent.cooldown + 19) / 20;
+            if (monitorData.get().cooldown > 0) {
+                int seconds = (monitorData.get().cooldown + 19) / 20;
                 text = Component.translatable("gui.noellesroles.monitor.cooldown", seconds);
                 color = 0xFF5555; // 红色
             } else {

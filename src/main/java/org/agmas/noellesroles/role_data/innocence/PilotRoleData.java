@@ -15,7 +15,6 @@
 
 package org.agmas.noellesroles.role_data.innocence;
 
-import io.wifi.starrailexpress.api.data.RoleData;
 import io.wifi.starrailexpress.api.data.RoleDataContext;
 import io.wifi.starrailexpress.api.impl.SimpleRoleData;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
@@ -24,23 +23,16 @@ import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
-import org.agmas.noellesroles.component.ModComponents;
 import org.agmas.noellesroles.init.ModItems;
 import org.agmas.noellesroles.role.ModRoles;
 import org.jetbrains.annotations.NotNull;
 
 public class PilotRoleData extends SimpleRoleData {
 
-    /** 组件键 */
-
-
-
     public PilotRoleData(RoleDataContext context) {
         super(context);
     }
-
 
     /**
      * 重置组件状态
@@ -81,7 +73,7 @@ public class PilotRoleData extends SimpleRoleData {
             // 尝试将喷气背包放入背包
             ItemStack jetpack = chestplate.copy();
             player.getInventory().armor.set(2, ItemStack.EMPTY);
-            
+
             if (!player.getInventory().add(jetpack)) {
                 // 背包满了，恢复装备并提示
                 player.getInventory().armor.set(2, jetpack);
@@ -92,7 +84,7 @@ public class PilotRoleData extends SimpleRoleData {
                 }
                 return false;
             }
-            
+
             removedSomething = true;
             messageBuilder.append(Component.translatable("message.noellesroles.pilot.jetpack_removed").getString());
         }
@@ -103,7 +95,7 @@ public class PilotRoleData extends SimpleRoleData {
             // 尝试将鞘翅放入背包
             ItemStack elytra = currentChest.copy();
             player.getInventory().armor.set(2, ItemStack.EMPTY);
-            
+
             if (!player.getInventory().add(elytra)) {
                 // 背包满了，恢复装备并提示
                 player.getInventory().armor.set(2, elytra);
@@ -114,7 +106,7 @@ public class PilotRoleData extends SimpleRoleData {
                 }
                 return false;
             }
-            
+
             if (removedSomething) {
                 messageBuilder.append(", ");
             }
@@ -141,10 +133,6 @@ public class PilotRoleData extends SimpleRoleData {
         return true;
     }
 
-    /**
-     * 同步到客户端
-     */
-
     // ==================== Tick 处理 ====================
 
     @Override
@@ -158,8 +146,6 @@ public class PilotRoleData extends SimpleRoleData {
     public void writeToSyncNbt(@NotNull CompoundTag tag, HolderLookup.Provider registryLookup) {
         // 飞行员不需要同步特殊状态
     }
-
-
 
     @Override
     public void readFromSyncNbt(@NotNull CompoundTag tag, HolderLookup.Provider registryLookup) {

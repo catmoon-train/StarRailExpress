@@ -20,15 +20,10 @@ import io.wifi.starrailexpress.api.impl.SimpleRoleData;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.entity.player.Player;
-import org.agmas.noellesroles.component.ModComponents;
 import org.agmas.noellesroles.config.NoellesRolesConfig;
 import org.jetbrains.annotations.NotNull;
 
 public class PhotographerRoleData extends SimpleRoleData {
-
-
-
 
     /** 本局已购买画框的次数。 */
     private int framesBought = 0;
@@ -36,7 +31,6 @@ public class PhotographerRoleData extends SimpleRoleData {
     public PhotographerRoleData(RoleDataContext context) {
         super(context);
     }
-
 
     @Override
     public boolean shouldSyncWith(ServerPlayer p) {
@@ -69,15 +63,5 @@ public class PhotographerRoleData extends SimpleRoleData {
 
     @Override
     public void readFromSyncNbt(@NotNull CompoundTag tag, HolderLookup.Provider registryLookup) {
-    }
-
-    @Override
-    public void writeToNbt(CompoundTag tag, HolderLookup.Provider registryLookup) {
-        tag.putInt("framesBought", this.framesBought);
-    }
-
-    @Override
-    public void readFromNbt(CompoundTag tag, HolderLookup.Provider registryLookup) {
-        this.framesBought = tag.getInt("framesBought");
     }
 }

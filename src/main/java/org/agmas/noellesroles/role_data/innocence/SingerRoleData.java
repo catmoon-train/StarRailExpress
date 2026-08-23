@@ -23,10 +23,13 @@ import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.cca.SREPlayerMoodComponent;
 import io.wifi.starrailexpress.game.GameUtils;
 import net.minecraft.ChatFormatting;
+import net.minecraft.core.Holder;
 import net.minecraft.core.HolderLookup;
+import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvent;
@@ -36,8 +39,6 @@ import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.player.Player;
 import org.agmas.noellesroles.ConfigWorldComponent;
 import org.agmas.noellesroles.Noellesroles;
-import org.agmas.noellesroles.init.NRSounds;
-import org.agmas.noellesroles.component.ModComponents;
 import org.agmas.noellesroles.init.ModEffects;
 import org.agmas.noellesroles.init.ModItems;
 import org.agmas.noellesroles.role.ModRoles;
@@ -45,16 +46,27 @@ import org.jetbrains.annotations.NotNull;
 
 public class SingerRoleData extends SimpleRoleData {
 
+    private static Holder.Reference<SoundEvent> registerForHolder(ResourceLocation resourceLocation) {
+        return registerForHolder(resourceLocation, resourceLocation);
+    }
 
-    /** 组件键 - 用于从玩家获取此组件 */
-
+    private static Holder.Reference<SoundEvent> registerForHolder(ResourceLocation resourceLocation,
+            ResourceLocation resourceLocation2) {
+        return Registry.registerForHolder(BuiltInRegistries.SOUND_EVENT, resourceLocation,
+                SoundEvent.createVariableRangeEvent(resourceLocation2));
+    }
 
     // ==================== 常量定义 ====================
-    public static final SoundEvent MUSIC_DISC_LAVA_CHICKEN_CUT = NRSounds.MUSIC_DISC_LAVA_CHICKEN_CUT;
-    public static final SoundEvent MUSIC_DISC_CREATOR_CUT = NRSounds.MUSIC_DISC_CREATOR_CUT;
-    public static final SoundEvent MUSIC_DISC_BROKEN_MOON = NRSounds.MUSIC_DISC_BROKEN_MOON;
-    public static final SoundEvent MUSIC_DISC_PIGSTEP_CUT = NRSounds.MUSIC_DISC_PIGSTEP_CUT;
-    public static final SoundEvent MUSIC_DISC_LUPINUS = NRSounds.MUSIC_DISC_LUPINUS;
+    public static final Holder.Reference<SoundEvent> MUSIC_DISC_LAVA_CHICKEN_CUT = registerForHolder(
+            Noellesroles.id("music_disc.lava_chicken_cut"));
+    public static final Holder.Reference<SoundEvent> MUSIC_DISC_CREATOR_CUT = registerForHolder(
+            Noellesroles.id("music_disc.creator_cut"));
+    public static final Holder.Reference<SoundEvent> MUSIC_DISC_BROKEN_MOON = registerForHolder(
+            Noellesroles.id("music_disc.broken_moon"));
+    public static final Holder.Reference<SoundEvent> MUSIC_DISC_PIGSTEP_CUT = registerForHolder(
+            Noellesroles.id("music_disc.pigstep_cut"));
+    public static final Holder.Reference<SoundEvent> MUSIC_DISC_LUPINUS = registerForHolder(
+            Noellesroles.id("music_disc.lupinus"));
 
     /** 主动技能冷却时间（4800 tick） */
     public static final int ABILITY_COOLDOWN = 4800;
@@ -70,15 +82,14 @@ public class SingerRoleData extends SimpleRoleData {
 
     // ==================== 唱片音乐列表 ====================
     private static final SoundEvent[] MUSIC_DISCS = {
-            MUSIC_DISC_PIGSTEP_CUT,
-            MUSIC_DISC_LAVA_CHICKEN_CUT,
-            MUSIC_DISC_CREATOR_CUT,
-            MUSIC_DISC_BROKEN_MOON,
-            MUSIC_DISC_LUPINUS
+            MUSIC_DISC_PIGSTEP_CUT.value(),
+            MUSIC_DISC_LAVA_CHICKEN_CUT.value(),
+            MUSIC_DISC_CREATOR_CUT.value(),
+            MUSIC_DISC_BROKEN_MOON.value(),
+            MUSIC_DISC_LUPINUS.value()
     };
 
     // ==================== 状态变量 ====================
-
 
     /** 主动技能冷却时间（tick） */
     public int abilityCooldown = 0;
@@ -369,6 +380,5 @@ public class SingerRoleData extends SimpleRoleData {
         this.currentMusicIndex = tag.contains("currentMusicIndex") ? tag.getInt("currentMusicIndex") : -1;
         this.musicRemainingTicks = tag.contains("musicRemainingTicks") ? tag.getInt("musicRemainingTicks") : 0;
     }
-
 
 }

@@ -209,6 +209,4 @@ public class YouluRoleData extends SimpleRoleData {
     @Override public void readFromSyncNbt(@NotNull CompoundTag tag, HolderLookup.Provider p) {
         freeCamActive = tag.getBoolean("freeCamActive");
     }
-    @Override public void writeToNbt(CompoundTag tag, HolderLookup.Provider p) {}
-    @Override public void readFromNbt(CompoundTag tag, HolderLookup.Provider p) {}
 }

@@ -15,7 +15,6 @@
 
 package org.agmas.noellesroles.role_data.innocence;
 
-import io.wifi.starrailexpress.api.data.RoleData;
 import io.wifi.starrailexpress.api.data.RoleDataContext;
 import io.wifi.starrailexpress.api.impl.SimpleRoleData;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
@@ -23,8 +22,6 @@ import io.wifi.starrailexpress.game.GameUtils;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.entity.player.Player;
-import org.agmas.noellesroles.component.ModComponents;
 import org.agmas.noellesroles.role.ModRoles;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -76,8 +73,6 @@ public class MeatballRoleData extends SimpleRoleData {
         return this.player == player;
     }
 
-
-
     @Override
     public void clientTick() {
         @Nullable var gameComp = SREGameWorldComponent.KEY.maybeGet(player.level()).orElse(null);
@@ -85,8 +80,6 @@ public class MeatballRoleData extends SimpleRoleData {
             return;
         }
     }
-
-
 
     /**
      * 增加赏金

@@ -17,6 +17,7 @@ package org.agmas.noellesroles.game.roles.innocence.meatball;
 
 import io.wifi.starrailexpress.api.ExtraEffectRole;
 import io.wifi.starrailexpress.api.SRERole;
+import io.wifi.starrailexpress.api.data.RoleData;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.cca.SREPlayerShopComponent;
 import net.minecraft.ChatFormatting;
@@ -24,8 +25,8 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
-import org.agmas.noellesroles.component.ModComponents;
 import org.agmas.noellesroles.role.ModRoles;
+import org.agmas.noellesroles.role_data.innocence.MeatballRoleData;
 
 /**
  * 肉汁角色类
@@ -49,10 +50,9 @@ public class MeatballRole extends ExtraEffectRole {
         }
         
         // 增加赏金
-        MeatballPlayerComponent component = ModComponents.MEATBALL.get(player);
-        if (component != null) {
+        RoleData.getOptional(MeatballRoleData.class, player).ifPresent(component -> {
             component.addBounty();
-            
+
             // 发送消息提示
             if (player instanceof ServerPlayer sp) {
                 sp.displayClientMessage(
@@ -61,7 +61,7 @@ public class MeatballRole extends ExtraEffectRole {
                     true
                 );
             }
-        }
+        });
     }
 
     @Override
@@ -74,12 +74,12 @@ public class MeatballRole extends ExtraEffectRole {
         }
         
         // 收集赏金（无论谁击杀都要清空）
-        MeatballPlayerComponent meatballComponent = ModComponents.MEATBALL.get(victim);
-        if (meatballComponent == null) {
+        var meatballData = RoleData.getOptional(MeatballRoleData.class, victim);
+        if (meatballData.isEmpty()) {
             return;
         }
-        
-        int bounty = meatballComponent.collectBounty();
+
+        int bounty = meatballData.get().collectBounty();
         
         // 只有非乘客阵营的击杀者才能获得赏金
         if (killer != null && !gameWorld.isInnocent(killer) && bounty > 0) {
