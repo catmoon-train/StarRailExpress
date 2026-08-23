@@ -128,8 +128,8 @@ public class SRERoleDataPlayerComponent
         final RoleDataContext ctx = new RoleDataContext(player, playerRole, null);
         if (roleDataFunc != null) {
             roleData = roleDataFunc.apply(ctx);
+            roleData.initOnClient();
         }
-        roleData.initOnClient();
     }
 
     @Override
