@@ -35,6 +35,7 @@ public class SREConfig implements ConfigData {
     public static ConfigClassHandler<SREConfig> HANDLER = new ConfigClassHandler<>(
             SREConfig.class);
 
+
     // 游戏模式设置
     @ConfigEntry.Category(value = "gamemodes")
     public int defaultStartTimeForMurder = 10;
@@ -437,9 +438,11 @@ public class SREConfig implements ConfigData {
     @ConfigEntry.Category(value = "friendly_teammate_kill")
     public int teamKillViolationThreshold = 2; // 窗口内队友击杀次数阈值
     @ConfigEntry.Category(value = "friendly_teammate_kill")
-    public int teamKillViolationWindowSeconds = 60; // 检测时间窗口（秒）
+    public int teamKillViolationWindowSeconds = 120; // 检测时间窗口（秒）
     @ConfigEntry.Category(value = "friendly_teammate_kill")
     public String teamKillViolationMcFunction = "starrailexpress:teamkill_violation"; // 触发后执行的 mcfunction
+    @ConfigEntry.Category(value = "friendly_teammate_kill")
+    public int teamKillViolationMcFunctionPermission = 3;
 
     public boolean enableRoster = true;
 
