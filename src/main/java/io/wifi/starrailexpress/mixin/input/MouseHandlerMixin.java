@@ -15,7 +15,7 @@
 
 package io.wifi.starrailexpress.mixin.input;
 
-import io.wifi.starrailexpress.content.block.SecurityMonitorBlock;
+import io.wifi.starrailexpress.client.SecurityCameraClientState;
 import io.wifi.starrailexpress.content.item.SniperRifleItem;
 import io.wifi.starrailexpress.index.TMMItems;
 import io.wifi.starrailexpress.network.original.SniperShootPayload;
@@ -35,7 +35,7 @@ public class MouseHandlerMixin {
     @Inject(method = "turnPlayer", at = @At("HEAD"), cancellable = true)
     public void TMM$turnPlayer(double d, CallbackInfo ci) {
         // 在监控模式下，阻止正常的玩家旋转，但传递给SecurityMonitorBlock处理
-        if (SecurityMonitorBlock.isInSecurityMode()) {
+        if (SecurityCameraClientState.isInSecurityMode()) {
             ci.cancel();
         }
     }
@@ -43,13 +43,13 @@ public class MouseHandlerMixin {
     // 捕获鼠标移动并传递给SecurityMonitorBlock
     @Inject(method = "onMove", at = @At("HEAD"), cancellable = true)
     public void TMM$onMove(long window, double x, double y, CallbackInfo ci) {
-        if (SecurityMonitorBlock.isInSecurityMode()) {
+        if (SecurityCameraClientState.isInSecurityMode()) {
             // 传递鼠标移动给监控视角控制
             // double xOffset = x;
             double yOffset = y;
             // 注意：xOffset是水平旋转(yaw)，yOffset是垂直旋转(pitch)
             // 这里的参数值是原始鼠标移动量，需要进行适当的缩放
-            SecurityMonitorBlock.onPlayerRotated(yOffset);
+            SecurityCameraClientState.onPlayerRotated(yOffset);
             ci.cancel();
         }
     }

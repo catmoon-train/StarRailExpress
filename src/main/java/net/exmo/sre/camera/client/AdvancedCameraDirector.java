@@ -15,7 +15,7 @@
 
 package net.exmo.sre.camera.client;
 
-import io.wifi.starrailexpress.content.block.SecurityMonitorBlock;
+import io.wifi.starrailexpress.client.SecurityCameraClientState;
 import net.exmo.sre.camera.AdvancedCameraNode;
 import net.exmo.sre.camera.AdvancedCameraSequence;
 import net.minecraft.client.CameraType;
@@ -34,7 +34,7 @@ import org.slf4j.LoggerFactory;
  * <p>负责接收一条 {@link AdvancedCameraSequence} 轨道并逐 tick 播放：解析为具体关键帧后，在帧渲染时按
  * tick + partialTick 插值出相机位置 / 朝向 / FOV，并由桥接 mixin 写入 Minecraft 的 {@code Camera}。
  *
- * <p>优先级：安全摄像头（{@link SecurityMonitorBlock#isInSecurityMode()}）高于高级相机；高级相机激活时
+ * <p>优先级：安全摄像头（{@link SecurityCameraClientState#isInSecurityMode()}）高于高级相机；高级相机激活时
  * 才会接管视角，安全摄像头开启时本导演自动让位。
  *
  * <p>生命周期：在 {@code END_CLIENT_TICK} 调用 {@link #tick(Minecraft)} 推进；在断线 / 切世界 / 游戏结束时
@@ -182,12 +182,12 @@ public final class AdvancedCameraDirector {
 
     /** 高级相机是否应当接管视角（激活且安全摄像头未开启）。 */
     public static boolean shouldOverride() {
-        return (active != null || fixedOverride != null) && !SecurityMonitorBlock.isInSecurityMode();
+        return (active != null || fixedOverride != null) && !SecurityCameraClientState.isInSecurityMode();
     }
 
     /** 只有高级运镜轨道播放时隐藏 HUD；固定镜头效果（如 2D 视角）保留玩家界面。 */
     public static boolean shouldHideHudForCamera() {
-        return active != null && !SecurityMonitorBlock.isInSecurityMode();
+        return active != null && !SecurityCameraClientState.isInSecurityMode();
     }
 
     public static Vec3 getCameraPos(float partialTick) {
@@ -210,7 +210,7 @@ public final class AdvancedCameraDirector {
      * 安全摄像头开启时不覆盖。
      */
     public static float getFovOverride(float partialTick) {
-        if ((active == null && fixedOverride == null) || SecurityMonitorBlock.isInSecurityMode()) {
+        if ((active == null && fixedOverride == null) || SecurityCameraClientState.isInSecurityMode()) {
             return 0f;
         }
         Pose pose = currentPose(partialTick);

@@ -23,7 +23,7 @@ import io.wifi.starrailexpress.cca.AreasWorldComponent;
 import io.wifi.starrailexpress.cca.SREPlayerMoodComponent;
 import io.wifi.starrailexpress.client.SREClient;
 import io.wifi.starrailexpress.client.util.TaskInstinctManager;
-import io.wifi.starrailexpress.content.block.SecurityMonitorBlock;
+import io.wifi.starrailexpress.client.SecurityCameraClientState;
 import io.wifi.starrailexpress.content.block.api.TaskInstinctShowableInterface;
 import io.wifi.starrailexpress.content.block_entity.SmallDoorBlockEntity;
 import io.wifi.starrailexpress.index.TMMItems;
@@ -224,7 +224,7 @@ public class TaskBlockOverlayRenderer {
             return;
         }
         // 监控模式下，非杀手不能看到任务点透视
-        if (SecurityMonitorBlock.isInSecurityMode() && !SREClient.isKiller())
+        if (SecurityCameraClientState.isInSecurityMode() && !SREClient.isKiller())
             return;
 
         boolean shouldDisplay[] = new boolean[64];

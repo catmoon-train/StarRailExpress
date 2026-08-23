@@ -15,7 +15,7 @@
 
 package io.wifi.starrailexpress.mixin.client;
 
-import io.wifi.starrailexpress.content.block.SecurityMonitorBlock;
+import io.wifi.starrailexpress.client.SecurityCameraClientState;
 import net.minecraft.client.Camera;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.Entity;
@@ -56,7 +56,7 @@ public abstract class CameraPositionMixin {
             target = "Lnet/minecraft/world/entity/Entity;getViewYRot(F)F"),
             cancellable = true)
     public void setupCamera(BlockGetter blockGetter, Entity entity, boolean bl, boolean bl2, float f, CallbackInfo ci) {
-        if (SecurityMonitorBlock.setupCameraMod((Camera) (Object) this, blockGetter, entity, bl, bl2, f)) {
+        if (SecurityCameraClientState.setupCameraMod((Camera) (Object) this, blockGetter, entity, bl, bl2, f)) {
             ci.cancel();
         }
     }

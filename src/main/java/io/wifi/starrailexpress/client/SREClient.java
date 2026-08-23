@@ -100,7 +100,7 @@ import io.wifi.starrailexpress.client.util.ClientScheduler;
 import io.wifi.starrailexpress.client.util.ClientSkinCache;
 import io.wifi.starrailexpress.client.util.TMMItemTooltips;
 import io.wifi.starrailexpress.compat.TrainVoicePlugin;
-import io.wifi.starrailexpress.content.block.SecurityMonitorBlock;
+import io.wifi.starrailexpress.client.SecurityCameraClientState;
 import io.wifi.starrailexpress.content.entity.FirecrackerEntity;
 import io.wifi.starrailexpress.content.entity.NoteEntity;
 import io.wifi.starrailexpress.content.entity.PlayerBodyEntity;
@@ -518,7 +518,7 @@ public class SREClient implements ClientModInitializer {
         // Item tooltips
         TMMItemTooltips.addTooltips();
         AllowOtherCameraType.EVENT.register((original, localPlayer) -> {
-            if (SecurityMonitorBlock.isInSecurityMode()) {
+            if (SecurityCameraClientState.isInSecurityMode()) {
                 return AllowOtherCameraType.ReturnCameraType.THIRD_PERSON_BACK;
             }
             return AllowOtherCameraType.ReturnCameraType.NO_CHANGE;
@@ -545,11 +545,11 @@ public class SREClient implements ClientModInitializer {
             }
             final LocalPlayer player = client.player;
             {
-                if (SecurityMonitorBlock.isInSecurityMode()) {
+                if (SecurityCameraClientState.isInSecurityMode()) {
 
                     boolean keycode = Minecraft.getInstance().options.keyShift.isDown();
                     if (client.screen != null || keycode) {
-                        SecurityMonitorBlock.setSecurityMode(false);
+                        SecurityCameraClientState.setSecurityMode(false);
                         Minecraft.getInstance().options.setCameraType(CameraType.FIRST_PERSON);
                     }
                 }

@@ -19,7 +19,7 @@ import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.mojang.authlib.GameProfile;
 import io.wifi.starrailexpress.client.SREClient;
-import io.wifi.starrailexpress.content.block.SecurityMonitorBlock;
+import io.wifi.starrailexpress.client.SecurityCameraClientState;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.player.Input;
@@ -41,6 +41,6 @@ public abstract class LocalPlayerMixin extends AbstractClientPlayer {
         if (SREClient.isInLobby) {
             return;
         }
-        SecurityMonitorBlock.modifyInputUpdate(instance, (LocalPlayer) (Object) this);
+        SecurityCameraClientState.modifyInputUpdate(instance, (LocalPlayer) (Object) this);
     }
 }

@@ -17,7 +17,7 @@ package io.wifi.starrailexpress.client.gui;
 
 import io.wifi.starrailexpress.SREClientConfig;
 import io.wifi.starrailexpress.cca.SREMonitorWorldComponent;
-import io.wifi.starrailexpress.content.block.SecurityMonitorBlock;
+import io.wifi.starrailexpress.client.SecurityCameraClientState;
 import io.wifi.starrailexpress.content.block_entity.CameraBlockEntity;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
@@ -37,7 +37,7 @@ public class SecurityCameraHUD {
     private static boolean shouldBlink = false;
 
     public static void render(GuiGraphics guiGraphics, int screenWidth, int screenHeight) {
-        if (!SecurityMonitorBlock.isInSecurityMode() || !SREClientConfig.instance().enableSecurityCameraHUD) {
+        if (!SecurityCameraClientState.isInSecurityMode() || !SREClientConfig.instance().enableSecurityCameraHUD) {
             return;
         }
 
@@ -46,7 +46,7 @@ public class SecurityCameraHUD {
         if (player == null) {
             return;
         }
-        BlockPos cameraPos = SecurityMonitorBlock.getCurrentCameraPos();
+        BlockPos cameraPos = SecurityCameraClientState.getCurrentCameraPos();
         boolean isBroken = false;
 
         if (SREMonitorWorldComponent.KEY.get(minecraft.level).isBroken()) {
@@ -86,7 +86,7 @@ public class SecurityCameraHUD {
     }
 
     private static void renderCameraInfo(GuiGraphics guiGraphics, int screenWidth, int screenHeight) {
-        BlockPos cameraPos = SecurityMonitorBlock.getCurrentCameraPos();
+        BlockPos cameraPos = SecurityCameraClientState.getCurrentCameraPos();
         if (cameraPos == null) {
             return;
         }
@@ -129,7 +129,7 @@ public class SecurityCameraHUD {
     }
 
     public static void renderCameraFeed(GuiGraphics guiGraphics, int screenWidth, int screenHeight) {
-        if (!SecurityMonitorBlock.isInSecurityMode() || !SREClientConfig.instance().enableSecurityCameraHUD) {
+        if (!SecurityCameraClientState.isInSecurityMode() || !SREClientConfig.instance().enableSecurityCameraHUD) {
             return;
         }
         int feedWidth = screenWidth / 4;
@@ -160,8 +160,8 @@ public class SecurityCameraHUD {
 
         // 绘制摄像头编号
         String camId = "UNKNOWN";
-        if (SecurityMonitorBlock.lastCameraId >= 0) {
-            camId = String.valueOf(SecurityMonitorBlock.lastCameraId + 1);
+        if (SecurityCameraClientState.lastCameraId >= 0) {
+            camId = String.valueOf(SecurityCameraClientState.lastCameraId + 1);
         }
         String camNumber = "CAM " + camId;
         int numberWidth = font.width(camNumber);

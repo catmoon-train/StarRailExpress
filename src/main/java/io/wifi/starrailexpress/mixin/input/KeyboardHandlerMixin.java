@@ -15,7 +15,7 @@
 
 package io.wifi.starrailexpress.mixin.input;
 
-import io.wifi.starrailexpress.content.block.SecurityMonitorBlock;
+import io.wifi.starrailexpress.client.SecurityCameraClientState;
 import net.minecraft.client.KeyboardHandler;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
@@ -32,7 +32,7 @@ public abstract class KeyboardHandlerMixin {
                     shift = At.Shift.BEFORE),
             cancellable = true)
     protected void supp$onKeyPressCancellable(long windowPointer, int key, int scanCode, int action, int modifiers, CallbackInfo ci) {
-        if (SecurityMonitorBlock.onEarlyKeyPress(key, scanCode, action, modifiers)) {
+        if (SecurityCameraClientState.onEarlyKeyPress(key, scanCode, action, modifiers)) {
             ci.cancel();
         }
     }
