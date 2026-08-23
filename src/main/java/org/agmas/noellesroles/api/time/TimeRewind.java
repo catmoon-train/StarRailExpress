@@ -14,6 +14,7 @@
  */
 
 package org.agmas.noellesroles.api.time;
+
 import io.wifi.starrailexpress.api.RoleComponent;
 import io.wifi.starrailexpress.cca.SRERoleDataPlayerComponent;
 import io.wifi.starrailexpress.compat.TrainVoicePlugin;
@@ -150,7 +151,6 @@ public final class TimeRewind {
                 new Failure("capture", warning.componentId(), warning.message())));
 
         CompoundTag vanillaState = snapshot.rawVanillaState().copy();
-        boolean wasSpectator = player.isSpectator();
         try {
             moveToSnapshotDimension(player, snapshot, vanillaState);
             playerAccess(player).noellesroles$restoreTimeRewindState(vanillaState);
@@ -160,7 +160,7 @@ public final class TimeRewind {
                     player.getScoreboardName(), exception);
             return new TimeRewindResult(0, failures);
         }
-        if (wasSpectator && !player.isSpectator()) {
+        if (!player.isSpectator()) {
             TrainVoicePlugin.resetPlayer(player.getUUID());
         }
 
