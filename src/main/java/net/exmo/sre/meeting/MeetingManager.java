@@ -298,8 +298,12 @@ public final class MeetingManager {
             boolean emergency) {
         // 亡命徒期间（难民触发）：无论如何都无法启用/发起会议
         if (RefugeeComponent.KEY.get(serverLevel).isAnyRevivals
-                || SREGameWorldComponent.getInstance(serverLevel).isPsychoActive()
                 || !SREGameWorldComponent.getInstance(serverLevel).isSkillAvailable) {
+            reporter.displayClientMessage(
+                    Component.translatable("meeting.sre.report_failed").withStyle(ChatFormatting.RED), true);
+            return false;
+        }
+        if (!emergency && (SREGameWorldComponent.getInstance(serverLevel).isPsychoActive())) {
             reporter.displayClientMessage(
                     Component.translatable("meeting.sre.report_failed").withStyle(ChatFormatting.RED), true);
             return false;
@@ -404,8 +408,8 @@ public final class MeetingManager {
         MeetingStartEvent.EVENT.invoker().onMeetingStart(serverLevel, reporter);
         // 回放记录：玩家发起会议
         SRE.REPLAY_MANAGER.recordCustomEvent(
-            Component.translatable("replay.event.corpse.call_meeting",
-                GameReplayUtils.getReplayPlayerDisplayText(reporter, true)));
+                Component.translatable("replay.event.corpse.call_meeting",
+                        GameReplayUtils.getReplayPlayerDisplayText(reporter, true)));
         return true;
     }
 
