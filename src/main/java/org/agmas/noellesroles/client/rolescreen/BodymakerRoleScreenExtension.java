@@ -93,6 +93,11 @@ public final class BodymakerRoleScreenExtension extends PlayerListRoleScreenExte
     @Override
     public void onInit(LimitedInventoryScreen screen) {
         this.screen = screen;
+        this.selectedLevel = 0;
+        reinit();
+    }
+
+    private void reinit() {
         if (selectedLevel == 0) {
             // 阶段1：选择目标玩家（分页翻页 + 搜索框）
             super.onInit(screen);
