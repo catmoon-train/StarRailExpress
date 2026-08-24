@@ -1,4 +1,4 @@
-﻿{
+{
   "entity.noellesroles.rainbow_horse": "海曼彩虹马",
   "item.noellesroles.rainbow_horseshoe": "彩虹马蹄铁",
   "item.noellesroles.rainbow_horseshoe.tooltip": "右键召唤一匹海曼彩虹马从天而降，可两人乘骑，120秒后消失",
@@ -2861,8 +2861,9 @@
   "announcement.star.goals.duck": "伪装在鹅群中，击杀鹅并利用破坏扰乱任务，在被投票放逐前消灭所有鹅。",
   "skill.noellesroles.seija.upside_down": "颠倒一切！",
   "skill.noellesroles.doremy_dream": "造梦",
+  "message.noellesroles.doremy_dream.death_penalty": "你处于梦中，暂时无法自由移动。",
   "skill.noellesroles.doremy_dream.success": "你成功为 %s 造梦！",
-  "skill.noellesroles.doremy_dream.failed":"你无法给 %s 造梦：他已经处于梦中！",
+  "skill.noellesroles.doremy_dream.failed": "你无法给 %s 造梦：他已经处于梦中！",
   "skill.noellesroles.konpaku_youmu.ghost": "进入幽灵状态",
   "skill.noellesroles.konpaku_youmu.ghost.leave": "退出幽灵状态",
   "skill.noellesroles.konpaku_youmu.ghost.leave.fail": "你不在幽灵状态",

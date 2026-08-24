@@ -80,6 +80,7 @@ import org.agmas.noellesroles.role_data.innocence.AvengerRoleData;
 import org.agmas.noellesroles.role_data.innocence.BoxerRoleData;
 import org.agmas.noellesroles.role_data.innocence.GlitchRobotRoleData;
 import org.agmas.noellesroles.role_data.killer.BanditRoleData;
+import org.agmas.noellesroles.role_data.killer.DoremyRoleData;
 import org.agmas.noellesroles.role_data.killer.ShadowFalconRoleData;
 import org.agmas.noellesroles.role_data.killer.SkincrawlerRoleData;
 import org.agmas.noellesroles.role_data.killer.WatcherRoleData;
@@ -355,6 +356,12 @@ public class NRDeathEvents {
         for (final var victim : victims) {
             DeathPenaltyComponent deathPenaltyComponent = ModComponents.DEATH_PENALTY.get(victim);
             if (deathPenaltyComponent.hasStrictPenalty()) {
+                continue;
+            }
+            if (DoremyRoleData.isDreaming(victim)) {
+                deathPenaltyComponent.setPenaltyWithPositionLimit(45 * 20, victim.position(), true);
+                victim.displayClientMessage(Component.translatable("message.noellesroles.doremy_dream.death_penalty")
+                        .withStyle(ChatFormatting.RED), true);
                 continue;
             }
             if (looseEndAlive && !ignoreLooseEnd) {
@@ -1451,7 +1458,8 @@ public class NRDeathEvents {
             }
             // 影隼临时护盾破碎
             if (gameWorldComponent.isRole(victim, ModRoles.SHADOW_FALCON)) {
-                RoleData.getOptional(ShadowFalconRoleData.class, victim).ifPresent(ShadowFalconRoleData::onShieldBroken);
+                RoleData.getOptional(ShadowFalconRoleData.class, victim)
+                        .ifPresent(ShadowFalconRoleData::onShieldBroken);
             }
         });
     }
