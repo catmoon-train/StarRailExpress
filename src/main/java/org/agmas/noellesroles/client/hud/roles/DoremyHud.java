@@ -32,7 +32,7 @@ public class DoremyHud {
             if (roledata.cooldownForDoremyDream > 0) {
 
                 Component cdText = Component
-                        .translatable("hud.noellesroles.doremy_dream.cooldown", roledata.cooldownForDoremyDream)
+                        .translatable("hud.noellesroles.doremy_dream.cooldown", roledata.cooldownForDoremyDream / 20)
                         .withStyle(ChatFormatting.AQUA);
                 context.drawString(textRenderer, cdText, x - textRenderer.width(cdText), y, 0xffffffff);
 
@@ -44,7 +44,7 @@ public class DoremyHud {
             if (roledata.cooldownForDoremyGhost > 0) {
 
                 Component cdText = Component
-                        .translatable("hud.noellesroles.doremy_ghost.cooldown", roledata.cooldownForDoremyGhost)
+                        .translatable("hud.noellesroles.doremy_ghost.cooldown", roledata.cooldownForDoremyGhost / 20)
                         .withStyle(ChatFormatting.AQUA);
                 context.drawString(textRenderer, cdText, x - textRenderer.width(cdText), y - 10, 0xffffffff);
 
