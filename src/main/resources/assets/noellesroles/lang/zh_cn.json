@@ -542,6 +542,7 @@
   "hud.houjuu_nue.tip.1": "当前缓慢层数：%s",
   "hud.houjuu_nue.tip.2": "下次缓慢层数减少：%ss",
   "hud.houjuu_nue.tip.add_layer": "你的缓慢层数增加到了 %s 层！",
+  "hud.houjuu_nue.tip.remove_layer": "你的缓慢层数减少到了 %s 层！",
   "hud.vulture.already_consumed": "这具尸体已经被吃掉了。",
   "hud.vulture.eat": "按 %s 吃掉尸体！",
   "item.noellesroles.defense_vial.tooltip": "右键点击饮料托盘使用\n清除托盘上所有的毒药\n使饮用受保护饮料的玩家额外获得一次免死机会。",

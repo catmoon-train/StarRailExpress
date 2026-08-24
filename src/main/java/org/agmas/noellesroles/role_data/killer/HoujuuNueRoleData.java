@@ -7,6 +7,7 @@ import io.wifi.starrailexpress.api.impl.SimpleRoleData;
 import net.minecraft.core.Holder;
 import net.minecraft.core.HolderLookup.Provider;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.chat.Component;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffects;
 
@@ -44,6 +45,8 @@ public class HoujuuNueRoleData extends SimpleRoleData {
     private void removeOneLayer() {
         if (this.slownessLayers > 0) {
             this.slownessLayers--;
+            this.player.displayClientMessage(
+                    Component.translatable("hud.houjuu_nue.tip.remove_layer", this.slownessLayers), true);
             refreshEffects();
         }
     }

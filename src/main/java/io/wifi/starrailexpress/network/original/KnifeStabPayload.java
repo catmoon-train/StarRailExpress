@@ -139,7 +139,7 @@ public record KnifeStabPayload(int target) implements CustomPacketPayload {
         private int getKnifeCooldown(ServerPlayer player) {
             float modifier = 1f;
             if (RoleUtils.isPlayerTheJob(player, THMiscRoles.HOUJUU_NUE)) {
-                modifier = 0.25f;
+                modifier = 0.1667f;
             }
             return (int) (GameConstants.ITEM_COOLDOWNS.getOrDefault(TMMItems.KNIFE, 600) * modifier);
         }
