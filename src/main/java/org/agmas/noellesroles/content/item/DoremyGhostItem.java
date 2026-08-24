@@ -44,6 +44,7 @@ public class DoremyGhostItem extends Item {
                 if (!player.isCreative())
                     player.getCooldowns().addCooldown(this, COOLDOWN_TICKS);
                 DoremyRoleData.tryDream(player, 5 * 20);
+                player.displayClientMessage(Component.translatable("message.item.noellesroles.doremy_ghost.use"), true);
             }
         }
         return item;

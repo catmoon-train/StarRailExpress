@@ -491,6 +491,12 @@ public class AbilityHandler {
                         true);
                 cca.cooldownForDoremyDream = 120 * 20;
                 cca.sync();
+            } else {
+
+                player.displayClientMessage(
+                        Component.translatable("skill.noellesroles.doremy_dream.failed", sp.getName())
+                                .withStyle(ChatFormatting.RED),
+                        true);
             }
             return;
         }
