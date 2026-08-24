@@ -15,7 +15,7 @@ import net.minecraft.world.level.Level;
 
 public class DoremyGhostItem extends Item {
 
-    private static final int COOLDOWN_TICKS = 20 * 30;
+    private static final int COOLDOWN_TICKS = 20 * 60;
 
     public DoremyGhostItem(Properties properties) {
         super(properties);
