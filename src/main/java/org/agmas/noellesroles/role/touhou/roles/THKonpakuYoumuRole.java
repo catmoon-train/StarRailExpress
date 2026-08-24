@@ -12,7 +12,9 @@ import io.wifi.starrailexpress.api.TouhouRole;
 import io.wifi.starrailexpress.cca.SREAbilityPlayerComponent;
 import io.wifi.starrailexpress.game.GameUtils;
 import io.wifi.starrailexpress.util.ShopEntry;
+import net.minecraft.ChatFormatting;
 import net.minecraft.core.Holder;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.effect.MobEffect;
@@ -98,11 +100,18 @@ public class THKonpakuYoumuRole extends TouhouRole {
     }
 
     private void tickGhost(ServerPlayer player) {
-        if (player.level().getGameTime() % 40 != 4) {
-            return;
+        if (player.level().getGameTime() % 40 == 4) {
+            giveEffetcs(player);
         }
+    }
+
+    private void giveEffetcs(ServerPlayer player) {
+
         if (shouldGiveEffect(player, MobEffects.INVISIBILITY)) {
             player.addEffect(ModEffects.of(MobEffects.INVISIBILITY, 40 * 20, 1, false, false, true));
+        }
+        if (shouldGiveEffect(player, ModEffects.USED_BANED)) {
+            player.addEffect(ModEffects.of(ModEffects.USED_BANED, 40 * 20, 1, false, false, true));
         }
     }
 
@@ -111,11 +120,21 @@ public class THKonpakuYoumuRole extends TouhouRole {
         cca.status = 1;
         cca.duration = 30 * 20;
         cca.sync();
+
+        player.displayClientMessage(Component
+                .translatable("skill.noellesroles.konpaku_youmu.ghost.tip",
+                        Component.translatable("skill.noellesroles.konpaku_youmu.ghost"))
+                .withStyle(ChatFormatting.GREEN), true);
     }
 
     public static void exitGhost(ServerPlayer player) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'exitGhost'");
+        player.removeEffect(MobEffects.INVISIBILITY);
+        player.removeEffect(ModEffects.USED_BANED);
+        
+        player.displayClientMessage(Component
+                .translatable("skill.noellesroles.konpaku_youmu.ghost.tip",
+                        Component.translatable("skill.noellesroles.konpaku_youmu.ghost.leave"))
+                .withStyle(ChatFormatting.RED), true);
     }
 
 }
