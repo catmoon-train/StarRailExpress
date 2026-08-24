@@ -33,6 +33,8 @@ import org.agmas.noellesroles.content.block_entity.DevilRouletteTableEntity;
 import org.agmas.noellesroles.content.entity.*;
 import org.agmas.noellesroles.game.roles.innocence.cake_maker.CakeMakerComponent;
 import org.agmas.noellesroles.game.roles.neutral.cuckoo.CuckooEggData;
+import org.agmas.noellesroles.role.touhou.roles.THIbarakiKasenRole;
+
 import pro.fazeclan.river.stupid_express.role.necromancer.cca.NecromancerComponent;
 
 public class EntityClearUtils {
@@ -57,6 +59,9 @@ public class EntityClearUtils {
 
     /** 换图 / 清场时应当被清除的游戏残留实体（上一局的尸体、掉落物、投掷物、彩虹马等）。 */
     public static boolean shouldClearOnReset(Entity entity) {
+        if(THIbarakiKasenRole.isWolf(entity)){
+            return true;
+        }
         if (entity instanceof LockEntity ||
                 entity instanceof Pig ||
                 entity instanceof CanyuesaHorseEntity ||

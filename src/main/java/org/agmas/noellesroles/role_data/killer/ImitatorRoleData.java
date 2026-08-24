@@ -14,8 +14,6 @@
  */
 
 package org.agmas.noellesroles.role_data.killer;
-
-import io.wifi.starrailexpress.api.data.RoleData;
 import io.wifi.starrailexpress.api.data.RoleDataContext;
 import io.wifi.starrailexpress.api.impl.SimpleRoleData;
 import org.agmas.noellesroles.ConfigWorldComponent;

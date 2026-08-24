@@ -61,6 +61,7 @@ import org.agmas.noellesroles.role.ModRoles;
 import org.agmas.noellesroles.role.touhou.THLostForestRoles;
 import org.agmas.noellesroles.role.touhou.THMagicForestRoles;
 import org.agmas.noellesroles.role.touhou.THMiscRoles;
+import org.agmas.noellesroles.role.touhou.roles.THIbarakiKasenRole;
 import org.agmas.noellesroles.role.touhou.roles.THMamizouRole;
 import org.agmas.noellesroles.role.touhou.roles.THReimuRole;
 import org.agmas.noellesroles.role.touhou.roles.THRemiliaRole;
@@ -123,6 +124,7 @@ public class TouhouHandlers {
 
   public static void registerEvents() {
     // 大小姐仆从不能杀蕾米莉亚
+    THIbarakiKasenRole.registerEvents();
     AllowPlayerDeathWithKiller.EVENT.register((victim, killer, deathreason) -> {
       if (killer == null)
         return true;

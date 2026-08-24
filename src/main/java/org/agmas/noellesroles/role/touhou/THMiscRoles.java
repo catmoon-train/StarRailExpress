@@ -17,9 +17,9 @@ package org.agmas.noellesroles.role.touhou;
 
 import org.agmas.noellesroles.role.touhou.roles.*;
 import org.agmas.noellesroles.role_data.killer.HoujuuNueRoleData;
-
 import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.api.TMMRoles;
+import io.wifi.starrailexpress.api.TouhouRole;
 import io.wifi.starrailexpress.api.SRERole.MoodType;
 import io.wifi.starrailexpress.cca.SREPlayerShopComponent;
 import io.wifi.starrailexpress.util.Color;
@@ -113,19 +113,24 @@ public class THMiscRoles {
                 }
             });
 
-
     // 鬼人正邪 Kijin Seija
-    public static SRERole KIJIN_SEIJA = TMMRoles.registerRole(new THHoujuuNueRole(id("kijin_seija"),
-            new Color(49,38,40).getRGB(), false, true, MoodType.FAKE, Integer.MAX_VALUE, true))
+    public static SRERole KIJIN_SEIJA = TMMRoles.registerRole(new TouhouRole(id("kijin_seija"),
+            new Color(49, 38, 40).getRGB(), false, true, MoodType.FAKE, Integer.MAX_VALUE, true))
             .setDefaultEnableNeededPlayerCount(12)
             .setDefaultEnableChance(6000);
-            
+
     // 封兽鵺 Houjuu Nue
     public static SRERole HOUJUU_NUE = TMMRoles.registerRole(new THHoujuuNueRole(id("houjuu_nue"),
             new Color(87, 78, 99).getRGB(), false, true, MoodType.FAKE, Integer.MAX_VALUE, true))
             .setRoleData(HoujuuNueRoleData::new)
             .setDefaultEnableNeededPlayerCount(12)
             .setDefaultEnableChance(4000);
+
+    // 茨木华扇 Ibaraki Kasen
+    public static SRERole IBARAKI_KASEN = TMMRoles.registerRole(new THIbarakiKasenRole(id("ibaraki_kasen"),
+            new Color(216, 158, 159).getRGB(), true, false, MoodType.REAL, TMMRoles.CIVILIAN_MAX_SPRINT_TICKS, false))
+            .setDefaultEnableNeededPlayerCount(12)
+            .setDefaultEnableChance(5000);
 
     public static void init() {
     }
