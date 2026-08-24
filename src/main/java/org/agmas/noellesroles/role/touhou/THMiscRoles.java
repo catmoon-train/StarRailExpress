@@ -132,6 +132,15 @@ public class THMiscRoles {
             .setDefaultEnableNeededPlayerCount(12)
             .setDefaultEnableChance(5000);
 
+    //魂魄妖梦 Konpaku Youmu
+    public static SRERole KONPAKU_YOUMU = TMMRoles.registerRole(new THKonpakuYoumuRole(id("konpaku_youmu"),
+            new Color(216, 158, 159).getRGB(), true, false, MoodType.REAL, TMMRoles.CIVILIAN_MAX_SPRINT_TICKS, false))
+            .setDefaultEnableNeededPlayerCount(12)
+            .setDefaultEnableChance(5000)
+            .setVigilanteTeam(true)
+            .setSpecialPolice(true)
+            .setCanPickUpRevolver(true);
+
     public static void init() {
     }
 }

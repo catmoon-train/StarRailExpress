@@ -62,6 +62,7 @@ import org.agmas.noellesroles.role.touhou.THLostForestRoles;
 import org.agmas.noellesroles.role.touhou.THMagicForestRoles;
 import org.agmas.noellesroles.role.touhou.THMiscRoles;
 import org.agmas.noellesroles.role.touhou.roles.THIbarakiKasenRole;
+import org.agmas.noellesroles.role.touhou.roles.THKonpakuYoumuRole;
 import org.agmas.noellesroles.role.touhou.roles.THMamizouRole;
 import org.agmas.noellesroles.role.touhou.roles.THReimuRole;
 import org.agmas.noellesroles.role.touhou.roles.THRemiliaRole;
@@ -288,6 +289,15 @@ public class TouhouHandlers {
           }
           return true;
         }).cooldownSeconds(90).announceToSelf().recordReplay().showOnHud(true).build());
+    RoleSkill.register(THMiscRoles.KONPAKU_YOUMU,
+        RoleSkill.skill(SRE.id("konpaku_youmu"), "skill.noellesroles.konpaku_youmu.ghost", (ctx) -> {
+          THKonpakuYoumuRole.enterGhost(ctx.player());
+          return true;
+        }).cooldownSeconds(60).announceToSelf().recordReplay().showOnHud(true).build(),
+        RoleSkill.skill(SRE.id("konpaku_youmu/leave"), "skill.noellesroles.konpaku_youmu.ghost.leave", (ctx) -> {
+          THKonpakuYoumuRole.exitGhost(ctx.player());
+          return true;
+        }).shifted(true).announceToSelf().recordReplay().showOnHud(true).build());
     RoleSkill.register(THMiscRoles.MAMIZOU,
         RoleSkill.skill(SRE.id("mamizou_select"), "skill.noellesroles.mamizou_select", THMamizouRole::handleSelect)
             .noAnnouncement()

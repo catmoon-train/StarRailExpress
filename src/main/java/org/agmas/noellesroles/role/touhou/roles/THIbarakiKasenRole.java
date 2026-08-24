@@ -52,6 +52,10 @@ public class THIbarakiKasenRole extends TouhouRole {
                         if (!GameUtils.isPlayerAliveAndSurvival(p)) {
                             sitWolf(wf);
                         }
+                    } else {
+                        if (!wf.isOrderedToSit()) {
+                            sitWolf(wf);
+                        }
                     }
                 }
             }
@@ -152,13 +156,9 @@ public class THIbarakiKasenRole extends TouhouRole {
         Wolf wolf = EntityType.WOLF.create(owner.serverLevel());
         wolf.setPos(pos);
         wolf.addTag("sre.kasen");
-        wolf.setInvulnerable(true);
-        wolf.setOrderedToSit(true);
-        wolf.setJumping(false);
-        wolf.getNavigation().stop();
-        wolf.setTarget(null);
         owner.level().addFreshEntity(wolf);
-        wolf.setOwnerUUID(owner.getUUID());
+        wolf.tame(owner);
+        sitWolf(wolf);
         tickTime.put(wolf.getUUID(), GameUtils.getTicksFromGameStart(owner.level()) + WOLF_DISAPEAR_TICKS);
         return wolf;
     }

@@ -826,7 +826,7 @@ public class ModRoles {
      * 警长 / 鬼眼·杨间 共用：在尚未通过完成两个任务解锁左轮手枪、且身上也没有左轮手枪时死亡，
      * 于死亡位置掉落一把左轮手枪。
      */
-    private static void dropUnearnedRevolverOnDeath(Player victim, SRERole role) {
+    public static void dropUnearnedRevolverOnDeath(Player victim, SRERole role) {
         if (!(victim instanceof ServerPlayer sp))
             return;
         if (role.hasReceivedTaskReward(sp.getUUID()))

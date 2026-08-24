@@ -16,10 +16,14 @@
 package org.agmas.noellesroles.mixin;
 
 import io.wifi.starrailexpress.SRE;
+import io.wifi.starrailexpress.cca.SREAbilityPlayerComponent;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
+import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import org.agmas.noellesroles.component.ModComponents;
+import org.agmas.noellesroles.role.touhou.THMiscRoles;
+import org.agmas.noellesroles.utils.RoleUtils;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -40,6 +44,17 @@ public class EntityMixinForInvisible {
         // 只处理：自身是玩家 && 自身有隐身效果 && 观察者是旁观模式
         if (!(self instanceof Player viewee))
             return;
+        if (RoleUtils.isPlayerTheJob(viewer, THMiscRoles.KONPAKU_YOUMU)) {
+            if (SREAbilityPlayerComponent.KEY.get(viewer).status == 1) {
+                if (viewee.isInvisible() || viewee.hasEffect(MobEffects.INVISIBILITY)) {
+                    cir.setReturnValue(false);
+                    return;
+                } else {
+                    cir.setReturnValue(true);
+                    return;
+                }
+            }
+        }
         if (!viewee.isInvisible())
             return;
         if (viewer.isCreative() && viewer.hasPermissions(2)) {

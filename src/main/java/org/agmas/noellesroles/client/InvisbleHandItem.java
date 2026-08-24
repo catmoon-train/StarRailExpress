@@ -74,6 +74,20 @@ public class InvisbleHandItem {
             return null; // 不修改
         });
 
+        // 妖梦
+        
+        AllowItemShowInHand.EVENT.register((player, itemStack, mainHand) -> {
+            if (!mainHand)
+                return null;
+            SREGameWorldComponent gameWorld = SREGameWorldComponent.KEY.get(player.level());
+            if (gameWorld.isRole(player, THMiscRoles.KONPAKU_YOUMU) && !mainHand) {
+                if(player.getMainHandItem().is(ModItems.YOUMU_SWORD)){
+                    return ModItems.YOUMU_SWORD.getDefaultInstance();
+                }
+            }
+
+            return null; // 不修改
+        });
         // HoujuuNue
         AllowItemShowInHand.EVENT.register((player, itemStack, mainHand) -> {
             if (!mainHand)

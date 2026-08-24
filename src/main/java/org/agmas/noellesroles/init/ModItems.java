@@ -38,6 +38,7 @@ import net.minecraft.world.item.component.ItemLore;
 import org.agmas.noellesroles.Noellesroles;
 import org.agmas.noellesroles.content.item.*;
 import org.agmas.noellesroles.role.ModRoles;
+import org.agmas.noellesroles.role.touhou.roles.THKonpakuYoumuRole;
 import org.agmas.noellesroles.content.item.charge_item.*;
 
 import java.util.HashMap;
@@ -316,7 +317,8 @@ public class ModItems {
             "fake_lockpick", TOOLS_GROUP);
 
     public static final Item SRE_MINECART = register(
-            new SREMinecartItem(AbstractMinecart.Type.RIDEABLE, new Item.Properties().stacksTo(1).durability(3)),
+            new SREMinecartItem(AbstractMinecart.Type.RIDEABLE,
+                    new Item.Properties().stacksTo(1).durability(3)),
             "sre_minecart", TOOLS_GROUP);
     public static final Item INFERIOR_LOCKPICK = register(
             new InferiorLockpickItem(new Item.Properties().stacksTo(1).durability(3)),
@@ -412,7 +414,8 @@ public class ModItems {
 
     /** 燃烧弹：右键投掷，落点形成半径4燃烧区域，持续站立2秒即死亡 */
     public static final Item INCENDIARY_GRENADE = register(
-            new org.agmas.noellesroles.content.item.IncendiaryGrenadeItem(new Item.Properties().stacksTo(8)),
+            new org.agmas.noellesroles.content.item.IncendiaryGrenadeItem(
+                    new Item.Properties().stacksTo(8)),
             "incendiary_grenade", WEAPONS_GROUP);
 
     /** 粘液弹：右键投掷，落点形成半径4粘液区域，范围内无法跳跃+缓慢III */
@@ -833,7 +836,8 @@ public class ModItems {
             new org.agmas.noellesroles.content.item.DreamDiamondSwordItem(
                     new Item.Properties().stacksTo(1).durability(12)
                             // 与原版钻石剑完全一致：攻击力 3+4=7、攻速 -2.4
-                            .attributes(SwordItem.createAttributes(Tiers.DIAMOND, 3, -2.4F))),
+                            .attributes(SwordItem.createAttributes(Tiers.DIAMOND, 3,
+                                    -2.4F))),
             "dream_diamond_sword", ROLE_ITEMS_GROUP, WEAPONS_GROUP);
     /**
      * Dream 的重锤
@@ -1219,6 +1223,13 @@ public class ModItems {
                     new Item.Properties().stacksTo(1)
                             .attributes(AxeItem.createAttributes(Tiers.WOOD, 0.0F, -3.0F))),
             "scarlet_perception_sword", ROLE_ITEMS_GROUP, WEAPONS_GROUP);
+
+    public static final Item YOUMU_SWORD = register(
+            new ScarletPerceptionSwordItem(
+                    new Item.Properties().stacksTo(1)
+                            .attributes(THKonpakuYoumuRole.createYoumuSwordAttributes())),
+            "youmu_sword", ROLE_ITEMS_GROUP, WEAPONS_GROUP);
+
     public static final ItemStack ExamplerPsychoItemStack = TMMItems.PSYCHO_MODE.getDefaultInstance();
     public static Map<Item, Integer> ITEM_COOLDOWNS = new HashMap<>();
 
