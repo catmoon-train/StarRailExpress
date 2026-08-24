@@ -2850,6 +2850,7 @@
   "skill.noellesroles.seija.upside_down": "颠倒一切！",
   "skill.noellesroles.konpaku_youmu.ghost": "进入幽灵状态",
   "skill.noellesroles.konpaku_youmu.ghost.leave": "退出幽灵状态",
+  "skill.noellesroles.konpaku_youmu.ghost.leave.fail": "你不在幽灵状态",
   "skill.noellesroles.konpaku_youmu.ghost.tip": "你已%s",
   "skill.noellesroles.unable_to_use_exited": "无法使用技能：你退出重进过",
   "skill.noellesroles.utsuho.triggered": "%s: 成功辐射了 %s 人！它们若无法接触水源将在 %ss 后死亡！",

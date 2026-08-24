@@ -100,6 +100,10 @@ public class THKonpakuYoumuRole extends TouhouRole {
     }
 
     private void tickGhost(ServerPlayer player) {
+        final var cca = SREAbilityPlayerComponent.KEY.get(player);
+        if (cca.duration <= 0) {
+            exitGhost(player);
+        }
         if (player.level().getGameTime() % 40 == 4) {
             giveEffetcs(player);
         }
@@ -128,13 +132,21 @@ public class THKonpakuYoumuRole extends TouhouRole {
     }
 
     public static void exitGhost(ServerPlayer player) {
+        final var cca = SREAbilityPlayerComponent.KEY.get(player);
+        if (cca.status < 1) {
+            player.displayClientMessage(Component
+                    .translatable("skill.noellesroles.konpaku_youmu.ghost.leave.fail")
+                    .withStyle(ChatFormatting.RED), true);
+            return;
+        }
         player.removeEffect(MobEffects.INVISIBILITY);
         player.removeEffect(ModEffects.USED_BANED);
-        
+
         player.displayClientMessage(Component
                 .translatable("skill.noellesroles.konpaku_youmu.ghost.tip",
                         Component.translatable("skill.noellesroles.konpaku_youmu.ghost.leave"))
                 .withStyle(ChatFormatting.RED), true);
+        cca.status = -1;
     }
 
 }
