@@ -61,6 +61,7 @@
     "client.DefaultPlayerSkinMixin",
     "client.DisconnectedScreenMixin",
     "client.EntityRendererDispatchMixin",
+    "client.effects.EntityRendererInvisibleMixin",
     "client.GameNarratorMixin",
     "client.GameRendererMixin",
     "client.ItemInHandRendererMixin",

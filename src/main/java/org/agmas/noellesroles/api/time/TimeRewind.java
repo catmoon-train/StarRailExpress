@@ -142,6 +142,9 @@ public final class TimeRewind {
      * {@link #smoothRestore(ServerPlayer, TimeRewindSnapshot, int, Consumer)}.
      */
     public static TimeRewindResult restore(ServerPlayer player, TimeRewindSnapshot snapshot) {
+        if (player == null || snapshot == null)
+            return new TimeRewindResult(0, List.of());
+
         initialize();
         Objects.requireNonNull(player, "player");
         Objects.requireNonNull(snapshot, "snapshot");

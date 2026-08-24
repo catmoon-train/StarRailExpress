@@ -46,6 +46,9 @@ public class FunnyItems {
     public static final Item PROBLEM_SET = register(
             new ProblemSetItem(new Item.Properties().stacksTo(1)),
             "problem_set");
+    public static final Item DOREMY_GHOST = register(
+            new DoremyGhostItem(new Item.Properties().stacksTo(1).food(Foods.APPLE)),
+            "doremy_ghost");
     // 彩虹马蹄铁 - 召唤海曼彩虹马从天而降
     public static final Item RAINBOW_HORSESHOE = register(
             new RainbowHorseshoeItem(new Item.Properties().stacksTo(1)),

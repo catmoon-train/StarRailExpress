@@ -16,6 +16,7 @@
 package org.agmas.noellesroles.role.touhou;
 
 import org.agmas.noellesroles.role.touhou.roles.*;
+import org.agmas.noellesroles.role_data.killer.DoremyRoleData;
 import org.agmas.noellesroles.role_data.killer.HoujuuNueRoleData;
 import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.api.TMMRoles;
@@ -132,14 +133,21 @@ public class THMiscRoles {
             .setDefaultEnableNeededPlayerCount(12)
             .setDefaultEnableChance(5000);
 
-    //魂魄妖梦 Konpaku Youmu
+    // 魂魄妖梦 Konpaku Youmu
     public static SRERole KONPAKU_YOUMU = TMMRoles.registerRole(new THKonpakuYoumuRole(id("konpaku_youmu"),
-            new Color(216, 158, 159).getRGB(), true, false, MoodType.REAL, TMMRoles.CIVILIAN_MAX_SPRINT_TICKS, false))
+            new Color(170, 152, 151).getRGB(), true, false, MoodType.REAL, TMMRoles.CIVILIAN_MAX_SPRINT_TICKS, false))
             .setDefaultEnableNeededPlayerCount(12)
             .setDefaultEnableChance(5000)
             .setVigilanteTeam(true)
             .setSpecialPolice(true)
             .setCanPickUpRevolver(true);
+
+    // 哆来咪 Doremy
+    public static SRERole DOREMY = TMMRoles.registerRole(new THDoremyRole(id("doremy_sweet"),
+            new Color(169, 80, 101).getRGB(), false, true, MoodType.FAKE, Integer.MAX_VALUE, true))
+            .setDefaultEnableNeededPlayerCount(12)
+            .setDefaultEnableChance(2000)
+            .setRoleData(DoremyRoleData::new);
 
     public static void init() {
     }

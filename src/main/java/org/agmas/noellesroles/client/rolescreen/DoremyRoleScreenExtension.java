@@ -22,7 +22,9 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.multiplayer.PlayerInfo;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.network.chat.Component;
-import org.agmas.noellesroles.client.widget.ShikieikiPlayerWidget;
+import net.minecraft.world.level.GameType;
+
+import org.agmas.noellesroles.client.widget.DoremyPlayerWidget;
 import org.agmas.noellesroles.role.touhou.THMiscRoles;
 
 import java.awt.Color;
@@ -33,9 +35,9 @@ import java.util.stream.Collectors;
 /**
  * 四季映姬背包界面扩展：在背包界面列出可审判的玩家（UUID 列表）。
  */
-public final class ShikieikiRoleScreenExtension extends PlayerListRoleScreenExtension<UUID> {
+public final class DoremyRoleScreenExtension extends PlayerListRoleScreenExtension<UUID> {
 
-    public ShikieikiRoleScreenExtension() {
+    public DoremyRoleScreenExtension() {
     }
 
     @Override
@@ -43,7 +45,7 @@ public final class ShikieikiRoleScreenExtension extends PlayerListRoleScreenExte
         RoleScreenHelper<UUID> h = new RoleScreenHelper<>(
                 player,
                 THMiscRoles.SHIKIEIKI,
-                this::createShikieikiWidget,
+                this::createDoremyWidget,
                 TEXT_PROVIDER,
                 this::drawVoodooTip,
                 this::getEligiblePlayers);
@@ -56,7 +58,7 @@ public final class ShikieikiRoleScreenExtension extends PlayerListRoleScreenExte
         return info == null ? "" : info.getProfile().getName();
     }
 
-    private ShikieikiPlayerWidget createShikieikiWidget(LimitedInventoryScreen screen, int x, int y, UUID playerUUID,
+    private DoremyPlayerWidget createDoremyWidget(LimitedInventoryScreen screen, int x, int y, UUID playerUUID,
             int index) {
         Minecraft client = Minecraft.getInstance();
         if (client.player == null) {
@@ -68,7 +70,7 @@ public final class ShikieikiRoleScreenExtension extends PlayerListRoleScreenExte
             return null;
         }
 
-        ShikieikiPlayerWidget widget = new ShikieikiPlayerWidget(
+        DoremyPlayerWidget widget = new DoremyPlayerWidget(
                 screen, x, y, playerUUID, playerListEntry, client.player.level(), index);
         screen.addRoleWidget(widget);
         return widget;
@@ -79,8 +81,8 @@ public final class ShikieikiRoleScreenExtension extends PlayerListRoleScreenExte
         if (client.player == null) {
             return;
         }
-        {
-            Component text = Component.translatable("hud.shikieiki.tip");
+         {
+            Component text = Component.translatable("hud.doremy.tip");
             int textWidth = client.font.width(text);
             context.drawString(client.font, text,
                     point.x - textWidth / 2, point.y + 40, Color.RED.getRGB());
@@ -94,10 +96,9 @@ public final class ShikieikiRoleScreenExtension extends PlayerListRoleScreenExte
         }
 
         return client.player.connection.getOnlinePlayerIds().stream()
-                .filter(uuid -> !uuid.equals(client.player.getUUID()))
                 .filter(uuid -> {
                     PlayerInfo entry = client.player.connection.getPlayerInfo(uuid);
-                    return entry != null;
+                    return entry != null && entry.getGameMode().equals(GameType.ADVENTURE);
                 })
                 .collect(Collectors.toList());
     }

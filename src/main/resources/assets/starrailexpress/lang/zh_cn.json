@@ -2951,5 +2951,6 @@
     "replay.event.diviner.divination": "\u00a7d🔮\u00a7r %s 成功占卜了一具尸体",
     "replay.event.money_grubber.take": "\u00a7b💰\u00a7r %s 被 %s 敛财了 %s 金币",
     "replay.event.fortuneteller": "\u00a7b🛡️\u00a7r %s 保护了 %s",
+    "replay.event.doremy_dream": "\u00a73🕛\u00a7r %s 进入了梦境，时长 %ss",
     "== 文件末尾 END ==": ""
 }

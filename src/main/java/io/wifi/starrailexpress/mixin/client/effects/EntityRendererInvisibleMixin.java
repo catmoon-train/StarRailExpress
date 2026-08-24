@@ -20,7 +20,6 @@ import io.wifi.starrailexpress.client.SREClient;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.culling.Frustum;
 import net.minecraft.client.renderer.entity.EntityRenderer;
-import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 
@@ -35,7 +34,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
  * 处理隐身渲染
  */
 @Mixin(EntityRenderer.class)
-public class InvisiblePlayer {
+public class EntityRendererInvisibleMixin {
 
     @Inject(method = "shouldRender", at = @At("HEAD"), cancellable = true)
     private void hideInvisiblePlayer(Entity entity, Frustum frustum, double x, double y, double z,
@@ -56,12 +55,10 @@ public class InvisiblePlayer {
                         return;
                     } else {
                         cir.setReturnValue(false);
+                        return;
                     }
                 }
             }
-            if (player.hasEffect(MobEffects.INVISIBILITY) || player.isInvisible())
-                // 完全隐身，其他玩家看不到
-                cir.setReturnValue(false);
         }
     }
 }

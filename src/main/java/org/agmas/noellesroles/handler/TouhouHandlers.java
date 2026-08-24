@@ -68,6 +68,7 @@ import org.agmas.noellesroles.role.touhou.roles.THReimuRole;
 import org.agmas.noellesroles.role.touhou.roles.THRemiliaRole;
 import org.agmas.noellesroles.role.touhou.roles.THSuikaRole;
 import org.agmas.noellesroles.role.touhou.roles.THUtsuhoRole;
+import org.agmas.noellesroles.role_data.killer.DoremyRoleData;
 import org.agmas.noellesroles.utils.MCItemsUtils;
 import org.agmas.noellesroles.utils.RoleUtils;
 
@@ -126,6 +127,7 @@ public class TouhouHandlers {
   public static void registerEvents() {
     // 大小姐仆从不能杀蕾米莉亚
     THIbarakiKasenRole.registerEvents();
+    DoremyRoleData.registerEvents();
     AllowPlayerDeathWithKiller.EVENT.register((victim, killer, deathreason) -> {
       if (killer == null)
         return true;
@@ -297,7 +299,7 @@ public class TouhouHandlers {
         RoleSkill.skill(SRE.id("konpaku_youmu/leave"), "skill.noellesroles.konpaku_youmu.ghost.leave", (ctx) -> {
           THKonpakuYoumuRole.exitGhost(ctx.player());
           return true;
-        }).cooldownSeconds(2).shifted(true).noAnnouncement().recordReplay().showOnHud(true).build());
+        }).cooldownSeconds(2).shifted(true).noAnnouncement().showOnHud(true).build());
     RoleSkill.register(THMiscRoles.MAMIZOU,
         RoleSkill.skill(SRE.id("mamizou_select"), "skill.noellesroles.mamizou_select", THMamizouRole::handleSelect)
             .noAnnouncement()

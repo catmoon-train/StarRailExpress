@@ -38,6 +38,7 @@ import org.agmas.noellesroles.content.entity.WheelchairEntity;
 import org.agmas.noellesroles.role_data.vigilante.GhostEyeRoleData;
 import org.agmas.noellesroles.role_data.innocence.AdventurerRoleData;
 import org.agmas.noellesroles.role_data.innocence.JadeGeneralRoleData;
+import org.agmas.noellesroles.role_data.killer.DoremyRoleData;
 import org.agmas.noellesroles.role_data.killer.ImitatorRoleData;
 import org.agmas.noellesroles.role_data.neutral.RavenRoleData;
 import org.agmas.noellesroles.role_data.innocence.RecallerRoleData;
@@ -49,6 +50,7 @@ import org.agmas.noellesroles.init.ModEffects;
 import org.agmas.noellesroles.init.ModItems;
 import org.agmas.noellesroles.packet.ProblemScreenOpenC2SPacket;
 import org.agmas.noellesroles.role.ModRoles;
+import org.agmas.noellesroles.role.touhou.THMiscRoles;
 import org.agmas.noellesroles.role.touhou.THRedHouseRoles;
 import org.agmas.noellesroles.role_data.vigilante.HoanMeirinRoleData;
 import org.agmas.noellesroles.utils.RoleUtils;
@@ -472,6 +474,26 @@ public class AbilityHandler {
         if (!possessed && player.hasEffect(ModEffects.SKILL_BANED)) {
             return;
         }
+        if (gameWorldComponent.isRole(player, THMiscRoles.DOREMY)) {
+            if (targetUUID == null)
+                return;
+            var cca = RoleData.getNullable(DoremyRoleData.class, player);
+            if (cca == null || cca.cooldownForDoremyDream > 0) {
+                return;
+            }
+            Player target = player.level().getPlayerByUUID(targetUUID);
+            if (!(target instanceof ServerPlayer sp))
+                return;
+            if (DoremyRoleData.tryDream(sp, 30 * 20)) {
+                player.displayClientMessage(
+                        Component.translatable("skill.noellesroles.doremy_dream.success", sp.getName())
+                                .withStyle(ChatFormatting.GREEN),
+                        true);
+                cca.cooldownForDoremyDream = 120 * 20;
+                cca.sync();
+            }
+            return;
+        }
         if (gameWorldComponent.isRole(player, ModRoles.EXAMPLER)) {
             if (targetUUID == null)
                 return;
@@ -496,9 +518,9 @@ public class AbilityHandler {
             abilityPlayerComponent.setCooldown(90 * 20);
             // 回放记录：小镇做题家发放习题
             SRE.REPLAY_MANAGER.recordCustomEvent(
-                Component.translatable("replay.event.testmaker.assign_exam",
-                    GameReplayUtils.getReplayPlayerDisplayText(player, true),
-                    GameReplayUtils.getReplayPlayerDisplayText(sp, true)));
+                    Component.translatable("replay.event.testmaker.assign_exam",
+                            GameReplayUtils.getReplayPlayerDisplayText(player, true),
+                            GameReplayUtils.getReplayPlayerDisplayText(sp, true)));
             return;
         }
         if (gameWorldComponent.isRole(player, ModRoles.IMITATOR)) {

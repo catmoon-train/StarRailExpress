@@ -48,5 +48,6 @@ public final class RoleScreenRegister {
         ModRoles.WARLOCK.setInventoryScreenExtensionFactory(WarlockRoleScreenExtension::new);
         ModRoles.EXECUTIONER.setInventoryScreenExtensionFactory(ExecutionerRoleScreenExtension::new);
         ModRoles.WIZARD.setInventoryScreenExtensionFactory(WizardRoleScreenExtension::new);
+        THMiscRoles.DOREMY.setInventoryScreenExtensionFactory(DoremyRoleScreenExtension::new);
     }
 }
