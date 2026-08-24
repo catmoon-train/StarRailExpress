@@ -44,7 +44,7 @@ public final class DoremyRoleScreenExtension extends PlayerListRoleScreenExtensi
     protected RoleScreenHelper<UUID> createHelper(LocalPlayer player) {
         RoleScreenHelper<UUID> h = new RoleScreenHelper<>(
                 player,
-                THMiscRoles.SHIKIEIKI,
+                THMiscRoles.DOREMY,
                 this::createDoremyWidget,
                 TEXT_PROVIDER,
                 this::drawVoodooTip,
@@ -81,7 +81,7 @@ public final class DoremyRoleScreenExtension extends PlayerListRoleScreenExtensi
         if (client.player == null) {
             return;
         }
-         {
+        {
             Component text = Component.translatable("hud.doremy.tip");
             int textWidth = client.font.width(text);
             context.drawString(client.font, text,
@@ -95,11 +95,18 @@ public final class DoremyRoleScreenExtension extends PlayerListRoleScreenExtensi
             return List.of();
         }
 
-        return client.player.connection.getOnlinePlayerIds().stream()
-                .filter(uuid -> {
-                    PlayerInfo entry = client.player.connection.getPlayerInfo(uuid);
-                    return entry != null && entry.getGameMode().equals(GameType.ADVENTURE);
+        return client.player.connection.getOnlinePlayers().stream()
+                .filter(info -> {
+                    if (info == null)
+                        return false;
+                    if (info.getProfile() == null)
+                        return false;
+                    if (info.getGameMode() != GameType.ADVENTURE) {
+                        return false;
+                    }
+                    return true;
                 })
+                .map((info) -> info.getProfile().getId())
                 .collect(Collectors.toList());
     }
 }
