@@ -37,12 +37,13 @@ RoleData实例类：可以extends SimpleRoleData，或是 implements RoleData
 - 不要用 mixin 直接改 `LimitedInventoryScreen`！请使用事件或 SRERole 钩子。
 - 事件（纯客户端）：`io.wifi.starrailexpress.event.client.LimitedInventoryScreenEvents`
   （INIT / INIT_TAIL / RENDER / RENDER_TAIL），非职业扩展（如 modifier）用。
-- 职业扩展：SRERole 上的
-  `.setInventoryScreenInitHandler(客户端函数)` /
-  `.setInventoryScreenInitTailHandler(客户端函数)` /
-  `.setInventoryScreenRenderHandler(客户端函数)`
-  在客户端注册（如 NoellesrolesClient.onInitializeClient），钩子调用时内部会先判断运行环境
-  （`FabricLoader.getInstance().getEnvironmentType().equals(EnvType.CLIENT)`），非客户端直接返回。
+- 职业扩展：SRERole 上的 `.setInventoryScreenExtensionFactory(扩展工厂 Supplier)`
+  在客户端注册（如 NoellesrolesClient.onInitializeClient 调用的 RoleScreenRegister）。
+  每次打开背包会创建**新的扩展实例**（实例字段随打开重置，避免状态固定；需要跨次保留的状态用 static）。
+  扩展类实现 `io.wifi.starrailexpress.client.gui.screen.ingame.RoleInventoryScreenExtension`
+  接口并覆写钩子（onInventoryScreenInit / onInventoryScreenInitTail / onInventoryScreenRender）。
+  创建扩展时内部会先判断运行环境
+  （`FabricLoader.getInstance().getEnvironmentType().equals(EnvType.CLIENT)`），非客户端直接返回 null。
 - 服务端类严禁直接 import 客户端类！需要客户端执行客户端方法时：判别环境后经
   SREClient（客户端入口，允许客户端 only 方法）执行。
 - 轮椅方法：`LimitedInventoryScreen.addRoleWidget/removeRoleWidget/clearRoleWidgets/reinit`（添加组件/重建界面）；

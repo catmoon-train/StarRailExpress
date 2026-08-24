@@ -79,6 +79,9 @@ public class LimitedInventoryScreen extends LimitedHandledScreen<InventoryMenu> 
 
     public final LocalPlayer player;
 
+    /** 本次打开背包时创建的职业扩展实例（每次打开新建；resize/reinit 复用同一实例）。 */
+    private RoleInventoryScreenExtension roleExtension = null;
+
     public LimitedInventoryScreen(@NotNull LocalPlayer player) {
         super(player.inventoryMenu, player.getInventory(), Component.empty());
         this.player = player;
@@ -269,8 +272,11 @@ public class LimitedInventoryScreen extends LimitedHandledScreen<InventoryMenu> 
     protected void init() {
         LimitedInventoryScreenEvents.INIT.invoker().onInit(this);
         var initRole = getCurrentRole();
-        if (initRole != null) {
-            initRole.onInventoryScreenInit(this);
+        if (roleExtension == null && initRole != null) {
+            roleExtension = initRole.createInventoryScreenExtension();
+        }
+        if (roleExtension != null) {
+            roleExtension.onInventoryScreenInit(this);
         }
         super.init();
         initMenuSelections();
@@ -319,8 +325,8 @@ public class LimitedInventoryScreen extends LimitedHandledScreen<InventoryMenu> 
         initWaitingMenu();
 
         updateWaitingMenuVisibility();
-        if (initRole != null) {
-            initRole.onInventoryScreenInitTail(this);
+        if (roleExtension != null) {
+            roleExtension.onInventoryScreenInitTail(this);
         }
         LimitedInventoryScreenEvents.INIT_TAIL.invoker().onInit(this);
     }
@@ -634,9 +640,8 @@ public class LimitedInventoryScreen extends LimitedHandledScreen<InventoryMenu> 
     @Override
     public void render(GuiGraphics context, int mouseX, int mouseY, float delta) {
         LimitedInventoryScreenEvents.RENDER.invoker().onRender(this, context, mouseX, mouseY, delta);
-        var renderRole = getCurrentRole();
-        if (renderRole != null) {
-            renderRole.onInventoryScreenRender(this, context, mouseX, mouseY, delta);
+        if (roleExtension != null) {
+            roleExtension.onInventoryScreenRender(this, context, mouseX, mouseY, delta);
         }
         super.render(context, mouseX, mouseY, delta);
         renderOverlayMessageOnScreen(context, mouseX, mouseY, delta);

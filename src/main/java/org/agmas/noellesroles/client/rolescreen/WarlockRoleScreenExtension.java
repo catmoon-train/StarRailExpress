@@ -37,9 +37,8 @@ import java.util.stream.Collectors;
  * 咒术师·领域展开背包界面扩展：列出"已被诅咒且存活"的候选玩家，点选即对其展开领域。
  */
 public final class WarlockRoleScreenExtension extends PlayerListRoleScreenExtension<PlayerInfo> {
-    public static final WarlockRoleScreenExtension INSTANCE = new WarlockRoleScreenExtension();
 
-    private WarlockRoleScreenExtension() {
+    public WarlockRoleScreenExtension() {
     }
 
     @Override

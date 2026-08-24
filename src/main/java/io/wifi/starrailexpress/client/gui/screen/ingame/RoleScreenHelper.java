@@ -32,8 +32,8 @@ import java.util.function.Supplier;
  * 角色背包界面辅助类：处理角色专用选人列表的通用逻辑——角色激活判断、分页、
  * 玩家名搜索与排序，内部使用 {@link PlayerPaginationHelper}。
  *
- * <p>配合 {@link io.wifi.starrailexpress.api.SRERole} 上的
- * {@code setInventoryScreenInitHandler} 等钩子，在客户端注册使用。
+ * <p>配合 {@link io.wifi.starrailexpress.api.SRERole#setInventoryScreenExtensionFactory} 与
+ * {@link RoleInventoryScreenExtension} 接口，在客户端注册使用。
  */
 public class RoleScreenHelper<T> {
     private final LocalPlayer player;

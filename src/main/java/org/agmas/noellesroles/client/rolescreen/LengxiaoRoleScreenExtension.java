@@ -35,9 +35,8 @@ import java.util.stream.Collectors;
  * 冷霄背包界面扩展：在背包界面列出可施咒的玩家（UUID 列表）。
  */
 public final class LengxiaoRoleScreenExtension extends PlayerListRoleScreenExtension<UUID> {
-    public static final LengxiaoRoleScreenExtension INSTANCE = new LengxiaoRoleScreenExtension();
 
-    private LengxiaoRoleScreenExtension() {
+    public LengxiaoRoleScreenExtension() {
     }
 
     @Override

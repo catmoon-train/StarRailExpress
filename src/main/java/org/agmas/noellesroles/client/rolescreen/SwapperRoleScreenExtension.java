@@ -34,9 +34,8 @@ import java.util.stream.Collectors;
  * 交换者背包界面扩展：在背包界面分两轮列出可交换的玩家。
  */
 public final class SwapperRoleScreenExtension extends PlayerListRoleScreenExtension<PlayerInfo> {
-    public static final SwapperRoleScreenExtension INSTANCE = new SwapperRoleScreenExtension();
 
-    private SwapperRoleScreenExtension() {
+    public SwapperRoleScreenExtension() {
     }
 
     @Override
@@ -84,14 +83,13 @@ public final class SwapperRoleScreenExtension extends PlayerListRoleScreenExtens
         }
 
         return client.getConnection().getListedOnlinePlayers().stream()
-                .filter(a -> a.getProfile().getId() != client.player.getUUID()
-                        && a.getGameMode() == GameType.ADVENTURE)
+                .filter(a -> a.getGameMode() == GameType.ADVENTURE)
                 .collect(Collectors.toList());
     }
 
     @Override
-    public void onInit(LimitedInventoryScreen screen) {
+    public void onInventoryScreenInit(LimitedInventoryScreen screen) {
         SwapperPlayerWidget.playerChoiceOne = null;
-        super.onInit(screen);
+        super.onInventoryScreenInit(screen);
     }
 }

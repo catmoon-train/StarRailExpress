@@ -35,9 +35,8 @@ import java.util.stream.Collectors;
  * 四季映姬背包界面扩展：在背包界面列出可审判的玩家（UUID 列表）。
  */
 public final class ShikieikiRoleScreenExtension extends PlayerListRoleScreenExtension<UUID> {
-    public static final ShikieikiRoleScreenExtension INSTANCE = new ShikieikiRoleScreenExtension();
 
-    private ShikieikiRoleScreenExtension() {
+    public ShikieikiRoleScreenExtension() {
     }
 
     @Override

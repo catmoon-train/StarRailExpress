@@ -18,6 +18,7 @@ package org.agmas.noellesroles.client.rolescreen;
 import io.wifi.starrailexpress.api.data.RoleData;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.client.gui.screen.ingame.LimitedInventoryScreen;
+import io.wifi.starrailexpress.client.gui.screen.ingame.RoleInventoryScreenExtension;
 import io.wifi.starrailexpress.game.GameUtils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.AbstractClientPlayer;
@@ -32,15 +33,14 @@ import java.util.List;
  * 处刑人背包界面扩展：背包界面末尾（init TAIL）列出可选目标的平民玩家。
  * 不使用分页/搜索，保持原版一排按钮的样式。
  */
-public final class ExecutionerRoleScreenExtension {
+public final class ExecutionerRoleScreenExtension implements RoleInventoryScreenExtension {
 
-    public static final ExecutionerRoleScreenExtension INSTANCE = new ExecutionerRoleScreenExtension();
-
-    private ExecutionerRoleScreenExtension() {
+    public ExecutionerRoleScreenExtension() {
     }
 
     /** 背包界面 {@code init()} 末尾调用。 */
-    public void onInitTail(LimitedInventoryScreen screen) {
+    @Override
+    public void onInventoryScreenInitTail(LimitedInventoryScreen screen) {
         // 检查是否启用了手动选择目标功能
         if (!NoellesRolesConfig.HANDLER.instance().executionerCanSelectTarget) {
             return; // 如果未启用，则不显示选择界面

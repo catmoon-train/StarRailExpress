@@ -17,19 +17,21 @@ package org.agmas.noellesroles.client.rolescreen;
 
 import io.wifi.starrailexpress.client.gui.screen.ingame.LimitedInventoryScreen;
 import io.wifi.starrailexpress.client.gui.screen.ingame.PlayerPaginationHelper;
+import io.wifi.starrailexpress.client.gui.screen.ingame.RoleInventoryScreenExtension;
 import io.wifi.starrailexpress.client.gui.screen.ingame.RoleScreenHelper;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.player.LocalPlayer;
 
 /**
- * 背包界面"选人列表"扩展基类：持有 {@link RoleScreenHelper}，在 init/render 时驱动，
- * 默认附带玩家名搜索框 + 按名排序（轮椅方法）。
+ * 背包界面"选人列表"扩展基类：持有 {@link RoleScreenHelper}，默认在 init 开头填充列表
+ * 并挂载玩家名搜索框（含按名排序，轮椅方法）。
  *
- * <p>各职业扩展通过 {@link io.wifi.starrailexpress.api.SRERole} 的
- * {@code setInventoryScreenInitHandler} / {@code setInventoryScreenRenderHandler}
- * 在客户端注册，见 {@code RoleScreenRegister}。
+ * <p>通过 {@link io.wifi.starrailexpress.api.SRERole#setInventoryScreenExtensionFactory}
+ * 在客户端注册工厂（如 {@code ModRoles.AMON.setInventoryScreenExtensionFactory(AmonRoleScreenExtension::new)}），
+ * 每次打开背包创建新的扩展实例。需要 init 末尾（TAIL）执行的子类可覆写
+ * {@link #onInventoryScreenInitTail} 并调用 {@link #initPlayerList}。
  */
-public abstract class PlayerListRoleScreenExtension<T> {
+public abstract class PlayerListRoleScreenExtension<T> implements RoleInventoryScreenExtension {
 
     protected static final PlayerPaginationHelper.PaginationTextProvider TEXT_PROVIDER = new PlayerPaginationHelper.PaginationTextProvider() {
         @Override
@@ -61,14 +63,22 @@ public abstract class PlayerListRoleScreenExtension<T> {
     }
 
     /** 背包界面 {@code init()} 开头调用：填充选人列表并挂载玩家名搜索框。 */
-    public void onInit(LimitedInventoryScreen screen) {
-        RoleScreenHelper<T> h = getHelper(screen.player);
-        h.onInit(screen);
-        h.attachSearchBox(screen);
+    @Override
+    public void onInventoryScreenInit(LimitedInventoryScreen screen) {
+        initPlayerList(screen);
     }
 
     /** 背包界面 {@code render()} 开头调用（每帧）。 */
-    public void onRender(LimitedInventoryScreen screen, GuiGraphics graphics, int mouseX, int mouseY, float delta) {
+    @Override
+    public void onInventoryScreenRender(LimitedInventoryScreen screen, GuiGraphics graphics, int mouseX, int mouseY,
+            float delta) {
         getHelper(screen.player).onRender(graphics, screen);
+    }
+
+    /** 填充选人列表并挂载搜索框（默认在 init 开头调用；需要 init 末尾的子类覆写 TAIL 钩子调用它）。 */
+    protected void initPlayerList(LimitedInventoryScreen screen) {
+        RoleScreenHelper<T> h = getHelper(screen.player);
+        h.onInit(screen);
+        h.attachSearchBox(screen);
     }
 }

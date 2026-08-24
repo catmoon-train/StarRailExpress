@@ -35,12 +35,17 @@ import java.util.stream.Collectors;
 
 /**
  * 巫师"盔甲护身"背包界面扩展：选中该法术时，在背包显示可赋予护盾的玩家列表。
- * 注意：init 在 {@code LimitedInventoryScreen.init()} 末尾（TAIL）触发，见 {@code RoleScreenRegister}。
+ * 列表逻辑放在 {@code LimitedInventoryScreen.init()} 末尾（TAIL）。
  */
 public final class WizardRoleScreenExtension extends PlayerListRoleScreenExtension<PlayerInfo> {
-    public static final WizardRoleScreenExtension INSTANCE = new WizardRoleScreenExtension();
 
-    private WizardRoleScreenExtension() {
+    public WizardRoleScreenExtension() {
+    }
+
+    /** 背包界面 {@code init()} 末尾调用：填充选人列表并挂载搜索框。 */
+    @Override
+    public void onInventoryScreenInitTail(LimitedInventoryScreen screen) {
+        initPlayerList(screen);
     }
 
     @Override

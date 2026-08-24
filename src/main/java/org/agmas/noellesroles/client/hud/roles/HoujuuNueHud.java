@@ -5,10 +5,10 @@ import org.agmas.noellesroles.role.touhou.THMiscRoles;
 import org.agmas.noellesroles.role_data.killer.HoujuuNueRoleData;
 
 import io.wifi.starrailexpress.api.data.RoleData;
+import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.network.chat.Component;
-import net.minecraft.util.CommonColors;
 
 public class HoujuuNueHud {
     public static void register() {
@@ -32,14 +32,14 @@ public class HoujuuNueHud {
             if (roledata.tickCounter > 0) {
                 // 显示技能冷却
                 int cdSeconds = roledata.tickCounter / 20;
-                Component cdText = Component.translatable("hud.houjuu_nue.tip.2", cdSeconds);
-                context.drawString(textRenderer, cdText, x - textRenderer.width(cdText), y, CommonColors.GREEN);
+                Component cdText = Component.translatable("hud.houjuu_nue.tip.2", cdSeconds).withStyle(ChatFormatting.AQUA);
+                context.drawString(textRenderer, cdText, x - textRenderer.width(cdText), y, 0xffffffff);
 
             }
             if (roledata.slownessLayers > 0) {
                 // 技能可用 - 显示金币消耗提示
-                Component cdText = Component.translatable("hud.houjuu_nue.tip.1");
-                context.drawString(textRenderer, cdText, x - textRenderer.width(cdText), y - 10, CommonColors.RED);
+                Component cdText = Component.translatable("hud.houjuu_nue.tip.1").withStyle(ChatFormatting.RED);
+                context.drawString(textRenderer, cdText, x - textRenderer.width(cdText), y - 10, 0xffffffff);
             }
         });
     }

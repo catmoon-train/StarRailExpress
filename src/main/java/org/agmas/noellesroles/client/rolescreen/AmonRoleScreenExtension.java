@@ -36,9 +36,8 @@ import java.util.stream.Collectors;
  * 阿蒙背包界面扩展：在背包界面列出可夺舍的成熟宿主供点选锁定。
  */
 public final class AmonRoleScreenExtension extends PlayerListRoleScreenExtension<PlayerInfo> {
-    public static final AmonRoleScreenExtension INSTANCE = new AmonRoleScreenExtension();
 
-    private AmonRoleScreenExtension() {
+    public AmonRoleScreenExtension() {
     }
 
     @Override
