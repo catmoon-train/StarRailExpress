@@ -293,11 +293,11 @@ public class TouhouHandlers {
         RoleSkill.skill(SRE.id("konpaku_youmu"), "skill.noellesroles.konpaku_youmu.ghost", (ctx) -> {
           THKonpakuYoumuRole.enterGhost(ctx.player());
           return true;
-        }).cooldownSeconds(60).announceToSelf().recordReplay().showOnHud(true).build(),
+        }).cooldownSeconds(60).noAnnouncement().recordReplay().showOnHud(true).build(),
         RoleSkill.skill(SRE.id("konpaku_youmu/leave"), "skill.noellesroles.konpaku_youmu.ghost.leave", (ctx) -> {
           THKonpakuYoumuRole.exitGhost(ctx.player());
           return true;
-        }).shifted(true).announceToSelf().recordReplay().showOnHud(true).build());
+        }).cooldownSeconds(2).shifted(true).noAnnouncement().recordReplay().showOnHud(true).build());
     RoleSkill.register(THMiscRoles.MAMIZOU,
         RoleSkill.skill(SRE.id("mamizou_select"), "skill.noellesroles.mamizou_select", THMamizouRole::handleSelect)
             .noAnnouncement()
