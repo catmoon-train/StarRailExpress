@@ -75,7 +75,6 @@ import java.util.List;
 import java.util.OptionalInt;
 import java.util.Set;
 import java.util.UUID;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Supplier;
 
 /**
@@ -102,9 +101,6 @@ public class LinFamilyRoleData extends SimpleRoleData {
     private static final int MONEY_BIND_COOLDOWN_TICKS = 10 * 20;
     /** 用于金钱禁锢冷却的物品占位符。 */
     private static final Item MONEY_BIND_COOLDOWN_ITEM = Items.GOLD_NUGGET;
-
-    /** 射击瞬间记录哑火结果（枪可能已被一次性消耗）。 */
-    private static final ConcurrentHashMap<UUID, Boolean> PENDING_MISFIRE = new ConcurrentHashMap<>();
 
     private static boolean eventsRegistered = false;
 
@@ -250,7 +246,6 @@ public class LinFamilyRoleData extends SimpleRoleData {
         });
 
         OnRevolverUsed.EVENT.register((shooter, target) -> {
-            PENDING_MISFIRE.remove(shooter.getUUID());
             if (target != null && isLinFamily(target) && GameUtils.isPlayerAliveAndSurvival(target)) {
                 applyInvisibility(target);
             }
@@ -258,10 +253,6 @@ public class LinFamilyRoleData extends SimpleRoleData {
 
         UseItemCallback.EVENT.register((player, world, hand) -> {
             ItemStack stack = player.getItemInHand(hand);
-            if (isMisfireGun(stack)) {
-                PENDING_MISFIRE.put(player.getUUID(), willMisfire(stack));
-                return InteractionResultHolder.pass(stack);
-            }
             if (!stack.is(ModItems.NEWSPAPER) || !hasOfferTag(stack)) {
                 return InteractionResultHolder.pass(stack);
             }
@@ -859,10 +850,6 @@ public class LinFamilyRoleData extends SimpleRoleData {
     }
 
     private static boolean isMisfireShot(Player killer) {
-        Boolean pending = PENDING_MISFIRE.remove(killer.getUUID());
-        if (pending != null) {
-            return pending;
-        }
         return isMisfireGun(killer.getMainHandItem()) && willMisfire(killer.getMainHandItem());
     }
 
