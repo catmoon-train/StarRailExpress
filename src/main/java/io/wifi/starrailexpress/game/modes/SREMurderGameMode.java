@@ -222,7 +222,7 @@ public class SREMurderGameMode extends GameMode {
         worldModifierComponent.getModifiers().clear();
 
         // 使用临时映射存储要添加的修饰符，避免在遍历过程中修改数据结构
-        Map<UUID, List<SREModifier>> tempModifierAssignments = new HashMap<>();
+        Map<UUID, HashSet<SREModifier>> tempModifierAssignments = new HashMap<>();
         int maxModifiersPerPlayer = Math.max(0, HarpyModLoaderConfig.HANDLER.instance().modifierMaximum);
         var allModifiers = new ArrayList<>(HMLModifiers.MODIFIERS);
         int killerMods = (int) allModifiers.stream().filter(modifier -> modifier.killerOnly).count();
@@ -304,15 +304,21 @@ public class SREMurderGameMode extends GameMode {
         }
 
         // 统一将临时存储的修饰符添加到组件中
-        for (Map.Entry<UUID, List<SREModifier>> entry : tempModifierAssignments.entrySet()) {
-            UUID playerUuid = entry.getKey();
-            for (SREModifier mod : entry.getValue()) {
-                var p = serverWorld.getPlayerByUUID(playerUuid);
+        for (Map.Entry<UUID, HashSet<SREModifier>> entry : tempModifierAssignments.entrySet()) {
+            final UUID playerUuid = entry.getKey();
+            final var player = serverWorld.getPlayerByUUID(playerUuid);
+            if (player == null)
+                continue;
+            SRERole role = gameWorldComponent.getRole(playerUuid);
+            final var set = entry.getValue();
+            if (player instanceof ServerPlayer sp)
+                role.onAssignedModifiers(sp, set);
+
+            for (SREModifier mod : set) {
                 worldModifierComponent.addModifier(playerUuid, mod, false);
-                ModifierAssigned.EVENT.invoker().assignModifier(p, mod);
+                ModifierAssigned.EVENT.invoker().assignModifier(player, mod);
             }
         }
-
         // 等所有修饰符都添加完成后，再同步整个组件
         worldModifierComponent.sync();
 
@@ -335,9 +341,9 @@ public class SREMurderGameMode extends GameMode {
         }
     }
 
-    private static boolean addModifierAssignment(Map<UUID, List<SREModifier>> modifierAssignments, UUID playerUuid,
+    private static boolean addModifierAssignment(Map<UUID, HashSet<SREModifier>> modifierAssignments, UUID playerUuid,
             SREModifier modifier) {
-        List<SREModifier> playerModifiers = modifierAssignments.computeIfAbsent(playerUuid, k -> new ArrayList<>());
+        Set<SREModifier> playerModifiers = modifierAssignments.computeIfAbsent(playerUuid, k -> new HashSet<>());
         if (playerModifiers.contains(modifier)) {
             return false;
         }
@@ -346,13 +352,13 @@ public class SREMurderGameMode extends GameMode {
     }
 
     private static boolean canAssignModifierToPlayer(SREModifier modifier, ServerPlayer player,
-            SREGameWorldComponent gameWorldComponent, Map<UUID, List<SREModifier>> modifierAssignments,
+            SREGameWorldComponent gameWorldComponent, Map<UUID, HashSet<SREModifier>> modifierAssignments,
             int maxModifiersPerPlayer) {
         UUID playerUuid = player.getUUID();
         if (getAssignedModifierCount(modifierAssignments, playerUuid) >= maxModifiersPerPlayer) {
             return false;
         }
-        List<SREModifier> playerModifiers = modifierAssignments.get(playerUuid);
+        HashSet<SREModifier> playerModifiers = modifierAssignments.get(playerUuid);
         if (playerModifiers != null) {
             if (playerModifiers.contains(modifier)) {
                 return false;
@@ -379,8 +385,8 @@ public class SREMurderGameMode extends GameMode {
         return true;
     }
 
-    private static int getAssignedModifierCount(Map<UUID, List<SREModifier>> modifierAssignments, UUID playerUuid) {
-        List<SREModifier> playerModifiers = modifierAssignments.get(playerUuid);
+    private static int getAssignedModifierCount(Map<UUID, HashSet<SREModifier>> modifierAssignments, UUID playerUuid) {
+        Set<SREModifier> playerModifiers = modifierAssignments.get(playerUuid);
         return playerModifiers == null ? 0 : playerModifiers.size();
     }
 
@@ -920,7 +926,8 @@ public class SREMurderGameMode extends GameMode {
                         isWinner = true;
                     }
                     if (!isWinner && playerRole.identifier().equals(ModRoles.MERCENARY_ID)) {
-                        var mercenary = io.wifi.starrailexpress.api.data.RoleData.getNullable(MercenaryRoleData.class, player);
+                        var mercenary = io.wifi.starrailexpress.api.data.RoleData.getNullable(MercenaryRoleData.class,
+                                player);
                         if (mercenary != null && mercenary.canFollowFactionWin(winStatus)) {
                             isWinner = true;
                         }
@@ -956,7 +963,8 @@ public class SREMurderGameMode extends GameMode {
                     if (playerRole.winWithInnocent())
                         isWinner = true;
                     if (!isWinner && playerRole.identifier().equals(ModRoles.MERCENARY_ID)) {
-                        var mercenary = io.wifi.starrailexpress.api.data.RoleData.getNullable(MercenaryRoleData.class, player);
+                        var mercenary = io.wifi.starrailexpress.api.data.RoleData.getNullable(MercenaryRoleData.class,
+                                player);
                         if (mercenary != null && mercenary.canFollowFactionWin(winStatus)) {
                             isWinner = true;
                         }

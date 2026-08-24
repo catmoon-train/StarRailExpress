@@ -1170,6 +1170,14 @@ public abstract class SRERole extends SREAbstractInfoClass {
         clearTaskRewardTracking(serverPlayer.getUUID());
     }
 
+    /**
+     * 当赋予modifier时调用，如果需要操作modifiers列表可以直接操纵，不需要同步，也不需要调用WorldModifierComponent的sync
+     * @param player
+     * @param modifiers
+     */
+    public void onAssignedModifiers(ServerPlayer player, Set<SREModifier> modifiers){
+    };
+
     public static SREAbilityPlayerComponent getAbilityComponent(Player player) {
         return SREAbilityPlayerComponent.KEY.get(player);
     }

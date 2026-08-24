@@ -19,6 +19,7 @@ import org.agmas.noellesroles.role.touhou.roles.*;
 
 import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.api.TMMRoles;
+import io.wifi.starrailexpress.api.SRERole.MoodType;
 import io.wifi.starrailexpress.cca.SREPlayerShopComponent;
 import io.wifi.starrailexpress.util.Color;
 import net.minecraft.resources.ResourceLocation;
@@ -34,9 +35,9 @@ public class THMiscRoles {
   // 可以考虑和阴谋配合
   public static final ResourceLocation MAMIZOU_ID = id("futatuiwa_mamizou");
   public static SRERole MAMIZOU = TMMRoles
-      .registerRole(new THMamizouRole(MAMIZOU_ID, new Color(113,81,71).getRGB(),
+      .registerRole(new THMamizouRole(MAMIZOU_ID, new Color(113, 81, 71).getRGB(),
           false, true, SRERole.MoodType.FAKE,
-         Integer.MAX_VALUE, true))
+          Integer.MAX_VALUE, true))
       .setDefaultMax(1)
       .setDefaultEnableNeededPlayerCount(12)
       .setDefaultEnableChance(5000);
@@ -110,6 +111,9 @@ public class THMiscRoles {
           SREPlayerShopComponent.KEY.get(player).addToBalance(50);
         }
       });
+
+  public static SRERole HOUJUU_NUE = TMMRoles.registerRole(new THHoujuuNueRole(id("houjuu_nue"),
+      new Color(87, 78, 99).getRGB(), false, true, MoodType.FAKE, Integer.MAX_VALUE, true));
 
   public static void init() {
   }
