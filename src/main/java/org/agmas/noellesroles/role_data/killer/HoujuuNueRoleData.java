@@ -51,19 +51,18 @@ public class HoujuuNueRoleData extends SimpleRoleData {
 
     @Override
     public void writeToSyncNbt(CompoundTag tag, Provider registryLookup) {
-        slownessLayers = getIntTag(tag, "slownessLayers", 0);
-        tickCounter = getIntTag(tag, "tickCounter", REMOVE_LAYER_TICKS);
-    }
-
-    @Override
-    public void readFromSyncNbt(CompoundTag tag, Provider registryLookup) {
         tag.putInt("slownessLayers", slownessLayers);
         tag.putInt("tickCounter", tickCounter);
     }
 
+    @Override
+    public void readFromSyncNbt(CompoundTag tag, Provider registryLookup) {
+        slownessLayers = getIntTag(tag, "slownessLayers", 0);
+        tickCounter = getIntTag(tag, "tickCounter", REMOVE_LAYER_TICKS);
+    }
+
     public void addLayers() {
         this.slownessLayers++;
-        SRE.LOGGER.info("slownesslayers {}",slownessLayers);
         if (this.slownessLayers > 5)
             slownessLayers = 5;
         sync();
