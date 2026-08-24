@@ -47,7 +47,8 @@ public class VoodooRoleData extends SimpleRoleData {
     }
 
     public void writeToSyncNbt(@NotNull CompoundTag tag, HolderLookup.Provider registryLookup) {
-        tag.putUUID("target", player.getUUID());
+        if (target != null)
+            tag.putUUID("target", target);
     }
 
     public void readFromSyncNbt(@NotNull CompoundTag tag, HolderLookup.Provider registryLookup) {
