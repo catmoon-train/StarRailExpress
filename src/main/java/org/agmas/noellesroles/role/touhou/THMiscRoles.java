@@ -145,8 +145,9 @@ public class THMiscRoles {
     // 哆来咪 Doremy
     public static SRERole DOREMY = TMMRoles.registerRole(new THDoremyRole(id("doremy_sweet"),
             new Color(169, 80, 101).getRGB(), false, true, MoodType.FAKE, Integer.MAX_VALUE, true))
-            .setDefaultEnableNeededPlayerCount(12)
+            .setDefaultEnableNeededPlayerCount(16)
             .setDefaultEnableChance(500)
+            .setOccupiedRoleCount(2)
             .setRoleData(DoremyRoleData::new);
 
     public static void init() {
