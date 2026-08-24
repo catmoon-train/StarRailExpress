@@ -89,7 +89,7 @@ public class HoujuuNueRoleData extends SimpleRoleData {
         if (this.slownessLayers >= 3) {
             if (shouldGiveEffect(MobEffects.GLOWING))
                 this.player.addEffect(ModEffects.of(MobEffects.GLOWING, 20 * 30, 1,
-                        false, false, true));
+                        false, true, true));
         }
     }
 
