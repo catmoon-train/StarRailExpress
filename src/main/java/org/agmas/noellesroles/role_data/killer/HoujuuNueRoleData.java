@@ -2,7 +2,6 @@ package org.agmas.noellesroles.role_data.killer;
 
 import org.agmas.noellesroles.init.ModEffects;
 
-import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.api.data.RoleDataContext;
 import io.wifi.starrailexpress.api.impl.SimpleRoleData;
 import net.minecraft.core.Holder;

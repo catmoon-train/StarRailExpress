@@ -30,15 +30,15 @@ public class HoujuuNueHud {
             Font textRenderer = client.font;
 
             if (roledata.tickCounter > 0) {
-                // 显示技能冷却
                 int cdSeconds = roledata.tickCounter / 20;
-                Component cdText = Component.translatable("hud.houjuu_nue.tip.2", cdSeconds).withStyle(ChatFormatting.AQUA);
+                Component cdText = Component.translatable("hud.houjuu_nue.tip.2", cdSeconds)
+                        .withStyle(ChatFormatting.AQUA);
                 context.drawString(textRenderer, cdText, x - textRenderer.width(cdText), y, 0xffffffff);
 
             }
             if (roledata.slownessLayers > 0) {
-                // 技能可用 - 显示金币消耗提示
-                Component cdText = Component.translatable("hud.houjuu_nue.tip.1").withStyle(ChatFormatting.RED);
+                Component cdText = Component.translatable("hud.houjuu_nue.tip.1", roledata.slownessLayers)
+                        .withStyle(ChatFormatting.RED);
                 context.drawString(textRenderer, cdText, x - textRenderer.width(cdText), y - 10, 0xffffffff);
             }
         });

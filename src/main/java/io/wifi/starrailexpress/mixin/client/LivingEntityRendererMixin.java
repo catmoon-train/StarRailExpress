@@ -19,6 +19,7 @@ import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.mojang.blaze3d.vertex.PoseStack;
 import io.wifi.starrailexpress.cca.SREPlayerPsychoComponent;
+import io.wifi.starrailexpress.client.SREClient;
 import net.minecraft.client.model.EntityModel;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.EntityRenderer;
@@ -31,6 +32,7 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import pro.fazeclan.river.stupid_express.constants.SEModifiers;
 
+import org.agmas.noellesroles.init.ModEffects;
 import org.agmas.noellesroles.utils.RoleUtils;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
@@ -66,9 +68,14 @@ public abstract class LivingEntityRendererMixin<T extends LivingEntity, M extend
     @Inject(method = "isEntityUpsideDown", at = @At("HEAD"), cancellable = true)
     private static void sre$isEntityUpsideDown(LivingEntity livingEntity, CallbackInfoReturnable<Boolean> cir) {
         if (livingEntity instanceof Player player) {
-            if (RoleUtils.isPlayerTheModifier(player, SEModifiers.DINNERBONE))
+            if (SREClient.cached_player != null && SREClient.cached_player.hasEffect(ModEffects.UPSIDE_DOWN)) {
                 cir.setReturnValue(true);
-            return;
+                return;
+            }
+            if (RoleUtils.isPlayerTheModifier(player, SEModifiers.DINNERBONE)) {
+                cir.setReturnValue(true);
+                return;
+            }
         }
     }
 
