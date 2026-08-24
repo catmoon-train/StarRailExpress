@@ -135,6 +135,7 @@ public class DoremyRoleData extends SimpleRoleData {
             }
             if (now >= info.endTime) {
                 info.restoreSmoothly();
+                SRE.REPLAY_MANAGER.recordPlayerRevival(info.player().getUUID(), null);
                 it.remove();
                 continue;
             }
