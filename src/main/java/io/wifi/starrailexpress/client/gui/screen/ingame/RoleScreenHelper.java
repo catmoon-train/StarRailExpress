@@ -16,7 +16,7 @@
 package io.wifi.starrailexpress.client.gui.screen.ingame;
 
 import io.wifi.starrailexpress.api.SRERole;
-import io.wifi.starrailexpress.cca.SREGameWorldComponent;
+import io.wifi.starrailexpress.client.SREClient;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.player.LocalPlayer;
@@ -26,25 +26,29 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
+import java.util.function.Predicate;
 import java.util.function.Supplier;
 
 /**
  * 角色背包界面辅助类：处理角色专用选人列表的通用逻辑——角色激活判断、分页、
  * 玩家名搜索与排序，内部使用 {@link PlayerPaginationHelper}。
  *
- * <p>配合 {@link io.wifi.starrailexpress.api.SRERole#setInventoryScreenExtensionFactory} 与
+ * <p>
+ * 配合
+ * {@link io.wifi.starrailexpress.api.SRERole#setInventoryScreenExtensionFactory}
+ * 与
  * {@link RoleInventoryScreenExtension} 接口，在客户端注册使用。
  */
 public class RoleScreenHelper<T> {
-    private final LocalPlayer player;
     private final PlayerPaginationHelper<T> paginationHelper;
-    private final SRERole role;
     private final BiConsumer<GuiGraphics, Point> extraDrawer;
     private final Supplier<List<T>> entriesSupplier;
+    private final Predicate<LocalPlayer> isActivePredicate;
+    private final LocalPlayer player;
 
     /**
      * @param player          客户端玩家实体
-     * @param role            对应的角色
+     * @param role            职业(需要为此职业也才能渲染)
      * @param widgetCreator   用于创建玩家小部件的回调
      * @param textProvider    分页文本提供器
      * @param extraDrawer     额外绘制逻辑（接收绘制上下文和屏幕中心点）
@@ -56,20 +60,50 @@ public class RoleScreenHelper<T> {
             PlayerPaginationHelper.PaginationTextProvider textProvider,
             BiConsumer<GuiGraphics, Point> extraDrawer,
             Supplier<List<T>> entriesSupplier) {
+        this(player, widgetCreator, textProvider, extraDrawer, entriesSupplier,
+                (p) -> SREClient.gameComponent != null && SREClient.gameComponent.isRole(p, role));
+    }
+
+    /**
+     * @param player            客户端玩家实体
+     * @param widgetCreator     用于创建玩家小部件的回调
+     * @param textProvider      分页文本提供器
+     * @param extraDrawer       额外绘制逻辑（接收绘制上下文和屏幕中心点）
+     * @param entriesSupplier   提供玩家条目列表的 Supplier
+     * @param isActivePredicate 判断是否渲染的条件
+     */
+    public RoleScreenHelper(LocalPlayer player,
+            PlayerPaginationHelper.PlayerWidgetCreator<T> widgetCreator,
+            PlayerPaginationHelper.PaginationTextProvider textProvider,
+            BiConsumer<GuiGraphics, Point> extraDrawer,
+            Supplier<List<T>> entriesSupplier, Predicate<LocalPlayer> isActivePredicate) {
         this.player = player;
-        this.role = role;
         this.paginationHelper = new PlayerPaginationHelper<>(widgetCreator, textProvider);
         this.extraDrawer = extraDrawer;
         this.entriesSupplier = entriesSupplier;
+        this.isActivePredicate = isActivePredicate;
+    }
+
+    /**
+     * @param player          客户端玩家实体
+     * @param widgetCreator   用于创建玩家小部件的回调
+     * @param textProvider    分页文本提供器
+     * @param extraDrawer     额外绘制逻辑（接收绘制上下文和屏幕中心点）
+     * @param entriesSupplier 提供玩家条目列表的 Supplier
+     */
+    public RoleScreenHelper(LocalPlayer player,
+            PlayerPaginationHelper.PlayerWidgetCreator<T> widgetCreator,
+            PlayerPaginationHelper.PaginationTextProvider textProvider,
+            BiConsumer<GuiGraphics, Point> extraDrawer,
+            Supplier<List<T>> entriesSupplier) {
+        this(player, widgetCreator, textProvider, extraDrawer, entriesSupplier, (a) -> true);
     }
 
     /**
      * 检查当前玩家是否拥有该角色。
      */
     public boolean isRoleActive() {
-        SREGameWorldComponent gameWorldComponent = (SREGameWorldComponent) SREGameWorldComponent.KEY
-                .get(player.level());
-        return gameWorldComponent.isRole(player, role);
+        return isActivePredicate.test(player);
     }
 
     /**

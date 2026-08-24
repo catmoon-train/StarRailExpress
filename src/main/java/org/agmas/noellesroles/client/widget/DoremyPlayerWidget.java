@@ -16,6 +16,7 @@
 package org.agmas.noellesroles.client.widget;
 
 import io.wifi.starrailexpress.api.data.RoleData;
+import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.client.gui.screen.ingame.LimitedInventoryScreen;
 import io.wifi.starrailexpress.util.ShopEntry;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
@@ -28,7 +29,6 @@ import net.minecraft.client.gui.components.PlayerFaceRenderer;
 import net.minecraft.client.multiplayer.PlayerInfo;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.network.chat.Component;
-import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.Level;
 
 import org.agmas.noellesroles.init.ModEffects;
@@ -54,10 +54,9 @@ public class DoremyPlayerWidget extends Button {
         this.targetPlayer = targetPlayerEntry;
         this.targetUUID = targetUUID;
         if (canSeeDeathStatus()) {
-            if (targetPlayer.getGameMode() != GameType.ADVENTURE) {
-                setDisplayText(Component.translatable("hud.general.dead").withStyle(ChatFormatting.DARK_RED));
-            } else {
-                setDisplayText(Component.translatable("hud.general.alive").withStyle(ChatFormatting.GREEN));
+            var gameCCA = SREGameWorldComponent.KEY.get(world);
+            if (gameCCA.isKillerTeam(targetUUID)) {
+                setDisplayText(Component.translatable("hud.general.killer_friend").withStyle(ChatFormatting.GREEN));
             }
         }
 
@@ -84,8 +83,8 @@ public class DoremyPlayerWidget extends Button {
             return;
         if (targetPlayer == null)
             return;
-        var roledata = RoleData.getNullable(DoremyRoleData.class ,player);
-        if(roledata==null){
+        var roledata = RoleData.getNullable(DoremyRoleData.class, player);
+        if (roledata == null) {
             return;
         }
 
