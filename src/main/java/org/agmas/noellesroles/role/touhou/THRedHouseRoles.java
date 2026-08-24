@@ -121,7 +121,7 @@ public class THRedHouseRoles {
           RoleData.getOptional(GhostRoleData.class, player).ifPresent(rd ->
               rd.checkFuranLastStand(SREGameWorldComponent.KEY.get(player.level())));
         }
-      }, "th_redhouse").setHiddenForRoleRotation(true)
+      }, "th_redhouse").setRoleData(GhostRoleData::new).setHiddenForRoleRotation(true)
       .setCanSeeCoin(true).setNeutrals(true).setCanUseInstinctAndNightVision(true).setCanIgnoreBlackout(true);
   // 好人：MAID_SAKUYA 十六夜咲夜
   public static SRERole MAID_SAKUYA = TMMRoles.registerRole(new TouhouRole(
