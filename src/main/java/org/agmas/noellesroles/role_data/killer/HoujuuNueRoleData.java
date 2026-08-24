@@ -4,6 +4,7 @@ import org.agmas.noellesroles.init.ModEffects;
 
 import io.wifi.starrailexpress.api.data.RoleDataContext;
 import io.wifi.starrailexpress.api.impl.SimpleRoleData;
+import io.wifi.starrailexpress.game.GameUtils;
 import net.minecraft.core.Holder;
 import net.minecraft.core.HolderLookup.Provider;
 import net.minecraft.nbt.CompoundTag;
@@ -29,6 +30,8 @@ public class HoujuuNueRoleData extends SimpleRoleData {
 
     @Override
     public void serverTick() {
+        if (!GameUtils.isPlayerAliveAndSurvival(player))
+            return;
         if (this.player.level().getGameTime() % 40 == 2) {
             addEffects();
         }
