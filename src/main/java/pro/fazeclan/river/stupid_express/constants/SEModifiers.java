@@ -131,6 +131,15 @@ public class SEModifiers {
             .setDefaultMax(1)
             .setDefaultEnableChance(3000);
 
+    public static SREModifier DINNERBONE = HMLModifiers.registerModifier(new SREModifier(
+            StupidExpress.id("dinnerbone"),
+            new Color(64, 224, 208).getRGB(),
+            null,
+            null,
+            false,
+            false))
+            .setDefaultMax(1)
+            .setDefaultEnableChance(3000);
     public static SREModifier ALLERGIST = HMLModifiers.registerModifier(new SREModifier(
             StupidExpress.id("allergist"),
             new Color(112, 255, 162).getRGB(),

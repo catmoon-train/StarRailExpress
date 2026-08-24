@@ -15,9 +15,10 @@
 
 package org.agmas.noellesroles.role_data.innocence;
 
-import io.wifi.starrailexpress.api.data.RoleData;
+import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.api.data.RoleDataContext;
 import io.wifi.starrailexpress.api.impl.SimpleRoleData;
+import io.wifi.starrailexpress.api.replay.GameReplayUtils;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.game.GameUtils;
 import net.minecraft.ChatFormatting;
@@ -26,11 +27,9 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 import org.agmas.noellesroles.ConfigWorldComponent;
-import org.agmas.noellesroles.Noellesroles;
 import org.agmas.noellesroles.role.ModRoles;
 import org.jetbrains.annotations.NotNull;
 import java.util.ArrayList;
@@ -41,7 +40,6 @@ public class FortunetellerRoleData extends SimpleRoleData {
     public ArrayList<ProtectedInfo> protectedPlayers = new ArrayList<>();
     /** 过期时间 */
     public static final int MAX_PROTECT_TIME = 120 * 20;
-
 
     @Override
     public void init() {
@@ -57,7 +55,6 @@ public class FortunetellerRoleData extends SimpleRoleData {
     public FortunetellerRoleData(RoleDataContext context) {
         super(context);
     }
-
 
     public void clientTick() {
         for (var ppi : protectedPlayers) {
@@ -78,6 +75,10 @@ public class FortunetellerRoleData extends SimpleRoleData {
                 Component.translatable("message.fortuneteller.been_protected", player.getDisplayName())
                         .withStyle(ChatFormatting.GOLD),
                 true);
+        SRE.REPLAY_MANAGER.recordCustomEvent(
+                Component.translatable("replay.event.fortuneteller",
+                        GameReplayUtils.getReplayPlayerDisplayText(player, true),
+                        GameReplayUtils.getReplayPlayerDisplayText(target, true)));
         this.sync();
     }
 
@@ -180,6 +181,5 @@ public class FortunetellerRoleData extends SimpleRoleData {
         }
         return false;
     }
-
 
 }

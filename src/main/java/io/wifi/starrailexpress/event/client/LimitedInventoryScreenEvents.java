@@ -34,8 +34,9 @@ import net.minecraft.client.gui.GuiGraphics;
  *     <li>{@link #RENDER_TAIL} —— {@code render()} 末尾（原 TAIL 注入）</li>
  * </ul>
  *
- * <p>职业相关的背包界面扩展优先使用 {@link io.wifi.starrailexpress.api.SRERole} 上的
- * {@code setInventoryScreenInitHandler} 等钩子；非职业（如 modifier）扩展请注册本事件。
+ * <p>职业相关的背包界面扩展优先使用 {@link io.wifi.starrailexpress.api.SRERole#setInventoryScreenExtensionFactory}
+ * 与 {@link io.wifi.starrailexpress.client.gui.screen.ingame.RoleInventoryScreenExtension}；
+ * 非职业（如 modifier）扩展请注册本事件。
  */
 @Environment(EnvType.CLIENT)
 public final class LimitedInventoryScreenEvents {

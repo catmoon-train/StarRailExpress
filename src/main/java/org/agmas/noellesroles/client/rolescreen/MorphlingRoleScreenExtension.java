@@ -33,9 +33,8 @@ import java.util.stream.Collectors;
  * 拟态者背包界面扩展：在背包界面列出可拟态的玩家。
  */
 public final class MorphlingRoleScreenExtension extends PlayerListRoleScreenExtension<PlayerInfo> {
-    public static final MorphlingRoleScreenExtension INSTANCE = new MorphlingRoleScreenExtension();
 
-    private MorphlingRoleScreenExtension() {
+    public MorphlingRoleScreenExtension() {
     }
 
     @Override

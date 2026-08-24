@@ -35,9 +35,7 @@ import java.util.stream.Collectors;
  * 典范背包界面扩展：在背包界面列出可交换的玩家（复用交换者选人逻辑）。
  */
 public final class ExamplerRoleScreenExtension extends PlayerListRoleScreenExtension<PlayerInfo> {
-    public static final ExamplerRoleScreenExtension INSTANCE = new ExamplerRoleScreenExtension();
-
-    private ExamplerRoleScreenExtension() {
+    public ExamplerRoleScreenExtension() {
     }
 
     @Override
@@ -83,8 +81,8 @@ public final class ExamplerRoleScreenExtension extends PlayerListRoleScreenExten
     }
 
     @Override
-    public void onInit(LimitedInventoryScreen screen) {
+    public void onInventoryScreenInit(LimitedInventoryScreen screen) {
         SwapperPlayerWidget.playerChoiceOne = null;
-        super.onInit(screen);
+        super.onInventoryScreenInit(screen);
     }
 }

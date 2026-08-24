@@ -40,13 +40,11 @@ import java.util.UUID;
 public final class BodymakerRoleScreenExtension extends PlayerListRoleScreenExtension<PlayerInfo>
         implements MorticianScreenCallback {
 
-    public static final BodymakerRoleScreenExtension INSTANCE = new BodymakerRoleScreenExtension();
-
     private int selectedLevel = 0; // 0=选择玩家, 1=选择死亡原因
     private UUID selectedPlayerUuid = null;
     private LimitedInventoryScreen screen; // 当前屏幕引用（进入阶段2时重建界面用）
 
-    private BodymakerRoleScreenExtension() {
+    public BodymakerRoleScreenExtension() {
     }
 
     @Override
@@ -91,11 +89,16 @@ public final class BodymakerRoleScreenExtension extends PlayerListRoleScreenExte
     }
 
     @Override
-    public void onInit(LimitedInventoryScreen screen) {
+    public void onInventoryScreenInit(LimitedInventoryScreen screen) {
+        // 每次打开背包都会创建新的扩展实例，阶段状态（selectedLevel）天然回到阶段1
         this.screen = screen;
+        reinit();
+    }
+
+    private void reinit() {
         if (selectedLevel == 0) {
             // 阶段1：选择目标玩家（分页翻页 + 搜索框）
-            super.onInit(screen);
+            initPlayerList(screen);
         } else {
             // 阶段2：选择死亡原因（无需分页）
             if (!getHelper(screen.player).isRoleActive()) {
@@ -117,9 +120,10 @@ public final class BodymakerRoleScreenExtension extends PlayerListRoleScreenExte
     }
 
     @Override
-    public void onRender(LimitedInventoryScreen screen, GuiGraphics graphics, int mouseX, int mouseY, float delta) {
+    public void onInventoryScreenRender(LimitedInventoryScreen screen, GuiGraphics graphics, int mouseX, int mouseY,
+            float delta) {
         if (selectedLevel == 0) {
-            super.onRender(screen, graphics, mouseX, mouseY, delta);
+            super.onInventoryScreenRender(screen, graphics, mouseX, mouseY, delta);
         }
     }
 

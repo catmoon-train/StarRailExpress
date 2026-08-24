@@ -33,7 +33,6 @@ import org.agmas.noellesroles.config.NoellesRolesConfig;
 import org.agmas.noellesroles.role_data.killer.ExecutionerRoleData;
 import io.wifi.starrailexpress.api.data.RoleData;
 import org.agmas.noellesroles.role_data.neutral.RavenRoleData;
-import org.agmas.noellesroles.component.ModComponents;
 import org.agmas.noellesroles.content.item.*;
 import org.agmas.noellesroles.game.roles.innocence.hoan_meirin.HoanMeirinFistPunchHandler;
 import org.agmas.noellesroles.game.roles.innocence.veteran.VeteranKnifeHandler;
@@ -196,7 +195,6 @@ public class NRCombatEvents {
         CuckooEggHandler.register();
         GuardPlayerHandler.register();
         GroselleJourneyManager.register();
-        org.agmas.noellesroles.role_data.neutral.LinFamilyRoleData.registerEvents();
     }
 
     // --- 战斗相关的角色事件 ---

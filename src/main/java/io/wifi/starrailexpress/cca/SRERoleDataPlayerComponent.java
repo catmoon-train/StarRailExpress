@@ -178,6 +178,7 @@ public class SRERoleDataPlayerComponent
 
     @Override
     public void readFromSyncNbt(CompoundTag tag, Provider registryLookup) {
+
         if (tag.contains("__init__")) {
             clientInit();
             return;
@@ -185,6 +186,10 @@ public class SRERoleDataPlayerComponent
             clear();
             return;
         }
+        if (roleData == null) {
+            clientInit();
+        }
+
         if (roleData != null) {
             roleData.readFromSyncNbt(tag, registryLookup);
         }

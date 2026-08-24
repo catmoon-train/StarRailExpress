@@ -35,9 +35,8 @@ import java.util.stream.Collectors;
  * 巫毒背包界面扩展：在背包界面列出可施咒的玩家（UUID 列表）。
  */
 public final class VoodooRoleScreenExtension extends PlayerListRoleScreenExtension<UUID> {
-    public static final VoodooRoleScreenExtension INSTANCE = new VoodooRoleScreenExtension();
 
-    private VoodooRoleScreenExtension() {
+    public VoodooRoleScreenExtension() {
     }
 
     @Override

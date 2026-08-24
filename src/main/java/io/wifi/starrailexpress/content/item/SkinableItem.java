@@ -108,4 +108,12 @@ public abstract class SkinableItem extends Item {
     public String[] getAvailableSkins() {
         return new String[] { "default" };
     }
+
+    public ItemStack getDefaultInstanceForRenderer(Player player) {
+        ItemStack stack = this.getDefaultInstance();
+        if (stack.get(SREDataComponentTypes.SKIN) == null) {
+            stack.set(SREDataComponentTypes.SKIN, ItemSkinManager.getEquippedSkin(player, stack));
+        }
+        return stack;
+    }
 }

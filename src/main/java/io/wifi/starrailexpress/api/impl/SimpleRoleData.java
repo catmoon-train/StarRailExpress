@@ -17,7 +17,6 @@ package io.wifi.starrailexpress.api.impl;
 
 import io.wifi.starrailexpress.api.data.RoleData;
 import io.wifi.starrailexpress.api.data.RoleDataContext;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 
@@ -26,7 +25,7 @@ import net.minecraft.world.entity.player.Player;
  * 因为每次变换职业都会创建新的实例，所以理论上不需要写init和clear来重置数据。
  * SimpleRoleData
  */
-public class SimpleRoleData implements RoleData {
+public abstract class SimpleRoleData implements RoleData {
 
     final protected RoleDataContext ctx;
     final protected Player player;
@@ -41,13 +40,13 @@ public class SimpleRoleData implements RoleData {
         return ctx.player();
     }
 
-    @Override
-    public void writeToSyncNbt(CompoundTag tag, net.minecraft.core.HolderLookup.Provider registryLookup) {
-    }
+    // @Override
+    // public void writeToSyncNbt(CompoundTag tag, net.minecraft.core.HolderLookup.Provider registryLookup) {
+    // }
 
-    @Override
-    public void readFromSyncNbt(CompoundTag tag, net.minecraft.core.HolderLookup.Provider registryLookup) {
-    }
+    // @Override
+    // public void readFromSyncNbt(CompoundTag tag, net.minecraft.core.HolderLookup.Provider registryLookup) {
+    // }
 
     public void sync() {
         ctx.sync();

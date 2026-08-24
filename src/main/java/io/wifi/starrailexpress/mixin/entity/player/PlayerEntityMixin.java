@@ -124,7 +124,10 @@ public abstract class PlayerEntityMixin extends LivingEntity implements PlayerSt
             }
 
             if (player.hasEffect(ModEffects.TRIPWIRE_SLOW)) {
-                return speedModifier *= 0.1f;
+                speedModifier *= 0.1f;
+            }
+            if (player.hasEffect(ModEffects.MOVE_UPSIDE_DOWN)) {
+                speedModifier *= -1f;
             }
             return this.isSprinting() ? 0.1f * speedModifier : 0.07f * speedModifier;
         } else {

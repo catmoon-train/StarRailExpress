@@ -17,12 +17,14 @@ package io.wifi.starrailexpress.mixin.client.items;
 
 import io.wifi.starrailexpress.cca.SREPlayerMoodComponent;
 import io.wifi.starrailexpress.content.item.api.SREItemProperties.HeldLikeRevolver;
+import io.wifi.starrailexpress.event.AllowItemShowInHand;
 import io.wifi.starrailexpress.index.tag.TMMItemTags;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.world.entity.HumanoidArm;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
@@ -48,26 +50,36 @@ public class BipedEntityModelMixin<T extends LivingEntity> {
 
     @Inject(method = "poseRightArm", at = @At("TAIL"))
     private void tmm$holdRevolverRightArm(T entity, CallbackInfo ci) {
-        if (isHoldingGun(entity) && entity.getMainArm() == HumanoidArm.RIGHT) {
+        if (entity.getMainArm() == HumanoidArm.RIGHT && isHoldingGun(entity, true)) {
             holdGun(this.rightArm, this.leftArm, this.head, true);
         }
     }
 
     @Inject(method = "poseLeftArm", at = @At("TAIL"))
     private void tmm$tmm$holdRevolverLeftArm(T entity, CallbackInfo ci) {
-        if (isHoldingGun(entity) && entity.getMainArm() != HumanoidArm.RIGHT) {
+        if (entity.getMainArm() != HumanoidArm.RIGHT && isHoldingGun(entity, false)) {
             holdGun(this.rightArm, this.leftArm, this.head, false);
         }
     }
 
+    private static ItemStack noellesroles$resolve(Player player, ItemStack stack, boolean mainhand) {
+        // 修复原代码 bug：根据 mainHand 参数取对应手的物品
+        ItemStack eventRes = AllowItemShowInHand.EVENT.invoker().allowShowInHand(player, stack, mainhand);
+        return eventRes != null ? eventRes : stack;
+    }
+
     @Unique
-    private boolean isHoldingGun(T entity) {
+    private boolean isHoldingGun(T entity, boolean mainhand) {
+        var stack = entity.getMainHandItem();
+        if (entity instanceof Player player) {
+            stack = noellesroles$resolve(player, stack, mainhand);
+        }
         ItemStack psychosisItemStack = SREPlayerMoodComponent.KEY.get(Minecraft.getInstance().player)
                 .getPsychosisItems().get(entity.getUUID());
         if (psychosisItemStack != null) {
             return isGunLikeItem(psychosisItemStack);
         } else
-            return isGunLikeItem(entity.getMainHandItem());
+            return isGunLikeItem(stack);
     }
 
     @Unique

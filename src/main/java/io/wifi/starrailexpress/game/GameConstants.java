@@ -331,6 +331,7 @@ public class GameConstants {
         public static Set<ResourceLocation> getItemDeathReasons() {
             Set<ResourceLocation> set = new LinkedHashSet<>();
             set.add(itemId(ModItems.THROWING_KNIFE));
+            set.add(itemId(ModItems.THROWING_AXE));
             set.add(itemId(ModItems.NINJA_SHURIKEN));
             set.add(itemId(ModItems.SCARLET_PERCEPTION_SWORD));
             set.add(GUN_SHOT);

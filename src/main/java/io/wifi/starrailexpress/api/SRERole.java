@@ -24,6 +24,7 @@ import io.wifi.starrailexpress.cca.SREPlayerPsychoComponent;
 import io.wifi.starrailexpress.cca.SREPlayerShopComponent;
 import io.wifi.starrailexpress.cca.SREPlayerTaskComponent;
 import io.wifi.starrailexpress.client.gui.screen.ingame.LimitedInventoryScreen;
+import io.wifi.starrailexpress.client.gui.screen.ingame.RoleInventoryScreenExtension;
 import io.wifi.starrailexpress.content.entity.PlayerBodyEntity;
 import io.wifi.starrailexpress.content.gui.PlayerBodyEntityContainer;
 import io.wifi.starrailexpress.index.TMMItems;
@@ -31,7 +32,6 @@ import io.wifi.starrailexpress.util.ShopEntry;
 import io.wifi.starrailexpress.util.TrueFalseResult;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.loader.api.FabricLoader;
-import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.core.NonNullList;
 import net.minecraft.locale.Language;
 import net.minecraft.network.chat.Component;
@@ -1170,6 +1170,14 @@ public abstract class SRERole extends SREAbstractInfoClass {
         clearTaskRewardTracking(serverPlayer.getUUID());
     }
 
+    /**
+     * 当赋予modifier时调用，如果需要操作modifiers列表可以直接操纵，不需要同步，也不需要调用WorldModifierComponent的sync
+     * @param player
+     * @param modifiers
+     */
+    public void onAssignedModifiers(ServerPlayer player, Set<SREModifier> modifiers){
+    };
+
     public static SREAbilityPlayerComponent getAbilityComponent(Player player) {
         return SREAbilityPlayerComponent.KEY.get(player);
     }
@@ -1284,68 +1292,28 @@ public abstract class SRERole extends SREAbstractInfoClass {
         return this;
     }
 
-    // ---------- 背包界面（LimitedInventoryScreen）扩展钩子 ----------
-    // 沿用 setClientGameTickEvent 的模式：注册方在客户端通过 setXxx 注册"客户端函数"，
-    // 调用处（LimitedInventoryScreen，仅客户端）在调用时先判断运行环境，避免在服务端加载客户端逻辑。
-    protected Consumer<LimitedInventoryScreen> inventoryScreenInitHandler = null;
-    protected Consumer<LimitedInventoryScreen> inventoryScreenInitTailHandler = null;
-    protected InventoryScreenRenderHandler inventoryScreenRenderHandler = null;
+    // ---------- 背包界面（LimitedInventoryScreen）扩展 ----------
+    // 客户端通过 setInventoryScreenExtensionFactory 注册"扩展工厂"；
+    // LimitedInventoryScreen 每次打开背包都会调用 createInventoryScreenExtension() 创建
+    // 新的扩展实例（避免状态跨次打开固定；需要跨次保留的状态请使用 static）。
+    // 扩展实例的方法仅由客户端（LimitedInventoryScreen）调用；创建时也会先判断运行环境。
+    protected Supplier<RoleInventoryScreenExtension> inventoryScreenExtensionFactory = null;
 
-    /**
-     * 背包界面渲染回调（仅客户端）。
-     */
-    @FunctionalInterface
-    public interface InventoryScreenRenderHandler {
-        void onRender(LimitedInventoryScreen screen, GuiGraphics graphics, int mouseX, int mouseY, float delta);
-    }
-
-    /** 注册背包界面 {@code init()} 开头（客户端）的回调。 */
-    public SRERole setInventoryScreenInitHandler(Consumer<LimitedInventoryScreen> handler) {
-        this.inventoryScreenInitHandler = handler;
+    /** 注册背包界面扩展工厂（客户端）。每次打开背包都会创建新的扩展实例。 */
+    public SRERole setInventoryScreenExtensionFactory(Supplier<RoleInventoryScreenExtension> factory) {
+        this.inventoryScreenExtensionFactory = factory;
         return this;
     }
 
-    /** 注册背包界面 {@code init()} 末尾（客户端）的回调。 */
-    public SRERole setInventoryScreenInitTailHandler(Consumer<LimitedInventoryScreen> handler) {
-        this.inventoryScreenInitTailHandler = handler;
-        return this;
-    }
-
-    /** 注册背包界面 {@code render()} 开头（客户端，每帧）的回调。 */
-    public SRERole setInventoryScreenRenderHandler(InventoryScreenRenderHandler handler) {
-        this.inventoryScreenRenderHandler = handler;
-        return this;
-    }
-
-    /** 背包界面 {@code init()} 开头时由 {@code LimitedInventoryScreen} 调用。 */
-    public void onInventoryScreenInit(LimitedInventoryScreen screen) {
+    /** 背包界面打开时由 {@code LimitedInventoryScreen} 调用，创建新的扩展实例（无扩展返回 null）。 */
+    public RoleInventoryScreenExtension createInventoryScreenExtension() {
         if (!isClientEnvironment()) {
-            return;
+            return null;
         }
-        if (inventoryScreenInitHandler != null) {
-            inventoryScreenInitHandler.accept(screen);
+        if (inventoryScreenExtensionFactory == null) {
+            return null;
         }
-    }
-
-    /** 背包界面 {@code init()} 末尾时由 {@code LimitedInventoryScreen} 调用。 */
-    public void onInventoryScreenInitTail(LimitedInventoryScreen screen) {
-        if (!isClientEnvironment()) {
-            return;
-        }
-        if (inventoryScreenInitTailHandler != null) {
-            inventoryScreenInitTailHandler.accept(screen);
-        }
-    }
-
-    /** 背包界面 {@code render()} 开头时由 {@code LimitedInventoryScreen} 调用（每帧）。 */
-    public void onInventoryScreenRender(LimitedInventoryScreen screen, GuiGraphics graphics, int mouseX, int mouseY,
-            float delta) {
-        if (!isClientEnvironment()) {
-            return;
-        }
-        if (inventoryScreenRenderHandler != null) {
-            inventoryScreenRenderHandler.onRender(screen, graphics, mouseX, mouseY, delta);
-        }
+        return inventoryScreenExtensionFactory.get();
     }
 
     /** 判断当前运行环境是否为客户端（仅客户端才允许执行客户端钩子）。 */

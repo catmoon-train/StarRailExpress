@@ -211,6 +211,10 @@ public class SREPlayerPsychoComponent implements RoleComponent, ServerTickingCom
     }
 
     public boolean stopPsycho() {
+        return stopPsycho(true);
+    }
+
+    public boolean stopPsycho(boolean refresh) {
         SREGameWorldComponent gameWorldComponent = SREGameWorldComponent.KEY.get(this.player.level());
         this.psychoTicks = -1;
         if (this.player instanceof ServerPlayer serverPlayer) {
@@ -240,7 +244,8 @@ public class SREPlayerPsychoComponent implements RoleComponent, ServerTickingCom
                 }
             }
         }
-        gameWorldComponent.refreshPsychoCount(true);
+        if (refresh)
+            gameWorldComponent.refreshPsychoCount(true);
         return true;
     }
 

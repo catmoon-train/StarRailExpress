@@ -30,9 +30,8 @@ import java.util.stream.Collectors;
  * 派对杀手背包界面扩展：在背包界面列出可攻击的玩家。
  */
 public final class PartyKillerRoleScreenExtension extends PlayerListRoleScreenExtension<PlayerInfo> {
-    public static final PartyKillerRoleScreenExtension INSTANCE = new PartyKillerRoleScreenExtension();
 
-    private PartyKillerRoleScreenExtension() {
+    public PartyKillerRoleScreenExtension() {
     }
 
     @Override

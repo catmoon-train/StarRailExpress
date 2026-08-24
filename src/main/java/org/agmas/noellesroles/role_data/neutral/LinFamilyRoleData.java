@@ -199,10 +199,6 @@ public class LinFamilyRoleData extends SimpleRoleData {
         super(context);
     }
 
-    static {
-        registerEvents();
-    }
-
     public static void registerEvents() {
         if (eventsRegistered) {
             return;
@@ -854,12 +850,12 @@ public class LinFamilyRoleData extends SimpleRoleData {
             return false;
         }
         CompoundTag tag = stack.getOrDefault(DataComponents.CUSTOM_DATA, CustomData.EMPTY).copyTag();
-        return tag.getBoolean(MISFIRE_GUN_KEY);
+        return tag.contains(MISFIRE_GUN_KEY) && tag.getBoolean(MISFIRE_GUN_KEY);
     }
 
     private static boolean willMisfire(ItemStack stack) {
         CompoundTag tag = stack.getOrDefault(DataComponents.CUSTOM_DATA, CustomData.EMPTY).copyTag();
-        return tag.getBoolean(WILL_MISFIRE_KEY);
+        return tag.contains(WILL_MISFIRE_KEY) && tag.getBoolean(WILL_MISFIRE_KEY);
     }
 
     private static boolean isMisfireShot(Player killer) {

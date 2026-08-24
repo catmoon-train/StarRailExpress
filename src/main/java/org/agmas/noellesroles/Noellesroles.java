@@ -28,6 +28,7 @@ import org.agmas.harpymodloader.Harpymodloader;
 import org.agmas.harpymodloader.SREDisableManager;
 import org.agmas.harpymodloader.modded_murder.PlayerRoleWeightManager;
 import org.agmas.harpymodloader.modifiers.SREModifier;
+import org.agmas.noellesroles.api.time.TimeRewind;
 import org.agmas.noellesroles.client.blood.BloodMain;
 import org.agmas.noellesroles.commands.ModColorArgument;
 import org.agmas.noellesroles.commands.PresetCommand;
@@ -173,6 +174,8 @@ public class Noellesroles implements ModInitializer {
 
     @Override
     public void onInitialize() {
+        // 时间回溯 API（含游戏开始/结束自动取消回溯的事件钩子）需在启动时注册
+        TimeRewind.initialize();
         ModItems.init();
         RightClickBlockManager.init();
         org.agmas.noellesroles.content.item.ZeroOneFiveGunItem.register();

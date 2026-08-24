@@ -27,17 +27,22 @@ import io.wifi.starrailexpress.index.TMMItems;
 import io.wifi.starrailexpress.index.TMMSounds;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.ChatFormatting;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.item.ItemStack;
 
 import org.agmas.noellesroles.content.entity.PuppeteerBodyEntity;
+import org.agmas.noellesroles.content.item.ThrowingKnife;
+import org.agmas.noellesroles.role.touhou.THMiscRoles;
+import org.agmas.noellesroles.utils.RoleUtils;
 import org.jetbrains.annotations.NotNull;
 
 public record KnifeStabPayload(int target) implements CustomPacketPayload {
@@ -72,11 +77,11 @@ public record KnifeStabPayload(int target) implements CustomPacketPayload {
                 player.swing(InteractionHand.MAIN_HAND);
 
                 if (!player.isCreative()
-                    && !SREGameWorldComponent.KEY.get(player.level()).isRole(player, TMMRoles.LOOSE_END)
-                    && !SREGameWorldComponent.KEY.get(player.level()).isRole(player,
-                            SpecialGameModeRoles.SUPER_LOOSE_END)) {
+                        && !SREGameWorldComponent.KEY.get(player.level()).isRole(player, TMMRoles.LOOSE_END)
+                        && !SREGameWorldComponent.KEY.get(player.level()).isRole(player,
+                                SpecialGameModeRoles.SUPER_LOOSE_END)) {
                     player.getCooldowns().addCooldown(TMMItems.KNIFE,
-                            GameConstants.ITEM_COOLDOWNS.getOrDefault(TMMItems.KNIFE, 600));
+                            getKnifeCooldown(player));
                 }
                 return;
             }
@@ -104,7 +109,15 @@ public record KnifeStabPayload(int target) implements CustomPacketPayload {
                     return;
                 }
             }
-            GameUtils.killPlayer(target, true, player, GameConstants.DeathReasons.KNIFE);
+            // 飞刀：统一使用飞刀物品自身的死亡原因（其余刀具仍使用 KNIFE）
+            ResourceLocation deathReason = GameConstants.DeathReasons.KNIFE;
+            if (knife.getItem() instanceof ThrowingKnife) {
+                ResourceLocation itemId = BuiltInRegistries.ITEM.getKey(knife.getItem());
+                if (itemId != null) {
+                    deathReason = itemId;
+                }
+            }
+            GameUtils.killPlayer(target, true, player, deathReason);
             target.playSound(TMMSounds.ITEM_KNIFE_STAB, 1.0f, 1.0f);
             // 成功捅人后消耗 1 点耐久；耗尽时提示重新购买。
             // Consume one durability after a successful stab; warn when it becomes
@@ -119,9 +132,16 @@ public record KnifeStabPayload(int target) implements CustomPacketPayload {
                     && !SREGameWorldComponent.KEY.get(player.level()).isRole(player, TMMRoles.LOOSE_END)
                     && !SREGameWorldComponent.KEY.get(player.level()).isRole(player,
                             SpecialGameModeRoles.SUPER_LOOSE_END)) {
-                cooldowns.addCooldown(TMMItems.KNIFE, GameConstants.ITEM_COOLDOWNS.get(TMMItems.KNIFE));
-
+                cooldowns.addCooldown(TMMItems.KNIFE, getKnifeCooldown(player));
             }
+        }
+
+        private int getKnifeCooldown(ServerPlayer player) {
+            float modifier = 1f;
+            if (RoleUtils.isPlayerTheJob(player, THMiscRoles.HOUJUU_NUE)) {
+                modifier = 0.1667f;
+            }
+            return (int) (GameConstants.ITEM_COOLDOWNS.getOrDefault(TMMItems.KNIFE, 600) * modifier);
         }
     }
 }

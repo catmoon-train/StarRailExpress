@@ -33,9 +33,8 @@ import java.util.stream.Collectors;
  * 静默者背包界面扩展：在背包界面列出可静默的玩家。
  */
 public final class SilencerRoleScreenExtension extends PlayerListRoleScreenExtension<PlayerInfo> {
-    public static final SilencerRoleScreenExtension INSTANCE = new SilencerRoleScreenExtension();
 
-    private SilencerRoleScreenExtension() {
+    public SilencerRoleScreenExtension() {
     }
 
     @Override

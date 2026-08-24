@@ -19,9 +19,11 @@ import com.mojang.authlib.GameProfile;
 import com.mojang.blaze3d.systems.RenderSystem;
 
 import io.wifi.starrailexpress.SREClientConfig;
+import io.wifi.starrailexpress.api.AreasSettings;
 import io.wifi.starrailexpress.api.GameMode;
 import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.api.TMMRoles;
+import io.wifi.starrailexpress.cca.AreasWorldComponent;
 import io.wifi.starrailexpress.cca.SREGameRoundEndComponent;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.client.SREClient;
@@ -115,7 +117,6 @@ public class RoundTextRenderer {
     /** 用于检测是否需要刷新欢迎界面缓存的辅助变量 */
     private static int lastKillers = -1;
     private static int lastTargets = -1;
-    private static boolean lastCanJump = false;
 
     /**
      * 每帧由 HUD 渲染调用。
@@ -187,14 +188,16 @@ public class RoundTextRenderer {
             lastTargets = targets;
         }
 
-        // 跳跃提示缓存
-        boolean canJump = SREClient.gameComponent.isJumpAvailable();
-        if (lastCanJump != canJump || cachedCanJumpTip == null) {
-            cachedCanJumpTip = canJump
-                    ? Component.translatable("announcement.star.tip.can_jump").withStyle(ChatFormatting.GREEN)
-                    : Component.translatable("announcement.star.tip.cant_jump").withStyle(ChatFormatting.YELLOW);
-            cachedCanJumpWidth = renderer.width(cachedCanJumpTip);
-            lastCanJump = canJump;
+        {
+
+            // 跳跃提示缓存
+            if (cachedCanJumpTip == null) {
+                cachedCanJumpTip = Component
+                        .translatable("announcement.star.tip.available_controls",
+                                getAreaTip(SREClient.areaComponent).withStyle(ChatFormatting.WHITE))
+                        .withStyle(ChatFormatting.GRAY);
+                cachedCanJumpWidth = renderer.width(cachedCanJumpTip);
+            }
         }
 
         int color = isLooseEnds ? 0x9F0000 : 0xFFFFFF;
@@ -232,6 +235,54 @@ public class RoundTextRenderer {
     }
 
     // -------------------- 结束界面 --------------------
+
+    private static MutableComponent getAreaTip(AreasWorldComponent areaComponent) {
+        final var message = Component.literal("");
+        {
+            message.append(areaComponent.areasSettings.canJump
+                    ? Component.translatable("announcement.star.tip.can_jump").withStyle(ChatFormatting.GREEN)
+                    : Component.translatable("announcement.star.tip.can_jump").withStyle(ChatFormatting.YELLOW));
+        }
+
+        {
+            message.append(Component.translatable("announcement.star.tip.split").withStyle(ChatFormatting.WHITE))
+                    .append(getWaterTip(areaComponent.areasSettings));
+        }
+        {
+            message.append(Component.translatable("announcement.star.tip.split").withStyle(ChatFormatting.WHITE))
+                    .append(areaComponent.areasSettings.enableOxygenDrowning
+                            ? Component.translatable("announcement.star.tip.will_drown")
+                                    .withStyle(ChatFormatting.YELLOW)
+                            : Component.translatable("announcement.star.tip.wont_drown")
+                                    .withStyle(ChatFormatting.GREEN));
+
+        }
+        return message;
+    }
+
+    private static Component getWaterTip(AreasSettings areasSettings) {
+        if ((areasSettings.canSwim || areasSettings.canJump) && areasSettings.canSimpleSwim
+                && areasSettings.canUnderWater && areasSettings.allowInDeepWater) {
+            return Component.translatable("announcement.star.tip.can_swim").withStyle(ChatFormatting.GREEN);
+        } else if (!areasSettings.canSimpleSwim
+                && !areasSettings.canUnderWater && !areasSettings.allowInDeepWater) {
+            return Component.translatable("announcement.star.tip.cant_swim").withStyle(ChatFormatting.RED);
+        } else if (areasSettings.canSimpleSwim) {
+
+            return Component.translatable("announcement.star.tip.can_simple_swim").withStyle(ChatFormatting.YELLOW);
+        } else if (!areasSettings.allowInDeepWater || !areasSettings.canSimpleSwim) {
+            return Component.translatable("announcement.star.tip.cant_underwater").withStyle(ChatFormatting.RED);
+        } else if (!areasSettings.canUnderWater) {
+            return Component.translatable("announcement.star.tip.cant_be_eye_underwater")
+                    .withStyle(ChatFormatting.YELLOW);
+        } else if (!areasSettings.canSwim && !areasSettings.canJump) {
+            return Component.translatable("announcement.star.tip.cant_swim_up").withStyle(ChatFormatting.YELLOW);
+        } else {
+            // 处理剩余情况：canSimpleSwim=false, canUnderWater=true, allowInDeepWater=true,
+            // (canSwim||canJump)=true
+            return Component.translatable("announcement.star.tip.default").withStyle(ChatFormatting.AQUA);
+        }
+    }
 
     /**
      * 绘制回合结束的结算覆盖层。
@@ -374,7 +425,7 @@ public class RoundTextRenderer {
             vigilanteTotal += winSideColumn - 1;
             looseEndsTotal += winSideColumn - 1;
         }
-        
+
         renderRoleTitles(renderer, context, looseEndsTotal, vigilanteTotal);
 
         int civilians = 0, neutrals = 0, vigilantes = 0, killersCount = 0, looseEnds = 0;
@@ -702,10 +753,20 @@ public class RoundTextRenderer {
      * 同时也处理玩家列表键按下时暂停结束界面的逻辑。
      */
     public static void tick() {
-        if (Minecraft.getInstance().level != null) {
-            LocalPlayer player = Minecraft.getInstance().player;
+        final var client = Minecraft.getInstance();
+        if (client.level != null) {
+            LocalPlayer player = client.player;
+            if (player == null)
+                return;
             // 欢迎界面音效和事件
             if (welcomeTime > 0) {
+                {
+                    cachedCanJumpTip = Component
+                            .translatable("announcement.star.tip.available_controls",
+                                    getAreaTip(SREClient.areaComponent).withStyle(ChatFormatting.WHITE))
+                            .withStyle(ChatFormatting.GRAY);
+                    cachedCanJumpWidth = client.font.width(cachedCanJumpTip);
+                }
                 switch (welcomeTime) {
                     case 200 -> {
                         if (player != null)

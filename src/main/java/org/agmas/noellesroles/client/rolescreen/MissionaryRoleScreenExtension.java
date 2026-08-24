@@ -34,9 +34,8 @@ import java.util.stream.Collectors;
  * 传教士背包界面扩展：在背包界面列出可传教的玩家。
  */
 public final class MissionaryRoleScreenExtension extends PlayerListRoleScreenExtension<PlayerInfo> {
-    public static final MissionaryRoleScreenExtension INSTANCE = new MissionaryRoleScreenExtension();
 
-    private MissionaryRoleScreenExtension() {
+    public MissionaryRoleScreenExtension() {
     }
 
     @Override

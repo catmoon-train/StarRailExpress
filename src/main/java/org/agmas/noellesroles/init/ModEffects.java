@@ -115,6 +115,11 @@ public class ModEffects {
     public static final Holder<MobEffect> USED_BANED = register("used_baned",
             new SimpleMobEffect(MobEffectCategory.HARMFUL, 0xFFFFFF));
 
+    public static final Holder<MobEffect> MOVE_UPSIDE_DOWN = register("move_upside_down",
+            new SimpleMobEffect(MobEffectCategory.HARMFUL, 0xFFFFFF));
+    // 看其他生物都是倒立的
+    public static final Holder<MobEffect> UPSIDE_DOWN = register("upside_down",
+            new SimpleMobEffect(MobEffectCategory.HARMFUL, 0xFFFFFF));
     /**
      * 傀儡游走（操控者·失控之躯）
      * - 有害效果
@@ -451,6 +456,11 @@ public class ModEffects {
     public static final Holder<MobEffect> DISGUISE = register("disguise",
             new SimpleMobEffect(MobEffectCategory.NEUTRAL, 0x7B68EE));
 
+    /**
+     * 时间回溯标记：回溯时触发
+     */
+    public static final Holder<MobEffect> TIME_REWIND_MARK = register("time_rewind_mark",
+            new SimpleMobEffect(MobEffectCategory.HARMFUL, 0x8A6BFF));
     /**
      * 时间回溯恍惚：滞时鬼回溯时所有人短暂获得，触发客户端时空滤镜 shader。
      */

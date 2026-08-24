@@ -217,7 +217,8 @@ public class TouhouHandlers {
         return true;
       if (SREAbilityPlayerComponent.KEY.get(victim).targetUUID == null)
         return true;
-      if (SREAbilityPlayerComponent.KEY.get(victim).targetUUID == killer.getUUID() && SREAbilityPlayerComponent.KEY.get(victim).hasDuration()) {
+      if (SREAbilityPlayerComponent.KEY.get(victim).targetUUID == killer.getUUID()
+          && SREAbilityPlayerComponent.KEY.get(victim).hasDuration()) {
         return false;
       }
       return true;
@@ -267,7 +268,24 @@ public class TouhouHandlers {
   }
 
   public static void registerSkills() {
-
+    RoleSkill.register(THMiscRoles.KIJIN_SEIJA,
+        RoleSkill.skill(SRE.id("kijin_seija_upside_down"), "skill.noellesroles.seija.upside_down", (ctx) -> {
+          final int DISTANCE = 8;
+          final int DURATION = 15 * 20;
+          final var player = ctx.player();
+          for (final var p : player.level().players()) {
+            if (!GameUtils.isPlayerAliveAndSurvival(p))
+              continue;
+            if (p.distanceToSqr(player) > DISTANCE * DISTANCE) {
+              continue;
+            }
+            if (p.getUUID().equals(player.getUUID()))
+              continue;
+            p.addEffect(ModEffects.of(ModEffects.UPSIDE_DOWN, DURATION, 0, true, false, true));
+            p.addEffect(ModEffects.of(ModEffects.MOVE_UPSIDE_DOWN, DURATION, 0, true, false, true));
+          }
+          return true;
+        }).cooldownSeconds(90).announceToSelf().recordReplay().showOnHud(true).build());
     RoleSkill.register(THMiscRoles.MAMIZOU,
         RoleSkill.skill(SRE.id("mamizou_select"), "skill.noellesroles.mamizou_select", THMamizouRole::handleSelect)
             .noAnnouncement()

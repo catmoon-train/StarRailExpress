@@ -16,6 +16,7 @@
 package org.agmas.noellesroles.api.time;
 
 import io.wifi.starrailexpress.api.RoleComponent;
+import io.wifi.starrailexpress.cca.SREPlayerPsychoComponent;
 import io.wifi.starrailexpress.cca.SRERoleDataPlayerComponent;
 import io.wifi.starrailexpress.compat.TrainVoicePlugin;
 import net.minecraft.core.HolderLookup;
@@ -23,6 +24,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.phys.AABB;
@@ -134,6 +136,11 @@ public final class TimeRewind {
                 player.level().getGameTime(), vanillaState, componentStates, warnings);
     }
 
+    /**
+     * Restores the snapshot immediately, without animation or queueing. For an
+     * animated rewind use
+     * {@link #smoothRestore(ServerPlayer, TimeRewindSnapshot, int, Consumer)}.
+     */
     public static TimeRewindResult restore(ServerPlayer player, TimeRewindSnapshot snapshot) {
         initialize();
         Objects.requireNonNull(player, "player");
@@ -161,6 +168,12 @@ public final class TimeRewind {
             return new TimeRewindResult(0, failures);
         }
         if (!player.isSpectator()) {
+
+            var ppc = SREPlayerPsychoComponent.KEY.get(player);
+            if (ppc.psychoTicks > 0) {
+                ppc.stopPsycho(true);
+            }
+
             TrainVoicePlugin.resetPlayer(player.getUUID());
         }
 
@@ -205,7 +218,6 @@ public final class TimeRewind {
                         componentId, exception);
             }
         }
-
         // Synchronize only after every component has been restored, so clients never
         // observe a half-rewound graph of related CCA state.
         for (ComponentKey<?> key : restoredKeys) {
@@ -222,11 +234,17 @@ public final class TimeRewind {
     }
 
     /**
-     * Smoothly moves a player to the snapshot anchor and performs the exact
-     * restore on arrival. Returns false if the snapshot belongs to another
-     * player or that player is already in a playback.
+     * Animated variant of {@link #restore(ServerPlayer, TimeRewindSnapshot)}:
+     * the player is smoothly moved to the snapshot anchor, then the exact same
+     * state restoration runs. Returns false only if the snapshot belongs to
+     * another player; when the player already has a running rewind, the request
+     * is queued and runs after the previous ones finish.
+     *
+     * <p>
+     * Prefer the fluent {@link #smoothRewind(ServerPlayer, TimeRewindSnapshot)}
+     * entry point, which exposes the same options with a shorter call chain.
      */
-    public static boolean restoreSmooth(ServerPlayer player, TimeRewindSnapshot snapshot,
+    public static boolean smoothRestore(ServerPlayer player, TimeRewindSnapshot snapshot,
             int durationTicks, Consumer<TimeRewindResult> completion) {
         Objects.requireNonNull(player, "player");
         Objects.requireNonNull(snapshot, "snapshot");
@@ -234,15 +252,86 @@ public final class TimeRewind {
         return TimeRewindPlayback.begin(player, snapshot, durationTicks, completion);
     }
 
-    public static boolean restoreSmooth(ServerPlayer player, TimeRewindSnapshot snapshot,
+    public static boolean smoothRestore(ServerPlayer player, TimeRewindSnapshot snapshot,
             int durationTicks) {
-        return restoreSmooth(player, snapshot, durationTicks, null);
+        return smoothRestore(player, snapshot, durationTicks, null);
     }
 
-    /** Cancels the visual movement without restoring the snapshot. */
+    /**
+     * Fluent entry point for an animated rewind:
+     *
+     * <pre>{@code
+     * TimeRewind.smoothRewind(player, snapshot)
+     *         .duration(80)
+     *         .onComplete(result -> { ... })
+     *         .start();
+     * }</pre>
+     *
+     * Every option has a sensible default, so the minimal form is
+     * {@code TimeRewind.smoothRewind(player, snapshot).start()}. Requests for
+     * the same player are queued and run one after another. For the instant,
+     * animation-free variant use
+     * {@link #restore(ServerPlayer, TimeRewindSnapshot)}.
+     */
+    public static SmoothRewindBuilder smoothRewind(ServerPlayer player, TimeRewindSnapshot snapshot) {
+        return new SmoothRewindBuilder(player, snapshot);
+    }
+
+    public static final class SmoothRewindBuilder {
+        private final ServerPlayer player;
+        private final TimeRewindSnapshot snapshot;
+        private int durationTicks = 50;
+        private Consumer<TimeRewindResult> completion;
+
+        private SmoothRewindBuilder(ServerPlayer player, TimeRewindSnapshot snapshot) {
+            this.player = Objects.requireNonNull(player, "player");
+            this.snapshot = Objects.requireNonNull(snapshot, "snapshot");
+        }
+
+        /** Visual playback duration in ticks (clamped to [1, 600]). */
+        public SmoothRewindBuilder duration(int durationTicks) {
+            this.durationTicks = durationTicks;
+            return this;
+        }
+
+        /**
+         * Callback invoked exactly once when the rewind completes, is cancelled
+         * or fails. Inspect the returned {@link TimeRewindResult} to tell
+         * success from failure.
+         */
+        public SmoothRewindBuilder onComplete(Consumer<TimeRewindResult> completion) {
+            this.completion = completion;
+            return this;
+        }
+
+        /**
+         * Starts the rewind. If the player already has a running or queued
+         * rewind, this request joins the queue and runs when its turn comes.
+         *
+         * @return false only when the snapshot belongs to a different player
+         */
+        public boolean start() {
+            return smoothRestore(player, snapshot, durationTicks, completion);
+        }
+    }
+
+    /**
+     * Cancels the running smooth rewind and drops any queued ones for that
+     * player, without restoring the snapshot.
+     */
     public static boolean cancelSmoothRestore(ServerPlayer player) {
         Objects.requireNonNull(player, "player");
         return TimeRewindPlayback.cancel(player);
+    }
+
+    /**
+     * Immediately cancels every smooth rewind (running and queued) on the
+     * server. Called automatically when a game starts or ends; safe to call
+     * from any thread, the work is scheduled onto the server thread.
+     */
+    public static void cancelAllRewinds(MinecraftServer server) {
+        Objects.requireNonNull(server, "server");
+        TimeRewindPlayback.cancelAll(server);
     }
 
     public static boolean isSmoothRewinding(ServerPlayer player) {

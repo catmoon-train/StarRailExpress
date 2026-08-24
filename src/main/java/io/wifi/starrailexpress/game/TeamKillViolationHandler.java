@@ -25,6 +25,9 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
+import pro.fazeclan.river.stupid_express.constants.SEModifiers;
+
+import org.agmas.harpymodloader.component.WorldModifierComponent;
 import org.agmas.noellesroles.init.XiaoNaoHandler;
 
 import java.util.*;
@@ -61,7 +64,14 @@ public class TeamKillViolationHandler {
             ResourceLocation deathReason) {
 
         SREConfig config = SREConfig.instance();
-
+        if (victim == null || killer == null)
+            return;
+        final WorldModifierComponent worldModifierComponent = WorldModifierComponent.KEY.get(victim.level());
+        if (worldModifierComponent.isModifier(victim, SEModifiers.LOVERS)
+                || worldModifierComponent.isModifier(killer, SEModifiers.LOVERS)) {
+            // 忽略链子（可能链子小脑有原因）
+            return;
+        }
         // 未启用则跳过
         if (!config.teamKillViolationEnabled) {
             return;
@@ -115,7 +125,8 @@ public class TeamKillViolationHandler {
             String mcFunction = config.teamKillViolationMcFunction;
             if (mcFunction != null && !mcFunction.isEmpty()) {
                 GameUtils.executeFunction(
-                        killer.createCommandSourceStack().withPermission(SREConfig.instance().teamKillViolationMcFunctionPermission),
+                        killer.createCommandSourceStack()
+                                .withPermission(SREConfig.instance().teamKillViolationMcFunctionPermission),
                         mcFunction);
             }
 

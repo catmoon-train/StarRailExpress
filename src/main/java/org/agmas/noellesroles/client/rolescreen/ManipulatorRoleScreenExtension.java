@@ -39,9 +39,8 @@ import java.util.stream.Collectors;
  * 操纵师背包界面扩展：在背包界面显示可操控的玩家列表；操控期间打开背包会取消操控。
  */
 public final class ManipulatorRoleScreenExtension extends PlayerListRoleScreenExtension<PlayerInfo> {
-    public static final ManipulatorRoleScreenExtension INSTANCE = new ManipulatorRoleScreenExtension();
 
-    private ManipulatorRoleScreenExtension() {
+    public ManipulatorRoleScreenExtension() {
     }
 
     @Override
@@ -98,7 +97,7 @@ public final class ManipulatorRoleScreenExtension extends PlayerListRoleScreenEx
     }
 
     @Override
-    public void onInit(LimitedInventoryScreen screen) {
+    public void onInventoryScreenInit(LimitedInventoryScreen screen) {
         // 操控期间打开背包即取消操控
         if (screen.player != null && ModRoles.MANIPULATOR != null) {
             ManipulatorRoleData comp = RoleData.getNullable(ManipulatorRoleData.class, screen.player);
@@ -106,6 +105,6 @@ public final class ManipulatorRoleScreenExtension extends PlayerListRoleScreenEx
                 ClientPlayNetworking.send(new ManipulatorControlInputC2SPacket(0, 0f, 0f, true));
             }
         }
-        super.onInit(screen);
+        super.onInventoryScreenInit(screen);
     }
 }

@@ -35,42 +35,61 @@ public class InsaneHud {
                     if (SREClient.isPlayerSpectator())
                         return;
 
-                    final var insaneKillerPlayerComponent = RoleData.getNullable(InsaneKillerRoleData.class, client.player);
-                    if (insaneKillerPlayerComponent != null && insaneKillerPlayerComponent.inNearDeath()) {
+                    final var insaneKillerPlayerComponent = RoleData
+                            .getNullable(InsaneKillerRoleData.class, client.player);
+                    if (insaneKillerPlayerComponent == null)
+                        return;
+                    if (insaneKillerPlayerComponent.inNearDeath()) {
                         var text1 = Component.translatable("insane.tip.neardeath.line1")
                                 .withStyle(ChatFormatting.YELLOW);
                         var text2 = Component
-                                .translatable("insane.tip.neardeath.line2", insaneKillerPlayerComponent.deathState / 20)
+                                .translatable("insane.tip.neardeath.line2",
+                                        insaneKillerPlayerComponent.deathState
+                                                / 20)
                                 .withStyle(ChatFormatting.RED);
-                        var text3 = Component.translatable("insane.tip.neardeath.line3").withStyle(ChatFormatting.GRAY);
+                        var text3 = Component.translatable("insane.tip.neardeath.line3")
+                                .withStyle(ChatFormatting.GRAY);
                         context.drawString(client.font, text1,
                                 context.guiWidth() - client.font.width(text1) - 10,
-                                context.guiHeight() - 40, java.awt.Color.YELLOW.getRGB());
+                                context.guiHeight() - 40,
+                                java.awt.Color.YELLOW.getRGB());
                         context.drawString(client.font, text2,
                                 context.guiWidth() - client.font.width(text2) - 10,
-                                context.guiHeight() - 30, java.awt.Color.YELLOW.getRGB());
+                                context.guiHeight() - 30,
+                                java.awt.Color.YELLOW.getRGB());
                         context.drawString(client.font, text3,
                                 context.guiWidth() - client.font.width(text3) - 10,
-                                context.guiHeight() - 20, java.awt.Color.YELLOW.getRGB());
+                                context.guiHeight() - 20,
+                                java.awt.Color.YELLOW.getRGB());
                     } else if (insaneKillerPlayerComponent.isActive) {
                         var text = Component.translatable("insane.tip.over",
-                                NoellesrolesClient.abilityBind.getTranslatedKeyMessage().getString()).append(" ");
+                                NoellesrolesClient.abilityBind.getTranslatedKeyMessage()
+                                        .getString())
+                                .append(" ");
                         context.drawString(client.font, text,
                                 context.guiWidth() - client.font.width(text),
                                 context.guiHeight() - 20, ModRoles.MORPHLING.color());
                     } else {
                         final var morphTicks = insaneKillerPlayerComponent.cooldown;
                         if (morphTicks > 0) {
-                            var text = Component.translatable("insane.tip", ((int) (morphTicks * 0.05))).append(" ");
+                            var text = Component
+                                    .translatable("insane.tip",
+                                            ((int) (morphTicks * 0.05)))
+                                    .append(" ");
                             context.drawString(client.font, text,
                                     context.guiWidth() - client.font.width(text),
-                                    context.guiHeight() - 20, ModRoles.MORPHLING.color());
+                                    context.guiHeight() - 20,
+                                    ModRoles.MORPHLING.color());
                         } else {
                             var text = Component.translatable("insane.tip.ready",
-                                    NoellesrolesClient.abilityBind.getTranslatedKeyMessage().getString()).append(" ");
+                                    NoellesrolesClient.abilityBind
+                                            .getTranslatedKeyMessage()
+                                            .getString())
+                                    .append(" ");
                             context.drawString(client.font, text,
                                     context.guiWidth() - client.font.width(text),
-                                    context.guiHeight() - 20, ModRoles.MORPHLING.color());
+                                    context.guiHeight() - 20,
+                                    ModRoles.MORPHLING.color());
                         }
                     }
                 });

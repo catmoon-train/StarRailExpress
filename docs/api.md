@@ -132,9 +132,7 @@ SRERole setCanHavePassiveIncome(boolean bl)              // 是否启用被动�
 SRERole addChild(Consumer<LimitedInventoryScreen> addChild) // 添加 HUD 子元素
 SRERole setServerGameTickEvent(BiConsumer<ServerPlayer, SREGameWorldComponent> event) // 服务端 Tick 回调
 SRERole setClientGameTickEvent(BiConsumer<Player, SREGameWorldComponent> event)       // 客户端 Tick 回调
-SRERole setInventoryScreenInitHandler(Consumer<LimitedInventoryScreen> handler)      // 背包界面 init 开头回调（客户端注册）
-SRERole setInventoryScreenInitTailHandler(Consumer<LimitedInventoryScreen> handler)  // 背包界面 init 末尾回调（客户端注册）
-SRERole setInventoryScreenRenderHandler(InventoryScreenRenderHandler handler)        // 背包界面 render 开头回调（客户端注册）
+SRERole setInventoryScreenExtensionFactory(Supplier<RoleInventoryScreenExtension> factory) // 背包界面扩展工厂（客户端注册；每次打开创建新实例）
 ```
 
 #### 可重写的回调方法 / Overridable Callbacks
@@ -1932,19 +1930,34 @@ LimitedInventoryScreenEvents.RENDER_TAIL.register((screen, g, mx, my, d) -> {
 
 ### SRERole 屏幕钩子 / Screen Hooks
 
-**职业扩展**用 SRERole 上的三个 setter 注册"客户端函数"，再由 `LimitedInventoryScreen`
-在对应时机调用。钩子内部会先判断运行环境（`FabricLoader` 环境 != CLIENT 直接返回）。
-注册应在**客户端**进行（如 `NoellesrolesClient.onInitializeClient()`）。
+**职业扩展**用 SRERole 上的扩展工厂注册，再由 `LimitedInventoryScreen` 每次打开背包时
+创建**新的扩展实例**并调用接口钩子（避免状态固定；需要跨次保留的状态用 `static`）。
+创建时内部会先判断运行环境（`FabricLoader` 环境 != CLIENT 返回 null）。
+注册应在**客户端**进行（如 `NoellesrolesClient.onInitializeClient()` 调用的 `RoleScreenRegister`）。
 
 ```java
 // 客户端注册（示例）
-ModRoles.AMON.setInventoryScreenInitHandler(AmonExtension.INSTANCE::onInit);
-ModRoles.AMON.setInventoryScreenRenderHandler(AmonExtension.INSTANCE::onRender);
+ModRoles.AMON.setInventoryScreenExtensionFactory(AmonRoleScreenExtension::new);
 ```
 
-- `setInventoryScreenInitHandler(Consumer<LimitedInventoryScreen>)` —— `init()` 开头（HEAD）
-- `setInventoryScreenInitTailHandler(Consumer<LimitedInventoryScreen>)` —— `init()` 末尾（TAIL，需要盖在最上层时用）
-- `setInventoryScreenRenderHandler(InventoryScreenRenderHandler)` —— `render()` 开头，每帧
+扩展类实现 `RoleInventoryScreenExtension` 接口并覆写钩子：
+
+```java
+public final class AmonRoleScreenExtension extends PlayerListRoleScreenExtension<PlayerInfo> {
+    // 每次打开背包创建新实例：实例字段自动重置；需要跨次保留的状态用 static
+
+    @Override
+    public void onInventoryScreenInit(LimitedInventoryScreen screen) { ... }  // init() 开头（HEAD）
+    @Override
+    public void onInventoryScreenInitTail(LimitedInventoryScreen screen) { ... } // init() 末尾（TAIL）
+    @Override
+    public void onInventoryScreenRender(LimitedInventoryScreen screen, GuiGraphics g, int mx, int my, float d) { ... } // render() 开头，每帧
+}
+```
+
+- `onInventoryScreenInit` —— `init()` 开头（HEAD）
+- `onInventoryScreenInitTail` —— `init()` 末尾（TAIL，需要盖在最上层时用）
+- `onInventoryScreenRender` —— `render()` 开头，每帧
 
 > 客户端需要执行客户端方法时：判别环境（`player.level().isClientSide` 或 `FabricLoader` 环境）
 > 后经 `SREClient`（客户端入口，允许客户端 only 方法）执行；服务端类不要 import 客户端类。
