@@ -93,6 +93,8 @@ public class InvisbleHandItem {
                 } else {
                     return TMMItems.KNIFE.getDefaultInstance();
                 }
+            } else if (itemStack.is(TMMItems.LOCKPICK)) {
+                return ModItems.MASTER_KEY.getDefaultInstance();
             }
             return null; // 不修改
         });
