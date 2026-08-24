@@ -41,6 +41,8 @@ import net.minecraft.world.item.ItemStack;
 
 import org.agmas.noellesroles.content.entity.PuppeteerBodyEntity;
 import org.agmas.noellesroles.content.item.ThrowingKnife;
+import org.agmas.noellesroles.role.touhou.THMiscRoles;
+import org.agmas.noellesroles.utils.RoleUtils;
 import org.jetbrains.annotations.NotNull;
 
 public record KnifeStabPayload(int target) implements CustomPacketPayload {
@@ -75,11 +77,11 @@ public record KnifeStabPayload(int target) implements CustomPacketPayload {
                 player.swing(InteractionHand.MAIN_HAND);
 
                 if (!player.isCreative()
-                    && !SREGameWorldComponent.KEY.get(player.level()).isRole(player, TMMRoles.LOOSE_END)
-                    && !SREGameWorldComponent.KEY.get(player.level()).isRole(player,
-                            SpecialGameModeRoles.SUPER_LOOSE_END)) {
+                        && !SREGameWorldComponent.KEY.get(player.level()).isRole(player, TMMRoles.LOOSE_END)
+                        && !SREGameWorldComponent.KEY.get(player.level()).isRole(player,
+                                SpecialGameModeRoles.SUPER_LOOSE_END)) {
                     player.getCooldowns().addCooldown(TMMItems.KNIFE,
-                            GameConstants.ITEM_COOLDOWNS.getOrDefault(TMMItems.KNIFE, 600));
+                            getKnifeCooldown(player));
                 }
                 return;
             }
@@ -130,9 +132,16 @@ public record KnifeStabPayload(int target) implements CustomPacketPayload {
                     && !SREGameWorldComponent.KEY.get(player.level()).isRole(player, TMMRoles.LOOSE_END)
                     && !SREGameWorldComponent.KEY.get(player.level()).isRole(player,
                             SpecialGameModeRoles.SUPER_LOOSE_END)) {
-                cooldowns.addCooldown(TMMItems.KNIFE, GameConstants.ITEM_COOLDOWNS.get(TMMItems.KNIFE));
-
+                cooldowns.addCooldown(TMMItems.KNIFE, getKnifeCooldown(player));
             }
+        }
+
+        private int getKnifeCooldown(ServerPlayer player) {
+            float modifier = 1f;
+            if (RoleUtils.isPlayerTheJob(player, THMiscRoles.HOUJUU_NUE)) {
+                modifier = 0.25f;
+            }
+            return (int) (GameConstants.ITEM_COOLDOWNS.getOrDefault(TMMItems.KNIFE, 600) * modifier);
         }
     }
 }

@@ -19,21 +19,25 @@ import io.wifi.starrailexpress.cca.ExtraSlotComponent;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.cca.SREPlayerPsychoComponent;
 import io.wifi.starrailexpress.client.SREClient;
+import io.wifi.starrailexpress.content.item.SkinableItem;
 import io.wifi.starrailexpress.event.AllowItemShowInHand;
 import io.wifi.starrailexpress.index.TMMItems;
+import io.wifi.starrailexpress.index.tag.TMMItemTags;
 import net.minecraft.world.item.ItemStack;
 import org.agmas.noellesroles.content.item.HandCuffsItem;
 import org.agmas.noellesroles.content.item.StalkerKnifeItem;
 import org.agmas.noellesroles.init.ModEffects;
 import org.agmas.noellesroles.init.ModItems;
 import org.agmas.noellesroles.role.ModRoles;
+import org.agmas.noellesroles.role.touhou.THMiscRoles;
+import org.agmas.noellesroles.utils.RoleUtils;
 
 public class InvisbleHandItem {
 
     public static void register() {
         // 怀旧者里世界：隐藏手持物品（主手 + 副手）
         AllowItemShowInHand.EVENT.register((player, itemStack, mainHand) -> {
-            if (SREClient.gameComponent!=null&&SREClient.gameComponent.getRole(player) != null){
+            if (SREClient.gameComponent != null && SREClient.gameComponent.getRole(player) != null) {
                 if (SREClient.gameComponent.getRole(player).equals(ModRoles.SALTED_FISH)) {
                     if (player.isInvisible()) {
                         return ItemStack.EMPTY;
@@ -70,23 +74,45 @@ public class InvisbleHandItem {
             return null; // 不修改
         });
 
+        // HoujuuNue
         AllowItemShowInHand.EVENT.register((player, itemStack, mainHand) -> {
-            if(!mainHand){
-                if(itemStack.getItem() instanceof StalkerKnifeItem){
-                    if(!(player.getMainHandItem().getItem() instanceof StalkerKnifeItem)){
+            if (!mainHand)
+                return null;
+            if (!RoleUtils.isPlayerTheJob(player, THMiscRoles.HOUJUU_NUE)) {
+                return null;
+            }
+            if (itemStack.is(TMMItems.KNIFE)) {
+                if (TMMItems.REVOLVER instanceof SkinableItem ri) {
+                    return ri.getDefaultInstanceForRenderer(player);
+                } else {
+                    return TMMItems.REVOLVER.getDefaultInstance();
+                }
+            } else if (itemStack.is(TMMItemTags.GUNS)) {
+                if (TMMItems.KNIFE instanceof SkinableItem ri) {
+                    return ri.getDefaultInstanceForRenderer(player);
+                } else {
+                    return TMMItems.KNIFE.getDefaultInstance();
+                }
+            }
+            return null; // 不修改
+        });
+        AllowItemShowInHand.EVENT.register((player, itemStack, mainHand) -> {
+            if (!mainHand) {
+                if (itemStack.getItem() instanceof StalkerKnifeItem) {
+                    if (!(player.getMainHandItem().getItem() instanceof StalkerKnifeItem)) {
                         return ItemStack.EMPTY;
                     }
                 }
             }
             if (SREClient.gameComponent != null && SREClient.gameComponent.getRole(player) != null
                     && SREClient.gameComponent.getRole(player).equals(ModRoles.STALKER)) {
-                if (player.isCrouching()){
+                if (player.isCrouching()) {
                     return ItemStack.EMPTY;
                 }
             } else if (SREClient.gameComponent != null && SREClient.gameComponent.getRole(player) != null
                     && SREClient.gameComponent.getRole(player).equals(ModRoles.EXECUTIONER)) {
-                        var ps = SREPlayerPsychoComponent.KEY.get(player);
-                if (ps.psychoTicks>0&&ps.type == 1) {
+                var ps = SREPlayerPsychoComponent.KEY.get(player);
+                if (ps.psychoTicks > 0 && ps.type == 1) {
                     return TMMItems.REVOLVER.getDefaultInstance();
                 }
             }
