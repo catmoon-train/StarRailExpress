@@ -66,8 +66,6 @@ public class VoodooPlayerWidget extends Button {
         if (abilityPlayerComponent == null)
             return;
         final var target = voodooData.map(d -> d.target).orElse(null);
-        if (target == null)
-            return;
 
         // 检查皮肤纹理是否存在，避免空指针异常
         var skinTextures = targetPlayerEntry.getSkin();
@@ -89,7 +87,7 @@ public class VoodooPlayerWidget extends Button {
                 }
             }
 
-            if (target.equals(targetUUID)) {
+            if (target != null && target.equals(targetUUID)) {
                 var text = Component.translatable("widget.general.select");
                 context.renderTooltip(textRenderer, text,
                         this.getX() - 4 - textRenderer.width(text) / 2, this.getY() - 9);
@@ -105,7 +103,7 @@ public class VoodooPlayerWidget extends Button {
                 this.drawShopSlotHighlight(context, this.getX(), this.getY(), 0);
             }
 
-            if (target.equals(targetUUID)) {
+            if (target != null && target.equals(targetUUID)) {
                 var text = Component.translatable("widget.general.selected");
                 context.renderTooltip(textRenderer, text,
                         this.getX() - 4 - textRenderer.width(text) / 2, this.getY() - 9);
