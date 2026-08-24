@@ -15,6 +15,7 @@
 
 package io.wifi.starrailexpress.mixin.client.effects;
 
+import io.wifi.starrailexpress.cca.SREAbilityPlayerComponent;
 import io.wifi.starrailexpress.client.SREClient;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.culling.Frustum;
@@ -22,6 +23,9 @@ import net.minecraft.client.renderer.entity.EntityRenderer;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
+
+import org.agmas.noellesroles.role.touhou.THMiscRoles;
+import org.agmas.noellesroles.utils.RoleUtils;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -45,6 +49,16 @@ public class InvisiblePlayer {
 
             if (!SREClient.gameComponent.isRunning())
                 return;
+            if (RoleUtils.isPlayerTheJob(self, THMiscRoles.KONPAKU_YOUMU)) {
+                if (SREAbilityPlayerComponent.KEY.get(self).status >= 1) {
+                    if (player.isInvisible()) {
+                        cir.setReturnValue(true);
+                        return;
+                    } else {
+                        cir.setReturnValue(false);
+                    }
+                }
+            }
             if (player.hasEffect(MobEffects.INVISIBILITY) || player.isInvisible())
                 // 完全隐身，其他玩家看不到
                 cir.setReturnValue(false);

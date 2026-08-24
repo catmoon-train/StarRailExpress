@@ -88,7 +88,7 @@ public class THKonpakuYoumuRole extends TouhouRole {
 
     }
 
-    private boolean shouldGiveEffect(Player player, Holder<MobEffect> effect) {
+    private static boolean shouldGiveEffect(Player player, Holder<MobEffect> effect) {
         if (!player.hasEffect(effect))
             return true;
         if (player.getEffect(effect) == null)
@@ -109,7 +109,7 @@ public class THKonpakuYoumuRole extends TouhouRole {
         }
     }
 
-    private void giveEffetcs(ServerPlayer player) {
+    private static void giveEffetcs(ServerPlayer player) {
 
         if (shouldGiveEffect(player, MobEffects.INVISIBILITY)) {
             player.addEffect(ModEffects.of(MobEffects.INVISIBILITY, 40 * 20, 1, false, false, true));
@@ -129,6 +129,7 @@ public class THKonpakuYoumuRole extends TouhouRole {
                 .translatable("skill.noellesroles.konpaku_youmu.ghost.tip",
                         Component.translatable("skill.noellesroles.konpaku_youmu.ghost"))
                 .withStyle(ChatFormatting.GREEN), true);
+        giveEffetcs(player);
     }
 
     public static void exitGhost(ServerPlayer player) {

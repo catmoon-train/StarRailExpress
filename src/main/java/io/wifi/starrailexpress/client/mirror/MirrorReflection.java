@@ -222,7 +222,7 @@ public final class MirrorReflection {
         copy.setXRot(source.getXRot());
         copy.xRotO = source.xRotO;
         copy.tickCount = source.tickCount;
-        copy.setInvisible(source.isInvisible());
+        copy.setInvisible(source.isInvisible() || source.isSpectator());
 
         if (source instanceof LivingEntity from && copy instanceof LivingEntity to) {
             to.yBodyRot = this.plane.reflectYaw(from.yBodyRot);

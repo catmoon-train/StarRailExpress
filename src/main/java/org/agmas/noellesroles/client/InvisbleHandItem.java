@@ -21,6 +21,7 @@ import io.wifi.starrailexpress.cca.SREPlayerPsychoComponent;
 import io.wifi.starrailexpress.client.SREClient;
 import io.wifi.starrailexpress.content.item.SkinableItem;
 import io.wifi.starrailexpress.event.AllowItemShowInHand;
+import io.wifi.starrailexpress.game.GameUtils;
 import io.wifi.starrailexpress.index.TMMItems;
 import io.wifi.starrailexpress.index.tag.TMMItemTags;
 import net.minecraft.world.item.ItemStack;
@@ -75,13 +76,18 @@ public class InvisbleHandItem {
         });
 
         // 妖梦
-        
+
         AllowItemShowInHand.EVENT.register((player, itemStack, mainHand) -> {
-            if (!mainHand)
+            if (!GameUtils.isPlayerAliveAndSurvival(player))
                 return null;
             SREGameWorldComponent gameWorld = SREGameWorldComponent.KEY.get(player.level());
+            if (gameWorld.isRole(player, THMiscRoles.KONPAKU_YOUMU)) {
+                if (player.isInvisible()) {
+                    return ItemStack.EMPTY;
+                }
+            }
             if (gameWorld.isRole(player, THMiscRoles.KONPAKU_YOUMU) && !mainHand) {
-                if(player.getMainHandItem().is(ModItems.YOUMU_SWORD)){
+                if (player.getMainHandItem().is(ModItems.YOUMU_SWORD)) {
                     return ModItems.YOUMU_SWORD.getDefaultInstance();
                 }
             }

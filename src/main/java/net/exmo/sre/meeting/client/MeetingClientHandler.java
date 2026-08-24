@@ -226,6 +226,10 @@ public final class MeetingClientHandler {
         while (speakKey.consumeClick()) {
             if (phase == MeetingManager.PHASE_NONE) {
                 // 会议外 → 上报尸体
+
+                if (player.hasEffect(ModEffects.USED_BANED)) {
+                    break;
+                }
                 var body = MeetingReportClientHandler.targetedBody(client);
                 if (body != null && MeetingReportClientHandler.canPrompt(client)
                         && MeetingReportClientHandler.cooldownRemainingTicks(client) <= 0) {

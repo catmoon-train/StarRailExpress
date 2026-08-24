@@ -29,6 +29,8 @@ import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
 
+import org.agmas.noellesroles.init.ModEffects;
+
 /**
  * 「瞄准尸体按键召开会议」的服务端接线：
  * <ul>
@@ -64,6 +66,9 @@ public final class MeetingReportServerHandler {
             return;
         }
         if (!player.canInteractWithEntity(body, 3.0)) {
+            return;
+        }
+        if (player.hasEffect(ModEffects.USED_BANED)) {
             return;
         }
         // 启用开关 / 存活 / 重复上报 / 冷却均由 tryReportBody 校验

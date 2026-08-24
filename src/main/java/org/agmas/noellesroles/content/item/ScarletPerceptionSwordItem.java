@@ -48,7 +48,7 @@ public class ScarletPerceptionSwordItem extends SwordItem implements LeftClickKi
     public InteractionResult onTryHurt(Player attacker, Entity targetE, ItemStack mainhandItem) {
         if (!(targetE instanceof Player target))
             return InteractionResult.FAIL;
-        if (!GameUtils.isPlayerAliveAndSurvival(attacker) || !GameUtils.isPlayerAliveAndSurvival(target)) {
+        if ((!GameUtils.isPlayerAliveAndSurvival(attacker) || !GameUtils.isPlayerAliveAndSurvival(target)) && !attacker.isCreative()) {
             return InteractionResult.FAIL;
         }
         if (attacker.getCooldowns().isOnCooldown(this)) {
