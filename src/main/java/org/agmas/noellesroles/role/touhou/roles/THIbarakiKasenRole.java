@@ -38,7 +38,7 @@ public class THIbarakiKasenRole extends TouhouRole {
                 it.remove();
                 continue;
             }
-            if (t.getValue() > now) {
+            if (now > t.getValue()) {
                 if (wolf != null) {
                     if (wolf instanceof Wolf wf) {
                         wf.discard();
