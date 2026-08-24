@@ -2,6 +2,7 @@ package org.agmas.noellesroles.role_data.killer;
 
 import org.agmas.noellesroles.init.ModEffects;
 
+import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.api.data.RoleDataContext;
 import io.wifi.starrailexpress.api.impl.SimpleRoleData;
 import net.minecraft.core.Holder;
@@ -36,6 +37,7 @@ public class HoujuuNueRoleData extends SimpleRoleData {
             if (tickCounter <= 0) {
                 removeOneLayer();
                 tickCounter = REMOVE_LAYER_TICKS;
+                sync();
             }
         }
     }
@@ -44,7 +46,6 @@ public class HoujuuNueRoleData extends SimpleRoleData {
         if (this.slownessLayers > 0) {
             this.slownessLayers--;
             refreshEffects();
-            this.sync();
         }
     }
 
@@ -62,6 +63,7 @@ public class HoujuuNueRoleData extends SimpleRoleData {
 
     public void addLayers() {
         this.slownessLayers++;
+        SRE.LOGGER.info("slownesslayers {}",slownessLayers);
         if (this.slownessLayers > 5)
             slownessLayers = 5;
         sync();

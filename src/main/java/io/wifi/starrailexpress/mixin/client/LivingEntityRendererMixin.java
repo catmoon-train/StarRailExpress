@@ -29,11 +29,17 @@ import net.minecraft.client.renderer.entity.layers.RenderLayer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
+import pro.fazeclan.river.stupid_express.constants.SEModifiers;
+
+import org.agmas.noellesroles.utils.RoleUtils;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(LivingEntityRenderer.class)
-public abstract class LivingEntityRendererMixin<T extends LivingEntity, M extends EntityModel<T>, X extends Entity> extends EntityRenderer<T> {
+public abstract class LivingEntityRendererMixin<T extends LivingEntity, M extends EntityModel<T>, X extends Entity>
+        extends EntityRenderer<T> {
     protected LivingEntityRendererMixin(EntityRendererProvider.Context ctx) {
         super(ctx);
     }
@@ -48,10 +54,21 @@ public abstract class LivingEntityRendererMixin<T extends LivingEntity, M extend
             float headYaw,
             float headPitch, Operation<Void> original,
             T livingEntity) {
-        boolean isPsycho = livingEntity instanceof Player player && SREPlayerPsychoComponent.KEY.get(player).getPsychoTicks() > 0;
+        boolean isPsycho = livingEntity instanceof Player player
+                && SREPlayerPsychoComponent.KEY.get(player).getPsychoTicks() > 0;
         boolean isItemRenderer = instance instanceof ItemInHandLayer<?, ?>;
         if (!isPsycho || isItemRenderer) {
-            original.call(instance, matrixStack, vertexConsumerProvider, i, t, limbAngle, limbDistance, tickDelta, animationProgress, headYaw, headPitch);
+            original.call(instance, matrixStack, vertexConsumerProvider, i, t, limbAngle, limbDistance, tickDelta,
+                    animationProgress, headYaw, headPitch);
+        }
+    }
+
+    @Inject(method = "isEntityUpsideDown", at = @At("HEAD"), cancellable = true)
+    private static void sre$isEntityUpsideDown(LivingEntity livingEntity, CallbackInfoReturnable<Boolean> cir) {
+        if (livingEntity instanceof Player player) {
+            if (RoleUtils.isPlayerTheModifier(player, SEModifiers.DINNERBONE))
+                cir.setReturnValue(true);
+            return;
         }
     }
 

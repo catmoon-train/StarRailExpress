@@ -30,28 +30,28 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-@Mixin(ItemInHandRenderer.class)
+@Mixin(value = ItemInHandRenderer.class, priority = 900)
 public class ItemInHandRendererMixin {
 
     // renderHandsWithItems 直接读字段，必须 shadow 覆写
-    @Shadow private ItemStack mainHandItem;
-    @Shadow private ItemStack offHandItem;
+    @Shadow
+    private ItemStack mainHandItem;
+    @Shadow
+    private ItemStack offHandItem;
 
-    @Unique private ItemStack noellesroles$savedMain = null;
-    @Unique private ItemStack noellesroles$savedOff = null;
+    @Unique
+    private ItemStack noellesroles$savedMain = null;
+    @Unique
+    private ItemStack noellesroles$savedOff = null;
 
     // ── tick() ── 这里调用了方法，@Redirect 有效 ──────────────────────────
 
-    @Redirect(method = "tick",
-            at = @At(value = "INVOKE",
-                    target = "Lnet/minecraft/client/player/LocalPlayer;getMainHandItem()Lnet/minecraft/world/item/ItemStack;"))
+    @Redirect(method = "tick", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/player/LocalPlayer;getMainHandItem()Lnet/minecraft/world/item/ItemStack;"))
     private ItemStack noellesroles$redirectMainhandTick(LocalPlayer player) {
         return noellesroles$resolveHand(player, true);
     }
 
-    @Redirect(method = "tick",
-            at = @At(value = "INVOKE",
-                    target = "Lnet/minecraft/client/player/LocalPlayer;getOffhandItem()Lnet/minecraft/world/item/ItemStack;"))
+    @Redirect(method = "tick", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/player/LocalPlayer;getOffhandItem()Lnet/minecraft/world/item/ItemStack;"))
     private ItemStack noellesroles$redirectOffhandTick(LocalPlayer player) {
         return noellesroles$resolveHand(player, false);
     }

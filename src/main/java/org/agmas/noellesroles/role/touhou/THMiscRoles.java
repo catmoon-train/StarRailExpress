@@ -113,6 +113,12 @@ public class THMiscRoles {
                 }
             });
 
+
+    // 鬼人正邪 Kijin Seija
+    public static SRERole KIJIN_SEIJA = TMMRoles.registerRole(new THHoujuuNueRole(id("kijin_seija"),
+            new Color(49,38,40).getRGB(), false, true, MoodType.FAKE, Integer.MAX_VALUE, true))
+            .setDefaultEnableNeededPlayerCount(12)
+            .setDefaultEnableChance(6000);
     // 封兽鵺 Houjuu Nue
     public static SRERole HOUJUU_NUE = TMMRoles.registerRole(new THHoujuuNueRole(id("houjuu_nue"),
             new Color(87, 78, 99).getRGB(), false, true, MoodType.FAKE, Integer.MAX_VALUE, true))
