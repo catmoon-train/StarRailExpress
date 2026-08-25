@@ -154,7 +154,7 @@ public class THMiscRoles {
     // 火焰猫燐 kaenbyou_rin
             
     public static SRERole KAENBYOU_RIN = TMMRoles.registerRole(new THKaenbyouRinRole(id("kaenbyou_rin"),
-            new Color(169, 80, 101).getRGB(), false, true, MoodType.FAKE, Integer.MAX_VALUE, true))
+            new Color(169, 80, 101).getRGB(), true, false, MoodType.FAKE, Integer.MAX_VALUE, false))
             .setDefaultEnableNeededPlayerCount(16)
             .setDefaultEnableChance(4000)
             .setHiddenForRoleRotation(true)
