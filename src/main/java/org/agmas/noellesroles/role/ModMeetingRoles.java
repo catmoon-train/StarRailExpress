@@ -61,6 +61,7 @@ public class ModMeetingRoles {
                     Integer.MAX_VALUE, true)
     ).setSpecialMapRole(SRERole.SpecialMapRoleMap.MEETING_VOTE)
             .setCanUseInstinctAndNightVision(true)
+            .setInstinctType(InstinctType.DEFAULT, InstinctType.NONE)
             .setBeSeenInstinctType(InstinctType.DEFAULT, InstinctType.NONE)
             .setNeutrals(true).setCanBeRandomedByOtherRoles(false).setDefaultMax(1);
 
