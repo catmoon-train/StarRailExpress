@@ -161,12 +161,17 @@ public class SwapperRoleData extends SimpleRoleData {
 
         // 回放记录：交换者交换两名玩家位置
         SRE.REPLAY_MANAGER.recordCustomEvent(
-            Component.translatable("replay.event.swapper.swap_position",
-                GameReplayUtils.getReplayPlayerDisplayText(sp, true),
-                GameReplayUtils.getReplayPlayerDisplayText(target, true)));
+                Component.translatable("replay.event.swapper.swap_position",
+                        GameReplayUtils.getReplayPlayerDisplayText(player, true),
+                        GameReplayUtils.getReplayPlayerDisplayText(sp, true),
+                        GameReplayUtils.getReplayPlayerDisplayText(target, true)));
 
         frontSwapCooldown = GameConstants.getInTicks(0, cfg.swapperFrontSwapCooldown);
-        { var __rd = RoleData.getNullable(SwapperRoleData.class, sp); if (__rd != null) __rd.sync(); }
+        {
+            var __rd = RoleData.getNullable(SwapperRoleData.class, sp);
+            if (__rd != null)
+                __rd.sync();
+        }
 
         sp.level().playSound(null, targetPos.x, targetPos.y, targetPos.z,
                 SoundEvents.ENDERMAN_TELEPORT, SoundSource.PLAYERS, 1.0f, 1.0f);
@@ -245,7 +250,6 @@ public class SwapperRoleData extends SimpleRoleData {
             tag.putUUID("target2", target2);
     }
 
-
     @Override
     public void init() {
         isSwapping = false;
@@ -259,6 +263,5 @@ public class SwapperRoleData extends SimpleRoleData {
     public void clear() {
         this.init();
     }
-
 
 }
