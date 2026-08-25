@@ -50,8 +50,8 @@ public class THKaenbyouRinRole extends TouhouRole {
         final int boneNeeds;
 
         public KaenbyouRinShopEntry(ItemStack stack, int priceOfBones, Type type) {
-            this.boneNeeds = priceOfBones;
             super(stack, 0, type);
+            this.boneNeeds = priceOfBones;
         }
 
         public int priceOfBones() {
