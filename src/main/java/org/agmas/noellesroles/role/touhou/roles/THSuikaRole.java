@@ -191,7 +191,7 @@ public class THSuikaRole extends TouhouRole {
                 }
             }
         } else if (isSmallScale(player)) {
-            if (!player.hasEffect(MobEffects.MOVEMENT_SPEED)) {
+            if (!player.hasEffect(ModEffects.FOOTSTEP_VANISH)) {
                 restore(player);
             }
         }
@@ -216,6 +216,7 @@ public class THSuikaRole extends TouhouRole {
         restore(player);
         player.getAttribute(Attributes.SCALE).addOrReplacePermanentModifier(smallScale);
         player.addEffect(ModEffects.of(MobEffects.MOVEMENT_SPEED, 10 * 20, 0, false, false, true));
+        player.addEffect(ModEffects.of(ModEffects.FOOTSTEP_VANISH, 10 * 20, 0, false, false, true));
     }
 
     public static void addBigScale(Player player) {
@@ -247,6 +248,7 @@ public class THSuikaRole extends TouhouRole {
             player.addEffect(ModEffects.of(MobEffects.CONFUSION, 5 * 20, 1, false, false, true));
             if (isSmallScale(player)) {
                 player.addEffect(ModEffects.of(MobEffects.MOVEMENT_SPEED, 10 * 20, 1, false, false, true));
+                player.addEffect(ModEffects.of(ModEffects.FOOTSTEP_VANISH, 10 * 20, 1, false, false, true));
             }
         }
     }
