@@ -112,7 +112,11 @@ public class THRedHouseRoles {
       new TouhouRole(FURANDORU_ID, new Color(177, 153, 130).getRGB(),
           false, false, SRERole.MoodType.FAKE,
           Integer.MAX_VALUE, true), "th_redhouse").setRoleData(GhostRoleData::new).setHiddenForRoleRotation(true)
-      .setCanSeeCoin(true).setNeutrals(true).setCanUseInstinctAndNightVision(true).setCanIgnoreBlackout(true);
+      .setCanSeeCoin(true)
+      .setNeutrals(true)
+      .setCanUseInstinctAndNightVision(true)
+      .setCanIgnoreBlackout(true)
+      .setCanEarnKillerCoinAwardsFromKills(true);
   // 好人：MAID_SAKUYA 十六夜咲夜
   public static SRERole MAID_SAKUYA = TMMRoles.registerRole(new TouhouRole(
       MAID_SAKUYA_ID, // 角色 ID
