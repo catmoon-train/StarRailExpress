@@ -74,8 +74,7 @@ public class CatalystItem extends Item {
                             poisonComponent.setPoisonTicks(1, player.getUUID());
                         } else {
                             // 清除杀手阵营的中毒状态
-                            poisonComponent.init();
-                            poisonComponent.sync();
+                            poisonComponent.cure(player);
                         }
                     }
                     

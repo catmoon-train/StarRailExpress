@@ -68,8 +68,7 @@ public class AntibioticItem extends Item {
                         if (!((double)target.distanceTo(player) > 3.0F)) {
                             // 清除中毒状态
                             final var playerPoisonComponent = SREPlayerPoisonComponent.KEY.get(target);
-                            ((SREPlayerPoisonComponent) playerPoisonComponent).init();
-                            playerPoisonComponent.sync();
+                            playerPoisonComponent.cure(player);
                             
                             // 清除感染状态
                             InfectedPlayerComponent infectedComponent = ModComponents.INFECTED.get(target);

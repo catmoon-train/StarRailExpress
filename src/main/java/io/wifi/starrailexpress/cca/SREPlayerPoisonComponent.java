@@ -17,17 +17,22 @@ package io.wifi.starrailexpress.cca;
 
 import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.api.RoleComponent;
+import io.wifi.starrailexpress.api.SRERole;
+import io.wifi.starrailexpress.api.replay.GameReplayUtils;
 import io.wifi.starrailexpress.game.GameConstants;
 import io.wifi.starrailexpress.game.GameUtils;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.Tuple;
 import net.minecraft.world.entity.player.Player;
 import org.agmas.noellesroles.component.InfectedPlayerComponent;
+import org.agmas.noellesroles.utils.RoleUtils;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.ladysnake.cca.api.v3.component.ComponentKey;
 import org.ladysnake.cca.api.v3.component.ComponentRegistry;
 import org.ladysnake.cca.api.v3.component.tick.ClientTickingComponent;
@@ -101,6 +106,26 @@ public class SREPlayerPoisonComponent implements RoleComponent, ServerTickingCom
         this.init();
     }
 
+    public void cure() {
+        cure(null);
+    }
+
+    public void cure(@Nullable Player healthBy) {
+        if (poisonTicks > 0) {
+            if (healthBy != null) {
+                SRE.REPLAY_MANAGER.recordCustomEvent(
+                        Component.translatable("replay.event.poison.health.with_source",
+                                GameReplayUtils.getReplayPlayerDisplayText(healthBy, true),
+                                GameReplayUtils.getReplayPlayerDisplayText(player, true)));
+            } else {
+                SRE.REPLAY_MANAGER.recordCustomEvent(
+                        Component.translatable("replay.event.poison.health",
+                                GameReplayUtils.getReplayPlayerDisplayText(player, true)));
+            }
+        }
+        this.init();
+    }
+
     public void sync_with_all() {
         for (var p : this.player.getServer().getPlayerList().getPlayers()) {
             KEY.syncWith(p, this.player.asComponentProvider());
@@ -165,14 +190,25 @@ public class SREPlayerPoisonComponent implements RoleComponent, ServerTickingCom
     public void serverTick() {
         // CCA冷冻：仅禁止CCA/职业执行tick，因此冻结中毒/假毒的递减（不减少、不失活致死）
         // 不需要，已在上游冻结
-        
         if (!checkIsGameRunning()) {
             this.poisonTicks = 0;
             this.poisonPulseCooldown = 0;
             this.poisoner = null;
             return;
         }
-        
+
+        SREGameWorldComponent gameWorld = SREGameWorldComponent.KEY.get(this.player.level());
+        if (gameWorld != null) {
+            SRERole role = gameWorld.getRole(this.player);
+            if (role != null && !role.canBePoisoned()) {
+                if (this.poisonTicks > 0) {
+                    this.poisonTicks = -1;
+                    this.poisoner = null;
+                    this.fakePoison = false;
+                    sync();
+                }
+            }
+        }
         if (this.poisonTicks > 0) {
             this.poisonTicks--;
             if (this.poisonTicks == 0) {
@@ -200,6 +236,24 @@ public class SREPlayerPoisonComponent implements RoleComponent, ServerTickingCom
     }
 
     public void setPoisonTicks(int ticks, @NotNull UUID poisoner) {
+        final var role = RoleUtils.getPlayerRole(player);
+        if (role == null || !role.canBePoisoned())
+            return;
+        if (poisonTicks <= 0 && ticks > 0) {
+            if (poisoner != null) {
+                var poisonerPlayer = player.level().getPlayerByUUID(poisoner);
+                SRE.REPLAY_MANAGER.recordCustomEvent(
+                        Component.translatable("replay.event.poison.trigger.with_source",
+                                GameReplayUtils.getReplayPlayerDisplayText(poisonerPlayer, true),
+                                GameReplayUtils.getReplayPlayerDisplayText(player, true),
+                                String.format("%.1f", poisonTicks)));
+            } else {
+                SRE.REPLAY_MANAGER.recordCustomEvent(
+                        Component.translatable("replay.event.poison.trigger",
+                                GameReplayUtils.getReplayPlayerDisplayText(player, true),
+                                String.format("%.1f", poisonTicks)));
+            }
+        }
         this.poisoner = poisoner;
         this.poisonTicks = ticks;
         this.fakePoison = false;
@@ -209,6 +263,24 @@ public class SREPlayerPoisonComponent implements RoleComponent, ServerTickingCom
     }
 
     public void setFakePoisonTicks(int ticks, @NotNull UUID poisoner) {
+        final var role = RoleUtils.getPlayerRole(player);
+        if (role == null || !role.canBePoisoned())
+            return;
+        if (poisonTicks <= 0 && ticks > 0) {
+            if (poisoner != null) {
+                var poisonerPlayer = player.level().getPlayerByUUID(poisoner);
+                SRE.REPLAY_MANAGER.recordCustomEvent(
+                        Component.translatable("replay.event.fake_poison.trigger.with_source",
+                                GameReplayUtils.getReplayPlayerDisplayText(poisonerPlayer, true),
+                                GameReplayUtils.getReplayPlayerDisplayText(player, true),
+                                String.format("%.1f", poisonTicks)));
+            } else {
+                SRE.REPLAY_MANAGER.recordCustomEvent(
+                        Component.translatable("replay.event.fake_poison.trigger",
+                                GameReplayUtils.getReplayPlayerDisplayText(player, true),
+                                String.format("%.1f", poisonTicks)));
+            }
+        }
         this.poisoner = poisoner;
         this.poisonTicks = ticks;
         this.fakePoison = true;

@@ -45,7 +45,7 @@ public class TrueKillerFinder {
             var gameWorldComponent = SREGameWorldComponent.KEY.get(victim.level());
             var poisonerC = SREPlayerPoisonComponent.KEY.maybeGet(victim).orElse(null);
             if (poisonerC != null) {
-                if (poisonerC.poisoner != null && poisonerC.poisonTicks >= 0) {
+                if (poisonerC.poisoner != null && poisonerC.poisonTicks >= 0 && !poisonerC.fakePoison) {
                     var poisonerP = serverVictim.level().getPlayerByUUID(poisonerC.poisoner);
                     if (poisonerP != null && !deathReason.getPath().equals("poison") && originalKiller != null
                             && !poisonerC.poisoner.equals(originalKiller.getUUID())) {

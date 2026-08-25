@@ -32,7 +32,6 @@
     "modifier.StingyPurchaseMixin",
     "modifier.VegetarianFoodMixin",
     "modifier.taxed.SREPlayerShopComponentTaxedMixin",
-    "roles.RoleNoPoisonMixin",
     "roles.adventurer.AdventurerDeathImmunityMixin",
     "roles.awesome_binglus.NoteEntityMixin",
     "roles.awesome_binglus.NoteMixin",

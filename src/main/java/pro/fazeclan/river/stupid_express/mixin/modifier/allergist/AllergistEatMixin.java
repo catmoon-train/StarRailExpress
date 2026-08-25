@@ -42,23 +42,22 @@ public abstract class AllergistEatMixin extends LivingEntity {
         super(entityType, level);
     }
 
-    @Inject(
-            method = {"eat(Lnet/minecraft/world/level/Level;Lnet/minecraft/world/item/ItemStack;Lnet/minecraft/world/food/FoodProperties;)Lnet/minecraft/world/item/ItemStack;"},
-            at = {@At(
-                    value = "INVOKE",
-                    target = "Lnet/minecraft/world/food/FoodData;eat(Lnet/minecraft/world/food/FoodProperties;)V",
-                    shift = At.Shift.AFTER
-            )}
-    )
-    private void allergistConsume(@NotNull Level world, ItemStack stack, FoodProperties foodComponent, CallbackInfoReturnable<ItemStack> cir) {
-        if (world.isClientSide) return;
+    @Inject(method = {
+            "eat(Lnet/minecraft/world/level/Level;Lnet/minecraft/world/item/ItemStack;Lnet/minecraft/world/food/FoodProperties;)Lnet/minecraft/world/item/ItemStack;" }, at = {
+                    @At(value = "INVOKE", target = "Lnet/minecraft/world/food/FoodData;eat(Lnet/minecraft/world/food/FoodProperties;)V", shift = At.Shift.AFTER) })
+    private void allergistConsume(@NotNull Level world, ItemStack stack, FoodProperties foodComponent,
+            CallbackInfoReturnable<ItemStack> cir) {
+        if (world.isClientSide)
+            return;
 
         Player player = (Player) (Object) this;
         AllergistComponent allergist = AllergistComponent.KEY.get(player);
 
-        if (!allergist.isAllergist()) return;
+        if (!allergist.isAllergist())
+            return;
 
-        // Random effect: 33% nothing, 33% slowness 2 for 5s, 33% speed 2 for 2s, 1% death
+        // Random effect: 33% nothing, 33% slowness 2 for 5s, 33% speed 2 for 2s, 1%
+        // death
         double random = ThreadLocalRandom.current().nextDouble() * 100;
 
         if (random < 33) {
@@ -68,20 +67,18 @@ public abstract class AllergistEatMixin extends LivingEntity {
             // Clear poison once
             SREPlayerPoisonComponent poisonComponent = SREPlayerPoisonComponent.KEY.get(player);
             if ((poisonComponent).getPoisonTicks() > 0) {
-                poisonComponent.setPoisonTicks(0, null);
+                poisonComponent.cure(null);
                 player.displayClientMessage(
                         Component.translatable(
-                                "hud.stupid_express.allergist.cure_poison"
-                        ).withColor(SEModifiers.ALLERGIST.color()),
-                        true
-                );
+                                "hud.stupid_express.allergist.cure_poison")
+                                .withColor(SEModifiers.ALLERGIST.color()),
+                        true);
             } else {
                 player.displayClientMessage(
                         Component.translatable(
-                                "hud.stupid_express.allergist.no_poison"
-                        ).withColor(SEModifiers.ALLERGIST.color()),
-                        true
-                );
+                                "hud.stupid_express.allergist.no_poison")
+                                .withColor(SEModifiers.ALLERGIST.color()),
+                        true);
             }
         } else if (random < 99) {
             // Speed 2 for 10 seconds (200 ticks)
@@ -92,20 +89,18 @@ public abstract class AllergistEatMixin extends LivingEntity {
 
             player.displayClientMessage(
                     Component.translatable(
-                            "hud.stupid_express.allergist.speed_boost"
-                    ).withColor(SEModifiers.ALLERGIST.color()),
-                    true
-            );
+                            "hud.stupid_express.allergist.speed_boost")
+                            .withColor(SEModifiers.ALLERGIST.color()),
+                    true);
         } else {
             // Death
             GameUtils.killPlayer(player, true, null, StupidExpress.id("allergist"));
-            
+
             player.displayClientMessage(
                     Component.translatable(
-                            "hud.stupid_express.allergist.death"
-                    ).withColor(SEModifiers.ALLERGIST.color()),
-                    true
-            );
+                            "hud.stupid_express.allergist.death")
+                            .withColor(SEModifiers.ALLERGIST.color()),
+                    true);
         }
     }
 }

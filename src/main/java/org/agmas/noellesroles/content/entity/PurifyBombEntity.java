@@ -90,8 +90,7 @@ public class PurifyBombEntity extends NoHeavyWaterInfluencedThrowableItemProject
             // 清除中毒状态
             SREPlayerPoisonComponent poisonComponent = SREPlayerPoisonComponent.KEY.get(player);
             if (poisonComponent.poisonTicks > 0) {
-                poisonComponent.setPoisonTicks(0, null);
-                poisonComponent.sync();
+                poisonComponent.cure(null);
             }
             
             // 清除感染状态

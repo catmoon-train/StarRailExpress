@@ -205,7 +205,7 @@ public final class PelicanManager {
         // 如果目标中毒，立刻治愈
         SREPlayerPoisonComponent poisonComp = SREPlayerPoisonComponent.KEY.get(target);
         if (poisonComp.poisonTicks > 0) {
-            poisonComp.init();
+            poisonComp.cure(pelican);
         }
 
         // 如果目标被感染，立刻治愈

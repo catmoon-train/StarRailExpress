@@ -127,7 +127,7 @@ public class PoisonCommand {
             SREPlayerPoisonComponent c = SREPlayerPoisonComponent.KEY.get(e);
             // 仅清除与当前类型匹配的中毒状态, 避免误清另一种。
             if (fake == c.fakePoison && c.poisonTicks > 0) {
-                c.init();
+                c.cure(null);
                 cleared++;
             }
         }

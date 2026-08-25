@@ -15,7 +15,6 @@
 
 package org.agmas.noellesroles.packet;
 
-import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.cca.SREPlayerPoisonComponent;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.network.FriendlyByteBuf;
@@ -29,11 +28,11 @@ import net.minecraft.world.entity.player.Player;
 import org.agmas.noellesroles.Noellesroles;
 import org.agmas.noellesroles.init.ModItems;
 import org.agmas.noellesroles.init.NRSounds;
-import org.agmas.noellesroles.role.ModRoles;
 import org.jetbrains.annotations.NotNull;
 
 public record AntidoteUsePayload(int target) implements CustomPacketPayload {
-    public static final CustomPacketPayload.Type<AntidoteUsePayload> ID = new CustomPacketPayload.Type<>(Noellesroles.id("antidoteuse"));
+    public static final CustomPacketPayload.Type<AntidoteUsePayload> ID = new CustomPacketPayload.Type<>(
+            Noellesroles.id("antidoteuse"));
     public static final StreamCodec<FriendlyByteBuf, AntidoteUsePayload> CODEC;
 
     public CustomPacketPayload.Type<? extends CustomPacketPayload> type() {
@@ -49,8 +48,8 @@ public record AntidoteUsePayload(int target) implements CustomPacketPayload {
             ServerPlayer player = context.player();
             Entity var5 = player.serverLevel().getEntity(payload.target());
             if (var5 instanceof Player target) {
-                if (!((double)target.distanceTo(player) > (double)3.0F)) {
-                    ((SREPlayerPoisonComponent)SREPlayerPoisonComponent.KEY.get(target)).init();
+                if (!((double) target.distanceTo(player) > (double) 3.0F)) {
+                    SREPlayerPoisonComponent.KEY.get(target).cure(player);
                     target.playSound(NRSounds.SYRINGE_STAB, 0.4F, 1.0F);
                     player.swing(InteractionHand.MAIN_HAND);
                     if (!player.isCreative()) {

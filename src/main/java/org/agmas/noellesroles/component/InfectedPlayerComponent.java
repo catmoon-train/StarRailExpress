@@ -52,7 +52,7 @@ public class InfectedPlayerComponent implements RoleComponent, ServerTickingComp
     public UUID infector = null; // 感染源玩家
     public int lastSpreadTick = 0; // 上次传播时间
     public boolean spreadAccelerated = false; // 加速传播标志
-    
+
     // 缓存的感染源玩家引用（减少每tick的UUID查找）
     private Player cachedInfectorPlayer = null;
     private int infectorCheckCounter = 0;
@@ -160,6 +160,11 @@ public class InfectedPlayerComponent implements RoleComponent, ServerTickingComp
     public void cure() {
         if (this.infectedTicks <= 0 && this.infector == null && !this.spreadAccelerated) {
             return;
+        }
+        if (this.infectedTicks > 0) {
+            SRE.REPLAY_MANAGER.recordCustomEvent(
+                    Component.translatable("replay.event.infected.health",
+                            GameReplayUtils.getReplayPlayerDisplayText(player, true)));
         }
         this.infectedTicks = 0;
         this.infector = null;
@@ -362,7 +367,8 @@ public class InfectedPlayerComponent implements RoleComponent, ServerTickingComp
                         spreadCount++;
 
                         // 回放记录：疫使将病毒传染给了某玩家
-                        if (this.player instanceof ServerPlayer spreader && nearby instanceof ServerPlayer spreadTarget) {
+                        if (this.player instanceof ServerPlayer spreader
+                                && nearby instanceof ServerPlayer spreadTarget) {
                             SRE.REPLAY_MANAGER.recordCustomEvent(
                                     Component.translatable("replay.event.infected.spread_virus",
                                             GameReplayUtils.getReplayPlayerDisplayText(spreader, true),

@@ -66,8 +66,7 @@ public class AntidoteItem extends Item {
                         if (!((double) target.distanceTo(player) > (double) 3.0F)) {
                             // 清除中毒状态
                             final var playerPoisonComponent = SREPlayerPoisonComponent.KEY.get(target);
-                            ((SREPlayerPoisonComponent) playerPoisonComponent).init();
-                            playerPoisonComponent.sync();
+                            playerPoisonComponent.cure(attacker);
 
                             // 清除感染状态
                             InfectedPlayerComponent infectedComponent = ModComponents.INFECTED.get(target);

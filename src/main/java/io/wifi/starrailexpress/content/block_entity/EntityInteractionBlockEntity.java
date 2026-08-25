@@ -17,6 +17,7 @@ package io.wifi.starrailexpress.content.block_entity;
 
 import com.mojang.datafixers.util.Pair;
 
+import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.SREConfig;
 import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.api.TMMRoles;
@@ -1224,10 +1225,11 @@ public class EntityInteractionBlockEntity extends BlockEntity {
                 SREPlayerPoisonComponent poison = SREPlayerPoisonComponent.KEY.get(player);
                 int ticks = (int) (action.value * 20);
                 poison.setPoisonTicks(ticks, null);
+                SRE.REPLAY_MANAGER.recordCustomEvent(null);
             }
             case CURE_POISON -> {
                 SREPlayerPoisonComponent poison = SREPlayerPoisonComponent.KEY.get(player);
-                poison.setPoisonTicks(0, null);
+                poison.cure(null);
             }
             case SET_SHIELD -> {
                 SREArmorPlayerComponent armor = SREArmorPlayerComponent.KEY.get(player);
