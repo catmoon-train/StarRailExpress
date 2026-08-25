@@ -23,7 +23,10 @@ import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.cca.SREPlayerPsychoComponent;
 import io.wifi.starrailexpress.event.AllowPlayerDeathWithKiller;
 import io.wifi.starrailexpress.game.GameUtils;
+import io.wifi.starrailexpress.util.SRENetworkMessageUtils;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
@@ -31,6 +34,7 @@ import net.minecraft.world.item.ItemStack;
 
 import org.agmas.noellesroles.role_data.innocence.TelegrapherRoleData;
 import org.agmas.noellesroles.role_data.killer.CreeperRoleData;
+import org.agmas.noellesroles.utils.RoleUtils;
 import org.agmas.noellesroles.game.roles.killer.creeper.RainbowCreeperRole;
 import org.agmas.noellesroles.init.FunnyItems;
 import org.agmas.noellesroles.init.NRSounds;
@@ -226,7 +230,11 @@ public class BounsRoles {
         public void onDeath(Player victim, boolean spawnBody, Player killer, ResourceLocation deathReason,
                 boolean forceDeath) {
             for (Player p : victim.level().players()) {
-                p.playNotifySound(NRSounds.ROLES_LAODA_SEE_YOU_AGAIN, SoundSource.MUSIC, 0.4f, 1f);
+                if (p instanceof ServerPlayer sp) {
+                    SRENetworkMessageUtils.sendBroadcast(sp,
+                            Component.translatable("message.noellesroles.lao_da.death"));
+                    RoleUtils.playSound(sp, NRSounds.ROLES_LAODA_SEE_YOU_AGAIN, SoundSource.MUSIC, 0.4f, 1f);
+                }
             }
             return;
         }
