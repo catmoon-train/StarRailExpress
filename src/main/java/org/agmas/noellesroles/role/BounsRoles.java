@@ -233,7 +233,7 @@ public class BounsRoles {
                 if (p instanceof ServerPlayer sp) {
                     SRENetworkMessageUtils.sendBroadcast(sp,
                             Component.translatable("message.noellesroles.lao_da.death"));
-                    RoleUtils.playSound(sp, NRSounds.ROLES_LAODA_SEE_YOU_AGAIN, SoundSource.MUSIC, 0.4f, 1f);
+                    RoleUtils.playSound(sp, NRSounds.ROLES_LAODA_SEE_YOU_AGAIN, SoundSource.MASTER, 0.4f, 1f);
                 }
             }
             return;
