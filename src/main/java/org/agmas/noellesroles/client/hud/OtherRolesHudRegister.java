@@ -26,6 +26,7 @@ public class OtherRolesHudRegister {
     public static void registerSons() {
         BannedBlockWarningHud.register();
         HoujuuNueHud.register();
+        KaenbyouRinHud.register();
         DoremyHud.register();
         KonpakuYoumuHud.register();
         StuckHelperHud.register();

@@ -1964,6 +1964,8 @@
   "hud.creeper.instant_detonate": "按下 %s 花费75金币立即引爆（范围+1）",
   "item.noellesroles.fake_body_bag": "假裹尸袋",
   "item_name.noellesroles.kaenbyou_rin.bone": "尸体残骸",
+  "hud.noellesroles.kaenbyou_rin.cooldown": "尸体收集冷却中：%ss",
+  "hud.noellesroles.kaenbyou_rin.ready": "右键尸体以收集",
   "message.noellesroles.kaenbyou_rin.buy.lore": "售价：%s个尸体残骸",
   "message.noellesroles.kaenbyou_rin.buy.not_enough": "你的尸体残骸不够！",
   "message.noellesroles.kaenbyou_rin.collected": "收集了尸体。",
