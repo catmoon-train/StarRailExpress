@@ -560,6 +560,9 @@ public class ModEffects {
     public static final Holder<MobEffect> TREMBLE = register("tremble",
             new SimpleMobEffect(MobEffectCategory.HARMFUL, 0x8B1A1A));
 
+    public static final Holder<MobEffect> SUIKA_SMALL = register("suika_small",
+            new SimpleMobEffect(MobEffectCategory.BENEFICIAL, 0x8B1A1A));
+
     /** 视野迷雾：根据效果等级计算雾的可见距离（格）。1 级=2 格，每升 1 级多看 3 格。 */
     public static float getVisionFogDistance(int amplifier) {
         return 2.0f + Math.max(0, amplifier) * 3.0f;
