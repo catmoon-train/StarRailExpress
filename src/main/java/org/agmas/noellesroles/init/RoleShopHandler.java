@@ -2550,7 +2550,7 @@ public class RoleShopHandler {
             entries.add(new ShopEntry(FunnyItems.ICE_RED_TEA.getDefaultInstance(), 200,
                     ShopEntry.Type.TOOL));
             ShopContent.customEntries.put(
-                    THRedHouseRoles.MAID_SAKUYA_ID, entries);
+                    BounsRoles.LAO_DA.identifier(), entries);
         }
         // 女仆咲夜商店
         {
