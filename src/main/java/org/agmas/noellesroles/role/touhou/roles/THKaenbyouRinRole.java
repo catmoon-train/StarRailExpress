@@ -127,6 +127,7 @@ public class THKaenbyouRinRole extends TouhouRole {
             }
         }
         ItemStack bone = Items.BONE.getDefaultInstance();
+        bone.set(DataComponents.MAX_STACK_SIZE, 99);
         bone.setCount(count);
         bone.set(DataComponents.ITEM_NAME, Component.translatable("item_name.noellesroles.kaenbyou_rin.bone"));
         MCItemsUtils.insertOrDropItem(player, bone);
