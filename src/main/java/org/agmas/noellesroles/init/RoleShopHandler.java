@@ -2547,7 +2547,7 @@ public class RoleShopHandler {
         {
             List<ShopEntry> entries = new ArrayList<>();
             
-            entries.add(new ShopEntry(FunnyItems.ICE_RED_TEA.getDefaultInstance(), 150,
+            entries.add(new ShopEntry(FunnyItems.ICE_RED_TEA.getDefaultInstance(), 200,
                     ShopEntry.Type.TOOL));
             ShopContent.customEntries.put(
                     BounsRoles.LAO_DA.identifier(), entries);

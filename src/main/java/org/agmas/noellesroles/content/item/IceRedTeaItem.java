@@ -15,6 +15,7 @@
 
 package org.agmas.noellesroles.content.item;
 
+import io.wifi.starrailexpress.cca.SREPlayerMoodComponent;
 import io.wifi.starrailexpress.content.item.CocktailItem;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.effect.MobEffectInstance;
@@ -49,6 +50,8 @@ public class IceRedTeaItem extends CocktailItem {
                     true, // showParticles - 不显示粒子
                     true // showIcon - 不显示图标
             ));
+            user.setRemainingFireTicks(0);
+            SREPlayerMoodComponent.KEY.get(user).addMood(0.1f);
         }
         return stack;
     }

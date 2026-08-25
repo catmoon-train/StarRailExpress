@@ -1992,6 +1992,7 @@
   "item.noellesroles.life_and_death_shape.rename": "%s 的生死状签名纸",
   "item.noellesroles.life_and_death_shape.tooltip": "拥有此签名时，当你视野范围内有明星时，你将获得速度 I\n拥有此签名的玩家可以让明星抵挡自己受到的一次伤害。\n明星必须在玩家受伤的时候存活才能生效。",
   "item.noellesroles.ice_red_tea": "冰红茶",
+  "item.noellesroles.ice_red_tea.tooltip": "可加速、缓降、回SAN、清火。",
   "item.noellesroles.shisiye": "十四夜",
   "item.noellesroles.shisiye.tooltip": "来自幻想乡的酒水，售价440圆\n饮用后获得：速度X 20s",
   "item.noellesroles.zhanweifu1": "占位符1",
