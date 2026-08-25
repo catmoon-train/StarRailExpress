@@ -36,7 +36,7 @@ public class IceRedTeaItem extends CocktailItem {
             user.addEffect(new MobEffectInstance(
                     MobEffects.MOVEMENT_SPEED,
                     10 * 20,
-                    9,
+                    5,
                     false, // ambient - 环境效果（粒子更少更透明）
                     true, // showParticles - 不显示粒子
                     true // showIcon - 不显示图标
@@ -44,7 +44,7 @@ public class IceRedTeaItem extends CocktailItem {
             user.addEffect(new MobEffectInstance(
                     MobEffects.SLOW_FALLING,
                     10 * 20,
-                    9,
+                    5,
                     false, // ambient - 环境效果（粒子更少更透明）
                     true, // showParticles - 不显示粒子
                     true // showIcon - 不显示图标
