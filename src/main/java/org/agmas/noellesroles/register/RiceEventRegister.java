@@ -16,10 +16,14 @@
 package org.agmas.noellesroles.register;
 
 import io.wifi.starrailexpress.api.data.RoleData;
+import io.wifi.starrailexpress.cca.SREAbilityPlayerComponent;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.content.entity.PlayerBodyEntity;
 import io.wifi.starrailexpress.game.GameUtils;
 import net.fabricmc.fabric.api.event.player.UseEntityCallback;
+import net.minecraft.ChatFormatting;
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -28,13 +32,16 @@ import org.agmas.noellesroles.component.ModComponents;
 import org.agmas.noellesroles.role_data.neutral.CandleBearerRoleData;
 import org.agmas.noellesroles.game.roles.neutral.puppeteer.PuppeteerPlayerComponent;
 import org.agmas.noellesroles.role.ModRoles;
+import org.agmas.noellesroles.role.touhou.THMiscRoles;
+import org.agmas.noellesroles.role.touhou.roles.THKaenbyouRinRole;
 import org.agmas.noellesroles.role_data.killer.DIORoleData;
 
 /**
  * Rice's Role Rhapsody 事件注册，
  * 从 {@link org.agmas.noellesroles.RicesRoleRhapsody} 中按类别剥离归一化而来。
  *
- * <p>注册傀儡师尸体收集事件，使用 Fabric API 的 UseEntityCallback 代替 Mixin。
+ * <p>
+ * 注册傀儡师尸体收集事件，使用 Fabric API 的 UseEntityCallback 代替 Mixin。
  */
 public class RiceEventRegister {
 
@@ -90,32 +97,47 @@ public class RiceEventRegister {
                     }
                 });
             }
-            if (!gameWorld.isRole(player, ModRoles.PUPPETEER))
-                return net.minecraft.world.InteractionResult.PASS;
+            if (gameWorld.isRole(player, THMiscRoles.KAENBYOU_RIN)) {
+                if (SREAbilityPlayerComponent.KEY.get(player).hasCooldown()) {
+                    return InteractionResult.FAIL;
+                }
+                
+                if (!gameWorld.isSkillAvailable) {
+                    player.displayClientMessage(
+                            Component.translatable("message.tip.skill_disabled").withStyle(ChatFormatting.RED), true);
+                    return net.minecraft.world.InteractionResult.FAIL;
+                }
 
-            // 获取傀儡师组件
-            PuppeteerPlayerComponent puppeteerComp = ModComponents.PUPPETEER.get(player);
-
-            // 检查是否可以回收（阶段一且不在冷却中）
-            if (!puppeteerComp.canCollectBody())
-                return net.minecraft.world.InteractionResult.PASS;
-
-            // 获取尸体对应的玩家UUID
-            java.util.UUID bodyOwnerUuid = body.getPlayerUuid();
-
-            // 获取游戏总人数
-            int totalPlayers = 1;
-            if (world instanceof net.minecraft.server.level.ServerLevel serverWorld) {
-                totalPlayers = serverWorld.players().size();
+                THKaenbyouRinRole.collectBody(player, body);
+                // 让尸体消失
+                body.discard();
+                return net.minecraft.world.InteractionResult.SUCCESS;
             }
+            if (gameWorld.isRole(player, ModRoles.PUPPETEER)) {
+                // 获取傀儡师组件
+                PuppeteerPlayerComponent puppeteerComp = ModComponents.PUPPETEER.get(player);
 
-            // 回收尸体
-            puppeteerComp.collectBody(bodyOwnerUuid, totalPlayers);
+                // 检查是否可以回收（阶段一且不在冷却中）
+                if (!puppeteerComp.canCollectBody())
+                    return net.minecraft.world.InteractionResult.PASS;
 
-            // 让尸体消失
-            body.discard();
+                // 获取尸体对应的玩家UUID
+                java.util.UUID bodyOwnerUuid = body.getPlayerUuid();
 
-            return net.minecraft.world.InteractionResult.SUCCESS;
+                // 获取游戏总人数
+                int totalPlayers = 1;
+                if (world instanceof net.minecraft.server.level.ServerLevel serverWorld) {
+                    totalPlayers = serverWorld.players().size();
+                }
+
+                // 回收尸体
+                puppeteerComp.collectBody(bodyOwnerUuid, totalPlayers);
+
+                // 让尸体消失
+                body.discard();
+                return net.minecraft.world.InteractionResult.SUCCESS;
+            }
+            return net.minecraft.world.InteractionResult.PASS;
         });
     }
 }

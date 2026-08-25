@@ -217,4 +217,11 @@ public class SREItemUtils {
         }
         return false;
     }
+
+    public static boolean insertOrDropItem(Player player, ItemStack item) {
+        if (!insertStackInFreeSlot(player, item)) {
+            player.drop(item, false);
+        }
+        return true;
+    }
 }

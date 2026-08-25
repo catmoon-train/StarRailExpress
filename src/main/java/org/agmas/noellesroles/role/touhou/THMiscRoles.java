@@ -15,6 +15,7 @@
 
 package org.agmas.noellesroles.role.touhou;
 
+import org.agmas.noellesroles.role.ModRoles;
 import org.agmas.noellesroles.role.touhou.roles.*;
 import org.agmas.noellesroles.role_data.killer.DoremyRoleData;
 import org.agmas.noellesroles.role_data.killer.HoujuuNueRoleData;
@@ -150,6 +151,15 @@ public class THMiscRoles {
             .setOccupiedRoleCount(2)
             .setRoleData(DoremyRoleData::new)
             .setCanBeRandomedByOtherRoles(false);
+    // 火焰猫燐 kaenbyou_rin
+            
+    public static SRERole KAENBYOU_RIN = TMMRoles.registerRole(new THKaenbyouRinRole(id("kaenbyou_rin"),
+            new Color(169, 80, 101).getRGB(), false, true, MoodType.FAKE, Integer.MAX_VALUE, true))
+            .setDefaultEnableNeededPlayerCount(16)
+            .setDefaultEnableChance(4000)
+            .setHiddenForRoleRotation(true)
+            .addTwoWayOpposingRole(ModRoles.PUPPETEER)
+            .setCanBeRandomedByOtherRoles(true);
 
     public static void init() {
     }
