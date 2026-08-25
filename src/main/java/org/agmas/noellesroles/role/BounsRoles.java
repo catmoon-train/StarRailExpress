@@ -24,11 +24,16 @@ import io.wifi.starrailexpress.cca.SREPlayerPsychoComponent;
 import io.wifi.starrailexpress.event.AllowPlayerDeathWithKiller;
 import io.wifi.starrailexpress.game.GameUtils;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
-import org.agmas.noellesroles.component.ModComponents;
+import net.minecraft.world.item.ItemStack;
+
 import org.agmas.noellesroles.role_data.innocence.TelegrapherRoleData;
 import org.agmas.noellesroles.role_data.killer.CreeperRoleData;
 import org.agmas.noellesroles.game.roles.killer.creeper.RainbowCreeperRole;
+import org.agmas.noellesroles.init.FunnyItems;
+import org.agmas.noellesroles.init.NRSounds;
 import org.agmas.noellesroles.modifier.BounsModifiers;
 import org.agmas.noellesroles.role.touhou.THMagicForestRoles;
 import org.agmas.noellesroles.role.touhou.THLostForestRoles;
@@ -85,8 +90,7 @@ public class BounsRoles {
      * - 只能购买撬锁器和刀（130金币）
      * - 10%概率刷新
      */
-    public static SRERole CREEPER = TMMRoles.registerRole(new RainbowCreeperRole(
-            CREEPER_ID, // 角色 ID
+    public static SRERole CREEPER = TMMRoles.registerRole(new RainbowCreeperRole(CREEPER_ID, // 角色 ID
             new Color(0, 128, 0).getRGB(), // 绿色 - 代表苦力怕
             false, // isInnocent = 杀手阵营
             true, // canUseKiller = 有杀手能力
@@ -143,8 +147,7 @@ public class BounsRoles {
     )).setCanSeeCoin(true).setRoleData(TelegrapherRoleData::new)
             .setDefaultEnableChance(200);
 
-    public static SRERole CAT_KILLER = TMMRoles.registerRole(new EggRole(
-            id("cat_killer"), // 角色 ID
+    public static SRERole CAT_KILLER = TMMRoles.registerRole(new EggRole(id("cat_killer"), // 角色 ID
             new Color(255, 80, 140).getRGB(), // 深粉色 - 猫娘~
             false, // isInnocent = 好人阵营
             true, // canUseKiller = 无杀手能力
@@ -201,18 +204,33 @@ public class BounsRoles {
      * 职业：冷笑
      * 巫毒对立职业
      */
-    public static SRERole LENGXIAO = TMMRoles.registerRole(
-            new EggRole(LENGXIAO_ID, new Color(230, 178, 130).getRGB(),
-                    false, true, SRERole.MoodType.FAKE,
-                    Integer.MAX_VALUE, true) {
-                @Override
-                public ResourceLocation getPsychoSkin(Player player, boolean isSlim) {
-                    ResourceLocation texture = SRE.id("textures/block/plush/lengxiaocn.png");
-                    return texture;
-                }
-            }, "creator_team")
-            .setDefaultEnableChance(10)
-            .addRelatedRole(ModRoles.VOODOO);
+    public static SRERole LENGXIAO = TMMRoles.registerRole(new EggRole(LENGXIAO_ID, new Color(230, 178, 130).getRGB(),
+            false, true, SRERole.MoodType.FAKE, Integer.MAX_VALUE, true) {
+        @Override
+        public ResourceLocation getPsychoSkin(Player player, boolean isSlim) {
+            ResourceLocation texture = SRE.id("textures/block/plush/lengxiaocn.png");
+            return texture;
+        }
+    }, "creator_team").setDefaultEnableChance(1000).addRelatedRole(ModRoles.VOODOO);
+    public static SRERole LAO_DA = TMMRoles.registerRole(new EggRole(id("lao_da"), new Color(236, 209, 72).getRGB(),
+            true, false, SRERole.MoodType.REAL,
+            TMMRoles.CIVILIAN_MAX_SPRINT_TICKS, false) {
+        @Override
+        public InteractionResult onDropItem(Player player, ItemStack item) {
+            if (item.is(FunnyItems.ICE_RED_TEA))
+                return InteractionResult.SUCCESS;
+            return InteractionResult.PASS;
+        }
+
+        @Override
+        public void onDeath(Player victim, boolean spawnBody, Player killer, ResourceLocation deathReason,
+                boolean forceDeath) {
+            for (Player p : victim.level().players()) {
+                p.playNotifySound(NRSounds.ROLES_LAODA_SEE_YOU_AGAIN, SoundSource.MUSIC, 0.4f, 1f);
+            }
+            return;
+        }
+    }).setDefaultEnableChance(1000);
 
     public static void init() {
         THRedHouseRoles.init();

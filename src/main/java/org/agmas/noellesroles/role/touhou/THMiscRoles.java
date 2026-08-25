@@ -148,7 +148,8 @@ public class THMiscRoles {
             .setDefaultEnableNeededPlayerCount(16)
             .setDefaultEnableChance(500)
             .setOccupiedRoleCount(2)
-            .setRoleData(DoremyRoleData::new);
+            .setRoleData(DoremyRoleData::new)
+            .setCanBeRandomedByOtherRoles(false);
 
     public static void init() {
     }

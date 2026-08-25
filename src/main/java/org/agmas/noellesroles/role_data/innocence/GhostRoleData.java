@@ -36,6 +36,7 @@ import net.minecraft.world.item.Items;
 import org.agmas.noellesroles.commands.BroadcastCommand;
 import org.agmas.noellesroles.init.ModEffects;
 import org.agmas.noellesroles.role.ModRoles;
+import org.agmas.noellesroles.role.touhou.THRedHouseRoles;
 import org.agmas.noellesroles.utils.MCItemsUtils;
 import org.jetbrains.annotations.NotNull;
 
@@ -52,7 +53,6 @@ public class GhostRoleData extends SimpleRoleData {
     /** 最后的幸存者模式时间（2分钟 = 120秒 = 2400 tick） */
     public static final int LAST_STAND_TIME = 120 * 20;
     public static final int FURAN_LAST_STAND_TIME = 90 * 20;
-
 
     @Override
     public void init() {
@@ -74,7 +74,6 @@ public class GhostRoleData extends SimpleRoleData {
         super(context);
     }
 
-
     public void clientTick() {
         if (invisibilityTicks > 1) {
             invisibilityTicks--;
@@ -91,9 +90,7 @@ public class GhostRoleData extends SimpleRoleData {
 
     public void serverTick() {
         SREGameWorldComponent gameWorld = SREGameWorldComponent.KEY.get(player.level());
-        if (!gameWorld.isRole(player, ModRoles.GHOST)) {
-            return;
-        }
+
         if (!gameWorld.isRunning()) {
             return;
         }
@@ -101,43 +98,49 @@ public class GhostRoleData extends SimpleRoleData {
             return;
         }
 
-        // 检查技能解锁（当游戏剩余3分钟时解锁）
-        if (!abilityUnlocked) {
-            // 获取游戏剩余时间
-            SREGameTimeComponent gameTime = SREGameTimeComponent.KEY.get(player.level());
-            if (gameTime != null) {
-                long remainingTicks = gameTime.getTime();
-                // 当剩余时间 <= 3分钟时解锁
-                if (remainingTicks <= UNLOCK_REMAINING_TICKS) {
-                    abilityUnlocked = true;
-                    sync();
+        if (gameWorld.isRole(player, ModRoles.GHOST)) {
+
+            // 检查技能解锁（当游戏剩余3分钟时解锁）
+            if (!abilityUnlocked) {
+                // 获取游戏剩余时间
+                SREGameTimeComponent gameTime = SREGameTimeComponent.KEY.get(player.level());
+                if (gameTime != null) {
+                    long remainingTicks = gameTime.getTime();
+                    // 当剩余时间 <= 3分钟时解锁
+                    if (remainingTicks <= UNLOCK_REMAINING_TICKS) {
+                        abilityUnlocked = true;
+                        sync();
+                    }
                 }
             }
-        }
 
-        // 发送解锁提示
-        if (abilityUnlocked && !unlockNotified) {
-            if (player instanceof ServerPlayer serverPlayer) {
-                serverPlayer.displayClientMessage(
-                        Component.translatable("message.noellesroles.ghost.ability_unlocked")
-                                .withStyle(ChatFormatting.GREEN, ChatFormatting.BOLD),
-                        true);
-                unlockNotified = true;
+            // 发送解锁提示
+            if (abilityUnlocked && !unlockNotified) {
+                if (player instanceof ServerPlayer serverPlayer) {
+                    serverPlayer.displayClientMessage(
+                            Component.translatable("message.noellesroles.ghost.ability_unlocked")
+                                    .withStyle(ChatFormatting.GREEN, ChatFormatting.BOLD),
+                            true);
+                    unlockNotified = true;
+                }
             }
+            checkLastStand(gameWorld);
+
+            // 检查最后幸存者状态
+
+            if (cooldown > 0) {
+                cooldown--;
+            }
+            if (invisibilityTicks > 0) {
+                invisibilityTicks--;
+            }
+            if (player.level().getGameTime() % 400 == 0) {
+                sync();
+            }
+        } else if (gameWorld.isRole(player, THRedHouseRoles.FURANDORU)) {
+            checkFuranLastStand(gameWorld);
         }
 
-        // 检查最后幸存者状态
-        checkLastStand(gameWorld);
-
-        if (cooldown > 0) {
-            cooldown--;
-        }
-        if (invisibilityTicks > 0) {
-            invisibilityTicks--;
-        }
-        if (player.level().getGameTime() % 20 == 0) {
-            sync();
-        }
     }
 
     public boolean useAbility() {
@@ -254,8 +257,8 @@ public class GhostRoleData extends SimpleRoleData {
             sync();
             // 回放记录：小透明加速时间
             SRE.REPLAY_MANAGER.recordCustomEvent(
-                Component.translatable("replay.event.ghost.accelerate_time",
-                    GameReplayUtils.getReplayPlayerDisplayText(player, true)));
+                    Component.translatable("replay.event.ghost.accelerate_time",
+                            GameReplayUtils.getReplayPlayerDisplayText(player, true)));
         }
     }
 
@@ -285,6 +288,7 @@ public class GhostRoleData extends SimpleRoleData {
         // 统计存活的平民阵营玩家
         int aliveCivilianCount = 0;
         int aliveKillerCount = 0;
+        SREGameTimeComponent gameTime = SREGameTimeComponent.KEY.get(player.level());
 
         for (var p : player.level().players()) {
             if (!GameUtils.isPlayerAliveAndSurvival(p)) {
@@ -303,10 +307,10 @@ public class GhostRoleData extends SimpleRoleData {
             }
         }
 
-        // 场上只剩下单一阵营+fulan
-        if ((aliveCivilianCount <= 0 || aliveKillerCount <= 0) && aliveCivilianCount + aliveKillerCount > 0) {
+        // 场上只剩下单一阵营+fulan，或者时间还剩1分半。
+        if (gameTime.getTime() <= FURAN_LAST_STAND_TIME
+                || (aliveCivilianCount <= 0 || aliveKillerCount <= 0) && aliveCivilianCount + aliveKillerCount > 0) {
             // 获取游戏时间
-            SREGameTimeComponent gameTime = SREGameTimeComponent.KEY.get(player.level());
             if (gameTime != null) {
                 long currentTicks = gameTime.getTime();
                 // 如果当前时间超过2分钟，则设置为2分钟
@@ -336,10 +340,9 @@ public class GhostRoleData extends SimpleRoleData {
             sync();
             // 回放记录：芙兰朵露加速时间
             SRE.REPLAY_MANAGER.recordCustomEvent(
-                Component.translatable("replay.event.ghost.accelerate_time",
-                    GameReplayUtils.getReplayPlayerDisplayText(player, true)));
+                    Component.translatable("replay.event.ghost.accelerate_time",
+                            GameReplayUtils.getReplayPlayerDisplayText(player, true)));
         }
     }
-
 
 }

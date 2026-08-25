@@ -100,7 +100,6 @@ import io.wifi.starrailexpress.client.util.ClientScheduler;
 import io.wifi.starrailexpress.client.util.ClientSkinCache;
 import io.wifi.starrailexpress.client.util.TMMItemTooltips;
 import io.wifi.starrailexpress.compat.TrainVoicePlugin;
-import io.wifi.starrailexpress.client.SecurityCameraClientState;
 import io.wifi.starrailexpress.content.entity.FirecrackerEntity;
 import io.wifi.starrailexpress.content.entity.NoteEntity;
 import io.wifi.starrailexpress.content.entity.PlayerBodyEntity;
@@ -1451,5 +1450,11 @@ public class SREClient implements ClientModInitializer {
         if (timeComponent == null)
             return 0;
         return timeComponent.getTicksFromGameStart();
+    }
+
+    public static boolean hasPenalty() {
+        if (cached_player == null)
+            return false;
+        return DeathPenaltyComponent.KEY.get(cached_player).hasPenalty();
     }
 }

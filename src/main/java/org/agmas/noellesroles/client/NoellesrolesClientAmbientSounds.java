@@ -26,6 +26,8 @@ import org.agmas.noellesroles.init.ModEffects;
 import org.agmas.noellesroles.init.NRSounds;
 import org.agmas.noellesroles.role.BounsRoles;
 import org.agmas.noellesroles.role.ModRoles;
+import org.agmas.noellesroles.role.touhou.THRedHouseRoles;
+import org.agmas.noellesroles.role_data.innocence.GhostRoleData;
 
 public class NoellesrolesClientAmbientSounds {
 
@@ -67,6 +69,49 @@ public class NoellesrolesClientAmbientSounds {
                   return false;
                 return (level.players().stream().anyMatch((p) -> {
                   if (SREClient.gameComponent.isRole(p, BounsRoles.CAT_KILLER)) {
+                    if (SREPlayerPsychoComponent.KEY.get(p).getPsychoTicks() > 0) {
+                      return true;
+                    }
+                  }
+                  return false;
+                }));
+              }
+              return false;
+            },
+            1));
+
+    AmbienceUtil.registerBackgroundAmbience(
+        new BackgroundAmbience(NRSounds.ROLES_FURANDORU_FINAL,
+            player -> {
+              if (SREClient.gameComponent == null || SREClient.timeComponent == null)
+                return false;
+              if (SREClient.timeComponent.getTime() <= GhostRoleData.FURAN_LAST_STAND_TIME) {
+                var level = Minecraft.getInstance().level;
+                if (level == null)
+                  return false;
+                return (level.players().stream().anyMatch((p) -> {
+                  if (SREClient.gameComponent.isRole(p, THRedHouseRoles.FURANDORU)) {
+                    {
+                      return true;
+                    }
+                  }
+                  return false;
+                }));
+              }
+              return false;
+            },
+            1));
+    AmbienceUtil.registerBackgroundAmbience(
+        new BackgroundAmbience(NRSounds.ROLES_REMILIA,
+            player -> {
+              if (SREClient.gameComponent == null)
+                return false;
+              if (SREClient.gameComponent.isPsychoActive()) {
+                var level = Minecraft.getInstance().level;
+                if (level == null)
+                  return false;
+                return (level.players().stream().anyMatch((p) -> {
+                  if (SREClient.gameComponent.isRole(p, THRedHouseRoles.REMILIA)) {
                     if (SREPlayerPsychoComponent.KEY.get(p).getPsychoTicks() > 0) {
                       return true;
                     }

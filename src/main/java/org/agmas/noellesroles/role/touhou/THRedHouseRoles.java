@@ -29,7 +29,6 @@ import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 
-import io.wifi.starrailexpress.api.data.RoleData;
 import org.agmas.noellesroles.init.ModEffects;
 import org.agmas.noellesroles.init.ModItems;
 import org.agmas.noellesroles.role.ModRoles;
@@ -112,16 +111,7 @@ public class THRedHouseRoles {
   public static SRERole FURANDORU = TMMRoles.registerRole(
       new TouhouRole(FURANDORU_ID, new Color(177, 153, 130).getRGB(),
           false, false, SRERole.MoodType.FAKE,
-          Integer.MAX_VALUE, true) {
-        @Override
-        public void serverTick(ServerPlayer player) {
-          if (player.isSpectator())
-            return;
-          // 复用 roledata
-          RoleData.getOptional(GhostRoleData.class, player).ifPresent(rd ->
-              rd.checkFuranLastStand(SREGameWorldComponent.KEY.get(player.level())));
-        }
-      }, "th_redhouse").setRoleData(GhostRoleData::new).setHiddenForRoleRotation(true)
+          Integer.MAX_VALUE, true), "th_redhouse").setRoleData(GhostRoleData::new).setHiddenForRoleRotation(true)
       .setCanSeeCoin(true).setNeutrals(true).setCanUseInstinctAndNightVision(true).setCanIgnoreBlackout(true);
   // 好人：MAID_SAKUYA 十六夜咲夜
   public static SRERole MAID_SAKUYA = TMMRoles.registerRole(new TouhouRole(

@@ -37,6 +37,9 @@ public class FunnyItems {
     public static final Item SHISIYE = register(
             new ShisiyeItem(new Item.Properties().stacksTo(1).food(Foods.HONEY_BOTTLE)),
             "shisiye");
+    public static final Item ICE_RED_TEA = register(
+            new IceRedTeaItem(new Item.Properties().stacksTo(1).food(Foods.HONEY_BOTTLE)),
+            "ice_red_tea");
     public static final Item SUIKA_GOURD = register(
             new SuikaGourdItem(new Item.Properties().stacksTo(1).food(Foods.HONEY_BOTTLE)),
             "suika_gourd");

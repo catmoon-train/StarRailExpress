@@ -15,11 +15,66 @@
 
 package org.agmas.noellesroles.handler;
 
+import org.agmas.noellesroles.init.ModEffects;
+import org.agmas.noellesroles.role.BounsRoles;
 import org.agmas.noellesroles.role_data.neutral.LinFamilyRoleData;
+
+import io.wifi.starrailexpress.SRE;
+import io.wifi.starrailexpress.api.RoleSkill;
+import io.wifi.starrailexpress.game.GameConstants;
+import io.wifi.starrailexpress.game.GameUtils;
+import net.minecraft.network.protocol.game.ClientboundSetEntityMotionPacket;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.phys.Vec3;
 
 public class BounsHandlers {
 
     public static void register() {
         LinFamilyRoleData.registerEvents();
+        RoleSkill.register(BounsRoles.LAO_DA,
+                RoleSkill.skill(SRE.id("lao_da"), "skill.noellesroles.lao_da.zhouji", (ctx) -> {
+                    final var serverPlayer = ctx.player();
+                    // 坚守者式冲击波：眩晕（定身 + 禁止背包 + 禁止使用）并击退正前方扇形内的玩家
+                    Vec3 lookFlat = new Vec3(serverPlayer.getLookAngle().x, 0, serverPlayer.getLookAngle().z);
+                    if (lookFlat.lengthSqr() > 1.0e-4) {
+                        lookFlat = lookFlat.normalize();
+                        double swRange = 8f;
+                        int stunTicks = GameConstants.getInTicks(0, 1);
+                        for (final var target : serverPlayer.serverLevel().players()) {
+                            if (target.equals(serverPlayer) || !GameUtils.isPlayerAliveAndSurvival(target))
+                                continue;
+                            Vec3 to = new Vec3(target.getX() - serverPlayer.getX(), 0,
+                                    target.getZ() - serverPlayer.getZ());
+                            double dist = to.length();
+                            if (dist > swRange || dist < 1.0e-4)
+                                continue;
+                            // 仅作用于正前方（约 ±72° 扇形）
+                            if (lookFlat.dot(to.scale(1.0 / dist)) < 0.3D)
+                                continue;
+                            double strength = 1.4;
+                            target.push(to.x / dist * strength, 0.42D, to.z / dist * strength);
+                            if (target instanceof ServerPlayer stp) {
+                                stp.setLastHurtByPlayer(serverPlayer);
+                                stp.hurtMarked = true;
+                                stp.connection.send(
+                                        new ClientboundSetEntityMotionPacket(stp.getId(), stp.getDeltaMovement()));
+                            }
+                            target.addEffect(
+                                    new MobEffectInstance(ModEffects.MOVE_BANED, stunTicks, 0, false, true, true));
+                            target.addEffect(
+                                    new MobEffectInstance(ModEffects.INVENTORY_BANED, stunTicks, 0, false, true, true));
+                            target.addEffect(
+                                    new MobEffectInstance(ModEffects.USED_BANED, stunTicks, 0, false, true, true));
+                        }
+                    }
+                    serverPlayer.serverLevel().playSound(null, serverPlayer.getX(), serverPlayer.getY(),
+                            serverPlayer.getZ(),
+                            SoundEvents.WARDEN_SONIC_BOOM, SoundSource.PLAYERS, 1.5F, 1.0F);
+                    return true;
+                }).showOnHud(true)
+                        .recordReplay().cooldownSeconds(60).announceToSelf().build());
     }
 }

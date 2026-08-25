@@ -2543,6 +2543,15 @@ public class RoleShopHandler {
                     ModRoles.DIO_ID, entries);
         }
 
+        // 牢大商店
+        {
+            List<ShopEntry> entries = new ArrayList<>();
+            
+            entries.add(new ShopEntry(FunnyItems.ICE_RED_TEA.getDefaultInstance(), 200,
+                    ShopEntry.Type.TOOL));
+            ShopContent.customEntries.put(
+                    THRedHouseRoles.MAID_SAKUYA_ID, entries);
+        }
         // 女仆咲夜商店
         {
             List<ShopEntry> entries = new ArrayList<>();

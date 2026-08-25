@@ -303,7 +303,11 @@ public class SREClientEvents {
             return TrueFalseAndCustomResult.pass();
         });
 
-        OnRenderRoleName.RENDER_PLAYER_NAME.register((___player, target, ctx, delta, font) -> {
+        OnRenderRoleName.RENDER_PLAYER_NAME.register((player, target, ctx, delta, font) -> {
+            if (!SREClient.isPlayerAliveAndInSurvival() && !SREClient.hasPenalty()) {
+                // 旁观不参与变幻
+                return TrueFalseAndCustomResult.pass();
+            }
             if (getShuffledTarget(target) != null) {
                 return TrueFalseAndCustomResult.custom(Component.literal("??!?!").withStyle(ChatFormatting.OBFUSCATED));
             }
