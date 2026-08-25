@@ -38,7 +38,7 @@ public class THKaenbyouRinRole extends TouhouRole {
     public List<ShopEntry> getShopEntries(@Nullable Player player) {
         ArrayList<ShopEntry> SHOP = new ArrayList<>();
         SHOP.add(new KaenbyouRinShopEntry(TMMItems.CROWBAR.getDefaultInstance(), 3, ShopEntry.Type.TOOL));
-        SHOP.add(new KaenbyouRinShopEntry(TMMItems.REVOLVER.getDefaultInstance(), 8, ShopEntry.Type.TOOL));
+        SHOP.add(new KaenbyouRinShopEntry(TMMItems.REVOLVER.getDefaultInstance(), 6, ShopEntry.Type.TOOL));
         SHOP.add(new KaenbyouRinShopEntry(FunnyItems.SHISIYE.getDefaultInstance(), 10, ShopEntry.Type.TOOL));
         SHOP.add(new KaenbyouRinShopEntry(TMMItems.KNIFE.getDefaultInstance(), 12, ShopEntry.Type.TOOL));
         SHOP.add(new KaenbyouRinShopEntry(TMMItems.DEFENSE_VIAL.getDefaultInstance(), 14, ShopEntry.Type.TOOL));
