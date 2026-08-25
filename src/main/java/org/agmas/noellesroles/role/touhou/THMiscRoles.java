@@ -130,13 +130,15 @@ public class THMiscRoles {
 
     // 茨木华扇 Ibaraki Kasen
     public static SRERole IBARAKI_KASEN = TMMRoles.registerRole(new THIbarakiKasenRole(id("ibaraki_kasen"),
-            new Color(216, 158, 159).getRGB(), true, false, MoodType.REAL, TMMRoles.CIVILIAN_MAX_SPRINT_TICKS, false))
+            new Color(216, 158, 159).getRGB(), true, false, MoodType.REAL,
+            TMMRoles.CIVILIAN_MAX_SPRINT_TICKS, false))
             .setDefaultEnableNeededPlayerCount(12)
             .setDefaultEnableChance(5000);
 
     // 魂魄妖梦 Konpaku Youmu
     public static SRERole KONPAKU_YOUMU = TMMRoles.registerRole(new THKonpakuYoumuRole(id("konpaku_youmu"),
-            new Color(170, 152, 151).getRGB(), true, false, MoodType.REAL, TMMRoles.CIVILIAN_MAX_SPRINT_TICKS, false))
+            new Color(170, 152, 151).getRGB(), true, false, MoodType.REAL,
+            TMMRoles.CIVILIAN_MAX_SPRINT_TICKS, false))
             .setDefaultEnableNeededPlayerCount(12)
             .setDefaultEnableChance(5000)
             .setVigilanteTeam(true)
@@ -153,7 +155,8 @@ public class THMiscRoles {
             .setCanBeRandomedByOtherRoles(false);
     // 火焰猫燐 kaenbyou_rin
     public static SRERole KAENBYOU_RIN = TMMRoles.registerRole(new THKaenbyouRinRole(id("kaenbyou_rin"),
-            new Color(169, 80, 101).getRGB(), true, false, MoodType.FAKE, Integer.MAX_VALUE, false))
+            new Color(169, 80, 101).getRGB(), true, false, MoodType.REAL,
+            TMMRoles.CIVILIAN_MAX_SPRINT_TICKS, false))
             .setDefaultEnableNeededPlayerCount(16)
             .setDefaultEnableChance(4000)
             .setHiddenForRoleRotation(true)
