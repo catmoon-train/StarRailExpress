@@ -81,7 +81,7 @@ public class THKaenbyouRinRole extends TouhouRole {
             loreLines.addFirst(Component
                     .translatable("message.noellesroles.kaenbyou_rin.buy.lore",
                             Component.literal(String.valueOf(boneNeeds)).withStyle(ChatFormatting.AQUA))
-                    .withStyle(ChatFormatting.LIGHT_PURPLE));
+                    .withStyle(ChatFormatting.LIGHT_PURPLE).withStyle(style->style.withItalic(false)));
             it.set(DataComponents.LORE, new ItemLore(loreLines));
             return it;
         }
