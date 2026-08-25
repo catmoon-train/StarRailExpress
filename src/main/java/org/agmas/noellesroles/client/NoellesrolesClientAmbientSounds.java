@@ -20,6 +20,7 @@ import dev.doctor4t.ratatouille.client.util.ambience.BackgroundAmbience;
 import io.wifi.starrailexpress.cca.SREPlayerPsychoComponent;
 import io.wifi.starrailexpress.client.SREClient;
 import io.wifi.starrailexpress.client.util.MyBackgroundAmbience;
+import io.wifi.starrailexpress.game.GameUtils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.sounds.SoundSource;
 import org.agmas.noellesroles.init.ModEffects;
@@ -85,11 +86,16 @@ public class NoellesrolesClientAmbientSounds {
             player -> {
               if (SREClient.gameComponent == null || SREClient.timeComponent == null)
                 return false;
+              if (!SREClient.gameComponent.isRunning()) {
+                return false;
+              }
               if (SREClient.timeComponent.getTime() <= GhostRoleData.FURAN_LAST_STAND_TIME) {
                 var level = Minecraft.getInstance().level;
                 if (level == null)
                   return false;
                 return (level.players().stream().anyMatch((p) -> {
+                  if (!GameUtils.isPlayerAliveAndSurvival(p))
+                    return false;
                   if (SREClient.gameComponent.isRole(p, THRedHouseRoles.FURANDORU)) {
                     {
                       return true;
