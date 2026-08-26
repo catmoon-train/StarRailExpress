@@ -246,12 +246,12 @@ public class SREPlayerPoisonComponent implements RoleComponent, ServerTickingCom
                         Component.translatable("replay.event.poison.trigger.with_source",
                                 GameReplayUtils.getReplayPlayerDisplayText(poisonerPlayer, true),
                                 GameReplayUtils.getReplayPlayerDisplayText(player, true),
-                                String.format("%.1f", poisonTicks / 20f)));
+                                String.format("%.1f", ticks / 20f)));
             } else {
                 SRE.REPLAY_MANAGER.recordCustomEvent(
                         Component.translatable("replay.event.poison.trigger",
                                 GameReplayUtils.getReplayPlayerDisplayText(player, true),
-                                String.format("%.1f", poisonTicks / 20f)));
+                                String.format("%.1f", ticks / 20f)));
             }
         }
         this.poisoner = poisoner;
@@ -273,12 +273,12 @@ public class SREPlayerPoisonComponent implements RoleComponent, ServerTickingCom
                         Component.translatable("replay.event.fake_poison.trigger.with_source",
                                 GameReplayUtils.getReplayPlayerDisplayText(poisonerPlayer, true),
                                 GameReplayUtils.getReplayPlayerDisplayText(player, true),
-                                String.format("%.1f", poisonTicks / 20f)));
+                                String.format("%.1f", ticks / 20f)));
             } else {
                 SRE.REPLAY_MANAGER.recordCustomEvent(
                         Component.translatable("replay.event.fake_poison.trigger",
                                 GameReplayUtils.getReplayPlayerDisplayText(player, true),
-                                String.format("%.1f", poisonTicks / 20f)));
+                                String.format("%.1f", ticks / 20f)));
             }
         }
         this.poisoner = poisoner;
