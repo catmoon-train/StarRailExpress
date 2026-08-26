@@ -351,6 +351,14 @@ public abstract class SRERole extends SREAbstractInfoClass {
     }
 
     /**
+     * 加入此职业的模组版本
+     */
+    public SRERole setAddedVersion(String versionName) {
+        this.flags.add("inner.version." + versionName);
+        return this;
+    }
+
+    /**
      * 是否为指定flag
      * 
      * @param flags
@@ -1172,10 +1180,11 @@ public abstract class SRERole extends SREAbstractInfoClass {
 
     /**
      * 当赋予modifier时调用，如果需要操作modifiers列表可以直接操纵，不需要同步，也不需要调用WorldModifierComponent的sync
+     * 
      * @param player
      * @param modifiers
      */
-    public void onAssignedModifiers(ServerPlayer player, Set<SREModifier> modifiers){
+    public void onAssignedModifiers(ServerPlayer player, Set<SREModifier> modifiers) {
     };
 
     public static SREAbilityPlayerComponent getAbilityComponent(Player player) {
