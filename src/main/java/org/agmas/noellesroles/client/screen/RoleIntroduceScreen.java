@@ -2279,12 +2279,12 @@ public class RoleIntroduceScreen extends Screen {
         optionMap.put("inner.disable", Component.translatable("screen.roleintroduce.flag.inner.disable"));
         for (var it : FlagUtils.getAllFlagsSorted())
             optionMap.put(it, FlagUtils.getFlagName(it));
-        ArrayList<String> versionSets = new ArrayList<>();
-        versionSets.addAll(TMMRoles.getAllAddedVersions());
-        versionSets.addAll(HMLModifiers.getAllAddedVersions());
-        versionSets = new ArrayList<>(new HashSet<>());
-        versionSets.sort(VersionComparator.VERSION_COMPARATOR);
-        for (var t : versionSets) {
+        ArrayList<String> versions = new ArrayList<>();
+        versions.addAll(TMMRoles.getAllAddedVersions());
+        versions.addAll(HMLModifiers.getAllAddedVersions());
+        versions = new ArrayList<>(new HashSet<>(versions));
+        versions.sort(VersionComparator.VERSION_COMPARATOR);
+        for (var t : versions) {
             String key = "inner.version." + t;
             optionMap.put(key, FlagUtils.getFlagName(key));
         }
