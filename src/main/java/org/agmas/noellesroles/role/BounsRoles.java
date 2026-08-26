@@ -133,7 +133,7 @@ public class BounsRoles {
     // 唱片师角色 - 平民阵营（彩蛋职业，1% 概率刷新）
     public static SRERole DISC_MASTER = TMMRoles.registerRole(new EggRole(
             DISC_MASTER_ID, // 角色 ID
-            new Color(138, 43, 226).getRGB(), // 蓝紫色 - 代表唱片
+            new Color(255, 87, 34).getRGB(), // 橙红色 - 代表唱片/音乐
             true, // isInnocent = 平民阵营
             false, // canUseKiller = 无杀手能力
             SRERole.MoodType.REAL, // 真实心情
