@@ -26,14 +26,18 @@ import java.util.Set;
 public abstract class SREAbstractInfoClass {
     protected String addedVersion = "unknown";
 
+    public String getAddedVersion() {
+        return addedVersion;
+    }
+
     /**
      * 加入此职业的模组版本
      */
     public SREAbstractInfoClass setAddedVersion(String versionName) {
-        this.flags.add("inner.version." + versionName);
         this.addedVersion = versionName;
         return this;
     }
+
     /**
      * 显示FLAG。用于RoleIntroduceScreen的filter
      */
@@ -132,4 +136,6 @@ public abstract class SREAbstractInfoClass {
     public String toString() {
         return getName().getString();
     }
+
+    public abstract boolean isFlagWithInner(Set<String> flags);
 }

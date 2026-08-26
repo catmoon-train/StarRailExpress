@@ -147,6 +147,8 @@ public class CustomRoleLoader {
                 SRE.LOGGER.error("[CustomRole] Failed to register custom role: {}", data.englishId, e);
             }
         }
+        TMMRoles.refreshVersionTags();
+        HMLModifiers.refreshVersionTags();
 
         // 注册本能透视事件处理器（仅客户端，通过内部类避免服务端加载客户端类，仅首次注册）
         registerClientInstinctHandler();
@@ -232,7 +234,10 @@ public class CustomRoleLoader {
                 SRE.LOGGER.error("[CustomRole-Client] Failed to register: {}", data.englishId, e);
             }
         }
-
+        
+        TMMRoles.refreshVersionTags();
+        HMLModifiers.refreshVersionTags();
+        
         // 注册本能透视事件处理器（客户端，仅首次）
         registerClientInstinctHandler();
 
@@ -1340,7 +1345,8 @@ public class CustomRoleLoader {
             if (GameUtils.isPlayerAliveAndSurvival(p)) {
                 // 黑白（monokuma）在场不计入存活人数：避免其在「只剩自己/只剩自己和指定职业」
                 // 的判定中阻挡游戏结束（场上只剩自己+黑白时应能正常结算）
-                if (gameComponent.isRole(p, ModRoles.MONOKUMA)) continue;
+                if (gameComponent.isRole(p, ModRoles.MONOKUMA))
+                    continue;
                 alivePlayerCount++;
             }
         }
@@ -1381,7 +1387,8 @@ public class CustomRoleLoader {
                         continue;
                     // 黑白（monokuma）在场不参与条件6判定：既不算指定职业也不算外人，
                     // 不会因其在场而阻止游戏结束（场上只剩自己+指定职业+黑白时应正常结算）
-                    if (gameComponent.isRole(p, ModRoles.MONOKUMA)) continue;
+                    if (gameComponent.isRole(p, ModRoles.MONOKUMA))
+                        continue;
                     SRERole pRole = gameComponent.getRole(p);
                     boolean matched = false;
                     if (pRole != null) {

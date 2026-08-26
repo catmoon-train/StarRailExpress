@@ -53,8 +53,7 @@ public class SREModifier extends SREAbstractInfoClass {
 
     @Override
     public SREModifier setAddedVersion(String versionName) {
-        this.flags.add("inner.version." + versionName);
-        this.addedVersion = versionName;
+        super.setAddedVersion(versionName);
         return this;
     }
     /**
@@ -181,6 +180,17 @@ public class SREModifier extends SREAbstractInfoClass {
             test.remove("inner.disable");
             if (!SREDisableManager.isModifierDisabled(this))
                 return false;
+        }
+        
+        Optional<String> versionTag = test.stream().filter((t) -> t.startsWith("inner.version.")).findFirst();
+        if (versionTag.isPresent()) {
+            String judgeVersion = versionTag.get();
+            String version = judgeVersion.substring("inner.version.".length());
+            if (this.addedVersion.equals(version)) {
+                test.remove(judgeVersion);
+            } else {
+                return false;
+            }
         }
         return this.flags.containsAll(test);
     }
