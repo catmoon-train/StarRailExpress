@@ -46,7 +46,7 @@ public class THDoremyRole extends TouhouRole {
         if (!MCItemsUtils.insertStackInFreeSlot(player, item)) {
             player.drop(item, false);
         }
-        cca.cooldownForDoremyGhost = 45 * 20;
+        cca.cooldownForDoremyGhost = 60 * 20;
         cca.sync();
         return;
     }
