@@ -69,6 +69,7 @@ public class SEModifiers {
             false,
             false)).setCanSetSpawnInfoInConfig(false);
 
+    LOVERS.addFlag("3.0版本以前");
     public static SREModifier REFUGEE = HMLModifiers.registerModifier(new SREModifier(
             StupidExpress.id("refugee"),
             0x55ff55,

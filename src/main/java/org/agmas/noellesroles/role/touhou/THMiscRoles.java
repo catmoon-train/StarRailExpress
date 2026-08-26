@@ -67,6 +67,7 @@ public class THMiscRoles {
 
     // 灵乌路空
     public static final ResourceLocation REIUJI_UTSUHO_ID = id("reiuji_utsuho");
+    HAKUREI_REIMU.addFlag("4.3");
     public static SRERole REIUJI_UTSUHO = TMMRoles
             .registerRole(new THUtsuhoRole(REIUJI_UTSUHO_ID, new Color(87, 86, 71).getRGB(),
                     false, true, SRERole.MoodType.FAKE,

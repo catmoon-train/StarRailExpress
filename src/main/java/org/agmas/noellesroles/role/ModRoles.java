@@ -830,6 +830,7 @@ public class ModRoles {
      * - 主动·诡域（冷却 70 秒）：在脚下展开半径 12 格、持续 6 秒的领域。领域内所有人减速（缓慢 II）；
      * 领域内杀手无法开启透视；除杨间外所有人失明并陷入黑暗。
      */
+    SHERIFF.addFlag("3.0版本以前");
     public static SRERole GHOST_EYE = TMMRoles.registerRole(
             new EggRole(GHOST_EYE_ID, new Color(132, 196, 200).getRGB(),
                     true, false, SRERole.MoodType.REAL,
@@ -938,14 +939,17 @@ public class ModRoles {
             .setServerGameTickEvent((sp, cca) -> JesterHandler.handler(sp, cca))
             .setDefaultMax(1)
             .setToggledOnInstinctType(InstinctType.OBSERVER_ROLE_COLOR);
+    JESTER.addFlag("3.0版本以前");
     public static SRERole CONDUCTOR = TMMRoles
             .registerRole(new NormalRole(CONDUCTOR_ID, new Color(184, 134, 11).getRGB(), true,
                     false, SRERole.MoodType.REAL, TMMRoles.CIVILIAN.getMaxSprintTime(), false))
             .setDefaultMax(1);
+    CONDUCTOR.addFlag("3.0版本以前");
     public static SRERole BARTENDER = TMMRoles
             .registerRole(new NormalRole(BARTENDER_ID, new Color(217, 241, 240).getRGB(), true,
                     false, SRERole.MoodType.REAL, TMMRoles.CIVILIAN.getMaxSprintTime(), false))
             .setComponentKey(FoodDrinkGlowComponent.KEY).setDefaultMax(1);
+    BARTENDER.addFlag("3.0版本以前");
     public static SRERole NOISEMAKER = TMMRoles
             .registerRole(new NormalRole(NOISEMAKER_ID, new Color(200, 255, 0).getRGB(), true,
                     false, SRERole.MoodType.REAL, TMMRoles.CIVILIAN.getMaxSprintTime(), false) {
@@ -979,45 +983,54 @@ public class ModRoles {
                     }
                 }
             }).setRoleData(NoiseMakerRoleData::new).setDefaultMax(1);
+    NOISEMAKER.addFlag("3.0版本以前");
     public static SRERole AWESOME_BINGLUS = TMMRoles
             .registerRole(new NormalRole(AWESOME_BINGLUS_ID, new Color(155, 255, 168).getRGB(), true, false,
                     SRERole.MoodType.REAL, TMMRoles.CIVILIAN.getMaxSprintTime(), false))
             .setRoleData(AwesomeRoleData::new)
             .setDefaultMax(1);
+    AWESOME_BINGLUS.addFlag("3.0版本以前");
     public static SRERole VOODOO = TMMRoles
             .registerRole(new NormalRole(VOODOO_ID, new Color(128, 114, 253).getRGB(), true,
                     false, SRERole.MoodType.REAL, TMMRoles.CIVILIAN.getMaxSprintTime(), false)
                     .setRoleData(VoodooRoleData::new))
             .setDefaultMax(1);
+    VOODOO.addFlag("3.0版本以前");
     public static SRERole RECALLER = TMMRoles
             .registerRole(new NormalRole(RECALLER_ID, new Color(135, 206, 235).getRGB(), true,
                     false, SRERole.MoodType.REAL, TMMRoles.CIVILIAN.getMaxSprintTime(), false)
                     .setRoleData(RecallerRoleData::new))
             .setDefaultMax(1);
+    RECALLER.addFlag("3.0版本以前");
     public static SRERole BETTER_VIGILANTE = TMMRoles
             .registerRole(new NormalRole(BETTER_VIGILANTE_ID, new Color(0, 255, 255).getRGB(), true, false,
                     SRERole.MoodType.FAKE, TMMRoles.CIVILIAN.getMaxSprintTime(), false)
                     .setRoleData(BetterVigilanteRoleData::new))
             .setCanBeRandomedByOtherRoles(false).setDefaultMax(0);
+    BETTER_VIGILANTE.addFlag("3.0版本以前");
     public static SRERole BROADCASTER = TMMRoles
             .registerRole(new NormalRole(BROADCASTER_ID, new Color(0, 255, 0).getRGB(), true,
                     false, SRERole.MoodType.REAL, TMMRoles.CIVILIAN.getMaxSprintTime(), true)
                     .setRoleData(BroadcasterRoleData::new))
             .setDefaultMax(1);
+    BROADCASTER.addFlag("3.0版本以前");
     public static SRERole GHOST = TMMRoles
             .registerRole(new NormalRole(GHOST_ID, new Color(200, 200, 200).getRGB(), true, false,
                     SRERole.MoodType.REAL, TMMRoles.CIVILIAN.getMaxSprintTime(), true))
             .setRoleData(GhostRoleData::new)
             .setDefaultMax(1).setHiddenForRoleRotation(true)
             .setBeSeenInstinctType(InstinctType.DEFAULT, InstinctType.NONE);
+    GHOST.addFlag("3.0版本以前");
     public static SRERole DOCTOR = TMMRoles
             .registerRole(new NormalRole(DOCTOR_ID, new Color(30, 144, 255).getRGB(), true,
                     false, SRERole.MoodType.REAL, TMMRoles.CIVILIAN.getMaxSprintTime(), false))
             .setCanSetSpawnInfoInConfig(true).setDefaultMax(0);
+    DOCTOR.addFlag("3.0版本以前");
     public static SRERole ATTENDANT = TMMRoles
             .registerRole(new NormalRole(ATTENDANT_ID, (new Color(198, 185, 36)).getRGB(),
                     true, false, SRERole.MoodType.REAL, TMMRoles.CIVILIAN.getMaxSprintTime(),
                     false));
+    ATTENDANT.addFlag("3.0版本以前");
     public static SRERole PATROLLER = TMMRoles
             .registerRole(new NormalRole(PATROLLER_ID, 0x2F6BFF, true, false, SRERole.MoodType.REAL,
                     io.wifi.starrailexpress.game.GameConstants.getInTicks(0, 10), false)
@@ -1320,6 +1333,7 @@ public class ModRoles {
      * - 第二阶段（求助）：30秒 chat_ban，其它玩家可右键解救
      * - 第三阶段（惩罚）：清空心情+体力，全体静语者+120金币
      */
+    MORPHLING.addFlag("3.0版本以前");
     public static SRERole SILENCER = TMMRoles
             .registerRole(new NormalRole(SILENCER_ID, new Color(160, 40, 100).getRGB(), false,
                     true, SRERole.MoodType.FAKE, Integer.MAX_VALUE, true)
@@ -1340,14 +1354,17 @@ public class ModRoles {
                     true, SRERole.MoodType.FAKE, Integer.MAX_VALUE, true)
                     .setRoleData(ManipulatorRoleData::new))
             .setDefaultMax(0);
+    MANIPULATOR.addFlag("3.0版本以前");
     public static SRERole PHANTOM = TMMRoles
             .registerRole(new NormalRole(PHANTOM_ID, new Color(80, 5, 5, 192).getRGB(), false,
                     true, SRERole.MoodType.FAKE, Integer.MAX_VALUE, true))
             .setComponentKey(ModComponents.ABILITY).setDefaultMax(1);
+    PHANTOM.addFlag("3.0版本以前");
     public static SRERole SWAPPER = TMMRoles
             .registerRole(new NormalRole(SWAPPER_ID, new Color(255, 0, 255).getRGB(), false,
                     true, SRERole.MoodType.FAKE, Integer.MAX_VALUE, true))
             .setRoleData(SwapperRoleData::new).setDefaultMax(1);
+    SWAPPER.addFlag("3.0版本以前");
     public static SRERole EXECUTIONER = TMMRoles
             .registerRole(new NormalRole(EXECUTIONER_ID, new Color(74, 27, 5).getRGB(),
                     false, true, SRERole.MoodType.FAKE, Integer.MAX_VALUE, true) {
@@ -1359,6 +1376,7 @@ public class ModRoles {
             }
                     .setRoleData(ExecutionerRoleData::new))
             .setDefaultMax(1);
+    EXECUTIONER.addFlag("3.0版本以前");
     public static SRERole GAMBLER = TMMRoles
             .registerRole(new GamblerRole(GAMBLER_ID, new Color(72, 61, 139).getRGB(), false,
                     false, SRERole.MoodType.FAKE, TMMRoles.CIVILIAN.getMaxSprintTime(), true))
@@ -1374,6 +1392,7 @@ public class ModRoles {
      * <li>本能透视：追随者蓝、非杀手方中立黄、其余领袖色</li>
      * </ul>
      */
+    GAMBLER.addFlag("3.0版本以前");
     public static SRERole LEADER = TMMRoles
             .registerRole(new LeaderRole(LEADER_ID, new Color(255, 0, 255).getRGB(), false,
                     false, SRERole.MoodType.FAKE, Integer.MAX_VALUE, true))
@@ -1444,6 +1463,7 @@ public class ModRoles {
             .setDefaultEnableChance(5500).setDefaultEnableNeededPlayerCount(12);
 
     // 疫使与毒师互斥生成
+    POISONER.addFlag("3.0版本以前");
     public static SRERole INFECTED = TMMRoles
             .registerRole(new NormalRole(INFECTED_ID, new Color(66, 181, 0).getRGB(), false,
                     false, SRERole.MoodType.FAKE, Integer.MAX_VALUE, true))
@@ -1510,6 +1530,7 @@ public class ModRoles {
                     Integer.MAX_VALUE, true).setRoleData(InsaneKillerRoleData::new));
 
     // 中立阵营角色
+    INSANE_KILLER.addFlag("3.0版本以前");
     public static SRERole COMMANDER = TMMRoles.registerRole(
             new NormalRole(COMMANDER_ID, new Color(185, 122, 87).getRGB(),
                     false, false, SRERole.MoodType.FAKE,
@@ -1535,6 +1556,7 @@ public class ModRoles {
      * - 只在12人及以上对局中出现（可配置）
      * - 刷新几率25%（可配置）
      */
+    VULTURE.addFlag("3.0版本以前");
     public static SRERole PELICAN = TMMRoles
             .registerRole(new NormalRole(PELICAN_ID, new Color(111, 138, 36).getRGB(), false,
                     false, SRERole.MoodType.FAKE, Integer.MAX_VALUE, true)
@@ -1609,6 +1631,7 @@ public class ModRoles {
      * - 当绑定的玩家死亡时，获得左轮手枪并看到凶手
      * - 绑定方式：默认随机，可配置为瞄准绑定
      */
+    CORONER.addFlag("3.0版本以前");
     public static SRERole AVENGER = TMMRoles.registerRole(new NormalRole(
             AVENGER_ID, // 角色 ID
             new Color(255, 140, 0).getRGB(), // 橙黄色 - 代表复仇的火焰
@@ -1630,6 +1653,7 @@ public class ModRoles {
      * - 专属商店：空包弹(100)、烟雾弹(300)、撬锁器(50)、关灯(200)
      * - 胜利条件：与杀手同胜
      */
+    AVENGER.addFlag("3.0版本以前");
     public static SRERole PRANKSTER = TMMRoles.registerRole(new NormalRole(
             PRANKSTER_ID, // 角色 ID
             new Color(176, 196, 222).getRGB(), // 灰色 - 代表捣蛋鬼的隐匿
@@ -1653,6 +1677,7 @@ public class ModRoles {
      * - 加固门道具(75金币)：右键门使其能防一次撬棍，蹲下右键被卡住的门可解除卡住
      * - 警报陷阱(120金币)：放置在门上，撬棍触发时发出警报声
      */
+    PRANKSTER.addFlag("3.0版本以前");
     public static SRERole ENGINEER = TMMRoles.registerRole(new NormalRole(
             ENGINEER_ID, // 角色 ID
             new Color(255, 179, 71).getRGB(), // 琥珀橙 - 代表工程帽/工具
@@ -1678,6 +1703,7 @@ public class ModRoles {
      * - 攻击间隔1.2秒
      * - 使用后冷却80秒
      */
+    ENGINEER.addFlag("3.0版本以前");
     public static SRERole FIGHTER = TMMRoles.registerRole(new NormalRole(
             FIGHTER_ID, // 角色 ID
             new Color(205, 92, 92).getRGB(), // 猩红色 - 代表热血/格斗
@@ -1702,6 +1728,7 @@ public class ModRoles {
      * - 如果目标玩家移动则会关闭界面
      * - 使用后冷却60秒
      */
+    FIGHTER.addFlag("3.0版本以前");
     public static SRERole AGENT = TMMRoles.registerRole(new NormalRole(
             AGENT_ID, // 角色 ID
             new Color(205, 133, 63).getRGB(), // 棕色 - 代表侦探风衣
@@ -1723,6 +1750,7 @@ public class ModRoles {
      * - 使用后获得20秒的速度效果（无粒子，不显示效果图标）
      * - 使用后冷却120秒（2分钟）
      */
+    AGENT.addFlag("3.0版本以前");
     public static SRERole ATHLETE = TMMRoles.registerRole(new NormalRole(
             ATHLETE_ID, // 角色 ID
             new Color(65, 105, 225).getRGB(), // 天蓝色 - 代表运动/活力
@@ -1745,6 +1773,7 @@ public class ModRoles {
      * - 使用后让10格范围内的玩家视野都看向自己
      * - 30秒冷却
      */
+    ATHLETE.addFlag("3.0版本以前");
     public static SRERole SUPERSTAR = TMMRoles.registerRole(new NormalRole(
             SUPERSTAR_ID, // 角色 ID
             new Color(255, 240, 120).getRGB(), // 星辉黄 - 代表明星的聚光灯
@@ -1766,6 +1795,7 @@ public class ModRoles {
      * - 开局获得一把刀
      * - 左键或右键击杀一人后刀消失
      */
+    SUPERSTAR.addFlag("3.0版本以前");
     public static SRERole VETERAN = TMMRoles.registerRole(new NormalRole(
             VETERAN_ID, // 角色 ID
             new Color(85, 107, 47).getRGB(), // 暗橄榄绿 - 代表军装颜色
@@ -1789,6 +1819,7 @@ public class ModRoles {
      * - 按技能键随机播放原版唱片音乐
      * - 60秒冷却
      */
+    VETERAN.addFlag("3.0版本以前");
     public static SRERole SINGER = TMMRoles.registerRole(new NormalRole(
             SINGER_ID, // 角色 ID
             new Color(255, 105, 180).getRGB(), // 热粉色 - 代表音乐与激情
@@ -1811,6 +1842,7 @@ public class ModRoles {
      * - 对方不动，超过10秒可以把对方san回复满
      * - 3分钟冷却
      */
+    SINGER.addFlag("3.0版本以前");
     public static SRERole PSYCHOLOGIST = TMMRoles.registerRole(new NormalRole(
             PSYCHOLOGIST_ID, // 角色 ID
             new Color(64, 224, 208).getRGB(), // 青绿色 - 代表心灵治愈
@@ -1834,6 +1866,7 @@ public class ModRoles {
      * - 可以拍摄照片记录犯罪现场
      * - 死亡时掉落照片
      */
+    PSYCHOLOGIST.addFlag("3.0版本以前");
     public static SRERole PHOTOGRAPHER = TMMRoles.registerRole(new NormalRole(
             PHOTOGRAPHER_ID, // 角色 ID
             new Color(72, 209, 204).getRGB(), // 青石色 - 代表相机镜头
@@ -1905,6 +1938,7 @@ public class ModRoles {
      * - 触发两次后囚禁延长到10秒
      * - 触发三次后囚禁延长到25秒
      */
+    CONSPIRATOR.addFlag("3.0版本以前");
     public static SRERole TRAPPER = TMMRoles.registerRole(new NormalRole(
             TRAPPER_ID, // 角色 ID
             new Color(180, 30, 20).getRGB(), // 深红色 - 代表陷阱与危险
@@ -1922,6 +1956,7 @@ public class ModRoles {
      * - 炸弹倒计时10秒，前5秒隐形
      * - 右键传递炸弹
      */
+    TRAPPER.addFlag("3.0版本以前");
     public static SRERole BOMBER = TMMRoles.registerRole(new NormalRole(
             BOMBER_ID, // 角色 ID
             new Color(51, 51, 51).getRGB(), // 黑色/深灰色
@@ -2041,6 +2076,7 @@ public class ModRoles {
      * - 每名被观察玩家每秒 +1 能量
      * - 满300能量后变为随机杀手角色
      */
+    STALKER.addFlag("3.0版本以前");
     public static SRERole ADMIRER = TMMRoles.registerRole(new NormalRole(
             ADMIRER_ID, // 角色 ID
             new Color(255, 192, 203).getRGB(), false, false, SRERole.MoodType.FAKE, Integer.MAX_VALUE,
@@ -2068,6 +2104,7 @@ public class ModRoles {
      * - 本体状态无法购买商店
      */
     public static RandomColorUtil PUPPETEER_COLOR = new RandomColorUtil(50, true);
+    ADMIRER.addFlag("3.0版本以前");
     public static SRERole PUPPETEER = TMMRoles.registerRole(new NormalRole(
             PUPPETEER_ID, // 角色 ID
             new Color(138, 43, 226).getRGB(), // 深紫罗兰色 - 代表操控与神秘
@@ -2090,6 +2127,7 @@ public class ModRoles {
      * - 属于好人阵营 (isInnocent = true)
      * - 技能：标记一名玩家并透视其位置，冷却60秒
      */
+    PUPPETEER.addFlag("3.0版本以前");
     public static SRERole MONITOR = TMMRoles.registerRole(new NormalRole(
             MONITOR_ID, // 角色 ID
             new Color(32, 201, 151).getRGB(), // 蓝绿色
@@ -2183,6 +2221,7 @@ public class ModRoles {
      * - 独立胜利条件：手持小偷的荣誉（金锭）回房间睡觉则独立胜利
      * - 小偷的荣誉所需金币数 = 游戏开始总人数 * 75
      */
+    NIAN_SHOU.addFlag("3.0");
     public static SRERole THIEF = TMMRoles.registerRole(new NormalRole(
             THIEF_ID, // 角色 ID
             new Color(212, 175, 55).getRGB(), // 金棕色 - 代表财富与贪婪
@@ -2677,6 +2716,7 @@ public class ModRoles {
     public static HashMap<SRERole, RoleAnnouncementTexts.RoleAnnouncementText> roleRoleAnnouncementTextHashMap = new HashMap<>();
 
     // ==================== 咒术师 ====================
+    COURIER.addFlag("3.0版本以前");
     public static SRERole WARLOCK = TMMRoles.registerRole(new NormalRole(
             WARLOCK_ID, new java.awt.Color(139, 0, 139).getRGB(), false,
             true, SRERole.MoodType.FAKE, Integer.MAX_VALUE, true)

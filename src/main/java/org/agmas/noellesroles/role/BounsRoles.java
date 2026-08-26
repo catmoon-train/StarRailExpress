@@ -153,6 +153,7 @@ public class BounsRoles {
             false // 不隐藏计分板
     )).setCanSeeCoin(true).setRoleData(TelegrapherRoleData::new)
             .setDefaultEnableChance(200);
+    TELEGRAPHER.addFlag("3.0版本以前");
 
     public static SRERole CAT_KILLER = TMMRoles.registerRole(new EggRole(id("cat_killer"), // 角色 ID
             new Color(255, 80, 140).getRGB(), // 深粉色 - 猫娘~
@@ -209,6 +210,7 @@ public class BounsRoles {
             false // 显示计分板
     )).setVigilanteTeam(true).setCanPickUpRevolver(true).setCanBeRandomedByOtherRoles(false)
             .setSpecialVigilante(true).setDefaultMax(1).setDefaultEnableChance(10);
+    BEST_VIGILANTE.addFlag("3.0版本以前");
     /**
      * 职业：冷笑
      * 巫毒对立职业
