@@ -55,7 +55,6 @@ public class THLostForestRoles {
       .setCanUseInstinctAndNightVision(true)
       .setHiddenForRoleRotation(true)
       .setRoleData(MagicianRoleData::new);
-      KAGUYA.addFlag("4.4");
 
   // 藤原妹红
   public static final ResourceLocation MOKOU_ID = id("huziwara_no_mokou");
@@ -74,7 +73,6 @@ public class THLostForestRoles {
       .setInstinctType(InstinctType.DEFAULT, InstinctType.KILLER_INSTINCT)
       .setCanBeRandomedByOtherRoles(false)
       .setHiddenForRoleRotation(true);
-      MOKOU.addFlag("4.4");
 
   public static void init() {
   }
@@ -115,4 +113,8 @@ public class THLostForestRoles {
           GameReplayUtils.getReplayPlayerDisplayText(victim, true)));
     }
   }
+    static {
+        KAGUYA.addFlag("inner.version.4.4");
+        MOKOU.addFlag("inner.version.4.4");
+    }
 }

@@ -49,7 +49,6 @@ public class SERoles {
             TMMRoles.CIVILIAN.getMaxSprintTime(),
             false)).setPassiveIncome(false).setNeutralForInnocent(true).setDefaultEnableChance(5000).setDefaultEnableNeededPlayerCount(12);
 
-    AMNESIAC.addFlag("3.0版本以前");
     public static SRERole ARSONIST = registerRole(new NormalRole(
             StupidExpress.id("arsonist"),
             0xfc9526,
@@ -59,7 +58,6 @@ public class SERoles {
             -1,
             true)).setCanUseInstinctAndNightVision(true).setDefaultEnableNeededPlayerCount(12);
 
-    ARSONIST.addFlag("3.0版本以前");
     public static SRERole AVARICIOUS = registerRole(new NormalRole(
             StupidExpress.id("avaricious"),
             0x8f00ff,
@@ -71,7 +69,6 @@ public class SERoles {
                 AvariciousGoldHandler.playerServerTick(player, gameWorldComponent);
             }).setPassiveIncome(false).setInitialCoinCount(0).setDefaultEnableNeededPlayerCount(12);
 
-    AVARICIOUS.addFlag("3.0版本以前");
     public static SRERole NECROMANCER = registerRole(new NormalRole(
             StupidExpress.id("necromancer"),
             0x9457ff,
@@ -81,7 +78,6 @@ public class SERoles {
             -1,
             true)).setDefaultEnableChance(5000).setDefaultEnableNeededPlayerCount(12);
 
-    NECROMANCER.addFlag("3.0版本以前");
     public static SRERole INITIATE = registerRole(new InitiateRole(
             StupidExpress.id("initiate"),
             0xffd154,
@@ -132,7 +128,13 @@ public class SERoles {
         TMMRoles.registerRole(role);
         ROLES.put(role.identifier().getPath(), role);
         return role;
-    INITIATE.addFlag("3.0版本以前");
     }
 
+    static {
+        AMNESIAC.addFlag("inner.version.2.x");
+        ARSONIST.addFlag("inner.version.2.x");
+        AVARICIOUS.addFlag("inner.version.2.x");
+        NECROMANCER.addFlag("inner.version.2.x");
+        INITIATE.addFlag("inner.version.2.x");
+    }
 }

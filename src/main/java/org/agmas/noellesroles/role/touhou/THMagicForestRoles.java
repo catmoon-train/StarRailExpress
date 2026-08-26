@@ -40,6 +40,8 @@ public class THMagicForestRoles {
             .setFallDamageImmune(true); // 不会因高度限制摔死
 
     public static void init() {
-    KIRISAME_MARISA.addFlag("4.3");
+    }
+    static {
+        KIRISAME_MARISA.addFlag("inner.version.4.3");
     }
 }

@@ -67,7 +67,6 @@ public class THMountainRoles {
         }
     }, "th_mountain").setNeutrals(true).setDefaultEnableNeededPlayerCount(12).setDefaultEnableChance(100)
             .setCanUseInstinctAndNightVision(false).setCanPickUpRevolver(false);
-            NITORI.addFlag("4.3");
     public static SRERole AYA = TMMRoles.registerRole(new TouhouRole(AYA_ID, // 角色 ID
             new Color(26, 42, 58).getRGB(), // 黑色 - 代表乌鸦
             false, // isInnocent = 乘客阵营
@@ -161,7 +160,6 @@ public class THMountainRoles {
             return InteractionResult.PASS;
         }
     }.setHiddenForRoleRotation(true).setComponentKey(AyayayaPlayerComponent.KEY), "th_mountain");
-    AYA.addFlag("4.3");
 
     public static SRERole HATATE = TMMRoles.registerRole(new TouhouRole(HATATE_ID, // 角色 ID
             new Color(123, 63, 158).getRGB(), // 黑色 - 代表乌鸦
@@ -198,10 +196,14 @@ public class THMountainRoles {
         }
 
     }.setHiddenForRoleRotation(true).setComponentKey(AyayayaPlayerComponent.KEY), "th_mountain");
-    HATATE.addFlag("4.3");
 
     public static void init() {
         // 强制交易：Nitori
         TouhouHandlers.register();
+    }
+    static {
+        NITORI.addFlag("inner.version.4.3");
+        AYA.addFlag("inner.version.4.3");
+        HATATE.addFlag("inner.version.4.3");
     }
 }

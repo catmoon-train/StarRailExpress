@@ -84,7 +84,6 @@ public class TraitorAndModifiers {
             return new ArrayList<>();
         }
     }).setDefaultMax(0).setCanBeRandomedByOtherRoles(false);
-    TRAITOR.addFlag("4.2");
 
     // ==================== 修饰符定义 ====================
 
@@ -94,7 +93,6 @@ public class TraitorAndModifiers {
             new Color(75, 0, 130).getRGB(), // 深紫色
             null, null, false, true))
             .setDefaultEnableChance(800);
-            SNEAKY.addFlag("4.2");
 
     // 黄油手 - 手枪冷却随机变化
     public static SREModifier BUTTER_FINGERS = HMLModifiers.registerModifier(new SREModifier(
@@ -102,7 +100,6 @@ public class TraitorAndModifiers {
             new Color(255, 215, 0).getRGB(), // 金色
             null, null, false, false))
             .setDefaultEnableChance(1500);
-            BUTTER_FINGERS.addFlag("4.2");
 
     // 强壮 - 35%击退抗性
     private static final AttributeModifier STRONG_KNOCKBACK_RESIST_MODIFIER = new AttributeModifier(
@@ -113,7 +110,6 @@ public class TraitorAndModifiers {
             new Color(139, 69, 19).getRGB(), // 棕色
             null, null, false, false))
             .setDefaultEnableChance(8000);
-            STRONG.addFlag("4.2");
 
     // 夜猫子 - 免疫黑暗效果
     public static SREModifier NIGHT_OWL = HMLModifiers.registerModifier(new SREModifier(
@@ -121,7 +117,6 @@ public class TraitorAndModifiers {
             new Color(25, 25, 112).getRGB(), // 暗蓝色
             null, null, false, true))
             .setDefaultEnableChance(1500);
-            NIGHT_OWL.addFlag("4.2");
 
     // 慷慨 - 每1.5分钟给予最近玩家25金币
     public static SREModifier GENEROUS = HMLModifiers.registerModifier(new SREModifier(
@@ -129,7 +124,6 @@ public class TraitorAndModifiers {
             new Color(255, 182, 193).getRGB(), // 粉色
             null, null, false, false))
             .setDefaultEnableChance(1000);
-            GENEROUS.addFlag("4.2");
 
     // 勇敢 - 关灯时恢复50%理智
     public static SREModifier BRAVE = HMLModifiers.registerModifier(new SREModifier(
@@ -137,7 +131,6 @@ public class TraitorAndModifiers {
             new Color(255, 165, 0).getRGB(), // 橙色
             null, null, false, true))
             .setDefaultEnableChance(1500);
-            BRAVE.addFlag("4.2");
 
     // 工作狂 - 任务刷新快50%
     public static SREModifier WORKAHOLIC = HMLModifiers.registerModifier(new SREModifier(
@@ -145,7 +138,6 @@ public class TraitorAndModifiers {
             new Color(128, 128, 128).getRGB(), // 灰色
             null, null, false, false))
             .setDefaultEnableChance(2000);
-            WORKAHOLIC.addFlag("4.2");
 
     // 大胃王 - 每1.5分钟获得苹果，吃食物任务恢复75% san和25金币
     public static SREModifier BIG_EATER = HMLModifiers.registerModifier(new SREModifier(
@@ -153,7 +145,6 @@ public class TraitorAndModifiers {
             new Color(255, 99, 71).getRGB(), // 番茄红
             null, null, false, true))
             .setDefaultEnableChance(1000);
-            BIG_EATER.addFlag("4.2");
 
     // 狂躁症 - 任务乱码，无法完成，附近完成任务恢复san
     public static SREModifier MANIC = HMLModifiers.registerModifier(new SREModifier(
@@ -161,7 +152,6 @@ public class TraitorAndModifiers {
             new Color(220, 20, 60).getRGB(), // 深红色
             null, null, false, true))
             .setDefaultEnableChance(500);
-            MANIC.addFlag("4.2");
 
     // 回光返照 - 被击杀时获得3秒特殊效果后死亡
     public static SREModifier LAST_GASP = HMLModifiers.registerModifier(new SREModifier(
@@ -169,7 +159,6 @@ public class TraitorAndModifiers {
             new Color(192, 192, 192).getRGB(), // 银色
             null, null, false, false))
             .setDefaultEnableChance(500);
-            LAST_GASP.addFlag("4.2");
 
     // 起义军 - 被同阵营误杀时变为叛徒
     public static SREModifier REBEL = HMLModifiers.registerModifier(new SREModifier(
@@ -177,7 +166,6 @@ public class TraitorAndModifiers {
             new Color(0, 100, 0).getRGB(), // 暗绿色
             null, null, false, true))
             .setDefaultEnableChance(2500).setHidden(true);
-            REBEL.addFlag("4.2");
 
     // 晕血症 - 看到死亡获得缓慢和反胃
     public static SREModifier HEMOPHOBIA = HMLModifiers.registerModifier(new SREModifier(
@@ -185,7 +173,6 @@ public class TraitorAndModifiers {
             new Color(139, 0, 0).getRGB(), // 暗红色
             null, null, false, true))
             .setDefaultEnableChance(500);
-            HEMOPHOBIA.addFlag("4.2");
 
     // 敛财 - 死后扣除击杀者40%金币
     public static SREModifier MONEY_GRUBBER = HMLModifiers.registerModifier(new SREModifier(
@@ -193,7 +180,6 @@ public class TraitorAndModifiers {
             new Color(184, 134, 11).getRGB(), // 暗金色
             null, null, false, false))
             .setDefaultEnableChance(500);
-            MONEY_GRUBBER.addFlag("4.2");
 
     // 素食主义者 - 肉类获得负面效果，其他食物获得正面效果
     public static SREModifier VEGETARIAN = HMLModifiers.registerModifier(new SREModifier(
@@ -201,7 +187,6 @@ public class TraitorAndModifiers {
             new Color(34, 139, 34).getRGB(), // 森林绿
             null, null, false, false))
             .setDefaultEnableChance(2000);
-            VEGETARIAN.addFlag("4.2");
 
     // 侏儒 - 尺寸缩小33%（固定缩放为0.67）
     public static final AttributeModifier DWARF_MODIFIER = new AttributeModifier(
@@ -212,7 +197,6 @@ public class TraitorAndModifiers {
             new Color(205, 133, 63).getRGB(), // 秘鲁色
             Set.of(THMiscRoles.IBUKI_SUIKA), null, false, false))
             .setDefaultEnableChance(300);
-            DWARF.addFlag("4.2");
 
     // 绝境信徒 - 唯一杀手时获得金币和药水效果
     public static SREModifier DESPERATE_FAITH = HMLModifiers.registerModifier(new SREModifier(
@@ -220,7 +204,6 @@ public class TraitorAndModifiers {
             new Color(128, 0, 128).getRGB(), // 紫色
             null, null, true, false))
             .setDefaultEnableChance(1800);
-            DESPERATE_FAITH.addFlag("4.2");
 
     // 吝啬 - 商店购买返还20%金币
     public static SREModifier STINGY = HMLModifiers.registerModifier(new SREModifier(
@@ -228,7 +211,6 @@ public class TraitorAndModifiers {
             new Color(85, 107, 47).getRGB(), // 暗橄榄绿
             null, null, false, false))
             .setDefaultEnableChance(1000);
-            STINGY.addFlag("4.2");
 
     // 腐化 - 死亡后尸体直接变骷髅
     public static SREModifier CORRUPTED = HMLModifiers.registerModifier(new SREModifier(
@@ -236,7 +218,6 @@ public class TraitorAndModifiers {
             new Color(47, 79, 79).getRGB(), // 深石板灰
             null, null, false, false))
             .setDefaultEnableChance(1000);
-            CORRUPTED.addFlag("4.2");
 
     // 柔韧 - 潜行速度提升40%
     private static final AttributeModifier FLEXIBLE_SNEAK_MODIFIER = new AttributeModifier(
@@ -247,7 +228,6 @@ public class TraitorAndModifiers {
             new Color(0, 255, 255).getRGB(), // 青色
             null, null, false, false))
             .setDefaultEnableChance(4000);
-            FLEXIBLE.addFlag("4.2");
 
     // 反牛顿 - 重力减少20%
     private static final AttributeModifier ANTI_NEWTON_GRAVITY_MODIFIER = new AttributeModifier(
@@ -258,7 +238,6 @@ public class TraitorAndModifiers {
             new Color(135, 206, 250).getRGB(), // 天蓝色
             null, null, false, false))
             .setDefaultEnableChance(3000);
-            ANTI_NEWTON.addFlag("4.2");
 
     // ==================== 运行时数据存储 ====================
 
@@ -751,5 +730,28 @@ public class TraitorAndModifiers {
      */
     public static int calculateStingyRefund(int originalPrice) {
         return (int) (originalPrice * 0.2);
+    }
+    static {
+        TRAITOR.addFlag("inner.version.4.2");
+        SNEAKY.addFlag("inner.version.4.2");
+        BUTTER_FINGERS.addFlag("inner.version.4.2");
+        STRONG.addFlag("inner.version.4.2");
+        NIGHT_OWL.addFlag("inner.version.4.2");
+        GENEROUS.addFlag("inner.version.4.2");
+        BRAVE.addFlag("inner.version.4.2");
+        WORKAHOLIC.addFlag("inner.version.4.2");
+        BIG_EATER.addFlag("inner.version.4.2");
+        MANIC.addFlag("inner.version.4.2");
+        LAST_GASP.addFlag("inner.version.4.2");
+        REBEL.addFlag("inner.version.4.2");
+        HEMOPHOBIA.addFlag("inner.version.4.2");
+        MONEY_GRUBBER.addFlag("inner.version.4.2");
+        VEGETARIAN.addFlag("inner.version.4.2");
+        DWARF.addFlag("inner.version.4.2");
+        DESPERATE_FAITH.addFlag("inner.version.4.2");
+        STINGY.addFlag("inner.version.4.2");
+        CORRUPTED.addFlag("inner.version.4.2");
+        FLEXIBLE.addFlag("inner.version.4.2");
+        ANTI_NEWTON.addFlag("inner.version.4.2");
     }
 }

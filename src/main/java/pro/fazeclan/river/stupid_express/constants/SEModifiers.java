@@ -69,7 +69,6 @@ public class SEModifiers {
             false,
             false)).setCanSetSpawnInfoInConfig(false);
 
-    LOVERS.addFlag("3.0版本以前");
     public static SREModifier REFUGEE = HMLModifiers.registerModifier(new SREModifier(
             StupidExpress.id("refugee"),
             0x55ff55,
@@ -80,7 +79,6 @@ public class SEModifiers {
             .setDefaultEnableChance(1000)
             .setDefaultEnableNeededPlayerCount(12)
             .setHidden(true);
-            REFUGEE.addFlag("3.1");
 
     public static SREModifier TINY = HMLModifiers.registerModifier(new SREModifier(
             StupidExpress.id("tiny"),
@@ -89,7 +87,6 @@ public class SEModifiers {
             null,
             false,
             false)).setCanSetSpawnInfoInConfig(false);
-            TINY.addFlag("3.1");
 
     public static SREModifier TALL = HMLModifiers.registerModifier(new SREModifier(
             StupidExpress.id("tall"),
@@ -98,7 +95,6 @@ public class SEModifiers {
             null,
             false,
             false)).setCanSetSpawnInfoInConfig(false);
-            TALL.addFlag("3.1");
 
     public static SREModifier FEATHER = HMLModifiers.registerModifier(new SREModifier(
             StupidExpress.id("feather"),
@@ -107,7 +103,6 @@ public class SEModifiers {
             null,
             false,
             false)).setCanSetSpawnInfoInConfig(false);
-            FEATHER.addFlag("3.1");
 
     public static SREModifier MAGNATE = HMLModifiers.registerModifier(new SREModifier(
             StupidExpress.id("magnate"),
@@ -117,7 +112,6 @@ public class SEModifiers {
             false,
             false))
             .setDefaultEnableChance(5000).setDefaultMax(2);
-            MAGNATE.addFlag("3.1");
 
     public static SREModifier TASKMASTER = HMLModifiers.registerModifier(new SREModifier(
             StupidExpress.id("taskmaster"),
@@ -126,7 +120,6 @@ public class SEModifiers {
             null,
             false,
             false)).setCanSetSpawnInfoInConfig(false);
-            TASKMASTER.addFlag("3.1");
 
     public static SREModifier JEB_ = HMLModifiers.registerModifier(new SREModifier(
             StupidExpress.id("jeb_"),
@@ -137,7 +130,6 @@ public class SEModifiers {
             false))
             .setDefaultMax(1)
             .setDefaultEnableChance(3000);
-            JEB_.addFlag("4.0");
 
     public static SREModifier DINNERBONE = HMLModifiers.registerModifier(new SREModifier(
             StupidExpress.id("dinnerbone"),
@@ -148,7 +140,6 @@ public class SEModifiers {
             false))
             .setDefaultMax(1)
             .setDefaultEnableChance(4000);
-            DINNERBONE.addFlag("4.4");
     public static SREModifier ALLERGIST = HMLModifiers.registerModifier(new SREModifier(
             StupidExpress.id("allergist"),
             new Color(112, 255, 162).getRGB(),
@@ -157,7 +148,6 @@ public class SEModifiers {
             false,
             false))
             .setDefaultEnableChance(2000).setDefaultMax(1);
-            ALLERGIST.addFlag("3.1");
 
     public static SREModifier CURSED = HMLModifiers.registerModifier(new SREModifier(
             StupidExpress.id("cursed"),
@@ -168,7 +158,6 @@ public class SEModifiers {
             false))
             .setDefaultEnableChance(3000)
             .setDefaultEnableNeededPlayerCount(12).setDefaultMax(1);
-            CURSED.addFlag("3.1");
 
     public static SREModifier SECRETIVE = HMLModifiers.registerModifier(new SREModifier(
             StupidExpress.id("secretive"),
@@ -178,7 +167,6 @@ public class SEModifiers {
             false,
             false))
             .setCanSetSpawnInfoInConfig(false);
-            SECRETIVE.addFlag("3.1");
 
     public static SREModifier KNIGHT = HMLModifiers.registerModifier(new SREModifier(
             StupidExpress.id("knight"),
@@ -189,7 +177,6 @@ public class SEModifiers {
             false))
             .setDefaultEnableChance(1000)
             .setDefaultEnableNeededPlayerCount(12).setDefaultMax(1);
-            KNIGHT.addFlag("3.1");
 
     public static SREModifier SPLIT_PERSONALITY = HMLModifiers.registerModifier(new SREModifier(
             StupidExpress.id("split_personality"),
@@ -200,7 +187,6 @@ public class SEModifiers {
             true))
             .setDefaultEnableChance(0)
             .setDefaultEnableNeededPlayerCount(12);
-            SPLIT_PERSONALITY.addFlag("3.1");
 
     // 新增修饰符：矫健（体力上限更多、恢复更快）
     public static SREModifier VIGOROUS = HMLModifiers.registerModifier(new SREModifier(
@@ -211,7 +197,6 @@ public class SEModifiers {
             false,
             false))
             .setDefaultEnableChance(8000).setDefaultMax(2);
-            VIGOROUS.addFlag("4.1");
 
     // 新增修饰符：不屈（一次性免疫被平民误杀；对杀手阵营攻击免疫）
     public static SREModifier UNYIELDING = HMLModifiers.registerModifier(new SREModifier(
@@ -222,7 +207,6 @@ public class SEModifiers {
             false,
             false))
             .setDefaultEnableChance(8000).setDefaultMax(2).setHidden(true);
-            UNYIELDING.addFlag("4.1");
 
     public static SREModifier BLACK_WHITE = HMLModifiers.registerModifier(new SREModifier(
             StupidExpress.id("black_white"),
@@ -234,7 +218,6 @@ public class SEModifiers {
             .setDefaultMax(1)
             .setDefaultEnableChance(1000)
             .setDefaultEnableNeededPlayerCount(10).setHidden(true);
-            BLACK_WHITE.addFlag("4.1");
 
     // 标记不屈的一次性免疫是否已被消耗（基于 UUID 的运行时集合）
     public static Set<UUID> UNYIELDING_IMMUNITY_USED = ConcurrentHashMap.newKeySet();
@@ -248,7 +231,6 @@ public class SEModifiers {
             false,
             false))
             .setDefaultEnableChance(1000).setDefaultMax(1);
-            PARANOID.addFlag("4.1");
 
     public static void init() {
         // 设置双重人格的最大分配数量（从配置读取）
@@ -603,5 +585,25 @@ public class SEModifiers {
             splitPersonalityComponent.sync();
         });
 
+    }
+    static {
+        LOVERS.addFlag("inner.version.2.x");
+        REFUGEE.addFlag("inner.version.3.1");
+        TINY.addFlag("inner.version.3.1");
+        TALL.addFlag("inner.version.3.1");
+        FEATHER.addFlag("inner.version.3.1");
+        MAGNATE.addFlag("inner.version.3.1");
+        TASKMASTER.addFlag("inner.version.3.1");
+        JEB_.addFlag("inner.version.4.0");
+        DINNERBONE.addFlag("inner.version.4.4");
+        ALLERGIST.addFlag("inner.version.3.1");
+        CURSED.addFlag("inner.version.3.1");
+        SECRETIVE.addFlag("inner.version.3.1");
+        KNIGHT.addFlag("inner.version.3.1");
+        SPLIT_PERSONALITY.addFlag("inner.version.3.1");
+        VIGOROUS.addFlag("inner.version.4.1");
+        UNYIELDING.addFlag("inner.version.4.1");
+        BLACK_WHITE.addFlag("inner.version.4.1");
+        PARANOID.addFlag("inner.version.4.1");
     }
 }
