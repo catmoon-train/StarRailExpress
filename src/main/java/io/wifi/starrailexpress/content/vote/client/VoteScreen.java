@@ -22,7 +22,6 @@ import io.wifi.starrailexpress.content.vote.VoteOption;
 import io.wifi.starrailexpress.content.vote.network.VoteCastC2SPacket;
 import io.wifi.starrailexpress.content.vote.network.VoteSyncS2CPacket;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.components.PlayerFaceRenderer;
@@ -57,9 +56,9 @@ public class VoteScreen extends Screen {
     private static final int ICON_SIZE = 16;
     private static final int CONFIRM_W = 126;
     private static final int CONFIRM_H = 24;
-    // 搜索框：固定在头部与列表之间，不随滚动条滚动
+    // 搜索框：固定在头部与列表之间，不随滚动条滚动；下方空间容纳提示文本与分割条
     private static final int SEARCH_BOX_H = 20;
-    private static final int SEARCH_GAP = 14;
+    private static final int SEARCH_GAP = 24;
 
     // 弃票按钮：固定在屏幕左下角，贴边显示（与玩家列表分离）
     private static final int ABSTAIN_W = 124;
@@ -186,28 +185,37 @@ public class VoteScreen extends Screen {
     }
 
     @Override
-    public void resize(Minecraft minecraft, int width, int height) {
-        super.resize(minecraft, width, height);
+    protected void repositionElements() {
+        // 1.21.1 的窗口尺寸变化走 resize → repositionElements → rebuildWidgets 链路，
+        // 这里必须在重算布局后同步重定位搜索框，否则 EditBox 会停留在旧坐标（点击失焦、文字错位）
         updateLayout();
+        initSearchBox();
         rebuildWidgets();
     }
 
     private void updateLayout() {
         contentX = (width - BUTTON_WIDTH) / 2;
         panelW = BUTTON_WIDTH + PANEL_PAD_X * 2;
-        panelH = Math.min(height - 18, Math.max(180, height - 24));
+        panelH = Math.min(height - 18, Math.max(190, height - 24));
         panelX = (width - panelW) / 2;
         panelY = Math.max(8, (height - panelH) / 2);
         // 搜索框占据头部到列表之间的一段固定空间，列表整体下移
         contentY = panelY + HEADER_H + PANEL_PAD_Y + SEARCH_BOX_H + SEARCH_GAP;
     }
 
+    /**
+     * 搜索框纵坐标：与列表顶固定保持 SEARCH_GAP 间距（单选/多选一致，下方容纳提示与分割条）。
+     */
+    private int searchBoxY() {
+        return contentY - SEARCH_BOX_H - SEARCH_GAP;
+    }
+
     private void initSearchBox() {
         int x = contentX;
-        int y = contentY - SEARCH_BOX_H - SEARCH_GAP;
+        int y = searchBoxY();
         if (searchBox == null) {
             searchBox = new EditBox(font, x, y, BUTTON_WIDTH, SEARCH_BOX_H, Component.empty());
-            searchBox.setBordered(false);
+            // 保持默认带边框样式：文字/提示带 4px 内边距且垂直居中（setBordered(false) 会贴左上角）
             searchBox.setMaxLength(64);
             searchBox.setTextColor(COL_TEXT_NORMAL);
             searchBox.setHint(Component.translatable("vote.search_hint"));
@@ -246,6 +254,17 @@ public class VoteScreen extends Screen {
     public void updateData(VoteSyncS2CPacket packet) {
         restoreStateFromCache();
         rebuildWidgets();
+    }
+
+    /**
+     * 仅重建选项按钮列表，不清空控件/焦点。
+     * 必须显式覆盖原版 {@link Screen#rebuildWidgets()}：否则无参调用（搜索输入响应、
+     * repositionElements 等）会走原版 clearWidgets + clearFocus + init，
+     * 把搜索框从事件链中移除并清掉焦点，导致输入一次后失焦且无法再点击聚焦。
+     */
+    @Override
+    public void rebuildWidgets() {
+        rebuildWidgets(false);
     }
 
     public void rebuildWidgets(boolean init) {
@@ -294,20 +313,34 @@ public class VoteScreen extends Screen {
     }
 
     @Override
-    public void render(GuiGraphics g, int mouseX, int mouseY, float partialTick) {
-        renderBackground(g, mouseX, mouseY, partialTick);
+    public void renderBackground(GuiGraphics g, int i, int j, float f) {
+        super.renderBackground(g, i, j, f);
         drawBackdrop(g);
+
+        drawPanel(g);
+        drawHeader(g);
+    }
+
+    @Override
+    public void render(GuiGraphics g, int mouseX, int mouseY, float partialTick) {
         super.render(g, mouseX, mouseY, partialTick);
 
         int scrollH = scrollAreaH();
-        drawPanel(g);
-        drawHeader(g);
         drawSearchBox(g, mouseX, mouseY, partialTick);
 
-        if (multiSelectMode) {
-            Component hint = Component.translatable("vote.multi_select_hint", maxSelect, selectedIndices.size());
-            drawSmallCaps(g, hint.getString(), contentX, contentY - 12, BUTTON_WIDTH, COL_TEXT_HINT);
-        }
+        // 搜索区与列表之间的固定分割条（单选/多选都绘制），沿用原多选提示的分割条样式
+        int sepY = contentY - 8;
+        g.fill(contentX + 32, sepY, contentX + BUTTON_WIDTH - 32, sepY + 1, COL_BRASS_DARK);
+
+        Component revoteStatus = Component.translatable(ClientVoteCache.isAllowReVote()
+                ? "vote.revote.allowed"
+                : "vote.revote.not_allowed");
+        Component hint = multiSelectMode
+                ? Component.translatable("vote.multi_select_hint", maxSelect, selectedIndices.size(), revoteStatus)
+                : Component.translatable("vote.single_select_hint", revoteStatus);
+        // 纯居中文字，位于搜索框与分割条之间，不与分割条重合
+        g.drawCenteredString(font, hint.getString(), contentX + BUTTON_WIDTH / 2, contentY - SEARCH_GAP + 4,
+                COL_TEXT_HINT);
 
         drawOptionList(g, mouseX, mouseY, scrollH);
 
@@ -463,25 +496,7 @@ public class VoteScreen extends Screen {
         g.drawCenteredString(font, clipped, x + w / 2 + 3, y + 3, accent);
     }
 
-    private void drawSmallCaps(GuiGraphics g, String text, int x, int y, int w, int color) {
-        String clipped = clipText(text, w - 20);
-        g.fill(x + 32, y + 4, x + w - 32, y + 5, COL_BRASS_DARK);
-        g.drawCenteredString(font, clipped, x + w / 2, y, color);
-    }
-
     private void drawSearchBox(GuiGraphics g, int mouseX, int mouseY, float partialTick) {
-        int x = contentX;
-        int y = contentY - SEARCH_BOX_H - SEARCH_GAP;
-        int w = BUTTON_WIDTH;
-        boolean focused = searchBox.isFocused();
-        boolean hovered = mouseX >= x && mouseX < x + w && mouseY >= y && mouseY < y + SEARCH_BOX_H;
-
-        g.fill(x, y, x + w, y + SEARCH_BOX_H, 0xFF1A1007);
-        g.fill(x + 1, y + 1, x + w - 1, y + SEARCH_BOX_H - 1, 0xFF120B05);
-        g.renderOutline(x, y, w, SEARCH_BOX_H,
-                focused ? COL_BRASS_LIGHT : (hovered ? COL_BRASS_DIM : COL_PANEL_RIM_DARK));
-        g.fill(x + 1, y + 1, x + w - 1, y + 2, focused || hovered ? 0x44FFD47A : 0x18FFD47A);
-
         searchBox.render(g, mouseX, mouseY, partialTick);
     }
 
