@@ -2204,7 +2204,7 @@ public class RoleShopHandler {
         // 老人的商店
         {
             var SHOP = new ArrayList<ShopEntry>();
-            SHOP.add(new ShopEntry(ModItems.WHEELCHAIR.getDefaultInstance(), 150, ShopEntry.Type.TOOL) {
+            SHOP.add(new ShopEntry(ModItems.WHEELCHAIR.getDefaultInstance(), 100, ShopEntry.Type.TOOL) {
                 @Override
                 public boolean onBuy(@NotNull Player player) {
                     if (!oldmanEasterEggTriggeredInRound && player.getRandom().nextFloat() < 0.2f) {
