@@ -48,6 +48,7 @@ public class ModMeetingRoles {
                     true, false, SRERole.MoodType.REAL,
                     TMMRoles.CIVILIAN.getMaxSprintTime(), false)
     ).setSpecialMapRole(SRERole.SpecialMapRoleMap.MEETING).setCanSeeCoin(true).setCanBeRandomedByOtherRoles(false).setDefaultMax(1);
+    CANADA_GOOSE.addFlag("4.3");
 
     /**
      * 呆呆鸟 — 独立胜利中立：有杀手透视但看不到人，被投票出局即胜。
@@ -64,6 +65,7 @@ public class ModMeetingRoles {
             .setInstinctType(InstinctType.DEFAULT, InstinctType.NONE)
             .setBeSeenInstinctType(InstinctType.DEFAULT, InstinctType.NONE)
             .setNeutrals(true).setCanBeRandomedByOtherRoles(false).setDefaultMax(1);
+            DUMMY_BIRD.addFlag("4.3");
 
     /** 政客 — 平民：不会因投票出局，投票权重2(>24人时3)，获得一定票数后得左轮 */
     public static SRERole POLITICIAN = TMMRoles.registerRole(
@@ -71,6 +73,7 @@ public class ModMeetingRoles {
                     true, false, SRERole.MoodType.REAL,
                     TMMRoles.CIVILIAN.getMaxSprintTime(), false)
     ).setSpecialMapRole(SRERole.SpecialMapRoleMap.MEETING_VOTE).setCanSeeCoin(true).setCanBeRandomedByOtherRoles(false).setDefaultMax(1);
+    POLITICIAN.addFlag("4.3");
 
     /** 传教士 — 杀手：背包点击玩家头像增加其投票权重 */
     public static SRERole MISSIONARY = TMMRoles.registerRole(
@@ -80,6 +83,7 @@ public class ModMeetingRoles {
     ).setRoleData(MissionaryRoleData::new)
             .setSpecialMapRole(SRERole.SpecialMapRoleMap.MEETING_VOTE)
             .setCanBeRandomedByOtherRoles(false).setDefaultMax(1);
+    MISSIONARY.addFlag("4.3");
 
     public static void init() {
         // 静态初始化即触发注册

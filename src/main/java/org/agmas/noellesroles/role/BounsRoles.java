@@ -83,6 +83,7 @@ public class BounsRoles {
             false // 显示计分板
     )).setVigilanteTeam(true).setCanPickUpRevolver(true).setCanBeRandomedByOtherRoles(false)
             .setSpecialVigilante(true).setDefaultEnableChance(200).setCanSetSpawnInfoInConfig(true);
+            BASEBALL_PLAYER.addFlag("4.1");
 
     /**
      * 苦力怕角色
@@ -108,6 +109,7 @@ public class BounsRoles {
         }
     }, "creator_team").setRoleData(CreeperRoleData::new).setCanBeRandomedByOtherRoles(false).setDefaultMax(1)
             .setDefaultEnableChance(5000).setCanSeeTime(true);
+            CREEPER.addFlag("4.1");
     /**
      * 作家角色
      * - 属于乘客阵营 (isInnocent = true)
@@ -128,6 +130,7 @@ public class BounsRoles {
             TMMRoles.CIVILIAN.getMaxSprintTime(), // 标准冲刺时间
             false // 不隐藏计分板
     )).setCanSeeCoin(true).setDefaultEnableChance(200);
+    WRITER.addFlag("3.3");
     /**
      * 电报员角色
      * - 属于乘客阵营 (isInnocent = true)
@@ -175,6 +178,7 @@ public class BounsRoles {
             return SRE.id("textures/entity/custom_psycho/cat_killer.png");
         }
     }).setCanSeeTime(true).setCanSeeCoin(true).setDefaultMax(0).setCanBeRandomedByOtherRoles(false);
+    CAT_KILLER.addFlag("4.1");
     public static SRERole CAT_NECROMANCER = TMMRoles.registerRole(new EggRole(
             SRE.wifiId("cat_necromancer"), // 角色 ID
             new Color(255, 174, 201).getRGB(), // 粉色 - 猫娘~
@@ -185,6 +189,7 @@ public class BounsRoles {
             true // 不显示计分板
     )).setCanSeeTime(true).setCanSeeCoin(true)
             .setDefaultMax(1).setDefaultEnableChance(4000).setDefaultEnableNeededPlayerCount(12);
+            CAT_NECROMANCER.addFlag("4.1");
     /**
      * 更好的义警角色
      * - 属于警长阵营 (isInnocent = true, setVigilanteTeam = true)
@@ -216,6 +221,7 @@ public class BounsRoles {
             return texture;
         }
     }, "creator_team").setDefaultEnableChance(1000).addRelatedRole(ModRoles.VOODOO);
+    LENGXIAO.addFlag("4.3");
     public static SRERole LAO_DA = TMMRoles.registerRole(new EggRole(id("lao_da"), new Color(236, 209, 72).getRGB(),
             true, false, SRERole.MoodType.REAL,
             TMMRoles.CIVILIAN_MAX_SPRINT_TICKS, false) {
@@ -239,6 +245,7 @@ public class BounsRoles {
             return;
         }
     }).setDefaultEnableChance(1000);
+    LAO_DA.addFlag("4.4");
 
     public static void init() {
         THRedHouseRoles.init();

@@ -62,6 +62,7 @@ public class THRedHouseRoles {
           Integer.MAX_VALUE, true),
       "th_redhouse").setNeutralForKiller(true).addTwoWayOpposingRole(ModRoles.PRANKSTER)
       .setCanUseInstinct(true);
+      KOAKUMA.addFlag("3.3");
   // 大妖精
   public static SRERole DAIYOUSEI = TMMRoles.registerRole(
       new TouhouRole(DAIYOUSEI_ID, new Color(171, 216, 167).getRGB(),
@@ -79,6 +80,7 @@ public class THRedHouseRoles {
 
         }
       }, "th_redhouse").setCanAcrossFog(true).setMoodColor((t) -> new Color(t.getColor()));
+      DAIYOUSEI.addFlag("3.3");
   // 杀手：蕾米莉亚
   public static SRERole REMILIA = TMMRoles.registerRole(
       new THRemiliaRole(REMILIA_ID, new Color(113, 98, 121).getRGB(),
@@ -90,6 +92,7 @@ public class THRedHouseRoles {
       .setCanSeeBodyRoleInfo(true)
       .setCanSeeBodyKiller(true)
       .setDefaultEnableChance(3000);
+      REMILIA.addFlag("4.1");
   // 蕾米莉亚的仆从
   // remilia_blood_servant
   public static ResourceLocation REMILIA_BLOOD_SERVANT_ID = id("remilia_blood_servant");
@@ -107,6 +110,7 @@ public class THRedHouseRoles {
       .setCanIgnoreBlackout(true)
       .setDarknessImmune(true)
       .setRoleData(RemiliaBloodServantRoleData::new);
+      REMILIA_BLOOD_SERVANT.addFlag("4.4");
   // 独立中立：芙兰朵露
   public static SRERole FURANDORU = TMMRoles.registerRole(
       new TouhouRole(FURANDORU_ID, new Color(177, 153, 130).getRGB(),
@@ -118,6 +122,7 @@ public class THRedHouseRoles {
       .setCanIgnoreBlackout(true)
       .setKillExtraCoinAwards(25)
       .setCanEarnKillerCoinAwardsFromKills(false);
+      FURANDORU.addFlag("4.1");
   // 好人：MAID_SAKUYA 十六夜咲夜
   public static SRERole MAID_SAKUYA = TMMRoles.registerRole(new TouhouRole(
       MAID_SAKUYA_ID, // 角色 ID
@@ -128,6 +133,7 @@ public class THRedHouseRoles {
       TMMRoles.CIVILIAN.getMaxSprintTime() * 2, // 2 倍冲刺时间
       false // 不隐藏计分板
   ), "th_redhouse").setCanSeeCoin(true).setCanSeeTime(true).setDefaultMax(1).setDefaultEnableChance(2000).setVigilanteTeam(true).setSpecialPolice(true);
+  MAID_SAKUYA.addFlag("3.3");
   // 好人：大妖精baka
   public static SRERole BAKA = TMMRoles.registerRole(
       new TouhouRole(BAKA_ID, new Color(185, 240, 243).getRGB(),
@@ -135,6 +141,7 @@ public class THRedHouseRoles {
           TMMRoles.CIVILIAN.getMaxSprintTime(), false),
       "th_redhouse")
       .setCanSeeCoin(true);
+      BAKA.addFlag("3.3");
   // 好人：红美铃
   public static SRERole HOAN_MEIRIN = TMMRoles.registerRole(
       new TouhouRole(HOAN_MEIRIN_ID, new Color(243, 140, 132).getRGB(),
@@ -145,6 +152,7 @@ public class THRedHouseRoles {
       .setVigilanteTeam(true).setSpecialVigilante(true).setCanSeeCoin(true)
       .setRoleData(HoanMeirinRoleData::new)
       .setSpecialMapRole(SRERole.SpecialMapRoleMap.CAN_JUMP);
+      HOAN_MEIRIN.addFlag("3.4");
   // 好人：帕秋莉 Patchouli Knowledge
   public static SRERole PACHURI = TMMRoles.registerRole(
       new TouhouRole(PACHURI_ID, new Color(184, 144, 182).getRGB(),
@@ -192,6 +200,7 @@ public class THRedHouseRoles {
         }
       }, "th_redhouse")
       .setHiddenForRoleRotation(true).setCanSeeCoin(true);
+      PACHURI.addFlag("3.4");
 
   public static void init() {
   }

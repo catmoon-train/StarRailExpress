@@ -60,6 +60,7 @@ public class NRModifiers {
             .setServerGameTickEvent((p) -> IntrovertedModifier.serverTick(p))
             .setDefaultMax(2)
             .setDefaultEnableChance(5000);
+            INTROVERTED.addFlag("4.0");
 
     /** 纳税修饰符 */
     public static SREModifier TAXED = HMLModifiers.registerModifier(new SREModifier(
@@ -71,6 +72,7 @@ public class NRModifiers {
             false))
             .setDefaultMax(1)
             .setDefaultEnableChance(2000);
+            TAXED.addFlag("4.0");
 
     /** 饥渴修饰符：可从食物盘和饮料盘各拿取至多2份食物和2份饮料 */
     public static SREModifier HUNGRY = HMLModifiers.registerModifier(new SREModifier(
@@ -82,6 +84,7 @@ public class NRModifiers {
             false))
             .setDefaultMax(2)
             .setDefaultEnableChance(5000);
+            HUNGRY.addFlag("4.3");
 
     /** 沙哑修饰符：嗓音十分低沉 */
     public static SREModifier HOARSE = HMLModifiers.registerModifier(new SREModifier(
@@ -94,6 +97,7 @@ public class NRModifiers {
             .setServerGameTickEvent((p) -> HoarseModifier.serverTick(p))
             .setDefaultMax(2)
             .setDefaultEnableChance(5000);
+            HOARSE.addFlag("4.3");
 
     /**
      * 初始化修饰符系统

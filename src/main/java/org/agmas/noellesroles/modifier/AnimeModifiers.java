@@ -48,6 +48,7 @@ public class AnimeModifiers {
             .setHidden(true)
             .setDefaultEnableChance(200)
             .setDefaultEnableNeededPlayerCount(12);
+    RE0_486.addFlag("4.4");
 
     public static void init() {
         registerEvents();
