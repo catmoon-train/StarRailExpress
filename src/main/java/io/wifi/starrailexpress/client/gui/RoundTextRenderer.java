@@ -241,7 +241,7 @@ public class RoundTextRenderer {
         {
             message.append(areaComponent.areasSettings.canJump
                     ? Component.translatable("announcement.star.tip.can_jump").withStyle(ChatFormatting.GREEN)
-                    : Component.translatable("announcement.star.tip.can_jump").withStyle(ChatFormatting.YELLOW));
+                    : Component.translatable("announcement.star.tip.cant_jump").withStyle(ChatFormatting.YELLOW));
         }
 
         {

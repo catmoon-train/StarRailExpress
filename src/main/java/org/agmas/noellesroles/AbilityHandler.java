@@ -510,7 +510,7 @@ public class AbilityHandler {
                         Component.translatable("skill.noellesroles.doremy_dream.success", sp.getName())
                                 .withStyle(ChatFormatting.GREEN),
                         true);
-                cca.cooldownForDoremyDream = 120 * 20;
+                cca.cooldownForDoremyDream = 145 * 20;
                 cca.sync();
             } else {
                 player.displayClientMessage(
