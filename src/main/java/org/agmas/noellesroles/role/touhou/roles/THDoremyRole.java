@@ -15,7 +15,7 @@ import net.minecraft.world.item.ItemStack;
 
 public class THDoremyRole extends TouhouRole {
 
-    public static final int SKILL_DREAM_COST = 150;
+    public static final int SKILL_DREAM_COST = 200;
 
     public THDoremyRole(ResourceLocation identifier, int color, boolean isInnocent, boolean canUseKiller,
             MoodType moodType, int maxSprintTime, boolean canSeeTime) {
