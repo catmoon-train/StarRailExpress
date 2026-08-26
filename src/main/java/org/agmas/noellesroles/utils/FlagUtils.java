@@ -37,6 +37,12 @@ public class FlagUtils {
             return -1;
         if (!a.startsWith("inner.") && b.startsWith("inner."))
             return 1;
+        if (a.startsWith("inner.") && b.startsWith("inner.")) {
+            if (a.startsWith("inner.version") && !b.startsWith("inner.version"))
+                return 1;
+            if (!a.startsWith("inner.version") && b.startsWith("inner.version"))
+                return -1;
+        }
         String aText = getFlagName(a).getString();
         String bText = getFlagName(b).getString();
         return COLLATOR.compare(aText, bText);
@@ -51,6 +57,10 @@ public class FlagUtils {
     public static Component getFlagName(String flag) {
         if (flag.isBlank())
             return Component.empty();
+        if (flag.startsWith("inner.version.")) {
+            return Component.translatable("screen.roleintroduce.flag.inner.version.prefix",
+                    flag.substring("inner.version.".length()));
+        }
         String path = "screen.roleintroduce.flag." + flag;
         return Component.translatableWithFallback(path, flag.toUpperCase().replaceAll("_", " "));
     }
