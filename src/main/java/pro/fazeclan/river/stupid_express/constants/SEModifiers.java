@@ -139,7 +139,7 @@ public class SEModifiers {
             false,
             false))
             .setDefaultMax(1)
-            .setDefaultEnableChance(6000);
+            .setDefaultEnableChance(4000);
     public static SREModifier ALLERGIST = HMLModifiers.registerModifier(new SREModifier(
             StupidExpress.id("allergist"),
             new Color(112, 255, 162).getRGB(),
