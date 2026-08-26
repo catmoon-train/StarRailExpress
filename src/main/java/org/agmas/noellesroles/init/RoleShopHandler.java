@@ -43,6 +43,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.network.Filterable;
 import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.effect.MobEffectInstance;
@@ -61,6 +62,7 @@ import org.agmas.noellesroles.role_data.innocence.SingerRoleData;
 import org.agmas.noellesroles.role_data.killer.ExecutionerRoleData;
 import org.agmas.noellesroles.role_data.killer.MaChenXuRoleData;
 import org.agmas.noellesroles.role_data.innocence.MagicianRoleData;
+import org.agmas.noellesroles.role_data.innocence.DiscMasterRoleData;
 import org.agmas.noellesroles.role_data.innocence.PhotographerRoleData;
 import org.agmas.noellesroles.role_data.killer.StalkerRoleData;
 import org.agmas.noellesroles.role_data.killer.WaterGhostRoleData;
@@ -414,6 +416,7 @@ public class RoleShopHandler {
         ArrayList<ShopEntry> PHANTOM_MUSICIAN_SHOP = new ArrayList<>();
         ArrayList<ShopEntry> WRAITH_ASSASSIN_SHOP = new ArrayList<>();
         ArrayList<ShopEntry> REASONER_SHOP = new ArrayList<>();
+        ArrayList<ShopEntry> DISC_MASTER_SHOP = new ArrayList<>();
 
         // ---- 柜子区的商店（执行者） ----
         {
@@ -1934,6 +1937,47 @@ public class RoleShopHandler {
             }
         }
 
+        // ==================== 唱片师商店 ====================
+        {
+            // 19 张原版唱片（截至 1.21） - 每张 50 金币，购买时播放对应音乐
+            // 购买任意一张后，全部唱片进入 2 分钟购买冷却
+            Item[] discs = {
+                    Items.MUSIC_DISC_13, Items.MUSIC_DISC_CAT, Items.MUSIC_DISC_BLOCKS,
+                    Items.MUSIC_DISC_CHIRP, Items.MUSIC_DISC_FAR, Items.MUSIC_DISC_MALL,
+                    Items.MUSIC_DISC_MELLOHI, Items.MUSIC_DISC_STAL, Items.MUSIC_DISC_STRAD,
+                    Items.MUSIC_DISC_WARD, Items.MUSIC_DISC_11, Items.MUSIC_DISC_WAIT,
+                    Items.MUSIC_DISC_PIGSTEP, Items.MUSIC_DISC_OTHERSIDE, Items.MUSIC_DISC_5,
+                    Items.MUSIC_DISC_RELIC, Items.MUSIC_DISC_CREATOR, Items.MUSIC_DISC_CREATOR_MUSIC_BOX,
+                    Items.MUSIC_DISC_PRECIPICE
+            };
+            SoundEvent[] sounds = {
+                    SoundEvents.MUSIC_DISC_13, SoundEvents.MUSIC_DISC_CAT, SoundEvents.MUSIC_DISC_BLOCKS,
+                    SoundEvents.MUSIC_DISC_CHIRP, SoundEvents.MUSIC_DISC_FAR, SoundEvents.MUSIC_DISC_MALL,
+                    SoundEvents.MUSIC_DISC_MELLOHI, SoundEvents.MUSIC_DISC_STAL, SoundEvents.MUSIC_DISC_STRAD,
+                    SoundEvents.MUSIC_DISC_WARD, SoundEvents.MUSIC_DISC_11, SoundEvents.MUSIC_DISC_WAIT,
+                    SoundEvents.MUSIC_DISC_PIGSTEP, SoundEvents.MUSIC_DISC_OTHERSIDE, SoundEvents.MUSIC_DISC_5,
+                    SoundEvents.MUSIC_DISC_RELIC, SoundEvents.MUSIC_DISC_CREATOR, SoundEvents.MUSIC_DISC_CREATOR_MUSIC_BOX,
+                    SoundEvents.MUSIC_DISC_PRECIPICE
+            };
+            for (int i = 0; i < discs.length; i++) {
+                SoundEvent sound = sounds[i];
+                DISC_MASTER_SHOP.add(new ShopEntry(new ItemStack(discs[i]), 50, ShopEntry.Type.TOOL) {
+                    @Override
+                    public boolean canBuy(@NotNull Player player) {
+                        DiscMasterRoleData data = RoleData.getNullable(DiscMasterRoleData.class, player);
+                        return data != null && data.musicCooldown <= 0;
+                    }
+
+                    @Override
+                    public boolean onBuy(@NotNull Player player) {
+                        DiscMasterRoleData data = RoleData.getNullable(DiscMasterRoleData.class, player);
+                        if (data == null) return false;
+                        return data.playDisc(sound);
+                    }
+                });
+            }
+        }
+
         // 正片开始 (Spellbreaker)
         {
             var SHOP = new ArrayList<ShopEntry>();
@@ -3027,6 +3071,12 @@ public class RoleShopHandler {
         {
             ShopContent.customEntries.put(
                     BounsRoles.WRITER_ID, WRITER_SHOP);
+        }
+
+        // 唱片师商店
+        {
+            ShopContent.customEntries.put(
+                    BounsRoles.DISC_MASTER_ID, DISC_MASTER_SHOP);
         }
 
         // 搜救员商店

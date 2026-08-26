@@ -73,6 +73,8 @@
     "info.screen.roleid.creeper.simple": "Killer faction\nSkill key to self-destruct for 300 gold; during ignition, press again for 75 gold to explode instantly with larger range.",
     "info.screen.roleid.writer": "Civilian faction\nEaster egg, 2%% spawn chance.\nHas shop for book and quill.\nSigned books can be thrown for others to read, completing reading tasks.\nDrops books on death.\nIf Painter is present, get a drawing board.",
     "info.screen.roleid.writer.simple": "Civilian faction\nWrite books; signed books can be thrown for others to read.\nReading completed books counts as reading task.",
+    "info.screen.roleid.disc_master": "Civilian faction\nEaster egg, 1%% spawn chance.\nShop sells various music discs and plays music on purchase.",
+    "info.screen.roleid.disc_master.simple": "Civilian faction\nShop sells various music discs and plays music on purchase.",
     "info.screen.roleid.telegrapher": "Civilian faction\nEaster egg, 2%% spawn chance.\nPress skill key to open telegram interface and send anonymous messages to all players.\nMax 6 sends per game.\nMessages are narrated and shown as titles.",
     "info.screen.roleid.telegrapher.simple": "Civilian faction\nPress skill key to send anonymous telegrams to all players (6 per game).",
     "info.screen.roleid.rescuer": "Civilian faction\nCan buy rope and body bag.\nRope: 2 durability, pulls nearest player within 12 blocks to you (3s cooldown, 5s on success, consumes 1 durability).\nBody bag: removes corpses.",
