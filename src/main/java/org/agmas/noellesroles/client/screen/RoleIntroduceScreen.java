@@ -60,6 +60,7 @@ import org.agmas.noellesroles.init.RoleShopHandler;
 import org.agmas.noellesroles.utils.FlagUtils;
 import org.agmas.noellesroles.utils.MCItemsUtils;
 import org.agmas.noellesroles.utils.RoleUtils;
+import org.agmas.noellesroles.utils.VersionComparator;
 import org.joml.Matrix4f;
 
 import java.util.*;
@@ -2278,6 +2279,15 @@ public class RoleIntroduceScreen extends Screen {
         optionMap.put("inner.disable", Component.translatable("screen.roleintroduce.flag.inner.disable"));
         for (var it : FlagUtils.getAllFlagsSorted())
             optionMap.put(it, FlagUtils.getFlagName(it));
+        ArrayList<String> versionSets = new ArrayList<>();
+        versionSets.addAll(TMMRoles.getAllAddedVersions());
+        versionSets.addAll(HMLModifiers.getAllAddedVersions());
+        versionSets = new ArrayList<>(new HashSet<>());
+        versionSets.sort(VersionComparator.VERSION_COMPARATOR);
+        for (var t : versionSets) {
+            String key = "inner.version." + t;
+            optionMap.put(key, FlagUtils.getFlagName(key));
+        }
         FilterSelectionScreen screen = FilterSelectionScreen.builder(this)
                 .title(Component.translatable("screen.filter_selection.title"))
                 .subtitle(Component.translatable("screen.filter_selection.tip"))

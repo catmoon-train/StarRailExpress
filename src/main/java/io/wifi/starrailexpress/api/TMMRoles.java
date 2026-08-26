@@ -28,6 +28,7 @@ import java.util.*;
 
 public class TMMRoles {
     public static final Map<ResourceLocation, SRERole> ROLES = new HashMap<>();
+    private static final HashSet<String> CACHED_VERSIONS_LIST = new HashSet<>();
     public static final int CIVILIAN_MAX_SPRINT_TICKS = GameConstants.getInTicks(0, 10);
     public static final List<ComponentKey<? extends RoleComponent>> COMPONENT_KEYS = new ArrayList<>();
     public static final SRERole DISCOVERY_CIVILIAN = registerRole(
@@ -90,5 +91,21 @@ public class TMMRoles {
 
     public static SRERole getRole(ResourceLocation id) {
         return ROLES.getOrDefault(id, null);
+    }
+
+    public static void refreshVersionTags() {
+        CACHED_VERSIONS_LIST.clear();
+        getAllAddedVersions();
+    }
+
+    public static Set<String> getAllAddedVersions() {
+        if (!CACHED_VERSIONS_LIST.isEmpty()) {
+            return new HashSet<>(CACHED_VERSIONS_LIST);
+        }
+        CACHED_VERSIONS_LIST.clear();
+        for (var t : ROLES.values()) {
+            CACHED_VERSIONS_LIST.add(t.getAddedVersion());
+        }
+        return new HashSet<>(CACHED_VERSIONS_LIST);
     }
 }

@@ -19,10 +19,13 @@ import net.minecraft.resources.ResourceLocation;
 
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.Set;
 
 public class HMLModifiers {
 
     public static final ArrayList<SREModifier> MODIFIERS = new ArrayList<>();
+
+    private static final HashSet<String> CACHED_VERSIONS_LIST = new HashSet<>();
 
     public static SREModifier getModifier(ResourceLocation res) {
         if (res == null)
@@ -60,5 +63,21 @@ public class HMLModifiers {
             filters.addAll(it.getFlags());
         }
         return filters;
+    }
+
+    public static void refreshVersionTags() {
+        CACHED_VERSIONS_LIST.clear();
+        getAllAddedVersions();
+    }
+
+    public static Set<String> getAllAddedVersions() {
+        if (!CACHED_VERSIONS_LIST.isEmpty()) {
+            return new HashSet<>(CACHED_VERSIONS_LIST);
+        }
+        CACHED_VERSIONS_LIST.clear();
+        for (var t : MODIFIERS) {
+            CACHED_VERSIONS_LIST.add(t.getAddedVersion());
+        }
+        return new HashSet<>(CACHED_VERSIONS_LIST);
     }
 }
