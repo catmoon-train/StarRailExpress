@@ -101,6 +101,9 @@ public final class DoremyRoleScreenExtension extends PlayerListRoleScreenExtensi
                         return false;
                     if (info.getProfile() == null)
                         return false;
+                    if (info.getProfile().getId().equals(client.player.getUUID())) {
+                        return false;
+                    }
                     if (info.getGameMode() != GameType.ADVENTURE) {
                         return false;
                     }

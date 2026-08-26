@@ -2,9 +2,11 @@ package org.agmas.noellesroles.client.hud.roles;
 
 import org.agmas.noellesroles.client.event.RoleHudRenderCallback;
 import org.agmas.noellesroles.role.touhou.THMiscRoles;
+import org.agmas.noellesroles.role.touhou.roles.THDoremyRole;
 import org.agmas.noellesroles.role_data.killer.DoremyRoleData;
 
 import io.wifi.starrailexpress.api.data.RoleData;
+import io.wifi.starrailexpress.cca.SREPlayerShopComponent;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
@@ -37,12 +39,20 @@ public class DoremyHud {
                 context.drawString(textRenderer, cdText, x - textRenderer.width(cdText), y, 0xffffffff);
 
             } else {
-                Component cdText = Component.translatable("hud.noellesroles.doremy_dream.ready")
-                        .withStyle(ChatFormatting.AQUA);
-                context.drawString(textRenderer, cdText, x - textRenderer.width(cdText), y, 0xffffffff);
+                final int SKILL_COST = THDoremyRole.SKILL_DREAM_COST;
+
+                var shopCca = SREPlayerShopComponent.KEY.get(client.player);
+                if (shopCca.balance < SKILL_COST) {
+                    Component cdText = Component.translatable("hud.noellesroles.doremy_dream.money", SKILL_COST)
+                            .withStyle(ChatFormatting.YELLOW);
+                    context.drawString(textRenderer, cdText, x - textRenderer.width(cdText), y, 0xffffffff);
+                } else {
+                    Component cdText = Component.translatable("hud.noellesroles.doremy_dream.ready")
+                            .withStyle(ChatFormatting.AQUA);
+                    context.drawString(textRenderer, cdText, x - textRenderer.width(cdText), y, 0xffffffff);
+                }
             }
             if (roledata.cooldownForDoremyGhost > 0) {
-
                 Component cdText = Component
                         .translatable("hud.noellesroles.doremy_ghost.cooldown", roledata.cooldownForDoremyGhost / 20)
                         .withStyle(ChatFormatting.AQUA);

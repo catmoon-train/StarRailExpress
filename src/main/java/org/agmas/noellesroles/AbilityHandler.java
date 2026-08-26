@@ -52,6 +52,7 @@ import org.agmas.noellesroles.packet.ProblemScreenOpenC2SPacket;
 import org.agmas.noellesroles.role.ModRoles;
 import org.agmas.noellesroles.role.touhou.THMiscRoles;
 import org.agmas.noellesroles.role.touhou.THRedHouseRoles;
+import org.agmas.noellesroles.role.touhou.roles.THDoremyRole;
 import org.agmas.noellesroles.role_data.vigilante.HoanMeirinRoleData;
 import org.agmas.noellesroles.utils.RoleUtils;
 
@@ -475,8 +476,18 @@ public class AbilityHandler {
             return;
         }
         if (gameWorldComponent.isRole(player, THMiscRoles.DOREMY)) {
-            if (targetUUID == null)
+
+            final int SKILL_COST = THDoremyRole.SKILL_DREAM_COST;
+            if (targetUUID == null) {
                 return;
+            }
+            if (targetUUID.equals(player.getUUID())) {
+                player.displayClientMessage(
+                        Component.translatable("skill.noellesroles.doremy_dream.failed.no_self")
+                                .withStyle(ChatFormatting.RED),
+                        true);
+                return;
+            }
             var cca = RoleData.getNullable(DoremyRoleData.class, player);
             if (cca == null || cca.cooldownForDoremyDream > 0) {
                 return;
@@ -484,15 +495,24 @@ public class AbilityHandler {
             Player target = player.level().getPlayerByUUID(targetUUID);
             if (!(target instanceof ServerPlayer sp))
                 return;
+
+            var shopCca = SREPlayerShopComponent.KEY.get(player);
+            if (shopCca.balance < SKILL_COST) {
+                player.displayClientMessage(
+                        Component.translatable("skill.noellesroles.doremy_dream.failed.money", SKILL_COST)
+                                .withStyle(ChatFormatting.GREEN),
+                        true);
+                return;
+            }
+            shopCca.addToBalance(-SKILL_COST);
             if (DoremyRoleData.tryDream(sp, 30 * 20)) {
                 player.displayClientMessage(
                         Component.translatable("skill.noellesroles.doremy_dream.success", sp.getName())
                                 .withStyle(ChatFormatting.GREEN),
                         true);
-                cca.cooldownForDoremyDream = 180 * 20;
+                cca.cooldownForDoremyDream = 120 * 20;
                 cca.sync();
             } else {
-
                 player.displayClientMessage(
                         Component.translatable("skill.noellesroles.doremy_dream.failed", sp.getName())
                                 .withStyle(ChatFormatting.RED),

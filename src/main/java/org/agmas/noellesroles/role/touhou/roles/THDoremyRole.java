@@ -15,6 +15,8 @@ import net.minecraft.world.item.ItemStack;
 
 public class THDoremyRole extends TouhouRole {
 
+    public static final int SKILL_DREAM_COST = 100;
+
     public THDoremyRole(ResourceLocation identifier, int color, boolean isInnocent, boolean canUseKiller,
             MoodType moodType, int maxSprintTime, boolean canSeeTime) {
         super(identifier, color, isInnocent, canUseKiller, moodType, maxSprintTime, canSeeTime);
@@ -46,7 +48,7 @@ public class THDoremyRole extends TouhouRole {
         if (!MCItemsUtils.insertStackInFreeSlot(player, item)) {
             player.drop(item, false);
         }
-        cca.cooldownForDoremyGhost = 60 * 20;
+        cca.cooldownForDoremyGhost = 120 * 20;
         cca.sync();
         return;
     }
