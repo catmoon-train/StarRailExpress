@@ -168,19 +168,19 @@ public class THMiscRoles {
     public static void init() {
     }
     static {
-        MAMIZOU.addFlag("inner.version.4.4");
-        IBUKI_SUIKA.addFlag("inner.version.4.4");
-        HAKUREI_REIMU.addFlag("inner.version.4.3");
-        REIUJI_UTSUHO.addFlag("inner.version.4.4");
-        SHIKIEIKI.addFlag("inner.version.4.3");
-        KOMACHI.addFlag("inner.version.4.3");
-        TENSHI.addFlag("inner.version.4.3");
-        RINNOSUKE.addFlag("inner.version.4.3");
-        KIJIN_SEIJA.addFlag("inner.version.4.4");
-        HOUJUU_NUE.addFlag("inner.version.4.4");
-        IBARAKI_KASEN.addFlag("inner.version.4.4");
-        KONPAKU_YOUMU.addFlag("inner.version.4.4");
-        DOREMY.addFlag("inner.version.4.4");
-        KAENBYOU_RIN.addFlag("inner.version.4.4");
+        MAMIZOU.setAddedVersion("4.4");
+        IBUKI_SUIKA.setAddedVersion("4.4");
+        HAKUREI_REIMU.setAddedVersion("4.3");
+        REIUJI_UTSUHO.setAddedVersion("4.4");
+        SHIKIEIKI.setAddedVersion("4.3");
+        KOMACHI.setAddedVersion("4.3");
+        TENSHI.setAddedVersion("4.3");
+        RINNOSUKE.setAddedVersion("4.3");
+        KIJIN_SEIJA.setAddedVersion("4.4");
+        HOUJUU_NUE.setAddedVersion("4.4");
+        IBARAKI_KASEN.setAddedVersion("4.4");
+        KONPAKU_YOUMU.setAddedVersion("4.4");
+        DOREMY.setAddedVersion("4.4");
+        KAENBYOU_RIN.setAddedVersion("4.4");
     }
 }

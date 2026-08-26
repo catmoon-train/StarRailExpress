@@ -85,9 +85,9 @@ public class ModMeetingRoles {
         // 静态初始化即触发注册
     }
     static {
-        CANADA_GOOSE.addFlag("inner.version.4.3");
-        DUMMY_BIRD.addFlag("inner.version.4.3");
-        POLITICIAN.addFlag("inner.version.4.3");
-        MISSIONARY.addFlag("inner.version.4.3");
+        CANADA_GOOSE.setAddedVersion("4.3");
+        DUMMY_BIRD.setAddedVersion("4.3");
+        POLITICIAN.setAddedVersion("4.3");
+        MISSIONARY.setAddedVersion("4.3");
     }
 }

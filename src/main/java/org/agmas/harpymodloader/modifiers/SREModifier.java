@@ -51,6 +51,12 @@ public class SREModifier extends SREAbstractInfoClass {
     public boolean isOtherModeRole = false;
     public ArrayList<String> defaultSpawnMaps = new ArrayList<>();
 
+    @Override
+    public SREModifier setAddedVersion(String versionName) {
+        this.flags.add("inner.version." + versionName);
+        this.addedVersion = versionName;
+        return this;
+    }
     /**
      * 添加与此相关的职业。互相添加。用于职业介绍。
      * 

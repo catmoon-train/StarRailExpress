@@ -202,8 +202,8 @@ public class THMountainRoles {
         TouhouHandlers.register();
     }
     static {
-        NITORI.addFlag("inner.version.4.3");
-        AYA.addFlag("inner.version.4.3");
-        HATATE.addFlag("inner.version.4.3");
+        NITORI.setAddedVersion("4.3");
+        AYA.setAddedVersion("4.3");
+        HATATE.setAddedVersion("4.3");
     }
 }

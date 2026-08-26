@@ -263,14 +263,14 @@ public class BounsRoles {
 
     }
     static {
-        BASEBALL_PLAYER.addFlag("inner.version.4.1");
-        CREEPER.addFlag("inner.version.4.1");
-        WRITER.addFlag("inner.version.3.3");
-        TELEGRAPHER.addFlag("inner.version.2.x");
-        CAT_KILLER.addFlag("inner.version.4.1");
-        CAT_NECROMANCER.addFlag("inner.version.4.1");
-        BEST_VIGILANTE.addFlag("inner.version.2.x");
-        LENGXIAO.addFlag("inner.version.4.3");
-        LAO_DA.addFlag("inner.version.4.4");
+        BASEBALL_PLAYER.setAddedVersion("4.1");
+        CREEPER.setAddedVersion("4.1");
+        WRITER.setAddedVersion("3.3");
+        TELEGRAPHER.setAddedVersion("2.x");
+        CAT_KILLER.setAddedVersion("4.1");
+        CAT_NECROMANCER.setAddedVersion("4.1");
+        BEST_VIGILANTE.setAddedVersion("2.x");
+        LENGXIAO.setAddedVersion("4.3");
+        LAO_DA.setAddedVersion("4.4");
     }
 }

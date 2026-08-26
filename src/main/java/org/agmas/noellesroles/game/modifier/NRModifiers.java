@@ -184,9 +184,9 @@ public class NRModifiers {
         });
     }
     static {
-        INTROVERTED.addFlag("inner.version.4.0");
-        TAXED.addFlag("inner.version.4.0");
-        HUNGRY.addFlag("inner.version.4.3");
-        HOARSE.addFlag("inner.version.4.3");
+        INTROVERTED.setAddedVersion("4.0");
+        TAXED.setAddedVersion("4.0");
+        HUNGRY.setAddedVersion("4.3");
+        HOARSE.setAddedVersion("4.3");
     }
 }

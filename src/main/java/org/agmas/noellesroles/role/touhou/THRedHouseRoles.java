@@ -196,14 +196,14 @@ public class THRedHouseRoles {
   public static void init() {
   }
     static {
-        KOAKUMA.addFlag("inner.version.3.3");
-        DAIYOUSEI.addFlag("inner.version.3.3");
-        REMILIA.addFlag("inner.version.4.1");
-        REMILIA_BLOOD_SERVANT.addFlag("inner.version.4.4");
-        FURANDORU.addFlag("inner.version.4.1");
-        MAID_SAKUYA.addFlag("inner.version.3.3");
-        BAKA.addFlag("inner.version.3.3");
-        HOAN_MEIRIN.addFlag("inner.version.3.4");
-        PACHURI.addFlag("inner.version.3.4");
+        KOAKUMA.setAddedVersion("3.3");
+        DAIYOUSEI.setAddedVersion("3.3");
+        REMILIA.setAddedVersion("4.1");
+        REMILIA_BLOOD_SERVANT.setAddedVersion("4.4");
+        FURANDORU.setAddedVersion("4.1");
+        MAID_SAKUYA.setAddedVersion("3.3");
+        BAKA.setAddedVersion("3.3");
+        HOAN_MEIRIN.setAddedVersion("3.4");
+        PACHURI.setAddedVersion("3.4");
     }
 }
