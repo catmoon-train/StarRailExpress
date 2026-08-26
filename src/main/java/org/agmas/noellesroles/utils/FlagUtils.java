@@ -32,21 +32,13 @@ public class FlagUtils {
     }
 
     public static Collator COLLATOR = Collator.getInstance();
-    public static Comparator<String> comparator = (a, b) -> {
-        if (a.startsWith("inner.") && !b.startsWith("inner."))
-            return -1;
-        if (!a.startsWith("inner.") && b.startsWith("inner."))
-            return 1;
-        if (a.startsWith("inner.") && b.startsWith("inner.")) {
-            if (a.startsWith("inner.version") && !b.startsWith("inner.version"))
-                return 1;
-            if (!a.startsWith("inner.version") && b.startsWith("inner.version"))
-                return -1;
-        }
-        String aText = getFlagName(a).getString();
-        String bText = getFlagName(b).getString();
-        return COLLATOR.compare(aText, bText);
-    };
+    public static Comparator<String> comparator = Comparator.comparingInt((String s) -> {
+        if (s.startsWith("inner.version"))
+            return 2; // 排最后
+        if (s.startsWith("inner."))
+            return 0; // 排最前
+        return 1; // 中间
+    }).thenComparing((a, b) -> COLLATOR.compare(getFlagName(a).getString(), getFlagName(b).getString()));
 
     public static LinkedHashSet<String> getAllFlagsSorted() {
         ArrayList<String> list = new ArrayList<>(getAllFlags());
