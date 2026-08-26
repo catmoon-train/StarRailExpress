@@ -152,7 +152,8 @@ public class THMiscRoles {
             .setDefaultEnableChance(500)
             .setOccupiedRoleCount(2)
             .setRoleData(DoremyRoleData::new)
-            .setCanBeRandomedByOtherRoles(false);
+            .setCanBeRandomedByOtherRoles(false)
+            .addTwoWayOpposingRole(ModRoles.DELAYER);
     // 火焰猫燐 kaenbyou_rin
     public static SRERole KAENBYOU_RIN = TMMRoles.registerRole(new THKaenbyouRinRole(id("kaenbyou_rin"),
             new Color(169, 80, 101).getRGB(), true, false, MoodType.REAL,
