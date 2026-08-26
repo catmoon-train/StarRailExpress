@@ -47,6 +47,7 @@ public class NRModifiers {
             null,
             false,
             false))
+            .setAddedVersion("3.2")
             .setDefaultEnableChance(5000);
 
     /** 内向修饰符 */

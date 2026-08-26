@@ -196,8 +196,8 @@ public class THRedHouseRoles {
   public static void init() {
   }
     static {
-        KOAKUMA.setAddedVersion("3.3");
-        DAIYOUSEI.setAddedVersion("3.3");
+        KOAKUMA.setAddedVersion("4.3");
+        DAIYOUSEI.setAddedVersion("4.3");
         REMILIA.setAddedVersion("4.1");
         REMILIA_BLOOD_SERVANT.setAddedVersion("4.4");
         FURANDORU.setAddedVersion("4.1");
