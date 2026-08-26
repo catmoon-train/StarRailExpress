@@ -131,10 +131,10 @@ public class SERoles {
     }
 
     static {
-        AMNESIAC.addFlag("inner.version.2.x");
-        ARSONIST.addFlag("inner.version.2.x");
-        AVARICIOUS.addFlag("inner.version.2.x");
-        NECROMANCER.addFlag("inner.version.2.x");
-        INITIATE.addFlag("inner.version.2.x");
+        AMNESIAC.setAddedVersion("2.x");
+        ARSONIST.setAddedVersion("2.x");
+        AVARICIOUS.setAddedVersion("2.x");
+        NECROMANCER.setAddedVersion("2.x");
+        INITIATE.setAddedVersion("2.x");
     }
 }

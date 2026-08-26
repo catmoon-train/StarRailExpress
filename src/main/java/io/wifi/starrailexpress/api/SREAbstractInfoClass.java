@@ -24,7 +24,16 @@ import java.util.HashSet;
 import java.util.Set;
 
 public abstract class SREAbstractInfoClass {
+    protected String addedVersion = "unknown";
 
+    /**
+     * 加入此职业的模组版本
+     */
+    public SREAbstractInfoClass setAddedVersion(String versionName) {
+        this.flags.add("inner.version." + versionName);
+        this.addedVersion = versionName;
+        return this;
+    }
     /**
      * 显示FLAG。用于RoleIntroduceScreen的filter
      */

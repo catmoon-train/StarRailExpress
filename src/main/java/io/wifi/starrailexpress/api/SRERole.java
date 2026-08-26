@@ -100,6 +100,12 @@ public abstract class SRERole extends SREAbstractInfoClass {
         return this.roleDataFunc;
     }
 
+    @Override
+    public SRERole setAddedVersion(String versionName) {
+        this.flags.add("inner.version." + versionName);
+        this.addedVersion = versionName;
+        return this;
+    }
     /**
      * 职业数据。用于替代CCA。
      * 
@@ -347,14 +353,6 @@ public abstract class SRERole extends SREAbstractInfoClass {
         for (var i : flag) {
             this.flags.add(i);
         }
-        return this;
-    }
-
-    /**
-     * 加入此职业的模组版本
-     */
-    public SRERole setAddedVersion(String versionName) {
-        this.flags.add("inner.version." + versionName);
         return this;
     }
 

@@ -587,23 +587,23 @@ public class SEModifiers {
 
     }
     static {
-        LOVERS.addFlag("inner.version.2.x");
-        REFUGEE.addFlag("inner.version.3.1");
-        TINY.addFlag("inner.version.3.1");
-        TALL.addFlag("inner.version.3.1");
-        FEATHER.addFlag("inner.version.3.1");
-        MAGNATE.addFlag("inner.version.3.1");
-        TASKMASTER.addFlag("inner.version.3.1");
-        JEB_.addFlag("inner.version.4.0");
-        DINNERBONE.addFlag("inner.version.4.4");
-        ALLERGIST.addFlag("inner.version.3.1");
-        CURSED.addFlag("inner.version.3.1");
-        SECRETIVE.addFlag("inner.version.3.1");
-        KNIGHT.addFlag("inner.version.3.1");
-        SPLIT_PERSONALITY.addFlag("inner.version.3.1");
-        VIGOROUS.addFlag("inner.version.4.1");
-        UNYIELDING.addFlag("inner.version.4.1");
-        BLACK_WHITE.addFlag("inner.version.4.1");
-        PARANOID.addFlag("inner.version.4.1");
+        LOVERS.setAddedVersion("2.x");
+        REFUGEE.setAddedVersion("3.1");
+        TINY.setAddedVersion("3.1");
+        TALL.setAddedVersion("3.1");
+        FEATHER.setAddedVersion("3.1");
+        MAGNATE.setAddedVersion("3.1");
+        TASKMASTER.setAddedVersion("3.1");
+        JEB_.setAddedVersion("4.0");
+        DINNERBONE.setAddedVersion("4.4");
+        ALLERGIST.setAddedVersion("3.1");
+        CURSED.setAddedVersion("3.1");
+        SECRETIVE.setAddedVersion("3.1");
+        KNIGHT.setAddedVersion("3.1");
+        SPLIT_PERSONALITY.setAddedVersion("3.1");
+        VIGOROUS.setAddedVersion("4.1");
+        UNYIELDING.setAddedVersion("4.1");
+        BLACK_WHITE.setAddedVersion("4.1");
+        PARANOID.setAddedVersion("4.1");
     }
 }
