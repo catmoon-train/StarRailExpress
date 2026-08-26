@@ -81,7 +81,7 @@ public class VoteScreen extends Screen {
     private static final int COL_TITLE = 0xFFFFE3A3;
     private static final int COL_TEXT_NORMAL = 0xFFE5C98B;
     private static final int COL_TEXT_MUTED = 0xFF98734A;
-    private static final int COL_TEXT_DARK = 0xFF2A1809;
+    private static final int COL_TEXT_DARK = 0xffffffff;
     private static final int COL_TEXT_HOVER = 0xFFFFFFFF;
     private static final int COL_TEXT_SELECTED = 0xFFFFF2C8;
     private static final int COL_TEXT_HINT = 0xFFC79C61;
@@ -813,10 +813,17 @@ public class VoteScreen extends Screen {
             g.fill(x + 5, y + 5, x + 7, y + h - 5, selected ? COL_BRASS_LIGHT : COL_BRASS_DIM);
 
             VoteOption option = ClientVoteCache.getOptions().get(optionIndex);
-            drawOptionIcon(g, option, x + 14, y + (h - ICON_SIZE) / 2);
-            drawOptionText(g, option, x, y, w, h, selected, hovered);
-            drawResultBar(g, x, y, w, h, selected);
-            drawSelectionMark(g, x, y, w, h, selected);
+            // 结果条占据按钮底部 7px，图标/文本/选中标记在刨除结果条后的剩余区域内垂直居中
+            int contentH = ClientVoteCache.isShowResults() ? h - 7 : h;
+            drawOptionIcon(g, option, x + 14, y + (contentH - ICON_SIZE) / 2 + contentShift());
+            drawOptionText(g, option, x, y, w, h, selected, hovered, contentH);
+            drawResultBar(g, x, y, w, h, selected, contentH);
+            drawSelectionMark(g, x, y, w, h, selected, contentH);
+        }
+
+        // 结果条在按钮底部，内容在剩余区域内居中后再整体下移 2px，避免视觉上偏高
+        private int contentShift() {
+            return ClientVoteCache.isShowResults() ? 2 : 0;
         }
 
         private void drawOptionIcon(GuiGraphics g, VoteOption option, int iconX, int iconY) {
@@ -832,7 +839,7 @@ public class VoteScreen extends Screen {
         }
 
         private void drawOptionText(GuiGraphics g, VoteOption option, int x, int y, int w, int h,
-                boolean selected, boolean hovered) {
+                boolean selected, boolean hovered, int contentH) {
             boolean hasIcon = option instanceof VoteOption.ItemOption || option instanceof ClientPlayerOption;
             int voteReserve = ClientVoteCache.isShowResults() ? 38 : 0;
             int checkReserve = selected ? 18 : 0;
@@ -840,14 +847,16 @@ public class VoteScreen extends Screen {
             String display = clipText(option.display().getString(),
                     w - (hasIcon ? 62 : 34) - voteReserve - checkReserve);
 
+            // 文本与 16px 图标都在剩余区域（按钮高度刨除底部结果条）内垂直居中
+            int textY = y + (contentH - font.lineHeight) / 2 + contentShift();
             if (hasIcon) {
-                g.drawString(font, display, x + 36, y + 7, textColor);
+                g.drawString(font, display, x + 36, textY, textColor);
             } else {
-                g.drawString(font, display, x + 16, y + 7, textColor);
+                g.drawString(font, display, x + 16, textY, textColor);
             }
         }
 
-        private void drawResultBar(GuiGraphics g, int x, int y, int w, int h, boolean selected) {
+        private void drawResultBar(GuiGraphics g, int x, int y, int w, int h, boolean selected, int contentH) {
             if (!ClientVoteCache.isShowResults()) {
                 return;
             }
@@ -873,10 +882,11 @@ public class VoteScreen extends Screen {
             }
 
             String voteStr = String.valueOf(votes);
-            g.drawString(font, voteStr, x + w - 12 - font.width(voteStr), y + 7, COL_TEXT_MUTED);
+            g.drawString(font, voteStr, x + w - 12 - font.width(voteStr),
+                    y + (contentH - font.lineHeight) / 2 + contentShift(), COL_TEXT_MUTED);
         }
 
-        private void drawSelectionMark(GuiGraphics g, int x, int y, int w, int h, boolean selected) {
+        private void drawSelectionMark(GuiGraphics g, int x, int y, int w, int h, boolean selected, int contentH) {
             if (!selected) {
                 return;
             }
@@ -884,7 +894,7 @@ public class VoteScreen extends Screen {
             float pulse = 1.0f + 0.05f * Mth.sin((tickCounter * 0.15f) % Mth.TWO_PI);
             int markW = (int) (12 * pulse);
             int markX = x + w - 23;
-            int markY = y + (h - 12) / 2;
+            int markY = y + (contentH - 12) / 2 + contentShift();
 
             g.fill(markX, markY, markX + 14, markY + 12, 0xFF2A1809);
             g.renderOutline(markX, markY, 14, 12, COL_BRASS_LIGHT);

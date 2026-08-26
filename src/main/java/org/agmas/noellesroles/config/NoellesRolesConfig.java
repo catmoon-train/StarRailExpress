@@ -78,7 +78,7 @@ public class NoellesRolesConfig implements ConfigData {
      */
 
     @ConfigEntry.Category(value = "detail")
-    public int chanceOfTouhouRoles = 40;
+    public int chanceOfTouhouRoles = 15;
     @ConfigEntry.Category(value = "detail")
     public int minPlayerForTouhouRoles = 12;
     @ConfigEntry.Category(value = "detail")
