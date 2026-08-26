@@ -1686,7 +1686,7 @@
   "screen.filter_selection.select_all": "全选",
   "screen.filter_selection.deselect_all": "全不选",
   "====== filter flag 显示区域开始 ======": "",
-  "screen.roleintroduce.flag.inner.version.prefix":"ℹ 更新版本: %s",
+  "screen.roleintroduce.flag.inner.version.prefix":"ℹ 加入版本: %s",
   "screen.roleintroduce.flag.inner.disable": "❌ 当前已禁用",
   "screen.roleintroduce.flag.inner.enable": "✔ 当前已启用",
   "screen.roleintroduce.flag.inner.hidden": "隐藏修饰符",
