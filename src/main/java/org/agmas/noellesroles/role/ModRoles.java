@@ -622,7 +622,7 @@ public class ModRoles {
                             new MobEffectInstance(
                                     MobEffects.MOVEMENT_SLOWDOWN,
                                     30 * 20, // 持续时间 60s（tick）
-                                    1, // 等级（0 = 速度 I）
+                                    0, // 等级（0 = 缓慢 I）
                                     true, // ambient（环境效果，如信标）
                                     false, // showParticles（显示粒子）
                                     true // showIcon（显示图标）

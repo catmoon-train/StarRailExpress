@@ -1756,7 +1756,7 @@
   "message.commander.channel.normal.tip": "附近任何人都可以听到、看到你的消息。",
   "message.commander.channel.normal.tip.bind": "按下 %s 切换频道",
   "=========== 老人 ===========": "",
-  "hud.oldman.buy": "按下 %s 花费 150金币 购买轮椅（有概率获得神秘钓竿）",
+  "hud.oldman.buy": "按下 %s 花费 100金币 购买轮椅（有概率获得神秘钓竿）",
   "hud.oldman.already_buy": "你已经拥有了轮椅，不能继续购买。",
   "hud.oldman.get_back": "按下 %s 将轮椅收回物品栏",
   "message.oldman.get_back": "你将轮椅收回了物品栏",

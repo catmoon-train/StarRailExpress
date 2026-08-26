@@ -1734,7 +1734,7 @@
     "message.commander.channel.normal.tip": "Anyone nearby can hear and see your messages.",
     "message.commander.channel.normal.tip.bind": "Press %s to switch channels",
     "=========== Old Man ===========": "",
-    "hud.oldman.buy": "Press %s to spend 150 gold to buy a wheelchair (has a chance to get a mysterious fishing rod)",
+    "hud.oldman.buy": "Press %s to spend 100 gold to buy a wheelchair (has a chance to get a mysterious fishing rod)",
     "hud.oldman.already_buy": "You already have a wheelchair, cannot buy another.",
     "hud.oldman.get_back": "Press %s to retrieve the wheelchair to inventory",
     "message.oldman.get_back": "You retrieved the wheelchair to inventory",
