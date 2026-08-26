@@ -486,7 +486,9 @@ public final class LeaderFollowerEffects {
                 return false;
             }
         } else {
-            if (!targetRole.isNeutrals() || targetRole.isNeutralForKiller()) {
+            // 中立目标：额外排除无辜者（isInnocent）与可使用杀手能力的目标（canUseKiller）
+            if (!targetRole.isNeutrals() || targetRole.isNeutralForKiller()
+                    || targetRole.isInnocent() || targetRole.canUseKiller()) {
                 return false;
             }
         }
