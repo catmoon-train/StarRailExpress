@@ -1951,13 +1951,13 @@ public class RoleShopHandler {
                     Items.MUSIC_DISC_PRECIPICE
             };
             SoundEvent[] sounds = {
-                    SoundEvents.MUSIC_DISC_13, SoundEvents.MUSIC_DISC_CAT, SoundEvents.MUSIC_DISC_BLOCKS,
-                    SoundEvents.MUSIC_DISC_CHIRP, SoundEvents.MUSIC_DISC_FAR, SoundEvents.MUSIC_DISC_MALL,
-                    SoundEvents.MUSIC_DISC_MELLOHI, SoundEvents.MUSIC_DISC_STAL, SoundEvents.MUSIC_DISC_STRAD,
-                    SoundEvents.MUSIC_DISC_WARD, SoundEvents.MUSIC_DISC_11, SoundEvents.MUSIC_DISC_WAIT,
-                    SoundEvents.MUSIC_DISC_PIGSTEP, SoundEvents.MUSIC_DISC_OTHERSIDE, SoundEvents.MUSIC_DISC_5,
-                    SoundEvents.MUSIC_DISC_RELIC, SoundEvents.MUSIC_DISC_CREATOR, SoundEvents.MUSIC_DISC_CREATOR_MUSIC_BOX,
-                    SoundEvents.MUSIC_DISC_PRECIPICE
+                    SoundEvents.MUSIC_DISC_13.value(), SoundEvents.MUSIC_DISC_CAT.value(), SoundEvents.MUSIC_DISC_BLOCKS.value(),
+                    SoundEvents.MUSIC_DISC_CHIRP.value(), SoundEvents.MUSIC_DISC_FAR.value(), SoundEvents.MUSIC_DISC_MALL.value(),
+                    SoundEvents.MUSIC_DISC_MELLOHI.value(), SoundEvents.MUSIC_DISC_STAL.value(), SoundEvents.MUSIC_DISC_STRAD.value(),
+                    SoundEvents.MUSIC_DISC_WARD.value(), SoundEvents.MUSIC_DISC_11.value(), SoundEvents.MUSIC_DISC_WAIT.value(),
+                    SoundEvents.MUSIC_DISC_PIGSTEP.value(), SoundEvents.MUSIC_DISC_OTHERSIDE.value(), SoundEvents.MUSIC_DISC_5.value(),
+                    SoundEvents.MUSIC_DISC_RELIC.value(), SoundEvents.MUSIC_DISC_CREATOR.value(), SoundEvents.MUSIC_DISC_CREATOR_MUSIC_BOX.value(),
+                    SoundEvents.MUSIC_DISC_PRECIPICE.value()
             };
             for (int i = 0; i < discs.length; i++) {
                 SoundEvent sound = sounds[i];
