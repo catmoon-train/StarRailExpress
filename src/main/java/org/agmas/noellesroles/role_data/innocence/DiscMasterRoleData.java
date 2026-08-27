@@ -48,10 +48,12 @@ public class DiscMasterRoleData extends SimpleRoleData {
 
     /**
      * 播放指定唱片对应的音乐，并设置全唱片购买冷却。
+     * 
      * @return 是否成功播放（冷却中则失败）
      */
     public boolean playDisc(SoundEvent sound) {
-        if (musicCooldown > 0) return false;
+        if (musicCooldown > 0)
+            return false;
         player.level().playSound(null, player.blockPosition(), sound, SoundSource.RECORDS, 4.0F, 1.0F);
         musicCooldown = MUSIC_COOLDOWN;
         this.sync();
@@ -66,6 +68,13 @@ public class DiscMasterRoleData extends SimpleRoleData {
             if (musicCooldown % 200 == 0 || musicCooldown == 0) {
                 this.sync();
             }
+        }
+    }
+
+    @Override
+    public void clientTick() {
+        if (musicCooldown > 0) {
+            musicCooldown--;
         }
     }
 
