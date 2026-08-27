@@ -24,7 +24,6 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.InteractionResult;
-import pro.fazeclan.river.stupid_express.constants.SERoles;
 
 public class BeeFamilyManager {
 
@@ -68,7 +67,7 @@ public class BeeFamilyManager {
                 return InteractionResult.PASS;
             }
             SREGameWorldComponent gameWorldComponent = SREGameWorldComponent.KEY.get(player.level());
-            if (!gameWorldComponent.isRole(player, SERoles.NECROMANCER)) {
+            if (!gameWorldComponent.isRole(player, BounsRoles.BEE_QUEEN)) {
                 return InteractionResult.PASS;
             }
             if (!(entity instanceof PlayerBodyEntity body)) {
