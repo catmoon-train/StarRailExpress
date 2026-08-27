@@ -28,7 +28,7 @@ import net.minecraft.world.InteractionResult;
 public class BeeFamilyManager {
 
     public static final int BEE_QUEEN_IMPROVE_PRICE = 150;
-    public static final int BEE_POISON_TICKS = 30 * 20;
+    public static final int BEE_POISON_TICKS = 15 * 20;
 
     public static void registerEvents() {
 
@@ -39,7 +39,7 @@ public class BeeFamilyManager {
         RoleSkill.register(BounsRoles.BEE_WASP,
                 RoleSkill.skill(SRE.id("bee_family_poison"), "skill.noellesroles.bee_family_poison", (ctx) -> {
                     return BeeFamilyManager.triggerSkill(ctx, false);
-                }).showOnHud(true).withTarget().cooldownSeconds(60).announceToSelf().build());
+                }).showOnHud(true).withTarget().cooldownSeconds(30).announceToSelf().build());
         RoleSkill.register(BounsRoles.BEE_QUEEN,
                 RoleSkill.skill(SRE.id("bee_queen"), "skill.noellesroles.bee_queen", (ctx) -> {
                     final var player = ctx.player();
@@ -57,7 +57,7 @@ public class BeeFamilyManager {
                     MoneyUtils.addToBalance(player, -BeeFamilyManager.BEE_QUEEN_IMPROVE_PRICE);
                     cca.status = 1;
                     return true;
-                }).noCastCCA(true).recordReplay().showOnHud(true).cooldownSeconds(60).announceToSelf().build());
+                }).noCastCCA(true).recordReplay().showOnHud(true).cooldownSeconds(30).announceToSelf().build());
         UseEntityCallback.EVENT.register(((player, level, interactionHand, entity, entityHitResult) -> {
 
             if (!(player instanceof ServerPlayer interacting)) {
