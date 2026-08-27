@@ -60,7 +60,6 @@ import org.agmas.harpymodloader.config.HarpyModLoaderConfig;
 import org.agmas.noellesroles.ConfigWorldComponent;
 import org.agmas.noellesroles.ModDataComponentTypes;
 import org.agmas.noellesroles.Noellesroles;
-import org.agmas.noellesroles.component.ModComponents;
 import org.agmas.noellesroles.config.NoellesRolesConfig;
 import org.agmas.noellesroles.content.block_entity.LotteryMachineBlockEntity;
 import org.agmas.noellesroles.content.block_entity.VendingMachinesBlockEntity;
@@ -70,6 +69,7 @@ import org.agmas.noellesroles.content.item.StalkerKnifeItem;
 import org.agmas.noellesroles.content.item.ThrowingKnife;
 import org.agmas.noellesroles.content.item.ZeroOneFiveShootPayload;
 import org.agmas.noellesroles.events.OnVendingMachinesBuyItems;
+import org.agmas.noellesroles.handler.TouhouHandlers;
 import org.agmas.noellesroles.role_data.innocence.BroadcasterRoleData;
 import org.agmas.noellesroles.role_data.innocence.MonitorRoleData;
 import org.agmas.noellesroles.role_data.innocence.VoodooRoleData;
@@ -120,7 +120,8 @@ public class ModPacketsReciever {
           return;
         }
         YouluRoleData rd = RoleData.getNullable(YouluRoleData.class, player);
-        if (rd != null) rd.reportCamPos(player, payload.pos());
+        if (rd != null)
+          rd.reportCamPos(player, payload.pos());
       });
     });
 
@@ -133,7 +134,8 @@ public class ModPacketsReciever {
           return;
         }
         YouluRoleData rd = RoleData.getNullable(YouluRoleData.class, player);
-        if (rd != null) rd.cancelFreeCam(player);
+        if (rd != null)
+          rd.cancelFreeCam(player);
       });
     });
 
@@ -229,48 +231,51 @@ public class ModPacketsReciever {
     });
     // 抽奖机：处理抽奖请求
     ServerPlayNetworking.registerGlobalReceiver(LotteryMachineDrawC2SPacket.TYPE, (payload, context) -> {
-        ServerPlayer player = context.player();
-        BlockPos pos = payload.blockPos();
-        BlockEntity be = player.level().getBlockEntity(pos);
-        if (!(be instanceof LotteryMachineBlockEntity lottery)) {
-            return;
-        }
-        if (!lottery.hasPrizes()) {
-            ServerPlayNetworking.send(player, new LotteryMachineResultS2CPacket(
-                    pos, false, "noellesroles.lottery.empty", ItemStack.EMPTY));
-            return;
-        }
-        if (!org.agmas.noellesroles.role_data.neutral.LinFamilyRoleData.allowMachinePurchase(player)) {
-            ServerPlayNetworking.send(player, new LotteryMachineResultS2CPacket(
-                    pos, false, "message.noellesroles.lin_family.vending_cooldown", ItemStack.EMPTY));
-            return;
-        }
-        if (!lottery.canAfford(player)) {
-            ServerPlayNetworking.send(player, new LotteryMachineResultS2CPacket(
-                    pos, false, "noellesroles.not_enough_money", ItemStack.EMPTY));
-            return;
-        }
-        lottery.spendDrawCost(player);
-        Optional<ShopEntry> result = lottery.draw(player.getRandom());
-        if (result.isEmpty()) {
-            ServerPlayNetworking.send(player, new LotteryMachineResultS2CPacket(
-                    pos, false, "noellesroles.lottery.empty", ItemStack.EMPTY));
-            return;
-        }
-        ShopEntry entry = result.get();
-        ItemStack prize = entry.stack().copy();
-        if (org.agmas.noellesroles.role_data.neutral.LinFamilyRoleData.isLinFamily(player)) {
-            org.agmas.noellesroles.role_data.neutral.LinFamilyRoleData.givePurchasedItem(player, prize);
-        } else if (!player.getInventory().add(prize)) {
-            player.drop(prize, false);
-        }
-        org.agmas.noellesroles.role_data.neutral.LinFamilyRoleData.markMachinePurchased(player);
+      ServerPlayer player = context.player();
+      BlockPos pos = payload.blockPos();
+      BlockEntity be = player.level().getBlockEntity(pos);
+      if (!(be instanceof LotteryMachineBlockEntity lottery)) {
+        return;
+      }
+      if (!lottery.hasPrizes()) {
         ServerPlayNetworking.send(player, new LotteryMachineResultS2CPacket(
-                pos, true, "noellesroles.lottery.won", prize));
-        player.connection.send(new ClientboundSoundPacket(
-                BuiltInRegistries.SOUND_EVENT.wrapAsHolder(SoundEvents.PLAYER_LEVELUP),
-                SoundSource.PLAYERS, player.getX(), player.getY(), player.getZ(), 1.0F, 1.2F,
-                player.getRandom().nextLong()));
+            pos, false, "noellesroles.lottery.empty", ItemStack.EMPTY));
+        return;
+      }
+      if (!org.agmas.noellesroles.role_data.neutral.LinFamilyRoleData.allowMachinePurchase(player)) {
+        ServerPlayNetworking.send(player, new LotteryMachineResultS2CPacket(
+            pos, false, "message.noellesroles.lin_family.vending_cooldown", ItemStack.EMPTY));
+        return;
+      }
+      if (!lottery.canAfford(player)) {
+        ServerPlayNetworking.send(player, new LotteryMachineResultS2CPacket(
+            pos, false, "noellesroles.not_enough_money", ItemStack.EMPTY));
+        return;
+      }
+      lottery.spendDrawCost(player);
+      Optional<ShopEntry> result = lottery.draw(player.getRandom());
+      if (result.isEmpty()) {
+        ServerPlayNetworking.send(player, new LotteryMachineResultS2CPacket(
+            pos, false, "noellesroles.lottery.empty", ItemStack.EMPTY));
+        return;
+      }
+      ShopEntry entry = result.get();
+      ItemStack prize = entry.stack().copy();
+      if (org.agmas.noellesroles.role_data.neutral.LinFamilyRoleData.isLinFamily(player)) {
+        org.agmas.noellesroles.role_data.neutral.LinFamilyRoleData.givePurchasedItem(player, prize);
+      } else if (!player.getInventory().add(prize)) {
+        player.drop(prize, false);
+      }
+      org.agmas.noellesroles.role_data.neutral.LinFamilyRoleData.markMachinePurchased(player);
+      ServerPlayNetworking.send(player, new LotteryMachineResultS2CPacket(
+          pos, true, "noellesroles.lottery.won", prize));
+      player.connection.send(new ClientboundSoundPacket(
+          BuiltInRegistries.SOUND_EVENT.wrapAsHolder(SoundEvents.PLAYER_LEVELUP),
+          SoundSource.PLAYERS, player.getX(), player.getY(), player.getZ(), 1.0F, 1.2F,
+          player.getRandom().nextLong()));
+    });
+    ServerPlayNetworking.registerGlobalReceiver(RhythmGameResultC2SPacket.ID, (payload, context) -> {
+      TouhouHandlers.handleMystiaResult(context.player(), payload.score());
     });
     ServerPlayNetworking.registerGlobalReceiver(ProblemSetEventC2SPacket.ID, (payload, context) -> {
       if (context.player().hasEffect(ModEffects.SAFE_TIME))// 安全时间
@@ -407,7 +412,8 @@ public class ModPacketsReciever {
         SRE.REPLAY_MANAGER.recordCustomEvent(
             Component.translatable("replay.event.voodoo.bind",
                 GameReplayUtils.getReplayPlayerDisplayText(context.player(), true),
-                GameReplayUtils.getReplayPlayerDisplayText(context.player().level().getPlayerByUUID(payload.player()), true)));
+                GameReplayUtils.getReplayPlayerDisplayText(context.player().level().getPlayerByUUID(payload.player()),
+                    true)));
 
       }
       if (gameWorldComponent.isRole(context.player(), ModRoles.MORPHLING)) {
@@ -471,8 +477,8 @@ public class ModPacketsReciever {
       if (context.player().level().getPlayerByUUID(payload.targetPlayer()) == null)
         return;
       if (gameWorldComponent.isRole(context.player(), ModRoles.SILENCER)) {
-        RoleData.getOptional(SilencerRoleData.class, context.player()).ifPresent(silencer ->
-            silencer.startSkill(payload.targetPlayer()));
+        RoleData.getOptional(SilencerRoleData.class, context.player())
+            .ifPresent(silencer -> silencer.startSkill(payload.targetPlayer()));
       }
     });
 
@@ -510,7 +516,7 @@ public class ModPacketsReciever {
       if (RoleSkill.blockForSpectator(context.player()))
         return;
       if (RoleData.getOptional(NinjaRoleData.class, context.player())
-              .map(NinjaRoleData::useAbility).orElse(false)) {
+          .map(NinjaRoleData::useAbility).orElse(false)) {
         ConfigWorldComponent.onPlayerUsedSkill(context.player());
       }
     });
@@ -1087,7 +1093,7 @@ public class ModPacketsReciever {
 
           if (gameWorldComponent.isRole(player, BounsRoles.CREEPER)) {
             if (RoleData.getOptional(CreeperRoleData.class, player)
-                    .map(CreeperRoleData::ignite).orElse(false)) {
+                .map(CreeperRoleData::ignite).orElse(false)) {
               ConfigWorldComponent.onPlayerUsedSkill(player);
             }
           }
@@ -1203,7 +1209,8 @@ public class ModPacketsReciever {
 
             // 获取基于开局玩家数计算的阈值（已在游戏开始时初始化）
             PartyRoleData pc = RoleData.getNullable(PartyRoleData.class, player);
-            if (pc == null) return;
+            if (pc == null)
+              return;
             int threshold = pc.getThreshold();
 
             // 为目标设置氦气变声（4分钟 = 240秒 = 4800 ticks）
@@ -1542,10 +1549,12 @@ public class ModPacketsReciever {
           if (!GameUtils.isPlayerAliveAndSurvival(player))
             return;
           var comp = RoleData.getOptional(SkincrawlerRoleData.class, player);
-          if (comp.isEmpty()) return;
+          if (comp.isEmpty())
+            return;
           if (comp.get().stealCooldown > 0) {
             player.displayClientMessage(
-                Component.translatable("message.noellesroles.skincrawler.cooldown", (comp.get().stealCooldown + 19) / 20)
+                Component
+                    .translatable("message.noellesroles.skincrawler.cooldown", (comp.get().stealCooldown + 19) / 20)
                     .withStyle(ChatFormatting.RED),
                 true);
             return;

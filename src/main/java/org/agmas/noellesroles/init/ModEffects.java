@@ -484,6 +484,9 @@ public class ModEffects {
     public static final Holder<MobEffect> EERIE_DOMAIN = register("eerie_domain",
             new SimpleMobEffect(MobEffectCategory.HARMFUL, 0x6A5ACD));
 
+    public static final Holder<MobEffect> NO_INSTINCT = register("no_instinct",
+            new SimpleMobEffect(MobEffectCategory.HARMFUL, 0x6A5ACD));
+
     /**
      * 领域标记（本模组三大领域共享）：
      * - 中性效果，幽紫色

@@ -15,12 +15,16 @@
 
 package org.agmas.noellesroles.client;
 
-import org.agmas.noellesroles.client.utils.OpenScreenManager;
 import org.agmas.noellesroles.packet.OpenScreenPayload;
+import org.agmas.noellesroles.utils.OpenScreenManager;
 
+import io.wifi.rhythm.client.RhythmMapManager;
 import io.wifi.rhythm.client.screen.RhythmGameListScreen;
+import io.wifi.rhythm.client.screen.RhythmGameScreen;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking.Context;
+import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 
 /**
@@ -33,6 +37,15 @@ public class ClientOpenScreenManager {
         ResourceLocation id = payload.id();
         if (id.equals(OpenScreenManager.RHYTHM_GAME_SCREEN)) {
             screen = new RhythmGameListScreen(null);
+        }
+        if (id.equals(OpenScreenManager.RHYTHM_GAME_SCREEN_ROLE)) {
+            var map = RhythmMapManager.randomMap();
+            if (map.isPresent()) {
+                screen = new RhythmGameScreen(map.get(), true);
+            } else {
+                context.client().player
+                        .displayClientMessage(Component.translatable("skill.noellesroles.mistia.error.no_music").withStyle(ChatFormatting.RED), true);
+            }
         }
         if (screen != null) {
             final var finalScreen = screen;

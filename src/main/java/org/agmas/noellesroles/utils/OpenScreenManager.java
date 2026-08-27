@@ -13,7 +13,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package org.agmas.noellesroles.client.utils;
+package org.agmas.noellesroles.utils;
 
 import java.util.HashMap;
 
@@ -43,4 +43,5 @@ public interface OpenScreenManager {
     }
 
     ResourceLocation RHYTHM_GAME_SCREEN = register(SRE.id("rhythm_game"), Component.translatable("gui.rhythm.title"));
+    ResourceLocation RHYTHM_GAME_SCREEN_ROLE = register(SRE.id("rhythm_game_role"), Component.translatable("gui.rhythm.title"));
 }

@@ -52,6 +52,9 @@ public class FunnyItems {
     public static final Item DOREMY_GHOST = register(
             new DoremyGhostItem(new Item.Properties().stacksTo(1).food(Foods.APPLE)),
             "doremy_ghost");
+    public static final Item COOKED_HAIMAN = register(
+            new CookedHaimanItem(new Item.Properties().stacksTo(1).food(Foods.TROPICAL_FISH)),
+            "cooked_haiman");
     // 彩虹马蹄铁 - 召唤海曼彩虹马从天而降
     public static final Item RAINBOW_HORSESHOE = register(
             new RainbowHorseshoeItem(new Item.Properties().stacksTo(1)),

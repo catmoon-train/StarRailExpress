@@ -17,6 +17,8 @@ package org.agmas.noellesroles.client.screen;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
+
+import io.wifi.starrailexpress.client.api.InvNoMoveScreen;
 import io.wifi.starrailexpress.util.TickTimer;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.minecraft.client.Minecraft;
@@ -48,7 +50,7 @@ import java.util.List;
 
 import static java.lang.Math.abs;
 
-public class CookingGameScreen extends AbstractPixelScreen {
+public class CookingGameScreen extends AbstractPixelScreen implements InvNoMoveScreen {
     public static class GameItem {
         public static boolean isOverlap(GameItem item1, GameItem item2) {
             return item1.imgWidget.getY() < item2.imgWidget.getBottom()
@@ -335,9 +337,7 @@ public class CookingGameScreen extends AbstractPixelScreen {
                     Minecraft.getInstance().getSoundManager().play(
                             SimpleSoundInstance.forUI(
                                     SoundEvents.FIREWORK_ROCKET_LARGE_BLAST,
-                                    1.0F
-                            )
-                    );
+                                    1.0F));
                     // 停止倒计时
                     gameTimer.setOneShot(false);
                     // 设置倒计时结束后的停顿再进行下一步处理
@@ -355,7 +355,7 @@ public class CookingGameScreen extends AbstractPixelScreen {
                                 int aniTick = 10;
                                 animations.add(BezierAnimation.builder(
                                         // 无作用只是用来辅助动画绘图
-                                                timeLineStringWidget,
+                                        timeLineStringWidget,
                                         new Vec2(0, maxScoreBarHeight),
                                         aniTick)
                                         .setCallback(vec -> {
@@ -397,8 +397,7 @@ public class CookingGameScreen extends AbstractPixelScreen {
                                                     }).bounds(this.centerX - 50, this.centerY + 60, 100, 20)
                                                     .build();
                                             addRenderableWidget(closeBtn);
-                                        })
-                                );
+                                        }));
                             }));
                 }));
 
@@ -430,9 +429,7 @@ public class CookingGameScreen extends AbstractPixelScreen {
                     Minecraft.getInstance().getSoundManager().play(
                             SimpleSoundInstance.forUI(
                                     SoundEvents.UI_BUTTON_CLICK,
-                                    1.0F
-                            )
-                    );
+                                    1.0F));
                 }));
         timerWidgets.add(new TimerWidget(
                 1,
@@ -443,9 +440,7 @@ public class CookingGameScreen extends AbstractPixelScreen {
                     Minecraft.getInstance().getSoundManager().play(
                             SimpleSoundInstance.forUI(
                                     SoundEvents.UI_BUTTON_CLICK,
-                                    1.0F
-                            )
-                    );
+                                    1.0F));
                 }));
         timerWidgets.add(new TimerWidget(
                 2,
@@ -456,9 +451,7 @@ public class CookingGameScreen extends AbstractPixelScreen {
                     Minecraft.getInstance().getSoundManager().play(
                             SimpleSoundInstance.forUI(
                                     SoundEvents.UI_BUTTON_CLICK,
-                                    1.0F
-                            )
-                    );
+                                    1.0F));
                 }));
         timerWidgets.add(new TimerWidget(
                 3,
@@ -469,9 +462,7 @@ public class CookingGameScreen extends AbstractPixelScreen {
                     Minecraft.getInstance().getSoundManager().play(
                             SimpleSoundInstance.forUI(
                                     SoundEvents.END_PORTAL_SPAWN,
-                                    1.0F
-                            )
-                    );
+                                    1.0F));
                 }));
         timerWidgets.add(new TimerWidget(
                 4,
@@ -553,15 +544,15 @@ public class CookingGameScreen extends AbstractPixelScreen {
                     for (int i = 0; i < lastInfoCards.size(); ++i)
                         curInfoCardsList.add(new Pair<>(i, lastInfoCards.get(i)));
                     // 降序排序
-                    curInfoCardsList.sort((o1, o2) ->
-                        Float.compare(o2.second.buffSecond, o1.second.buffSecond));
+                    curInfoCardsList.sort((o1, o2) -> Float.compare(o2.second.buffSecond, o1.second.buffSecond));
                     for (int i = 0; i < lastInfoCards.size(); ++i) {
                         if (i == curInfoCardsList.get(i).first)
                             continue;
                         animations.add(BezierAnimation.builder(
                                 lastInfoCards.get(curInfoCardsList.get(i).first),
                                 new Vec2(0,
-                                        (BASE_FOOD_SIZE * pixelSize + INFO_INTERVAL) * (i - curInfoCardsList.get(i).first)),
+                                        (BASE_FOOD_SIZE * pixelSize + INFO_INTERVAL)
+                                                * (i - curInfoCardsList.get(i).first)),
                                 STRING_DURATION_TICKS)
                                 .build());
                     }
@@ -723,6 +714,7 @@ public class CookingGameScreen extends AbstractPixelScreen {
             default -> super.keyReleased(keyCode, scanCode, modifiers);
         };
     }
+
     /** 结算发布结果 */
     private void sendResult() {
         Map<Integer, Float> resultBuffTime = new HashMap<>();

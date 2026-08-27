@@ -84,15 +84,15 @@ public class THYukariPortalManager {
                 continue;
             long cooldown = PORTAL_COOLDOWNS.getOrDefault(player.getUUID(), -1L);
             if (cooldown <= 0 || now > cooldown) {
-                Vec3 pos1 = PORTAL_1.position();
-                Vec3 pos2 = PORTAL_2.position();
+                Vec3 pos1 = PORTAL_1.position().add(0, -1, 0);
+                Vec3 pos2 = PORTAL_2.position().add(0, -1, 0);
                 // SRE.LOGGER.info("player {}; {}->{}", player.position().toString(),
                 // pos1.toString(), pos2.toString());
 
                 if (player.distanceToSqr(pos1) <= 1) {
-                    enterPortal(player, PORTAL_2.position());
+                    enterPortal(player, pos2);
                 } else if (player.distanceToSqr(pos2) <= 1) {
-                    enterPortal(player, PORTAL_1.position());
+                    enterPortal(player, pos1);
                 }
             }
         }
@@ -114,10 +114,10 @@ public class THYukariPortalManager {
             return false;
         }
         removeAlivePortals(world);
-        PORTAL_1 = createPortalInner(world, pos1, 1);
+        PORTAL_1 = createPortalInner(world, pos1.add(0, 1, 0), 1);
         world.addFreshEntity(PORTAL_1);
 
-        PORTAL_2 = createPortalInner(world, pos2, 2);
+        PORTAL_2 = createPortalInner(world, pos2.add(0, 1, 0), 2);
         world.addFreshEntity(PORTAL_2);
 
         PORTAL_CREATION_TIME = GameUtils.getTicksFromGameStart(world);
@@ -128,10 +128,10 @@ public class THYukariPortalManager {
         var portal = EntityType.BLOCK_DISPLAY.create(world);
         portal.setPos(pos1);
         portal.addTag("sre.yukari");
-        portal.setBlockState(Blocks.BLACK_CONCRETE.defaultBlockState());
-        Vector3f translation = new Vector3f(-0.5f, -0.5f, -0.5f);
+        portal.setBlockState(Blocks.NETHER_PORTAL.defaultBlockState());
+        Vector3f translation = new Vector3f(-0.5f, -1.5f, -0.5f);
         Quaternionf leftRot = new Quaternionf(0f, 0f, 0f, 1f);
-        Vector3f scale = new Vector3f(1f, 2f, 1f);
+        Vector3f scale = new Vector3f(1f, 1.5f, 1f);
         Quaternionf rightRot = new Quaternionf(0f, 0f, 0f, 1f);
 
         Transformation transform = new Transformation(translation, leftRot, scale, rightRot);

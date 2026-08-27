@@ -15,6 +15,7 @@
 
 package org.agmas.noellesroles.client.screen;
 
+import io.wifi.starrailexpress.client.api.InvNoMoveScreen;
 import io.wifi.starrailexpress.content.item.CocktailItem;
 import io.wifi.starrailexpress.util.SREItemUtils;
 import net.minecraft.ChatFormatting;
@@ -27,7 +28,7 @@ import net.minecraft.network.chat.Component;
 import org.agmas.noellesroles.ModDataComponentTypes;
 import org.agmas.noellesroles.init.ModItems;
 
-public class ChefStartGameScreen extends Screen {
+public class ChefStartGameScreen extends Screen implements InvNoMoveScreen {
 
     public ChefStartGameScreen() {
         super(Component.translatable("screen.noellesroles.chef.title"));

@@ -1,0 +1,577 @@
+{
+  "MusicDisplayName": "remilia",
+  "Level": 1,
+  "Notes": [
+    {
+      "startTime": 2,
+      "endTime": 0,
+      "noteType": "HoldSingle",
+      "positionType": "Right"
+    },
+    {
+      "startTime": 210,
+      "endTime": 0,
+      "noteType": "Single",
+      "positionType": "Right"
+    },
+    {
+      "startTime": 546,
+      "endTime": 0,
+      "noteType": "Single",
+      "positionType": "Right"
+    },
+    {
+      "startTime": 889,
+      "endTime": 0,
+      "noteType": "Single",
+      "positionType": "Right"
+    },
+    {
+      "startTime": 1388,
+      "endTime": 0,
+      "noteType": "Single",
+      "positionType": "Left"
+    },
+    {
+      "startTime": 1721,
+      "endTime": 0,
+      "noteType": "Single",
+      "positionType": "Left"
+    },
+    {
+      "startTime": 2306,
+      "endTime": 0,
+      "noteType": "Single",
+      "positionType": "Right"
+    },
+    {
+      "startTime": 2532,
+      "endTime": 0,
+      "noteType": "Single",
+      "positionType": "Right"
+    },
+    {
+      "startTime": 3526,
+      "endTime": 0,
+      "noteType": "Single",
+      "positionType": "Left"
+    },
+    {
+      "startTime": 3725,
+      "endTime": 0,
+      "noteType": "HoldSingle",
+      "positionType": "Left"
+    },
+    {
+      "startTime": 3927,
+      "endTime": 0,
+      "noteType": "HoldSingle",
+      "positionType": "Left"
+    },
+    {
+      "startTime": 4179,
+      "endTime": 0,
+      "noteType": "Single",
+      "positionType": "Right"
+    },
+    {
+      "startTime": 4771,
+      "endTime": 0,
+      "noteType": "Single",
+      "positionType": "Right"
+    },
+    {
+      "startTime": 5007,
+      "endTime": 0,
+      "noteType": "HoldSingle",
+      "positionType": "Right"
+    },
+    {
+      "startTime": 5550,
+      "endTime": 0,
+      "noteType": "Single",
+      "positionType": "Right"
+    },
+    {
+      "startTime": 5799,
+      "endTime": 0,
+      "noteType": "Single",
+      "positionType": "Right"
+    },
+    {
+      "startTime": 6905,
+      "endTime": 0,
+      "noteType": "Single",
+      "positionType": "Left"
+    },
+    {
+      "startTime": 7099,
+      "endTime": 0,
+      "noteType": "HoldSingle",
+      "positionType": "Left"
+    },
+    {
+      "startTime": 7308,
+      "endTime": 0,
+      "noteType": "HoldSingle",
+      "positionType": "Left"
+    },
+    {
+      "startTime": 7516,
+      "endTime": 0,
+      "noteType": "Single",
+      "positionType": "Right"
+    },
+    {
+      "startTime": 7851,
+      "endTime": 0,
+      "noteType": "Single",
+      "positionType": "Right"
+    },
+    {
+      "startTime": 8573,
+      "endTime": 0,
+      "noteType": "Single",
+      "positionType": "Left"
+    },
+    {
+      "startTime": 8760,
+      "endTime": 0,
+      "noteType": "HoldSingle",
+      "positionType": "Left"
+    },
+    {
+      "startTime": 8926,
+      "endTime": 0,
+      "noteType": "HoldSingle",
+      "positionType": "Left"
+    },
+    {
+      "startTime": 9181,
+      "endTime": 0,
+      "noteType": "Single",
+      "positionType": "Right"
+    },
+    {
+      "startTime": 9546,
+      "endTime": 0,
+      "noteType": "Single",
+      "positionType": "Right"
+    },
+    {
+      "startTime": 10201,
+      "endTime": 0,
+      "noteType": "Single",
+      "positionType": "Left"
+    },
+    {
+      "startTime": 10386,
+      "endTime": 0,
+      "noteType": "HoldSingle",
+      "positionType": "Left"
+    },
+    {
+      "startTime": 10576,
+      "endTime": 0,
+      "noteType": "Single",
+      "positionType": "Right"
+    },
+    {
+      "startTime": 10580,
+      "endTime": 0,
+      "noteType": "HoldSingle",
+      "positionType": "Left"
+    },
+    {
+      "startTime": 10905,
+      "endTime": 0,
+      "noteType": "Single",
+      "positionType": "Left"
+    },
+    {
+      "startTime": 11386,
+      "endTime": 0,
+      "noteType": "Single",
+      "positionType": "Right"
+    },
+    {
+      "startTime": 11536,
+      "endTime": 0,
+      "noteType": "Single",
+      "positionType": "Left"
+    },
+    {
+      "startTime": 12308,
+      "endTime": 0,
+      "noteType": "Single",
+      "positionType": "Left"
+    },
+    {
+      "startTime": 12556,
+      "endTime": 0,
+      "noteType": "Single",
+      "positionType": "Right"
+    },
+    {
+      "startTime": 13390,
+      "endTime": 0,
+      "noteType": "Single",
+      "positionType": "Left"
+    },
+    {
+      "startTime": 13568,
+      "endTime": 0,
+      "noteType": "Single",
+      "positionType": "Right"
+    },
+    {
+      "startTime": 13767,
+      "endTime": 0,
+      "noteType": "HoldSingle",
+      "positionType": "Right"
+    },
+    {
+      "startTime": 13976,
+      "endTime": 0,
+      "noteType": "HoldSingle",
+      "positionType": "Right"
+    },
+    {
+      "startTime": 14219,
+      "endTime": 0,
+      "noteType": "Single",
+      "positionType": "Left"
+    },
+    {
+      "startTime": 14798,
+      "endTime": 0,
+      "noteType": "Single",
+      "positionType": "Right"
+    },
+    {
+      "startTime": 15017,
+      "endTime": 0,
+      "noteType": "HoldSingle",
+      "positionType": "Right"
+    },
+    {
+      "startTime": 15666,
+      "endTime": 0,
+      "noteType": "Single",
+      "positionType": "Right"
+    },
+    {
+      "startTime": 15894,
+      "endTime": 0,
+      "noteType": "HoldSingle",
+      "positionType": "Right"
+    },
+    {
+      "startTime": 16909,
+      "endTime": 0,
+      "noteType": "Single",
+      "positionType": "Right"
+    },
+    {
+      "startTime": 17098,
+      "endTime": 0,
+      "noteType": "HoldSingle",
+      "positionType": "Right"
+    },
+    {
+      "startTime": 17307,
+      "endTime": 0,
+      "noteType": "HoldSingle",
+      "positionType": "Right"
+    },
+    {
+      "startTime": 17521,
+      "endTime": 0,
+      "noteType": "Single",
+      "positionType": "Left"
+    },
+    {
+      "startTime": 18123,
+      "endTime": 0,
+      "noteType": "Single",
+      "positionType": "Left"
+    },
+    {
+      "startTime": 18341,
+      "endTime": 0,
+      "noteType": "HoldSingle",
+      "positionType": "Left"
+    },
+    {
+      "startTime": 18909,
+      "endTime": 0,
+      "noteType": "Single",
+      "positionType": "Left"
+    },
+    {
+      "startTime": 19128,
+      "endTime": 0,
+      "noteType": "HoldSingle",
+      "positionType": "Left"
+    },
+    {
+      "startTime": 20196,
+      "endTime": 0,
+      "noteType": "Single",
+      "positionType": "Right"
+    },
+    {
+      "startTime": 20423,
+      "endTime": 0,
+      "noteType": "HoldSingle",
+      "positionType": "Right"
+    },
+    {
+      "startTime": 20612,
+      "endTime": 0,
+      "noteType": "HoldSingle",
+      "positionType": "Right"
+    },
+    {
+      "startTime": 20806,
+      "endTime": 0,
+      "noteType": "Single",
+      "positionType": "Left"
+    },
+    {
+      "startTime": 21122,
+      "endTime": 0,
+      "noteType": "Single",
+      "positionType": "Left"
+    },
+    {
+      "startTime": 21816,
+      "endTime": 0,
+      "noteType": "Single",
+      "positionType": "Left"
+    },
+    {
+      "startTime": 22063,
+      "endTime": 0,
+      "noteType": "HoldSingle",
+      "positionType": "Left"
+    },
+    {
+      "startTime": 22281,
+      "endTime": 0,
+      "noteType": "HoldSingle",
+      "positionType": "Left"
+    },
+    {
+      "startTime": 22482,
+      "endTime": 0,
+      "noteType": "Single",
+      "positionType": "Right"
+    },
+    {
+      "startTime": 22837,
+      "endTime": 0,
+      "noteType": "Single",
+      "positionType": "Right"
+    },
+    {
+      "startTime": 23535,
+      "endTime": 0,
+      "noteType": "Single",
+      "positionType": "Left"
+    },
+    {
+      "startTime": 23754,
+      "endTime": 0,
+      "noteType": "HoldSingle",
+      "positionType": "Left"
+    },
+    {
+      "startTime": 23980,
+      "endTime": 0,
+      "noteType": "HoldSingle",
+      "positionType": "Left"
+    },
+    {
+      "startTime": 24176,
+      "endTime": 24778,
+      "noteType": "Hold",
+      "positionType": "Right"
+    },
+    {
+      "startTime": 24960,
+      "endTime": 0,
+      "noteType": "HoldSingle",
+      "positionType": "Right"
+    },
+    {
+      "startTime": 25609,
+      "endTime": 0,
+      "noteType": "Single",
+      "positionType": "Left"
+    },
+    {
+      "startTime": 25797,
+      "endTime": 26536,
+      "noteType": "Hold",
+      "positionType": "Left"
+    },
+    {
+      "startTime": 27521,
+      "endTime": 0,
+      "noteType": "Single",
+      "positionType": "Right"
+    },
+    {
+      "startTime": 27698,
+      "endTime": 0,
+      "noteType": "Single",
+      "positionType": "Left"
+    },
+    {
+      "startTime": 27874,
+      "endTime": 0,
+      "noteType": "Single",
+      "positionType": "Right"
+    },
+    {
+      "startTime": 28051,
+      "endTime": 0,
+      "noteType": "Single",
+      "positionType": "Left"
+    },
+    {
+      "startTime": 28227,
+      "endTime": 28580,
+      "noteType": "Hold",
+      "positionType": "Right"
+    },
+    {
+      "startTime": 28933,
+      "endTime": 0,
+      "noteType": "Single",
+      "positionType": "Right"
+    },
+    {
+      "startTime": 29110,
+      "endTime": 0,
+      "noteType": "Single",
+      "positionType": "Left"
+    },
+    {
+      "startTime": 29286,
+      "endTime": 0,
+      "noteType": "Single",
+      "positionType": "Right"
+    },
+    {
+      "startTime": 29463,
+      "endTime": 0,
+      "noteType": "Single",
+      "positionType": "Left"
+    },
+    {
+      "startTime": 29727,
+      "endTime": 0,
+      "noteType": "Single",
+      "positionType": "Right"
+    },
+    {
+      "startTime": 29992,
+      "endTime": 30257,
+      "noteType": "Hold",
+      "positionType": "Right"
+    },
+    {
+      "startTime": 30610,
+      "endTime": 0,
+      "noteType": "HoldSingle",
+      "positionType": "Right"
+    },
+    {
+      "startTime": 30874,
+      "endTime": 0,
+      "noteType": "Single",
+      "positionType": "Right"
+    },
+    {
+      "startTime": 31139,
+      "endTime": 0,
+      "noteType": "Single",
+      "positionType": "Right"
+    },
+    {
+      "startTime": 31492,
+      "endTime": 0,
+      "noteType": "Single",
+      "positionType": "Right"
+    },
+    {
+      "startTime": 31669,
+      "endTime": 0,
+      "noteType": "Single",
+      "positionType": "Right"
+    },
+    {
+      "startTime": 31845,
+      "endTime": 0,
+      "noteType": "Single",
+      "positionType": "Left"
+    },
+    {
+      "startTime": 32021,
+      "endTime": 0,
+      "noteType": "HoldSingle",
+      "positionType": "Right"
+    },
+    {
+      "startTime": 32110,
+      "endTime": 0,
+      "noteType": "HoldSingle",
+      "positionType": "Left"
+    },
+    {
+      "startTime": 32463,
+      "endTime": 52227,
+      "noteType": "Hold",
+      "positionType": "Right"
+    },
+    {
+      "startTime": 32463,
+      "endTime": 52227,
+      "noteType": "Hold",
+      "positionType": "Left"
+    }
+  ],
+  "NoteClick": [
+    {
+      "StartTime": 0,
+      "Bpm": 135.0,
+      "Division": 1,
+      "SpecificMidiClick": [
+        3169
+      ],
+      "Type": "Custom"
+    },
+    {
+      "StartTime": 169,
+      "Bpm": 170.0,
+      "Division": 4,
+      "SpecificMidiClick": null,
+      "Type": "Normal"
+    }
+  ],
+  "CoverPicOffset": {
+    "x": 0.0,
+    "y": 4.0
+  },
+  "CoverPicBorderColor": {
+    "r": 0.04705883,
+    "g": 0.04705883,
+    "b": 0.04705883,
+    "a": 1.0
+  },
+  "Original": "Unknown Original",
+  "Mapper": "Unknown Mapper",
+  "Src": "noellesroles:roles.remilia"
+}

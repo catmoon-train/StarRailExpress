@@ -22,6 +22,7 @@ import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
 import net.minecraft.world.entity.player.Player;
 import org.agmas.noellesroles.game.roles.neutral.pelican.PelicanManager;
+import org.agmas.noellesroles.init.ModEffects;
 import org.agmas.noellesroles.role_data.killer.ManipulatorRoleData;
 import org.agmas.noellesroles.role_data.special.BetterVigilanteRoleData;
 import org.agmas.noellesroles.role.ModRoles;
@@ -66,7 +67,7 @@ public abstract class InstinctMixin {
         }
 
         // 鬼眼·杨间 诡域内：禁止开启杀手透视
-        if (player.hasEffect(org.agmas.noellesroles.init.ModEffects.EERIE_DOMAIN)) {
+        if (player.hasEffect(org.agmas.noellesroles.init.ModEffects.EERIE_DOMAIN) || player.hasEffect(ModEffects.NO_INSTINCT)) {
             cir.setReturnValue(false);
             cir.cancel();
             return;

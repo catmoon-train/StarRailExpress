@@ -60,6 +60,9 @@ public class ModPackets {
                 ExecutionerSelectTargetC2SPacket.CODEC);
         PayloadTypeRegistry.playC2S().register(ProblemSetEventC2SPacket.ID,
                 ProblemSetEventC2SPacket.CODEC);
+                
+        PayloadTypeRegistry.playC2S().register(RhythmGameResultC2SPacket.ID,
+                RhythmGameResultC2SPacket.CODEC);
         PayloadTypeRegistry.playC2S().register(BroadcasterC2SPacket.ID, BroadcasterC2SPacket.CODEC);
         PayloadTypeRegistry.playC2S().register(NinjaAbilityC2SPacket.ID, NinjaAbilityC2SPacket.CODEC);
 

@@ -63,7 +63,6 @@ import org.agmas.harpymodloader.Harpymodloader;
 import org.agmas.harpymodloader.commands.argument.RoleArgumentType;
 import org.agmas.harpymodloader.events.ModdedRoleAssigned;
 import org.agmas.harpymodloader.events.ModdedRoleRemoved;
-import org.agmas.noellesroles.client.utils.OpenScreenManager;
 import org.agmas.noellesroles.content.effects.TimeStopEffect;
 import org.agmas.noellesroles.role_data.neutral.GamblerRoleData;
 import org.agmas.noellesroles.init.ModEffects;
@@ -73,6 +72,7 @@ import org.agmas.noellesroles.packet.ScanAllTaskPointsPayload;
 import org.agmas.noellesroles.role.ModRoles;
 import org.agmas.noellesroles.scene.SceneTaskManager;
 import org.agmas.noellesroles.utils.MapScannerManager;
+import org.agmas.noellesroles.utils.OpenScreenManager;
 import org.agmas.noellesroles.utils.RoleUtils;
 import org.jetbrains.annotations.Nullable;
 
