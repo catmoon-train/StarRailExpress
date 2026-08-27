@@ -30,7 +30,7 @@ import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.Vec3;
 import org.agmas.noellesroles.packet.CreateCreeperBombAreaPacket;
-import org.agmas.noellesroles.role.BounsRoles;
+import org.agmas.noellesroles.role.bouns.BounsRoles;
 
 public class CreeperRoleData extends SimpleRoleData {
 

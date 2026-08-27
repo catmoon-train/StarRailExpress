@@ -64,8 +64,9 @@ import org.agmas.noellesroles.role_data.neutral.AdmirerRoleData;
 import org.agmas.noellesroles.game.roles.neutral.puppeteer.PuppeteerPlayerComponent;
 import org.agmas.noellesroles.init.ModItems;
 import org.agmas.noellesroles.packet.GreatDetectiveRevealC2SPacket;
-import org.agmas.noellesroles.role.BounsRoles;
 import org.agmas.noellesroles.role.ModRoles;
+import org.agmas.noellesroles.role.bouns.BounsRoles;
+
 import static org.agmas.noellesroles.RicesRoleRhapsody.*;
 
 /**

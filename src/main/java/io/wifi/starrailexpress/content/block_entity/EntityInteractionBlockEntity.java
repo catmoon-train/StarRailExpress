@@ -1026,7 +1026,7 @@ public class EntityInteractionBlockEntity extends BlockEntity {
                 // 护盾值（普通护盾 + 限时护盾 + 弱效护盾叠加层数）
                 SREArmorPlayerComponent armor = SREArmorPlayerComponent.KEY.get(player);
                 SREWeakArmorPlayerComponent weakArmor = SREWeakArmorPlayerComponent.KEY.get(player);
-                int totalShield = armor.getArmor() + weakArmor.getWeakArmor();
+                int totalShield = armor.getAllArmorCount() + weakArmor.getWeakArmor();
                 yield compareValue(totalShield, condition.value, condition.comparison);
             }
             case HAS_TASK -> {

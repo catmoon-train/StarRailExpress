@@ -717,7 +717,7 @@
     "commands.sre.shield.timed.set": "已给 %s 名玩家设置限时护盾: %s层, %s秒%s",
     "commands.sre.shield.timed.clear": "已清除 %s 名玩家的限时护盾",
     "commands.sre.shield.timed.get.header": "限时护盾: ",
-    "commands.sre.shield.timed.get.entry": "%s=%s层,剩余%stick ",
+    "commands.sre.shield.timed.get.entry": "%s=%s层，剩余现时护盾数量：%s个 ",
     "commands.sre.shield.timed.reset_stack": " (重置计时器并叠加)",
     "commands.sre.shield.timed.reset_only": " (重置计时器)",
     "commands.sre.shield.timed.set_direct": " (直接设置)",

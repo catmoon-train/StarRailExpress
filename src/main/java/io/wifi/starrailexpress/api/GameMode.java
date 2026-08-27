@@ -487,9 +487,9 @@ public abstract class GameMode {
             }
         if (killer != null) {
             if (killer instanceof ServerPlayer spkiller) {
-                SREArmorPlayerComponent bartenderPlayerComponent = SREArmorPlayerComponent.KEY.get(victim);
-                if (bartenderPlayerComponent != null) {
-                    if (bartenderPlayerComponent.getArmor() > 0) {
+                SREArmorPlayerComponent armorComponent = SREArmorPlayerComponent.KEY.get(victim);
+                if (armorComponent != null) {
+                    if (armorComponent.hasArmor(1)) {
                         boolean cantDefend = ArmorRules.canStickArmor.stream().anyMatch((pre) -> {
                             return pre.test(new DeathInfo(victim, killer, deathReason));
                         });
@@ -498,7 +498,7 @@ public abstract class GameMode {
                                     .withStyle(ChatFormatting.YELLOW), true);
                             victim.playNotifySound(TMMSounds.ITEM_PSYCHO_ARMOUR,
                                     SoundSource.MASTER, 5.0F, 1.0F);
-                            bartenderPlayerComponent.removeArmor();
+                            armorComponent.consumeArmor();
                             SRE.REPLAY_MANAGER.breakArmor(victim.getUUID());
                             SRE.REPLAY_MANAGER.recordPlayerNotKilled(
                                     killer,

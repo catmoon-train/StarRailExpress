@@ -72,9 +72,10 @@ import org.agmas.noellesroles.role_data.killer.WraithAssassinRoleData;
 import org.agmas.noellesroles.role_data.neutral.CandleBearerRoleData;
 import org.agmas.noellesroles.role_data.neutral.MercenaryRoleData;
 import org.agmas.noellesroles.role_data.neutral.PhantomMusicianRoleData;
-import org.agmas.noellesroles.role.BounsRoles;
 import org.agmas.noellesroles.role.ModRoles;
 import org.agmas.noellesroles.role.TraitorAndModifiers;
+import org.agmas.noellesroles.role.bouns.BounsRoles;
+
 import net.exmo.sre.repair.role.RepairRoles;
 import org.agmas.noellesroles.role.touhou.THRedHouseRoles;
 import org.agmas.noellesroles.utils.MCItemsUtils;

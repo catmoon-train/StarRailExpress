@@ -24,7 +24,7 @@ import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.network.chat.Component;
 import org.agmas.noellesroles.ConfigWorldComponent;
 import org.agmas.noellesroles.client.widget.LengxiaoPlayerWidget;
-import org.agmas.noellesroles.role.BounsRoles;
+import org.agmas.noellesroles.role.bouns.BounsRoles;
 
 import java.awt.Color;
 import java.util.List;

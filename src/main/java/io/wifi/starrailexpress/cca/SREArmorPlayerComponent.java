@@ -18,11 +18,16 @@ package io.wifi.starrailexpress.cca;
 import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.api.RoleComponent;
 import io.wifi.starrailexpress.api.SRERole;
+import io.wifi.starrailexpress.game.GameUtils;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
+import net.minecraft.nbt.Tag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.Level;
+
 import org.jetbrains.annotations.NotNull;
 import org.ladysnake.cca.api.v3.component.ComponentKey;
 import org.ladysnake.cca.api.v3.component.ComponentRegistry;
@@ -31,6 +36,7 @@ import org.ladysnake.cca.api.v3.component.tick.ServerTickingComponent;
 
 import java.util.ArrayList;
 import java.util.Map;
+import java.util.TreeMap;
 import java.util.function.Predicate;
 
 public class SREArmorPlayerComponent implements RoleComponent, ServerTickingComponent, ClientTickingComponent {
@@ -47,13 +53,24 @@ public class SREArmorPlayerComponent implements RoleComponent, ServerTickingComp
      */
     public static ArrayList<Predicate<Map.Entry<SRERole, SRERole>>> canSynced = new ArrayList<>();
     public int armor = 0;
-    public int timedArmorTicks = 0;
+    public final TreeMap<Long, Integer> timedArmor = new TreeMap<>(); // 到期时间 -> 层数
 
-    public int getArmor() {
+    public int getNormalArmor() {
         return armor;
     }
 
+    public int getArmor() {
+        return getAllArmorCount();
+    }
+
     public void setArmor(int count) {
+        setArmor(count, false);
+    }
+
+    public void setArmor(int count, boolean clearTimedArmor) {
+        if (clearTimedArmor) {
+            this.timedArmor.clear();
+        }
         this.armor = count;
         if (this.armor < 0)
             this.armor = 0;
@@ -72,6 +89,10 @@ public class SREArmorPlayerComponent implements RoleComponent, ServerTickingComp
         this.sync();
     }
 
+    private long getTicksFromGameStart(Level world) {
+        return GameUtils.getTicksFromGameStart(world);
+    }
+
     /**
      * 限时护盾：给玩家添加限时护盾，持续指定 tick 数，时间到后自动移除。
      * 
@@ -80,12 +101,13 @@ public class SREArmorPlayerComponent implements RoleComponent, ServerTickingComp
      * @param stackArmor true=重置计时器并叠加护盾层数；false=仅重置计时器，不叠加护盾层数（但保证至少有 1 层）
      */
     public void addTimedArmor(int layers, int ticks, boolean stackArmor) {
-        if (stackArmor) {
-            this.armor += Math.max(0, layers);
-        } else if (this.armor < 1) {
-            this.armor = 1;
+        long now = getTicksFromGameStart(player.level());
+        long expireTime = now + ticks;
+
+        if (!stackArmor) {
+            timedArmor.clear();
         }
-        this.timedArmorTicks = ticks;
+        timedArmor.merge(expireTime, layers, Integer::sum);
         this.sync();
     }
 
@@ -96,9 +118,7 @@ public class SREArmorPlayerComponent implements RoleComponent, ServerTickingComp
      * @param ticks  护盾持续 tick 数
      */
     public void setTimedArmor(int layers, int ticks) {
-        this.armor = Math.max(0, layers);
-        this.timedArmorTicks = this.armor > 0 ? ticks : 0;
-        this.sync();
+        this.addTimedArmor(layers, ticks, false);
     }
 
     public void removeArmor() {
@@ -111,9 +131,46 @@ public class SREArmorPlayerComponent implements RoleComponent, ServerTickingComp
         this.sync();
     }
 
+    public boolean hasArmor() {
+        return hasArmor(1);
+    }
+
+    public boolean hasArmor(int count) {
+        return getAllArmorCount() >= count;
+    }
+
+    public int getAllArmorCount() {
+        return this.armor + timedArmor.values().stream().mapToInt(Integer::intValue).sum();
+    }
+
+    public boolean triggerAndRemoveArmor(int amount) {
+        // 先移除限时护盾
+        while (amount > 0 && !timedArmor.isEmpty()) {
+            Map.Entry<Long, Integer> first = timedArmor.firstEntry();
+            int remove = Math.min(amount, first.getValue());
+            amount -= remove;
+            if (remove == first.getValue()) {
+                timedArmor.pollFirstEntry();
+            } else {
+                timedArmor.put(first.getKey(), first.getValue() - remove);
+            }
+        }
+        if (amount == 0)
+            return true;
+
+        // 移除常驻护盾
+        if (amount <= this.armor) {
+            this.armor -= amount;
+            return true;
+        }
+        this.armor = 0;
+        return false;
+    }
+
+    @Override
     public void init() {
         this.armor = 0;
-        this.timedArmorTicks = 0;
+        this.timedArmor.clear();
         this.sync();
     }
 
@@ -161,33 +218,34 @@ public class SREArmorPlayerComponent implements RoleComponent, ServerTickingComp
         return gameWorldComponent.gameStatus.equals(SREGameWorldComponent.GameStatus.ACTIVE);
     }
 
+    @Override
     public void clientTick() {
         if (!checkIsGameRunning()) {
             this.armor = 0;
-            this.timedArmorTicks = 0;
+            this.timedArmor.clear();
             return;
         }
+        long now = getTicksFromGameStart(player.level());
+        timedArmor.headMap(now, true).clear();
     }
 
     public static int tick_ = 0;
 
     public void serverTick() {
         if (!checkIsGameRunning()) {
-            if (this.timedArmorTicks > 0) {
-                this.timedArmorTicks = 0;
+            if (!this.timedArmor.isEmpty()) {
+                this.timedArmor.clear();
+            }
+            if (this.armor > 0) {
                 this.armor = 0;
             }
             return;
         }
         // CCA冷冻：仅禁止CCA/职业执行tick，因此冻结限时护盾的倒计时（不再减少）
         // 不需要，上游已冻结
-        if (this.timedArmorTicks > 0) {
-            this.timedArmorTicks--;
-            if (this.timedArmorTicks == 0 && this.armor > 0) {
-                this.armor = 0;
-                this.sync();
-            }
-        }
+        long now = getTicksFromGameStart(player.level());
+        // 移除所有已到期的护盾层
+        timedArmor.headMap(now, true).clear();
     }
 
     public boolean giveArmor() {
@@ -201,19 +259,47 @@ public class SREArmorPlayerComponent implements RoleComponent, ServerTickingComp
     public void writeToSyncNbt(@NotNull CompoundTag tag, HolderLookup.Provider registryLookup) {
         if (this.armor > 0)
             tag.putInt("armor", this.armor);
-        if (this.timedArmorTicks > 0)
-            tag.putInt("timedArmorTicks", this.timedArmorTicks);
+
+        if (!timedArmor.isEmpty()) {
+            long now = getTicksFromGameStart(player.level());
+            ListTag list = new ListTag();
+            for (Map.Entry<Long, Integer> entry : timedArmor.entrySet()) {
+                int remaining = (int) (entry.getKey() - now);
+                if (remaining <= 0)
+                    continue; // 跳过已到期（理论不会发生，防御性）
+
+                CompoundTag entryTag = new CompoundTag();
+                entryTag.putInt("r", remaining);
+                entryTag.putInt("c", entry.getValue());
+                list.add(entryTag);
+            }
+            if (!list.isEmpty()) {
+                tag.put("timedArmor", list);
+            }
+        }
     }
 
     public void readFromSyncNbt(@NotNull CompoundTag tag, HolderLookup.Provider registryLookup) {
         this.armor = tag.contains("armor") ? tag.getInt("armor") : 0;
-        this.timedArmorTicks = tag.contains("timedArmorTicks") ? tag.getInt("timedArmorTicks") : 0;
+        {
+            if (tag.contains("timedArmor", Tag.TAG_LIST)) {
+                ListTag list = tag.getList("timedArmor", Tag.TAG_COMPOUND);
+                long now = getTicksFromGameStart(player.level());
+                for (int i = 0; i < list.size(); i++) {
+                    CompoundTag entryTag = list.getCompound(i);
+                    int remaining = entryTag.getInt("r");
+                    int count = entryTag.getInt("c");
+                    long expire = now + remaining;
+                    this.timedArmor.merge(expire, count, Integer::sum);
+                }
+            }
+        }
     }
 
     @Override
     public void clear() {
         this.armor = 0;
-        this.timedArmorTicks = 0;
+        this.timedArmor.clear();
         this.sync();
     }
 
@@ -224,4 +310,13 @@ public class SREArmorPlayerComponent implements RoleComponent, ServerTickingComp
     @Override
     public void readFromNbt(CompoundTag tag, HolderLookup.Provider registryLookup) {
     }
+
+    public void consumeArmor() {
+        this.consumeArmor(1);
+    }
+
+    public void consumeArmor(int count) {
+        this.triggerAndRemoveArmor(count);
+    }
+
 }

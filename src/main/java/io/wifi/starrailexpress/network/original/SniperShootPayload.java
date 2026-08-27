@@ -147,7 +147,7 @@ public record SniperShootPayload(Action action, int targetOrShooterId, @Nullable
                             var bartenderComponent = io.wifi.starrailexpress.cca.SREArmorPlayerComponent.KEY
                                     .get(target);
                             if (bartenderComponent != null && bartenderComponent.getArmor() > 0) {
-                                bartenderComponent.armor = 0;
+                                bartenderComponent.setArmor(0,true);
                                 bartenderComponent.sync();
                                 io.wifi.starrailexpress.event.OnShieldBroken.EVENT.invoker().onShieldBroken(target,
                                         player);

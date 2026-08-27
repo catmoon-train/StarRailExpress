@@ -13,16 +13,18 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package org.agmas.noellesroles.role;
+package org.agmas.noellesroles.role.bouns;
 
 import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.api.EggRole;
+import io.wifi.starrailexpress.api.InstinctType;
 import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.api.TMMRoles;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.cca.SREPlayerPsychoComponent;
 import io.wifi.starrailexpress.event.AllowPlayerDeathWithKiller;
 import io.wifi.starrailexpress.game.GameUtils;
+import io.wifi.starrailexpress.util.Color;
 import io.wifi.starrailexpress.util.SRENetworkMessageUtils;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
@@ -41,12 +43,12 @@ import org.agmas.noellesroles.init.FunnyItems;
 import org.agmas.noellesroles.init.NRSounds;
 import org.agmas.noellesroles.modifier.BounsModifiers;
 import org.agmas.noellesroles.role.touhou.THMagicForestRoles;
+import org.agmas.noellesroles.role.ModRoles;
 import org.agmas.noellesroles.role.touhou.THLostForestRoles;
 import org.agmas.noellesroles.role.touhou.THMountainRoles;
 import org.agmas.noellesroles.role.touhou.THRedHouseRoles;
 import org.agmas.noellesroles.role.touhou.THMiscRoles;
-
-import java.awt.*;
+import org.agmas.noellesroles.role.bouns.roles.*;
 
 /**
  * 彩蛋角色类，受到彩蛋刷新概率影响
@@ -250,7 +252,20 @@ public class BounsRoles {
             }
             return;
         }
-    }).setDefaultEnableChance(1000);
+    }).setDefaultEnableChance(100);
+
+    public static SRERole HENG_XING_TI = TMMRoles.registerRole(
+            new HengXingTiRole(
+                    id("heng_xing_ti"),
+                    new Color(100, 100, 0).getRGB(),
+                    true,
+                    false,
+                    SRERole.MoodType.REAL,
+                    TMMRoles.CIVILIAN_MAX_SPRINT_TICKS,
+                    false))
+            .setBeSeenInstinctType(InstinctType.DEFAULT, InstinctType.TARGET_ROLE_COLOR)
+            .setDefaultEnableChance(10)
+            .setNeutralForInnocent(true);
 
     public static void init() {
         THRedHouseRoles.init();
@@ -272,8 +287,8 @@ public class BounsRoles {
             }
             return true;
         });
-
     }
+
     static {
         BASEBALL_PLAYER.setAddedVersion("4.1");
         CREEPER.setAddedVersion("4.1");

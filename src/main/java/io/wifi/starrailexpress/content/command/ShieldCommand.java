@@ -185,7 +185,7 @@ public class ShieldCommand {
         for (ServerPlayer e : targets) {
             SREArmorPlayerComponent c = SREArmorPlayerComponent.KEY.get(e);
             c.armor = Math.max(0, layers);
-            c.timedArmorTicks = 0;
+            c.timedArmor.clear();
             c.sync();
         }
         feedback(ctx, Component.translatable("commands.sre.shield.normal.set", targets.size(), layers));
@@ -251,7 +251,7 @@ public class ShieldCommand {
         for (ServerPlayer e : targets) {
             SREArmorPlayerComponent c = SREArmorPlayerComponent.KEY.get(e);
             out.append(Component.translatable("commands.sre.shield.timed.get.entry",
-                    e.getName().getString(), c.armor, c.timedArmorTicks));
+                    e.getName().getString(), c.armor, c.timedArmor.size()));
         }
         ctx.getSource().sendSuccess(() -> out, true);
         return 1;
@@ -261,7 +261,7 @@ public class ShieldCommand {
         for (ServerPlayer e : targets) {
             SREArmorPlayerComponent c = SREArmorPlayerComponent.KEY.get(e);
             c.armor = 0;
-            c.timedArmorTicks = 0;
+            c.timedArmor.clear();
             c.sync();
         }
         feedback(ctx, Component.translatable("commands.sre.shield.timed.clear", targets.size()));

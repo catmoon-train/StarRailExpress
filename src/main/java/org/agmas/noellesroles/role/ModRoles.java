@@ -47,6 +47,7 @@ import org.agmas.noellesroles.game.roles.neutral.nian_shou.NianShouRole;
 import org.agmas.noellesroles.game.roles.neutral.puppeteer.PuppeteerPlayerComponent;
 import org.agmas.noellesroles.init.ModEffects;
 import org.agmas.noellesroles.init.ModItems;
+import org.agmas.noellesroles.role.bouns.BounsRoles;
 import org.agmas.noellesroles.role_data.killer.*;
 import org.agmas.noellesroles.role_data.innocence.*;
 import org.agmas.noellesroles.role_data.neutral.*;

@@ -43,8 +43,8 @@ import org.agmas.noellesroles.role_data.killer.TrapperRoleData;
 import org.agmas.noellesroles.register.RiceEventRegister;
 import org.agmas.noellesroles.register.RicePacketTypeRegister;
 import org.agmas.noellesroles.register.RiceReceiverRegister;
-import org.agmas.noellesroles.role.BounsRoles;
 import org.agmas.noellesroles.role.ModRoles;
+import org.agmas.noellesroles.role.bouns.BounsRoles;
 
 import java.util.ArrayList;
 

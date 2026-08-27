@@ -25,8 +25,8 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.sounds.SoundSource;
 import org.agmas.noellesroles.init.ModEffects;
 import org.agmas.noellesroles.init.NRSounds;
-import org.agmas.noellesroles.role.BounsRoles;
 import org.agmas.noellesroles.role.ModRoles;
+import org.agmas.noellesroles.role.bouns.BounsRoles;
 import org.agmas.noellesroles.role.touhou.THRedHouseRoles;
 import org.agmas.noellesroles.role_data.innocence.GhostRoleData;
 

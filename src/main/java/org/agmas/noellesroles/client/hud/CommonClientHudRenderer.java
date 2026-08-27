@@ -73,8 +73,8 @@ import org.agmas.noellesroles.role_data.neutral.RecorderRoleData;
 import org.agmas.noellesroles.role_data.neutral.ThiefRoleData;
 import org.agmas.noellesroles.init.ModEffects;
 import org.agmas.noellesroles.init.ModItems;
-import org.agmas.noellesroles.role.BounsRoles;
 import org.agmas.noellesroles.role.ModRoles;
+import org.agmas.noellesroles.role.bouns.BounsRoles;
 import org.agmas.noellesroles.role.touhou.THMountainRoles;
 import org.agmas.noellesroles.role.touhou.THRedHouseRoles;
 import org.agmas.noellesroles.role_data.neutral.RemiliaBloodServantRoleData;
@@ -1056,7 +1056,7 @@ public class CommonClientHudRenderer {
       {
         var text = Component
             .translatable("hud.bartender.has_armor",
-                abpc.armor)
+                abpc.getArmor())
             .withStyle(ChatFormatting.GOLD);
         guiGraphics.drawString(font, text, 10, yOffset - font.lineHeight - 4,
             Color.WHITE.getRGB());
@@ -1085,6 +1085,23 @@ public class CommonClientHudRenderer {
       return;
     });
 
+    RoleHudRenderCallback.EVENT.register(BounsRoles.HENG_XING_TI.identifier(), (guiGraphics, deltaTracker) -> {
+      // 渲染watcher的提示
+      var client = Minecraft.getInstance();
+      int screenHeight = guiGraphics.guiHeight();
+      var font = client.font;
+      int yOffset = screenHeight - 10 - font.lineHeight; // 右下角
+      var abpc = SREArmorPlayerComponent.KEY.get(client.player);
+      {
+        var text = Component
+            .translatable("hud.bartender.has_armor",
+                abpc.getArmor())
+            .withStyle(ChatFormatting.GOLD);
+        guiGraphics.drawString(font, text, 10, yOffset - font.lineHeight - 4,
+            Color.WHITE.getRGB());
+      }
+      return;
+    });
     RoleHudRenderCallback.EVENT.register(THRedHouseRoles.HOAN_MEIRIN_ID, (guiGraphics, deltaTracker) -> {
       // 渲染红美铃的提示
 
@@ -1102,7 +1119,7 @@ public class CommonClientHudRenderer {
       {
         var text = Component
             .translatable("hud.hoan_meirin.armor",
-                shpc.armor)
+                shpc.getArmor())
             .withStyle(ChatFormatting.GOLD);
         guiGraphics.drawString(font, text, 10, yOffset - font.lineHeight - 4,
             Color.WHITE.getRGB());

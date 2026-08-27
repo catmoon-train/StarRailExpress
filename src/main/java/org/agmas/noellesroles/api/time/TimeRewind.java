@@ -117,7 +117,7 @@ public final class TimeRewind {
                 } else if (component instanceof RoleComponent roleComponent) {
                     // RoleComponent intentionally does not persist normal NBT in this
                     // project. Its sync representation is the authoritative rewind form.
-                    roleComponent.writeToSyncNbt(data, registryLookup);
+                    roleComponent.writeToRewindNbt(data, registryLookup);
                     format = ComponentFormat.ROLE_SYNC;
                 } else {
                     component.writeToNbt(data, registryLookup);
@@ -210,7 +210,7 @@ public final class TimeRewind {
                         if (!(component instanceof RoleComponent roleComponent)) {
                             throw new IllegalStateException("component no longer implements RoleComponent");
                         }
-                        roleComponent.readFromSyncNbt(data, registryLookup);
+                        roleComponent.readFromRewindNbt(data, registryLookup);
                     }
                     case PERSISTENT_NBT -> component.readFromNbt(data, registryLookup);
                 }

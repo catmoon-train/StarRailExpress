@@ -22,6 +22,9 @@ import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.phys.Vec3;
 
+import java.util.ArrayList;
+import java.util.concurrent.atomic.AtomicInteger;
+
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -29,6 +32,25 @@ import io.wifi.starrailexpress.SRE;
 
 // Author: wifi_left
 public class SRENBTUtils {
+
+    public static ArrayList<AtomicInteger> arrayToAtomicInteger(int[] arr) {
+        ArrayList<AtomicInteger> result = new ArrayList<>();
+        if (arr == null)
+            return result;
+        for (int i = 0; i < arr.length; i++) {
+            result.add(new AtomicInteger(arr[i]));
+        }
+        return result;
+    }
+
+    public static int[] atomicIntegerToArray(ArrayList<AtomicInteger> ticks) {
+        int[] arr = new int[ticks.size()];
+        for (int i = 0; i < ticks.size(); i++) {
+            arr[i] = ticks.get(i).get();
+        }
+        return arr;
+    }
+
     public static boolean writeComponent(CompoundTag tag, String key, Component message,
             HolderLookup.@NotNull Provider registryLookup) {
         if (message == null) {

@@ -16,7 +16,8 @@
 package org.agmas.noellesroles.handler;
 
 import org.agmas.noellesroles.init.ModEffects;
-import org.agmas.noellesroles.role.BounsRoles;
+import org.agmas.noellesroles.role.bouns.BounsRoles;
+import org.agmas.noellesroles.role.bouns.roles.HengXingTiRole;
 import org.agmas.noellesroles.role_data.neutral.LinFamilyRoleData;
 
 import io.wifi.starrailexpress.SRE;
@@ -34,6 +35,11 @@ public class BounsHandlers {
 
     public static void register() {
         LinFamilyRoleData.registerEvents();
+        RoleSkill.register(BounsRoles.HENG_XING_TI,
+                RoleSkill.skill(SRE.id("heng_xing_ti"), "skill.noellesroles.heng_xing_ti", (ctx) -> {
+                    return HengXingTiRole.triggerSkill(ctx);
+                }).showOnHud(true)
+                        .recordReplay().cooldownSeconds(240).announceToSelf().build());
         RoleSkill.register(BounsRoles.LAO_DA,
                 RoleSkill.skill(SRE.id("lao_da"), "skill.noellesroles.lao_da.zhouji", (ctx) -> {
                     final var serverPlayer = ctx.player();

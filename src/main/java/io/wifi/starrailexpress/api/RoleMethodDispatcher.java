@@ -180,6 +180,9 @@ public class RoleMethodDispatcher {
     public static void onRemoveRole(SRERole role, MinecraftServer server, ServerPlayer serverPlayer) {
         final var cca = SRERoleDataPlayerComponent.KEY.get(serverPlayer);
         cca.onRemoveRole();
+        if(role!=null){
+            role.onRemove(serverPlayer);
+        }
     }
 
     public static void onInit(SRERole role, MinecraftServer minecraftServer, ServerPlayer player) {

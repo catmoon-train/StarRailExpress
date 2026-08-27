@@ -1180,10 +1180,16 @@ public abstract class SRERole extends SREAbstractInfoClass {
     }
 
     /**
-     * 在HarpyModLoader中使用
+     * 初始化时调用
      */
     public void onInit(MinecraftServer server, ServerPlayer serverPlayer) {
         clearTaskRewardTracking(serverPlayer.getUUID());
+    }
+
+    /**
+     * 清除时调用
+     */
+    public void onRemove(ServerPlayer player) {
     }
 
     /**
@@ -2134,4 +2140,5 @@ public abstract class SRERole extends SREAbstractInfoClass {
     public boolean canIncreaseSurvivingKillers() {
         return isKiller();
     }
+
 }

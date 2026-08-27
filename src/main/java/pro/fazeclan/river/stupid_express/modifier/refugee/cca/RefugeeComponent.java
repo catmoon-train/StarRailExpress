@@ -59,8 +59,8 @@ import org.agmas.noellesroles.api.time.TimeRewindResult;
 import org.agmas.noellesroles.api.time.TimeRewindSnapshot;
 import org.agmas.noellesroles.init.ModEffects;
 import org.agmas.noellesroles.init.ModEventsRegister;
-import org.agmas.noellesroles.role.BounsRoles;
 import org.agmas.noellesroles.role.ModRoles;
+import org.agmas.noellesroles.role.bouns.BounsRoles;
 import org.agmas.noellesroles.utils.RoleUtils;
 import org.ladysnake.cca.api.v3.component.ComponentKey;
 import org.ladysnake.cca.api.v3.component.ComponentRegistry;
@@ -240,7 +240,7 @@ public class RefugeeComponent implements AutoSyncedComponent, ServerTickingCompo
                 player.getXRot());
         SREArmorPlayerComponent armorCCA = SREArmorPlayerComponent.KEY.get(player);
         int size = serverLevel.getPlayers(GameUtils::isPlayerAliveAndSurvival).size();
-        armorCCA.removeArmor(-1 * (Math.clamp(size / 6, 1, 3)));
+        armorCCA.addArmor((Math.clamp(size / 6, 1, 5)));
         player.setGameMode(GameType.ADVENTURE);
 
         player.addEffect(ModEffects.of(ModEffects.SAFE_TIME, 10, 1, false, false, true));

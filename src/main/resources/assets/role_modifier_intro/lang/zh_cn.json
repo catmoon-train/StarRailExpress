@@ -75,6 +75,7 @@
   "info.screen.roleid.writer.simple": "平民阵营\n可以用书与笔写书，成书可以按Q键丢给别人阅读\n别人可以通过读成书完成阅读任务。",
   "info.screen.roleid.disc_master": "平民阵营\n彩蛋职业，只有1%%的概率刷新\n商店中可购买各种各样的唱片并播放音乐",
   "info.screen.roleid.disc_master.simple": "平民阵营\n商店中可购买各种各样的唱片并播放音乐",
+  "info.screen.roleid.heng_xing_ti": "平民职业\n彩蛋职业\n随好人一同获胜\n可能有神秘BUG。\n常态发光。使用技能立即开启15s环绕带：期间你拥有2层现时盾，周围10格内的所有乘客都会无差别的传送至自身一定周围，冷却240s。",
   "info.screen.roleid.telegrapher": "平民阵营\n彩蛋职业，只有2%%的概率刷新\n你可以按下技能键打开电报界面，向所有玩家发送匿名消息。\n每局游戏最多可以发送6次电报。\n电报消息会语音播报并以标题的形式显示在所有玩家的屏幕上。",
   "info.screen.roleid.telegrapher.simple": "平民阵营\n按技能键打开电报页面向所有玩家发送标题并播报\n一局只能用6次",
   "info.screen.roleid.rescuer": "平民阵营\n可以购买绳索和裹尸袋。\n绳索：拥有2点耐久，可以将直线距离12格内离你最近的玩家拉到你的面前，每次右键后进入3s冷却；成功拉取时进入5s冷却，并消耗1点耐久。\n裹尸袋：可以清除尸体。",

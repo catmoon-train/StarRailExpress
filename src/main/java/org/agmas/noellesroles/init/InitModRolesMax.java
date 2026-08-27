@@ -39,9 +39,9 @@ import org.agmas.harpymodloader.modifiers.TouhouModifier;
 import org.agmas.noellesroles.config.NoellesRolesConfig;
 import org.agmas.noellesroles.config.SpawnInfoConfig;
 import org.agmas.noellesroles.config.SpawnInfoConfig.SpawnInfo;
-import org.agmas.noellesroles.role.BounsRoles;
 import org.agmas.noellesroles.role.ModRoles;
 import org.agmas.noellesroles.role.TraitorAndModifiers;
+import org.agmas.noellesroles.role.bouns.BounsRoles;
 import org.agmas.noellesroles.role.touhou.THRedHouseRoles;
 
 import pro.fazeclan.river.stupid_express.StupidExpress;

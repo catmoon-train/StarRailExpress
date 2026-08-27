@@ -40,6 +40,14 @@ public interface RoleComponent extends AutoSyncedComponent {
         return this.getPlayer() == player;
     }
 
+    default void writeToRewindNbt(CompoundTag tag, HolderLookup.Provider registryLookup) {
+        writeToSyncNbt(tag, registryLookup);
+    }
+    
+    default void readFromRewindNbt(CompoundTag tag, HolderLookup.Provider registryLookup) {
+        readFromSyncNbt(tag, registryLookup);
+    }
+
     void writeToSyncNbt(CompoundTag tag, HolderLookup.Provider registryLookup);
 
     void readFromSyncNbt(CompoundTag tag, HolderLookup.Provider registryLookup);

@@ -31,7 +31,7 @@ import net.minecraft.world.phys.Vec3;
 import org.agmas.harpymodloader.component.WorldModifierComponent;
 import org.agmas.noellesroles.content.entity.PuppeteerBodyEntity;
 import org.agmas.noellesroles.init.ModEffects;
-import org.agmas.noellesroles.role.BounsRoles;
+import org.agmas.noellesroles.role.bouns.BounsRoles;
 import org.agmas.noellesroles.utils.RoleUtils;
 import pro.fazeclan.river.stupid_express.constants.SEModifiers;
 
@@ -124,7 +124,7 @@ public record PlayerStatsBeforeRefugee(Vec3 pos, int money, ListTag inventory, V
         inventory.save(listTag);
         var shopComponent = SREPlayerShopComponent.KEY.get(player);
         var moodComponent = SREPlayerMoodComponent.KEY.get(player);
-        int armorAmount = SREArmorPlayerComponent.KEY.get(player).getArmor();
+        int armorAmount = SREArmorPlayerComponent.KEY.get(player).getNormalArmor();
 
         Vec3 pos = player.position();
         Level level = player.level();

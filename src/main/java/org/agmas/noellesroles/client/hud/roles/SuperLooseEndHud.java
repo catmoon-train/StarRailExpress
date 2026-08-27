@@ -35,7 +35,7 @@ public class SuperLooseEndHud {
             int yOffset = screenHeight - 10 - font.lineHeight;
             // 渲染护盾数量
             var armorPlayerComponent = SREArmorPlayerComponent.KEY.get(client.player);
-            var armorText = Component.translatable("hud.bartender.has_armor", armorPlayerComponent.armor)
+            var armorText = Component.translatable("hud.bartender.has_armor", armorPlayerComponent.getArmor())
                     .withStyle(ChatFormatting.GOLD);
             // 左下角渲染护盾数量文本
             guiGraphics.drawString(font, armorText, 10, yOffset - font.lineHeight - 4,

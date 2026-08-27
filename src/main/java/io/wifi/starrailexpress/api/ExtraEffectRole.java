@@ -17,6 +17,7 @@ package io.wifi.starrailexpress.api;
 
 import io.wifi.starrailexpress.game.GameUtils;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.effect.MobEffectInstance;
 
@@ -64,14 +65,37 @@ public class ExtraEffectRole extends NormalRole {
     }
 
     @Override
+    public void onInit(MinecraftServer server, ServerPlayer serverPlayer) {
+        super.onInit(server, serverPlayer);
+        applyEffectsToPlayer(serverPlayer);
+    }
+
+    @Override
+    public void onRemove(ServerPlayer player) {
+        clearEffectsFromPlayer(player);
+    }
+
+    @Override
     public void serverTick(ServerPlayer player) {
-        if (player.level().getGameTime() % 20 == 0) {
+        if (player.level().getGameTime() % 20 == 10) {
             if (GameUtils.isPlayerAliveAndSurvival(player)) {
-                for (var eff : playerEffects) {
-                    if (!player.hasEffect(eff.getEffect()) || player.getEffect(eff.getEffect()).getDuration() <= 21) {
-                        player.addEffect(getNewEffectInstance(eff));
-                    }
-                }
+                applyEffectsToPlayer(player);
+            }
+        }
+    }
+
+    public void applyEffectsToPlayer(ServerPlayer player) {
+        for (var eff : playerEffects) {
+            if (!player.hasEffect(eff.getEffect()) || player.getEffect(eff.getEffect()).getDuration() <= 21) {
+                player.addEffect(getNewEffectInstance(eff));
+            }
+        }
+    }
+
+    public void clearEffectsFromPlayer(ServerPlayer player) {
+        for (var eff : playerEffects) {
+            if (player.hasEffect(eff.getEffect())) {
+                player.removeEffect(eff.getEffect());
             }
         }
     }

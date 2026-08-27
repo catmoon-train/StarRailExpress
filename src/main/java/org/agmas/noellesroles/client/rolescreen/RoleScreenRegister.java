@@ -15,9 +15,9 @@
 
 package org.agmas.noellesroles.client.rolescreen;
 
-import org.agmas.noellesroles.role.BounsRoles;
 import org.agmas.noellesroles.role.ModMeetingRoles;
 import org.agmas.noellesroles.role.ModRoles;
+import org.agmas.noellesroles.role.bouns.BounsRoles;
 import org.agmas.noellesroles.role.touhou.THMiscRoles;
 
 /**
