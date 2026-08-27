@@ -15,6 +15,8 @@
 
 package org.agmas.noellesroles.content.item;
 
+import io.wifi.starrailexpress.SRE;
+import io.wifi.starrailexpress.SREConfig;
 import io.wifi.starrailexpress.content.block.LockableButtonBlock;
 import io.wifi.starrailexpress.content.block.TrainDoorBlock;
 import io.wifi.starrailexpress.content.block_entity.DoorBlockEntity;
@@ -22,6 +24,7 @@ import io.wifi.starrailexpress.index.TMMSounds;
 import io.wifi.starrailexpress.util.AdventureUsable;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.Direction;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionHand;
@@ -140,8 +143,9 @@ public class LockItem extends Item implements AdventureUsable {
                 LockEntityManager.getInstance().addLockEntity(doorEntity.getBlockPos().above(), lockEntity);
                 if (!player.isCreative()) {
                     // 回放记录 工程会刷屏
-                    // SRE.REPLAY_MANAGER.recordItemUse(player.getUUID(),
-                    //         BuiltInRegistries.ITEM.getKey(this));
+                    if (SREConfig.instance().recordEngineerEvents)
+                        SRE.REPLAY_MANAGER.recordItemUse(player.getUUID(),
+                                BuiltInRegistries.ITEM.getKey(this));
                     // 添加锁成功且非创造模式：消耗门锁
                     player.getItemInHand(context.getHand()).shrink(1);
                 }

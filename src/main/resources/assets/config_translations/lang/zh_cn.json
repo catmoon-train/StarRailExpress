@@ -85,6 +85,7 @@
   "text.autoconfig.starrailexpress.option.brokenGunDropChanceWhenKillerKillsGunHolder": "杀手击杀持枪者破损枪概率（%）",
   "text.autoconfig.starrailexpress.option.enableBrokenGunDropWhenKillerShootsPlayer": "杀手用枪击杀时掉落破损枪",
   "text.autoconfig.starrailexpress.option.brokenGunDropChanceWhenKillerShootsPlayer": "杀手用枪击杀破损枪概率（%）",
+  "text.autoconfig.starrailexpress.option.recordEngineerEvents": "记录工程师使用工程物品事件（可能会刷屏）",
   "text.autoconfig.starrailexpress.option.sheriffBulletPrice": "警长阵营子弹价格",
   "text.autoconfig.starrailexpress.option.sheriffBulletMaxCarry": "警长阵营子弹最大携带数",
   "text.autoconfig.starrailexpress.option.sheriffRevolverReloadCooldown": "警长手枪装填冷却（秒）",

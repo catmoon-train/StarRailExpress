@@ -35,9 +35,6 @@ public class SREConfig implements ConfigData {
     public static ConfigClassHandler<SREConfig> HANDLER = new ConfigClassHandler<>(
             SREConfig.class);
 
-
-
-
     // 游戏模式设置
     @ConfigEntry.Category(value = "gamemodes")
     public int defaultStartTimeForMurder = 10;
@@ -244,7 +241,9 @@ public class SREConfig implements ConfigData {
     public int psychoGlobalCooldown = 20;
     @ConfigEntry.Category(value = "cooldowns")
     public int sheriffRevolverReloadCooldown = 12;
-    // 游戏配置 - 服务端只读
+    // 游戏配置
+    // 记录工程师事件
+    public boolean recordEngineerEvents = true;
 
     // 双重人格配置
     @ConfigEntry.Category(value = "modifiers")
