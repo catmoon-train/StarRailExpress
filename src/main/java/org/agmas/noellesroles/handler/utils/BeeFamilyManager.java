@@ -2,8 +2,11 @@ package org.agmas.noellesroles.handler.utils;
 
 import org.agmas.noellesroles.role.bouns.BounsRoles;
 import org.agmas.noellesroles.role.bouns.roles.BeeFamilyRole;
+import org.agmas.noellesroles.utils.MoneyUtils;
 import org.agmas.noellesroles.utils.RoleUtils;
 
+import io.wifi.starrailexpress.SRE;
+import io.wifi.starrailexpress.api.RoleSkill;
 import io.wifi.starrailexpress.api.RoleSkill.RoleSkillContext;
 import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.cca.PlayerBodyEntityComponent;
@@ -30,6 +33,32 @@ public class BeeFamilyManager {
 
     public static void registerEvents() {
 
+        RoleSkill.register(BounsRoles.BEE_WORKER,
+                RoleSkill.skill(SRE.id("bee_family_poison"), "skill.noellesroles.bee_family_poison", (ctx) -> {
+                    return BeeFamilyManager.triggerSkill(ctx, false);
+                }).withTarget().cooldownSeconds(60).showOnHud(true).announceToSelf().build());
+        RoleSkill.register(BounsRoles.BEE_WASP,
+                RoleSkill.skill(SRE.id("bee_family_poison"), "skill.noellesroles.bee_family_poison", (ctx) -> {
+                    return BeeFamilyManager.triggerSkill(ctx, false);
+                }).showOnHud(true).withTarget().cooldownSeconds(60).announceToSelf().build());
+        RoleSkill.register(BounsRoles.BEE_QUEEN,
+                RoleSkill.skill(SRE.id("bee_queen"), "skill.noellesroles.bee_queen", (ctx) -> {
+                    final var player = ctx.player();
+                    if (!MoneyUtils.hasBalance(player, BeeFamilyManager.BEE_QUEEN_IMPROVE_PRICE)) {
+                        player.displayClientMessage(Component.translatable("skill.noellesroles.bee_queen.no_money",
+                                BeeFamilyManager.BEE_QUEEN_IMPROVE_PRICE).withStyle(ChatFormatting.RED), true);
+                        return false;
+                    }
+                    final var cca = SREAbilityPlayerComponent.KEY.get(ctx);
+                    if (cca.status >= 1) {
+                        player.displayClientMessage(Component.translatable("skill.noellesroles.bee_queen.already")
+                                .withStyle(ChatFormatting.RED), true);
+                        return false;
+                    }
+                    MoneyUtils.addToBalance(player, -BeeFamilyManager.BEE_QUEEN_IMPROVE_PRICE);
+                    cca.status = 1;
+                    return true;
+                }).noCastCCA(true).recordReplay().showOnHud(true).cooldownSeconds(60).announceToSelf().build());
         UseEntityCallback.EVENT.register(((player, level, interactionHand, entity, entityHitResult) -> {
 
             if (!(player instanceof ServerPlayer interacting)) {
@@ -107,13 +136,13 @@ public class BeeFamilyManager {
     }
 
     public static boolean checkBeeFamilyVictory(ServerLevel world) {
-         int alive = 0, beeAlive = 0;
-         var gameComponent = SREGameWorldComponent.getInstance(world);
+        int alive = 0, beeAlive = 0;
+        var gameComponent = SREGameWorldComponent.getInstance(world);
         for (ServerPlayer p : world.players()) {
             if (!GameUtils.isPlayerAliveAndSurvival(p))
                 continue;
             alive++;
-            if (gameComponent.getRole(p) instanceof BeeFamilyRole){
+            if (gameComponent.getRole(p) instanceof BeeFamilyRole) {
                 beeAlive++;
             }
         }

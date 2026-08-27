@@ -20,15 +20,10 @@ import org.agmas.noellesroles.init.ModEffects;
 import org.agmas.noellesroles.role.bouns.BounsRoles;
 import org.agmas.noellesroles.role.bouns.roles.HengXingTiRole;
 import org.agmas.noellesroles.role_data.neutral.LinFamilyRoleData;
-import org.agmas.noellesroles.utils.MoneyUtils;
-
 import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.api.RoleSkill;
-import io.wifi.starrailexpress.cca.SREAbilityPlayerComponent;
 import io.wifi.starrailexpress.game.GameConstants;
 import io.wifi.starrailexpress.game.GameUtils;
-import net.minecraft.ChatFormatting;
-import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.game.ClientboundSetEntityMotionPacket;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
@@ -41,34 +36,6 @@ public class BounsHandlers {
     public static void register() {
         BeeFamilyManager.registerEvents();
         LinFamilyRoleData.registerEvents();
-
-        RoleSkill.register(BounsRoles.BEE_WORKER,
-                RoleSkill.skill(SRE.id("bee_family_poison"), "skill.noellesroles.bee_family_poison", (ctx) -> {
-                    final var player = ctx.player();
-                    if (!MoneyUtils.hasBalance(player, BeeFamilyManager.BEE_QUEEN_IMPROVE_PRICE)) {
-                        player.displayClientMessage(Component.translatable("skill.noellesroles.bee_queen.no_money",
-                                BeeFamilyManager.BEE_QUEEN_IMPROVE_PRICE).withStyle(ChatFormatting.RED), true);
-                        return false;
-                    }
-                    final var cca = SREAbilityPlayerComponent.KEY.get(ctx);
-                    if (cca.status >= 1) {
-                        player.displayClientMessage(Component.translatable("skill.noellesroles.bee_queen.already")
-                                .withStyle(ChatFormatting.RED), true);
-                        return false;
-                    }
-                    MoneyUtils.addToBalance(player, -BeeFamilyManager.BEE_QUEEN_IMPROVE_PRICE);
-                    cca.status = 1;
-                    return true;
-                }).noCastCCA(true).cooldownSeconds(60).showOnHud(true)
-                        .recordReplay().announceToSelf().build());
-        RoleSkill.register(BounsRoles.BEE_WASP,
-                RoleSkill.skill(SRE.id("bee_family_poison"), "skill.noellesroles.bee_family_poison", (ctx) -> {
-                    return BeeFamilyManager.triggerSkill(ctx, false);
-                }).showOnHud(true).withTarget().cooldownSeconds(60).announceToSelf().build());
-        RoleSkill.register(BounsRoles.BEE_QUEEN,
-                RoleSkill.skill(SRE.id("bee_queen"), "skill.noellesroles.bee_queen", (ctx) -> {
-                    return BeeFamilyManager.triggerSkill(ctx, false);
-                }).showOnHud(true).withTarget().cooldownSeconds(60).announceToSelf().build());
 
         RoleSkill.register(BounsRoles.HENG_XING_TI,
                 RoleSkill.skill(SRE.id("heng_xing_ti"), "skill.noellesroles.heng_xing_ti", (ctx) -> {
