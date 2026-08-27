@@ -24,7 +24,7 @@ public class HengXingTiRole extends ExtraEffectRole implements EggRoleInterface 
     public HengXingTiRole(ResourceLocation identifier, int color, boolean isInnocent, boolean canUseKiller,
             MoodType moodType, int maxSprintTime, boolean canSeeTime) {
         super(identifier, color, isInnocent, canUseKiller, moodType, maxSprintTime, canSeeTime,
-                ModEffects.of(MobEffects.GLOWING, 400, 0, true, false, false));
+                ModEffects.of(MobEffects.GLOWING, 400, 0, true, false, true));
     }
 
     @Override
@@ -45,7 +45,6 @@ public class HengXingTiRole extends ExtraEffectRole implements EggRoleInterface 
         if (getAbilityComponent(player).duration > 0) {
             final var world = player.serverLevel();
             if (world.getGameTime() % 10 == 5) {
-                player.addEffect(ModEffects.of(ModEffects.NO_COLLIDE, 20, 1, false, false, true));
                 world.sendParticles(ParticleTypes.PORTAL, player.getX(), player.getY(), player.getZ(), 100, 1, 1,
                         1, 0.1);
             }
@@ -132,6 +131,7 @@ public class HengXingTiRole extends ExtraEffectRole implements EggRoleInterface 
         final var player = ctx.player();
         SREArmorPlayerComponent.KEY.get(player).addTimedArmor(0, SKILL_DURATION, false);
         getAbilityComponent(player).setDuration(SKILL_DURATION);
+        player.addEffect(ModEffects.of(ModEffects.NO_COLLIDE, SKILL_DURATION + 10, 1, false, false, true));
         return true;
     }
 }
