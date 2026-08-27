@@ -11,18 +11,18 @@ import com.mojang.math.Transformation;
 
 import io.wifi.starrailexpress.event.OnGameServerTick;
 import io.wifi.starrailexpress.game.GameUtils;
-import net.minecraft.world.entity.Display.BillboardConstraints;
-import net.minecraft.world.entity.Display.BlockDisplay;
-import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.phys.AABB;
-import net.minecraft.world.phys.Vec3;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
+import net.minecraft.world.entity.Display.BillboardConstraints;
+import net.minecraft.world.entity.Display.BlockDisplay;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.Vec3;
 
 public class THYukariPortalManager {
     public static Vec3 PORTAL_POS_1 = null;
@@ -67,11 +67,12 @@ public class THYukariPortalManager {
         }
         long now = GameUtils.getTicksFromGameStart(world);
         if (world.getGameTime() % 20 == 0) {
-            PORTAL_1.setCustomName(Component.translatable("entity.noellesroles.yakumo_yukari.portal",
-                    (PORTAL_ALIVE_TIME - (now - PORTAL_CREATION_TIME)) / 20).withStyle(ChatFormatting.GOLD));
-
-            PORTAL_2.setCustomName(Component.translatable("entity.noellesroles.yakumo_yukari.portal",
-                    (PORTAL_ALIVE_TIME - (now - PORTAL_CREATION_TIME)) / 20).withStyle(ChatFormatting.GOLD));
+            Component name = Component.translatable("entity.noellesroles.yakumo_yukari.portal",
+                    Component.literal(String.format("%d", (PORTAL_ALIVE_TIME - (now - PORTAL_CREATION_TIME)) / 20))
+                            .withStyle(ChatFormatting.RED))
+                    .withStyle(ChatFormatting.GOLD);
+            PORTAL_1.setCustomName(name);
+            PORTAL_2.setCustomName(name);
         }
         if (now > PORTAL_CREATION_TIME + PORTAL_ALIVE_TIME) {
             removeAlivePortals(world);
@@ -127,11 +128,12 @@ public class THYukariPortalManager {
         var portal = EntityType.BLOCK_DISPLAY.create(world);
         portal.setPos(pos1);
         portal.addTag("sre.yukari");
-        portal.setBlockState(Blocks.NETHER_PORTAL.defaultBlockState());
+        portal.setBlockState(Blocks.BLACK_CONCRETE.defaultBlockState());
         Vector3f translation = new Vector3f(-0.5f, -0.5f, -0.5f);
-        Quaternionf leftRot = new Quaternionf(0f, 0f, 0f, 1f); // 恒等四元数
-        Vector3f scale = new Vector3f(1f, 1f, 1f);
+        Quaternionf leftRot = new Quaternionf(0f, 0f, 0f, 1f);
+        Vector3f scale = new Vector3f(1f, 2f, 1f);
         Quaternionf rightRot = new Quaternionf(0f, 0f, 0f, 1f);
+
         Transformation transform = new Transformation(translation, leftRot, scale, rightRot);
         portal.setTransformation(transform);
         portal.setBillboardConstraints(BillboardConstraints.VERTICAL);
@@ -154,6 +156,10 @@ public class THYukariPortalManager {
                 entity.discard();
             }
         });
+        if (!PORTAL_1.isRemoved())
+            PORTAL_1.discard();
+        if (!PORTAL_2.isRemoved())
+            PORTAL_2.discard();
         PORTAL_CREATION_TIME = -1;
         THYukariPortalManager.PORTAL_1 = null;
         THYukariPortalManager.PORTAL_2 = null;
