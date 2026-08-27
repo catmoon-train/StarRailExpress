@@ -413,9 +413,10 @@ public class RhythmGameScreen extends Screen implements InvNoMoveScreen {
                 renderGameTime += (long) (partialTick * 50);
             renderMusicTime = renderGameTime - MUSIC_DELAY_MS;
         }
-
-        for (LiveNote ln : activeNotes) {
-            drawNote(graphics, ln, renderMusicTime);
+        if (gameState != GameState.FINISHED) {
+            for (LiveNote ln : activeNotes) {
+                drawNote(graphics, ln, renderMusicTime);
+            }
         }
 
         // 击中特效（优化淡出，无闪烁）

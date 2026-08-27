@@ -16,6 +16,7 @@
 package io.wifi.starrailexpress.client;
 
 import io.wifi.starrailexpress.SRE;
+import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.api.TMMRoles;
 import io.wifi.starrailexpress.cca.SREAbilityPlayerComponent;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
@@ -415,6 +416,33 @@ public class SREClientEvents {
 
                 context.pose().popPose();
 
+            } else if (SREClient.isRole(BounsRoles.BEE_QUEEN)) {
+                var cdCca = SREAbilityPlayerComponent.KEY.get(player);
+                if (cdCca.hasCooldown()) {
+
+                    context.pose().pushPose();
+                    context.pose().translate(context.guiWidth() / 2.0f, context.guiHeight() / 2.0f + 6.0f, 0.0f);
+                    context.pose().scale(0.6f, 0.6f, 1.0f);
+
+                    Component status = Component.translatable("hud.noellesroles.bee_queen.cooldown",
+                            String.format("%.1f", cdCca.getCooldownSeconds())).withStyle(ChatFormatting.RED);
+                    context.drawString(font, status, -font.width(status) / 2, 32, 0xffffffff);
+                    context.pose().popPose();
+                } else {
+
+                    SRERole reviveRole = BounsRoles.BEE_WORKER;
+                    if (cdCca.status == 1) {
+                        reviveRole = BounsRoles.BEE_WASP;
+                    }
+                    context.pose().pushPose();
+                    context.pose().translate(context.guiWidth() / 2.0f, context.guiHeight() / 2.0f + 6.0f, 0.0f);
+                    context.pose().scale(0.6f, 0.6f, 1.0f);
+
+                    Component status = Component.translatable("hud.noellesroles.bee_queen.select",
+                            reviveRole.getDisplayNameWithColor()).withStyle(ChatFormatting.GOLD);
+                    context.drawString(font, status, -font.width(status) / 2, 32, 0xffffffff);
+                    context.pose().popPose();
+                }
             }
         });
     }

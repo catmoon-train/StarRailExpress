@@ -231,8 +231,7 @@ public class BounsRoles {
         }
     }, "creator_team").setDefaultEnableChance(1000).addRelatedRole(ModRoles.VOODOO);
     public static SRERole LAO_DA = TMMRoles.registerRole(new EggRole(id("lao_da"), new Color(236, 209, 72).getRGB(),
-            true, false, SRERole.MoodType.REAL,
-            TMMRoles.CIVILIAN_MAX_SPRINT_TICKS, false) {
+            true, false, SRERole.MoodType.REAL, TMMRoles.CIVILIAN_MAX_SPRINT_TICKS, false) {
         @Override
         public InteractionResult onDropItem(Player player, ItemStack item) {
             if (item.is(FunnyItems.ICE_RED_TEA))
@@ -253,6 +252,43 @@ public class BounsRoles {
             return;
         }
     }).setDefaultEnableChance(100);
+
+    public static SRERole BEE_QUEEN = TMMRoles.registerRole(new BeeFamilyRole(id("bee_queen"),
+            new Color(255, 242, 0).getRGB(),
+            false,
+            false,
+            SRERole.MoodType.FAKE,
+            Integer.MAX_VALUE,
+            false))
+            .setCanBeRandomedByOtherRoles(false)
+            .setNeutrals(true)
+            .setDefaultEnableNeededPlayerCount(16)
+            .setDefaultEnableChance(2000);
+            
+    public static SRERole BEE_WASP = TMMRoles.registerRole(new BeeFamilyRole(id("bee_wasp"),
+            new Color(255, 242, 0).getRGB(),
+            false,
+            false,
+            SRERole.MoodType.FAKE,
+            Integer.MAX_VALUE,
+            false))
+            .setCanBeRandomedByOtherRoles(false)
+            .setNeutrals(true)
+            .setCanSetSpawnInfoInConfig(false)
+            .setDefaultMax(0)
+            .addBothRelatedRole(BEE_QUEEN);
+    public static SRERole BEE_WORKER = TMMRoles.registerRole(new BeeFamilyRole(id("bee_worker"),
+            new Color(255, 242, 0).getRGB(),
+            false,
+            false,
+            SRERole.MoodType.FAKE,
+            Integer.MAX_VALUE,
+            false))
+            .setCanBeRandomedByOtherRoles(false)
+            .setNeutrals(true)
+            .setCanSetSpawnInfoInConfig(false)
+            .setDefaultMax(0)
+            .addBothRelatedRole(BEE_QUEEN);
 
     public static SRERole HENG_XING_TI = TMMRoles.registerRole(
             new HengXingTiRole(

@@ -306,6 +306,7 @@ public class GameConstants {
         /** 领袖（Leader）犹豫：200 秒内未释放技能而死 */
         public static ResourceLocation HESITATION = Noellesroles.id("hesitation");
         public static ResourceLocation TIMEOUT = Noellesroles.id("timeout");
+        public static ResourceLocation BEE_USED_OUT_SKILL = Noellesroles.id("bee_used_out_skill");
 
         private static ResourceLocation itemId(Item item) {
             return BuiltInRegistries.ITEM.getKey(item);

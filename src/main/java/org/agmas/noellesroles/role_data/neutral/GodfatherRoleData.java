@@ -26,15 +26,12 @@ import net.minecraft.nbt.StringTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.entity.player.Player;
-import org.agmas.noellesroles.Noellesroles;
 import org.agmas.noellesroles.role.ModRoles;
 import org.agmas.noellesroles.utils.RoleUtils;
 import org.jetbrains.annotations.NotNull;
 import java.util.*;
 
 public class GodfatherRoleData extends SimpleRoleData {
-
 
     public final Set<UUID> familyMembers = new HashSet<>();
     public final Map<UUID, ResourceLocation> previousRoles = new HashMap<>();
@@ -47,7 +44,6 @@ public class GodfatherRoleData extends SimpleRoleData {
     public GodfatherRoleData(RoleDataContext context) {
         super(context);
     }
-
 
     @Override
     public void init() {
@@ -64,7 +60,6 @@ public class GodfatherRoleData extends SimpleRoleData {
     public void clear() {
         init();
     }
-
 
     @Override
     public boolean shouldSyncWith(ServerPlayer target) {
@@ -100,8 +95,6 @@ public class GodfatherRoleData extends SimpleRoleData {
                 }
         }
     }
-
-
 
     public static void registerEvents() {
         ShouldReloadDerringer.EVENT.register((victim, killer, deathReason) -> {

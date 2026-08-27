@@ -214,7 +214,7 @@ public class CustomRoleLoader {
                 // 若该自定义角色是 mafia 家族职业，为其注册家族本能，使其能互相看到特殊框。
                 // 必须在此处（registerModeEvents 之前）注册，以保证在事件分发中优先于模式处理器生效。
                 if (role.isMafiaTeam()) {
-                    RoleInstinctRegister.registerFamilyInstinct(role);
+                    RoleInstinctRegister.registerGodFamilyInstinct(role);
                 }
 
                 // 注册报幕文本（客户端），确保欢迎报到能显示自定义职业

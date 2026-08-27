@@ -117,6 +117,7 @@ import org.agmas.noellesroles.content.entity.WheelchairEntityModel;
 import org.agmas.noellesroles.content.entity.WheelchairEntityRenderer;
 import org.agmas.noellesroles.content.entity.WheelchairFieldItemRenderer;
 import org.agmas.noellesroles.content.item.*;
+import org.agmas.noellesroles.handler.utils.client.BeeFamilyClientManager;
 import org.agmas.noellesroles.role_data.killer.InsaneKillerRoleData;
 import org.agmas.noellesroles.init.*;
 import org.agmas.noellesroles.packet.*;
@@ -481,6 +482,7 @@ public class NoellesrolesClient implements ClientModInitializer {
             org.agmas.noellesroles.gunfx.GunTracerRenderer.render(renderContext);
         });
         RoleInstinctRegister.registerInstinctEvents();
+        BeeFamilyClientManager.registerEvents();
 
         ClientPlayNetworking.registerGlobalReceiver(OpenScreenPayload.ID, (payload, context) -> {
             ClientOpenScreenManager.openScreen(payload, context);

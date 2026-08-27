@@ -765,4 +765,8 @@ public class RoleUtils extends MCItemsUtils {
         return role.getName().copy().withColor(role.color());
     }
 
+    public static Component getRoleNameWithColor(SRERole targetRole) {
+        return getRoleOrModifierNameWithColor(targetRole);
+    }
+
 }

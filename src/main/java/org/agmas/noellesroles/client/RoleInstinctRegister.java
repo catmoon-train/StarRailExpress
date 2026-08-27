@@ -543,7 +543,7 @@ public class RoleInstinctRegister {
         // 内置角色在此初始化时注册；运行时加载的自定义 mafia 角色由 CustomRoleLoader.reloadClient 调用
         // registerFamilyInstinct 注册（保证自定义家族也能看到彼此的特殊框）。
         for (var familyRole : ModRoles.getAllMafiaRoles()) {
-            registerFamilyInstinct(familyRole);
+            registerGodFamilyInstinct(familyRole);
         }
 
         // --- 以下从 registerSpecialLogic 迁移过来的角色相关逻辑 ---
@@ -648,7 +648,7 @@ public class RoleInstinctRegister {
      *
      * @param familyRole 需要注册家族本能的职业（其 isMafiaTeam() 应为 true）
      */
-    public static void registerFamilyInstinct(SRERole familyRole) {
+    public static void registerGodFamilyInstinct(SRERole familyRole) {
         RoleInstinctEvents.OBSERVER_HIGHLIGHT_EVENT.register(familyRole.getIdentifier(),
                 (client, viewer, target, isInstinctEnabled) -> {
                     if (!SREClient.isPlayerAliveAndInSurvival())

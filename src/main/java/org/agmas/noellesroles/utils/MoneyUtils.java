@@ -17,6 +17,7 @@ package org.agmas.noellesroles.utils;
 
 import io.wifi.starrailexpress.cca.SREPlayerMinigameTaskComponent;
 import io.wifi.starrailexpress.cca.SREPlayerShopComponent;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 
 public class MoneyUtils {
@@ -28,7 +29,7 @@ public class MoneyUtils {
         SREPlayerShopComponent.KEY.get(player).addToBalance(balance);
     }
 
-    public static int getBalance(Player player, int balance) {
+    public static int getBalance(Player player) {
         return SREPlayerShopComponent.KEY.get(player).balance;
     }
 
@@ -40,7 +41,11 @@ public class MoneyUtils {
         SREPlayerMinigameTaskComponent.KEY.get(player).addTokens(balance);
     }
 
-    public static int getMinigamesTokens(Player player, int balance) {
+    public static int getMinigamesTokens(Player player) {
         return SREPlayerMinigameTaskComponent.KEY.get(player).getTokens();
+    }
+
+    public static boolean hasBalance(ServerPlayer player, int money) {
+        return getBalance(player) >= money;
     }
 }
