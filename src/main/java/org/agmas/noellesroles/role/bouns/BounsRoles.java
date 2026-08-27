@@ -263,7 +263,8 @@ public class BounsRoles {
             .setCanBeRandomedByOtherRoles(false)
             .setNeutrals(true)
             .setDefaultEnableNeededPlayerCount(16)
-            .setDefaultEnableChance(2000);
+            .setDefaultEnableChance(2000)
+            .setCanUseInstinctAndNightVision(true);
             
     public static SRERole BEE_WASP = TMMRoles.registerRole(new BeeFamilyRole(id("bee_wasp"),
             new Color(255, 242, 0).getRGB(),
@@ -276,7 +277,8 @@ public class BounsRoles {
             .setNeutrals(true)
             .setCanSetSpawnInfoInConfig(false)
             .setDefaultMax(0)
-            .addBothRelatedRole(BEE_QUEEN);
+            .addBothRelatedRole(BEE_QUEEN)
+            .setCanUseInstinctAndNightVision(true);
     public static SRERole BEE_WORKER = TMMRoles.registerRole(new BeeFamilyRole(id("bee_worker"),
             new Color(255, 242, 0).getRGB(),
             false,
@@ -288,7 +290,8 @@ public class BounsRoles {
             .setNeutrals(true)
             .setCanSetSpawnInfoInConfig(false)
             .setDefaultMax(0)
-            .addBothRelatedRole(BEE_QUEEN);
+            .addBothRelatedRole(BEE_QUEEN)
+            .setCanUseInstinctAndNightVision(true);
 
     public static SRERole HENG_XING_TI = TMMRoles.registerRole(
             new HengXingTiRole(
