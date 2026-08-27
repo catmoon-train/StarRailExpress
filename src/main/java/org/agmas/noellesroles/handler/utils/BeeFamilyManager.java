@@ -165,6 +165,11 @@ public class BeeFamilyManager {
                     Component.translatable("tip.noellesroles.no_target").withStyle(ChatFormatting.RED), true);
             return false;
         }
+        if (!(RoleUtils.getPlayerRole(target) instanceof BeeFamilyRole)) {
+            player.displayClientMessage(
+                    Component.translatable("tip.noellesroles.no_target").withStyle(ChatFormatting.RED), true);
+            return false;
+        }
         SREPlayerPoisonComponent.KEY.get(target).setPoisonTicks(BEE_POISON_TICKS, player.getUUID());
         if (willDeathAfterSkill) {
             GameUtils.forceKillPlayer(player, true, null, GameConstants.DeathReasons.BEE_USED_OUT_SKILL);
