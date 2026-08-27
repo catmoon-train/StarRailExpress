@@ -1,0 +1,154 @@
+package org.agmas.noellesroles.handler.utils;
+
+import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
+
+import org.agmas.noellesroles.init.ModEffects;
+
+import io.wifi.starrailexpress.event.OnGameServerTick;
+import io.wifi.starrailexpress.game.GameUtils;
+import net.minecraft.world.entity.Display.BlockDisplay;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.Vec3;
+import net.minecraft.ChatFormatting;
+import net.minecraft.network.chat.Component;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.sounds.SoundEvents;
+
+public class THYukariPortalManager {
+    public static Vec3 PORTAL_POS_1 = null;
+    public static Vec3 PORTAL_POS_2 = null;
+    public static BlockDisplay PORTAL_1 = null;
+    public static BlockDisplay PORTAL_2 = null;
+    public static long PORTAL_CREATION_TIME = -1;
+    public static final ConcurrentHashMap<UUID, Long> PORTAL_COOLDOWNS = new ConcurrentHashMap<>();
+    public static final long PORTAL_ENTRANCE_COOLDOWN = 8 * 20;
+    public static final long PORTAL_ALIVE_TIME = 30 * 20;
+
+    public static void reset() {
+        THYukariPortalManager.PORTAL_1 = null;
+        THYukariPortalManager.PORTAL_2 = null;
+        THYukariPortalManager.PORTAL_POS_1 = null;
+        THYukariPortalManager.PORTAL_POS_2 = null;
+        THYukariPortalManager.PORTAL_COOLDOWNS.clear();
+        PORTAL_CREATION_TIME = -1;
+    }
+
+    public static void serverTick(final ServerLevel world) {
+        if (PORTAL_1 == null || PORTAL_2 == null
+                || PORTAL_CREATION_TIME <= 0) {
+            return;
+        }
+        if (PORTAL_1.isRemoved()) {
+            if (!PORTAL_2.isRemoved()) {
+                PORTAL_2.discard();
+            }
+            PORTAL_1 = null;
+            PORTAL_2 = null;
+            return;
+        }
+        
+        if (PORTAL_2.isRemoved()) {
+            if (!PORTAL_1.isRemoved()) {
+                PORTAL_1.discard();
+            }
+            PORTAL_1 = null;
+            PORTAL_2 = null;
+            return;
+        }
+        long now = GameUtils.getTicksFromGameStart(world);
+        if (now > PORTAL_CREATION_TIME + PORTAL_ALIVE_TIME) {
+            removeAlivePortals(world);
+            PORTAL_CREATION_TIME = -1;
+            return;
+        }
+        for (final var player : world.players()) {
+            if (player.isSpectator())
+                continue;
+            long cooldown = PORTAL_COOLDOWNS.getOrDefault(player.getUUID(), -1L);
+
+            if (cooldown < 0 || now > cooldown) {
+                if (player.distanceToSqr(PORTAL_1) <= 1) {
+                    enterPortal(player, PORTAL_2.position());
+                } else if (player.distanceToSqr(PORTAL_2) <= 1) {
+                    enterPortal(player, PORTAL_1.position());
+                }
+            }
+        }
+    }
+
+    private static void enterPortal(ServerPlayer player, Vec3 destination) {
+        long now = GameUtils.getTicksFromGameStart(player.serverLevel());
+        player.displayClientMessage(Component.translatable("message.noellesroles.yakumo_yukari.portal.enter")
+                .withStyle(ChatFormatting.AQUA), true);
+        PORTAL_COOLDOWNS.put(player.getUUID(), now + PORTAL_ENTRANCE_COOLDOWN);
+        // 来点特效！
+        player.addEffect(ModEffects.of(ModEffects.TIME_REWIND_DAZE, 20, 1, false, false, false));
+        player.playSound(SoundEvents.PORTAL_TRAVEL);
+        player.teleportTo(destination.x, destination.y, destination.z);
+    }
+
+    public static boolean createPortal(ServerLevel world, Vec3 pos1, Vec3 pos2) {
+        if (!checkPortalPos(world, pos1) || !checkPortalPos(world, pos2)) {
+            return false;
+        }
+        removeAlivePortals(world);
+        PORTAL_1 = EntityType.BLOCK_DISPLAY.create(world);
+        PORTAL_1.setPos(pos1);
+        PORTAL_1.addTag("sre.yukari");
+        PORTAL_1.setBlockState(Blocks.END_PORTAL.defaultBlockState());
+        PORTAL_1.setCustomNameVisible(true);
+        PORTAL_1.setCustomName(Component.translatable("entity.noellesroles.yakumo_yukari.portal"));
+        world.addFreshEntity(PORTAL_1);
+
+        PORTAL_2 = EntityType.BLOCK_DISPLAY.create(world);
+        PORTAL_2.setBlockState(Blocks.END_PORTAL.defaultBlockState());
+        PORTAL_2.setCustomNameVisible(true);
+        PORTAL_2.setPos(pos2);
+        PORTAL_2.addTag("sre.yukari");
+        PORTAL_2.setCustomName(Component.translatable("entity.noellesroles.yakumo_yukari.portal"));
+        world.addFreshEntity(PORTAL_2);
+        return true;
+    }
+
+    public static boolean checkPortalPos(ServerLevel world, Vec3 pos) {
+        if (world.noCollision(new AABB(pos.x - 0.5, pos.y, pos.z - 0.5, pos.x + 0.5, pos.y + 2, pos.z + 0.5))) {
+            return true;
+        }
+        return false;
+    }
+
+    public static void removeAlivePortals(ServerLevel serverLevel) {
+        serverLevel.getAllEntities().forEach((entity) -> {
+            if (isPortal(entity)) {
+                entity.discard();
+            }
+        });
+        PORTAL_CREATION_TIME = -1;
+        THYukariPortalManager.PORTAL_1 = null;
+        THYukariPortalManager.PORTAL_2 = null;
+        THYukariPortalManager.PORTAL_POS_1 = null;
+        THYukariPortalManager.PORTAL_POS_2 = null;
+    }
+
+    public static boolean isPortal(Entity entity) {
+        if (entity instanceof BlockDisplay wf) {
+            if (wf.getTags() != null && wf.getTags().contains("sre.yukari")) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public static void registerEvents() {
+        OnGameServerTick.EVENT.register((t) -> serverTick(t));
+    }
+
+    public static boolean hasPortal() {
+        return PORTAL_1 != null && PORTAL_2 != null;
+    }
+}

@@ -53,6 +53,7 @@ import org.agmas.noellesroles.component.DefibrillatorComponent;
 import org.agmas.noellesroles.component.ModComponents;
 import org.agmas.noellesroles.content.item.BowenBadgeItem;
 import org.agmas.noellesroles.content.item.RopeItem;
+import org.agmas.noellesroles.handler.utils.THYukariPortalManager;
 import org.agmas.noellesroles.init.ModEffects;
 import org.agmas.noellesroles.init.ModItems;
 import org.agmas.noellesroles.role.touhou.THMountainRoles;
@@ -68,6 +69,7 @@ import org.agmas.noellesroles.role.touhou.roles.THReimuRole;
 import org.agmas.noellesroles.role.touhou.roles.THRemiliaRole;
 import org.agmas.noellesroles.role.touhou.roles.THSuikaRole;
 import org.agmas.noellesroles.role.touhou.roles.THUtsuhoRole;
+import org.agmas.noellesroles.role.touhou.roles.THYukariRole;
 import org.agmas.noellesroles.role_data.killer.DoremyRoleData;
 import org.agmas.noellesroles.utils.MCItemsUtils;
 import org.agmas.noellesroles.utils.RoleUtils;
@@ -80,6 +82,7 @@ public class TouhouHandlers {
   }
 
   public static void registerInitEvents() {
+    THYukariPortalManager.registerEvents();
     ModdedRoleRemoved.EVENT.register((player, role) -> {
       if (!(player instanceof ServerPlayer sp)) {
         return;
@@ -273,6 +276,7 @@ public class TouhouHandlers {
   }
 
   public static void registerSkills() {
+    THYukariRole.registerSkills();
     RoleSkill.register(THMiscRoles.KIJIN_SEIJA,
         RoleSkill.skill(SRE.id("kijin_seija_upside_down"), "skill.noellesroles.seija.upside_down", (ctx) -> {
           final int DISTANCE = 8;

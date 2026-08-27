@@ -258,7 +258,7 @@ public class BounsRoles {
             new HengXingTiRole(
                     id("heng_xing_ti"),
                     new Color(100, 100, 0).getRGB(),
-                    true,
+                    false,
                     false,
                     SRERole.MoodType.REAL,
                     TMMRoles.CIVILIAN_MAX_SPRINT_TICKS,

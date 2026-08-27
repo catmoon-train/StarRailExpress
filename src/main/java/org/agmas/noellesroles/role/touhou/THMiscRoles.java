@@ -29,7 +29,7 @@ import net.minecraft.resources.ResourceLocation;
 
 public class THMiscRoles {
     public static final String NAMESPACE = "th_misc";
-
+    
     public static ResourceLocation id(String path) {
         return ResourceLocation.fromNamespaceAndPath(NAMESPACE, path);
     }
@@ -154,6 +154,16 @@ public class THMiscRoles {
             .setCanBeRandomedByOtherRoles(false)
             .addTwoWayOpposingRole(ModRoles.DELAYER);
             
+
+            
+    // 八云紫 Yakumo Yukari
+    public static SRERole YAKUMO_YUKARI = TMMRoles.registerRole(new THYukariRole(id("yakumo_yukari"),
+            new Color(169, 80, 101).getRGB(), false, true, MoodType.FAKE, Integer.MAX_VALUE, true))
+            .setDefaultEnableNeededPlayerCount(16)
+            .setDefaultEnableChance(500)
+            .setRoleData(DoremyRoleData::new)
+            .setCanBeRandomedByOtherRoles(false)
+            .addTwoWayOpposingRole(ModRoles.DELAYER);
 
     // 火焰猫燐 kaenbyou_rin
     public static SRERole KAENBYOU_RIN = TMMRoles.registerRole(new THKaenbyouRinRole(id("kaenbyou_rin"),
