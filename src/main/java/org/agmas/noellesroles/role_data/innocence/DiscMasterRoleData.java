@@ -62,7 +62,8 @@ public class DiscMasterRoleData extends SimpleRoleData {
     public void serverTick() {
         if (musicCooldown > 0) {
             musicCooldown--;
-            if (musicCooldown % 20 == 0 || musicCooldown == 0) {
+            // 又1s同步！！！！！！！！
+            if (musicCooldown % 200 == 0 || musicCooldown == 0) {
                 this.sync();
             }
         }
