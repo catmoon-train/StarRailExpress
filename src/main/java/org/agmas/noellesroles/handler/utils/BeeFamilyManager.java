@@ -49,7 +49,7 @@ public class BeeFamilyManager {
                                 BeeFamilyManager.BEE_QUEEN_IMPROVE_PRICE).withStyle(ChatFormatting.RED), true);
                         return false;
                     }
-                    final var cca = SREAbilityPlayerComponent.KEY.get(ctx);
+                    final var cca = SREAbilityPlayerComponent.KEY.get(player);
                     if (cca.status >= 1) {
                         player.displayClientMessage(Component.translatable("skill.noellesroles.bee_queen.already")
                                 .withStyle(ChatFormatting.RED), true);

@@ -51,6 +51,7 @@ public class NoellesrolesConfigCommand {
                         // 生成信息（-1为禁用）：\n最小启用玩家数：%s\n最大启用玩家数：%s\n启用概率：%s/10000\n最大生成数量：%s\n启用地图：%s
                         SpawnInfo spinfo = SpawnInfoConfig.instance().roleDetails
                             .getSpawnInfo(role);
+                        ctx.getSource().sendSuccess(()->Component.empty(), false);
                         if (!role.canSetSpawnInfoInConfig()) {
                           ctx.getSource()
                               .sendFailure(Component.translatable(
@@ -82,6 +83,7 @@ public class NoellesrolesConfigCommand {
                       .then(Commands.literal("reset")
                           .requires(source -> source.hasPermission(2)).executes(ctx -> {
                             SRERole role = RoleArgumentType.getRole(ctx, "id");
+                            
                             if (!role.canSetSpawnInfoInConfig()) {
                               ctx.getSource()
                                   .sendFailure(Component.translatable(
@@ -413,6 +415,7 @@ public class NoellesrolesConfigCommand {
                         SpawnInfo spinfo = SpawnInfoConfig.instance().modifierDetails
                             .getSpawnInfo(role);
 
+                        ctx.getSource().sendSuccess(()->Component.empty(), false);
                         if (!role.canSetSpawnInfoInConfig()) {
                           ctx.getSource()
                               .sendFailure(Component.translatable(
