@@ -61,18 +61,23 @@ public class TrueKillerFinder {
 
             if (originalKiller != null)
                 return null;
-            if (gameWorldComponent.isRole(serverVictim, ModRoles.CONSPIRATOR))
-                return null;
-            // 是否为阴谋家击杀
-            for (var player : serverVictim.level().players()) {
-                if (gameWorldComponent.isRole(player, ModRoles.CONSPIRATOR)) {
-                    var consC = RoleData.getOptional(ConspiratorRoleData.class, player);
-                    if (consC.isPresent()) {
-                        if (consC.get().hasBeenGuessedToDie(victim.getUUID())) {
-                            return player;
+            if (!gameWorldComponent.isRole(serverVictim, ModRoles.CONSPIRATOR)) {
+
+                // 是否为阴谋家击杀
+                for (var player : serverVictim.level().players()) {
+                    if (gameWorldComponent.isRole(player, ModRoles.CONSPIRATOR)) {
+                        var consC = RoleData.getOptional(ConspiratorRoleData.class, player);
+                        if (consC.isPresent()) {
+                            if (consC.get().hasBeenGuessedToDie(victim.getUUID())) {
+                                return player;
+                            }
                         }
                     }
                 }
+            }
+            if (victim.getKillCredit() instanceof ServerPlayer sp) {
+                if (sp != null)
+                    return sp;
             }
             // 没找到
             return null;
