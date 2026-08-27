@@ -339,5 +339,9 @@ public class BounsRoles {
         LENGXIAO.setAddedVersion("4.3");
         LAO_DA.setAddedVersion("4.4");
         DISC_MASTER.setAddedVersion("4.4");
+        BEE_QUEEN.setAddedVersion("4.4");
+        BEE_WASP.setAddedVersion("4.4");
+        BEE_WORKER.setAddedVersion("4.4");
+        HENG_XING_TI.setAddedVersion("4.4");
     }
 }
