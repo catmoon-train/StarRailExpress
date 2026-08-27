@@ -114,7 +114,7 @@ public class THLostForestRoles {
     }
   }
     static {
-        KAGUYA.setAddedVersion("4.3");
-        MOKOU.setAddedVersion("4.3");
+        KAGUYA.setAddedVersion("4.4");
+        MOKOU.setAddedVersion("4.4");
     }
 }

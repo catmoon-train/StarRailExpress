@@ -90,6 +90,6 @@ public class AnimeModifiers {
         });
     }
     static {
-        RE0_486.setAddedVersion("4.3");
+        RE0_486.setAddedVersion("4.4");
     }
 }

@@ -251,8 +251,7 @@ public class BounsRoles {
             }
             return;
         }
-    }).setDefaultEnableChance(100)
-            .setAddedVersion("4.3");
+    }).setDefaultEnableChance(100);
 
     public static SRERole BEE_QUEEN = TMMRoles.registerRole(new BeeFamilyRole(id("bee_queen"),
             new Color(255, 242, 0).getRGB(),
@@ -265,9 +264,8 @@ public class BounsRoles {
             .setNeutrals(true)
             .setDefaultEnableNeededPlayerCount(16)
             .setDefaultEnableChance(2000)
-            .setCanUseInstinctAndNightVision(true)
-            .setAddedVersion("4.3");
-
+            .setCanUseInstinctAndNightVision(true);
+            
     public static SRERole BEE_WASP = TMMRoles.registerRole(new BeeFamilyRole(id("bee_wasp"),
             new Color(255, 242, 0).getRGB(),
             false,
@@ -280,8 +278,7 @@ public class BounsRoles {
             .setCanSetSpawnInfoInConfig(false)
             .setDefaultMax(0)
             .addBothRelatedRole(BEE_QUEEN)
-            .setCanUseInstinctAndNightVision(true)
-            .setAddedVersion("4.3");
+            .setCanUseInstinctAndNightVision(true);
     public static SRERole BEE_WORKER = TMMRoles.registerRole(new BeeFamilyRole(id("bee_worker"),
             new Color(255, 242, 0).getRGB(),
             false,
@@ -294,8 +291,7 @@ public class BounsRoles {
             .setCanSetSpawnInfoInConfig(false)
             .setDefaultMax(0)
             .addBothRelatedRole(BEE_QUEEN)
-            .setCanUseInstinctAndNightVision(true)
-            .setAddedVersion("4.3");
+            .setCanUseInstinctAndNightVision(true);
 
     public static SRERole HENG_XING_TI = TMMRoles.registerRole(
             new HengXingTiRole(
@@ -308,8 +304,7 @@ public class BounsRoles {
                     false))
             .setBeSeenInstinctType(InstinctType.DEFAULT, InstinctType.TARGET_ROLE_COLOR)
             .setDefaultEnableChance(10)
-            .setNeutralForInnocent(true)
-            .setAddedVersion("4.3");
+            .setNeutralForInnocent(true);
 
     public static void init() {
         THRedHouseRoles.init();
@@ -342,6 +337,7 @@ public class BounsRoles {
         CAT_NECROMANCER.setAddedVersion("4.1");
         BEST_VIGILANTE.setAddedVersion("2.x");
         LENGXIAO.setAddedVersion("4.3");
-        DISC_MASTER.setAddedVersion("4.3");
+        LAO_DA.setAddedVersion("4.4");
+        DISC_MASTER.setAddedVersion("4.4");
     }
 }

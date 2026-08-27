@@ -595,7 +595,7 @@ public class SEModifiers {
         MAGNATE.setAddedVersion("3.1");
         TASKMASTER.setAddedVersion("3.1");
         JEB_.setAddedVersion("4.0");
-        DINNERBONE.setAddedVersion("4.3");
+        DINNERBONE.setAddedVersion("4.4");
         ALLERGIST.setAddedVersion("3.1");
         CURSED.setAddedVersion("3.1");
         SECRETIVE.setAddedVersion("3.1");
