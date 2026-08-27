@@ -4,9 +4,14 @@ import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.agmas.noellesroles.init.ModEffects;
+import org.joml.Quaternionf;
+import org.joml.Vector3f;
+
+import com.mojang.math.Transformation;
 
 import io.wifi.starrailexpress.event.OnGameServerTick;
 import io.wifi.starrailexpress.game.GameUtils;
+import net.minecraft.world.entity.Display.BillboardConstraints;
 import net.minecraft.world.entity.Display.BlockDisplay;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.entity.Entity;
@@ -51,7 +56,7 @@ public class THYukariPortalManager {
             PORTAL_2 = null;
             return;
         }
-        
+
         if (PORTAL_2.isRemoved()) {
             if (!PORTAL_1.isRemoved()) {
                 PORTAL_1.discard();
@@ -61,6 +66,13 @@ public class THYukariPortalManager {
             return;
         }
         long now = GameUtils.getTicksFromGameStart(world);
+        if (world.getGameTime() % 20 == 0) {
+            PORTAL_1.setCustomName(Component.translatable("entity.noellesroles.yakumo_yukari.portal",
+                    (PORTAL_ALIVE_TIME - (now - PORTAL_CREATION_TIME)) / 20).withStyle(ChatFormatting.GOLD));
+
+            PORTAL_2.setCustomName(Component.translatable("entity.noellesroles.yakumo_yukari.portal",
+                    (PORTAL_ALIVE_TIME - (now - PORTAL_CREATION_TIME)) / 20).withStyle(ChatFormatting.GOLD));
+        }
         if (now > PORTAL_CREATION_TIME + PORTAL_ALIVE_TIME) {
             removeAlivePortals(world);
             PORTAL_CREATION_TIME = -1;
@@ -70,11 +82,15 @@ public class THYukariPortalManager {
             if (player.isSpectator())
                 continue;
             long cooldown = PORTAL_COOLDOWNS.getOrDefault(player.getUUID(), -1L);
+            if (cooldown <= 0 || now > cooldown) {
+                Vec3 pos1 = PORTAL_1.position();
+                Vec3 pos2 = PORTAL_2.position();
+                // SRE.LOGGER.info("player {}; {}->{}", player.position().toString(),
+                // pos1.toString(), pos2.toString());
 
-            if (cooldown < 0 || now > cooldown) {
-                if (player.distanceToSqr(PORTAL_1) <= 1) {
+                if (player.distanceToSqr(pos1) <= 1) {
                     enterPortal(player, PORTAL_2.position());
-                } else if (player.distanceToSqr(PORTAL_2) <= 1) {
+                } else if (player.distanceToSqr(pos2) <= 1) {
                     enterPortal(player, PORTAL_1.position());
                 }
             }
@@ -97,22 +113,32 @@ public class THYukariPortalManager {
             return false;
         }
         removeAlivePortals(world);
-        PORTAL_1 = EntityType.BLOCK_DISPLAY.create(world);
-        PORTAL_1.setPos(pos1);
-        PORTAL_1.addTag("sre.yukari");
-        PORTAL_1.setBlockState(Blocks.END_PORTAL.defaultBlockState());
-        PORTAL_1.setCustomNameVisible(true);
-        PORTAL_1.setCustomName(Component.translatable("entity.noellesroles.yakumo_yukari.portal"));
+        PORTAL_1 = createPortalInner(world, pos1, 1);
         world.addFreshEntity(PORTAL_1);
 
-        PORTAL_2 = EntityType.BLOCK_DISPLAY.create(world);
-        PORTAL_2.setBlockState(Blocks.END_PORTAL.defaultBlockState());
-        PORTAL_2.setCustomNameVisible(true);
-        PORTAL_2.setPos(pos2);
-        PORTAL_2.addTag("sre.yukari");
-        PORTAL_2.setCustomName(Component.translatable("entity.noellesroles.yakumo_yukari.portal"));
+        PORTAL_2 = createPortalInner(world, pos2, 2);
         world.addFreshEntity(PORTAL_2);
+
+        PORTAL_CREATION_TIME = GameUtils.getTicksFromGameStart(world);
         return true;
+    }
+
+    private static BlockDisplay createPortalInner(ServerLevel world, Vec3 pos1, int i) {
+        var portal = EntityType.BLOCK_DISPLAY.create(world);
+        portal.setPos(pos1);
+        portal.addTag("sre.yukari");
+        portal.setBlockState(Blocks.NETHER_PORTAL.defaultBlockState());
+        Vector3f translation = new Vector3f(-0.5f, -0.5f, -0.5f);
+        Quaternionf leftRot = new Quaternionf(0f, 0f, 0f, 1f); // 恒等四元数
+        Vector3f scale = new Vector3f(1f, 1f, 1f);
+        Quaternionf rightRot = new Quaternionf(0f, 0f, 0f, 1f);
+        Transformation transform = new Transformation(translation, leftRot, scale, rightRot);
+        portal.setTransformation(transform);
+        portal.setBillboardConstraints(BillboardConstraints.VERTICAL);
+        portal.setCustomNameVisible(true);
+        portal.setCustomName(Component.translatable("entity.noellesroles.yakumo_yukari.portal", PORTAL_ALIVE_TIME / 20)
+                .withStyle(ChatFormatting.GOLD));
+        return portal;
     }
 
     public static boolean checkPortalPos(ServerLevel world, Vec3 pos) {

@@ -2882,7 +2882,7 @@
   "announcement.star.role.duck": "鸭",
   "announcement.star.goals.duck": "伪装在鹅群中，击杀鹅并利用破坏扰乱任务，在被投票放逐前消灭所有鹅。",
   "skill.noellesroles.seija.upside_down": "颠倒一切！",
-  "entity.noellesroles.yakumo_yukari.portal": "间隙",
+  "entity.noellesroles.yakumo_yukari.portal": "间隙 §8| §e还能存在 §c%ss",
   "message.noellesroles.yakumo_yukari.portal.enter": "你已通过间隙。",
   "message.noellesroles.yakumo_yukari.portal.pos.success": "你已设定坐标点%s：[%s]",
   "message.noellesroles.yakumo_yukari.portal.pos.failed.not_vaild": "无法设定坐标点%s：无效坐标点 [%s]（可能有遮挡）",

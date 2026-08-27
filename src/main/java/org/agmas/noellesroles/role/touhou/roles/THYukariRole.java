@@ -73,14 +73,14 @@ public class THYukariRole extends TouhouRole {
                     if (!THYukariPortalManager.checkPortalPos(level, position)) {
                         player.displayClientMessage(Component
                                 .translatable("message.noellesroles.yakumo_yukari.portal.pos.failed.not_vaild", 1,
-                                        String.format("%d, %d, %d", position.x, position.y, position.z))
+                                        String.format("%.1f, %.1f, %.1f", position.x, position.y, position.z))
                                 .withStyle(ChatFormatting.RED), true);
                         return false;
                     }
                     THYukariPortalManager.PORTAL_POS_1 = position;
                     player.displayClientMessage(Component
                             .translatable("message.noellesroles.yakumo_yukari.portal.pos.success", 1,
-                                    String.format("%d, %d, %d", position.x, position.y, position.z))
+                                    String.format("%.1f, %.1f, %.1f", position.x, position.y, position.z))
                             .withStyle(ChatFormatting.GREEN), true);
                     return true;
                 }).showOnHud(true).noAnnouncement().cooldownSeconds(5).build(),
@@ -91,14 +91,14 @@ public class THYukariRole extends TouhouRole {
                     if (!THYukariPortalManager.checkPortalPos(level, position)) {
                         player.displayClientMessage(Component
                                 .translatable("message.noellesroles.yakumo_yukari.portal.pos.failed.not_vaild", 2,
-                                        String.format("%d, %d, %d", position.x, position.y, position.z))
+                                        String.format("%.1f, %.1f, %.1f", position.x, position.y, position.z))
                                 .withStyle(ChatFormatting.RED), true);
                         return false;
                     }
                     THYukariPortalManager.PORTAL_POS_2 = position;
                     player.displayClientMessage(Component
                             .translatable("message.noellesroles.yakumo_yukari.portal.pos.success", 2,
-                                    String.format("%d, %d, %d", position.x, position.y, position.z))
+                                    String.format("%.1f, %.1f, %.1f", position.x, position.y, position.z))
                             .withStyle(ChatFormatting.GREEN), true);
                     return true;
                 }).showOnHud(true).noAnnouncement().cooldownSeconds(5).build());
