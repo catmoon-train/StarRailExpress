@@ -52,6 +52,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.BlockHitResult;
 import org.agmas.harpymodloader.SREDisableManager;
+import org.agmas.harpymodloader.events.ModdedRoleAssigned;
 import org.agmas.harpymodloader.modded_murder.PlayerRoleWeightManager;
 import org.agmas.harpymodloader.modifiers.SREModifier;
 import org.agmas.noellesroles.config.SpawnInfoConfig.SpawnInfo;
@@ -1180,7 +1181,15 @@ public abstract class SRERole extends SREAbstractInfoClass {
     }
 
     /**
-     * 初始化时调用
+     * 初始化时调用。
+     * 顺序：
+     * <ul>
+     * <li>{@link SREAbilityPlayerComponent#init}</li>
+     * <li>{@link RoleComponent#init}</li>
+     * <li>{@link RoleData#init}</li>
+     * <li>{@link SRERole#onInit}</li>
+     * <li>{@link ModdedRoleAssigned#assignModdedRole}</li>
+     * </ul>
      */
     public void onInit(MinecraftServer server, ServerPlayer serverPlayer) {
         clearTaskRewardTracking(serverPlayer.getUUID());

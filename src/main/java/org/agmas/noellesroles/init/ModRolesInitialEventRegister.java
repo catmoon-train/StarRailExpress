@@ -113,9 +113,8 @@ public class ModRolesInitialEventRegister {
         // 初始化操纵师操控限制（被拖入水/岩浆/虚空/摔落致死时否决并弹回）
         InControlCCA.registerEvents();
         ModdedRoleAssigned.EVENT.register((player, role) -> {
-
-            SREAbilityPlayerComponent abilityComponent = ModComponents.ABILITY.get(player);
-            abilityComponent.init();
+            SREAbilityPlayerComponent abilityPlayerComponent = (SREAbilityPlayerComponent) SREAbilityPlayerComponent.KEY
+                    .get(player);
             // 通用：设置职业的初始金币数（未配置则不改变，默认 -1）
             int initialCoin = role.getInitialCoinCount();
             if (initialCoin >= 0) {
@@ -245,9 +244,6 @@ public class ModRolesInitialEventRegister {
             if (role.identifier().equals(ModRoles.GUEST_GHOST.identifier())) {
                 SREPlayerShopComponent.KEY.get(player).setBalance(100);
             }
-            SREAbilityPlayerComponent abilityPlayerComponent = (SREAbilityPlayerComponent) SREAbilityPlayerComponent.KEY
-                    .get(player);
-            abilityPlayerComponent.init(false);
 
             if (role.equals(ModRoles.BROADCASTER)) {
                 abilityPlayerComponent.cooldown = 0;
@@ -550,7 +546,8 @@ public class ModRolesInitialEventRegister {
         // 葬仪技能注册：使用当前模式的技能
         RoleSkill.register(ModRoles.MORTICIAN_BODYMAKER, context -> {
             ServerPlayer player = context.player();
-            MorticianBodyMakerRoleData morticianComponent = RoleData.getNullable(MorticianBodyMakerRoleData.class, player);
+            MorticianBodyMakerRoleData morticianComponent = RoleData.getNullable(MorticianBodyMakerRoleData.class,
+                    player);
             if (morticianComponent != null) {
                 morticianComponent.useAbility();
             }
@@ -811,7 +808,8 @@ public class ModRolesInitialEventRegister {
                 "skill.noellesroles.spellbreaker.silence",
                 context -> {
                     ServerPlayer player = context.player();
-                    RoleData.getOptional(SpellbreakerRoleData.class, player).ifPresent(SpellbreakerRoleData::useAbility);
+                    RoleData.getOptional(SpellbreakerRoleData.class, player)
+                            .ifPresent(SpellbreakerRoleData::useAbility);
                     return true;
                 }).cooldownSeconds(130).build());
 

@@ -16,6 +16,7 @@
 package io.wifi.starrailexpress.api;
 
 import io.wifi.starrailexpress.SREConfig;
+import io.wifi.starrailexpress.cca.SREAbilityPlayerComponent;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.cca.SREPlayerShopComponent;
 import io.wifi.starrailexpress.cca.SRERoleDataPlayerComponent;
@@ -34,6 +35,8 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.BlockHitResult;
+
+import org.agmas.noellesroles.component.ModComponents;
 import org.jetbrains.annotations.Nullable;
 import org.ladysnake.cca.api.v3.component.ComponentKey;
 
@@ -145,7 +148,7 @@ public class RoleMethodDispatcher {
      */
     public static TrueFalseResult callOnPickupItem(Player player, ItemStack item) {
         // 持有警长左轮时，禁止捡起其他枪械（按 guns tag 判断）
-        
+
         SRERole role = getCurrentRole(player);
         if (role != null) {
             return role.onPickUpItem(player, item);
@@ -180,14 +183,16 @@ public class RoleMethodDispatcher {
     public static void onRemoveRole(SRERole role, MinecraftServer server, ServerPlayer serverPlayer) {
         final var cca = SRERoleDataPlayerComponent.KEY.get(serverPlayer);
         cca.onRemoveRole();
-        if(role!=null){
+        if (role != null) {
             role.onRemove(serverPlayer);
         }
     }
 
     public static void onInit(SRERole role, MinecraftServer minecraftServer, ServerPlayer player) {
-        role.onInit(minecraftServer, player);
-        
+
+        SREAbilityPlayerComponent abilityComponent = ModComponents.ABILITY.get(player);
+        abilityComponent.init();
+
         if (role.isAutoReset()) {
             ComponentKey<? extends RoleComponent> componentKey = role.getComponentKey();
             if (componentKey != null) {
@@ -197,10 +202,13 @@ public class RoleMethodDispatcher {
                 }
             }
         }
+
         {
             final var cca = SRERoleDataPlayerComponent.KEY.get(player);
             cca.init();
         }
+
+        role.onInit(minecraftServer, player);
     }
 
     /**
