@@ -34,7 +34,7 @@ public class BeeFamilyManager {
 
         RoleSkill.register(BounsRoles.BEE_WORKER,
                 RoleSkill.skill(SRE.id("bee_family_poison"), "skill.noellesroles.bee_family_poison", (ctx) -> {
-                    return BeeFamilyManager.triggerSkill(ctx, false);
+                    return BeeFamilyManager.triggerSkill(ctx, true);
                 }).withTarget().cooldownSeconds(60).showOnHud(true).announceToSelf().build());
         RoleSkill.register(BounsRoles.BEE_WASP,
                 RoleSkill.skill(SRE.id("bee_family_poison"), "skill.noellesroles.bee_family_poison", (ctx) -> {
