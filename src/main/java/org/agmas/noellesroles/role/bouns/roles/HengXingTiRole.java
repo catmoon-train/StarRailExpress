@@ -129,7 +129,7 @@ public class HengXingTiRole extends ExtraEffectRole implements EggRoleInterface 
 
     public static boolean triggerSkill(RoleSkillContext ctx) {
         final var player = ctx.player();
-        SREArmorPlayerComponent.KEY.get(player).addTimedArmor(0, SKILL_DURATION, false);
+        SREArmorPlayerComponent.KEY.get(player).addTimedArmor(2, SKILL_DURATION, false);
         getAbilityComponent(player).setDuration(SKILL_DURATION);
         player.addEffect(ModEffects.of(ModEffects.NO_COLLIDE, SKILL_DURATION + 10, 1, false, false, true));
         return true;
