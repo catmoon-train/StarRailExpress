@@ -158,9 +158,9 @@ public class THYukariPortalManager {
                 entity.discard();
             }
         });
-        if (!PORTAL_1.isRemoved())
+        if (PORTAL_1 != null && !PORTAL_1.isRemoved())
             PORTAL_1.discard();
-        if (!PORTAL_2.isRemoved())
+        if (PORTAL_2 != null && !PORTAL_2.isRemoved())
             PORTAL_2.discard();
         PORTAL_CREATION_TIME = -1;
         THYukariPortalManager.PORTAL_1 = null;
