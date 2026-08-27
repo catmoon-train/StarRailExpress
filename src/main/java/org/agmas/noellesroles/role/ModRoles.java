@@ -2745,7 +2745,7 @@ public class ModRoles {
         FORTUNETELLER.setAddedVersion("3.2");
         DIVINER.setAddedVersion("4.3");
         SALTED_FISH.setAddedVersion("4.3");
-        RETURN_TRAVELER.setAddedVersion("4.4");
+        RETURN_TRAVELER.setAddedVersion("4.3");
         LEATHER_PIG.setAddedVersion("4.3");
         NINJA.setAddedVersion("4.1");
         NOSTALGIST.setAddedVersion("4.3");
@@ -2793,7 +2793,7 @@ public class ModRoles {
         SWAPPER.setAddedVersion("2.x");
         EXECUTIONER.setAddedVersion("2.x");
         GAMBLER.setAddedVersion("2.x");
-        LEADER.setAddedVersion("4.4");
+        LEADER.setAddedVersion("4.3");
         TAMER.setAddedVersion("4.3");
         HUNTER.setAddedVersion("4.3");
         POISONER.setAddedVersion("2.x");
@@ -2839,10 +2839,10 @@ public class ModRoles {
         CANDLE_BEARER.setAddedVersion("4.0");
         RAVEN.setAddedVersion("4.3");
         REASONER.setAddedVersion("4.3");
-        VOICE_CHANGER.setAddedVersion("4.4");
+        VOICE_CHANGER.setAddedVersion("4.3");
         AMON.setAddedVersion("4.3");
         DOOMED_SINNER.setAddedVersion("4.3");
-        LIN_FAMILY.setAddedVersion("4.4");
+        LIN_FAMILY.setAddedVersion("4.3");
         MAGICIAN.setAddedVersion("3.2");
         CLOCKMAKER.setAddedVersion("3.2");
         BANDIT.setAddedVersion("3.2");
@@ -2850,7 +2850,7 @@ public class ModRoles {
         FITTER.setAddedVersion("4.3");
         BLOOD_FEUDIST.setAddedVersion("3.2");
         WATCHER.setAddedVersion("4.0");
-        YOULU.setAddedVersion("4.4");
+        YOULU.setAddedVersion("4.3");
         IMITATOR.setAddedVersion("4.1");
         THE_FOOL.setAddedVersion("4.1");
         MONOKUMA.setAddedVersion("4.1");

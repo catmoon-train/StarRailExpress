@@ -43,7 +43,8 @@ public class THMiscRoles {
                     Integer.MAX_VALUE, true))
             .setDefaultMax(1)
             .setDefaultEnableNeededPlayerCount(12)
-            .setDefaultEnableChance(5000);
+            .setDefaultEnableChance(5000)
+            .setAddedVersion("4.3");
     // Kirisame Marisa
     public static final ResourceLocation IBUKI_SUIKA_ID = id("ibuki_suika");
     public static SRERole IBUKI_SUIKA = TMMRoles
@@ -52,7 +53,8 @@ public class THMiscRoles {
                     Integer.MAX_VALUE, true))
             .setDefaultMax(1)
             .setDefaultEnableNeededPlayerCount(18)
-            .setDefaultEnableChance(5000);
+            .setDefaultEnableChance(5000)
+            .setAddedVersion("4.3");
 
     public static final ResourceLocation HAKUREI_REIMU_ID = id("hakurei_reimu");
     public static SRERole HAKUREI_REIMU = TMMRoles
@@ -61,7 +63,8 @@ public class THMiscRoles {
                     Integer.MAX_VALUE, true))
             .setCanPickUpRevolver(false)
             .setFallDamageImmune(true) // 不会因高度限制摔死
-            .setDefaultEnableNeededPlayerCount(18).setDefaultEnableChance(1000);
+            .setDefaultEnableNeededPlayerCount(18).setDefaultEnableChance(1000)
+            .setAddedVersion("4.3");
 
     // 灵乌路空
     public static final ResourceLocation REIUJI_UTSUHO_ID = id("reiuji_utsuho");
@@ -70,7 +73,8 @@ public class THMiscRoles {
                     false, true, SRERole.MoodType.FAKE,
                     Integer.MAX_VALUE, true))
             .setDefaultEnableNeededPlayerCount(24)
-            .setDefaultEnableChance(1000);
+            .setDefaultEnableChance(1000)
+            .setAddedVersion("4.3");
     // 四季映姬·夜摩仙那度 Shikieiki（有点像判官）
     // 四季映姬曾经是地藏，后来全国各地的地藏联名上书请求分担阎魔大人的工作，她也成为了阎魔。
     public static final ResourceLocation SHIKIEIKI_ID = id("shikieiki");
@@ -79,20 +83,23 @@ public class THMiscRoles {
                     true, false, SRERole.MoodType.REAL,
                     TMMRoles.CIVILIAN.getMaxSprintTime() * 2, true), "th_hell")
             .setCanPickUpRevolver(false).setVigilanteTeam(true).setSpecialVigilante(true)
-            .setDefaultEnableNeededPlayerCount(24).setDefaultEnableChance(3000);
+            .setDefaultEnableNeededPlayerCount(24).setDefaultEnableChance(3000)
+            .setAddedVersion("4.3");
     // 小野冢小町 Onozuka Komachi
     public static final ResourceLocation KOMACHI_ID = id("onozuka_komachi");
     public static SRERole KOMACHI = TMMRoles
             .registerRole(new THKomachiRole(KOMACHI_ID, new Color(199, 144, 161).getRGB(),
                     false, true, SRERole.MoodType.FAKE,
                     Integer.MAX_VALUE, true), "th_hell")
-            .setCanEarnKillerCoinAwardsFromKills(false); // 杀人无法获得基础金币奖励
+            .setCanEarnKillerCoinAwardsFromKills(false)
+            .setAddedVersion("4.3"); // 杀人无法获得基础金币奖励
     // 天子Hinanawi Tenshi
     public static final ResourceLocation TENSHI_ID = id("hinanawi_tenshi");
     public static SRERole TENSHI = TMMRoles
             .registerRole(new THTenshiRole(TENSHI_ID, new Color(89, 177, 250).getRGB(),
                     true, false, SRERole.MoodType.REAL,
-                    TMMRoles.CIVILIAN.getMaxSprintTime() * 2, false));
+                    TMMRoles.CIVILIAN.getMaxSprintTime() * 2, false))
+            .setAddedVersion("4.3");
     public static final ResourceLocation RINNOSUKE_ID = id("morichika_rinnosuke");
     // 森近霖之助 Morichika Rinnosuke
     public static SRERole RINNOSUKE = TMMRoles.registerRole(new THRinnosukeRole(
@@ -113,27 +120,31 @@ public class THMiscRoles {
                 if (player.level().getGameTime() % (20 * 60) == 0) {
                     SREPlayerShopComponent.KEY.get(player).addToBalance(50);
                 }
-            });
+            })
+            .setAddedVersion("4.3");
 
     // 鬼人正邪 Kijin Seija
     public static SRERole KIJIN_SEIJA = TMMRoles.registerRole(new TouhouRole(id("kijin_seija"),
             new Color(49, 38, 40).getRGB(), false, true, MoodType.FAKE, Integer.MAX_VALUE, true))
             .setDefaultEnableNeededPlayerCount(12)
-            .setDefaultEnableChance(6000);
+            .setDefaultEnableChance(6000)
+            .setAddedVersion("4.3");
 
     // 封兽鵺 Houjuu Nue
     public static SRERole HOUJUU_NUE = TMMRoles.registerRole(new THHoujuuNueRole(id("houjuu_nue"),
             new Color(87, 78, 99).getRGB(), false, true, MoodType.FAKE, Integer.MAX_VALUE, true))
             .setRoleData(HoujuuNueRoleData::new)
             .setDefaultEnableNeededPlayerCount(12)
-            .setDefaultEnableChance(4000);
+            .setDefaultEnableChance(4000)
+            .setAddedVersion("4.3");
 
     // 茨木华扇 Ibaraki Kasen
     public static SRERole IBARAKI_KASEN = TMMRoles.registerRole(new THIbarakiKasenRole(id("ibaraki_kasen"),
             new Color(216, 158, 159).getRGB(), true, false, MoodType.REAL,
             TMMRoles.CIVILIAN_MAX_SPRINT_TICKS, false))
             .setDefaultEnableNeededPlayerCount(12)
-            .setDefaultEnableChance(5000);
+            .setDefaultEnableChance(5000)
+            .setAddedVersion("4.3");
 
     // 魂魄妖梦 Konpaku Youmu
     public static SRERole KONPAKU_YOUMU = TMMRoles.registerRole(new THKonpakuYoumuRole(id("konpaku_youmu"),
@@ -143,7 +154,8 @@ public class THMiscRoles {
             .setDefaultEnableChance(5000)
             .setVigilanteTeam(true)
             .setSpecialPolice(true)
-            .setCanPickUpRevolver(true);
+            .setCanPickUpRevolver(true)
+            .setAddedVersion("4.3");
 
     // 哆来咪 Doremy
     public static SRERole DOREMY = TMMRoles.registerRole(new THDoremyRole(id("doremy_sweet"),
@@ -151,18 +163,21 @@ public class THMiscRoles {
             .setDefaultEnableNeededPlayerCount(16)
             .setDefaultEnableChance(500)
             .setRoleData(DoremyRoleData::new)
-            .addTwoWayOpposingRole(ModRoles.DELAYER);
+            .addTwoWayOpposingRole(ModRoles.DELAYER)
+            .setAddedVersion("4.3");
 
     // 八云紫 Yakumo Yukari
     public static SRERole YAKUMO_YUKARI = TMMRoles.registerRole(new THYukariRole(id("yakumo_yukari"),
             new Color(109, 64, 128).getRGB(), false, true, MoodType.FAKE, Integer.MAX_VALUE, true))
             .setDefaultEnableNeededPlayerCount(16)
-            .setDefaultEnableChance(1000);
+            .setDefaultEnableChance(1000)
+            .setAddedVersion("4.3");
 
     // 米斯蒂娅·萝蕾拉 Mystia Lorelei
     public static SRERole MYSTIA = TMMRoles.registerRole(new TouhouRole(id("mystia_lorelei"),
-            new Color(223,177,166).getRGB(), true, false, MoodType.REAL, TMMRoles.CIVILIAN_MAX_SPRINT_TICKS, false))
-            .setDefaultEnableChance(5000);
+            new Color(223, 177, 166).getRGB(), true, false, MoodType.REAL, TMMRoles.CIVILIAN_MAX_SPRINT_TICKS, false))
+            .setDefaultEnableChance(5000)
+            .setAddedVersion("4.3");
 
     // 火焰猫燐 kaenbyou_rin
     public static SRERole KAENBYOU_RIN = TMMRoles.registerRole(new THKaenbyouRinRole(id("kaenbyou_rin"),
@@ -172,25 +187,12 @@ public class THMiscRoles {
             .setDefaultEnableChance(4000)
             .setHiddenForRoleRotation(true)
             .addTwoWayOpposingRole(ModRoles.PUPPETEER)
-            .setCanBeRandomedByOtherRoles(true);
+            .setCanBeRandomedByOtherRoles(true)
+            .setAddedVersion("4.3");;
 
     public static void init() {
     }
 
     static {
-        MAMIZOU.setAddedVersion("4.4");
-        IBUKI_SUIKA.setAddedVersion("4.4");
-        HAKUREI_REIMU.setAddedVersion("4.3");
-        REIUJI_UTSUHO.setAddedVersion("4.4");
-        SHIKIEIKI.setAddedVersion("4.3");
-        KOMACHI.setAddedVersion("4.3");
-        TENSHI.setAddedVersion("4.3");
-        RINNOSUKE.setAddedVersion("4.3");
-        KIJIN_SEIJA.setAddedVersion("4.4");
-        HOUJUU_NUE.setAddedVersion("4.4");
-        IBARAKI_KASEN.setAddedVersion("4.4");
-        KONPAKU_YOUMU.setAddedVersion("4.4");
-        DOREMY.setAddedVersion("4.4");
-        KAENBYOU_RIN.setAddedVersion("4.4");
     }
 }
