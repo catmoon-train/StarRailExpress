@@ -39,7 +39,6 @@ import java.util.UUID;
 
 public class SilencerRoleData extends SimpleRoleData {
 
-
     private SREGameWorldComponent gameWorldComponent = null;
 
     // Skill cooldown ticks: 0 = ready, negative = cooling down
@@ -78,11 +77,9 @@ public class SilencerRoleData extends SimpleRoleData {
         this.init();
     }
 
-
     public SilencerRoleData(RoleDataContext context) {
         super(context);
     }
-
 
     private boolean checkIsGameRunning() {
         if (gameWorldComponent == null) {
@@ -95,13 +92,18 @@ public class SilencerRoleData extends SimpleRoleData {
      * Start the silencer skill on a target player.
      */
     public boolean startSkill(UUID targetId) {
-        if (skillCooldownTicks != 0) return false;
-        if (phase != 0) return false;
-        if (!(player instanceof ServerPlayer sp)) return false;
+        if (skillCooldownTicks != 0)
+            return false;
+        if (phase != 0)
+            return false;
+        if (!(player instanceof ServerPlayer sp))
+            return false;
 
         ServerPlayer targetPlayer = player.level().getServer().getPlayerList().getPlayer(targetId);
-        if (targetPlayer == null) return false;
-        if (!GameUtils.isPlayerAliveAndSurvival(targetPlayer)) return false;
+        if (targetPlayer == null)
+            return false;
+        if (!GameUtils.isPlayerAliveAndSurvival(targetPlayer))
+            return false;
 
         this.targetUUID = targetId;
         this.phase = 1;
@@ -123,7 +125,8 @@ public class SilencerRoleData extends SimpleRoleData {
             this.phaseTimer = PHASE1_DURATION;
         }
 
-        // Apply phase 1 effects to target: voice_silence + chat_ban (45s), hidden particles/icon
+        // Apply phase 1 effects to target: voice_silence + chat_ban (45s), hidden
+        // particles/icon
         targetPlayer.addEffect(new MobEffectInstance(ModEffects.VOICE_SILENCE,
                 this.phaseTimer, 0, false, false, false));
         targetPlayer.addEffect(new MobEffectInstance(ModEffects.CHAT_BAN,
@@ -135,9 +138,9 @@ public class SilencerRoleData extends SimpleRoleData {
 
         // 回放记录：静语者禁言玩家
         SRE.REPLAY_MANAGER.recordCustomEvent(
-            Component.translatable("replay.event.silencer.mute",
-                GameReplayUtils.getReplayPlayerDisplayText(sp, true),
-                GameReplayUtils.getReplayPlayerDisplayText(targetPlayer, true)));
+                Component.translatable("replay.event.silencer.mute",
+                        GameReplayUtils.getReplayPlayerDisplayText(sp, true),
+                        GameReplayUtils.getReplayPlayerDisplayText(targetPlayer, true)));
 
         return true;
     }
@@ -146,7 +149,8 @@ public class SilencerRoleData extends SimpleRoleData {
      * Called by another player when they right-click the target during help phase.
      */
     public void helpTarget() {
-        if (phase != 2) return;
+        if (phase != 2)
+            return;
         endSkill();
     }
 
@@ -170,9 +174,9 @@ public class SilencerRoleData extends SimpleRoleData {
 
         // 回放记录：静语者触发最终惩罚
         SRE.REPLAY_MANAGER.recordCustomEvent(
-            Component.translatable("replay.event.silencer.final_punishment",
-                GameReplayUtils.getReplayPlayerDisplayText(this.player, true),
-                GameReplayUtils.getReplayPlayerDisplayText(targetPlayer, true)));
+                Component.translatable("replay.event.silencer.final_punishment",
+                        GameReplayUtils.getReplayPlayerDisplayText(this.player, true),
+                        GameReplayUtils.getReplayPlayerDisplayText(targetPlayer, true)));
 
         // Play warden death sound to all players
         targetPlayer.level().playSound(null, targetPlayer.blockPosition(),
@@ -183,7 +187,8 @@ public class SilencerRoleData extends SimpleRoleData {
         if (mood != null) {
             // Only clear real mood, not fake
             SREGameWorldComponent gameWorld = SREGameWorldComponent.KEY.get(player.level());
-            if (gameWorld.getRole(targetPlayer) != null && gameWorld.getRole(targetPlayer).getMoodType() == io.wifi.starrailexpress.api.SRERole.MoodType.REAL) {
+            if (gameWorld.getRole(targetPlayer) != null && gameWorld.getRole(targetPlayer)
+                    .getMoodType() == io.wifi.starrailexpress.api.SRERole.MoodType.REAL) {
                 mood.setMood(0f);
                 mood.sync();
             }
@@ -219,24 +224,35 @@ public class SilencerRoleData extends SimpleRoleData {
 
     @Override
     public void serverTick() {
-        if (!checkIsGameRunning()) return;
-        if (!(player instanceof ServerPlayer sp)) return;
-        if (!SREGameWorldComponent.KEY.get(player.level()).isRole(player, ModRoles.SILENCER)) return;
+        boolean shouldSync = false;
+        if (!checkIsGameRunning())
+            return;
+        if (!(player instanceof ServerPlayer))
+            return;
+        if (!SREGameWorldComponent.KEY.get(player.level()).isRole(player, ModRoles.SILENCER))
+            return;
 
         // Tick cooldown
         if (skillCooldownTicks < 0) {
             skillCooldownTicks++;
-            if (skillCooldownTicks > 0) skillCooldownTicks = 0;
+            if (skillCooldownTicks >= 0) {
+                shouldSync = true;
+                skillCooldownTicks = 0;
+            }
         }
 
         // Periodic sync (like Morphling every 200 ticks, or when cooldown hits 0)
         tickR++;
-        if (tickR % 200 == 0 || (skillCooldownTicks == 0 && tickR % 20 == 0)) {
-            sync();
+        if (tickR % 200 == 0) {
+            shouldSync = true;
         }
 
         // Only process if in a phase
-        if (phase == 0 || targetUUID == null) return;
+        if (phase == 0 || targetUUID == null) {
+            if (shouldSync)
+                sync();
+            return;
+        }
 
         ServerPlayer targetPlayer = player.level().getServer().getPlayerList().getPlayer(targetUUID);
         if (targetPlayer == null || !GameUtils.isPlayerAliveAndSurvival(targetPlayer)) {
@@ -278,7 +294,7 @@ public class SilencerRoleData extends SimpleRoleData {
                     // isKillerTeam 目标：进入求助阶段但不进入惩罚阶段
                     this.phase = 2;
                     this.phaseTimer = PHASE2_DURATION;
-                    this.sync();
+                    shouldSync = true;
                     targetPlayer.removeEffect(ModEffects.VOICE_SILENCE);
                     targetPlayer.addEffect(new MobEffectInstance(ModEffects.CHAT_BAN,
                             PHASE2_DURATION, 0, false, false, false));
@@ -288,7 +304,7 @@ public class SilencerRoleData extends SimpleRoleData {
                     // Enter phase 2: Help phase
                     this.phase = 2;
                     this.phaseTimer = PHASE2_DURATION;
-                    this.sync();
+                    shouldSync = true;
 
                     // Remove voice_silence but keep chat_ban
                     targetPlayer.removeEffect(ModEffects.VOICE_SILENCE);
@@ -318,6 +334,9 @@ public class SilencerRoleData extends SimpleRoleData {
                     enterPunishmentPhase(targetPlayer);
                 }
             }
+        }
+        if (shouldSync) {
+            sync();
         }
     }
 
@@ -357,6 +376,5 @@ public class SilencerRoleData extends SimpleRoleData {
         this.phase = tag.getInt("phase");
         this.phaseTimer = tag.getInt("phaseTimer");
     }
-
 
 }

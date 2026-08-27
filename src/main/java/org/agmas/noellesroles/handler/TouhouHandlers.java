@@ -301,6 +301,10 @@ public class TouhouHandlers {
           taskcca.currentTaskAge = 0;
           taskcca.sync();
         }
+
+        player.displayClientMessage(
+            Component.translatable("skill.noellesroles.mystia.san", score).withStyle(ChatFormatting.AQUA),
+            true);
       }
       if (score >= 95) {
         int choice = RANDOM.nextInt(1, 4);
@@ -310,8 +314,16 @@ public class TouhouHandlers {
          * └─ 3. 获得速度2，持续30s。
          */
         if (choice == 1) {
+
+          player.displayClientMessage(
+              Component.translatable("skill.noellesroles.mystia.haiman", score).withStyle(ChatFormatting.AQUA),
+              true);
           RoleUtils.insertOrDropItem(player, FunnyItems.COOKED_HAIMAN.getDefaultInstance());
         } else if (choice == 2) {
+
+          player.displayClientMessage(
+              Component.translatable("skill.noellesroles.mystia.self.blindness", score).withStyle(ChatFormatting.AQUA),
+              true);
           for (ServerPlayer p : player.serverLevel().players()) {
             if (p.isSpectator() || p.isCreative())
               continue;
@@ -324,7 +336,10 @@ public class TouhouHandlers {
                 Component.translatable("skill.noellesroles.mystia.blindness").withStyle(ChatFormatting.RED), true);
           }
         } else if (choice == 3) {
-          player.addEffect(ModEffects.of(MobEffects.MOVEMENT_SPEED, 10 * 20, 1, false, true, true));
+          player.displayClientMessage(
+              Component.translatable("skill.noellesroles.mystia.self.speed", score).withStyle(ChatFormatting.AQUA),
+              true);
+          player.addEffect(ModEffects.of(MobEffects.MOVEMENT_SPEED, 30 * 20, 1, false, true, true));
         }
       }
     }

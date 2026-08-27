@@ -45,6 +45,9 @@ public class RhythmGameScreen extends Screen implements InvNoMoveScreen {
     private static final int GOOD_WINDOW = 150;
     private static final int MISS_THRESHOLD = 50;
     private static final int ADVANCE_DISPLAY_TIME = 3900;
+    private static final int MYSTIA_NEED_TIME = 30 * 1000;
+    // 在类中添加字段
+    private boolean isAutoFinish = false;
 
     private static final SoundEvent CLICK_SOUND = SoundEvents.NOTE_BLOCK_SNARE.value();
     private static final SoundEvent HIT_SOUND = SoundEvents.NOTE_BLOCK_IRON_XYLOPHONE.value();
@@ -182,11 +185,23 @@ public class RhythmGameScreen extends Screen implements InvNoMoveScreen {
         }
     }
 
+    // 修改 getFinalScore()
     private int getFinalScore() {
         if (this.currentMap == null) {
             return 0;
         }
-        return (int) (100f * (((float) score) / (this.currentMap.Notes.size() * 100f)));
+        int denominator;
+        if (isAutoFinish) {
+            // 自动结束：只按已判定音符计算理论满分
+            int judgedNotes = perfectCount + goodCount + missCount;
+            denominator = judgedNotes * 100;
+        } else {
+            // 主动退出：按完整谱面计算
+            denominator = this.currentMap.Notes.size() * 100;
+        }
+        if (denominator == 0)
+            return 0;
+        return (int) (100f * score / denominator);
     }
 
     @Override
@@ -217,6 +232,16 @@ public class RhythmGameScreen extends Screen implements InvNoMoveScreen {
                 smoothedTimeDrift = (long) (smoothedTimeDrift * 0.95 + diff * 0.05);
                 lastCalibrationTime = now;
             }
+        }
+
+        // 新增：shouldSendResult 模式下音乐超过30秒自动结算
+        if (shouldSendResult && musicPlayed && musicPlayer.isPlaying() && smoothTime >= MYSTIA_NEED_TIME) {
+            isAutoFinish = true; // 标记为自动结束
+            gameState = GameState.FINISHED;
+            if (musicPlayer != null) {
+                musicPlayer.stop();
+            }
+            return;
         }
 
         // 谱面时间：统一使用平滑模拟时间（音乐开始前使用游戏时间模拟）
