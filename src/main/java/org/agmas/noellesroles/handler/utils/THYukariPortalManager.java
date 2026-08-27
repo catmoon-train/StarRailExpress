@@ -135,6 +135,8 @@ public class THYukariPortalManager {
         Quaternionf rightRot = new Quaternionf(0f, 0f, 0f, 1f);
 
         Transformation transform = new Transformation(translation, leftRot, scale, rightRot);
+        portal.setHeight(2f);
+        portal.setWidth(1f);
         portal.setTransformation(transform);
         portal.setBillboardConstraints(BillboardConstraints.VERTICAL);
         portal.setCustomNameVisible(true);
