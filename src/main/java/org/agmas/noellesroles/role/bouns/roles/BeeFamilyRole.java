@@ -26,6 +26,7 @@ public class BeeFamilyRole extends EggRole implements CustomWinnerRoleInterface 
             MoodType moodType, int maxSprintTime, boolean canSeeTime) {
         super(identifier, color, isInnocent, canUseKiller, moodType, maxSprintTime, canSeeTime);
         this.addFlag("bee_family");
+        this.setCanBePoisoned(false);
     }
 
     public static List<ShopEntry> getBeeQueenShop() {
