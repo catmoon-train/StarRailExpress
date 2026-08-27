@@ -372,7 +372,6 @@ public class ModRolesInitialEventRegister {
                 }
             }
             // 如果不拦截就同步
-            abilityPlayerComponent.sync();
         });
 
         // 四季映姬离开职业时，清除德林加手枪

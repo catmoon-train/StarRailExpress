@@ -48,8 +48,6 @@ public class BeeFamilyRole extends EggRole implements CustomWinnerRoleInterface 
 
     @Override
     public void onInit(MinecraftServer server, ServerPlayer player) {
-        if (!GameUtils.isPlayerAliveAndSurvival(player))
-            return;
         if (RoleUtils.isPlayerTheJob(player, BounsRoles.BEE_WORKER)) {
             getAbilityComponent(player).setDuration(BEE_WORKER_DEATH_TIMEOUT_TICKS);
         }
