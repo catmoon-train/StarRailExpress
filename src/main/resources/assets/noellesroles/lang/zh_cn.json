@@ -1394,6 +1394,8 @@
   "hud.noellesroles.leader.follower": "追随者：%s %s",
   "hud.noellesroles.leader.nearby_role": "%s：%s",
   "message.noellesroles.leader.entry": "你感受到了一股凝聚力",
+  "message.noellesroles.leader.bee_queen_bonus": "你已与蜂后结盟：场上所有蜜蜂家族职业的中毒致死时间减半！",
+  "message.noellesroles.leader.bee_queen_bonus_follower": "领袖已与你结盟，你立即获得了 200 金币！",
   "message.noellesroles.leader.follower_joined": "%s%s已成为你的追随者",
   "message.noellesroles.leader.mercenary_unlocked": "雇佣兵现在可以『帮助』任意一方结束游戏",
   "message.noellesroles.leader.thief_coin": "领袖 %s 击杀了一名玩家，你获得了 100 金币",

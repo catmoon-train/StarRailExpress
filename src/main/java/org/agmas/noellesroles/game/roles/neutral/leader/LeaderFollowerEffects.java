@@ -52,6 +52,8 @@ import org.agmas.noellesroles.role.ModMeetingRoles;
 import org.agmas.noellesroles.role.touhou.THMountainRoles;
 import org.agmas.noellesroles.role.touhou.THMiscRoles;
 import org.agmas.noellesroles.role_data.neutral.LeaderRoleData;
+import org.agmas.noellesroles.role.bouns.roles.BeeFamilyRole;
+import org.agmas.noellesroles.handler.utils.BeeFamilyManager;
 import org.agmas.noellesroles.utils.RoleUtils;
 import org.jetbrains.annotations.Nullable;
 
@@ -166,6 +168,7 @@ public final class LeaderFollowerEffects {
         }
 
         switch (path) {
+            case "bee_queen" -> applyBeeQueen(leader, follower);
             case "dummy_bird" -> applyDummyBird(leader, follower);
             case "amon" -> applyAmon(leader, follower);
             case "candlebearer" -> applyCandleBearer(leader, follower);
@@ -190,6 +193,28 @@ public final class LeaderFollowerEffects {
             case "lin_family" -> applyLinFamily(leader, follower);
             default -> applyGeneric(leader, follower);
         }
+    }
+
+    /**
+     * 蜂后：领袖对蜂后释放技能后：
+     * - 场上所有蜜蜂家族职业释放技能后，中毒致死时间减半（全局标记）；
+     * - 蜂后立即获得 200 金币；
+     * - 领袖获得一把刀。
+     */
+    private static void applyBeeQueen(ServerPlayer leader, ServerPlayer follower) {
+        // 全局效果：所有蜜蜂家族中毒致死时间减半
+        BeeFamilyManager.setQueenLeaderBonus(true);
+
+        // 蜂后立即获得 200 金币
+        SREPlayerShopComponent.KEY.get(follower).addToBalance(200);
+
+        // 领袖获得一把刀
+        giveItem(leader, TMMItems.KNIFE.getDefaultInstance());
+
+        follower.sendSystemMessage(
+                Component.translatable("message.noellesroles.leader.bee_queen_bonus_follower"));
+        leader.sendSystemMessage(
+                Component.translatable("message.noellesroles.leader.bee_queen_bonus"));
     }
 
     // ==================== 具体效果 ====================
@@ -489,6 +514,10 @@ public final class LeaderFollowerEffects {
             // 中立目标：额外排除无辜者（isInnocent）与可使用杀手能力的目标（canUseKiller）
             if (!targetRole.isNeutrals() || targetRole.isNeutralForKiller()
                     || targetRole.isInnocent() || targetRole.canUseKiller()) {
+                return false;
+            }
+            // 蜜蜂家族：仅可对蜂后释放，其余蜜蜂家族职业（工蜂、胡蜂等）禁止
+            if (targetRole instanceof BeeFamilyRole && !path.equals("bee_queen")) {
                 return false;
             }
         }

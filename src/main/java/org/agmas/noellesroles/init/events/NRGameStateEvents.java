@@ -72,6 +72,7 @@ import org.agmas.noellesroles.packet.BloodConfigS2CPacket;
 import org.agmas.noellesroles.packet.EmbalmerSkinSwapS2CPacket;
 import org.agmas.noellesroles.role.ModRoles;
 import org.agmas.noellesroles.role.bouns.BounsRoles;
+import org.agmas.noellesroles.handler.utils.BeeFamilyManager;
 import org.agmas.noellesroles.utils.MCItemsUtils;
 import pro.fazeclan.river.stupid_express.constants.SERoles;
 
@@ -105,6 +106,8 @@ public class NRGameStateEvents {
             TarotAssemblyManager.havingMeeting = false;
             HoanMeirinFistPunchHandler.PUNCH_RECORDS.clear();
             RoleShopHandler.resetOldmanEasterEggState();
+            // 复位蜂后领袖加成（蜜蜂家族中毒致死时间减半）
+            BeeFamilyManager.resetQueenLeaderBonus();
 
             // 清除所有玩家的感染状态
             for (ServerPlayer player : serverLevel.players()) {

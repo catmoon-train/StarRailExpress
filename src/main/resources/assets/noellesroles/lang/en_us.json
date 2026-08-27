@@ -1361,6 +1361,8 @@
     "hud.noellesroles.leader.follower": "Followers: %s %s",
     "hud.noellesroles.leader.nearby_role": "%s: %s",
     "message.noellesroles.leader.entry": "You feel a sense of cohesion",
+    "message.noellesroles.leader.bee_queen_bonus": "You have allied with the Bee Queen: all Bee Family poison-death durations are halved!",
+    "message.noellesroles.leader.bee_queen_bonus_follower": "The Leader has allied with you; you instantly gain 200 coins!",
     "message.noellesroles.leader.follower_joined": "%s%s has become your follower",
     "message.noellesroles.leader.mercenary_unlocked": "Mercenary can now 『help』 either side to end the game",
     "message.noellesroles.leader.thief_coin": "Leader %s killed a player, you gained 100 gold",

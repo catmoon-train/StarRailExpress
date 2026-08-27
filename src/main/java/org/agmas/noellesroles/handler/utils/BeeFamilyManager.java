@@ -30,6 +30,20 @@ public class BeeFamilyManager {
     public static final int BEE_QUEEN_IMPROVE_PRICE = 150;
     public static final int BEE_POISON_TICKS = 15 * 20;
 
+    /**
+     * 领袖已招募蜂后时置为 true：场上所有蜜蜂家族职业释放技能后，
+     * 中毒致死时间减半。每局开始时由 {@link #resetQueenLeaderBonus()} 复位。
+     */
+    public static boolean QUEEN_LEADER_BONUS = false;
+
+    public static void setQueenLeaderBonus(boolean value) {
+        QUEEN_LEADER_BONUS = value;
+    }
+
+    public static void resetQueenLeaderBonus() {
+        QUEEN_LEADER_BONUS = false;
+    }
+
     public static void registerEvents() {
 
         RoleSkill.register(BounsRoles.BEE_WORKER,
@@ -170,7 +184,8 @@ public class BeeFamilyManager {
                     Component.translatable("tip.noellesroles.no_target").withStyle(ChatFormatting.RED), true);
             return false;
         }
-        SREPlayerPoisonComponent.KEY.get(target).setPoisonTicks(BEE_POISON_TICKS, player.getUUID());
+        int poisonTicks = QUEEN_LEADER_BONUS ? BEE_POISON_TICKS / 2 : BEE_POISON_TICKS;
+        SREPlayerPoisonComponent.KEY.get(target).setPoisonTicks(poisonTicks, player.getUUID());
         if (willDeathAfterSkill) {
             GameUtils.forceKillPlayer(player, true, null, GameConstants.DeathReasons.BEE_USED_OUT_SKILL);
         }
