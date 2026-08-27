@@ -15,7 +15,6 @@
 
 package org.agmas.noellesroles.content.item;
 
-import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.content.block.LockableButtonBlock;
 import io.wifi.starrailexpress.content.block.SmallDoorBlock;
@@ -27,7 +26,6 @@ import io.wifi.starrailexpress.util.AdventureUsable;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Vec3i;
-import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
@@ -250,8 +248,9 @@ public class ReinforcementItem extends Item implements AdventureUsable {
                 // 加固门
                 setDoorReinforced(doorEntity, true);
                 if (world instanceof ServerLevel) {
-                    SRE.REPLAY_MANAGER.recordItemUse(player.getUUID(),
-                            BuiltInRegistries.ITEM.getKey(this));
+                    // 工程会刷屏
+                    // SRE.REPLAY_MANAGER.recordItemUse(player.getUUID(),
+                    //         BuiltInRegistries.ITEM.getKey(this));
                 }
                 // 只在客户端播放声音
                 if (world.isClientSide) {

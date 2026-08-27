@@ -617,9 +617,9 @@ public class RoundTextRenderer {
                 String p_name = playerProfile.getName();
 
                 FormattedText nameText = Component.literal(p_name);
-                if (getOrCacheWidth(renderer, nameText) > 50) {
+                if (getOrCacheWidth(renderer, nameText) > 55) {
                     int dotWidth = getOrCacheWidth(renderer, dotText);
-                    nameText = renderer.substrByWidth(nameText, 50 - dotWidth);
+                    nameText = renderer.substrByWidth(nameText, 55 - dotWidth);
                     nameText = Component.literal(nameText.getString()).append(dotText);
                 }
                 int nameWidth = getOrCacheWidth(renderer, nameText);
