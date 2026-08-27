@@ -619,7 +619,7 @@ public class RoundTextRenderer {
                 FormattedText nameText = Component.literal(p_name);
                 if (getOrCacheWidth(renderer, nameText) > 45) {
                     int dotWidth = getOrCacheWidth(renderer, dotText);
-                    nameText = renderer.substrByWidth(nameText, 110 - dotWidth);
+                    nameText = renderer.substrByWidth(nameText, 45 - dotWidth);
                     nameText = Component.literal(nameText.getString()).append(dotText);
                 }
                 int nameWidth = getOrCacheWidth(renderer, nameText);
