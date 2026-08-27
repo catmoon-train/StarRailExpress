@@ -15,7 +15,8 @@ public class BeeFamilyHud {
     public static void register() {
         RoleHudRenderCallback.EVENT.register(BounsRoles.BEE_WORKER.identifier(), (context, deltaTracker) -> {
             Minecraft client = Minecraft.getInstance();
-
+            if (client.player.isSpectator())
+                return;
             // 获取探员组件
             var cca = SREAbilityPlayerComponent.KEY.get(client.player);
 
