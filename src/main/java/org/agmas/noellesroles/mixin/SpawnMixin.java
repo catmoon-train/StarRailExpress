@@ -42,7 +42,7 @@ public class SpawnMixin {
                 if (gameWorldComponent.isRunning()) {
                     ci.cancel();
                     player.setHealth(20.0F);
-                    GameUtils.killPlayer(player, false, player.getLastAttacker() instanceof Player killerPlayer ? killerPlayer : null, GameConstants.DeathReasons.FELL_OUT_OF_TRAIN);
+                    GameUtils.killPlayer(player, false, player.getKillCredit() instanceof Player killerPlayer ? killerPlayer : null, GameConstants.DeathReasons.FELL_OUT_OF_TRAIN);
                 }
             }
         }

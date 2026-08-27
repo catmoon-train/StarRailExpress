@@ -870,12 +870,12 @@ public class SREGameWorldComponent implements AutoSyncedComponent, ServerTicking
                         return;
                     }
                     GameUtils.killPlayer(player, false,
-                            player.getLastAttacker() instanceof Player killerPlayer ? killerPlayer : null,
+                            player.getKillCredit() instanceof Player killerPlayer ? killerPlayer : null,
                             GameConstants.DeathReasons.FELL_OUT_OF_TRAIN);
                     if (GameUtils.isPlayerAliveAndSurvivalIgnoreShitSplit(player)
                             && checkPlayerIsOutOfAreas(player, areas)) {
                         GameUtils.forceKillPlayer(player, false,
-                                player.getLastAttacker() instanceof Player killerPlayer ? killerPlayer : null,
+                                player.getKillCredit() instanceof Player killerPlayer ? killerPlayer : null,
                                 GameConstants.DeathReasons.FELL_OUT_OF_TRAIN);
                     }
                 }
@@ -891,12 +891,12 @@ public class SREGameWorldComponent implements AutoSyncedComponent, ServerTicking
                         return;
                     }
                     GameUtils.killPlayer(player, false,
-                            player.getLastAttacker() instanceof Player killerPlayer ? killerPlayer : null,
+                            player.getKillCredit() instanceof Player killerPlayer ? killerPlayer : null,
                             GameConstants.DeathReasons.CANNOT_SWIM);
                     if (GameUtils.isPlayerAliveAndSurvivalIgnoreShitSplit(player)
                             && player.isUnderWater()) {
                         GameUtils.forceKillPlayer(player, false,
-                                player.getLastAttacker() instanceof Player killerPlayer ? killerPlayer : null,
+                                player.getKillCredit() instanceof Player killerPlayer ? killerPlayer : null,
                                 GameConstants.DeathReasons.CANNOT_SWIM);
                     }
                 }
@@ -909,12 +909,12 @@ public class SREGameWorldComponent implements AutoSyncedComponent, ServerTicking
                         return;
                     }
                     GameUtils.killPlayer(player, false,
-                            player.getLastAttacker() instanceof Player killerPlayer ? killerPlayer : null,
+                            player.getKillCredit() instanceof Player killerPlayer ? killerPlayer : null,
                             GameConstants.DeathReasons.CANNOT_SWIM);
                     if (GameUtils.isPlayerAliveAndSurvivalIgnoreShitSplit(player)
                             && checkPlayerIsInDeepWater(player, areas)) {
                         GameUtils.forceKillPlayer(player, false,
-                                player.getLastAttacker() instanceof Player killerPlayer ? killerPlayer : null,
+                                player.getKillCredit() instanceof Player killerPlayer ? killerPlayer : null,
                                 GameConstants.DeathReasons.CANNOT_SWIM);
                     }
                 }
@@ -926,12 +926,12 @@ public class SREGameWorldComponent implements AutoSyncedComponent, ServerTicking
                         return;
                     }
                     GameUtils.killPlayer(player, false,
-                            player.getLastAttacker() instanceof Player killerPlayer ? killerPlayer : null,
+                            player.getKillCredit() instanceof Player killerPlayer ? killerPlayer : null,
                             GameConstants.DeathReasons.CANNOT_SWIM);
                     if (GameUtils.isPlayerAliveAndSurvivalIgnoreShitSplit(player)
                             && checkPlayerIsSwiming(player, areas)) {
                         GameUtils.forceKillPlayer(player, false,
-                                player.getLastAttacker() instanceof Player killerPlayer ? killerPlayer : null,
+                                player.getKillCredit() instanceof Player killerPlayer ? killerPlayer : null,
                                 GameConstants.DeathReasons.CANNOT_SWIM);
                     }
                 }
@@ -944,12 +944,12 @@ public class SREGameWorldComponent implements AutoSyncedComponent, ServerTicking
                         return;
                     }
                     GameUtils.killPlayer(player, false,
-                            player.getLastAttacker() instanceof Player killerPlayer ? killerPlayer : null,
+                            player.getKillCredit() instanceof Player killerPlayer ? killerPlayer : null,
                             GameConstants.DeathReasons.LAVA);
                     if (GameUtils.isPlayerAliveAndSurvivalIgnoreShitSplit(player)
                             && checkPlayerIsInLava(player, areas)) {
                         GameUtils.forceKillPlayer(player, false,
-                                player.getLastAttacker() instanceof Player killerPlayer ? killerPlayer : null,
+                                player.getKillCredit() instanceof Player killerPlayer ? killerPlayer : null,
                                 GameConstants.DeathReasons.LAVA);
                     }
                 }
@@ -960,11 +960,11 @@ public class SREGameWorldComponent implements AutoSyncedComponent, ServerTicking
             perPlayerDarknessTime.remove(player.getUUID());
             if (!TarotAssemblyManager.havingMeeting) {
                 GameUtils.killPlayer(player, false,
-                        player.getLastAttacker() instanceof Player killerPlayer ? killerPlayer : null,
+                        player.getKillCredit() instanceof Player killerPlayer ? killerPlayer : null,
                         GameConstants.DeathReasons.FELL_OUT_OF_TRAIN);
                 if (!GameUtils.isPlayerEliminated(player) && (player.getZ() >= 19000)) {
                     GameUtils.forceKillPlayer(player, false,
-                            player.getLastAttacker() instanceof Player killerPlayer ? killerPlayer : null,
+                            player.getKillCredit() instanceof Player killerPlayer ? killerPlayer : null,
                             GameConstants.DeathReasons.FELL_OUT_OF_TRAIN);
                 }
             }

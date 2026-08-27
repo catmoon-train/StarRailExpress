@@ -204,7 +204,6 @@ public class JadeGeneralRoleData extends SimpleRoleData {
 
         // 记录玉将军为最近攻击者，使被飞踹推入列车碾压区的死亡能归属到玉将军（飞踹本身不造成伤害）。
         target.setLastHurtByMob(sp);
-        target.setLastHurtByPlayer(sp);
 
         // 眩晕
         boolean willCollide = knockbackHitsWall(target, dir, config.jadeGeneralKnockbackBlocks);

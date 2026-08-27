@@ -75,10 +75,6 @@ public class TrueKillerFinder {
                     }
                 }
             }
-            if (victim.getKillCredit() instanceof ServerPlayer sp) {
-                if (sp != null)
-                    return sp;
-            }
             // 没找到
             return null;
         });

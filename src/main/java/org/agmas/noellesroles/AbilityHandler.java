@@ -278,7 +278,7 @@ public class AbilityHandler {
                 // 踹人击退的竖直分量削减 60%，避免把人踢飞上天
                 net.minecraft.world.phys.Vec3 kickVel = victim.getDeltaMovement();
                 victim.setDeltaMovement(kickVel.x, kickVel.y * 0.4D, kickVel.z);
-                victim.setLastHurtByPlayer(player);
+                victim.setLastHurtByMob(player);
                 victim.hurtMarked = true;
                 // 玩家受服务端击退需主动同步速度
                 victim.connection

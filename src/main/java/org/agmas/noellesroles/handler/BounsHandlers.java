@@ -65,7 +65,7 @@ public class BounsHandlers {
                             double strength = 1.4;
                             target.push(to.x / dist * strength, 0.42D, to.z / dist * strength);
                             if (target instanceof ServerPlayer stp) {
-                                stp.setLastHurtByPlayer(serverPlayer);
+                                stp.setLastHurtByMob(serverPlayer);
                                 stp.hurtMarked = true;
                                 stp.connection.send(
                                         new ClientboundSetEntityMotionPacket(stp.getId(), stp.getDeltaMovement()));

@@ -144,7 +144,7 @@ public class THSuikaRole extends TouhouRole {
                                         }
                                         other.addEffect(ModEffects.of(ModEffects.MOVE_BANED, 20, 0, false, true, true));
                                         triggeredPush++;
-                                        other.setLastHurtByPlayer(player);
+                                        other.setLastHurtByMob(player);
                                     }
                                 }
                             }

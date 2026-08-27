@@ -260,7 +260,7 @@ public class RopeItem extends Item implements AdventureUsable {
         // 记录拉拽者为最近攻击者，使被搜救绳拉入列车碾压区的死亡能归属到拉人者（拉拽本身不造成伤害）。
         target.setLastHurtByMob(player);
         if (player instanceof ServerPlayer) {
-            target.setLastHurtByPlayer(player);
+            target.setLastHurtByMob(player);
         }
 
         var viewVector = player.getViewVector(1.0f);

@@ -74,8 +74,8 @@ public class PlayerMountainHandler {
                         if (isOnOneHead(player, other) || isOnOneHead(other, player)) {
                             pushApart(player, other, pushForce);
                             // 追踪伤害
-                            player.setLastHurtByPlayer(other);
-                            other.setLastHurtByPlayer(player);
+                            player.setLastHurtByMob(other);
+                            other.setLastHurtByMob(player);
                             return TrueFalseResult.FALSE;
                         }
                     }

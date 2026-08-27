@@ -182,7 +182,7 @@ public class WheelchairEntity extends Mob {
                     if (this.random.nextInt(100) <= 20) {
                         target.setDeltaMovement(target.getDeltaMovement().add(knockbackDir.scale(strength)));
                         target.hurtMarked = true;
-                        target.setLastHurtByPlayer(controller);
+                        target.setLastHurtByMob(controller);
                     }
                 }
             }
