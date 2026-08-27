@@ -1362,6 +1362,8 @@
   "message.noellesroles.leader.entry": "你感受到了一股凝聚力",
   "message.noellesroles.leader.bee_queen_bonus": "你已與蜂后結盟：場上所有蜜蜂家族職業的中毒致死時間減半！",
   "message.noellesroles.leader.bee_queen_bonus_follower": "領袖已與你結盟，你立即獲得了 200 金幣！",
+  "message.noellesroles.leader.heng_xing_ti_bonus": "你已與恒星體結盟：恒星體的技能冷卻減半，且你本局隨好人勝利！",
+  "message.noellesroles.leader.heng_xing_ti_bonus_follower": "領袖已與你結盟，其本局將隨好人陣營勝利！",
   "message.noellesroles.leader.follower_joined": "%s%s已成為你的追隨者",
   "message.noellesroles.leader.mercenary_unlocked": "雇傭兵現在可以『幫助』任意一方結束遊戲",
   "message.noellesroles.leader.thief_coin": "領袖 %s 擊殺了一名玩家，你獲得了 100 金幣",

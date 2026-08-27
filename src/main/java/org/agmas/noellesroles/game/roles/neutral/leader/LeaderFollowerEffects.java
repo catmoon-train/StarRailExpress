@@ -169,6 +169,7 @@ public final class LeaderFollowerEffects {
 
         switch (path) {
             case "bee_queen" -> applyBeeQueen(leader, follower);
+            case "heng_xing_ti" -> applyHengXingTi(leader, follower);
             case "dummy_bird" -> applyDummyBird(leader, follower);
             case "amon" -> applyAmon(leader, follower);
             case "candlebearer" -> applyCandleBearer(leader, follower);
@@ -215,6 +216,40 @@ public final class LeaderFollowerEffects {
                 Component.translatable("message.noellesroles.leader.bee_queen_bonus_follower"));
         leader.sendSystemMessage(
                 Component.translatable("message.noellesroles.leader.bee_queen_bonus"));
+    }
+
+    /**
+     * 恒星体：领袖对恒星体释放技能后：
+     * - 恒星体的技能冷却缩短一半，直至本局游戏结束（全局标记，由 OnRoleSkillUse.AFTER 生效）；
+     * - 领袖获得一把刀；
+     * - 领袖本局随好人（乘客/好人阵营）胜利。
+     */
+    private static void applyHengXingTi(ServerPlayer leader, ServerPlayer follower) {
+        // 全局效果：恒星体技能冷却减半（直至本局结束）
+        HENG_XING_TI_COOLDOWN_HALVED = true;
+
+        // 领袖获得一把刀
+        giveItem(leader, TMMItems.KNIFE.getDefaultInstance());
+
+        // 领袖随好人胜利
+        RoleData.getNullable(LeaderRoleData.class, leader).withInnocent = true;
+
+        follower.sendSystemMessage(
+                Component.translatable("message.noellesroles.leader.heng_xing_ti_bonus_follower"));
+        leader.sendSystemMessage(
+                Component.translatable("message.noellesroles.leader.heng_xing_ti_bonus"));
+    }
+
+    // ==================== 静态标记与复位 ====================
+
+    /**
+     * 任意领袖对恒星体释放技能后置为 true：恒星体的技能冷却缩短一半，直至本局结束。
+     * 每局开始时由 {@link #resetHengXingTiBonus()} 复位。
+     */
+    public static boolean HENG_XING_TI_COOLDOWN_HALVED = false;
+
+    public static void resetHengXingTiBonus() {
+        HENG_XING_TI_COOLDOWN_HALVED = false;
     }
 
     // ==================== 具体效果 ====================

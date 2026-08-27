@@ -58,6 +58,11 @@ public class LeaderRole extends CustomWinnerRole implements EggRoleInterface {
     @Override
     public boolean didPlayerWin(ServerPlayer player, boolean original, WinStatus winStatus) {
         LeaderRoleData data = RoleData.getNullable(LeaderRoleData.class, player);
+        // 曾对恒星体释放技能：本局随好人（乘客/好人阵营）胜利
+        if (data != null && data.withInnocent
+                && (winStatus == WinStatus.PASSENGERS || winStatus == WinStatus.TIME)) {
+            return true;
+        }
         if (data == null || data.followers.isEmpty()) {
             return original;
         }

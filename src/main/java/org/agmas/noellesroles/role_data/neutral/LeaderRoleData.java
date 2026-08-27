@@ -68,6 +68,9 @@ public class LeaderRoleData extends SimpleRoleData {
     /** 开局安全时间（tick）：安全时间内犹豫倒计时不下降 */
     public long safeTimeTicks = 0;
 
+    /** 是否已对恒星体释放技能：领袖随好人（乘客/好人阵营）胜利 */
+    public boolean withInnocent = false;
+
     public LeaderRoleData(RoleDataContext context) {
         super(context);
     }
@@ -133,6 +136,7 @@ public class LeaderRoleData extends SimpleRoleData {
         tag.putBoolean("skillUsed", skillUsed);
         tag.putBoolean("hesitated", hesitated);
         tag.putLong("safeTimeTicks", safeTimeTicks);
+        tag.putBoolean("withInnocent", withInnocent);
         ListTag followerList = new ListTag();
         for (UUID uid : followers) {
             followerList.add(StringTag.valueOf(uid.toString()));
@@ -155,6 +159,7 @@ public class LeaderRoleData extends SimpleRoleData {
         skillUsed = tag.getBoolean("skillUsed");
         hesitated = tag.getBoolean("hesitated");
         safeTimeTicks = tag.contains("safeTimeTicks") ? tag.getLong("safeTimeTicks") : 0;
+        withInnocent = tag.getBoolean("withInnocent");
         followers.clear();
         ListTag followerList = tag.getList("followers", Tag.TAG_STRING);
         for (int i = 0; i < followerList.size(); i++) {
