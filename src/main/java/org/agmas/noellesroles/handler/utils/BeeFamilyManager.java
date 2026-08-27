@@ -13,6 +13,7 @@ import io.wifi.starrailexpress.cca.SREPlayerPoisonComponent;
 import io.wifi.starrailexpress.content.entity.PlayerBodyEntity;
 import io.wifi.starrailexpress.game.GameConstants;
 import io.wifi.starrailexpress.game.GameUtils;
+import io.wifi.starrailexpress.game.GameUtils.WinStatus;
 import net.fabricmc.fabric.api.event.player.UseEntityCallback;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
@@ -105,7 +106,22 @@ public class BeeFamilyManager {
         }));
     }
 
-    public static boolean checkBeeFamilyVictory(ServerLevel serverLevel) {
+    public static boolean checkBeeFamilyVictory(ServerLevel world) {
+         int alive = 0, beeAlive = 0;
+         var gameComponent = SREGameWorldComponent.getInstance(world);
+        for (ServerPlayer p : world.players()) {
+            if (!GameUtils.isPlayerAliveAndSurvival(p))
+                continue;
+            alive++;
+            if (gameComponent.getRole(p) instanceof BeeFamilyRole){
+                beeAlive++;
+            }
+        }
+        if (beeAlive > 0 && alive == beeAlive) {
+            RoleUtils.customWinnerWin(world, WinStatus.CUSTOM, "bee_family",
+                    java.util.OptionalInt.of(BounsRoles.BEE_QUEEN.color()));
+            return true;
+        }
         return false;
     }
 

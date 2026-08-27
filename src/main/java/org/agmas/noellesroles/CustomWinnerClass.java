@@ -152,14 +152,14 @@ public class CustomWinnerClass {
             if (org.agmas.noellesroles.role_data.neutral.PelicanRoleData.checkPelicanVictory(serverLevel)) {
                 return WinStatus.CUSTOM;
             }
+            
+            // 蜜蜂家族独立胜利
+            if (BeeFamilyManager.checkBeeFamilyVictory(serverLevel)) {
+                return WinStatus.CUSTOM;
+            }
 
             // 教父家族独立胜利
             if (org.agmas.noellesroles.game.roles.neutral.mafia.MafiaManager.checkMafiaVictory(serverLevel)) {
-                return WinStatus.CUSTOM;
-            }
-            
-            // 教父家族独立胜利
-            if (BeeFamilyManager.checkBeeFamilyVictory(serverLevel)) {
                 return WinStatus.CUSTOM;
             }
             // 教父存活时阻止游戏结束
