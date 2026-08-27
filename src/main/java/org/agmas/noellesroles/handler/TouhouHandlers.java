@@ -335,7 +335,7 @@ public class TouhouHandlers {
     RoleSkill.register(THMiscRoles.MYSTIA, RoleSkill.skill(SRE.id("mystia"), "skill.noellesroles.mystia", (ctx) -> {
       OpenScreenManager.openScreen(ctx.player(), OpenScreenManager.RHYTHM_GAME_SCREEN_ROLE);
       return true;
-    }).cooldownSeconds(90).announceToSelf().build());
+    }).showOnHud(true).cooldownSeconds(90).announceToSelf().build());
     RoleSkill.register(THMiscRoles.KIJIN_SEIJA,
         RoleSkill.skill(SRE.id("kijin_seija_upside_down"), "skill.noellesroles.seija.upside_down", (ctx) -> {
           final int DISTANCE = 8;
