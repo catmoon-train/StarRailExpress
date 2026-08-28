@@ -283,6 +283,8 @@ public class InfectedWinChecker {
         var players = serverWorld.getPlayers(GameUtils::isPlayerAliveAndSurvival);
         int totalNonInfected = 0;
         for (ServerPlayer player : players) {
+            if (gameWorldComponent.isRole(player, ModRoles.INFECTED))
+                continue;
             InfectedPlayerComponent ic = ModComponents.INFECTED.get(player);
             if (ic.infectedTicks <= 0)
                 totalNonInfected++;
