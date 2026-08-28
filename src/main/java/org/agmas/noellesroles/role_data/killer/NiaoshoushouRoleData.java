@@ -16,15 +16,12 @@ import io.wifi.starrailexpress.cca.SREPlayerShopComponent;
 import io.wifi.starrailexpress.content.entity.PlayerBodyEntity;
 import io.wifi.starrailexpress.event.OnPlayerDeath;
 import io.wifi.starrailexpress.event.OnPlayerDeathWithBody;
-import io.wifi.starrailexpress.game.GameConstants;
 import io.wifi.starrailexpress.game.GameUtils;
-import io.wifi.starrailexpress.index.TMMItems;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
-import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.StringTag;
@@ -44,6 +41,7 @@ import org.agmas.noellesroles.init.ModItems;
 import org.agmas.noellesroles.packet.BuilderRemoveWallS2CPacket;
 import org.agmas.noellesroles.packet.BuilderWallS2CPacket;
 import org.agmas.noellesroles.role.ModRoles;
+import org.agmas.noellesroles.utils.MCItemsUtils;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -339,8 +337,9 @@ public class NiaoshoushouRoleData extends SimpleRoleData {
         if (!(deadPlayer instanceof ServerPlayer dead) || !(dead.level() instanceof ServerLevel serverLevel)) {
             return;
         }
+        var gamecca = SREGameWorldComponent.KEY.get(serverLevel);
         for (ServerPlayer candidate : serverLevel.players()) {
-            if (!SREGameWorldComponent.KEY.get(candidate.level()).isRole(candidate, ModRoles.NIAOSHOU_SHOU)) {
+            if (!gamecca.isRole(candidate, ModRoles.NIAOSHOU_SHOU)) {
                 continue;
             }
             NiaoshoushouRoleData data = get(candidate);
@@ -377,14 +376,11 @@ public class NiaoshoushouRoleData extends SimpleRoleData {
         GameUtils.teleportToRandomRoom(bird);
         bird.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SPEED, Integer.MAX_VALUE, 1,
                 false, false, true));
-        bird.displayClientMessage(Component.translatable("message.noellesroles.niaoshoushou.family_revived")
-                .withStyle(ChatFormatting.GREEN), false);
         ItemStack grenade = ModItems.NIAOSHOU_SHOU_INCENDIARY_GRENADE.getDefaultInstance();
-        if (!bird.addItem(grenade)) {
-            bird.drop(grenade, false);
-        }
-        bird.displayClientMessage(Component.translatable("message.noellesroles.niaoshoushou.revival_reward")
-                .withStyle(ChatFormatting.GOLD), false);
+        MCItemsUtils.insertOrDropItem(bird, grenade);
+        bird.displayClientMessage(Component.translatable("message.noellesroles.niaoshoushou.family_revived")
+                .withStyle(ChatFormatting.GREEN).append(Component.translatable("message.noellesroles.niaoshoushou.revival_reward")
+                .withStyle(ChatFormatting.GOLD)), true);
         sync();
     }
 
