@@ -61,6 +61,7 @@ import org.agmas.noellesroles.init.ModEffects;
 import org.agmas.noellesroles.init.ModEventsRegister;
 import org.agmas.noellesroles.role.ModRoles;
 import org.agmas.noellesroles.role.bouns.BounsRoles;
+import org.agmas.noellesroles.utils.MCItemsUtils;
 import org.agmas.noellesroles.utils.RoleUtils;
 import org.ladysnake.cca.api.v3.component.ComponentKey;
 import org.ladysnake.cca.api.v3.component.ComponentRegistry;
@@ -478,6 +479,7 @@ public class RefugeeComponent implements AutoSyncedComponent, ServerTickingCompo
         if (!(who instanceof ServerPlayer sp)) {
             return;
         }
+        MCItemsUtils.clearItem(who);
         SREGameTimeComponent gameTimeComponent = SREGameTimeComponent.KEY.get(sp.level());
         gameTimeComponent.setTime(lastTime);
         var gameWorldComponent = SREGameWorldComponent.KEY.get(sp.level());
