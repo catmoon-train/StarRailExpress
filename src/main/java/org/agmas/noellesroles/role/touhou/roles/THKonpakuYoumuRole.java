@@ -62,7 +62,7 @@ public class THKonpakuYoumuRole extends TouhouRole {
                                 Operation.ADD_VALUE),
                         EquipmentSlotGroup.MAINHAND)
                 .add(Attributes.ATTACK_SPEED,
-                        new AttributeModifier(BASE_ATTACK_SPEED_ID, -3f, Operation.ADD_VALUE),
+                        new AttributeModifier(BASE_ATTACK_SPEED_ID, -1f, Operation.ADD_VALUE),
                         EquipmentSlotGroup.MAINHAND)
                 .add(Attributes.ENTITY_INTERACTION_RANGE,
                         new AttributeModifier(BASE_ATTACK_SPEED_ID, -1f, Operation.ADD_VALUE),
