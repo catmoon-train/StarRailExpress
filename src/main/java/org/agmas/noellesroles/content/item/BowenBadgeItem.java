@@ -15,21 +15,14 @@
 
 package org.agmas.noellesroles.content.item;
 
-import io.wifi.starrailexpress.SRE;
-import io.wifi.starrailexpress.content.block.SmallDoorBlock;
-import io.wifi.starrailexpress.content.block_entity.SmallDoorBlockEntity;
 import io.wifi.starrailexpress.game.GameUtils;
-import io.wifi.starrailexpress.index.TMMSounds;
 import io.wifi.starrailexpress.util.AdventureUsable;
-import net.minecraft.core.BlockPos;
-import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.stats.Stats;
 import net.minecraft.util.Mth;
 import net.minecraft.world.InteractionHand;
-import net.minecraft.world.InteractionResult;
 import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
@@ -38,16 +31,12 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.UseAnim;
-import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.item.enchantment.EnchantmentEffectComponents;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.block.state.properties.DoubleBlockHalf;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import org.agmas.noellesroles.Noellesroles;
-import org.agmas.noellesroles.init.FunnyItems;
 
 public class BowenBadgeItem extends Item implements AdventureUsable {
 
@@ -342,53 +331,4 @@ public class BowenBadgeItem extends Item implements AdventureUsable {
             cooldowns.addCooldown(stack.getItem(), 20 * 30);
         }
     }
-
-    @Override
-    public InteractionResult useOn(UseOnContext context) {
-        Player player = context.getPlayer();
-        Level world = context.getLevel();
-        BlockPos pos = context.getClickedPos();
-        BlockState state = world.getBlockState(pos);
-        if (player.getCooldowns().isOnCooldown(FunnyItems.BOWEN_BADGE))
-            return InteractionResult.PASS;
-        if (state.getBlock() instanceof SmallDoorBlock) {
-            player.getCooldowns().addCooldown(FunnyItems.BOWEN_BADGE, 20);
-            BlockPos lowerPos = state.getValue(SmallDoorBlock.HALF) == DoubleBlockHalf.LOWER ? pos : pos.below();
-            if (world.getBlockEntity(lowerPos) instanceof SmallDoorBlockEntity entity) {
-                if (player.isShiftKeyDown()) {
-                    entity.jam();
-
-                    if (!player.isCreative()) {
-                        if (SRE.REPLAY_MANAGER != null) {
-                            SRE.REPLAY_MANAGER.recordItemUse(player.getUUID(), BuiltInRegistries.ITEM.getKey(this));
-                        }
-
-                    }
-
-                    if (!world.isClientSide)
-                        world.playSound(null, lowerPos.getX() + .5f, lowerPos.getY() + 1, lowerPos.getZ() + .5f,
-                                TMMSounds.ITEM_LOCKPICK_DOOR, SoundSource.BLOCKS, 1f, 1f);
-                    return InteractionResult.SUCCESS;
-                }
-            }
-
-            return InteractionResult.PASS;
-        } else {
-            return InteractionResult.PASS;
-        }
-    }
-    // public InteractionResult useOn(UseOnContext context) {
-    // Player player = context.getPlayer();
-    // Level world = context.getLevel();
-    // BlockPos pos = context.getClickedPos();
-    // BlockState state = world.getBlockState(pos);
-    // if (state.getBlock() instanceof SmallDoorBlock) {
-    // return InteractionResult.PASS;
-    // } else {
-    // if (player != null) {
-    // context.getItemInHand().hurtAndBreak(1, player, EquipmentSlot.MAINHAND);
-    // }
-    // return super.useOn(context);
-    // }
-    // }
 }

@@ -1,5 +1,6 @@
 package org.agmas.noellesroles.role.bouns.roles;
 
+import org.agmas.noellesroles.init.ModEffects;
 import org.agmas.noellesroles.init.ModItems;
 import org.agmas.noellesroles.role_data.innocence.BarbarianRoleData;
 
@@ -12,6 +13,7 @@ import io.wifi.starrailexpress.game.GameUtils;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 
@@ -20,6 +22,12 @@ public class BarbarianRole extends EggRole {
     public BarbarianRole(ResourceLocation identifier, int color, boolean isInnocent, boolean canUseKiller,
             MoodType moodType, int maxSprintTime, boolean canSeeTime) {
         super(identifier, color, isInnocent, canUseKiller, moodType, maxSprintTime, canSeeTime);
+    }
+
+    @Override
+    public void onPsychoStart(Player player, SREPlayerPsychoComponent psychoComponent) {
+        super.onPsychoStart(player, psychoComponent);
+        player.addEffect(ModEffects.of(MobEffects.MOVEMENT_SPEED, 400, 4, false, false, true));
     }
 
     @Override

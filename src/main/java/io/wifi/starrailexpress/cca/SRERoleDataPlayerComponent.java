@@ -93,7 +93,10 @@ public class SRERoleDataPlayerComponent
 
     @Override
     public void init() {
-        serverInit();
+        if (!player.level().isClientSide)
+            serverInit();
+        else
+            clientInit();
     }
 
     public void serverInit() {
