@@ -192,5 +192,7 @@ public class THMiscRoles {
         KONPAKU_YOUMU.setAddedVersion("4.4");
         DOREMY.setAddedVersion("4.4");
         KAENBYOU_RIN.setAddedVersion("4.4");
+        YAKUMO_YUKARI.setAddedVersion("4.4");
+        MYSTIA.setAddedVersion("4.4");
     }
 }
