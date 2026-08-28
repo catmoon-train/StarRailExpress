@@ -32,7 +32,7 @@ import java.util.Comparator;
 import java.util.UUID;
 
 /** Server-side controller for a replaced player body. */
-final class FakeSteveAi {
+public class FakeSteveAi {
     private static final double FACE_COS = Math.cos(Math.toRadians(30.0));
     private static final ResourceLocation BACKSTAB = Noellesroles.id("fake_steve_backstab");
     private static boolean registered;
@@ -41,7 +41,8 @@ final class FakeSteveAi {
     }
 
     static void register() {
-        if (registered) return;
+        if (registered)
+            return;
         registered = true;
         ServerMessageEvents.ALLOW_CHAT_MESSAGE.register((message, sender, bound) -> {
             onChat(sender);
@@ -51,7 +52,8 @@ final class FakeSteveAi {
 
     static void tick(ServerLevel level, ServerPlayer body, FakeSteveAgentState state) {
         long now = level.getGameTime();
-        if ((now + Math.floorMod(body.getUUID().hashCode(), 5)) % 5L != 0L) return;
+        if ((now + Math.floorMod(body.getUUID().hashCode(), 5)) % 5L != 0L)
+            return;
 
         ServerPlayer focus = player(level, state.focusTarget);
         if (focus != null && (!isHuman(focus) || !GameUtils.isPlayerAliveAndSurvival(focus))) {
@@ -76,7 +78,8 @@ final class FakeSteveAi {
 
         if (state.mode == AgentMode.STARE && focus != null) {
             lookAt(body, focus.getEyePosition());
-            if (visible(body, focus)) state.lostSightTicks = 0;
+            if (visible(body, focus))
+                state.lostSightTicks = 0;
             else if ((state.lostSightTicks += 5) >= 20) {
                 state.mode = AgentMode.STALK;
                 state.path.clear();
@@ -97,11 +100,13 @@ final class FakeSteveAi {
             return;
         }
 
-        if (state.mode == AgentMode.RECOVER && now < state.nextDecisionTick) return;
+        if (state.mode == AgentMode.RECOVER && now < state.nextDecisionTick)
+            return;
 
         ServerPlayer facing = facingHuman(level, body);
         if (facing != null) {
-            if (facing.getUUID().equals(state.focusTarget)) state.faceTicks += 5;
+            if (facing.getUUID().equals(state.focusTarget))
+                state.faceTicks += 5;
             else {
                 state.focusTarget = facing.getUUID();
                 state.faceTicks = 5;
@@ -110,7 +115,8 @@ final class FakeSteveAi {
                 beginStare(state, facing);
                 return;
             }
-        } else state.faceTicks = 0;
+        } else
+            state.faceTicks = 0;
 
         SRERole originalRole = SREGameWorldComponent.KEY.get(level).getRole(body);
         if (originalRole != null && originalRole.canUseKiller()) {
@@ -121,7 +127,8 @@ final class FakeSteveAi {
                 if (tryArmedAttack(level, body, prey)) {
                     state.mode = AgentMode.RECOVER;
                     state.nextDecisionTick = now + 40L;
-                } else follow(level, body, prey.blockPosition(), state, 0.20);
+                } else
+                    follow(level, body, prey.blockPosition(), state, 0.20);
                 return;
             }
         }
@@ -135,20 +142,24 @@ final class FakeSteveAi {
                 state.path.clear();
             }
         }
-        if (state.pathGoal != null) follow(level, body, state.pathGoal, state, 0.15);
+        if (state.pathGoal != null)
+            follow(level, body, state.pathGoal, state, 0.15);
     }
 
     static void onLoudVoice(ServerPlayer speaker) {
-        if (!FakeSteveDirector.isActive(speaker.serverLevel()) || !isHuman(speaker)) return;
+        if (!FakeSteveDirector.isActive(speaker.serverLevel()) || !isHuman(speaker))
+            return;
         ServerPlayer fake = nearestFacingFake(speaker.serverLevel(), speaker, 8.0);
         if (fake != null) {
             FakeSteveAgentState state = FakeSteveDirector.agent(fake.serverLevel(), fake.getUUID());
-            if (state != null) beginStare(state, speaker);
+            if (state != null)
+                beginStare(state, speaker);
         }
     }
 
     private static void onChat(ServerPlayer sender) {
-        if (!FakeSteveDirector.isActive(sender.serverLevel()) || !isHuman(sender)) return;
+        if (!FakeSteveDirector.isActive(sender.serverLevel()) || !isHuman(sender))
+            return;
         ServerPlayer nearest = sender.serverLevel().players().stream()
                 .filter(FakeSteveDirector::isReplaced).filter(GameUtils::isPlayerAliveAndSurvival)
                 .filter(fake -> fake.distanceToSqr(sender) <= 64.0)
@@ -156,7 +167,8 @@ final class FakeSteveAi {
                 .min(Comparator.comparingDouble(sender::distanceToSqr)).orElse(null);
         if (nearest != null) {
             FakeSteveAgentState state = FakeSteveDirector.agent(nearest.serverLevel(), nearest.getUUID());
-            if (state != null) beginStare(state, sender);
+            if (state != null)
+                beginStare(state, sender);
         }
     }
 
@@ -180,7 +192,8 @@ final class FakeSteveAi {
                 .filter(p -> livingFakesNear(level, p, 12.0) >= 2)
                 .filter(p -> otherLivingHumansNear(level, p, 12.0) == 0)
                 .min(Comparator.comparingDouble(body::distanceToSqr)).orElse(null);
-        if (nearest == null) return null;
+        if (nearest == null)
+            return null;
         ServerPlayer closestFake = level.players().stream().filter(FakeSteveDirector::isReplaced)
                 .filter(GameUtils::isPlayerAliveAndSurvival).filter(p -> p.distanceToSqr(nearest) <= 144.0)
                 .min(Comparator.comparingDouble(nearest::distanceToSqr)).orElse(null);
@@ -226,7 +239,8 @@ final class FakeSteveAi {
     private static boolean kill(ServerPlayer attacker, ServerPlayer target, boolean gun) {
         SRERole role = SREGameWorldComponent.KEY.get(attacker.level()).getRole(attacker);
         if (role != null && !(gun ? role.onUseGun(attacker) && role.onGunHit(attacker, target)
-                : role.onUseKnife(attacker) && role.onUseKnifeHit(attacker, target))) return false;
+                : role.onUseKnife(attacker) && role.onUseKnifeHit(attacker, target)))
+            return false;
         if (gun) {
             attacker.level().playSound(null, attacker.blockPosition(), TMMSounds.ITEM_REVOLVER_SHOOT,
                     SoundSource.PLAYERS, 5.0f, 1.0f);
@@ -256,9 +270,11 @@ final class FakeSteveAi {
         BlockPos center = body.blockPosition();
         for (BlockPos pos : BlockPos.betweenClosed(center.offset(-4, -1, -4), center.offset(4, 2, 4))) {
             if (!(level.getBlockState(pos).getBlock() instanceof PlatterBlock)
-                    || body.distanceToSqr(Vec3.atCenterOf(pos)) > 16.0) continue;
+                    || body.distanceToSqr(Vec3.atCenterOf(pos)) > 16.0)
+                continue;
             int empty = firstEmptyHotbarSlot(body);
-            if (empty < 0) return false;
+            if (empty < 0)
+                return false;
             select(body, empty);
             BlockHitResult hit = new BlockHitResult(Vec3.atCenterOf(pos), Direction.UP, pos.immutable(), false);
             body.gameMode.useItemOn(body, level, body.getMainHandItem(), InteractionHand.MAIN_HAND, hit);
@@ -268,7 +284,7 @@ final class FakeSteveAi {
     }
 
     private static void follow(ServerLevel level, ServerPlayer body, BlockPos goal,
-                               FakeSteveAgentState state, double speed) {
+            FakeSteveAgentState state, double speed) {
         long now = level.getGameTime();
         if (state.path.isEmpty() || state.pathGoal == null || !state.pathGoal.closerThan(goal, 3.0)
                 || now >= state.nextPathTick) {
@@ -278,15 +294,18 @@ final class FakeSteveAi {
             state.nextPathTick = now + 20L;
         }
         BlockPos next = state.path.peekFirst();
-        if (next == null) return;
+        if (next == null)
+            return;
         if (body.blockPosition().closerThan(next, 1.0)) {
             state.path.removeFirst();
             next = state.path.peekFirst();
-            if (next == null) return;
+            if (next == null)
+                return;
         }
         openDoor(level, body, next);
         Vec3 delta = Vec3.atBottomCenterOf(next).subtract(body.position());
-        if (delta.horizontalDistanceSqr() < 0.01) return;
+        if (delta.horizontalDistanceSqr() < 0.01)
+            return;
         Vec3 step = new Vec3(delta.x, 0.0, delta.z).normalize().scale(speed);
         double targetY = Math.abs(delta.y) <= 1.1 ? Mth.clamp(delta.y, -0.25, 0.25) : 0.0;
         float yaw = (float) (Mth.atan2(-step.x, step.z) * Mth.RAD_TO_DEG);
@@ -298,7 +317,8 @@ final class FakeSteveAi {
 
     private static void openDoor(ServerLevel level, ServerPlayer body, BlockPos next) {
         for (BlockPos pos : new BlockPos[] { next, next.above() }) {
-            if (!(level.getBlockState(pos).getBlock() instanceof DoorBlock)) continue;
+            if (!(level.getBlockState(pos).getBlock() instanceof DoorBlock))
+                continue;
             BlockHitResult hit = new BlockHitResult(Vec3.atCenterOf(pos), Direction.UP, pos, false);
             body.gameMode.useItemOn(body, level, body.getMainHandItem(), InteractionHand.MAIN_HAND, hit);
             return;
@@ -306,7 +326,8 @@ final class FakeSteveAi {
     }
 
     private static boolean visible(ServerPlayer observer, ServerPlayer target) {
-        if (!observer.hasLineOfSight(target)) return false;
+        if (!observer.hasLineOfSight(target))
+            return false;
         HitResult hit = observer.level().clip(new ClipContext(observer.getEyePosition(), target.getEyePosition(),
                 ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, observer));
         return hit.getType() == HitResult.Type.MISS
@@ -341,7 +362,9 @@ final class FakeSteveAi {
     }
 
     private static int findSlot(ServerPlayer player, Item item) {
-        for (int i = 0; i < 9; i++) if (player.getInventory().getItem(i).is(item)) return i;
+        for (int i = 0; i < 9; i++)
+            if (player.getInventory().getItem(i).is(item))
+                return i;
         return -1;
     }
 
@@ -351,7 +374,9 @@ final class FakeSteveAi {
     }
 
     private static int firstEmptyHotbarSlot(ServerPlayer player) {
-        for (int i = 0; i < 9; i++) if (player.getInventory().getItem(i).isEmpty()) return i;
+        for (int i = 0; i < 9; i++)
+            if (player.getInventory().getItem(i).isEmpty())
+                return i;
         return -1;
     }
 

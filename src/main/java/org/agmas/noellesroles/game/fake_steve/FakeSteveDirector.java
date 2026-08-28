@@ -1,7 +1,6 @@
 package org.agmas.noellesroles.game.fake_steve;
 
 import io.wifi.starrailexpress.api.SRERole;
-import io.wifi.starrailexpress.cca.SREGameRoundEndComponent;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.event.AllowGameEnd;
 import io.wifi.starrailexpress.event.AllowPlayerWin;
@@ -20,13 +19,13 @@ import net.minecraft.world.entity.player.Player;
 import org.agmas.harpymodloader.component.WorldModifierComponent;
 import org.agmas.harpymodloader.events.OnGamePlayerRolesConfirm;
 import org.agmas.noellesroles.Noellesroles;
+import org.agmas.noellesroles.config.NoellesRolesConfig;
 import org.agmas.noellesroles.game.modifier.NRModifiers;
 import org.agmas.noellesroles.init.ModEffects;
 import org.agmas.noellesroles.role.ModRoles;
 import org.agmas.noellesroles.utils.RoleUtils;
 
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
@@ -57,7 +56,8 @@ public final class FakeSteveDirector {
             }
             Session session = new Session(assignments.size());
             SESSIONS.put(level.dimension().location(), session);
-            if (canGenerate(level) && level.getRandom().nextInt(10) == 0) {
+            if (canGenerate(level)
+                    && level.getRandom().nextInt(10000) >= NoellesRolesConfig.instance().fakeSteveEnableChance) {
                 session.active = true;
                 session.pendingEvents = 1;
                 session.activationSource = ActivationSource.NATURAL_ROLL;
@@ -215,8 +215,8 @@ public final class FakeSteveDirector {
             session.pendingEvents = 0;
             FakeSteveApparitions.cancelAll(level);
         }
-        if (!session.active || SREGameWorldComponent.KEY.get(level).getGameStatus()
-                != SREGameWorldComponent.GameStatus.ACTIVE) {
+        if (!session.active
+                || SREGameWorldComponent.KEY.get(level).getGameStatus() != SREGameWorldComponent.GameStatus.ACTIVE) {
             return;
         }
 
@@ -250,7 +250,8 @@ public final class FakeSteveDirector {
         addControl(player, ModEffects.CHAT_BAN);
     }
 
-    private static void addControl(ServerPlayer player, net.minecraft.core.Holder<net.minecraft.world.effect.MobEffect> effect) {
+    private static void addControl(ServerPlayer player,
+            net.minecraft.core.Holder<net.minecraft.world.effect.MobEffect> effect) {
         player.addEffect(new MobEffectInstance(effect, CONTROL_EFFECT_TICKS, 0, false, false, false));
     }
 

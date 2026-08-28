@@ -214,7 +214,7 @@ public class ModRoles {
     // 皮革噶的角色 ID
     public static final ResourceLocation LEATHER_PIG_ID = Noellesroles.id("leather_pig");
     // 野人角色 ID
-    public static final ResourceLocation BARBARIAN_ID = Noellesroles.id("barbarian");
+    public static final ResourceLocation BARBARIAN_ID = BounsRoles.id("barbarian");
     // 亡灵之主角色 ID
     public static final ResourceLocation UNDEAD_LORD_ID = Noellesroles.id("undead_lord");
 
@@ -296,7 +296,7 @@ public class ModRoles {
     public static final ResourceLocation DIVINER_ID = Noellesroles.id("diviner");
     // 疫使 ID - 杀手方中立
     public static final ResourceLocation INFECTED_ID = Noellesroles.id("infected");
-    public static final ResourceLocation FAKE_STEVE_ID = Noellesroles.id("fake_steve");
+    public static final ResourceLocation FAKE_STEVE_ID = BounsRoles.id("fake_steve");
 
     // 葬仪 ID - 杀手方中立
     public static final ResourceLocation MORTICIAN_BODYMAKER_ID = Noellesroles.id("mortician_bodymaker");
@@ -697,7 +697,7 @@ public class ModRoles {
      * 持有足够金币时首次被杀手击杀会进入 30 秒魔了形态；此期间只能用专属刀攻击中立与杀手。
      */
     public static SRERole BARBARIAN = TMMRoles.registerRole(
-            new NormalRole(BARBARIAN_ID, new Color(106, 76, 48).getRGB(),
+            new EggRole(BARBARIAN_ID, new Color(106, 76, 48).getRGB(),
                     true, false, SRERole.MoodType.REAL,
                     TMMRoles.CIVILIAN.getMaxSprintTime(), false) {
                 @Override
@@ -709,10 +709,11 @@ public class ModRoles {
                     return targetRole != null && (targetRole.isNeutrals() || targetRole.isKillerTeam()
                             || targetRole.isKiller());
                 }
-            }).setRoleData(BarbarianRoleData::new)
+            })
+            .setRoleData(BarbarianRoleData::new)
             .setCanSeeCoin(true)
             .setDefaultMax(1)
-            .setDefaultEnableChance(5000);
+            .setDefaultEnableChance(4000);
 
     /**
      * 鸟兽兽 - 杀手阵营。
@@ -1510,9 +1511,12 @@ public class ModRoles {
             .setCanSeeCoin(true).setCanPickUpRevolver(false).setNeutrals(true).setNeutralForKiller(true)
             .setCanUseInstinctAndNightVision(true);
 
-    /** Metadata-only neutral role. Players keep their original role after replacement. */
+    /**
+     * Metadata-only neutral role. Players keep their original role after
+     * replacement.
+     */
     public static final SRERole FAKE_STEVE = TMMRoles.registerRole(
-            new NormalRole(FAKE_STEVE_ID, new Color(48, 48, 48).getRGB(),
+            new EggRole(FAKE_STEVE_ID, new Color(48, 48, 48).getRGB(),
                     false, false, SRERole.MoodType.FAKE, Integer.MAX_VALUE, true))
             .setNeutrals(true)
             .setNeutralForKiller(false)
@@ -1521,7 +1525,8 @@ public class ModRoles {
             .setCanPickUpRevolver(false)
             .setCanBeRandomedByOtherRoles(false)
             .setCanSetSpawnInfoInConfig(false)
-            .setDefaultMax(0);
+            .setDefaultMax(0)
+            .setAddedVersion("4.4");
     public static SRERole VULTURE = TMMRoles
             .registerRole(new NormalRole(VULTURE_ID, new Color(210, 105, 30).getRGB(), false,
                     false, SRERole.MoodType.FAKE, Integer.MAX_VALUE, true)
@@ -2861,7 +2866,6 @@ public class ModRoles {
         HUNTER.setAddedVersion("4.3");
         POISONER.setAddedVersion("2.x");
         INFECTED.setAddedVersion("4.2");
-        FAKE_STEVE.setAddedVersion("4.4");
         MORTICIAN_BODYMAKER.setAddedVersion("4.2");
         CUPID.setAddedVersion("4.3");
         SPELLBREAKER.setAddedVersion("4.2");

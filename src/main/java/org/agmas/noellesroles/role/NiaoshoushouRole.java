@@ -8,7 +8,6 @@
 package org.agmas.noellesroles.role;
 
 import io.wifi.starrailexpress.api.EggRole;
-import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.game.GameConstants;
 import io.wifi.starrailexpress.index.TMMItems;
 import io.wifi.starrailexpress.util.ShopEntry;
