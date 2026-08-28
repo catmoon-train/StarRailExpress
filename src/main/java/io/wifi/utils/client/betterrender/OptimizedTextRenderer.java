@@ -935,17 +935,27 @@ public class OptimizedTextRenderer {
     private record EnableScissorAction(int x1, int y1, int x2, int y2, Matrix4f matrix) implements RenderAction {
         @Override
         public void execute(GuiGraphics graphics, Font font, MultiBufferSource.BufferSource bufferSource) {
-            // The pose stack has already been reset when the cache is flushed, so re-apply the
-            // captured matrix to the rect corners and scissor to their bounding box.
-            Vector4f a = matrix.transform(x1, y1, 0, 1, new Vector4f());
-            Vector4f b = matrix.transform(x2, y1, 0, 1, new Vector4f());
-            Vector4f c = matrix.transform(x2, y2, 0, 1, new Vector4f());
-            Vector4f d = matrix.transform(x1, y2, 0, 1, new Vector4f());
-            int minX = (int) Math.floor(Math.min(Math.min(a.x, b.x), Math.min(c.x, d.x)));
-            int minY = (int) Math.floor(Math.min(Math.min(a.y, b.y), Math.min(c.y, d.y)));
-            int maxX = (int) Math.ceil(Math.max(Math.max(a.x, b.x), Math.max(c.x, d.x)));
-            int maxY = (int) Math.ceil(Math.max(Math.max(a.y, b.y), Math.max(c.y, d.y)));
-            graphics.enableScissor(minX, minY, maxX, maxY);
+            // Scissor rect is expressed in the pose space captured at enqueue time;
+            // transform its corners to screen space so it lines up with the cached draws.
+            Vector4f p = new Vector4f();
+            matrix.transform(p.set(x1, y1, 0, 1));
+            float minX = p.x, minY = p.y, maxX = p.x, maxY = p.y;
+            matrix.transform(p.set(x2, y1, 0, 1));
+            minX = Math.min(minX, p.x);
+            minY = Math.min(minY, p.y);
+            maxX = Math.max(maxX, p.x);
+            maxY = Math.max(maxY, p.y);
+            matrix.transform(p.set(x1, y2, 0, 1));
+            minX = Math.min(minX, p.x);
+            minY = Math.min(minY, p.y);
+            maxX = Math.max(maxX, p.x);
+            maxY = Math.max(maxY, p.y);
+            matrix.transform(p.set(x2, y2, 0, 1));
+            minX = Math.min(minX, p.x);
+            minY = Math.min(minY, p.y);
+            maxX = Math.max(maxX, p.x);
+            maxY = Math.max(maxY, p.y);
+            graphics.enableScissor(Math.round(minX), Math.round(minY), Math.round(maxX), Math.round(maxY));
         }
     }
 

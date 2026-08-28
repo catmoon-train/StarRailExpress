@@ -238,7 +238,7 @@ public class HudMoodRenderer {
 
         context.pose().pushPose();
         context.pose().translate(random.nextGaussian() / 3, random.nextGaussian() / 3, 0);
-        context.enableScissor(22, 6, 180, 23);
+        // context.enableScissor(22, 6, 180, 23);
         
         // 每tick执行，直接使用tickCount，不需要加delta插值
         float value = 1 - (player.tickCount / 64f) % 1;
@@ -249,7 +249,7 @@ public class HudMoodRenderer {
             context.drawString(renderer, text, i * (width + 4), 0, colorWithAlpha, false);
             context.pose().popPose();
         }
-        context.disableScissor();
+        // context.disableScissor();
         context.pose().popPose();
 
         context.pose().pushPose();
