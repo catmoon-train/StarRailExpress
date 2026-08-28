@@ -720,7 +720,7 @@ public class ModRoles {
                     .setCanSeeCoin(true)
                     .setCanBeRandomedByOtherRoles(false)
                     .setDefaultMax(1)
-                    .setOccupiedRoleCount(2)
+                    .setOccupiedRoleCount(1)
                     .setDefaultEnableNeededPlayerCount(18)
                     .setDefaultEnableChance(1000));
 
