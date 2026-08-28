@@ -29,9 +29,11 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.entity.player.Player;
+
 import org.agmas.noellesroles.init.NRSounds;
 import org.agmas.noellesroles.role.ModRoles;
 import org.jetbrains.annotations.NotNull;
+import org.ladysnake.cca.api.v3.component.ComponentKey;
 import org.ladysnake.cca.api.v3.component.tick.ClientTickingComponent;
 import org.ladysnake.cca.api.v3.component.tick.ServerTickingComponent;
 
@@ -43,6 +45,8 @@ import java.util.UUID;
  */
 public class InfectedPlayerComponent implements RoleComponent, ServerTickingComponent, ClientTickingComponent {
     // KEY 在 ModComponents.INFECTED 中定义
+
+    public static final ComponentKey<InfectedPlayerComponent> KEY = ModComponents.INFECTED;
 
     private final Player player;
     private SREGameWorldComponent gameWorldComponent;

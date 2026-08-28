@@ -1396,13 +1396,20 @@ public class ModRoles {
     // 疫使与毒师互斥生成
     public static SRERole INFECTED = TMMRoles
             .registerRole(new NormalRole(INFECTED_ID, new Color(66, 181, 0).getRGB(), false,
-                    false, SRERole.MoodType.FAKE, Integer.MAX_VALUE, true))
+                    false, SRERole.MoodType.FAKE, Integer.MAX_VALUE, true) {
+                // 阻止只存在疫使结束游戏
+                @Override
+                public boolean canIncreaseSurvivingKillers() {
+                    return true;
+                }
+            })
             .setNeutralForKiller(true)
             .setCanUseInstinctAndNightVision(true)
             .setDefaultMax(1)
             .setCanSeeCoin(true)
             .setCanBeRandomedByOtherRoles(false)
-            .setDefaultEnableChance(5000).setDefaultEnableNeededPlayerCount(12);
+            .setDefaultEnableChance(5000)
+            .setDefaultEnableNeededPlayerCount(12);
 
     /**
      * 葬仪角色 - 杀手方中立阵营
@@ -2725,6 +2732,7 @@ public class ModRoles {
     public static ArrayList<SRERole> getAllMafiaRoles() {
         return TMMRoles.CACHE.MAFIA_ROLES;
     }
+
     static {
         PILOT.setAddedVersion("4.2");
         SHADOW_FALCON.setAddedVersion("4.2");

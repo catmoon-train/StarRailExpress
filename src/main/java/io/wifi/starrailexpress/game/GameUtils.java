@@ -36,6 +36,7 @@ import org.agmas.harpymodloader.events.ResetPlayerEvent;
 import org.agmas.noellesroles.api.time.TimeRewindPlayback;
 import org.agmas.noellesroles.component.DeathPenaltyComponent;
 import org.agmas.noellesroles.component.DefibrillatorComponent;
+import org.agmas.noellesroles.component.InfectedPlayerComponent;
 import org.agmas.noellesroles.content.effects.TimeStopEffect;
 import org.agmas.noellesroles.content.item.LetterItem;
 import org.agmas.noellesroles.content.item.RadioItem;
@@ -1268,7 +1269,7 @@ public class GameUtils {
             player.fallDistance = 0;
             player.onUpdateAbilities();
         }
-
+        InfectedPlayerComponent.KEY.get(player).clear();
         SRERoleDataPlayerComponent.KEY.get(player).clear();
         SREPlayerMoodComponent.KEY.get(player).clear();
         SREPlayerShopComponent.KEY.get(player).clear();

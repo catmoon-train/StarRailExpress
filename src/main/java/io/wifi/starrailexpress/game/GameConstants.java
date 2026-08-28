@@ -206,6 +206,7 @@ public class GameConstants {
     }
 
     public static class DeathReasons {
+        public static final ResourceLocation CANNOT_WIN = SRE.id("cannot_win");
         public static ResourceLocation FALL_DAMAGE = SRE.id("fall_damage");
         public static ResourceLocation DISCONNECT = SRE.id("disconnected");
         public static ResourceLocation DEATH_AFK = SRE.id("death_afk");
