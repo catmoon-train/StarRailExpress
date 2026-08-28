@@ -24,6 +24,7 @@ import io.wifi.starrailexpress.game.GameUtils;
 import io.wifi.starrailexpress.index.TMMItems;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.Pose;
 import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec2;
@@ -80,6 +81,7 @@ public record PlayerStatsBeforeRefugee(Vec3 pos, int money, ListTag inventory, V
         if (!SREGameWorldComponent.KEY.get(player.level()).isRole(player, BounsRoles.BASEBALL_PLAYER)) {
             RoleUtils.clearAllSatisfiedItems(player, TMMItems.BAT);
         }
+        player.setPose(Pose.STANDING);
         player.setSwimming(false);
         player.stopRiding();
         player.stopFallFlying();

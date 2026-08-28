@@ -35,6 +35,7 @@ import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.Pose;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
 import org.agmas.noellesroles.Noellesroles;
@@ -510,7 +511,7 @@ public class DIORoleData extends SimpleRoleData {
         // 处理吸食动作
         if (isFeeding) {
             if (feedingRemaining > 0) {
-                player.setSwimming(true);
+                player.setPose(Pose.SWIMMING);
                 feedingRemaining--;
 
                 // 吸食期间无法移动（通过效果实现）
@@ -524,7 +525,7 @@ public class DIORoleData extends SimpleRoleData {
                 }
             } else {
                 isFeeding = false;
-                player.setSwimming(false);
+                player.setPose(Pose.STANDING);
                 sync();
             }
         }

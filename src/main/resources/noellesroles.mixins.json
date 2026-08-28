@@ -75,7 +75,6 @@
     "scene.SnowballWarmthMixin",
     "time_rewind.ServerPlayerTimeRewindMixin",
     "time_rewind.ServerGamePacketListenerTimeRewindMixin",
-    "time_stop.PlayerMixin",
     "time_stop.ServerPacketBlocker"
   ],
   "injectors": {

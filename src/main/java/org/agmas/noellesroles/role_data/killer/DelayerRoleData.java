@@ -36,7 +36,7 @@ import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
-import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.entity.Pose;
 import net.minecraft.world.phys.Vec3;
 import org.agmas.noellesroles.Noellesroles;
 import org.agmas.noellesroles.api.time.TimeRewind;
@@ -348,7 +348,7 @@ public class DelayerRoleData extends SimpleRoleData {
     /** 进入趴下 + 无法移动状态。 */
     private void startDowned(ServerPlayer sp) {
         downedTicksLeft = GameConstants.getInTicks(0, DOWNED_SECONDS);
-        sp.setSwimming(true);
+        sp.setPose(Pose.SWIMMING);
         applyRestraints(sp, true);
         sp.serverLevel().playSound(null, sp.blockPosition(), SoundEvents.PLAYER_ATTACK_SWEEP,
                 SoundSource.PLAYERS, 1.0f, 0.6f);
@@ -358,7 +358,7 @@ public class DelayerRoleData extends SimpleRoleData {
 
     /** 趴下状态每 tick：持续保持趴下姿态与移动限制。 */
     private void tickDowned(ServerPlayer sp) {
-        sp.setSwimming(true);
+        sp.setPose(Pose.SWIMMING);
         applyRestraints(sp, true);
         sp.setDeltaMovement(new Vec3(0.0, sp.getDeltaMovement().y, 0.0));
         downedTicksLeft--;
@@ -368,7 +368,7 @@ public class DelayerRoleData extends SimpleRoleData {
         }
         if (downedTicksLeft <= 0) {
             downedTicksLeft = 0;
-            sp.setSwimming(false);
+            sp.setPose(Pose.STANDING);
             sp.displayClientMessage(Component.translatable("message.noellesroles.delayer.downed_end")
                     .withStyle(ChatFormatting.GREEN), true);
         }
@@ -401,7 +401,7 @@ public class DelayerRoleData extends SimpleRoleData {
         pathPoints.clear();
         effectSnapshot.clear();
         anchorSnapshot = null;
-        sp.setSwimming(false);
+        sp.setPose(Pose.STANDING);
     }
 
     @Override
@@ -420,7 +420,7 @@ public class DelayerRoleData extends SimpleRoleData {
         effectSnapshot.clear();
         anchorSnapshot = null;
         if (player instanceof ServerPlayer sp) {
-            sp.setSwimming(false);
+            sp.setPose(Pose.STANDING);
         }
     }
 
