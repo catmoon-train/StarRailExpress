@@ -50,7 +50,7 @@ public class THYukariRole extends TouhouRole {
                             .translatable("message.noellesroles.yakumo_yukari.portal.place.success")
                             .withStyle(ChatFormatting.AQUA), true);
                     return true;
-                }).showOnHud(true).recordReplay().noAnnouncement().cooldownSeconds(90).build(),
+                }).showOnHud(true).recordReplay().noAnnouncement().cooldownSeconds(30).build(),
                 RoleSkill.skill(SRE.id("yukari/break"), "skill.noellesroles.yakumo_yukari.break", (ctx) -> {
                     final var player = ctx.player();
                     if (!THYukariPortalManager.hasPortal()) {
@@ -65,7 +65,7 @@ public class THYukariRole extends TouhouRole {
                             .translatable("message.noellesroles.yakumo_yukari.portal.break.success")
                             .withStyle(ChatFormatting.YELLOW), true);
                     return true;
-                }).showOnHud(true).recordReplay().noAnnouncement().cooldownSeconds(5).build(),
+                }).showOnHud(true).recordReplay().noAnnouncement().cooldownSeconds(2).build(),
                 RoleSkill.skill(SRE.id("yukari/pos1"), "skill.noellesroles.yakumo_yukari.pos1", (ctx) -> {
                     final var player = ctx.player();
                     final var level = player.serverLevel();
@@ -83,7 +83,7 @@ public class THYukariRole extends TouhouRole {
                                     String.format("%.1f, %.1f, %.1f", position.x, position.y, position.z))
                             .withStyle(ChatFormatting.GREEN), true);
                     return true;
-                }).showOnHud(true).noAnnouncement().cooldownSeconds(5).build(),
+                }).showOnHud(true).noAnnouncement().cooldownSeconds(2).build(),
                 RoleSkill.skill(SRE.id("yukari/pos2"), "skill.noellesroles.yakumo_yukari.pos2", (ctx) -> {
                     final var player = ctx.player();
                     final var level = player.serverLevel();
@@ -101,6 +101,6 @@ public class THYukariRole extends TouhouRole {
                                     String.format("%.1f, %.1f, %.1f", position.x, position.y, position.z))
                             .withStyle(ChatFormatting.GREEN), true);
                     return true;
-                }).showOnHud(true).noAnnouncement().cooldownSeconds(5).build());
+                }).showOnHud(true).noAnnouncement().cooldownSeconds(2).build());
     }
 }
