@@ -155,12 +155,15 @@ public class SREArmorPlayerComponent implements RoleComponent, ServerTickingComp
                 timedArmor.put(first.getKey(), first.getValue() - remove);
             }
         }
-        if (amount == 0)
+        if (amount <= 0) {
+            sync();
             return true;
+        }
 
         // 移除常驻护盾
         if (amount <= this.armor) {
             this.armor -= amount;
+            sync();
             return true;
         }
         this.armor = 0;
