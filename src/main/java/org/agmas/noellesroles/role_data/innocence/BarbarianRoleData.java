@@ -4,11 +4,12 @@ import io.wifi.starrailexpress.api.data.RoleData;
 import io.wifi.starrailexpress.api.data.RoleDataContext;
 import io.wifi.starrailexpress.api.impl.SimpleRoleData;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
+import io.wifi.starrailexpress.cca.SREPlayerPsychoComponent;
 import io.wifi.starrailexpress.cca.SREPlayerShopComponent;
 import io.wifi.starrailexpress.event.AllowPlayerDeathWithKiller;
-import io.wifi.starrailexpress.game.GameConstants;
 import io.wifi.starrailexpress.game.GameUtils;
 import net.minecraft.ChatFormatting;
+import net.minecraft.core.Holder;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
@@ -16,12 +17,13 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
-import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.item.ItemStack;
 import org.agmas.noellesroles.Noellesroles;
 import org.agmas.noellesroles.config.NoellesRolesConfig;
 import org.agmas.noellesroles.content.entity.YouluSmokeBallEntity;
+import org.agmas.noellesroles.init.ModEffects;
 import org.agmas.noellesroles.init.ModEntities;
 import org.agmas.noellesroles.init.ModItems;
 import org.agmas.noellesroles.role.ModRoles;
@@ -35,9 +37,6 @@ public final class BarbarianRoleData extends SimpleRoleData {
     public static final int barbarianTransformGold = 150;
 
     private static boolean eventsRegistered;
-
-    /** 魔了形态剩余 tick；0 代表未激活。 */
-    public int berserkTicks = 0;
 
     public BarbarianRoleData(RoleDataContext context) {
         super(context);
@@ -80,16 +79,16 @@ public final class BarbarianRoleData extends SimpleRoleData {
     }
 
     public boolean isBerserk() {
-        return berserkTicks > 0;
+        return SREPlayerPsychoComponent.KEY.get(player).inPsycho();
     }
 
     private void enterBerserk(ServerPlayer player) {
-        berserkTicks = NoellesRolesConfig.HANDLER.instance().barbarianBerserkSeconds * 20;
-        giveBarbarianKnife(player);
+        int berserkTicks = NoellesRolesConfig.HANDLER.instance().barbarianBerserkSeconds * 20;
         player.serverLevel().playSound(null, player.blockPosition(), SoundEvents.RAVAGER_ROAR,
                 SoundSource.PLAYERS, 1.0f, 0.9f);
         player.displayClientMessage(Component.translatable("message.noellesroles.barbarian.transform")
                 .withStyle(ChatFormatting.DARK_RED, ChatFormatting.BOLD), true);
+        SREPlayerPsychoComponent.KEY.get(player).startPsycho_time(berserkTicks, 0, true);
         sync();
     }
 
@@ -121,49 +120,30 @@ public final class BarbarianRoleData extends SimpleRoleData {
         return true;
     }
 
-    @Override
-    public void serverTick() {
-        if (!(player instanceof ServerPlayer serverPlayer) || !isBerserk()) {
-            return;
-        }
-        SREGameWorldComponent game = SREGameWorldComponent.KEY.get(serverPlayer.level());
-        if (!game.isRunning() || !GameUtils.isPlayerAliveAndSurvival(serverPlayer)) {
-            berserkTicks = 0;
-            removeBarbarianKnives();
-            sync();
-            return;
-        }
-        // 速度 V：amplifier 4 即为药水等级 V，持续时间略长于刷新间隔以避免闪烁。
-        serverPlayer.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SPEED, 10, 4, true, false, true));
-        if (--berserkTicks > 0) {
-            return;
-        }
-
-        removeBarbarianKnives();
-        sync();
-        serverPlayer.displayClientMessage(Component.translatable("message.noellesroles.barbarian.transform_end")
-                .withStyle(ChatFormatting.DARK_RED), true);
-        // 形态结束是职业代价，必须绕过一切免死/护盾拦截。
-        GameUtils.forceKillPlayer(serverPlayer, true, null, GameConstants.DeathReasons.GENERIC);
-    }
-
-    private void giveBarbarianKnife(ServerPlayer serverPlayer) {
-        if (hasBarbarianKnife()) {
-            return;
-        }
-        serverPlayer.addItem(ModItems.BARBARIAN_KNIFE.getDefaultInstance());
-    }
-
-    private boolean hasBarbarianKnife() {
-        for (int slot = 0; slot < player.getInventory().getContainerSize(); slot++) {
-            if (player.getInventory().getItem(slot).is(ModItems.BARBARIAN_KNIFE)) {
-                return true;
-            }
+    private boolean shouldGiveEffect(Holder<MobEffect> effect) {
+        if (!player.hasEffect(effect))
+            return true;
+        if (player.getEffect(effect) == null)
+            return true;
+        if (player.getEffect(effect).getDuration() <= 50) {
+            return true;
         }
         return false;
     }
+    @Override
+    public void serverTick() {
+        if (!(player instanceof ServerPlayer) || !isBerserk()) {
+            return;
+        }
+        if (player.level().getGameTime() % 40 == 0) {
+            if (shouldGiveEffect(MobEffects.MOVEMENT_SPEED)) {
+                player.addEffect(ModEffects.of(MobEffects.MOVEMENT_SPEED, 400, 4, false, false, true));
+            }
+        }
+        // 形态结束是职业代价，必须绕过一切免死/护盾拦截。
+    }
 
-    private void removeBarbarianKnives() {
+    public void removeBarbarianKnives() {
         for (int slot = 0; slot < player.getInventory().getContainerSize(); slot++) {
             ItemStack stack = player.getInventory().getItem(slot);
             if (stack.is(ModItems.BARBARIAN_KNIFE)) {
@@ -174,11 +154,9 @@ public final class BarbarianRoleData extends SimpleRoleData {
 
     @Override
     public void writeToSyncNbt(@NotNull net.minecraft.nbt.CompoundTag tag, HolderLookup.Provider registries) {
-        tag.putInt("berserk_ticks", berserkTicks);
     }
 
     @Override
     public void readFromSyncNbt(@NotNull net.minecraft.nbt.CompoundTag tag, HolderLookup.Provider registries) {
-        berserkTicks = tag.getInt("berserk_ticks");
     }
 }

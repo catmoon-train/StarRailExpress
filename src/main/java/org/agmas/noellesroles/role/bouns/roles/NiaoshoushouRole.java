@@ -5,7 +5,7 @@
  * (at your option) any later version.
  */
 
-package org.agmas.noellesroles.role;
+package org.agmas.noellesroles.role.bouns.roles;
 
 import io.wifi.starrailexpress.api.EggRole;
 import io.wifi.starrailexpress.game.GameConstants;
@@ -27,8 +27,8 @@ import java.util.List;
 public class NiaoshoushouRole extends EggRole {
 
     public NiaoshoushouRole(ResourceLocation identifier, int color, boolean isInnocent,
-            boolean canUseKiller, MoodType moodType, int maxSprintTime, boolean hideScoreboard) {
-        super(identifier, color, isInnocent, canUseKiller, moodType, maxSprintTime, hideScoreboard);
+            boolean canUseKiller, MoodType moodType, int maxSprintTime, boolean canSeeTime) {
+        super(identifier, color, isInnocent, canUseKiller, moodType, maxSprintTime, canSeeTime);
     }
 
     @Override

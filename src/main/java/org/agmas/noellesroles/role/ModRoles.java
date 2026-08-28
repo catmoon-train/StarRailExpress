@@ -48,6 +48,8 @@ import org.agmas.noellesroles.game.roles.neutral.puppeteer.PuppeteerPlayerCompon
 import org.agmas.noellesroles.init.ModEffects;
 import org.agmas.noellesroles.init.ModItems;
 import org.agmas.noellesroles.role.bouns.BounsRoles;
+import org.agmas.noellesroles.role.bouns.roles.BarbarianRole;
+import org.agmas.noellesroles.role.bouns.roles.NiaoshoushouRole;
 import org.agmas.noellesroles.role_data.killer.*;
 import org.agmas.noellesroles.role_data.innocence.*;
 import org.agmas.noellesroles.role_data.neutral.*;
@@ -697,18 +699,8 @@ public class ModRoles {
      * 持有足够金币时首次被杀手击杀会进入 30 秒魔了形态；此期间只能用专属刀攻击中立与杀手。
      */
     public static SRERole BARBARIAN = TMMRoles.registerRole(
-            new EggRole(BARBARIAN_ID, new Color(106, 76, 48).getRGB(),
-                    true, false, SRERole.MoodType.REAL,
-                    TMMRoles.CIVILIAN.getMaxSprintTime(), false) {
-                @Override
-                public boolean onUseKnifeHit(Player player, Player target) {
-                    if (!player.getMainHandItem().is(ModItems.BARBARIAN_KNIFE)) {
-                        return false;
-                    }
-                    player.getCooldowns().addCooldown(ModItems.BARBARIAN_KNIFE, 6 * 20);
-                    return true;
-                }
-            })
+            new BarbarianRole(BARBARIAN_ID, new Color(106, 76, 48).getRGB(), true, false, SRERole.MoodType.REAL,
+                    TMMRoles.CIVILIAN.getMaxSprintTime(), false))
             .setRoleData(BarbarianRoleData::new)
             .setCanSeeCoin(true)
             .setDefaultMax(1)
