@@ -33,18 +33,18 @@ public class TMMRoles {
     public static final List<ComponentKey<? extends RoleComponent>> COMPONENT_KEYS = new ArrayList<>();
     public static final SRERole DISCOVERY_CIVILIAN = registerRole(
             new OriginalRole(SRE.id("discovery_civilian"), 0x5CFF4A, false, false, SRERole.MoodType.NONE, -1, true))
-            .setCanPickUpRevolver(false).setNeutrals(true).setCanBeRandomedByOtherRoles(false).setOtherModeRole(true);
+            .setCanPickUpRevolver(false).setNeutrals(true).setCanBeRandomedByOtherRoles(false).setOtherModeRole(true).setAddedVersion("original");
     public static final SRERole CIVILIAN = registerRole(new OriginalRole(SRE.id("civilian"), 0x36E51B, true, false,
-            SRERole.MoodType.REAL, CIVILIAN_MAX_SPRINT_TICKS, false)).setAddedVersion("1.x");
+            SRERole.MoodType.REAL, CIVILIAN_MAX_SPRINT_TICKS, false)).setAddedVersion("original");
     public static final SRERole VIGILANTE = registerRole(new OriginalRole(SRE.id("vigilante"), 0x1B8AE5, true, false,
             SRERole.MoodType.REAL, CIVILIAN_MAX_SPRINT_TICKS, false) {
         @Override
         public List<ItemStack> getDefaultItems() {
             return List.of(new ItemStack(TMMItems.REVOLVER).copy());
         }
-    }.setVigilanteTeam(true).setDefaultMax(0).setCanSetSpawnInfoInConfig(false)).setAddedVersion("1.x");
+    }.setVigilanteTeam(true).setDefaultMax(0).setCanSetSpawnInfoInConfig(false)).setAddedVersion("original");
     public static final SRERole KILLER = registerRole(
-            new OriginalRole(SRE.id("killer"), 0xC13838, false, true, SRERole.MoodType.FAKE, -1, true)).setAddedVersion("1.x");
+            new OriginalRole(SRE.id("killer"), 0xC13838, false, true, SRERole.MoodType.FAKE, -1, true)).setAddedVersion("original");
     public static final SRERole LOOSE_END = registerRole(
             new LooseEndRole(SRE.id("loose_end"), 0x9F0000, false, false, SRERole.MoodType.NONE, -1, false,
                     new MobEffectInstance(
@@ -56,7 +56,7 @@ public class TMMRoles {
                             true // showIcon（显示图标）
                     )))
             .setCanSeeTime(true).setCanUseInstinctAndNightVision(true).setCanBeRandomedByOtherRoles(false)
-            .setToggledOnInstinctType(InstinctType.OBSERVER_ROLE_COLOR);
+            .setToggledOnInstinctType(InstinctType.OBSERVER_ROLE_COLOR).setAddedVersion("original");
 
     public static class CACHE {
         public static final ArrayList<SRERole> MAFIA_ROLES = new ArrayList<>();
