@@ -62,7 +62,7 @@ public class BeeFamilyManager {
                 if (napc.beeChannel) { // bee频道
                     var broadcastMessage = Component
                             .translatable("message.bee_family.broadcast_prefix",
-                                    Component.literal("(").append(role.getDisplayName()).append("]")
+                                    Component.literal("(").append(role.getDisplayName()).append(")")
                                             .withStyle(ChatFormatting.YELLOW),
                                     Component.literal("").append(serverPlayer.getDisplayName())
                                             .withStyle(ChatFormatting.AQUA),
