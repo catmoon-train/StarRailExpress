@@ -33,7 +33,7 @@ import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
-
+import org.agmas.noellesroles.role_data.innocence.VoodooRoleData;
 import org.agmas.noellesroles.role_data.innocence.DiscMasterRoleData;
 import org.agmas.noellesroles.role_data.innocence.TelegrapherRoleData;
 import org.agmas.noellesroles.role_data.killer.CreeperRoleData;
@@ -229,7 +229,11 @@ public class BounsRoles {
             ResourceLocation texture = SRE.id("textures/block/plush/lengxiaocn.png");
             return texture;
         }
-    }, "creator_team").setDefaultEnableChance(1000).addRelatedRole(ModRoles.VOODOO);
+    }, "creator_team")
+            .setDefaultEnableChance(1000)
+            .setRoleData(VoodooRoleData::new)
+            .addRelatedRole(ModRoles.VOODOO);
+            
     public static SRERole LAO_DA = TMMRoles.registerRole(new EggRole(id("lao_da"), new Color(236, 209, 72).getRGB(),
             true, false, SRERole.MoodType.REAL, TMMRoles.CIVILIAN_MAX_SPRINT_TICKS, false) {
         @Override
@@ -266,7 +270,7 @@ public class BounsRoles {
             .setDefaultEnableNeededPlayerCount(16)
             .setDefaultEnableChance(2000)
             .setCanUseInstinctAndNightVision(true);
-            
+
     public static SRERole BEE_WASP = TMMRoles.registerRole(new BeeFamilyRole(id("bee_wasp"),
             new Color(255, 242, 0).getRGB(),
             false,
