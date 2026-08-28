@@ -34,7 +34,7 @@ public final class BarbarianRoleData extends SimpleRoleData {
     private static boolean eventsRegistered;
 
     /** 魔了形态剩余 tick；0 代表未激活。 */
-    public int berserkTicks;
+    public int berserkTicks = 0;
 
     public BarbarianRoleData(RoleDataContext context) {
         super(context);
@@ -68,9 +68,7 @@ public final class BarbarianRoleData extends SimpleRoleData {
 
     @Override
     public void init() {
-        berserkTicks = 0;
         removeBarbarianKnives();
-        sync();
     }
 
     @Override
@@ -132,7 +130,6 @@ public final class BarbarianRoleData extends SimpleRoleData {
             sync();
             return;
         }
-
         // 速度 V：amplifier 4 即为药水等级 V，持续时间略长于刷新间隔以避免闪烁。
         serverPlayer.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SPEED, 10, 4, true, false, true));
         if (--berserkTicks > 0) {

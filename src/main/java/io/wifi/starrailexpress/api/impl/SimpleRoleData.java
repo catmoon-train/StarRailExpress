@@ -22,7 +22,7 @@ import net.minecraft.world.entity.player.Player;
 
 /**
  * 示例：简单实例化RoleData类。
- * 因为每次变换职业都会创建新的实例，所以理论上不需要写init和clear来重置数据。
+ * 因为每次变换职业都会创建新的实例，所以理论上不需要写init和clear来重置数据。（请不要在init同步初始数据！）
  * SimpleRoleData
  */
 public abstract class SimpleRoleData implements RoleData {
@@ -39,15 +39,10 @@ public abstract class SimpleRoleData implements RoleData {
     public Player getPlayer() {
         return ctx.player();
     }
-
-    // @Override
-    // public void writeToSyncNbt(CompoundTag tag, net.minecraft.core.HolderLookup.Provider registryLookup) {
-    // }
-
-    // @Override
-    // public void readFromSyncNbt(CompoundTag tag, net.minecraft.core.HolderLookup.Provider registryLookup) {
-    // }
-
+    /**
+     * 请不要同步太多，会卡！！！
+     * 建议：冷却等10~30s同步一次，重大数据变更且客户端无法模拟的再同步！
+     */
     public void sync() {
         ctx.sync();
     }
