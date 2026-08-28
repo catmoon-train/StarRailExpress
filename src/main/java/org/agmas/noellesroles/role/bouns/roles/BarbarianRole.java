@@ -47,7 +47,7 @@ public class BarbarianRole extends EggRole {
         }
         player.displayClientMessage(Component.translatable("message.noellesroles.barbarian.transform_end")
                 .withStyle(ChatFormatting.DARK_RED), true);
-        GameUtils.forceKillPlayer(player, true, null, GameConstants.DeathReasons.GENERIC);
+        GameUtils.forceKillPlayer(player, true, null, GameConstants.DeathReasons.TIMEOUT);
     }
 
     @Override
