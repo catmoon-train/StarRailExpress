@@ -182,7 +182,7 @@ public class BeeFamilyManager {
             if (cca.hasCooldown()) {
                 return InteractionResult.PASS;
             }
-            cca.setCooldown(60 * 20);
+            cca.setCooldown(30 * 20);
 
             SRERole reviveRole = BounsRoles.BEE_WORKER;
             if (cca.status == 1) {
