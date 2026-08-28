@@ -1637,7 +1637,9 @@ public class ModRoles {
             SRERole.MoodType.FAKE, // 假心情
             TMMRoles.CIVILIAN.getMaxSprintTime(), // 标准冲刺时间
             true // 隐藏计分板
-    )).setNeutralForKiller(true).setCanSeeTeammateKillerRole(false)
+    )).setNeutralForKiller(true)
+            .setCanUseInstinctAndNightVision(true)
+            .setCanSeeTeammateKillerRole(true)
             .setBeSeenInstinctType(InstinctType.DEFAULT, InstinctType.NONE)
             .setRoleData(SlipperyGhostRoleData::new);
 
