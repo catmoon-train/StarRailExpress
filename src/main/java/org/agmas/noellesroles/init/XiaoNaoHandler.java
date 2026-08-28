@@ -99,7 +99,7 @@ public class XiaoNaoHandler {
                             }
                         }
                         if (isXiaonao) {
-                            GameUtils.killPlayer(killer, true, null, Noellesroles.id("shot_innocent"));
+                            GameUtils.killPlayer(killer, true, null, GameConstants.DeathReasons.SHOT_INNOCENT);
                             // 仇杀客事件：误杀发生时强化仇杀客
                             for (ServerPlayer player : victim.serverLevel().players()) {
                                 if (gameWorldComponent.isRole(player, ModRoles.BLOOD_FEUDIST)) {

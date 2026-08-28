@@ -19,7 +19,6 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.player.Player;
 import org.agmas.harpymodloader.component.WorldModifierComponent;
-import org.agmas.harpymodloader.events.OnGamePlayerRolesConfirm;
 import org.agmas.noellesroles.Noellesroles;
 import org.agmas.noellesroles.config.NoellesRolesConfig;
 import org.agmas.noellesroles.game.modifier.NRModifiers;
@@ -72,12 +71,16 @@ public final class FakeSteveDirector {
         ServerTickEvents.END_WORLD_TICK.register(FakeSteveDirector::tick);
 
         OnKillPlayerTriggered.EVENT.register((victim, spawnBody, killer, reason, force) -> {
-            if (victim instanceof ServerPlayer serverPlayer
-                    && killer == null
+            if (!(victim instanceof ServerPlayer serverPlayer)) {
+                return TrueFalseResult.PASS;
+            }
+            boolean enabled = isActive(serverPlayer.serverLevel())
+                    && canGenerate(serverPlayer.serverLevel());
+
+            if (killer == null
                     && reason != null
-                    && GameConstants.DeathReasons.SHOT_INNOCENT == reason
-                    && isActive(serverPlayer.serverLevel())
-                    && canGenerate(serverPlayer.serverLevel())) {
+                    && GameConstants.DeathReasons.SHOT_INNOCENT.getPath().equals(reason.getPath())
+                    && enabled) {
                 replace(serverPlayer, ReplacementCause.TEAMKILL);
                 return TrueFalseResult.FALSE;
             }
