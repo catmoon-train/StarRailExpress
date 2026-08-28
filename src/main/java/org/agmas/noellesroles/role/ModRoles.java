@@ -704,6 +704,7 @@ public class ModRoles {
             .setRoleData(BarbarianRoleData::new)
             .setCanSeeCoin(true)
             .setDefaultMax(1)
+            .setCanPickUpRevolver(false)
             .setCanXiaonao(true)
             .setDefaultEnableNeededPlayerCount(18)
             .setDefaultEnableChance(4000);
