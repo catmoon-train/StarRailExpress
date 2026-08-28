@@ -34,6 +34,7 @@ import net.minecraft.world.inventory.tooltip.TooltipComponent;
 import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Matrix4f;
+import org.joml.Vector4f;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -934,9 +935,17 @@ public class OptimizedTextRenderer {
     private record EnableScissorAction(int x1, int y1, int x2, int y2, Matrix4f matrix) implements RenderAction {
         @Override
         public void execute(GuiGraphics graphics, Font font, MultiBufferSource.BufferSource bufferSource) {
-            withMatrix(graphics, matrix, () -> {
-                graphics.enableScissor(x1, y1, x2, y2);
-            });
+            // The pose stack has already been reset when the cache is flushed, so re-apply the
+            // captured matrix to the rect corners and scissor to their bounding box.
+            Vector4f a = matrix.transform(x1, y1, 0, 1, new Vector4f());
+            Vector4f b = matrix.transform(x2, y1, 0, 1, new Vector4f());
+            Vector4f c = matrix.transform(x2, y2, 0, 1, new Vector4f());
+            Vector4f d = matrix.transform(x1, y2, 0, 1, new Vector4f());
+            int minX = (int) Math.floor(Math.min(Math.min(a.x, b.x), Math.min(c.x, d.x)));
+            int minY = (int) Math.floor(Math.min(Math.min(a.y, b.y), Math.min(c.y, d.y)));
+            int maxX = (int) Math.ceil(Math.max(Math.max(a.x, b.x), Math.max(c.x, d.x)));
+            int maxY = (int) Math.ceil(Math.max(Math.max(a.y, b.y), Math.max(c.y, d.y)));
+            graphics.enableScissor(minX, minY, maxX, maxY);
         }
     }
 
