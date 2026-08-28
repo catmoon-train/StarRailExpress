@@ -220,8 +220,8 @@ public class InfectedWinChecker {
                     InfectedPlayerComponent.setSpreadAcceleratedForAll(level, true);
                     wasAccelerated = true;
                     // 同步加速状态到疫使玩家自身的组件（供客户端HUD读取）
-                    for (ServerPlayer p : level.getPlayers(GameUtils::isPlayerAliveAndSurvival)) {
-                        if (gameWorldComponent.isRole(p, ModRoles.INFECTED)) {
+                    for (ServerPlayer p : inftectRolePlayers) {
+                        {
                             InfectedPlayerComponent comp = ModComponents.INFECTED.get(p);
                             comp.spreadAccelerated = true;
                             comp.sync();
@@ -248,8 +248,8 @@ public class InfectedWinChecker {
                         }
                     }
                     // 疫使技能冷却立刻清零（同时重置统一冷却和独立技能状态冷却）
-                    for (ServerPlayer p : level.getPlayers(GameUtils::isPlayerAliveAndSurvival)) {
-                        if (gameWorldComponent.isRole(p, ModRoles.INFECTED)) {
+                    for (ServerPlayer p : inftectRolePlayers) {
+                        {
                             SREAbilityPlayerComponent abilityComponent = SREAbilityPlayerComponent.KEY.get(p);
                             abilityComponent.resetAllCooldowns();
                             abilityComponent.status = 2;
@@ -263,8 +263,8 @@ public class InfectedWinChecker {
                     InfectedPlayerComponent.setSpreadAcceleratedForAll(level, false);
                     wasAccelerated = false;
                     // 同步取消加速状态到疫使玩家自身的组件（供客户端HUD读取）
-                    for (ServerPlayer p : level.getPlayers(GameUtils::isPlayerAliveAndSurvival)) {
-                        if (gameWorldComponent.isRole(p, ModRoles.INFECTED)) {
+                    for (ServerPlayer p : inftectRolePlayers) {
+                        {
                             InfectedPlayerComponent comp = ModComponents.INFECTED.get(p);
                             comp.spreadAccelerated = false;
                             comp.sync();
@@ -375,8 +375,8 @@ public class InfectedWinChecker {
                 InfectedPlayerComponent.setSpreadAcceleratedForAll(level, true);
                 wasAccelerated = true;
                 // 同步加速状态到疫使玩家自身的组件（供客户端HUD读取）
-                for (ServerPlayer p : level.getPlayers(GameUtils::isPlayerAliveAndSurvival)) {
-                    if (gameWorldComponent.isRole(p, ModRoles.INFECTED)) {
+                for (ServerPlayer p : inftectRolePlayers) {
+                    {
                         InfectedPlayerComponent comp = ModComponents.INFECTED.get(p);
                         comp.spreadAccelerated = true;
                         comp.sync();
@@ -391,8 +391,8 @@ public class InfectedWinChecker {
                 for (ServerPlayer p : level.getServer().getPlayerList().getPlayers()) {
                     ServerPlayNetworking.send(p, new BroadcastMessageS2CPacket(broadcast));
                 }
-                for (ServerPlayer p : level.getPlayers(GameUtils::isPlayerAliveAndSurvival)) {
-                    if (gameWorldComponent.isRole(p, ModRoles.INFECTED)) {
+                for (ServerPlayer p : inftectRolePlayers) {
+                    {
                         SREAbilityPlayerComponent abilityComponent = SREAbilityPlayerComponent.KEY.get(p);
                         abilityComponent.resetAllCooldowns();
                     }
@@ -404,8 +404,8 @@ public class InfectedWinChecker {
                 InfectedPlayerComponent.setSpreadAcceleratedForAll(level, false);
                 wasAccelerated = false;
                 // 同步取消加速状态到疫使玩家自身的组件（供客户端HUD读取）
-                for (ServerPlayer p : level.getPlayers(GameUtils::isPlayerAliveAndSurvival)) {
-                    if (gameWorldComponent.isRole(p, ModRoles.INFECTED)) {
+                for (ServerPlayer p : inftectRolePlayers) {
+                    {
                         InfectedPlayerComponent comp = ModComponents.INFECTED.get(p);
                         comp.spreadAccelerated = false;
                         comp.sync();
