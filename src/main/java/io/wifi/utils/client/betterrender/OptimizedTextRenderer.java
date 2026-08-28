@@ -414,7 +414,8 @@ public class OptimizedTextRenderer {
             return;
         }
         hasDrawCallsThisFrame = true;
-        pending.add(new EnableScissorAction(x1, y1, x2, y2));
+        pending.add(new EnableScissorAction(x1, y1, x2, y2,
+                new Matrix4f(graphics.pose().last().pose())));
     }
 
     public void enqueueDisableScissor(GuiGraphics graphics) {
@@ -930,10 +931,12 @@ public class OptimizedTextRenderer {
 
     // ── Scissor actions ────────────────────────────────────────────────────────
 
-    private record EnableScissorAction(int x1, int y1, int x2, int y2) implements RenderAction {
+    private record EnableScissorAction(int x1, int y1, int x2, int y2, Matrix4f matrix) implements RenderAction {
         @Override
         public void execute(GuiGraphics graphics, Font font, MultiBufferSource.BufferSource bufferSource) {
-            graphics.enableScissor(x1, y1, x2, y2);
+            withMatrix(graphics, matrix, () -> {
+                graphics.enableScissor(x1, y1, x2, y2);
+            });
         }
     }
 
