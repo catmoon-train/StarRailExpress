@@ -59,7 +59,7 @@ import java.util.UUID;
 /** 鸟兽兽的服务端状态：耐力、尸体火焰、全家福、掩体充能和复活。 */
 public class NiaoshoushouRoleData extends SimpleRoleData {
 
-    public static final int COVER_COOLDOWN_TICKS = 60 * 20;
+    public static final int COVER_COOLDOWN_TICKS = 120 * 20;
     public static final int COVER_DURATION_TICKS = 20 * 20;
     public static final int COVER_WIDTH = 3;
     public static final int COVER_HEIGHT = 2;
