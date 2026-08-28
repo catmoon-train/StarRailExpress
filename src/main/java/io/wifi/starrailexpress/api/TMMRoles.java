@@ -35,16 +35,16 @@ public class TMMRoles {
             new OriginalRole(SRE.id("discovery_civilian"), 0x5CFF4A, false, false, SRERole.MoodType.NONE, -1, true))
             .setCanPickUpRevolver(false).setNeutrals(true).setCanBeRandomedByOtherRoles(false).setOtherModeRole(true);
     public static final SRERole CIVILIAN = registerRole(new OriginalRole(SRE.id("civilian"), 0x36E51B, true, false,
-            SRERole.MoodType.REAL, CIVILIAN_MAX_SPRINT_TICKS, false));
+            SRERole.MoodType.REAL, CIVILIAN_MAX_SPRINT_TICKS, false)).setAddedVersion("1.x");
     public static final SRERole VIGILANTE = registerRole(new OriginalRole(SRE.id("vigilante"), 0x1B8AE5, true, false,
             SRERole.MoodType.REAL, CIVILIAN_MAX_SPRINT_TICKS, false) {
         @Override
         public List<ItemStack> getDefaultItems() {
             return List.of(new ItemStack(TMMItems.REVOLVER).copy());
         }
-    }.setVigilanteTeam(true).setDefaultMax(0).setCanSetSpawnInfoInConfig(false));
+    }.setVigilanteTeam(true).setDefaultMax(0).setCanSetSpawnInfoInConfig(false)).setAddedVersion("1.x");
     public static final SRERole KILLER = registerRole(
-            new OriginalRole(SRE.id("killer"), 0xC13838, false, true, SRERole.MoodType.FAKE, -1, true));
+            new OriginalRole(SRE.id("killer"), 0xC13838, false, true, SRERole.MoodType.FAKE, -1, true)).setAddedVersion("1.x");
     public static final SRERole LOOSE_END = registerRole(
             new LooseEndRole(SRE.id("loose_end"), 0x9F0000, false, false, SRERole.MoodType.NONE, -1, false,
                     new MobEffectInstance(
