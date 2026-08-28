@@ -129,6 +129,7 @@ public class BeeFamilyManager {
                 }).noCastCCA(true).recordReplay().showOnHud(true).cooldownSeconds(30).announceToSelf().build(),
                 RoleSkill.skill(SRE.id("bee_channel"),
                         "skill.noellesroles.bee_channel", (ctx) -> changeChannel(ctx))
+                        .noCastCCA(true)
                         .cooldownTicks(1)
                         .showOnHud(true)
                         .toggleable(true)
