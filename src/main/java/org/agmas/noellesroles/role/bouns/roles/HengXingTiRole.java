@@ -1,5 +1,8 @@
 package org.agmas.noellesroles.role.bouns.roles;
 
+import java.util.ArrayList;
+import java.util.TreeMap;
+
 import org.agmas.noellesroles.init.InitModRolesMax;
 import org.agmas.noellesroles.init.ModEffects;
 
@@ -18,6 +21,7 @@ import net.minecraft.world.phys.AABB;
 public class HengXingTiRole extends ExtraEffectRole implements EggRoleInterface {
     public static final int SKILL_DURATION = 15 * 20;
     public static final int SKILL_RANGE = 10;
+    public static final int MAX_TP_PLAYER_COUNT = 8;
     public static final double PULL_RANGE = 1;
     public static final double ROTATION_SPEED = 2 * Math.PI / 100; // 每 100 tick 转一圈
 
@@ -49,6 +53,7 @@ public class HengXingTiRole extends ExtraEffectRole implements EggRoleInterface 
                         1, 0.1);
             }
             if (world.getGameTime() % 2 == 1) {
+                final TreeMap<Double, ArrayList<ServerPlayer>> canTpPlayers = new TreeMap<>();
                 for (var p : world.players()) {
                     if (p.isSpectator())
                         continue;
@@ -56,13 +61,27 @@ public class HengXingTiRole extends ExtraEffectRole implements EggRoleInterface 
                         continue;
                     if (p.getUUID().equals(player.getUUID()))
                         continue;
-                    if (p.distanceToSqr(player) > SKILL_RANGE * SKILL_RANGE)
+                    double range = p.distanceToSqr(player);
+                    if (range > SKILL_RANGE * SKILL_RANGE)
                         continue;
-                    {
+                    canTpPlayers.putIfAbsent(range, new ArrayList<>());
+                    canTpPlayers.get(range).add(p);
+                }
+                int count = 0;
+                for (var i : canTpPlayers.entrySet()) {
+                    if (count >= MAX_TP_PLAYER_COUNT) {
+                        break;
+                    }
+                    final var ps = i.getValue();
+                    for (var p : ps) {
+                        if (count >= MAX_TP_PLAYER_COUNT) {
+                            break;
+                        }
                         // 计算旋转角度：基础偏移 + 时间旋转
                         double baseAngle = (p.getUUID().hashCode() % 360) * (Math.PI / 180.0)
                                 + (world.getGameTime() * ROTATION_SPEED) % (2 * Math.PI);
                         teleportPlayerToRound(player, p, baseAngle);
+                        count++;
                     }
                 }
             }
@@ -80,7 +99,8 @@ public class HengXingTiRole extends ExtraEffectRole implements EggRoleInterface 
     private void teleportPlayerToRound(ServerPlayer player, ServerPlayer target, double baseAngle) {
         if (player == null || target == null)
             return;
-
+        // 标记
+        target.setLastHurtByMob(player);
         // 添加短暂控制效果，防止传送后立刻移动
         target.addEffect(ModEffects.of(ModEffects.NO_COLLIDE, 20, 1, false, false, true));
         target.addEffect(ModEffects.of(ModEffects.MOVE_BANED, 20, 1, false, false, true));

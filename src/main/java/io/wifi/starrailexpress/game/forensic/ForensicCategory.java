@@ -78,7 +78,10 @@ public enum ForensicCategory {
         }
         if (reason.equals(GameConstants.DeathReasons.FELL_OUT_OF_TRAIN)
                 || reason.equals(GameConstants.DeathReasons.FALL_DAMAGE)
+                || reason.equals(GameConstants.DeathReasons.TOUCH_INCORRECT)
+                || reason.equals(GameConstants.DeathReasons.DEATH_IN_DARKNESS)
                 || reason.equals(GameConstants.DeathReasons.CANNOT_SWIM)
+                || reason.equals(GameConstants.DeathReasons.LOG_CRUSH)
                 || reason.equals(GameConstants.DeathReasons.LAVA)
                 || reason.equals(GameConstants.DeathReasons.DROWNED)
                 || reason.equals(GameConstants.DeathReasons.MANHOLE_SUFFOCATION)

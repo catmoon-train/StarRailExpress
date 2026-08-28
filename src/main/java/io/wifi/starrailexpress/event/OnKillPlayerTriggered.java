@@ -40,9 +40,9 @@ public interface OnKillPlayerTriggered {
      * @see io.wifi.starrailexpress.game.GameConstants.DeathReasons
      */
     Event<OnKillPlayerTriggered> EVENT = createArrayBacked(OnKillPlayerTriggered.class,
-            listeners -> (victim, spawnBody, _killer, deathReasosn, forceKill) -> {
+            listeners -> (victim, spawnBody, killer, deathReasosn, forceKill) -> {
                 for (OnKillPlayerTriggered listener : listeners) {
-                    var a = listener.onKillPlayerTriggered(victim, spawnBody, _killer, deathReasosn, forceKill);
+                    var a = listener.onKillPlayerTriggered(victim, spawnBody, killer, deathReasosn, forceKill);
                     if (a != null && !a.isPass())
                         return a;
                 }
