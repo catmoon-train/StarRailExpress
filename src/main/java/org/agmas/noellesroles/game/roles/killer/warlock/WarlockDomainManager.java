@@ -38,12 +38,14 @@ import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
+import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.phys.AABB;
 import org.agmas.noellesroles.init.ModEffects;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
@@ -152,9 +154,9 @@ public final class WarlockDomainManager {
                 .withStyle(ChatFormatting.DARK_PURPLE), true);
         // 回放记录：咒术师将玩家拉入角斗领域
         SRE.REPLAY_MANAGER.recordCustomEvent(
-            Component.translatable("replay.event.warlock.pull_arena",
-                GameReplayUtils.getReplayPlayerDisplayText(warlock, true),
-                GameReplayUtils.getReplayPlayerDisplayText(victim, true)));
+                Component.translatable("replay.event.warlock.pull_arena",
+                        GameReplayUtils.getReplayPlayerDisplayText(warlock, true),
+                        GameReplayUtils.getReplayPlayerDisplayText(victim, true)));
         return true;
     }
 
@@ -230,6 +232,14 @@ public final class WarlockDomainManager {
 
         // 边界约束 + 氛围粒子
         AABB bounds = domainBounds();
+        // bounds
+        List<ItemEntity> items = server.overworld().getEntitiesOfClass(ItemEntity.class, bounds);
+        if (items != null) {
+            for (var t : items) {
+                t.discard();
+            }
+        }
+
         for (UUID uuid : domain.returnPositions.keySet()) {
             ServerPlayer participant = server.getPlayerList().getPlayer(uuid);
             if (participant != null && GameUtils.isPlayerAliveAndSurvival(participant)) {
