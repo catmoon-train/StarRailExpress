@@ -39,6 +39,19 @@ import java.util.List;
  */
 public class NRModifiers {
 
+    /** Runtime-only marker for a player body controlled by Fake Steve. */
+    public static final SREModifier FAKE_STEVE_REPLACED = HMLModifiers.registerModifier(new SREModifier(
+            Noellesroles.id("fake_steve_replaced"),
+            0x303030,
+            null,
+            null,
+            false,
+            false))
+            .setCanSetSpawnInfoInConfig(false)
+            .setDefaultEnableChance(0)
+            .setDefaultMax(0)
+            .setAddedVersion("4.4");
+
     /** 远征队修饰符 */
     public static SREModifier EXPEDITION = HMLModifiers.registerModifier(new SREModifier(
             Noellesroles.id("expedition"),
@@ -100,6 +113,7 @@ public class NRModifiers {
      * 初始化修饰符系统
      */
     public static void init() {
+        FAKE_STEVE_REPLACED.addBothRelatedRole(ModRoles.FAKE_STEVE);
         EXPEDITION.civilianOnly = true;
         EXPEDITION.cannotBeAppliedTo = new HashSet<>(List.of(ModRoles.GHOST));
         INTROVERTED.civilianOnly = true;

@@ -150,6 +150,7 @@
   "item.noellesroles.shilijia.desc": "石粒架，食用后立即恢复基于体力上限50%%的体力。可由大妖精购买后分给队友。",
   "item.noellesroles.youlu_anchor.desc": "幽露专属，商店80金币购买一次。第一次使用放出一颗沿地面向前滑行的球形锚点（仅幽露本人可见），再次使用传送到锚点位置并回收锚点，随后进入30秒冷却。锚点最长存在25秒。",
   "item.noellesroles.youlu_smoke.desc": "幽露专属，商店70金币购买一次。使用后沿视线方向（含上下）放出一团向前推进的烟雾波（可穿墙，非瞬时）：推进途中半径4格内的玩家陷入8秒失明与黑暗，命中后烟雾不会消失、继续前进，总距离12格。冷却60秒。",
+  "item.noellesroles.barbarian_knife.desc": "野人仅在魔了形态获得的无限耐久利刃。无冷却，只能攻击中立和杀手阵营。",
   "item.noellesroles.chocolate.desc": "美味的巧克力，食用后短时间内san值不会下降。（持续15秒）",
   "item.noellesroles.calming_tea.desc": "安神茶，饮用后减缓san值消耗。（持续60秒）",
   "item.noellesroles.talisman.desc": "护身符，携带在物品栏中时降低低san视觉干扰并缓慢恢复san值。",
@@ -161,5 +162,10 @@
   "shop.noellesroles.undead_lord.summon_charm.desc": "立即在身边召唤 2 个临时亡灵，持续 45 秒。60 秒冷却，且召唤数量不会超过亡灵上限。",
   "shop.noellesroles.undead_lord.infection_amp.desc": "接下来 60 秒内亡灵攻击的感染值翻倍。",
   "item.noellesroles.reasoner_compass.desc": "推理师专属物品。游戏开始 2 分钟后自动获得，右键打开罗盘占卜界面。每次提交答案后冷却 35 秒，全部问题推理正确即可独立胜利。",
-  "item.noellesroles.inferior_lockpick.desc": "冤魂专属的劣质开锁器，继承开锁器的开门与封锁特性；每次成功用于开锁后进入 15 秒冷却。"
+  "item.noellesroles.inferior_lockpick.desc": "冤魂专属的劣质开锁器，继承开锁器的开门与封锁特性；每次成功用于开锁后进入 15 秒冷却。",
+  "item.noellesroles.niaoshoushou_knife.desc": "鸟兽兽专属尼泊尔军刀。继承普通刀的攻击方式，拥有4点耐久；也能撬开小门，每次成功撬门消耗1点耐久。",
+  "item.noellesroles.niaoshoushou_incendiary_grenade.desc": "鸟兽兽专属燃烧弹。复用现有燃烧弹效果，使用后进入45秒冷却。",
+  "item.noellesroles.niaoshoushou_family_photo.desc": "鸟兽兽专属全家福。分别右键两名杀手阵营玩家或魔术师组成队伍；每局只能购买一张。",
+  "item.noellesroles.niaoshoushou_missile.desc": "鸟兽兽专属巡飞弹。使用后绑定相机，弹体自动前飞，A/W左转、D右转；碰到玩家或地面后以半径5格爆炸。冷却60秒。",
+  "item.noellesroles.niaoshoushou_blackout.desc": "鸟兽兽专属范围关灯。熄灭半径30格内的灯，使用后冷却2分钟。"
 }

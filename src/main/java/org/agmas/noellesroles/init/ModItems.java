@@ -280,6 +280,21 @@ public class ModItems {
     public static final Item SP_KNIFE = register(
             new SPKnifeItem(new Item.Properties().stacksTo(1)),
             "sp_knife", WEAPONS_GROUP);
+    public static final Item BARBARIAN_KNIFE = register(
+            new BarbarianKnifeItem(new Item.Properties().stacksTo(1)),
+            "barbarian_knife", WEAPONS_GROUP);
+    public static final Item NIAOSHOU_SHOU_KNIFE = register(
+            new NiaoshoushouKnifeItem(new Item.Properties().stacksTo(1).durability(4)),
+            "niaoshoushou_knife", WEAPONS_GROUP);
+    public static final Item NIAOSHOU_SHOU_FAMILY_PHOTO = register(
+            new NiaoshoushouFamilyPhotoItem(new Item.Properties().stacksTo(1)),
+            "niaoshoushou_family_photo", ROLE_ITEMS_GROUP);
+    public static final Item NIAOSHOU_SHOU_MISSILE = register(
+            new NiaoshoushouMissileItem(new Item.Properties().stacksTo(1)),
+            "niaoshoushou_missile", WEAPONS_GROUP);
+    public static final Item NIAOSHOU_SHOU_BLACKOUT = register(
+            new NiaoshoushouBlackoutItem(new Item.Properties().stacksTo(1)),
+            "niaoshoushou_blackout", ROLE_ITEMS_GROUP);
     public static final Item STALKER_KNIFE = register(
             new StalkerKnifeItem(new Item.Properties().stacksTo(1)),
             "stalker_knife", WEAPONS_GROUP);
@@ -417,6 +432,9 @@ public class ModItems {
             new org.agmas.noellesroles.content.item.IncendiaryGrenadeItem(
                     new Item.Properties().stacksTo(8)),
             "incendiary_grenade", WEAPONS_GROUP);
+    public static final Item NIAOSHOU_SHOU_INCENDIARY_GRENADE = register(
+            new NiaoshoushouIncendiaryGrenadeItem(new Item.Properties().stacksTo(8)),
+            "niaoshoushou_incendiary_grenade", WEAPONS_GROUP);
 
     /** 粘液弹：右键投掷，落点形成半径4粘液区域，范围内无法跳跃+缓慢III */
     public static final Item SLIME_GRENADE = register(
@@ -877,6 +895,7 @@ public class ModItems {
     public static final Item DREAM_BLACKOUT = register(
             new org.agmas.noellesroles.content.item.DreamBlackoutItem(new Item.Properties().stacksTo(1)),
             "dream_blackout", ROLE_ITEMS_GROUP);
+
     /**
      * Dream 酿的酒
      * - 制酒技能产物；喝下隐身10s，期间无法攻击、无法受伤

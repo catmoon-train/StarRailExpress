@@ -66,6 +66,16 @@
 - **权限**: 2
 - **示例**: `/tmm:reloadReadyArea`
 
+### `sre:fake_steve event|spawn|replace`
+管理本回合的 Fake Steve 事件
+- **权限**: 2
+- **子命令**:
+  - `event`: 启动机制并加入一次按理智/尸体风险选人的预兆事件
+  - `spawn <玩家>`: 在指定存活玩家附近生成仅该玩家可见的预兆
+  - `replace <玩家>`: 跳过预兆并立即取代指定存活玩家
+- **示例**: `/sre:fake_steve spawn Steve`
+- **说明**: 职业被禁用或不在有效的谋杀类游戏回合时不会改变任何状态
+
 ## 配置管理命令
 
 ### `tmm:config`

@@ -244,6 +244,7 @@ public class NoellesrolesClient implements ClientModInitializer {
 
     @Override
     public void onInitializeClient() {
+        FakeSteveClient.register();
         TimeRewindClientEffect.initialize();
         DynamiclightsEntry.registerClientEvents();
         // 注册各职业的背包界面扩展（旧版 ScreenMixin 的替代：SRERole 钩子，客户端注册）
@@ -449,6 +450,8 @@ public class NoellesrolesClient implements ClientModInitializer {
                 org.agmas.noellesroles.client.renderer.CanyuesaHorseRenderer::new);
         EntityRendererRegistry.register(ModEntities.SUPER_PIG_HORSE,
                 org.agmas.noellesroles.client.renderer.SuperPigHorseRenderer::new);
+        EntityRendererRegistry.register(ModEntities.NIAOSHOU_SHOU_MISSILE,
+                net.minecraft.client.renderer.entity.ThrownItemRenderer::new);
 
         EntityModelLayerRegistry.registerModelLayer(WheelchairEntityModel.LAYER_LOCATION,
                 WheelchairEntityModel::createBodyLayer);
@@ -1188,6 +1191,27 @@ public class NoellesrolesClient implements ClientModInitializer {
                     client.setCameraEntity(client.player);
                 }
                 manipulatorCameraBound = false;
+            }
+        });
+        // 鸟兽兽巡飞弹：相机绑定到弹体，弹体自动前进，按 A/W 左转、D 右转。
+        ClientTickEvents.END_CLIENT_TICK.register(client -> {
+            if (client.player == null || client.level == null) {
+                return;
+            }
+            if (client.getCameraEntity() instanceof org.agmas.noellesroles.content.entity.NiaoshoushouMissileEntity missile) {
+                if (missile.isRemoved()) {
+                    client.setCameraEntity(client.player);
+                    return;
+                }
+                int steering = 0;
+                if (client.options.keyLeft.isDown() || client.options.keyUp.isDown()) {
+                    steering--;
+                }
+                if (client.options.keyRight.isDown()) {
+                    steering++;
+                }
+                ClientPlayNetworking.send(new org.agmas.noellesroles.packet.NiaoshoushouMissileControlC2SPacket(
+                        missile.getId(), steering));
             }
         });
         ClientTickEvents.END_CLIENT_TICK.register(client -> {

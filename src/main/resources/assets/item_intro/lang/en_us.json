@@ -150,6 +150,7 @@
     "item.noellesroles.shilijia.desc": "Stone frame, after consumption, it will immediately restore 50% of the physical strength based on the upper limit of physical strength. It can be purchased by the big goblin and distributed to teammates.",
     "item.noellesroles.youlu_anchor.desc": "Exclusive to Youlu, you can buy it once in the store for 80 coin. The first use releases a spherical anchor point that slides forward along the ground (visible only to Youlu himself). The second use uses it to teleport to the anchor point and recover the anchor point, and then enters a 30-second cooldown. Anchors last up to 25 seconds.",
     "item.noellesroles.youlu_smoke.desc": "Exclusive to Youlu, you can buy it once in the store for 70 coin. After use, a smoke wave is released along the line of sight (including up and down) that advances forward (can pass through walls, not instantaneous): Players within a radius of 4 blocks during the advancement will be blinded and darkened for 8 seconds. After the hit, the smoke will not disappear and will continue to move forward. The total distance is 12 blocks. Cooldown 60 seconds.",
+    "item.noellesroles.barbarian_knife.desc": "An unbreakable Barbarian Blade granted only during Berserk Form. It has no cooldown and can attack only neutral and killer factions.",
     "item.noellesroles.chocolate.desc": "Delicious chocolate, the sanity value will not drop within a short period of time after consumption. (lasts 15 seconds)",
     "item.noellesroles.calming_tea.desc": "Calm tea, slow down the consumption of sanity after drinking. (lasts 60 seconds)",
     "item.noellesroles.talisman.desc": "Amulet, when carried in the inventory, reduces low san visual disturbance and slowly restores san value.",
@@ -169,5 +170,10 @@
     "item.starrailexpress.dnf_toxic_heart.desc": "Special material obtained by Poisoner after poisoning a kill. Five are needed for the Redemption formula.",
     "item.starrailexpress.dnf_redemption_potion.desc": "Redemption potion. Crafting two triggers an independent ending for the Chef and Poisoner.",
     "item.starrailexpress.dnf_old_chef_diary.desc": "Old diary found by the Chef at a config point, containing clues about the Old Chef, Poisoner, and Redemption Potion.",
-    "item.starrailexpress.dnf_redemption_formula.desc": "Formula obtained after the Poisoner and Chef meet. Right-click to consume materials and craft two Redemption potions."
+    "item.starrailexpress.dnf_redemption_formula.desc": "Formula obtained after the Poisoner and Chef meet. Right-click to consume materials and craft two Redemption potions.",
+    "item.noellesroles.niaoshoushou_knife.desc": "Niaoshoushou's Nepalese kukri. Uses the normal knife attack and has 4 durability; it can also pry small doors, consuming 1 durability per successful pry.",
+    "item.noellesroles.niaoshoushou_incendiary_grenade.desc": "Niaoshoushou's incendiary grenade. Reuses the existing incendiary effect and has a 45-second cooldown.",
+    "item.noellesroles.niaoshoushou_family_photo.desc": "Niaoshoushou's family photo. Right-click two killer-team players or the Magician to form a team; only one can be bought per round.",
+    "item.noellesroles.niaoshoushou_missile.desc": "Niaoshoushou's cruise missile. Binds the camera after launch, flies forward automatically, turns left with A/W and right with D, and explodes in a 5-block radius on impact. 60-second cooldown.",
+    "item.noellesroles.niaoshoushou_blackout.desc": "Niaoshoushou's area blackout. Extinguishes lights within 30 blocks and has a 2-minute cooldown."
 }

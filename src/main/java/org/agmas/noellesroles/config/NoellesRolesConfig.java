@@ -443,6 +443,19 @@ public class NoellesRolesConfig implements ConfigData {
     /** 幽露 (Youlu) - 商店范围关灯半径（格） */
     public int youluBlackoutRadius = 24;
 
+    /** 野人 - 触发魔了形态所需的局内金币数（不消耗） */
+    public int barbarianTransformGold = 100;
+    /** 野人 - 魔了形态持续时间（秒） */
+    public int barbarianBerserkSeconds = 30;
+    /** 野人 - 烟雾吐息消耗的局内金币数 */
+    public int barbarianSmokeCost = 100;
+    /** 野人 - 烟雾吐息冷却（秒） */
+    public int barbarianSmokeCooldownSeconds = 60;
+    /** 野人 - 烟雾吐息半径（格） */
+    public double barbarianSmokeRadius = 6;
+    /** 野人 - 烟雾吐息持续时间（秒） */
+    public int barbarianSmokeSeconds = 7;
+
     /** Leon (里昂) - Combat skill (kick) cooldown in seconds */
     public int leonKickCooldown = 12;
     /** Leon (里昂) - Combat skill (kick) knockback strength (larger = farther) */

@@ -67,7 +67,17 @@ public abstract class MobEffectKeyMixin {
         if (player.hasEffect(ModEffects.TAROT_ASSEMBLY) || player.hasEffect(ModEffects.INVENTORY_BANED)) {
             if (this.same(options.keyInventory))
                 return true;
+            if (player.hasEffect(ModEffects.INVENTORY_BANED)) {
+                for (KeyMapping hotbar : options.keyHotbarSlots) {
+                    if (this.same(hotbar))
+                        return true;
+                }
+                if (this.same(options.keySwapOffhand) || this.same(options.keyPickItem))
+                    return true;
+            }
         }
+        if (player.hasEffect(ModEffects.TURN_BANED) && this.same(options.keyTogglePerspective))
+            return true;
         if (player.hasEffect(ModEffects.USED_BANED) || player.hasEffect(ModEffects.GHOST_CURSE)
                 || player.hasEffect(ModEffects.TAROT_ASSEMBLY)) {
             if (this.same(options.keyAttack) || this.same(options.keyDrop))

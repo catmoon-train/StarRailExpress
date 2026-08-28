@@ -37,6 +37,7 @@ import org.agmas.noellesroles.role_data.killer.EmbalmerRoleData;
 import org.agmas.noellesroles.role_data.killer.WraithAssassinRoleData;
 import org.agmas.noellesroles.game.roles.neutral.commander.CommanderHandler;
 import org.agmas.noellesroles.game.roles.neutral.pelican.PelicanManager;
+import org.agmas.noellesroles.game.fake_steve.FakeSteveVoiceDetector;
 import org.agmas.noellesroles.init.ModEffects;
 import org.agmas.noellesroles.role.ModRoles;
 import org.agmas.noellesroles.utils.RoleUtils;
@@ -167,6 +168,7 @@ public class NoellesrolesVoiceChatPlugin implements VoicechatPlugin {
         var vctplayer = vcplayer.getPlayer();
         if (vctplayer != null) {
           var player = (ServerPlayer) vctplayer;
+          FakeSteveVoiceDetector.onMicrophone(event, player);
           SREGameWorldComponent gameWorldComponent = SREGameWorldComponent.KEY.get(player.level());
           if (gameWorldComponent != null) {
             // 检查沉默语音效果

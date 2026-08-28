@@ -133,6 +133,14 @@ dependencies {
     modRuntimeOnly("org.anarres:jcpp:${jcpp_version}")
     modRuntimeOnly fileTree(dir: 'runtime_mods', include: '*.jar')
     modImplementation("io.github.douira:glsl-transformer:${glslTransformer_version}")
+
+    testImplementation platform("org.junit:junit-bom:5.11.4")
+    testImplementation "org.junit.jupiter:junit-jupiter"
+    testRuntimeOnly "org.junit.platform:junit-platform-launcher"
+}
+
+tasks.withType(Test).configureEach {
+    useJUnitPlatform()
 }
 
 processResources {

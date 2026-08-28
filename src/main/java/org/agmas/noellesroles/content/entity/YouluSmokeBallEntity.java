@@ -25,6 +25,7 @@ import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.level.Level;
@@ -53,6 +54,9 @@ public class YouluSmokeBallEntity extends Entity {
     /** 最大生命周期（tick，同步给客户端用于渲染消散进度）。 */
     private static final EntityDataAccessor<Float> MAX_LIFETIME = SynchedEntityData.defineId(
             YouluSmokeBallEntity.class, EntityDataSerializers.FLOAT);
+    /** 是否为野人烟雾吐息：该模式改为失明 + 禁用直觉。 */
+    private static final EntityDataAccessor<Boolean> BARBARIAN_SMOKE = SynchedEntityData.defineId(
+            YouluSmokeBallEntity.class, EntityDataSerializers.BOOLEAN);
 
     /** 效果刷新间隔（tick）。 */
     private static final int EFFECT_INTERVAL = 10;
@@ -73,6 +77,15 @@ public class YouluSmokeBallEntity extends Entity {
         this.remainingLifetime = lifetimeTicks;
     }
 
+    /** 配置野人的烟雾吐息；不设拥有者，因此野人本人也会受烟雾影响。 */
+    public void setupBarbarianSmoke(float radius, int lifetimeTicks) {
+        this.entityData.set(OWNER_UUID, Optional.empty());
+        this.entityData.set(RADIUS, radius);
+        this.entityData.set(MAX_LIFETIME, (float) lifetimeTicks);
+        this.entityData.set(BARBARIAN_SMOKE, true);
+        this.remainingLifetime = lifetimeTicks;
+    }
+
     public float getRadius() {
         return this.entityData.get(RADIUS);
     }
@@ -90,6 +103,7 @@ public class YouluSmokeBallEntity extends Entity {
         builder.define(RADIUS, 6.0F);
         builder.define(OWNER_UUID, Optional.empty());
         builder.define(MAX_LIFETIME, 240.0F);
+        builder.define(BARBARIAN_SMOKE, false);
     }
 
     @Override
@@ -116,17 +130,24 @@ public class YouluSmokeBallEntity extends Entity {
         }
     }
 
-    /** 对球内玩家（拥有者除外）施加视野迷雾 1 级。 */
+    /** 对球内玩家施加幽露迷雾，或野人烟雾的失明 + 禁用直觉。 */
     private void applyFogToPlayersInside(ServerLevel serverLevel) {
         double r = getRadius();
         UUID owner = getOwnerUuid();
         AABB box = new AABB(getX() - r, getY() - r, getZ() - r, getX() + r, getY() + r, getZ() + r);
         for (ServerPlayer p : serverLevel.getEntitiesOfClass(ServerPlayer.class, box,
                 GameUtils::isPlayerAliveAndSurvival)) {
-            if (owner != null && owner.equals(p.getUUID())) continue;
+            if (!this.entityData.get(BARBARIAN_SMOKE) && owner != null && owner.equals(p.getUUID())) continue;
             if (p.getEyePosition().distanceTo(position()) > r) continue;
-            p.addEffect(new MobEffectInstance(ModEffects.VISION_FOG, EFFECT_DURATION, 0,
-                    true, false, false));
+            if (this.entityData.get(BARBARIAN_SMOKE)) {
+                p.addEffect(new MobEffectInstance(MobEffects.BLINDNESS, EFFECT_DURATION, 0,
+                        true, false, true));
+                p.addEffect(new MobEffectInstance(ModEffects.NO_INSTINCT, EFFECT_DURATION, 0,
+                        true, false, false));
+            } else {
+                p.addEffect(new MobEffectInstance(ModEffects.VISION_FOG, EFFECT_DURATION, 0,
+                        true, false, false));
+            }
         }
     }
 
@@ -155,6 +176,7 @@ public class YouluSmokeBallEntity extends Entity {
             this.entityData.set(OWNER_UUID, Optional.of(tag.getUUID("OwnerUUID")));
         }
         this.entityData.set(RADIUS, tag.getFloat("Radius"));
+        this.entityData.set(BARBARIAN_SMOKE, tag.getBoolean("BarbarianSmoke"));
         remainingLifetime = tag.getInt("RemainingLifetime");
     }
 
@@ -165,6 +187,7 @@ public class YouluSmokeBallEntity extends Entity {
             tag.putUUID("OwnerUUID", owner);
         }
         tag.putFloat("Radius", getRadius());
+        tag.putBoolean("BarbarianSmoke", this.entityData.get(BARBARIAN_SMOKE));
         tag.putInt("RemainingLifetime", remainingLifetime);
     }
 }

@@ -213,6 +213,8 @@ public class ModRoles {
     public static final ResourceLocation RETURN_TRAVELER_ID = Noellesroles.id("return_traveler");
     // 皮革噶的角色 ID
     public static final ResourceLocation LEATHER_PIG_ID = Noellesroles.id("leather_pig");
+    // 野人角色 ID
+    public static final ResourceLocation BARBARIAN_ID = Noellesroles.id("barbarian");
     // 亡灵之主角色 ID
     public static final ResourceLocation UNDEAD_LORD_ID = Noellesroles.id("undead_lord");
 
@@ -238,6 +240,7 @@ public class ModRoles {
     public static ResourceLocation LOCKSMITH_ID = Noellesroles.id("locksmith");
     public static ResourceLocation EXAMPLER_ID = Noellesroles.id("exampler");
     public static final ResourceLocation NINJA_ID = Noellesroles.id("ninja");
+    public static final ResourceLocation NIAOSHOU_SHOU_ID = Noellesroles.id("niaoshoushou");
 
     public static ResourceLocation INSANE_KILLER_ID = Noellesroles
             .id("the_insane_damned_paranoid_killer");
@@ -293,6 +296,7 @@ public class ModRoles {
     public static final ResourceLocation DIVINER_ID = Noellesroles.id("diviner");
     // 疫使 ID - 杀手方中立
     public static final ResourceLocation INFECTED_ID = Noellesroles.id("infected");
+    public static final ResourceLocation FAKE_STEVE_ID = Noellesroles.id("fake_steve");
 
     // 葬仪 ID - 杀手方中立
     public static final ResourceLocation MORTICIAN_BODYMAKER_ID = Noellesroles.id("mortician_bodymaker");
@@ -687,6 +691,42 @@ public class ModRoles {
             .setDefaultMax(1)
             .setDefaultEnableChance(5000)
             .setCanBeRandomedByOtherRoles(false);
+
+    /**
+     * 野人 - 平民阵营。
+     * 持有足够金币时首次被杀手击杀会进入 30 秒魔了形态；此期间只能用专属刀攻击中立与杀手。
+     */
+    public static SRERole BARBARIAN = TMMRoles.registerRole(
+            new NormalRole(BARBARIAN_ID, new Color(106, 76, 48).getRGB(),
+                    true, false, SRERole.MoodType.REAL,
+                    TMMRoles.CIVILIAN.getMaxSprintTime(), false) {
+                @Override
+                public boolean onUseKnifeHit(Player player, Player target) {
+                    if (!player.getMainHandItem().is(ModItems.BARBARIAN_KNIFE)) {
+                        return false;
+                    }
+                    SRERole targetRole = SREGameWorldComponent.KEY.get(target.level()).getRole(target);
+                    return targetRole != null && (targetRole.isNeutrals() || targetRole.isKillerTeam()
+                            || targetRole.isKiller());
+                }
+            }).setRoleData(BarbarianRoleData::new)
+            .setCanSeeCoin(true)
+            .setDefaultMax(1)
+            .setDefaultEnableChance(5000);
+
+    /**
+     * 鸟兽兽 - 杀手阵营。
+     * 通过冲刺获得速度、燃烧击杀后的尸体，利用巡飞弹、关灯和临时掩体进行追猎。
+     */
+    public static final SRERole NIAOSHOU_SHOU = TMMRoles.registerRole(
+            new NiaoshoushouRole(NIAOSHOU_SHOU_ID, new Color(220, 70, 20).getRGB(),
+                    false, true, SRERole.MoodType.FAKE, Integer.MAX_VALUE, true)
+                    .setRoleData(NiaoshoushouRoleData::new)
+                    .setCanSeeCoin(true)
+                    .setCanBeRandomedByOtherRoles(false)
+                    .setDefaultMax(1)
+                    .setDefaultEnableNeededPlayerCount(12)
+                    .setDefaultEnableChance(1000));
 
     // 忍者
     public static final SRERole NINJA = TMMRoles.registerRole(
@@ -1469,6 +1509,19 @@ public class ModRoles {
                     Integer.MAX_VALUE, true))
             .setCanSeeCoin(true).setCanPickUpRevolver(false).setNeutrals(true).setNeutralForKiller(true)
             .setCanUseInstinctAndNightVision(true);
+
+    /** Metadata-only neutral role. Players keep their original role after replacement. */
+    public static final SRERole FAKE_STEVE = TMMRoles.registerRole(
+            new NormalRole(FAKE_STEVE_ID, new Color(48, 48, 48).getRGB(),
+                    false, false, SRERole.MoodType.FAKE, Integer.MAX_VALUE, true))
+            .setNeutrals(true)
+            .setNeutralForKiller(false)
+            .setCanSeeTeammateKillerRole(false)
+            .setCanUseInstinctAndNightVision(false)
+            .setCanPickUpRevolver(false)
+            .setCanBeRandomedByOtherRoles(false)
+            .setCanSetSpawnInfoInConfig(false)
+            .setDefaultMax(0);
     public static SRERole VULTURE = TMMRoles
             .registerRole(new NormalRole(VULTURE_ID, new Color(210, 105, 30).getRGB(), false,
                     false, SRERole.MoodType.FAKE, Integer.MAX_VALUE, true)
@@ -2755,6 +2808,8 @@ public class ModRoles {
         SALTED_FISH.setAddedVersion("4.3");
         RETURN_TRAVELER.setAddedVersion("4.4");
         LEATHER_PIG.setAddedVersion("4.3");
+        BARBARIAN.setAddedVersion("4.3");
+        NIAOSHOU_SHOU.setAddedVersion("4.4");
         NINJA.setAddedVersion("4.1");
         NOSTALGIST.setAddedVersion("4.3");
         WRAITH_ASSASSIN.setAddedVersion("4.3");
@@ -2806,6 +2861,7 @@ public class ModRoles {
         HUNTER.setAddedVersion("4.3");
         POISONER.setAddedVersion("2.x");
         INFECTED.setAddedVersion("4.2");
+        FAKE_STEVE.setAddedVersion("4.4");
         MORTICIAN_BODYMAKER.setAddedVersion("4.2");
         CUPID.setAddedVersion("4.3");
         SPELLBREAKER.setAddedVersion("4.2");

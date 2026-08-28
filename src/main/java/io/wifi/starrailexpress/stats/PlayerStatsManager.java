@@ -92,7 +92,7 @@ public final class PlayerStatsManager {
 
     public static boolean flushDatabaseBlocking(UUID playerUuid) {
         Entry entry = STATS.get(playerUuid);
-        if (!isOnlineEntry(entry) || !isDatabaseEnabled() || !entry.databaseLoaded) {
+        if (entry == null || STATS.get(playerUuid) != entry || !isDatabaseEnabled() || !entry.databaseLoaded) {
             return false;
         }
         long updatedAt = Math.max(1L, entry.updatedAt);
@@ -134,6 +134,11 @@ public final class PlayerStatsManager {
         Entry entry = STATS.get(player.getUUID());
         if (entry == null) {
             return;
+        }
+        // 周期同步间隔内断线时，若只写本地文件会让数据库权威副本落后一局数据。
+        // 断线仅发生一次，因此在移除内存条目前用受限阻塞写入收口；失败仍保留原子本地备份。
+        if (entry.databaseDirty) {
+            flushDatabaseBlocking(player.getUUID());
         }
         entry.online = false;
         entry.forceDatabaseFlushPending = false;

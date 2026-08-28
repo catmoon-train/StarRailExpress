@@ -61,6 +61,7 @@ import org.agmas.noellesroles.role_data.killer.DelayerRoleData;
 import org.agmas.noellesroles.role_data.killer.MaChenXuRoleData;
 import org.agmas.noellesroles.game.roles.killer.manipulator.InControlCCA;
 import org.agmas.noellesroles.role_data.innocence.BuilderRoleData;
+import org.agmas.noellesroles.role_data.innocence.BarbarianRoleData;
 import org.agmas.noellesroles.role_data.innocence.FortunetellerRoleData;
 import org.agmas.noellesroles.role_data.neutral.AmonRoleData;
 import org.agmas.noellesroles.role_data.neutral.CandleBearerRoleData;
@@ -87,6 +88,7 @@ import org.agmas.noellesroles.role_data.neutral.VultureRoleData;
 import org.agmas.noellesroles.role_data.neutral.VoiceChangerRoleData;
 import org.agmas.noellesroles.role_data.neutral.PhantomMusicianRoleData;
 import org.agmas.noellesroles.role_data.killer.ImitatorRoleData;
+import org.agmas.noellesroles.role_data.killer.NiaoshoushouRoleData;
 import org.agmas.noellesroles.role_data.special.SuperLooseEndRoleData;
 import org.agmas.noellesroles.role.ModRoles;
 import org.agmas.noellesroles.role.touhou.THRedHouseRoles;
@@ -110,6 +112,7 @@ public class ModRolesInitialEventRegister {
         BloodFeudistRoleData.registerEvents();
         // 初始化皮革噶的事件（疯魔推开致死→平民则小脑归因）
         LeatherPigRoleData.registerEvents();
+        BarbarianRoleData.registerEvents();
         // 初始化操纵师操控限制（被拖入水/岩浆/虚空/摔落致死时否决并弹回）
         InControlCCA.registerEvents();
         ModdedRoleAssigned.EVENT.register((player, role) -> {
@@ -623,6 +626,20 @@ public class ModRolesInitialEventRegister {
                     return RoleData.getOptional(YouluRoleData.class, player)
                             .map(rd -> rd.useCamSkill(player)).orElse(false);
                 }).cooldownSeconds(60).showOnHud(true).announceToSelf(true).build());
+
+        RoleSkill.register(ModRoles.BARBARIAN,
+                RoleSkill.skill(BarbarianRoleData.SKILL_ID, "skill.noellesroles.barbarian.smoke_breath", context ->
+                        RoleData.getOptional(BarbarianRoleData.class, context.player())
+                                .map(data -> data.useSmokeBreath(context.player())).orElse(false))
+                        .cooldownSeconds(NoellesRolesConfig.HANDLER.instance().barbarianSmokeCooldownSeconds)
+                        .showOnHud(true).announceToSelf(true).build());
+
+        // 鸟兽兽技能：生成 3x2 临时掩体。技能本身有两个初始充能，状态数据负责 60 秒后的逐个补充。
+        RoleSkill.register(ModRoles.NIAOSHOU_SHOU,
+                RoleSkill.skill(NiaoshoushouRoleData.COVER_SKILL_ID, "skill.noellesroles.niaoshoushou.cover", context ->
+                        RoleData.getOptional(NiaoshoushouRoleData.class, context.player())
+                                .map(data -> data.useCoverAbility(context.player())).orElse(false))
+                        .cooldownSeconds(60).charges(2).showOnHud(true).announceToSelf(true).build());
 
         // 滞时鬼（Delayer）技能注册：【时间锚点】——消耗金币锚定当前状态，
         // delayerRewindDelaySeconds 秒后自动沿原路平滑回溯（详见 DelayerRoleData）。
@@ -1273,6 +1290,7 @@ public class ModRolesInitialEventRegister {
                     RoleData.getOptional(DIORoleData.class, context.player()).ifPresent(d -> d.tryActivateTimeStop());
                     return true;
                 }).build());
+
     }
 
 }

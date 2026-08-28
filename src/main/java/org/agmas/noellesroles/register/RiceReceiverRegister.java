@@ -35,6 +35,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionHand;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
@@ -45,6 +46,7 @@ import org.agmas.noellesroles.client.screen.DetectiveInspectScreenHandler;
 import org.agmas.noellesroles.client.screen.PostmanScreenHandler;
 import org.agmas.noellesroles.component.ModComponents;
 import org.agmas.noellesroles.content.entity.LockEntityManager;
+import org.agmas.noellesroles.content.entity.NiaoshoushouMissileEntity;
 import org.agmas.noellesroles.role_data.innocence.AthleteRoleData;
 import org.agmas.noellesroles.game.roles.innocence.ayayaya.AyayayaPlayerComponent;
 import org.agmas.noellesroles.role_data.innocence.BoxerRoleData;
@@ -64,6 +66,7 @@ import org.agmas.noellesroles.role_data.neutral.AdmirerRoleData;
 import org.agmas.noellesroles.game.roles.neutral.puppeteer.PuppeteerPlayerComponent;
 import org.agmas.noellesroles.init.ModItems;
 import org.agmas.noellesroles.packet.GreatDetectiveRevealC2SPacket;
+import org.agmas.noellesroles.packet.NiaoshoushouMissileControlC2SPacket;
 import org.agmas.noellesroles.role.ModRoles;
 import org.agmas.noellesroles.role.bouns.BounsRoles;
 
@@ -82,6 +85,19 @@ public class RiceReceiverRegister {
     private static final double VETERAN_DASH_SPEED = 1.25D;
 
     public static void registerReceivers() {
+        // 鸟兽兽巡飞弹控制：只接受发射者本人、且仍在追踪范围内的控制输入。
+        ServerPlayNetworking.registerGlobalReceiver(NiaoshoushouMissileControlC2SPacket.ID, (payload, context) -> {
+            context.server().execute(() -> {
+                ServerPlayer player = context.player();
+                Entity entity = player.serverLevel().getEntity(payload.entityId());
+                if (entity instanceof NiaoshoushouMissileEntity missile
+                        && missile.controlledBy(player)
+                        && player.distanceToSqr(missile) <= 128.0D * 128.0D) {
+                    missile.setSteering(payload.steering());
+                }
+            });
+        });
+
         // 撬锁
         ServerPlayNetworking.registerGlobalReceiver(LOCK_GAME_PACKET, (payload, context) -> {
             ServerPlayer player = context.player();

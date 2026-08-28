@@ -25,9 +25,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.TimeUnit;
 
 /**
  * 全局战绩的远端数据库存储。
@@ -41,8 +42,10 @@ public final class MatchRecordStore {
     private static final int STATEMENT_TIMEOUT_SECONDS = 8;
     private static final int DEFAULT_LIST_LIMIT = 50;
     private static final int MAX_LIST_LIMIT = 200;
+    private static final int MAX_SAVE_ATTEMPTS = 5;
+    private static final long RETRY_DELAY_MILLIS = 1_000L;
 
-    private static final ExecutorService EXECUTOR = Executors.newFixedThreadPool(2, new ThreadFactory() {
+    private static final ScheduledExecutorService EXECUTOR = Executors.newScheduledThreadPool(2, new ThreadFactory() {
         private int index = 1;
 
         @Override
@@ -70,11 +73,42 @@ public final class MatchRecordStore {
         return MysqlPlayerDataStore.tablePrefix() + "match_records";
     }
 
+    private static String playerTableName() {
+        return MysqlPlayerDataStore.tablePrefix() + "match_record_players";
+    }
+
     public static CompletableFuture<Boolean> saveAsync(MatchRecord record) {
         if (record == null || record.matchId == null || !isAvailable()) {
             return CompletableFuture.completedFuture(false);
         }
-        return CompletableFuture.supplyAsync(() -> save(record), EXECUTOR);
+        CompletableFuture<Boolean> result = new CompletableFuture<>();
+        saveAttempt(record, 1, result);
+        return result;
+    }
+
+    /**
+     * 短暂的网络抖动不应让已结束的对局永久丢失。使用同一个 matchId 重试，数据库 UPSERT 保证幂等。
+     * 长耗时 I/O 永远不阻塞服务端线程。
+     */
+    private static void saveAttempt(MatchRecord record, int attempt, CompletableFuture<Boolean> result) {
+        CompletableFuture.supplyAsync(() -> save(record), EXECUTOR).whenComplete((saved, error) -> {
+            if (error == null && Boolean.TRUE.equals(saved)) {
+                result.complete(true);
+                return;
+            }
+            if (attempt >= MAX_SAVE_ATTEMPTS) {
+                if (error != null) {
+                    result.completeExceptionally(error);
+                } else {
+                    result.complete(false);
+                }
+                return;
+            }
+            long delay = RETRY_DELAY_MILLIS * (1L << (attempt - 1));
+            logger.warn("保存全局战绩 {} 第 {}/{} 次失败，{}ms 后重试。",
+                    record.matchId, attempt, MAX_SAVE_ATTEMPTS, delay);
+            EXECUTOR.schedule(() -> saveAttempt(record, attempt + 1, result), delay, TimeUnit.MILLISECONDS);
+        });
     }
 
     /**
@@ -110,20 +144,60 @@ public final class MatchRecordStore {
                 + "payload_json = VALUES(payload_json)";
         try (Connection connection = source.getConnection()) {
             ensureSchema(connection);
-            try (PreparedStatement statement = connection.prepareStatement(sql)) {
-                statement.setQueryTimeout(STATEMENT_TIMEOUT_SECONDS);
-                statement.setString(1, record.matchId);
-                statement.setLong(2, record.createdAt);
-                statement.setString(3, record.winningTeam);
-                statement.setInt(4, record.playerCount);
-                statement.setString(5, record.toSummaryJson());
-                statement.setString(6, record.toJson());
-                statement.executeUpdate();
+            connection.setAutoCommit(false);
+            try {
+                try (PreparedStatement statement = connection.prepareStatement(sql)) {
+                    statement.setQueryTimeout(STATEMENT_TIMEOUT_SECONDS);
+                    statement.setString(1, record.matchId);
+                    statement.setLong(2, record.createdAt);
+                    statement.setString(3, record.winningTeam);
+                    statement.setInt(4, record.playerCount);
+                    statement.setString(5, record.toSummaryJson());
+                    statement.setString(6, record.toJson());
+                    statement.executeUpdate();
+                }
+                replacePlayers(connection, record);
+                connection.commit();
+            } catch (SQLException exception) {
+                connection.rollback();
+                throw exception;
             }
             return true;
         } catch (SQLException exception) {
             logger.warn("保存全局战绩 {} 到 MySQL 失败。", record.matchId, exception);
             return false;
+        }
+    }
+
+    /**
+     * 为每名参赛者建立轻量索引行。网站按玩家查询时无需扫描/解析整张战绩 JSON 表，
+     * 详情仍只在用户点击对应局时才读取完整 payload。
+     */
+    private static void replacePlayers(Connection connection, MatchRecord record) throws SQLException {
+        try (PreparedStatement delete = connection.prepareStatement(
+                "DELETE FROM " + playerTableName() + " WHERE match_id = ?")) {
+            delete.setQueryTimeout(STATEMENT_TIMEOUT_SECONDS);
+            delete.setString(1, record.matchId);
+            delete.executeUpdate();
+        }
+        if (record.players == null || record.players.isEmpty()) {
+            return;
+        }
+        String sql = "INSERT INTO " + playerTableName()
+                + " (match_id, player_uuid, created_at, player_json) VALUES (?, ?, ?, ?)";
+        try (PreparedStatement insert = connection.prepareStatement(sql)) {
+            insert.setQueryTimeout(STATEMENT_TIMEOUT_SECONDS);
+            for (MatchRecord.MatchPlayer player : record.players) {
+                if (player == null || player.uuid == null || player.uuid.isBlank()) {
+                    continue;
+                }
+                insert.setString(1, record.matchId);
+                insert.setString(2, player.uuid);
+                insert.setLong(3, record.createdAt);
+                insert.setString(4, MatchRecord.GSON.toJson(player));
+                insert.addBatch();
+            }
+            insert.executeBatch();
         }
     }
 
@@ -202,9 +276,19 @@ public final class MatchRecordStore {
                 + "PRIMARY KEY (match_id),"
                 + "KEY idx_created_at (created_at)"
                 + ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci";
+        String playerDdl = "CREATE TABLE IF NOT EXISTS " + playerTableName() + " ("
+                + "match_id CHAR(36) NOT NULL,"
+                + "player_uuid CHAR(36) NOT NULL,"
+                + "created_at BIGINT NOT NULL,"
+                + "player_json TEXT NOT NULL,"
+                + "PRIMARY KEY (match_id, player_uuid),"
+                + "KEY idx_player_created_at (player_uuid, created_at),"
+                + "KEY idx_created_at (created_at)"
+                + ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci";
         try (Statement statement = connection.createStatement()) {
             statement.setQueryTimeout(STATEMENT_TIMEOUT_SECONDS);
             statement.execute(ddl);
+            statement.execute(playerDdl);
         }
         schemaReady = true;
         logger.info("全局战绩表 {} 已就绪。", tableName());

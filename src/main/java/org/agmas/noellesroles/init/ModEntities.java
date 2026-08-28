@@ -79,6 +79,18 @@ public class ModEntities {
                     .trackedUpdateRate(10)
                     .build());
 
+    /** 鸟兽兽巡飞弹实体。 */
+    @SuppressWarnings("deprecation")
+    public static final EntityType<NiaoshoushouMissileEntity> NIAOSHOU_SHOU_MISSILE = Registry.register(
+            BuiltInRegistries.ENTITY_TYPE,
+            Noellesroles.id("niaoshoushou_missile"),
+            FabricEntityTypeBuilder
+                    .<NiaoshoushouMissileEntity>create(MobCategory.MISC, NiaoshoushouMissileEntity::new)
+                    .dimensions(EntityDimensions.fixed(0.35F, 0.35F))
+                    .trackRangeBlocks(128)
+                    .trackedUpdateRate(1)
+                    .build());
+
     @SuppressWarnings("deprecation")
     public static final EntityType<SlimeGrenadeEntity> SLIME_GRENADE = Registry.register(
             BuiltInRegistries.ENTITY_TYPE,

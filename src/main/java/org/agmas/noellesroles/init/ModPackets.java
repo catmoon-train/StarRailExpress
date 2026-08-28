@@ -51,6 +51,14 @@ public class ModPackets {
     public static final CustomPacketPayload.Type<ImitatorSwitchSlotC2SPacket> IMITATOR_SWITCH_SLOT_PACKET = ImitatorSwitchSlotC2SPacket.TYPE;
 
     public static void registerPackets() {
+        PayloadTypeRegistry.playS2C().register(FakeSteveApparitionS2CPacket.ID,
+                FakeSteveApparitionS2CPacket.CODEC);
+        PayloadTypeRegistry.playC2S().register(FakeSteveApparitionLostC2SPacket.ID,
+                FakeSteveApparitionLostC2SPacket.CODEC);
+        ServerPlayNetworking.registerGlobalReceiver(FakeSteveApparitionLostC2SPacket.ID,
+                (payload, context) -> context.server().execute(() ->
+                        org.agmas.noellesroles.game.fake_steve.FakeSteveApparitions
+                                .onLost(context.player(), payload.apparitionId())));
         // 时间回溯的客户端镜头/后处理触发包。
         PayloadTypeRegistry.playS2C().register(TimeRewindVisualS2CPacket.ID,
                 TimeRewindVisualS2CPacket.CODEC);

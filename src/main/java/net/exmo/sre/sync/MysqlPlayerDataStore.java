@@ -30,7 +30,13 @@ public final class MysqlPlayerDataStore {
     private static final Logger logger = LoggerFactory.getLogger(MysqlPlayerDataStore.class);
     private static final Pattern TABLE_PREFIX_PATTERN = Pattern.compile("[A-Za-z0-9_]*");
     private static final long FAST_FAIL_BACKOFF_MS = 15_000L;
+    /** force 保存时使用：无条件覆盖远端记录（关服/断线兜底）。 */
     private static final long UNKNOWN_REVISION = -1L;
+    /**
+     * 非 force 保存但本地从未成功拉取过该数据键（远端基线版本未知）时使用：
+     * 仅当远端不存在该行时才插入，绝不覆盖已有数据，防止服务端异常把上游玩家数据清空/归零。
+     */
+    private static final long PRESERVE_REVISION = -2L;
     private static final String GAME_SERVER_WRITER = "game_server";
     private static final ExecutorService EXECUTOR = Executors.newFixedThreadPool(2, new ThreadFactory() {
         private int index = 1;
@@ -140,8 +146,13 @@ public final class MysqlPlayerDataStore {
     public static CompletableFuture<Map<String, SyncRecord>> loadBatchAsync(UUID playerUuid,
             Collection<String> dataKeys) {
         List<String> normalizedKeys = normalizeKeys(dataKeys);
-        if (playerUuid == null || normalizedKeys.isEmpty() || dataSource == null) {
+        if (playerUuid == null || normalizedKeys.isEmpty()) {
             return CompletableFuture.completedFuture(Map.of());
+        }
+        if (dataSource == null) {
+            // 数据库不可用时显式失败，避免调用方把“没有数据”与“数据库不可用”混为一谈而误清空玩家数据。
+            return CompletableFuture.failedFuture(
+                    new SQLException("MySQL player data store is not available"));
         }
         return CompletableFuture.supplyAsync(() -> loadBatch(playerUuid, normalizedKeys), EXECUTOR);
     }
@@ -250,10 +261,10 @@ public final class MysqlPlayerDataStore {
                 + " (player_uuid, data_key, payload_json, updated_at, record_version, created_at, updated_by) "
                 + "VALUES (?, ?, ?, ?, 1, ?, ?) "
                 + "ON DUPLICATE KEY UPDATE "
-                + "payload_json = IF(? < 0 OR record_version = ?, VALUES(payload_json), payload_json), "
-                + "updated_at = IF(? < 0 OR record_version = ?, GREATEST(updated_at, VALUES(updated_at)), updated_at), "
-                + "updated_by = IF(? < 0 OR record_version = ?, VALUES(updated_by), updated_by), "
-                + "record_version = IF(? < 0 OR record_version = ?, record_version + 1, record_version)";
+                + "payload_json = IF(? = -1 OR record_version = ?, VALUES(payload_json), payload_json), "
+                + "updated_at = IF(? = -1 OR record_version = ?, GREATEST(updated_at, VALUES(updated_at)), updated_at), "
+                + "updated_by = IF(? = -1 OR record_version = ?, VALUES(updated_by), updated_by), "
+                + "record_version = IF(? = -1 OR record_version = ?, record_version + 1, record_version)";
 
         Connection connection = null;
         try {
@@ -264,7 +275,7 @@ public final class MysqlPlayerDataStore {
                 for (var entry : payloads.entrySet()) {
                     long expectedRevision = force
                             ? UNKNOWN_REVISION
-                            : KNOWN_REVISIONS.getOrDefault(new RecordKey(playerUuid, entry.getKey()), UNKNOWN_REVISION);
+                            : KNOWN_REVISIONS.getOrDefault(new RecordKey(playerUuid, entry.getKey()), PRESERVE_REVISION);
                     statement.setString(1, playerUuid.toString());
                     statement.setString(2, entry.getKey());
                     statement.setString(3, entry.getValue());
@@ -282,7 +293,13 @@ public final class MysqlPlayerDataStore {
                     int changedRows = statement.executeUpdate();
                     if (changedRows == 0) {
                         rollbackQuietly(connection, playerUuid);
-                        logRevisionConflict(connection, playerUuid, entry.getKey(), expectedRevision);
+                        if (expectedRevision == PRESERVE_REVISION) {
+                            logger.warn(
+                                    "跳过玩家 {} 的 MySQL 同步写入 {}：数据库基线版本未知，为防数据归零不覆盖已有记录，等待重新拉取后合并。",
+                                    playerUuid, entry.getKey());
+                        } else {
+                            logRevisionConflict(connection, playerUuid, entry.getKey(), expectedRevision);
+                        }
                         return false;
                     }
                 }
