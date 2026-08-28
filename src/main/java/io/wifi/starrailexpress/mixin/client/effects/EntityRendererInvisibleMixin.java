@@ -16,13 +16,16 @@
 package io.wifi.starrailexpress.mixin.client.effects;
 
 import io.wifi.starrailexpress.cca.SREAbilityPlayerComponent;
+import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.client.SREClient;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.culling.Frustum;
 import net.minecraft.client.renderer.entity.EntityRenderer;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.Display.BlockDisplay;
 import net.minecraft.world.entity.player.Player;
 
+import org.agmas.noellesroles.handler.utils.THYukariPortalManager;
 import org.agmas.noellesroles.role.touhou.THMiscRoles;
 import org.agmas.noellesroles.utils.RoleUtils;
 import org.spongepowered.asm.mixin.Mixin;
@@ -54,6 +57,15 @@ public class EntityRendererInvisibleMixin {
                         cir.setReturnValue(true);
                         return;
                     } else {
+                        cir.setReturnValue(false);
+                        return;
+                    }
+                }
+            }
+        } else if (entity instanceof BlockDisplay bd) {
+            if (THYukariPortalManager.isPortal(bd)) {
+                if (SREClient.getCachedPlayerRole() != null) {
+                    if (!SREGameWorldComponent.isKillerTeamRoleStatic(SREClient.getCachedPlayerRole())) {
                         cir.setReturnValue(false);
                         return;
                     }

@@ -16,7 +16,9 @@ import io.wifi.starrailexpress.cca.PlayerBodyEntityComponent;
 import io.wifi.starrailexpress.cca.SREAbilityPlayerComponent;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.cca.SREPlayerPoisonComponent;
+import io.wifi.starrailexpress.cca.SREPlayerShopComponent;
 import io.wifi.starrailexpress.content.entity.PlayerBodyEntity;
+import io.wifi.starrailexpress.event.OnPlayerDeathWithKiller;
 import io.wifi.starrailexpress.game.GameConstants;
 import io.wifi.starrailexpress.game.GameUtils;
 import io.wifi.starrailexpress.game.GameUtils.WinStatus;
@@ -209,6 +211,23 @@ public class BeeFamilyManager {
 
             return InteractionResult.CONSUME;
         }));
+        OnPlayerDeathWithKiller.EVENT.register((player, killer, deathReason) -> {
+            if (killer == null) {
+                return;
+            }
+            var worldcca = SREGameWorldComponent.getInstance(player);
+            var role = worldcca.getRole(killer);
+            if (!(role instanceof BeeFamilyRole)) {
+                return;
+            }
+            for (final var p : player.level().players()) {
+                if (!GameUtils.isPlayerAliveAndSurvival(p))
+                    continue;
+                if (worldcca.isRole(p, BounsRoles.BEE_QUEEN)) {
+                    SREPlayerShopComponent.KEY.get(p).addToBalance(50);
+                }
+            }
+        });
     }
 
     private static boolean changeChannel(RoleSkillContext ctx) {
