@@ -79,7 +79,7 @@ public abstract class RefugeeHud {
 
             // 右下角显示
             int x = screenWidth / 2;
-            int y = screenHeight - 72;
+            int y = screenHeight - 102;
 
             context.drawString(client.font, text, x - textWidth / 2, y, color);
             context.drawString(client.font, text2, x - client.font.width(text2) / 2, y - 12, color);

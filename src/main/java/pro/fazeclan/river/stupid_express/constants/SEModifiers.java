@@ -78,7 +78,8 @@ public class SEModifiers {
             false))
             .setDefaultEnableChance(1000)
             .setDefaultEnableNeededPlayerCount(12)
-            .setHidden(true);
+            .setHidden(true)
+            .addBothRelatedRole(TMMRoles.LOOSE_END);
 
     public static SREModifier TINY = HMLModifiers.registerModifier(new SREModifier(
             StupidExpress.id("tiny"),
