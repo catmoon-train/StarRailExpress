@@ -482,10 +482,14 @@ public class RoleUtils extends MCItemsUtils {
     }
 
     public static MutableComponent getRoleSimpleDescription(SRERole role) {
+        if (role == null)
+            return Component.empty();
         return role.getSimpleDescription().copy();
     }
 
     public static MutableComponent getModifierSimpleDescription(SREModifier modifier) {
+        if (modifier == null)
+            return Component.empty();
         return modifier.getSimpleDescription().copy();
     }
 

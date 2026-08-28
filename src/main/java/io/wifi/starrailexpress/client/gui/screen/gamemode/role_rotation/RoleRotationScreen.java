@@ -31,6 +31,7 @@ import net.minecraft.util.FastColor.ARGB32;
 import net.minecraft.util.FormattedCharSequence;
 import net.minecraft.util.Mth;
 import org.agmas.noellesroles.client.NoellesrolesClient;
+import org.agmas.noellesroles.client.screen.RoleIntroduceScreen;
 import org.agmas.noellesroles.utils.RoleUtils;
 
 import java.util.*;
@@ -43,6 +44,7 @@ public class RoleRotationScreen extends Screen {
     private static final int PLAYER_ROW_H = 28;
     private static final int CARD_H = 104;
     private static final int DETAIL_LINE_H = 11;
+    private static final int TOOLTIP_W = 200;
 
     private static final int BG_TOP = 0xF018120A;
     private static final int BG_BOTTOM = 0xF0061018;
@@ -66,6 +68,14 @@ public class RoleRotationScreen extends Screen {
     private int maxPlayerListScroll;
     private int hoveredCardIndex = -1;
     private int hoveredDetailIndex = -1;
+    private int hoveredPlayerIndex = -1;
+
+    private boolean scrolling;
+    private double scrollBarClickOffset;
+
+    private int lastAutoScrollRow = -1;
+    private int autoScrollTarget;
+    private boolean autoScrolling;
 
     public RoleRotationScreen() {
         super(Component.translatable("gui.sre.role_rotation.title").withStyle(ChatFormatting.GOLD));
@@ -105,11 +115,36 @@ public class RoleRotationScreen extends Screen {
         return Math.max(48, panelH - 78);
     }
 
+    private int scrollBarX() {
+        return leftX + leftW - PAD - 4;
+    }
+
+    private int scrollBarY() {
+        return leftY + PAD + 28;
+    }
+
+    private int scrollBarH() {
+        return getPlayerListHeight();
+    }
+
+    private int thumbHeight() {
+        int h = scrollBarH();
+        int content = Math.max(h, RoleRotationCache.getTotalPlayers() * PLAYER_ROW_H);
+        return Math.max(18, h * h / content);
+    }
+
+    private int thumbTopY() {
+        int h = scrollBarH();
+        int thumb = thumbHeight();
+        return scrollBarY() + (int) ((h - thumb) * (playerListScroll / (double) Math.max(1, maxPlayerListScroll)));
+    }
+
     @Override
     public void tick() {
         super.tick();
         tickCounter++;
         RoleRotationCache.tickTimers(); // 客户端本地倒计时 tick
+        updateAutoScroll();
     }
 
     private void renderOverlayMessageOnScreen(GuiGraphics context, int mouseX, int mouseY, float delta) {
@@ -146,6 +181,7 @@ public class RoleRotationScreen extends Screen {
         calculateScroll();
         hoveredCardIndex = -1;
         hoveredDetailIndex = -1;
+        hoveredPlayerIndex = -1;
 
         drawTitleBar(g);
         drawPanel(g, leftX, leftY, leftW, panelH);
@@ -154,6 +190,8 @@ public class RoleRotationScreen extends Screen {
         drawTurnInfo(g);
         drawRoleArea(g, mouseX, mouseY);
         drawFooter(g);
+
+        renderPlayerRoleTooltip(g, mouseX, mouseY);
 
         renderOverlayMessageOnScreen(g, mouseX, mouseY, partialTick);
     }
@@ -187,12 +225,13 @@ public class RoleRotationScreen extends Screen {
         Component listTitle = Component.translatable("gui.sre.role_rotation.player_list");
         g.drawString(font, listTitle, x, leftY + PAD, TEXT, false);
 
-        List<Map.Entry<UUID, Integer>> players = new ArrayList<>(RoleRotationCache.getRotationOrder().entrySet());
-        players.sort(Comparator.comparingInt(Map.Entry::getValue));
+        List<Map.Entry<UUID, Integer>> players = getSortedPlayers();
 
         // 获取本轮参与的玩家 UUID 集合
         Set<UUID> roundPlayers = RoleRotationCache.getRoundCandidates().keySet();
 
+        // 有滚动条时右侧留出滚动条命中区，避免悬停/点击与拖动冲突
+        int hoverZoneW = maxPlayerListScroll > 0 ? w - 6 : w;
         g.enableScissor(x, y, x + w, y + h);
         int drawY = y - playerListScroll;
         for (int i = 0; i < players.size(); i++) {
@@ -202,26 +241,44 @@ public class RoleRotationScreen extends Screen {
             if (rowY + PLAYER_ROW_H < y || rowY > y + h) {
                 continue;
             }
+            boolean rowHover = inside(mouseX, mouseY, x, rowY, hoverZoneW, PLAYER_ROW_H);
+            if (rowHover) {
+                hoveredPlayerIndex = i;
+            }
             // 高亮：该玩家正在本轮选择中
             boolean inThisRound = roundPlayers.contains(uuid);
             int bg = inThisRound ? 0x552A5A42 : 0x331A1008;
-            g.fillGradient(x, rowY, x + w, rowY + PLAYER_ROW_H - 3, bg, 0x33120A04);
-            g.renderOutline(x, rowY, w, PLAYER_ROW_H - 3, inThisRound ? GREEN : 0x665A4530);
+            int bgBottom = 0x33120A04;
+            if (rowHover) {
+                bg = 0x553A2E12;
+                bgBottom = 0x44302010;
+            }
+            g.fillGradient(x, rowY, x + w, rowY + PLAYER_ROW_H - 3, bg, bgBottom);
+            g.renderOutline(x, rowY, w, PLAYER_ROW_H - 3, rowHover ? GOLD : (inThisRound ? GREEN : 0x665A4530));
+            if (rowHover) {
+                g.fill(x, rowY + 1, x + 3, rowY + PLAYER_ROW_H - 3, GOLD);
+            }
 
             String index = "#" + entry.getValue();
-            g.drawString(font, index, x + 6, rowY + 8, inThisRound ? GREEN : MUTED, false);
+            g.drawString(font, index, x + 6, rowY + 8, rowHover ? GOLD : (inThisRound ? GREEN : MUTED), false);
 
             Component roleName = selectedRoleText(uuid);
-            g.drawString(font, trim(roleName.getString(), Math.max(30, w - 104)), x + w - 58, rowY + 8,
-                    roleName.getStyle().getColor() != null ? roleName.getStyle().getColor().getValue() : BLUE, false);
+            int roleColor = roleName.getStyle().getColor() != null ? roleName.getStyle().getColor().getValue() : BLUE;
+            if (rowHover && getConcreteRoleAtRow(i) != null) {
+                roleColor = GOLD;
+            }
+            g.drawString(font, trim(roleName.getString(), Math.max(30, w - 104)), x + w - 58, rowY + 8, roleColor,
+                    false);
         }
         g.disableScissor();
 
         if (maxPlayerListScroll > 0) {
-            int barX = x + w - 4;
-            int thumbH = Math.max(18, h * h / Math.max(h, players.size() * PLAYER_ROW_H));
-            int thumbY = y + (int) ((h - thumbH) * (playerListScroll / (double) maxPlayerListScroll));
-            g.fill(barX, y, barX + 3, y + h, 0x661A1008);
+            int barX = scrollBarX();
+            int barY = scrollBarY();
+            int barH = scrollBarH();
+            int thumbH = thumbHeight();
+            int thumbY = thumbTopY();
+            g.fill(barX, barY, barX + 3, barY + barH, 0x661A1008);
             g.fill(barX, thumbY, barX + 3, thumbY + thumbH, GOLD);
         }
     }
@@ -263,6 +320,44 @@ public class RoleRotationScreen extends Screen {
         if (role.isNeutralForKiller())
             return 0xFFAA44CC;
         return role.getColor() | 0xFF000000;
+    }
+
+    private List<Map.Entry<UUID, Integer>> getSortedPlayers() {
+        List<Map.Entry<UUID, Integer>> players = new ArrayList<>(RoleRotationCache.getRotationOrder().entrySet());
+        players.sort(Comparator.comparingInt(Map.Entry::getValue));
+        return players;
+    }
+
+    // 该行是否显示“具体职业”（已选、非随机、非隐藏且能解析出 SRERole）
+    private SRERole getConcreteRoleAtRow(int row) {
+        List<Map.Entry<UUID, Integer>> players = getSortedPlayers();
+        if (row < 0 || row >= players.size())
+            return null;
+        UUID uuid = players.get(row).getKey();
+        String rolePath = RoleRotationCache.getSelectedRoles().get(uuid);
+        if (rolePath == null)
+            return null;
+        if (RoleRotationCache.getRandomChoosers().contains(uuid))
+            return null;
+        SRERole role = getRoleByPath(rolePath);
+        if (role == null || role.isFlag("inner.role_rotation.hidden"))
+            return null;
+        return role;
+    }
+
+    private void renderPlayerRoleTooltip(GuiGraphics g, int mouseX, int mouseY) {
+        if (scrolling || hoveredPlayerIndex < 0)
+            return;
+        SRERole role = getConcreteRoleAtRow(hoveredPlayerIndex);
+        if (role == null)
+            return;
+        List<FormattedCharSequence> lines = new ArrayList<>();
+        lines.add(RoleUtils.getRoleName(role).copy()
+                .withStyle(style -> style.withBold(true).withColor(role.getColor() | 0xFF000000))
+                .getVisualOrderText());
+        // font.split 保留翻译文本自身的格式，并把 \n 作为换行、超长行自动折行
+        lines.addAll(font.split(RoleUtils.getRoleSimpleDescription(role), TOOLTIP_W));
+        g.renderTooltip(font, lines, mouseX, mouseY);
     }
 
     private void drawTurnInfo(GuiGraphics g) {
@@ -422,7 +517,7 @@ public class RoleRotationScreen extends Screen {
     }
 
     private List<FormattedCharSequence> getRoleIntroLines(SRERole role, int wrapW) {
-        return font.split(RoleUtils.getRoleDescription(role), wrapW);
+        return font.split(RoleUtils.getRoleSimpleDescription(role), wrapW);
     }
 
     private int detailIndexForSelected(String selectedPath, List<String> candidates) {
@@ -477,11 +572,100 @@ public class RoleRotationScreen extends Screen {
         return Component.literal("Unknown").withStyle(ChatFormatting.GRAY);
     }
 
+    private void updateAutoScroll() {
+        int anchor = computeAnchorRow();
+        if (anchor != lastAutoScrollRow) {
+            lastAutoScrollRow = anchor;
+            autoScrolling = anchor >= 0;
+            if (anchor >= 0) {
+                int listH = scrollBarH();
+                int rowTop = anchor * PLAYER_ROW_H;
+                int rowBottom = rowTop + PLAYER_ROW_H;
+                int margin = PLAYER_ROW_H;
+                if (rowTop < playerListScroll + margin) {
+                    autoScrollTarget = Math.max(0, rowTop - margin);
+                } else if (rowBottom > playerListScroll + listH - margin) {
+                    autoScrollTarget = Math.min(maxPlayerListScroll, rowBottom + margin - listH);
+                } else {
+                    autoScrollTarget = playerListScroll;
+                }
+            }
+        }
+        if (!autoScrolling)
+            return;
+        int diff = autoScrollTarget - playerListScroll;
+        if (diff == 0) {
+            autoScrolling = false;
+            return;
+        }
+        int step = Math.min(60, Math.max(1, (int) Math.ceil(Math.abs(diff) * 0.25)));
+        playerListScroll = Mth.clamp(playerListScroll + Integer.signum(diff) * step, 0, maxPlayerListScroll);
+        if (playerListScroll == autoScrollTarget) {
+            autoScrolling = false;
+        }
+    }
+
+    // 当前“选择进度”锚点：本轮按轮换顺序第一个尚未选择的玩家行号
+    private int computeAnchorRow() {
+        if (!RoleRotationCache.isSelecting())
+            return -1;
+        List<Map.Entry<UUID, Integer>> players = getSortedPlayers();
+        Set<UUID> roundPlayers = RoleRotationCache.getRoundCandidates().keySet();
+        for (int i = 0; i < players.size(); i++) {
+            UUID uuid = players.get(i).getKey();
+            if (roundPlayers.contains(uuid) && !RoleRotationCache.getSelectedRoles().containsKey(uuid)) {
+                return i;
+            }
+        }
+        return -1;
+    }
+
+    private void cancelAutoScroll() {
+        autoScrolling = false;
+        lastAutoScrollRow = computeAnchorRow();
+    }
+
+    private boolean handleScrollBarClick(double mouseX, double mouseY) {
+        if (maxPlayerListScroll <= 0)
+            return false;
+        int barX = scrollBarX();
+        int barY = scrollBarY();
+        int barH = scrollBarH();
+        if (mouseX < barX - 2 || mouseX > barX + 5 || mouseY < barY || mouseY > barY + barH)
+            return false;
+        int thumb = thumbHeight();
+        int thumbY = thumbTopY();
+        if (mouseY >= thumbY && mouseY <= thumbY + thumb) {
+            scrolling = true;
+            scrollBarClickOffset = mouseY - thumbY;
+        } else {
+            int trackLen = barH - thumb;
+            if (trackLen > 0) {
+                double ratio = Mth.clamp((mouseY - barY - thumb / 2.0) / trackLen, 0.0, 1.0);
+                playerListScroll = (int) Math.round(ratio * maxPlayerListScroll);
+            }
+        }
+        cancelAutoScroll();
+        return true;
+    }
+
     @Override
     public boolean mouseClicked(double mouseX, double mouseY, int button) {
-        if (button == 0 && hoveredCardIndex >= 0 && canChooseNow()) {
-            ClientPlayNetworking.send(new RoleRotationSelectC2SPacket(hoveredCardIndex));
-            return true;
+        if (button == 0) {
+            if (handleScrollBarClick(mouseX, mouseY))
+                return true;
+            if (hoveredPlayerIndex >= 0) {
+                SRERole role = getConcreteRoleAtRow(hoveredPlayerIndex);
+                if (role != null) {
+                    Minecraft mc = Minecraft.getInstance();
+                    mc.setScreen(new RoleIntroduceScreen(this, role));
+                    return true;
+                }
+            }
+            if (hoveredCardIndex >= 0 && canChooseNow()) {
+                ClientPlayNetworking.send(new RoleRotationSelectC2SPacket(hoveredCardIndex));
+                return true;
+            }
         }
         return super.mouseClicked(mouseX, mouseY, button);
     }
@@ -497,11 +681,37 @@ public class RoleRotationScreen extends Screen {
     @Override
     public boolean mouseScrolled(double mouseX, double mouseY, double scrollX, double scrollY) {
         if (inside(mouseX, mouseY, leftX, leftY, leftW, panelH) && maxPlayerListScroll > 0) {
+            cancelAutoScroll();
             playerListScroll = Mth.clamp(playerListScroll - (int) Math.signum(scrollY) * PLAYER_ROW_H, 0,
                     maxPlayerListScroll);
             return true;
         }
         return super.mouseScrolled(mouseX, mouseY, scrollX, scrollY);
+    }
+
+    @Override
+    public boolean mouseDragged(double mouseX, double mouseY, int button, double dx, double dy) {
+        if (scrolling) {
+            int barY = scrollBarY();
+            int barH = scrollBarH();
+            int thumb = thumbHeight();
+            int trackLen = barH - thumb;
+            if (trackLen > 0) {
+                double pos = Mth.clamp(mouseY - barY - scrollBarClickOffset, 0.0, trackLen);
+                playerListScroll = (int) Math.round(pos / trackLen * maxPlayerListScroll);
+            }
+            return true;
+        }
+        return super.mouseDragged(mouseX, mouseY, button, dx, dy);
+    }
+
+    @Override
+    public boolean mouseReleased(double mouseX, double mouseY, int button) {
+        if (scrolling) {
+            scrolling = false;
+            return true;
+        }
+        return super.mouseReleased(mouseX, mouseY, button);
     }
 
     @Override
@@ -516,7 +726,7 @@ public class RoleRotationScreen extends Screen {
                 String rolePath = RoleRotationCache.getSelectedRoles().get(mc.player.getUUID());
                 SRERole role = getRoleByPath(rolePath);
                 if (role != null) {
-                    mc.setScreen(new org.agmas.noellesroles.client.screen.RoleIntroduceScreen(this, role));
+                    mc.setScreen(new RoleIntroduceScreen(this, role));
                 }
             }
             return true;
