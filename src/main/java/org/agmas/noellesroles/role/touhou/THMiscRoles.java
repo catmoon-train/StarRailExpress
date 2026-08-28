@@ -136,6 +136,7 @@ public class THMiscRoles {
             .setRoleData(HoujuuNueRoleData::new)
             .setDefaultEnableNeededPlayerCount(12)
             .setDefaultEnableChance(4000)
+            .setHiddenForRoleRotation(true)
             .setAddedVersion("4.4");
 
     // 茨木华扇 Ibaraki Kasen
