@@ -25,8 +25,10 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.resources.sounds.SimpleSoundInstance;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.sounds.SoundEvents;
 import net.minecraft.util.FastColor.ARGB32;
 import net.minecraft.util.FormattedCharSequence;
 import net.minecraft.util.Mth;
@@ -649,6 +651,11 @@ public class RoleRotationScreen extends Screen {
         return true;
     }
 
+    private void playClickSound() {
+        this.minecraft.getSoundManager().play(
+                SimpleSoundInstance.forUI(SoundEvents.UI_BUTTON_CLICK, 1.0F));
+    }
+
     @Override
     public boolean mouseClicked(double mouseX, double mouseY, int button) {
         if (button == 0) {
@@ -657,12 +664,14 @@ public class RoleRotationScreen extends Screen {
             if (hoveredPlayerIndex >= 0) {
                 SRERole role = getConcreteRoleAtRow(hoveredPlayerIndex);
                 if (role != null) {
+                    playClickSound();
                     Minecraft mc = Minecraft.getInstance();
                     mc.setScreen(new RoleIntroduceScreen(this, role));
                     return true;
                 }
             }
             if (hoveredCardIndex >= 0 && canChooseNow()) {
+                playClickSound();
                 ClientPlayNetworking.send(new RoleRotationSelectC2SPacket(hoveredCardIndex));
                 return true;
             }

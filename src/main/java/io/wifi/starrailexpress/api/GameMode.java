@@ -91,6 +91,15 @@ public abstract class GameMode {
         return false;
     };
 
+    /**
+     * 如轮抽，开局可能播放声音
+     * 
+     * @return
+     */
+    public boolean hasPreSounds() {
+        return false;
+    }
+
     public boolean canSeeBodyContent() {
         return false;
     };
@@ -823,6 +832,7 @@ public abstract class GameMode {
 
     public abstract boolean canHaveMeeting();
 
-    public abstract boolean isPlayerWinning(ServerLevel world,ServerPlayer player,SRERole playerRole,SREGameRoundEndComponent roundEnd,
+    public abstract boolean isPlayerWinning(ServerLevel world, ServerPlayer player, SRERole playerRole,
+            SREGameRoundEndComponent roundEnd,
             SREGameWorldComponent gameComponent);
 }

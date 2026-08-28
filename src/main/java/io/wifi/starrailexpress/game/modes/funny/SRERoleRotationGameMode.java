@@ -63,6 +63,11 @@ public class SRERoleRotationGameMode extends SREMurderGameMode {
         super(identifier, 10, 3);
     }
 
+    @Override
+    public boolean hasPreSounds() {
+        return true;
+    }
+
     // 静态注册网络接收器。同时处理 SRERoleRotationGameMode 和 SRERoleRotationSingleSelectGameMode。
     public static void registerServerPacketRecievers() {
         ServerPlayNetworking.registerGlobalReceiver(RoleRotationSelectC2SPacket.TYPE, (packet, context) -> {
