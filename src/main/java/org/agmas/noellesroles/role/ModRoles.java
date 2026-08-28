@@ -1640,7 +1640,7 @@ public class ModRoles {
     )).setNeutralForKiller(true)
             .setCanUseInstinctAndNightVision(true)
             .setCanSeeTeammateKillerRole(true)
-            .setInstinctType(InstinctType.DEFAULT, InstinctType.OBSERVER_ROLE_COLOR)
+            .setInstinctType(InstinctType.DEFAULT, InstinctType.NONE)
             .setBeSeenInstinctType(InstinctType.DEFAULT, InstinctType.NONE)
             .setRoleData(SlipperyGhostRoleData::new);
 
