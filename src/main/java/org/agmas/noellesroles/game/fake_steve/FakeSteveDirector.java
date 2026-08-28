@@ -1,10 +1,12 @@
 package org.agmas.noellesroles.game.fake_steve;
 
+import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.event.AllowGameEnd;
 import io.wifi.starrailexpress.event.AllowPlayerWin;
 import io.wifi.starrailexpress.event.OnGameEnd;
+import io.wifi.starrailexpress.event.OnGameTrueStarted;
 import io.wifi.starrailexpress.event.OnKillPlayerTriggered;
 import io.wifi.starrailexpress.game.GameConstants;
 import io.wifi.starrailexpress.game.GameUtils;
@@ -50,14 +52,16 @@ public final class FakeSteveDirector {
         registered = true;
         FakeSteveAi.register();
 
-        OnGamePlayerRolesConfirm.EVENT.register((level, assignments) -> {
+        OnGameTrueStarted.EVENT.register((level) -> {
             if (!(SREGameWorldComponent.KEY.get(level).getGameMode() instanceof SREMurderGameMode)) {
                 return;
             }
-            Session session = new Session(assignments.size());
+            int startingPlayers = (int) level.getPlayers((p) -> GameUtils.isPlayerAliveAndSurvival(p)).stream().count();
+            Session session = new Session(startingPlayers);
             SESSIONS.put(level.dimension().location(), session);
             if (canGenerate(level)
                     && level.getRandom().nextInt(10000) <= NoellesRolesConfig.instance().fakeSteveEnableChance) {
+                SRE.LOGGER.info("[Fake Steve] Event is enabled!");
                 session.active = true;
                 session.pendingEvents = 1;
                 session.activationSource = ActivationSource.NATURAL_ROLL;
@@ -68,12 +72,13 @@ public final class FakeSteveDirector {
         ServerTickEvents.END_WORLD_TICK.register(FakeSteveDirector::tick);
 
         OnKillPlayerTriggered.EVENT.register((victim, spawnBody, killer, reason, force) -> {
-            if (victim instanceof ServerPlayer serverPlayer && killer instanceof ServerPlayer serverKiller
+            if (victim instanceof ServerPlayer serverPlayer
+                    && killer == null
                     && reason != null
                     && GameConstants.DeathReasons.SHOT_INNOCENT == reason
                     && isActive(serverPlayer.serverLevel())
                     && canGenerate(serverPlayer.serverLevel())) {
-                replace(serverKiller, ReplacementCause.TEAMKILL);
+                replace(serverPlayer, ReplacementCause.TEAMKILL);
                 return TrueFalseResult.FALSE;
             }
             return TrueFalseResult.PASS;
