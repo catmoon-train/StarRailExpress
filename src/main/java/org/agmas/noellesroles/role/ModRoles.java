@@ -240,7 +240,7 @@ public class ModRoles {
     public static ResourceLocation LOCKSMITH_ID = Noellesroles.id("locksmith");
     public static ResourceLocation EXAMPLER_ID = Noellesroles.id("exampler");
     public static final ResourceLocation NINJA_ID = Noellesroles.id("ninja");
-    public static final ResourceLocation NIAOSHOU_SHOU_ID = Noellesroles.id("niaoshoushou");
+    public static final ResourceLocation NIAOSHOU_SHOU_ID = BounsRoles.id("niaoshoushou");
 
     public static ResourceLocation INSANE_KILLER_ID = Noellesroles
             .id("the_insane_damned_paranoid_killer");
