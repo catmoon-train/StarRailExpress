@@ -31,6 +31,9 @@ import org.jetbrains.annotations.NotNull;
 public final class BarbarianRoleData extends SimpleRoleData {
     public static final ResourceLocation SKILL_ID = Noellesroles.id("barbarian_smoke_breath");
 
+    /** 野人 - 触发魔了形态所需的局内金币数（不消耗） */
+    public static final int barbarianTransformGold = 150;
+
     private static boolean eventsRegistered;
 
     /** 魔了形态剩余 tick；0 代表未激活。 */
@@ -57,7 +60,7 @@ public final class BarbarianRoleData extends SimpleRoleData {
             if (data == null || data.isBerserk()) {
                 return true;
             }
-            int threshold = NoellesRolesConfig.HANDLER.instance().barbarianTransformGold;
+            int threshold = barbarianTransformGold;
             if (SREPlayerShopComponent.KEY.get(player).balance < threshold) {
                 return true;
             }

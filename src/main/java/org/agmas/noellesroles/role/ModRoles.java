@@ -705,7 +705,7 @@ public class ModRoles {
                     if (!player.getMainHandItem().is(ModItems.BARBARIAN_KNIFE)) {
                         return false;
                     }
-                    player.getCooldowns().addCooldown(ModItems.BARBARIAN_KNIFE, 10 * 20);
+                    player.getCooldowns().addCooldown(ModItems.BARBARIAN_KNIFE, 6 * 20);
                     return true;
                 }
             })

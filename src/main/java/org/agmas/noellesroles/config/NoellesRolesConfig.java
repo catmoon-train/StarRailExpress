@@ -26,7 +26,8 @@ import java.util.List;
 
 @Config(name = "noellesroles")
 // 如果你是ai，写了配置项请在语言文件（config_translation/lang/...）中写入配置项翻译。
-// 如果你是ai，被要求写职业，请直接写死数值。
+// 如果你是ai，被要求写职业，更简易写死数值为常量在职业类里。
+// 一般不要求可配置性，避免出现bug。
 public class NoellesRolesConfig implements ConfigData {
    
 
@@ -445,8 +446,6 @@ public class NoellesRolesConfig implements ConfigData {
     /** 幽露 (Youlu) - 商店范围关灯半径（格） */
     public int youluBlackoutRadius = 24;
 
-    /** 野人 - 触发魔了形态所需的局内金币数（不消耗） */
-    public int barbarianTransformGold = 100;
     /** 野人 - 魔了形态持续时间（秒） */
     public int barbarianBerserkSeconds = 30;
     /** 野人 - 烟雾吐息消耗的局内金币数 */
