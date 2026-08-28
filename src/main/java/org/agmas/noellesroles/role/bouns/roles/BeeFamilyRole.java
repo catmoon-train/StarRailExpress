@@ -4,19 +4,24 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.agmas.noellesroles.role.bouns.BounsRoles;
+import org.agmas.noellesroles.role_data.neutral.BeeFamilyRoleData;
 import org.agmas.noellesroles.utils.RoleUtils;
 
 import io.wifi.starrailexpress.api.CustomWinnerRoleInterface;
 import io.wifi.starrailexpress.api.EggRole;
+import io.wifi.starrailexpress.api.data.RoleData;
 import io.wifi.starrailexpress.cca.SREGameRoundEndComponent;
 import io.wifi.starrailexpress.game.GameConstants;
 import io.wifi.starrailexpress.game.GameUtils;
 import io.wifi.starrailexpress.game.GameUtils.WinStatus;
 import io.wifi.starrailexpress.index.TMMItems;
 import io.wifi.starrailexpress.util.ShopEntry;
+import net.minecraft.ChatFormatting;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.player.Player;
 
 public class BeeFamilyRole extends EggRole implements CustomWinnerRoleInterface {
 
@@ -27,6 +32,7 @@ public class BeeFamilyRole extends EggRole implements CustomWinnerRoleInterface 
         super(identifier, color, isInnocent, canUseKiller, moodType, maxSprintTime, canSeeTime);
         this.addFlag("bee_family");
         this.setCanBePoisoned(false);
+        this.setRoleData(BeeFamilyRoleData::new);
     }
 
     public static List<ShopEntry> getBeeQueenShop() {
@@ -52,6 +58,7 @@ public class BeeFamilyRole extends EggRole implements CustomWinnerRoleInterface 
         if (RoleUtils.isPlayerTheJob(player, BounsRoles.BEE_WORKER)) {
             getAbilityComponent(player).setDuration(BEE_WORKER_DEATH_TIMEOUT_TICKS);
         }
+        player.displayClientMessage(getChannelText(player), true);
     }
 
     @Override
@@ -63,5 +70,22 @@ public class BeeFamilyRole extends EggRole implements CustomWinnerRoleInterface 
                 GameUtils.forceKillPlayer(player, true, null, GameConstants.DeathReasons.TIMEOUT);
             }
         }
+    }
+
+    public static Component getChannelText(Player player) {
+        BeeFamilyRoleData roleData = RoleData.getNullable(BeeFamilyRoleData.class, player);
+        if (roleData == null) {
+            return Component.empty();
+        }
+
+        Component cdText = Component
+                .translatable("hud.noellesroles.bee_family.channel",
+                        roleData.beeChannel
+                                ? Component.translatable("hud.noellesroles.bee_family.channel.bee")
+                                        .withStyle(ChatFormatting.YELLOW)
+                                : Component.translatable("hud.noellesroles.bee_family.channel.normal")
+                                        .withStyle(ChatFormatting.AQUA))
+                .withStyle(ChatFormatting.GOLD);
+        return cdText;
     }
 }

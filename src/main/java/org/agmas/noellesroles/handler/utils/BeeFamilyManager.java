@@ -1,13 +1,16 @@
 package org.agmas.noellesroles.handler.utils;
 
+import org.agmas.noellesroles.commands.BroadcastCommand;
 import org.agmas.noellesroles.role.bouns.BounsRoles;
 import org.agmas.noellesroles.role.bouns.roles.BeeFamilyRole;
+import org.agmas.noellesroles.role_data.neutral.BeeFamilyRoleData;
 import org.agmas.noellesroles.utils.MoneyUtils;
 import org.agmas.noellesroles.utils.RoleUtils;
 
 import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.api.RoleSkill;
 import io.wifi.starrailexpress.api.RoleSkill.RoleSkillContext;
+import io.wifi.starrailexpress.api.data.RoleData;
 import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.cca.PlayerBodyEntityComponent;
 import io.wifi.starrailexpress.cca.SREAbilityPlayerComponent;
@@ -18,6 +21,7 @@ import io.wifi.starrailexpress.game.GameConstants;
 import io.wifi.starrailexpress.game.GameUtils;
 import io.wifi.starrailexpress.game.GameUtils.WinStatus;
 import net.fabricmc.fabric.api.event.player.UseEntityCallback;
+import net.fabricmc.fabric.api.message.v1.ServerMessageEvents;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
@@ -45,15 +49,64 @@ public class BeeFamilyManager {
     }
 
     public static void registerEvents() {
+        // 蜜蜂频道
+        ServerMessageEvents.ALLOW_CHAT_MESSAGE.register((message, serverPlayer, bound) -> {
+            SREGameWorldComponent gameWorldComponent = SREGameWorldComponent.KEY.get(serverPlayer.level());
+            if (gameWorldComponent.getRole(serverPlayer) instanceof BeeFamilyRole role) {
+                if (!GameUtils.isPlayerAliveAndSurvivalIgnoreShitSplit(serverPlayer)) {
+                    return true;
+                }
+                var napc = RoleData.getNullable(BeeFamilyRoleData.class, serverPlayer);
+                if (napc == null)
+                    return true;
+                if (napc.beeChannel) { // bee频道
+                    var broadcastMessage = Component
+                            .translatable("message.bee_family.broadcast_prefix",
+                                    Component.literal("(").append(role.getDisplayName()).append("]")
+                                            .withStyle(ChatFormatting.YELLOW),
+                                    Component.literal("").append(serverPlayer.getDisplayName())
+                                            .withStyle(ChatFormatting.AQUA),
+                                    Component.literal(message.signedContent()).withStyle(ChatFormatting.WHITE))
+                            .withStyle(ChatFormatting.GOLD);
+                    serverPlayer.getServer().getPlayerList().getPlayers().forEach((p) -> {
+                        var prole = gameWorldComponent.getRole(p.getUUID());
+                        if (prole == null)
+                            return;
+                        if (!GameUtils.isPlayerAliveAndSurvival(p)) {
+                            p.displayClientMessage(broadcastMessage, false);
+                        }
+                        if (!(prole instanceof BeeFamilyRole)) {
+                            return;
+                        }
+                        BroadcastCommand.BroadcastMessage(p, broadcastMessage);
+                        p.displayClientMessage(broadcastMessage, false);
+                    });
+                    return false;
+                }
+            }
+            return true;
+        });
 
         RoleSkill.register(BounsRoles.BEE_WORKER,
                 RoleSkill.skill(SRE.id("bee_family_poison"), "skill.noellesroles.bee_family_poison", (ctx) -> {
                     return BeeFamilyManager.triggerSkill(ctx, true);
-                }).withTarget().cooldownSeconds(60).showOnHud(true).announceToSelf().build());
+                }).withTarget().cooldownSeconds(60).showOnHud(true).announceToSelf().build(),
+                RoleSkill.skill(SRE.id("bee_channel"),
+                        "skill.noellesroles.bee_channel", (ctx) -> changeChannel(ctx))
+                        .cooldownTicks(1)
+                        .toggleable(true)
+                        .noAnnouncement()
+                        .build());
         RoleSkill.register(BounsRoles.BEE_WASP,
                 RoleSkill.skill(SRE.id("bee_family_poison"), "skill.noellesroles.bee_family_poison", (ctx) -> {
                     return BeeFamilyManager.triggerSkill(ctx, false);
-                }).showOnHud(true).withTarget().cooldownSeconds(30).announceToSelf().build());
+                }).showOnHud(true).withTarget().cooldownSeconds(30).announceToSelf().build(),
+                RoleSkill.skill(SRE.id("bee_channel"),
+                        "skill.noellesroles.bee_channel", (ctx) -> changeChannel(ctx))
+                        .cooldownTicks(1)
+                        .toggleable(true)
+                        .noAnnouncement()
+                        .build());
         RoleSkill.register(BounsRoles.BEE_QUEEN,
                 RoleSkill.skill(SRE.id("bee_queen"), "skill.noellesroles.bee_queen", (ctx) -> {
                     final var player = ctx.player();
@@ -71,7 +124,13 @@ public class BeeFamilyManager {
                     MoneyUtils.addToBalance(player, -BeeFamilyManager.BEE_QUEEN_IMPROVE_PRICE);
                     cca.status = 1;
                     return true;
-                }).noCastCCA(true).recordReplay().showOnHud(true).cooldownSeconds(30).announceToSelf().build());
+                }).noCastCCA(true).recordReplay().showOnHud(true).cooldownSeconds(30).announceToSelf().build(),
+                RoleSkill.skill(SRE.id("bee_channel"),
+                        "skill.noellesroles.bee_channel", (ctx) -> changeChannel(ctx))
+                        .cooldownTicks(1)
+                        .toggleable(true)
+                        .noAnnouncement()
+                        .build());
         UseEntityCallback.EVENT.register(((player, level, interactionHand, entity, entityHitResult) -> {
 
             if (!(player instanceof ServerPlayer interacting)) {
@@ -146,6 +205,16 @@ public class BeeFamilyManager {
 
             return InteractionResult.CONSUME;
         }));
+    }
+
+    private static boolean changeChannel(RoleSkillContext ctx) {
+        final var player = ctx.player();
+        var roledata = RoleData.getNullable(BeeFamilyRoleData.class, player);
+        if (roledata == null) {
+            return false;
+        }
+        roledata.turnChannel();
+        return true;
     }
 
     public static boolean checkBeeFamilyVictory(ServerLevel world) {
