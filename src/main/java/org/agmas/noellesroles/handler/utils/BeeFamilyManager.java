@@ -251,7 +251,7 @@ public class BeeFamilyManager {
                     Component.translatable("tip.noellesroles.no_target").withStyle(ChatFormatting.RED), true);
             return false;
         }
-        if (!(RoleUtils.getPlayerRole(target) instanceof BeeFamilyRole)) {
+        if ((RoleUtils.getPlayerRole(target) instanceof BeeFamilyRole)) {
             player.displayClientMessage(
                     Component.translatable("tip.noellesroles.no_target").withStyle(ChatFormatting.RED), true);
             return false;
