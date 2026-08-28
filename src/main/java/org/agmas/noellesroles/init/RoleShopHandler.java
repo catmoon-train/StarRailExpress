@@ -2542,12 +2542,16 @@ public class RoleShopHandler {
             ShopContent.customEntries.put(
                     BounsRoles.BEE_QUEEN.identifier(),
                     List.of(new ShopEntry(TMMItems.LOCKPICK.getDefaultInstance(), 100, ShopEntry.Type.TOOL)));
-            ShopContent.customEntries.put(
-                    BounsRoles.BEE_WORKER.identifier(),
-                    List.of(new ShopEntry(TMMItems.LOCKPICK.getDefaultInstance(), 100, ShopEntry.Type.TOOL)));
-            ShopContent.customEntries.put(
-                    BounsRoles.BEE_WASP.identifier(),
-                    List.of(new ShopEntry(TMMItems.LOCKPICK.getDefaultInstance(), 100, ShopEntry.Type.TOOL)));
+            {
+                var waspShop = new ArrayList<ShopEntry>();
+                waspShop.add(new KillerKnifeShopEntry(TMMItems.KNIFE.getDefaultInstance(), 300, 50));
+                waspShop.add(new ShopEntry(TMMItems.LOCKPICK.getDefaultInstance(), 100, ShopEntry.Type.TOOL));
+                ShopContent.customEntries.put(
+                        BounsRoles.BEE_WASP.identifier(), waspShop);
+                ShopContent.customEntries.put(
+                        BounsRoles.BEE_WORKER.identifier(),
+                        waspShop);
+            }
         }
         // 静语者商店：默认杀手刀具列表
         {

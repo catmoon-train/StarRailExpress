@@ -262,6 +262,7 @@ public class BounsRoles {
             false))
             .setCanBeRandomedByOtherRoles(false)
             .setNeutrals(true)
+            .setCanEarnKillerCoinAwardsFromKills(true)
             .setDefaultEnableNeededPlayerCount(16)
             .setDefaultEnableChance(2000)
             .setCanUseInstinctAndNightVision(true);
@@ -277,6 +278,7 @@ public class BounsRoles {
             .setNeutrals(true)
             .setCanSetSpawnInfoInConfig(false)
             .setDefaultMax(0)
+            .setCanEarnKillerCoinAwardsFromKills(true)
             .addBothRelatedRole(BEE_QUEEN)
             .setCanUseInstinctAndNightVision(true);
     public static SRERole BEE_WORKER = TMMRoles.registerRole(new BeeFamilyRole(id("bee_worker"),
@@ -287,6 +289,7 @@ public class BounsRoles {
             Integer.MAX_VALUE,
             false))
             .setCanBeRandomedByOtherRoles(false)
+            .setCanEarnKillerCoinAwardsFromKills(true)
             .setNeutrals(true)
             .setCanSetSpawnInfoInConfig(false)
             .setDefaultMax(0)

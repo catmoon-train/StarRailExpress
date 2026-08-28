@@ -40,6 +40,7 @@ public class HengXingTiRole extends ExtraEffectRole implements EggRoleInterface 
 
     @Override
     public void serverTick(ServerPlayer player) {
+        super.serverTick(player);
         if (!GameUtils.isPlayerAliveAndSurvival(player)) {
             return;
         }

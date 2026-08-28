@@ -1,8 +1,5 @@
 package org.agmas.noellesroles.role.bouns.roles;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.agmas.noellesroles.role.bouns.BounsRoles;
 import org.agmas.noellesroles.role_data.neutral.BeeFamilyRoleData;
 import org.agmas.noellesroles.utils.RoleUtils;
@@ -14,8 +11,6 @@ import io.wifi.starrailexpress.cca.SREGameRoundEndComponent;
 import io.wifi.starrailexpress.game.GameConstants;
 import io.wifi.starrailexpress.game.GameUtils;
 import io.wifi.starrailexpress.game.GameUtils.WinStatus;
-import io.wifi.starrailexpress.index.TMMItems;
-import io.wifi.starrailexpress.util.ShopEntry;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
@@ -33,12 +28,6 @@ public class BeeFamilyRole extends EggRole implements CustomWinnerRoleInterface 
         this.addFlag("bee_family");
         this.setCanBePoisoned(false);
         this.setRoleData(BeeFamilyRoleData::new);
-    }
-
-    public static List<ShopEntry> getBeeQueenShop() {
-        ArrayList<ShopEntry> shops = new ArrayList<>();
-        shops.add(new ShopEntry(TMMItems.LOCKPICK.getDefaultInstance(), 100, ShopEntry.Type.TOOL));
-        return shops;
     }
 
     @Override
