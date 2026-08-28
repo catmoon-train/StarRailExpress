@@ -6,7 +6,7 @@ import io.wifi.starrailexpress.event.AllowGameEnd;
 import io.wifi.starrailexpress.event.AllowPlayerWin;
 import io.wifi.starrailexpress.event.OnGameEnd;
 import io.wifi.starrailexpress.event.OnKillPlayerTriggered;
-import io.wifi.starrailexpress.event.OnTeammateKilledTeammate;
+import io.wifi.starrailexpress.game.GameConstants;
 import io.wifi.starrailexpress.game.GameUtils;
 import io.wifi.starrailexpress.game.modes.SREMurderGameMode;
 import io.wifi.starrailexpress.util.TrueFalseResult;
@@ -67,18 +67,13 @@ public final class FakeSteveDirector {
         OnGameEnd.EVENT.register((level, game) -> clear(level));
         ServerTickEvents.END_WORLD_TICK.register(FakeSteveDirector::tick);
 
-        OnTeammateKilledTeammate.EVENT.register((victim, killer, innocent, reason) -> {
-            if (killer != null && innocent && isActive(killer.serverLevel()) && canGenerate(killer.serverLevel())) {
-                replace(killer, ReplacementCause.TEAMKILL);
-            }
-        });
-
         OnKillPlayerTriggered.EVENT.register((victim, spawnBody, killer, reason, force) -> {
-            if (victim instanceof ServerPlayer serverPlayer
+            if (victim instanceof ServerPlayer serverPlayer && killer instanceof ServerPlayer serverKiller
                     && reason != null
-                    && "shot_innocent".equals(reason.getPath())
+                    && GameConstants.DeathReasons.SHOT_INNOCENT == reason
                     && isActive(serverPlayer.serverLevel())
                     && canGenerate(serverPlayer.serverLevel())) {
+                replace(serverKiller, ReplacementCause.TEAMKILL);
                 return TrueFalseResult.FALSE;
             }
             return TrueFalseResult.PASS;
