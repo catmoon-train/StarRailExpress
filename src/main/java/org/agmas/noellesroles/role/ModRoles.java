@@ -705,14 +705,15 @@ public class ModRoles {
                     if (!player.getMainHandItem().is(ModItems.BARBARIAN_KNIFE)) {
                         return false;
                     }
-                    SRERole targetRole = SREGameWorldComponent.KEY.get(target.level()).getRole(target);
-                    return targetRole != null && (targetRole.isNeutrals() || targetRole.isKillerTeam()
-                            || targetRole.isKiller());
+                    player.getCooldowns().addCooldown(ModItems.BARBARIAN_KNIFE, 10 * 20);
+                    return true;
                 }
             })
             .setRoleData(BarbarianRoleData::new)
             .setCanSeeCoin(true)
             .setDefaultMax(1)
+            .setCanXiaonao(true)
+            .setDefaultEnableNeededPlayerCount(18)
             .setDefaultEnableChance(4000);
 
     /**
@@ -727,7 +728,7 @@ public class ModRoles {
                     .setCanBeRandomedByOtherRoles(false)
                     .setDefaultMax(1)
                     .setOccupiedRoleCount(2)
-                    .setDefaultEnableNeededPlayerCount(12)
+                    .setDefaultEnableNeededPlayerCount(18)
                     .setDefaultEnableChance(1000));
 
     // 忍者
