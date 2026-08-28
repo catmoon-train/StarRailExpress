@@ -16,6 +16,7 @@
 package org.agmas.noellesroles.game.roles.neutral.infected;
 
 import io.wifi.starrailexpress.SRE;
+import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.api.TMMRoles;
 import io.wifi.starrailexpress.api.replay.GameReplayUtils;
 import io.wifi.starrailexpress.cca.SREAbilityPlayerComponent;
@@ -87,7 +88,7 @@ public class InfectedWinChecker {
                     inftectRolePlayers.add(player);
                     continue;
                 }
-                if (gameWorldComponent.isRole(player, ModRoles.GLITCH_ROBOT)) {
+                if (gameWorldComponent.getRole(player) instanceof SRERole role && !role.canBePoisoned()) {
                     hasRobot = true;
                 } else if (gameWorldComponent.isRole(player, ModRoles.DOCTOR)) {
                     hasDoctor = true;
@@ -174,7 +175,7 @@ public class InfectedWinChecker {
                     hasKiller = true;
                 }
                 if (!hasDoctor && (gameWorldComponent.isRole(player, ModRoles.DOCTOR)
-                        || gameWorldComponent.isRole(player, ModRoles.GLITCH_ROBOT))) {
+                        || (gameWorldComponent.getRole(player) instanceof SRERole r && !r.canBePoisoned()))) {
                     hasDoctor = true;
                 }
                 if (!hasLooseEnd && gameWorldComponent.isRole(player, TMMRoles.LOOSE_END)) {
@@ -346,7 +347,7 @@ public class InfectedWinChecker {
                 hasKiller = true;
             }
             if (!hasDoctor && (gameWorldComponent.isRole(player, ModRoles.DOCTOR)
-                    || gameWorldComponent.isRole(player, ModRoles.GLITCH_ROBOT))) {
+                    || (gameWorldComponent.getRole(player) instanceof SRERole r && !r.canBePoisoned()))) {
                 hasDoctor = true;
             }
             if (!hasLooseEnd && gameWorldComponent.isRole(player, TMMRoles.LOOSE_END)) {

@@ -111,14 +111,6 @@ public class NRGameStateEvents {
             BeeFamilyManager.resetQueenLeaderBonus();
             // 复位恒星体领袖加成（恒星体技能冷却减半）
             LeaderFollowerEffects.resetHengXingTiBonus();
-
-            // 清除所有玩家的感染状态
-            for (ServerPlayer player : serverLevel.players()) {
-                InfectedPlayerComponent infectedComponent = ModComponents.INFECTED.get(player);
-                if (infectedComponent != null) {
-                    infectedComponent.cure();
-                }
-            }
             // 重置疫使时刻状态
             org.agmas.noellesroles.game.roles.neutral.infected.InfectedWinChecker.resetAcceleratedState();
 

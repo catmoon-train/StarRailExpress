@@ -171,12 +171,7 @@ public class InfectedPlayerComponent implements RoleComponent, ServerTickingComp
                     Component.translatable("replay.event.infected.health",
                             GameReplayUtils.getReplayPlayerDisplayText(player, true)));
         }
-        this.infectedTicks = 0;
-        this.infector = null;
-        this.lastSpreadTick = 0;
-        this.spreadAccelerated = false;
-        this.cachedInfectorPlayer = null;
-        this.infectorCheckCounter = 0;
+        this.clear();
         this.sync(); // 同步给所有者+所有疫使
     }
 
@@ -199,9 +194,8 @@ public class InfectedPlayerComponent implements RoleComponent, ServerTickingComp
         }
 
         // 故障机器人免疫病毒感染
-        if (gameWorld.isRole(player, ModRoles.GLITCH_ROBOT)) {
+        if (!role.canBePoisoned())
             return false;
-        }
 
         return true;
     }
@@ -215,11 +209,16 @@ public class InfectedPlayerComponent implements RoleComponent, ServerTickingComp
                 this.init();
             return;
         }
+
         // 未感染者无需处理（客户端大多数玩家的状态）
         if (this.infectedTicks <= 0) {
             return;
         }
-
+        // 如果玩家已死亡，立即清除感染状态
+        if (!GameUtils.isPlayerAliveAndSurvival(player)) {
+            this.clear();
+            return;
+        }
         if (gameWorldComponent == null) {
             gameWorldComponent = SREGameWorldComponent.KEY.get(player.level());
         }
@@ -257,12 +256,6 @@ public class InfectedPlayerComponent implements RoleComponent, ServerTickingComp
             if (!gameWorldComponent.gameStatus.equals(SREGameWorldComponent.GameStatus.ACTIVE)) {
                 return;
             }
-            // 如果玩家是疫使自身，重置感染状态（只执行一次）
-            if (gameWorldComponent.isRole(player, ModRoles.INFECTED)) {
-                if (this.infectedTicks > 0) {
-                    this.cure();
-                }
-            }
             return;
         }
 
@@ -274,7 +267,7 @@ public class InfectedPlayerComponent implements RoleComponent, ServerTickingComp
 
         // 如果玩家已死亡，立即清除感染状态
         if (!GameUtils.isPlayerAliveAndSurvival(player)) {
-            this.cure();
+            this.clear();
             return;
         }
 
@@ -320,7 +313,7 @@ public class InfectedPlayerComponent implements RoleComponent, ServerTickingComp
                 GameUtils.killPlayer(this.player, true, killer, INFECTION_DEATH_REASON);
 
                 // 清除感染状态，防止玩家复活后再次触发死亡
-                this.cure();
+                this.clear();
 
                 // 清除中毒状态（感染致死时不清除中毒会导致问题）
                 io.wifi.starrailexpress.cca.SREPlayerPoisonComponent poisonComponent = io.wifi.starrailexpress.cca.SREPlayerPoisonComponent.KEY
