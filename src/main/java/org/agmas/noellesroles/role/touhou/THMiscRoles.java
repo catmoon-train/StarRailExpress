@@ -186,7 +186,6 @@ public class THMiscRoles {
             .setDefaultEnableNeededPlayerCount(16)
             .setDefaultEnableChance(4000)
             .setHiddenForRoleRotation(true)
-            .addTwoWayOpposingRole(ModRoles.PUPPETEER)
             .setCanBeRandomedByOtherRoles(true)
             .setAddedVersion("4.4");
 
