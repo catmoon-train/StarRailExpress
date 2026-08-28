@@ -2753,7 +2753,7 @@ public class ModRoles {
         DELAYER.setAddedVersion("4.2");
         ELF.setAddedVersion("3.1");
         GUARD.setAddedVersion("4.2");
-        SHERIFF.setAddedVersion("2.x");
+        SHERIFF.setAddedVersion("4.1");
         GHOST_EYE.setAddedVersion("4.3");
         WIND_YAOSE.setAddedVersion("3.2");
         CHEF.setAddedVersion("3.2");
