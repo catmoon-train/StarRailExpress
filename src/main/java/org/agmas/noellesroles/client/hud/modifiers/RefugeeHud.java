@@ -16,9 +16,11 @@
 package org.agmas.noellesroles.client.hud.modifiers;
 
 import io.wifi.starrailexpress.client.SREClient;
+import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;
 import org.agmas.harpymodloader.component.WorldModifierComponent;
+import org.agmas.noellesroles.client.NoellesrolesClient;
 import org.agmas.noellesroles.client.event.CommonHudRenderCallback;
 import pro.fazeclan.river.stupid_express.constants.SEModifiers;
 import pro.fazeclan.river.stupid_express.modifier.refugee.cca.RefugeeComponent;
@@ -60,6 +62,10 @@ public abstract class RefugeeHud {
             int secondsRemaining = (int) ((ticksRemaining + 19) / 20);
 
             Component text = Component.translatable("gui.stupid_express.refugee.revival", secondsRemaining);
+            Component text2 = Component.translatable("gui.stupid_express.refugee.tip",
+                    SEModifiers.REFUGEE.getName(true).withStyle(ChatFormatting.BOLD));
+            Component text3 = Component.translatable("gui.stupid_express.refugee.tip.2",
+                    NoellesrolesClient.roleIntroClientBind.getTranslatedKeyMessage());
             int color = 0x55ff55; // 绿色
 
             int screenWidth = client.getWindow().getGuiScaledWidth();
@@ -67,10 +73,12 @@ public abstract class RefugeeHud {
             int textWidth = client.font.width(text);
 
             // 右下角显示
-            int x = screenWidth / 2 - textWidth / 2;
-            int y = screenHeight - 60;
+            int x = screenWidth / 2;
+            int y = screenHeight - 72;
 
-            context.drawString(client.font, text, x, y, color);
+            context.drawString(client.font, text, x - textWidth / 2, y, color);
+            context.drawString(client.font, text2, x - client.font.width(text2) / 2, y - 12, color);
+            context.drawString(client.font, text2, x - client.font.width(text3) / 2, y + 12, color);
         });
     }
 }

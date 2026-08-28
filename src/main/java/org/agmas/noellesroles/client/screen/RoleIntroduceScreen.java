@@ -443,8 +443,8 @@ public class RoleIntroduceScreen extends Screen {
             case CURRENT -> {
                 if (this.minecraft.player == null || SREClient.modifierComponent == null)
                     yield false;
-                if (!(GameUtils.isPlayerSpectatingOrCreative(this.minecraft.player)
-                        && !DeathPenaltyComponent.hasStrictPenalty(this.minecraft.player))) {
+                if ((GameUtils.isPlayerAliveAndSurvival(this.minecraft.player)
+                       || DeathPenaltyComponent.hasStrictPenalty(this.minecraft.player))) {
                     // 未似不可见
                     if (WorldModifierComponent.isHiddenModifier(mod))
                         yield false;
