@@ -11,8 +11,11 @@ import io.wifi.starrailexpress.event.OnKillPlayerTriggered;
 import io.wifi.starrailexpress.game.GameConstants;
 import io.wifi.starrailexpress.game.GameUtils;
 import io.wifi.starrailexpress.game.modes.SREMurderGameMode;
+import io.wifi.starrailexpress.util.SRENetworkMessageUtils;
 import io.wifi.starrailexpress.util.TrueFalseResult;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
+import net.minecraft.ChatFormatting;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -166,6 +169,13 @@ public final class FakeSteveDirector {
         } else if (!session.active) {
             return false;
         }
+
+        SRENetworkMessageUtils.sendBroadcast(player, Component
+                .translatable("message.noellesroles.fake_steve.victim.replaced").withStyle(ChatFormatting.RED));
+        SRENetworkMessageUtils.sendCODSubtitleToPlayer(player, Component
+                .translatable("message.noellesroles.fake_steve.victim.replaced").withStyle(ChatFormatting.RED));
+        SRENetworkMessageUtils.sendActionbar(player, Component
+                .translatable("message.noellesroles.fake_steve.victim.replaced").withStyle(ChatFormatting.RED));
         WorldModifierComponent modifiers = WorldModifierComponent.KEY.get(player.serverLevel());
         modifiers.addModifier(player.getUUID(), NRModifiers.FAKE_STEVE_REPLACED);
         session.agents.put(player.getUUID(), new FakeSteveAgentState(player.getUUID(), cause));

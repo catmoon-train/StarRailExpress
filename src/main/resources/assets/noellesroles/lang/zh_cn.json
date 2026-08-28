@@ -4185,5 +4185,6 @@
   "command.noellesroles.fake_steve.waiting": "Fake Steve事件仍在排队：当前没有符合低理智或尸体风险条件的目标。",
   "command.noellesroles.fake_steve.spawned": "已在%s附近生成仅其可见的Fake Steve预兆。",
   "command.noellesroles.fake_steve.spawn_cancelled": "指定生成的Fake Steve预兆已取消：目标死亡、离线或附近没有可站立位置。",
-  "command.noellesroles.fake_steve.replaced": "已立即取代%s。"
+  "command.noellesroles.fake_steve.replaced": "已立即取代%s。",
+  "message.noellesroles.fake_steve.victim.replaced": "你已被伪人取代。"
 }
