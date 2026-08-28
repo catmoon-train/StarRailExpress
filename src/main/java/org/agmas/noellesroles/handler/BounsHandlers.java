@@ -52,7 +52,7 @@ public class BounsHandlers {
                         .recordReplay().cooldownSeconds(240).announceToSelf().build());
         // 避免恒星体导致玩家落入虚空
         OnKillPlayerTriggered.EVENT.register((victim, spawnBody, killer, deathReasosn, forceKill) -> {
-            if (killer == null) {
+            if (killer == null || RoleUtils.isPlayerTheJob(killer, BounsRoles.HENG_XING_TI)) {
                 if (ForensicCategory.fromDeathReason(deathReasosn).equals(ForensicCategory.ENVIRONMENT)) {
                     if (victim.getKillCredit() instanceof ServerPlayer sp) {
                         if (RoleUtils.isPlayerTheJob(sp, BounsRoles.HENG_XING_TI)) {
