@@ -254,7 +254,12 @@ public class BeeFamilyManager {
             return false;
         }
         int poisonTicks = QUEEN_LEADER_BONUS ? BEE_POISON_TICKS / 2 : BEE_POISON_TICKS;
-        SREPlayerPoisonComponent.KEY.get(target).setPoisonTicks(poisonTicks, player.getUUID());
+        var ppc = SREPlayerPoisonComponent.KEY.get(target);
+        if (ppc.poisonTicks > 0) {
+            GameUtils.killPlayer(target, true, player, GameConstants.DeathReasons.POISON);
+        } else {
+            ppc.setPoisonTicks(poisonTicks, player.getUUID());
+        }
         if (willDeathAfterSkill) {
             GameUtils.forceKillPlayer(player, true, null, GameConstants.DeathReasons.BEE_USED_OUT_SKILL);
         }
