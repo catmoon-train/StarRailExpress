@@ -61,12 +61,17 @@ public abstract class RefugeeHud {
             long ticksRemaining = revivalTime - currentTime;
             int secondsRemaining = (int) ((ticksRemaining + 19) / 20);
 
-            Component text = Component.translatable("gui.stupid_express.refugee.revival", secondsRemaining);
+            Component text = Component
+                    .translatable("gui.stupid_express.refugee.revival",
+                            Component.literal(secondsRemaining + "s").withStyle(ChatFormatting.RED))
+                    .withStyle(ChatFormatting.YELLOW);
             Component text2 = Component.translatable("gui.stupid_express.refugee.tip",
-                    SEModifiers.REFUGEE.getName(true).withStyle(ChatFormatting.BOLD));
+                    SEModifiers.REFUGEE.getName(true).withStyle(ChatFormatting.BOLD)).withStyle(ChatFormatting.GOLD);
             Component text3 = Component.translatable("gui.stupid_express.refugee.tip.2",
-                    NoellesrolesClient.roleIntroClientBind.getTranslatedKeyMessage());
-            int color = 0x55ff55; // 绿色
+                    NoellesrolesClient.roleIntroClientBind.getTranslatedKeyMessage().copy()
+                            .withStyle(ChatFormatting.AQUA))
+                    .withStyle(ChatFormatting.GREEN);
+            int color = 0xffffffff;
 
             int screenWidth = client.getWindow().getGuiScaledWidth();
             int screenHeight = client.getWindow().getGuiScaledHeight();
@@ -78,7 +83,7 @@ public abstract class RefugeeHud {
 
             context.drawString(client.font, text, x - textWidth / 2, y, color);
             context.drawString(client.font, text2, x - client.font.width(text2) / 2, y - 12, color);
-            context.drawString(client.font, text2, x - client.font.width(text3) / 2, y + 12, color);
+            context.drawString(client.font, text3, x - client.font.width(text3) / 2, y + 12, color);
         });
     }
 }

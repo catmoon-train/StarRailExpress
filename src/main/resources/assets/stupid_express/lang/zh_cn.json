@@ -127,7 +127,7 @@
   "hud.stupid_express.refugee.revived": "亡命徒已复活",
   "title.stupid_express.refugee.subtlte.active": "迎接地狱的怀抱，祝你好运。",
   "hud.stupid_express.refugee.countdown": "还有 %s 秒后复活",
-  "gui.stupid_express.refugee.revival": "复活倒计时: %s 秒",
+  "gui.stupid_express.refugee.revival": "你将在 %s 后复活在你的房间",
   "gui.stupid_express.refugee.tip":"你拥有 %s 修饰符",
   "gui.stupid_express.refugee.tip.2":"按下 %s 打开介绍UI，搜索并查看修饰符介绍！",
   "gui.stupid_express.refugee.all_death": "所有亡命徒已死亡！时间回溯！",
