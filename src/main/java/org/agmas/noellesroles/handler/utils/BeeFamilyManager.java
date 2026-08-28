@@ -93,6 +93,7 @@ public class BeeFamilyManager {
                 }).withTarget().cooldownSeconds(60).showOnHud(true).announceToSelf().build(),
                 RoleSkill.skill(SRE.id("bee_channel"),
                         "skill.noellesroles.bee_channel", (ctx) -> changeChannel(ctx))
+                        .showOnHud(true)
                         .cooldownTicks(1)
                         .toggleable(true)
                         .noAnnouncement()
@@ -104,6 +105,7 @@ public class BeeFamilyManager {
                 RoleSkill.skill(SRE.id("bee_channel"),
                         "skill.noellesroles.bee_channel", (ctx) -> changeChannel(ctx))
                         .cooldownTicks(1)
+                        .showOnHud(true)
                         .toggleable(true)
                         .noAnnouncement()
                         .build());
@@ -128,6 +130,7 @@ public class BeeFamilyManager {
                 RoleSkill.skill(SRE.id("bee_channel"),
                         "skill.noellesroles.bee_channel", (ctx) -> changeChannel(ctx))
                         .cooldownTicks(1)
+                        .showOnHud(true)
                         .toggleable(true)
                         .noAnnouncement()
                         .build());
