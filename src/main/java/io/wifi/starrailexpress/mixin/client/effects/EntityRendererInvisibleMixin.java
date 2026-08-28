@@ -63,9 +63,10 @@ public class EntityRendererInvisibleMixin {
                 }
             }
         } else if (entity instanceof BlockDisplay bd) {
-            if (THYukariPortalManager.isPortal(bd)) {
+            if (THYukariPortalManager.isPortalClient(bd)) {
                 if (SREClient.getCachedPlayerRole() != null) {
-                    if (!SREGameWorldComponent.isKillerTeamRoleStatic(SREClient.getCachedPlayerRole())) {
+                    var r = SREClient.getCachedPlayerRole();
+                    if (!SREGameWorldComponent.isKillerTeamRoleStatic(r) && !SREGameWorldComponent.isNeutalsRoleStatic(r)) {
                         cir.setReturnValue(false);
                         return;
                     }

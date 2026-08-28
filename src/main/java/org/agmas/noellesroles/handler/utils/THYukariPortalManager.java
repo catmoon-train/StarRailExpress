@@ -20,6 +20,7 @@ import net.minecraft.world.entity.Display.BillboardConstraints;
 import net.minecraft.world.entity.Display.BlockDisplay;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
@@ -33,6 +34,7 @@ public class THYukariPortalManager {
     public static final ConcurrentHashMap<UUID, Long> PORTAL_COOLDOWNS = new ConcurrentHashMap<>();
     public static final long PORTAL_ENTRANCE_COOLDOWN = 8 * 20;
     public static final long PORTAL_ALIVE_TIME = 30 * 20;
+    private static final Block DISPLAY_BLOCK = Blocks.NETHER_PORTAL;
 
     public static void reset() {
         THYukariPortalManager.PORTAL_1 = null;
@@ -128,7 +130,7 @@ public class THYukariPortalManager {
         var portal = EntityType.BLOCK_DISPLAY.create(world);
         portal.setPos(pos1);
         portal.addTag("sre.yukari");
-        portal.setBlockState(Blocks.NETHER_PORTAL.defaultBlockState());
+        portal.setBlockState(DISPLAY_BLOCK.defaultBlockState());
         Vector3f translation = new Vector3f(-0.5f, -1.5f, -0.5f);
         Quaternionf leftRot = new Quaternionf(0f, 0f, 0f, 1f);
         Vector3f scale = new Vector3f(1f, 1.5f, 1f);
@@ -184,5 +186,14 @@ public class THYukariPortalManager {
 
     public static boolean hasPortal() {
         return PORTAL_1 != null && PORTAL_2 != null;
+    }
+
+    public static boolean isPortalClient(Entity entity) {
+        if (entity instanceof BlockDisplay wf) {
+            if (wf.getBlockState() != null && wf.getBlockState().is(DISPLAY_BLOCK)) {
+                return true;
+            }
+        }
+        return false;
     }
 }
