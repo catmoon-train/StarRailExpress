@@ -57,7 +57,7 @@ public final class FakeSteveDirector {
             Session session = new Session(assignments.size());
             SESSIONS.put(level.dimension().location(), session);
             if (canGenerate(level)
-                    && level.getRandom().nextInt(10000) >= NoellesRolesConfig.instance().fakeSteveEnableChance) {
+                    && level.getRandom().nextInt(10000) <= NoellesRolesConfig.instance().fakeSteveEnableChance) {
                 session.active = true;
                 session.pendingEvents = 1;
                 session.activationSource = ActivationSource.NATURAL_ROLL;
