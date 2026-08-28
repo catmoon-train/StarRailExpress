@@ -20,6 +20,7 @@ import io.wifi.starrailexpress.api.RoleComponent;
 import io.wifi.starrailexpress.api.replay.GameReplayUtils;
 import io.wifi.starrailexpress.cca.SREAbilityPlayerComponent;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
+import io.wifi.starrailexpress.client.SREClient;
 import io.wifi.starrailexpress.game.GameConstants;
 import io.wifi.starrailexpress.game.GameUtils;
 import net.minecraft.core.HolderLookup;
@@ -207,6 +208,13 @@ public class InfectedPlayerComponent implements RoleComponent, ServerTickingComp
 
     @Override
     public void clientTick() {
+        if (SREClient.gameComponent == null)
+            return;
+        if (!SREClient.gameComponent.isRunning()) {
+            if (infectedTicks > 0 || infector != null)
+                this.init();
+            return;
+        }
         // 未感染者无需处理（客户端大多数玩家的状态）
         if (this.infectedTicks <= 0) {
             return;
@@ -236,6 +244,11 @@ public class InfectedPlayerComponent implements RoleComponent, ServerTickingComp
         // 延迟初始化 gameWorldComponent（必须在所有分支前确保可用）
         if (gameWorldComponent == null) {
             gameWorldComponent = SREGameWorldComponent.KEY.get(player.level());
+        }
+        if (!gameWorldComponent.isRunning()) {
+            if (infectedTicks > 0 || infector != null)
+                this.init();
+            return;
         }
 
         // 快速退出：未感染者直接返回（大多数玩家的状态，避免后续开销）
