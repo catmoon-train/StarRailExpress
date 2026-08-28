@@ -1233,7 +1233,7 @@ public class SREGameWorldComponent implements AutoSyncedComponent, ServerTicking
                 }
             }
         } else if (this.fade > 0) {
-            if (gameMode != null && gameMode.hasPreSounds()) {
+            if (gameMode != null && gameMode.hasPreSounds() && gameStatus == GameStatus.ACTIVE) {
                 this.fade = 0;
             } else {
                 this.fade--;
