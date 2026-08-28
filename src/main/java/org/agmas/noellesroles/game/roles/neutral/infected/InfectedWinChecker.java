@@ -34,6 +34,7 @@ import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import org.agmas.noellesroles.component.InfectedPlayerComponent;
 import org.agmas.noellesroles.component.ModComponents;
@@ -99,13 +100,13 @@ public class InfectedWinChecker {
                     }
                 }
             }
-            if (!infectedAlive) {
+            if (!infectedAlive || !wasAccelerated) {
                 // 没有疫使就别操控游戏了。
                 return WinStatus.NOT_MODIFY;
             }
 
             // 只有疫使存活（必须进入疫使时刻才能胜利）
-            if (totalAlive <= infectedCount && wasAccelerated) {
+            if (totalAlive <= infectedCount) {
                 // 疫使胜利 - 算作杀手胜利
                 RoleUtils.customWinnerWin(serverWorld, WinStatus.KILLERS,
                         org.agmas.noellesroles.role.ModRoles.INFECTED.identifier().getPath(),
@@ -114,7 +115,7 @@ public class InfectedWinChecker {
             }
 
             // 疫使存活且其他所有玩家都被感染（必须进入疫使时刻才能胜利）
-            if (infectedInfectedCount >= totalAlive - infectedCount && wasAccelerated) {
+            if (infectedInfectedCount >= totalAlive - infectedCount) {
                 // 清除所有感染状态
                 // 疫使胜利 - 算作杀手胜利
                 RoleUtils.customWinnerWin(serverWorld, WinStatus.KILLERS,
@@ -149,6 +150,8 @@ public class InfectedWinChecker {
             }
 
             // 单次遍历完成所有检查（原来分4次遍历，现在合并为1次）
+
+            ArrayList<ServerPlayer> inftectRolePlayers = new ArrayList<>();
             boolean hasInfected = false;
             boolean hasKiller = false;
             boolean hasDoctor = false;
@@ -156,8 +159,14 @@ public class InfectedWinChecker {
             boolean hasSafeTime = false;
 
             for (ServerPlayer player : level.getPlayers(GameUtils::isPlayerAliveAndSurvival)) {
+                // 检查是否处于安全时间（游戏开始安全时间、阳光自选、职业轮抽的选择阶段）
+                if (!hasSafeTime && player.hasEffect(ModEffects.SAFE_TIME)) {
+                    hasSafeTime = true;
+                }
                 if (gameWorldComponent.isRole(player, ModRoles.INFECTED)) {
                     hasInfected = true;
+                    inftectRolePlayers.add(player);
+                    continue;
                 }
                 // 只检查真正的杀手阵营（isKiller），不含杀手方中立
                 var role = gameWorldComponent.getRole(player);
@@ -170,10 +179,6 @@ public class InfectedWinChecker {
                 }
                 if (!hasLooseEnd && gameWorldComponent.isRole(player, TMMRoles.LOOSE_END)) {
                     hasLooseEnd = true;
-                }
-                // 检查是否处于安全时间（游戏开始安全时间、阳光自选、职业轮抽的选择阶段）
-                if (!hasSafeTime && player.hasEffect(ModEffects.SAFE_TIME)) {
-                    hasSafeTime = true;
                 }
             }
 
@@ -205,6 +210,13 @@ public class InfectedWinChecker {
             if (shouldAccelerate) {
                 // 设置加速传播（病毒传染时间缩短至10秒）
                 if (!wasAccelerated) {
+                    // 有医生直接趋势，直接不管后面逻辑避免一堆神秘bug和性能消耗
+                    if (hasDoctor) {
+                        for (ServerPlayer p : inftectRolePlayers) {
+                            GameUtils.forceKillPlayer(p, true, null, GameConstants.DeathReasons.CANNOT_WIN);
+                            return;
+                        }
+                    }
                     InfectedPlayerComponent.setSpreadAcceleratedForAll(level, true);
                     wasAccelerated = true;
                     // 同步加速状态到疫使玩家自身的组件（供客户端HUD读取）
@@ -244,7 +256,7 @@ public class InfectedWinChecker {
                         }
                     }
                 }
-                checkAndTriggerLastInfected(level);
+                checkAndTriggerLastInfected(level, inftectRolePlayers);
             } else {
                 // 取消加速传播
                 if (wasAccelerated) {
@@ -266,33 +278,30 @@ public class InfectedWinChecker {
     /**
      * 检查场上所有非疫使玩家是否都被感染，如果是则触发全部致死并刷新疫使冷却至3秒。
      */
-    static void checkAndTriggerLastInfected(ServerLevel serverWorld) {
+    static void checkAndTriggerLastInfected(ServerLevel serverWorld, List<ServerPlayer> infectedRolePlayers) {
         var gameWorldComponent = SREGameWorldComponent.KEY.get(serverWorld);
         var players = serverWorld.getPlayers(GameUtils::isPlayerAliveAndSurvival);
-        ServerPlayer infectedPlayer = null;
         int totalNonInfected = 0;
         for (ServerPlayer player : players) {
-            if (gameWorldComponent.isRole(player, ModRoles.INFECTED)) {
-                infectedPlayer = player;
-                continue;
-            }
             InfectedPlayerComponent ic = ModComponents.INFECTED.get(player);
             if (ic.infectedTicks <= 0)
                 totalNonInfected++;
         }
-        if (infectedPlayer == null || totalNonInfected > 0)
+        if (infectedRolePlayers.isEmpty() || totalNonInfected > 0)
             return;
-        SREAbilityPlayerComponent abilityComponent = SREAbilityPlayerComponent.KEY.get(infectedPlayer);
-        abilityComponent.resetAllCooldowns();
-        abilityComponent.cooldown = GameConstants.getInTicks(0, 3);
-        abilityComponent.getSkillState(SRE.id("infected_infect")).cooldown = abilityComponent.cooldown;
-        abilityComponent.sync();
+        for (var infectedPlayer : infectedRolePlayers) {
+            SREAbilityPlayerComponent abilityComponent = SREAbilityPlayerComponent.KEY.get(infectedPlayer);
+            abilityComponent.resetAllCooldowns();
+            abilityComponent.cooldown = GameConstants.getInTicks(0, 3);
+            abilityComponent.getSkillState(SRE.id("infected_infect")).cooldown = abilityComponent.cooldown;
+            abilityComponent.sync();
+        }
         for (ServerPlayer player : players) {
             if (gameWorldComponent.isRole(player, ModRoles.INFECTED))
                 continue;
             InfectedPlayerComponent ic = ModComponents.INFECTED.get(player);
             if (ic.infectedTicks > 0 && InfectedPlayerComponent.canDieFromInfection(player)) {
-                GameUtils.killPlayer(player, true, infectedPlayer,
+                GameUtils.killPlayer(player, true, infectedRolePlayers.getFirst(),
                         InfectedPlayerComponent.INFECTION_DEATH_REASON, true);
             }
         }
@@ -314,6 +323,7 @@ public class InfectedWinChecker {
             return;
         }
 
+        ArrayList<ServerPlayer> inftectRolePlayers = new ArrayList<>();
         boolean hasInfected = false;
         boolean hasKiller = false;
         boolean hasDoctor = false;
@@ -321,8 +331,13 @@ public class InfectedWinChecker {
         boolean hasSafeTime = false;
 
         for (ServerPlayer player : level.getPlayers(GameUtils::isPlayerAliveAndSurvival)) {
+            if (!hasSafeTime && player.hasEffect(ModEffects.SAFE_TIME)) {
+                hasSafeTime = true;
+            }
             if (gameWorldComponent.isRole(player, ModRoles.INFECTED)) {
                 hasInfected = true;
+                inftectRolePlayers.add(player);
+                continue;
             }
             var role = gameWorldComponent.getRole(player);
             if (role != null && role.isKiller() && !hasKiller) {
@@ -334,9 +349,6 @@ public class InfectedWinChecker {
             }
             if (!hasLooseEnd && gameWorldComponent.isRole(player, TMMRoles.LOOSE_END)) {
                 hasLooseEnd = true;
-            }
-            if (!hasSafeTime && player.hasEffect(ModEffects.SAFE_TIME)) {
-                hasSafeTime = true;
             }
         }
 
@@ -353,6 +365,13 @@ public class InfectedWinChecker {
 
         if (shouldAccelerate) {
             if (!wasAccelerated) {
+                // 有医生直接趋势，直接不管后面逻辑避免一堆神秘bug和性能消耗
+                if (hasDoctor) {
+                    for (ServerPlayer p : inftectRolePlayers) {
+                        GameUtils.forceKillPlayer(p, true, null, GameConstants.DeathReasons.CANNOT_WIN);
+                        return;
+                    }
+                }
                 InfectedPlayerComponent.setSpreadAcceleratedForAll(level, true);
                 wasAccelerated = true;
                 // 同步加速状态到疫使玩家自身的组件（供客户端HUD读取）
@@ -379,7 +398,7 @@ public class InfectedWinChecker {
                     }
                 }
             }
-            checkAndTriggerLastInfected(level);
+            checkAndTriggerLastInfected(level, inftectRolePlayers);
         } else {
             if (wasAccelerated) {
                 InfectedPlayerComponent.setSpreadAcceleratedForAll(level, false);
