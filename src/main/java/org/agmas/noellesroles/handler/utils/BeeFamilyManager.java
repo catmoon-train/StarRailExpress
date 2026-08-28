@@ -269,4 +269,12 @@ public class BeeFamilyManager {
         }
         return true;
     }
+
+    public static boolean shouldPreventGameEnd(ServerLevel serverLevel) {
+        var cca = SREGameWorldComponent.KEY.get(serverLevel);
+        for (ServerPlayer p : serverLevel.players())
+            if (GameUtils.isPlayerAliveAndSurvival(p) && cca.getRole(p) instanceof BeeFamilyRole)
+                return true;
+        return false;
+    }
 }

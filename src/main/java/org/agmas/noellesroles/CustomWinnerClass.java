@@ -158,6 +158,12 @@ public class CustomWinnerClass {
                 return WinStatus.CUSTOM;
             }
 
+            
+            // 教父存活时阻止游戏结束
+            if (BeeFamilyManager.shouldPreventGameEnd(serverLevel)
+                    && (winStatus == WinStatus.KILLERS || winStatus == WinStatus.PASSENGERS)) {
+                return WinStatus.NONE;
+            }
             // 教父家族独立胜利
             if (org.agmas.noellesroles.game.roles.neutral.mafia.MafiaManager.checkMafiaVictory(serverLevel)) {
                 return WinStatus.CUSTOM;
