@@ -41,6 +41,7 @@ import org.agmas.noellesroles.role_data.neutral.GodfatherRoleData;
 import org.agmas.noellesroles.role_data.neutral.MercenaryRoleData;
 import org.agmas.noellesroles.role_data.neutral.MonokumaRoleData;
 import org.agmas.noellesroles.role_data.neutral.NianShouRoleData;
+import org.agmas.noellesroles.game.fake_steve.FakeSteveDirector;
 import org.agmas.noellesroles.game.roles.neutral.panda.PandaComponent;
 import org.agmas.noellesroles.role_data.neutral.PelicanRoleData;
 import org.agmas.noellesroles.role_data.neutral.RavenRoleData;
@@ -537,6 +538,11 @@ public final class LeaderFollowerEffects {
 
         // 禁止：亡命徒 / 超级亡命徒 / 领袖自身
         if (path.equals("loose_end") || path.equals("super_loose_end") || path.equals("leader")) {
+            return false;
+        }
+
+        // 禁止：假史蒂夫（fake_steve）职业，以及被假史蒂夫替换（fake_steve_replaced）的玩家
+        if (path.equals("fake_steve") || FakeSteveDirector.isReplaced(target)) {
             return false;
         }
 

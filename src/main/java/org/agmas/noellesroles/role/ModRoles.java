@@ -2815,7 +2815,7 @@ public class ModRoles {
         SALTED_FISH.setAddedVersion("4.3");
         RETURN_TRAVELER.setAddedVersion("4.4");
         LEATHER_PIG.setAddedVersion("4.3");
-        BARBARIAN.setAddedVersion("4.3");
+        BARBARIAN.setAddedVersion("4.4");
         NIAOSHOU_SHOU.setAddedVersion("4.4");
         NINJA.setAddedVersion("4.1");
         NOSTALGIST.setAddedVersion("4.3");
