@@ -4,6 +4,7 @@ import java.util.UUID;
 
 import org.agmas.noellesroles.role.bouns.roles.BeeFamilyRole;
 
+import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.api.data.RoleDataContext;
 import io.wifi.starrailexpress.api.impl.SimpleRoleData;
 import net.minecraft.core.HolderLookup.Provider;
@@ -17,6 +18,8 @@ public class BeeFamilyRoleData extends SimpleRoleData {
 
     public boolean beeChannel = true;
     public UUID markTarget = null;
+    // 服务端存储：转换前的职业
+    public SRERole beforeRole = null;
 
     @Override
     public void writeToSyncNbt(CompoundTag tag, Provider registryLookup) {

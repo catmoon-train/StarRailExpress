@@ -281,12 +281,14 @@ public class BeeFamilyManager {
                         }
                     });
             revived.getInventory().clearContent();
+            final SRERole beforeRole = gameWorldComponent.getRole(revived);
             RoleUtils.changeRole(revived, selectedRole);
             GameUtils.revivePlayer(revived, body.getX(), body.getY(), body.getZ());
             body.discard(); // like it never existed
 
             RoleUtils.sendWelcomeAnnouncement(revived);
-
+            if (!(beforeRole instanceof BeeFamilyRole))
+                RoleData.ifPresent(BeeFamilyRoleData.class, revived, (data) -> data.beforeRole = beforeRole);
             return InteractionResult.CONSUME;
         }));
 
@@ -374,5 +376,38 @@ public class BeeFamilyManager {
             if (GameUtils.isPlayerAliveAndSurvival(p) && cca.getRole(p) instanceof BeeFamilyRole)
                 return true;
         return false;
+    }
+
+    /**
+     * 检查蜜蜂家族是否全体死亡。如果是恢复死者原本职业。
+     */
+    public static void checkBeeFamilyFailure(ServerLevel serverLevel) {
+        final var gamecca = SREGameWorldComponent.KEY.get(serverLevel);
+        int aliveBees = 0;
+        for (var player : serverLevel.players()) {
+            if (!GameUtils.isPlayerAliveAndSurvival(player)) {
+                continue;
+            }
+            if (gamecca.getRole(player) instanceof BeeFamilyRole) {
+                aliveBees++;
+            }
+        }
+        if (aliveBees <= 0) {
+            beeFamilyFailed(serverLevel);
+        }
+    }
+
+    public static void beeFamilyFailed(ServerLevel serverLevel) {
+        final var gamecca = SREGameWorldComponent.KEY.get(serverLevel);
+        for (var player : serverLevel.players()) {
+            if (gamecca.getRole(player) instanceof BeeFamilyRole) {
+                RoleData.ifPresent(BeeFamilyRoleData.class, player, (data) -> {
+                    if (data.beforeRole != null && !(data.beforeRole instanceof BeeFamilyRole)) {
+                        // 变回原有角色！
+                        RoleUtils.changeRole(player, data.beforeRole, true, false, false, true);
+                    }
+                });
+            }
+        }
     }
 }
