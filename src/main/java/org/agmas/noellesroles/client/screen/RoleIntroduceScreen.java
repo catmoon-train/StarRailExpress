@@ -304,7 +304,8 @@ public class RoleIntroduceScreen extends Screen {
     @Override
     protected void init() {
         super.init();
-        if (currentMode == IntroductionGameMode.CURRENT && !SREClient.gameComponent.hasRole(SREClient.cached_player) && !SREClient.hasPenalty()) {
+        if (currentMode == IntroductionGameMode.CURRENT && !SREClient.gameComponent.hasRole(SREClient.cached_player)
+                && !SREClient.hasPenalty()) {
             currentMode = IntroductionGameMode.CURRENT_ROUND;
         }
         if ((currentMode == IntroductionGameMode.CURRENT || currentMode == IntroductionGameMode.CURRENT_ROUND)
@@ -1671,19 +1672,22 @@ public class RoleIntroduceScreen extends Screen {
     // 可重写此方法来定制哪些模式在小 UI 下隐藏
     protected boolean shouldHideModeButton(IntroductionGameMode mode) {
         if (SREClient.gameComponent != null && SREClient.gameComponent.isRunning()) {
+            boolean showCurrentRound = !SREClient.isPlayerSpectatingOrCreative() || SREClient.hasPenalty();
             if (SREClient.gameComponent.getGameMode().identifier.equals(SREGameModes.REPAIR_ESCAPE_ID)) {
                 if (mode == IntroductionGameMode.MURDER)
                     return true;
-                if (mode == IntroductionGameMode.REPAIR)
-                    return true;
+                if (showCurrentRound)
+                    if (mode == IntroductionGameMode.REPAIR)
+                        return true;
             } else {
                 if (mode == IntroductionGameMode.REPAIR)
                     return true;
-                if (mode == IntroductionGameMode.MURDER)
-                    return true;
+                if (showCurrentRound)
+                    if (mode == IntroductionGameMode.MURDER)
+                        return true;
             }
 
-            if (!SREClient.isPlayerSpectatingOrCreative() || SREClient.hasPenalty()) {
+            if (showCurrentRound) {
                 if (mode == IntroductionGameMode.CURRENT_ROUND)
                     return true;
             }
