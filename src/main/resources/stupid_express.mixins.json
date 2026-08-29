@@ -6,7 +6,6 @@
   "mixins": [
     "modifier.allergist.AllergistEatMixin",
     "modifier.loose_end.LooseEndBarClearMixin",
-    "modifier.secretive.SecretiveDeathMixin",
     "general.StuckGameExitMixin",
     "modifier.split_personality.SplitPersonalityServerInputBlockMixin",
     "modifier.taskmaster.TaskmasterGiveCoinsMixin"

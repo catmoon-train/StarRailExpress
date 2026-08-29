@@ -568,10 +568,6 @@ public class SEModifiers {
             var cursedComponent = pro.fazeclan.river.stupid_express.modifier.cursed.cca.CursedComponent.KEY.get(player);
             cursedComponent.init();
             cursedComponent.sync();
-            // Reset secretive component
-            var secretiveComponent = pro.fazeclan.river.stupid_express.modifier.secretive.cca.SecretiveComponent.KEY
-                    .get(player);
-            secretiveComponent.reset();
             // Reset knight component
             var knightComponent = pro.fazeclan.river.stupid_express.modifier.knight.cca.KnightComponent.KEY.get(player);
             knightComponent.init();

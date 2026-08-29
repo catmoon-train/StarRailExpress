@@ -1025,18 +1025,6 @@ public class GameUtils {
             }
         }
 
-        // Don't set game status to ACTIVE here - it will be set after roles are
-        // assigned in initializeGame()
-        // Create a copy of entities to avoid concurrent modification issues
-        // List<net.minecraft.world.entity.Entity> entitiesToDiscard = new
-        // ArrayList<>();
-        // serverWorld.getAllEntities().forEach(entity -> {
-        // if (entity instanceof ItemEntity) {
-        // entitiesToDiscard.add(entity);
-        // }
-        // });
-        // entitiesToDiscard.forEach(net.minecraft.world.entity.Entity::discard);
-
         gameComponent.setJumpAvailable(areas.areasSettings.canJump);
 
         // 应用地图重力配置
