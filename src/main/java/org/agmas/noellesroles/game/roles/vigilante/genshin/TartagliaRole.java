@@ -133,7 +133,6 @@ public class TartagliaRole extends NormalRole {
 
         // 只在冲刺旋转期间检测碰撞
         if (!player.isAutoSpinAttack()) {
-            tickCounts.remove(player.getUUID());
             return;
         }
         final var level = player.serverLevel();
