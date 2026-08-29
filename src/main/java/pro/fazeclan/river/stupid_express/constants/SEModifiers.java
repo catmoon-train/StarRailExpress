@@ -40,7 +40,6 @@ import org.agmas.noellesroles.role.touhou.THMiscRoles;
 import org.agmas.noellesroles.utils.RoleUtils;
 
 import pro.fazeclan.river.stupid_express.StupidExpress;
-import pro.fazeclan.river.stupid_express.modifier.allergist.cca.AllergistComponent;
 import pro.fazeclan.river.stupid_express.modifier.lovers.cca.LoversComponent;
 import pro.fazeclan.river.stupid_express.modifier.refugee.cca.RefugeeComponent;
 import pro.fazeclan.river.stupid_express.modifier.split_personality.cca.SkinSplitPersonalityComponent;
@@ -485,31 +484,6 @@ public class SEModifiers {
                 worldModifierComponent.removeModifier(player.getUUID(), TALL);
                 player.getAttribute(Attributes.SCALE).removeModifier(TALL_MODIFIER);
             }
-            if (modifier.equals(FEATHER)) {
-                // Feather modifier no longer has slow falling effect
-            }
-            if (modifier.equals(ALLERGIST)) {
-                var allergistComponent = AllergistComponent.KEY.get(player);
-                allergistComponent.setAllergist(player.getUUID());
-                allergistComponent.sync();
-            }
-            if (modifier.equals(CURSED)) {
-                var cursedComponent = pro.fazeclan.river.stupid_express.modifier.cursed.cca.CursedComponent.KEY
-                        .get(player);
-                cursedComponent.setCursed(player.getUUID());
-                cursedComponent.sync();
-            }
-            if (modifier.equals(SECRETIVE)) {
-                var secretiveComponent = pro.fazeclan.river.stupid_express.modifier.secretive.cca.SecretiveComponent.KEY
-                        .get(player);
-                secretiveComponent.setSecretive(player.getUUID());
-            }
-            if (modifier.equals(KNIGHT)) {
-                var knightComponent = pro.fazeclan.river.stupid_express.modifier.knight.cca.KnightComponent.KEY
-                        .get(player);
-                knightComponent.setKnight(player.getUUID());
-                knightComponent.sync();
-            }
 
             if (modifier.equals(VIGOROUS)) {
                 if (player instanceof ServerPlayer sp) {
@@ -560,18 +534,6 @@ public class SEModifiers {
             var component = LoversComponent.KEY.get(player);
             component.reset();
             component.sync();
-            // Reset allergist component
-            var allergistComponent = AllergistComponent.KEY.get(player);
-            allergistComponent.init();
-            allergistComponent.sync();
-            // Reset cursed component
-            var cursedComponent = pro.fazeclan.river.stupid_express.modifier.cursed.cca.CursedComponent.KEY.get(player);
-            cursedComponent.init();
-            cursedComponent.sync();
-            // Reset knight component
-            var knightComponent = pro.fazeclan.river.stupid_express.modifier.knight.cca.KnightComponent.KEY.get(player);
-            knightComponent.init();
-            knightComponent.sync();
             // Reset split personality component
             var splitPersonalityComponent = pro.fazeclan.river.stupid_express.modifier.split_personality.cca.SplitPersonalityComponent.KEY
                     .get(player);

@@ -14,8 +14,6 @@
  */
 
 package pro.fazeclan.river.stupid_express.role.initiate;
-
-import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.cca.SREGameTimeComponent;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.game.GameConstants;

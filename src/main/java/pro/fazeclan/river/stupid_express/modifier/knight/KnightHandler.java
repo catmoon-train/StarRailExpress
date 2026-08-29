@@ -20,11 +20,13 @@ import io.wifi.starrailexpress.game.GameUtils;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.LightLayer;
-import pro.fazeclan.river.stupid_express.modifier.knight.cca.KnightComponent;
+import pro.fazeclan.river.stupid_express.constants.SEModifiers;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
+
+import org.agmas.noellesroles.utils.RoleUtils;
 
 public class KnightHandler {
     public static void init() {
@@ -47,8 +49,7 @@ public class KnightHandler {
                     targets.add(player);
                 }
 
-                KnightComponent component = KnightComponent.KEY.get(player);
-                if (component.isKnight()) {
+                if (isKnight(player)) {
                     int light = player.level().getBrightness(LightLayer.BLOCK, player.blockPosition());
                     if (light < 2) {
                         // 侠客也必须是冒险模式才能使用交换能力
@@ -82,5 +83,9 @@ public class KnightHandler {
                 }
             }
         });
+    }
+
+    private static boolean isKnight(ServerPlayer player) {
+        return RoleUtils.isPlayerTheModifier(player, SEModifiers.KNIGHT);
     }
 }

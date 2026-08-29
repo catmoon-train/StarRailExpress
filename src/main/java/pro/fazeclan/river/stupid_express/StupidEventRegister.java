@@ -18,6 +18,7 @@ package pro.fazeclan.river.stupid_express;
 import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.api.TMMRoles;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
+import io.wifi.starrailexpress.event.OnGameEnd;
 import io.wifi.starrailexpress.event.OnPlayerDeath;
 import io.wifi.starrailexpress.event.OnPlayerDeathWithKiller;
 import io.wifi.starrailexpress.game.GameConstants;
@@ -29,8 +30,8 @@ import io.wifi.starrailexpress.rules.ReplayRules;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import org.agmas.harpymodloader.component.WorldModifierComponent;
 import org.agmas.harpymodloader.events.GameInitializeEvent;
+
 import pro.fazeclan.river.stupid_express.constants.SEModifiers;
-import pro.fazeclan.river.stupid_express.modifier.cursed.cca.CursedComponent;
 import pro.fazeclan.river.stupid_express.modifier.lovers.LoversWinCheckEvent;
 import pro.fazeclan.river.stupid_express.modifier.lovers.cca.LoversComponent;
 import pro.fazeclan.river.stupid_express.modifier.refugee.cca.PlayerStatsBeforeRefugee;
@@ -46,6 +47,12 @@ public class StupidEventRegister {
      * 主类初始化阶段的事件 / 规则注册，从 {@link StupidExpress#onInitialize()} 中剥离，归一化到此处。
      */
     public static void registerInitEvents() {
+        OnGameEnd.EVENT.register((world, cca) -> {
+            world.players().forEach(serverPlayer -> {
+                RemoveStatusBarPayload payload = new RemoveStatusBarPayload("loose_end");
+                ServerPlayNetworking.send(serverPlayer, payload);
+            });
+        });
         GameInitializeEvent.EVENT.register((ServerLevel, gameWorldComponent, serverPlayers) -> {
             var refugeeC = RefugeeComponent.KEY.get(ServerLevel);
             if (refugeeC != null) {
@@ -134,18 +141,10 @@ public class StupidEventRegister {
             }
         });
         OnPlayerDeathWithKiller.EVENT.register((victim, killer, deathReason) -> {
-            CursedComponent cursedComponent = CursedComponent.KEY.get(victim);
-
-            if (cursedComponent.isCursed() && killer != null) {
-                // Transfer curse
-                cursedComponent.init();
-                WorldModifierComponent worldModifierComponent = WorldModifierComponent.KEY.get(victim.level());
-                worldModifierComponent.removeModifier(victim.getUUID(), SEModifiers.CURSED);
-
-                CursedComponent killerCursedComponent = CursedComponent.KEY.get(killer);
-                killerCursedComponent.setCursed(killer.getUUID());
-                killerCursedComponent.sync();
-                worldModifierComponent.addModifier(killer.getUUID(), SEModifiers.CURSED);
+            var cca = WorldModifierComponent.KEY.get(victim.level());
+            if (cca.isModifier(victim, SEModifiers.CURSED) && killer != null) {
+                cca.removeModifier(victim, SEModifiers.CURSED);
+                cca.addModifier(killer, SEModifiers.CURSED);
             }
         });
     }

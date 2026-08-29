@@ -21,11 +21,16 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
-import pro.fazeclan.river.stupid_express.modifier.cursed.cca.CursedComponent;
+import pro.fazeclan.river.stupid_express.constants.SEModifiers;
 
 import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
+
+import org.agmas.harpymodloader.component.WorldModifierComponent;
+
+import io.wifi.starrailexpress.cca.SREGameTimeComponent;
+import io.wifi.starrailexpress.game.GameUtils;
 
 public class CursedHandler {
     private static int tickCounter = 0;
@@ -45,23 +50,27 @@ public class CursedHandler {
             MobEffects.GLOWING,
             MobEffects.SLOW_FALLING,
             MobEffects.DARKNESS,
-            MobEffects.WEAKNESS
-    );
+            MobEffects.WEAKNESS);
 
     public static void init() {
         ServerTickEvents.END_SERVER_TICK.register(server -> {
+            if (SREGameTimeComponent.KEY.get(server.overworld()).isTimeFrozen()) {
+                return;
+            }
             tickCounter++;
             if (tickCounter >= INTERVAL) {
                 tickCounter = 0;
-                
-                Random random = new Random();
 
+                Random random = new Random();
+                var worldcca = WorldModifierComponent.getInstance(server.overworld());
                 for (ServerPlayer player : server.getPlayerList().getPlayers()) {
-                    CursedComponent component = CursedComponent.KEY.get(player);
-                    if (component.isCursed()) {
-                        Holder<MobEffect> effect = POSSIBLE_EFFECTS.get(random.nextInt(POSSIBLE_EFFECTS.size()));
-                        // 5 seconds = 100 ticks, amplifier 1 = level 2
-                        player.addEffect(new MobEffectInstance(effect, 100, 1));
+                    if (GameUtils.isPlayerAliveAndSurvival(player)) {
+
+                        if (worldcca.isModifier(player, SEModifiers.CURSED)) {
+                            Holder<MobEffect> effect = POSSIBLE_EFFECTS.get(random.nextInt(POSSIBLE_EFFECTS.size()));
+                            // 5 seconds = 100 ticks, amplifier 1 = level 2
+                            player.addEffect(new MobEffectInstance(effect, 100, 1));
+                        }
                     }
                 }
             }

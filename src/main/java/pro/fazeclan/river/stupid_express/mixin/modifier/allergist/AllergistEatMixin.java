@@ -24,6 +24,8 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.food.FoodProperties;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
+
+import org.agmas.noellesroles.utils.RoleUtils;
 import org.jetbrains.annotations.NotNull;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
@@ -31,7 +33,6 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import pro.fazeclan.river.stupid_express.StupidExpress;
 import pro.fazeclan.river.stupid_express.constants.SEModifiers;
-import pro.fazeclan.river.stupid_express.modifier.allergist.cca.AllergistComponent;
 
 import java.util.concurrent.ThreadLocalRandom;
 
@@ -51,9 +52,8 @@ public abstract class AllergistEatMixin extends LivingEntity {
             return;
 
         Player player = (Player) (Object) this;
-        AllergistComponent allergist = AllergistComponent.KEY.get(player);
-
-        if (!allergist.isAllergist())
+    
+        if (!RoleUtils.isPlayerTheModifier(player, SEModifiers.ALLERGIST))
             return;
 
         // Random effect: 33% nothing, 33% slowness 2 for 5s, 33% speed 2 for 2s, 1%

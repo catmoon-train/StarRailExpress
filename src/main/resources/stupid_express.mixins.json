@@ -5,7 +5,6 @@
   "compatibilityLevel": "JAVA_21",
   "mixins": [
     "modifier.allergist.AllergistEatMixin",
-    "modifier.loose_end.LooseEndBarClearMixin",
     "general.StuckGameExitMixin",
     "modifier.split_personality.SplitPersonalityServerInputBlockMixin",
     "modifier.taskmaster.TaskmasterGiveCoinsMixin"

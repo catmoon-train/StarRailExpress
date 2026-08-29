@@ -121,6 +121,18 @@ public class WorldModifierComponent implements AutoSyncedComponent, ServerTickin
             this.sync();
     }
 
+    public void addModifier(Player player, SREModifier modifier, boolean sync) {
+        if (player == null)
+            return;
+        this.addModifier(player.getUUID(), modifier, sync);
+    }
+
+    public void addModifier(Player player, SREModifier modifier) {
+        if (player == null)
+            return;
+        this.addModifier(player.getUUID(), modifier);
+    }
+
     public void addModifier(UUID player, SREModifier modifier) {
         this.addModifier(player, modifier, true);
     }
