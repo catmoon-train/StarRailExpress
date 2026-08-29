@@ -1280,6 +1280,8 @@ public class GameUtils {
         player.setInvulnerable(false);
         // 体力重置。-1代表职业最大值
         StaminaCommand.setStamina(player, -1);
+        player.setLastHurtByMob(null);
+        player.setLastHurtByPlayer(null);
         // PlayerResetMixin插入位置
     }
 
