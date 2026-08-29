@@ -34,7 +34,11 @@ import net.minecraft.world.InteractionResult;
 public class BeeFamilyManager {
 
     public static final int BEE_QUEEN_IMPROVE_PRICE = 150;
-    public static final int BEE_POISON_TICKS = 15 * 20;
+    public static final int BEE_QUEEN_SELECT_QUEEN_PRICE = 300;
+    public static final int BEE_POISON_TICKS = 30 * 20;
+    public static final int REVIVE_COST_MONEY = 100;
+    public static final int REVIVE_COOLDOWN = 60 * 20;
+    public static final int KILL_AWARD_TO_QUEEN = 50;
 
     /**
      * 领袖已招募蜂后时置为 true：场上所有蜜蜂家族职业释放技能后，
@@ -112,7 +116,7 @@ public class BeeFamilyManager {
                         .noAnnouncement()
                         .build());
         RoleSkill.register(BounsRoles.BEE_QUEEN,
-                RoleSkill.skill(SRE.id("bee_queen"), "skill.noellesroles.bee_queen", (ctx) -> {
+                RoleSkill.skill(SRE.id("bee_queen/improve"), "skill.noellesroles.bee_queen.improve", (ctx) -> {
                     final var player = ctx.player();
                     if (!MoneyUtils.hasBalance(player, BeeFamilyManager.BEE_QUEEN_IMPROVE_PRICE)) {
                         player.displayClientMessage(Component.translatable("skill.noellesroles.bee_queen.no_money",
@@ -129,6 +133,65 @@ public class BeeFamilyManager {
                     cca.status = 1;
                     return true;
                 }).noCastCCA(true).recordReplay().showOnHud(true).cooldownSeconds(90).announceToSelf().build(),
+                RoleSkill.skill(SRE.id("bee_queen/mark"), "skill.noellesroles.bee_queen.mark", (ctx) -> {
+                    final var player = ctx.player();
+                    if (!MoneyUtils.hasBalance(player, BeeFamilyManager.BEE_QUEEN_SELECT_QUEEN_PRICE)) {
+                        player.displayClientMessage(
+                                Component.translatable("skill.noellesroles.bee_queen.select.no_money",
+                                        BeeFamilyManager.BEE_QUEEN_SELECT_QUEEN_PRICE).withStyle(ChatFormatting.RED),
+                                true);
+                        return false;
+                    }
+                    final var roledata = RoleData.getNullable(BeeFamilyRoleData.class, player);
+                    if (roledata == null) {
+                        return false;
+                    }
+                    if (roledata.markTarget != null) {
+                        if (player.level().getPlayerByUUID(roledata.markTarget) != null) {
+                            player.displayClientMessage(
+                                    Component.translatable("skill.noellesroles.bee_queen.select.already")
+                                            .withStyle(ChatFormatting.RED),
+                                    true);
+                            return false;
+                        }
+                    }
+                    if (ctx.target() == null) {
+                        player.displayClientMessage(
+                                Component.translatable("tip.noellesroles.no_target").withStyle(ChatFormatting.RED),
+                                true);
+                        return false;
+                    }
+
+                    if (!(ctx.player().serverLevel().getEntity(ctx.target()) instanceof PlayerBodyEntity be)) {
+                        player.displayClientMessage(
+                                Component.translatable("tip.noellesroles.no_target").withStyle(ChatFormatting.RED),
+                                true);
+                        return false;
+                    }
+                    if (be.getPlayerUuid() == null) {
+                        player.displayClientMessage(
+                                Component.translatable("tip.noellesroles.no_target").withStyle(ChatFormatting.RED),
+                                true);
+                        return false;
+                    }
+                    if (!(player.level()
+                            .getPlayerByUUID(be.getPlayerUuid()) instanceof ServerPlayer marktargetplayer)) {
+                        player.displayClientMessage(
+                                Component.translatable("tip.noellesroles.no_target").withStyle(ChatFormatting.RED),
+                                true);
+                        return false;
+                    }
+                    if (GameUtils.isPlayerAliveAndSurvival(marktargetplayer)) {
+                        player.displayClientMessage(
+                                Component.translatable("tip.noellesroles.no_target").withStyle(ChatFormatting.RED),
+                                true);
+                        return false;
+                    }
+                    MoneyUtils.addToBalance(player, -BeeFamilyManager.BEE_QUEEN_SELECT_QUEEN_PRICE);
+                    roledata.markSuccessor(marktargetplayer.getUUID());
+                    return true;
+                }).noCastCCA(true).withTarget().recordReplay().showOnHud(true).cooldownSeconds(60).announceToSelf()
+                        .build(),
                 RoleSkill.skill(SRE.id("bee_channel"),
                         "skill.noellesroles.bee_channel", (ctx) -> changeChannel(ctx))
                         .noCastCCA(true)
@@ -184,13 +247,22 @@ public class BeeFamilyManager {
             if (cca.hasCooldown()) {
                 return InteractionResult.PASS;
             }
-            cca.setCooldown(60 * 20);
+            if (!MoneyUtils.hasBalance(interacting, REVIVE_COST_MONEY)) {
+                player.displayClientMessage(
+                        Component.translatable("hud.noellesroles.bee_family.money", REVIVE_COST_MONEY)
+                                .withStyle(ChatFormatting.RED),
+                        true);
+                return InteractionResult.PASS;
+            }
+            MoneyUtils.addToBalance(interacting, -REVIVE_COST_MONEY);
+            cca.setCooldown(REVIVE_COOLDOWN);
 
             SRERole reviveRole = BounsRoles.BEE_WORKER;
             if (cca.status == 1) {
                 reviveRole = BounsRoles.BEE_WASP;
                 cca.status = 0;
             }
+
             final SRERole selectedRole = reviveRole;
             serverLevel.players().forEach(
                     a -> {
@@ -211,6 +283,7 @@ public class BeeFamilyManager {
 
             return InteractionResult.CONSUME;
         }));
+
         OnPlayerDeathWithKiller.EVENT.register((player, killer, deathReason) -> {
             if (killer == null) {
                 return;
@@ -224,7 +297,7 @@ public class BeeFamilyManager {
                 if (!GameUtils.isPlayerAliveAndSurvival(p))
                     continue;
                 if (worldcca.isRole(p, BounsRoles.BEE_QUEEN)) {
-                    SREPlayerShopComponent.KEY.get(p).addToBalance(50);
+                    SREPlayerShopComponent.KEY.get(p).addToBalance(KILL_AWARD_TO_QUEEN);
                 }
             }
         });

@@ -478,7 +478,7 @@ public class TouhouHandlers {
             moodcca.addMood(0.4f);
           }
           return true;
-        }).withTarget().announceToSelf().showOnHud(true).cooldownTicks(20 * 60).build());
+        }).recordReplay().withTarget().announceToSelf().showOnHud(true).cooldownTicks(20 * 60).build());
     RoleSkill.register(THMiscRoles.SHIKIEIKI,
         RoleSkill.skill(SRE.id("shikieiki"), "skill.noellesroles.shikieiki.instinct", context -> {
           final int GAP = 45 * 20;

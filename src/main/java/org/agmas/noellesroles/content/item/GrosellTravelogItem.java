@@ -15,6 +15,7 @@
 
 package org.agmas.noellesroles.content.item;
 
+import io.wifi.starrailexpress.api.replay.GameReplayUtils;
 import io.wifi.starrailexpress.game.GameUtils;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.particles.ParticleTypes;
@@ -152,7 +153,8 @@ public class GrosellTravelogItem extends Item {
             if (player instanceof ServerPlayer serverPlayer) {
                 io.wifi.starrailexpress.SRE.REPLAY_MANAGER.recordCustomEvent(
                         net.minecraft.network.chat.Component.translatable("replay.event.adventurer.recall",
-                                io.wifi.starrailexpress.api.replay.GameReplayUtils.getReplayPlayerDisplayText(serverPlayer, true)));
+                                GameReplayUtils.getReplayPlayerDisplayText(serverPlayer, true),
+                                GameReplayUtils.getReplayPlayerDisplayText(target, true)));
             }
 
             // 释放后才进冷却。

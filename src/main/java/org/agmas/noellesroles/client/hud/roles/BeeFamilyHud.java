@@ -3,6 +3,7 @@ package org.agmas.noellesroles.client.hud.roles;
 import java.util.UUID;
 
 import org.agmas.noellesroles.client.event.RoleHudRenderCallback;
+import org.agmas.noellesroles.handler.utils.BeeFamilyManager;
 import org.agmas.noellesroles.role.bouns.BounsRoles;
 import org.agmas.noellesroles.role_data.neutral.BeeFamilyRoleData;
 import org.agmas.noellesroles.utils.RoleUtils;
@@ -10,6 +11,7 @@ import org.agmas.noellesroles.utils.RoleUtils;
 import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.api.data.RoleData;
 import io.wifi.starrailexpress.cca.SREAbilityPlayerComponent;
+import io.wifi.starrailexpress.cca.SREPlayerShopComponent;
 import io.wifi.starrailexpress.client.util.SREClientUtils;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
@@ -90,6 +92,7 @@ public class BeeFamilyHud {
 
             // 获取探员组件
             var cca = SREAbilityPlayerComponent.KEY.get(client.player);
+            var shopcca = SREPlayerShopComponent.KEY.get(client.player);
 
             // 渲染位置 - 右下角
             int screenHeight = client.getWindow().getGuiScaledHeight();
@@ -104,6 +107,11 @@ public class BeeFamilyHud {
                         .withStyle(ChatFormatting.RED);
                 context.drawString(textRenderer, cdText, x, y, 0xffffffff);
 
+            } else if (shopcca.balance < BeeFamilyManager.REVIVE_COST_MONEY) {
+                Component cdText = Component
+                        .translatable("hud.noellesroles.bee_queen.spawn.cost", BeeFamilyManager.REVIVE_COST_MONEY)
+                        .withStyle(ChatFormatting.RED);
+                context.drawString(textRenderer, cdText, x, y, 0xffffffff);
             } else {
                 Component cdText = Component.translatable("hud.noellesroles.bee_queen.spawn.ready")
                         .withStyle(ChatFormatting.GREEN);

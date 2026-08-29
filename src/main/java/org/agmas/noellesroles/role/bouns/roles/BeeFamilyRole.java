@@ -54,8 +54,17 @@ public class BeeFamilyRole extends EggRole implements CustomWinnerRoleInterface 
     @Override
     public void onDeath(Player victim, boolean spawnBody, @Nullable Player killer, ResourceLocation deathReason,
             boolean forceDeath) {
+        if (!(victim instanceof ServerPlayer player))
+            return;
         var role = RoleUtils.getPlayerRole(victim);
         if (role.equals(BounsRoles.BEE_QUEEN)) {
+            final var roledata = RoleData.getNullable(BeeFamilyRoleData.class, player);
+            if (roledata == null) {
+                return;
+            }
+            if(roledata.markTarget!=null){
+                // roledata.markTarget;
+            }
             // 复活蜂后
         }
         return;

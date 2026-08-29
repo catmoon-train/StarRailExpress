@@ -26,7 +26,6 @@ import net.minecraft.world.level.block.DoorBlock;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
-import org.agmas.noellesroles.Noellesroles;
 
 import java.util.Comparator;
 import java.util.UUID;
@@ -34,7 +33,7 @@ import java.util.UUID;
 /** Server-side controller for a replaced player body. */
 public class FakeSteveAi {
     private static final double FACE_COS = Math.cos(Math.toRadians(30.0));
-    private static final ResourceLocation BACKSTAB = Noellesroles.id("fake_steve_backstab");
+    private static final ResourceLocation BACKSTAB = GameConstants.DeathReasons.FAKE_AI_BACKSTAB;
     private static boolean registered;
 
     private FakeSteveAi() {

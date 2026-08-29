@@ -655,7 +655,8 @@ public final class RoleSkill {
                 // 自定义职业等：优先显示用户填写的技能名（字面文本）
                 SRE.REPLAY_MANAGER.recordSkillUsed(player, literalName);
             } else {
-                SRE.REPLAY_MANAGER.recordSkillUsedId(player, definition.nameKey());
+                SRE.REPLAY_MANAGER.recordSkillUsedId(player, definition.nameKey(),
+                        definition.withTarget() ? target : null);
             }
         }
         return true;
