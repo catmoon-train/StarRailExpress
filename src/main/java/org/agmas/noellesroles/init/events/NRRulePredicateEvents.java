@@ -173,6 +173,7 @@ public class NRRulePredicateEvents {
                 "exposure:stacked_photographs",
                 "exposure:album",
                 "exposure:photograph",
+                "noellesroles:cooked_haiman",
                 "noellesroles:mint_candies",
                 "noellesroles:alchemist_buff_potion",
                 "noellesroles:stalker_knife",
