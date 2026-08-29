@@ -66,7 +66,7 @@ public class EntityRendererInvisibleMixin {
             if (THYukariPortalManager.isPortalClient(bd)) {
                 if (SREClient.getCachedPlayerRole() != null) {
                     var r = SREClient.getCachedPlayerRole();
-                    if (SREClient.isPlayerSpectatingOrCreative() || !SREGameWorldComponent.isKillerTeamRoleStatic(r)
+                    if (SREClient.isPlayerAliveAndInSurvival() && !SREGameWorldComponent.isKillerTeamRoleStatic(r)
                             && !SREGameWorldComponent.isNeutalsRoleStatic(r)) {
                         cir.setReturnValue(false);
                         return;
