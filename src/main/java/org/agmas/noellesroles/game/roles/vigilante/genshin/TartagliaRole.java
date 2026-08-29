@@ -37,6 +37,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.alchemy.PotionContents;
 import net.minecraft.world.item.alchemy.Potions;
+import net.minecraft.world.item.component.Unbreakable;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 
@@ -51,7 +52,9 @@ public class TartagliaRole extends NormalRole {
 
     @Override
     public List<ItemStack> getDefaultItems() {
-        return List.of(Items.BOW.getDefaultInstance());
+        var bow = Items.BOW.getDefaultInstance();
+        bow.set(DataComponents.UNBREAKABLE, new Unbreakable(true));
+        return List.of(bow);
     }
 
     @Nullable
@@ -174,7 +177,7 @@ public class TartagliaRole extends NormalRole {
 
     public static boolean onSkillUsed(ServerPlayer player, RoleSkillContext context) {
         ItemStack stack = player.getMainHandItem();
-        if (!stack.is(Items.BOW) || !stack.is(Items.CROSSBOW)) {
+        if (!stack.is(Items.BOW) && !stack.is(Items.CROSSBOW)) {
             player.displayClientMessage(
                     Component.translatable("skill.noellesroles.tartaglia.failed.nobow").withStyle(ChatFormatting.RED),
                     true);
