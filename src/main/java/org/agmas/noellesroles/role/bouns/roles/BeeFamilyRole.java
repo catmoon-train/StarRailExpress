@@ -25,7 +25,6 @@ import net.minecraft.world.entity.player.Player;
 
 public class BeeFamilyRole extends EggRole implements CustomWinnerRoleInterface {
 
-    private static final int BEE_WORKER_DEATH_TIMEOUT_TICKS = 120 * 20;
 
     public BeeFamilyRole(ResourceLocation identifier, int color, boolean isInnocent, boolean canUseKiller,
             MoodType moodType, int maxSprintTime, boolean canSeeTime) {
@@ -33,6 +32,11 @@ public class BeeFamilyRole extends EggRole implements CustomWinnerRoleInterface 
         this.addFlag("bee_family");
         this.setCanBePoisoned(false);
         this.setRoleData(BeeFamilyRoleData::new);
+    }
+
+    @Override
+    public void resetVariables() {
+        BeeFamilyManager.reset();
     }
 
     @Override
@@ -50,7 +54,7 @@ public class BeeFamilyRole extends EggRole implements CustomWinnerRoleInterface 
     @Override
     public void onInit(MinecraftServer server, ServerPlayer player) {
         if (RoleUtils.isPlayerTheJob(player, BounsRoles.BEE_WORKER)) {
-            getAbilityComponent(player).setDuration(BEE_WORKER_DEATH_TIMEOUT_TICKS);
+            getAbilityComponent(player).setDuration(BeeFamilyManager.BEE_WORKER_DEATH_TIMEOUT_TICKS);
         }
         player.displayClientMessage(getChannelText(player), true);
     }
@@ -88,7 +92,7 @@ public class BeeFamilyRole extends EggRole implements CustomWinnerRoleInterface 
             }
         }
         // 检查蜜蜂家族是否全体死亡。如果是恢复死者原本职业。
-        BeeFamilyManager.checkBeeFamilyFailure(player.serverLevel());
+        BeeFamilyManager.pendingCheckFailure();
         return;
     }
 

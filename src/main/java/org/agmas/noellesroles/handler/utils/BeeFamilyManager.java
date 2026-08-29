@@ -18,6 +18,7 @@ import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.cca.SREPlayerPoisonComponent;
 import io.wifi.starrailexpress.cca.SREPlayerShopComponent;
 import io.wifi.starrailexpress.content.entity.PlayerBodyEntity;
+import io.wifi.starrailexpress.event.OnGameServerTick;
 import io.wifi.starrailexpress.event.OnPlayerDeathWithKiller;
 import io.wifi.starrailexpress.game.GameConstants;
 import io.wifi.starrailexpress.game.GameUtils;
@@ -39,12 +40,14 @@ public class BeeFamilyManager {
     public static final int REVIVE_COST_MONEY = 75;
     public static final int REVIVE_COOLDOWN = 60 * 20;
     public static final int KILL_AWARD_TO_QUEEN = 50;
+    public static final int BEE_WORKER_DEATH_TIMEOUT_TICKS = 120 * 20;
 
     /**
      * 领袖已招募蜂后时置为 true：场上所有蜜蜂家族职业释放技能后，
      * 中毒致死时间减半。每局开始时由 {@link #resetQueenLeaderBonus()} 复位。
      */
     public static boolean QUEEN_LEADER_BONUS = false;
+    public static boolean pendingCheck = false;
 
     public static void setQueenLeaderBonus(boolean value) {
         QUEEN_LEADER_BONUS = value;
@@ -55,6 +58,7 @@ public class BeeFamilyManager {
     }
 
     public static void registerEvents() {
+        OnGameServerTick.EVENT.register((world) -> tick(world));
         // 蜜蜂频道
         ServerMessageEvents.ALLOW_CHAT_MESSAGE.register((message, serverPlayer, bound) -> {
             SREGameWorldComponent gameWorldComponent = SREGameWorldComponent.KEY.get(serverPlayer.level());
@@ -401,6 +405,13 @@ public class BeeFamilyManager {
         }
     }
 
+    public static void tick(ServerLevel world) {
+        if(pendingCheck){
+            pendingCheck = false;
+            checkBeeFamilyFailure(world);
+        }
+    }
+
     public static void beeFamilyFailed(ServerLevel serverLevel) {
         SRE.LOGGER.info("Bee family failed! Try restore roles.");
         final var gamecca = SREGameWorldComponent.KEY.get(serverLevel);
@@ -414,5 +425,13 @@ public class BeeFamilyManager {
                 });
             }
         }
+    }
+
+    public static void pendingCheckFailure() {
+        pendingCheck = true;
+    }
+
+    public static void reset() {
+        pendingCheck = false;
     }
 }
