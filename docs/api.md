@@ -509,6 +509,8 @@ RoleData.getOptional(类.class, 玩家);
 
 这也是为什么可以不用写 `init` 和 `clear` 来初始化的原因。
 
+---
+
 ## CCA 组件 / CCA Components
 
 ### RoleComponent — 角色组件接口
