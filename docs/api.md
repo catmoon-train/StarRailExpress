@@ -460,12 +460,66 @@ WorldModifierComponent wmc = WorldModifierComponent.KEY.get(player.level());
 > **注意：** 修饰符添加/移除会分别触发 `ModifierAssigned.EVENT` / `ModifierRemoved.EVENT`，见[HML 事件](#hml-事件)。
 
 ---
+## 职业数据 / RoleData
+
+### 注册
+你可以在注册职业的时候（`SRERole`）声明RoleData：
+```java
+.setRoleData(RoleData实例类::new)
+```
+
+如：
+注册部分：
+```java
+// 会计角色 - 乘客阵营
+public static SRERole ACCOUNTANT = TMMRoles.registerRole(new NormalRole(
+  /* 省略... */
+)).setRoleData(AccountantRoleData::new);
+```
+`RoleData` 部分：
+```java
+public class AccountantRoleData extends SimpleRoleData {
+    /* 具体逻辑... */
+}
+```
+### RoleData 实例类 / RoleData Instance
+`RoleData` 实例类：可以 `extends SimpleRoleData`，或是 `implements RoleData`
+
+因为每次实例都是创建新的，理论上你不需要去单独写 `init` 和 `clear` 然后同步，这会导致更多的网络流量（在玩家分配到职业时会自动要求客户端创建类）。
+
+获取此实例类方法：
+```java
+RoleData.getNullable(类.class, 玩家)
+```
+或者 
+```java
+RoleData.getOptional(类.class, 玩家);
+```
+
+#### 原理
+我们将大量职业使用同一个CCA：`SRERoleDataPlayerComponent` 进行管理。仅同步当前职业需要的数据，能够有效避免一些无关职业的数据的同步（比如清除状态等）。
+
+当玩家切换到此职业时，触发 `init` 事件，服务端调用 `serverInit` 创建 `RoleData` 实例后发送同步包要求客户端创建实例。
+
+客户端接受到请求后会调用 `clientInit` 创建实例。
+
+若客户端没接收到创建实例申请，但受到正常同步包，客户端会先尝试初始化再处理同步包。
+
+而当玩家变成新职业时，会调用旧的 `RoleData` 的 `clear` 事件，然后直接抛弃旧的 `RoleData` 数据。
+
+这也是为什么可以不用写 `init` 和 `clear` 来初始化的原因。
 
 ## CCA 组件 / CCA Components
 
 ### RoleComponent — 角色组件接口
 
 **包 / Package:** `io.wifi.starrailexpress.api`
+
+对于职业，我们更建议您使用我们的新接口：`RoleData`
+
+详情请查看 `SimpleRoleData` 和 `RoleData` 类。
+
+（相关介绍在前文）
 
 所有角色 CCA 组件需实现的接口，已继承 `AutoSyncedComponent`。  
 Interface all role CCA components must implement; extends `AutoSyncedComponent`.
