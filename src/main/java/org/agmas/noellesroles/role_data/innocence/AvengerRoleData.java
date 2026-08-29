@@ -40,8 +40,6 @@ public class AvengerRoleData extends SimpleRoleData {
 
     /** 组件键 - 用于从玩家获取此组件 */
 
-
-
     // 绑定的目标玩家 UUID
     public UUID targetPlayer = null;
 
@@ -85,7 +83,6 @@ public class AvengerRoleData extends SimpleRoleData {
         this.sync();
     }
 
-
     /**
      * 绑定目标玩家
      * 
@@ -127,8 +124,8 @@ public class AvengerRoleData extends SimpleRoleData {
             if (targetPlayer == null)
                 return;
             if ((role.isInnocent() || (role.isNeutrals() && !role.isNeutralForKiller()))
-                && !role.isKillerTeam()
-                && GameUtils.isPlayerAliveAndSurvival(targetPlayer)) {
+                    && !role.isKillerTeam()
+                    && GameUtils.isPlayerAliveAndSurvival(targetPlayer)) {
                 innocentPlayers.add(uuid);
             }
         });
@@ -156,7 +153,7 @@ public class AvengerRoleData extends SimpleRoleData {
         this.killerUuid = killer;
 
         if (player instanceof ServerPlayer serverPlayer) {
-            ConfigWorldComponent.onPlayerUsedSkill( serverPlayer);
+            ConfigWorldComponent.onPlayerUsedSkill(serverPlayer);
             // 发送激活消息
             serverPlayer.displayClientMessage(
                     Component.translatable("message.noellesroles.avenger.activated", targetName)
@@ -207,7 +204,6 @@ public class AvengerRoleData extends SimpleRoleData {
         return killer != null ? killer.getName().getString() : "";
     }
 
-
     @Override
     public void serverTick() {
         SREGameWorldComponent gameWorld = SREGameWorldComponent.KEY.get(player.level());
@@ -232,7 +228,8 @@ public class AvengerRoleData extends SimpleRoleData {
         }
         if (!gameWorld.isSkillAvailable) {
             // player.displayClientMessage(
-            //         Component.translatable("message.tip.skill_disabled").withStyle(ChatFormatting.RED), true);
+            // Component.translatable("message.tip.skill_disabled").withStyle(ChatFormatting.RED),
+            // true);
             return;
         }
         if (!isRefugeeAlive) {
@@ -248,8 +245,6 @@ public class AvengerRoleData extends SimpleRoleData {
 
     // ==================== NBT 序列化 ====================
 
-
-    
     @Override
     public void writeToSyncNbt(@NotNull CompoundTag tag, HolderLookup.Provider registryLookup) {
         if (targetPlayer != null) {
