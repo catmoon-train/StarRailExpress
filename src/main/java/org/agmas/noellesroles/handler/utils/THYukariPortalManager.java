@@ -172,8 +172,6 @@ public class THYukariPortalManager {
         PORTAL_CREATION_TIME = -1;
         THYukariPortalManager.PORTAL_1 = null;
         THYukariPortalManager.PORTAL_2 = null;
-        THYukariPortalManager.PORTAL_POS_1 = null;
-        THYukariPortalManager.PORTAL_POS_2 = null;
     }
 
     public static boolean isPortal(Entity entity) {
