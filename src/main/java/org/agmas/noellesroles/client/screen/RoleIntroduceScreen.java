@@ -304,7 +304,7 @@ public class RoleIntroduceScreen extends Screen {
     @Override
     protected void init() {
         super.init();
-        if (currentMode == IntroductionGameMode.CURRENT && !SREClient.gameComponent.hasRole(SREClient.cached_player)) {
+        if (currentMode == IntroductionGameMode.CURRENT && !SREClient.gameComponent.hasRole(SREClient.cached_player) && !SREClient.hasPenalty()) {
             currentMode = IntroductionGameMode.CURRENT_ROUND;
         }
         if ((currentMode == IntroductionGameMode.CURRENT || currentMode == IntroductionGameMode.CURRENT_ROUND)
