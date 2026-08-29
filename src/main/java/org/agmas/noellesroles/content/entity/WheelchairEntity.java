@@ -58,6 +58,12 @@ public class WheelchairEntity extends Mob {
     private static final EntityDataAccessor<Integer> DATA_STUN_TIME = SynchedEntityData.defineId(WheelchairEntity.class,
             EntityDataSerializers.INT);
 
+    @Override
+    public boolean isPickable() {
+        // 没有乘客时允许交互/攻击，有乘客时忽略（攻击穿透）
+        return this.getPassengers().isEmpty();
+    }
+
     // ===== 耐久（保留原有变量名）=====
     public int durability = 60 * 20;
 
