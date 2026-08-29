@@ -1254,13 +1254,13 @@ public class ModItems {
 
     /**
      * 计算解药（Antidote）的冷却时间：
-     * - 医生职业：20秒
+     * - 医生职业：15秒
      * - 非医生职业：30秒
      * - 若场上存在疫使，冷却额外减少40%（无论是否医生）
      */
     public static int getAntidoteCooldown(ServerPlayer player) {
         SREGameWorldComponent gameWorld = SREGameWorldComponent.KEY.get(player.serverLevel());
-        int cd = gameWorld.isRole(player, ModRoles.DOCTOR) ? getInTicks(0, 20) : getInTicks(0, 30);
+        int cd = gameWorld.isRole(player, ModRoles.DOCTOR) ? getInTicks(0, 15) : getInTicks(0, 30);
         for (ServerPlayer sp : player.serverLevel().players()) {
             if (gameWorld.isRole(sp, ModRoles.INFECTED)) {
                 cd = (int) (cd * 0.6);

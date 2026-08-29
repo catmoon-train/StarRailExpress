@@ -132,7 +132,7 @@ public class BeeFamilyManager {
                     MoneyUtils.addToBalance(player, -BeeFamilyManager.BEE_QUEEN_IMPROVE_PRICE);
                     cca.status = 1;
                     return true;
-                }).noCastCCA(true).recordReplay().showOnHud(true).cooldownSeconds(90).announceToSelf().build(),
+                }).noCastCCA(true).recordReplay().showOnHud(true).cooldownSeconds(60).announceToSelf().build(),
                 RoleSkill.skill(SRE.id("bee_queen/mark"), "skill.noellesroles.bee_queen.mark", (ctx) -> {
                     final var player = ctx.player();
                     if (!MoneyUtils.hasBalance(player, BeeFamilyManager.BEE_QUEEN_SELECT_QUEEN_PRICE)) {
