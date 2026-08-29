@@ -1,5 +1,7 @@
 package org.agmas.noellesroles.role_data.neutral;
 
+import java.util.UUID;
+
 import org.agmas.noellesroles.role.bouns.roles.BeeFamilyRole;
 
 import io.wifi.starrailexpress.api.data.RoleDataContext;
@@ -14,15 +16,21 @@ public class BeeFamilyRoleData extends SimpleRoleData {
     }
 
     public boolean beeChannel = true;
+    public UUID markTarget = null;
 
     @Override
     public void writeToSyncNbt(CompoundTag tag, Provider registryLookup) {
         tag.putBoolean("channel", beeChannel);
+        if (markTarget != null)
+            tag.putUUID("markTarget", markTarget);
     }
 
     @Override
     public void readFromSyncNbt(CompoundTag tag, Provider registryLookup) {
         beeChannel = getBooleanTag(tag, "channel", false);
+        if (tag.contains("markTarget")) {
+            markTarget = tag.getUUID("markTarget");
+        }
     }
 
     public void changeChannel(boolean beeChannel) {
@@ -35,4 +43,8 @@ public class BeeFamilyRoleData extends SimpleRoleData {
         player.displayClientMessage(BeeFamilyRole.getChannelText(player), true);
     }
 
+    public void markSuccessor(UUID target) {
+        this.markTarget = target;
+        sync();
+    }
 }

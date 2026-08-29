@@ -1,5 +1,7 @@
 package org.agmas.noellesroles.client.hud.roles;
 
+import java.util.UUID;
+
 import org.agmas.noellesroles.client.event.RoleHudRenderCallback;
 import org.agmas.noellesroles.role.bouns.BounsRoles;
 import org.agmas.noellesroles.role_data.neutral.BeeFamilyRoleData;
@@ -8,6 +10,7 @@ import org.agmas.noellesroles.utils.RoleUtils;
 import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.api.data.RoleData;
 import io.wifi.starrailexpress.cca.SREAbilityPlayerComponent;
+import io.wifi.starrailexpress.client.util.SREClientUtils;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
@@ -122,16 +125,28 @@ public class BeeFamilyHud {
                 if (roleData == null) {
                     return;
                 }
-
-                Component cdText = Component
-                        .translatable("hud.noellesroles.bee_family.channel",
-                                roleData.beeChannel
-                                        ? Component.translatable("hud.noellesroles.bee_family.channel.bee")
-                                                .withStyle(ChatFormatting.YELLOW)
-                                        : Component.translatable("hud.noellesroles.bee_family.channel.normal")
-                                                .withStyle(ChatFormatting.AQUA))
-                        .withStyle(ChatFormatting.GOLD);
-                context.drawString(textRenderer, cdText, x, y - 20, 0xffffffff);
+                {
+                    UUID target = roleData.markTarget;
+                    var info = SREClientUtils.getPlayerInfoByUid(target);
+                    if (info != null) {
+                        Component cdText = Component
+                                .translatable("hud.noellesroles.bee_family.successor",
+                                        Component.literal(info.getProfile().getName()).withStyle(ChatFormatting.AQUA))
+                                .withStyle(ChatFormatting.GOLD);
+                        context.drawString(textRenderer, cdText, x, y - 30, 0xffffffff);
+                    }
+                }
+                {
+                    Component cdText = Component
+                            .translatable("hud.noellesroles.bee_family.channel",
+                                    roleData.beeChannel
+                                            ? Component.translatable("hud.noellesroles.bee_family.channel.bee")
+                                                    .withStyle(ChatFormatting.YELLOW)
+                                            : Component.translatable("hud.noellesroles.bee_family.channel.normal")
+                                                    .withStyle(ChatFormatting.AQUA))
+                            .withStyle(ChatFormatting.GOLD);
+                    context.drawString(textRenderer, cdText, x, y - 20, 0xffffffff);
+                }
             }
         });
     }

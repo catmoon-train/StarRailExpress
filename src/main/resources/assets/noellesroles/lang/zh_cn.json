@@ -2913,6 +2913,7 @@
   "hud.noellesroles.bee_family.channel": "当前文本聊天频道：%s",
   "hud.noellesroles.bee_family.channel.bee": "蜜蜂频道",
   "hud.noellesroles.bee_family.channel.normal": "普通频道",
+  "hud.noellesroles.bee_family.successor": "继承者：%s",
   "message.bee_family.broadcast_prefix": "[蜜蜂频道]%s %s: %s",
   "skill.noellesroles.bee_queen.already": "你已经增强了下次召唤了！",
   "skill.noellesroles.bee_queen.no_money": "召唤增强需要 %s 金币。",

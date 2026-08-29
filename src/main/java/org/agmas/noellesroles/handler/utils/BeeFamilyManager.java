@@ -128,7 +128,7 @@ public class BeeFamilyManager {
                     MoneyUtils.addToBalance(player, -BeeFamilyManager.BEE_QUEEN_IMPROVE_PRICE);
                     cca.status = 1;
                     return true;
-                }).noCastCCA(true).recordReplay().showOnHud(true).cooldownSeconds(30).announceToSelf().build(),
+                }).noCastCCA(true).recordReplay().showOnHud(true).cooldownSeconds(90).announceToSelf().build(),
                 RoleSkill.skill(SRE.id("bee_channel"),
                         "skill.noellesroles.bee_channel", (ctx) -> changeChannel(ctx))
                         .noCastCCA(true)
@@ -184,7 +184,7 @@ public class BeeFamilyManager {
             if (cca.hasCooldown()) {
                 return InteractionResult.PASS;
             }
-            cca.setCooldown(30 * 20);
+            cca.setCooldown(60 * 20);
 
             SRERole reviveRole = BounsRoles.BEE_WORKER;
             if (cca.status == 1) {

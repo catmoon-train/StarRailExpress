@@ -3,6 +3,7 @@ package org.agmas.noellesroles.role.bouns.roles;
 import org.agmas.noellesroles.role.bouns.BounsRoles;
 import org.agmas.noellesroles.role_data.neutral.BeeFamilyRoleData;
 import org.agmas.noellesroles.utils.RoleUtils;
+import org.jetbrains.annotations.Nullable;
 
 import io.wifi.starrailexpress.api.CustomWinnerRoleInterface;
 import io.wifi.starrailexpress.api.EggRole;
@@ -48,6 +49,16 @@ public class BeeFamilyRole extends EggRole implements CustomWinnerRoleInterface 
             getAbilityComponent(player).setDuration(BEE_WORKER_DEATH_TIMEOUT_TICKS);
         }
         player.displayClientMessage(getChannelText(player), true);
+    }
+
+    @Override
+    public void onDeath(Player victim, boolean spawnBody, @Nullable Player killer, ResourceLocation deathReason,
+            boolean forceDeath) {
+        var role = RoleUtils.getPlayerRole(victim);
+        if (role.equals(BounsRoles.BEE_QUEEN)) {
+            // 复活蜂后
+        }
+        return;
     }
 
     @Override
