@@ -31,12 +31,12 @@ import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
-import org.agmas.noellesroles.component.ModComponents;
 import org.agmas.noellesroles.config.NoellesRolesConfig;
 import org.agmas.noellesroles.content.effects.TimeStopEffect;
 import org.agmas.noellesroles.content.entity.WheelchairEntity;
 import org.agmas.noellesroles.role_data.vigilante.GhostEyeRoleData;
 import org.agmas.noellesroles.role_data.innocence.AdventurerRoleData;
+import org.agmas.noellesroles.role_data.innocence.CakeMakerRoleData;
 import org.agmas.noellesroles.role_data.innocence.JadeGeneralRoleData;
 import org.agmas.noellesroles.role_data.killer.DoremyRoleData;
 import org.agmas.noellesroles.role_data.killer.ImitatorRoleData;
@@ -407,7 +407,10 @@ public class AbilityHandler {
             return;
         }
         if (gameWorldComponent.isRole(player, ModRoles.CAKE_MAKER)) {
-            ModComponents.CAKE_MAKER.get(player).useSmoker();
+            CakeMakerRoleData cakeMaker = RoleData.getNullable(CakeMakerRoleData.class, player);
+            if (cakeMaker != null) {
+                cakeMaker.useSmoker();
+            }
             return;
         }
         if (gameWorldComponent.isRole(player, ModRoles.ADVENTURER)) {

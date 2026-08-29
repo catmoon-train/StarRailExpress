@@ -311,7 +311,7 @@ public class ModRolesInitialEventRegister {
                 RoleUtils.insertStackInFreeSlot(player, Items.CANDLE.getDefaultInstance());
             }
             if (role.equals(ModRoles.CAKE_MAKER)) {
-                ModComponents.CAKE_MAKER.get(player).init();
+                // 蛋糕师数据在职业赋予时由 RoleData.init() 自动初始化
             }
             if (role.equals(ModRoles.AMON)) {
                 // 阿蒙数据在职业赋予时由 RoleData.init() 自动初始化
@@ -1285,12 +1285,12 @@ public class ModRolesInitialEventRegister {
                                     .withStyle(ChatFormatting.GOLD, ChatFormatting.BOLD));
                 }).cooldownSeconds(240).build());
 
-        RoleSkill.register(ModRoles.DIO, RoleSkill.skill(
+        RoleSkill.register(ModRoles.TARTAGLIA, RoleSkill.skill(
                 SRE.id("tartaglia"),
                 "skill.noellesroles.tartaglia",
                 context -> {
                     return TartagliaRole.onSkillUsed(context.player(), context);
-                }).build());
+                }).cooldownSeconds(90).announceToSelf().showOnHud(true).build());
         // DIO技能注册：时间停止，委托组件
         RoleSkill.register(ModRoles.DIO, RoleSkill.skill(
                 SRE.id("dio_timestop"),

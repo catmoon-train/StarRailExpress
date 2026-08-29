@@ -27,7 +27,6 @@ import org.agmas.noellesroles.content.item.StalkerKnifeItem;
 import org.agmas.noellesroles.game.roles.innocence.adventurer.AdventurerRole;
 import org.agmas.noellesroles.game.roles.innocence.cake_maker.CakeMakerRole;
 import org.agmas.noellesroles.game.roles.innocence.great_detective.GreatDetectiveRole;
-import org.agmas.noellesroles.game.roles.innocence.locksmith_inspiration.LocksmithInspirationComponent;
 import org.agmas.noellesroles.game.roles.innocence.mortician.MorticianRole;
 import org.agmas.noellesroles.game.roles.innocence.veteran.VeteranKnifeHandler;
 import org.agmas.noellesroles.game.roles.killer.manipulator.ManipulatorRole;
@@ -624,7 +623,7 @@ public class ModRoles {
             new NormalRole(LOCKSMITH_ID, new Color(100, 200, 200).getRGB(),
                     true, false, SRERole.MoodType.REAL,
                     TMMRoles.CIVILIAN.getMaxSprintTime(), false))
-            .setCanSeeCoin(true).setComponentKey(LocksmithInspirationComponent.KEY)
+            .setCanSeeCoin(true).setRoleData(LocksmithInspirationRoleData::new)
             .setCanSetSpawnInfoInConfig(true)
             .setDefaultMax(0);
 
@@ -909,7 +908,8 @@ public class ModRoles {
     public static SRERole CAKE_MAKER = TMMRoles.registerRole(
             new CakeMakerRole(CAKE_MAKER_ID, new Color(244, 173, 193).getRGB(), true, false,
                     SRERole.MoodType.REAL, TMMRoles.CIVILIAN.getMaxSprintTime(), false))
-            .setCanSeeCoin(true).setCanPickUpRevolver(true).setDefaultEnableNeededPlayerCount(8);
+            .setCanSeeCoin(true).setCanPickUpRevolver(true).setDefaultEnableNeededPlayerCount(8)
+            .setRoleData(CakeMakerRoleData::new);
     // 冒险家
     public static SRERole ADVENTURER = TMMRoles.registerRole(
             new AdventurerRole(ADVENTURER_ID, new Color(34, 139, 34).getRGB(), true, false,

@@ -73,7 +73,8 @@ public class SRERoleWorldComponent implements AutoSyncedComponent {
     }
 
     public void removeRole(UUID player, boolean sync) {
-        if (player == null) return;
+        if (player == null)
+            return;
         roles.remove(player);
         if (sync)
             this.sync();

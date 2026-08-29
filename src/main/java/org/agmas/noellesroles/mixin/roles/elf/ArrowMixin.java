@@ -96,7 +96,7 @@ public class ArrowMixin {
                         GameUtils.killPlayer(player, true, killer, GameConstants.DeathReasons.TARTAGLIA_ARROW);
                         killer.getCooldowns().addCooldown(Items.BOW, 5 * 20);
                         killer.getCooldowns().addCooldown(Items.CROSSBOW, 1 * 20);
-                        killer.getCooldowns().addCooldown(Items.TIPPED_ARROW, 20 * 20);
+                        killer.getCooldowns().addCooldown(Items.TIPPED_ARROW, 15 * 20);
                     } else if (cca.isRole(killer, ModRoles.HUNTER)) {
                         isHit = true;
                         GameUtils.killPlayer(player, true, killer, SRE.id("arrow"));
@@ -139,7 +139,8 @@ public class ArrowMixin {
         AbstractArrow arrow = (AbstractArrow) (Object) this;
         if (arrow instanceof SpectralArrow arrow1) {
             if (arrow.getOwner() instanceof ServerPlayer serverPlayer) {
-                if (SREGameWorldComponent.KEY.get(serverPlayer.serverLevel()).isRole(serverPlayer, ModRoles.ELF)) {
+                final var cca = SREGameWorldComponent.KEY.get(serverPlayer.serverLevel());
+                if (cca.isRole(serverPlayer, ModRoles.ELF) || cca.isRole(serverPlayer, ModRoles.TARTAGLIA)) {
                     // 获取箭矢击中的位置
                     BlockPos hitPos = blockHitResult.getBlockPos();
                     // 获取附近玩家列表（例如半径为5格）

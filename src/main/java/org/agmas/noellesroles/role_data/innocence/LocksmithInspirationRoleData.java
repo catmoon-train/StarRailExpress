@@ -23,19 +23,15 @@ import io.wifi.starrailexpress.game.GameUtils;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.DoorBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
-import org.agmas.noellesroles.component.ModComponents;
 import org.agmas.noellesroles.role.ModRoles;
 import org.jetbrains.annotations.NotNull;
 
 public class LocksmithInspirationRoleData extends SimpleRoleData {
-
-
 
     public static final int MAX_POINTS = 18;
     // 10s
@@ -47,7 +43,6 @@ public class LocksmithInspirationRoleData extends SimpleRoleData {
     public LocksmithInspirationRoleData(RoleDataContext context) {
         super(context);
     }
-
 
     @Override
     public void init() {
@@ -130,7 +125,8 @@ public class LocksmithInspirationRoleData extends SimpleRoleData {
         if (level.getBlockEntity(pos.below()) instanceof io.wifi.starrailexpress.content.block_entity.DoorBlockEntity) {
             return true;
         }
-        return level.getBlockEntity(pos.above()) instanceof io.wifi.starrailexpress.content.block_entity.DoorBlockEntity;
+        return level
+                .getBlockEntity(pos.above()) instanceof io.wifi.starrailexpress.content.block_entity.DoorBlockEntity;
     }
 
     public int getInspirationPoints() {
@@ -176,14 +172,11 @@ public class LocksmithInspirationRoleData extends SimpleRoleData {
         return true;
     }
 
-
     @Override
     public void writeToSyncNbt(@NotNull CompoundTag tag, HolderLookup.Provider registryLookup) {
         tag.putInt("inspirationPoints", this.inspirationPoints);
         tag.putInt("observingDoorTicks", this.observingDoorTicks);
     }
-
-
 
     @Override
     public void readFromSyncNbt(@NotNull CompoundTag tag, HolderLookup.Provider registryLookup) {

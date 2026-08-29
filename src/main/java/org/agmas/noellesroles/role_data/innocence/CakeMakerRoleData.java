@@ -15,7 +15,6 @@
 
 package org.agmas.noellesroles.role_data.innocence;
 
-import io.wifi.starrailexpress.api.data.RoleData;
 import io.wifi.starrailexpress.api.data.RoleDataContext;
 import io.wifi.starrailexpress.api.impl.SimpleRoleData;
 import com.mojang.math.Transformation;
@@ -42,7 +41,6 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.CakeBlock;
 import net.minecraft.world.phys.AABB;
-import org.agmas.noellesroles.Noellesroles;
 import org.agmas.noellesroles.init.ModEffects;
 import org.agmas.noellesroles.init.ModItems;
 import org.agmas.noellesroles.role.ModRoles;
@@ -59,37 +57,41 @@ public class CakeMakerRoleData extends SimpleRoleData {
 
     // ── Constants ──────────────────────────────────────────────
 
-
-    private static final int SMOKER_DURATION_TICKS  = 40 * 20;
-    private static final int SMOKER_COOLDOWN_TICKS  = 60 * 20;
+    private static final int SMOKER_DURATION_TICKS = 40 * 20;
+    private static final int SMOKER_COOLDOWN_TICKS = 60 * 20;
 
     /** 3-second lock between ingredient batches */
     private static final int WAIT_SHORT_TICKS = 60;
     /** 5-second lock after final ingredients */
-    private static final int WAIT_LONG_TICKS  = 100;
+    private static final int WAIT_LONG_TICKS = 100;
 
-    private static final int CAKE_PLACEMENT_TICKS = 60 * 20;  // 1 minute
-    private static final int EAT_COOLDOWN_TICKS   = 600; // 30 s
+    private static final int CAKE_PLACEMENT_TICKS = 60 * 20; // 1 minute
+    private static final int EAT_COOLDOWN_TICKS = 600; // 30 s
     private static final int SPEED_DURATION_TICKS = 12 * 20;
-    private static final int MAX_CAKE_BITES       = 6;
-    private static final int MOOD_RESTORE_PCT     = 30;
-    private static final int STATUS_BAR_MAX       = 20;
+    private static final int MAX_CAKE_BITES = 6;
+    private static final int MOOD_RESTORE_PCT = 30;
+    private static final int STATUS_BAR_MAX = 20;
     private static final double INTERACT_DISTANCE_SQ = 16.0;
 
-    private static final int WHEAT_NEEDED  = 3;
-    private static final int SUGAR_NEEDED  = 2;
-    private static final int MILK_NEEDED   = 3;
+    private static final int WHEAT_NEEDED = 3;
+    private static final int SUGAR_NEEDED = 2;
+    private static final int MILK_NEEDED = 3;
 
     /** Tag applied to cake maker smoker block-display and interaction entities */
     public static final String SMOKER_ENTITY_TAG = "cake_maker_smoker";
 
-    /** Interaction entity is larger than the smoker block (1.0×1.0) to be easy to click. */
-    private static final double INTERACTION_WIDTH  = 1.3;
+    /**
+     * Interaction entity is larger than the smoker block (1.0×1.0) to be easy to
+     * click.
+     */
+    private static final double INTERACTION_WIDTH = 1.3;
     private static final double INTERACTION_HEIGHT = 1.3;
 
     /**
-     * Server-side smoker entity registry — maps interaction entity UUID to owner info.
-     * Similar to {@code CuckooEggData}, avoids needing persistent-data on the entity.
+     * Server-side smoker entity registry — maps interaction entity UUID to owner
+     * info.
+     * Similar to {@code CuckooEggData}, avoids needing persistent-data on the
+     * entity.
      */
     public static final class SmokerEntityInfo {
         public final UUID ownerUuid;
@@ -110,7 +112,7 @@ public class CakeMakerRoleData extends SimpleRoleData {
     public static final String CAKE_ENTITY_TAG = "cake_maker_cake";
 
     /** Cake block is 0.5 blocks tall, interaction slightly larger */
-    private static final double CAKE_INTERACTION_WIDTH  = 1.1;
+    private static final double CAKE_INTERACTION_WIDTH = 1.1;
     private static final double CAKE_INTERACTION_HEIGHT = 0.7;
 
     /**
@@ -152,21 +154,20 @@ public class CakeMakerRoleData extends SimpleRoleData {
         super(context);
     }
 
-
     // ── CCA lifecycle ─────────────────────────────────────────
 
     @Override
     public void init() {
-        cooldown           = 0;
-        smokerTicks        = 0;
-        smokerIdle         = 0;
-        lockedTicks        = 0;
-        stage              = 0;
-        wheat              = 0;
-        sugar              = 0;
-        milk               = 0;
-        smokerPos          = null;
-        smokerId           = null;
+        cooldown = 0;
+        smokerTicks = 0;
+        smokerIdle = 0;
+        lockedTicks = 0;
+        stage = 0;
+        wheat = 0;
+        sugar = 0;
+        milk = 0;
+        smokerPos = null;
+        smokerId = null;
         interactionEntityId = null;
     }
 
@@ -184,17 +185,18 @@ public class CakeMakerRoleData extends SimpleRoleData {
     }
 
     /**
-     * Called when the cake maker dies. Cancels any in-progress baking and removes the
+     * Called when the cake maker dies. Cancels any in-progress baking and removes
+     * the
      * deployed smoker so it doesn't linger in the world (and into the next round).
      * Placed cakes are left for others to eat.
      */
     public void onDeath() {
         smokerTicks = 0;
         lockedTicks = 0;
-        stage       = 0;
-        wheat       = 0;
-        sugar       = 0;
-        milk        = 0;
+        stage = 0;
+        wheat = 0;
+        sugar = 0;
+        milk = 0;
         removeSmoker();
     }
 
@@ -208,11 +210,9 @@ public class CakeMakerRoleData extends SimpleRoleData {
 
     @Override
     public void readFromSyncNbt(@NotNull CompoundTag tag, HolderLookup.Provider provider) {
-        cooldown    = tag.getInt("cooldown");
+        cooldown = tag.getInt("cooldown");
         smokerTicks = tag.getInt("smoker");
     }
-
-
 
     // ── Server tick ────────────────────────────────────────────
 
@@ -225,7 +225,8 @@ public class CakeMakerRoleData extends SimpleRoleData {
         // Tick cooldowns
         if (cooldown > 0) {
             cooldown--;
-            if (cooldown % 20 == 0 || cooldown == 0) sync();
+            if (cooldown % 20 == 0 || cooldown == 0)
+                sync();
         }
 
         // Idle timeout: 40 seconds without ingredients → smoker disappears.
@@ -274,7 +275,9 @@ public class CakeMakerRoleData extends SimpleRoleData {
         }
     }
 
-    /** Fired when the ingredient-input lock expires. Advances the baking sequence. */
+    /**
+     * Fired when the ingredient-input lock expires. Advances the baking sequence.
+     */
     private void onLockedPeriodEnd() {
         player.level().playSound(null, player.blockPosition(),
                 SoundEvents.FIRE_EXTINGUISH, SoundSource.PLAYERS, 1.0F, 1.0F);
@@ -303,8 +306,9 @@ public class CakeMakerRoleData extends SimpleRoleData {
     /**
      * Called when the player presses the skill key.
      * <ul>
-     *   <li>If holding a cake → place it on the ground.</li>
-     *   <li>If holding a smoker and off cooldown → deploy server-side smoker entities.</li>
+     * <li>If holding a cake → place it on the ground.</li>
+     * <li>If holding a smoker and off cooldown → deploy server-side smoker
+     * entities.</li>
      * </ul>
      */
     public boolean useSmoker() {
@@ -318,14 +322,14 @@ public class CakeMakerRoleData extends SimpleRoleData {
             return false;
         }
 
-        smokerPos   = sp.blockPosition();
-        smokerId    = UUID.randomUUID();
-        cooldown    = SMOKER_COOLDOWN_TICKS;
-        smokerIdle  = 40 * 20;  // 40 seconds idle timeout
-        stage       = 0;
-        wheat       = 0;
-        sugar       = 0;
-        milk        = 0;
+        smokerPos = sp.blockPosition();
+        smokerId = UUID.randomUUID();
+        cooldown = SMOKER_COOLDOWN_TICKS;
+        smokerIdle = 40 * 20; // 40 seconds idle timeout
+        stage = 0;
+        wheat = 0;
+        sugar = 0;
+        milk = 0;
         lockedTicks = 0;
 
         var level = sp.serverLevel();
@@ -341,8 +345,7 @@ public class CakeMakerRoleData extends SimpleRoleData {
                 new Vector3f(0, 0, 0),
                 new Quaternionf(),
                 new Vector3f(1.0f, 1.0f, 1.0f),
-                new Quaternionf()
-        ));
+                new Quaternionf()));
         displayEntity.addTag(SMOKER_ENTITY_TAG);
         level.addFreshEntity(displayEntity);
 
@@ -354,8 +357,7 @@ public class CakeMakerRoleData extends SimpleRoleData {
                 x - INTERACTION_WIDTH / 2.0, y,
                 z - INTERACTION_WIDTH / 2.0,
                 x + INTERACTION_WIDTH / 2.0, y + INTERACTION_HEIGHT,
-                z + INTERACTION_WIDTH / 2.0
-        ));
+                z + INTERACTION_WIDTH / 2.0));
         interactionEntity.addTag(SMOKER_ENTITY_TAG);
         level.addFreshEntity(interactionEntity);
 
@@ -375,7 +377,10 @@ public class CakeMakerRoleData extends SimpleRoleData {
         return true;
     }
 
-    /** Places a cake as server-side entities at the player's feet. Requires a solid block below. */
+    /**
+     * Places a cake as server-side entities at the player's feet. Requires a solid
+     * block below.
+     */
     private boolean placeCake() {
         if (!(player instanceof ServerPlayer sp)) {
             return false;
@@ -402,8 +407,7 @@ public class CakeMakerRoleData extends SimpleRoleData {
                 new Vector3f(0, 0, 0),
                 new Quaternionf(),
                 new Vector3f(1.0f, 1.0f, 1.0f),
-                new Quaternionf()
-        ));
+                new Quaternionf()));
         displayEntity.addTag(CAKE_ENTITY_TAG);
         level.addFreshEntity(displayEntity);
 
@@ -414,8 +418,7 @@ public class CakeMakerRoleData extends SimpleRoleData {
                 x - CAKE_INTERACTION_WIDTH / 2.0, y,
                 z - CAKE_INTERACTION_WIDTH / 2.0,
                 x + CAKE_INTERACTION_WIDTH / 2.0, y + CAKE_INTERACTION_HEIGHT,
-                z + CAKE_INTERACTION_WIDTH / 2.0
-        ));
+                z + CAKE_INTERACTION_WIDTH / 2.0));
         interactionEntity.addTag(CAKE_ENTITY_TAG);
         level.addFreshEntity(interactionEntity);
 
@@ -438,8 +441,10 @@ public class CakeMakerRoleData extends SimpleRoleData {
     // ── Eating a placed cake ──────────────────────────────────
 
     /**
-     * Attempt to let {@code eater} take a bite from the cake identified by the clicked interaction entity.
-     * Restores stamina, mood, status bars, and grants Speed I plus infinite stamina. Cooldown: 30 s per player.
+     * Attempt to let {@code eater} take a bite from the cake identified by the
+     * clicked interaction entity.
+     * Restores stamina, mood, status bars, and grants Speed I plus infinite
+     * stamina. Cooldown: 30 s per player.
      */
     public boolean eat(Entity clickedEntity, ServerPlayer eater) {
         if (eatCooldowns.getOrDefault(eater.getUUID(), 0) > 0) {
@@ -447,15 +452,18 @@ public class CakeMakerRoleData extends SimpleRoleData {
         }
         // Look up the cake by the interaction entity
         CakeEntityInfo info = CAKE_ENTITIES.get(clickedEntity.getUUID());
-        if (info == null) return false;
+        if (info == null)
+            return false;
         Cake cake = cakes.get(info.cakeId);
-        if (cake == null) return false;
+        if (cake == null)
+            return false;
 
         eatCooldowns.put(eater.getUUID(), EAT_COOLDOWN_TICKS);
 
         // Speed I and infinite stamina for 12 seconds
         eater.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SPEED, SPEED_DURATION_TICKS, 0));
-        eater.addEffect(new MobEffectInstance(ModEffects.INFINITE_STAMINA, SPEED_DURATION_TICKS, 0, false, false, false));
+        eater.addEffect(
+                new MobEffectInstance(ModEffects.INFINITE_STAMINA, SPEED_DURATION_TICKS, 0, false, false, false));
 
         // Restore 30 % mood
         var mood = SREPlayerMoodComponent.KEY.get(eater);
@@ -490,7 +498,9 @@ public class CakeMakerRoleData extends SimpleRoleData {
     /**
      * Try to add the player's held item as an ingredient into the active smoker.
      * Only accepts items in the correct order for the current baking stage.
-     * @param clickedEntity the interaction entity the player right-clicked (must match this smoker's entity)
+     * 
+     * @param clickedEntity the interaction entity the player right-clicked (must
+     *                      match this smoker's entity)
      */
     public boolean addIngredient(Player p, Entity clickedEntity) {
         if (smokerId == null
@@ -506,7 +516,7 @@ public class CakeMakerRoleData extends SimpleRoleData {
         var held = p.getMainHandItem();
         boolean accepted = false;
 
-        // Stage 0 — wheat (×3).  First wheat starts the 40 s cooking timer.
+        // Stage 0 — wheat (×3). First wheat starts the 40 s cooking timer.
         if (stage == 0 && held.is(Items.WHEAT) && wheat < WHEAT_NEEDED) {
             if (wheat == 0) {
                 startCookingTimer();
@@ -552,9 +562,12 @@ public class CakeMakerRoleData extends SimpleRoleData {
         return true;
     }
 
-    /** Lock ingredient input for {@code ticks} ticks, then advance to {@code nextStage}. */
+    /**
+     * Lock ingredient input for {@code ticks} ticks, then advance to
+     * {@code nextStage}.
+     */
     private void waitFor(int nextStage, int ticks) {
-        stage       = nextStage;
+        stage = nextStage;
         lockedTicks = ticks;
     }
 
@@ -566,7 +579,9 @@ public class CakeMakerRoleData extends SimpleRoleData {
     // ── Sync ───────────────────────────────────────────────────
 
     @Override
-    public boolean shouldSyncWith(ServerPlayer target) { return target == this.player; }
+    public boolean shouldSyncWith(ServerPlayer target) {
+        return target == this.player;
+    }
 
     // ── Network helpers ───────────────────────────────────────
 
@@ -593,11 +608,11 @@ public class CakeMakerRoleData extends SimpleRoleData {
                 }
             }
         }
-        smokerId            = null;
-        smokerPos           = null;
+        smokerId = null;
+        smokerPos = null;
         interactionEntityId = null;
-        smokerIdle          = 0;
-        smokerTicks         = 0;
+        smokerIdle = 0;
+        smokerTicks = 0;
     }
 
     // ── Static helpers for external access ───────────────────
@@ -614,7 +629,9 @@ public class CakeMakerRoleData extends SimpleRoleData {
         return info != null ? info.ownerUuid : null;
     }
 
-    /** Remove all cake maker smoker entities in the world (for game end / eggclear). */
+    /**
+     * Remove all cake maker smoker entities in the world (for game end / eggclear).
+     */
     public static void removeAllSmokerEntities(net.minecraft.server.level.ServerLevel level) {
         for (var entry : SMOKER_ENTITIES.entrySet()) {
             SmokerEntityInfo info = entry.getValue();
@@ -629,7 +646,8 @@ public class CakeMakerRoleData extends SimpleRoleData {
     }
 
     /** Remove smoker entities within a range around a position. */
-    public static int removeSmokerEntitiesInRange(net.minecraft.server.level.ServerLevel level, BlockPos origin, float range) {
+    public static int removeSmokerEntitiesInRange(net.minecraft.server.level.ServerLevel level, BlockPos origin,
+            float range) {
         int cleared = 0;
         double rangeSq = range * range;
         var iter = SMOKER_ENTITIES.entrySet().iterator();
@@ -710,7 +728,9 @@ public class CakeMakerRoleData extends SimpleRoleData {
         return info != null ? info.cakeId : null;
     }
 
-    /** Remove all cake maker cake entities in the world (for game end / eggclear). */
+    /**
+     * Remove all cake maker cake entities in the world (for game end / eggclear).
+     */
     public static void removeAllCakeEntities(net.minecraft.server.level.ServerLevel level) {
         for (var entry : CAKE_ENTITIES.entrySet()) {
             CakeEntityInfo info = entry.getValue();
@@ -725,7 +745,8 @@ public class CakeMakerRoleData extends SimpleRoleData {
     }
 
     /** Remove cake entities within a range around a position. */
-    public static int removeCakeEntitiesInRange(net.minecraft.server.level.ServerLevel level, BlockPos origin, float range) {
+    public static int removeCakeEntitiesInRange(net.minecraft.server.level.ServerLevel level, BlockPos origin,
+            float range) {
         int cleared = 0;
         double rangeSq = range * range;
         var iter = CAKE_ENTITIES.entrySet().iterator();

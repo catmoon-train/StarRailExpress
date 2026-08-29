@@ -15,19 +15,22 @@
 
 package org.agmas.noellesroles.client.hud.roles;
 
+import io.wifi.starrailexpress.api.data.RoleData;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;
 import org.agmas.noellesroles.client.event.RoleHudRenderCallback;
-import org.agmas.noellesroles.component.ModComponents;
 import org.agmas.noellesroles.role.ModRoles;
+import org.agmas.noellesroles.role_data.innocence.CakeMakerRoleData;
 
 public final class CakeMakerHud {
     public static void register() {
         RoleHudRenderCallback.EVENT.register(ModRoles.CAKE_MAKER_ID, (context, tickCounter) -> {
             var client = Minecraft.getInstance();
             if (client.player == null) return;
-            var comp = ModComponents.CAKE_MAKER.get(client.player);
+            var optional = RoleData.getOptional(CakeMakerRoleData.class, client.player);
+            if (optional.isEmpty()) return;
+            var comp = optional.get();
             int x = context.guiWidth() - 10;
             int y = context.guiHeight() - 10 - client.font.lineHeight;
             var font = client.font;

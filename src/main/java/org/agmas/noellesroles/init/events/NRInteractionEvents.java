@@ -43,8 +43,8 @@ import org.agmas.noellesroles.component.ModComponents;
 import org.agmas.noellesroles.content.item.*;
 import org.agmas.noellesroles.events.OnShopPurchase;
 import org.agmas.noellesroles.events.OnVendingMachinesBuyItems;
-import org.agmas.noellesroles.game.roles.innocence.cake_maker.CakeMakerComponent;
 import org.agmas.noellesroles.game.roles.killer.conspirator.ConspiratorKilledPlayer;
+import org.agmas.noellesroles.role_data.innocence.CakeMakerRoleData;
 import org.agmas.noellesroles.role_data.killer.InsaneKillerRoleData;
 import org.agmas.noellesroles.role_data.killer.NinjaRoleData;
 import org.agmas.noellesroles.game.roles.neutral.commander.CommanderHandler;
@@ -92,24 +92,26 @@ public class NRInteractionEvents {
                 return InteractionResult.PASS;
 
             // 烟熏炉交互方块 - 添加原料
-            if (CakeMakerComponent.isSmokerInteractionEntity(entity)) {
-                UUID ownerId = CakeMakerComponent.getSmokerOwner(entity);
+            if (CakeMakerRoleData.isSmokerInteractionEntity(entity)) {
+                UUID ownerId = CakeMakerRoleData.getSmokerOwner(entity);
                 if (ownerId != null && ownerId.equals(player.getUUID())) {
-                    if (ModComponents.CAKE_MAKER.get(player).addIngredient(player, entity)) {
+                    CakeMakerRoleData cakeMaker = RoleData.getNullable(CakeMakerRoleData.class, player);
+                    if (cakeMaker != null && cakeMaker.addIngredient(player, entity)) {
                         return InteractionResult.SUCCESS;
                     }
                 }
             }
 
             // 蛋糕交互实体 - 食用
-            if (CakeMakerComponent.isCakeInteractionEntity(entity)) {
+            if (CakeMakerRoleData.isCakeInteractionEntity(entity)) {
                 if (player.isSpectator())
                     return InteractionResult.PASS;
-                UUID ownerId = CakeMakerComponent.getCakeOwner(entity);
+                UUID ownerId = CakeMakerRoleData.getCakeOwner(entity);
                 if (ownerId != null) {
                     ServerPlayer cakeOwner = world.getServer().getPlayerList().getPlayer(ownerId);
                     if (cakeOwner != null) {
-                        if (ModComponents.CAKE_MAKER.get(cakeOwner).eat(entity, (ServerPlayer) player)) {
+                        CakeMakerRoleData cakeMaker = RoleData.getNullable(CakeMakerRoleData.class, cakeOwner);
+                        if (cakeMaker != null && cakeMaker.eat(entity, (ServerPlayer) player)) {
                             return InteractionResult.SUCCESS;
                         }
                     }

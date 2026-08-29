@@ -53,12 +53,12 @@ import org.agmas.noellesroles.content.item.RiotShieldHandler;
 import org.agmas.noellesroles.role_data.innocence.AccountantRoleData;
 import org.agmas.noellesroles.role_data.innocence.AlchemistRoleData;
 import org.agmas.noellesroles.role_data.innocence.AthleteRoleData;
+import org.agmas.noellesroles.role_data.innocence.LocksmithInspirationRoleData;
 import org.agmas.noellesroles.role_data.killer.CreeperRoleData;
 import org.agmas.noellesroles.game.roles.innocence.attendant.AttendantHandler;
 import org.agmas.noellesroles.role_data.innocence.ClockmakerRoleData;
 import org.agmas.noellesroles.role_data.innocence.FortunetellerRoleData;
 import org.agmas.noellesroles.role_data.innocence.GhostRoleData;
-import org.agmas.noellesroles.game.roles.innocence.locksmith_inspiration.LocksmithInspirationComponent;
 import org.agmas.noellesroles.role_data.killer.BloodFeudistRoleData;
 import org.agmas.noellesroles.role_data.killer.MaChenXuRoleData;
 import org.agmas.noellesroles.role_data.killer.NinjaRoleData;
@@ -1030,9 +1030,12 @@ public class CommonClientHudRenderer {
       if (!GameUtils.isPlayerAliveAndSurvival(client.player))
         return;
 
-      LocksmithInspirationComponent component = ModComponents.LOCKSMITH_INSPIRATION.get(client.player);
+      LocksmithInspirationRoleData component = RoleData
+          .getOptional(LocksmithInspirationRoleData.class, client.player).orElse(null);
+      if (component == null)
+        return;
       Component text = Component.translatable("hud.noellesroles.locksmith.inspiration",
-          component.getInspirationPoints(), LocksmithInspirationComponent.MAX_POINTS)
+          component.getInspirationPoints(), LocksmithInspirationRoleData.MAX_POINTS)
           .withStyle(ChatFormatting.GOLD);
 
       int screenWidth = guiGraphics.guiWidth();

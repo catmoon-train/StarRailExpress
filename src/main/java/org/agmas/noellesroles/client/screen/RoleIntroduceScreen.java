@@ -96,6 +96,7 @@ public class RoleIntroduceScreen extends Screen {
     public enum IntroductionGameMode {
         ALL("screen.roleintroduce.mode.all", 0xFF55DD88),
         CURRENT("screen.roleintroduce.mode.current", 0xFF56A5AE),
+        CURRENT_ROUND("screen.roleintroduce.mode.current_round", 0xFF56A5AE),
         MURDER("screen.roleintroduce.mode.murder", 0xFFCC2233),
         REPAIR("screen.roleintroduce.mode.repair", 0xFF44AACC),
         FILTER("screen.roleintroduce.mode.flag", 0xFF11AA33);
@@ -233,6 +234,8 @@ public class RoleIntroduceScreen extends Screen {
     private String searchContent = null;
     private ArrayList<Object> prevRole = new ArrayList<>();
     private ArrayList<Integer> prevRoleTab = new ArrayList<>();
+    private final HashSet<SRERole> NOW_ROUND_ROLES = new HashSet<>();
+    private final HashSet<SREModifier> NOW_ROUND_MODIFIERS = new HashSet<>();
 
     public RoleIntroduceScreen() {
         super(Component.translatable("gui.roleintroduce.select_role.title"));
@@ -240,6 +243,20 @@ public class RoleIntroduceScreen extends Screen {
         filterFlags.clear();
         if (!RoleShopHandler.haveRegistered) {
             RoleShopHandler.shopRegister();
+        }
+        refreshNowRoundAllRolesAndModifiers();
+    }
+
+    private void refreshNowRoundAllRolesAndModifiers() {
+        NOW_ROUND_ROLES.clear();
+        NOW_ROUND_MODIFIERS.clear();
+        if (SREClient.gameComponent != null) {
+            NOW_ROUND_ROLES.addAll(SREClient.gameComponent.roleWorldComponent.getRoles().values());
+        }
+        if (SREClient.modifierComponent != null) {
+            for (HashSet<SREModifier> value : SREClient.modifierComponent.getModifiers().values()) {
+                NOW_ROUND_MODIFIERS.addAll(value);
+            }
         }
     }
 
@@ -287,8 +304,12 @@ public class RoleIntroduceScreen extends Screen {
     @Override
     protected void init() {
         super.init();
-        if (currentMode == IntroductionGameMode.CURRENT && (SREClient.gameComponent == null
-                || !SREClient.gameComponent.isRunning())) {
+        if (currentMode == IntroductionGameMode.CURRENT && !SREClient.gameComponent.hasRole(SREClient.cached_player)) {
+            currentMode = IntroductionGameMode.CURRENT_ROUND;
+        }
+        if ((currentMode == IntroductionGameMode.CURRENT || currentMode == IntroductionGameMode.CURRENT_ROUND)
+                && (SREClient.gameComponent == null
+                        || !SREClient.gameComponent.isRunning())) {
             currentMode = IntroductionGameMode.ALL;
         }
         computeLayout();
@@ -427,6 +448,18 @@ public class RoleIntroduceScreen extends Screen {
                     yield false;
                 yield RoleUtils.compareRole(role, nowRole);
             }
+            case CURRENT_ROUND -> {
+                if (this.minecraft.player == null || SREClient.gameComponent == null)
+                    yield false;
+                if (!GameUtils.isPlayerEliminated(minecraft.player)) {
+                    yield false;
+                }
+                if (DeathPenaltyComponent.hasPenalty(minecraft.player)) {
+                    yield false;
+                }
+                // yield SREClient.gameComponent.roleWorldComponent.hasRole(role);
+                yield NOW_ROUND_ROLES.contains(role);
+            }
         };
     }
 
@@ -444,12 +477,23 @@ public class RoleIntroduceScreen extends Screen {
                 if (this.minecraft.player == null || SREClient.modifierComponent == null)
                     yield false;
                 if ((GameUtils.isPlayerAliveAndSurvival(this.minecraft.player)
-                       || DeathPenaltyComponent.hasStrictPenalty(this.minecraft.player))) {
+                        || DeathPenaltyComponent.hasStrictPenalty(this.minecraft.player))) {
                     // 未似不可见
                     if (WorldModifierComponent.isHiddenModifier(mod))
                         yield false;
                 }
                 yield SREClient.modifierComponent.isModifier(minecraft.player, mod);
+            }
+            case CURRENT_ROUND -> {
+                if (this.minecraft.player == null || SREClient.modifierComponent == null)
+                    yield false;
+                if ((GameUtils.isPlayerAliveAndSurvival(this.minecraft.player)
+                        || DeathPenaltyComponent.hasStrictPenalty(this.minecraft.player))) {
+                    // 未似不可见
+                    yield false;
+                }
+
+                yield NOW_ROUND_MODIFIERS.contains(mod);
             }
         };
     }
@@ -465,6 +509,9 @@ public class RoleIntroduceScreen extends Screen {
                 if (this.minecraft.player == null || this.minecraft.player.getInventory() == null)
                     yield false;
                 yield this.minecraft.player.getInventory().hasAnyMatching((it) -> it.is(item));
+            }
+            case CURRENT_ROUND -> {
+                yield false;
             }
         };
     }
@@ -1627,15 +1674,21 @@ public class RoleIntroduceScreen extends Screen {
             if (SREClient.gameComponent.getGameMode().identifier.equals(SREGameModes.REPAIR_ESCAPE_ID)) {
                 if (mode == IntroductionGameMode.MURDER)
                     return true;
+                if (mode == IntroductionGameMode.REPAIR)
+                    return true;
             } else {
                 if (mode == IntroductionGameMode.REPAIR)
+                    return true;
+                if (mode == IntroductionGameMode.MURDER)
                     return true;
             }
         } else {
             if (mode == IntroductionGameMode.CURRENT)
                 return true;
+            if (mode == IntroductionGameMode.CURRENT_ROUND)
+                return true;
         }
-        return isSmallUI() && (mode == IntroductionGameMode.REPAIR || mode == IntroductionGameMode.MURDER);
+        return isSmallUI() && (mode == IntroductionGameMode.REPAIR || mode == IntroductionGameMode.MURDER || mode == IntroductionGameMode.CURRENT_ROUND);
     }
 
     private void renderModeButtons(GuiGraphics g, int mouseX, int mouseY, int maxWidth) {

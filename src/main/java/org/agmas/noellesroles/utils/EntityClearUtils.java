@@ -31,8 +31,8 @@ import net.minecraft.world.entity.vehicle.Minecart;
 import org.agmas.harpymodloader.events.GameInitializeEvent;
 import org.agmas.noellesroles.content.block_entity.DevilRouletteTableEntity;
 import org.agmas.noellesroles.content.entity.*;
-import org.agmas.noellesroles.game.roles.innocence.cake_maker.CakeMakerComponent;
 import org.agmas.noellesroles.game.roles.neutral.cuckoo.CuckooEggData;
+import org.agmas.noellesroles.role_data.innocence.CakeMakerRoleData;
 import org.agmas.noellesroles.handler.utils.THYukariPortalManager;
 import org.agmas.noellesroles.role.touhou.roles.THIbarakiKasenRole;
 
@@ -53,8 +53,8 @@ public class EntityClearUtils {
             clearCuckooEggs(world);
             CuckooEggData.reset();
             // 清除蛋糕师烟熏炉实体和蛋糕实体
-            CakeMakerComponent.removeAllSmokerEntities(world);
-            CakeMakerComponent.removeAllCakeEntities(world);
+            CakeMakerRoleData.removeAllSmokerEntities(world);
+            CakeMakerRoleData.removeAllCakeEntities(world);
         });
     }
 
@@ -100,12 +100,12 @@ public class EntityClearUtils {
                 entity instanceof DevilRouletteTableEntity.TableTextDisplay ||
                 entity instanceof DevilRouletteTableEntity.TableItemDisplay ||
                 (entity instanceof net.minecraft.world.entity.Display.BlockDisplay bd
-                        && (bd.getTags().contains(CakeMakerComponent.SMOKER_ENTITY_TAG)
-                                || bd.getTags().contains(CakeMakerComponent.CAKE_ENTITY_TAG)))
+                        && (bd.getTags().contains(CakeMakerRoleData.SMOKER_ENTITY_TAG)
+                                || bd.getTags().contains(CakeMakerRoleData.CAKE_ENTITY_TAG)))
                 ||
                 (entity instanceof net.minecraft.world.entity.Interaction inter
-                        && (inter.getTags().contains(CakeMakerComponent.SMOKER_ENTITY_TAG)
-                                || inter.getTags().contains(CakeMakerComponent.CAKE_ENTITY_TAG)))) {
+                        && (inter.getTags().contains(CakeMakerRoleData.SMOKER_ENTITY_TAG)
+                                || inter.getTags().contains(CakeMakerRoleData.CAKE_ENTITY_TAG)))) {
             return true;
         }
         // 仅清理摄影师放置的照片框

@@ -64,7 +64,7 @@ import org.agmas.noellesroles.component.DefibrillatorComponent;
 import org.agmas.noellesroles.component.ModComponents;
 import org.agmas.noellesroles.config.NoellesRolesConfig;
 import org.agmas.noellesroles.role_data.innocence.BroadcasterRoleData;
-import org.agmas.noellesroles.game.roles.innocence.cake_maker.CakeMakerComponent;
+import org.agmas.noellesroles.role_data.innocence.CakeMakerRoleData;
 import org.agmas.noellesroles.game.roles.innocence.fool.TarotAssemblyManager;
 import org.agmas.noellesroles.game.roles.killer.manipulator.InControlCCA;
 import org.agmas.noellesroles.role_data.killer.StalkerRoleData;
@@ -267,7 +267,10 @@ public class NRDeathEvents {
         SREGameWorldComponent gameWorldComponent = SREGameWorldComponent.KEY.get(victim.level());
         if (!gameWorldComponent.isRole(victim, ModRoles.CAKE_MAKER))
             return;
-        CakeMakerComponent.KEY.get(victim).onDeath();
+        CakeMakerRoleData cakeMaker = RoleData.getNullable(CakeMakerRoleData.class, victim);
+        if (cakeMaker != null) {
+            cakeMaker.onDeath();
+        }
     }
 
     /**

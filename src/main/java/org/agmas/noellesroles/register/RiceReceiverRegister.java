@@ -53,8 +53,8 @@ import org.agmas.noellesroles.role_data.innocence.BoxerRoleData;
 import org.agmas.noellesroles.role_data.innocence.AgentRoleData;
 import org.agmas.noellesroles.role_data.innocence.GreatDetectiveRoleData;
 import org.agmas.noellesroles.role_data.innocence.PsychologistRoleData;
-import org.agmas.noellesroles.game.roles.innocence.locksmith_inspiration.LocksmithInspirationComponent;
 import org.agmas.noellesroles.role_data.innocence.SingerRoleData;
+import org.agmas.noellesroles.role_data.innocence.LocksmithInspirationRoleData;
 import org.agmas.noellesroles.role_data.innocence.SuperStarRoleData;
 import org.agmas.noellesroles.role_data.innocence.TelegrapherRoleData;
 import org.agmas.noellesroles.game.roles.innocence.veteran.VeteranKnifeHandler;
@@ -181,7 +181,10 @@ public class RiceReceiverRegister {
                 return;
             }
 
-            LocksmithInspirationComponent inspirationComponent = ModComponents.LOCKSMITH_INSPIRATION.get(player);
+            LocksmithInspirationRoleData inspirationComponent = RoleData.getNullable(LocksmithInspirationRoleData.class, player);
+            if (inspirationComponent == null) {
+                return;
+            }
             if (!player.isCreative() && !inspirationComponent.consumeInspiration(inspirationCost)) {
                 player.displayClientMessage(
                         Component.translatable("message.noellesroles.locksmith.inspiration_insufficient",
