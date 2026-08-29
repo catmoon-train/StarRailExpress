@@ -36,7 +36,7 @@ public class BeeFamilyManager {
 
     public static final int BEE_QUEEN_IMPROVE_PRICE = 150;
     public static final int BEE_QUEEN_SELECT_QUEEN_PRICE = 300;
-    public static final int BEE_POISON_TICKS = 30 * 20;
+    public static final int BEE_POISON_TICKS = 20 * 20;
     public static final int REVIVE_COST_MONEY = 75;
     public static final int REVIVE_COOLDOWN = 60 * 20;
     public static final int KILL_AWARD_TO_QUEEN = 50;
