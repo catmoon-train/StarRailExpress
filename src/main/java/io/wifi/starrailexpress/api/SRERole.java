@@ -1010,6 +1010,14 @@ public abstract class SRERole extends SREAbstractInfoClass {
         return true;
     }
 
+    /**
+     * 在玩家变旁观前触发。
+     * @param victim
+     * @param spawnBody
+     * @param killer
+     * @param deathReason
+     * @param forceDeath
+     */
     public void onDeath(Player victim, boolean spawnBody, @Nullable Player killer, ResourceLocation deathReason,
             boolean forceDeath) {
         return;

@@ -291,7 +291,11 @@ public class BeeFamilyManager {
                 RoleData.ifPresent(BeeFamilyRoleData.class, revived, (data) -> data.beforeRole = beforeRole);
             return InteractionResult.CONSUME;
         }));
-
+        OnPlayerDeathWithKiller.EVENT.register((player, killer, deathReason) -> {
+            if (RoleUtils.getPlayerRole(player) instanceof BeeFamilyRole) {
+                BeeFamilyRole.onDeath(player, killer, deathReason);
+            }
+        });
         OnPlayerDeathWithKiller.EVENT.register((player, killer, deathReason) -> {
             if (killer == null) {
                 return;
@@ -398,6 +402,7 @@ public class BeeFamilyManager {
     }
 
     public static void beeFamilyFailed(ServerLevel serverLevel) {
+        SRE.LOGGER.info("Bee family failed! Try restore roles.");
         final var gamecca = SREGameWorldComponent.KEY.get(serverLevel);
         for (var player : serverLevel.players()) {
             if (gamecca.getRole(player) instanceof BeeFamilyRole) {

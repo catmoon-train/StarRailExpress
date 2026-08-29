@@ -55,9 +55,7 @@ public class BeeFamilyRole extends EggRole implements CustomWinnerRoleInterface 
         player.displayClientMessage(getChannelText(player), true);
     }
 
-    @Override
-    public void onDeath(Player victim, boolean spawnBody, @Nullable Player killer, ResourceLocation deathReason,
-            boolean forceDeath) {
+    public static void onDeath(Player victim, @Nullable Player killer, ResourceLocation deathReason) {
         if (!(victim instanceof ServerPlayer player))
             return;
         var role = RoleUtils.getPlayerRole(victim);
