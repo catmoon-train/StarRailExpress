@@ -83,6 +83,7 @@ import org.agmas.noellesroles.role_data.killer.YouluRoleData;
 import org.agmas.noellesroles.role_data.neutral.NianShouRoleData;
 import org.agmas.noellesroles.role_data.neutral.PelicanRoleData;
 import org.agmas.noellesroles.game.roles.neutral.puppeteer.PuppeteerPlayerComponent;
+import org.agmas.noellesroles.game.roles.vigilante.genshin.TartagliaRole;
 import org.agmas.noellesroles.role_data.neutral.ThiefRoleData;
 import org.agmas.noellesroles.role_data.neutral.VultureRoleData;
 import org.agmas.noellesroles.role_data.neutral.VoiceChangerRoleData;
@@ -628,17 +629,19 @@ public class ModRolesInitialEventRegister {
                 }).cooldownSeconds(60).showOnHud(true).announceToSelf(true).build());
 
         RoleSkill.register(ModRoles.BARBARIAN,
-                RoleSkill.skill(BarbarianRoleData.SKILL_ID, "skill.noellesroles.barbarian.smoke_breath", context ->
-                        RoleData.getOptional(BarbarianRoleData.class, context.player())
-                                .map(data -> data.useSmokeBreath(context.player())).orElse(false))
+                RoleSkill
+                        .skill(BarbarianRoleData.SKILL_ID, "skill.noellesroles.barbarian.smoke_breath",
+                                context -> RoleData.getOptional(BarbarianRoleData.class, context.player())
+                                        .map(data -> data.useSmokeBreath(context.player())).orElse(false))
                         .cooldownSeconds(NoellesRolesConfig.HANDLER.instance().barbarianSmokeCooldownSeconds)
                         .showOnHud(true).announceToSelf(true).build());
 
         // 鸟兽兽技能：生成 3x2 临时掩体。技能本身有两个初始充能，状态数据负责 60 秒后的逐个补充。
         RoleSkill.register(ModRoles.NIAOSHOU_SHOU,
-                RoleSkill.skill(NiaoshoushouRoleData.COVER_SKILL_ID, "skill.noellesroles.niaoshoushou.cover", context ->
-                        RoleData.getOptional(NiaoshoushouRoleData.class, context.player())
-                                .map(data -> data.useCoverAbility(context.player())).orElse(false))
+                RoleSkill
+                        .skill(NiaoshoushouRoleData.COVER_SKILL_ID, "skill.noellesroles.niaoshoushou.cover",
+                                context -> RoleData.getOptional(NiaoshoushouRoleData.class, context.player())
+                                        .map(data -> data.useCoverAbility(context.player())).orElse(false))
                         .cooldownSeconds(60).charges(2).showOnHud(true).announceToSelf(true).build());
 
         // 滞时鬼（Delayer）技能注册：【时间锚点】——消耗金币锚定当前状态，
@@ -1282,6 +1285,12 @@ public class ModRolesInitialEventRegister {
                                     .withStyle(ChatFormatting.GOLD, ChatFormatting.BOLD));
                 }).cooldownSeconds(240).build());
 
+        RoleSkill.register(ModRoles.DIO, RoleSkill.skill(
+                SRE.id("tartaglia"),
+                "skill.noellesroles.tartaglia",
+                context -> {
+                    return TartagliaRole.onSkillUsed(context.player(), context);
+                }).build());
         // DIO技能注册：时间停止，委托组件
         RoleSkill.register(ModRoles.DIO, RoleSkill.skill(
                 SRE.id("dio_timestop"),

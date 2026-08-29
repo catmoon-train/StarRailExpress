@@ -16,6 +16,7 @@
 package io.wifi.starrailexpress.api;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.Nullable;
@@ -41,7 +42,7 @@ public class LooseEndRole extends OriginalRole {
     public ArrayList<MobEffectInstance> playerEffects = new ArrayList<>();
 
     public LooseEndRole(ResourceLocation identifier, int color, boolean isInnocent, boolean canUseKiller,
-            MoodType moodType, int maxSprintTime, boolean canSeeTime, ArrayList<MobEffectInstance> playerEffects) {
+            MoodType moodType, int maxSprintTime, boolean canSeeTime, List<MobEffectInstance> playerEffects) {
         this(identifier, color, isInnocent, canUseKiller, moodType, maxSprintTime, canSeeTime);
         this.playerEffects.addAll(playerEffects);
     }

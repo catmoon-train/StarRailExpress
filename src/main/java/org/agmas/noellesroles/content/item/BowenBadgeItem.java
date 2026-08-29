@@ -124,6 +124,8 @@ public class BowenBadgeItem extends Item implements AdventureUsable {
         for (var e : level.getEntities(player, collisionBox)) {
             if (!(e instanceof Player targetPlayer))
                 continue;
+            if (targetPlayer.isSpectator())
+                continue;
 
             // 撞到目标：停止水平移动并推开旁边的人
             player.setDeltaMovement(0, player.getDeltaMovement().y, 0);
@@ -132,6 +134,7 @@ public class BowenBadgeItem extends Item implements AdventureUsable {
             Vec3 knockbackDir = targetPlayer.position().subtract(playerPos).multiply(1, 0, 1).normalize();
             // 施加击退效果，将目标推开
             targetPlayer.push(knockbackDir.x * 2.5, 0.5, knockbackDir.z * 2.5);
+            targetPlayer.hurtMarked = true;
 
             if (GameUtils.isPlayerAliveAndSurvival(targetPlayer)) {
                 GameUtils.killPlayer(targetPlayer, true, player, Noellesroles.id("bowen"));

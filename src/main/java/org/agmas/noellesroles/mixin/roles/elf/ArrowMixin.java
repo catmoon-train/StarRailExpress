@@ -19,6 +19,7 @@ import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.api.data.RoleData;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.content.entity.PlayerBodyEntity;
+import io.wifi.starrailexpress.game.GameConstants;
 import io.wifi.starrailexpress.game.GameUtils;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
@@ -31,6 +32,7 @@ import net.minecraft.world.entity.projectile.AbstractArrow;
 import net.minecraft.world.entity.projectile.Arrow;
 import net.minecraft.world.entity.projectile.SpectralArrow;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.item.alchemy.PotionContents;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.BlockHitResult;
@@ -52,6 +54,7 @@ public class ArrowMixin {
         if (SRE.isLobby)
             return;
         if (entityHitResult.getEntity() instanceof ServerPlayer player) {
+            final var cca = SREGameWorldComponent.KEY.get(player.serverLevel());
             AbstractArrow arrow = (AbstractArrow) (Object) this;
             if (arrow instanceof SpectralArrow) {
                 player.addEffect(new MobEffectInstance(MobEffects.GLOWING, 20 * 20, 0, false, false, true));
@@ -78,22 +81,27 @@ public class ArrowMixin {
                         }
                     }
                 }
-                if (arrow.getOwner() instanceof ServerPlayer serverPlayer) {
-                    if (CupidRoleData.handleArrowHit((Arrow) arrow, serverPlayer, player)) {
+                if (arrow.getOwner() instanceof ServerPlayer killer) {
+                    if (CupidRoleData.handleArrowHit((Arrow) arrow, killer, player)) {
                         ci.cancel();
                         return;
                     }
-                    if (SREGameWorldComponent.KEY.get(serverPlayer.serverLevel()).isRole(serverPlayer, ModRoles.ELF)) {
+                    if (cca.isRole(killer, ModRoles.ELF)) {
                         isHit = true;
-
-                        GameUtils.killPlayer(player, true, serverPlayer, SRE.id("arrow"));
-                    }
-                    if (SREGameWorldComponent.KEY.get(serverPlayer.serverLevel()).isRole(serverPlayer,
-                            ModRoles.HUNTER)) {
+                        GameUtils.killPlayer(player, true, killer, SRE.id("arrow"));
+                        killer.getCooldowns().addCooldown(Items.BOW, 1 * 20);
+                        killer.getCooldowns().addCooldown(Items.CROSSBOW, 1 * 20);
+                    } else if (cca.isRole(killer, ModRoles.TARTAGLIA)) {
                         isHit = true;
-                        GameUtils.killPlayer(player, true, serverPlayer, SRE.id("arrow"));
+                        GameUtils.killPlayer(player, true, killer, GameConstants.DeathReasons.TARTAGLIA_ARROW);
+                        killer.getCooldowns().addCooldown(Items.BOW, 5 * 20);
+                        killer.getCooldowns().addCooldown(Items.CROSSBOW, 1 * 20);
+                        killer.getCooldowns().addCooldown(Items.TIPPED_ARROW, 20 * 20);
+                    } else if (cca.isRole(killer, ModRoles.HUNTER)) {
+                        isHit = true;
+                        GameUtils.killPlayer(player, true, killer, SRE.id("arrow"));
                         // 猎人击杀处理：弓冷却 + 杀敌计数 + 每3杀奖励毒箭
-                        RoleData.getOptional(HunterRoleData.class, serverPlayer)
+                        RoleData.getOptional(HunterRoleData.class, killer)
                                 .ifPresent(HunterRoleData::onKill);
                     }
                 }

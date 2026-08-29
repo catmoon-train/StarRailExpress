@@ -62,6 +62,7 @@ public class THIbarakiKasenRole extends TouhouRole {
         }
     }
 
+    @Override
     public void resetVariables() {
         tickTime.clear();
     }

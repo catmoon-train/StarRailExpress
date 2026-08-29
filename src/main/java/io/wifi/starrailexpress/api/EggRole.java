@@ -34,7 +34,13 @@ public class EggRole extends NormalRole implements EggRoleInterface {
         super(identifier, color, isInnocent, canUseKiller, moodType, maxSprintTime, canSeeTime);
         this.addFlag("bouns");
     }
-    
+
+    public EggRole(ResourceLocation identifier, int color, RoleType roleType, MoodType moodType,
+            int maxSprintTime, boolean canSeeTime) {
+        super(identifier, color, roleType, moodType, maxSprintTime, canSeeTime);
+        this.addFlag("bouns");
+    }
+
     @Override
     public boolean canBeRandomed() {
         if (InitModRolesMax.isEggEnabled)

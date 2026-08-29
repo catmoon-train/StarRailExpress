@@ -83,8 +83,8 @@ public class GameConstants {
         ITEM_COOLDOWNS.put(TMMItems.NUNCHUCK, 160); // 8秒冷却
         ITEM_COOLDOWNS.put(TMMItems.SNIPER_RIFLE, 80); // 4秒冷却
 
-        SRE.LOGGER.debug("物品冷却时间已重载: 小刀={}秒, 左轮={}秒",
-                SREConfig.instance().knifeCooldown, SREConfig.instance().revolverCooldown);
+        SRE.LOGGER.debug("Item cooldown reloaded! Knife={}s, Revolver={}s", SREConfig.instance().knifeCooldown,
+                SREConfig.instance().revolverCooldown);
     }
 
     public static int JAMMED_DOOR_TIME = getInTicks(1, 0);
@@ -252,6 +252,8 @@ public class GameConstants {
         public static ResourceLocation HOT_POTATO = SRE.id("hot_potato");
         public static ResourceLocation CAT_KILLER = SRE.wifiId("cat_killer");
 
+        public static final ResourceLocation TARTAGLIA = Noellesroles.id("tartaglia");
+        public static final ResourceLocation TARTAGLIA_ARROW = Noellesroles.id("tartaglia_arrow");
         public static ResourceLocation SUIKA_RUSH = Noellesroles.id("suika_rush");
         public static ResourceLocation VOODOO = Noellesroles.id("voodoo");
         public static ResourceLocation SHOT_INNOCENT = Noellesroles.id("shot_innocent");

@@ -35,6 +35,12 @@ public class TouhouRole extends NormalRole implements TouhouRoleInterface {
         this.addFlag("touhou");
     }
 
+    public TouhouRole(ResourceLocation identifier, int color, RoleType roleType, MoodType moodType,
+            int maxSprintTime, boolean canSeeTime) {
+        super(identifier, color, roleType, moodType, maxSprintTime, canSeeTime);
+        this.addFlag("touhou");
+    }
+
     @Override
     public boolean canBeRandomed() {
         if (InitModRolesMax.isTouhouEnabled)

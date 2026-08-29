@@ -705,7 +705,8 @@ public class ModRoles {
      * 持有足够金币时首次被杀手击杀会进入 30 秒魔了形态；此期间只能用专属刀攻击中立与杀手。
      */
     public static SRERole BARBARIAN = TMMRoles.registerRole(
-            new BarbarianRole(BARBARIAN_ID, new Color(106, 76, 48).getRGB(), true, false, SRERole.MoodType.REAL,
+            new BarbarianRole(BARBARIAN_ID, new Color(106, 76, 48).getRGB(), true, false,
+                    SRERole.MoodType.REAL,
                     TMMRoles.CIVILIAN.getMaxSprintTime(), false))
             .setRoleData(BarbarianRoleData::new)
             .setCanSeeCoin(true)
@@ -2401,7 +2402,8 @@ public class ModRoles {
                         if (target == null) {
                             return InstinctType.NONE;
                         }
-                        LinFamilyRoleData data = RoleData.getNullable(LinFamilyRoleData.class, self);
+                        LinFamilyRoleData data = RoleData.getNullable(LinFamilyRoleData.class,
+                                self);
                         if (data != null && data.isXrayTarget(target.getUUID())) {
                             return InstinctType.custom(selfRole.color());
                         }
@@ -2655,10 +2657,16 @@ public class ModRoles {
 
     // mobai 投稿：达达利亚（原神） tartaglia
     public static SRERole TARTAGLIA = TMMRoles
-            .registerRole(new TartagliaRole(id("tartaglia"), new Color(222, 152, 70).getRGB(), RoleType.VIGILANTE,
-                    MoodType.REAL, TMMRoles.CIVILIAN_MAX_SPRINT_TICKS, false))
-            .setSpecialPolice(true)
-            .setAddedVersion("4.4");
+            .registerRole(new TartagliaRole(
+                    id("tartaglia"),
+                    new Color(222, 152, 70).getRGB(),
+                    RoleType.KILLER,
+                    MoodType.FAKE,
+                    Integer.MAX_VALUE,
+                    true))
+            .setAddedVersion("4.4")
+            .setDefaultEnableNeededPlayerCount(18)
+            .setDefaultEnableChance(3000);
 
     // ==================== 其他变量定义 ====================
     public static ArrayList<SRERole> SHOW_MONEY_ROLES = new ArrayList<>();
