@@ -27,6 +27,7 @@ import io.wifi.starrailexpress.client.util.ClientSkinCache;
 import io.wifi.starrailexpress.content.entity.PlayerBodyEntity;
 import io.wifi.starrailexpress.event.client.OnRenderRoleName;
 import io.wifi.starrailexpress.game.GameConstants;
+import io.wifi.starrailexpress.game.GameUtils;
 import io.wifi.utils.client.betterrender.FakeGuiGraphics;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.DeltaTracker;
@@ -219,9 +220,14 @@ public class PlayerBodyHud {
                     }
                 }
                 if (vultured) {
-                    nameMessage = Component.empty();
-                    deathMessage = Component.literal("abcdefghijklmnopqrstuvwxyzaa")
-                            .withStyle(ChatFormatting.OBFUSCATED);
+                    if (GameUtils.isPlayerEliminated(player)) {
+                        nameMessage = nameMessage.append(Component.translatable("hud.coroner.death_info.vultured"));
+                        deathMessage = deathMessage.append(Component.translatable("hud.coroner.death_info.vultured"));
+                    } else {
+                        nameMessage = Component.empty();
+                        deathMessage = Component.literal("abcdefghijklmnopqrstuvwxyzaa")
+                                .withStyle(ChatFormatting.OBFUSCATED);
+                    }
                 }
                 if (hasPenalty) {
                     nameMessage = Component.empty();
@@ -244,9 +250,18 @@ public class PlayerBodyHud {
                 if ((SREClient.isPlayerSpectatingOrCreative()
                         || selfrole.canSeeBodyRoleInfo(SREClient.cached_player))
                         && !bodyDeathReasonComponent.vultured) {
-                    Component roleInfo = Component.translatable("hud.coroner.role_info").withColor(CommonColors.RED)
+                    MutableComponent roleInfo = Component.translatable("hud.coroner.role_info")
+                            .withColor(CommonColors.RED)
                             .append(RoleUtils.getRoleName(bodyDeathReasonComponent.playerRole).copy()
                                     .withColor(foundRole.color()));
+
+                    if (vultured) {
+                        if (GameUtils.isPlayerEliminated(player)) {
+                            roleInfo = roleInfo.append(Component.translatable("hud.coroner.death_info.vultured"));
+                        } else {
+                            roleInfo = Component.empty();
+                        }
+                    }
                     if (hasPenalty) {
                         roleInfo = Component.translatable("message.noellesroles.penalty.limit.role");
                     }
