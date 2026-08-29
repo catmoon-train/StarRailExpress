@@ -1672,22 +1672,22 @@ public class RoleIntroduceScreen extends Screen {
     // 可重写此方法来定制哪些模式在小 UI 下隐藏
     protected boolean shouldHideModeButton(IntroductionGameMode mode) {
         if (SREClient.gameComponent != null && SREClient.gameComponent.isRunning()) {
-            boolean showCurrentRound = !SREClient.isPlayerSpectatingOrCreative() || SREClient.hasPenalty();
+            boolean dontShowCurrentRound = !SREClient.isPlayerSpectatingOrCreative() || SREClient.hasPenalty();
             if (SREClient.gameComponent.getGameMode().identifier.equals(SREGameModes.REPAIR_ESCAPE_ID)) {
                 if (mode == IntroductionGameMode.MURDER)
                     return true;
-                if (showCurrentRound)
+                if (!dontShowCurrentRound)
                     if (mode == IntroductionGameMode.REPAIR)
                         return true;
             } else {
                 if (mode == IntroductionGameMode.REPAIR)
                     return true;
-                if (showCurrentRound)
+                if (!dontShowCurrentRound)
                     if (mode == IntroductionGameMode.MURDER)
                         return true;
             }
 
-            if (showCurrentRound) {
+            if (dontShowCurrentRound) {
                 if (mode == IntroductionGameMode.CURRENT_ROUND)
                     return true;
             }
