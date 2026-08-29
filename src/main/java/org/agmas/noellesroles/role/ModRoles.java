@@ -797,7 +797,8 @@ public class ModRoles {
             .setVigilanteTeam(true).setCanSeeCoin(true).setCanPickUpRevolver(false).setCanAutoAddMoney(true)
             .setSpecialVigilante(true).setDefaultMax(1).setDefaultEnableChance(7000)
             .setRefreshableSpecialVigilante(1000, true)
-            .setCanKillWithBowAndCrossbow(true);
+            .setCanKillWithBowAndCrossbow(true)
+            .setHiddenForRoleRotation(true);
     public static final ResourceLocation GUARD_ID = Noellesroles.id("guard");
     public static SRERole GUARD = TMMRoles.registerRole(new NormalRole(GUARD_ID, new Color(170, 170, 170).getRGB(),
             true, false, SRERole.MoodType.REAL, TMMRoles.CIVILIAN.getMaxSprintTime(), false) {
@@ -2667,7 +2668,8 @@ public class ModRoles {
                     true))
             .setAddedVersion("4.4")
             .setDefaultEnableNeededPlayerCount(18)
-            .setDefaultEnableChance(3000);
+            .setDefaultEnableChance(3000)
+            .setHiddenForRoleRotation(true);
 
     // ==================== 其他变量定义 ====================
     public static ArrayList<SRERole> SHOW_MONEY_ROLES = new ArrayList<>();
