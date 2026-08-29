@@ -222,7 +222,6 @@ public class PlayerBodyHud {
                 if (vultured) {
                     if (GameUtils.isPlayerEliminated(player)) {
                         nameMessage = nameMessage.append(Component.translatable("hud.coroner.death_info.vultured"));
-                        deathMessage = deathMessage.append(Component.translatable("hud.coroner.death_info.vultured"));
                     } else {
                         nameMessage = Component.empty();
                         deathMessage = Component.literal("abcdefghijklmnopqrstuvwxyzaa")
@@ -257,7 +256,6 @@ public class PlayerBodyHud {
 
                     if (vultured) {
                         if (GameUtils.isPlayerEliminated(player)) {
-                            roleInfo = roleInfo.append(Component.translatable("hud.coroner.death_info.vultured"));
                         } else {
                             roleInfo = Component.empty();
                         }

@@ -512,7 +512,7 @@
   "death_reason.starrailexpress.voodoo": "巫毒魔法",
   "hud.coroner.death_info.new": "死于 %s秒前，死因是 %s",
   "hud.coroner.death_info.name": "%s 的尸体",
-  "hud.coroner.death_info.vultured": " (存活玩家无法得知)",
+  "hud.coroner.death_info.vultured": " (存活玩家无法从尸体得知信息)",
   "forensic.category.blade": "利器伤口",
   "forensic.category.firearm": "枪伤",
   "forensic.category.blunt": "钝器伤",
