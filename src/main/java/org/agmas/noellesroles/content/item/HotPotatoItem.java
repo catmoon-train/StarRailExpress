@@ -15,7 +15,10 @@
 
 package org.agmas.noellesroles.content.item;
 
+import org.agmas.noellesroles.utils.MCItemsUtils;
+
 import io.wifi.starrailexpress.content.item.api.SREItemProperties.LeftClickHurtable;
+import io.wifi.starrailexpress.game.GameUtils;
 import io.wifi.starrailexpress.game.modes.funny.SRETNTTagGameMode;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.effect.MobEffectInstance;
@@ -33,7 +36,7 @@ public class HotPotatoItem extends Item implements LeftClickHurtable {
     }
 
     @Override
-    public void inventoryTick(ItemStack itemStack, Level level, Entity entity, int i, boolean bl) {
+    public void inventoryTick(ItemStack itemStack, Level level, Entity entity, int slotId, boolean bl) {
         if (!level.isClientSide && level.getGameTime() % 20 == 0) {
             if (entity instanceof ServerPlayer sp) {
                 sp.addEffect(new MobEffectInstance(
@@ -45,6 +48,31 @@ public class HotPotatoItem extends Item implements LeftClickHurtable {
                         false // showIcon（显示图标）
                 ));
             }
+        }
+
+        if (slotId >= 0 && slotId < 9) {
+            return;
+        }
+
+        if (!(entity instanceof ServerPlayer player))
+            return;
+        findAVoidPlaceToPut(itemStack, level, player, slotId, bl);
+    }
+
+    private void findAVoidPlaceToPut(ItemStack stack, Level level, ServerPlayer player, int slotId,
+            boolean isSelected) {
+        if (slotId >= 0 && slotId < 9) {
+            return;
+        }
+        if (!GameUtils.isPlayerAliveAndSurvivalIgnoreShitSplit(player)) {
+            return;
+        }
+        int freeSlot = MCItemsUtils.getHotbarFreeSlot(player);
+        if (freeSlot != -1) {
+            player.getInventory().setItem(freeSlot, stack);
+            player.getInventory().setItem(slotId, ItemStack.EMPTY);
+            player.containerMenu.broadcastChanges();
+            player.inventoryMenu.slotsChanged(player.getInventory());
         }
     }
 
