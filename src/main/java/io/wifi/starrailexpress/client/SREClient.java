@@ -1455,6 +1455,6 @@ public class SREClient implements ClientModInitializer {
     public static boolean hasPenalty() {
         if (cached_player == null)
             return false;
-        return DeathPenaltyComponent.KEY.get(cached_player).hasPenalty();
+        return DeathPenaltyComponent.hasPenalty(cached_player);
     }
 }

@@ -1682,13 +1682,19 @@ public class RoleIntroduceScreen extends Screen {
                 if (mode == IntroductionGameMode.MURDER)
                     return true;
             }
+
+            if (!SREClient.isPlayerSpectatingOrCreative() || SREClient.hasPenalty()) {
+                if (mode == IntroductionGameMode.CURRENT_ROUND)
+                    return true;
+            }
         } else {
             if (mode == IntroductionGameMode.CURRENT)
                 return true;
             if (mode == IntroductionGameMode.CURRENT_ROUND)
                 return true;
         }
-        return isSmallUI() && (mode == IntroductionGameMode.REPAIR || mode == IntroductionGameMode.MURDER || mode == IntroductionGameMode.CURRENT_ROUND);
+        return isSmallUI() && (mode == IntroductionGameMode.REPAIR || mode == IntroductionGameMode.MURDER
+                || mode == IntroductionGameMode.CURRENT_ROUND);
     }
 
     private void renderModeButtons(GuiGraphics g, int mouseX, int mouseY, int maxWidth) {
