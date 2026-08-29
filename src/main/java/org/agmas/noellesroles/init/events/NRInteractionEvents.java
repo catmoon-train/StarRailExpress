@@ -19,7 +19,6 @@ import io.wifi.starrailexpress.api.data.RoleData;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.content.item.StandardRevolverItem;
 import io.wifi.starrailexpress.event.*;
-import org.agmas.noellesroles.CustomWinnerClass;
 import io.wifi.starrailexpress.game.roles.SpecialGameModeRoles;
 import io.wifi.starrailexpress.index.SREDataComponentTypes;
 import io.wifi.starrailexpress.rules.*;
@@ -342,7 +341,6 @@ public class NRInteractionEvents {
         EntityClearUtils.registerResetEvent();
         org.agmas.noellesroles.game.roles.innocence.photographer.PhotographerFrameEvents.register();
         MapScanner.registerMapScanEvent();
-        CustomWinnerClass.registerCustomWinners();
         XiaoNaoHandler.registerEvent();
         org.agmas.noellesroles.role_data.innocence.AwesomeRoleData.registerEvents();
         org.agmas.noellesroles.role_data.innocence.ReturnTravelerRoleData.registerEvents();
