@@ -57,7 +57,7 @@ public class NiaoshoushouRole extends EggRole {
     public List<ShopEntry> getShopEntries() {
         List<ShopEntry> shop = new ArrayList<>();
         shop.add(new ShopEntry(ModItems.NIAOSHOU_SHOU_KNIFE.getDefaultInstance(), 135, ShopEntry.Type.WEAPON));
-        shop.add(new ShopEntry(ModItems.NIAOSHOU_SHOU_INCENDIARY_GRENADE.getDefaultInstance(), 350,
+        shop.add(new ShopEntry(ModItems.NIAOSHOU_SHOU_INCENDIARY_GRENADE.getDefaultInstance(), 300,
                 ShopEntry.Type.WEAPON));
         shop.add(new ShopEntry(ModItems.NIAOSHOU_SHOU_FAMILY_PHOTO.getDefaultInstance(), 100,
                 ShopEntry.Type.TOOL) {
