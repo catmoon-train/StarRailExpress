@@ -1,5 +1,7 @@
 package org.agmas.noellesroles.handler.utils;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -155,11 +157,14 @@ public class THYukariPortalManager {
     }
 
     public static void removeAlivePortals(ServerLevel serverLevel) {
-        serverLevel.getAllEntities().forEach((entity) -> {
+        List<Entity> portalsToRemove = new ArrayList<>();
+        serverLevel.getAllEntities().forEach(entity -> {
             if (isPortal(entity)) {
-                entity.discard();
+                portalsToRemove.add(entity);
             }
         });
+        // 统一删除
+        portalsToRemove.forEach(Entity::discard);
         if (PORTAL_1 != null && !PORTAL_1.isRemoved())
             PORTAL_1.discard();
         if (PORTAL_2 != null && !PORTAL_2.isRemoved())
