@@ -64,7 +64,7 @@ public class InfectedWinChecker {
      */
     public static void registerEvent() {
         // 胜利检测事件
-        AllowGameEnd.EVENT.register((serverWorld, winStatus, isLooseEndsMode) -> {
+        AllowGameEnd.EVENT_START.register((serverWorld, winStatus, isLooseEndsMode) -> {
             // 时间耗尽时疫使不阻止，判定乘客胜利
             if (winStatus == WinStatus.TIME) {
                 return WinStatus.NOT_MODIFY;

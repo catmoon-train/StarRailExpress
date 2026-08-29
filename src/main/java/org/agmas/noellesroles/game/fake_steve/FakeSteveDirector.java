@@ -90,7 +90,7 @@ public final class FakeSteveDirector {
             return TrueFalseResult.PASS;
         });
 
-        AllowGameEnd.EVENT.register((level, proposed, looseEnds) -> {
+        AllowGameEnd.EVENT_END.register((level, proposed, looseEnds) -> {
             Session session = session(level);
             if (session != null && session.active && !session.victoryDeclared && hasWon(level, session)) {
                 declareVictory(level, session);

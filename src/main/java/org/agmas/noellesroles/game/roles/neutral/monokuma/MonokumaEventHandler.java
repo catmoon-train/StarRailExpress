@@ -217,7 +217,7 @@ public class MonokumaEventHandler {
      * 获胜条件判定
      */
     private static void registerWinCondition() {
-        AllowGameEnd.EVENT.register((serverLevel, winStatus, isLooseEnd) -> {
+        AllowGameEnd.EVENT_END.register((serverLevel, winStatus, isLooseEnd) -> {
             if (isLooseEnd)
                 return GameUtils.WinStatus.NOT_MODIFY;
 

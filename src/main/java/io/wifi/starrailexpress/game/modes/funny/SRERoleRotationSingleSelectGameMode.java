@@ -25,7 +25,6 @@ import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.cca.SREPlayerMoodComponent;
 import io.wifi.starrailexpress.cca.SREPlayerShopComponent;
 import io.wifi.starrailexpress.cca.SRERoleWorldComponent;
-import io.wifi.starrailexpress.event.AllowGameEnd;
 import io.wifi.starrailexpress.event.OnGameTrueStarted;
 import io.wifi.starrailexpress.game.GameConstants;
 import io.wifi.starrailexpress.game.GameUtils;
@@ -278,7 +277,8 @@ public class SRERoleRotationSingleSelectGameMode extends SREMurderGameMode {
     public GameUtils.WinStatus allowGameEnd(ServerLevel world, GameUtils.WinStatus winStatus, boolean looseEnds,
             SREGameWorldComponent gameComp) {
         if (isInRotationPhase) return GameUtils.WinStatus.NONE;
-        return AllowGameEnd.EVENT.invoker().allowGameEnd(world, winStatus, false);
+        
+        return super.allowGameEnd(world, winStatus, looseEnds, gameComp);
     }
 
     @Override

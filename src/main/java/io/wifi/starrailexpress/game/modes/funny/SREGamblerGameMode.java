@@ -18,7 +18,6 @@ package io.wifi.starrailexpress.game.modes.funny;
 import io.wifi.starrailexpress.SREConfig;
 import io.wifi.starrailexpress.api.TMMRoles;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
-import io.wifi.starrailexpress.event.AllowGameEnd;
 import io.wifi.starrailexpress.game.GameUtils;
 import io.wifi.starrailexpress.game.modes.SREMurderGameMode;
 import net.minecraft.resources.ResourceLocation;
@@ -165,7 +164,6 @@ public class SREGamblerGameMode extends SREMurderGameMode {
             }
         }
 
-        return AllowGameEnd.EVENT.invoker().allowGameEnd(serverWorld,
-                winStatus, false);
+        return super.allowGameEnd(serverWorld, winStatus, isLooseEndsMode, gameWorldComponent);
     }
 }

@@ -26,7 +26,7 @@ import pro.fazeclan.river.stupid_express.utils.StupidRoleUtils;
 
 public class ArsonistWinChecker {
     public static void registerEvent() {
-        AllowGameEnd.EVENT.register((serverWorld, winStatus, isLooseEndsMode) -> {
+        AllowGameEnd.EVENT_END.register((serverWorld, winStatus, isLooseEndsMode) -> {
             if (isLooseEndsMode)
                 return WinStatus.NOT_MODIFY;
             var config = StupidExpress.CONFIG;

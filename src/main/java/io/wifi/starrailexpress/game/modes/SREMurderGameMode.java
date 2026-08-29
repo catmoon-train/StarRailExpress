@@ -62,6 +62,7 @@ import org.agmas.harpymodloader.modded_murder.RoleAssignmentManager;
 import org.agmas.harpymodloader.modded_murder.RoleAssignmentPool;
 import org.agmas.harpymodloader.modifiers.HMLModifiers;
 import org.agmas.harpymodloader.modifiers.SREModifier;
+import org.agmas.noellesroles.CustomWinnerClass;
 import org.agmas.noellesroles.commands.BroadcastCommand;
 import org.agmas.noellesroles.role_data.neutral.MercenaryRoleData;
 import org.agmas.noellesroles.role.ModRoles;
@@ -846,7 +847,18 @@ public class SREMurderGameMode extends GameMode {
 
     public GameUtils.WinStatus allowGameEnd(ServerLevel serverWorld, GameUtils.WinStatus winStatus,
             boolean isLooseEndsMode, SREGameWorldComponent gameWorldComponent) {
-        return AllowGameEnd.EVENT.invoker().allowGameEnd(serverWorld,
+        var c = AllowGameEnd.EVENT_START.invoker().allowGameEnd(serverWorld,
+                winStatus, false);
+        if (c != null && !c.equals(WinStatus.NOT_MODIFY)) {
+            return c;
+        }
+
+        var b = CustomWinnerClass.checkWinnerBuiltin(serverWorld, winStatus, isLooseEndsMode);
+        if (b != null && !b.equals(WinStatus.NOT_MODIFY)) {
+            return b;
+        }
+
+        return AllowGameEnd.EVENT_END.invoker().allowGameEnd(serverWorld,
                 winStatus, false);
     }
 

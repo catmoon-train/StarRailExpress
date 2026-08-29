@@ -169,9 +169,15 @@ public class WTLooseEndsGameMode extends GameMode {
         }
 
         if (playersLeft <= 0) {
-            var modifiedWinStatus = AllowGameEnd.EVENT.invoker().allowGameEnd(serverWorld, WinStatus.NO_PLAYER, true);
-            if (!modifiedWinStatus.equals(WinStatus.NONE)) {
+            var modifiedWinStatus = AllowGameEnd.EVENT_START.invoker().allowGameEnd(serverWorld, WinStatus.NO_PLAYER,
+                    true);
+            if (modifiedWinStatus == null || modifiedWinStatus.equals(WinStatus.NOT_MODIFY)) {
+                modifiedWinStatus = AllowGameEnd.EVENT_END.invoker().allowGameEnd(serverWorld, WinStatus.NO_PLAYER,
+                        true);
+            }
+            if (modifiedWinStatus != null && !modifiedWinStatus.equals(WinStatus.NONE)) {
                 GameUtils.stopGame(serverWorld);
+                return;
             }
         }
 
@@ -180,6 +186,15 @@ public class WTLooseEndsGameMode extends GameMode {
             winStatus = GameUtils.WinStatus.LOOSE_END;
         }
 
+        var modifiedWinStatus = AllowGameEnd.EVENT_START.invoker().allowGameEnd(serverWorld, winStatus,
+                true);
+        if (modifiedWinStatus == null || modifiedWinStatus.equals(WinStatus.NOT_MODIFY)) {
+            modifiedWinStatus = AllowGameEnd.EVENT_END.invoker().allowGameEnd(serverWorld, winStatus,
+                    true);
+        }
+        if (modifiedWinStatus != null && !modifiedWinStatus.equals(WinStatus.NOT_MODIFY)) {
+            winStatus = modifiedWinStatus;
+        }
         // game end on win and display
         if (winStatus != GameUtils.WinStatus.NONE
                 && gameWorldComponent.getGameStatus() == SREGameWorldComponent.GameStatus.ACTIVE) {

@@ -22,8 +22,6 @@ import net.minecraft.server.level.ServerLevel;
 
 import static net.fabricmc.fabric.api.event.EventFactory.createArrayBacked;
 
-import org.agmas.noellesroles.CustomWinnerClass;
-
 /**
  * 事件接口：决定是否允许游戏结束，以及最终的胜利状态。
  * 首个返回非 {@link WinStatus#NOT_MODIFY} 结果的监听器决定最终胜利状态。
@@ -34,7 +32,7 @@ import org.agmas.noellesroles.CustomWinnerClass;
  * The first listener returning a value other than {@link WinStatus#NOT_MODIFY}
  * determines the outcome.
  */
-public interface AllowGameEnd {
+public class AllowGameEnd {
 
     /**
      * 决定游戏是否允许结束及最终胜利状态的事件。
@@ -56,18 +54,21 @@ public interface AllowGameEnd {
      *
      * @see io.wifi.starrailexpress.game.GameUtils.WinStatus
      */
-    Event<AllowGameEnd> EVENT = createArrayBacked(AllowGameEnd.class,
+    public static final Event<AllowGameEndInterface> EVENT_END = createArrayBacked(AllowGameEndInterface.class,
             listeners -> (serverWorld, winStatus, isLooseEndsMode) -> {
-
-                var b = CustomWinnerClass.shouldStopGame(serverWorld, winStatus, isLooseEndsMode);
-                if (b == null || b.equals(WinStatus.NOT_MODIFY)) {
-                    b = winStatus;
-                    if (b.equals(WinStatus.CUSTOM) || b.equals(WinStatus.CUSTOM_COMPONENT)
-                            || b.equals(WinStatus.GAMBLER) || b.equals(WinStatus.LOVERS)
-                            || b.equals(WinStatus.RECORDER))
-                        return b;
+                for (AllowGameEndInterface listener : listeners) {
+                    var a = listener.allowGameEnd(serverWorld, winStatus, isLooseEndsMode);
+                    if (a != null)
+                        if (!a.equals(WinStatus.NOT_MODIFY)) {
+                            return a;
+                        }
                 }
-                for (AllowGameEnd listener : listeners) {
+                return WinStatus.NOT_MODIFY;
+            });
+
+    public static final Event<AllowGameEndInterface> EVENT_START = createArrayBacked(AllowGameEndInterface.class,
+            listeners -> (serverWorld, winStatus, isLooseEndsMode) -> {
+                for (AllowGameEndInterface listener : listeners) {
                     var a = listener.allowGameEnd(serverWorld, winStatus, isLooseEndsMode);
                     if (a != null)
                         if (!a.equals(WinStatus.NOT_MODIFY)) {
@@ -92,6 +93,7 @@ public interface AllowGameEnd {
      *         the final win status; return {@link WinStatus#NOT_MODIFY} to leave it
      *         unchanged
      */
-    @SuppressWarnings("BooleanMethodIsAlwaysInverted")
-    WinStatus allowGameEnd(ServerLevel serverWorld, GameUtils.WinStatus winStatus, boolean isLooseEndsMode);
+    public interface AllowGameEndInterface {
+        WinStatus allowGameEnd(ServerLevel serverWorld, GameUtils.WinStatus winStatus, boolean isLooseEndsMode);
+    }
 }

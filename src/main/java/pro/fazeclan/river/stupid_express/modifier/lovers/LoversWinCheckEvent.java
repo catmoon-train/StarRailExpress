@@ -31,7 +31,7 @@ import java.util.UUID;
 
 public class LoversWinCheckEvent {
     public static void register() {
-        AllowGameEnd.EVENT.register((serverWorld, winStatus, isLooseend) -> {
+        AllowGameEnd.EVENT_START.register((serverWorld, winStatus, isLooseend) -> {
             if (isLooseend)
                 return WinStatus.NOT_MODIFY;
             var remainingPlayers = serverWorld.getPlayers(GameUtils::isPlayerAliveAndSurvival);

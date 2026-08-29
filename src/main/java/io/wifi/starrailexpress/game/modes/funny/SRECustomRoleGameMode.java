@@ -24,7 +24,6 @@ import io.wifi.starrailexpress.cca.SREPlayerShopComponent;
 import io.wifi.starrailexpress.cca.SRERoleWorldComponent;
 import io.wifi.starrailexpress.cca.gamemode.CustomRoleGameModeTeamsPlayerComponent;
 import io.wifi.starrailexpress.cca.gamemode.CustomRoleGameModeWorldComponent;
-import io.wifi.starrailexpress.event.AllowGameEnd;
 import io.wifi.starrailexpress.event.OnGameTrueStarted;
 import io.wifi.starrailexpress.game.GameConstants;
 import io.wifi.starrailexpress.game.GameUtils;
@@ -305,9 +304,7 @@ public class SRECustomRoleGameMode extends SREMurderGameMode {
                 }
             }
         }
-
-        return AllowGameEnd.EVENT.invoker().allowGameEnd(serverWorld,
-                winStatus, false);
+        return super.allowGameEnd(serverWorld, winStatus, isLooseEndsMode, gameWorldComponent);
     }
 
     @Override

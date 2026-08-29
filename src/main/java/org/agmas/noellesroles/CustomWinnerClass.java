@@ -37,7 +37,7 @@ import java.util.OptionalInt;
 
 public class CustomWinnerClass {
 
-    public static WinStatus shouldStopGame(ServerLevel serverLevel, WinStatus winStatus, boolean isLooseEnd) {
+    public static WinStatus checkWinnerBuiltin(ServerLevel serverLevel, WinStatus winStatus, boolean isLooseEnd) {
         if (isLooseEnd) {
             return WinStatus.NOT_MODIFY;
         }
