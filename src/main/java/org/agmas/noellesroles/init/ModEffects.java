@@ -115,6 +115,8 @@ public class ModEffects {
     public static final Holder<MobEffect> USED_BANED = register("used_baned",
             new SimpleMobEffect(MobEffectCategory.HARMFUL, 0xFFFFFF));
 
+    public static final Holder<MobEffect> MOUSE_UPSIDE_DOWN = register("mouse_upside_down",
+            new SimpleMobEffect(MobEffectCategory.HARMFUL, 0xFFFFFF));
     public static final Holder<MobEffect> MOVE_UPSIDE_DOWN = register("move_upside_down",
             new SimpleMobEffect(MobEffectCategory.HARMFUL, 0xFFFFFF));
     // 看其他生物都是倒立的

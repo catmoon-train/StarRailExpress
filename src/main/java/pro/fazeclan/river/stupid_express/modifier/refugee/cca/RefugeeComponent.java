@@ -119,7 +119,6 @@ public class RefugeeComponent implements AutoSyncedComponent, ServerTickingCompo
 
     @Override
     public void serverTick() {
-
         if (isPendingRestore) {
             isPendingRestore = false;
             afterLooseEndTryRestore(pendingWho);

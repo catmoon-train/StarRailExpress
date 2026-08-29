@@ -211,6 +211,8 @@ public class GhostRoleData extends SimpleRoleData {
             return;
         if (player.hasEffect(ModEffects.SKILL_BANED))
             return;
+        if (!gameWorld.isSkillAvailable)
+            return;
         if (lastStandNotified) {
             return; // 已经通知过了，不再重复
         }

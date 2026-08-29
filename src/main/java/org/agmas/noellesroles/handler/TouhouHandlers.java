@@ -366,6 +366,7 @@ public class TouhouHandlers {
               continue;
             p.addEffect(ModEffects.of(ModEffects.UPSIDE_DOWN, DURATION, 0, true, false, true));
             p.addEffect(ModEffects.of(ModEffects.MOVE_UPSIDE_DOWN, DURATION, 0, true, false, true));
+            p.addEffect(ModEffects.of(ModEffects.MOUSE_UPSIDE_DOWN, DURATION, 0, true, false, true));
           }
           return true;
         }).cooldownSeconds(90).announceToSelf().recordReplay().showOnHud(true).build());
