@@ -88,7 +88,16 @@ public class TartagliaRole extends NormalRole {
             });
         }
 
-        SHOP.add(new ShopEntry(Items.CROSSBOW.getDefaultInstance(), 300, ShopEntry.Type.WEAPON));
+        SHOP.add(new ShopEntry(Items.CROSSBOW.getDefaultInstance(), 300, ShopEntry.Type.WEAPON) {
+            @Override
+            public boolean onBuy(@NotNull Player player) {
+                int itemCount = SREItemUtils.countItem(player, Items.CROSSBOW);
+                if (itemCount > 0)
+                    return false;
+                ItemStack item = Items.CROSSBOW.getDefaultInstance();
+                return RoleUtils.insertStackInFreeSlot(player, item);
+            }
+        });
         SHOP.add(new ShopEntry(TMMItems.FIRECRACKER.getDefaultInstance(),
                 SREConfig.instance().firecrackerPrice, ShopEntry.Type.TOOL));
         SHOP.add(new ShopEntry(TMMItems.CROWBAR.getDefaultInstance(),

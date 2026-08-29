@@ -792,8 +792,16 @@ public abstract class SRERole extends SREAbstractInfoClass {
         return this.instinctNightVision;
     }
 
+    public boolean haveInstinctNightVision(Player player) {
+        return haveInstinctNightVision();
+    }
+
     public boolean canUseInstinct() {
         return this.canUseInstinct;
+    }
+
+    public boolean canUseInstinct(Player player) {
+        return canUseInstinct();
     }
 
     public SRERole setColor(int color) {

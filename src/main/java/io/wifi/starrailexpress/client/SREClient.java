@@ -1146,8 +1146,8 @@ public class SREClient implements ClientModInitializer {
         if (cachedPlayerSpectatingOrCreative) {
             return true;
         }
-        if (cachedPlayerRole != null) {
-            return cachedPlayerRole.haveInstinctNightVision();
+        if (cachedPlayerRole != null && cached_player != null) {
+            return cachedPlayerRole.haveInstinctNightVision(cached_player);
         }
         return false;
     }
@@ -1337,7 +1337,7 @@ public class SREClient implements ClientModInitializer {
         if (SREClient.gameComponent != null) {
             var role = SREClient.gameComponent.getRole(player);
             if (role != null) {
-                canUseInstinct = role.canUseInstinct();
+                canUseInstinct = role.canUseInstinct(player);
             }
         }
         boolean t = isHoldSpecialItem.test(player);

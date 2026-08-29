@@ -711,6 +711,7 @@ public class ModRoles {
             .setCanSeeCoin(true)
             .setDefaultMax(1)
             .setCanPickUpRevolver(false)
+            .setInstinctType(InstinctType.DEFAULT, InstinctType.NONE)
             .setCanXiaonao(true)
             .setDefaultEnableNeededPlayerCount(18)
             .setDefaultEnableChance(4000);

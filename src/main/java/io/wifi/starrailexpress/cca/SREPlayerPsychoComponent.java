@@ -304,6 +304,10 @@ public class SREPlayerPsychoComponent implements RoleComponent, ServerTickingCom
         this.type = tag.contains("type") ? tag.getInt("type") : -1;
     }
 
+    public boolean havePsycho() {
+        return this.psychoTicks > 0;
+    }
+
     public boolean inPsycho() {
         return this.psychoTicks > 0;
     }

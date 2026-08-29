@@ -59,4 +59,18 @@ public class BarbarianRole extends EggRole {
     public ResourceLocation getPsychoSkin(Player player, boolean isSlim) {
         return SRE.id("textures/entity/custom_psycho/barbarian.png");
     }
+
+    @Override
+    public boolean haveInstinctNightVision(Player player) {
+        if (SREPlayerPsychoComponent.KEY.get(player).havePsycho())
+            return true;
+        return haveInstinctNightVision();
+    }
+
+    @Override
+    public boolean canUseInstinct(Player player) {
+        if (SREPlayerPsychoComponent.KEY.get(player).havePsycho())
+            return true;
+        return canUseInstinct();
+    }
 }
