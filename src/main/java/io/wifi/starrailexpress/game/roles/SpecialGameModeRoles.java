@@ -20,7 +20,6 @@ import io.wifi.starrailexpress.api.InstinctType;
 import io.wifi.starrailexpress.api.NormalRole;
 import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.api.TMMRoles;
-import org.agmas.noellesroles.component.ModComponents;
 import org.agmas.noellesroles.game.roles.special.dirt.DirtRole;
 import org.agmas.noellesroles.game.roles.special.super_loose_end.SuperLooseEnd;
 import org.agmas.noellesroles.role_data.special.SuperLooseEndRoleData;
