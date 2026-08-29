@@ -40,7 +40,6 @@ import net.minecraft.world.inventory.LecternMenu;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import org.agmas.harpymodloader.component.WorldModifierComponent;
-import org.agmas.noellesroles.component.ModComponents;
 import org.agmas.noellesroles.role_data.neutral.RavenRoleData;
 import org.agmas.noellesroles.init.ModEffects;
 import org.agmas.noellesroles.role.ModRoles;
