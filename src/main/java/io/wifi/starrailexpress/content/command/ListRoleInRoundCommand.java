@@ -17,6 +17,8 @@ package io.wifi.starrailexpress.content.command;
 
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.context.CommandContext;
+
+import io.wifi.starrailexpress.cca.ParticipationComponent;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.cca.SRERoleWorldComponent;
 import io.wifi.starrailexpress.game.GameUtils;
@@ -49,26 +51,27 @@ public class ListRoleInRoundCommand {
         var texts = Component.literal("");
         var players = new ArrayList<>(level.players());
         var rolecca = SRERoleWorldComponent.KEY.get(level);
+
         Collator collator = Collator.getInstance();
         players.sort((pa, pb) -> {
             boolean alive = GameUtils.isPlayerAliveAndSurvival(pa);
             boolean blive = GameUtils.isPlayerAliveAndSurvival(pb);
             if (alive && !blive) {
-                return -1;
-            } else if (blive && !alive) {
                 return 1;
+            } else if (blive && !alive) {
+                return -1;
             }
             var ra = rolecca.getRole(pa.getUUID());
             var rb = rolecca.getRole(pb.getUUID());
-            int rta = RoleUtils.getRoleType(ra);
-            int rtb = RoleUtils.getRoleType(rb);
+            int rta = RoleUtils.getRoleType(ra, 6);
+            int rtb = RoleUtils.getRoleType(rb, 6);
             if (rta == rtb) {
                 return collator.compare(pa.getScoreboardName(), pb.getScoreboardName());
             }
             return -Integer.compare(rta, rtb);
         });
+        var pt = ParticipationComponent.KEY.get(level);
         for (ServerPlayer player : players) {
-            boolean alive = GameUtils.isPlayerAliveAndSurvival(player);
             var role = gameWorldComponent.getRole(player);
             var name = RoleUtils.getRoleOrModifierNameWithColor(role);
             var modifierTexts = Component.literal("");
@@ -85,14 +88,24 @@ public class ListRoleInRoundCommand {
             texts = texts.append(
                     Component
                             .translatable((first ? "" : "\n") + "%s %s: %s%s",
-                                    (alive ? Component.literal("[Alive]").withStyle(ChatFormatting.GREEN)
-                                            : Component.literal("[Dead]").withStyle(ChatFormatting.RED)),
+                                    (getDeathStatus(player, pt, gameWorldComponent)),
                                     player.getName().copy().withStyle(ChatFormatting.WHITE), name, modifierTexts)
                             .withStyle(ChatFormatting.GRAY));
             first = false;
 
         }
         return texts;
+    }
+
+    private static Component getDeathStatus(ServerPlayer player, ParticipationComponent pt,
+            SREGameWorldComponent game) {
+        boolean alive = GameUtils.isPlayerAliveAndSurvival(player);
+        boolean nullRole = game == null ? false : !game.hasRole(player);
+        boolean part = (pt != null) ? pt.isParticipating(player) : true;
+        return alive ? Component.literal("[Alive]").withStyle(ChatFormatting.GREEN)
+                : (part ? (nullRole ? Component.literal("[New]").withStyle(ChatFormatting.AQUA)
+                        : Component.literal("[Dead]").withStyle(ChatFormatting.RED))
+                        : Component.literal("[Spec]").withStyle(ChatFormatting.LIGHT_PURPLE));
     }
 
     private static int execute(CommandContext<CommandSourceStack> ctx) {

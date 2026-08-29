@@ -153,9 +153,9 @@ public class PlayerRoleWeightManager {
      *         - 4: Killer
      *         - 5: Vigilante
      */
-    public static int getRoleType(SRERole role) {
+    public static int getRoleType(SRERole role, int nullRoleNumber) {
         if (role == null)
-            return -1;
+            return nullRoleNumber;
 
         if (role.isVigilanteTeam()) {
             return 5;
@@ -179,7 +179,11 @@ public class PlayerRoleWeightManager {
         if (role.canUseKiller()) {
             return 4;
         }
-        return -1; // Unknown
+        return nullRoleNumber; // Unknown
+    }
+
+    public static int getRoleType(SRERole role) {
+        return getRoleType(role, -1);
     }
 
     public static int getRoleType_OnlyDistinctKiller(SRERole r) {

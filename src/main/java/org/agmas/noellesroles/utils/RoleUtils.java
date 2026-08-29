@@ -663,6 +663,9 @@ public class RoleUtils extends MCItemsUtils {
         return PlayerRoleWeightManager.getRoleType(role);
     }
 
+    public static int getRoleType(SRERole role, int nullRoleNumber) {
+        return PlayerRoleWeightManager.getRoleType(role, nullRoleNumber);
+    }
     public static Component getRoleTypeName(SRERole role) {
         return switch (PlayerRoleWeightManager.getRoleType(role)) {
             case 0, 1 -> Component.translatable("display.type.role.innocent").withStyle(ChatFormatting.GREEN);
