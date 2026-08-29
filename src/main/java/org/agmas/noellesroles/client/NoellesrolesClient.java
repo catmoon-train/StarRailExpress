@@ -1193,7 +1193,7 @@ public class NoellesrolesClient implements ClientModInitializer {
                 manipulatorCameraBound = false;
             }
         });
-        // 鸟兽兽巡飞弹：相机绑定到弹体，弹体自动前进，按 A/W 左转、D 右转。
+        // 鸟兽兽巡飞弹：相机绑定到弹体，弹体自动前进并跟随玩家视野方向。
         ClientTickEvents.END_CLIENT_TICK.register(client -> {
             if (client.player == null || client.level == null) {
                 return;
@@ -1204,14 +1204,14 @@ public class NoellesrolesClient implements ClientModInitializer {
                     return;
                 }
                 int steering = 0;
-                if (client.options.keyLeft.isDown() || client.options.keyUp.isDown()) {
+                if (client.options.keyLeft.isDown()) {
                     steering--;
                 }
                 if (client.options.keyRight.isDown()) {
                     steering++;
                 }
                 ClientPlayNetworking.send(new org.agmas.noellesroles.packet.NiaoshoushouMissileControlC2SPacket(
-                        missile.getId(), steering));
+                        missile.getId(), client.player.getYRot(), client.player.getXRot(), steering));
             }
         });
         ClientTickEvents.END_CLIENT_TICK.register(client -> {

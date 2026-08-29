@@ -14,6 +14,7 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import org.agmas.noellesroles.packet.FakeSteveApparitionS2CPacket;
+import org.agmas.noellesroles.packet.FakeSteveApparitionObservationC2SPacket;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -24,7 +25,7 @@ import java.util.UUID;
 /** Server state for target-only, non-entity apparitions. */
 public final class FakeSteveApparitions {
     private static final int SCAN_INTERVAL = 5 * 20;
-    private static final int RELOCATE_TICKS = 30 * 20;
+    private static final int TIMEOUT_TICKS = FakeSteveApparitionLifecycle.TIMEOUT_TICKS;
     private static final Map<UUID, Apparition> ACTIVE = new HashMap<>();
 
     private FakeSteveApparitions() {
@@ -64,12 +65,9 @@ public final class FakeSteveApparitions {
                 }
                 continue;
             }
-            if (now - apparition.spawnTick >= RELOCATE_TICKS) {
+            if (now - apparition.spawnTick >= TIMEOUT_TICKS) {
                 sendRemove(target, apparition);
                 ACTIVE.remove(targetId);
-                if (!spawnFor(target, apparition.commanded) && apparition.commanded) {
-                    notifyAdministrators(level, "command.noellesroles.fake_steve.spawn_cancelled");
-                }
             }
         }
 
@@ -98,11 +96,25 @@ public final class FakeSteveApparitions {
         }
     }
 
-    public static void onLost(ServerPlayer player, UUID apparitionId) {
+    public static void onObservation(ServerPlayer player, UUID apparitionId,
+            FakeSteveApparitionObservationC2SPacket.Stage stage) {
         Apparition apparition = ACTIVE.get(player.getUUID());
         if (apparition == null || !apparition.id.equals(apparitionId)
                 || !FakeSteveDirector.isActive(player.serverLevel())
                 || !FakeSteveDirector.canGenerate(player.serverLevel())) {
+            return;
+        }
+        if (player.serverLevel().getGameTime() - apparition.spawnTick >= TIMEOUT_TICKS) {
+            ACTIVE.remove(player.getUUID());
+            sendRemove(player, apparition);
+            return;
+        }
+        if (stage == FakeSteveApparitionObservationC2SPacket.Stage.OBSERVED) {
+            apparition.observed = true;
+            return;
+        }
+        if (!apparition.observed
+                || stage != FakeSteveApparitionObservationC2SPacket.Stage.LOOKED_AWAY) {
             return;
         }
         ACTIVE.remove(player.getUUID());
@@ -181,6 +193,18 @@ public final class FakeSteveApparitions {
     private record Candidate(ServerPlayer player, int weight) {
     }
 
-    private record Apparition(UUID id, Vec3 position, boolean commanded, long spawnTick) {
+    private static final class Apparition {
+        private final UUID id;
+        private final Vec3 position;
+        private final boolean commanded;
+        private final long spawnTick;
+        private boolean observed;
+
+        private Apparition(UUID id, Vec3 position, boolean commanded, long spawnTick) {
+            this.id = id;
+            this.position = position;
+            this.commanded = commanded;
+            this.spawnTick = spawnTick;
+        }
     }
 }

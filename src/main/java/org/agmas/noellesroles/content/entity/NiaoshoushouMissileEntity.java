@@ -21,13 +21,17 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
+import net.minecraft.util.Mth;
 import org.agmas.noellesroles.init.ModItems;
 
-/** 鸟兽兽巡飞弹实体：自动前进，可由发射者左右控制，撞人或地面爆炸。 */
+/** 鸟兽兽巡飞弹实体：按发射者视野方向飞行，撞人或地面爆炸。 */
 public class NiaoshoushouMissileEntity extends NoHeavyWaterInfluencedThrowableItemProjectile {
     private static final int MAX_LIFETIME_TICKS = 20 * 20;
     private static final float EXPLOSION_RADIUS = 5.0F;
     private int steering;
+    private float controlYaw;
+    private float controlPitch;
+    private int controlTimeout;
     private boolean exploded;
 
     public NiaoshoushouMissileEntity(EntityType<? extends NoHeavyWaterInfluencedThrowableItemProjectile> entityType,
@@ -49,6 +53,18 @@ public class NiaoshoushouMissileEntity extends NoHeavyWaterInfluencedThrowableIt
         this.steering = Integer.compare(steering, 0);
     }
 
+    /**
+     * Updates the missile's target orientation. The view direction is the primary control;
+     * A/D only adds a small correction so the missile is easier to line up than the old
+     * fixed five-degree-per-tick steering model.
+     */
+    public void setControlRotation(float yaw, float pitch, int steering) {
+        this.controlYaw = yaw;
+        this.controlPitch = Mth.clamp(pitch, -75.0F, 75.0F);
+        this.steering = Integer.compare(steering, 0);
+        this.controlTimeout = 10;
+    }
+
     @Override
     public void tick() {
         if (!level().isClientSide) {
@@ -57,8 +73,11 @@ public class NiaoshoushouMissileEntity extends NoHeavyWaterInfluencedThrowableIt
                 explode();
                 return;
             }
-            if (steering != 0) {
-                setYRot(getYRot() + steering * 5.0F);
+            if (controlTimeout > 0) {
+                controlTimeout--;
+                float targetYaw = controlYaw + steering * 2.5F;
+                setYRot(Mth.rotLerp(0.55F, getYRot(), targetYaw));
+                setXRot(Mth.lerp(0.55F, getXRot(), controlPitch));
             }
             Vec3 direction = getLookAngle();
             if (direction.lengthSqr() > 0.001D) {

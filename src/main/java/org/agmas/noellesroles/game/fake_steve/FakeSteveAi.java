@@ -60,12 +60,72 @@ public class FakeSteveAi {
             focus = null;
         }
 
+        if (state.mode != AgentMode.STARE && state.mode != AgentMode.STALK) {
+            ServerPlayer facing = facingHuman(level, body);
+            if (facing != null) {
+                if (facing.getUUID().equals(state.focusTarget)) {
+                    state.faceTicks += 5;
+                } else {
+                    state.focusTarget = facing.getUUID();
+                    state.faceTicks = 5;
+                }
+                if (FakeSteveRules.hasFaceToFaceCommunication(state.faceTicks)) {
+                    beginStare(state, facing);
+                    focus = facing;
+                }
+            } else {
+                state.faceTicks = 0;
+            }
+        }
+
+        focus = player(level, state.focusTarget);
         ServerPlayer isolated = FakeSteveDirector.isEnabled() ? isolatedTarget(level, body) : null;
-        if (isolated != null) {
-            state.mode = AgentMode.ASSIMILATE;
+        boolean taskAvailable = FakeSteveTaskPlanner.hasCompletableTask(body, state);
+        SRERole originalRole = SREGameWorldComponent.KEY.get(level).getRole(body);
+        ServerPlayer prey = originalRole != null && originalRole.canUseKiller() && !taskAvailable
+                ? safestPrey(level, body) : null;
+        boolean targetLooking = focus != null && visible(focus, body)
+                && faces(focus, body, FACE_COS);
+        boolean safeBackstab = focus != null && body.distanceToSqr(focus) <= 144.0D
+                && visible(body, focus) && behind(body, focus)
+                && !hasWitness(level, body, focus);
+        boolean recovering = state.mode == AgentMode.RECOVER && now < state.nextDecisionTick;
+
+        FakeSteveBrain.BrainIntent intent = state.brain.tick(new FakeSteveBrain.PerceptionSnapshot(
+                5, recovering, state.pendingEngagement, focus != null,
+                targetLooking, safeBackstab, isolated != null,
+                taskAvailable, prey != null));
+        if (!intent.recover()) {
+            state.pendingEngagement = false;
+        }
+        state.mode = intent.mode();
+
+        if (intent.recover()) {
+            FakeSteveMotionController.hold(body, state, body.getYRot(), body.getXRot());
+            return;
+        }
+        if (state.mode == AgentMode.STARE && focus != null) {
+            lookAt(body, state, focus.getEyePosition());
+            return;
+        }
+        if (state.mode == AgentMode.STALK && focus != null) {
+            if (intent.attack() && kill(body, focus, false, false)) {
+                clearFocus(state);
+                state.mode = AgentMode.RECOVER;
+                state.nextDecisionTick = now + 40L;
+                return;
+            }
+            follow(level, body, focus.blockPosition(), state, 0.19D);
+            return;
+        }
+        if (state.mode == AgentMode.ASSIMILATE && isolated != null) {
             state.focusTarget = isolated.getUUID();
             state.assimilationTicks += 5;
-            lookAt(body, isolated.getEyePosition());
+            if (body.distanceToSqr(isolated) > 9.0D) {
+                follow(level, body, isolated.blockPosition(), state, 0.17D);
+            } else {
+                lookAt(body, state, isolated.getEyePosition());
+            }
             if (FakeSteveRules.canAssimilate(livingFakesNear(level, isolated, 12.0),
                     otherLivingHumansNear(level, isolated, 12.0), state.assimilationTicks)) {
                 FakeSteveDirector.replace(isolated, ReplacementCause.ASSIMILATION);
@@ -75,64 +135,22 @@ public class FakeSteveAi {
         }
         state.assimilationTicks = 0;
 
-        if (state.mode == AgentMode.STARE && focus != null) {
-            lookAt(body, focus.getEyePosition());
-            if (visible(body, focus))
-                state.lostSightTicks = 0;
-            else if ((state.lostSightTicks += 5) >= 20) {
-                state.mode = AgentMode.STALK;
-                state.path.clear();
-            }
+        if (state.mode == AgentMode.DISGUISE_TASK
+                && FakeSteveTaskPlanner.tick(level, body, state)) {
             return;
         }
-
-        if (state.mode == AgentMode.STALK && focus != null) {
-            if (body.distanceToSqr(focus) <= 144.0 && visible(body, focus)
-                    && behind(body, focus) && !hasWitness(level, body, focus)) {
-                kill(body, focus, false);
-                clearFocus(state);
+        if (state.mode == AgentMode.HUNT && prey != null) {
+            state.focusTarget = prey.getUUID();
+            if (tryArmedAttack(level, body, prey)) {
                 state.mode = AgentMode.RECOVER;
                 state.nextDecisionTick = now + 40L;
-                return;
+            } else {
+                follow(level, body, prey.blockPosition(), state, 0.20D);
             }
-            follow(level, body, focus.blockPosition(), state, 0.19);
             return;
         }
 
-        if (state.mode == AgentMode.RECOVER && now < state.nextDecisionTick)
-            return;
-
-        ServerPlayer facing = facingHuman(level, body);
-        if (facing != null) {
-            if (facing.getUUID().equals(state.focusTarget))
-                state.faceTicks += 5;
-            else {
-                state.focusTarget = facing.getUUID();
-                state.faceTicks = 5;
-            }
-            if (FakeSteveRules.hasFaceToFaceCommunication(state.faceTicks)) {
-                beginStare(state, facing);
-                return;
-            }
-        } else
-            state.faceTicks = 0;
-
-        SRERole originalRole = SREGameWorldComponent.KEY.get(level).getRole(body);
-        if (originalRole != null && originalRole.canUseKiller()) {
-            ServerPlayer prey = safestPrey(level, body);
-            if (prey != null) {
-                state.mode = AgentMode.HUNT;
-                state.focusTarget = prey.getUUID();
-                if (tryArmedAttack(level, body, prey)) {
-                    state.mode = AgentMode.RECOVER;
-                    state.nextDecisionTick = now + 40L;
-                } else
-                    follow(level, body, prey.blockPosition(), state, 0.20);
-                return;
-            }
-        }
-
-        state.mode = AgentMode.ROAM;
+        state.mode = AgentMode.DISGUISE_IDLE;
         if (now >= state.nextDecisionTick) {
             state.nextDecisionTick = now + 40L + level.getRandom().nextInt(80);
             if (!tryInteract(level, body)) {
@@ -141,8 +159,9 @@ public class FakeSteveAi {
                 state.path.clear();
             }
         }
-        if (state.pathGoal != null)
-            follow(level, body, state.pathGoal, state, 0.15);
+        if (state.pathGoal != null) {
+            follow(level, body, state.pathGoal, state, 0.15D);
+        }
     }
 
     static void onLoudVoice(ServerPlayer speaker) {
@@ -223,21 +242,23 @@ public class FakeSteveAi {
         if (knife >= 0 && body.distanceToSqr(target) <= 9.0 && behind(body, target)
                 && !hasWitness(level, body, target)) {
             select(body, knife);
-            return kill(body, target, false);
+            return kill(body, target, false, true);
         }
         int gun = findGunSlot(body);
         double distance = body.distanceTo(target);
         if (gun >= 0 && distance >= 4.0 && distance <= 18.0 && visible(body, target)
                 && !hasWitness(level, body, target)) {
             select(body, gun);
-            return kill(body, target, true);
+            return kill(body, target, true, true);
         }
         return false;
     }
 
-    private static boolean kill(ServerPlayer attacker, ServerPlayer target, boolean gun) {
+    private static boolean kill(ServerPlayer attacker, ServerPlayer target, boolean gun,
+            boolean requireOriginalRolePermission) {
         SRERole role = SREGameWorldComponent.KEY.get(attacker.level()).getRole(attacker);
-        if (role != null && !(gun ? role.onUseGun(attacker) && role.onGunHit(attacker, target)
+        if (requireOriginalRolePermission && role != null
+                && !(gun ? role.onUseGun(attacker) && role.onGunHit(attacker, target)
                 : role.onUseKnife(attacker) && role.onUseKnifeHit(attacker, target)))
             return false;
         if (gun) {
@@ -282,7 +303,7 @@ public class FakeSteveAi {
         return false;
     }
 
-    private static void follow(ServerLevel level, ServerPlayer body, BlockPos goal,
+    static void follow(ServerLevel level, ServerPlayer body, BlockPos goal,
             FakeSteveAgentState state, double speed) {
         long now = level.getGameTime();
         if (state.path.isEmpty() || state.pathGoal == null || !state.pathGoal.closerThan(goal, 3.0)
@@ -305,13 +326,11 @@ public class FakeSteveAi {
         Vec3 delta = Vec3.atBottomCenterOf(next).subtract(body.position());
         if (delta.horizontalDistanceSqr() < 0.01)
             return;
-        Vec3 step = new Vec3(delta.x, 0.0, delta.z).normalize().scale(speed);
-        double targetY = Math.abs(delta.y) <= 1.1 ? Mth.clamp(delta.y, -0.25, 0.25) : 0.0;
-        float yaw = (float) (Mth.atan2(-step.x, step.z) * Mth.RAD_TO_DEG);
-        body.connection.teleport(body.getX() + step.x, body.getY() + targetY,
-                body.getZ() + step.z, yaw, body.getXRot());
-        body.setYHeadRot(yaw);
-        body.setYBodyRot(yaw);
+        Vec3 direction = new Vec3(delta.x, 0.0, delta.z).normalize();
+        float yaw = (float) (Mth.atan2(-direction.x, direction.z) * Mth.RAD_TO_DEG);
+        FakeSteveMotionController.drive(body, state, 1.0F, 0.0F,
+                delta.y > 0.45D, speed >= 0.195D, false,
+                yaw, body.getXRot(), next);
     }
 
     private static void openDoor(ServerLevel level, ServerPlayer body, BlockPos next) {
@@ -350,14 +369,12 @@ public class FakeSteveAi {
                 .anyMatch(p -> visible(p, attacker) || visible(p, target));
     }
 
-    private static void lookAt(ServerPlayer body, Vec3 position) {
+    private static void lookAt(ServerPlayer body, FakeSteveAgentState state, Vec3 position) {
         Vec3 delta = position.subtract(body.getEyePosition());
         double horizontal = Math.sqrt(delta.x * delta.x + delta.z * delta.z);
         float yaw = (float) (Mth.atan2(-delta.x, delta.z) * Mth.RAD_TO_DEG);
         float pitch = (float) (-Mth.atan2(delta.y, horizontal) * Mth.RAD_TO_DEG);
-        body.connection.teleport(body.getX(), body.getY(), body.getZ(), yaw, pitch);
-        body.setYHeadRot(yaw);
-        body.setYBodyRot(yaw);
+        FakeSteveMotionController.hold(body, state, yaw, pitch);
     }
 
     private static int findSlot(ServerPlayer player, Item item) {
@@ -379,7 +396,7 @@ public class FakeSteveAi {
         return -1;
     }
 
-    private static void select(ServerPlayer player, int slot) {
+    static void select(ServerPlayer player, int slot) {
         player.getInventory().selected = slot;
         player.connection.send(new ClientboundSetCarriedItemPacket(slot));
     }
@@ -393,17 +410,16 @@ public class FakeSteveAi {
     }
 
     private static void beginStare(FakeSteveAgentState state, ServerPlayer target) {
-        state.mode = AgentMode.STARE;
         state.focusTarget = target.getUUID();
-        state.lostSightTicks = 0;
+        state.pendingEngagement = true;
         state.faceTicks = 0;
         state.path.clear();
     }
 
     private static void clearFocus(FakeSteveAgentState state) {
         state.focusTarget = null;
+        state.pendingEngagement = false;
         state.faceTicks = 0;
-        state.lostSightTicks = 0;
         state.assimilationTicks = 0;
         state.path.clear();
     }

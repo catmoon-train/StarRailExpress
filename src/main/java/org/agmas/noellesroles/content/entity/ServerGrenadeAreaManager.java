@@ -45,10 +45,12 @@ import java.util.UUID;
  */
 public class ServerGrenadeAreaManager {
 
-    public enum Type { FIRE, SLIME }
+    public enum Type { FIRE, NIAOSHOU_FIRE, SLIME }
 
     /** 燃烧弹：持续站立多少 tick 后死亡（2 秒）。 */
     private static final int FIRE_KILL_TICKS = 40;
+    /** 鸟兽兽燃烧弹：比普通燃烧弹快 40%（1.2 秒）。 */
+    private static final int NIAOSHOU_FIRE_KILL_TICKS = 24;
 
     private static final List<Area> activeAreas = new ArrayList<>();
 
@@ -149,7 +151,8 @@ public class ServerGrenadeAreaManager {
                 // 视觉反馈：点燃
                 player.setRemainingFireTicks(Math.max(player.getRemainingFireTicks(), 20));
                 int ticks = standTicks.merge(player.getUUID(), 1, Integer::sum);
-                if (ticks >= FIRE_KILL_TICKS) {
+                int killTicks = type == Type.NIAOSHOU_FIRE ? NIAOSHOU_FIRE_KILL_TICKS : FIRE_KILL_TICKS;
+                if (ticks >= killTicks) {
                     standTicks.remove(player.getUUID());
                     ServerPlayer killer = owner == null ? null
                             : world.getServer().getPlayerList().getPlayer(owner);
@@ -161,7 +164,7 @@ public class ServerGrenadeAreaManager {
         }
 
         private void spawnParticles() {
-            if (type == Type.FIRE) {
+            if (type != Type.SLIME) {
                 for (int i = 0; i < 6; i++) {
                     double ox = (world.random.nextDouble() - 0.5) * radius * 2;
                     double oz = (world.random.nextDouble() - 0.5) * radius * 2;

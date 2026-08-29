@@ -14,8 +14,8 @@ import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.resources.ResourceLocation;
 import org.agmas.noellesroles.Noellesroles;
 
-/** 巡飞弹控制输入：-1 左转，0 保持，1 右转。 */
-public record NiaoshoushouMissileControlC2SPacket(int entityId, int steering)
+/** 巡飞弹控制输入：同步玩家视野方向，并保留 A/D 的小幅辅助转向。 */
+public record NiaoshoushouMissileControlC2SPacket(int entityId, float yaw, float pitch, int steering)
         implements CustomPacketPayload {
     public static final ResourceLocation PACKET_ID =
             ResourceLocation.fromNamespaceAndPath(Noellesroles.MOD_ID, "niaoshoushou_missile_control");
@@ -31,10 +31,13 @@ public record NiaoshoushouMissileControlC2SPacket(int entityId, int steering)
 
     public void write(FriendlyByteBuf buf) {
         buf.writeVarInt(entityId);
+        buf.writeFloat(yaw);
+        buf.writeFloat(pitch);
         buf.writeByte(steering);
     }
 
     public static NiaoshoushouMissileControlC2SPacket read(FriendlyByteBuf buf) {
-        return new NiaoshoushouMissileControlC2SPacket(buf.readVarInt(), buf.readByte());
+        return new NiaoshoushouMissileControlC2SPacket(buf.readVarInt(), buf.readFloat(), buf.readFloat(),
+                buf.readByte());
     }
 }

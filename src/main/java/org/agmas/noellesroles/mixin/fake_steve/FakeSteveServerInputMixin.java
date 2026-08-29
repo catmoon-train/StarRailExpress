@@ -28,7 +28,12 @@ public abstract class FakeSteveServerInputMixin {
 
     @Inject(method = "handleMovePlayer", at = @At("HEAD"), cancellable = true)
     private void noellesroles$blockMove(ServerboundMovePlayerPacket packet, CallbackInfo ci) {
-        if (noellesroles$fakeSteveOwnsBody()) ci.cancel();
+        ServerGamePacketListenerImpl self = (ServerGamePacketListenerImpl) (Object) this;
+        if (noellesroles$fakeSteveOwnsBody()
+                && !org.agmas.noellesroles.game.fake_steve.FakeSteveMotionController
+                        .acceptsMove(self.player, packet)) {
+            ci.cancel();
+        }
     }
 
     @Inject(method = "handleMoveVehicle", at = @At("HEAD"), cancellable = true)
@@ -78,6 +83,11 @@ public abstract class FakeSteveServerInputMixin {
 
     @Inject(method = "handlePlayerCommand", at = @At("HEAD"), cancellable = true)
     private void noellesroles$blockCommand(ServerboundPlayerCommandPacket packet, CallbackInfo ci) {
-        if (noellesroles$fakeSteveOwnsBody()) ci.cancel();
+        ServerGamePacketListenerImpl self = (ServerGamePacketListenerImpl) (Object) this;
+        if (noellesroles$fakeSteveOwnsBody()
+                && !org.agmas.noellesroles.game.fake_steve.FakeSteveMotionController
+                        .acceptsCommand(self.player, packet.getAction())) {
+            ci.cancel();
+        }
     }
 }

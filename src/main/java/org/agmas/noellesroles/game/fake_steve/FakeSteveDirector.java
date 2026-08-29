@@ -245,6 +245,7 @@ public final class FakeSteveDirector {
                 applyControl(player);
                 FakeSteveAi.tick(level, player, session.agents.get(id));
             } else {
+                FakeSteveMotionController.clear(player, session.agents.get(id));
                 removeControl(player);
             }
         }
@@ -286,6 +287,7 @@ public final class FakeSteveDirector {
             for (UUID id : removed.agents.keySet()) {
                 ServerPlayer player = level.getServer().getPlayerList().getPlayer(id);
                 if (player != null) {
+                    FakeSteveMotionController.clear(player, removed.agents.get(id));
                     removeControl(player);
                 }
             }

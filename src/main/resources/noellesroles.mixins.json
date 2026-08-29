@@ -82,6 +82,7 @@
     "defaultRequire": 1
   },
   "client": [
+    "client.fake_steve.FakeSteveClientInputMixin",
     "client.compat.inv_move.InvMoveBaned",
     "client.AbstractClientPlayerSkinMixin",
     "client.C4ItemEntityRendererMixin",

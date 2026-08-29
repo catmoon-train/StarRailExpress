@@ -174,6 +174,6 @@
     "item.noellesroles.niaoshoushou_knife.desc": "Niaoshoushou's Nepalese kukri. Uses the normal knife attack and has 4 durability; it can also pry small doors, consuming 1 durability per successful pry.",
     "item.noellesroles.niaoshoushou_incendiary_grenade.desc": "Niaoshoushou's incendiary grenade. Reuses the existing incendiary effect and has a 45-second cooldown.",
     "item.noellesroles.niaoshoushou_family_photo.desc": "Niaoshoushou's family photo. Right-click two killer-team players or the Magician to form a team; only one can be bought per round.",
-    "item.noellesroles.niaoshoushou_missile.desc": "Niaoshoushou's cruise missile. Binds the camera after launch, flies forward automatically, turns left with A/W and right with D, and explodes in a 5-block radius on impact. 60-second cooldown.",
+    "item.noellesroles.niaoshoushou_missile.desc": "Niaoshoushou's cruise missile. Binds the camera after launch, follows the player's view up, down, left, and right while flying forward automatically, with A/D for fine turning, and explodes in a 5-block radius on impact. 60-second cooldown.",
     "item.noellesroles.niaoshoushou_blackout.desc": "Niaoshoushou's area blackout. Extinguishes lights within 30 blocks and has a 2-minute cooldown."
 }

@@ -93,7 +93,7 @@ public class RiceReceiverRegister {
                 if (entity instanceof NiaoshoushouMissileEntity missile
                         && missile.controlledBy(player)
                         && player.distanceToSqr(missile) <= 128.0D * 128.0D) {
-                    missile.setSteering(payload.steering());
+                    missile.setControlRotation(payload.yaw(), payload.pitch(), payload.steering());
                 }
             });
         });

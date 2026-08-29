@@ -97,6 +97,7 @@ public class OtherRolesHudRegister {
         HunterHud.register();
         THReimuHud.register();
         LeaderHud.register();
+        NiaoshoushouHud.register();
         // 自定义职业HUD
         CustomRoleHud.register();
     }

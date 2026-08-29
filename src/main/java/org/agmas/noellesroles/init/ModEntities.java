@@ -79,6 +79,19 @@ public class ModEntities {
                     .trackedUpdateRate(10)
                     .build());
 
+    /** 鸟兽兽专属燃烧弹实体，使用更快的燃烧击杀计时。 */
+    @SuppressWarnings("deprecation")
+    public static final EntityType<NiaoshoushouIncendiaryGrenadeEntity> NIAOSHOU_SHOU_INCENDIARY_GRENADE = Registry.register(
+            BuiltInRegistries.ENTITY_TYPE,
+            Noellesroles.id("niaoshoushou_incendiary_grenade"),
+            FabricEntityTypeBuilder
+                    .<NiaoshoushouIncendiaryGrenadeEntity>create(MobCategory.MISC,
+                            NiaoshoushouIncendiaryGrenadeEntity::new)
+                    .dimensions(EntityDimensions.fixed(0.25F, 0.25F))
+                    .trackRangeBlocks(4)
+                    .trackedUpdateRate(10)
+                    .build());
+
     /** 鸟兽兽巡飞弹实体。 */
     @SuppressWarnings("deprecation")
     public static final EntityType<NiaoshoushouMissileEntity> NIAOSHOU_SHOU_MISSILE = Registry.register(

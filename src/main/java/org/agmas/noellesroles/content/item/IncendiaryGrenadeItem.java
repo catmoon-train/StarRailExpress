@@ -60,7 +60,7 @@ public class IncendiaryGrenadeItem extends Item {
                     TMMSounds.ITEM_GRENADE_THROW, SoundSource.NEUTRAL,
                     0.5F, 1F + (world.random.nextFloat() - .5f) / 10f);
 
-            IncendiaryGrenadeEntity grenade = new IncendiaryGrenadeEntity(ModEntities.INCENDIARY_GRENADE, world);
+            IncendiaryGrenadeEntity grenade = createGrenadeEntity(world);
             grenade.setOwner(user);
             grenade.setPosRaw(user.getX(), user.getEyeY() - 0.1, user.getZ());
 
@@ -71,6 +71,10 @@ public class IncendiaryGrenadeItem extends Item {
         }
 
         stack.consume(1, user);
+    }
+
+    protected IncendiaryGrenadeEntity createGrenadeEntity(Level world) {
+        return new IncendiaryGrenadeEntity(ModEntities.INCENDIARY_GRENADE, world);
     }
 
     @Override

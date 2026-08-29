@@ -25,6 +25,7 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.HitResult;
 import org.agmas.noellesroles.content.entity.ServerGrenadeAreaManager.Type;
+import org.agmas.noellesroles.init.ModEntities;
 import org.agmas.noellesroles.init.ModItems;
 
 /**
@@ -48,13 +49,23 @@ public class IncendiaryGrenadeEntity extends NoHeavyWaterInfluencedThrowableItem
         return ModItems.INCENDIARY_GRENADE;
     }
 
+    /** Allows role-specific incendiary grenades to use a different area type. */
+    protected Type getAreaType() {
+        return Type.FIRE;
+    }
+
+    /** Creates the projectile used by this item. Subclasses can provide a role-specific entity. */
+    protected IncendiaryGrenadeEntity createGrenadeEntity(Level world) {
+        return new IncendiaryGrenadeEntity(ModEntities.INCENDIARY_GRENADE, world);
+    }
+
     @Override
     protected void onHit(HitResult hitResult) {
         super.onHit(hitResult);
         if (this.level() instanceof ServerLevel world) {
             world.playSound(null, this.blockPosition(), SoundEvents.FIRECHARGE_USE, SoundSource.PLAYERS, 1.5F, 0.9F);
             ServerGrenadeAreaManager.createArea(world, this.position(), AREA_RADIUS, AREA_DURATION_TICKS,
-                    Type.FIRE, this.getOwner() != null ? this.getOwner().getUUID() : null);
+                    getAreaType(), this.getOwner() != null ? this.getOwner().getUUID() : null);
             for (int i = 0; i < 60; i++) {
                 double ox = (this.random.nextDouble() - 0.5) * AREA_RADIUS * 2;
                 double oz = (this.random.nextDouble() - 0.5) * AREA_RADIUS * 2;

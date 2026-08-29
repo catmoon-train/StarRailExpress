@@ -74,6 +74,11 @@ final class FakeSteveNavigator {
         return path;
     }
 
+    static boolean reaches(ArrayDeque<BlockPos> path, BlockPos goal) {
+        BlockPos last = path.peekLast();
+        return last != null && distance(last, goal) <= 1;
+    }
+
     private static List<BlockPos> neighbours(ServerLevel level, BlockPos current) {
         List<BlockPos> result = new ArrayList<>(12);
         for (Direction direction : HORIZONTAL) {

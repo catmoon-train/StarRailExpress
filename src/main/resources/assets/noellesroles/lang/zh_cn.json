@@ -1421,6 +1421,8 @@
   "announcement.star.win.bomber": "杀手胜利！",
   "hud.noellesroles.bomber.count": "炸弹数量: %s",
   "hud.noellesroles.bomber.cost": "购买消耗: 100 金币",
+  "hud.noellesroles.niaoshoushou.missile": "巡飞弹操控中",
+  "hud.noellesroles.niaoshoushou.controls": "鼠标控制方向 · A/D辅助转向 · 自动前进",
   "message.noellesroles.cooldown": "无法使用技能：技能冷却中",
   "message.noellesroles.admin.free_cam_hint": "管理员可使用 /nr_free_cam 解除限制",
   "==================== 错误消息 ====================": "",

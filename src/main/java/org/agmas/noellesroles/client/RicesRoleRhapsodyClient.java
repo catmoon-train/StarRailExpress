@@ -742,6 +742,7 @@ public class RicesRoleRhapsodyClient implements ClientModInitializer {
 
         // 燃烧弹/粘液弹/破墙弹实体渲染器 - 使用飞行物品渲染器
         EntityRendererRegistry.register(ModEntities.INCENDIARY_GRENADE, ThrownItemRenderer::new);
+        EntityRendererRegistry.register(ModEntities.NIAOSHOU_SHOU_INCENDIARY_GRENADE, ThrownItemRenderer::new);
         EntityRendererRegistry.register(ModEntities.SLIME_GRENADE, ThrownItemRenderer::new);
         EntityRendererRegistry.register(ModEntities.WALL_BREAK_GRENADE, ThrownItemRenderer::new);
 

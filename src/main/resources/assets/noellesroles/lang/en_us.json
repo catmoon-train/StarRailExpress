@@ -1387,6 +1387,8 @@
     "announcement.star.win.bomber": "Killers win!",
     "hud.noellesroles.bomber.count": "Bombs: %s",
     "hud.noellesroles.bomber.cost": "Purchase cost: 100 gold",
+    "hud.noellesroles.niaoshoushou.missile": "Cruise missile control",
+    "hud.noellesroles.niaoshoushou.controls": "Mouse: steer · A/D: fine turn · Automatic forward flight",
     "message.noellesroles.cooldown": "Cannot use skill: on cooldown",
     "message.noellesroles.admin.free_cam_hint": "Admins can use /nr_free_cam to remove restrictions",
     "==================== Error Messages ====================": "",
