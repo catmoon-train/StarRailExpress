@@ -207,6 +207,7 @@ public class InfectedWinChecker {
             // 检查触发条件：所有杀手已阵亡 且 没有医生 且 不处于亡命时刻 且 不处于安全时间
             boolean killersAllDead = !hasKiller;
             boolean shouldAccelerate = killersAllDead && !hasDoctor && !hasLooseEnd && !hasSafeTime;
+            boolean shouldAccelerateIgnoreDoctor = killersAllDead && !hasLooseEnd && !hasSafeTime;
 
             if (shouldAccelerate) {
                 // 设置加速传播（病毒传染时间缩短至10秒）
@@ -215,8 +216,8 @@ public class InfectedWinChecker {
                     if (hasDoctor) {
                         for (ServerPlayer p : inftectRolePlayers) {
                             GameUtils.forceKillPlayer(p, true, null, GameConstants.DeathReasons.CANNOT_WIN);
-                            return;
                         }
+                        return;
                     }
                     InfectedPlayerComponent.setSpreadAcceleratedForAll(level, true);
                     wasAccelerated = true;
@@ -271,6 +272,12 @@ public class InfectedWinChecker {
                             comp.sync();
                         }
                     }
+                }
+                if (shouldAccelerateIgnoreDoctor && hasDoctor) {
+                    for (ServerPlayer p : inftectRolePlayers) {
+                        GameUtils.forceKillPlayer(p, true, null, GameConstants.DeathReasons.CANNOT_WIN);
+                    }
+                    return;
                 }
             }
         });
@@ -365,6 +372,8 @@ public class InfectedWinChecker {
 
         boolean killersAllDead = !hasKiller;
         boolean shouldAccelerate = killersAllDead && !hasDoctor && !hasLooseEnd && !hasSafeTime;
+        boolean shouldAccelerateIgnoreDoctor = killersAllDead && !hasLooseEnd && !hasSafeTime;
+        ;
 
         if (shouldAccelerate) {
             if (!wasAccelerated) {
@@ -372,8 +381,8 @@ public class InfectedWinChecker {
                 if (hasDoctor) {
                     for (ServerPlayer p : inftectRolePlayers) {
                         GameUtils.forceKillPlayer(p, true, null, GameConstants.DeathReasons.CANNOT_WIN);
-                        return;
                     }
+                    return;
                 }
                 InfectedPlayerComponent.setSpreadAcceleratedForAll(level, true);
                 wasAccelerated = true;
@@ -415,6 +424,13 @@ public class InfectedWinChecker {
                     }
                 }
             }
+            if (shouldAccelerateIgnoreDoctor && hasDoctor) {
+                for (ServerPlayer p : inftectRolePlayers) {
+                    GameUtils.forceKillPlayer(p, true, null, GameConstants.DeathReasons.CANNOT_WIN);
+                }
+                return;
+            }
+
         }
     }
 

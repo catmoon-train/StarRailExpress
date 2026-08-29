@@ -92,6 +92,12 @@ public abstract class SRERole extends SREAbstractInfoClass {
     protected boolean canXiaonao = false;
     protected Function<RoleDataContext, RoleData> roleDataFunc = null;
 
+    // ---------- 初始金币数 ----------
+    protected int initialCoinCount = -1; // -1 = 不修改
+    // ---------- 与结束游戏相关 ----------
+    protected boolean canIncreaseSurvivingInnocents = false;
+    protected boolean canIncreaseSurvivingKillers = false;
+
     /**
      * 获取职业数据。用于替代CCA。
      * 
@@ -1302,6 +1308,8 @@ public abstract class SRERole extends SREAbstractInfoClass {
         this.canEarnKillerCoinAwardsFromKills = this.canUseKiller && !this.isInnocent && !this.isNeutrals;
         this.canBeXiaonao = this.canUseKiller || !this.isInnocent || this.isNeutrals;
         this.canXiaonao = this.canUseKiller || !this.isInnocent || this.isNeutrals;
+        this.canIncreaseSurvivingInnocents = isInnocent();
+        this.canIncreaseSurvivingKillers = isKiller();
     }
 
     public SRERole setCanAutoAddMoney(boolean bl) {
@@ -2093,9 +2101,6 @@ public abstract class SRERole extends SREAbstractInfoClass {
         }
     }
 
-    // ---------- 初始金币数 ----------
-    protected int initialCoinCount = -1; // -1 = 不修改
-
     /** 设置该职业的初始金币数（-1 = 不覆盖默认值） */
     public SRERole setInitialCoinCount(int coins) {
         this.initialCoinCount = coins;
@@ -2142,12 +2147,22 @@ public abstract class SRERole extends SREAbstractInfoClass {
         return this.isNeutralForInnocent() || this.isInnocent();
     }
 
+    public SRERole setCanIncreaseSurvivingInnocents(boolean flag) {
+        this.canIncreaseSurvivingInnocents = flag;
+        return this;
+    }
+
+    public SRERole setCanIncreaseSurvivingKillers(boolean flag) {
+        this.canIncreaseSurvivingKillers = flag;
+        return this;
+    }
+
     public boolean canIncreaseSurvivingInnocents() {
-        return isInnocent();
+        return this.canIncreaseSurvivingInnocents;
     }
 
     public boolean canIncreaseSurvivingKillers() {
-        return isKiller();
+        return this.canIncreaseSurvivingKillers;
     }
 
 }

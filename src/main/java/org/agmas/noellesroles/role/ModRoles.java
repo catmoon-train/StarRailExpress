@@ -45,6 +45,7 @@ import org.agmas.noellesroles.game.roles.neutral.mafia.MafiaRole;
 import org.agmas.noellesroles.game.roles.neutral.monokuma.MonokumaRole;
 import org.agmas.noellesroles.game.roles.neutral.nian_shou.NianShouRole;
 import org.agmas.noellesroles.game.roles.neutral.puppeteer.PuppeteerPlayerComponent;
+import org.agmas.noellesroles.game.roles.vigilante.genshin.TartagliaRole;
 import org.agmas.noellesroles.init.ModEffects;
 import org.agmas.noellesroles.init.ModItems;
 import org.agmas.noellesroles.role.bouns.BounsRoles;
@@ -69,6 +70,8 @@ import io.wifi.starrailexpress.api.NormalRole;
 import io.wifi.starrailexpress.api.RoleSkill;
 import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.api.TMMRoles;
+import io.wifi.starrailexpress.api.NormalRole.RoleType;
+import io.wifi.starrailexpress.api.SRERole.MoodType;
 import io.wifi.starrailexpress.api.data.RoleData;
 import io.wifi.starrailexpress.cca.SREArmorPlayerComponent;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
@@ -140,6 +143,9 @@ public class ModRoles {
             .persistent(Codec.STRING)
             .buildAndRegister(Noellesroles.id("entity_note_maker"));
 
+    public static ResourceLocation id(String path) {
+        return Noellesroles.id(path);
+    }
     // ==================== 角色 ID 定义 ====================
     // 建议格式：MOD_ID:role_name
 
@@ -2646,6 +2652,13 @@ public class ModRoles {
             TMMRoles.CIVILIAN.getMaxSprintTime(), // 冲刺时间
             false // 不能看时间
     )).setDefaultMax(1).setCanSeeCoin(true);
+
+    // mobai 投稿：达达利亚（原神） tartaglia
+    public static SRERole TARTAGLIA = TMMRoles
+            .registerRole(new TartagliaRole(id("tartaglia"), new Color(222, 152, 70).getRGB(), RoleType.VIGILANTE,
+                    MoodType.REAL, TMMRoles.CIVILIAN_MAX_SPRINT_TICKS, false))
+            .setSpecialPolice(true)
+            .setAddedVersion("4.4");
 
     // ==================== 其他变量定义 ====================
     public static ArrayList<SRERole> SHOW_MONEY_ROLES = new ArrayList<>();

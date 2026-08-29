@@ -58,12 +58,17 @@ public interface AllowGameEnd {
      */
     Event<AllowGameEnd> EVENT = createArrayBacked(AllowGameEnd.class,
             listeners -> (serverWorld, winStatus, isLooseEndsMode) -> {
+
                 var b = CustomWinnerClass.shouldStopGame(serverWorld, winStatus, isLooseEndsMode);
                 if (b == null || b.equals(WinStatus.NOT_MODIFY)) {
                     b = winStatus;
+                    if (b.equals(WinStatus.CUSTOM) || b.equals(WinStatus.CUSTOM_COMPONENT)
+                            || b.equals(WinStatus.GAMBLER) || b.equals(WinStatus.LOVERS)
+                            || b.equals(WinStatus.RECORDER))
+                        return b;
                 }
                 for (AllowGameEnd listener : listeners) {
-                    var a = listener.allowGameEnd(serverWorld, b, isLooseEndsMode);
+                    var a = listener.allowGameEnd(serverWorld, winStatus, isLooseEndsMode);
                     if (a != null)
                         if (!a.equals(WinStatus.NOT_MODIFY)) {
                             return a;
