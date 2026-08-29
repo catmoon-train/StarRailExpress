@@ -48,7 +48,8 @@ public class PaperclipItem extends Item implements AdventureUsable {
         BlockState clickedState = world.getBlockState(clickedPos);
         BlockPos lowerPos = clickedPos;
         if (clickedState.getBlock() instanceof SmallDoorBlock) {
-            lowerPos = clickedState.getValue(SmallDoorBlock.HALF) == DoubleBlockHalf.LOWER ? clickedPos : clickedPos.below();
+            lowerPos = clickedState.getValue(SmallDoorBlock.HALF) == DoubleBlockHalf.LOWER ? clickedPos
+                    : clickedPos.below();
         }
 
         if (!(world.getBlockEntity(lowerPos) instanceof DoorBlockEntity doorEntity)) {
@@ -80,10 +81,12 @@ public class PaperclipItem extends Item implements AdventureUsable {
         if (!(lowerState.getBlock() instanceof SmallDoorBlock sb)) {
             return InteractionResult.PASS;
         }
-
         world.playSound(null, lowerPos.getX() + 0.5, lowerPos.getY() + 1, lowerPos.getZ() + 0.5,
                 TMMSounds.ITEM_LOCKPICK_DOOR, SoundSource.BLOCKS, 1f, 1f);
-        sb.toggleDoor(lowerState, world, smallDoorEntity, lowerPos);
+
+        if (!world.isClientSide) {
+            sb.toggleDoor(lowerState, world, smallDoorEntity, lowerPos);
+        }
 
         if (!player.isCreative()) {
             context.getItemInHand().shrink(1);
