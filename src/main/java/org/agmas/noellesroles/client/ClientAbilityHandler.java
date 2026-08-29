@@ -18,7 +18,9 @@ package org.agmas.noellesroles.client;
 import net.exmo.sre.repair.network.*;
 import io.wifi.starrailexpress.api.RoleSkill;
 import io.wifi.starrailexpress.api.SREGameModes;
+import io.wifi.starrailexpress.api.RoleSkill.Definition;
 import io.wifi.starrailexpress.api.data.RoleData;
+import io.wifi.starrailexpress.cca.SREAbilityPlayerComponent;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.cca.gamemode.CustomRoleGameModeTeamsPlayerComponent;
 import io.wifi.starrailexpress.client.gui.screen.gamemode.custom_role.CustomRoleSelectScreen;
@@ -26,6 +28,8 @@ import io.wifi.starrailexpress.game.GameUtils;
 import io.wifi.starrailexpress.game.roles.SpecialGameModeRoles;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.minecraft.client.Minecraft;
+import net.minecraft.world.entity.Entity;
+
 import org.agmas.noellesroles.component.ModComponents;
 import org.agmas.noellesroles.role_data.killer.ImitatorRoleData;
 import net.exmo.sre.repair.role.RepairRoleDefinition;
@@ -35,6 +39,7 @@ import org.agmas.noellesroles.packet.*;
 import org.agmas.noellesroles.role.ModRoles;
 
 import java.util.UUID;
+import java.util.function.Predicate;
 
 public class ClientAbilityHandler {
     private static boolean unifiedSkillHeld;
@@ -116,12 +121,17 @@ public class ClientAbilityHandler {
         }
 
         if (RoleSkill.hasUnifiedSkills(currentRole)) {
-            var ability = io.wifi.starrailexpress.cca.SREAbilityPlayerComponent.KEY.get(client.player);
+            var defs = RoleSkill.getDefinitions(currentRole);
+            var ability = SREAbilityPlayerComponent.KEY.get(client.player);
             heldSlot = ability.getSelectedSkill();
             unifiedSkillHeld = true;
             boolean sneaking = client.player.isShiftKeyDown();
+            if (heldSlot >= defs.size()) {
+                heldSlot = heldSlot % defs.size();
+            }
+            Definition def = defs.get(heldSlot);
             ClientPlayNetworking.send(new UnifiedSkillInputC2SPacket(
-                    heldSlot, RoleSkill.Phase.PRESS, findTarget(client), sneaking));
+                    heldSlot, RoleSkill.Phase.PRESS, findTarget(client, def.targetType()), sneaking));
             return;
         }
 
@@ -155,19 +165,28 @@ public class ClientAbilityHandler {
         }
         SREGameWorldComponent gameWorld = SREGameWorldComponent.KEY.get(client.level);
         var role = gameWorld.getRole(client.player);
-
         if (!RoleSkill.hasUnifiedSkills(role)) {
             unifiedSkillHeld = false;
             heldSlot = -1;
             return;
         }
 
+        var ability = SREAbilityPlayerComponent.KEY.get(client.player);
+        heldSlot = ability.getSelectedSkill();
+        var defs = RoleSkill.getDefinitions(role);
+        if (defs.isEmpty()) {
+            return;
+        }
+        if (heldSlot >= defs.size()) {
+            heldSlot = heldSlot % defs.size();
+        }
+        UUID target = findTarget(client, defs.get(heldSlot).targetType());
         if (unifiedSkillHeld && NoellesrolesClient.abilityBind.isDown()) {
             ClientPlayNetworking.send(new UnifiedSkillInputC2SPacket(
-                    heldSlot, RoleSkill.Phase.HOLD, findTarget(client)));
+                    heldSlot, RoleSkill.Phase.HOLD, target));
         } else if (unifiedSkillHeld) {
             ClientPlayNetworking.send(new UnifiedSkillInputC2SPacket(
-                    heldSlot, RoleSkill.Phase.RELEASE, findTarget(client)));
+                    heldSlot, RoleSkill.Phase.RELEASE, target));
             unifiedSkillHeld = false;
             heldSlot = -1;
         }
@@ -209,7 +228,7 @@ public class ClientAbilityHandler {
             ClientPlayNetworking.send(new UnifiedSkillInputC2SPacket(
                     Math.max(0, shiftedDefs.indexOf(modeSwitch.get())),
                     RoleSkill.Phase.PRESS,
-                    findTarget(client),
+                    findTarget(client, modeSwitch.get().targetType()),
                     true));
             return;
         }
@@ -224,10 +243,10 @@ public class ClientAbilityHandler {
         ClientPlayNetworking.send(new org.agmas.noellesroles.packet.UnifiedSkillSelectC2SPacket(next));
     }
 
-    private static UUID findTarget(Minecraft client) {
+    private static UUID findTarget(Minecraft client, Predicate<Entity> targetType) {
         if (client.hitResult instanceof net.minecraft.world.phys.EntityHitResult entityHit
-                && entityHit.getEntity() instanceof net.minecraft.world.entity.player.Player target) {
-            return target.getUUID();
+                && targetType.test(entityHit.getEntity())) {
+            return entityHit.getEntity().getUUID();
         }
         return null;
     }

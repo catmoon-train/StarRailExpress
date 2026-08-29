@@ -190,7 +190,13 @@ public class BeeFamilyManager {
                     MoneyUtils.addToBalance(player, -BeeFamilyManager.BEE_QUEEN_SELECT_QUEEN_PRICE);
                     roledata.markSuccessor(marktargetplayer.getUUID());
                     return true;
-                }).noCastCCA(true).withTarget().recordReplay().showOnHud(true).cooldownSeconds(60).announceToSelf()
+                }).noCastCCA(true)
+                        .withTarget()
+                        .recordReplay()
+                        .targetType((t) -> t instanceof PlayerBodyEntity)
+                        .showOnHud(true)
+                        .cooldownSeconds(60)
+                        .announceToSelf()
                         .build(),
                 RoleSkill.skill(SRE.id("bee_channel"),
                         "skill.noellesroles.bee_channel", (ctx) -> changeChannel(ctx))

@@ -109,7 +109,7 @@ public class ConfigWorldComponent implements AutoSyncedComponent, ServerTickingC
         OnPlayerUsedSkill.EVENT.invoker().onPlayerUsedSkill(player);
         // 回放记录：玩家释放技能
         if (record)
-            SRE.REPLAY_MANAGER.recordSkillUsedId(player, null, false);
+            SRE.REPLAY_MANAGER.recordSkillUsedId(player, null, null, false);
     }
 
     private void processSkillEchoRandomBroadcast() {

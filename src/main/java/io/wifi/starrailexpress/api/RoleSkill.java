@@ -27,6 +27,9 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.player.Player;
+
 import org.agmas.noellesroles.AbilityHandler;
 import org.agmas.noellesroles.init.ModEffects;
 import org.jetbrains.annotations.Nullable;
@@ -34,6 +37,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.function.Predicate;
 
 /**
  * Unified role skill registry.
@@ -186,6 +190,7 @@ public final class RoleSkill {
             boolean modeSwitch,
             boolean showOnHud,
             boolean withTarget,
+            Predicate<Entity> targetType,
             boolean haveRecord,
             Handler handler,
             Component recordName) {
@@ -222,6 +227,7 @@ public final class RoleSkill {
         private boolean modeSwitch;
         private boolean showOnHud = false;
         private Component recordName;
+        private Predicate<Entity> targetType = (entity) -> entity instanceof Player;
 
         private Builder(ResourceLocation id, String nameKey, Handler handler) {
             this.id = id;
@@ -240,6 +246,11 @@ public final class RoleSkill {
 
         public Builder withTarget(boolean flag) {
             withTarget = flag;
+            return this;
+        }
+
+        public Builder targetType(Predicate<Entity> test) {
+            targetType = test;
             return this;
         }
 
@@ -363,7 +374,7 @@ public final class RoleSkill {
 
         public Definition build() {
             return new Definition(id, nameKey, cooldownTicks, maxCharges, continuous,
-                    holdIntervalTicks, noCastCCA, announceInfo, toggleable, shifted, modeSwitch, showOnHud, withTarget,
+                    holdIntervalTicks, noCastCCA, announceInfo, toggleable, shifted, modeSwitch, showOnHud, withTarget,targetType,
                     haveRecord,
                     handler, recordName);
         }
