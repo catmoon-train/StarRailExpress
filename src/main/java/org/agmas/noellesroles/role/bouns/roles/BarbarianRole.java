@@ -35,7 +35,7 @@ public class BarbarianRole extends EggRole {
         if (!player.getMainHandItem().is(ModItems.BARBARIAN_KNIFE)) {
             return false;
         }
-        player.getCooldowns().addCooldown(ModItems.BARBARIAN_KNIFE, 3 * 20);
+        player.getCooldowns().addCooldown(ModItems.BARBARIAN_KNIFE, 4 * 20);
         return true;
     }
 
