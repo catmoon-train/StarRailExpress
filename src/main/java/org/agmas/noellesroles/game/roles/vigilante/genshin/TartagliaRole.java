@@ -92,7 +92,7 @@ public class TartagliaRole extends NormalRole {
             @Override
             public boolean onBuy(@NotNull Player player) {
                 int itemCount = SREItemUtils.countItem(player, Items.CROSSBOW);
-                if (itemCount > 0)
+                if (itemCount > 1)
                     return false;
                 ItemStack item = Items.CROSSBOW.getDefaultInstance();
                 return RoleUtils.insertStackInFreeSlot(player, item);
