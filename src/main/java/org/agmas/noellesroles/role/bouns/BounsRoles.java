@@ -266,6 +266,7 @@ public class BounsRoles {
             false))
             .setCanBeRandomedByOtherRoles(false)
             .setNeutrals(true)
+            .setCanAutoAddMoney(true)
             .setCanEarnKillerCoinAwardsFromKills(true)
             .setDefaultEnableNeededPlayerCount(16)
             .setDefaultEnableChance(2000)

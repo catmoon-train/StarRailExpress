@@ -25,7 +25,6 @@ import net.minecraft.world.entity.player.Player;
 
 public class BeeFamilyRole extends EggRole implements CustomWinnerRoleInterface {
 
-
     public BeeFamilyRole(ResourceLocation identifier, int color, boolean isInnocent, boolean canUseKiller,
             MoodType moodType, int maxSprintTime, boolean canSeeTime) {
         super(identifier, color, isInnocent, canUseKiller, moodType, maxSprintTime, canSeeTime);
@@ -75,12 +74,14 @@ public class BeeFamilyRole extends EggRole implements CustomWinnerRoleInterface 
                         MCItemsUtils.clearItem(serverRevive);
 
                         // 给予金币
+                        final var victimShopCca = SREPlayerShopComponent.KEY.get(victim);
                         final var reviveShopCca = SREPlayerShopComponent.KEY.get(serverRevive);
-                        reviveShopCca.balance = (SREPlayerShopComponent.KEY.get(victim).balance);
+                        reviveShopCca.balance += (victimShopCca.balance);
                         if (reviveShopCca.balance < 100) {
                             reviveShopCca.balance = 100;
                         }
                         reviveShopCca.sync();
+                        victimShopCca.setBalance(0);
                         GameUtils.revivePlayerToItsRoom(serverRevive);
                         RoleUtils.sendWelcomeAnnouncement(serverRevive);
                         if (!(beforeRole instanceof BeeFamilyRole))
