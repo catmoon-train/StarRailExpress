@@ -134,7 +134,7 @@ public class SREReceiverRegister {
                 (payload, context) -> {
                     ServerPlayer player = context.player();
                     context.server().execute(() -> {
-                        if (!player.hasPermissions(2)) {
+                        if (!player.hasPermissions(SREConfig.instance().rosterCommandPermission)) {
                             player.displayClientMessage(Component.translatable("sre.command.permission_denied")
                                     .withStyle(ChatFormatting.RED), false);
                             return;

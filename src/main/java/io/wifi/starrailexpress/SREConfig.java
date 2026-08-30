@@ -89,6 +89,8 @@ public class SREConfig implements ConfigData {
     // 随机地图设置
 
     @ConfigEntry.Category(value = "commands")
+    public int rosterCommandPermission = 3;
+    @ConfigEntry.Category(value = "commands")
     public int customRolePermission = 2;
     @ConfigEntry.Category(value = "commands")
     public int entityInteractionBlockEntityPlayerPermission = 2;

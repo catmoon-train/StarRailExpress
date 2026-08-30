@@ -124,6 +124,7 @@
   "text.autoconfig.starrailexpress.option.gameKickRequiredPermission": "剔除比自己权限等级低的玩家需要的权限等级 (/sre:kick)",
   "text.autoconfig.starrailexpress.option.gameUtilsRequiredPermission": "游戏杂项命令需要的权限等级 (/tmm:game)",
   "text.autoconfig.starrailexpress.option.forceResetRequiredPermission": "重置地图需要的权限等级 (/tmm:game reset)",
+  "text.autoconfig.starrailexpress.option.rosterCommandPermission": "职业轮换命令需要的权限",
   "text.autoconfig.starrailexpress.option.cooldownCommandsRequiredPermission": "修改玩家物品冷却需要的权限等级 (/cooldown)",
   "text.autoconfig.starrailexpress.option.modifyEnableStatusRequiredPermission": "修改职业/修饰符启用状态需要的权限等级 (/setEnabledRole 以及 /setEnabledModifier)",
   "text.autoconfig.starrailexpress.option.isLobby": "是否启用大厅模式",

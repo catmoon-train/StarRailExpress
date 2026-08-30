@@ -18,10 +18,14 @@ package io.wifi.starrailexpress.roster;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+import org.agmas.harpymodloader.modifiers.HMLModifiers;
 import org.agmas.harpymodloader.modifiers.SREModifier;
 
 import com.google.gson.Gson;
@@ -30,6 +34,7 @@ import com.google.gson.GsonBuilder;
 import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.SREConfig;
 import io.wifi.starrailexpress.api.SRERole;
+import io.wifi.starrailexpress.api.TMMRoles;
 import io.wifi.starrailexpress.network.RoleRosterSyncPayload;
 import net.exmo.sre.sync.MysqlPlayerDataStore;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
@@ -100,21 +105,36 @@ public final class RoleRosterManager {
     // ------------------------------------------------------------------
 
     private static void onServerStarted(MinecraftServer startedServer) {
-        if (!SREConfig.instance().enableRoster)
-            return;
         server = startedServer;
+        loadDataFromFile();
+        loadDataFromServer();
+    }
+
+    public static boolean loadDataFromFile() {
+
+        if (!SREConfig.instance().enableRoster)
+            return false;
         // 先读本地文件（即使数据库不可用也有配置可用）
         RoleRosterState local = readLocalFile();
         if (local != null) {
             state = local.normalized();
+        } else {
+            return false;
         }
         broadcast();
+        return true;
+    }
+
+    public static boolean loadDataFromServer() {
+
+        if (!SREConfig.instance().enableRoster)
+            return false;
         // 再尝试从数据库覆盖（数据库版本更新时为准）
         if (!isDatabaseEnabled()) {
-            return;
+            return false;
         }
         if (SREConfig.instance().ignoreMysqlRosterConfig) {
-            return;
+            return false;
         }
         MysqlPlayerDataStore.loadBatchAsync(CONFIG_UUID, List.of(PART))
                 .whenComplete((records, throwable) -> {
@@ -139,8 +159,8 @@ public final class RoleRosterManager {
                         }
                     });
                 });
+        return true;
     }
-
     // ------------------------------------------------------------------
     // 修改入口（均在服务端线程调用）
     // ------------------------------------------------------------------
@@ -204,7 +224,7 @@ public final class RoleRosterManager {
     // ------------------------------------------------------------------
 
     private static void broadcast() {
-        if (!SREConfig.instance().enableRoster){
+        if (!SREConfig.instance().enableRoster) {
             return;
         }
         MinecraftServer srv = server;
@@ -233,7 +253,7 @@ public final class RoleRosterManager {
         if (!isDatabaseEnabled()) {
             return;
         }
-        
+
         if (SREConfig.instance().ignoreMysqlRosterConfig) {
             return;
         }
@@ -251,7 +271,7 @@ public final class RoleRosterManager {
         if (!isDatabaseEnabled()) {
             return;
         }
-        
+
         if (SREConfig.instance().ignoreMysqlRosterConfig) {
             return;
         }
@@ -292,5 +312,83 @@ public final class RoleRosterManager {
 
     private static String toJson(RoleRosterState value) {
         return GSON.toJson(value);
+    }
+
+    public static void randomRoster(int roleNum, int modifierNum) {
+        state.version++;
+        state.roleCounts.clear();
+        state.modifierCounts.clear();
+
+        // 先收集
+        ArrayList<SRERole> roles = new ArrayList<>();
+        roles.addAll(TMMRoles.ROLES.values());
+        ArrayList<SREModifier> modifiers = new ArrayList<>();
+        modifiers.addAll(HMLModifiers.MODIFIERS);
+
+        if (roles.isEmpty() || modifiers.isEmpty() || roleNum <= 0 || modifierNum <= 0) {
+            return;
+        }
+
+        Collections.shuffle(roles);
+        Collections.shuffle(modifiers);
+
+        HashSet<SRERole> enabledRoles = new HashSet<>();
+        HashSet<SREModifier> enabledModifiers = new HashSet<>();
+
+        // 先随机抽取
+        enabledRoles.addAll(roles.subList(0, Math.min(roles.size(), roleNum)));
+        enabledModifiers.addAll(modifiers.subList(0, Math.min(modifiers.size(), modifierNum)));
+
+        // 补充关联职业/修饰符
+        for (var role : new ArrayList<>(enabledRoles)) {
+            enabledRoles.addAll(role.occupationRoles);
+            enabledRoles.addAll(role.occupationedRoles);
+            enabledModifiers.addAll(role.relatedModifiers);
+        }
+
+        // 补充关联职业/修饰符
+        for (var modifier : new ArrayList<>(enabledModifiers)) {
+            enabledRoles.addAll(modifier.relatedRoles);
+        }
+
+        // 删除多余的可以删除的修饰符
+        {
+            HashSet<SREModifier> canRemoveModifiers = new HashSet<>();
+            for (var modifier : enabledModifiers) {
+                if (modifier.relatedRoles.isEmpty()) {
+                    canRemoveModifiers.add(modifier);
+                }
+            }
+            ArrayList<SREModifier> canRemoveModifiersList = new ArrayList<>(canRemoveModifiers);
+            Collections.shuffle(canRemoveModifiersList);
+            while (enabledModifiers.size() > modifierNum && !canRemoveModifiersList.isEmpty()) {
+                enabledModifiers.remove(canRemoveModifiersList.getFirst());
+                canRemoveModifiersList.removeFirst();
+            }
+        }
+        // 删除多余的可以删除的职业
+        {
+            HashSet<SRERole> canRemoveRoles = new HashSet<>();
+            for (var role : enabledRoles) {
+                if (role.occupationRoles.isEmpty() && role.occupationedRoles.isEmpty()
+                        && role.relatedModifiers.isEmpty()) {
+                    canRemoveRoles.add(role);
+                }
+            }
+            ArrayList<SRERole> canRemoveRolesList = new ArrayList<>(canRemoveRoles);
+            Collections.shuffle(canRemoveRolesList);
+            while (enabledRoles.size() > roleNum && !canRemoveRolesList.isEmpty()) {
+                enabledRoles.remove(canRemoveRolesList.getFirst());
+                canRemoveRolesList.removeFirst();
+            }
+        }
+
+        // 处理结果
+        for (var role : enabledRoles) {
+            state.roleCounts.put(role.identifier().toString(), 1);
+        }
+        for (var modifier : enabledModifiers) {
+            state.modifierCounts.put(modifier.identifier().toString(), 1);
+        }
     }
 }
