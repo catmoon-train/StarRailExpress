@@ -335,7 +335,17 @@ public final class FakeSteveDirector {
     }
 
     private static boolean hasWon(ServerLevel level, Session session) {
-        return FakeSteveRules.hasWon(livingFakeCount(level), session.startingPlayers);
+        return FakeSteveRules.hasWon(livingFakeCount(level), livingPlayerCount(level));
+    }
+
+    private static int livingPlayerCount(ServerLevel level) {
+        int count = 0;
+        for (ServerPlayer player : level.players()) {
+            if (GameUtils.isPlayerAliveAndSurvival(player)) {
+                count++;
+            }
+        }
+        return count;
     }
 
     private static void checkVictory(ServerLevel level, Session session) {

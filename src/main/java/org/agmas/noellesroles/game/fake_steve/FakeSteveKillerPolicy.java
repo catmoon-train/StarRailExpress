@@ -41,4 +41,14 @@ public final class FakeSteveKillerPolicy {
     public static boolean shouldHolsterAfterKnifeKill(long now, long holsterAtTick) {
         return holsterAtTick > 0L && now >= holsterAtTick;
     }
+
+    /** Killer-role possession only hunts ordinary, non-killer humans. */
+    public static boolean canActivelyHunt(boolean targetIsImpostor, boolean targetIsKillerRole) {
+        return !targetIsImpostor && !targetIsKillerRole;
+    }
+
+    static boolean shouldDropKillerRevolver(boolean originalKiller, boolean gunKill,
+                                            boolean heldRevolver) {
+        return originalKiller && gunKill && heldRevolver;
+    }
 }
