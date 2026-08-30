@@ -318,7 +318,7 @@ public final class RoleRosterManager {
     }
 
     public static void randomRoster(int roleNum, int modifierNum) {
-        state.version++;
+        // state.version++;
         state.roleCounts.clear();
         state.modifierCounts.clear();
 
