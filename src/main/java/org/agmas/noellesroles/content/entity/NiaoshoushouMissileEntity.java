@@ -7,6 +7,7 @@
 
 package org.agmas.noellesroles.content.entity;
 
+import io.wifi.starrailexpress.cca.AreasWorldComponent;
 import io.wifi.starrailexpress.content.entity.no_water_influenced.NoHeavyWaterInfluencedThrowableItemProjectile;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.network.protocol.game.ClientboundSetCameraPacket;
@@ -104,10 +105,16 @@ public class NiaoshoushouMissileEntity extends NoHeavyWaterInfluencedThrowableIt
                 explode();
                 return;
             }
-            // 超出控制范围立即回收：既与收包端的距离限制一致，也避免导弹飞进未加载
-            // 区块后服务端停止模拟、客户端弹体冻结导致玩家相机卡死在远处回不来。
+            // 超出控制范围立即爆炸：既与收包端的距离限制一致，也避免导弹飞太远。
             if (owner.distanceToSqr(this) > MAX_CONTROL_DISTANCE_SQR) {
                 explode();
+                return;
+            }
+            // 离开地图 playArea 区域后直接删除：避免导弹飞进未加载区块后服务端停止
+            // 模拟、客户端弹体冻结，导致玩家相机卡死在远处回不来。
+            if (!AreasWorldComponent.getInstance(level()).getPlayArea().contains(position())) {
+                owner.connection.send(new ClientboundSetCameraPacket(owner));
+                discard();
                 return;
             }
             // 相机绑定推迟到实体首个服务端 tick 发送：此时实体的生成包已经入队，
