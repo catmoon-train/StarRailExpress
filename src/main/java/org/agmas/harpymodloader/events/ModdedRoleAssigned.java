@@ -30,7 +30,6 @@ public interface ModdedRoleAssigned {
         RoleInitialItems.addInitialItemsForRole(player, role);
 
         // 先调用 onInit
-
         if (player instanceof ServerPlayer serverPlayer) {
             RoleMethodDispatcher.onInit(role, serverPlayer.getServer(), serverPlayer);
         }
