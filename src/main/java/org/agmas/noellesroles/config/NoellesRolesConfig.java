@@ -78,7 +78,7 @@ public class NoellesRolesConfig implements ConfigData {
      * Role - The chance of egg roles
      */
     @ConfigEntry.Category(value = "detail")
-    public int fakeSteveEnableChance = 100;
+    public int fakeSteveEnableChance = 1;
 
     @ConfigEntry.Category(value = "detail")
     public int chanceOfTouhouRoles = 5;
