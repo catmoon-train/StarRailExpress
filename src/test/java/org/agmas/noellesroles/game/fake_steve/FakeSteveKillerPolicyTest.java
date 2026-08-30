@@ -61,6 +61,7 @@ class FakeSteveKillerPolicyTest {
     void psychoChainsKillsWithoutTheOrdinaryWeaponRecoveryPause() {
         assertEquals(0, FakeSteveKillerPolicy.recoveryTicksAfterKill(true));
         assertEquals(40, FakeSteveKillerPolicy.recoveryTicksAfterKill(false));
+        assertEquals(2, FakeSteveKillerPolicy.psychoAttackCooldownTicks());
     }
 
     @Test

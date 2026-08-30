@@ -4205,5 +4205,8 @@
   "message.noellesroles.fake_steve.victim.replaced": "你已被伪人取代。",
   "message.noellesroles.fake_steve.event.title": "伪人出现",
   "message.noellesroles.fake_steve.event.subtitle": "它已经混入了这辆列车……",
-  "message.noellesroles.fake_steve.event.broadcast": "警告：Fake Steve事件已经出现。留意没有脸的Steve。"
+  "message.noellesroles.fake_steve.event.broadcast": "警告：Fake Steve事件已经出现。留意没有脸的Steve。",
+  "message.noellesroles.fake_steve.hunt.title": "伪人正在狩猎",
+  "message.noellesroles.fake_steve.hunt.subtitle": "回到你的房间。活下去，或成为它们的一员。",
+  "message.noellesroles.fake_steve.hunt.broadcast": "伪人数量已占据多数。所有伪人已进入永久疯魔，狩猎开始。"
 }

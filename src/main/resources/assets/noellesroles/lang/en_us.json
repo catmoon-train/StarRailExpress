@@ -4071,5 +4071,8 @@
     "command.noellesroles.fake_steve.replaced": "Immediately replaced %s.",
     "message.noellesroles.fake_steve.event.title": "AN IMPOSTOR HAS APPEARED",
     "message.noellesroles.fake_steve.event.subtitle": "It has already blended into the train...",
-    "message.noellesroles.fake_steve.event.broadcast": "Warning: the Fake Steve event has appeared. Watch for a faceless Steve."
+    "message.noellesroles.fake_steve.event.broadcast": "Warning: the Fake Steve event has appeared. Watch for a faceless Steve.",
+    "message.noellesroles.fake_steve.hunt.title": "THE IMPOSTORS ARE HUNTING",
+    "message.noellesroles.fake_steve.hunt.subtitle": "Return to your room. Survive, or join them.",
+    "message.noellesroles.fake_steve.hunt.broadcast": "The impostors hold the majority. Every impostor has entered permanent psycho mode. The hunt begins."
 }

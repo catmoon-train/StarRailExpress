@@ -9,19 +9,18 @@ import net.minecraft.util.Mth;
 import org.agmas.noellesroles.packet.FakeSteveControlS2CPacket;
 
 /**
- * Bridges server route intentions to an authoritative server movement loop.
+ * Bridges server route intentions to one client-predicted, server-validated
+ * movement stream.
  *
- * <p>The possessed body is a real {@link ServerPlayer}, but instead of trusting
- * the client's simulated keyboard input (which caused stalls, rubber-banding and
- * desync), the server now drives the body every tick through the vanilla
- * movement analog fields ({@code xxa}/{@code zza}, sprint, jump, rotation). The
- * client still receives the same input so it can play the walk animation and the
- * feet keep stepping naturally.</p>
+ * <p>The owning client applies the leased input through vanilla player physics
+ * and sends the usual movement packets. The server validates that one stream.
+ * It must not also translate the body itself: two physics simulations were the
+ * source of the visible position split and periodic rubber-banding.</p>
  */
 public final class FakeSteveMotionController {
     private static final int LEASE_TICKS = 10;
-    /** How often the owning client is re-anchored to the authoritative position. */
-    private static final long SYNC_INTERVAL_TICKS = 5L;
+    private static final double ROUTE_CORRIDOR_RADIUS = 2.25D;
+    private static final double MAX_CLIENT_STEP = 1.50D;
 
     private FakeSteveMotionController() {
     }
@@ -41,8 +40,11 @@ public final class FakeSteveMotionController {
         state.movePitch = targetPitch;
         state.motionSprint = sprint;
         state.motionCrouch = crouch;
+        state.motionLease = new FakeSteveMotionPolicy.Lease(++state.motionSequence,
+                state.moveExpiresAtTick, routePoint.getX() + 0.5D, routePoint.getZ() + 0.5D,
+                ROUTE_CORRIDOR_RADIUS, MAX_CLIENT_STEP);
         ServerPlayNetworking.send(player, new FakeSteveControlS2CPacket(
-                ++state.motionSequence, LEASE_TICKS, forward, strafe, jump, sprint,
+                state.motionSequence, LEASE_TICKS, forward, strafe, jump, sprint,
                 crouch, targetYaw, targetPitch, true));
     }
 
@@ -64,50 +66,50 @@ public final class FakeSteveMotionController {
         state.moveCrouch = false;
         state.motionSprint = false;
         state.motionCrouch = false;
+        state.motionLease = null;
         ServerPlayNetworking.send(player, new FakeSteveControlS2CPacket(
                 ++state.motionSequence, 0, 0.0F, 0.0F,
                 false, false, false, player.getYRot(), player.getXRot(), false));
     }
 
     /**
-     * Applies the stored intention every server tick. This is the "move" half of
-     * the movement pipeline: the vanilla {@code travel()} will translate the body,
-     * resolve collision and gravity, and advance the walk distance so the legs
-     * swing for every observer.
+     * Expires a stale lease. Translation is intentionally client-predicted;
+     * normal server packet handling remains the only position authority.
      */
     public static void applyServerMotion(ServerPlayer player, FakeSteveAgentState state) {
         if (player == null || state == null || player.isSpectator() || player.isRemoved()) {
             return;
         }
         long now = player.serverLevel().getGameTime();
-        boolean active = state.moveActive && now <= state.moveExpiresAtTick;
-        if (!active) {
-            player.xxa = 0.0F;
-            player.zza = 0.0F;
-            player.setJumping(false);
-            player.setSprinting(false);
-            return;
-        }
-        float yaw = FakeSteveMotionPolicy.turnToward(player.getYRot(), state.moveYaw);
-        float pitch = FakeSteveMotionPolicy.turnToward(player.getXRot(), state.movePitch);
-        player.setYRot(yaw);
-        player.setYHeadRot(yaw);
-        player.setXRot(pitch);
-        player.xxa = state.moveStrafe;
-        player.zza = state.moveForward;
-        player.setJumping(state.moveJump);
-        player.setSprinting(state.moveSprint);
-        player.setShiftKeyDown(state.moveCrouch);
-        // Re-anchor the owning client so its locally animated body never drifts
-        // away from the authoritative position for long.
-        if (Math.floorMod(now, SYNC_INTERVAL_TICKS) == 0L
-                && (state.moveForward != 0.0F || state.moveStrafe != 0.0F)) {
-            player.connection.teleport(player.getX(), player.getY(), player.getZ(), yaw, pitch);
+        if (!state.moveActive || now > state.moveExpiresAtTick) {
+            state.moveActive = false;
+            state.motionLease = null;
         }
     }
 
-    /** The server owns the body now: client position packets are ignored. */
+    /** Accept exactly the vanilla packets produced by a live AI input lease. */
     public static boolean acceptsMove(ServerPlayer player, ServerboundMovePlayerPacket packet) {
+        FakeSteveAgentState state = FakeSteveDirector.agent(player.serverLevel(), player.getUUID());
+        if (state == null || !state.moveActive || state.motionLease == null) {
+            return false;
+        }
+        long now = player.serverLevel().getGameTime();
+        double nextX = packet.getX(player.getX());
+        double nextZ = packet.getZ(player.getZ());
+        boolean accepted = FakeSteveMotionPolicy.accepts(state.motionLease, now,
+                player.getX(), player.getZ(), nextX, nextZ);
+        if (accepted) {
+            state.rejectedMotionPackets = 0;
+            return true;
+        }
+        state.rejectedMotionPackets++;
+        // A correction is reserved for a real drift, never issued periodically.
+        if (FakeSteveMotionPolicy.shouldCorrect(state.rejectedMotionPackets,
+                player.distanceToSqr(nextX, player.getY(), nextZ))) {
+            player.connection.teleport(player.getX(), player.getY(), player.getZ(),
+                    player.getYRot(), player.getXRot());
+            state.rejectedMotionPackets = 0;
+        }
         return false;
     }
 

@@ -21,6 +21,16 @@ public final class FakeSteveRules {
                 && livingFakeSteves * 100 > livingPlayers * 60;
     }
 
+    /** The 60% threshold starts the endgame hunt; it is no longer an instant win. */
+    public static boolean shouldStartHunt(int livingFakeSteves, int livingPlayers) {
+        return hasWon(livingFakeSteves, livingPlayers);
+    }
+
+    /** The faction wins the hunt only after no living human remains. */
+    public static boolean shouldDeclareHuntVictory(int livingHumans) {
+        return livingHumans == 0;
+    }
+
     public static boolean canAssimilate(int nearbyLivingFakes, int otherLivingHumans,
             int uninterruptedTicks) {
         return nearbyLivingFakes >= 2 && otherLivingHumans == 0

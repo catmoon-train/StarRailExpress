@@ -51,7 +51,14 @@ final class FakeStevePathPolicy {
     }
 
     static boolean isWalkThroughFootLayer(boolean collisionEmpty, double collisionMaxY) {
-        return collisionEmpty || collisionMaxY <= 0.6D;
+        // Grass paths are 15/16 high. They are not walls: vanilla can step from
+        // their top onto a neighbouring full block without jumping.
+        return collisionEmpty || collisionMaxY < 1.0D;
+    }
+
+    /** A vanilla player can step up 0.6 blocks without a jump input. */
+    static boolean canStepUpWithoutJump(double verticalRise) {
+        return verticalRise <= 0.6D;
     }
 
     static int[] verticalOffsets(boolean jumpsAllowed, boolean swimming) {
@@ -60,5 +67,10 @@ final class FakeStevePathPolicy {
 
     static boolean shouldPreferDirectRoute(boolean explicitTarget, boolean corridorClear) {
         return explicitTarget && corridorClear;
+    }
+
+    static boolean canTrackPlayer(boolean alive, boolean spectator, boolean creative,
+                                  boolean survivalParticipant) {
+        return alive && !spectator && !creative && survivalParticipant;
     }
 }

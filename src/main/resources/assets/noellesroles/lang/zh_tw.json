@@ -4183,5 +4183,8 @@
   "command.noellesroles.fake_steve.replaced": "已立即取代%s。",
   "message.noellesroles.fake_steve.event.title": "偽人出現",
   "message.noellesroles.fake_steve.event.subtitle": "它已經混入了這輛列車……",
-  "message.noellesroles.fake_steve.event.broadcast": "警告：Fake Steve事件已經出現。留意沒有臉的Steve。"
+  "message.noellesroles.fake_steve.event.broadcast": "警告：Fake Steve事件已經出現。留意沒有臉的Steve。",
+  "message.noellesroles.fake_steve.hunt.title": "偽人正在狩獵",
+  "message.noellesroles.fake_steve.hunt.subtitle": "回到你的房間。活下去，或成為它們的一員。",
+  "message.noellesroles.fake_steve.hunt.broadcast": "偽人數量已佔據多數。所有偽人已進入永久瘋魔，狩獵開始。"
 }

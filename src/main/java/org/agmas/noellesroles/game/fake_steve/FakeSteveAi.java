@@ -129,8 +129,9 @@ public class FakeSteveAi {
         focus = engageable(level, state.focusTarget);
         concealWeaponIfExposed(level, body, state, berserkActive);
 
+        boolean huntPhase = FakeSteveDirector.isHuntPhase(level);
         boolean killerRole = originalRole != null && originalRole.canUseKiller();
-        ServerPlayer prey = killerRole || derringerBerserk
+        ServerPlayer prey = killerRole || derringerBerserk || huntPhase
                 ? choosePrey(level, body, state, now, derringerBerserk) : null;
         // A psycho body does not wait for eye contact: it locks onto prey at once.
         if (psychoActive && !derringerBerserk && focus == null && state.mode != AgentMode.STALK) {
@@ -422,8 +423,8 @@ public class FakeSteveAi {
     }
 
     private static boolean isEngageable(ServerPlayer player) {
-        return player != null && player.isAlive() && !player.isSpectator()
-                && !player.isCreative() && GameUtils.isPlayerAliveAndSurvival(player);
+        return player != null && FakeStevePathPolicy.canTrackPlayer(player.isAlive(),
+                player.isSpectator(), player.isCreative(), GameUtils.isPlayerAliveAndSurvival(player));
     }
 
     /** Spectators and creative-mode players are never a valid focus, prey or witness. */
@@ -555,6 +556,9 @@ public class FakeSteveAi {
     }
 
     private static boolean isPrey(ServerLevel level, ServerPlayer player) {
+        if (FakeSteveDirector.isHuntPhase(level)) {
+            return isHuman(player) && isEngageable(player);
+        }
         return FakeSteveKillerPolicy.canActivelyHunt(FakeSteveDirector.isReplaced(player),
                 isKillerRole(level, player), isKillerNeutral(level, player));
     }
@@ -663,7 +667,9 @@ public class FakeSteveAi {
             int psychoWeapon = findPsychoWeaponSlot(body, role);
             if (psychoWeapon >= 0
                     && body.distanceToSqr(target) <= FakeSteveKillerPolicy.MELEE_RANGE_SQR
-                    && visible(body, target)) {
+                    && visible(body, target)
+                    && !body.getCooldowns().isOnCooldown(
+                            body.getInventory().getItem(psychoWeapon).getItem())) {
                 select(body, psychoWeapon);
                 return killWithPsycho(body, target) ? STRIKE_KILLED : STRIKE_NONE;
             }
@@ -1124,17 +1130,20 @@ public class FakeSteveAi {
 
     private static boolean killWithPsycho(ServerPlayer attacker, ServerPlayer target) {
         SRERole role = SREGameWorldComponent.KEY.get(attacker.level()).getRole(attacker);
-        if (role != null && (!role.onUseKnife(attacker) || !role.onUseKnifeHit(attacker, target))) {
+        if (!FakeSteveDirector.isHuntPhase(attacker.serverLevel())
+                && role != null && (!role.onUseKnife(attacker) || !role.onUseKnifeHit(attacker, target))) {
             return false;
         }
         target.playSound(TMMSounds.ITEM_KNIFE_STAB, 1.0F, 1.0F);
         GameUtils.killPlayer(target, true, attacker, BACKSTAB);
+        attacker.getCooldowns().addCooldown(attacker.getMainHandItem().getItem(),
+                FakeSteveKillerPolicy.psychoAttackCooldownTicks());
         attacker.swing(InteractionHand.MAIN_HAND, true);
         return true;
     }
 
     private static boolean backstabAssimilate(ServerPlayer attacker, ServerPlayer target) {
-        if (!isHuman(target)) {
+        if (!isHuman(target) || !isEngageable(target)) {
             return false;
         }
         target.playSound(TMMSounds.ITEM_KNIFE_STAB, 1.0F, 1.0F);
@@ -1604,7 +1613,7 @@ public class FakeSteveAi {
     }
 
     private static boolean isHuman(ServerPlayer player) {
-        return !FakeSteveDirector.isReplaced(player);
+        return player != null && !player.isSpectator() && !FakeSteveDirector.isReplaced(player);
     }
 
     private static boolean isKillerRole(ServerLevel level, ServerPlayer player) {

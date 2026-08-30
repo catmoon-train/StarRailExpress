@@ -4,6 +4,8 @@ import java.util.List;
 
 /** Risk and loadout policy for possessed bodies whose original role can kill. */
 public final class FakeSteveKillerPolicy {
+    /** 0.1 seconds at Minecraft's 20 ticks per second. */
+    public static final int PSYCHO_ATTACK_COOLDOWN_TICKS = 2;
     public enum Purchase {
         PSYCHO,
         BLACKOUT,
@@ -155,5 +157,9 @@ public final class FakeSteveKillerPolicy {
 
     static boolean shouldPsychoInterruptTask(boolean psychoArmed, boolean targetPresent) {
         return psychoArmed && targetPresent;
+    }
+
+    static int psychoAttackCooldownTicks() {
+        return PSYCHO_ATTACK_COOLDOWN_TICKS;
     }
 }

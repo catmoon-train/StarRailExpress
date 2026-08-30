@@ -157,8 +157,16 @@ final class FakeSteveNavigator {
                 || level.getBlockState(current.above()).getFluidState().is(FluidTags.WATER);
         for (Direction direction : HORIZONTAL) {
             BlockPos horizontal = current.relative(direction);
-            for (int dy : FakeStevePathPolicy.verticalOffsets(jumpsAllowed, swimming)) {
+            // Include the upper node even on no-jump maps. A grass path to a
+            // grass block is a 1/16 step, not a real jump; filter larger rises
+            // below using the actual collision surfaces.
+            for (int dy : new int[] { 0, 1, -1 }) {
                 BlockPos candidate = horizontal.offset(0, dy, 0);
+                if (dy > 0 && !jumpsAllowed && !swimming
+                        && !FakeStevePathPolicy.canStepUpWithoutJump(
+                                standingSurfaceY(level, candidate) - standingSurfaceY(level, current))) {
+                    continue;
+                }
                 if (!occupied.contains(candidate) && standable(level, candidate)) {
                     result.add(candidate.immutable());
                     break;
@@ -166,6 +174,20 @@ final class FakeSteveNavigator {
             }
         }
         return result;
+    }
+
+    /** World-space support height for deciding whether an upward node needs jump input. */
+    private static double standingSurfaceY(ServerLevel level, BlockPos feet) {
+        var feetShape = level.getBlockState(feet).getCollisionShape(level, feet);
+        if (!feetShape.isEmpty()) {
+            double height = feetShape.max(Direction.Axis.Y);
+            if (FakeStevePathPolicy.isWalkThroughFootLayer(false, height)) {
+                return feet.getY() + height;
+            }
+        }
+        BlockPos below = feet.below();
+        var belowShape = level.getBlockState(below).getCollisionShape(level, below);
+        return belowShape.isEmpty() ? feet.getY() : below.getY() + belowShape.max(Direction.Axis.Y);
     }
 
     private static Set<BlockPos> occupiedByPlayers(ServerLevel level, ServerPlayer mover) {

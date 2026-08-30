@@ -57,6 +57,19 @@ class FakeStevePathPolicyTest {
     }
 
     @Test
+    void grassPathIsAWalkableNearFullBlockFootLayer() {
+        // Minecraft's grass path collision ends at 15/16 of a block. It must
+        // remain traversable so the body can step onto an adjacent grass block.
+        assertTrue(FakeStevePathPolicy.isWalkThroughFootLayer(false, 0.9375D));
+    }
+
+    @Test
+    void grassPathToGrassIsAMicroStepNotAForbiddenJump() {
+        assertTrue(FakeStevePathPolicy.canStepUpWithoutJump(0.0625D));
+        assertFalse(FakeStevePathPolicy.canStepUpWithoutJump(1.0D));
+    }
+
+    @Test
     void noJumpMapsNeverPlanAnAscendingNeighbour() {
         assertArrayEquals(new int[] { 0, -1 },
                 FakeStevePathPolicy.verticalOffsets(false, false));
@@ -71,5 +84,12 @@ class FakeStevePathPolicyTest {
         assertTrue(FakeStevePathPolicy.shouldPreferDirectRoute(true, true));
         assertFalse(FakeStevePathPolicy.shouldPreferDirectRoute(false, true));
         assertFalse(FakeStevePathPolicy.shouldPreferDirectRoute(true, false));
+    }
+
+    @Test
+    void spectatorPlayersAreNeverTrackableAiTargets() {
+        assertFalse(FakeStevePathPolicy.canTrackPlayer(true, true, false, true));
+        assertFalse(FakeStevePathPolicy.canTrackPlayer(true, false, true, true));
+        assertTrue(FakeStevePathPolicy.canTrackPlayer(true, false, false, true));
     }
 }

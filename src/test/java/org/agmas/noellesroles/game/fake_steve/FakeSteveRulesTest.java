@@ -30,6 +30,13 @@ class FakeSteveRulesTest {
     }
 
     @Test
+    void thresholdStartsAHuntAndOnlyHumanExtinctionDeclaresItsVictory() {
+        assertTrue(FakeSteveRules.shouldStartHunt(7, 10));
+        assertFalse(FakeSteveRules.shouldDeclareHuntVictory(1));
+        assertTrue(FakeSteveRules.shouldDeclareHuntVictory(0));
+    }
+
+    @Test
     void assimilationRequiresTwoFakesNoOtherHumanAndThreeSeconds() {
         assertFalse(FakeSteveRules.canAssimilate(1, 0, 60));
         assertFalse(FakeSteveRules.canAssimilate(2, 1, 60));
