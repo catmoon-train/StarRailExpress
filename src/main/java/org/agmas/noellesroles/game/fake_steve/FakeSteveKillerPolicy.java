@@ -14,11 +14,70 @@ public final class FakeSteveKillerPolicy {
     private static final List<Purchase> PURCHASE_PRIORITY = List.of(
             Purchase.KNIFE, Purchase.PSYCHO, Purchase.BLACKOUT, Purchase.GUN);
 
+    public static final double MIN_GUN_RANGE = 1.5D;
+    public static final double MAX_GUN_RANGE = 24.0D;
+    /** ~20 degrees of aiming error is tolerated before the shot is released. */
+    public static final double GUN_AIM_COSINE = 0.94D;
+    public static final double MELEE_RANGE_SQR = 9.0D;
+    /** Strikes are opportunistic: the body never chases a target across the train. */
+    public static final double STRIKE_RADIUS_SQR = 144.0D;
+
     private FakeSteveKillerPolicy() {
     }
 
     public static List<Purchase> purchasePriority() {
         return PURCHASE_PRIORITY;
+    }
+
+    /** A psycho body decides every tick; a disguised one keeps the human 5-tick cadence. */
+    public static int decisionCadenceTicks(boolean psychoActive) {
+        return psychoActive ? 1 : 5;
+    }
+
+    /** Psycho never pays for witnesses or risk: the check is skipped entirely. */
+    public static boolean ignoresRisk(boolean psychoActive) {
+        return psychoActive;
+    }
+
+    /** No single behaviour may run forever, especially a held knife. */
+    public static long modeBudgetTicks(AgentMode mode, boolean psychoActive) {
+        if (mode == AgentMode.RECOVER || mode == AgentMode.DISGUISE_IDLE) {
+            return Long.MAX_VALUE;
+        }
+        if (psychoActive) {
+            return switch (mode) {
+                case STARE -> 40L;
+                case STALK -> 240L;
+                default -> 200L;
+            };
+        }
+        return switch (mode) {
+            case STARE -> 160L;
+            case STALK -> 300L;
+            case ASSIMILATE -> 240L;
+            case DISGUISE_TASK -> 600L;
+            default -> 400L;
+        };
+    }
+
+    public static boolean modeExpired(long now, long modeStartedTick, long budgetTicks) {
+        return budgetTicks != Long.MAX_VALUE && now - modeStartedTick >= budgetTicks;
+    }
+
+    /** A charge that never converts into a strike is dropped so the body stops idling. */
+    public static boolean knifeChargeExpired(long now, long chargeStartedTick) {
+        return chargeStartedTick > 0L && now - chargeStartedTick >= 60L;
+    }
+
+    /** Weapons stay out of sight while any human can see the body. */
+    public static boolean shouldConcealWeapon(boolean holdingWeapon, boolean exposed,
+            boolean charging) {
+        return holdingWeapon && exposed && !charging;
+    }
+
+    public static boolean shouldSkipTaskForStrike(boolean taskAvailable, boolean armed,
+            boolean unwitnessed, double targetDistance) {
+        return shouldInterruptTask(taskAvailable, armed, unwitnessed, targetDistance);
     }
 
     public static boolean shouldUseSkill(boolean killer, boolean safeWindow, boolean targetPresent) {
@@ -45,6 +104,11 @@ public final class FakeSteveKillerPolicy {
     /** Killer-role possession only hunts ordinary, non-killer humans. */
     public static boolean canActivelyHunt(boolean targetIsImpostor, boolean targetIsKillerRole) {
         return !targetIsImpostor && !targetIsKillerRole;
+    }
+
+    /** A revolver is a ranged option: it must not be silently restricted to melee range. */
+    public static boolean canFireGun(double distance, boolean visible, boolean unwitnessed) {
+        return distance >= MIN_GUN_RANGE && distance <= MAX_GUN_RANGE && visible && unwitnessed;
     }
 
     static boolean canActivelyHunt(boolean targetIsImpostor, boolean targetIsKillerRole,

@@ -49,6 +49,9 @@ import org.agmas.noellesroles.content.entity.LockEntityManager;
 public class FakeSteveAi {
     private static final double FACE_COS = Math.cos(Math.toRadians(30.0));
     private static final ResourceLocation BACKSTAB = GameConstants.DeathReasons.FAKE_AI_BACKSTAB;
+    private static final int STRIKE_NONE = 0;
+    private static final int STRIKE_KILLED = 1;
+    private static final int STRIKE_BUSY = 2;
     private static boolean registered;
 
     private FakeSteveAi() {
@@ -66,24 +69,38 @@ public class FakeSteveAi {
 
     static void tick(ServerLevel level, ServerPlayer body, FakeSteveAgentState state) {
         long now = level.getGameTime();
-        if ((now + Math.floorMod(body.getUUID().hashCode(), 5)) % 5L != 0L)
+        SRERole originalRole = SREGameWorldComponent.KEY.get(level).getRole(body);
+        boolean psychoActive = originalRole != null
+                && SREPlayerPsychoComponent.KEY.get(body).inPsycho();
+        int cadence = FakeSteveKillerPolicy.decisionCadenceTicks(psychoActive);
+        if (cadence > 1
+                && (now + Math.floorMod(body.getUUID().hashCode(), cadence)) % cadence != 0L) {
             return;
+        }
+        if (state.lastTickAt == 0L) {
+            state.modeStartedTick = now;
+        }
+        int elapsed = state.lastTickAt == 0L ? cadence
+                : (int) Math.max(1L, Math.min(20L, now - state.lastTickAt));
+        state.lastTickAt = now;
+        state.tickStep = elapsed;
+
+        updateStuck(level, body, state, now);
         holsterKnifeIfReady(body, state, now);
 
-        ServerPlayer focus = player(level, state.focusTarget);
-        if (focus != null && (!isHuman(focus) || !GameUtils.isPlayerAliveAndSurvival(focus))) {
+        ServerPlayer focus = engageable(level, state.focusTarget);
+        if (focus == null && state.focusTarget != null) {
             clearFocus(state);
-            focus = null;
         }
 
         if (state.mode != AgentMode.STARE && state.mode != AgentMode.STALK) {
             ServerPlayer facing = facingHuman(level, body);
             if (facing != null) {
                 if (facing.getUUID().equals(state.focusTarget)) {
-                    state.faceTicks += 5;
+                    state.faceTicks += elapsed;
                 } else {
                     state.focusTarget = facing.getUUID();
-                    state.faceTicks = 5;
+                    state.faceTicks = elapsed;
                 }
                 if (FakeSteveRules.hasFaceToFaceCommunication(state.faceTicks)) {
                     beginStare(state, facing);
@@ -93,51 +110,98 @@ public class FakeSteveAi {
                 state.faceTicks = 0;
             }
         }
+        // A psycho body skips the slow eye-contact ritual and locks on immediately.
+        if (psychoActive && focus == null && state.mode != AgentMode.STALK) {
+            ServerPlayer nearest = nearestVisibleHuman(level, body);
+            if (nearest != null) {
+                beginStare(state, nearest);
+                focus = nearest;
+            }
+        }
 
-        focus = player(level, state.focusTarget);
+        focus = engageable(level, state.focusTarget);
+        concealWeaponIfExposed(level, body, state, psychoActive);
+
         ServerPlayer isolated = FakeSteveDirector.isEnabled() ? isolatedTarget(level, body) : null;
         boolean taskAvailable = FakeSteveTaskPlanner.hasCompletableTask(body, state);
-        SRERole originalRole = SREGameWorldComponent.KEY.get(level).getRole(body);
-        boolean psychoActive = originalRole != null
-                && SREPlayerPsychoComponent.KEY.get(body).inPsycho();
         ServerPlayer prey = originalRole != null && originalRole.canUseKiller()
-                ? safestPrey(level, body, psychoActive) : null;
+                ? nearestPrey(level, body) : null;
         if (originalRole != null && originalRole.canUseKiller()) {
-            prepareKiller(level, body, state, originalRole, prey);
+            prepareKiller(level, body, state, originalRole, prey, psychoActive);
         }
         boolean psychoArmed = psychoActive
                 && findPsychoWeaponSlot(body, originalRole) >= 0;
-        boolean armed = psychoArmed || findKnifeSlot(body) >= 0 || findGunSlot(body) >= 0;
+        boolean armed = psychoArmed || findUsableKnifeSlot(body) >= 0 || findGunSlot(body) >= 0;
         boolean interruptTask = FakeSteveKillerPolicy.shouldPsychoInterruptTask(
                 psychoArmed, prey != null)
-                || prey != null && FakeSteveKillerPolicy.shouldInterruptTask(
-                        taskAvailable, armed, !hasWitness(level, body, prey), body.distanceTo(prey));
+                || prey != null && FakeSteveKillerPolicy.shouldSkipTaskForStrike(
+                        taskAvailable, armed, !witnessed(level, body, prey, psychoActive),
+                        body.distanceTo(prey));
         maybeSpeak(level, body, state);
         boolean targetLooking = focus != null && visible(focus, body)
                 && faces(focus, body, FACE_COS);
         boolean safeBackstab = focus != null && body.distanceToSqr(focus) <= 144.0D
                 && visible(body, focus) && behind(body, focus)
-                && !hasWitness(level, body, focus);
+                && !witnessed(level, body, focus, psychoActive);
         boolean recovering = state.mode == AgentMode.RECOVER && now < state.nextDecisionTick;
 
+        // No dedicated hunt: only targets that are already within reach get struck,
+        // and an isolated human is replaced instead of butchered.
+        int strike = STRIKE_NONE;
+        if (prey != null && isolated == null && !recovering
+                && (psychoActive || state.mode != AgentMode.STARE)) {
+            strike = tryArmedAttack(level, body, prey, state, psychoActive);
+        }
+        if (strike == STRIKE_BUSY) {
+            return;
+        }
+        if (strike == STRIKE_KILLED) {
+            state.focusTarget = null;
+            state.pendingEngagement = false;
+            state.brain.disengage();
+            int recoveryTicks = FakeSteveKillerPolicy.recoveryTicksAfterKill(psychoActive);
+            if (recoveryTicks > 0) {
+                state.mode = AgentMode.RECOVER;
+                state.nextDecisionTick = now + recoveryTicks;
+            } else {
+                state.mode = AgentMode.DISGUISE_IDLE;
+                state.nextDecisionTick = now;
+            }
+            state.modeStartedTick = now;
+            return;
+        }
+
         FakeSteveBrain.BrainIntent intent = state.brain.tick(new FakeSteveBrain.PerceptionSnapshot(
-                5, recovering, state.pendingEngagement, focus != null,
+                elapsed, recovering, state.pendingEngagement, focus != null,
                 targetLooking, safeBackstab, isolated != null,
-                taskAvailable && !interruptTask, prey != null));
+                taskAvailable && !interruptTask));
         if (!intent.recover()) {
             state.pendingEngagement = false;
         }
+        AgentMode previousMode = state.mode;
         state.mode = intent.mode();
+        if (state.mode != previousMode) {
+            state.modeStartedTick = now;
+        }
         if (state.mode != AgentMode.DISGUISE_IDLE) {
             state.idleTicks = 0;
         }
+        // Nothing may run forever: a body waving a knife in one spot is not human.
+        if (FakeSteveKillerPolicy.modeExpired(now, state.modeStartedTick,
+                FakeSteveKillerPolicy.modeBudgetTicks(state.mode, psychoActive))) {
+            abandonBehaviour(level, body, state, now);
+        }
 
         if (intent.recover()) {
-            FakeSteveMotionController.hold(body, state, body.getYRot(),
-                    FakeSteveMotionPolicy.walkingPitch(now, body.getUUID().hashCode()));
+            idleHold(level, body, state, now);
             return;
         }
         if (state.mode == AgentMode.STARE && focus != null) {
+            if (psychoActive && body.distanceToSqr(focus) > 4.0D) {
+                // A frenzied body does not freeze in a staring contest: it closes in.
+                follow(level, body, focus.blockPosition(), state, 0.22D);
+                return;
+            }
             lookAt(body, state, focus.getEyePosition());
             return;
         }
@@ -146,14 +210,15 @@ public class FakeSteveAi {
                 clearFocus(state);
                 state.mode = AgentMode.RECOVER;
                 state.nextDecisionTick = now + 40L;
+                state.modeStartedTick = now;
                 return;
             }
-            follow(level, body, ambushGoal(focus), state, 0.19D);
+            follow(level, body, ambushGoal(focus), state, psychoActive ? 0.24D : 0.19D);
             return;
         }
         if (state.mode == AgentMode.ASSIMILATE && isolated != null) {
             state.focusTarget = isolated.getUUID();
-            state.assimilationTicks += 5;
+            state.assimilationTicks += elapsed;
             if (body.distanceToSqr(isolated) > 9.0D) {
                 follow(level, body, isolated.blockPosition(), state, 0.17D);
             } else {
@@ -168,7 +233,8 @@ public class FakeSteveAi {
         }
         state.assimilationTicks = 0;
 
-        if (shouldFlee(level, body) && state.mode != AgentMode.STARE && state.mode != AgentMode.STALK) {
+        if (shouldFlee(level, body, psychoActive)
+                && state.mode != AgentMode.STARE && state.mode != AgentMode.STALK) {
             flee(level, body, state);
             return;
         }
@@ -177,43 +243,191 @@ public class FakeSteveAi {
                 && FakeSteveTaskPlanner.tick(level, body, state)) {
             return;
         }
-        if (state.mode == AgentMode.HUNT && prey != null) {
-            state.focusTarget = prey.getUUID();
-            if (tryArmedAttack(level, body, prey, state)) {
-                int recoveryTicks = FakeSteveKillerPolicy.recoveryTicksAfterKill(psychoActive);
-                if (recoveryTicks > 0) {
-                    state.mode = AgentMode.RECOVER;
-                    state.nextDecisionTick = now + recoveryTicks;
-                } else {
-                    state.mode = AgentMode.HUNT;
-                    state.nextDecisionTick = now;
-                }
-            } else {
-                follow(level, body, ambushGoal(prey), state, 0.20D);
-            }
-            return;
-        }
 
         state.mode = AgentMode.DISGUISE_IDLE;
-        state.idleTicks += 5;
+        state.idleTicks += elapsed;
         if (FakeSteveMotionPolicy.shouldSprint(false, state.idleTicks,
                 body.getUUID().hashCode() + (int) (now / 20L))) {
             state.sprintUntilTick = Math.max(state.sprintUntilTick, now + 30L + level.getRandom().nextInt(30));
             state.idleTicks = 0;
         }
-        if (now >= state.nextDecisionTick) {
-            state.nextDecisionTick = now + 40L + level.getRandom().nextInt(80);
-            if (!tryInteract(level, body)) {
+        if (now >= state.nextDecisionTick || (psychoActive && state.pathGoal == null)) {
+            state.nextDecisionTick = now + (psychoActive
+                    ? 10L + level.getRandom().nextInt(15)
+                    : 40L + level.getRandom().nextInt(80));
+            boolean interacted = !psychoActive && tryInteract(level, body);
+            if (!interacted) {
                 state.pathGoal = body.blockPosition().offset(level.getRandom().nextInt(17) - 8,
                         0, level.getRandom().nextInt(17) - 8);
                 state.path.clear();
             }
         }
         if (state.pathGoal != null) {
-            follow(level, body, state.pathGoal, state, 0.15D);
+            follow(level, body, state.pathGoal, state, psychoActive ? 0.22D : 0.15D);
         } else {
-            FakeSteveMotionController.hold(body, state, body.getYRot(),
-                    FakeSteveMotionPolicy.walkingPitch(now, body.getUUID().hashCode()));
+            idleHold(level, body, state, now);
+        }
+    }
+
+    /** Periodic gaze sweep so a waiting body never looks like a frozen statue. */
+    private static void idleHold(ServerLevel level, ServerPlayer body,
+            FakeSteveAgentState state, long now) {
+        float anchor = state.hasStableRouteYaw ? state.stableRouteYaw : body.getYRot();
+        FakeSteveMotionController.hold(body, state,
+                FakeSteveMotionPolicy.idleScanYaw(now, body.getUUID().hashCode(), anchor),
+                FakeSteveMotionPolicy.walkingPitch(now, body.getUUID().hashCode()));
+    }
+
+    /** Drops whatever the body was doing so the next tick starts a fresh decision. */
+    private static void abandonBehaviour(ServerLevel level, ServerPlayer body,
+            FakeSteveAgentState state, long now) {
+        cancelKnifeCharge(body, state);
+        clearFocus(state);
+        state.brain.disengage();
+        state.mode = AgentMode.DISGUISE_IDLE;
+        state.modeStartedTick = now;
+        state.nextDecisionTick = now;
+        state.nextPathTick = now;
+        state.pathRetryAfterTick = 0L;
+        state.pathGoal = null;
+        state.path.clear();
+        state.hasStableRouteYaw = false;
+        state.crowdedTicks = 0;
+        state.crowdStrafe = 0.0F;
+        state.rejectedMotionPackets = 0;
+        state.stuckTicks = 0;
+        state.lastPathDistanceSqr = Double.MAX_VALUE;
+        state.lastPathProgressTick = now;
+        state.pathFailureCount = 0;
+        if (state.taskType != null) {
+            FakeSteveTaskPlanner.abandon(body, state);
+        }
+    }
+
+    /** A body that wants to move but does not is recalculated instead of grinding. */
+    private static void updateStuck(ServerLevel level, ServerPlayer body,
+            FakeSteveAgentState state, long now) {
+        // Stationary disguise work (sleeping, meditating) is not being stuck.
+        boolean wantsMovement = state.mode != AgentMode.STARE && state.mode != AgentMode.RECOVER
+                && state.pathGoal != null
+                && body.distanceToSqr(Vec3.atBottomCenterOf(state.pathGoal)) > 2.25D;
+        if (!wantsMovement) {
+            state.stuckTicks = 0;
+            state.lastMoveX = body.getX();
+            state.lastMoveZ = body.getZ();
+            state.lastMoveTick = 0L;
+            return;
+        }
+        if (state.lastMoveTick == 0L) {
+            state.lastMoveX = body.getX();
+            state.lastMoveZ = body.getZ();
+            state.lastMoveTick = now;
+            return;
+        }
+        long sampleGap = now - state.lastMoveTick;
+        if (sampleGap < 4L) {
+            return;
+        }
+        double dx = body.getX() - state.lastMoveX;
+        double dz = body.getZ() - state.lastMoveZ;
+        state.lastMoveX = body.getX();
+        state.lastMoveZ = body.getZ();
+        state.lastMoveTick = now;
+        if (FakeStevePathPolicy.isStuck(dx * dx + dz * dz, sampleGap)) {
+            state.stuckTicks++;
+        } else {
+            state.stuckTicks = 0;
+        }
+        if (FakeStevePathPolicy.needsRecalculation(state.stuckTicks)) {
+            recalculateRoute(level, body, state, now);
+        }
+    }
+
+    private static void recalculateRoute(ServerLevel level, ServerPlayer body,
+            FakeSteveAgentState state, long now) {
+        state.stuckTicks = 0;
+        state.path.clear();
+        // A short pause before the next A* run keeps a wedged body from
+        // recomputing the same blocked route every single tick.
+        state.pathRetryAfterTick = now + 10L;
+        state.nextPathTick = now + 10L;
+        state.hasStableRouteYaw = false;
+        state.crowdedTicks = 0;
+        state.crowdStrafe = 0.0F;
+        state.lastPathDistanceSqr = Double.MAX_VALUE;
+        state.lastPathProgressTick = now;
+        state.sprintUntilTick = Math.max(state.sprintUntilTick, now + 20L);
+        state.pathFailureCount++;
+        BlockPos goal = state.pathGoal;
+        if (goal != null) {
+            // Nudge the goal so the next A* run cannot re-pick the same blocked lane.
+            state.pathGoal = goal.offset(level.getRandom().nextInt(5) - 2, 0,
+                    level.getRandom().nextInt(5) - 2);
+        }
+        if (state.pathFailureCount >= 6 && state.taskType != null) {
+            FakeSteveTaskPlanner.abandon(body, state);
+            state.mode = AgentMode.DISGUISE_IDLE;
+            state.nextDecisionTick = now;
+        }
+    }
+
+    private static ServerPlayer nearestVisibleHuman(ServerLevel level, ServerPlayer body) {
+        return level.players().stream().filter(FakeSteveAi::isHuman)
+                .filter(FakeSteveAi::isEngageable).filter(p -> p.distanceToSqr(body) <= 400.0D)
+                .filter(p -> visible(body, p))
+                .min(Comparator.comparingDouble(body::distanceToSqr)).orElse(null);
+    }
+
+    private static boolean isEngageable(ServerPlayer player) {
+        return player != null && player.isAlive() && !player.isSpectator()
+                && !player.isCreative() && GameUtils.isPlayerAliveAndSurvival(player);
+    }
+
+    /** Spectators and creative-mode players are never a valid focus, prey or witness. */
+    private static ServerPlayer engageable(ServerLevel level, UUID id) {
+        ServerPlayer player = player(level, id);
+        if (!isEngageable(player) || player.serverLevel() != level) {
+            return null;
+        }
+        return player;
+    }
+
+    /** A psycho body never pays for witness or risk evaluation. */
+    private static boolean witnessed(ServerLevel level, ServerPlayer body,
+            ServerPlayer target, boolean psychoActive) {
+        if (FakeSteveKillerPolicy.ignoresRisk(psychoActive)) {
+            return false;
+        }
+        return hasWitness(level, body, target);
+    }
+
+    private static boolean exposedToHumans(ServerLevel level, ServerPlayer body) {
+        return level.players().stream().filter(FakeSteveAi::isHuman)
+                .filter(FakeSteveAi::isEngageable).filter(p -> p.distanceToSqr(body) <= 400.0D)
+                .anyMatch(p -> visible(p, body) || visible(body, p));
+    }
+
+    private static boolean isWeapon(ItemStack stack) {
+        return !stack.isEmpty()
+                && (stack.is(TMMItemTags.GUNS) || stack.getItem() instanceof TrainWeapon);
+    }
+
+    /** Weapons are only ever drawn for a strike; a seen weapon breaks the disguise. */
+    private static void concealWeaponIfExposed(ServerLevel level, ServerPlayer body,
+            FakeSteveAgentState state, boolean psychoActive) {
+        if (FakeSteveKillerPolicy.ignoresRisk(psychoActive)) {
+            return;
+        }
+        if (!FakeSteveKillerPolicy.shouldConcealWeapon(isWeapon(body.getMainHandItem()),
+                exposedToHumans(level, body), state.knifeChargeTarget != null)) {
+            return;
+        }
+        int safe = findSafeHolsterSlot(body);
+        if (safe < 0) {
+            safe = firstEmptyHotbarSlot(body);
+        }
+        if (safe >= 0 && safe != body.getInventory().selected) {
+            select(body, safe);
         }
     }
 
@@ -232,7 +446,7 @@ public class FakeSteveAi {
         if (!FakeSteveDirector.isActive(sender.serverLevel()) || !isHuman(sender))
             return;
         ServerPlayer nearest = sender.serverLevel().players().stream()
-                .filter(FakeSteveDirector::isReplaced).filter(GameUtils::isPlayerAliveAndSurvival)
+                .filter(FakeSteveDirector::isReplaced).filter(FakeSteveAi::isEngageable)
                 .filter(fake -> fake.distanceToSqr(sender) <= 64.0)
                 .filter(fake -> sender.hasLineOfSight(fake) && faces(sender, fake, FACE_COS))
                 .min(Comparator.comparingDouble(sender::distanceToSqr)).orElse(null);
@@ -251,114 +465,134 @@ public class FakeSteveAi {
 
     private static ServerPlayer facingHuman(ServerLevel level, ServerPlayer fake) {
         return level.players().stream().filter(FakeSteveAi::isHuman)
-                .filter(GameUtils::isPlayerAliveAndSurvival).filter(p -> p.distanceToSqr(fake) <= 64.0)
+                .filter(FakeSteveAi::isEngageable).filter(p -> p.distanceToSqr(fake) <= 64.0)
                 .filter(p -> visible(fake, p) && faces(fake, p, FACE_COS) && faces(p, fake, FACE_COS))
                 .min(Comparator.comparingDouble(fake::distanceToSqr)).orElse(null);
     }
 
     private static ServerPlayer nearestFacingFake(ServerLevel level, ServerPlayer human, double range) {
         return level.players().stream().filter(FakeSteveDirector::isReplaced)
-                .filter(GameUtils::isPlayerAliveAndSurvival).filter(p -> p.distanceToSqr(human) <= range * range)
+                .filter(FakeSteveAi::isEngageable).filter(p -> p.distanceToSqr(human) <= range * range)
                 .filter(p -> visible(p, human) && faces(p, human, FACE_COS) && faces(human, p, FACE_COS))
                 .min(Comparator.comparingDouble(human::distanceToSqr)).orElse(null);
     }
 
     private static ServerPlayer isolatedTarget(ServerLevel level, ServerPlayer body) {
         ServerPlayer nearest = level.players().stream().filter(FakeSteveAi::isHuman)
-                .filter(GameUtils::isPlayerAliveAndSurvival).filter(p -> p.distanceToSqr(body) <= 144.0)
+                .filter(FakeSteveAi::isEngageable).filter(p -> p.distanceToSqr(body) <= 144.0)
                 .filter(p -> livingFakesNear(level, p, 12.0) >= 2)
                 .filter(p -> otherLivingHumansNear(level, p, 12.0) == 0)
                 .min(Comparator.comparingDouble(body::distanceToSqr)).orElse(null);
         if (nearest == null)
             return null;
         ServerPlayer closestFake = level.players().stream().filter(FakeSteveDirector::isReplaced)
-                .filter(GameUtils::isPlayerAliveAndSurvival).filter(p -> p.distanceToSqr(nearest) <= 144.0)
+                .filter(FakeSteveAi::isEngageable).filter(p -> p.distanceToSqr(nearest) <= 144.0)
                 .min(Comparator.comparingDouble(nearest::distanceToSqr)).orElse(null);
         return closestFake == body ? nearest : null;
     }
 
     private static int livingFakesNear(ServerLevel level, ServerPlayer target, double range) {
         return (int) level.players().stream().filter(FakeSteveDirector::isReplaced)
-                .filter(GameUtils::isPlayerAliveAndSurvival)
+                .filter(FakeSteveAi::isEngageable)
                 .filter(p -> p.distanceToSqr(target) <= range * range).count();
     }
 
     private static int otherLivingHumansNear(ServerLevel level, ServerPlayer target, double range) {
         return (int) level.players().stream().filter(p -> p != target).filter(FakeSteveAi::isHuman)
-                .filter(GameUtils::isPlayerAliveAndSurvival)
+                .filter(FakeSteveAi::isEngageable)
                 .filter(p -> p.distanceToSqr(target) <= range * range).count();
     }
 
-    private static ServerPlayer safestPrey(ServerLevel level, ServerPlayer body,
-                                           boolean psychoActive) {
+    private static ServerPlayer nearestPrey(ServerLevel level, ServerPlayer body) {
         return level.players().stream().filter(FakeSteveAi::isHuman)
-                .filter(GameUtils::isPlayerAliveAndSurvival).filter(p -> p.distanceToSqr(body) <= 324.0)
+                .filter(FakeSteveAi::isEngageable)
+                .filter(p -> p.distanceToSqr(body) <= FakeSteveKillerPolicy.STRIKE_RADIUS_SQR)
                 .filter(p -> FakeSteveKillerPolicy.canActivelyHunt(
                         FakeSteveDirector.isReplaced(p), isKillerRole(level, p),
                         isKillerNeutral(level, p)))
-                .filter(p -> FakeSteveKillerPolicy.canHuntThroughWitnesses(
-                        psychoActive, hasWitness(level, body, p)))
                 .min(Comparator.comparingDouble(body::distanceToSqr)).orElse(null);
     }
 
-    private static boolean tryArmedAttack(ServerLevel level, ServerPlayer body,
-                                          ServerPlayer target, FakeSteveAgentState state) {
+    /**
+     * Opportunistic attack resolution. Returns {@link #STRIKE_BUSY} while the body
+     * is aiming or charging so the caller does not overwrite the aim with a route.
+     */
+    private static int tryArmedAttack(ServerLevel level, ServerPlayer body,
+            ServerPlayer target, FakeSteveAgentState state, boolean psychoActive) {
+        long now = level.getGameTime();
         SRERole role = SREGameWorldComponent.KEY.get(level).getRole(body);
-        if (SREPlayerPsychoComponent.KEY.get(body).inPsycho()) {
+        if (psychoActive) {
             int psychoWeapon = findPsychoWeaponSlot(body, role);
-            if (psychoWeapon >= 0 && body.distanceToSqr(target) <= 9.0D
+            if (psychoWeapon >= 0
+                    && body.distanceToSqr(target) <= FakeSteveKillerPolicy.MELEE_RANGE_SQR
                     && behind(body, target)) {
                 select(body, psychoWeapon);
-                return killWithPsycho(body, target);
+                return killWithPsycho(body, target) ? STRIKE_KILLED : STRIKE_NONE;
             }
         }
-        int knife = findKnifeSlot(body);
-        if (knife >= 0 && body.distanceToSqr(target) <= 9.0 && behind(body, target)
-                && !hasWitness(level, body, target)) {
-            if (!target.getUUID().equals(state.knifeChargeTarget)) {
-                state.knifeChargeTarget = target.getUUID();
-                state.knifeChargedAtTick = level.getGameTime() + 8L;
-                state.holsterSlot = body.getInventory().selected == knife
-                        ? findSafeHolsterSlot(body) : body.getInventory().selected;
-                select(body, knife);
-                body.gameMode.useItem(body, level, body.getMainHandItem(), InteractionHand.MAIN_HAND);
-                if (!body.isUsingItem()) {
-                    body.startUsingItem(InteractionHand.MAIN_HAND);
-                }
-                return false;
-            }
-            if (!FakeSteveKillerPolicy.canStrikeWithKnife(level.getGameTime(), state.knifeChargedAtTick)) {
-                return false;
-            }
-            select(body, knife);
-            if (body.getCooldowns().isOnCooldown(body.getMainHandItem().getItem())) {
+        boolean unseen = !witnessed(level, body, target, psychoActive);
+        int knife = findUsableKnifeSlot(body);
+        if (knife >= 0) {
+            if (FakeSteveKillerPolicy.knifeChargeExpired(now, state.knifeChargeStartedTick)
+                    || state.knifeChargeTarget != null
+                            && !target.getUUID().equals(state.knifeChargeTarget)) {
                 cancelKnifeCharge(body, state);
-                return false;
             }
-            body.releaseUsingItem();
-            cancelKnifeCharge(body, state);
-            boolean killed = kill(body, target, false, true);
-            if (killed) {
-                state.holsterAtTick = level.getGameTime() + 8L;
+            if (body.distanceToSqr(target) <= FakeSteveKillerPolicy.MELEE_RANGE_SQR
+                    && behind(body, target) && unseen) {
+                if (state.knifeChargeTarget == null) {
+                    state.knifeChargeTarget = target.getUUID();
+                    state.knifeChargedAtTick = now + 8L;
+                    state.knifeChargeStartedTick = now;
+                    state.holsterSlot = body.getInventory().selected == knife
+                            ? findSafeHolsterSlot(body) : body.getInventory().selected;
+                    select(body, knife);
+                    body.gameMode.useItem(body, level, body.getMainHandItem(),
+                            InteractionHand.MAIN_HAND);
+                    if (!body.isUsingItem()) {
+                        body.startUsingItem(InteractionHand.MAIN_HAND);
+                    }
+                    lookAt(body, state, target.getEyePosition());
+                    return STRIKE_BUSY;
+                }
+                if (!FakeSteveKillerPolicy.canStrikeWithKnife(now, state.knifeChargedAtTick)) {
+                    lookAt(body, state, target.getEyePosition());
+                    return STRIKE_BUSY;
+                }
+                select(body, knife);
+                if (body.getCooldowns().isOnCooldown(body.getMainHandItem().getItem())) {
+                    cancelKnifeCharge(body, state);
+                    return STRIKE_NONE;
+                }
+                body.releaseUsingItem();
+                cancelKnifeCharge(body, state);
+                boolean killed = kill(body, target, false, true);
+                if (killed) {
+                    state.holsterAtTick = now + 8L;
+                }
+                return killed ? STRIKE_KILLED : STRIKE_NONE;
             }
-            return killed;
         }
         cancelKnifeCharge(body, state);
         int gun = findGunSlot(body);
         double distance = body.distanceTo(target);
-        if (gun >= 0 && distance >= 4.0 && distance <= 18.0 && visible(body, target)
-                && !hasWitness(level, body, target)) {
-            select(body, gun);
-            if (!faces(body, target, 0.96D)) {
-                lookAt(body, state, target.getEyePosition());
-                return false;
-            }
-            if (body.getCooldowns().isOnCooldown(body.getMainHandItem().getItem())) {
-                return false;
-            }
-            return kill(body, target, true, true);
+        if (gun < 0
+                || !FakeSteveKillerPolicy.canFireGun(distance, visible(body, target), unseen)) {
+            return STRIKE_NONE;
         }
-        return false;
+        select(body, gun);
+        if (!faces(body, target, FakeSteveKillerPolicy.GUN_AIM_COSINE)) {
+            lookAt(body, state, target.getEyePosition());
+            return STRIKE_BUSY;
+        }
+        if (body.getCooldowns().isOnCooldown(body.getMainHandItem().getItem())) {
+            int safe = findSafeHolsterSlot(body);
+            if (safe >= 0) {
+                select(body, safe);
+            }
+            return STRIKE_NONE;
+        }
+        return kill(body, target, true, true) ? STRIKE_KILLED : STRIKE_NONE;
     }
 
     private static boolean kill(ServerPlayer attacker, ServerPlayer target, boolean gun,
@@ -454,8 +688,8 @@ public class FakeSteveAi {
                 || now >= state.nextPathTick) {
             state.pathGoal = goal.immutable();
             state.path.clear();
-            boolean explicitTarget = state.mode == AgentMode.HUNT
-                    || state.mode == AgentMode.STALK || state.mode == AgentMode.ASSIMILATE;
+            boolean explicitTarget = state.mode == AgentMode.STALK
+                    || state.mode == AgentMode.ASSIMILATE;
             state.path.addAll(FakeSteveNavigator.find(level, body, goal, explicitTarget));
             state.nextPathTick = now + 20L;
             state.lastPathDistanceSqr = Double.MAX_VALUE;
@@ -496,7 +730,7 @@ public class FakeSteveAi {
             return;
         }
         Vec3 direction = new Vec3(delta.x, 0.0, delta.z).normalize();
-        boolean pursuingHuman = state.mode == AgentMode.HUNT || state.mode == AgentMode.STALK;
+        boolean pursuingHuman = state.mode == AgentMode.STALK;
         List<FakeSteveCrowdAvoidance.NearbyPlayer> nearbyPlayers = level.players().stream()
                 .filter(player -> player != body && player.isAlive() && !player.isSpectator())
                 .filter(player -> !pursuingHuman || state.focusTarget == null
@@ -511,7 +745,7 @@ public class FakeSteveAi {
             if (state.crowdStrafe == 0.0F) {
                 state.crowdStrafe = avoidance.strafe();
             }
-            state.crowdedTicks += 5;
+            state.crowdedTicks += state.tickStep;
         } else {
             state.crowdedTicks = 0;
             state.crowdStrafe = 0.0F;
@@ -525,6 +759,9 @@ public class FakeSteveAi {
             return;
         }
         float candidateYaw = (float) (Mth.atan2(-direction.x, direction.z) * Mth.RAD_TO_DEG);
+        boolean straight = !avoidance.crowded() && !doorAhead
+                && (!state.hasStableRouteYaw
+                        || FakeSteveMotionPolicy.isStraightAhead(state.stableRouteYaw, candidateYaw));
         if (!state.hasStableRouteYaw) {
             state.stableRouteYaw = candidateYaw;
             state.hasStableRouteYaw = true;
@@ -533,7 +770,8 @@ public class FakeSteveAi {
             // the previous segment's smoothed heading into the door frame.
             state.stableRouteYaw = candidateYaw;
         } else {
-            state.stableRouteYaw = FakeSteveMotionPolicy.stableHeading(state.stableRouteYaw, candidateYaw);
+            state.stableRouteYaw = FakeSteveMotionPolicy.stableHeading(
+                    state.stableRouteYaw, candidateYaw, straight);
         }
         boolean psychoActive = SREPlayerPsychoComponent.KEY.get(body).inPsycho();
         boolean sprint = FakeStevePathPolicy.shouldSprintForPursuit(
@@ -555,7 +793,7 @@ public class FakeSteveAi {
         }
         FakeSteveMotionController.drive(body, state, forward, strafe, jump, sprint, false,
                 state.stableRouteYaw,
-                FakeSteveMotionPolicy.walkingPitch(now, body.getUUID().hashCode()), next);
+                FakeSteveMotionPolicy.walkingPitch(now, body.getUUID().hashCode(), straight), next);
     }
 
     private static void backOffPath(ServerLevel level, ServerPlayer body,
@@ -569,10 +807,7 @@ public class FakeSteveAi {
         if (state.pathFailureCount >= 3 && state.mode == AgentMode.DISGUISE_TASK
                 && state.taskType != null) {
             state.taskBackoffUntil.put(state.taskType, now + 10L * 20L);
-            state.taskType = null;
-            state.taskGoal = null;
-            state.taskInteractTarget = null;
-            state.pathGoal = null;
+            FakeSteveTaskPlanner.abandon(body, state);
         }
     }
 
@@ -682,6 +917,7 @@ public class FakeSteveAi {
         }
         state.knifeChargeTarget = null;
         state.knifeChargedAtTick = 0L;
+        state.knifeChargeStartedTick = 0L;
     }
 
     private static void holsterKnifeIfReady(ServerPlayer body, FakeSteveAgentState state, long now) {
@@ -712,7 +948,7 @@ public class FakeSteveAi {
     }
 
     private static void prepareKiller(ServerLevel level, ServerPlayer body,
-            FakeSteveAgentState state, SRERole role, ServerPlayer prey) {
+            FakeSteveAgentState state, SRERole role, ServerPlayer prey, boolean psychoActive) {
         long now = level.getGameTime();
         int nearbyHumans = nearbyHumans(level, body, 18.0D);
         if (now >= state.nextShopTick) {
@@ -729,7 +965,7 @@ public class FakeSteveAi {
             tryUseTacticalItem(level, body);
         }
         if (now >= state.nextSkillTick && FakeSteveKillerPolicy.shouldUseSkill(
-                true, !hasWitness(level, body, prey), prey != null)) {
+                true, !witnessed(level, body, prey, psychoActive), prey != null)) {
             state.nextSkillTick = now + 18L * 20L + level.getRandom().nextInt(18 * 20);
             RoleSkill.beginUse(body, prey.getUUID(), -1, RoleSkill.Phase.PRESS, false, true);
         }
@@ -816,16 +1052,20 @@ public class FakeSteveAi {
 
     private static int nearbyHumans(ServerLevel level, ServerPlayer body, double range) {
         return (int) level.players().stream().filter(FakeSteveAi::isHuman)
-                .filter(GameUtils::isPlayerAliveAndSurvival)
+                .filter(FakeSteveAi::isEngageable)
                 .filter(player -> player.distanceToSqr(body) <= range * range).count();
     }
 
-    private static boolean shouldFlee(ServerLevel level, ServerPlayer body) {
+    private static boolean shouldFlee(ServerLevel level, ServerPlayer body, boolean psychoActive) {
+        // A frenzied body does not weigh risk, so it never breaks off to run.
+        if (psychoActive) {
+            return false;
+        }
         if (body.hurtTime > 0) {
             return true;
         }
         return level.players().stream().filter(FakeSteveAi::isHuman)
-                .filter(GameUtils::isPlayerAliveAndSurvival)
+                .filter(FakeSteveAi::isEngageable)
                 .filter(player -> player.distanceToSqr(body) <= 36.0D)
                 .filter(player -> findKnifeSlot(player) >= 0 || findGunSlot(player) >= 0)
                 .filter(player -> faces(player, body, 0.5D))
@@ -834,7 +1074,7 @@ public class FakeSteveAi {
 
     private static void flee(ServerLevel level, ServerPlayer body, FakeSteveAgentState state) {
         ServerPlayer threat = level.players().stream().filter(FakeSteveAi::isHuman)
-                .filter(GameUtils::isPlayerAliveAndSurvival)
+                .filter(FakeSteveAi::isEngageable)
                 .min(Comparator.comparingDouble(body::distanceToSqr)).orElse(null);
         if (threat == null) {
             return;
@@ -866,7 +1106,7 @@ public class FakeSteveAi {
             return;
         }
         boolean humanNearby = level.players().stream().filter(FakeSteveAi::isHuman)
-                .filter(GameUtils::isPlayerAliveAndSurvival)
+                .filter(FakeSteveAi::isEngageable)
                 .anyMatch(player -> player.distanceToSqr(body) <= 12.0D * 12.0D);
         state.nextDialogueTick = now + 35L * 20L + level.getRandom().nextInt(70 * 20);
         if (!humanNearby) {
@@ -921,7 +1161,7 @@ public class FakeSteveAi {
 
     private static boolean hasWitness(ServerLevel level, ServerPlayer attacker, ServerPlayer target) {
         return level.players().stream().filter(p -> p != attacker && p != target)
-                .filter(GameUtils::isPlayerAliveAndSurvival)
+                .filter(FakeSteveAi::isEngageable)
                 .filter(p -> FakeSteveKillerPolicy.countsAsHostileWitness(
                         FakeSteveDirector.isReplaced(p), isKillerRole(level, p),
                         isKillerNeutral(level, p)))
@@ -967,6 +1207,19 @@ public class FakeSteveAi {
             var stack = player.getInventory().getItem(slot);
             if (stack.getItem() instanceof TrainWeapon && !stack.is(TMMItemTags.GUNS)
                     && !KillerKnifeDurability.isDepleted(stack)) {
+                return slot;
+            }
+        }
+        return -1;
+    }
+
+    /** A knife still on cooldown is not a weapon: never charge or wave it. */
+    private static int findUsableKnifeSlot(ServerPlayer player) {
+        for (int slot = 0; slot < 9; slot++) {
+            var stack = player.getInventory().getItem(slot);
+            if (stack.getItem() instanceof TrainWeapon && !stack.is(TMMItemTags.GUNS)
+                    && !KillerKnifeDurability.isDepleted(stack)
+                    && !player.getCooldowns().isOnCooldown(stack.getItem())) {
                 return slot;
             }
         }

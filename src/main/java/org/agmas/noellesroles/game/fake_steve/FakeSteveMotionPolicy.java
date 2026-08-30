@@ -7,6 +7,8 @@ public final class FakeSteveMotionPolicy {
     private static final float MIN_TURN_DEGREES_PER_TICK = 2.5F;
     private static final float ROUTE_HEADING_DEAD_ZONE = 6.0F;
     private static final float MAX_ROUTE_HEADING_STEP = 36.0F;
+    private static final float STRAIGHT_HEADING_DEAD_ZONE = 22.0F;
+    private static final float MAX_STRAIGHT_HEADING_STEP = 9.0F;
 
     private FakeSteveMotionPolicy() {
     }
@@ -24,12 +26,25 @@ public final class FakeSteveMotionPolicy {
 
     /** Keeps adjacent A* nodes from making the body oscillate left and right. */
     public static float stableHeading(float previousTarget, float candidate) {
+        return stableHeading(previousTarget, candidate, false);
+    }
+
+    /**
+     * Straight routes get a much wider dead zone: a body walking down a corridor
+     * should keep its head still instead of sweeping it across every node.
+     */
+    public static float stableHeading(float previousTarget, float candidate, boolean straight) {
         float delta = wrapDegrees(candidate - previousTarget);
-        if (Math.abs(delta) <= ROUTE_HEADING_DEAD_ZONE) {
+        float deadZone = straight ? STRAIGHT_HEADING_DEAD_ZONE : ROUTE_HEADING_DEAD_ZONE;
+        float maxStep = straight ? MAX_STRAIGHT_HEADING_STEP : MAX_ROUTE_HEADING_STEP;
+        if (Math.abs(delta) <= deadZone) {
             return wrapDegrees(previousTarget);
         }
-        return wrapDegrees(previousTarget + Math.max(-MAX_ROUTE_HEADING_STEP,
-                Math.min(MAX_ROUTE_HEADING_STEP, delta)));
+        return wrapDegrees(previousTarget + Math.max(-maxStep, Math.min(maxStep, delta)));
+    }
+
+    public static boolean isStraightAhead(float previousTarget, float candidate) {
+        return Math.abs(wrapDegrees(candidate - previousTarget)) <= STRAIGHT_HEADING_DEAD_ZONE;
     }
 
     /** Human-looking sprint policy: flee immediately, otherwise only after lingering. */
@@ -47,6 +62,30 @@ public final class FakeSteveMotionPolicy {
             case 3 -> -12.0F;
             default -> 1.0F;
         };
+    }
+
+    /**
+     * Travelling a straight route uses one fixed, per-body gaze angle. The
+     * periodic nodding cycle is only used while idling or turning.
+     */
+    public static float walkingPitch(long gameTime, int personalitySeed, boolean steady) {
+        if (!steady) {
+            return walkingPitch(gameTime, personalitySeed);
+        }
+        return switch (Math.floorMod(personalitySeed, 4)) {
+            case 0 -> -3.0F;
+            case 1 -> -2.0F;
+            case 2 -> -4.0F;
+            default -> -1.0F;
+        };
+    }
+
+    /** Slow left/right scanning while standing around, so idle bodies look alive. */
+    public static float idleScanYaw(long gameTime, int personalitySeed, float anchorYaw) {
+        int period = 140 + Math.floorMod(personalitySeed, 140);
+        double phase = (double) Math.floorMod(gameTime + Math.floorMod(personalitySeed, 97), period)
+                / (double) period;
+        return wrapDegrees(anchorYaw + (float) (Math.sin(phase * 2.0D * Math.PI) * 26.0D));
     }
 
     public static boolean accepts(Lease lease, long now,

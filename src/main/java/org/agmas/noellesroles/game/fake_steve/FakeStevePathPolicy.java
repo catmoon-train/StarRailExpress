@@ -23,6 +23,15 @@ final class FakeStevePathPolicy {
                 && now - lastProgressTick >= 40L;
     }
 
+    /** The body wants to move but its position barely changes between AI samples. */
+    static boolean isStuck(double movedDistanceSqr, long sampleGap) {
+        return sampleGap >= 4L && movedDistanceSqr < 0.0025D;
+    }
+
+    static boolean needsRecalculation(int stuckTicks) {
+        return stuckTicks >= 3;
+    }
+
     static boolean shouldAutoOpenSmallDoor(boolean open, boolean hardLocked) {
         return !open && !hardLocked;
     }

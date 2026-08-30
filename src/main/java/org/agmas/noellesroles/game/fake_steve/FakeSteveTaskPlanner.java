@@ -137,6 +137,12 @@ public final class FakeSteveTaskPlanner {
         return true;
     }
 
+    /** Drops the active disguise task, releasing any posture it forced on the body. */
+    public static void abandon(ServerPlayer body, FakeSteveAgentState state) {
+        releaseTaskPosture(body, state.taskType);
+        clear(state);
+    }
+
     private static Task chooseTask(SREPlayerTaskComponent component, ServerPlayer body,
             FakeSteveAgentState state, long now) {
         List<FakeSteveTaskSelection.Candidate> candidates = component.tasks.keySet().stream()
