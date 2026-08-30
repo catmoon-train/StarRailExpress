@@ -55,6 +55,8 @@ public class ModPackets {
                 FakeSteveControlS2CPacket.CODEC);
         PayloadTypeRegistry.playS2C().register(FakeSteveApparitionS2CPacket.ID,
                 FakeSteveApparitionS2CPacket.CODEC);
+        PayloadTypeRegistry.playS2C().register(FakeSteveHuntS2CPacket.ID,
+                FakeSteveHuntS2CPacket.CODEC);
         PayloadTypeRegistry.playC2S().register(FakeSteveApparitionObservationC2SPacket.ID,
                 FakeSteveApparitionObservationC2SPacket.CODEC);
         ServerPlayNetworking.registerGlobalReceiver(FakeSteveApparitionObservationC2SPacket.ID,

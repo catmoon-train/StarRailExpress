@@ -16,6 +16,7 @@ import io.wifi.starrailexpress.game.modes.SREMurderGameMode;
 import io.wifi.starrailexpress.util.SRENetworkMessageUtils;
 import io.wifi.starrailexpress.util.TrueFalseResult;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
+import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
@@ -31,6 +32,7 @@ import org.agmas.noellesroles.Noellesroles;
 import org.agmas.noellesroles.config.NoellesRolesConfig;
 import org.agmas.noellesroles.game.modifier.NRModifiers;
 import org.agmas.noellesroles.init.ModEffects;
+import org.agmas.noellesroles.packet.FakeSteveHuntS2CPacket;
 import org.agmas.noellesroles.role.ModRoles;
 import org.agmas.noellesroles.utils.RoleUtils;
 
@@ -268,6 +270,11 @@ public final class FakeSteveDirector {
         if (generating) {
             FakeSteveApparitions.tick(level, session.pendingEvents > 0);
         }
+        if (session.huntPhase && FakeSteveRules.shouldRecallHuntPlayers(level.getGameTime(),
+                session.nextHuntRecallTick)) {
+            recallHuntPlayers(level, session, true);
+            session.nextHuntRecallTick = level.getGameTime() + FakeSteveRules.HUNT_ROOM_RECALL_INTERVAL_TICKS;
+        }
         for (UUID id : Set.copyOf(session.agents.keySet())) {
             ServerPlayer player = level.getServer().getPlayerList().getPlayer(id);
             if (player == null || player.serverLevel() != level) {
@@ -319,6 +326,9 @@ public final class FakeSteveDirector {
         Session removed = SESSIONS.remove(level.dimension().location());
         FakeSteveApparitions.cancelAll(level);
         FakeSteveVoiceDetector.clear();
+        if (removed != null && removed.huntPhase) {
+            sendHuntScene(level, false);
+        }
         if (removed != null) {
             for (UUID id : removed.agents.keySet()) {
                 ServerPlayer player = level.getServer().getPlayerList().getPlayer(id);
@@ -427,12 +437,29 @@ public final class FakeSteveDirector {
             return;
         }
         session.huntPhase = true;
+        session.nextHuntRecallTick = level.getGameTime() + FakeSteveRules.HUNT_ROOM_RECALL_INTERVAL_TICKS;
         Component title = Component.translatable("message.noellesroles.fake_steve.hunt.title")
                 .withStyle(ChatFormatting.DARK_RED, ChatFormatting.BOLD);
         Component subtitle = Component.translatable("message.noellesroles.fake_steve.hunt.subtitle")
                 .withStyle(ChatFormatting.RED);
         Component broadcast = Component.translatable("message.noellesroles.fake_steve.hunt.broadcast")
                 .withStyle(ChatFormatting.RED);
+        recallHuntPlayers(level, session, false);
+        sendHuntScene(level, true);
+        for (ServerPlayer player : level.players()) {
+            if (!GameUtils.isPlayerAliveAndSurvival(player)) {
+                continue;
+            }
+            SRENetworkMessageUtils.sendTitleTime(player, 10, 80, 20);
+            SRENetworkMessageUtils.sendTitle(player, title);
+            SRENetworkMessageUtils.sendSubtitle(player, subtitle);
+            SRENetworkMessageUtils.sendBroadcast(player, broadcast);
+            player.playNotifySound(SoundEvents.WITHER_SPAWN, SoundSource.MASTER, 0.7F, 0.75F);
+        }
+    }
+
+    /** Reunites the living cast in their own rooms and clears stale AI routes before every hunt cycle. */
+    private static void recallHuntPlayers(ServerLevel level, Session session, boolean announce) {
         for (ServerPlayer player : level.players()) {
             if (!GameUtils.isPlayerAliveAndSurvival(player)) {
                 continue;
@@ -440,23 +467,34 @@ public final class FakeSteveDirector {
             GameUtils.teleportBackToRoom(player);
             if (isReplaced(player)) {
                 enforcePermanentPsycho(player);
-                FakeSteveAgentState state = session.agents.get(player.getUUID());
-                if (state != null) {
-                    state.path.clear();
-                    state.pathGoal = null;
-                    state.focusTarget = null;
-                    state.committedTarget = null;
-                    state.ambushGoal = null;
-                    state.ambushTarget = null;
-                    state.nextPathTick = level.getGameTime();
-                    state.brain.disengage();
-                }
+                resetHuntAgent(session.agents.get(player.getUUID()), level.getGameTime());
             }
-            SRENetworkMessageUtils.sendTitleTime(player, 10, 80, 20);
-            SRENetworkMessageUtils.sendTitle(player, title);
-            SRENetworkMessageUtils.sendSubtitle(player, subtitle);
-            SRENetworkMessageUtils.sendBroadcast(player, broadcast);
-            player.playNotifySound(SoundEvents.WITHER_SPAWN, SoundSource.MASTER, 0.7F, 0.75F);
+            if (announce) {
+                SRENetworkMessageUtils.sendActionbar(player, Component
+                        .translatable("message.noellesroles.fake_steve.hunt.recall")
+                        .withStyle(ChatFormatting.DARK_RED));
+            }
+        }
+    }
+
+    private static void resetHuntAgent(FakeSteveAgentState state, long gameTime) {
+        if (state == null) {
+            return;
+        }
+        state.path.clear();
+        state.pathGoal = null;
+        state.focusTarget = null;
+        state.committedTarget = null;
+        state.ambushGoal = null;
+        state.ambushTarget = null;
+        state.nextPathTick = gameTime;
+        state.brain.disengage();
+    }
+
+    private static void sendHuntScene(ServerLevel level, boolean active) {
+        FakeSteveHuntS2CPacket packet = new FakeSteveHuntS2CPacket(active);
+        for (ServerPlayer player : level.players()) {
+            ServerPlayNetworking.send(player, packet);
         }
     }
 
@@ -492,6 +530,7 @@ public final class FakeSteveDirector {
         private boolean active;
         private boolean huntPhase;
         private boolean victoryDeclared;
+        private long nextHuntRecallTick;
         private int pendingEvents;
         private ActivationSource activationSource;
 
