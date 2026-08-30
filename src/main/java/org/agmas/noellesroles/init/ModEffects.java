@@ -60,7 +60,7 @@ public class ModEffects {
     public static final Holder<MobEffect> JUMP_DECREASE = register("jump_decrease",
             new SimpleMobEffect(MobEffectCategory.HARMFUL, 16646020).addAttributeModifier(
                     Attributes.JUMP_STRENGTH, Noellesroles.id("effect.jump_decrease"),
-                    (double) -0.1F, Operation.ADD_VALUE));
+                    (double) -0.05F, Operation.ADD_VALUE));
     public static final Holder<MobEffect> INVENTORY_BANED = register("inventory_baned",
             new SimpleMobEffect(MobEffectCategory.HARMFUL, 0xFFFFFF));
     public static final Holder<MobEffect> EAT_MEAT_FOOD = register("eat_meat_food",
