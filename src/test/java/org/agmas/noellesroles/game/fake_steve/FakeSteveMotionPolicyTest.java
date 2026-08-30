@@ -47,6 +47,7 @@ class FakeSteveMotionPolicyTest {
     void smallRouteHeadingChangesUseADeadZoneInsteadOfWobbling() {
         assertEquals(30.0F, FakeSteveMotionPolicy.stableHeading(30.0F, 34.0F), 0.001F);
         assertEquals(50.0F, FakeSteveMotionPolicy.stableHeading(30.0F, 50.0F), 0.001F);
+        assertEquals(66.0F, FakeSteveMotionPolicy.stableHeading(30.0F, 100.0F), 0.001F);
     }
 
     @Test

@@ -26,4 +26,27 @@ final class FakeSteveDoorAccess {
         return !state.hasProperty(BlockStateProperties.OPEN)
                 || state.getValue(BlockStateProperties.OPEN);
     }
+
+    static boolean isInsideApproachCorridor(double bodyX, double bodyZ,
+                                            double routeX, double routeZ,
+                                            double doorX, double doorZ) {
+        double routeDx = routeX - bodyX;
+        double routeDz = routeZ - bodyZ;
+        double routeLengthSqr = routeDx * routeDx + routeDz * routeDz;
+        if (routeLengthSqr < 1.0E-4D) {
+            double dx = doorX - bodyX;
+            double dz = doorZ - bodyZ;
+            return dx * dx + dz * dz <= 1.0D;
+        }
+        double projection = ((doorX - bodyX) * routeDx + (doorZ - bodyZ) * routeDz)
+                / routeLengthSqr;
+        if (projection < -0.15D || projection > 1.35D) {
+            return false;
+        }
+        double closestX = bodyX + routeDx * Math.max(0.0D, Math.min(1.0D, projection));
+        double closestZ = bodyZ + routeDz * Math.max(0.0D, Math.min(1.0D, projection));
+        double distanceX = doorX - closestX;
+        double distanceZ = doorZ - closestZ;
+        return distanceX * distanceX + distanceZ * distanceZ <= 1.0D;
+    }
 }

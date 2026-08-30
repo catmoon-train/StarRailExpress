@@ -2,6 +2,9 @@ package org.agmas.noellesroles.game.fake_steve;
 
 /** Pure guards for navigation recovery and movement actions. */
 final class FakeStevePathPolicy {
+    private static final int[] LEVEL_OR_DESCEND = { 0, -1 };
+    private static final int[] LEVEL_ASCEND_OR_DESCEND = { 0, 1, -1 };
+
     private FakeStevePathPolicy() {
     }
 
@@ -31,5 +34,17 @@ final class FakeStevePathPolicy {
     static boolean shouldSprintForPursuit(boolean pursuingHuman, boolean psychoActive,
                                           boolean crowdBlocked) {
         return !crowdBlocked && (pursuingHuman || psychoActive);
+    }
+
+    static boolean isWalkThroughFootLayer(boolean collisionEmpty, double collisionMaxY) {
+        return collisionEmpty || collisionMaxY <= 0.6D;
+    }
+
+    static int[] verticalOffsets(boolean jumpsAllowed, boolean swimming) {
+        return jumpsAllowed || swimming ? LEVEL_ASCEND_OR_DESCEND : LEVEL_OR_DESCEND;
+    }
+
+    static boolean shouldPreferDirectRoute(boolean explicitTarget, boolean corridorClear) {
+        return explicitTarget && corridorClear;
     }
 }

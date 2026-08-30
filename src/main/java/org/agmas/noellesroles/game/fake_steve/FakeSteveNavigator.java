@@ -1,5 +1,6 @@
 package org.agmas.noellesroles.game.fake_steve;
 
+import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
@@ -29,6 +30,11 @@ final class FakeSteveNavigator {
     }
 
     static ArrayDeque<BlockPos> find(ServerLevel level, ServerPlayer mover, BlockPos goal) {
+        return find(level, mover, goal, false);
+    }
+
+    static ArrayDeque<BlockPos> find(ServerLevel level, ServerPlayer mover, BlockPos goal,
+                                     boolean explicitTarget) {
         BlockPos start = mover.blockPosition();
         Set<BlockPos> occupied = occupiedByPlayers(level, mover);
         PriorityQueue<Node> open = new PriorityQueue<>(Comparator.comparingDouble(Node::score));
@@ -36,6 +42,14 @@ final class FakeSteveNavigator {
         Map<BlockPos, Integer> cost = new HashMap<>();
         Set<BlockPos> closed = new HashSet<>();
         BlockPos normalizedStart = normalize(level, start);
+        BlockPos normalizedGoal = normalize(level, goal);
+        if (FakeStevePathPolicy.shouldPreferDirectRoute(explicitTarget,
+                hasDirectWalkCorridor(level, normalizedStart, normalizedGoal, occupied))) {
+            ArrayDeque<BlockPos> direct = new ArrayDeque<>();
+            direct.add(normalizedGoal.immutable());
+            return direct;
+        }
+        boolean jumpsAllowed = SREGameWorldComponent.KEY.get(level).isJumpAvailable();
         BlockPos best = normalizedStart;
         int bestDistance = distance(normalizedStart, goal);
         cost.put(normalizedStart, 0);
@@ -55,7 +69,7 @@ final class FakeSteveNavigator {
                 best = current;
                 break;
             }
-            for (BlockPos next : neighbours(level, current, occupied)) {
+            for (BlockPos next : neighbours(level, current, occupied, jumpsAllowed)) {
                 if (closed.contains(next)) {
                     continue;
                 }
@@ -84,11 +98,13 @@ final class FakeSteveNavigator {
     }
 
     private static List<BlockPos> neighbours(ServerLevel level, BlockPos current,
-                                             Set<BlockPos> occupied) {
+                                             Set<BlockPos> occupied, boolean jumpsAllowed) {
         List<BlockPos> result = new ArrayList<>(12);
+        boolean swimming = level.getBlockState(current).getFluidState().is(FluidTags.WATER)
+                || level.getBlockState(current.above()).getFluidState().is(FluidTags.WATER);
         for (Direction direction : HORIZONTAL) {
             BlockPos horizontal = current.relative(direction);
-            for (int dy : new int[] { 0, 1, -1 }) {
+            for (int dy : FakeStevePathPolicy.verticalOffsets(jumpsAllowed, swimming)) {
                 BlockPos candidate = horizontal.offset(0, dy, 0);
                 if (!occupied.contains(candidate) && standable(level, candidate)) {
                     result.add(candidate.immutable());
@@ -130,14 +146,51 @@ final class FakeSteveNavigator {
     private static boolean standable(ServerLevel level, BlockPos feet) {
         BlockState feetState = level.getBlockState(feet);
         BlockState headState = level.getBlockState(feet.above());
-        boolean feetFree = feetState.getCollisionShape(level, feet).isEmpty()
+        var feetShape = feetState.getCollisionShape(level, feet);
+        boolean feetShapeEmpty = feetShape.isEmpty();
+        double feetCollisionHeight = feetShapeEmpty ? 0.0D : feetShape.max(Direction.Axis.Y);
+        boolean footLayer = !feetShapeEmpty
+                && FakeStevePathPolicy.isWalkThroughFootLayer(false, feetCollisionHeight);
+        boolean feetFree = FakeStevePathPolicy.isWalkThroughFootLayer(
+                        feetShapeEmpty, feetCollisionHeight)
                 || FakeSteveDoorAccess.isOpenablePassage(feetState);
         boolean headFree = headState.getCollisionShape(level, feet.above()).isEmpty()
                 || FakeSteveDoorAccess.isOpenablePassage(headState);
         boolean swimming = feetState.getFluidState().is(FluidTags.WATER)
                 || headState.getFluidState().is(FluidTags.WATER);
-        return feetFree && headFree && (swimming
+        return feetFree && headFree && (swimming || footLayer
                 || !level.getBlockState(feet.below()).getCollisionShape(level, feet.below()).isEmpty());
+    }
+
+    private static boolean hasDirectWalkCorridor(ServerLevel level, BlockPos start,
+                                                  BlockPos goal, Set<BlockPos> occupied) {
+        if (start.getY() != goal.getY()) {
+            return false;
+        }
+        double dx = goal.getX() - start.getX();
+        double dz = goal.getZ() - start.getZ();
+        double length = Math.sqrt(dx * dx + dz * dz);
+        if (length < 1.0D) {
+            return true;
+        }
+        double perpendicularX = -dz / length;
+        double perpendicularZ = dx / length;
+        int samples = Math.max(1, (int) Math.ceil(length * 2.0D));
+        for (int sample = 1; sample <= samples; sample++) {
+            double progress = (double) sample / samples;
+            double centerX = start.getX() + 0.5D + dx * progress;
+            double centerZ = start.getZ() + 0.5D + dz * progress;
+            for (double side : new double[] { -0.28D, 0.0D, 0.28D }) {
+                BlockPos position = BlockPos.containing(
+                        centerX + perpendicularX * side, start.getY(),
+                        centerZ + perpendicularZ * side);
+                if (!standable(level, position)
+                        || occupied.contains(position) && distance(position, goal) > 1) {
+                    return false;
+                }
+            }
+        }
+        return true;
     }
 
     private static int distance(BlockPos a, BlockPos b) {

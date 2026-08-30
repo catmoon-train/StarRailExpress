@@ -4,6 +4,7 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 
 class FakeStevePathPolicyTest {
     @Test
@@ -46,5 +47,29 @@ class FakeStevePathPolicyTest {
         assertTrue(FakeStevePathPolicy.shouldSprintForPursuit(false, true, false));
         assertFalse(FakeStevePathPolicy.shouldSprintForPursuit(false, false, false));
         assertFalse(FakeStevePathPolicy.shouldSprintForPursuit(true, true, true));
+    }
+
+    @Test
+    void carpetHeightIsWalkableButAFullBlockAtTheFeetIsNot() {
+        assertTrue(FakeStevePathPolicy.isWalkThroughFootLayer(false, 0.0625D));
+        assertFalse(FakeStevePathPolicy.isWalkThroughFootLayer(false, 1.0D));
+        assertTrue(FakeStevePathPolicy.isWalkThroughFootLayer(true, 1.0D));
+    }
+
+    @Test
+    void noJumpMapsNeverPlanAnAscendingNeighbour() {
+        assertArrayEquals(new int[] { 0, -1 },
+                FakeStevePathPolicy.verticalOffsets(false, false));
+        assertArrayEquals(new int[] { 0, 1, -1 },
+                FakeStevePathPolicy.verticalOffsets(true, false));
+        assertArrayEquals(new int[] { 0, 1, -1 },
+                FakeStevePathPolicy.verticalOffsets(false, true));
+    }
+
+    @Test
+    void explicitTargetsPreferAClearStraightCorridor() {
+        assertTrue(FakeStevePathPolicy.shouldPreferDirectRoute(true, true));
+        assertFalse(FakeStevePathPolicy.shouldPreferDirectRoute(false, true));
+        assertFalse(FakeStevePathPolicy.shouldPreferDirectRoute(true, false));
     }
 }
