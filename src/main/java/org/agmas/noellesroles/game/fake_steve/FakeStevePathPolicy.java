@@ -28,6 +28,11 @@ final class FakeStevePathPolicy {
         return sampleGap >= 4L && movedDistanceSqr < 0.0025D;
     }
 
+    /** Route nodes beside an open drop cost more, so the body hugs the deck. */
+    static int edgePenalty(boolean dropBeside) {
+        return dropBeside ? 4 : 0;
+    }
+
     static boolean needsRecalculation(int stuckTicks) {
         return stuckTicks >= 3;
     }

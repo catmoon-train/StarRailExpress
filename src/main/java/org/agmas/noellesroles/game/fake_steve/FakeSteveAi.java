@@ -49,6 +49,8 @@ import org.agmas.noellesroles.content.entity.LockEntityManager;
 public class FakeSteveAi {
     private static final double FACE_COS = Math.cos(Math.toRadians(30.0));
     private static final ResourceLocation BACKSTAB = GameConstants.DeathReasons.FAKE_AI_BACKSTAB;
+    /** How long a body stays committed to one prey before re-evaluating. */
+    private static final long PREY_COMMIT_TICKS = 80L;
     private static final int STRIKE_NONE = 0;
     private static final int STRIKE_KILLED = 1;
     private static final int STRIKE_BUSY = 2;
@@ -110,23 +112,25 @@ public class FakeSteveAi {
                 state.faceTicks = 0;
             }
         }
-        // A psycho body skips the slow eye-contact ritual and locks on immediately.
+        // A psycho body only ever swings the bat: no gun, no knife, no skills.
+        focus = engageable(level, state.focusTarget);
+        concealWeaponIfExposed(level, body, state, psychoActive);
+
+        boolean killerRole = originalRole != null && originalRole.canUseKiller();
+        ServerPlayer prey = killerRole ? choosePrey(level, body, state, now) : null;
+        // A psycho body does not wait for eye contact: it locks onto prey at once.
         if (psychoActive && focus == null && state.mode != AgentMode.STALK) {
-            ServerPlayer nearest = nearestVisibleHuman(level, body);
+            ServerPlayer nearest = prey != null ? prey : nearestVisibleHuman(level, body);
             if (nearest != null) {
                 beginStare(state, nearest);
                 focus = nearest;
             }
         }
-
         focus = engageable(level, state.focusTarget);
-        concealWeaponIfExposed(level, body, state, psychoActive);
 
         ServerPlayer isolated = FakeSteveDirector.isEnabled() ? isolatedTarget(level, body) : null;
         boolean taskAvailable = FakeSteveTaskPlanner.hasCompletableTask(body, state);
-        ServerPlayer prey = originalRole != null && originalRole.canUseKiller()
-                ? nearestPrey(level, body) : null;
-        if (originalRole != null && originalRole.canUseKiller()) {
+        if (killerRole && !psychoActive) {
             prepareKiller(level, body, state, originalRole, prey, psychoActive);
         }
         boolean psychoArmed = psychoActive
@@ -146,10 +150,11 @@ public class FakeSteveAi {
         boolean recovering = state.mode == AgentMode.RECOVER && now < state.nextDecisionTick;
 
         // No dedicated hunt: only targets that are already within reach get struck,
-        // and an isolated human is replaced instead of butchered.
+        // and an isolated human is replaced instead of butchered. A psycho body
+        // ignores the assimilation nicety and simply kills whoever is close.
         int strike = STRIKE_NONE;
-        if (prey != null && isolated == null && !recovering
-                && (psychoActive || state.mode != AgentMode.STARE)) {
+        if (prey != null && !recovering
+                && (psychoActive || (isolated == null && state.mode != AgentMode.STARE))) {
             strike = tryArmedAttack(level, body, prey, state, psychoActive);
         }
         if (strike == STRIKE_BUSY) {
@@ -158,6 +163,10 @@ public class FakeSteveAi {
         if (strike == STRIKE_KILLED) {
             state.focusTarget = null;
             state.pendingEngagement = false;
+            state.committedTarget = null;
+            state.committedUntilTick = 0L;
+            state.ambushGoal = null;
+            state.ambushTarget = null;
             state.brain.disengage();
             int recoveryTicks = FakeSteveKillerPolicy.recoveryTicksAfterKill(psychoActive);
             if (recoveryTicks > 0) {
@@ -173,8 +182,8 @@ public class FakeSteveAi {
 
         FakeSteveBrain.BrainIntent intent = state.brain.tick(new FakeSteveBrain.PerceptionSnapshot(
                 elapsed, recovering, state.pendingEngagement, focus != null,
-                targetLooking, safeBackstab, isolated != null,
-                taskAvailable && !interruptTask));
+                targetLooking, safeBackstab, !psychoActive && isolated != null,
+                !psychoActive && taskAvailable && !interruptTask));
         if (!intent.recover()) {
             state.pendingEngagement = false;
         }
@@ -206,14 +215,17 @@ public class FakeSteveAi {
             return;
         }
         if (state.mode == AgentMode.STALK && focus != null) {
-            if (intent.attack() && backstabAssimilate(body, focus)) {
+            if (!psychoActive && intent.attack() && backstabAssimilate(body, focus)) {
                 clearFocus(state);
                 state.mode = AgentMode.RECOVER;
                 state.nextDecisionTick = now + 40L;
                 state.modeStartedTick = now;
                 return;
             }
-            follow(level, body, ambushGoal(focus), state, psychoActive ? 0.24D : 0.19D);
+            follow(level, body,
+                    psychoActive ? focus.blockPosition()
+                            : ambushGoal(level, state, focus, now),
+                    state, psychoActive ? 0.24D : 0.19D);
             return;
         }
         if (state.mode == AgentMode.ASSIMILATE && isolated != null) {
@@ -257,8 +269,7 @@ public class FakeSteveAi {
                     : 40L + level.getRandom().nextInt(80));
             boolean interacted = !psychoActive && tryInteract(level, body);
             if (!interacted) {
-                state.pathGoal = body.blockPosition().offset(level.getRandom().nextInt(17) - 8,
-                        0, level.getRandom().nextInt(17) - 8);
+                state.pathGoal = wanderGoal(level, body);
                 state.path.clear();
             }
         }
@@ -360,9 +371,13 @@ public class FakeSteveAi {
         state.pathFailureCount++;
         BlockPos goal = state.pathGoal;
         if (goal != null) {
-            // Nudge the goal so the next A* run cannot re-pick the same blocked lane.
-            state.pathGoal = goal.offset(level.getRandom().nextInt(5) - 2, 0,
+            // Nudge the goal so the next A* run cannot re-pick the same blocked
+            // lane, but never onto a position that cannot hold a body.
+            BlockPos nudged = goal.offset(level.getRandom().nextInt(5) - 2, 0,
                     level.getRandom().nextInt(5) - 2);
+            if (FakeSteveNavigator.safeStand(level, nudged)) {
+                state.pathGoal = nudged.immutable();
+            }
         }
         if (state.pathFailureCount >= 6 && state.taskType != null) {
             FakeSteveTaskPlanner.abandon(body, state);
@@ -507,10 +522,67 @@ public class FakeSteveAi {
         return level.players().stream().filter(FakeSteveAi::isHuman)
                 .filter(FakeSteveAi::isEngageable)
                 .filter(p -> p.distanceToSqr(body) <= FakeSteveKillerPolicy.STRIKE_RADIUS_SQR)
-                .filter(p -> FakeSteveKillerPolicy.canActivelyHunt(
-                        FakeSteveDirector.isReplaced(p), isKillerRole(level, p),
-                        isKillerNeutral(level, p)))
+                .filter(p -> isPrey(level, p))
                 .min(Comparator.comparingDouble(body::distanceToSqr)).orElse(null);
+    }
+
+    private static boolean isPrey(ServerLevel level, ServerPlayer player) {
+        return FakeSteveKillerPolicy.canActivelyHunt(FakeSteveDirector.isReplaced(player),
+                isKillerRole(level, player), isKillerNeutral(level, player));
+    }
+
+    /**
+     * Picks the strike target with commitment and hysteresis. Without this a body
+     * standing between two humans re-targets every tick and spins on the spot.
+     */
+    private static ServerPlayer choosePrey(ServerLevel level, ServerPlayer body,
+            FakeSteveAgentState state, long now) {
+        ServerPlayer committed = engageable(level, state.committedTarget);
+        if (committed != null && isPrey(level, committed)) {
+            double committedDistance = body.distanceToSqr(committed);
+            if (committedDistance <= FakeSteveKillerPolicy.STRIKE_RADIUS_SQR * 2.25D) {
+                if (now < state.committedUntilTick) {
+                    return committed;
+                }
+                ServerPlayer rival = nearestPrey(level, body);
+                // Only a clearly closer human is worth abandoning the current one.
+                if (rival == null || body.distanceToSqr(rival) > committedDistance * 0.36D) {
+                    return committed;
+                }
+            }
+        }
+        ServerPlayer focus = engageable(level, state.focusTarget);
+        if (focus != null && isPrey(level, focus)
+                && body.distanceToSqr(focus) <= FakeSteveKillerPolicy.STRIKE_RADIUS_SQR) {
+            commitPrey(state, focus, now);
+            return focus;
+        }
+        ServerPlayer nearest = nearestPrey(level, body);
+        if (nearest == null) {
+            state.committedTarget = null;
+            state.committedUntilTick = 0L;
+            return null;
+        }
+        commitPrey(state, nearest, now);
+        return nearest;
+    }
+
+    private static void commitPrey(FakeSteveAgentState state, ServerPlayer prey, long now) {
+        state.committedTarget = prey.getUUID();
+        state.committedUntilTick = now + PREY_COMMIT_TICKS;
+    }
+
+    /** Wander targets must be real floor; an unvalidated one walks into the void. */
+    private static BlockPos wanderGoal(ServerLevel level, ServerPlayer body) {
+        BlockPos origin = body.blockPosition();
+        for (int attempt = 0; attempt < 12; attempt++) {
+            BlockPos candidate = origin.offset(level.getRandom().nextInt(17) - 8, 0,
+                    level.getRandom().nextInt(17) - 8);
+            if (FakeSteveNavigator.safeStand(level, candidate)) {
+                return candidate.immutable();
+            }
+        }
+        return null;
     }
 
     /**
@@ -522,13 +594,16 @@ public class FakeSteveAi {
         long now = level.getGameTime();
         SRERole role = SREGameWorldComponent.KEY.get(level).getRole(body);
         if (psychoActive) {
+            // A frenzied body only swings the bat: no knife, no revolver, no gadgets.
+            cancelKnifeCharge(body, state);
             int psychoWeapon = findPsychoWeaponSlot(body, role);
             if (psychoWeapon >= 0
                     && body.distanceToSqr(target) <= FakeSteveKillerPolicy.MELEE_RANGE_SQR
-                    && behind(body, target)) {
+                    && visible(body, target)) {
                 select(body, psychoWeapon);
                 return killWithPsycho(body, target) ? STRIKE_KILLED : STRIKE_NONE;
             }
+            return STRIKE_NONE;
         }
         boolean unseen = !witnessed(level, body, target, psychoActive);
         int knife = findUsableKnifeSlot(body);
@@ -731,7 +806,9 @@ public class FakeSteveAi {
         }
         Vec3 direction = new Vec3(delta.x, 0.0, delta.z).normalize();
         boolean pursuingHuman = state.mode == AgentMode.STALK;
-        List<FakeSteveCrowdAvoidance.NearbyPlayer> nearbyPlayers = level.players().stream()
+        boolean psychoActive = SREPlayerPsychoComponent.KEY.get(body).inPsycho();
+        List<FakeSteveCrowdAvoidance.NearbyPlayer> nearbyPlayers = psychoActive ? List.of()
+                : level.players().stream()
                 .filter(player -> player != body && player.isAlive() && !player.isSpectator())
                 .filter(player -> !pursuingHuman || state.focusTarget == null
                         || !player.getUUID().equals(state.focusTarget))
@@ -773,7 +850,6 @@ public class FakeSteveAi {
             state.stableRouteYaw = FakeSteveMotionPolicy.stableHeading(
                     state.stableRouteYaw, candidateYaw, straight);
         }
-        boolean psychoActive = SREPlayerPsychoComponent.KEY.get(body).inPsycho();
         boolean sprint = FakeStevePathPolicy.shouldSprintForPursuit(
                 pursuingHuman, psychoActive, avoidance.crowded())
                 || (!avoidance.crowded() && (now < state.sprintUntilTick || speed >= 0.22D));
@@ -781,8 +857,26 @@ public class FakeSteveAi {
                 ? state.crowdStrafe : avoidance.strafe();
         float strafe = canStrafePast(level, body, direction, requestedStrafe)
                 ? requestedStrafe : 0.0F;
+        // Sidestepping off the edge is just as fatal as walking straight off it.
+        if (strafe != 0.0F) {
+            double side = 1.15D * Math.signum(strafe);
+            Vec3 lane = new Vec3(direction.z, 0.0D, -direction.x).multiply(side, 0.0D, side);
+            if (!FakeSteveNavigator.stepSafe(level, body.position(), lane)) {
+                strafe = 0.0F;
+            }
+        }
         float forward = strafe == 0.0F && avoidance.crowded()
                 ? 0.0F : avoidance.forwardScale();
+        // Never step into nothing: an unsupported tile ahead stops the body and
+        // forces a new route instead of walking the deck edge into the void.
+        if (forward > 0.0F && !FakeSteveNavigator.stepSafe(level, body.position(),
+                direction.multiply(1.15D, 0.0D, 1.15D))) {
+            forward = 0.0F;
+            state.path.clear();
+            state.nextPathTick = Math.min(state.nextPathTick, now + 10L);
+            state.hasStableRouteYaw = false;
+            state.sprintUntilTick = 0L;
+        }
         boolean ascends = delta.y > 0.45D;
         boolean jumpsAllowed = SREGameWorldComponent.KEY.get(level).isJumpAvailable();
         boolean jump = FakeStevePathPolicy.shouldJump(jumpsAllowed, body.onGround(), ascends,
@@ -1193,13 +1287,35 @@ public class FakeSteveAi {
         return -1;
     }
 
-    private static BlockPos ambushGoal(ServerPlayer target) {
+    private static BlockPos ambushBehind(ServerPlayer target) {
         Vec3 look = target.getLookAngle();
         Vec3 horizontal = new Vec3(look.x, 0.0D, look.z);
         if (horizontal.lengthSqr() < 0.01D) {
             return target.blockPosition();
         }
         return BlockPos.containing(target.position().subtract(horizontal.normalize().scale(2.0D)));
+    }
+
+    /**
+     * The ambush point is cached for a moment. Recomputing it every tick made a
+     * turning target drag the body back and forth across the same doorway.
+     */
+    private static BlockPos ambushGoal(ServerLevel level, FakeSteveAgentState state,
+            ServerPlayer target, long now) {
+        BlockPos cached = state.ambushGoal;
+        if (cached != null && target.getUUID().equals(state.ambushTarget)
+                && now - state.ambushGoalTick < 30L
+                && cached.closerThan(target.blockPosition(), 6.0)) {
+            return cached;
+        }
+        BlockPos computed = ambushBehind(target);
+        if (!FakeSteveNavigator.safeStand(level, computed)) {
+            computed = target.blockPosition();
+        }
+        state.ambushGoal = computed.immutable();
+        state.ambushTarget = target.getUUID();
+        state.ambushGoalTick = now;
+        return state.ambushGoal;
     }
 
     private static int findKnifeSlot(ServerPlayer player) {
@@ -1268,6 +1384,8 @@ public class FakeSteveAi {
         state.pendingEngagement = false;
         state.faceTicks = 0;
         state.assimilationTicks = 0;
+        state.ambushGoal = null;
+        state.ambushTarget = null;
         state.path.clear();
     }
 }

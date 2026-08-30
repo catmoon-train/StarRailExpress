@@ -73,7 +73,8 @@ final class FakeSteveNavigator {
                 if (closed.contains(next)) {
                     continue;
                 }
-                int tentative = cost.get(current) + 1 + Math.abs(next.getY() - current.getY());
+                int tentative = cost.get(current) + 1 + Math.abs(next.getY() - current.getY())
+                        + FakeStevePathPolicy.edgePenalty(dropBeside(level, next));
                 if (tentative >= cost.getOrDefault(next, Integer.MAX_VALUE)) {
                     continue;
                 }
@@ -95,6 +96,51 @@ final class FakeSteveNavigator {
     static boolean reaches(ArrayDeque<BlockPos> path, BlockPos goal) {
         BlockPos last = path.peekLast();
         return last != null && distance(last, goal) <= 1;
+    }
+
+    /**
+     * True when the column can carry a body. A carpet or trapdoor is not support
+     * on its own, so an unbacked one can never be mistaken for a floor.
+     */
+    static boolean safeStand(ServerLevel level, BlockPos pos) {
+        for (int dy : new int[] { 0, 1, -1 }) {
+            if (standable(level, pos.offset(0, dy, 0))) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Guard against walking into empty space. Only an air column with nothing
+     * solid underneath is refused; walls and step-ups are still walkable.
+     */
+    static boolean stepSafe(ServerLevel level, Vec3 from, Vec3 horizontal) {
+        Vec3 ahead = from.add(horizontal);
+        BlockPos feet = BlockPos.containing(ahead);
+        if (!level.getBlockState(feet).getFluidState().isEmpty()) {
+            return true;
+        }
+        if (!level.getBlockState(feet).getCollisionShape(level, feet).isEmpty()) {
+            return true;
+        }
+        return !level.getBlockState(feet.below()).getCollisionShape(level, feet.below()).isEmpty();
+    }
+
+    /** Nodes hugging an open drop are discouraged so routes keep to the deck. */
+    private static boolean dropBeside(ServerLevel level, BlockPos pos) {
+        for (Direction direction : HORIZONTAL) {
+            BlockPos side = pos.relative(direction);
+            if (!level.getBlockState(side).getFluidState().is(FluidTags.WATER)
+                    && !hasFloor(level, side) && !hasFloor(level, side.below())) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private static boolean hasFloor(ServerLevel level, BlockPos pos) {
+        return !level.getBlockState(pos).getCollisionShape(level, pos).isEmpty();
     }
 
     private static List<BlockPos> neighbours(ServerLevel level, BlockPos current,
@@ -149,8 +195,6 @@ final class FakeSteveNavigator {
         var feetShape = feetState.getCollisionShape(level, feet);
         boolean feetShapeEmpty = feetShape.isEmpty();
         double feetCollisionHeight = feetShapeEmpty ? 0.0D : feetShape.max(Direction.Axis.Y);
-        boolean footLayer = !feetShapeEmpty
-                && FakeStevePathPolicy.isWalkThroughFootLayer(false, feetCollisionHeight);
         boolean feetFree = FakeStevePathPolicy.isWalkThroughFootLayer(
                         feetShapeEmpty, feetCollisionHeight)
                 || FakeSteveDoorAccess.isOpenablePassage(feetState);
@@ -158,8 +202,11 @@ final class FakeSteveNavigator {
                 || FakeSteveDoorAccess.isOpenablePassage(headState);
         boolean swimming = feetState.getFluidState().is(FluidTags.WATER)
                 || headState.getFluidState().is(FluidTags.WATER);
-        return feetFree && headFree && (swimming || footLayer
-                || !level.getBlockState(feet.below()).getCollisionShape(level, feet.below()).isEmpty());
+        boolean groundBelow = !level.getBlockState(feet.below())
+                .getCollisionShape(level, feet.below()).isEmpty();
+        // A slab or stair is a floor by itself; a carpet never is.
+        boolean selfSupporting = !feetShapeEmpty && feetCollisionHeight >= 0.4D;
+        return feetFree && headFree && (swimming || groundBelow || selfSupporting);
     }
 
     private static boolean hasDirectWalkCorridor(ServerLevel level, BlockPos start,

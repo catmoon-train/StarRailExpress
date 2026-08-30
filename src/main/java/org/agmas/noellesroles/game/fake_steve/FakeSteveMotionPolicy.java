@@ -7,8 +7,8 @@ public final class FakeSteveMotionPolicy {
     private static final float MIN_TURN_DEGREES_PER_TICK = 2.5F;
     private static final float ROUTE_HEADING_DEAD_ZONE = 6.0F;
     private static final float MAX_ROUTE_HEADING_STEP = 36.0F;
-    private static final float STRAIGHT_HEADING_DEAD_ZONE = 22.0F;
-    private static final float MAX_STRAIGHT_HEADING_STEP = 9.0F;
+    private static final float STRAIGHT_HEADING_DEAD_ZONE = 14.0F;
+    private static final float MAX_STRAIGHT_HEADING_STEP = 12.0F;
 
     private FakeSteveMotionPolicy() {
     }

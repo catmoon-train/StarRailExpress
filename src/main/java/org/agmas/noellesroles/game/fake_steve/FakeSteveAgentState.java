@@ -17,6 +17,13 @@ public final class FakeSteveAgentState {
     public long lastTickAt;
     public int tickStep = 5;
     public UUID focusTarget;
+    /** Committed prey: stops the body from flip-flopping between two humans. */
+    public UUID committedTarget;
+    public long committedUntilTick;
+    /** Cached ambush position so a turning target cannot make the body spin. */
+    public BlockPos ambushGoal;
+    public UUID ambushTarget;
+    public long ambushGoalTick;
     public boolean pendingEngagement;
     public int faceTicks;
     public int assimilationTicks;
