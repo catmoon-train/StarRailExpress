@@ -187,6 +187,21 @@ public class GameUtilsCommand {
                       true);
                   return 1;
                 }))
+                .then(Commands.literal("init_role_data").executes((ctx) -> {
+                  ServerPlayer player = ctx.getSource().getPlayerOrException();
+                  SRERole role = SRERoleWorldComponent.KEY.get(player.level()).getRole(player);
+                  if (role == null) {
+                    throw ConfigCommand
+                        .createSimpleSyntaxException(new Exception("Player doesn't have any roles!"));
+                  }
+                  SRERoleDataPlayerComponent.KEY.get(player).init();
+
+                  ctx.getSource().sendSuccess(
+                      () -> Component.translatable("Successfully triggered role data init events to %s (%s)",
+                          player.getName(), RoleUtils.getRoleOrModifierNameWithColor(role)),
+                      true);
+                  return 1;
+                }))
                 .then(Commands.literal("assign_event").executes((ctx) -> {
                   ServerPlayer player = ctx.getSource().getPlayerOrException();
                   SRERole role = SRERoleWorldComponent.KEY.get(player.level()).getRole(player);
@@ -304,7 +319,8 @@ public class GameUtilsCommand {
                     ctx.getSource().sendFailure(Component.literal("Not a gambler."));
                     return 0;
                   }
-                  GamblerRoleData gamblerData = io.wifi.starrailexpress.api.data.RoleData.getNullable(GamblerRoleData.class, player);
+                  GamblerRoleData gamblerData = io.wifi.starrailexpress.api.data.RoleData
+                      .getNullable(GamblerRoleData.class, player);
                   if (gamblerData != null) {
                     gamblerData.drawNewRole();
                   }
