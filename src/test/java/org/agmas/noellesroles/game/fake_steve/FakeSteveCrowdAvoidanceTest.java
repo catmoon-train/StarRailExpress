@@ -39,4 +39,16 @@ class FakeSteveCrowdAvoidanceTest {
 
         assertTrue(decision.shouldRepath());
     }
+
+    @Test
+    void tinyObstacleJitterDoesNotFlipTheChosenAvoidanceSide() {
+        FakeSteveCrowdAvoidance.Decision rightJitter = FakeSteveCrowdAvoidance.decide(
+                0.0D, 0.0D, 0.0D, 4.0D,
+                List.of(new FakeSteveCrowdAvoidance.NearbyPlayer(0.02D, 1.0D)), 5);
+        FakeSteveCrowdAvoidance.Decision leftJitter = FakeSteveCrowdAvoidance.decide(
+                0.0D, 0.0D, 0.0D, 4.0D,
+                List.of(new FakeSteveCrowdAvoidance.NearbyPlayer(-0.02D, 1.0D)), 5);
+
+        assertEquals(Math.signum(rightJitter.strafe()), Math.signum(leftJitter.strafe()));
+    }
 }

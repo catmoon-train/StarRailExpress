@@ -6,6 +6,7 @@ final class FakeSteveCrowdAvoidance {
     private static final double LOOK_AHEAD = 2.4D;
     private static final double CORRIDOR_HALF_WIDTH = 0.9D;
     private static final double LANE_OFFSET = 0.85D;
+    private static final double CLEARANCE_TIE_EPSILON = 0.12D;
 
     private FakeSteveCrowdAvoidance() {
     }
@@ -44,7 +45,11 @@ final class FakeSteveCrowdAvoidance {
                 leftX, leftZ, 1.0D, players);
         double rightClearance = laneClearance(actorX, actorZ, forwardX, forwardZ,
                 leftX, leftZ, -1.0D, players);
-        float strafe = leftClearance >= rightClearance ? 0.75F : -0.75F;
+        double clearanceDifference = leftClearance - rightClearance;
+        // Tiny player-position jitter must not flip the selected lane every
+        // decision. Prefer one deterministic side while both lanes are nearly equal.
+        float strafe = Math.abs(clearanceDifference) <= CLEARANCE_TIE_EPSILON
+                ? 0.75F : clearanceDifference > 0.0D ? 0.75F : -0.75F;
         float forwardScale = blockerForward < 0.9D ? 0.0F : 0.35F;
         return new Decision(forwardScale, strafe, true, crowdedTicks >= 8);
     }

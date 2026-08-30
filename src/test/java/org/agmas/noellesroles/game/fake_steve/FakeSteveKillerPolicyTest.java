@@ -41,11 +41,34 @@ class FakeSteveKillerPolicyTest {
     }
 
     @Test
+    void killerNeutralsAndAllFakeAlliesAreNeitherPreyNorWitnesses() {
+        assertFalse(FakeSteveKillerPolicy.canActivelyHunt(false, false, true));
+        assertFalse(FakeSteveKillerPolicy.countsAsHostileWitness(true, false, false));
+        assertFalse(FakeSteveKillerPolicy.countsAsHostileWitness(false, true, false));
+        assertFalse(FakeSteveKillerPolicy.countsAsHostileWitness(false, false, true));
+        assertTrue(FakeSteveKillerPolicy.countsAsHostileWitness(false, false, false));
+    }
+
+    @Test
     void aSuccessfulKillerRevolverShotDropsTheConsumedOneShotGun() {
         assertTrue(FakeSteveKillerPolicy.shouldDropKillerRevolver(true, true, true));
         assertFalse(FakeSteveKillerPolicy.shouldDropKillerRevolver(false, true, true));
         assertFalse(FakeSteveKillerPolicy.shouldDropKillerRevolver(true, false, true));
         assertFalse(FakeSteveKillerPolicy.shouldDropKillerRevolver(true, true, false));
+    }
+
+    @Test
+    void psychoChainsKillsWithoutTheOrdinaryWeaponRecoveryPause() {
+        assertEquals(0, FakeSteveKillerPolicy.recoveryTicksAfterKill(true));
+        assertEquals(40, FakeSteveKillerPolicy.recoveryTicksAfterKill(false));
+    }
+
+    @Test
+    void psychoIgnoresWitnessRiskAndInterruptsDisguiseForAnotherTarget() {
+        assertTrue(FakeSteveKillerPolicy.canHuntThroughWitnesses(true, true));
+        assertFalse(FakeSteveKillerPolicy.canHuntThroughWitnesses(false, true));
+        assertTrue(FakeSteveKillerPolicy.shouldPsychoInterruptTask(true, true));
+        assertFalse(FakeSteveKillerPolicy.shouldPsychoInterruptTask(false, true));
     }
 
     @Test

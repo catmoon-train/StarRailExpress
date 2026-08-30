@@ -47,8 +47,30 @@ public final class FakeSteveKillerPolicy {
         return !targetIsImpostor && !targetIsKillerRole;
     }
 
+    static boolean canActivelyHunt(boolean targetIsImpostor, boolean targetIsKillerRole,
+                                   boolean targetIsKillerNeutral) {
+        return !targetIsImpostor && !targetIsKillerRole && !targetIsKillerNeutral;
+    }
+
+    static boolean countsAsHostileWitness(boolean impostor, boolean killerRole,
+                                          boolean killerNeutral) {
+        return !impostor && !killerRole && !killerNeutral;
+    }
+
     static boolean shouldDropKillerRevolver(boolean originalKiller, boolean gunKill,
                                             boolean heldRevolver) {
         return originalKiller && gunKill && heldRevolver;
+    }
+
+    static int recoveryTicksAfterKill(boolean psychoActive) {
+        return psychoActive ? 0 : 40;
+    }
+
+    static boolean canHuntThroughWitnesses(boolean psychoActive, boolean witnessed) {
+        return psychoActive || !witnessed;
+    }
+
+    static boolean shouldPsychoInterruptTask(boolean psychoArmed, boolean targetPresent) {
+        return psychoArmed && targetPresent;
     }
 }

@@ -98,16 +98,20 @@ public class FakeSteveAi {
         ServerPlayer isolated = FakeSteveDirector.isEnabled() ? isolatedTarget(level, body) : null;
         boolean taskAvailable = FakeSteveTaskPlanner.hasCompletableTask(body, state);
         SRERole originalRole = SREGameWorldComponent.KEY.get(level).getRole(body);
+        boolean psychoActive = originalRole != null
+                && SREPlayerPsychoComponent.KEY.get(body).inPsycho();
         ServerPlayer prey = originalRole != null && originalRole.canUseKiller()
-                ? safestPrey(level, body) : null;
+                ? safestPrey(level, body, psychoActive) : null;
         if (originalRole != null && originalRole.canUseKiller()) {
             prepareKiller(level, body, state, originalRole, prey);
         }
-        boolean psychoArmed = originalRole != null && SREPlayerPsychoComponent.KEY.get(body).inPsycho()
+        boolean psychoArmed = psychoActive
                 && findPsychoWeaponSlot(body, originalRole) >= 0;
         boolean armed = psychoArmed || findKnifeSlot(body) >= 0 || findGunSlot(body) >= 0;
-        boolean interruptTask = prey != null && FakeSteveKillerPolicy.shouldInterruptTask(
-                taskAvailable, armed, !hasWitness(level, body, prey), body.distanceTo(prey));
+        boolean interruptTask = FakeSteveKillerPolicy.shouldPsychoInterruptTask(
+                psychoArmed, prey != null)
+                || prey != null && FakeSteveKillerPolicy.shouldInterruptTask(
+                        taskAvailable, armed, !hasWitness(level, body, prey), body.distanceTo(prey));
         maybeSpeak(level, body, state);
         boolean targetLooking = focus != null && visible(focus, body)
                 && faces(focus, body, FACE_COS);
@@ -176,8 +180,14 @@ public class FakeSteveAi {
         if (state.mode == AgentMode.HUNT && prey != null) {
             state.focusTarget = prey.getUUID();
             if (tryArmedAttack(level, body, prey, state)) {
-                state.mode = AgentMode.RECOVER;
-                state.nextDecisionTick = now + 40L;
+                int recoveryTicks = FakeSteveKillerPolicy.recoveryTicksAfterKill(psychoActive);
+                if (recoveryTicks > 0) {
+                    state.mode = AgentMode.RECOVER;
+                    state.nextDecisionTick = now + recoveryTicks;
+                } else {
+                    state.mode = AgentMode.HUNT;
+                    state.nextDecisionTick = now;
+                }
             } else {
                 follow(level, body, ambushGoal(prey), state, 0.20D);
             }
@@ -279,12 +289,15 @@ public class FakeSteveAi {
                 .filter(p -> p.distanceToSqr(target) <= range * range).count();
     }
 
-    private static ServerPlayer safestPrey(ServerLevel level, ServerPlayer body) {
+    private static ServerPlayer safestPrey(ServerLevel level, ServerPlayer body,
+                                           boolean psychoActive) {
         return level.players().stream().filter(FakeSteveAi::isHuman)
                 .filter(GameUtils::isPlayerAliveAndSurvival).filter(p -> p.distanceToSqr(body) <= 324.0)
                 .filter(p -> FakeSteveKillerPolicy.canActivelyHunt(
-                        FakeSteveDirector.isReplaced(p), isKillerRole(level, p)))
-                .filter(p -> !hasWitness(level, body, p))
+                        FakeSteveDirector.isReplaced(p), isKillerRole(level, p),
+                        isKillerNeutral(level, p)))
+                .filter(p -> FakeSteveKillerPolicy.canHuntThroughWitnesses(
+                        psychoActive, hasWitness(level, body, p)))
                 .min(Comparator.comparingDouble(body::distanceToSqr)).orElse(null);
     }
 
@@ -294,7 +307,7 @@ public class FakeSteveAi {
         if (SREPlayerPsychoComponent.KEY.get(body).inPsycho()) {
             int psychoWeapon = findPsychoWeaponSlot(body, role);
             if (psychoWeapon >= 0 && body.distanceToSqr(target) <= 9.0D
-                    && behind(body, target) && !hasWitness(level, body, target)) {
+                    && behind(body, target)) {
                 select(body, psychoWeapon);
                 return killWithPsycho(body, target);
             }
@@ -352,7 +365,8 @@ public class FakeSteveAi {
             boolean requireOriginalRolePermission) {
         SRERole role = SREGameWorldComponent.KEY.get(attacker.level()).getRole(attacker);
         if (requireOriginalRolePermission && !FakeSteveKillerPolicy.canActivelyHunt(
-                FakeSteveDirector.isReplaced(target), isKillerRole(attacker.serverLevel(), target))) {
+                FakeSteveDirector.isReplaced(target), isKillerRole(attacker.serverLevel(), target),
+                isKillerNeutral(attacker.serverLevel(), target))) {
             return false;
         }
         if (requireOriginalRolePermission && role != null
@@ -424,6 +438,8 @@ public class FakeSteveAi {
         boolean changedGoal = state.pathGoal == null || !state.pathGoal.closerThan(goal, 3.0);
         if (changedGoal) {
             state.hasStableRouteYaw = false;
+            state.crowdedTicks = 0;
+            state.crowdStrafe = 0.0F;
             state.pathRetryAfterTick = 0L;
             state.lastPathDistanceSqr = Double.MAX_VALUE;
             state.lastPathProgressTick = now;
@@ -438,7 +454,9 @@ public class FakeSteveAi {
                 || now >= state.nextPathTick) {
             state.pathGoal = goal.immutable();
             state.path.clear();
-            state.path.addAll(FakeSteveNavigator.find(level, body, goal));
+            boolean explicitTarget = state.mode == AgentMode.HUNT
+                    || state.mode == AgentMode.STALK || state.mode == AgentMode.ASSIMILATE;
+            state.path.addAll(FakeSteveNavigator.find(level, body, goal, explicitTarget));
             state.nextPathTick = now + 20L;
             state.lastPathDistanceSqr = Double.MAX_VALUE;
             state.lastPathProgressTick = now;
@@ -454,14 +472,14 @@ public class FakeSteveAi {
         }
         // Open the node while it is still in the route.  A closed door used to be
         // removed as "reached" first, which left the client jumping against it.
-        openDoor(level, body, next);
+        boolean doorAhead = openDoorsOnApproach(level, body, next);
         if (body.blockPosition().closerThan(next, 1.0)) {
             state.path.removeFirst();
             next = state.path.peekFirst();
             if (next == null)
                 return;
         }
-        openDoor(level, body, next);
+        doorAhead |= openDoorsOnApproach(level, body, next);
         Vec3 delta = Vec3.atBottomCenterOf(next).subtract(body.position());
         if (delta.horizontalDistanceSqr() < 0.01)
             return;
@@ -478,8 +496,11 @@ public class FakeSteveAi {
             return;
         }
         Vec3 direction = new Vec3(delta.x, 0.0, delta.z).normalize();
+        boolean pursuingHuman = state.mode == AgentMode.HUNT || state.mode == AgentMode.STALK;
         List<FakeSteveCrowdAvoidance.NearbyPlayer> nearbyPlayers = level.players().stream()
                 .filter(player -> player != body && player.isAlive() && !player.isSpectator())
+                .filter(player -> !pursuingHuman || state.focusTarget == null
+                        || !player.getUUID().equals(state.focusTarget))
                 .filter(player -> player.distanceToSqr(body) <= 16.0D)
                 .map(player -> new FakeSteveCrowdAvoidance.NearbyPlayer(player.getX(), player.getZ()))
                 .toList();
@@ -487,7 +508,7 @@ public class FakeSteveAi {
                 body.getX(), body.getZ(), next.getX() + 0.5D, next.getZ() + 0.5D,
                 nearbyPlayers, state.crowdedTicks);
         if (avoidance.crowded()) {
-            if (state.crowdedTicks == 0) {
+            if (state.crowdStrafe == 0.0F) {
                 state.crowdStrafe = avoidance.strafe();
             }
             state.crowdedTicks += 5;
@@ -507,10 +528,13 @@ public class FakeSteveAi {
         if (!state.hasStableRouteYaw) {
             state.stableRouteYaw = candidateYaw;
             state.hasStableRouteYaw = true;
+        } else if (doorAhead) {
+            // Doorways are narrow: face the route directly instead of carrying
+            // the previous segment's smoothed heading into the door frame.
+            state.stableRouteYaw = candidateYaw;
         } else {
             state.stableRouteYaw = FakeSteveMotionPolicy.stableHeading(state.stableRouteYaw, candidateYaw);
         }
-        boolean pursuingHuman = state.mode == AgentMode.HUNT || state.mode == AgentMode.STALK;
         boolean psychoActive = SREPlayerPsychoComponent.KEY.get(body).inPsycho();
         boolean sprint = FakeStevePathPolicy.shouldSprintForPursuit(
                 pursuingHuman, psychoActive, avoidance.crowded())
@@ -562,31 +586,61 @@ public class FakeSteveAi {
         return level.noCollision(body, body.getBoundingBox().move(left));
     }
 
-    private static void openDoor(ServerLevel level, ServerPlayer body, BlockPos next) {
-        for (BlockPos pos : new BlockPos[] { next, next.above() }) {
-            var blockState = level.getBlockState(pos);
-            if (!FakeSteveDoorAccess.isOpenablePassage(blockState))
-                continue;
-            if (blockState.getBlock() instanceof SmallDoorBlock door) {
-                BlockPos lower = door.getLowerHalfPos(blockState, pos);
-                if (level.getBlockEntity(lower) instanceof SmallDoorBlockEntity entity) {
-                    var lowerState = level.getBlockState(lower);
-                    boolean hardLocked = entity.isJammed() || entity.isBlasted() || hasExternalDoorLock(lower);
-                    if (FakeStevePathPolicy.shouldAutoOpenSmallDoor(lowerState.getValue(DoorBlock.OPEN), hardLocked)) {
-                        door.toggleDoor(lowerState, level, entity, lower);
-                        body.swing(InteractionHand.MAIN_HAND, true);
-                    }
-                    return;
-                }
-            }
-            if (FakeSteveDoorAccess.isOpen(blockState)) {
-                return;
-            }
-            BlockHitResult hit = new BlockHitResult(Vec3.atCenterOf(pos), Direction.UP, pos, false);
-            body.gameMode.useItemOn(body, level, body.getMainHandItem(), InteractionHand.MAIN_HAND, hit);
-            body.swing(InteractionHand.MAIN_HAND, true);
-            return;
+    private static boolean openDoorsOnApproach(ServerLevel level, ServerPlayer body, BlockPos next) {
+        Vec3 bodyPosition = body.position();
+        Vec3 route = Vec3.atBottomCenterOf(next);
+        Vec3 approach = route.subtract(bodyPosition);
+        if (approach.horizontalDistance() > 3.0D) {
+            approach = new Vec3(approach.x, 0.0D, approach.z).normalize().scale(3.0D);
+            route = bodyPosition.add(approach);
         }
+        BlockPos scanEnd = BlockPos.containing(route);
+        int minX = Math.min(body.blockPosition().getX(), scanEnd.getX()) - 1;
+        int maxX = Math.max(body.blockPosition().getX(), scanEnd.getX()) + 1;
+        int minY = Math.min(body.blockPosition().getY(), scanEnd.getY()) - 1;
+        int maxY = Math.max(body.blockPosition().getY(), scanEnd.getY()) + 2;
+        int minZ = Math.min(body.blockPosition().getZ(), scanEnd.getZ()) - 1;
+        int maxZ = Math.max(body.blockPosition().getZ(), scanEnd.getZ()) + 1;
+        boolean detected = false;
+        for (BlockPos pos : BlockPos.betweenClosed(minX, minY, minZ, maxX, maxY, maxZ)) {
+            var blockState = level.getBlockState(pos);
+            if (!FakeSteveDoorAccess.isOpenablePassage(blockState)
+                    || !FakeSteveDoorAccess.isInsideApproachCorridor(
+                            body.getX(), body.getZ(), route.x, route.z,
+                            pos.getX() + 0.5D, pos.getZ() + 0.5D)) {
+                continue;
+            }
+            detected = true;
+            if (openDoorAt(level, body, pos.immutable(), blockState)) {
+                return true;
+            }
+        }
+        return detected;
+    }
+
+    private static boolean openDoorAt(ServerLevel level, ServerPlayer body,
+                                      BlockPos pos, net.minecraft.world.level.block.state.BlockState blockState) {
+        if (blockState.getBlock() instanceof SmallDoorBlock door) {
+            BlockPos lower = door.getLowerHalfPos(blockState, pos);
+            if (level.getBlockEntity(lower) instanceof SmallDoorBlockEntity entity) {
+                var lowerState = level.getBlockState(lower);
+                boolean hardLocked = entity.isJammed() || entity.isBlasted() || hasExternalDoorLock(lower);
+                if (FakeStevePathPolicy.shouldAutoOpenSmallDoor(
+                        lowerState.getValue(DoorBlock.OPEN), hardLocked)) {
+                    door.toggleDoor(lowerState, level, entity, lower);
+                    body.swing(InteractionHand.MAIN_HAND, true);
+                    return true;
+                }
+                return false;
+            }
+        }
+        if (FakeSteveDoorAccess.isOpen(blockState)) {
+            return false;
+        }
+        BlockHitResult hit = new BlockHitResult(Vec3.atCenterOf(pos), Direction.UP, pos, false);
+        body.gameMode.useItemOn(body, level, body.getMainHandItem(), InteractionHand.MAIN_HAND, hit);
+        body.swing(InteractionHand.MAIN_HAND, true);
+        return true;
     }
 
     private static boolean hasExternalDoorLock(BlockPos lower) {
@@ -867,7 +921,10 @@ public class FakeSteveAi {
 
     private static boolean hasWitness(ServerLevel level, ServerPlayer attacker, ServerPlayer target) {
         return level.players().stream().filter(p -> p != attacker && p != target)
-                .filter(FakeSteveAi::isHuman).filter(GameUtils::isPlayerAliveAndSurvival)
+                .filter(GameUtils::isPlayerAliveAndSurvival)
+                .filter(p -> FakeSteveKillerPolicy.countsAsHostileWitness(
+                        FakeSteveDirector.isReplaced(p), isKillerRole(level, p),
+                        isKillerNeutral(level, p)))
                 .filter(p -> p.distanceToSqr(target) <= 144.0)
                 .anyMatch(p -> visible(p, attacker) || visible(p, target));
     }
@@ -938,7 +995,12 @@ public class FakeSteveAi {
 
     private static boolean isKillerRole(ServerLevel level, ServerPlayer player) {
         SRERole role = SREGameWorldComponent.KEY.get(level).getRole(player);
-        return role != null && role.canUseKiller();
+        return role != null && role.isKiller();
+    }
+
+    private static boolean isKillerNeutral(ServerLevel level, ServerPlayer player) {
+        SRERole role = SREGameWorldComponent.KEY.get(level).getRole(player);
+        return role != null && role.isNeutralForKiller();
     }
 
     private static void beginStare(FakeSteveAgentState state, ServerPlayer target) {
