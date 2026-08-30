@@ -425,7 +425,7 @@ public class AbilityHandler {
                 var chairDurability = we.durability;
                 we.discard();
                 var it = ModItems.WHEELCHAIR.getDefaultInstance();
-                it.setDamageValue(it.getMaxDamage() - chairDurability);
+                it.setDamageValue(it.getMaxDamage() - chairDurability / 20);
                 RoleUtils.insertStackInFreeSlot(player, it);
                 player.stopRiding();
                 player.getCooldowns().addCooldown(ModItems.WHEELCHAIR, 40);
