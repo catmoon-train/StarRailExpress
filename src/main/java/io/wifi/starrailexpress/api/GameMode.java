@@ -797,7 +797,7 @@ public abstract class GameMode {
                 }
             }
 
-            if (gameWorldComponent.isInnocent(victim)) {
+            if (shouldRewardKillerTime(gameWorldComponent, victim, killer, deathReason, forceDeath, spawnBody)) {
                 final var gameTimeComponent = SREGameTimeComponent.KEY.get(victim.level());
                 this.addKillRewardTime(gameTimeComponent);
             }
@@ -820,10 +820,25 @@ public abstract class GameMode {
      * 
      * @param gameTimeComponent
      */
+
     public void addKillRewardTime(SREGameTimeComponent gameTimeComponent) {
         if (gameTimeComponent.getTime() < gameTimeComponent.getResetTime()) {
             gameTimeComponent.addTime(GameConstants.TIME_ON_CIVILIAN_KILL);
         }
+    }
+
+    public boolean shouldRewardKillerTime(SREGameWorldComponent gamecca, Player victim, Player killer,
+            ResourceLocation deathReason, boolean forceKill, boolean spawnBody) {
+        var result = ShouldRewardKillerTime.EVENT.invoker().shouldRewardKillerTime(victim, killer, deathReason,
+                forceKill, spawnBody);
+        if (result == TrueFalseResult.TRUE)
+            return true;
+        if (result == TrueFalseResult.FALSE)
+            return false;
+        if (gamecca.isInnocent(victim)) {
+            return true;
+        }
+        return false;
     }
 
     public boolean canAllPeopleSeeTime() {

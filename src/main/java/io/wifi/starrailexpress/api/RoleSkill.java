@@ -374,7 +374,8 @@ public final class RoleSkill {
 
         public Definition build() {
             return new Definition(id, nameKey, cooldownTicks, maxCharges, continuous,
-                    holdIntervalTicks, noCastCCA, announceInfo, toggleable, shifted, modeSwitch, showOnHud, withTarget,targetType,
+                    holdIntervalTicks, noCastCCA, announceInfo, toggleable, shifted, modeSwitch, showOnHud, withTarget,
+                    targetType,
                     haveRecord,
                     handler, recordName);
         }
@@ -485,13 +486,20 @@ public final class RoleSkill {
         return getDefinitions(role).stream().filter(Definition::modeSwitch).findFirst();
     }
 
+    public static boolean blockForSpectator(ServerPlayer player) {
+        return blockForSpectator(player, false);
+    }
+
     /**
      * 全局旁观者检查：回报该玩家是否为旁观者且不允许使用技能。
      * 返回 true = 被拦截（不应释放技能）。
      * 所有技能派发路径应在入口处调用此方法。
+     * 
+     * @param player       玩家
+     * @param ignoreEffect 忽略SKILL_BANED等技能effect
      */
-    public static boolean blockForSpectator(ServerPlayer player) {
-        if (player.hasEffect(ModEffects.SKILL_BANED) || player.hasEffect(ModEffects.SKILL_FREEZED)) {
+    public static boolean blockForSpectator(ServerPlayer player, boolean ignoreEffect) {
+        if (!ignoreEffect && (player.hasEffect(ModEffects.SKILL_BANED) || player.hasEffect(ModEffects.SKILL_FREEZED))) {
             return true;
         }
         // 退出重进过的人无法使用技能
@@ -540,7 +548,7 @@ public final class RoleSkill {
      * 以"被附身"方式释放该玩家技能：合法绕过 {@code SKILL_BANED} 拦截。
      * 用于操纵师附身期间，以目标身份释放目标自身的技能（冷却记在目标身上）。
      */
-    public static boolean beginUsePossessed(ServerPlayer player) {
+    public static boolean beginUseIgnoreSkillBannedEffects(ServerPlayer player) {
         return beginUse(player, null, -1, Phase.PRESS, player.isShiftKeyDown(), true);
     }
 
@@ -550,7 +558,7 @@ public final class RoleSkill {
     }
 
     public static boolean beginUse(ServerPlayer player, @Nullable UUID target, int requestedSlot, Phase phase,
-            boolean shifted, boolean possessed) {
+            boolean shifted, boolean ignoreEffect) {
         if (player == null) {
             return false;
         }
@@ -559,15 +567,7 @@ public final class RoleSkill {
             return false;
         }
         // 旁观者模式禁止使用技能（通过 canUseSkillWhileSpectator() 标记豁免）
-        if (possessed) {
-            if (player.isSpectator() || SREAbilityPlayerComponent.KEY.get(player).hasExited()) {
-                return false;
-            }
-        } else if (blockForSpectator(player)) {
-            return false;
-        }
-        if (!possessed
-                && (player.hasEffect(ModEffects.SKILL_BANED) || player.hasEffect(ModEffects.SKILL_FREEZED))) {
+        if (blockForSpectator(player, ignoreEffect)) {
             return false;
         }
         List<Definition> definitions = getDefinitions(role);
@@ -585,9 +585,9 @@ public final class RoleSkill {
         if (consumer != null) {
             consumer.accept(new RoleSkillContext(player, target));
         } else if (target != null) {
-            AbilityHandler.handlerWithTarget(player, target, possessed);
+            AbilityHandler.handlerWithTarget(player, target, ignoreEffect);
         } else if (!RoleMethodDispatcher.callOnAbilityUse(player)) {
-            AbilityHandler.handler(player, possessed);
+            AbilityHandler.handler(player, ignoreEffect);
         }
         afterUse(player, role);
         return true;

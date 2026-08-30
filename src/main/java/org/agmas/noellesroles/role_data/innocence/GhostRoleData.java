@@ -42,7 +42,7 @@ import org.jetbrains.annotations.NotNull;
 
 public class GhostRoleData extends SimpleRoleData {
 
-    public boolean isActive = true;
+    public final boolean isActive = true;
     public int cooldown = 0;
     public int invisibilityTicks = 0;
     public boolean abilityUnlocked = false;
@@ -56,18 +56,10 @@ public class GhostRoleData extends SimpleRoleData {
 
     @Override
     public void init() {
-        this.isActive = true;
-        this.cooldown = 0;
-        this.invisibilityTicks = 0;
-        this.abilityUnlocked = false;
-        this.unlockNotified = false;
-        this.lastStandNotified = false;
-        this.sync();
     }
 
     @Override
     public void clear() {
-        this.init();
     }
 
     public GhostRoleData(RoleDataContext context) {
@@ -179,7 +171,6 @@ public class GhostRoleData extends SimpleRoleData {
     }
 
     public void writeToSyncNbt(@NotNull CompoundTag tag, HolderLookup.Provider registryLookup) {
-        tag.putBoolean("isActive", this.isActive);
         tag.putInt("cooldown", this.cooldown);
         tag.putInt("invisibilityTicks", this.invisibilityTicks);
         tag.putBoolean("abilityUnlocked", this.abilityUnlocked);
@@ -187,7 +178,6 @@ public class GhostRoleData extends SimpleRoleData {
     }
 
     public void readFromSyncNbt(@NotNull CompoundTag tag, HolderLookup.Provider registryLookup) {
-        this.isActive = !tag.contains("isActive") || tag.getBoolean("isActive");
         this.cooldown = tag.getInt("cooldown");
         this.invisibilityTicks = tag.getInt("invisibilityTicks");
         this.abilityUnlocked = tag.getBoolean("abilityUnlocked");

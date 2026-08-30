@@ -22,15 +22,15 @@ import net.minecraft.world.entity.player.Player;
 
 import static net.fabricmc.fabric.api.event.EventFactory.createArrayBacked;
 
-public interface ShouldReloadDerringer {
+public interface ShouldRewardKillerTime {
 
     /**
-     * 是否奖励德林加补充
+     * 是否奖励击杀时间
      */
-    Event<ShouldReloadDerringer> EVENT = createArrayBacked(ShouldReloadDerringer.class,
-            listeners -> (victim, killer, deathReason) -> {
-                for (ShouldReloadDerringer listener : listeners) {
-                    var result = listener.shouldReload(victim, killer, deathReason);
+    Event<ShouldRewardKillerTime> EVENT = createArrayBacked(ShouldRewardKillerTime.class,
+            listeners -> (victim, killer, deathReason, forceKill, spawnBody) -> {
+                for (ShouldRewardKillerTime listener : listeners) {
+                    var result = listener.shouldRewardKillerTime(victim, killer, deathReason, forceKill, spawnBody);
                     if (result != null && result != TrueFalseResult.PASS) {
                         return result;
                     }
@@ -51,5 +51,6 @@ public interface ShouldReloadDerringer {
      * @return 应给予击杀者的金币数量（将与其他监听器结果累加）/
      *         the balance amount to award (summed with other listeners' results)
      */
-    TrueFalseResult shouldReload(Player victim, Player killer, ResourceLocation deathReason);
+    TrueFalseResult shouldRewardKillerTime(Player victim, Player killer, ResourceLocation deathReason,
+            boolean forceKill, boolean spawnBody);
 }

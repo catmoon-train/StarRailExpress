@@ -19,11 +19,16 @@ import io.wifi.starrailexpress.api.CustomWinnerRole;
 import io.wifi.starrailexpress.api.CustomWinnerRoleInterface;
 import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.api.TMMRoles;
+import io.wifi.starrailexpress.api.data.RoleData;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
+import io.wifi.starrailexpress.event.ShouldRewardKillerTime;
 import io.wifi.starrailexpress.game.GameUtils;
 import io.wifi.starrailexpress.game.GameUtils.WinStatus;
+import io.wifi.starrailexpress.util.TrueFalseResult;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+
+import org.agmas.noellesroles.role_data.innocence.GhostRoleData;
 import org.agmas.noellesroles.role_data.neutral.CandleBearerRoleData;
 import org.agmas.noellesroles.role_data.neutral.CuckooRoleData;
 import org.agmas.noellesroles.role_data.neutral.RavenRoleData;
@@ -31,6 +36,7 @@ import org.agmas.noellesroles.handler.utils.BeeFamilyManager;
 import org.agmas.noellesroles.role.ModRoles;
 import org.agmas.noellesroles.role.touhou.THRedHouseRoles;
 import org.agmas.noellesroles.utils.RoleUtils;
+
 import pro.fazeclan.river.stupid_express.modifier.refugee.cca.RefugeeComponent;
 
 import java.util.OptionalInt;
@@ -224,5 +230,23 @@ public class CustomWinnerClass {
         }
         return WinStatus.NOT_MODIFY;
 
+    }
+
+    public static void registerEvents() {
+        // 如果小透明/芙兰已经通知过了，那就杀人不再增加时间。
+        ShouldRewardKillerTime.EVENT.register((victim, killer, deathReason, forceKill, spawnBody) -> {
+            for (final var p : victim.level().players()) {
+                if (!GameUtils.isPlayerAliveAndSurvival(p))
+                    continue;
+                if (RoleData.getNullable(p) instanceof GhostRoleData grd) {
+                    if (grd.isActive) {
+                        if (grd.lastStandNotified) {
+                            return TrueFalseResult.FALSE;
+                        }
+                    }
+                }
+            }
+            return TrueFalseResult.PASS;
+        });
     }
 }

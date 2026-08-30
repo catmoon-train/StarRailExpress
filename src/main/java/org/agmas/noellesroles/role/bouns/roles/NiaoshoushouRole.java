@@ -82,6 +82,9 @@ public class NiaoshoushouRole extends EggRole {
         });
         shop.add(new ShopEntry(ModItems.NIAOSHOU_SHOU_MISSILE.getDefaultInstance(), 350,
                 ShopEntry.Type.WEAPON));
+        // 还是给个开锁器吧。。。 孩子的撬棍有点毛病
+        shop.add(new ShopEntry(TMMItems.LOCKPICK.getDefaultInstance(), 180,
+                ShopEntry.Type.TOOL));
         shop.add(new ShopEntry(ModItems.NIAOSHOU_SHOU_BLACKOUT.getDefaultInstance(), 175,
                 ShopEntry.Type.TOOL));
         return shop;

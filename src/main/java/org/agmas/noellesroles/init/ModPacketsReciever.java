@@ -539,12 +539,12 @@ public class ModPacketsReciever {
           }
         });
 
-    // 操纵师数据包处理
+    // Wizard数据包处理
     ServerPlayNetworking.registerGlobalReceiver(WizardSwitchSpellC2SPacket.ID, (payload, context) -> {
       ServerPlayer player = context.player();
       if (player.hasEffect(ModEffects.SAFE_TIME))
         return;
-      if (RoleSkill.blockForSpectator(player))
+      if (RoleSkill.blockForSpectator(player, false))
         return;
       SREGameWorldComponent gameWorldComponent = SREGameWorldComponent.KEY.get(player.level());
       if (!gameWorldComponent.isSkillAvailable)
@@ -646,7 +646,7 @@ public class ModPacketsReciever {
           var inControlCCA = org.agmas.noellesroles.game.roles.killer.manipulator.InControlCCA.KEY.get(targetPlayer);
           if (!context.player().getUUID().equals(inControlCCA.controller))
             return;
-          RoleSkill.beginUsePossessed(targetServerPlayer);
+          RoleSkill.beginUseIgnoreSkillBannedEffects(targetServerPlayer);
         });
 
     ServerPlayNetworking.registerGlobalReceiver(TryThrowItemPacket.ID, (payload, context) -> {

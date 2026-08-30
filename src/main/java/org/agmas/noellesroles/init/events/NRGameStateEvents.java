@@ -98,6 +98,7 @@ public class NRGameStateEvents {
         registerServerLifecycle();
         registerServerTick();
         registerPlayerConnection();
+        CustomWinnerClass.registerEvents();
     }
 
     // --- OnGameStarted ---

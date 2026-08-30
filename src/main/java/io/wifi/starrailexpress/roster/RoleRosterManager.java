@@ -23,6 +23,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 
 import org.agmas.harpymodloader.modifiers.HMLModifiers;
@@ -319,76 +320,208 @@ public final class RoleRosterManager {
         state.roleCounts.clear();
         state.modifierCounts.clear();
 
-        // 先收集
-        ArrayList<SRERole> roles = new ArrayList<>();
-        roles.addAll(TMMRoles.ROLES.values());
-        ArrayList<SREModifier> modifiers = new ArrayList<>();
-        modifiers.addAll(HMLModifiers.MODIFIERS);
-
-        if (roles.isEmpty() || modifiers.isEmpty() || roleNum <= 0 || modifierNum <= 0) {
+        // 1. 计算各阵营目标数量
+        RoleCounts targets = computeTargetCounts(roleNum);
+        if (targets.isInvalid() || modifierNum <= 0) {
             return;
         }
 
-        Collections.shuffle(roles);
-        Collections.shuffle(modifiers);
+        // 2. 分类所有角色和修饰符
+        RolePools pools = classifyAllRoles();
+        List<SREModifier> allModifiers = new ArrayList<>(HMLModifiers.MODIFIERS);
 
-        HashSet<SRERole> enabledRoles = new HashSet<>();
-        HashSet<SREModifier> enabledModifiers = new HashSet<>();
+        // 3. 随机初选
+        Set<SRERole> selectedRoles = initialRoleSelection(pools, targets);
+        Set<SREModifier> selectedModifiers = initialModifierSelection(allModifiers, modifierNum);
 
-        // 先随机抽取
-        enabledRoles.addAll(roles.subList(0, Math.min(roles.size(), roleNum)));
-        enabledModifiers.addAll(modifiers.subList(0, Math.min(modifiers.size(), modifierNum)));
+        // 4. 补充关联（职业/修饰符）
+        expandRelations(selectedRoles, selectedModifiers);
 
-        // 补充关联职业/修饰符
-        for (var role : new ArrayList<>(enabledRoles)) {
-            enabledRoles.addAll(role.occupationRoles);
-            enabledRoles.addAll(role.occupationedRoles);
-            enabledModifiers.addAll(role.relatedModifiers);
+        // 5. 删除多余项（保证数量不超目标）
+        trimModifiers(selectedModifiers, modifierNum);
+        trimRoles(selectedRoles, targets, pools);
+
+        // 6. 应用结果并广播
+        applyResult(selectedRoles, selectedModifiers);
+    }
+
+    // ---------- 辅助数据结构 ----------
+    private static class RoleCounts {
+        final int killer;
+        final int neutrals;
+        final int vigilante;
+        final int innocent;
+
+        RoleCounts(int killer, int neutrals, int vigilante, int innocent) {
+            this.killer = killer;
+            this.neutrals = neutrals;
+            this.vigilante = vigilante;
+            this.innocent = innocent;
         }
 
-        // 补充关联职业/修饰符
-        for (var modifier : new ArrayList<>(enabledModifiers)) {
-            enabledRoles.addAll(modifier.relatedRoles);
+        boolean isInvalid() {
+            return killer < 0 || neutrals < 0 || vigilante < 0 || innocent < 0;
+        }
+    }
+
+    public static class RolePools {
+        final List<SRERole> innocent;
+        final List<SRERole> neutrals;
+        final List<SRERole> vigilante;
+        final List<SRERole> killer;
+
+        RolePools(List<SRERole> innocent, List<SRERole> neutrals,
+                List<SRERole> vigilante, List<SRERole> killer) {
+            this.innocent = innocent;
+            this.neutrals = neutrals;
+            this.vigilante = vigilante;
+            this.killer = killer;
         }
 
-        // 删除多余的可以删除的修饰符
-        {
-            HashSet<SREModifier> canRemoveModifiers = new HashSet<>();
-            for (var modifier : enabledModifiers) {
-                if (modifier.relatedRoles.isEmpty()) {
-                    canRemoveModifiers.add(modifier);
+        public boolean isEmpty() {
+            return innocent.isEmpty() || neutrals.isEmpty() ||
+                    vigilante.isEmpty() || killer.isEmpty();
+        }
+    }
+
+    // ---------- 步骤方法 ----------
+    private static RoleCounts computeTargetCounts(int roleNum) {
+        int killer = roleNum / 6;
+        int neutrals = roleNum / 6;
+        int vigilante = roleNum / 6;
+        int innocent = roleNum - killer - neutrals - vigilante;
+        return new RoleCounts(killer, neutrals, vigilante, innocent);
+    }
+
+    private static RolePools classifyAllRoles() {
+        List<SRERole> innocent = new ArrayList<>();
+        List<SRERole> neutrals = new ArrayList<>();
+        List<SRERole> vigilante = new ArrayList<>();
+        List<SRERole> killer = new ArrayList<>();
+
+        for (SRERole role : TMMRoles.ROLES.values()) {
+            if (role.canUseKiller() && !role.isNeutrals() && !role.isInnocent()) {
+                killer.add(role);
+            } else if (role.isNeutrals()) {
+                neutrals.add(role);
+            } else if (role.isVigilanteTeam()) {
+                vigilante.add(role);
+            } else {
+                innocent.add(role);
+            }
+        }
+        return new RolePools(innocent, neutrals, vigilante, killer);
+    }
+
+    private static Set<SRERole> initialRoleSelection(RolePools pools, RoleCounts targets) {
+        Collections.shuffle(pools.innocent);
+        Collections.shuffle(pools.vigilante);
+        Collections.shuffle(pools.neutrals);
+        Collections.shuffle(pools.killer);
+
+        Set<SRERole> selected = new HashSet<>();
+        selected.addAll(pools.innocent.subList(0, Math.min(pools.innocent.size(), targets.innocent)));
+        selected.addAll(pools.killer.subList(0, Math.min(pools.killer.size(), targets.killer)));
+        selected.addAll(pools.neutrals.subList(0, Math.min(pools.neutrals.size(), targets.neutrals)));
+        selected.addAll(pools.vigilante.subList(0, Math.min(pools.vigilante.size(), targets.vigilante)));
+        return selected;
+    }
+
+    private static Set<SREModifier> initialModifierSelection(List<SREModifier> allModifiers, int modifierNum) {
+        Collections.shuffle(allModifiers);
+        return new HashSet<>(allModifiers.subList(0, Math.min(allModifiers.size(), modifierNum)));
+    }
+
+    private static void expandRelations(Set<SRERole> selectedRoles, Set<SREModifier> selectedModifiers) {
+        // 由角色扩展
+        for (SRERole role : new ArrayList<>(selectedRoles)) {
+            selectedRoles.addAll(role.occupationRoles);
+            selectedRoles.addAll(role.occupationedRoles);
+            selectedModifiers.addAll(role.relatedModifiers);
+        }
+        // 由修饰符扩展
+        for (SREModifier modifier : new ArrayList<>(selectedModifiers)) {
+            selectedRoles.addAll(modifier.relatedRoles);
+        }
+    }
+
+    private static void trimModifiers(Set<SREModifier> selectedModifiers, int targetCount) {
+        // 找出可删除的修饰符（无关联角色）
+        Set<SREModifier> removable = new HashSet<>();
+        for (SREModifier mod : selectedModifiers) {
+            if (mod.relatedRoles.isEmpty()) {
+                removable.add(mod);
+            }
+        }
+        List<SREModifier> removableList = new ArrayList<>(removable);
+        Collections.shuffle(removableList);
+
+        while (selectedModifiers.size() > targetCount && !removableList.isEmpty()) {
+            SREModifier toRemove = removableList.remove(0);
+            selectedModifiers.remove(toRemove);
+        }
+    }
+
+    private static void trimRoles(Set<SRERole> selectedRoles, RoleCounts targets, RolePools pools) {
+        // 收集各阵营当前数量及可删除角色
+        int nowKiller = 0, nowNeutrals = 0, nowVigilante = 0, nowInnocent = 0;
+        Set<SRERole> removableKiller = new HashSet<>();
+        Set<SRERole> removableNeutrals = new HashSet<>();
+        Set<SRERole> removableVigilante = new HashSet<>();
+        Set<SRERole> removableInnocent = new HashSet<>();
+
+        for (SRERole role : selectedRoles) {
+            // 统计当前数量
+            if (role.canUseKiller() && !role.isNeutrals() && !role.isInnocent()) {
+                nowKiller++;
+            } else if (role.isNeutrals()) {
+                nowNeutrals++;
+            } else if (role.isVigilanteTeam()) {
+                nowVigilante++;
+            } else {
+                nowInnocent++;
+            }
+
+            // 判断是否可删除（无任何关联）
+            if (role.occupationRoles.isEmpty() && role.occupationedRoles.isEmpty()
+                    && role.relatedModifiers.isEmpty()) {
+                if (role.canUseKiller() && !role.isNeutrals() && !role.isInnocent()) {
+                    removableKiller.add(role);
+                } else if (role.isNeutrals()) {
+                    removableNeutrals.add(role);
+                } else if (role.isVigilanteTeam()) {
+                    removableVigilante.add(role);
+                } else {
+                    removableInnocent.add(role);
                 }
             }
-            ArrayList<SREModifier> canRemoveModifiersList = new ArrayList<>(canRemoveModifiers);
-            Collections.shuffle(canRemoveModifiersList);
-            while (enabledModifiers.size() > modifierNum && !canRemoveModifiersList.isEmpty()) {
-                enabledModifiers.remove(canRemoveModifiersList.getFirst());
-                canRemoveModifiersList.removeFirst();
-            }
-        }
-        // 删除多余的可以删除的职业
-        {
-            HashSet<SRERole> canRemoveRoles = new HashSet<>();
-            for (var role : enabledRoles) {
-                if (role.occupationRoles.isEmpty() && role.occupationedRoles.isEmpty()
-                        && role.relatedModifiers.isEmpty()) {
-                    canRemoveRoles.add(role);
-                }
-            }
-            ArrayList<SRERole> canRemoveRolesList = new ArrayList<>(canRemoveRoles);
-            Collections.shuffle(canRemoveRolesList);
-            while (enabledRoles.size() > roleNum && !canRemoveRolesList.isEmpty()) {
-                enabledRoles.remove(canRemoveRolesList.getFirst());
-                canRemoveRolesList.removeFirst();
-            }
         }
 
-        // 处理结果
-        for (var role : enabledRoles) {
+        // 分别按阵营删除多余（打乱后逐个移除）
+        trimRoleGroup(selectedRoles, removableKiller, nowKiller, targets.killer);
+        trimRoleGroup(selectedRoles, removableNeutrals, nowNeutrals, targets.neutrals);
+        trimRoleGroup(selectedRoles, removableVigilante, nowVigilante, targets.vigilante);
+        trimRoleGroup(selectedRoles, removableInnocent, nowInnocent, targets.innocent);
+    }
+
+    private static void trimRoleGroup(Set<SRERole> selected, Set<SRERole> removable,
+            int currentCount, int targetCount) {
+        List<SRERole> list = new ArrayList<>(removable);
+        Collections.shuffle(list);
+        while (currentCount > targetCount && !list.isEmpty()) {
+            SRERole toRemove = list.remove(0);
+            selected.remove(toRemove);
+            currentCount--;
+        }
+    }
+
+    private static void applyResult(Set<SRERole> selectedRoles, Set<SREModifier> selectedModifiers) {
+        for (SRERole role : selectedRoles) {
             state.roleCounts.put(role.identifier().toString(), 1);
         }
-        for (var modifier : enabledModifiers) {
+        for (SREModifier modifier : selectedModifiers) {
             state.modifierCounts.put(modifier.identifier().toString(), 1);
         }
+        broadcast();
     }
 }
