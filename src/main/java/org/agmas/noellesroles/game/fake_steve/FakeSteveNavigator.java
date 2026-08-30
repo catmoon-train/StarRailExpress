@@ -4,8 +4,6 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.level.block.DoorBlock;
-import io.wifi.starrailexpress.content.block.SmallDoorBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.tags.FluidTags;
@@ -133,11 +131,9 @@ final class FakeSteveNavigator {
         BlockState feetState = level.getBlockState(feet);
         BlockState headState = level.getBlockState(feet.above());
         boolean feetFree = feetState.getCollisionShape(level, feet).isEmpty()
-                || feetState.getBlock() instanceof DoorBlock
-                || feetState.getBlock() instanceof SmallDoorBlock;
+                || FakeSteveDoorAccess.isOpenablePassage(feetState);
         boolean headFree = headState.getCollisionShape(level, feet.above()).isEmpty()
-                || headState.getBlock() instanceof DoorBlock
-                || headState.getBlock() instanceof SmallDoorBlock;
+                || FakeSteveDoorAccess.isOpenablePassage(headState);
         boolean swimming = feetState.getFluidState().is(FluidTags.WATER)
                 || headState.getFluidState().is(FluidTags.WATER);
         return feetFree && headFree && (swimming

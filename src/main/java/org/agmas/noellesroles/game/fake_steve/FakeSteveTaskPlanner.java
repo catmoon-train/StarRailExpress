@@ -2,6 +2,7 @@ package org.agmas.noellesroles.game.fake_steve;
 
 import io.wifi.starrailexpress.cca.SREPlayerTaskComponent;
 import io.wifi.starrailexpress.cca.SREPlayerTaskComponent.Task;
+import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.game.GameUtils;
 import io.wifi.starrailexpress.content.block_entity.SmallDoorBlockEntity;
 import io.wifi.starrailexpress.index.TMMItems;
@@ -127,7 +128,8 @@ public final class FakeSteveTaskPlanner {
             case CROUCH -> FakeSteveMotionController.drive(body, state, 0.0F, 0.0F,
                     false, false, true, rotation[0], rotation[1], body.blockPosition());
             case JUMP -> FakeSteveMotionController.drive(body, state, 0.0F, 0.0F,
-                    body.onGround() && now % 12L == 0L, false, false,
+                    SREGameWorldComponent.KEY.get(level).isJumpAvailable()
+                            && body.onGround() && now % 12L == 0L, false, false,
                     rotation[0], rotation[1], body.blockPosition());
             case CONSUME -> consumeOrCollect(level, body, state, rotation, now);
             case BLOCK_INTERACT -> interact(level, body, state, rotation, now);

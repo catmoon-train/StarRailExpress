@@ -2,7 +2,9 @@ package org.agmas.noellesroles.game.fake_steve;
 
 /** Shared limits for client-assisted, server-validated possessed movement. */
 public final class FakeSteveMotionPolicy {
-    public static final float MAX_TURN_DEGREES_PER_TICK = 18.0F;
+    public static final float MAX_TURN_DEGREES_PER_TICK = 42.0F;
+    private static final float TURN_RESPONSE = 0.38F;
+    private static final float MIN_TURN_DEGREES_PER_TICK = 2.5F;
     private static final float ROUTE_HEADING_DEAD_ZONE = 6.0F;
     private static final float MAX_ROUTE_HEADING_STEP = 24.0F;
 
@@ -11,8 +13,12 @@ public final class FakeSteveMotionPolicy {
 
     public static float turnToward(float current, float target) {
         float delta = wrapDegrees(target - current);
-        float step = Math.max(-MAX_TURN_DEGREES_PER_TICK,
-                Math.min(MAX_TURN_DEGREES_PER_TICK, delta));
+        if (Math.abs(delta) <= MIN_TURN_DEGREES_PER_TICK) {
+            return wrapDegrees(target);
+        }
+        float magnitude = Math.min(MAX_TURN_DEGREES_PER_TICK,
+                Math.max(MIN_TURN_DEGREES_PER_TICK, Math.abs(delta) * TURN_RESPONSE));
+        float step = Math.copySign(magnitude, delta);
         return wrapDegrees(current + step);
     }
 

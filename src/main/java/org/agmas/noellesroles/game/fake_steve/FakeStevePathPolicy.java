@@ -9,6 +9,11 @@ final class FakeStevePathPolicy {
         return onGround && ascends && now >= nextJumpTick;
     }
 
+    static boolean shouldJump(boolean jumpsAllowed, boolean onGround, boolean ascends,
+                              long now, long nextJumpTick) {
+        return jumpsAllowed && shouldJump(onGround, ascends, now, nextJumpTick);
+    }
+
     static boolean hasStalled(double previousDistanceSqr, double currentDistanceSqr,
                               long lastProgressTick, long now) {
         return currentDistanceSqr >= previousDistanceSqr - 0.15D
@@ -21,5 +26,10 @@ final class FakeStevePathPolicy {
 
     static boolean shouldSwimUp(boolean inWater, double bodyY, double targetY) {
         return inWater && targetY > bodyY + 0.2D;
+    }
+
+    static boolean shouldSprintForPursuit(boolean pursuingHuman, boolean psychoActive,
+                                          boolean crowdBlocked) {
+        return !crowdBlocked && (pursuingHuman || psychoActive);
     }
 }

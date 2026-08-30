@@ -20,6 +20,8 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.player.Player;
 import org.agmas.harpymodloader.component.WorldModifierComponent;
@@ -68,6 +70,7 @@ public final class FakeSteveDirector {
                 session.active = true;
                 session.pendingEvents = 1;
                 session.activationSource = ActivationSource.NATURAL_ROLL;
+                announceNaturalEvent(level);
             }
         });
 
@@ -335,7 +338,34 @@ public final class FakeSteveDirector {
     }
 
     private static boolean hasWon(ServerLevel level, Session session) {
-        return FakeSteveRules.hasWon(livingFakeCount(level), session.startingPlayers);
+        return FakeSteveRules.hasWon(livingFakeCount(level), livingPlayerCount(level));
+    }
+
+    private static void announceNaturalEvent(ServerLevel level) {
+        Component title = Component.translatable("message.noellesroles.fake_steve.event.title")
+                .withStyle(ChatFormatting.DARK_RED, ChatFormatting.BOLD);
+        Component subtitle = Component.translatable("message.noellesroles.fake_steve.event.subtitle")
+                .withStyle(ChatFormatting.GRAY);
+        Component broadcast = Component.translatable("message.noellesroles.fake_steve.event.broadcast")
+                .withStyle(ChatFormatting.RED);
+        for (ServerPlayer player : level.players()) {
+            SRENetworkMessageUtils.sendTitleTime(player, 10, 80, 20);
+            SRENetworkMessageUtils.sendTitle(player, title);
+            SRENetworkMessageUtils.sendSubtitle(player, subtitle);
+            SRENetworkMessageUtils.sendBroadcast(player, broadcast);
+            player.playNotifySound(SoundEvents.SCULK_SHRIEKER_SHRIEK,
+                    SoundSource.MASTER, 0.75F, 0.72F);
+        }
+    }
+
+    private static int livingPlayerCount(ServerLevel level) {
+        int count = 0;
+        for (ServerPlayer player : level.players()) {
+            if (GameUtils.isPlayerAliveAndSurvival(player)) {
+                count++;
+            }
+        }
+        return count;
     }
 
     private static void checkVictory(ServerLevel level, Session session) {

@@ -16,9 +16,9 @@ public final class FakeSteveRules {
         return Math.max(0, SAFE_SANITY - clampedSanity) + CORPSE_RISK * bodies;
     }
 
-    public static boolean hasWon(int livingFakeSteves, int startingPlayers) {
-        return startingPlayers > 0 && livingFakeSteves >= 0
-                && livingFakeSteves * 100 > startingPlayers * 40;
+    public static boolean hasWon(int livingFakeSteves, int livingPlayers) {
+        return livingPlayers > 0 && livingFakeSteves >= 0
+                && livingFakeSteves * 100 > livingPlayers * 60;
     }
 
     public static boolean canAssimilate(int nearbyLivingFakes, int otherLivingHumans,
