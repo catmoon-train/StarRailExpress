@@ -31,6 +31,8 @@ import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectCategory;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.ai.attributes.AttributeModifier.Operation;
+import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.flag.FeatureFlagSet;
 import org.agmas.noellesroles.Noellesroles;
 import org.agmas.noellesroles.component.GhostStateComponent;
@@ -55,6 +57,10 @@ public class ModEffects {
     /** 禁止技能使用 */
     public static final Holder<MobEffect> SKILL_BANED = register("skill_baned",
             new SimpleMobEffect(MobEffectCategory.HARMFUL, 0xFFFFFF));
+    public static final Holder<MobEffect> DE_JUMP = register("jump_decrease",
+            new SimpleMobEffect(MobEffectCategory.HARMFUL, 16646020).addAttributeModifier(
+                    Attributes.JUMP_STRENGTH, Noellesroles.id("effect.jump_decrease"),
+                    (double) -0.1F, Operation.ADD_VALUE));
     public static final Holder<MobEffect> INVENTORY_BANED = register("inventory_baned",
             new SimpleMobEffect(MobEffectCategory.HARMFUL, 0xFFFFFF));
     public static final Holder<MobEffect> EAT_MEAT_FOOD = register("eat_meat_food",

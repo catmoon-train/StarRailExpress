@@ -55,6 +55,28 @@ public class NiaoshoushouMissileEntity extends NoHeavyWaterInfluencedThrowableIt
         return entity != getOwner() && super.canHitEntity(entity);
     }
 
+    /**
+     * 巡飞弹的朝向完全由控制输入维护，不再让基类按当前速度重写 yRot/xRot。
+     * 基类的 updateRotation() 会把朝向存成"投射物坐标系"（实际朝向 + 180°），
+     * 与控制包里的玩家坐标系混用会让插值每 tick 大幅过冲，导致乱转。
+     */
+    @Override
+    protected void updateRotation() {
+    }
+
+    /**
+     * 基类按速度把 yRot 存成投射物坐标系，这里改回发射者的玩家坐标系，
+     * 保证发射后第一个 tick 的 getLookAngle() 就指向发射方向，不会反向飞行。
+     */
+    @Override
+    public void shootFromRotation(Entity shooter, float pitch, float yaw, float roll, float speed,
+            float divergence) {
+        super.shootFromRotation(shooter, pitch, yaw, roll, speed, divergence);
+        setRot(yaw, pitch);
+        yRotO = yaw;
+        xRotO = pitch;
+    }
+
     public void setSteering(int steering) {
         this.steering = Integer.compare(steering, 0);
     }

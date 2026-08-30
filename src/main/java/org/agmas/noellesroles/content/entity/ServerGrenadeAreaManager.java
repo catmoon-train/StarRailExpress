@@ -34,6 +34,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
+import org.agmas.noellesroles.init.ModEffects;
+
 /**
  * 手雷落点地面区域管理器（燃烧弹 / 粘液弹通用）。
  * <ul>
@@ -195,7 +197,7 @@ public class ServerGrenadeAreaManager {
                 player.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SLOWDOWN, 20, 2,
                         false, false, true));
                 // 无法跳跃：跳跃提升放大值 128（作为 byte 溢出为负，跳跃力为负 → 无法起跳）
-                player.addEffect(new MobEffectInstance(MobEffects.JUMP, 20, 128,
+                player.addEffect(new MobEffectInstance(ModEffects.DE_JUMP, 20, 128,
                         false, false, false));
             }
         }

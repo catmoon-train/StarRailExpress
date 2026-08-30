@@ -2481,6 +2481,7 @@
   "message.noellesroles.ma_chen_xu.trigger_shield": "护盾触发！抵挡一次致命伤害！",
   "message.noellesroles.ma_chen_xu.ghost_curse": "§4鬼 缚",
   "mob_effect.noellesroles.ghost_curse": "鬼缚",
+  "effect.noellesroles.jump_decrease": "跳跃衰减",
   "effect.noellesroles.ghost_curse": "鬼缚",
   "effect.noellesroles.suika_small": "萃香：小",
   "effect.noellesroles.mouse_upside_down": "鼠标反转",
