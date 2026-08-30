@@ -53,6 +53,27 @@ public class ServerGrenadeAreaManager {
     private static final int NIAOSHOU_FIRE_KILL_TICKS = 24;
 
     private static final List<Area> activeAreas = new ArrayList<>();
+    private static final List<PendingFireKill> pendingFireKills = new ArrayList<>();
+
+    /** 在命中点记录范围内玩家，延迟点燃击杀；用于巡飞弹的瞬时范围伤害。 */
+    public static void scheduleFireKill(ServerLevel world, Vec3 position, double radius, int delayTicks,
+            UUID owner) {
+        AABB box = new AABB(position.x - radius, position.y - 1, position.z - radius,
+                position.x + radius, position.y + 3, position.z + radius);
+        List<UUID> targets = new ArrayList<>();
+        for (ServerPlayer player : world.getEntitiesOfClass(ServerPlayer.class, box,
+                GameUtils::isPlayerAliveAndSurvival)) {
+            double dx = player.getX() - position.x;
+            double dz = player.getZ() - position.z;
+            if (dx * dx + dz * dz <= radius * radius) {
+                player.setRemainingFireTicks(Math.max(player.getRemainingFireTicks(), delayTicks));
+                targets.add(player.getUUID());
+            }
+        }
+        if (!targets.isEmpty()) {
+            pendingFireKills.add(new PendingFireKill(world, targets, Math.max(1, delayTicks), owner));
+        }
+    }
 
     /** 创建一个地面区域。owner 可为 null（投掷者已下线）。 */
     public static void createArea(ServerLevel world, Vec3 position, double radius, int durationTicks,
@@ -62,6 +83,12 @@ public class ServerGrenadeAreaManager {
 
     /** 每服务端 tick 更新所有区域。 */
     public static void tick() {
+        Iterator<PendingFireKill> pendingIterator = pendingFireKills.iterator();
+        while (pendingIterator.hasNext()) {
+            if (pendingIterator.next().tick()) {
+                pendingIterator.remove();
+            }
+        }
         Iterator<Area> iterator = activeAreas.iterator();
         while (iterator.hasNext()) {
             if (iterator.next().tick()) {
@@ -73,6 +100,35 @@ public class ServerGrenadeAreaManager {
     /** 清除所有区域（如需在游戏结束时调用）。 */
     public static void clearAll() {
         activeAreas.clear();
+        pendingFireKills.clear();
+    }
+
+    private static class PendingFireKill {
+        private final ServerLevel world;
+        private final List<UUID> targets;
+        private final UUID owner;
+        private int remainingTicks;
+
+        PendingFireKill(ServerLevel world, List<UUID> targets, int remainingTicks, UUID owner) {
+            this.world = world;
+            this.targets = targets;
+            this.remainingTicks = remainingTicks;
+            this.owner = owner;
+        }
+
+        boolean tick() {
+            if (--remainingTicks > 0) {
+                return false;
+            }
+            ServerPlayer killer = owner == null ? null : world.getServer().getPlayerList().getPlayer(owner);
+            for (UUID targetId : targets) {
+                ServerPlayer target = world.getServer().getPlayerList().getPlayer(targetId);
+                if (target != null && target.level() == world && GameUtils.isPlayerAliveAndSurvival(target)) {
+                    GameUtils.killPlayer(target, true, killer, GameConstants.DeathReasons.FLAMETHROWER_BURNED);
+                }
+            }
+            return true;
+        }
     }
 
     private static class Area {

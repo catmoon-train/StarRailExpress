@@ -166,6 +166,6 @@
   "item.noellesroles.niaoshoushou_knife.desc": "鸟兽兽专属尼泊尔军刀。继承普通刀的攻击方式，拥有4点耐久；也能撬开小门，每次成功撬门消耗1点耐久。",
   "item.noellesroles.niaoshoushou_incendiary_grenade.desc": "鸟兽兽专属燃烧弹。复用现有燃烧弹效果，使用后进入45秒冷却。",
   "item.noellesroles.niaoshoushou_family_photo.desc": "鸟兽兽专属全家福。分别右键两名杀手阵营玩家或魔术师组成队伍；每局只能购买一张。",
-  "item.noellesroles.niaoshoushou_missile.desc": "鸟兽兽专属巡飞弹。使用后绑定相机，弹体自动前飞并跟随视野上下左右移动，A/D可辅助转向；碰到玩家或地面后以半径5格爆炸。冷却60秒。",
+  "item.noellesroles.niaoshoushou_missile.desc": "鸟兽兽专属巡飞弹。使用后绑定相机，弹体自动前飞并跟随视野上下左右移动，A/D可辅助转向；碰到玩家或地面后爆炸，使半径5格内玩家燃烧并在1.5秒后死亡。冷却60秒。",
   "item.noellesroles.niaoshoushou_blackout.desc": "鸟兽兽专属范围关灯。熄灭半径30格内的灯，使用后冷却2分钟。"
 }

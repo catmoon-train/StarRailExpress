@@ -166,6 +166,6 @@
   "item.noellesroles.niaoshoushou_knife.desc": "鳥獸獸專屬尼泊爾軍刀。繼承普通刀的攻擊方式，擁有4點耐久；也能撬開小門，每次成功撬門消耗1點耐久。",
   "item.noellesroles.niaoshoushou_incendiary_grenade.desc": "鳥獸獸專屬燃燒彈。複用現有燃燒彈效果，使用後進入45秒冷卻。",
   "item.noellesroles.niaoshoushou_family_photo.desc": "鳥獸獸專屬全家福。分別右鍵兩名殺手陣營玩家或魔術師組成隊伍；每局只能購買一張。",
-  "item.noellesroles.niaoshoushou_missile.desc": "鳥獸獸專屬巡飛彈。使用後綁定相機，彈體自動前飛並跟隨視野上下左右移動，A/D可輔助轉向；碰到玩家或地面後以半徑5格爆炸。冷卻60秒。",
+  "item.noellesroles.niaoshoushou_missile.desc": "鳥獸獸專屬巡飛彈。使用後綁定相機，彈體自動前飛並跟隨視野上下左右移動，A/D可輔助轉向；碰到玩家或地面後爆炸，使半徑5格內玩家燃燒並在1.5秒後死亡。冷卻60秒。",
   "item.noellesroles.niaoshoushou_blackout.desc": "鳥獸獸專屬範圍關燈。熄滅半徑30格內的燈，使用後冷卻2分鐘。"
 }

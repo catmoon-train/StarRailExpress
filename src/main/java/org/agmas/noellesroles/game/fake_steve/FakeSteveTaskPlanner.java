@@ -3,6 +3,8 @@ package org.agmas.noellesroles.game.fake_steve;
 import io.wifi.starrailexpress.cca.SREPlayerTaskComponent;
 import io.wifi.starrailexpress.cca.SREPlayerTaskComponent.Task;
 import io.wifi.starrailexpress.game.GameUtils;
+import io.wifi.starrailexpress.content.block_entity.SmallDoorBlockEntity;
+import io.wifi.starrailexpress.index.TMMItems;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.component.DataComponents;
@@ -13,6 +15,7 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.UseAnim;
+import net.minecraft.world.item.component.ItemLore;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
 import org.agmas.noellesroles.init.ModItems;
@@ -58,11 +61,13 @@ public final class FakeSteveTaskPlanner {
         if (component == null) {
             return false;
         }
+        long now = body.serverLevel().getGameTime();
         if (state.taskType != null && component.tasks.containsKey(state.taskType)
                 && strategy(state.taskType).isPresent()) {
             return true;
         }
-        return component.tasks.keySet().stream().anyMatch(task -> strategy(task).isPresent());
+        return component.tasks.keySet().stream().anyMatch(task -> strategy(task).isPresent()
+                && state.taskBackoffUntil.getOrDefault(task, 0L) <= now);
     }
 
     static boolean tick(ServerLevel level, ServerPlayer body, FakeSteveAgentState state) {
@@ -75,30 +80,37 @@ public final class FakeSteveTaskPlanner {
             return false;
         }
         if (state.taskType != null && !component.tasks.containsKey(state.taskType)) {
+            releaseTaskPosture(body, state.taskType);
             clear(state);
         }
+        Task selected = chooseTask(component, body, state, now);
+        if (selected != state.taskType) {
+            releaseTaskPosture(body, state.taskType);
+            if (state.taskType != null
+                    && now - state.taskStartedTick > FakeSteveTaskSelection.STALL_TICKS) {
+                state.taskBackoffUntil.put(state.taskType, now + RETRY_TICKS);
+            }
+            clearDestination(state);
+            state.taskType = selected;
+            state.taskStartedTick = now;
+        }
         if (state.taskType == null) {
-            if (now < state.taskRetryTick) {
-                return false;
-            }
-            state.taskType = chooseTask(component, body);
-            if (state.taskType == null) {
-                return false;
-            }
+            return false;
         }
 
         if (state.taskGoal == null) {
-            state.taskGoal = findGoal(level, body, state.taskType);
-            if (state.taskGoal == null) {
-                state.taskRetryTick = now + RETRY_TICKS;
+            TaskDestination destination = findDestination(level, body, state.taskType);
+            if (destination == null) {
+                state.taskBackoffUntil.put(state.taskType, now + RETRY_TICKS);
                 state.taskType = null;
-                state.pathGoal = null;
-                state.path.clear();
+                clearDestination(state);
                 return false;
             }
+            state.taskGoal = destination.standingPos();
+            state.taskInteractTarget = destination.interactionPos();
         }
 
-        if (body.distanceToSqr(Vec3.atCenterOf(state.taskGoal)) > INTERACT_DISTANCE_SQR) {
+        if (body.distanceToSqr(Vec3.atBottomCenterOf(state.taskGoal)) > 1.15D) {
             FakeSteveAi.follow(level, body, state.taskGoal, state, 0.16D);
             return true;
         }
@@ -108,7 +120,8 @@ public final class FakeSteveTaskPlanner {
             clear(state);
             return false;
         }
-        float[] rotation = rotation(body, Vec3.atCenterOf(state.taskGoal));
+        BlockPos interactionPos = state.taskInteractTarget == null ? state.taskGoal : state.taskInteractTarget;
+        float[] rotation = rotation(body, Vec3.atCenterOf(interactionPos));
         switch (strategy) {
             case HOLD_POSITION -> FakeSteveMotionController.hold(body, state, rotation[0], rotation[1]);
             case CROUCH -> FakeSteveMotionController.drive(body, state, 0.0F, 0.0F,
@@ -122,9 +135,14 @@ public final class FakeSteveTaskPlanner {
         return true;
     }
 
-    private static Task chooseTask(SREPlayerTaskComponent component, ServerPlayer body) {
-        return component.tasks.keySet().stream().filter(task -> strategy(task).isPresent())
-                .min(Comparator.comparingDouble(task -> estimatedDistance(body, task))).orElse(null);
+    private static Task chooseTask(SREPlayerTaskComponent component, ServerPlayer body,
+            FakeSteveAgentState state, long now) {
+        List<FakeSteveTaskSelection.Candidate> candidates = component.tasks.keySet().stream()
+                .filter(task -> strategy(task).isPresent())
+                .map(task -> new FakeSteveTaskSelection.Candidate(task, estimatedDistance(body, task),
+                        state.taskBackoffUntil.getOrDefault(task, 0L) > now))
+                .toList();
+        return FakeSteveTaskSelection.choose(candidates, state.taskType, state.taskStartedTick, now);
     }
 
     private static double estimatedDistance(ServerPlayer body, Task task) {
@@ -138,30 +156,40 @@ public final class FakeSteveTaskPlanner {
                 .min().orElse(Double.MAX_VALUE);
     }
 
-    private static BlockPos findGoal(ServerLevel level, ServerPlayer body, Task task) {
+    private static TaskDestination findDestination(ServerLevel level, ServerPlayer body, Task task) {
         if (task == Task.MEDITATE) {
-            return body.blockPosition();
+            return new TaskDestination(body.blockPosition(), body.blockPosition());
         }
         if (task == Task.BREATHE || task == Task.OUTSIDE) {
-            return findOpenSky(level, body);
+            BlockPos pos = findOpenSky(level, body);
+            return pos == null ? null : new TaskDestination(pos, pos);
         }
         if (task == Task.BE_ALONE) {
-            return findAloneSpot(level, body);
+            BlockPos pos = findAloneSpot(level, body);
+            return new TaskDestination(pos, pos);
         }
+        BlockPos ownedBed = task == Task.SLEEP ? findOwnedRoomBed(level, body) : null;
         int[] types = pointTypes(task, body);
         List<BlockPos> candidates = new ArrayList<>();
-        GameUtils.taskBlocks.forEach((pos, type) -> {
-            if (contains(types, type)) {
-                candidates.add(pos.immutable());
-            }
-        });
+        if (ownedBed != null) {
+            candidates.add(ownedBed);
+        } else {
+            GameUtils.taskBlocks.forEach((pos, type) -> {
+                if (contains(types, type)) {
+                    candidates.add(pos.immutable());
+                }
+            });
+        }
         candidates.sort(Comparator.comparingDouble(pos -> body.distanceToSqr(Vec3.atCenterOf(pos))));
         for (BlockPos candidate : candidates) {
-            BlockPos goal = standingGoal(task, candidate);
-            var path = FakeSteveNavigator.find(level, body.blockPosition(), goal);
+            BlockPos goal = standingGoal(level, body, task, candidate);
+            if (goal == null) {
+                continue;
+            }
+            var path = FakeSteveNavigator.find(level, body, goal);
             if (body.distanceToSqr(Vec3.atCenterOf(goal)) <= INTERACT_DISTANCE_SQR
                     || FakeSteveNavigator.reaches(path, goal)) {
-                return goal;
+                return new TaskDestination(goal, candidate);
             }
         }
         return null;
@@ -219,6 +247,9 @@ public final class FakeSteveTaskPlanner {
             FakeSteveMotionController.hold(body, state, rotation[0], rotation[1]);
             if (!body.isUsingItem()) {
                 body.gameMode.useItem(body, level, body.getMainHandItem(), InteractionHand.MAIN_HAND);
+                if (!body.isUsingItem()) {
+                    body.startUsingItem(InteractionHand.MAIN_HAND);
+                }
             }
             return;
         }
@@ -245,6 +276,12 @@ public final class FakeSteveTaskPlanner {
     private static void interact(ServerLevel level, ServerPlayer body,
             FakeSteveAgentState state, float[] rotation, long now) {
         FakeSteveMotionController.hold(body, state, rotation[0], rotation[1]);
+        if ((state.taskType == Task.CHAIR || state.taskType == Task.TOILET) && body.isPassenger()) {
+            return;
+        }
+        if (state.taskType == Task.SLEEP && body.isSleeping()) {
+            return;
+        }
         if (now < state.nextTaskInteractionTick) {
             return;
         }
@@ -268,15 +305,26 @@ public final class FakeSteveTaskPlanner {
                 }
             }
         }
-        BlockHitResult hit = new BlockHitResult(Vec3.atCenterOf(state.taskGoal),
-                Direction.UP, state.taskGoal, false);
+        BlockPos target = state.taskInteractTarget == null ? state.taskGoal : state.taskInteractTarget;
+        double maxDistance = FakeSteveInteractionPolicy.maxInteractionDistance(state.taskType);
+        if (body.position().distanceTo(Vec3.atCenterOf(target)) > maxDistance) {
+            state.taskGoal = null;
+            state.taskInteractTarget = null;
+            state.path.clear();
+            return;
+        }
+        BlockHitResult hit = new BlockHitResult(Vec3.atCenterOf(target),
+                Direction.UP, target, false);
         body.gameMode.useItemOn(body, level, body.getMainHandItem(),
                 InteractionHand.MAIN_HAND, hit);
-        body.swing(InteractionHand.MAIN_HAND);
+        if (FakeSteveInteractionPolicy.swingsHand(state.taskType)) {
+            body.swing(InteractionHand.MAIN_HAND, true);
+        }
         if (state.taskType == Task.TRANSPORT
                 && findItem(body, ModItems.TRANSPORT_PACKAGE) >= 0
-                && GameUtils.taskBlocks.getOrDefault(state.taskGoal, -1) != 19) {
+                && GameUtils.taskBlocks.getOrDefault(target, -1) != 19) {
             state.taskGoal = null;
+            state.taskInteractTarget = null;
             state.path.clear();
         }
     }
@@ -334,12 +382,56 @@ public final class FakeSteveTaskPlanner {
         };
     }
 
-    private static BlockPos standingGoal(Task task, BlockPos taskPoint) {
-        return switch (task) {
+    private static BlockPos standingGoal(ServerLevel level, ServerPlayer body, Task task, BlockPos taskPoint) {
+        BlockPos special = switch (task) {
             case EXERCISE, HARVEST_CROP -> taskPoint.above();
             case BATHE -> taskPoint.below();
-            default -> taskPoint;
+            default -> null;
         };
+        if (special != null && canStand(level, special)) {
+            return special;
+        }
+        if (canStand(level, taskPoint)) {
+            return taskPoint;
+        }
+        return Direction.Plane.HORIZONTAL.stream()
+                .map(taskPoint::relative)
+                .filter(pos -> canStand(level, pos))
+                .min(Comparator.comparingDouble(pos -> body.distanceToSqr(Vec3.atBottomCenterOf(pos))))
+                .orElse(null);
+    }
+
+    private static BlockPos findOwnedRoomBed(ServerLevel level, ServerPlayer body) {
+        List<String> keyNames = new ArrayList<>();
+        for (int slot = 0; slot < body.getInventory().getContainerSize(); slot++) {
+            ItemStack stack = body.getInventory().getItem(slot);
+            if (!stack.is(TMMItems.KEY)) {
+                continue;
+            }
+            ItemLore lore = stack.get(DataComponents.LORE);
+            if (lore != null && !lore.lines().isEmpty()) {
+                keyNames.add(lore.lines().getFirst().getString());
+            }
+        }
+        if (keyNames.isEmpty()) {
+            return null;
+        }
+        BlockPos roomDoor = GameUtils.taskBlocks.entrySet().stream()
+                .filter(entry -> entry.getValue() == 7)
+                .map(java.util.Map.Entry::getKey)
+                .filter(pos -> level.getBlockEntity(pos) instanceof SmallDoorBlockEntity door
+                        && keyNames.contains(door.getKeyName()))
+                .min(Comparator.comparingDouble(pos -> body.distanceToSqr(Vec3.atCenterOf(pos))))
+                .orElse(null);
+        if (roomDoor == null) {
+            return null;
+        }
+        return GameUtils.taskBlocks.entrySet().stream()
+                .filter(entry -> entry.getValue() == 4)
+                .map(java.util.Map.Entry::getKey)
+                .filter(pos -> pos.distSqr(roomDoor) <= 18.0D * 18.0D)
+                .min(Comparator.comparingDouble(pos -> pos.distSqr(roomDoor)))
+                .orElse(null);
     }
 
     private static boolean contains(int[] values, int value) {
@@ -362,9 +454,33 @@ public final class FakeSteveTaskPlanner {
 
     private static void clear(FakeSteveAgentState state) {
         state.taskType = null;
+        state.taskStartedTick = 0L;
+        clearDestination(state);
+    }
+
+    private static void releaseTaskPosture(ServerPlayer body, Task task) {
+        if (!FakeSteveInteractionPolicy.releasesPostureAfterCompletion(task)) {
+            return;
+        }
+        if (body.isPassenger()) {
+            body.stopRiding();
+        }
+        if (body.isSleeping()) {
+            body.stopSleeping();
+        }
+        if (task == Task.RAED_BOOK) {
+            body.closeContainer();
+        }
+    }
+
+    private static void clearDestination(FakeSteveAgentState state) {
         state.taskGoal = null;
+        state.taskInteractTarget = null;
         state.pathGoal = null;
         state.nextTaskInteractionTick = 0L;
         state.path.clear();
+    }
+
+    private record TaskDestination(BlockPos standingPos, BlockPos interactionPos) {
     }
 }

@@ -1,16 +1,27 @@
 package org.agmas.noellesroles.game.fake_steve;
 
 import io.wifi.starrailexpress.api.SRERole;
+import io.wifi.starrailexpress.api.RoleSkill;
+import io.wifi.starrailexpress.cca.DynamicShopComponent;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
+import io.wifi.starrailexpress.cca.SREPlayerPsychoComponent;
+import io.wifi.starrailexpress.cca.SREPlayerShopComponent;
 import io.wifi.starrailexpress.content.block.PlatterBlock;
+import io.wifi.starrailexpress.content.block.SmallDoorBlock;
+import io.wifi.starrailexpress.content.block_entity.SmallDoorBlockEntity;
 import io.wifi.starrailexpress.game.GameConstants;
 import io.wifi.starrailexpress.game.GameUtils;
+import io.wifi.starrailexpress.game.KillerKnifeDurability;
+import io.wifi.starrailexpress.game.ShopContent;
 import io.wifi.starrailexpress.index.TMMItems;
 import io.wifi.starrailexpress.index.TMMSounds;
+import io.wifi.starrailexpress.index.tag.TMMItemTags;
+import io.wifi.starrailexpress.content.item.api.SREItemProperties.TrainWeapon;
 import net.fabricmc.fabric.api.message.v1.ServerMessageEvents;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.component.DataComponents;
+import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.game.ClientboundSetCarriedItemPacket;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
@@ -21,6 +32,7 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.UseAnim;
+import net.minecraft.world.item.component.ItemLore;
 import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.block.DoorBlock;
 import net.minecraft.world.phys.BlockHitResult;
@@ -28,7 +40,9 @@ import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 
 import java.util.Comparator;
+import java.util.List;
 import java.util.UUID;
+import org.agmas.noellesroles.content.entity.LockEntityManager;
 
 /** Server-side controller for a replaced player body. */
 public class FakeSteveAi {
@@ -44,7 +58,7 @@ public class FakeSteveAi {
             return;
         registered = true;
         ServerMessageEvents.ALLOW_CHAT_MESSAGE.register((message, sender, bound) -> {
-            onChat(sender);
+            onChat(sender, message.signedContent());
             return true;
         });
     }
@@ -53,6 +67,7 @@ public class FakeSteveAi {
         long now = level.getGameTime();
         if ((now + Math.floorMod(body.getUUID().hashCode(), 5)) % 5L != 0L)
             return;
+        holsterKnifeIfReady(body, state, now);
 
         ServerPlayer focus = player(level, state.focusTarget);
         if (focus != null && (!isHuman(focus) || !GameUtils.isPlayerAliveAndSurvival(focus))) {
@@ -82,8 +97,17 @@ public class FakeSteveAi {
         ServerPlayer isolated = FakeSteveDirector.isEnabled() ? isolatedTarget(level, body) : null;
         boolean taskAvailable = FakeSteveTaskPlanner.hasCompletableTask(body, state);
         SRERole originalRole = SREGameWorldComponent.KEY.get(level).getRole(body);
-        ServerPlayer prey = originalRole != null && originalRole.canUseKiller() && !taskAvailable
+        ServerPlayer prey = originalRole != null && originalRole.canUseKiller()
                 ? safestPrey(level, body) : null;
+        if (originalRole != null && originalRole.canUseKiller()) {
+            prepareKiller(level, body, state, originalRole, prey);
+        }
+        boolean psychoArmed = originalRole != null && SREPlayerPsychoComponent.KEY.get(body).inPsycho()
+                && findPsychoWeaponSlot(body, originalRole) >= 0;
+        boolean armed = psychoArmed || findKnifeSlot(body) >= 0 || findGunSlot(body) >= 0;
+        boolean interruptTask = prey != null && FakeSteveKillerPolicy.shouldInterruptTask(
+                taskAvailable, armed, !hasWitness(level, body, prey), body.distanceTo(prey));
+        maybeSpeak(level, body, state);
         boolean targetLooking = focus != null && visible(focus, body)
                 && faces(focus, body, FACE_COS);
         boolean safeBackstab = focus != null && body.distanceToSqr(focus) <= 144.0D
@@ -94,14 +118,18 @@ public class FakeSteveAi {
         FakeSteveBrain.BrainIntent intent = state.brain.tick(new FakeSteveBrain.PerceptionSnapshot(
                 5, recovering, state.pendingEngagement, focus != null,
                 targetLooking, safeBackstab, isolated != null,
-                taskAvailable, prey != null));
+                taskAvailable && !interruptTask, prey != null));
         if (!intent.recover()) {
             state.pendingEngagement = false;
         }
         state.mode = intent.mode();
+        if (state.mode != AgentMode.DISGUISE_IDLE) {
+            state.idleTicks = 0;
+        }
 
         if (intent.recover()) {
-            FakeSteveMotionController.hold(body, state, body.getYRot(), body.getXRot());
+            FakeSteveMotionController.hold(body, state, body.getYRot(),
+                    FakeSteveMotionPolicy.walkingPitch(now, body.getUUID().hashCode()));
             return;
         }
         if (state.mode == AgentMode.STARE && focus != null) {
@@ -115,7 +143,7 @@ public class FakeSteveAi {
                 state.nextDecisionTick = now + 40L;
                 return;
             }
-            follow(level, body, focus.blockPosition(), state, 0.19D);
+            follow(level, body, ambushGoal(focus), state, 0.19D);
             return;
         }
         if (state.mode == AgentMode.ASSIMILATE && isolated != null) {
@@ -135,22 +163,33 @@ public class FakeSteveAi {
         }
         state.assimilationTicks = 0;
 
+        if (shouldFlee(level, body) && state.mode != AgentMode.STARE && state.mode != AgentMode.STALK) {
+            flee(level, body, state);
+            return;
+        }
+
         if (state.mode == AgentMode.DISGUISE_TASK
                 && FakeSteveTaskPlanner.tick(level, body, state)) {
             return;
         }
         if (state.mode == AgentMode.HUNT && prey != null) {
             state.focusTarget = prey.getUUID();
-            if (tryArmedAttack(level, body, prey)) {
+            if (tryArmedAttack(level, body, prey, state)) {
                 state.mode = AgentMode.RECOVER;
                 state.nextDecisionTick = now + 40L;
             } else {
-                follow(level, body, prey.blockPosition(), state, 0.20D);
+                follow(level, body, ambushGoal(prey), state, 0.20D);
             }
             return;
         }
 
         state.mode = AgentMode.DISGUISE_IDLE;
+        state.idleTicks += 5;
+        if (FakeSteveMotionPolicy.shouldSprint(false, state.idleTicks,
+                body.getUUID().hashCode() + (int) (now / 20L))) {
+            state.sprintUntilTick = Math.max(state.sprintUntilTick, now + 30L + level.getRandom().nextInt(30));
+            state.idleTicks = 0;
+        }
         if (now >= state.nextDecisionTick) {
             state.nextDecisionTick = now + 40L + level.getRandom().nextInt(80);
             if (!tryInteract(level, body)) {
@@ -161,6 +200,9 @@ public class FakeSteveAi {
         }
         if (state.pathGoal != null) {
             follow(level, body, state.pathGoal, state, 0.15D);
+        } else {
+            FakeSteveMotionController.hold(body, state, body.getYRot(),
+                    FakeSteveMotionPolicy.walkingPitch(now, body.getUUID().hashCode()));
         }
     }
 
@@ -175,7 +217,7 @@ public class FakeSteveAi {
         }
     }
 
-    private static void onChat(ServerPlayer sender) {
+    private static void onChat(ServerPlayer sender, String message) {
         if (!FakeSteveDirector.isActive(sender.serverLevel()) || !isHuman(sender))
             return;
         ServerPlayer nearest = sender.serverLevel().players().stream()
@@ -185,8 +227,14 @@ public class FakeSteveAi {
                 .min(Comparator.comparingDouble(sender::distanceToSqr)).orElse(null);
         if (nearest != null) {
             FakeSteveAgentState state = FakeSteveDirector.agent(nearest.serverLevel(), nearest.getUUID());
-            if (state != null)
+            if (state != null) {
                 beginStare(state, sender);
+                if (FakeSteveDialogue.isDirectedRoleQuestion(message)) {
+                    state.directedReplyPending = true;
+                    state.nextDialogueTick = sender.serverLevel().getGameTime()
+                            + 12L + sender.getRandom().nextInt(25);
+                }
+            }
         }
     }
 
@@ -237,18 +285,57 @@ public class FakeSteveAi {
                 .min(Comparator.comparingDouble(body::distanceToSqr)).orElse(null);
     }
 
-    private static boolean tryArmedAttack(ServerLevel level, ServerPlayer body, ServerPlayer target) {
-        int knife = findSlot(body, TMMItems.KNIFE);
+    private static boolean tryArmedAttack(ServerLevel level, ServerPlayer body,
+                                          ServerPlayer target, FakeSteveAgentState state) {
+        SRERole role = SREGameWorldComponent.KEY.get(level).getRole(body);
+        if (SREPlayerPsychoComponent.KEY.get(body).inPsycho()) {
+            int psychoWeapon = findPsychoWeaponSlot(body, role);
+            if (psychoWeapon >= 0 && body.distanceToSqr(target) <= 9.0D
+                    && behind(body, target) && !hasWitness(level, body, target)) {
+                select(body, psychoWeapon);
+                return killWithPsycho(body, target);
+            }
+        }
+        int knife = findKnifeSlot(body);
         if (knife >= 0 && body.distanceToSqr(target) <= 9.0 && behind(body, target)
                 && !hasWitness(level, body, target)) {
+            if (!target.getUUID().equals(state.knifeChargeTarget)) {
+                state.knifeChargeTarget = target.getUUID();
+                state.knifeChargedAtTick = level.getGameTime() + 8L;
+                state.holsterSlot = body.getInventory().selected == knife
+                        ? findSafeHolsterSlot(body) : body.getInventory().selected;
+                select(body, knife);
+                body.gameMode.useItem(body, level, body.getMainHandItem(), InteractionHand.MAIN_HAND);
+                if (!body.isUsingItem()) {
+                    body.startUsingItem(InteractionHand.MAIN_HAND);
+                }
+                return false;
+            }
+            if (!FakeSteveKillerPolicy.canStrikeWithKnife(level.getGameTime(), state.knifeChargedAtTick)) {
+                return false;
+            }
             select(body, knife);
-            return kill(body, target, false, true);
+            if (body.getCooldowns().isOnCooldown(body.getMainHandItem().getItem())) {
+                cancelKnifeCharge(body, state);
+                return false;
+            }
+            body.releaseUsingItem();
+            cancelKnifeCharge(body, state);
+            boolean killed = kill(body, target, false, true);
+            if (killed) {
+                state.holsterAtTick = level.getGameTime() + 8L;
+            }
+            return killed;
         }
+        cancelKnifeCharge(body, state);
         int gun = findGunSlot(body);
         double distance = body.distanceTo(target);
         if (gun >= 0 && distance >= 4.0 && distance <= 18.0 && visible(body, target)
                 && !hasWitness(level, body, target)) {
             select(body, gun);
+            if (body.getCooldowns().isOnCooldown(body.getMainHandItem().getItem())) {
+                return false;
+            }
             return kill(body, target, true, true);
         }
         return false;
@@ -272,8 +359,11 @@ public class FakeSteveAi {
             attacker.getCooldowns().addCooldown(TMMItems.KNIFE,
                     GameConstants.ITEM_COOLDOWNS.getOrDefault(TMMItems.KNIFE, 600));
             GameUtils.killPlayer(target, true, attacker, BACKSTAB);
+            if (KillerKnifeDurability.isMarkedKnife(attacker.getMainHandItem())) {
+                KillerKnifeDurability.consumeOne(attacker.getMainHandItem(), attacker);
+            }
         }
-        attacker.swing(InteractionHand.MAIN_HAND);
+        attacker.swing(InteractionHand.MAIN_HAND, true);
         return true;
     }
 
@@ -284,6 +374,9 @@ public class FakeSteveAi {
             if (stack.has(DataComponents.FOOD) || animation == UseAnim.EAT || animation == UseAnim.DRINK) {
                 select(body, slot);
                 body.gameMode.useItem(body, level, body.getMainHandItem(), InteractionHand.MAIN_HAND);
+                if (!body.isUsingItem()) {
+                    body.startUsingItem(InteractionHand.MAIN_HAND);
+                }
                 return true;
             }
         }
@@ -298,6 +391,7 @@ public class FakeSteveAi {
             select(body, empty);
             BlockHitResult hit = new BlockHitResult(Vec3.atCenterOf(pos), Direction.UP, pos.immutable(), false);
             body.gameMode.useItemOn(body, level, body.getMainHandItem(), InteractionHand.MAIN_HAND, hit);
+            body.swing(InteractionHand.MAIN_HAND, true);
             return true;
         }
         return false;
@@ -306,16 +400,37 @@ public class FakeSteveAi {
     static void follow(ServerLevel level, ServerPlayer body, BlockPos goal,
             FakeSteveAgentState state, double speed) {
         long now = level.getGameTime();
-        if (state.path.isEmpty() || state.pathGoal == null || !state.pathGoal.closerThan(goal, 3.0)
+        boolean changedGoal = state.pathGoal == null || !state.pathGoal.closerThan(goal, 3.0);
+        if (changedGoal) {
+            state.hasStableRouteYaw = false;
+            state.pathRetryAfterTick = 0L;
+            state.lastPathDistanceSqr = Double.MAX_VALUE;
+            state.lastPathProgressTick = now;
+            state.pathFailureCount = 0;
+        }
+        if (!changedGoal && now < state.pathRetryAfterTick) {
+            FakeSteveMotionController.hold(body, state, body.getYRot(),
+                    FakeSteveMotionPolicy.walkingPitch(now, body.getUUID().hashCode()));
+            return;
+        }
+        if (state.path.isEmpty() || changedGoal
                 || now >= state.nextPathTick) {
             state.pathGoal = goal.immutable();
             state.path.clear();
-            state.path.addAll(FakeSteveNavigator.find(level, body.blockPosition(), goal));
+            state.path.addAll(FakeSteveNavigator.find(level, body, goal));
             state.nextPathTick = now + 20L;
+            state.lastPathDistanceSqr = Double.MAX_VALUE;
+            state.lastPathProgressTick = now;
         }
         BlockPos next = state.path.peekFirst();
-        if (next == null)
+        if (next == null) {
+            if (!body.blockPosition().closerThan(goal, 1.0D)) {
+                backOffPath(level, body, state, now);
+            }
+            FakeSteveMotionController.hold(body, state, body.getYRot(),
+                    FakeSteveMotionPolicy.walkingPitch(now, body.getUUID().hashCode()));
             return;
+        }
         if (body.blockPosition().closerThan(next, 1.0)) {
             state.path.removeFirst();
             next = state.path.peekFirst();
@@ -326,21 +441,372 @@ public class FakeSteveAi {
         Vec3 delta = Vec3.atBottomCenterOf(next).subtract(body.position());
         if (delta.horizontalDistanceSqr() < 0.01)
             return;
+        double distanceSqr = delta.lengthSqr();
+        if (distanceSqr < state.lastPathDistanceSqr - 0.15D) {
+            state.lastPathDistanceSqr = distanceSqr;
+            state.lastPathProgressTick = now;
+            state.pathFailureCount = 0;
+        } else if (FakeStevePathPolicy.hasStalled(state.lastPathDistanceSqr, distanceSqr,
+                state.lastPathProgressTick, now)) {
+            backOffPath(level, body, state, now);
+            FakeSteveMotionController.hold(body, state, body.getYRot(),
+                    FakeSteveMotionPolicy.walkingPitch(now, body.getUUID().hashCode()));
+            return;
+        }
         Vec3 direction = new Vec3(delta.x, 0.0, delta.z).normalize();
-        float yaw = (float) (Mth.atan2(-direction.x, direction.z) * Mth.RAD_TO_DEG);
-        FakeSteveMotionController.drive(body, state, 1.0F, 0.0F,
-                delta.y > 0.45D, speed >= 0.195D, false,
-                yaw, body.getXRot(), next);
+        List<FakeSteveCrowdAvoidance.NearbyPlayer> nearbyPlayers = level.players().stream()
+                .filter(player -> player != body && player.isAlive() && !player.isSpectator())
+                .filter(player -> player.distanceToSqr(body) <= 16.0D)
+                .map(player -> new FakeSteveCrowdAvoidance.NearbyPlayer(player.getX(), player.getZ()))
+                .toList();
+        FakeSteveCrowdAvoidance.Decision avoidance = FakeSteveCrowdAvoidance.decide(
+                body.getX(), body.getZ(), next.getX() + 0.5D, next.getZ() + 0.5D,
+                nearbyPlayers, state.crowdedTicks);
+        if (avoidance.crowded()) {
+            if (state.crowdedTicks == 0) {
+                state.crowdStrafe = avoidance.strafe();
+            }
+            state.crowdedTicks += 5;
+        } else {
+            state.crowdedTicks = 0;
+            state.crowdStrafe = 0.0F;
+        }
+        if (avoidance.shouldRepath()) {
+            state.path.clear();
+            state.nextPathTick = now;
+            state.crowdedTicks = 0;
+            FakeSteveMotionController.hold(body, state, body.getYRot(),
+                    FakeSteveMotionPolicy.walkingPitch(now, body.getUUID().hashCode()));
+            return;
+        }
+        float candidateYaw = (float) (Mth.atan2(-direction.x, direction.z) * Mth.RAD_TO_DEG);
+        if (!state.hasStableRouteYaw) {
+            state.stableRouteYaw = candidateYaw;
+            state.hasStableRouteYaw = true;
+        } else {
+            state.stableRouteYaw = FakeSteveMotionPolicy.stableHeading(state.stableRouteYaw, candidateYaw);
+        }
+        boolean sprint = !avoidance.crowded()
+                && (now < state.sprintUntilTick || speed >= 0.22D);
+        float requestedStrafe = avoidance.crowded()
+                ? state.crowdStrafe : avoidance.strafe();
+        float strafe = canStrafePast(level, body, direction, requestedStrafe)
+                ? requestedStrafe : 0.0F;
+        float forward = strafe == 0.0F && avoidance.crowded()
+                ? 0.0F : avoidance.forwardScale();
+        boolean ascends = delta.y > 0.45D;
+        boolean jump = FakeStevePathPolicy.shouldJump(body.onGround(), ascends, now, state.nextJumpTick)
+                || FakeStevePathPolicy.shouldSwimUp(body.isInWater(), body.getY(), next.getY() + 0.1D);
+        if (jump && !body.isInWater()) {
+            state.nextJumpTick = now + 12L;
+        }
+        FakeSteveMotionController.drive(body, state, forward, strafe, jump, sprint, false,
+                state.stableRouteYaw,
+                FakeSteveMotionPolicy.walkingPitch(now, body.getUUID().hashCode()), next);
+    }
+
+    private static void backOffPath(ServerLevel level, ServerPlayer body,
+                                    FakeSteveAgentState state, long now) {
+        state.path.clear();
+        state.pathRetryAfterTick = now + 30L + level.getRandom().nextInt(20);
+        state.nextPathTick = state.pathRetryAfterTick;
+        state.lastPathDistanceSqr = Double.MAX_VALUE;
+        state.lastPathProgressTick = now;
+        state.pathFailureCount++;
+        if (state.pathFailureCount >= 3 && state.mode == AgentMode.DISGUISE_TASK
+                && state.taskType != null) {
+            state.taskBackoffUntil.put(state.taskType, now + 10L * 20L);
+            state.taskType = null;
+            state.taskGoal = null;
+            state.taskInteractTarget = null;
+            state.pathGoal = null;
+        }
+    }
+
+    private static boolean canStrafePast(ServerLevel level, ServerPlayer body,
+                                         Vec3 direction, float strafe) {
+        if (strafe == 0.0F) {
+            return false;
+        }
+        Vec3 left = new Vec3(direction.z, 0.0D, -direction.x)
+                .scale(Math.copySign(0.7D, strafe));
+        return level.noCollision(body, body.getBoundingBox().move(left));
     }
 
     private static void openDoor(ServerLevel level, ServerPlayer body, BlockPos next) {
         for (BlockPos pos : new BlockPos[] { next, next.above() }) {
-            if (!(level.getBlockState(pos).getBlock() instanceof DoorBlock))
+            var blockState = level.getBlockState(pos);
+            if (!(blockState.getBlock() instanceof DoorBlock)
+                    && !(blockState.getBlock() instanceof SmallDoorBlock))
                 continue;
+            if (blockState.getBlock() instanceof SmallDoorBlock door) {
+                BlockPos lower = door.getLowerHalfPos(blockState, pos);
+                if (level.getBlockEntity(lower) instanceof SmallDoorBlockEntity entity) {
+                    var lowerState = level.getBlockState(lower);
+                    boolean hardLocked = entity.isJammed() || entity.isBlasted() || hasExternalDoorLock(lower);
+                    if (FakeStevePathPolicy.shouldAutoOpenSmallDoor(lowerState.getValue(DoorBlock.OPEN), hardLocked)) {
+                        door.toggleDoor(lowerState, level, entity, lower);
+                        body.swing(InteractionHand.MAIN_HAND, true);
+                    }
+                    return;
+                }
+            }
+            if (blockState.getValue(DoorBlock.OPEN)) {
+                return;
+            }
             BlockHitResult hit = new BlockHitResult(Vec3.atCenterOf(pos), Direction.UP, pos, false);
             body.gameMode.useItemOn(body, level, body.getMainHandItem(), InteractionHand.MAIN_HAND, hit);
+            body.swing(InteractionHand.MAIN_HAND, true);
             return;
         }
+    }
+
+    private static boolean hasExternalDoorLock(BlockPos lower) {
+        BlockPos anchor = lower.above();
+        if (LockEntityManager.getInstance().getLockEntity(anchor) != null) {
+            return true;
+        }
+        for (Direction direction : Direction.Plane.HORIZONTAL) {
+            if (LockEntityManager.getInstance().getLockEntity(anchor.relative(direction)) != null) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private static boolean killWithPsycho(ServerPlayer attacker, ServerPlayer target) {
+        SRERole role = SREGameWorldComponent.KEY.get(attacker.level()).getRole(attacker);
+        if (role != null && (!role.onUseKnife(attacker) || !role.onUseKnifeHit(attacker, target))) {
+            return false;
+        }
+        target.playSound(TMMSounds.ITEM_KNIFE_STAB, 1.0F, 1.0F);
+        GameUtils.killPlayer(target, true, attacker, BACKSTAB);
+        attacker.swing(InteractionHand.MAIN_HAND, true);
+        return true;
+    }
+
+    private static void cancelKnifeCharge(ServerPlayer body, FakeSteveAgentState state) {
+        if (state.knifeChargeTarget != null && body.isUsingItem()) {
+            body.releaseUsingItem();
+        }
+        state.knifeChargeTarget = null;
+        state.knifeChargedAtTick = 0L;
+    }
+
+    private static void holsterKnifeIfReady(ServerPlayer body, FakeSteveAgentState state, long now) {
+        if (!FakeSteveKillerPolicy.shouldHolsterAfterKnifeKill(now, state.holsterAtTick)) {
+            return;
+        }
+        int slot = state.holsterSlot >= 0 ? state.holsterSlot : findSafeHolsterSlot(body);
+        if (slot >= 0) {
+            select(body, slot);
+        }
+        state.holsterAtTick = 0L;
+        state.holsterSlot = -1;
+    }
+
+    private static int findPsychoWeaponSlot(ServerPlayer player, SRERole role) {
+        return role == null ? findSlot(player, TMMItems.BAT) : findSlot(player, role.getPsychoItem());
+    }
+
+    private static int findSafeHolsterSlot(ServerPlayer player) {
+        for (int slot = 0; slot < 9; slot++) {
+            var stack = player.getInventory().getItem(slot);
+            if (!stack.isEmpty() && !stack.is(TMMItemTags.GUNS)
+                    && !(stack.getItem() instanceof TrainWeapon)) {
+                return slot;
+            }
+        }
+        return -1;
+    }
+
+    private static void prepareKiller(ServerLevel level, ServerPlayer body,
+            FakeSteveAgentState state, SRERole role, ServerPlayer prey) {
+        long now = level.getGameTime();
+        int nearbyHumans = nearbyHumans(level, body, 18.0D);
+        if (now >= state.nextShopTick) {
+            state.nextShopTick = now + 6L * 20L + level.getRandom().nextInt(6 * 20);
+            if (!tryBuyKillerCrowdTools(body, role, nearbyHumans)) {
+                tryBuyKillerTool(body, role);
+            }
+        }
+        if (prey == null) {
+            return;
+        }
+        if (now >= state.nextTacticalItemTick) {
+            state.nextTacticalItemTick = now + 12L * 20L + level.getRandom().nextInt(12 * 20);
+            tryUseTacticalItem(level, body);
+        }
+        if (now >= state.nextSkillTick && FakeSteveKillerPolicy.shouldUseSkill(
+                true, !hasWitness(level, body, prey), prey != null)) {
+            state.nextSkillTick = now + 18L * 20L + level.getRandom().nextInt(18 * 20);
+            RoleSkill.beginUse(body, prey.getUUID(), -1, RoleSkill.Phase.PRESS, false, true);
+        }
+    }
+
+    private static void tryBuyKillerTool(ServerPlayer body, SRERole role) {
+        List<io.wifi.starrailexpress.util.ShopEntry> entries = ShopContent.getShopEntries(role, body);
+        if (entries.isEmpty()) {
+            return;
+        }
+        SREPlayerShopComponent shop = SREPlayerShopComponent.KEY.get(body);
+        for (FakeSteveKillerPolicy.Purchase desired : FakeSteveKillerPolicy.purchasePriority()) {
+            Item priority = switch (desired) {
+                case PSYCHO -> TMMItems.PSYCHO_MODE;
+                case BLACKOUT -> TMMItems.BLACKOUT;
+                case KNIFE -> TMMItems.KNIFE;
+                case GUN -> TMMItems.REVOLVER;
+            };
+            if ((priority == TMMItems.KNIFE || priority == TMMItems.REVOLVER)
+                    && (priority == TMMItems.KNIFE ? findKnifeSlot(body) >= 0 : findGunSlot(body) >= 0)) {
+                continue;
+            }
+            if (body.getCooldowns().isOnCooldown(priority)) {
+                continue;
+            }
+            for (int index = 0; index < entries.size(); index++) {
+                var entry = entries.get(index);
+                if (!entry.stack().is(priority)) {
+                    continue;
+                }
+                int price = DynamicShopComponent.KEY.get(body).effectivePrice(entry);
+                if (shop.balance >= price && entry.canDisplay(body) && entry.canBuy(body)) {
+                    shop.tryBuy(index);
+                    return;
+                }
+            }
+        }
+    }
+
+    private static boolean tryBuyKillerCrowdTools(ServerPlayer body, SRERole role, int nearbyHumans) {
+        List<FakeSteveKillerPolicy.Purchase> desired = FakeSteveKillerPolicy.crowdPurchasePlan(nearbyHumans);
+        if (desired.isEmpty()) {
+            return false;
+        }
+        List<io.wifi.starrailexpress.util.ShopEntry> entries = ShopContent.getShopEntries(role, body);
+        SREPlayerShopComponent shop = SREPlayerShopComponent.KEY.get(body);
+        boolean purchased = false;
+        for (FakeSteveKillerPolicy.Purchase purchase : desired) {
+            Item item = purchase == FakeSteveKillerPolicy.Purchase.PSYCHO
+                    ? TMMItems.PSYCHO_MODE : TMMItems.BLACKOUT;
+            if (body.getCooldowns().isOnCooldown(item)) {
+                continue;
+            }
+            for (int index = 0; index < entries.size(); index++) {
+                var entry = entries.get(index);
+                int price = DynamicShopComponent.KEY.get(body).effectivePrice(entry);
+                if (entry.stack().is(item) && shop.balance >= price
+                        && entry.canDisplay(body) && entry.canBuy(body)) {
+                    shop.tryBuy(index);
+                    purchased = true;
+                    break;
+                }
+            }
+        }
+        return purchased;
+    }
+
+    private static void tryUseTacticalItem(ServerLevel level, ServerPlayer body) {
+        int nearbyHumans = nearbyHumans(level, body, 18.0D);
+        if (nearbyHumans < 2) {
+            return;
+        }
+        for (Item item : new Item[] { TMMItems.PSYCHO_MODE, TMMItems.BLACKOUT }) {
+            int slot = findSlot(body, item);
+            if (slot < 0 || body.getCooldowns().isOnCooldown(item)) {
+                continue;
+            }
+            select(body, slot);
+            body.gameMode.useItem(body, level, body.getMainHandItem(), InteractionHand.MAIN_HAND);
+            body.swing(InteractionHand.MAIN_HAND, true);
+            return;
+        }
+    }
+
+    private static int nearbyHumans(ServerLevel level, ServerPlayer body, double range) {
+        return (int) level.players().stream().filter(FakeSteveAi::isHuman)
+                .filter(GameUtils::isPlayerAliveAndSurvival)
+                .filter(player -> player.distanceToSqr(body) <= range * range).count();
+    }
+
+    private static boolean shouldFlee(ServerLevel level, ServerPlayer body) {
+        if (body.hurtTime > 0) {
+            return true;
+        }
+        return level.players().stream().filter(FakeSteveAi::isHuman)
+                .filter(GameUtils::isPlayerAliveAndSurvival)
+                .filter(player -> player.distanceToSqr(body) <= 36.0D)
+                .filter(player -> findKnifeSlot(player) >= 0 || findGunSlot(player) >= 0)
+                .filter(player -> faces(player, body, 0.5D))
+                .anyMatch(player -> visible(body, player));
+    }
+
+    private static void flee(ServerLevel level, ServerPlayer body, FakeSteveAgentState state) {
+        ServerPlayer threat = level.players().stream().filter(FakeSteveAi::isHuman)
+                .filter(GameUtils::isPlayerAliveAndSurvival)
+                .min(Comparator.comparingDouble(body::distanceToSqr)).orElse(null);
+        if (threat == null) {
+            return;
+        }
+        Vec3 away = body.position().subtract(threat.position());
+        if (away.horizontalDistanceSqr() < 0.01D) {
+            away = new Vec3(1.0D, 0.0D, 0.0D);
+        }
+        away = new Vec3(away.x, 0.0D, away.z).normalize().scale(9.0D);
+        BlockPos escape = BlockPos.containing(body.position().add(away));
+        state.sprintUntilTick = level.getGameTime() + 60L;
+        state.hasStableRouteYaw = false;
+        state.pathGoal = escape;
+        state.path.clear();
+        follow(level, body, escape, state, 0.24D);
+    }
+
+    private static void maybeSpeak(ServerLevel level, ServerPlayer body, FakeSteveAgentState state) {
+        long now = level.getGameTime();
+        if (!state.directedReplyPending
+                && state.mode != AgentMode.DISGUISE_IDLE && state.mode != AgentMode.DISGUISE_TASK) {
+            return;
+        }
+        if (state.nextDialogueTick == 0L) {
+            state.nextDialogueTick = now + 30L * 20L + level.getRandom().nextInt(45 * 20);
+            return;
+        }
+        if (now < state.nextDialogueTick) {
+            return;
+        }
+        boolean humanNearby = level.players().stream().filter(FakeSteveAi::isHuman)
+                .filter(GameUtils::isPlayerAliveAndSurvival)
+                .anyMatch(player -> player.distanceToSqr(body) <= 12.0D * 12.0D);
+        state.nextDialogueTick = now + 35L * 20L + level.getRandom().nextInt(70 * 20);
+        if (!humanNearby) {
+            return;
+        }
+        int seed = body.getUUID().hashCode() ^ (int) now ^ level.getRandom().nextInt();
+        String line = state.directedReplyPending
+                ? FakeSteveDialogue.directedRoleReply(seed)
+                : FakeSteveDialogue.commonPhrase(seed);
+        state.directedReplyPending = false;
+        level.getServer().getPlayerList().broadcastSystemMessage(
+                Component.literal("<" + body.getGameProfile().getName() + "> " + line), false);
+    }
+
+    private static int findMatchingKey(ServerPlayer body, String keyName) {
+        if (keyName == null || keyName.isEmpty()) {
+            return -1;
+        }
+        String normalized = keyName.replace("alarmed:", "").replace("reinforced:", "");
+        for (int slot = 0; slot < 9; slot++) {
+            var stack = body.getInventory().getItem(slot);
+            if (!stack.is(TMMItems.KEY)) {
+                continue;
+            }
+            ItemLore lore = stack.get(DataComponents.LORE);
+            if (lore != null && !lore.lines().isEmpty()
+                    && lore.lines().getFirst().getString().equals(normalized)) {
+                return slot;
+            }
+        }
+        return -1;
     }
 
     private static boolean visible(ServerPlayer observer, ServerPlayer target) {
@@ -385,8 +851,32 @@ public class FakeSteveAi {
     }
 
     private static int findGunSlot(ServerPlayer player) {
-        int slot = findSlot(player, TMMItems.REVOLVER);
-        return slot >= 0 ? slot : findSlot(player, TMMItems.STANDARD_REVOLVER);
+        for (int slot = 0; slot < 9; slot++) {
+            if (player.getInventory().getItem(slot).is(TMMItemTags.GUNS)) {
+                return slot;
+            }
+        }
+        return -1;
+    }
+
+    private static BlockPos ambushGoal(ServerPlayer target) {
+        Vec3 look = target.getLookAngle();
+        Vec3 horizontal = new Vec3(look.x, 0.0D, look.z);
+        if (horizontal.lengthSqr() < 0.01D) {
+            return target.blockPosition();
+        }
+        return BlockPos.containing(target.position().subtract(horizontal.normalize().scale(2.0D)));
+    }
+
+    private static int findKnifeSlot(ServerPlayer player) {
+        for (int slot = 0; slot < 9; slot++) {
+            var stack = player.getInventory().getItem(slot);
+            if (stack.getItem() instanceof TrainWeapon && !stack.is(TMMItemTags.GUNS)
+                    && !KillerKnifeDurability.isDepleted(stack)) {
+                return slot;
+            }
+        }
+        return -1;
     }
 
     private static int firstEmptyHotbarSlot(ServerPlayer player) {

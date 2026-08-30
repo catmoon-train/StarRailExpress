@@ -3,8 +3,12 @@ package org.agmas.noellesroles.game.fake_steve;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.block.DoorBlock;
+import io.wifi.starrailexpress.content.block.SmallDoorBlock;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.Vec3;
+import net.minecraft.tags.FluidTags;
 
 import java.util.ArrayDeque;
 import java.util.ArrayList;
@@ -26,7 +30,9 @@ final class FakeSteveNavigator {
     private FakeSteveNavigator() {
     }
 
-    static ArrayDeque<BlockPos> find(ServerLevel level, BlockPos start, BlockPos goal) {
+    static ArrayDeque<BlockPos> find(ServerLevel level, ServerPlayer mover, BlockPos goal) {
+        BlockPos start = mover.blockPosition();
+        Set<BlockPos> occupied = occupiedByPlayers(level, mover);
         PriorityQueue<Node> open = new PriorityQueue<>(Comparator.comparingDouble(Node::score));
         Map<BlockPos, BlockPos> cameFrom = new HashMap<>();
         Map<BlockPos, Integer> cost = new HashMap<>();
@@ -51,7 +57,7 @@ final class FakeSteveNavigator {
                 best = current;
                 break;
             }
-            for (BlockPos next : neighbours(level, current)) {
+            for (BlockPos next : neighbours(level, current, occupied)) {
                 if (closed.contains(next)) {
                     continue;
                 }
@@ -79,19 +85,38 @@ final class FakeSteveNavigator {
         return last != null && distance(last, goal) <= 1;
     }
 
-    private static List<BlockPos> neighbours(ServerLevel level, BlockPos current) {
+    private static List<BlockPos> neighbours(ServerLevel level, BlockPos current,
+                                             Set<BlockPos> occupied) {
         List<BlockPos> result = new ArrayList<>(12);
         for (Direction direction : HORIZONTAL) {
             BlockPos horizontal = current.relative(direction);
             for (int dy : new int[] { 0, 1, -1 }) {
                 BlockPos candidate = horizontal.offset(0, dy, 0);
-                if (standable(level, candidate)) {
+                if (!occupied.contains(candidate) && standable(level, candidate)) {
                     result.add(candidate.immutable());
                     break;
                 }
             }
         }
         return result;
+    }
+
+    private static Set<BlockPos> occupiedByPlayers(ServerLevel level, ServerPlayer mover) {
+        Set<BlockPos> occupied = new HashSet<>();
+        for (ServerPlayer player : level.players()) {
+            if (player == mover || !player.isAlive() || player.isSpectator()) {
+                continue;
+            }
+            occupied.add(player.blockPosition().immutable());
+            Vec3 movement = player.getDeltaMovement();
+            double horizontalLength = Math.sqrt(movement.x * movement.x + movement.z * movement.z);
+            if (horizontalLength > 0.1D) {
+                occupied.add(BlockPos.containing(player.position().add(
+                        movement.x / horizontalLength, 0.0D,
+                        movement.z / horizontalLength)).immutable());
+            }
+        }
+        return occupied;
     }
 
     private static BlockPos normalize(ServerLevel level, BlockPos pos) {
@@ -108,11 +133,15 @@ final class FakeSteveNavigator {
         BlockState feetState = level.getBlockState(feet);
         BlockState headState = level.getBlockState(feet.above());
         boolean feetFree = feetState.getCollisionShape(level, feet).isEmpty()
-                || feetState.getBlock() instanceof DoorBlock;
+                || feetState.getBlock() instanceof DoorBlock
+                || feetState.getBlock() instanceof SmallDoorBlock;
         boolean headFree = headState.getCollisionShape(level, feet.above()).isEmpty()
-                || headState.getBlock() instanceof DoorBlock;
-        return feetFree && headFree
-                && !level.getBlockState(feet.below()).getCollisionShape(level, feet.below()).isEmpty();
+                || headState.getBlock() instanceof DoorBlock
+                || headState.getBlock() instanceof SmallDoorBlock;
+        boolean swimming = feetState.getFluidState().is(FluidTags.WATER)
+                || headState.getFluidState().is(FluidTags.WATER);
+        return feetFree && headFree && (swimming
+                || !level.getBlockState(feet.below()).getCollisionShape(level, feet.below()).isEmpty());
     }
 
     private static int distance(BlockPos a, BlockPos b) {

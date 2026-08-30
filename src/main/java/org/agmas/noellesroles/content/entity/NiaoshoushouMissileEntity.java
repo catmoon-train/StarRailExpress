@@ -49,6 +49,12 @@ public class NiaoshoushouMissileEntity extends NoHeavyWaterInfluencedThrowableIt
         return getOwner() == player;
     }
 
+    /** 巡飞弹不会在发射瞬间撞到自己的发射者。 */
+    @Override
+    protected boolean canHitEntity(Entity entity) {
+        return entity != getOwner() && super.canHitEntity(entity);
+    }
+
     public void setSteering(int steering) {
         this.steering = Integer.compare(steering, 0);
     }
@@ -108,11 +114,8 @@ public class NiaoshoushouMissileEntity extends NoHeavyWaterInfluencedThrowableIt
                     0.0D, 0.0D, 0.0D, 0.0D);
             serverLevel.sendParticles(ParticleTypes.FLAME, getX(), getY(), getZ(), 100,
                     EXPLOSION_RADIUS * 0.5D, 1.0D, EXPLOSION_RADIUS * 0.5D, 0.08D);
-            for (ServerPlayer player : serverLevel.players()) {
-                if (player.distanceToSqr(this) <= EXPLOSION_RADIUS * EXPLOSION_RADIUS) {
-                    player.setRemainingFireTicks(Math.max(player.getRemainingFireTicks(), 5 * 20));
-                }
-            }
+            ServerGrenadeAreaManager.scheduleFireKill(serverLevel, position(), EXPLOSION_RADIUS, 30,
+                    owner instanceof ServerPlayer serverOwner ? serverOwner.getUUID() : null);
             if (owner instanceof ServerPlayer serverOwner) {
                 serverOwner.connection.send(new ClientboundSetCameraPacket(serverOwner));
             }

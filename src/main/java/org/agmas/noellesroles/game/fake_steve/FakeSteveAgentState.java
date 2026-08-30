@@ -2,6 +2,8 @@ package org.agmas.noellesroles.game.fake_steve;
 
 import java.util.UUID;
 import java.util.ArrayDeque;
+import java.util.EnumMap;
+import java.util.Map;
 
 import net.minecraft.core.BlockPos;
 import io.wifi.starrailexpress.cca.SREPlayerTaskComponent;
@@ -17,6 +19,11 @@ public final class FakeSteveAgentState {
     public int assimilationTicks;
     public long nextDecisionTick;
     public long nextPathTick;
+    public long pathRetryAfterTick;
+    public long nextJumpTick;
+    public long lastPathProgressTick;
+    public double lastPathDistanceSqr = Double.MAX_VALUE;
+    public int pathFailureCount;
     public BlockPos pathGoal;
     public final ArrayDeque<BlockPos> path = new ArrayDeque<>();
     public long motionSequence;
@@ -26,8 +33,27 @@ public final class FakeSteveAgentState {
     public int rejectedMotionPackets;
     public SREPlayerTaskComponent.Task taskType;
     public BlockPos taskGoal;
+    public BlockPos taskInteractTarget;
+    public long taskStartedTick;
+    public final Map<SREPlayerTaskComponent.Task, Long> taskBackoffUntil =
+            new EnumMap<>(SREPlayerTaskComponent.Task.class);
     public long taskRetryTick;
     public long nextTaskInteractionTick;
+    public float stableRouteYaw;
+    public boolean hasStableRouteYaw;
+    public int crowdedTicks;
+    public float crowdStrafe;
+    public int idleTicks;
+    public long sprintUntilTick;
+    public long nextDialogueTick;
+    public boolean directedReplyPending;
+    public long nextShopTick;
+    public long nextTacticalItemTick;
+    public long nextSkillTick;
+    public UUID knifeChargeTarget;
+    public long knifeChargedAtTick;
+    public long holsterAtTick;
+    public int holsterSlot = -1;
 
     FakeSteveAgentState(UUID playerId, ReplacementCause cause) {
         this.playerId = playerId;

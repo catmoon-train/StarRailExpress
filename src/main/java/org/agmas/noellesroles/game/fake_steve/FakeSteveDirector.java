@@ -3,6 +3,7 @@ package org.agmas.noellesroles.game.fake_steve;
 import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
+import io.wifi.starrailexpress.cca.SREPlayerShopComponent;
 import io.wifi.starrailexpress.event.AllowGameEnd;
 import io.wifi.starrailexpress.event.AllowPlayerWin;
 import io.wifi.starrailexpress.event.OnGameEnd;
@@ -178,6 +179,10 @@ public final class FakeSteveDirector {
                 .translatable("message.noellesroles.fake_steve.victim.replaced").withStyle(ChatFormatting.RED));
         WorldModifierComponent modifiers = WorldModifierComponent.KEY.get(player.serverLevel());
         modifiers.addModifier(player.getUUID(), NRModifiers.FAKE_STEVE_REPLACED);
+        var originalRole = SREGameWorldComponent.KEY.get(player.serverLevel()).getRole(player);
+        if (originalRole != null && originalRole.canUseKiller()) {
+            SREPlayerShopComponent.KEY.get(player).addToBalance(200);
+        }
         session.agents.put(player.getUUID(), new FakeSteveAgentState(player.getUUID(), cause));
         applyControl(player);
         checkVictory(player.serverLevel(), session);

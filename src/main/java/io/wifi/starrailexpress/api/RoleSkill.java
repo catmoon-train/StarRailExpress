@@ -559,10 +559,15 @@ public final class RoleSkill {
             return false;
         }
         // 旁观者模式禁止使用技能（通过 canUseSkillWhileSpectator() 标记豁免）
-        if (blockForSpectator(player)) {
+        if (possessed) {
+            if (player.isSpectator() || SREAbilityPlayerComponent.KEY.get(player).hasExited()) {
+                return false;
+            }
+        } else if (blockForSpectator(player)) {
             return false;
         }
-        if (player.hasEffect(ModEffects.SKILL_BANED) || player.hasEffect(ModEffects.SKILL_FREEZED)) {
+        if (!possessed
+                && (player.hasEffect(ModEffects.SKILL_BANED) || player.hasEffect(ModEffects.SKILL_FREEZED))) {
             return false;
         }
         List<Definition> definitions = getDefinitions(role);
