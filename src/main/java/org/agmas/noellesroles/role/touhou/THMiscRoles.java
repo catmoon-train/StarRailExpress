@@ -19,6 +19,7 @@ import org.agmas.noellesroles.role.ModRoles;
 import org.agmas.noellesroles.role.touhou.roles.*;
 import org.agmas.noellesroles.role_data.killer.DoremyRoleData;
 import org.agmas.noellesroles.role_data.killer.HoujuuNueRoleData;
+import io.wifi.starrailexpress.api.InstinctType;
 import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.api.TMMRoles;
 import io.wifi.starrailexpress.api.TouhouRole;
@@ -156,6 +157,16 @@ public class THMiscRoles {
             .setVigilanteTeam(true)
             .setSpecialPolice(true)
             .setCanPickUpRevolver(true)
+            .setBeSeenInstinctType(InstinctType.DEFAULT,
+                    InstinctType.customWithFunction((self, target, selfRole, targetRole) -> {
+                        if (target == null || self == null) {
+                            return InstinctType.NONE;
+                        }
+                        if (target.isInvisible()) {
+                            return InstinctType.NONE;
+                        }
+                        return InstinctType.DEFAULT;
+                    }))
             .setAddedVersion("4.4");
 
     // 哆来咪 Doremy
@@ -176,7 +187,8 @@ public class THMiscRoles {
 
     // 米斯蒂娅·萝蕾拉 Mystia Lorelei
     public static SRERole MYSTIA = TMMRoles.registerRole(new TouhouRole(id("mystia_lorelei"),
-            new Color(223, 177, 166).getRGB(), true, false, MoodType.REAL, TMMRoles.CIVILIAN_MAX_SPRINT_TICKS, false))
+            new Color(223, 177, 166).getRGB(), true, false, MoodType.REAL,
+            TMMRoles.CIVILIAN_MAX_SPRINT_TICKS, false))
             .setDefaultEnableChance(5000)
             .setAddedVersion("4.4");
 
