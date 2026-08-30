@@ -292,9 +292,6 @@ public class ModItems {
     public static final Item NIAOSHOU_SHOU_MISSILE = register(
             new NiaoshoushouMissileItem(new Item.Properties().stacksTo(1)),
             "niaoshoushou_missile", WEAPONS_GROUP);
-    public static final Item NIAOSHOU_SHOU_BLACKOUT = register(
-            new NiaoshoushouBlackoutItem(new Item.Properties().stacksTo(1)),
-            "niaoshoushou_blackout", ROLE_ITEMS_GROUP);
     public static final Item STALKER_KNIFE = register(
             new StalkerKnifeItem(new Item.Properties().stacksTo(1)),
             "stalker_knife", WEAPONS_GROUP);
@@ -892,9 +889,9 @@ public class ModItems {
      * Dream 的范围关灯
      * - 右键：熄灭半径30格内的灯（一次性）
      */
-    public static final Item DREAM_BLACKOUT = register(
-            new org.agmas.noellesroles.content.item.DreamBlackoutItem(new Item.Properties().stacksTo(1)),
-            "dream_blackout", ROLE_ITEMS_GROUP);
+    public static final Item AREA_BLACKOUT = register(
+            new AreaBlackoutItem(new Item.Properties().stacksTo(1)),
+            "area_blackout", ROLE_ITEMS_GROUP);
 
     /**
      * Dream 酿的酒

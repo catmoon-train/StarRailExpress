@@ -10,8 +10,8 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 
 /** 鸟兽兽的范围关灯，固定半径 30 格、120 秒冷却。 */
-public class NiaoshoushouBlackoutItem extends Item {
-    public NiaoshoushouBlackoutItem(Properties properties) {
+public class AreaBlackoutItem extends Item {
+    public AreaBlackoutItem(Properties properties) {
         super(properties);
     }
 
