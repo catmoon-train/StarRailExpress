@@ -33,6 +33,7 @@ public class NiaoshoushouMissileEntity extends NoHeavyWaterInfluencedThrowableIt
     private float controlPitch;
     private int controlTimeout;
     private boolean exploded;
+    private boolean cameraBound;
 
     public NiaoshoushouMissileEntity(EntityType<? extends NoHeavyWaterInfluencedThrowableItemProjectile> entityType,
             Level level) {
@@ -100,6 +101,13 @@ public class NiaoshoushouMissileEntity extends NoHeavyWaterInfluencedThrowableIt
                     || !owner.isAlive()) {
                 explode();
                 return;
+            }
+            // 相机绑定推迟到实体首个服务端 tick 发送：此时实体的生成包已经入队，
+            // 保证客户端先创建导弹实体再收到相机包，避免 use() 里立即发包时
+            // 客户端还没有这个实体、相机绑定静默失败导致无法操控。
+            if (!cameraBound) {
+                owner.connection.send(new ClientboundSetCameraPacket(this));
+                cameraBound = true;
             }
             if (controlTimeout > 0) {
                 controlTimeout--;

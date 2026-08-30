@@ -886,7 +886,7 @@ public class ModItems {
             new org.agmas.noellesroles.content.item.DreamBoatItem(new Item.Properties().stacksTo(1)),
             "dream_boat", ROLE_ITEMS_GROUP);
     /**
-     * Dream 的范围关灯
+     * 范围关灯
      * - 右键：熄灭半径30格内的灯（一次性）
      */
     public static final Item AREA_BLACKOUT = register(

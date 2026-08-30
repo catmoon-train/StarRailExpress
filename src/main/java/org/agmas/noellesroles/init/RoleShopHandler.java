@@ -1645,12 +1645,6 @@ public class RoleShopHandler {
                     dreamConfig.dreamBoatPrice, ShopEntry.Type.TOOL));
             // 范围关灯 - 150金币：购买即以自己为中心熄灭半径30格的灯，冷却与普通关灯一致
             ItemStack blackoutDisplay = ModItems.AREA_BLACKOUT.getDefaultInstance();
-            var blackoutLore = new ArrayList<Component>();
-            blackoutLore.add(Component.translatable("item.noellesroles.area_blackout.lore1")
-                    .setStyle(Style.EMPTY.withItalic(false)).withStyle(ChatFormatting.GRAY));
-            blackoutLore.add(Component.translatable("item.noellesroles.area_blackout.lore2")
-                    .setStyle(Style.EMPTY.withItalic(false)).withStyle(ChatFormatting.GRAY));
-            blackoutDisplay.set(DataComponents.LORE, new ItemLore(blackoutLore));
             DREAM_SHOP.add(new ShopEntry(blackoutDisplay, dreamConfig.dreamBlackoutPrice, ShopEntry.Type.TOOL) {
                 @Override
                 public boolean onBuy(@NotNull Player player) {
