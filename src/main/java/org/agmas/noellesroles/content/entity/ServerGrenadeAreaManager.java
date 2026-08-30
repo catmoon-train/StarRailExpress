@@ -200,7 +200,7 @@ public class ServerGrenadeAreaManager {
                 player.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SLOWDOWN, 20, 2,
                         false, false, true));
                 // 无法跳跃：0.1*11 <= 0
-                player.addEffect(new MobEffectInstance(ModEffects.JUMP_DECREASE, 20, 10,
+                player.addEffect(new MobEffectInstance(ModEffects.JUMP_DECREASE, 20, 100,
                         false, false, false));
             }
         }
