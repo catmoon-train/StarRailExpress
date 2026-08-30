@@ -251,6 +251,7 @@ public final class FakeSteveDirector {
             }
             if (GameUtils.isPlayerAliveAndSurvival(player)) {
                 applyControl(player);
+                FakeSteveMotionController.applyServerMotion(player, session.agents.get(id));
                 FakeSteveAi.tick(level, player, session.agents.get(id));
             } else {
                 FakeSteveMotionController.clear(player, session.agents.get(id));

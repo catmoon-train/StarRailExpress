@@ -112,8 +112,9 @@ final class FakeSteveNavigator {
     }
 
     /**
-     * Guard against walking into empty space. Only an air column with nothing
-     * solid underneath is refused; walls and step-ups are still walkable.
+     * Guard against walking into empty space. Only a real drop (no floor within
+     * three blocks below the next tile) is refused; a one-block step down is
+     * normal walking and must never freeze the body.
      */
     static boolean stepSafe(ServerLevel level, Vec3 from, Vec3 horizontal) {
         Vec3 ahead = from.add(horizontal);
@@ -124,7 +125,13 @@ final class FakeSteveNavigator {
         if (!level.getBlockState(feet).getCollisionShape(level, feet).isEmpty()) {
             return true;
         }
-        return !level.getBlockState(feet.below()).getCollisionShape(level, feet.below()).isEmpty();
+        for (int dy = 0; dy <= 3; dy++) {
+            BlockPos below = feet.below(dy);
+            if (!level.getBlockState(below).getCollisionShape(level, below).isEmpty()) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /** Nodes hugging an open drop are discouraged so routes keep to the deck. */

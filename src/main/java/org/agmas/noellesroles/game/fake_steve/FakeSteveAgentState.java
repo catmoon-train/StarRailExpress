@@ -39,12 +39,23 @@ public final class FakeSteveAgentState {
     public double lastMoveZ;
     public long lastMoveTick;
     public BlockPos pathGoal;
+    public BlockPos lastWanderGoal;
     public final ArrayDeque<BlockPos> path = new ArrayDeque<>();
     public long motionSequence;
     public FakeSteveMotionPolicy.Lease motionLease;
     public boolean motionSprint;
     public boolean motionCrouch;
     public int rejectedMotionPackets;
+    // Server-authoritative movement intentions, refreshed by drive()/hold()/clear().
+    public boolean moveActive;
+    public long moveExpiresAtTick;
+    public float moveForward;
+    public float moveStrafe;
+    public boolean moveJump;
+    public boolean moveSprint;
+    public boolean moveCrouch;
+    public float moveYaw;
+    public float movePitch;
     public SREPlayerTaskComponent.Task taskType;
     public BlockPos taskGoal;
     public BlockPos taskInteractTarget;
@@ -69,6 +80,8 @@ public final class FakeSteveAgentState {
     public long knifeChargeStartedTick;
     public long holsterAtTick;
     public int holsterSlot = -1;
+    public UUID grenadeChargeTarget;
+    public long grenadeChargedAtTick;
 
     FakeSteveAgentState(UUID playerId, ReplacementCause cause) {
         this.playerId = playerId;

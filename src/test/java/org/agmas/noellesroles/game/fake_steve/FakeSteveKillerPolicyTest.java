@@ -72,6 +72,16 @@ class FakeSteveKillerPolicyTest {
     }
 
     @Test
+    void aCarriedDerringerEntersTheSameImmediateRiskFreeBerserkMode() {
+        assertTrue(FakeSteveKillerPolicy.entersDerringerBerserk(true));
+        assertFalse(FakeSteveKillerPolicy.entersDerringerBerserk(false));
+        assertTrue(FakeSteveKillerPolicy.isBerserk(false, true));
+        assertTrue(FakeSteveKillerPolicy.ignoresRisk(false, true));
+        assertEquals(1, FakeSteveKillerPolicy.decisionCadenceTicks(
+                FakeSteveKillerPolicy.isBerserk(false, true)));
+    }
+
+    @Test
     void skillsOnlyFireAtARealTargetInsideASafeWindow() {
         assertTrue(FakeSteveKillerPolicy.shouldUseSkill(true, true, true));
         assertFalse(FakeSteveKillerPolicy.shouldUseSkill(true, true, false));

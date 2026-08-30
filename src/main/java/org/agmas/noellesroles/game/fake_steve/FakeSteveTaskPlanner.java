@@ -5,6 +5,7 @@ import io.wifi.starrailexpress.cca.SREPlayerTaskComponent.Task;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.game.GameUtils;
 import io.wifi.starrailexpress.content.block_entity.SmallDoorBlockEntity;
+import io.wifi.starrailexpress.content.block_entity.PlateTrayBlockEntity;
 import io.wifi.starrailexpress.index.TMMItems;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -314,6 +315,15 @@ public final class FakeSteveTaskPlanner {
             }
         }
         BlockPos target = state.taskInteractTarget == null ? state.taskGoal : state.taskInteractTarget;
+        if ((state.taskType == Task.EAT || state.taskType == Task.DRINK)
+                && isPlateEmpty(level, target)) {
+            if (state.taskType != null) {
+                state.taskBackoffUntil.put(state.taskType, now + RETRY_TICKS);
+            }
+            releaseTaskPosture(body, state.taskType);
+            clear(state);
+            return;
+        }
         double maxDistance = FakeSteveInteractionPolicy.maxInteractionDistance(state.taskType);
         if (body.position().distanceTo(Vec3.atCenterOf(target)) > maxDistance) {
             state.taskGoal = null;
@@ -339,6 +349,12 @@ public final class FakeSteveTaskPlanner {
 
     private static int humanInteractionDelay(ServerLevel level) {
         return 6 + level.getRandom().nextInt(11);
+    }
+
+    /** A serving tray with nothing on it cannot feed anyone. */
+    private static boolean isPlateEmpty(ServerLevel level, BlockPos pos) {
+        return level.getBlockEntity(pos) instanceof PlateTrayBlockEntity plate
+                && plate.getStoredItems().isEmpty();
     }
 
     private static boolean selectItem(ServerPlayer body, net.minecraft.world.item.Item item) {

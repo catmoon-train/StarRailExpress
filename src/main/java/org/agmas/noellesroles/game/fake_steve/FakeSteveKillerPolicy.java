@@ -34,9 +34,23 @@ public final class FakeSteveKillerPolicy {
         return psychoActive ? 1 : 5;
     }
 
+    /** Carrying a Derringer is an explicit break from the normal disguise loop. */
+    public static boolean entersDerringerBerserk(boolean carriesDerringer) {
+        return carriesDerringer;
+    }
+
+    /** Psycho and a carried Derringer both make the body act without disguise delays. */
+    public static boolean isBerserk(boolean psychoActive, boolean derringerBerserk) {
+        return psychoActive || derringerBerserk;
+    }
+
     /** Psycho never pays for witnesses or risk: the check is skipped entirely. */
     public static boolean ignoresRisk(boolean psychoActive) {
         return psychoActive;
+    }
+
+    public static boolean ignoresRisk(boolean psychoActive, boolean derringerBerserk) {
+        return ignoresRisk(isBerserk(psychoActive, derringerBerserk));
     }
 
     /** No single behaviour may run forever, especially a held knife. */
@@ -128,6 +142,11 @@ public final class FakeSteveKillerPolicy {
 
     static int recoveryTicksAfterKill(boolean psychoActive) {
         return psychoActive ? 0 : 40;
+    }
+
+    /** A body carrying both a knife and a gun chains kills without pausing. */
+    static int recoveryTicksAfterKill(boolean psychoActive, boolean dualWield) {
+        return psychoActive || dualWield ? 0 : 40;
     }
 
     static boolean canHuntThroughWitnesses(boolean psychoActive, boolean witnessed) {
