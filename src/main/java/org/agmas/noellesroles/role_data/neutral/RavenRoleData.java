@@ -28,7 +28,6 @@ import org.agmas.noellesroles.ConfigWorldComponent;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
@@ -39,7 +38,6 @@ import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.Vec3;
-import org.agmas.noellesroles.Noellesroles;
 import org.agmas.noellesroles.content.entity.PuppeteerBodyEntity;
 import org.agmas.noellesroles.init.ModEffects;
 import org.agmas.noellesroles.init.ModEntities;
@@ -50,7 +48,6 @@ import java.util.*;
 
 public class RavenRoleData extends SimpleRoleData {
 
-
     public static final int MAX_CHARGES = 5;
     private static final int HUNT_TICKS = 120 * 20;
     private static final int COOLDOWN_TICKS = 60 * 20;
@@ -59,49 +56,35 @@ public class RavenRoleData extends SimpleRoleData {
     private static final double MOOD_RADIUS_SQR = CHARGE_RADIUS * CHARGE_RADIUS;
 
     private final Map<UUID, Float> observedMood = new HashMap<>();
-    public int charges;
-    public int cooldownTicks;
-    public int huntTicks;
-    public int kills;
-    public int requiredKills;
-    public float moodProgress;
-    public float moodProgressThreshold;
-    public ResourceLocation targetRoleId;
-    public UUID bodyUuid;
+    public int charges = 0;
+    public int cooldownTicks = 0;
+    public int huntTicks = 0;
+    public int kills = 0;
+    public int requiredKills = 0;
+    public float moodProgress = 0;
+    public float moodProgressThreshold = 0;
+    public ResourceLocation targetRoleId = null;
+    public UUID bodyUuid = null;
     private Vec3 bodyPosition = Vec3.ZERO;
-    private float bodyYaw;
-    private float bodyPitch;
+    private float bodyYaw = 0;
+    private float bodyPitch = 0;
 
     public RavenRoleData(RoleDataContext context) {
         super(context);
     }
-
 
     @Override
     public boolean shouldSyncWith(ServerPlayer target) {
         return target == player;
     }
 
-
     @Override
     public void init() {
-        charges = 0;
-        cooldownTicks = 0;
-        huntTicks = 0;
-        kills = 0;
-        requiredKills = 0;
-        moodProgress = 0;
-        moodProgressThreshold = 1f;
-        targetRoleId = null;
-        bodyUuid = null;
-        observedMood.clear();
-        sync();
     }
 
     @Override
     public void clear() {
         endHunt(false);
-        init();
     }
 
     public boolean isHunting() {
@@ -120,7 +103,6 @@ public class RavenRoleData extends SimpleRoleData {
     @Override
     public void serverTick() {
         SREGameWorldComponent game = SREGameWorldComponent.KEY.get(player.level());
-
         // If the player still has hunt state but is no longer a RAVEN
         // (e.g. role was changed mid-hunt), clean up immediately.
         if (!game.isRole(player, ModRoles.RAVEN)) {
@@ -145,6 +127,9 @@ public class RavenRoleData extends SimpleRoleData {
             cooldownTicks--;
         if (huntTicks > 0) {
             huntTicks--;
+            if(!player.hasEffect(ModEffects.DISGUISE)){
+                applyHuntEffects();
+            }
             if (!hasLivingTargetRole(game) && chooseTargetRole(game))
                 changed = true;
             if (huntTicks <= 0)
@@ -272,11 +257,11 @@ public class RavenRoleData extends SimpleRoleData {
     }
 
     private void applyHuntEffects() {
-        player.addEffect(new MobEffectInstance(ModEffects.DISGUISE, HUNT_TICKS + 6 * 20, 3, false, false, false));
-        player.addEffect(new MobEffectInstance(ModEffects.VOICE_SILENCE, HUNT_TICKS, 0, false, false, false));
-        player.addEffect(new MobEffectInstance(ModEffects.NO_COLLIDE, HUNT_TICKS, 0, false, false, false));
-        player.addEffect(new MobEffectInstance(ModEffects.INVINCIBLE, HUNT_TICKS, 0, false, false, false));
-        player.addEffect(new MobEffectInstance(ModEffects.CHAT_BAN, HUNT_TICKS, 0, false, false, false));
+        player.addEffect(new MobEffectInstance(ModEffects.DISGUISE, -1, 3, false, false, false));
+        player.addEffect(new MobEffectInstance(ModEffects.VOICE_SILENCE, -1, 0, false, false, false));
+        player.addEffect(new MobEffectInstance(ModEffects.NO_COLLIDE, -1, 0, false, false, false));
+        player.addEffect(new MobEffectInstance(ModEffects.INVINCIBLE, -1, 0, false, false, false));
+        player.addEffect(new MobEffectInstance(ModEffects.CHAT_BAN, -1, 0, false, false, false));
     }
 
     public boolean canKill(Player victim) {
@@ -381,7 +366,6 @@ public class RavenRoleData extends SimpleRoleData {
             entity.discard();
     }
 
-
     @Override
     public void writeToSyncNbt(@NotNull CompoundTag tag, HolderLookup.Provider provider) {
         tag.putInt("charges", charges);
@@ -409,6 +393,5 @@ public class RavenRoleData extends SimpleRoleData {
             targetRoleId = ResourceLocation.tryParse(tag.getString("targetRoleId"));
         }
     }
-
 
 }
