@@ -57,7 +57,7 @@ public class ModEffects {
     /** 禁止技能使用 */
     public static final Holder<MobEffect> SKILL_BANED = register("skill_baned",
             new SimpleMobEffect(MobEffectCategory.HARMFUL, 0xFFFFFF));
-    public static final Holder<MobEffect> DE_JUMP = register("jump_decrease",
+    public static final Holder<MobEffect> JUMP_DECREASE = register("jump_decrease",
             new SimpleMobEffect(MobEffectCategory.HARMFUL, 16646020).addAttributeModifier(
                     Attributes.JUMP_STRENGTH, Noellesroles.id("effect.jump_decrease"),
                     (double) -0.1F, Operation.ADD_VALUE));
