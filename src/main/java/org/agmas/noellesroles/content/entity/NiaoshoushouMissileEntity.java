@@ -28,6 +28,8 @@ import org.agmas.noellesroles.init.ModItems;
 public class NiaoshoushouMissileEntity extends NoHeavyWaterInfluencedThrowableItemProjectile {
     private static final int MAX_LIFETIME_TICKS = 20 * 20;
     private static final float EXPLOSION_RADIUS = 5.0F;
+    /** 与控制包接收端的 128 格限制保持一致：超出后导弹失去控制且相机交还玩家。 */
+    private static final double MAX_CONTROL_DISTANCE_SQR = 128.0D * 128.0D;
     private int steering;
     private float controlYaw;
     private float controlPitch;
@@ -99,6 +101,12 @@ public class NiaoshoushouMissileEntity extends NoHeavyWaterInfluencedThrowableIt
         if (!level().isClientSide) {
             if (tickCount >= MAX_LIFETIME_TICKS || !(getOwner() instanceof ServerPlayer owner)
                     || !owner.isAlive()) {
+                explode();
+                return;
+            }
+            // 超出控制范围立即回收：既与收包端的距离限制一致，也避免导弹飞进未加载
+            // 区块后服务端停止模拟、客户端弹体冻结导致玩家相机卡死在远处回不来。
+            if (owner.distanceToSqr(this) > MAX_CONTROL_DISTANCE_SQR) {
                 explode();
                 return;
             }

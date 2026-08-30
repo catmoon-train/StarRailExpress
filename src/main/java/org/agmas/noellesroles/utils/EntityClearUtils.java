@@ -18,6 +18,7 @@ package org.agmas.noellesroles.utils;
 import io.wifi.starrailexpress.content.entity.GrenadeEntity;
 import io.wifi.starrailexpress.content.entity.NoteEntity;
 import io.wifi.starrailexpress.content.entity.PlayerBodyEntity;
+import io.wifi.starrailexpress.content.entity.no_water_influenced.NoHeavyWaterInfluencedThrowableProjectile;
 import io.wifi.starrailexpress.event.OnGameEnd;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.AreaEffectCloud;
@@ -97,6 +98,7 @@ public class EntityClearUtils {
                 entity instanceof RainbowHorseEntity ||
                 entity instanceof KuiXiPuppetEntity ||
                 entity instanceof NoteEntity ||
+                entity instanceof NoHeavyWaterInfluencedThrowableProjectile ||
                 entity instanceof DevilRouletteTableEntity.TableTextDisplay ||
                 entity instanceof DevilRouletteTableEntity.TableItemDisplay ||
                 (entity instanceof net.minecraft.world.entity.Display.BlockDisplay bd
