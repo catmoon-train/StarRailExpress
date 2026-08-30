@@ -238,6 +238,8 @@ public class CustomWinnerClass {
             for (final var p : victim.level().players()) {
                 if (!GameUtils.isPlayerAliveAndSurvival(p))
                     continue;
+                if (p.getUUID().equals(victim.getUUID()))
+                    continue;
                 if (RoleData.getNullable(p) instanceof GhostRoleData grd) {
                     if (grd.isActive) {
                         if (grd.lastStandNotified) {
