@@ -211,7 +211,9 @@ public final class RoleRosterManager {
         state.version = Math.max(System.currentTimeMillis(), state.version + 1L);
         state.normalized();
         writeLocalFile();
-        saveToDatabase();
+        if (SREConfig.instance().ignoreMysqlRosterConfig) {
+            saveToDatabase();
+        }
         broadcast();
     }
 
