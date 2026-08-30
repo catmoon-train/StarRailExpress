@@ -4070,5 +4070,8 @@
     "command.noellesroles.fake_steve.waiting": "The Fake Steve event remains queued: no player currently meets the sanity or corpse-risk rules.",
     "command.noellesroles.fake_steve.spawned": "Spawned a target-only Fake Steve apparition near %s.",
     "command.noellesroles.fake_steve.spawn_cancelled": "The commanded Fake Steve apparition was cancelled because its target died, disconnected, or had no valid nearby position.",
-    "command.noellesroles.fake_steve.replaced": "Immediately replaced %s."
+    "command.noellesroles.fake_steve.replaced": "Immediately replaced %s.",
+    "message.noellesroles.fake_steve.event.title": "AN IMPOSTOR HAS APPEARED",
+    "message.noellesroles.fake_steve.event.subtitle": "It has already blended into the train...",
+    "message.noellesroles.fake_steve.event.broadcast": "Warning: the Fake Steve event has appeared. Watch for a faceless Steve."
 }
