@@ -241,7 +241,7 @@ public class CustomWinnerClass {
                 if (p.getUUID().equals(victim.getUUID()))
                     continue;
                 if (RoleData.getNullable(p) instanceof GhostRoleData grd) {
-                    if (grd.isActive) {
+                    {
                         if (grd.lastStandNotified) {
                             return TrueFalseResult.FALSE;
                         }
