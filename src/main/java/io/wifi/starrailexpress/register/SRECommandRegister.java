@@ -24,6 +24,7 @@ import io.wifi.starrailexpress.content.command.argument.MapLoadArgumentType;
 import io.wifi.starrailexpress.content.command.argument.SkinArgumentType;
 import io.wifi.starrailexpress.content.command.argument.TimeOfDayArgumentType;
 import io.wifi.starrailexpress.content.vote.command.SREVoteCommand;
+import io.wifi.starrailexpress.schedule.ScheduleManager;
 import net.exmo.sre.mod_whitelist.server.command.ModWhitelistCommand;
 import net.fabricmc.fabric.api.command.v2.ArgumentTypeRegistry;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
@@ -47,6 +48,7 @@ public class SRECommandRegister {
 
     public static void registerCommands() {
         StreamingSpectatorCommand.registerEvents();
+        ScheduleManager.registerEvents();
         CommandRegistrationCallback.EVENT.register(((dispatcher, registryAccess, environment) -> {
             ServerUtilsCommands.register(dispatcher, registryAccess, environment);
             ModWhitelistCommand.registerGlobal(dispatcher);
@@ -89,6 +91,7 @@ public class SRECommandRegister {
             ProgressionCommand.register(dispatcher);
             BackpackCommand.register(dispatcher);
             RoleRosterCommand.register(dispatcher);
+            ScheduleCommand.register(dispatcher);
             PlushCommand.register(dispatcher);
             BreakingAndFakeBlockCommand.register(dispatcher, registryAccess, environment);
             PlayerInventoryCommand.register(dispatcher);
