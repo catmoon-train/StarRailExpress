@@ -13,6 +13,9 @@ public final class FakeSteveAgentState {
     public final ReplacementCause cause;
     public AgentMode mode = AgentMode.DISGUISE_IDLE;
     public final FakeSteveBrain brain = new FakeSteveBrain();
+    public long modeStartedTick;
+    public long lastTickAt;
+    public int tickStep = 5;
     public UUID focusTarget;
     public boolean pendingEngagement;
     public int faceTicks;
@@ -24,6 +27,10 @@ public final class FakeSteveAgentState {
     public long lastPathProgressTick;
     public double lastPathDistanceSqr = Double.MAX_VALUE;
     public int pathFailureCount;
+    public int stuckTicks;
+    public double lastMoveX;
+    public double lastMoveZ;
+    public long lastMoveTick;
     public BlockPos pathGoal;
     public final ArrayDeque<BlockPos> path = new ArrayDeque<>();
     public long motionSequence;
@@ -52,6 +59,7 @@ public final class FakeSteveAgentState {
     public long nextSkillTick;
     public UUID knifeChargeTarget;
     public long knifeChargedAtTick;
+    public long knifeChargeStartedTick;
     public long holsterAtTick;
     public int holsterSlot = -1;
 

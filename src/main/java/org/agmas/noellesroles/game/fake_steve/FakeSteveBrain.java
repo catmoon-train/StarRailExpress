@@ -52,16 +52,19 @@ public final class FakeSteveBrain {
             mode = AgentMode.DISGUISE_TASK;
             return intent(false, false, false, false, true, false);
         }
-        if (snapshot.safeHuntOpportunity()) {
-            mode = AgentMode.HUNT;
-            return intent(false, true, false, false, false, false);
-        }
         mode = AgentMode.DISGUISE_IDLE;
         return intent(false, false, false, false, false, false);
     }
 
     public AgentMode mode() {
         return mode;
+    }
+
+    /** Drops the current engagement so the body stops lingering on one behaviour. */
+    public void disengage() {
+        armed = false;
+        lookAwayTicks = 0;
+        mode = AgentMode.DISGUISE_IDLE;
     }
 
     private BrainIntent intent(boolean holdPosition, boolean followTarget, boolean attack,
@@ -73,8 +76,7 @@ public final class FakeSteveBrain {
     public record PerceptionSnapshot(int elapsedTicks, boolean recovering,
             boolean engagementTriggered, boolean focusValid,
             boolean targetLookingAtFake, boolean safeBackstab,
-            boolean assimilationReady, boolean taskAvailable,
-            boolean safeHuntOpportunity) {
+            boolean assimilationReady, boolean taskAvailable) {
     }
 
     public record BrainIntent(AgentMode mode, boolean holdPosition,
