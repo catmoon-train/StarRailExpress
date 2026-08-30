@@ -45,12 +45,15 @@ import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
+
+import org.agmas.harpymodloader.Harpymodloader;
 import org.agmas.harpymodloader.component.WorldModifierComponent;
 import org.agmas.harpymodloader.events.ModifierAssigned;
 import org.agmas.noellesroles.commands.BroadcastCommand;
 import org.agmas.noellesroles.game.modifier.NRModifiers;
 import org.agmas.noellesroles.init.FunnyItems;
 import org.agmas.noellesroles.init.ModEffects;
+import org.agmas.noellesroles.role.ModRoles;
 import org.agmas.noellesroles.utils.MCItemsUtils;
 import org.agmas.noellesroles.utils.RoleUtils;
 import org.jetbrains.annotations.Nullable;
@@ -87,6 +90,9 @@ public class SRETNTTagGameMode extends SREMurderGameMode {
             List<ServerPlayer> players) {
         nextBombTime = -1;
         nextRoundTime = -1;
+        // 禁止刷保安
+        Harpymodloader.setRoleMaximum(ModRoles.GUARD, 0);
+        
         super.initializeGame(serverWorld, gameWorldComponent, players);
         var wmc = WorldModifierComponent.KEY.get(serverWorld);
         for (ServerPlayer p : serverWorld.players()) {

@@ -1644,17 +1644,11 @@ public class RoleShopHandler {
             DREAM_SHOP.add(new ShopEntry(boatDisplay,
                     dreamConfig.dreamBoatPrice, ShopEntry.Type.TOOL));
             // 范围关灯 - 150金币：购买即以自己为中心熄灭半径30格的灯，冷却与普通关灯一致
-            ItemStack blackoutDisplay = ModItems.DREAM_BLACKOUT.getDefaultInstance();
-            var blackoutLore = new ArrayList<Component>();
-            blackoutLore.add(Component.translatable("item.noellesroles.dream_blackout.lore1")
-                    .setStyle(Style.EMPTY.withItalic(false)).withStyle(ChatFormatting.GRAY));
-            blackoutLore.add(Component.translatable("item.noellesroles.dream_blackout.lore2")
-                    .setStyle(Style.EMPTY.withItalic(false)).withStyle(ChatFormatting.GRAY));
-            blackoutDisplay.set(DataComponents.LORE, new ItemLore(blackoutLore));
+            ItemStack blackoutDisplay = ModItems.AREA_BLACKOUT.getDefaultInstance();
             DREAM_SHOP.add(new ShopEntry(blackoutDisplay, dreamConfig.dreamBlackoutPrice, ShopEntry.Type.TOOL) {
                 @Override
                 public boolean onBuy(@NotNull Player player) {
-                    if (player.getCooldowns().isOnCooldown(ModItems.DREAM_BLACKOUT)) {
+                    if (player.getCooldowns().isOnCooldown(ModItems.AREA_BLACKOUT)) {
                         return false;
                     }
                     SREWorldBlackoutComponent blackout = SREWorldBlackoutComponent.KEY.get(player.level());
@@ -1665,7 +1659,7 @@ public class RoleShopHandler {
                             NoellesRolesConfig.HANDLER.instance().dreamBlackoutRadius, true,
                             SREWorldBlackoutComponent.getMaxDuration(player.level()));
                     // 冷却与普通关灯一致
-                    player.getCooldowns().addCooldown(ModItems.DREAM_BLACKOUT,
+                    player.getCooldowns().addCooldown(ModItems.AREA_BLACKOUT,
                             Math.max(60 * 20, GameConstants.getBlackoutCooldownGlobal()));
                     return true;
                 }
@@ -3467,11 +3461,11 @@ public class RoleShopHandler {
                 }
             });
             // 范围关灯（r=24） - 160金币：购买即以自己为中心熄灭半径24格的灯
-            YOULU_SHOP.add(new ShopEntry(ModItems.DREAM_BLACKOUT.getDefaultInstance(), 160,
+            YOULU_SHOP.add(new ShopEntry(ModItems.AREA_BLACKOUT.getDefaultInstance(), 160,
                     ShopEntry.Type.TOOL) {
                 @Override
                 public boolean onBuy(@NotNull Player player) {
-                    if (player.getCooldowns().isOnCooldown(ModItems.DREAM_BLACKOUT)) {
+                    if (player.getCooldowns().isOnCooldown(ModItems.AREA_BLACKOUT)) {
                         return false;
                     }
                     SREWorldBlackoutComponent blackout = SREWorldBlackoutComponent.KEY.get(player.level());
@@ -3482,7 +3476,7 @@ public class RoleShopHandler {
                             NoellesRolesConfig.HANDLER.instance().youluBlackoutRadius, true,
                             SREWorldBlackoutComponent.getMaxDuration(player.level()));
                     // 冷却与普通关灯一致
-                    player.getCooldowns().addCooldown(ModItems.DREAM_BLACKOUT,
+                    player.getCooldowns().addCooldown(ModItems.AREA_BLACKOUT,
                             Math.max(60 * 20, GameConstants.getBlackoutCooldownGlobal()));
                     return true;
                 }

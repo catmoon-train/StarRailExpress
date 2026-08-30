@@ -101,7 +101,7 @@
   "item.noellesroles.dream_mask.desc": "Dream专属能力（购买即生效，不占背包）。购买后立即进入狂暴状态（疯魔逻辑，附带一层护盾）：铁斧伤害提高、眩晕加长、攻击距离+1，且附近看到你的玩家会因害怕获得视野受限、缓慢与颤抖效果，狂暴期间还会响起追杀音乐。冷却120秒。",
   "item.noellesroles.dream_pickaxe.desc": "Dream专属道具。直接右键锁着的门可以像开锁器一样打开；潜行+右键则直接撬开门（冷却50秒），但无法锁门。撬门的动静很大，会发出响亮的破坏声，附近的玩家都能听到。",
   "item.noellesroles.dream_boat.desc": "Dream专属道具。对地面使用会放置一条船，周围的玩家会被强制拽上船，且在船消失前无法下船，10秒后船消失。冷却60秒，物品不消耗。",
-  "item.noellesroles.dream_blackout.desc": "Dream专属能力（购买即生效，不占背包）。购买后立即熄灭以自己为中心半径30格内的所有灯，并触发关灯致盲。冷却与普通关灯一致。",
+  "item.noellesroles.area_blackout.desc": "Dream专属能力（购买即生效，不占背包）。购买后立即熄灭以自己为中心半径30格内的所有灯，并触发关灯致盲。冷却与普通关灯一致。",
   "item.noellesroles.dream_wine.desc": "Dream用制酒技能酿出的酒。喝下后隐身10秒，期间无法攻击也无法受伤。",
   "item.noellesroles.throwing_knife.desc": "按Q键投掷，右键可以将飞刀举起来，并造成击杀。",
   "item.noellesroles.rope.desc": "搜救员职业专属道具，右键将直线范围内的一个人拉到你面前。",
@@ -166,6 +166,5 @@
   "item.noellesroles.niaoshoushou_knife.desc": "鸟兽兽专属尼泊尔军刀。继承普通刀的攻击方式，拥有4点耐久；也能撬开小门，每次成功撬门消耗1点耐久。",
   "item.noellesroles.niaoshoushou_incendiary_grenade.desc": "鸟兽兽专属燃烧弹。复用现有燃烧弹效果，使用后进入45秒冷却。",
   "item.noellesroles.niaoshoushou_family_photo.desc": "鸟兽兽专属全家福。分别右键两名杀手阵营玩家或魔术师组成队伍；每局只能购买一张。",
-  "item.noellesroles.niaoshoushou_missile.desc": "鸟兽兽专属巡飞弹。使用后绑定相机，弹体自动前飞并跟随视野上下左右移动，A/D可辅助转向；碰到玩家或地面后爆炸，使半径5格内玩家燃烧并在1.5秒后死亡。冷却60秒。",
-  "item.noellesroles.niaoshoushou_blackout.desc": "鸟兽兽专属范围关灯。熄灭半径30格内的灯，使用后冷却2分钟。"
+  "item.noellesroles.niaoshoushou_missile.desc": "鸟兽兽专属巡飞弹。使用后绑定相机，弹体自动前飞并跟随视野上下左右移动，A/D可辅助转向；碰到玩家或地面后爆炸，使半径5格内玩家燃烧并在1.5秒后死亡。冷却60秒。"
 }

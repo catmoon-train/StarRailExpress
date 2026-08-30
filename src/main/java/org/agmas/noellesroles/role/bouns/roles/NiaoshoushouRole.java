@@ -8,6 +8,7 @@
 package org.agmas.noellesroles.role.bouns.roles;
 
 import io.wifi.starrailexpress.api.EggRole;
+import io.wifi.starrailexpress.cca.SREWorldBlackoutComponent;
 import io.wifi.starrailexpress.game.GameConstants;
 import io.wifi.starrailexpress.index.TMMItems;
 import io.wifi.starrailexpress.util.ShopEntry;
@@ -16,6 +17,8 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
+
+import org.agmas.noellesroles.config.NoellesRolesConfig;
 import org.agmas.noellesroles.init.ModItems;
 import org.agmas.noellesroles.role_data.killer.NiaoshoushouRoleData;
 import org.jetbrains.annotations.NotNull;
@@ -82,11 +85,28 @@ public class NiaoshoushouRole extends EggRole {
         });
         shop.add(new ShopEntry(ModItems.NIAOSHOU_SHOU_MISSILE.getDefaultInstance(), 350,
                 ShopEntry.Type.WEAPON));
-        // 还是给个开锁器吧。。。 孩子的撬棍有点毛病
-        shop.add(new ShopEntry(TMMItems.LOCKPICK.getDefaultInstance(), 180,
+        // 还是给个贵的要死的开锁器吧。。。
+        shop.add(new ShopEntry(TMMItems.LOCKPICK.getDefaultInstance(), 300,
                 ShopEntry.Type.TOOL));
-        shop.add(new ShopEntry(ModItems.NIAOSHOU_SHOU_BLACKOUT.getDefaultInstance(), 175,
-                ShopEntry.Type.TOOL));
+        shop.add(new ShopEntry(ModItems.AREA_BLACKOUT.getDefaultInstance(), 175,
+                ShopEntry.Type.TOOL) {
+            @Override
+            public boolean onBuy(@NotNull Player player) {
+                if (player.getCooldowns().isOnCooldown(ModItems.AREA_BLACKOUT)) {
+                    return false;
+                }
+                SREWorldBlackoutComponent blackout = SREWorldBlackoutComponent.KEY.get(player.level());
+                if (blackout.isBlackoutActive()) {
+                    return false;
+                }
+                blackout.triggerBlackout(player.blockPosition(),
+                        NoellesRolesConfig.HANDLER.instance().dreamBlackoutRadius, true,
+                        SREWorldBlackoutComponent.getMaxDuration(player.level()));
+                // 冷却与普通关灯一致
+                player.getCooldowns().addCooldown(ModItems.AREA_BLACKOUT, 120 * 20);
+                return true;
+            }
+        });
         return shop;
     }
 }

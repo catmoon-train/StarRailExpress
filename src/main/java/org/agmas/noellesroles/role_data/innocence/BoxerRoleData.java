@@ -61,7 +61,7 @@ public class BoxerRoleData extends SimpleRoleData {
 
 
     /** 技能冷却时间（tick） */
-    public int cooldown = 0;
+    public int cooldown = INITIAL_COOLDOWN;
 
     /** 无敌剩余时间（tick） */
     public int invulnerabilityTicks = 0;
@@ -82,15 +82,10 @@ public class BoxerRoleData extends SimpleRoleData {
      */
     @Override
     public void init() {
-        this.cooldown = INITIAL_COOLDOWN; // 开局60秒冷却
-        this.invulnerabilityTicks = 0;
-        this.isInvulnerable = false;
-        this.sync();
     }
 
     @Override
     public void clear() {
-        this.init();
     }
 
     @Override

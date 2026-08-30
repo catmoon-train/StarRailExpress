@@ -33,6 +33,7 @@ public class NiaoshoushouMissileEntity extends NoHeavyWaterInfluencedThrowableIt
     private float controlPitch;
     private int controlTimeout;
     private boolean exploded;
+    private boolean cameraBound;
 
     public NiaoshoushouMissileEntity(EntityType<? extends NoHeavyWaterInfluencedThrowableItemProjectile> entityType,
             Level level) {
@@ -53,6 +54,28 @@ public class NiaoshoushouMissileEntity extends NoHeavyWaterInfluencedThrowableIt
     @Override
     protected boolean canHitEntity(Entity entity) {
         return entity != getOwner() && super.canHitEntity(entity);
+    }
+
+    /**
+     * 巡飞弹的朝向完全由控制输入维护，不再让基类按当前速度重写 yRot/xRot。
+     * 基类的 updateRotation() 会把朝向存成"投射物坐标系"（实际朝向 + 180°），
+     * 与控制包里的玩家坐标系混用会让插值每 tick 大幅过冲，导致乱转。
+     */
+    @Override
+    protected void updateRotation() {
+    }
+
+    /**
+     * 基类按速度把 yRot 存成投射物坐标系，这里改回发射者的玩家坐标系，
+     * 保证发射后第一个 tick 的 getLookAngle() 就指向发射方向，不会反向飞行。
+     */
+    @Override
+    public void shootFromRotation(Entity shooter, float pitch, float yaw, float roll, float speed,
+            float divergence) {
+        super.shootFromRotation(shooter, pitch, yaw, roll, speed, divergence);
+        setRot(yaw, pitch);
+        yRotO = yaw;
+        xRotO = pitch;
     }
 
     public void setSteering(int steering) {
@@ -78,6 +101,13 @@ public class NiaoshoushouMissileEntity extends NoHeavyWaterInfluencedThrowableIt
                     || !owner.isAlive()) {
                 explode();
                 return;
+            }
+            // 相机绑定推迟到实体首个服务端 tick 发送：此时实体的生成包已经入队，
+            // 保证客户端先创建导弹实体再收到相机包，避免 use() 里立即发包时
+            // 客户端还没有这个实体、相机绑定静默失败导致无法操控。
+            if (!cameraBound) {
+                owner.connection.send(new ClientboundSetCameraPacket(this));
+                cameraBound = true;
             }
             if (controlTimeout > 0) {
                 controlTimeout--;

@@ -101,7 +101,7 @@
   "item.noellesroles.dream_mask.desc": "Dream專屬能力（購買即生效，不占背包）。購買後立即進入狂暴狀態（瘋魔邏輯，附帶一層護盾）：鐵斧傷害提高、眩暈加長、攻擊距離+1，且附近看到你的玩家會因害怕獲得視野受限、緩慢與顫抖效果，狂暴期間還會響起追殺音樂。冷卻120秒。",
   "item.noellesroles.dream_pickaxe.desc": "Dream專屬道具。直接右鍵鎖著的門可以像開鎖器一樣打開；潛行+右鍵則直接撬開門（冷卻50秒），但無法鎖門。撬門的動靜很大，會發出響亮的破壞聲，附近的玩家都能聽到。",
   "item.noellesroles.dream_boat.desc": "Dream專屬道具。對地面使用會放置一條船，周圍的玩家會被強制拽上船，且在船消失前無法下船，10秒後船消失。冷卻60秒，物品不消耗。",
-  "item.noellesroles.dream_blackout.desc": "Dream專屬能力（購買即生效，不占背包）。購買後立即熄滅以自己為中心半徑30格內的所有燈，並觸發關燈致盲。冷卻與普通關燈一致。",
+  "item.noellesroles.area_blackout.desc": "Dream專屬能力（購買即生效，不占背包）。購買後立即熄滅以自己為中心半徑30格內的所有燈，並觸發關燈致盲。冷卻與普通關燈一致。",
   "item.noellesroles.dream_wine.desc": "Dream用制酒技能釀出的酒。喝下後隱身10秒，期間無法攻擊也無法受傷。",
   "item.noellesroles.throwing_knife.desc": "按Q鍵投擲，右鍵可以將飛刀舉起來，並造成擊殺。",
   "item.noellesroles.rope.desc": "搜救員職業專屬道具，右鍵將直線範圍內的一個人拉到你面前。",
@@ -166,6 +166,5 @@
   "item.noellesroles.niaoshoushou_knife.desc": "鳥獸獸專屬尼泊爾軍刀。繼承普通刀的攻擊方式，擁有4點耐久；也能撬開小門，每次成功撬門消耗1點耐久。",
   "item.noellesroles.niaoshoushou_incendiary_grenade.desc": "鳥獸獸專屬燃燒彈。複用現有燃燒彈效果，使用後進入45秒冷卻。",
   "item.noellesroles.niaoshoushou_family_photo.desc": "鳥獸獸專屬全家福。分別右鍵兩名殺手陣營玩家或魔術師組成隊伍；每局只能購買一張。",
-  "item.noellesroles.niaoshoushou_missile.desc": "鳥獸獸專屬巡飛彈。使用後綁定相機，彈體自動前飛並跟隨視野上下左右移動，A/D可輔助轉向；碰到玩家或地面後爆炸，使半徑5格內玩家燃燒並在1.5秒後死亡。冷卻60秒。",
-  "item.noellesroles.niaoshoushou_blackout.desc": "鳥獸獸專屬範圍關燈。熄滅半徑30格內的燈，使用後冷卻2分鐘。"
+  "item.noellesroles.niaoshoushou_missile.desc": "鳥獸獸專屬巡飛彈。使用後綁定相機，彈體自動前飛並跟隨視野上下左右移動，A/D可輔助轉向；碰到玩家或地面後爆炸，使半徑5格內玩家燃燒並在1.5秒後死亡。冷卻60秒。"
 }

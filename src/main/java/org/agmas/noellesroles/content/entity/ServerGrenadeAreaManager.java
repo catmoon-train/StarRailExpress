@@ -34,18 +34,23 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
+import org.agmas.noellesroles.init.ModEffects;
+
 /**
  * 手雷落点地面区域管理器（燃烧弹 / 粘液弹通用）。
  * <ul>
- *   <li>{@link Type#FIRE} 燃烧弹：范围内玩家持续站立满 {@link #FIRE_KILL_TICKS}（2s）后死亡（离开即重置计时）。</li>
- *   <li>{@link Type#SLIME} 粘液弹：范围内玩家持续获得缓慢III + 无法跳跃（跳跃提升 128 级，负跳跃力）。</li>
+ * <li>{@link Type#FIRE} 燃烧弹：范围内玩家持续站立满
+ * {@link #FIRE_KILL_TICKS}（2s）后死亡（离开即重置计时）。</li>
+ * <li>{@link Type#SLIME} 粘液弹：范围内玩家持续获得缓慢III + 无法跳跃（跳跃提升 128 级，负跳跃力）。</li>
  * </ul>
  * 纯服务端；粒子由服务端 {@code sendParticles} 广播，无需客户端管理器。
  * 每 tick 由 {@code NRGameStateEvents} 调用 {@link #tick()}。
  */
 public class ServerGrenadeAreaManager {
 
-    public enum Type { FIRE, NIAOSHOU_FIRE, SLIME }
+    public enum Type {
+        FIRE, NIAOSHOU_FIRE, SLIME
+    }
 
     /** 燃烧弹：持续站立多少 tick 后死亡（2 秒）。 */
     private static final int FIRE_KILL_TICKS = 40;
@@ -194,8 +199,8 @@ public class ServerGrenadeAreaManager {
                 // 缓慢 III（放大值 2）
                 player.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SLOWDOWN, 20, 2,
                         false, false, true));
-                // 无法跳跃：跳跃提升放大值 128（作为 byte 溢出为负，跳跃力为负 → 无法起跳）
-                player.addEffect(new MobEffectInstance(MobEffects.JUMP, 20, 128,
+                // 无法跳跃：0.1*11 <= 0
+                player.addEffect(new MobEffectInstance(ModEffects.JUMP_DECREASE, 20, 100,
                         false, false, false));
             }
         }
