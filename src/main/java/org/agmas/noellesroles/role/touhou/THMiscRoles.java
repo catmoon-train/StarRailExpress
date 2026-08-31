@@ -189,6 +189,7 @@ public class THMiscRoles {
             .setCanUseInstinctAndNightVision(true)
             .setDefaultEnableNeededPlayerCount(16)
             .setDefaultEnableChance(1000)
+            .setHiddenForRoleRotation(true)
             .setRoleData(THYuyukoRoleData::new)
             .setAddedVersion("4.4");
 
