@@ -53,6 +53,10 @@ public class THYuyukoRoleData extends SimpleRoleData {
 
     public boolean tryEat(Player t) {
         if (t == null || !(t instanceof ServerPlayer target)) {
+
+            player.displayClientMessage(
+                    Component.translatable("tip.noellesroles.no_target").withStyle(ChatFormatting.RED),
+                    true);
             return false;
         }
         if (!GameUtils.isPlayerAliveAndSurvival(target))
@@ -81,6 +85,9 @@ public class THYuyukoRoleData extends SimpleRoleData {
 
     public boolean tryEat(PlayerBodyEntity body) {
         if (body == null) {
+            player.displayClientMessage(
+                    Component.translatable("tip.noellesroles.no_target").withStyle(ChatFormatting.RED),
+                    true);
             return false;
         }
         if (body.isRemoved()) {

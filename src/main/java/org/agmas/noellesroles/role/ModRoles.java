@@ -1576,7 +1576,9 @@ public class ModRoles {
                     false, SRERole.MoodType.FAKE, TMMRoles.CIVILIAN.getMaxSprintTime() * 2, true)
                     .setMafiaTeam(true))
             .setNeutrals(true).setCanSeeTeammateKillerRole(false).setCanUseInstinctAndNightVision(true)
-            .setCanSeeCoin(true).setDefaultMax(0).setCanBeRandomedByOtherRoles(false)
+            .setCanSeeCoin(true)
+            .setDefaultMax(0)
+            .setCanBeRandomedByOtherRoles(false)
             .setKillExtraCoinAwards(75);
     public static SRERole JANITOR = TMMRoles
             .registerRole(new MafiaRole(JANITOR_ID, new Color(255, 105, 180).getRGB(), false,
