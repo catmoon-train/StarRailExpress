@@ -19,6 +19,8 @@ import org.agmas.noellesroles.role.ModRoles;
 import org.agmas.noellesroles.role.touhou.roles.*;
 import org.agmas.noellesroles.role_data.killer.DoremyRoleData;
 import org.agmas.noellesroles.role_data.killer.HoujuuNueRoleData;
+import org.agmas.noellesroles.role_data.neutral.THYuyukoRoleData;
+
 import io.wifi.starrailexpress.api.InstinctType;
 import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.api.TMMRoles;
@@ -186,6 +188,7 @@ public class THMiscRoles {
             .setCanUseInstinctAndNightVision(true)
             .setDefaultEnableNeededPlayerCount(16)
             .setDefaultEnableChance(4000)
+            .setRoleData(THYuyukoRoleData::new)
             .setAddedVersion("4.4");
 
     public static void init() {
