@@ -15,7 +15,6 @@
 
 package org.agmas.noellesroles.role_data.neutral;
 
-import org.agmas.noellesroles.role_data.neutral.PuppeteerRoleData;
 import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.api.TMMRoles;
 import io.wifi.starrailexpress.api.data.RoleData;
@@ -36,7 +35,6 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import org.agmas.harpymodloader.component.WorldModifierComponent;
-import org.agmas.noellesroles.component.ModComponents;
 import org.agmas.noellesroles.config.NoellesRolesConfig;
 import org.agmas.noellesroles.game.roles.neutral.pelican.PelicanManager;
 import org.agmas.noellesroles.role.ModRoles;

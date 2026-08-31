@@ -65,7 +65,6 @@ public class THYuyukoRole extends TouhouRole {
                         return false;
                     return cca.tryEat(ctx.getTargetAs(PlayerBodyEntity.class));
                 }).recordReplay()
-                        .announceToSelf()
                         .cooldownSeconds(15)
                         .showOnHud(true)
                         .withTarget()
@@ -90,7 +89,6 @@ public class THYuyukoRole extends TouhouRole {
                     }
                     return false;
                 }).recordReplay()
-                        .announceToSelf()
                         .cooldownSeconds(30)
                         .showOnHud(true)
                         .withTarget()

@@ -16,6 +16,8 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.entity.player.Player;
 
 public class THYuyukoRoleData extends SimpleRoleData {
@@ -106,6 +108,10 @@ public class THYuyukoRoleData extends SimpleRoleData {
     }
 
     public void endEat() {
+        
+        player.level().playSound(null, player.getX(), player.getY(), player.getZ(),
+                SoundEvents.PLAYER_BURP, SoundSource.MASTER, 0.9F, 0.65F);
+                
         if (ateCount >= winnerNeedCount) {
             if (player.level() instanceof ServerLevel sl)
                 RoleUtils.customWinnerWin(sl, "saigyouji_yuyuko", (THMiscRoles.YUYUKO.color()));

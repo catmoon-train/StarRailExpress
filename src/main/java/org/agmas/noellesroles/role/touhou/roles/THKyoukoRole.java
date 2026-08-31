@@ -47,7 +47,7 @@ public class THKyoukoRole extends TouhouRole {
         arr.add(new ShopEntry(
                 createItemStackWithName(Items.PAPER, Component.translatable("item_stack.noellesroles.kyouko.echo"),
                         Component.translatable("item_stack.noellesroles.kyouko.echo.lore")),
-                100, ShopEntry.Type.TOOL) {
+                150, ShopEntry.Type.TOOL) {
             @Override
             public boolean onBuy(Player player) {
                 for (final var p : player.level().players()) {
@@ -89,7 +89,7 @@ public class THKyoukoRole extends TouhouRole {
         arr.add(new ShopEntry(
                 createItemStackWithName(Items.IRON_SWORD, Component.translatable("item_stack.noellesroles.kyouko.power"),
                         Component.translatable("item_stack.noellesroles.kyouko.power.lore")),
-                50, ShopEntry.Type.TOOL) {
+                100, ShopEntry.Type.TOOL) {
             @Override
             public boolean onBuy(Player player) {
                 for (final var p : player.level().players()) {
