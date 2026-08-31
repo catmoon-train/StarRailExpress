@@ -26,7 +26,8 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
-import org.agmas.noellesroles.role.touhou.THMiscRoles;
+
+import org.agmas.noellesroles.role.touhou.THHumanVillageRoles;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
@@ -45,7 +46,7 @@ public class DealerPackageItem extends Item {
             return InteractionResultHolder.sidedSuccess(packageStack, true);
         }
 
-        List<ShopEntry> shopEntries = THMiscRoles.RINNOSUKE.getShopEntries();
+        List<ShopEntry> shopEntries = THHumanVillageRoles.RINNOSUKE.getShopEntries();
         if (shopEntries.isEmpty()) {
             return InteractionResultHolder.fail(packageStack);
         }

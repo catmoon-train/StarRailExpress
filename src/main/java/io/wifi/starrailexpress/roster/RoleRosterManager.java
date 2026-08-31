@@ -318,6 +318,10 @@ public final class RoleRosterManager {
     }
 
     public static void randomRoster(int roleNum, int modifierNum) {
+        randomRoster(roleNum, modifierNum, false);
+    }
+
+    public static void randomRoster(int roleNum, int modifierNum, boolean forceCount) {
         // state.version++;
         state.roleCounts.clear();
         state.modifierCounts.clear();
@@ -340,8 +344,10 @@ public final class RoleRosterManager {
         expandRelations(selectedRoles, selectedModifiers);
 
         // 5. 删除多余项（保证数量不超目标）
-        trimModifiers(selectedModifiers, modifierNum);
-        trimRoles(selectedRoles, targets, pools);
+        if (forceCount) {
+            trimModifiers(selectedModifiers, modifierNum);
+            trimRoles(selectedRoles, targets, pools);
+        }
 
         // 6. 应用结果并广播
         applyResult(selectedRoles, selectedModifiers);

@@ -17,6 +17,7 @@ package org.agmas.noellesroles.role.touhou;
 
 import io.wifi.starrailexpress.SREConfig;
 import io.wifi.starrailexpress.api.SRERole;
+import io.wifi.starrailexpress.api.SRERole.MoodType;
 import io.wifi.starrailexpress.api.TMMRoles;
 import io.wifi.starrailexpress.api.TouhouRole;
 import io.wifi.starrailexpress.cca.SREPlayerShopComponent;
@@ -31,6 +32,7 @@ import net.minecraft.world.item.Items;
 import org.agmas.noellesroles.game.roles.innocence.ayayaya.AyayayaPlayerComponent;
 import org.agmas.noellesroles.handler.TouhouHandlers;
 import org.agmas.noellesroles.init.ModItems;
+import org.agmas.noellesroles.role.touhou.roles.THIbarakiKasenRole;
 import org.agmas.noellesroles.role.touhou.roles.THRinnosukeRole;
 import org.jetbrains.annotations.NotNull;
 
@@ -197,10 +199,19 @@ public class THMountainRoles {
 
     }.setHiddenForRoleRotation(true).setComponentKey(AyayayaPlayerComponent.KEY), "th_mountain");
 
+    // 茨木华扇 Ibaraki Kasen
+    public static SRERole IBARAKI_KASEN = TMMRoles.registerRole(new THIbarakiKasenRole(id("ibaraki_kasen"),
+            new Color(216, 158, 159).getRGB(), true, false, MoodType.REAL,
+            TMMRoles.CIVILIAN_MAX_SPRINT_TICKS, false), "th_mountain")
+            .setDefaultEnableNeededPlayerCount(12)
+            .setDefaultEnableChance(5000)
+            .setAddedVersion("4.4");
+
     public static void init() {
         // 强制交易：Nitori
         TouhouHandlers.register();
     }
+
     static {
         NITORI.setAddedVersion("4.3");
         AYA.setAddedVersion("4.3");

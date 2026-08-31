@@ -24,7 +24,6 @@ import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.api.TMMRoles;
 import io.wifi.starrailexpress.api.TouhouRole;
 import io.wifi.starrailexpress.api.SRERole.MoodType;
-import io.wifi.starrailexpress.cca.SREPlayerShopComponent;
 import io.wifi.starrailexpress.util.Color;
 import net.minecraft.resources.ResourceLocation;
 
@@ -101,28 +100,7 @@ public class THMiscRoles {
                     true, false, SRERole.MoodType.REAL,
                     TMMRoles.CIVILIAN.getMaxSprintTime() * 2, false))
             .setAddedVersion("4.4");
-    public static final ResourceLocation RINNOSUKE_ID = id("morichika_rinnosuke");
-    // 森近霖之助 Morichika Rinnosuke
-    public static SRERole RINNOSUKE = TMMRoles.registerRole(new THRinnosukeRole(
-            RINNOSUKE_ID, // 角色 ID
-            new Color(252, 250, 249).getRGB(),
-            false, // isInnocent = 乘客阵营
-            false, // canUseKiller = 无杀手能力
-            SRERole.MoodType.REAL, // 真实心情
-            Integer.MAX_VALUE, // 标准冲刺时间
-            true))
-            .setNeutrals(true)
-            .setDefaultEnableNeededPlayerCount(12)
-            .setDefaultEnableChance(100)
-            .setCanUseInstinctAndNightVision(false)
-            .setCanPickUpRevolver(false)
-            .addBothRelatedRole(THMountainRoles.NITORI)
-            .setServerGameTickEvent((player, cca) -> {
-                if (player.level().getGameTime() % (20 * 60) == 0) {
-                    SREPlayerShopComponent.KEY.get(player).addToBalance(50);
-                }
-            })
-            .setAddedVersion("4.4");
+    
 
     // 鬼人正邪 Kijin Seija
     public static SRERole KIJIN_SEIJA = TMMRoles.registerRole(new TouhouRole(id("kijin_seija"),
@@ -138,14 +116,6 @@ public class THMiscRoles {
             .setDefaultEnableNeededPlayerCount(12)
             .setDefaultEnableChance(4000)
             .setHiddenForRoleRotation(true)
-            .setAddedVersion("4.4");
-
-    // 茨木华扇 Ibaraki Kasen
-    public static SRERole IBARAKI_KASEN = TMMRoles.registerRole(new THIbarakiKasenRole(id("ibaraki_kasen"),
-            new Color(216, 158, 159).getRGB(), true, false, MoodType.REAL,
-            TMMRoles.CIVILIAN_MAX_SPRINT_TICKS, false))
-            .setDefaultEnableNeededPlayerCount(12)
-            .setDefaultEnableChance(5000)
             .setAddedVersion("4.4");
 
     // 魂魄妖梦 Konpaku Youmu

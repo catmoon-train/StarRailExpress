@@ -51,7 +51,7 @@ import org.agmas.noellesroles.packet.BroadcastMessageS2CPacket;
 import org.agmas.noellesroles.role.ModRoles;
 import org.agmas.noellesroles.role.ModMeetingRoles;
 import org.agmas.noellesroles.role.touhou.THMountainRoles;
-import org.agmas.noellesroles.role.touhou.THMiscRoles;
+import org.agmas.noellesroles.role.touhou.THHumanVillageRoles;
 import org.agmas.noellesroles.role_data.neutral.LeaderRoleData;
 import org.agmas.noellesroles.role.bouns.roles.BeeFamilyRole;
 import org.agmas.noellesroles.handler.utils.BeeFamilyManager;
@@ -87,7 +87,7 @@ public final class LeaderFollowerEffects {
 
     /** 森近霖之助 / 河城荷取（金币依附角色） */
     public static boolean isCoinDependentRole(SRERole role) {
-        return role != null && (role.identifier().equals(THMiscRoles.RINNOSUKE_ID)
+        return role != null && (role.identifier().equals(THHumanVillageRoles.RINNOSUKE.identifier())
                 || role.identifier().equals(THMountainRoles.NITORI_ID));
     }
 
