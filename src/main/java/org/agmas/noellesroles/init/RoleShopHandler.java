@@ -76,6 +76,8 @@ import org.agmas.noellesroles.role.ModRoles;
 import org.agmas.noellesroles.role.TraitorAndModifiers;
 import org.agmas.noellesroles.role.bouns.BounsRoles;
 import net.exmo.sre.repair.role.RepairRoles;
+
+import org.agmas.noellesroles.role.touhou.THMiscRoles;
 import org.agmas.noellesroles.role.touhou.THRedHouseRoles;
 import org.agmas.noellesroles.utils.MCItemsUtils;
 import org.agmas.noellesroles.utils.RoleUtils;
@@ -3007,6 +3009,8 @@ public class RoleShopHandler {
         {
             ShopContent.customEntries.put(
                     ModRoles.PELICAN_ID, PELICAN_SHOP);
+            ShopContent.customEntries.put(
+                    THMiscRoles.YUYUKO.identifier(), PELICAN_SHOP);
         }
 
         // 教父商店
