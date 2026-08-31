@@ -48,7 +48,9 @@ public class THHumanVillageRoles {
             MoodType.REAL, // 真实心情
             TMMRoles.CIVILIAN_MAX_SPRINT_TICKS,
             false), "th_human_village")
-            .setAddedVersion("4.4");
+            .setAddedVersion("4.4")
+            .setDefaultEnableChance(3000)
+            .setDefaultEnableNeededPlayerCount(16);
 
     public static void init() {
     }

@@ -170,7 +170,7 @@ public class THMiscRoles {
             new Color(169, 80, 101).getRGB(), true, false, MoodType.REAL,
             TMMRoles.CIVILIAN_MAX_SPRINT_TICKS, false))
             .setDefaultEnableNeededPlayerCount(16)
-            .setDefaultEnableChance(4000)
+            .setDefaultEnableChance(2000)
             .setHiddenForRoleRotation(true)
             .setCanBeRandomedByOtherRoles(true)
             .setAddedVersion("4.4");
@@ -179,7 +179,7 @@ public class THMiscRoles {
     public static SRERole HATA_NO_KOKORO = TMMRoles.registerRole(new THHatanokokoroRole(id("hata_no_kokoro"),
             new Color(245,226,241).getRGB(), RoleType.KILLER, MoodType.FAKE,Integer.MAX_VALUE, true))
             .setDefaultEnableNeededPlayerCount(16)
-            .setDefaultEnableChance(4000)
+            .setDefaultEnableChance(3000)
             .setAddedVersion("4.4");
 
     // 西行寺幽幽子 saigyouji_yuyuko
@@ -187,7 +187,7 @@ public class THMiscRoles {
             new Color(202,148,155).getRGB(), RoleType.NEUTRALS, MoodType.FAKE,Integer.MAX_VALUE, true))
             .setCanUseInstinctAndNightVision(true)
             .setDefaultEnableNeededPlayerCount(16)
-            .setDefaultEnableChance(4000)
+            .setDefaultEnableChance(1000)
             .setRoleData(THYuyukoRoleData::new)
             .setAddedVersion("4.4");
 
