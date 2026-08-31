@@ -35,10 +35,10 @@ public final class TrueSkinEffectSync {
     }
 
     /** 刷新间隔（tick）。小于客户端效果时长，保证不会在两次刷新之间过期。 */
-    private static final int REFRESH_INTERVAL = 10;
+    private static final int REFRESH_INTERVAL = 20;
 
     /** 下发到客户端的效果时长，需明显大于刷新间隔以避免闪断。 */
-    private static final int SYNC_DURATION = 40;
+    private static final int SYNC_DURATION = 60;
 
     /** 记录上一次已广播伪装效果的玩家，便于在效果消失时下发移除包。 */
     public static final Map<UUID, Boolean> HAD_TRUE_SKIN = new HashMap<>();
@@ -48,7 +48,7 @@ public final class TrueSkinEffectSync {
     }
 
     private static void onServerTick(MinecraftServer server) {
-        if (server.overworld().getGameTime() % REFRESH_INTERVAL != 0) {
+        if (server.overworld().getGameTime() % REFRESH_INTERVAL != 13) {
             return;
         }
 
