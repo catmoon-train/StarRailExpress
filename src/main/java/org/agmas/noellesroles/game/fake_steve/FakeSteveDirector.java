@@ -32,7 +32,7 @@ import org.agmas.noellesroles.Noellesroles;
 import org.agmas.noellesroles.config.NoellesRolesConfig;
 import org.agmas.noellesroles.game.modifier.NRModifiers;
 import org.agmas.noellesroles.init.ModEffects;
-import org.agmas.noellesroles.packet.FakeSteveHuntS2CPacket;
+// import org.agmas.noellesroles.packet.FakeSteveHuntS2CPacket;
 import org.agmas.noellesroles.role.ModRoles;
 import org.agmas.noellesroles.utils.RoleUtils;
 
@@ -492,10 +492,10 @@ public final class FakeSteveDirector {
     }
 
     private static void sendHuntScene(ServerLevel level, boolean active) {
-        FakeSteveHuntS2CPacket packet = new FakeSteveHuntS2CPacket(active);
-        for (ServerPlayer player : level.players()) {
-            ServerPlayNetworking.send(player, packet);
-        }
+        // FakeSteveHuntS2CPacket packet = new FakeSteveHuntS2CPacket(active);
+        // for (ServerPlayer player : level.players()) {
+        //     ServerPlayNetworking.send(player, packet);
+        // }
     }
 
     private static void enforcePermanentPsycho(ServerPlayer player) {
