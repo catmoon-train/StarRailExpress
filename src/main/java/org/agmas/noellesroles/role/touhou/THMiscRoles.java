@@ -102,7 +102,8 @@ public class THMiscRoles {
             .registerRole(new THTenshiRole(TENSHI_ID, new Color(89, 177, 250).getRGB(),
                     true, false, SRERole.MoodType.REAL,
                     TMMRoles.CIVILIAN.getMaxSprintTime() * 2, false))
-            .setAddedVersion("4.4");
+            .setAddedVersion("4.4")
+            .setCanBePoisoned(false);
     
 
     // 鬼人正邪 Kijin Seija
