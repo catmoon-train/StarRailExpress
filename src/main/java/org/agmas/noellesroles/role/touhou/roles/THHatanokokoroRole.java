@@ -62,7 +62,7 @@ public class THHatanokokoroRole extends TouhouRole {
                         .showOnHud(true)
                         .announceToSelf()
                         .build(),
-                RoleSkill.skill(SRE.id("hata_no_kokoro/sorrow"), "skill.noellesroles.hata_no_kokoro.sorrow",
+                RoleSkill.skill(SRE.id("hata_no_kokoro/joy"), "skill.noellesroles.hata_no_kokoro.joy",
                         (ctx) -> {
                             final var player = ctx.player();
                             {
