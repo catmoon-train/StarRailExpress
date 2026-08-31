@@ -404,6 +404,7 @@ public final class MeetingManager {
             participant.addEffect(new MobEffectInstance(ModEffects.MOVE_BANED, -1, 0, false, false, false));
             participant.addEffect(new MobEffectInstance(MobEffects.NIGHT_VISION, -1, 0, false, false, false));
             participant.addEffect(new MobEffectInstance(ModEffects.USED_BANED, -1, 0, false, false, false));
+            participant.addEffect(new MobEffectInstance(ModEffects.SHOP_BANNED, -1, 0, false, false, false));
             participant.addEffect(new MobEffectInstance(ModEffects.SKILL_BANED, -1, 0, false, false, false));
             participant
                     .addEffect(new MobEffectInstance(ModEffects.SKILL_FREEZED, -1, 0, false, false, false));
@@ -447,6 +448,7 @@ public final class MeetingManager {
             participant.stopRiding();
             participant.removeEffect(ModEffects.MOVE_BANED);
             participant.removeEffect(ModEffects.USED_BANED);
+            participant.removeEffect(ModEffects.SHOP_BANNED);
             participant.removeEffect(ModEffects.SKILL_BANED);
             participant.removeEffect(ModEffects.SKILL_FREEZED);
             participant.removeEffect(ModEffects.CCA_FREEZED);
