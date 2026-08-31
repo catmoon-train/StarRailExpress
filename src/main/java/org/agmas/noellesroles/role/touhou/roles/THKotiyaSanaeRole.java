@@ -24,7 +24,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.effect.MobEffects;
 
 public class THKotiyaSanaeRole extends TouhouRole {
-    public static final int COST = 125;
+    public static final int COST = 175;
 
     public THKotiyaSanaeRole(ResourceLocation identifier, int color, RoleType roleType, MoodType moodType,
             int maxSprintTime, boolean canSeeTime) {
