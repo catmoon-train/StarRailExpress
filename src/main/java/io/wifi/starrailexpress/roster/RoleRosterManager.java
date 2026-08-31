@@ -443,6 +443,7 @@ public final class RoleRosterManager {
     private static void expandRelations(Set<SRERole> selectedRoles, Set<SREModifier> selectedModifiers) {
         // 由角色扩展
         for (SRERole role : new ArrayList<>(selectedRoles)) {
+            selectedRoles.addAll(role.relatedRoles);
             selectedRoles.addAll(role.occupationRoles);
             selectedRoles.addAll(role.occupationedRoles);
             selectedModifiers.addAll(role.relatedModifiers);
@@ -491,7 +492,7 @@ public final class RoleRosterManager {
             }
 
             // 判断是否可删除（无任何关联）
-            if (role.occupationRoles.isEmpty() && role.occupationedRoles.isEmpty()
+            if (role.occupationRoles.isEmpty() && role.occupationedRoles.isEmpty() && role.relatedRoles.isEmpty()
                     && role.relatedModifiers.isEmpty()) {
                 if (role.canUseKiller() && !role.isNeutrals() && !role.isInnocent()) {
                     removableKiller.add(role);
