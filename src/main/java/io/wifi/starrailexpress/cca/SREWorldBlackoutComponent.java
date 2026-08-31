@@ -329,8 +329,6 @@ public class SREWorldBlackoutComponent implements AutoSyncedComponent, ServerTic
     }
 
     public void stopBlackout() {
-        if(isBlackoutActive()){
-            reset();
-        }
+        reset();
     }
 }
