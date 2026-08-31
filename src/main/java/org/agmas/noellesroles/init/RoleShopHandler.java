@@ -824,7 +824,6 @@ public class RoleShopHandler {
         // 强盗商店（已调整价格与条目）
         {
             BANDIT_SHOP.add(new KillerKnifeShopEntry(
-
                     200));
 
             // 匪徒短管霰弹枪 - 450金币

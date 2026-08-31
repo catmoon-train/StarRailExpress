@@ -39,8 +39,8 @@ import org.jetbrains.annotations.NotNull;
  * {@link ToxinShopEntry}。
  */
 public class ThrowingAxeShopEntry extends ShopEntry {
-    /** 二次及以后的折扣百分比（70 = 降价 70%，即只付 3 成）。 */
-    public static final int DISCOUNT_PERCENT = 70;
+    /** 二次及以后的折扣百分比（50 = 降价 50%，即只付 3 成）。 */
+    public static final int DISCOUNT_PERCENT = 50;
 
     public ThrowingAxeShopEntry() {
         super(ModItems.THROWING_AXE.getDefaultInstance(), SREConfig.instance().knifePrice, ShopEntry.Type.WEAPON);
