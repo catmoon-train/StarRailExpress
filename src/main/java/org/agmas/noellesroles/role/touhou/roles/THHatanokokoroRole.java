@@ -30,7 +30,7 @@ public class THHatanokokoroRole extends TouhouRole {
                             shopCca.addToBalance((int) (shopCca.balance * 0.3f));
                             player.addEffect(ModEffects.of(ModEffects.SHOP_BANNED, 45 * 20, 0, false, false, true));
                             return true;
-                        }).charges(2)
+                        }).charges(1)
                         .cooldownSeconds(60)
                         .recordReplay()
                         .showOnHud(true)
@@ -43,7 +43,7 @@ public class THHatanokokoroRole extends TouhouRole {
                             player.addEffect(ModEffects.of(MobEffects.DIG_SPEED, 30 * 20, 1, false, false, true));
                             player.addEffect(ModEffects.of(ModEffects.NO_INSTINCT, 30 * 20, 1, false, false, true));
                             return true;
-                        }).charges(2)
+                        }).charges(1)
                         .cooldownSeconds(60)
                         .recordReplay()
                         .showOnHud(true)
@@ -56,7 +56,7 @@ public class THHatanokokoroRole extends TouhouRole {
                             armorCca.setTimedArmor(1, 30 * 20);
                             player.addEffect(ModEffects.of(ModEffects.NO_STAMINA, 30 * 20, 1, false, false, true));
                             return true;
-                        }).charges(2)
+                        }).charges(1)
                         .cooldownSeconds(60)
                         .recordReplay()
                         .showOnHud(true)
@@ -84,7 +84,7 @@ public class THHatanokokoroRole extends TouhouRole {
                                 }
                             }
                             return true;
-                        }).charges(2)
+                        }).charges(1)
                         .cooldownSeconds(120)
                         .recordReplay()
                         .showOnHud(true)
