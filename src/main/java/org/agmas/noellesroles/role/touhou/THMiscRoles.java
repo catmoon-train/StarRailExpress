@@ -150,7 +150,6 @@ public class THMiscRoles {
             .setCanBeRandomedByOtherRoles(false)
             .setRoleData(DoremyRoleData::new)
             .addTwoWayOpposingRole(ModRoles.DELAYER)
-            .addTwoWayOpposingRole(ModRoles.DREAM)
             .setAddedVersion("4.4");
 
     // 八云紫 Yakumo Yukari
