@@ -14,7 +14,6 @@
  */
 
 package io.wifi.starrailexpress.cca;
-
 import io.wifi.starrailexpress.api.RoleComponent;
 import io.wifi.starrailexpress.api.RoleMethodDispatcher;
 import io.wifi.starrailexpress.api.RolePassive;

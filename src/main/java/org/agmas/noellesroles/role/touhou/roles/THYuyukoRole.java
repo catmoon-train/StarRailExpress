@@ -70,14 +70,21 @@ public class THYuyukoRole extends TouhouRole {
                         .targetType((t) -> t instanceof PlayerBodyEntity)
                         .build(),
                 RoleSkill.skill(SRE.id("yuyuko/eat_player"), "skill.noellesroles.yuyuko.player", (ctx) -> {
-                    var cca = RoleData.getNullable(THYuyukoRoleData.class, ctx.player());
-                    if (cca == null)
-                        return false;
-                    return cca.tryEat(ctx.getTargetAsPlayer());
+                    // SRE.LOGGER.info("Phase {}",ctx.phase().name());
+                    if (ctx.phase().equals(RoleSkill.Phase.HOLD)) {
+                        var cca = RoleData.getNullable(THYuyukoRoleData.class, ctx.player());
+                        if (cca == null)
+                            return false;
+                        return cca.tryEat(ctx.getTargetAsPlayer());
+                    } else if (ctx.phase().equals(RoleSkill.Phase.PRESS)) {
+                        if (ctx.target() != null)
+                            return true;
+                    }
+                    return false;
                 }).recordReplay()
                         .announceToSelf()
                         .continuous(20 * 3)
-                        .cooldownSeconds(15)
+                        .cooldownSeconds(30)
                         .showOnHud(true)
                         .withTarget()
                         .build());

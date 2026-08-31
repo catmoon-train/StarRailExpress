@@ -78,6 +78,9 @@ public class THYuyukoRoleData extends SimpleRoleData {
                     .withStyle(ChatFormatting.RED), true);
             return false;
         }
+
+        player.displayClientMessage(Component.translatable("message.noellesroles.yuyuko.success", t.getName()),
+                true);
         GameUtils.killPlayer(t, false, player, GameConstants.DeathReasons.YUYUKO_EATEN);
         ateCount++;
         endEat();
@@ -95,6 +98,8 @@ public class THYuyukoRoleData extends SimpleRoleData {
             return false;
         }
         ateCount++;
+        player.displayClientMessage(Component.translatable("message.noellesroles.yuyuko.success", body.getName()),
+                true);
         body.discard();
         endEat();
         return true;
