@@ -1588,24 +1588,9 @@ public class RoleShopHandler {
             axeLore.add(Component.translatable("item.noellesroles.dream_axe.shop_lore3")
                     .setStyle(Style.EMPTY.withItalic(false)).withStyle(ChatFormatting.GRAY));
             axeDisplay.set(DataComponents.LORE, new ItemLore(axeLore));
-            DREAM_SHOP.add(new ShopEntry(axeDisplay,
-                    dreamConfig.dreamAxePrice, ShopEntry.Type.WEAPON) {
-                @Override
-                public boolean onBuy(@NotNull Player player) {
-                    if (!SREItemUtils.insertStackInFreeSlot(player, this.stack().copy())) {
-                        return false;
-                    }
-                    DynamicShopComponent dynamicShop = DynamicShopComponent.KEY.get(player);
-                    ResourceLocation axeId = BuiltInRegistries.ITEM.getKey(ModItems.DREAM_AXE);
-                    if (dynamicShop.getPurchaseCount(axeId) == 0) {
-                        // 首购后挂 -50%：从第二把起半价
-                        dynamicShop.setPercentDiscount(axeId, 50);
-                    }
-                    dynamicShop.recordPurchase(axeId);
-                    return true;
-                }
-            });
-            // 巨幕面具 - 350金币：购买即进入狂暴（Psycho 逻辑，不给球棒/面具），冷却挂在面具物品上
+            DREAM_SHOP.add(new KillerKnifeShopEntry(axeDisplay,
+                    dreamConfig.dreamAxePrice, 50));
+            // 巨幕面具 - 400金币：购买即进入狂暴（Psycho 逻辑，不给球棒/面具），冷却挂在面具物品上
             ItemStack maskDisplay = ModItems.DREAM_MASK.getDefaultInstance();
             var maskLore = new ArrayList<Component>();
             maskLore.add(Component.translatable("item.noellesroles.dream_mask.lore1")

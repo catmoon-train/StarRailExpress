@@ -266,7 +266,7 @@ public class NoellesRolesConfig implements ConfigData {
     /** Dream - 全员虚拟血量上限（Dream 斧头攻击扣此血量，归零死亡） */
     public int dreamMaxHealth = 20;
     /** Dream - 脱战多少秒后开始缓慢回血 */
-    public int dreamHealthRegenDelaySeconds = 30;
+    public int dreamHealthRegenDelaySeconds = 15;
     /** Dream - 铁斧平A伤害 */
     public int dreamAxeDamage = 9;
     /** Dream - 铁斧跳劈伤害 */
@@ -288,7 +288,7 @@ public class NoellesRolesConfig implements ConfigData {
     /** Dream - 制酒技能冷却秒数 */
     public int dreamBrewCooldownSeconds = 120;
     /** Dream - 酒的隐身持续秒数（期间无法攻击、无法受伤） */
-    public int dreamWineDurationSeconds = 10;
+    public int dreamWineDurationSeconds = 5;
     /** Dream - 船强制乘坐半径（格） */
     public double dreamBoatRadius = 3.0;
     /** Dream - 船存在秒数 */
@@ -298,11 +298,11 @@ public class NoellesRolesConfig implements ConfigData {
     /** Dream - 范围关灯半径（格） */
     public int dreamBlackoutRadius = 30;
     /** Dream - 杀死皮革噶的获得的金币（"十万美金"） */
-    public int dreamLeatherPigReward = 300;
+    public int dreamLeatherPigReward = 200;
     /** Dream - 铁斧价格 */
     public int dreamAxePrice = 135;
     /** Dream - 巨幕面具价格 */
-    public int dreamMaskPrice = 350;
+    public int dreamMaskPrice = 400;
     /** Dream - 钻石镐价格 */
     public int dreamPickaxePrice = 90;
     /** Dream - 船价格 */

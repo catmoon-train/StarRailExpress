@@ -2699,6 +2699,11 @@ public class ModRoles {
         }
 
         @Override
+        public void onDrink(Player player, ItemStack stack) {
+            player.addEffect(ModEffects.of(ModEffects.USED_BANED, 10 * 20, 1, false, false, true));
+        }
+
+        @Override
         public net.minecraft.world.item.Item getPsychoItem() {
             // 疯魔结束时的清理目标：面具从不入包，等于什么都不清理（避免误清球棒）
             return org.agmas.noellesroles.init.ModItems.DREAM_MASK;

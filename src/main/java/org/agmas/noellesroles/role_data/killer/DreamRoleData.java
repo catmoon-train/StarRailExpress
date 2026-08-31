@@ -54,8 +54,6 @@ import java.util.ArrayList;
 import java.util.UUID;
 
 public class DreamRoleData extends SimpleRoleData {
-
-
     /** 铁斧死因。 */
     public static final ResourceLocation DEATH_REASON_DREAM_AXE = Noellesroles.id("dream_axe");
     /** 狂暴攻击距离 +1 的属性修饰符 id。 */
@@ -82,8 +80,6 @@ public class DreamRoleData extends SimpleRoleData {
     public DreamRoleData(RoleDataContext context) {
         super(context);
     }
-
-
 
     @Override
     public void init() {
@@ -400,6 +396,5 @@ public class DreamRoleData extends SimpleRoleData {
     @Override
     public void readFromSyncNbt(@NotNull CompoundTag tag, HolderLookup.Provider lookup) {
     }
-
 
 }

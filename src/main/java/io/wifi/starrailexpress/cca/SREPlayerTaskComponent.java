@@ -41,12 +41,10 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import org.agmas.harpymodloader.component.WorldModifierComponent;
 import org.agmas.noellesroles.role_data.neutral.RavenRoleData;
-import org.agmas.noellesroles.init.ModEffects;
 import org.agmas.noellesroles.role.ModRoles;
 import org.agmas.noellesroles.role.ModifierEffects;
 import org.agmas.noellesroles.role.TraitorAndModifiers;
 import org.agmas.noellesroles.scene.SceneTaskManager;
-import org.agmas.noellesroles.utils.RoleUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.ladysnake.cca.api.v3.component.ComponentKey;
@@ -587,9 +585,6 @@ public class SREPlayerTaskComponent implements RoleComponent, ServerTickingCompo
     }
 
     public void drinkCocktail() {
-        if (RoleUtils.isPlayerTheJob(player, ModRoles.DREAM)) {
-            player.addEffect(ModEffects.of(ModEffects.USED_BANED, 10 * 20, 1, false, false, true));
-        }
         if (this.tasks.get(Task.DRINK) instanceof DrinkTask drinkTask)
             drinkTask.fulfilled = true;
     }
