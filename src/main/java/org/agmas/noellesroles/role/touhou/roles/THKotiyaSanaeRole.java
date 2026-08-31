@@ -69,11 +69,11 @@ public class THKotiyaSanaeRole extends TouhouRole {
             }
             SREWorldBlackoutComponent.KEY.get(player.level()).stopBlackout();
         } else if (type == 1) {
-            // 骤雨 1：所有人获得30s临时护盾
+            // 骤雨 1：所有人获得10s临时护盾
             player.serverLevel().setWeatherParameters(0, 20 * 30, true, true);
             for (final var p : player.serverLevel().players()) {
                 if (GameUtils.isPlayerAliveAndSurvival(p)) {
-                    SREArmorPlayerComponent.KEY.get(p).addTimedArmor(1, 30 * 20);
+                    SREArmorPlayerComponent.KEY.get(p).addTimedArmor(1, 10 * 20);
                 }
             }
         } else if (type == 2) {
