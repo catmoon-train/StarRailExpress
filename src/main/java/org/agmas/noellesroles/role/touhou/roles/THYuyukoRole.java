@@ -9,8 +9,6 @@ import io.wifi.starrailexpress.api.RoleSkill;
 import io.wifi.starrailexpress.api.TouhouRole;
 import io.wifi.starrailexpress.api.data.RoleData;
 import io.wifi.starrailexpress.content.entity.PlayerBodyEntity;
-import net.minecraft.ChatFormatting;
-import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
@@ -72,22 +70,12 @@ public class THYuyukoRole extends TouhouRole {
                         .build(),
                 RoleSkill.skill(SRE.id("yuyuko/eat_player"), "skill.noellesroles.yuyuko.player", (ctx) -> {
                     // SRE.LOGGER.info("Phase {}",ctx.phase().name());
-                    if (ctx.phase().equals(RoleSkill.Phase.HOLD)) {
+                     {
                         var cca = RoleData.getNullable(THYuyukoRoleData.class, ctx.player());
                         if (cca == null)
                             return false;
                         return cca.tryEat(ctx.getTargetAsPlayer());
-                    } else if (ctx.phase().equals(RoleSkill.Phase.PRESS)) {
-                        if (ctx.target() != null)
-                            return true;
-                        else {
-                            ctx.player().displayClientMessage(
-                                    Component.translatable("tip.noellesroles.no_target").withStyle(ChatFormatting.RED),
-                                    true);
-                            return false;
-                        }
-                    }
-                    return false;
+                    } 
                 })
                         .cooldownSeconds(30)
                         .showOnHud(true)
