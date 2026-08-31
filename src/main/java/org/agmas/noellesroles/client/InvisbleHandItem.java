@@ -26,6 +26,8 @@ import io.wifi.starrailexpress.index.TMMItems;
 import io.wifi.starrailexpress.index.tag.TMMItemTags;
 import net.minecraft.client.Minecraft;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
+
 import org.agmas.noellesroles.content.entity.NiaoshoushouMissileEntity;
 import org.agmas.noellesroles.content.item.HandCuffsItem;
 import org.agmas.noellesroles.content.item.StalkerKnifeItem;
@@ -38,6 +40,13 @@ import org.agmas.noellesroles.utils.RoleUtils;
 public class InvisbleHandItem {
 
     public static void register() {
+        AllowItemShowInHand.EVENT.register((player, itemStack, mainHand) -> {
+            if (itemStack.is(Items.BONE)) {
+                if (RoleUtils.isPlayerTheJob(player, THMiscRoles.KAENBYOU_RIN))
+                    return ItemStack.EMPTY;
+            }
+            return null;
+        });
         // 巡飞弹操控期间相机已经绑定到弹体，隐藏第一人称双手避免遮挡视野。
         AllowItemShowInHand.EVENT.register((player, itemStack, mainHand) -> {
             if (Minecraft.getInstance().getCameraEntity() instanceof NiaoshoushouMissileEntity) {
