@@ -81,9 +81,16 @@ public final class RoleRosterCommand {
                     .executes(ctx -> {
                       setEnabled(ctx, true);
                       setRandomRoles(ctx, IntegerArgumentType.getInteger(ctx, "role_count"),
-                          IntegerArgumentType.getInteger(ctx, "modifier_count"));
+                          IntegerArgumentType.getInteger(ctx, "modifier_count"), false);
                       return 1;
-                    }))))
+                    })
+                    .then(Commands.literal("force")
+                        .executes(ctx -> {
+                          setEnabled(ctx, true);
+                          setRandomRoles(ctx, IntegerArgumentType.getInteger(ctx, "role_count"),
+                              IntegerArgumentType.getInteger(ctx, "modifier_count"), true);
+                          return 1;
+                        })))))
         .then(Commands.literal("disable")
             .requires(source -> source.hasPermission(SREConfig.instance().rosterCommandPermission))
             .executes(ctx -> setEnabled(ctx, false)))
@@ -92,9 +99,10 @@ public final class RoleRosterCommand {
             .executes(RoleRosterCommand::status)));
   }
 
-  private static void setRandomRoles(CommandContext<CommandSourceStack> ctx, int roleCount, int modifierCount) {
+  private static void setRandomRoles(CommandContext<CommandSourceStack> ctx, int roleCount, int modifierCount,
+      boolean force) {
     final var source = ctx.getSource();
-    RoleRosterManager.randomRoster(roleCount, modifierCount);
+    RoleRosterManager.randomRoster(roleCount, modifierCount, force);
     source.sendSuccess(() -> Component.literal("Successfully set the random RoleRoster."), true);
   }
 
