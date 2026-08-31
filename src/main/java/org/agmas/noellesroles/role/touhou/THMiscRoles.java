@@ -181,7 +181,7 @@ public class THMiscRoles {
             .setAddedVersion("4.4");
 
     // 西行寺幽幽子 saigyouji_yuyuko
-    public static SRERole YUYUKO = TMMRoles.registerRole(new TouhouRole(id("saigyouji_yuyuko"),
+    public static SRERole YUYUKO = TMMRoles.registerRole(new THYuyukoRole(id("saigyouji_yuyuko"),
             new Color(202,148,155).getRGB(), RoleType.NEUTRALS, MoodType.FAKE,Integer.MAX_VALUE, true))
             .setCanUseInstinctAndNightVision(true)
             .setDefaultEnableNeededPlayerCount(16)

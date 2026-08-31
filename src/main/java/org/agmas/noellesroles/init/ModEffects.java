@@ -57,6 +57,12 @@ public class ModEffects {
     /** 禁止技能使用 */
     public static final Holder<MobEffect> SKILL_BANED = register("skill_baned",
             new SimpleMobEffect(MobEffectCategory.HARMFUL, 0xFFFFFF));
+    /** 显示真容，不走皮肤替换逻辑 */
+    public static final Holder<MobEffect> TRUE_SKIN = register("true_skin",
+            new SimpleMobEffect(MobEffectCategory.HARMFUL, 0xFFFFFF));
+    /** 火眼金睛。拥有此效果的玩家看其他玩家均显示真容，不走皮肤替换逻辑 */
+    public static final Holder<MobEffect> TRUE_SKIN_OBSERVER = register("true_skin_observer",
+            new SimpleMobEffect(MobEffectCategory.BENEFICIAL, 0xFFFFFF));
     public static final Holder<MobEffect> JUMP_DECREASE = register("jump_decrease",
             new SimpleMobEffect(MobEffectCategory.HARMFUL, 16646020).addAttributeModifier(
                     Attributes.JUMP_STRENGTH, Noellesroles.id("effect.jump_decrease"),
@@ -495,6 +501,8 @@ public class ModEffects {
     public static final Holder<MobEffect> NO_INSTINCT = register("no_instinct",
             new SimpleMobEffect(MobEffectCategory.HARMFUL, 0x6A5ACD));
 
+    public static final Holder<MobEffect> NO_STAMINA = register("no_stamina",
+            new SimpleMobEffect(MobEffectCategory.HARMFUL, 0x6A5ACD));
     /**
      * 领域标记（本模组三大领域共享）：
      * - 中性效果，幽紫色
@@ -620,6 +628,8 @@ public class ModEffects {
     }
 
     public static boolean hasInfiniteStamina(LivingEntity entity) {
+        if (entity.hasEffect(NO_STAMINA))
+            return false;
         return entity.hasEffect(INFINITE_STAMINA);
     }
 
@@ -757,6 +767,8 @@ public class ModEffects {
         // 把伪装效果同步给所有客户端，否则观察者客户端查不到其他玩家的伪装，
         // 导致“伪装只有自己能看到”。
         io.wifi.starrailexpress.content.item.DisguiseEffectSync.init();
+        io.wifi.starrailexpress.content.item.TrueSkinEffectSync.init();
+        
         // 把“脚步消失”效果同步给所有客户端，否则其它玩家侧的脚步声/疾跑粒子拦截查不到该效果。
         org.agmas.noellesroles.init.FootstepVanishEffectSync.init();
         // 把怀旧者“里世界标记”效果同步给所有客户端，否则其它客户端查不到怀旧者的里世界状态，

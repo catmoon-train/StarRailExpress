@@ -17,7 +17,6 @@ public class DoremyHud {
         RoleHudRenderCallback.EVENT.register(THMiscRoles.DOREMY.identifier(), (context, deltaTracker) -> {
             Minecraft client = Minecraft.getInstance();
 
-            // 获取探员组件
             var comp = RoleData.getOptional(DoremyRoleData.class, client.player);
             if (comp.isEmpty())
                 return;

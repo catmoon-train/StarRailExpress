@@ -17,19 +17,9 @@ package org.agmas.noellesroles.handler;
 
 import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.api.RoleSkill;
-import io.wifi.starrailexpress.cca.AreasWorldComponent;
-import io.wifi.starrailexpress.cca.SREAbilityPlayerComponent;
-import io.wifi.starrailexpress.cca.SREGameWorldComponent;
-import io.wifi.starrailexpress.cca.SREPlayerMinigameTaskComponent;
-import io.wifi.starrailexpress.cca.SREPlayerMoodComponent;
-import io.wifi.starrailexpress.cca.SREPlayerShopComponent;
-import io.wifi.starrailexpress.cca.SREPlayerTaskComponent;
+import io.wifi.starrailexpress.cca.*;
 import io.wifi.starrailexpress.content.item.api.SREItemProperties.TrainWeapon;
-import io.wifi.starrailexpress.event.AllowPlayerDeathWithKiller;
-import io.wifi.starrailexpress.event.OnGameTrueStarted;
-import io.wifi.starrailexpress.event.OnKillPlayerTriggered;
-import io.wifi.starrailexpress.event.OnPlayerDeathWithBody;
-import io.wifi.starrailexpress.event.OnPlayerDeathWithKiller;
+import io.wifi.starrailexpress.event.*;
 import io.wifi.starrailexpress.game.GameConstants;
 import io.wifi.starrailexpress.game.GameUtils;
 import io.wifi.starrailexpress.index.TMMItems;
@@ -51,28 +41,16 @@ import java.util.Random;
 
 import org.agmas.harpymodloader.component.WorldModifierComponent;
 import org.agmas.harpymodloader.events.ModdedRoleRemoved;
-import org.agmas.noellesroles.component.DefibrillatorComponent;
-import org.agmas.noellesroles.component.ModComponents;
+import org.agmas.noellesroles.component.*;
 import org.agmas.noellesroles.content.item.BowenBadgeItem;
 import org.agmas.noellesroles.content.item.RopeItem;
 import org.agmas.noellesroles.handler.utils.THYukariPortalManager;
 import org.agmas.noellesroles.init.FunnyItems;
 import org.agmas.noellesroles.init.ModEffects;
 import org.agmas.noellesroles.init.ModItems;
-import org.agmas.noellesroles.role.touhou.THMountainRoles;
-import org.agmas.noellesroles.role.touhou.THRedHouseRoles;
 import org.agmas.noellesroles.role.ModRoles;
-import org.agmas.noellesroles.role.touhou.THLostForestRoles;
-import org.agmas.noellesroles.role.touhou.THMagicForestRoles;
-import org.agmas.noellesroles.role.touhou.THMiscRoles;
-import org.agmas.noellesroles.role.touhou.roles.THIbarakiKasenRole;
-import org.agmas.noellesroles.role.touhou.roles.THKonpakuYoumuRole;
-import org.agmas.noellesroles.role.touhou.roles.THMamizouRole;
-import org.agmas.noellesroles.role.touhou.roles.THReimuRole;
-import org.agmas.noellesroles.role.touhou.roles.THRemiliaRole;
-import org.agmas.noellesroles.role.touhou.roles.THSuikaRole;
-import org.agmas.noellesroles.role.touhou.roles.THUtsuhoRole;
-import org.agmas.noellesroles.role.touhou.roles.THYukariRole;
+import org.agmas.noellesroles.role.touhou.*;
+import org.agmas.noellesroles.role.touhou.roles.*;
 import org.agmas.noellesroles.role_data.killer.DoremyRoleData;
 import org.agmas.noellesroles.utils.MCItemsUtils;
 import org.agmas.noellesroles.utils.OpenScreenManager;
@@ -346,7 +324,10 @@ public class TouhouHandlers {
   }
 
   public static void registerSkills() {
+    THHatanokokoroRole.registerSkills();
     THYukariRole.registerSkills();
+    THKotiyaSanaeRole.registerEvents();
+    THYuyukoRole.registerEvents();
     RoleSkill.register(THMiscRoles.MYSTIA, RoleSkill.skill(SRE.id("mystia"), "skill.noellesroles.mystia", (ctx) -> {
       OpenScreenManager.openScreen(ctx.player(), OpenScreenManager.RHYTHM_GAME_SCREEN_ROLE);
       return true;

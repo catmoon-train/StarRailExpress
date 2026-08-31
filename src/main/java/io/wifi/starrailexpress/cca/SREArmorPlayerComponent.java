@@ -93,6 +93,10 @@ public class SREArmorPlayerComponent implements RoleComponent, ServerTickingComp
         return GameUtils.getTicksFromGameStart(world);
     }
 
+    public void addTimedArmor(int layers, int ticks) {
+        addTimedArmor(layers, ticks, true);
+    }
+
     /**
      * 限时护盾：给玩家添加限时护盾，持续指定 tick 数，时间到后自动移除。
      * 

@@ -56,6 +56,7 @@ import org.agmas.harpymodloader.events.ModdedRoleAssigned;
 import org.agmas.harpymodloader.modded_murder.PlayerRoleWeightManager;
 import org.agmas.harpymodloader.modifiers.SREModifier;
 import org.agmas.noellesroles.config.SpawnInfoConfig.SpawnInfo;
+import org.agmas.noellesroles.init.ModEffects;
 import org.agmas.noellesroles.utils.RoleUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -1012,6 +1013,7 @@ public abstract class SRERole extends SREAbstractInfoClass {
 
     /**
      * 在玩家变旁观前触发。
+     * 
      * @param victim
      * @param spawnBody
      * @param killer
@@ -1400,6 +1402,9 @@ public abstract class SRERole extends SREAbstractInfoClass {
     }
 
     public int getMaxSprintTime(Player player) {
+        if (player.hasEffect(ModEffects.NO_STAMINA)) {
+            return 0;
+        }
         if (this.customSprintTimeGetter != null) {
             return this.customSprintTimeGetter.applyAsInt(player);
         }

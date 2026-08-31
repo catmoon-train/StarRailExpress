@@ -51,7 +51,6 @@ public class BeeFamilyHud {
             Minecraft client = Minecraft.getInstance();
             if (client.player.isSpectator())
                 return;
-            // 获取探员组件
             var cca = SREAbilityPlayerComponent.KEY.get(client.player);
 
             // 渲染位置 - 右下角
@@ -90,7 +89,6 @@ public class BeeFamilyHud {
         RoleHudRenderCallback.EVENT.register(BounsRoles.BEE_QUEEN.identifier(), (context, deltaTracker) -> {
             Minecraft client = Minecraft.getInstance();
 
-            // 获取探员组件
             var cca = SREAbilityPlayerComponent.KEY.get(client.player);
             var shopcca = SREPlayerShopComponent.KEY.get(client.player);
 

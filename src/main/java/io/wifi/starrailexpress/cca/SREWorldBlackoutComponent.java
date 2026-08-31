@@ -327,4 +327,10 @@ public class SREWorldBlackoutComponent implements AutoSyncedComponent, ServerTic
     public static SREWorldBlackoutComponent getInstance(Level level) {
         return KEY.get(level);
     }
+
+    public void stopBlackout() {
+        if(isBlackoutActive()){
+            reset();
+        }
+    }
 }

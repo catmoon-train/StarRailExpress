@@ -34,6 +34,7 @@ import org.agmas.noellesroles.game.roles.innocence.ayayaya.AyayayaPlayerComponen
 import org.agmas.noellesroles.handler.TouhouHandlers;
 import org.agmas.noellesroles.init.ModItems;
 import org.agmas.noellesroles.role.touhou.roles.THIbarakiKasenRole;
+import org.agmas.noellesroles.role.touhou.roles.THKyoukoRole;
 import org.agmas.noellesroles.role.touhou.roles.THRinnosukeRole;
 import org.jetbrains.annotations.NotNull;
 

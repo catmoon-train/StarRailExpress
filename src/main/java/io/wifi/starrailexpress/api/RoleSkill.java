@@ -89,7 +89,23 @@ public final class RoleSkill {
 
         @Nullable
         public ServerPlayer getTargetAsPlayer() {
+            if (target() == null)
+                return null;
             return player.serverLevel().getPlayerByUUID(target()) instanceof ServerPlayer sp ? sp : null;
+        }
+
+        @Nullable
+        public <T extends Entity> T getTargetAs(Class<T> clazz) {
+            final var level = player.serverLevel();
+            if (target() == null)
+                return null;
+            var entity = level.getEntity(target());
+            if (entity == null)
+                return null;
+            if (clazz.isInstance(entity)) {
+                return clazz.cast(entity);
+            }
+            return null;
         }
     }
 

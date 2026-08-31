@@ -66,7 +66,6 @@
     "roles.stalker.StalkerOffItemMixin",
     "roles.thief.DelayedCoinDisplayMixin",
     "roles.thief.ThiefsHonorMixin",
-    "roles.traitor.DesperateFaithKnifeCooldownMixin",
     "roles.trapper.TrapperTrapGunPayloadMixin",
     "roles.undead_lord.UndeadGunPayloadMixin",
     "roles.veteran.VeteranKnifeLeftClickMixin",

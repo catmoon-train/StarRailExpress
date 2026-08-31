@@ -329,6 +329,9 @@ public class SREAbilityPlayerComponent
         if (definitions.isEmpty()) {
             return null;
         }
+        if (selectedSkill >= definitions.size()) {
+            selectedSkill = selectedSkill % definitions.size();
+        }
         var definition = definitions.get(selectedSkill);
         if (definition.noCastCCA()) {
             return null;
@@ -340,6 +343,9 @@ public class SREAbilityPlayerComponent
     private void mirrorSelectedSkill(List<RoleSkill.Definition> definitions) {
         if (definitions.isEmpty()) {
             return;
+        }
+        if (selectedSkill >= definitions.size()) {
+            selectedSkill = selectedSkill % definitions.size();
         }
         var definition = definitions.get(selectedSkill);
         if (definition.noCastCCA()) {

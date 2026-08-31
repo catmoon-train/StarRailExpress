@@ -22,6 +22,8 @@ import io.wifi.starrailexpress.event.OnGettingPlayerSkin.PlayerSkinResult;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.resources.PlayerSkin;
+
+import org.agmas.noellesroles.init.ModEffects;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import com.llamalad7.mixinextras.injector.ModifyReturnValue;
@@ -39,6 +41,10 @@ public abstract class AbstractClientPlayerSkinMixin {
         Minecraft client = Minecraft.getInstance();
         if (client == null || client.level == null)
             return originalSkin;
+        /** 火眼金睛效果：穿透皮肤伪装 */
+        if (client.player.hasEffect(ModEffects.TRUE_SKIN_OBSERVER)) {
+            return originalSkin;
+        }
         PlayerSkinResult result = OnGettingPlayerSkin.EVENT.invoker().onGetSkin(self, originalSkin);
         if (result == null || result.type == 0 || result.type == -1) {
             return originalSkin;

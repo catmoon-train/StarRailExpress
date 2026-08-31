@@ -41,6 +41,7 @@ import net.minecraft.world.item.ItemStack;
 
 import org.agmas.noellesroles.content.entity.PuppeteerBodyEntity;
 import org.agmas.noellesroles.content.item.ThrowingKnife;
+import org.agmas.noellesroles.role.TraitorAndModifiers;
 import org.agmas.noellesroles.role.touhou.THMiscRoles;
 import org.agmas.noellesroles.utils.RoleUtils;
 import org.jetbrains.annotations.NotNull;
@@ -140,6 +141,9 @@ public record KnifeStabPayload(int target) implements CustomPacketPayload {
             float modifier = 1f;
             if (RoleUtils.isPlayerTheJob(player, THMiscRoles.HOUJUU_NUE)) {
                 modifier = 0.1667f;
+            }
+            if (RoleUtils.isPlayerTheModifier(player, TraitorAndModifiers.DESPERATE_FAITH)) {
+                modifier *= 0.5f;
             }
             return (int) (GameConstants.ITEM_COOLDOWNS.getOrDefault(TMMItems.KNIFE, 600) * modifier);
         }

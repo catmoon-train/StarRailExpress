@@ -149,10 +149,10 @@ public abstract class PlayerEntityMixin extends LivingEntity implements PlayerSt
                 maxSprintTime = role.getMaxSprintTime(player);
             }
             boolean hasInfiniteStaminaEffect = ModEffects.hasInfiniteStamina(player);
-            if (role != null && (maxSprintTime == Integer.MAX_VALUE || hasInfiniteStaminaEffect)) {
+            if (role == null || (maxSprintTime == Integer.MAX_VALUE || hasInfiniteStaminaEffect)) {
                 return;
             }
-            if (role != null && maxSprintTime >= 0) {
+            if (maxSprintTime >= 0) {
                 if (sprintingTicks <= -0.99f) {
                     sprintingTicks = maxSprintTime;
                 }

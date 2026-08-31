@@ -26,6 +26,8 @@ import net.minecraft.resources.ResourceLocation;
 
 import static net.fabricmc.fabric.api.event.EventFactory.createArrayBacked;
 
+import org.agmas.noellesroles.init.ModEffects;
+
 /**
  * 获取玩家皮肤事件。
  * <br/>
@@ -111,12 +113,16 @@ public interface OnGettingPlayerSkin {
 
     /**
      * 获取玩家皮肤事件。
+     * 但当玩家拥有 TRUE_SKIN 状态效果将会显示真容。
      * <br/>
      * 请注意！如果您在此event中想要获取皮肤，请不要使用 {@code player.getSkin();}这将会导致崩溃！<br/>
      * 替代方案：请使用 {@link SREClientUtils#getPlayerOriginalSkin} 来获取玩家的原始皮肤！
      */
     Event<OnGettingPlayerSkin> EVENT = createArrayBacked(OnGettingPlayerSkin.class,
             listeners -> (player, originalSkin) -> {
+                if (player.hasEffect(ModEffects.TRUE_SKIN)) {
+                    return null;
+                }
                 for (OnGettingPlayerSkin listener : listeners) {
                     var a = listener.onGetSkin(player, originalSkin);
                     if (a != null && a != PlayerSkinResult.SKIP) {

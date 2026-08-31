@@ -10,12 +10,11 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.network.chat.Component;
 
-public class HoujuuNueHud {
+public class THHoujuuNueHud {
     public static void register() {
         RoleHudRenderCallback.EVENT.register(THMiscRoles.HOUJUU_NUE.identifier(), (context, deltaTracker) -> {
             Minecraft client = Minecraft.getInstance();
 
-            // 获取探员组件
             var comp = RoleData.getOptional(HoujuuNueRoleData.class, client.player);
             if (comp.isEmpty())
                 return;

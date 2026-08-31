@@ -35,7 +35,6 @@ public class GreatDetectiveHud {
         RoleHudRenderCallback.EVENT.register(ModRoles.GREAT_DETECTIVE_ID, (context, deltaTracker) -> {
             Minecraft client = Minecraft.getInstance();
 
-            // 获取探员组件
             var detectiveOpt = RoleData.getOptional(GreatDetectiveRoleData.class, client.player);
             if (detectiveOpt.isEmpty())
                 return;

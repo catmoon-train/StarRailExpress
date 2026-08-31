@@ -26,6 +26,8 @@ import org.agmas.noellesroles.Noellesroles;
 import org.agmas.noellesroles.component.ModComponents;
 import net.exmo.sre.repair.role.RepairRoleDefinition;
 import org.agmas.noellesroles.role.ModRoles;
+import org.agmas.noellesroles.role.touhou.THMountainRoles;
+
 import net.exmo.sre.repair.role.RepairRoles;
 import org.joml.Matrix4f;
 import org.joml.Quaternionf;
@@ -99,6 +101,9 @@ public class AgentListenStepHandler {
             return false;
         }
         if (SREClient.gameComponent.isRole(player, ModRoles.AGENT)) {
+            return true;
+        }
+        if (SREClient.gameComponent.isRole(player, THMountainRoles.KASODANI_KYOUKO)) {
             return true;
         }
         if (SREClient.gameComponent.isRole(player, RepairRoles.REPAIR_HUNTER)) {

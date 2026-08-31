@@ -13,7 +13,6 @@ public class KonpakuYoumuHud {
         RoleHudRenderCallback.EVENT.register(THMiscRoles.KONPAKU_YOUMU.identifier(), (context, deltaTracker) -> {
             Minecraft client = Minecraft.getInstance();
 
-            // 获取探员组件
             var comp = SREAbilityPlayerComponent.KEY.get(client.player);
 
             // 渲染位置 - 右下角
