@@ -30,6 +30,7 @@ import org.agmas.harpymodloader.component.WorldModifierComponent;
 import org.agmas.noellesroles.ConfigWorldComponent;
 import org.agmas.noellesroles.Noellesroles;
 import org.agmas.noellesroles.client.NoellesrolesClient;
+import org.agmas.noellesroles.init.ModEffects;
 import org.agmas.noellesroles.role_data.killer.MorphlingRoleData;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -77,6 +78,14 @@ public abstract class MorphlingRendererMixin {
     @Inject(method = "getTextureLocation(Lnet/minecraft/client/player/AbstractClientPlayer;)Lnet/minecraft/resources/ResourceLocation;", at = @At("HEAD"), cancellable = true)
     void renderMorphlingSkin(AbstractClientPlayer abstractClientPlayerEntity,
             CallbackInfoReturnable<ResourceLocation> cir) {
+
+        /** 火眼金睛效果：穿透皮肤伪装 */
+        if (abstractClientPlayerEntity.hasEffect(ModEffects.TRUE_SKIN)) {
+            return;
+        }
+        if (SREClient.cached_player != null && SREClient.cached_player.hasEffect(ModEffects.TRUE_SKIN_OBSERVER)) {
+            return;
+        }
         // 防止递归调用
         if (isInMorphingCall.get()) {
             return;

@@ -34,7 +34,8 @@ public class EntityRendererMixin<T extends Entity> {
             return color;
 
         }
-        if (SREClient.gameComponent ==null)return color;
-        return  SREClient.gameComponent.isRole(entity.getUUID(), TMMRoles.KILLER) ? CommonColors.RED : color;
+        if (SREClient.gameComponent == null)
+            return color;
+        return SREClient.gameComponent.isRole(entity.getUUID(), TMMRoles.KILLER) ? CommonColors.RED : color;
     }
 }
