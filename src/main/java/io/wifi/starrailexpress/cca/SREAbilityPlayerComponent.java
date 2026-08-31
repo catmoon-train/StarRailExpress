@@ -14,6 +14,7 @@
  */
 
 package io.wifi.starrailexpress.cca;
+
 import io.wifi.starrailexpress.api.RoleComponent;
 import io.wifi.starrailexpress.api.RoleMethodDispatcher;
 import io.wifi.starrailexpress.api.RolePassive;
@@ -293,6 +294,11 @@ public class SREAbilityPlayerComponent
             maxCharges = state.maxCharges;
         }
         sync();
+    }
+
+    public void startContinuous(RoleSkill.Definition definition) {
+        castingSkill = definition.id();
+        lastHoldTick = Long.MIN_VALUE;
     }
 
     public int getCastCount(ResourceLocation skillId) {

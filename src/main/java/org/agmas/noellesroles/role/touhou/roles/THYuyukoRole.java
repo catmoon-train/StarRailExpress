@@ -9,6 +9,8 @@ import io.wifi.starrailexpress.api.RoleSkill;
 import io.wifi.starrailexpress.api.TouhouRole;
 import io.wifi.starrailexpress.api.data.RoleData;
 import io.wifi.starrailexpress.content.entity.PlayerBodyEntity;
+import net.minecraft.ChatFormatting;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
@@ -79,11 +81,16 @@ public class THYuyukoRole extends TouhouRole {
                     } else if (ctx.phase().equals(RoleSkill.Phase.PRESS)) {
                         if (ctx.target() != null)
                             return true;
+                        else {
+                            ctx.player().displayClientMessage(
+                                    Component.translatable("tip.noellesroles.no_target").withStyle(ChatFormatting.RED),
+                                    true);
+                            return false;
+                        }
                     }
                     return false;
                 }).recordReplay()
                         .announceToSelf()
-                        .continuous(20 * 3)
                         .cooldownSeconds(30)
                         .showOnHud(true)
                         .withTarget()

@@ -294,6 +294,9 @@ public final class RoleSkill {
             return this;
         }
 
+        /**
+         * 这个API很怪。想使用请尽量不要在Builder 设置 cd，否则无法使用。
+         */
         public Builder continuous(int intervalTicks) {
             this.continuous = true;
             this.holdIntervalTicks = intervalTicks;
@@ -633,7 +636,12 @@ public final class RoleSkill {
         Definition definition = applicable.get(slot);
         ability.ensureSkills(definitions);
 
+        boolean skillReady = ability.canUseSkill(definition.id());
+
         if (phase == Phase.HOLD && !definition.continuous()) {
+            return false;
+        }
+        if (phase == Phase.HOLD && !skillReady) {
             return false;
         }
         if (phase == Phase.HOLD && !ability.shouldRunHold(definition.id(), definition.holdIntervalTicks())) {
@@ -648,8 +656,6 @@ public final class RoleSkill {
             ability.stopCasting(definition.id());
             return false;
         }
-
-        boolean skillReady = ability.canUseSkill(definition.id());
 
         if (phase == Phase.PRESS && !skillReady) {
             // Toggleable skills can still fire while on cooldown (for deactivation)
@@ -668,7 +674,6 @@ public final class RoleSkill {
         if (!used) {
             return false;
         }
-
         // 只有 handler 真正执行成功时才消耗冷却/充能
         if (skillReady) {
             ability.markSkillUsed(definition);
