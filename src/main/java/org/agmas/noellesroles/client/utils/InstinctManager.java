@@ -399,11 +399,6 @@ public class InstinctManager {
                     return TrueFalseAndCustomResult.custom(Color.CYAN.getRGB());
                 }
             }
-            if (SREClient.gameComponent.isRole(self, ModRoles.DIO)) {
-                if (RoleUtils.compareRole(target_role, ModRoles.JOJO)) {
-                    return TrueFalseAndCustomResult.custom(Color.CYAN.getRGB());
-                }
-            }
             if (SREGameTimeComponent.KEY.get(self.level()).getTime() >= GameConstants
                     .getFurandoruSafeLine()) {
                 if (SREClient.gameComponent.isRole(target_player, THRedHouseRoles.FURANDORU)) {

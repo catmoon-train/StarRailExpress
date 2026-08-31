@@ -206,27 +206,28 @@ public class RoleInstinctRegister {
         });
 
         // 疫使：透视所有玩家，被感染者显示橙色边框
-        RoleInstinctEvents.OBSERVER_HIGHLIGHT_EVENT.register(ModRoles.INFECTED_ID, (client, self, target, hasInstinct) -> {
-            {
-                if (!hasInstinct)
-                    return TrueFalseAndCustomResult.pass();
-                if (target instanceof Player targetPlayer) {
-                    // 无法被透视的职业（小透明/秉烛人/雇佣兵/捣蛋鬼）
-                    if (isTargetInvisibleToInstinct(targetPlayer)) {
-                        return TrueFalseAndCustomResult.disallow();
+        RoleInstinctEvents.OBSERVER_HIGHLIGHT_EVENT.register(ModRoles.INFECTED_ID,
+                (client, self, target, hasInstinct) -> {
+                    {
+                        if (!hasInstinct)
+                            return TrueFalseAndCustomResult.pass();
+                        if (target instanceof Player targetPlayer) {
+                            // 无法被透视的职业（小透明/秉烛人/雇佣兵/捣蛋鬼）
+                            if (isTargetInvisibleToInstinct(targetPlayer)) {
+                                return TrueFalseAndCustomResult.disallow();
+                            }
+                            // 检查目标玩家是否被感染（非疫使角色的玩家被感染）
+                            InfectedPlayerComponent infectedComponent = ModComponents.INFECTED.get(targetPlayer);
+                            if (infectedComponent != null && infectedComponent.infectedTicks > 0) {
+                                // 被感染者显示橙色边框
+                                return TrueFalseAndCustomResult.custom(Color.ORANGE.getRGB());
+                            }
+                            // 其他玩家显示疫使的颜色
+                            return TrueFalseAndCustomResult.custom(ModRoles.INFECTED.color());
+                        }
+                        return TrueFalseAndCustomResult.pass();
                     }
-                    // 检查目标玩家是否被感染（非疫使角色的玩家被感染）
-                    InfectedPlayerComponent infectedComponent = ModComponents.INFECTED.get(targetPlayer);
-                    if (infectedComponent != null && infectedComponent.infectedTicks > 0) {
-                        // 被感染者显示橙色边框
-                        return TrueFalseAndCustomResult.custom(Color.ORANGE.getRGB());
-                    }
-                    // 其他玩家显示疫使的颜色
-                    return TrueFalseAndCustomResult.custom(ModRoles.INFECTED.color());
-                }
-                return TrueFalseAndCustomResult.pass();
-            }
-        });
+                });
         // 雇佣兵合约目标已在下面保留
         RoleInstinctEvents.OBSERVER_HIGHLIGHT_EVENT.register(ModRoles.MERCENARY_ID,
                 (client, self, target, hasInstinct) -> {
@@ -310,13 +311,28 @@ public class RoleInstinctRegister {
                     return TrueFalseAndCustomResult.pass();
                 });
 
+        // DIO
+
+        RoleInstinctEvents.OBSERVER_HIGHLIGHT_EVENT.register(ModRoles.DIO_ID,
+                (client, viewer, target, isInstinctEnabled) -> {
+                    if (target instanceof Player targetPlayer && GameUtils.isPlayerAliveAndSurvival(targetPlayer)) {
+                        if (targetPlayer.distanceTo(viewer) <= 5) {
+                            if (SREClient.gameComponent.isRole(targetPlayer, ModRoles.JOJO)) {
+                                if (viewer.hasEffect(ModEffects.SKILL_BANED) || viewer.hasEffect(ModEffects.SAFE_TIME))
+                                    return TrueFalseAndCustomResult.pass();
+                                return TrueFalseAndCustomResult.custom(ModRoles.JOJO.color());
+                            }
+                        }
+                    }
+                    return TrueFalseAndCustomResult.pass();
+                });
         // JOJO
         RoleInstinctEvents.OBSERVER_HIGHLIGHT_EVENT.register(ModRoles.JOJO_ID,
                 (client, viewer, target, isInstinctEnabled) -> {
                     if (target instanceof Player targetPlayer && GameUtils.isPlayerAliveAndSurvival(targetPlayer)) {
-                        if (targetPlayer.distanceTo(viewer) <= 3) {
+                        if (targetPlayer.distanceTo(viewer) <= 5) {
                             if (SREClient.gameComponent.isRole(targetPlayer, ModRoles.DIO)) {
-                                if (viewer.hasEffect(ModEffects.SKILL_BANED))
+                                if (viewer.hasEffect(ModEffects.SKILL_BANED) || viewer.hasEffect(ModEffects.SAFE_TIME))
                                     return TrueFalseAndCustomResult.pass();
                                 return TrueFalseAndCustomResult.custom(ModRoles.DIO.color());
                             }
@@ -444,7 +460,8 @@ public class RoleInstinctRegister {
         RoleInstinctEvents.OBSERVER_HIGHLIGHT_EVENT.register(ModRoles.MONITOR_ID,
                 (client, viewer, target, isInstinctEnabled) -> {
                     var comp = RoleData.getOptional(MonitorRoleData.class, viewer);
-                    if (comp.isPresent() && comp.get().getMarkedTarget() != null && target instanceof Player targetPlayer) {
+                    if (comp.isPresent() && comp.get().getMarkedTarget() != null
+                            && target instanceof Player targetPlayer) {
                         if (comp.get().getMarkedTarget().equals(targetPlayer.getUUID()))
                             return TrueFalseAndCustomResult.custom(Color.CYAN.getRGB());
                     }
@@ -631,7 +648,8 @@ public class RoleInstinctRegister {
                     if (!(target instanceof Player targetPlayer))
                         return TrueFalseAndCustomResult.pass();
                     var comp = RoleData.getNullable(FoolRoleData.class, viewer);
-                    if (comp == null || comp.hereticTarget == null || !comp.hereticTarget.equals(targetPlayer.getUUID()))
+                    if (comp == null || comp.hereticTarget == null
+                            || !comp.hereticTarget.equals(targetPlayer.getUUID()))
                         return TrueFalseAndCustomResult.pass();
                     return TrueFalseAndCustomResult.custom(0xF2C56A);
                 });
