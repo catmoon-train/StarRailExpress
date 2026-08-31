@@ -210,7 +210,7 @@ public class THMountainRoles {
             .setAddedVersion("4.4");
 
     // 幽谷响子 kasodani_kyouko
-    public static SRERole KASODANI_KYOUKO = TMMRoles.registerRole(new THKyoukoRole(id("ibaraki_kasen"),
+    public static SRERole KASODANI_KYOUKO = TMMRoles.registerRole(new THKyoukoRole(id("kasodani_kyouko"),
             new Color(216, 158, 159).getRGB(), RoleType.CIVILIAN, MoodType.REAL,
             TMMRoles.CIVILIAN_MAX_SPRINT_TICKS, false), "th_mountain")
             .setDefaultEnableNeededPlayerCount(12)
