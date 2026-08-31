@@ -50,6 +50,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.Level;
 import org.agmas.harpymodloader.component.WorldModifierComponent;
+import org.agmas.noellesroles.component.DeathPenaltyComponent;
 import org.agmas.noellesroles.component.DefibrillatorComponent;
 import org.agmas.noellesroles.role_data.neutral.MonokumaRoleData;
 import org.agmas.noellesroles.api.time.TimeRewind;
@@ -375,7 +376,14 @@ public class RefugeeComponent implements AutoSyncedComponent, ServerTickingCompo
                 finishLooseEndRestore(serverLevel, capturedArea, bodies);
             }
         };
-
+        // 给予 2 tick 的deathPenalty
+        for (var player : players) {
+            var dpc = DeathPenaltyComponent.KEY.get(player);
+            if (dpc.hasPenalty()) {
+                continue;
+            }
+            dpc.setPenalty(2, true);
+        }
         for (var player : players) {
             var ppc = SREPlayerPsychoComponent.KEY.get(player);
             if (ppc.psychoTicks > 0) {

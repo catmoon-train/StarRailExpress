@@ -50,7 +50,7 @@ public class THYukariRole extends TouhouRole {
                             .translatable("message.noellesroles.yakumo_yukari.portal.place.success")
                             .withStyle(ChatFormatting.AQUA), true);
                     return true;
-                }).showOnHud(true).recordReplay().noAnnouncement().cooldownSeconds(30).build(),
+                }).showOnHud(true).recordReplay().noAnnouncement().cooldownSeconds(60).build(),
                 RoleSkill.skill(SRE.id("yukari/break"), "skill.noellesroles.yakumo_yukari.break", (ctx) -> {
                     final var player = ctx.player();
                     if (!THYukariPortalManager.hasPortal()) {
