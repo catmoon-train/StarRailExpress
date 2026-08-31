@@ -49,7 +49,7 @@ public class THYuyukoRoleData extends SimpleRoleData {
     public void calcWinnerCount() {
         long c = player.level().players().stream().filter(GameUtils::isPlayerAliveAndSurvival).count();
         if (c >= 24) {
-            winnerNeedCount = ((int) (c / 2.5f) + 2);
+            winnerNeedCount = ((int) (c / 3f) + 2);
         } else {
             winnerNeedCount = ((int) (c / 1.5f) + 2);
         }
