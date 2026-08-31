@@ -4,8 +4,10 @@ import org.agmas.noellesroles.role.touhou.THMiscRoles;
 import org.agmas.noellesroles.role.touhou.roles.THYuyukoRole;
 import org.agmas.noellesroles.utils.RoleUtils;
 
+import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.api.data.RoleDataContext;
 import io.wifi.starrailexpress.api.impl.SimpleRoleData;
+import io.wifi.starrailexpress.api.replay.GameReplayUtils;
 import io.wifi.starrailexpress.cca.SREPlayerAFKComponent;
 import io.wifi.starrailexpress.content.entity.PlayerBodyEntity;
 import io.wifi.starrailexpress.game.GameConstants;
@@ -84,6 +86,9 @@ public class THYuyukoRoleData extends SimpleRoleData {
         player.displayClientMessage(Component.translatable("message.noellesroles.yuyuko.success", t.getName()),
                 true);
         GameUtils.killPlayer(t, false, player, GameConstants.DeathReasons.YUYUKO_EATEN);
+        SRE.REPLAY_MANAGER.recordCustomEvent(Component.translatable("replay.noellesroles.yuyuko.eat",
+                GameReplayUtils.getReplayPlayerDisplayText(player, true),
+                GameReplayUtils.getReplayPlayerDisplayText(target, true)));
         ateCount++;
         endEat();
         return true;
@@ -102,16 +107,18 @@ public class THYuyukoRoleData extends SimpleRoleData {
         ateCount++;
         player.displayClientMessage(Component.translatable("message.noellesroles.yuyuko.success", body.getName()),
                 true);
+        SRE.REPLAY_MANAGER.recordCustomEvent(Component.translatable("replay.noellesroles.yuyuko.eat",
+                GameReplayUtils.getReplayPlayerDisplayText(player, true), body.getName()));
         body.discard();
         endEat();
         return true;
     }
 
     public void endEat() {
-        
+
         player.level().playSound(null, player.getX(), player.getY(), player.getZ(),
                 SoundEvents.PLAYER_BURP, SoundSource.MASTER, 0.9F, 0.65F);
-                
+
         if (ateCount >= winnerNeedCount) {
             if (player.level() instanceof ServerLevel sl)
                 RoleUtils.customWinnerWin(sl, "saigyouji_yuyuko", (THMiscRoles.YUYUKO.color()));

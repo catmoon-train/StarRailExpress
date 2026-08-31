@@ -118,7 +118,7 @@ public class PlayerBodyEntity extends LivingEntity {
             var player = this.getServer().getPlayerList().getPlayer(playerUuid);
             if (player != null) {
                 return Component.translatable("entity.starrailexpress.player_body.custom_name",
-                        player.getDisplayName());
+                        player.getName());
             }
         }
         return null;
