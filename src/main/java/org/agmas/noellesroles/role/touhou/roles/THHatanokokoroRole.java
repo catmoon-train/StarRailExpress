@@ -35,10 +35,7 @@ public class THHatanokokoroRole extends TouhouRole {
                         .recordReplay()
                         .showOnHud(true)
                         .announceToSelf()
-                        .build());
-
-        // 怒anger：获得速度二急迫二，暂时失去杀手透视，持续30秒
-        RoleSkill.register(THMiscRoles.HATA_NO_KOKORO,
+                        .build(),
                 RoleSkill.skill(SRE.id("hata_no_kokoro/anger"), "skill.noellesroles.hata_no_kokoro.anger",
                         (ctx) -> {
                             final var player = ctx.player();
@@ -51,9 +48,7 @@ public class THHatanokokoroRole extends TouhouRole {
                         .recordReplay()
                         .showOnHud(true)
                         .announceToSelf()
-                        .build());
-        // 哀sorrow：获得一层临时护盾，暂时失去体力无法奔跑，持续30秒
-        RoleSkill.register(THMiscRoles.HATA_NO_KOKORO,
+                        .build(),
                 RoleSkill.skill(SRE.id("hata_no_kokoro/sorrow"), "skill.noellesroles.hata_no_kokoro.sorrow",
                         (ctx) -> {
                             final var player = ctx.player();
@@ -66,9 +61,7 @@ public class THHatanokokoroRole extends TouhouRole {
                         .recordReplay()
                         .showOnHud(true)
                         .announceToSelf()
-                        .build());
-        // 乐joy：立刻刷新物品栏物品和商店物品的CD。
-        RoleSkill.register(THMiscRoles.HATA_NO_KOKORO,
+                        .build(),
                 RoleSkill.skill(SRE.id("hata_no_kokoro/sorrow"), "skill.noellesroles.hata_no_kokoro.sorrow",
                         (ctx) -> {
                             final var player = ctx.player();
