@@ -2704,9 +2704,13 @@ public class ModRoles {
             return org.agmas.noellesroles.init.ModItems.DREAM_MASK;
         }
     }).setRoleData(DreamRoleData::new)
-            .setCanUseKiller(true).setCanSeeTeammateKillerRole(true).setCanBeRandomedByOtherRoles(false)
+            .setCanUseKiller(true)
+            .setCanSeeTeammateKillerRole(true)
+            .setCanBeRandomedByOtherRoles(false)
             .setDefaultMax(1)
-            .setCanUseInstinctAndNightVision(true).setCanSeeCoin(true).setCanUseSpVanillaWeapon(true);
+            .setCanUseInstinctAndNightVision(true)
+            .setCanSeeCoin(true)
+            .setCanUseSpVanillaWeapon(true);
 
     // ==================== 嬉命人（Embalmer）====================
     public static SRERole EMBALMER = TMMRoles.registerRole(new NormalRole(

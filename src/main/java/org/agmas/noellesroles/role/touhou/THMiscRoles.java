@@ -147,6 +147,7 @@ public class THMiscRoles {
             new Color(169, 80, 101).getRGB(), false, true, MoodType.FAKE, Integer.MAX_VALUE, true))
             .setDefaultEnableNeededPlayerCount(16)
             .setDefaultEnableChance(500)
+            .setCanBeRandomedByOtherRoles(false)
             .setRoleData(DoremyRoleData::new)
             .addTwoWayOpposingRole(ModRoles.DELAYER)
             .setAddedVersion("4.4");
