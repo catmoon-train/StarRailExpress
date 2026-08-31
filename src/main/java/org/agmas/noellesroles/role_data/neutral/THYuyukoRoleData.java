@@ -8,6 +8,7 @@ import io.wifi.starrailexpress.api.data.RoleDataContext;
 import io.wifi.starrailexpress.api.impl.SimpleRoleData;
 import io.wifi.starrailexpress.cca.SREPlayerAFKComponent;
 import io.wifi.starrailexpress.content.entity.PlayerBodyEntity;
+import io.wifi.starrailexpress.game.GameConstants;
 import io.wifi.starrailexpress.game.GameUtils;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.HolderLookup.Provider;
@@ -18,7 +19,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 
 public class THYuyukoRoleData extends SimpleRoleData {
-    public static final int AFK_THRESHOLD = 5 * 20;
+    public static final int AFK_THRESHOLD = 10 * 20;
     public int ateCount = 0;
     public int winnerNeedCount = 0;
     public int instinctLeft = 0;
@@ -53,7 +54,6 @@ public class THYuyukoRoleData extends SimpleRoleData {
 
     public boolean tryEat(Player t) {
         if (t == null || !(t instanceof ServerPlayer target)) {
-
             player.displayClientMessage(
                     Component.translatable("tip.noellesroles.no_target").withStyle(ChatFormatting.RED),
                     true);
@@ -78,6 +78,7 @@ public class THYuyukoRoleData extends SimpleRoleData {
                     .withStyle(ChatFormatting.RED), true);
             return false;
         }
+        GameUtils.killPlayer(t, false, player, GameConstants.DeathReasons.YUYUKO_EATEN);
         ateCount++;
         endEat();
         return true;

@@ -293,6 +293,7 @@ public class GameConstants {
         public static ResourceLocation WRAITH_ASSAULT = Noellesroles.id("wraith_assault");
         public static ResourceLocation VOTED_OUT = Noellesroles.id("voted_out");
         public static ResourceLocation PELICAN_EATEN = Noellesroles.id("pelican_eaten");
+        public static ResourceLocation YUYUKO_EATEN = Noellesroles.id("yuyuko_eaten");
 
         // Dream 特殊原版武器死因（伤害扣除虚拟血量），与铁斧/消防斧同类
         public static ResourceLocation DREAM_DIAMOND_SWORD = Noellesroles.id("dream_diamond_sword");
