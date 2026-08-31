@@ -316,7 +316,7 @@ public class RoleInstinctRegister {
         RoleInstinctEvents.OBSERVER_HIGHLIGHT_EVENT.register(ModRoles.DIO_ID,
                 (client, viewer, target, isInstinctEnabled) -> {
                     if (target instanceof Player targetPlayer && GameUtils.isPlayerAliveAndSurvival(targetPlayer)) {
-                        if (targetPlayer.distanceTo(viewer) <= 5) {
+                        if (targetPlayer.distanceTo(viewer) <= 7) {
                             if (SREClient.gameComponent.isRole(targetPlayer, ModRoles.JOJO)) {
                                 if (viewer.hasEffect(ModEffects.SKILL_BANED) || viewer.hasEffect(ModEffects.SAFE_TIME))
                                     return TrueFalseAndCustomResult.pass();
