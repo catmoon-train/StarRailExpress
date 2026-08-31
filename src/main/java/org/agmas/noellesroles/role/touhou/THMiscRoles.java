@@ -23,6 +23,7 @@ import io.wifi.starrailexpress.api.InstinctType;
 import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.api.TMMRoles;
 import io.wifi.starrailexpress.api.TouhouRole;
+import io.wifi.starrailexpress.api.NormalRole.RoleType;
 import io.wifi.starrailexpress.api.SRERole.MoodType;
 import io.wifi.starrailexpress.util.Color;
 import net.minecraft.resources.ResourceLocation;
@@ -170,6 +171,21 @@ public class THMiscRoles {
             .setDefaultEnableChance(4000)
             .setHiddenForRoleRotation(true)
             .setCanBeRandomedByOtherRoles(true)
+            .setAddedVersion("4.4");
+
+    // 秦心 hata_no_kokoro
+    public static SRERole HATA_NO_KOKORO = TMMRoles.registerRole(new THHatanokokoroRole(id("hata_no_kokoro"),
+            new Color(245,226,241).getRGB(), RoleType.KILLER, MoodType.FAKE,Integer.MAX_VALUE, true))
+            .setDefaultEnableNeededPlayerCount(16)
+            .setDefaultEnableChance(4000)
+            .setAddedVersion("4.4");
+
+    // 西行寺幽幽子 saigyouji_yuyuko
+    public static SRERole YUYUKO = TMMRoles.registerRole(new TouhouRole(id("saigyouji_yuyuko"),
+            new Color(202,148,155).getRGB(), RoleType.NEUTRALS, MoodType.FAKE,Integer.MAX_VALUE, true))
+            .setCanUseInstinctAndNightVision(true)
+            .setDefaultEnableNeededPlayerCount(16)
+            .setDefaultEnableChance(4000)
             .setAddedVersion("4.4");
 
     public static void init() {

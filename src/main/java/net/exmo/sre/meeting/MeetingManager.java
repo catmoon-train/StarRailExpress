@@ -122,6 +122,7 @@ public final class MeetingManager {
     private static String reporterName = "";
     private static String victimName = "";
     private static final Map<UUID, ReturnPos> participants = new LinkedHashMap<>();
+    private static final Map<UUID, ArrayList<MobEffectInstance>> participantEffects = new LinkedHashMap<>();
     private static final List<Integer> seatEntityIds = new ArrayList<>();
     private static final Set<UUID> manualSpeakers = new LinkedHashSet<>();
     /**
@@ -185,6 +186,7 @@ public final class MeetingManager {
         ServerPlayConnectionEvents.DISCONNECT.register((handler, server) -> {
             UUID uuid = handler.player.getUUID();
             participants.remove(uuid);
+            participantEffects.remove(uuid);
             manualSpeakers.remove(uuid);
             refreshVoiceMuted();
         });
@@ -354,6 +356,7 @@ public final class MeetingManager {
         }
         victimName = victim == null ? "" : victim;
         participants.clear();
+        participantEffects.clear();
         seatEntityIds.clear();
         manualSpeakers.clear();
         speakCooldownUntil.clear();
@@ -369,6 +372,18 @@ public final class MeetingManager {
             participants.put(participant.getUUID(), new ReturnPos(
                     participant.getX(), participant.getY(), participant.getZ(),
                     participant.getYRot(), participant.getXRot()));
+            {
+                final var effMap = participant.getActiveEffects();
+                if (effMap != null && !effMap.isEmpty()) {
+                    ArrayList<MobEffectInstance> newEffMap = new ArrayList<>();
+                    for (MobEffectInstance eff : effMap) {
+                        newEffMap.add(ModEffects.of(eff.getEffect(), eff.getDuration(), eff.getAmplifier(),
+                                eff.isAmbient(), eff.isVisible(), eff.showIcon()));
+                    }
+                    participantEffects.put(participant.getUUID(), newEffMap);
+                    participant.removeAllEffects();
+                }
+            }
             participant.stopSleeping();
             participant.stopRiding();
 
@@ -436,6 +451,14 @@ public final class MeetingManager {
             participant.removeEffect(ModEffects.SKILL_FREEZED);
             participant.removeEffect(ModEffects.CCA_FREEZED);
             participant.removeEffect(MobEffects.NIGHT_VISION);
+            if (participantEffects.containsKey(participant.getUUID())) {
+                final var effects = participantEffects.get(participant.getUUID());
+                if (effects != null && !effects.isEmpty()) {
+                    for (final MobEffectInstance instance : effects) {
+                        participant.addEffect(instance);
+                    }
+                }
+            }
             if (!participant.isSpectator()) {
                 ReturnPos pos = entry.getValue();
                 participant.teleportTo(serverLevel, pos.x(), pos.y(), pos.z(), Set.of(), pos.yaw(), pos.pitch());
@@ -455,6 +478,7 @@ public final class MeetingManager {
         MeetingVoice.leaveAll(participants.keySet(), serverLevel.getServer());
 
         participants.clear();
+        participantEffects.clear();
         seatEntityIds.clear();
         manualSpeakers.clear();
         skipVoters.clear();
