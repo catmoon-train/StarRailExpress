@@ -117,6 +117,9 @@ public class THKonpakuYoumuRole extends TouhouRole {
         if (shouldGiveEffect(player, ModEffects.USED_BANED)) {
             player.addEffect(ModEffects.of(ModEffects.USED_BANED, 40 * 20, 1, false, false, true));
         }
+        if (shouldGiveEffect(player, ModEffects.INVENTORY_BANED)) {
+            player.addEffect(ModEffects.of(ModEffects.INVENTORY_BANED, 40 * 20, 1, false, false, true));
+        }
     }
 
     public static void enterGhost(ServerPlayer player) {
@@ -142,6 +145,7 @@ public class THKonpakuYoumuRole extends TouhouRole {
         }
         player.removeEffect(MobEffects.INVISIBILITY);
         player.removeEffect(ModEffects.USED_BANED);
+        player.removeEffect(ModEffects.INVENTORY_BANED);
 
         player.displayClientMessage(Component
                 .translatable("skill.noellesroles.konpaku_youmu.ghost.tip",
