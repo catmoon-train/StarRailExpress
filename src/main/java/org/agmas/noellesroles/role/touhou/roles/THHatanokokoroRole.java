@@ -30,7 +30,7 @@ public class THHatanokokoroRole extends TouhouRole {
                             shopCca.addToBalance((int) (shopCca.balance * 0.3f));
                             player.addEffect(ModEffects.of(ModEffects.SHOP_BANNED, 45 * 20, 0, false, false, true));
                             return true;
-                        }).charges(1)
+                        }).charges(2)
                         .cooldownSeconds(60)
                         .recordReplay()
                         .showOnHud(true)
