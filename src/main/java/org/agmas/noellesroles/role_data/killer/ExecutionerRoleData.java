@@ -35,7 +35,6 @@ import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
@@ -44,7 +43,6 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
-import org.agmas.noellesroles.Noellesroles;
 import org.agmas.noellesroles.config.NoellesRolesConfig;
 import org.agmas.noellesroles.game.roles.neutral.pelican.PelicanManager;
 import org.agmas.noellesroles.role.ModRoles;
@@ -63,7 +61,6 @@ public class ExecutionerRoleData extends SimpleRoleData {
     public boolean shopUnlocked = false;
     public boolean inFrenzy = false;
     private ItemStack savedMainhandItem = ItemStack.EMPTY;
-
 
     /**
      * 重置组件状态
@@ -90,7 +87,6 @@ public class ExecutionerRoleData extends SimpleRoleData {
         this.shopUnlocked = false;
         // assignRandomTarget();
     }
-
 
     public void serverTick() {
         SREGameWorldComponent gameWorldComponent = (SREGameWorldComponent) SREGameWorldComponent.KEY
@@ -154,12 +150,15 @@ public class ExecutionerRoleData extends SimpleRoleData {
         if (RoleUtils.compareRole(t_role, SpecialGameModeRoles.SUPER_LOOSE_END)) {
             return false;
         }
-        if (t_role.isInnocent()) {
+        if (t_role.isInnocent() && !RoleUtils.compareRole(t_role, ModRoles.MAGICIAN)) {
             return false;
         }
         AlivePlayerRoleTeamInfo info = SREGameWorldComponent.KEY.get(level).getAlivePlayerRoleTeamInfo();
         if (info.hasInnocentAndVigilante()) {
             return true;
+        }
+        if (RoleUtils.compareRole(t_role, ModRoles.MAGICIAN)) {
+            return false;
         }
         if (t_role.isNeutrals() && !t_role.isNeutralForKiller()) {
             return false;
@@ -343,7 +342,8 @@ public class ExecutionerRoleData extends SimpleRoleData {
             SREGameWorldComponent gameWorldComponent = (SREGameWorldComponent) SREGameWorldComponent.KEY
                     .get(player.level());
             if (gameWorldComponent.isRole(player, ModRoles.EXECUTIONER)) {
-                ExecutionerRoleData executionerPlayerComponent = RoleData.getNullable(ExecutionerRoleData.class, player);
+                ExecutionerRoleData executionerPlayerComponent = RoleData.getNullable(ExecutionerRoleData.class,
+                        player);
                 if (executionerPlayerComponent != null && executionerPlayerComponent.target != null
                         && executionerPlayerComponent.target.equals(target.getUUID())) {
                     return TrueFalseResult.TRUE;
