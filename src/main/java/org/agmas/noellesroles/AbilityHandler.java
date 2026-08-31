@@ -508,12 +508,12 @@ public class AbilityHandler {
                 return;
             }
             shopCca.addToBalance(-SKILL_COST);
-            if (DoremyRoleData.tryDream(sp, 30 * 20)) {
+            if (DoremyRoleData.tryDream(sp, 15 * 20)) {
                 player.displayClientMessage(
                         Component.translatable("skill.noellesroles.doremy_dream.success", sp.getName())
                                 .withStyle(ChatFormatting.GREEN),
                         true);
-                cca.cooldownForDoremyDream = 145 * 20;
+                cca.cooldownForDoremyDream = THDoremyRole.COOLDOWN_FOR_DREAM;
                 cca.sync();
             } else {
                 player.displayClientMessage(
