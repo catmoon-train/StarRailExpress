@@ -114,7 +114,7 @@ public class THKyoukoRole extends TouhouRole {
 
     private static ItemStack createItemStackWithName(Item item, Component name, @Nullable List<Component> lore) {
         var stack = item.getDefaultInstance();
-        stack.set(DataComponents.CUSTOM_NAME, name);
+        stack.set(DataComponents.ITEM_NAME, name);
         if (lore != null) {
             var lores = new ArrayList<Component>();
             for (var t : lore) {
