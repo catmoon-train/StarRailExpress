@@ -37,6 +37,13 @@ class FakeSteveRulesTest {
     }
 
     @Test
+    void huntRoomRecallRunsEveryNinetySeconds() {
+        assertFalse(FakeSteveRules.shouldRecallHuntPlayers(1799, 1800));
+        assertTrue(FakeSteveRules.shouldRecallHuntPlayers(1800, 1800));
+        assertTrue(FakeSteveRules.shouldRecallHuntPlayers(1801, 1800));
+    }
+
+    @Test
     void assimilationRequiresTwoFakesNoOtherHumanAndThreeSeconds() {
         assertFalse(FakeSteveRules.canAssimilate(1, 0, 60));
         assertFalse(FakeSteveRules.canAssimilate(2, 1, 60));

@@ -6,6 +6,7 @@ public final class FakeSteveRules {
     public static final int CORPSE_RISK = 25;
     public static final int FACE_TO_FACE_TICKS = 5 * 20;
     public static final int ASSIMILATION_TICKS = 3 * 20;
+    public static final long HUNT_ROOM_RECALL_INTERVAL_TICKS = 90L * 20L;
 
     private FakeSteveRules() {
     }
@@ -29,6 +30,10 @@ public final class FakeSteveRules {
     /** The faction wins the hunt only after no living human remains. */
     public static boolean shouldDeclareHuntVictory(int livingHumans) {
         return livingHumans == 0;
+    }
+
+    public static boolean shouldRecallHuntPlayers(long currentTick, long nextRecallTick) {
+        return currentTick >= nextRecallTick;
     }
 
     public static boolean canAssimilate(int nearbyLivingFakes, int otherLivingHumans,

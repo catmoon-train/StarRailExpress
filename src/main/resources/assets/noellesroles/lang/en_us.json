@@ -4074,5 +4074,6 @@
     "message.noellesroles.fake_steve.event.broadcast": "Warning: the Fake Steve event has appeared. Watch for a faceless Steve.",
     "message.noellesroles.fake_steve.hunt.title": "THE IMPOSTORS ARE HUNTING",
     "message.noellesroles.fake_steve.hunt.subtitle": "Return to your room. Survive, or join them.",
-    "message.noellesroles.fake_steve.hunt.broadcast": "The impostors hold the majority. Every impostor has entered permanent psycho mode. The hunt begins."
+    "message.noellesroles.fake_steve.hunt.broadcast": "The impostors hold the majority. Every impostor has entered permanent psycho mode. The hunt begins.",
+    "message.noellesroles.fake_steve.hunt.recall": "The train resets again. Everyone has been returned to their own room."
 }
