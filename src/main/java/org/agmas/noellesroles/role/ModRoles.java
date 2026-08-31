@@ -1900,7 +1900,7 @@ public class ModRoles {
             SRERole.MoodType.FAKE, // 假心情
             Integer.MAX_VALUE, // 标准冲刺时间
             true // 隐藏计分板
-    ).setRoleData(ConspiratorRoleData::new)).setCanBeRandomedByOtherRoles(false);
+    ).setRoleData(ConspiratorRoleData::new)).setCanBeRandomedByOtherRoles(false).setHiddenForRoleRotation(true);
 
     /**
      * 设陷者角色
