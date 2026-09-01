@@ -21,10 +21,7 @@ import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.entity.player.Player;
-import org.agmas.noellesroles.Noellesroles;
 import org.agmas.noellesroles.game.roles.innocence.great_detective.DetectiveClue;
 import org.jetbrains.annotations.NotNull;
 import java.util.*;
@@ -33,7 +30,7 @@ public class GreatDetectiveRoleData extends SimpleRoleData {
 
 
 
-    private static final int COOLDOWN_TIME = 20 * 30;
+    private static final int COOLDOWN_TIME = 20 * 5;
 
 
     /** 已使用过技能的尸体（实体 UUID）。 */

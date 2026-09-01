@@ -32,3 +32,4 @@ tools/sre_auth_key.secret
 hashes/*
 /hashes/
 hashes/
+logs/

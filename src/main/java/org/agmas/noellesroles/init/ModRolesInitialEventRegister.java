@@ -29,6 +29,8 @@ import io.wifi.starrailexpress.game.roles.SpecialGameModeRoles;
 import io.wifi.starrailexpress.index.TMMItems;
 import io.wifi.starrailexpress.util.SREItemUtils;
 import net.minecraft.ChatFormatting;
+import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.core.particles.SimpleParticleType;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
@@ -132,6 +134,10 @@ public class ModRolesInitialEventRegister {
             }
             if (role.identifier().equals(ModRoles.BARTENDER.identifier())) {
                 FoodDrinkGlowComponent.KEY.get(player).init();
+            }
+
+            if (role.identifier().equals(ModRoles.SILENT_KILLER.identifier())) {
+                SREAbilityPlayerComponent.KEY.get(player).setSkillCooldown(SRE.id("silent_killer"), 60 * 20);
             }
             // 魔术师角色初始化
             if (role.identifier().equals(ModRoles.CHEF.identifier())) {
@@ -527,11 +533,21 @@ public class ModRolesInitialEventRegister {
                         return false;
                     }
                     List<Player> victims = RoleUtils.getNearestPlayers(player, 4, 2.5);
-                    for(var p:victims){
-                        GameUtils.killPlayer(p, true, player,GameConstants.DeathReasons.GRAND_FINISH);
+                    for (var p : victims) {
+                        GameUtils.killPlayer(p, true, player, GameConstants.DeathReasons.GRAND_FINISH);
                     }
+                    player.level().playSound(null, player.blockPosition(), SoundEvents.PLAYER_LEVELUP,
+                            SoundSource.MASTER, 0.8f, 1f);
+                    player.serverLevel().sendParticles(ParticleTypes.TOTEM_OF_UNDYING, player.getX(), player.getY(),
+                            player.getZ(),
+                            50, 1, 1, 1, 0);
                     return true;
-                }).showOnHud(true).cooldownSeconds(120).recordReplay().announceToSelf().build());
+                })
+                        .showOnHud(true)
+                        .cooldownSeconds(120)
+                        .recordReplay()
+                        .announceToSelf()
+                        .build());
         // 阿蒙技能：
         // - G 键：对准星玩家静默种下时之虫（附身期间也可为其他人种虫）
         // - 潜行+技能键 键：附身期间完成夺舍（变成目标、令其死亡、本体处生成尸体）

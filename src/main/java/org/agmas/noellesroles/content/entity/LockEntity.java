@@ -39,14 +39,14 @@ public class LockEntity extends Entity {
     public LockEntity(EntityType<?> entityType, Level level) {
         super(entityType, level);
         this.length = 2;
-        this.resistance = 0.1f;
+        this.resistance = 0.001f;
         resetSeries();
     }
 
     public LockEntity(EntityType<?> entityType, Level level, int length) {
         super(entityType, level);
         this.length = length;
-        this.resistance = 0.1f;
+        this.resistance = 0.001f;
         resetSeries();
     }
 
@@ -99,11 +99,10 @@ public class LockEntity extends Entity {
 
     public void setResistance(float resistance) {
         if (resistance < 0)
-            this.resistance = 0.01f;
+            this.resistance = 0.001f;
         this.resistance = resistance;
     }
 
-    // TODO : 该序列每次使用并不是固定的，得修一下
     private ArrayList<Integer> series;
     // 锁的长度 ：必须大于1
     private int length;

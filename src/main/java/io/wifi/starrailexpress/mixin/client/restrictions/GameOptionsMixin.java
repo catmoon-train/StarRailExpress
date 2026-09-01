@@ -29,17 +29,35 @@ import org.spongepowered.asm.mixin.injection.At;
 
 @Mixin(Options.class)
 public class GameOptionsMixin {
+    private static long lastCacheTime = 0;
+    private static CameraType cacheResult = null;
+    private static CameraType cacheOriginal = null;
+    private static final int CACHE_TIME_GAP = 100;
+
     @ModifyReturnValue(method = "getCameraType", at = @At("RETURN"))
     public CameraType getPerspective(CameraType original) {
         if (SREClient.isInLobby) {
             return original;
         }
-        if (Minecraft.getInstance() == null)
+        final var client = Minecraft.getInstance();
+        if (client == null)
             return original;
-        if (Minecraft.getInstance().player == null)
+        if (client.player == null)
             return original;
+        long now = System.currentTimeMillis();
+        if (now - lastCacheTime > CACHE_TIME_GAP || cacheResult == null || cacheOriginal != original) {
+            lastCacheTime = now;
+            cacheOriginal = original;
+            cacheResult = getResult(original, client);
+        }
+        if (cacheResult != null) {
+            return cacheResult;
+        }
+        return original;
+    }
 
-        var camera = AllowOtherCameraType.EVENT.invoker().onGetCameraType(original, Minecraft.getInstance().player);
+    private CameraType getResult(CameraType original, Minecraft client) {
+        var camera = AllowOtherCameraType.EVENT.invoker().onGetCameraType(original, client.player);
         if (camera != AllowOtherCameraType.ReturnCameraType.NO_CHANGE) {
             switch (camera) {
                 case AllowOtherCameraType.ReturnCameraType.FIRST_PERSON:
@@ -51,14 +69,15 @@ public class GameOptionsMixin {
                 default:
             }
         }
-        LocalPlayer localPlayer = Minecraft.getInstance().player;
+        LocalPlayer localPlayer = client.player;
         if (!GameUtils.isGameRunning(localPlayer))
             return original;
         if (GameUtils.isPlayerAliveAndSurvival(localPlayer)) {
             if (SREClient.gameComponent != null) {
-                final var role = SREClient.gameComponent.getRole(Minecraft.getInstance().player);
+                final var role = SREClient.gameComponent.getRole(client.player);
 
-                if (role != null && RoleVisibilityRules.canUseOtherPerson.stream().anyMatch(predicate -> predicate.test(role))) {
+                if (role != null && RoleVisibilityRules.canUseOtherPerson.stream()
+                        .anyMatch(predicate -> predicate.test(role))) {
                     return original;
                 }
             }
