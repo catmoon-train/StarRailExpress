@@ -24,7 +24,7 @@ import org.agmas.noellesroles.init.ModItems;
 import org.jetbrains.annotations.NotNull;
 
 /**
- * 毒师毒针的商店条目，行为与杀手刀一致（{@link io.wifi.starrailexpress.game.KillerKnifeShopEntry}）：
+ * 毒师毒针的商店条目，行为与杀手刀一致（{@link io.wifi.starrailexpress.game.DiscountShopEntry}）：
  * <ul>
  * <li>若背包内已有「耐久耗尽」的毒针，则原地补满耐久（而非再发一把）；</li>
  * <li>否则发放一把满耐久（{@link ToxinDurability#MAX_DURABILITY} 点）的毒针；</li>

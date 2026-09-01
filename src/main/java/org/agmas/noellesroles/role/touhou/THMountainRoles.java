@@ -22,7 +22,7 @@ import io.wifi.starrailexpress.api.TMMRoles;
 import io.wifi.starrailexpress.api.TouhouRole;
 import io.wifi.starrailexpress.api.NormalRole.RoleType;
 import io.wifi.starrailexpress.cca.SREPlayerShopComponent;
-import io.wifi.starrailexpress.game.KillerKnifeShopEntry;
+import io.wifi.starrailexpress.game.DiscountShopEntry;
 import io.wifi.starrailexpress.index.TMMItems;
 import io.wifi.starrailexpress.util.ShopEntry;
 import net.minecraft.resources.ResourceLocation;
@@ -86,7 +86,7 @@ public class THMountainRoles {
             SHOP.add(new ShopEntry(Items.BUNDLE.getDefaultInstance(), 150, ShopEntry.Type.TOOL));
             // 报纸 - 50金币
             SHOP.add(new ShopEntry(ModItems.NEWSPAPER.getDefaultInstance(), 50, ShopEntry.Type.TOOL));
-            SHOP.add(new KillerKnifeShopEntry(SREConfig.instance().knifePrice));
+            SHOP.add(new DiscountShopEntry(SREConfig.instance().knifePrice));
 
             SHOP.add(new ShopEntry(TMMItems.REVOLVER.getDefaultInstance(),
                     (int) ((float) SREConfig.instance().revolverPrice * 1.005f), ShopEntry.Type.WEAPON));

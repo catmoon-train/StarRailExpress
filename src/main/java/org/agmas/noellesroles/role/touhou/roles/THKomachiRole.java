@@ -20,7 +20,7 @@ import java.util.ArrayList;
 import io.wifi.starrailexpress.SREConfig;
 import io.wifi.starrailexpress.api.TouhouRole;
 import io.wifi.starrailexpress.cca.SREPlayerShopComponent;
-import io.wifi.starrailexpress.game.KillerKnifeShopEntry;
+import io.wifi.starrailexpress.game.DiscountShopEntry;
 import io.wifi.starrailexpress.index.TMMItems;
 import net.minecraft.resources.ResourceLocation;
 
@@ -38,7 +38,7 @@ public class THKomachiRole extends TouhouRole {
     @Override
     public List<ShopEntry> getShopEntries() {
         ArrayList<ShopEntry> SHOP = new ArrayList<>();
-        SHOP.add(new KillerKnifeShopEntry(SREConfig.instance().knifePrice));
+        SHOP.add(new DiscountShopEntry(SREConfig.instance().knifePrice));
         SHOP.add(new ShopEntry(TMMItems.PSYCHO_MODE.getDefaultInstance(),
                 600, ShopEntry.Type.WEAPON) {
             @Override

@@ -26,8 +26,7 @@ import org.agmas.noellesroles.utils.RoleUtils;
 import org.jetbrains.annotations.NotNull;
 
 /**
- * 杀手刀的动态商店条目。 / Dynamic shop entry for the killer knife.
- *
+ * 二次购买会打折的动态商店条目。
  * <p>
  * 这是 {@link DynamicShopComponent} 的示例落地，仅在 murder 或继承 murder 的模式下生效：
  * <ul>
@@ -43,18 +42,18 @@ import org.jetbrains.annotations.NotNull;
  * (gives a normal,
  * durability-less knife).
  */
-public class KillerKnifeShopEntry extends ShopEntry {
+public class DiscountShopEntry extends ShopEntry {
     public int discount = 50;
 
-    public KillerKnifeShopEntry(int price) {
+    public DiscountShopEntry(int price) {
         this(TMMItems.KNIFE.getDefaultInstance(), price);
     }
 
-    public KillerKnifeShopEntry(ItemStack stack, int price) {
+    public DiscountShopEntry(ItemStack stack, int price) {
         this(stack, price, 50);
     }
 
-    public KillerKnifeShopEntry(ItemStack stack, int price, int discount) {
+    public DiscountShopEntry(ItemStack stack, int price, int discount) {
         super(stack, price, ShopEntry.Type.WEAPON);
         this.discount = discount;
     }

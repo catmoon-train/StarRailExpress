@@ -25,7 +25,7 @@ import org.jetbrains.annotations.NotNull;
 import io.wifi.starrailexpress.SREConfig;
 import io.wifi.starrailexpress.api.TouhouRole;
 import io.wifi.starrailexpress.cca.SREPlayerShopComponent;
-import io.wifi.starrailexpress.game.KillerKnifeShopEntry;
+import io.wifi.starrailexpress.game.DiscountShopEntry;
 import io.wifi.starrailexpress.index.TMMItems;
 import io.wifi.starrailexpress.util.ShopEntry;
 import net.minecraft.resources.ResourceLocation;
@@ -50,7 +50,7 @@ public class THRemiliaServantRole extends TouhouRole {
     @Override
     public List<ShopEntry> getShopEntries() {
         ArrayList<ShopEntry> SHOP = new ArrayList<>();
-        SHOP.add(new KillerKnifeShopEntry(TMMItems.KNIFE.getDefaultInstance(), SREConfig.instance().knifePrice, 50));
+        SHOP.add(new DiscountShopEntry(TMMItems.KNIFE.getDefaultInstance(), SREConfig.instance().knifePrice, 50));
         SHOP.add(new ShopEntry(TMMItems.REVOLVER.getDefaultInstance(),
                 SREConfig.instance().revolverPrice, ShopEntry.Type.WEAPON));
         SHOP.add(new ShopEntry(TMMItems.GRENADE.getDefaultInstance(),

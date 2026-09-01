@@ -17,7 +17,7 @@ import io.wifi.starrailexpress.api.RoleSkill.RoleSkillContext;
 import io.wifi.starrailexpress.cca.SREPlayerShopComponent;
 import io.wifi.starrailexpress.game.GameConstants;
 import io.wifi.starrailexpress.game.GameUtils;
-import io.wifi.starrailexpress.game.KillerKnifeShopEntry;
+import io.wifi.starrailexpress.game.DiscountShopEntry;
 import io.wifi.starrailexpress.index.TMMItems;
 import io.wifi.starrailexpress.util.SREItemUtils;
 import io.wifi.starrailexpress.util.ShopEntry;
@@ -67,7 +67,7 @@ public class TartagliaRole extends NormalRole {
             PoisonArrow.set(DataComponents.ITEM_NAME, Component.translatable("item.poison_arrow.name"));
             PoisonArrow.set(DataComponents.POTION_CONTENTS, new PotionContents(Potions.POISON));
             PoisonArrow.set(DataComponents.MAX_STACK_SIZE, 1);
-            SHOP.add(new KillerKnifeShopEntry(PoisonArrow, 120, 50) {
+            SHOP.add(new DiscountShopEntry(PoisonArrow, 120, 50) {
                 @Override
                 public boolean onBuy(@NotNull Player player) {
                     int itemCount = SREItemUtils.countItem(player, Items.TIPPED_ARROW);

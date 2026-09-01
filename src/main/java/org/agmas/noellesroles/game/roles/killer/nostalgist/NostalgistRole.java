@@ -19,7 +19,7 @@ import io.wifi.starrailexpress.SREConfig;
 import io.wifi.starrailexpress.api.ExtraEffectRole;
 import io.wifi.starrailexpress.api.data.RoleData;
 import io.wifi.starrailexpress.cca.SREPlayerShopComponent;
-import io.wifi.starrailexpress.game.KillerKnifeShopEntry;
+import io.wifi.starrailexpress.game.DiscountShopEntry;
 import io.wifi.starrailexpress.game.ShopContent;
 import io.wifi.starrailexpress.index.TMMItems;
 import io.wifi.starrailexpress.util.ShopEntry;
@@ -55,7 +55,7 @@ public class NostalgistRole extends ExtraEffectRole {
     public List<ShopEntry> getShopEntries() {
 
         List<ShopEntry> defaultKnifeEntries = ShopContent.getDefaultKnifeEntries();
-        defaultKnifeEntries.add(new KillerKnifeShopEntry(SREConfig.instance().knifePrice){
+        defaultKnifeEntries.add(new DiscountShopEntry(SREConfig.instance().knifePrice){
             @Override
             public boolean canDisplay(@NotNull Player player) {
                 return !RoleData.getOptional(NostalgistRoleData.class, player).map(d -> d.inBackWorld).orElse(false);

@@ -35,12 +35,12 @@ import org.jetbrains.annotations.NotNull;
  *
  * <p>
  * 实际扣费价由 {@link DynamicShopComponent#effectivePrice} 结算，商店 UI 也会显示同样的
- * 折后价。行为对齐 {@link io.wifi.starrailexpress.game.KillerKnifeShopEntry} /
+ * 折后价。行为对齐 {@link io.wifi.starrailexpress.game.DiscountShopEntry} /
  * {@link ToxinShopEntry}。
  */
 public class ThrowingAxeShopEntry extends ShopEntry {
-    /** 二次及以后的折扣百分比（50 = 降价 50%，即只付 3 成）。 */
-    public static final int DISCOUNT_PERCENT = 50;
+    /** 二次及以后的折扣百分比（39 = 降价 39%）。 */
+    public static final int DISCOUNT_PERCENT = 40;
 
     public ThrowingAxeShopEntry() {
         super(ModItems.THROWING_AXE.getDefaultInstance(), SREConfig.instance().knifePrice, ShopEntry.Type.WEAPON);
