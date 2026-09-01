@@ -697,6 +697,7 @@ public class ModRoles {
             .setCanSeeCoin(true)
             .setDefaultMax(1)
             .setDefaultEnableChance(5000)
+            .addBothRelatedRole(ModRoles.DREAM)
             .setCanBeRandomedByOtherRoles(false);
 
     /**
