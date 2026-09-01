@@ -99,7 +99,7 @@ public class RoleShopHandler {
     public static boolean haveRegistered = false;
 
     private static int banditBlackoutPrice() {
-        return (int) (SREConfig.instance().blackoutPrice * 1.275);
+        return (int) (SREConfig.instance().blackoutPrice * 1.5);
     }
 
     private static List<ShopEntry> createPoisonerShopEntries() {
@@ -829,7 +829,7 @@ public class RoleShopHandler {
             // 匪徒短管霰弹枪 - 450金币
             BANDIT_SHOP.add(new ShopEntry(
                     ModItems.SHORT_SHOTGUN.getDefaultInstance(),
-                    450,
+                    500,
                     ShopEntry.Type.WEAPON));
 
             // 飞斧 - 首购同刀价格金币，二次起70%折扣（可穿透击杀2人、撞墙钉住5秒后消失）
@@ -841,7 +841,7 @@ public class RoleShopHandler {
                     600,
                     ShopEntry.Type.WEAPON));
 
-            // 关灯 - 配置价格 * 1.275 后取整
+            // 关灯 - 配置价格 * 1.5 后取整
             BANDIT_SHOP.add(new ShopEntry(TMMItems.BLACKOUT.getDefaultInstance(), banditBlackoutPrice(),
                     ShopEntry.Type.TOOL) {
                 public boolean onBuy(@NotNull Player player) {
