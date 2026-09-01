@@ -38,6 +38,7 @@ import org.agmas.noellesroles.init.ModEffects;
 import org.agmas.noellesroles.role.ModRoles;
 import org.agmas.noellesroles.role.touhou.THRedHouseRoles;
 import org.agmas.noellesroles.utils.MCItemsUtils;
+import org.agmas.noellesroles.utils.MoneyUtils;
 import org.jetbrains.annotations.NotNull;
 
 public class GhostRoleData extends SimpleRoleData {
@@ -317,13 +318,16 @@ public class GhostRoleData extends SimpleRoleData {
                     .withStyle(ChatFormatting.GOLD, ChatFormatting.BOLD);
             serverPlayer.server.getPlayerList().getPlayers().forEach((p) -> {
                 BroadcastCommand.BroadcastMessage(p, broadcastMessage);
-                MCItemsUtils.insertStackInFreeSlot(p, Items.WIND_CHARGE.getDefaultInstance());
+                int count = MoneyUtils.getBalance(p);
+                var stack = Items.WIND_CHARGE.getDefaultInstance();
+                stack.setCount(Math.max(1, Math.min(16, count / 75)));
+                MCItemsUtils.insertStackInFreeSlot(p, stack);
             });
 
             lastStandNotified = true;
             this.player.addEffect(new MobEffectInstance(
                     MobEffects.GLOWING,
-                    (int) 90 * 20, // 持续时间 60s（tick）
+                    (int) FURAN_LAST_STAND_TIME + 20, // 持续时间 60s（tick）
                     0, // 等级（0 = 速度 I）
                     true, // ambient（环境效果，如信标）
                     true, // showParticles（显示粒子）
