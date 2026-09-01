@@ -52,7 +52,7 @@ public class GhostRoleData extends SimpleRoleData {
     public static final int UNLOCK_REMAINING_TICKS = 180 * 20;
     /** 最后的幸存者模式时间（2分钟 = 120秒 = 2400 tick） */
     public static final int LAST_STAND_TIME = 120 * 20;
-    public static final int FURAN_LAST_STAND_TIME = 90 * 20;
+    public static final int FURAN_LAST_STAND_TIME = 120 * 20;
 
     @Override
     public void init() {
