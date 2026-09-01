@@ -257,6 +257,13 @@ public class SREPlayerPsychoComponent implements RoleComponent, ServerTickingCom
         }
     }
 
+    public void stopPsychoIfNeccessary() {
+        if (this.psychoTicks > 0) {
+            this.stopPsycho();
+            sync();
+        }
+    }
+
     public int getArmour() {
         return this.armour;
     }
