@@ -905,10 +905,9 @@ public class RoleShopHandler {
                     SREConfig.instance().revolverPrice,
                     25));
             {
-
                 var potion = Items.POTION.getDefaultInstance();
                 potion.set(DataComponents.POTION_CONTENTS,
-                        new PotionContents(Optional.of(Potions.INVISIBILITY), Optional.of(16185078),
+                        new PotionContents(Optional.empty(), Optional.of(16185078),
                                 List.of(ModEffects.of(MobEffects.INVISIBILITY, 10 * 20, 0, false, false, true))));
                 SHOP.add(new ShopEntry(potion,
                         150, ShopEntry.Type.WEAPON));

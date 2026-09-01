@@ -31,6 +31,7 @@
     "item.BundleContentsMixin",
     "item.BundleItemMixin",
     "item.FoodItemMixin",
+    "item.PotionItemMixin",
     "item.ItemPickupProgressionMixin",
     "item.ItemStackMixin",
     "item.UseItemProgressionMixin",
