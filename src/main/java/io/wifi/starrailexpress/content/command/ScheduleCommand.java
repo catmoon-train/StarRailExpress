@@ -16,6 +16,7 @@
 package io.wifi.starrailexpress.content.command;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
@@ -276,12 +277,22 @@ public final class ScheduleCommand {
     return line;
   }
 
+  private static String intArrToStr(List<Integer> days) {
+
+    if (days == null || days.isEmpty()) {
+      return ""; // 或返回 "[]" 根据需求
+    }
+    return days.stream()
+        .map(String::valueOf)
+        .collect(Collectors.joining(", "));
+  }
+
   private static MutableComponent describeDetail(ScheduleTask task) {
     return switch (task.type) {
       case REALTIME_DAILY -> Component.translatable("commands.sre.schedule.desc.daily",
           String.format("%02d", task.hour), String.format("%02d", task.minute));
       case REALTIME_WEEKLY -> Component.translatable("commands.sre.schedule.desc.weekly",
-          String.format("%02d", task.hour), String.format("%02d", task.minute), task.days);
+          String.format("%02d", task.hour), String.format("%02d", task.minute), intArrToStr(task.days));
       case REALTIME_ONCE -> Component.translatable("commands.sre.schedule.desc.once", task.datetime);
       case REALTIME_INTERVAL -> Component.translatable("commands.sre.schedule.desc.interval", task.intervalSeconds);
       case GAMETIME_INTERVAL -> Component.translatable("commands.sre.schedule.desc.gametime_interval",
