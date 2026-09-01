@@ -255,6 +255,7 @@ public class GameConstants {
         public static final ResourceLocation TARTAGLIA = Noellesroles.id("tartaglia");
         public static final ResourceLocation TARTAGLIA_ARROW = Noellesroles.id("tartaglia_arrow");
         public static final ResourceLocation FAKE_AI_BACKSTAB = Noellesroles.id("fake_steve_backstab");
+        public static final ResourceLocation GRAND_FINISH = Noellesroles.id("grand_finish");
         public static ResourceLocation SUIKA_RUSH = Noellesroles.id("suika_rush");
         public static ResourceLocation VOODOO = Noellesroles.id("voodoo");
         public static ResourceLocation SHOT_INNOCENT = Noellesroles.id("shot_innocent");

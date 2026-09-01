@@ -66,8 +66,11 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.OptionalInt;
 import java.util.Set;
+import java.util.TreeMap;
+import java.util.function.Predicate;
 
 /**
  * 角色相关工具
@@ -783,6 +786,55 @@ public class RoleUtils extends MCItemsUtils {
 
     public static Component getRoleNameWithColor(SRERole targetRole) {
         return getRoleOrModifierNameWithColor(targetRole);
+    }
+
+    public static List<Player> getNearestPlayers(Player player, int maxCount, double maxDistance) {
+        if (player == null)
+            return List.of();
+        return getNearestPlayers(player, maxCount, (p) -> {
+            if (p.getUUID().equals(player.getUUID())) {
+                return false;
+            }
+            if (!GameUtils.isPlayerAliveAndSurvival(p)) {
+                return false;
+            }
+            if (p.distanceToSqr(player) > maxDistance * maxDistance)
+                return false;
+            return true;
+        });
+    }
+
+    public static List<Player> getNearestPlayers(Player player, int maxCount, @Nullable Predicate<Player> predicate) {
+        if (player == null || maxCount <= 0)
+            return List.of();
+        // 允许 predicate 为 null，此时视为全部通过
+        if (predicate == null)
+            predicate = p -> true;
+        TreeMap<Double, ArrayList<Player>> playersByDistance = new TreeMap<>();
+        for (var p : player.level().players()) {
+            if (predicate.test(p)) {
+                double distance = p.distanceToSqr(player);
+                playersByDistance.putIfAbsent(distance, new ArrayList<>());
+                playersByDistance.get(distance).add(p);
+            }
+        }
+        List<Player> result = new ArrayList<>();
+        for (ArrayList<Player> list : playersByDistance.values()) {
+            if (result.size() + list.size() <= maxCount) {
+                // 整组加入
+                result.addAll(list);
+            } else {
+                // 只取部分，填满剩余名额
+                int remaining = maxCount - result.size();
+                for (int i = 0; i < remaining && i < list.size(); i++) {
+                    result.add(list.get(i));
+                }
+                break; // 已达 maxCount，无需继续
+            }
+            if (result.size() >= maxCount)
+                break;
+        }
+        return result;
     }
 
 }

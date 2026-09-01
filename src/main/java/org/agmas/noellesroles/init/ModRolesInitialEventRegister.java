@@ -23,6 +23,7 @@ import io.wifi.starrailexpress.cca.SREAbilityPlayerComponent;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.cca.SREPlayerPsychoComponent;
 import io.wifi.starrailexpress.cca.SREPlayerShopComponent;
+import io.wifi.starrailexpress.game.GameConstants;
 import io.wifi.starrailexpress.game.GameUtils;
 import io.wifi.starrailexpress.game.roles.SpecialGameModeRoles;
 import io.wifi.starrailexpress.index.TMMItems;
@@ -96,10 +97,12 @@ import org.agmas.noellesroles.role.touhou.THRedHouseRoles;
 import org.agmas.noellesroles.role.touhou.THLostForestRoles;
 import org.agmas.noellesroles.role.touhou.THMiscRoles;
 import org.agmas.noellesroles.utils.MCItemsUtils;
+import org.agmas.noellesroles.utils.MoneyUtils;
 import org.agmas.noellesroles.utils.RoleUtils;
 import pro.fazeclan.river.stupid_express.constants.SEItems;
 import pro.fazeclan.river.stupid_express.constants.SERoles;
 
+import java.util.List;
 import java.util.UUID;
 
 public class ModRolesInitialEventRegister {
@@ -514,6 +517,21 @@ public class ModRolesInitialEventRegister {
                     return comp != null && comp.releaseLast();
                 }).shifted(true).announceToSelf(false).build());
 
+        // 静默杀手（观者投稿）
+        RoleSkill.register(ModRoles.SILENT_KILLER,
+                RoleSkill.skill(SRE.id("silent_killer"), "skill.noellesroles.silent_killer", (ctx) -> {
+                    final var player = ctx.player();
+                    if (MoneyUtils.getBalance(player) != 0) {
+                        player.displayClientMessage(Component.translatable("skill.noellesroles.silent_killer.failed")
+                                .withStyle(ChatFormatting.RED), true);
+                        return false;
+                    }
+                    List<Player> victims = RoleUtils.getNearestPlayers(player, 5, 2.5);
+                    for(var p:victims){
+                        GameUtils.killPlayer(p, true, player,GameConstants.DeathReasons.GRAND_FINISH);
+                    }
+                    return true;
+                }).showOnHud(true).cooldownSeconds(120).recordReplay().announceToSelf().build());
         // 阿蒙技能：
         // - G 键：对准星玩家静默种下时之虫（附身期间也可为其他人种虫）
         // - 潜行+技能键 键：附身期间完成夺舍（变成目标、令其死亡、本体处生成尸体）

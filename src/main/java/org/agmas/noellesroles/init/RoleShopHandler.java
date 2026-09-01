@@ -895,6 +895,44 @@ public class RoleShopHandler {
                     .add(new ShopEntry(FunnyItems.SUPER_PIG_HORSESHOE.getDefaultInstance(), 200, ShopEntry.Type.TOOL));
             ShopContent.customEntries.put(ModRoles.TAMER.getIdentifier(), TAMER_SHOP);
         }
+        {
+            var SHOP = new ArrayList<ShopEntry>();
+
+            SHOP.add(new DiscountShopEntry(SREConfig.instance().knifePrice));
+            SHOP.add(new ShopEntry(TMMItems.REVOLVER.getDefaultInstance(),
+                    SREConfig.instance().revolverPrice, ShopEntry.Type.WEAPON));
+            SHOP.add(new DiscountShopEntry(ModItems.THROWING_KNIFE.getDefaultInstance(),
+                    SREConfig.instance().revolverPrice,
+                    25));
+            {
+
+                var potion = Items.POTION.getDefaultInstance();
+                potion.set(DataComponents.POTION_CONTENTS,
+                        new PotionContents(Optional.of(Potions.INVISIBILITY), Optional.of(16185078),
+                                List.of(ModEffects.of(MobEffects.INVISIBILITY, 10 * 20, 0, false, false, true))));
+                SHOP.add(new ShopEntry(potion,
+                        150, ShopEntry.Type.WEAPON));
+            }
+            SHOP.add(new ShopEntry(TMMItems.FIRECRACKER.getDefaultInstance(),
+                    SREConfig.instance().firecrackerPrice, ShopEntry.Type.TOOL));
+            SHOP.add(new ShopEntry(TMMItems.LOCKPICK.getDefaultInstance(),
+                    SREConfig.instance().lockpickPrice, ShopEntry.Type.TOOL));
+            SHOP.add(new ShopEntry(TMMItems.CROWBAR.getDefaultInstance(),
+                    SREConfig.instance().crowbarPrice, ShopEntry.Type.TOOL));
+            SHOP.add(new ShopEntry(TMMItems.BODY_BAG.getDefaultInstance(),
+                    SREConfig.instance().bodyBagPrice, ShopEntry.Type.TOOL));
+            SHOP.add(new ShopEntry(TMMItems.BLACKOUT.getDefaultInstance(),
+                    SREConfig.instance().blackoutPrice, ShopEntry.Type.TOOL) {
+                @Override
+                public boolean onBuy(@NotNull Player player) {
+                    return SREPlayerShopComponent.useBlackout(player);
+                }
+            });
+            SHOP.add(new ShopEntry(new ItemStack(TMMItems.NOTE, 4), SREConfig.instance().notePrice,
+                    ShopEntry.Type.TOOL));
+
+            ShopContent.customEntries.put(ModRoles.SILENT_KILLER.getIdentifier(), SHOP);
+        }
 
         // 猎人商店：随机马(40%彩虹/40%残月萨/20%超级猪) - 50金币；前人留下的马铠 - 185金币；毒箭 - 90金币；关灯 - 配置价格；监控失灵
         // - 配置价格

@@ -24,7 +24,6 @@ import io.wifi.starrailexpress.game.GameUtils;
 import io.wifi.starrailexpress.game.TeamKillViolationHandler;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
-import org.agmas.noellesroles.Noellesroles;
 import io.wifi.starrailexpress.api.data.RoleData;
 import org.agmas.noellesroles.config.NoellesRolesConfig;
 import org.agmas.noellesroles.role_data.killer.BloodFeudistRoleData;
@@ -125,6 +124,9 @@ public class XiaoNaoHandler {
                         if (deathReason.getPath().equals("trident")
                                 || deathReason.getPath().equals("knife_stab")
                                 || deathReason.getPath().equals("stalker_knife")
+                                || deathReason.getPath().equals("heart_attack")
+                                || deathReason.getPath().equals("dream_axe")
+                                || deathReason.getPath().equals("gun_shot")
                                 || deathReason.getPath().equals("knife")) {
                             TeamKillViolationHandler.handle(victim, killer, isInnocent, deathReason);
                         }

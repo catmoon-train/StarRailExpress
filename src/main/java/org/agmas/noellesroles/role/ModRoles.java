@@ -2659,7 +2659,18 @@ public class ModRoles {
             TMMRoles.CIVILIAN.getMaxSprintTime(), // 冲刺时间
             false // 不能看时间
     )).setDefaultMax(1).setCanSeeCoin(true);
-
+    // 观者投稿：静默猎手
+    public static SRERole SILENT_KILLER = TMMRoles.registerRole(new NormalRole(
+        id("silent_killer"),
+        new Color(206,206,175).getRGB(),
+        RoleType.KILLER,
+        MoodType.FAKE,
+        Integer.MAX_VALUE,
+        true
+    ),"slay_the_spire")
+            .setAddedVersion("4.4")
+            .setDefaultEnableNeededPlayerCount(18)
+            .setDefaultEnableChance(3000);
     // mobai 投稿：达达利亚（原神） tartaglia
     public static SRERole TARTAGLIA = TMMRoles
             .registerRole(new TartagliaRole(
