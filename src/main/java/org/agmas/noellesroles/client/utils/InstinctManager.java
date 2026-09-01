@@ -23,7 +23,6 @@ import org.agmas.noellesroles.content.entity.YouluAnchorEntity;
 import io.wifi.starrailexpress.api.data.RoleData;
 import org.agmas.noellesroles.role_data.innocence.MagicianRoleData;
 import org.agmas.noellesroles.role_data.killer.MaChenXuRoleData;
-import org.agmas.noellesroles.init.ModEffects;
 import org.agmas.noellesroles.role.ModRoles;
 import org.agmas.noellesroles.role.touhou.THRedHouseRoles;
 import org.agmas.noellesroles.role.touhou.THLostForestRoles;
