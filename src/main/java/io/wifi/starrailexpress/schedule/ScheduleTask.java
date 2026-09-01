@@ -42,6 +42,8 @@ public class ScheduleTask {
     public long intervalSeconds;
     /** GAMETIME_INTERVAL 的间隔 tick 数。 */
     public long intervalTicks;
+    /** 是否暂停(暂停期间不触发,状态会持久化)。 */
+    public boolean paused;
 
     /** 下一次现实时间触发的 epoch 毫秒,运行时状态。 */
     public transient long nextRunAtMillis;

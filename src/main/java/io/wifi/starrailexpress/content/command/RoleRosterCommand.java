@@ -76,6 +76,32 @@ public final class RoleRosterCommand {
             .executes(ctx -> setEnabled(ctx, true)))
         .then(Commands.literal("random")
             .requires(source -> source.hasPermission(SREConfig.instance().rosterCommandPermission))
+            .then(Commands.literal("custom")
+                .then(Commands.argument("innocent_count", IntegerArgumentType.integer(0))
+                    .then(Commands.argument("vigilante_count", IntegerArgumentType.integer(0))
+                        .then(Commands.argument("neutrals_count", IntegerArgumentType.integer(0))
+                            .then(Commands.argument("killer_count", IntegerArgumentType.integer(0))
+                                .then(Commands.argument("modifier_count", IntegerArgumentType.integer(0))
+                                    .executes(ctx -> {
+                                      setEnabled(ctx, true);
+                                      setCustomRandomRoles(ctx, IntegerArgumentType.getInteger(ctx, "innocent_count"),
+                                          IntegerArgumentType.getInteger(ctx, "killer_count"),
+                                          IntegerArgumentType.getInteger(ctx, "vigilante_count"),
+                                          IntegerArgumentType.getInteger(ctx, "neutrals_count"),
+                                          IntegerArgumentType.getInteger(ctx, "modifier_count"), false);
+                                      return 1;
+                                    })
+                                    .then(Commands.literal("force")
+                                        .executes(ctx -> {
+                                          setEnabled(ctx, true);
+                                          setCustomRandomRoles(ctx,
+                                              IntegerArgumentType.getInteger(ctx, "innocent_count"),
+                                              IntegerArgumentType.getInteger(ctx, "killer_count"),
+                                              IntegerArgumentType.getInteger(ctx, "vigilante_count"),
+                                              IntegerArgumentType.getInteger(ctx, "neutrals_count"),
+                                              IntegerArgumentType.getInteger(ctx, "modifier_count"), true);
+                                          return 1;
+                                        }))))))))
             .then(Commands.argument("role_count", IntegerArgumentType.integer(0))
                 .then(Commands.argument("modifier_count", IntegerArgumentType.integer(0))
                     .executes(ctx -> {
@@ -97,6 +123,14 @@ public final class RoleRosterCommand {
         .then(Commands.literal("status")
             .requires(source -> source.hasPermission(2))
             .executes(RoleRosterCommand::status)));
+  }
+
+  private static void setCustomRandomRoles(CommandContext<CommandSourceStack> ctx, int innocent, int killer,
+      int vigilante, int neutrals, int modifierCount,
+      boolean force) {
+    final var source = ctx.getSource();
+    RoleRosterManager.randomRoster(innocent, killer, vigilante, neutrals, modifierCount, force);
+    source.sendSuccess(() -> Component.literal("Successfully set the random RoleRoster."), true);
   }
 
   private static void setRandomRoles(CommandContext<CommandSourceStack> ctx, int roleCount, int modifierCount,

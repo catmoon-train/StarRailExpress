@@ -353,6 +353,39 @@ public final class RoleRosterManager {
         applyResult(selectedRoles, selectedModifiers);
     }
 
+    
+    public static void randomRoster(int innocentNum, int killerNum, int vigilanteCount, int neutralsCount, int modifierNum, boolean forceCount) {
+        // state.version++;
+        state.roleCounts.clear();
+        state.modifierCounts.clear();
+
+        // 1. 计算各阵营目标数量
+        RoleCounts targets = new RoleCounts(killerNum, neutralsCount, vigilanteCount, innocentNum);
+        if (targets.isInvalid() || modifierNum <= 0) {
+            return;
+        }
+
+        // 2. 分类所有角色和修饰符
+        RolePools pools = classifyAllRoles();
+        List<SREModifier> allModifiers = new ArrayList<>(HMLModifiers.MODIFIERS);
+
+        // 3. 随机初选
+        Set<SRERole> selectedRoles = initialRoleSelection(pools, targets);
+        Set<SREModifier> selectedModifiers = initialModifierSelection(allModifiers, modifierNum);
+
+        // 4. 补充关联（职业/修饰符）
+        expandRelations(selectedRoles, selectedModifiers);
+
+        // 5. 删除多余项（保证数量不超目标）
+        if (forceCount) {
+            trimModifiers(selectedModifiers, modifierNum);
+            trimRoles(selectedRoles, targets, pools);
+        }
+
+        // 6. 应用结果并广播
+        applyResult(selectedRoles, selectedModifiers);
+    }
+
     // ---------- 辅助数据结构 ----------
     private static class RoleCounts {
         final int killer;

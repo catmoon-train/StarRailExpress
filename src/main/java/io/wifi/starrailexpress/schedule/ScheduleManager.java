@@ -78,7 +78,7 @@ public final class ScheduleManager {
         }
         // 服务器启动任务
         for (ScheduleTask task : schedules) {
-            if (task.type == ScheduleType.SERVER_START) {
+            if (task.type == ScheduleType.SERVER_START && !task.paused) {
                 execute(startedServer, task);
             }
         }
@@ -87,7 +87,7 @@ public final class ScheduleManager {
 
     private static void onServerStopping(MinecraftServer stoppingServer) {
         for (ScheduleTask task : schedules) {
-            if (task.type == ScheduleType.SERVER_STOP) {
+            if (task.type == ScheduleType.SERVER_STOP && !task.paused) {
                 execute(stoppingServer, task);
             }
         }
@@ -98,6 +98,9 @@ public final class ScheduleManager {
         long now = System.currentTimeMillis();
         long tickCount = tickedServer.getTickCount();
         for (ScheduleTask task : schedules) {
+            if (task.paused) {
+                continue;
+            }
             switch (task.type) {
                 case REALTIME_DAILY, REALTIME_WEEKLY, REALTIME_ONCE, REALTIME_INTERVAL -> {
                     if (now >= task.nextRunAtMillis) {
@@ -265,6 +268,74 @@ public final class ScheduleManager {
 
     public static List<ScheduleTask> getTasks() {
         return new ArrayList<>(schedules);
+    }
+
+    public static boolean pauseTask(String id) {
+        for (ScheduleTask task : schedules) {
+            if (task.id.equals(id)) {
+                task.paused = true;
+                saveToFile();
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /** 暂停全部计划,返回实际被暂停的数量。 */
+    public static int pauseAll() {
+        int count = 0;
+        for (ScheduleTask task : schedules) {
+            if (!task.paused) {
+                task.paused = true;
+                count++;
+            }
+        }
+        if (count > 0) {
+            saveToFile();
+        }
+        return count;
+    }
+
+    public static boolean resumeTask(String id) {
+        for (ScheduleTask task : schedules) {
+            if (task.id.equals(id)) {
+                if (task.paused) {
+                    task.paused = false;
+                    initNextRun(task, System.currentTimeMillis(),
+                            server == null ? 0 : server.getTickCount());
+                    removeExpiredOnce(task);
+                    saveToFile();
+                }
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /** 恢复全部计划,返回实际被恢复的数量。 */
+    public static int resumeAll() {
+        int count = 0;
+        MinecraftServer srv = server;
+        long now = System.currentTimeMillis();
+        for (ScheduleTask task : schedules) {
+            if (task.paused) {
+                task.paused = false;
+                initNextRun(task, now, srv == null ? 0 : srv.getTickCount());
+                removeExpiredOnce(task);
+                count++;
+            }
+        }
+        if (count > 0) {
+            saveToFile();
+        }
+        return count;
+    }
+
+    /** 一次性任务的时间在暂停期间已过则移除。 */
+    private static void removeExpiredOnce(ScheduleTask task) {
+        if (task.type == ScheduleType.REALTIME_ONCE && task.nextRunAtMillis <= System.currentTimeMillis()) {
+            schedules.remove(task);
+        }
     }
 
     /** 从本地文件重新加载并重算运行时状态。 */

@@ -17,23 +17,30 @@ package io.wifi.mixins.client;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import io.wifi.starrailexpress.SREConfig;
+import io.wifi.utils.client.betterrender.TextBatchingBuffer;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.Font;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.blockentity.SignRenderer;
 import net.minecraft.core.BlockPos;
+import net.minecraft.util.FormattedCharSequence;
 import net.minecraft.world.level.block.entity.SignBlockEntity;
 import net.minecraft.world.level.block.entity.SignText;
+import org.joml.Matrix4f;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(SignRenderer.class)
 public class SignRendererMixin {
     @Unique
     private static final int SRE$MAX_BLOCK_DISTANCE = 32 * 32;
+    @Unique
     private static final int SRE$MAX_TEXT_DISTANCE = 16 * 16;
+    @Unique
     private static final int SRE$ULTRA_MAX_TEXT_DISTANCE = 8 * 8;
 
     @Inject(method = "renderSignText", at = @At("HEAD"), cancellable = true)
@@ -54,7 +61,6 @@ public class SignRendererMixin {
                 return;
             }
         }
-
     }
 
     @Inject(method = "render", at = @At("HEAD"), cancellable = true)
@@ -68,5 +74,27 @@ public class SignRendererMixin {
             ci.cancel();
             return;
         }
+    }
+
+    /**
+     * Routes sign text glyphs into the frame-scoped {@link TextBatchingBuffer}
+     * instead of the per-glyph world BufferSource. The buffer is flushed once at
+     * the end of the level render, so the text still depth-tests against the
+     * complete world geometry.
+     */
+    @Redirect(method = "renderSignText",
+            at = @At(value = "INVOKE",
+                    target = "Lnet/minecraft/client/gui/Font;drawInBatch(Lnet/minecraft/util/FormattedCharSequence;FFIZLorg/joml/Matrix4f;Lnet/minecraft/client/renderer/MultiBufferSource;Lnet/minecraft/client/gui/Font$DisplayMode;II)I"))
+    private int sre$batchSignText(Font font, FormattedCharSequence seq, float x, float y, int color, boolean shadow,
+            Matrix4f matrix, MultiBufferSource buffers, Font.DisplayMode mode, int light, int overlay) {
+        return font.drawInBatch(seq, x, y, color, shadow, matrix, TextBatchingBuffer.SIGN_TEXT, mode, light, overlay);
+    }
+
+    @Redirect(method = "renderSignText",
+            at = @At(value = "INVOKE",
+                    target = "Lnet/minecraft/client/gui/Font;drawInBatch8xOutline(Lnet/minecraft/util/FormattedCharSequence;FFIILorg/joml/Matrix4f;Lnet/minecraft/client/renderer/MultiBufferSource;I)V"))
+    private void sre$batchSignTextOutline(Font font, FormattedCharSequence seq, float x, float y, int color,
+            int outlineColor, Matrix4f matrix, MultiBufferSource buffers, int light) {
+        font.drawInBatch8xOutline(seq, x, y, color, outlineColor, matrix, TextBatchingBuffer.SIGN_TEXT, light);
     }
 }

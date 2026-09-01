@@ -32,7 +32,9 @@ import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.SharedSuggestionProvider;
 import net.minecraft.commands.arguments.item.FunctionArgument;
+import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.server.ServerFunctionManager;
 
 /**
@@ -63,6 +65,14 @@ public final class ScheduleCommand {
         .then(Commands.literal("remove")
             .then(Commands.argument("id", StringArgumentType.word())
                 .executes(ScheduleCommand::removeTask)))
+        .then(Commands.literal("pause")
+            .executes(ScheduleCommand::pauseAllTasks)
+            .then(Commands.argument("id", StringArgumentType.word())
+                .executes(ScheduleCommand::pauseTask)))
+        .then(Commands.literal("resume")
+            .executes(ScheduleCommand::resumeAllTasks)
+            .then(Commands.argument("id", StringArgumentType.word())
+                .executes(ScheduleCommand::resumeTask)))
         .then(Commands.literal("list")
             .executes(ScheduleCommand::listTasks))
         .then(Commands.literal("reload")
@@ -135,17 +145,19 @@ public final class ScheduleCommand {
       try {
         int day = Integer.parseInt(part.trim());
         if (day < 1 || day > 7) {
-          ctx.getSource().sendFailure(Component.literal("Invalid day: " + day + ", must be 1-7 (1=Monday..7=Sunday)"));
+          ctx.getSource().sendFailure(
+              Component.translatable("commands.sre.schedule.invalid_day", day));
           return 0;
         }
         task.days.add(day);
       } catch (NumberFormatException e) {
-        ctx.getSource().sendFailure(Component.literal("Invalid days format, expected comma separated 1-7, e.g. \"1,3\""));
+        ctx.getSource().sendFailure(
+            Component.translatable("commands.sre.schedule.invalid_days_format"));
         return 0;
       }
     }
     if (task.days.isEmpty()) {
-      ctx.getSource().sendFailure(Component.literal("At least one day is required, e.g. \"1,3\""));
+      ctx.getSource().sendFailure(Component.translatable("commands.sre.schedule.need_days"));
       return 0;
     }
     return finishAdd(ctx, task);
@@ -167,63 +179,115 @@ public final class ScheduleCommand {
 
   private static int finishAdd(CommandContext<CommandSourceStack> ctx, ScheduleTask task) {
     if (!ScheduleManager.addTask(task)) {
-      ctx.getSource().sendFailure(Component.literal("Failed to add schedule: duplicate id or invalid parameters."));
+      ctx.getSource().sendFailure(Component.translatable("commands.sre.schedule.add_failed"));
       return 0;
     }
-    ctx.getSource().sendSuccess(() -> Component.literal("Schedule [" + task.id + "] added."), true);
+    ctx.getSource().sendSuccess(
+        () -> Component.translatable("commands.sre.schedule.added", task.id), true);
     return 1;
   }
 
   private static int removeTask(CommandContext<CommandSourceStack> ctx) {
     String id = StringArgumentType.getString(ctx, "id");
     if (!ScheduleManager.removeTask(id)) {
-      ctx.getSource().sendFailure(Component.literal("Schedule [" + id + "] not found."));
+      ctx.getSource().sendFailure(Component.translatable("commands.sre.schedule.not_found", id));
       return 0;
     }
-    ctx.getSource().sendSuccess(() -> Component.literal("Schedule [" + id + "] removed."), true);
+    ctx.getSource().sendSuccess(
+        () -> Component.translatable("commands.sre.schedule.removed", id), true);
+    return 1;
+  }
+
+  private static int pauseTask(CommandContext<CommandSourceStack> ctx) {
+    String id = StringArgumentType.getString(ctx, "id");
+    if (!ScheduleManager.pauseTask(id)) {
+      ctx.getSource().sendFailure(Component.translatable("commands.sre.schedule.not_found", id));
+      return 0;
+    }
+    ctx.getSource().sendSuccess(
+        () -> Component.translatable("commands.sre.schedule.paused", id), true);
+    return 1;
+  }
+
+  private static int pauseAllTasks(CommandContext<CommandSourceStack> ctx) {
+    int count = ScheduleManager.pauseAll();
+    ctx.getSource().sendSuccess(
+        () -> Component.translatable("commands.sre.schedule.paused_all", count), true);
+    return 1;
+  }
+
+  private static int resumeTask(CommandContext<CommandSourceStack> ctx) {
+    String id = StringArgumentType.getString(ctx, "id");
+    if (!ScheduleManager.resumeTask(id)) {
+      ctx.getSource().sendFailure(Component.translatable("commands.sre.schedule.not_found", id));
+      return 0;
+    }
+    ctx.getSource().sendSuccess(
+        () -> Component.translatable("commands.sre.schedule.resumed", id), true);
+    return 1;
+  }
+
+  private static int resumeAllTasks(CommandContext<CommandSourceStack> ctx) {
+    int count = ScheduleManager.resumeAll();
+    ctx.getSource().sendSuccess(
+        () -> Component.translatable("commands.sre.schedule.resumed_all", count), true);
     return 1;
   }
 
   private static int listTasks(CommandContext<CommandSourceStack> ctx) {
     List<ScheduleTask> tasks = ScheduleManager.getTasks();
     if (tasks.isEmpty()) {
-      ctx.getSource().sendSuccess(() -> Component.literal("No schedules."), false);
+      ctx.getSource().sendSuccess(() -> Component.translatable("commands.sre.schedule.list.empty"), false);
       return 1;
     }
+    ctx.getSource().sendSuccess(
+        () -> Component.translatable("commands.sre.schedule.list.header", tasks.size()), false);
     for (ScheduleTask task : tasks) {
-      ctx.getSource().sendSuccess(() -> Component.literal(describe(task)), false);
+      ctx.getSource().sendSuccess(() -> describe(task), false);
     }
     return 1;
   }
 
   private static int reloadTasks(CommandContext<CommandSourceStack> ctx) {
     if (!ScheduleManager.reload()) {
-      ctx.getSource().sendFailure(Component.literal("Failed to reload schedules from local file!"));
+      ctx.getSource().sendFailure(Component.translatable("commands.sre.schedule.reload_failed"));
       return 0;
     }
-    ctx.getSource().sendSuccess(() -> Component.literal("Success reload schedules from local file!"), true);
+    ctx.getSource().sendSuccess(() -> Component.translatable("commands.sre.schedule.reloaded"), true);
     return 1;
   }
 
   private static int clearTasks(CommandContext<CommandSourceStack> ctx) {
     ScheduleManager.clearTasks();
-    ctx.getSource().sendSuccess(() -> Component.literal("All schedules cleared."), true);
+    ctx.getSource().sendSuccess(() -> Component.translatable("commands.sre.schedule.cleared"), true);
     return 1;
   }
 
-  private static String describe(ScheduleTask task) {
-    StringBuilder sb = new StringBuilder();
-    sb.append('[').append(task.id).append("] ").append(task.type).append(" -> ").append(task.function);
-    switch (task.type) {
-      case REALTIME_DAILY -> sb.append(" at ").append(String.format("%02d:%02d", task.hour, task.minute));
-      case REALTIME_WEEKLY -> sb.append(" at ").append(String.format("%02d:%02d", task.hour, task.minute))
-          .append(" days=").append(task.days);
-      case REALTIME_ONCE -> sb.append(" at ").append(task.datetime);
-      case REALTIME_INTERVAL -> sb.append(" every ").append(task.intervalSeconds).append("s");
-      case GAMETIME_INTERVAL -> sb.append(" every ").append(task.intervalTicks).append(" ticks");
-      case SERVER_START -> sb.append(" on server start");
-      case SERVER_STOP -> sb.append(" on server stop");
+  private static MutableComponent describe(ScheduleTask task) {
+    MutableComponent line = Component.translatable("commands.sre.schedule.list.entry",
+        task.id,
+        Component.translatable("commands.sre.schedule.type." + task.type.name().toLowerCase()),
+        task.function);
+    line.append(Component.literal(" ")).append(describeDetail(task));
+    if (task.paused) {
+      line.append(Component.translatable("commands.sre.schedule.list.paused_suffix")
+          .withStyle(ChatFormatting.RED));
     }
-    return sb.toString();
+    return line;
+  }
+
+  private static MutableComponent describeDetail(ScheduleTask task) {
+    return switch (task.type) {
+      case REALTIME_DAILY -> Component.translatable("commands.sre.schedule.desc.daily",
+          String.format("%02d", task.hour), String.format("%02d", task.minute));
+      case REALTIME_WEEKLY -> Component.translatable("commands.sre.schedule.desc.weekly",
+          String.format("%02d", task.hour), String.format("%02d", task.minute), task.days);
+      case REALTIME_ONCE -> Component.translatable("commands.sre.schedule.desc.once", task.datetime);
+      case REALTIME_INTERVAL -> Component.translatable("commands.sre.schedule.desc.interval", task.intervalSeconds);
+      case GAMETIME_INTERVAL -> Component.translatable("commands.sre.schedule.desc.gametime_interval",
+          task.intervalTicks);
+      case SERVER_START -> Component.translatable("commands.sre.schedule.desc.server_start");
+      case SERVER_STOP -> Component.translatable("commands.sre.schedule.desc.server_stop");
+    };
   }
 }

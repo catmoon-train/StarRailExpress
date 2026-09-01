@@ -58,9 +58,14 @@ public class UpSmallDoorBlockEntityRenderer extends AnimatableBlockEntityRendere
 
     @Override
     public void setAngles(UpSmallDoorBlockEntity entity, float animationProgress) {
-        this.root().getAllParts().forEach(ModelPart::resetPose);
+        this.parts().forEach(ModelPart::resetPose);
         this.part.setRotation(0, entity.getYaw() * Mth.DEG_TO_RAD, 0);
-        this.animate(entity.state, entity.isOpen() ? SmallDoorAnimations.UP_OPEN : SmallDoorAnimations.UP_CLOSE, animationProgress);
+        final var anim = entity.isOpen() ? SmallDoorAnimations.UP_OPEN : SmallDoorAnimations.UP_CLOSE;
+        if (this.isAnimationActive(entity.state, anim, animationProgress)) {
+            this.animate(entity.state, anim, animationProgress);
+        } else {
+            this.applyFinalPose(anim);
+        }
     }
 
     @Override

@@ -133,7 +133,7 @@ public class OptimizedTextRenderer {
 
         final Font font = Minecraft.getInstance().font;
         final MultiBufferSource.BufferSource bufferSource = frameGraphics.bufferSource();
-        final BatchedTextSink textSink = new BatchedTextSink();
+        final TextBatchingBuffer textSink = new TextBatchingBuffer();
         final int size = tickCache.size();
 
         int i = 0;
@@ -249,11 +249,11 @@ public class OptimizedTextRenderer {
 
     /**
      * Renders consecutive TextActions through the vanilla {@link Font} pipeline
-     * into a per-render-type batching sink. Only the vertex sink differs from
+     * into a per-render-type batching buffer. Only the vertex sink differs from
      * vanilla — the string decomposition, glyph lookup and quad emission are
      * byte-for-byte identical to a direct {@code drawInBatch} call.
      */
-    private int flushBatchedText(int start, int size, Font font, BatchedTextSink sink) {
+    private int flushBatchedText(int start, int size, Font font, TextBatchingBuffer sink) {
         int i = start;
         while (i < size && tickCache.get(i) instanceof TextAction t) {
             if (t.seq != null) {
@@ -268,72 +268,6 @@ public class OptimizedTextRenderer {
             i++;
         }
         return i;
-    }
-
-    /**
-     * {@link MultiBufferSource} that routes every glyph into one {@link BufferBuilder}
-     * per render type, then uploads each render type through the vanilla
-     * {@code RenderType.draw} state setup. This removes the per-glyph
-     * {@code BufferSource.getBuffer()} lookups (and the immediate endBatch that
-     * vanilla performs whenever the glyph render type switches) while keeping the
-     * rendering output identical.
-     */
-    private static final class BatchedTextSink implements MultiBufferSource {
-        private final List<Capture> captures = new ArrayList<>(2);
-        private RenderType lastType;
-        private BufferBuilder lastBuilder;
-
-        @Override
-        public VertexConsumer getBuffer(RenderType renderType) {
-            if (renderType == lastType) {
-                return lastBuilder;
-            }
-            for (int i = 0; i < captures.size(); i++) {
-                Capture capture = captures.get(i);
-                if (capture.renderType == renderType) {
-                    lastType = renderType;
-                    lastBuilder = capture.builder;
-                    return lastBuilder;
-                }
-            }
-            Capture capture = new Capture(renderType);
-            captures.add(capture);
-            lastType = renderType;
-            lastBuilder = capture.builder;
-            return lastBuilder;
-        }
-
-        /** Draws every captured render type and releases the temporary buffers. */
-        void flush() {
-            for (Capture capture : captures) {
-                MeshData mesh = capture.builder.build();
-                if (mesh != null) {
-                    capture.renderType.draw(mesh);
-                    mesh.close();
-                }
-                capture.close();
-            }
-            captures.clear();
-            lastType = null;
-            lastBuilder = null;
-        }
-
-        private static final class Capture implements AutoCloseable {
-            final RenderType renderType;
-            final ByteBufferBuilder bytes;
-            final BufferBuilder builder;
-
-            Capture(RenderType renderType) {
-                this.renderType = renderType;
-                this.bytes = new ByteBufferBuilder(8192);
-                this.builder = new BufferBuilder(this.bytes, renderType.mode(), renderType.format());
-            }
-
-            @Override
-            public void close() {
-                this.bytes.close();
-            }
-        }
     }
 
     // ── Enqueue API (called by FakeGuiGraphics) ────────────────────────────────
