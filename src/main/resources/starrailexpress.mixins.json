@@ -32,6 +32,7 @@
     "item.BundleItemMixin",
     "item.FoodItemMixin",
     "item.PotionItemMixin",
+    "item.StewNoBowlMixin",
     "item.ItemPickupProgressionMixin",
     "item.ItemStackMixin",
     "item.UseItemProgressionMixin",
