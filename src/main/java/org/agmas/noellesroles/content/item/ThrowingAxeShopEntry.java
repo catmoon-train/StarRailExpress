@@ -40,7 +40,7 @@ import org.jetbrains.annotations.NotNull;
  */
 public class ThrowingAxeShopEntry extends ShopEntry {
     /** 二次及以后的折扣百分比（39 = 降价 39%）。 */
-    public static final int DISCOUNT_PERCENT = 40;
+    public static final int DISCOUNT_PERCENT = 30;
 
     public ThrowingAxeShopEntry() {
         super(ModItems.THROWING_AXE.getDefaultInstance(), SREConfig.instance().knifePrice, ShopEntry.Type.WEAPON);
