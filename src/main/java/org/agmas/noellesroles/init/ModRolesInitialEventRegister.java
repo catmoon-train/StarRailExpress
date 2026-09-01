@@ -526,7 +526,7 @@ public class ModRolesInitialEventRegister {
                                 .withStyle(ChatFormatting.RED), true);
                         return false;
                     }
-                    List<Player> victims = RoleUtils.getNearestPlayers(player, 5, 2.5);
+                    List<Player> victims = RoleUtils.getNearestPlayers(player, 4, 2.5);
                     for(var p:victims){
                         GameUtils.killPlayer(p, true, player,GameConstants.DeathReasons.GRAND_FINISH);
                     }
