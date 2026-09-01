@@ -595,7 +595,7 @@ public class GameUtils {
             clearForcedReadyPlayers();
             for (ServerPlayer player : players) {
                 player.displayClientMessage(
-                        Component.translatable("game.start_error.not_enough_players", gameMode.minPlayerCount), true);
+                        Component.translatable("game.start_error.sre.not_enough_players", gameMode.minPlayerCount), true);
             }
             isStartingGame = false;
         }

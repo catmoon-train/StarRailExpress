@@ -68,6 +68,11 @@ public class WTLooseEndsGameMode extends GameMode {
         }
     }
 
+    public WTLooseEndsGameMode(ResourceLocation identifier, int defaultStartTime, int minPlayerCount) {
+        super(identifier, defaultStartTime, minPlayerCount);
+        initItemList();
+    }
+
     public WTLooseEndsGameMode(ResourceLocation identifier) {
         super(identifier, 10, 2);
         initItemList();

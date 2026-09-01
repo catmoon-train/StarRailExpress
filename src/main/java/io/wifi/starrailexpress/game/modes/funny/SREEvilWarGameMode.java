@@ -118,7 +118,7 @@ public class SREEvilWarGameMode extends WTLooseEndsGameMode {
     }
 
     public SREEvilWarGameMode(ResourceLocation identifier) {
-        super(identifier);
+        super(identifier, 10, 2);
         addBanedRoles();
     }
 
@@ -193,6 +193,7 @@ public class SREEvilWarGameMode extends WTLooseEndsGameMode {
     protected int getSuperLooseEndCount(List<ServerPlayer> players) {
         return Math.max(players.size() / (SREConfig.instance().evilWarKillGroupNumber + 1), 1);
     }
+
     @Override
     protected void initRoles(List<ServerPlayer> players, SREGameWorldComponent gameWorldComponent) {
         // 处理强制角色
@@ -233,6 +234,9 @@ public class SREEvilWarGameMode extends WTLooseEndsGameMode {
         // 打乱需要分配的玩家列表
         Collections.shuffle(playersWithoutForcedRoles);
         // 前 superLooseEndeCount 个是亡命徒，剩下的为普通杀手，优先分配亡命徒，然后再分配杀手
+        if (assignedKillers.isEmpty()) {
+            return;
+        }
         for (int i = 0,
                 curKillerIdx = 0; i < playersWithoutForcedRoles.size(); ++i, curKillerIdx %= assignedKillers.size()) {
             if (i < superLooseEndCount) {
@@ -286,10 +290,10 @@ public class SREEvilWarGameMode extends WTLooseEndsGameMode {
             bullet.setCount(64);
             player.addItem(bullet);
         }
-//        // 叛徒有强盗手枪
-//        else if (role == TraitorAndModifiers.TRAITOR) {
-//            player.addItem(new ItemStack(ModItems.BANDIT_REVOLVER));
-//        }
+        // // 叛徒有强盗手枪
+        // else if (role == TraitorAndModifiers.TRAITOR) {
+        // player.addItem(new ItemStack(ModItems.BANDIT_REVOLVER));
+        // }
         // 炸弹客自带2次时停1s的机会
         else if (role == ModRoles.BOMBER) {
             ItemStack timeStopClock = new ItemStack(ModItems.TIME_STOP_CLOCK);
@@ -304,6 +308,7 @@ public class SREEvilWarGameMode extends WTLooseEndsGameMode {
             player.addItem(new ItemStack(ModItems.WHEELCHAIR));
         }
     }
+
     /** 初始化物品 */
     @Override
     protected void initPlayerItems(List<ServerPlayer> players, SREGameWorldComponent gameWorldComponent) {
@@ -326,8 +331,7 @@ public class SREEvilWarGameMode extends WTLooseEndsGameMode {
                 if (beyondKillerCount > SREConfig.instance().evilWarKillGroupNumber / 3) {
                     player.addItem(new ItemStack(TMMItems.DEFENSE_VIAL));
                 }
-            }
-            else
+            } else
                 addEvilWarItemsByRole(player, role);
         }
     }
@@ -371,10 +375,11 @@ public class SREEvilWarGameMode extends WTLooseEndsGameMode {
             if (!EX_ABILITY_ROLE.contains(role))
                 continue;
             BroadcastCommand.BroadcastMessage(player, Component.translatable(
-                    "message.gamemode.evil_war.tip.role." + role.identifier().getPath()
-            ).withStyle(ChatFormatting.GOLD));
+                    "message.gamemode.evil_war.tip.role." + role.identifier().getPath())
+                    .withStyle(ChatFormatting.GOLD));
         }
     }
+
     @Override
     public void initializeGame(ServerLevel serverWorld, SREGameWorldComponent gameWorldComponent,
             List<ServerPlayer> players) {
@@ -539,7 +544,8 @@ public class SREEvilWarGameMode extends WTLooseEndsGameMode {
                 // 仇杀客每10s涨一个误杀数
                 else if (role == ModRoles.BLOOD_FEUDIST) {
                     var bloodFeudistData = RoleData.getNullable(BloodFeudistRoleData.class, player);
-                    if (bloodFeudistData != null) bloodFeudistData.onAccidentalKill();
+                    if (bloodFeudistData != null)
+                        bloodFeudistData.onAccidentalKill();
                 }
                 // 派对狂和扒手每10s额外获得200
                 else if (role == SERoles.AVARICIOUS || role == ModRoles.PARTY_KILLER || role == ModRoles.NINJA) {
