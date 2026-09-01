@@ -15,9 +15,15 @@
 
 package org.agmas.noellesroles.role.touhou.roles;
 
-import org.agmas.noellesroles.handler.THEventHandler;
+import java.util.ArrayList;
+import java.util.Collections;
+
+import org.agmas.noellesroles.Noellesroles;
+import org.agmas.noellesroles.commands.GameUtilsCommand;
 
 import io.wifi.starrailexpress.SRE;
+import io.wifi.starrailexpress.api.SRERole;
+import io.wifi.starrailexpress.api.TMMRoles;
 import io.wifi.starrailexpress.api.TouhouRole;
 import io.wifi.starrailexpress.cca.PlayerBodyEntityComponent;
 import io.wifi.starrailexpress.content.entity.PlayerBodyEntity;
@@ -42,11 +48,26 @@ public class THRemiliaRole extends TouhouRole {
         if (target instanceof PlayerBodyEntity be
                 && !org.agmas.noellesroles.content.entity.DoomedSinnerBodyEntity.isDoomedSinnerBody(be)) {
             PlayerBodyEntityComponent bdrc = PlayerBodyEntityComponent.KEY.get(be);
-            bdrc.playerRole = THEventHandler.getRandomRole().identifier();
+            bdrc.playerRole = getRandomRole().identifier();
             bdrc.sync();
-            be.setDeathReason(THEventHandler.getRandomDeathReason());
+            be.setDeathReason(getRandomDeathReason());
         }
         return InteractionResult.PASS;
+    }
+
+    public static SRERole getRandomRole() {
+        var roles = Noellesroles.getEnableAndAvailableRoles(true);
+        if (roles.isEmpty())
+            return TMMRoles.KILLER;
+        Collections.shuffle(roles);
+        return roles.getFirst();
+    }
+
+    public static String getRandomDeathReason() {
+        ArrayList<ResourceLocation> list = new ArrayList<>(
+                GameUtilsCommand.DeathReasonSuggestions.getAllDeathReasons());
+        Collections.shuffle(list);
+        return list.getFirst().toString();
     }
 
     @Override

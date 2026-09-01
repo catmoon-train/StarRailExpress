@@ -111,7 +111,8 @@ public class THRedHouseRoles {
   public static SRERole FURANDORU = TMMRoles.registerRole(
       new TouhouRole(FURANDORU_ID, new Color(177, 153, 130).getRGB(),
           false, false, SRERole.MoodType.FAKE,
-          Integer.MAX_VALUE, true), "th_redhouse").setRoleData(GhostRoleData::new).setHiddenForRoleRotation(true)
+          Integer.MAX_VALUE, true), "th_redhouse").setRoleData(GhostRoleData::new)
+          .setHiddenForRoleRotation(true)
       .setCanSeeCoin(true)
       .setNeutrals(true)
       .setCanUseInstinctAndNightVision(true)

@@ -257,7 +257,6 @@ public class InitModRolesMax {
 
         // 同时出现
         Harpymodloader.addOccupationRole(ModRoles.ENGINEER, ModRoles.LOCKSMITH);
-        Harpymodloader.addOccupationRole(THRedHouseRoles.FURANDORU, THRedHouseRoles.PACHURI);
         Harpymodloader.addOccupationRole(ModRoles.MA_CHEN_XU, ModRoles.GUEST_GHOST);
         Harpymodloader.addOccupationRole(ModRoles.GANGSTERS, ModRoles.FITTER);
 

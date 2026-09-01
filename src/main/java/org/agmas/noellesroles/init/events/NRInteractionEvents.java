@@ -329,7 +329,6 @@ public class NRInteractionEvents {
         GodfatherRoleData.registerEvents();
         StandardRevolverItem.registerEvents();
         RefugeeComponent.register();
-        THEventHandler.registerEvents();
         NinjaRoleData.registerEvents();
         org.agmas.noellesroles.role_data.killer.NostalgistRoleData.registerEvents();
         org.agmas.noellesroles.role_data.killer.WraithAssassinRoleData.registerEvents();
