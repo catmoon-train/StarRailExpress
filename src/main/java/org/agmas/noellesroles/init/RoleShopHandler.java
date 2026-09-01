@@ -859,7 +859,7 @@ public class RoleShopHandler {
             });
 
             // 闪光弹
-            BANDIT_SHOP.add(new ShopEntry(ModItems.FLASH_GRENADE.getDefaultInstance(), 30, ShopEntry.Type.TOOL) {
+            BANDIT_SHOP.add(new ShopEntry(ModItems.FLASH_GRENADE.getDefaultInstance(), 50, ShopEntry.Type.TOOL) {
                 @Override
                 public boolean canBuy(@NotNull Player player) {
                     return !(MCItemsUtils.countItem(player, ModItems.FLASH_GRENADE) > 0);
