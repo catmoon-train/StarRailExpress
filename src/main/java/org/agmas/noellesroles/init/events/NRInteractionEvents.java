@@ -52,7 +52,6 @@ import org.agmas.noellesroles.role_data.neutral.CupidRoleData;
 import org.agmas.noellesroles.role_data.neutral.DoomedSinnerRoleData;
 import org.agmas.noellesroles.TrueKillerFinder;
 import org.agmas.noellesroles.role_data.neutral.GodfatherRoleData;
-import org.agmas.noellesroles.handler.THEventHandler;
 import org.agmas.noellesroles.ModDataComponentTypes;
 import org.agmas.noellesroles.init.*;
 import org.agmas.noellesroles.role.ModRoles;
