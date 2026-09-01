@@ -182,6 +182,10 @@ public class RoleMethodDispatcher {
     }
 
     public static void onRemoveRole(SRERole role, MinecraftServer server, ServerPlayer serverPlayer) {
+
+        if (role == null) {
+            return;
+        }
         SREPlayerPsychoComponent.KEY.get(serverPlayer).stopPsychoIfNeccessary();
         if (role != null) {
             role.onRemove(serverPlayer);
@@ -191,7 +195,9 @@ public class RoleMethodDispatcher {
     }
 
     public static void onInit(SRERole role, MinecraftServer minecraftServer, ServerPlayer player) {
-
+        if (role == null) {
+            return;
+        }
         SREAbilityPlayerComponent abilityComponent = ModComponents.ABILITY.get(player);
         abilityComponent.init();
 

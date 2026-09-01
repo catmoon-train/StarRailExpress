@@ -15,7 +15,6 @@
 
 package org.agmas.harpymodloader.events;
 
-
 import io.wifi.starrailexpress.api.RoleMethodDispatcher;
 import io.wifi.starrailexpress.api.SRERole;
 import net.fabricmc.fabric.api.event.Event;
@@ -27,7 +26,9 @@ import static net.fabricmc.fabric.api.event.EventFactory.createArrayBacked;
 public interface ModdedRoleRemoved {
 
     Event<ModdedRoleRemoved> EVENT = createArrayBacked(ModdedRoleRemoved.class, listeners -> (player, role) -> {
-        
+        if (role == null) {
+            return;
+        }
         // 先调用 onInit
 
         if (player instanceof ServerPlayer serverPlayer) {

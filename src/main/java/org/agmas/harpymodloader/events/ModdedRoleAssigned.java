@@ -26,6 +26,9 @@ import static net.fabricmc.fabric.api.event.EventFactory.createArrayBacked;
 public interface ModdedRoleAssigned {
 
     Event<ModdedRoleAssigned> EVENT = createArrayBacked(ModdedRoleAssigned.class, listeners -> (player, role) -> {
+        if (player == null || role == null) {
+            return;
+        }
         // 使用映射表添加初始物品（包括映射表和职业里的getDefaultItems）
         RoleInitialItems.addInitialItemsForRole(player, role);
 
@@ -35,7 +38,7 @@ public interface ModdedRoleAssigned {
         }
 
         // 再调用 EVENT
-        
+
         for (ModdedRoleAssigned listener : listeners) {
             listener.assignModdedRole(player, role);
         }

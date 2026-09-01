@@ -69,6 +69,9 @@ public class RoleInitialItems {
      * @param role   角色
      */
     public static void addInitialItemsForRole(Player player, SRERole role) {
+        if (role == null) {
+            return;
+        }
         List<Supplier<ItemStack>> itemSuppliers = RoleInitialItems.INITIAL_ITEMS_MAP.get(role);
         if (itemSuppliers != null) {
             for (Supplier<ItemStack> itemSupplier : itemSuppliers) {
@@ -230,7 +233,7 @@ public class RoleInitialItems {
         // 乘务员钥匙
         attendantItems.add(() -> ModItems.MASTER_KEY_P.getDefaultInstance());
         INITIAL_ITEMS_MAP.put(ModRoles.ATTENDANT, attendantItems);
-        
+
         {
             // sakuya初始物品
             List<Supplier<ItemStack>> item = new ArrayList<>();
