@@ -46,6 +46,13 @@ public class BreakingBridgeBlockEntity extends BlockEntity {
     public BlockState displayState = null;
     public CompoundTag blockEntityTag = null;
 
+    // ── 渲染缓存（仅客户端使用，不持久化）──
+    // 假渲染显示模型的烘焙顶点（块局部坐标 + 光照），displayState/光照变化时
+    // 重新捕获；每帧仅按相机平移重放，避免每帧完整 tesselateBlock。
+    public BlockState cachedDisplayState = null;
+    public int cachedLight = -1;
+    public java.util.List<double[]> cachedVertices = null;
+
     public BreakingBridgeBlockEntity(BlockPos pos, BlockState state) {
         super(ModSceneBlocks.BREAKING_BRIDGE_ENTITY, pos, state);
     }

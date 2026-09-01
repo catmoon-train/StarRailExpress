@@ -21,7 +21,6 @@ import com.mojang.blaze3d.vertex.MeshData;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
-import net.minecraft.client.renderer.LevelRenderer;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -42,11 +41,18 @@ import java.util.List;
 public class TextBatchingBuffer implements MultiBufferSource {
 
     /**
-     * Frame-scoped buffer shared by sign text rendering: sign text glyphs are
-     * accumulated here during the world render pass and drawn once when
-     * {@link LevelRenderer} finishes rendering the level.
+     * Buffer shared by sign text rendering: sign text glyphs are batched here
+     * per {@code renderSignText} call and flushed at the end of that call while
+     * the world's camera model-view matrix is still active.
      */
     public static final TextBatchingBuffer SIGN_TEXT = new TextBatchingBuffer();
+
+    /**
+     * Buffer shared by chat text rendering: chat glyphs are batched here during
+     * the GUI render and flushed at the very end of the frame (after the open
+     * screen renders), keeping the text on top of the chat backdrop and screen.
+     */
+    public static final TextBatchingBuffer CHAT = new TextBatchingBuffer();
 
     private final List<Capture> captures = new ArrayList<>(2);
     private RenderType lastType;

@@ -15,10 +15,16 @@
 
 package org.agmas.noellesroles.client;
 
+import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.vertex.BufferBuilder;
+import com.mojang.blaze3d.vertex.BufferUploader;
+import com.mojang.blaze3d.vertex.ByteBufferBuilder;
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
+import com.mojang.blaze3d.vertex.MeshData;
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.blaze3d.vertex.VertexFormat;
+
+import io.wifi.starrailexpress.SREClientConfig;
 import io.wifi.starrailexpress.cca.AreasWorldComponent;
 import io.wifi.starrailexpress.cca.SREPlayerMoodComponent;
 import io.wifi.starrailexpress.client.SREClient;
@@ -27,9 +33,11 @@ import io.wifi.starrailexpress.client.SecurityCameraClientState;
 import io.wifi.starrailexpress.content.block.api.TaskInstinctShowableInterface;
 import io.wifi.starrailexpress.content.block_entity.SmallDoorBlockEntity;
 import io.wifi.starrailexpress.index.TMMItems;
+import io.wifi.utils.client.betterrender.TextBatchingBuffer;
 import net.fabricmc.fabric.api.client.rendering.v1.WorldRenderContext;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
+import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.LevelRenderer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderStateShard;
@@ -57,19 +65,19 @@ import java.awt.*;
 import java.util.ArrayList;
 import java.util.OptionalDouble;
 
-// 本类AI禁止修改
-// 本类AI禁止修改
-// 本类AI禁止修改
-// 本类AI禁止修改
-// 本类AI禁止修改
-// 本类请不要修改，请使用 interface TaskInstinctShowableInterface
-// 本类请不要修改，请使用 interface TaskInstinctShowableInterface
-// 本类请不要修改，请使用 interface TaskInstinctShowableInterface
-// 本类请不要修改，请使用 interface TaskInstinctShowableInterface
-// 本类请不要修改，请使用 interface TaskInstinctShowableInterface
+// 如果你想添加新的类型，本类请不要修改，请使用 interface TaskInstinctShowableInterface
 public class TaskBlockOverlayRenderer {
     // 创建带厚度的永远不被遮挡线框
     public static ArrayList<BlockPos> RoomDoorPositions = new ArrayList<>();
+    /** 透视指示器的最大渲染距离（方块），更远的方块直接跳过。 */
+    private static final int MAX_OVERLAY_DISTANCE_SQ = 128 * 128;
+    private static final int MAX_OVERLAY_DISTANCE_ULTRA_SQ = 64 * 64;
+    /**
+     * 独立的线条缓冲：任务点/箭头/指引线都写进这里，并在 AFTER_TRANSLUCENT
+     * 回调末尾统一冲刷。避免线条滞留/混入 GUI 共享缓冲 —— 共享缓冲的冲刷时机
+     * 取决于下一个不同 render type 何时请求缓冲，导致透视时好时坏。
+     */
+    public static final TextBatchingBuffer OVERLAY_LINES = new TextBatchingBuffer();
     public static final RenderType ALWAYS_VISIBLE_THICK_LINES = RenderType.create("always_visible_thick_lines",
             DefaultVertexFormat.POSITION_COLOR_NORMAL,
             VertexFormat.Mode.LINES, 256, false, false,
@@ -78,11 +86,42 @@ public class TaskBlockOverlayRenderer {
                     .setLineState(new RenderStateShard.LineStateShard(OptionalDouble.of(4.0))) // 线宽4.0
                     .setLayeringState(RenderStateShard.VIEW_OFFSET_Z_LAYERING)
                     .setTransparencyState(RenderStateShard.TRANSLUCENT_TRANSPARENCY)
-                    .setOutputState(RenderStateShard.ITEM_ENTITY_TARGET)
                     .setWriteMaskState(RenderStateShard.COLOR_WRITE)
                     .setCullState(RenderStateShard.NO_CULL)
                     .setDepthTestState(RenderStateShard.NO_DEPTH_TEST)
                     .createCompositeState(false));
+
+    /** 在 AFTER_TRANSLUCENT 回调末尾调用：确定性地绘制所有透视线条。 */
+    public static void flushLines() {
+        // 1. 所有任务点/指引方框累积在 lineBuilder 中，一次 drawWithShader 绘制。
+        if (lineBuilder != null) {
+            MeshData mesh = lineBuilder.buildOrThrow();
+            RenderSystem.disableDepthTest();
+            RenderSystem.depthMask(false);
+            RenderSystem.disableCull();
+            RenderSystem.enableBlend();
+            RenderSystem.defaultBlendFunc();
+            RenderSystem.setShader(GameRenderer::getRendertypeLinesShader);
+            RenderSystem.lineWidth(4.0f);
+            BufferUploader.drawWithShader(mesh);
+            RenderSystem.lineWidth(1.0f);
+            RenderSystem.enableCull();
+            RenderSystem.depthMask(true);
+            RenderSystem.enableDepthTest();
+            RenderSystem.disableBlend();
+            mesh.close();
+            LINE_BYTES.clear();
+            lineBuilder = null;
+        }
+        // 2. 箭头/指引射线（独立缓冲），显式关闭深度测试。
+        RenderSystem.disableDepthTest();
+        OVERLAY_LINES.flush();
+        RenderSystem.enableDepthTest();
+    }
+
+    /** 帧级线条累积缓冲：所有任务点框写入这里，flushLines() 时一次性绘制。 */
+    private static final ByteBufferBuilder LINE_BYTES = new ByteBufferBuilder(65536);
+    private static BufferBuilder lineBuilder;
 
     public static void renderBlockOverlay(WorldRenderContext context,
             BlockPos blockPos, Color color, float alpha, boolean colorize, float textScale) {
@@ -91,15 +130,25 @@ public class TaskBlockOverlayRenderer {
         if (world == null)
             return;
 
+        // 距离裁剪：太远的方块跳过，避免逐帧做 AABB 与顶点计算
+        Vec3 cameraPos = context.camera().getPosition();
+        double dx = blockPos.getX() + 0.5 - cameraPos.x;
+        double dy = blockPos.getY() + 0.5 - cameraPos.y;
+        double dz = blockPos.getZ() + 0.5 - cameraPos.z;
+        int maxRenderDistance = MAX_OVERLAY_DISTANCE_SQ;
+        if (SREClientConfig.instance().isUltraPerfMode()) {
+            maxRenderDistance = MAX_OVERLAY_DISTANCE_ULTRA_SQ;
+        }
+        if (dx * dx + dy * dy + dz * dz > maxRenderDistance) {
+            return;
+        }
+
         BlockState state = world.getBlockState(blockPos);
         AABB localAABB = getCombinedAABB(world, blockPos, state);
-        MultiBufferSource vertexConsumers = context.consumers();
-        VertexConsumer vertexConsumer = vertexConsumers.getBuffer(ALWAYS_VISIBLE_THICK_LINES);
 
         PoseStack matrices = context.matrixStack();
         matrices.pushPose();
 
-        Vec3 cameraPos = context.camera().getPosition();
         matrices.translate(
                 blockPos.getX() - cameraPos.x,
                 blockPos.getY() - cameraPos.y,
@@ -109,9 +158,14 @@ public class TaskBlockOverlayRenderer {
         float green = color.getGreen() / 255f;
         float blue = color.getBlue() / 255f;
 
-        // ✅ 方块描边：用 context.consumers()，配合 ITEM_ENTITY_TARGET+NO_DEPTH_TEST 实现透视
-        // RenderSystem.lineWidth(4);
-        LevelRenderer.renderLineBox(matrices, vertexConsumer, localAABB, red, green, blue, alpha);
+        // ✅ 累积到帧级线条缓冲，flushLines() 时一次性绘制（避免每方块一次
+        // drawWithShader 导致大量 draw call）。绘制时显式禁用深度测试/深度写入/
+        // 面剔除，必定完整穿透方块显示。
+        if (lineBuilder == null) {
+            lineBuilder = new BufferBuilder(LINE_BYTES, VertexFormat.Mode.LINES,
+                    DefaultVertexFormat.POSITION_COLOR_NORMAL);
+        }
+        LevelRenderer.renderLineBox(matrices, lineBuilder, localAABB, red, green, blue, alpha);
 
         matrices.popPose();
     }

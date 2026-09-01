@@ -81,7 +81,7 @@ public final class TwoDimensionalTaskArrowRenderer {
         float partialTick = client.getTimer().getGameTimeDeltaPartialTick(true);
         Vec3 origin = player.getPosition(partialTick).add(0, player.getBbHeight() + ARROW_RISE, 0);
         Vec3 cameraPos = context.camera().getPosition();
-        VertexConsumer vertexConsumer = context.consumers()
+        VertexConsumer vertexConsumer = TaskBlockOverlayRenderer.OVERLAY_LINES
                 .getBuffer(TaskBlockOverlayRenderer.ALWAYS_VISIBLE_THICK_LINES);
         PoseStack matrices = context.matrixStack();
 

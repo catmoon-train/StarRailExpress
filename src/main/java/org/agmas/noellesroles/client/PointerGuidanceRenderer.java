@@ -131,7 +131,7 @@ public final class PointerGuidanceRenderer {
         Vec3 rayStart = eye.add(view.scale(0.6D)).add(side.scale(0.12D)).add(0, -0.18D, 0);
 
         Vec3 cameraPos = context.camera().getPosition();
-        VertexConsumer vertexConsumer = context.consumers()
+        VertexConsumer vertexConsumer = TaskBlockOverlayRenderer.OVERLAY_LINES
                 .getBuffer(TaskBlockOverlayRenderer.ALWAYS_VISIBLE_THICK_LINES);
         PoseStack matrices = context.matrixStack();
 
@@ -160,7 +160,7 @@ public final class PointerGuidanceRenderer {
         AABB box = entity.getDimensions(entity.getPose()).makeBoundingBox(Vec3.ZERO).inflate(0.08D);
         Vec3 cameraPos = context.camera().getPosition();
 
-        VertexConsumer vertexConsumer = context.consumers()
+        VertexConsumer vertexConsumer = TaskBlockOverlayRenderer.OVERLAY_LINES
                 .getBuffer(TaskBlockOverlayRenderer.ALWAYS_VISIBLE_THICK_LINES);
         PoseStack matrices = context.matrixStack();
         matrices.pushPose();

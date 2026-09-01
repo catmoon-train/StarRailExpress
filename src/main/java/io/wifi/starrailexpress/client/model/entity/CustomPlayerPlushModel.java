@@ -192,10 +192,16 @@ public class CustomPlayerPlushModel {
             Vector3f norm = new Vector3f(n[0], n[1], n[2]).mul(normalMat);
 
             for (int i = 0; i < 4; i++) {
-                Vector3f v = new Vector3f(pos[i][0], pos[i][1], pos[i][2]).mulPosition(pose);
+                float[] p = pos[i];
+                float[] u = uv[i];
+                // 防御：跳过缺失的顶点数据，避免偶发崩溃
+                if (p == null || u == null) {
+                    continue;
+                }
+                Vector3f v = new Vector3f(p[0], p[1], p[2]).mulPosition(pose);
                 buffer.addVertex(v.x(), v.y(), v.z())
                         .setColor(1f, 1f, 1f, 1f)
-                        .setUv(uv[i][0] / TEX_SIZE, uv[i][1] / TEX_SIZE)
+                        .setUv(u[0] / TEX_SIZE, u[1] / TEX_SIZE)
                         .setOverlay(overlay)
                         .setLight(light)
                         .setNormal(norm.x(), norm.y(), norm.z());

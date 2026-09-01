@@ -484,6 +484,8 @@ public class NoellesrolesClient implements ClientModInitializer {
             TwoDimensionalTaskArrowRenderer.render(renderContext);
             PointerGuidanceRenderer.render(renderContext);
             org.agmas.noellesroles.gunfx.GunTracerRenderer.render(renderContext);
+            // 确定性地绘制所有透视线条（相机矩阵仍有效、地形已完成）
+            TaskBlockOverlayRenderer.flushLines();
         });
         RoleInstinctRegister.registerInstinctEvents();
         BeeFamilyClientManager.registerEvents();

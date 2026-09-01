@@ -63,6 +63,16 @@ public class SignRendererMixin {
         }
     }
 
+    /**
+     * The sign text is routed into the batching buffer by the {@code @Redirect}s
+     * below; flushing right at the end of this method draws it while the world's
+     * camera model-view matrix is still active, so the glyphs land on the sign.
+     */
+    @Inject(method = "renderSignText", at = @At("RETURN"))
+    private void sre$flushSignText(CallbackInfo ci) {
+        TextBatchingBuffer.SIGN_TEXT.flush();
+    }
+
     @Inject(method = "render", at = @At("HEAD"), cancellable = true)
     private void sre$blockRenderSign(SignBlockEntity signBlockEntity, float f, PoseStack poseStack,
             MultiBufferSource multiBufferSource, int i, int j, CallbackInfo ci) {
@@ -78,9 +88,10 @@ public class SignRendererMixin {
 
     /**
      * Routes sign text glyphs into the frame-scoped {@link TextBatchingBuffer}
-     * instead of the per-glyph world BufferSource. The buffer is flushed once at
-     * the end of the level render, so the text still depth-tests against the
-     * complete world geometry.
+     * instead of the per-glyph world BufferSource. The buffer is flushed at the
+     * end of this same call, so the glyphs draw while the world's camera
+     * model-view matrix is still active and depth-test against the rendered
+     * terrain.
      */
     @Redirect(method = "renderSignText",
             at = @At(value = "INVOKE",

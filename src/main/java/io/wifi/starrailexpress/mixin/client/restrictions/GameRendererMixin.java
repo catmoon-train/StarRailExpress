@@ -13,30 +13,29 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package io.wifi.mixins.client;
+package io.wifi.starrailexpress.mixin.client.restrictions;
 
 import io.wifi.utils.client.betterrender.TextBatchingBuffer;
 import net.minecraft.client.DeltaTracker;
-import net.minecraft.client.Camera;
 import net.minecraft.client.renderer.GameRenderer;
-import net.minecraft.client.renderer.LevelRenderer;
-import net.minecraft.client.renderer.LightTexture;
-import org.joml.Matrix4f;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 /**
- * Flushes the frame-scoped sign text batch once the world render pass is
- * complete, so sign text depth-tests against the fully rendered world geometry.
+ * Flushes the chat text batch at the end of the GUI pass — after the GUI
+ * buffer (chat backdrop / screen background) has flushed, but before the GUI
+ * model-view matrix is popped back to the world matrix. This keeps the chat
+ * text on top of the backdrop while drawing with the correct GUI transform.
  */
-@Mixin(LevelRenderer.class)
-public class LevelRendererMixin {
+@Mixin(GameRenderer.class)
+public class GameRendererMixin {
 
-    @Inject(method = "renderLevel", at = @At("RETURN"))
-    private void sre$flushSignText(DeltaTracker deltaTracker, boolean bl, Camera camera, GameRenderer gameRenderer,
-            LightTexture lightTexture, Matrix4f matrix4f, Matrix4f matrix4f2, CallbackInfo ci) {
-        TextBatchingBuffer.SIGN_TEXT.flush();
+    @Inject(method = "render(Lnet/minecraft/client/DeltaTracker;Z)V",
+            at = @At(value = "INVOKE",
+                    target = "Lorg/joml/Matrix4fStack;popMatrix()Lorg/joml/Matrix4fStack;"))
+    private void sre$flushChatText(DeltaTracker deltaTracker, boolean bl, CallbackInfo ci) {
+        TextBatchingBuffer.CHAT.flush();
     }
 }

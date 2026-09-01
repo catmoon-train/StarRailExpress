@@ -91,6 +91,11 @@ public class SREPlushBlockEntityRenderer<T extends BlockEntity> implements Block
                 : Direction.NORTH;
         facing = facing.getOpposite();
 
+        // 兜底：拿不到渲染类型时退回到半透明默认纹理，避免 getBuffer(null) 崩溃
+        if (renderType == null) {
+            renderType = RenderType.entityTranslucent(SRE.id("textures/entity/custom_psycho/th_sariel.png"));
+        }
+
         poseStack.pushPose();
         // 挤压动画（绕方块底面，水平鼓起、竖直压扁）
         poseStack.scale(1, 1F - squash, 1);

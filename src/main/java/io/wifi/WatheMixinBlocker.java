@@ -25,8 +25,12 @@ public class WatheMixinBlocker implements MixinCanceller {
         if (mixinClassName.startsWith("dev.doctor4t.wathe"))
             return true;
         // 阻止 ratatouille 的卡顿渲染 mixin
-        if (mixinClassName.startsWith("dev.doctor4t.ratatouille.mixin"))
+        if (mixinClassName.startsWith("dev.doctor4t.ratatouille.mixin")) {
+            // BlockRenderManagerAccessor
+            if (mixinClassName.startsWith("dev.doctor4t.ratatouille.mixin.client.BlockRenderManagerAccessor"))
+                return false;
             return true;
+        }
         return false;
     }
 }

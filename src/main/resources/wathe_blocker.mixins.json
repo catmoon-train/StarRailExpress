@@ -19,7 +19,6 @@
     "client.GuiGraphicsAccessor",
     "client.GuiRenderMixin",
     "client.IHateWatheModelLayers",
-    "client.LevelRendererMixin",
     "client.PanoramaMixin",
     "client.SignRendererMixin",
     "client.cca.MixinClientWorldMixin"

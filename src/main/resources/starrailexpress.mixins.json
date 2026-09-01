@@ -82,6 +82,7 @@
     "client.restrictions.CreativeInventoryScreenMixin",
     "client.restrictions.DebugHudMixin",
     "client.restrictions.EntityRendererMixin",
+    "client.restrictions.GameRendererMixin",
     "client.restrictions.GameOptionsMixin",
     "client.restrictions.KeyBindingMixin",
     "client.restrictions.KeyboardMixin",
