@@ -83,7 +83,7 @@ public class BoneStaffHandler {
         if (comp == null) {
             return InteractionResult.PASS;
         }
-        attacker.getCooldowns().addCooldown(ModItems.BONE_STAFF, 10);
+        attacker.getCooldowns().addCooldown(ModItems.BONE_STAFF, 5);
         NoellesRolesConfig config = NoellesRolesConfig.HANDLER.instance();
         int max = BoneStaffItem.maxDurability();
 
