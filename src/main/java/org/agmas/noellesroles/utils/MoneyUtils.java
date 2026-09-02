@@ -17,6 +17,8 @@ package org.agmas.noellesroles.utils;
 
 import io.wifi.starrailexpress.cca.SREPlayerMinigameTaskComponent;
 import io.wifi.starrailexpress.cca.SREPlayerShopComponent;
+import net.minecraft.ChatFormatting;
+import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 
@@ -47,5 +49,18 @@ public class MoneyUtils {
 
     public static boolean hasBalance(ServerPlayer player, int money) {
         return getBalance(player) >= money;
+    }
+
+    public static void sendNotEnoughtMoneyMessage(ServerPlayer player, int i) {
+        player.displayClientMessage(Component.translatable("message.noellesroles.insufficient_funds_money", i)
+                .withStyle(ChatFormatting.RED), true);
+    }
+
+    public static boolean cost(ServerPlayer player, int i) {
+        if (hasBalance(player, i)) {
+            addToBalance(player, -i);
+            return true;
+        }
+        return false;
     }
 }

@@ -5,6 +5,7 @@ import org.agmas.noellesroles.game.modifier.NRModifiers;
 import org.agmas.noellesroles.init.ModEffects;
 import org.agmas.noellesroles.packet.RefreshDimensionsS2CPacket;
 import org.agmas.noellesroles.role.bouns.BounsRoles;
+import org.agmas.noellesroles.utils.MoneyUtils;
 import org.agmas.noellesroles.utils.RoleUtils;
 
 import io.wifi.starrailexpress.SRE;
@@ -25,6 +26,8 @@ import net.minecraft.world.entity.player.Player;
 import org.jetbrains.annotations.Nullable;
 
 public class RabbitWansuiRole extends CustomWinnerRole implements EggRoleInterface {
+
+    private static final int COST = 75;
 
     public RabbitWansuiRole(ResourceLocation identifier, int color, RoleType roleType, MoodType moodType,
             int maxSprintTime, boolean canSeeTime) {
@@ -86,6 +89,10 @@ public class RabbitWansuiRole extends CustomWinnerRole implements EggRoleInterfa
                         ctx.displayNoTargetMessage();
                         return false;
                     }
+                    if (!MoneyUtils.cost(player, COST)) {
+                        MoneyUtils.sendNotEnoughtMoneyMessage(player, COST);
+                        return false;
+                    }
                     wmcca.addModifier(target, NRModifiers.RABBIT_SHAPE);
                     target.displayClientMessage(Component.translatable("skill.noellesroles.rabbit_wansui.target.tip")
                             .withStyle(ChatFormatting.AQUA), true);
@@ -104,7 +111,7 @@ public class RabbitWansuiRole extends CustomWinnerRole implements EggRoleInterfa
                         .withTarget()
                         .recordReplay()
                         .showOnHud(true)
-                        .cooldownSeconds(60)
+                        .cooldownSeconds(30)
                         .announceToSelf().build(),
                 RoleSkill.skill(SRE.id("rabbit_wansui/self"), "skill.noellesroles.rabbit_wansui.self", (ctx) -> {
                     final var player = ctx.player();
