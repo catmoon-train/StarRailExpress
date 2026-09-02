@@ -163,9 +163,9 @@ public final class GroselleJourneyManager {
                 .withStyle(ChatFormatting.DARK_PURPLE), false);
         // 回放记录：冒险家使用游记放逐玩家
         SRE.REPLAY_MANAGER.recordCustomEvent(
-            Component.translatable("replay.event.adventurer.exile",
-                GameReplayUtils.getReplayPlayerDisplayText(banisher, true),
-                GameReplayUtils.getReplayPlayerDisplayText(target, true)));
+                Component.translatable("replay.event.adventurer.exile",
+                        GameReplayUtils.getReplayPlayerDisplayText(banisher, true),
+                        GameReplayUtils.getReplayPlayerDisplayText(target, true)));
         return true;
     }
 
@@ -317,5 +317,10 @@ public final class GroselleJourneyManager {
         level.sendParticles(ParticleTypes.REVERSE_PORTAL, x, y, z, 25, 0.3, 0.5, 0.3, 0.05);
         level.playSound(null, BlockPos.containing(x, y, z), SoundEvents.ENDERMAN_TELEPORT,
                 SoundSource.PLAYERS, 1.0f, 0.6f);
+    }
+
+    /** 亡命徒时刻全部返回 */
+    public static void returnAllPlayer(ServerLevel serverLevel) {
+        clearAll(serverLevel.getServer());
     }
 }

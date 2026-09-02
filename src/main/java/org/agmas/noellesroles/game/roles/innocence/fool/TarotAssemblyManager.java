@@ -81,10 +81,13 @@ public class TarotAssemblyManager {
      * 愚者按G键召开塔罗会
      */
     public static void startAssembly(ServerPlayer fool) {
+        // 亡命徒时刻
+        if (!SREGameWorldComponent.getInstance(fool).isSkillAvailable)
+            return;
         FoolRoleData comp = RoleData.getNullable(FoolRoleData.class, fool);
         if (comp == null)
             return;
-        if(comp.isExited){
+        if (comp.isExited) {
             fool.displayClientMessage(
                     Component.translatable("message.noellesroles.fool.disconnected")
                             .withStyle(ChatFormatting.RED),
@@ -306,6 +309,17 @@ public class TarotAssemblyManager {
         comp.sync();
     }
 
+    /** 亡命徒立马回去 */
+    public static void endMeeting(ServerLevel world) {
+        if (havingMeeting) {
+            var gamecca = SREGameWorldComponent.KEY.get(world);
+            var player = world.players().stream().filter((p) -> gamecca.isRole(p, ModRoles.THE_FOOL)).findFirst();
+            if (player.isPresent()) {
+                endMeeting(player.get());
+            }
+        }
+    }
+
     /**
      * 结束会议并将玩家送回原位
      */
@@ -433,8 +447,8 @@ public class TarotAssemblyManager {
                     true);
             // 回放记录：愚者会议将玩家认定为异端
             SRE.REPLAY_MANAGER.recordCustomEvent(
-                Component.translatable("replay.event.fool_meeting.heresy",
-                    GameReplayUtils.getReplayPlayerDisplayText(targetPlayer, true)));
+                    Component.translatable("replay.event.fool_meeting.heresy",
+                            GameReplayUtils.getReplayPlayerDisplayText(targetPlayer, true)));
         }
 
         comp.sync();

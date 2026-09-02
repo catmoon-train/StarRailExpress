@@ -318,4 +318,10 @@ public final class WarlockDomainManager {
                 DOMAIN_X - BOUND_RADIUS, DOMAIN_Y - 2, DOMAIN_Z - BOUND_RADIUS,
                 DOMAIN_X + BOUND_RADIUS, DOMAIN_Y + BOUND_HEIGHT, DOMAIN_Z + BOUND_RADIUS);
     }
+
+    public static void returnAllPlayer(ServerLevel serverLevel) {
+        for (UUID warlock : new ArrayList<>(ACTIVE.keySet())) {
+            forceEnd(warlock, serverLevel.getServer());
+        }
+    }
 }

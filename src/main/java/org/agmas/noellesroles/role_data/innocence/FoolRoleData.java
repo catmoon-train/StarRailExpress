@@ -41,9 +41,6 @@ import java.util.*;
 
 public class FoolRoleData extends SimpleRoleData {
 
-
-
-
     // ==================== 塔罗会成员列表（存储在愚者身上） ====================
     /** 所有拥有"塔罗会成员"标签的玩家UUID */
     public Set<UUID> tarotMembers = new HashSet<>();
@@ -127,7 +124,6 @@ public class FoolRoleData extends SimpleRoleData {
         super(context);
     }
 
-
     public static void useSkill(RoleSkillContext context) {
         ServerPlayer player = context.player();
         org.agmas.noellesroles.game.roles.innocence.fool.TarotAssemblyManager.startAssembly(player);
@@ -209,7 +205,6 @@ public class FoolRoleData extends SimpleRoleData {
     public void clear() {
         this.init();
     }
-
 
     /**
      * 检查指定玩家是否为塔罗会成员
@@ -306,8 +301,6 @@ public class FoolRoleData extends SimpleRoleData {
     }
 
     // ==================== NBT 序列化 ====================
-
-
 
     @Override
     public void writeToSyncNbt(@NotNull CompoundTag tag, HolderLookup.Provider registryLookup) {

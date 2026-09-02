@@ -917,8 +917,10 @@ public class ModRoles {
 	public static SRERole ADVENTURER = TMMRoles.registerRole(
 			new AdventurerRole(ADVENTURER_ID, new Color(34, 139, 34).getRGB(), true, false,
 					SRERole.MoodType.REAL, TMMRoles.CIVILIAN.getMaxSprintTime() * 2, false))
-			.setCanSeeCoin(true).setCanPickUpRevolver(true).setCanJumpManhole(true).setCanAcrossFog(true)
-			.setRoleData(AdventurerRoleData::new).setDefaultEnableNeededPlayerCount(6)
+			.setCanSeeCoin(true).setCanPickUpRevolver(true)
+			.setCanJumpManhole(true).setCanAcrossFog(true)
+			.setRoleData(AdventurerRoleData::new)
+			.setDefaultEnableNeededPlayerCount(6)
 			.setSpecialMapRole(SRERole.SpecialMapRoleMap.TRAP).setDefaultMax(1)
 			.setCanBeRandomedByOtherRoles(false)
 			.setEnvironmentalImmunity(true);

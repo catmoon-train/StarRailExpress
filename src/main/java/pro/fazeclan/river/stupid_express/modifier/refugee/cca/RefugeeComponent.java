@@ -52,6 +52,9 @@ import net.minecraft.world.level.Level;
 import org.agmas.harpymodloader.component.WorldModifierComponent;
 import org.agmas.noellesroles.component.DeathPenaltyComponent;
 import org.agmas.noellesroles.component.DefibrillatorComponent;
+import org.agmas.noellesroles.content.item.GroselleJourneyManager;
+import org.agmas.noellesroles.game.roles.innocence.fool.TarotAssemblyManager;
+import org.agmas.noellesroles.game.roles.killer.warlock.WarlockDomainManager;
 import org.agmas.noellesroles.role_data.neutral.MonokumaRoleData;
 import org.agmas.noellesroles.api.time.TimeRewind;
 import org.agmas.noellesroles.api.time.TimeRewindAreaResult;
@@ -217,7 +220,6 @@ public class RefugeeComponent implements AutoSyncedComponent, ServerTickingCompo
         if (!(level instanceof ServerLevel serverLevel)) {
             return;
         }
-
         ServerPlayer player = serverLevel.getServer().getPlayerList().getPlayer(data.uuid);
         if (player == null) {
             return; // Player is offline
@@ -245,6 +247,11 @@ public class RefugeeComponent implements AutoSyncedComponent, ServerTickingCompo
         player.setGameMode(GameType.ADVENTURE);
 
         player.addEffect(ModEffects.of(ModEffects.SAFE_TIME, 10, 1, false, false, true));
+
+        // 立马取消领域技能
+        TarotAssemblyManager.endMeeting(serverLevel);
+        GroselleJourneyManager.returnAllPlayer(serverLevel);
+        WarlockDomainManager.returnAllPlayer(serverLevel);
 
         SREWorldBlackoutComponent.KEY.get(player.level()).triggerBlackout();
         // Remove body entity
