@@ -17,33 +17,32 @@ package org.agmas.noellesroles.role.touhou.roles;
 
 import io.wifi.starrailexpress.api.TouhouRole;
 import io.wifi.starrailexpress.util.ShopEntry;
-import net.minecraft.ChatFormatting;
 import net.minecraft.core.component.DataComponents;
-import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.entity.player.Player;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.item.alchemy.PotionContents;
+import org.agmas.harpymodloader.modifiers.SREModifier;
+import org.agmas.noellesroles.init.ModEffects;
 import org.agmas.noellesroles.init.ModItems;
+import org.agmas.noellesroles.role.TraitorAndModifiers;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 
 public class THTenshiRole extends TouhouRole {
     public final static ArrayList<ShopEntry> SHOP = new ArrayList<>();
     static {
-        // 监察员的商店
-
-        var displayer = Items.BARRIER.getDefaultInstance();
-        displayer.set(DataComponents.ITEM_NAME,
-                Component.translatable("gui.noellesroles.tenshi.cooldown_item")
-                        .withStyle(ChatFormatting.RED));
-        SHOP.add(new ShopEntry(displayer, 0, ShopEntry.Type.TOOL) {
-            @Override
-            public boolean onBuy(Player player) {
-                return false;
-            }
-        });
+        var potion = Items.SPLASH_POTION.getDefaultInstance();
+        potion.set(DataComponents.POTION_CONTENTS,
+                new PotionContents(Optional.empty(), Optional.of(16185078),
+                        List.of(ModEffects.of(MobEffects.NIGHT_VISION, 30 * 20, 0, false, false, true))));
+        SHOP.add(new ShopEntry(potion,
+                200, ShopEntry.Type.TOOL));
     }
 
     public THTenshiRole(ResourceLocation identifier, int color, boolean isInnocent, boolean canUseKiller,
@@ -53,6 +52,18 @@ public class THTenshiRole extends TouhouRole {
         setVigilanteTeam(true);
         setSpecialVigilante(true);
     }
+
+    /**
+     * 当赋予modifier时调用，如果需要操作modifiers列表可以直接操纵，不需要同步，也不需要调用WorldModifierComponent的sync
+     * 
+     * @param player
+     * @param modifiers
+     */
+    @Override
+    public void onAssignedModifiers(ServerPlayer player, Set<SREModifier> modifiers) {
+        // - 自带 Jeb 与隐秘修饰符，且可与其他修饰符共存。
+        modifiers.add(TraitorAndModifiers.NIGHT_OWL);
+    };
 
     @Override
     public List<ItemStack> getDefaultItems() {

@@ -910,7 +910,7 @@ public class RoleShopHandler {
                         new PotionContents(Optional.empty(), Optional.of(16185078),
                                 List.of(ModEffects.of(MobEffects.INVISIBILITY, 10 * 20, 0, false, false, true))));
                 SHOP.add(new ShopEntry(potion,
-                        150, ShopEntry.Type.WEAPON));
+                        150, ShopEntry.Type.TOOL));
             }
             SHOP.add(new ShopEntry(TMMItems.FIRECRACKER.getDefaultInstance(),
                     SREConfig.instance().firecrackerPrice, ShopEntry.Type.TOOL));
