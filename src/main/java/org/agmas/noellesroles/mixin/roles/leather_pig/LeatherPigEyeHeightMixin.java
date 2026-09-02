@@ -25,7 +25,6 @@ import org.agmas.noellesroles.game.modifier.NRModifiers;
 import org.agmas.noellesroles.role_data.innocence.LeatherPigRoleData;
 import org.agmas.noellesroles.utils.RoleUtils;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 
 /**
@@ -37,25 +36,15 @@ import org.spongepowered.asm.mixin.injection.At;
  */
 @Mixin(Player.class)
 public abstract class LeatherPigEyeHeightMixin {
-    @Unique
-    private long lastCacheTime = 0;
-    @Unique
-    private static final int CACHE_TIME_GAP_EXTREMELY = 200;
-    private Pose cachPose = null;
-    private EntityDimensions cachResult = null;
 
     @ModifyReturnValue(method = "getDefaultDimensions", at = @At("RETURN"))
     private EntityDimensions noellesroles$lowerEyeToPig(EntityDimensions dimensions, Pose pose) {
         Player self = (Player) (Object) this;
-        long now = System.currentTimeMillis();
-        if (cachPose == null || cachResult == null || cachPose != pose
-                || now - lastCacheTime > CACHE_TIME_GAP_EXTREMELY) {
-            lastCacheTime = now;
-            cachResult = getResult(self, dimensions);
-            cachPose = pose;
+        {
+            EntityDimensions cachResult = getResult(self, dimensions);
+            if (cachResult != null)
+                return cachResult;
         }
-        if (cachResult != null)
-            return cachResult;
         return dimensions;
     }
 
