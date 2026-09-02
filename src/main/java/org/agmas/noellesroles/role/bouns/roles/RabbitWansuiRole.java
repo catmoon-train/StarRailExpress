@@ -71,18 +71,6 @@ public class RabbitWansuiRole extends CustomWinnerRole implements EggRoleInterfa
 
     public static void registerEvents() {
         RoleSkill.register(BounsRoles.RABBIT_WANSUI,
-                RoleSkill.skill(SRE.id("rabbit_wansui/self"), "skill.noellesroles.rabbit_wansui.self", (ctx) -> {
-                    final var player = ctx.player();
-                    var wmcca = WorldModifierComponent.KEY.get(player.level());
-                    if (wmcca.isModifier(player, NRModifiers.RABBIT_SHAPE))
-                        wmcca.removeModifier(player, NRModifiers.RABBIT_SHAPE);
-                    else
-                        wmcca.addModifier(player, NRModifiers.RABBIT_SHAPE);
-                    return true;
-                })
-                        .showOnHud(true)
-                        .cooldownSeconds(2)
-                        .announceToSelf().build(),
                 RoleSkill.skill(SRE.id("rabbit_wansui/target"), "skill.noellesroles.rabbit_wansui.target", (ctx) -> {
                     final var player = ctx.player();
 
@@ -109,6 +97,18 @@ public class RabbitWansuiRole extends CustomWinnerRole implements EggRoleInterfa
                         .recordReplay()
                         .showOnHud(true)
                         .cooldownSeconds(60)
+                        .announceToSelf().build(),
+                RoleSkill.skill(SRE.id("rabbit_wansui/self"), "skill.noellesroles.rabbit_wansui.self", (ctx) -> {
+                    final var player = ctx.player();
+                    var wmcca = WorldModifierComponent.KEY.get(player.level());
+                    if (wmcca.isModifier(player, NRModifiers.RABBIT_SHAPE))
+                        wmcca.removeModifier(player, NRModifiers.RABBIT_SHAPE);
+                    else
+                        wmcca.addModifier(player, NRModifiers.RABBIT_SHAPE);
+                    return true;
+                })
+                        .showOnHud(true)
+                        .cooldownSeconds(2)
                         .announceToSelf().build());
     }
 }

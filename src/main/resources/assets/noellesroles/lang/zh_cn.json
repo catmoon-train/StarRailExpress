@@ -3809,7 +3809,7 @@
   "skill.noellesroles.yuyuko.body": "吞噬尸体",
   "skill.noellesroles.yuyuko.player": "吞噬玩家",
   "skill.noellesroles.rabbit_wansui.self": "切换兔兔变身",
-  "skill.noellesroles.rabbit_wansui.target": "变成兔兔！",
+  "skill.noellesroles.rabbit_wansui.target": "把它变成兔兔！",
   "skill.noellesroles.rabbit_wansui.target.tip": "你被变成兔兔啦！使用解药或者针管来恢复原状！",
   "message.noellesroles.yuyuko.player.failed": "你不能吞噬 %s：%s",
   "message.noellesroles.yuyuko.player.failed.no_afk": "他没有站定%s秒。",
