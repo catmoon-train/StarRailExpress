@@ -1237,7 +1237,7 @@ public class ModItems {
     public static final Item SCARLET_PERCEPTION_SWORD = register(
             new ScarletPerceptionSwordItem(
                     new Item.Properties().stacksTo(1)
-                            .attributes(AxeItem.createAttributes(Tiers.WOOD, 0.0F, -0.5F))),
+                            .attributes(ScarletPerceptionSwordItem.createAttributes(Tiers.WOOD, 0.0F, -0.5F))),
             "scarlet_perception_sword", ROLE_ITEMS_GROUP, WEAPONS_GROUP);
 
     public static final Item YOUMU_SWORD = register(
