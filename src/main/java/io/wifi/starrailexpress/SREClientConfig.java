@@ -40,7 +40,7 @@ public class SREClientConfig implements ConfigData {
     @ConfigEntry.Gui.Tooltip
     public boolean ultraPerfMode = false;
     @ConfigEntry.Gui.Tooltip
-    public boolean enhancedChatHud = false;
+    public boolean enhancedChatHud = true;
     public boolean bgsoundForSpectator = false;
 
     @ConfigEntry.Gui.Excluded
