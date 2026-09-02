@@ -15,7 +15,6 @@
 
 package org.agmas.noellesroles.role_data.killer;
 
-import io.wifi.starrailexpress.api.data.RoleData;
 import io.wifi.starrailexpress.api.data.RoleDataContext;
 import io.wifi.starrailexpress.api.impl.SimpleRoleData;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
@@ -37,7 +36,6 @@ import net.minecraft.world.BossEvent;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.GameType;
 import net.minecraft.world.phys.Vec3;
-import org.agmas.noellesroles.component.ModComponents;
 import org.agmas.noellesroles.config.NoellesRolesConfig;
 import org.agmas.noellesroles.content.entity.UndeadEntity;
 import org.agmas.noellesroles.init.ModEntities;
@@ -46,10 +44,7 @@ import java.util.*;
 
 public class UndeadLordRoleData extends SimpleRoleData {
 
-
-
     public static final ResourceLocation INFECTION_DEATH_REASON = GameConstants.DeathReasons.UNDEAD_INFECTION;
-
 
     /** 现存亡灵实体 UUID。 */
     private final List<UUID> ownedUndead = new ArrayList<>();
@@ -85,12 +80,10 @@ public class UndeadLordRoleData extends SimpleRoleData {
         super(context);
     }
 
-
     @Override
     public boolean shouldSyncWith(ServerPlayer p) {
         return this.player == p;
     }
-
 
     private NoellesRolesConfig config() {
         return NoellesRolesConfig.HANDLER.instance();
@@ -518,6 +511,5 @@ public class UndeadLordRoleData extends SimpleRoleData {
         syncedMaxUndead = tag.getInt("maxUndead");
         syncedAmpActive = tag.getBoolean("ampActive");
     }
-
 
 }
