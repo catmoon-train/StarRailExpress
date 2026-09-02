@@ -2553,15 +2553,23 @@ public class RoleShopHandler {
             ShopContent.customEntries.put(
                     ModRoles.MORPHLING_ID, entries);
         }
-
+        // 兔兔万岁商店
+        {
+            ShopContent.customEntries.put(
+                    BounsRoles.RABBIT_WANSUI.identifier(),
+                    List.of(new DiscountShopEntry(TMMItems.KNIFE.getDefaultInstance(), 300, 50),
+                            new ShopEntry(TMMItems.LOCKPICK.getDefaultInstance(), 100, ShopEntry.Type.TOOL)));
+        }
         // bee商店：开锁器
         {
             ShopContent.customEntries.put(
                     BounsRoles.BEE_QUEEN.identifier(),
-                    List.of(new ShopEntry(TMMItems.LOCKPICK.getDefaultInstance(), 100, ShopEntry.Type.TOOL)));
+                    List.of(new DiscountShopEntry(TMMItems.KNIFE.getDefaultInstance(), 300, 50),
+                            new ShopEntry(TMMItems.LOCKPICK.getDefaultInstance(), 100, ShopEntry.Type.TOOL)));
             ShopContent.customEntries.put(
                     BounsRoles.BEE_WORKER.identifier(),
-                    List.of(new ShopEntry(TMMItems.LOCKPICK.getDefaultInstance(), 100, ShopEntry.Type.TOOL)));
+                    List.of(new DiscountShopEntry(TMMItems.KNIFE.getDefaultInstance(), 300, 50),
+                            new ShopEntry(TMMItems.LOCKPICK.getDefaultInstance(), 100, ShopEntry.Type.TOOL)));
             {
                 var waspShop = new ArrayList<ShopEntry>();
                 waspShop.add(new DiscountShopEntry(TMMItems.KNIFE.getDefaultInstance(), 200, 50));

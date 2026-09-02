@@ -332,6 +332,7 @@ public class BounsRoles {
             Integer.MAX_VALUE,
             true))
             .setDefaultEnableChance(500)
+            .setKillExtraCoinAwards(50)
             .setDefaultEnableMaxPlayerCount(18);
 
     public static void init() {
