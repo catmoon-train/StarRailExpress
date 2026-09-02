@@ -38,22 +38,30 @@ public class WitchMaidenRole extends EggRole {
         shop.add(new ShopEntry(cc, 100, ShopEntry.Type.TOOL) {
             @Override
             public boolean onBuy(Player player) {
-                int random = player.getRandom().nextInt(0,100);
-                if(random<5){
+                int random = player.getRandom().nextInt(0, 100);
+                if (random < 5) {
                     MCItemsUtils.insertOrDropItem(player, ModItems.DANMUKU.getDefaultInstance());
-                    player.displayClientMessage(Component.translatable("item_stack.witch_maiden.best").withStyle(ChatFormatting.GREEN), true);
-                }else if(random<15){
+                    player.displayClientMessage(
+                            Component.translatable("item_stack.witch_maiden.best").withStyle(ChatFormatting.GREEN),
+                            true);
+                } else if (random < 15) {
                     MCItemsUtils.insertOrDropItem(player, TMMItems.WEAK_DEFENSE_VIAL.getDefaultInstance());
-                    player.displayClientMessage(Component.translatable("item_stack.witch_maiden.good").withStyle(ChatFormatting.AQUA), true);
-                }else if(random<45){
-                    player.addEffect(ModEffects.of(MobEffects.MOVEMENT_SPEED,12,2,false,false,true));
-                    player.displayClientMessage(Component.translatable("item_stack.witch_maiden.just_so_so").withStyle(ChatFormatting.YELLOW), true);
-                }else if(random<75){
-                    player.addEffect(ModEffects.of(MobEffects.MOVEMENT_SLOWDOWN,12,2,false,false,true));
-                    player.displayClientMessage(Component.translatable("item_stack.witch_maiden.bad").withStyle(ChatFormatting.LIGHT_PURPLE), true);
-                }else{
-                    player.addEffect(ModEffects.of(ModEffects.MOVE_BANED,8,2,false,false,true));
-                    player.displayClientMessage(Component.translatable("item_stack.witch_maiden.worst").withStyle(ChatFormatting.RED), true);
+                    player.displayClientMessage(
+                            Component.translatable("item_stack.witch_maiden.good").withStyle(ChatFormatting.AQUA),
+                            true);
+                } else if (random < 65) {
+                    player.addEffect(ModEffects.of(MobEffects.MOVEMENT_SPEED, 12 * 20, 2, false, false, true));
+                    player.displayClientMessage(Component.translatable("item_stack.witch_maiden.just_so_so")
+                            .withStyle(ChatFormatting.YELLOW), true);
+                } else if (random < 85) {
+                    player.addEffect(ModEffects.of(MobEffects.MOVEMENT_SLOWDOWN, 12 * 20, 2, false, false, true));
+                    player.displayClientMessage(Component.translatable("item_stack.witch_maiden.bad")
+                            .withStyle(ChatFormatting.LIGHT_PURPLE), true);
+                } else {
+                    player.addEffect(ModEffects.of(ModEffects.MOVE_BANED, 8 * 20, 2, false, false, true));
+                    player.displayClientMessage(
+                            Component.translatable("item_stack.witch_maiden.worst").withStyle(ChatFormatting.RED),
+                            true);
                 }
                 player.getCooldowns().addCooldown(ModItems.DEALER_PACKAGE, 90 * 20);
                 return true;
