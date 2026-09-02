@@ -499,7 +499,7 @@ public class TouhouHandlers {
         }).announceToSelf(true).cooldownSeconds(60).showOnHud(true).build(),
         RoleSkill.skill(SRE.id("komachi_pull"), "skill.noellesroles.komachi_pull", context -> {
           Player player = context.player();
-          var target = RopeItem.findTargetedPlayerInView(player.level(), player, 20);
+          var target = RopeItem.findTargetedPlayerInView(player.level(), player, 12);
           if (target == null) {
             return false;
           }
