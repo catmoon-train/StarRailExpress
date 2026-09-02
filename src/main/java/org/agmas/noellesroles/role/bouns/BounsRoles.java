@@ -332,6 +332,8 @@ public class BounsRoles {
             Integer.MAX_VALUE,
             true))
             .setDefaultEnableChance(500)
+            .setCanUseInstinctAndNightVision(true)
+            .setInstinctType(InstinctType.DEFAULT, InstinctType.OBSERVER_ROLE_COLOR)
             .setKillExtraCoinAwards(50)
             .setDefaultEnableMaxPlayerCount(18);
 
