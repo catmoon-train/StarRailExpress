@@ -96,11 +96,11 @@ public class RabbitWansuiRole extends CustomWinnerRole implements EggRoleInterfa
                     wmcca.addModifier(target, NRModifiers.RABBIT_SHAPE);
                     target.displayClientMessage(Component.translatable("skill.noellesroles.rabbit_wansui.target.tip")
                             .withStyle(ChatFormatting.AQUA), true);
-                    target.addEffect(ModEffects.of(MobEffects.DARKNESS, 10 * 20, 0, false, false, true));
-                    target.addEffect(ModEffects.of(MobEffects.BLINDNESS, 10 * 20, 0, false, false, true));
-                    target.addEffect(ModEffects.of(ModEffects.USED_BANED, 10 * 20, 0, false, false, true));
-                    target.addEffect(ModEffects.of(ModEffects.MOVE_BANED, 10 * 20, 0, false, false, true));
-                    target.addEffect(ModEffects.of(ModEffects.JUMP_DECREASE, 10 * 20, 10, false, false, true));
+                    target.addEffect(ModEffects.of(MobEffects.DARKNESS, 5 * 20, 0, false, false, true));
+                    target.addEffect(ModEffects.of(MobEffects.BLINDNESS, 5 * 20, 0, false, false, true));
+                    target.addEffect(ModEffects.of(ModEffects.USED_BANED, 5 * 20, 0, false, false, true));
+                    target.addEffect(ModEffects.of(ModEffects.MOVE_BANED, 5 * 20, 0, false, false, true));
+                    target.addEffect(ModEffects.of(ModEffects.JUMP_DECREASE, 5 * 20, 10, false, false, true));
                     target.addEffect(ModEffects.of(ModEffects.CHAT_BAN, 30 * 20, 10, false, false, true));
                     target.addEffect(ModEffects.of(ModEffects.VOICE_SILENCE, 30 * 20, 10, false, false, true));
                     target.addEffect(ModEffects.of(ModEffects.NO_INSTINCT, 120 * 20, 10, false, false, true));
