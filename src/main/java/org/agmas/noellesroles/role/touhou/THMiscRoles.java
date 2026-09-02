@@ -104,7 +104,6 @@ public class THMiscRoles {
                     TMMRoles.CIVILIAN.getMaxSprintTime() * 2, false))
             .setAddedVersion("4.4")
             .setCanBePoisoned(false);
-    
 
     // 鬼人正邪 Kijin Seija
     public static SRERole KIJIN_SEIJA = TMMRoles.registerRole(new TouhouRole(id("kijin_seija"),
@@ -179,14 +178,14 @@ public class THMiscRoles {
 
     // 秦心 hata_no_kokoro
     public static SRERole HATA_NO_KOKORO = TMMRoles.registerRole(new THHatanokokoroRole(id("hata_no_kokoro"),
-            new Color(245,226,241).getRGB(), RoleType.KILLER, MoodType.FAKE,Integer.MAX_VALUE, true))
+            new Color(245, 226, 241).getRGB(), RoleType.KILLER, MoodType.FAKE, Integer.MAX_VALUE, true))
             .setDefaultEnableNeededPlayerCount(16)
             .setDefaultEnableChance(3000)
             .setAddedVersion("4.4");
 
     // 西行寺幽幽子 saigyouji_yuyuko
     public static SRERole YUYUKO = TMMRoles.registerRole(new THYuyukoRole(id("saigyouji_yuyuko"),
-            new Color(202,148,155).getRGB(), RoleType.NEUTRALS, MoodType.FAKE,Integer.MAX_VALUE, true))
+            new Color(202, 148, 155).getRGB(), RoleType.NEUTRALS, MoodType.FAKE, Integer.MAX_VALUE, true))
             .setCanUseInstinctAndNightVision(true)
             .setDefaultEnableNeededPlayerCount(16)
             .setDefaultEnableChance(1000)

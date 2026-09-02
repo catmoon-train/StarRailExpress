@@ -73,8 +73,7 @@ public class THYuyukoRoleData extends SimpleRoleData {
                     .withStyle(ChatFormatting.RED), true);
             return false;
         }
-        if (target.level().getGameTime() - target.getLastActionTime() < AFK_THRESHOLD
-                || SREPlayerAFKComponent.KEY.get(target).getAFKTime() < AFK_THRESHOLD) {
+        if (SREPlayerAFKComponent.KEY.get(target).getAFKTime() < AFK_THRESHOLD) {
             player.displayClientMessage(Component
                     .translatable("message.noellesroles.yuyuko.player.failed", target.getName(),
                             Component.translatable("message.noellesroles.yuyuko.player.failed.no_afk",
