@@ -68,7 +68,9 @@ public record GunShootPayload(int target) implements CustomPacketPayload {
         public void receive(@NotNull GunShootPayload payload, ServerPlayNetworking.@NotNull Context context) {
             ServerPlayer player = context.player();
             ItemStack mainHandStack = player.getMainHandItem();
-
+            if (player.isSpectator()) {
+                return;
+            }
             if (player.getCooldowns().isOnCooldown(mainHandStack.getItem()))
                 return;
             if (mainHandStack.is(ModItems.SHERIFF_REVOLVER)) {

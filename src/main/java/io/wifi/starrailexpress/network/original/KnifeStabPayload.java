@@ -60,6 +60,9 @@ public record KnifeStabPayload(int target) implements CustomPacketPayload {
         @Override
         public void receive(@NotNull KnifeStabPayload payload, ServerPlayNetworking.@NotNull Context context) {
             ServerPlayer player = context.player();
+            if (player.isSpectator()) {
+                return;
+            }
             Entity targetEntity = player.serverLevel().getEntity(payload.target());
             ServerPlayer target = null;
             if ((targetEntity instanceof ServerPlayer ts)) {

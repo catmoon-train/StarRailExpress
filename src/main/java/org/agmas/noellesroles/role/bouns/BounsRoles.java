@@ -20,6 +20,8 @@ import io.wifi.starrailexpress.api.EggRole;
 import io.wifi.starrailexpress.api.InstinctType;
 import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.api.TMMRoles;
+import io.wifi.starrailexpress.api.NormalRole.RoleType;
+import io.wifi.starrailexpress.api.SRERole.MoodType;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.cca.SREPlayerPsychoComponent;
 import io.wifi.starrailexpress.event.AllowPlayerDeathWithKiller;
@@ -230,11 +232,8 @@ public class BounsRoles {
             ResourceLocation texture = SRE.id("textures/block/plush/lengxiaocn.png");
             return texture;
         }
-    }, "creator_team")
-            .setDefaultEnableChance(1000)
-            .setRoleData(VoodooRoleData::new)
-            .addRelatedRole(ModRoles.VOODOO);
-            
+    }, "creator_team").setDefaultEnableChance(1000).setRoleData(VoodooRoleData::new).addRelatedRole(ModRoles.VOODOO);
+
     public static SRERole LAO_DA = TMMRoles.registerRole(new EggRole(id("lao_da"), new Color(236, 209, 72).getRGB(),
             true, false, SRERole.MoodType.REAL, TMMRoles.CIVILIAN_MAX_SPRINT_TICKS, false) {
         @Override
@@ -314,6 +313,13 @@ public class BounsRoles {
             .setBeSeenInstinctType(InstinctType.DEFAULT, InstinctType.TARGET_ROLE_COLOR)
             .setDefaultEnableChance(10)
             .setNeutralForInnocent(true);
+
+    public static SRERole WITCH_MAIDEN = TMMRoles.registerRole(new EggRole(
+            id("witch_maiden"),
+            new Color(104, 10, 10).getRGB(),
+            RoleType.NEUTRALS_FOR_KILLERS,
+            MoodType.FAKE,
+            Integer.MAX_VALUE, true));
 
     public static void init() {
         THRedHouseRoles.init();
