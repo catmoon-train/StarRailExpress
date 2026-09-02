@@ -18,6 +18,7 @@ import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.cca.SREPlayerPoisonComponent;
 import io.wifi.starrailexpress.cca.SREPlayerShopComponent;
 import io.wifi.starrailexpress.content.entity.PlayerBodyEntity;
+import io.wifi.starrailexpress.event.AllowPlayerDeathWithKiller;
 import io.wifi.starrailexpress.event.OnGameServerTick;
 import io.wifi.starrailexpress.event.OnPlayerDeathWithKiller;
 import io.wifi.starrailexpress.game.GameConstants;
@@ -34,11 +35,11 @@ import net.minecraft.world.InteractionResult;
 
 public class BeeFamilyManager {
 
-    public static final int BEE_QUEEN_IMPROVE_PRICE = 150;
+    public static final int BEE_QUEEN_IMPROVE_PRICE = 120;
     public static final int BEE_QUEEN_SELECT_QUEEN_PRICE = 300;
-    public static final int BEE_POISON_TICKS = 20 * 20;
+    public static final int BEE_POISON_TICKS = 10 * 20;
     public static final int REVIVE_COST_MONEY = 75;
-    public static final int REVIVE_COOLDOWN = 60 * 20;
+    public static final int REVIVE_COOLDOWN = 30 * 20;
     public static final int KILL_AWARD_TO_QUEEN = 50;
     public static final int BEE_WORKER_DEATH_TIMEOUT_TICKS = 120 * 20;
 
@@ -58,6 +59,15 @@ public class BeeFamilyManager {
     }
 
     public static void registerEvents() {
+
+        AllowPlayerDeathWithKiller.EVENT.register((victim, killer, deathReasosn) -> {
+            var cca = SREGameWorldComponent.getInstance(victim);
+            if (cca.getRole(victim) instanceof BeeFamilyRole && cca.getRole(killer) instanceof BeeFamilyRole) {
+                return false;
+            }
+            return true;
+        });
+
         OnGameServerTick.EVENT.register((world) -> tick(world));
         // 蜜蜂频道
         ServerMessageEvents.ALLOW_CHAT_MESSAGE.register((message, serverPlayer, bound) -> {
@@ -406,7 +416,7 @@ public class BeeFamilyManager {
     }
 
     public static void tick(ServerLevel world) {
-        if(pendingCheck){
+        if (pendingCheck) {
             pendingCheck = false;
             checkBeeFamilyFailure(world);
         }
