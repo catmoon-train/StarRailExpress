@@ -526,12 +526,12 @@ public class ModRolesInitialEventRegister {
         RoleSkill.register(ModRoles.SILENT_KILLER,
                 RoleSkill.skill(SRE.id("silent_killer"), "skill.noellesroles.silent_killer", (ctx) -> {
                     final var player = ctx.player();
-                    if (MoneyUtils.getBalance(player) != 0) {
+                    if (MoneyUtils.getBalance(player) > 5) {
                         player.displayClientMessage(Component.translatable("skill.noellesroles.silent_killer.failed")
                                 .withStyle(ChatFormatting.RED), true);
                         return false;
                     }
-                    List<Player> victims = RoleUtils.getNearestPlayers(player, 4, 2.5);
+                    List<Player> victims = RoleUtils.getNearestPlayers(player, 5, 2.5);
                     for (var p : victims) {
                         GameUtils.killPlayer(p, true, player, GameConstants.DeathReasons.GRAND_FINISH);
                     }
