@@ -27,11 +27,26 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.agmas.noellesroles.mixin.SkinManagerAccessor;
+import org.spongepowered.asm.mixin.Unique;
 
 public class ClientSkinCache {
     public static final Map<UUID, PlayerInfo> PLAYER_ENTRIES_CACHE = new HashMap<>();
+    @Unique
+    public static final Map<UUID, CachedDisguiseState> DISGUISE_CACHE = new ConcurrentHashMap<>();
+    public static class CachedDisguiseState {
+        public boolean pig;
+        public boolean rabbit;
+        public long lastCheckTime;
+
+        public CachedDisguiseState(boolean pig, boolean rabbit, long time) {
+            this.pig = pig;
+            this.rabbit = rabbit;
+            this.lastCheckTime = time;
+        }
+    }
 
     public static PlayerInfo getCachedPlayerInfo(UUID uid) {
         if (uid == null)
@@ -43,10 +58,12 @@ public class ClientSkinCache {
     public static void init() {
         ClientPlayConnectionEvents.JOIN.register((a, b, c) -> {
             // 加入游戏清空信息
+            DISGUISE_CACHE.clear();
             ClientSkinCache.PLAYER_ENTRIES_CACHE.clear();
         });
         ClientPlayConnectionEvents.DISCONNECT.register((a, client) -> {
             // 加入游戏清空信息
+            DISGUISE_CACHE.clear();
             ClientSkinCache.PLAYER_ENTRIES_CACHE.clear();
 
             // 清除皮肤缓存
