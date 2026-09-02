@@ -47,9 +47,6 @@ import java.util.UUID;
 
 public class NostalgistRoleData extends SimpleRoleData {
 
-
-
-
     /** 是否处于里世界（同步给玩家自己，用于客户端灰白视角/HUD）。 */
     public boolean inBackWorld = false;
 
@@ -69,12 +66,10 @@ public class NostalgistRoleData extends SimpleRoleData {
         super(context);
     }
 
-
     @Override
     public boolean shouldSyncWith(ServerPlayer target) {
         return this.player == target;
     }
-
 
     @Override
     public void init() {
@@ -142,7 +137,7 @@ public class NostalgistRoleData extends SimpleRoleData {
         }
 
         // 仅剩怀旧者一名杀手 -> 里世界崩塌，现身为普通杀手
-        if (alive <= 1) {
+        if (alive <= 1 && SREGameWorldComponent.getInstance(level).isSkillAvailable) {
             collapseBackWorld(serverPlayer);
             return;
         }
@@ -335,6 +330,5 @@ public class NostalgistRoleData extends SimpleRoleData {
         converted = tag.getBoolean("converted");
         aliveKillerCount = tag.getInt("aliveKillerCount");
     }
-
 
 }
