@@ -50,6 +50,7 @@ import net.minecraft.world.item.ItemStack;
 
 import org.agmas.noellesroles.content.entity.PuppeteerBodyEntity;
 import org.agmas.noellesroles.content.item.SheriffRevolverItem;
+import org.agmas.noellesroles.init.ModEffects;
 import org.agmas.noellesroles.init.ModItems;
 import org.jetbrains.annotations.NotNull;
 
@@ -69,6 +70,9 @@ public record GunShootPayload(int target) implements CustomPacketPayload {
             ServerPlayer player = context.player();
             ItemStack mainHandStack = player.getMainHandItem();
             if (player.isSpectator()) {
+                return;
+            }
+            if(player.hasEffect(ModEffects.USED_BANED)){
                 return;
             }
             if (player.getCooldowns().isOnCooldown(mainHandStack.getItem()))

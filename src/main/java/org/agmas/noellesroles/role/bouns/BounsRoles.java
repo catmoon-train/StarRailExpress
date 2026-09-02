@@ -314,12 +314,15 @@ public class BounsRoles {
             .setDefaultEnableChance(10)
             .setNeutralForInnocent(true);
 
-    public static SRERole WITCH_MAIDEN = TMMRoles.registerRole(new EggRole(
+    public static SRERole WITCH_MAIDEN = TMMRoles.registerRole(new WitchMaidenRole(
             id("witch_maiden"),
             new Color(104, 10, 10).getRGB(),
             RoleType.NEUTRALS_FOR_KILLERS,
             MoodType.FAKE,
-            Integer.MAX_VALUE, true));
+            Integer.MAX_VALUE, true))
+            .setCanUseInstinctAndNightVision(true)
+            .setDefaultEnableChance(1000)
+            .setDefaultEnableMaxPlayerCount(18);
 
     public static void init() {
         THRedHouseRoles.init();

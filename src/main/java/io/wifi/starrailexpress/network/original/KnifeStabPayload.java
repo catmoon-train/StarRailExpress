@@ -41,6 +41,7 @@ import net.minecraft.world.item.ItemStack;
 
 import org.agmas.noellesroles.content.entity.PuppeteerBodyEntity;
 import org.agmas.noellesroles.content.item.ThrowingKnife;
+import org.agmas.noellesroles.init.ModEffects;
 import org.agmas.noellesroles.role.TraitorAndModifiers;
 import org.agmas.noellesroles.role.touhou.THMiscRoles;
 import org.agmas.noellesroles.utils.RoleUtils;
@@ -61,6 +62,9 @@ public record KnifeStabPayload(int target) implements CustomPacketPayload {
         public void receive(@NotNull KnifeStabPayload payload, ServerPlayNetworking.@NotNull Context context) {
             ServerPlayer player = context.player();
             if (player.isSpectator()) {
+                return;
+            }
+            if(player.hasEffect(ModEffects.USED_BANED)){
                 return;
             }
             Entity targetEntity = player.serverLevel().getEntity(payload.target());
