@@ -38,7 +38,18 @@ import java.util.List;
  * NoellesRoles 修饰符注册类
  */
 public class NRModifiers {
-
+    /** Runtime-only marker for a player cosplayed as a Rabbit. */
+    public static final SREModifier RABBIT_SHAPE = HMLModifiers.registerModifier(new SREModifier(
+            Noellesroles.id("rabbit_shape"),
+            0x303030,
+            null,
+            null,
+            false,
+            false))
+            .setCanSetSpawnInfoInConfig(false)
+            .setDefaultEnableChance(0)
+            .setDefaultMax(0)
+            .setAddedVersion("4.4");
     /** Runtime-only marker for a player body controlled by Fake Steve. */
     public static final SREModifier FAKE_STEVE_REPLACED = HMLModifiers.registerModifier(new SREModifier(
             Noellesroles.id("fake_steve_replaced"),

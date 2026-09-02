@@ -20,6 +20,7 @@ import org.agmas.noellesroles.game.roles.neutral.leader.LeaderFollowerEffects;
 import org.agmas.noellesroles.init.ModEffects;
 import org.agmas.noellesroles.role.bouns.BounsRoles;
 import org.agmas.noellesroles.role.bouns.roles.HengXingTiRole;
+import org.agmas.noellesroles.role.bouns.roles.RabbitWansuiRole;
 import org.agmas.noellesroles.role_data.neutral.LinFamilyRoleData;
 import org.agmas.noellesroles.utils.RoleUtils;
 
@@ -44,7 +45,7 @@ public class BounsHandlers {
     public static void register() {
         BeeFamilyManager.registerEvents();
         LinFamilyRoleData.registerEvents();
-
+        RabbitWansuiRole.registerEvents();
         RoleSkill.register(BounsRoles.HENG_XING_TI,
                 RoleSkill.skill(SRE.id("heng_xing_ti"), "skill.noellesroles.heng_xing_ti", (ctx) -> {
                     return HengXingTiRole.triggerSkill(ctx);

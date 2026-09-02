@@ -15,8 +15,11 @@
 
 package org.agmas.noellesroles.content.item;
 
+import io.wifi.starrailexpress.SRE;
+import io.wifi.starrailexpress.api.replay.GameReplayUtils;
 import io.wifi.starrailexpress.cca.SREPlayerPoisonComponent;
 import io.wifi.starrailexpress.game.GameUtils;
+import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundSource;
@@ -32,8 +35,11 @@ import net.minecraft.world.item.UseAnim;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.HitResult;
+
+import org.agmas.harpymodloader.component.WorldModifierComponent;
 import org.agmas.noellesroles.component.InfectedPlayerComponent;
 import org.agmas.noellesroles.component.ModComponents;
+import org.agmas.noellesroles.game.modifier.NRModifiers;
 import org.agmas.noellesroles.init.ModItems;
 import org.agmas.noellesroles.init.NRSounds;
 import org.jetbrains.annotations.NotNull;
@@ -61,9 +67,17 @@ public class AntidoteItem extends Item {
                 HitResult collision = getAntidoteTarget(attacker);
                 if (collision instanceof EntityHitResult) {
                     EntityHitResult entityHitResult = (EntityHitResult) collision;
-                    Entity target = entityHitResult.getEntity();
-                    if (attacker instanceof ServerPlayer player) {
+                    Entity t = entityHitResult.getEntity();
+                    if (attacker instanceof ServerPlayer player && t instanceof ServerPlayer target) {
                         if (!((double) target.distanceTo(player) > (double) 3.0F)) {
+                            // 清除兔兔修饰符
+                            var wmcca = WorldModifierComponent.getInstance(world);
+                            if (wmcca.isModifier(target, NRModifiers.RABBIT_SHAPE)) {
+                                SRE.REPLAY_MANAGER.recordCustomEvent(
+                                        Component.translatable("replay.event.rabbit.restore",
+                                                GameReplayUtils.getReplayPlayerDisplayText(target, true)));
+                                wmcca.removeModifier(target, NRModifiers.RABBIT_SHAPE);
+                            }
                             // 清除中毒状态
                             final var playerPoisonComponent = SREPlayerPoisonComponent.KEY.get(target);
                             playerPoisonComponent.cure(attacker);

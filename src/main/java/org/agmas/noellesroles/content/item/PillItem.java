@@ -15,16 +15,22 @@
 
 package org.agmas.noellesroles.content.item;
 
+import io.wifi.starrailexpress.SRE;
+import io.wifi.starrailexpress.api.replay.GameReplayUtils;
 import io.wifi.starrailexpress.cca.SREPlayerPoisonComponent;
 import net.minecraft.core.component.DataComponents;
+import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.component.CustomData;
 import net.minecraft.world.level.Level;
+
+import org.agmas.harpymodloader.component.WorldModifierComponent;
 import org.agmas.noellesroles.component.InfectedPlayerComponent;
 import org.agmas.noellesroles.component.ModComponents;
+import org.agmas.noellesroles.game.modifier.NRModifiers;
 import org.agmas.noellesroles.init.HSRConstants;
 import org.agmas.noellesroles.init.ModItems;
 import org.jetbrains.annotations.NotNull;
@@ -51,6 +57,13 @@ public class PillItem extends Item {
                 // 治愈感染
                 InfectedPlayerComponent infectedComponent = ModComponents.INFECTED.get(player);
                 infectedComponent.cure();
+            }
+            var wmcca = WorldModifierComponent.getInstance(world);
+            if (wmcca.isModifier(player, NRModifiers.RABBIT_SHAPE)) {
+                SRE.REPLAY_MANAGER.recordCustomEvent(
+                        Component.translatable("replay.event.rabbit.restore",
+                                GameReplayUtils.getReplayPlayerDisplayText(player, true)));
+                wmcca.removeModifier(player, NRModifiers.RABBIT_SHAPE);
             }
         }
         return result;

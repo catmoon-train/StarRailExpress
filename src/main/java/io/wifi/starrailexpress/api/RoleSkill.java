@@ -107,6 +107,11 @@ public final class RoleSkill {
             }
             return null;
         }
+
+        public void displayNoTargetMessage() {
+            player.displayClientMessage(
+                    Component.translatable("tip.noellesroles.no_target").withStyle(ChatFormatting.RED), true);
+        }
     }
 
     @FunctionalInterface

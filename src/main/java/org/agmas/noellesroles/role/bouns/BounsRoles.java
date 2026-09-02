@@ -324,6 +324,14 @@ public class BounsRoles {
             .setDefaultEnableChance(1000)
             .setDefaultEnableMaxPlayerCount(18);
 
+    public static SRERole RABBIT_WANSUI = TMMRoles.registerRole(new RabbitWansuiRole(
+            id("rabbit_wansui"),
+            new Color(253, 253, 253).getRGB(),
+            RoleType.NEUTRALS,
+            MoodType.FAKE,
+            Integer.MAX_VALUE,
+            true));
+
     public static void init() {
         THRedHouseRoles.init();
         THMountainRoles.init();

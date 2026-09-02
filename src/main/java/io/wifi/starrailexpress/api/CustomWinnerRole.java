@@ -21,6 +21,11 @@ import net.minecraft.server.level.ServerPlayer;
 import org.agmas.noellesroles.utils.RoleUtils;
 
 public abstract class CustomWinnerRole extends NormalRole implements CustomWinnerRoleInterface {
+    public CustomWinnerRole(ResourceLocation identifier, int color, RoleType roleType, MoodType moodType,
+            int maxSprintTime, boolean canSeeTime) {
+        super(identifier, color, roleType, moodType, maxSprintTime, canSeeTime);
+    }
+
     /**
      * @param identifier    the mod id and name of the role
      * @param color         the role announcement color
