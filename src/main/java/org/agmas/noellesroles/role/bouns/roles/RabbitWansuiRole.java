@@ -3,6 +3,7 @@ package org.agmas.noellesroles.role.bouns.roles;
 import org.agmas.harpymodloader.component.WorldModifierComponent;
 import org.agmas.noellesroles.game.modifier.NRModifiers;
 import org.agmas.noellesroles.init.ModEffects;
+import org.agmas.noellesroles.packet.RefreshDimensionsS2CPacket;
 import org.agmas.noellesroles.role.bouns.BounsRoles;
 import org.agmas.noellesroles.utils.RoleUtils;
 
@@ -15,6 +16,7 @@ import io.wifi.starrailexpress.game.GameUtils;
 import io.wifi.starrailexpress.game.GameUtils.WinStatus;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
+import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.effect.MobEffects;
@@ -63,6 +65,9 @@ public class RabbitWansuiRole extends CustomWinnerRole implements EggRoleInterfa
                             Component.translatable("replay.event.rabbit.restore",
                                     GameReplayUtils.getReplayPlayerDisplayText(player, true)));
                     wmcca.removeModifier(p, NRModifiers.RABBIT_SHAPE);
+
+                    ServerPlayNetworking.send(player, new RefreshDimensionsS2CPacket());
+                    player.refreshDimensions();
                 }
             }
         }
@@ -91,6 +96,9 @@ public class RabbitWansuiRole extends CustomWinnerRole implements EggRoleInterfa
                     target.addEffect(ModEffects.of(ModEffects.JUMP_DECREASE, 5 * 20, 10, false, false, true));
                     target.addEffect(ModEffects.of(ModEffects.CHAT_BAN, 30 * 20, 10, false, false, true));
                     target.addEffect(ModEffects.of(ModEffects.VOICE_SILENCE, 30 * 20, 10, false, false, true));
+
+                    ServerPlayNetworking.send(player, new RefreshDimensionsS2CPacket());
+                    player.refreshDimensions();
                     return true;
                 })
                         .withTarget()
@@ -105,6 +113,9 @@ public class RabbitWansuiRole extends CustomWinnerRole implements EggRoleInterfa
                         wmcca.removeModifier(player, NRModifiers.RABBIT_SHAPE);
                     else
                         wmcca.addModifier(player, NRModifiers.RABBIT_SHAPE);
+
+                    ServerPlayNetworking.send(player, new RefreshDimensionsS2CPacket());
+                    player.refreshDimensions();
                     return true;
                 })
                         .showOnHud(true)

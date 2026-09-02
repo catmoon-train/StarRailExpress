@@ -330,7 +330,9 @@ public class BounsRoles {
             RoleType.NEUTRALS,
             MoodType.FAKE,
             Integer.MAX_VALUE,
-            true));
+            true))
+            .setDefaultEnableChance(500)
+            .setDefaultEnableMaxPlayerCount(18);
 
     public static void init() {
         THRedHouseRoles.init();

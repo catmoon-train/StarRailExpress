@@ -19,6 +19,7 @@ import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.api.replay.GameReplayUtils;
 import io.wifi.starrailexpress.cca.SREPlayerPoisonComponent;
 import io.wifi.starrailexpress.game.GameUtils;
+import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -42,6 +43,7 @@ import org.agmas.noellesroles.component.ModComponents;
 import org.agmas.noellesroles.game.modifier.NRModifiers;
 import org.agmas.noellesroles.init.ModItems;
 import org.agmas.noellesroles.init.NRSounds;
+import org.agmas.noellesroles.packet.RefreshDimensionsS2CPacket;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -77,6 +79,9 @@ public class AntidoteItem extends Item {
                                         Component.translatable("replay.event.rabbit.restore",
                                                 GameReplayUtils.getReplayPlayerDisplayText(target, true)));
                                 wmcca.removeModifier(target, NRModifiers.RABBIT_SHAPE);
+
+                                ServerPlayNetworking.send(player, new RefreshDimensionsS2CPacket());
+                                player.refreshDimensions();
                             }
                             // 清除中毒状态
                             final var playerPoisonComponent = SREPlayerPoisonComponent.KEY.get(target);

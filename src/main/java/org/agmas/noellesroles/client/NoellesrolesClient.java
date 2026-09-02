@@ -490,6 +490,10 @@ public class NoellesrolesClient implements ClientModInitializer {
         RoleInstinctRegister.registerInstinctEvents();
         BeeFamilyClientManager.registerEvents();
 
+        ClientPlayNetworking.registerGlobalReceiver(RefreshDimensionsS2CPacket.ID, (payload, context) -> {
+            if (context.client().player != null)
+                context.client().player.refreshDimensions();
+        });
         ClientPlayNetworking.registerGlobalReceiver(OpenScreenPayload.ID, (payload, context) -> {
             ClientOpenScreenManager.openScreen(payload, context);
         });
@@ -1201,7 +1205,8 @@ public class NoellesrolesClient implements ClientModInitializer {
             if (client.player == null || client.level == null) {
                 return;
             }
-            if (client.getCameraEntity() instanceof org.agmas.noellesroles.content.entity.NiaoshoushouMissileEntity missile) {
+            if (client
+                    .getCameraEntity() instanceof org.agmas.noellesroles.content.entity.NiaoshoushouMissileEntity missile) {
                 // 导弹被移除、已从客户端世界消失（如飞出加载区块后实体冻结在原地，
                 // isRemoved 不会置位），或超出 128 格控制距离时，都必须把相机还给玩家，
                 // 否则视角会卡死在导弹最后停留的位置。

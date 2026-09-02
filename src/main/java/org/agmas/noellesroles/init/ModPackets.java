@@ -51,6 +51,8 @@ public class ModPackets {
     public static final CustomPacketPayload.Type<ImitatorSwitchSlotC2SPacket> IMITATOR_SWITCH_SLOT_PACKET = ImitatorSwitchSlotC2SPacket.TYPE;
 
     public static void registerPackets() {
+        PayloadTypeRegistry.playS2C().register(RefreshDimensionsS2CPacket.ID,
+                RefreshDimensionsS2CPacket.CODEC);
         PayloadTypeRegistry.playS2C().register(FakeSteveControlS2CPacket.ID,
                 FakeSteveControlS2CPacket.CODEC);
         PayloadTypeRegistry.playS2C().register(FakeSteveApparitionS2CPacket.ID,
