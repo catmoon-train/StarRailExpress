@@ -98,7 +98,7 @@ public class RabbitWansuiRole extends CustomWinnerRole implements EggRoleInterfa
                             .withStyle(ChatFormatting.AQUA), true);
                     target.addEffect(ModEffects.of(MobEffects.DARKNESS, 5 * 20, 0, false, false, true));
                     target.addEffect(ModEffects.of(MobEffects.BLINDNESS, 5 * 20, 0, false, false, true));
-                    target.addEffect(ModEffects.of(ModEffects.USED_BANED, 30 * 20, 0, false, false, true));
+                    target.addEffect(ModEffects.of(ModEffects.USED_BANED, 15 * 20, 0, false, false, true));
                     target.addEffect(ModEffects.of(ModEffects.MOVE_BANED, 5 * 20, 0, false, false, true));
                     target.addEffect(ModEffects.of(ModEffects.JUMP_DECREASE, 5 * 20, 10, false, false, true));
                     target.addEffect(ModEffects.of(ModEffects.CHAT_BAN, 30 * 20, 10, false, false, true));
