@@ -70,6 +70,8 @@
   "text.autoconfig.starrailexpress-client.option.title": "客户端",
   "text.autoconfig.starrailexpress-client.option.ultraPerfMode": "极限性能模式",
   "text.autoconfig.starrailexpress-client.option.ultraPerfMode.@Tooltip": "禁用场景以换取较差的视觉体验，但获得最佳性能。同时，建议你调低区块渲染距离，在Sodium菜单中关闭屏幕暗角 (Vignette) 有助于获得更高的fps。",
+  "text.autoconfig.starrailexpress-client.option.enhancedChatHud": "更好的聊天栏渲染优化",
+  "text.autoconfig.starrailexpress-client.option.enhancedChatHud.@Tooltip": "如果遇到BUG或是帧率下降，请关闭此选项。",
   "text.autoconfig.starrailexpress-client.option.broadcasterMessageDuration": "广播显示时长（包括/broadcast等）（s）",
   "text.autoconfig.starrailexpress-client.option.disableTitleScreenSound": "禁音主页烦人的列车声音",
   "text.autoconfig.starrailexpress-client.option.welcome_voice": "是否播放列车欢迎语音",

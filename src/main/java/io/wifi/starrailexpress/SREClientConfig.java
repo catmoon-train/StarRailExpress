@@ -37,9 +37,10 @@ public class SREClientConfig implements ConfigData {
             SREClientConfig.class);
     // 客户端专用配置 - 仅在客户端环境生效
 
-
     @ConfigEntry.Gui.Tooltip
     public boolean ultraPerfMode = false;
+    @ConfigEntry.Gui.Tooltip
+    public boolean enhancedChatHud = false;
     public boolean bgsoundForSpectator = false;
 
     @ConfigEntry.Gui.Excluded

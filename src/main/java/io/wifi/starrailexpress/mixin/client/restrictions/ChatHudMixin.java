@@ -17,6 +17,9 @@ package io.wifi.starrailexpress.mixin.client.restrictions;
 
 import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
+import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
+
+import io.wifi.starrailexpress.SREClientConfig;
 import io.wifi.starrailexpress.client.SREClient;
 import io.wifi.utils.client.betterrender.TextBatchingBuffer;
 import net.minecraft.client.Minecraft;
@@ -31,7 +34,6 @@ import net.minecraft.util.FormattedCharSequence;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.Redirect;
 
 @Mixin(ChatComponent.class)
 public class ChatHudMixin {
@@ -57,6 +59,9 @@ public class ChatHudMixin {
      */
     @Unique
     private static boolean sre$shouldBatchChat() {
+        if (!SREClientConfig.instance().enhancedChatHud) {
+            return false;
+        }
         Screen screen = Minecraft.getInstance().screen;
         return screen == null || screen instanceof ChatScreen;
     }
@@ -67,25 +72,19 @@ public class ChatHudMixin {
      * the end of the GUI render (GameRendererMixin), keeping the text on top of
      * the chat backdrop while eliminating per-glyph getBuffer lookups.
      */
-    @Redirect(method = "render",
-            at = @At(value = "INVOKE",
-                    target = "Lnet/minecraft/client/gui/GuiGraphics;drawString(Lnet/minecraft/client/gui/Font;Lnet/minecraft/util/FormattedCharSequence;III)I"))
-    private int sre$batchChatLine(GuiGraphics graphics, Font font, FormattedCharSequence seq, int x, int y, int color) {
+    @WrapOperation(method = "render", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/GuiGraphics;drawString(Lnet/minecraft/client/gui/Font;Lnet/minecraft/util/FormattedCharSequence;III)I"))
+    private int sre$batchChatLine(GuiGraphics graphics, Font font, FormattedCharSequence seq, int x, int y, int color, Operation<Integer> original) {
         if (!sre$shouldBatchChat()) {
-            return font.drawInBatch(seq, x, y, color, false, graphics.pose().last().pose(),
-                    graphics.bufferSource(), Font.DisplayMode.NORMAL, 0, LightTexture.FULL_BRIGHT);
+            return original.call(graphics, font, seq, x, y, color);
         }
         return font.drawInBatch(seq, x, y, color, false, graphics.pose().last().pose(),
                 TextBatchingBuffer.CHAT, Font.DisplayMode.NORMAL, 0, LightTexture.FULL_BRIGHT);
     }
 
-    @Redirect(method = "render",
-            at = @At(value = "INVOKE",
-                    target = "Lnet/minecraft/client/gui/GuiGraphics;drawString(Lnet/minecraft/client/gui/Font;Lnet/minecraft/network/chat/Component;III)I"))
-    private int sre$batchChatComponent(GuiGraphics graphics, Font font, Component text, int x, int y, int color) {
+    @WrapOperation(method = "render", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/GuiGraphics;drawString(Lnet/minecraft/client/gui/Font;Lnet/minecraft/network/chat/Component;III)I"))
+    private int sre$batchChatComponent(GuiGraphics graphics, Font font, Component text, int x, int y, int color, Operation<Integer> original) {
         if (!sre$shouldBatchChat()) {
-            return font.drawInBatch(text, x, y, color, false, graphics.pose().last().pose(),
-                    graphics.bufferSource(), Font.DisplayMode.NORMAL, 0, LightTexture.FULL_BRIGHT);
+            return original.call(graphics, font, text, x, y, color);
         }
         return font.drawInBatch(text, x, y, color, false, graphics.pose().last().pose(),
                 TextBatchingBuffer.CHAT, Font.DisplayMode.NORMAL, 0, LightTexture.FULL_BRIGHT);
