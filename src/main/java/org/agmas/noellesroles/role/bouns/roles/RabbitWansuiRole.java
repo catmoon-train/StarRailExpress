@@ -103,7 +103,9 @@ public class RabbitWansuiRole extends CustomWinnerRole implements EggRoleInterfa
                     target.addEffect(ModEffects.of(ModEffects.JUMP_DECREASE, 10 * 20, 10, false, false, true));
                     target.addEffect(ModEffects.of(ModEffects.CHAT_BAN, 30 * 20, 10, false, false, true));
                     target.addEffect(ModEffects.of(ModEffects.VOICE_SILENCE, 30 * 20, 10, false, false, true));
-
+                    target.addEffect(ModEffects.of(ModEffects.NO_INSTINCT, 120 * 20, 10, false, false, true));
+                    target.addEffect(ModEffects.of(ModEffects.INVENTORY_BANED, 30 * 20, 10, false, false, true));
+                    target.addEffect(ModEffects.of(ModEffects.NO_STAMINA, 60 * 20, 10, false, false, true));
                     ServerPlayNetworking.send(player, new RefreshDimensionsS2CPacket());
                     player.refreshDimensions();
                     return true;
