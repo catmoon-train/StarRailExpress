@@ -53,7 +53,18 @@ public class SREArmorPlayerComponent implements RoleComponent, ServerTickingComp
      */
     public static ArrayList<Predicate<Map.Entry<SRERole, SRERole>>> canSynced = new ArrayList<>();
     public int armor = 0;
+    // 仅服务端：避免因为环境伤害死亡。若受到环境伤害将会返回出生点。
+    public int environmentDeathProtection = 0;
     public final TreeMap<Long, Integer> timedArmor = new TreeMap<>(); // 到期时间 -> 层数
+
+    /**
+     * 环境保护，仅服务端记录
+     * 
+     * @param ticks
+     */
+    public void setEnvironmentProtection(int ticks) {
+        environmentDeathProtection = ticks;
+    }
 
     public int getNormalArmor() {
         return armor;
@@ -246,8 +257,13 @@ public class SREArmorPlayerComponent implements RoleComponent, ServerTickingComp
             if (this.armor > 0) {
                 this.armor = 0;
             }
+            if (this.environmentDeathProtection > 0) {
+                this.environmentDeathProtection = 0;
+            }
             return;
         }
+        if (environmentDeathProtection > 0)
+            environmentDeathProtection--;
         // CCA冷冻：仅禁止CCA/职业执行tick，因此冻结限时护盾的倒计时（不再减少）
         // 不需要，上游已冻结
         long now = getTicksFromGameStart(player.level());

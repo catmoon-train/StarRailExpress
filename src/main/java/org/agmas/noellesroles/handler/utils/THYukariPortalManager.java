@@ -11,6 +11,7 @@ import org.joml.Vector3f;
 
 import com.mojang.math.Transformation;
 
+import io.wifi.starrailexpress.cca.SREArmorPlayerComponent;
 import io.wifi.starrailexpress.event.OnGameServerTick;
 import io.wifi.starrailexpress.game.GameUtils;
 import net.minecraft.ChatFormatting;
@@ -108,6 +109,9 @@ public class THYukariPortalManager {
                 .withStyle(ChatFormatting.AQUA), true);
         PORTAL_COOLDOWNS.put(player.getUUID(), now + PORTAL_ENTRANCE_COOLDOWN);
         // 来点特效！
+        player.setLastHurtByMob(null);
+        player.setLastHurtByPlayer(null);
+        SREArmorPlayerComponent.KEY.get(player).setEnvironmentProtection(30 * 20);
         player.addEffect(ModEffects.of(ModEffects.TIME_REWIND_DAZE, 20, 1, false, false, false));
         player.playSound(SoundEvents.PORTAL_TRAVEL);
         player.teleportTo(destination.x, destination.y, destination.z);

@@ -21,6 +21,7 @@ import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.api.TMMRoles;
 import io.wifi.starrailexpress.api.data.RoleData;
 import io.wifi.starrailexpress.api.replay.GameReplayUtils;
+import io.wifi.starrailexpress.cca.SREArmorPlayerComponent;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.cca.SREPlayerPsychoComponent;
 import io.wifi.starrailexpress.cca.SREPlayerShopComponent;
@@ -31,6 +32,7 @@ import io.wifi.starrailexpress.event.*;
 import io.wifi.starrailexpress.content.block_entity.EntityInteractionBlockEntity;
 import io.wifi.starrailexpress.game.GameConstants;
 import io.wifi.starrailexpress.game.GameUtils;
+import io.wifi.starrailexpress.game.forensic.ForensicCategory;
 import io.wifi.starrailexpress.game.roles.SpecialGameModeRoles;
 import io.wifi.starrailexpress.index.SREDataComponentTypes;
 import io.wifi.starrailexpress.index.TMMItems;
@@ -649,6 +651,24 @@ public class NRDeathEvents {
     }
 
     private static void registerOthers() {
+        // 避免玩家因为环境伤害死亡。
+        OnKillPlayerTriggered.EVENT.register((victim, spawnBody, killer, deathReasosn, forceKill) -> {
+            if (killer == null) {
+                if (ForensicCategory.fromDeathReason(deathReasosn).equals(ForensicCategory.ENVIRONMENT)) {
+                    var armorcca = SREArmorPlayerComponent.KEY.get(victim);
+                    if (armorcca.environmentDeathProtection > 0) {
+                        armorcca.environmentDeathProtection = 0;
+                        GameUtils.teleportBackToRoom(victim);
+                        victim.displayClientMessage(
+                                Component.translatable("message.noellesroles.environment_protection")
+                                        .withStyle(ChatFormatting.GREEN),
+                                true);
+                        return TrueFalseResult.FALSE;
+                    }
+                }
+            }
+            return TrueFalseResult.PASS;
+        });
         OnKillPlayerTriggered.EVENT.register((victim, spawnBody, killer, deathreason, forceKill) -> {
             var cca = InControlCCA.KEY.get(victim);
             if (cca.isControlling) {

@@ -719,6 +719,7 @@
   "screen.broadcaster.hint": "输入消息...",
   "screen.broadcaster.send": "发送",
   "screen.broadcaster.title": "广播消息",
+  "message.noellesroles.environment_protection": "你避免了一次因为环境因素的死亡！",
   "message.noellesroles.ability_cooldown": "技能冷却中",
   "message.noellesroles.insufficient_funds": "你的金币不足！",
   "message.noellesroles.insufficient_funds_money": "你的金币不足！需要 %s 金币",
