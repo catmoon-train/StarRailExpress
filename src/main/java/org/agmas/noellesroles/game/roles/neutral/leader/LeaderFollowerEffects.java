@@ -26,6 +26,9 @@ import io.wifi.starrailexpress.cca.SREPlayerShopComponent;
 import io.wifi.starrailexpress.game.GameUtils;
 import io.wifi.starrailexpress.index.TMMItems;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
+import org.agmas.harpymodloader.component.WorldModifierComponent;
+import org.agmas.noellesroles.game.modifier.NRModifiers;
+import org.agmas.noellesroles.packet.RefreshDimensionsS2CPacket;
 import net.minecraft.core.Holder;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
@@ -193,6 +196,9 @@ public final class LeaderFollowerEffects {
             case "morichika_rinnosuke", "kawashiro_nitori" -> applyCoinDependent(leader, follower);
             case "furandoru" -> applyFurandoru(leader, follower);
             case "lin_family" -> applyLinFamily(leader, follower);
+            case "saigyouji_yuyuko" -> applySaigyoujiYuyuko(leader, follower);
+            case "rabbit_wansui" -> applyRabbitWansui(leader, follower);
+            case "licensed_villain" -> applyLicensedVillain(leader, follower);
             default -> applyGeneric(leader, follower);
         }
     }
@@ -469,6 +475,34 @@ public final class LeaderFollowerEffects {
                 Component.translatable("message.noellesroles.leader.lin_family_passbook"), true);
         leader.displayClientMessage(
                 Component.translatable("message.noellesroles.leader.lin_family_shield"), true);
+    }
+
+    // 追随者：西行寺幽幽子
+    private static void applySaigyoujiYuyuko(ServerPlayer leader, ServerPlayer follower) {
+        // 追随者获得永久夜视与速度 I（无图标、无粒子）
+        permanentEffect(follower, MobEffects.NIGHT_VISION, 0);
+        permanentEffect(follower, MobEffects.MOVEMENT_SPEED, 0);
+        // 领袖获得一把刀
+        giveItem(leader, TMMItems.KNIFE.getDefaultInstance());
+    }
+
+    // 追随者：兔兔万岁
+    private static void applyRabbitWansui(ServerPlayer leader, ServerPlayer follower) {
+        // 追随者立即获得 500 金币
+        SREPlayerShopComponent.KEY.get(follower).addToBalance(500);
+        // 领袖获得 rabbit_shape 修饰符
+        WorldModifierComponent.KEY.get(leader.level()).addModifier(leader, NRModifiers.RABBIT_SHAPE);
+        ServerPlayNetworking.send(leader, new RefreshDimensionsS2CPacket());
+        leader.refreshDimensions();
+    }
+
+    // 追随者：黑警
+    private static void applyLicensedVillain(ServerPlayer leader, ServerPlayer follower) {
+        // 追随者立即获得撬棍与 50 金币
+        SREPlayerShopComponent.KEY.get(follower).addToBalance(50);
+        giveItem(follower, TMMItems.CROWBAR.getDefaultInstance());
+        // 领袖获得制式手枪
+        giveItem(leader, TMMItems.STANDARD_REVOLVER.getDefaultInstance());
     }
 
     /** 在玩家脚下生成物品（背包满时的兜底） */
