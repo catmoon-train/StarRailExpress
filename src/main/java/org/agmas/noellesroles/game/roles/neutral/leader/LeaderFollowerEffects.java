@@ -56,6 +56,8 @@ import org.agmas.noellesroles.role.ModMeetingRoles;
 import org.agmas.noellesroles.role.touhou.THMountainRoles;
 import org.agmas.noellesroles.role.touhou.THHumanVillageRoles;
 import org.agmas.noellesroles.role_data.neutral.LeaderRoleData;
+import org.agmas.noellesroles.role_data.neutral.AnatmanRoleData;
+import org.agmas.noellesroles.role_data.neutral.AsatyaRoleData;
 import org.agmas.noellesroles.role.bouns.roles.BeeFamilyRole;
 import org.agmas.noellesroles.handler.utils.BeeFamilyManager;
 import org.agmas.noellesroles.utils.RoleUtils;
@@ -199,6 +201,7 @@ public final class LeaderFollowerEffects {
             case "saigyouji_yuyuko" -> applySaigyoujiYuyuko(leader, follower);
             case "rabbit_wansui" -> applyRabbitWansui(leader, follower);
             case "licensed_villain" -> applyLicensedVillain(leader, follower);
+            case "anatman", "asatya" -> applyAnatmanAsatya(leader, follower);
             default -> applyGeneric(leader, follower);
         }
     }
@@ -505,6 +508,29 @@ public final class LeaderFollowerEffects {
         giveItem(leader, TMMItems.STANDARD_REVOLVER.getDefaultInstance());
     }
 
+    /**
+     * 追随者：无我 / 无妄（领袖对其中一人释放技能时，两人都会成为追随者并分别触发本效果）。
+     * <ul>
+     * <li>追随者无我：获得一层护盾</li>
+     * <li>追随者无妄：获得一把刀</li>
+     * <li>领袖奖励（开锁器+撬棍）在 {@link #tryRecruit} 的无我/无妄联动处只发放一次</li>
+     * </ul>
+     */
+    private static void applyAnatmanAsatya(ServerPlayer leader, ServerPlayer follower) {
+        String path = SREGameWorldComponent.KEY.get(follower.level()).getRole(follower).identifier().getPath();
+        if (path.equals("anatman")) {
+            // 追随者无我获得一层护盾
+            SREArmorPlayerComponent.KEY.get(follower).addArmor(1);
+            follower.displayClientMessage(
+                    Component.translatable("message.noellesroles.leader.anatman_shield"), false);
+        } else if (path.equals("asatya")) {
+            // 追随者无妄获得一把刀
+            giveItem(follower, TMMItems.KNIFE.getDefaultInstance());
+            follower.displayClientMessage(
+                    Component.translatable("message.noellesroles.leader.asatya_knife"), false);
+        }
+    }
+
     /** 在玩家脚下生成物品（背包满时的兜底） */
     private static void spawnAtFeet(ServerPlayer player, ItemStack stack) {
         net.minecraft.world.entity.item.ItemEntity entity = new net.minecraft.world.entity.item.ItemEntity(
@@ -632,6 +658,23 @@ public final class LeaderFollowerEffects {
 
         // 施加追随者效果
         applyEffect(leader, target);
+
+        // 无我/无妄联动：对其中一人释放技能，两人都成为追随者，效果对两人分别生效（领袖奖励只发一次）
+        if (path.equals("anatman") || path.equals("asatya")) {
+            ServerPlayer partner = path.equals("anatman") ? AnatmanRoleData.findPartner(target)
+                    : AsatyaRoleData.findPartner(target);
+            if (partner != null && !partner.equals(leader)
+                    && GameUtils.isPlayerAliveAndSurvival(partner)) {
+                data.addFollower(partner, path.equals("anatman") ? "asatya" : "anatman");
+                notifyFollower(leader, partner);
+                applyEffect(leader, partner);
+            }
+            // 领袖获得一把开锁器和一把撬棍
+            giveItem(leader, TMMItems.LOCKPICK.getDefaultInstance());
+            giveItem(leader, TMMItems.CROWBAR.getDefaultInstance());
+            leader.displayClientMessage(
+                    Component.translatable("message.noellesroles.leader.anatman_asatya_leader_bonus"), false);
+        }
         return true;
     }
 
