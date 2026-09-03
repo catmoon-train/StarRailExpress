@@ -15,6 +15,7 @@
 
 package io.wifi.starrailexpress.game;
 
+import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.cca.DynamicShopComponent;
 import io.wifi.starrailexpress.index.TMMItems;
 import io.wifi.starrailexpress.util.ShopEntry;
@@ -33,7 +34,7 @@ public class DiscountShopEntry extends ShopEntry {
     public int discount = 0;
     public int maxDiscountCount = 1;
     public int maxPrice = Integer.MAX_VALUE;
-    public int minPrice = 1;
+    public int minPrice = 0;
 
     public DiscountShopEntry(ItemStack stack, int price) {
         this(stack, price, 50, ShopEntry.Type.WEAPON);
@@ -112,15 +113,24 @@ public class DiscountShopEntry extends ShopEntry {
     private void applyPurchaseDiscount(@NotNull Player player) {
         DynamicShopComponent dynamicShop = DynamicShopComponent.KEY.get(player);
         ResourceLocation stackId = BuiltInRegistries.ITEM.getKey(this.stack().getItem());
-        if (dynamicShop.getPurchaseCount(stackId) < maxDiscountCount) {
-            int discountPercent = (int) Math.pow(discount, dynamicShop.getPurchaseCount(stackId));
-            int truePrice = price() * (100 - discountPercent) / 100;
-            if (truePrice > maxPrice) {
-                discountPercent = ((price() - maxPrice) * 100 / price());
-            } else if (truePrice < minPrice) {
-                discountPercent = (price() - minPrice) * 100 / price();
+        int buyCount = dynamicShop.getPurchaseCount(stackId);
+        if (buyCount < maxDiscountCount) {
+            try {
+                int discountPercent = (int) Math.powExact(discount, buyCount + 1);
+                int truePrice = price() * (100 - discountPercent) / 100;
+                if (truePrice > maxPrice) {
+                    discountPercent = ((price() - maxPrice) * 100 / price());
+                } else if (truePrice < minPrice) {
+                    discountPercent = (price() - minPrice) * 100 / price();
+                }
+                dynamicShop.setPercentDiscount(stackId, discountPercent);
+            } catch (ArithmeticException e) {
+                SRE.LOGGER.error(
+                        "Error while calc discount! Infomation: Stack {}, Original Price {}, Buy Count {}, Max Discount Count {}, Discount Percent Per {}, Min Price {}, Max Price {}",
+                        stackId.toString(), price(), buyCount, maxDiscountCount, discount, minPrice, maxPrice, e);
+                maxDiscountCount = buyCount;
+                // 已经报错了，不能再打折买了。
             }
-            dynamicShop.setPercentDiscount(stackId, discountPercent);
         }
         dynamicShop.recordPurchase(stackId);
     }
