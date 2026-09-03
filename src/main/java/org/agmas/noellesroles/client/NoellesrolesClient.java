@@ -325,11 +325,12 @@ public class NoellesrolesClient implements ClientModInitializer {
         BlockRenderLayerMap.INSTANCE.putBlock(
                 org.agmas.noellesroles.init.ModSceneBlocks.WATER_VALVE, RenderType.cutout());
 
-        // 注册C4背部渲染
+        // 注册C4背部渲染以及手铐模型渲染
         LivingEntityFeatureRendererRegistrationCallback.EVENT.register(
                 (entityType, entityRenderer, registrationHelper, context) -> {
                     if (entityRenderer instanceof net.minecraft.client.renderer.entity.player.PlayerRenderer pr) {
                         registrationHelper.register(new C4BackFeatureRenderer(pr));
+                        registrationHelper.register(new HandCuffsFeatureRenderer(pr));
                     }
                 });
 

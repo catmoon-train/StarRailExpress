@@ -86,6 +86,7 @@
     "client.AbstractClientPlayerSkinMixin",
     "client.C4ItemEntityRendererMixin",
     "client.HandCuffsKeyBindingMixin",
+    "client.HandCuffsPoseMixin",
     "client.InstinctMixin",
     "client.LamBugFix",
     "client.ManicTaskGlitchMixin",
