@@ -23,6 +23,7 @@ import io.wifi.starrailexpress.api.TouhouRole;
 import io.wifi.starrailexpress.api.NormalRole.RoleType;
 import io.wifi.starrailexpress.cca.SREPlayerShopComponent;
 import io.wifi.starrailexpress.game.KillerKnifeShopEntry;
+import io.wifi.starrailexpress.game.ShopContent;
 import io.wifi.starrailexpress.index.TMMItems;
 import io.wifi.starrailexpress.util.ShopEntry;
 import net.minecraft.resources.ResourceLocation;
@@ -136,13 +137,7 @@ public class THMountainRoles {
             // SREConfig.instance().monitorBrokenDuration * 20);
             // }
             // });
-            SHOP.add(new ShopEntry(TMMItems.BLACKOUT.getDefaultInstance(),
-                    SREConfig.instance().blackoutPrice, ShopEntry.Type.TOOL) {
-                @Override
-                public boolean onBuy(@NotNull Player player) {
-                    return SREPlayerShopComponent.useBlackout(player);
-                }
-            });
+            SHOP.add(ShopContent.getBlackoutShopEntry());
             SHOP.add(new ShopEntry(new ItemStack(TMMItems.NOTE, 4), SREConfig.instance().notePrice,
                     ShopEntry.Type.TOOL));
         }

@@ -18,6 +18,7 @@ import io.wifi.starrailexpress.cca.SREPlayerShopComponent;
 import io.wifi.starrailexpress.game.GameConstants;
 import io.wifi.starrailexpress.game.GameUtils;
 import io.wifi.starrailexpress.game.KillerKnifeShopEntry;
+import io.wifi.starrailexpress.game.ShopContent;
 import io.wifi.starrailexpress.index.TMMItems;
 import io.wifi.starrailexpress.util.SREItemUtils;
 import io.wifi.starrailexpress.util.ShopEntry;
@@ -107,13 +108,7 @@ public class TartagliaRole extends NormalRole {
                 SREConfig.instance().crowbarPrice, ShopEntry.Type.TOOL));
         SHOP.add(new ShopEntry(TMMItems.BODY_BAG.getDefaultInstance(),
                 SREConfig.instance().bodyBagPrice, ShopEntry.Type.TOOL));
-        SHOP.add(new ShopEntry(TMMItems.BLACKOUT.getDefaultInstance(),
-                SREConfig.instance().blackoutPrice, ShopEntry.Type.TOOL) {
-            @Override
-            public boolean onBuy(@NotNull Player player) {
-                return SREPlayerShopComponent.useBlackout(player);
-            }
-        });
+        SHOP.add(ShopContent.getBlackoutShopEntry());
         SHOP.add(new ShopEntry(new ItemStack(TMMItems.NOTE, 4), SREConfig.instance().notePrice,
                 ShopEntry.Type.TOOL));
 

@@ -26,6 +26,7 @@ import io.wifi.starrailexpress.SREConfig;
 import io.wifi.starrailexpress.api.TouhouRole;
 import io.wifi.starrailexpress.cca.SREPlayerShopComponent;
 import io.wifi.starrailexpress.game.KillerKnifeShopEntry;
+import io.wifi.starrailexpress.game.ShopContent;
 import io.wifi.starrailexpress.index.TMMItems;
 import io.wifi.starrailexpress.util.ShopEntry;
 import net.minecraft.resources.ResourceLocation;
@@ -55,13 +56,7 @@ public class THRemiliaServantRole extends TouhouRole {
                 SREConfig.instance().revolverPrice, ShopEntry.Type.WEAPON));
         SHOP.add(new ShopEntry(TMMItems.GRENADE.getDefaultInstance(),
                 SREConfig.instance().grenadePrice, ShopEntry.Type.WEAPON));
-        SHOP.add(new ShopEntry(TMMItems.BLACKOUT.getDefaultInstance(),
-                SREConfig.instance().blackoutPrice, ShopEntry.Type.TOOL) {
-            @Override
-            public boolean onBuy(@NotNull Player player) {
-                return SREPlayerShopComponent.useBlackout(player);
-            }
-        });
+        SHOP.add(ShopContent.getBlackoutShopEntry());
         return SHOP;
     }
 

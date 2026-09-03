@@ -116,11 +116,7 @@ public class RoleShopHandler {
         entries.add(new ShopEntry(new ItemStack(TMMItems.NOTE, 4), 10, ShopEntry.Type.TOOL));
         entries.add(new ShopEntry(TMMItems.CROWBAR.getDefaultInstance(), 35, ShopEntry.Type.TOOL));
         entries.add(new ShopEntry(TMMItems.LOCKPICK.getDefaultInstance(), 100, ShopEntry.Type.TOOL));
-        entries.add(new ShopEntry(TMMItems.BLACKOUT.getDefaultInstance(), 100, ShopEntry.Type.TOOL) {
-            public boolean onBuy(@NotNull Player player) {
-                return SREPlayerShopComponent.useBlackout(player);
-            }
-        });
+        entries.add(ShopContent.getBlackoutShopEntry());
         entries.add(new ShopEntry(TMMItems.MONITOR_BROKEN.getDefaultInstance(), 100, ShopEntry.Type.TOOL) {
             public boolean onBuy(@NotNull Player player) {
                 return SREPlayerShopComponent.useMonitorBroken(player, SREConfig.instance().monitorBrokenDuration * 20);
@@ -842,12 +838,7 @@ public class RoleShopHandler {
                     ShopEntry.Type.WEAPON));
 
             // 关灯 - 配置价格 * 1.5 后取整
-            BANDIT_SHOP.add(new ShopEntry(TMMItems.BLACKOUT.getDefaultInstance(), banditBlackoutPrice(),
-                    ShopEntry.Type.TOOL) {
-                public boolean onBuy(@NotNull Player player) {
-                    return SREPlayerShopComponent.useBlackout(player);
-                }
-            });
+            BANDIT_SHOP.add(ShopContent.getBlackoutShopEntry(1.5f));
 
             // 监控失灵 - 75金币（强盗专属）
             BANDIT_SHOP.add(new ShopEntry(TMMItems.MONITOR_BROKEN.getDefaultInstance(), 75, ShopEntry.Type.TOOL) {
@@ -920,13 +911,7 @@ public class RoleShopHandler {
                     SREConfig.instance().crowbarPrice, ShopEntry.Type.TOOL));
             SHOP.add(new ShopEntry(TMMItems.BODY_BAG.getDefaultInstance(),
                     SREConfig.instance().bodyBagPrice, ShopEntry.Type.TOOL));
-            SHOP.add(new ShopEntry(TMMItems.BLACKOUT.getDefaultInstance(),
-                    SREConfig.instance().blackoutPrice, ShopEntry.Type.TOOL) {
-                @Override
-                public boolean onBuy(@NotNull Player player) {
-                    return SREPlayerShopComponent.useBlackout(player);
-                }
-            });
+            SHOP.add(ShopContent.getBlackoutShopEntry());
             SHOP.add(new ShopEntry(new ItemStack(TMMItems.NOTE, 4), SREConfig.instance().notePrice,
                     ShopEntry.Type.TOOL));
 
@@ -987,13 +972,7 @@ public class RoleShopHandler {
             });
 
             // 关灯 - 配置价格
-            HUNTER_SHOP.add(new ShopEntry(TMMItems.BLACKOUT.getDefaultInstance(), SREConfig.instance().blackoutPrice,
-                    ShopEntry.Type.TOOL) {
-                @Override
-                public boolean onBuy(Player player) {
-                    return SREPlayerShopComponent.useBlackout(player);
-                }
-            });
+            HUNTER_SHOP.add(ShopContent.getBlackoutShopEntry());
 
             // 监控失灵 - 配置价格
             HUNTER_SHOP.add(new ShopEntry(TMMItems.MONITOR_BROKEN.getDefaultInstance(),
@@ -1387,12 +1366,7 @@ public class RoleShopHandler {
                     ShopEntry.Type.TOOL));
 
             // 关灯 - 使用配置价格
-            GANGSTERS_SHOP.add(new ShopEntry(TMMItems.BLACKOUT.getDefaultInstance(), SREConfig.instance().blackoutPrice,
-                    ShopEntry.Type.TOOL) {
-                public boolean onBuy(@NotNull Player player) {
-                    return SREPlayerShopComponent.useBlackout(player);
-                }
-            });
+            GANGSTERS_SHOP.add(ShopContent.getBlackoutShopEntry());
         }
 
         // ==================== 钳工商店 ====================
@@ -1588,13 +1562,7 @@ public class RoleShopHandler {
                 }
             });
             // 关灯 - 使用配置价格
-            WARLOCK_SHOP.add(new ShopEntry(TMMItems.BLACKOUT.getDefaultInstance(), SREConfig.instance().blackoutPrice,
-                    ShopEntry.Type.TOOL) {
-                @Override
-                public boolean onBuy(@NotNull Player player) {
-                    return SREPlayerShopComponent.useBlackout(player);
-                }
-            });
+            WARLOCK_SHOP.add(ShopContent.getBlackoutShopEntry());
             // 监控失灵 - 60金币
             WARLOCK_SHOP.add(new ShopEntry(TMMItems.MONITOR_BROKEN.getDefaultInstance(), 60, ShopEntry.Type.TOOL) {
                 @Override
@@ -2021,13 +1989,7 @@ public class RoleShopHandler {
             SHOP.add(new ShopEntry(ModItems.SPELLBREAKER_POTION.getDefaultInstance(), 75, ShopEntry.Type.TOOL));
             SHOP.add(new ShopEntry(ModItems.SILENCE_TOTEM.getDefaultInstance(), 130, ShopEntry.Type.TOOL));
             // 关灯 - 使用配置价格
-            SHOP.add(new ShopEntry(TMMItems.BLACKOUT.getDefaultInstance(), SREConfig.instance().blackoutPrice,
-                    ShopEntry.Type.TOOL) {
-                @Override
-                public boolean onBuy(@NotNull Player player) {
-                    return SREPlayerShopComponent.useBlackout(player);
-                }
-            });
+            SHOP.add(ShopContent.getBlackoutShopEntry());
             ShopContent.customEntries.put(ModRoles.SPELLBREAKER.getIdentifier(), SHOP);
         }
 
@@ -2105,21 +2067,7 @@ public class RoleShopHandler {
                     ShopEntry.Type.TOOL));
             SHOP.add(new ShopEntry(TMMItems.BODY_BAG.getDefaultInstance(), SREConfig.instance().bodyBagPrice,
                     ShopEntry.Type.TOOL));
-            SHOP.add(new ShopEntry(TMMItems.BLACKOUT.getDefaultInstance(), SREConfig.instance().blackoutPrice,
-                    ShopEntry.Type.TOOL) {
-                public boolean onBuy(@NotNull Player player) {
-                    player.getCooldowns().addCooldown(TMMItems.BLACKOUT,
-                            60 * 20);
-                    boolean triggered = ((SREWorldBlackoutComponent) SREWorldBlackoutComponent.KEY
-                            .get(player.level()))
-                            .triggerBlackout();
-                    if (triggered) {
-                        SRE.REPLAY_MANAGER.recordSkillUsed(player.getUUID(),
-                                BuiltInRegistries.ITEM.getKey(TMMItems.BLACKOUT));
-                    }
-                    return triggered;
-                }
-            });
+            SHOP.add(ShopContent.getBlackoutShopEntry());
 
             SHOP.add(new ShopEntry(Items.WIND_CHARGE.getDefaultInstance(), 50,
                     ShopEntry.Type.TOOL));
@@ -2148,12 +2096,7 @@ public class RoleShopHandler {
                 }
             });
             // 关灯 - 使用配置价格
-            SHOP.add(new ShopEntry(TMMItems.BLACKOUT.getDefaultInstance(), SREConfig.instance().blackoutPrice,
-                    ShopEntry.Type.TOOL) {
-                public boolean onBuy(@NotNull Player player) {
-                    return SREPlayerShopComponent.useBlackout(player);
-                }
-            });
+            SHOP.add(ShopContent.getBlackoutShopEntry());
             SHOP.add(new ShopEntry(ModItems.CAMERA_SHEARS.getDefaultInstance(), 25, ShopEntry.Type.TOOL));
             SHOP.add(new ShopEntry(TMMItems.FIRECRACKER.getDefaultInstance(), 15, ShopEntry.Type.TOOL));
             SHOP.add(new ShopEntry(TMMItems.CROWBAR.getDefaultInstance(), 35, ShopEntry.Type.TOOL));
@@ -2205,12 +2148,7 @@ public class RoleShopHandler {
                     io.wifi.starrailexpress.index.TMMItems.LOCKPICK.getDefaultInstance(),
                     50,
                     ShopEntry.Type.TOOL));
-            SHOP.add(new ShopEntry(TMMItems.BLACKOUT.getDefaultInstance(), SREConfig.instance().blackoutPrice,
-                    ShopEntry.Type.TOOL) {
-                public boolean onBuy(@NotNull Player player) {
-                    return SREPlayerShopComponent.useBlackout(player);
-                }
-            });
+            SHOP.add(ShopContent.getBlackoutShopEntry());
             var psychoItem = TMMItems.PSYCHO_MODE.getDefaultInstance();
             var examplerPsychoLore = new ItemLore(
                     List.of(Component.translatable(
@@ -3454,19 +3392,7 @@ public class RoleShopHandler {
                             .orElse(true);
                 }
             });
-            shop.add(new ShopEntry(TMMItems.BLACKOUT.getDefaultInstance(), SREConfig.instance().blackoutPrice,
-                    ShopEntry.Type.TOOL) {
-                @Override
-                public boolean canDisplay(Player player) {
-                    return !RoleData.getOptional(WatcherRoleData.class, player).map(WatcherRoleData::isInCalmStance)
-                            .orElse(true);
-                }
-
-                @Override
-                public boolean onBuy(@NotNull Player player) {
-                    return SREPlayerShopComponent.useBlackout(player);
-                }
-            });
+            shop.add(ShopContent.getBlackoutShopEntry());
             shop
                     .add(new ShopEntry(new ItemStack(TMMItems.NOTE, 4), SREConfig.instance().notePrice,
                             ShopEntry.Type.TOOL) {
