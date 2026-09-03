@@ -34,6 +34,7 @@ import net.minecraft.network.protocol.game.ClientboundSoundPacket;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.Level;
 
 import org.agmas.noellesroles.init.ModEffects;
 import org.agmas.noellesroles.init.NRSounds;
@@ -295,6 +296,22 @@ public class SREPlayerShopComponent implements RoleComponent, ServerTickingCompo
                 (int) ((double) SREWorldBlackoutComponent.getMaxDuration(player.level()) * multtiplier));
     }
 
+    public static void addGlobalBlackoutCooldown(Level world) {
+        final int globalCooldown = GameConstants.getBlackoutCooldownGlobal();
+        for (var p : world.players()) {
+            var cooldowns = p.getCooldowns();
+            if (cooldowns.isOnCooldown(TMMItems.BLACKOUT)) {
+                var cooldownInstance = cooldowns.cooldowns.get(TMMItems.BLACKOUT);
+                if (cooldownInstance != null) {
+                    int leftTicks = cooldownInstance.endTime - cooldowns.tickCount;
+                    if (leftTicks >= globalCooldown)
+                        continue;
+                }
+            }
+            cooldowns.addCooldown(TMMItems.BLACKOUT, globalCooldown);
+        }
+    }
+
     public static boolean useBlackout(@NotNull Player player, int duration) {
         SREWorldBlackoutComponent blackCCA = SREWorldBlackoutComponent.KEY.get(player.level());
         if (blackCCA.blackOutRemainingTicks > 0)
@@ -302,8 +319,7 @@ public class SREPlayerShopComponent implements RoleComponent, ServerTickingCompo
         boolean triggered = blackCCA.triggerBlackout(true, duration);
         if (triggered) {
             // 公共 Cooldown
-            player.level().players().forEach(
-                    p -> p.getCooldowns().addCooldown(TMMItems.BLACKOUT, GameConstants.getBlackoutCooldownGlobal()));
+            addGlobalBlackoutCooldown(player.level());
 
             SRE.REPLAY_MANAGER.recordSkillUsed(player.getUUID(), BuiltInRegistries.ITEM.getKey(TMMItems.BLACKOUT));
             player.getCooldowns().addCooldown(TMMItems.BLACKOUT,
@@ -323,8 +339,11 @@ public class SREPlayerShopComponent implements RoleComponent, ServerTickingCompo
 
             // 公共 Cooldown
             player.level().players().forEach(
-                    p -> p.getCooldowns().addCooldown(TMMItems.MONITOR_BROKEN,
-                            GameConstants.getMonitorBrokenCooldownGlobal()));
+                    p -> {
+                        if (!p.getCooldowns().isOnCooldown(TMMItems.MONITOR_BROKEN))
+                            p.getCooldowns().addCooldown(TMMItems.MONITOR_BROKEN,
+                                    GameConstants.getMonitorBrokenCooldownGlobal());
+                    });
 
             SRE.REPLAY_MANAGER.recordSkillUsed(player.getUUID(),
                     BuiltInRegistries.ITEM.getKey(TMMItems.MONITOR_BROKEN));
