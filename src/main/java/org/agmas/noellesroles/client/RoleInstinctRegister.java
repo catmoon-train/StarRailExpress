@@ -674,7 +674,7 @@ public class RoleInstinctRegister {
                     if (data.momentTriggered) {
                         SRERole targetRole = SREClient.gameComponent.getRole(targetPlayer);
                         if (targetRole != null
-                                && LicensedVillainRoleData.isTargetRole(targetRole, data.targetPhase))
+                                && data.isTargetRole(targetRole))
                             return TrueFalseAndCustomResult.custom(new Color(0xC1, 0x38, 0x38).getRGB());
                         return TrueFalseAndCustomResult.custom(LicensedVillainRoleData.LICENSED_VILLAIN_COLOR);
                     }

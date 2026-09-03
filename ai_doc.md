@@ -3,6 +3,10 @@
 
 如果实在没办法请告知用户让其自行鉴定后修改。
 
+# 关于AI
+本项目使用AI进行vibe coding建议你至少使用 DeepSeek 模型（比DeepSeek更先进的当然更好）
+否则可能出现一大堆神秘报错。
+
 # 有关Component（CCA）
 ！！！请尽量不要使用CCA！！！
 如果你打算写冷却等需要ticking的cca：

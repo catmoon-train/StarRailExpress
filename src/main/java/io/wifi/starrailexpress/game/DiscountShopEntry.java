@@ -18,6 +18,7 @@ package io.wifi.starrailexpress.game;
 import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.cca.DynamicShopComponent;
 import io.wifi.starrailexpress.index.TMMItems;
+import io.wifi.starrailexpress.util.MathHelper;
 import io.wifi.starrailexpress.util.ShopEntry;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
@@ -106,6 +107,7 @@ public class DiscountShopEntry extends ShopEntry {
         return success;
     }
 
+
     /**
      * 首次购买后为后续购买挂上 -50% 折扣。 / After the first purchase, attach a -50% discount for
      * later buys.
@@ -116,7 +118,7 @@ public class DiscountShopEntry extends ShopEntry {
         int buyCount = dynamicShop.getPurchaseCount(stackId);
         if (buyCount < maxDiscountCount) {
             try {
-                int discountPercent = (int) Math.powExact(discount, buyCount + 1);
+                int discountPercent = (int) MathHelper.powExact(discount, buyCount + 1);
                 int truePrice = price() * (100 - discountPercent) / 100;
                 if (truePrice > maxPrice) {
                     discountPercent = ((price() - maxPrice) * 100 / price());

@@ -20,10 +20,9 @@ import io.wifi.starrailexpress.api.data.RoleData;
 import io.wifi.starrailexpress.api.data.RoleDataContext;
 import io.wifi.starrailexpress.api.impl.SimpleRoleData;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
-import io.wifi.starrailexpress.game.GameConstants;
 import io.wifi.starrailexpress.game.GameUtils;
 import io.wifi.starrailexpress.index.TMMSounds;
-import io.wifi.starrailexpress.network.original.BroadcastMessageS2CPacket;
+import org.agmas.noellesroles.packet.BroadcastMessageS2CPacket;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
@@ -34,11 +33,10 @@ import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import org.agmas.noellesroles.role.bouns.BounsRoles;
+import org.agmas.noellesroles.utils.RoleUtils;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.List;
 import java.util.OptionalInt;
-import java.util.UUID;
 
 /**
  * 黑警（Licensed villain）职业数据。
@@ -66,9 +64,9 @@ public class LicensedVillainRoleData extends SimpleRoleData {
     private static boolean momentTriggeredGuard = false;
 
     /** 本实例（黑警）已知黑警时刻已触发。会同步给客户端用于透视。 */
-    private boolean momentTriggered = false;
+    public boolean momentTriggered = false;
     /** 当前目标阵营阶段。会同步给客户端用于透视。 */
-    private int targetPhase = PHASE_NONE;
+    public int targetPhase = PHASE_NONE;
 
     public LicensedVillainRoleData(RoleDataContext context) {
         super(context);
@@ -155,7 +153,7 @@ public class LicensedVillainRoleData extends SimpleRoleData {
 
         // 给所有黑警发放德林加手枪，并同步状态
         for (ServerPlayer sp : level.players()) {
-            if (gameWorld.isRole(sp, BounsRoles.LICENSED_VILLAIN_ROLE_ID)) {
+            if (gameWorld.isRole(sp, BounsRoles.LICENSED_VILLAIN)) {
                 sp.getInventory().add(new net.minecraft.world.item.ItemStack(
                         io.wifi.starrailexpress.index.TMMItems.DERRINGER));
                 RoleData data = RoleData.getNullable(sp);
@@ -204,7 +202,7 @@ public class LicensedVillainRoleData extends SimpleRoleData {
      * 则该方法会自动返回 false（自动不再是目标）。
      */
     public boolean isTargetRole(@NotNull SRERole role) {
-        if (role.identifier().equals(BounsRoles.LICENSED_VILLAIN_ROLE_ID))
+        if (RoleUtils.compareRole(role, BounsRoles.LICENSED_VILLAIN))
             return false; // 黑警自己永远不是目标
         return switch (targetPhase) {
             case PHASE_KILLER -> role.isKillerTeam();
@@ -218,14 +216,12 @@ public class LicensedVillainRoleData extends SimpleRoleData {
 
     @Override
     public void writeToSyncNbt(@NotNull CompoundTag tag, HolderLookup.Provider registryLookup) {
-        super.writeToSyncNbt(tag, registryLookup);
         tag.putBoolean("lvMoment", momentTriggered);
         tag.putInt("lvPhase", targetPhase);
     }
 
     @Override
     public void readFromSyncNbt(@NotNull CompoundTag tag, HolderLookup.Provider registryLookup) {
-        super.readFromSyncNbt(tag, registryLookup);
         momentTriggered = tag.getBoolean("lvMoment");
         targetPhase = tag.getInt("lvPhase");
     }
@@ -240,7 +236,7 @@ public class LicensedVillainRoleData extends SimpleRoleData {
             SRERole role = gameWorld.getRole(p);
             if (role == null)
                 continue;
-            if (role.identifier().equals(BounsRoles.LICENSED_VILLAIN_ROLE_ID))
+            if (role.equals(BounsRoles.LICENSED_VILLAIN))
                 continue;
             boolean target = switch (phase) {
                 case PHASE_KILLER -> role.isKillerTeam();

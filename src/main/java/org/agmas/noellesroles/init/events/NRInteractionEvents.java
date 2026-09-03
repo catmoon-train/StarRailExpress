@@ -127,7 +127,7 @@ public class NRInteractionEvents {
             var gameC = SREGameWorldComponent.KEY.get(level);
             var playerRole = gameC.getRole(player);
             if (playerRole == null
-                    || (!playerRole.isVigilanteTeam() && !gameC.isRole(player, BounsRoles.LICENSED_VILLAIN_ROLE_ID)))
+                    || (!playerRole.isVigilanteTeam() && !gameC.isRole(player, BounsRoles.LICENSED_VILLAIN)))
                 return InteractionResult.PASS;
             if (HandCuffsItem.hasHandCuff(player))
                 return InteractionResult.PASS;

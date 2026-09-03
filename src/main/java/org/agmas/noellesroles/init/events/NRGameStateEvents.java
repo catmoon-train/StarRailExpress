@@ -280,7 +280,7 @@ public class NRGameStateEvents {
                     hasGodfather = true;
                 } else if (gameWorldComponent.isRole(p, ModRoles.LEADER)) {
                     hasLeader = true;
-                } else if (gameWorldComponent.isRole(p, BounsRoles.LICENSED_VILLAIN_ROLE_ID)) {
+                } else if (gameWorldComponent.isRole(p, BounsRoles.LICENSED_VILLAIN)) {
                     hasLicensedVillain = true;
                 }
             }

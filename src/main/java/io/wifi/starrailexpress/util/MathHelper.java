@@ -19,6 +19,36 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.phys.Vec3;
 
 public class MathHelper extends Mth {
+
+    /**
+     * Copied From Java 25 Math
+     */
+    public static int powExact(int x, int n) {
+        /* See the comment in unsignedPowExact(long,int) for the details. */
+        if (n < 0) {
+            throw new ArithmeticException("negative exponent");
+        }
+        if (n == 0) {
+            return 1;
+        }
+        if (x == 0 || x == 1) {
+            return x;
+        }
+        if (x == -1) {
+            return (n & 0b1) == 0 ? 1 : -1;
+        }
+
+        int p = 1;
+        while (n > 1) {
+            if ((n & 0b1) != 0) {
+                p *= x;
+            }
+            x = Math.multiplyExact(x, x);
+            n >>>= 1;
+        }
+        return Math.multiplyExact(p, x);
+    }
+
     public static float clamp(float value, float min, float max) {
         return value < min ? min : (Math.min(value, max));
     }

@@ -342,13 +342,12 @@ public class BounsRoles {
             .setKillExtraCoinAwards(50)
             .setDefaultEnableMaxPlayerCount(18);
 
-    public static final ResourceLocation LICENSED_VILLAIN_ROLE_ID = id("licensed_villain");
     public static SRERole LICENSED_VILLAIN = TMMRoles.registerRole(new EggRole(
-            LICENSED_VILLAIN_ROLE_ID, // 角色 ID
+            id("licensed_villain"), // 角色 ID
             new Color(0x2B, 0x2B, 0x2B).getRGB(), // 浅黑色
             false, // isInnocent = 非平民阵营
             false, // canUseKiller = 无杀手能力
-            SRERole.MoodType.NORMAL, // 真实心情
+            SRERole.MoodType.REAL, // 真实心情
             0,
             true) // 显示计分板
     )
@@ -395,7 +394,7 @@ public class BounsRoles {
             if (lv == null || !lv.momentTriggered)
                 return true;
             SRERole victimRole = gw.getRole(victim);
-            if (victimRole != null && !LicensedVillainRoleData.isTargetRole(victimRole, lv.targetPhase)) {
+            if (victimRole != null && !lv.isTargetRole(victimRole)) {
                 // 黑警击杀了非目标阵营玩家：悔恨自尽。forcekill 二次触发时 killer=原受害者（非黑警），不会递归惩罚
                 GameUtils.forceKillPlayer(killer, true, victim, GameConstants.DeathReasons.REGRET_SUICIDE);
             }
