@@ -27,9 +27,12 @@ import io.wifi.starrailexpress.cca.SREPlayerShopComponent;
 import io.wifi.starrailexpress.game.GameConstants;
 import io.wifi.starrailexpress.game.GameUtils;
 import net.minecraft.ChatFormatting;
+import net.minecraft.core.HolderLookup;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * 无妄（Asatya）职业数据。
@@ -169,5 +172,15 @@ public class AsatyaRoleData extends SimpleRoleData {
                             .withStyle(ChatFormatting.AQUA),
                     false);
         }
+    }
+
+    // 无自有的需同步状态（护盾由 SREArmorPlayerComponent 自带同步），
+    // RoleData 接口要求显式实现空方法。
+    @Override
+    public void writeToSyncNbt(@NotNull CompoundTag tag, @NotNull HolderLookup.Provider registryLookup) {
+    }
+
+    @Override
+    public void readFromSyncNbt(@NotNull CompoundTag tag, @NotNull HolderLookup.Provider registryLookup) {
     }
 }
