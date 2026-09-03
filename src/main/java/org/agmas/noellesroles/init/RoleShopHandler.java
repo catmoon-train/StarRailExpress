@@ -2329,6 +2329,28 @@ public class RoleShopHandler {
             }
         }
 
+        // 黑警（Licensed Villain）商店
+        {
+            var LICENSED_VILLAIN_SHOP = new ArrayList<ShopEntry>();
+            // 制式左轮 - 150金币（已拥有则无法再次购买）
+            LICENSED_VILLAIN_SHOP.add(new ShopEntry(TMMItems.STANDARD_REVOLVER.getDefaultInstance(), 150,
+                    ShopEntry.Type.WEAPON) {
+                @Override
+                public boolean canBuy(@NotNull Player player) {
+                    for (int i = 0; i < player.getInventory().getContainerSize(); i++) {
+                        if (player.getInventory().getItem(i).is(TMMItems.STANDARD_REVOLVER))
+                            return false;
+                    }
+                    return true;
+                }
+            });
+            // 手铐 - 150金币
+            LICENSED_VILLAIN_SHOP.add(new ShopEntry(ModItems.HANDCUFFS.getDefaultInstance(), 150, ShopEntry.Type.TOOL));
+            // 开锁器 - 100金币
+            LICENSED_VILLAIN_SHOP.add(new ShopEntry(TMMItems.LOCKPICK.getDefaultInstance(), 100, ShopEntry.Type.TOOL));
+            ShopContent.customEntries.put(BounsRoles.LICENSED_VILLAIN.getIdentifier(), LICENSED_VILLAIN_SHOP);
+        }
+
         // 忍者商店
         {
             var NINJA_SHOP = new ArrayList<ShopEntry>();

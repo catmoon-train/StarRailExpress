@@ -23,9 +23,11 @@ import io.wifi.starrailexpress.api.TMMRoles;
 import io.wifi.starrailexpress.api.NormalRole.RoleType;
 import io.wifi.starrailexpress.api.SRERole.MoodType;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
+import io.wifi.starrailexpress.api.data.RoleData;
 import io.wifi.starrailexpress.cca.SREPlayerPsychoComponent;
 import io.wifi.starrailexpress.event.AllowPlayerDeathWithKiller;
 import io.wifi.starrailexpress.game.GameUtils;
+import io.wifi.starrailexpress.game.GameConstants;
 import io.wifi.starrailexpress.util.Color;
 import io.wifi.starrailexpress.util.SRENetworkMessageUtils;
 import net.minecraft.network.chat.Component;
@@ -52,6 +54,8 @@ import org.agmas.noellesroles.role.touhou.THMountainRoles;
 import org.agmas.noellesroles.role.touhou.THRedHouseRoles;
 import org.agmas.noellesroles.role.touhou.THMiscRoles;
 import org.agmas.noellesroles.role.bouns.roles.*;
+import io.wifi.starrailexpress.index.TMMItems;
+import org.agmas.noellesroles.role_data.neutral.LicensedVillainRoleData;
 
 /**
  * 彩蛋角色类，受到彩蛋刷新概率影响
@@ -338,6 +342,26 @@ public class BounsRoles {
             .setKillExtraCoinAwards(50)
             .setDefaultEnableMaxPlayerCount(18);
 
+    public static final ResourceLocation LICENSED_VILLAIN_ROLE_ID = id("licensed_villain");
+    public static SRERole LICENSED_VILLAIN = TMMRoles.registerRole(new EggRole(
+            LICENSED_VILLAIN_ROLE_ID, // 角色 ID
+            new Color(0x2B, 0x2B, 0x2B).getRGB(), // 浅黑色
+            false, // isInnocent = 非平民阵营
+            false, // canUseKiller = 无杀手能力
+            SRERole.MoodType.NORMAL, // 真实心情
+            0,
+            true) // 显示计分板
+    )
+            .setRoleData(LicensedVillainRoleData::new)
+            .setNeutrals(true) // 独立胜利中立
+            .setNeutralForKiller(false)
+            .setCanBeRandomedByOtherRoles(false)
+            .setDefaultEnableChance(1000) // 刷新率 10%
+            .setDefaultEnableMaxPlayerCount(12) // 人数刷新上限 12 人
+            .setAddedVersion("4.4") // versiontag 4.4
+            .setTaskReward(2, 1, new ItemStack(TMMItems.STANDARD_REVOLVER)) // 完成 2 个任务获制式左轮
+            .setCanUseInstinctAndNightVision(true);
+
     public static void init() {
         THRedHouseRoles.init();
         THMountainRoles.init();
@@ -356,6 +380,24 @@ public class BounsRoles {
                 if (sreGameWorldComponent.isRole(player, BounsRoles.CAT_NECROMANCER)) {
                     return false;
                 }
+            }
+            return true;
+        });
+
+        // 黑警：黑警时刻触发后，若误杀（击杀非目标阵营的玩家），因悔恨自尽而死
+        AllowPlayerDeathWithKiller.EVENT.register((victim, killer, deathReason) -> {
+            if (killer == null)
+                return true;
+            SREGameWorldComponent gw = SREGameWorldComponent.KEY.get(victim.level());
+            if (!gw.isRunning() || !gw.isRole(killer, BounsRoles.LICENSED_VILLAIN))
+                return true;
+            LicensedVillainRoleData lv = RoleData.getNullable(LicensedVillainRoleData.class, killer);
+            if (lv == null || !lv.momentTriggered)
+                return true;
+            SRERole victimRole = gw.getRole(victim);
+            if (victimRole != null && !LicensedVillainRoleData.isTargetRole(victimRole, lv.targetPhase)) {
+                // 黑警击杀了非目标阵营玩家：悔恨自尽。forcekill 二次触发时 killer=原受害者（非黑警），不会递归惩罚
+                GameUtils.forceKillPlayer(killer, true, victim, GameConstants.DeathReasons.REGRET_SUICIDE);
             }
             return true;
         });
