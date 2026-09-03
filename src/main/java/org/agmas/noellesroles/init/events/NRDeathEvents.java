@@ -73,6 +73,8 @@ import org.agmas.noellesroles.role_data.killer.StalkerRoleData;
 import org.agmas.noellesroles.role_data.killer.ManipulatorRoleData;
 import org.agmas.noellesroles.role_data.killer.InsaneKillerRoleData;
 import org.agmas.noellesroles.role_data.innocence.FortunetellerRoleData;
+import org.agmas.noellesroles.role_data.neutral.AnatmanRoleData;
+import org.agmas.noellesroles.role_data.neutral.AsatyaRoleData;
 import org.agmas.noellesroles.role_data.neutral.MorticianBodyMakerRoleData;
 import org.agmas.noellesroles.role_data.neutral.RavenRoleData;
 import org.agmas.noellesroles.role_data.neutral.MercenaryRoleData;
@@ -768,6 +770,28 @@ public class NRDeathEvents {
     // --- OnPlayerDeath ---
 
     private static void registerOnPlayerDeath() {
+        // 无妄死亡时，无我进入30秒疯狂模式（附带1层护盾）
+        OnPlayerDeath.EVENT.register((victim, deathReason) -> {
+            if (!(victim instanceof ServerPlayer serverVictim) || victim.level().isClientSide()) {
+                return;
+            }
+            SREGameWorldComponent gameWorld = SREGameWorldComponent.KEY.get(victim.level());
+            if (gameWorld != null && gameWorld.isRole(victim, ModRoles.ASATYA)) {
+                AnatmanRoleData.onAsatyaDeath(serverVictim);
+            }
+        });
+
+        // 无我死亡时，无妄叠加一层护盾（最多5层）
+        OnPlayerDeath.EVENT.register((victim, deathReason) -> {
+            if (!(victim instanceof ServerPlayer serverVictim) || victim.level().isClientSide()) {
+                return;
+            }
+            SREGameWorldComponent gameWorld = SREGameWorldComponent.KEY.get(victim.level());
+            if (gameWorld != null && gameWorld.isRole(victim, ModRoles.ANATMAN)) {
+                AsatyaRoleData.onAnatmanDeath(serverVictim);
+            }
+        });
+
         // 死亡掉枪 + 掉落自定义物品 + 角色清理
         OnPlayerDeath.EVENT.register((p, reason) -> {
             if (!(p instanceof ServerPlayer player))

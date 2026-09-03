@@ -207,6 +207,36 @@ public class RoleInstinctRegister {
             return TrueFalseAndCustomResult.pass();
         });
 
+        // 无我：本能透视无法看到其他玩家，仅能透视无妄（黄框）
+        RoleInstinctEvents.OBSERVER_HIGHLIGHT_EVENT.register(ModRoles.ANATMAN_ID,
+                (client, self, target, hasInstinct) -> {
+                    if (!hasInstinct)
+                        return TrueFalseAndCustomResult.pass();
+                    if (target instanceof Player targetPlayer) {
+                        if (SREClient.gameComponent != null
+                                && SREClient.gameComponent.isRole(targetPlayer, ModRoles.ASATYA)) {
+                            return TrueFalseAndCustomResult.custom(Color.YELLOW.getRGB());
+                        }
+                        return TrueFalseAndCustomResult.disallow();
+                    }
+                    return TrueFalseAndCustomResult.pass();
+                });
+
+        // 无妄：本能透视无法看到其他玩家，仅能透视无我（黄框）
+        RoleInstinctEvents.OBSERVER_HIGHLIGHT_EVENT.register(ModRoles.ASATYA_ID,
+                (client, self, target, hasInstinct) -> {
+                    if (!hasInstinct)
+                        return TrueFalseAndCustomResult.pass();
+                    if (target instanceof Player targetPlayer) {
+                        if (SREClient.gameComponent != null
+                                && SREClient.gameComponent.isRole(targetPlayer, ModRoles.ANATMAN)) {
+                            return TrueFalseAndCustomResult.custom(Color.YELLOW.getRGB());
+                        }
+                        return TrueFalseAndCustomResult.disallow();
+                    }
+                    return TrueFalseAndCustomResult.pass();
+                });
+
         // 疫使：透视所有玩家，被感染者显示橙色边框
         RoleInstinctEvents.OBSERVER_HIGHLIGHT_EVENT.register(ModRoles.INFECTED_ID,
                 (client, self, target, hasInstinct) -> {

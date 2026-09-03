@@ -942,6 +942,33 @@ public class ModRoles {
 			.setCanSeeCoin(true).setRoleData(CuckooRoleData::new).setCanBeRandomedByOtherRoles(false)
 			.setCanUseInstinctAndNightVision(true).setNeutrals(true).setDefaultMax(1)
 			.setDefaultEnableChance(4500);
+
+	// 无我（Anatman）：独立胜利中立，与无妄绑定生成，与年兽互斥生成
+	public static final ResourceLocation ANATMAN_ID = Noellesroles.id("anatman");
+	public static SRERole ANATMAN = TMMRoles.registerRole(
+			new NormalRole(ANATMAN_ID, new Color(216, 216, 216).getRGB(),
+					false, false, SRERole.MoodType.FAKE,
+					Integer.MAX_VALUE, true))
+			.setRoleData(AnatmanRoleData::new)
+			.setNeutrals(true).setNeutralForKiller(false)
+			.setCanBeRandomedByOtherRoles(false)
+			.setCanUseInstinctAndNightVision(true)
+			.setDefaultEnableChance(2000).setDefaultEnableMaxPlayerCount(12)
+			.setAddedVersion("4.4")
+			.setDefaultMax(1);
+
+	// 无妄（Asatya）：独立胜利中立，职业定义与无我一致（绑定/互斥在 init 中由无我设置）
+	public static final ResourceLocation ASATYA_ID = Noellesroles.id("asatya");
+	public static SRERole ASATYA = TMMRoles.registerRole(
+			new NormalRole(ASATYA_ID, new Color(179, 157, 219).getRGB(),
+					false, false, SRERole.MoodType.FAKE,
+					Integer.MAX_VALUE, true))
+			.setRoleData(AsatyaRoleData::new)
+			.setNeutrals(true).setNeutralForKiller(false)
+			.setCanBeRandomedByOtherRoles(false)
+			.setCanUseInstinctAndNightVision(true)
+			.setDefaultMax(0)
+			.setAddedVersion("4.4");
 	public static SRERole JESTER = TMMRoles
 			.registerRole(new JesterRole(JESTER_ID, new Color(186, 85, 211).getRGB(), false,
 					false, SRERole.MoodType.FAKE, Integer.MAX_VALUE, true))
@@ -2826,6 +2853,11 @@ public class ModRoles {
 		// 设置林家子弟与小偷互斥
 		ModRoles.LIN_FAMILY.addTwoWayOpposingRole(ModRoles.THIEF);
 		ModRoles.LIN_FAMILY.addTwoWayOpposingRole(ModRoles.GODFATHER);
+
+		// 无我与无妄绑定生成（无我场上必定有无妄）
+		ModRoles.ANATMAN.addOccupationRole(ModRoles.ASATYA);
+		// 无我与年兽互斥生成
+		ModRoles.ANATMAN.addTwoWayOpposingRole(ModRoles.NIAN_SHOU);
 
 		RoleSkill.register(ModRoles.THE_FOOL, FoolRoleData::useSkill);
 

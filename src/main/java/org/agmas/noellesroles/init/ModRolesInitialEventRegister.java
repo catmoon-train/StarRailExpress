@@ -453,6 +453,67 @@ public class ModRolesInitialEventRegister {
                         .cooldownSeconds(60).shifted(true).noCastCCA(true)
                         .showOnHud(true).announceToSelf(false).build());
 
+        // 无我技能注册：为他（传送无妄回其房间）/舍己（自尽）/还魂（100金币复活无妄）
+        // 均为非shifted技能，可用切换技能键循环选择，HUD显示冷却倒计时
+        RoleSkill.register(ModRoles.ANATMAN,
+                RoleSkill.skill(org.agmas.noellesroles.role_data.neutral.AnatmanRoleData.FOR_HIM_SKILL_ID,
+                        "skill.noellesroles.anatman.for_him",
+                        context -> {
+                            ServerPlayer player = context.player();
+                            if (player.isSpectator()) {
+                                return false;
+                            }
+                            return org.agmas.noellesroles.role_data.neutral.AnatmanRoleData.useForHim(player);
+                        }).cooldownSeconds(80).showOnHud(true).announceToSelf(false).build(),
+                RoleSkill.skill(org.agmas.noellesroles.role_data.neutral.AnatmanRoleData.SELF_SACRIFICE_SKILL_ID,
+                        "skill.noellesroles.anatman.self_sacrifice",
+                        context -> {
+                            ServerPlayer player = context.player();
+                            if (player.isSpectator()) {
+                                return false;
+                            }
+                            return org.agmas.noellesroles.role_data.neutral.AnatmanRoleData.useSelfSacrifice(player);
+                        }).cooldownSeconds(150).showOnHud(true).announceToSelf(false).build(),
+                RoleSkill.skill(org.agmas.noellesroles.role_data.neutral.AnatmanRoleData.SOUL_RETURN_SKILL_ID,
+                        "skill.noellesroles.anatman.soul_return",
+                        context -> {
+                            ServerPlayer player = context.player();
+                            if (player.isSpectator()) {
+                                return false;
+                            }
+                            return org.agmas.noellesroles.role_data.neutral.AnatmanRoleData.useSoulReturn(player);
+                        }).cooldownSeconds(120).showOnHud(true).announceToSelf(false).build());
+
+        // 无妄技能注册：为他（传送无我至身边）/舍己（自尽）/还魂（100金币复活无我）
+        RoleSkill.register(ModRoles.ASATYA,
+                RoleSkill.skill(org.agmas.noellesroles.role_data.neutral.AsatyaRoleData.FOR_HIM_SKILL_ID,
+                        "skill.noellesroles.asatya.for_him",
+                        context -> {
+                            ServerPlayer player = context.player();
+                            if (player.isSpectator()) {
+                                return false;
+                            }
+                            return org.agmas.noellesroles.role_data.neutral.AsatyaRoleData.useForHim(player);
+                        }).cooldownSeconds(80).showOnHud(true).announceToSelf(false).build(),
+                RoleSkill.skill(org.agmas.noellesroles.role_data.neutral.AsatyaRoleData.SELF_SACRIFICE_SKILL_ID,
+                        "skill.noellesroles.asatya.self_sacrifice",
+                        context -> {
+                            ServerPlayer player = context.player();
+                            if (player.isSpectator()) {
+                                return false;
+                            }
+                            return org.agmas.noellesroles.role_data.neutral.AsatyaRoleData.useSelfSacrifice(player);
+                        }).cooldownSeconds(150).showOnHud(true).announceToSelf(false).build(),
+                RoleSkill.skill(org.agmas.noellesroles.role_data.neutral.AsatyaRoleData.SOUL_RETURN_SKILL_ID,
+                        "skill.noellesroles.asatya.soul_return",
+                        context -> {
+                            ServerPlayer player = context.player();
+                            if (player.isSpectator()) {
+                                return false;
+                            }
+                            return org.agmas.noellesroles.role_data.neutral.AsatyaRoleData.useSoulReturn(player);
+                        }).cooldownSeconds(120).showOnHud(true).announceToSelf(false).build());
+
         // 疫使技能注册：按技能键感染目标玩家
         RoleSkill.register(ModRoles.INFECTED, RoleSkill.skill(
                 SRE.id("infected_infect"),

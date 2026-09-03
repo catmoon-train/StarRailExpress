@@ -205,6 +205,27 @@ public class CustomWinnerClass {
             return customRoleWin;
         }
 
+        // 无我与无妄联合独立胜利：乘客/时间/杀手胜利结算时两人均存活，优先级高于年兽
+        if (winStatus.equals(WinStatus.PASSENGERS) || winStatus.equals(WinStatus.KILLERS)
+                || winStatus.equals(WinStatus.TIME)) {
+            boolean hasAnatmanAlive = false;
+            boolean hasAsatyaAlive = false;
+            for (var player : serverLevel.players()) {
+                if (GameUtils.isPlayerAliveAndSurvival(player)) {
+                    if (gameComponent.isRole(player, ModRoles.ANATMAN)) {
+                        hasAnatmanAlive = true;
+                    }
+                    if (gameComponent.isRole(player, ModRoles.ASATYA)) {
+                        hasAsatyaAlive = true;
+                    }
+                }
+            }
+            if (hasAnatmanAlive && hasAsatyaAlive) {
+                RoleUtils.customWinnerWin(serverLevel, "anatman_asatya", ModRoles.ANATMAN.color());
+                return WinStatus.CUSTOM;
+            }
+        }
+
         if (winStatus.equals(WinStatus.TIME) || winStatus.equals(WinStatus.PASSENGERS)
                 || winStatus.equals(WinStatus.LOOSE_END)) {
             var players = serverLevel.players();
