@@ -110,7 +110,7 @@ public class SRERoleRotationGameMode extends SREMurderGameMode {
                     int highestWeightType = PlayerRoleWeightManager.getHighestScoredType(p.getUUID());
                     if (highestWeightType == manager.getLastAssignedFactionGroup())
                         continue;
-                    PlayerRoleWeightManager.forceTeam(p.getUUID(), highestWeightType,ForceTeamType.ROLE_WEIGHTS);
+                    PlayerRoleWeightManager.forceTeam(p.getUUID(), highestWeightType, ForceTeamType.ROLE_WEIGHTS);
                 }
             }
         }
@@ -284,7 +284,7 @@ public class SRERoleRotationGameMode extends SREMurderGameMode {
             SREGameWorldComponent gameComp) {
         if (isInRotationPhase)
             return GameUtils.WinStatus.NONE;
-       
+
         return super.allowGameEnd(world, winStatus, looseEnds, gameComp);
     }
 

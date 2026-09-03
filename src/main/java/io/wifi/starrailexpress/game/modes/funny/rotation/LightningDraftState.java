@@ -228,9 +228,13 @@ public class LightningDraftState {
         Map<Integer, List<UUID>> byType = new HashMap<>();
         final var ppps = new ArrayList<>(allPlayers);
         Collections.shuffle(ppps);
+        ppps.sort((a, b) -> {
+            int a_team = forceTeamType(PlayerRoleWeightManager.ForcePlayerTeam.getOrDefault(a.getUUID(), null));
+            int b_team = forceTeamType(PlayerRoleWeightManager.ForcePlayerTeam.getOrDefault(b.getUUID(), null));
+            return -Integer.compare(a_team, b_team);
+        });
         for (ServerPlayer p : ppps) {
             var t = PlayerRoleWeightManager.ForcePlayerTeam.get(p.getUUID());
-            ;
             Integer forcedType = t.roleType();
             if (forcedType != null) {
                 int normalized = normalizeCardType(forcedType);
@@ -259,6 +263,17 @@ public class LightningDraftState {
                 }
             }
         }
+    }
+
+    private int forceTeamType(ForceTeamInfo b) {
+        if (b == null)
+            return 0; // 或其他默认值
+        return switch (b.type()) {
+            case CARD -> 1;
+            case COMMAND -> 3;
+            case ROLE_WEIGHTS -> 2;
+            default -> 0;
+        };
     }
 
     private boolean roleMatchesFaction(SRERole role, int type) {
