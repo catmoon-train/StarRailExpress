@@ -700,11 +700,18 @@ public class SREMurderGameMode extends GameMode {
                                 playerUid,
                                 roleType);
                         FactionCardType cardType = FactionCardType.fromRoleType(roleType);
-                        if (cardType != FactionCardType.NONE && forceTeamInfo.type() == ForceTeamType.CARD) {
-                            ProgressionDataManager.addFactionCard((ServerPlayer) selectedPlayer, cardType, 1);
-                            BroadcastCommand.BroadcastMessage(selectedPlayer,
-                                    Component.translatable("message.sre.pass.faction.assign_failed")
-                                            .withStyle(ChatFormatting.RED));
+                        if (cardType != FactionCardType.NONE) {
+                            if (forceTeamInfo.type() == ForceTeamType.CARD) {
+
+                                ProgressionDataManager.addFactionCard((ServerPlayer) selectedPlayer, cardType, 1);
+                                BroadcastCommand.BroadcastMessage(selectedPlayer,
+                                        Component.translatable("message.sre.pass.faction.assign_failed")
+                                                .withStyle(ChatFormatting.RED));
+                            } else {
+                                BroadcastCommand.BroadcastMessage(selectedPlayer,
+                                        Component.translatable("message.sre.force_team.assign_failed")
+                                                .withStyle(ChatFormatting.RED));
+                            }
                         }
                     }
                 }

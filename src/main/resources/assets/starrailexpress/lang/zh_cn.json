@@ -1660,6 +1660,8 @@
     "message.sre.minigame_cooldown": "该任务点冷却中，稍后再来",
     "message.sre.minigame_no_task": "当前没有对应的小游戏任务",
     "message.sre.minigame_wrong_type": "请前往指定的%s任务点",
+    "message.sre.pass.faction.assign_failed": "很抱歉，您这局没有玩到您强制选中的阵营。我们已补偿您一张对应职业卡片。",
+    "message.sre.force_team.assign_failed": "很抱歉，强制阵营失效了。但由于您并非使用阵营卡，故不会补偿。",
     "message.sre.progression.faction_card_activated": "你的%s已生效并消耗。",
     "message.sre.progression.level_up": "列车等级提升至 Lv.%s，来源: %s",
     "message.sre.progression.quest_completed": "通行任务完成: %s",
