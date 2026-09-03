@@ -7,6 +7,8 @@ import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import org.agmas.noellesroles.Noellesroles;
+
 import io.wifi.starrailexpress.api.TouhouRole;
 import io.wifi.starrailexpress.event.OnPlayerDeathWithKiller;
 import io.wifi.starrailexpress.game.GameUtils;
@@ -16,6 +18,9 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.ai.attributes.AttributeModifier;
+import net.minecraft.world.entity.ai.attributes.Attributes;
+import net.minecraft.world.entity.ai.attributes.AttributeModifier.Operation;
 import net.minecraft.world.entity.animal.Wolf;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Items;
@@ -157,6 +162,8 @@ public class THIbarakiKasenRole extends TouhouRole {
         Wolf wolf = EntityType.WOLF.create(owner.serverLevel());
         wolf.setPos(pos);
         wolf.addTag("sre.kasen");
+        wolf.getAttributes().getInstance(Attributes.MOVEMENT_SPEED)
+                .addPermanentModifier(new AttributeModifier(Noellesroles.id("ibaraki"), 0.15f, Operation.ADD_VALUE));
         owner.level().addFreshEntity(wolf);
         wolf.tame(owner);
         sitWolf(wolf);

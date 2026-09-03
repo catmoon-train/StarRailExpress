@@ -99,7 +99,7 @@ public class ShopContent {
     /** 杀手关灯，每次加价20%，最多加价3次（120*1.2*1.2*1.2 = 207） */
     public static ShopEntry getBlackoutShopEntry() {
         return new DiscountShopEntry(TMMItems.BLACKOUT.getDefaultInstance(),
-                SREConfig.instance().blackoutPrice, -20, 3, ShopEntry.Type.TOOL) {
+                SREConfig.instance().blackoutPrice, -20, 3, false, ShopEntry.Type.TOOL) {
             @Override
             public boolean onBuy(@NotNull Player player) {
                 if (SREPlayerShopComponent.useBlackout(player)) {

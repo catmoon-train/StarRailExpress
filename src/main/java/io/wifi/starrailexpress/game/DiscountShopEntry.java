@@ -18,7 +18,6 @@ package io.wifi.starrailexpress.game;
 import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.cca.DynamicShopComponent;
 import io.wifi.starrailexpress.index.TMMItems;
-import io.wifi.starrailexpress.util.MathHelper;
 import io.wifi.starrailexpress.util.ShopEntry;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
@@ -28,34 +27,62 @@ import org.agmas.noellesroles.utils.RoleUtils;
 import org.jetbrains.annotations.NotNull;
 
 /**
- * 二次购买会打折的动态商店条目。
- * 
+ * 二次购买价格会改变的动态商店条目。
  */
 public class DiscountShopEntry extends ShopEntry {
+    /** 是否按照原价计算discount */
+    public boolean discountAsOriginal = false;
     public int discount = 0;
     public int maxDiscountCount = 1;
     public int maxPrice = Integer.MAX_VALUE;
     public int minPrice = 0;
 
+    /**
+     * 第二次半价的 ShopEntry
+     * 
+     * @param stack 物品
+     * @param price 原价
+     */
     public DiscountShopEntry(ItemStack stack, int price) {
-        this(stack, price, 50, ShopEntry.Type.WEAPON);
+        this(stack, price, 50, false, ShopEntry.Type.WEAPON);
     }
 
-    public DiscountShopEntry(ItemStack stack, int price, int discount,
+    /**
+     * 可打折 ShopEntry
+     * 
+     * @param stack              物品
+     * @param price              原价
+     * @param discount           打折力度（%）
+     * @param discountAsOriginal 按照原价打折
+     * @param type
+     */
+    public DiscountShopEntry(ItemStack stack, int price, int discount, boolean discountAsOriginal,
             ShopEntry.Type type) {
         super(stack, price, type);
+        this.discountAsOriginal = discountAsOriginal;
         this.discount = discount;
     }
 
-    public DiscountShopEntry(ItemStack stack, int price, int discount, int maxDiscountCount,
+    /**
+     * 可打折 ShopEntry
+     * 
+     * @param stack              物品
+     * @param price              原价
+     * @param discount           打折力度（%）
+     * @param maxDiscountCount   最大打折次数
+     * @param discountAsOriginal 按照原价打折
+     * @param type               物品类型
+     */
+    public DiscountShopEntry(ItemStack stack, int price, int discount, int maxDiscountCount, boolean discountAsOriginal,
             ShopEntry.Type type) {
-        this(stack, price, discount, type);
+        this(stack, price, discount, discountAsOriginal, type);
         this.maxDiscountCount = maxDiscountCount;
     }
 
     public DiscountShopEntry(ItemStack stack, int price, int discount, int maxDiscountCount, int minPrice, int maxPrice,
+            boolean discountAsOriginal,
             ShopEntry.Type type) {
-        this(stack, price, discount, maxDiscountCount, type);
+        this(stack, price, discount, maxDiscountCount, discountAsOriginal, type);
         this.minPrice = minPrice;
         this.maxPrice = maxPrice;
     }
@@ -107,7 +134,6 @@ public class DiscountShopEntry extends ShopEntry {
         return success;
     }
 
-
     /**
      * 首次购买后为后续购买挂上 -50% 折扣。 / After the first purchase, attach a -50% discount for
      * later buys.
@@ -118,14 +144,30 @@ public class DiscountShopEntry extends ShopEntry {
         int buyCount = dynamicShop.getPurchaseCount(stackId);
         if (buyCount < maxDiscountCount) {
             try {
-                int discountPercent = (int) MathHelper.powExact(discount, buyCount + 1);
-                int truePrice = price() * (100 - discountPercent) / 100;
-                if (truePrice > maxPrice) {
-                    discountPercent = ((price() - maxPrice) * 100 / price());
-                } else if (truePrice < minPrice) {
-                    discountPercent = (price() - minPrice) * 100 / price();
+                if (discountAsOriginal) {
+                    int discountPercent = calcDiscountPercent(buyCount + 1);
+                    int truePrice = price() * (100 - discountPercent) / 100;
+
+                    if (truePrice > maxPrice) {
+                        discountPercent = ((price() - maxPrice) * 100 / price());
+                    } else if (truePrice < minPrice) {
+                        discountPercent = ((price() - minPrice) * 100 / price());
+                    }
+                    dynamicShop.setPercentDiscount(stackId, discountPercent);
+                } else {
+
+                    int nowDiscount = calcDiscountPercent(buyCount);
+                    int nowPrice = price() * (100 - nowDiscount) / 100;
+                    int truePrice = nowPrice * (100 - discount) / 100;
+
+                    if (truePrice > maxPrice) {
+                        truePrice = maxPrice;
+                    } else if (truePrice < minPrice) {
+                        truePrice = minPrice;
+                    }
+                    int discountPercent = (price() - truePrice) * 100 / price();
+                    dynamicShop.setPercentDiscount(stackId, discountPercent);
                 }
-                dynamicShop.setPercentDiscount(stackId, discountPercent);
             } catch (ArithmeticException e) {
                 SRE.LOGGER.error(
                         "Error while calc discount! Infomation: Stack {}, Original Price {}, Buy Count {}, Max Discount Count {}, Discount Percent Per {}, Min Price {}, Max Price {}",
@@ -135,5 +177,9 @@ public class DiscountShopEntry extends ShopEntry {
             }
         }
         dynamicShop.recordPurchase(stackId);
+    }
+
+    private int calcDiscountPercent(int buyCount) {
+        return (buyCount) * discount;
     }
 }

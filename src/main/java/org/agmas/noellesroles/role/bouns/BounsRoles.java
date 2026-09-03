@@ -345,10 +345,9 @@ public class BounsRoles {
     public static SRERole LICENSED_VILLAIN = TMMRoles.registerRole(new EggRole(
             id("licensed_villain"), // 角色 ID
             new Color(0x2B, 0x2B, 0x2B).getRGB(), // 浅黑色
-            false, // isInnocent = 非平民阵营
-            false, // canUseKiller = 无杀手能力
-            SRERole.MoodType.REAL, // 真实心情
-            0,
+            RoleType.NEUTRALS,
+            SRERole.MoodType.FAKE, // 真实心情
+            Integer.MAX_VALUE,
             true) // 显示计分板
     )
             .setRoleData(LicensedVillainRoleData::new)
