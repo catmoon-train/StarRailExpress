@@ -34,6 +34,7 @@ import org.agmas.noellesroles.role_data.killer.InsaneKillerRoleData;
 import org.agmas.noellesroles.role_data.killer.ManipulatorRoleData;
 import org.agmas.noellesroles.role_data.neutral.AdmirerRoleData;
 import org.agmas.noellesroles.role_data.neutral.CandleBearerRoleData;
+import org.agmas.noellesroles.role_data.neutral.LicensedVillainRoleData;
 import org.agmas.noellesroles.role_data.neutral.MercenaryRoleData;
 import org.agmas.noellesroles.role_data.neutral.GodfatherRoleData;
 import org.agmas.noellesroles.role_data.neutral.RavenRoleData;
@@ -46,6 +47,7 @@ import org.agmas.noellesroles.role_data.special.BetterVigilanteRoleData;
 import org.agmas.noellesroles.role_data.vigilante.GhostEyeRoleData;
 import org.agmas.noellesroles.init.ModEffects;
 import org.agmas.noellesroles.role.ModRoles;
+import org.agmas.noellesroles.role.bouns.BounsRoles;
 import org.agmas.noellesroles.role.TraitorAndModifiers;
 import org.agmas.noellesroles.role.touhou.THRedHouseRoles;
 import org.agmas.noellesroles.utils.MCItemsUtils;
@@ -652,6 +654,32 @@ public class RoleInstinctRegister {
                             || !comp.hereticTarget.equals(targetPlayer.getUUID()))
                         return TrueFalseAndCustomResult.pass();
                     return TrueFalseAndCustomResult.custom(0xF2C56A);
+                });
+
+        // 黑警：未触发时看所有人浅黑；黑警时刻触发后，目标阵营玩家染红，其余仍为黑警颜色
+        RoleInstinctEvents.OBSERVER_HIGHLIGHT_EVENT.register(BounsRoles.LICENSED_VILLAIN.identifier(),
+                (client, viewer, target, hasInstinct) -> {
+                    if (!hasInstinct)
+                        return TrueFalseAndCustomResult.pass();
+                    if (!(target instanceof Player targetPlayer))
+                        return TrueFalseAndCustomResult.pass();
+                    if (!SREClient.gameComponent.isRole(viewer, BounsRoles.LICENSED_VILLAIN))
+                        return TrueFalseAndCustomResult.pass();
+                    // 无法被透视的职业不显示（小透明/秉烛人/捣蛋鬼/赌徒）
+                    if (isTargetInvisibleToInstinct(targetPlayer))
+                        return TrueFalseAndCustomResult.disallow();
+                    LicensedVillainRoleData data = RoleData.getNullable(LicensedVillainRoleData.class, viewer);
+                    if (data == null)
+                        return TrueFalseAndCustomResult.pass();
+                    if (data.momentTriggered) {
+                        SRERole targetRole = SREClient.gameComponent.getRole(targetPlayer);
+                        if (targetRole != null
+                                && LicensedVillainRoleData.isTargetRole(targetRole, data.targetPhase))
+                            return TrueFalseAndCustomResult.custom(new Color(0xC1, 0x38, 0x38).getRGB());
+                        return TrueFalseAndCustomResult.custom(LicensedVillainRoleData.LICENSED_VILLAIN_COLOR);
+                    }
+                    // 未触发黑警时刻：看所有人为黑警颜色（浅黑）
+                    return TrueFalseAndCustomResult.custom(LicensedVillainRoleData.LICENSED_VILLAIN_COLOR);
                 });
     }
 
