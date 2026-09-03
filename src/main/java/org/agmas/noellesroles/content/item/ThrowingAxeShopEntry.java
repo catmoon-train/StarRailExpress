@@ -35,7 +35,7 @@ import org.jetbrains.annotations.NotNull;
  *
  * <p>
  * 实际扣费价由 {@link DynamicShopComponent#effectivePrice} 结算，商店 UI 也会显示同样的
- * 折后价。行为对齐 {@link io.wifi.starrailexpress.game.DiscountShopEntry} /
+ * 折后价。行为对齐 {@link io.wifi.starrailexpress.game.KillerKnifeShopEntry} /
  * {@link ToxinShopEntry}。
  */
 public class ThrowingAxeShopEntry extends ShopEntry {

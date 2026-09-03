@@ -42,18 +42,18 @@ import org.jetbrains.annotations.NotNull;
  * (gives a normal,
  * durability-less knife).
  */
-public class DiscountShopEntry extends ShopEntry {
+public class KillerKnifeShopEntry extends ShopEntry {
     public int discount = 50;
 
-    public DiscountShopEntry(int price) {
+    public KillerKnifeShopEntry(int price) {
         this(TMMItems.KNIFE.getDefaultInstance(), price);
     }
 
-    public DiscountShopEntry(ItemStack stack, int price) {
+    public KillerKnifeShopEntry(ItemStack stack, int price) {
         this(stack, price, 50);
     }
 
-    public DiscountShopEntry(ItemStack stack, int price, int discount) {
+    public KillerKnifeShopEntry(ItemStack stack, int price, int discount) {
         super(stack, price, ShopEntry.Type.WEAPON);
         this.discount = discount;
     }

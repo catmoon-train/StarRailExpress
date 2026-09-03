@@ -196,7 +196,7 @@ public class SREConfig implements ConfigData {
     public int bodyBagPrice = 100;
     @ConfigSync(shouldSync = true)
     @ConfigEntry.Category(value = "shop")
-    public int blackoutPrice = 150;
+    public int blackoutPrice = 120;
     @ConfigSync(shouldSync = true)
     @ConfigEntry.Category(value = "shop")
     public int monitorBrokenPrice = 60;
@@ -236,7 +236,7 @@ public class SREConfig implements ConfigData {
     @ConfigEntry.Category(value = "cooldowns")
     public int blackoutCooldown = 180;
     @ConfigEntry.Category(value = "cooldowns")
-    public int blackoutGlobalCooldown = 60;
+    public int blackoutGlobalCooldown = 40;
     @ConfigEntry.Category(value = "cooldowns")
     public int monitorBrokenCooldown = 180;
     @ConfigEntry.Category(value = "cooldowns")

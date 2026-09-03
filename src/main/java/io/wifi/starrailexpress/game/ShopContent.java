@@ -51,7 +51,7 @@ public class ShopContent {
             // depleted
             // knives, and -50% after the first purchase. See KillerKnifeShopEntry /
             // DynamicShopComponent.
-            defaultKnifeEntries.add(new DiscountShopEntry(SREConfig.instance().knifePrice));
+            defaultKnifeEntries.add(new KillerKnifeShopEntry(SREConfig.instance().knifePrice));
             defaultKnifeEntries.add(new ShopEntry(TMMItems.REVOLVER.getDefaultInstance(),
                     SREConfig.instance().revolverPrice, ShopEntry.Type.WEAPON));
             defaultKnifeEntries.add(new ShopEntry(TMMItems.GRENADE.getDefaultInstance(),
