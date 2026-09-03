@@ -1838,7 +1838,7 @@ public class RoleShopHandler {
                         c.psychoSoundPlayTimer = PhantomMusicianRoleData.PSYCHO_SOUND_PLAY_DURATION;
 
                         p.level().playSound(null, p.blockPosition(),
-                                io.wifi.starrailexpress.index.TMMSounds.AMBIENT_PSYCHO_DRONE, SoundSource.PLAYERS, 0.5F,
+                                io.wifi.starrailexpress.index.TMMSounds.AMBIENT_PSYCHO_DRONE, SoundSource.PLAYERS, 1F,
                                 1F);
                         // 使狂暴模式物品进入对应冷却
                         p.getCooldowns().addCooldown(io.wifi.starrailexpress.index.TMMItems.PSYCHO_MODE,
