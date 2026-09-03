@@ -44,7 +44,7 @@ public class GameConstants {
     };
 
     public static int getBlackoutCooldownGlobal() {
-        return SREConfig.instance().blackoutCooldownGlobal * 20;
+        return SREConfig.instance().blackoutGlobalCooldown * 20;
     }
 
     // Blocks
