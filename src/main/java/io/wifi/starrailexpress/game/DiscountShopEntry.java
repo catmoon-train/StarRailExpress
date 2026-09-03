@@ -110,7 +110,7 @@ public class DiscountShopEntry extends ShopEntry {
      * 首次购买后为后续购买挂上 -50% 折扣。 / After the first purchase, attach a -50% discount for
      * later buys.
      */
-    private void applyPurchaseDiscount(@NotNull Player player) {
+    public void applyPurchaseDiscount(@NotNull Player player) {
         DynamicShopComponent dynamicShop = DynamicShopComponent.KEY.get(player);
         ResourceLocation stackId = BuiltInRegistries.ITEM.getKey(this.stack().getItem());
         int buyCount = dynamicShop.getPurchaseCount(stackId);

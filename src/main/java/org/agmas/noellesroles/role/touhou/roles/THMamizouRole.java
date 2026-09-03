@@ -24,6 +24,7 @@ import io.wifi.starrailexpress.api.RoleSkill.RoleSkillContext;
 import io.wifi.starrailexpress.api.TouhouRole;
 import io.wifi.starrailexpress.cca.SREAbilityPlayerComponent;
 import io.wifi.starrailexpress.cca.SRERoleWorldComponent;
+import io.wifi.starrailexpress.game.DiscountShopEntry;
 import io.wifi.starrailexpress.game.KillerKnifeShopEntry;
 import io.wifi.starrailexpress.game.ShopContent;
 import io.wifi.starrailexpress.util.ShopEntry;
@@ -57,7 +58,8 @@ public class THMamizouRole extends TouhouRole {
             List<ShopEntry> shops = new ArrayList<>(ShopContent.getShopEntries(targetRole));
             // 必须是100%的ShopEntry.class类，不能是extends，也不能是内联override，避免bug。
             shops.removeIf((t) -> {
-                return t.getClass() != ShopEntry.class && t.getClass() != KillerKnifeShopEntry.class;
+                return t.getClass() != ShopEntry.class && t.getClass() != KillerKnifeShopEntry.class
+                        && t.getClass() != DiscountShopEntry.class;
             });
             List<ShopEntry> newShops = new ArrayList<>();
             for (final var s : shops) {
