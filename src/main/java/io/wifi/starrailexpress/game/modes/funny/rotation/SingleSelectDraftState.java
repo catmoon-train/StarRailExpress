@@ -158,14 +158,6 @@ public class SingleSelectDraftState {
         cardMaxPerType.put(1, limit);
 
         Map<Integer, List<UUID>> byType = new HashMap<>();
-        for (Map.Entry<UUID, Integer> entry : playerOrder.entrySet()) {
-            UUID uuid = entry.getKey();
-            Integer forcedType = PlayerRoleWeightManager.ForcePlayerTeam.get(uuid);
-            if (forcedType != null) {
-                int normalized = normalizeCardType(forcedType);
-                byType.computeIfAbsent(normalized, k -> new ArrayList<>()).add(uuid);
-            }
-        }
         for (Map.Entry<Integer, List<UUID>> entry : byType.entrySet()) {
             int type = entry.getKey();
             List<UUID> uuids = entry.getValue();
@@ -175,19 +167,6 @@ public class SingleSelectDraftState {
                 PlayerRoleWeightManager.ForcePlayerTeam.remove(uuids.get(i));
             }
         }
-    }
-
-    private static int normalizeCardType(int rawType) {
-        return switch (rawType) {
-            case 5 -> 1;
-            case 3 -> 2;
-            default -> rawType;
-        };
-    }
-
-    private int getPlayerCardType(UUID uuid) {
-        Integer forcedType = PlayerRoleWeightManager.ForcePlayerTeam.get(uuid);
-        return forcedType != null ? normalizeCardType(forcedType) : -1;
     }
 
     // ---------- 玩家顺序 ----------
@@ -203,7 +182,7 @@ public class SingleSelectDraftState {
         List<UUID> noCardUsers = new ArrayList<>();
 
         for (UUID uuid : sortedPlayers) {
-            int card = getPlayerCardType(uuid);
+            int card = -1;
             switch (card) {
                 case 0: killerCardUsers.add(uuid); break;
                 case 1: neutralCardUsers.add(uuid); break;
@@ -337,7 +316,7 @@ public class SingleSelectDraftState {
         ArrayList<SRERole> poolCopy = new ArrayList<>(rolePool);
         Random random = new Random();
 
-        int cardType = getPlayerCardType(playerUuid);
+        int cardType = -1;
         boolean cardPriorityHandled = false;
 
         // 卡片用户优先处理

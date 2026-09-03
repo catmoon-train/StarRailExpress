@@ -191,9 +191,9 @@ public class VolunteerDraftState {
     }
 
     private List<SRERole> getFactionPool(ServerPlayer player) {
-        Integer forced = PlayerRoleWeightManager.ForcePlayerTeam.get(player.getUUID());
+       var forced = PlayerRoleWeightManager.ForcePlayerTeam.get(player.getUUID());
         if (forced != null) {
-            int type = normalizeCardType(forced);
+            int type = normalizeCardType(forced.roleType());
             return globalRolePool.stream()
                     .filter(r -> PlayerRoleWeightManager.getRoleType(r) == type)
                     .collect(Collectors.toList());

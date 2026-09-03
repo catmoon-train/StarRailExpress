@@ -24,40 +24,56 @@ import net.minecraft.commands.Commands;
 import net.minecraft.commands.arguments.EntityArgument;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
+
 import org.agmas.harpymodloader.modded_murder.PlayerRoleWeightManager;
+import org.agmas.harpymodloader.modded_murder.ForceTeamInfo.ForceTeamType;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Collection;
 
 public class ForceTeamCommand {
     public static void register(@NotNull CommandDispatcher<CommandSourceStack> dispatcher) {
-        dispatcher.register(Commands.literal("forceTeam").requires(source -> source.hasPermission(SREConfig.instance().forceTeamRequiredPermission)).then(Commands
-                .argument("players", EntityArgument.players())
-                .then(Commands.literal("innocent")
-                        .executes(context -> forceTeam(context.getSource(),
-                                EntityArgument.getPlayers(context, "players"), 1)))
-                .then(Commands.literal("neutral")
-                        .executes(context -> forceTeam(context.getSource(),
-                                EntityArgument.getPlayers(context, "players"), 2)))
-                .then(Commands.literal("neutral_for_killer")
-                        .executes(context -> forceTeam(context.getSource(),
-                                EntityArgument.getPlayers(context, "players"), 3)))
-                .then(Commands.literal("killer")
-                        .executes(context -> forceTeam(context.getSource(),
-                                EntityArgument.getPlayers(context, "players"), 4)))
-                .then(Commands.literal("vigilante")
-                        .executes(context -> forceTeam(context.getSource(),
-                                EntityArgument.getPlayers(context, "players"), 5)))
-                .then(Commands.literal("reset")
-                        .executes(context -> forceTeam(context.getSource(),
-                                EntityArgument.getPlayers(context, "players"), -1)))));
+        dispatcher.register(Commands.literal("forceTeam").requires(
+                source -> source.hasPermission(SREConfig.instance().forceTeamRequiredPermission))
+                .then(Commands
+                        .argument("players", EntityArgument.players())
+                        .then(Commands.literal("innocent")
+                                .executes(context -> forceTeam(context.getSource(),
+                                        EntityArgument.getPlayers(context,
+                                                "players"),
+                                        1)))
+                        .then(Commands.literal("neutral")
+                                .executes(context -> forceTeam(context.getSource(),
+                                        EntityArgument.getPlayers(context,
+                                                "players"),
+                                        2)))
+                        .then(Commands.literal("neutral_for_killer")
+                                .executes(context -> forceTeam(context.getSource(),
+                                        EntityArgument.getPlayers(context,
+                                                "players"),
+                                        3)))
+                        .then(Commands.literal("killer")
+                                .executes(context -> forceTeam(context.getSource(),
+                                        EntityArgument.getPlayers(context,
+                                                "players"),
+                                        4)))
+                        .then(Commands.literal("vigilante")
+                                .executes(context -> forceTeam(context.getSource(),
+                                        EntityArgument.getPlayers(context,
+                                                "players"),
+                                        5)))
+                        .then(Commands.literal("reset")
+                                .executes(context -> forceTeam(context.getSource(),
+                                        EntityArgument.getPlayers(context,
+                                                "players"),
+                                        -1)))));
     }
 
     private static int forceTeam(@NotNull CommandSourceStack source, @NotNull Collection<ServerPlayer> players,
             int roleType) {
 
         for (var player : players) {
-            PlayerRoleWeightManager.forceTeam(player.getUUID(), roleType);
+            PlayerRoleWeightManager.forceTeam(player.getUUID(), roleType, ForceTeamType.COMMAND);
         }
         if (roleType == -1) {
             source.sendSuccess(

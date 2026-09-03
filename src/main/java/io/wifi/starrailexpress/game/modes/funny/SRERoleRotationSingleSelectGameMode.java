@@ -46,6 +46,7 @@ import org.agmas.harpymodloader.Harpymodloader;
 import org.agmas.harpymodloader.config.HarpyModLoaderConfig;
 import org.agmas.harpymodloader.events.ModdedRoleAssigned;
 import org.agmas.harpymodloader.modded_murder.PlayerRoleWeightManager;
+import org.agmas.harpymodloader.modded_murder.ForceTeamInfo.ForceTeamType;
 import org.agmas.noellesroles.init.ModEffects;
 import org.agmas.noellesroles.utils.RoleUtils;
 
@@ -76,7 +77,8 @@ public class SRERoleRotationSingleSelectGameMode extends SREMurderGameMode {
         for (ServerPlayer p : players) {
             gameComp.addRole(p, SpecialGameModeRoles.CUSTOM_PENDING, false);
             p.addEffect(new MobEffectInstance(ModEffects.SAFE_TIME, ROTATION_SAFE_TIME + 40, 10, true, false, false));
-            p.addEffect(new MobEffectInstance(MobEffects.INVISIBILITY, ROTATION_SAFE_TIME + 40, 10, true, false, false));
+            p.addEffect(
+                    new MobEffectInstance(MobEffects.INVISIBILITY, ROTATION_SAFE_TIME + 40, 10, true, false, false));
             p.addEffect(new MobEffectInstance(ModEffects.MOVE_BANED, ROTATION_SAFE_TIME + 40, 10, true, false, false));
             p.addEffect(new MobEffectInstance(ModEffects.SKILL_BANED, 40, 10, true, false, false));
             p.addEffect(new MobEffectInstance(ModEffects.CCA_FREEZED, 40, 10, true, false, false));
@@ -93,7 +95,7 @@ public class SRERoleRotationSingleSelectGameMode extends SREMurderGameMode {
                     int highestWeightType = PlayerRoleWeightManager.getHighestScoredType(p.getUUID());
                     if (highestWeightType == manager.getLastAssignedFactionGroup())
                         continue;
-                    PlayerRoleWeightManager.forceTeam(p.getUUID(), highestWeightType);
+                    PlayerRoleWeightManager.forceTeam(p.getUUID(), highestWeightType, ForceTeamType.ROLE_WEIGHTS);
                 }
             }
         }
@@ -139,7 +141,8 @@ public class SRERoleRotationSingleSelectGameMode extends SREMurderGameMode {
     }
 
     public void handlePlayerSelection(ServerPlayer player, int choiceIndex) {
-        if (!isInRotationPhase || draftState == null) return;
+        if (!isInRotationPhase || draftState == null)
+            return;
         if (draftState.processSelection(player.serverLevel(), player.getUUID(), choiceIndex)) {
             broadcastSync(player.serverLevel());
         }
@@ -276,14 +279,17 @@ public class SRERoleRotationSingleSelectGameMode extends SREMurderGameMode {
     @Override
     public GameUtils.WinStatus allowGameEnd(ServerLevel world, GameUtils.WinStatus winStatus, boolean looseEnds,
             SREGameWorldComponent gameComp) {
-        if (isInRotationPhase) return GameUtils.WinStatus.NONE;
-        
+        if (isInRotationPhase)
+            return GameUtils.WinStatus.NONE;
+
         return super.allowGameEnd(world, winStatus, looseEnds, gameComp);
     }
 
     @Override
-    public void gameStarted(ServerLevel world, SREGameWorldComponent gameComp, ArrayList<ServerPlayer> ready) {}
+    public void gameStarted(ServerLevel world, SREGameWorldComponent gameComp, ArrayList<ServerPlayer> ready) {
+    }
 
     @Override
-    public void recordPlayerStats(ServerLevel world, SREGameWorldComponent gameComp, ArrayList<ServerPlayer> ready) {}
+    public void recordPlayerStats(ServerLevel world, SREGameWorldComponent gameComp, ArrayList<ServerPlayer> ready) {
+    }
 }

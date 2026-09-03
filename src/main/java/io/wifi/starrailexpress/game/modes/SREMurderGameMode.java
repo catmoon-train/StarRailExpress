@@ -60,6 +60,7 @@ import org.agmas.harpymodloader.modded_murder.PlayerRoleAssigner;
 import org.agmas.harpymodloader.modded_murder.PlayerRoleWeightManager;
 import org.agmas.harpymodloader.modded_murder.RoleAssignmentManager;
 import org.agmas.harpymodloader.modded_murder.RoleAssignmentPool;
+import org.agmas.harpymodloader.modded_murder.ForceTeamInfo.ForceTeamType;
 import org.agmas.harpymodloader.modifiers.HMLModifiers;
 import org.agmas.harpymodloader.modifiers.SREModifier;
 import org.agmas.noellesroles.CustomWinnerClass;
@@ -631,7 +632,7 @@ public class SREMurderGameMode extends GameMode {
                     int highestWeightType = PlayerRoleWeightManager.getHighestScoredType(p.getUUID());
                     if (highestWeightType == manager.getLastAssignedFactionGroup())
                         continue;
-                    PlayerRoleWeightManager.forceTeam(p.getUUID(), highestWeightType);
+                    PlayerRoleWeightManager.forceTeam(p.getUUID(), highestWeightType, ForceTeamType.ROLE_WEIGHTS);
                 }
             }
         }
@@ -676,7 +677,8 @@ public class SREMurderGameMode extends GameMode {
                             .findFirst().orElse(null);
                     if (selectedPlayer == null)
                         continue;
-                    int roleType = entry.getValue();
+                    var forceTeamInfo = entry.getValue();
+                    int roleType = forceTeamInfo.roleType();
                     var roleSelector = roleSelectors.get(roleType);
                     if (roleSelector == null)
                         continue;
@@ -698,7 +700,7 @@ public class SREMurderGameMode extends GameMode {
                                 playerUid,
                                 roleType);
                         FactionCardType cardType = FactionCardType.fromRoleType(roleType);
-                        if (cardType != FactionCardType.NONE) {
+                        if (cardType != FactionCardType.NONE && forceTeamInfo.type() == ForceTeamType.CARD) {
                             ProgressionDataManager.addFactionCard((ServerPlayer) selectedPlayer, cardType, 1);
                             BroadcastCommand.BroadcastMessage(selectedPlayer,
                                     Component.translatable("message.sre.pass.faction.assign_failed")

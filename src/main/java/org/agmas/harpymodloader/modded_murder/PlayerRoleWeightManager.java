@@ -22,8 +22,10 @@ import net.minecraft.world.entity.player.Player;
 import java.util.HashMap;
 import java.util.UUID;
 
+import org.agmas.harpymodloader.modded_murder.ForceTeamInfo.ForceTeamType;
+
 public class PlayerRoleWeightManager {
-    public static HashMap<UUID, Integer> ForcePlayerTeam = new HashMap<>();
+    public static HashMap<UUID, ForceTeamInfo> ForcePlayerTeam = new HashMap<>();
     public static HashMap<UUID, WeightInfo> playerWeights = new HashMap<>();
 
     /**
@@ -397,11 +399,11 @@ public class PlayerRoleWeightManager {
         }
     }
 
-    public static void forceTeam(UUID player, int roleType) {
+    public static void forceTeam(UUID player, int roleType, ForceTeamType from) {
         if (roleType == -1) {
             ForcePlayerTeam.remove(player);
         } else {
-            ForcePlayerTeam.put(player, roleType);
+            ForcePlayerTeam.put(player, new ForceTeamInfo(roleType, from));
         }
     }
 

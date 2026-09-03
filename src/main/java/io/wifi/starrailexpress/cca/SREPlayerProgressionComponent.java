@@ -31,7 +31,10 @@ import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
+
+import org.agmas.harpymodloader.modded_murder.ForceTeamInfo;
 import org.agmas.harpymodloader.modded_murder.PlayerRoleWeightManager;
+import org.agmas.harpymodloader.modded_murder.ForceTeamInfo.ForceTeamType;
 import org.jetbrains.annotations.Nullable;
 import org.ladysnake.cca.api.v3.component.ComponentKey;
 import org.ladysnake.cca.api.v3.component.ComponentRegistry;
@@ -286,7 +289,8 @@ public class SREPlayerProgressionComponent implements AutoSyncedComponent, Serve
             if (PlayerRoleWeightManager.ForcePlayerTeam.containsKey(this.player.getUUID())) {
                 return false;
             }
-            PlayerRoleWeightManager.ForcePlayerTeam.put(this.player.getUUID(), type.getTypeId());
+            PlayerRoleWeightManager.ForcePlayerTeam.put(this.player.getUUID(),
+                    new ForceTeamInfo(type.getTypeId(), ForceTeamType.CARD));
             this.factionCards.put(type, current - 1);
             Component message = Component.translatable("message.sre.progression.faction_card_activated",
                     Component.translatable(type.displayName));
@@ -438,7 +442,8 @@ public class SREPlayerProgressionComponent implements AutoSyncedComponent, Serve
     }
 
     public void flushNetworkSyncAsyncOnDisconnect() {
-        if (!SREConfig.instance().progressionSyncServerEnabled || !this.networkSyncEnabled || this.databaseLoadPending) {
+        if (!SREConfig.instance().progressionSyncServerEnabled || !this.networkSyncEnabled
+                || this.databaseLoadPending) {
             return;
         }
 
@@ -950,7 +955,8 @@ public class SREPlayerProgressionComponent implements AutoSyncedComponent, Serve
     }
 
     private void queueReloadAfterDatabaseConflict() {
-        if (!SREConfig.instance().progressionSyncServerEnabled || !this.networkSyncEnabled || this.databaseLoadPending) {
+        if (!SREConfig.instance().progressionSyncServerEnabled || !this.networkSyncEnabled
+                || this.databaseLoadPending) {
             return;
         }
         this.databaseSyncPending = true;
@@ -1680,11 +1686,14 @@ public class SREPlayerProgressionComponent implements AutoSyncedComponent, Serve
                 new QuestTemplate("kill_player", "致命时刻", "击杀 1 名玩家",
                         ObjectiveType.KILL_PLAYER, null, 1, 90, 45, 0, FactionCardType.NONE, 5, QuestCategory.DAILY),
                 new QuestTemplate("kill_player_diff_1", "精准猎杀", "击杀 1 名不同阵营玩家",
-                        ObjectiveType.KILL_PLAYER_DIFFERENT_TEAM, null, 1, 95, 50, 0, FactionCardType.NONE, 6, QuestCategory.DAILY),
+                        ObjectiveType.KILL_PLAYER_DIFFERENT_TEAM, null, 1, 95, 50, 0, FactionCardType.NONE, 6,
+                        QuestCategory.DAILY),
                 new QuestTemplate("kill_player_diff_2", "双重打击", "击杀 2 名不同阵营玩家",
-                        ObjectiveType.KILL_PLAYER_DIFFERENT_TEAM, null, 2, 165, 90, 0, FactionCardType.NONE, 7, QuestCategory.DAILY),
+                        ObjectiveType.KILL_PLAYER_DIFFERENT_TEAM, null, 2, 165, 90, 0, FactionCardType.NONE, 7,
+                        QuestCategory.DAILY),
                 new QuestTemplate("kill_player_diff_3", "三连猎手", "击杀 3 名不同阵营玩家",
-                        ObjectiveType.KILL_PLAYER_DIFFERENT_TEAM, null, 3, 245, 130, 1, FactionCardType.NONE, 8, QuestCategory.DAILY),
+                        ObjectiveType.KILL_PLAYER_DIFFERENT_TEAM, null, 3, 245, 130, 1, FactionCardType.NONE, 8,
+                        QuestCategory.DAILY),
                 new QuestTemplate("finish_round_quest_2", "情绪管理专家", "完成 2 个局内任务",
                         ObjectiveType.COMPLETE_ROUND_QUEST, null, 2, 80, 40, 0, FactionCardType.NONE, 9,
                         QuestCategory.DAILY),
@@ -1736,7 +1745,8 @@ public class SREPlayerProgressionComponent implements AutoSyncedComponent, Serve
                 new QuestTemplate("weekly_win_3", "列车周冠军", "赢下 3 局游戏",
                         ObjectiveType.WIN_MATCH, null, 3, 600, 250, 2, FactionCardType.NONE, 3, QuestCategory.WEEKLY),
                 new QuestTemplate("weekly_kill_diff_5", "周猎人", "累计击杀 5 名不同阵营玩家",
-                        ObjectiveType.KILL_PLAYER_DIFFERENT_TEAM, null, 5, 550, 220, 1, FactionCardType.NONE, 4, QuestCategory.WEEKLY),
+                        ObjectiveType.KILL_PLAYER_DIFFERENT_TEAM, null, 5, 550, 220, 1, FactionCardType.NONE, 4,
+                        QuestCategory.WEEKLY),
                 new QuestTemplate("weekly_kill_diff_10", "血腥收割", "累计击杀 10 名不同阵营玩家",
                         ObjectiveType.KILL_PLAYER_DIFFERENT_TEAM, null, 10, 950, 380, 2, FactionCardType.NONE, 5,
                         QuestCategory.WEEKLY),
@@ -1756,7 +1766,8 @@ public class SREPlayerProgressionComponent implements AutoSyncedComponent, Serve
                         ObjectiveType.WIN_AS_FACTION, FactionCardType.NEUTRAL.questKey,
                         2, 660, 260, 1, FactionCardType.NEUTRAL, 10, QuestCategory.WEEKLY),
                 new QuestTemplate("weekly_pickup_30", "物资囤积", "拾取 30 个物品",
-                        ObjectiveType.PICKUP_ITEM, null, 30, 620, 260, 1, FactionCardType.NONE, 11, QuestCategory.WEEKLY));
+                        ObjectiveType.PICKUP_ITEM, null, 30, 620, 260, 1, FactionCardType.NONE, 11,
+                        QuestCategory.WEEKLY));
 
         // ========== 内置永久任务模板（不会刷新，固定存在）==========
         private static final List<QuestTemplate> DEFAULT_PERMANENT_POOL = List.of(

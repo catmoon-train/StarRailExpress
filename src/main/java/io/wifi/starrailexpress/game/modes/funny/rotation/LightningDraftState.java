@@ -22,8 +22,10 @@ import java.util.stream.Collectors;
 import org.agmas.harpymodloader.Harpymodloader;
 import org.agmas.harpymodloader.commands.RoleCountManager;
 import org.agmas.harpymodloader.config.HarpyModLoaderConfig;
+import org.agmas.harpymodloader.modded_murder.ForceTeamInfo;
 import org.agmas.harpymodloader.modded_murder.PlayerRoleWeightManager;
 import org.agmas.harpymodloader.modded_murder.RoleAssignmentPool;
+import org.agmas.harpymodloader.modded_murder.ForceTeamInfo.ForceTeamType;
 import org.agmas.noellesroles.utils.RoleUtils;
 
 import io.wifi.starrailexpress.SRE;
@@ -227,7 +229,9 @@ public class LightningDraftState {
         final var ppps = new ArrayList<>(allPlayers);
         Collections.shuffle(ppps);
         for (ServerPlayer p : ppps) {
-            Integer forcedType = PlayerRoleWeightManager.ForcePlayerTeam.get(p.getUUID());
+            var t = PlayerRoleWeightManager.ForcePlayerTeam.get(p.getUUID());
+            ;
+            Integer forcedType = t.roleType();
             if (forcedType != null) {
                 int normalized = normalizeCardType(forcedType);
                 byType.computeIfAbsent(normalized, k -> new ArrayList<>()).add(p.getUUID());
@@ -240,10 +244,12 @@ public class LightningDraftState {
             cardUsedCount.put(type, Math.min(uuids.size(), max));
             for (int i = max; i < uuids.size(); i++) {
                 UUID uid = uuids.get(i);
-                PlayerRoleWeightManager.ForcePlayerTeam.remove(uid);
+                ForceTeamInfo info = PlayerRoleWeightManager.ForcePlayerTeam.remove(uid);
+                if (info == null)
+                    continue;
                 cardReturnedPlayers.add(uid);
                 ServerPlayer sp = allPlayers.stream().filter(p -> p.getUUID().equals(uid)).findFirst().orElse(null);
-                if (sp != null) {
+                if (sp != null && info.type() == ForceTeamType.CARD) {
                     FactionCardType cardType = FactionCardType.fromRoleType(type);
                     if (cardType != FactionCardType.NONE) {
                         ProgressionDataManager.addFactionCard(sp, cardType, 1);
@@ -280,9 +286,9 @@ public class LightningDraftState {
             boolean a_force = Harpymodloader.FORCED_MODDED_ROLE.containsKey(a.getUUID());
             boolean b_force = Harpymodloader.FORCED_MODDED_ROLE.containsKey(b.getUUID());
             int a_team = normalizeForceRoleSortType(
-                    PlayerRoleWeightManager.ForcePlayerTeam.getOrDefault(a.getUUID(), 0));
+                    roleType(PlayerRoleWeightManager.ForcePlayerTeam.getOrDefault(a.getUUID(), null)));
             int b_team = normalizeForceRoleSortType(
-                    PlayerRoleWeightManager.ForcePlayerTeam.getOrDefault(b.getUUID(), 0));
+                    roleType(PlayerRoleWeightManager.ForcePlayerTeam.getOrDefault(b.getUUID(), null)));
             if (a_force && b_force)
                 return 0;
             if (a_force)
@@ -296,6 +302,12 @@ public class LightningDraftState {
             playerOrder.add(p.getUUID());
         }
         PLAYER_SORT_WEIGHT.clear();
+    }
+
+    private int roleType(ForceTeamInfo a) {
+        if (a == null)
+            return 0;
+        return a.roleType();
     }
 
     private static int normalizeForceRoleSortType(int type) {
@@ -366,7 +378,10 @@ public class LightningDraftState {
 
         // 2. 强制阵营预分配
         for (UUID playerId : roundPlayers) {
-            Integer forcedType = PlayerRoleWeightManager.ForcePlayerTeam.get(playerId);
+            var t = PlayerRoleWeightManager.ForcePlayerTeam.get(playerId);
+            if (t == null)
+                continue;
+            Integer forcedType = t.roleType();
             if (forcedType == null || forcedType < 1 || forcedType > 5)
                 continue;
             int type = normalizeCardType(forcedType);
@@ -385,7 +400,7 @@ public class LightningDraftState {
                 ServerPlayer sp = world.getServer().getPlayerList().getPlayer(playerId);
                 if (sp != null) {
                     FactionCardType cardType = FactionCardType.fromRoleType(type);
-                    if (cardType != FactionCardType.NONE) {
+                    if (cardType != FactionCardType.NONE && t.type() == ForceTeamType.CARD) {
                         ProgressionDataManager.addFactionCard(sp, cardType, 1);
                         sp.displayClientMessage(Component.translatable("message.sre.role_rotation.card_limit")
                                 .withStyle(ChatFormatting.RED), false);
