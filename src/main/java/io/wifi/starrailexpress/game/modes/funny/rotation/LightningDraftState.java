@@ -255,11 +255,17 @@ public class LightningDraftState {
                     continue;
                 cardReturnedPlayers.add(uid);
                 ServerPlayer sp = allPlayers.stream().filter(p -> p.getUUID().equals(uid)).findFirst().orElse(null);
-                if (sp != null && info.type() == ForceTeamType.CARD) {
-                    FactionCardType cardType = FactionCardType.fromRoleType(type);
-                    if (cardType != FactionCardType.NONE) {
-                        ProgressionDataManager.addFactionCard(sp, cardType, 1);
-                        sp.displayClientMessage(Component.translatable("message.sre.role_rotation.card_limit")
+                if (sp != null) {
+                    if (info.type() == ForceTeamType.CARD) {
+
+                        FactionCardType cardType = FactionCardType.fromRoleType(type);
+                        if (cardType != FactionCardType.NONE) {
+                            ProgressionDataManager.addFactionCard(sp, cardType, 1);
+                            sp.displayClientMessage(Component.translatable("message.sre.role_rotation.card_limit")
+                                    .withStyle(ChatFormatting.RED), true);
+                        }
+                    } else {
+                        sp.displayClientMessage(Component.translatable("message.sre.role_rotation.no_force_team")
                                 .withStyle(ChatFormatting.RED), true);
                     }
                 }
@@ -416,11 +422,16 @@ public class LightningDraftState {
                 PlayerRoleWeightManager.ForcePlayerTeam.remove(playerId);
                 ServerPlayer sp = world.getServer().getPlayerList().getPlayer(playerId);
                 if (sp != null) {
-                    FactionCardType cardType = FactionCardType.fromRoleType(type);
-                    if (cardType != FactionCardType.NONE && t.type() == ForceTeamType.CARD) {
-                        ProgressionDataManager.addFactionCard(sp, cardType, 1);
-                        sp.displayClientMessage(Component.translatable("message.sre.role_rotation.card_limit")
-                                .withStyle(ChatFormatting.RED), false);
+                    if (t.type() == ForceTeamType.CARD) {
+                        FactionCardType cardType = FactionCardType.fromRoleType(type);
+                        if (cardType != FactionCardType.NONE) {
+                            ProgressionDataManager.addFactionCard(sp, cardType, 1);
+                            sp.displayClientMessage(Component.translatable("message.sre.role_rotation.card_limit")
+                                    .withStyle(ChatFormatting.RED), false);
+                        }
+                    } else {
+                        sp.displayClientMessage(Component.translatable("message.sre.role_rotation.no_force_team")
+                                .withStyle(ChatFormatting.RED), true);
                     }
                 }
             }
