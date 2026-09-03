@@ -235,6 +235,8 @@ public class LightningDraftState {
         });
         for (ServerPlayer p : ppps) {
             var t = PlayerRoleWeightManager.ForcePlayerTeam.get(p.getUUID());
+            if (t == null)
+                continue;
             Integer forcedType = t.roleType();
             if (forcedType != null) {
                 int normalized = normalizeCardType(forcedType);
