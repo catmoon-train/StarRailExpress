@@ -273,7 +273,7 @@
   "text.autoconfig.starrailexpress.option.monitorBrokenCooldownGlobal": "破坏全部监视器公用冷却",
   "text.autoconfig.starrailexpress.option.blackoutMaxDuration": "停电最大时长",
   "text.autoconfig.starrailexpress.option.blackoutRandomRangePercent": "停电浮动范围最大值占总时长百分比。（最大1）",
-  "text.autoconfig.starrailexpress.option.blackoutCooldownGlobal": "停电公共冷却时长",
+  "text.autoconfig.starrailexpress.option.blackoutGlobalCooldown": "停电公共冷却时长",
   "text.autoconfig.starrailexpress.option.sponsorListUrl": "残月小巧思链接",
   "text.autoconfig.starrailexpress.option.blackoutPrice": "停电价格",
   "text.autoconfig.starrailexpress.option.monitorBrokenPrice": "破坏全部监视器价格",
