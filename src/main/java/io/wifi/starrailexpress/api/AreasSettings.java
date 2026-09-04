@@ -243,6 +243,8 @@ public class AreasSettings {
     /** 是否启用会议系统（右键尸体召开紧急会议）。 */
     @Category("meeting")
     public boolean meetingEnabled = false;
+    @Category("meeting")
+    public boolean bodyMeetingEnabled = true;
     /** 尸体会议不显示上报人 */
     @Category("meeting")
     public boolean meetingNoReporter = false;

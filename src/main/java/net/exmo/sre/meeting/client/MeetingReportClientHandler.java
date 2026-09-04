@@ -34,6 +34,8 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.EntityHitResult;
 import java.util.Set;
 import java.util.UUID;
@@ -51,6 +53,8 @@ public final class MeetingReportClientHandler {
     private static final int MUTED = 0xFF9E8B6E;
 
     /** 会议间冷却结束的世界 gameTime（服务端散会时下发），0 表示无冷却。 */
+    private static long bellCooldownUntilTick;
+    /** 会议间冷却结束的世界 gameTime（服务端散会时下发），0 表示无冷却。 */
     private static long cooldownEndGameTime;
     /** 已上报过的尸体 UUID（同一具尸体不能再召开会议）。 */
     private static Set<UUID> reportedBodies = Set.of();
@@ -62,24 +66,30 @@ public final class MeetingReportClientHandler {
         ClientPlayNetworking.registerGlobalReceiver(MeetingCooldownS2CPayload.ID,
                 (payload, context) -> context.client().execute(() -> {
                     cooldownEndGameTime = payload.cooldownEndGameTime();
+                    long t = payload.bellCooldownEndGameTime();
+                    if (t > 0) {
+                        bellCooldownUntilTick = t;
+                    }
                     reportedBodies = Set.copyOf(payload.reportedBodies());
                 }));
         ClientPlayConnectionEvents.DISCONNECT.register((handler, client) -> {
             cooldownEndGameTime = 0;
+            bellCooldownUntilTick = 0;
             reportedBodies = Set.of();
         });
         ClientTickEvents.END_CLIENT_TICK.register(MeetingReportClientHandler::tick);
-        OnRenderRoleName.RENDER_END.register(MeetingReportClientHandler::renderHint);
+        OnRenderRoleName.RENDER_END.register(MeetingReportClientHandler::renderBodyHint);
+        OnRenderRoleName.RENDER_END.register(MeetingReportClientHandler::renderBellHint);
     }
 
     private static void tick(Minecraft client) {
         // 上报逻辑已迁移到 MeetingClientHandler.tick() 中由分号键统一处理
     }
 
-    private static void renderHint(Player player, float range, FakeGuiGraphics g,
+    private static void renderBodyHint(Player player, float range, FakeGuiGraphics g,
             DeltaTracker tickCounter, Font renderer) {
         Minecraft client = Minecraft.getInstance();
-        if (client.options.hideGui || !canPrompt(client)) {
+        if (client.options.hideGui || !canPromptBodyMeeting(client)) {
             return;
         }
         PlayerBodyEntity body = targetedBody(client);
@@ -106,8 +116,35 @@ public final class MeetingReportClientHandler {
         g.drawCenteredString(client.font, text, g.guiWidth() / 2, g.guiHeight() / 2 + 16, color);
     }
 
+    private static void renderBellHint(Player player, float range, FakeGuiGraphics g,
+            DeltaTracker tickCounter, Font renderer) {
+        Minecraft client = Minecraft.getInstance();
+        if (client.options.hideGui || !canPromptBellMeeting(client)) {
+            return;
+        }
+
+        if (client.hitResult == null || !(client.hitResult instanceof BlockHitResult bhr) || (bhr.getBlockPos() == null)
+                || (!client.level.getBlockState(bhr.getBlockPos()).is(Blocks.BELL))) {
+            return;
+        }
+
+        Component text;
+        int color;
+         {
+            long remain = bellCooldownRemainingTicks(client);
+            if (remain > 0) {
+                text = Component.translatable("meeting.sre.report_cooldown.bell", (remain + 19) / 20);
+                color = MUTED;
+            } else {
+                text = Component.translatable("meeting.sre.report_hint.bell");
+                color = TEXT;
+            }
+        }
+        g.drawCenteredString(client.font, text, g.guiWidth() / 2, g.guiHeight() / 2 + 16, color);
+    }
+
     /** 地图启用会议 + 游戏运行中 + 当前无会议 + 本人非旁观。 */
-    public static boolean canPrompt(Minecraft client) {
+    public static boolean canPromptBellMeeting(Minecraft client) {
         if (client.player == null || client.level == null || client.player.isSpectator()) {
             return false;
         }
@@ -118,7 +155,26 @@ public final class MeetingReportClientHandler {
             return false;
         }
         AreasWorldComponent areas = AreasWorldComponent.KEY.getNullable(client.level);
-        if (areas == null || !areas.areasSettings.meetingEnabled) {
+        if (areas == null || !areas.areasSettings.meetingEnabled || !areas.areasSettings.bellMeetingEnabled) {
+            return false;
+        }
+        SREGameWorldComponent game = SREGameWorldComponent.KEY.getNullable(client.level);
+        return game != null && game.isRunning();
+    }
+
+    /** 地图启用会议 + 游戏运行中 + 当前无会议 + 本人非旁观。 */
+    public static boolean canPromptBodyMeeting(Minecraft client) {
+        if (client.player == null || client.level == null || client.player.isSpectator()) {
+            return false;
+        }
+        if (SREClient.gameComponent == null || !SREClient.gameComponent.getGameMode().canHaveMeeting()) {
+            return false;
+        }
+        if (MeetingClientHandler.phase != MeetingManager.PHASE_NONE) {
+            return false;
+        }
+        AreasWorldComponent areas = AreasWorldComponent.KEY.getNullable(client.level);
+        if (areas == null || !areas.areasSettings.meetingEnabled || !areas.areasSettings.bodyMeetingEnabled) {
             return false;
         }
         SREGameWorldComponent game = SREGameWorldComponent.KEY.getNullable(client.level);
@@ -131,6 +187,11 @@ public final class MeetingReportClientHandler {
             return body;
         }
         return null;
+    }
+
+    public static long bellCooldownRemainingTicks(Minecraft client) {
+        long remain = Math.max(0, bellCooldownUntilTick - client.level.getGameTime());
+        return remain;
     }
 
     /** 剩余冷却 tick：取「会议间冷却」与「开局冷却」的较大者。 */

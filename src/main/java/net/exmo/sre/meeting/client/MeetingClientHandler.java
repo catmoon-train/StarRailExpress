@@ -231,7 +231,7 @@ public final class MeetingClientHandler {
                     break;
                 }
                 var body = MeetingReportClientHandler.targetedBody(client);
-                if (body != null && MeetingReportClientHandler.canPrompt(client)
+                if (body != null && MeetingReportClientHandler.canPromptBodyMeeting(client)
                         && MeetingReportClientHandler.cooldownRemainingTicks(client) <= 0) {
                     ClientPlayNetworking.send(
                             new net.exmo.sre.meeting.network.MeetingReportC2SPayload(body.getId()));

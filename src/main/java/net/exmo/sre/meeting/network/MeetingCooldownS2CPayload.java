@@ -25,7 +25,7 @@ import net.minecraft.resources.ResourceLocation;
 import java.util.List;
 import java.util.UUID;
 
-import static io.wifi.starrailexpress.SRE.MOD_ID;
+import static io.wifi.StarRailExpressID.MOD_ID;
 
 /**
  * S2C：会议冷却同步。散会（冷却开始）/ 游戏结束（冷却清零）/ 玩家中途加入时下发，
@@ -34,7 +34,7 @@ import static io.wifi.starrailexpress.SRE.MOD_ID;
  * @param cooldownEndGameTime 会议间冷却结束的世界 gameTime，0 表示无冷却
  * @param reportedBodies      已上报过的尸体 UUID（同一具尸体不能重复召开会议）
  */
-public record MeetingCooldownS2CPayload(long cooldownEndGameTime,
+public record MeetingCooldownS2CPayload(long cooldownEndGameTime, long bellCooldownEndGameTime,
         List<UUID> reportedBodies) implements CustomPacketPayload {
 
     public static final Type<MeetingCooldownS2CPayload> ID = new Type<>(
@@ -42,6 +42,7 @@ public record MeetingCooldownS2CPayload(long cooldownEndGameTime,
 
     public static final StreamCodec<FriendlyByteBuf, MeetingCooldownS2CPayload> CODEC = StreamCodec.composite(
             ByteBufCodecs.VAR_LONG, MeetingCooldownS2CPayload::cooldownEndGameTime,
+            ByteBufCodecs.VAR_LONG, MeetingCooldownS2CPayload::bellCooldownEndGameTime,
             UUIDUtil.STREAM_CODEC.apply(ByteBufCodecs.list()), MeetingCooldownS2CPayload::reportedBodies,
             MeetingCooldownS2CPayload::new);
 

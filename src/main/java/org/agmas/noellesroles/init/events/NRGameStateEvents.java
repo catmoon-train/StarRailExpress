@@ -32,6 +32,7 @@ import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
@@ -238,6 +239,39 @@ public class NRGameStateEvents {
 
     private static void registerOnGameTrueStarted() {
         OnGameTrueStarted.EVENT.register((serverLevel) -> {
+            var areacca = AreasWorldComponent.KEY.get(serverLevel);
+            if (areacca.areasSettings != null) {
+                if (areacca.areasSettings.meetingEnabled) {
+                    Component meetingType = null;
+                    MutableComponent extraMsg = Component.literal("").withStyle(ChatFormatting.GOLD);
+                    if (areacca.areasSettings.bodyMeetingEnabled) {
+                        meetingType = Component.translatable("meeting.sre.body_meeting");
+                        extraMsg.append("\n").append(Component.translatable("meeting.sre.is_comming",
+                                Component.translatable("meeting.sre.body_meeting").withStyle(ChatFormatting.AQUA),
+                                Component.literal(String.format("%d", areacca.areasSettings.meetingStartCooldown))
+                                        .withStyle(ChatFormatting.GREEN)));
+                    }
+                    if (areacca.areasSettings.bellMeetingEnabled) {
+                        meetingType = meetingType == null ? Component.translatable("meeting.sre.body_meeting")
+                                : Component.translatable("meeting.sre.and", meetingType,
+                                        Component.translatable("meeting.sre.body_meeting"));
+                        extraMsg.append("\n").append(Component.translatable("meeting.sre.is_comming",
+                                Component.translatable("meeting.sre.bell_meeting").withStyle(ChatFormatting.YELLOW),
+                                Component.literal(String.format("%d", areacca.areasSettings.bellMeetingStartCooldown))
+                                        .withStyle(ChatFormatting.GREEN)));
+                    }
+                    if (meetingType != null) {
+                        final var entryMeetingMessage = Component.translatable("meeting.sre.start_game_broadcast",
+                                Component.translatable(areacca.mapDisplayName).withStyle(ChatFormatting.AQUA),
+                                meetingType,
+                                extraMsg).withStyle(ChatFormatting.GOLD);
+                        for (var p : serverLevel.players()) {
+                            BroadcastCommand.BroadcastMessage(p, entryMeetingMessage);
+                        }
+                    }
+                    // meeting.sre.start_game_broadcast
+                }
+            }
             SREGameWorldComponent gameWorldComponent = SREGameWorldComponent.KEY.get(serverLevel);
             boolean hasDio = false, hasRecorder = false, hasCandlebearer = false, hasRaven = false, hasBee = false;
             boolean hasNianShou = false, hasArsonist = false, hasCuckoo = false, hasPelican = false,
@@ -316,7 +350,8 @@ public class NRGameStateEvents {
                 all_players.forEach((p) -> {
                     if (p != null) {
                         BroadcastCommand.BroadcastMessage(p, Component
-                                .translatable("message.noellesroles.licensed_villain.entry").withStyle(ChatFormatting.YELLOW));
+                                .translatable("message.noellesroles.licensed_villain.entry")
+                                .withStyle(ChatFormatting.YELLOW));
                     }
                 });
             }

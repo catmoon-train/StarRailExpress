@@ -52,12 +52,14 @@ public final class MeetingReportServerHandler {
 
         // 散会时 MeetingManager 已把冷却算好，直接广播触发时间（见 ai_doc：同步触发时刻而非每秒同步）
         MeetingEndEvent.EVENT.register(serverLevel -> broadcast(serverLevel,
-                MeetingManager.getCooldownUntilTick(), MeetingManager.getReportedBodies()));
+                MeetingManager.getCooldownUntilTick(), MeetingManager.getBellCooldownUntilTick(),
+                MeetingManager.getReportedBodies()));
         // 游戏结束时 MeetingManager 会清零冷却，这里显式广播清零（不依赖监听器注册顺序）
-        OnGameEnd.EVENT.register((serverLevel, game) -> broadcast(serverLevel, 0, List.of()));
+        OnGameEnd.EVENT.register((serverLevel, game) -> broadcast(serverLevel, 0, 0, List.of()));
         // 中途加入 / 重连的玩家补发当前冷却
         ServerPlayConnectionEvents.JOIN.register((handler, sender, server) -> sender.sendPacket(
                 new MeetingCooldownS2CPayload(MeetingManager.getCooldownUntilTick(),
+                        MeetingManager.getBellCooldownUntilTick(),
                         List.copyOf(MeetingManager.getReportedBodies()))));
     }
 
@@ -75,9 +77,10 @@ public final class MeetingReportServerHandler {
         MeetingManager.tryReportBody(player, body);
     }
 
-    private static void broadcast(ServerLevel serverLevel, long cooldownEndGameTime, Collection<UUID> reported) {
+    private static void broadcast(ServerLevel serverLevel, long cooldownEndGameTime, long bellCooldownEndGameTime,
+            Collection<UUID> reported) {
         MeetingCooldownS2CPayload payload = new MeetingCooldownS2CPayload(
-                cooldownEndGameTime, List.copyOf(reported));
+                cooldownEndGameTime, bellCooldownEndGameTime, List.copyOf(reported));
         for (ServerPlayer player : serverLevel.players()) {
             ServerPlayNetworking.send(player, payload);
         }
