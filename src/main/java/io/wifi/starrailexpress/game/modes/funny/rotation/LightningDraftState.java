@@ -291,7 +291,6 @@ public class LightningDraftState {
     private static int normalizeCardType(int rawType) {
         return switch (rawType) {
             case 5 -> 1;
-            case 3 -> 2;
             default -> rawType;
         };
     }
