@@ -71,13 +71,13 @@ public class InvisbleHandItem {
             }
             return null; // 不修改
         });
-        // 显示手铐
+        // 显示手铐（改由 HandCuffsFeatureRenderer 动态渲染，副手此处隐藏避免重复）
         AllowItemShowInHand.EVENT.register((player, itemStack, mainHand) -> {
             if (mainHand)
                 return null;
             var item = ExtraSlotComponent.getSlot(player, HandCuffsItem.SLOT_HANDCUFFS);
             if (item.is(ModItems.HANDCUFFS)) {
-                return item;
+                return ItemStack.EMPTY;
             }
             return null; // 不修改
         });
