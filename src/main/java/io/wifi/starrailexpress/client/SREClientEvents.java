@@ -101,6 +101,8 @@ public class SREClientEvents {
     public static void registerClientEvents() {
         registerRoleNameRendererEvents();
         OnGameStartedClient.EVENT.register(() -> {
+            if (Minecraft.getInstance().player != null)
+                Minecraft.getInstance().player.refreshDimensions();
             NoellesrolesClient.clearTimeStopCache();
             if (!Minecraft.getInstance().isLocalServer()) {
                 SRE.LOGGER.info("[CLIENT] Re-register shop entries.");
@@ -108,6 +110,8 @@ public class SREClientEvents {
             }
         });
         OnGameFinishedClient.EVENT.register(() -> {
+            if (Minecraft.getInstance().player != null)
+                Minecraft.getInstance().player.refreshDimensions();
             NoellesrolesClient.clearTimeStopCache();
             Minecraft.getInstance().getSoundManager().stop();
         });
