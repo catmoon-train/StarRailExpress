@@ -415,7 +415,8 @@ public class RoleIntroduceScreen extends Screen {
                     || PinYinUtils.contains(searchContent, name))
                 filteredItems.add(item);
         }
-        if (currentMode.equals(IntroductionGameMode.CURRENT)) {
+        if (currentMode.equals(IntroductionGameMode.CURRENT)
+                || currentMode.equals(IntroductionGameMode.CURRENT_ROUND)) {
             if (SREClient.areaComponent != null && SREClient.areaComponent.areasSettings != null) {
                 if (cat.filter.test(SREClient.areaComponent.areasSettings))
                     filteredItems.add(SREClient.areaComponent.areasSettings);
@@ -2213,7 +2214,7 @@ public class RoleIntroduceScreen extends Screen {
                             openFilterScreen();
                         else if (clickedMode == IntroductionGameMode.CURRENT) {
                             if (minecraft.player != null && SREClient.gameComponent != null
-                                    && SREClient.gameComponent.getRole(minecraft.player) != null) {
+                                    && SREClient.gameComponent.isRunning()) {
                                 refreshFilter(clickedMode);
                             }
                         } else if (currentMode != clickedMode) {
