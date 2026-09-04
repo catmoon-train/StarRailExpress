@@ -98,10 +98,6 @@ public class RoleShopHandler {
 
     public static boolean haveRegistered = false;
 
-    private static int banditBlackoutPrice() {
-        return (int) (SREConfig.instance().blackoutPrice * 1.5);
-    }
-
     private static List<ShopEntry> createPoisonerShopEntries() {
         var entries = new ArrayList<ShopEntry>();
         entries.add(new ToxinShopEntry(80));
