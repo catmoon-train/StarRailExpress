@@ -2176,7 +2176,7 @@ public class ModRoles {
 			true, // isInnocent = 乘客阵营
 			false, // canUseKiller = 无杀手能力
 			SRERole.MoodType.FAKE, // 小丑心情（假心情）
-			TMMRoles.CIVILIAN.getMaxSprintTime() * 100, // 双倍体力上限
+			Integer.MAX_VALUE, // 双倍体力上限
 			false // 不隐藏计分板
 	), "slay_the_spire").setRoleData(GlitchRobotRoleData::new).setCanSeeCoin(true)
 			.setCanBePoisoned(false)
