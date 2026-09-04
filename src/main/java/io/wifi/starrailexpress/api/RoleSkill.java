@@ -30,6 +30,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 
+import org.agmas.noellesroles.AbilityHandler;
 import org.agmas.noellesroles.init.ModEffects;
 import org.jetbrains.annotations.Nullable;
 
@@ -607,8 +608,10 @@ public final class RoleSkill {
         Consumer<RoleSkillContext> consumer = LEGACY_SKILLS.get(role.identifier());
         if (consumer != null) {
             consumer.accept(new RoleSkillContext(player, target));
-        } else {
-            RoleMethodDispatcher.callOnAbilityUse(player);
+        } else if (target != null) {
+            AbilityHandler.handlerWithTarget(player, target, ignoreEffect);
+        } else if (!RoleMethodDispatcher.callOnAbilityUse(player)) {
+            AbilityHandler.handler(player, ignoreEffect);
         }
         afterUse(player, role);
         return true;

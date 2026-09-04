@@ -112,7 +112,6 @@ public class ModRolesInitialEventRegister {
 
         // 初始化亡灵之主事件（亡者复苏 / 角色初始化）
         org.agmas.noellesroles.game.roles.killer.undead_lord.UndeadLordHandler.init();
-        AbilitySkillRegister.register();
 
         // 初始化仇杀客事件
         BloodFeudistRoleData.registerEvents();
