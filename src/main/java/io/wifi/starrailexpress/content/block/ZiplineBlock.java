@@ -244,6 +244,7 @@ public class ZiplineBlock extends Block implements EntityBlock {
     /**
      * 丢掉指向非滑索方块的连接。未加载的区块会被跳过，避免误删跨区块的长连接。
      */
+    @SuppressWarnings("deprecation")
     private static void pruneDeadConnections(Level level, BlockPos pos, ZiplineBlockEntity zbe) {
         for (BlockPos connected : zbe.getConnectedPositions()) {
             if (level.hasChunkAt(connected) && !(level.getBlockState(connected).getBlock() instanceof ZiplineBlock)) {
