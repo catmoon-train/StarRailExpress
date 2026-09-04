@@ -204,6 +204,7 @@ public final class MeetingManager {
     }
 
     public static void reset() {
+        emergencyMeeting.set(false);
         endMeeting(true);
         reportedBodies.clear();
         cooldownUntilTick = 0;
