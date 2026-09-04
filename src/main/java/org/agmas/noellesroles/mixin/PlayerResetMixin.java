@@ -15,7 +15,6 @@
 
 package org.agmas.noellesroles.mixin;
 
-import io.wifi.starrailexpress.api.data.RoleData;
 import io.wifi.starrailexpress.cca.SREAbilityPlayerComponent;
 import io.wifi.starrailexpress.game.GameUtils;
 import io.wifi.starrailexpress.util.SREItemUtils;
@@ -33,8 +32,6 @@ import org.agmas.noellesroles.content.entity.TripwireTrapEntity;
 import org.agmas.noellesroles.game.roles.killer.manipulator.InControlCCA;
 import org.agmas.noellesroles.game.roles.neutral.puppeteer.PuppeteerPlayerComponent;
 import org.agmas.noellesroles.packet.PlayerResetS2CPacket;
-import org.agmas.noellesroles.role_data.innocence.AyayayaRoleData;
-import org.agmas.noellesroles.role_data.innocence.CakeMakerRoleData;
 import org.agmas.noellesroles.utils.RoleUtils;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
@@ -106,27 +103,13 @@ public abstract class PlayerResetMixin {
         SREAbilityPlayerComponent abilityComp = ModComponents.ABILITY.get(player);
         abilityComp.clear();
 
-        // Noellesroles.LOGGER.info("resetPlayer");
-
-        AyayayaRoleData postmanComp = RoleData.getNullable(AyayayaRoleData.class, player);
-        if (postmanComp != null) {
-            postmanComp.clear();
-        }
+        // RoleData needn't reset/clear/init!
+        // RoleData 不需要重置
 
         // 清除傀儡师组件状态
         PuppeteerPlayerComponent puppeteerComp = ModComponents.PUPPETEER.get(player);
         puppeteerComp.clear();
-
-        // 清除蛋糕师组件状态（移除烟熏炉和已放置的蛋糕，防止残留到下一局）
-        CakeMakerRoleData cakeMaker = RoleData.getNullable(CakeMakerRoleData.class, player);
-        if (cakeMaker != null) {
-            cakeMaker.clear();
-        }
-        // 删除modifier
-        // WorldModifierComponent worldModifierComponent =
-        // WorldModifierComponent.KEY.get(player.level());
-        // worldModifierComponent.modifiers.clear();
-        // worldModifierComponent.sync();
+        
         // 清除该玩家放置的所有泥沼陷阱实体
         clearMudTraps(player);
         // 清除该玩家放置的所有绊线陷阱实体

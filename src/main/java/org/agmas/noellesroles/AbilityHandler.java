@@ -59,6 +59,11 @@ import org.agmas.noellesroles.utils.RoleUtils;
 import java.util.List;
 import java.util.UUID;
 
+// Purpose of this class reservation: to avoid conflicts between custom widgets and their RoleSkills.
+// Please do not delete
+// 本类保留目的：RoleSkill无法做到区分widget和RoleSkill技能
+// 请不要删除
+
 public class AbilityHandler {
 
     public static void handler(ServerPlayer player) {
