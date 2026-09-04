@@ -17,6 +17,7 @@ package io.wifi.starrailexpress.client.gui.screen.gamemode.role_rotation;
 
 import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.api.TMMRoles;
+import io.wifi.starrailexpress.client.SREClient;
 import io.wifi.starrailexpress.client.gui.screen.WithParentScreenPauseScreen;
 import io.wifi.starrailexpress.content.vote.client.RoleRotationCache;
 import io.wifi.starrailexpress.network.packet.RoleRotationSelectC2SPacket;
@@ -59,7 +60,6 @@ public class RoleRotationScreen extends Screen {
     private static final int BLUE = 0xFF5EB7D8;
     private static final int GREEN = 0xFF72C17B;
     private static final int RED = 0xFFE06B65;
-
 
     private int leftX, leftY, leftW, panelH;
     private int rightX, rightY, rightW, cardW, cardY;
@@ -150,6 +150,11 @@ public class RoleRotationScreen extends Screen {
     }
 
     private void renderOverlayMessageOnScreen(GuiGraphics context, int mouseX, int mouseY, float delta) {
+        var mapInfo = Component
+                .translatable("message.tip.map_name", Component
+                        .translatable(SREClient.areaComponent.mapDisplayName))
+                .withStyle(ChatFormatting.WHITE);
+        context.drawString(font, mapInfo, width - 10 - font.width(mapInfo), 5, 0xffffffff);
         var message = minecraft.gui.overlayMessageString;
         int displaytime = minecraft.gui.overlayMessageTime;
         if (message == null || displaytime <= 0)
