@@ -53,6 +53,9 @@ public class AnatmanRoleData extends SimpleRoleData {
     /** 舍己开局自带的冷却（tick）。 */
     public static final int SELF_SACRIFICE_INITIAL_COOLDOWN_TICKS = 180 * 20;
 
+    /** 无我+无妄联合独立胜利的 CustomWinnerID（见 {@code CustomWinnerClass#checkWinnerBuiltin}）。 */
+    public static final String JOINT_WINNER_ID = "anatman_asatya";
+
     public static final ResourceLocation FOR_HIM_SKILL_ID = SRE.id("anatman_for_him");
     public static final ResourceLocation SELF_SACRIFICE_SKILL_ID = SRE.id("anatman_self_sacrifice");
     public static final ResourceLocation SOUL_RETURN_SKILL_ID = SRE.id("anatman_soul_return");
