@@ -47,8 +47,9 @@ import org.agmas.noellesroles.client.screen.PostmanScreenHandler;
 import org.agmas.noellesroles.component.ModComponents;
 import org.agmas.noellesroles.content.entity.LockEntityManager;
 import org.agmas.noellesroles.content.entity.NiaoshoushouMissileEntity;
+import org.agmas.noellesroles.content.item.StalkerKnifeItem;
 import org.agmas.noellesroles.role_data.innocence.AthleteRoleData;
-import org.agmas.noellesroles.game.roles.innocence.ayayaya.AyayayaPlayerComponent;
+import org.agmas.noellesroles.role_data.innocence.AyayayaRoleData;
 import org.agmas.noellesroles.role_data.innocence.BoxerRoleData;
 import org.agmas.noellesroles.role_data.innocence.AgentRoleData;
 import org.agmas.noellesroles.role_data.innocence.GreatDetectiveRoleData;
@@ -302,32 +303,21 @@ public class RiceReceiverRegister {
 
         // 处理射命丸文传递包
         ServerPlayNetworking.registerGlobalReceiver(POSTMAN_PACKET, (payload, context) -> {
-            // 验证玩家存活
             if (!GameUtils.isPlayerAliveAndSurvival(context.player()))
                 return;
 
-            // 获取玩家的射命丸文组件
-            AyayayaPlayerComponent postmanComp = ModComponents.AYAYAYA.get(context.player());
-
-            // 根据不同操作处理（部分操作需要验证是否射命丸文角色）
             switch (payload.action()) {
                 case OPEN_DELIVERY -> {
-                    // 只有射命丸文才能发起传递
-                    // if (!gameWorld.isRole(context.player(), ModRoles.POSTMAN)) return;
+                    AyayayaRoleData postmanComp = RoleData.getNullable(AyayayaRoleData.class, context.player());
+                    if (postmanComp == null)
+                        return;
 
-                    // 验证目标玩家存在且存活
                     Player target = context.player().level().getPlayerByUUID(payload.targetPlayer());
                     if (target == null || !GameUtils.isPlayerAliveAndSurvival(target))
                         return;
 
-                    // 开始传递
                     postmanComp.startDelivery(payload.targetPlayer(), target.getName().getString());
 
-                    // 通知目标玩家
-                    AyayayaPlayerComponent targetComp = ModComponents.AYAYAYA.get(target);
-                    targetComp.receiveDelivery(context.player().getUUID(), context.player().getName().getString());
-
-                    // 打开射命丸文界面 - 使用 ExtendedScreenHandlerFactory 传递 UUID
                     if (context.player() instanceof ServerPlayer serverPlayer) {
                         serverPlayer.openMenu(
                                 new net.fabricmc.fabric.api.screenhandler.v1.ExtendedScreenHandlerFactory<java.util.UUID>() {
@@ -351,7 +341,6 @@ public class RiceReceiverRegister {
                                 });
                     }
 
-                    // 同时为目标玩家打开界面
                     if (target instanceof ServerPlayer serverTarget) {
                         final java.util.UUID postmanUuid = context.player().getUUID();
                         serverTarget.openMenu(
@@ -376,51 +365,29 @@ public class RiceReceiverRegister {
                     }
                 }
                 case SET_ITEM -> {
-                    // 验证玩家有有效的传递会话
-                    if (!postmanComp.isDeliveryActive())
+                    AyayayaRoleData session = AyayayaRoleData.resolve(context.player());
+                    if (session == null || !session.isDeliveryActive())
                         return;
-
-                    // 放入物品
-                    postmanComp.setItem(payload.item(), !postmanComp.isReceiver);
+                    session.setItem(payload.item(), !session.isViewerReceiver(context.player()));
                 }
                 case CONFIRM -> {
-                    // 验证玩家有有效的传递会话
-                    if (!postmanComp.isDeliveryActive())
+                    AyayayaRoleData session = AyayayaRoleData.resolve(context.player());
+                    if (session == null || !session.isDeliveryActive() || session.deliveryTarget == null)
                         return;
-
-                    // 获取对方组件
-                    if (postmanComp.deliveryTarget == null)
-                        return;
-                    Player target = context.player().level().getPlayerByUUID(postmanComp.deliveryTarget);
+                    Player target = context.player().level().getPlayerByUUID(session.deliveryTarget);
                     if (target == null)
                         return;
-                    AyayayaPlayerComponent targetComp = ModComponents.AYAYAYA.get(target);
 
-                    // 确认交换 - 同步更新双方组件
-                    boolean isPostman = !postmanComp.isReceiver;
+                    boolean isPostman = !session.isViewerReceiver(context.player());
+                    session.confirm(isPostman);
 
-                    // 更新自己的组件
-                    if (isPostman) {
-                        postmanComp.senderConfirmed = true;
-                        targetComp.senderConfirmed = true; // 同步到对方
-                    } else {
-                        postmanComp.targetConfirmed = true;
-                        targetComp.targetConfirmed = true; // 同步到对方
-                    }
-                    postmanComp.sync();
-                    targetComp.sync();
+                    if (session.isBothConfirmed()) {
+                        ItemStack postmanItem = session.putItem.copy();
+                        ItemStack targetItem = session.targetItem.copy();
 
-                    // 检查是否双方都确认（使用自己组件中的状态）
-                    if (postmanComp.senderConfirmed && postmanComp.targetConfirmed) {
-                        // 执行交换
-                        ItemStack postmanItem = postmanComp.putItem.copy();
-                        ItemStack targetItem = postmanComp.targetItem.copy();
+                        Player postmanPlayer = session.getPlayer();
+                        Player receiverPlayer = target;
 
-                        // 确定谁是射命丸文谁是接收方
-                        Player postmanPlayer = isPostman ? context.player() : target;
-                        Player receiverPlayer = isPostman ? target : context.player();
-
-                        // 射命丸文收到接收方的物品，接收方收到射命丸文的物品
                         if (!targetItem.isEmpty()) {
                             postmanPlayer.addItem(targetItem);
                         }
@@ -428,41 +395,30 @@ public class RiceReceiverRegister {
                             receiverPlayer.addItem(postmanItem);
                         }
 
-                        // 消耗射命丸文的传递盒
                         consumeDeliveryBox(postmanPlayer);
 
-                        // 重置双方状态（这会触发 isDeliveryActive() 返回 false）
-                        postmanComp.init();
-                        targetComp.init();
-                        // 回放记录：传递盒双方交换物品
+                        session.init();
                         SRE.REPLAY_MANAGER.recordCustomEvent(
                             Component.translatable("replay.event.shameimaru.exchange_box",
                                 GameReplayUtils.getReplayPlayerDisplayText(postmanPlayer, true),
                                 GameReplayUtils.getReplayPlayerDisplayText(receiverPlayer, true)));
 
-                        // 关闭双方界面
                         if (context.player() instanceof ServerPlayer serverPlayer) {
                             serverPlayer.closeContainer();
                         }
                         if (target instanceof ServerPlayer serverTarget) {
                             serverTarget.closeContainer();
                         }
+                        if (postmanPlayer instanceof ServerPlayer serverPostman && serverPostman != context.player()) {
+                            serverPostman.closeContainer();
+                        }
                     }
                 }
                 case CANCEL -> {
-                    // 验证玩家有有效的传递会话
-                    if (!postmanComp.isDeliveryActive())
+                    AyayayaRoleData session = AyayayaRoleData.resolve(context.player());
+                    if (session == null || !session.isDeliveryActive())
                         return;
-
-                    // 取消传递 - 射命丸文和接收方都可以取消
-                    if (postmanComp.deliveryTarget != null) {
-                        Player target = context.player().level().getPlayerByUUID(postmanComp.deliveryTarget);
-                        if (target != null) {
-                            AyayayaPlayerComponent targetComp = ModComponents.AYAYAYA.get(target);
-                            targetComp.init();
-                        }
-                    }
-                    postmanComp.init();
+                    session.init();
                 }
             }
         });
@@ -661,15 +617,15 @@ public class RiceReceiverRegister {
             if (!GameUtils.isPlayerAliveAndSurvival(context.player()))
                 return;
 
-            // 只有三阶段能使用突进
-            if (stalkerComp.phase != 3 || !stalkerComp.dashModeActive)
+            // 只有刺客形态且主手持潜行者匕首时能用右键攻击冲刺。
+            if (!stalkerComp.isAssassinFormActive()
+                    || !(context.player().getMainHandItem().getItem() instanceof StalkerKnifeItem))
                 return;
 
             if (payload.charging()) {
-                stalkerComp.startCharging();
-                ConfigWorldComponent.onPlayerUsedSkill(context.player());
-            } else {
-                stalkerComp.releaseCharge();
+                if (stalkerComp.tryStartAttackDash()) {
+                    ConfigWorldComponent.onPlayerUsedSkill(context.player());
+                }
             }
         });
 

@@ -15,9 +15,11 @@
 
 package org.agmas.noellesroles.game.roles.neutral.panda;
 
+import io.wifi.starrailexpress.client.SREClient;
 import io.wifi.starrailexpress.event.AllowOtherCameraType;
 import io.wifi.starrailexpress.event.client.OnGameFinishedClient;
 import io.wifi.starrailexpress.event.client.OnGameStartedClient;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.animal.Panda;
@@ -29,6 +31,28 @@ import java.util.UUID;
 
 public class PandaClientHandle {
     public static Map<UUID, Panda> pandaMap = new HashMap<>();
+
+    public static void tickVisual(Player player, boolean isPanda) {
+        if (SREClient.gameComponent == null || !SREClient.gameComponent.isRunning()) {
+            if (!pandaMap.isEmpty()) {
+                pandaMap.clear();
+            }
+            return;
+        }
+        if (isPanda) {
+            if (player.isSpectator()) {
+                pandaMap.remove(player.getUUID());
+                return;
+            }
+            ClientLevel level = Minecraft.getInstance().level;
+            if (level != null) {
+                getOrCreatePanda(player, level);
+            }
+        } else {
+            pandaMap.remove(player.getUUID());
+        }
+    }
+
     public static void getOrCreatePanda(Player player, ClientLevel clientLevel) {
         UUID uuid = player.getUUID();
         if (!pandaMap.containsKey(uuid)){

@@ -26,6 +26,7 @@ import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.StringTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.server.level.ServerPlayer;
+import org.agmas.noellesroles.game.roles.neutral.panda.PandaClientHandle;
 import org.agmas.noellesroles.init.ModEffects;
 import org.jetbrains.annotations.NotNull;
 
@@ -71,8 +72,29 @@ public class LeaderRoleData extends SimpleRoleData {
     /** 是否已对恒星体释放技能：领袖随好人（乘客/好人阵营）胜利 */
     public boolean withInnocent = false;
 
+    /** 熊猫外观（追随黑白熊时） */
+    public boolean isPanda = false;
+
     public LeaderRoleData(RoleDataContext context) {
         super(context);
+    }
+
+    public void setPandaForm(boolean panda) {
+        if (this.isPanda == panda) {
+            return;
+        }
+        this.isPanda = panda;
+        this.sync();
+    }
+
+    @Override
+    public boolean shouldSyncWith(ServerPlayer p) {
+        return isPanda || p == player;
+    }
+
+    @Override
+    public void clientTick() {
+        PandaClientHandle.tickVisual(player, isPanda);
     }
 
     public boolean isFollower(UUID uuid) {
@@ -137,6 +159,7 @@ public class LeaderRoleData extends SimpleRoleData {
         tag.putBoolean("hesitated", hesitated);
         tag.putLong("safeTimeTicks", safeTimeTicks);
         tag.putBoolean("withInnocent", withInnocent);
+        tag.putBoolean("panda", isPanda);
         ListTag followerList = new ListTag();
         for (UUID uid : followers) {
             followerList.add(StringTag.valueOf(uid.toString()));
@@ -160,6 +183,7 @@ public class LeaderRoleData extends SimpleRoleData {
         hesitated = tag.getBoolean("hesitated");
         safeTimeTicks = tag.contains("safeTimeTicks") ? tag.getLong("safeTimeTicks") : 0;
         withInnocent = tag.getBoolean("withInnocent");
+        isPanda = tag.contains("panda") && tag.getBoolean("panda");
         followers.clear();
         ListTag followerList = tag.getList("followers", Tag.TAG_STRING);
         for (int i = 0; i < followerList.size(); i++) {

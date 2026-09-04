@@ -32,7 +32,7 @@ import net.minecraft.world.InteractionResult;
 
 import org.agmas.noellesroles.role.ModRoles;
 import pro.fazeclan.river.stupid_express.constants.SERoles;
-import pro.fazeclan.river.stupid_express.utils.StupidRoleUtils;
+import org.agmas.noellesroles.utils.RoleUtils;
 
 public class RoleSelectionHandler {
 
@@ -127,14 +127,14 @@ public class RoleSelectionHandler {
             clearAllKnives(interacting);
 
             SREPlayerShopComponent playerShopComponent = SREPlayerShopComponent.KEY.get(interacting);
-            StupidRoleUtils.changeRole(interacting, role);
+            RoleUtils.changeRole(interacting, role);
 
             // 播放全场音效
             interacting.level().playSound(null, interacting.blockPosition(),
                     SoundEvents.BEACON_POWER_SELECT, SoundSource.MASTER, 2.0F, 1.0F);
 
             playerShopComponent.setBalance(200);
-            StupidRoleUtils.sendWelcomeAnnouncement(interacting);
+            RoleUtils.sendWelcomeAnnouncement(interacting);
 
             return InteractionResult.CONSUME;
         }));

@@ -47,9 +47,11 @@ public class SplitPersonalitySwitchPacket implements CustomPacketPayload {
         return ID;
     }
 
-    public static void register() {
+    public static void registerPayloadType() {
         PayloadTypeRegistry.playC2S().register(SplitPersonalitySwitchPacket.ID, SplitPersonalitySwitchPacket.CODEC);
+    }
 
+    public static void register() {
         ServerPlayNetworking.registerGlobalReceiver(SplitPersonalitySwitchPacket.ID, (payload, context) -> {
             context.server().submit(() -> {
                 ServerPlayer player = context.player();

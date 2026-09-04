@@ -69,6 +69,10 @@ public class StalkerKnifeItem extends KnifeItem {
     public InteractionResult useOn(UseOnContext useOnContext) {
         if (useOnContext.getHand() == InteractionHand.OFF_HAND)
             return InteractionResult.PASS;
+        Player player = useOnContext.getPlayer();
+        if (player != null && isAssassinFormActive(player)) {
+            return InteractionResult.sidedSuccess(useOnContext.getLevel().isClientSide);
+        }
         return super.useOn(useOnContext);
     }
 
@@ -109,12 +113,22 @@ public class StalkerKnifeItem extends KnifeItem {
     public InteractionResultHolder<ItemStack> use(Level world, @NotNull Player user, InteractionHand hand) {
         if (hand == InteractionHand.OFF_HAND)
             return InteractionResultHolder.pass(user.getItemInHand(hand));
+        if (isAssassinFormActive(user)) {
+            // 刺客形态的右键由独立网络输入释放攻击冲刺，不再进入普通匕首蓄力。
+            return InteractionResultHolder.consume(user.getItemInHand(hand));
+        }
         if ((SREGameWorldComponent.KEY.get(world).isRole(user, ModRoles.STALKER)
                 && RoleData.getOptional(StalkerRoleData.class, user).map(s -> s.phase == 3).orElse(false))) {
             user.getMainHandItem().set(SREDataComponentTypes.WEAPON_USED_TIME, 2);
         } else
             user.getMainHandItem().set(SREDataComponentTypes.WEAPON_USED_TIME, 10);
         return super.use(world, user, hand);
+    }
+
+    private static boolean isAssassinFormActive(Player player) {
+        return SREGameWorldComponent.KEY.get(player.level()).isRole(player, ModRoles.STALKER)
+                && RoleData.getOptional(StalkerRoleData.class, player)
+                        .map(StalkerRoleData::isAssassinFormActive).orElse(false);
     }
 
     @Override

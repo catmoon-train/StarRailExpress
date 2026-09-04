@@ -27,7 +27,6 @@ import io.wifi.starrailexpress.client.StatusInit.StatusBar;
 import io.wifi.starrailexpress.event.AllowOtherCameraType;
 import io.wifi.starrailexpress.event.OnGettingPlayerSkin;
 import io.wifi.starrailexpress.game.roles.SpecialGameModeRoles;
-import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.item.v1.ItemTooltipCallback;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
@@ -57,11 +56,11 @@ import pro.fazeclan.river.stupid_express.constants.SERoles;
 import pro.fazeclan.river.stupid_express.modifier.refugee.cca.RefugeeComponent;
 import pro.fazeclan.river.stupid_express.modifier.split_personality.cca.SplitPersonalityComponent;
 import pro.fazeclan.river.stupid_express.network.SplitBackCamera;
-import pro.fazeclan.river.stupid_express.role.arsonist.cca.DousedPlayerComponent;
+import pro.fazeclan.river.stupid_express.role.arsonist.ArsonistRoleData;
 
 import java.util.*;
 
-public class StupidExpressClient implements ClientModInitializer {
+public class StupidExpressClient {
 
     public static boolean isSplitPerson = false;
     static boolean isUsedRefugee = false;
@@ -89,8 +88,7 @@ public class StupidExpressClient implements ClientModInitializer {
         return weavingShaderStrength;
     }
 
-    @Override
-    public void onInitializeClient() {
+    public static void init() {
 
         // p.playNotifySound(StupidExpress.SOUND_REGUGEE, SoundSource.AMBIENT, 0.5f,
         // 1.0f);
@@ -216,8 +214,8 @@ public class StupidExpressClient implements ClientModInitializer {
             if (!SREClient.isPlayerAliveAndInSurvival())
                 return;
 
-            DousedPlayerComponent ownComp = DousedPlayerComponent.KEY.get(client.player);
-            int dousedCount = ownComp.dousedCount;
+            ArsonistRoleData ownComp = ArsonistRoleData.of(client.player);
+            int dousedCount = ownComp != null ? ownComp.dousedCount : 0;
 
             // 计算存活玩家数（排除观察者和创造模式）
             long alivePlayers = client.player.level().players().stream()

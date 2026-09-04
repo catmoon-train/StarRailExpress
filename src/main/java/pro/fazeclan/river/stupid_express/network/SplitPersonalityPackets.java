@@ -68,16 +68,16 @@ public class SplitPersonalityPackets {
         }
     }
 
+    public static void registerPayloadTypes() {
+        PayloadTypeRegistry.playC2S().register(SplitPersonalityChoicePayload.ID, SplitPersonalityChoicePayload.CODEC);
+        PayloadTypeRegistry.playS2C().register(SplitPersonalityChoicePayload.ID, SplitPersonalityChoicePayload.CODEC);
+    }
+
     /**
      * 注册网络包处理器
      * 处理客户端发送的双重人格选择请求
      */
     public static void registerPackets() {
-        // 注册选择payload
-        PayloadTypeRegistry.playC2S().register(SplitPersonalityChoicePayload.ID, SplitPersonalityChoicePayload.CODEC);
-        PayloadTypeRegistry.playS2C().register(SplitPersonalityChoicePayload.ID, SplitPersonalityChoicePayload.CODEC);
-
-        // 处理选择payload
         ServerPlayNetworking.registerGlobalReceiver(SplitPersonalityChoicePayload.ID, (payload, context) -> {
             context.server().submit(() -> {
                 ServerPlayer player = context.player();

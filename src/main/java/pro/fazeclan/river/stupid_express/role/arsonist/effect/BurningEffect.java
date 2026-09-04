@@ -25,7 +25,7 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.flag.FeatureFlagSet;
 import pro.fazeclan.river.stupid_express.StupidExpress;
 import pro.fazeclan.river.stupid_express.constants.SEEffects;
-import pro.fazeclan.river.stupid_express.role.arsonist.cca.DousedPlayerComponent;
+import pro.fazeclan.river.stupid_express.role.arsonist.ArsonistRoleData;
 
 import java.util.UUID;
 
@@ -38,7 +38,7 @@ import java.util.UUID;
  * <li>点燃时一并施加隐藏的原版“防火”效果，使目标在燃烧期间不受原版火焰伤害，
  * 死亡时机完全由本效果掌控，而不会被火焰伤害提前烧死。</li>
  * <li>效果走到最后一 tick 时，目标被烧死，死亡原因为 {@code stupid_express:ignited}，
- * 击杀者归属为点燃他的纵火犯（通过 {@link DousedPlayerComponent#getBurningKiller()} 记录）。</li>
+ * 击杀者归属为点燃他的纵火犯（通过 {@link ArsonistRoleData#getBurningKiller(java.util.UUID)} 记录）。</li>
  * </ul>
  */
 public class BurningEffect extends MobEffect {
@@ -83,9 +83,11 @@ public class BurningEffect extends MobEffect {
         if (victim.getServer() == null) {
             return;
         }
-        DousedPlayerComponent doused = DousedPlayerComponent.KEY.get(victim);
-        UUID killerId = doused.getBurningKiller();
-        doused.setBurningKiller(null);
+        ArsonistRoleData arsonist = ArsonistRoleData.find(victim.level());
+        UUID killerId = arsonist != null ? arsonist.getBurningKiller(victim.getUUID()) : null;
+        if (arsonist != null) {
+            arsonist.setBurningKiller(victim.getUUID(), null);
+        }
         victim.getServer().execute(() -> {
             if (!victim.isAlive()) {
                 return;

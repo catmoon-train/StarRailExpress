@@ -683,14 +683,11 @@ public class ModPacketsReciever {
           });
         }
       }
-      if (player.getMainHandItem().getItem() instanceof StalkerKnifeItem stalkerKnifeItem) {
+      if (player.getMainHandItem().getItem() instanceof StalkerKnifeItem) {
         if (SREGameWorldComponent.KEY.get(player.level()).isRole(player.getUUID(), ModRoles.STALKER)) {
           StalkerRoleData stalkerPlayerComponent = RoleData.getNullable(StalkerRoleData.class, player);
-          if (stalkerPlayerComponent != null && stalkerPlayerComponent.phase == 3
-              && !stalkerPlayerComponent.isDashOnCooldown()) {
-            if (stalkerKnifeItem.tryDashAttack(player, player.getMainHandItem(), player.serverLevel())) {
-              stalkerPlayerComponent.dashCooldown = 50;
-            }
+          if (stalkerPlayerComponent != null && stalkerPlayerComponent.tryStartNormalDash()) {
+            ConfigWorldComponent.onPlayerUsedSkill(player);
           }
         }
       }

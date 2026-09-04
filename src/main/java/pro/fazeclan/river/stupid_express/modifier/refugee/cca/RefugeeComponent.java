@@ -75,7 +75,6 @@ import org.ladysnake.cca.api.v3.component.tick.ServerTickingComponent;
 import org.ladysnake.cca.api.v3.util.CheckEnvironment;
 import pro.fazeclan.river.stupid_express.StupidExpress;
 import pro.fazeclan.river.stupid_express.constants.SEModifiers;
-import pro.fazeclan.river.stupid_express.utils.StupidRoleUtils;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -270,9 +269,9 @@ public class RefugeeComponent implements AutoSyncedComponent, ServerTickingCompo
         player.getInventory().clearContent();
 
         // Change role to LOOSE_END and remove REFUGEE modifier
-        StupidRoleUtils.changeRole(player, TMMRoles.LOOSE_END, false, false);
+        RoleUtils.changeRole(player, TMMRoles.LOOSE_END, false, false);
         SRE.REPLAY_MANAGER.recordPlayerRevival(player.getUUID(), TMMRoles.LOOSE_END);
-        StupidRoleUtils.sendWelcomeAnnouncement(player);
+        RoleUtils.sendWelcomeAnnouncement(player);
 
         // 亡命徒复活倒计时归零时，释放鹈鹕肚子里的所有玩家
         org.agmas.noellesroles.game.roles.neutral.pelican.PelicanManager.onLastStand(serverLevel);

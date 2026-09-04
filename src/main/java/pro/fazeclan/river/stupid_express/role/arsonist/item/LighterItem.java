@@ -34,8 +34,8 @@ import net.minecraft.world.level.Level;
 import pro.fazeclan.river.stupid_express.StupidExpress;
 import pro.fazeclan.river.stupid_express.constants.SEEffects;
 import pro.fazeclan.river.stupid_express.constants.SERoles;
-import pro.fazeclan.river.stupid_express.role.arsonist.cca.DousedPlayerComponent;
-import pro.fazeclan.river.stupid_express.utils.StupidRoleUtils;
+import pro.fazeclan.river.stupid_express.role.arsonist.ArsonistRoleData;
+import org.agmas.noellesroles.utils.RoleUtils;
 
 public class LighterItem extends Item {
 
@@ -63,8 +63,8 @@ public class LighterItem extends Item {
         var server = player.getServer();
         var players1 = server.getPlayerList().getPlayers();
         var alivePlayers = players1.stream().filter(GameUtils::isPlayerAliveAndSurvival).toList();
-        var dousedCountComponent = DousedPlayerComponent.KEY.get(player);
-        var dousedCount = dousedCountComponent.dousedCount;
+        var arsonist = ArsonistRoleData.of(player);
+        var dousedCount = arsonist != null ? arsonist.dousedCount : 0;
         // 领袖追随者效果：点燃所需目标 -2 人
         int required = (int) (alivePlayers.size() * 0.3);
         if (player instanceof ServerPlayer sp) {
@@ -76,18 +76,17 @@ public class LighterItem extends Item {
             int burnTicks = Math.max(20,
                     StupidExpress.CONFIG.rolesSection.arsonistSection.burnDurationSeconds * 20);
             for (ServerPlayer target : alivePlayers) {
-                DousedPlayerComponent targetDoused = DousedPlayerComponent.KEY.get(target);
-                boolean wasDoused = targetDoused.getDoused();
-                targetDoused.reset();
+                boolean wasDoused = arsonist != null && arsonist.isDoused(target.getUUID());
                 if (wasDoused) {
-                    // 记录点燃者，燃烧结束时把击杀归属给纵火犯
-                    targetDoused.setBurningKiller(player.getUUID());
+                    arsonist.setBurningKiller(target.getUUID(), player.getUUID());
                     target.addEffect(new MobEffectInstance(SEEffects.BURNING, burnTicks, 0, false, true, true));
-                    // 隐藏的防火效果：燃烧期间只着火不掉血，死亡时机交给燃烧效果掌控
                     target.addEffect(new MobEffectInstance(MobEffects.FIRE_RESISTANCE, burnTicks + 20, 0, false, false,
                             false));
                     target.setRemainingFireTicks(40);
                 }
+            }
+            if (arsonist != null) {
+                arsonist.resetDouses();
             }
             // 重置计数器
             player.playNotifySound(SoundEvents.FLINTANDSTEEL_USE, SoundSource.PLAYERS, 1.0f, 1.0f);
@@ -102,7 +101,7 @@ public class LighterItem extends Item {
             var playersLeft = players1.stream().filter(GameUtils::isPlayerAliveAndSurvival).count();
             if (playersLeft <= 1) {
                 // 纵火犯独立胜利统计：使用 RoleUtils.customWinnerWin
-                StupidRoleUtils.customWinnerWin(serverLevel, GameUtils.WinStatus.CUSTOM,
+                RoleUtils.customWinnerWin(serverLevel, GameUtils.WinStatus.CUSTOM,
                         SERoles.ARSONIST.identifier().getPath(),
                         java.util.OptionalInt.of(SERoles.ARSONIST.color()));
             }

@@ -24,7 +24,6 @@ import io.wifi.starrailexpress.customrole.CustomRoleScreen;
 import io.wifi.starrailexpress.customrole.CustomRoleToolItem;
 import io.wifi.starrailexpress.game.GameUtils;
 import io.wifi.starrailexpress.util.PlayerStaminaGetter;
-import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.client.rendering.v1.EntityRendererRegistry;
 import net.minecraft.ChatFormatting;
@@ -74,7 +73,7 @@ import static org.agmas.noellesroles.client.NoellesrolesClient.abilityBind;
  * 3. 注册渲染器
  * 4. 注册物品提示
  */
-public class RicesRoleRhapsodyClient implements ClientModInitializer {
+public class RicesRoleRhapsodyClient {
 
     // ==================== 按键绑定 ====================
     // 技能使用按键（默认 G 键）
@@ -86,19 +85,6 @@ public class RicesRoleRhapsodyClient implements ClientModInitializer {
     private static boolean stalkerChargingLastTick = false;
     // 慕恋者窥视状态
     private static boolean admirerGazingLastTick = false;
-
-    @Override
-    public void onInitializeClient() {
-
-        // 1. 注册按键绑定
-
-        // 2. 注册客户端事件
-        registerClientEvents();
-    }
-
-    /**
-     * 注册按键绑定
-     */
 
     /**
      * 注册客户端事件
@@ -631,8 +617,7 @@ public class RicesRoleRhapsodyClient implements ClientModInitializer {
     }
 
     /**
-     * 处理跟踪者持续按键输入
-     * 用于窥视（一二阶段）和蓄力突进（三阶段）
+     * 处理潜行者刺客形态的右键输入。
      */
     public static void handleStalkerContinuousInput(Minecraft client) {
         if (client.player == null)
@@ -646,24 +631,25 @@ public class RicesRoleRhapsodyClient implements ClientModInitializer {
         if (!GameUtils.isPlayerAliveAndSurvival(client.player))
             return;
 
-        // 三阶段：鼠标右键蓄力突进
-        if (stalkerComp.phase == 3 && stalkerComp.dashModeActive) {
+        // 刺客形态：右键按下即释放一次攻击冲刺。
+        if (stalkerComp.isAssassinFormActive()) {
             boolean isRightMouseDown = client.options.keyUse.isDown();
 
             // 检查玩家手持刀
-            boolean holdingKnife = client.player.getMainHandItem().is(
-                    io.wifi.starrailexpress.index.TMMItems.KNIFE);
+            boolean holdingKnife = client.player.getMainHandItem().getItem()
+                    instanceof org.agmas.noellesroles.content.item.StalkerKnifeItem;
 
             if (holdingKnife) {
                 if (isRightMouseDown && !stalkerChargingLastTick) {
-                    // 开始蓄力
+                    // charging=true 现在表示一次攻击冲刺输入；松键不再发包。
                     ClientPlayNetworking.send(new StalkerDashC2SPacket(true));
-                } else if (!isRightMouseDown && stalkerChargingLastTick) {
-                    // 释放蓄力
-                    ClientPlayNetworking.send(new StalkerDashC2SPacket(false));
                 }
                 stalkerChargingLastTick = isRightMouseDown;
+            } else {
+                stalkerChargingLastTick = false;
             }
+        } else {
+            stalkerChargingLastTick = false;
         }
     }
 

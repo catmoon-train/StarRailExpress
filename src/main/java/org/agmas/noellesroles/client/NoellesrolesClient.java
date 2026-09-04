@@ -1696,6 +1696,8 @@ public class NoellesrolesClient implements ClientModInitializer {
 
         // 注册客户端命令
         registerCommands();
+        pro.fazeclan.river.stupid_express.client.StupidExpressClient.init();
+        org.agmas.harpymodloader.client.HarpymodloaderClient.init();
     }
 
     public static void showHelpDisplayClicked(Minecraft client) {

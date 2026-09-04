@@ -317,7 +317,7 @@ public class CommonClientHudRenderer {
       // 渲染位置 - 左下角
       int screenHeight = client.getWindow().getGuiScaledHeight();
       int x = 10;
-      int y = screenHeight - 80;
+      int y = screenHeight - 112;
 
       Font textRenderer = client.font;
 
@@ -332,11 +332,13 @@ public class CommonClientHudRenderer {
       y += 12;
 
       // 能量条
-      int maxEnergy = stalkerComp.phase == 1 ? stalkerComp.getPhase1EnergyRequired()
-          : stalkerComp.getPhase2EnergyRequired();
-      Component energyText = Component.translatable("hud.noellesroles.stalker.energy", stalkerComp.energy, maxEnergy);
-      context.drawString(textRenderer, energyText, x, y, 0xAAAAAA);
-      y += 12;
+      if (stalkerComp.phase <= 2) {
+        int maxEnergy = stalkerComp.phase == 1 ? stalkerComp.getPhase1EnergyRequired()
+            : stalkerComp.getPhase2EnergyRequired();
+        Component energyText = Component.translatable("hud.noellesroles.stalker.energy", stalkerComp.energy, maxEnergy);
+        context.drawString(textRenderer, energyText, x, y, 0xAAAAAA);
+        y += 12;
+      }
 
       // 一阶段：显示盾牌状态
       if (stalkerComp.phase == 1) {
@@ -349,7 +351,7 @@ public class CommonClientHudRenderer {
       }
 
       // 二阶段及以上：击杀数
-      if (stalkerComp.phase >= 2) {
+      if (stalkerComp.phase == 2) {
         Component killsText = Component.translatable("hud.noellesroles.stalker.kills",
             stalkerComp.phase2Kills, stalkerComp.getPhase2KillsRequired());
         context.drawString(textRenderer, killsText, x, y, 0xFF6666);
@@ -380,6 +382,35 @@ public class CommonClientHudRenderer {
         int color = stalkerComp.phase3Timer < 600 ? 0xFF0000 : 0xFFAA00; // 30秒以下变红
         context.drawString(textRenderer, timerText, x, y, color);
         y += 12;
+
+        Component normalDashText = Component.translatable("hud.noellesroles.stalker.normal_dash_charges",
+            stalkerComp.normalDashCharges, StalkerRoleData.MAX_NORMAL_DASH_CHARGES);
+        context.drawString(textRenderer, normalDashText, x, y, 0x55FFFF);
+        y += 12;
+
+        Component attackDashText = Component.translatable("hud.noellesroles.stalker.attack_dash_charges",
+            stalkerComp.attackDashCharges, StalkerRoleData.MAX_ATTACK_DASH_CHARGES);
+        context.drawString(textRenderer, attackDashText, x, y, 0xFF6666);
+        y += 12;
+
+        if (stalkerComp.attackDashCharges == 0 && stalkerComp.attackDashRechargeTimer > 0) {
+          Component rechargeText = Component.translatable("hud.noellesroles.stalker.attack_dash_recharge",
+              String.format("%.1f", stalkerComp.getAttackDashRechargeSeconds()));
+          context.drawString(textRenderer, rechargeText, x, y, 0xFFAA00);
+          y += 12;
+        }
+
+        if (stalkerComp.wallHanging) {
+          Component wallText = Component.translatable("hud.noellesroles.stalker.wall_hanging")
+              .withStyle(ChatFormatting.AQUA);
+          context.drawString(textRenderer, wallText, x, y, 0xFFFFFF);
+          y += 12;
+        }
+      } else if (stalkerComp.phase == 2 && stalkerComp.assassinFormCooldown > 0) {
+        Component cooldownText = Component.translatable("hud.noellesroles.stalker.assassin_form_cooldown",
+            String.format("%.1f", stalkerComp.getAssassinFormCooldownSeconds()));
+        context.drawString(textRenderer, cooldownText, x, y, 0xAAAAAA);
+        y += 12;
       }
 
       // 窥视状态
@@ -390,25 +421,6 @@ public class CommonClientHudRenderer {
         context.drawString(textRenderer, gazingText, x, y, 0xFFFFFF);
         y += 12;
       }
-      if (stalkerComp.isDashOnCooldown()) {
-        Component dashText = Component.translatable("hud.noellesroles.stalker.dash_cooldown",
-            String.format("%.1f", stalkerComp.getDashCooldownSeconds()))
-            .withStyle(ChatFormatting.YELLOW);
-        context.drawString(textRenderer, dashText, x, y, 0xFFFFFF);
-        y += 12;
-
-      }
-
-      // 蓄力进度（三阶段）
-      if (stalkerComp.isCharging) {
-        float chargeSeconds = stalkerComp.getChargeSeconds();
-        float maxSeconds = StalkerRoleData.MAX_CHARGE_TIME / 20.0f;
-        Component chargeText = Component.translatable("hud.noellesroles.stalker.charging",
-            String.format("%.1f", chargeSeconds), String.format("%.1f", maxSeconds));
-        int chargeColor = chargeSeconds >= 1.0f ? 0x00FF00 : 0xFFFF00;
-        context.drawString(textRenderer, chargeText, x, y, chargeColor);
-      }
-
       // 突进状态
       if (stalkerComp.isDashing) {
         Component dashText = Component.translatable("hud.noellesroles.stalker.dashing")

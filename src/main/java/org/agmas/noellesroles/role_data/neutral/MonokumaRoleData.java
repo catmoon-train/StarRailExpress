@@ -37,7 +37,7 @@ import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import org.agmas.noellesroles.game.roles.neutral.monokuma.YinYangSwordItem;
 import org.agmas.noellesroles.Noellesroles;
-import org.agmas.noellesroles.game.roles.neutral.panda.PandaComponent;
+import org.agmas.noellesroles.game.roles.neutral.panda.PandaClientHandle;
 import org.agmas.noellesroles.init.ModEffects;
 import org.agmas.noellesroles.init.ModItems;
 import org.agmas.noellesroles.utils.RoleUtils;
@@ -76,6 +76,9 @@ public class MonokumaRoleData extends SimpleRoleData {
     /** 是否已标记为黑白角色 */
     public boolean isMonokumaMarked = true;
 
+    /** 熊猫外观（客户端渲染用，需同步给所有玩家） */
+    public boolean isPanda = false;
+
     /** 右键AOE蓄力计时器（>0 表示正在蓄力） */
     public int aoeChargeTimer = 0;
 
@@ -86,9 +89,17 @@ public class MonokumaRoleData extends SimpleRoleData {
         super(context);
     }
 
+    public void setPandaForm(boolean panda) {
+        if (this.isPanda == panda) {
+            return;
+        }
+        this.isPanda = panda;
+        this.sync();
+    }
+
     @Override
     public boolean shouldSyncWith(ServerPlayer player) {
-        return this.player == player;
+        return isPanda || this.player == player;
     }
 
     // ==================== 生命周期 ====================
@@ -110,6 +121,7 @@ public class MonokumaRoleData extends SimpleRoleData {
         this.aoeChargeTimer = 0;
         this.dashAnimTimer = 0;
         this.isMonokumaMarked = false;
+        this.isPanda = false;
         this.kill_count = 0;
         this.sync();
     }
@@ -226,9 +238,7 @@ public class MonokumaRoleData extends SimpleRoleData {
         // 移除阴阳剑
         org.agmas.noellesroles.utils.MCItemsUtils.clearItem(player, ModItems.YINYANG_SWORD);
 
-        PandaComponent pandaComponent = PandaComponent.KEY.get(player);
-        pandaComponent.isPanda = true;
-        pandaComponent.sync();
+        setPandaForm(true);
         // 给予无敌效果（永久）
         player.addEffect(new MobEffectInstance(
                 ModEffects.INVINCIBLE,
@@ -386,7 +396,7 @@ public class MonokumaRoleData extends SimpleRoleData {
 
     @Override
     public void clientTick() {
-        // 客户端用于UI显示
+        PandaClientHandle.tickVisual(player, isPanda);
     }
 
     // ==================== 序列化 ====================
@@ -398,6 +408,7 @@ public class MonokumaRoleData extends SimpleRoleData {
         tag.putInt("a", aoeChargeTimer);
         tag.putInt("d", dashAnimTimer);
         tag.putBoolean("i", isMonokumaMarked);
+        tag.putBoolean("panda", isPanda);
     }
 
     @Override
@@ -407,5 +418,6 @@ public class MonokumaRoleData extends SimpleRoleData {
         this.aoeChargeTimer = tag.contains("a") ? tag.getInt("a") : 0;
         this.dashAnimTimer = tag.contains("d") ? tag.getInt("d") : 0;
         this.isMonokumaMarked = tag.contains("i") && tag.getBoolean("i");
+        this.isPanda = tag.contains("panda") && tag.getBoolean("panda");
     }
 }

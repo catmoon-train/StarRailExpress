@@ -22,7 +22,7 @@ import io.wifi.starrailexpress.game.GameUtils.WinStatus;
 import net.minecraft.server.level.ServerPlayer;
 import pro.fazeclan.river.stupid_express.StupidExpress;
 import pro.fazeclan.river.stupid_express.constants.SERoles;
-import pro.fazeclan.river.stupid_express.utils.StupidRoleUtils;
+import org.agmas.noellesroles.utils.RoleUtils;
 
 public class ArsonistWinChecker {
     public static void registerEvent() {
@@ -46,7 +46,7 @@ public class ArsonistWinChecker {
                         return GameUtils.WinStatus.CUSTOM;
                     }
                     // 纵火犯独立胜利统计：使用 RoleUtils.customWinnerWin
-                    StupidRoleUtils.customWinnerWin(serverWorld, GameUtils.WinStatus.CUSTOM,
+                    RoleUtils.customWinnerWin(serverWorld, GameUtils.WinStatus.CUSTOM,
                             SERoles.ARSONIST.identifier().getPath(),
                             java.util.OptionalInt.of(SERoles.ARSONIST.color()));
                     return GameUtils.WinStatus.CUSTOM;

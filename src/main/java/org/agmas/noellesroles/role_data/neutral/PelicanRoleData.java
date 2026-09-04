@@ -149,8 +149,8 @@ public class PelicanRoleData extends SimpleRoleData {
         if (gameWorld.isRole(target, ModRoles.PUPPETEER)) {
             return false;
         }
-        var puppeteerComp = RoleData.getNullable(PuppeteerRoleData.class, target);
-        if (RoleData.isAttached(puppeteerComp) && puppeteerComp.isControllingPuppet) {
+        var puppeteerComp = org.agmas.noellesroles.component.ModComponents.PUPPETEER.maybeGet(target).orElse(null);
+        if (puppeteerComp != null && puppeteerComp.isControllingPuppet) {
             return false;
         }
 

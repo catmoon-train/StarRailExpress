@@ -31,9 +31,9 @@ import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
-import org.agmas.noellesroles.game.roles.innocence.ayayaya.AyayayaPlayerComponent;
 import org.agmas.noellesroles.handler.TouhouHandlers;
 import org.agmas.noellesroles.init.ModItems;
+import org.agmas.noellesroles.role_data.innocence.AyayayaRoleData;
 import org.agmas.noellesroles.role.touhou.roles.THIbarakiKasenRole;
 import org.agmas.noellesroles.role.touhou.roles.THKyoukoRole;
 import org.agmas.noellesroles.role.touhou.roles.THRinnosukeRole;
@@ -158,7 +158,7 @@ public class THMountainRoles {
         public InteractionResult onDropItem(Player player, ItemStack item) {
             return InteractionResult.PASS;
         }
-    }.setHiddenForRoleRotation(true).setComponentKey(AyayayaPlayerComponent.KEY), "th_mountain");
+    }.setHiddenForRoleRotation(true).setRoleData(AyayayaRoleData::new), "th_mountain");
 
     public static SRERole HATATE = TMMRoles.registerRole(new TouhouRole(HATATE_ID, // 角色 ID
             new Color(123, 63, 158).getRGB(), // 黑色 - 代表乌鸦
@@ -194,7 +194,7 @@ public class THMountainRoles {
             return InteractionResult.PASS;
         }
 
-    }.setHiddenForRoleRotation(true).setComponentKey(AyayayaPlayerComponent.KEY), "th_mountain");
+    }.setHiddenForRoleRotation(true).setRoleData(AyayayaRoleData::new), "th_mountain");
 
     // 茨木华扇 Ibaraki Kasen
     public static SRERole IBARAKI_KASEN = TMMRoles.registerRole(new THIbarakiKasenRole(id("ibaraki_kasen"),

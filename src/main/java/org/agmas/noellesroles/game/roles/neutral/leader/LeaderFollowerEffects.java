@@ -45,7 +45,7 @@ import org.agmas.noellesroles.role_data.neutral.MercenaryRoleData;
 import org.agmas.noellesroles.role_data.neutral.MonokumaRoleData;
 import org.agmas.noellesroles.role_data.neutral.NianShouRoleData;
 import org.agmas.noellesroles.game.fake_steve.FakeSteveDirector;
-import org.agmas.noellesroles.game.roles.neutral.panda.PandaComponent;
+import org.agmas.noellesroles.game.roles.neutral.panda.PandaState;
 import org.agmas.noellesroles.role_data.neutral.PelicanRoleData;
 import org.agmas.noellesroles.role_data.neutral.RavenRoleData;
 import org.agmas.noellesroles.role_data.neutral.ReasonerRoleData;
@@ -348,9 +348,7 @@ public final class LeaderFollowerEffects {
 
     /** 黑白：领袖变熊猫形态（含药水效果）；黑白获胜时领袖获胜（didPlayerWin） */
     private static void applyMonokuma(ServerPlayer leader, ServerPlayer follower) {
-        PandaComponent panda = PandaComponent.KEY.get(leader);
-        panda.isPanda = true;
-        panda.sync();
+        PandaState.setPanda(leader, true);
         MonokumaRoleData monokuma = RoleData.getNullable(MonokumaRoleData.class, follower);
         if (monokuma != null) {
             monokuma.phase = 3;

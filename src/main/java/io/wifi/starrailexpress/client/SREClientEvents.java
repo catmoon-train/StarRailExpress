@@ -64,7 +64,7 @@ import org.agmas.noellesroles.utils.RoleUtils;
 import pro.fazeclan.river.stupid_express.constants.SEModifiers;
 import pro.fazeclan.river.stupid_express.constants.SERoles;
 import pro.fazeclan.river.stupid_express.modifier.split_personality.cca.SplitPersonalityComponent;
-import pro.fazeclan.river.stupid_express.role.arsonist.cca.DousedPlayerComponent;
+import pro.fazeclan.river.stupid_express.role.arsonist.ArsonistRoleData;
 import pro.fazeclan.river.stupid_express.role.necromancer.cca.NecromancerComponent;
 
 import java.util.UUID;
@@ -356,11 +356,12 @@ public class SREClientEvents {
                 context.pose().translate(context.guiWidth() / 2.0f, context.guiHeight() / 2.0f + 6.0f, 0.0f);
                 context.pose().scale(scale, scale, 1.0f);
 
-                DousedPlayerComponent component = DousedPlayerComponent.KEY.get(NoellesrolesClient.targetPlayer);
+                ArsonistRoleData arsonist = ArsonistRoleData.of(player);
+                boolean doused = arsonist != null && arsonist.isDoused(NoellesrolesClient.targetPlayer.getUUID());
                 Component status = Component
-                        .translatable("hud.stupid_express.arsonist.doused." + component.getDoused());
+                        .translatable("hud.stupid_express.arsonist.doused." + doused);
                 context.drawString(font, status, -font.width(status) / 2, 32,
-                        component.getDoused() ? 0xfc9526 : java.awt.Color.GRAY.getRGB());
+                        doused ? 0xfc9526 : java.awt.Color.GRAY.getRGB());
 
                 context.pose().popPose();
             }

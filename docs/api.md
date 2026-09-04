@@ -74,8 +74,8 @@
   **Do NOT import Wathe libraries** — they will cause crashes (uninitialized state). 比如 `GameFunctions`，不要用他！请使用 `GameUtils` 代替！
 - 网络同步压力在人少时几乎不可见，但在 16 人以上的服务器上会非常明显，请遵循"尽量不同步"原则。  
   Network sync overhead is negligible with few players but significant on servers with 16+ players. Minimize unnecessary sync.
-- 尽量使用 `RoleComponent` 将存储和同步逻辑分离，避免污染玩家 NBT。  
-  Prefer `RoleComponent` to separate storage/sync logic and avoid polluting player NBT.
+- 尽量使用 `RoleData`（`.setRoleData`）保存职业状态；CCA 只留给世界/全局或必须挂在当前职业以外玩家身上的状态。  
+  Prefer `RoleData` for role state. Keep CCA for world/global data, or status that must live on a player who is not currently that role.
 
 ---
 
@@ -126,7 +126,8 @@ SRERole setCanSeeTeammateKiller(boolean canSeeKiller)    // 是否可以看到�
 SRERole setOccupiedRoleCount(int count)                  // 占用角色池数量（默认 1）
 SRERole setMax(int count)                                // 设置最大同时存在数量
 SRERole setAutoReset(boolean autoReset)                  // 游戏结束是否自动重置
-SRERole setComponentKey(ComponentKey<? extends RoleComponent> key) // 关联 CCA 组件
+SRERole setRoleData(Function<RoleDataContext, RoleData> func) // 绑定职业数据（默认，优先于 CCA）
+SRERole setComponentKey(ComponentKey<? extends RoleComponent> key) // 关联 CCA（仅跨玩家/全局状态）
 SRERole setCanAutoAddMoney(boolean bl)                   // 是否启用自动加钱（被动收入）
 SRERole setCanHavePassiveIncome(boolean bl)              // 是否启用被动收入
 SRERole addChild(Consumer<LimitedInventoryScreen> addChild) // 添加 HUD 子元素
@@ -323,7 +324,7 @@ public static final SRERole MY_ROLE = TMMRoles.registerRole(
         Integer.MAX_VALUE,  // 无限冲刺
         true        // 隐藏计分板
     )
-    .setComponentKey(ModComponents.MY_ROLE)  // 关联组件（可空）
+    .setRoleData(MyRoleData::new)
     .setCanSeeCoin(true)
     .setOccupiedRoleCount(2)
 );
@@ -331,8 +332,11 @@ public static final SRERole MY_ROLE = TMMRoles.registerRole(
 
 #### 注册角色组件键 / Register Role Component Key
 
+职业状态请用 `.setRoleData`，不要再 `TMMRoles.addRoleComponents` 给每个职业挂一份 CCA。  
+`addRoleComponents` 只用于必须在所有玩家上 tick/同步的全局玩家组件（心情、商店、中毒等）。
+
 ```java
-TMMRoles.addRoleComponents(ModComponents.MY_COMPONENT);
+TMMRoles.addRoleComponents(ModComponents.MY_GLOBAL_COMPONENT); // 仅全局玩家组件
 ```
 
 ---
@@ -509,9 +513,15 @@ RoleData.getOptional(类.class, 玩家);
 
 这也是为什么可以不用写 `init` 和 `clear` 来初始化的原因。
 
+**不要**把会在中途换职业、却还要保留的状态放进 RoleData（例如傀儡师操控假人时临时变成杀手）。那种状态继续用玩家 CCA。
+
+跨玩家状态（任何人身上的感染、被操纵、被浇油若记在受害者身上）也不适合 RoleData；能改成「记在技能持有者的 RoleData 里再按 UUID 查找」的，优先那么做（纵火犯浇油即如此）。
+
 ---
 
 ## CCA 组件 / CCA Components
+
+CCA 用于世界/对局、以及必须挂在「当前职业以外」的玩家状态。职业私有状态用上一节的 `RoleData`。
 
 ### RoleComponent — 角色组件接口
 

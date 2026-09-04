@@ -32,7 +32,7 @@ import org.agmas.harpymodloader.Harpymodloader;
 import org.agmas.harpymodloader.config.HarpyModLoaderConfig;
 import pro.fazeclan.river.stupid_express.StupidExpress;
 import pro.fazeclan.river.stupid_express.constants.SERoles;
-import pro.fazeclan.river.stupid_express.utils.StupidRoleUtils;
+import org.agmas.noellesroles.utils.RoleUtils;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -158,7 +158,7 @@ public class SEInitiateEventHandler {
             // 清除物品栏中的所有刀
             clearAllKnives(player);
             // StupidExpress.LOGGER.info(player.getDisplayName().getString());
-            StupidRoleUtils.changeRole(player, newInitiateRole);
+            RoleUtils.changeRole(player, newInitiateRole);
             if (newInitiateRole.canUseKiller()) {
                 var sc = SREPlayerShopComponent.KEY.get(player);
                 if (sc.balance < 120) {
@@ -169,7 +169,7 @@ public class SEInitiateEventHandler {
             player.level().playSound(null, player.blockPosition(),
                     net.minecraft.sounds.SoundEvents.CONDUIT_ATTACK_TARGET,
                     net.minecraft.sounds.SoundSource.MASTER, 5.0F, 1.0F);
-            StupidRoleUtils.sendWelcomeAnnouncement(player);
+            RoleUtils.sendWelcomeAnnouncement(player);
         }
         return true;
     }
@@ -216,7 +216,7 @@ public class SEInitiateEventHandler {
                     && org.agmas.noellesroles.game.roles.neutral.leader.LeaderFollowerEffects
                             .isFollowerOfLeader(sk);
             if (!killerIsFollower) {
-                StupidRoleUtils.changeRole(killer, role, true);
+                RoleUtils.changeRole(killer, role, true);
 
                 if (role.canUseKiller()){
                     var sc = SREPlayerShopComponent.KEY.get(killer);
@@ -225,9 +225,9 @@ public class SEInitiateEventHandler {
                     }
                 }
 
-                StupidRoleUtils.sendWelcomeAnnouncement((ServerPlayer) killer);
+                RoleUtils.sendWelcomeAnnouncement((ServerPlayer) killer);
             }
-            StupidRoleUtils.changeRole(victim, SERoles.AMNESIAC, true);
+            RoleUtils.changeRole(victim, SERoles.AMNESIAC, true);
 
             return true;
         }
@@ -257,12 +257,12 @@ public class SEInitiateEventHandler {
                             .isFollowerOfLeader(player)) {
                         continue;
                     }
-                    StupidRoleUtils.changeRole(player, newInitiateRole, true);
+                    RoleUtils.changeRole(player, newInitiateRole, true);
                     // 播放全场音效
                     player.level().playSound(null, player.blockPosition(),
                             net.minecraft.sounds.SoundEvents.CONDUIT_ATTACK_TARGET,
                             net.minecraft.sounds.SoundSource.MASTER, 5.0F, 1.0F);
-                    StupidRoleUtils.sendWelcomeAnnouncement((ServerPlayer) killer);
+                    RoleUtils.sendWelcomeAnnouncement((ServerPlayer) killer);
                 }
             }
 

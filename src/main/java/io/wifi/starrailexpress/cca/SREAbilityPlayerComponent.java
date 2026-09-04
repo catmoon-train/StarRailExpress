@@ -278,7 +278,9 @@ public class SREAbilityPlayerComponent
 
     public void markSkillUsed(RoleSkill.Definition definition) {
         SkillState state = getSkillState(definition.id());
-        state.cooldown = definition.cooldownTicks();
+        if (definition.cooldownTicks() > 0) {
+            state.cooldown = definition.cooldownTicks();
+        }
         if (state.maxCharges == -1 && definition.maxCharges() > 0) {
             state.maxCharges = definition.maxCharges();
             state.charges = definition.maxCharges();

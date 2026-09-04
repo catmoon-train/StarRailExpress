@@ -28,9 +28,8 @@ import net.minecraft.world.inventory.ClickType;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
-import org.agmas.noellesroles.component.ModComponents;
-import org.agmas.noellesroles.game.roles.innocence.ayayaya.AyayayaPlayerComponent;
 import org.agmas.noellesroles.init.ModItems;
+import org.agmas.noellesroles.role_data.innocence.AyayayaRoleData;
 import pro.fazeclan.river.stupid_express.constants.SEItems;
 
 import java.util.UUID;
@@ -73,14 +72,11 @@ public class PostmanScreenHandler extends AbstractContainerMenu {
         this.tradeInventory = new SimpleContainer(1); // 只有一个交换槽
 
         // 从组件加载物品
-        AyayayaPlayerComponent component = ModComponents.AYAYAYA.get(player);
-        if (component.isDeliveryActive()) {
-            // 根据玩家身份加载对应的物品
-            if (component.isReceiver) {
-                // 接收方显示自己放入的物品
+        AyayayaRoleData component = AyayayaRoleData.resolve(player);
+        if (component != null && component.isDeliveryActive()) {
+            if (component.isViewerReceiver(player)) {
                 this.tradeInventory.setItem(TRADE_SLOT_INDEX, component.targetItem.copy());
             } else {
-                // 射命丸文显示自己放入的物品
                 this.tradeInventory.setItem(TRADE_SLOT_INDEX, component.putItem.copy());
             }
         }
@@ -151,8 +147,8 @@ public class PostmanScreenHandler extends AbstractContainerMenu {
 
     @Override
     public boolean stillValid(Player player) {
-        AyayayaPlayerComponent component = ModComponents.AYAYAYA.get(player);
-        return component.isDeliveryActive();
+        AyayayaRoleData component = AyayayaRoleData.resolve(player);
+        return component != null && component.isDeliveryActive();
     }
 
     @Override
@@ -163,38 +159,27 @@ public class PostmanScreenHandler extends AbstractContainerMenu {
         if (player.level().isClientSide)
             return;
 
-        AyayayaPlayerComponent component = ModComponents.AYAYAYA.get(player);
+        AyayayaRoleData component = AyayayaRoleData.resolve(player);
 
-        // 如果传递已完成（被重置），不需要处理槽位物品（已在交换时给予）
-        if (!component.isDeliveryActive()) {
-            // 清空槽位（物品已经在交换时处理了）
+        if (component == null || !component.isDeliveryActive()) {
             this.tradeInventory.removeItemNoUpdate(TRADE_SLOT_INDEX);
             return;
         }
 
-        // 传递被取消 - 返还自己槽位中的物品
         ItemStack slotItem = this.tradeInventory.removeItemNoUpdate(TRADE_SLOT_INDEX);
         if (!slotItem.isEmpty()) {
             player.getInventory().placeItemBackInInventory(slotItem);
         }
 
-        // 保存对方的 UUID，然后先 reset 自己（防止对方再通知回来造成循环）
-        UUID targetUuid = component.deliveryTarget;
+        UUID otherUuid = component.isViewerReceiver(player)
+                ? component.getPlayer().getUUID()
+                : component.deliveryTarget;
         component.init();
 
-        // 通知对方取消传递并关闭界面
-        if (targetUuid != null) {
-            Player target = player.level().getPlayerByUUID(targetUuid);
-            if (target != null) {
-                AyayayaPlayerComponent targetComp = ModComponents.AYAYAYA.get(target);
-                // 检查对方是否仍在与我传递（避免重复处理）
-                if (targetComp.isDeliveryActive() && player.getUUID().equals(targetComp.deliveryTarget)) {
-                    // 先关闭对方界面（让对方返还自己的物品）
-                    if (target instanceof net.minecraft.server.level.ServerPlayer serverTarget) {
-                        serverTarget.closeContainer();
-                    }
-                    // 对方的 onClosed 会返还对方的物品并 reset
-                }
+        if (otherUuid != null) {
+            Player other = player.level().getPlayerByUUID(otherUuid);
+            if (other instanceof net.minecraft.server.level.ServerPlayer serverTarget) {
+                serverTarget.closeContainer();
             }
         }
     }
@@ -309,37 +294,19 @@ public class PostmanScreenHandler extends AbstractContainerMenu {
                 return;
 
             // 当槽位内容改变时，更新双方组件
-            AyayayaPlayerComponent component = ModComponents.AYAYAYA.get(player);
-            if (component.isDeliveryActive() && component.deliveryTarget != null) {
+            AyayayaRoleData component = AyayayaRoleData.resolve(player);
+            if (component != null && component.isDeliveryActive()) {
                 ItemStack stack = this.getItem().copy();
-                boolean isPostman = !component.isReceiver;
+                boolean isPostman = !component.isViewerReceiver(player);
 
-                // 获取对方组件
-                Player target = player.level().getPlayerByUUID(component.deliveryTarget);
-                AyayayaPlayerComponent targetComp = target != null ? ModComponents.AYAYAYA.get(target) : null;
-
-                // 更新双方组件的物品和确认状态
                 if (isPostman) {
                     component.putItem = stack;
                     component.senderConfirmed = false;
-                    if (targetComp != null) {
-                        targetComp.putItem = stack;
-                        targetComp.senderConfirmed = false;
-                    }
                 } else {
                     component.targetItem = stack;
                     component.targetConfirmed = false;
-                    if (targetComp != null) {
-                        targetComp.targetItem = stack;
-                        targetComp.targetConfirmed = false;
-                    }
                 }
-
-                // 同步到客户端
                 component.sync();
-                if (targetComp != null) {
-                    targetComp.sync();
-                }
             }
         }
     }

@@ -23,9 +23,7 @@ import org.agmas.noellesroles.ConfigWorldComponent;
 import org.agmas.noellesroles.Noellesroles;
 import net.exmo.sre.repair.component.RepairRolePlayerComponent;
 import org.agmas.noellesroles.content.entity.DoomedSinnerBodyEntity;
-import org.agmas.noellesroles.game.roles.innocence.ayayaya.AyayayaPlayerComponent;
 import org.agmas.noellesroles.game.roles.killer.manipulator.InControlCCA;
-import org.agmas.noellesroles.game.roles.neutral.panda.PandaComponent;
 import org.agmas.noellesroles.game.roles.neutral.puppeteer.PuppeteerPlayerComponent;
 import org.agmas.noellesroles.voice.HeliumBuzzPlayerComponent;
 import org.jetbrains.annotations.NotNull;
@@ -61,11 +59,6 @@ public class ModComponents implements EntityComponentInitializer, WorldComponent
       ResourceLocation.fromNamespaceAndPath(Noellesroles.MOD_ID, "ability"),
       SREAbilityPlayerComponent.class);
 
-  public static final ComponentKey<AyayayaPlayerComponent> AYAYAYA = ComponentRegistry.getOrCreate(
-      ResourceLocation.fromNamespaceAndPath(Noellesroles.MOD_ID, "ayayaya"),
-      AyayayaPlayerComponent.class);
-
-
   /** Dream（梦魇）：全员虚拟血量（默认 20 滴血，只被 Dream 铁斧扣除）。 */
   public static final ComponentKey<org.agmas.noellesroles.game.roles.killer.dream.DreamHealthComponent> DREAM_HEALTH = org.agmas.noellesroles.game.roles.killer.dream.DreamHealthComponent.KEY;
 
@@ -74,10 +67,6 @@ public class ModComponents implements EntityComponentInitializer, WorldComponent
       PuppeteerPlayerComponent.class);
 
   public static final ComponentKey<InControlCCA> INCONTROLCCA = InControlCCA.KEY;
-  public static final ComponentKey<PandaComponent> panda = ComponentRegistry
-      .getOrCreate(
-          ResourceLocation.fromNamespaceAndPath(Noellesroles.MOD_ID, "panda"),
-          PandaComponent.class);
   public static final ComponentKey<PlayerVolumeComponent> VOLUME = ComponentRegistry.getOrCreate(
       ResourceLocation.fromNamespaceAndPath(Noellesroles.MOD_ID, "volume"),
       PlayerVolumeComponent.class);
@@ -127,15 +116,6 @@ public class ModComponents implements EntityComponentInitializer, WorldComponent
     registry.beginRegistration(Player.class, ABILITY)
         .respawnStrategy(RespawnCopyStrategy.NEVER_COPY)
         .end(SREAbilityPlayerComponent::new);
-
-    registry.beginRegistration(Player.class, panda)
-        .respawnStrategy(RespawnCopyStrategy.NEVER_COPY)
-        .end(PandaComponent::new);
-
-    // 注册射命丸文组件 - 存储传递状态和物品
-    registry.beginRegistration(Player.class, AYAYAYA)
-        .respawnStrategy(RespawnCopyStrategy.NEVER_COPY)
-        .end(AyayayaPlayerComponent::new);
 
     // 注册傀儡师组件 - 存储收集尸体、假人操控状态
     registry.beginRegistration(Player.class, PUPPETEER)

@@ -206,9 +206,9 @@ public class ExtinguisherItem extends Item implements AdventureUsable {
 
         // 如果目标被纵火犯浇湿，清除浇湿状态
         try {
-            var dousedComponent = pro.fazeclan.river.stupid_express.role.arsonist.cca.DousedPlayerComponent.KEY.get(target);
-            if (dousedComponent != null && dousedComponent.getDoused()) {
-                dousedComponent.setDoused(false);
+            var arsonist = pro.fazeclan.river.stupid_express.role.arsonist.ArsonistRoleData.find(world);
+            if (arsonist != null && arsonist.isDoused(target.getUUID())) {
+                arsonist.undouse(target.getUUID());
                 if (!world.isClientSide) {
                     player.displayClientMessage(
                             Component.translatable("item.noellesroles.extinguisher.cleaned_fuel")

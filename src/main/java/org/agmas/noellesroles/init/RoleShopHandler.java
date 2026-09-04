@@ -2895,11 +2895,19 @@ public class RoleShopHandler {
 
         // 潜行者商店
         {
+            ItemStack assassinForm = new ItemStack(Items.ENDER_EYE);
+            assassinForm.set(DataComponents.ITEM_NAME,
+                    Component.translatable("item.noellesroles.stalker.assassin_form"));
+            assassinForm.set(DataComponents.LORE, new ItemLore(List.of(
+                    Component.translatable("item.noellesroles.stalker.assassin_form.lore1")
+                            .setStyle(Style.EMPTY.withItalic(false)).withStyle(ChatFormatting.GRAY),
+                    Component.translatable("item.noellesroles.stalker.assassin_form.lore2")
+                            .setStyle(Style.EMPTY.withItalic(false)).withStyle(ChatFormatting.GRAY))));
             ShopContent.customEntries.put(
                     ModRoles.STALKER_ID,
                     List.of(new ShopEntry(TMMItems.LOCKPICK.getDefaultInstance(), 75,
                             ShopEntry.Type.TOOL),
-                            new ShopEntry(ModItems.STALKER_KNIFE_OFFHAND.getDefaultInstance(), 325,
+                            new ShopEntry(ModItems.STALKER_KNIFE_OFFHAND.getDefaultInstance(), 350,
                                     ShopEntry.Type.WEAPON) {
                                 @Override
                                 public boolean canBuy(@NotNull Player player) {
@@ -2914,13 +2922,45 @@ public class RoleShopHandler {
 
                                 @Override
                                 public boolean onBuy(@NotNull Player player) {
-
-                                    boolean b = player.getOffhandItem().getItem() instanceof KnifeItem;
-                                    if (!b) {
-                                        player.setItemInHand(InteractionHand.OFF_HAND,
-                                                ModItems.STALKER_KNIFE_OFFHAND.getDefaultInstance());
+                                    if (player.getOffhandItem().getItem() instanceof KnifeItem) {
+                                        return false;
                                     }
-                                    return b;
+                                    player.setItemInHand(InteractionHand.OFF_HAND,
+                                            ModItems.STALKER_KNIFE_OFFHAND.getDefaultInstance());
+                                    return true;
+                                }
+                            },
+                            new ShopEntry(assassinForm, 400, ShopEntry.Type.WEAPON) {
+                                @Override
+                                public boolean canDisplay(@NotNull Player player) {
+                                    return RoleData.getOptional(StalkerRoleData.class, player)
+                                            .map(s -> s.phase >= 2).orElse(false);
+                                }
+
+                                @Override
+                                public boolean canBuy(@NotNull Player player) {
+                                    StalkerRoleData data = RoleData.getNullable(StalkerRoleData.class, player);
+                                    if (data == null || data.phase < 2) {
+                                        return false;
+                                    }
+                                    if (data.isAssassinFormActive()) {
+                                        setFailedMessage(Component.translatable(
+                                                "message.noellesroles.stalker.assassin_form.active"));
+                                        return false;
+                                    }
+                                    if (data.assassinFormCooldown > 0) {
+                                        setFailedMessage(Component.translatable(
+                                                "message.noellesroles.stalker.assassin_form.cooldown",
+                                                (int) Math.ceil(data.getAssassinFormCooldownSeconds())));
+                                        return false;
+                                    }
+                                    return true;
+                                }
+
+                                @Override
+                                public boolean onBuy(@NotNull Player player) {
+                                    StalkerRoleData data = RoleData.getNullable(StalkerRoleData.class, player);
+                                    return data != null && data.activateAssassinForm();
                                 }
                             }));
         }

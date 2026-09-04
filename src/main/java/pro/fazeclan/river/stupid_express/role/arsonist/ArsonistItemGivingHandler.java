@@ -18,7 +18,7 @@ package pro.fazeclan.river.stupid_express.role.arsonist;
 import org.agmas.harpymodloader.events.ModdedRoleAssigned;
 import pro.fazeclan.river.stupid_express.constants.SEItems;
 import pro.fazeclan.river.stupid_express.constants.SERoles;
-import pro.fazeclan.river.stupid_express.role.arsonist.cca.DousedPlayerComponent;
+import pro.fazeclan.river.stupid_express.role.arsonist.ArsonistRoleData;
 
 public class ArsonistItemGivingHandler {
 
@@ -27,9 +27,11 @@ public class ArsonistItemGivingHandler {
             if (role.equals(SERoles.ARSONIST)) {
                 player.addItem(SEItems.JERRY_CAN.getDefaultInstance());
                 player.addItem(SEItems.LIGHTER.getDefaultInstance());
-                var dousedComponent = DousedPlayerComponent.KEY.get(player);
-                dousedComponent.dousedCount = 0;
-                dousedComponent.sync();
+                ArsonistRoleData arsonist = ArsonistRoleData.of(player);
+                if (arsonist != null) {
+                    arsonist.dousedCount = 0;
+                    arsonist.sync();
+                }
             }
         }));
     }

@@ -20,7 +20,6 @@ import io.wifi.starrailexpress.api.TMMRoles;
 import io.wifi.starrailexpress.api.data.RoleData;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.game.GameUtils;
-import net.fabricmc.api.ModInitializer;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
@@ -41,7 +40,6 @@ import org.agmas.noellesroles.role_data.killer.ConspiratorRoleData;
 import org.agmas.noellesroles.role_data.killer.StalkerRoleData;
 import org.agmas.noellesroles.role_data.killer.TrapperRoleData;
 import org.agmas.noellesroles.register.RiceEventRegister;
-import org.agmas.noellesroles.register.RicePacketTypeRegister;
 import org.agmas.noellesroles.register.RiceReceiverRegister;
 import org.agmas.noellesroles.role.ModRoles;
 import org.agmas.noellesroles.role.bouns.BounsRoles;
@@ -60,7 +58,7 @@ import static org.agmas.noellesroles.Noellesroles.MOD_ID;
  * 3. 注册网络包
  * 4. 初始化物品和配置
  */
-public class RicesRoleRhapsody implements ModInitializer {
+public class RicesRoleRhapsody {
 
     // ==================== 常量定义 ====================
 
@@ -95,40 +93,6 @@ public class RicesRoleRhapsody implements ModInitializer {
 
     public static final CustomPacketPayload.Type<LockGameC2Packet> LOCK_GAME_PACKET = LockGameC2Packet.ID;
     public static final CustomPacketPayload.Type<KeyForgeGameC2Packet> KEY_FORGE_GAME_PACKET = KeyForgeGameC2Packet.ID;
-
-    @Override
-    public void onInitialize() {
-
-        // // 1. 初始化原版角色列表（用于后续判断）
-        // initVanillaRoles();
-        //
-        // // 2. 注册自定义角色
-        // ModRoles.init();
-        //
-        // // 3. 注册物品
-        // ModItems.init();
-        //
-        // // 4. 注册实体
-        // ModEntities.init();
-        //
-        // // 5. 注册 ScreenHandlers
-        // ModScreenHandlers.init();
-        //
-        // // 6. 初始化商店
-        //
-        //
-        // // 7. 注册网络包（如果有自定义技能需要客户端-服务端通信）
-        // registerPackets();
-        //
-        // // 8. 注册事件监听
-        // registerEvents();
-        //
-        // // 9. 加载配置（如果使用 YACL）
-        // // ModConfig.HANDLER.load();
-        //
-        // // 10. 注册傀儡师尸体收集事件
-        // registerPuppeteerBodyCollect();
-    }
 
     public static void onInitialize1() {
 
@@ -195,10 +159,6 @@ public class RicesRoleRhapsody implements ModInitializer {
         // PayloadTypeRegistry.playC2S().register(ThiefStealC2SPacket.ID,
         // ThiefStealC2SPacket.CODEC);
 
-        // 网络数据包类型注册（已归一化至 RicePacketTypeRegister）
-        RicePacketTypeRegister.registerPayloadTypes();
-
-        // 服务端网络包接收器注册（已归一化至 RiceReceiverRegister）
         RiceReceiverRegister.registerReceivers();
     }
 

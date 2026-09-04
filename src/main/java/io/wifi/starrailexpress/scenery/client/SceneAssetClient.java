@@ -32,7 +32,8 @@ import io.wifi.starrailexpress.scenery.SceneRegistryFingerprint;
 import io.wifi.starrailexpress.scenery.network.SceneAssetNetwork;
 import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
-import net.fabricmc.fabric.api.client.command.v2.ClientCommandRegistrationCallback;
+import com.mojang.brigadier.builder.LiteralArgumentBuilder;
+import net.fabricmc.fabric.api.client.command.v2.FabricClientCommandSource;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.SharedConstants;
@@ -139,7 +140,6 @@ public final class SceneAssetClient {
         } catch (IOException e) {
             SRE.LOGGER.error("Unable to initialize scene asset cache", e);
         }
-        registerCommands();
         ScenePreviewRenderer.register();
     }
 
@@ -853,109 +853,107 @@ public final class SceneAssetClient {
     private record VirtualSection(SceneAsset.SectionData data, int sectionX, int sectionY, int sectionZ) {
     }
 
-    private static void registerCommands() {
-        ClientCommandRegistrationCallback.EVENT.register((dispatcher,
-                registryAccess) -> dispatcher.register(literal("sre:client")
-                        .then(literal("scene")
-                                .then(literal("enable").executes(context -> {
-                                    setMovingSceneEnabled(true);
-                                    context.getSource().sendFeedback(Component.literal("已启用客户端移动场景"));
-                                    return 1;
-                                }))
-                                .then(literal("disable").executes(context -> {
-                                    setMovingSceneEnabled(false);
-                                    context.getSource().sendFeedback(Component.literal("已关闭客户端移动场景"));
-                                    return 1;
-                                }))
-                                .then(literal("cache")
-                                        .then(literal("status").executes(context -> {
-                                            CacheStatus status = cacheStatus();
-                                            context.getSource().sendFeedback(Component.literal(String.format(
-                                                    "场景缓存: %d 个, %.1f MiB / %.1f MiB, 当前=%s, 下载=%s",
-                                                    status.entries(),
-                                                    status.bytes() / 1048576.0D,
-                                                    status.limitBytes() / 1048576.0D,
-                                                    shortHash(status.currentHash()),
-                                                    shortHash(status.downloadingHash()))));
+    public static LiteralArgumentBuilder<FabricClientCommandSource> sceneSubcommand() {
+        return literal("scene")
+                .then(literal("enable").executes(context -> {
+                    setMovingSceneEnabled(true);
+                    context.getSource().sendFeedback(Component.literal("已启用客户端移动场景"));
+                    return 1;
+                }))
+                .then(literal("disable").executes(context -> {
+                    setMovingSceneEnabled(false);
+                    context.getSource().sendFeedback(Component.literal("已关闭客户端移动场景"));
+                    return 1;
+                }))
+                .then(literal("cache")
+                        .then(literal("status").executes(context -> {
+                            CacheStatus status = cacheStatus();
+                            context.getSource().sendFeedback(Component.literal(String.format(
+                                    "场景缓存: %d 个, %.1f MiB / %.1f MiB, 当前=%s, 下载=%s",
+                                    status.entries(),
+                                    status.bytes() / 1048576.0D,
+                                    status.limitBytes() / 1048576.0D,
+                                    shortHash(status.currentHash()),
+                                    shortHash(status.downloadingHash()))));
+                            return 1;
+                        }))
+                        .then(literal("list").executes(context -> {
+                            index.entries.entrySet().stream()
+                                    .sorted(Comparator.comparingLong(
+                                            entry -> -entry.getValue().lastAccess))
+                                    .limit(20)
+                                    .forEach(entry -> context.getSource()
+                                            .sendFeedback(Component.literal(
+                                                    shortHash(entry.getKey()) + " "
+                                                            + String.format("%.1f MiB",
+                                                                    entry.getValue().size / 1048576.0D)
+                                                            + (entry.getValue().pinned ? " [固定]"
+                                                                    : ""))));
+                            return 1;
+                        }))
+                        .then(literal("verify")
+                                .then(argument("asset", StringArgumentType.word()).executes(context -> {
+                                    String hash = resolveHash(
+                                            StringArgumentType.getString(context, "asset"));
+                                    boolean valid = SceneAssetCodec.isValidHash(hash)
+                                            && verifyFile(cachePath(hash), hash);
+                                    context.getSource().sendFeedback(
+                                            Component.literal(valid ? "场景资产校验通过" : "场景资产校验失败"));
+                                    return valid ? 1 : 0;
+                                })))
+                        .then(literal("save-current")
+                                .executes(context -> exportAsset(currentHash, currentHash + ".sresc",
+                                        context.getSource()))
+                                .then(argument("name", StringArgumentType.word())
+                                        .executes(context -> exportAsset(currentHash,
+                                                StringArgumentType.getString(context, "name")
+                                                        + ".sresc",
+                                                context.getSource()))))
+                        .then(literal("import")
+                                .then(argument("filename", StringArgumentType.word())
+                                        .executes(context -> importAsset(
+                                                StringArgumentType.getString(context, "filename"),
+                                                context.getSource()))))
+                        .then(literal("export")
+                                .then(argument("asset", StringArgumentType.word())
+                                        .then(argument("filename", StringArgumentType.word())
+                                                .executes(context -> exportAsset(
+                                                        resolveHash(StringArgumentType
+                                                                .getString(context, "asset")),
+                                                        StringArgumentType.getString(context,
+                                                                "filename"),
+                                                        context.getSource())))))
+                        .then(literal("pin")
+                                .then(argument("asset", StringArgumentType.word())
+                                        .executes(context -> setPinned(
+                                                resolveHash(
+                                                        StringArgumentType.getString(context, "asset")),
+                                                true, context.getSource()))))
+                        .then(literal("unpin")
+                                .then(argument("asset", StringArgumentType.word())
+                                        .executes(context -> setPinned(
+                                                resolveHash(
+                                                        StringArgumentType.getString(context, "asset")),
+                                                false, context.getSource()))))
+                        .then(literal("delete")
+                                .then(argument("asset", StringArgumentType.word())
+                                        .executes(context -> deleteAsset(
+                                                resolveHash(
+                                                        StringArgumentType.getString(context, "asset")),
+                                                context.getSource()))))
+                        .then(literal("clear").executes(context -> clearCache(context.getSource())))
+                        .then(literal("limit")
+                                .then(argument("mib", IntegerArgumentType.integer(64, 65536))
+                                        .executes(context -> {
+                                            index.limitBytes = IntegerArgumentType.getInteger(context,
+                                                    "mib")
+                                                    * 1024L * 1024L;
+                                            saveIndex();
+                                            enforceLimit();
+                                            context.getSource()
+                                                    .sendFeedback(Component.literal("缓存上限已更新"));
                                             return 1;
-                                        }))
-                                        .then(literal("list").executes(context -> {
-                                            index.entries.entrySet().stream()
-                                                    .sorted(Comparator.comparingLong(
-                                                            entry -> -entry.getValue().lastAccess))
-                                                    .limit(20)
-                                                    .forEach(entry -> context.getSource()
-                                                            .sendFeedback(Component.literal(
-                                                                    shortHash(entry.getKey()) + " "
-                                                                            + String.format("%.1f MiB",
-                                                                                    entry.getValue().size / 1048576.0D)
-                                                                            + (entry.getValue().pinned ? " [固定]"
-                                                                                    : ""))));
-                                            return 1;
-                                        }))
-                                        .then(literal("verify")
-                                                .then(argument("asset", StringArgumentType.word()).executes(context -> {
-                                                    String hash = resolveHash(
-                                                            StringArgumentType.getString(context, "asset"));
-                                                    boolean valid = SceneAssetCodec.isValidHash(hash)
-                                                            && verifyFile(cachePath(hash), hash);
-                                                    context.getSource().sendFeedback(
-                                                            Component.literal(valid ? "场景资产校验通过" : "场景资产校验失败"));
-                                                    return valid ? 1 : 0;
-                                                })))
-                                        .then(literal("save-current")
-                                                .executes(context -> exportAsset(currentHash, currentHash + ".sresc",
-                                                        context.getSource()))
-                                                .then(argument("name", StringArgumentType.word())
-                                                        .executes(context -> exportAsset(currentHash,
-                                                                StringArgumentType.getString(context, "name")
-                                                                        + ".sresc",
-                                                                context.getSource()))))
-                                        .then(literal("import")
-                                                .then(argument("filename", StringArgumentType.word())
-                                                        .executes(context -> importAsset(
-                                                                StringArgumentType.getString(context, "filename"),
-                                                                context.getSource()))))
-                                        .then(literal("export")
-                                                .then(argument("asset", StringArgumentType.word())
-                                                        .then(argument("filename", StringArgumentType.word())
-                                                                .executes(context -> exportAsset(
-                                                                        resolveHash(StringArgumentType
-                                                                                .getString(context, "asset")),
-                                                                        StringArgumentType.getString(context,
-                                                                                "filename"),
-                                                                        context.getSource())))))
-                                        .then(literal("pin")
-                                                .then(argument("asset", StringArgumentType.word())
-                                                        .executes(context -> setPinned(
-                                                                resolveHash(
-                                                                        StringArgumentType.getString(context, "asset")),
-                                                                true, context.getSource()))))
-                                        .then(literal("unpin")
-                                                .then(argument("asset", StringArgumentType.word())
-                                                        .executes(context -> setPinned(
-                                                                resolveHash(
-                                                                        StringArgumentType.getString(context, "asset")),
-                                                                false, context.getSource()))))
-                                        .then(literal("delete")
-                                                .then(argument("asset", StringArgumentType.word())
-                                                        .executes(context -> deleteAsset(
-                                                                resolveHash(
-                                                                        StringArgumentType.getString(context, "asset")),
-                                                                context.getSource()))))
-                                        .then(literal("clear").executes(context -> clearCache(context.getSource())))
-                                        .then(literal("limit")
-                                                .then(argument("mib", IntegerArgumentType.integer(64, 65536))
-                                                        .executes(context -> {
-                                                            index.limitBytes = IntegerArgumentType.getInteger(context,
-                                                                    "mib")
-                                                                    * 1024L * 1024L;
-                                                            saveIndex();
-                                                            enforceLimit();
-                                                            context.getSource()
-                                                                    .sendFeedback(Component.literal("缓存上限已更新"));
-                                                            return 1;
-                                                        })))))));
+                                        }))));
     }
 
     private static int importAsset(String filename,

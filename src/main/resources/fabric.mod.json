@@ -25,14 +25,10 @@
     ],
     "client": [
       "org.agmas.noellesroles.client.NoellesrolesClient",
-      "pro.fazeclan.river.stupid_express.client.StupidExpressClient",
-      "org.agmas.harpymodloader.client.HarpymodloaderClient",
       "io.wifi.starrailexpress.client.SREClient"
     ],
     "main": [
       "org.agmas.noellesroles.Noellesroles",
-      "pro.fazeclan.river.stupid_express.StupidExpress",
-      "org.agmas.harpymodloader.Harpymodloader",
       "io.wifi.starrailexpress.SRE"
     ],
     "server": [
@@ -67,9 +63,7 @@
       "noellesroles:defibrillator",
       "noellesroles:volume",
       "noellesroles:ability",
-      "noellesroles:panda",
       "noellesroles:config",
-      "noellesroles:ayayaya",
       "noellesroles:in_control",
       "noellesroles:puppeteer",
       "noellesroles:death_penalty",
@@ -83,13 +77,11 @@
       "noellesroles:c4_back",
       "noellesroles:dream_health",
       "starrailexpress:minigame_task",
-      "stupid_express:doused",
       "stupid_express:custom_winner",
       "stupid_express:lovers",
       "stupid_express:necromancer",
       "stupid_express:refugee",
       "stupid_express:skin_split_personality",
-      "stupid_express:custom_winner",
       "stupid_express:split_personality",
       "harpymodloader:modifier",
       "starrailexpress:role_data",

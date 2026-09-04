@@ -27,7 +27,7 @@ import net.minecraft.sounds.SoundSource;
 import org.agmas.noellesroles.init.ModEffects;
 import pro.fazeclan.river.stupid_express.constants.SEItems;
 import pro.fazeclan.river.stupid_express.constants.SERoles;
-import pro.fazeclan.river.stupid_express.utils.StupidRoleUtils;
+import org.agmas.noellesroles.utils.RoleUtils;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -106,13 +106,13 @@ public class InitiateUtils {
                         return;
                     }
                     clearModItems(initiate);
-                    StupidRoleUtils.changeRole(initiate, SERoles.AMNESIAC);
+                    RoleUtils.changeRole(initiate, SERoles.AMNESIAC);
 
                     // 播放全场音效
                     initiate.level().playSound(null, initiate.blockPosition(),
                             SoundEvents.CONDUIT_ATTACK_TARGET, SoundSource.MASTER, 5.0F, 1.0F);
 
-                    StupidRoleUtils.sendWelcomeAnnouncement(initiate);
+                    RoleUtils.sendWelcomeAnnouncement(initiate);
                 }
             }
         });

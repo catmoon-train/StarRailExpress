@@ -20,7 +20,6 @@ import io.wifi.starrailexpress.api.SREGameModes;
 import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.api.TMMRoles;
 import io.wifi.starrailexpress.client.gui.RoleAnnouncementTexts;
-import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.command.v2.ArgumentTypeRegistry;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
@@ -43,7 +42,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
 
-public class Harpymodloader implements ModInitializer {
+public class Harpymodloader {
     /**
      * 支持正版，从你我做起
      * 此选项用于皮肤模组，避免私人的皮肤模组（枪、球棒等）被拿去盈利。
@@ -80,8 +79,7 @@ public class Harpymodloader implements ModInitializer {
 
     public static final Logger LOGGER = LoggerFactory.getLogger("HarpyModLoader");
 
-    @Override
-    public void onInitialize() {
+    public static void init() {
         VANNILA_ROLES.add(TMMRoles.LOOSE_END);
         VANNILA_ROLES.add(TMMRoles.CIVILIAN);
         VANNILA_ROLES.add(TMMRoles.KILLER);
@@ -153,7 +151,7 @@ public class Harpymodloader implements ModInitializer {
         setRoleMaximum(role.identifier(), max);
     }
 
-    public void registerCommands() {
+    public static void registerCommands() {
         ArgumentTypeRegistry.registerArgumentType(
                 ResourceLocation.fromNamespaceAndPath(MOD_ID, "role"),
                 RoleArgumentType.class,

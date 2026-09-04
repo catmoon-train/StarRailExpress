@@ -39,7 +39,6 @@ import org.agmas.noellesroles.utils.RoleUtils;
 import org.jetbrains.annotations.NotNull;
 import pro.fazeclan.river.stupid_express.constants.SERoles;
 import pro.fazeclan.river.stupid_express.role.necromancer.cca.NecromancerComponent;
-import pro.fazeclan.river.stupid_express.utils.StupidRoleUtils;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -139,12 +138,12 @@ public class RevivalSelectionHandler {
             removeVoice(revived.getUUID());
             body.remove(Entity.RemovalReason.DISCARDED); // like it never existed
 
-            StupidRoleUtils.changeRole(revived, selectedRole);
+            RoleUtils.changeRole(revived, selectedRole);
             SRE.REPLAY_MANAGER.recordPlayerRevival(revived.getUUID(), selectedRole);
             SREPlayerShopComponent playerShopComponent = SREPlayerShopComponent.KEY.get(revived);
             playerShopComponent.setBalance(200);
 
-            StupidRoleUtils.sendWelcomeAnnouncement(revived);
+            RoleUtils.sendWelcomeAnnouncement(revived);
             var psychoCCA = SREPlayerPsychoComponent.KEY.get(revived);
 
             // 使用默认时长 * 1.1
@@ -239,7 +238,7 @@ public class RevivalSelectionHandler {
             removeVoice(revived.getUUID());
             body.remove(Entity.RemovalReason.DISCARDED); // like it never existed
 
-            StupidRoleUtils.changeRole(revived, selectedRole);
+            RoleUtils.changeRole(revived, selectedRole);
             SRE.REPLAY_MANAGER.recordPlayerRevival(revived.getUUID(), selectedRole);
             SREPlayerShopComponent playerShopComponent = SREPlayerShopComponent.KEY.get(revived);
             playerShopComponent.setBalance(200);
@@ -249,7 +248,7 @@ public class RevivalSelectionHandler {
                 SREEvilWarGameMode.addEvilWarItemsByRole(revived, selectedRole);
             }
 
-            StupidRoleUtils.sendWelcomeAnnouncement(revived);
+            RoleUtils.sendWelcomeAnnouncement(revived);
 
             return InteractionResult.CONSUME;
         }));

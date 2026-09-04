@@ -27,8 +27,8 @@ import org.agmas.harpymodloader.modded_murder.RoleAssignmentManager;
 
 import pro.fazeclan.river.stupid_express.StupidExpress;
 import pro.fazeclan.river.stupid_express.role.amnesiac.RoleSelectionHandler;
+import pro.fazeclan.river.stupid_express.role.arsonist.ArsonistRoleData;
 import pro.fazeclan.river.stupid_express.role.arsonist.OilDousingHandler;
-import pro.fazeclan.river.stupid_express.role.arsonist.cca.DousedPlayerComponent;
 import pro.fazeclan.river.stupid_express.role.avaricious.AvariciousGoldHandler;
 import pro.fazeclan.river.stupid_express.role.initiate.InitiateRole;
 import pro.fazeclan.river.stupid_express.role.necromancer.RevivalSelectionHandler;
@@ -56,7 +56,8 @@ public class SERoles {
             false,
             SRERole.MoodType.FAKE,
             -1,
-            true)).setCanUseInstinctAndNightVision(true).setDefaultEnableNeededPlayerCount(12);
+            true)).setCanUseInstinctAndNightVision(true).setDefaultEnableNeededPlayerCount(12)
+            .setRoleData(pro.fazeclan.river.stupid_express.role.arsonist.ArsonistRoleData::new);
 
     public static SRERole AVARICIOUS = registerRole(new NormalRole(
             StupidExpress.id("avaricious"),
@@ -109,9 +110,10 @@ public class SERoles {
         OilDousingHandler.init();
 
         ResetPlayerEvent.EVENT.register(player -> {
-            var dousedComponent = DousedPlayerComponent.KEY.get(player);
-            dousedComponent.reset();
-            dousedComponent.sync();
+            ArsonistRoleData arsonist = ArsonistRoleData.of(player);
+            if (arsonist != null) {
+                arsonist.reset();
+            }
             player.removeTag("nearDoor");
         });
         /// NECROMANCER

@@ -51,8 +51,11 @@ public final class MafiaManager {
     private static final Map<UUID, SRERole> previousRoleByMember = new HashMap<>();
     private static final String MAFIA_SHOP_TAG = "sre_mafia_shop_item";
 
-    public static void register() {
+    public static void registerPayloadTypes() {
         PayloadTypeRegistry.playC2S().register(MafiaActionC2SPacket.ID, MafiaActionC2SPacket.CODEC);
+    }
+
+    public static void register() {
         ServerPlayNetworking.registerGlobalReceiver(MafiaActionC2SPacket.ID,
                 (payload, context) -> context.server().execute(
                         () -> handleAction(context.player(), payload.action(), payload.target(), payload.rolePath())));

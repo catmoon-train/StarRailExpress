@@ -30,10 +30,10 @@ import org.agmas.noellesroles.component.PlayerVolumeComponent;
 import org.agmas.noellesroles.component.TemporaryEffectPlayerComponent;
 import org.agmas.noellesroles.content.entity.MudTrapEntity;
 import org.agmas.noellesroles.content.entity.TripwireTrapEntity;
-import org.agmas.noellesroles.game.roles.innocence.ayayaya.AyayayaPlayerComponent;
 import org.agmas.noellesroles.game.roles.killer.manipulator.InControlCCA;
 import org.agmas.noellesroles.game.roles.neutral.puppeteer.PuppeteerPlayerComponent;
 import org.agmas.noellesroles.packet.PlayerResetS2CPacket;
+import org.agmas.noellesroles.role_data.innocence.AyayayaRoleData;
 import org.agmas.noellesroles.role_data.innocence.CakeMakerRoleData;
 import org.agmas.noellesroles.utils.RoleUtils;
 import org.spongepowered.asm.mixin.Mixin;
@@ -108,8 +108,10 @@ public abstract class PlayerResetMixin {
 
         // Noellesroles.LOGGER.info("resetPlayer");
 
-        AyayayaPlayerComponent postmanComp = ModComponents.AYAYAYA.get(player);
-        postmanComp.clear();
+        AyayayaRoleData postmanComp = RoleData.getNullable(AyayayaRoleData.class, player);
+        if (postmanComp != null) {
+            postmanComp.clear();
+        }
 
         // 清除傀儡师组件状态
         PuppeteerPlayerComponent puppeteerComp = ModComponents.PUPPETEER.get(player);

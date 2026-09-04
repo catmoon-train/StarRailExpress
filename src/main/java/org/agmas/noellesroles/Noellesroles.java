@@ -176,6 +176,7 @@ public class Noellesroles implements ModInitializer {
     public void onInitialize() {
         // 时间回溯 API（含游戏开始/结束自动取消回溯的事件钩子）需在启动时注册
         TimeRewind.initialize();
+        io.wifi.starrailexpress.register.PayloadBootstrap.registerAll();
         ModItems.init();
         RightClickBlockManager.init();
         org.agmas.noellesroles.content.item.ZeroOneFiveGunItem.register();
@@ -214,9 +215,6 @@ public class Noellesroles implements ModInitializer {
         // 注册预设命令
         PresetCommand.register();
 
-        // 注册网络包类型
-        ModPackets.registerPackets();
-
         // 注册网络处理器
         ModPacketsReciever.registerPackets();
         // 初始化HSR组件
@@ -240,6 +238,8 @@ public class Noellesroles implements ModInitializer {
 
         // 注册鹅鸭杀模式（职业 / 游戏模式 / 破坏技能）
         net.exmo.sre.gooseduck.GooseDuckMod.init();
+        StupidExpress.init();
+        Harpymodloader.init();
     }
 
     /**

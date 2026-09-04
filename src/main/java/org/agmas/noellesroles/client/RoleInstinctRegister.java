@@ -81,7 +81,7 @@ import net.minecraft.world.entity.player.Player;
 import pro.fazeclan.river.stupid_express.constants.SEModifiers;
 import pro.fazeclan.river.stupid_express.constants.SERoles;
 import pro.fazeclan.river.stupid_express.modifier.lovers.cca.LoversComponent;
-import pro.fazeclan.river.stupid_express.role.arsonist.cca.DousedPlayerComponent;
+import pro.fazeclan.river.stupid_express.role.arsonist.ArsonistRoleData;
 
 /**
  * 高亮获取顺序：
@@ -296,8 +296,9 @@ public class RoleInstinctRegister {
                     }
                     if (targetPlayer.distanceToSqr(self) > 40 * 40)
                         return TrueFalseAndCustomResult.disallow();
-                    var douse = DousedPlayerComponent.KEY.get(targetPlayer);
-                    return douse.getDoused() ? TrueFalseAndCustomResult.custom(SERoles.ARSONIST.color())
+                    ArsonistRoleData arsonist = ArsonistRoleData.of(self);
+                    boolean doused = arsonist != null && arsonist.isDoused(targetPlayer.getUUID());
+                    return doused ? TrueFalseAndCustomResult.custom(SERoles.ARSONIST.color())
                             : TrueFalseAndCustomResult.custom(Color.GRAY.getRGB());
                 });
         // 推理者：无法透视玩家

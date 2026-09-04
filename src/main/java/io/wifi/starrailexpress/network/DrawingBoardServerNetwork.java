@@ -34,13 +34,17 @@ import org.agmas.noellesroles.init.ModItems;
 public class DrawingBoardServerNetwork {
 
     /**
+     * Play C2S payload types. Receivers are registered separately in {@link #register()}.
+     */
+    public static void registerPayloadTypes() {
+        PayloadTypeRegistry.playC2S().register(DrawingBoardPayload.DrawBoardSavePayload.TYPE, DrawingBoardPayload.DrawBoardSavePayload.CODEC);
+        PayloadTypeRegistry.playC2S().register(DrawingBoardPayload.DrawBoardRecognizePayload.TYPE, DrawingBoardPayload.DrawBoardRecognizePayload.CODEC);
+    }
+
+    /**
      * 服务端初始化：注册处理器
      */
     public static void register() {
-        // 注册 C2S 数据包类型
-        PayloadTypeRegistry.playC2S().register(DrawingBoardPayload.DrawBoardSavePayload.TYPE, DrawingBoardPayload.DrawBoardSavePayload.CODEC);
-        PayloadTypeRegistry.playC2S().register(DrawingBoardPayload.DrawBoardRecognizePayload.TYPE, DrawingBoardPayload.DrawBoardRecognizePayload.CODEC);
-
         // 服务端处理器：客户端保存画板数据
         ServerPlayNetworking.registerGlobalReceiver(DrawingBoardPayload.DrawBoardSavePayload.TYPE, (payload, context) -> {
             ServerPlayer player = context.player();

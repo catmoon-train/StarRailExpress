@@ -24,8 +24,10 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
 
-import org.agmas.noellesroles.game.roles.innocence.ayayaya.AyayayaPlayerComponent;
 import org.agmas.noellesroles.packet.PostmanC2SPacket;
+import org.agmas.noellesroles.role_data.innocence.AyayayaRoleData;
+
+import java.util.UUID;
 
 /**
  * 射命丸文传递界面 - 基于 HandledScreen
@@ -41,7 +43,7 @@ public class PostmanHandledScreen extends AbstractContainerScreen<PostmanScreenH
     @SuppressWarnings("unused")
     private static final ResourceLocation TEXTURE = ResourceLocation.fromNamespaceAndPath("minecraft", "textures/gui/container/hopper.png");
     
-    private AyayayaPlayerComponent postmanComponent;
+    private AyayayaRoleData postmanComponent;
     private Button confirmButton;
     
     public PostmanHandledScreen(PostmanScreenHandler handler, Inventory inventory, Component title) {
@@ -55,7 +57,7 @@ public class PostmanHandledScreen extends AbstractContainerScreen<PostmanScreenH
     protected void init() {
         super.init();
         
-        this.postmanComponent = AyayayaPlayerComponent.KEY.get(minecraft.player);
+        this.postmanComponent = AyayayaRoleData.resolve(minecraft.player);
         
         // 确认交换按钮 - 放在槽位右侧
         int buttonWidth = 70;
@@ -106,7 +108,7 @@ public class PostmanHandledScreen extends AbstractContainerScreen<PostmanScreenH
         super.render(context, mouseX, mouseY, delta);
         
         // 每次渲染时重新获取组件，确保读取最新数据
-        this.postmanComponent = AyayayaPlayerComponent.KEY.get(minecraft.player);
+        this.postmanComponent = AyayayaRoleData.resolve(minecraft.player);
         
         if (postmanComponent == null || !postmanComponent.isDeliveryActive()) {
             this.onClose();
@@ -121,7 +123,7 @@ public class PostmanHandledScreen extends AbstractContainerScreen<PostmanScreenH
             this.topPos + 6, 0xFFFFFF, true);
         
         // 绘制目标玩家名称
-        String targetName = postmanComponent.targetName;
+        String targetName = postmanComponent.displayNameFor(minecraft.player);
         Component targetText = Component.translatable("screen.noellesroles.postman.trade_with",Component.literal(targetName).withStyle(ChatFormatting.YELLOW)).withStyle(ChatFormatting.GRAY);
         context.drawString(font, targetText,
             this.leftPos + this.imageWidth / 2 - font.width(targetText) / 2,
@@ -134,7 +136,7 @@ public class PostmanHandledScreen extends AbstractContainerScreen<PostmanScreenH
             this.topPos + 55, 0xAAAAAA, true);
         
         // 绘制确认状态 - 直接读取组件中的最新值
-        boolean isReceiver = postmanComponent.isReceiver;
+        boolean isReceiver = postmanComponent.isViewerReceiver(minecraft.player);
         boolean myConfirmed = isReceiver ? postmanComponent.targetConfirmed : postmanComponent.senderConfirmed;
         boolean otherConfirmed = isReceiver ? postmanComponent.senderConfirmed : postmanComponent.targetConfirmed;
         
@@ -176,7 +178,7 @@ public class PostmanHandledScreen extends AbstractContainerScreen<PostmanScreenH
     private void updateButtonState() {
         if (postmanComponent == null || confirmButton == null) return;
         
-        boolean isReceiver = postmanComponent.isReceiver;
+        boolean isReceiver = postmanComponent.isViewerReceiver(minecraft.player);
         boolean myConfirmed = isReceiver ? postmanComponent.targetConfirmed : postmanComponent.senderConfirmed;
         boolean bothConfirmed = postmanComponent.isBothConfirmed();
         
@@ -197,10 +199,15 @@ public class PostmanHandledScreen extends AbstractContainerScreen<PostmanScreenH
     private void onConfirm() {
         // 使用组件中的目标玩家 UUID（更可靠）
         if (postmanComponent != null && postmanComponent.deliveryTarget != null) {
-            ClientPlayNetworking.send(new PostmanC2SPacket(
-                PostmanC2SPacket.Action.CONFIRM,
-                postmanComponent.deliveryTarget
-            ));
+            UUID other = postmanComponent.isViewerReceiver(minecraft.player)
+                    ? postmanComponent.getPlayer().getUUID()
+                    : postmanComponent.deliveryTarget;
+            if (other != null) {
+                ClientPlayNetworking.send(new PostmanC2SPacket(
+                    PostmanC2SPacket.Action.CONFIRM,
+                    other
+                ));
+            }
         } else if (menu.getTargetPlayerUuid() != null) {
             // 回退使用 handler 中的 UUID
             ClientPlayNetworking.send(new PostmanC2SPacket(
@@ -216,7 +223,7 @@ public class PostmanHandledScreen extends AbstractContainerScreen<PostmanScreenH
         super.containerTick();
         
         // 每次 tick 重新获取组件，确保读取最新同步数据
-        this.postmanComponent = AyayayaPlayerComponent.KEY.get(minecraft.player);
+        this.postmanComponent = AyayayaRoleData.resolve(minecraft.player);
         
         updateButtonState();
         

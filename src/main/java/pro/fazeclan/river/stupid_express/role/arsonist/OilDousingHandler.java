@@ -29,7 +29,7 @@ import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionResult;
 import pro.fazeclan.river.stupid_express.constants.SEItems;
 import pro.fazeclan.river.stupid_express.constants.SERoles;
-import pro.fazeclan.river.stupid_express.role.arsonist.cca.DousedPlayerComponent;
+import pro.fazeclan.river.stupid_express.role.arsonist.ArsonistRoleData;
 
 public class OilDousingHandler {
 
@@ -66,7 +66,9 @@ public class OilDousingHandler {
             if (interacting.gameMode.isSurvival()) {
                 var alivePlayers = ((ServerLevel) level).getPlayers(GameUtils::isPlayerAliveAndSurvival);
                 var playerCount = alivePlayers.size();
-                var dousedPlayers = alivePlayers.stream().filter(p -> DousedPlayerComponent.KEY.get(p).getDoused())
+                ArsonistRoleData arsonist = ArsonistRoleData.of(interacting);
+                var dousedPlayers = alivePlayers.stream()
+                        .filter(p -> arsonist != null && arsonist.isDoused(p.getUUID()))
                         .toList();
                 var cd = 45 - (5 / 3.0) * (double) playerCount;
 
@@ -79,21 +81,17 @@ public class OilDousingHandler {
                     interacting.getCooldowns().addCooldown(SEItems.LIGHTER, (int) (cd * 20));
                 }
             }
-            DousedPlayerComponent doused = DousedPlayerComponent.KEY.get(victim);
-            doused.setDoused(true);
+            ArsonistRoleData arsonistData = ArsonistRoleData.of(interacting);
+            if (arsonistData != null) {
+                arsonistData.douse(victim);
+            }
 
-            // 回放记录：为玩家浇上汽油
             SRE.REPLAY_MANAGER.recordCustomEvent(
                 Component.translatable("replay.event.arsonist.douse_gasoline",
                     GameReplayUtils.getReplayPlayerDisplayText(interacting, true),
                     GameReplayUtils.getReplayPlayerDisplayText(victim, true)));
 
             interacting.playNotifySound(SoundEvents.BREWING_STAND_BREW, SoundSource.PLAYERS, 1.0f, 1.0f);
-
-            // 增加纵火犯泼油计数
-            var dousedCountComponent = DousedPlayerComponent.KEY.get(player);
-            dousedCountComponent.dousedCount++;
-            dousedCountComponent.sync();
 
             return InteractionResult.CONSUME;
         }));

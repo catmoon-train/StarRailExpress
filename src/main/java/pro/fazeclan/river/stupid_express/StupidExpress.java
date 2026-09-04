@@ -18,8 +18,6 @@ package pro.fazeclan.river.stupid_express;
 import dev.doctor4t.ratatouille.util.registrar.SoundEventRegistrar;
 import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.api.TMMRoles;
-import net.fabricmc.api.ModInitializer;
-import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvent;
 import org.agmas.harpymodloader.Harpymodloader;
@@ -29,14 +27,13 @@ import org.slf4j.LoggerFactory;
 import pro.fazeclan.river.stupid_express.constants.SEItems;
 import pro.fazeclan.river.stupid_express.constants.SEModifiers;
 import pro.fazeclan.river.stupid_express.constants.SERoles;
-import pro.fazeclan.river.stupid_express.network.SplitBackCamera;
 import pro.fazeclan.river.stupid_express.network.SplitPersonalityPackets;
 import pro.fazeclan.river.stupid_express.role.initiate.InitiateUtils;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class StupidExpress implements ModInitializer {
+public class StupidExpress {
 
     public static String MOD_ID = "stupid_express";
     public static final SoundEventRegistrar SoundRegistrar = new SoundEventRegistrar(MOD_ID);
@@ -68,8 +65,7 @@ public class StupidExpress implements ModInitializer {
         return clone;
     }
 
-    @Override
-    public void onInitialize() {
+    public static void init() {
         SERoles.init();
 
         // mod stuff
@@ -80,8 +76,6 @@ public class StupidExpress implements ModInitializer {
 
         // 初始化网络包处理
         SplitPersonalityPackets.registerPackets();
-        PayloadTypeRegistry.playS2C().register(SplitBackCamera.TYPE, SplitBackCamera.CODEC);
-
         pro.fazeclan.river.stupid_express.network.SplitPersonalitySwitchPacket.register();
 
         StupidEventRegister.registerInitEvents();

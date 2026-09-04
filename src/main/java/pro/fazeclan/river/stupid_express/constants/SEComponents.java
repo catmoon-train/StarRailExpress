@@ -25,7 +25,6 @@ import pro.fazeclan.river.stupid_express.modifier.lovers.cca.LoversComponent;
 import pro.fazeclan.river.stupid_express.modifier.refugee.cca.RefugeeComponent;
 import pro.fazeclan.river.stupid_express.modifier.split_personality.cca.SkinSplitPersonalityComponent;
 import pro.fazeclan.river.stupid_express.modifier.split_personality.cca.SplitPersonalityComponent;
-import pro.fazeclan.river.stupid_express.role.arsonist.cca.DousedPlayerComponent;
 import pro.fazeclan.river.stupid_express.role.necromancer.cca.NecromancerComponent;
 
 public class SEComponents implements EntityComponentInitializer, WorldComponentInitializer {
@@ -34,9 +33,6 @@ public class SEComponents implements EntityComponentInitializer, WorldComponentI
 
     @Override
     public void registerEntityComponentFactories(EntityComponentFactoryRegistry registry) {
-        registry.beginRegistration(Player.class, DousedPlayerComponent.KEY)
-                .respawnStrategy(RespawnCopyStrategy.NEVER_COPY)
-                .end(DousedPlayerComponent::new);
         registry.beginRegistration(Player.class, LoversComponent.KEY)
                 .respawnStrategy(RespawnCopyStrategy.NEVER_COPY)
                 .end(LoversComponent::new);

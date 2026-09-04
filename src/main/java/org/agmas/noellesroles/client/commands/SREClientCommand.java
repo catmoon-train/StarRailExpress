@@ -23,6 +23,7 @@ import io.wifi.rhythm.client.screen.RhythmGameScreen;
 import io.wifi.starrailexpress.cca.AreasWorldComponent;
 import io.wifi.starrailexpress.client.gui.screen.NewspaperScreen;
 import io.wifi.starrailexpress.client.util.ClientScheduler;
+import io.wifi.starrailexpress.scenery.client.SceneAssetClient;
 import io.wifi.utils.client.betterrender.FakeGuiGraphics;
 import net.fabricmc.fabric.api.client.command.v2.ClientCommandManager;
 import net.fabricmc.fabric.api.client.command.v2.ClientCommandRegistrationCallback;
@@ -58,13 +59,7 @@ public class SREClientCommand {
                             ctx.getSource().getClient().gui.getChat().clearMessages(false);
                             return 1;
                           })))
-              .then(
-                  ClientCommandManager.literal("chat")
-                      .then(ClientCommandManager.literal("clear")
-                          .executes((ctx) -> {
-                            ctx.getSource().getClient().gui.getChat().clearMessages(false);
-                            return 1;
-                          })))
+              .then(SceneAssetClient.sceneSubcommand())
               .then(ClientCommandManager.literal("debug")
                   .then(ClientCommandManager.literal("rhythm_game")
                       .executes((ctx) -> {

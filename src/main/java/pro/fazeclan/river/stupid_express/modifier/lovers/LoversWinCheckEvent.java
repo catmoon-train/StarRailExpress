@@ -24,7 +24,7 @@ import net.minecraft.server.level.ServerPlayer;
 import org.agmas.harpymodloader.component.WorldModifierComponent;
 import pro.fazeclan.river.stupid_express.constants.SEModifiers;
 import pro.fazeclan.river.stupid_express.modifier.lovers.cca.LoversComponent;
-import pro.fazeclan.river.stupid_express.utils.StupidRoleUtils;
+import org.agmas.noellesroles.utils.RoleUtils;
 
 import java.util.OptionalInt;
 import java.util.UUID;
@@ -50,7 +50,7 @@ public class LoversWinCheckEvent {
                         gameRoundEndComponent.CustomWinnerPlayers.clear();
                         gameRoundEndComponent.CustomWinnerPlayers.add(player.getUUID());
                         gameRoundEndComponent.CustomWinnerPlayers.add(loverUuid);
-                        StupidRoleUtils.customWinnerWin(serverWorld, WinStatus.LOVERS,
+                        RoleUtils.customWinnerWin(serverWorld, WinStatus.LOVERS,
                                 SEModifiers.LOVERS.identifier().toLanguageKey(),
                                 OptionalInt.of(SEModifiers.LOVERS.color()));
                         return WinStatus.LOVERS;
