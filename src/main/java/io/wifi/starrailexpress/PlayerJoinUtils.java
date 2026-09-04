@@ -27,6 +27,7 @@ import io.wifi.starrailexpress.cca.AreasWorldComponent;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent.GameStatus;
 import io.wifi.starrailexpress.event.OnGameInitialized;
+import io.wifi.starrailexpress.event.OnGameStarted;
 import io.wifi.starrailexpress.network.SyncMapConfigPayload;
 import io.wifi.starrailexpress.util.SREItemUtils;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
@@ -52,6 +53,10 @@ public class PlayerJoinUtils {
     public static void register() {
         ServerTickEvents.END_SERVER_TICK.register(PlayerJoinUtils::tick);
         OnGameInitialized.EVENT.register((t) -> {
+            pendingJoins.clear();
+            positionCheckPending.clear(); // 清空新map
+        });
+        OnGameStarted.EVENT.register((t) -> {
             pendingJoins.clear();
             positionCheckPending.clear(); // 清空新map
         });
@@ -95,7 +100,7 @@ public class PlayerJoinUtils {
                 ServerPlayer player = server.getPlayerList().getPlayer(uuid);
                 if (player != null) {
                     // 检查位置是否合法，不合法则传回出生点
-                    if (!isPlayerPositionValid(player)) {
+                    if (!isPlayerPositionInLobby(player, false)) {
                         adjustPlayerPosition(player);
                     }
                 }
@@ -110,7 +115,7 @@ public class PlayerJoinUtils {
      * @param player 待检查的玩家
      * @return
      */
-    private static boolean isPlayerPositionValid(ServerPlayer player) {
+    public static boolean isPlayerPositionInLobby(ServerPlayer player, boolean ignoreStartGame) {
         Vec3 playerPos = player.position();
         final var gameWorldComponent = SREGameWorldComponent.KEY.get(player.level());
 
@@ -121,7 +126,7 @@ public class PlayerJoinUtils {
         // ServerPlayNetworking.send(serverPlayer, new ShowSelectedMapUIPayload(true));
         // }
         // }
-        if (gameWorldComponent.getGameStatus() == GameStatus.ACTIVE) {
+        if (!ignoreStartGame && gameWorldComponent.getGameStatus() == GameStatus.ACTIVE) {
             if (player.isSpectator())
                 return true;
             return false;

@@ -15,6 +15,7 @@
 
 package io.wifi.starrailexpress.cca;
 
+import io.wifi.starrailexpress.PlayerJoinUtils;
 import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.api.AreasSettings.BackgroundAmbienceSound;
 import io.wifi.starrailexpress.event.OnGameServerTick;
@@ -825,6 +826,13 @@ public class SREGameWorldComponent implements AutoSyncedComponent, ServerTicking
 
                         if (gameMode.enableEnvironmentDetection()) {
                             playerEnvironmentDetection(player, areas, this);
+                        }
+                        if (world.getGameTime() % 40 == 0) {
+                            if (PlayerJoinUtils.isPlayerPositionInLobby(player, true)) {
+                                GameUtils.teleportBackToRoom(player);
+                                player.displayClientMessage(
+                                        Component.translatable("message.noellesroles.commands.stuck.success"), true);
+                            }
                         }
                     }
                 }

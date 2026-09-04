@@ -66,7 +66,7 @@ public class THUtsuhoRole extends TouhouRole {
 
         ArrayList<UUID> needclear = new ArrayList<>();
         ArrayList<ServerPlayer> victims = new ArrayList<>();
-        final long timenow = level.getGameTime();
+        final long timenow = GameUtils.getTicksFromGameStart(level);
         for (final var entry : NEED_DRINK_TIME.entrySet()) {
 
             UUID puid = entry.getKey();
@@ -133,7 +133,7 @@ public class THUtsuhoRole extends TouhouRole {
                 victims.add(p);
             }
         }
-        final long timenow = level.getGameTime();
+        final long timenow = GameUtils.getTicksFromGameStart(level);
         player.addEffect(ModEffects.of(MobEffects.GLOWING, DRINK_THRESHOLD, 1, true, true, true));
         for (var p : victims) {
             p.addEffect(ModEffects.of(MobEffects.GLOWING, DRINK_THRESHOLD, 1, true, true, true));
