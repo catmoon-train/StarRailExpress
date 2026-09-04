@@ -135,6 +135,7 @@ public class PlayerBodyEntity extends LivingEntity {
     }
 
     @Override
+    /** ServerSide only */
     public ItemStack getItemBySlot(EquipmentSlot slot) {
         SimpleContainer inv = getComponent().getCorpseInventory();
         boolean isDayNightFight = false;
@@ -164,6 +165,7 @@ public class PlayerBodyEntity extends LivingEntity {
 
     @SuppressWarnings("incomplete-switch")
     @Override
+    /** ServerSide only */
     public void setItemSlot(EquipmentSlot slot, ItemStack stack) {
         SimpleContainer inv = getComponent().getCorpseInventory();
         boolean isDayNightFight = false;

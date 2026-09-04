@@ -216,4 +216,8 @@ public class THMountainRoles {
         AYA.setAddedVersion("4.3");
         HATATE.setAddedVersion("4.3");
     }
+
+    public static void init() {
+
+    }
 }

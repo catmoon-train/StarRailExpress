@@ -13,7 +13,6 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-
 package io.wifi.starrailexpress.cca;
 
 import io.wifi.starrailexpress.SRE;
@@ -23,8 +22,6 @@ import io.wifi.starrailexpress.content.entity.PlayerBodyEntity;
 import io.wifi.starrailexpress.content.gui.PlayerBodyEntityContainer;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.ListTag;
-import net.minecraft.nbt.Tag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
@@ -165,26 +162,27 @@ public class PlayerBodyEntityComponent implements RoleComponent, ServerTickingCo
         }
         tag.putString("DeathReason", deathReason);
 
-        ListTag items = new ListTag();
-        for (int i = 0; i < 54; i++) {
-            ItemStack stack = corpseInventory.getItem(i);
-            if (!stack.isEmpty()) {
-                // 确保物品数量在有效范围内 (1-99)
-                if (stack.getCount() <= 0) {
-                    continue; // 跳过无效数量的物品
-                }
-                if (stack.getCount() > 99) {
-                    stack.setCount(99); // 限制最大数量为99
-                }
+        // 同步大头，砍掉
+        // ListTag items = new ListTag();
+        // for (int i = 0; i < 54; i++) {
+        // ItemStack stack = corpseInventory.getItem(i);
+        // if (!stack.isEmpty()) {
+        // // 确保物品数量在有效范围内 (1-99)
+        // if (stack.getCount() <= 0) {
+        // continue; // 跳过无效数量的物品
+        // }
+        // if (stack.getCount() > 99) {
+        // stack.setCount(99); // 限制最大数量为99
+        // }
 
-                CompoundTag itemTag = new CompoundTag();
-                Tag itemItemTag = stack.save(registryLookup);
-                itemTag.put("Item", itemItemTag);
-                itemTag.putByte("Slot", (byte) i);
-                items.add(itemTag);
-            }
-        }
-        tag.put("CorpseInventory", items);
+        // CompoundTag itemTag = new CompoundTag();
+        // Tag itemItemTag = stack.save(registryLookup);
+        // itemTag.put("Item", itemItemTag);
+        // itemTag.putByte("Slot", (byte) i);
+        // items.add(itemTag);
+        // }
+        // }
+        // tag.put("CorpseInventory", items);
     }
 
     @Override
@@ -210,32 +208,33 @@ public class PlayerBodyEntityComponent implements RoleComponent, ServerTickingCo
         }
         deathReason = tag.getString("DeathReason");
 
-        // 清空并加载物品
-        for (int i = 0; i < 54; i++) {
-            corpseInventory.setItem(i, ItemStack.EMPTY);
-        }
-        if (tag.contains("CorpseInventory", Tag.TAG_LIST)) {
-            ListTag items = tag.getList("CorpseInventory", Tag.TAG_COMPOUND);
-            for (int i = 0; i < items.size(); i++) {
-                CompoundTag itemTag = items.getCompound(i);
-                int slot = itemTag.getByte("Slot") & 255;
-                if (slot >= 0 && slot < 54) {
-                    if (itemTag.contains("Item")) {
-                        ItemStack stack = ItemStack.parse(registryLookup, itemTag.getCompound("Item"))
-                                .orElse(ItemStack.EMPTY);
-                        // 验证并修正物品数量
-                        if (!stack.isEmpty()) {
-                            if (stack.getCount() <= 0) {
-                                stack = ItemStack.EMPTY; // 无效数量则设为空
-                            } else if (stack.getCount() > 99) {
-                                stack.setCount(99); // 限制最大数量为99
-                            }
-                        }
-                        corpseInventory.setItem(slot, stack);
-                    }
-                }
-            }
-        }
+        // // 清空并加载物品
+        // for (int i = 0; i < 54; i++) {
+        // corpseInventory.setItem(i, ItemStack.EMPTY);
+        // }
+        // if (tag.contains("CorpseInventory", Tag.TAG_LIST)) {
+        // ListTag items = tag.getList("CorpseInventory", Tag.TAG_COMPOUND);
+        // for (int i = 0; i < items.size(); i++) {
+        // CompoundTag itemTag = items.getCompound(i);
+        // int slot = itemTag.getByte("Slot") & 255;
+        // if (slot >= 0 && slot < 54) {
+        // if (itemTag.contains("Item")) {
+        // ItemStack stack = ItemStack.parse(registryLookup,
+        // itemTag.getCompound("Item"))
+        // .orElse(ItemStack.EMPTY);
+        // // 验证并修正物品数量
+        // if (!stack.isEmpty()) {
+        // if (stack.getCount() <= 0) {
+        // stack = ItemStack.EMPTY; // 无效数量则设为空
+        // } else if (stack.getCount() > 99) {
+        // stack.setCount(99); // 限制最大数量为99
+        // }
+        // }
+        // corpseInventory.setItem(slot, stack);
+        // }
+        // }
+        // }
+        // }
     }
 
     @Override
