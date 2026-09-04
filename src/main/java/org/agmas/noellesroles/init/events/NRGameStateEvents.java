@@ -444,22 +444,19 @@ public class NRGameStateEvents {
 
     private static Component getProcessorType(AreasSettings areasSettings, boolean emergency) {
         boolean noVote = false;
-        var result = Component.translatable("meeting.sre.entry.kill");
+        var result = Component.translatable("meeting.sre.entry.kill").withStyle(ChatFormatting.RED);
         if (!areasSettings.meetingVoteEnabled) {
-            result = Component.translatable("meeting.sre.entry.no_vote");
+            result = Component.translatable("meeting.sre.entry.no_vote").withStyle(ChatFormatting.WHITE);
             noVote = true;
         } else {
             switch (areasSettings.meetingVoteProcessor) {
                 case DEFAULT:
                 case FORCE_KILL:
                 case KILL:
-                    result = Component.translatable("meeting.sre.entry.kill");
-                    break;
-                case FUNCTION:
-                    result = Component.translatable("meeting.sre.entry.custom");
+                    result = Component.translatable("meeting.sre.entry.kill").withStyle(ChatFormatting.RED);
                     break;
                 case GLOWING:
-                    result = Component.translatable("meeting.sre.entry.glow");
+                    result = Component.translatable("meeting.sre.entry.glow").withStyle(ChatFormatting.LIGHT_PURPLE);
                     break;
                 default:
                     result = Component.translatable("meeting.sre.entry.custom");
@@ -468,7 +465,7 @@ public class NRGameStateEvents {
         }
         if (emergency) {
             if (areasSettings.emergencyMeetingVoteEnabled == TrueFalseResult.FALSE) {
-                result = Component.translatable("meeting.sre.entry.no_vote");
+                result = Component.translatable("meeting.sre.entry.no_vote").withStyle(ChatFormatting.WHITE);
             } else if (areasSettings.emergencyMeetingVoteEnabled == TrueFalseResult.PASS) {
                 if (noVote) {
                     return result;
@@ -478,13 +475,13 @@ public class NRGameStateEvents {
                 switch (areasSettings.emergencyMeetingVoteProcessor) {
                     case FORCE_KILL:
                     case KILL:
-                        result = Component.translatable("meeting.sre.entry.kill");
+                        result = Component.translatable("meeting.sre.entry.kill").withStyle(ChatFormatting.RED);
                         break;
                     case FUNCTION:
-                        result = Component.translatable("meeting.sre.entry.custom");
+                        result = Component.translatable("meeting.sre.entry.custom").withStyle(ChatFormatting.GREEN);
                         break;
                     case GLOWING:
-                        result = Component.translatable("meeting.sre.entry.glow");
+                        result = Component.translatable("meeting.sre.entry.glow").withStyle(ChatFormatting.LIGHT_PURPLE);
                         break;
                     case DEFAULT:
                     default:
