@@ -1405,6 +1405,9 @@ public abstract class SRERole extends SREAbstractInfoClass {
         if (player.hasEffect(ModEffects.NO_STAMINA)) {
             return 0;
         }
+        if (player.hasEffect(ModEffects.INFINITE_STAMINA)) {
+            return Integer.MAX_VALUE;
+        }
         if (this.customSprintTimeGetter != null) {
             return this.customSprintTimeGetter.applyAsInt(player);
         }
