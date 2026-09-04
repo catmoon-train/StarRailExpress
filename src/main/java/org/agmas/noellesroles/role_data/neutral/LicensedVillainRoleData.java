@@ -123,6 +123,8 @@ public class LicensedVillainRoleData extends SimpleRoleData {
         for (Player p : level.players()) {
             if (!GameUtils.isPlayerAliveAndSurvivalIgnoreShitSplit(p))
                 continue;
+            if (gameWorld.isRole(p, BounsRoles.LICENSED_VILLAIN))
+                continue;
             SRERole role = gameWorld.getRole(p);
             if (role == null)
                 continue;
