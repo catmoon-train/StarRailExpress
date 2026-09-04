@@ -1283,6 +1283,7 @@ public class GameUtils {
         StaminaCommand.setStamina(player, -1);
         player.setLastHurtByMob(null);
         player.setLastHurtByPlayer(null);
+        player.refreshDimensions();
         // PlayerResetMixin插入位置
     }
 
