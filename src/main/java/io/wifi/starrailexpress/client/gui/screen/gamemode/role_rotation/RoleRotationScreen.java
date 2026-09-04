@@ -154,7 +154,7 @@ public class RoleRotationScreen extends Screen {
                 .translatable("message.tip.map_name", Component
                         .translatable(SREClient.areaComponent.mapDisplayName))
                 .withStyle(ChatFormatting.WHITE);
-        context.drawString(font, mapInfo, width - 10 - font.width(mapInfo), 5, 0xffffffff);
+        context.drawString(font, mapInfo, width - 10 - font.width(mapInfo), 21, 0xffffffff);
         var message = minecraft.gui.overlayMessageString;
         int displaytime = minecraft.gui.overlayMessageTime;
         if (message == null || displaytime <= 0)
