@@ -265,20 +265,11 @@ public class RoleIntroduceScreen extends Screen {
         this.parent = parent;
     }
 
-    public RoleIntroduceScreen(Screen parent, SRERole sreRole) {
+    public RoleIntroduceScreen(Screen parent, Object sreRole) {
         this();
         this.parent = parent;
         this.selectedRole = sreRole;
         this.currentMode = IntroductionGameMode.CURRENT;
-
-    }
-
-    public RoleIntroduceScreen(Screen parent, SREModifier modifier) {
-        this();
-        this.parent = parent;
-        this.selectedRole = modifier;
-        this.currentMode = IntroductionGameMode.CURRENT;
-
     }
 
     private static SRERole getRole(Player player) {

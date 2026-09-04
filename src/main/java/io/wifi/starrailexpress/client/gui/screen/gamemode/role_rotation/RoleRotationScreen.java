@@ -742,7 +742,8 @@ public class RoleRotationScreen extends Screen {
                 if (role != null) {
                     mc.setScreen(new RoleIntroduceScreen(this, role));
                 } else {
-                    mc.setScreen(new RoleIntroduceScreen(this));
+                    if (SREClient.areaComponent != null && SREClient.areaComponent.areasSettings != null)
+                        mc.setScreen(new RoleIntroduceScreen(this, SREClient.areaComponent.areasSettings));
                 }
             }
             return true;
