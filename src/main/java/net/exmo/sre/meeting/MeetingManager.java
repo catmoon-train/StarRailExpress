@@ -248,7 +248,7 @@ public final class MeetingManager {
 
         ServerLevel serverLevel = reporter.serverLevel();
         AreasSettings settings = settings(serverLevel);
-        if (settings == null || !settings.meetingEnabled) {
+        if (settings == null || !settings.meetingEnabled || !settings.bodyMeetingEnabled) {
             return false;
         }
         if (!GameUtils.isPlayerAliveAndSurvival(reporter)) {

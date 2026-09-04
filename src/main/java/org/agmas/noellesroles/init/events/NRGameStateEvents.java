@@ -248,7 +248,7 @@ public class NRGameStateEvents {
                     MutableComponent meetingResultMsg = Component.literal("").withStyle(ChatFormatting.GOLD);
                     MutableComponent startCooldownMsg = Component.literal("").withStyle(ChatFormatting.GOLD);
                     if (areacca.areasSettings.bodyMeetingEnabled) {
-                        meetingType = Component.translatable("meeting.sre.body_meeting");
+                        meetingType = Component.translatable("meeting.sre.body_meeting").withStyle(ChatFormatting.AQUA);
                         startCooldownMsg.append("\n").append(Component.translatable("meeting.sre.entry.is_comming",
                                 Component.translatable("meeting.sre.body_meeting").withStyle(ChatFormatting.AQUA),
                                 Component.literal(String.format("%d", areacca.areasSettings.meetingStartCooldown))
@@ -260,9 +260,12 @@ public class NRGameStateEvents {
 
                     }
                     if (areacca.areasSettings.bellMeetingEnabled) {
-                        meetingType = meetingType == null ? Component.translatable("meeting.sre.body_meeting")
+                        meetingType = meetingType == null
+                                ? Component.translatable("meeting.sre.bell_meeting").withStyle(ChatFormatting.YELLOW)
                                 : Component.translatable("meeting.sre.entry.and", meetingType,
-                                        Component.translatable("meeting.sre.bell_meeting"));
+                                        Component.translatable("meeting.sre.bell_meeting")
+                                                .withStyle(ChatFormatting.YELLOW))
+                                        .withStyle(ChatFormatting.GOLD);
                         startCooldownMsg.append("\n").append(Component.translatable("meeting.sre.entry.is_comming",
                                 Component.translatable("meeting.sre.bell_meeting").withStyle(ChatFormatting.YELLOW),
                                 Component.literal(String.format("%d", areacca.areasSettings.bellMeetingStartCooldown))
@@ -481,7 +484,8 @@ public class NRGameStateEvents {
                         result = Component.translatable("meeting.sre.entry.custom").withStyle(ChatFormatting.GREEN);
                         break;
                     case GLOWING:
-                        result = Component.translatable("meeting.sre.entry.glow").withStyle(ChatFormatting.LIGHT_PURPLE);
+                        result = Component.translatable("meeting.sre.entry.glow")
+                                .withStyle(ChatFormatting.LIGHT_PURPLE);
                         break;
                     case DEFAULT:
                     default:
