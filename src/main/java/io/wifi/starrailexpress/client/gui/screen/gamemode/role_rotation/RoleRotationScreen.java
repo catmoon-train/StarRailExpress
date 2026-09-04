@@ -741,6 +741,8 @@ public class RoleRotationScreen extends Screen {
                 SRERole role = getRoleByPath(rolePath);
                 if (role != null) {
                     mc.setScreen(new RoleIntroduceScreen(this, role));
+                } else {
+                    mc.setScreen(new RoleIntroduceScreen(this));
                 }
             }
             return true;
