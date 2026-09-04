@@ -419,7 +419,7 @@ public class ZiplineBlock extends Block implements EntityBlock {
             return true;
         }
         SRERole role = gameComponent.getRole(player);
-        if (role == null) {
+        if (role == null || Integer.MAX_VALUE == role.getMaxSprintTime(player)) {
             return true;
         }
         int maxSprintTime = Math.min(TMMRoles.CIVILIAN_MAX_SPRINT_TICKS, role.getMaxSprintTime(player));
@@ -429,12 +429,11 @@ public class ZiplineBlock extends Block implements EntityBlock {
         if (!(player instanceof PlayerStaminaGetter stamina)) {
             return true;
         }
-        float max = maxSprintTime * org.agmas.noellesroles.init.ModEffects.getStaminaCapacityMultiplier(player);
+        float max = maxSprintTime;
         float current = stamina.starrailexpress$getStamina();
         if (current < 0) {
-            current = max; // -1 = 尚未初始化，视为满
+            current = role.getMaxSprintTime(player); // -1 = 尚未初始化，视为满
         }
-        current = Math.min(current, max);
         // 最低体力要求：必须拥有min(自身上限 40%, 平民上限40%) 的体力才允许上滑索
         float require = max * RIDE_STAMINA_RATIO;
         if (current < require) {
