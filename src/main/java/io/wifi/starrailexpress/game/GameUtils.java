@@ -1195,7 +1195,7 @@ public class GameUtils {
         SRE.LOGGER.info("=".repeat(20));
 
         WorldModifierComponent worldModifierComponent = WorldModifierComponent.KEY.get(world);
-        worldModifierComponent.modifiers.clear();
+        worldModifierComponent.clearAll();
         worldModifierComponent.sync();
         serverCacheKillState.clear();
     }

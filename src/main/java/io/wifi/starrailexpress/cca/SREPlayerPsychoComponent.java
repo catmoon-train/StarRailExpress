@@ -48,6 +48,8 @@ public class SREPlayerPsychoComponent implements RoleComponent, ServerTickingCom
     public int type = -1;
     private SREGameWorldComponent gameWorldComponent = null;
     public ItemStack savedItemSlot0 = null;
+    // 本tick内有sync请求，推迟到该玩家serverTick统一发包，把同tick内的重复广播合并成一次
+    private boolean syncPending = false;
 
     public SREPlayerPsychoComponent(Player player) {
         this.player = player;
@@ -66,6 +68,18 @@ public class SREPlayerPsychoComponent implements RoleComponent, ServerTickingCom
     }
 
     public void sync() {
+        if (this.player.level().isClientSide)
+            return;
+        this.syncPending = true;
+    }
+
+    /**
+     * 服务端tick开头统一把本tick内积累的同步请求发出，避免同一tick内重复全服广播。
+     */
+    private void flushPendingSync() {
+        if (!this.syncPending)
+            return;
+        this.syncPending = false;
         KEY.sync(this.player);
     }
 
@@ -120,6 +134,7 @@ public class SREPlayerPsychoComponent implements RoleComponent, ServerTickingCom
 
     @Override
     public void serverTick() {
+        flushPendingSync();
         if (!checkIsGameRunning()) {
             if (this.psychoTicks > 0) {
                 this.stopPsycho();

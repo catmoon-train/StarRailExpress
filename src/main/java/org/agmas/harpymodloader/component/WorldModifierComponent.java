@@ -15,12 +15,15 @@
 
 package org.agmas.harpymodloader.component;
 
+import net.fabricmc.api.EnvType;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.NbtUtils;
 import net.minecraft.nbt.Tag;
+import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import org.agmas.harpymodloader.Harpymodloader;
@@ -32,6 +35,7 @@ import org.ladysnake.cca.api.v3.component.ComponentRegistry;
 import org.ladysnake.cca.api.v3.component.sync.AutoSyncedComponent;
 import org.ladysnake.cca.api.v3.component.tick.ClientTickingComponent;
 import org.ladysnake.cca.api.v3.component.tick.ServerTickingComponent;
+import org.ladysnake.cca.api.v3.util.CheckEnvironment;
 
 import java.util.*;
 
@@ -39,8 +43,20 @@ public class WorldModifierComponent implements AutoSyncedComponent, ServerTickin
     public static final ComponentKey<WorldModifierComponent> KEY = ComponentRegistry
             .getOrCreate(ResourceLocation.fromNamespaceAndPath(Harpymodloader.MOD_ID, "modifier"),
                     WorldModifierComponent.class);
+
+    // 同步包类型：FULL=全量快照（新玩家加入/重生/换维度时由 CCA 触发），DIFF=差异（仅变更过的玩家条目）
+    private static final byte MODE_FULL = 0;
+    private static final byte MODE_DIFF = 1;
+
     private final Level world;
     public HashMap<UUID, HashSet<SREModifier>> modifiers = new HashMap<>();
+
+    // 自上次发包以来真正发生过变更的玩家UUID，差异包只包含这些玩家
+    private final Set<UUID> dirtyUuids = new HashSet<>();
+    // 本tick内收到过sync()请求，推迟到serverTick统一发包，把多次广播合并成一次
+    private boolean syncPending = false;
+    // 仅服务端在差异发包期间为true；区分"我们自己的差异同步"与"CCA的新玩家全量同步"
+    private boolean diffMode = false;
 
     public WorldModifierComponent(Level world) {
         this.world = world;
@@ -48,7 +64,31 @@ public class WorldModifierComponent implements AutoSyncedComponent, ServerTickin
 
     @Override
     public void serverTick() {
+        flushPendingDiff();
+    }
 
+    /**
+     * 把本tick内积累的差异统一广播给世界内所有玩家。没有任何改动时不发包。
+     */
+    private void flushPendingDiff() {
+        if (this.world.isClientSide)
+            return;
+        synchronized (this.modifiers) {
+            if (!this.syncPending || this.dirtyUuids.isEmpty()) {
+                this.syncPending = false;
+                return;
+            }
+        }
+        this.diffMode = true;
+        try {
+            KEY.sync(this.world);
+        } finally {
+            this.diffMode = false;
+            synchronized (this.modifiers) {
+                this.dirtyUuids.clear();
+                this.syncPending = false;
+            }
+        }
     }
 
     public boolean isModifier(@NotNull Player player, SREModifier modifier) {
@@ -88,19 +128,34 @@ public class WorldModifierComponent implements AutoSyncedComponent, ServerTickin
     }
 
     public void setModifiers(List<UUID> players, SREModifier modifier) {
-
-        for (UUID player : players) {
-            addModifier(player, modifier);
-            this.sync();
+        if (players.isEmpty())
+            return;
+        synchronized (this.modifiers) {
+            for (UUID player : players) {
+                if (modifier != null && getModifiers(player).add(modifier)) {
+                    this.dirtyUuids.add(player);
+                }
+            }
         }
+        this.sync();
+    }
 
+    /**
+     * 清空整张表并标记所有旧条目待同步删除，替代外部直接操作modifiers字段的clear。
+     * 调用方仍需自行调用sync()。
+     */
+    public void clearAll() {
+        synchronized (this.modifiers) {
+            this.dirtyUuids.addAll(this.modifiers.keySet());
+            this.modifiers.clear();
+        }
     }
 
     public void removeModifier(UUID player, SREModifier modifier, boolean sync) {
         synchronized (this.modifiers) {
-            var pp = getModifiers(player);
-            if (pp != null) {
-                pp.remove(modifier);
+            HashSet<SREModifier> pp = this.modifiers.get(player);
+            if (pp != null && pp.remove(modifier)) {
+                this.dirtyUuids.add(player);
             }
         }
         if (sync)
@@ -116,7 +171,13 @@ public class WorldModifierComponent implements AutoSyncedComponent, ServerTickin
     }
 
     public void addModifier(UUID player, SREModifier modifier, boolean sync) {
-        getModifiers(player).add(modifier);
+        if (modifier == null)
+            return;
+        synchronized (this.modifiers) {
+            if (!getModifiers(player).add(modifier))
+                return; // 没有真正变化，不标记脏
+            this.dirtyUuids.add(player);
+        }
         if (sync)
             this.sync();
     }
@@ -139,10 +200,16 @@ public class WorldModifierComponent implements AutoSyncedComponent, ServerTickin
 
     @Override
     public void readFromNbt(CompoundTag nbtCompound, HolderLookup.Provider wrapperLookup) {
-
-        modifiers.clear();
-        for (SREModifier modifier : HMLModifiers.MODIFIERS) {
-            setModifiers(this.uuidListFromNbt(nbtCompound, modifier.identifier().toString()), modifier);
+        synchronized (this.modifiers) {
+            modifiers.clear();
+            for (SREModifier modifier : HMLModifiers.MODIFIERS) {
+                for (UUID uuid : this.uuidListFromNbt(nbtCompound, modifier.identifier().toString())) {
+                    this.modifiers.computeIfAbsent(uuid, k -> new HashSet<>()).add(modifier);
+                }
+            }
+            // 读档只是填充服务端状态，不广播；新玩家加入时CCA会发送全量快照
+            this.dirtyUuids.clear();
+            this.syncPending = false;
         }
     }
 
@@ -164,8 +231,86 @@ public class WorldModifierComponent implements AutoSyncedComponent, ServerTickin
         }
     }
 
+    /**
+     * 请求一次同步。真正的发包推迟到serverTick执行，同一tick内的多次调用会合并成一次差异广播。
+     */
     public void sync() {
-        KEY.sync(this.world);
+        if (this.world.isClientSide)
+            return;
+        synchronized (this.modifiers) {
+            if (this.dirtyUuids.isEmpty())
+                return;
+            this.syncPending = true;
+        }
+    }
+
+    @Override
+    public void writeSyncPacket(RegistryFriendlyByteBuf buf, ServerPlayer recipient) {
+        synchronized (this.modifiers) {
+            if (this.diffMode) {
+                // 差异：只写自上次发包以来变更过的玩家条目（含清空条目用于通知删除）
+                buf.writeByte(MODE_DIFF);
+                buf.writeVarInt(this.dirtyUuids.size());
+                for (UUID uuid : this.dirtyUuids) {
+                    HashSet<SREModifier> set = this.modifiers.get(uuid);
+                    writeEntry(buf, uuid, set == null ? Collections.emptySet() : set);
+                }
+            } else {
+                // 全量快照：新玩家加入/重生/换维度时由CCA触发，等价于旧版的整表覆盖
+                buf.writeByte(MODE_FULL);
+                int count = 0;
+                for (HashSet<SREModifier> set : this.modifiers.values()) {
+                    if (!set.isEmpty())
+                        count++;
+                }
+                buf.writeVarInt(count);
+                for (Map.Entry<UUID, HashSet<SREModifier>> entry : this.modifiers.entrySet()) {
+                    if (!entry.getValue().isEmpty())
+                        writeEntry(buf, entry.getKey(), entry.getValue());
+                }
+            }
+        }
+    }
+
+    @Override
+    @CheckEnvironment(EnvType.CLIENT)
+    public void applySyncPacket(RegistryFriendlyByteBuf buf) {
+        // 按identifier反查本端注册表；未知identifier（如版本不一致）直接跳过
+        final Map<ResourceLocation, SREModifier> modifiersById = new HashMap<>();
+        for (SREModifier modifier : HMLModifiers.MODIFIERS) {
+            modifiersById.put(modifier.identifier(), modifier);
+        }
+
+        final byte mode = buf.readByte();
+        final int entryCount = buf.readVarInt();
+        if (mode == MODE_FULL) {
+            this.modifiers.clear();
+        }
+        for (int i = 0; i < entryCount; i++) {
+            UUID uuid = buf.readUUID();
+            int modCount = buf.readVarInt();
+            HashSet<SREModifier> set = new HashSet<>();
+            for (int j = 0; j < modCount; j++) {
+                SREModifier modifier = modifiersById.get(buf.readResourceLocation());
+                if (modifier != null) {
+                    set.add(modifier);
+                }
+            }
+            if (set.isEmpty()) {
+                // 空条目 = 该玩家已没有任何modifier，删除键保持与全量覆盖一致
+                this.modifiers.remove(uuid);
+            } else {
+                this.modifiers.put(uuid, set);
+            }
+        }
+    }
+
+    private static void writeEntry(RegistryFriendlyByteBuf buf, UUID uuid, Collection<SREModifier> set) {
+        buf.writeUUID(uuid);
+        buf.writeVarInt(set.size());
+        for (SREModifier modifier : set) {
+            buf.writeResourceLocation(modifier.identifier());
+        }
     }
 
     @Override

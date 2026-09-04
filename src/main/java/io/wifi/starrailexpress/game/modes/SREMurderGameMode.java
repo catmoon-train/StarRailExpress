@@ -221,7 +221,7 @@ public class SREMurderGameMode extends GameMode {
             SREGameWorldComponent gameWorldComponent,
             List<ServerPlayer> players) {
         WorldModifierComponent worldModifierComponent = WorldModifierComponent.KEY.get(serverWorld);
-        worldModifierComponent.getModifiers().clear();
+        worldModifierComponent.clearAll();
 
         // 使用临时映射存储要添加的修饰符，避免在遍历过程中修改数据结构
         Map<UUID, HashSet<SREModifier>> tempModifierAssignments = new HashMap<>();

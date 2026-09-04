@@ -180,7 +180,7 @@ public class GameUtilsCommand {
                 }))))
                 .then(Commands.literal("sync_roles").executes((ctx) -> {
                   ServerLevel level = ctx.getSource().getLevel();
-                  SRERoleWorldComponent.KEY.get(level).sync();
+                  SRERoleWorldComponent.KEY.get(level).forceSyncAll();
 
                   ctx.getSource().sendSuccess(
                       () -> Component.translatable("Successfully sync SRERoleWorldComponent to all players!"),
