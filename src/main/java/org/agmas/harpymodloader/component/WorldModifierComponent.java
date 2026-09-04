@@ -244,6 +244,23 @@ public class WorldModifierComponent implements AutoSyncedComponent, ServerTickin
         }
     }
 
+    /**
+     * 强制把当前整张modifier表全量重发给世界内所有玩家。仅供管理命令/手动校准使用
+     * （sync()在有dirty时走差异，全量重发才能兜底补发）。
+     */
+    public void forceSyncAll() {
+        if (this.world.isClientSide)
+            return;
+        try {
+            KEY.sync(this.world);
+        } finally {
+            synchronized (this.modifiers) {
+                this.dirtyUuids.clear();
+                this.syncPending = false;
+            }
+        }
+    }
+
     @Override
     public void writeSyncPacket(RegistryFriendlyByteBuf buf, ServerPlayer recipient) {
         synchronized (this.modifiers) {

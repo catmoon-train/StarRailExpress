@@ -446,6 +446,9 @@ public class SRERoleWorldComponent implements AutoSyncedComponent, ServerTicking
             SRERole role = this.getRoleFromPath(rolePath);
             if (role != null) {
                 this.roles.put(uuid, role);
+            } else {
+                // 本端无法解析的角色（版本不一致等）：与FULL清表跳过等价，删除键避免残留旧角色
+                this.roles.remove(uuid);
             }
         }
     }

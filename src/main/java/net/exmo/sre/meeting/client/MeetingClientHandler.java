@@ -364,4 +364,8 @@ public final class MeetingClientHandler {
         int bh = 20;
         return new int[] { (w - bw) / 2, h - 70, bw, bh };
     }
+
+    public static void clear() {
+        phase = MeetingManager.PHASE_NONE;
+    }
 }

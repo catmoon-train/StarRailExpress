@@ -73,13 +73,21 @@ public final class MeetingReportClientHandler {
                     reportedBodies = Set.copyOf(payload.reportedBodies());
                 }));
         ClientPlayConnectionEvents.DISCONNECT.register((handler, client) -> {
-            cooldownEndGameTime = 0;
-            bellCooldownUntilTick = 0;
-            reportedBodies = Set.of();
+            clear();
+        });
+        ClientPlayConnectionEvents.JOIN.register((a, b, c) -> {
+            clear();
         });
         ClientTickEvents.END_CLIENT_TICK.register(MeetingReportClientHandler::tick);
         OnRenderRoleName.RENDER_END.register(MeetingReportClientHandler::renderBodyHint);
         OnRenderRoleName.RENDER_END.register(MeetingReportClientHandler::renderBellHint);
+    }
+
+    private static void clear() {
+        cooldownEndGameTime = 0;
+        bellCooldownUntilTick = 0;
+        reportedBodies = Set.of();
+        MeetingClientHandler.clear();
     }
 
     private static void tick(Minecraft client) {
@@ -130,7 +138,7 @@ public final class MeetingReportClientHandler {
 
         Component text;
         int color;
-         {
+        {
             long remain = bellCooldownRemainingTicks(client);
             if (remain > 0) {
                 text = Component.translatable("meeting.sre.report_cooldown.bell", (remain + 19) / 20);
