@@ -77,7 +77,7 @@ public final class MeetingReportServerHandler {
         MeetingManager.tryReportBody(player, body);
     }
 
-    private static void broadcast(ServerLevel serverLevel, long cooldownEndGameTime, long bellCooldownEndGameTime,
+    public static void broadcast(ServerLevel serverLevel, long cooldownEndGameTime, long bellCooldownEndGameTime,
             Collection<UUID> reported) {
         MeetingCooldownS2CPayload payload = new MeetingCooldownS2CPayload(
                 cooldownEndGameTime, bellCooldownEndGameTime, List.copyOf(reported));

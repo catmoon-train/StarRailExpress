@@ -37,6 +37,7 @@ import io.wifi.starrailexpress.event.MeetingStartEvent;
 import io.wifi.starrailexpress.event.MeetingVoteEndEvent;
 import io.wifi.starrailexpress.event.MeetingVoteOutEvent;
 import io.wifi.starrailexpress.event.OnGameEnd;
+import io.wifi.starrailexpress.event.OnGameInitialized;
 import io.wifi.starrailexpress.event.OnGameTrueStarted;
 import io.wifi.starrailexpress.event.OnMeetingStart;
 import io.wifi.starrailexpress.game.GameConstants;
@@ -173,19 +174,21 @@ public final class MeetingManager {
         });
 
         ServerTickEvents.END_SERVER_TICK.register(MeetingManager::tick);
+        OnGameInitialized.EVENT.register((serverLevel) -> {
+            reset();
+        });
         OnGameEnd.EVENT.register((serverLevel, gameWorldComponent) -> {
-            endMeeting(true);
-            reportedBodies.clear();
-            cooldownUntilTick = 0;
-            bellCooldownUntilTick = 0;
-            speakCooldownUntil.clear();
-            resetAllVoteWeights();
+            reset();
         });
         OnGameTrueStarted.EVENT.register((serverLevel) -> {
             long now = serverLevel.getGameTime();
             var areacca = AreasWorldComponent.KEY.get(serverLevel);
             if (areacca.areasSettings != null)
                 bellCooldownUntilTick = now + areacca.areasSettings.bellMeetingStartCooldown * 20L;
+
+            MeetingReportServerHandler.broadcast(serverLevel,
+                    MeetingManager.getCooldownUntilTick(), MeetingManager.getBellCooldownUntilTick(),
+                    MeetingManager.getReportedBodies());
         });
         ServerPlayConnectionEvents.DISCONNECT.register((handler, server) -> {
             UUID uuid = handler.player.getUUID();
@@ -198,6 +201,15 @@ public final class MeetingManager {
         // 会议期间否决一切非投票死亡（forceKill 除外）
         AllowPlayerDeath.EVENT.register((player, deathReason) -> !isActive());
         AllowPlayerDeathWithKiller.EVENT.register((victim, killer, deathReason) -> !isActive());
+    }
+
+    public static void reset() {
+        endMeeting(true);
+        reportedBodies.clear();
+        cooldownUntilTick = 0;
+        bellCooldownUntilTick = 0;
+        speakCooldownUntil.clear();
+        resetAllVoteWeights();
     }
 
     public static boolean isActive() {

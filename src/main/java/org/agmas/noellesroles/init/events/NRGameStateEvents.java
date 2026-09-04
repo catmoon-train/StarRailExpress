@@ -269,13 +269,13 @@ public class NRGameStateEvents {
                                         .withStyle(ChatFormatting.GREEN)));
 
                         meetingResultMsg.append("\n").append(Component.translatable("meeting.sre.entry.processor",
-                                Component.translatable("meeting.sre.bell_meeting").withStyle(ChatFormatting.AQUA),
+                                Component.translatable("meeting.sre.bell_meeting").withStyle(ChatFormatting.YELLOW),
                                 getProcessorType(areacca.areasSettings, true))
                                 .withStyle(ChatFormatting.GREEN));
                     }
                     if (meetingType != null) {
                         final var entryMeetingMessage = Component.translatable("meeting.sre.start_game_broadcast",
-                                Component.translatable(areacca.mapDisplayName).withStyle(ChatFormatting.AQUA),
+                                Component.translatable(areacca.mapDisplayName).withStyle(ChatFormatting.GREEN),
                                 meetingType, meetingResultMsg,
                                 startCooldownMsg).withStyle(ChatFormatting.GOLD);
                         for (var p : serverLevel.players()) {
