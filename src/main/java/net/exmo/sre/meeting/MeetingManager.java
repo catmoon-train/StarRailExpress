@@ -570,15 +570,18 @@ public final class MeetingManager {
     private static void skipMeeting(ServerLevel serverLevel) {
         skipVoters.clear();
         AreasSettings settings = settings(serverLevel);
-        boolean hasMeeting = settings.meetingVoteEnabled;
-        if (emergencyMeeting.get()) {
-            if (settings.emergencyMeetingVoteEnabled == TrueFalseResult.TRUE) {
-                hasMeeting = true;
-            } else if (settings.emergencyMeetingVoteEnabled == TrueFalseResult.FALSE) {
-                hasMeeting = false;
+        boolean hasMeeting = false;
+        if (settings != null) {
+            hasMeeting = settings.meetingVoteEnabled;
+            if (emergencyMeeting.get()) {
+                if (settings.emergencyMeetingVoteEnabled == TrueFalseResult.TRUE) {
+                    hasMeeting = true;
+                } else if (settings.emergencyMeetingVoteEnabled == TrueFalseResult.FALSE) {
+                    hasMeeting = false;
+                }
             }
         }
-        if (settings != null && hasMeeting) {
+        if (hasMeeting) {
             startVotingPhase(serverLevel);
         } else {
             endMeeting(false);
@@ -677,8 +680,19 @@ public final class MeetingManager {
                 broadcastState(serverLevel);
             }
             if (now >= phaseEndTick) {
-                AreasSettings s = settings(serverLevel);
-                if (s != null && s.meetingVoteEnabled) {
+                AreasSettings settings = settings(serverLevel);
+                boolean hasMeeting = false;
+                if (settings != null) {
+                    hasMeeting = settings.meetingVoteEnabled;
+                    if (emergencyMeeting.get()) {
+                        if (settings.emergencyMeetingVoteEnabled == TrueFalseResult.TRUE) {
+                            hasMeeting = true;
+                        } else if (settings.emergencyMeetingVoteEnabled == TrueFalseResult.FALSE) {
+                            hasMeeting = false;
+                        }
+                    }
+                }
+                if (hasMeeting) {
                     startVotingPhase(serverLevel);
                 } else {
                     endMeeting(false);

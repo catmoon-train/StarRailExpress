@@ -26,6 +26,7 @@ import io.wifi.starrailexpress.cca.AreasWorldComponent;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.game.data.MapStatusBarType;
 import io.wifi.starrailexpress.game.roles.SpecialGameModeRoles;
+import io.wifi.starrailexpress.util.TrueFalseResult;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -550,7 +551,8 @@ public class InitModRolesMax {
             case MEETING_VOTE -> {
                 var areas = AreasWorldComponent.KEY.get(serverLevel);
                 yield areas != null && areas.areasSettings.meetingEnabled
-                        && areas.areasSettings.meetingVoteEnabled;
+                        && (areas.areasSettings.meetingVoteEnabled
+                                || areas.areasSettings.emergencyMeetingVoteEnabled == (TrueFalseResult.TRUE));
             }
             case MINIGAME_QUEST -> {
                 var areas = AreasWorldComponent.KEY.get(serverLevel);
