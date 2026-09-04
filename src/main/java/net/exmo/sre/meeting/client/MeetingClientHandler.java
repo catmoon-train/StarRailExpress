@@ -41,6 +41,7 @@ import org.agmas.noellesroles.client.NoellesrolesClient;
 import org.agmas.noellesroles.init.ModEffects;
 import org.lwjgl.glfw.GLFW;
 
+import io.wifi.starrailexpress.api.AreasSettings.VoteResultProcessor;
 import io.wifi.starrailexpress.client.SREClient;
 
 import java.util.ArrayList;
@@ -167,9 +168,16 @@ public final class MeetingClientHandler {
         if (SREClient.areaComponent == null)
             return;
         String expelled = payload.expelledPlayerName();
+        VoteResultProcessor processorType = SREClient.areaComponent.areasSettings.meetingVoteProcessor;
+        boolean emergency = payload.emergency();
+        if (emergency) {
+            if (SREClient.areaComponent.areasSettings.emergencyMeetingVoteProcessor != VoteResultProcessor.DEFAULT) {
+                processorType = SREClient.areaComponent.areasSettings.emergencyMeetingVoteProcessor;
+            }
+        }
         Component title = expelled.isEmpty()
                 ? Component.translatable("meeting.vote.result.none_expelled")
-                : switch (SREClient.areaComponent.areasSettings.meetingVoteProcessor) {
+                : switch (processorType) {
                     case GLOWING -> Component.translatable("meeting.vote.result.glowing", expelled);
                     default -> Component.translatable("meeting.vote.result.expelled", expelled);
                 };

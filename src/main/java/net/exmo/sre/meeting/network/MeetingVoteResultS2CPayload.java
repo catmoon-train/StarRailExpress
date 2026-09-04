@@ -31,7 +31,7 @@ import static io.wifi.starrailexpress.SRE.MOD_ID;
  * @param expelledPlayerName 被驱逐的玩家名（无人被驱逐时为空字符串）
  * @param voteEntries        投票结果列表（玩家名 → 票数）
  */
-public record MeetingVoteResultS2CPayload(String expelledPlayerName,
+public record MeetingVoteResultS2CPayload(String expelledPlayerName, boolean emergency,
         List<VoteEntry> voteEntries) implements CustomPacketPayload {
 
     public static final Type<MeetingVoteResultS2CPayload> ID = new Type<>(
@@ -40,6 +40,7 @@ public record MeetingVoteResultS2CPayload(String expelledPlayerName,
     public static final StreamCodec<RegistryFriendlyByteBuf, MeetingVoteResultS2CPayload> CODEC = StreamCodec.of(
             (buf, payload) -> {
                 buf.writeUtf(payload.expelledPlayerName);
+                buf.writeBoolean(payload.emergency);
                 buf.writeVarInt(payload.voteEntries.size());
                 for (VoteEntry entry : payload.voteEntries) {
                     buf.writeUtf(entry.playerName);
@@ -48,12 +49,13 @@ public record MeetingVoteResultS2CPayload(String expelledPlayerName,
             },
             buf -> {
                 String expelledName = buf.readUtf();
+                boolean emergency = buf.readBoolean();
                 int size = buf.readVarInt();
                 List<VoteEntry> entries = new ArrayList<>(size);
                 for (int i = 0; i < size; i++) {
                     entries.add(new VoteEntry(buf.readUtf(), buf.readVarInt()));
                 }
-                return new MeetingVoteResultS2CPayload(expelledName, entries);
+                return new MeetingVoteResultS2CPayload(expelledName, emergency, entries);
             });
 
     @Override

@@ -16,6 +16,7 @@
 package org.agmas.noellesroles.init.events;
 
 import io.wifi.starrailexpress.SRE;
+import io.wifi.starrailexpress.api.AreasSettings;
 import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.cca.AreasWorldComponent;
 import io.wifi.starrailexpress.cca.SREGameRoundEndComponent;
@@ -25,6 +26,7 @@ import io.wifi.starrailexpress.game.GameUtils;
 import io.wifi.starrailexpress.game.ServerTaskInfoClasses;
 import io.wifi.starrailexpress.index.TMMItems;
 import io.wifi.starrailexpress.network.RemoveStatusBarPayload;
+import io.wifi.starrailexpress.util.TrueFalseResult;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
@@ -243,28 +245,39 @@ public class NRGameStateEvents {
             if (areacca.areasSettings != null) {
                 if (areacca.areasSettings.meetingEnabled) {
                     Component meetingType = null;
-                    MutableComponent extraMsg = Component.literal("").withStyle(ChatFormatting.GOLD);
+                    MutableComponent meetingResultMsg = Component.literal("").withStyle(ChatFormatting.GOLD);
+                    MutableComponent startCooldownMsg = Component.literal("").withStyle(ChatFormatting.GOLD);
                     if (areacca.areasSettings.bodyMeetingEnabled) {
                         meetingType = Component.translatable("meeting.sre.body_meeting");
-                        extraMsg.append("\n").append(Component.translatable("meeting.sre.is_comming",
+                        startCooldownMsg.append("\n").append(Component.translatable("meeting.sre.entry.is_comming",
                                 Component.translatable("meeting.sre.body_meeting").withStyle(ChatFormatting.AQUA),
                                 Component.literal(String.format("%d", areacca.areasSettings.meetingStartCooldown))
                                         .withStyle(ChatFormatting.GREEN)));
+                        meetingResultMsg.append("\n").append(Component.translatable("meeting.sre.entry.processor",
+                                Component.translatable("meeting.sre.body_meeting").withStyle(ChatFormatting.AQUA),
+                                getProcessorType(areacca.areasSettings, false))
+                                .withStyle(ChatFormatting.GREEN));
+
                     }
                     if (areacca.areasSettings.bellMeetingEnabled) {
                         meetingType = meetingType == null ? Component.translatable("meeting.sre.body_meeting")
-                                : Component.translatable("meeting.sre.and", meetingType,
-                                        Component.translatable("meeting.sre.body_meeting"));
-                        extraMsg.append("\n").append(Component.translatable("meeting.sre.is_comming",
+                                : Component.translatable("meeting.sre.entry.and", meetingType,
+                                        Component.translatable("meeting.sre.bell_meeting"));
+                        startCooldownMsg.append("\n").append(Component.translatable("meeting.sre.entry.is_comming",
                                 Component.translatable("meeting.sre.bell_meeting").withStyle(ChatFormatting.YELLOW),
                                 Component.literal(String.format("%d", areacca.areasSettings.bellMeetingStartCooldown))
                                         .withStyle(ChatFormatting.GREEN)));
+
+                        meetingResultMsg.append("\n").append(Component.translatable("meeting.sre.entry.processor",
+                                Component.translatable("meeting.sre.bell_meeting").withStyle(ChatFormatting.AQUA),
+                                getProcessorType(areacca.areasSettings, true))
+                                .withStyle(ChatFormatting.GREEN));
                     }
                     if (meetingType != null) {
                         final var entryMeetingMessage = Component.translatable("meeting.sre.start_game_broadcast",
                                 Component.translatable(areacca.mapDisplayName).withStyle(ChatFormatting.AQUA),
-                                meetingType,
-                                extraMsg).withStyle(ChatFormatting.GOLD);
+                                meetingType, meetingResultMsg,
+                                startCooldownMsg).withStyle(ChatFormatting.GOLD);
                         for (var p : serverLevel.players()) {
                             BroadcastCommand.BroadcastMessage(p, entryMeetingMessage);
                         }
@@ -428,6 +441,59 @@ public class NRGameStateEvents {
     }
 
     // --- ServerLifecycleEvents ---
+
+    private static Component getProcessorType(AreasSettings areasSettings, boolean emergency) {
+        boolean noVote = false;
+        var result = Component.translatable("meeting.sre.entry.kill");
+        if (!areasSettings.meetingVoteEnabled) {
+            result = Component.translatable("meeting.sre.entry.no_vote");
+            noVote = true;
+        } else {
+            switch (areasSettings.meetingVoteProcessor) {
+                case DEFAULT:
+                case FORCE_KILL:
+                case KILL:
+                    result = Component.translatable("meeting.sre.entry.kill");
+                    break;
+                case FUNCTION:
+                    result = Component.translatable("meeting.sre.entry.custom");
+                    break;
+                case GLOWING:
+                    result = Component.translatable("meeting.sre.entry.glow");
+                    break;
+                default:
+                    result = Component.translatable("meeting.sre.entry.custom");
+                    break;
+            }
+        }
+        if (emergency) {
+            if (areasSettings.emergencyMeetingVoteEnabled == TrueFalseResult.FALSE) {
+                result = Component.translatable("meeting.sre.entry.no_vote");
+            } else if (areasSettings.emergencyMeetingVoteEnabled == TrueFalseResult.PASS) {
+                if (noVote) {
+                    return result;
+                }
+            }
+            {
+                switch (areasSettings.emergencyMeetingVoteProcessor) {
+                    case FORCE_KILL:
+                    case KILL:
+                        result = Component.translatable("meeting.sre.entry.kill");
+                        break;
+                    case FUNCTION:
+                        result = Component.translatable("meeting.sre.entry.custom");
+                        break;
+                    case GLOWING:
+                        result = Component.translatable("meeting.sre.entry.glow");
+                        break;
+                    case DEFAULT:
+                    default:
+                        break;
+                }
+            }
+        }
+        return result;
+    }
 
     private static void registerServerLifecycle() {
         ServerLifecycleEvents.SERVER_STARTED.register((server) -> {

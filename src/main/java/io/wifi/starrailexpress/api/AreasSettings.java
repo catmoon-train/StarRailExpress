@@ -22,6 +22,7 @@ import io.wifi.ConfigCompact.annotation.ConfigSync;
 import io.wifi.starrailexpress.api.AreasSettingUtils.StoreableAABB;
 import io.wifi.starrailexpress.api.AreasSettingUtils.StoreableVec3;
 import io.wifi.starrailexpress.game.data.MapStatusBarType;
+import io.wifi.starrailexpress.util.TrueFalseResult;
 
 /**
  * <b>AreasWorldComponent 其他地图设置</b><br/>
@@ -101,7 +102,8 @@ public class AreasSettings {
 
     /** 背景音效类型：train/wind/sand_storm/snow_storm/circus。空字符串或未设置时默认 train。 */
     public static enum BackgroundAmbienceSound {
-        none, train, wind, sand_storm, snow_storm, circus, flower_sea, indoor_music,unwelcome_school,zenrianbanka,sakura_moyu, custom
+        none, train, wind, sand_storm, snow_storm, circus, flower_sea, indoor_music, unwelcome_school, zenrianbanka,
+        sakura_moyu, custom
     }
 
     // ==================== map ====================
@@ -248,12 +250,16 @@ public class AreasSettings {
     /** 尸体会议不显示上报人 */
     @Category("meeting")
     public boolean meetingNoReporter = false;
+    @Category("meeting")
+    public TrueFalseResult emergencyMeetingNoReporter = TrueFalseResult.PASS;
 
     @Category("meeting")
     public boolean meetingVoteEnabled = false;
+    @Category("meeting")
+    public TrueFalseResult emergencyMeetingVoteEnabled = TrueFalseResult.PASS;
 
     public enum VoteResultProcessor {
-        KILL, FORCE_KILL, GLOWING, FUNCTION
+        KILL, FORCE_KILL, GLOWING, FUNCTION, DEFAULT
     }
 
     @Category("meeting")
@@ -264,6 +270,16 @@ public class AreasSettings {
 
     @Category("meeting")
     public String meetingVoteProcessorFunction = "sre:meeting_vote_result";
+
+    // 紧急会议和摇铃会议的处理方法。
+    @Category("meeting")
+    public VoteResultProcessor emergencyMeetingVoteProcessor = VoteResultProcessor.DEFAULT;
+
+    @Category("meeting")
+    public int emergencyMeetingVoteProcessorGlowingTime = 60;
+
+    @Category("meeting")
+    public String emergencyMeetingVoteProcessorFunction = "";
 
     /** 这个class里有可以存储的Vec3不用的AI是真的逊。 */
     @Category("meeting")

@@ -18,6 +18,7 @@ package net.exmo.sre.meeting;
 import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.SREConfig;
 import io.wifi.starrailexpress.api.AreasSettings;
+import io.wifi.starrailexpress.api.AreasSettings.VoteResultProcessor;
 import io.wifi.starrailexpress.api.replay.GameReplayUtils;
 import io.wifi.starrailexpress.cca.AreasWorldComponent;
 import io.wifi.starrailexpress.cca.SREGameTimeComponent;
@@ -81,6 +82,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
 
 /**
@@ -104,13 +106,14 @@ public final class MeetingManager {
     public static ResourceLocation DATA_STORAGE_ID = SRE.id("meeting_vote_results");
     /** 开场运镜时长（tick）。 */
     public static final int INTRO_TICKS = 70;
-
     public static final int PHASE_NONE = 0;
     public static final int PHASE_INTRO = 1;
     public static final int PHASE_DISCUSS = 2;
     public static final int PHASE_VOTE = 3;
     /** 投票阶段默认时长（秒） */
     public static final int VOTE_DURATION_SECONDS = 30;
+    /** 是否是紧急会议 */
+    public static final AtomicBoolean emergencyMeeting = new AtomicBoolean(false);
 
     private record ReturnPos(double x, double y, double z, float yaw, float pitch) {
     }
@@ -358,10 +361,20 @@ public final class MeetingManager {
         phase = PHASE_INTRO;
         phaseEndTick = now + INTRO_TICKS;
         center = new Vec3(settings.meetingPosition.x, settings.meetingPosition.y, settings.meetingPosition.z);
-        if (settings.meetingNoReporter) {
-            reporterName = "meeting.sre.subtitle.a_player";
-        } else {
-            reporterName = reporter.getGameProfile().getName();
+        reporterName = null;
+        if (emergency) {
+            if (settings.emergencyMeetingNoReporter.equals(TrueFalseResult.TRUE)) {
+                reporterName = "meeting.sre.subtitle.a_player";
+            } else if (settings.emergencyMeetingNoReporter.equals(TrueFalseResult.FALSE)) {
+                reporterName = reporter.getGameProfile().getName();
+            }
+        }
+        if (reporterName == null) {
+            if (settings.meetingNoReporter) {
+                reporterName = "meeting.sre.subtitle.a_player";
+            } else {
+                reporterName = reporter.getGameProfile().getName();
+            }
         }
         victimName = victim == null ? "" : victim;
         participants.clear();
@@ -370,6 +383,8 @@ public final class MeetingManager {
         manualSpeakers.clear();
         speakCooldownUntil.clear();
         lastSyncedSpeakers = List.of();
+
+        emergencyMeeting.set(emergency);
 
         List<ServerPlayer> alive = new ArrayList<>(serverLevel.getServer().getPlayerList().getPlayers()).stream()
                 .filter(GameUtils::isPlayerAliveAndSurvival)
@@ -542,7 +557,15 @@ public final class MeetingManager {
     private static void skipMeeting(ServerLevel serverLevel) {
         skipVoters.clear();
         AreasSettings settings = settings(serverLevel);
-        if (settings != null && settings.meetingVoteEnabled) {
+        boolean hasMeeting = settings.meetingVoteEnabled;
+        if (emergencyMeeting.get()) {
+            if (settings.emergencyMeetingVoteEnabled == TrueFalseResult.TRUE) {
+                hasMeeting = true;
+            } else if (settings.emergencyMeetingVoteEnabled == TrueFalseResult.FALSE) {
+                hasMeeting = false;
+            }
+        }
+        if (settings != null && hasMeeting) {
             startVotingPhase(serverLevel);
         } else {
             endMeeting(false);
@@ -817,7 +840,13 @@ public final class MeetingManager {
                             final var areaCCA = AreasWorldComponent.getInstance(serverLevel);
                             final AreasSettings areasSettings = areaCCA.areasSettings;
                             if (MeetingVoteOutEvent.EVENT.invoker().onVoteOut(serverLevel, target)) {
-                                switch (areasSettings.meetingVoteProcessor) {
+                                VoteResultProcessor processor = areasSettings.meetingVoteProcessor;
+                                if (emergencyMeeting.get()) {
+                                    if (areasSettings.emergencyMeetingVoteProcessor != VoteResultProcessor.DEFAULT) {
+                                        processor = areasSettings.emergencyMeetingVoteProcessor;
+                                    }
+                                }
+                                switch (processor) {
                                     case FUNCTION: {
                                         var tag = new CompoundTag();
                                         var tag_results = new CompoundTag();
@@ -845,9 +874,14 @@ public final class MeetingManager {
                                             tag.put("tops", tag_top_results);
                                         }
                                         serverLevel.getServer().getCommandStorage().set(DATA_STORAGE_ID, tag);
-
-                                        if (areasSettings.meetingVoteProcessorFunction != null
-                                                && !areasSettings.meetingVoteProcessorFunction.isBlank())
+                                        String func = areasSettings.meetingVoteProcessorFunction;
+                                        if (emergencyMeeting.get()
+                                                && areasSettings.emergencyMeetingVoteProcessorFunction != null
+                                                && !areasSettings.emergencyMeetingVoteProcessorFunction.isBlank()) {
+                                            func = areasSettings.emergencyMeetingVoteProcessorFunction;
+                                        }
+                                        if (func != null
+                                                && !func.isBlank())
                                             GameUtils.executeFunction(serverLevel.getServer(),
                                                     SREConfig.instance().meetingVoteProcessorFunctionPermission,
                                                     areasSettings.meetingVoteProcessorFunction);
@@ -855,9 +889,13 @@ public final class MeetingManager {
                                         break;
                                     case GLOWING:
                                         target.addEffect(ModEffects.of(MobEffects.GLOWING,
-                                                areasSettings.meetingVoteProcessorGlowingTime * 20, 1, false, true,
+                                                emergencyMeeting.get()
+                                                        ? areasSettings.emergencyMeetingVoteProcessorGlowingTime * 20
+                                                        : areasSettings.meetingVoteProcessorGlowingTime * 20,
+                                                1, false, true,
                                                 true));
                                         break;
+                                    case DEFAULT:
                                     case KILL:
                                         GameUtils.killPlayer(target, false, null,
                                                 GameConstants.DeathReasons.VOTED_OUT);
@@ -886,7 +924,8 @@ public final class MeetingManager {
             }
 
             // 广播投票结果给所有玩家
-            MeetingVoteResultS2CPayload resultPayload = new MeetingVoteResultS2CPayload(expelledName, entries);
+            MeetingVoteResultS2CPayload resultPayload = new MeetingVoteResultS2CPayload(expelledName,
+                    emergencyMeeting.get(), entries);
             for (ServerPlayer player : serverLevel.getServer().getPlayerList().getPlayers()) {
                 ServerPlayNetworking.send(player, resultPayload);
             }
