@@ -15,7 +15,6 @@
 
 package io.wifi.starrailexpress.cca;
 
-import io.wifi.starrailexpress.PlayerJoinUtils;
 import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.api.AreasSettings.BackgroundAmbienceSound;
 import io.wifi.starrailexpress.event.OnGameServerTick;
@@ -828,7 +827,9 @@ public class SREGameWorldComponent implements AutoSyncedComponent, ServerTicking
                             playerEnvironmentDetection(player, areas, this);
                         }
                         if (world.getGameTime() % 40 == 0) {
-                            if (PlayerJoinUtils.isPlayerPositionInLobby(player, true)) {
+                            if (GameUtils.isPlayerInLobby(player)) {
+                                SRE.LOGGER.info("Found a wrong player in lobby. Send it back to its houses: {}",
+                                        player.getScoreboardName());
                                 GameUtils.teleportBackToRoom(player);
                                 player.displayClientMessage(
                                         Component.translatable("message.noellesroles.commands.stuck.success"), true);

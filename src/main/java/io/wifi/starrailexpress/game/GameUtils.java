@@ -595,7 +595,8 @@ public class GameUtils {
             clearForcedReadyPlayers();
             for (ServerPlayer player : players) {
                 player.displayClientMessage(
-                        Component.translatable("game.start_error.sre.not_enough_players", gameMode.minPlayerCount), true);
+                        Component.translatable("game.start_error.sre.not_enough_players", gameMode.minPlayerCount),
+                        true);
             }
             isStartingGame = false;
         }
@@ -1679,5 +1680,17 @@ public class GameUtils {
 
     public static long getTicksFromGameStart(Level world) {
         return SREGameTimeComponent.KEY.get(world).getTicksFromGameStart();
+    }
+
+    public static boolean isPlayerInLobby(ServerPlayer player) {
+        final ServerLevel serverWorld = player.serverLevel();
+        Vec3 playerPos = player.position();
+        BlockPos spawn = serverWorld.getSharedSpawnPos();
+        if (spawn.getX() - 200 < playerPos.x && playerPos.x < spawn.getX() + 200) {
+            if (spawn.getZ() - 200 < playerPos.z && playerPos.z < spawn.getZ() + 200) {
+                return true;
+            }
+        }
+        return false;
     }
 }

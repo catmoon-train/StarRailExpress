@@ -100,7 +100,7 @@ public class PlayerJoinUtils {
                 ServerPlayer player = server.getPlayerList().getPlayer(uuid);
                 if (player != null) {
                     // 检查位置是否合法，不合法则传回出生点
-                    if (!isPlayerPositionInLobby(player, false)) {
+                    if (!isPlayerPositionRight(player)) {
                         adjustPlayerPosition(player);
                     }
                 }
@@ -115,7 +115,7 @@ public class PlayerJoinUtils {
      * @param player 待检查的玩家
      * @return
      */
-    public static boolean isPlayerPositionInLobby(ServerPlayer player, boolean ignoreStartGame) {
+    public static boolean isPlayerPositionRight(ServerPlayer player) {
         Vec3 playerPos = player.position();
         final var gameWorldComponent = SREGameWorldComponent.KEY.get(player.level());
 
@@ -126,7 +126,7 @@ public class PlayerJoinUtils {
         // ServerPlayNetworking.send(serverPlayer, new ShowSelectedMapUIPayload(true));
         // }
         // }
-        if (!ignoreStartGame && gameWorldComponent.getGameStatus() == GameStatus.ACTIVE) {
+        if (gameWorldComponent.getGameStatus() == GameStatus.ACTIVE) {
             if (player.isSpectator())
                 return true;
             return false;
