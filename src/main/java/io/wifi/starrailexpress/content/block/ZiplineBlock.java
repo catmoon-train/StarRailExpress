@@ -16,6 +16,7 @@
 package io.wifi.starrailexpress.content.block;
 
 import io.wifi.starrailexpress.api.SRERole;
+import io.wifi.starrailexpress.api.TMMRoles;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.content.block_entity.ZiplineBlockEntity;
 import io.wifi.starrailexpress.content.entity.ZiplineRiderEntity;
@@ -67,7 +68,7 @@ public class ZiplineBlock extends Block implements EntityBlock {
     private static final int MAX_ZIPLINE_RANGE = 25;
     /** 绑定工具手动连线的最大距离，可跨高度、可斜拉 */
     public static final int MAX_LINK_DISTANCE = 64;
-    /** 上滑索消耗的体力比例（基于体力上限的百分比） */
+    /** 上滑索消耗的体力（基于平民的体力消耗固定值） */
     private static final float RIDE_STAMINA_RATIO = 0.4f;
     private static final double ROPE_HEIGHT = 0.40;
     private static final VoxelShape CENTER_SHAPE = Block.box(6.5, 5.5, 6.5, 9.5, 8.5, 9.5);
@@ -120,7 +121,7 @@ public class ZiplineBlock extends Block implements EntityBlock {
      */
     @Override
     public void setPlacedBy(Level level, BlockPos pos, BlockState state, @Nullable LivingEntity placer,
-                           ItemStack stack) {
+            ItemStack stack) {
         super.setPlacedBy(level, pos, state, placer, stack);
         if (!level.isClientSide) {
             rescanRoute(level, pos);
@@ -278,14 +279,19 @@ public class ZiplineBlock extends Block implements EntityBlock {
         for (BlockPos connected : connections) {
             int dx = connected.getX() - pos.getX();
             int dz = connected.getZ() - pos.getZ();
-            if (dx == 0 && dz == 0) continue;
+            if (dx == 0 && dz == 0)
+                continue;
             // 斜拉的连接取水平分量更大的那一侧出杆
             if (Math.abs(dx) >= Math.abs(dz)) {
-                if (dx > 0) east = true;
-                else west = true;
+                if (dx > 0)
+                    east = true;
+                else
+                    west = true;
             } else {
-                if (dz > 0) south = true;
-                else north = true;
+                if (dz > 0)
+                    south = true;
+                else
+                    north = true;
             }
         }
         return state.setValue(NORTH, north).setValue(EAST, east).setValue(SOUTH, south).setValue(WEST, west);
@@ -294,10 +300,14 @@ public class ZiplineBlock extends Block implements EntityBlock {
     @Override
     public VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
         VoxelShape shape = CENTER_SHAPE;
-        if (state.getValue(NORTH)) shape = Shapes.or(shape, NORTH_SHAPE);
-        if (state.getValue(EAST)) shape = Shapes.or(shape, EAST_SHAPE);
-        if (state.getValue(SOUTH)) shape = Shapes.or(shape, SOUTH_SHAPE);
-        if (state.getValue(WEST)) shape = Shapes.or(shape, WEST_SHAPE);
+        if (state.getValue(NORTH))
+            shape = Shapes.or(shape, NORTH_SHAPE);
+        if (state.getValue(EAST))
+            shape = Shapes.or(shape, EAST_SHAPE);
+        if (state.getValue(SOUTH))
+            shape = Shapes.or(shape, SOUTH_SHAPE);
+        if (state.getValue(WEST))
+            shape = Shapes.or(shape, WEST_SHAPE);
         return shape;
     }
 
@@ -316,7 +326,7 @@ public class ZiplineBlock extends Block implements EntityBlock {
 
     @Override
     protected ItemInteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos,
-                                              Player player, InteractionHand hand, BlockHitResult hit) {
+            Player player, InteractionHand hand, BlockHitResult hit) {
         // 让方块本身放行：滑索方块交给放置逻辑，绑定工具交给 BindingToolItem.useOn
         if (isHoldingZiplineBlock(stack) || stack.getItem() instanceof BindingToolItem) {
             return ItemInteractionResult.SKIP_DEFAULT_BLOCK_INTERACTION;
@@ -329,7 +339,7 @@ public class ZiplineBlock extends Block implements EntityBlock {
 
     @Override
     public InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos,
-                                            Player player, BlockHitResult hit) {
+            Player player, BlockHitResult hit) {
         return tryStartZipline(state, level, pos, player);
     }
 
@@ -411,7 +421,7 @@ public class ZiplineBlock extends Block implements EntityBlock {
         if (role == null) {
             return true;
         }
-        int maxSprintTime = role.getMaxSprintTime(player);
+        int maxSprintTime = Math.min(TMMRoles.CIVILIAN_MAX_SPRINT_TICKS, role.getMaxSprintTime(player));
         if (maxSprintTime < 0 || maxSprintTime == Integer.MAX_VALUE) {
             return true;
         }
@@ -424,7 +434,7 @@ public class ZiplineBlock extends Block implements EntityBlock {
             current = max; // -1 = 尚未初始化，视为满
         }
         current = Math.min(current, max);
-        // 最低体力要求：必须拥有基于体力上限 40% 的体力才允许上滑索
+        // 最低体力要求：必须拥有min(自身上限 40%, 平民上限40%) 的体力才允许上滑索
         float require = max * RIDE_STAMINA_RATIO;
         if (current < require) {
             return false;
@@ -444,8 +454,10 @@ public class ZiplineBlock extends Block implements EntityBlock {
      */
     @Nullable
     private BlockPos selectTarget(Set<BlockPos> connections, BlockPos from, Player player) {
-        if (connections.isEmpty()) return null;
-        if (connections.size() == 1) return connections.iterator().next();
+        if (connections.isEmpty())
+            return null;
+        if (connections.size() == 1)
+            return connections.iterator().next();
 
         Vec3 lookVec = player.getLookAngle();
         Vec3 fromCenter = Vec3.atCenterOf(from);
