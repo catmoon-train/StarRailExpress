@@ -31,7 +31,6 @@ import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
-import org.agmas.noellesroles.handler.TouhouHandlers;
 import org.agmas.noellesroles.init.ModItems;
 import org.agmas.noellesroles.role_data.innocence.AyayayaRoleData;
 import org.agmas.noellesroles.role.touhou.roles.THIbarakiKasenRole;
@@ -211,11 +210,6 @@ public class THMountainRoles {
             .setDefaultEnableNeededPlayerCount(12)
             .setDefaultEnableChance(5000)
             .setAddedVersion("4.4");
-
-    public static void init() {
-        // 强制交易：Nitori
-        TouhouHandlers.register();
-    }
 
     static {
         NITORI.setAddedVersion("4.3");

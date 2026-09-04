@@ -451,8 +451,8 @@ public final class RoleSkill {
         }
         List<Definition> presentSkills = UNIFIED_SKILLS.get(role);
         List<Definition> skills = new ArrayList<>();
-        if (presentSkills != null) {
-            skills.addAll(presentSkills);
+        if (presentSkills != null && !presentSkills.isEmpty()) {
+            SRE.LOGGER.error("The skills of the role {} has already been registered!", role.toString());
         }
         Collections.addAll(skills, definitions);
         validateUniqueIds(role, skills);
