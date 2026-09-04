@@ -43,7 +43,8 @@ import java.util.OptionalInt;
  * <p>
  * 核心机制：当场上存活玩家数量低于开局人数的 25% 时触发「黑警时刻」。
  * 黑警时刻触发后，以触发时在场玩家为基准比较三大阵营（杀手阵营含杀手方中立 /
- * 平民阵营含警长阵营 / 中立阵营不含杀手方中立）的存活数量，取最多者作为黑警的击杀目标阵营。
+ * 平民阵营含警长阵营 / 中立阵营不含杀手方中立）的存活数量，取最多者作为黑警的击杀目标阵营；
+ * 若出现平票，按「杀手 > 中立 > 平民」的优先级选择。
  * 黑警只需击杀完该阵营的所有玩家即可独立获胜；若误杀其它阵营玩家，则黑警因「悔恨自尽」而死。
  */
 public class LicensedVillainRoleData extends SimpleRoleData {
@@ -134,15 +135,14 @@ public class LicensedVillainRoleData extends SimpleRoleData {
             }
         }
 
-        int phase = PHASE_KILLER;
-        int max = killerCount;
-        if (civilianCount > max) {
-            max = civilianCount;
-            phase = PHASE_CIVILIAN;
-        }
-        if (neutralCount > max) {
-            max = neutralCount;
+        // 取数量最多的阵营作为目标；出现平票时按「杀手 > 中立 > 平民」的优先级选择
+        int phase;
+        if (killerCount >= neutralCount && killerCount >= civilianCount) {
+            phase = PHASE_KILLER;
+        } else if (neutralCount >= civilianCount) {
             phase = PHASE_NEUTRAL;
+        } else {
+            phase = PHASE_CIVILIAN;
         }
 
         // 向所有玩家广播「有人会为你们带来迟到的正义」
