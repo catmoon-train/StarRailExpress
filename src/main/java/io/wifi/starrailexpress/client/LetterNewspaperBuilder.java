@@ -3,6 +3,7 @@ package io.wifi.starrailexpress.client;
 import io.wifi.starrailexpress.api.AreasSettings;
 import io.wifi.starrailexpress.cca.AreasWorldComponent;
 import io.wifi.starrailexpress.client.gui.screen.NewspaperScreen;
+import io.wifi.starrailexpress.util.Color;
 import io.wifi.starrailexpress.util.TrueFalseResult;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
@@ -131,7 +132,7 @@ public class LetterNewspaperBuilder {
 
     private static Component buildRoleSection() {
         var role = SREClient.getCachedPlayerRole();
-        Component roleName = RoleUtils.getRoleNameWithColor(role);
+        Component roleName = RoleUtils.getRoleName(role).withColor(new Color(6, 79, 80).getRGB());
         Component clickHint = Component.translatable("sre.letter.tip.body.role.click_to_show")
                 .withStyle(style -> style
                         .withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT,
