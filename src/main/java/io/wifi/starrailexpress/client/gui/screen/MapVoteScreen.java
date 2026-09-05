@@ -14,6 +14,7 @@ import io.wifi.starrailexpress.client.gui.screen.mapui.MapIntroClientCache;
 import io.wifi.starrailexpress.client.gui.screen.mapui.MapUiGraphics;
 import io.wifi.starrailexpress.content.vote.client.VoteFlowFrame;
 import io.wifi.starrailexpress.content.vote.client.VoteFlowTransition;
+import io.wifi.starrailexpress.content.vote.client.VoteModePresentation;
 import io.wifi.starrailexpress.game.data.MapConfig;
 import io.wifi.starrailexpress.network.MapIntroRequestPayload;
 import io.wifi.starrailexpress.network.MapIntroSyncPayload;
@@ -134,45 +135,66 @@ public class MapVoteScreen extends Screen {
         }
         float enter = VoteFlowFrame.ease((System.currentTimeMillis() - selectionChangedAt) / 250.0F);
         int shift = (int) ((1.0F - enter) * 18.0F);
+        int heroAlpha = Math.round(255.0F * enter);
         int left = b.x() + 28 + shift;
         int heroY = b.y() + 68;
+        renderHeroScrim(g, b, heroY - 14, b.y() + b.h() - ROUTE_H - 10);
         Component eyebrow = Component.translatable("gui.sre.map_vote.destination", String.format("%02d", focusIndex + 1));
-        g.drawString(font, eyebrow, left, heroY, VoteFlowFrame.GOLD_DIM, false);
+        g.drawString(font, eyebrow, left, heroY,
+                VoteFlowFrame.withAlpha(VoteFlowFrame.GOLD_DIM, heroAlpha), false);
 
         Component name = Component.literal(row.name()).withStyle(ChatFormatting.BOLD);
-        drawScaled(g, name, left, heroY + 20, 2.0F, VoteFlowFrame.TEXT);
+        drawScaled(g, name, left, heroY + 20, 2.0F,
+                VoteFlowFrame.withAlpha(VoteFlowFrame.TEXT, heroAlpha));
         int underlineY = heroY + 48;
-        g.fill(left, underlineY, Math.min(left + 230, b.x() + b.w() - 28), underlineY + 2,
-                VoteFlowFrame.GOLD);
+        int underlineRight = Math.min(left + Math.round(230.0F * enter), b.x() + b.w() - 28);
+        g.fill(left, underlineY, underlineRight, underlineY + 2,
+                VoteFlowFrame.withAlpha(VoteFlowFrame.GOLD, heroAlpha));
 
         int textY = heroY + 62;
         Component description = row.description();
         for (var line : font.split(description, Math.min(350, b.w() - 64))) {
-            g.drawString(font, line, left, textY, 0xFFD8C9AC, false);
+            g.drawString(font, line, left, textY, VoteFlowFrame.withAlpha(0xFFD8C9AC, heroAlpha), false);
             textY += 14;
         }
         textY += 8;
         MapCapabilitySummary summary = MapCapabilitySummary.forMap(row.id());
         for (Component rule : summary.ruleLines(4)) {
-            g.drawString(font, rule, left, textY, VoteFlowFrame.TEXT, true);
+            g.drawString(font, rule, left, textY, VoteFlowFrame.withAlpha(VoteFlowFrame.TEXT, heroAlpha), true);
             textY += 15;
         }
 
         int metaX = b.x() + b.w() - 190;
         int metaY = heroY + 12;
         g.drawString(font, Component.translatable("gui.sre.map_vote.service_info").withStyle(ChatFormatting.BOLD),
-                metaX, metaY, VoteFlowFrame.GOLD_DIM, false);
+                metaX, metaY, VoteFlowFrame.withAlpha(VoteFlowFrame.GOLD_DIM, heroAlpha), false);
         metaY += 20;
-        g.drawString(font, capacity(row), metaX, metaY, VoteFlowFrame.TEXT, false);
+        g.drawString(font, capacity(row), metaX, metaY,
+                VoteFlowFrame.withAlpha(VoteFlowFrame.TEXT, heroAlpha), false);
         metaY += 15;
         g.drawString(font, Component.translatable("gui.sre.map_vote.mode", modeName()), metaX, metaY,
-                VoteFlowFrame.MUTED, false);
+                VoteFlowFrame.withAlpha(VoteFlowFrame.MUTED, heroAlpha), false);
         metaY += 15;
         g.drawString(font, Component.translatable("gui.sre.map_vote.votes", voteCount(row.id())), metaX, metaY,
-                votedMapId != null && votedMapId.equals(row.id()) ? VoteFlowFrame.GOLD : VoteFlowFrame.MUTED, false);
+                VoteFlowFrame.withAlpha(votedMapId != null && votedMapId.equals(row.id())
+                        ? VoteFlowFrame.GOLD : VoteFlowFrame.MUTED, heroAlpha), false);
         if (votedMapId != null && votedMapId.equals(row.id())) {
             g.drawString(font, Component.translatable("gui.sre.vote_flow.voted").withStyle(ChatFormatting.BOLD),
-                    metaX, metaY + 24, VoteFlowFrame.GOLD, false);
+                    metaX, metaY + 24, VoteFlowFrame.withAlpha(VoteFlowFrame.GOLD, heroAlpha), false);
+        }
+    }
+
+    /** A borderless readability wash: keeps the hero image dominant without nesting another card. */
+    private void renderHeroScrim(GuiGraphics g, VoteFlowFrame.Bounds b, int top, int bottom) {
+        int left = b.x() + 12;
+        int width = Math.min(470, b.w() - 24);
+        int bands = 10;
+        for (int i = 0; i < bands; i++) {
+            int x1 = left + i * width / bands;
+            int x2 = left + (i + 1) * width / bands + 1;
+            float strength = 1.0F - i / (float) bands;
+            g.fill(x1, top, x2, bottom,
+                    VoteFlowFrame.withAlpha(0xFF070503, Math.round(112.0F * strength * strength)));
         }
     }
 
@@ -190,7 +212,12 @@ public class MapVoteScreen extends Screen {
             boolean hover = mouseX >= x && mouseX < x + STATION_W && mouseY >= y && mouseY < y + 60;
             if (hover) hoveredIndex = i;
             int node = focused ? VoteFlowFrame.GOLD : hover ? VoteFlowFrame.GOLD_DIM : 0xFF6A563C;
-            int radius = focused ? 5 : 3;
+            float pulse = 0.5F + 0.5F * (float) Math.sin(System.currentTimeMillis() / 190.0F);
+            int radius = focused ? 5 + Math.round(pulse) : 3;
+            if (focused) {
+                g.fill(x + STATION_W / 2 - 10, y + 11, x + STATION_W / 2 + 11, y + 33,
+                        VoteFlowFrame.withAlpha(VoteFlowFrame.GOLD, 12 + Math.round(pulse * 18.0F)));
+            }
             g.fill(x + STATION_W / 2 - radius, y + 21 - radius, x + STATION_W / 2 + radius + 1,
                     y + 22 + radius, node);
             int labelY = focused ? y + 39 : y + 41;
@@ -207,9 +234,14 @@ public class MapVoteScreen extends Screen {
     }
 
     private void renderResult(GuiGraphics g, VoteFlowFrame.Bounds b) {
-        float t = VoteFlowFrame.ease((System.currentTimeMillis() - resultStartedAt) / 520.0F);
+        long elapsed = System.currentTimeMillis() - resultStartedAt;
+        float t = VoteFlowFrame.ease(elapsed / 520.0F);
         int centerX = width / 2;
         int centerY = height / 2 - 36;
+        int panelAlpha = Math.round(125.0F * t);
+        g.fillGradient(centerX - 210, centerY - 58, centerX + 210, centerY + 112,
+                VoteFlowFrame.withAlpha(0xFF160E07, panelAlpha / 2),
+                VoteFlowFrame.withAlpha(0xFF080604, panelAlpha));
         g.fill(centerX - (int) (150 * t), centerY - 22, centerX + (int) (150 * t), centerY - 20,
                 VoteFlowFrame.GOLD);
         VoteFlowFrame.scaledCentered(g, font,
@@ -219,9 +251,18 @@ public class MapVoteScreen extends Screen {
                 centerX, centerY + 28, 2.25F, VoteFlowFrame.TEXT);
         g.drawCenteredString(font, Component.translatable("gui.sre.map_vote.result_departing"), centerX,
                 centerY + 62, VoteFlowFrame.MUTED);
-        int pulse = 150 + (int) (Math.sin((System.currentTimeMillis() - resultStartedAt) / 180.0) * 65.0);
-        g.fill(centerX - 2, centerY + 83, centerX + 3, centerY + 88,
-                VoteFlowFrame.withAlpha(VoteFlowFrame.GOLD, pulse));
+        int secondsTenths = Math.max(0, (int) Math.ceil((2_500L - elapsed) / 100.0));
+        Component countdown = Component.translatable("gui.sre.map_vote.result_countdown",
+                String.format("%.1f", secondsTenths / 10.0F));
+        g.drawCenteredString(font, countdown, centerX, centerY + 80, VoteFlowFrame.GOLD_DIM);
+        float travel = Mth.clamp(elapsed / 2_500.0F, 0.0F, 1.0F);
+        int railLeft = centerX - 150;
+        int railRight = centerX + 150;
+        g.fill(railLeft, centerY + 101, railRight, centerY + 103, 0x665A4530);
+        g.fill(railLeft, centerY + 101, Math.round(Mth.lerp(travel, railLeft, railRight)), centerY + 103,
+                VoteFlowFrame.GOLD);
+        int trainX = Math.round(Mth.lerp(travel, railLeft, railRight));
+        g.fill(trainX - 3, centerY + 97, trainX + 4, centerY + 106, VoteFlowFrame.GOLD);
     }
 
     @Override
@@ -331,8 +372,9 @@ public class MapVoteScreen extends Screen {
         if (voting == null) return "";
         String mode = voting.getPresetGameMode();
         String path = mode.contains(":") ? mode.substring(mode.indexOf(':') + 1) : mode;
-        return Component.translatableWithFallback("game_mode.noellesroles." + path,
-                Component.translatableWithFallback("game_mode.starrailexpress." + path, path).getString()).getString();
+        Component fallback = Component.translatableWithFallback("game_mode.noellesroles." + path,
+                Component.translatableWithFallback("game_mode.starrailexpress." + path, path).getString());
+        return VoteModePresentation.name(mode, fallback).getString();
     }
 
     private static Component capacity(MapRow row) {

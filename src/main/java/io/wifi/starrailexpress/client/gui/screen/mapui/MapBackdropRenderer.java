@@ -149,11 +149,9 @@ public final class MapBackdropRenderer {
     // ------------------------------------------------------------------
 
     public void renderBackdrop(GuiGraphics g) {
-        if (hasBackgroundTexture) {
-            drawLowPoly(g);
-        } else {
-            g.fill(0, 0, width, height, 0xFF000000);
-        }
+        // The mesh is the stable fallback and also prevents image cross-fades from revealing a black void.
+        g.fill(0, 0, width, height, 0xFF080A0E);
+        drawLowPoly(g);
 
         float openZoom = (1.0f - intro()) * 0.06f;
         if (previousBackgroundId != null) {

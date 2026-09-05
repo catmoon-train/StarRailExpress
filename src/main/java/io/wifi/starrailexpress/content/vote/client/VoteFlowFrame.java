@@ -1,6 +1,7 @@
 package io.wifi.starrailexpress.content.vote.client;
 
 import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.math.Axis;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
@@ -27,9 +28,29 @@ public final class VoteFlowFrame {
         g.fillGradient(0, 0, width, height, BG_TOP, BG_BOTTOM);
         int horizon = Math.max(44, height / 5);
         g.fillGradient(0, horizon, width, height, 0x001A1008, 0x55000000);
+        float time = (System.currentTimeMillis() % 30_000L) / 1000.0F;
+        int drift = Math.round((time * 7.0F) % 28.0F);
         for (int i = 0; i < 5; i++) {
-            int y = horizon + i * Math.max(22, (height - horizon) / 5);
+            int y = horizon + i * Math.max(22, (height - horizon) / 5) + drift;
             g.fill(0, y, width, y + 1, 0x0CFFE8C0);
+        }
+        PoseStack pose = g.pose();
+        pose.pushPose();
+        pose.translate(width / 2.0F, height / 2.0F, 0.0F);
+        pose.mulPose(Axis.ZP.rotationDegrees(-7.0F));
+        pose.translate(-width / 2.0F, -height / 2.0F, 0.0F);
+        int diagonalOffset = Math.round((time * 18.0F) % 116.0F);
+        for (int x = -height; x < width + height; x += 116) {
+            int lineX = x + diagonalOffset;
+            g.fill(lineX, -80, lineX + 1, height + 80, 0x0EFFE1A1);
+        }
+        pose.popPose();
+
+        int signalX = Math.round((time * 32.0F) % Math.max(1, width + 120)) - 60;
+        for (int radius = 30; radius >= 6; radius -= 6) {
+            int alpha = Math.max(2, 15 - radius / 3);
+            g.fill(signalX - radius, horizon - radius / 3, signalX + radius, horizon + radius / 3,
+                    withAlpha(GOLD, alpha));
         }
     }
 
@@ -45,13 +66,18 @@ public final class VoteFlowFrame {
         int left = b.x + 18;
         int right = b.x + b.w - 18;
         int segment = (right - left) / 2;
+        float pulse = 0.5F + 0.5F * (float) Math.sin(System.currentTimeMillis() / 210.0F);
         g.fill(left, y + 7, right, y + 8, 0x665A4530);
         for (int i = 0; i < 3; i++) {
             int x = left + i * segment;
             boolean done = i < activeStep;
             boolean active = i == activeStep;
             int color = done || active ? GOLD : MUTED;
-            g.fill(x - 3, y + 4, x + 4, y + 11, color);
+            int radius = active ? 4 + Math.round(pulse) : 3;
+            if (active) {
+                g.fill(x - 7, y, x + 8, y + 15, withAlpha(GOLD, 18 + Math.round(pulse * 18.0F)));
+            }
+            g.fill(x - radius, y + 7 - radius, x + radius + 1, y + 8 + radius, color);
             if (i < 2 && done) g.fill(x + 4, y + 6, x + segment, y + 9, 0xCCD4AF37);
             Component label = switch (i) {
                 case 0 -> Component.translatable("gui.sre.vote_flow.mode");
@@ -63,6 +89,12 @@ public final class VoteFlowFrame {
             }
             int tx = i == 2 ? x - font.width(label) : x + 8;
             g.drawString(font, label, tx, y - 3, color, false);
+        }
+        if (activeStep < 2) {
+            float travel = (System.currentTimeMillis() % 1_600L) / 1_600.0F;
+            int start = left + activeStep * segment;
+            int marker = Math.round(Mth.lerp(travel, start + 8.0F, start + segment - 8.0F));
+            g.fill(marker - 2, y + 5, marker + 3, y + 10, withAlpha(GOLD, Math.round(190 * (1.0F - travel))));
         }
         if (seconds >= 0) {
             Component timer = Component.translatable("gui.sre.vote_flow.time", seconds)

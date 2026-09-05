@@ -19,6 +19,7 @@ public final class MapIntroClientCache {
     private static final Set<String> AIR_MAPS = new HashSet<>();
     private static final Set<String> TRAP_MAPS = new HashSet<>();
     private static final Set<String> HORSE_MAPS = new HashSet<>();
+    private static long refreshRequestedAt;
 
     private MapIntroClientCache() {}
 
@@ -47,6 +48,16 @@ public final class MapIntroClientCache {
         AIR_MAPS.addAll(payload.airMaps());
         TRAP_MAPS.addAll(payload.trapMaps());
         HORSE_MAPS.addAll(payload.horseMaps());
+        refreshRequestedAt = 0L;
+    }
+
+    public static void beginRefresh() {
+        refreshRequestedAt = System.currentTimeMillis();
+    }
+
+    /** Wait briefly for authoritative metadata, but never strand the opening if an optional packet is lost. */
+    public static boolean isRefreshPending() {
+        return refreshRequestedAt > 0L && System.currentTimeMillis() - refreshRequestedAt < 2_500L;
     }
 
     @Nullable

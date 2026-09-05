@@ -25,20 +25,26 @@ public final class VoteFlowTransition {
 
     public static void render(GuiGraphics g, int width, int height) {
         if (startedAt == 0L) return;
-        float t = (System.currentTimeMillis() - startedAt) / 720.0F;
+        float t = (System.currentTimeMillis() - startedAt) / 920.0F;
         if (t >= 1.0F) {
             startedAt = 0L;
             return;
         }
         float eased = VoteFlowFrame.ease(t);
-        int veil = (int) ((1.0F - eased) * 205.0F);
+        int veil = (int) ((1.0F - eased) * 220.0F);
         g.fill(0, 0, width, height, VoteFlowFrame.withAlpha(0xFF080604, veil));
-        int lineX = Math.round(Mth.lerp(eased, -18.0F, width + 18.0F));
-        g.fill(lineX - 1, 0, lineX + 2, height,
+        int lineX = Math.round(Mth.lerp(eased, -32.0F, width + 32.0F));
+        g.fill(lineX - 14, 0, lineX + 15, height,
+                VoteFlowFrame.withAlpha(0xFF241A0A, (int) (82 * (1.0F - t))));
+        g.fill(lineX - 2, 0, lineX + 3, height,
                 VoteFlowFrame.withAlpha(VoteFlowFrame.GOLD, (int) (230 * (1.0F - t))));
+        int echoX = lineX - 54;
+        g.fill(echoX, 0, echoX + 1, height,
+                VoteFlowFrame.withAlpha(VoteFlowFrame.GOLD_DIM, (int) (100 * (1.0F - t))));
         if (t < 0.58F) {
             Component next = Component.translatable("gui.sre.vote_flow.next_stop");
-            g.drawCenteredString(Minecraft.getInstance().font, next, width / 2, height / 2 - 4,
+            int textY = height / 2 - 4 + Math.round((1.0F - VoteFlowFrame.ease(t / 0.58F)) * 10.0F);
+            g.drawCenteredString(Minecraft.getInstance().font, next, width / 2, textY,
                     VoteFlowFrame.withAlpha(VoteFlowFrame.TEXT, (int) (255 * (1.0F - t / 0.58F))));
         }
     }

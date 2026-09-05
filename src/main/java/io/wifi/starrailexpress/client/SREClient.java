@@ -843,7 +843,10 @@ public class SREClient implements ClientModInitializer {
                         .isVoteResultScreen(context.client().screen)) {
                     context.client().setScreen(null);
                 }
-                io.wifi.starrailexpress.client.gui.OpeningPresentationCoordinator.onGameStarted();
+                // Always refresh map metadata: direct tmm:start must receive the same briefing as tmm:votemap.
+                io.wifi.starrailexpress.client.gui.screen.mapui.MapIntroClientCache.beginRefresh();
+                ClientPlayNetworking.send(new io.wifi.starrailexpress.network.MapIntroRequestPayload());
+                io.wifi.starrailexpress.client.gui.OpeningPresentationCoordinator.onGameStarted(payload.mapId());
             });
             OnGameStartedClient.EVENT.invoker().gameStarted();
         });
@@ -1041,29 +1044,35 @@ public class SREClient implements ClientModInitializer {
 
         // Register HUD rendering for security camera
         HudRenderCallback.EVENT.register((guiGraphics, deltaTick) -> {
-            SecurityCameraHUD.render(guiGraphics, Minecraft.getInstance().getWindow().getGuiScaledWidth(),
-                    Minecraft.getInstance().getWindow().getGuiScaledHeight());
-            SecurityCameraHUD.renderCameraFeed(guiGraphics, Minecraft.getInstance().getWindow().getGuiScaledWidth(),
-                    Minecraft.getInstance().getWindow().getGuiScaledHeight());
-            ScopeOverlayRenderer.renderScopeOverlay(guiGraphics, deltaTick);
-            WaypointHUD.renderHUD(guiGraphics, deltaTick.getRealtimeDeltaTicks());
-            AFKRenderer.renderAFKEffects(guiGraphics, deltaTick.getRealtimeDeltaTicks());
+            boolean suppressGameplayHud = io.wifi.starrailexpress.client.gui.OpeningPresentationCoordinator
+                    .shouldSuppressGameplayHud();
+            if (!suppressGameplayHud) {
+                SecurityCameraHUD.render(guiGraphics, Minecraft.getInstance().getWindow().getGuiScaledWidth(),
+                        Minecraft.getInstance().getWindow().getGuiScaledHeight());
+                SecurityCameraHUD.renderCameraFeed(guiGraphics,
+                        Minecraft.getInstance().getWindow().getGuiScaledWidth(),
+                        Minecraft.getInstance().getWindow().getGuiScaledHeight());
+                ScopeOverlayRenderer.renderScopeOverlay(guiGraphics, deltaTick);
+                WaypointHUD.renderHUD(guiGraphics, deltaTick.getRealtimeDeltaTicks());
+                AFKRenderer.renderAFKEffects(guiGraphics, deltaTick.getRealtimeDeltaTicks());
+                FourthRoomTableHud.render(guiGraphics);
+
+                // Subtitle 字幕报幕
+                net.exmo.sre.subtitle.client.SubtitleHUD.INSTANCE.render(guiGraphics,
+                        deltaTick.getGameTimeDeltaPartialTick(false));
+
+                // 滞时雷引爆倒计时 HUD
+                io.wifi.starrailexpress.client.hud.TimedGrenadeHUD.render(guiGraphics,
+                        deltaTick.getRealtimeDeltaTicks());
+                org.agmas.noellesroles.client.hud.MapStatusBarHudRenderer.render(guiGraphics);
+            }
             FourthRoomCameraDirector.renderOverlay(guiGraphics);
             net.exmo.sre.camera.client.AdvancedCameraDirector.renderOverlay(guiGraphics);
-            FourthRoomTableHud.render(guiGraphics);
-
-            // Subtitle 字幕报幕
-            net.exmo.sre.subtitle.client.SubtitleHUD.INSTANCE.render(guiGraphics,
-                    deltaTick.getGameTimeDeltaPartialTick(false));
-
-            // 滞时雷引爆倒计时 HUD
-            io.wifi.starrailexpress.client.hud.TimedGrenadeHUD.render(guiGraphics, deltaTick.getRealtimeDeltaTicks());
-            org.agmas.noellesroles.client.hud.MapStatusBarHudRenderer.render(guiGraphics);
         });
         // Run map rules inside the project's frame lifecycle so text remains visible while a Letter is held.
         io.wifi.utils.client.betterrender.FakeHudRenderCallback.EVENT.register((guiGraphics, deltaTick) ->
                 io.wifi.starrailexpress.client.gui.OpeningPresentationCoordinator.render(
-                        guiGraphics.getDefaultGuiGraphics(), deltaTick.getGameTimeDeltaPartialTick(false)));
+                        guiGraphics, deltaTick.getGameTimeDeltaPartialTick(false)));
         ClientTickEvents.START_CLIENT_TICK.register(client -> {
             if (io.wifi.starrailexpress.client.gui.OpeningPresentationCoordinator.isRulesVisible()) {
                 while (client.options.keySwapOffhand.consumeClick()) {

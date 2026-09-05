@@ -71,8 +71,10 @@ public class SREEventRegister {
         OnGameStarted.EVENT.register(serverLevel -> {
             RefugeeComponent.KEY.get(serverLevel).clear();
             boolean deferIntro = defersIntroUntilRolesChosen(serverLevel);
+            String mapId = io.wifi.starrailexpress.cca.AreasWorldComponent.KEY.get(serverLevel).mapName;
             for (ServerPlayer player : serverLevel.players()) {
-                PacketTracker.sendToClient(player, new OnGameStartedPayload());
+                // The authoritative map id also drives the opening briefing when no map vote was used.
+                PacketTracker.sendToClient(player, new OnGameStartedPayload(mapId));
                 // 轮选模式职业尚未确定，开场镜头延后到 OnGameTrueStarted
                 if (!deferIntro) {
                     sendDefaultIntroIfParticipant(player);

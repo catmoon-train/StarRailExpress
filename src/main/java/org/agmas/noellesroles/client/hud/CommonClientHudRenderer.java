@@ -160,6 +160,9 @@ public class CommonClientHudRenderer {
       if (SREClient.gameComponent == null) {
         return;
       }
+      if (io.wifi.starrailexpress.client.gui.OpeningPresentationCoordinator.shouldSuppressGameplayHud()) {
+        return;
+      }
       final LocalPlayer player = client.player;
       {
         RoleNameRenderer.renderHud(font, player, guiGraphics, deltaTracker);
