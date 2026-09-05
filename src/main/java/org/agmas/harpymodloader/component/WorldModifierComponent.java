@@ -142,7 +142,7 @@ public class WorldModifierComponent implements AutoSyncedComponent, ServerTickin
             return;
         synchronized (this.modifiers) {
             for (UUID player : players) {
-                if (modifier != null && getModifiers(player).add(modifier)) {
+                if (modifier != null && getOrCreateModifiers(player).add(modifier)) {
                     this.dirtyUuids.add(player);
                 }
             }
@@ -182,11 +182,10 @@ public class WorldModifierComponent implements AutoSyncedComponent, ServerTickin
         if (modifier == null)
             return;
         synchronized (this.modifiers) {
-            if (!getModifiers(player).add(modifier))
-                return; // 没有真正变化，不标记脏
+            if (!getOrCreateModifiers(player).add(modifier))
+                return;
             this.dirtyUuids.add(player);
         }
-        getOrCreateModifiers(player).add(modifier);
         if (sync)
             this.sync();
     }
