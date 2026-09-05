@@ -26,15 +26,24 @@ public class VoteClientReceiver {
             client.execute(() -> {
                 ClientVoteCache.updateFromPacket(packet);
                 if (packet.active()) {
-                    if (client.screen instanceof VoteScreen screen) {
+                    if (client.screen instanceof GameModeVoteScreen screen) {
+                        screen.updateData(packet);
+                    } else if (client.screen instanceof VoteScreen screen) {
                         // 更新屏幕数据
                         screen.updateData(packet);
                     } else if (packet.hasOptions()) {
-                        client.setScreen(new VoteScreen()); // 无参构造
+                        if ("game_mode".equals(packet.typeId())) {
+                            client.setScreen(new GameModeVoteScreen());
+                        } else {
+                            client.setScreen(new VoteScreen()); // 无参构造
+                        }
                     }
                 } else {
                     // 投票结束，关闭屏幕
-                    if (client.screen instanceof VoteScreen) {
+                    if (client.screen instanceof GameModeVoteScreen) {
+                        VoteFlowTransition.armModeToMap();
+                        client.screen.onClose();
+                    } else if (client.screen instanceof VoteScreen) {
                         client.screen.onClose();
                     }
                 }

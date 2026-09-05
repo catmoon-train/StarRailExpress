@@ -193,6 +193,15 @@ List<ItemStack> getDefaultItems()
 // 获取角色商店条目列表
 List<ShopEntry> getShopEntries()
 
+// Psycho 模式可使用的武器（按优先级排序）
+List<Item> getPsychoSupportedWeapons(Player player)
+
+// 自定义 Psycho 无兼容武器时的发放逻辑
+boolean onPsychoGiveItem(Player player, SREPlayerPsychoComponent component)
+
+// Psycho 结束时是否回收本次新发放的兼容武器（默认 true；职业武器覆写为 false）
+boolean shouldClearGrantedPsychoWeapon(Player player, Item weapon)
+
 // 背包界面 init() 开头（仅客户端调用；由 LimitedInventoryScreen 触发）
 void onInventoryScreenInit(LimitedInventoryScreen screen)
 
@@ -202,6 +211,10 @@ void onInventoryScreenInitTail(LimitedInventoryScreen screen)
 // 背包界面 render() 开头，每帧（仅客户端调用）
 void onInventoryScreenRender(LimitedInventoryScreen screen, GuiGraphics graphics, int mouseX, int mouseY, float delta)
 ```
+
+Psycho 开始时会先搜索 `getPsychoSupportedWeapons` 返回的所有武器：主手已持有则保持，
+快捷栏中已存在时直接切槽，副手或背包中已存在时会换入当前主手槽；只有全部不存在时才调用 `onPsychoGiveItem`。
+默认实现仍兼容旧的 `getPsychoItem()` 单武器覆写。职业武器可覆写 `shouldClearGrantedPsychoWeapon` 以免结束时被回收。
 
 #### 枚举 MoodType
 
@@ -856,12 +869,25 @@ ChargeableItemRegistry.onFullyCharged(stack, player);
 | 类 | 包 | 说明 |
 |---|---|---|
 | `SkinableItem` | `io.wifi.starrailexpress.contents.item` | 抽象基类，支持皮肤系统的物品 |
-| `KnifeItem` | `io.wifi.starrailexpress.contents.item` | 近战刀（继承 `SkinableItem`），蓄力刺杀 |
+| `KnifeItem` | `io.wifi.starrailexpress.content.item` | 近战刀（继承 `SkinableItem`），蓄力刺杀；子类可覆写蓄力钩子 |
 | `RevolverItem` | `io.wifi.starrailexpress.contents.item` | 左轮手枪（继承 `SkinableItem`），有耐久度 |
 | `BatItem` | `io.wifi.starrailexpress.contents.item` | 球棒（继承 `SkinableItem`） |
 | `GrenadeItem` | `io.wifi.starrailexpress.contents.item` | 手雷（继承 `SkinableItem`），蓄力投掷 |
 | `DefenseItem` | `io.wifi.starrailexpress.contents.item` | 防具/防御物品（继承 `Item`），限制使用职业 |
 | `NoteItem` | `io.wifi.starrailexpress.contents.item` | 便签（继承 `Item` + `AdventureUsable`） |
+
+#### KnifeItem — 蓄力钩子
+
+`KnifeItem` 右键会 `startUsingItem`，松开走 `releaseUsing`。子类可覆写：
+
+```java
+boolean canStartKnifeCharge(Level world, Player user, InteractionHand hand, ItemStack stack)
+void onKnifeChargeStarted(Level world, Player user, InteractionHand hand, ItemStack stack)
+boolean onKnifeChargeReleased(ItemStack stack, Level world, Player attacker, int usedTicks) // true=已处理，不再默认刺杀
+int getMinKnifeChargeTicks(ItemStack stack, LivingEntity user)
+```
+
+蓄满 `getUseDuration` 时会走 `finishUsingItem` → `releaseUsing`。
 
 #### DefenseItem — 防御物品
 

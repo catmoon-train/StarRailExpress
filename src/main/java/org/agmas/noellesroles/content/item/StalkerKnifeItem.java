@@ -71,13 +71,55 @@ public class StalkerKnifeItem extends KnifeItem {
             return InteractionResult.PASS;
         Player player = useOnContext.getPlayer();
         if (player != null && isAssassinFormActive(player)) {
-            return InteractionResult.sidedSuccess(useOnContext.getLevel().isClientSide);
+            return InteractionResult.PASS;
         }
         return super.useOn(useOnContext);
     }
 
     @Override
+    public boolean canStartKnifeCharge(Level world, Player user, InteractionHand hand, ItemStack stack) {
+        if (!isAssassinFormActive(user)) {
+            return super.canStartKnifeCharge(world, user, hand, stack);
+        }
+        StalkerRoleData data = RoleData.getNullable(StalkerRoleData.class, user);
+        return data != null && data.canStartAttackDashCharge();
+    }
+
+    @Override
+    public void onKnifeChargeStarted(Level world, Player user, InteractionHand hand, ItemStack stack) {
+        if (world.isClientSide || !isAssassinFormActive(user)) {
+            return;
+        }
+        RoleData.getOptional(StalkerRoleData.class, user).ifPresent(StalkerRoleData::startAttackDashCharge);
+    }
+
+    @Override
+    public boolean onKnifeChargeReleased(ItemStack stack, Level world, Player attacker, int usedTicks) {
+        if (!isAssassinFormActive(attacker)) {
+            return false;
+        }
+        if (!world.isClientSide) {
+            RoleData.getOptional(StalkerRoleData.class, attacker)
+                    .ifPresent(data -> data.releaseAttackDash(usedTicks));
+        }
+        return true;
+    }
+
+    @Override
+    public int getMinKnifeChargeTicks(ItemStack stack, LivingEntity user) {
+        if (user instanceof Player player && isAssassinFormActive(player)) {
+            return StalkerRoleData.MIN_CHARGE_TIME;
+        }
+        Integer configured = stack.get(SREDataComponentTypes.WEAPON_USED_TIME);
+        return configured != null ? configured : super.getMinKnifeChargeTicks(stack, user);
+    }
+
+    @Override
     public void releaseUsing(ItemStack stack, Level world, LivingEntity user, int remainingUseTicks) {
+        if (user instanceof Player player && isAssassinFormActive(player)) {
+            super.releaseUsing(stack, world, user, remainingUseTicks);
+            return;
+        }
         if (user.isSpectator()) {
             return;
         }
@@ -114,8 +156,8 @@ public class StalkerKnifeItem extends KnifeItem {
         if (hand == InteractionHand.OFF_HAND)
             return InteractionResultHolder.pass(user.getItemInHand(hand));
         if (isAssassinFormActive(user)) {
-            // 刺客形态的右键由独立网络输入释放攻击冲刺，不再进入普通匕首蓄力。
-            return InteractionResultHolder.consume(user.getItemInHand(hand));
+            user.getMainHandItem().set(SREDataComponentTypes.WEAPON_USED_TIME, StalkerRoleData.MIN_CHARGE_TIME);
+            return super.use(world, user, hand);
         }
         if ((SREGameWorldComponent.KEY.get(world).isRole(user, ModRoles.STALKER)
                 && RoleData.getOptional(StalkerRoleData.class, user).map(s -> s.phase == 3).orElse(false))) {

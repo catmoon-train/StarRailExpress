@@ -21,11 +21,9 @@ import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.llamalad7.mixinextras.sugar.Local;
 import io.wifi.starrailexpress.SRE;
-import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.cca.SREPlayerPsychoComponent;
 import io.wifi.starrailexpress.client.SREClient;
-import io.wifi.starrailexpress.index.TMMItems;
 import io.wifi.starrailexpress.index.tag.TMMItemTags;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
@@ -33,7 +31,6 @@ import net.minecraft.client.renderer.ItemInHandRenderer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Inventory;
-import net.minecraft.world.item.Item;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
@@ -48,13 +45,9 @@ public class MinecraftClientMixin {
 
     @ModifyReturnValue(method = "shouldEntityAppearGlowing", at = @At("RETURN"))
     public boolean tmm$hasInstinctOutline(boolean original, @Local(argsOnly = true) Entity entity) {
-        if (SRE.isLobby)
+        if (original || SRE.isLobby)
             return original;
-        var color = SREClient.getCachedInstinctHighlight(entity);
-        if (!color.isEmpty()) {
-            return true;
-        }
-        return original;
+        return !SREClient.getCachedInstinctHighlight(entity).isEmpty();
     }
 
     @WrapWithCondition(method = "startUseItem", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/ItemInHandRenderer;itemUsed(Lnet/minecraft/world/InteractionHand;)V"))
@@ -76,13 +69,8 @@ public class MinecraftClientMixin {
 
         if (component.getPsychoTicks() > 0) {
 
-            Item psychoItem = TMMItems.BAT;
-            SRERole role = SREClient.gameComponent.getRole(player);
-            if (role != null) {
-                psychoItem = role.getPsychoItem();
-            }
-            if ((instance.getItem(oldSlot).is(psychoItem)) &&
-                    (!instance.getItem(value).is(psychoItem)))
+            if (component.isPsychoSupportedWeapon(instance.getItem(oldSlot))
+                    && !component.isPsychoSupportedWeapon(instance.getItem(value)))
                 return;
         }
         original.call(instance, value);

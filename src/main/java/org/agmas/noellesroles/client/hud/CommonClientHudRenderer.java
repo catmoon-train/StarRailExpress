@@ -372,8 +372,8 @@ public class CommonClientHudRenderer {
         }
       }
 
-      // 三阶段：倒计时
-      if (stalkerComp.phase == 3) {
+      // 刺客形态：倒计时与冲刺/贴墙，仅在形态激活时凸显
+      if (stalkerComp.isAssassinFormActive()) {
         int seconds = stalkerComp.phase3Timer / 20;
         int minutes = seconds / 60;
         seconds %= 60;
@@ -388,15 +388,22 @@ public class CommonClientHudRenderer {
         context.drawString(textRenderer, normalDashText, x, y, 0x55FFFF);
         y += 12;
 
-        Component attackDashText = Component.translatable("hud.noellesroles.stalker.attack_dash_charges",
-            stalkerComp.attackDashCharges, StalkerRoleData.MAX_ATTACK_DASH_CHARGES);
-        context.drawString(textRenderer, attackDashText, x, y, 0xFF6666);
-        y += 12;
-
-        if (stalkerComp.attackDashCharges == 0 && stalkerComp.attackDashRechargeTimer > 0) {
-          Component rechargeText = Component.translatable("hud.noellesroles.stalker.attack_dash_recharge",
-              String.format("%.1f", stalkerComp.getAttackDashRechargeSeconds()));
-          context.drawString(textRenderer, rechargeText, x, y, 0xFFAA00);
+        if (stalkerComp.isCharging) {
+          Component chargingText = Component.translatable("hud.noellesroles.stalker.charging",
+              String.format("%.1f", stalkerComp.getChargeSeconds()),
+              String.format("%.1f", StalkerRoleData.MAX_CHARGE_TIME / 20.0F));
+          context.drawString(textRenderer, chargingText, x, y, 0xFF5555);
+          y += 12;
+        } else if (!stalkerComp.hasReadyHuntingKnife()) {
+          Component coolingText = Component.translatable("hud.noellesroles.stalker.knives_cooling");
+          context.drawString(textRenderer, coolingText, x, y, 0xFFAA00);
+          y += 12;
+        }
+        SREAbilityPlayerComponent ability = SREAbilityPlayerComponent.KEY.get(client.player);
+        if (ability != null && ability.hasCooldown()) {
+          Component skillCd = Component.translatable("hud.noellesroles.stalker.dash_cooldown",
+              String.format("%.1f", ability.getCooldownSeconds()));
+          context.drawString(textRenderer, skillCd, x, y, 0xFFAA55);
           y += 12;
         }
 
@@ -405,6 +412,11 @@ public class CommonClientHudRenderer {
               .withStyle(ChatFormatting.AQUA);
           context.drawString(textRenderer, wallText, x, y, 0xFFFFFF);
           y += 12;
+        }
+        if (stalkerComp.isDashing) {
+          Component dashText = Component.translatable("hud.noellesroles.stalker.dashing")
+              .withStyle(ChatFormatting.AQUA, ChatFormatting.BOLD);
+          context.drawString(textRenderer, dashText, x, y, 0xFFFFFF);
         }
       } else if (stalkerComp.phase == 2 && stalkerComp.assassinFormCooldown > 0) {
         Component cooldownText = Component.translatable("hud.noellesroles.stalker.assassin_form_cooldown",
@@ -420,12 +432,6 @@ public class CommonClientHudRenderer {
             .withStyle(ChatFormatting.YELLOW);
         context.drawString(textRenderer, gazingText, x, y, 0xFFFFFF);
         y += 12;
-      }
-      // 突进状态
-      if (stalkerComp.isDashing) {
-        Component dashText = Component.translatable("hud.noellesroles.stalker.dashing")
-            .withStyle(ChatFormatting.AQUA, ChatFormatting.BOLD);
-        context.drawString(textRenderer, dashText, x, y, 0xFFFFFF);
       }
     });
     RoleHudRenderCallback.EVENT.register(ModRoles.MA_CHEN_XU_ID, (context, tickCounter) -> {

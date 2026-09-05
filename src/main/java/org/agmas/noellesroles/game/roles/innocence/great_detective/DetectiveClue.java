@@ -37,7 +37,23 @@ public record DetectiveClue(ClueType type, String value) {
         /** 名字中带有的 1 个字（value = 名字片段字面量）。 */
         NAME,
         /** 凶手所在房间/车厢（value = 房间号）。 */
-        ROOM;
+        ROOM,
+        /** 阵营：killer / neutral / civilian。 */
+        FACTION,
+        /** 主手持物大类：empty / blade / firearm / blunt / other。 */
+        HELD,
+        /** 游戏内金币档：empty / low / mid / high。 */
+        GOLD,
+        /** 场上能对上的尸体数量（value = 数字）。 */
+        KILLS,
+        /** 周围 8 格内其他存活玩家数量（value = 数字）。 */
+        NEARBY,
+        /** 相对楼层：upper / lower。 */
+        FLOOR,
+        /** 背包里是否有枪：yes / no。 */
+        GUN,
+        /** 相对侦探的距离档：close / mid / far。 */
+        RANGE;
 
         public static ClueType byName(String name) {
             for (ClueType t : values()) {

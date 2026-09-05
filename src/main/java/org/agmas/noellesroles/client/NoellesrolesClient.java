@@ -79,6 +79,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.DustColorTransitionOptions;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.Style;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.Entity;
@@ -424,6 +425,8 @@ public class NoellesrolesClient implements ClientModInitializer {
                 org.agmas.noellesroles.client.render.RollingLogRenderer::new);
         EntityRendererRegistry.register(ModEntities.PIGEON,
                 org.agmas.noellesroles.client.render.PigeonRenderer::new);
+        EntityRendererRegistry.register(ModEntities.MECHANICAL_BIRD,
+                org.agmas.noellesroles.client.render.MechanicalBirdRenderer::new);
         EntityRendererRegistry.register(ModEntities.MOVING_PLATFORM,
                 org.agmas.noellesroles.client.render.MovingPlatformRenderer::new);
         EntityRendererRegistry.register(ModEntities.HURRICANE,
@@ -432,6 +435,10 @@ public class NoellesrolesClient implements ClientModInitializer {
                 net.minecraft.client.renderer.entity.HuskRenderer::new);
         EntityRendererRegistry.register(ModEntities.UNDEAD,
                 org.agmas.noellesroles.client.renderer.UndeadEntityRenderer::new);
+        EntityRendererRegistry.register(ModEntities.ERROR_ANGLER,
+                org.agmas.noellesroles.client.renderer.ErrorAnglerEntityRenderer::new);
+        EntityRendererRegistry.register(ModEntities.ANGLER_ROD_MOUNT,
+                org.agmas.noellesroles.client.renderer.AnglerRodMountRenderer::new);
         EntityRendererRegistry.register(ModEntities.MORPHLING_KNIFE_DUMMY,
                 org.agmas.noellesroles.client.renderer.MorphlingKnifeDummyRenderer::new);
         EntityRendererRegistry.register(ModEntities.YOULU_ANCHOR,
@@ -484,6 +491,8 @@ public class NoellesrolesClient implements ClientModInitializer {
             TwoDimensionalTaskArrowRenderer.render(renderContext);
             PointerGuidanceRenderer.render(renderContext);
             org.agmas.noellesroles.gunfx.GunTracerRenderer.render(renderContext);
+            org.agmas.noellesroles.gunfx.StalkerDashTrailRenderer.render(renderContext);
+            org.agmas.noellesroles.gunfx.StalkerPierceFxRenderer.render(renderContext);
             // 确定性地绘制所有透视线条（相机矩阵仍有效、地形已完成）
             TaskBlockOverlayRenderer.flushLines();
         });
@@ -518,6 +527,12 @@ public class NoellesrolesClient implements ClientModInitializer {
         ClientPlayNetworking.registerGlobalReceiver(
                 org.agmas.noellesroles.gunfx.GunTracerS2CPacket.ID, (payload, context) -> context.client()
                         .execute(() -> org.agmas.noellesroles.gunfx.GunTracerRenderer.onPacket(payload)));
+        ClientPlayNetworking.registerGlobalReceiver(
+                org.agmas.noellesroles.gunfx.StalkerDashTrailS2CPacket.ID, (payload, context) -> context.client()
+                        .execute(() -> org.agmas.noellesroles.gunfx.StalkerDashTrailRenderer.onPacket(payload)));
+        ClientPlayNetworking.registerGlobalReceiver(
+                org.agmas.noellesroles.gunfx.StalkerPierceFxS2CPacket.ID, (payload, context) -> context.client()
+                        .execute(() -> org.agmas.noellesroles.gunfx.StalkerPierceFxRenderer.onPacket(payload)));
 
         // 建筑师墙数据S2C包
         ClientPlayNetworking.registerGlobalReceiver(org.agmas.noellesroles.packet.BuilderWallS2CPacket.ID,
@@ -687,6 +702,7 @@ public class NoellesrolesClient implements ClientModInitializer {
         });
         ClientPlayNetworking.registerGlobalReceiver(io.wifi.starrailexpress.network.MapIntroSyncPayload.ID,
                 (payload, context) -> context.client().execute(() -> {
+                    io.wifi.starrailexpress.client.gui.screen.mapui.MapIntroClientCache.update(payload);
                     if (context
                             .client().screen instanceof io.wifi.starrailexpress.client.gui.screen.MapIntroduceScreen screen) {
                         screen.updateFromPacket(payload);
@@ -1226,6 +1242,36 @@ public class NoellesrolesClient implements ClientModInitializer {
                 ClientPlayNetworking.send(new org.agmas.noellesroles.packet.NiaoshoushouMissileControlC2SPacket(
                         missile.getId(), client.player.getYRot(), client.player.getXRot(), steering));
             }
+            if (client.getCameraEntity() instanceof org.agmas.noellesroles.content.entity.MechanicalBirdEntity bird) {
+                if (bird.isRemoved()
+                        || client.level.getEntity(bird.getId()) != bird
+                        || client.player.distanceToSqr(bird) > 128.0D * 128.0D) {
+                    client.setCameraEntity(client.player);
+                    return;
+                }
+                org.agmas.noellesroles.client.sound.MechanicalBirdFlySound.ensurePlaying(bird);
+                int bits = 0;
+                if (client.options.keyUp.isDown()) {
+                    bits |= org.agmas.noellesroles.packet.MechanicalBirdControlC2SPacket.BIT_FORWARD;
+                }
+                if (client.options.keyDown.isDown()) {
+                    bits |= org.agmas.noellesroles.packet.MechanicalBirdControlC2SPacket.BIT_BACK;
+                }
+                if (client.options.keyLeft.isDown()) {
+                    bits |= org.agmas.noellesroles.packet.MechanicalBirdControlC2SPacket.BIT_LEFT;
+                }
+                if (client.options.keyRight.isDown()) {
+                    bits |= org.agmas.noellesroles.packet.MechanicalBirdControlC2SPacket.BIT_RIGHT;
+                }
+                if (client.options.keyJump.isDown()) {
+                    bits |= org.agmas.noellesroles.packet.MechanicalBirdControlC2SPacket.BIT_JUMP;
+                }
+                if (client.options.keyShift.isDown()) {
+                    bits |= org.agmas.noellesroles.packet.MechanicalBirdControlC2SPacket.BIT_SNEAK;
+                }
+                ClientPlayNetworking.send(new org.agmas.noellesroles.packet.MechanicalBirdControlC2SPacket(
+                        bird.getId(), client.player.getYRot(), client.player.getXRot(), bits));
+            }
         });
         ClientTickEvents.END_CLIENT_TICK.register(client -> {
             if (taskInstinctOptionBind.consumeClick()) {
@@ -1448,6 +1494,31 @@ public class NoellesrolesClient implements ClientModInitializer {
 
         // 4. 设置物品回调
         setupItemCallbacks();
+
+        net.minecraft.client.renderer.item.ItemProperties.register(ModItems.ANGLER_ROD,
+                ResourceLocation.withDefaultNamespace("cast"), (stack, world, entity, seed) -> {
+                    if (entity == null) {
+                        return 0.0F;
+                    }
+                    boolean main = entity.getMainHandItem() == stack;
+                    boolean off = entity.getOffhandItem() == stack;
+                    if (entity.getMainHandItem().getItem() instanceof net.minecraft.world.item.FishingRodItem) {
+                        off = false;
+                    }
+                    return (main || off) && entity instanceof Player player && player.fishing != null ? 1.0F : 0.0F;
+                });
+        net.minecraft.client.renderer.item.ItemProperties.register(ModItems.ERROR_ANGLER_ROD,
+                ResourceLocation.withDefaultNamespace("cast"), (stack, world, entity, seed) -> {
+                    if (entity == null) {
+                        return 0.0F;
+                    }
+                    boolean main = entity.getMainHandItem() == stack;
+                    boolean off = entity.getOffhandItem() == stack;
+                    if (entity.getMainHandItem().getItem() instanceof net.minecraft.world.item.FishingRodItem) {
+                        off = false;
+                    }
+                    return (main || off) && entity instanceof Player player && player.fishing != null ? 1.0F : 0.0F;
+                });
 
         // 注册炸弹可见性属性
         net.minecraft.client.renderer.item.ItemProperties.register(ModItems.BOMB, Noellesroles.id("visible"),

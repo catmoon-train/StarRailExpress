@@ -19,6 +19,9 @@ import net.fabricmc.fabric.api.networking.v1.PlayerLookup;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.level.ClipContext;
+import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 import org.agmas.noellesroles.config.NoellesRolesConfig;
 import org.jetbrains.annotations.Nullable;
@@ -39,10 +42,20 @@ public final class GunTracers {
         if (!NoellesRolesConfig.instance().gunTracerEffect) {
             return;
         }
-        Vec3 to = hit != null
-                ? hit.getBoundingBox().getCenter()
-                : shooter.getEyePosition().add(shooter.getViewVector(1.0F).normalize().scale(range));
-        GunTracerS2CPacket packet = new GunTracerS2CPacket(shooter.getId(), to.x, to.y, to.z);
+        Vec3 eye = shooter.getEyePosition();
+        Vec3 view = shooter.getViewVector(1.0F).normalize();
+        Vec3 from = WeaponTrailGeometry.muzzlePoint(shooter, eye, view);
+
+        Vec3 to = hit != null ? hit.getBoundingBox().getCenter() : eye.add(view.scale(range));
+        if (hit == null) {
+            BlockHitResult blockHit = shooter.level().clip(new ClipContext(eye, to,
+                    ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, shooter));
+            if (blockHit.getType() == HitResult.Type.BLOCK) {
+                to = blockHit.getLocation();
+            }
+        }
+        GunTracerS2CPacket packet = new GunTracerS2CPacket(shooter.getId(),
+                from.x, from.y, from.z, to.x, to.y, to.z);
         for (ServerPlayer tracking : PlayerLookup.tracking(shooter)) {
             ServerPlayNetworking.send(tracking, packet);
         }

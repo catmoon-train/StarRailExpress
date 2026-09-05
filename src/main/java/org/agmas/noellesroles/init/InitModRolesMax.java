@@ -455,6 +455,10 @@ public class InitModRolesMax {
                 continue;
             }
             if (isSpecialMapRoleEnabled(serverLevel, role, currentMap, config)) {
+                if (role instanceof EggRoleInterface) {
+                    // 彩蛋职业已由彩蛋池掷过上限；地图匹配时不要在池子未开时强行打开
+                    continue;
+                }
                 Harpymodloader.setRoleMaximum(role, Math.max(0, role.spawnInfo.maxSpawn));
             } else {
                 Harpymodloader.setRoleMaximum(role, 0);

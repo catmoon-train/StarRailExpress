@@ -66,6 +66,9 @@ public abstract class DefaultChunkRendererMixin {
     private static ByteBuffer sre$offsetBuffer;
     @Unique
     private static GlMutableBuffer sre$glBuffer;
+    /** 常驻 buffer 当前内容是否为全零。无活跃资产时避免每 region 再 upload。 */
+    @Unique
+    private static boolean sre$zeroed;
 
     @WrapOperation(
             method = "render",
@@ -115,15 +118,40 @@ public abstract class DefaultChunkRendererMixin {
             @Local(ordinal = 0) ChunkShaderInterface shader,
             @Local(ordinal = 0) ChunkRenderList renderList,
             @Local(ordinal = 0) RenderRegion region) {
+        boolean active = SceneAssetClient.hasActiveAsset();
+        if (!active) {
+            if (sre$glBuffer == null) {
+                sre$ensureCpuBuffer();
+                MemoryUtil.memSet(sre$offsetBuffer, 0);
+                sre$glBuffer = commandList.createMutableBuffer();
+                commandList.uploadData(sre$glBuffer, sre$offsetBuffer, GlBufferUsage.STATIC_DRAW);
+                sre$zeroed = true;
+            } else if (!sre$zeroed) {
+                sre$ensureCpuBuffer();
+                MemoryUtil.memSet(sre$offsetBuffer, 0);
+                commandList.uploadData(sre$glBuffer, sre$offsetBuffer, GlBufferUsage.STATIC_DRAW);
+                sre$zeroed = true;
+            }
+            ((SodiumShaderInterface) shader).tmm$set(sre$glBuffer);
+            return;
+        }
+
+        sre$ensureCpuBuffer();
+        MemoryUtil.memSet(sre$offsetBuffer, 0);
+        sre$writeSceneOffsets(renderList, region, renderPass);
+        if (sre$glBuffer == null) {
+            sre$glBuffer = commandList.createMutableBuffer();
+        }
+        commandList.uploadData(sre$glBuffer, sre$offsetBuffer, GlBufferUsage.STREAM_DRAW);
+        sre$zeroed = false;
+        ((SodiumShaderInterface) shader).tmm$set(sre$glBuffer);
+    }
+
+    @Unique
+    private static void sre$ensureCpuBuffer() {
         if (sre$offsetBuffer == null) {
             sre$offsetBuffer = MemoryUtil.memCalloc(RenderRegion.REGION_SIZE * 16);
-        } else {
-            MemoryUtil.memSet(sre$offsetBuffer, 0);
         }
-        sre$writeSceneOffsets(renderList, region, renderPass);
-        sre$glBuffer = commandList.createMutableBuffer();
-        commandList.uploadData(sre$glBuffer, sre$offsetBuffer, GlBufferUsage.STREAM_DRAW);
-        ((SodiumShaderInterface) shader).tmm$set(sre$glBuffer);
     }
 
     @Unique
@@ -156,24 +184,4 @@ public abstract class DefaultChunkRendererMixin {
         }
     }
 
-    @Inject(
-            method = "render",
-            at = @At(
-                    value = "INVOKE",
-                    target = "Lnet/caffeinemc/mods/sodium/client/render/chunk/DefaultChunkRenderer;executeDrawBatch(Lnet/caffeinemc/mods/sodium/client/gl/device/CommandList;Lnet/caffeinemc/mods/sodium/client/gl/tessellation/GlTessellation;Lnet/caffeinemc/mods/sodium/client/gl/device/MultiDrawBatch;)V",
-                    shift = At.Shift.AFTER),
-            remap = false)
-    private void sre$releaseOffsets(
-            ChunkRenderMatrices matrices,
-            CommandList commandList,
-            ChunkRenderListIterable renderLists,
-            TerrainRenderPass renderPass,
-            CameraTransform camera,
-            boolean indexedRenderingEnabled,
-            CallbackInfo ci) {
-        if (sre$glBuffer != null) {
-            commandList.deleteBuffer(sre$glBuffer);
-            sre$glBuffer = null;
-        }
-    }
 }

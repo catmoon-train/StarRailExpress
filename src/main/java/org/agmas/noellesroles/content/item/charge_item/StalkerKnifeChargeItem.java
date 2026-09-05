@@ -16,14 +16,19 @@
 package org.agmas.noellesroles.content.item.charge_item;
 
 import io.wifi.starrailexpress.api.ChargeableItem;
+import io.wifi.starrailexpress.api.data.RoleData;
 import io.wifi.starrailexpress.client.StaminaRenderer;
 import io.wifi.starrailexpress.index.SREDataComponentTypes;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
+import org.agmas.noellesroles.role_data.killer.StalkerRoleData;
 
 public class StalkerKnifeChargeItem implements ChargeableItem {
     @Override
     public int getMaxChargeTime(ItemStack itemStack, Player player) {
+        if (isAssassinForm(player)) {
+            return StalkerRoleData.MAX_CHARGE_TIME;
+        }
         Integer i = itemStack.get(SREDataComponentTypes.WEAPON_USED_TIME);
         return i==null ? 12 : i;
     }
@@ -35,8 +40,12 @@ public class StalkerKnifeChargeItem implements ChargeableItem {
 
     @Override
     public float getMaxStamina(ItemStack stack, Player player) {
-        Integer i = stack.get(SREDataComponentTypes.WEAPON_USED_TIME);
-        return i==null ? 12 : i;
+        return getMaxChargeTime(stack, player);
+    }
+
+    private static boolean isAssassinForm(Player player) {
+        return RoleData.getOptional(StalkerRoleData.class, player)
+                .map(StalkerRoleData::isAssassinFormActive).orElse(false);
     }
 
     @Override

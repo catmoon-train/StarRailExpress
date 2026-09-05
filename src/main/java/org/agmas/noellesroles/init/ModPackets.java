@@ -250,6 +250,10 @@ public class ModPackets {
         // 注册枪械射击轨迹网络包
         PayloadTypeRegistry.playS2C().register(org.agmas.noellesroles.gunfx.GunTracerS2CPacket.ID,
                 org.agmas.noellesroles.gunfx.GunTracerS2CPacket.CODEC);
+        PayloadTypeRegistry.playS2C().register(org.agmas.noellesroles.gunfx.StalkerDashTrailS2CPacket.ID,
+                org.agmas.noellesroles.gunfx.StalkerDashTrailS2CPacket.CODEC);
+        PayloadTypeRegistry.playS2C().register(org.agmas.noellesroles.gunfx.StalkerPierceFxS2CPacket.ID,
+                org.agmas.noellesroles.gunfx.StalkerPierceFxS2CPacket.CODEC);
 
         // 注册鹈鹕网络包
         PayloadTypeRegistry.playC2S().register(PelicanEatC2SPacket.ID, PelicanEatC2SPacket.CODEC);

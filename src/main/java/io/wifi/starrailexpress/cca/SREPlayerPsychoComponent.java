@@ -28,6 +28,7 @@ import net.minecraft.core.HolderLookup;
 import net.minecraft.core.HolderLookup.Provider;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -39,6 +40,8 @@ import org.ladysnake.cca.api.v3.component.ComponentRegistry;
 import org.ladysnake.cca.api.v3.component.tick.ClientTickingComponent;
 import org.ladysnake.cca.api.v3.component.tick.ServerTickingComponent;
 
+import java.util.List;
+
 public class SREPlayerPsychoComponent implements RoleComponent, ServerTickingComponent, ClientTickingComponent {
     public static final ComponentKey<SREPlayerPsychoComponent> KEY = ComponentRegistry.getOrCreate(SRE.id("psycho"),
             SREPlayerPsychoComponent.class);
@@ -48,6 +51,8 @@ public class SREPlayerPsychoComponent implements RoleComponent, ServerTickingCom
     public int type = -1;
     private SREGameWorldComponent gameWorldComponent = null;
     public ItemStack savedItemSlot0 = null;
+    /** 只记录本次 Psycho 为玩家新发放的武器，结束时不删除玩家原有武器。 */
+    private Item grantedPsychoWeapon = null;
     // 本tick内有sync请求，推迟到该玩家serverTick统一发包，把同tick内的重复广播合并成一次
     private boolean syncPending = false;
 
@@ -88,6 +93,7 @@ public class SREPlayerPsychoComponent implements RoleComponent, ServerTickingCom
         this.stopPsychoAndRefreshPsychoCount(true);
         this.psychoTicks = -1;
         this.savedItemSlot0 = null;
+        this.grantedPsychoWeapon = null;
         this.sync();
     }
 
@@ -95,6 +101,7 @@ public class SREPlayerPsychoComponent implements RoleComponent, ServerTickingCom
         this.stopPsychoAndRefreshPsychoCount(false);
         this.psychoTicks = -1;
         this.savedItemSlot0 = null;
+        this.grantedPsychoWeapon = null;
     }
 
     @Override
@@ -114,21 +121,18 @@ public class SREPlayerPsychoComponent implements RoleComponent, ServerTickingCom
             }
             this.psychoTicks--;
         }
-        Item psychoItem = TMMItems.BAT;
         SRERole role = SRERoleWorldComponent.KEY.get(this.player.level()).getRole(player);
-        if (role != null) {
-            psychoItem = role.getPsychoItem();
-        }
-        if (this.player.getMainHandItem().is(psychoItem))
+        if (isPsychoSupportedWeapon(role, this.player.getMainHandItem()))
             return;
         if (GameUtils.isPlayerAliveAndSurvivalIgnoreShitSplit(player)) {
-            for (int i = 0; i < 9; i++) {
-                if (!this.player.getInventory().getItem(i).is(psychoItem))
-                    continue;
-                this.player.getInventory().selected = i;
-                break;
+            int slot = findPsychoWeaponSlot(role, 9);
+            if (slot >= 0) {
+                this.player.getInventory().selected = slot;
+                return;
             }
         }
+        if (isPsychoSupportedWeapon(role, this.player.getOffhandItem()))
+            return;
 
     }
 
@@ -153,6 +157,11 @@ public class SREPlayerPsychoComponent implements RoleComponent, ServerTickingCom
             this.stopPsycho();
             this.sync();
         } else {
+            SRERole role = SRERoleWorldComponent.KEY.get(this.player.level()).getRole(player);
+            if (!isPsychoSupportedWeapon(role, this.player.getMainHandItem())
+                    && GameUtils.isPlayerAliveAndSurvivalIgnoreShitSplit(player)) {
+                equipExistingPsychoWeapon(role);
+            }
             if (this.psychoTicks % 200 == 0) { // 10s一次
                 this.sync();
             }
@@ -169,9 +178,13 @@ public class SREPlayerPsychoComponent implements RoleComponent, ServerTickingCom
         if (this.psychoTicks > 0)
             return false;
         this.savedItemSlot0 = null;
+        this.grantedPsychoWeapon = null;
 
         SRERole role = SRERoleWorldComponent.KEY.get(this.player.level()).getRole(this.player);
-        boolean success = givePsychoItem(role);
+        boolean success = equipExistingPsychoWeapon(role);
+        if (!success) {
+            success = givePsychoItem(role);
+        }
 
         if (!success) {
             if (!forceStart)
@@ -201,13 +214,118 @@ public class SREPlayerPsychoComponent implements RoleComponent, ServerTickingCom
     }
 
     private boolean givePsychoItem(SRERole role) {
-        boolean success = false;
-        if (role != null) {
-            success = role.onPsychoGiveItem(player, this);
-        } else {
-            success = RoleUtils.insertStackInFreeSlot(player, new ItemStack(TMMItems.BAT));
+        List<Item> supportedWeapons = getPsychoSupportedWeapons(role);
+        int[] countsBefore = supportedWeapons.stream().mapToInt(this::countItem).toArray();
+        boolean success = role != null
+                ? role.onPsychoGiveItem(player, this)
+                : RoleUtils.insertStackInFreeSlot(player, new ItemStack(TMMItems.BAT));
+        if (!success) {
+            return false;
         }
-        return success;
+        for (int i = 0; i < supportedWeapons.size(); i++) {
+            Item weapon = supportedWeapons.get(i);
+            if (countItem(weapon) > countsBefore[i]) {
+                if (role == null || role.shouldClearGrantedPsychoWeapon(player, weapon)) {
+                    grantedPsychoWeapon = weapon;
+                }
+                break;
+            }
+        }
+        // Dream 等职业可以合法地启动 Psycho 而不发放手持物。
+        equipExistingPsychoWeapon(role);
+        return true;
+    }
+
+    private List<Item> getPsychoSupportedWeapons(SRERole role) {
+        if (role == null) {
+            return List.of(TMMItems.BAT);
+        }
+        List<Item> weapons = role.getPsychoSupportedWeapons(player);
+        return weapons == null ? List.of() : weapons.stream().filter(item -> item != null).distinct().toList();
+    }
+
+    private boolean isPsychoSupportedWeapon(SRERole role, ItemStack stack) {
+        if (stack.isEmpty()) {
+            return false;
+        }
+        return role == null ? stack.is(TMMItems.BAT) : role.isPsychoSupportedWeapon(player, stack);
+    }
+
+    /** 供切槽、滚轮等输入限制共用。 */
+    public boolean isPsychoSupportedWeapon(ItemStack stack) {
+        SRERole role = SRERoleWorldComponent.KEY.get(this.player.level()).getRole(player);
+        return isPsychoSupportedWeapon(role, stack);
+    }
+
+    public boolean hasPsychoSupportedWeapon() {
+        SRERole role = SRERoleWorldComponent.KEY.get(this.player.level()).getRole(player);
+        return isPsychoSupportedWeapon(role, player.getOffhandItem())
+                || findPsychoWeaponSlot(role, player.getInventory().getContainerSize()) >= 0;
+    }
+
+    private int findPsychoWeaponSlot(SRERole role, int slotLimit) {
+        int limit = Math.min(slotLimit, player.getInventory().items.size());
+        for (Item weapon : getPsychoSupportedWeapons(role)) {
+            for (int slot = 0; slot < limit; slot++) {
+                if (player.getInventory().getItem(slot).is(weapon)) {
+                    return slot;
+                }
+            }
+        }
+        return -1;
+    }
+
+    /** 已有武器优先：主手已持有则不动；快捷栏切槽；背包与当前主手槽交换；只在别处都没有时才把副手换入主手。 */
+    private boolean equipExistingPsychoWeapon(SRERole role) {
+        if (isPsychoSupportedWeapon(role, player.getMainHandItem())) {
+            return true;
+        }
+        int slot = findPsychoWeaponSlot(role, player.getInventory().items.size());
+        if (slot >= 0) {
+            if (slot < 9) {
+                player.getInventory().selected = slot;
+            } else {
+                int selected = player.getInventory().selected;
+                ItemStack weapon = player.getInventory().getItem(slot);
+                ItemStack displaced = player.getInventory().getItem(selected);
+                player.getInventory().setItem(selected, weapon);
+                player.getInventory().setItem(slot, displaced);
+            }
+            syncInventory();
+            return true;
+        }
+        if (isPsychoSupportedWeapon(role, player.getOffhandItem())) {
+            swapSelectedWithOffhand();
+            return true;
+        }
+        return false;
+    }
+
+    private void swapSelectedWithOffhand() {
+        int selected = player.getInventory().selected;
+        ItemStack offhand = player.getOffhandItem();
+        ItemStack displaced = player.getInventory().getItem(selected);
+        player.setItemInHand(InteractionHand.OFF_HAND, displaced);
+        player.getInventory().setItem(selected, offhand);
+        syncInventory();
+    }
+
+    private void syncInventory() {
+        player.getInventory().setChanged();
+        if (player instanceof ServerPlayer serverPlayer) {
+            serverPlayer.inventoryMenu.broadcastChanges();
+        }
+    }
+
+    private int countItem(Item item) {
+        int count = 0;
+        for (int slot = 0; slot < player.getInventory().getContainerSize(); slot++) {
+            ItemStack stack = player.getInventory().getItem(slot);
+            if (stack.is(item)) {
+                count += stack.getCount();
+            }
+        }
+        return count;
     }
 
     public boolean startPsycho(double multtiplier, int armour, boolean forceStart) {
@@ -236,13 +354,11 @@ public class SREPlayerPsychoComponent implements RoleComponent, ServerTickingCom
             ServerPlayNetworking.send(serverPlayer, new RemoveStatusBarPayload("Psycho"));
         }
 
-        Item psychoItem = TMMItems.BAT;
         SRERole role = SRERoleWorldComponent.KEY.get(this.player.level()).getRole(player);
-        if (role != null) {
-            psychoItem = role.getPsychoItem();
+        if (grantedPsychoWeapon != null) {
+            MCItemsUtils.clearItem(player, grantedPsychoWeapon);
+            grantedPsychoWeapon = null;
         }
-
-        MCItemsUtils.clearItem(player, psychoItem);
         if (checkIsGameRunning()) {
             if (GameUtils.isPlayerAliveAndSurvival(player)) {
                 if (role != null) {

@@ -44,6 +44,10 @@ public final class FakeSteveBrain {
             return intent(true, false, false, false, false, false);
         }
 
+        if (snapshot.huntReady()) {
+            mode = AgentMode.HUNT;
+            return intent(false, true, false, false, false, false);
+        }
         if (snapshot.assimilationReady()) {
             mode = AgentMode.ASSIMILATE;
             return intent(false, true, false, true, false, false);
@@ -76,7 +80,8 @@ public final class FakeSteveBrain {
     public record PerceptionSnapshot(int elapsedTicks, boolean recovering,
             boolean engagementTriggered, boolean focusValid,
             boolean targetLookingAtFake, boolean safeBackstab,
-            boolean assimilationReady, boolean taskAvailable) {
+            boolean assimilationReady, boolean taskAvailable,
+            boolean huntReady) {
     }
 
     public record BrainIntent(AgentMode mode, boolean holdPosition,

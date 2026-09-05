@@ -254,7 +254,7 @@ public class RoleIntroduceScreen extends Screen {
             NOW_ROUND_ROLES.addAll(SREClient.gameComponent.roleWorldComponent.getRoles().values());
         }
         if (SREClient.modifierComponent != null) {
-            for (HashSet<SREModifier> value : SREClient.modifierComponent.getModifiers().values()) {
+            for (Set<SREModifier> value : SREClient.modifierComponent.getModifiers().values()) {
                 NOW_ROUND_MODIFIERS.addAll(value);
             }
         }

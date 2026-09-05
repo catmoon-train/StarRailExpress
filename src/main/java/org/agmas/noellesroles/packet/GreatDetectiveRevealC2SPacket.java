@@ -24,18 +24,23 @@ import org.agmas.noellesroles.Noellesroles;
 import java.util.UUID;
 
 /**
- * 大侦探"目标情况"请求包：客户端在推理之书上点击某凶手的"目标情况"时发送，
- * 服务端据此记录该凶手与侦探当前的距离快照。
+ * 大侦探「目标情况」请求包：客户端在推理之书上选择查明方位或生死时发送。
  */
-public record GreatDetectiveRevealC2SPacket(UUID killer) implements CustomPacketPayload {
+public record GreatDetectiveRevealC2SPacket(UUID killer, byte mode) implements CustomPacketPayload {
+
+    public static final byte MODE_DISTANCE = 0;
+    public static final byte MODE_VITAL = 1;
 
     public static final ResourceLocation PAYLOAD_ID = ResourceLocation.fromNamespaceAndPath(
             Noellesroles.MOD_ID, "great_detective_reveal");
     public static final Type<GreatDetectiveRevealC2SPacket> ID = new Type<>(PAYLOAD_ID);
     public static final StreamCodec<RegistryFriendlyByteBuf, GreatDetectiveRevealC2SPacket> CODEC =
             StreamCodec.ofMember(
-                    (packet, buf) -> buf.writeUUID(packet.killer()),
-                    buf -> new GreatDetectiveRevealC2SPacket(buf.readUUID()));
+                    (packet, buf) -> {
+                        buf.writeUUID(packet.killer());
+                        buf.writeByte(packet.mode());
+                    },
+                    buf -> new GreatDetectiveRevealC2SPacket(buf.readUUID(), buf.readByte()));
 
     @Override
     public Type<? extends CustomPacketPayload> type() {

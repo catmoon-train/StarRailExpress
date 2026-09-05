@@ -102,6 +102,7 @@ public class NRGameStateEvents {
         registerServerTick();
         registerPlayerConnection();
         CustomWinnerClass.registerEvents();
+        org.agmas.noellesroles.game.roles.innocence.angler.AnglerWorldMemory.register();
     }
 
     // --- OnGameStarted ---
@@ -111,6 +112,7 @@ public class NRGameStateEvents {
             TarotAssemblyManager.havingMeeting = false;
             HoanMeirinFistPunchHandler.PUNCH_RECORDS.clear();
             RoleShopHandler.resetOldmanEasterEggState();
+            org.agmas.noellesroles.game.roles.innocence.angler.AnglerWorldMemory.reset(serverLevel);
             // 复位蜂后领袖加成（蜜蜂家族中毒致死时间减半）
             BeeFamilyManager.resetQueenLeaderBonus();
             // 复位恒星体领袖加成（恒星体技能冷却减半）
@@ -152,6 +154,7 @@ public class NRGameStateEvents {
             nianShouFirecrackersDistributedThisGame = false;
             HoanMeirinFistPunchHandler.PUNCH_RECORDS.clear();
             RoleShopHandler.resetOldmanEasterEggState();
+            org.agmas.noellesroles.game.roles.innocence.angler.AnglerWorldMemory.reset(world);
             DelayerRoleData.timeBoostTriggered = false;
 
             // 清除感染状态

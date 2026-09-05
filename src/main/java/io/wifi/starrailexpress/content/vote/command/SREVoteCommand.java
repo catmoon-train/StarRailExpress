@@ -294,6 +294,9 @@ public class SREVoteCommand {
         .showResults(show)
         .syncInterval(interval * 20)
         .maxSelect(multiSelect);
+    if (pendingOptions.stream().allMatch(option -> option.resultId().startsWith("mode:"))) {
+      builder.type("game_mode");
+    }
     for (VoteOption opt : pendingOptions)
       builder.addOption(opt);
     if (targets != null && !targets.isEmpty())

@@ -29,6 +29,8 @@ import org.agmas.noellesroles.init.ModItems;
 public class NiaoshoushouMissileEntity extends NoHeavyWaterInfluencedThrowableItemProjectile {
     private static final int MAX_LIFETIME_TICKS = 20 * 20;
     private static final float EXPLOSION_RADIUS = 5.0F;
+    /** 原速 0.9，减慢 35% 后为 0.585。 */
+    public static final float FLY_SPEED = 0.9F * 0.65F;
     /** 与控制包接收端的 128 格限制保持一致：超出后导弹失去控制且相机交还玩家。 */
     private static final double MAX_CONTROL_DISTANCE_SQR = 128.0D * 128.0D;
     private int steering;
@@ -132,7 +134,7 @@ public class NiaoshoushouMissileEntity extends NoHeavyWaterInfluencedThrowableIt
             }
             Vec3 direction = getLookAngle();
             if (direction.lengthSqr() > 0.001D) {
-                setDeltaMovement(direction.normalize().scale(0.9D));
+                setDeltaMovement(direction.normalize().scale(FLY_SPEED));
             }
         }
         super.tick();

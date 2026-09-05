@@ -46,7 +46,8 @@ public class NiaoshoushouMissileItem extends Item {
         missile.setPos(owner.getX() + launchDirection.x * 0.8D,
                 owner.getEyeY() - 0.1D + launchDirection.y * 0.8D,
                 owner.getZ() + launchDirection.z * 0.8D);
-        missile.shootFromRotation(owner, owner.getXRot(), owner.getYRot(), 0.0F, 0.9F, 0.0F);
+        missile.shootFromRotation(owner, owner.getXRot(), owner.getYRot(), 0.0F,
+                NiaoshoushouMissileEntity.FLY_SPEED, 0.0F);
         level.addFreshEntity(missile);
         // 相机绑定由导弹实体在首个服务端 tick 发送，避免生成包与相机包乱序导致绑定失败。
         if (!owner.isCreative()) {

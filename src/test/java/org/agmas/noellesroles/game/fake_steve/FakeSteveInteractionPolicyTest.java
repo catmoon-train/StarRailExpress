@@ -4,6 +4,7 @@ import io.wifi.starrailexpress.cca.SREPlayerTaskComponent.Task;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class FakeSteveInteractionPolicyTest {
@@ -33,5 +34,18 @@ class FakeSteveInteractionPolicyTest {
         assertTrue(FakeSteveInteractionPolicy.releasesPostureAfterCompletion(Task.TOILET));
         assertTrue(FakeSteveInteractionPolicy.releasesPostureAfterCompletion(Task.SLEEP));
         assertTrue(FakeSteveInteractionPolicy.releasesPostureAfterCompletion(Task.RAED_BOOK));
+    }
+
+    @Test
+    void idleBodiesEatOnceThenLeaveThePlateAlone() {
+        assertTrue(FakeSteveInteractionPolicy.isHungry(10));
+        assertFalse(FakeSteveInteractionPolicy.isHungry(16));
+        assertTrue(FakeSteveInteractionPolicy.shouldSnack(true, false, false));
+        assertFalse(FakeSteveInteractionPolicy.shouldSnack(true, true, false));
+        assertTrue(FakeSteveInteractionPolicy.shouldSnack(false, false, true));
+        assertTrue(FakeSteveInteractionPolicy.shouldTakeFromPlate(false, false, false, true));
+        assertFalse(FakeSteveInteractionPolicy.shouldTakeFromPlate(true, false, false, true));
+        assertFalse(FakeSteveInteractionPolicy.shouldTakeFromPlate(false, false, true, true));
+        assertFalse(FakeSteveInteractionPolicy.shouldTakeFromPlate(false, true, false, true));
     }
 }

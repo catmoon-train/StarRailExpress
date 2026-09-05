@@ -82,6 +82,9 @@ public final class FakeSteveAgentState {
     public int holsterSlot = -1;
     public UUID grenadeChargeTarget;
     public long grenadeChargedAtTick;
+    public long nextSnackTick;
+    public BlockPos lastSnackPlate;
+    public boolean taskConsumeStarted;
 
     FakeSteveAgentState(UUID playerId, ReplacementCause cause) {
         this.playerId = playerId;

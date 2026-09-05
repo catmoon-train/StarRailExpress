@@ -70,7 +70,6 @@ import io.wifi.starrailexpress.client.fourthroom.FourthRoomCameraDirector;
 import io.wifi.starrailexpress.client.fourthroom.FourthRoomClientState;
 import io.wifi.starrailexpress.client.fourthroom.FourthRoomTableHud;
 import io.wifi.starrailexpress.client.gui.HudStoreRenderer;
-import io.wifi.starrailexpress.client.gui.MapDetailsRenderer;
 import io.wifi.starrailexpress.client.gui.RoleAnnouncementTexts;
 import io.wifi.starrailexpress.client.gui.RoundTextRenderer;
 import io.wifi.starrailexpress.client.gui.ScopeOverlayRenderer;
@@ -215,7 +214,7 @@ public class SREClient implements ClientModInitializer {
     public static boolean hasCustomSkinLoaderAndNeedToWarn = false;
     public static HPManager handParticleManager;
     public static Map<Player, Vec3> particleMap;
-    public static Map<UUID, OptionalInt> cachedHighLightMap = new HashMap<>();
+    public static Map<UUID, OptionalInt> cachedHighLightMap = new ConcurrentHashMap<>();
     private static boolean previousMyTurn = false;
     private static boolean prevGameRunning;
     public static SREGameWorldComponent gameComponent;
@@ -736,6 +735,7 @@ public class SREClient implements ClientModInitializer {
         ClientPlayConnectionEvents.JOIN.register((handler, sender, client) -> {
             FourthRoomClientState.clear();
             FourthRoomCameraDirector.clear();
+            io.wifi.starrailexpress.client.gui.OpeningPresentationCoordinator.clear();
         });
         ClientPlayConnectionEvents.DISCONNECT.register((handler, client) -> client.execute(() -> {
             FourthRoomClientState.clear();
@@ -746,6 +746,7 @@ public class SREClient implements ClientModInitializer {
             SceneAssetClient.clearRuntime();
             ClientPlayerStatsCache.clear();
             RoleRotationCache.clear();
+            io.wifi.starrailexpress.client.gui.OpeningPresentationCoordinator.clear();
             // 清理自定义职业客户端缓存
             io.wifi.starrailexpress.client.network.CustomRoleClientNetwork.clearCache();
             // 清理 OpenAL 语音特效资源
@@ -832,10 +833,18 @@ public class SREClient implements ClientModInitializer {
         });
         ClientPlayNetworking.registerGlobalReceiver(OnGameFinishedPayload.TYPE, (payload, context) -> {
             MapStatusBarClientState.set(MapStatusBarType.NONE, 20, 20);
+            io.wifi.starrailexpress.client.gui.OpeningPresentationCoordinator.clear();
             OnGameFinishedClient.EVENT.invoker().gameFinished();
         });
         ClientPlayNetworking.registerGlobalReceiver(OnGameStartedPayload.TYPE, (payload, context) -> {
             MapStatusBarClientState.set(MapStatusBarType.NONE, 20, 20);
+            context.client().execute(() -> {
+                if (io.wifi.starrailexpress.client.gui.OpeningPresentationCoordinator
+                        .isVoteResultScreen(context.client().screen)) {
+                    context.client().setScreen(null);
+                }
+                io.wifi.starrailexpress.client.gui.OpeningPresentationCoordinator.onGameStarted();
+            });
             OnGameStartedClient.EVENT.invoker().gameStarted();
         });
         ClientPlayNetworking.registerGlobalReceiver(SyncRoomToPlayerPayload.ID, (payload, context) -> {
@@ -873,12 +882,20 @@ public class SREClient implements ClientModInitializer {
                 e.printStackTrace();
             }
             context.client().execute(() -> {
+                io.wifi.starrailexpress.content.vote.client.VoteFlowTransition.beginIfArmed();
                 context.client().setScreen(MapVoteScreen.create());
             });
         });
         ClientPlayNetworking.registerGlobalReceiver(MapVotingResultsPayload.TYPE, (payload, context) -> {
-            MapDetailsRenderer.triggerMapDetails(
-                    payload.result);
+            context.client().execute(() -> {
+                io.wifi.starrailexpress.client.gui.OpeningPresentationCoordinator.queueMap(payload.result);
+                if (context.client().screen instanceof MapVoteScreen mapVoteScreen) {
+                    mapVoteScreen.showResult(payload.result);
+                } else {
+                    context.client().setScreen(
+                            new io.wifi.starrailexpress.client.gui.screen.MapVoteResultScreen(payload.result));
+                }
+            });
         });
         ClientPlayNetworking.registerGlobalReceiver(OpenSkinScreenPaylod.ID, (payload, context) -> {
 
@@ -1043,6 +1060,17 @@ public class SREClient implements ClientModInitializer {
             io.wifi.starrailexpress.client.hud.TimedGrenadeHUD.render(guiGraphics, deltaTick.getRealtimeDeltaTicks());
             org.agmas.noellesroles.client.hud.MapStatusBarHudRenderer.render(guiGraphics);
         });
+        // Run map rules inside the project's frame lifecycle so text remains visible while a Letter is held.
+        io.wifi.utils.client.betterrender.FakeHudRenderCallback.EVENT.register((guiGraphics, deltaTick) ->
+                io.wifi.starrailexpress.client.gui.OpeningPresentationCoordinator.render(
+                        guiGraphics.getDefaultGuiGraphics(), deltaTick.getGameTimeDeltaPartialTick(false)));
+        ClientTickEvents.START_CLIENT_TICK.register(client -> {
+            if (io.wifi.starrailexpress.client.gui.OpeningPresentationCoordinator.isRulesVisible()) {
+                while (client.options.keySwapOffhand.consumeClick()) {
+                    io.wifi.starrailexpress.client.gui.OpeningPresentationCoordinator.skip();
+                }
+            }
+        });
         ClientPlayNetworking.registerGlobalReceiver(SyncWaypointsPacket.ID, SyncWaypointsPacket::handle);
         ClientPlayNetworking.registerGlobalReceiver(SyncWaypointVisibilityPacket.ID,
                 SyncWaypointVisibilityPacket::handle);
@@ -1064,6 +1092,7 @@ public class SREClient implements ClientModInitializer {
                 return;
             FourthRoomCameraDirector.tick(client);
             net.exmo.sre.camera.client.AdvancedCameraDirector.tick(client);
+            io.wifi.starrailexpress.client.gui.OpeningPresentationCoordinator.tick(client);
             if (SREClient.gameComponent == null)
                 return;
 
@@ -1275,18 +1304,26 @@ public class SREClient implements ClientModInitializer {
     }
 
     public static OptionalInt getCachedInstinctHighlight(Entity target) {
-        if (!(target instanceof ItemEntity || target instanceof Player || target instanceof NoteEntity
-                || target instanceof PuppeteerBodyEntity
-                || target instanceof FirecrackerEntity || target instanceof PlayerBodyEntity
-                || target instanceof Display.BlockDisplay)) {
+        OptionalInt cached = cachedHighLightMap.get(target.getUUID());
+        if (cached != null) {
+            return cached;
+        }
+        if (!isInstinctHighlightCandidate(target)) {
             return OptionalInt.empty();
         }
-        if (!cachedHighLightMap.containsKey(target.getUUID())) {
-            OptionalInt color = getInstinctHighlight(target);
-            cachedHighLightMap.put(target.getUUID(), color);
-            return color;
-        }
-        return cachedHighLightMap.getOrDefault(target.getUUID(), OptionalInt.empty());
+        OptionalInt color = getInstinctHighlight(target);
+        cachedHighLightMap.put(target.getUUID(), color);
+        return color;
+    }
+
+    private static boolean isInstinctHighlightCandidate(Entity target) {
+        return target instanceof NoteEntity
+                || target instanceof Player
+                || target instanceof PlayerBodyEntity
+                || target instanceof ItemEntity
+                || target instanceof PuppeteerBodyEntity
+                || target instanceof FirecrackerEntity
+                || target instanceof Display.BlockDisplay;
     }
 
     /**

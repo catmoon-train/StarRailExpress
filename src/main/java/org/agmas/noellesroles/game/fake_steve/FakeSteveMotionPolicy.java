@@ -1,5 +1,7 @@
 package org.agmas.noellesroles.game.fake_steve;
 
+import java.util.List;
+
 /** Shared limits for client-assisted, server-validated possessed movement. */
 public final class FakeSteveMotionPolicy {
     public static final float MAX_TURN_DEGREES_PER_TICK = 42.0F;
@@ -9,6 +11,10 @@ public final class FakeSteveMotionPolicy {
     private static final float MAX_ROUTE_HEADING_STEP = 36.0F;
     private static final float STRAIGHT_HEADING_DEAD_ZONE = 14.0F;
     private static final float MAX_STRAIGHT_HEADING_STEP = 12.0F;
+    private static final float WALKING_HEADING_DEAD_ZONE = 25.0F;
+    private static final float MAX_WALKING_HEADING_STEP = 12.0F;
+    public static final int LOOK_AHEAD_NODES = 5;
+    private static final double LOOK_AHEAD_MIN_DISTANCE_SQR = 0.25D;
 
     private FakeSteveMotionPolicy() {
     }
@@ -45,6 +51,58 @@ public final class FakeSteveMotionPolicy {
 
     public static boolean isStraightAhead(float previousTarget, float candidate) {
         return Math.abs(wrapDegrees(candidate - previousTarget)) <= STRAIGHT_HEADING_DEAD_ZONE;
+    }
+
+    /**
+     * Walking looks several nodes ahead. Small Manhattan zigzags stay inside
+     * the dead zone so the possessed camera does not shake left and right.
+     */
+    public static float walkingHeading(float previousTarget, float candidate) {
+        float delta = wrapDegrees(candidate - previousTarget);
+        if (Math.abs(delta) <= WALKING_HEADING_DEAD_ZONE) {
+            return wrapDegrees(previousTarget);
+        }
+        return wrapDegrees(previousTarget + Math.max(-MAX_WALKING_HEADING_STEP,
+                Math.min(MAX_WALKING_HEADING_STEP, delta)));
+    }
+
+    public static boolean shouldUseLookAhead(double deltaX, double deltaZ) {
+        return deltaX * deltaX + deltaZ * deltaZ >= LOOK_AHEAD_MIN_DISTANCE_SQR;
+    }
+
+    public static Point lookAheadPoint(List<Point> remaining, Point goal) {
+        if (remaining == null || remaining.isEmpty()) {
+            return goal;
+        }
+        int index = Math.min(LOOK_AHEAD_NODES, remaining.size()) - 1;
+        return remaining.get(index);
+    }
+
+    public static float yawTo(double fromX, double fromZ, double toX, double toZ) {
+        return (float) (Math.atan2(-(toX - fromX), toZ - fromZ) * (180.0D / Math.PI));
+    }
+
+    /**
+     * Converts a world-space walk vector into Minecraft input relative to look yaw.
+     * Positive strafe is left, matching {@code Input.leftImpulse}.
+     */
+    public static LocalMove toLocal(float lookYawDegrees, double worldX, double worldZ) {
+        double yawRad = Math.toRadians(lookYawDegrees);
+        double lookX = -Math.sin(yawRad);
+        double lookZ = Math.cos(yawRad);
+        float forward = (float) (worldX * lookX + worldZ * lookZ);
+        float left = (float) (worldX * lookZ - worldZ * lookX);
+        return new LocalMove(clampInput(forward), clampInput(left));
+    }
+
+    private static float clampInput(float value) {
+        if (value < -1.0F) {
+            return -1.0F;
+        }
+        if (value > 1.0F) {
+            return 1.0F;
+        }
+        return value;
     }
 
     /** Human-looking sprint policy: flee immediately, otherwise only after lingering. */
@@ -132,5 +190,11 @@ public final class FakeSteveMotionPolicy {
     public record Lease(long sequence, long expiresAtTick,
             double routeX, double routeZ, double corridorRadius,
             double maxStep) {
+    }
+
+    public record Point(double x, double z) {
+    }
+
+    public record LocalMove(float forward, float strafe) {
     }
 }

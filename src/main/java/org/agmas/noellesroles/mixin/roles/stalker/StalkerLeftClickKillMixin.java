@@ -21,6 +21,7 @@ import io.wifi.starrailexpress.api.data.RoleData;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.game.GameConstants;
 import io.wifi.starrailexpress.game.GameUtils;
+import io.wifi.starrailexpress.index.TMMItems;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.effect.MobEffectInstance;
@@ -100,7 +101,9 @@ public abstract class StalkerLeftClickKillMixin {
         // 二阶段：左键直接击杀
         GameUtils.killPlayer(targetPlayer, true, attacker, GameConstants.DeathReasons.KNIFE);
 
-        attacker.getCooldowns().addCooldown(mainHand.getItem(), StalkerRoleData.KNIFE_ATTACK_COOLDOWN);
+        // 二阶段保留改版前的左键刀冷却；5 秒只属于刺客形态。
+        attacker.getCooldowns().addCooldown(mainHand.getItem(),
+                GameConstants.ITEM_COOLDOWNS.get(TMMItems.KNIFE) / 3);
         // 触发攻击冷却
 //        stalkerComp.triggerAttackCooldown();
 

@@ -55,7 +55,7 @@ public class NoellesRolesConfig implements ConfigData {
                     "areas_konggang"));
 
     /**
-     * Areas that will spawn underwater roles (Sea King, Diver, Water Ghost)
+     * Areas that will spawn underwater roles (Sea King, Diver, Water Ghost, Angler)
      */
     public ArrayList<String> underwaterRolesMaps = new ArrayList<>(List.of("areas14"));
 
@@ -237,6 +237,12 @@ public class NoellesRolesConfig implements ConfigData {
     public int ghostEyeDomainRadius = 12;
 
 
+
+    // ==================== Great Detective (大侦探) ====================
+    /** Great Detective - Investigation channel duration in seconds */
+    public int greatDetectiveChannelSeconds = 4;
+    /** Great Detective - Investigation cooldown in seconds */
+    public int greatDetectiveCooldownSeconds = 28;
 
     // ==================== Diviner (占卜家) ====================
     /** Diviner - Divination cooldown in seconds */
