@@ -67,7 +67,7 @@ public class THMiscRoles {
             .setCanPickUpRevolver(false)
             .setFallDamageImmune(true) // 不会因高度限制摔死
             .setDefaultEnableNeededPlayerCount(18).setDefaultEnableChance(1000)
-            .setAddedVersion("4.4");
+            .setAddedVersion("4.3");
 
     // 灵乌路空
     public static final ResourceLocation REIUJI_UTSUHO_ID = id("reiuji_utsuho");
@@ -87,7 +87,7 @@ public class THMiscRoles {
                     TMMRoles.CIVILIAN.getMaxSprintTime() * 2, true), "th_hell")
             .setCanPickUpRevolver(false).setVigilanteTeam(true).setSpecialVigilante(true)
             .setDefaultEnableNeededPlayerCount(24).setDefaultEnableChance(3000)
-            .setAddedVersion("4.4");
+            .setAddedVersion("4.3");
     // 小野冢小町 Onozuka Komachi
     public static final ResourceLocation KOMACHI_ID = id("onozuka_komachi");
     public static SRERole KOMACHI = TMMRoles
@@ -95,14 +95,14 @@ public class THMiscRoles {
                     false, true, SRERole.MoodType.FAKE,
                     Integer.MAX_VALUE, true), "th_hell")
             .setCanEarnKillerCoinAwardsFromKills(false)
-            .setAddedVersion("4.4"); // 杀人无法获得基础金币奖励
+            .setAddedVersion("4.3"); // 杀人无法获得基础金币奖励
     // 天子Hinanawi Tenshi
     public static final ResourceLocation TENSHI_ID = id("hinanawi_tenshi");
     public static SRERole TENSHI = TMMRoles
             .registerRole(new THTenshiRole(TENSHI_ID, new Color(89, 177, 250).getRGB(),
                     true, false, SRERole.MoodType.REAL,
                     TMMRoles.CIVILIAN.getMaxSprintTime() * 2, false))
-            .setAddedVersion("4.4")
+            .setAddedVersion("4.3")
             .setCanBePoisoned(false);
 
     // 鬼人正邪 Kijin Seija

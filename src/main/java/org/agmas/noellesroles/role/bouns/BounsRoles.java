@@ -326,7 +326,8 @@ public class BounsRoles {
             Integer.MAX_VALUE, true))
             .setCanUseInstinctAndNightVision(true)
             .setDefaultEnableChance(1000)
-            .setDefaultEnableMaxPlayerCount(18);
+            .setDefaultEnableMaxPlayerCount(18)
+            .setAddedVersion("4.4"); // versiontag 4.4
 
     public static SRERole RABBIT_WANSUI = TMMRoles.registerRole(new RabbitWansuiRole(
             id("rabbit_wansui"),
@@ -340,7 +341,8 @@ public class BounsRoles {
             .setCanUseInstinctAndNightVision(true)
             .setInstinctType(InstinctType.DEFAULT, InstinctType.OBSERVER_ROLE_COLOR)
             .setKillExtraCoinAwards(50)
-            .setDefaultEnableMaxPlayerCount(18);
+            .setDefaultEnableMaxPlayerCount(18)
+            .setAddedVersion("4.4"); // versiontag 4.4
 
     public static SRERole LICENSED_VILLAIN = TMMRoles.registerRole(new EggRole(
             id("licensed_villain"), // 角色 ID
