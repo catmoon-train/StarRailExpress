@@ -805,6 +805,8 @@ public abstract class GameMode {
                 TrainVoicePlugin.addPlayer(victim.getUUID());
             }
             GameUtils.recordPlayerKill(killer, victim, deathReason, true);
+
+            OnPlayerDeathWithKiller.FINAL_EVENT.invoker().onPlayerDeath(victim, killer, deathReason);
         }
     }
 

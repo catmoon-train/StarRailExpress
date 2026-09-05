@@ -55,7 +55,7 @@ public class SRERoleDataPlayerComponent
     @Override
     public boolean shouldSyncWith(ServerPlayer p) {
         if (roleData != null) {
-            return roleData.shouldSyncWith(p);
+            return (initSync && p == player) || roleData.shouldSyncWith(p);
         }
         return player == p;
     }
@@ -161,6 +161,8 @@ public class SRERoleDataPlayerComponent
      * 同步到客户端
      */
     public void sync() {
+        if (player.level().isClientSide)
+            return;
         KEY.sync(this.player);
         initSync = false;
     }
@@ -170,9 +172,6 @@ public class SRERoleDataPlayerComponent
         if (initSync) {
             tag.putBoolean("__init__", true);
             return;
-        } else if (roleData == null) {
-            tag.putBoolean("__clear__", true);
-            return;
         }
         if (roleData != null) {
             roleData.writeToSyncNbt(tag, registryLookup);
@@ -181,14 +180,13 @@ public class SRERoleDataPlayerComponent
 
     @Override
     public void readFromSyncNbt(CompoundTag tag, Provider registryLookup) {
-
         if (tag.contains("__init__")) {
+            if (roleData != null) {
+                clear();
+            }
             clientInit();
             return;
-        } else if (tag.contains("__clear__")) {
-            clear();
-            return;
-        }
+        } 
         if (roleData == null) {
             clientInit();
         }

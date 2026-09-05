@@ -3133,6 +3133,7 @@
   "message.noellesroles.kotiya_sanae.actionbar": "你的祈祷得到了响应... 招来了 %s",
   "message.replay.noellesroles.kotiya_sanae": "§b🌂§r %s 的祈祷招来了天气 %s",
   "skill.noellesroles.silent_killer.failed": "你必须金币数量为0才能使用！",
+  "skill.noellesroles.silent_killer.consume_all": "清空自己所有金币",
   "skill.noellesroles.silent_killer": "华丽收场",
   "skill.noellesroles.kotiya_sanae.weather.0": "[放晴]",
   "skill.noellesroles.kotiya_sanae.weather.1": "[骤雨]",

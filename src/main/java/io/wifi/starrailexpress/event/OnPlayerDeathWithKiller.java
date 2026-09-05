@@ -26,10 +26,11 @@ import static net.fabricmc.fabric.api.event.EventFactory.createArrayBacked;
  * 事件接口：玩家在有击杀者时死亡时触发。
  * 所有监听器均会被调用（非拦截型事件）。
  *
- * <p>Event interface fired when a player dies with a killer present.
+ * <p>
+ * Event interface fired when a player dies with a killer present.
  * All listeners are invoked (non-cancellable event).
  */
-public interface OnPlayerDeathWithKiller {
+public class OnPlayerDeathWithKiller {
 
     /**
      * 玩家在有击杀者时死亡时触发的事件。
@@ -37,7 +38,8 @@ public interface OnPlayerDeathWithKiller {
      * 'fell_out_of_train'、'poison'、'grenade'、'bat_hit'、'gun_shot'、'knife_stab'。
      * 其他未显式定义的死亡类型默认为 'generic'。
      *
-     * <p>Event callback invoked when a player dies with a killer.
+     * <p>
+     * Event callback invoked when a player dies with a killer.
      * The game currently has the following death type names defined:
      * 'fell_out_of_train', 'poison', 'grenade', 'bat_hit', 'gun_shot',
      * 'knife_stab'.
@@ -45,9 +47,20 @@ public interface OnPlayerDeathWithKiller {
      *
      * @see io.wifi.starrailexpress.game.GameConstants.DeathReasons
      */
-    Event<OnPlayerDeathWithKiller> EVENT = createArrayBacked(OnPlayerDeathWithKiller.class,
+    public static final Event<InnerOnPlayerDeathWithKiller> EVENT = createArrayBacked(
+            InnerOnPlayerDeathWithKiller.class,
             listeners -> (player, killer, deathReason) -> {
-                for (OnPlayerDeathWithKiller listener : listeners) {
+                for (InnerOnPlayerDeathWithKiller listener : listeners) {
+                    listener.onPlayerDeath(player, killer, deathReason);
+                }
+                return;
+            });
+
+    /** 完全走完GameUtils后触发（在所有kill相关事件后） */
+    public static final Event<InnerOnPlayerDeathWithKiller> FINAL_EVENT = createArrayBacked(
+            InnerOnPlayerDeathWithKiller.class,
+            listeners -> (player, killer, deathReason) -> {
+                for (InnerOnPlayerDeathWithKiller listener : listeners) {
                     listener.onPlayerDeath(player, killer, deathReason);
                 }
                 return;
@@ -56,11 +69,15 @@ public interface OnPlayerDeathWithKiller {
     /**
      * 玩家死亡时（有击杀者）的回调方法。
      *
-     * <p>Callback invoked when a player dies with an optional killer.
+     * <p>
+     * Callback invoked when a player dies with an optional killer.
      *
-     * @param player     死亡的玩家 / the player who died
-     * @param killer     击杀者，可能为 null / the killer, may be null
-     * @param deathReason 死亡原因的资源定位符 / resource location identifying the death reason
+     * @param player      死亡的玩家 / the player who died
+     * @param killer      击杀者，可能为 null / the killer, may be null
+     * @param deathReason 死亡原因的资源定位符 / resource location identifying the death
+     *                    reason
      */
-    void onPlayerDeath(Player player, @Nullable Player killer, ResourceLocation deathReason);
+    public interface InnerOnPlayerDeathWithKiller {
+        void onPlayerDeath(Player player, @Nullable Player killer, ResourceLocation deathReason);
+    }
 }
