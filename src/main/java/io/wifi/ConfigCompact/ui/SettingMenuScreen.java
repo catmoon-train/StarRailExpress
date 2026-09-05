@@ -50,16 +50,8 @@ public class SettingMenuScreen extends Screen {
             this.minecraft = Minecraft.getInstance();
         }
         if (this.minecraft.level != null) {
-            if (!this.minecraft.isSingleplayer()) {
-                if (!this.minecraft.isLocalServer()) {
-                    if (this.minecraft.getCurrentServer() != null) {
-                        if (this.minecraft.player != null) {
-                            if (!this.minecraft.player.hasPermissions(2)) {
-                                showSettings = false;
-                            }
-                        }
-                    }
-                }
+            if (!this.minecraft.player.hasPermissions(2)) {
+                showSettings = false;
             }
         }
         this.parent = parent;
@@ -119,10 +111,14 @@ public class SettingMenuScreen extends Screen {
             rowHelper.addChild(
                     bbtn, COLUMN_COUNT, gridLayout.newCellSettings().paddingTop(50));
         }
-
-        rowHelper.addChild(
-                this.openScreenButton(Component.translatable("screen.starrailexpress.client_utils"),
-                        () -> (new ClientUtilScreen(this))));
+        {
+            var bbtn = this.openScreenButton(Component.translatable("screen.starrailexpress.client_utils"),
+                    () -> (new ClientUtilScreen(this)));
+            if (!showSettings)
+                bbtn.setWidth(WIDE_BUTTON_WIDTH);
+            rowHelper.addChild(
+                    bbtn, showSettings ? 1 : COLUMN_COUNT);
+        }
         // 列车设置
         {
             Button btn = this.openScreenButton(Component.translatable("screen.starrailexpress.settings.tmm"),
@@ -135,8 +131,8 @@ public class SettingMenuScreen extends Screen {
                 btn.active = false;
                 btn.setTooltip(Tooltip.create(Component.translatable("screen.starrailexpress.settings.unable")
                         .withStyle(ChatFormatting.RED)));
-            }
-            rowHelper.addChild(btn);
+            } else
+                rowHelper.addChild(btn);
         }
 
         // Noelle's Roles
@@ -152,8 +148,8 @@ public class SettingMenuScreen extends Screen {
                 btn.active = false;
                 btn.setTooltip(Tooltip.create(Component.translatable("screen.starrailexpress.settings.unable")
                         .withStyle(ChatFormatting.RED)));
-            }
-            rowHelper.addChild(btn);
+            } else
+                rowHelper.addChild(btn);
         }
         // HarpyModLoader
 
@@ -168,8 +164,8 @@ public class SettingMenuScreen extends Screen {
                 btn.active = false;
                 btn.setTooltip(Tooltip.create(Component.translatable("screen.starrailexpress.settings.unable")
                         .withStyle(ChatFormatting.RED)));
-            }
-            rowHelper.addChild(btn);
+            } else
+                rowHelper.addChild(btn);
         }
 
         // StupidExpress
@@ -185,8 +181,8 @@ public class SettingMenuScreen extends Screen {
                 btn.active = false;
                 btn.setTooltip(Tooltip.create(Component.translatable("screen.starrailexpress.settings.unable")
                         .withStyle(ChatFormatting.RED)));
-            }
-            rowHelper.addChild(btn);
+            } else
+                rowHelper.addChild(btn);
         }
         // 角色设置
 
@@ -201,8 +197,8 @@ public class SettingMenuScreen extends Screen {
                 btn.active = false;
                 btn.setTooltip(Tooltip.create(Component.translatable("screen.starrailexpress.settings.unable")
                         .withStyle(ChatFormatting.RED)));
-            }
-            rowHelper.addChild(btn);
+            } else
+                rowHelper.addChild(btn);
         }
         if (isFromPausingScreen) {
             // 返回原版菜单
