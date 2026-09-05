@@ -38,7 +38,7 @@ public class LetterNewspaperBuilder {
                 "sre.letter.tip.header.subtitle",
                 Component.translatable(mapNameKey));
 
-        NewspaperScreen screen = new NewspaperScreen(List.of(body), title, subtitle);
+        NewspaperScreen screen = new NewspaperScreen(List.of(body), title, subtitle, 0);
         Minecraft.getInstance().setScreen(screen);
     }
 
@@ -207,21 +207,20 @@ public class LetterNewspaperBuilder {
     }
 
     private static Component buildProcessorType(AreasSettings settings, boolean emergency) {
-        if (!settings.meetingVoteEnabled) {
+        if (!emergency && !settings.meetingVoteEnabled) {
             return Component.translatable("meeting.sre.entry.no_vote")
                     .withStyle(ChatFormatting.BLACK);
         }
 
-        if (emergency && settings.emergencyMeetingVoteEnabled == TrueFalseResult.FALSE) {
+        if (emergency && settings.emergencyMeetingVoteEnabled == TrueFalseResult.FALSE
+                || (settings.emergencyMeetingVoteEnabled == TrueFalseResult.PASS && !settings.meetingVoteEnabled)) {
             return Component.translatable("meeting.sre.entry.no_vote")
                     .withStyle(ChatFormatting.BLACK);
         }
 
         Component normalResult = switch (settings.meetingVoteProcessor) {
-            case FORCE_KILL, KILL -> Component.translatable("meeting.sre.entry.kill")
-                    .withStyle(ChatFormatting.DARK_RED);
-            case GLOWING -> Component.translatable("meeting.sre.entry.glow")
-                    .withStyle(ChatFormatting.DARK_AQUA);
+            case FORCE_KILL, KILL -> Component.translatable("meeting.sre.entry.kill");
+            case GLOWING -> Component.translatable("meeting.sre.entry.glow");
             default -> Component.translatable("meeting.sre.entry.custom");
         };
 
@@ -235,10 +234,8 @@ public class LetterNewspaperBuilder {
         }
 
         return switch (settings.emergencyMeetingVoteProcessor) {
-            case FORCE_KILL, KILL -> Component.translatable("meeting.sre.entry.kill")
-                    .withStyle(ChatFormatting.DARK_RED);
-            case GLOWING -> Component.translatable("meeting.sre.entry.glow")
-                    .withStyle(ChatFormatting.GOLD);
+            case FORCE_KILL, KILL -> Component.translatable("meeting.sre.entry.kill");
+            case GLOWING -> Component.translatable("meeting.sre.entry.glow");
             case FUNCTION -> Component.translatable("meeting.sre.entry.custom");
             default -> normalResult;
         };
