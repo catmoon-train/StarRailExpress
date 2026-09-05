@@ -82,7 +82,6 @@ import io.wifi.starrailexpress.client.gui.screen.ProgressionPassScreen;
 import io.wifi.starrailexpress.client.gui.screen.SkinManagementScreen;
 import io.wifi.starrailexpress.client.gui.screen.WaypointHUD;
 import io.wifi.starrailexpress.client.gui.screen.gamemode.role_rotation.RoleRotationScreen;
-import io.wifi.starrailexpress.client.model.ClosedSmallDoorModels;
 import io.wifi.starrailexpress.client.model.GeneralModelLoadingPlugin;
 import io.wifi.starrailexpress.client.model.TMMModelLayers;
 import io.wifi.starrailexpress.client.render.block_entity.FourthRoomTableBlockEntityRenderer;
@@ -176,7 +175,6 @@ import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.item.v1.ItemTooltipCallback;
 import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
 import net.fabricmc.fabric.api.client.model.loading.v1.ModelLoadingPlugin;
-import net.fabricmc.fabric.api.client.model.loading.v1.ModelModifier;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.client.rendering.v1.BuiltinItemRendererRegistry;
@@ -193,7 +191,6 @@ import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderers;
 import net.minecraft.client.renderer.entity.NoopRenderer;
 import net.minecraft.client.renderer.entity.ThrownItemRenderer;
-import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.client.resources.model.ModelResourceLocation;
 import net.minecraft.client.resources.model.UnbakedModel;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -384,7 +381,6 @@ public class SREClient implements ClientModInitializer {
 
         // Custom block models
         CustomModelProvider customModelProvider = new CustomModelProvider();
-        ClosedSmallDoorModels.register(customModelProvider);
         ModelLoadingPlugin.register(customModelProvider);
 
         // Block Entity Renderers
@@ -1240,13 +1236,7 @@ public class SREClient implements ClientModInitializer {
 
         @Override
         public void onInitializeModelLoader(Context ctx) {
-            ClosedSmallDoorModels.addAtlasModels(ctx);
             ctx.modifyModelOnLoad().register((model, context) -> {
-                ResourceLocation resourceId = context.resourceId();
-                if (resourceId != null) {
-                    UnbakedModel stitch = ClosedSmallDoorModels.stitchForResource(resourceId);
-                    return stitch != null ? stitch : model;
-                }
                 ModelResourceLocation topLevelId = context.topLevelId();
                 if (topLevelId == null) {
                     return model;
@@ -1259,11 +1249,6 @@ public class SREClient implements ClientModInitializer {
                     return this.modelIdToBlock.get(id);
                 }
                 return model;
-            });
-            ctx.modifyModelAfterBake().register(ModelModifier.WRAP_PHASE, (baked, context) -> {
-                BakedModel wrapped = ClosedSmallDoorModels.wrapAfterBake(
-                        baked, context.topLevelId(), context.textureGetter());
-                return wrapped != null ? wrapped : baked;
             });
         }
     }

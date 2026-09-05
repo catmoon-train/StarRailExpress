@@ -74,12 +74,6 @@ public class PlaneSmallDoorBlockEntityRenderer extends AnimatableBlockEntityRend
     }
 
     @Override
-    protected boolean isIdleClosed(PlaneSmallDoorBlockEntity entity) {
-        return !entity.isOpen()
-                && !this.isAnimationActive(entity.state, SmallDoorAnimations.PLANE_CLOSE, this.getAge(entity));
-    }
-
-    @Override
     public int getAge(PlaneSmallDoorBlockEntity entity) {
         return entity.getAge();
     }

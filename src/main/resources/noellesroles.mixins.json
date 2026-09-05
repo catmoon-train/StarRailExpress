@@ -133,6 +133,7 @@
     "client.roles.salted_fish.SaltedFishBodyRenderMixin",
     "client.roles.salted_fish.SaltedFishPlayerRenderMixin",
     "client.roles.silencer.SilencerHelpMixin",
+    "client.roles.angler.FishingHookRendererAnglerMixin",
     "client.roles.silver_wing.MechanicalBirdHandMixin",
     "client.roles.swapper.KeyBindingMixin",
     "client.roles.undead_lord.UndeadGunTargetMixin",

@@ -28,6 +28,7 @@ import io.wifi.starrailexpress.index.TMMItems;
 import io.wifi.starrailexpress.index.tag.TMMItemTags;
 import io.wifi.starrailexpress.content.item.component.SREWrittenBookContent;
 import net.minecraft.ChatFormatting;
+import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
@@ -95,9 +96,34 @@ public final class AnglerCatchHandler {
                 GameUtils.killPlayer(player, true, null, AnglerRules.DEATH_EXHAUSTED);
             }
         }
-        level.playSound(null, player.getX(), player.getY(), player.getZ(), SoundEvents.FISHING_BOBBER_RETRIEVE,
-                SoundSource.PLAYERS, 1f, 1f);
+        playCatchEffects(level, player, hook, errorRod);
         return true;
+    }
+
+    private static void playCatchEffects(ServerLevel level, ServerPlayer player, FishingHook hook, boolean errorRod) {
+        double x = hook.getX();
+        double y = hook.getY();
+        double z = hook.getZ();
+        level.sendParticles(ParticleTypes.FISHING, x, y, z, 20, 0.28, 0.18, 0.28, 0.09);
+        level.sendParticles(ParticleTypes.SPLASH, x, y, z, 18, 0.32, 0.22, 0.32, 0.14);
+        level.sendParticles(ParticleTypes.BUBBLE_POP, x, y + 0.12, z, 12, 0.22, 0.16, 0.22, 0.03);
+        if (errorRod) {
+            level.sendParticles(ParticleTypes.SQUID_INK, x, y + 0.18, z, 14, 0.22, 0.28, 0.22, 0.05);
+            level.sendParticles(ParticleTypes.SMOKE, x, y + 0.22, z, 8, 0.16, 0.22, 0.16, 0.012);
+        } else {
+            level.sendParticles(ParticleTypes.GLOW, x, y + 0.22, z, 10, 0.22, 0.22, 0.22, 0.025);
+            level.sendParticles(ParticleTypes.ENCHANT, player.getX(), player.getY() + 1.05, player.getZ(),
+                    14, 0.35, 0.45, 0.35, 0.45);
+        }
+        level.playSound(null, x, y, z, SoundEvents.FISHING_BOBBER_SPLASH, SoundSource.PLAYERS,
+                1.05f, 0.85f + level.random.nextFloat() * 0.25f);
+        level.playSound(null, player.getX(), player.getY(), player.getZ(), SoundEvents.FISHING_BOBBER_RETRIEVE,
+                SoundSource.PLAYERS, 1.0f, 1.05f);
+        level.playSound(null, player.getX(), player.getY(), player.getZ(), SoundEvents.ITEM_PICKUP,
+                SoundSource.PLAYERS, 0.75f, 1.15f);
+        if (errorRod) {
+            level.playSound(null, x, y, z, SoundEvents.SQUID_SQUIRT, SoundSource.PLAYERS, 0.55f, 0.55f);
+        }
     }
 
     private static boolean AnglerRodCanFish(ServerPlayer player, ItemStack rod) {

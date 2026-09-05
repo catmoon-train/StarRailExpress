@@ -38,6 +38,10 @@ import org.ladysnake.cca.api.v3.component.tick.ServerTickingComponent;
 import org.ladysnake.cca.api.v3.util.CheckEnvironment;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -159,13 +163,8 @@ public class WorldModifierComponent implements AutoSyncedComponent, ServerTickin
 
     public void removeModifier(UUID player, SREModifier modifier, boolean sync) {
         Set<SREModifier> pp = this.modifiers.get(player);
-        if (pp != null) {
-            pp.remove(modifier);
-        synchronized (this.modifiers) {
-            HashSet<SREModifier> pp = this.modifiers.get(player);
-            if (pp != null && pp.remove(modifier)) {
-                this.dirtyUuids.add(player);
-            }
+        if (pp != null && pp.remove(modifier)) {
+            this.dirtyUuids.add(player);
         }
         if (sync)
             this.sync();
@@ -276,19 +275,19 @@ public class WorldModifierComponent implements AutoSyncedComponent, ServerTickin
                 buf.writeByte(MODE_DIFF);
                 buf.writeVarInt(this.dirtyUuids.size());
                 for (UUID uuid : this.dirtyUuids) {
-                    HashSet<SREModifier> set = this.modifiers.get(uuid);
+                    Set<SREModifier> set = this.modifiers.get(uuid);
                     writeEntry(buf, uuid, set == null ? Collections.emptySet() : set);
                 }
             } else {
                 // 全量快照：新玩家加入/重生/换维度时由CCA触发，等价于旧版的整表覆盖
                 buf.writeByte(MODE_FULL);
                 int count = 0;
-                for (HashSet<SREModifier> set : this.modifiers.values()) {
+                for (Set<SREModifier> set : this.modifiers.values()) {
                     if (!set.isEmpty())
                         count++;
                 }
                 buf.writeVarInt(count);
-                for (Map.Entry<UUID, HashSet<SREModifier>> entry : this.modifiers.entrySet()) {
+                for (Map.Entry<UUID, Set<SREModifier>> entry : this.modifiers.entrySet()) {
                     if (!entry.getValue().isEmpty())
                         writeEntry(buf, entry.getKey(), entry.getValue());
                 }
