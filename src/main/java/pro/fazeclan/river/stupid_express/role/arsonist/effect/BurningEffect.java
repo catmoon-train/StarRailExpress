@@ -15,6 +15,7 @@
 
 package pro.fazeclan.river.stupid_express.role.arsonist.effect;
 
+import io.wifi.starrailexpress.game.GameConstants;
 import io.wifi.starrailexpress.game.GameUtils;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -23,7 +24,6 @@ import net.minecraft.world.effect.MobEffectCategory;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.flag.FeatureFlagSet;
-import pro.fazeclan.river.stupid_express.StupidExpress;
 import pro.fazeclan.river.stupid_express.constants.SEEffects;
 import pro.fazeclan.river.stupid_express.role.arsonist.ArsonistRoleData;
 
@@ -38,7 +38,8 @@ import java.util.UUID;
  * <li>点燃时一并施加隐藏的原版“防火”效果，使目标在燃烧期间不受原版火焰伤害，
  * 死亡时机完全由本效果掌控，而不会被火焰伤害提前烧死。</li>
  * <li>效果走到最后一 tick 时，目标被烧死，死亡原因为 {@code stupid_express:ignited}，
- * 击杀者归属为点燃他的纵火犯（通过 {@link ArsonistRoleData#getBurningKiller(java.util.UUID)} 记录）。</li>
+ * 击杀者归属为点燃他的纵火犯（通过 {@link ArsonistRoleData#getBurningKiller(java.util.UUID)}
+ * 记录）。</li>
  * </ul>
  */
 public class BurningEffect extends MobEffect {
@@ -96,7 +97,8 @@ public class BurningEffect extends MobEffect {
                     ? victim.getServer().getPlayerList().getPlayer(killerId)
                     : null;
             victim.setRemainingFireTicks(0);
-            GameUtils.killPlayer(victim, true, killer, StupidExpress.id("ignited"));
+            victim.removeEffect(SEEffects.BURNING);
+            GameUtils.killPlayer(victim, true, killer, GameConstants.DeathReasons.IGNITED, true);
         });
     }
 }
