@@ -30,7 +30,6 @@ import net.minecraft.client.gui.screens.PauseScreen;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import org.agmas.harpymodloader.config.HarpyModLoaderConfig;
-import org.agmas.noellesroles.client.screen.RoleIntroduceScreen;
 import org.agmas.noellesroles.config.NoellesRolesConfig;
 import pro.fazeclan.river.stupid_express.StupidExpressConfig;
 
@@ -113,16 +112,12 @@ public class SettingMenuScreen extends Screen {
         // rowHelper.addChild()
 
         // 角色介绍
-        rowHelper.addChild(
-                Button.builder(Component.translatable("screen.starrailexpress.settings.introduction"), (button) -> {
-                    this.minecraft.setScreen(new RoleIntroduceScreen(this));
-                }).width(WIDE_BUTTON_WIDTH).build(), COLUMN_COUNT, gridLayout.newCellSettings().paddingTop(50));
         {
             var bbtn = this.openScreenButton(Component.translatable("screen.starrailexpress.settings.client"),
                     () -> (SREClientConfig.HANDLER.generateGui().generateScreen(this)));
             bbtn.setWidth(WIDE_BUTTON_WIDTH);
             rowHelper.addChild(
-                    bbtn, COLUMN_COUNT);
+                    bbtn, COLUMN_COUNT, gridLayout.newCellSettings().paddingTop(50));
         }
 
         rowHelper.addChild(

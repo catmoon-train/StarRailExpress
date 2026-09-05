@@ -90,6 +90,11 @@ public class NewspaperScreen extends Screen {
     private boolean isSigning = false;
     private int frameTick = 0;
 
+    // 只读模式正文缩放：>0 为固定倍数；<=0 表示按屏幕高度自适应（见 adaptiveBodyScale）。
+    // 无论固定还是自适应，都只作用于正文行文本，页码、标题等辅助文本不参与缩放
+    private float bodyTextScale = 1.0f;
+    private boolean autoBodyTextScale = false;
+
     @Nullable
     private final Player player;
     @Nullable
@@ -199,7 +204,13 @@ public class NewspaperScreen extends Screen {
     }
 
     public NewspaperScreen(List<Component> readOnlyPages, Component title, Component author) {
+        this(readOnlyPages, title, author, 0f);
+    }
+
+    public NewspaperScreen(List<Component> readOnlyPages, Component title, Component author, float bodyTextScale) {
         super(GameNarrator.NO_TITLE);
+        this.autoBodyTextScale = bodyTextScale <= 0;
+        this.bodyTextScale = this.autoBodyTextScale ? 1.0f : bodyTextScale;
         this.editable = false;
         this.componentPages = new ArrayList<>(readOnlyPages);
         if (this.componentPages.isEmpty())
@@ -274,9 +285,10 @@ public class NewspaperScreen extends Screen {
     private void rebuildSubPages() {
         if (!editable) {
             subPages = new ArrayList<>();
-            int maxLines = Math.max(1, textHeight / font.lineHeight);
+            int wrapWidth = Math.max(1, (int) (textWidth / bodyTextScale));
+            int maxLines = Math.max(1, (int) (textHeight / bodyTextScale) / font.lineHeight);
             for (Component comp : componentPages) {
-                List<FormattedCharSequence> allLines = font.split(comp, textWidth);
+                List<FormattedCharSequence> allLines = font.split(comp, wrapWidth);
                 if (allLines.isEmpty()) {
                     subPages.add(Collections.emptyList());
                     continue;
@@ -308,7 +320,19 @@ public class NewspaperScreen extends Screen {
         clearDisplayCache();
     }
 
+    // 自适应正文缩放：仅按 GUI 缩放高度线性映射，区间外截断。
+    // 高度 240 -> 1.0f，492 -> 1.2f
+    private static float adaptiveBodyScale(int guiHeight) {
+        if (guiHeight <= 240)
+            return 1.0f;
+        if (guiHeight >= 492)
+            return 1.2f;
+        return 1.0f + (guiHeight - 240) * (0.2f / (492 - 240));
+    }
+
     private void calculateNewspaperSize() {
+        if (autoBodyTextScale)
+            bodyTextScale = adaptiveBodyScale(height);
         int availW = width - 2 * SCREEN_MARGIN;
         int availH = height - 2 * SCREEN_MARGIN;
         double ratio = 3.0 / 2.0;
@@ -621,8 +645,18 @@ public class NewspaperScreen extends Screen {
             if (subPagesDirty)
                 rebuildSubPages();
             List<FormattedCharSequence> lines = subPages.get(currentPage);
-            for (int i = 0; i < lines.size(); i++) {
-                guiGraphics.drawString(font, lines.get(i), textX, textY + i * 9, 0x000000, false);
+            if (bodyTextScale == 1.0f) {
+                for (int i = 0; i < lines.size(); i++) {
+                    guiGraphics.drawString(font, lines.get(i), textX, textY + i * 9, 0x000000, false);
+                }
+            } else {
+                guiGraphics.pose().pushPose();
+                guiGraphics.pose().translate(textX, textY, 0.0f);
+                guiGraphics.pose().scale(bodyTextScale, bodyTextScale, 1.0f);
+                for (int i = 0; i < lines.size(); i++) {
+                    guiGraphics.drawString(font, lines.get(i), 0, i * 9, 0x000000, false);
+                }
+                guiGraphics.pose().popPose();
             }
             Style hoverStyle = getClickedComponentStyleAt(mouseX, mouseY);
             if (hoverStyle != null) {
@@ -791,8 +825,8 @@ public class NewspaperScreen extends Screen {
         if (lines.isEmpty())
             return null;
 
-        int x = mouseX - textX;
-        int y = mouseY - textY;
+        int x = (int) ((mouseX - textX) / bodyTextScale);
+        int y = (int) ((mouseY - textY) / bodyTextScale);
         if (x < 0 || y < 0)
             return null;
 
