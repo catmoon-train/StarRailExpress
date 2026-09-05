@@ -28,6 +28,7 @@ import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.FishingRodItem;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.level.Level;
 import org.agmas.noellesroles.content.entity.AnglerRodMountEntity;
 import org.agmas.noellesroles.game.roles.innocence.angler.AnglerCatchHandler;
@@ -37,6 +38,8 @@ import org.agmas.noellesroles.init.ModEntities;
 import org.agmas.noellesroles.init.ModItems;
 import org.agmas.noellesroles.role.bouns.BounsRoles;
 import org.jetbrains.annotations.NotNull;
+
+import java.util.List;
 
 public class AnglerRodItem extends FishingRodItem {
     public AnglerRodItem(Properties properties) {
@@ -124,5 +127,17 @@ public class AnglerRodItem extends FishingRodItem {
             return true;
         }
         return game.isRole(player, BounsRoles.ANGLER) && AnglerCatchHandler.remainingUses(stack) > 0;
+    }
+
+    @Override
+    public void appendHoverText(@NotNull ItemStack stack, @NotNull TooltipContext context,
+            @NotNull List<Component> tooltip, @NotNull TooltipFlag flag) {
+        if (!(this instanceof ErrorAnglerRodItem)) {
+            tooltip.add(Component.translatable("item.noellesroles.angler_rod.durability",
+                    AnglerCatchHandler.displayRemainingUses(stack),
+                    AnglerRules.ROD_DISPLAY_MAX_DURABILITY)
+                    .withStyle(ChatFormatting.AQUA));
+        }
+        super.appendHoverText(stack, context, tooltip, flag);
     }
 }

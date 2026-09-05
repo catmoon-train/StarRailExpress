@@ -38,6 +38,7 @@ public final class SceneServerEvents {
         // 场景任务的定时检测（炉灶停留 / 祷告注视 / 独处）
         net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents.END_WORLD_TICK.register(
                 SceneTaskManager::tick);
+        LoopingMirrorManager.register();
 
         // 手枪射线命中列车标靶 → 发出红石信号
         OnRevolverUsed.EVENT.register((ServerPlayer shooter, ServerPlayer target) -> {

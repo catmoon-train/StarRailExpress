@@ -195,6 +195,7 @@ public class VoteManager {
                 }
             }
             player.displayClientMessage(Component.translatable("vote.cast_success", names.toString().trim()), true);
+            io.wifi.starrailexpress.progression.ProgressionDataManager.onCastVote(player);
         } else {
             player.displayClientMessage(Component.translatable("vote.already_voted"), true);
         }

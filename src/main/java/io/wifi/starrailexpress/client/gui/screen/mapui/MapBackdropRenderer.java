@@ -90,20 +90,25 @@ public final class MapBackdropRenderer {
     private int meshRows;
     private float[] meshX;
     private float[] meshY;
-    private float[] meshPhase;
     private int[] meshTriColor;
 
     // ------------------------------------------------------------------
     // 生命周期
     // ------------------------------------------------------------------
 
-    /** Screen.init 调用；重置开屏动画并按新尺寸重建网格。 */
+    /** Screen.init 调用；仅在尺寸变化时重建网格，避免重复 init 把开屏动画打回去。 */
     public void resize(int width, int height) {
+        boolean first = meshX == null;
+        boolean sizeChanged = this.width != width || this.height != height;
         this.width = width;
         this.height = height;
-        this.introProgress = 0.0f;
         this.lastFrameNanos = System.nanoTime();
-        buildMesh();
+        if (first) {
+            this.introProgress = 0.0f;
+        }
+        if (first || sizeChanged) {
+            buildMesh();
+        }
     }
 
     /**
@@ -163,7 +168,10 @@ public final class MapBackdropRenderer {
     public void renderBackdrop(GuiGraphics g) {
         // The mesh is the stable fallback and also prevents image cross-fades from revealing a black void.
         g.fill(0, 0, width, height, 0xFF080A0E);
-        drawLowPoly(g);
+        // 有地图底图时跳过每帧重建的低多边形网格，避免开屏渐出卡顿。
+        if (!hasBackgroundTexture && previousBackgroundId == null) {
+            drawLowPoly(g);
+        }
 
         float openZoom = (1.0f - intro()) * 0.06f;
         if (previousBackgroundId != null) {
@@ -238,7 +246,7 @@ public final class MapBackdropRenderer {
         return resolved;
     }
 
-    /** 铺满全屏、以屏幕中心为原点轻微放大的背景图。 */
+    /** 等比 cover 铺满全屏，再以屏幕中心轻微放大。 */
     private void drawFullscreen(GuiGraphics g, ResourceLocation texture, float alpha, float zoom) {
         if (texture == null || alpha <= 0.01f) {
             return;
@@ -251,7 +259,7 @@ public final class MapBackdropRenderer {
 
         RenderSystem.enableBlend();
         RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, Mth.clamp(alpha, 0.0f, 1.0f));
-        g.blit(texture, 0, 0, 0.0f, 0.0f, width, height, width, height);
+        MapUiGraphics.drawCover(g, texture, 0, 0, width, height);
         RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, 1.0f);
         RenderSystem.disableBlend();
 
@@ -263,12 +271,11 @@ public final class MapBackdropRenderer {
     // ------------------------------------------------------------------
 
     private void buildMesh() {
-        meshCols = Math.max(8, width / 88);
-        meshRows = Math.max(5, height / 88);
+        meshCols = Math.max(6, width / 120);
+        meshRows = Math.max(4, height / 120);
         int vertices = (meshCols + 1) * (meshRows + 1);
         meshX = new float[vertices];
         meshY = new float[vertices];
-        meshPhase = new float[vertices];
         meshTriColor = new int[meshCols * meshRows * 2];
 
         float cellW = (float) width / meshCols;
@@ -297,7 +304,6 @@ public final class MapBackdropRenderer {
                 }
                 meshX[v] = x;
                 meshY[v] = y;
-                meshPhase[v] = hash(i, j, 3) * Mth.TWO_PI;
             }
         }
 
@@ -351,12 +357,6 @@ public final class MapBackdropRenderer {
         BufferUploader.drawWithShader(buffer.buildOrThrow());
         RenderSystem.disableBlend();
         pose.popPose();
-
-        // 暗金环境辉光，呼应强调色
-        drawSoftGlow(g, (int) (width * 0.24f + Math.sin(animTime * 0.35f) * 42.0f),
-                (int) (height * 0.72f), 190, 0x6B4F14, 0.07f);
-        drawSoftGlow(g, (int) (width * 0.80f), (int) (height * 0.22f + Math.cos(animTime * 0.3f) * 30.0f),
-                170, 0x5A6472, 0.06f);
     }
 
     private void emitTriangle(BufferBuilder buffer, Matrix4f matrix, int a, int b, int c, int color) {
@@ -366,17 +366,6 @@ public final class MapBackdropRenderer {
     }
 
     private void vertex(BufferBuilder buffer, Matrix4f matrix, int v, int color) {
-        float wobble = (float) Math.sin(animTime * 0.55f + meshPhase[v]) * 3.0f;
-        float wobbleX = (float) Math.cos(animTime * 0.42f + meshPhase[v]) * 2.2f;
-        buffer.addVertex(matrix, meshX[v] + wobbleX, meshY[v] + wobble, 0.0f).setColor(color);
-    }
-
-    private void drawSoftGlow(GuiGraphics g, int cx, int cy, int radius, int rgb, float intensity) {
-        for (int layer = 8; layer >= 1; layer--) {
-            float ratio = layer / 8.0f;
-            int a = (int) (255.0f * intensity * ratio * ratio);
-            int r = (int) (radius * ratio);
-            g.fill(cx - r, cy - r, cx + r, cy + r, withAlpha(rgb, a));
-        }
+        buffer.addVertex(matrix, meshX[v], meshY[v], 0.0f).setColor(color);
     }
 }

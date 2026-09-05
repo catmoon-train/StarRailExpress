@@ -21,6 +21,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import org.agmas.noellesroles.client.HakoniwaVisionClientHandle;
+import org.agmas.noellesroles.client.MirrorReunionSceneManager;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 
@@ -34,7 +35,8 @@ public abstract class HakoniwaRenderChunkRegionMixin {
     @ModifyReturnValue(method = "getBlockState", at = @At("RETURN"))
     private BlockState sre$hakoniwaCutBlock(BlockState original, BlockPos pos) {
         if (!original.isAir()
-                && HakoniwaVisionClientHandle.shouldHideBlock(original, pos.getX(), pos.getY(), pos.getZ())) {
+                && (HakoniwaVisionClientHandle.shouldHideBlock(original, pos.getX(), pos.getY(), pos.getZ())
+                        || MirrorReunionSceneManager.shouldHideBlock(pos.getX(), pos.getY(), pos.getZ()))) {
             return Blocks.AIR.defaultBlockState();
         }
         return original;

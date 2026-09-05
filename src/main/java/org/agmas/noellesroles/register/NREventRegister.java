@@ -35,6 +35,7 @@ public class NREventRegister {
 
         // 注册事件处理器
         ModEventsRegister.registerEvents();
+        org.agmas.noellesroles.content.item.SealedArtifactHandler.register();
         AAAHandlerFather.register();
         // 
         org.agmas.noellesroles.game.roles.neutral.monokuma.MonokumaEventHandler.register();
@@ -46,5 +47,6 @@ public class NREventRegister {
         // 注册疫使胜利检测
         org.agmas.noellesroles.game.roles.neutral.infected.InfectedWinChecker.registerEvent();
         org.agmas.noellesroles.game.fake_steve.FakeSteveDirector.register();
+        org.agmas.noellesroles.game.MirrorReunionEndEgg.register();
     }
 }

@@ -7,15 +7,22 @@ public final class DepartureCurtain {
     private boolean coveredFrame;
     private boolean releasing;
 
-    public void tick(float gameFade, boolean nextStageReady) {
+    public void tick(float cover, boolean nextStageReady) {
         previous = opacity;
         if (releasing) {
-            opacity = Math.max(0.0F, opacity - 0.1F);
-        } else {
-            float target = Math.max(opacity, Math.clamp(gameFade, 0.0F, 1.0F));
-            if (nextStageReady) target = 1.0F;
-            opacity = Math.min(target, opacity + 0.1F);
+            opacity = Math.max(0.0F, opacity - 0.12F);
+            return;
         }
+        float target = Math.max(Math.clamp(cover, 0.0F, 1.0F), nextStageReady ? 1.0F : 0.0F);
+        if (target > opacity) {
+            opacity = Math.min(target, opacity + 0.12F);
+        } else {
+            opacity = target;
+        }
+    }
+
+    public float opacity() {
+        return Math.max(previous, opacity);
     }
 
     public float opacity(float partialTick) {
@@ -24,6 +31,10 @@ public final class DepartureCurtain {
 
     public void frameRendered(float partialTick) {
         if (!releasing && opacity(partialTick) >= 0.999F) coveredFrame = true;
+    }
+
+    public boolean isFullyCovered() {
+        return !releasing && coveredFrame && opacity() >= 0.999F;
     }
 
     public boolean canHandoff(boolean nextStageReady) {

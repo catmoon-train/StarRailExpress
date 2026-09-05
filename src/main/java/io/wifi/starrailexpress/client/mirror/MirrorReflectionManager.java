@@ -252,14 +252,14 @@ public final class MirrorReflectionManager {
 
     // ---------------------------------------------------------------- 副本工厂
 
-    static boolean canReflect(Entity entity) {
+    public static boolean canReflect(Entity entity) {
         if (COPY_IDS.contains(entity.getId())) {
             return false; // 别让倒影再照出倒影
         }
         return entity instanceof LivingEntity || entity instanceof ItemEntity;
     }
 
-    static @Nullable Entity createCopy(ClientLevel level, Entity source) {
+    public static @Nullable Entity createCopy(ClientLevel level, Entity source) {
         Entity copy;
         if (source instanceof Player player) {
             GameProfile profile = new GameProfile(UUID.randomUUID(), player.getGameProfile().getName());
@@ -287,7 +287,7 @@ public final class MirrorReflectionManager {
         return copy;
     }
 
-    static void discardCopy(ClientLevel level, Entity copy) {
+    public static void discardCopy(ClientLevel level, Entity copy) {
         COPY_IDS.remove(copy.getId());
         level.removeEntity(copy.getId(), Entity.RemovalReason.DISCARDED);
     }

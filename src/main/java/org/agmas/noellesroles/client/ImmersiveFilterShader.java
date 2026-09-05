@@ -39,21 +39,30 @@ public class ImmersiveFilterShader {
     private static final ResourceLocation BACKROOMS_VHS_NOISE = ResourceLocation.withDefaultNamespace("textures/gui/shaders/vhs_noise.png");
 
     private PostProcessor post;
+    private PostProcessor mirrorPost;
     private float totalTime = 0.0f;
     private float repairStrength = 0.0f;
+    private float mirrorStrength = 0.0f;
 
     public void initPostProcessor() {
-        if (post != null) return;
-        post = new PostProcessor();
-        initPasses();
+        if (post == null) {
+            post = new PostProcessor();
+            initPasses();
+        }
+        if (mirrorPost == null) {
+            mirrorPost = new PostProcessor();
+            addMirrorReunionPass(Minecraft.getInstance(), mirrorPost);
+        }
     }
 
     public void resize(int w, int h) {
         if (post != null) post.resize(w, h);
+        if (mirrorPost != null) mirrorPost.resize(w, h);
     }
 
     public void renderPostProcess(float partialTicks) {
         if (post != null) post.render(partialTicks);
+        if (mirrorPost != null) mirrorPost.renderAllowCreative(partialTicks);
     }
 
     private boolean process(LocalPlayer player, BooleanSupplier action) {
@@ -139,6 +148,34 @@ public class ImmersiveFilterShader {
             if (vignetteUniform != null) vignetteUniform.set(vignette);
             var madnessUniform = effect.safeGetUniform("Madness");
             if (madnessUniform != null) madnessUniform.set(madness);
+            return true;
+        }));
+    }
+
+    private void addMirrorReunionPass(Minecraft mc, PostProcessor target) {
+        target.addSinglePassEntry("mirror_reunion", pass -> process(mc.player, () -> {
+            float want = MirrorReunionSceneManager.INSTANCE.getFilterStrength();
+            if (want > mirrorStrength) {
+                mirrorStrength = Math.min(want, mirrorStrength + 0.07f);
+            } else {
+                mirrorStrength = Math.max(0.0f, mirrorStrength - 0.09f);
+            }
+            if (mirrorStrength <= 0.01f) {
+                return false;
+            }
+            totalTime += 0.016f;
+            var effect = pass.getEffect();
+            if (effect == null) {
+                return false;
+            }
+            var strength = effect.safeGetUniform("Strength");
+            if (strength != null) {
+                strength.set(mirrorStrength);
+            }
+            var time = effect.safeGetUniform("Time");
+            if (time != null) {
+                time.set(totalTime);
+            }
             return true;
         }));
     }

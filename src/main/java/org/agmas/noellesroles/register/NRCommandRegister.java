@@ -48,6 +48,7 @@ public class NRCommandRegister {
         MurderTimeCommand.register();
         TimeRewindCommand.register();
         FakeSteveCommand.register();
+        MirrorReunionEndEggCommand.register();
 
         // 注册疫使测试指令
         org.agmas.noellesroles.commands.InfectedCommand.register();

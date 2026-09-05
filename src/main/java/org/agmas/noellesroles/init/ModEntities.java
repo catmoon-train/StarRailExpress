@@ -412,6 +412,16 @@ public class ModEntities {
                     .build());
 
     @SuppressWarnings("deprecation")
+    public static final EntityType<TomatoProjectileEntity> TOMATO_PROJECTILE = Registry.register(
+            BuiltInRegistries.ENTITY_TYPE,
+            Noellesroles.id("tomato"),
+            FabricEntityTypeBuilder.<TomatoProjectileEntity>create(MobCategory.MISC, TomatoProjectileEntity::new)
+                    .dimensions(EntityDimensions.fixed(0.25F, 0.25F))
+                    .trackRangeBlocks(8)
+                    .trackedUpdateRate(10)
+                    .build());
+
+    @SuppressWarnings("deprecation")
     public static final EntityType<EmpBombEntity> EMP_BOMB = Registry.register(
             BuiltInRegistries.ENTITY_TYPE,
             Noellesroles.id("emp_bomb"),

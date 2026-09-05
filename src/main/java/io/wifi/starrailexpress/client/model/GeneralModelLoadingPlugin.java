@@ -61,7 +61,11 @@ public class GeneralModelLoadingPlugin implements ModelLoadingPlugin {
         for (var entry : ItemSkinManager.getSkins().entrySet()) {
             for (ItemSkinManager.Skin skin : entry.getValue().values()) {
                 for (Variant variant : Variant.values()) {
-                    pluginContext.addModels(getModelLocation(entry.getKey(), skin.getName(), variant));
+                    ResourceLocation location = getModelLocation(entry.getKey(), skin.getName(), variant);
+                    if (location == null) {
+                        continue;
+                    }
+                    pluginContext.addModels(location);
                 }
             }
         }

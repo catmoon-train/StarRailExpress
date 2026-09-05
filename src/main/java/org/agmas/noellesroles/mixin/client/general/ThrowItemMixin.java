@@ -33,7 +33,10 @@ public class ThrowItemMixin
     public void drop(boolean bl, CallbackInfoReturnable<Boolean> cir)
     {
         LocalPlayer player = (LocalPlayer) (Object) this;
-        if (player.getMainHandItem().getItem() == ModItems.THROWING_KNIFE || player.getMainHandItem().getItem() instanceof StalkerKnifeItem || player.getMainHandItem().getItem() instanceof YinYangSwordItem){
+        if (player.getMainHandItem().getItem() == ModItems.THROWING_KNIFE
+                || player.getMainHandItem().is(ModItems.TOMATO)
+                || player.getMainHandItem().getItem() instanceof StalkerKnifeItem
+                || player.getMainHandItem().getItem() instanceof YinYangSwordItem){
             ClientPlayNetworking.send(new TryThrowItemPacket());
             cir.setReturnValue( false);
             cir.cancel();

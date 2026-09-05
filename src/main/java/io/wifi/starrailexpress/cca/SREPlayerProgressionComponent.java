@@ -259,6 +259,11 @@ public class SREPlayerProgressionComponent implements AutoSyncedComponent, Serve
         this.databaseLoadPending = false;
     }
 
+    /** 通行证分区改由 ProgressionDataManager 写入时，CCA 不再读写同一行。 */
+    private static boolean managerOwnsDatabase() {
+        return SREConfig.instance().mysqlPlayerSyncEnabled && MysqlPlayerDataStore.isAvailable();
+    }
+
     public boolean isNetworkSyncEnabled() {
         return this.networkSyncEnabled;
     }
@@ -374,28 +379,9 @@ public class SREPlayerProgressionComponent implements AutoSyncedComponent, Serve
         if (!SREConfig.instance().enableProgressionSystem) {
             return;
         }
-        if (!(this.player instanceof ServerPlayer serverPlayer)) {
+        // 任务进度与发奖已迁到 ProgressionDataManager（MySQL 分区），避免 CCA 再生成/双写覆盖。
+        if (!(this.player instanceof ServerPlayer)) {
             return;
-        }
-        if (serverPlayer.serverLevel().getGameTime() % 20L != 0L) {
-            return;
-        }
-        if (this.syncPending) {
-            flushPendingSync();
-        }
-        long now = System.currentTimeMillis();
-        // 每日任务自动刷新
-        if (getActiveDailyQuests().isEmpty() || now - this.lastQuestRefreshTime >= DAILY_REFRESH_INTERVAL_MS) {
-            forceRefreshTasks();
-        }
-        // 周常任务自动刷新
-        if (SREConfig.instance().enableWeeklyTasks
-                && (getActiveWeeklyQuests().isEmpty()
-                        || now - this.lastWeeklyRefreshTime >= WEEKLY_REFRESH_INTERVAL_MS)) {
-            forceRefreshWeeklyTasks();
-        }
-        if (this.networkSyncEnabled && this.databaseSyncPending && now >= this.nextDatabaseSyncAt) {
-            flushDatabaseSync(this.databaseDirtyMask, false);
         }
     }
 
@@ -411,6 +397,9 @@ public class SREPlayerProgressionComponent implements AutoSyncedComponent, Serve
     }
 
     public void pullProgressionFromNetwork() {
+        if (managerOwnsDatabase()) {
+            return;
+        }
         if (!SREConfig.instance().progressionSyncServerEnabled || !this.networkSyncEnabled
                 || !(this.player instanceof ServerPlayer serverPlayer) || serverPlayer.getServer() == null) {
             return;
@@ -442,6 +431,9 @@ public class SREPlayerProgressionComponent implements AutoSyncedComponent, Serve
     }
 
     public void flushNetworkSyncAsyncOnDisconnect() {
+        if (managerOwnsDatabase()) {
+            return;
+        }
         if (!SREConfig.instance().progressionSyncServerEnabled || !this.networkSyncEnabled
                 || this.databaseLoadPending) {
             return;
@@ -890,6 +882,9 @@ public class SREPlayerProgressionComponent implements AutoSyncedComponent, Serve
     }
 
     private boolean flushDatabaseSync(int dirtyMask, boolean blocking) {
+        if (managerOwnsDatabase()) {
+            return false;
+        }
         if (!SREConfig.instance().progressionSyncServerEnabled || !this.networkSyncEnabled || dirtyMask == 0) {
             return false;
         }
@@ -1111,17 +1106,7 @@ public class SREPlayerProgressionComponent implements AutoSyncedComponent, Serve
                 this.activeQuests.add(PassQuest.fromNbt(questTag));
             }
         }
-
-        if (getActiveDailyQuests().isEmpty() && this.player instanceof ServerPlayer) {
-            generateLocalDailyTasks(false);
-        }
-        if (SREConfig.instance().enableWeeklyTasks && getActiveWeeklyQuests().isEmpty()
-                && this.player instanceof ServerPlayer) {
-            generateLocalWeeklyTasks(false);
-        }
-        if (this.player instanceof ServerPlayer && ensurePermanentTasksPresent()) {
-            markChanged(SYNC_DIRTY_TASKS);
-        }
+        // 运行时任务由 ProgressionDataManager 从 MySQL 目录生成，不再在 CCA 里补每日/周常。
     }
 
     @Override

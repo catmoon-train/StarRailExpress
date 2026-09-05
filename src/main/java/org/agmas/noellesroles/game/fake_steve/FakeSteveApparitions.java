@@ -75,13 +75,6 @@ public final class FakeSteveApparitions {
             ServerPlayer selected = selectRiskTarget(level);
             if (selected != null && spawnFor(selected, false)) {
                 FakeSteveDirector.consumePendingEvent(level);
-            } else if (selected == null && now % (30 * 20L) == 0L) {
-                for (ServerPlayer administrator : level.getServer().getPlayerList().getPlayers()) {
-                    if (administrator.hasPermissions(2)) {
-                        administrator.sendSystemMessage(Component.translatable(
-                                "command.noellesroles.fake_steve.waiting"));
-                    }
-                }
             }
         }
     }

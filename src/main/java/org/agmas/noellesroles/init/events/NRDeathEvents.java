@@ -1540,7 +1540,7 @@ public class NRDeathEvents {
                 }
             }
             if (stack.is(ModItems.MASTER_KEY) || stack.is(Items.BUNDLE) ||
-                    stack.is(Items.WRITTEN_BOOK)) {
+                    stack.is(Items.WRITTEN_BOOK) || stack.is(ModItems.TOMATO)) {
                 return true;
             }
             return false;

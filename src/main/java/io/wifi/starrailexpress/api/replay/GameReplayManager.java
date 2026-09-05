@@ -470,7 +470,8 @@ public class GameReplayManager implements IGameReplayRecorder {
     Component eventText = null;
     boolean timelineRecorded = false;
     try {
-      eventText = currentReplayData.toText(this, currentReplayData, event1);
+      int eventIndex = currentReplayData.getTimeline().size() - 1;
+      eventText = currentReplayData.toText(this, currentReplayData, event1, eventIndex);
       recordTimelineEvent(event, event1, eventText);
       timelineRecorded = true;
       if (eventText != null && !hidden) {
@@ -609,6 +610,7 @@ public class GameReplayManager implements IGameReplayRecorder {
     String itemBoughtStr = itemBought != null ? itemBought.toString() : "unknown";
     addEvent(GameReplayData.EventType.STORE_BUY, playerUuid, null, itemBoughtStr + ":" + amount,
         String.valueOf(price), hidden);
+    io.wifi.starrailexpress.progression.ProgressionDataManager.onShopBuy(playerUuid, itemBoughtStr);
   }
 
   public void recordItemUse(UUID playerUuid, ResourceLocation itemUsed) {
@@ -632,6 +634,7 @@ public class GameReplayManager implements IGameReplayRecorder {
     if (!(player instanceof ServerPlayer sp)) {
       return;
     }
+    io.wifi.starrailexpress.progression.ProgressionDataManager.onSkillUsed(sp, id);
     Entity targetEntity = null;
     if (target != null) {
       targetEntity = sp.serverLevel().getEntity(target);
@@ -821,18 +824,20 @@ public class GameReplayManager implements IGameReplayRecorder {
     }
     List<ReplayTimelineEvent> events = session.timelineSnapshot();
     if (events.isEmpty() && currentReplayData != null && !currentReplayData.getTimeline().isEmpty()) {
-      events = currentReplayData.getTimeline().stream()
-          .map(event -> {
-            ReplayEvent replayEvent = convertReplayEvent(event,
-                SRE.SERVER == null ? null : SRE.SERVER.registryAccess());
-            Component text = null;
-            try {
-              text = currentReplayData.toText(this, currentReplayData, replayEvent);
-            } catch (Exception ignored) {
-            }
-            return buildTimelineEvent(event, replayEvent, text);
-          })
-          .toList();
+      List<GameReplayData.ReplayEvent> timeline = currentReplayData.getTimeline();
+      List<ReplayTimelineEvent> rebuilt = new ArrayList<>(timeline.size());
+      for (int i = 0; i < timeline.size(); i++) {
+        GameReplayData.ReplayEvent event = timeline.get(i);
+        ReplayEvent replayEvent = convertReplayEvent(event,
+            SRE.SERVER == null ? null : SRE.SERVER.registryAccess());
+        Component text = null;
+        try {
+          text = currentReplayData.toText(this, currentReplayData, replayEvent, i);
+        } catch (Exception ignored) {
+        }
+        rebuilt.add(buildTimelineEvent(event, replayEvent, text));
+      }
+      events = rebuilt;
     }
     if (includeHidden) {
       return events;
@@ -1160,7 +1165,8 @@ public class GameReplayManager implements IGameReplayRecorder {
     long gameStartTime = ReplayDisplayUtils.findGameStartTime(replayData);
     List<GameReplayData.ReplayEvent> timeline = replayData.getTimeline();
     if (timeline != null) {
-      for (GameReplayData.ReplayEvent dataEvent : timeline) {
+      for (int i = 0; i < timeline.size(); i++) {
+        GameReplayData.ReplayEvent dataEvent = timeline.get(i);
         if (dataEvent == null)
           continue; // 跳过空事件
         if (dataEvent.isHidden() && !includeHidden)
@@ -1175,7 +1181,7 @@ public class GameReplayManager implements IGameReplayRecorder {
         }
         Component eventText = null;
         try {
-          eventText = replayData.toText(this, replayData, event);
+          eventText = replayData.toText(this, replayData, event, i);
         } catch (Exception e) {
           SRE.LOGGER.error("Error converting replay event to text: ", e);
         }

@@ -55,6 +55,7 @@ public class TimeStopShader {
     private int lastDuration = 0;
 
     private boolean lastHasBlackMonitor = false; // 上一次是否有黑屏监控效果
+    private boolean mirrorBlack = false;
 
     // 常量
     private static final float ANIMATION_DURATION = 1.95f; // 动画总时长（秒），延长 30%
@@ -185,42 +186,47 @@ public class TimeStopShader {
 
         // 黑屏监控着色器
         m_post.addSinglePassEntry("black", pass -> processPlayer(mc.player, () -> {
-            boolean flag = mc.player.hasEffect(ModEffects.BLACK_MONITOR);
-            if (!flag) {
-                // 如果没有效果，逐渐减少黑屏强度
+            boolean want = mc.player.hasEffect(ModEffects.BLACK_MONITOR)
+                    || MirrorReunionSceneManager.INSTANCE.wantsBlackMonitor();
+            if (MirrorReunionSceneManager.INSTANCE.wantsBlackMonitor()) {
+                mirrorBlack = true;
+            }
+            if (!want) {
+                float step = mirrorBlack ? 0.01f : 0.05f;
                 if (blackScreenStrength > 0) {
-                    blackScreenStrength = Math.max(0, blackScreenStrength - 0.05f);
+                    blackScreenStrength = Math.max(0, blackScreenStrength - step);
                 }
-                return blackScreenStrength > 0.01f;
+                if (blackScreenStrength <= 0.01f) {
+                    mirrorBlack = false;
+                    lastHasBlackMonitor = false;
+                    return false;
+                }
+                var fading = pass.getEffect();
+                if (fading != null) {
+                    var blackStrengthUniform = fading.safeGetUniform("BlackStrength");
+                    if (blackStrengthUniform != null) {
+                        blackStrengthUniform.set(blackScreenStrength);
+                    }
+                }
+                return true;
             }
 
             var effect = pass.getEffect();
             if (effect == null)
                 return false;
 
-            // 检测效果是否开始或刷新
-            boolean hasBlackMonitor = mc.player.hasEffect(ModEffects.BLACK_MONITOR);
-            boolean effectStarted = false;
-            if (hasBlackMonitor) {
-                if (!lastHasBlackMonitor) {
-                    effectStarted = true;
-                }
-            }
+            boolean effectStarted = !lastHasBlackMonitor;
+            lastHasBlackMonitor = true;
 
-            lastHasBlackMonitor = hasBlackMonitor;
-
-            // 如果效果刚开始，重置黑屏强度
             if (effectStarted) {
                 blackScreenStrength = 0.0f;
             }
 
-            // 逐渐增加黑屏强度到1.0
-            if (hasBlackMonitor && blackScreenStrength < 1.0f) {
+            if (blackScreenStrength < 1.0f) {
                 blackScreenStrength += 0.02f;
                 blackScreenStrength = Math.min(1.0f, blackScreenStrength);
             }
 
-            // 设置uniform参数
             var blackStrengthUniform = effect.safeGetUniform("BlackStrength");
             if (blackStrengthUniform != null) {
                 blackStrengthUniform.set(blackScreenStrength);
@@ -231,7 +237,6 @@ public class TimeStopShader {
                 timeUniform.set(totalTime);
             }
 
-            // 只要黑屏还可见，就继续渲染
             return blackScreenStrength > 0.01f;
         }));
 
@@ -340,6 +345,13 @@ public class TimeStopShader {
     public void renderPostProcess(float partialTicks) {
         if (m_post == null)
             return;
+        Minecraft mc = Minecraft.getInstance();
+        if (mc.player != null && (mc.player.hasEffect(ModEffects.BLACK_MONITOR)
+                || MirrorReunionSceneManager.INSTANCE.wantsBlackMonitor()
+                || blackScreenStrength > 0.01f)) {
+            m_post.renderAllowCreative(partialTicks);
+            return;
+        }
         m_post.render(partialTicks);
     }
 
@@ -353,6 +365,7 @@ public class TimeStopShader {
         blackScreenStrength = 0.0f;
         hasBlackMonitorEffect = false;
         lastHasBlackMonitor = false;
+        mirrorBlack = false;
         inkStrength = 0.0f;
         rewindStrength = 0.0f;
         nostalgistGray = 0.0f;

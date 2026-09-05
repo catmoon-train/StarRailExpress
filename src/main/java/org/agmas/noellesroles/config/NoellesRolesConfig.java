@@ -463,6 +463,22 @@ public class NoellesRolesConfig implements ConfigData {
     /** 野人 - 烟雾吐息持续时间（秒） */
     public int barbarianSmokeSeconds = 7;
 
+    /** 裂隙行者 - 进入裂隙消耗的局内金币数 */
+    public int riftWalkerSkillCost = 125;
+    /** 裂隙行者 - 进入裂隙前摇（秒） */
+    public int riftWalkerWindupSeconds = 2;
+    /** 裂隙行者 - 裂隙持续（秒） */
+    public int riftWalkerDurationSeconds = 15;
+    /** 裂隙行者 - 进入裂隙冷却（秒） */
+    public int riftWalkerSkillCooldownSeconds = 90;
+
+    /** 船长 - 舱门调度消耗的局内金币数 */
+    public int conductorDoorWarpCost = 125;
+    /** 船长 - 舱门调度前摇（秒） */
+    public int conductorDoorWarpWindupSeconds = 5;
+    /** 船长 - 舱门调度冷却（秒） */
+    public int conductorDoorWarpCooldownSeconds = 90;
+
     /** Leon (里昂) - Combat skill (kick) cooldown in seconds */
     public int leonKickCooldown = 12;
     /** Leon (里昂) - Combat skill (kick) knockback strength (larger = farther) */

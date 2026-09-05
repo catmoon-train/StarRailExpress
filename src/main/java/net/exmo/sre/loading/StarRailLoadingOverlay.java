@@ -15,9 +15,6 @@
 
 package net.exmo.sre.loading;
 
-import com.mojang.blaze3d.systems.RenderSystem;
-import io.wifi.starrailexpress.SRE;
-import net.exmo.sre.loading.texture.ConfigTexture;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.Util;
@@ -26,7 +23,6 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Overlay;
 import net.minecraft.locale.Language;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.ReloadInstance;
 
 import java.util.List;
@@ -36,7 +32,7 @@ import java.util.function.Consumer;
 /**
  * 复古列车风格的资源加载覆盖层（替换原版 Mojang Logo / 资源重载界面）。
  * <p>
- * 背景播放列车视频（帧序列），叠加暗角、金色星轨进度条、标题与轮换提示。
+ * 背景使用静态 background.png，叠加暗角、金色星轨进度条与轮换提示。
  * 整条时间线为：黑屏淡入 → 加载 → 进度满后停留 → 淡出回黑。
  */
 @Environment(EnvType.CLIENT)
@@ -48,10 +44,6 @@ public class StarRailLoadingOverlay extends Overlay {
     private static final long EXIT_MS = 700;
     private static final long TIP_INTERVAL_MS = 4200;
     private static final long TIP_FADE_MS = 320;
-
-    /** 无视频帧时回退使用的静态背景图。 */
-    private static final ResourceLocation BG_TEXTURE =
-            ResourceLocation.fromNamespaceAndPath(SRE.MOD_ID, "background.png");
 
     // 资源加载阶段语言文件未必就绪，提示固定用拉丁文以保证可渲染。
     private static final List<String> TIPS = List.of(
@@ -83,12 +75,11 @@ public class StarRailLoadingOverlay extends Overlay {
         this.onFinish = errorConsumer;
         this.fadeIn = fadeIn;
         this.tipChangedAt = Util.getMillis();
-        FrameAnimationRenderer.setInWorld(false);
-        SreUiStyle.ensureBackdrop();
+        SreUiStyle.registerLoadingBackground();
     }
 
     public static void registerTextures(Minecraft minecraft) {
-        minecraft.getTextureManager().register(BG_TEXTURE, new ConfigTexture(BG_TEXTURE));
+        SreUiStyle.registerLoadingBackground();
     }
 
     @Override
@@ -114,22 +105,7 @@ public class StarRailLoadingOverlay extends Overlay {
         }
         float alpha = enterAlpha * exitAlpha;
 
-        g.fill(0, 0, w, h, 0xFF000000);
-        FrameAnimationRenderer anim = SreUiStyle.backdrop();
-        if (anim.hasFrames()) {
-            anim.render(g, w, h, partialTick, alpha);
-        } else {
-            RenderSystem.enableBlend();
-            RenderSystem.defaultBlendFunc();
-            g.setColor(1.0F, 1.0F, 1.0F, alpha);
-            g.blit(BG_TEXTURE, 0, 0, 0, 0, w, h, w, h);
-            g.setColor(1.0F, 1.0F, 1.0F, 1.0F);
-            RenderSystem.disableBlend();
-            g.fillGradient(0, 0, w, h,
-                    LoadingFx.withAlpha(0x18120A, 0.45F * alpha),
-                    LoadingFx.withAlpha(0x061018, 0.55F * alpha));
-        }
-        LoadingFx.drawVignette(g, w, h, alpha);
+        SreUiStyle.renderLoadingBackdrop(g, w, h, partialTick, alpha);
 
         float target = completeMillis >= 0L ? 1.0F
                 : LoadingFx.clamp01(reload.getActualProgress());

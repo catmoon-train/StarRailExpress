@@ -18,6 +18,7 @@ package org.agmas.noellesroles.role.bouns;
 import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.api.EggRole;
 import io.wifi.starrailexpress.api.InstinctType;
+import io.wifi.starrailexpress.api.NormalRole;
 import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.api.TMMRoles;
 import io.wifi.starrailexpress.api.NormalRole.RoleType;
@@ -179,9 +180,9 @@ public class BounsRoles {
             .setDefaultEnableChance(200);
 
     /**
-     * 垂钓者：平民彩蛋。仅在水下职业地图刷新（与海王/潜水员同一份名单）。
+     * 垂钓者：常驻平民。仅在水下职业地图刷新（与海王/潜水员同一份名单）。
      */
-    public static SRERole ANGLER = TMMRoles.registerRole(new EggRole(
+    public static SRERole ANGLER = TMMRoles.registerRole(new NormalRole(
             ANGLER_ID,
             new Color(32, 72, 86).getRGB(),
             true,
@@ -200,7 +201,7 @@ public class BounsRoles {
         }
     }).setCanSeeCoin(true).setRoleData(AnglerRoleData::new)
             .setSpecialMapRole(SRERole.SpecialMapRoleMap.UNDERWATER)
-            .setDefaultEnableChance(200).setDefaultMax(1).setCanBeRandomedByOtherRoles(false);
+            .setDefaultEnableChance(4000).setDefaultMax(1).setCanBeRandomedByOtherRoles(false);
 
     public static SRERole CAT_KILLER = TMMRoles.registerRole(new EggRole(id("cat_killer"), // 角色 ID
             new Color(255, 80, 140).getRGB(), // 深粉色 - 猫娘~

@@ -494,6 +494,11 @@ public class ModItems {
             new FlashGrenadeItem(new Item.Properties().stacksTo(8)),
             "flash_grenade", WEAPONS_GROUP);
 
+    /** 特码头死后掉落的西红柿：Q 键可丢得很远，砸中玩家会糊满番茄酱 */
+    public static final Item TOMATO = register(
+            new TomatoItem(new Item.Properties().stacksTo(1)),
+            "tomato", ROLE_ITEMS_GROUP);
+
     public static final Item EMP_BOMB = register(
             new EmpBombItem(new Item.Properties().stacksTo(1)),
             "emp_bomb", ROLE_ITEMS_GROUP);
@@ -1016,13 +1021,13 @@ public class ModItems {
             "executioner_gun", WEAPONS_GROUP);
 
     /**
-     * 零一五 - 双发手枪
-     * - 右键开枪，开枪后0.15秒自动开第二枪
+     * 零一五 - 三发手枪
+     * - 右键开枪，可连续开三枪（命中或落空都消耗一发）
      * - 一枪命中只会给3秒缓慢2
      * - 同一玩家被命中两次则造成击杀
-     * - 冷却15秒，射程30格
+     * - 打完三发后进入15秒冷却，射程30格
      * - 材质沿用一次性手枪
-     * - 无限耐久，两枪后进入15秒冷却
+     * - 无限耐久
      */
     public static final Item ZERO_ONE_FIVE_GUN = register(
             new org.agmas.noellesroles.content.item.ZeroOneFiveGunItem(
@@ -1106,6 +1111,22 @@ public class ModItems {
             new SealedArtifactItem(new Item.Properties().stacksTo(1).rarity(Rarity.EPIC),
                     SealedArtifactItem.Tier.CALAMITY, "sealed_doorless_key"),
             "sealed_doorless_key", SEALED_ARTIFACTS_GROUP);
+    public static final Item SEALED_HUNGRY_PURSE = register(
+            new SealedArtifactItem(new Item.Properties().stacksTo(1).rarity(Rarity.RARE),
+                    SealedArtifactItem.Tier.FRAGMENT, "sealed_hungry_purse"),
+            "sealed_hungry_purse", SEALED_ARTIFACTS_GROUP);
+    public static final Item SEALED_WHISPER_BELL = register(
+            new SealedArtifactItem(new Item.Properties().stacksTo(1).rarity(Rarity.RARE),
+                    SealedArtifactItem.Tier.RELIC, "sealed_whisper_bell"),
+            "sealed_whisper_bell", SEALED_ARTIFACTS_GROUP);
+    public static final Item SEALED_SPLINTERED_COMPASS = register(
+            new SealedArtifactItem(new Item.Properties().stacksTo(1).rarity(Rarity.EPIC),
+                    SealedArtifactItem.Tier.ANOMALY, "sealed_splintered_compass"),
+            "sealed_splintered_compass", SEALED_ARTIFACTS_GROUP);
+    public static final Item SEALED_LAST_MATCH = register(
+            new SealedArtifactItem(new Item.Properties().stacksTo(1).rarity(Rarity.EPIC),
+                    SealedArtifactItem.Tier.CALAMITY, "sealed_last_match"),
+            "sealed_last_match", SEALED_ARTIFACTS_GROUP);
 
     public static final List<Item> SEALED_ARTIFACTS = List.of(
             SEALED_COIN_OF_ECHOES,
@@ -1115,7 +1136,11 @@ public class ModItems {
             SEALED_BREATHLESS_BREAD,
             SEALED_THUNDERBOLT_NAIL,
             SEALED_VANISHING_CLOAK,
-            SEALED_DOORLESS_KEY);
+            SEALED_DOORLESS_KEY,
+            SEALED_HUNGRY_PURSE,
+            SEALED_WHISPER_BELL,
+            SEALED_SPLINTERED_COMPASS,
+            SEALED_LAST_MATCH);
 
     public static final Item ZHANWEIFU1 = registrar.create("zhanweifu1",
             new Item(new Item.Properties().stacksTo(64)));

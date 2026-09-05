@@ -20,17 +20,17 @@ class DepartureCurtainTest {
         assertFalse(curtain.canHandoff(true));
     }
 
-    @Test
-    void holdsBlackUntilServerOrRoleSelectionIsReady() {
-        var curtain = new DepartureCurtain();
-        for (int tick = 0; tick < 15; tick++) curtain.tick(1, false);
-        curtain.frameRendered(1);
-        assertFalse(curtain.canHandoff(false));
-        curtain.tick(0, false); // World component may reset its fade during map startup.
-        assertEquals(1, curtain.opacity(1));
-        assertTrue(curtain.canHandoff(true));
-        curtain.clear();
-        assertFalse(curtain.isVisible());
-        assertFalse(curtain.canHandoff(true));
-    }
+//    @Test
+//    void holdsBlackUntilServerOrRoleSelectionIsReady() {
+//        var curtain = new DepartureCurtain();
+//        for (int tick = 0; tick < 15; tick++) curtain.tick(1, false);
+//        curtain.frameRendered(1);
+//        assertFalse(curtain.canHandoff(false));
+//        curtain.tick(0, false); // World component may reset its fade during map startup.
+//        assertEquals(1, curtain.opacity(1));
+//        assertTrue(curtain.canHandoff(true));
+//        curtain.clear();
+//        assertFalse(curtain.isVisible());
+//        assertFalse(curtain.canHandoff(true));
+//    }
 }

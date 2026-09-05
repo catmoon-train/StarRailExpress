@@ -32,6 +32,7 @@ import net.minecraft.util.FormattedCharSequence;
 import net.minecraft.util.Mth;
 
 import java.util.*;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
 /**
@@ -45,9 +46,12 @@ public class FilterSelectionScreen extends Screen {
     private final Screen parent;
     private final LinkedHashMap<String, Component> options;
     private final boolean multiSelect;
+    private final boolean dualPick;
     private final Consumer<Set<String>> callback;
+    private final BiConsumer<Set<String>, Set<String>> dualCallback;
 
     private final Set<String> selectedIds = new LinkedHashSet<>();
+    private final Set<String> excludedIds = new LinkedHashSet<>();
     private List<String> filteredIds = new ArrayList<>();
     private int highlightedIndex = 0;
 
@@ -94,28 +98,40 @@ public class FilterSelectionScreen extends Screen {
     private FilterSelectionScreen(Component title, Component subtitle, Screen parent,
             LinkedHashMap<String, Component> options,
             boolean multiSelect,
+            boolean dualPick,
             Consumer<Set<String>> callback,
-            Set<String> defaultSelections) {
+            BiConsumer<Set<String>, Set<String>> dualCallback,
+            Set<String> defaultSelections,
+            Set<String> defaultExclusions) {
         super(title);
         this.titleComp = Objects.requireNonNull(title, "title cannot be null");
         this.subtitleComp = Objects.requireNonNull(subtitle, "subtitle cannot be null");
         this.parent = parent;
         this.options = Objects.requireNonNull(options, "options cannot be null");
         this.multiSelect = multiSelect;
-        this.callback = Objects.requireNonNull(callback, "callback cannot be null");
+        this.dualPick = dualPick && multiSelect;
+        this.callback = callback;
+        this.dualCallback = dualCallback;
 
-        if (defaultSelections != null && !defaultSelections.isEmpty()) {
-            for (String id : defaultSelections) {
-                if (options.containsKey(id)) {
-                    selectedIds.add(id);
-                }
-            }
-            if (!multiSelect && selectedIds.size() > 1) {
-                Iterator<String> it = selectedIds.iterator();
-                String first = it.next();
-                selectedIds.clear();
-                selectedIds.add(first);
-            }
+        addDefaults(defaultSelections, selectedIds);
+        if (this.dualPick) {
+            addDefaults(defaultExclusions, excludedIds);
+            selectedIds.removeAll(excludedIds);
+        }
+        if (!multiSelect && selectedIds.size() > 1) {
+            Iterator<String> it = selectedIds.iterator();
+            String first = it.next();
+            selectedIds.clear();
+            selectedIds.add(first);
+        }
+    }
+
+    private void addDefaults(Set<String> source, Set<String> target) {
+        if (source == null || source.isEmpty())
+            return;
+        for (String id : source) {
+            if (options.containsKey(id))
+                target.add(id);
         }
     }
 
@@ -212,6 +228,8 @@ public class FilterSelectionScreen extends Screen {
                     if (multiSelect) {
                         playClickSound();
                         selectedIds.addAll(filteredIds);
+                        if (dualPick)
+                            excludedIds.removeAll(filteredIds);
                     }
                 },
                 multiSelect));
@@ -222,6 +240,7 @@ public class FilterSelectionScreen extends Screen {
                     if (multiSelect) {
                         playClickSound();
                         selectedIds.clear();
+                        excludedIds.clear();
                     }
                 },
                 multiSelect));
@@ -238,7 +257,11 @@ public class FilterSelectionScreen extends Screen {
                 Component.translatable("gui.done"),
                 btn -> {
                     playClickSound();
-                    callback.accept(new LinkedHashSet<>(selectedIds));
+                    if (dualCallback != null) {
+                        dualCallback.accept(new LinkedHashSet<>(selectedIds), new LinkedHashSet<>(excludedIds));
+                    } else if (callback != null) {
+                        callback.accept(new LinkedHashSet<>(selectedIds));
+                    }
                     onClose();
                 },
                 true));
@@ -333,15 +356,7 @@ public class FilterSelectionScreen extends Screen {
                 if (!filteredIds.isEmpty() && highlightedIndex < filteredIds.size()) {
                     playClickSound();
                     String id = filteredIds.get(highlightedIndex);
-                    if (multiSelect) {
-                        if (selectedIds.contains(id))
-                            selectedIds.remove(id);
-                        else
-                            selectedIds.add(id);
-                    } else {
-                        selectedIds.clear();
-                        selectedIds.add(id);
-                    }
+                    cycleSelection(id);
                     return true;
                 }
             }
@@ -398,8 +413,9 @@ public class FilterSelectionScreen extends Screen {
 
             boolean hovered = isInRect(mouseX, mouseY, listX, rowY, listW, ROW_HEIGHT);
             boolean selected = selectedIds.contains(id);
+            boolean excluded = dualPick && excludedIds.contains(id);
             boolean highlighted = (i == highlightedIndex && !isFocusedOnButton() && getFocused() != searchWidget);
-            drawRow(g, id, rowY, selected, hovered, highlighted);
+            drawRow(g, id, rowY, selected, excluded, hovered, highlighted);
         }
         g.disableScissor();
 
@@ -408,10 +424,15 @@ public class FilterSelectionScreen extends Screen {
         renderVScrollbar(g, sbX, listY, listH, scrollOffset, maxScroll, totalH, mouseX, mouseY, isDraggingScroll);
     }
 
-    private void drawRow(GuiGraphics g, String id, int y, boolean selected, boolean hovered, boolean highlighted) {
+    private void drawRow(GuiGraphics g, String id, int y, boolean selected, boolean excluded, boolean hovered,
+            boolean highlighted) {
         int bgColor;
 
-        if (selected && hovered)
+        if (excluded && hovered)
+            bgColor = 0xFF754040;
+        else if (excluded)
+            bgColor = 0xFF5A2020;
+        else if (selected && hovered)
             bgColor = 0xFF7B7540;
         else if (selected)
             bgColor = 0xFF5A4520;
@@ -426,31 +447,65 @@ public class FilterSelectionScreen extends Screen {
         g.fill(listX, y + ROW_HEIGHT - 1, listX + listW, y + ROW_HEIGHT, 0x228B6914);
 
         if (highlighted || hovered) {
-            g.renderOutline(listX, y, listW, ROW_HEIGHT, 0xCCD4AF37);
+            g.renderOutline(listX, y, listW, ROW_HEIGHT, excluded ? 0xCCE06B65 : 0xCCD4AF37);
         }
 
         int checkX = listX + 4;
         int checkY = y + (ROW_HEIGHT - 9) / 2;
-        drawCheckbox(g, checkX, checkY, selected);
+        drawCheckbox(g, checkX, checkY, selected, excluded);
 
         Component nameComp = options.get(id);
         int textX = checkX + 12 + 4;
         int maxTextW = listW - (textX - listX) - 4;
         String display = font.plainSubstrByWidth(nameComp.getString(), maxTextW);
-        int textColor = selected ? 0xFFF5E8C8 : (highlighted ? 0xFFFFF4DC : (hovered ? 0xFFFFF4DC : 0xFFC8B78A));
+        int textColor;
+        if (excluded)
+            textColor = hovered ? 0xFFFFC8C0 : 0xFFE08B80;
+        else if (selected)
+            textColor = 0xFFF5E8C8;
+        else if (highlighted || hovered)
+            textColor = 0xFFFFF4DC;
+        else
+            textColor = 0xFFC8B78A;
         g.drawString(font, display, textX, y + (ROW_HEIGHT - font.lineHeight) / 2, textColor);
     }
 
-    private void drawCheckbox(GuiGraphics g, int x, int y, boolean checked) {
+    private void drawCheckbox(GuiGraphics g, int x, int y, boolean checked, boolean excluded) {
         int size = 10;
-        if (checked) {
-            g.fill(x, y, x + size, y + size, 0xFF2A1A0A);
+        g.fill(x, y, x + size, y + size, 0xFF2A1A0A);
+        if (excluded) {
+            g.drawCenteredString(font, Component.literal("✕"), x + size / 2, y + size / 2 - font.lineHeight / 2,
+                    0xFFE06B65);
+            g.renderOutline(x, y, size, size, 0xFFE06B65);
+        } else if (checked) {
             g.drawCenteredString(font, Component.literal("✔"), x + size / 2, y + size / 2 - font.lineHeight / 2,
                     0xFFB8960C);
             g.renderOutline(x, y, size, size, 0xFFB8960C);
         } else {
-            g.fill(x, y, x + size, y + size, 0xFF2A1A0A);
             g.renderOutline(x, y, size, size, 0xFF8B6914);
+        }
+    }
+
+    private void cycleSelection(String id) {
+        if (dualPick) {
+            if (selectedIds.contains(id)) {
+                selectedIds.remove(id);
+                excludedIds.add(id);
+            } else if (excludedIds.contains(id)) {
+                excludedIds.remove(id);
+            } else {
+                selectedIds.add(id);
+            }
+            return;
+        }
+        if (multiSelect) {
+            if (selectedIds.contains(id))
+                selectedIds.remove(id);
+            else
+                selectedIds.add(id);
+        } else {
+            selectedIds.clear();
+            selectedIds.add(id);
         }
     }
 
@@ -463,16 +518,7 @@ public class FilterSelectionScreen extends Screen {
                     if (isInRect((int) mx, (int) my, listX, rowY, listW, ROW_HEIGHT)) {
                         playClickSound();
                         highlightedIndex = i;
-                        String id = filteredIds.get(i);
-                        if (multiSelect) {
-                            if (selectedIds.contains(id))
-                                selectedIds.remove(id);
-                            else
-                                selectedIds.add(id);
-                        } else {
-                            selectedIds.clear();
-                            selectedIds.add(id);
-                        }
+                        cycleSelection(filteredIds.get(i));
                         setFocused(null);
                         return true;
                     }
@@ -589,9 +635,12 @@ public class FilterSelectionScreen extends Screen {
         private Component subtitle = Component.empty();
         private LinkedHashMap<String, Component> options = new LinkedHashMap<>();
         private boolean multiSelect = false;
+        private boolean dualPick = false;
         private Consumer<Set<String>> callback = ids -> {
         };
+        private BiConsumer<Set<String>, Set<String>> dualCallback = null;
         private Set<String> defaultSelections = new LinkedHashSet<>();
+        private Set<String> defaultExclusions = new LinkedHashSet<>();
 
         public Builder(Screen parent) {
             this.parent = parent;
@@ -622,13 +671,28 @@ public class FilterSelectionScreen extends Screen {
             return this;
         }
 
+        public Builder dualPick(boolean dualPick) {
+            this.dualPick = dualPick;
+            return this;
+        }
+
         public Builder callback(Consumer<Set<String>> callback) {
             this.callback = Objects.requireNonNull(callback, "callback cannot be null");
             return this;
         }
 
+        public Builder dualCallback(BiConsumer<Set<String>, Set<String>> callback) {
+            this.dualCallback = Objects.requireNonNull(callback, "dualCallback cannot be null");
+            return this;
+        }
+
         public Builder defaultSelections(Set<String> selections) {
             this.defaultSelections = selections != null ? new LinkedHashSet<>(selections) : new LinkedHashSet<>();
+            return this;
+        }
+
+        public Builder defaultExclusions(Set<String> exclusions) {
+            this.defaultExclusions = exclusions != null ? new LinkedHashSet<>(exclusions) : new LinkedHashSet<>();
             return this;
         }
 
@@ -638,8 +702,8 @@ public class FilterSelectionScreen extends Screen {
         }
 
         public FilterSelectionScreen build() {
-            return new FilterSelectionScreen(title, subtitle, parent, options, multiSelect, callback,
-                    defaultSelections);
+            return new FilterSelectionScreen(title, subtitle, parent, options, multiSelect, dualPick, callback,
+                    dualCallback, defaultSelections, defaultExclusions);
         }
     }
 

@@ -20,6 +20,7 @@ import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import net.minecraft.client.Camera;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.renderer.LevelRenderer;
+import org.agmas.noellesroles.client.AllayDisguiseRenderer;
 import org.agmas.noellesroles.client.LeatherPigDisguiseRenderer;
 import org.agmas.noellesroles.client.RabbitDisguiseRenderer;
 import org.spongepowered.asm.mixin.Mixin;

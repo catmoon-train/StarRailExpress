@@ -254,6 +254,8 @@ public class NoellesrolesClient implements ClientModInitializer {
         NoellesrolesClientAmbientSounds.register();
         // Dream（梦魇）：颤抖视角漂移 + 虚拟血量条（准星指向受伤玩家时显示）
         org.agmas.noellesroles.game.roles.killer.dream.client.DreamClientHandler.register();
+        // 破镜重圆：药水驱动的客户端坍缩/还原与坠落方块动画
+        MirrorReunionSceneManager.register();
         // 区域地图物品：客户端扫描 playArea 生成地图纹理 + 手持时 HUD 小地图
         org.agmas.noellesroles.client.map.AreaMapManager.register();
         org.agmas.noellesroles.client.map.AreaMapHud.register();
@@ -319,6 +321,7 @@ public class NoellesrolesClient implements ClientModInitializer {
                 org.agmas.noellesroles.init.ModSceneBlocks.POISON_ZONE, RenderType.translucent());
         BlockRenderLayerMap.INSTANCE.putBlock(
                 org.agmas.noellesroles.init.ModSceneBlocks.FOG_ZONE, RenderType.translucent());
+        LoopingMirrorClientRenderer.register();
         // 灌木（树叶贴图）使用 cutout 渲染层
         BlockRenderLayerMap.INSTANCE.putBlock(
                 org.agmas.noellesroles.init.ModSceneBlocks.BUSH, RenderType.cutoutMipped());
@@ -481,9 +484,14 @@ public class NoellesrolesClient implements ClientModInitializer {
         ClientEmbalmerState.register();
         ClientSkincrawlerState.register();
         SaltedFishClientHandle.register();
+        TomatoHeadClientHandle.register();
+        PhantomSpiritClientHandle.register();
         TwoDimensionalCameraClientHandle.register();
         PointerClientHandle.register();
         HakoniwaVisionClientHandle.register();
+        IlliterateTextClientHandle.register();
+        BlindVisionClientHandle.register();
+        DeafnessClientHandle.register();
         org.agmas.noellesroles.client.ClientAmonState.register();
         CommonClientHudRenderer.registerRenderersEvent();
         WorldRenderEvents.AFTER_TRANSLUCENT.register((renderContext) -> {
@@ -598,6 +606,17 @@ public class NoellesrolesClient implements ClientModInitializer {
                                 payload.candidates(), payload.durationSeconds()));
                     });
                 });
+        ClientPlayNetworking.registerGlobalReceiver(MediumSeanceOpenS2CPacket.ID, (payload, context) -> {
+            context.client().execute(() -> context.client().setScreen(
+                    new MediumAnswerScreen(payload.mediumName(), payload.sessionEndTick())));
+        });
+        ClientPlayNetworking.registerGlobalReceiver(MediumSeanceCloseS2CPacket.ID, (payload, context) -> {
+            context.client().execute(() -> {
+                if (context.client().screen instanceof MediumAnswerScreen) {
+                    context.client().setScreen(null);
+                }
+            });
+        });
         ClientTickEvents.END_WORLD_TICK.register((level) -> {
             if (level == null)
                 return;
@@ -619,6 +638,10 @@ public class NoellesrolesClient implements ClientModInitializer {
                         YouluFreeCamClient.exit();
                     }
                 }));
+        ClientPlayNetworking.registerGlobalReceiver(ConductorDoorListS2CPacket.ID, (payload, context) -> {
+            var client = context.client();
+            client.execute(() -> client.setScreen(new ConductorDoorSelectScreen(payload.doors())));
+        });
         ClientPlayNetworking.registerGlobalReceiver(ProblemScreenOpenC2SPacket.ID, (payload, context) -> {
             var client = context.client();
             client.execute(() -> {
@@ -751,8 +774,10 @@ public class NoellesrolesClient implements ClientModInitializer {
         });
         ClientPlayNetworking.registerGlobalReceiver(PlayerResetS2CPacket.ID, (payload, context) -> {
             final var client = context.client();
+            MirrorReunionSceneManager.INSTANCE.clearHideState();
             client.player.getActiveEffects().clear();
             client.execute(() -> {
+                MirrorReunionSceneManager.INSTANCE.abortForTransfer();
                 if (client.player != null) {
                     // client.player.sendSystemMessage(Component.translatable("screen.noellesroles.guess_role.reset")
                     // .withColor(Color.ORANGE.getRGB()));
@@ -775,6 +800,7 @@ public class NoellesrolesClient implements ClientModInitializer {
                     () -> BloodParticle.clearParticlesInRange(payload.x(), payload.y(), payload.z(), payload.range()));
         });
         ClientPlayNetworking.registerGlobalReceiver(NameTagSyncPayload.ID, (payload, context) -> {
+            RoleNameRenderer.displayTags.clear();
             RoleNameRenderer.displayTags.putAll(payload.nametags());
         });
         ClientPlayNetworking.registerGlobalReceiver(RepairCoinRewardS2CPacket.ID, (payload, context) -> {
@@ -1469,6 +1495,10 @@ public class NoellesrolesClient implements ClientModInitializer {
         });
 
         ItemTooltipCallback.EVENT.register(((itemStack, tooltipContext, tooltipType, list) -> {
+            if (itemStack.is(ModItems.ANGLER_ROD)) {
+                list.removeIf(line -> line.getContents() instanceof net.minecraft.network.chat.contents.TranslatableContents contents
+                        && "item.durability".equals(contents.getKey()));
+            }
             tooltipHelper(TMMItems.DEFENSE_VIAL, itemStack, list);
             tooltipHelper(ModItems.DELUSION_VIAL, itemStack, list);
             tooltipHelper(ModItems.ONCE_REVOLVER, itemStack, list);
@@ -1483,6 +1513,9 @@ public class NoellesrolesClient implements ClientModInitializer {
             tooltipHelper(ModItems.MERCENARY_CONTRACT, itemStack, list);
             tooltipHelper(ModItems.THROWING_KNIFE, itemStack, list);
             tooltipHelper(ModItems.THROWING_AXE, itemStack, list);
+            for (Item anglerItem : ANGLER_DESC_ITEMS) {
+                tooltipHelper(anglerItem, itemStack, list);
+            }
         }));
         // registerKeyBindings();
 
@@ -1795,6 +1828,36 @@ public class NoellesrolesClient implements ClientModInitializer {
                 .add(new BroadcastMessageInfo(message, timer + GameConstants.getInTicks(0,
                         SREClientConfig.HANDLER.instance().broadcasterMessageDuration)));
     }
+
+    private static final Item[] ANGLER_DESC_ITEMS = {
+            ModItems.ANGLER_ROD,
+            ModItems.ERROR_ANGLER_ROD,
+            ModItems.ANGLER_LIVING_CARP,
+            ModItems.ANGLER_DEAD_CARP,
+            ModItems.ANGLER_RAGGED_BOOTS,
+            ModItems.ANGLER_VANILLA_MILK,
+            ModItems.ANGLER_FLOUNDER,
+            ModItems.ANGLER_INVERTED_FISH,
+            ModItems.ANGLER_ABYSS_SHIELD,
+            ModItems.ANGLER_SOMEONE_KEY,
+            ModItems.ANGLER_BLINKING_KELP,
+            ModItems.ANGLER_WET_TICKET,
+            ModItems.ANGLER_EMPTY_WALLET,
+            ModItems.ANGLER_EMPTY_COFFIN,
+            ModItems.ANGLER_EMPTY_HOLSTER,
+            ModItems.ANGLER_JUMPING_HEART,
+            ModItems.ANGLER_UNADDRESSED_LETTER,
+            ModItems.ANGLER_ABYSS_BAIT,
+            ModItems.ANGLER_GLOVES,
+            ModItems.ANGLER_HAIR_REEL,
+            ModItems.ANGLER_INK,
+            ModItems.ANGLER_TASK_LIST,
+            ModItems.ANGLER_DRIPPING_WATCH,
+            ModItems.ANGLER_FALSE_TOOTH,
+            ModItems.ANGLER_ERROR_AIR,
+            ModItems.ANGLER_EMPTY_HOOK,
+            ModItems.NEWSPAPER
+    };
 
     public void tooltipHelper(Item item, ItemStack itemStack, List<Component> list) {
         if (itemStack.is(item)) {

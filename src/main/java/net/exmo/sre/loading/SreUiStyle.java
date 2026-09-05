@@ -15,14 +15,19 @@
 
 package net.exmo.sre.loading;
 
+import com.mojang.blaze3d.systems.RenderSystem;
+import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.SREClientConfig;
+import net.exmo.sre.loading.texture.ConfigTexture;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.ChatFormatting;
 import net.minecraft.Util;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 
 /**
@@ -56,6 +61,11 @@ public final class SreUiStyle {
     private static final float VIDEO_FPS = 20.0F;
     private static final FrameAnimationRenderer BACKDROP = new FrameAnimationRenderer(VIDEO_FPS);
     private static boolean backdropTried;
+    private static boolean loadingBgRegistered;
+
+    /** 加载页使用的静态背景（config/sre/background.png）。 */
+    public static final ResourceLocation LOADING_BG =
+            ResourceLocation.fromNamespaceAndPath(SRE.MOD_ID, "background.png");
 
     public static void ensureBackdrop() {
         if (backdropTried) {
@@ -68,6 +78,18 @@ public final class SreUiStyle {
     public static FrameAnimationRenderer backdrop() {
         ensureBackdrop();
         return BACKDROP;
+    }
+
+    public static void registerLoadingBackground() {
+        if (loadingBgRegistered) {
+            return;
+        }
+        Minecraft mc = Minecraft.getInstance();
+        if (mc == null) {
+            return;
+        }
+        mc.getTextureManager().register(LOADING_BG, new ConfigTexture(LOADING_BG));
+        loadingBgRegistered = true;
     }
 
     public static float enterT(long openedAtMillis) {
@@ -86,9 +108,17 @@ public final class SreUiStyle {
         renderBackdrop(g, w, h, delta, alpha, true);
     }
 
-    /** 加载界面背景：同样的列车画面，但不铺金色微粒，避免抢进度条。 */
+    /** 加载界面背景：只铺静态 background.png，不用列车动态帧。 */
     public static void renderLoadingBackdrop(GuiGraphics g, int w, int h, float delta, float alpha) {
-        renderBackdrop(g, w, h, delta, alpha, false);
+        registerLoadingBackground();
+        g.fill(0, 0, w, h, 0xFF000000);
+        RenderSystem.enableBlend();
+        RenderSystem.defaultBlendFunc();
+        g.setColor(1.0F, 1.0F, 1.0F, LoadingFx.clamp01(alpha));
+        g.blit(LOADING_BG, 0, 0, 0, 0, w, h, w, h);
+        g.setColor(1.0F, 1.0F, 1.0F, 1.0F);
+        RenderSystem.disableBlend();
+        LoadingFx.drawVignette(g, w, h, alpha);
     }
 
     private static void renderBackdrop(GuiGraphics g, int w, int h, float delta, float alpha, boolean goldDust) {

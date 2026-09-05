@@ -82,8 +82,7 @@ public class TrainLoadingScreen extends Screen {
 
     @Override
     protected void init() {
-        FrameAnimationRenderer.setInWorld(false);
-        SreUiStyle.ensureBackdrop();
+        SreUiStyle.registerLoadingBackground();
     }
 
     @Override

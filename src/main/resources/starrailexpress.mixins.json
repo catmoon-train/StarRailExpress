@@ -108,6 +108,8 @@
     "client.vc.BetterVoiceChatVolumeManageMixin",
     "client.vc.DoubleConfigEntryMixin",
     "compat.carpet.FixClientReturnCrash",
+    "compat.dashloader.DashLoaderModelBakeryMixin",
+    "compat.dashloader.DashLoaderModelResourceLocationMixin",
     "compat.sodium.HakoniwaLevelSliceMixin",
     "compat.sodium.SodiumWorldRendererMixin",
     "compat.sodium_extra.SodiumExtraDisableOptionMixin",

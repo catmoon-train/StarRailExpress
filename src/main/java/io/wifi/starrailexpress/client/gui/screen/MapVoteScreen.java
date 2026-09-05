@@ -6,9 +6,9 @@
  */
 package io.wifi.starrailexpress.client.gui.screen;
 
-import com.mojang.blaze3d.systems.RenderSystem;
 import io.wifi.starrailexpress.SREClientConfig;
 import io.wifi.starrailexpress.cca.MapVotingComponent;
+import io.wifi.starrailexpress.client.gui.OpeningPresentationCoordinator;
 import io.wifi.starrailexpress.client.gui.screen.mapui.MapBackdropRenderer;
 import io.wifi.starrailexpress.client.gui.screen.mapui.MapCapabilitySummary;
 import io.wifi.starrailexpress.client.gui.screen.mapui.MapIntroClientCache;
@@ -29,16 +29,15 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.util.Mth;
 import org.lwjgl.glfw.GLFW;
 
 /** One information column, an open landscape, and a browsable destination route. */
 public class MapVoteScreen extends Screen {
-    private static final ResourceLocation BUTTON = ResourceLocation.withDefaultNamespace("widget/button");
-    private static final ResourceLocation BUTTON_HOVER = ResourceLocation.withDefaultNamespace("widget/button_highlighted");
-    private static final ResourceLocation BUTTON_DISABLED = ResourceLocation.withDefaultNamespace("widget/button_disabled");
+    private static final long RESULT_COUNTDOWN_MS = 2_500L;
+    private static final float COVER_FADE_MS = 480.0F;
+    private static final long DOUBLE_CLICK_MS = 400L;
     private final MapBackdropRenderer backdrop = new MapBackdropRenderer(0.28F);
     private final List<MapRow> rows = new ArrayList<>();
     private int focusIndex;
@@ -47,10 +46,11 @@ public class MapVoteScreen extends Screen {
     private long resultStartedAt;
     private long selectionChangedAt;
     private float routePosition;
-    private float buttonHover;
     private float resultTitleHeight = 22;
     private boolean introDataReceived;
     private MapCapabilitySummary summary;
+    private long lastMapClickAt;
+    private int lastMapClickIndex = -1;
 
     public MapVoteScreen() { super(Component.translatable("gui.sre.map_vote.logo")); }
 
@@ -93,11 +93,22 @@ public class MapVoteScreen extends Screen {
     }
 
     public boolean isShowingResult() { return resultMapId != null; }
+
+    /** 发车倒计时结束后才在 GUI 内铺黑。 */
+    public float guiCoverAmount() {
+        if (!isShowingResult()) return 0.0F;
+        return VoteFlowFrame.ease((System.currentTimeMillis() - resultStartedAt - RESULT_COUNTDOWN_MS) / COVER_FADE_MS);
+    }
+
     @Override public boolean isPauseScreen() { return false; }
     @Override public boolean shouldCloseOnEsc() { return !isShowingResult(); }
 
     @Override
     public void renderBackground(GuiGraphics g, int mouseX, int mouseY, float partialTick) {
+        if (OpeningPresentationCoordinator.shouldCoverVoteGui()) {
+            g.fill(0, 0, width, height, 0xFF000000);
+            return;
+        }
         backdrop.renderBackdrop(g);
         g.fillGradient(0, 0, width, Math.min(height, 120), 0xED120D08, 0x00120D08);
         g.fillGradient(0, Math.max(0, height - 140), width, height, 0x00120D08, 0xF00B0907);
@@ -105,10 +116,13 @@ public class MapVoteScreen extends Screen {
 
     @Override
     public void render(GuiGraphics g, int mouseX, int mouseY, float partialTick) {
+        if (OpeningPresentationCoordinator.shouldCoverVoteGui()) {
+            g.fill(0, 0, width, height, 0xFF000000);
+            return;
+        }
         float dt = backdrop.advance(targetMapId());
         routePosition = MapUiGraphics.approach(routePosition, focusIndex, dt, 13);
         var l = MapVoteLayout.of(width, height);
-        buttonHover = MapUiGraphics.approach(buttonHover, insideVote(mouseX, mouseY, l) ? 1 : 0, dt, 14);
         super.render(g, mouseX, mouseY, partialTick);
         VoteFlowFrame.renderProgress(g, font, l.board(), isShowingResult() ? 2 : 1, modeName(),
                 isShowingResult() ? -1 : remainingSeconds());
@@ -271,20 +285,15 @@ public class MapVoteScreen extends Screen {
         if (alpha <= 3) return;
         int y = l.footerY() + Math.round((1 - visibility) * 12);
         boolean selected = focused() != null && focused().id().equals(votedMapId);
-        boolean enabled = canVote();
-        var sprite = !enabled ? BUTTON_DISABLED : buttonHover > 0.1F ? BUTTON_HOVER : BUTTON;
-        g.flush();
-        RenderSystem.enableBlend();
-        RenderSystem.setShaderColor(1, 1, 1, visibility);
-        g.blitSprite(sprite, l.buttonX(), y, l.buttonWidth(), 22);
-        g.flush();
-        RenderSystem.setShaderColor(1, 1, 1, 1);
-        Component label = Component.translatable(selected ? "gui.sre.vote_flow.voted" : "gui.sre.map_vote.cast_vote");
-        VoteFlowFrame.scaledCentered(g, font, label, l.buttonX() + l.buttonWidth() / 2.0F, y + 7, 1,
-                VoteFlowFrame.withAlpha(selected ? VoteFlowFrame.GOLD : enabled ? VoteFlowFrame.TEXT : VoteFlowFrame.MUTED, alpha));
-        Component hint = Component.translatable("gui.sre.map_vote.browse_hint", rows.isEmpty() ? 0 : focusIndex + 1, rows.size());
-        g.drawString(font, MapUiGraphics.clip(font, hint.getString(), l.buttonX() - l.contentX() - 12),
-                l.contentX(), y + 7, VoteFlowFrame.withAlpha(VoteFlowFrame.MUTED, alpha), false);
+        Component hint = Component.translatable("gui.sre.map_vote.browse_hint",
+                rows.isEmpty() ? 0 : focusIndex + 1, rows.size());
+        if (selected) {
+            hint = Component.empty().append(hint).append("  ·  ")
+                    .append(Component.translatable("gui.sre.vote_flow.voted"));
+        }
+        g.drawString(font, MapUiGraphics.clip(font, hint.getString(), l.contentWidth()),
+                l.contentX(), y + 7,
+                VoteFlowFrame.withAlpha(selected ? VoteFlowFrame.GOLD_DIM : VoteFlowFrame.MUTED, alpha), false);
     }
 
     private void renderDeparture(GuiGraphics g, MapVoteLayout l, float progress) {
@@ -298,13 +307,13 @@ public class MapVoteScreen extends Screen {
         g.fill(Math.round(centerX) - half, railY, Math.round(centerX) + half, railY + 1,
                 VoteFlowFrame.withAlpha(VoteFlowFrame.GOLD_DIM, alpha / 2));
         long elapsed = System.currentTimeMillis() - resultStartedAt;
-        Component status = elapsed < 2500
+        Component status = elapsed < RESULT_COUNTDOWN_MS
                 ? Component.translatable("gui.sre.map_vote.result_countdown", String.format(java.util.Locale.ROOT,
-                        "%.1f", Math.max(0, (2500 - elapsed) / 1000.0F)))
+                        "%.1f", Math.max(0, (RESULT_COUNTDOWN_MS - elapsed) / 1000.0F)))
                 : Component.translatable("gui.sre.map_vote.result_departing");
         VoteFlowFrame.scaledCentered(g, font, status, centerX, railY + 13, 1,
                 VoteFlowFrame.withAlpha(VoteFlowFrame.MUTED, alpha));
-        float travel = Mth.clamp(elapsed / 2500.0F, 0, 1);
+        float travel = Mth.clamp(elapsed / (float) RESULT_COUNTDOWN_MS, 0, 1);
         int end = Math.round(centerX - half + 2 * half * travel);
         g.fill(Math.round(centerX) - half, railY, end, railY + 1,
                 VoteFlowFrame.withAlpha(VoteFlowFrame.GOLD, alpha));
@@ -328,9 +337,9 @@ public class MapVoteScreen extends Screen {
         float stationCenter = center + (index - routePosition) * (l.stationWidth() + 6);
         return Math.abs(mouseX - stationCenter) <= l.stationWidth() / 2.0F ? index : -1;
     }
-    private boolean insideVote(double mouseX, double mouseY, MapVoteLayout l) {
-        return mouseX >= l.buttonX() && mouseX < l.buttonX() + l.buttonWidth()
-                && mouseY >= l.footerY() && mouseY < l.footerY() + 22;
+    private boolean insideDestination(double mouseX, double mouseY, MapVoteLayout l) {
+        return mouseX >= l.contentX() && mouseX < l.contentX() + l.infoWidth()
+                && mouseY >= l.contentY() && mouseY < l.routeY();
     }
 
     @Override
@@ -338,9 +347,15 @@ public class MapVoteScreen extends Screen {
         if (isShowingResult()) return true;
         if (button == 0) {
             var l = MapVoteLayout.of(width, height);
-            if (insideVote(mouseX, mouseY, l)) { submitFocused(); return true; }
             int index = stationAt(mouseX, mouseY, l);
-            if (index >= 0) { moveFocus(index - focusIndex); return true; }
+            if (index >= 0) {
+                handleMapClick(index);
+                return true;
+            }
+            if (insideDestination(mouseX, mouseY, l) && focused() != null) {
+                handleMapClick(focusIndex);
+                return true;
+            }
             if (mouseY >= l.routeY() && mouseY < l.routeY() + l.routeHeight()) {
                 if (mouseX >= l.contentX() && mouseX < l.routeLeft()) { moveFocus(-1); return true; }
                 if (mouseX >= l.routeRight() && mouseX < l.contentX() + l.contentWidth()) { moveFocus(1); return true; }
@@ -368,6 +383,15 @@ public class MapVoteScreen extends Screen {
             case GLFW.GLFW_KEY_ENTER, GLFW.GLFW_KEY_KP_ENTER, GLFW.GLFW_KEY_SPACE -> { submitFocused(); return true; }
             default -> { return super.keyPressed(keyCode, scanCode, modifiers); }
         }
+    }
+
+    private void handleMapClick(int index) {
+        long now = System.currentTimeMillis();
+        boolean doubleClick = index == lastMapClickIndex && now - lastMapClickAt <= DOUBLE_CLICK_MS;
+        lastMapClickIndex = index;
+        lastMapClickAt = now;
+        if (index != focusIndex) moveFocus(index - focusIndex);
+        if (doubleClick) submitFocused();
     }
 
     private void moveFocus(int direction) {

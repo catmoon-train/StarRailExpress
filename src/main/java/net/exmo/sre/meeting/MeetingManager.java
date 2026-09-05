@@ -274,6 +274,7 @@ public final class MeetingManager {
             return false;
         }
         reportedBodies.add(body.getUUID());
+        io.wifi.starrailexpress.progression.ProgressionDataManager.onReportBody(reporter);
         return true;
     }
 
@@ -302,6 +303,7 @@ public final class MeetingManager {
             return false;
         }
         bellCooldownUntilTick = now + settings.bellMeetingCooldown * 20L;
+        io.wifi.starrailexpress.progression.ProgressionDataManager.onCallMeeting(ringer);
         return true;
     }
 

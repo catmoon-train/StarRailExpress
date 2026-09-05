@@ -18,6 +18,11 @@ package org.agmas.noellesroles.content.entity;
 import io.wifi.starrailexpress.cca.SREGameTimeComponent;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.game.GameUtils;
+import net.minecraft.ChatFormatting;
+import net.minecraft.network.chat.Component;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityDimensions;
@@ -25,25 +30,34 @@ import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.MoverType;
 import net.minecraft.world.entity.PathfinderMob;
+import net.minecraft.world.entity.Pose;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import org.agmas.noellesroles.game.roles.innocence.angler.AnglerRules;
 import org.agmas.noellesroles.game.roles.innocence.angler.AnglerWorldMemory;
 import org.agmas.noellesroles.init.ModItems;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 /**
- * 垂钓者 Shift+右键钓竿后乘坐的载具。看向哪边就往哪边飞；每次乘坐消耗 1 点耐久，下来后 30 秒冷却。
+ * 垂钓者 Shift+右键钓竿后乘坐的载具。只能水平平移，最多 6 秒；
+ * 卡进方块后消失，并把乘客送回路上最后的安全点。
  */
 public class AnglerRodMountEntity extends PathfinderMob {
     private int dismountGrace = AnglerRules.ROD_RIDE_DISMOUNT_GRACE_TICKS;
+    private int rideTicks;
     private UUID riderId;
     private boolean cooldownMarked;
     private boolean didRide;
+    private double hoverY;
+    private boolean hoverLocked;
+    private final List<Vec3> path = new ArrayList<>();
 
     public AnglerRodMountEntity(EntityType<? extends PathfinderMob> type, Level level) {
         super(type, level);
@@ -62,8 +76,13 @@ public class AnglerRodMountEntity extends PathfinderMob {
     public void bindRider(Player player) {
         this.riderId = player.getUUID();
         this.dismountGrace = AnglerRules.ROD_RIDE_DISMOUNT_GRACE_TICKS;
+        this.rideTicks = 0;
         this.cooldownMarked = false;
         this.didRide = false;
+        this.hoverY = player.getY();
+        this.hoverLocked = true;
+        this.path.clear();
+        recordPath(player.position());
     }
 
     @Override
@@ -75,10 +94,21 @@ public class AnglerRodMountEntity extends PathfinderMob {
             return;
         }
         super.tick();
+        lockHoverHeight();
         if (level().isClientSide) {
             return;
         }
         Entity passenger = getFirstPassenger();
+        if (++rideTicks >= AnglerRules.ROD_RIDE_MAX_TICKS) {
+            Player rider = passenger instanceof Player player ? player
+                    : riderId == null ? null : level().getPlayerByUUID(riderId);
+            if (rider instanceof ServerPlayer serverPlayer) {
+                serverPlayer.displayClientMessage(Component.translatable("message.noellesroles.angler.ride_timeout")
+                        .withStyle(ChatFormatting.AQUA), true);
+            }
+            finishRide(rider);
+            return;
+        }
         if (dismountGrace > 0) {
             dismountGrace--;
             if (passenger == null && riderId != null) {
@@ -87,13 +117,22 @@ public class AnglerRodMountEntity extends PathfinderMob {
                     rider.startRiding(this, true);
                 }
             }
+            if (passenger instanceof Player player && isSafeForPlayer(player, feetPos())) {
+                recordPath(feetPos());
+            }
             return;
         }
         if (passenger instanceof Player player) {
             this.didRide = true;
             if (!GameUtils.isPlayerAliveAndSurvival(player) || shouldEject()) {
                 finishRide(player);
+                return;
             }
+            if (isStuck(player)) {
+                crashIntoBlock(player);
+                return;
+            }
+            recordPath(feetPos());
             return;
         }
         Player was = riderId == null ? null : level().getPlayerByUUID(riderId);
@@ -110,19 +149,105 @@ public class AnglerRodMountEntity extends PathfinderMob {
         return game == null || !game.isRunning() || !game.isSkillAvailable;
     }
 
+    private void lockHoverHeight() {
+        if (!hoverLocked) {
+            return;
+        }
+        if (Math.abs(getY() - hoverY) > 1.0E-3) {
+            setPos(getX(), hoverY, getZ());
+        }
+        Vec3 motion = getDeltaMovement();
+        if (motion.y != 0.0) {
+            setDeltaMovement(motion.x, 0.0, motion.z);
+        }
+        setXRot(0.0f);
+    }
+
+    private Vec3 feetPos() {
+        return new Vec3(getX(), hoverLocked ? hoverY : getY(), getZ());
+    }
+
+    private void recordPath(Vec3 pos) {
+        if (path.isEmpty() || path.getLast().distanceToSqr(pos) >= 0.04) {
+            path.add(pos);
+            while (path.size() > AnglerRules.ROD_RIDE_PATH_CAP) {
+                path.removeFirst();
+            }
+        }
+    }
+
+    private boolean isStuck(Player rider) {
+        if (isInWall()) {
+            return true;
+        }
+        if (!level().noCollision(rider, rider.getBoundingBox())) {
+            return true;
+        }
+        return !isSafeForPlayer(rider, feetPos());
+    }
+
+    private boolean isSafeForPlayer(Player rider, Vec3 feet) {
+        EntityDimensions dims = rider.getDimensions(Pose.STANDING);
+        AABB box = dims.makeBoundingBox(feet.x, feet.y, feet.z);
+        return level().noCollision(rider, box);
+    }
+
+    private Vec3 findSafeAlongPath(Player rider) {
+        for (int i = path.size() - 1; i >= 0; i--) {
+            Vec3 pos = path.get(i);
+            if (isSafeForPlayer(rider, pos)) {
+                return pos;
+            }
+        }
+        Vec3 origin = path.isEmpty() ? feetPos() : path.getFirst();
+        if (isSafeForPlayer(rider, origin)) {
+            return origin;
+        }
+        for (int radius = 1; radius <= 4; radius++) {
+            for (int i = 0; i < 8; i++) {
+                double angle = i * Math.PI / 4.0;
+                Vec3 candidate = origin.add(Math.cos(angle) * radius, 0.0, Math.sin(angle) * radius);
+                if (isSafeForPlayer(rider, candidate)) {
+                    return candidate;
+                }
+            }
+        }
+        return origin;
+    }
+
+    private void crashIntoBlock(Player rider) {
+        Vec3 safe = findSafeAlongPath(rider);
+        markCooldown(rider);
+        ejectPassengers();
+        if (rider instanceof ServerPlayer serverPlayer) {
+            serverPlayer.teleportTo(safe.x, safe.y, safe.z);
+            serverPlayer.setDeltaMovement(Vec3.ZERO);
+            serverPlayer.hasImpulse = true;
+            serverPlayer.hurtMarked = true;
+            serverPlayer.displayClientMessage(Component.translatable("message.noellesroles.angler.ride_stuck")
+                    .withStyle(ChatFormatting.DARK_PURPLE), true);
+        }
+        level().playSound(null, safe.x, safe.y, safe.z, SoundEvents.ITEM_BREAK, SoundSource.PLAYERS, 0.8f, 0.7f);
+        discard();
+    }
+
     private void finishRide(Player rider) {
+        markCooldown(rider);
+        ejectPassengers();
+        discard();
+    }
+
+    private void markCooldown(Player rider) {
         if (!cooldownMarked && didRide && rider != null) {
             cooldownMarked = true;
             AnglerWorldMemory.markDismount(rider, AnglerRules.ROD_RIDE_COOLDOWN_TICKS);
             rider.getCooldowns().addCooldown(ModItems.ANGLER_ROD, AnglerRules.ROD_RIDE_COOLDOWN_TICKS);
         }
-        ejectPassengers();
-        discard();
     }
 
     @Override
     public void travel(Vec3 travelVector) {
-        if (!(getControllingPassenger() instanceof Player player) || !isControlledByLocalInstance()) {
+        if (!(getControllingPassenger() instanceof Player player) || !shouldSteer()) {
             super.travel(travelVector);
             return;
         }
@@ -131,20 +256,30 @@ public class AnglerRodMountEntity extends PathfinderMob {
             return;
         }
         this.setYRot(player.getYRot());
-        this.setXRot(player.getXRot());
+        this.setXRot(0.0f);
         this.yRotO = this.yBodyRot = this.yHeadRot = this.getYRot();
 
-        Vec3 look = player.getLookAngle();
-        Vec3 right = look.cross(new Vec3(0.0, 1.0, 0.0));
-        if (right.lengthSqr() < 1.0E-6) {
-            right = new Vec3(1.0, 0.0, 0.0);
-        } else {
-            right = right.normalize();
-        }
+        Vec3 forward = horizontalForward(player);
+        Vec3 right = new Vec3(-forward.z, 0.0, forward.x);
         float speed = AnglerRules.ROD_RIDE_SPEED;
-        Vec3 motion = look.scale(player.zza * speed).add(right.scale(-player.xxa * speed));
+        Vec3 motion = forward.scale(player.zza * speed).add(right.scale(-player.xxa * speed));
+        motion = new Vec3(motion.x, 0.0, motion.z);
         this.setDeltaMovement(motion);
         this.move(MoverType.SELF, motion);
+    }
+
+    private boolean shouldSteer() {
+        return isControlledByLocalInstance() || !level().isClientSide;
+    }
+
+    private static Vec3 horizontalForward(Player player) {
+        Vec3 look = player.getLookAngle();
+        Vec3 flat = new Vec3(look.x, 0.0, look.z);
+        if (flat.lengthSqr() < 1.0E-6) {
+            float yaw = player.getYRot() * ((float) Math.PI / 180.0f);
+            return new Vec3(-Math.sin(yaw), 0.0, Math.cos(yaw));
+        }
+        return flat.normalize();
     }
 
     @Override

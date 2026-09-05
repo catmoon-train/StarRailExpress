@@ -691,6 +691,19 @@ public class RoleUtils extends MCItemsUtils {
         }
     }
 
+    /** Extra long-form item text, e.g. {@code ex.item.desc.noellesroles.bomb}. */
+    public static String getItemExtraDescriptionKey(Item item) {
+        return "ex.item.desc." + BuiltInRegistries.ITEM.getKey(item).toLanguageKey();
+    }
+
+    public static boolean hasItemExtraDescription(Item item) {
+        return item != null && Language.getInstance().has(getItemExtraDescriptionKey(item));
+    }
+
+    public static MutableComponent getItemExtraDescription(Item item) {
+        return Component.translatable(getItemExtraDescriptionKey(item));
+    }
+
     public static Component getTeamName(int roleType) {
         Component teamName = Component.translatable("Unknown").withStyle(ChatFormatting.GRAY);
         if (roleType == 1) {

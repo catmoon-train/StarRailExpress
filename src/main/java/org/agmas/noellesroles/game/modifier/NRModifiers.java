@@ -108,6 +108,17 @@ public class NRModifiers {
             .setDefaultMax(2)
             .setDefaultEnableChance(5000);
 
+    /** 封印遗物：开局获得一件封印物 */
+    public static SREModifier SEALED_RELICS = HMLModifiers.registerModifier(new SREModifier(
+            Noellesroles.id("sealed_relics"),
+            0x6B3FA0,
+            null,
+            null,
+            false,
+            false))
+            .setDefaultMax(2)
+            .setDefaultEnableChance(1500);
+
     /** 沙哑修饰符：嗓音十分低沉 */
     public static SREModifier HOARSE = HMLModifiers.registerModifier(new SREModifier(
             Noellesroles.id("hoarse"),

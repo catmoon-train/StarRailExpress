@@ -25,6 +25,7 @@ import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.player.LocalPlayer;
+import net.minecraft.client.renderer.RenderType;
 import net.minecraft.resources.ResourceLocation;
 
 // import net.minecraft.world.item.ItemCooldowns;
@@ -61,32 +62,29 @@ public class CrosshairRenderer {
             context.pose().translate(context.guiWidth() / 2f - 1.5f, context.guiHeight() / 2f - 1.5f, 0);
             context.blitSprite(CROSSHAIR, 0, 0, 3, 3);
             context.pose().popPose();
+            // 先提交反色准星。攻击条若跟反色混合画在一起，中灰背景上会抵消成看不见。
+            context.flush();
+            RenderSystem.defaultBlendFunc();
+            RenderSystem.enableBlend();
 
             // 仅攻击指示器为crosshair下渲染蓄力条
             if (client.options.attackIndicator().get() == AttackIndicatorStatus.CROSSHAIR) {
-                // 2. 攻击指示器（仅当蓄力中时显示）
                 float f = player.getAttackStrengthScale(0.0F); // 0~1
                 if (f < 1.0f) {
-                    // 指示器位置（与原版一致）
                     int barX = context.guiWidth() / 2 - 8;
                     int barY = context.guiHeight() / 2 - 7 + 16;
                     int barWidth = 16;
                     int barHeight = 2;
+                    int progressWidth = Math.max(1, (int) (f * (float) barWidth));
 
-                    // 2.1 黑色半透明背景（50% 透明度）
-                    // int bgColor = 0x40000000; // ARGB: 0x80 = 128/255 ≈ 50%
-                    // context.fill(barX, barY, barX + barWidth, barY + barHeight, bgColor);
-
-                    // 2.2 白色半透明进度条（80% 不透明度）
-                    int progressWidth = (int) (f * (float) barWidth);
-                    progressWidth = Math.max(progressWidth, 1); // 至少 1 像素，确保可见
-
-                    int bgColor = 0x80000000; // ARGB: 0x80 = 128/255 ≈ 50%
-                    context.fill(barX, barY, barX + progressWidth, barY + barHeight, bgColor);
-                    int progressColor = 0x80DDDDDD; // 0xCC ≈ 80% 不透明
-                    context.fill(barX, barY, barX + progressWidth, barY + barHeight, progressColor);
+                    context.pose().pushPose();
+                    context.pose().translate(barX, barY + barHeight * 0.5f, 0);
+                    context.pose().scale(1f, 0.7f, 1f);
+                    context.pose().translate(0, -barHeight * 0.5f, 0);
+                    context.fill(RenderType.guiOverlay(), 0, 0, barWidth, barHeight, 0xC0606060);
+                    context.fill(RenderType.guiOverlay(), 0, 0, progressWidth, barHeight, 0xE0FFFFFF);
+                    context.pose().popPose();
                 }
-                // 当 f >= 1.0 时，不绘制任何指示器，符合“满蓄力不显示条”的要求
             }
         }
         context.pose().popPose();

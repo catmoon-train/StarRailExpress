@@ -97,6 +97,8 @@ public class RoleShopHandler {
     private static boolean oldmanEasterEggTriggeredInRound = false;
 
     public static boolean haveRegistered = false;
+    /** 商店内容版本号，客户端 tooltip 索引据此重建。 */
+    public static int shopVersion = 0;
 
     private static List<ShopEntry> createPoisonerShopEntries() {
         var entries = new ArrayList<ShopEntry>();
@@ -3635,6 +3637,7 @@ public class RoleShopHandler {
             });
             ShopContent.customEntries.put(ModRoles.LIN_FAMILY_ID, shop);
         }
+        shopVersion++;
     }
 
     /**

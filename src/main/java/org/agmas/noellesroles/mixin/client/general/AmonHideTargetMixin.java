@@ -28,8 +28,8 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 /**
- * 让阿蒙在附身（夺舍准备）期间看不见被附身目标的渲染：
- * 当本地玩家是正在附身某目标的阿蒙，且被观察实体正是该目标时，使该目标对阿蒙隐形。
+ * 让阿蒙在寄宿期间看不见被寄宿目标的渲染（身处其体内，避免模型挡住视野）：
+ * 当本地玩家是正在寄宿某目标的阿蒙，且被观察实体正是该目标时，使该目标对阿蒙隐形。
  *
  * <p>仅作用于本地观察者（{@code viewer == 本地玩家}），不影响其他人看到该目标。</p>
  */

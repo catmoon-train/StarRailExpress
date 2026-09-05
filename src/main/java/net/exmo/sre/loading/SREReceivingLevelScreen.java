@@ -53,8 +53,7 @@ public class SREReceivingLevelScreen extends ReceivingLevelScreen {
 
     @Override
     protected void init() {
-        FrameAnimationRenderer.setInWorld(false);
-        SreUiStyle.ensureBackdrop();
+        SreUiStyle.registerLoadingBackground();
     }
 
     @Override

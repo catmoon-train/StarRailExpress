@@ -1,10 +1,10 @@
 package io.wifi.starrailexpress.client.gui;
 
+import io.wifi.starrailexpress.client.gui.screen.MapSelectorScreen;
 import io.wifi.starrailexpress.client.gui.screen.MapVoteResultScreen;
 import io.wifi.starrailexpress.client.gui.screen.MapVoteScreen;
 import io.wifi.starrailexpress.client.gui.screen.gamemode.role_rotation.RoleRotationScreen;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
-import io.wifi.starrailexpress.game.GameConstants;
 import io.wifi.starrailexpress.client.gui.screen.mapui.MapIntroClientCache;
 import io.wifi.starrailexpress.cca.AreasWorldComponent;
 import io.wifi.starrailexpress.content.vote.client.RoleRotationCache;
@@ -54,19 +54,27 @@ public final class OpeningPresentationCoordinator {
             clear();
             return;
         }
-        tickDeparture(client);
+        boolean voteGui = isVoteResultScreen(client.screen);
+        boolean rotationReady = RoleRotationCache.canReOpen();
+        boolean cameraIntro = AdvancedCameraDirector.isPresentationActive();
+        if (cameraIntro && voteGui) {
+            leaveVoteGui(client, true, rotationReady);
+            voteGui = false;
+        }
+        tickDeparture(client, voteGui, rotationReady);
+        voteGui = isVoteResultScreen(client.screen);
+        rotationReady = RoleRotationCache.canReOpen();
         if (state == State.WAITING_FOR_PRESENTATION) {
             if (mapId == null) mapId = currentMapId(client);
-            boolean blocked = mapId == null || MapIntroClientCache.isRefreshPending()
-                    || System.currentTimeMillis() < eligibleAfter
-                    || RoleRotationCache.isSelecting() || RoleRotationCache.getConfirmCountdown() > 0
-                    || AdvancedCameraDirector.isPresentationActive() || RoundTextRenderer.isWelcomeActive()
-                    || departure.isVisible() || SREGameWorldComponent.KEY.get(client.level).getFade() > 0
-                    || client.screen != null;
+            boolean blocked = isPresentationBlocked(client, voteGui);
             quietTicks = blocked ? 0 : quietTicks + 1;
-            if (quietTicks >= 8) {
-                MapRuleIntroHud.start(mapId);
-                state = State.SHOWING_RULES;
+            if (quietTicks >= 8 && (!voteGui || departure.isFullyCovered())) {
+                leaveVoteGui(client, voteGui, rotationReady);
+                if (!rotationReady && !RoundTextRenderer.isWelcomeActive()
+                        && !AdvancedCameraDirector.isPresentationActive()) {
+                    MapRuleIntroHud.start(mapId);
+                    state = State.SHOWING_RULES;
+                }
             }
         } else if (state == State.SHOWING_RULES) {
             // A later sendWelcome means the player's role changed. The role announcement owns the
@@ -99,22 +107,61 @@ public final class OpeningPresentationCoordinator {
         }
     }
 
-    private static void tickDeparture(Minecraft client) {
-        boolean ready = state == State.WAITING_FOR_PRESENTATION || RoleRotationCache.canReOpen()
-                || AdvancedCameraDirector.isPresentationActive();
-        if (isVoteResultScreen(client.screen)) {
-            float gameFade = SREGameWorldComponent.KEY.get(client.level).getFade()
-                    / (float) Math.max(1, GameConstants.FADE_TIME);
-            departure.tick(gameFade, ready);
-            if (departure.canHandoff(ready)) {
-                departure.release();
-                client.setScreen(RoleRotationCache.canReOpen() ? new RoleRotationScreen() : null);
+    private static void tickDeparture(Minecraft client, boolean voteGui, boolean rotationReady) {
+        if (voteGui) {
+            float cover = client.screen instanceof MapVoteScreen vote ? vote.guiCoverAmount() : 1.0F;
+            // 结果页只跟发车倒计时铺黑，不要因为游戏已开始就提前盖住。
+            departure.tick(cover, rotationReady);
+            if (rotationReady && departure.canHandoff(true)) {
+                if (!departure.isReleasing()) departure.release();
+                client.setScreen(new RoleRotationScreen());
             }
-        } else if (departure.isVisible()) {
-            // Another server-owned selection screen may arrive before OnGameStarted.
+            return;
+        }
+        if (AdvancedCameraDirector.isPresentationActive()) {
+            departure.clear();
+            return;
+        }
+        if (!departure.isVisible()) return;
+        if (rotationReady) {
             if (!departure.isReleasing()) departure.release();
             departure.tick(0, false);
+            return;
         }
+        if (departure.isReleasing()) {
+            departure.tick(0, false);
+            return;
+        }
+        // Vote GUI already covered the start fade. After it closes, keep black until the
+        // world fade is finished, then drop the curtain instantly so there is no second fade.
+        SREGameWorldComponent game = SREGameWorldComponent.KEY.get(client.level);
+        boolean stillFading = game != null && (!game.isRunning() || game.getFade() > 0);
+        if (stillFading) {
+            departure.tick(1.0F, true);
+            return;
+        }
+        departure.clear();
+    }
+
+    private static boolean isPresentationBlocked(Minecraft client, boolean voteGui) {
+        if (AdvancedCameraDirector.isPresentationActive()) return false;
+        SREGameWorldComponent game = SREGameWorldComponent.KEY.get(client.level);
+        return mapId == null || MapIntroClientCache.isRefreshPending()
+                || System.currentTimeMillis() < eligibleAfter
+                || RoleRotationCache.isSelecting() || RoleRotationCache.getConfirmCountdown() > 0
+                || !game.isRunning() || game.getFade() > 0
+                || (client.screen != null && !voteGui);
+    }
+
+    private static void leaveVoteGui(Minecraft client, boolean voteGui, boolean rotationReady) {
+        if (!voteGui) return;
+        if (rotationReady) {
+            if (!departure.isReleasing()) departure.release();
+            client.setScreen(new RoleRotationScreen());
+            return;
+        }
+        client.setScreen(null);
+        departure.clear();
     }
 
     /** Runs after Screen.render: destination artwork and text fade together. */
@@ -132,14 +179,18 @@ public final class OpeningPresentationCoordinator {
         graphics.fill(0, 0, graphics.guiWidth(), graphics.guiHeight(), alpha << 24);
         graphics.flush();
         graphics.pose().popPose();
-        if (outgoingScreen) departure.frameRendered(partialTick);
+        if (outgoingScreen) {
+            departure.frameRendered(partialTick);
+        }
     }
 
     /** Pause welcome copy and sounds while another opening stage owns the screen. */
     public static boolean shouldWaitForWelcome() {
         Minecraft client = Minecraft.getInstance();
-        return client.screen != null || departure.isVisible() || RoleRotationCache.canReOpen()
-                || AdvancedCameraDirector.isPresentationActive();
+        return (client.screen != null && !isVoteResultScreen(client.screen))
+                || RoleRotationCache.canReOpen()
+                || AdvancedCameraDirector.isPresentationActive()
+                || (departure.isVisible() && !departure.isReleasing());
     }
 
     public static void skip() {
@@ -165,6 +216,27 @@ public final class OpeningPresentationCoordinator {
     public static boolean shouldSuppressGameplayHud() {
         return state == State.WAITING_FOR_PRESENTATION || state == State.SHOWING_RULES || departure.isVisible()
                 || RoundTextRenderer.isWelcomeActive();
+    }
+
+    /** Vote GUI already covers the world: skip the HUD fade so closing the screen does not start a second blackout. */
+    public static boolean shouldSuppressWorldFade() {
+        if (AdvancedCameraDirector.isPresentationActive()) return true;
+        return state == State.WAITING_FOR_GAME
+                || isVoteResultScreen(Minecraft.getInstance().screen) || departure.isVisible();
+    }
+
+    /** Server CloseUi must not dismiss the vote result; this coordinator closes it after the start fade. */
+    public static boolean shouldHoldVoteGui() {
+        if (AdvancedCameraDirector.isPresentationActive()) return false;
+        if (state != State.WAITING_FOR_GAME && state != State.WAITING_FOR_PRESENTATION) return false;
+        Screen screen = Minecraft.getInstance().screen;
+        return isVoteResultScreen(screen) || screen instanceof MapVoteScreen
+                || screen instanceof MapSelectorScreen;
+    }
+
+    /** Vote result content can stop drawing once the GUI curtain is already opaque. */
+    public static boolean shouldCoverVoteGui() {
+        return !departure.isReleasing() && departure.opacity() >= 0.55F;
     }
 
     public static State state() {

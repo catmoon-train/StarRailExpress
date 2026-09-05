@@ -32,6 +32,10 @@ public class SoundVolumeMixin {
     public void getSoundSourceVolume(SoundSource soundSource, CallbackInfoReturnable<Float> cir) {
         LocalPlayer player = Minecraft.getInstance().player;
         if (player != null) {
+            if (player.hasEffect(ModEffects.DEAFNESS)) {
+                cir.setReturnValue(0.0f);
+                return;
+            }
             if (player.hasEffect(ModEffects.TIME_STOP)) {
                 if (!TimeStopEffect.clientCanMovePlayers.contains(player.getUUID())) {
                     cir.setReturnValue(0.0f);

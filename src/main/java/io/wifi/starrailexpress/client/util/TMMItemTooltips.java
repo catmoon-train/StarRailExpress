@@ -17,12 +17,15 @@ package io.wifi.starrailexpress.client.util;
 
 import dev.doctor4t.ratatouille.util.TextUtils;
 import io.wifi.starrailexpress.SREConfig;
+import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.game.KillerKnifeDurability;
 import io.wifi.starrailexpress.index.DevItems;
 import io.wifi.starrailexpress.index.SREBlocks;
 import io.wifi.starrailexpress.index.TMMItems;
 import net.fabricmc.fabric.api.client.item.v1.ItemTooltipCallback;
+import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.Style;
 import net.minecraft.world.item.Item;
@@ -31,6 +34,7 @@ import net.minecraft.world.item.ItemStack;
 
 import org.agmas.noellesroles.init.FunnyItems;
 import org.agmas.noellesroles.init.ModItems;
+import org.agmas.noellesroles.utils.RoleUtils;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
@@ -91,7 +95,46 @@ public class TMMItemTooltips {
             addTooltipForItem(FunnyItems.DOREMY_GHOST, itemStack, tooltipList);
             addTooltipForItem(FunnyItems.ICE_RED_TEA, itemStack, tooltipList);
             addTooltipForItem(FunnyItems.COOKED_HAIMAN, itemStack, tooltipList);
+
+            addShopRoleTooltip(itemStack, tooltipList);
         });
+    }
+
+    private static final int MAX_ROLES_IN_TOOLTIP = 24;
+
+    private static void addShopRoleTooltip(@NotNull ItemStack itemStack, List<Component> tooltipList) {
+        if (itemStack.isEmpty()) {
+            return;
+        }
+        Item item = itemStack.getItem();
+        List<SRERole> shopRoles = ShopItemTooltipIndex.rolesFor(item);
+        List<SRERole> startRoles = ShopItemTooltipIndex.startingRolesFor(item);
+        if (shopRoles.isEmpty() && startRoles.isEmpty()) {
+            return;
+        }
+        if (!Screen.hasShiftDown()) {
+            tooltipList.add(Component.translatable("tooltip.starrailexpress.item.shift_more",
+                    Component.keybind("key.sneak").withStyle(ChatFormatting.YELLOW))
+                    .withStyle(Style.EMPTY.withColor(REGULAR_TOOLTIP_COLOR)));
+            return;
+        }
+        appendRoleSection(tooltipList, "tooltip.starrailexpress.item.start_header", startRoles);
+        appendRoleSection(tooltipList, "tooltip.starrailexpress.item.shop_header", shopRoles);
+    }
+
+    private static void appendRoleSection(List<Component> tooltipList, String headerKey, List<SRERole> roles) {
+        if (roles.isEmpty()) {
+            return;
+        }
+        tooltipList.add(Component.translatable(headerKey).withStyle(Style.EMPTY.withColor(LETTER_COLOR)));
+        int shown = Math.min(roles.size(), MAX_ROLES_IN_TOOLTIP);
+        for (int i = 0; i < shown; i++) {
+            tooltipList.add(Component.literal("  ").append(RoleUtils.getRoleNameWithColor(roles.get(i))));
+        }
+        if (roles.size() > shown) {
+            tooltipList.add(Component.translatable("tooltip.starrailexpress.item.shop_more", roles.size() - shown)
+                    .withStyle(Style.EMPTY.withColor(REGULAR_TOOLTIP_COLOR)));
+        }
     }
 
     /**

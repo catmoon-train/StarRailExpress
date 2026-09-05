@@ -36,6 +36,7 @@ public final class FakeSteveAgentState {
     public int pathFailureCount;
     public int stuckTicks;
     public double lastMoveX;
+    public double lastMoveY;
     public double lastMoveZ;
     public long lastMoveTick;
     public BlockPos pathGoal;

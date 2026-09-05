@@ -18,6 +18,7 @@ package org.agmas.noellesroles.content.item;
 import io.wifi.starrailexpress.content.item.api.SREItemProperties;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.Entity;
@@ -36,15 +37,15 @@ import java.util.List;
  * - 左键攻击玩家时为目标增加感染值，每次攻击消耗 1 点耐久。
  * - 耐久耗尽后<b>不会消失</b>，而是进入充能冷却；冷却结束后自动恢复满耐久。
  * </p>
- * 攻击逻辑在服务端 {@link BoneStaffHandler}（{@code AttackEntityCallback}）中实现，
- * 本类负责物品定义、耐久自动恢复与提示。
+ * 攻击逻辑在服务端 {@link BoneStaffHandler} 中实现（{@code onServerAttack} 为主路径），
+ * 本类负责物品定义、耐久自动恢复与提示。左键命中玩家只注入感染，不造成击杀。
  */
 public class BoneStaffItem extends Item implements SREItemProperties.LeftClickHurtable {
     /**
      * 骨杖每次攻击为玩家注入的感染值（写死在代码中，不再读取配置）。
-     * 耐久上限为 5，5 次攻击累计 125% 感染值，配合衰减也能在耐久耗尽前稳定致死。
+     * 耐久上限为 5，5 次攻击累计 150% 感染值，配合衰减也能在耐久耗尽前稳定致死。
      */
-    public static final float BONE_STAFF_INFECTION_PER_HIT = 25.0f;
+    public static final float BONE_STAFF_INFECTION_PER_HIT = 30.0f;
 
     public BoneStaffItem(Properties settings) {
         super(settings);
@@ -59,8 +60,15 @@ public class BoneStaffItem extends Item implements SREItemProperties.LeftClickHu
 
     @Override
     public InteractionResultHolder<ItemStack> use(Level world, Player user, InteractionHand hand) {
-        // 仅用于触发挥动动作，攻击逻辑在攻击回调中实现
+        // 仅用于触发挥动动作，攻击逻辑在 onServerAttack / BoneStaffHandler 中实现
         return InteractionResultHolder.pass(user.getItemInHand(hand));
+    }
+
+    @Override
+    public boolean onServerAttack(ServerPlayer attacker, ServerPlayer target, ItemStack mainhandItem) {
+        BoneStaffHandler.tryApplyInfection(attacker, target, mainhandItem);
+        // 取消原版击杀，仅注入感染。
+        return false;
     }
 
     @Override

@@ -88,6 +88,42 @@ public final class GuiAnim {
         return 1f + c3 * (float) Math.pow(t - 1f, 3) + c1 * (float) Math.pow(t - 1f, 2);
     }
 
+    /**
+     * CSS 风格三次贝塞尔缓动：从 (0,0) 到 (1,1)，控制点 ({@code x1},{@code y1})、({@code x2},{@code y2})。
+     * {@code t} 为线性时间；内部用牛顿迭代把 x(u)=t 解成曲线参数再取 y。
+     */
+    public static float cubicBezierEase(float t, float x1, float y1, float x2, float y2) {
+        t = Mth.clamp(t, 0f, 1f);
+        if (t <= 0f || t >= 1f) {
+            return t;
+        }
+        float u = t;
+        for (int i = 0; i < 5; i++) {
+            float x = cubicBezier1D(u, x1, x2) - t;
+            float dx = cubicBezier1DDerivative(u, x1, x2);
+            if (Math.abs(dx) < 1.0e-5f) {
+                break;
+            }
+            u = Mth.clamp(u - x / dx, 0f, 1f);
+        }
+        return cubicBezier1D(u, y1, y2);
+    }
+
+    /** 打开界面常用的减速出场：快起、末端贴停。 */
+    public static float openBezier(float t) {
+        return cubicBezierEase(t, 0.22f, 1.0f, 0.36f, 1.0f);
+    }
+
+    private static float cubicBezier1D(float t, float a, float b) {
+        float u = 1f - t;
+        return 3f * u * u * t * a + 3f * u * t * t * b + t * t * t;
+    }
+
+    private static float cubicBezier1DDerivative(float t, float a, float b) {
+        float u = 1f - t;
+        return 3f * u * u * a + 6f * u * t * (b - a) + 3f * t * t * (1f - b);
+    }
+
     /** 将进度（0~1）映射为透明度（0~255） */
     public static int alphaOf(float progress) {
         return Mth.clamp((int) (Mth.clamp(progress, 0f, 1f) * 255f), 0, 255);

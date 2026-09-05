@@ -47,6 +47,7 @@ import io.wifi.starrailexpress.content.entity.GrenadeEntity;
 import io.wifi.starrailexpress.content.entity.StickyGrenadeEntity;
 import io.wifi.starrailexpress.content.entity.TimedGrenadeEntity;
 import io.wifi.starrailexpress.content.entity.no_water_influenced.NoHeavyWaterInfluencedThrowableItemProjectile;
+import org.agmas.noellesroles.content.item.SealedArtifactHandler;
 import org.agmas.noellesroles.content.item.angler.ErrorAnglerRodItem;
 import org.agmas.noellesroles.init.ModEffects;
 import org.agmas.noellesroles.init.ModItems;
@@ -74,7 +75,8 @@ public final class AnglerCatchHandler {
         rod.set(DataComponents.MAX_DAMAGE, uses);
         rod.set(DataComponents.DAMAGE, 0);
         RoleUtils.insertStackInFreeSlot(player, rod);
-        player.displayClientMessage(Component.translatable("message.noellesroles.angler.got_rod", uses)
+        player.displayClientMessage(Component.translatable("message.noellesroles.angler.got_rod",
+                        displayRemainingUses(rod))
                 .withStyle(ChatFormatting.AQUA), true);
     }
 
@@ -83,6 +85,19 @@ public final class AnglerCatchHandler {
             return 0;
         }
         return Math.max(0, stack.getMaxDamage() - stack.getDamageValue());
+    }
+
+    /** 按真实剩余次数等比映射到 10^18 展示值，不改物品真实耐久。 */
+    public static long displayRemainingUses(ItemStack stack) {
+        int max = stack.getMaxDamage();
+        int remaining = remainingUses(stack);
+        if (max <= 0 || remaining <= 0) {
+            return 0L;
+        }
+        if (remaining >= max) {
+            return AnglerRules.ROD_DISPLAY_MAX_DURABILITY;
+        }
+        return AnglerRules.ROD_DISPLAY_MAX_DURABILITY * remaining / max;
     }
 
     public static boolean handleRetrieve(ServerPlayer player, ItemStack rod, FishingHook hook) {
@@ -155,6 +170,12 @@ public final class AnglerCatchHandler {
             give(player, hook, new ItemStack(TMMItems.GRENADE));
             player.displayClientMessage(Component.translatable("message.noellesroles.angler.catch_grenade")
                     .withStyle(ChatFormatting.RED), true);
+            return;
+        }
+        if (random.nextInt(AnglerRules.SEALED_ODDS) == 0) {
+            give(player, hook, SealedArtifactHandler.randomStack(random));
+            player.displayClientMessage(Component.translatable("message.noellesroles.angler.catch_sealed")
+                    .withStyle(ChatFormatting.DARK_PURPLE), true);
             return;
         }
         int roll = random.nextInt(100);

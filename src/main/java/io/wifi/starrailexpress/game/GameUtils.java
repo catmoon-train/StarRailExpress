@@ -611,6 +611,7 @@ public class GameUtils {
         SREWorldBlackoutComponent.KEY.get(world).reset();
         component.setGameStatus(SREGameWorldComponent.GameStatus.STOPPING);
         component.gameMode.stopGame(world);
+        org.agmas.noellesroles.game.MirrorReunionEndEgg.onGameStopping(world, component);
     }
 
     public static void executeFunction(MinecraftServer server, int permission, String function) {
@@ -908,8 +909,9 @@ public class GameUtils {
         Map<UUID, String> nameTagMap = new HashMap<>();
         for (ServerPlayer player : serverWorld.players()) {
             NameTagInventoryComponent nameTagInventoryComponent = NameTagInventoryComponent.KEY.get(player);
-            if (!nameTagInventoryComponent.CurrentNameTag.isEmpty()) {
-                nameTagMap.put(player.getUUID(), nameTagInventoryComponent.CurrentNameTag);
+            String effectiveNameTag = nameTagInventoryComponent.getEffectiveNameTag();
+            if (effectiveNameTag != null && !effectiveNameTag.isEmpty()) {
+                nameTagMap.put(player.getUUID(), effectiveNameTag);
             }
             player.removeVehicle();
             resetPlayer(player);

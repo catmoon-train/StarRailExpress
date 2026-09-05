@@ -26,7 +26,11 @@ public final class AnglerRules {
     public static final ResourceLocation DEATH_CATCH = Noellesroles.id("angler_catch");
 
     public static final float ROD_DURABILITY_PER_PLAYER = 1.5f;
+    /** 仅用于物品提示/获得提示的展示上限，不写入真实 MAX_DAMAGE。 */
+    public static final long ROD_DISPLAY_MAX_DURABILITY = 1_000_000_000_000_000_000L;
     public static final int GRENADE_ODDS = 1000;
+    /** 善意钓获中钓上封印物的分母，约 1%。 */
+    public static final int SEALED_ODDS = 100;
 
     public static final int CLAIM_RADIUS = 3;
     public static final int CLAIM_TICKS = 5 * 20;
@@ -34,8 +38,10 @@ public final class AnglerRules {
     public static final int PATROL_MAX_TICKS = 30 * 20;
     public static final int RIDE_COOLDOWN_TICKS = 15 * 20;
     public static final int ROD_RIDE_COOLDOWN_TICKS = 30 * 20;
+    public static final int ROD_RIDE_MAX_TICKS = 6 * 20;
     public static final int ROD_RIDE_DISMOUNT_GRACE_TICKS = 15;
     public static final float ROD_RIDE_SPEED = 0.32f;
+    public static final int ROD_RIDE_PATH_CAP = 400;
 
     public static final int CARP_LIVE_TICKS = 3 * 20;
     public static final int CARP_RADIUS = 2;

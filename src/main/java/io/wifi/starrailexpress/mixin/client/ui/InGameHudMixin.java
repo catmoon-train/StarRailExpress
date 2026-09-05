@@ -25,6 +25,7 @@ import io.wifi.starrailexpress.client.SansRenderer;
 import io.wifi.starrailexpress.client.StaminaRenderer;
 import io.wifi.starrailexpress.client.StatusBarHUD;
 import io.wifi.starrailexpress.client.gui.CrosshairRenderer;
+import io.wifi.starrailexpress.client.gui.OpeningPresentationCoordinator;
 import io.wifi.starrailexpress.game.GameConstants;
 import net.exmo.sre.camera.client.AdvancedCameraDirector;
 import net.minecraft.client.DeltaTracker;
@@ -205,6 +206,9 @@ public class InGameHudMixin {
             return;
         }
         if (SREClient.gameComponent != null) {
+            if (OpeningPresentationCoordinator.shouldSuppressWorldFade()) {
+                return;
+            }
 
             // game start / stop fade in / out
             float fadeIn = SREClient.gameComponent.getFade();

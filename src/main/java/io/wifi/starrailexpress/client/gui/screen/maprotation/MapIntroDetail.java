@@ -23,6 +23,7 @@ import io.wifi.starrailexpress.api.AreasSettings;
 import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.api.TMMRoles;
 import io.wifi.starrailexpress.client.gui.screen.MapSpecialRoleLines;
+import io.wifi.starrailexpress.game.data.MapStatusBarType;
 import io.wifi.starrailexpress.network.MapIntroSyncPayload;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.Font;
@@ -160,67 +161,69 @@ public final class MapIntroDetail {
             }
         }
         if (json.has("settings")) {
-            // 新配置
-            AreasSettings areasSettings = GSON.fromJson(json.get("settings"), AreasSettings.class);
-            if (areasSettings.minigameQuestEnabled) {
-                sink.key("map_intro.property.minigame_quest");
-            }
+            // 新配置。Gson 用 Unsafe 分配实例，会跳过字段初值，缺省枚举/列表会是 null。
+            AreasSettings areasSettings = parseSettings(json.get("settings"));
+            if (areasSettings != null) {
+                if (areasSettings.minigameQuestEnabled) {
+                    sink.key("map_intro.property.minigame_quest");
+                }
 
-            if (areasSettings.meetingEnabled) {
-                sink.key("map_intro.property.meeting_enabled");
-            }
-            if (areasSettings.meetingVoteEnabled) {
-                sink.key("map_intro.property.meeting_vote_enabled");
-            }
-            if (areasSettings.bellMeetingEnabled) {
-                sink.key("map_intro.property.bell_meeting_enabled");
-            }
-            String status = areasSettings.mapStatusBar.name();
-            if (!status.equalsIgnoreCase("NONE") && !status.isBlank()) {
-                sink.line("map_intro.property.status_bar", statusName(status));
-            }
-            sink.key(areasSettings.canSimpleSwim && areasSettings.canUnderWater && areasSettings.allowInDeepWater
-                    && (areasSettings.canJump || areasSettings.canSwim)
-                            ? "map_intro.property.can_swim.true"
-                            : "map_intro.property.can_swim.false");
-            if (areasSettings.enableOxygenDrowning) {
-                sink.key("map_intro.property.oxygen_drowning");
-            }
-            sink.key(areasSettings.canJump
-                    ? "map_intro.property.can_jump.true"
-                    : "map_intro.property.can_jump.false");
-            if (areasSettings.snowEnabled) {
-                sink.key("map_intro.property.snow");
-            }
-            if (areasSettings.sandEnabled) {
-                sink.key("map_intro.property.sand");
-            }
-            if (areasSettings.fogEnabled) {
-                sink.key("map_intro.property.no_fog");
-            }
-            sink.line("map_intro.property.fog_end", trimNumber(areasSettings.fogEnd));
-            String weather = areasSettings.weather.name();
-            if (!weather.equalsIgnoreCase("clear")) {
-                sink.line("map_intro.property.weather",
-                        Component.translatableWithFallback("map_intro.weather." + weather.toLowerCase(Locale.ROOT),
-                                weather));
-            }
-            double gravity = areasSettings.gravityModifier;
-            if (Math.abs(gravity - 0.08D) > 0.0001D) {
-                sink.line("map_intro.property.gravity",
-                        Component.translatable(gravity < 0.08D ? "map_intro.gravity.low" : "map_intro.gravity.high"));
-            }
-            addEffects(sink, areasSettings);
-            addInitialItems(sink, areasSettings);
-            long time = areasSettings.time;
-            if (time != 18000L) {
-                sink.line("map_intro.property.time", Component.translatable(timeName(time)));
-            }
-            if (areasSettings.daylightCycle) {
-                sink.key("map_intro.property.daylight_cycle");
-            }
-            if (areasSettings.weatherCycle) {
-                sink.key("map_intro.property.weather_cycle");
+                if (areasSettings.meetingEnabled) {
+                    sink.key("map_intro.property.meeting_enabled");
+                }
+                if (areasSettings.meetingVoteEnabled) {
+                    sink.key("map_intro.property.meeting_vote_enabled");
+                }
+                if (areasSettings.bellMeetingEnabled) {
+                    sink.key("map_intro.property.bell_meeting_enabled");
+                }
+                String status = areasSettings.mapStatusBar.name();
+                if (!status.equalsIgnoreCase("NONE") && !status.isBlank()) {
+                    sink.line("map_intro.property.status_bar", statusName(status));
+                }
+                sink.key(areasSettings.canSimpleSwim && areasSettings.canUnderWater && areasSettings.allowInDeepWater
+                        && (areasSettings.canJump || areasSettings.canSwim)
+                                ? "map_intro.property.can_swim.true"
+                                : "map_intro.property.can_swim.false");
+                if (areasSettings.enableOxygenDrowning) {
+                    sink.key("map_intro.property.oxygen_drowning");
+                }
+                sink.key(areasSettings.canJump
+                        ? "map_intro.property.can_jump.true"
+                        : "map_intro.property.can_jump.false");
+                if (areasSettings.snowEnabled) {
+                    sink.key("map_intro.property.snow");
+                }
+                if (areasSettings.sandEnabled) {
+                    sink.key("map_intro.property.sand");
+                }
+                if (areasSettings.fogEnabled) {
+                    sink.key("map_intro.property.no_fog");
+                }
+                sink.line("map_intro.property.fog_end", trimNumber(areasSettings.fogEnd));
+                String weather = areasSettings.weather.name();
+                if (!weather.equalsIgnoreCase("clear")) {
+                    sink.line("map_intro.property.weather",
+                            Component.translatableWithFallback("map_intro.weather." + weather.toLowerCase(Locale.ROOT),
+                                    weather));
+                }
+                double gravity = areasSettings.gravityModifier;
+                if (Math.abs(gravity - 0.08D) > 0.0001D) {
+                    sink.line("map_intro.property.gravity",
+                            Component.translatable(gravity < 0.08D ? "map_intro.gravity.low" : "map_intro.gravity.high"));
+                }
+                addEffects(sink, areasSettings);
+                addInitialItems(sink, areasSettings);
+                long time = areasSettings.time;
+                if (time != 18000L) {
+                    sink.line("map_intro.property.time", Component.translatable(timeName(time)));
+                }
+                if (areasSettings.daylightCycle) {
+                    sink.key("map_intro.property.daylight_cycle");
+                }
+                if (areasSettings.weatherCycle) {
+                    sink.key("map_intro.property.weather_cycle");
+                }
             }
         }
         return sink.lines;
@@ -494,6 +497,34 @@ public final class MapIntroDetail {
             return boolValue(json.getAsJsonObject("settings"), key, fallback);
         }
         return fallback;
+    }
+
+    /** Gson 反序列化后补齐会被跳过的字段初值。 */
+    private static AreasSettings parseSettings(JsonElement element) {
+        if (element == null || element.isJsonNull()) {
+            return null;
+        }
+        try {
+            AreasSettings settings = GSON.fromJson(element, AreasSettings.class);
+            if (settings == null) {
+                return null;
+            }
+            if (settings.mapStatusBar == null) {
+                settings.mapStatusBar = MapStatusBarType.NONE;
+            }
+            if (settings.weather == null) {
+                settings.weather = AreasSettings.MinecraftWeather.clear;
+            }
+            if (settings.initialItems == null) {
+                settings.initialItems = new ArrayList<>();
+            }
+            if (settings.mobEffects == null) {
+                settings.mobEffects = new ArrayList<>();
+            }
+            return settings;
+        } catch (Exception ignored) {
+            return null;
+        }
     }
 
     private static int parseInt(String value, int fallback) {

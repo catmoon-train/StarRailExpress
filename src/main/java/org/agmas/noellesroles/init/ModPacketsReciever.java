@@ -71,6 +71,7 @@ import org.agmas.noellesroles.content.item.ZeroOneFiveShootPayload;
 import org.agmas.noellesroles.events.OnVendingMachinesBuyItems;
 import org.agmas.noellesroles.handler.TouhouHandlers;
 import org.agmas.noellesroles.role_data.innocence.BroadcasterRoleData;
+import org.agmas.noellesroles.role_data.innocence.ConductorRoleData;
 import org.agmas.noellesroles.role_data.innocence.MonitorRoleData;
 import org.agmas.noellesroles.role_data.innocence.VoodooRoleData;
 import org.agmas.noellesroles.role_data.killer.WarlockRoleData;
@@ -96,6 +97,7 @@ import org.agmas.noellesroles.role_data.killer.SwapperRoleData;
 import org.agmas.noellesroles.role_data.killer.YouluRoleData;
 import org.agmas.noellesroles.role_data.neutral.VultureRoleData;
 import org.agmas.noellesroles.role_data.innocence.PilotRoleData;
+import org.agmas.noellesroles.role_data.innocence.MediumRoleData;
 import org.agmas.noellesroles.role_data.killer.ImitatorRoleData;
 import org.agmas.noellesroles.packet.*;
 import org.agmas.noellesroles.role.ModRoles;
@@ -594,6 +596,20 @@ public class ModPacketsReciever {
           }
         });
 
+    // 船长舱门调度：选择目标房间门或取消
+    ServerPlayNetworking.registerGlobalReceiver(ConductorSelectDoorC2SPacket.ID, (payload, context) -> {
+      context.server().execute(() -> {
+        SREGameWorldComponent gameWorldComponent = SREGameWorldComponent.KEY.get(context.player().level());
+        if (!gameWorldComponent.isRole(context.player(), ModRoles.CONDUCTOR)) {
+          return;
+        }
+        ConductorRoleData data = RoleData.getNullable(ConductorRoleData.class, context.player());
+        if (data != null) {
+          data.selectDestination(payload.pos());
+        }
+      });
+    });
+
     // 阿蒙背包点选玩家包：附身到点选的成熟宿主身上（进入附身）。校验由 setPossessTarget 内部处理。
     ServerPlayNetworking.registerGlobalReceiver(ModPackets.AMON_SELECT_TARGET_PACKET, (payload, context) -> {
       if (context.player().hasEffect(ModEffects.SAFE_TIME))// 安全时间
@@ -656,6 +672,9 @@ public class ModPacketsReciever {
       if (player.hasEffect(ModEffects.SAFE_TIME))// 安全时间
         return;
       ItemStack mainHandItem = player.getMainHandItem();
+      if (org.agmas.noellesroles.content.item.TomatoItem.tryThrow(player)) {
+        return;
+      }
       if (mainHandItem.getItem() instanceof ThrowingKnife tk) {
         ItemCooldowns cooldowns1 = player.getCooldowns();
         Map<Item, ItemCooldowns.CooldownInstance> cooldowns = cooldowns1.cooldowns;
@@ -1592,6 +1611,11 @@ public class ModPacketsReciever {
                 Component.translatable("message.noellesroles.skincrawler.no_body").withStyle(ChatFormatting.RED), true);
           }
         });
+
+    ServerPlayNetworking.registerGlobalReceiver(MediumAnswerC2SPacket.ID, (payload, context) -> {
+      ServerPlayer player = context.player();
+      context.server().execute(() -> MediumRoleData.handleAnswerPacket(player, payload.answerId()));
+    });
   }
 
   private static boolean isChefCookableFood(ItemStack food) {

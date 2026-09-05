@@ -20,6 +20,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.api.TMMRoles;
+import io.wifi.starrailexpress.client.gui.anim.GuiAnim;
 import io.wifi.starrailexpress.index.SREBlocks;
 import io.wifi.starrailexpress.index.TMMBlocks;
 import io.wifi.starrailexpress.network.MapIntroSyncPayload;
@@ -95,6 +96,7 @@ public class MapIntroduceScreen extends Screen {
 
     // ---------- 界面状态 ----------
     private Screen parent;
+    private final long openAtMs = System.currentTimeMillis();
     private EditBox search;
     private Tab currentTab = Tab.MAP_PROPERTIES;
     private int selectedCategoryIndex = 0;          // 与 TABS 索引一致
@@ -416,24 +418,37 @@ public class MapIntroduceScreen extends Screen {
     // ========== 渲染 ==========
     @Override
     public void renderBackground(GuiGraphics graphics, int mouseX, int mouseY, float delta) {
-        super.renderBackground(graphics, mouseX, mouseY, delta);
-        computeLayout();
         drawPanelBg(graphics, leftX, panelY, leftW, panelH);
         drawPanelBg(graphics, rightX, panelY, rightW, panelH);
     }
 
     @Override
     public void render(GuiGraphics graphics, int mouseX, int mouseY, float delta) {
-        super.render(graphics, mouseX, mouseY, delta);
+        float intro = openProgress();
+        float slideY = openSlideY();
+        int localMouseY = Math.round(mouseY - slideY);
+
+        graphics.fillGradient(0, 0, width, height, 0xF018120A, 0xF0061018);
+        graphics.pose().pushPose();
+        graphics.pose().translate(0.0f, slideY, 0.0f);
+        super.render(graphics, mouseX, localMouseY, delta);
         graphics.fillGradient(0, 0, width, panelY - 4, 0xBB000000, 0x00000000);
         graphics.drawCenteredString(font, title, width / 2, 8, 0xF5E8C8);
 
-        renderCategoryBar(graphics, mouseX, mouseY);
-        renderLeftList(graphics, mouseX, mouseY);
-        renderRightPanel(graphics, mouseX, mouseY);
+        if (intro > 0.08f) {
+            renderCategoryBar(graphics, mouseX, localMouseY);
+            renderLeftList(graphics, mouseX, localMouseY);
+            renderRightPanel(graphics, mouseX, localMouseY);
+        }
 
         graphics.drawCenteredString(font, Component.translatable("map_intro.hint").withStyle(ChatFormatting.GRAY),
                 width / 2, height - 24, MUTED);
+        graphics.pose().popPose();
+
+        int veil = Math.round((1.0f - intro) * 220.0f);
+        if (veil > 3) {
+            graphics.fill(0, 0, width, height, veil << 24);
+        }
     }
 
     // 分类标签栏（左侧顶部）
@@ -642,8 +657,21 @@ public class MapIntroduceScreen extends Screen {
     }
 
     // ========== 鼠标事件 ==========
+    private float openProgress() {
+        return GuiAnim.openBezier((System.currentTimeMillis() - openAtMs) / 420.0f);
+    }
+
+    private float openSlideY() {
+        return (1.0f - openProgress()) * Math.max(28.0f, panelH * 0.22f);
+    }
+
+    private double mappedMouseY(double mouseY) {
+        return mouseY - openSlideY();
+    }
+
     @Override
     public boolean mouseClicked(double mx, double my, int button) {
+        my = mappedMouseY(my);
         if (button == 0) {
             // 分类标签
             for (int i = 0; i < TABS.size(); i++) {
@@ -692,6 +720,7 @@ public class MapIntroduceScreen extends Screen {
 
     @Override
     public boolean mouseScrolled(double mx, double my, double scrollX, double scrollY) {
+        my = mappedMouseY(my);
         if (mx >= leftX && mx < leftX + leftW && my >= listAreaY && my < listAreaY + listAreaH) {
             listScrollOffset = Mth.clamp(listScrollOffset - (int) (scrollY * (CARD_H + CARD_GAP)), 0, maxListScroll);
             return true;
@@ -702,6 +731,11 @@ public class MapIntroduceScreen extends Screen {
             return true;
         }
         return super.mouseScrolled(mx, my, scrollX, scrollY);
+    }
+
+    @Override
+    public void mouseMoved(double mouseX, double mouseY) {
+        super.mouseMoved(mouseX, mappedMouseY(mouseY));
     }
 
     @Override
@@ -811,7 +845,8 @@ public class MapIntroduceScreen extends Screen {
         return List.of(
                 ModSceneBlocks.POISON_ZONE.asItem(), ModSceneBlocks.BREAKING_BRIDGE.asItem(),
                 ModSceneBlocks.SABOTAGE_BRIDGE.asItem(), ModSceneBlocks.DRIPPING_STALACTITE.asItem(),
-                ModSceneBlocks.FOG_ZONE.asItem(), ModSceneBlocks.MANHOLE.asItem(), ModSceneBlocks.CELLAR.asItem(),
+                ModSceneBlocks.FOG_ZONE.asItem(), ModSceneBlocks.LOOPING_MIRROR.asItem(),
+                ModSceneBlocks.MANHOLE.asItem(), ModSceneBlocks.CELLAR.asItem(),
                 ModSceneBlocks.SCENE_GATE.asItem(), ModSceneBlocks.FLAMETHROWER.asItem(),
                 ModSceneBlocks.ROLLING_STONE_TRIGGER.asItem(), ModSceneBlocks.TRAIN_TARGET.asItem(),
                 ModSceneBlocks.INCINERATOR.asItem(), ModSceneBlocks.MOVING_PLATFORM.asItem(),

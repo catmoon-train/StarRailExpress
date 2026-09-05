@@ -701,6 +701,7 @@ public class RicesRoleRhapsodyClient {
 
         // 闪光弹实体渲染器 - 使用飞行物品渲染器
         EntityRendererRegistry.register(ModEntities.FLASH_GRENADE, ThrownItemRenderer::new);
+        EntityRendererRegistry.register(ModEntities.TOMATO_PROJECTILE, ThrownItemRenderer::new);
         EntityRendererRegistry.register(ModEntities.EMP_BOMB, ThrownItemRenderer::new);
 
         // 诱饵弹实体渲染器 - 使用飞行物品渲染器

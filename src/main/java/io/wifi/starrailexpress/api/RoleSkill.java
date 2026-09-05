@@ -22,6 +22,7 @@ import io.wifi.starrailexpress.cca.SREAbilityPlayerComponent;
 import io.wifi.starrailexpress.cca.SRERoleWorldComponent;
 import io.wifi.starrailexpress.cca.SREAbilityPlayerComponent.SkillState;
 import io.wifi.starrailexpress.event.OnRoleSkillUse;
+import io.wifi.starrailexpress.game.SkillCastAnnounce;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
@@ -619,6 +620,7 @@ public final class RoleSkill {
             AbilityHandler.handler(player, ignoreEffect);
         }
         afterUse(player, role);
+        SkillCastAnnounce.tryAnnounce(player, role, null);
         return true;
     }
 
@@ -703,6 +705,9 @@ public final class RoleSkill {
         }
         definition.announceInfo().doAnnounce(player, definition, ability.getSkillState(definition.id()),
                 skillReady, target);
+        if (phase == Phase.PRESS && skillReady) {
+            SkillCastAnnounce.tryAnnounce(player, role, definition);
+        }
         afterUse(player, role);
         // 回放记录：玩家释放技能（统一技能系统入口；以下角色已在组件内部记录，避免重复）
         if (!ROLE_SKILL_REPLAY_EXCLUDED.contains(role.identifier().toString()) && !definition.toggleable()

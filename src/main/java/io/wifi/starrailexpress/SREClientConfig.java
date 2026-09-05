@@ -97,6 +97,10 @@ public class SREClientConfig implements ConfigData {
     public boolean useLegacyMapSelector = false; // 使用旧版地图投票界面（卡片墙）
 
     @Category("style")
+    @ConfigEntry.Gui.Tooltip
+    public boolean newspaperOpenAnimation = true; // 报纸界面打开时的自下而上入场动画
+
+    @Category("style")
     public boolean showItemCooldownOverlayNum = false; // 物品栏物品上显示冷却数字
     @Category("style")
     public boolean showHotbarCooldown = true; // 快捷栏上方显示冷却时间

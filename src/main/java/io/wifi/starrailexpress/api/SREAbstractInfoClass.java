@@ -20,6 +20,7 @@ import net.minecraft.resources.ResourceLocation;
 import org.agmas.harpymodloader.modifiers.SREModifier;
 import org.agmas.noellesroles.utils.RoleUtils;
 
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -138,4 +139,15 @@ public abstract class SREAbstractInfoClass {
     }
 
     public abstract boolean isFlagWithInner(Set<String> flags);
+
+    /** True if any one of the given flags matches, including inner.* tags. */
+    public boolean hasAnyFlagWithInner(Set<String> flags) {
+        if (flags == null || flags.isEmpty())
+            return false;
+        for (String flag : flags) {
+            if (isFlagWithInner(Collections.singleton(flag)))
+                return true;
+        }
+        return false;
+    }
 }

@@ -73,10 +73,18 @@ public class PostProcessor {
     }
 
     public void render(float partialTicks) {
+        render(partialTicks, false);
+    }
+
+    public void renderAllowCreative(float partialTicks) {
+        render(partialTicks, true);
+    }
+
+    private void render(float partialTicks, boolean allowCreative) {
         m_time += partialTicks;
 
         Minecraft mc = Minecraft.getInstance();
-        if (mc.player == null || mc.player.isCreative() || mc.player.isSpectator())
+        if (mc.player == null || mc.player.isSpectator() || (!allowCreative && mc.player.isCreative()))
             return;
 
         for (PostPassEntry entry : passEntries) {

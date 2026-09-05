@@ -26,6 +26,7 @@ import org.agmas.noellesroles.content.entity.SaltedFishBodyEntity;
 import org.agmas.noellesroles.content.item.SignedPaperItem;
 import org.agmas.noellesroles.role_data.innocence.AgentRoleData;
 import org.agmas.noellesroles.role_data.innocence.LeatherPigRoleData;
+import org.agmas.noellesroles.role_data.neutral.PhantomSpiritRoleData;
 import org.agmas.noellesroles.role_data.innocence.AwesomeRoleData;
 import org.agmas.noellesroles.role_data.innocence.FoolRoleData;
 import org.agmas.noellesroles.role_data.innocence.MonitorRoleData;
@@ -33,6 +34,7 @@ import org.agmas.noellesroles.role_data.killer.ExecutionerRoleData;
 import org.agmas.noellesroles.role_data.killer.InsaneKillerRoleData;
 import org.agmas.noellesroles.role_data.killer.ManipulatorRoleData;
 import org.agmas.noellesroles.role_data.neutral.AdmirerRoleData;
+import org.agmas.noellesroles.role_data.neutral.AmonRoleData;
 import org.agmas.noellesroles.role_data.neutral.CandleBearerRoleData;
 import org.agmas.noellesroles.role_data.neutral.LicensedVillainRoleData;
 import org.agmas.noellesroles.role_data.neutral.MercenaryRoleData;
@@ -308,6 +310,22 @@ public class RoleInstinctRegister {
                         return TrueFalseAndCustomResult.disallow();
                     }
                     return TrueFalseAndCustomResult.pass();
+                });
+
+        // 阿蒙：开启直觉后透视所有被时之虫标记的宿主（潜伏中与已成熟）
+        RoleInstinctEvents.OBSERVER_HIGHLIGHT_EVENT.register(ModRoles.AMON_ID,
+                (client, viewer, target, isInstinctEnabled) -> {
+                    if (!isInstinctEnabled)
+                        return TrueFalseAndCustomResult.pass();
+                    if (!(target instanceof Player targetPlayer) || !GameUtils.isPlayerAliveAndSurvival(targetPlayer))
+                        return TrueFalseAndCustomResult.pass();
+                    AmonRoleData amon = RoleData.getNullable(AmonRoleData.class, viewer);
+                    if (amon == null)
+                        return TrueFalseAndCustomResult.disallow();
+                    if (amon.isClientMarked(targetPlayer.getUUID())) {
+                        return TrueFalseAndCustomResult.custom(ModRoles.AMON.color());
+                    }
+                    return TrueFalseAndCustomResult.disallow();
                 });
 
         // 布谷鸟：无法透视玩家；可以透视自己的蛋
@@ -615,6 +633,21 @@ public class RoleInstinctRegister {
                     return TrueFalseAndCustomResult.custom(Color.RED.getRGB());
                 });
 
+        // 幻灵：附身灵视期间高亮周围玩家
+        RoleInstinctEvents.OBSERVER_HIGHLIGHT_EVENT.register(ModRoles.PHANTOM_SPIRIT_ID,
+                (client, viewer, target, isInstinctEnabled) -> {
+                    if (!(target instanceof Player targetPlayer))
+                        return TrueFalseAndCustomResult.pass();
+                    if (!PhantomSpiritRoleData.isRevealActiveFor(viewer))
+                        return TrueFalseAndCustomResult.pass();
+                    if (targetPlayer == viewer)
+                        return TrueFalseAndCustomResult.pass();
+                    if (targetPlayer.distanceToSqr(viewer) > PhantomSpiritRoleData.REVEAL_RANGE
+                            * PhantomSpiritRoleData.REVEAL_RANGE)
+                        return TrueFalseAndCustomResult.pass();
+                    return TrueFalseAndCustomResult.custom(ModRoles.PHANTOM_SPIRIT.color());
+                });
+
         // 鬼眼·杨间：扫描期间白色轮廓
         RoleInstinctEvents.OBSERVER_HIGHLIGHT_EVENT.register(ModRoles.GHOST_EYE_ID,
                 (client, viewer, target, isInstinctEnabled) -> {
@@ -837,6 +870,18 @@ public class RoleInstinctRegister {
                         return TrueFalseAndCustomResult.disallow();
                     return TrueFalseAndCustomResult.pass();
                 });
+
+        // 幻灵：杀手无法透视未骑乘的幻灵，可以透视骑在别人头上的幻灵
+        RoleInstinctEvents.TARGET_HIGHLIGHT_EVENT.register(ModRoles.PHANTOM_SPIRIT_ID,
+                (client, viewer, target, isInstinctEnabled) -> {
+                    if (!(target instanceof Player targetPlayer))
+                        return TrueFalseAndCustomResult.pass();
+                    if (SREClient.gameComponent != null && isKillerTeam(SREClient.gameComponent.getRole(viewer))
+                            && SREClient.isPlayerAliveAndInSurvival()
+                            && !PhantomSpiritRoleData.isRidingPlayer(targetPlayer))
+                        return TrueFalseAndCustomResult.disallow();
+                    return TrueFalseAndCustomResult.pass();
+                });
     }
 
     // ---------- 通用兜底逻辑 ----------
@@ -846,6 +891,13 @@ public class RoleInstinctRegister {
                 return TrueFalseAndCustomResult.pass();
             if (target instanceof SaltedFishBodyEntity)
                 return TrueFalseAndCustomResult.disallow();
+            // 幻灵附身灵视：幻灵与宿主都能透视周围玩家
+            if (target instanceof Player revealTarget && revealTarget != self
+                    && PhantomSpiritRoleData.isRevealActiveFor(self)
+                    && revealTarget.distanceToSqr(self) <= PhantomSpiritRoleData.REVEAL_RANGE
+                            * PhantomSpiritRoleData.REVEAL_RANGE) {
+                return TrueFalseAndCustomResult.custom(ModRoles.PHANTOM_SPIRIT.color());
+            }
             // 通用隐身与不可透视保护
             if (target instanceof Player targetPlayer && isTargetInvisibleToInstinct(targetPlayer))
                 return TrueFalseAndCustomResult.disallow();

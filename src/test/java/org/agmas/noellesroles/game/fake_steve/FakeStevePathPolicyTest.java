@@ -24,7 +24,41 @@ class FakeStevePathPolicyTest {
     @Test
     void noRouteProgressEventuallyBacksOffInsteadOfJumpingAtAWallForever() {
         assertFalse(FakeStevePathPolicy.hasStalled(9.0D, 8.7D, 100L, 120L));
-        assertTrue(FakeStevePathPolicy.hasStalled(9.0D, 8.95D, 100L, 141L));
+        assertFalse(FakeStevePathPolicy.hasStalled(9.0D, 8.95D, 100L, 141L));
+        assertTrue(FakeStevePathPolicy.hasStalled(9.0D, 8.95D, 100L, 181L));
+    }
+
+    @Test
+    void stairsAndSlabsAreOccupiableFootBlocksButFullWallsAreNot() {
+        assertTrue(FakeStevePathPolicy.feetCanOccupy(false, 1.0D, true, false, false));
+        assertTrue(FakeStevePathPolicy.feetCanOccupy(false, 0.5D, false, true, false));
+        assertTrue(FakeStevePathPolicy.feetCanOccupy(true, 0.0D, false, false, false));
+        assertFalse(FakeStevePathPolicy.feetCanOccupy(false, 1.0D, false, false, false));
+        assertTrue(FakeStevePathPolicy.headCanOccupy(false, true, false, false));
+        assertFalse(FakeStevePathPolicy.headCanOccupy(false, false, false, false));
+    }
+
+    @Test
+    void aStairFlightCanBeClimbedWithoutJumpInput() {
+        assertTrue(FakeStevePathPolicy.canAscendWithoutJump(1.0D, true));
+        assertTrue(FakeStevePathPolicy.canAscendWithoutJump(0.5D, false));
+        assertFalse(FakeStevePathPolicy.canAscendWithoutJump(1.0D, false));
+    }
+
+    @Test
+    void climbingIsNotAStuckStateAndRecalcWaitsLonger() {
+        assertFalse(FakeStevePathPolicy.isStuck(0.001D, 8L, true));
+        assertTrue(FakeStevePathPolicy.isStuck(0.001D, 8L, false));
+        assertFalse(FakeStevePathPolicy.needsRecalculation(3));
+        assertTrue(FakeStevePathPolicy.needsRecalculation(6));
+        assertFalse(FakeStevePathPolicy.shouldAbandonIdleGoal(2));
+        assertTrue(FakeStevePathPolicy.shouldAbandonIdleGoal(4));
+    }
+
+    @Test
+    void aSharpCornerLooksAtTheNextNodeInsteadOfThroughTheWall() {
+        assertTrue(FakeStevePathPolicy.shouldFaceNextNode(0.0F, 90.0F));
+        assertFalse(FakeStevePathPolicy.shouldFaceNextNode(0.0F, 20.0F));
     }
 
     @Test

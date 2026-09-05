@@ -33,7 +33,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 /**
- * 阿蒙背包界面扩展：在背包界面列出可夺舍的成熟宿主供点选锁定。
+ * 阿蒙背包界面扩展：在背包界面列出可寄宿的成熟宿主供点选。
  */
 public final class AmonRoleScreenExtension extends PlayerListRoleScreenExtension<PlayerInfo> {
 

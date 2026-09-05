@@ -5,6 +5,8 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.level.block.SlabBlock;
+import net.minecraft.world.level.block.StairBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.tags.FluidTags;
@@ -102,6 +104,11 @@ final class FakeSteveNavigator {
      * True when the column can carry a body. A carpet or trapdoor is not support
      * on its own, so an unbacked one can never be mistaken for a floor.
      */
+    static boolean isStepBlock(BlockState state) {
+        return state.getBlock() instanceof StairBlock
+                || state.getBlock() instanceof SlabBlock;
+    }
+
     static boolean safeStand(ServerLevel level, BlockPos pos) {
         for (int dy : new int[] { 0, 1, -1 }) {
             if (standable(level, pos.offset(0, dy, 0))) {
@@ -156,32 +163,54 @@ final class FakeSteveNavigator {
         boolean swimming = level.getBlockState(current).getFluidState().is(FluidTags.WATER)
                 || level.getBlockState(current.above()).getFluidState().is(FluidTags.WATER);
         for (Direction direction : HORIZONTAL) {
-            BlockPos horizontal = current.relative(direction);
-            // Include the upper node even on no-jump maps. A grass path to a
-            // grass block is a 1/16 step, not a real jump; filter larger rises
-            // below using the actual collision surfaces.
-            for (int dy : new int[] { 0, 1, -1 }) {
-                BlockPos candidate = horizontal.offset(0, dy, 0);
-                if (dy > 0 && !jumpsAllowed && !swimming
-                        && !FakeStevePathPolicy.canStepUpWithoutJump(
-                                standingSurfaceY(level, candidate) - standingSurfaceY(level, current))) {
-                    continue;
-                }
-                if (!occupied.contains(candidate) && standable(level, candidate)) {
-                    result.add(candidate.immutable());
-                    break;
-                }
+            addStandableNeighbour(level, current, current.relative(direction), occupied,
+                    jumpsAllowed, swimming, result);
+        }
+        // Both cardinals clear means the diagonal is not cutting a wall.
+        Direction[] diagonals = {
+                Direction.NORTH, Direction.EAST, Direction.SOUTH, Direction.WEST
+        };
+        for (int i = 0; i < 4; i++) {
+            Direction first = diagonals[i];
+            Direction second = diagonals[(i + 1) % 4];
+            BlockPos sideA = current.relative(first);
+            BlockPos sideB = current.relative(second);
+            if (!standable(level, sideA) || !standable(level, sideB)) {
+                continue;
             }
+            addStandableNeighbour(level, current, current.relative(first).relative(second),
+                    occupied, jumpsAllowed, swimming, result);
         }
         return result;
     }
 
+    private static void addStandableNeighbour(ServerLevel level, BlockPos current,
+            BlockPos horizontal, Set<BlockPos> occupied, boolean jumpsAllowed,
+            boolean swimming, List<BlockPos> result) {
+        for (int dy : new int[] { 0, 1, -1 }) {
+            BlockPos candidate = horizontal.offset(0, dy, 0);
+            if (dy > 0 && !jumpsAllowed && !swimming) {
+                boolean destinationIsStep = isStepBlock(level.getBlockState(candidate));
+                double rise = standingSurfaceY(level, candidate) - standingSurfaceY(level, current);
+                if (!FakeStevePathPolicy.canAscendWithoutJump(rise, destinationIsStep)) {
+                    continue;
+                }
+            }
+            if (!occupied.contains(candidate) && standable(level, candidate)) {
+                result.add(candidate.immutable());
+                return;
+            }
+        }
+    }
+
     /** World-space support height for deciding whether an upward node needs jump input. */
     private static double standingSurfaceY(ServerLevel level, BlockPos feet) {
-        var feetShape = level.getBlockState(feet).getCollisionShape(level, feet);
+        BlockState feetState = level.getBlockState(feet);
+        var feetShape = feetState.getCollisionShape(level, feet);
         if (!feetShape.isEmpty()) {
             double height = feetShape.max(Direction.Axis.Y);
-            if (FakeStevePathPolicy.isWalkThroughFootLayer(false, height)) {
+            if (FakeStevePathPolicy.feetCanOccupy(false, height, isStepBlock(feetState),
+                    feetState.getBlock() instanceof SlabBlock, false)) {
                 return feet.getY() + height;
             }
         }
@@ -197,13 +226,6 @@ final class FakeSteveNavigator {
                 continue;
             }
             occupied.add(player.blockPosition().immutable());
-            Vec3 movement = player.getDeltaMovement();
-            double horizontalLength = Math.sqrt(movement.x * movement.x + movement.z * movement.z);
-            if (horizontalLength > 0.1D) {
-                occupied.add(BlockPos.containing(player.position().add(
-                        movement.x / horizontalLength, 0.0D,
-                        movement.z / horizontalLength)).immutable());
-            }
         }
         return occupied;
     }
@@ -224,11 +246,14 @@ final class FakeSteveNavigator {
         var feetShape = feetState.getCollisionShape(level, feet);
         boolean feetShapeEmpty = feetShape.isEmpty();
         double feetCollisionHeight = feetShapeEmpty ? 0.0D : feetShape.max(Direction.Axis.Y);
-        boolean feetFree = FakeStevePathPolicy.isWalkThroughFootLayer(
-                        feetShapeEmpty, feetCollisionHeight)
-                || FakeSteveDoorAccess.isOpenablePassage(feetState);
-        boolean headFree = headState.getCollisionShape(level, feet.above()).isEmpty()
-                || FakeSteveDoorAccess.isOpenablePassage(headState);
+        boolean feetFree = FakeStevePathPolicy.feetCanOccupy(
+                        feetShapeEmpty, feetCollisionHeight, isStepBlock(feetState),
+                        feetState.getBlock() instanceof SlabBlock,
+                        FakeSteveDoorAccess.isOpenablePassage(feetState));
+        boolean headFree = FakeStevePathPolicy.headCanOccupy(
+                headState.getCollisionShape(level, feet.above()).isEmpty(),
+                isStepBlock(headState), headState.getBlock() instanceof SlabBlock,
+                FakeSteveDoorAccess.isOpenablePassage(headState));
         boolean swimming = feetState.getFluidState().is(FluidTags.WATER)
                 || headState.getFluidState().is(FluidTags.WATER);
         boolean groundBelow = !level.getBlockState(feet.below())

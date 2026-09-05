@@ -453,6 +453,22 @@ public class SREConfig implements ConfigData {
 
     public boolean enableRoster = true;
 
+    // 技能释放通告 HUD（服务端控制，默认开启）
+    @ConfigEntry.Category(value = "hud")
+    @ConfigSync(shouldSync = true)
+    @Tooltip
+    public boolean skillCastAnnounceHud = true;
+
+    @ConfigEntry.Category(value = "hud")
+    @ConfigSync(shouldSync = true)
+    @Tooltip(count = 2)
+    public ArrayList<String> skillCastAnnounceWhitelist = new ArrayList<>();
+
+    @ConfigEntry.Category(value = "hud")
+    @ConfigSync(shouldSync = true)
+    @Tooltip(count = 2)
+    public ArrayList<String> skillCastAnnounceBlacklist = new ArrayList<>();
+
     public static boolean isUltraPerfMode() {
         return SREClientConfig.instance().ultraPerfMode;
     }

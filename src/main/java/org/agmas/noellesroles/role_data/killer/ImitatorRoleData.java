@@ -21,6 +21,7 @@ import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.content.entity.PlayerBodyEntity;
 import io.wifi.starrailexpress.game.GameUtils;
+import io.wifi.starrailexpress.game.SkillCastAnnounce;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
@@ -359,7 +360,7 @@ public class ImitatorRoleData extends SimpleRoleData {
 
     // ==================== 使用能力(非消息类) ====================
 
-    public void useActiveAbility(ServerPlayer self, @Nullable UUID target) {
+    public boolean useActiveAbility(ServerPlayer self, @Nullable UUID target) {
         ResourceLocation roleId;
         boolean isTemp;
 
@@ -376,14 +377,14 @@ public class ImitatorRoleData extends SimpleRoleData {
         } else {
             self.displayClientMessage(Component.translatable("message.noellesroles.imitator.no_ability")
                     .withStyle(ChatFormatting.RED), true);
-            return;
+            return false;
         }
 
         // 消息技能提示用屏幕
         if (ImitatorSkillRegistry.isMessageSkill(roleId)) {
             self.displayClientMessage(Component.translatable("message.noellesroles.imitator.use_screen")
                     .withStyle(ChatFormatting.YELLOW), true);
-            return;
+            return false;
         }
 
         // 检查对应冷却
@@ -391,22 +392,27 @@ public class ImitatorRoleData extends SimpleRoleData {
         if (currentCd > 0) {
             self.displayClientMessage(Component.translatable("message.noellesroles.imitator.cooldown",
                     (currentCd + 19) / 20).withStyle(ChatFormatting.RED), true);
-            return;
+            return false;
         }
 
         boolean isPermanent = !isTemp;
         ImitatorSkillRegistry.SkillResult result = ImitatorSkillRegistry.execute(roleId, self, target, this,
                 isPermanent);
 
+        boolean used = false;
         switch (result) {
             case SUCCESS -> {
+                SkillCastAnnounce.tryAnnounceAs(self, roleId);
                 applySkillCooldownAndConsume(roleId, isPermanent);
                 ConfigWorldComponent.onPlayerUsedSkill(self);
+                used = true;
             }
             case HANDLED -> {
+                SkillCastAnnounce.tryAnnounceAs(self, roleId);
                 slotCooldown[activeSlotIndex] = 90 * 20;
                 // 技能内部已处理
                 ConfigWorldComponent.onPlayerUsedSkill(self);
+                used = true;
             }
             case FAIL -> {
                 // 执行失败，不做任何事
@@ -414,6 +420,7 @@ public class ImitatorRoleData extends SimpleRoleData {
         }
 
         this.sync();
+        return used;
     }
 
     // ==================== 使用消息技能(由服务端包处理器调用) ====================
@@ -450,6 +457,7 @@ public class ImitatorRoleData extends SimpleRoleData {
                 isPermanent);
 
         if (result == ImitatorSkillRegistry.SkillResult.SUCCESS) {
+            SkillCastAnnounce.tryAnnounceAs(self, roleId);
             applySkillCooldownAndConsume(roleId, isPermanent);
             this.sync();
             return true;

@@ -161,13 +161,26 @@ public final class ProgressionState {
     }
 
     public enum QuestCategory {
-        DAILY, WEEKLY, PERMANENT
+        DAILY, WEEKLY, PERMANENT;
+
+        public static QuestCategory fromString(String raw) {
+            if (raw == null || raw.isBlank()) {
+                return DAILY;
+            }
+            try {
+                return QuestCategory.valueOf(raw.trim().toUpperCase());
+            } catch (IllegalArgumentException ignored) {
+                return DAILY;
+            }
+        }
     }
 
     public static final class PassQuest {
         public String id;
         public String title;
         public String description;
+        public String objectiveType = ProgressionObjectives.PLAY_MATCH;
+        public String objectiveKey;
         public int progress;
         public int target;
         public int rewardExperience;

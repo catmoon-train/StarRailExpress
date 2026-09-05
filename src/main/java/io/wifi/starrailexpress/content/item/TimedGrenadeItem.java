@@ -209,4 +209,17 @@ public class TimedGrenadeItem extends SkinableItem {
         long remaining = detonateAt - SRE.getTicksFromGameStart();
         return (int) Math.max(0, remaining);
     }
+
+    /**
+     * HUD 用：正在使用滞时雷时返回剩余引信。
+     * 客户端不写 COOKING_PLAYERS（单机与服务端共用该 map，错时钟会导致立刻自爆），
+     * 因此读秒以物品使用时长为准。
+     */
+    public static int getRemainingFuseForHud(Player player) {
+        if (player == null || !player.isUsingItem()
+                || !(player.getUseItem().getItem() instanceof TimedGrenadeItem)) {
+            return -1;
+        }
+        return Math.max(0, FUSE_TICKS - player.getTicksUsingItem());
+    }
 }

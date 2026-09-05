@@ -133,67 +133,90 @@ public class GameReplayUtils {
 
     public static Component getReplayPlayerDisplayText(UUID playerUid, GameReplayManager manager,
             GameReplayData replayData, boolean notNull) {
+        return getReplayPlayerDisplayText(playerUid, manager, replayData, notNull, Integer.MAX_VALUE, false);
+    }
+
+    public static Component getReplayPlayerDisplayText(UUID playerUid, GameReplayManager manager,
+            GameReplayData replayData, boolean notNull, int untilTimelineIndexExclusive) {
+        return getReplayPlayerDisplayText(playerUid, manager, replayData, notNull, untilTimelineIndexExclusive, false);
+    }
+
+    /**
+     * @param untilTimelineIndexExclusive 只应用该下标之前的换职记录；{@link Integer#MAX_VALUE} 表示截至当前时间线末尾
+     * @param showInitialIfChanged       终局名单等场景：若职业变过，显示为 现职业(初始职业)
+     */
+    public static Component getReplayPlayerDisplayText(UUID playerUid, GameReplayManager manager,
+            GameReplayData replayData, boolean notNull, int untilTimelineIndexExclusive,
+            boolean showInitialIfChanged) {
         if (playerUid == null && !notNull)
             return null;
         Component sourceName = playerUid != null ? manager.getPlayerName(playerUid)
                 : Component.translatable("sre.replay.event.unknown_player").withStyle(ChatFormatting.ITALIC)
                         .withStyle(ChatFormatting.GRAY);
-        String sourceRoleId = playerUid != null ? replayData.getPlayerRoles().get(playerUid)
-                : TMMRoles.CIVILIAN.identifier().toString();
-        String sourceRoleIdNow = playerUid != null
-                ? SREGameWorldComponent.KEY.get(SRE.SERVER.getLevel(Level.OVERWORLD)).getRole(playerUid) == null ? null
-                        : SREGameWorldComponent.KEY.get(SRE.SERVER.getLevel(Level.OVERWORLD)).getRole(playerUid)
-                                .identifier().toString()
-                : null;
-
-        MutableComponent sourceRoleName = ReplayDisplayUtils.getRoleDisplayName(sourceRoleId);
-        int sourceRoleColor = getRoleColor(sourceRoleId);
-
-        ChatFormatting sourceTMMColor = getTMMRoleColor(sourceRoleIdNow);
-
-        // 如果当前角色与记录的角色不同，则显示为(new(old))格式，old为灰色
-        if (sourceRoleId == null) {
-            if (sourceRoleIdNow != null) {
-                MutableComponent currentRoleName = ReplayDisplayUtils.getRoleDisplayName(sourceRoleIdNow);
-                int currentColor = getRoleColor(sourceRoleIdNow);
-
-                sourceName = sourceName.copy().withStyle(sourceTMMColor)
-                        .append(Component.translatable(" (%s)", currentRoleName.withColor(currentColor),
-                                sourceRoleName.withStyle(ChatFormatting.GRAY)).withStyle(ChatFormatting.GRAY));
-            } else {
-
-            }
-
-        } else if (sourceRoleIdNow != null && !sourceRoleId.equals(sourceRoleIdNow)) {
-            MutableComponent currentRoleName = ReplayDisplayUtils.getRoleDisplayName(sourceRoleIdNow);
-            int currentColor = getRoleColor(sourceRoleIdNow);
-            ChatFormatting currentTMMColor = getTMMRoleColor(sourceRoleIdNow);
-            if (UseTMMColor) {
-                // currentTMMColor
-                sourceName = sourceName.copy().withStyle(sourceTMMColor)
-                        .append(Component.translatable(" (%s(%s))", currentRoleName.withStyle(currentTMMColor),
-                                sourceRoleName.withStyle(ChatFormatting.GRAY)).withStyle(ChatFormatting.GRAY));
-            } else {
-                sourceName = sourceName.copy().withStyle(sourceTMMColor)
-                        .append(Component.translatable(" (%s(%s))", currentRoleName.withColor(currentColor),
-                                sourceRoleName.withStyle(ChatFormatting.GRAY)).withStyle(ChatFormatting.GRAY));
-            }
-
-        } else {
-            // 新老职业相同，只显示当前职业，不加括号
-            if (UseTMMColor) {
-                sourceName = sourceName.copy()
-                        .append(Component.translatable(" (%s)", sourceRoleName.withStyle(sourceTMMColor))
-                                .withStyle(ChatFormatting.GRAY))
-                        .withStyle(sourceTMMColor);
-            } else {
-                sourceName = sourceName.copy()
-                        .append(Component.translatable(" (%s)", sourceRoleName.withColor(sourceRoleColor))
-                                .withStyle(ChatFormatting.GRAY))
-                        .withStyle(sourceTMMColor);
-            }
+        if (playerUid == null) {
+            return sourceName;
         }
-        return sourceName;
+
+        String roleAtTime = replayData == null ? null
+                : replayData.resolvePlayerRoleId(playerUid, untilTimelineIndexExclusive);
+        if (roleAtTime == null) {
+            roleAtTime = getLiveRoleId(playerUid);
+        }
+        String initialRoleId = replayData == null ? null : replayData.getInitialPlayerRoleId(playerUid);
+        if (roleAtTime == null) {
+            roleAtTime = initialRoleId;
+        }
+        return appendRole(sourceName, roleAtTime, initialRoleId, showInitialIfChanged);
+    }
+
+    private static String getLiveRoleId(UUID playerUid) {
+        if (playerUid == null || SRE.SERVER == null) {
+            return null;
+        }
+        try {
+            var world = SRE.SERVER.getLevel(Level.OVERWORLD);
+            if (world == null) {
+                return null;
+            }
+            var role = SREGameWorldComponent.KEY.get(world).getRole(playerUid);
+            return role == null ? null : role.identifier().toString();
+        } catch (Exception ignored) {
+            return null;
+        }
+    }
+
+    private static Component appendRole(Component sourceName, String roleId, String initialRoleId,
+            boolean showInitialIfChanged) {
+        if (roleId == null || roleId.isBlank()) {
+            if (initialRoleId == null || initialRoleId.isBlank()) {
+                return sourceName;
+            }
+            roleId = initialRoleId;
+            showInitialIfChanged = false;
+        }
+        MutableComponent roleName = ReplayDisplayUtils.getRoleDisplayName(roleId);
+        ChatFormatting tmmColor = getTMMRoleColor(roleId);
+        int roleColor = getRoleColor(roleId);
+        if (showInitialIfChanged && initialRoleId != null && !initialRoleId.isBlank()
+                && !initialRoleId.equals(roleId)) {
+            MutableComponent initialName = ReplayDisplayUtils.getRoleDisplayName(initialRoleId);
+            if (UseTMMColor) {
+                return sourceName.copy().withStyle(tmmColor)
+                        .append(Component.translatable(" (%s(%s))", roleName.withStyle(tmmColor),
+                                initialName.withStyle(ChatFormatting.GRAY)).withStyle(ChatFormatting.GRAY));
+            }
+            return sourceName.copy().withStyle(tmmColor)
+                    .append(Component.translatable(" (%s(%s))", roleName.withColor(roleColor),
+                            initialName.withStyle(ChatFormatting.GRAY)).withStyle(ChatFormatting.GRAY));
+        }
+        if (UseTMMColor) {
+            return sourceName.copy()
+                    .append(Component.translatable(" (%s)", roleName.withStyle(tmmColor)).withStyle(ChatFormatting.GRAY))
+                    .withStyle(tmmColor);
+        }
+        return sourceName.copy()
+                .append(Component.translatable(" (%s)", roleName.withColor(roleColor)).withStyle(ChatFormatting.GRAY))
+                .withStyle(tmmColor);
     }
 
     public static Component getItemStackDisplayNameWithCounts(ItemStack stack) {

@@ -37,15 +37,19 @@ import org.agmas.noellesroles.init.ModItems;
 import org.agmas.noellesroles.role.ModRoles;
 
 /**
- * 骨杖攻击回调：亡灵之主手持骨杖左键攻击玩家时，为目标增加感染值并消耗 1 点耐久。
+ * 骨杖攻击：亡灵之主左键命中玩家时注入感染值，并消耗 1 点耐久。
  * <p>
- * 采用 {@link AttackEntityCallback}（与警棍一致的可靠攻击钩子），避免依赖攻击力度判定导致漏触发。
+ * 主路径为 {@link BoneStaffItem#onServerAttack}（{@code LeftClickHurtable} 服务端钩子）。
+ * {@link AttackEntityCallback} 作为兜底，避免个别调用链漏触发；两者共用冷却，不会重复注入。
  * 不造成普通击杀，仅注入感染（感染满值后由 {@link UndeadLordRoleData} 结算转化为亡灵）。
- * 耐久耗尽后骨杖不会消失，而是进入充能冷却（攻击被阻止），冷却结束后由
+ * 耐久耗尽后骨杖不会消失，而是进入充能冷却，结束后由
  * {@link BoneStaffItem#inventoryTick} 自动恢复满耐久。
  * </p>
  */
 public class BoneStaffHandler {
+
+    /** 两次注入之间的最短间隔，防止同一击在多条钩子里重复结算。 */
+    private static final int HIT_COOLDOWN_TICKS = 5;
 
     public static void register() {
         AttackEntityCallback.EVENT.register(BoneStaffHandler::onEntityDamaged);
@@ -63,44 +67,51 @@ public class BoneStaffHandler {
         if (!stack.is(ModItems.BONE_STAFF)) {
             return InteractionResult.PASS;
         }
-        if (attacker.getCooldowns().isOnCooldown(ModItems.BONE_STAFF)) {
-            return InteractionResult.PASS;
-        }
         if (!(entity instanceof ServerPlayer target)) {
             return InteractionResult.PASS;
         }
-        if (target.getUUID().equals(serverAttacker.getUUID())) {
-            return InteractionResult.PASS;
+        tryApplyInfection(serverAttacker, target, stack);
+        // 取消原版击杀/伤害，无论本次是否成功注入。
+        return InteractionResult.SUCCESS;
+    }
+
+    /**
+     * 尝试为被击中的玩家注入感染。冷却中或条件不满足时不会重复结算。
+     *
+     * @return 是否实际注入了感染
+     */
+    public static boolean tryApplyInfection(ServerPlayer attacker, ServerPlayer target, ItemStack stack) {
+        if (target.getUUID().equals(attacker.getUUID())) {
+            return false;
         }
-        if (!GameUtils.isPlayerAliveAndSurvival(serverAttacker) || !GameUtils.isPlayerAliveAndSurvival(target)) {
-            return InteractionResult.PASS;
+        if (!GameUtils.isPlayerAliveAndSurvival(attacker) || !GameUtils.isPlayerAliveAndSurvival(target)) {
+            return false;
         }
-        SREGameWorldComponent gameWorldComponent = SREGameWorldComponent.KEY.get(level);
-        if (gameWorldComponent == null || !gameWorldComponent.isRole(serverAttacker, ModRoles.UNDEAD_LORD)) {
-            return InteractionResult.PASS;
+        SREGameWorldComponent gameWorldComponent = SREGameWorldComponent.KEY.get(attacker.level());
+        if (gameWorldComponent == null || !gameWorldComponent.isRole(attacker, ModRoles.UNDEAD_LORD)) {
+            return false;
         }
-        UndeadLordRoleData comp = RoleData.getNullable(UndeadLordRoleData.class, serverAttacker);
+        UndeadLordRoleData comp = RoleData.getNullable(UndeadLordRoleData.class, attacker);
         if (comp == null) {
-            return InteractionResult.PASS;
+            return false;
         }
-        attacker.getCooldowns().addCooldown(ModItems.BONE_STAFF, 5);
+
         NoellesRolesConfig config = NoellesRolesConfig.HANDLER.instance();
         int max = BoneStaffItem.maxDurability();
 
-        // 充能冷却中：耐久耗尽尚未恢复，阻止攻击（不注入感染）。
-        if (serverAttacker.getCooldowns().isOnCooldown(ModItems.BONE_STAFF)) {
-            serverAttacker.displayClientMessage(
-                    Component.translatable("message.noellesroles.undead_lord.bone_staff_recharging",
-                            config.undeadLordBoneStaffRechargeSeconds).withStyle(ChatFormatting.RED),
-                    true);
-            return InteractionResult.FAIL;
+        if (attacker.getCooldowns().isOnCooldown(ModItems.BONE_STAFF)) {
+            if (stack.getDamageValue() >= max) {
+                attacker.displayClientMessage(
+                        Component.translatable("message.noellesroles.undead_lord.bone_staff_recharging",
+                                config.undeadLordBoneStaffRechargeSeconds).withStyle(ChatFormatting.RED),
+                        true);
+            }
+            return false;
         }
 
-        // 注入感染
         comp.addInfection(target, BoneStaffItem.BONE_STAFF_INFECTION_PER_HIT);
 
-        // 消耗 1 点耐久（耗尽后不破坏，进入充能冷却）。
-        if (!serverAttacker.isCreative()) {
+        if (!attacker.isCreative()) {
             // 冷却已结束但尚未被 inventoryTick 恢复时，先补满再消耗，避免争用。
             if (stack.getDamageValue() >= max) {
                 stack.setDamageValue(0);
@@ -108,21 +119,22 @@ public class BoneStaffHandler {
             int next = stack.getDamageValue() + 1;
             if (next >= max) {
                 stack.setDamageValue(max);
-                serverAttacker.getCooldowns().addCooldown(ModItems.BONE_STAFF,
+                attacker.getCooldowns().addCooldown(ModItems.BONE_STAFF,
                         config.undeadLordBoneStaffRechargeSeconds * 20);
             } else {
                 stack.setDamageValue(next);
+                attacker.getCooldowns().addCooldown(ModItems.BONE_STAFF, HIT_COOLDOWN_TICKS);
             }
+        } else {
+            attacker.getCooldowns().addCooldown(ModItems.BONE_STAFF, HIT_COOLDOWN_TICKS);
         }
 
-        serverAttacker.serverLevel().playSound(null, serverAttacker.blockPosition(), SoundEvents.SOUL_ESCAPE.value(),
+        attacker.serverLevel().playSound(null, attacker.blockPosition(), SoundEvents.SOUL_ESCAPE.value(),
                 SoundSource.PLAYERS, 0.7f, 0.9f);
-        serverAttacker.displayClientMessage(
+        attacker.displayClientMessage(
                 Component.translatable("message.noellesroles.undead_lord.bone_staff_hit",
                         (int) BoneStaffItem.BONE_STAFF_INFECTION_PER_HIT).withStyle(ChatFormatting.DARK_PURPLE),
                 true);
-
-        // 取消普通攻击（仅注入感染，不造成普通击杀/伤害）。
-        return InteractionResult.SUCCESS;
+        return true;
     }
 }

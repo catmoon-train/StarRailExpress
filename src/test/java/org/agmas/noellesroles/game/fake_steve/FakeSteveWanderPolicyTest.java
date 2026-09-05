@@ -24,7 +24,8 @@ class FakeSteveWanderPolicyTest {
     @Test
     void aMissingOrFailedRouteReselectsImmediately() {
         assertTrue(FakeSteveWanderPolicy.shouldReselectNow(true, 0, false));
-        assertTrue(FakeSteveWanderPolicy.shouldReselectNow(false, 2, false));
+        assertFalse(FakeSteveWanderPolicy.shouldReselectNow(false, 2, false));
+        assertTrue(FakeSteveWanderPolicy.shouldReselectNow(false, 4, false));
         assertTrue(FakeSteveWanderPolicy.shouldReselectNow(false, 0, true));
         assertFalse(FakeSteveWanderPolicy.shouldReselectNow(false, 1, false));
     }

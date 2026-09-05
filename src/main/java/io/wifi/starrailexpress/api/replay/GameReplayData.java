@@ -133,6 +133,69 @@ public class GameReplayData {
         this.playerRoles = playerRoles;
     }
 
+    /**
+     * 开局记录的职业；若开局未写入，则回退到该玩家第一条换职记录的旧职业。
+     */
+    public String getInitialPlayerRoleId(UUID playerUid) {
+        if (playerUid == null) {
+            return null;
+        }
+        String roleId = playerRoles == null ? null : playerRoles.get(playerUid);
+        if (roleId != null && !roleId.isBlank()) {
+            return roleId;
+        }
+        if (timeline == null) {
+            return null;
+        }
+        for (ReplayEvent event : timeline) {
+            String[] parts = parseChangeRoleMessage(event, playerUid);
+            if (parts != null && !parts[0].isBlank()) {
+                return parts[0];
+            }
+        }
+        return null;
+    }
+
+    /**
+     * 还原玩家在时间线某条事件发生时的职业。
+     * {@code untilIndexExclusive} 之前的 {@code CHANGE_ROLE} 会生效，本条事件本身不计入。
+     */
+    public String resolvePlayerRoleId(UUID playerUid, int untilIndexExclusive) {
+        if (playerUid == null) {
+            return null;
+        }
+        String roleId = getInitialPlayerRoleId(playerUid);
+        if (timeline == null || timeline.isEmpty()) {
+            return roleId;
+        }
+        int last = Math.min(timeline.size(), Math.max(0, untilIndexExclusive));
+        for (int i = 0; i < last; i++) {
+            String[] parts = parseChangeRoleMessage(timeline.get(i), playerUid);
+            if (parts != null && !parts[1].isBlank()) {
+                roleId = parts[1];
+            }
+        }
+        return roleId;
+    }
+
+    private static String[] parseChangeRoleMessage(ReplayEvent event, UUID playerUid) {
+        if (event == null || event.getType() != EventType.CHANGE_ROLE) {
+            return null;
+        }
+        if (!playerUid.equals(event.getSourcePlayer())) {
+            return null;
+        }
+        String message = event.getMessage();
+        if (message == null || message.isBlank()) {
+            return null;
+        }
+        String[] parts = message.split("===", 2);
+        if (parts.length == 2) {
+            return parts;
+        }
+        return new String[] { "", message };
+    }
+
     public static final Map<ResourceLocation, Item> DEATH_REASON_TO_ITEM = new HashMap<>();
 
     static {
@@ -149,6 +212,11 @@ public class GameReplayData {
 
     public Component toText(GameReplayManager manager, GameReplayData replayData,
             io.wifi.starrailexpress.api.replay.ReplayEvent event) {
+        return toText(manager, replayData, event, Integer.MAX_VALUE);
+    }
+
+    public Component toText(GameReplayManager manager, GameReplayData replayData,
+            io.wifi.starrailexpress.api.replay.ReplayEvent event, int untilTimelineIndexExclusive) {
         if (event == null)
             return null;
         UUID sourcePlayer = null;
@@ -203,15 +271,23 @@ public class GameReplayData {
         } else if (event.details() instanceof PlayerRevivalDetails revivalDetails) {
             sourcePlayer = revivalDetails.player();
             String r = revivalDetails.role();
-            if (!r.isBlank()) {
-                Role_1 = GameReplayUtils.getRoleNameWithSourceTMMColor(r);
-            } else {
-                SRERole trole = SREGameWorldComponent.KEY.get(SRE.SERVER.overworld()).getRole(sourcePlayer);
+            if (r == null || r.isBlank()) {
+                r = replayData.resolvePlayerRoleId(sourcePlayer, untilTimelineIndexExclusive);
+            }
+            if (r == null || r.isBlank()) {
+                SRERole trole = null;
+                try {
+                    if (SRE.SERVER != null) {
+                        trole = SREGameWorldComponent.KEY.get(SRE.SERVER.overworld()).getRole(sourcePlayer);
+                    }
+                } catch (Exception ignored) {
+                }
                 if (trole == null) {
                     trole = TMMRoles.CIVILIAN;
                 }
-                Role_1 = GameReplayUtils.getRoleNameWithSourceTMMColor(trole.identifier().toString());
+                r = trole.identifier().toString();
             }
+            Role_1 = GameReplayUtils.getRoleNameWithSourceTMMColor(r);
 
             // message = ;
         } else if (event.details() instanceof ArmorBreakDetails ambd) {
@@ -230,9 +306,11 @@ public class GameReplayData {
                 : Component.translatable("sre.replay.event.unknown_player").withStyle(ChatFormatting.OBFUSCATED)
                         .withStyle(ChatFormatting.GRAY);
 
-        // 获取角色信息并设置颜色
-        sourceName = GameReplayUtils.getReplayPlayerDisplayText(sourcePlayer, manager, replayData, false);
-        targetName = GameReplayUtils.getReplayPlayerDisplayText(targetPlayer, manager, replayData, true);
+        // 按该事件发生时的职业显示，而不是终局职业
+        sourceName = GameReplayUtils.getReplayPlayerDisplayText(sourcePlayer, manager, replayData, false,
+                untilTimelineIndexExclusive);
+        targetName = GameReplayUtils.getReplayPlayerDisplayText(targetPlayer, manager, replayData, true,
+                untilTimelineIndexExclusive);
 
         return switch (event.eventType()) {
             // 主要事件

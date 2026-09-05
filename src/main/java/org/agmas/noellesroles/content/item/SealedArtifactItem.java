@@ -17,18 +17,29 @@ package org.agmas.noellesroles.content.item;
 
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResultHolder;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.world.level.Level;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
+import java.util.Set;
 
 /**
- * 封印物：强力收益与危险副作用并存的神秘物品。
- *
- * <p>当前类先承载封印物的等级与说明展示，实际获取规则与持续效果由后续系统接入。</p>
+ * 封印物：强力收益与危险副作用并存。效果见 {@link SealedArtifactHandler}。
  */
 public class SealedArtifactItem extends Item {
+    private static final Set<String> USABLE = Set.of(
+            "sealed_vanishing_cloak",
+            "sealed_doorless_key",
+            "sealed_last_match");
+
     private final Tier tier;
     private final String translationKey;
 
@@ -38,9 +49,34 @@ public class SealedArtifactItem extends Item {
         this.translationKey = translationKey;
     }
 
+    public String getTranslationKey() {
+        return translationKey;
+    }
+
+    public boolean isUsable() {
+        return USABLE.contains(translationKey);
+    }
+
     @Override
     public boolean isFoil(ItemStack stack) {
         return true;
+    }
+
+    @Override
+    public void inventoryTick(@NotNull ItemStack stack, @NotNull Level level, @NotNull Entity entity, int slotId,
+            boolean isSelected) {
+        if (!level.isClientSide && entity instanceof ServerPlayer player) {
+            SealedArtifactHandler.tick(player, stack, this);
+        }
+    }
+
+    @Override
+    public @NotNull InteractionResultHolder<ItemStack> use(@NotNull Level level, @NotNull Player user,
+            @NotNull InteractionHand hand) {
+        if (!isUsable()) {
+            return InteractionResultHolder.pass(user.getItemInHand(hand));
+        }
+        return SealedArtifactHandler.use(level, user, hand, this);
     }
 
     @Override
@@ -53,6 +89,10 @@ public class SealedArtifactItem extends Item {
                 .withStyle(ChatFormatting.GREEN));
         tooltip.add(Component.translatable("item.noellesroles." + translationKey + ".tooltip.curse")
                 .withStyle(ChatFormatting.RED));
+        if (isUsable()) {
+            tooltip.add(Component.translatable("item.noellesroles.sealed_artifact.tooltip.use")
+                    .withStyle(ChatFormatting.YELLOW));
+        }
         tooltip.add(Component.translatable("item.noellesroles.sealed_artifact.tooltip.warning")
                 .withStyle(ChatFormatting.GRAY));
     }

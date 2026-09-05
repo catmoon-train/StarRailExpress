@@ -22,7 +22,6 @@ import io.wifi.starrailexpress.network.packet.ShowCustomNewspaperPacket;
 import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
-import org.agmas.noellesroles.content.item.ZeroOneFiveSecondShotPayload;
 import org.agmas.noellesroles.content.item.ZeroOneFiveShootPayload;
 import org.agmas.noellesroles.packet.*;
 
@@ -244,8 +243,6 @@ public class ModPackets {
 
         // 注册零一五枪射击网络包
         PayloadTypeRegistry.playC2S().register(ZeroOneFiveShootPayload.ID, ZeroOneFiveShootPayload.CODEC);
-        PayloadTypeRegistry.playS2C().register(ZeroOneFiveSecondShotPayload.ID,
-                ZeroOneFiveSecondShotPayload.CODEC);
 
         // 注册枪械射击轨迹网络包
         PayloadTypeRegistry.playS2C().register(org.agmas.noellesroles.gunfx.GunTracerS2CPacket.ID,
@@ -349,6 +346,13 @@ public class ModPackets {
                 DebrisPileMinigameCompleteC2SPacket.STREAM_CODEC);
         ServerPlayNetworking.registerGlobalReceiver(DebrisPileMinigameCompleteC2SPacket.TYPE,
                 DebrisPileMinigameCompleteC2SPacket::handle);
+
+        PayloadTypeRegistry.playS2C().register(ConductorDoorListS2CPacket.ID, ConductorDoorListS2CPacket.CODEC);
+        PayloadTypeRegistry.playC2S().register(ConductorSelectDoorC2SPacket.ID, ConductorSelectDoorC2SPacket.CODEC);
+
+        PayloadTypeRegistry.playS2C().register(MediumSeanceOpenS2CPacket.ID, MediumSeanceOpenS2CPacket.CODEC);
+        PayloadTypeRegistry.playS2C().register(MediumSeanceCloseS2CPacket.ID, MediumSeanceCloseS2CPacket.CODEC);
+        PayloadTypeRegistry.playC2S().register(MediumAnswerC2SPacket.ID, MediumAnswerC2SPacket.CODEC);
 
         // 信使邮件包
         PayloadTypeRegistry.playC2S().register(org.agmas.noellesroles.packet.CourierMailSendC2SPacket.TYPE,

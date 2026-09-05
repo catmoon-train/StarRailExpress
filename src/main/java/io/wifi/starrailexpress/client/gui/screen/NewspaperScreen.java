@@ -15,6 +15,8 @@
 
 package io.wifi.starrailexpress.client.gui.screen;
 
+import io.wifi.starrailexpress.SREClientConfig;
+import io.wifi.starrailexpress.client.gui.anim.GuiAnim;
 import io.wifi.starrailexpress.content.item.component.SREWritableBookContent;
 import io.wifi.starrailexpress.content.item.component.SREWrittenBookContent;
 import io.wifi.starrailexpress.index.SREDataComponentTypes;
@@ -66,6 +68,7 @@ public class NewspaperScreen extends Screen {
     private static final int SCREEN_MARGIN = 20;
     private static final int MAX_PAGES = 5;
     private static final int MAX_LENGTH = 2048;
+    private static final int OPEN_ANIM_MS = 260;
 
     // ---------- 界面文本 ----------
     private static final Component EDIT_TITLE_LABEL = Component.translatable("book.editTitle");
@@ -122,6 +125,7 @@ public class NewspaperScreen extends Screen {
 
     private int newspaperX, newspaperY, newspaperWidth, newspaperHeight;
     private int textX, textY, textWidth, textHeight;
+    private final long openAtMs = System.currentTimeMillis();
 
     // ==================== 构造函数 ====================
 
@@ -516,13 +520,40 @@ public class NewspaperScreen extends Screen {
 
     @Override
     public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
-        super.render(guiGraphics, mouseX, mouseY, partialTick);
+        float slideY = openSlideY();
+        guiGraphics.pose().pushPose();
+        guiGraphics.pose().translate(0.0F, slideY, 0.0F);
+        int localMouseY = Math.round(mouseY - slideY);
+        super.render(guiGraphics, mouseX, localMouseY, partialTick);
 
         if (editable && isSigning) {
             renderSigning(guiGraphics);
         } else {
-            renderContent(guiGraphics, mouseX, mouseY);
+            renderContent(guiGraphics, mouseX, localMouseY);
         }
+    }
+
+    private boolean openAnimationEnabled() {
+        return SREClientConfig.instance().newspaperOpenAnimation;
+    }
+
+    private float openProgress() {
+        if (!openAnimationEnabled()) {
+            return 1.0F;
+        }
+        return GuiAnim.openBezier((System.currentTimeMillis() - openAtMs) / (float) OPEN_ANIM_MS);
+    }
+
+    private float openSlideY() {
+        float progress = openProgress();
+        if (progress >= 1.0F) {
+            return 0.0F;
+        }
+        return (1.0F - progress) * Math.max(180.0F, height * 0.72F);
+    }
+
+    private double mappedMouseY(double mouseY) {
+        return mouseY - openSlideY();
     }
 
     @Override
@@ -1029,6 +1060,7 @@ public class NewspaperScreen extends Screen {
 
     @Override
     public boolean mouseClicked(double mouseX, double mouseY, int button) {
+        mouseY = mappedMouseY(mouseY);
         if (super.mouseClicked(mouseX, mouseY, button))
             return true;
 
@@ -1059,6 +1091,7 @@ public class NewspaperScreen extends Screen {
 
     @Override
     public boolean mouseDragged(double mouseX, double mouseY, int button, double deltaX, double deltaY) {
+        mouseY = mappedMouseY(mouseY);
         if (super.mouseDragged(mouseX, mouseY, button, deltaX, deltaY))
             return true;
         if (!editable || isSigning || pageEdit == null)
@@ -1076,6 +1109,21 @@ public class NewspaperScreen extends Screen {
             }
         }
         return false;
+    }
+
+    @Override
+    public void mouseMoved(double mouseX, double mouseY) {
+        super.mouseMoved(mouseX, mappedMouseY(mouseY));
+    }
+
+    @Override
+    public boolean mouseReleased(double mouseX, double mouseY, int button) {
+        return super.mouseReleased(mouseX, mappedMouseY(mouseY), button);
+    }
+
+    @Override
+    public boolean mouseScrolled(double mouseX, double mouseY, double scrollX, double scrollY) {
+        return super.mouseScrolled(mouseX, mappedMouseY(mouseY), scrollX, scrollY);
     }
 
     public boolean handleComponentClicked(Style style) {

@@ -381,26 +381,31 @@ public class FakeSteveAi {
         if (!wantsMovement) {
             state.stuckTicks = 0;
             state.lastMoveX = body.getX();
+            state.lastMoveY = body.getY();
             state.lastMoveZ = body.getZ();
             state.lastMoveTick = 0L;
             return;
         }
         if (state.lastMoveTick == 0L) {
             state.lastMoveX = body.getX();
+            state.lastMoveY = body.getY();
             state.lastMoveZ = body.getZ();
             state.lastMoveTick = now;
             return;
         }
         long sampleGap = now - state.lastMoveTick;
-        if (sampleGap < 4L) {
+        if (sampleGap < 8L) {
             return;
         }
         double dx = body.getX() - state.lastMoveX;
+        double dy = body.getY() - state.lastMoveY;
         double dz = body.getZ() - state.lastMoveZ;
         state.lastMoveX = body.getX();
+        state.lastMoveY = body.getY();
         state.lastMoveZ = body.getZ();
         state.lastMoveTick = now;
-        if (FakeStevePathPolicy.isStuck(dx * dx + dz * dz, sampleGap)) {
+        boolean climbing = Math.abs(dy) >= 0.08D;
+        if (FakeStevePathPolicy.isStuck(dx * dx + dz * dz, sampleGap, climbing)) {
             state.stuckTicks++;
         } else {
             state.stuckTicks = 0;
@@ -421,8 +426,8 @@ public class FakeSteveAi {
         state.lastPathProgressTick = now;
         state.sprintUntilTick = Math.max(state.sprintUntilTick, now + 20L);
         state.pathFailureCount++;
-        if (state.pathFailureCount >= 2 && (state.mode == AgentMode.DISGUISE_IDLE
-                || state.mode == AgentMode.HUNT)) {
+        if (FakeStevePathPolicy.shouldAbandonIdleGoal(state.pathFailureCount)
+                && (state.mode == AgentMode.DISGUISE_IDLE || state.mode == AgentMode.HUNT)) {
             state.pathGoal = null;
             state.pathRetryAfterTick = 0L;
             state.nextPathTick = now;
@@ -1103,8 +1108,20 @@ public class FakeSteveAi {
         }
         BlockPos next = state.path.peekFirst();
         if (next == null) {
-            if (!body.blockPosition().closerThan(goal, 1.0D)) {
+            if (body.blockPosition().closerThan(goal, 1.0D)) {
+                FakeSteveMotionController.hold(body, state, body.getYRot(),
+                        FakeSteveMotionPolicy.walkingPitch(now, body.getUUID().hashCode(), true));
+                return;
+            }
+            if (tryStepToward(level, body, goal, state, now, speed)) {
+                return;
+            }
+            if (FakeStevePathPolicy.shouldAbandonIdleGoal(state.pathFailureCount + 1)) {
                 backOffPath(level, body, state, now);
+            } else {
+                state.pathFailureCount++;
+                state.nextPathTick = now + 8L;
+                state.pathRetryAfterTick = now + 8L;
             }
             FakeSteveMotionController.hold(body, state, body.getYRot(),
                     FakeSteveMotionPolicy.walkingPitch(now, body.getUUID().hashCode(), true));
@@ -1130,7 +1147,12 @@ public class FakeSteveAi {
             state.pathFailureCount = 0;
         } else if (FakeStevePathPolicy.hasStalled(state.lastPathDistanceSqr, distanceSqr,
                 state.lastPathProgressTick, now)) {
-            backOffPath(level, body, state, now);
+            state.path.clear();
+            state.nextPathTick = now;
+            state.pathFailureCount++;
+            if (FakeStevePathPolicy.shouldAbandonIdleGoal(state.pathFailureCount)) {
+                backOffPath(level, body, state, now);
+            }
             FakeSteveMotionController.hold(body, state, body.getYRot(),
                     FakeSteveMotionPolicy.walkingPitch(now, body.getUUID().hashCode(), true));
             return;
@@ -1173,13 +1195,14 @@ public class FakeSteveAi {
                 lookPoint.x() - body.getX(), lookPoint.z() - body.getZ())
                 ? FakeSteveMotionPolicy.yawTo(body.getX(), body.getZ(), lookPoint.x(), lookPoint.z())
                 : nodeYaw;
-        if (doorAhead) {
+        if (doorAhead || FakeStevePathPolicy.shouldFaceNextNode(lookYaw, nodeYaw)) {
             lookYaw = nodeYaw;
         }
         if (!state.hasStableRouteYaw) {
             state.stableRouteYaw = lookYaw;
             state.hasStableRouteYaw = true;
-        } else if (doorAhead) {
+        } else if (doorAhead || FakeStevePathPolicy.shouldFaceNextNode(
+                state.stableRouteYaw, nodeYaw)) {
             state.stableRouteYaw = nodeYaw;
         } else {
             state.stableRouteYaw = FakeSteveMotionPolicy.walkingHeading(
@@ -1204,16 +1227,20 @@ public class FakeSteveAi {
         if (pathForward > 0.0F && !FakeSteveNavigator.stepSafe(level, body.position(),
                 direction.multiply(1.15D, 0.0D, 1.15D))) {
             pathForward = 0.0F;
-            state.path.clear();
-            state.nextPathTick = Math.min(state.nextPathTick, now + 10L);
-            state.hasStableRouteYaw = false;
-            state.sprintUntilTick = 0L;
+            if (pathStrafe == 0.0F) {
+                state.path.clear();
+                state.nextPathTick = Math.min(state.nextPathTick, now + 10L);
+                state.hasStableRouteYaw = false;
+                state.sprintUntilTick = 0L;
+            }
         }
         double worldX = direction.x * pathForward + direction.z * pathStrafe;
         double worldZ = direction.z * pathForward - direction.x * pathStrafe;
         FakeSteveMotionPolicy.LocalMove local = FakeSteveMotionPolicy.toLocal(
                 state.stableRouteYaw, worldX, worldZ);
-        boolean ascends = delta.y > 0.45D;
+        boolean stepAhead = FakeSteveNavigator.isStepBlock(level.getBlockState(next))
+                || FakeSteveNavigator.isStepBlock(level.getBlockState(next.below()));
+        boolean ascends = delta.y > 0.20D || stepAhead;
         boolean jumpsAllowed = SREGameWorldComponent.KEY.get(level).isJumpAvailable();
         boolean jump = FakeStevePathPolicy.shouldJump(jumpsAllowed, body.onGround(), ascends,
                 now, state.nextJumpTick)
@@ -1242,6 +1269,41 @@ public class FakeSteveAi {
         return nodes;
     }
 
+    /** Walk or step-up toward the goal when A* has no remaining node, instead of freezing. */
+    private static boolean tryStepToward(ServerLevel level, ServerPlayer body, BlockPos goal,
+            FakeSteveAgentState state, long now, double speed) {
+        Vec3 target = Vec3.atBottomCenterOf(goal);
+        Vec3 delta = target.subtract(body.position());
+        Vec3 horizontal = new Vec3(delta.x, 0.0D, delta.z);
+        if (horizontal.lengthSqr() < 0.01D && Math.abs(delta.y) < 0.45D) {
+            return false;
+        }
+        if (horizontal.lengthSqr() >= 0.01D) {
+            horizontal = horizontal.normalize();
+        } else {
+            horizontal = new Vec3(0.0D, 0.0D, 1.0D);
+        }
+        if (!FakeSteveNavigator.stepSafe(level, body.position(), horizontal.scale(1.15D))) {
+            return false;
+        }
+        BlockPos ahead = BlockPos.containing(body.position().add(horizontal.scale(1.0D)));
+        boolean stepAhead = FakeSteveNavigator.isStepBlock(level.getBlockState(ahead))
+                || FakeSteveNavigator.isStepBlock(level.getBlockState(goal))
+                || FakeSteveNavigator.isStepBlock(level.getBlockState(goal.below()));
+        float yaw = (float) (Mth.atan2(-horizontal.x, horizontal.z) * Mth.RAD_TO_DEG);
+        boolean jumpsAllowed = SREGameWorldComponent.KEY.get(level).isJumpAvailable();
+        boolean jump = FakeStevePathPolicy.shouldJump(jumpsAllowed, body.onGround(),
+                delta.y > 0.20D || stepAhead, now, state.nextJumpTick);
+        if (jump) {
+            state.nextJumpTick = now + 12L;
+        }
+        boolean sprint = now < state.sprintUntilTick || speed >= 0.22D;
+        FakeSteveMotionController.drive(body, state, 1.0F, 0.0F, jump, sprint, false, yaw,
+                FakeSteveMotionPolicy.walkingPitch(now, body.getUUID().hashCode(), true),
+                goal);
+        return true;
+    }
+
     private static void backOffPath(ServerLevel level, ServerPlayer body,
                                     FakeSteveAgentState state, long now) {
         state.path.clear();
@@ -1253,11 +1315,17 @@ public class FakeSteveAi {
             state.taskBackoffUntil.put(state.taskType, now + 10L * 20L);
             FakeSteveTaskPlanner.abandon(body, state);
         }
-        if (state.mode == AgentMode.DISGUISE_IDLE || state.mode == AgentMode.HUNT) {
+        if (FakeStevePathPolicy.shouldAbandonIdleGoal(state.pathFailureCount)
+                && (state.mode == AgentMode.DISGUISE_IDLE || state.mode == AgentMode.HUNT)) {
             state.pathGoal = null;
             state.pathRetryAfterTick = 0L;
             state.nextPathTick = now;
             state.nextDecisionTick = now;
+            return;
+        }
+        if (state.mode == AgentMode.DISGUISE_IDLE || state.mode == AgentMode.HUNT) {
+            state.pathRetryAfterTick = now + 8L;
+            state.nextPathTick = now + 8L;
             return;
         }
         state.pathRetryAfterTick = now + 30L + level.getRandom().nextInt(20);

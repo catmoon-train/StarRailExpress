@@ -193,15 +193,11 @@ public class RoundTextRenderer {
         float premiseIn = stagedWelcomeAlpha(170, partialTicks);
         float goalIn = stagedWelcomeAlpha(146, partialTicks);
         float exit = smoothStep(Mth.clamp((welcomeTime - partialTicks) / 18.0F, 0, 1));
-        float backgroundIn = smoothStep(Mth.clamp((WELCOME_DURATION - welcomeTime + partialTicks) / 12.0F, 0, 1));
         int accent = VoteFlowFrame.GOLD;
         int text = VoteFlowFrame.TEXT;
 
         g.pose().pushPose();
         g.pose().translate(0, 0, 900);
-        g.fillGradient(0, 0, g.guiWidth(), g.guiHeight(),
-                withAlpha(0xFF120E09, Math.round(215 * backgroundIn * exit)),
-                withAlpha(0xFF070C10, Math.round(235 * backgroundIn * exit)));
         g.pose().pushPose();
         g.pose().translate(g.guiWidth() / 2.0F, layout.top(), 0);
         g.pose().scale(layout.scale(), layout.scale(), 1);
@@ -213,8 +209,9 @@ public class RoundTextRenderer {
             drawWelcomeLines(g, renderer, titles, layout.titleY() + (1 - titleIn) * 8,
                     titleScale, titleLine, withAlpha(text, titleAlpha));
             int half = Math.round(Math.min(150, availableWidth / 3.0F) * titleIn);
-            g.fill(-half, (int) layout.ruleY(), half, (int) layout.ruleY() + 1, withAlpha(accent, titleAlpha / 2));
-            g.fill(-2, (int) layout.ruleY() - 1, 2, (int) layout.ruleY() + 3, withAlpha(accent, titleAlpha));
+            int ruleY = (int) layout.ruleY() - 3;
+            g.fill(-half, ruleY, half, ruleY + 1, withAlpha(accent, titleAlpha / 2));
+            g.fill(-2, ruleY - 1, 2, ruleY + 3, withAlpha(accent, titleAlpha));
         }
         drawWelcomeLines(g, renderer, premises, layout.premiseY() + (1 - premiseIn) * 6,
                 bodyScale, bodyLine, withAlpha(0xFFC8B898, Math.round(255 * premiseIn * exit)));

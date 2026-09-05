@@ -25,6 +25,7 @@ import net.minecraft.client.renderer.entity.player.PlayerRenderer;
 
 import java.util.UUID;
 
+import org.agmas.noellesroles.client.AllayDisguiseRenderer;
 import org.agmas.noellesroles.client.LeatherPigDisguiseRenderer;
 import org.agmas.noellesroles.client.RabbitDisguiseRenderer;
 import org.spongepowered.asm.mixin.Mixin;
@@ -72,6 +73,12 @@ public abstract class LeatherPigPlayerRenderMixin {
                 ci.cancel();
             }
             return;
+        }
+
+        if (AllayDisguiseRenderer.shouldDisguise(player)) {
+            if (AllayDisguiseRenderer.render(player, yaw, tickDelta, poseStack, bufferSource, packedLight)) {
+                ci.cancel();
+            }
         }
     }
 }

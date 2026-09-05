@@ -56,7 +56,13 @@
     {"id":"daily_pickup_20","title":"列车仓管","description":"拾取 20 个物品","objectiveType":"PICKUP_ITEM","target":20,"rewardExperience":200,"rewardCoins":100,"rewardLoot":1,"rewardCard":"NONE","priority":1},
     {"id":"daily_be_guardian","title":"守卫义务","description":"成为平民或中立阵营 2 次","objectiveType":"BECOME_FACTION","objectiveKey":"civilian,neutral","target":2,"rewardExperience":140,"rewardCoins":55,"rewardLoot":0,"rewardCard":"CIVILIAN","priority":1},
     {"id":"daily_survive_kill_1","title":"冷静猎手","description":"击杀 1 名不同阵营玩家并存活至结束","objectiveType":"SURVIVE_MATCH","target":1,"rewardExperience":155,"rewardCoins":80,"rewardLoot":0,"rewardCard":"NONE","priority":1},
-    {"id":"daily_use_any_item_3","title":"道具达人","description":"使用任意物品 3 次","objectiveType":"USE_ITEM","target":3,"rewardExperience":70,"rewardCoins":35,"rewardLoot":0,"rewardCard":"NONE","priority":1}
+    {"id":"daily_use_any_item_3","title":"道具达人","description":"使用任意物品 3 次","objectiveType":"USE_ITEM","target":3,"rewardExperience":70,"rewardCoins":35,"rewardLoot":0,"rewardCard":"NONE","priority":1},
+    {"id":"daily_report_1","title":"验尸值班","description":"报告 1 具尸体","objectiveType":"REPORT_BODY","target":1,"rewardExperience":90,"rewardCoins":45,"rewardLoot":0,"rewardCard":"NONE","priority":1},
+    {"id":"daily_meeting_1","title":"紧急集合","description":"召开 1 次紧急会议","objectiveType":"CALL_MEETING","target":1,"rewardExperience":110,"rewardCoins":55,"rewardLoot":0,"rewardCard":"NONE","priority":1},
+    {"id":"daily_vote_1","title":"乘客表决","description":"参与 1 次投票","objectiveType":"CAST_VOTE","target":1,"rewardExperience":70,"rewardCoins":35,"rewardLoot":0,"rewardCard":"NONE","priority":1},
+    {"id":"daily_shop_2","title":"站内采购","description":"购买 2 次商店物品","objectiveType":"BUY_SHOP_ITEM","target":2,"rewardExperience":80,"rewardCoins":40,"rewardLoot":0,"rewardCard":"NONE","priority":1},
+    {"id":"daily_skill_3","title":"技能热身","description":"使用技能 3 次","objectiveType":"USE_SKILL","target":3,"rewardExperience":75,"rewardCoins":38,"rewardLoot":0,"rewardCard":"NONE","priority":1},
+    {"id":"daily_play_murder_1","title":"谋杀案班次","description":"完成 1 局谋杀案模式","objectiveType":"PLAY_GAME_MODE","objectiveKey":"starrailexpress:murder","target":1,"rewardExperience":95,"rewardCoins":50,"rewardLoot":0,"rewardCard":"NONE","priority":1}
   ],
   "weekly": [
     {"id":"weekly_play_5","title":"周度列车员","description":"完成 5 局游戏","objectiveType":"PLAY_MATCH","target":5,"rewardExperience":500,"rewardCoins":220,"rewardLoot":1,"rewardCard":"NONE","priority":1},
@@ -116,7 +122,12 @@
     {"id":"weekly_pickup_30","title":"物资囤积","description":"拾取 30 个物品","objectiveType":"PICKUP_ITEM","target":30,"rewardExperience":620,"rewardCoins":260,"rewardLoot":1,"rewardCard":"NONE","priority":1},
     {"id":"weekly_pickup_60","title":"仓库管理员","description":"拾取 60 个物品","objectiveType":"PICKUP_ITEM","target":60,"rewardExperience":980,"rewardCoins":410,"rewardLoot":2,"rewardCard":"NONE","priority":1},
     {"id":"weekly_be_any_faction_5","title":"列车万象","description":"成为任意阵营 5 次","objectiveType":"BECOME_FACTION","objectiveKey":"killer,civilian,neutral","target":5,"rewardExperience":1050,"rewardCoins":440,"rewardLoot":2,"rewardCard":"NONE","priority":1},
-    {"id":"weekly_use_item_10","title":"道具大师","description":"使用任意物品 10 次","objectiveType":"USE_ITEM","target":10,"rewardExperience":520,"rewardCoins":220,"rewardLoot":1,"rewardCard":"NONE","priority":1}
+    {"id":"weekly_use_item_10","title":"道具大师","description":"使用任意物品 10 次","objectiveType":"USE_ITEM","target":10,"rewardExperience":520,"rewardCoins":220,"rewardLoot":1,"rewardCard":"NONE","priority":1},
+    {"id":"weekly_report_4","title":"验尸专员","description":"报告 4 具尸体","objectiveType":"REPORT_BODY","target":4,"rewardExperience":560,"rewardCoins":240,"rewardLoot":1,"rewardCard":"NONE","priority":1},
+    {"id":"weekly_meeting_3","title":"紧急协调","description":"召开 3 次紧急会议","objectiveType":"CALL_MEETING","target":3,"rewardExperience":620,"rewardCoins":260,"rewardLoot":1,"rewardCard":"NONE","priority":1},
+    {"id":"weekly_vote_5","title":"议会常客","description":"参与 5 次投票","objectiveType":"CAST_VOTE","target":5,"rewardExperience":480,"rewardCoins":200,"rewardLoot":1,"rewardCard":"NONE","priority":1},
+    {"id":"weekly_shop_8","title":"补给采购员","description":"购买 8 次商店物品","objectiveType":"BUY_SHOP_ITEM","target":8,"rewardExperience":540,"rewardCoins":230,"rewardLoot":1,"rewardCard":"NONE","priority":1},
+    {"id":"weekly_skill_15","title":"技能课代表","description":"使用技能 15 次","objectiveType":"USE_SKILL","target":15,"rewardExperience":580,"rewardCoins":250,"rewardLoot":1,"rewardCard":"NONE","priority":1}
   ],
   "permanent": [
     {"id":"permanent_be_any_faction","title":"熟悉阵营","description":"累计成为杀手/平民/中立阵营 12 次","objectiveType":"BECOME_FACTION","objectiveKey":"killer,civilian,neutral","target":12,"rewardExperience":800,"rewardCoins":300,"rewardLoot":2,"rewardCard":"NONE","priority":1,"category":"PERMANENT","unlockLevel":1},
@@ -125,6 +136,8 @@
     {"id":"permanent_survive_20","title":"生存哲学","description":"累计存活至游戏结束 20 局","objectiveType":"SURVIVE_MATCH","target":20,"rewardExperience":1000,"rewardCoins":400,"rewardLoot":2,"rewardCard":"CIVILIAN","priority":4,"category":"PERMANENT","unlockLevel":2},
     {"id":"permanent_pickup_50","title":"收集癖","description":"累计拾取 50 个物品","objectiveType":"PICKUP_ITEM","target":50,"rewardExperience":650,"rewardCoins":260,"rewardLoot":1,"rewardCard":"NONE","priority":5,"category":"PERMANENT","unlockLevel":1},
     {"id":"permanent_play_match_30","title":"列车老手","description":"累计完成 30 局游戏","objectiveType":"PLAY_MATCH","target":30,"rewardExperience":1500,"rewardCoins":600,"rewardLoot":3,"rewardCard":"NONE","priority":6,"category":"PERMANENT","unlockLevel":5},
-    {"id":"permanent_win_match_20","title":"常胜将军","description":"累计赢得 20 局游戏","objectiveType":"WIN_MATCH","target":20,"rewardExperience":1800,"rewardCoins":750,"rewardLoot":4,"rewardCard":"NONE","priority":7,"category":"PERMANENT","unlockLevel":8}
+    {"id":"permanent_win_match_20","title":"常胜将军","description":"累计赢得 20 局游戏","objectiveType":"WIN_MATCH","target":20,"rewardExperience":1800,"rewardCoins":750,"rewardLoot":4,"rewardCard":"NONE","priority":7,"category":"PERMANENT","unlockLevel":8},
+    {"id":"permanent_report_15","title":"验尸档案","description":"累计报告 15 具尸体","objectiveType":"REPORT_BODY","target":15,"rewardExperience":900,"rewardCoins":360,"rewardLoot":2,"rewardCard":"CIVILIAN","priority":8,"category":"PERMANENT","unlockLevel":4},
+    {"id":"permanent_shop_25","title":"站内常客","description":"累计购买 25 次商店物品","objectiveType":"BUY_SHOP_ITEM","target":25,"rewardExperience":850,"rewardCoins":340,"rewardLoot":2,"rewardCard":"NONE","priority":9,"category":"PERMANENT","unlockLevel":3}
   ]
 }

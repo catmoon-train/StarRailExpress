@@ -22,7 +22,13 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.packs.resources.Resource;
 import net.minecraft.util.Mth;
+
+import java.io.InputStream;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Optional;
 
 /**
  * 地图相关界面（投票 / 轮换）共用的绘制与缓动工具。
@@ -32,6 +38,8 @@ public final class MapUiGraphics {
 
     /** 地图缩略图：{@code textures/gui/maps/<id>.png}，缺图时画占位符。 */
     private static final String THUMBNAIL_PATH = "textures/gui/maps/%s.png";
+    /** PNG IHDR 宽高缓存；资源包重载后尺寸几乎不变，错了最多裁切偏差。 */
+    private static final Map<ResourceLocation, int[]> TEXTURE_SIZE = new HashMap<>();
 
     private MapUiGraphics() {
     }
@@ -123,6 +131,56 @@ public final class MapUiGraphics {
         return textureExists(location) ? location : null;
     }
 
+    /**
+     * 等比放大到铺满目标矩形（cover），超出部分由调用方 scissor 裁掉。
+     * 不要把纹理宽高设成目标宽高，那会把非 16:9 的图拉扁。
+     */
+    public static void drawCover(GuiGraphics g, ResourceLocation texture, int x, int y, int w, int h) {
+        if (texture == null || w <= 0 || h <= 0) {
+            return;
+        }
+        int[] size = textureSize(texture);
+        int texW = size[0];
+        int texH = size[1];
+        if (texW <= 0 || texH <= 0) {
+            g.blit(texture, x, y, 0.0f, 0.0f, w, h, w, h);
+            return;
+        }
+        float scale = Math.max((float) w / texW, (float) h / texH);
+        int destW = Math.max(1, Math.round(texW * scale));
+        int destH = Math.max(1, Math.round(texH * scale));
+        int destX = x + (w - destW) / 2;
+        int destY = y + (h - destH) / 2;
+        g.blit(texture, destX, destY, 0.0f, 0.0f, destW, destH, destW, destH);
+    }
+
+    /** 读 PNG IHDR，避免整图解码。 */
+    private static int[] textureSize(ResourceLocation texture) {
+        int[] cached = TEXTURE_SIZE.get(texture);
+        if (cached != null) {
+            return cached;
+        }
+        int[] size = new int[] { 0, 0 };
+        try {
+            Optional<Resource> resource = Minecraft.getInstance().getResourceManager().getResource(texture);
+            if (resource.isPresent()) {
+                try (InputStream stream = resource.get().open()) {
+                    byte[] header = stream.readNBytes(24);
+                    if (header.length >= 24 && header[0] == (byte) 0x89 && header[1] == 0x50) {
+                        size[0] = ((header[16] & 0xFF) << 24) | ((header[17] & 0xFF) << 16)
+                                | ((header[18] & 0xFF) << 8) | (header[19] & 0xFF);
+                        size[1] = ((header[20] & 0xFF) << 24) | ((header[21] & 0xFF) << 16)
+                                | ((header[22] & 0xFF) << 8) | (header[23] & 0xFF);
+                    }
+                }
+            }
+        } catch (Exception ignored) {
+            // 读不到尺寸时退回拉伸，总比不画好
+        }
+        TEXTURE_SIZE.put(texture, size);
+        return size;
+    }
+
     public static void drawThumbnail(GuiGraphics g, Font font, String mapId, int x, int y, int w, int h,
             float alpha, int accent) {
         if (w <= 0 || h <= 0 || alpha <= 0.01f) {
@@ -132,7 +190,7 @@ public final class MapUiGraphics {
         if (texture != null) {
             RenderSystem.enableBlend();
             RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, Mth.clamp(alpha, 0.0f, 1.0f));
-            g.blit(texture, x, y, 0.0f, 0.0f, w, h, w, h);
+            drawCover(g, texture, x, y, w, h);
             RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, 1.0f);
             RenderSystem.disableBlend();
             return;

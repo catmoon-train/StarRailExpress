@@ -207,6 +207,8 @@ public class ModRoles {
 	public static final ResourceLocation MORTICIAN_ID = Noellesroles.id("mortician");
 	// 大侦探角色 ID
 	public static final ResourceLocation GREAT_DETECTIVE_ID = Noellesroles.id("great_detective");
+	// 通灵师角色 ID
+	public static final ResourceLocation MEDIUM_ID = Noellesroles.id("medium");
 	// 建筑师角色 ID
 	public static final ResourceLocation BUILDER_ID = Noellesroles.id("builder");
 	// 玉将军角色 ID
@@ -218,8 +220,14 @@ public class ModRoles {
 	public static final ResourceLocation SALTED_FISH_ID = Noellesroles.id("salted_fish");
 	// 归途旅人角色 ID
 	public static final ResourceLocation RETURN_TRAVELER_ID = Noellesroles.id("return_traveler");
+	// 裂隙行者角色 ID
+	public static final ResourceLocation RIFT_WALKER_ID = Noellesroles.id("rift_walker");
 	// 皮革噶的角色 ID
 	public static final ResourceLocation LEATHER_PIG_ID = Noellesroles.id("leather_pig");
+	// 特码头角色 ID
+	public static final ResourceLocation TOMATO_HEAD_ID = Noellesroles.id("tomato_head");
+	// 幻灵角色 ID
+	public static final ResourceLocation PHANTOM_SPIRIT_ID = Noellesroles.id("phantom_spirit");
 	// 野人角色 ID
 	public static final ResourceLocation BARBARIAN_ID = BounsRoles.id("barbarian");
 	// 亡灵之主角色 ID
@@ -470,6 +478,21 @@ public class ModRoles {
 	)).setRoleData(GreatDetectiveRoleData::new).setDefaultMax(1);
 
 	/**
+	 * 通灵师角色 - 平民阵营
+	 * 对着尸体花费 150 金币，在 20 秒内询问死者。
+	 * 死者会被强制传送到尸体上，并以四个固定选项作答。
+	 */
+	public static SRERole MEDIUM = TMMRoles.registerRole(new NormalRole(
+			MEDIUM_ID,
+			new Color(92, 78, 168).getRGB(),
+			true,
+			false,
+			SRERole.MoodType.REAL,
+			TMMRoles.CIVILIAN.getMaxSprintTime(),
+			false
+	)).setCanSeeCoin(true).setRoleData(MediumRoleData::new).setDefaultMax(1);
+
+	/**
 	 * 建筑师角色 - 平民阵营
 	 * - 属于乘客阵营 (isInnocent = true)
 	 * - 不能使用杀手能力 (canUseKiller = false)
@@ -680,6 +703,21 @@ public class ModRoles {
 			.setDefaultEnableChance(4000);
 
 	/**
+	 * 裂隙行者（乘客阵营）。
+	 * - 技能【进入裂隙】：消耗 125 金币，2 秒前摇后进入裂隙 15 秒。
+	 * - 前摇期间被杀死则技能不生效。
+	 * - 技能期间获得隔离、隐身、无敌、速度 IV，并触发破镜重圆世界崩裂。冷却 90 秒。
+	 */
+	public static SRERole RIFT_WALKER = TMMRoles.registerRole(
+			new NormalRole(RIFT_WALKER_ID, new Color(140, 120, 180).getRGB(),
+					true, false, SRERole.MoodType.REAL,
+					TMMRoles.CIVILIAN.getMaxSprintTime(), false))
+			.setCanSeeCoin(true)
+			.setRoleData(RiftWalkerRoleData::new)
+			.setDefaultMax(1)
+			.setDefaultEnableChance(4000);
+
+	/**
 	 * 皮革噶的 - 平民阵营
 	 * - 被动：模型变成一头猪
 	 * - 技能（G）：消耗 150 金币进入疯魔模式 30 秒，开启直觉并获得速度 III，
@@ -695,6 +733,27 @@ public class ModRoles {
 			.setDefaultEnableChance(5000)
 			.addBothRelatedRole(ModRoles.DREAM)
 			.setCanBeRandomedByOtherRoles(false);
+
+	/**
+	 * 幻灵 - 好人方中立
+	 * - 外形为悦灵，始终无碰撞，离地 1.6 格悬浮，空格可跳但会沉回；只有骑在玩家头上才能交流
+	 * - 技能：附身玩家头上 20 秒（冷却 60 秒）；附身期间可再按一次技能透视周围 10 格 2 秒
+	 * - 宿主被击杀时幻灵代死；宿主获得速度 I
+	 * - 杀手无法透视未骑乘的幻灵，可以透视骑在别人头上的幻灵
+	 * - 幻灵与好人互杀会触发小脑惩罚；无法附身隐身目标
+	 * - 与阴谋家互斥生成
+	 */
+	public static SRERole PHANTOM_SPIRIT = TMMRoles.registerRole(
+			new NormalRole(PHANTOM_SPIRIT_ID, new Color(90, 196, 208).getRGB(),
+					RoleType.NEUTRALS_FOR_INNOCENT, SRERole.MoodType.REAL,
+					TMMRoles.CIVILIAN.getMaxSprintTime(), false)
+					.setRoleData(PhantomSpiritRoleData::new))
+			.setCanSeeCoin(true)
+			.setCanIncreaseSurvivingInnocents(true)
+			.setCanXiaonao(false)
+			.setCanBeXiaonao(false)
+			.setDefaultMax(1)
+			.setDefaultEnableChance(4000);
 
 	/**
 	 * 野人 - 平民阵营。
@@ -979,6 +1038,8 @@ public class ModRoles {
 	public static SRERole CONDUCTOR = TMMRoles
 			.registerRole(new NormalRole(CONDUCTOR_ID, new Color(184, 134, 11).getRGB(), true,
 					false, SRERole.MoodType.REAL, TMMRoles.CIVILIAN.getMaxSprintTime(), false))
+			.setRoleData(ConductorRoleData::new)
+			.setCanSeeCoin(true)
 			.setDefaultMax(1);
 	public static SRERole BARTENDER = TMMRoles
 			.registerRole(new NormalRole(BARTENDER_ID, new Color(217, 241, 240).getRGB(), true,
@@ -1149,6 +1210,22 @@ public class ModRoles {
 			TMMRoles.CIVILIAN.getMaxSprintTime(), // 标准冲刺时间
 			false // 不隐藏计分板
 	)).setCanSeeCoin(true).setRoleData(AccountantRoleData::new);
+
+	/**
+	 * 特码头 - 平民阵营
+	 * - 任意玩家可左键将其击退
+	 * - 技能花费 100 金币、90 秒冷却：变成西红柿 30 秒
+	 * - 死后掉落可 Q 键远投的西红柿
+	 */
+	public static SRERole TOMATO_HEAD = TMMRoles.registerRole(new NormalRole(
+			TOMATO_HEAD_ID,
+			new Color(220, 48, 48).getRGB(),
+			true,
+			false,
+			SRERole.MoodType.REAL,
+			TMMRoles.CIVILIAN.getMaxSprintTime(),
+			false
+	)).setCanSeeCoin(true).setRoleData(TomatoHeadRoleData::new).setDefaultMax(1);
 
 	/**
 	 * 药剂师角色
@@ -2362,8 +2439,9 @@ public class ModRoles {
 	/**
 	 * 阿蒙（诡秘之主）—— 中立彩蛋独立胜利角色，核心机制「寄生」。
 	 * - 中立独立胜利 (setNeutrals(true)，setNeutralForKiller(false) 杀手视角为好人)
-	 * - 无武器、不开杀手商店、不能捡枪、无杀手直觉
-	 * - 隐秘种下时之虫同化他人，可主动夺舍 / 致命伤时自动夺舍续命
+	 * - 无武器、不开杀手商店、不能捡枪
+	 * - 直觉仅透视被时之虫标记的宿主
+	 * - 未终局寄宿不操控宿主；隐秘种下时之虫同化他人，可主动夺舍 / 致命伤时自动夺舍续命
 	 * - 胜利条件「夺舍并幸存」在 CustomWinnerClass 判定
 	 */
 	public static SRERole AMON = TMMRoles.registerRole(new EggRole(
@@ -2384,7 +2462,8 @@ public class ModRoles {
 			.setRoleData(AmonRoleData::new)
 			.setNeutrals(true).setNeutralForKiller(false)
 			.setCanSeeTeammateKillerRole(false).setCanPickUpRevolver(false)
-			.setCanUseInstinctAndNightVision(false)
+			.setCanUseInstinctAndNightVision(true)
+			.setInstinctType(InstinctType.NONE, InstinctType.NONE)
 			.setCanSeeCoin(true)
 			.setCanBeRandomedByOtherRoles(false)
 			.setDefaultMax(1)
@@ -2867,6 +2946,8 @@ public class ModRoles {
 
 		// 设置皮猪与阴谋家互斥生成
 		ModRoles.LEATHER_PIG.addTwoWayOpposingRole(ModRoles.CONSPIRATOR);
+		// 设置幻灵与阴谋家互斥生成
+		ModRoles.PHANTOM_SPIRIT.addTwoWayOpposingRole(ModRoles.CONSPIRATOR);
 
 		// 设置鹈鹕与纵火犯互斥
 		ModRoles.PELICAN.addTwoWayOpposingRole(SERoles.ARSONIST);
@@ -2909,6 +2990,7 @@ public class ModRoles {
 		MEATBALL.setAddedVersion("4.2");
 		MORTICIAN.setAddedVersion("4.2");
 		GREAT_DETECTIVE.setAddedVersion("4.3");
+		MEDIUM.setAddedVersion("4.4");
 		BUILDER.setAddedVersion("4.2");
 		JADE_GENERAL.setAddedVersion("4.3");
 		WIZARD.setAddedVersion("4.3");
@@ -2924,6 +3006,7 @@ public class ModRoles {
 		DIVINER.setAddedVersion("4.3");
 		SALTED_FISH.setAddedVersion("4.3");
 		RETURN_TRAVELER.setAddedVersion("4.4");
+		RIFT_WALKER.setAddedVersion("4.4");
 		LEATHER_PIG.setAddedVersion("4.3");
 		BARBARIAN.setAddedVersion("4.4");
 		NIAOSHOU_SHOU.setAddedVersion("4.4");
@@ -2958,6 +3041,7 @@ public class ModRoles {
 		RESCUER.setAddedVersion("3.3");
 		FIREFIGHTER.setAddedVersion("3.3");
 		ACCOUNTANT.setAddedVersion("3.3");
+		TOMATO_HEAD.setAddedVersion("4.5");
 		ALCHEMIST.setAddedVersion("3.3");
 		DIVER.setAddedVersion("4.0");
 		SWAST.setAddedVersion("3.3");

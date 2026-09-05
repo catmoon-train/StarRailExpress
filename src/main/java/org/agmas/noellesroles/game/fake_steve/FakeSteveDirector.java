@@ -37,6 +37,7 @@ import org.agmas.noellesroles.role.ModRoles;
 import org.agmas.noellesroles.utils.RoleUtils;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
@@ -51,6 +52,7 @@ public final class FakeSteveDirector {
     /** Longer than any round, without synchronizing the psycho component every tick. */
     private static final int PERMANENT_PSYCHO_TICKS = Integer.MAX_VALUE;
     private static final Map<ResourceLocation, Session> SESSIONS = new HashMap<>();
+    private static final Set<ResourceLocation> FORCE_NEXT_ROUND = new HashSet<>();
     private static boolean registered;
 
     private FakeSteveDirector() {
@@ -70,12 +72,18 @@ public final class FakeSteveDirector {
             int startingPlayers = (int) level.getPlayers((p) -> GameUtils.isPlayerAliveAndSurvival(p)).stream().count();
             Session session = new Session(startingPlayers);
             SESSIONS.put(level.dimension().location(), session);
+            boolean forced = consumeForceNextRound(level);
             if (canGenerate(level)
-                    && level.getRandom().nextInt(10000) <= NoellesRolesConfig.instance().fakeSteveEnableChance) {
-                SRE.LOGGER.info("[Fake Steve] Event is enabled!");
+                    && (forced || level.getRandom().nextInt(10000)
+                    <= NoellesRolesConfig.instance().fakeSteveEnableChance)) {
+                SRE.LOGGER.info(forced
+                        ? "[Fake Steve] Event is enabled by next-round command!"
+                        : "[Fake Steve] Event is enabled!");
                 session.active = true;
                 session.pendingEvents = 1;
-                session.activationSource = ActivationSource.NATURAL_ROLL;
+                session.activationSource = forced
+                        ? ActivationSource.COMMAND_NEXT
+                        : ActivationSource.NATURAL_ROLL;
                 announceNaturalEvent(level);
             }
         });
@@ -165,6 +173,22 @@ public final class FakeSteveDirector {
         session.active = true;
         session.activationSource = source;
         return true;
+    }
+
+    /** Marks the next murder round on this world to start the Fake Steve event. */
+    public static boolean forceNextRound(ServerLevel level) {
+        if (!canGenerate(level)) {
+            return false;
+        }
+        return FORCE_NEXT_ROUND.add(level.dimension().location());
+    }
+
+    public static boolean isNextRoundForced(ServerLevel level) {
+        return level != null && FORCE_NEXT_ROUND.contains(level.dimension().location());
+    }
+
+    private static boolean consumeForceNextRound(ServerLevel level) {
+        return FORCE_NEXT_ROUND.remove(level.dimension().location());
     }
 
     public static boolean queueApparition(ServerLevel level) {

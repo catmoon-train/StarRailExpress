@@ -21,6 +21,6 @@ public final class FakeSteveWanderPolicy {
     }
 
     public static boolean shouldReselectNow(boolean noGoal, int pathFailures, boolean decisionDue) {
-        return noGoal || pathFailures >= 2 || decisionDue;
+        return noGoal || pathFailures >= 4 || decisionDue;
     }
 }

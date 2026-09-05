@@ -58,6 +58,7 @@ public class NRSounds {
     public static final SoundEvent A_MENG = registrar.create("noellesroles.a_meng");
     // 皮革噶的：疯魔模式神秘追杀音效
     public static final SoundEvent MANHUNT_CHASE = registrar.create("noellesroles.manhunt_chase");
+    public static final SoundEvent TOMATO_SPLAT = registrar.create("noellesroles.tomato_splat");
     public static final SoundEvent CIRCUS_INDOOR = registrar.create("noellesroles.dasiy_bell");
     public static final SoundEvent FLOWER_OUTDOOR = registrar.create("noellesroles.flower_outdoor");
     public static final SoundEvent MUSIC_INDOOR = registrar.create("noellesroles.music_indoor");

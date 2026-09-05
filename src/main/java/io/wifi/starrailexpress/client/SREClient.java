@@ -819,6 +819,12 @@ public class SREClient implements ClientModInitializer {
         ClientPlayNetworking.registerGlobalReceiver(PlayerDataPartSyncPayload.ID,
                 (payload, context) -> context.client().execute(() -> ClientPlayerDataCache.update(payload.playerUuid(),
                         payload.part(), payload.json(), payload.updatedAt())));
+        ClientPlayNetworking.registerGlobalReceiver(io.wifi.starrailexpress.network.ProgressionQuestToastPayload.ID,
+                (payload, context) -> context.client().execute(
+                        () -> io.wifi.starrailexpress.client.hud.ProgressionQuestToastHud.push(payload)));
+        ClientPlayNetworking.registerGlobalReceiver(io.wifi.starrailexpress.network.SkillCastAnnouncePayload.ID,
+                (payload, context) -> context.client().execute(
+                        () -> io.wifi.starrailexpress.client.hud.SkillCastAnnounceHud.push(payload)));
         ClientPlayNetworking.registerGlobalReceiver(io.wifi.starrailexpress.network.HatEquipmentSyncPayload.ID,
                 (payload, context) -> context.client()
                         .execute(() -> io.wifi.starrailexpress.client.hat.ClientHatEquipmentCache.applySync(payload)));
@@ -937,6 +943,9 @@ public class SREClient implements ClientModInitializer {
         // });
         ClientPlayNetworking.registerGlobalReceiver(CloseUiPayload.ID, (payload, context) -> {
             context.client().execute(() -> {
+                if (io.wifi.starrailexpress.client.gui.OpeningPresentationCoordinator.shouldHoldVoteGui()) {
+                    return;
+                }
                 context.client().setScreen(null);
             });
         });
@@ -1058,9 +1067,6 @@ public class SREClient implements ClientModInitializer {
                 net.exmo.sre.subtitle.client.SubtitleHUD.INSTANCE.render(guiGraphics,
                         deltaTick.getGameTimeDeltaPartialTick(false));
 
-                // 滞时雷引爆倒计时 HUD
-                io.wifi.starrailexpress.client.hud.TimedGrenadeHUD.render(guiGraphics,
-                        deltaTick.getRealtimeDeltaTicks());
                 org.agmas.noellesroles.client.hud.MapStatusBarHudRenderer.render(guiGraphics);
             }
             FourthRoomCameraDirector.renderOverlay(guiGraphics);
@@ -1072,9 +1078,14 @@ public class SREClient implements ClientModInitializer {
                         (renderedScreen, graphics, mouseX, mouseY, partialTick) ->
                                 io.wifi.starrailexpress.client.gui.OpeningPresentationCoordinator.renderScreenOverlay(
                                         renderedScreen, graphics, partialTick)));
-        io.wifi.utils.client.betterrender.FakeHudRenderCallback.EVENT.register((guiGraphics, deltaTick) ->
-                io.wifi.starrailexpress.client.gui.OpeningPresentationCoordinator.render(
-                        guiGraphics, deltaTick.getGameTimeDeltaPartialTick(false)));
+        io.wifi.utils.client.betterrender.FakeHudRenderCallback.EVENT.register((guiGraphics, deltaTick) -> {
+            io.wifi.starrailexpress.client.gui.OpeningPresentationCoordinator.render(
+                    guiGraphics, deltaTick.getGameTimeDeltaPartialTick(false));
+            if (!io.wifi.starrailexpress.client.gui.OpeningPresentationCoordinator.shouldSuppressGameplayHud()) {
+                io.wifi.starrailexpress.client.hud.TimedGrenadeHUD.render(guiGraphics,
+                        deltaTick.getRealtimeDeltaTicks());
+            }
+        });
         ClientTickEvents.START_CLIENT_TICK.register(client -> {
             if (io.wifi.starrailexpress.client.gui.OpeningPresentationCoordinator.isRulesVisible()) {
                 while (client.options.keySwapOffhand.consumeClick()) {

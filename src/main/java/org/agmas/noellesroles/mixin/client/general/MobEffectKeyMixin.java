@@ -21,6 +21,7 @@ import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.world.phys.HitResult;
+import org.agmas.noellesroles.client.MirrorReunionSceneManager;
 import org.agmas.noellesroles.client.NoellesrolesClient;
 import org.agmas.noellesroles.init.ModEffects;
 import org.spongepowered.asm.mixin.Mixin;
@@ -43,9 +44,16 @@ public abstract class MobEffectKeyMixin {
         final LocalPlayer player = instance.player;
         if (player == null)
             return false;
+        final var options = instance.options;
+        if (MirrorReunionSceneManager.INSTANCE.blocksPlayerControl()) {
+            if (this.same(options.keyJump) || this.same(options.keyLeft) || this.same(options.keyRight)
+                    || this.same(options.keyUp) || this.same(options.keyShift) || this.same(options.keyDown)
+                    || this.same(options.keySprint) || this.same(options.keyInventory)) {
+                return true;
+            }
+        }
         if (player.isCreative())
             return false;
-        final var options = instance.options;
         if (player.isSpectator()) {
             if (this.same(options.keySwapOffhand)) {
                 return true;

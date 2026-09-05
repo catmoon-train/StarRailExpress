@@ -157,6 +157,13 @@ public class ModEffects {
      */
     public static final Holder<MobEffect> NO_COLLIDE = register("no_collide", new NoCollideEffect());
 
+    /** 摔倒：强制游泳姿态（趴下） */
+    public static final Holder<MobEffect> SWIM_POSE = register("swim_pose",
+            new SimpleMobEffect(MobEffectCategory.HARMFUL, 0xC43C2C));
+    /** 番茄酱糊屏 */
+    public static final Holder<MobEffect> TOMATO_SAUCE = register("tomato_sauce",
+            new SimpleMobEffect(MobEffectCategory.HARMFUL, 0xE0422A));
+
     /**
      * 安全时间效果
      * - 中性效果
@@ -471,6 +478,18 @@ public class ModEffects {
             new SimpleMobEffect(MobEffectCategory.NEUTRAL, 0x7B68EE));
 
     /**
+     * 破镜重圆：客户端世界坍缩回溯特效。
+     * <ul>
+     *   <li>生效即视野震颤</li>
+     *   <li>4 秒后周围方块由外向内向下坍缩，10 秒时完全坍缩</li>
+     *   <li>效果结束后面块由内向外升起还原</li>
+     * </ul>
+     * 方块坍缩/还原仅在客户端进行，见 {@code MirrorReunionSceneManager}。
+     */
+    public static final Holder<MobEffect> MIRROR_REUNION = register("mirror_reunion",
+            new SimpleMobEffect(MobEffectCategory.HARMFUL, 0xB8C8D8));
+
+    /**
      * 时间回溯标记：回溯时触发
      */
     public static final Holder<MobEffect> TIME_REWIND_MARK = register("time_rewind_mark",
@@ -581,6 +600,37 @@ public class ModEffects {
 
     public static final Holder<MobEffect> SUIKA_SMALL = register("suika_small",
             new SimpleMobEffect(MobEffectCategory.BENEFICIAL, 0x8B1A1A));
+
+    /**
+     * 文盲
+     * - 有害效果，墨褐色
+     * - 拥有者客户端绘制的文字约有 20% 会变成乱码（字形替换，布局仍按原文计算）。
+     * 行为见 {@code org.agmas.noellesroles.client.IlliterateTextClientHandle}。
+     */
+    public static final Holder<MobEffect> ILLITERATE = register("illiterate",
+            new SimpleMobEffect(MobEffectCategory.HARMFUL, 0x5C4033));
+
+    /**
+     * 盲视
+     * - 有害效果，近黑白
+     * - 世界只剩黑白；默认全黑，只有声音在三维空间中传播过的区域才变得可见。
+     * 声音越大传播越远、越清晰；同一处被声音覆盖越久则越白。
+     * 行为见 {@code org.agmas.noellesroles.client.BlindVisionClientHandle} 与
+     * {@code BlindVisionShader}。
+     */
+    public static final Holder<MobEffect> BLIND_VISION = register("blind_vision",
+            new SimpleMobEffect(MobEffectCategory.HARMFUL, 0x111111));
+
+    /**
+     * 耳聋
+     * - 有害效果，深灰色
+     * - 拥有者客户端听不到任何游戏音效（含 UI/音乐/环境），也无法接收语音。
+     * 游戏音效拦截见 {@code org.agmas.noellesroles.client.DeafnessClientHandle} 与
+     * {@code mixin/client/general/DeafnessSoundMixin}；语音拦截见
+     * {@code NoellesrolesVoiceChatPlugin#shouldBanVoice}。
+     */
+    public static final Holder<MobEffect> DEAFNESS = register("deafness",
+            new SimpleMobEffect(MobEffectCategory.HARMFUL, 0x3A3A3A));
 
     /** 视野迷雾：根据效果等级计算雾的可见距离（格）。1 级=2 格，每升 1 级多看 3 格。 */
     public static float getVisionFogDistance(int amplifier) {

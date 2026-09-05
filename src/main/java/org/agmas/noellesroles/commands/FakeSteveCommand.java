@@ -20,6 +20,7 @@ public final class FakeSteveCommand {
         CommandRegistrationCallback.EVENT.register((dispatcher, registry, environment) -> dispatcher.register(
                 Commands.literal("sre:fake_steve")
                         .requires(source -> source.hasPermission(2))
+                        .then(Commands.literal("next").executes(FakeSteveCommand::forceNext))
                         .then(Commands.literal("event").executes(FakeSteveCommand::event))
                         .then(Commands.literal("spawn")
                                 .then(Commands.argument("player", EntityArgument.player())
@@ -27,6 +28,26 @@ public final class FakeSteveCommand {
                         .then(Commands.literal("replace")
                                 .then(Commands.argument("player", EntityArgument.player())
                                         .executes(FakeSteveCommand::replace)))));
+    }
+
+    private static int forceNext(CommandContext<CommandSourceStack> context) {
+        ServerLevel level = context.getSource().getLevel();
+        if (!FakeSteveDirector.isEnabled()) {
+            context.getSource().sendFailure(Component.translatable("command.noellesroles.fake_steve.disabled"));
+            return 0;
+        }
+        if (!FakeSteveDirector.canGenerate(level)) {
+            context.getSource().sendFailure(Component.translatable("command.noellesroles.fake_steve.invalid_mode"));
+            return 0;
+        }
+        if (!FakeSteveDirector.forceNextRound(level)) {
+            context.getSource().sendSuccess(
+                    () -> Component.translatable("command.noellesroles.fake_steve.next_already"), true);
+            return 1;
+        }
+        context.getSource().sendSuccess(
+                () -> Component.translatable("command.noellesroles.fake_steve.next_forced"), true);
+        return 1;
     }
 
     private static int event(CommandContext<CommandSourceStack> context) {

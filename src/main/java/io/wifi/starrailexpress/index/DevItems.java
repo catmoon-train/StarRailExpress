@@ -34,6 +34,9 @@ public class DevItems {
             "open_light_tool");
     public static Item BINDING_TOOL = register(new BindingToolItem(new Item.Properties().stacksTo(1)),
             "binding_tool");
+    public static Item LOOPING_MIRROR_TOOL = register(
+            new LoopingMirrorToolItem(new Item.Properties().stacksTo(1)),
+            "looping_mirror_tool");
     public static Item MAP_TOOL = register(new MapBuildHelperItem(new Item.Properties().stacksTo(1)),
             "map_tool");
 

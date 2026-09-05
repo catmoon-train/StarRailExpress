@@ -54,8 +54,10 @@ import org.agmas.noellesroles.role_data.innocence.AlchemistRoleData;
 import org.agmas.noellesroles.game.roles.innocence.attendant.AttendantHandler;
 import org.agmas.noellesroles.role_data.innocence.GhostRoleData;
 import org.agmas.noellesroles.role_data.innocence.ClockmakerRoleData;
+import org.agmas.noellesroles.role_data.innocence.ConductorRoleData;
 import org.agmas.noellesroles.role_data.innocence.NoiseMakerRoleData;
 import org.agmas.noellesroles.role_data.innocence.ReturnTravelerRoleData;
+import org.agmas.noellesroles.role_data.innocence.RiftWalkerRoleData;
 import org.agmas.noellesroles.role_data.innocence.SaltedFishRoleData;
 import org.agmas.noellesroles.role_data.killer.BloodFeudistRoleData;
 import org.agmas.noellesroles.role_data.killer.DIORoleData;
@@ -71,7 +73,10 @@ import org.agmas.noellesroles.role_data.neutral.CuckooRoleData;
 import org.agmas.noellesroles.role_data.neutral.RecorderRoleData;
 import org.agmas.noellesroles.role_data.neutral.MorticianBodyMakerRoleData;
 import org.agmas.noellesroles.role_data.innocence.LeatherPigRoleData;
+import org.agmas.noellesroles.role_data.innocence.TomatoHeadRoleData;
+import org.agmas.noellesroles.role_data.neutral.PhantomSpiritRoleData;
 import org.agmas.noellesroles.role_data.innocence.MagicianRoleData;
+import org.agmas.noellesroles.role_data.innocence.MediumRoleData;
 import org.agmas.noellesroles.role_data.killer.StalkerRoleData;
 import org.agmas.noellesroles.role_data.killer.TrapperRoleData;
 import org.agmas.noellesroles.role_data.killer.WraithAssassinRoleData;
@@ -117,6 +122,8 @@ public class ModRolesInitialEventRegister {
         BloodFeudistRoleData.registerEvents();
         // 初始化皮革噶的事件（疯魔推开致死→平民则小脑归因）
         LeatherPigRoleData.registerEvents();
+        TomatoHeadRoleData.registerEvents();
+        PhantomSpiritRoleData.registerEvents();
         BarbarianRoleData.registerEvents();
         // 初始化操纵师操控限制（被拖入水/岩浆/虚空/摔落致死时否决并弹回）
         InControlCCA.registerEvents();
@@ -620,8 +627,8 @@ public class ModRolesInitialEventRegister {
                         .announceToSelf()
                         .build());
         // 阿蒙技能：
-        // - G 键：对准星玩家静默种下时之虫（附身期间也可为其他人种虫）
-        // - 潜行+技能键 键：附身期间完成夺舍（变成目标、令其死亡、本体处生成尸体）
+        // - G 键：对准星玩家静默种下时之虫（寄宿期间也可为其他人种虫）
+        // - 潜行+技能键：寄宿期间完成夺舍（变成目标、令其死亡、本体处生成尸体）
         RoleSkill.register(ModRoles.AMON,
                 RoleSkill.skill(SRE.id("amon_plant_seed"), "skill.noellesroles.amon.plant_seed", context -> {
                     ServerPlayer player = context.player();
@@ -630,7 +637,7 @@ public class ModRolesInitialEventRegister {
                     var comp = RoleData.getNullable(AmonRoleData.class, player);
                     if (comp == null)
                         return false;
-                    // G 键始终执行种时之虫（附身期间不夺舍，夺舍改用 潜行+技能键）
+                    // G 键始终执行种时之虫（寄宿期间不夺舍，夺舍改用 潜行+技能键）
                     if (!context.skillReady())
                         return false;
                     ServerPlayer target = context.target() == null ? null
@@ -914,6 +921,28 @@ public class ModRolesInitialEventRegister {
                     return comp.useAbility();
                 }).cooldownSeconds(20).build());
 
+        // 通灵师：对着尸体花费 150 金币，20 秒内询问死者
+        RoleSkill.register(ModRoles.MEDIUM, RoleSkill.skill(
+                SRE.id("medium_seance"),
+                "skill.noellesroles.medium.seance",
+                context -> {
+                    MediumRoleData data = RoleData.getNullable(MediumRoleData.class, context.player());
+                    if (data == null) {
+                        return false;
+                    }
+                    var body = context.getTargetAs(io.wifi.starrailexpress.content.entity.PlayerBodyEntity.class);
+                    if (body == null) {
+                        context.displayNoTargetMessage();
+                        return false;
+                    }
+                    return data.tryStartSeance(body);
+                }).cooldownSeconds(MediumRoleData.SEANCE_SECONDS)
+                .showOnHud(true)
+                .withTarget()
+                .targetType(t -> t instanceof io.wifi.starrailexpress.content.entity.PlayerBodyEntity)
+                .announceToSelf(false)
+                .build());
+
         // 点灯人技能注册：隐身（无统一充数限制，次数由组件内部管理）
         RoleSkill.register(ModRoles.CANDLE_BEARER, RoleSkill.skill(
                 SRE.id("candlebearer_invisibility"),
@@ -1123,10 +1152,9 @@ public class ModRolesInitialEventRegister {
                             }
                             if (context.target() != null) {
                                 comp.tryCopyAbility(context.player(), context.target());
-                            } else {
-                                comp.useActiveAbility(context.player(), null);
+                                return false;
                             }
-                            return true;
+                            return comp.useActiveAbility(context.player(), null);
                         }).build(),
                 RoleSkill.skill(SRE.id("imitator_toggle_slot"),
                         "skill.noellesroles.imitator.toggle_slot",
@@ -1290,6 +1318,26 @@ public class ModRolesInitialEventRegister {
                             return false;
                         }).shifted(true).modeSwitch(true).announceToSelf(false).build());
 
+        RoleSkill.register(ModRoles.CONDUCTOR,
+                RoleSkill.skill(ConductorRoleData.SKILL_ID, "skill.noellesroles.conductor.door_warp",
+                        context -> {
+                            ConductorRoleData data = RoleData.getNullable(ConductorRoleData.class,
+                                    context.player());
+                            return data != null && data.useSkill(context.player());
+                        })
+                        .cooldownSeconds(ConductorRoleData.COOLDOWN_SECONDS)
+                        .showOnHud(true).announceToSelf(false).build());
+
+        RoleSkill.register(ModRoles.RIFT_WALKER,
+                RoleSkill.skill(RiftWalkerRoleData.SKILL_ID, "skill.noellesroles.rift_walker.enter",
+                        context -> {
+                            RiftWalkerRoleData data = RoleData.getNullable(RiftWalkerRoleData.class,
+                                    context.player());
+                            return data != null && data.useSkill(context.player());
+                        })
+                        .cooldownSeconds(RiftWalkerRoleData.COOLDOWN_SECONDS)
+                        .showOnHud(true).announceToSelf(false).build());
+
         // 皮革噶的技能注册：消耗 150 金币进入疯魔模式（直觉 + 速度 III + 追杀音效）
         RoleSkill.register(ModRoles.LEATHER_PIG,
                 RoleSkill.skill(LeatherPigRoleData.SKILL_ID, "skill.noellesroles.leather_pig.frenzy",
@@ -1298,6 +1346,17 @@ public class ModRolesInitialEventRegister {
                             return lp != null && lp.useSkill(context.player());
                         })
                         .cooldownSeconds(LeatherPigRoleData.COOLDOWN_SECONDS)
+                        .showOnHud(true).announceToSelf(false).build());
+
+        RoleSkill.register(ModRoles.PHANTOM_SPIRIT,
+                RoleSkill.skill(PhantomSpiritRoleData.SKILL_ID, "skill.noellesroles.phantom_spirit.possess",
+                        context -> {
+                            var data = RoleData.getNullable(PhantomSpiritRoleData.class, context.player());
+                            return data != null && data.useSkill(context);
+                        })
+                        .cooldownSeconds(PhantomSpiritRoleData.COOLDOWN_SECONDS)
+                        .withTarget()
+                        .toggleable(true)
                         .showOnHud(true).announceToSelf(false).build());
 
         // 出题人不适用于统一的技能注册：其需要不同的触发方式但这个api不兼容。
@@ -1428,6 +1487,16 @@ public class ModRolesInitialEventRegister {
                 .cooldownSeconds(
                         org.agmas.noellesroles.game.roles.neutral.silver_wing.SilverWingRules.EMP_SKILL_COOLDOWN_SECONDS)
                 .showOnHud(true).announceToSelf(true).build());
+
+        RoleSkill.register(ModRoles.TOMATO_HEAD,
+                RoleSkill.skill(TomatoHeadRoleData.SKILL_ID, "skill.noellesroles.tomato_head.transform", context -> {
+                    ServerPlayer player = context.player();
+                    if (player.isSpectator()) {
+                        return false;
+                    }
+                    return RoleData.getOptional(TomatoHeadRoleData.class, player)
+                            .map(data -> data.useTransform(player)).orElse(false);
+                }).cooldownSeconds(90).showOnHud(true).announceToSelf(true).build());
 
     }
 

@@ -13,24 +13,33 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package org.agmas.noellesroles.content.item;
+package io.wifi.starrailexpress.network;
 
 import io.wifi.starrailexpress.SRE;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
+import net.minecraft.resources.ResourceLocation;
 
 /**
- * 服务端通知客户端开始零一五第二枪计时器
+ * 服务端在玩家成功释放技能后，向同世界玩家同步左侧 HUD 通告。
  */
-public record ZeroOneFiveSecondShotPayload(int shooterId) implements CustomPacketPayload {
-    public static final Type<ZeroOneFiveSecondShotPayload> ID = new Type<>(SRE.id("zero_one_five_second_shot"));
-    public static final StreamCodec<FriendlyByteBuf, ZeroOneFiveSecondShotPayload> CODEC = StreamCodec.composite(
-            ByteBufCodecs.INT,
-            ZeroOneFiveSecondShotPayload::shooterId,
-            ZeroOneFiveSecondShotPayload::new
-    );
+public record SkillCastAnnouncePayload(
+        String playerName,
+        ResourceLocation roleId) implements CustomPacketPayload {
+
+    public static final Type<SkillCastAnnouncePayload> ID = new Type<>(SRE.id("skill_cast_announce"));
+    public static final StreamCodec<FriendlyByteBuf, SkillCastAnnouncePayload> CODEC =
+            CustomPacketPayload.codec(SkillCastAnnouncePayload::write, SkillCastAnnouncePayload::new);
+
+    public SkillCastAnnouncePayload(FriendlyByteBuf buffer) {
+        this(buffer.readUtf(64), buffer.readResourceLocation());
+    }
+
+    private void write(FriendlyByteBuf buffer) {
+        buffer.writeUtf(playerName == null ? "" : playerName, 64);
+        buffer.writeResourceLocation(roleId);
+    }
 
     @Override
     public Type<? extends CustomPacketPayload> type() {

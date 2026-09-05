@@ -116,6 +116,8 @@ public class AmonRoleData extends SimpleRoleData {
     public int clientMatured;
     /** 客户端镜像：成熟宿主 UUID（仅同步给阿蒙本人，供背包选目标界面显示）。 */
     public final Set<UUID> clientMaturedHosts = new HashSet<>();
+    /** 客户端镜像：潜伏中的时之虫宿主 UUID（仅同步给阿蒙本人，供直觉透视）。 */
+    public final Set<UUID> clientSeedHosts = new HashSet<>();
     /** 客户端镜像：当前附身的目标。 */
     public UUID clientPossessTarget;
 
@@ -150,6 +152,7 @@ public class AmonRoleData extends SimpleRoleData {
         clientSeeds = 0;
         clientMatured = 0;
         clientMaturedHosts.clear();
+        clientSeedHosts.clear();
         clientPossessTarget = null;
         sync();
     }
@@ -185,6 +188,7 @@ public class AmonRoleData extends SimpleRoleData {
         clientSeeds = 0;
         clientMatured = 0;
         clientMaturedHosts.clear();
+        clientSeedHosts.clear();
         clientPossessTarget = null;
         sync();
     }
@@ -231,7 +235,7 @@ public class AmonRoleData extends SimpleRoleData {
             return;
         }
 
-        // 附身中：跟随目标、维持隐身/无敌；目标失效则解除附身。
+        // 寄宿中：潜入宿主体内跟随，不操控宿主；目标失效则解除寄宿。
         if (possessTarget != null) {
             handlePossessionTick(amon);
         }
@@ -314,7 +318,7 @@ public class AmonRoleData extends SimpleRoleData {
     }
 
     /**
-     * 背包点选玩家：附身到该成熟宿主身上（阿蒙隐身+无敌并贴附跟随目标），记录本体位置。
+     * 背包点选玩家：寄宿到该成熟宿主体内（阿蒙隐身+无敌并贴附跟随，不操控宿主），记录本体位置。
      * 由 {@code AmonSelectTargetC2SPacket} 服务端接收后调用。
      */
     public boolean setPossessTarget(UUID targetUuid) {
@@ -361,7 +365,7 @@ public class AmonRoleData extends SimpleRoleData {
                 .withStyle(ChatFormatting.DARK_PURPLE), true);
         // 被夺舍宿主获得音效与提示。
         host.playNotifySound(SoundEvents.SCULK_SHRIEKER_SHRIEK, SoundSource.PLAYERS, 0.9f, 0.7f);
-        
+
         host.displayClientMessage(Component.translatable("message.noellesroles.amon.possessed_victim")
                 .withStyle(ChatFormatting.DARK_PURPLE), false);
         host.displayClientMessage(Component.translatable("message.noellesroles.amon.possessed_victim")
@@ -370,12 +374,17 @@ public class AmonRoleData extends SimpleRoleData {
         return true;
     }
 
-    /** 是否正在附身（此时按 G 完成夺舍）。 */
+    /** 是否正在寄宿（此时按 潜行+技能键 完成夺舍）。 */
     public boolean isPossessing() {
         return possessTarget != null;
     }
 
-    /** 附身每 tick：跟随目标并维持隐身/无敌；目标失效则解除附身。 */
+    /** 客户端：该玩家是否被时之虫标记（潜伏中或已成熟）。 */
+    public boolean isClientMarked(UUID uuid) {
+        return uuid != null && (clientSeedHosts.contains(uuid) || clientMaturedHosts.contains(uuid));
+    }
+
+    /** 寄宿每 tick：阿蒙潜入目标体内跟随，不操控宿主；目标失效则解除寄宿。 */
     private void handlePossessionTick(ServerPlayer amon) {
         if (!(amon.level() instanceof ServerLevel level))
             return;
@@ -386,14 +395,9 @@ public class AmonRoleData extends SimpleRoleData {
         }
         possessTicks++;
         refreshPossessionEffects(amon);
-        // 阿蒙掌控目标移动：阿蒙隐身自由移动，目标被锁定移动/视角并每 tick 牵引到阿蒙位置；
-        // 二者均无碰撞箱，避免互相拥挤。目标被致盲失明，无法看见阿蒙。
-        target.addEffect(new MobEffectInstance(ModEffects.MOVE_BANED, 10, 0, false, false, false));
-        target.addEffect(new MobEffectInstance(ModEffects.TURN_BANED, 10, 0, false, false, false));
-        target.addEffect(new MobEffectInstance(ModEffects.NO_COLLIDE, 10, 0, false, false, false));
-        target.addEffect(new MobEffectInstance(MobEffects.BLINDNESS, 10, 0, false, false, false));
-        target.addEffect(new MobEffectInstance(MobEffects.DARKNESS, 10, 0, false, false, false));
-        target.teleportTo(level, amon.getX(), amon.getY(), amon.getZ(), amon.getYRot(), amon.getXRot());
+        // 未终局只能寄宿：阿蒙贴附跟随宿主，宿主仍自主行动。
+        amon.teleportTo(level, target.getX(), target.getY(), target.getZ(), amon.getYRot(), amon.getXRot());
+        amon.setDeltaMovement(target.getDeltaMovement());
     }
 
     /**
@@ -880,6 +884,11 @@ public class AmonRoleData extends SimpleRoleData {
         // 成熟宿主 UUID 与锁定目标也仅发往阿蒙本人，供其背包选目标界面使用。
         tag.putInt("Seeds", seeds.size());
         tag.putInt("Matured", maturedHosts.size());
+        net.minecraft.nbt.ListTag seedList = new net.minecraft.nbt.ListTag();
+        for (UUID u : seeds.keySet()) {
+            seedList.add(net.minecraft.nbt.StringTag.valueOf(u.toString()));
+        }
+        tag.put("SeedHosts", seedList);
         net.minecraft.nbt.ListTag maturedList = new net.minecraft.nbt.ListTag();
         for (UUID u : maturedHosts) {
             maturedList.add(net.minecraft.nbt.StringTag.valueOf(u.toString()));
@@ -900,6 +909,14 @@ public class AmonRoleData extends SimpleRoleData {
     public void readFromSyncNbt(@NotNull CompoundTag tag, HolderLookup.Provider provider) {
         clientSeeds = tag.getInt("Seeds");
         clientMatured = tag.getInt("Matured");
+        clientSeedHosts.clear();
+        net.minecraft.nbt.ListTag seedList = tag.getList("SeedHosts", net.minecraft.nbt.Tag.TAG_STRING);
+        for (int i = 0; i < seedList.size(); i++) {
+            try {
+                clientSeedHosts.add(UUID.fromString(seedList.getString(i)));
+            } catch (IllegalArgumentException ignored) {
+            }
+        }
         clientMaturedHosts.clear();
         net.minecraft.nbt.ListTag maturedList = tag.getList("MaturedHosts", net.minecraft.nbt.Tag.TAG_STRING);
         for (int i = 0; i < maturedList.size(); i++) {

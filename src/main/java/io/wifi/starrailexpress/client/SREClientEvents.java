@@ -29,6 +29,7 @@ import io.wifi.starrailexpress.event.OnGettingPlayerSkin;
 import io.wifi.starrailexpress.event.OnGettingPlayerSkin.PlayerSkinResult;
 import io.wifi.starrailexpress.event.client.OnGameFinishedClient;
 import io.wifi.starrailexpress.event.client.OnGameStartedClient;
+import io.wifi.starrailexpress.client.gui.RoleNameRenderer;
 import io.wifi.starrailexpress.event.client.OnRenderRoleName;
 import io.wifi.starrailexpress.event.client.OnRenderRoleName.RenderPlayerNameInterface;
 import io.wifi.starrailexpress.game.GameUtils;
@@ -374,6 +375,14 @@ public class SREClientEvents {
                 if (mocca.disguise != null && mocca.disguise.equals(target.getUUID())) {
                     return TrueFalseAndCustomResult.custom(target.getDisplayName());
                 }
+            }
+            return TrueFalseAndCustomResult.pass();
+        });
+        OnRenderRoleName.RENDER_PLAYER_NAME.register((player, target, ctx, delta, font) -> {
+            String tag = RoleNameRenderer.displayTags.get(target.getUUID());
+            if (tag != null && !tag.isEmpty()) {
+                return TrueFalseAndCustomResult.custom(
+                        Component.translatable(tag).append(" ").append(target.getName()));
             }
             return TrueFalseAndCustomResult.pass();
         });

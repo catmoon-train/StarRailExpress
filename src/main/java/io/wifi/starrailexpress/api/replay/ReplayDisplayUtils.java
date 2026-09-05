@@ -102,7 +102,8 @@ public class ReplayDisplayUtils {
             }
             // 获取玩家名称和角色
             MutableComponent playerName = GameReplayUtils
-                    .getReplayPlayerDisplayText(uuid, replayManager, replayData, false).copy();
+                    .getReplayPlayerDisplayText(uuid, replayManager, replayData, false, Integer.MAX_VALUE, true)
+                    .copy();
 
             // 添加死亡标记
             if (!isAlive) {

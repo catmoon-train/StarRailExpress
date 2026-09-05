@@ -184,6 +184,7 @@ public class UndeadLordRoleData extends SimpleRoleData {
             return;
         }
         infection.put(victim.getUUID(), next);
+        updateBossBar(victim, next);
         // 感染压迫：被注入感染的瞬间短暂迟缓，让骨杖/亡灵的压制有实感
         victim.addEffect(new net.minecraft.world.effect.MobEffectInstance(
                 net.minecraft.world.effect.MobEffects.MOVEMENT_SLOWDOWN, 2 * 20, 0, false, false, false));

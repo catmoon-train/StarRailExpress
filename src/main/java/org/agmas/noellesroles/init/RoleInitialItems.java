@@ -106,9 +106,11 @@ public class RoleInitialItems {
         } else {
             // 静态 Map 中没有此角色 → 回退到 getDefaultItems()（自定义职业走这条路）
             List<ItemStack> defaultItems = role.getDefaultItems();
-            for (var i : defaultItems) {
-                if (i != null && !i.isEmpty()) {
-                    result.add(i.copy());
+            if (defaultItems != null) {
+                for (var i : defaultItems) {
+                    if (i != null && !i.isEmpty()) {
+                        result.add(i.copy());
+                    }
                 }
             }
         }

@@ -94,6 +94,8 @@ public class NRRulePredicateEvents {
                 .equals(ModRoles.MONOKUMA_ID)));
         RoleVisibilityRules.canUseOtherPerson.add((role -> role.getIdentifier()
                 .equals(ModRoles.MANIPULATOR_ID)));
+        RoleVisibilityRules.canUseOtherPerson.add((role -> role.getIdentifier()
+                .equals(ModRoles.PHANTOM_SPIRIT_ID)));
     }
 
     // --- CollisionRules ---
@@ -196,6 +198,7 @@ public class NRRulePredicateEvents {
                 "minecraft:clock",
                 "minecraft:lantern",
                 "noellesroles:passbook",
+                "noellesroles:tomato",
                 "minecraft:written_book"));
     }
 
