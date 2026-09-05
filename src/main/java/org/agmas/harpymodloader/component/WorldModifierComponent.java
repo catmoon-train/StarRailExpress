@@ -118,6 +118,7 @@ public class WorldModifierComponent implements AutoSyncedComponent, ServerTickin
 
     public Set<SREModifier> getModifiers(UUID uuid) {
         Set<SREModifier> set = this.modifiers.get(uuid);
+        // 必须要新建，添加修饰符和删除修饰符都会走这条路。如果返回固定的会导致各种BUG
         return set != null ? set : new HashSet<>();
     }
 
