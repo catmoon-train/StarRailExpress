@@ -52,8 +52,6 @@ public class MorphlingRoleData extends SimpleRoleData {
 
     @Override
     public boolean shouldSyncWith(ServerPlayer player) {
-        if (!checkIsGameRunning())
-            return false;
         return true;
     }
 

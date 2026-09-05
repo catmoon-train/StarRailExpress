@@ -131,6 +131,9 @@ public class TouhouHandlers {
       if (RoleUtils.isPlayerTheJob(victim, ModRoles.DOOMED_SINNER)) {
         return;
       }
+    });
+    // 最后再变免得不触发某些职业的被动技能
+    OnPlayerDeathWithKiller.FINAL_EVENT.register((victim, killer, deathreason) -> {
       if (RoleUtils.isPlayerTheJob(killer, THRedHouseRoles.REMILIA)) {
         final var cdcca = SREAbilityPlayerComponent.KEY.get(killer);
         if (cdcca.hasCooldown()) {

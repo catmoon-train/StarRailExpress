@@ -27,6 +27,7 @@ import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.PlayerFaceRenderer;
 import net.minecraft.client.multiplayer.PlayerInfo;
 import net.minecraft.client.player.AbstractClientPlayer;
+import net.minecraft.client.player.LocalPlayer;
 import io.wifi.starrailexpress.api.data.RoleData;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.network.chat.Component;
@@ -73,16 +74,21 @@ public class MorphlingPlayerWidget extends Button {
 
     @Override
     protected void renderWidget(GuiGraphics context, int mouseX, int mouseY, float delta) {
-        AbstractClientPlayer player = Minecraft.getInstance().player;
-        if (player == null)
-            return;
 
-        RoleData.getOptional(MorphlingRoleData.class, player).ifPresent(component -> {
-            if (player.hasEffect(ModEffects.SAFE_TIME)) {
-                return;
-            }
+        super.renderWidget(context, mouseX, mouseY, delta);
+
+        LocalPlayer player = Minecraft.getInstance().player;
+        if (player == null) {
+            return;
+        }
+        if (player.hasEffect(ModEffects.SAFE_TIME)) {
+            return;
+        }
+        var component = RoleData.getNullable(MorphlingRoleData.class, player);
+        if (component == null) {
+            return;
+        } else {
             if (component.getMorphTicks() == 0) {
-                super.renderWidget(context, mouseX, mouseY, delta);
                 context.blitSprite(ShopEntry.Type.POISON.getTexture(), this.getX() - 7, this.getY() - 7, 30, 30);
                 PlayerFaceRenderer.draw(context, disguiseTarget.getSkin().texture(), this.getX(), this.getY(), 16);
                 if (this.isHovered()) {
@@ -94,7 +100,6 @@ public class MorphlingPlayerWidget extends Button {
                             this.getY() - 9);
                 }
             } else if (component.getMorphTicks() < 0) {
-                super.renderWidget(context, mouseX, mouseY, delta);
                 context.setColor(0.25f, 0.25f, 0.25f, 0.5f);
                 context.blitSprite(ShopEntry.Type.POISON.getTexture(), this.getX() - 7, this.getY() - 7, 30, 30);
                 PlayerFaceRenderer.draw(context, disguiseTarget.getSkin().texture(), this.getX(), this.getY(), 16);
@@ -109,8 +114,7 @@ public class MorphlingPlayerWidget extends Button {
                 context.setColor(1f, 1f, 1f, 1f);
                 context.drawString(Minecraft.getInstance().font, String.valueOf(-component.getMorphTicks() / 20),
                         this.getX(), this.getY(), Color.RED.getRGB(), true);
-            }else {
-                super.renderWidget(context, mouseX, mouseY, delta);
+            } else {
                 context.setColor(0.25f, 0.25f, 0.25f, 0.5f);
                 context.blitSprite(ShopEntry.Type.POISON.getTexture(), this.getX() - 7, this.getY() - 7, 30, 30);
                 PlayerFaceRenderer.draw(context, disguiseTarget.getSkin().texture(), this.getX(), this.getY(), 16);
@@ -130,7 +134,7 @@ public class MorphlingPlayerWidget extends Button {
             // 渲染下方的文字
 
             renderDisplayText(context);
-        });
+        }
     }
 
     private void drawShopSlotHighlight(GuiGraphics context, int x, int y, int z) {
