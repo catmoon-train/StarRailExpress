@@ -1394,6 +1394,28 @@ public class ModRolesInitialEventRegister {
                     return true;
                 }).build());
 
+        RoleSkill.register(ModRoles.SILVER_WING, RoleSkill.skill(
+                org.agmas.noellesroles.game.roles.neutral.silver_wing.SilverWingEffects.EMP_SKILL_ID,
+                "skill.noellesroles.silver_wing.emp",
+                context -> {
+                    ServerPlayer player = context.player();
+                    if (player.isSpectator() || !GameUtils.isPlayerAliveAndSurvival(player)) {
+                        return false;
+                    }
+                    if (org.agmas.noellesroles.game.roles.neutral.silver_wing.SilverWingRules.alreadyHasEmpBomb(
+                            SREItemUtils.countItem(player, ModItems.EMP_BOMB))) {
+                        player.displayClientMessage(Component.translatable("message.noellesroles.silver_wing.emp_owned")
+                                .withStyle(ChatFormatting.RED), true);
+                        return false;
+                    }
+                    net.minecraft.world.item.ItemStack bomb = ModItems.EMP_BOMB.getDefaultInstance();
+                    if (!player.addItem(bomb)) {
+                        player.drop(bomb, false);
+                    }
+                    return true;
+                }).cooldownSeconds(org.agmas.noellesroles.game.roles.neutral.silver_wing.SilverWingRules.EMP_SKILL_COOLDOWN_SECONDS)
+                .showOnHud(true).announceToSelf(true).build());
+
     }
 
 }

@@ -21,10 +21,12 @@ import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import org.agmas.noellesroles.Noellesroles;
 
 /**
- * 服务端→客户端：一次枪械射击的弹道轨迹（射手实体 id + 终点坐标），
+ * 服务端→客户端：一次枪械射击的弹道轨迹（射手实体 id + 定格起终点），
  * 客户端由 {@link GunTracerRenderer} 渲染渐隐轨迹线。
  */
-public record GunTracerS2CPacket(int shooterId, double toX, double toY, double toZ)
+public record GunTracerS2CPacket(int shooterId,
+        double fromX, double fromY, double fromZ,
+        double toX, double toY, double toZ)
         implements CustomPacketPayload {
     public static final Type<GunTracerS2CPacket> ID = new Type<>(Noellesroles.id("gun_tracer"));
     public static final StreamCodec<RegistryFriendlyByteBuf, GunTracerS2CPacket> CODEC =
@@ -32,13 +34,18 @@ public record GunTracerS2CPacket(int shooterId, double toX, double toY, double t
 
     public void encode(RegistryFriendlyByteBuf buf) {
         buf.writeVarInt(shooterId);
+        buf.writeDouble(fromX);
+        buf.writeDouble(fromY);
+        buf.writeDouble(fromZ);
         buf.writeDouble(toX);
         buf.writeDouble(toY);
         buf.writeDouble(toZ);
     }
 
     public static GunTracerS2CPacket decode(RegistryFriendlyByteBuf buf) {
-        return new GunTracerS2CPacket(buf.readVarInt(), buf.readDouble(), buf.readDouble(), buf.readDouble());
+        return new GunTracerS2CPacket(buf.readVarInt(),
+                buf.readDouble(), buf.readDouble(), buf.readDouble(),
+                buf.readDouble(), buf.readDouble(), buf.readDouble());
     }
 
     @Override

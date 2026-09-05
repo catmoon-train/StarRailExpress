@@ -494,6 +494,14 @@ public class ModItems {
             new FlashGrenadeItem(new Item.Properties().stacksTo(8)),
             "flash_grenade", WEAPONS_GROUP);
 
+    public static final Item EMP_BOMB = register(
+            new EmpBombItem(new Item.Properties().stacksTo(1)),
+            "emp_bomb", ROLE_ITEMS_GROUP);
+
+    public static final Item MECHANICAL_BIRD = register(
+            new MechanicalBirdItem(new Item.Properties().stacksTo(8)),
+            "mechanical_bird", ROLE_ITEMS_GROUP);
+
     /**
      * 诱饵弹
      * - 可投掷物品
@@ -1305,6 +1313,105 @@ public class ModItems {
             new Item(new Item.Properties().stacksTo(1)),
             "taomuding", ROLE_ITEMS_GROUP);
 
+    public static final Item ANGLER_ROD = register(
+            new org.agmas.noellesroles.content.item.angler.AnglerRodItem(
+                    new Item.Properties().stacksTo(1).durability(64)),
+            "angler_rod", ROLE_ITEMS_GROUP);
+    public static final Item ERROR_ANGLER_ROD = register(
+            new org.agmas.noellesroles.content.item.angler.ErrorAnglerRodItem(
+                    new Item.Properties().stacksTo(1)),
+            "error_angler_rod", ROLE_ITEMS_GROUP);
+    public static final Item ANGLER_LIVING_CARP = register(
+            new org.agmas.noellesroles.content.item.angler.LivingCarpItem(new Item.Properties().stacksTo(1)),
+            "angler_living_carp", ROLE_ITEMS_GROUP);
+    public static final Item ANGLER_DEAD_CARP = register(
+            new Item(new Item.Properties().stacksTo(1)),
+            "angler_dead_carp", ROLE_ITEMS_GROUP);
+    public static final Item ANGLER_RAGGED_BOOTS = register(
+            new org.agmas.noellesroles.content.item.angler.RaggedBootsItem(new Item.Properties().stacksTo(1)),
+            "angler_ragged_boots", EQUIPMENT_GROUP);
+    public static final Item ANGLER_VANILLA_MILK = register(
+            new org.agmas.noellesroles.content.item.angler.VanillaCleanseMilkItem(new Item.Properties().stacksTo(1)),
+            "angler_vanilla_milk", ROLE_ITEMS_GROUP);
+    public static final Item ANGLER_FLOUNDER = register(
+            new org.agmas.noellesroles.content.item.angler.AnglerFoodItem(new Item.Properties().stacksTo(1),
+                    org.agmas.noellesroles.content.item.angler.AnglerFoodItem.Kind.FLOUNDER),
+            "angler_flounder", ROLE_ITEMS_GROUP);
+    public static final Item ANGLER_INVERTED_FISH = register(
+            new org.agmas.noellesroles.content.item.angler.AnglerFoodItem(new Item.Properties().stacksTo(1),
+                    org.agmas.noellesroles.content.item.angler.AnglerFoodItem.Kind.INVERTED_FISH),
+            "angler_inverted_fish", ROLE_ITEMS_GROUP);
+    public static final Item ANGLER_ABYSS_SHIELD = register(
+            new org.agmas.noellesroles.content.item.angler.AbyssShieldVialItem(new Item.Properties().stacksTo(1)),
+            "angler_abyss_shield", ROLE_ITEMS_GROUP);
+    public static final Item ANGLER_SOMEONE_KEY = register(
+            new PaperclipItem(new Item.Properties().stacksTo(1)),
+            "angler_someone_key", ROLE_ITEMS_GROUP);
+    public static final Item ANGLER_BLINKING_KELP = register(
+            new org.agmas.noellesroles.content.item.angler.AnglerOddityItem(new Item.Properties().stacksTo(1),
+                    org.agmas.noellesroles.content.item.angler.AnglerOddityItem.Kind.BLINKING_KELP),
+            "angler_blinking_kelp", ROLE_ITEMS_GROUP);
+    public static final Item ANGLER_WET_TICKET = register(
+            new org.agmas.noellesroles.content.item.angler.AnglerOddityItem(new Item.Properties().stacksTo(1),
+                    org.agmas.noellesroles.content.item.angler.AnglerOddityItem.Kind.WET_TICKET),
+            "angler_wet_ticket", ROLE_ITEMS_GROUP);
+    public static final Item ANGLER_EMPTY_WALLET = register(
+            new org.agmas.noellesroles.content.item.angler.AnglerOddityItem(new Item.Properties().stacksTo(1),
+                    org.agmas.noellesroles.content.item.angler.AnglerOddityItem.Kind.EMPTY_WALLET),
+            "angler_empty_wallet", ROLE_ITEMS_GROUP);
+    public static final Item ANGLER_EMPTY_COFFIN = register(
+            new org.agmas.noellesroles.content.item.angler.AnglerOddityItem(new Item.Properties().stacksTo(1),
+                    org.agmas.noellesroles.content.item.angler.AnglerOddityItem.Kind.EMPTY_COFFIN),
+            "angler_empty_coffin", ROLE_ITEMS_GROUP);
+    public static final Item ANGLER_EMPTY_HOLSTER = register(
+            new org.agmas.noellesroles.content.item.angler.AnglerOddityItem(new Item.Properties().stacksTo(1),
+                    org.agmas.noellesroles.content.item.angler.AnglerOddityItem.Kind.EMPTY_HOLSTER),
+            "angler_empty_holster", ROLE_ITEMS_GROUP);
+    public static final Item ANGLER_JUMPING_HEART = register(
+            new org.agmas.noellesroles.content.item.angler.AnglerOddityItem(new Item.Properties().stacksTo(1),
+                    org.agmas.noellesroles.content.item.angler.AnglerOddityItem.Kind.JUMPING_HEART),
+            "angler_jumping_heart", ROLE_ITEMS_GROUP);
+    public static final Item ANGLER_UNADDRESSED_LETTER = register(
+            new org.agmas.noellesroles.content.item.angler.AnglerOddityItem(new Item.Properties().stacksTo(1),
+                    org.agmas.noellesroles.content.item.angler.AnglerOddityItem.Kind.UNADDRESSED_LETTER),
+            "angler_unaddressed_letter", ROLE_ITEMS_GROUP);
+    public static final Item ANGLER_ABYSS_BAIT = register(
+            new org.agmas.noellesroles.content.item.angler.AnglerOddityItem(new Item.Properties().stacksTo(1),
+                    org.agmas.noellesroles.content.item.angler.AnglerOddityItem.Kind.ABYSS_BAIT),
+            "angler_abyss_bait", ROLE_ITEMS_GROUP);
+    public static final Item ANGLER_GLOVES = register(
+            new org.agmas.noellesroles.content.item.angler.AnglerOddityItem(new Item.Properties().stacksTo(1),
+                    org.agmas.noellesroles.content.item.angler.AnglerOddityItem.Kind.GLOVES),
+            "angler_gloves", ROLE_ITEMS_GROUP);
+    public static final Item ANGLER_HAIR_REEL = register(
+            new org.agmas.noellesroles.content.item.angler.AnglerOddityItem(new Item.Properties().stacksTo(1),
+                    org.agmas.noellesroles.content.item.angler.AnglerOddityItem.Kind.HAIR_REEL),
+            "angler_hair_reel", ROLE_ITEMS_GROUP);
+    public static final Item ANGLER_INK = register(
+            new org.agmas.noellesroles.content.item.angler.AnglerOddityItem(new Item.Properties().stacksTo(1),
+                    org.agmas.noellesroles.content.item.angler.AnglerOddityItem.Kind.INK),
+            "angler_ink", ROLE_ITEMS_GROUP);
+    public static final Item ANGLER_TASK_LIST = register(
+            new org.agmas.noellesroles.content.item.angler.AnglerOddityItem(new Item.Properties().stacksTo(1),
+                    org.agmas.noellesroles.content.item.angler.AnglerOddityItem.Kind.TASK_LIST),
+            "angler_task_list", ROLE_ITEMS_GROUP);
+    public static final Item ANGLER_DRIPPING_WATCH = register(
+            new org.agmas.noellesroles.content.item.angler.AnglerOddityItem(new Item.Properties().stacksTo(1),
+                    org.agmas.noellesroles.content.item.angler.AnglerOddityItem.Kind.DRIPPING_WATCH),
+            "angler_dripping_watch", ROLE_ITEMS_GROUP);
+    public static final Item ANGLER_FALSE_TOOTH = register(
+            new org.agmas.noellesroles.content.item.angler.AnglerOddityItem(new Item.Properties().stacksTo(1),
+                    org.agmas.noellesroles.content.item.angler.AnglerOddityItem.Kind.FALSE_TOOTH),
+            "angler_false_tooth", ROLE_ITEMS_GROUP);
+    public static final Item ANGLER_ERROR_AIR = register(
+            new org.agmas.noellesroles.content.item.angler.AnglerOddityItem(new Item.Properties().stacksTo(1),
+                    org.agmas.noellesroles.content.item.angler.AnglerOddityItem.Kind.ERROR_AIR),
+            "angler_error_air", ROLE_ITEMS_GROUP);
+    public static final Item ANGLER_EMPTY_HOOK = register(
+            new org.agmas.noellesroles.content.item.angler.AnglerOddityItem(new Item.Properties().stacksTo(1),
+                    org.agmas.noellesroles.content.item.angler.AnglerOddityItem.Kind.EMPTY_HOOK),
+            "angler_empty_hook", ROLE_ITEMS_GROUP);
+
     public static Item register(Item item, String id, ResourceKey<CreativeModeTab>... extraGroups) {
         ResourceKey<CreativeModeTab>[] allGroups = java.util.Arrays.copyOf(extraGroups, extraGroups.length + 1);
         allGroups[extraGroups.length] = NOELLESROLES_ALL_GROUP;
@@ -1336,6 +1443,8 @@ public class ModItems {
         TMMItems.INVISIBLE_ITEMS.add(ModItems.RECEIVED_MAIL);
         TMMItems.INVISIBLE_ITEMS.add(ModItems.WRITTEN_NOTE);
         TMMItems.INVISIBLE_ITEMS.add(ModItems.FLASH_GRENADE);
+        TMMItems.INVISIBLE_ITEMS.add(ModItems.EMP_BOMB);
+        TMMItems.INVISIBLE_ITEMS.add(ModItems.MECHANICAL_BIRD);
         TMMItems.INVISIBLE_ITEMS.add(ModItems.DECOY_GRENADE);
         TMMItems.INVISIBLE_ITEMS.add(ModItems.SILENCE_TOTEM);
         TMMItems.INVISIBLE_ITEMS.add(ModItems.PURIFY_BOMB);

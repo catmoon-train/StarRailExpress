@@ -5,6 +5,7 @@ public enum AgentMode {
     DISGUISE_IDLE,
     STARE,
     STALK,
+    HUNT,
     ASSIMILATE,
     RECOVER
 }

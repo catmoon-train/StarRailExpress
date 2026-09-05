@@ -38,7 +38,7 @@ public class THHumanVillageRoles {
                     SREPlayerShopComponent.KEY.get(player).addToBalance(50);
                 }
             })
-            .setAddedVersion("4.4");
+            .setAddedVersion("4.3");
 
     // 东风谷早苗 kotiya_sanae
     public static SRERole KOTIYA_SANAE = TMMRoles.registerRole(new THKotiyaSanaeRole(

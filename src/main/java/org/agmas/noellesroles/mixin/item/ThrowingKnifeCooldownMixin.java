@@ -25,7 +25,6 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import org.agmas.noellesroles.init.ModItems;
-import org.agmas.noellesroles.role_data.killer.StalkerRoleData;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -41,7 +40,7 @@ public class ThrowingKnifeCooldownMixin {
         player.getCooldowns().addCooldown(ModItems.THROWING_KNIFE, (Integer) GameConstants.ITEM_COOLDOWNS.get(TMMItems.KNIFE));
         if (player.getMainHandItem().getItem() == ModItems.STALKER_KNIFE_OFFHAND) {
             player.getCooldowns().addCooldown(ModItems.STALKER_KNIFE_OFFHAND,
-                    StalkerRoleData.KNIFE_ATTACK_COOLDOWN);
+                    GameConstants.ITEM_COOLDOWNS.get(TMMItems.KNIFE) - 200);
 
             player.addEffect(new MobEffectInstance(MobEffects.INVISIBILITY,15,0));
             // ── 击中后向前突进 ────────────────────────────────────────────
@@ -49,7 +48,7 @@ public class ThrowingKnifeCooldownMixin {
             performDashOnHit(serverLevel, player, serverLevel.getEntity(payload.target()));
         }else if (player.getMainHandItem().getItem() == ModItems.STALKER_KNIFE) {
             player.getCooldowns().addCooldown(ModItems.STALKER_KNIFE,
-                    StalkerRoleData.KNIFE_ATTACK_COOLDOWN);
+                    GameConstants.ITEM_COOLDOWNS.get(TMMItems.KNIFE) - 200);
 
             player.addEffect(new MobEffectInstance(MobEffects.INVISIBILITY,15,0));
             // ── 击中后向前突进 ────────────────────────────────────────────

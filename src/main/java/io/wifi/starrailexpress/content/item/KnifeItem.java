@@ -52,6 +52,37 @@ public class KnifeItem extends SkinableItem implements TrainWeapon {
     // public static BiConsumer<ServerPlayer, ServerPlayer> PlayerKilledPlayer;
     public static final ResourceLocation ITEM_ID = SRE.TMMId("knife");
 
+    /**
+     * 是否允许进入右键 {@code startUsingItem} 蓄力。
+     * 子类可拦截（例如冷却中、形态不允许）。
+     */
+    public boolean canStartKnifeCharge(Level world, Player user, InteractionHand hand, ItemStack stack) {
+        return true;
+    }
+
+    /**
+     * 已经 {@code startUsingItem} 之后调用（客户端与服务端都会到）。
+     */
+    public void onKnifeChargeStarted(Level world, Player user, InteractionHand hand, ItemStack stack) {
+    }
+
+    /**
+     * 松开或蓄满时调用（客户端与服务端都会到）。
+     *
+     * @param usedTicks 已蓄力时长
+     * @return true 表示已处理，不再走默认刺杀
+     */
+    public boolean onKnifeChargeReleased(ItemStack stack, Level world, Player attacker, int usedTicks) {
+        return false;
+    }
+
+    /**
+     * 达到可释放的最小蓄力 tick。默认与 {@code KnifeChargeableItem} 一致。
+     */
+    public int getMinKnifeChargeTicks(ItemStack stack, LivingEntity user) {
+        return user.hasEffect(org.agmas.noellesroles.init.ModEffects.TWO_DIMENSIONAL_CAMERA) ? 4 : 8;
+    }
+
     @Override
     public InteractionResultHolder<ItemStack> use(Level world, @NotNull Player user, InteractionHand hand) {
         ItemStack itemStack = user.getItemInHand(hand);
@@ -68,8 +99,12 @@ public class KnifeItem extends SkinableItem implements TrainWeapon {
                 return InteractionResultHolder.fail(itemStack);
             }
         }
+        if (!canStartKnifeCharge(world, user, hand, itemStack)) {
+            return InteractionResultHolder.fail(itemStack);
+        }
         user.playSound(TMMSounds.ITEM_KNIFE_PREPARE, 1.0f, 1.0f);
         user.startUsingItem(hand);
+        onKnifeChargeStarted(world, user, hand, itemStack);
         return InteractionResultHolder.consume(itemStack);
     }
 
@@ -78,11 +113,15 @@ public class KnifeItem extends SkinableItem implements TrainWeapon {
         if (user.isSpectator()) {
             return;
         }
-        // 蓄力阈值：拥有2D视角效果时降至0.2秒（4刻），否则0.4秒（8刻）。
-        // 需与 KnifeChargeableItem.getMaxChargeTime 保持一致。
-        int chargeTicks = user.hasEffect(org.agmas.noellesroles.init.ModEffects.TWO_DIMENSIONAL_CAMERA) ? 4 : 8;
-        if (remainingUseTicks >= this.getUseDuration(stack, user) - chargeTicks || !(user instanceof Player attacker)
-                || !world.isClientSide)
+        if (!(user instanceof Player attacker)) {
+            return;
+        }
+        int usedTicks = this.getUseDuration(stack, user) - remainingUseTicks;
+        if (onKnifeChargeReleased(stack, world, attacker, usedTicks)) {
+            return;
+        }
+        int chargeTicks = getMinKnifeChargeTicks(stack, user);
+        if (remainingUseTicks >= this.getUseDuration(stack, user) - chargeTicks || !world.isClientSide)
             return;
         SREGameWorldComponent game = SREGameWorldComponent.KEY.get(world);
         final var role = game.getRole(attacker);
@@ -100,6 +139,12 @@ public class KnifeItem extends SkinableItem implements TrainWeapon {
             ClientPlayNetworking.send(new KnifeStabPayload(target.getId()));
             CrosshairaddonsCompat.onAttack(target);
         }
+    }
+
+    @Override
+    public ItemStack finishUsingItem(ItemStack stack, Level world, LivingEntity user) {
+        this.releaseUsing(stack, world, user, 0);
+        return stack;
     }
 
     public static HitResult getKnifeTarget(Player user) {

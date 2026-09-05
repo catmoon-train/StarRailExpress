@@ -32,11 +32,14 @@ import io.wifi.starrailexpress.util.Color;
 import io.wifi.starrailexpress.util.SRENetworkMessageUtils;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
+import org.agmas.noellesroles.config.NoellesRolesConfig;
+import org.agmas.noellesroles.role_data.innocence.AnglerRoleData;
 import org.agmas.noellesroles.role_data.innocence.VoodooRoleData;
 import org.agmas.noellesroles.role_data.innocence.DiscMasterRoleData;
 import org.agmas.noellesroles.role_data.innocence.TelegrapherRoleData;
@@ -57,6 +60,8 @@ import org.agmas.noellesroles.role.bouns.roles.*;
 import io.wifi.starrailexpress.index.TMMItems;
 import org.agmas.noellesroles.role_data.neutral.LicensedVillainRoleData;
 
+import java.util.List;
+
 /**
  * 彩蛋角色类，受到彩蛋刷新概率影响
  */
@@ -69,6 +74,7 @@ public class BounsRoles {
     public static final ResourceLocation CREEPER_ID = id("creeper");
     public static final ResourceLocation TELEGRAPHER_ID = id("telegrapher");
     public static final ResourceLocation DISC_MASTER_ID = id("disc_master");
+    public static final ResourceLocation ANGLER_ID = id("angler");
 
     public static ResourceLocation id(String path) {
         return ResourceLocation.fromNamespaceAndPath(NAMESPACE, path);
@@ -171,6 +177,30 @@ public class BounsRoles {
             false // 不隐藏计分板
     )).setCanSeeCoin(true).setRoleData(TelegrapherRoleData::new)
             .setDefaultEnableChance(200);
+
+    /**
+     * 垂钓者：平民彩蛋。仅在水下职业地图刷新（与海王/潜水员同一份名单）。
+     */
+    public static SRERole ANGLER = TMMRoles.registerRole(new EggRole(
+            ANGLER_ID,
+            new Color(32, 72, 86).getRGB(),
+            true,
+            false,
+            SRERole.MoodType.REAL,
+            TMMRoles.CIVILIAN.getMaxSprintTime(),
+            false
+    ) {
+        @Override
+        public int getRoundMaxCount(ServerLevel serverLevel, SREGameWorldComponent gameWorldComponent,
+                List<ServerPlayer> players, String mapName) {
+            if (!NoellesRolesConfig.instance().underwaterRolesMaps.contains(mapName)) {
+                return 0;
+            }
+            return super.getRoundMaxCount(serverLevel, gameWorldComponent, players, mapName);
+        }
+    }).setCanSeeCoin(true).setRoleData(AnglerRoleData::new)
+            .setSpecialMapRole(SRERole.SpecialMapRoleMap.UNDERWATER)
+            .setDefaultEnableChance(200).setDefaultMax(1).setCanBeRandomedByOtherRoles(false);
 
     public static SRERole CAT_KILLER = TMMRoles.registerRole(new EggRole(id("cat_killer"), // 角色 ID
             new Color(255, 80, 140).getRGB(), // 深粉色 - 猫娘~
@@ -326,7 +356,8 @@ public class BounsRoles {
             Integer.MAX_VALUE, true))
             .setCanUseInstinctAndNightVision(true)
             .setDefaultEnableChance(1000)
-            .setDefaultEnableMaxPlayerCount(18);
+            .setDefaultEnableMaxPlayerCount(18)
+            .setAddedVersion("4.4"); // versiontag 4.4
 
     public static SRERole RABBIT_WANSUI = TMMRoles.registerRole(new RabbitWansuiRole(
             id("rabbit_wansui"),
@@ -340,7 +371,8 @@ public class BounsRoles {
             .setCanUseInstinctAndNightVision(true)
             .setInstinctType(InstinctType.DEFAULT, InstinctType.OBSERVER_ROLE_COLOR)
             .setKillExtraCoinAwards(50)
-            .setDefaultEnableMaxPlayerCount(18);
+            .setDefaultEnableMaxPlayerCount(18)
+            .setAddedVersion("4.4"); // versiontag 4.4
 
     public static SRERole LICENSED_VILLAIN = TMMRoles.registerRole(new EggRole(
             id("licensed_villain"), // 角色 ID
@@ -412,6 +444,7 @@ public class BounsRoles {
         LENGXIAO.setAddedVersion("4.3");
         LAO_DA.setAddedVersion("4.4");
         DISC_MASTER.setAddedVersion("4.4");
+        ANGLER.setAddedVersion("4.4");
         BEE_QUEEN.setAddedVersion("4.4");
         BEE_WASP.setAddedVersion("4.4");
         BEE_WORKER.setAddedVersion("4.4");

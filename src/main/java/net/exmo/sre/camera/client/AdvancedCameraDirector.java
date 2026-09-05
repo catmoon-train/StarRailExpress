@@ -190,6 +190,11 @@ public final class AdvancedCameraDirector {
         return active != null && !SecurityCameraClientState.isInSecurityMode();
     }
 
+    /** Includes the short return fade so following presentations never draw through it. */
+    public static boolean isPresentationActive() {
+        return (active != null || returnFade != null) && !SecurityCameraClientState.isInSecurityMode();
+    }
+
     public static Vec3 getCameraPos(float partialTick) {
         Pose pose = currentPose(partialTick);
         return pose == null ? Vec3.ZERO : pose.pos;

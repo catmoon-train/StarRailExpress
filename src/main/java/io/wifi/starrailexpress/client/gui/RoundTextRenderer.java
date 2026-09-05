@@ -19,11 +19,9 @@ import com.mojang.authlib.GameProfile;
 import com.mojang.blaze3d.systems.RenderSystem;
 
 import io.wifi.starrailexpress.SREClientConfig;
-import io.wifi.starrailexpress.api.AreasSettings;
 import io.wifi.starrailexpress.api.GameMode;
 import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.api.TMMRoles;
-import io.wifi.starrailexpress.cca.AreasWorldComponent;
 import io.wifi.starrailexpress.cca.SREGameRoundEndComponent;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.client.SREClient;
@@ -107,12 +105,10 @@ public class RoundTextRenderer {
     private static Component cachedWelcomeText = null;
     private static Component cachedPremiseText = null;
     private static Component cachedGoalText = null;
-    private static Component cachedCanJumpTip = null;
 
     private static int cachedWelcomeWidth = 0;
     private static int cachedPremiseWidth = 0;
     private static int cachedGoalWidth = 0;
-    private static int cachedCanJumpWidth = 0;
 
     /** 用于检测是否需要刷新欢迎界面缓存的辅助变量 */
     private static int lastKillers = -1;
@@ -168,11 +164,6 @@ public class RoundTextRenderer {
      */
     private static void renderWelcomeOverlay(Font renderer, LocalPlayer player, FakeGuiGraphics context,
             float partialTicks, boolean isLooseEnds) {
-        // 淡出阶段之前，额外绘制地图详情
-        if (welcomeTime <= WELCOME_DURATION - GameConstants.FADE_TIME + 15) {
-            MapDetailsRenderer.renderHud(renderer, player, context, partialTicks);
-        }
-
         // 更新欢迎文本缓存 (仅在杀手/目标数量变化或首次时重新计算)
         if (lastKillers != killers || lastTargets != targets || cachedWelcomeText == null) {
             cachedWelcomeText = isLooseEnds ? Component.translatable("announcement.star.loose_ends.welcome")
@@ -186,18 +177,6 @@ public class RoundTextRenderer {
             cachedGoalWidth = renderer.width(cachedGoalText);
             lastKillers = killers;
             lastTargets = targets;
-        }
-
-        {
-
-            // 跳跃提示缓存
-            if (cachedCanJumpTip == null) {
-                cachedCanJumpTip = Component
-                        .translatable("announcement.star.tip.available_controls",
-                                getAreaTip(SREClient.areaComponent).withStyle(ChatFormatting.WHITE))
-                        .withStyle(ChatFormatting.GRAY);
-                cachedCanJumpWidth = renderer.width(cachedCanJumpTip);
-            }
         }
 
         int color = isLooseEnds ? 0x9F0000 : 0xFFFFFF;
@@ -226,63 +205,13 @@ public class RoundTextRenderer {
             context.drawString(renderer, cachedGoalText, -cachedGoalWidth / 2, 14, color);
         }
 
-        if (welcomeTime <= 120) {
-            context.drawString(renderer, cachedCanJumpTip, -cachedCanJumpWidth / 2, 28, color);
-            context.drawString(renderer, copyright, -copyrightWidth / 2, 40, color);
-        }
+        if (welcomeTime <= 120)
+            context.drawString(renderer, copyright, -copyrightWidth / 2, 32, color);
 
         context.pose().popPose();
     }
 
     // -------------------- 结束界面 --------------------
-
-    private static MutableComponent getAreaTip(AreasWorldComponent areaComponent) {
-        final var message = Component.literal("");
-        {
-            message.append(areaComponent.areasSettings.canJump
-                    ? Component.translatable("announcement.star.tip.can_jump").withStyle(ChatFormatting.GREEN)
-                    : Component.translatable("announcement.star.tip.cant_jump").withStyle(ChatFormatting.YELLOW));
-        }
-
-        {
-            message.append(Component.translatable("announcement.star.tip.split").withStyle(ChatFormatting.WHITE))
-                    .append(getWaterTip(areaComponent.areasSettings));
-        }
-        {
-            message.append(Component.translatable("announcement.star.tip.split").withStyle(ChatFormatting.WHITE))
-                    .append(areaComponent.areasSettings.enableOxygenDrowning
-                            ? Component.translatable("announcement.star.tip.will_drown")
-                                    .withStyle(ChatFormatting.YELLOW)
-                            : Component.translatable("announcement.star.tip.wont_drown")
-                                    .withStyle(ChatFormatting.GREEN));
-
-        }
-        return message;
-    }
-
-    private static Component getWaterTip(AreasSettings areasSettings) {
-        if ((areasSettings.canSwim || areasSettings.canJump) && areasSettings.canSimpleSwim
-                && areasSettings.canUnderWater && areasSettings.allowInDeepWater) {
-            return Component.translatable("announcement.star.tip.can_swim").withStyle(ChatFormatting.GREEN);
-        } else if (!areasSettings.canSimpleSwim
-                && !areasSettings.canUnderWater && !areasSettings.allowInDeepWater) {
-            return Component.translatable("announcement.star.tip.cant_swim").withStyle(ChatFormatting.RED);
-        } else if (areasSettings.canSimpleSwim) {
-
-            return Component.translatable("announcement.star.tip.can_simple_swim").withStyle(ChatFormatting.YELLOW);
-        } else if (!areasSettings.allowInDeepWater || !areasSettings.canSimpleSwim) {
-            return Component.translatable("announcement.star.tip.cant_underwater").withStyle(ChatFormatting.RED);
-        } else if (!areasSettings.canUnderWater) {
-            return Component.translatable("announcement.star.tip.cant_be_eye_underwater")
-                    .withStyle(ChatFormatting.YELLOW);
-        } else if (!areasSettings.canSwim && !areasSettings.canJump) {
-            return Component.translatable("announcement.star.tip.cant_swim_up").withStyle(ChatFormatting.YELLOW);
-        } else {
-            // 处理剩余情况：canSimpleSwim=false, canUnderWater=true, allowInDeepWater=true,
-            // (canSwim||canJump)=true
-            return Component.translatable("announcement.star.tip.default").withStyle(ChatFormatting.AQUA);
-        }
-    }
 
     /**
      * 绘制回合结束的结算覆盖层。
@@ -724,7 +653,6 @@ public class RoundTextRenderer {
         cachedWelcomeText = null;
         cachedPremiseText = null;
         cachedGoalText = null;
-        cachedCanJumpTip = null;
     }
 
     /**
@@ -760,13 +688,6 @@ public class RoundTextRenderer {
                 return;
             // 欢迎界面音效和事件
             if (welcomeTime > 0) {
-                {
-                    cachedCanJumpTip = Component
-                            .translatable("announcement.star.tip.available_controls",
-                                    getAreaTip(SREClient.areaComponent).withStyle(ChatFormatting.WHITE))
-                            .withStyle(ChatFormatting.GRAY);
-                    cachedCanJumpWidth = client.font.width(cachedCanJumpTip);
-                }
                 switch (welcomeTime) {
                     case 200 -> {
                         if (player != null)
@@ -831,9 +752,13 @@ public class RoundTextRenderer {
         RoundTextRenderer.targets = targets;
         // 清除缓存以强制重新计算文本
         RoundTextRenderer.cachedWelcomeText = null;
-        RoundTextRenderer.cachedCanJumpTip = null;
         RoundTextRenderer.cachedGoalText = null;
         RoundTextRenderer.cachedPremiseText = null;
+    }
+
+    /** Read-only presentation state for other opening overlays. */
+    public static boolean isWelcomeActive() {
+        return welcomeTime > 0;
     }
 
     /** 启动结束界面 (重置欢迎时间并设置结束倒计时)。 */

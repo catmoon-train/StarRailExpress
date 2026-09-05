@@ -39,6 +39,7 @@ import java.util.Map;
 import java.util.UUID;
 
 public class MapVotingComponent implements AutoSyncedComponent, CommonTickingComponent {
+    private static final int RESULT_REVEAL_TICKS = 50;
     public static final ComponentKey<MapVotingComponent> KEY = ComponentRegistry.getOrCreate(SRE.id("map_voting"),
             MapVotingComponent.class);
 
@@ -52,6 +53,8 @@ public class MapVotingComponent implements AutoSyncedComponent, CommonTickingCom
     private final Map<String, Integer> votes = new HashMap<>();
     private final Map<UUID, String> playerVotes = new HashMap<>(); // 记录每个玩家的投票
     private boolean shouldSync = false;
+    private long pendingGameStartTick = -1L;
+    private String pendingGameMode;
 
     public MapVotingComponent(Level world) {
         this.world = world;
@@ -102,6 +105,9 @@ public class MapVotingComponent implements AutoSyncedComponent, CommonTickingCom
 
     @Override
     public void tick() {
+        if (!world.isClientSide && pendingGameStartTick >= 0L && world.getGameTime() >= pendingGameStartTick) {
+            startPendingGame();
+        }
         // 检查是否需要同步投票状态
         if (shouldSync) {
             sync();
@@ -303,24 +309,22 @@ public class MapVotingComponent implements AutoSyncedComponent, CommonTickingCom
             server.getCommands().performPrefixedCommand(server.createCommandSourceStack(),
                     "function harpymodloader:vote_over");
 
-            // 开始游戏
-            try {
-                String resultGameMode = SREGameModes.MURDER.identifier.toString();
-                // 根据预设游戏模式启动游戏
-                for (ResourceLocation key : SREGameModes.GAME_MODES.keySet()) {
-                    if (key.getPath().equals(presetGameMode)) {
-                        resultGameMode = key.toString();
-                    }
-                }
-                server.getCommands().performPrefixedCommand(server.createCommandSourceStack(),
-                        "tmm:start " + resultGameMode);
-            } catch (Exception e) {
-                SRE.LOGGER.error("投票结束后自动开始游戏失败", e);
-            }
+            pendingGameMode = resolveGameMode();
+            pendingGameStartTick = world.getGameTime() + RESULT_REVEAL_TICKS;
         }
 
-        // 发送投票结果给所有玩家
-        MapVotingResultsPayload payload = new MapVotingResultsPayload(winningMap);
+        if (server == null) {
+            SRE.LOGGER.error("投票结束时服务器实例不可用，无法展示结果或开始游戏");
+            this.shouldSync = true;
+            return;
+        }
+
+        // 随机投票在 switchmap 执行后解析为实际地图，保证介绍读取正确配置。
+        String loadedMap = AreasWorldComponent.KEY.get(world).mapName;
+        String resultMap = "random".equals(winningMap) && loadedMap != null && !loadedMap.isBlank()
+                ? loadedMap
+                : winningMap;
+        MapVotingResultsPayload payload = new MapVotingResultsPayload(resultMap);
         for (var player : server.getPlayerList().getPlayers()) {
             ServerPlayNetworking.send(player, payload);
         }
@@ -334,6 +338,33 @@ public class MapVotingComponent implements AutoSyncedComponent, CommonTickingCom
         this.totalVotingTime = 0;
         this.votes.clear();
         this.playerVotes.clear();
+        this.pendingGameStartTick = -1L;
+        this.pendingGameMode = null;
         this.shouldSync = true;
+    }
+
+    private String resolveGameMode() {
+        String resultGameMode = SREGameModes.MURDER.identifier.toString();
+        for (ResourceLocation key : SREGameModes.GAME_MODES.keySet()) {
+            if (key.getPath().equals(presetGameMode)) {
+                return key.toString();
+            }
+        }
+        return resultGameMode;
+    }
+
+    private void startPendingGame() {
+        String mode = pendingGameMode;
+        pendingGameStartTick = -1L;
+        pendingGameMode = null;
+        MinecraftServer server = SRE.SERVER;
+        if (server == null || mode == null || SREGameWorldComponent.KEY.get(world).isRunning()) {
+            return;
+        }
+        try {
+            server.getCommands().performPrefixedCommand(server.createCommandSourceStack(), "tmm:start " + mode);
+        } catch (Exception e) {
+            SRE.LOGGER.error("投票结果展示后自动开始游戏失败", e);
+        }
     }
 }

@@ -346,6 +346,32 @@ public class ModEntities {
                     .build());
 
     /**
+     * 垂钓者乘坐的钓竿载具
+     */
+    @SuppressWarnings("deprecation")
+    public static final EntityType<AnglerRodMountEntity> ANGLER_ROD_MOUNT = Registry.register(
+            BuiltInRegistries.ENTITY_TYPE,
+            Noellesroles.id("angler_rod_mount"),
+            FabricEntityTypeBuilder.<AnglerRodMountEntity>create(MobCategory.MISC, AnglerRodMountEntity::new)
+                    .dimensions(EntityDimensions.fixed(0.7F, 0.45F))
+                    .trackRangeBlocks(64)
+                    .trackedUpdateRate(1)
+                    .build());
+
+    /**
+     * 错误的垂钓者 - 垂钓者转化后的无脸坐姿实体
+     */
+    @SuppressWarnings("deprecation")
+    public static final EntityType<ErrorAnglerEntity> ERROR_ANGLER = Registry.register(
+            BuiltInRegistries.ENTITY_TYPE,
+            Noellesroles.id("error_angler"),
+            FabricEntityTypeBuilder.<ErrorAnglerEntity>create(MobCategory.MISC, ErrorAnglerEntity::new)
+                    .dimensions(EntityDimensions.fixed(0.6F, 1.5F))
+                    .trackRangeBlocks(64)
+                    .trackedUpdateRate(2)
+                    .build());
+
+    /**
      * 变形者「举刀假人」实体 - 手持匕首向前突进、贴近目标即击杀的假人（玩家外观）
      */
     @SuppressWarnings("deprecation")
@@ -383,6 +409,26 @@ public class ModEntities {
                     .dimensions(EntityDimensions.fixed(0.25F, 0.25F))
                     .trackRangeBlocks(4)
                     .trackedUpdateRate(10)
+                    .build());
+
+    @SuppressWarnings("deprecation")
+    public static final EntityType<EmpBombEntity> EMP_BOMB = Registry.register(
+            BuiltInRegistries.ENTITY_TYPE,
+            Noellesroles.id("emp_bomb"),
+            FabricEntityTypeBuilder.<EmpBombEntity>create(MobCategory.MISC, EmpBombEntity::new)
+                    .dimensions(EntityDimensions.fixed(0.25F, 0.25F))
+                    .trackRangeBlocks(8)
+                    .trackedUpdateRate(10)
+                    .build());
+
+    @SuppressWarnings("deprecation")
+    public static final EntityType<MechanicalBirdEntity> MECHANICAL_BIRD = Registry.register(
+            BuiltInRegistries.ENTITY_TYPE,
+            Noellesroles.id("mechanical_bird"),
+            FabricEntityTypeBuilder.<MechanicalBirdEntity>create(MobCategory.MISC, MechanicalBirdEntity::new)
+                    .dimensions(EntityDimensions.fixed(0.45F, 0.45F))
+                    .trackRangeBlocks(128)
+                    .trackedUpdateRate(1)
                     .build());
     /**
      * 傀戏傀儡实体类型
@@ -597,10 +643,13 @@ public class ModEntities {
         FabricDefaultAttributeRegistry.register(DOOMED_SINNER_BODY,
                 io.wifi.starrailexpress.content.entity.PlayerBodyEntity.createAttributes());
         FabricDefaultAttributeRegistry.register(PIGEON, PigeonEntity.createAttributes());
+        FabricDefaultAttributeRegistry.register(MECHANICAL_BIRD, MechanicalBirdEntity.createAttributes());
         FabricDefaultAttributeRegistry.register(KUIXI_PUPPET, KuiXiPuppetEntity.createAttributes());
         FabricDefaultAttributeRegistry.register(MUMMY,
                 net.minecraft.world.entity.monster.Husk.createAttributes());
         FabricDefaultAttributeRegistry.register(UNDEAD, UndeadEntity.createAttributes());
+        FabricDefaultAttributeRegistry.register(ERROR_ANGLER, ErrorAnglerEntity.createAttributes());
+        FabricDefaultAttributeRegistry.register(ANGLER_ROD_MOUNT, AnglerRodMountEntity.createAttributes());
         FabricDefaultAttributeRegistry.register(MORPHLING_KNIFE_DUMMY,
                 MorphlingKnifeDummyEntity.createAttributes());
         FabricDefaultAttributeRegistry.register(RAINBOW_HORSE, RainbowHorseEntity.createAttributes());

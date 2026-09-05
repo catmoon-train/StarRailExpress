@@ -2939,7 +2939,8 @@ public class RoleShopHandler {
                                     if (data == null || data.phase < 2) {
                                         return false;
                                     }
-                                    if (data.isAssassinFormActive()) {
+                                    if (data.isAssassinFormActive()
+                                            || SREPlayerPsychoComponent.KEY.get(player).inPsycho()) {
                                         setFailedMessage(Component.translatable(
                                                 "message.noellesroles.stalker.assassin_form.active"));
                                         return false;
@@ -3581,6 +3582,15 @@ public class RoleShopHandler {
                     75,
                     ShopEntry.Type.TOOL));
             ShopContent.customEntries.put(ModRoles.MORTICIAN_BODYMAKER_ID, MORTICIAN_BODYMAKER_SHOP);
+        }
+
+        {
+            ArrayList<ShopEntry> SILVER_WING_SHOP = new ArrayList<>();
+            SILVER_WING_SHOP.add(new ShopEntry(
+                    ModItems.MECHANICAL_BIRD.getDefaultInstance(),
+                    org.agmas.noellesroles.game.roles.neutral.silver_wing.SilverWingRules.BIRD_SHOP_PRICE,
+                    ShopEntry.Type.TOOL));
+            ShopContent.customEntries.put(ModRoles.SILVER_WING_ID, SILVER_WING_SHOP);
         }
 
         // 林家子弟商店：一层护盾 - 400金币，已有护盾不可买，冷却60秒

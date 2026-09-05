@@ -21,8 +21,10 @@ public final class FakeSteveKillerPolicy {
     /** ~20 degrees of aiming error is tolerated before the shot is released. */
     public static final double GUN_AIM_COSINE = 0.94D;
     public static final double MELEE_RANGE_SQR = 9.0D;
-    /** Strikes are opportunistic: the body never chases a target across the train. */
+    /** Close enough to actually swing or shoot without a dedicated approach. */
     public static final double STRIKE_RADIUS_SQR = 144.0D;
+    /** Isolated prey this far away is worth walking toward. */
+    public static final double SEEK_RADIUS_SQR = 48.0D * 48.0D;
 
     private FakeSteveKillerPolicy() {
     }
@@ -63,13 +65,14 @@ public final class FakeSteveKillerPolicy {
         if (psychoActive) {
             return switch (mode) {
                 case STARE -> 40L;
-                case STALK -> 240L;
+                case STALK, HUNT -> 240L;
                 default -> 200L;
             };
         }
         return switch (mode) {
             case STARE -> 160L;
             case STALK -> 300L;
+            case HUNT -> 400L;
             case ASSIMILATE -> 240L;
             case DISGUISE_TASK -> 600L;
             default -> 400L;
@@ -96,13 +99,43 @@ public final class FakeSteveKillerPolicy {
         return shouldInterruptTask(taskAvailable, armed, unwitnessed, targetDistance);
     }
 
+    public static boolean shouldSkipTaskForStrike(boolean taskAvailable, boolean armed,
+            boolean unwitnessed, double targetDistance, boolean killOpportunity) {
+        return shouldInterruptTask(taskAvailable, armed, unwitnessed, targetDistance,
+                killOpportunity);
+    }
+
     public static boolean shouldUseSkill(boolean killer, boolean safeWindow, boolean targetPresent) {
         return killer && safeWindow && targetPresent;
     }
 
     public static boolean shouldInterruptTask(boolean taskAvailable, boolean armed,
             boolean unwitnessed, double targetDistance) {
-        return taskAvailable && armed && unwitnessed && targetDistance <= 8.0D;
+        return shouldInterruptTask(taskAvailable, armed, unwitnessed, targetDistance, false);
+    }
+
+    public static boolean shouldInterruptTask(boolean taskAvailable, boolean armed,
+            boolean unwitnessed, double targetDistance, boolean killOpportunity) {
+        if (!taskAvailable || !armed) {
+            return false;
+        }
+        if (killOpportunity && unwitnessed) {
+            return true;
+        }
+        return unwitnessed && targetDistance <= 8.0D;
+    }
+
+    /** Isolated, unwitnessed, armed: walk across the train instead of waiting. */
+    public static boolean isKillOpportunity(int witnessCount, int nearbyHumans, boolean armed) {
+        return armed && witnessCount <= 0 && nearbyHumans <= 1;
+    }
+
+    public static boolean shouldSeekPrey(boolean canHunt, boolean armed, boolean berserk,
+            boolean opportunity) {
+        if (!canHunt || !armed) {
+            return false;
+        }
+        return berserk || opportunity;
     }
 
     public static List<Purchase> crowdPurchasePlan(int nearbyHumans) {

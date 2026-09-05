@@ -254,12 +254,27 @@ public final class FakeSteveTaskPlanner {
         if (slot >= 0) {
             FakeSteveAi.select(body, slot);
             FakeSteveMotionController.hold(body, state, rotation[0], rotation[1]);
+            if (state.taskConsumeStarted && !body.isUsingItem()) {
+                if (state.taskType != null) {
+                    state.taskBackoffUntil.put(state.taskType, now + RETRY_TICKS);
+                }
+                abandon(body, state);
+                return;
+            }
             if (!body.isUsingItem()) {
                 body.gameMode.useItem(body, level, body.getMainHandItem(), InteractionHand.MAIN_HAND);
                 if (!body.isUsingItem()) {
                     body.startUsingItem(InteractionHand.MAIN_HAND);
                 }
             }
+            state.taskConsumeStarted = true;
+            return;
+        }
+        if (state.taskConsumeStarted) {
+            if (state.taskType != null) {
+                state.taskBackoffUntil.put(state.taskType, now + RETRY_TICKS);
+            }
+            abandon(body, state);
             return;
         }
         int empty = firstEmptyHotbar(body);
@@ -316,7 +331,8 @@ public final class FakeSteveTaskPlanner {
         }
         BlockPos target = state.taskInteractTarget == null ? state.taskGoal : state.taskInteractTarget;
         if ((state.taskType == Task.EAT || state.taskType == Task.DRINK)
-                && isPlateEmpty(level, target)) {
+                && (isPlateEmpty(level, target)
+                        || state.lastSnackPlate != null && target.closerThan(state.lastSnackPlate, 1.5D))) {
             if (state.taskType != null) {
                 state.taskBackoffUntil.put(state.taskType, now + RETRY_TICKS);
             }
@@ -337,6 +353,10 @@ public final class FakeSteveTaskPlanner {
                 InteractionHand.MAIN_HAND, hit);
         if (FakeSteveInteractionPolicy.swingsHand(state.taskType)) {
             body.swing(InteractionHand.MAIN_HAND, true);
+        }
+        if (state.taskType == Task.EAT || state.taskType == Task.DRINK) {
+            state.lastSnackPlate = target.immutable();
+            state.nextSnackTick = now + FakeSteveInteractionPolicy.SNACK_COOLDOWN_TICKS;
         }
         if (state.taskType == Task.TRANSPORT
                 && findItem(body, ModItems.TRANSPORT_PACKAGE) >= 0
@@ -479,6 +499,7 @@ public final class FakeSteveTaskPlanner {
     private static void clear(FakeSteveAgentState state) {
         state.taskType = null;
         state.taskStartedTick = 0L;
+        state.taskConsumeStarted = false;
         clearDestination(state);
     }
 
