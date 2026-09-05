@@ -1,6 +1,7 @@
 package io.wifi.starrailexpress.client.gui;
 
 import io.wifi.starrailexpress.client.gui.screen.mapui.MapCapabilitySummary;
+import io.wifi.starrailexpress.client.gui.screen.mapui.MapIntroClientCache;
 import io.wifi.starrailexpress.content.vote.client.VoteFlowFrame;
 import io.wifi.starrailexpress.game.data.MapConfig;
 import java.util.List;
@@ -52,7 +53,9 @@ public final class MapRuleIntroHud {
         float fade = Math.min(1.0F, Math.min(progress / 0.10F, (1.0F - progress) / 0.16F));
         int alpha = Math.round(Mth.clamp(fade, 0.0F, 1.0F) * 255.0F);
         float contentWidth = Mth.clamp(g.guiWidth() * 0.30F, 230.0F, 330.0F);
-        int left = Math.round(anchorX - contentWidth / 2.0F);
+        if (Float.isNaN(anchorX)) anchorX = g.guiWidth() - 32.0F - contentWidth / 2.0F;
+        float enter = VoteFlowFrame.ease(elapsed / 430.0F);
+        int left = Math.round(anchorX - contentWidth / 2.0F + (1.0F - enter) * 24.0F);
         int y = Math.max(48, (g.guiHeight() - 178) / 2);
 
         Component masthead = Component.translatable("gui.sre.map_briefing.masthead")
@@ -61,14 +64,20 @@ public final class MapRuleIntroHud {
         Component mapName = Component.literal(mapName(mapId)).withStyle(ChatFormatting.BOLD);
         drawScaled(g, mapName, left, y + 24, 1.65F, VoteFlowFrame.withAlpha(VoteFlowFrame.TEXT, alpha));
         int ruleY = y + 55;
-        g.fill(left, ruleY - 8, left + Math.round(contentWidth), ruleY - 6,
+        g.fill(left, ruleY - 8, left + Math.round(contentWidth * enter), ruleY - 6,
                 VoteFlowFrame.withAlpha(VoteFlowFrame.GOLD, alpha));
+        int ruleIndex = 0;
         for (Component rule : rules) {
+            float lineIn = VoteFlowFrame.ease((elapsed - 260.0F - ruleIndex * 90.0F) / 260.0F);
+            int lineAlpha = Math.round(alpha * lineIn);
+            int lineShift = Math.round((1.0F - lineIn) * 9.0F);
             for (var line : client.font.split(rule, Math.round(contentWidth / 1.18F))) {
-                drawScaled(g, line, left, ruleY, 1.18F, VoteFlowFrame.withAlpha(VoteFlowFrame.TEXT, alpha));
+                drawScaled(g, line, left + lineShift, ruleY, 1.18F,
+                        VoteFlowFrame.withAlpha(VoteFlowFrame.TEXT, lineAlpha));
                 ruleY += 17;
             }
             ruleY += 2;
+            ruleIndex++;
         }
         Component hint = Component.translatable("gui.sre.map_briefing.skip");
         drawScaled(g, hint, left, ruleY + 7, 0.95F, VoteFlowFrame.withAlpha(VoteFlowFrame.MUTED, alpha));
@@ -104,8 +113,13 @@ public final class MapRuleIntroHud {
 
     private static String mapName(String id) {
         MapConfig.MapEntry entry = MapConfig.getInstance().getMapById(id);
-        if (entry == null || entry.getDisplayName() == null) return id;
-        return Component.translatableWithFallback(entry.getDisplayName(), entry.getDisplayName()).getString();
+        String displayName = entry == null ? null : entry.getDisplayName();
+        if (displayName == null || displayName.isBlank()) {
+            var synced = MapIntroClientCache.getVoteMap(id);
+            displayName = synced == null ? null : synced.displayName();
+        }
+        if (displayName == null || displayName.isBlank()) return id;
+        return Component.translatableWithFallback(displayName, displayName).getString();
     }
 
     /** Accept the shared item singleton and the runtime registry id used by legacy TMM stacks. */

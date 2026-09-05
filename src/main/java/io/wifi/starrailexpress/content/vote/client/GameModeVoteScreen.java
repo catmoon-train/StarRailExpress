@@ -3,6 +3,7 @@ package io.wifi.starrailexpress.content.vote.client;
 import io.wifi.starrailexpress.content.vote.VoteOption;
 import io.wifi.starrailexpress.content.vote.network.VoteCastC2SPacket;
 import io.wifi.starrailexpress.content.vote.network.VoteSyncS2CPacket;
+import io.wifi.starrailexpress.client.gui.screen.mapui.MapUiGraphics;
 import java.util.List;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.minecraft.ChatFormatting;
@@ -21,6 +22,7 @@ public final class GameModeVoteScreen extends Screen {
     private float scroll;
     private float scrollTarget;
     private long openedAt;
+    private long focusChangedAt;
 
     public GameModeVoteScreen() {
         super(Component.translatable("gui.sre.vote_flow.mode"));
@@ -33,6 +35,7 @@ public final class GameModeVoteScreen extends Screen {
     @Override
     protected void init() {
         openedAt = System.currentTimeMillis();
+        focusChangedAt = openedAt;
         if (!ClientVoteCache.getSelectedIndices().isEmpty()) {
             focusIndex = ClientVoteCache.getSelectedIndices().iterator().next();
         }
@@ -89,19 +92,36 @@ public final class GameModeVoteScreen extends Screen {
         g.enableScissor(x + 1, viewportY, x + w - 1, viewportY + viewportH);
         for (int i = 0; i < options.size(); i++) {
             int rowY = viewportY + i * ROW_H - Math.round(scroll);
+            float rowIn = VoteFlowFrame.ease((System.currentTimeMillis() - openedAt - i * 34L) / 280.0F);
+            int rowShift = Math.round((1.0F - rowIn) * 18.0F);
             boolean hover = mouseX >= x + 5 && mouseX < x + w - 5 && mouseY >= rowY && mouseY < rowY + ROW_H;
             boolean selected = ClientVoteCache.getSelectedIndices().contains(i);
             boolean focused = i == focusIndex;
             if (hover) hoveredIndex = i;
-            if (selected) g.fillGradient(x + 5, rowY + 2, x + w - 5, rowY + ROW_H - 2, 0x554F3B17, 0x2220160B);
-            else if (hover || focused) g.fill(x + 5, rowY + 2, x + w - 5, rowY + ROW_H - 2, 0x22FFFFFF);
+            int rowAlpha = Math.round(255.0F * rowIn);
+            if (selected) {
+                int pulse = 70 + (int) (Math.sin(System.currentTimeMillis() / 220.0 + i) * 18.0);
+                g.fillGradient(x + 5 + rowShift, rowY + 2, x + w - 5, rowY + ROW_H - 2,
+                        VoteFlowFrame.withAlpha(0xFF5A4214, Math.min(rowAlpha, pulse)),
+                        VoteFlowFrame.withAlpha(0xFF20160B, Math.min(rowAlpha, 42)));
+            } else if (hover || focused) {
+                g.fill(x + 5 + rowShift, rowY + 2, x + w - 5, rowY + ROW_H - 2,
+                        VoteFlowFrame.withAlpha(0xFFFFFFFF, Math.min(rowAlpha, 34)));
+            }
             int nodeColor = selected ? VoteFlowFrame.GOLD : focused ? VoteFlowFrame.GOLD_DIM : 0xFF5A4530;
-            g.fill(x + 15, rowY, x + 16, rowY + ROW_H, selected ? 0x99D4AF37 : 0x335A4530);
-            g.fill(x + 12, rowY + 11, x + 19, rowY + 18, nodeColor);
+            g.fill(x + 15 + rowShift, rowY, x + 16 + rowShift, rowY + ROW_H,
+                    VoteFlowFrame.withAlpha(selected ? 0xFFD4AF37 : 0xFF5A4530,
+                            Math.min(rowAlpha, selected ? 153 : 51)));
+            g.fill(x + 12 + rowShift, rowY + 11, x + 19 + rowShift, rowY + 18,
+                    VoteFlowFrame.withAlpha(nodeColor, rowAlpha));
             String number = String.format("%02d", i + 1);
-            g.drawString(font, number, x + 26, rowY + 11, VoteFlowFrame.MUTED, false);
-            g.drawString(font, options.get(i).display(), x + 50, rowY + 11,
-                    selected ? VoteFlowFrame.TEXT : 0xFFE0D4BC, false);
+            g.drawString(font, number, x + 26 + rowShift, rowY + 11,
+                    VoteFlowFrame.withAlpha(VoteFlowFrame.MUTED, rowAlpha), false);
+            Component localizedName = VoteModePresentation.name(options.get(i));
+            int reserved = ClientVoteCache.isShowResults() ? 112 : 78;
+            String clippedName = MapUiGraphics.clip(font, localizedName.getString(), Math.max(36, w - reserved));
+            g.drawString(font, clippedName, x + 50 + rowShift, rowY + 11,
+                    VoteFlowFrame.withAlpha(selected ? VoteFlowFrame.TEXT : 0xFFE0D4BC, rowAlpha), false);
             if (ClientVoteCache.isShowResults()) {
                 String votes = String.valueOf(ClientVoteCache.getResults().getOrDefault(i, 0));
                 g.drawString(font, votes, x + w - 18 - font.width(votes), rowY + 11,
@@ -122,16 +142,22 @@ public final class GameModeVoteScreen extends Screen {
         if (options.isEmpty()) return;
         focusIndex = Mth.clamp(focusIndex, 0, options.size() - 1);
         VoteOption option = options.get(focusIndex);
+        float detailIn = VoteFlowFrame.ease((System.currentTimeMillis() - focusChangedAt) / 220.0F);
+        int detailShift = Math.round((1.0F - detailIn) * 12.0F);
+        int detailAlpha = Math.round(255.0F * detailIn);
         g.drawString(font, Component.translatable("gui.sre.vote_flow.current_service"), x + 16, y + 13,
                 VoteFlowFrame.MUTED, false);
-        VoteFlowFrame.scaledCentered(g, font, option.display().copy().withStyle(ChatFormatting.BOLD),
-                x + w / 2.0F, y + 39, 1.45F, VoteFlowFrame.TEXT);
-        g.fill(x + 22, y + 62, x + w - 22, y + 63, 0x668B6914);
-        Component description = option.description() == null
-                ? Component.translatable("gui.sre.vote_flow.mode_fallback") : option.description();
+        VoteFlowFrame.scaledCentered(g, font, VoteModePresentation.name(option).copy().withStyle(ChatFormatting.BOLD),
+                x + w / 2.0F, y + 39 + detailShift, 1.45F,
+                VoteFlowFrame.withAlpha(VoteFlowFrame.TEXT, detailAlpha));
+        int railWidth = Math.round((w - 44) * detailIn);
+        g.fill(x + w / 2 - railWidth / 2, y + 62, x + w / 2 + railWidth / 2, y + 63,
+                VoteFlowFrame.withAlpha(VoteFlowFrame.BORDER, detailAlpha));
+        Component description = VoteModePresentation.description(option);
         int lineY = y + 76;
         for (var line : font.split(description, w - 36)) {
-            g.drawString(font, line, x + 18, lineY, 0xFFC8B898, false);
+            g.drawString(font, line, x + 18 + detailShift, lineY,
+                    VoteFlowFrame.withAlpha(0xFFC8B898, detailAlpha), false);
             lineY += 14;
         }
         boolean selected = ClientVoteCache.getSelectedIndices().contains(focusIndex);
@@ -144,7 +170,7 @@ public final class GameModeVoteScreen extends Screen {
     @Override
     public boolean mouseClicked(double mouseX, double mouseY, int button) {
         if (button == 0 && hoveredIndex >= 0) {
-            focusIndex = hoveredIndex;
+            changeFocus(hoveredIndex);
             submit();
             return true;
         }
@@ -173,13 +199,19 @@ public final class GameModeVoteScreen extends Screen {
     private void moveFocus(int direction) {
         int size = ClientVoteCache.getOptions().size();
         if (size == 0) return;
-        focusIndex = Mth.clamp(focusIndex + direction, 0, size - 1);
+        changeFocus(Mth.clamp(focusIndex + direction, 0, size - 1));
         float rowTop = focusIndex * ROW_H;
         VoteFlowFrame.Bounds b = VoteFlowFrame.layout(width, height);
         int viewportH = b.h() - 108;
         if (rowTop < scrollTarget) scrollTarget = rowTop;
         if (rowTop + ROW_H > scrollTarget + viewportH) scrollTarget = rowTop + ROW_H - viewportH;
         playClick(1.15F);
+    }
+
+    private void changeFocus(int index) {
+        int next = Mth.clamp(index, 0, Math.max(0, ClientVoteCache.getOptions().size() - 1));
+        if (next != focusIndex) focusChangedAt = System.currentTimeMillis();
+        focusIndex = next;
     }
 
     private void submit() {

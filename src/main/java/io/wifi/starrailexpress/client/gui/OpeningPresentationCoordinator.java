@@ -2,10 +2,12 @@ package io.wifi.starrailexpress.client.gui;
 
 import io.wifi.starrailexpress.client.gui.screen.MapVoteResultScreen;
 import io.wifi.starrailexpress.client.gui.screen.MapVoteScreen;
+import io.wifi.starrailexpress.client.gui.screen.mapui.MapIntroClientCache;
+import io.wifi.starrailexpress.cca.AreasWorldComponent;
 import io.wifi.starrailexpress.content.vote.client.RoleRotationCache;
+import io.wifi.utils.client.betterrender.FakeGuiGraphics;
 import net.exmo.sre.camera.client.AdvancedCameraDirector;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
 
 /** Serializes role rotation, camera, welcome copy, and the final map-rules HUD. */
 public final class OpeningPresentationCoordinator {
@@ -27,7 +29,14 @@ public final class OpeningPresentationCoordinator {
     }
 
     public static void onGameStarted() {
-        if (mapId == null) return;
+        onGameStarted("");
+    }
+
+    public static void onGameStarted(String authoritativeMapId) {
+        if (authoritativeMapId != null && !authoritativeMapId.isBlank()) {
+            mapId = authoritativeMapId;
+        }
+        if (mapId == null) mapId = currentMapId(Minecraft.getInstance());
         state = State.WAITING_FOR_PRESENTATION;
         eligibleAfter = System.currentTimeMillis() + 500L;
         quietTicks = 0;
@@ -39,7 +48,9 @@ public final class OpeningPresentationCoordinator {
             return;
         }
         if (state == State.WAITING_FOR_PRESENTATION) {
-            boolean blocked = System.currentTimeMillis() < eligibleAfter
+            if (mapId == null) mapId = currentMapId(client);
+            boolean blocked = mapId == null || MapIntroClientCache.isRefreshPending()
+                    || System.currentTimeMillis() < eligibleAfter
                     || RoleRotationCache.isSelecting() || RoleRotationCache.getConfirmCountdown() > 0
                     || AdvancedCameraDirector.isPresentationActive() || RoundTextRenderer.isWelcomeActive()
                     || client.screen != null;
@@ -58,8 +69,14 @@ public final class OpeningPresentationCoordinator {
         }
     }
 
-    public static void render(GuiGraphics graphics, float partialTick) {
-        if (state == State.SHOWING_RULES) MapRuleIntroHud.render(graphics, partialTick);
+    public static void render(FakeGuiGraphics graphics, float partialTick) {
+        Minecraft client = Minecraft.getInstance();
+        if (RoundTextRenderer.isWelcomeActive() && client.player != null) {
+            RoundTextRenderer.renderWelcomeGui(client.font, client.player, graphics, partialTick);
+        }
+        if (state == State.SHOWING_RULES) {
+            MapRuleIntroHud.render(graphics.getDefaultGuiGraphics(), partialTick);
+        }
     }
 
     public static void skip() {
@@ -79,8 +96,20 @@ public final class OpeningPresentationCoordinator {
         return state == State.SHOWING_RULES && MapRuleIntroHud.isVisible();
     }
 
+    /** Keeps persistent role/game HUD from competing with the cinematic opening GUI. */
+    public static boolean shouldSuppressGameplayHud() {
+        return state == State.WAITING_FOR_PRESENTATION || state == State.SHOWING_RULES
+                || RoundTextRenderer.isWelcomeActive();
+    }
+
     public static State state() {
         return state;
+    }
+
+    private static String currentMapId(Minecraft client) {
+        if (client == null || client.level == null) return null;
+        String current = AreasWorldComponent.KEY.get(client.level).mapName;
+        return current == null || current.isBlank() ? null : current;
     }
 
     /** Result screens are closed from the game-start packet so role-selection packets can open immediately. */

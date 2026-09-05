@@ -19,7 +19,11 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import java.util.UUID;
 
-public record ClientPlayerOption(Component display, UUID uuid, Component description) implements VoteOption {
+public record ClientPlayerOption(Component display, UUID uuid, Component description, String resultId)
+        implements VoteOption {
+    public ClientPlayerOption(Component display, UUID uuid, Component description) {
+        this(display, uuid, description, "");
+    }
     @Override
     public Component display() {
         return display;
@@ -40,11 +44,4 @@ public record ClientPlayerOption(Component display, UUID uuid, Component descrip
         return false;
     }
 
-    /**
-     * Not used for client and server
-     */
-    @Override
-    public String resultId() {
-        return "";
-    }
 }

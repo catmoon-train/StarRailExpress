@@ -46,6 +46,7 @@ import net.minecraft.network.chat.FormattedText;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundSource;
+import net.minecraft.util.Mth;
 import net.minecraft.world.level.block.entity.SkullBlockEntity;
 import org.agmas.noellesroles.utils.RoleUtils;
 import org.jetbrains.annotations.NotNull;
@@ -143,11 +144,6 @@ public class RoundTextRenderer {
         GameMode gamemode = SREGameWorldComponent.KEY.get(player.level()).getGameMode();
         boolean isLooseEnds = gamemode.isLooseEndMode();
 
-        // 欢迎界面 (优先级高于结束界面)
-        if (welcomeTime > 0) {
-            renderWelcomeOverlay(renderer, player, context, partialTicks, isLooseEnds);
-        }
-
         SREGameWorldComponent game = SREGameWorldComponent.KEY.get(player.level());
         // 结束界面条件: 结束倒计时 > 0 且不在淡出区间、游戏未运行、淡入已完成
         if (endTime > 0 && endTime < END_DURATION - (GameConstants.FADE_TIME * 2) && !game.isRunning()
@@ -157,6 +153,18 @@ public class RoundTextRenderer {
     }
 
     // -------------------- 欢迎界面 --------------------
+
+    /**
+     * 绘制开局欢迎 GUI。它由 OpeningPresentationCoordinator 置于电影黑幕之后，
+     * 不再混入常驻职业 HUD，从而保证地图投票与直接开局使用同一渲染层级。
+     */
+    public static void renderWelcomeGui(Font renderer, LocalPlayer player, @NotNull FakeGuiGraphics context,
+            float partialTicks) {
+        if (roleTexts == null || welcomeTime <= 0 || !OptimizedTextRenderer.INSTANCE.isTickDirty()) return;
+        if (copyrightWidth <= 0) copyrightWidth = renderer.width(copyright);
+        GameMode gamemode = SREGameWorldComponent.KEY.get(player.level()).getGameMode();
+        renderWelcomeOverlay(renderer, player, context, partialTicks, gamemode.isLooseEndMode());
+    }
 
     /**
      * 绘制回合开始时的欢迎/角色介绍覆盖层。
@@ -179,36 +187,81 @@ public class RoundTextRenderer {
             lastTargets = targets;
         }
 
-        int color = isLooseEnds ? 0x9F0000 : 0xFFFFFF;
+        int baseColor = isLooseEnds ? 0xFFB33A36 : 0xFFFFF4DC;
+        int accentColor = isLooseEnds ? 0xFFD26058 : 0xFFD4AF37;
         float centerX = context.guiWidth() / 2f;
         float centerY = context.guiHeight() / 2f + 3.5f;
+        float titleIn = stagedWelcomeAlpha(180, partialTicks);
+        float premiseIn = stagedWelcomeAlpha(120, partialTicks);
+        float goalIn = stagedWelcomeAlpha(60, partialTicks);
+        float exit = smoothStep(Mth.clamp((welcomeTime + partialTicks) / 16.0F, 0.0F, 1.0F));
 
         context.pose().pushPose();
         context.pose().translate(centerX, centerY, 0);
 
-        // 根据剩余时间分阶段显示不同文本
-        if (welcomeTime <= 180) {
+        // 三段信息逐级进站，轻微上浮而不是突然切换。
+        if (titleIn > 0.0F) {
+            int alpha = Math.round(255.0F * titleIn * exit);
+            Component eyebrow = Component.translatable("gui.sre.opening.identity_confirmed");
+            int eyebrowWidth = renderer.width(eyebrow);
+            int railHalf = Math.round(92.0F * titleIn);
+            context.fill(-railHalf, -43, railHalf, -42, withAlpha(accentColor, alpha));
+            context.drawString(renderer, eyebrow, -eyebrowWidth / 2, -56,
+                    withAlpha(accentColor, alpha), false);
             context.pose().pushPose();
-            context.pose().scale(2.6f, 2.6f, 1f);
-            context.drawString(renderer, cachedWelcomeText, -cachedWelcomeWidth / 2, -12, color);
+            float desiredScale = 2.45F + (1.0F - titleIn) * 0.20F;
+            float scale = Math.min(desiredScale,
+                    (context.guiWidth() - 64.0F) / Math.max(1.0F, cachedWelcomeWidth));
+            context.pose().translate(0.0F, -10.0F + (1.0F - titleIn) * 8.0F, 0.0F);
+            context.pose().scale(scale, scale, 1f);
+            context.drawString(renderer, cachedWelcomeText, -cachedWelcomeWidth / 2, -12,
+                    withAlpha(baseColor, alpha), true);
             context.pose().popPose();
         }
 
-        if (welcomeTime <= 120) {
+        if (premiseIn > 0.0F) {
+            int alpha = Math.round(255.0F * premiseIn * exit);
             context.pose().pushPose();
-            context.pose().scale(1.2f, 1.2f, 1f);
-            context.drawString(renderer, cachedPremiseText, -cachedPremiseWidth / 2, 0, color);
+            context.pose().translate((1.0F - premiseIn) * 12.0F, 0.0F, 0.0F);
+            float scale = Math.min(1.2F,
+                    (context.guiWidth() - 80.0F) / Math.max(1.0F, cachedPremiseWidth));
+            context.pose().scale(scale, scale, 1f);
+            context.drawString(renderer, cachedPremiseText, -cachedPremiseWidth / 2, 0,
+                    withAlpha(baseColor, alpha), true);
             context.pose().popPose();
         }
 
-        if (welcomeTime <= 60) {
-            context.drawString(renderer, cachedGoalText, -cachedGoalWidth / 2, 14, color);
+        if (goalIn > 0.0F) {
+            int alpha = Math.round(255.0F * goalIn * exit);
+            context.pose().pushPose();
+            context.pose().translate(Math.round((1.0F - goalIn) * 10.0F), 18.0F, 0.0F);
+            float scale = Math.min(1.0F,
+                    (context.guiWidth() - 80.0F) / Math.max(1.0F, cachedGoalWidth));
+            context.pose().scale(scale, scale, 1.0F);
+            context.drawString(renderer, cachedGoalText, -cachedGoalWidth / 2, 0,
+                    withAlpha(baseColor, alpha), true);
+            context.pose().popPose();
         }
 
-        if (welcomeTime <= 120)
-            context.drawString(renderer, copyright, -copyrightWidth / 2, 32, color);
+        if (premiseIn > 0.0F) {
+            int alpha = Math.round(185.0F * premiseIn * exit);
+            context.drawString(renderer, copyright, -copyrightWidth / 2, 38,
+                    withAlpha(baseColor, alpha), false);
+        }
 
         context.pose().popPose();
+    }
+
+    private static float stagedWelcomeAlpha(int threshold, float partialTicks) {
+        return smoothStep(Mth.clamp((threshold - welcomeTime + partialTicks) / 14.0F, 0.0F, 1.0F));
+    }
+
+    private static float smoothStep(float value) {
+        return value * value * (3.0F - 2.0F * value);
+    }
+
+    private static int withAlpha(int color, int alpha) {
+        return (Mth.clamp(alpha, 0, 255) << 24) | (color & 0x00FFFFFF);
     }
 
     // -------------------- 结束界面 --------------------

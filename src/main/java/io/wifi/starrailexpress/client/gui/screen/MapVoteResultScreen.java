@@ -6,6 +6,7 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
+import net.minecraft.util.Mth;
 
 /** Short result reveal placed between map voting and game startup. */
 public final class MapVoteResultScreen extends Screen {
@@ -38,10 +39,19 @@ public final class MapVoteResultScreen extends Screen {
                 Component.translatable("gui.sre.map_vote.result_title").withStyle(ChatFormatting.BOLD),
                 centerX, centerY, 1.2F, VoteFlowFrame.GOLD_DIM);
         MapConfig.MapEntry map = MapConfig.getInstance().getMapById(mapId);
-        String name = map == null || map.displayName == null ? mapId : Component.translatable(map.displayName).getString();
+        String name = map == null || map.displayName == null ? mapId
+                : Component.translatableWithFallback(map.displayName, map.displayName).getString();
         VoteFlowFrame.scaledCentered(g, font, Component.literal(name).withStyle(ChatFormatting.BOLD),
                 centerX, centerY + 28, 2.25F, VoteFlowFrame.TEXT);
         g.drawCenteredString(font, Component.translatable("gui.sre.map_vote.result_departing"), centerX,
                 centerY + 62, VoteFlowFrame.MUTED);
+        long elapsed = System.currentTimeMillis() - openedAt;
+        float travel = Mth.clamp(elapsed / 2_500.0F, 0.0F, 1.0F);
+        int railLeft = centerX - 150;
+        int railRight = centerX + 150;
+        g.fill(railLeft, centerY + 88, railRight, centerY + 90, 0x665A4530);
+        int trainX = Math.round(Mth.lerp(travel, railLeft, railRight));
+        g.fill(railLeft, centerY + 88, trainX, centerY + 90, VoteFlowFrame.GOLD);
+        g.fill(trainX - 3, centerY + 84, trainX + 4, centerY + 93, VoteFlowFrame.GOLD);
     }
 }
