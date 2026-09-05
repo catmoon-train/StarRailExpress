@@ -56,8 +56,6 @@ public class WorldModifierComponent implements AutoSyncedComponent, ServerTickin
     // 同步包类型：FULL=全量快照（新玩家加入/重生/换维度时由 CCA 触发），DIFF=差异（仅变更过的玩家条目）
     private static final byte MODE_FULL = 0;
     private static final byte MODE_DIFF = 1;
-
-    private static final Set<SREModifier> EMPTY_MODIFIERS = Set.of();
     private final Level world;
     public ConcurrentHashMap<UUID, Set<SREModifier>> modifiers = new ConcurrentHashMap<>();
 
@@ -120,7 +118,7 @@ public class WorldModifierComponent implements AutoSyncedComponent, ServerTickin
 
     public Set<SREModifier> getModifiers(UUID uuid) {
         Set<SREModifier> set = this.modifiers.get(uuid);
-        return set != null ? set : EMPTY_MODIFIERS;
+        return set != null ? set : new HashSet<>();
     }
 
     private Set<SREModifier> getOrCreateModifiers(UUID uuid) {
