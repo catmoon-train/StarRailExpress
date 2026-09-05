@@ -111,12 +111,13 @@ public class SettingMenuScreen extends Screen {
         // 客户端设置
         // rowHelper.addChild()
 
+        // 角色介绍
         {
             var bbtn = this.openScreenButton(Component.translatable("screen.starrailexpress.settings.client"),
                     () -> (SREClientConfig.HANDLER.generateGui().generateScreen(this)));
             bbtn.setWidth(WIDE_BUTTON_WIDTH);
             rowHelper.addChild(
-                    bbtn, COLUMN_COUNT);
+                    bbtn, COLUMN_COUNT, gridLayout.newCellSettings().paddingTop(50));
         }
 
         rowHelper.addChild(
