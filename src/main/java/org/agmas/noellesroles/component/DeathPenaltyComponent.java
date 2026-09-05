@@ -95,8 +95,11 @@ public class DeathPenaltyComponent implements RoleComponent, ServerTickingCompon
                 // boolean INSANE_alive = false;
                 boolean CONSPIRATOR_alive = false;
                 for (Player p : player.level().players()) {
-                    if (gameWorldComponent.isRole(p, ModRoles.CONSPIRATOR)
-                            && GameUtils.isPlayerAliveAndSurvival(p)) {
+                    if (GameUtils.isPlayerAliveAndSurvival(p)
+                            && (gameWorldComponent.isRole(p, ModRoles.CONSPIRATOR)
+                                    // 无我或无妄存活时，与阴谋家一样维持死亡惩罚
+                                    || gameWorldComponent.isRole(p, ModRoles.ANATMAN)
+                                    || gameWorldComponent.isRole(p, ModRoles.ASATYA))) {
                         CONSPIRATOR_alive = true;
                     }
                     if (CONSPIRATOR_alive) {
