@@ -74,6 +74,7 @@ public class SRERoleDataPlayerComponent
 
     // 持有该组件的玩家
     private final Player player;
+    private boolean forceClear = false;
 
     @Override
     public void clientTick() {
@@ -139,6 +140,7 @@ public class SRERoleDataPlayerComponent
     }
 
     @Override
+    /** 仅当玩家重置时使用，切换职业不使用 */
     public void clear() {
         if (roleData != null) {
             roleData.clear();
@@ -146,6 +148,7 @@ public class SRERoleDataPlayerComponent
         playerRole = null;
         roleData = null;
         initSync = false;
+        forceClear = true;
         sync();
     }
 
@@ -165,12 +168,17 @@ public class SRERoleDataPlayerComponent
             return;
         KEY.sync(this.player);
         initSync = false;
+        forceClear = false;
     }
 
     @Override
     public void writeToSyncNbt(CompoundTag tag, Provider registryLookup) {
         if (initSync) {
             tag.putBoolean("__init__", true);
+            return;
+        }
+        if (forceClear) {
+            tag.putBoolean("__clear__", true);
             return;
         }
         if (roleData != null) {
@@ -186,7 +194,11 @@ public class SRERoleDataPlayerComponent
             }
             clientInit();
             return;
-        } 
+        }
+        if (tag.contains("__clear__")) {
+            clear();
+            return;
+        }
         if (roleData == null) {
             clientInit();
         }
@@ -197,7 +209,14 @@ public class SRERoleDataPlayerComponent
     }
 
     public void onRemoveRole() {
-        this.clear();
+        if (roleData != null) {
+            roleData.clear();
+        }
+        playerRole = null;
+        roleData = null;
+        initSync = false;
+        forceClear = false;
+        // sync();
     }
 
 }
