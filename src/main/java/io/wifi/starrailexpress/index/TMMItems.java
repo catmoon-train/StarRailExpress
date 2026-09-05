@@ -184,6 +184,7 @@ public interface TMMItems {
 
     public static void initialize() {
         INVISIBLE_ITEMS.add(TMMItems.NOTE);
+        INVISIBLE_ITEMS.add(TMMItems.LETTER);
         INVISIBLE_ITEMS.add(TMMItems.DEFENSE_VIAL);
         INVISIBLE_ITEMS.add(TMMItems.WEAK_DEFENSE_VIAL);
 
