@@ -212,5 +212,5 @@
   "item.noellesroles.sealed_whisper_bell.desc": "封印物。偶尔告知最近存活者的方位，但铃声也会搅乱视野。",
   "item.noellesroles.sealed_splintered_compass.desc": "封印物。指向最近的杀手方向；指针偶尔会把你拽去别处。",
   "item.noellesroles.sealed_last_match.desc": "封印物。右键点燃附近的人；火焰也可能回火烧到你自己。",
-  "item.noellesroles.tomato.desc": "特码头死后掉落的西红柿。按 Q 可丢出投掷物，落到方块上会变成掉落物。走过会绊倒 2 秒并捡起；投掷方和被绊倒者的西红柿同时进入 40 秒冷却。砸中玩家会把西红柿交给对方，并让对方屏幕糊满番茄酱 3 秒。"
+  "item.noellesroles.tomato.desc": "特码头死后掉落的西红柿。按 Q 可丢出投掷物，落到方块上会变成掉落物。走过会绊倒 2 秒并捡起；投掷方和被绊倒者的西红柿同时进入 20 秒冷却。砸中玩家会把西红柿交给对方，并让对方屏幕糊满番茄酱 3 秒。"
 }

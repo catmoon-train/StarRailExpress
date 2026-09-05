@@ -26,6 +26,7 @@ import org.agmas.noellesroles.content.entity.SaltedFishBodyEntity;
 import org.agmas.noellesroles.content.item.SignedPaperItem;
 import org.agmas.noellesroles.role_data.innocence.AgentRoleData;
 import org.agmas.noellesroles.role_data.innocence.LeatherPigRoleData;
+import org.agmas.noellesroles.role_data.innocence.TomatoHeadRoleData;
 import org.agmas.noellesroles.role_data.neutral.PhantomSpiritRoleData;
 import org.agmas.noellesroles.role_data.innocence.AwesomeRoleData;
 import org.agmas.noellesroles.role_data.innocence.FoolRoleData;
@@ -871,6 +872,19 @@ public class RoleInstinctRegister {
                     return TrueFalseAndCustomResult.pass();
                 });
 
+        // 特码头（西红柿形态）：杀手无法透视
+        RoleInstinctEvents.TARGET_HIGHLIGHT_EVENT.register(ModRoles.TOMATO_HEAD_ID,
+                (client, viewer, target, isInstinctEnabled) -> {
+                    if (!(target instanceof Player targetPlayer))
+                        return TrueFalseAndCustomResult.pass();
+                    if (TomatoHeadRoleData.isTomatoForm(targetPlayer)
+                            && SREClient.gameComponent != null
+                            && isKillerTeam(SREClient.gameComponent.getRole(viewer))
+                            && SREClient.isPlayerAliveAndInSurvival())
+                        return TrueFalseAndCustomResult.disallow();
+                    return TrueFalseAndCustomResult.pass();
+                });
+
         // 幻灵：杀手无法透视未骑乘的幻灵，可以透视骑在别人头上的幻灵
         RoleInstinctEvents.TARGET_HIGHLIGHT_EVENT.register(ModRoles.PHANTOM_SPIRIT_ID,
                 (client, viewer, target, isInstinctEnabled) -> {
@@ -900,6 +914,9 @@ public class RoleInstinctRegister {
             }
             // 通用隐身与不可透视保护
             if (target instanceof Player targetPlayer && isTargetInvisibleToInstinct(targetPlayer))
+                return TrueFalseAndCustomResult.disallow();
+            if (target instanceof Player tomatoTarget && TomatoHeadRoleData.isTomatoForm(tomatoTarget)
+                    && isKillerTeam(SREClient.gameComponent != null ? SREClient.gameComponent.getRole(self) : null))
                 return TrueFalseAndCustomResult.disallow();
             // 低 SAN 非杀手玩家看到冤魂高亮（全局效果）
             if (target instanceof Player targetPlayer && targetPlayer != self) {

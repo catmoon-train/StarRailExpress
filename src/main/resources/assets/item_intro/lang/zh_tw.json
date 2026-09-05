@@ -212,5 +212,5 @@
   "item.noellesroles.sealed_whisper_bell.desc": "封印物。偶爾告知最近存活者的方位，但鈴聲也會攪亂視野。",
   "item.noellesroles.sealed_splintered_compass.desc": "封印物。指向最近的殺手方向；指針偶爾會把你拽去別處。",
   "item.noellesroles.sealed_last_match.desc": "封印物。右鍵點燃附近的人；火焰也可能回火燒到你自己。",
-  "item.noellesroles.tomato.desc": "特碼頭死後掉落的番茄。按 Q 可丟出投擲物，落到方塊上會變成掉落物。走過會絆倒 2 秒並撿起；投擲方和被絆倒者的番茄同時進入 40 秒冷卻。砸中玩家會把番茄交給對方，並讓對方螢幕糊滿番茄醬 3 秒。"
+  "item.noellesroles.tomato.desc": "特碼頭死後掉落的番茄。按 Q 可丟出投擲物，落到方塊上會變成掉落物。走過會絆倒 2 秒並撿起；投擲方和被絆倒者的番茄同時進入 20 秒冷卻。砸中玩家會把番茄交給對方，並讓對方螢幕糊滿番茄醬 3 秒。"
 }

@@ -42,7 +42,7 @@ import java.util.UUID;
 public class TomatoItem extends Item {
 
     public static final float THROW_SPEED = 2.35F;
-    public static final int THROW_COOLDOWN_TICKS = 40 * 20;
+    public static final int THROW_COOLDOWN_TICKS = 20 * 20;
     public static final int DROP_TRIP_SECONDS = 2;
     private static final int LAND_GRACE_TICKS = 8;
     private static final int THROWER_GRACE_TICKS = 20;
