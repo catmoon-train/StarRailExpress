@@ -4605,6 +4605,8 @@
   "message.noellesroles.tomato_head.form_end": "你變回了原樣",
   "message.noellesroles.tomato_head.tripped": "你踩到了番茄，摔倒了！",
   "item.noellesroles.tomato": "番茄",
+  "item.noellesroles.tomato.desc": "特碼頭死後掉落。按 Q 鍵丟出投擲物，落到方塊上會變成掉落物。走過會絆倒 2 秒並撿起；投擲方和被絆倒者的番茄同時進入 20 秒冷卻。砸中玩家會把番茄交給對方，並讓對方螢幕糊滿番茄醬 3 秒。",
+  "item.noellesroles.tomato.desc.simple": "按 Q 鍵丟出。落地走過會絆倒並撿起（雙方冷卻 20 秒）；砸中玩家會糊臉 3 秒。",
   "entity.noellesroles.tomato": "番茄",
   "effect.noellesroles.swim_pose": "摔倒",
   "mob_effect.noellesroles.swim_pose": "摔倒",

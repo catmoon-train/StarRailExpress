@@ -4925,6 +4925,8 @@
   "message.noellesroles.tomato_head.form_end": "你变回了原样",
   "message.noellesroles.tomato_head.tripped": "你踩到了西红柿，摔倒了！",
   "item.noellesroles.tomato": "西红柿",
+  "item.noellesroles.tomato.desc": "特码头死后掉落。按 Q 键丢出投掷物，落到方块上会变成掉落物。走过会绊倒 2 秒并捡起；投掷方和被绊倒者的西红柿同时进入 20 秒冷却。砸中玩家会把西红柿交给对方，并让对方屏幕糊满番茄酱 3 秒。",
+  "item.noellesroles.tomato.desc.simple": "按 Q 键丢出。落地走过会绊倒并捡起（双方冷却 20 秒）；砸中玩家会糊脸 3 秒。",
   "entity.noellesroles.tomato": "西红柿",
   "effect.noellesroles.swim_pose": "摔倒",
   "mob_effect.noellesroles.swim_pose": "摔倒",
