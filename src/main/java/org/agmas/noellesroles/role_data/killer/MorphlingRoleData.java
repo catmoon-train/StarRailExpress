@@ -41,7 +41,6 @@ public class MorphlingRoleData extends SimpleRoleData {
 
     @Override
     public void init() {
-        this.stopMorph(false);
     }
 
     public boolean checkIsGameRunning() {
@@ -60,7 +59,7 @@ public class MorphlingRoleData extends SimpleRoleData {
 
     @Override
     public void clear() {
-        this.init();
+        this.stopMorph(false);
     }
 
     public MorphlingRoleData(RoleDataContext context) {

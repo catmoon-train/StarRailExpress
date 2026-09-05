@@ -124,7 +124,7 @@ public class SEModifiers {
     public static SREModifier JEB_ = HMLModifiers.registerModifier(new SREModifier(
             StupidExpress.id("jeb_"),
             new Color(64, 224, 208).getRGB(),
-            null,
+            List.of(ModRoles.MORPHLING),
             null,
             false,
             false))
@@ -545,6 +545,7 @@ public class SEModifiers {
         });
 
     }
+
     static {
         LOVERS.setAddedVersion("2.x");
         REFUGEE.setAddedVersion("3.1");

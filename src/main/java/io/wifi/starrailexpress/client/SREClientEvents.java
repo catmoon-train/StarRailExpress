@@ -25,6 +25,8 @@ import io.wifi.starrailexpress.cca.SREPlayerMoodComponent;
 import io.wifi.starrailexpress.cca.SREPlayerPsychoComponent;
 import io.wifi.starrailexpress.client.util.ClientSkinCache;
 import io.wifi.starrailexpress.content.item.DisguiseEffectSync;
+import io.wifi.starrailexpress.event.OnGettingPlayerSkin;
+import io.wifi.starrailexpress.event.OnGettingPlayerSkin.PlayerSkinResult;
 import io.wifi.starrailexpress.event.client.OnGameFinishedClient;
 import io.wifi.starrailexpress.event.client.OnGameStartedClient;
 import io.wifi.starrailexpress.event.client.OnRenderRoleName;
@@ -114,6 +116,41 @@ public class SREClientEvents {
                 Minecraft.getInstance().player.refreshDimensions();
             NoellesrolesClient.clearTimeStopCache();
             Minecraft.getInstance().getSoundManager().stop();
+        });
+
+        // JEB
+        OnGettingPlayerSkin.EVENT.register((player, originalSkin) -> {
+            final var shuffledTarget = getShuffledTarget(player);
+            if (shuffledTarget != null) {
+                final var playerInfo = ClientSkinCache.getCachedPlayerInfo(shuffledTarget);
+                if (playerInfo == null)
+                    return PlayerSkinResult.SKIP;
+                final var skin = playerInfo.getSkin();
+                if (skin == null)
+                    return PlayerSkinResult.SKIP;
+                return PlayerSkinResult.playerSkin(skin);
+            }
+            return PlayerSkinResult.SKIP;
+        });
+
+        // 变形
+        OnGettingPlayerSkin.EVENT.register((player, originalSkin) -> {
+            if (!RoleUtils.isPlayerTheJob(player, ModRoles.MORPHLING)) {
+                return PlayerSkinResult.SKIP;
+            }
+            var data = RoleData.getNullable(MorphlingRoleData.class, player);
+            if (data == null || data.disguise == null || data.disguise.equals(player.getUUID())) {
+                return PlayerSkinResult.SKIP;
+            }
+            PlayerInfo info = ClientSkinCache.getCachedPlayerInfo(data.disguise);
+            Minecraft client = Minecraft.getInstance();
+            if (info == null && client.getConnection() != null) {
+                info = client.getConnection().getPlayerInfo(data.disguise);
+            }
+            if (info != null && info.getSkin() != null) {
+                return PlayerSkinResult.playerSkin(info.getSkin());
+            }
+            return PlayerSkinResult.SKIP;
         });
     }
 
