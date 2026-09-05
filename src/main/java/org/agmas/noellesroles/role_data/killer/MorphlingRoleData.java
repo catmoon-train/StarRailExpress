@@ -28,7 +28,6 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 import org.agmas.noellesroles.ConfigWorldComponent;
 import org.agmas.noellesroles.config.NoellesRolesConfig;
-import org.agmas.noellesroles.role.ModRoles;
 import org.jetbrains.annotations.NotNull;
 import java.util.UUID;
 
@@ -79,8 +78,6 @@ public class MorphlingRoleData extends SimpleRoleData {
     }
 
     public void serverTick() {
-        if (!SREGameWorldComponent.KEY.get(this.player.level()).isRole(this.player, ModRoles.MORPHLING))
-            return;
         if (!checkIsGameRunning()) {
             this.morphTicks = 0;
             return;

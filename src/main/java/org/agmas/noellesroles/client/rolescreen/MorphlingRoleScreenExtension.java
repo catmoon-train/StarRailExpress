@@ -74,7 +74,7 @@ public final class MorphlingRoleScreenExtension extends PlayerListRoleScreenExte
         }
 
         return client.getConnection().getListedOnlinePlayers().stream()
-                .filter(a -> a.getProfile().getId() != client.player.getUUID())
+                .filter(a -> !a.getProfile().getId().equals(client.player.getUUID()))
                 .collect(Collectors.toList());
     }
 }
