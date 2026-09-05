@@ -29,7 +29,6 @@ import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionResult;
 import pro.fazeclan.river.stupid_express.constants.SEItems;
 import pro.fazeclan.river.stupid_express.constants.SERoles;
-import pro.fazeclan.river.stupid_express.role.arsonist.ArsonistRoleData;
 
 public class OilDousingHandler {
 
