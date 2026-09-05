@@ -34,7 +34,6 @@
     "modifier.taxed.SREPlayerShopComponentTaxedMixin",
     "fake_steve.FakeSteveServerInputMixin",
     "roles.adventurer.AdventurerDeathImmunityMixin",
-    "roles.angler.FishingHookAnglerMixin",
     "roles.awesome_binglus.NoteEntityMixin",
     "roles.awesome_binglus.NoteMixin",
     "roles.builder.ProjectileWallBlockMixin",
