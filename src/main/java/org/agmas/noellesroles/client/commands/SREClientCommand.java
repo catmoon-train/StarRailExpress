@@ -32,6 +32,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 
 import org.agmas.noellesroles.client.screen.GameManagementScreen;
+import org.agmas.noellesroles.client.screen.RoleIntroduceScreen;
 
 import com.google.gson.GsonBuilder;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
@@ -137,6 +138,15 @@ public class SREClientCommand {
                         return 1;
                       })))
               .then(ClientCommandManager.literal("screen")
+                  .then(ClientCommandManager.literal("role_introduction").executes(context -> {
+                    {
+                      ClientScheduler.schedule(() -> {
+                        context.getSource().getClient()
+                            .setScreen(new RoleIntroduceScreen(context.getSource().getClient().player));
+                      }, 1);
+                    }
+                    return 1;
+                  }))
                   .then(ClientCommandManager.literal("GameManagePanel")
                       .executes(context -> {
                         if (context.getSource().getPlayer().hasPermissions(2)) {

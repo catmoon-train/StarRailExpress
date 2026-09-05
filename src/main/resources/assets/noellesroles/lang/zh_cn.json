@@ -1148,7 +1148,6 @@
   "hud.noellesroles.great_detective.ready": "右键尸体勘察",
   "hud.noellesroles.great_detective.channeling": "勘察中 %s秒",
   "hud.noellesroles.great_detective.ready_cost": "推理就绪（150金币）",
-  "message.noellesroles.great_detective.cooldown": "推理冷却中，剩余 %s 秒",
   "hud.noellesroles.detective.cooldown": "审查冷却：%s秒",
   "hud.noellesroles.detective.ready": "审查已就绪！按%s并瞄准目标",
   "hud.noellesroles.detective.ready_cost": "审查就绪（150金币）",

@@ -318,6 +318,13 @@ public class RoleUtils extends MCItemsUtils {
         wmc.setModifiers(player, List.of());
     }
 
+    public static void changeRoleAndSendWelcome(Player player, SRERole role) {
+        if (!(player instanceof ServerPlayer sp))
+            return;
+        changeRole(player, role, true);
+        sendWelcomeAnnouncement(sp);
+    }
+
     public static void changeRole(Player player, SRERole role) {
         changeRole(player, role, true);
     }
