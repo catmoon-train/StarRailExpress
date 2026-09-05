@@ -585,7 +585,7 @@ public class ModRolesInitialEventRegister {
 
         // 静默杀手（观者投稿）
         RoleSkill.register(ModRoles.SILENT_KILLER,
-                RoleSkill.skill(SRE.id("silent_killer"), "skill.noellesroles.silent_killer", (ctx) -> {
+                RoleSkill.skill(SRE.id("silent_killer/kill"), "skill.noellesroles.silent_killer", (ctx) -> {
                     final var player = ctx.player();
                     if (MoneyUtils.getBalance(player) > 5) {
                         player.displayClientMessage(Component.translatable("skill.noellesroles.silent_killer.failed")
@@ -603,6 +603,17 @@ public class ModRolesInitialEventRegister {
                             50, 1, 1, 1, 0);
                     return true;
                 })
+                        .showOnHud(true)
+                        .cooldownSeconds(120)
+                        .recordReplay()
+                        .announceToSelf()
+                        .build(),
+                RoleSkill.skill(SRE.id("silent_killer/all_money"), "skill.noellesroles.silent_killer.consume_all",
+                        (ctx) -> {
+                            final var player = ctx.player();
+                            MoneyUtils.setBalance(player, 0);
+                            return true;
+                        })
                         .showOnHud(true)
                         .cooldownSeconds(120)
                         .recordReplay()
@@ -1413,7 +1424,9 @@ public class ModRolesInitialEventRegister {
                         player.drop(bomb, false);
                     }
                     return true;
-                }).cooldownSeconds(org.agmas.noellesroles.game.roles.neutral.silver_wing.SilverWingRules.EMP_SKILL_COOLDOWN_SECONDS)
+                })
+                .cooldownSeconds(
+                        org.agmas.noellesroles.game.roles.neutral.silver_wing.SilverWingRules.EMP_SKILL_COOLDOWN_SECONDS)
                 .showOnHud(true).announceToSelf(true).build());
 
     }
