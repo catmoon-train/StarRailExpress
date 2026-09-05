@@ -4603,11 +4603,14 @@
   "skill.noellesroles.tomato_head.transform": "變成番茄",
   "message.noellesroles.tomato_head.no_money": "金幣不足！需要 %s 金幣",
   "message.noellesroles.tomato_head.form_end": "你變回了原樣",
+  "message.noellesroles.tomato_head.tripped": "你踩到了番茄，摔倒了！",
   "item.noellesroles.tomato": "番茄",
   "entity.noellesroles.tomato": "番茄",
   "effect.noellesroles.swim_pose": "摔倒",
   "mob_effect.noellesroles.swim_pose": "摔倒",
   "effect.noellesroles.tomato_sauce": "番茄醬",
+  "effect.noellesroles.tomato_form": "番茄形態",
+  "mob_effect.noellesroles.tomato_form": "番茄形態",
   "mob_effect.noellesroles.tomato_sauce": "番茄醬",
   "subtitles.noellesroles.tomato_splat": "番茄碎裂"
 }

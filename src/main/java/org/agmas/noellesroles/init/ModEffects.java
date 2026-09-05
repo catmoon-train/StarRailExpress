@@ -163,6 +163,9 @@ public class ModEffects {
     /** 番茄酱糊屏 */
     public static final Holder<MobEffect> TOMATO_SAUCE = register("tomato_sauce",
             new SimpleMobEffect(MobEffectCategory.HARMFUL, 0xE0422A));
+    /** 特码头变身：客户端用这个药水判断第三人称和掉落物模型 */
+    public static final Holder<MobEffect> TOMATO_FORM = register("tomato_form",
+            new SimpleMobEffect(MobEffectCategory.NEUTRAL, 0xC43C2C));
 
     /**
      * 安全时间效果

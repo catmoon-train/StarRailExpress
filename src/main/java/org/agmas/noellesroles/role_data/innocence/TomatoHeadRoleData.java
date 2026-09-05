@@ -127,6 +127,9 @@ public class TomatoHeadRoleData extends SimpleRoleData {
     }
 
     public static boolean isTomatoForm(Player player) {
+        if (player != null && player.hasEffect(ModEffects.TOMATO_FORM)) {
+            return true;
+        }
         TomatoHeadRoleData data = RoleData.getNullable(TomatoHeadRoleData.class, player);
         return data != null && data.isTomatoForm();
     }
@@ -222,6 +225,7 @@ public class TomatoHeadRoleData extends SimpleRoleData {
         sp.addEffect(new MobEffectInstance(ModEffects.USED_BANED, ticks, 0, true, false, false));
         sp.addEffect(new MobEffectInstance(ModEffects.INVENTORY_BANED, ticks, 0, true, false, false));
         sp.addEffect(new MobEffectInstance(ModEffects.NO_COLLIDE, ticks, 0, true, false, false));
+        sp.addEffect(new MobEffectInstance(ModEffects.TOMATO_FORM, ticks, 0, true, false, false));
         sp.setDeltaMovement(0.0, Math.min(sp.getDeltaMovement().y, 0.0), 0.0);
     }
 
@@ -234,6 +238,7 @@ public class TomatoHeadRoleData extends SimpleRoleData {
             sp.removeEffect(ModEffects.USED_BANED);
             sp.removeEffect(ModEffects.INVENTORY_BANED);
             sp.removeEffect(ModEffects.NO_COLLIDE);
+            sp.removeEffect(ModEffects.TOMATO_FORM);
             sp.refreshDimensions();
             if (announce && GameUtils.isPlayerAliveAndSurvival(sp)) {
                 sp.displayClientMessage(Component.translatable("message.noellesroles.tomato_head.form_end")
@@ -269,6 +274,11 @@ public class TomatoHeadRoleData extends SimpleRoleData {
         target.addEffect(new MobEffectInstance(ModEffects.SWIM_POSE, ticks, 0, false, false, true));
         target.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SLOWDOWN, ticks, 3, false, false, true));
         target.setPose(net.minecraft.world.entity.Pose.SWIMMING);
+        target.displayClientMessage(Component.translatable("message.noellesroles.tomato_head.tripped")
+                .withStyle(ChatFormatting.RED), true);
+        target.serverLevel().playSound(null, target.getX(), target.getY(), target.getZ(),
+                org.agmas.noellesroles.init.NRSounds.TOMATO_SPLAT,
+                net.minecraft.sounds.SoundSource.PLAYERS, 0.9F, 1.05F);
     }
 
     public static void giveTomato(ServerPlayer target) {

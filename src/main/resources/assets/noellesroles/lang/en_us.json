@@ -4490,11 +4490,14 @@
     "skill.noellesroles.tomato_head.transform": "Become a Tomato",
     "message.noellesroles.tomato_head.no_money": "Not enough gold! Need %s gold",
     "message.noellesroles.tomato_head.form_end": "You turned back",
+    "message.noellesroles.tomato_head.tripped": "You slipped on a tomato!",
     "item.noellesroles.tomato": "Tomato",
     "entity.noellesroles.tomato": "Tomato",
     "effect.noellesroles.swim_pose": "Tripped",
     "mob_effect.noellesroles.swim_pose": "Tripped",
     "effect.noellesroles.tomato_sauce": "Tomato Sauce",
+    "effect.noellesroles.tomato_form": "Tomato Form",
+    "mob_effect.noellesroles.tomato_form": "Tomato Form",
     "mob_effect.noellesroles.tomato_sauce": "Tomato Sauce",
     "subtitles.noellesroles.tomato_splat": "Tomato splat"
 }

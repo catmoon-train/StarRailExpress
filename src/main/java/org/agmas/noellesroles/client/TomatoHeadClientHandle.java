@@ -16,10 +16,16 @@
 package org.agmas.noellesroles.client;
 
 import io.wifi.starrailexpress.event.AllowOtherCameraType;
+import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
+import net.minecraft.client.CameraType;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
 import org.agmas.noellesroles.role_data.innocence.TomatoHeadRoleData;
 
 public class TomatoHeadClientHandle {
+
+    private static boolean forcingTomatoCamera;
+
     public static void register() {
         AllowOtherCameraType.EVENT.register((original, localPlayer) -> {
             if (isLocalTomatoForm(localPlayer)) {
@@ -27,6 +33,18 @@ public class TomatoHeadClientHandle {
             }
             return AllowOtherCameraType.ReturnCameraType.NO_CHANGE;
         });
+        ClientTickEvents.END_CLIENT_TICK.register(client -> tickCamera(client));
+    }
+
+    private static void tickCamera(Minecraft client) {
+        LocalPlayer player = client.player;
+        if (isLocalTomatoForm(player)) {
+            forcingTomatoCamera = true;
+            client.options.setCameraType(CameraType.THIRD_PERSON_BACK);
+        } else if (forcingTomatoCamera) {
+            forcingTomatoCamera = false;
+            client.options.setCameraType(CameraType.FIRST_PERSON);
+        }
     }
 
     private static boolean isLocalTomatoForm(LocalPlayer localPlayer) {

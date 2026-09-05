@@ -4923,11 +4923,14 @@
   "skill.noellesroles.tomato_head.transform": "变成西红柿",
   "message.noellesroles.tomato_head.no_money": "金币不足！需要 %s 金币",
   "message.noellesroles.tomato_head.form_end": "你变回了原样",
+  "message.noellesroles.tomato_head.tripped": "你踩到了西红柿，摔倒了！",
   "item.noellesroles.tomato": "西红柿",
   "entity.noellesroles.tomato": "西红柿",
   "effect.noellesroles.swim_pose": "摔倒",
   "mob_effect.noellesroles.swim_pose": "摔倒",
   "effect.noellesroles.tomato_sauce": "番茄酱",
+  "effect.noellesroles.tomato_form": "西红柿形态",
+  "mob_effect.noellesroles.tomato_form": "西红柿形态",
   "mob_effect.noellesroles.tomato_sauce": "番茄酱",
   "subtitles.noellesroles.tomato_splat": "西红柿碎裂"
 }

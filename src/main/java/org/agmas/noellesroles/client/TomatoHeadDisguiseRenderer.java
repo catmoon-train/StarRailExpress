@@ -41,9 +41,6 @@ public class TomatoHeadDisguiseRenderer {
     public static boolean render(AbstractClientPlayer player, float yaw, float tickDelta, PoseStack poseStack,
             MultiBufferSource bufferSource, int packedLight) {
         Minecraft minecraft = Minecraft.getInstance();
-        if (minecraft.getCameraEntity() == player && minecraft.options.getCameraType().isFirstPerson()) {
-            return true;
-        }
         ItemEntity dummy = getDrop(player);
         if (dummy == null) {
             return false;
