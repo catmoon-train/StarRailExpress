@@ -1,0 +1,55 @@
+{
+  "textures": {
+    "particle": "wathe:entity/small_glass_door",
+    "glass": "wathe:entity/small_glass_door",
+    "wood": "wathe:entity/small_wood_door",
+    "anthracite": "wathe:entity/anthracite_steel_door",
+    "khaki": "wathe:entity/khaki_steel_door",
+    "maroon": "wathe:entity/maroon_steel_door",
+    "muntz": "wathe:entity/muntz_steel_door",
+    "navy": "wathe:entity/navy_steel_door",
+    "up_steel": "starrailexpress:item/doors/up_steel_door"
+  },
+  "elements": [
+    {
+      "from": [0, 0, 0],
+      "to": [1, 1, 1],
+      "faces": { "north": { "uv": [0, 0, 16, 16], "texture": "#glass" } }
+    },
+    {
+      "from": [1, 0, 0],
+      "to": [2, 1, 1],
+      "faces": { "north": { "uv": [0, 0, 16, 16], "texture": "#wood" } }
+    },
+    {
+      "from": [2, 0, 0],
+      "to": [3, 1, 1],
+      "faces": { "north": { "uv": [0, 0, 16, 16], "texture": "#anthracite" } }
+    },
+    {
+      "from": [3, 0, 0],
+      "to": [4, 1, 1],
+      "faces": { "north": { "uv": [0, 0, 16, 16], "texture": "#khaki" } }
+    },
+    {
+      "from": [4, 0, 0],
+      "to": [5, 1, 1],
+      "faces": { "north": { "uv": [0, 0, 16, 16], "texture": "#maroon" } }
+    },
+    {
+      "from": [5, 0, 0],
+      "to": [6, 1, 1],
+      "faces": { "north": { "uv": [0, 0, 16, 16], "texture": "#muntz" } }
+    },
+    {
+      "from": [6, 0, 0],
+      "to": [7, 1, 1],
+      "faces": { "north": { "uv": [0, 0, 16, 16], "texture": "#navy" } }
+    },
+    {
+      "from": [7, 0, 0],
+      "to": [8, 1, 1],
+      "faces": { "north": { "uv": [0, 0, 16, 16], "texture": "#up_steel" } }
+    }
+  ]
+}

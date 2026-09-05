@@ -39,11 +39,11 @@ import net.minecraft.client.renderer.entity.LivingEntityRenderer;
 import net.minecraft.client.resources.DefaultPlayerSkin;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.FastColor;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.phys.AABB;
 
-import java.awt.*;
 import java.util.UUID;
 
 public class PlayerBodyEntityRenderer<T extends LivingEntity, M extends EntityModel<T>>
@@ -91,18 +91,18 @@ public class PlayerBodyEntityRenderer<T extends LivingEntity, M extends EntityMo
         float clamp = Mth.clamp(
                 (float) (playerBodyEntity.tickCount - GameConstants.TIME_TO_DECOMPOSITION)
                         / GameConstants.DECOMPOSING_TIME,
-                0, GameConstants.TIME_TO_DECOMPOSITION + GameConstants.DECOMPOSING_TIME);
+                0f, 1f);
         float ease = Easing.CUBIC_IN.ease(clamp, 0, -1, 1);
 
         // 腐化尸体直接只显示骷髅模型，不渲染原玩家身体
         if (playerBodyEntity.isCorrupted()) {
-            // 腐化尸体只渲染骷髅，不下沉
             renderSkeleton(playerBodyEntity, f, g, matrixStack, vertexConsumerProvider, light, 1f);
             matrixStack.popPose();
             return;
         }
 
-        if (ease > -1) {
+        boolean fullyDecomposed = ease <= -1f;
+        if (!fullyDecomposed) {
             matrixStack.translate(0, ease, 0);
             float alpha = moodComponent.isLowerThanDepressed() ? Mth.lerp(Mth
                     .clamp(Easing.SINE_IN.ease(Math.min(1f, (float) playerBodyEntity.tickCount / 100f), 0, 1, 1), 0, 1),
@@ -111,8 +111,10 @@ public class PlayerBodyEntityRenderer<T extends LivingEntity, M extends EntityMo
         }
         matrixStack.popPose();
 
-        renderSkeleton(playerBodyEntity, f, g, matrixStack, vertexConsumerProvider, light,
-                moodComponent.isLowerThanDepressed() ? 0f : 1f);
+        if (ease < 0f && !moodComponent.isLowerThanDepressed()) {
+            renderSkeleton(playerBodyEntity, f, g, matrixStack, vertexConsumerProvider, light,
+                    fullyDecomposed ? 1f : Mth.clamp(-ease, 0f, 1f));
+        }
     }
 
     public void renderBody(PlayerBodyEntity livingEntity, float f, float g, PoseStack matrixStack,
@@ -183,8 +185,8 @@ public class PlayerBodyEntityRenderer<T extends LivingEntity, M extends EntityMo
                 matrixStack.pushPose();
                 matrixStack.scale(scale, scale, scale);
 
-                Color color = new Color(1f, 1f, 1f, alpha);
-                model.renderToBuffer(matrixStack, vertexConsumer, light, q, bl2 ? 654311423 : color.getRGB());
+                int color = bl2 ? 654311423 : FastColor.ARGB32.color(Mth.floor(alpha * 255.0F), 0xFFFFFF);
+                model.renderToBuffer(matrixStack, vertexConsumer, light, q, color);
                 matrixStack.popPose();
             }
 

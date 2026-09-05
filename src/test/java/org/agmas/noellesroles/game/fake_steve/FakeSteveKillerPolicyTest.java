@@ -95,4 +95,21 @@ class FakeSteveKillerPolicyTest {
         assertFalse(FakeSteveKillerPolicy.shouldInterruptTask(true, true, true, 12.0D));
         assertFalse(FakeSteveKillerPolicy.shouldInterruptTask(true, false, true, 3.0D));
     }
+
+    @Test
+    void anIsolatedUnwitnessedHumanIsAHuntOpportunity() {
+        assertTrue(FakeSteveKillerPolicy.isKillOpportunity(0, 1, true));
+        assertFalse(FakeSteveKillerPolicy.isKillOpportunity(1, 1, true));
+        assertFalse(FakeSteveKillerPolicy.isKillOpportunity(0, 3, true));
+        assertFalse(FakeSteveKillerPolicy.isKillOpportunity(0, 1, false));
+    }
+
+    @Test
+    void aHuntOpportunityInterruptsTasksEvenAcrossTheTrain() {
+        assertTrue(FakeSteveKillerPolicy.shouldInterruptTask(true, true, true, 32.0D, true));
+        assertFalse(FakeSteveKillerPolicy.shouldInterruptTask(true, true, true, 32.0D, false));
+        assertTrue(FakeSteveKillerPolicy.shouldSeekPrey(true, true, false, true));
+        assertFalse(FakeSteveKillerPolicy.shouldSeekPrey(true, true, false, false));
+        assertFalse(FakeSteveKillerPolicy.shouldSeekPrey(false, true, false, true));
+    }
 }

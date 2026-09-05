@@ -81,8 +81,6 @@ public class RicesRoleRhapsodyClient {
     // 跟踪者窥视状态
     @SuppressWarnings("unused")
     private static boolean stalkerGazingLastTick = false;
-    // 跟踪者蓄力状态
-    private static boolean stalkerChargingLastTick = false;
     // 慕恋者窥视状态
     private static boolean admirerGazingLastTick = false;
 
@@ -631,26 +629,7 @@ public class RicesRoleRhapsodyClient {
         if (!GameUtils.isPlayerAliveAndSurvival(client.player))
             return;
 
-        // 刺客形态：右键按下即释放一次攻击冲刺。
-        if (stalkerComp.isAssassinFormActive()) {
-            boolean isRightMouseDown = client.options.keyUse.isDown();
-
-            // 检查玩家手持刀
-            boolean holdingKnife = client.player.getMainHandItem().getItem()
-                    instanceof org.agmas.noellesroles.content.item.StalkerKnifeItem;
-
-            if (holdingKnife) {
-                if (isRightMouseDown && !stalkerChargingLastTick) {
-                    // charging=true 现在表示一次攻击冲刺输入；松键不再发包。
-                    ClientPlayNetworking.send(new StalkerDashC2SPacket(true));
-                }
-                stalkerChargingLastTick = isRightMouseDown;
-            } else {
-                stalkerChargingLastTick = false;
-            }
-        } else {
-            stalkerChargingLastTick = false;
-        }
+        // 刺客形态攻击冲刺已改为猎刀 usingItem 蓄力，不再用独立右键包。
     }
 
     /**
@@ -722,6 +701,7 @@ public class RicesRoleRhapsodyClient {
 
         // 闪光弹实体渲染器 - 使用飞行物品渲染器
         EntityRendererRegistry.register(ModEntities.FLASH_GRENADE, ThrownItemRenderer::new);
+        EntityRendererRegistry.register(ModEntities.EMP_BOMB, ThrownItemRenderer::new);
 
         // 诱饵弹实体渲染器 - 使用飞行物品渲染器
         EntityRendererRegistry.register(ModEntities.DECOY_GRENADE, ThrownItemRenderer::new);

@@ -792,6 +792,10 @@ public class NRDeathEvents {
             }
         });
 
+        OnPlayerDeath.EVENT.register((victim, deathReason) -> {
+            org.agmas.noellesroles.game.roles.innocence.angler.AnglerWorldMemory.tryConvertFromDeath(victim);
+        });
+
         // 死亡掉枪 + 掉落自定义物品 + 角色清理
         OnPlayerDeath.EVENT.register((p, reason) -> {
             if (!(p instanceof ServerPlayer player))

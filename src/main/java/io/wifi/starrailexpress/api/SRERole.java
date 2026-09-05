@@ -1571,13 +1571,44 @@ public abstract class SRERole extends SREAbstractInfoClass {
      * @return 是否成功给予。给予失败将不会启动疯魔
      */
     public boolean onPsychoGiveItem(Player player, SREPlayerPsychoComponent srePlayerPsychoComponent) {
-        return RoleUtils.insertStackInFreeSlot(player, new ItemStack(this.getPsychoItem()));
+        List<Item> weapons = getPsychoSupportedWeapons(player);
+        if (weapons.isEmpty() || weapons.get(0) == null) {
+            return false;
+        }
+        return RoleUtils.insertStackInFreeSlot(player, new ItemStack(weapons.get(0)));
     }
 
     /**
-     * 获取疯魔物品
+     * 返回该职业在 Psycho 模式中可以持有并切换的武器，按优先级排序。
+     * <p>
+     * Psycho 开始时会优先装备背包中已有的兼容武器；全部不存在时，
+     * {@link #onPsychoGiveItem(Player, SREPlayerPsychoComponent)} 默认发放列表中的第一件。
+     * 旧职业仍可只覆写 {@link #getPsychoItem()}。
+     */
+    public List<Item> getPsychoSupportedWeapons(Player player) {
+        Item weapon = getPsychoItem();
+        return weapon == null ? List.of() : List.of(weapon);
+    }
+
+    /** 判断物品是否是该职业的 Psycho 兼容武器。 */
+    public boolean isPsychoSupportedWeapon(Player player, ItemStack stack) {
+        return !stack.isEmpty() && getPsychoSupportedWeapons(player).stream()
+                .filter(Objects::nonNull)
+                .anyMatch(stack::is);
+    }
+
+    /**
+     * Psycho 结束时是否回收本次新发放的兼容武器。
+     * 默认回收（球棒等临时武器）；潜行者等职业武器应保留。
+     */
+    public boolean shouldClearGrantedPsychoWeapon(Player player, Item weapon) {
+        return true;
+    }
+
+    /**
+     * 获取旧版单一疯魔物品。
      * 
-     * @return
+     * @return 默认 Psycho 武器；多武器职业请覆写 {@link #getPsychoSupportedWeapons(Player)}
      */
     public Item getPsychoItem() {
         return TMMItems.BAT;

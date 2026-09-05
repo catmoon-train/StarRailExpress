@@ -4,7 +4,26 @@ import io.wifi.starrailexpress.cca.SREPlayerTaskComponent.Task;
 
 /** Observable interaction rules kept separate from Minecraft packet plumbing. */
 public final class FakeSteveInteractionPolicy {
+    public static final long SNACK_COOLDOWN_TICKS = 50L * 20L;
+    public static final int SATISFIED_FOOD_LEVEL = 16;
+
     private FakeSteveInteractionPolicy() {
+    }
+
+    public static boolean isHungry(int foodLevel) {
+        return foodLevel < SATISFIED_FOOD_LEVEL;
+    }
+
+    public static boolean shouldSnack(boolean hungry, boolean onCooldown, boolean hasEatOrDrinkTask) {
+        if (onCooldown) {
+            return false;
+        }
+        return hasEatOrDrinkTask || hungry;
+    }
+
+    public static boolean shouldTakeFromPlate(boolean plateEmpty, boolean onCooldown,
+            boolean alreadyUsedThisPlate, boolean maySnack) {
+        return maySnack && !plateEmpty && !onCooldown && !alreadyUsedThisPlate;
     }
 
     public static double maxInteractionDistance(Task task) {

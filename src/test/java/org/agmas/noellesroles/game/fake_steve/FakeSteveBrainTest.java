@@ -62,7 +62,37 @@ class FakeSteveBrainTest {
     private static FakeSteveBrain.PerceptionSnapshot snapshot(boolean engagement,
             boolean focusValid, boolean targetLooking, boolean safeBackstab,
             boolean assimilationReady, boolean taskAvailable) {
+        return snapshot(engagement, focusValid, targetLooking, safeBackstab,
+                assimilationReady, taskAvailable, false);
+    }
+
+    private static FakeSteveBrain.PerceptionSnapshot snapshot(boolean engagement,
+            boolean focusValid, boolean targetLooking, boolean safeBackstab,
+            boolean assimilationReady, boolean taskAvailable, boolean huntReady) {
         return new FakeSteveBrain.PerceptionSnapshot(5, false, engagement, focusValid,
-                targetLooking, safeBackstab, assimilationReady, taskAvailable);
+                targetLooking, safeBackstab, assimilationReady, taskAvailable, huntReady);
+    }
+
+    @Test
+    void anIsolatedKillOpportunityBeatsDisguiseWork() {
+        FakeSteveBrain brain = new FakeSteveBrain();
+
+        FakeSteveBrain.BrainIntent intent = brain.tick(snapshot(false, false, false,
+                false, false, true, true));
+
+        assertEquals(AgentMode.HUNT, intent.mode());
+        assertTrue(intent.followTarget());
+        assertFalse(intent.performTask());
+    }
+
+    @Test
+    void faceToFaceEngagementStillBeatsAHunt() {
+        FakeSteveBrain brain = new FakeSteveBrain();
+
+        FakeSteveBrain.BrainIntent intent = brain.tick(snapshot(true, true, true,
+                false, false, false, true));
+
+        assertEquals(AgentMode.STARE, intent.mode());
+        assertTrue(intent.holdPosition());
     }
 }

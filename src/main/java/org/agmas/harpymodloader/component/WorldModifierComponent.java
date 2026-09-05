@@ -10,7 +10,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ * along with this program.  If you did not, see <https://www.gnu.org/licenses/>.
  */
 
 package org.agmas.harpymodloader.component;
@@ -37,7 +37,12 @@ import org.ladysnake.cca.api.v3.component.tick.ClientTickingComponent;
 import org.ladysnake.cca.api.v3.component.tick.ServerTickingComponent;
 import org.ladysnake.cca.api.v3.util.CheckEnvironment;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class WorldModifierComponent implements AutoSyncedComponent, ServerTickingComponent, ClientTickingComponent {
     public static final ComponentKey<WorldModifierComponent> KEY = ComponentRegistry
@@ -48,8 +53,9 @@ public class WorldModifierComponent implements AutoSyncedComponent, ServerTickin
     private static final byte MODE_FULL = 0;
     private static final byte MODE_DIFF = 1;
 
+    private static final Set<SREModifier> EMPTY_MODIFIERS = Set.of();
     private final Level world;
-    public HashMap<UUID, HashSet<SREModifier>> modifiers = new HashMap<>();
+    public ConcurrentHashMap<UUID, Set<SREModifier>> modifiers = new ConcurrentHashMap<>();
 
     // 自上次发包以来真正发生过变更的玩家UUID，差异包只包含这些玩家
     private final Set<UUID> dirtyUuids = new HashSet<>();
@@ -96,34 +102,34 @@ public class WorldModifierComponent implements AutoSyncedComponent, ServerTickin
     }
 
     public boolean isModifier(@NotNull UUID uuid, SREModifier modifier) {
-        return getModifiers(uuid).contains(modifier);
+        Set<SREModifier> set = this.modifiers.get(uuid);
+        return set != null && set.contains(modifier);
     }
 
-    public HashMap<UUID, HashSet<SREModifier>> getModifiers() {
+    public Map<UUID, Set<SREModifier>> getModifiers() {
         return this.modifiers;
     }
 
-    public HashSet<SREModifier> getModifiers(Player player) {
+    public Set<SREModifier> getModifiers(Player player) {
         return this.getModifiers(player.getUUID());
     }
 
-    public HashSet<SREModifier> getModifiers(UUID uuid) {
-        synchronized (this.modifiers) {
-            if (!modifiers.containsKey(uuid))
-                modifiers.put(uuid, new HashSet<>());
-            return this.modifiers.get(uuid);
-        }
+    public Set<SREModifier> getModifiers(UUID uuid) {
+        Set<SREModifier> set = this.modifiers.get(uuid);
+        return set != null ? set : EMPTY_MODIFIERS;
+    }
+
+    private Set<SREModifier> getOrCreateModifiers(UUID uuid) {
+        return this.modifiers.computeIfAbsent(uuid, key -> ConcurrentHashMap.newKeySet());
     }
 
     public List<UUID> getAllWithModifier(SREModifier modifier) {
         List<UUID> ret = new ArrayList<>();
-        synchronized (this.modifiers) {
-            this.modifiers.forEach((uuid, playerModifier) -> {
-                if (playerModifier.contains(modifier)) {
-                    ret.add(uuid);
-                }
-            });
-        }
+        this.modifiers.forEach((uuid, playerModifier) -> {
+            if (playerModifier.contains(modifier)) {
+                ret.add(uuid);
+            }
+        });
         return ret;
     }
 
@@ -152,6 +158,9 @@ public class WorldModifierComponent implements AutoSyncedComponent, ServerTickin
     }
 
     public void removeModifier(UUID player, SREModifier modifier, boolean sync) {
+        Set<SREModifier> pp = this.modifiers.get(player);
+        if (pp != null) {
+            pp.remove(modifier);
         synchronized (this.modifiers) {
             HashSet<SREModifier> pp = this.modifiers.get(player);
             if (pp != null && pp.remove(modifier)) {
@@ -178,6 +187,7 @@ public class WorldModifierComponent implements AutoSyncedComponent, ServerTickin
                 return; // 没有真正变化，不标记脏
             this.dirtyUuids.add(player);
         }
+        getOrCreateModifiers(player).add(modifier);
         if (sync)
             this.sync();
     }
@@ -215,19 +225,16 @@ public class WorldModifierComponent implements AutoSyncedComponent, ServerTickin
 
     @Override
     public void writeToNbt(CompoundTag nbtCompound, HolderLookup.Provider wrapperLookup) {
-        synchronized (this.modifiers) {
-            for (SREModifier modifier : HMLModifiers.MODIFIERS) {
-                // 在同步块内直接查找，避免嵌套同步调用
-                List<UUID> uuidsWithModifier = new ArrayList<>();
-                for (Map.Entry<UUID, HashSet<SREModifier>> entry : this.modifiers.entrySet()) {
-                    if (entry.getValue().contains(modifier)) {
-                        uuidsWithModifier.add(entry.getKey());
-                    }
+        for (SREModifier modifier : HMLModifiers.MODIFIERS) {
+            List<UUID> uuidsWithModifier = new ArrayList<>();
+            for (Map.Entry<UUID, Set<SREModifier>> entry : this.modifiers.entrySet()) {
+                if (entry.getValue().contains(modifier)) {
+                    uuidsWithModifier.add(entry.getKey());
                 }
-                if (uuidsWithModifier.isEmpty())
-                    continue;
-                nbtCompound.put(modifier.identifier().toString(), this.nbtFromUuidList(uuidsWithModifier));
             }
+            if (uuidsWithModifier.isEmpty())
+                continue;
+            nbtCompound.put(modifier.identifier().toString(), this.nbtFromUuidList(uuidsWithModifier));
         }
     }
 

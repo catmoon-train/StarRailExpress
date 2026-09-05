@@ -26,8 +26,7 @@ import net.minecraft.world.level.Level;
 /**
  * 推理之书（大侦探专属）。
  *
- * <p>右键打开推理界面，展示已掌握的凶手线索。打开界面由客户端回调处理，
- * 物品本体不引用任何客户端类。
+ * 开局发放。右键打开推理之书查看线索；对着尸体右键并保持静止即可勘察。
  */
 public class DeductionBookItem extends Item {
 

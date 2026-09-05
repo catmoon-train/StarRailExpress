@@ -26,6 +26,7 @@ import io.wifi.starrailexpress.content.block_entity.DoorBlockEntity;
 import io.wifi.starrailexpress.game.GameUtils;
 import io.wifi.starrailexpress.index.TMMItems;
 import io.wifi.starrailexpress.util.SREItemUtils;
+import io.wifi.starrailexpress.util.SRENetworkMessageUtils;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
@@ -47,7 +48,6 @@ import org.agmas.noellesroles.client.screen.PostmanScreenHandler;
 import org.agmas.noellesroles.component.ModComponents;
 import org.agmas.noellesroles.content.entity.LockEntityManager;
 import org.agmas.noellesroles.content.entity.NiaoshoushouMissileEntity;
-import org.agmas.noellesroles.content.item.StalkerKnifeItem;
 import org.agmas.noellesroles.role_data.innocence.AthleteRoleData;
 import org.agmas.noellesroles.role_data.innocence.AyayayaRoleData;
 import org.agmas.noellesroles.role_data.innocence.BoxerRoleData;
@@ -67,6 +67,7 @@ import org.agmas.noellesroles.role_data.neutral.AdmirerRoleData;
 import org.agmas.noellesroles.game.roles.neutral.puppeteer.PuppeteerPlayerComponent;
 import org.agmas.noellesroles.init.ModItems;
 import org.agmas.noellesroles.packet.GreatDetectiveRevealC2SPacket;
+import org.agmas.noellesroles.packet.MechanicalBirdControlC2SPacket;
 import org.agmas.noellesroles.packet.NiaoshoushouMissileControlC2SPacket;
 import org.agmas.noellesroles.role.ModRoles;
 import org.agmas.noellesroles.role.bouns.BounsRoles;
@@ -95,6 +96,18 @@ public class RiceReceiverRegister {
                         && missile.controlledBy(player)
                         && player.distanceToSqr(missile) <= 128.0D * 128.0D) {
                     missile.setControlRotation(payload.yaw(), payload.pitch(), payload.steering());
+                }
+            });
+        });
+
+        ServerPlayNetworking.registerGlobalReceiver(MechanicalBirdControlC2SPacket.ID, (payload, context) -> {
+            context.server().execute(() -> {
+                ServerPlayer player = context.player();
+                Entity entity = player.serverLevel().getEntity(payload.entityId());
+                if (entity instanceof org.agmas.noellesroles.content.entity.MechanicalBirdEntity bird
+                        && bird.controlledBy(player)
+                        && player.distanceToSqr(bird) <= 128.0D * 128.0D) {
+                    bird.setControlInput(payload.yaw(), payload.pitch(), payload.movementBits());
                 }
             });
         });
@@ -510,12 +523,11 @@ public class RiceReceiverRegister {
             }
         });
 
-        // 处理大侦探"目标情况"包：记录某凶手与侦探当前的距离快照
+        // 处理大侦探「目标情况」包：方位快照或生死，每名凶手只能查明一项
         ServerPlayNetworking.registerGlobalReceiver(GreatDetectiveRevealC2SPacket.ID, (payload, context) -> {
             ServerPlayer player = context.player();
             SREGameWorldComponent gameWorld = SREGameWorldComponent.KEY.get(player.level());
 
-            // 验证玩家是大侦探且存活
             if (!gameWorld.isRole(player, ModRoles.GREAT_DETECTIVE))
                 return;
             if (!GameUtils.isPlayerAliveAndSurvival(player))
@@ -527,25 +539,38 @@ public class RiceReceiverRegister {
             if (comp == null)
                 return;
 
-            // 至少 3 条线索才能查明目标情况
             if (comp.clueCount(payload.killer()) < 3)
                 return;
-            // 已揭示则冻结，不再刷新（只显示触发时的距离）
-            if (comp.hasRevealedDistance(payload.killer()))
+            if (comp.hasTargetReveal(payload.killer()))
                 return;
 
-            int distance = -1;
             Player killer = player.level().getPlayerByUUID(payload.killer());
-            if (killer != null && killer.level() == player.level()
-                    && GameUtils.isPlayerAliveAndSurvival(killer)) {
-                distance = (int) Math.round(player.distanceTo(killer));
-            }
-            comp.setRevealedDistance(payload.killer(), distance);
+            boolean killerAlive = killer != null && killer.level() == player.level()
+                    && GameUtils.isPlayerAliveAndSurvival(killer);
 
-            player.displayClientMessage(
-                    Component.translatable("message.noellesroles.great_detective.target_locked")
-                            .withStyle(ChatFormatting.AQUA),
-                    true);
+            if (payload.mode() == GreatDetectiveRevealC2SPacket.MODE_VITAL) {
+                comp.setRevealedVital(payload.killer(), killerAlive);
+                SRENetworkMessageUtils.sendBroadcast(player,
+                        Component.translatable(killerAlive
+                                        ? "message.noellesroles.great_detective.target_vital_alive"
+                                        : "message.noellesroles.great_detective.target_vital_dead")
+                                .withStyle(killerAlive ? ChatFormatting.GREEN : ChatFormatting.GRAY));
+            } else {
+                int distance = -1;
+                if (killerAlive) {
+                    distance = (int) Math.round(player.distanceTo(killer));
+                }
+                comp.setRevealedDistance(payload.killer(), distance);
+                if (distance < 0) {
+                    SRENetworkMessageUtils.sendBroadcast(player,
+                            Component.translatable("message.noellesroles.great_detective.target_distance_unknown")
+                                    .withStyle(ChatFormatting.GRAY));
+                } else {
+                    SRENetworkMessageUtils.sendBroadcast(player,
+                            Component.translatable("message.noellesroles.great_detective.target_distance", distance)
+                                    .withStyle(ChatFormatting.AQUA));
+                }
+            }
         });
 
         // 处理斗士技能包
@@ -617,15 +642,15 @@ public class RiceReceiverRegister {
             if (!GameUtils.isPlayerAliveAndSurvival(context.player()))
                 return;
 
-            // 只有刺客形态且主手持潜行者匕首时能用右键攻击冲刺。
+            // 只有刺客形态且手持潜行者匕首时能用右键蓄力冲刺。
             if (!stalkerComp.isAssassinFormActive()
-                    || !(context.player().getMainHandItem().getItem() instanceof StalkerKnifeItem))
+                    || !StalkerRoleData.isHoldingHuntingKnife(context.player()))
                 return;
 
             if (payload.charging()) {
-                if (stalkerComp.tryStartAttackDash()) {
-                    ConfigWorldComponent.onPlayerUsedSkill(context.player());
-                }
+                stalkerComp.startAttackDashCharge();
+            } else if (stalkerComp.releaseAttackDash()) {
+                ConfigWorldComponent.onPlayerUsedSkill(context.player());
             }
         });
 

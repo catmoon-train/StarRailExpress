@@ -28,6 +28,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.AnimationState;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.phys.Vec3;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -49,6 +50,21 @@ public abstract class AnimatableBlockEntityRenderer<T extends BlockEntity> exten
 
     public AnimatableBlockEntityRenderer(Function<ResourceLocation, RenderType> layerFactory) {
         super(layerFactory);
+    }
+
+    /**
+     * 静态关闭的门由 chunk mesh 绘制。正在开关时才走 TESR。
+     */
+    protected boolean isIdleClosed(T entity) {
+        return false;
+    }
+
+    @Override
+    public boolean shouldRender(T entity, Vec3 cameraPos) {
+        if (isIdleClosed(entity)) {
+            return false;
+        }
+        return BlockEntityRenderer.super.shouldRender(entity, cameraPos);
     }
 
     @Override

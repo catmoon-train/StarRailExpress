@@ -9,8 +9,11 @@
     "defaultRequire": 1
   },
   "client": [
+    "client.AbstractSelectionListMixin",
+    "client.ConnectScreenMixin",
     "client.IrisShaderReload",
     "client.IsNightVisionMixin",
+    "client.JoinMultiplayerScreenMixin",
     "client.LoadingScreenMixin",
     "client.OnResourcePackReload",
     "client.VolumeGetMixin",

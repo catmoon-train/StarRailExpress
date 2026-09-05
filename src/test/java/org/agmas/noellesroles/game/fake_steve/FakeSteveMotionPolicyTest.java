@@ -2,6 +2,8 @@ package org.agmas.noellesroles.game.fake_steve;
 
 import org.junit.jupiter.api.Test;
 
+import java.util.List;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -61,5 +63,39 @@ class FakeSteveMotionPolicyTest {
     void walkingGazeSometimesLooksAboveTheHorizon() {
         assertTrue(FakeSteveMotionPolicy.walkingPitch(0L, 7) <= 0.0F);
         assertTrue(FakeSteveMotionPolicy.walkingPitch(120L, 7) < 0.0F);
+    }
+
+    @Test
+    void lookAheadIgnoresTheImmediateManhattanZigzag() {
+        FakeSteveMotionPolicy.Point goal = new FakeSteveMotionPolicy.Point(5.5D, 4.5D);
+        FakeSteveMotionPolicy.Point look = FakeSteveMotionPolicy.lookAheadPoint(List.of(
+                new FakeSteveMotionPolicy.Point(1.5D, 0.5D),
+                new FakeSteveMotionPolicy.Point(1.5D, 1.5D),
+                new FakeSteveMotionPolicy.Point(2.5D, 1.5D),
+                new FakeSteveMotionPolicy.Point(2.5D, 2.5D),
+                new FakeSteveMotionPolicy.Point(3.5D, 2.5D)), goal);
+
+        assertEquals(3.5D, look.x(), 0.001D);
+        assertEquals(2.5D, look.z(), 0.001D);
+        float beforeStep = FakeSteveMotionPolicy.yawTo(0.5D, 0.5D, look.x(), look.z());
+        float afterStep = FakeSteveMotionPolicy.yawTo(1.5D, 0.5D, look.x(), look.z());
+        assertEquals(beforeStep, FakeSteveMotionPolicy.walkingHeading(beforeStep, afterStep), 0.001F);
+    }
+
+    @Test
+    void walkingHeadingIgnoresSmallCorridorWobble() {
+        assertEquals(0.0F, FakeSteveMotionPolicy.walkingHeading(0.0F, 20.0F), 0.001F);
+        assertEquals(12.0F, FakeSteveMotionPolicy.walkingHeading(0.0F, 90.0F), 0.001F);
+    }
+
+    @Test
+    void localMoveKeepsForwardWhenLookingAlongTheWorldStep() {
+        FakeSteveMotionPolicy.LocalMove aligned = FakeSteveMotionPolicy.toLocal(0.0F, 0.0D, 1.0D);
+        assertEquals(1.0F, aligned.forward(), 0.001F);
+        assertEquals(0.0F, aligned.strafe(), 0.001F);
+
+        FakeSteveMotionPolicy.LocalMove sidestep = FakeSteveMotionPolicy.toLocal(0.0F, 1.0D, 0.0D);
+        assertEquals(0.0F, sidestep.forward(), 0.001F);
+        assertEquals(1.0F, sidestep.strafe(), 0.001F);
     }
 }

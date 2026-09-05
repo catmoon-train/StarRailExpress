@@ -97,6 +97,8 @@ public class RicePacketTypeRegister {
         // 注册鸟兽兽巡飞弹控制包
         PayloadTypeRegistry.playC2S().register(NiaoshoushouMissileControlC2SPacket.ID,
                 NiaoshoushouMissileControlC2SPacket.CODEC);
+        PayloadTypeRegistry.playC2S().register(MechanicalBirdControlC2SPacket.ID,
+                MechanicalBirdControlC2SPacket.CODEC);
 
         // 注册撬锁小游戏完成包
         PayloadTypeRegistry.playC2S().register(LockGameC2Packet.ID, LockGameC2Packet.CODEC);

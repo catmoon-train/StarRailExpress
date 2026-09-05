@@ -10,7 +10,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ * along with this program.  If you did not, see <https://www.gnu.org/licenses/>.
  */
 
 package io.wifi.starrailexpress.client.render.entity;
@@ -21,6 +21,7 @@ import com.mojang.math.Axis;
 import io.wifi.starrailexpress.content.entity.NoteEntity;
 import io.wifi.starrailexpress.index.TMMItems;
 import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.culling.Frustum;
 import net.minecraft.client.renderer.entity.EntityRenderer;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.renderer.entity.ItemRenderer;
@@ -28,16 +29,25 @@ import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.inventory.InventoryMenu;
 import net.minecraft.world.item.ItemDisplayContext;
+import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
 public class NoteEntityRenderer extends EntityRenderer<NoteEntity> {
+    private static final double SPAWN_HIDE_DIST_SQ = 12.25;
+    private static final double MAX_RENDER_DISTANCE = 40.0;
+
     private final ItemRenderer itemRenderer;
     private final float scale;
+    private final ItemStack noteStack;
+    private final double maxDistSq;
 
     public NoteEntityRenderer(EntityRendererProvider.Context ctx, float scale) {
         super(ctx);
         this.itemRenderer = ctx.getItemRenderer();
         this.scale = scale;
+        this.noteStack = TMMItems.NOTE.getDefaultInstance();
+        double max = MAX_RENDER_DISTANCE * scale;
+        this.maxDistSq = max * max;
     }
 
     public NoteEntityRenderer(EntityRendererProvider.Context context) {
@@ -45,19 +55,34 @@ public class NoteEntityRenderer extends EntityRenderer<NoteEntity> {
     }
 
     @Override
-    public void render(@NotNull NoteEntity note, float yaw, float tickDelta, PoseStack matrices, MultiBufferSource vertexConsumers, int light) {
-        if (note.tickCount >= 2 || !(this.entityRenderDispatcher.camera.getEntity().distanceToSqr(note) < 12.25)) {
-            matrices.pushPose();
-            matrices.translate(0, note.getBbHeight() / 2f, 0);
-            matrices.mulPose(note.getDirection().getRotation());
-            matrices.mulPose(Axis.YP.rotationDegrees(-note.getYRot()));
-            matrices.translate(0, note.hashCode() % 24f * .0001f, 0);
-            matrices.mulPose(Axis.XP.rotationDegrees(90));
-            matrices.scale(this.scale * .4f, this.scale * .4f, this.scale * .4f);
-            this.itemRenderer.renderStatic(TMMItems.NOTE.getDefaultInstance(), ItemDisplayContext.FIXED, light, OverlayTexture.NO_OVERLAY, matrices, vertexConsumers, note.level(), note.getId());
-            matrices.popPose();
-            super.render(note, yaw, tickDelta, matrices, vertexConsumers, light);
+    public boolean shouldRender(NoteEntity note, Frustum frustum, double camX, double camY, double camZ) {
+        double dx = note.getX() - camX;
+        double dy = note.getY() - camY;
+        double dz = note.getZ() - camZ;
+        double distSq = dx * dx + dy * dy + dz * dz;
+        if (note.tickCount < 2 && distSq < SPAWN_HIDE_DIST_SQ) {
+            return false;
         }
+        if (distSq > this.maxDistSq) {
+            return false;
+        }
+        return frustum.isVisible(note.getBoundingBoxForCulling());
+    }
+
+    @Override
+    public void render(@NotNull NoteEntity note, float yaw, float tickDelta, PoseStack matrices,
+            MultiBufferSource vertexConsumers, int light) {
+        matrices.pushPose();
+        matrices.translate(0, note.getBbHeight() / 2f, 0);
+        matrices.mulPose(note.getDirection().getRotation());
+        matrices.mulPose(Axis.YP.rotationDegrees(-note.getYRot()));
+        matrices.translate(0, Math.floorMod(note.seed, 24) * .0001f, 0);
+        matrices.mulPose(Axis.XP.rotationDegrees(90));
+        matrices.scale(this.scale * .4f, this.scale * .4f, this.scale * .4f);
+        this.itemRenderer.renderStatic(this.noteStack, ItemDisplayContext.FIXED, light, OverlayTexture.NO_OVERLAY,
+                matrices, vertexConsumers, note.level(), note.getId());
+        matrices.popPose();
+        super.render(note, yaw, tickDelta, matrices, vertexConsumers, light);
     }
 
     @Override

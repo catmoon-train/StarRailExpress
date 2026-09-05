@@ -74,6 +74,12 @@ public class UpSmallDoorBlockEntityRenderer extends AnimatableBlockEntityRendere
     }
 
     @Override
+    protected boolean isIdleClosed(UpSmallDoorBlockEntity entity) {
+        return !entity.isOpen()
+                && !this.isAnimationActive(entity.state, SmallDoorAnimations.UP_CLOSE, this.getAge(entity));
+    }
+
+    @Override
     public int getAge(UpSmallDoorBlockEntity entity) {
         return entity.getAge();
     }

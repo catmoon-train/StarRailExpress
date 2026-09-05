@@ -311,6 +311,7 @@ public class ModRoles {
 	// 幻音师 ID - 杀手方中立
 	public static final ResourceLocation PHANTOM_MUSICIAN_ID = Noellesroles.id("musician_phantom");
 	public static final ResourceLocation CUPID_ID = Noellesroles.id("cupid");
+	public static final ResourceLocation SILVER_WING_ID = Noellesroles.id("silver_wing");
 
 	public static final ResourceLocation WAYFARER_ID = Noellesroles.id("wayfarer");
 	public static final ResourceLocation DIO_ID = Noellesroles.id("dio");
@@ -454,12 +455,9 @@ public class ModRoles {
 
 	/**
 	 * 大侦探角色 - 平民阵营
-	 * - 属于乘客阵营 (isInnocent = true)
-	 * - 不能使用杀手能力 (canUseKiller = false)
-	 * - 开局自带"推理之书"，右键打开界面
-	 * - 技能"推理"：对着尸体右键，获取该尸体凶手的一条线索（无凶手则无法推敲）
-	 * - 一具尸体只能使用一次技能
-	 * - 某凶手线索 >= 3 条时，可在书上点击"目标情况"查明其与自己的距离（快照）
+	 * 对着尸体右键开始短时勘察（需静止），记下死亡时间并随机一条凶手碎片线索。
+	 * 推理之书按凶手分页；线索 ≥ 3 条时可选择查明方位或生死。
+	 * 对亡语杀手伪装尸体在勘察开始时揭穿。
 	 */
 	public static SRERole GREAT_DETECTIVE = TMMRoles.registerRole(new GreatDetectiveRole(
 			GREAT_DETECTIVE_ID, // 角色 ID
@@ -648,16 +646,14 @@ public class ModRoles {
 			.setCanSeeCoin(true).setCanSeeTime(false).setRoleData(FortunetellerRoleData::new);
 
 	/**
-	 * 占卜家（乘客阵营）。开局携带【晶球】，右键对准尸体开始 10 秒施法，获知死者死亡时间 + 随机凶手线索；
-	 * 50% 概率晶球破碎，60 秒冷却，每具尸体一次。
-	 * 若占卜对象为亡语杀手伪装的尸体，视为亡语杀手用刀刺死了自己。
+	 * 占卜家（已并入大侦探，默认不刷出）。保留注册以便指令/旧配置指定。
 	 */
 	public static SRERole DIVINER = TMMRoles.registerRole(
 			new NormalRole(DIVINER_ID, new Color(148, 0, 211).getRGB(), // 紫水晶色
 					true, false, SRERole.MoodType.REAL,
 					TMMRoles.CIVILIAN.getMaxSprintTime(), false))
 			.setCanSeeCoin(true).setRoleData(DivinerRoleData::new)
-			.setDefaultMax(1).setDefaultEnableChance(7000);
+			.setDefaultMax(0).setDefaultEnableChance(0);
 
 	public static SRERole SALTED_FISH = TMMRoles.registerRole(
 			new NormalRole(SALTED_FISH_ID, new Color(255, 184, 87).getRGB(),
@@ -1525,6 +1521,25 @@ public class ModRoles {
 			.setDefaultMax(1)
 			.setDefaultEnableChance(5000).setDefaultEnableNeededPlayerCount(8);
 
+	/**
+	 * 银翼 - 杀手方中立
+	 * - 技能 50s：获得一个电磁脉冲炸弹（最多持有一个）
+	 * - 使用炸弹后若技能没有冷却则进入 15s 冷却
+	 * - 炸弹命中：4s 无法使用物品 + 缓慢 III 4s
+	 * - 正常做任务获得 50 金币
+	 * - 商店 125 金币购买机械小鸟
+	 */
+	public static SRERole SILVER_WING = TMMRoles
+			.registerRole(new NormalRole(SILVER_WING_ID, new Color(176, 196, 222).getRGB(), false,
+					false, SRERole.MoodType.FAKE, Integer.MAX_VALUE, true)
+					.setRoleData(SilverWingRoleData::new))
+			.setNeutralForKiller(true)
+			.setCanUseInstinctAndNightVision(true)
+			.setCanSeeCoin(true)
+			.setDefaultMax(1)
+			.setDefaultEnableChance(5000)
+			.setDefaultEnableNeededPlayerCount(8);
+
 	public static SRERole SPELLBREAKER = TMMRoles
 			.registerRole(new NormalRole(SPELLBREAKER_ID, (new Color(132, 46, 170)).getRGB(), false,
 					true, SRERole.MoodType.FAKE, Integer.MAX_VALUE, true)
@@ -2026,8 +2041,10 @@ public class ModRoles {
 	 * - 在计分板上隐藏
 	 * - 两阶段进化 + 可购买刺客形态：
 	 * - 一阶段（潜伏者）：群体窥视积累能量，满150能量进阶
-	 * - 二阶段（觉醒猎手）：获得双刀能力，刀的独立冷却为5秒
-	 * - 刺客形态：商店购买后持续30秒，可使用攻击冲刺、普通冲刺与贴墙
+	 * - 二阶段（觉醒猎手）：获得双刀能力，冷却沿用普通刀
+	 * - 刺客形态：商店购买后进入 Psycho 30秒并获得无碰撞，可以奔跑；
+	 *   右键走猎刀 usingItem 蓄力后向量冲刺，命中把一把未冷却的猎刀打上 5 秒冷却，
+	 *   释放后技能进入 3.5 秒冷却；Q 普通冲刺最多 1 次，贴墙仅此形态生效
 	 */
 	public static SRERole STALKER = TMMRoles.registerRole(new NormalRole(
 			STALKER_ID, // 角色 ID
@@ -2038,6 +2055,22 @@ public class ModRoles {
 			Integer.MAX_VALUE, // 无限冲刺
 			true // 隐藏计分板
 	) {
+		@Override
+		public Item getPsychoItem() {
+			return ModItems.STALKER_KNIFE;
+		}
+
+		@Override
+		public List<Item> getPsychoSupportedWeapons(Player player) {
+			// 主副手狩猎匕首都是潜行者的 Psycho 兼容武器。
+			return List.of(ModItems.STALKER_KNIFE, ModItems.STALKER_KNIFE_OFFHAND);
+		}
+
+		@Override
+		public boolean shouldClearGrantedPsychoWeapon(Player player, Item weapon) {
+			return false;
+		}
+
 		@Override
 		public void serverTick(ServerPlayer player) {
 			if (player.getOffhandItem().getItem() instanceof StalkerKnifeItem) {
