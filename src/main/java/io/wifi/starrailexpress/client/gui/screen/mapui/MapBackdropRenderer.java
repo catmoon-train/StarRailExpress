@@ -69,6 +69,14 @@ public final class MapBackdropRenderer {
     private float previousBackgroundAlpha;
     /** 当前是否有全屏背景图。 */
     private boolean hasBackgroundTexture;
+    private final float crossfadeSeconds;
+    private float crossfadeElapsed;
+
+    public MapBackdropRenderer() { this(0.0F); }
+
+    public MapBackdropRenderer(float crossfadeSeconds) {
+        this.crossfadeSeconds = crossfadeSeconds;
+    }
 
     private float introProgress;
     private float animTime;
@@ -121,8 +129,12 @@ public final class MapBackdropRenderer {
             previousBackgroundAlpha = coverage;
             backgroundId = target;
             backgroundFade = 0.0f;
+            crossfadeElapsed = 0.0F;
         }
-        backgroundFade = approach(backgroundFade, 1.0f, dt, 5.0f);
+        crossfadeElapsed += dt;
+        backgroundFade = crossfadeSeconds > 0
+                ? easeOutCubic(Mth.clamp(crossfadeElapsed / crossfadeSeconds, 0, 1))
+                : approach(backgroundFade, 1.0f, dt, 5.0f);
         if (backgroundFade > 0.995f) {
             previousBackgroundId = null;
         }

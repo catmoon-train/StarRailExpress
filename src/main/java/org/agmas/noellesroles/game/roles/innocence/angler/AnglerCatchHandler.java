@@ -38,10 +38,15 @@ import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.effect.MobEffects;
+import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.projectile.FishingHook;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.component.Unbreakable;
 import net.minecraft.world.phys.Vec3;
+import io.wifi.starrailexpress.content.entity.GrenadeEntity;
+import io.wifi.starrailexpress.content.entity.StickyGrenadeEntity;
+import io.wifi.starrailexpress.content.entity.TimedGrenadeEntity;
+import io.wifi.starrailexpress.content.entity.no_water_influenced.NoHeavyWaterInfluencedThrowableItemProjectile;
 import org.agmas.noellesroles.content.item.angler.ErrorAnglerRodItem;
 import org.agmas.noellesroles.init.ModEffects;
 import org.agmas.noellesroles.init.ModItems;
@@ -88,10 +93,10 @@ public final class AnglerCatchHandler {
         AnglerWorldMemory.recordCatchSpot(level, hook.blockPosition());
         boolean errorRod = rod.getItem() instanceof ErrorAnglerRodItem;
         if (errorRod) {
-            giveErrorCatch(player);
+            giveErrorCatch(player, hook);
             AnglerItemTags.setErrorUses(rod, AnglerItemTags.errorUses(rod) - 1);
         } else {
-            giveGoodCatch(player);
+            giveGoodCatch(player, hook);
             if (consumeRod(player, rod)) {
                 GameUtils.killPlayer(player, true, null, AnglerRules.DEATH_EXHAUSTED);
             }
@@ -144,22 +149,22 @@ public final class AnglerCatchHandler {
         return rod;
     }
 
-    private static void giveGoodCatch(ServerPlayer player) {
+    private static void giveGoodCatch(ServerPlayer player, FishingHook hook) {
         RandomSource random = player.getRandom();
         if (random.nextInt(AnglerRules.GRENADE_ODDS) == 0) {
-            give(player, new ItemStack(TMMItems.GRENADE));
+            give(player, hook, new ItemStack(TMMItems.GRENADE));
             player.displayClientMessage(Component.translatable("message.noellesroles.angler.catch_grenade")
                     .withStyle(ChatFormatting.RED), true);
             return;
         }
         int roll = random.nextInt(100);
         Rarity rarity = roll < 55 ? Rarity.COMMON : roll < 83 ? Rarity.UNCOMMON : roll < 97 ? Rarity.RARE : Rarity.VERY_RARE;
-        giveRarity(player, rarity, random);
+        giveRarity(player, hook, rarity, random);
         AnglerRoleData data = RoleData.getNullable(AnglerRoleData.class, player);
         if (data != null && data.bonusRareNext) {
             data.bonusRareNext = false;
             data.sync();
-            giveRarity(player, Rarity.RARE, random);
+            giveRarity(player, hook, Rarity.RARE, random);
         }
     }
 
@@ -167,65 +172,65 @@ public final class AnglerCatchHandler {
         COMMON, UNCOMMON, RARE, VERY_RARE
     }
 
-    private static void giveRarity(ServerPlayer player, Rarity rarity, RandomSource random) {
+    private static void giveRarity(ServerPlayer player, FishingHook hook, Rarity rarity, RandomSource random) {
         switch (rarity) {
-            case COMMON -> giveCommon(player, random);
-            case UNCOMMON -> giveUncommon(player, random);
-            case RARE -> giveRare(player, random);
+            case COMMON -> giveCommon(player, hook, random);
+            case UNCOMMON -> giveUncommon(player, hook, random);
+            case RARE -> giveRare(player, hook, random);
             case VERY_RARE -> {
-                give(player, oddity(ModItems.ANGLER_ABYSS_BAIT));
+                give(player, hook, oddity(ModItems.ANGLER_ABYSS_BAIT));
                 player.displayClientMessage(Component.translatable("message.noellesroles.angler.catch_bait")
                         .withStyle(ChatFormatting.DARK_AQUA), true);
             }
         }
     }
 
-    private static void giveCommon(ServerPlayer player, RandomSource random) {
+    private static void giveCommon(ServerPlayer player, FishingHook hook, RandomSource random) {
         int pick = random.nextInt(12);
         switch (pick) {
-            case 0 -> giveLivingCarp(player);
-            case 1 -> give(player, new ItemStack(ModItems.ANGLER_RAGGED_BOOTS));
-            case 2 -> give(player, new ItemStack(ModItems.ANGLER_VANILLA_MILK));
-            case 3 -> give(player, new ItemStack(ModItems.ANGLER_FLOUNDER));
-            case 4 -> give(player, oddity(ModItems.ANGLER_BLINKING_KELP));
-            case 5 -> give(player, oddity(ModItems.ANGLER_WET_TICKET));
-            case 6 -> give(player, oddity(ModItems.ANGLER_GLOVES));
-            case 7 -> give(player, oddity(ModItems.ANGLER_HAIR_REEL));
-            case 8 -> give(player, oddity(ModItems.ANGLER_INK));
-            case 9 -> give(player, oddity(ModItems.ANGLER_FALSE_TOOTH));
-            case 10 -> give(player, oddity(ModItems.ANGLER_TASK_LIST));
-            default -> give(player, oddity(ModItems.ANGLER_DRIPPING_WATCH));
+            case 0 -> giveLivingCarp(player, hook);
+            case 1 -> give(player, hook, new ItemStack(ModItems.ANGLER_RAGGED_BOOTS));
+            case 2 -> give(player, hook, new ItemStack(ModItems.ANGLER_VANILLA_MILK));
+            case 3 -> give(player, hook, new ItemStack(ModItems.ANGLER_FLOUNDER));
+            case 4 -> give(player, hook, oddity(ModItems.ANGLER_BLINKING_KELP));
+            case 5 -> give(player, hook, oddity(ModItems.ANGLER_WET_TICKET));
+            case 6 -> give(player, hook, oddity(ModItems.ANGLER_GLOVES));
+            case 7 -> give(player, hook, oddity(ModItems.ANGLER_HAIR_REEL));
+            case 8 -> give(player, hook, oddity(ModItems.ANGLER_INK));
+            case 9 -> give(player, hook, oddity(ModItems.ANGLER_FALSE_TOOTH));
+            case 10 -> give(player, hook, oddity(ModItems.ANGLER_TASK_LIST));
+            default -> give(player, hook, oddity(ModItems.ANGLER_DRIPPING_WATCH));
         }
     }
 
-    private static void giveUncommon(ServerPlayer player, RandomSource random) {
+    private static void giveUncommon(ServerPlayer player, FishingHook hook, RandomSource random) {
         int pick = random.nextInt(6);
         switch (pick) {
-            case 0 -> catchBody(player, false);
-            case 1 -> stealCoins(player);
-            case 2 -> give(player, patchouliBook(player));
-            case 3 -> give(player, new ItemStack(ModItems.ANGLER_ABYSS_SHIELD));
-            case 4 -> give(player, new ItemStack(ModItems.ANGLER_SOMEONE_KEY));
-            default -> give(player, new ItemStack(ModItems.ANGLER_INVERTED_FISH));
+            case 0 -> catchBody(player, hook, false);
+            case 1 -> stealCoins(player, hook);
+            case 2 -> give(player, hook, patchouliBook(player));
+            case 3 -> give(player, hook, new ItemStack(ModItems.ANGLER_ABYSS_SHIELD));
+            case 4 -> give(player, hook, new ItemStack(ModItems.ANGLER_SOMEONE_KEY));
+            default -> give(player, hook, new ItemStack(ModItems.ANGLER_INVERTED_FISH));
         }
     }
 
-    private static void giveRare(ServerPlayer player, RandomSource random) {
+    private static void giveRare(ServerPlayer player, FishingHook hook, RandomSource random) {
         int pick = random.nextInt(3);
         switch (pick) {
-            case 0 -> giveHistoricGun(player);
-            case 1 -> give(player, oddity(ModItems.ANGLER_JUMPING_HEART));
-            default -> give(player, oddity(ModItems.ANGLER_UNADDRESSED_LETTER));
+            case 0 -> giveHistoricGun(player, hook);
+            case 1 -> give(player, hook, oddity(ModItems.ANGLER_JUMPING_HEART));
+            default -> give(player, hook, oddity(ModItems.ANGLER_UNADDRESSED_LETTER));
         }
     }
 
-    private static void giveLivingCarp(ServerPlayer player) {
+    private static void giveLivingCarp(ServerPlayer player, FishingHook hook) {
         ItemStack carp = new ItemStack(ModItems.ANGLER_LIVING_CARP);
         AnglerItemTags.stampCarp(carp, GameUtils.getTicksFromGameStart(player.level()));
-        give(player, carp);
+        give(player, hook, carp);
     }
 
-    private static void catchBody(ServerPlayer player, boolean fakeLiving) {
+    private static void catchBody(ServerPlayer player, FishingHook hook, boolean fakeLiving) {
         SREGameWorldComponent game = SREGameWorldComponent.KEY.get(player.level());
         List<ServerPlayer> pool = new ArrayList<>();
         for (ServerPlayer other : player.serverLevel().players()) {
@@ -238,27 +243,26 @@ public final class AnglerCatchHandler {
             }
         }
         if (pool.isEmpty()) {
-            give(player, oddity(ModItems.ANGLER_EMPTY_COFFIN));
+            give(player, hook, oddity(ModItems.ANGLER_EMPTY_COFFIN));
             player.addEffect(ModEffects.of(MobEffects.DARKNESS, AnglerRules.COFFIN_DARK_TICKS, 0, false, true, true));
             player.displayClientMessage(Component.translatable("message.noellesroles.angler.empty_coffin")
                     .withStyle(ChatFormatting.DARK_GRAY), true);
             return;
         }
         ServerPlayer target = pool.get(player.getRandom().nextInt(pool.size()));
-        spawnCaughtBody(player, target, fakeLiving);
+        spawnCaughtBody(player, hook, target, fakeLiving);
         player.displayClientMessage(Component.translatable("message.noellesroles.angler.catch_body",
                 target.getScoreboardName()).withStyle(ChatFormatting.DARK_PURPLE), true);
     }
 
-    private static void spawnCaughtBody(ServerPlayer angler, ServerPlayer target, boolean fake) {
-        Vec3 forward = angler.getViewVector(1f).scale(1.2);
-        Vec3 spawnPos = angler.position().add(forward);
+    private static void spawnCaughtBody(ServerPlayer angler, FishingHook hook, ServerPlayer target, boolean fake) {
+        Vec3 spawnPos = catchOrigin(hook);
         PlayerBodyEntity body = TMMEntities.PLAYER_BODY.create(angler.level());
         if (body == null) {
             return;
         }
         body.setPlayerUuid(target.getUUID());
-        body.moveTo(spawnPos.x, angler.getY(), spawnPos.z, angler.getYRot(), 0f);
+        body.moveTo(spawnPos.x, spawnPos.y, spawnPos.z, angler.getYRot(), 0f);
         PlayerBodyEntityComponent cca = PlayerBodyEntityComponent.KEY.get(body);
         cca.setOwnerName(target.getScoreboardName(), false);
         cca.setDeathReason(AnglerRules.DEATH_CATCH.toString(), false);
@@ -271,7 +275,7 @@ public final class AnglerCatchHandler {
         angler.level().addFreshEntity(body);
     }
 
-    private static void stealCoins(ServerPlayer player) {
+    private static void stealCoins(ServerPlayer player, FishingHook hook) {
         List<ServerPlayer> others = new ArrayList<>();
         for (ServerPlayer other : player.serverLevel().players()) {
             if (other != player && GameUtils.isPlayerAliveAndSurvival(other) && MoneyUtils.getBalance(other) > 0) {
@@ -279,7 +283,7 @@ public final class AnglerCatchHandler {
             }
         }
         if (others.isEmpty()) {
-            give(player, oddity(ModItems.ANGLER_EMPTY_WALLET));
+            give(player, hook, oddity(ModItems.ANGLER_EMPTY_WALLET));
             player.displayClientMessage(Component.translatable("message.noellesroles.angler.empty_wallet")
                     .withStyle(ChatFormatting.DARK_PURPLE), true);
             return;
@@ -334,7 +338,7 @@ public final class AnglerCatchHandler {
         return roles.get(random.nextInt(roles.size()));
     }
 
-    private static void giveHistoricGun(ServerPlayer player) {
+    private static void giveHistoricGun(ServerPlayer player, FishingHook hook) {
         List<ItemStack> guns = new ArrayList<>();
         for (ItemStack stack : AnglerWorldMemory.itemHistory()) {
             if (stack.is(TMMItemTags.GUNS)) {
@@ -342,19 +346,19 @@ public final class AnglerCatchHandler {
             }
         }
         if (guns.isEmpty()) {
-            give(player, oddity(ModItems.ANGLER_EMPTY_HOLSTER));
+            give(player, hook, oddity(ModItems.ANGLER_EMPTY_HOLSTER));
             player.displayClientMessage(Component.translatable("message.noellesroles.angler.empty_holster")
                     .withStyle(ChatFormatting.GRAY), true);
             return;
         }
-        give(player, guns.get(player.getRandom().nextInt(guns.size())));
+        give(player, hook, guns.get(player.getRandom().nextInt(guns.size())));
     }
 
-    private static void giveErrorCatch(ServerPlayer player) {
+    private static void giveErrorCatch(ServerPlayer player, FishingHook hook) {
         RandomSource random = player.getRandom();
         if (!AnglerWorldMemory.hasHistory()) {
             if (random.nextBoolean()) {
-                give(player, oddity(ModItems.ANGLER_EMPTY_HOOK));
+                give(player, hook, oddity(ModItems.ANGLER_EMPTY_HOOK));
                 player.displayClientMessage(Component.translatable("message.noellesroles.angler.unwritten")
                         .withStyle(ChatFormatting.DARK_PURPLE), true);
             } else {
@@ -366,22 +370,22 @@ public final class AnglerCatchHandler {
             ItemStack grenade = new ItemStack(TMMItems.GRENADE);
             grenade.set(DataComponents.CUSTOM_NAME, Component.translatable("item.noellesroles.angler_wrong_grenade")
                     .withStyle(ChatFormatting.DARK_RED));
-            give(player, grenade);
+            give(player, hook, grenade);
             return;
         }
         List<ItemStack> history = AnglerWorldMemory.itemHistory();
         ItemStack picked = history.get(random.nextInt(history.size())).copy();
         int mutations = 1 + random.nextInt(2);
         for (int i = 0; i < mutations; i++) {
-            picked = mutate(player, picked, random);
+            picked = mutate(player, hook, picked, random);
             if (picked.isEmpty()) {
                 return;
             }
         }
-        give(player, picked);
+        give(player, hook, picked);
     }
 
-    private static ItemStack mutate(ServerPlayer player, ItemStack stack, RandomSource random) {
+    private static ItemStack mutate(ServerPlayer player, FishingHook hook, ItemStack stack, RandomSource random) {
         int type = random.nextInt(8);
         return switch (type) {
             case 0 -> {
@@ -409,7 +413,7 @@ public final class AnglerCatchHandler {
                 yield ItemStack.EMPTY;
             }
             case 4 -> {
-                catchBody(player, true);
+                catchBody(player, hook, true);
                 yield ItemStack.EMPTY;
             }
             case 5 -> {
@@ -417,8 +421,10 @@ public final class AnglerCatchHandler {
                 yield stack;
             }
             case 6 -> {
-                if (stack.is(TMMItems.GRENADE)) {
-                    scheduleSelfGrenade(player);
+                if (isCaughtGrenade(stack)) {
+                    player.displayClientMessage(Component.translatable("message.noellesroles.angler.anti_grenade")
+                            .withStyle(ChatFormatting.RED), true);
+                    spawnCaughtGrenade(player, hook, new ItemStack(TMMItems.GRENADE));
                     yield ItemStack.EMPTY;
                 }
                 AnglerItemTags.markInverted(stack);
@@ -456,16 +462,6 @@ public final class AnglerCatchHandler {
         }
     }
 
-    private static void scheduleSelfGrenade(ServerPlayer player) {
-        player.displayClientMessage(Component.translatable("message.noellesroles.angler.anti_grenade")
-                .withStyle(ChatFormatting.RED), true);
-        AnglerWorldMemory.delay(player.level(), AnglerRules.ERROR_SELF_GRENADE_TICKS, () -> {
-            if (GameUtils.isPlayerAliveAndSurvival(player)) {
-                GameUtils.killPlayer(player, true, null, io.wifi.starrailexpress.game.GameConstants.DeathReasons.GRENADE);
-            }
-        });
-    }
-
     private static void vanishAir(ServerPlayer player) {
         player.playNotifySound(SoundEvents.ITEM_BREAK, SoundSource.PLAYERS, 0.7f, 0.3f);
         player.displayClientMessage(Component.translatable("message.noellesroles.angler.error_air")
@@ -476,15 +472,61 @@ public final class AnglerCatchHandler {
         return new ItemStack(item);
     }
 
-    private static void give(ServerPlayer player, ItemStack stack) {
+    private static void give(ServerPlayer player, FishingHook hook, ItemStack stack) {
         if (stack == null || stack.isEmpty()) {
             return;
         }
         AnglerWorldMemory.recordItem(stack);
-        if (!RoleUtils.insertStackInFreeSlot(player, stack.copy())) {
-            player.drop(stack.copy(), false);
+        if (isCaughtGrenade(stack)) {
+            spawnCaughtGrenade(player, hook, stack);
+        } else {
+            spawnCaughtDrop(player, hook, stack);
         }
         player.displayClientMessage(Component.translatable("message.noellesroles.angler.catch", stack.getHoverName())
                 .withStyle(ChatFormatting.AQUA), true);
+    }
+
+    private static boolean isCaughtGrenade(ItemStack stack) {
+        return stack.is(TMMItems.GRENADE)
+                || stack.is(TMMItems.STICKY_GRENADE)
+                || stack.is(TMMItems.TIMED_GRENADE);
+    }
+
+    private static Vec3 catchOrigin(FishingHook hook) {
+        return new Vec3(hook.getX(), hook.getY() + 0.25, hook.getZ());
+    }
+
+    private static Vec3 fishingPull(ServerPlayer player, Vec3 from) {
+        double dx = player.getX() - from.x;
+        double dy = player.getY() + 0.35 - from.y;
+        double dz = player.getZ() - from.z;
+        double dist = Math.sqrt(dx * dx + dy * dy + dz * dz);
+        return new Vec3(dx * 0.1, dy * 0.1 + Math.sqrt(Math.max(dist, 0.01)) * 0.08, dz * 0.1);
+    }
+
+    private static void spawnCaughtDrop(ServerPlayer player, FishingHook hook, ItemStack stack) {
+        Vec3 origin = catchOrigin(hook);
+        ItemEntity drop = new ItemEntity(player.serverLevel(), origin.x, origin.y, origin.z, stack.copy());
+        drop.setDeltaMovement(fishingPull(player, origin));
+        drop.setPickUpDelay(10);
+        player.serverLevel().addFreshEntity(drop);
+    }
+
+    private static void spawnCaughtGrenade(ServerPlayer player, FishingHook hook, ItemStack stack) {
+        ServerLevel level = player.serverLevel();
+        NoHeavyWaterInfluencedThrowableItemProjectile grenade;
+        if (stack.is(TMMItems.STICKY_GRENADE)) {
+            grenade = new StickyGrenadeEntity(TMMEntities.STICKY_GRENADE, level);
+        } else if (stack.is(TMMItems.TIMED_GRENADE)) {
+            grenade = new TimedGrenadeEntity(TMMEntities.TIMED_GRENADE, level);
+        } else {
+            grenade = new GrenadeEntity(TMMEntities.GRENADE, level);
+        }
+        Vec3 origin = catchOrigin(hook);
+        grenade.setOwner(player);
+        grenade.setPos(origin.x, origin.y, origin.z);
+        grenade.setDeltaMovement(fishingPull(player, origin).scale(1.35));
+        grenade.hasImpulse = true;
+        level.addFreshEntity(grenade);
     }
 }

@@ -60,6 +60,23 @@ public final class GameModeVoteScreen extends Screen {
         float intro = VoteFlowFrame.ease((System.currentTimeMillis() - openedAt) / 360.0F);
         int contentY = b.y() + 58;
         int contentH = b.h() - 72;
+        if (b.w() < 500) {
+            VoteFlowFrame.panel(g, b.x(), contentY, b.w(), contentH, 225);
+            renderBoard(g, mouseX, mouseY, b.x(), contentY, b.w(), contentH - 44);
+            List<VoteOption> options = ClientVoteCache.getOptions();
+            if (!options.isEmpty()) {
+                var option = options.get(Mth.clamp(focusIndex, 0, options.size() - 1));
+                int textY = contentY + contentH - 39;
+                g.fill(b.x() + 10, textY - 6, b.x() + b.w() - 10, textY - 5, 0x338B6914);
+                g.drawString(font, MapUiGraphics.clip(font, VoteModePresentation.name(option).getString(), b.w() - 24),
+                        b.x() + 12, textY, VoteFlowFrame.GOLD_DIM, false);
+                var lines = font.split(VoteModePresentation.description(option), b.w() - 24);
+                for (int i = 0; i < Math.min(2, lines.size()); i++)
+                    g.drawString(font, lines.get(i), b.x() + 12, textY + 12 + i * 11, VoteFlowFrame.MUTED, false);
+            }
+            VoteFlowTransition.render(g, width, height);
+            return;
+        }
         int listW = Mth.clamp((int) (b.w() * 0.50F), 210, 390);
         int gap = 14;
         int detailX = b.x() + listW + gap;
@@ -94,7 +111,8 @@ public final class GameModeVoteScreen extends Screen {
             int rowY = viewportY + i * ROW_H - Math.round(scroll);
             float rowIn = VoteFlowFrame.ease((System.currentTimeMillis() - openedAt - i * 34L) / 280.0F);
             int rowShift = Math.round((1.0F - rowIn) * 18.0F);
-            boolean hover = mouseX >= x + 5 && mouseX < x + w - 5 && mouseY >= rowY && mouseY < rowY + ROW_H;
+            boolean hover = mouseX >= x + 5 && mouseX < x + w - 5 && mouseY >= rowY && mouseY < rowY + ROW_H
+                    && mouseY >= viewportY && mouseY < viewportY + viewportH;
             boolean selected = ClientVoteCache.getSelectedIndices().contains(i);
             boolean focused = i == focusIndex;
             if (hover) hoveredIndex = i;
@@ -147,8 +165,9 @@ public final class GameModeVoteScreen extends Screen {
         int detailAlpha = Math.round(255.0F * detailIn);
         g.drawString(font, Component.translatable("gui.sre.vote_flow.current_service"), x + 16, y + 13,
                 VoteFlowFrame.MUTED, false);
-        VoteFlowFrame.scaledCentered(g, font, VoteModePresentation.name(option).copy().withStyle(ChatFormatting.BOLD),
-                x + w / 2.0F, y + 39 + detailShift, 1.45F,
+        Component modeTitle = VoteModePresentation.name(option).copy().withStyle(ChatFormatting.BOLD);
+        VoteFlowFrame.scaledCentered(g, font, modeTitle,
+                x + w / 2.0F, y + 39 + detailShift, Math.min(1.45F, (w - 32.0F) / Math.max(1, font.width(modeTitle))),
                 VoteFlowFrame.withAlpha(VoteFlowFrame.TEXT, detailAlpha));
         int railWidth = Math.round((w - 44) * detailIn);
         g.fill(x + w / 2 - railWidth / 2, y + 62, x + w / 2 + railWidth / 2, y + 63,
@@ -156,6 +175,7 @@ public final class GameModeVoteScreen extends Screen {
         Component description = VoteModePresentation.description(option);
         int lineY = y + 76;
         for (var line : font.split(description, w - 36)) {
+            if (lineY + font.lineHeight > y + h - 34) break;
             g.drawString(font, line, x + 18 + detailShift, lineY,
                     VoteFlowFrame.withAlpha(0xFFC8B898, detailAlpha), false);
             lineY += 14;
@@ -164,7 +184,7 @@ public final class GameModeVoteScreen extends Screen {
         Component state = selected ? Component.translatable("gui.sre.vote_flow.voted")
                 : Component.translatable("gui.sre.vote_flow.select_hint");
         int stateColor = selected ? VoteFlowFrame.GOLD : VoteFlowFrame.MUTED;
-        g.drawCenteredString(font, state, x + w / 2, y + h - 24, stateColor);
+        g.drawCenteredString(font, MapUiGraphics.clip(font, state.getString(), w - 24), x + w / 2, y + h - 24, stateColor);
     }
 
     @Override
@@ -202,7 +222,7 @@ public final class GameModeVoteScreen extends Screen {
         changeFocus(Mth.clamp(focusIndex + direction, 0, size - 1));
         float rowTop = focusIndex * ROW_H;
         VoteFlowFrame.Bounds b = VoteFlowFrame.layout(width, height);
-        int viewportH = b.h() - 108;
+        int viewportH = b.h() - (b.w() < 500 ? 152 : 108);
         if (rowTop < scrollTarget) scrollTarget = rowTop;
         if (rowTop + ROW_H > scrollTarget + viewportH) scrollTarget = rowTop + ROW_H - viewportH;
         playClick(1.15F);

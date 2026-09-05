@@ -840,10 +840,6 @@ public class SREClient implements ClientModInitializer {
         ClientPlayNetworking.registerGlobalReceiver(OnGameStartedPayload.TYPE, (payload, context) -> {
             MapStatusBarClientState.set(MapStatusBarType.NONE, 20, 20);
             context.client().execute(() -> {
-                if (io.wifi.starrailexpress.client.gui.OpeningPresentationCoordinator
-                        .isVoteResultScreen(context.client().screen)) {
-                    context.client().setScreen(null);
-                }
                 // Always refresh map metadata: direct tmm:start must receive the same briefing as tmm:votemap.
                 io.wifi.starrailexpress.client.gui.screen.mapui.MapIntroClientCache.beginRefresh();
                 ClientPlayNetworking.send(new io.wifi.starrailexpress.network.MapIntroRequestPayload());
@@ -1071,6 +1067,11 @@ public class SREClient implements ClientModInitializer {
             net.exmo.sre.camera.client.AdvancedCameraDirector.renderOverlay(guiGraphics);
         });
         // Run map rules inside the project's frame lifecycle so text remains visible while a Letter is held.
+        net.fabricmc.fabric.api.client.screen.v1.ScreenEvents.AFTER_INIT.register((client, screen, width, height) ->
+                net.fabricmc.fabric.api.client.screen.v1.ScreenEvents.afterRender(screen).register(
+                        (renderedScreen, graphics, mouseX, mouseY, partialTick) ->
+                                io.wifi.starrailexpress.client.gui.OpeningPresentationCoordinator.renderScreenOverlay(
+                                        renderedScreen, graphics, partialTick)));
         io.wifi.utils.client.betterrender.FakeHudRenderCallback.EVENT.register((guiGraphics, deltaTick) ->
                 io.wifi.starrailexpress.client.gui.OpeningPresentationCoordinator.render(
                         guiGraphics, deltaTick.getGameTimeDeltaPartialTick(false)));

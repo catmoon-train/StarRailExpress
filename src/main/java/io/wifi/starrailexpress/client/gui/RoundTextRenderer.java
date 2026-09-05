@@ -25,6 +25,7 @@ import io.wifi.starrailexpress.api.TMMRoles;
 import io.wifi.starrailexpress.cca.SREGameRoundEndComponent;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.client.SREClient;
+import io.wifi.starrailexpress.content.vote.client.VoteFlowFrame;
 import io.wifi.starrailexpress.client.util.ClientSkinCache;
 import io.wifi.starrailexpress.client.util.SREClientUtils;
 import io.wifi.starrailexpress.event.OnRoundStartWelcomeTimmer;
@@ -38,6 +39,7 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.Options;
 import net.minecraft.client.gui.Font;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.multiplayer.PlayerInfo;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.resources.PlayerSkin;
@@ -47,6 +49,7 @@ import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.Mth;
+import net.minecraft.util.FormattedCharSequence;
 import net.minecraft.world.level.block.entity.SkullBlockEntity;
 import org.agmas.noellesroles.utils.RoleUtils;
 import org.jetbrains.annotations.NotNull;
@@ -68,8 +71,8 @@ public class RoundTextRenderer {
      */
     private static final Map<String, Optional<GameProfile>> failCache = new HashMap<>();
 
-    /** 欢迎界面总持续时间 (tick) = 200 + 淡入淡出时间 */
-    private static final int WELCOME_DURATION = 200 + GameConstants.FADE_TIME * 2;
+    /** Visible presentation time; camera/selection waiting does not consume this clock. */
+    private static final int WELCOME_DURATION = 200;
     private static final Component dotText = Component.literal("...");
     /** 结束界面持续时间 (tick) */
     private static final int END_DURATION = 200;
@@ -106,10 +109,6 @@ public class RoundTextRenderer {
     private static Component cachedWelcomeText = null;
     private static Component cachedPremiseText = null;
     private static Component cachedGoalText = null;
-
-    private static int cachedWelcomeWidth = 0;
-    private static int cachedPremiseWidth = 0;
-    private static int cachedGoalWidth = 0;
 
     /** 用于检测是否需要刷新欢迎界面缓存的辅助变量 */
     private static int lastKillers = -1;
@@ -154,25 +153,16 @@ public class RoundTextRenderer {
 
     // -------------------- 欢迎界面 --------------------
 
-    /**
-     * 绘制开局欢迎 GUI。它由 OpeningPresentationCoordinator 置于电影黑幕之后，
-     * 不再混入常驻职业 HUD，从而保证地图投票与直接开局使用同一渲染层级。
-     */
+    /** Draw animated opening copy directly, avoiding tick-cached matrices and alpha. */
     public static void renderWelcomeGui(Font renderer, LocalPlayer player, @NotNull FakeGuiGraphics context,
             float partialTicks) {
-        if (roleTexts == null || welcomeTime <= 0 || !OptimizedTextRenderer.INSTANCE.isTickDirty()) return;
-        if (copyrightWidth <= 0) copyrightWidth = renderer.width(copyright);
+        if (roleTexts == null || welcomeTime <= 0) return;
         GameMode gamemode = SREGameWorldComponent.KEY.get(player.level()).getGameMode();
-        renderWelcomeOverlay(renderer, player, context, partialTicks, gamemode.isLooseEndMode());
+        renderWelcomeOverlay(renderer, context.getDefaultGuiGraphics(), partialTicks, gamemode.isLooseEndMode());
     }
 
-    /**
-     * 绘制回合开始时的欢迎/角色介绍覆盖层。
-     * 包含欢迎语、前提条件、目标以及跳跃提示和版权信息。
-     */
-    private static void renderWelcomeOverlay(Font renderer, LocalPlayer player, FakeGuiGraphics context,
+    private static void renderWelcomeOverlay(Font renderer, GuiGraphics g,
             float partialTicks, boolean isLooseEnds) {
-        // 更新欢迎文本缓存 (仅在杀手/目标数量变化或首次时重新计算)
         if (lastKillers != killers || lastTargets != targets || cachedWelcomeText == null) {
             cachedWelcomeText = isLooseEnds ? Component.translatable("announcement.star.loose_ends.welcome")
                     : roleTexts.welcomeText;
@@ -180,76 +170,87 @@ public class RoundTextRenderer {
                     : roleTexts.premiseText.apply(killers);
             cachedGoalText = isLooseEnds ? Component.translatable("announcement.star.loose_ends.goal")
                     : roleTexts.goalText.apply(targets);
-            cachedWelcomeWidth = renderer.width(cachedWelcomeText);
-            cachedPremiseWidth = renderer.width(cachedPremiseText);
-            cachedGoalWidth = renderer.width(cachedGoalText);
+            cachedWelcomeText = cachedWelcomeText.copy().withColor(VoteFlowFrame.TEXT & 0xFFFFFF);
+            cachedPremiseText = cachedPremiseText.copy().withColor(0xC8B898);
+            cachedGoalText = cachedGoalText.copy().withColor(VoteFlowFrame.TEXT & 0xFFFFFF);
             lastKillers = killers;
             lastTargets = targets;
         }
 
-        int baseColor = isLooseEnds ? 0xFFB33A36 : 0xFFFFF4DC;
-        int accentColor = isLooseEnds ? 0xFFD26058 : 0xFFD4AF37;
-        float centerX = context.guiWidth() / 2f;
-        float centerY = context.guiHeight() / 2f + 3.5f;
-        float titleIn = stagedWelcomeAlpha(180, partialTicks);
-        float premiseIn = stagedWelcomeAlpha(120, partialTicks);
-        float goalIn = stagedWelcomeAlpha(60, partialTicks);
-        float exit = smoothStep(Mth.clamp((welcomeTime + partialTicks) / 16.0F, 0.0F, 1.0F));
+        int availableWidth = Math.max(80, Math.min(600, g.guiWidth() - 64));
+        float titleScale = Math.min(2.2F, Math.max(1.35F,
+                availableWidth / (float) Math.max(1, renderer.width(cachedWelcomeText))));
+        float bodyScale = g.guiWidth() < 420 ? 1.05F : 1.18F;
+        var titles = renderer.split(cachedWelcomeText, (int) (availableWidth / titleScale));
+        var premises = renderer.split(cachedPremiseText, (int) (availableWidth / bodyScale));
+        var goals = renderer.split(cachedGoalText, (int) (availableWidth / bodyScale));
+        float titleLine = renderer.lineHeight + 3;
+        float bodyLine = 15;
+        var layout = WelcomeLayout.of(g.guiHeight(), Math.max(0, (titles.size() - 1) * titleLine + renderer.lineHeight) * titleScale,
+                Math.max(0, (premises.size() - 1) * bodyLine + renderer.lineHeight) * bodyScale,
+                Math.max(0, (goals.size() - 1) * bodyLine + renderer.lineHeight) * bodyScale);
+        float titleIn = stagedWelcomeAlpha(192, partialTicks);
+        float premiseIn = stagedWelcomeAlpha(170, partialTicks);
+        float goalIn = stagedWelcomeAlpha(146, partialTicks);
+        float exit = smoothStep(Mth.clamp((welcomeTime - partialTicks) / 18.0F, 0, 1));
+        float backgroundIn = smoothStep(Mth.clamp((WELCOME_DURATION - welcomeTime + partialTicks) / 12.0F, 0, 1));
+        int accent = VoteFlowFrame.GOLD;
+        int text = VoteFlowFrame.TEXT;
 
-        context.pose().pushPose();
-        context.pose().translate(centerX, centerY, 0);
-
-        // 三段信息逐级进站，轻微上浮而不是突然切换。
-        if (titleIn > 0.0F) {
-            int alpha = Math.round(255.0F * titleIn * exit);
+        g.pose().pushPose();
+        g.pose().translate(0, 0, 900);
+        g.fillGradient(0, 0, g.guiWidth(), g.guiHeight(),
+                withAlpha(0xFF120E09, Math.round(215 * backgroundIn * exit)),
+                withAlpha(0xFF070C10, Math.round(235 * backgroundIn * exit)));
+        g.pose().pushPose();
+        g.pose().translate(g.guiWidth() / 2.0F, layout.top(), 0);
+        g.pose().scale(layout.scale(), layout.scale(), 1);
+        int titleAlpha = Math.round(255 * titleIn * exit);
+        if (titleAlpha > 3) {
             Component eyebrow = Component.translatable("gui.sre.opening.identity_confirmed");
-            int eyebrowWidth = renderer.width(eyebrow);
-            int railHalf = Math.round(92.0F * titleIn);
-            context.fill(-railHalf, -43, railHalf, -42, withAlpha(accentColor, alpha));
-            context.drawString(renderer, eyebrow, -eyebrowWidth / 2, -56,
-                    withAlpha(accentColor, alpha), false);
-            context.pose().pushPose();
-            float desiredScale = 2.45F + (1.0F - titleIn) * 0.20F;
-            float scale = Math.min(desiredScale,
-                    (context.guiWidth() - 64.0F) / Math.max(1.0F, cachedWelcomeWidth));
-            context.pose().translate(0.0F, -10.0F + (1.0F - titleIn) * 8.0F, 0.0F);
-            context.pose().scale(scale, scale, 1f);
-            context.drawString(renderer, cachedWelcomeText, -cachedWelcomeWidth / 2, -12,
-                    withAlpha(baseColor, alpha), true);
-            context.pose().popPose();
+            drawWelcomeLine(g, renderer, eyebrow.getVisualOrderText(), 0, 1,
+                    withAlpha(accent, titleAlpha));
+            drawWelcomeLines(g, renderer, titles, layout.titleY() + (1 - titleIn) * 8,
+                    titleScale, titleLine, withAlpha(text, titleAlpha));
+            int half = Math.round(Math.min(150, availableWidth / 3.0F) * titleIn);
+            g.fill(-half, (int) layout.ruleY(), half, (int) layout.ruleY() + 1, withAlpha(accent, titleAlpha / 2));
+            g.fill(-2, (int) layout.ruleY() - 1, 2, (int) layout.ruleY() + 3, withAlpha(accent, titleAlpha));
         }
+        drawWelcomeLines(g, renderer, premises, layout.premiseY() + (1 - premiseIn) * 6,
+                bodyScale, bodyLine, withAlpha(0xFFC8B898, Math.round(255 * premiseIn * exit)));
+        drawWelcomeLines(g, renderer, goals, layout.goalY() + (1 - goalIn) * 6,
+                bodyScale, bodyLine, withAlpha(text, Math.round(255 * goalIn * exit)));
+        g.pose().popPose();
 
-        if (premiseIn > 0.0F) {
-            int alpha = Math.round(255.0F * premiseIn * exit);
-            context.pose().pushPose();
-            context.pose().translate((1.0F - premiseIn) * 12.0F, 0.0F, 0.0F);
-            float scale = Math.min(1.2F,
-                    (context.guiWidth() - 80.0F) / Math.max(1.0F, cachedPremiseWidth));
-            context.pose().scale(scale, scale, 1f);
-            context.drawString(renderer, cachedPremiseText, -cachedPremiseWidth / 2, 0,
-                    withAlpha(baseColor, alpha), true);
-            context.pose().popPose();
+        int footerAlpha = Math.round(110 * titleIn * exit);
+        if (footerAlpha > 3) {
+            g.pose().pushPose();
+            g.pose().translate(g.guiWidth() / 2.0F, g.guiHeight() - 22, 0);
+            drawWelcomeLine(g, renderer, copyright.getVisualOrderText(), 0, 0.8F,
+                    withAlpha(0xFF9E8B6E, footerAlpha));
+            g.pose().popPose();
         }
+        g.flush();
+        g.pose().popPose();
+    }
 
-        if (goalIn > 0.0F) {
-            int alpha = Math.round(255.0F * goalIn * exit);
-            context.pose().pushPose();
-            context.pose().translate(Math.round((1.0F - goalIn) * 10.0F), 18.0F, 0.0F);
-            float scale = Math.min(1.0F,
-                    (context.guiWidth() - 80.0F) / Math.max(1.0F, cachedGoalWidth));
-            context.pose().scale(scale, scale, 1.0F);
-            context.drawString(renderer, cachedGoalText, -cachedGoalWidth / 2, 0,
-                    withAlpha(baseColor, alpha), true);
-            context.pose().popPose();
+    private static void drawWelcomeLines(GuiGraphics g, Font font,
+            java.util.List<FormattedCharSequence> lines, float y, float scale,
+            float lineHeight, int color) {
+        if ((color >>> 24) <= 3) return;
+        for (var line : lines) {
+            drawWelcomeLine(g, font, line, y, scale, color);
+            y += lineHeight * scale;
         }
+    }
 
-        if (premiseIn > 0.0F) {
-            int alpha = Math.round(185.0F * premiseIn * exit);
-            context.drawString(renderer, copyright, -copyrightWidth / 2, 38,
-                    withAlpha(baseColor, alpha), false);
-        }
-
-        context.pose().popPose();
+    private static void drawWelcomeLine(GuiGraphics g, Font font,
+            FormattedCharSequence line, float y, float scale, int color) {
+        g.pose().pushPose();
+        g.pose().translate(-font.width(line) * scale / 2.0F, y, 0);
+        g.pose().scale(scale, scale, 1);
+        g.drawString(font, line, 0, 0, color, false);
+        g.pose().popPose();
     }
 
     private static float stagedWelcomeAlpha(int threshold, float partialTicks) {
@@ -740,24 +741,24 @@ public class RoundTextRenderer {
             if (player == null)
                 return;
             // 欢迎界面音效和事件
-            if (welcomeTime > 0) {
+            if (welcomeTime > 0 && !OpeningPresentationCoordinator.shouldWaitForWelcome()) {
                 switch (welcomeTime) {
                     case 200 -> {
                         if (player != null)
                             player.level().playSeededSound(player, player.getX(), player.getY(), player.getZ(),
                                     TMMSounds.UI_RISER, SoundSource.MASTER, 10f, 1f, player.getRandom().nextLong());
                     }
-                    case 180 -> {
+                    case 192 -> {
                         if (player != null)
                             player.level().playSeededSound(player, player.getX(), player.getY(), player.getZ(),
                                     TMMSounds.UI_PIANO, SoundSource.MASTER, 10f, 1.25f, player.getRandom().nextLong());
                     }
-                    case 120 -> {
+                    case 170 -> {
                         if (player != null)
                             player.level().playSeededSound(player, player.getX(), player.getY(), player.getZ(),
                                     TMMSounds.UI_PIANO, SoundSource.MASTER, 10f, 1.5f, player.getRandom().nextLong());
                     }
-                    case 60 -> {
+                    case 146 -> {
                         if (player != null)
                             player.level().playSeededSound(player, player.getX(), player.getY(), player.getZ(),
                                     TMMSounds.UI_PIANO, SoundSource.MASTER, 10f, 1.75f, player.getRandom().nextLong());
@@ -812,6 +813,11 @@ public class RoundTextRenderer {
     /** Read-only presentation state for other opening overlays. */
     public static boolean isWelcomeActive() {
         return welcomeTime > 0;
+    }
+
+    public static void clearWelcome() {
+        welcomeTime = 0;
+        cachedWelcomeText = cachedPremiseText = cachedGoalText = null;
     }
 
     /** 启动结束界面 (重置欢迎时间并设置结束倒计时)。 */
