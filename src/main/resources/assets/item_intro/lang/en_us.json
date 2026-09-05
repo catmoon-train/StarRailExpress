@@ -220,5 +220,6 @@
     "item.noellesroles.sealed_whisper_bell.desc": "Sealed relic. Occasionally names the nearest survivor's direction; the ringing also darkens your vision.",
     "item.noellesroles.sealed_splintered_compass.desc": "Sealed relic. Points toward the nearest killer; the needle may yank you elsewhere.",
     "item.noellesroles.sealed_last_match.desc": "Sealed relic. Right-click to ignite nearby people; the flame may turn back on you.",
-    "item.noellesroles.tomato.desc": "Dropped when Tomato Head dies. Press Q to throw it as a projectile; landing on a block turns it into a dropped item. Walking over it trips you for 2s and picks it up. The thrower and the tripped player both get a 20s tomato cooldown. Hitting a player gives them the tomato and covers their screen with sauce for 3 seconds."
+    "item.noellesroles.tomato.desc": "Dropped when Tomato Head dies. Press Q to throw it as a projectile; landing on a block turns it into a dropped item. Walking over it trips you for 2s and picks it up. The thrower and the tripped player both get a 20s tomato cooldown. Hitting a player gives them the tomato and covers their screen with sauce for 3 seconds.",
+    "item.noellesroles.tomato.desc.simple": "Press Q to throw. Walking over a landed tomato trips and picks it up (20s cooldown for both). Hitting a player smears sauce for 3s."
 }
