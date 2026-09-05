@@ -216,7 +216,7 @@ public class SRERoleDataPlayerComponent
         roleData = null;
         initSync = false;
         forceClear = false;
-        sync();
+        // sync();
     }
 
 }
