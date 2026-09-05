@@ -58,6 +58,8 @@ import net.minecraft.world.item.ItemStack;
 import org.agmas.harpymodloader.component.WorldModifierComponent;
 import org.agmas.harpymodloader.events.ModdedRoleAssigned;
 import org.agmas.harpymodloader.events.ModdedRoleRemoved;
+import org.agmas.harpymodloader.events.ModifierAssigned;
+import org.agmas.harpymodloader.events.ModifierRemoved;
 import org.agmas.harpymodloader.modded_murder.PlayerRoleWeightManager;
 import org.agmas.harpymodloader.modifiers.HMLModifiers;
 import org.agmas.harpymodloader.modifiers.SREModifier;
@@ -269,6 +271,30 @@ public class RoleUtils extends MCItemsUtils {
                 .get(player.level());
         SRERole role = gameWorldComponent.getRole(player);
         sendWelcomeAnnouncement(player, role);
+    }
+
+    public static void addModifier(Player player, SREModifier modifier) {
+        addModifier(player, modifier, false);
+    }
+
+    public static void addModifier(Player player, SREModifier modifier, boolean noEventCall) {
+        if (player == null || modifier == null) {
+            return;
+        }
+        WorldModifierComponent.getInstance(player).addModifier(player, modifier);
+        ModifierAssigned.EVENT.invoker().assignModifier(player, modifier);
+    }
+
+    public static void removeModifier(Player player, SREModifier modifier) {
+        removeModifier(player, modifier, false);
+    }
+
+    public static void removeModifier(Player player, SREModifier modifier, boolean noEventCall) {
+        if (player == null || modifier == null) {
+            return;
+        }
+        WorldModifierComponent.getInstance(player).removeModifier(player, modifier);
+        ModifierRemoved.EVENT.invoker().removeModifier(player, modifier);
     }
 
     public static void changeRole(Player player, SRERole role) {
