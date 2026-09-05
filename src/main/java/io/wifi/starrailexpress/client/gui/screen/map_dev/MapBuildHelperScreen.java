@@ -16,6 +16,7 @@
 package io.wifi.starrailexpress.client.gui.screen.map_dev;
 
 import io.wifi.starrailexpress.scenery.client.SceneAssetClient;
+import io.wifi.starrailexpress.client.api.InvNoMoveScreen;
 import io.wifi.starrailexpress.client.gui.screen.map_dev.modules.*;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
@@ -36,7 +37,7 @@ import java.util.function.Consumer;
  *
  * MapBuildHelperScreen
  */
-public class MapBuildHelperScreen extends Screen implements ModuleContext {
+public class MapBuildHelperScreen extends Screen implements ModuleContext, InvNoMoveScreen {
     private ArrayList<Runnable> onCloseEvents = new ArrayList<>();
 
     @Override

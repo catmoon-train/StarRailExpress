@@ -262,20 +262,32 @@ public class NRGameStateEvents {
                                 .withStyle(ChatFormatting.GREEN));
 
                     }
-                    if (areacca.areasSettings.bellMeetingEnabled) {
+                    {
                         meetingType = meetingType == null
-                                ? Component.translatable("meeting.sre.bell_meeting").withStyle(ChatFormatting.YELLOW)
+                                ? Component
+                                        .translatable(
+                                                areacca.areasSettings.bellMeetingEnabled ? "meeting.sre.bell_meeting"
+                                                        : "meeting.sre.emergency_meeting")
+                                        .withStyle(ChatFormatting.YELLOW)
                                 : Component.translatable("meeting.sre.entry.and", meetingType,
-                                        Component.translatable("meeting.sre.bell_meeting")
+                                        Component
+                                                .translatable(areacca.areasSettings.bellMeetingEnabled
+                                                        ? "meeting.sre.bell_meeting"
+                                                        : "meeting.sre.emergency_meeting")
                                                 .withStyle(ChatFormatting.YELLOW))
                                         .withStyle(ChatFormatting.GOLD);
-                        startCooldownMsg.append("\n").append(Component.translatable("meeting.sre.entry.is_comming",
-                                Component.translatable("meeting.sre.bell_meeting").withStyle(ChatFormatting.YELLOW),
-                                Component.literal(String.format("%d", areacca.areasSettings.bellMeetingStartCooldown))
-                                        .withStyle(ChatFormatting.GREEN)));
+                        if (areacca.areasSettings.bellMeetingEnabled)
+                            startCooldownMsg.append("\n").append(Component.translatable("meeting.sre.entry.is_comming",
+                                    Component.translatable("meeting.sre.bell_meeting").withStyle(ChatFormatting.YELLOW),
+                                    Component
+                                            .literal(
+                                                    String.format("%d", areacca.areasSettings.bellMeetingStartCooldown))
+                                            .withStyle(ChatFormatting.GREEN)));
 
                         meetingResultMsg.append("\n").append(Component.translatable("meeting.sre.entry.processor",
-                                Component.translatable("meeting.sre.bell_meeting").withStyle(ChatFormatting.YELLOW),
+                                Component.translatable(areacca.areasSettings.bellMeetingEnabled
+                                        ? "meeting.sre.bell_meeting"
+                                        : "meeting.sre.emergency_meeting").withStyle(ChatFormatting.YELLOW),
                                 getProcessorType(areacca.areasSettings, true))
                                 .withStyle(ChatFormatting.GREEN));
                     }

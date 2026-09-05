@@ -295,6 +295,7 @@ public class SREClient implements ClientModInitializer {
 
     @Override
     public void onInitializeClient() {
+        LetterNewspaperBuilder.init();
         RhythmMapManager.registerEvents();
         SceneAssetClient.initialize();
         SceneAssetNetwork.registerClientReceivers();
