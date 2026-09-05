@@ -138,7 +138,7 @@ public class WorldModifierComponent implements AutoSyncedComponent, ServerTickin
     }
 
     public void setModifiers(List<UUID> players, Collection<SREModifier> newModifiers) {
-        if (players.isEmpty())
+        if (players == null || players.isEmpty())
             return;
         synchronized (this.modifiers) {
             if (newModifiers != null) {
@@ -150,6 +150,27 @@ public class WorldModifierComponent implements AutoSyncedComponent, ServerTickin
             }
         }
         this.sync();
+    }
+
+    public void setModifiers(UUID player, Collection<SREModifier> newModifiers) {
+        if (player == null)
+            return;
+        synchronized (this.modifiers) {
+            if (newModifiers != null) {
+                {
+                    modifiers.put(player, ConcurrentHashMap.newKeySet());
+                    modifiers.get(player).addAll(newModifiers);
+                    this.dirtyUuids.add(player);
+                }
+            }
+        }
+        this.sync();
+    }
+
+    public void setModifiers(Player player, Collection<SREModifier> newModifiers) {
+        if (player == null)
+            return;
+        setModifiers(player.getUUID(), newModifiers);
     }
 
     /**
