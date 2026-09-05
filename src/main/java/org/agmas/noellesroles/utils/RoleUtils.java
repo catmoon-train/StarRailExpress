@@ -282,7 +282,8 @@ public class RoleUtils extends MCItemsUtils {
             return;
         }
         WorldModifierComponent.getInstance(player).addModifier(player, modifier);
-        ModifierAssigned.EVENT.invoker().assignModifier(player, modifier);
+        if (!noEventCall)
+            ModifierAssigned.EVENT.invoker().assignModifier(player, modifier);
     }
 
     public static void removeModifier(Player player, SREModifier modifier) {
@@ -294,7 +295,27 @@ public class RoleUtils extends MCItemsUtils {
             return;
         }
         WorldModifierComponent.getInstance(player).removeModifier(player, modifier);
-        ModifierRemoved.EVENT.invoker().removeModifier(player, modifier);
+        if (!noEventCall)
+            ModifierRemoved.EVENT.invoker().removeModifier(player, modifier);
+    }
+
+    public static void removeAllModifiers(Player player) {
+        removeAllModifiers(player, false);
+    }
+
+    public static void removeAllModifiers(Player player, boolean noEventCall) {
+        if (player == null) {
+            return;
+        }
+        var wmc = WorldModifierComponent.getInstance(player);
+        Set<SREModifier> modifiers = wmc.getModifiers(player);
+
+        if (!noEventCall) {
+            for (var t : modifiers) {
+                ModifierRemoved.EVENT.invoker().removeModifier(player, t);
+            }
+        }
+        wmc.setModifiers(player, List.of());
     }
 
     public static void changeRole(Player player, SRERole role) {

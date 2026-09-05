@@ -59,6 +59,7 @@ public class WorldModifierComponent implements AutoSyncedComponent, ServerTickin
     private final Level world;
     public ConcurrentHashMap<UUID, Set<SREModifier>> modifiers = new ConcurrentHashMap<>();
 
+    public static final Set<SREModifier> EMPTY_SET = Set.of();
     // 自上次发包以来真正发生过变更的玩家UUID，差异包只包含这些玩家
     private final Set<UUID> dirtyUuids = new HashSet<>();
     // 本tick内收到过sync()请求，推迟到serverTick统一发包，把多次广播合并成一次
@@ -119,7 +120,7 @@ public class WorldModifierComponent implements AutoSyncedComponent, ServerTickin
     public Set<SREModifier> getModifiers(UUID uuid) {
         Set<SREModifier> set = this.modifiers.get(uuid);
         // 必须要新建，添加修饰符和删除修饰符都会走这条路。如果返回固定的会导致各种BUG
-        return set != null ? set : new HashSet<>();
+        return set != null ? set : EMPTY_SET;
     }
 
     private Set<SREModifier> getOrCreateModifiers(UUID uuid) {
@@ -136,17 +137,40 @@ public class WorldModifierComponent implements AutoSyncedComponent, ServerTickin
         return ret;
     }
 
-    public void setModifiers(List<UUID> players, SREModifier modifier) {
-        if (players.isEmpty())
+    public void setModifiers(List<UUID> players, Collection<SREModifier> newModifiers) {
+        if (players == null || players.isEmpty())
             return;
         synchronized (this.modifiers) {
-            for (UUID player : players) {
-                if (modifier != null && getOrCreateModifiers(player).add(modifier)) {
+            if (newModifiers != null) {
+                for (UUID player : players) {
+                    modifiers.put(player, ConcurrentHashMap.newKeySet());
+                    modifiers.get(player).addAll(newModifiers);
                     this.dirtyUuids.add(player);
                 }
             }
         }
         this.sync();
+    }
+
+    public void setModifiers(UUID player, Collection<SREModifier> newModifiers) {
+        if (player == null)
+            return;
+        synchronized (this.modifiers) {
+            if (newModifiers != null) {
+                {
+                    modifiers.put(player, ConcurrentHashMap.newKeySet());
+                    modifiers.get(player).addAll(newModifiers);
+                    this.dirtyUuids.add(player);
+                }
+            }
+        }
+        this.sync();
+    }
+
+    public void setModifiers(Player player, Collection<SREModifier> newModifiers) {
+        if (player == null)
+            return;
+        setModifiers(player.getUUID(), newModifiers);
     }
 
     /**
