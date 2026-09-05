@@ -152,12 +152,6 @@ public class WorldModifierComponent implements AutoSyncedComponent, ServerTickin
         this.sync();
     }
 
-    private Set<SREModifier> getModifiers_inner(UUID uuid) {
-        Set<SREModifier> set = this.modifiers.get(uuid);
-        // 必须要新建，添加修饰符和删除修饰符都会走这条路。如果返回固定的会导致各种BUG
-        return set != null ? set : ConcurrentHashMap.newKeySet();
-    }
-
     /**
      * 清空整张表并标记所有旧条目待同步删除，替代外部直接操作modifiers字段的clear。
      * 调用方仍需自行调用sync()。
@@ -190,11 +184,10 @@ public class WorldModifierComponent implements AutoSyncedComponent, ServerTickin
         if (modifier == null)
             return;
         synchronized (this.modifiers) {
-            if (!getModifiers_inner(player).add(modifier))
-                return; // 没有真正变化，不标记脏
+            if (!getOrCreateModifiers(player).add(modifier))
+                return;
             this.dirtyUuids.add(player);
         }
-        getOrCreateModifiers(player).add(modifier);
         if (sync)
             this.sync();
     }
