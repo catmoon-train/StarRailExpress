@@ -534,12 +534,12 @@ public class NewspaperScreen extends Screen {
         int currentY = startY;
         // 绘制标签
         guiGraphics.drawString(font, EDIT_TITLE_LABEL,
-                centerX - font.width(EDIT_TITLE_LABEL) / 2, currentY, 0, false);
+                centerX - font.width(EDIT_TITLE_LABEL) / 2, currentY, 0, true);
         currentY += labelHeight + spacing;
 
         // 绘制标题输入（带光标）
         guiGraphics.drawString(font, titleSeq,
-                centerX - font.width(titleSeq) / 2, currentY, 0, false);
+                centerX - font.width(titleSeq) / 2, currentY, 0, true);
         currentY += titleInputHeight + spacing;
 
         // 绘制作者
@@ -547,7 +547,7 @@ public class NewspaperScreen extends Screen {
                 ? Component.translatable("book.byAuthor", player.getName()).withStyle(ChatFormatting.DARK_GRAY)
                 : CommonComponents.EMPTY;
         guiGraphics.drawString(font, authorText,
-                centerX - font.width(authorText) / 2, currentY, 0, false);
+                centerX - font.width(authorText) / 2, currentY, 0, true);
         currentY += authorHeight + spacing;
 
         // 绘制警告文字（支持换行）
@@ -584,7 +584,7 @@ public class NewspaperScreen extends Screen {
                         int cut = font.plainSubstrByWidth(rawTitle, maxWidth - font.width("..."), true).length();
                         displayTitle = rawTitle.substring(0, cut) + "...";
                     }
-                    guiGraphics.drawString(font, displayTitle, 0, 0, 0x000000, false);
+                    guiGraphics.drawString(font, displayTitle, 0, 0, 0x000000, true);
                     guiGraphics.pose().popPose();
                 }
             }
@@ -601,7 +601,7 @@ public class NewspaperScreen extends Screen {
                             (newspaperY / scale + authorY),
                             0);
                     guiGraphics.pose().scale(5.0f / 9.0f, 5.0f / 9.0f, 1.0f);
-                    guiGraphics.drawString(font, authorComponent, 0, 0, ChatFormatting.GRAY.getColor(), false);
+                    guiGraphics.drawString(font, authorComponent, 0, 0, ChatFormatting.GRAY.getColor(), true);
                     guiGraphics.pose().popPose();
                 }
             }
@@ -612,7 +612,7 @@ public class NewspaperScreen extends Screen {
             DisplayCache cache = getDisplayCache();
             if (cache != null) {
                 for (LineInfo line : cache.lines) {
-                    guiGraphics.drawString(font, line.asComponent, line.x, line.y, 0x000000, false);
+                    guiGraphics.drawString(font, line.asComponent, line.x, line.y, 0x000000, true);
                 }
                 renderHighlight(guiGraphics, cache.selection);
                 renderCursor(guiGraphics, cache.cursor, cache.cursorAtEnd);
@@ -622,7 +622,7 @@ public class NewspaperScreen extends Screen {
                 rebuildSubPages();
             List<FormattedCharSequence> lines = subPages.get(currentPage);
             for (int i = 0; i < lines.size(); i++) {
-                guiGraphics.drawString(font, lines.get(i), textX, textY + i * 9, 0x000000, false);
+                guiGraphics.drawString(font, lines.get(i), textX, textY + i * 9, 0x000000, true);
             }
             Style hoverStyle = getClickedComponentStyleAt(mouseX, mouseY);
             if (hoverStyle != null) {
@@ -642,7 +642,7 @@ public class NewspaperScreen extends Screen {
                     0);
             // 应用字号缩放
             // 绘制文本，右对齐（x = -msgWidth 使右边缘对齐原点）
-            guiGraphics.drawString(font, pageMsg, -msgWidth, 0, 0x000000, false);
+            guiGraphics.drawString(font, pageMsg, -msgWidth, 0, 0x000000, true);
             guiGraphics.pose().popPose();
         }
     }
@@ -656,7 +656,7 @@ public class NewspaperScreen extends Screen {
                 guiGraphics.fill(screenPos.x, screenPos.y - 1,
                         screenPos.x + 1, screenPos.y + 9, 0xFF000000);
             } else {
-                guiGraphics.drawString(font, "_", screenPos.x, screenPos.y, 0, false);
+                guiGraphics.drawString(font, "_", screenPos.x, screenPos.y, 0, true);
             }
         }
     }

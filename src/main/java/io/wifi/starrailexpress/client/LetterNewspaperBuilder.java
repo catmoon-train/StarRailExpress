@@ -32,12 +32,10 @@ public class LetterNewspaperBuilder {
         String mapNameKey = getMapNameKey();
         Component title = Component.translatable(
                 "sre.letter.tip.header.title",
-                Component.translatable(mapNameKey)
-        );
+                Component.translatable(mapNameKey));
         Component subtitle = Component.translatable(
                 "sre.letter.tip.header.subtitle",
-                Component.translatable(mapNameKey)
-        );
+                Component.translatable(mapNameKey));
 
         NewspaperScreen screen = new NewspaperScreen(List.of(body), title, subtitle);
         Minecraft.getInstance().setScreen(screen);
@@ -91,12 +89,12 @@ public class LetterNewspaperBuilder {
                 : Component.translatable("announcement.star.tip.cant_jump"));
 
         tip.append(Component.translatable("announcement.star.tip.split"))
-           .append(buildWaterTip(area.areasSettings));
+                .append(buildWaterTip(area.areasSettings));
 
         tip.append(Component.translatable("announcement.star.tip.split"))
-           .append(area.areasSettings.enableOxygenDrowning
-                   ? Component.translatable("announcement.star.tip.will_drown")
-                   : Component.translatable("announcement.star.tip.wont_drown"));
+                .append(area.areasSettings.enableOxygenDrowning
+                        ? Component.translatable("announcement.star.tip.will_drown")
+                        : Component.translatable("announcement.star.tip.wont_drown"));
 
         return tip;
     }
@@ -126,7 +124,8 @@ public class LetterNewspaperBuilder {
         if (!canSwim) {
             return Component.translatable("announcement.star.tip.cant_swim_up");
         }
-        // 剩余情况：canSimpleSwim=false, canUnderWater=true, allowInDeepWater=true, canSwim=true
+        // 剩余情况：canSimpleSwim=false, canUnderWater=true, allowInDeepWater=true,
+        // canSwim=true
         return Component.translatable("announcement.star.tip.default");
     }
 
@@ -147,8 +146,7 @@ public class LetterNewspaperBuilder {
                 roleName,
                 clickHint,
                 NoellesrolesClient.roleIntroClientBind.getTranslatedKeyMessage().copy()
-                        .withStyle(ChatFormatting.GOLD)
-        );
+                        .withStyle(ChatFormatting.GOLD));
     }
 
     @Nullable
@@ -172,51 +170,42 @@ public class LetterNewspaperBuilder {
             startCooldownMsg.append("\n").append(Component.translatable(
                     "meeting.sre.entry.is_comming",
                     bodyMeeting,
-                    Component.literal(String.valueOf(settings.meetingStartCooldown))
-            ));
+                    Component.literal(String.valueOf(settings.meetingStartCooldown))));
             meetingResultMsg.append("\n").append(Component.translatable(
                     "meeting.sre.entry.processor",
                     bodyMeeting,
-                    buildProcessorType(settings, false)
-            ));
+                    buildProcessorType(settings, false)));
         }
 
         // 铃铛会议 / 紧急会议
         Component secondaryMeeting = Component.translatable(
-                settings.bellMeetingEnabled ? "meeting.sre.bell_meeting" : "meeting.sre.emergency_meeting"
-        );
+                settings.bellMeetingEnabled ? "meeting.sre.bell_meeting" : "meeting.sre.emergency_meeting");
         appendMeetingType(meetingType, secondaryMeeting);
 
         if (settings.bellMeetingEnabled) {
             startCooldownMsg.append("\n").append(Component.translatable(
                     "meeting.sre.entry.is_comming",
                     secondaryMeeting,
-                    Component.literal(String.valueOf(settings.bellMeetingStartCooldown))
-            ));
+                    Component.literal(String.valueOf(settings.bellMeetingStartCooldown))));
         }
 
         meetingResultMsg.append("\n").append(Component.translatable(
                 "meeting.sre.entry.processor",
                 secondaryMeeting,
-                buildProcessorType(settings, true)
-        ));
+                buildProcessorType(settings, true)));
 
         return Component.translatable(
                 "meeting.sre.description",
                 meetingType,
                 meetingResultMsg,
-                startCooldownMsg
-        );
+                startCooldownMsg);
     }
 
     private static void appendMeetingType(MutableComponent target, Component type) {
         if (target.getSiblings().isEmpty()) {
             target.append(type);
         } else {
-            target.append(Component.translatable("meeting.sre.entry.and", target.copy(), type));
-            // 直接修改 target 内容：用“and”连接后替换原内容
-            target.getSiblings().clear();
-            target.append(Component.translatable("meeting.sre.entry.and", target.copy(), type));
+            target = Component.translatable("meeting.sre.entry.and", target.copy(), type);
         }
     }
 
@@ -235,7 +224,7 @@ public class LetterNewspaperBuilder {
             case FORCE_KILL, KILL -> Component.translatable("meeting.sre.entry.kill")
                     .withStyle(ChatFormatting.DARK_RED);
             case GLOWING -> Component.translatable("meeting.sre.entry.glow")
-                    .withStyle(ChatFormatting.GOLD);
+                    .withStyle(ChatFormatting.DARK_AQUA);
             default -> Component.translatable("meeting.sre.entry.custom");
         };
 
