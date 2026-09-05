@@ -167,7 +167,7 @@ public class LetterNewspaperBuilder {
         // 身体会议
         if (settings.bodyMeetingEnabled) {
             Component bodyMeeting = Component.translatable("meeting.sre.body_meeting");
-            appendMeetingType(meetingType, bodyMeeting);
+            meetingType = bodyMeeting.copy();
             startCooldownMsg.append("\n").append(Component.translatable(
                     "meeting.sre.entry.is_comming",
                     bodyMeeting,
@@ -181,7 +181,11 @@ public class LetterNewspaperBuilder {
         // 铃铛会议 / 紧急会议
         Component secondaryMeeting = Component.translatable(
                 settings.bellMeetingEnabled ? "meeting.sre.bell_meeting" : "meeting.sre.emergency_meeting");
-        appendMeetingType(meetingType, secondaryMeeting);
+        if (settings.bodyMeetingEnabled) {
+            meetingType = Component.translatable("meeting.sre.entry.and", meetingType.copy(), secondaryMeeting);
+        } else {
+            meetingType = secondaryMeeting.copy();
+        }
 
         if (settings.bellMeetingEnabled) {
             startCooldownMsg.append("\n").append(Component.translatable(
@@ -200,14 +204,6 @@ public class LetterNewspaperBuilder {
                 meetingType,
                 meetingResultMsg,
                 startCooldownMsg);
-    }
-
-    private static void appendMeetingType(MutableComponent target, Component type) {
-        if (target.getSiblings().isEmpty()) {
-            target.append(type);
-        } else {
-            target = Component.translatable("meeting.sre.entry.and", target.copy(), type);
-        }
     }
 
     private static Component buildProcessorType(AreasSettings settings, boolean emergency) {
