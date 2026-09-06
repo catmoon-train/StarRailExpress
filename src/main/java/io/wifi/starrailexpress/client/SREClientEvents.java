@@ -75,7 +75,7 @@ import java.util.UUID;
  */
 public class SREClientEvents {
 
-    private static Component getName(Player target) {
+    public static Component getName(Player target) {
         if (target == null)
             return Component.literal("");
         var prefix = ClientSkinCache.somePrefix(target.getUUID());
@@ -84,7 +84,7 @@ public class SREClientEvents {
         return Component.literal("").append(prefix).append(target.getName());
     }
 
-    private static Component getName(PlayerInfo playerInfo) {
+    public static Component getName(PlayerInfo playerInfo) {
         if (playerInfo == null || playerInfo.getProfile() == null) {
             return Component.literal("");
         }
