@@ -152,7 +152,7 @@ public class SREMurderGameMode extends GameMode {
             }
         }
 
-        gameWorldComponent.syncRoles();
+        gameWorldComponent.syncRolesNow();
         // 同步职业
 
         for (ServerPlayer player : players) {
@@ -322,7 +322,7 @@ public class SREMurderGameMode extends GameMode {
             }
         }
         // 等所有修饰符都添加完成后，再同步整个组件
-        worldModifierComponent.sync();
+        worldModifierComponent.syncNow();
 
         for (ServerPlayer player : players) {
             var modifiers = worldModifierComponent.getDisplayableModifiers(player);

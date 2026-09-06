@@ -455,6 +455,13 @@ public class SREGameWorldComponent implements AutoSyncedComponent, ServerTicking
         this.addRole(player.getUUID(), role, sync);
     }
 
+    public void syncRolesNow() {
+        if (roleWorldComponent == null) {
+            roleWorldComponent = SRERoleWorldComponent.KEY.get(world);
+        }
+        roleWorldComponent.syncNow();
+    }
+
     public void syncRoles() {
         if (roleWorldComponent == null) {
             roleWorldComponent = SRERoleWorldComponent.KEY.get(world);

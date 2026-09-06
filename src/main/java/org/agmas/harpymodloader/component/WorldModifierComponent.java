@@ -404,6 +404,9 @@ public class WorldModifierComponent implements AutoSyncedComponent, ServerTickin
     }
 
     public void syncNow() {
+        if (this.world.isClientSide)
+            return;
+        sync();
         flushPendingDiff();
     }
 }

@@ -463,6 +463,9 @@ public class SRERoleWorldComponent implements AutoSyncedComponent, ServerTicking
     }
 
     public void syncNow() {
+        if (this.world.isClientSide)
+            return;
+        sync();
         flushPendingDiff();
     }
 }

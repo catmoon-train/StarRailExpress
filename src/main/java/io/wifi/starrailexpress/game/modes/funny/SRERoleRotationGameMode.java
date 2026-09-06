@@ -232,7 +232,7 @@ public class SRERoleRotationGameMode extends SREMurderGameMode {
                         true);
             }
         }
-        roleComp.sync();
+        roleComp.syncNow();
         List<ServerPlayer> alive = world.getPlayers(GameUtils::isPlayerAliveAndSurvivalIgnoreShitSplit);
         for (ServerPlayer p : alive) {
             var role = gameComp.getRole(p);
