@@ -1410,7 +1410,7 @@
     "hud.sre.custom_role.skill_default": "技能",
     "skill.sre.custom_role.ability": "技能",
     "hud.sre.game_token": "%s",
-    "hud.sre.skill_cast": "%s 使用了 %s 的技能",
+    "hud.sre.skill_cast": "%s 使用了技能",
     "tooltip.starrailexpress.item.shift_more": "按住 [%s] 显示更多信息",
     "tooltip.starrailexpress.item.shop_header": "出现在以下职业商店：",
     "tooltip.starrailexpress.item.start_header": "以下职业开局获得：",

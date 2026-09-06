@@ -40,7 +40,7 @@ public final class SkillCastAnnounce {
             return;
         }
         SREConfig config = SREConfig.instance();
-        if (config == null || !config.skillCastAnnounceHud) {
+        if (config == null || !config.enableSkillCastAnnounceHud) {
             return;
         }
         if (definition != null) {
@@ -56,7 +56,7 @@ public final class SkillCastAnnounce {
             return;
         }
         SkillCastAnnouncePayload payload = new SkillCastAnnouncePayload(
-                player.getName().getString(), role.identifier());
+                role.identifier());
         for (ServerPlayer viewer : player.serverLevel().players()) {
             ServerPlayNetworking.send(viewer, payload);
         }
@@ -78,6 +78,20 @@ public final class SkillCastAnnounce {
     }
 
     private static boolean shouldShowRole(SRERole role, SREConfig config) {
+        if (role == null)
+            return false;
+        if (role.isHideRoleInfoWhenSeen()) {
+            return false;
+        }
+        if (role.isNeutrals() || role.isNeutralForInnocent() || role.isNeutralForKiller()) {
+            return false;
+        }
+        if (role.isKillerTeam()) {
+            return false;
+        }
+        if (role.isHiddenForRoleRotation()) {
+            return false;
+        }
         if (matchesRoleList(role, config.skillCastAnnounceBlacklist)) {
             return false;
         }

@@ -24,20 +24,17 @@ import net.minecraft.resources.ResourceLocation;
 /**
  * 服务端在玩家成功释放技能后，向同世界玩家同步左侧 HUD 通告。
  */
-public record SkillCastAnnouncePayload(
-        String playerName,
-        ResourceLocation roleId) implements CustomPacketPayload {
+public record SkillCastAnnouncePayload(ResourceLocation roleId) implements CustomPacketPayload {
 
     public static final Type<SkillCastAnnouncePayload> ID = new Type<>(SRE.id("skill_cast_announce"));
-    public static final StreamCodec<FriendlyByteBuf, SkillCastAnnouncePayload> CODEC =
-            CustomPacketPayload.codec(SkillCastAnnouncePayload::write, SkillCastAnnouncePayload::new);
+    public static final StreamCodec<FriendlyByteBuf, SkillCastAnnouncePayload> CODEC = CustomPacketPayload
+            .codec(SkillCastAnnouncePayload::write, SkillCastAnnouncePayload::new);
 
     public SkillCastAnnouncePayload(FriendlyByteBuf buffer) {
-        this(buffer.readUtf(64), buffer.readResourceLocation());
+        this(buffer.readResourceLocation());
     }
 
     private void write(FriendlyByteBuf buffer) {
-        buffer.writeUtf(playerName == null ? "" : playerName, 64);
         buffer.writeResourceLocation(roleId);
     }
 

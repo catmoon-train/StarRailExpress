@@ -453,11 +453,11 @@ public class SREConfig implements ConfigData {
 
     public boolean enableRoster = true;
 
-    // 技能释放通告 HUD（服务端控制，默认开启）
+    // 技能释放通告 HUD（服务端控制，默认关闭）
     @ConfigEntry.Category(value = "hud")
     @ConfigSync(shouldSync = true)
     @Tooltip
-    public boolean skillCastAnnounceHud = true;
+    public boolean enableSkillCastAnnounceHud = false;
 
     @ConfigEntry.Category(value = "hud")
     @ConfigSync(shouldSync = true)

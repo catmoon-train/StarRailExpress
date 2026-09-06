@@ -55,7 +55,7 @@ public final class SkillCastAnnounceHud {
     }
 
     public static void push(SkillCastAnnouncePayload payload) {
-        if (payload == null || !SREConfig.instance().skillCastAnnounceHud) {
+        if (payload == null || !SREConfig.instance().enableSkillCastAnnounceHud) {
             return;
         }
         Minecraft client = Minecraft.getInstance();
@@ -67,9 +67,7 @@ public final class SkillCastAnnounceHud {
         if (roleName == null) {
             roleName = Component.literal(roleId == null ? "?" : roleId.getPath());
         }
-        MutableComponent line = Component.translatable("hud.sre.skill_cast",
-                Component.literal(payload.playerName() == null ? "" : payload.playerName()),
-                roleName);
+        MutableComponent line = Component.translatable("hud.sre.skill_cast", roleName);
         long now = Util.getMillis();
         TOASTS.add(new Toast(line, now));
         while (TOASTS.size() > MAX_TOASTS) {
@@ -82,7 +80,7 @@ public final class SkillCastAnnounceHud {
         if (client.player == null || client.options.hideGui || TOASTS.isEmpty()) {
             return;
         }
-        if (!SREConfig.instance().skillCastAnnounceHud) {
+        if (!SREConfig.instance().enableSkillCastAnnounceHud) {
             TOASTS.clear();
             return;
         }
