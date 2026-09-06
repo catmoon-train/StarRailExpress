@@ -96,17 +96,8 @@ public final class OpeningPresentationCoordinator {
                 }
             }
         } else if (state == State.SHOWING_RULES) {
-            if (client.screen != null) {
-                // 有屏幕打开（如按 T 开聊天）时只是暂停展示，不要清空整个开场；
-                // 关掉屏幕后若运镜仍在播放，规则卡会继续显示。
-                if (!AdvancedCameraDirector.isTrackActive()) {
-                    MapRuleIntroHud.clear();
-                    state = State.COMPLETE;
-                }
-                return;
-            }
-            // 规则卡只在开局运镜期间展示：运镜轨道结束即同步结束。
-            // 运镜期间 welcome 处于暂停状态不会渲染，无需在这里提前清卡。
+            // 规则卡只在开局运镜期间展示。按 T 开聊天等屏幕不暂停也不清空它：
+            // 只是悬浮在卡片上方，卡片时间轴照常推进，运镜轨道结束即同步结束。
             if (!AdvancedCameraDirector.isTrackActive()) {
                 MapRuleIntroHud.clear();
                 state = State.COMPLETE;
@@ -118,17 +109,18 @@ public final class OpeningPresentationCoordinator {
 
     public static void render(FakeGuiGraphics graphics, float partialTick) {
         Minecraft client = Minecraft.getInstance();
-        if (client.screen != null)
-            return;
-        renderCurtain(graphics.getDefaultGuiGraphics(), partialTick, false);
+        boolean screenOpen = client.screen != null;
+        if (!screenOpen) {
+            renderCurtain(graphics.getDefaultGuiGraphics(), partialTick, false);
+        }
         boolean welcomeActive = RoundTextRenderer.isWelcomeActive();
-        // 运镜期间的 welcome 被暂停（不渲染），规则卡应照常与运镜同步显示；
+        // 规则卡与开局运镜同步显示：聊天等悬浮屏打开也不暂停，卡片照常绘制在其背后；
         // 只有 welcome 真正可渲染时才让它抢占演示层。
         if (state == State.SHOWING_RULES && (!welcomeActive || shouldWaitForWelcome())) {
             MapRuleIntroHud.render(graphics.getDefaultGuiGraphics(), partialTick);
             return;
         }
-        if (welcomeActive && !shouldWaitForWelcome()) {
+        if (!screenOpen && welcomeActive && !shouldWaitForWelcome()) {
             if (client.player != null)
                 RoundTextRenderer.renderWelcomeGui(client.font, client.player, graphics, partialTick);
         }
