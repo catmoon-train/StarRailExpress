@@ -281,7 +281,9 @@ public class RoleUtils extends MCItemsUtils {
         if (player == null || modifier == null) {
             return;
         }
-        WorldModifierComponent.getInstance(player).addModifier(player, modifier);
+        final var wmc = WorldModifierComponent.getInstance(player);
+        wmc.addModifier(player, modifier);
+        wmc.syncNow();
         if (!noEventCall)
             ModifierAssigned.EVENT.invoker().assignModifier(player, modifier);
     }
@@ -294,7 +296,9 @@ public class RoleUtils extends MCItemsUtils {
         if (player == null || modifier == null) {
             return;
         }
-        WorldModifierComponent.getInstance(player).removeModifier(player, modifier);
+
+        final var wmc = WorldModifierComponent.getInstance(player);
+        wmc.removeModifier(player, modifier);
         if (!noEventCall)
             ModifierRemoved.EVENT.invoker().removeModifier(player, modifier);
     }
@@ -384,6 +388,7 @@ public class RoleUtils extends MCItemsUtils {
         }
         // 给新职业
         gameWorldComponent.addRole(player, role);
+        gameWorldComponent.roleWorldComponent.syncNow();
         // 触发事件
         if (player instanceof ServerPlayer sp) {
             if (!noEventCall)

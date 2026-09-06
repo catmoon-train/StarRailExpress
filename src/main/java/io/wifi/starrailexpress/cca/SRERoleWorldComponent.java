@@ -461,4 +461,8 @@ public class SRERoleWorldComponent implements AutoSyncedComponent, ServerTicking
     public void syncWith(ServerPlayer player) {
         KEY.syncWith(player, this.world.asComponentProvider());
     }
+
+    public void syncNow() {
+        flushPendingDiff();
+    }
 }
