@@ -904,4 +904,8 @@ public class RoleUtils extends MCItemsUtils {
         return result;
     }
 
+    public static SRERole getRoleByPath(String rolePath) {
+        return TMMRoles.getRoleByPath(rolePath);
+    }
+
 }

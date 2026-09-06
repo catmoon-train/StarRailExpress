@@ -25,6 +25,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 
+import org.agmas.noellesroles.utils.RoleUtils;
 import org.ladysnake.cca.api.v3.component.ComponentKey;
 import org.ladysnake.cca.api.v3.component.ComponentRegistry;
 import org.ladysnake.cca.api.v3.component.tick.ClientTickingComponent;
@@ -97,7 +98,7 @@ public class SRERoleDataPlayerComponent
         if (!player.level().isClientSide)
             serverInit();
         else
-            clientInit();
+            clientInit(RoleUtils.getPlayerRole(player));
     }
 
     public void serverInit() {
@@ -124,9 +125,7 @@ public class SRERoleDataPlayerComponent
         }
     }
 
-    public void clientInit() {
-        final var cca = SREGameWorldComponent.getInstance(player);
-        playerRole = cca.getRole(player);
+    public void clientInit(SRERole playerRole) {
         if (playerRole == null) {
             clear();
             return;
@@ -174,7 +173,7 @@ public class SRERoleDataPlayerComponent
     @Override
     public void writeToSyncNbt(CompoundTag tag, Provider registryLookup) {
         if (initSync) {
-            tag.putBoolean("__init__", true);
+            tag.putString("__init__", playerRole != null ? playerRole.identifier().getPath() : "");
             return;
         }
         if (forceClear) {
@@ -192,7 +191,9 @@ public class SRERoleDataPlayerComponent
             if (roleData != null) {
                 clear();
             }
-            clientInit();
+            String rolePath = tag.getString("__init__");
+            playerRole = RoleUtils.getRoleByPath(rolePath);
+            clientInit(playerRole);
             return;
         }
         if (tag.contains("__clear__")) {
@@ -200,7 +201,7 @@ public class SRERoleDataPlayerComponent
             return;
         }
         if (roleData == null) {
-            clientInit();
+            clientInit(RoleUtils.getPlayerRole(player));
         }
 
         if (roleData != null) {
