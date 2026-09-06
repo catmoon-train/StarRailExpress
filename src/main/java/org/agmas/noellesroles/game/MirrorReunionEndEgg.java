@@ -28,7 +28,7 @@ import org.agmas.noellesroles.init.ModEffects;
  * 沉底后才黑屏，药水结束后才真正结束。
  */
 public final class MirrorReunionEndEgg {
-    public static final int BLACK_DURATION_TICKS = 10 * 20;
+    public static final int BLACK_DURATION_TICKS = 7 * 20;
 
     private static boolean enabled;
     private static boolean delayingThisRound;
