@@ -77,6 +77,10 @@ public class DreamAxeItem extends Item implements SREItemProperties.LeftClickHur
         if (!gameWorld.getRole(attacker).canUseSpVanillaWeapon()) {
             return false;
         }
+        // 物品冷却中（如网警击杀后的 20 秒武器冷却）无法左键攻击
+        if (attacker.getCooldowns().isOnCooldown(mainhandItem.getItem())) {
+            return false;
+        }
         // 蓄力条必须满才能攻击
         if (attacker.getAttackStrengthScale(0.5F) < 1f) {
             return false;
