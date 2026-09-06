@@ -36,6 +36,7 @@ public class ClientSkinCache {
     public static final Map<UUID, PlayerInfo> PLAYER_ENTRIES_CACHE = new HashMap<>();
     @Unique
     public static final Map<UUID, CachedDisguiseState> DISGUISE_CACHE = new ConcurrentHashMap<>();
+
     public static class CachedDisguiseState {
         public boolean pig;
         public boolean rabbit;
@@ -47,6 +48,8 @@ public class ClientSkinCache {
             this.lastCheckTime = time;
         }
     }
+
+    public static ConcurrentHashMap<UUID, String> displayTags = new ConcurrentHashMap<>();
 
     public static PlayerInfo getCachedPlayerInfo(UUID uid) {
         if (uid == null)

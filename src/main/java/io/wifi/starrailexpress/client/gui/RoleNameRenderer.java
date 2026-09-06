@@ -46,8 +46,6 @@ import org.agmas.noellesroles.content.entity.PuppeteerBodyEntity;
 import org.agmas.noellesroles.utils.RoleUtils;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -58,7 +56,6 @@ public class RoleNameRenderer {
     private static Component roleText1;
     // private static float nametagAlpha = 0f;
     // private static float noteAlpha = 0f;
-    public static Map<UUID, String> displayTags = new HashMap<>();
 
     public static float getPlayerRange(Player player) {
         if (player.getMainHandItem().is(Items.SPYGLASS)) {
