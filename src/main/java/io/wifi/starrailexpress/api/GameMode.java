@@ -852,4 +852,8 @@ public abstract class GameMode {
     public abstract boolean isPlayerWinning(ServerLevel world, ServerPlayer player, SRERole playerRole,
             SREGameRoundEndComponent roundEnd,
             SREGameWorldComponent gameComponent);
+
+    public boolean castAllSkill() {
+        return false;
+    }
 }

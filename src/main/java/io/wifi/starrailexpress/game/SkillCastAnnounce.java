@@ -40,7 +40,7 @@ public final class SkillCastAnnounce {
             return;
         }
         SREConfig config = SREConfig.instance();
-        if (config == null || !config.enableSkillCastAnnounceHud) {
+        if (config == null || shouldSkillCast(player, config)) {
             return;
         }
         if (definition != null) {
@@ -52,7 +52,7 @@ public final class SkillCastAnnounce {
         if (game == null || !game.isRunning()) {
             return;
         }
-        if (!shouldShowRole(role, config)) {
+        if (!shouldShowRole(player, role, config)) {
             return;
         }
         SkillCastAnnouncePayload payload = new SkillCastAnnouncePayload(
@@ -60,6 +60,17 @@ public final class SkillCastAnnounce {
         for (ServerPlayer viewer : player.serverLevel().players()) {
             ServerPlayNetworking.send(viewer, payload);
         }
+    }
+
+    private static boolean shouldSkillCast(ServerPlayer player, SREConfig config) {
+        final var cca = SREGameWorldComponent.getInstance(player);
+        if (cca.gameMode != null && cca.gameMode.castAllSkill()) {
+            return true;
+        }
+        if (!config.enableSkillCastAnnounceHud) {
+            return false;
+        }
+        return true;
     }
 
     /**
@@ -77,10 +88,13 @@ public final class SkillCastAnnounce {
         tryAnnounce(player, displayRole, null);
     }
 
-    private static boolean shouldShowRole(SRERole role, SREConfig config) {
+    private static boolean shouldShowRole(ServerPlayer player, SRERole role, SREConfig config) {
         if (role == null)
             return false;
-
+        final var cca = SREGameWorldComponent.getInstance(player);
+        if (cca.gameMode != null && cca.gameMode.castAllSkill()) {
+            return true;
+        }
         if (hasEntries(config.skillCastAnnounceWhitelist)) {
             if (matchesRoleList(role, config.skillCastAnnounceWhitelist)) {
                 return true;
@@ -88,7 +102,7 @@ public final class SkillCastAnnounce {
                 return false;
             }
         }
-        
+
         if (role.isHideRoleInfoWhenSeen()) {
             return false;
         }

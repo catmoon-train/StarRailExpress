@@ -16,6 +16,7 @@
 package io.wifi.starrailexpress.client.hud;
 
 import io.wifi.starrailexpress.SREConfig;
+import io.wifi.starrailexpress.client.SREClient;
 import io.wifi.starrailexpress.network.SkillCastAnnouncePayload;
 import io.wifi.utils.client.betterrender.FakeGuiGraphics;
 import net.minecraft.Util;
@@ -56,8 +57,15 @@ public final class SkillCastAnnounceHud {
     }
 
     public static void push(SkillCastAnnouncePayload payload) {
-        if (payload == null || !SREConfig.instance().enableSkillCastAnnounceHud) {
+        if (payload == null) {
             return;
+        }
+        if (SREClient.gameComponent.gameMode != null && SREClient.gameComponent.gameMode.castAllSkill()) {
+            // PASS
+        } else {
+            if (!SREConfig.instance().enableSkillCastAnnounceHud) {
+                return;
+            }
         }
         Minecraft client = Minecraft.getInstance();
         if (client.player == null) {
@@ -87,12 +95,17 @@ public final class SkillCastAnnounceHud {
 
     private static void render(FakeGuiGraphics graphics) {
         Minecraft client = Minecraft.getInstance();
-        if (client.player == null || client.options.hideGui || TOASTS.isEmpty()) {
+        if (client.player == null || client.options.hideGui || TOASTS.isEmpty() || SREClient.gameComponent == null) {
             return;
         }
+
         if (!SREConfig.instance().enableSkillCastAnnounceHud) {
-            TOASTS.clear();
-            return;
+            if (SREClient.gameComponent.gameMode != null && SREClient.gameComponent.gameMode.castAllSkill()) {
+                // PASS
+            } else {
+                TOASTS.clear();
+                return;
+            }
         }
         long now = Util.getMillis();
         Iterator<Toast> iterator = TOASTS.iterator();
