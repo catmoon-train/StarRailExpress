@@ -27,6 +27,7 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.entity.projectile.ProjectileUtil;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
@@ -35,6 +36,7 @@ import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 import org.agmas.noellesroles.cca.C4BackComponent;
+import org.agmas.noellesroles.content.entity.MechanicalBirdEntity;
 import org.agmas.noellesroles.game.c4.C4Detonation;
 import org.agmas.noellesroles.init.ModEffects;
 import org.jetbrains.annotations.NotNull;
@@ -53,6 +55,13 @@ public class C4Item extends Item {
             return InteractionResult.PASS;
         if (player.hasEffect(ModEffects.SAFE_TIME))
             return InteractionResult.PASS;
+        if (entity instanceof MechanicalBirdEntity bird) {
+            if (player.level().isClientSide)
+                return InteractionResult.SUCCESS;
+            return C4Detonation.plantOnBird(stack, player, bird)
+                    ? InteractionResult.CONSUME
+                    : InteractionResult.FAIL;
+        }
         if (!(entity instanceof Player target))
             return InteractionResult.PASS;
         if (target == player)
@@ -80,6 +89,14 @@ public class C4Item extends Item {
                 return InteractionResultHolder.pass(stack);
             if (!level.isClientSide) {
                 plantOnPlayer(stack, player, targetedPlayer);
+            }
+            return InteractionResultHolder.success(stack);
+        }
+
+        MechanicalBirdEntity targetedBird = findTargetedBird(player);
+        if (targetedBird != null) {
+            if (!level.isClientSide) {
+                C4Detonation.plantOnBird(stack, player, targetedBird);
             }
             return InteractionResultHolder.success(stack);
         }
@@ -154,6 +171,26 @@ public class C4Item extends Item {
             }
         }
         return null;
+    }
+
+    private static MechanicalBirdEntity findTargetedBird(Player user) {
+        double range = Math.max(4.0D, user.entityInteractionRange());
+        Vec3 start = user.getEyePosition();
+        Vec3 direction = user.getViewVector(1.0F).normalize();
+        Vec3 end = start.add(direction.scale(range));
+        AABB searchBox = user.getBoundingBox().expandTowards(direction.scale(range)).inflate(1.0D);
+        EntityHitResult hit = ProjectileUtil.getEntityHitResult(user, start, end, searchBox,
+                entity -> entity instanceof MechanicalBirdEntity bird && bird.isAlive() && !bird.isRemoved(),
+                range * range);
+        if (hit == null || !(hit.getEntity() instanceof MechanicalBirdEntity bird)) {
+            return null;
+        }
+        HitResult blockHit = user.pick(range, 0.0F, false);
+        if (blockHit.getType() == HitResult.Type.BLOCK
+                && start.distanceToSqr(blockHit.getLocation()) + 0.05D < start.distanceToSqr(hit.getLocation())) {
+            return null;
+        }
+        return bird;
     }
 
     private static boolean canPlantOnEntity(Player user, Entity entity) {

@@ -64,6 +64,7 @@ public final class MirrorReunionEndEgg {
         }
         for (ServerPlayer player : world.players()) {
             player.addEffect(new MobEffectInstance(ModEffects.MIRROR_REUNION, BLACK_DURATION_TICKS, 0, false, false, false));
+            player.addEffect(new MobEffectInstance(ModEffects.PLAYER_ISOLATION, BLACK_DURATION_TICKS, 0, false, false, false));
             player.addEffect(new MobEffectInstance(ModEffects.INVINCIBLE, BLACK_DURATION_TICKS, 0, false, false, false));
             player.addEffect(new MobEffectInstance(ModEffects.USED_BANED, BLACK_DURATION_TICKS, 0, false, false, false));
             player.addEffect(new MobEffectInstance(ModEffects.SKILL_BANED, BLACK_DURATION_TICKS, 0, false, false, false));

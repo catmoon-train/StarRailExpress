@@ -227,7 +227,7 @@ public class MediumRoleData extends SimpleRoleData {
         spirit.displayClientMessage(
                 Component.translatable("message.noellesroles.medium.spirit_summoned", medium.getName(), SEANCE_SECONDS)
                         .withStyle(ChatFormatting.LIGHT_PURPLE),
-                false);
+                true);
 
         medium.level().playSound(null, medium.getX(), medium.getY(), medium.getZ(),
                 SoundEvents.AMETHYST_BLOCK_CHIME, SoundSource.PLAYERS, 1.0F, 0.8F);
@@ -278,7 +278,7 @@ public class MediumRoleData extends SimpleRoleData {
         medium.displayClientMessage(
                 Component.translatable("message.noellesroles.medium.received_answer", spirit.getName(), answerText)
                         .withStyle(ChatFormatting.GOLD),
-                false);
+                true);
         spirit.displayClientMessage(
                 Component.translatable("message.noellesroles.medium.you_answered", answerText)
                         .withStyle(ChatFormatting.YELLOW),

@@ -36,6 +36,7 @@ import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.HumanoidArm;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.MoverType;
+import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.player.Player;
@@ -49,6 +50,7 @@ import org.agmas.noellesroles.packet.MechanicalBirdControlC2SPacket;
 import org.agmas.noellesroles.role_data.neutral.SilverWingRoleData;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.List;
 import java.util.UUID;
 
 /** 银翼机械小鸟：玩家控制飞行，附近持续失明，碰到玩家/敌人或冲刺后爆炸。 */
@@ -287,6 +289,7 @@ public class MechanicalBirdEntity extends LivingEntity {
                     SoundSource.PLAYERS, 1.8F, 1.15F);
             returnCamera(owner);
         }
+        releaseStuckCharges();
         clearOwnerBird();
         discard();
     }
@@ -296,8 +299,21 @@ public class MechanicalBirdEntity extends LivingEntity {
             return;
         }
         returnCamera(getOwnerPlayer());
+        releaseStuckCharges();
         clearOwnerBird();
         discard();
+    }
+
+    private void releaseStuckCharges() {
+        for (Entity passenger : List.copyOf(getPassengers())) {
+            if (!(passenger instanceof ItemEntity item)) {
+                continue;
+            }
+            item.stopRiding();
+            item.setNoGravity(false);
+            item.setDeltaMovement(Vec3.ZERO);
+            item.hasImpulse = true;
+        }
     }
 
     private void returnCamera(Player owner) {
@@ -334,6 +350,21 @@ public class MechanicalBirdEntity extends LivingEntity {
     @Override
     public boolean canBeCollidedWith() {
         return true;
+    }
+
+    @Override
+    protected boolean canAddPassenger(Entity passenger) {
+        return passenger instanceof ItemEntity || super.canAddPassenger(passenger);
+    }
+
+    @Override
+    protected void positionRider(Entity passenger, MoveFunction callback) {
+        if (passenger instanceof ItemEntity) {
+            callback.accept(passenger, getX(), getY() + getBbHeight() * 0.35D, getZ());
+            passenger.setYRot(getYRot());
+            return;
+        }
+        super.positionRider(passenger, callback);
     }
 
     @Override
