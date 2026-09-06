@@ -54,7 +54,8 @@ import java.util.Random;
 /**
  * 破镜重圆：客户端可见区域按圆形从外向内逐渐坠落，效果结束再从内向外还原。
  *
- * <p>不改客户端方块状态（避免大量 setBlock / 区块重建卡顿）。可见范围用水平圆柱波前剔除
+ * <p>
+ * 不改客户端方块状态（避免大量 setBlock / 区块重建卡顿）。可见范围用水平圆柱波前剔除
  * （任意高度），近处再补坠落动画。
  */
 @Environment(EnvType.CLIENT)
@@ -740,7 +741,7 @@ public class MirrorReunionSceneManager {
         publishedCullRadius = clamped;
     }
 
-    private void clearWave() {
+    public void clearWave() {
         if (!WAVE.enabled && Float.isNaN(publishedCullRadius)) {
             return;
         }
@@ -978,21 +979,31 @@ public class MirrorReunionSceneManager {
                 SectionPos.blockToSectionCoord(center.getY() + Y_UP));
         ClientChunkCache chunks = client.level.getChunkSource();
         double radiusSq = (radius + 16.0f) * (radius + 16.0f);
-        for (int sx = pcx - viewChunks; sx <= pcx + viewChunks; sx++) {
-            for (int sz = pcz - viewChunks; sz <= pcz + viewChunks; sz++) {
-                if (!chunks.hasChunk(sx, sz)) {
-                    continue;
-                }
-                int cx = SectionPos.sectionToBlockCoord(sx) + 8 - center.getX();
-                int cz = SectionPos.sectionToBlockCoord(sz) + 8 - center.getZ();
-                if (cx * (double) cx + cz * (double) cz > radiusSq) {
-                    continue;
-                }
-                for (int sy = minSy; sy <= maxSy; sy++) {
-                    client.levelRenderer.setSectionDirty(sx, sy, sz);
+        /*
+         * 修复问题：
+         * java.lang.IllegalStateException: Tried to access render state from outside
+         * the main render thread! This was very likely caused by another misbehaving
+         * mod -- make sure to examine the stack trace below.
+         */
+
+        client.execute(() -> {
+            for (int sx = pcx - viewChunks; sx <= pcx + viewChunks; sx++) {
+                for (int sz = pcz - viewChunks; sz <= pcz + viewChunks; sz++) {
+                    if (!chunks.hasChunk(sx, sz)) {
+                        continue;
+                    }
+                    int cx = SectionPos.sectionToBlockCoord(sx) + 8 - center.getX();
+                    int cz = SectionPos.sectionToBlockCoord(sz) + 8 - center.getZ();
+                    if (cx * (double) cx + cz * (double) cz > radiusSq) {
+                        continue;
+                    }
+                    for (int sy = minSy; sy <= maxSy; sy++) {
+                        final int finalX = sx, finalY = sy, finalZ = sz;
+                        client.levelRenderer.setSectionDirty(finalX, finalY, finalZ);
+                    }
                 }
             }
-        }
+        });
     }
 
     private void dirtyChunk(ChunkPos pos) {
