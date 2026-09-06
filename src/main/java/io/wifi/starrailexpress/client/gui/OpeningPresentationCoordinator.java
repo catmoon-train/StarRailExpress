@@ -115,12 +115,12 @@ public final class OpeningPresentationCoordinator {
         }
         boolean welcomeActive = RoundTextRenderer.isWelcomeActive();
         // 规则卡与开局运镜同步显示：聊天等悬浮屏打开也不暂停，卡片照常绘制在其背后；
-        // 只有 welcome 真正可渲染时才让它抢占演示层。
+        // welcome 同样不因普通 UI 暂停，可绘制时照常绘制。
         if (state == State.SHOWING_RULES && (!welcomeActive || shouldWaitForWelcome())) {
             MapRuleIntroHud.render(graphics.getDefaultGuiGraphics(), partialTick);
             return;
         }
-        if (!screenOpen && welcomeActive && !shouldWaitForWelcome()) {
+        if (welcomeActive && !shouldWaitForWelcome()) {
             if (client.player != null)
                 RoundTextRenderer.renderWelcomeGui(client.font, client.player, graphics, partialTick);
         }
@@ -213,12 +213,12 @@ public final class OpeningPresentationCoordinator {
     }
 
     /**
-     * Pause welcome copy and sounds while another opening stage owns the screen.
+     * Pause welcome copy and sounds while another cinematic opening stage owns the
+     * screen (intro camera / role rotation / departure curtain). Plain UIs such as
+     * the chat must NOT pause welcome: it simply continues.
      */
     public static boolean shouldWaitForWelcome() {
-        Minecraft client = Minecraft.getInstance();
-        return (client.screen != null && !isVoteResultScreen(client.screen))
-                || RoleRotationCache.canReOpen()
+        return RoleRotationCache.canReOpen()
                 || AdvancedCameraDirector.isPresentationActive()
                 || (departure.isVisible() && !departure.isReleasing());
     }
