@@ -40,7 +40,6 @@ import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
 import org.agmas.harpymodloader.component.WorldModifierComponent;
@@ -68,10 +67,6 @@ public class GreatDetectiveRole extends NormalRole {
         super(identifier, color, isInnocent, canUseKiller, moodType, maxSprintTime, hideScoreboard);
     }
 
-    @Override
-    public List<ItemStack> getDefaultItems() {
-        return List.of(Items.COMPASS.getDefaultInstance());
-    }
     @Override
     public InteractionResult rightClickEntity(Player player, Entity victim) {
         if (!(player instanceof ServerPlayer serverPlayer)) {
