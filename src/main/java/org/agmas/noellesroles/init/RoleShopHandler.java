@@ -895,7 +895,8 @@ public class RoleShopHandler {
                 @Override
                 public boolean canBuy(@NotNull Player player) {
                     if (MCItemsUtils.hasItem(player, ModItems.DREAM_AXE)) {
-                        this.setFailedMessage(Component.translatable("message.noellesroles.net_cop.shop_already_owned"));
+                        this.setFailedMessage(
+                                Component.translatable("message.noellesroles.net_cop.shop_already_owned"));
                         return false;
                     }
                     return true;
@@ -908,7 +909,8 @@ public class RoleShopHandler {
                 @Override
                 public boolean canBuy(@NotNull Player player) {
                     if (MCItemsUtils.hasItem(player, ModItems.DREAM_DIAMOND_SWORD)) {
-                        this.setFailedMessage(Component.translatable("message.noellesroles.net_cop.shop_already_owned"));
+                        this.setFailedMessage(
+                                Component.translatable("message.noellesroles.net_cop.shop_already_owned"));
                         return false;
                     }
                     if (!MCItemsUtils.hasItem(player, ModItems.DREAM_AXE)) {
@@ -925,7 +927,8 @@ public class RoleShopHandler {
                 @Override
                 public boolean canBuy(@NotNull Player player) {
                     if (MCItemsUtils.hasItem(player, ModItems.DREAM_MACE)) {
-                        this.setFailedMessage(Component.translatable("message.noellesroles.net_cop.shop_already_owned"));
+                        this.setFailedMessage(
+                                Component.translatable("message.noellesroles.net_cop.shop_already_owned"));
                         return false;
                     }
                     if (!MCItemsUtils.hasItem(player, ModItems.DREAM_AXE)
@@ -970,7 +973,13 @@ public class RoleShopHandler {
                         new PotionContents(Optional.empty(), Optional.of(16185078),
                                 List.of(ModEffects.of(MobEffects.INVISIBILITY, 10 * 20, 0, false, false, true))));
                 SHOP.add(new ShopEntry(potion,
-                        150, ShopEntry.Type.TOOL));
+                        150, ShopEntry.Type.TOOL) {
+                    @Override
+                    public boolean onBuy(Player player) {
+                        player.addEffect(ModEffects.of(MobEffects.INVISIBILITY, 10 * 20, 0, false, false, true));
+                        return true;
+                    }
+                });
             }
             SHOP.add(new ShopEntry(TMMItems.FIRECRACKER.getDefaultInstance(),
                     SREConfig.instance().firecrackerPrice, ShopEntry.Type.TOOL));
