@@ -876,7 +876,7 @@ public class ModRoles {
 					TMMRoles.CIVILIAN.getMaxSprintTime(), false))
 			.setCanSeeCoin(false).setVigilanteTeam(true).setCanPickUpRevolver(false)
 			.setSpecialVigilante(true).setDefaultMax(1).setDefaultEnableChance(6500)
-			.setCanUseSpVanillaWeapon(true).setNoCoinSystem(true)
+			.setCanUseSpVanillaWeapon(true).setNoCoinSystem(true).setCanBeRandomedByOtherRoles(false)
 			.setSpecialMapRoles(SRERole.SpecialMapRoleMap.CAN_JUMP, SRERole.SpecialMapRoleMap.MINIGAME_QUEST)
 			// 小游戏任务独立计算：不并入轮换派发，始终独立计时刷新
 			.setIndependentMinigameTiming(true)
