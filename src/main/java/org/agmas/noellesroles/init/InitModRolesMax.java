@@ -537,7 +537,31 @@ public class InitModRolesMax {
 
     private static boolean isSpecialMapRoleEnabled(ServerLevel serverLevel, SRERole role, String currentMap,
             NoellesRolesConfig config) {
-        return switch (role.getSpecialMapRole()) {
+        // 多条件模式：AND 关系=所有条件同时满足才刷新；OR 关系=任一条件满足即刷新
+        // （见 SRERole#setSpecialMapRoles / SRERole#setSpecialMapRolesOr）
+        if (role.isSpecialMapRoles()) {
+            if (role.isSpecialMapRolesOr()) {
+                for (SRERole.SpecialMapRoleMap condition : role.getSpecialMapRoles()) {
+                    if (isSpecialMapConditionMet(serverLevel, condition, currentMap, config)) {
+                        return true;
+                    }
+                }
+                return false;
+            }
+            for (SRERole.SpecialMapRoleMap condition : role.getSpecialMapRoles()) {
+                if (!isSpecialMapConditionMet(serverLevel, condition, currentMap, config)) {
+                    return false;
+                }
+            }
+            return true;
+        }
+        return isSpecialMapConditionMet(serverLevel, role.getSpecialMapRole(), currentMap, config);
+    }
+
+    /** 判定单个地图条件是否满足。 */
+    private static boolean isSpecialMapConditionMet(ServerLevel serverLevel, SRERole.SpecialMapRoleMap condition,
+            String currentMap, NoellesRolesConfig config) {
+        return switch (condition) {
             case ALL -> true;
             case QIYUCUN -> config.maChenXuMaps.contains(currentMap);
             case BIGMAP -> config.swastMaps.contains(currentMap);

@@ -196,6 +196,11 @@ public abstract class SRERole extends SREAbstractInfoClass {
     public int defaultEnableNeedPlayerCount = -1;
     public int defaultEnableMaxPlayerCount = -1;
     protected SpecialMapRoleMap specialMapRole = SpecialMapRoleMap.ALL;
+    /** 多条件模式：非 null 时，根据 {@link #specialMapRolesOr} 的关系判定是否允许刷新。 */
+    @Nullable
+    protected EnumSet<SpecialMapRoleMap> specialMapRoles = null;
+    /** 多条件地图限定的条件关系：false = AND（默认，全部满足），true = OR（任一满足）。 */
+    protected boolean specialMapRolesOr = false;
     protected boolean specialVigilante = false;
     protected boolean refreshableSpecialVigilante = false;
     protected int refreshableSpecialVigilanteChance = -1;
@@ -666,8 +671,75 @@ public abstract class SRERole extends SREAbstractInfoClass {
         return this;
     }
 
+    /**
+     * 多条件地图限定：至少填写 2 个 {@link SpecialMapRoleMap}，
+     * 只有当前地图同时满足所有条件时才会刷新（AND 关系）。
+     * <p>
+     * 例如 {@code setSpecialMapRoles(CAN_JUMP, MINIGAME_QUEST)} 表示该职业
+     * 只会在既可跳跃又开启了小游戏任务的地图刷新。
+     * <p>
+     * 注意：多条件模式优先生效，会覆盖 {@link #setSpecialMapRole(SpecialMapRoleMap)} 的单条件设置。
+     * 需要任一条件满足即可刷新（OR 关系）时，请使用 {@link #setSpecialMapRolesOr}。
+     */
+    public SRERole setSpecialMapRoles(SpecialMapRoleMap first, SpecialMapRoleMap second,
+            SpecialMapRoleMap... more) {
+        return setSpecialMapRoles(false, first, second, more);
+    }
+
+    /**
+     * 多条件地图限定（OR 关系）：至少填写 2 个 {@link SpecialMapRoleMap}，
+     * 当前地图满足任一条件即可刷新。
+     * <p>
+     * 例如 {@code setSpecialMapRolesOr(UNDERWATER, FLY)} 表示该职业
+     * 在水下地图或飞行地图都会刷新。
+     * <p>
+     * 注意：多条件模式优先生效，会覆盖 {@link #setSpecialMapRole(SpecialMapRoleMap)} 的单条件设置。
+     */
+    public SRERole setSpecialMapRolesOr(SpecialMapRoleMap first, SpecialMapRoleMap second,
+            SpecialMapRoleMap... more) {
+        return setSpecialMapRoles(true, first, second, more);
+    }
+
+    /**
+     * 多条件地图限定的实际实现。
+     *
+     * @param orRelation true = OR 关系（任一条件满足即可刷新），false = AND 关系（全部满足）
+     */
+    public SRERole setSpecialMapRoles(boolean orRelation, SpecialMapRoleMap first, SpecialMapRoleMap second,
+            SpecialMapRoleMap... more) {
+        EnumSet<SpecialMapRoleMap> set = EnumSet.noneOf(SpecialMapRoleMap.class);
+        addSpecialMapRoles(set, first);
+        addSpecialMapRoles(set, second);
+        for (SpecialMapRoleMap m : more) {
+            addSpecialMapRoles(set, m);
+        }
+        this.specialMapRoles = set.isEmpty() ? null : set;
+        this.specialMapRolesOr = orRelation;
+        return this;
+    }
+
+    /** 多条件地图限定是否为 OR 关系（任一条件满足即可刷新）。false 时为 AND 关系（默认）。 */
+    public boolean isSpecialMapRolesOr() {
+        return this.specialMapRolesOr;
+    }
+
+    private void addSpecialMapRoles(EnumSet<SpecialMapRoleMap> set, SpecialMapRoleMap condition) {
+        if (condition != null && condition != SpecialMapRoleMap.ALL) {
+            set.add(condition);
+        }
+    }
+
+    public EnumSet<SpecialMapRoleMap> getSpecialMapRoles() {
+        return this.specialMapRoles;
+    }
+
+    /** 是否处于多条件地图限定模式（setSpecialMapRoles 已设置）。 */
+    public boolean isSpecialMapRoles() {
+        return this.specialMapRoles != null && !this.specialMapRoles.isEmpty();
+    }
+
     public boolean isSpecialMapRole() {
-        return this.specialMapRole != SpecialMapRoleMap.ALL;
+        return this.specialMapRole != SpecialMapRoleMap.ALL || this.isSpecialMapRoles();
     }
 
     public boolean isSpecialVigilante() {
