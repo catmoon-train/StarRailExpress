@@ -84,7 +84,14 @@ public class TMMRoles {
     }
 
     public static SRERole registerRole(SRERole role) {
+        if (ROLES_BY_PATH.containsKey(role.identifier.getPath())) {
+            SRE.LOGGER.error("[ROLE REGISTERER] Duplicated role identifier path found: {} and {}. Ignore the new one.",
+                    ROLES_BY_PATH.get(role.identifier.getPath()).identifier().toString(), role.identifier().toString());
+            // 拒绝注册
+            return role;
+        }
         ROLES.put(role.identifier(), role);
+
         ROLES_BY_PATH.put(role.identifier().getPath(), role);
         if (role.isMafiaTeam()) {
             CACHE.MAFIA_ROLES.add(role);

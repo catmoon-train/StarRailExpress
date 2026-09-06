@@ -18,7 +18,6 @@ package io.wifi.starrailexpress.mixin.client;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.mojang.blaze3d.vertex.PoseStack;
-import io.wifi.starrailexpress.cca.SREPlayerPsychoComponent;
 import io.wifi.starrailexpress.client.SREClient;
 import net.minecraft.client.model.EntityModel;
 import net.minecraft.client.renderer.MultiBufferSource;
@@ -57,7 +56,7 @@ public abstract class LivingEntityRendererMixin<T extends LivingEntity, M extend
             float headPitch, Operation<Void> original,
             T livingEntity) {
         boolean isPsycho = livingEntity instanceof Player player
-                && SREPlayerPsychoComponent.KEY.get(player).getPsychoTicks() > 0;
+                && SREClient.PLAYER_PSYCHO_CACHE.getOrDefault(player.getUUID(), false);
         boolean isItemRenderer = instance instanceof ItemInHandLayer<?, ?>;
         if (!isPsycho || isItemRenderer) {
             original.call(instance, matrixStack, vertexConsumerProvider, i, t, limbAngle, limbDistance, tickDelta,
