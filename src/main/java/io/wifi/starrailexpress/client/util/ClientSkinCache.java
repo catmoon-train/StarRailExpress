@@ -21,6 +21,8 @@ import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.PlayerInfo;
 import net.minecraft.client.resources.SkinManager;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.protocol.game.ClientboundPlayerInfoUpdatePacket;
 
 import java.util.ArrayList;
@@ -50,6 +52,13 @@ public class ClientSkinCache {
     }
 
     public static ConcurrentHashMap<UUID, String> displayTags = new ConcurrentHashMap<>();
+
+    public static MutableComponent somePrefix(UUID target) {
+        if (displayTags.contains(target)) {
+            return Component.literal(displayTags.get(target));
+        }
+        return null;
+    }
 
     public static PlayerInfo getCachedPlayerInfo(UUID uid) {
         if (uid == null)

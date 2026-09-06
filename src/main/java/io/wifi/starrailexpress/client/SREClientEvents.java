@@ -75,8 +75,24 @@ import java.util.UUID;
  */
 public class SREClientEvents {
 
+    private static Component getName(Player target) {
+        if (target == null)
+            return Component.literal("");
+        var prefix = ClientSkinCache.somePrefix(target.getUUID());
+        if (prefix == null)
+            return target.getName();
+        return Component.literal("").append(prefix).append(target.getName());
+    }
+
     private static Component getName(PlayerInfo playerInfo) {
+        if (playerInfo == null || playerInfo.getProfile() == null) {
+            return Component.literal("");
+        }
         MutableComponent mutableComponent = Component.literal(playerInfo.getProfile().getName());
+        var prefix = ClientSkinCache.somePrefix(playerInfo.getProfile().getId());
+        if (prefix != null) {
+            return Component.literal("").append(prefix).append(mutableComponent);
+        }
         return mutableComponent;
     }
 
@@ -325,7 +341,7 @@ public class SREClientEvents {
                     return TrueFalseAndCustomResult.custom(getName(targetInfo));
                 }
                 if (disguiseTarget.equals(target.getUUID())) {
-                    return TrueFalseAndCustomResult.custom(target.getName());
+                    return TrueFalseAndCustomResult.custom(getName(target));
                 }
             }
             return TrueFalseAndCustomResult.pass();
@@ -338,7 +354,7 @@ public class SREClientEvents {
                     return TrueFalseAndCustomResult.custom(getName(targetInfo));
                 }
                 if (stolenTarget.equals(target.getUUID())) {
-                    return TrueFalseAndCustomResult.custom(target.getName());
+                    return TrueFalseAndCustomResult.custom(getName(target));
                 }
             }
             return TrueFalseAndCustomResult.pass();
@@ -370,7 +386,7 @@ public class SREClientEvents {
                     // Log.info(LogCategory.GENERAL, "Morphling disguise is null!!!");
                 }
                 if (mocca.disguise != null && mocca.disguise.equals(target.getUUID())) {
-                    return TrueFalseAndCustomResult.custom(target.getName());
+                    return TrueFalseAndCustomResult.custom(getName(target));
                 }
             }
             return TrueFalseAndCustomResult.pass();

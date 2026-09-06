@@ -30,7 +30,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 public class PlayerPrefixMixin {
     @Unique
     private static MutableComponent somePrefix(Player mainPlayer) {
-        if (mainPlayer instanceof ServerPlayer){
+        if (mainPlayer instanceof ServerPlayer) {
             var component = NameTagInventoryComponent.KEY.get(mainPlayer).generate();
             return component != null ? component : Component.literal("");
         }
@@ -40,7 +40,7 @@ public class PlayerPrefixMixin {
     @Inject(method = "getDisplayName", at = @At("HEAD"), cancellable = true)
     public void getDisplayName(CallbackInfoReturnable<Component> cir) {
         Player mainPlayer = (Player) (Object) this;
-        if (mainPlayer instanceof ServerPlayer ){
+        if (mainPlayer instanceof ServerPlayer) {
             Component originalName = cir.getReturnValue();
             if (originalName == null) {
                 originalName = Component.literal(mainPlayer.getName().getString());

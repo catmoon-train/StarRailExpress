@@ -20,6 +20,7 @@ import io.wifi.starrailexpress.api.TMMRoles;
 import io.wifi.starrailexpress.cca.ParticipationComponent;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.client.SREClient;
+import io.wifi.starrailexpress.client.util.ClientSkinCache;
 import io.wifi.starrailexpress.client.util.SREClientUtils;
 import io.wifi.starrailexpress.content.entity.NoteEntity;
 import io.wifi.starrailexpress.event.AllowNameRender;
@@ -354,7 +355,12 @@ public class RoleNameRenderer {
     }
 
     private static Component getName(Player target) {
-        return target.getName();
+        if (target == null)
+            return Component.literal("");
+        var prefix = ClientSkinCache.somePrefix(target.getUUID());
+        if (prefix == null)
+            return target.getName();
+        return Component.literal("").append(prefix).append(target.getName());
     }
 
     public enum TrainRole {
