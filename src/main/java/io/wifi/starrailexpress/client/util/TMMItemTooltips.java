@@ -101,7 +101,7 @@ public class TMMItemTooltips {
         });
     }
 
-    private static final int MAX_ROLES_IN_TOOLTIP = 24;
+    private static final int MAX_ROLES_IN_TOOLTIP = 10;
 
     private static void addShopRoleTooltip(@NotNull ItemStack itemStack, List<Component> tooltipList) {
         if (itemStack.isEmpty()) {
@@ -115,7 +115,7 @@ public class TMMItemTooltips {
         }
         if (!Screen.hasShiftDown()) {
             tooltipList.add(Component.translatable("tooltip.starrailexpress.item.shift_more",
-                    Component.keybind("key.sneak").withStyle(ChatFormatting.YELLOW))
+                    Component.literal("Shift").withStyle(ChatFormatting.YELLOW))
                     .withStyle(Style.EMPTY.withColor(REGULAR_TOOLTIP_COLOR)));
             return;
         }

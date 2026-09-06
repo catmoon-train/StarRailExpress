@@ -1186,10 +1186,12 @@ public class RoleIntroduceScreen extends Screen {
                         g.fill(x, itemY, x + w, itemY + ITEM_H, 0x22FFFFFF); // 半透明白色
                     }
                     g.renderItem(stack, x + 10, itemY + (ITEM_H - 16) / 2);
+                    ShopEntry.Currency currency = entry.currency() != null ? entry.currency()
+                            : ShopEntry.Currency.MONEY;
                     Component nameText = stack.getHoverName().copy().withStyle(ChatFormatting.WHITE);
                     Component priceText = Component.translatable("screen.roleintroduce.shop.price", entry.price())
-                            .append(entry.currency() == null ? "\uE781" : entry.currency().iconText())
-                            .withStyle(ChatFormatting.GOLD);
+                            .append(currency.iconText())
+                            .withColor(currency.color());
 
                     int textX = x + 32;
                     int lineH = font.lineHeight;
