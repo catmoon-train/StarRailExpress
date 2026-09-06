@@ -1822,7 +1822,7 @@
     "screen.roleintroduce.disabled": "Disabled",
     "screen.roleintroduce.select_hint": "← Select an item from the left",
     "screen.roleintroduce.view_detail": "View Details",
-    "screen.roleintroduce.shop.price": "Item price: %s",
+    "screen.roleintroduce.shop.price": "Item price: %s",
     "screen.roleintroduce.detail.shop": "Shop",
     "screen.roleintroduce.detail.initial_item": "Starting Items",
     "screen.roleintroduce.detail.initial_item.tip": "Due to possible other mechanics, the displayed starting items may differ from actual gameplay.",

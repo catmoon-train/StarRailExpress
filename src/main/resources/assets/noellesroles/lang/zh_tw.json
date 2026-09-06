@@ -1855,7 +1855,7 @@
   "screen.roleintroduce.disabled": "已禁用",
   "screen.roleintroduce.select_hint": "← 從左側選擇一個專案",
   "screen.roleintroduce.view_detail": "查看詳情",
-  "screen.roleintroduce.shop.price": "物品價格: %s",
+  "screen.roleintroduce.shop.price": "物品價格: %s",
   "screen.roleintroduce.detail.shop": "商店",
   "screen.roleintroduce.detail.initial_item": "初始物品",
   "screen.roleintroduce.detail.initial_item.tip": "由於可能存在的其他機制，初始物品顯示可能與實際遊玩時的初始物品不一致。",

@@ -39,6 +39,7 @@ public class ShopEntry extends dev.doctor4t.wathe.util.ShopEntry {
 
     /**
      * 支持售货机与职业商店使用（职业商店按条目货币校验/扣款/显示，默认金币）！！！
+     * 
      * @param stack
      * @param price
      * @param type
@@ -51,6 +52,7 @@ public class ShopEntry extends dev.doctor4t.wathe.util.ShopEntry {
 
     /**
      * 支持售货机与职业商店使用（职业商店按条目货币校验/扣款/显示，默认金币）！！！
+     * 
      * @param stack
      * @param price
      * @param type
@@ -114,6 +116,7 @@ public class ShopEntry extends dev.doctor4t.wathe.util.ShopEntry {
 
     /**
      * 仅支持售货机使用！！！
+     * 
      * @param stack
      * @param price
      * @param type
@@ -136,11 +139,21 @@ public class ShopEntry extends dev.doctor4t.wathe.util.ShopEntry {
             public ItemStack iconStack() {
                 return Items.GOLD_INGOT.getDefaultInstance();
             }
+
+            @Override
+            public String iconText() {
+                return "\uE781";
+            }
         },
         MINIGAME_TOKEN("minigame_token", "gui.vendingmachine.minigame_token_display", 0xFF7CFCA0) {
             @Override
             public int getBalance(@NotNull Player player) {
                 return SREPlayerMinigameTaskComponent.KEY.get(player).getTokens();
+            }
+
+            @Override
+            public String iconText() {
+                return "\uE782";
             }
 
             @Override
@@ -202,5 +215,7 @@ public class ShopEntry extends dev.doctor4t.wathe.util.ShopEntry {
         public static List<String> serializedNames() {
             return Arrays.stream(values()).map(Currency::serializedName).toList();
         }
+
+        public abstract String iconText();
     }
 }

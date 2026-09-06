@@ -1188,7 +1188,9 @@ public class RoleIntroduceScreen extends Screen {
                     g.renderItem(stack, x + 10, itemY + (ITEM_H - 16) / 2);
                     Component nameText = stack.getHoverName().copy().withStyle(ChatFormatting.WHITE);
                     Component priceText = Component.translatable("screen.roleintroduce.shop.price", entry.price())
+                            .append(entry.currency() == null ? "\uE781" : entry.currency().iconText())
                             .withStyle(ChatFormatting.GOLD);
+
                     int textX = x + 32;
                     int lineH = font.lineHeight;
                     int blockHeight = lineH * 2 + TEXT_GAP;

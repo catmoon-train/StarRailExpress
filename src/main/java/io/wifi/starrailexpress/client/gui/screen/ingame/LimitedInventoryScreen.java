@@ -797,8 +797,6 @@ public class LimitedInventoryScreen extends LimitedHandledScreen<InventoryMenu> 
                 this.screen.renderLimitedInventoryTooltip(context, this.entry.stack());
                 drawShopSlotHighlight(context, this.getX(), this.getY(), 0);
             }
-            // \u663E\u793A\u52A8\u6001\u4EF7\u683C\uFF1A\u82E5\u88AB DynamicShopComponent
-            // \u6253\u6298\uFF0C\u5219\u7528\u7EFF\u8272\u5C55\u793A\u6298\u540E\u4EF7\u3002
             // Show the dynamic price: if discounted by DynamicShopComponent, render the
             // reduced price in green.
             // 取实时（已同步）的商店条目，使显示的基础价/折后价与服务端实际扣费价一致；
