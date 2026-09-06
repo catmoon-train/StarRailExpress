@@ -210,5 +210,6 @@
   "cmd.stupid_express.progression.givecard.invalid": "未知阵营卡类型：%s",
   "cmd.stupid_express.progression.xp.set": "已将 %s 的总经验设置为 %s",
   "cmd.stupid_express.progression.xp.add": "已给予 %s %s 经验",
-  "cmd.stupid_express.progression.error.player_not_found": "目标玩家不存在。"
+  "cmd.stupid_express.progression.error.player_not_found": "目标玩家不存在。",
+  "announcement.star.modifier.stupid_express.twin_children": "双生之子"
 }
