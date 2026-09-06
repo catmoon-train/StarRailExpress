@@ -74,11 +74,10 @@ public final class OpeningPresentationCoordinator {
             if (mapId == null)
                 mapId = currentMapId(client);
             // 开局运镜一激活，规则卡就与它同步显示（而不是等运镜播完再单独展示）。
+            // 注意：角色公布的 welcome 在开局时已置位、但会被运镜暂停（不渲染），
+            // 因此这里不因 welcome 待播而推迟规则卡；welcome 等运镜结束后再播放。
             if (AdvancedCameraDirector.isTrackActive()) {
-                if (mapId != null && client.screen == null && !rotationReady
-                        && !RoleRotationCache.isSelecting()
-                        && RoleRotationCache.getConfirmCountdown() <= 0
-                        && !RoundTextRenderer.isWelcomeActive()) {
+                if (mapId != null && client.screen == null && !RoleRotationCache.isSelecting()) {
                     MapRuleIntroHud.start(mapId);
                     state = State.SHOWING_RULES;
                 }
@@ -94,20 +93,12 @@ public final class OpeningPresentationCoordinator {
                 }
             }
         } else if (state == State.SHOWING_RULES) {
-            // A later sendWelcome means the player's role changed. The role announcement
-            // owns the
-            // presentation layer and the opening map brief must not reappear after it
-            // finishes.
-            if (RoundTextRenderer.isWelcomeActive()) {
-                MapRuleIntroHud.clear();
-                state = State.COMPLETE;
-                return;
-            }
             if (client.screen != null) {
                 clear();
                 return;
             }
             // 规则卡只在开局运镜期间展示：运镜轨道结束即同步结束。
+            // 运镜期间 welcome 处于暂停状态不会渲染，无需在这里提前清卡。
             if (!AdvancedCameraDirector.isTrackActive()) {
                 MapRuleIntroHud.clear();
                 state = State.COMPLETE;
@@ -122,13 +113,16 @@ public final class OpeningPresentationCoordinator {
         if (client.screen != null)
             return;
         renderCurtain(graphics.getDefaultGuiGraphics(), partialTick, false);
-        if (RoundTextRenderer.isWelcomeActive()) {
-            if (client.player != null && !shouldWaitForWelcome())
-                RoundTextRenderer.renderWelcomeGui(client.font, client.player, graphics, partialTick);
+        boolean welcomeActive = RoundTextRenderer.isWelcomeActive();
+        // 运镜期间的 welcome 被暂停（不渲染），规则卡应照常与运镜同步显示；
+        // 只有 welcome 真正可渲染时才让它抢占演示层。
+        if (state == State.SHOWING_RULES && (!welcomeActive || shouldWaitForWelcome())) {
+            MapRuleIntroHud.render(graphics.getDefaultGuiGraphics(), partialTick);
             return;
         }
-        if (state == State.SHOWING_RULES) {
-            MapRuleIntroHud.render(graphics.getDefaultGuiGraphics(), partialTick);
+        if (welcomeActive && !shouldWaitForWelcome()) {
+            if (client.player != null)
+                RoundTextRenderer.renderWelcomeGui(client.font, client.player, graphics, partialTick);
         }
     }
 

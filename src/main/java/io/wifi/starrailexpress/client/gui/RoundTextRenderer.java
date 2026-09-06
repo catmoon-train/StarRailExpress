@@ -73,6 +73,8 @@ public class RoundTextRenderer {
 
     /** Visible presentation time; camera/selection waiting does not consume this clock. */
     private static final int WELCOME_DURATION = 200;
+    /** 最后一声钢琴收尾(UI_PIANO_STINGER)播完后，欢迎文字淡出所用的 tick 数。 */
+    private static final int WELCOME_EXIT_TICKS = 20;
     private static final Component dotText = Component.literal("...");
     /** 结束界面持续时间 (tick) */
     private static final int END_DURATION = 200;
@@ -83,6 +85,8 @@ public class RoundTextRenderer {
 
     /** 剩余欢迎时间 (tick)，>0 表示正在显示欢迎界面 */
     public static int welcomeTime = 0;
+    /** 收尾钢琴音播完后文字淡出的剩余时间 (tick)，>0 表示处于淡出阶段。 */
+    private static int welcomeExitTicks = 0;
     /** 杀手数量 (用于欢迎界面的文本替换) */
     public static int killers = 0;
     /** 目标数量 (用于欢迎界面的文本替换) */
@@ -156,7 +160,7 @@ public class RoundTextRenderer {
     /** Draw animated opening copy directly, avoiding tick-cached matrices and alpha. */
     public static void renderWelcomeGui(Font renderer, LocalPlayer player, @NotNull FakeGuiGraphics context,
             float partialTicks) {
-        if (roleTexts == null || welcomeTime <= 0) return;
+        if (roleTexts == null || !isWelcomeActive()) return;
         GameMode gamemode = SREGameWorldComponent.KEY.get(player.level()).getGameMode();
         renderWelcomeOverlay(renderer, context.getDefaultGuiGraphics(), partialTicks, gamemode.isLooseEndMode());
     }
@@ -192,7 +196,9 @@ public class RoundTextRenderer {
         float titleIn = stagedWelcomeAlpha(180, partialTicks);
         float premiseIn = stagedWelcomeAlpha(120, partialTicks);
         float goalIn = stagedWelcomeAlpha(60, partialTicks);
-        float exit = smoothStep(Mth.clamp((welcomeTime - partialTicks) / 18.0F, 0, 1));
+        // 欢迎文字在收尾钢琴音播完前保持不透明；welcomeTime 归零后才开始整体淡出。
+        float exit = welcomeTime > 0 ? 1.0F
+                : smoothStep(Mth.clamp((welcomeExitTicks - partialTicks) / (float) WELCOME_EXIT_TICKS, 0.0F, 1.0F));
         int accent = VoteFlowFrame.GOLD;
         int text = VoteFlowFrame.TEXT;
 
@@ -739,37 +745,45 @@ public class RoundTextRenderer {
             if (player == null)
                 return;
             // 欢迎界面音效和事件
-            if (welcomeTime > 0 && !OpeningPresentationCoordinator.shouldWaitForWelcome()) {
-                switch (welcomeTime) {
-                    case 200 -> {
-                        if (player != null)
-                            player.level().playSeededSound(player, player.getX(), player.getY(), player.getZ(),
-                                    TMMSounds.UI_RISER, SoundSource.MASTER, 10f, 1f, player.getRandom().nextLong());
+            if (!OpeningPresentationCoordinator.shouldWaitForWelcome()) {
+                if (welcomeTime > 0) {
+                    switch (welcomeTime) {
+                        case 200 -> {
+                            if (player != null)
+                                player.level().playSeededSound(player, player.getX(), player.getY(), player.getZ(),
+                                        TMMSounds.UI_RISER, SoundSource.MASTER, 10f, 1f, player.getRandom().nextLong());
+                        }
+                        case 180 -> {
+                            if (player != null)
+                                player.level().playSeededSound(player, player.getX(), player.getY(), player.getZ(),
+                                        TMMSounds.UI_PIANO, SoundSource.MASTER, 10f, 1.25f, player.getRandom().nextLong());
+                        }
+                        case 120 -> {
+                            if (player != null)
+                                player.level().playSeededSound(player, player.getX(), player.getY(), player.getZ(),
+                                        TMMSounds.UI_PIANO, SoundSource.MASTER, 10f, 1.5f, player.getRandom().nextLong());
+                        }
+                        case 60 -> {
+                            if (player != null)
+                                player.level().playSeededSound(player, player.getX(), player.getY(), player.getZ(),
+                                        TMMSounds.UI_PIANO, SoundSource.MASTER, 10f, 1.75f, player.getRandom().nextLong());
+                        }
+                        case 1 -> {
+                            if (player != null)
+                                player.level().playSeededSound(player, player.getX(), player.getY(), player.getZ(),
+                                        TMMSounds.UI_PIANO_STINGER, SoundSource.MASTER, 10f, 1f,
+                                        player.getRandom().nextLong());
+                        }
                     }
-                    case 180 -> {
-                        if (player != null)
-                            player.level().playSeededSound(player, player.getX(), player.getY(), player.getZ(),
-                                    TMMSounds.UI_PIANO, SoundSource.MASTER, 10f, 1.25f, player.getRandom().nextLong());
+                    OnRoundStartWelcomeTimmer.EVENT.invoker().onWelcome(player, welcomeTime);
+                    welcomeTime--;
+                    // 最后一声钢琴收尾已在 welcomeTime==1 时播放，从此刻起文字才开始淡出。
+                    if (welcomeTime == 0) {
+                        welcomeExitTicks = WELCOME_EXIT_TICKS;
                     }
-                    case 120 -> {
-                        if (player != null)
-                            player.level().playSeededSound(player, player.getX(), player.getY(), player.getZ(),
-                                    TMMSounds.UI_PIANO, SoundSource.MASTER, 10f, 1.5f, player.getRandom().nextLong());
-                    }
-                    case 60 -> {
-                        if (player != null)
-                            player.level().playSeededSound(player, player.getX(), player.getY(), player.getZ(),
-                                    TMMSounds.UI_PIANO, SoundSource.MASTER, 10f, 1.75f, player.getRandom().nextLong());
-                    }
-                    case 1 -> {
-                        if (player != null)
-                            player.level().playSeededSound(player, player.getX(), player.getY(), player.getZ(),
-                                    TMMSounds.UI_PIANO_STINGER, SoundSource.MASTER, 10f, 1f,
-                                    player.getRandom().nextLong());
-                    }
+                } else if (welcomeExitTicks > 0) {
+                    welcomeExitTicks--;
                 }
-                OnRoundStartWelcomeTimmer.EVENT.invoker().onWelcome(player, welcomeTime);
-                welcomeTime--;
             }
             // 结束界面音效
             if (endTime > 0) {
@@ -800,6 +814,7 @@ public class RoundTextRenderer {
     public static void startWelcome(RoleAnnouncementTexts.RoleAnnouncementText role, int killers, int targets) {
         RoundTextRenderer.roleTexts = role;
         welcomeTime = WELCOME_DURATION;
+        welcomeExitTicks = 0;
         RoundTextRenderer.killers = killers;
         RoundTextRenderer.targets = targets;
         // 清除缓存以强制重新计算文本
@@ -810,17 +825,19 @@ public class RoundTextRenderer {
 
     /** Read-only presentation state for other opening overlays. */
     public static boolean isWelcomeActive() {
-        return welcomeTime > 0;
+        return welcomeTime > 0 || welcomeExitTicks > 0;
     }
 
     public static void clearWelcome() {
         welcomeTime = 0;
+        welcomeExitTicks = 0;
         cachedWelcomeText = cachedPremiseText = cachedGoalText = null;
     }
 
     /** 启动结束界面 (重置欢迎时间并设置结束倒计时)。 */
     public static void startEnd() {
         welcomeTime = 0;
+        welcomeExitTicks = 0;
         endTime = END_DURATION;
     }
 
