@@ -132,6 +132,7 @@ public class GreatDetectiveRole extends NormalRole {
                     .append(DetectiveFlavor.enoughClues(killerUuid).withStyle(ChatFormatting.AQUA));
         }
         broadcast(serverPlayer, result);
+        // serverPlayer.displayClientMessage(result, true);
     }
 
     private static void broadcast(ServerPlayer player, Component message) {
