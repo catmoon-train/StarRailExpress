@@ -63,6 +63,7 @@ public class SRECommandRegister {
             SetTimerCommand.register(dispatcher);
             SetDeathPenaltyCommand.register(dispatcher);
             MoneyCommand.register(dispatcher);
+            MiniGameMoneyCommand.register(dispatcher); // tmm:minigame_coin：游戏币（小游戏代币）set/add/get
             CustomReplayEventCommand.register(dispatcher, registryAccess);
             ReplayScreenCommand.register(dispatcher);
             net.exmo.sre.record.MatchRecordCommand.register(dispatcher);
