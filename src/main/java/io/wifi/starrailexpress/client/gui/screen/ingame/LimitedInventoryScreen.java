@@ -819,7 +819,14 @@ public class LimitedInventoryScreen extends LimitedHandledScreen<InventoryMenu> 
                         net.minecraft.core.registries.BuiltInRegistries.ITEM.getKey(liveEntry.stack().getItem()),
                         basePrice);
             }
-            MutableComponent price = Component.literal(effectivePrice + "\uE781");
+            // 价格按条目货币类型显示：默认金币（\uE781 图标）；游戏代币用对应翻译键（带代币图标字形）
+            ShopEntry.Currency currency = liveEntry.currency() == null
+                    ? ShopEntry.Currency.MONEY
+                    : liveEntry.currency();
+            MutableComponent price = currency == ShopEntry.Currency.MONEY
+                    ? Component.literal(effectivePrice + "\uE781")
+                    : Component.translatable(currency.priceTranslationKey(), effectivePrice)
+                            .withColor(currency.color());
             int displayX = this.getX() - 4 - this.screen.font.width(price) / 2;
             int displayY = this.getY() - 9;
             List<Component> renders = new ArrayList<>();

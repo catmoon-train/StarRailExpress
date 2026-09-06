@@ -38,7 +38,7 @@ public class ShopEntry extends dev.doctor4t.wathe.util.ShopEntry {
     }
 
     /**
-     * 仅支持售货机使用！！！
+     * 支持售货机与职业商店使用（职业商店按条目货币校验/扣款/显示，默认金币）！！！
      * @param stack
      * @param price
      * @param type
@@ -50,7 +50,7 @@ public class ShopEntry extends dev.doctor4t.wathe.util.ShopEntry {
     }
 
     /**
-     * 仅支持售货机使用！！！
+     * 支持售货机与职业商店使用（职业商店按条目货币校验/扣款/显示，默认金币）！！！
      * @param stack
      * @param price
      * @param type
