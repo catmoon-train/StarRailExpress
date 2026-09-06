@@ -620,7 +620,6 @@ public final class RoleSkill {
             AbilityHandler.handler(player, ignoreEffect);
         }
         afterUse(player, role);
-        SkillCastAnnounce.tryAnnounce(player, role, null);
         return true;
     }
 

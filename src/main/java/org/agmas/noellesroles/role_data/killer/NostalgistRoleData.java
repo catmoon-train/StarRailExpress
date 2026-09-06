@@ -25,6 +25,8 @@ import io.wifi.starrailexpress.event.AllowPlayerDeath;
 import io.wifi.starrailexpress.event.AllowPlayerDeathWithKiller;
 import io.wifi.starrailexpress.game.GameConstants;
 import io.wifi.starrailexpress.game.GameUtils;
+import io.wifi.starrailexpress.game.SkillCastAnnounce;
+
 import org.agmas.noellesroles.ConfigWorldComponent;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.HolderLookup;
@@ -186,6 +188,8 @@ public class NostalgistRoleData extends SimpleRoleData {
             return; // 已在退出过程中
         }
         startCollapseWindup(serverPlayer);
+        SkillCastAnnounce.tryAnnounce(serverPlayer, ModRoles.NOSTALGIST, null);
+
         ConfigWorldComponent.onPlayerUsedSkill(serverPlayer);
     }
 

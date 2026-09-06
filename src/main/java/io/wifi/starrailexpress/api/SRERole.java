@@ -205,7 +205,9 @@ public abstract class SRERole extends SREAbstractInfoClass {
     protected boolean refreshableSpecialVigilante = false;
     protected int refreshableSpecialVigilanteChance = -1;
     protected int occupiedRoleCount = 1;
-    /** 小游戏任务独立计算：true 时该职业的小游戏任务不并入轮换派发，始终独立计时刷新（见 SREPlayerMinigameTaskComponent）。 */
+    /**
+     * 小游戏任务独立计算：true 时该职业的小游戏任务不并入轮换派发，始终独立计时刷新（见 SREPlayerMinigameTaskComponent）。
+     */
     protected boolean independentMinigameTiming = false;
     public BiConsumer<ServerPlayer, SREGameWorldComponent> serverTickEvent = null;
     public BiConsumer<Player, SREGameWorldComponent> clientTickEvent = null;
@@ -2308,4 +2310,7 @@ public abstract class SRERole extends SREAbstractInfoClass {
         return this.canIncreaseSurvivingKillers;
     }
 
+    public boolean isHiddenForRoleRotation() {
+        return this.isFlag("inner.role_rotation.hidden");
+    }
 }
