@@ -15,6 +15,7 @@
 
 package org.agmas.noellesroles.game;
 
+import io.wifi.starrailexpress.SREConfig;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.event.OnGameEnd;
 import net.minecraft.server.level.ServerLevel;
@@ -26,11 +27,13 @@ import org.agmas.noellesroles.init.ModEffects;
 /**
  * 破镜重圆结局彩蛋：开启后，游戏进入 STOPPING 时全员进入破镜崩裂；
  * 沉底后才黑屏，药水结束后才真正结束。
+ *
+ * <p>启用状态保存在 {@link SREConfig#enableMirrorReunionEndEgg}，
+ * 可由 {@code /sre:mirror_end_egg on|off} 命令修改并写入配置。
  */
 public final class MirrorReunionEndEgg {
     public static final int BLACK_DURATION_TICKS = 15 * 20;
 
-    private static boolean enabled;
     private static boolean delayingThisRound;
     private static int holdTicks;
     private static boolean serverSnap;
@@ -51,15 +54,21 @@ public final class MirrorReunionEndEgg {
     }
 
     public static boolean isEnabled() {
-        return enabled;
+        SREConfig config = SREConfig.instance();
+        return config != null && config.enableMirrorReunionEndEgg;
     }
 
     public static void setEnabled(boolean value) {
-        enabled = value;
+        SREConfig config = SREConfig.instance();
+        if (config == null) {
+            return;
+        }
+        config.enableMirrorReunionEndEgg = value;
+        SREConfig.HANDLER.save();
     }
 
     public static void onGameStopping(ServerLevel world, SREGameWorldComponent component) {
-        if (!enabled) {
+        if (!isEnabled()) {
             return;
         }
         for (ServerPlayer player : world.players()) {
