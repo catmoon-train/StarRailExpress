@@ -77,7 +77,10 @@ public final class OpeningPresentationCoordinator {
             // 注意：角色公布的 welcome 在开局时已置位、但会被运镜暂停（不渲染），
             // 因此这里不因 welcome 待播而推迟规则卡；welcome 等运镜结束后再播放。
             if (AdvancedCameraDirector.isTrackActive()) {
-                if (mapId != null && client.screen == null && !RoleRotationCache.isSelecting()) {
+                // 真开局镜头开始 = 职业已确定、轮选阶段已结束：清理客户端可能残留的
+                // 轮选状态，避免其把轮选界面反复顶出或冻结后续的 welcome。
+                RoleRotationCache.finishRotation();
+                if (mapId != null && client.screen == null) {
                     MapRuleIntroHud.start(mapId);
                     state = State.SHOWING_RULES;
                 }
@@ -94,7 +97,12 @@ public final class OpeningPresentationCoordinator {
             }
         } else if (state == State.SHOWING_RULES) {
             if (client.screen != null) {
-                clear();
+                // 有屏幕打开（如按 T 开聊天）时只是暂停展示，不要清空整个开场；
+                // 关掉屏幕后若运镜仍在播放，规则卡会继续显示。
+                if (!AdvancedCameraDirector.isTrackActive()) {
+                    MapRuleIntroHud.clear();
+                    state = State.COMPLETE;
+                }
                 return;
             }
             // 规则卡只在开局运镜期间展示：运镜轨道结束即同步结束。

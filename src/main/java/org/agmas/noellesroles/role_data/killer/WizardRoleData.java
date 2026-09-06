@@ -15,7 +15,6 @@
 
 package org.agmas.noellesroles.role_data.killer;
 
-import io.wifi.starrailexpress.api.data.RoleData;
 import io.wifi.starrailexpress.api.data.RoleDataContext;
 import io.wifi.starrailexpress.api.impl.SimpleRoleData;
 import org.agmas.noellesroles.ConfigWorldComponent;
@@ -25,6 +24,7 @@ import io.wifi.starrailexpress.cca.SREPlayerShopComponent;
 import io.wifi.starrailexpress.cca.SREWorldBlackoutComponent;
 import io.wifi.starrailexpress.game.GameConstants;
 import io.wifi.starrailexpress.game.GameUtils;
+import io.wifi.starrailexpress.game.SkillCastAnnounce;
 import io.wifi.starrailexpress.network.TriggerScreenEdgeEffectPayload;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.ChatFormatting;
@@ -43,7 +43,6 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.Vec3;
 import org.agmas.noellesroles.game.roles.killer.wizard.WizardSpells;
 import org.agmas.noellesroles.Noellesroles;
-import org.agmas.noellesroles.component.ModComponents;
 import org.agmas.noellesroles.config.NoellesRolesConfig;
 import org.agmas.noellesroles.init.ModEffects;
 import org.agmas.noellesroles.init.ModItems;
@@ -53,8 +52,6 @@ import java.util.*;
 
 public class WizardRoleData extends SimpleRoleData {
 
-
-
     public enum Spell {
         ARMOR,
         FROST,
@@ -62,7 +59,6 @@ public class WizardRoleData extends SimpleRoleData {
         EXPLOSION,
         BLINK
     }
-
 
     public float mana = 0f;
     public Spell selectedSpell = Spell.ARMOR;
@@ -83,7 +79,6 @@ public class WizardRoleData extends SimpleRoleData {
     public WizardRoleData(RoleDataContext context) {
         super(context);
     }
-
 
     @Override
     public boolean shouldSyncWith(ServerPlayer player) {
@@ -123,7 +118,6 @@ public class WizardRoleData extends SimpleRoleData {
         sync();
     }
 
-
     private NoellesRolesConfig config() {
         return NoellesRolesConfig.HANDLER.instance();
     }
@@ -159,10 +153,14 @@ public class WizardRoleData extends SimpleRoleData {
 
         boolean anyCooldownActive = frostCooldownTicks > 0 || shadowCooldownTicks > 0 || explosionCooldownTicks > 0
                 || blinkCooldownTicks > 0;
-        if (frostCooldownTicks > 0) frostCooldownTicks--;
-        if (shadowCooldownTicks > 0) shadowCooldownTicks--;
-        if (explosionCooldownTicks > 0) explosionCooldownTicks--;
-        if (blinkCooldownTicks > 0) blinkCooldownTicks--;
+        if (frostCooldownTicks > 0)
+            frostCooldownTicks--;
+        if (shadowCooldownTicks > 0)
+            shadowCooldownTicks--;
+        if (explosionCooldownTicks > 0)
+            explosionCooldownTicks--;
+        if (blinkCooldownTicks > 0)
+            blinkCooldownTicks--;
         // sync once per second while any cooldown is counting down
         if (anyCooldownActive && sp.level().getGameTime() % 20 == 0) {
             sync();
@@ -227,6 +225,8 @@ public class WizardRoleData extends SimpleRoleData {
             case BLINK -> castBlink(sp);
         };
         if (used) {
+            SkillCastAnnounce.tryAnnounce(sp, ModRoles.WIZARD, null);
+
             ConfigWorldComponent.onPlayerUsedSkill(sp);
         }
     }
@@ -529,7 +529,8 @@ public class WizardRoleData extends SimpleRoleData {
         if (sp.getCooldowns().isOnCooldown(ModItems.WIZARD_POTION)) {
             sp.displayClientMessage(Component.translatable("message.noellesroles.wizard.potion_cd",
                     Math.max(1, Math.round(sp.getCooldowns().getCooldownPercent(ModItems.WIZARD_POTION, 0f)
-                            * 160))).withStyle(ChatFormatting.RED), true);
+                            * 160)))
+                    .withStyle(ChatFormatting.RED), true);
             return false;
         }
         sp.getCooldowns().addCooldown(ModItems.WIZARD_POTION, GameConstants.getInTicks(0, 160));
@@ -555,8 +556,8 @@ public class WizardRoleData extends SimpleRoleData {
     }
 
     private void expirePotionShield(ServerPlayer sp) {
-        io.wifi.starrailexpress.cca.SREArmorPlayerComponent armor =
-                io.wifi.starrailexpress.cca.SREArmorPlayerComponent.KEY.get(sp);
+        io.wifi.starrailexpress.cca.SREArmorPlayerComponent armor = io.wifi.starrailexpress.cca.SREArmorPlayerComponent.KEY
+                .get(sp);
         if (armor.getArmor() > 0) {
             armor.removeArmor();
         }
@@ -565,13 +566,14 @@ public class WizardRoleData extends SimpleRoleData {
     }
 
     private void applyPotionKillPenalty() {
-        if (potionKilledPlayer) return;
+        if (potionKilledPlayer)
+            return;
         float penalty = this.mana / 2f;
         if (penalty > 0) {
             spendMana(penalty);
             if (player instanceof ServerPlayer sp) {
                 sp.displayClientMessage(Component.translatable("message.noellesroles.wizard.potion_no_kill_penalty",
-                                Math.round(penalty))
+                        Math.round(penalty))
                         .withStyle(ChatFormatting.RED), true);
             }
         }
@@ -636,8 +638,6 @@ public class WizardRoleData extends SimpleRoleData {
         this.blinkCooldownTicks = tag.getInt("blinkCooldownTicks");
         this.fireballKills = tag.getInt("fireballKills");
     }
-
-
 
     private static final class FireArrowMark {
         int hits;

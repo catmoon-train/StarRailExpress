@@ -80,6 +80,15 @@ public final class SkillCastAnnounce {
     private static boolean shouldShowRole(SRERole role, SREConfig config) {
         if (role == null)
             return false;
+
+        if (hasEntries(config.skillCastAnnounceWhitelist)) {
+            if (matchesRoleList(role, config.skillCastAnnounceWhitelist)) {
+                return true;
+            } else if (!hasEntries(config.skillCastAnnounceBlacklist)) {
+                return false;
+            }
+        }
+        
         if (role.isHideRoleInfoWhenSeen()) {
             return false;
         }
@@ -94,9 +103,6 @@ public final class SkillCastAnnounce {
         }
         if (matchesRoleList(role, config.skillCastAnnounceBlacklist)) {
             return false;
-        }
-        if (hasEntries(config.skillCastAnnounceWhitelist)) {
-            return matchesRoleList(role, config.skillCastAnnounceWhitelist);
         }
         return isCivilianFaction(role);
     }

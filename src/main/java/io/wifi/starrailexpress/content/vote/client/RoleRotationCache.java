@@ -185,6 +185,16 @@ public class RoleRotationCache {
         return isSelecting || confirmCountdown > 0;
     }
 
+    /**
+     * 轮选已结束（真开局镜头开始 / 角色已确定）：清理可能残留的选择状态。
+     * 防止终态 sync 丢失或强制收尾路径下 isSelecting/confirmCountdown 残留，
+     * 把轮选界面反复顶出或冻结后续的角色公布 welcome。
+     */
+    public static void finishRotation() {
+        isSelecting = false;
+        confirmCountdown = -1;
+    }
+
     // 清空（游戏结束）
     public static void clear() {
         isSelecting = false;

@@ -198,6 +198,12 @@ public class SRERoleRotationSingleSelectGameMode extends SREMurderGameMode {
 
     private void finishRotationPhase(ServerLevel world, SREGameWorldComponent gameComp) {
         Map<UUID, SRERole> finalRoles = new HashMap<>(draftState.selectedRoles);
+        // 无论轮选以何种路径结束（确认倒计时归零 / 总超时强制收尾 / 最后一名选完），
+        // 都向客户端广播一次“轮选已结束”的终态同步，避免 isSelecting/confirmCountdown
+        // 在客户端残留，冻结角色公布 welcome 或把轮选界面反复顶出。
+        draftState.isSelecting = false;
+        draftState.confirmCountdown = -1;
+        broadcastSync(world);
         isInRotationPhase = false;
         draftState = null;
         completeRoleSelection(world, gameComp, finalRoles);
