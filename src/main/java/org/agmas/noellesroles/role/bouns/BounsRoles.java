@@ -201,7 +201,8 @@ public class BounsRoles {
         }
     }).setCanSeeCoin(true).setRoleData(AnglerRoleData::new)
             .setSpecialMapRole(SRERole.SpecialMapRoleMap.UNDERWATER)
-            .setDefaultEnableChance(4000).setDefaultMax(1).setCanBeRandomedByOtherRoles(false);
+            .setDefaultEnableChance(4000).setDefaultMax(1).setCanBeRandomedByOtherRoles(false)
+            .setAddedVersion("4.4"); // versiontag 4.4
 
     public static SRERole CAT_KILLER = TMMRoles.registerRole(new EggRole(id("cat_killer"), // 角色 ID
             new Color(255, 80, 140).getRGB(), // 深粉色 - 猫娘~

@@ -117,7 +117,8 @@ public class NRModifiers {
             false,
             false))
             .setDefaultMax(2)
-            .setDefaultEnableChance(1500);
+            .setDefaultEnableChance(1500)
+            .setAddedVersion("4.4"); // versiontag 4.4
 
     /** 沙哑修饰符：嗓音十分低沉 */
     public static SREModifier HOARSE = HMLModifiers.registerModifier(new SREModifier(

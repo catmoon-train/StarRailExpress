@@ -490,7 +490,8 @@ public class ModRoles {
 			SRERole.MoodType.REAL,
 			TMMRoles.CIVILIAN.getMaxSprintTime(),
 			false
-	)).setCanSeeCoin(true).setRoleData(MediumRoleData::new).setDefaultMax(1);
+	)).setCanSeeCoin(true).setRoleData(MediumRoleData::new).setDefaultMax(1)
+			.setAddedVersion("4.4");
 
 	/**
 	 * 建筑师角色 - 平民阵营
@@ -715,7 +716,8 @@ public class ModRoles {
 			.setCanSeeCoin(true)
 			.setRoleData(RiftWalkerRoleData::new)
 			.setDefaultMax(1)
-			.setDefaultEnableChance(4000);
+			.setDefaultEnableChance(4000)
+			.setAddedVersion("4.4");
 
 	/**
 	 * 皮革噶的 - 平民阵营
@@ -753,7 +755,8 @@ public class ModRoles {
 			.setCanXiaonao(false)
 			.setCanBeXiaonao(false)
 			.setDefaultMax(1)
-			.setDefaultEnableChance(4000);
+			.setDefaultEnableChance(4000)
+			.setAddedVersion("4.4");
 
 	/**
 	 * 野人 - 平民阵营。
@@ -1225,7 +1228,8 @@ public class ModRoles {
 			SRERole.MoodType.REAL,
 			TMMRoles.CIVILIAN.getMaxSprintTime(),
 			false
-	)).setCanSeeCoin(true).setRoleData(TomatoHeadRoleData::new).setDefaultMax(1);
+	)).setCanSeeCoin(true).setRoleData(TomatoHeadRoleData::new).setDefaultMax(1)
+			.setAddedVersion("4.4");
 
 	/**
 	 * 药剂师角色
