@@ -83,12 +83,22 @@ public class TMMRoles {
         return registerRole(role.addFlag(flags));
     }
 
-    public static SRERole registerRole(SRERole role) {
+    public static SRERole registerCustomRole(SRERole role) {
         if (ROLES_BY_PATH.containsKey(role.identifier.getPath())) {
             SRE.LOGGER.error("[ROLE REGISTERER] Duplicated role identifier path found: {} and {}. Ignore the new one.",
                     ROLES_BY_PATH.get(role.identifier.getPath()).identifier().toString(), role.identifier().toString());
+            return null;
+        }
+        return registerRole(role);
+    }
+
+    public static SRERole registerRole(SRERole role) {
+        if (ROLES_BY_PATH.containsKey(role.identifier.getPath())) {
             // 拒绝注册
-            return role;
+            throw new IllegalArgumentException(String.format(
+                    "[ROLE REGISTERER] Duplicated role identifier path found: %s and %s. Ignore the new one.",
+                    ROLES_BY_PATH.get(role.identifier.getPath()).identifier().toString(),
+                    role.identifier().toString()));
         }
         ROLES.put(role.identifier(), role);
 

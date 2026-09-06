@@ -34,6 +34,7 @@ import io.wifi.starrailexpress.util.ShopEntry;
 import io.wifi.starrailexpress.util.TrueFalseAndCustomResult;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.loader.api.FabricLoader;
+import net.minecraft.ChatFormatting;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
@@ -138,7 +139,14 @@ public class CustomRoleLoader {
         for (CustomRoleData data : config.roles) {
             try {
                 SRERole role = createRole(data);
-                TMMRoles.registerRole(role);
+                var result = TMMRoles.registerCustomRole(role);
+                if (result == null) {
+                    server.getPlayerList().broadcastSystemMessage(
+                            Component.translatable("sre.custom_role.error.duplicated", data.displayName, data.englishId)
+                                    .withStyle(ChatFormatting.RED),
+                            false);
+                    continue;
+                }
                 registeredRoles.put(data.englishId, role);
                 loadedRoles.put(data.englishId, data);
 
@@ -201,7 +209,10 @@ public class CustomRoleLoader {
         for (CustomRoleData data : config.roles) {
             try {
                 SRERole role = createRole(data);
-                TMMRoles.registerRole(role);
+                var result = TMMRoles.registerCustomRole(role);
+                if (result == null) {
+                    continue;
+                }
                 loadedRoles.put(data.englishId, data);
                 registeredRoles.put(data.englishId, role);
 
@@ -234,10 +245,10 @@ public class CustomRoleLoader {
                 SRE.LOGGER.error("[CustomRole-Client] Failed to register: {}", data.englishId, e);
             }
         }
-        
+
         TMMRoles.refreshVersionTags();
         HMLModifiers.refreshVersionTags();
-        
+
         // 注册本能透视事件处理器（客户端，仅首次）
         registerClientInstinctHandler();
 

@@ -2248,6 +2248,7 @@
     "sre.backpack.subtitle": "共持有 %s 张阵营卡",
     "sre.backpack.title": "§6场外背包",
     "sre.backpack.unavailable": "暂未持有",
+    "sre.custom_role.error.duplicated": "发现重复的职业ID：%s (ID: %s) 和已有职业冲突了！已跳过。",
     "sre.custom_role.able_pickup_revolver": "可捡起左轮手枪",
     "sre.custom_role.add_shop_entry": "+ 添加商品",
     "sre.custom_role.back": "返回",
