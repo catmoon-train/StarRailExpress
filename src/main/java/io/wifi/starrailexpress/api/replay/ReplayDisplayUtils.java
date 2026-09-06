@@ -74,7 +74,7 @@ public class ReplayDisplayUtils {
         boolean first = true;
         for (UUID uuid : teamPlayers) {
             if (!first) {
-                text.append(Component.literal("、").withStyle(ChatFormatting.GRAY));
+                text.append(Component.literal(", ").withStyle(ChatFormatting.GRAY));
             }
             Component playerName = replayManager.getPlayerName(uuid);
             String roleId = playerRoles.get(uuid);
@@ -102,7 +102,7 @@ public class ReplayDisplayUtils {
             }
             // 获取玩家名称和角色
             MutableComponent playerName = GameReplayUtils
-                    .getReplayPlayerDisplayText(uuid, replayManager, replayData, false, Integer.MAX_VALUE, true)
+                    .getReplayPlayerDisplayText(uuid, replayManager, replayData, false, null, true)
                     .copy();
 
             // 添加死亡标记

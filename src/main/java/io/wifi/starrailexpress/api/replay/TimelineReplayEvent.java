@@ -15,8 +15,12 @@
 
 package io.wifi.starrailexpress.api.replay;
 
+import java.util.Map;
+import java.util.UUID;
+
 import io.wifi.starrailexpress.api.replay.ReplayEventTypes.EventDetails;
 import io.wifi.starrailexpress.api.replay.ReplayEventTypes.EventType;
+import net.minecraft.resources.ResourceLocation;
 
-public record ReplayEvent(EventType eventType, long timestamp, EventDetails details) {
+public record TimelineReplayEvent(EventType eventType, long timestamp, EventDetails details, Map<UUID, ResourceLocation> roles) {
 }

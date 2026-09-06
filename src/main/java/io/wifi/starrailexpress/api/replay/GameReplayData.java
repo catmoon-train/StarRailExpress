@@ -158,22 +158,32 @@ public class GameReplayData {
 
     /**
      * 还原玩家在时间线某条事件发生时的职业。
-     * {@code untilIndexExclusive} 之前的 {@code CHANGE_ROLE} 会生效，本条事件本身不计入。
+     * ReplayEvent 记录了相关玩家当时的职业
      */
-    public String resolvePlayerRoleId(UUID playerUid, int untilIndexExclusive) {
+    public String resolvePlayerRoleId(UUID playerUid, GameReplayData.ReplayEvent event) {
         if (playerUid == null) {
             return null;
         }
         String roleId = getInitialPlayerRoleId(playerUid);
-        if (timeline == null || timeline.isEmpty()) {
+        if (event == null) {
+            return null;
+        }
+        if (event.roles != null && event.roles.containsKey(playerUid)) {
+            return event.roles.get(playerUid).toString();
+        }
+        return roleId;
+    }
+
+    public String resolvePlayerRoleId(UUID playerUid, TimelineReplayEvent event) {
+        if (playerUid == null) {
+            return null;
+        }
+        String roleId = getInitialPlayerRoleId(playerUid);
+        if (event == null) {
             return roleId;
         }
-        int last = Math.min(timeline.size(), Math.max(0, untilIndexExclusive));
-        for (int i = 0; i < last; i++) {
-            String[] parts = parseChangeRoleMessage(timeline.get(i), playerUid);
-            if (parts != null && !parts[1].isBlank()) {
-                roleId = parts[1];
-            }
+        if (event.roles() != null && event.roles().containsKey(playerUid)) {
+            return event.roles().get(playerUid).toString();
         }
         return roleId;
     }
@@ -211,12 +221,7 @@ public class GameReplayData {
     }
 
     public Component toText(GameReplayManager manager, GameReplayData replayData,
-            io.wifi.starrailexpress.api.replay.ReplayEvent event) {
-        return toText(manager, replayData, event, Integer.MAX_VALUE);
-    }
-
-    public Component toText(GameReplayManager manager, GameReplayData replayData,
-            io.wifi.starrailexpress.api.replay.ReplayEvent event, int untilTimelineIndexExclusive) {
+            io.wifi.starrailexpress.api.replay.TimelineReplayEvent event) {
         if (event == null)
             return null;
         UUID sourcePlayer = null;
@@ -272,7 +277,7 @@ public class GameReplayData {
             sourcePlayer = revivalDetails.player();
             String r = revivalDetails.role();
             if (r == null || r.isBlank()) {
-                r = replayData.resolvePlayerRoleId(sourcePlayer, untilTimelineIndexExclusive);
+                r = replayData.resolvePlayerRoleId(sourcePlayer, event);
             }
             if (r == null || r.isBlank()) {
                 SRERole trole = null;
@@ -307,10 +312,8 @@ public class GameReplayData {
                         .withStyle(ChatFormatting.GRAY);
 
         // 按该事件发生时的职业显示，而不是终局职业
-        sourceName = GameReplayUtils.getReplayPlayerDisplayText(sourcePlayer, manager, replayData, false,
-                untilTimelineIndexExclusive);
-        targetName = GameReplayUtils.getReplayPlayerDisplayText(targetPlayer, manager, replayData, true,
-                untilTimelineIndexExclusive);
+        sourceName = GameReplayUtils.getReplayPlayerDisplayText(sourcePlayer, manager, replayData, false, event);
+        targetName = GameReplayUtils.getReplayPlayerDisplayText(targetPlayer, manager, replayData, true, event);
 
         return switch (event.eventType()) {
             // 主要事件
@@ -509,35 +512,19 @@ public class GameReplayData {
         public final String itemUsed;
         public final String message;
         public final long timestamp;
-        public final String text_a;
-        public final String text_b;
         public final boolean hidden;
-
-        public ReplayEvent(EventType type, UUID sourcePlayer, UUID targetPlayer, String itemUsed, String message) {
-            this(type, sourcePlayer, targetPlayer, itemUsed, message, "", "", false);
-        }
+        public final Map<UUID, ResourceLocation> roles;
 
         public ReplayEvent(EventType type, UUID sourcePlayer, UUID targetPlayer, String itemUsed, String message,
-                String text_a, String text_b) {
-            this(type, sourcePlayer, targetPlayer, itemUsed, message, text_a, text_b, false);
-        }
-
-        public ReplayEvent(EventType type, UUID sourcePlayer, UUID targetPlayer, String itemUsed, String message,
-                boolean hidden) {
-            this(type, sourcePlayer, targetPlayer, itemUsed, message, "", "", hidden);
-        }
-
-        public ReplayEvent(EventType type, UUID sourcePlayer, UUID targetPlayer, String itemUsed, String message,
-                String text_a, String text_b, boolean hidden) {
+                boolean hidden, Map<UUID, ResourceLocation> roles) {
             this.type = type;
             this.sourcePlayer = sourcePlayer;
             this.targetPlayer = targetPlayer;
             this.itemUsed = itemUsed;
             this.message = message;
             this.timestamp = System.currentTimeMillis();
-            this.text_a = text_a;
-            this.text_b = text_b;
             this.hidden = hidden;
+            this.roles = roles;
         }
 
         public EventType getType() {

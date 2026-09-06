@@ -43,7 +43,8 @@ public abstract class JoinMultiplayerScreenMixin extends Screen {
 
     @Override
     public void renderBackground(GuiGraphics g, int mouseX, int mouseY, float delta) {
-        if (SREClientConfig.instance().disableCustomTitleScreen) {
+        if (SREClientConfig.instance().disableCustomLoadingScreen
+                || SREClientConfig.instance().disableCustomTitleScreen) {
             super.renderBackground(g, mouseX, mouseY, delta);
             return;
         }
@@ -54,13 +55,7 @@ public abstract class JoinMultiplayerScreenMixin extends Screen {
                 SreUiStyle.enterT(this.sre$openedAt));
     }
 
-    @Redirect(
-            method = "render",
-            at = @At(
-                    value = "INVOKE",
-                    target = "Lnet/minecraft/client/gui/GuiGraphics;drawCenteredString(Lnet/minecraft/client/gui/Font;Lnet/minecraft/network/chat/Component;III)V"
-            )
-    )
+    @Redirect(method = "render", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/GuiGraphics;drawCenteredString(Lnet/minecraft/client/gui/Font;Lnet/minecraft/network/chat/Component;III)V"))
     private void sre$drawTitle(GuiGraphics g, Font font, Component text, int x, int y, int color) {
         if (SREClientConfig.instance().disableCustomTitleScreen) {
             g.drawCenteredString(font, text, x, y, color);

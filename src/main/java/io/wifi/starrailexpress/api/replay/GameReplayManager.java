@@ -23,6 +23,7 @@ import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.api.TMMRoles;
 import io.wifi.starrailexpress.cca.SREGameRoundEndComponent;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
+import io.wifi.starrailexpress.cca.SRERoleWorldComponent;
 import io.wifi.starrailexpress.content.entity.PlayerBodyEntity;
 import io.wifi.starrailexpress.game.GameUtils;
 import io.wifi.starrailexpress.game.GameUtils.WinStatus;
@@ -137,10 +138,11 @@ public class GameReplayManager implements IGameReplayRecorder {
     };
   }
 
-  protected ReplayEvent convertReplayEvent(GameReplayData.ReplayEvent dataEvent, HolderLookup.Provider provider) {
+  protected TimelineReplayEvent convertReplayEvent(GameReplayData.ReplayEvent dataEvent,
+      HolderLookup.Provider provider) {
     if (dataEvent == null) {
-      return new ReplayEvent(ReplayEventTypes.EventType.GAME_START, 0, new ReplayEventTypes.EventDetails() {
-      });
+      return new TimelineReplayEvent(ReplayEventTypes.EventType.GAME_START, 0, new ReplayEventTypes.EventDetails() {
+      }, null);
     }
 
     ReplayEventTypes.EventType eventType = mapEventType(dataEvent.getType());
@@ -317,7 +319,7 @@ public class GameReplayManager implements IGameReplayRecorder {
 
     };
 
-    return new ReplayEvent(eventType, dataEvent.getTimestamp(), details);
+    return new TimelineReplayEvent(eventType, dataEvent.getTimestamp(), details, dataEvent.roles);
   }
 
   public void initializeReplay(List<ServerPlayer> players, HashMap<UUID, SRERole> roles) {
@@ -462,16 +464,33 @@ public class GameReplayManager implements IGameReplayRecorder {
     // 对可能为null的字符串参数进行处理
     String safeItemUsed = itemUsed != null ? itemUsed : "minecraft:air";
     String safeMessage = message != null ? message : "";
+    ResourceLocation rolea = TMMRoles.DISCOVERY_CIVILIAN.identifier();
+    ResourceLocation roleb = TMMRoles.DISCOVERY_CIVILIAN.identifier();
+    if (SRE.SERVER != null) {
+      var rolecca = SRERoleWorldComponent.KEY.get(SRE.SERVER.overworld());
+      var ta = rolecca.getRole(sourcePlayer);
+      var tb = rolecca.getRole(targetPlayer);
+      if (ta != null)
+        rolea = ta.getIdentifier();
+      if (tb != null)
+        roleb = tb.getIdentifier();
+    }
+    Map<UUID, ResourceLocation> roleMap = new HashMap<>();
+    if (rolea != null) {
+      roleMap.put(sourcePlayer, rolea);
+    }
+    if (roleb != null) {
+      roleMap.put(targetPlayer, roleb);
+    }
     GameReplayData.ReplayEvent event = new GameReplayData.ReplayEvent(type, sourcePlayer, targetPlayer,
-        safeItemUsed, safeMessage, hidden);
+        safeItemUsed, safeMessage, hidden, roleMap);
     currentReplayData
         .addEvent(event);
-    ReplayEvent event1 = convertReplayEvent(event, provider);
+    TimelineReplayEvent event1 = convertReplayEvent(event, provider);
     Component eventText = null;
     boolean timelineRecorded = false;
     try {
-      int eventIndex = currentReplayData.getTimeline().size() - 1;
-      eventText = currentReplayData.toText(this, currentReplayData, event1, eventIndex);
+      eventText = currentReplayData.toText(this, currentReplayData, event1);
       recordTimelineEvent(event, event1, eventText);
       timelineRecorded = true;
       if (eventText != null && !hidden) {
@@ -518,7 +537,7 @@ public class GameReplayManager implements IGameReplayRecorder {
     return null;
   }
 
-  protected void recordTimelineEvent(GameReplayData.ReplayEvent dataEvent, ReplayEvent replayEvent,
+  protected void recordTimelineEvent(GameReplayData.ReplayEvent dataEvent, TimelineReplayEvent replayEvent,
       Component eventText) {
     if (dataEvent == null || replayEvent == null || recorder == null || session == null) {
       return;
@@ -526,7 +545,8 @@ public class GameReplayManager implements IGameReplayRecorder {
     recorder.record(buildTimelineEvent(dataEvent, replayEvent, eventText));
   }
 
-  protected ReplayTimelineEvent buildTimelineEvent(GameReplayData.ReplayEvent dataEvent, ReplayEvent replayEvent,
+  protected ReplayTimelineEvent buildTimelineEvent(GameReplayData.ReplayEvent dataEvent,
+      TimelineReplayEvent replayEvent,
       Component eventText) {
     Component text = eventText != null ? eventText
         : Component.literal(dataEvent.getType().name()).withStyle(ChatFormatting.DARK_GRAY);
@@ -828,11 +848,11 @@ public class GameReplayManager implements IGameReplayRecorder {
       List<ReplayTimelineEvent> rebuilt = new ArrayList<>(timeline.size());
       for (int i = 0; i < timeline.size(); i++) {
         GameReplayData.ReplayEvent event = timeline.get(i);
-        ReplayEvent replayEvent = convertReplayEvent(event,
+        TimelineReplayEvent replayEvent = convertReplayEvent(event,
             SRE.SERVER == null ? null : SRE.SERVER.registryAccess());
         Component text = null;
         try {
-          text = currentReplayData.toText(this, currentReplayData, replayEvent, i);
+          text = currentReplayData.toText(this, currentReplayData, replayEvent);
         } catch (Exception ignored) {
         }
         rebuilt.add(buildTimelineEvent(event, replayEvent, text));
@@ -936,19 +956,19 @@ public class GameReplayManager implements IGameReplayRecorder {
     };
   }
 
-  public List<ReplayEvent> getEvents() {
+  public List<TimelineReplayEvent> getEvents() {
     return currentReplayData.getTimeline().stream()
         .map(event -> convertReplayEvent(event, SRE.SERVER == null ? null : SRE.SERVER.registryAccess()))
         .toList();
   }
 
-  public List<ReplayEvent> getEventsInTimeRange(long startTime, long endTime) {
+  public List<TimelineReplayEvent> getEventsInTimeRange(long startTime, long endTime) {
     return getEvents().stream()
         .filter(event -> event.timestamp() >= startTime && event.timestamp() <= endTime)
         .toList();
   }
 
-  public List<ReplayEvent> getEventsByPlayer(UUID playerUuid) {
+  public List<TimelineReplayEvent> getEventsByPlayer(UUID playerUuid) {
     return currentReplayData.getTimeline().stream()
         .filter(event -> playerUuid != null
             && (playerUuid.equals(event.getSourcePlayer()) || playerUuid.equals(event.getTargetPlayer())))
@@ -956,7 +976,7 @@ public class GameReplayManager implements IGameReplayRecorder {
         .toList();
   }
 
-  public List<ReplayEvent> getEventsByType(ReplayEventTypes.EventType eventType) {
+  public List<TimelineReplayEvent> getEventsByType(ReplayEventTypes.EventType eventType) {
     return getEvents().stream().filter(event -> event.eventType() == eventType).toList();
   }
 
@@ -1173,7 +1193,7 @@ public class GameReplayManager implements IGameReplayRecorder {
           continue;
         long relativeTime = dataEvent.getTimestamp() - gameStartTime;
         String timePrefix = ReplayDisplayUtils.formatTime(relativeTime) + " ";
-        ReplayEvent event = null;
+        TimelineReplayEvent event = null;
         if (SRE.SERVER != null) {
           event = convertReplayEvent(dataEvent, SRE.SERVER.registryAccess());
         } else {
@@ -1181,7 +1201,7 @@ public class GameReplayManager implements IGameReplayRecorder {
         }
         Component eventText = null;
         try {
-          eventText = replayData.toText(this, replayData, event, i);
+          eventText = replayData.toText(this, replayData, event);
         } catch (Exception e) {
           SRE.LOGGER.error("Error converting replay event to text: ", e);
         }

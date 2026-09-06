@@ -305,22 +305,22 @@ public class EmptyGameReplayManager extends GameReplayManager {
     }
 
     @Override
-    public List<ReplayEvent> getEvents() {
+    public List<TimelineReplayEvent> getEvents() {
         return List.of();
     }
 
     @Override
-    public List<ReplayEvent> getEventsInTimeRange(long startTime, long endTime) {
+    public List<TimelineReplayEvent> getEventsInTimeRange(long startTime, long endTime) {
         return List.of();
     }
 
     @Override
-    public List<ReplayEvent> getEventsByPlayer(UUID playerUuid) {
+    public List<TimelineReplayEvent> getEventsByPlayer(UUID playerUuid) {
         return List.of();
     }
 
     @Override
-    public List<ReplayEvent> getEventsByType(ReplayEventTypes.EventType eventType) {
+    public List<TimelineReplayEvent> getEventsByType(ReplayEventTypes.EventType eventType) {
         return List.of();
     }
 

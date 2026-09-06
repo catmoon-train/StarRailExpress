@@ -30,7 +30,7 @@ public interface IGameReplayReader {
      *
      * @return 事件列表。
      */
-    List<ReplayEvent> getEvents();
+    List<TimelineReplayEvent> getEvents();
 
     /**
      * 根据时间戳获取特定时间点或时间段内的事件。
@@ -39,7 +39,7 @@ public interface IGameReplayReader {
      * @param endTime   结束时间戳。
      * @return 匹配的事件列表。
      */
-    List<ReplayEvent> getEventsInTimeRange(long startTime, long endTime);
+    List<TimelineReplayEvent> getEventsInTimeRange(long startTime, long endTime);
 
     /**
      * 获取特定玩家相关的所有事件。
@@ -47,7 +47,7 @@ public interface IGameReplayReader {
      * @param playerUuid 玩家的UUID。
      * @return 玩家相关事件的列表。
      */
-    List<ReplayEvent> getEventsByPlayer(UUID playerUuid);
+    List<TimelineReplayEvent> getEventsByPlayer(UUID playerUuid);
 
     /**
      * 获取特定事件类型的所有事件。
@@ -55,7 +55,7 @@ public interface IGameReplayReader {
      * @param eventType 事件类型。
      * @return 匹配的事件列表。
      */
-    List<ReplayEvent> getEventsByType(ReplayEventTypes.EventType eventType);
+    List<TimelineReplayEvent> getEventsByType(ReplayEventTypes.EventType eventType);
 
     /**
      * 获取回放中所有玩家的UUID。

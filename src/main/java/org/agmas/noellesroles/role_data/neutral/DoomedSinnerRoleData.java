@@ -19,7 +19,7 @@ import io.wifi.starrailexpress.api.data.RoleData;
 import io.wifi.starrailexpress.api.data.RoleDataContext;
 import io.wifi.starrailexpress.api.impl.SimpleRoleData;
 import io.wifi.starrailexpress.SRE;
-import io.wifi.starrailexpress.api.replay.ReplayEvent;
+import io.wifi.starrailexpress.api.replay.TimelineReplayEvent;
 import io.wifi.starrailexpress.api.replay.ReplayEventTypes;
 import io.wifi.starrailexpress.cca.PlayerBodyEntityComponent;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
@@ -448,12 +448,12 @@ public class DoomedSinnerRoleData extends SimpleRoleData {
         if (SRE.REPLAY_MANAGER == null) {
             return result;
         }
-        List<ReplayEvent> events = SRE.REPLAY_MANAGER.getEventsByPlayer(targetUuid);
+        List<TimelineReplayEvent> events = SRE.REPLAY_MANAGER.getEventsByPlayer(targetUuid);
         events.stream()
                 .filter(e -> e.eventType() == ReplayEventTypes.EventType.PLAYER_KILL)
                 .filter(e -> e.details() instanceof ReplayEventTypes.PlayerKillDetails d
                         && targetUuid.equals(d.killerUuid()))
-                .sorted(Comparator.comparingLong(ReplayEvent::timestamp).reversed())
+                .sorted(Comparator.comparingLong(TimelineReplayEvent::timestamp).reversed())
                 .limit(limit)
                 .forEach(e -> result
                         .add(((ReplayEventTypes.PlayerKillDetails) e.details()).deathReason().toString()));

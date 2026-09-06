@@ -29,6 +29,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
 import org.agmas.noellesroles.utils.RoleUtils;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.UUID;
 
@@ -57,7 +58,8 @@ public class GameReplayUtils {
         var id = ResourceLocation.tryParse(path);
         if (id != null) {
             var name = RoleUtils.getRoleName(id);
-            if (name != null) return name.copy().withColor(getRoleColor(path));
+            if (name != null)
+                return name.copy().withColor(getRoleColor(path));
         }
         return Component.translatable("announcement.star.role." + path).withColor(getRoleColor(path));
     }
@@ -66,7 +68,8 @@ public class GameReplayUtils {
         var id = ResourceLocation.tryParse(path);
         if (id != null) {
             var name = RoleUtils.getRoleName(id);
-            if (name != null) return name.copy().withStyle(getTMMRoleColor(path));
+            if (name != null)
+                return name.copy().withStyle(getTMMRoleColor(path));
         }
         return Component.translatable("announcement.star.role." + path).withStyle(getTMMRoleColor(path));
     }
@@ -133,20 +136,21 @@ public class GameReplayUtils {
 
     public static Component getReplayPlayerDisplayText(UUID playerUid, GameReplayManager manager,
             GameReplayData replayData, boolean notNull) {
-        return getReplayPlayerDisplayText(playerUid, manager, replayData, notNull, Integer.MAX_VALUE, false);
+        return getReplayPlayerDisplayText(playerUid, manager, replayData, notNull, null, true);
     }
 
     public static Component getReplayPlayerDisplayText(UUID playerUid, GameReplayManager manager,
-            GameReplayData replayData, boolean notNull, int untilTimelineIndexExclusive) {
-        return getReplayPlayerDisplayText(playerUid, manager, replayData, notNull, untilTimelineIndexExclusive, false);
+            GameReplayData replayData, boolean notNull, TimelineReplayEvent event) {
+        return getReplayPlayerDisplayText(playerUid, manager, replayData, notNull, event, true);
     }
 
     /**
-     * @param untilTimelineIndexExclusive 只应用该下标之前的换职记录；{@link Integer#MAX_VALUE} 表示截至当前时间线末尾
-     * @param showInitialIfChanged       终局名单等场景：若职业变过，显示为 现职业(初始职业)
+     * @param untilTimelineIndexExclusive 只应用该下标之前的换职记录；{@link Integer#MAX_VALUE}
+     *                                    表示截至当前时间线末尾
+     * @param showInitialIfChanged        终局名单等场景：若职业变过，显示为 现职业(初始职业)
      */
     public static Component getReplayPlayerDisplayText(UUID playerUid, GameReplayManager manager,
-            GameReplayData replayData, boolean notNull, int untilTimelineIndexExclusive,
+            GameReplayData replayData, boolean notNull, @Nullable TimelineReplayEvent event,
             boolean showInitialIfChanged) {
         if (playerUid == null && !notNull)
             return null;
@@ -158,7 +162,7 @@ public class GameReplayUtils {
         }
 
         String roleAtTime = replayData == null ? null
-                : replayData.resolvePlayerRoleId(playerUid, untilTimelineIndexExclusive);
+                : replayData.resolvePlayerRoleId(playerUid, event);
         if (roleAtTime == null) {
             roleAtTime = getLiveRoleId(playerUid);
         }
@@ -211,7 +215,8 @@ public class GameReplayUtils {
         }
         if (UseTMMColor) {
             return sourceName.copy()
-                    .append(Component.translatable(" (%s)", roleName.withStyle(tmmColor)).withStyle(ChatFormatting.GRAY))
+                    .append(Component.translatable(" (%s)", roleName.withStyle(tmmColor))
+                            .withStyle(ChatFormatting.GRAY))
                     .withStyle(tmmColor);
         }
         return sourceName.copy()
@@ -220,7 +225,7 @@ public class GameReplayUtils {
     }
 
     public static Component getItemStackDisplayNameWithCounts(ItemStack stack) {
-        if(stack == null || stack.isEmpty()){
+        if (stack == null || stack.isEmpty()) {
             return Items.AIR.getDefaultInstance().getDisplayName();
         }
         return stack.getDisplayName().copy().append("(").append(Integer.toString(stack.getCount())).append(")");

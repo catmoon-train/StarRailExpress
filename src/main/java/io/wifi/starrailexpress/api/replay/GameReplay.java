@@ -24,7 +24,7 @@ import java.util.List;
 import java.util.UUID;
 
 public record GameReplay(int playerCount, GameUtils.WinStatus winningTeam, List<ReplayPlayerInfo> players,
-        List<ReplayEvent> timelineEvents) {
+        List<TimelineReplayEvent> timelineEvents) {
 
     public record ReplayPlayerInfo(UUID uuid, String name, SRERole finalRole) {
     }
