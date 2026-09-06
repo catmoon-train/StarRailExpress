@@ -42,7 +42,6 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.scores.PlayerTeam;
 import org.agmas.harpymodloader.component.WorldModifierComponent;
 import org.agmas.noellesroles.ConfigWorldComponent;
 import org.agmas.noellesroles.client.ClientAmonState;
@@ -77,9 +76,8 @@ import java.util.UUID;
  */
 public class SREClientEvents {
 
-    private static Component getDisplayName(PlayerInfo playerInfo) {
-        MutableComponent mutableComponent = PlayerTeam.formatNameForTeam(playerInfo.getTeam(),
-                Component.literal(playerInfo.getProfile().getName()));
+    private static Component getName(PlayerInfo playerInfo) {
+        MutableComponent mutableComponent = Component.literal(playerInfo.getProfile().getName());
         return mutableComponent;
     }
 
@@ -325,7 +323,7 @@ public class SREClientEvents {
             if (disguiseTarget != null) {
                 PlayerInfo targetInfo = ClientSkinCache.getCachedPlayerInfo(disguiseTarget);
                 if (targetInfo != null && targetInfo.getProfile() != null && targetInfo.getProfile().getId() != null) {
-                    return TrueFalseAndCustomResult.custom(getDisplayName(targetInfo));
+                    return TrueFalseAndCustomResult.custom(getName(targetInfo));
                 }
                 if (disguiseTarget.equals(target.getUUID())) {
                     return TrueFalseAndCustomResult.custom(target.getDisplayName());
@@ -338,7 +336,7 @@ public class SREClientEvents {
             if (stolenTarget != null) {
                 PlayerInfo targetInfo = ClientSkinCache.getCachedPlayerInfo(stolenTarget);
                 if (targetInfo != null && targetInfo.getProfile() != null && targetInfo.getProfile().getId() != null) {
-                    return TrueFalseAndCustomResult.custom(getDisplayName(targetInfo));
+                    return TrueFalseAndCustomResult.custom(getName(targetInfo));
                 }
                 if (stolenTarget.equals(target.getUUID())) {
                     return TrueFalseAndCustomResult.custom(target.getDisplayName());
@@ -360,7 +358,7 @@ public class SREClientEvents {
             if (embalmerTarget != null && ClientEmbalmerState.isActive()) {
                 PlayerInfo targetInfo = ClientSkinCache.getCachedPlayerInfo(embalmerTarget);
                 if (targetInfo != null && targetInfo.getProfile() != null && targetInfo.getProfile().getId() != null) {
-                    return TrueFalseAndCustomResult.custom(getDisplayName(targetInfo));
+                    return TrueFalseAndCustomResult.custom(getName(targetInfo));
                 }
             }
             var morphOpt = RoleData.getOptional(MorphlingRoleData.class, target);
@@ -368,7 +366,7 @@ public class SREClientEvents {
                 var mocca = morphOpt.get();
                 PlayerInfo targetInfo = ClientSkinCache.getCachedPlayerInfo(mocca.disguise);
                 if (targetInfo != null && targetInfo.getProfile() != null && targetInfo.getProfile().getId() != null) {
-                    return TrueFalseAndCustomResult.custom(getDisplayName(targetInfo));
+                    return TrueFalseAndCustomResult.custom(getName(targetInfo));
                 } else {
                     // Log.info(LogCategory.GENERAL, "Morphling disguise is null!!!");
                 }

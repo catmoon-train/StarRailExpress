@@ -147,7 +147,7 @@ public class RoleNameRenderer {
                     } else if (result.isCustom()) {
                         nametag = result.getContent().orElse(Component.empty());
                     } else {
-                        nametag = getDisplayName(target);
+                        nametag = getName(target);
                     }
                 }
                 if (SREClient.modifierComponent != null) {
@@ -356,8 +356,8 @@ public class RoleNameRenderer {
         }
     }
 
-    private static Component getDisplayName(Player target) {
-        return target.getDisplayName();
+    private static Component getName(Player target) {
+        return target.getName();
     }
 
     public enum TrainRole {
