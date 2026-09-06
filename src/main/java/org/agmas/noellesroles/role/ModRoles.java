@@ -1619,7 +1619,8 @@ public class ModRoles {
 			.setCanSeeCoin(true)
 			.setDefaultMax(1)
 			.setDefaultEnableChance(5000)
-			.setDefaultEnableNeededPlayerCount(8);
+			.setDefaultEnableNeededPlayerCount(12)
+			.setAddedVersion("4.4"); // versiontag 4.4
 
 	public static SRERole SPELLBREAKER = TMMRoles
 			.registerRole(new NormalRole(SPELLBREAKER_ID, (new Color(132, 46, 170)).getRGB(), false,
