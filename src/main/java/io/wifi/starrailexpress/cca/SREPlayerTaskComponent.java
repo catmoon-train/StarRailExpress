@@ -164,13 +164,18 @@ public class SREPlayerTaskComponent implements RoleComponent, ServerTickingCompo
             boolean minigameDispatched = false;
             SREPlayerMinigameTaskComponent minigameComponent = null;
             boolean rotationActive = false;
+            boolean independentMinigameTiming = false;
             boolean parallelMinigame = SREConfig.instance().minigameTaskParallelMode;
             if (this.player instanceof ServerPlayer sp
                     && sp.level() instanceof net.minecraft.server.level.ServerLevel serverLevel
                     && SREPlayerMinigameTaskComponent.isRotationModeActive(serverLevel)) {
                 rotationActive = true;
                 minigameComponent = SREPlayerMinigameTaskComponent.KEY.get(sp);
-                if (parallelMinigame || this.tasks.isEmpty()) {
+                // 「小游戏任务独立计算」职业豁免：小游戏任务走独立计时派发
+                // （见 SREPlayerMinigameTaskComponent），普通任务刷新槽位不参与轮换替换
+                SRERole playerRole = gameWorldComponent.getRole(sp);
+                independentMinigameTiming = playerRole != null && playerRole.hasIndependentMinigameTiming();
+                if (!independentMinigameTiming && (parallelMinigame || this.tasks.isEmpty())) {
                     if (minigameComponent.shouldReplaceNormalTask(sp)) {
                         // 并列模式：无论当前有无普通任务，均可派发小游戏任务
                         // 原模式：仅在无普通任务时才替换
@@ -218,7 +223,8 @@ public class SREPlayerTaskComponent implements RoleComponent, ServerTickingCompo
                 this.nextTaskTimer = (int) (this.nextTaskTimer * 0.7f);
             }
             // 轮换模式：非并列小游戏任务模式则全局任务刷新速率减缓 15%
-            if (rotationActive && !parallelMinigame) {
+            // （「小游戏任务独立计算」职业豁免：小游戏任务独立计时，普通任务刷新不减速）
+            if (rotationActive && !parallelMinigame && !independentMinigameTiming) {
                 this.nextTaskTimer = (int) (this.nextTaskTimer * GameConstants.MINIGAME_ROTATION_REFRESH_SLOWDOWN);
             }
             this.nextTaskTimer = Math.max(this.nextTaskTimer, 2);

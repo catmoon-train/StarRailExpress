@@ -205,6 +205,8 @@ public abstract class SRERole extends SREAbstractInfoClass {
     protected boolean refreshableSpecialVigilante = false;
     protected int refreshableSpecialVigilanteChance = -1;
     protected int occupiedRoleCount = 1;
+    /** 小游戏任务独立计算：true 时该职业的小游戏任务不并入轮换派发，始终独立计时刷新（见 SREPlayerMinigameTaskComponent）。 */
+    protected boolean independentMinigameTiming = false;
     public BiConsumer<ServerPlayer, SREGameWorldComponent> serverTickEvent = null;
     public BiConsumer<Player, SREGameWorldComponent> clientTickEvent = null;
 
@@ -721,6 +723,20 @@ public abstract class SRERole extends SREAbstractInfoClass {
     /** 多条件地图限定是否为 OR 关系（任一条件满足即可刷新）。false 时为 AND 关系（默认）。 */
     public boolean isSpecialMapRolesOr() {
         return this.specialMapRolesOr;
+    }
+
+    /**
+     * 小游戏任务独立计算：设置该职业的小游戏任务是否不并入轮换派发，
+     * 始终按独立计时刷新（不受轮换模式普通任务数量限制，见 SREPlayerMinigameTaskComponent）。
+     */
+    public SRERole setIndependentMinigameTiming(boolean independentMinigameTiming) {
+        this.independentMinigameTiming = independentMinigameTiming;
+        return this;
+    }
+
+    /** 该职业的小游戏任务是否为独立计算（独立计时派发，不参与轮换）。默认 false。 */
+    public boolean hasIndependentMinigameTiming() {
+        return this.independentMinigameTiming;
     }
 
     private void addSpecialMapRoles(EnumSet<SpecialMapRoleMap> set, SpecialMapRoleMap condition) {

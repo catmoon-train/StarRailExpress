@@ -18,6 +18,7 @@ package io.wifi.starrailexpress.cca;
 import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.SREConfig;
 import io.wifi.starrailexpress.api.RoleComponent;
+import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.content.block_entity.MinigameQuestBlockEntity;
 import io.wifi.starrailexpress.content.minigame.QuestMinigame;
 import io.wifi.starrailexpress.content.minigame.QuestMinigames;
@@ -181,8 +182,10 @@ public class SREPlayerMinigameTaskComponent implements RoleComponent, ServerTick
             return;
         }
         refreshSabotageTask(serverLevel, sp);
-        // 轮换模式下小游戏任务并入 Mood 任务轮换派发（见 SREPlayerTaskComponent），不再独立计时
-        if (isRotationModeActive(serverLevel)) {
+        // 轮换模式下小游戏任务并入 Mood 任务轮换派发（见 SREPlayerTaskComponent），不再独立计时；
+        // 「小游戏任务独立计算」职业豁免：不参与轮换，保持独立计时派发
+        SRERole role = SREGameWorldComponent.KEY.get(serverLevel).getRole(sp);
+        if (isRotationModeActive(serverLevel) && !(role != null && role.hasIndependentMinigameTiming())) {
             this.minigameTaskTimer = SREConfig.instance().minigameTaskIntervalSeconds * 20;
             return;
         }
@@ -336,6 +339,8 @@ public class SREPlayerMinigameTaskComponent implements RoleComponent, ServerTick
                 shop.addToBalance(SREConfig.instance().minigameRotationCoinBonus);
             }
         }
+        // 网警：完成小游戏任务额外恢复 30% 理智
+        org.agmas.noellesroles.role_data.vigilante.NetCopRoleData.restoreSanityAfterMinigame(sp);
         this.sync();
         return true;
     }

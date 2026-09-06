@@ -891,6 +891,16 @@ public class NRDeathEvents {
                 dropCount--;
             }
         }
+        // 网警：身上的 Dream 铁斧/钻石剑/重锤 掉落为左轮手枪（参考游侠弓弩）
+        if (gameWorldComponent.isRole(player, ModRoles.NET_COP)) {
+            int dreamWeaponCount = SREItemUtils.clearItem(player, ModItems.DREAM_AXE)
+                    + SREItemUtils.clearItem(player, ModItems.DREAM_DIAMOND_SWORD)
+                    + SREItemUtils.clearItem(player, ModItems.DREAM_MACE);
+            while (dreamWeaponCount > 0) {
+                player.drop(TMMItems.REVOLVER.getDefaultInstance(), false);
+                dreamWeaponCount--;
+            }
+        }
         if (gameWorldComponent.isRole(player, ModRoles.MARTIAL_ARTS_INSTRUCTOR)) {
             int nunchuckCount = SREItemUtils.clearItem(player, TMMItems.NUNCHUCK);
             while (nunchuckCount > 0) {

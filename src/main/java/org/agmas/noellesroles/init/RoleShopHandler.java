@@ -884,6 +884,77 @@ public class RoleShopHandler {
                     .add(new ShopEntry(FunnyItems.SUPER_PIG_HORSESHOE.getDefaultInstance(), 200, ShopEntry.Type.TOOL));
             ShopContent.customEntries.put(ModRoles.TAMER.getIdentifier(), TAMER_SHOP);
         }
+
+        // 网警商店：小游戏代币定价，依次购买 Dream 铁斧/钻石剑/重锤（购买重锤时副手给予4个风弹）
+        {
+            var NET_COP_SHOP = new ArrayList<ShopEntry>();
+
+            // Dream 的铁斧 - 2 游戏代币（已拥有时无法购买）
+            NET_COP_SHOP.add(new ShopEntry(ModItems.DREAM_AXE.getDefaultInstance(), 2,
+                    ShopEntry.Type.WEAPON, ShopEntry.Currency.MINIGAME_TOKEN) {
+                @Override
+                public boolean canBuy(@NotNull Player player) {
+                    if (MCItemsUtils.hasItem(player, ModItems.DREAM_AXE)) {
+                        this.setFailedMessage(Component.translatable("message.noellesroles.net_cop.shop_already_owned"));
+                        return false;
+                    }
+                    return true;
+                }
+            });
+
+            // Dream 的钻石剑 - 5 游戏代币（须已持有铁斧；已拥有时无法购买）
+            NET_COP_SHOP.add(new ShopEntry(ModItems.DREAM_DIAMOND_SWORD.getDefaultInstance(), 5,
+                    ShopEntry.Type.WEAPON, ShopEntry.Currency.MINIGAME_TOKEN) {
+                @Override
+                public boolean canBuy(@NotNull Player player) {
+                    if (MCItemsUtils.hasItem(player, ModItems.DREAM_DIAMOND_SWORD)) {
+                        this.setFailedMessage(Component.translatable("message.noellesroles.net_cop.shop_already_owned"));
+                        return false;
+                    }
+                    if (!MCItemsUtils.hasItem(player, ModItems.DREAM_AXE)) {
+                        this.setFailedMessage(Component.translatable("message.noellesroles.net_cop.shop_need_axe"));
+                        return false;
+                    }
+                    return true;
+                }
+            });
+
+            // Dream 的重锤 - 8 游戏代币（须同时持有铁斧与钻石剑；已拥有时无法购买；购买附赠4个风弹）
+            NET_COP_SHOP.add(new ShopEntry(ModItems.DREAM_MACE.getDefaultInstance(), 8,
+                    ShopEntry.Type.WEAPON, ShopEntry.Currency.MINIGAME_TOKEN) {
+                @Override
+                public boolean canBuy(@NotNull Player player) {
+                    if (MCItemsUtils.hasItem(player, ModItems.DREAM_MACE)) {
+                        this.setFailedMessage(Component.translatable("message.noellesroles.net_cop.shop_already_owned"));
+                        return false;
+                    }
+                    if (!MCItemsUtils.hasItem(player, ModItems.DREAM_AXE)
+                            || !MCItemsUtils.hasItem(player, ModItems.DREAM_DIAMOND_SWORD)) {
+                        this.setFailedMessage(
+                                Component.translatable("message.noellesroles.net_cop.shop_need_axe_and_sword"));
+                        return false;
+                    }
+                    return true;
+                }
+
+                @Override
+                public boolean onBuy(@NotNull Player player) {
+                    if (!super.onBuy(player)) {
+                        return false;
+                    }
+                    // 购买时副手给予 4 个原版风弹（副手被占用时放进背包空位）
+                    ItemStack windCharges = new ItemStack(Items.WIND_CHARGE, 4);
+                    if (player.getOffhandItem().isEmpty()) {
+                        player.setItemInHand(InteractionHand.OFF_HAND, windCharges);
+                    } else {
+                        RoleUtils.insertStackInFreeSlot(player, windCharges);
+                    }
+                    return true;
+                }
+            });
+
+            ShopContent.customEntries.put(ModRoles.NET_COP_ID, NET_COP_SHOP);
+        }
         {
             var SHOP = new ArrayList<ShopEntry>();
 
