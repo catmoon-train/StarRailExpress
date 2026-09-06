@@ -326,7 +326,7 @@ public class SREClientEvents {
                     return TrueFalseAndCustomResult.custom(getName(targetInfo));
                 }
                 if (disguiseTarget.equals(target.getUUID())) {
-                    return TrueFalseAndCustomResult.custom(target.getDisplayName());
+                    return TrueFalseAndCustomResult.custom(target.getName());
                 }
             }
             return TrueFalseAndCustomResult.pass();
@@ -339,7 +339,7 @@ public class SREClientEvents {
                     return TrueFalseAndCustomResult.custom(getName(targetInfo));
                 }
                 if (stolenTarget.equals(target.getUUID())) {
-                    return TrueFalseAndCustomResult.custom(target.getDisplayName());
+                    return TrueFalseAndCustomResult.custom(target.getName());
                 }
             }
             return TrueFalseAndCustomResult.pass();
@@ -371,7 +371,7 @@ public class SREClientEvents {
                     // Log.info(LogCategory.GENERAL, "Morphling disguise is null!!!");
                 }
                 if (mocca.disguise != null && mocca.disguise.equals(target.getUUID())) {
-                    return TrueFalseAndCustomResult.custom(target.getDisplayName());
+                    return TrueFalseAndCustomResult.custom(target.getName());
                 }
             }
             return TrueFalseAndCustomResult.pass();

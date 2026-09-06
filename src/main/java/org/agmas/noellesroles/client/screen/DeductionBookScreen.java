@@ -37,7 +37,8 @@ import java.util.UUID;
 /**
  * 推理之书界面 &mdash; 复古书页风格，参考 NewspaperScreen 的设计。
  *
- * <p>每页对应一名嫌疑人，列出死亡时间与已掌握的碎片线索。线索 &ge; 3 条时
+ * <p>
+ * 每页对应一名嫌疑人，列出死亡时间与已掌握的碎片线索。线索 &ge; 3 条时
  * 可选择查明「方位」或「生死」，每名凶手只能查明一项。
  * 左右方向键或翻页按钮切换嫌疑人页。
  */
@@ -52,11 +53,11 @@ public class DeductionBookScreen extends Screen {
     // 内容区域在原始纹理中的相对坐标
     private static final int CONTENT_REL_X = 60;
     private static final int CONTENT_REL_Y = 70;
-    private static final int CONTENT_REL_WIDTH = 240;
-    private static final int CONTENT_REL_HEIGHT = 110;
+    private static final int CONTENT_REL_WIDTH = 160;
+    private static final int CONTENT_REL_HEIGHT = 100;
 
     // 标题和嫌疑人标签的相对 Y 坐标
-    private static final int TITLE_REL_Y = 40;
+    private static final int TITLE_REL_Y = 36;
     private static final int SUSPECT_REL_Y = 55;
 
     // 翻页按钮在原始纹理中的相对坐标
@@ -64,7 +65,7 @@ public class DeductionBookScreen extends Screen {
     private static final int PAGE_BTN_REL_Y = 174;
 
     // 页脚区域 &mdash; 目标情况 / 距离信息
-    private static final int FOOTER_REL_Y = 172;
+    private static final int FOOTER_REL_Y = 162;
 
     // 屏幕边距
     private static final int SCREEN_MARGIN = 20;
@@ -133,7 +134,7 @@ public class DeductionBookScreen extends Screen {
         }
         bookWidth = w;
         bookHeight = h;
-        bookX = (width - w +15) / 2;
+        bookX = (width - w + 15) / 2;
         bookY = (height - h) / 2;
 
         scale = (float) bookWidth / ORIG_IMG_WIDTH;
@@ -328,6 +329,7 @@ public class DeductionBookScreen extends Screen {
 
     /**
      * 在书页中绘制水平居中、带缩放的文本。
+     * 
      * @param relScale 相对于 scale 的文字缩放倍率
      */
     private void drawScaledCentered(GuiGraphics g, Component text, int screenY, float relScale, int color) {
