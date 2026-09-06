@@ -1288,10 +1288,10 @@ public abstract class SRERole extends SREAbstractInfoClass {
     }
 
     /**
-     * 在HarpyModLoader中使用
+     * 初始物品。在HarpyModLoader中使用
      */
     public List<ItemStack> getDefaultItems() {
-        return new ArrayList<>();
+        return List.of();
     }
 
     /**
