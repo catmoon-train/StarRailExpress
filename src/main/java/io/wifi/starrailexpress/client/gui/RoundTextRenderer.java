@@ -246,7 +246,8 @@ public class RoundTextRenderer {
         g.pose().pushPose();
         g.pose().translate(-font.width(line) * scale / 2.0F, y, 0);
         g.pose().scale(scale, scale, 1);
-        g.drawString(font, line, 0, 0, color, false);
+        // 需要阴影，不然看不清字
+        g.drawString(font, line, 0, 0, color, true);
         g.pose().popPose();
     }
 
