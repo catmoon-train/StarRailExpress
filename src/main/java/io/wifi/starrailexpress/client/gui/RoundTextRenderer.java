@@ -189,9 +189,9 @@ public class RoundTextRenderer {
         var layout = WelcomeLayout.of(g.guiHeight(), Math.max(0, (titles.size() - 1) * titleLine + renderer.lineHeight) * titleScale,
                 Math.max(0, (premises.size() - 1) * bodyLine + renderer.lineHeight) * bodyScale,
                 Math.max(0, (goals.size() - 1) * bodyLine + renderer.lineHeight) * bodyScale);
-        float titleIn = stagedWelcomeAlpha(192, partialTicks);
-        float premiseIn = stagedWelcomeAlpha(170, partialTicks);
-        float goalIn = stagedWelcomeAlpha(146, partialTicks);
+        float titleIn = stagedWelcomeAlpha(180, partialTicks);
+        float premiseIn = stagedWelcomeAlpha(120, partialTicks);
+        float goalIn = stagedWelcomeAlpha(60, partialTicks);
         float exit = smoothStep(Mth.clamp((welcomeTime - partialTicks) / 18.0F, 0, 1));
         int accent = VoteFlowFrame.GOLD;
         int text = VoteFlowFrame.TEXT;
@@ -745,17 +745,17 @@ public class RoundTextRenderer {
                             player.level().playSeededSound(player, player.getX(), player.getY(), player.getZ(),
                                     TMMSounds.UI_RISER, SoundSource.MASTER, 10f, 1f, player.getRandom().nextLong());
                     }
-                    case 192 -> {
+                    case 180 -> {
                         if (player != null)
                             player.level().playSeededSound(player, player.getX(), player.getY(), player.getZ(),
                                     TMMSounds.UI_PIANO, SoundSource.MASTER, 10f, 1.25f, player.getRandom().nextLong());
                     }
-                    case 170 -> {
+                    case 120 -> {
                         if (player != null)
                             player.level().playSeededSound(player, player.getX(), player.getY(), player.getZ(),
                                     TMMSounds.UI_PIANO, SoundSource.MASTER, 10f, 1.5f, player.getRandom().nextLong());
                     }
-                    case 146 -> {
+                    case 60 -> {
                         if (player != null)
                             player.level().playSeededSound(player, player.getX(), player.getY(), player.getZ(),
                                     TMMSounds.UI_PIANO, SoundSource.MASTER, 10f, 1.75f, player.getRandom().nextLong());
