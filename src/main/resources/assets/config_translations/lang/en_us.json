@@ -244,6 +244,8 @@
     "text.autoconfig.starrailexpress.category.hud": "HUD",
     "text.autoconfig.starrailexpress.option.skillCastAnnounceHud": "Skill cast announce HUD",
     "text.autoconfig.starrailexpress.option.skillCastAnnounceHud.@Tooltip": "Server toggle. When on, successful HUD skill casts show a left-side announce to all players. On by default.",
+    "text.autoconfig.starrailexpress.option.enableMirrorReunionEndEgg": "Mirror Reunion end effect",
+    "text.autoconfig.starrailexpress.option.enableMirrorReunionEndEgg.@Tooltip": "Server toggle. When on, everyone plays the Mirror Reunion collapse/restore cinematic while the game fades to black at the end (delaying the real end). Can be changed and saved via the /sre:mirror_end_egg on|off command. Off by default.",
     "text.autoconfig.starrailexpress.option.skillCastAnnounceWhitelist": "Skill announce role whitelist",
     "text.autoconfig.starrailexpress.option.skillCastAnnounceWhitelist.@Tooltip[0]": "Role IDs (e.g. noellesroles:doctor or doctor). If non-empty, only these roles are announced.",
     "text.autoconfig.starrailexpress.option.skillCastAnnounceWhitelist.@Tooltip[1]": "Leave empty to announce only civilian-faction (including sheriff) skill casts.",
