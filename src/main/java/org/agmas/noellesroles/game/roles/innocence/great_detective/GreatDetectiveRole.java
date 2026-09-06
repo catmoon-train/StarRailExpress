@@ -357,7 +357,7 @@ public class GreatDetectiveRole extends NormalRole {
         if (id != null && sp.getServer() != null) {
             ServerPlayer dead = sp.getServer().getPlayerList().getPlayer(id);
             if (dead != null) {
-                return dead.getDisplayName();
+                return dead.getName();
             }
         }
         if (body.getCustomName() != null) {

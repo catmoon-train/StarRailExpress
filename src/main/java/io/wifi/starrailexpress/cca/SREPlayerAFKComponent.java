@@ -25,6 +25,8 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
+import org.agmas.noellesroles.game.modifier.NRModifiers;
+import org.agmas.noellesroles.utils.RoleUtils;
 import org.jetbrains.annotations.NotNull;
 import org.ladysnake.cca.api.v3.component.ComponentKey;
 import org.ladysnake.cca.api.v3.component.ComponentRegistry;
@@ -127,6 +129,15 @@ public class SREPlayerAFKComponent implements RoleComponent, ServerTickingCompon
             this.lastActionTime = 0;
             this.afkTime = 0;
         }
+        if (RoleUtils.isPlayerTheModifier(player, NRModifiers.FAKE_STEVE_REPLACED)) {
+            this.lastActionTime = 0;
+            this.afkTime = 0;
+            if (this.player instanceof ServerPlayer sp) {
+                if (this.player.level().getGameTime() % 400 == 0) {
+                    sp.resetLastActionTime();
+                }
+            }
+        }
         if (!SRE.isPlayerInGame(this.player))
             return;
         if (!SREGameWorldComponent.KEY.get(this.player.level()).isRunning())
@@ -191,6 +202,11 @@ public class SREPlayerAFKComponent implements RoleComponent, ServerTickingCompon
     @Override
     public void clientTick() {
         if (player.isSpectator()) {
+            this.lastActionTime = 0;
+            this.afkTime = 0;
+        }
+
+        if (RoleUtils.isPlayerTheModifier(player, NRModifiers.FAKE_STEVE_REPLACED)) {
             this.lastActionTime = 0;
             this.afkTime = 0;
         }
