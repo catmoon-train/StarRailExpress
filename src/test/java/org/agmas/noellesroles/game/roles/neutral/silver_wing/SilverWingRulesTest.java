@@ -16,6 +16,12 @@ class SilverWingRulesTest {
         assertEquals(4, SilverWingRules.EMP_SLOWNESS_SECONDS);
         assertEquals(2, SilverWingRules.EMP_SLOWNESS_AMPLIFIER);
         assertEquals(50, SilverWingRules.TASK_GOLD);
+        assertEquals(5, SilverWingRules.PASSIVE_GOLD_INTERVAL_SECONDS);
+        assertEquals(5, SilverWingRules.PASSIVE_GOLD_AMOUNT);
+        assertEquals(100, SilverWingRules.ticks(SilverWingRules.PASSIVE_GOLD_INTERVAL_SECONDS));
+        assertFalse(SilverWingRules.isPassiveGoldDue(99L, 100L));
+        assertTrue(SilverWingRules.isPassiveGoldDue(100L, 100L));
+        assertEquals(200L, SilverWingRules.nextPassiveGoldTick(100L));
     }
 
     @Test

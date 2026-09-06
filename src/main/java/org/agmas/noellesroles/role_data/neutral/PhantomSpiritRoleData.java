@@ -31,6 +31,8 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.protocol.game.ClientboundSetPassengersPacket;
+import net.minecraft.network.protocol.game.ClientboundTeleportEntityPacket;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
@@ -50,10 +52,12 @@ import org.agmas.noellesroles.role.ModRoles;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 
 /**
- * 幻灵：好人方中立。外形为悦灵，无碰撞，离地 1.6 格悬浮；空格可跳但会沉回悬浮高度。
+ * 幻灵：好人方中立。外形为悦灵，无碰撞，离地 1.2 格悬浮；空格可跳但会沉回悬浮高度。
  */
 public class PhantomSpiritRoleData extends SimpleRoleData {
 
@@ -64,7 +68,8 @@ public class PhantomSpiritRoleData extends SimpleRoleData {
     public static final int REVEAL_SECONDS = 2;
     public static final double REVEAL_RANGE = 10.0;
     public static final double POSSESS_RANGE = 8.0;
-    public static final double HOVER_HEIGHT = 1.6;
+    public static final double CHAT_RANGE = 8.0;
+    public static final double HOVER_HEIGHT = 1.2;
 
     private static final int DISGUISE_RESYNC_INTERVAL = 20;
     private static final int DISGUISE_RESYNC_WINDOW = 100;
@@ -86,6 +91,9 @@ public class PhantomSpiritRoleData extends SimpleRoleData {
     /** 代死过程中避免递归击杀 */
     private static boolean sacrificing;
 
+    /** 灵视结束时刻，按「可透视的玩家」缓存，避免宿主客户端读不到头上幻灵的 RoleData */
+    private static final Map<UUID, Long> REVEAL_UNTIL_BY_VIEWER = new HashMap<>();
+
     public PhantomSpiritRoleData(RoleDataContext context) {
         super(context);
     }
@@ -103,6 +111,28 @@ public class PhantomSpiritRoleData extends SimpleRoleData {
         return player.getVehicle() instanceof Player;
     }
 
+    public static boolean isPossessingSpirit(Player player) {
+        PhantomSpiritRoleData data = RoleData.getNullable(PhantomSpiritRoleData.class, player);
+        return data != null && data.isPossessing();
+    }
+
+    /** 骑在玩家头上，或附近有其他存活玩家时可以交流。 */
+    public static boolean canCommunicate(Player spirit) {
+        if (isRidingPlayer(spirit)) {
+            return true;
+        }
+        double rangeSq = CHAT_RANGE * CHAT_RANGE;
+        for (Player other : spirit.level().players()) {
+            if (other == spirit || !GameUtils.isPlayerAliveAndSurvival(other)) {
+                continue;
+            }
+            if (spirit.distanceToSqr(other) <= rangeSq) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     public static boolean shouldStayRiding(Player rider) {
         PhantomSpiritRoleData data = RoleData.getNullable(PhantomSpiritRoleData.class, rider);
         if (data == null || data.hostUuid == null) {
@@ -116,16 +146,48 @@ public class PhantomSpiritRoleData extends SimpleRoleData {
     }
 
     public static boolean isRevealActiveFor(Player viewer) {
+        if (viewer.hasEffect(ModEffects.PHANTOM_SPIRIT_REVEAL)) {
+            return true;
+        }
+        long now = viewer.level().getGameTime();
+        Long cached = REVEAL_UNTIL_BY_VIEWER.get(viewer.getUUID());
+        if (cached != null && now < cached) {
+            return true;
+        }
         PhantomSpiritRoleData selfData = RoleData.getNullable(PhantomSpiritRoleData.class, viewer);
         if (selfData != null && selfData.isRevealActive()) {
             return true;
         }
-        Entity passenger = viewer.getFirstPassenger();
-        if (passenger instanceof Player rider) {
-            PhantomSpiritRoleData riderData = RoleData.getNullable(PhantomSpiritRoleData.class, rider);
-            return riderData != null && riderData.isRevealActive() && viewer.getUUID().equals(riderData.hostUuid);
+        for (Player other : viewer.level().players()) {
+            if (other == viewer) {
+                continue;
+            }
+            PhantomSpiritRoleData data = RoleData.getNullable(PhantomSpiritRoleData.class, other);
+            if (data != null && data.isRevealActive() && viewer.getUUID().equals(data.hostUuid)) {
+                return true;
+            }
         }
         return false;
+    }
+
+    private void cacheRevealViewers() {
+        UUID selfId = player.getUUID();
+        if (player.level().getGameTime() < revealUntilGameTime) {
+            REVEAL_UNTIL_BY_VIEWER.put(selfId, revealUntilGameTime);
+            if (hostUuid != null) {
+                REVEAL_UNTIL_BY_VIEWER.put(hostUuid, revealUntilGameTime);
+            }
+            return;
+        }
+        REVEAL_UNTIL_BY_VIEWER.remove(selfId);
+        if (hostUuid != null) {
+            REVEAL_UNTIL_BY_VIEWER.remove(hostUuid);
+        }
+    }
+
+    private static void applyRevealEffect(Player target) {
+        target.addEffect(new MobEffectInstance(ModEffects.PHANTOM_SPIRIT_REVEAL, REVEAL_SECONDS * 20, 0, true, false,
+                false));
     }
 
     public boolean isPossessing() {
@@ -173,6 +235,7 @@ public class PhantomSpiritRoleData extends SimpleRoleData {
             return false;
         }
         stopHover(sp);
+        snapOntoHost(sp, target);
         if (!sp.startRiding(target, true)) {
             sp.displayClientMessage(Component.translatable("message.noellesroles.phantom_spirit.blocked")
                     .withStyle(ChatFormatting.RED), true);
@@ -183,6 +246,7 @@ public class PhantomSpiritRoleData extends SimpleRoleData {
         revealUntilGameTime = 0;
         usedReveal = false;
         sync();
+        broadcastPossessVisual(sp, target);
         sp.serverLevel().playSound(null, target.blockPosition(), SoundEvents.ALLAY_ITEM_GIVEN, SoundSource.PLAYERS,
                 0.8f, 1.2f);
         sp.displayClientMessage(Component.translatable("message.noellesroles.phantom_spirit.possess_start",
@@ -200,14 +264,18 @@ public class PhantomSpiritRoleData extends SimpleRoleData {
         }
         usedReveal = true;
         revealUntilGameTime = sp.level().getGameTime() + REVEAL_SECONDS * 20L;
+        cacheRevealViewers();
+        applyRevealEffect(sp);
         sync();
-        sp.displayClientMessage(Component.translatable("message.noellesroles.phantom_spirit.reveal")
-                .withStyle(ChatFormatting.AQUA), true);
-        Player host = sp.level().getPlayerByUUID(hostUuid);
+        Player host = hostUuid != null ? sp.level().getPlayerByUUID(hostUuid) : null;
         if (host instanceof ServerPlayer hostPlayer) {
+            applyRevealEffect(hostPlayer);
+            syncTo(hostPlayer);
             hostPlayer.displayClientMessage(Component.translatable("message.noellesroles.phantom_spirit.reveal_host")
                     .withStyle(ChatFormatting.AQUA), true);
         }
+        sp.displayClientMessage(Component.translatable("message.noellesroles.phantom_spirit.reveal")
+                .withStyle(ChatFormatting.AQUA), true);
         sp.serverLevel().playSound(null, sp.blockPosition(), SoundEvents.ALLAY_AMBIENT_WITH_ITEM, SoundSource.PLAYERS,
                 0.7f, 1.4f);
         return true;
@@ -271,6 +339,15 @@ public class PhantomSpiritRoleData extends SimpleRoleData {
             return;
         }
         UUID previousHost = hostUuid;
+        REVEAL_UNTIL_BY_VIEWER.remove(player.getUUID());
+        if (previousHost != null) {
+            REVEAL_UNTIL_BY_VIEWER.remove(previousHost);
+        }
+        player.removeEffect(ModEffects.PHANTOM_SPIRIT_REVEAL);
+        Player previousHostPlayer = previousHost != null ? player.level().getPlayerByUUID(previousHost) : null;
+        if (previousHostPlayer != null) {
+            previousHostPlayer.removeEffect(ModEffects.PHANTOM_SPIRIT_REVEAL);
+        }
         hostUuid = null;
         possessUntilGameTime = 0;
         revealUntilGameTime = 0;
@@ -282,8 +359,7 @@ public class PhantomSpiritRoleData extends SimpleRoleData {
             sp.displayClientMessage(Component.translatable("message.noellesroles.phantom_spirit.possess_end")
                     .withStyle(ChatFormatting.YELLOW), true);
         }
-        Player host = previousHost != null ? player.level().getPlayerByUUID(previousHost) : null;
-        if (notify && host instanceof ServerPlayer hostPlayer) {
+        if (notify && previousHostPlayer instanceof ServerPlayer hostPlayer) {
             hostPlayer.displayClientMessage(Component.translatable("message.noellesroles.phantom_spirit.possess_end")
                     .withStyle(ChatFormatting.YELLOW), true);
         }
@@ -374,7 +450,7 @@ public class PhantomSpiritRoleData extends SimpleRoleData {
             if (!gameWorld.isRunning() || !GameUtils.isPlayerAliveAndSurvival(sender)) {
                 return true;
             }
-            if (isRidingPlayer(sender)) {
+            if (canCommunicate(sender)) {
                 return true;
             }
             sender.displayClientMessage(Component.translatable("message.noellesroles.phantom_spirit.cannot_chat")
@@ -513,9 +589,48 @@ public class PhantomSpiritRoleData extends SimpleRoleData {
         target.setDeltaMovement(vel);
     }
 
+    private static void snapOntoHost(Player spirit, Player host) {
+        spirit.setPos(host.getX(), host.getY() + host.getBbHeight() + 0.12, host.getZ());
+        spirit.setOldPosAndRot();
+        spirit.setDeltaMovement(Vec3.ZERO);
+    }
+
+    private static void broadcastPossessVisual(ServerPlayer spirit, ServerPlayer host) {
+        ClientboundTeleportEntityPacket teleport = new ClientboundTeleportEntityPacket(spirit);
+        ClientboundSetPassengersPacket passengers = new ClientboundSetPassengersPacket(host);
+        for (ServerPlayer viewer : spirit.serverLevel().players()) {
+            if (viewer == spirit) {
+                continue;
+            }
+            viewer.connection.send(teleport);
+            viewer.connection.send(passengers);
+        }
+    }
+
+    private void syncClientPossessRide() {
+        if (!isPossessing() || hostUuid == null) {
+            if (player.getVehicle() instanceof Player) {
+                player.stopRiding();
+            }
+            return;
+        }
+        Player host = player.level().getPlayerByUUID(hostUuid);
+        if (host == null) {
+            return;
+        }
+        if (player.getVehicle() != host) {
+            snapOntoHost(player, host);
+            player.startRiding(host, true);
+        }
+        if (player.getVehicle() != host) {
+            snapOntoHost(player, host);
+        }
+    }
+
     @Override
     public void clientTick() {
         if (!player.isLocalPlayer()) {
+            syncClientPossessRide();
             return;
         }
         if (isFreeFlightMode(player)) {
@@ -583,6 +698,7 @@ public class PhantomSpiritRoleData extends SimpleRoleData {
             }
             if (sp.getVehicle() != hostPlayer) {
                 stopHover(sp);
+                snapOntoHost(sp, hostPlayer);
                 if (isInvisibleTarget(hostPlayer) || !sp.startRiding(hostPlayer, true)) {
                     endPossess(true);
                     return;
@@ -590,6 +706,7 @@ public class PhantomSpiritRoleData extends SimpleRoleData {
             }
             hostPlayer.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SPEED, 10, 0, true, false, true));
             stopHover(sp);
+            broadcastPossessVisual(sp, hostPlayer);
             return;
         }
 
@@ -626,5 +743,6 @@ public class PhantomSpiritRoleData extends SimpleRoleData {
         possessUntilGameTime = tag.getLong("possessUntil");
         revealUntilGameTime = tag.getLong("revealUntil");
         usedReveal = tag.getBoolean("usedReveal");
+        cacheRevealViewers();
     }
 }

@@ -33,8 +33,10 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.animal.allay.Allay;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.player.PlayerModelPart;
 import net.minecraft.world.phys.Vec3;
+import io.wifi.starrailexpress.api.data.RoleData;
 import org.agmas.noellesroles.role_data.neutral.PhantomSpiritRoleData;
 
 /**
@@ -107,6 +109,7 @@ public class AllayDisguiseRenderer {
         allay.setCustomNameVisible(false);
 
         poseStack.pushPose();
+        snapRenderToHost(player, tickDelta, poseStack, allay);
         if (firstPersonSelf) {
             Vec3 offset = allayBackOffset(player, tickDelta);
             poseStack.translate(-offset.x, 0.0, -offset.z);
@@ -170,6 +173,29 @@ public class AllayDisguiseRenderer {
                 .setOverlay(OverlayTexture.NO_OVERLAY)
                 .setLight(packedLight)
                 .setNormal(pose, 0.0F, 0.0F, 1.0F);
+    }
+
+    private static void snapRenderToHost(AbstractClientPlayer player, float tickDelta, PoseStack poseStack,
+            Allay allay) {
+        if (player.getVehicle() instanceof Player) {
+            return;
+        }
+        PhantomSpiritRoleData data = RoleData.getNullable(PhantomSpiritRoleData.class, player);
+        if (data == null || !data.isPossessing() || data.hostUuid == null) {
+            return;
+        }
+        Player host = player.level().getPlayerByUUID(data.hostUuid);
+        if (host == null || host == player) {
+            return;
+        }
+        Vec3 from = player.getPosition(tickDelta);
+        Vec3 to = host.getPosition(tickDelta).add(0.0, host.getBbHeight() + 0.12, 0.0);
+        Vec3 delta = to.subtract(from);
+        poseStack.translate(delta.x, delta.y, delta.z);
+        allay.setPos(to.x, to.y, to.z);
+        allay.xo = to.x;
+        allay.yo = to.y;
+        allay.zo = to.z;
     }
 
     private static Vec3 allayBackOffset(AbstractClientPlayer player, float tickDelta) {

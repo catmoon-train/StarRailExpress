@@ -156,6 +156,9 @@ public class ModEffects {
      * - 绿色粒子
      */
     public static final Holder<MobEffect> NO_COLLIDE = register("no_collide", new NoCollideEffect());
+    /** 幻灵灵视：仅作客户端透视标记，无粒子无图标 */
+    public static final Holder<MobEffect> PHANTOM_SPIRIT_REVEAL = register("phantom_spirit_reveal",
+            new SimpleMobEffect(MobEffectCategory.BENEFICIAL, 0x5AC4D0));
 
     /** 摔倒：强制游泳姿态（趴下） */
     public static final Holder<MobEffect> SWIM_POSE = register("swim_pose",

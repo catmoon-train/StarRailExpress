@@ -348,7 +348,7 @@ public class NoellesrolesVoiceChatPlugin implements VoicechatPlugin {
   }
 
   /**
-   * 幻灵只有骑在玩家头上才能用语音交流。
+   * 幻灵只有靠近其他玩家（或骑在头上）才能用语音交流。
    */
   private static boolean shouldMutePhantomSpirit(ServerPlayer player, SREGameWorldComponent gameWorld) {
     if (gameWorld == null || !gameWorld.isRunning() || !gameWorld.isRole(player, ModRoles.PHANTOM_SPIRIT)) {
@@ -357,7 +357,7 @@ public class NoellesrolesVoiceChatPlugin implements VoicechatPlugin {
     if (!GameUtils.isPlayerAliveAndSurvival(player)) {
       return false;
     }
-    return !PhantomSpiritRoleData.isRidingPlayer(player);
+    return !PhantomSpiritRoleData.canCommunicate(player);
   }
 
   @Override

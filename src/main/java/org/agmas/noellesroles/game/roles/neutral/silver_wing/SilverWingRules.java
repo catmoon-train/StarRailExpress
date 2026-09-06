@@ -31,12 +31,23 @@ public final class SilverWingRules {
 
     /** 平民任务默认奖励，银翼做任务拿这份金币。 */
     public static final int TASK_GOLD = 50;
+    /** 存活时每隔该秒数获得被动金币。 */
+    public static final int PASSIVE_GOLD_INTERVAL_SECONDS = 5;
+    public static final int PASSIVE_GOLD_AMOUNT = 5;
 
     private SilverWingRules() {
     }
 
     public static int ticks(int seconds) {
         return seconds * 20;
+    }
+
+    public static boolean isPassiveGoldDue(long now, long nextTick) {
+        return now >= nextTick;
+    }
+
+    public static long nextPassiveGoldTick(long now) {
+        return now + ticks(PASSIVE_GOLD_INTERVAL_SECONDS);
     }
 
     public static boolean alreadyHasEmpBomb(int ownedCount) {

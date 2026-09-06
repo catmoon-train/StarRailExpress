@@ -735,27 +735,27 @@ public class ModRoles {
             .addBothRelatedRole(ModRoles.DREAM)
             .setCanBeRandomedByOtherRoles(false);
 
-    /**
-     * 幻灵 - 好人方中立
-     * - 外形为悦灵，始终无碰撞，离地 1.6 格悬浮，空格可跳但会沉回；只有骑在玩家头上才能交流
-     * - 技能：附身玩家头上 20 秒（冷却 60 秒）；附身期间可再按一次技能透视周围 10 格 2 秒
-     * - 宿主被击杀时幻灵代死；宿主获得速度 I
-     * - 杀手无法透视未骑乘的幻灵，可以透视骑在别人头上的幻灵
-     * - 幻灵与好人互杀会触发小脑惩罚；无法附身隐身目标
-     * - 与阴谋家互斥生成
-     */
-    public static SRERole PHANTOM_SPIRIT = TMMRoles.registerRole(
-            new NormalRole(PHANTOM_SPIRIT_ID, new Color(90, 196, 208).getRGB(),
-                    RoleType.NEUTRALS_FOR_INNOCENT, SRERole.MoodType.REAL,
-                    TMMRoles.CIVILIAN.getMaxSprintTime(), false)
-                    .setRoleData(PhantomSpiritRoleData::new))
-            .setCanSeeCoin(true)
-            .setCanIncreaseSurvivingInnocents(true)
-            .setCanXiaonao(false)
-            .setCanBeXiaonao(false)
-            .setDefaultMax(1)
-            .setDefaultEnableChance(4000)
-            .setAddedVersion("4.4");
+	/**
+	 * 幻灵 - 好人方中立
+	 * - 外形为悦灵，始终无碰撞，离地 1.2 格悬浮，空格可跳但会沉回；靠近其他玩家才能交流
+	 * - 技能：附身玩家头上 20 秒（冷却 60 秒）；附身期间可再按一次技能透视周围 10 格 2 秒
+	 * - 宿主被击杀时幻灵代死；宿主获得速度 I
+	 * - 杀手无法透视未骑乘的幻灵，可以透视骑在别人头上的幻灵
+	 * - 幻灵与好人互杀会触发小脑惩罚；无法附身隐身目标
+	 * - 与阴谋家互斥生成
+	 */
+	public static SRERole PHANTOM_SPIRIT = TMMRoles.registerRole(
+			new NormalRole(PHANTOM_SPIRIT_ID, new Color(90, 196, 208).getRGB(),
+					RoleType.NEUTRALS_FOR_INNOCENT, SRERole.MoodType.REAL,
+					TMMRoles.CIVILIAN.getMaxSprintTime(), false)
+					.setRoleData(PhantomSpiritRoleData::new))
+			.setCanSeeCoin(true)
+			.setCanIncreaseSurvivingInnocents(true)
+			.setCanXiaonao(false)
+			.setCanBeXiaonao(false)
+			.setDefaultMax(1)
+			.setDefaultEnableChance(4000)
+			.setAddedVersion("4.4");
 
     /**
      * 野人 - 平民阵营。
@@ -1624,25 +1624,26 @@ public class ModRoles {
             .setDefaultMax(1)
             .setDefaultEnableChance(5000).setDefaultEnableNeededPlayerCount(8);
 
-    /**
-     * 银翼 - 杀手方中立
-     * - 技能 50s：获得一个电磁脉冲炸弹（最多持有一个）
-     * - 使用炸弹后若技能没有冷却则进入 15s 冷却
-     * - 炸弹命中：4s 无法使用物品 + 缓慢 III 4s
-     * - 正常做任务获得 50 金币
-     * - 商店 125 金币购买机械小鸟
-     */
-    public static SRERole SILVER_WING = TMMRoles
-            .registerRole(new NormalRole(SILVER_WING_ID, new Color(176, 196, 222).getRGB(), false,
-                    false, SRERole.MoodType.FAKE, Integer.MAX_VALUE, true)
-                    .setRoleData(SilverWingRoleData::new))
-            .setNeutralForKiller(true)
-            .setCanUseInstinctAndNightVision(true)
-            .setCanSeeCoin(true)
-            .setDefaultMax(1)
-            .setDefaultEnableChance(5000)
-            .setDefaultEnableNeededPlayerCount(12)
-            .setAddedVersion("4.4"); // versiontag 4.4
+	/**
+	 * 银翼 - 杀手方中立
+	 * - 技能 50s：获得一个电磁脉冲炸弹（最多持有一个）
+	 * - 使用炸弹后若技能没有冷却则进入 15s 冷却
+	 * - 炸弹命中：4s 无法使用物品 + 缓慢 III 4s
+	 * - 存活时每 5 秒获得 5 金币
+	 * - 正常做任务获得 50 金币
+	 * - 商店 125 金币购买机械小鸟
+	 */
+	public static SRERole SILVER_WING = TMMRoles
+			.registerRole(new NormalRole(SILVER_WING_ID, new Color(176, 196, 222).getRGB(), false,
+					false, SRERole.MoodType.FAKE, Integer.MAX_VALUE, true)
+					.setRoleData(SilverWingRoleData::new))
+			.setNeutralForKiller(true)
+			.setCanUseInstinctAndNightVision(true)
+			.setCanSeeCoin(true)
+			.setDefaultMax(1)
+			.setDefaultEnableChance(5000)
+			.setDefaultEnableNeededPlayerCount(12)
+			.setAddedVersion("4.4"); // versiontag 4.4
 
     public static SRERole SPELLBREAKER = TMMRoles
             .registerRole(new NormalRole(SPELLBREAKER_ID, (new Color(132, 46, 170)).getRGB(), false,

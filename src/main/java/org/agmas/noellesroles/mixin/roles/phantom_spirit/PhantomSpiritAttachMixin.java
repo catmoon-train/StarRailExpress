@@ -40,4 +40,13 @@ public abstract class PhantomSpiritAttachMixin {
             cir.setReturnValue(new Vec3(0.0, dimensions.height() + 0.12, 0.0));
         }
     }
+
+    @Inject(method = "canAddPassenger", at = @At("HEAD"), cancellable = true)
+    private void noellesroles$allowPhantomSpiritPassenger(Entity passenger, CallbackInfoReturnable<Boolean> cir) {
+        Entity self = (Entity) (Object) this;
+        if (self instanceof Player && passenger instanceof Player rider
+                && PhantomSpiritRoleData.isDisguised(rider)) {
+            cir.setReturnValue(self.getPassengers().isEmpty() || self.hasPassenger(passenger));
+        }
+    }
 }

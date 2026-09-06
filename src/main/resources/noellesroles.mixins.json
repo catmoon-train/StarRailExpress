@@ -132,6 +132,7 @@
     "client.roles.insane.KeyBindingMixin",
     "client.roles.jester.JesterMoodRenderer",
     "client.roles.leather_pig.LeatherPigPlayerRenderMixin",
+    "client.roles.phantom_spirit.PhantomSpiritLerpMixin",
     "client.roles.tomato_head.TomatoHeadPlayerRenderMixin",
     "client.roles.leather_pig.LeatherPigSelfRenderMixin",
     "client.roles.ma_chen_xu.OtherworldShaderMixin",
