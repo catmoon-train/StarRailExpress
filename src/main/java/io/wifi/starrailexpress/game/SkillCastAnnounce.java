@@ -106,7 +106,7 @@ public final class SkillCastAnnounce {
         if (role.isHideRoleInfoWhenSeen()) {
             return false;
         }
-        if (role.isNeutrals() || role.isNeutralForInnocent() || role.isNeutralForKiller()) {
+        if (!role.isNeutralForInnocent() && (role.isNeutrals() || role.isNeutralForKiller())) {
             return false;
         }
         if (role.isKillerTeam()) {

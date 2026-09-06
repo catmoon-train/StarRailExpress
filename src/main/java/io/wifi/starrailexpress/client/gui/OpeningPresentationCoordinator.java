@@ -244,10 +244,10 @@ public final class OpeningPresentationCoordinator {
 
     /**
      * Keeps persistent role/game HUD from competing with the cinematic opening GUI.
+     * welcome 角色公布只负责自己那层文字，不再抑制其它 HUD。
      */
     public static boolean shouldSuppressGameplayHud() {
-        return state == State.WAITING_FOR_PRESENTATION || state == State.SHOWING_RULES || departure.isVisible()
-                || RoundTextRenderer.isWelcomeActive();
+        return state == State.WAITING_FOR_PRESENTATION || state == State.SHOWING_RULES || departure.isVisible();
     }
 
     /**
