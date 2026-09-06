@@ -352,9 +352,6 @@ public class RoleUtils extends MCItemsUtils {
         // 删除旧职业
         var oldRole = gameWorldComponent.getRole(player);
         if (oldRole != null) {
-            if (record) {
-                SRE.REPLAY_MANAGER.recordPlayerRoleChange(player.getUUID(), oldRole, role);
-            }
             if (clearOldItems) {
                 var cacheItems = new ArrayList<ItemStack>();
                 player.getInventory().items.forEach(
@@ -389,6 +386,11 @@ public class RoleUtils extends MCItemsUtils {
         // 给新职业
         gameWorldComponent.addRole(player, role);
         gameWorldComponent.roleWorldComponent.syncNow();
+        if (oldRole != null) {
+            if (record) {
+                SRE.REPLAY_MANAGER.recordPlayerRoleChange(player.getUUID(), oldRole, role);
+            }
+        }
         // 触发事件
         if (player instanceof ServerPlayer sp) {
             if (!noEventCall)
