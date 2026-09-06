@@ -27,7 +27,6 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
-import net.minecraft.world.level.Level;
 import org.agmas.noellesroles.utils.RoleUtils;
 import org.jetbrains.annotations.Nullable;
 
@@ -178,7 +177,7 @@ public class GameReplayUtils {
             return null;
         }
         try {
-            var world = SRE.SERVER.getLevel(Level.OVERWORLD);
+            var world = SRE.SERVER.overworld();
             if (world == null) {
                 return null;
             }

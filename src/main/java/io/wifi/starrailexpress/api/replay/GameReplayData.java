@@ -180,7 +180,7 @@ public class GameReplayData {
         }
         String roleId = getInitialPlayerRoleId(playerUid);
         if (event == null) {
-            return roleId;
+            return null;
         }
         if (event.roles() != null && event.roles().containsKey(playerUid)) {
             return event.roles().get(playerUid).toString();
