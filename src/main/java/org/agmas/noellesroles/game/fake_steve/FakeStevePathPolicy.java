@@ -83,6 +83,27 @@ final class FakeStevePathPolicy {
         return inWater && targetY > bodyY + 0.2D;
     }
 
+    /**
+     * Hold jump in water so the body does not sink. Shallow water that still
+     * has ground underfoot is walked; only a climb-out needs a hop there.
+     */
+    static boolean shouldHoldSwim(boolean inWater, boolean onGround, double bodyY,
+            double targetY) {
+        if (!inWater || targetY < bodyY - 0.35D) {
+            return false;
+        }
+        return !onGround || targetY > bodyY + 0.2D;
+    }
+
+    /** Open water (no floor) is legal but more expensive than a deck walk. */
+    static int swimPenalty(boolean openWater) {
+        return openWater ? 3 : 0;
+    }
+
+    static boolean countsAsClimbing(boolean verticalProgress, boolean inWater) {
+        return verticalProgress || inWater;
+    }
+
     static boolean shouldSprintForPursuit(boolean pursuingHuman, boolean psychoActive,
                                           boolean crowdBlocked) {
         return !crowdBlocked && (pursuingHuman || psychoActive);

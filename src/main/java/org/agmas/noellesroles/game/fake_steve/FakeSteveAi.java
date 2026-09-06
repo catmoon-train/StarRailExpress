@@ -111,7 +111,8 @@ public class FakeSteveAi {
             clearFocus(state);
             state.pendingEngagement = false;
             state.brain.disengage();
-        } else if (state.mode != AgentMode.STARE && state.mode != AgentMode.STALK
+        } else if (!berserkActive && state.mode != AgentMode.STARE
+                && state.mode != AgentMode.STALK
                 && state.mode != AgentMode.HUNT) {
             ServerPlayer facing = facingHuman(level, body);
             if (facing != null) {
@@ -136,18 +137,9 @@ public class FakeSteveAi {
         boolean killerRole = originalRole != null && originalRole.canUseKiller();
         boolean psychoArmed = psychoActive && findPsychoWeaponSlot(body, originalRole) >= 0;
         boolean armed = psychoArmed || findUsableKnifeSlot(body) >= 0 || findUsableGunSlot(body) >= 0;
-        ServerPlayer prey = killerRole || derringerBerserk || huntPhase
+        ServerPlayer prey = killerRole || derringerBerserk || huntPhase || berserkActive
                 ? choosePrey(level, body, state, now, derringerBerserk, armed,
                         berserkActive) : null;
-        // A psycho body does not wait for eye contact: it locks onto prey at once.
-        if (psychoActive && !derringerBerserk && focus == null && state.mode != AgentMode.STALK
-                && state.mode != AgentMode.HUNT) {
-            ServerPlayer nearest = prey != null ? prey : nearestVisibleHuman(level, body);
-            if (nearest != null) {
-                beginStare(state, nearest);
-                focus = nearest;
-            }
-        }
         focus = engageable(level, state.focusTarget);
 
         ServerPlayer isolated = !derringerBerserk && FakeSteveDirector.isEnabled()
@@ -166,9 +158,10 @@ public class FakeSteveAi {
                 || prey != null && FakeSteveKillerPolicy.shouldSkipTaskForStrike(
                         taskAvailable, armed, !preyWitnessed,
                         body.distanceTo(prey), killOpportunity);
-        boolean huntReady = !berserkActive && prey != null
-                && FakeSteveKillerPolicy.shouldSeekPrey(killerRole || huntPhase, armed,
-                        false, killOpportunity);
+        boolean huntReady = prey != null
+                && FakeSteveKillerPolicy.shouldSeekPrey(
+                        killerRole || huntPhase || berserkActive, armed,
+                        berserkActive, killOpportunity);
         if (!derringerBerserk) {
             maybeSpeak(level, body, state);
         }
@@ -255,12 +248,15 @@ public class FakeSteveAi {
         }
         if (state.mode == AgentMode.HUNT) {
             ServerPlayer huntTarget = prey != null ? prey : engageable(level, state.committedTarget);
-            if (huntTarget == null || !killOpportunity) {
+            if (huntTarget == null) {
                 state.mode = AgentMode.DISGUISE_IDLE;
                 state.committedTarget = null;
                 state.committedUntilTick = 0L;
             } else {
-                follow(level, body, ambushGoal(level, state, huntTarget, now), state, 0.20D);
+                BlockPos huntGoal = berserkActive
+                        ? huntTarget.blockPosition()
+                        : ambushGoal(level, state, huntTarget, now);
+                follow(level, body, huntGoal, state, berserkActive ? 0.26D : 0.20D);
                 return;
             }
         }
@@ -304,6 +300,11 @@ public class FakeSteveAi {
 
         if (state.mode == AgentMode.DISGUISE_TASK
                 && FakeSteveTaskPlanner.tick(level, body, state)) {
+            return;
+        }
+
+        if (berserkActive && prey != null) {
+            follow(level, body, prey.blockPosition(), state, 0.26D);
             return;
         }
 
@@ -404,7 +405,8 @@ public class FakeSteveAi {
         state.lastMoveY = body.getY();
         state.lastMoveZ = body.getZ();
         state.lastMoveTick = now;
-        boolean climbing = Math.abs(dy) >= 0.08D;
+        boolean climbing = FakeStevePathPolicy.countsAsClimbing(
+                Math.abs(dy) >= 0.08D, body.isInWater() || body.isUnderWater());
         if (FakeStevePathPolicy.isStuck(dx * dx + dz * dz, sampleGap, climbing)) {
             state.stuckTicks++;
         } else {
@@ -449,13 +451,6 @@ public class FakeSteveAi {
             state.mode = AgentMode.DISGUISE_IDLE;
             state.nextDecisionTick = now;
         }
-    }
-
-    private static ServerPlayer nearestVisibleHuman(ServerLevel level, ServerPlayer body) {
-        return level.players().stream().filter(FakeSteveAi::isHuman)
-                .filter(FakeSteveAi::isEngageable).filter(p -> p.distanceToSqr(body) <= 400.0D)
-                .filter(p -> visible(body, p))
-                .min(Comparator.comparingDouble(body::distanceToSqr)).orElse(null);
     }
 
     private static boolean isEngageable(ServerPlayer player) {
@@ -606,11 +601,24 @@ public class FakeSteveAi {
     private static ServerPlayer choosePrey(ServerLevel level, ServerPlayer body,
             FakeSteveAgentState state, long now, boolean derringerBerserk,
             boolean armed, boolean berserkActive) {
-        double huntRadiusSqr = derringerBerserk
-                ? FakeSteveKillerPolicy.MAX_GUN_RANGE * FakeSteveKillerPolicy.MAX_GUN_RANGE
-                : FakeSteveKillerPolicy.SEEK_RADIUS_SQR;
+        double huntRadiusSqr = FakeSteveKillerPolicy.seekRadiusSqr(berserkActive, derringerBerserk);
         double strikeRadiusSqr = FakeSteveKillerPolicy.STRIKE_RADIUS_SQR;
         ServerPlayer committed = engageable(level, state.committedTarget);
+        if (berserkActive) {
+            ServerPlayer nearest = nearestPrey(level, body, huntRadiusSqr);
+            if (committed != null && isPrey(level, committed)
+                    && (nearest == null
+                    || body.distanceToSqr(committed) <= body.distanceToSqr(nearest) * 2.25D)) {
+                return committed;
+            }
+            if (nearest != null) {
+                commitPrey(state, nearest, now);
+                return nearest;
+            }
+            state.committedTarget = null;
+            state.committedUntilTick = 0L;
+            return null;
+        }
         if (committed != null && isPrey(level, committed)) {
             double committedDistance = body.distanceToSqr(committed);
             if (committedDistance <= huntRadiusSqr * 2.25D) {
@@ -1108,7 +1116,8 @@ public class FakeSteveAi {
         }
         BlockPos next = state.path.peekFirst();
         if (next == null) {
-            if (body.blockPosition().closerThan(goal, 1.0D)) {
+            if (body.blockPosition().closerThan(goal, 1.0D)
+                    && !needsVerticalSwim(body, goal.getY() + 0.1D)) {
                 FakeSteveMotionController.hold(body, state, body.getYRot(),
                         FakeSteveMotionPolicy.walkingPitch(now, body.getUUID().hashCode(), true));
                 return;
@@ -1138,8 +1147,12 @@ public class FakeSteveAi {
         }
         doorAhead |= openDoorsOnApproach(level, body, next);
         Vec3 delta = Vec3.atBottomCenterOf(next).subtract(body.position());
-        if (delta.horizontalDistanceSqr() < 0.01)
+        if (delta.horizontalDistanceSqr() < 0.01) {
+            if (needsVerticalSwim(body, next.getY() + 0.1D)) {
+                driveVerticalSwim(body, state, next, now, speed);
+            }
             return;
+        }
         double distanceSqr = delta.lengthSqr();
         if (distanceSqr < state.lastPathDistanceSqr - 0.15D) {
             state.lastPathDistanceSqr = distanceSqr;
@@ -1241,13 +1254,7 @@ public class FakeSteveAi {
         boolean stepAhead = FakeSteveNavigator.isStepBlock(level.getBlockState(next))
                 || FakeSteveNavigator.isStepBlock(level.getBlockState(next.below()));
         boolean ascends = delta.y > 0.20D || stepAhead;
-        boolean jumpsAllowed = SREGameWorldComponent.KEY.get(level).isJumpAvailable();
-        boolean jump = FakeStevePathPolicy.shouldJump(jumpsAllowed, body.onGround(), ascends,
-                now, state.nextJumpTick)
-                || FakeStevePathPolicy.shouldSwimUp(body.isInWater(), body.getY(), next.getY() + 0.1D);
-        if (jump && !body.isInWater()) {
-            state.nextJumpTick = now + 12L;
-        }
+        boolean jump = wantsJumpOrSwim(level, body, state, next.getY() + 0.1D, ascends, now);
         FakeSteveMotionController.drive(body, state, local.forward(), local.strafe(), jump, sprint,
                 false, state.stableRouteYaw,
                 FakeSteveMotionPolicy.walkingPitch(now, body.getUUID().hashCode(), true), next);
@@ -1275,8 +1282,14 @@ public class FakeSteveAi {
         Vec3 target = Vec3.atBottomCenterOf(goal);
         Vec3 delta = target.subtract(body.position());
         Vec3 horizontal = new Vec3(delta.x, 0.0D, delta.z);
-        if (horizontal.lengthSqr() < 0.01D && Math.abs(delta.y) < 0.45D) {
-            return false;
+        if (horizontal.lengthSqr() < 0.01D) {
+            if (needsVerticalSwim(body, goal.getY() + 0.1D)) {
+                driveVerticalSwim(body, state, goal, now, speed);
+                return true;
+            }
+            if (Math.abs(delta.y) < 0.45D) {
+                return false;
+            }
         }
         if (horizontal.lengthSqr() >= 0.01D) {
             horizontal = horizontal.normalize();
@@ -1291,17 +1304,43 @@ public class FakeSteveAi {
                 || FakeSteveNavigator.isStepBlock(level.getBlockState(goal))
                 || FakeSteveNavigator.isStepBlock(level.getBlockState(goal.below()));
         float yaw = (float) (Mth.atan2(-horizontal.x, horizontal.z) * Mth.RAD_TO_DEG);
-        boolean jumpsAllowed = SREGameWorldComponent.KEY.get(level).isJumpAvailable();
-        boolean jump = FakeStevePathPolicy.shouldJump(jumpsAllowed, body.onGround(),
-                delta.y > 0.20D || stepAhead, now, state.nextJumpTick);
-        if (jump) {
-            state.nextJumpTick = now + 12L;
-        }
+        boolean jump = wantsJumpOrSwim(level, body, state, goal.getY() + 0.1D,
+                delta.y > 0.20D || stepAhead, now);
         boolean sprint = now < state.sprintUntilTick || speed >= 0.22D;
         FakeSteveMotionController.drive(body, state, 1.0F, 0.0F, jump, sprint, false, yaw,
                 FakeSteveMotionPolicy.walkingPitch(now, body.getUUID().hashCode(), true),
                 goal);
         return true;
+    }
+
+    private static boolean inWater(ServerPlayer body) {
+        return body.isInWater() || body.isUnderWater();
+    }
+
+    private static boolean needsVerticalSwim(ServerPlayer body, double targetY) {
+        return FakeStevePathPolicy.shouldHoldSwim(inWater(body), body.onGround(),
+                body.getY(), targetY);
+    }
+
+    private static boolean wantsJumpOrSwim(ServerLevel level, ServerPlayer body,
+            FakeSteveAgentState state, double targetY, boolean ascends, long now) {
+        boolean jumpsAllowed = SREGameWorldComponent.KEY.get(level).isJumpAvailable();
+        boolean jump = FakeStevePathPolicy.shouldJump(jumpsAllowed, body.onGround(),
+                ascends, now, state.nextJumpTick)
+                || needsVerticalSwim(body, targetY);
+        if (jump && !inWater(body)) {
+            state.nextJumpTick = now + 12L;
+        }
+        return jump;
+    }
+
+    private static void driveVerticalSwim(ServerPlayer body, FakeSteveAgentState state,
+            BlockPos goal, long now, double speed) {
+        boolean sprint = now < state.sprintUntilTick || speed >= 0.22D;
+        FakeSteveMotionController.drive(body, state, 0.0F, 0.0F, true, sprint, false,
+                body.getYRot(),
+                FakeSteveMotionPolicy.walkingPitch(now, body.getUUID().hashCode(), true),
+                goal);
     }
 
     private static void backOffPath(ServerLevel level, ServerPlayer body,

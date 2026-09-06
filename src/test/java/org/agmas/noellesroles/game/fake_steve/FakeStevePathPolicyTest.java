@@ -2,6 +2,7 @@ package org.agmas.noellesroles.game.fake_steve;
 
 import org.junit.jupiter.api.Test;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
@@ -73,6 +74,19 @@ class FakeStevePathPolicyTest {
         assertTrue(FakeStevePathPolicy.shouldSwimUp(true, 10.0D, 10.4D));
         assertFalse(FakeStevePathPolicy.shouldSwimUp(true, 10.5D, 10.0D));
         assertFalse(FakeStevePathPolicy.shouldSwimUp(false, 10.0D, 12.0D));
+    }
+
+    @Test
+    void deepWaterHoldsJumpUnlessTheRouteIsClearlyBelow() {
+        assertTrue(FakeStevePathPolicy.shouldHoldSwim(true, false, 10.0D, 10.0D));
+        assertTrue(FakeStevePathPolicy.shouldHoldSwim(true, false, 10.0D, 12.0D));
+        assertFalse(FakeStevePathPolicy.shouldHoldSwim(true, false, 10.5D, 10.0D));
+        assertFalse(FakeStevePathPolicy.shouldHoldSwim(true, true, 10.0D, 10.0D));
+        assertTrue(FakeStevePathPolicy.shouldHoldSwim(true, true, 10.0D, 10.4D));
+        assertFalse(FakeStevePathPolicy.shouldHoldSwim(false, false, 10.0D, 12.0D));
+        assertTrue(FakeStevePathPolicy.countsAsClimbing(false, true));
+        assertEquals(3, FakeStevePathPolicy.swimPenalty(true));
+        assertEquals(0, FakeStevePathPolicy.swimPenalty(false));
     }
 
     @Test

@@ -52,12 +52,13 @@ final class FakeSteveNavigator {
             return direct;
         }
         boolean jumpsAllowed = SREGameWorldComponent.KEY.get(level).isJumpAvailable();
+        int visitBudget = explicitTarget ? MAX_VISITED * 2 : MAX_VISITED;
         BlockPos best = normalizedStart;
         int bestDistance = distance(normalizedStart, goal);
         cost.put(normalizedStart, 0);
         open.add(new Node(normalizedStart, bestDistance));
 
-        while (!open.isEmpty() && closed.size() < MAX_VISITED) {
+        while (!open.isEmpty() && closed.size() < visitBudget) {
             BlockPos current = open.remove().pos();
             if (!closed.add(current)) {
                 continue;
@@ -76,7 +77,8 @@ final class FakeSteveNavigator {
                     continue;
                 }
                 int tentative = cost.get(current) + 1 + Math.abs(next.getY() - current.getY())
-                        + FakeStevePathPolicy.edgePenalty(dropBeside(level, next));
+                        + FakeStevePathPolicy.edgePenalty(dropBeside(level, next))
+                        + FakeStevePathPolicy.swimPenalty(openWater(level, next));
                 if (tentative >= cost.getOrDefault(next, Integer.MAX_VALUE)) {
                     continue;
                 }
@@ -181,7 +183,24 @@ final class FakeSteveNavigator {
             addStandableNeighbour(level, current, current.relative(first).relative(second),
                     occupied, jumpsAllowed, swimming, result);
         }
+        if (swimming) {
+            for (int dy : new int[] { 1, -1 }) {
+                BlockPos vertical = current.offset(0, dy, 0);
+                if (!occupied.contains(vertical) && standable(level, vertical)) {
+                    result.add(vertical.immutable());
+                }
+            }
+        }
         return result;
+    }
+
+    private static boolean isWaterAt(ServerLevel level, BlockPos pos) {
+        return level.getBlockState(pos).getFluidState().is(FluidTags.WATER);
+    }
+
+    private static boolean openWater(ServerLevel level, BlockPos pos) {
+        return (isWaterAt(level, pos) || isWaterAt(level, pos.above()))
+                && level.getBlockState(pos.below()).getCollisionShape(level, pos.below()).isEmpty();
     }
 
     private static void addStandableNeighbour(ServerLevel level, BlockPos current,

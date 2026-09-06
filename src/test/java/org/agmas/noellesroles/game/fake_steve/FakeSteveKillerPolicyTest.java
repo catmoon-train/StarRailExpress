@@ -112,4 +112,26 @@ class FakeSteveKillerPolicyTest {
         assertFalse(FakeSteveKillerPolicy.shouldSeekPrey(true, true, false, false));
         assertFalse(FakeSteveKillerPolicy.shouldSeekPrey(false, true, false, true));
     }
+
+    @Test
+    void berserkChasesTheNearestHumanEvenUnarmedOrWithoutALocalOpportunity() {
+        assertTrue(FakeSteveKillerPolicy.shouldSeekPrey(true, false, true, false));
+        assertFalse(FakeSteveKillerPolicy.shouldSeekPrey(false, false, true, false));
+        assertEquals(FakeSteveKillerPolicy.BERSERK_SEEK_RADIUS_SQR,
+                FakeSteveKillerPolicy.seekRadiusSqr(true, false));
+        assertEquals(FakeSteveKillerPolicy.MAX_GUN_RANGE * FakeSteveKillerPolicy.MAX_GUN_RANGE,
+                FakeSteveKillerPolicy.seekRadiusSqr(true, true));
+        assertEquals(FakeSteveKillerPolicy.SEEK_RADIUS_SQR,
+                FakeSteveKillerPolicy.seekRadiusSqr(false, false));
+    }
+
+    @Test
+    void aPsychoHuntDoesNotExpireMidChase() {
+        assertFalse(FakeSteveKillerPolicy.modeExpired(1000L, 100L,
+                FakeSteveKillerPolicy.modeBudgetTicks(AgentMode.HUNT, true)));
+        assertFalse(FakeSteveKillerPolicy.modeExpired(1000L, 100L,
+                FakeSteveKillerPolicy.modeBudgetTicks(AgentMode.STALK, true)));
+        assertTrue(FakeSteveKillerPolicy.modeExpired(1000L, 100L,
+                FakeSteveKillerPolicy.modeBudgetTicks(AgentMode.HUNT, false)));
+    }
 }

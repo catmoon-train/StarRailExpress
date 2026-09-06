@@ -25,6 +25,8 @@ public final class FakeSteveKillerPolicy {
     public static final double STRIKE_RADIUS_SQR = 144.0D;
     /** Isolated prey this far away is worth walking toward. */
     public static final double SEEK_RADIUS_SQR = 48.0D * 48.0D;
+    /** A berserk body crosses the whole train for the nearest living human. */
+    public static final double BERSERK_SEEK_RADIUS_SQR = 256.0D * 256.0D;
 
     private FakeSteveKillerPolicy() {
     }
@@ -65,7 +67,7 @@ public final class FakeSteveKillerPolicy {
         if (psychoActive) {
             return switch (mode) {
                 case STARE -> 40L;
-                case STALK, HUNT -> 240L;
+                case STALK, HUNT -> Long.MAX_VALUE;
                 default -> 200L;
             };
         }
@@ -132,10 +134,21 @@ public final class FakeSteveKillerPolicy {
 
     public static boolean shouldSeekPrey(boolean canHunt, boolean armed, boolean berserk,
             boolean opportunity) {
-        if (!canHunt || !armed) {
+        if (!canHunt) {
             return false;
         }
-        return berserk || opportunity;
+        if (berserk) {
+            return true;
+        }
+        return armed && opportunity;
+    }
+
+    /** Psycho and hunt-phase bodies look train-wide; a Derringer stays in gun range. */
+    public static double seekRadiusSqr(boolean berserk, boolean derringerBerserk) {
+        if (derringerBerserk) {
+            return MAX_GUN_RANGE * MAX_GUN_RANGE;
+        }
+        return berserk ? BERSERK_SEEK_RADIUS_SQR : SEEK_RADIUS_SQR;
     }
 
     public static List<Purchase> crowdPurchasePlan(int nearbyHumans) {
