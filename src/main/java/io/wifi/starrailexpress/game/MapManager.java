@@ -285,16 +285,15 @@ public class MapManager {
 
     public static String last_start_map = "";
 
-    public static String getVoteMapName(ServerLevel serverWorld, String mapId) {
-
+    public static MapEntry getVoteMapInfo(ServerLevel serverWorld, String mapId) {
         HashMap<String, MapConfig.MapEntry> mapConfigHashMap = new HashMap<>();
         for (MapEntry map : ServerMapConfig.getInstance(serverWorld).getMaps()) {
             mapConfigHashMap.put(map.id, map);
         }
         var mapConfig = mapConfigHashMap.getOrDefault(mapId, null);
         if (mapConfig == null)
-            return mapId;
-        return mapConfig.displayName;
+            return null;
+        return mapConfig;
     }
 
     /**
@@ -323,7 +322,14 @@ public class MapManager {
             JsonObject jsonObject = JsonParser.parseReader(reader).getAsJsonObject();
             reader.close();
             areas.mapName = normalizedMapName(mapName);
-            areas.mapDisplayName = getVoteMapName(serverWorld, mapName);
+            var mapConfigInfo = getVoteMapInfo(serverWorld, mapName);
+            if (mapConfigInfo != null) {
+                areas.mapDisplayName = mapConfigInfo.displayName;
+                areas.mapDescription = mapConfigInfo.description;
+            } else {
+                areas.mapDisplayName = mapName;
+                areas.mapDescription = null;
+            }
             // 先读取，避免后面被覆盖了
             if (jsonObject.has("settings")) {
                 try {

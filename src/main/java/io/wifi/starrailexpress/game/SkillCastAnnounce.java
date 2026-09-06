@@ -40,7 +40,7 @@ public final class SkillCastAnnounce {
             return;
         }
         SREConfig config = SREConfig.instance();
-        if (config == null || !config.skillCastAnnounceHud) {
+        if (config == null || !shouldSkillCast(player, config)) {
             return;
         }
         if (definition != null) {
@@ -52,14 +52,25 @@ public final class SkillCastAnnounce {
         if (game == null || !game.isRunning()) {
             return;
         }
-        if (!shouldShowRole(role, config)) {
+        if (!shouldShowRole(player, role, config)) {
             return;
         }
         SkillCastAnnouncePayload payload = new SkillCastAnnouncePayload(
-                player.getName().getString(), role.identifier());
+                role.identifier());
         for (ServerPlayer viewer : player.serverLevel().players()) {
             ServerPlayNetworking.send(viewer, payload);
         }
+    }
+
+    private static boolean shouldSkillCast(ServerPlayer player, SREConfig config) {
+        final var cca = SREGameWorldComponent.getInstance(player);
+        if (cca.gameMode != null && cca.gameMode.castAllSkill()) {
+            return true;
+        }
+        if (!config.enableSkillCastAnnounceHud) {
+            return false;
+        }
+        return true;
     }
 
     /**
@@ -77,12 +88,35 @@ public final class SkillCastAnnounce {
         tryAnnounce(player, displayRole, null);
     }
 
-    private static boolean shouldShowRole(SRERole role, SREConfig config) {
-        if (matchesRoleList(role, config.skillCastAnnounceBlacklist)) {
+    private static boolean shouldShowRole(ServerPlayer player, SRERole role, SREConfig config) {
+        if (role == null)
             return false;
+        final var cca = SREGameWorldComponent.getInstance(player);
+        if (cca.gameMode != null && cca.gameMode.castAllSkill()) {
+            return true;
         }
         if (hasEntries(config.skillCastAnnounceWhitelist)) {
-            return matchesRoleList(role, config.skillCastAnnounceWhitelist);
+            if (matchesRoleList(role, config.skillCastAnnounceWhitelist)) {
+                return true;
+            } else if (!hasEntries(config.skillCastAnnounceBlacklist)) {
+                return false;
+            }
+        }
+
+        if (role.isHideRoleInfoWhenSeen()) {
+            return false;
+        }
+        if (!role.isNeutralForInnocent() && (role.isNeutrals() || role.isNeutralForKiller())) {
+            return false;
+        }
+        if (role.isKillerTeam()) {
+            return false;
+        }
+        if (role.isHiddenForRoleRotation()) {
+            return false;
+        }
+        if (matchesRoleList(role, config.skillCastAnnounceBlacklist)) {
+            return false;
         }
         return isCivilianFaction(role);
     }

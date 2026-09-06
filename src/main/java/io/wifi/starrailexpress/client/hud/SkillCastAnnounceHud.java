@@ -16,6 +16,7 @@
 package io.wifi.starrailexpress.client.hud;
 
 import io.wifi.starrailexpress.SREConfig;
+import io.wifi.starrailexpress.client.SREClient;
 import io.wifi.starrailexpress.network.SkillCastAnnouncePayload;
 import io.wifi.utils.client.betterrender.FakeGuiGraphics;
 import net.minecraft.Util;
@@ -30,6 +31,7 @@ import org.agmas.noellesroles.utils.RoleUtils;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * 屏幕左侧技能释放通告：无背景，仅文字投影；滑入叠放后淡出。
@@ -55,23 +57,37 @@ public final class SkillCastAnnounceHud {
     }
 
     public static void push(SkillCastAnnouncePayload payload) {
-        if (payload == null || !SREConfig.instance().skillCastAnnounceHud) {
+        if (payload == null) {
             return;
+        }
+        if (SREClient.gameComponent.gameMode != null && SREClient.gameComponent.gameMode.castAllSkill()) {
+            // PASS
+        } else {
+            if (!SREConfig.instance().enableSkillCastAnnounceHud) {
+                return;
+            }
         }
         Minecraft client = Minecraft.getInstance();
         if (client.player == null) {
             return;
         }
         ResourceLocation roleId = payload.roleId();
+        long now = Util.getMillis();
+        // 避免刷屏：同职业在通告存活期内再次释放（同一条公告），合并到原条目——
+        // 只刷新存活时间、不新增行也不统计次数。玩家停止释放后仍按原时长淡出。
+        for (int i = TOASTS.size() - 1; i >= 0; i--) {
+            Toast toast = TOASTS.get(i);
+            if (Objects.equals(toast.roleId, roleId) && now - toast.createdMs < LIFE_MS) {
+                toast.createdMs = now;
+                return;
+            }
+        }
         Component roleName = RoleUtils.getRoleNameWithColor(roleId);
         if (roleName == null) {
             roleName = Component.literal(roleId == null ? "?" : roleId.getPath());
         }
-        MutableComponent line = Component.translatable("hud.sre.skill_cast",
-                Component.literal(payload.playerName() == null ? "" : payload.playerName()),
-                roleName);
-        long now = Util.getMillis();
-        TOASTS.add(new Toast(line, now));
+        MutableComponent line = Component.translatable("hud.sre.skill_cast", roleName);
+        TOASTS.add(new Toast(roleId, line, now));
         while (TOASTS.size() > MAX_TOASTS) {
             TOASTS.remove(0);
         }
@@ -79,12 +95,17 @@ public final class SkillCastAnnounceHud {
 
     private static void render(FakeGuiGraphics graphics) {
         Minecraft client = Minecraft.getInstance();
-        if (client.player == null || client.options.hideGui || TOASTS.isEmpty()) {
+        if (client.player == null || client.options.hideGui || TOASTS.isEmpty() || SREClient.gameComponent == null) {
             return;
         }
-        if (!SREConfig.instance().skillCastAnnounceHud) {
-            TOASTS.clear();
-            return;
+
+        if (!SREConfig.instance().enableSkillCastAnnounceHud) {
+            if (SREClient.gameComponent.gameMode != null && SREClient.gameComponent.gameMode.castAllSkill()) {
+                // PASS
+            } else {
+                TOASTS.clear();
+                return;
+            }
         }
         long now = Util.getMillis();
         Iterator<Toast> iterator = TOASTS.iterator();
@@ -156,12 +177,14 @@ public final class SkillCastAnnounceHud {
     }
 
     private static final class Toast {
+        final ResourceLocation roleId;
         final Component line;
-        final long createdMs;
+        long createdMs;
         float animY;
         boolean yInit;
 
-        Toast(Component line, long createdMs) {
+        Toast(ResourceLocation roleId, Component line, long createdMs) {
+            this.roleId = roleId;
             this.line = line;
             this.createdMs = createdMs;
         }

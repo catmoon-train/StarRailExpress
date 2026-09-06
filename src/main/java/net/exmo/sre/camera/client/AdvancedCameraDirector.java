@@ -185,9 +185,14 @@ public final class AdvancedCameraDirector {
         return (active != null || fixedOverride != null) && !SecurityCameraClientState.isInSecurityMode();
     }
 
+    /** 当前是否正有一条高级相机轨道在播放（不含结束后用于过渡的黑幕渐显）。 */
+    public static boolean isTrackActive() {
+        return active != null && !SecurityCameraClientState.isInSecurityMode();
+    }
+
     /** 只有高级运镜轨道播放时隐藏 HUD；固定镜头效果（如 2D 视角）保留玩家界面。 */
     public static boolean shouldHideHudForCamera() {
-        return active != null && !SecurityCameraClientState.isInSecurityMode();
+        return isTrackActive();
     }
 
     /** Includes the short return fade so following presentations never draw through it. */

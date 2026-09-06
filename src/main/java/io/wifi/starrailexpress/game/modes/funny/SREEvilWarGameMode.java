@@ -111,7 +111,7 @@ public class SREEvilWarGameMode extends WTLooseEndsGameMode {
     int curBalanceTick = 0;
     int curReviveTick = 0;
     int curOneSecondTick = 0;
-
+    
     @Override
     public boolean shouldRecordPlayerStats() {
         return false;

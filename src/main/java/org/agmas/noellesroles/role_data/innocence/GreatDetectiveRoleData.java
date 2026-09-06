@@ -225,7 +225,8 @@ public class GreatDetectiveRoleData extends SimpleRoleData {
         }
 
         if (target instanceof ServerPlayer tp) {
-            if (gw.isRole(tp, ModRoles.INSANE_KILLER) && RoleData.test(InsaneKillerRoleData.class, tp, d -> d.isActive)) {
+            if (gw.isRole(tp, ModRoles.INSANE_KILLER)
+                    && RoleData.test(InsaneKillerRoleData.class, tp, d -> d.isActive)) {
                 GameUtils.killPlayer(tp, true, tp, GameConstants.DeathReasons.KNIFE, true);
                 enterCooldown();
                 sync();
@@ -391,11 +392,6 @@ public class GreatDetectiveRoleData extends SimpleRoleData {
             cooldown = 0;
         }
 
-        SREGameWorldComponent gw = SREGameWorldComponent.KEY.get(sp.level());
-        if (gw == null || !gw.isRunning() || !gw.isRole(sp, ModRoles.GREAT_DETECTIVE)) {
-            return;
-        }
-
         if (!gaveBook && GameUtils.isPlayerAliveAndSurvival(sp)) {
             GreatDetectiveRole.ensureBook(sp);
             gaveBook = true;
@@ -406,7 +402,7 @@ public class GreatDetectiveRoleData extends SimpleRoleData {
     }
 
     private void tickChannel(ServerPlayer sp) {
-        if (!isChanneling()) {
+        if (channelEndTime <= 0) {
             return;
         }
         if (channelStartPos == null) {

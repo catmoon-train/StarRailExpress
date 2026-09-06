@@ -2993,7 +2993,6 @@
     "gui.sre.map_vote.result_title": "地圖已確定",
     "gui.sre.map_vote.result_departing": "列車即將駛入本局地圖",
     "gui.sre.map_briefing.masthead": "列車運行簡報",
-    "gui.sre.map_briefing.skip": "按 F 跳過",
     "gui.sre.map_briefing.swim": "• 本地圖允許游泳",
     "gui.sre.map_briefing.no_swim": "• 注意：水域行動受限",
     "gui.sre.map_briefing.jump": "• 本地圖允許跳躍",

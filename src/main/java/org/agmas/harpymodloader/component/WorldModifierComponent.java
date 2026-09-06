@@ -402,4 +402,11 @@ public class WorldModifierComponent implements AutoSyncedComponent, ServerTickin
     public static WorldModifierComponent getInstance(Level level) {
         return KEY.get(level);
     }
+
+    public void syncNow() {
+        if (this.world.isClientSide)
+            return;
+        sync();
+        flushPendingDiff();
+    }
 }

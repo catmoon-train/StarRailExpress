@@ -1,5 +1,6 @@
 package io.wifi.starrailexpress.client.gui;
 
+import io.wifi.starrailexpress.client.SREClient;
 import io.wifi.starrailexpress.client.gui.screen.mapui.MapCapabilitySummary;
 import io.wifi.starrailexpress.client.gui.screen.mapui.MapIntroClientCache;
 import io.wifi.starrailexpress.content.vote.client.VoteFlowFrame;
@@ -31,11 +32,14 @@ public final class MapRuleIntroHud {
     private static final List<List<FormattedCharSequence>> wrappedRules = new ArrayList<>();
     private static int wrappedForWidth = -1;
 
-    private MapRuleIntroHud() {}
+    private MapRuleIntroHud() {
+    }
 
     public static void start(String id) {
-        if (id == null || id.isBlank()) return;
-        if (id.equals(mapId) && shownAt > 0L) return;
+        if (id == null || id.isBlank())
+            return;
+        if (id.equals(mapId) && shownAt > 0L)
+            return;
         mapId = id;
         shownAt = System.currentTimeMillis();
         anchorX = Float.NaN;
@@ -45,7 +49,8 @@ public final class MapRuleIntroHud {
     }
 
     public static void tick(Minecraft client) {
-        if (!isVisible() || client.player == null) return;
+        if (!isVisible() || client.player == null)
+            return;
         long elapsed = System.currentTimeMillis() - shownAt;
         if (elapsed >= DURATION_MS) {
             clear();
@@ -56,20 +61,26 @@ public final class MapRuleIntroHud {
         int width = client.getWindow().getGuiScaledWidth();
         float contentWidth = Mth.clamp(width * 0.30F, 230.0F, 330.0F);
         float target = holdingLetter ? width / 2.0F : width - 32.0F - contentWidth / 2.0F;
-        if (Float.isNaN(anchorX)) anchorX = target;
-        if (!fadingOut) anchorX = Mth.lerp(0.18F, anchorX, target);
+        if (Float.isNaN(anchorX))
+            anchorX = target;
+        if (!fadingOut)
+            anchorX = Mth.lerp(0.18F, anchorX, target);
     }
 
     public static void render(GuiGraphics g, float partialTick) {
-        if (!isVisible()) return;
+        if (!isVisible())
+            return;
         Minecraft client = Minecraft.getInstance();
         long elapsed = System.currentTimeMillis() - shownAt;
-        if (elapsed >= DURATION_MS) return;
+        if (elapsed >= DURATION_MS)
+            return;
         float fade = fadeAmount(elapsed);
         int alpha = Math.round(fade * 255.0F);
-        if (alpha <= 3) return;
+        if (alpha <= 3)
+            return;
         float contentWidth = Mth.clamp(g.guiWidth() * 0.30F, 230.0F, 330.0F);
-        if (Float.isNaN(anchorX)) anchorX = g.guiWidth() - 32.0F - contentWidth / 2.0F;
+        if (Float.isNaN(anchorX))
+            anchorX = g.guiWidth() - 32.0F - contentWidth / 2.0F;
         float enter = VoteFlowFrame.ease(elapsed / 430.0F);
         int left = Math.round(anchorX - contentWidth / 2.0F + (1.0F - enter) * 24.0F);
         int y = Math.max(48, (g.guiHeight() - 178) / 2);
@@ -104,7 +115,9 @@ public final class MapRuleIntroHud {
             ruleY += 2;
             ruleIndex++;
         }
-        Component hint = Component.translatable("gui.sre.map_briefing.skip");
+        Component hint = (SREClient.areaComponent == null || SREClient.areaComponent.mapDescription == null)
+                ? Component.literal("Copyright @ CATMOON-TRAIN Team")
+                : Component.translatable(SREClient.areaComponent.mapDescription);
         drawScaled(g, hint, left, ruleY + 7, 0.95F, VoteFlowFrame.withAlpha(VoteFlowFrame.MUTED, alpha));
     }
 
@@ -159,11 +172,15 @@ public final class MapRuleIntroHud {
             var synced = MapIntroClientCache.getVoteMap(id);
             displayName = synced == null ? null : synced.displayName();
         }
-        if (displayName == null || displayName.isBlank()) return id;
+        if (displayName == null || displayName.isBlank())
+            return id;
         return Component.translatableWithFallback(displayName, displayName).getString();
     }
 
-    /** Accept the shared item singleton and the runtime registry id used by legacy TMM stacks. */
+    /**
+     * Accept the shared item singleton and the runtime registry id used by legacy
+     * TMM stacks.
+     */
     private static boolean isLetter(ItemStack stack) {
         return stack.is(ModItems.LETTER_ITEM)
                 || TMM_LETTER_ID.equals(BuiltInRegistries.ITEM.getKey(stack.getItem()));

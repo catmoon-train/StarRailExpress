@@ -892,7 +892,12 @@ public class NewspaperScreen extends Screen {
             forwardButton.onPress();
             return true;
         }
-
+        if (!editable) {
+            if (minecraft.options.keyInventory.matches(keyCode, scanCode)) {
+                this.saveChanges(false);
+                this.onClose();
+            }
+        }
         if (!editable)
             return false;
 

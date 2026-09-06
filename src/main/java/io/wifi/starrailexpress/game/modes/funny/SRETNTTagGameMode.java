@@ -67,6 +67,11 @@ public class SRETNTTagGameMode extends SREMurderGameMode {
         super(identifier, 10, 2);
     }
 
+    @Override
+    public boolean castAllSkill() {
+        return true;
+    }
+
     public final static int roundGapTime = 10 * 20;
     public long nextBombTime = -1;
     public long nextRoundTime = -1;
@@ -92,7 +97,7 @@ public class SRETNTTagGameMode extends SREMurderGameMode {
         nextRoundTime = -1;
         // 禁止刷保安
         Harpymodloader.setRoleMaximum(ModRoles.GUARD, 0);
-        
+
         super.initializeGame(serverWorld, gameWorldComponent, players);
         var wmc = WorldModifierComponent.KEY.get(serverWorld);
         for (ServerPlayer p : serverWorld.players()) {

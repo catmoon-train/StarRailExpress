@@ -113,6 +113,10 @@ public class DreamDiamondSwordItem extends SwordItem implements SREItemPropertie
         if (!gameWorld.getRole(attacker).canUseSpVanillaWeapon()) {
             return false;
         }
+        // 物品冷却中（如网警击杀后的 20 秒武器冷却）无法左键攻击
+        if (attacker.getCooldowns().isOnCooldown(mainhandItem.getItem())) {
+            return false;
+        }
         // 耐久耗尽保护（正常情况下 hurtAndBreak 会直接打碎）
         if (mainhandItem.getMaxDamage() > 0 && mainhandItem.getDamageValue() >= mainhandItem.getMaxDamage()) {
             attacker.displayClientMessage(Component
