@@ -40,7 +40,7 @@ public final class SkillCastAnnounce {
             return;
         }
         SREConfig config = SREConfig.instance();
-        if (config == null || shouldSkillCast(player, config)) {
+        if (config == null || !shouldSkillCast(player, config)) {
             return;
         }
         if (definition != null) {
