@@ -3074,7 +3074,6 @@
     "gui.sre.map_vote.result_title": "地图已确定",
     "gui.sre.map_vote.result_departing": "列车即将驶入本局地图",
     "gui.sre.map_briefing.masthead": "列车运行简报",
-    "gui.sre.map_briefing.skip": "按 F 跳过",
     "gui.sre.map_briefing.swim": "• 本地图允许游泳",
     "gui.sre.map_briefing.no_swim": "• 注意：水域行动受限",
     "gui.sre.map_briefing.jump": "• 本地图允许跳跃",

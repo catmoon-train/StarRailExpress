@@ -213,6 +213,7 @@ public class AreasWorldComponent implements AutoSyncedComponent {
 
     // 支持的游戏模式列表，为空表示支持所有模式
     public java.util.List<String> gameModes = new java.util.ArrayList<>();
+    public String mapDescription = null;
 
     // 地图初始物品（格式：["itemId;count", ...]，所有玩家进入地图时获得）
     // 0为禁用
@@ -494,6 +495,9 @@ public class AreasWorldComponent implements AutoSyncedComponent {
         this.mapDisplayName = tag.contains("displayName") && !tag.getString("displayName").isBlank()
                 ? tag.getString("displayName")
                 : null;
+        this.mapDescription = tag.contains("map_desc") && !tag.getString("map_desc").isBlank()
+                ? tag.getString("map_desc")
+                : null;
         // this.canJump = tag.contains("canJump") ? tag.getBoolean("canJump") : false;
         // this.canSwim = tag.contains("canSwim") ? tag.getBoolean("canSwim") : false;
         // this.enableOxygenDrowning = tag.contains("drowning") &&
@@ -608,6 +612,9 @@ public class AreasWorldComponent implements AutoSyncedComponent {
         }
         if (this.mapDisplayName != null) {
             tag.putString("displayName", this.mapDisplayName);
+        }
+        if (this.mapDescription != null) {
+            tag.putString("map_desc", this.mapDescription);
         }
         // writeVec3dToNbt(tag, this.playAreaOffset, "playAreaOffset");
         // writeBoxToNbt(tag, this.playArea, "playArea");

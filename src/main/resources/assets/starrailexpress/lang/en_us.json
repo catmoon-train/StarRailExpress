@@ -2994,7 +2994,6 @@
     "gui.sre.map_vote.result_title": "Map Confirmed",
     "gui.sre.map_vote.result_departing": "The train is entering the selected map",
     "gui.sre.map_briefing.masthead": "TRAIN SERVICE BRIEF",
-    "gui.sre.map_briefing.skip": "Press F to skip",
     "gui.sre.map_briefing.swim": "• Swimming is allowed on this map",
     "gui.sre.map_briefing.no_swim": "• Caution: water movement is restricted",
     "gui.sre.map_briefing.jump": "• Jumping is allowed on this map",
