@@ -50,14 +50,14 @@ public class DeductionBookScreen extends Screen {
     private static final int ORIG_IMG_HEIGHT = 200;
 
     // 内容区域在原始纹理中的相对坐标
-    private static final int CONTENT_REL_X = 30;
-    private static final int CONTENT_REL_Y = 55;
+    private static final int CONTENT_REL_X = 60;
+    private static final int CONTENT_REL_Y = 70;
     private static final int CONTENT_REL_WIDTH = 240;
     private static final int CONTENT_REL_HEIGHT = 110;
 
     // 标题和嫌疑人标签的相对 Y 坐标
-    private static final int TITLE_REL_Y = 20;
-    private static final int SUSPECT_REL_Y = 40;
+    private static final int TITLE_REL_Y = 40;
+    private static final int SUSPECT_REL_Y = 55;
 
     // 翻页按钮在原始纹理中的相对坐标
     private static final int PAGE_BTN_REL_X = 248;
