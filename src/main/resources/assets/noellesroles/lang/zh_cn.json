@@ -4940,5 +4940,12 @@
   "effect.noellesroles.tomato_form": "西红柿形态",
   "mob_effect.noellesroles.tomato_form": "西红柿形态",
   "mob_effect.noellesroles.tomato_sauce": "番茄酱",
-  "subtitles.noellesroles.tomato_splat": "西红柿碎裂"
+  "subtitles.noellesroles.tomato_splat": "西红柿碎裂",
+  "announcement.star.role.echo_listener": "循声者",
+  "announcement.star.role.noellesroles.echo_listener": "循声者",
+  "announcement.star.goals.echo_listener": "帮助好人阵营存活，在黑暗中循声定位并压制威胁！",
+  "skill.noellesroles.echo_listener.sonic_wave": "声波",
+  "message.noellesroles.echo_listener.no_money": "发放声波需要 %s 金币！",
+  "message.noellesroles.echo_listener.no_target": "声波方向上没有玩家。",
+  "message.noellesroles.echo_listener.respawned": "你循着回声重新回到了列车。"
 }

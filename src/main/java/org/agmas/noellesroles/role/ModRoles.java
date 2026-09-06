@@ -76,6 +76,7 @@ import io.wifi.starrailexpress.cca.SREArmorPlayerComponent;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.cca.SREPlayerMoodComponent;
 import io.wifi.starrailexpress.cca.SREPlayerPoisonComponent;
+import io.wifi.starrailexpress.cca.SREPlayerShopComponent;
 import io.wifi.starrailexpress.client.gui.RoleAnnouncementTexts;
 import io.wifi.starrailexpress.content.entity.PlayerBodyEntity;
 import io.wifi.starrailexpress.game.GameUtils;
@@ -251,6 +252,7 @@ public class ModRoles {
     public static ResourceLocation POISONER_ID = Noellesroles.id("poisoner");
     public static ResourceLocation SPELLBREAKER_ID = Noellesroles.id("spellbreaker");
     public static ResourceLocation LEADER_ID = Noellesroles.id("leader");
+    public static final ResourceLocation ECHO_LISTENER_ID = Noellesroles.id("echo_listener");
 
     public static ResourceLocation LOCKSMITH_ID = Noellesroles.id("locksmith");
     public static ResourceLocation EXAMPLER_ID = Noellesroles.id("exampler");
@@ -2422,6 +2424,19 @@ public class ModRoles {
             true)).setRoleData(RavenRoleData::new).setCanSeeCoin(true).setNeutrals(true)
             .setCanSeeTeammateKillerRole(false).setCanUseInstinctAndNightVision(true)
             .setDefaultEnableNeededPlayerCount(10);
+
+    public static SRERole ECHO_LISTENER = TMMRoles.registerRole(new NormalRole(
+            ECHO_LISTENER_ID, new Color(78, 110, 122).getRGB(), false, false,
+            SRERole.MoodType.REAL, TMMRoles.CIVILIAN.getMaxSprintTime(), true) {
+        @Override
+        public void onFinishQuest(Player player, String quest) {
+            super.onFinishQuest(player, quest);
+            if (player instanceof ServerPlayer serverPlayer) {
+                SREPlayerShopComponent.KEY.get(serverPlayer).addToBalance(50);
+            }
+        }
+    }).setRoleData(EchoListenerRoleData::new).setCanSeeCoin(true).setNeutrals(true)
+            .setNeutralForKiller(true).setCanUseInstinctAndNightVision(false).setDefaultMax(1);
 
     public static SRERole REASONER = TMMRoles.registerRole(new NormalRole(
             REASONER_ID,

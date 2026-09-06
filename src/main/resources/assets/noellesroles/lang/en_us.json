@@ -4508,5 +4508,12 @@
     "effect.noellesroles.tomato_form": "Tomato Form",
     "mob_effect.noellesroles.tomato_form": "Tomato Form",
     "mob_effect.noellesroles.tomato_sauce": "Tomato Sauce",
-    "subtitles.noellesroles.tomato_splat": "Tomato splat"
+    "subtitles.noellesroles.tomato_splat": "Tomato splat",
+  "announcement.star.role.echo_listener": "Echo Listener",
+  "announcement.star.role.noellesroles.echo_listener": "Echo Listener",
+  "announcement.star.goals.echo_listener": "Help the innocent faction survive. Follow sound through the dark and suppress threats.",
+  "skill.noellesroles.echo_listener.sonic_wave": "Sonic Wave",
+  "message.noellesroles.echo_listener.no_money": "You need %s coins to emit a sonic wave!",
+  "message.noellesroles.echo_listener.no_target": "No player is aligned with the sonic wave.",
+  "message.noellesroles.echo_listener.respawned": "You followed the echoes back to life."
 }

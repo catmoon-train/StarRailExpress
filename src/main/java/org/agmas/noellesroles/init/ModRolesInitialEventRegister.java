@@ -70,6 +70,7 @@ import org.agmas.noellesroles.role_data.innocence.FortunetellerRoleData;
 import org.agmas.noellesroles.role_data.neutral.AmonRoleData;
 import org.agmas.noellesroles.role_data.neutral.CandleBearerRoleData;
 import org.agmas.noellesroles.role_data.neutral.CuckooRoleData;
+import org.agmas.noellesroles.role_data.neutral.EchoListenerRoleData;
 import org.agmas.noellesroles.role_data.neutral.RecorderRoleData;
 import org.agmas.noellesroles.role_data.neutral.MorticianBodyMakerRoleData;
 import org.agmas.noellesroles.role_data.innocence.LeatherPigRoleData;
@@ -901,6 +902,14 @@ public class ModRolesInitialEventRegister {
                     comp.useAbility(); // 组件内部已管理效果逻辑
                     return true;
                 }).cooldownSeconds(60).build());
+
+        RoleSkill.register(ModRoles.ECHO_LISTENER, RoleSkill.skill(
+                SRE.id("echo_listener_sonic_wave"),
+                "skill.noellesroles.echo_listener.sonic_wave",
+                context -> {
+                    EchoListenerRoleData data = RoleData.getNullable(EchoListenerRoleData.class, context.player());
+                    return data != null && data.useSonicWave();
+                }).cooldownSeconds(30).build());
 
         // 小透明技能注册：隐身，冷却20秒，消耗150金币
         RoleSkill.register(ModRoles.GHOST, RoleSkill.skill(
