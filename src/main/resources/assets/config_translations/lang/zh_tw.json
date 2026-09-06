@@ -244,6 +244,8 @@
   "text.autoconfig.starrailexpress.category.hud": "HUD",
   "text.autoconfig.starrailexpress.option.skillCastAnnounceHud": "技能釋放通告 HUD",
   "text.autoconfig.starrailexpress.option.skillCastAnnounceHud.@Tooltip": "伺服器開關。開啟後，玩家在技能 HUD 上成功釋放技能時，所有玩家螢幕左側會顯示通告。預設開啟。",
+  "text.autoconfig.starrailexpress.option.enableMirrorReunionEndEgg": "破鏡重圓結束特效",
+  "text.autoconfig.starrailexpress.option.enableMirrorReunionEndEgg.@Tooltip": "伺服器開關。開啟後，遊戲結束進入黑幕收尾時全員播放破鏡崩裂/還原特效（會延遲真正的遊戲結束）。可由 /sre:mirror_end_egg on|off 指令修改並儲存到本設定。預設關閉。",
   "text.autoconfig.starrailexpress.option.skillCastAnnounceWhitelist": "技能通告職業白名單",
   "text.autoconfig.starrailexpress.option.skillCastAnnounceWhitelist.@Tooltip[0]": "填寫職業 ID（如 noellesroles:doctor 或 doctor）。非空時只顯示名單內職業。",
   "text.autoconfig.starrailexpress.option.skillCastAnnounceWhitelist.@Tooltip[1]": "留空則僅顯示平民陣營（含警長）釋放的技能。",
