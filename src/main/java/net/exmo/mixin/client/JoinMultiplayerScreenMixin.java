@@ -26,7 +26,9 @@ import net.minecraft.network.chat.Component;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.Redirect;
+
+import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
+import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 
 /**
  * 天际列车风格多人加入页：只改渲染，列表/按钮/加入逻辑保持原版。
@@ -55,10 +57,12 @@ public abstract class JoinMultiplayerScreenMixin extends Screen {
                 SreUiStyle.enterT(this.sre$openedAt));
     }
 
-    @Redirect(method = "render", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/GuiGraphics;drawCenteredString(Lnet/minecraft/client/gui/Font;Lnet/minecraft/network/chat/Component;III)V"))
-    private void sre$drawTitle(GuiGraphics g, Font font, Component text, int x, int y, int color) {
-        if (SREClientConfig.instance().disableCustomTitleScreen) {
-            g.drawCenteredString(font, text, x, y, color);
+    @WrapOperation(method = "render", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/GuiGraphics;drawCenteredString(Lnet/minecraft/client/gui/Font;Lnet/minecraft/network/chat/Component;III)V"))
+    private void sre$drawTitle(GuiGraphics g, Font font, Component text, int x, int y, int color,
+            Operation<Void> original) {
+        if (SREClientConfig.instance().disableCustomLoadingScreen
+                || SREClientConfig.instance().disableCustomTitleScreen) {
+            original.call(g, font, text, x, y, color);
             return;
         }
         if (this.sre$openedAt < 0L) {

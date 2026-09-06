@@ -2078,7 +2078,7 @@
     "screen.sre.connect.hint": "请稍候，列车正在接入星轨",
     "screen.sre.connect.title": "正在登车",
     "screen.sre.join.subtitle": "选择站点，登上列车",
-    "screen.sre.join.title": "天际列车",
+    "screen.sre.join.title": "StarRailExpress 列车",
     "screen.sre.player_inventory_inspect.title": "%s 的背包",
     "screen.sre.records.back": "返回",
     "screen.sre.records.detail.no_events": "无事件。",
