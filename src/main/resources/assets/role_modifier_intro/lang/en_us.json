@@ -515,5 +515,6 @@
     "info.screen.modifier.dinnerbone": "",
     "==================== 修飾符 ====================": "",
     "=======修機模式/特殊模式=======": "",
-    "info.screen.roleid.rabbit_wansui": ""
+    "info.screen.roleid.rabbit_wansui": "",
+  "info.screen.modifierid.twin_children": "You form a twin unit with a player on your team. Both of you are half normal size: the lower twin controls movement while the upper twin rides them. The unit separates when either twin dies, without changing size, and reforms when both are alive again. Independent neutrals cannot receive this modifier. Conflicts with Tall and Tiny."
 }

@@ -208,5 +208,6 @@
     "cmd.stupid_express.progression.givecard.invalid": "Unknown camp card type: %s",
     "cmd.stupid_express.progression.xp.set": "%s's total experience set to %s",
     "cmd.stupid_express.progression.xp.add": "%s %s experience given",
-    "cmd.stupid_express.progression.error.player_not_found": "The target player does not exist."
+    "cmd.stupid_express.progression.error.player_not_found": "The target player does not exist.",
+  "announcement.star.modifier.stupid_express.twin_children": "Twin Children"
 }

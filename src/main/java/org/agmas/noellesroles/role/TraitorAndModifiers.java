@@ -326,6 +326,8 @@ public class TraitorAndModifiers {
 
             // 侏儒 - 缩小50%（同时移除高大/矮小修饰符）
             if (modifier.equals(DWARF)) {
+                pro.fazeclan.river.stupid_express.modifier.twin_children.TwinChildrenHandler
+                        .removePairForConflictingModifier(player);
                 // 移除高大修饰符（如果存在）
                 if (worldModifierComponent.isModifier(player.getUUID(), SEModifiers.TALL)) {
                     worldModifierComponent.removeModifier(player.getUUID(), SEModifiers.TALL);

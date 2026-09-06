@@ -44,6 +44,7 @@ import pro.fazeclan.river.stupid_express.modifier.lovers.cca.LoversComponent;
 import pro.fazeclan.river.stupid_express.modifier.refugee.cca.RefugeeComponent;
 import pro.fazeclan.river.stupid_express.modifier.split_personality.cca.SkinSplitPersonalityComponent;
 import pro.fazeclan.river.stupid_express.modifier.split_personality.cca.SplitPersonalityComponent;
+import pro.fazeclan.river.stupid_express.modifier.twin_children.TwinChildrenHandler;
 
 import java.awt.*;
 import java.util.*;
@@ -232,6 +233,19 @@ public class SEModifiers {
             false))
             .setDefaultEnableChance(1000).setDefaultMax(1);
 
+    /** 双生之子：两名同阵营玩家以半身大小叠在一起行动。 */
+    public static SREModifier TWIN_CHILDREN = HMLModifiers.registerModifier(new SREModifier(
+            StupidExpress.id("twin_children"),
+            new Color(255, 183, 197).getRGB(),
+            null,
+            null,
+            false,
+            false))
+            // 一次自然分配会由处理器补齐第二名玩家，因此 max=1 表示一对。
+            .setDefaultEnableChance(3000).setDefaultMax(1)
+            .setServerGameTickEvent(TwinChildrenHandler::serverTick)
+            .setAddedVersion("4.4");
+
     public static void init() {
         // 设置双重人格的最大分配数量（从配置读取）
         SPLIT_PERSONALITY.setDefaultMax(SREConfig.instance().splitPersonalityMax);
@@ -239,6 +253,7 @@ public class SEModifiers {
         VIGOROUS.civilianOnly = true;
 
         assignModifierComponents();
+        TwinChildrenHandler.init();
         pro.fazeclan.river.stupid_express.modifier.magnate.MagnatePassiveIncomeHandler.init();
         pro.fazeclan.river.stupid_express.modifier.cursed.CursedHandler.init();
         pro.fazeclan.river.stupid_express.modifier.knight.KnightHandler.init();
@@ -450,6 +465,7 @@ public class SEModifiers {
         ModifierAssigned.EVENT.register(((player, modifier) -> {
             var worldModifierComponent = WorldModifierComponent.KEY.get(player.level());
             if (modifier.equals(TINY)) {
+                TwinChildrenHandler.removePairForConflictingModifier(player);
                 // Cannot assign TALL if player has TINY
                 if (worldModifierComponent.isModifier(player.getUUID(), TALL)) {
                     worldModifierComponent.removeModifier(player.getUUID(), TALL);
@@ -464,6 +480,7 @@ public class SEModifiers {
                 player.getAttribute(Attributes.SCALE).addPermanentModifier(TINY_MODIFIER);
             }
             if (modifier.equals(TALL)) {
+                TwinChildrenHandler.removePairForConflictingModifier(player);
                 // Cannot assign TINY if player has TALL
                 if (worldModifierComponent.isModifier(player.getUUID(), TINY)) {
                     worldModifierComponent.removeModifier(player.getUUID(), TINY);

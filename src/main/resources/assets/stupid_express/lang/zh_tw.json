@@ -208,5 +208,6 @@
   "cmd.stupid_express.progression.givecard.invalid": "未知陣營卡類型：%s",
   "cmd.stupid_express.progression.xp.set": "已將 %s 的總經驗設置為 %s",
   "cmd.stupid_express.progression.xp.add": "已給予 %s %s 經驗",
-  "cmd.stupid_express.progression.error.player_not_found": "目標玩家不存在。"
+  "cmd.stupid_express.progression.error.player_not_found": "目標玩家不存在。",
+  "announcement.star.modifier.stupid_express.twin_children": "雙生之子"
 }
