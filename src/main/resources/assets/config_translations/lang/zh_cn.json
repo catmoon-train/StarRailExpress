@@ -261,6 +261,7 @@
   "text.autoconfig.starrailexpress.option.enableSkillCastAnnounceHud": "技能释放通告 HUD",
   "text.autoconfig.starrailexpress.option.enableSkillCastAnnounceHud.@Tooltip": "服务端开关。建议仅在新手时开启，否则会影响正常游戏体验。开启后，平民阵营成功释放技能时，所有玩家屏幕左侧会显示无背景文字通告。默认关闭。",
   "text.autoconfig.starrailexpress.option.enableMirrorReunionEndEgg": "破镜重圆结束特效",
+  "text.autoconfig.starrailexpress.option.mirrorReunionEndEggTime": "特效时长(tick)",
   "text.autoconfig.starrailexpress.option.enableMirrorReunionEndEgg.@Tooltip": "服务端开关。开启后，游戏结束进入黑幕收尾时全员播放破镜崩裂/还原特效（会推迟真正的游戏结束）。可由 /sre:mirror_end_egg on|off 命令修改并保存到本配置。默认关闭。",
   "text.autoconfig.starrailexpress.option.skillCastAnnounceWhitelist": "技能通告职业白名单",
   "text.autoconfig.starrailexpress.option.skillCastAnnounceWhitelist.@Tooltip[0]": "填写职业 ID（如 noellesroles:doctor 或 doctor）。非空时只显示名单内职业。",

@@ -91,6 +91,8 @@ public class SREConfig implements ConfigData {
     // 可由命令 /sre:mirror_end_egg on|off 修改并保存到本配置。
     @Tooltip
     public boolean enableMirrorReunionEndEgg = false;
+    // 时长
+    public int mirrorReunionEndEggTime = 5 * 20;
 
     // 随机地图设置
 
