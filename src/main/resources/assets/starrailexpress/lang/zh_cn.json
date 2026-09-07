@@ -2968,6 +2968,8 @@
     "sre.map_helper.settings.noReset.@tooltip": "启用后，将跳过地图重置阶段",
     "sre.map_helper.settings.mustCopy": "地图重置必须完整复制地图",
     "sre.map_helper.settings.mustCopy.@tooltip": "启用后重置地图将进行完全地地图覆盖性重置",
+    "sre.map_helper.settings.customMapFeatures": "地图特征标签",
+    "sre.map_helper.settings.customMapFeatures.@tooltip": "部分职业依赖此刷新机制。",
     "sre.map_helper.settings.haveOutsideSound": "外部环境音效",
     "sre.map_helper.settings.haveOutsideSound.@tooltip": "是否启用地图专属的背景音效",
     "sre.map_helper.settings.sceneOutsideSound": "室外背景音效类型",

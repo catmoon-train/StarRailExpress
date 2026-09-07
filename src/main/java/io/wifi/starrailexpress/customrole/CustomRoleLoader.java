@@ -21,6 +21,7 @@ import io.wifi.starrailexpress.api.InstinctType;
 import io.wifi.starrailexpress.api.RoleSkill;
 import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.api.TMMRoles;
+import io.wifi.starrailexpress.api.AreasSettingUtils.MapSpecialFeatures;
 import io.wifi.starrailexpress.cca.SREAbilityPlayerComponent;
 import io.wifi.starrailexpress.cca.SREGameRoundEndComponent;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
@@ -480,7 +481,7 @@ public class CustomRoleLoader {
             role.setHiddenForRoleRotation(data.hiddenForRoleRotation);
         if (data.specialMapRole != null && !"ALL".equalsIgnoreCase(data.specialMapRole)) {
             try {
-                role.setSpecialMapRole(SRERole.SpecialMapRoleMap.valueOf(data.specialMapRole.trim().toUpperCase()));
+                role.setSpecialMapRole(MapSpecialFeatures.valueOf(data.specialMapRole.trim().toUpperCase()));
             } catch (IllegalArgumentException ignored) {
             }
         }

@@ -18,15 +18,14 @@ package org.agmas.noellesroles.init;
 import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.SREConfig;
 import io.wifi.starrailexpress.SREConfig.AutoPresetInfo;
+import io.wifi.starrailexpress.api.AreasSettings;
 import io.wifi.starrailexpress.api.EggRoleInterface;
 import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.api.TMMRoles;
 import io.wifi.starrailexpress.api.TouhouRoleInterface;
 import io.wifi.starrailexpress.cca.AreasWorldComponent;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
-import io.wifi.starrailexpress.game.data.MapStatusBarType;
 import io.wifi.starrailexpress.game.roles.SpecialGameModeRoles;
-import io.wifi.starrailexpress.util.TrueFalseResult;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -321,19 +320,23 @@ public class InitModRolesMax {
         GameInitializeEvent.EVENT.register((serverLevel, gameWorldComponent, players) -> {
             // 从配置应用角色概率
             applyRoleChanceFromConfig();
-            autoRoleMaxCount(serverLevel, gameWorldComponent, players);
-            autoModifierMaxCount(serverLevel, gameWorldComponent, players);
-
-            autoChangePresent();
 
             // 获取当前地图ID
             String currentMap = "unknown";
+            AreasSettings areasSettings = new AreasSettings();
             if (serverLevel.getServer() != null) {
                 var areas = io.wifi.starrailexpress.cca.AreasWorldComponent.KEY.get(serverLevel);
-                if (areas != null && areas.mapName != null) {
+                if (areas != null && areas.mapName != null && areas.areasSettings != null) {
                     currentMap = areas.mapName;
+                    areasSettings = areas.areasSettings;
                 }
             }
+
+            autoRoleMaxCount(serverLevel, gameWorldComponent, players, areasSettings);
+            autoModifierMaxCount(serverLevel, gameWorldComponent, players, areasSettings);
+
+            autoChangePresent();
+
             final int players_count = serverLevel.getServer().getPlayerCount();
             initModifiersCount(players_count);
 
@@ -343,7 +346,7 @@ public class InitModRolesMax {
                 isEggEnabled = true;
                 for (var a : TMMRoles.ROLES.values()) {
                     if (a instanceof EggRoleInterface) {
-                        int max = a.getRoundMaxCount(serverLevel, gameWorldComponent, players, currentMap);
+                        int max = a.getRoundMaxCount(serverLevel, gameWorldComponent, players, currentMap, areasSettings);
                         if (max >= 0) {
                             Harpymodloader.setRoleMaximum(a, max);
                         }
@@ -411,7 +414,7 @@ public class InitModRolesMax {
                 isTouhouEnabled = true;
                 for (var a : TMMRoles.ROLES.values()) {
                     if (a instanceof TouhouRoleInterface) {
-                        int max = a.getRoundMaxCount(serverLevel, gameWorldComponent, players, currentMap);
+                        int max = a.getRoundMaxCount(serverLevel, gameWorldComponent, players, currentMap, areasSettings);
                         if (max >= 0) {
                             Harpymodloader.setRoleMaximum(a, max);
                         }
@@ -444,26 +447,8 @@ public class InitModRolesMax {
                 }
             }
 
-            applySpecialMapRoles(serverLevel, currentMap, config);
             applySpecialVigilanteRoles(serverLevel, players_count, config, random, currentMap);
         });
-    }
-
-    private static void applySpecialMapRoles(ServerLevel serverLevel, String currentMap, NoellesRolesConfig config) {
-        for (var role : TMMRoles.ROLES.values()) {
-            if (!role.isSpecialMapRole()) {
-                continue;
-            }
-            if (isSpecialMapRoleEnabled(serverLevel, role, currentMap, config)) {
-                if (role instanceof EggRoleInterface) {
-                    // 彩蛋职业已由彩蛋池掷过上限；地图匹配时不要在池子未开时强行打开
-                    continue;
-                }
-                Harpymodloader.setRoleMaximum(role, Math.max(0, role.spawnInfo.maxSpawn));
-            } else {
-                Harpymodloader.setRoleMaximum(role, 0);
-            }
-        }
     }
 
     private static void applySpecialVigilanteRoles(ServerLevel serverLevel, int playersCount,
@@ -485,9 +470,6 @@ public class InitModRolesMax {
         Collections.shuffle(specialVigilantes);
         ArrayList<SRERole> selected = new ArrayList<>();
         for (var role : specialVigilantes) {
-            if (!isSpecialMapRoleEnabled(serverLevel, role, currentMap, config)) {
-                continue;
-            }
             int chance = role.spawnInfo.enableChance;
             if (chance >= 0 && random.nextInt(0, 10000) < chance) {
                 selected.add(role);
@@ -535,67 +517,8 @@ public class InitModRolesMax {
         return 0;
     }
 
-    private static boolean isSpecialMapRoleEnabled(ServerLevel serverLevel, SRERole role, String currentMap,
-            NoellesRolesConfig config) {
-        // 多条件模式：AND 关系=所有条件同时满足才刷新；OR 关系=任一条件满足即刷新
-        // （见 SRERole#setSpecialMapRoles / SRERole#setSpecialMapRolesOr）
-        if (role.isSpecialMapRoles()) {
-            if (role.isSpecialMapRolesOr()) {
-                for (SRERole.SpecialMapRoleMap condition : role.getSpecialMapRoles()) {
-                    if (isSpecialMapConditionMet(serverLevel, condition, currentMap, config)) {
-                        return true;
-                    }
-                }
-                return false;
-            }
-            for (SRERole.SpecialMapRoleMap condition : role.getSpecialMapRoles()) {
-                if (!isSpecialMapConditionMet(serverLevel, condition, currentMap, config)) {
-                    return false;
-                }
-            }
-            return true;
-        }
-        return isSpecialMapConditionMet(serverLevel, role.getSpecialMapRole(), currentMap, config);
-    }
-
-    /** 判定单个地图条件是否满足。 */
-    private static boolean isSpecialMapConditionMet(ServerLevel serverLevel, SRERole.SpecialMapRoleMap condition,
-            String currentMap, NoellesRolesConfig config) {
-        return switch (condition) {
-            case ALL -> true;
-            case QIYUCUN -> config.maChenXuMaps.contains(currentMap);
-            case BIGMAP -> config.swastMaps.contains(currentMap);
-            case UNDERWATER -> config.underwaterRolesMaps.contains(currentMap);
-            case FLY -> config.airRolesMaps.contains(currentMap);
-            case TRAP -> config.trapRolesMaps.contains(currentMap);
-            case CAN_JUMP -> {
-                var areas = AreasWorldComponent.KEY.get(serverLevel);
-                yield areas != null && areas.areasSettings.canJump;
-            }
-            case MEETING -> {
-                var areas = AreasWorldComponent.KEY.get(serverLevel);
-                yield areas != null && areas.areasSettings.meetingEnabled;
-            }
-            case MEETING_VOTE -> {
-                var areas = AreasWorldComponent.KEY.get(serverLevel);
-                yield areas != null && areas.areasSettings.meetingEnabled
-                        && (areas.areasSettings.meetingVoteEnabled
-                                || areas.areasSettings.emergencyMeetingVoteEnabled == (TrueFalseResult.TRUE));
-            }
-            case MINIGAME_QUEST -> {
-                var areas = AreasWorldComponent.KEY.get(serverLevel);
-                yield areas != null && areas.areasSettings.minigameQuestEnabled;
-            }
-            case MAP_STATUS_BAR -> {
-                var areas = AreasWorldComponent.KEY.get(serverLevel);
-                yield areas != null && areas.areasSettings.mapStatusBar != MapStatusBarType.NONE;
-            }
-            case HORSE -> config.horseRolesMaps.contains(currentMap);
-        };
-    }
-
     private static void autoRoleMaxCount(ServerLevel serverLevel, SREGameWorldComponent gameWorldComponent,
-            List<ServerPlayer> players) {
+            List<ServerPlayer> players, AreasSettings areasSettings) {
         var areacca = AreasWorldComponent.KEY.get(serverLevel);
         var mapName = areacca.mapName;
         for (var entry : TMMRoles.ROLES.entrySet()) {
@@ -605,7 +528,7 @@ public class InitModRolesMax {
                 continue;
             ResourceLocation name = entry.getKey();
             SRERole role = entry.getValue();
-            int count = role.getRoundMaxCount(serverLevel, gameWorldComponent, players, mapName);
+            int count = role.getRoundMaxCount(serverLevel, gameWorldComponent, players, mapName, areasSettings);
             if (count >= 0) {
                 Harpymodloader.setRoleMaximum(name, count);
             }
@@ -613,7 +536,7 @@ public class InitModRolesMax {
     }
 
     private static void autoModifierMaxCount(ServerLevel serverLevel, SREGameWorldComponent gameWorldComponent,
-            List<ServerPlayer> players) {
+            List<ServerPlayer> players, AreasSettings areasSettings) {
         var areacca = AreasWorldComponent.KEY.get(serverLevel);
         var mapName = areacca.mapName;
         for (SREModifier modifier : HMLModifiers.MODIFIERS) {
