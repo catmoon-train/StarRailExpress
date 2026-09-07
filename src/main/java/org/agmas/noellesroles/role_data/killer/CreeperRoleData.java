@@ -18,7 +18,9 @@ package org.agmas.noellesroles.role_data.killer;
 import io.wifi.starrailexpress.api.data.RoleDataContext;
 import io.wifi.starrailexpress.api.impl.SimpleRoleData;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
+import io.wifi.starrailexpress.game.GameConstants;
 import io.wifi.starrailexpress.game.GameUtils;
+import io.wifi.starrailexpress.util.Scheduler;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.HolderLookup.Provider;
@@ -31,6 +33,9 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.Vec3;
 import org.agmas.noellesroles.packet.CreateCreeperBombAreaPacket;
 import org.agmas.noellesroles.role.bouns.BounsRoles;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class CreeperRoleData extends SimpleRoleData {
 
@@ -212,6 +217,50 @@ public class CreeperRoleData extends SimpleRoleData {
     }
 
     // ==================== Tick 处理 ====================
+
+    /**
+     * Execute an explosion at a fixed position and return the number of players hit.
+     * Hit counting happens before applying kills, so death prevention still counts as
+     * a hit.
+     */
+    private static int explodeAt(ServerLevel level, Vec3 pos, Player damageSource, float radius) {
+        List<Player> targets = new ArrayList<>();
+        for (Player target : level.players()) {
+            if (!target.isSpectator() && target != damageSource
+                    && target.distanceToSqr(pos) <= radius * radius) {
+                targets.add(target);
+            }
+        }
+
+        for (Player target : targets) {
+            GameUtils.killPlayer(target, true, damageSource, GameConstants.DeathReasons.GRENADE);
+        }
+
+        level.playSound(null, pos.x, pos.y, pos.z,
+                SoundEvents.GENERIC_EXPLODE, SoundSource.MASTER, 4.0F, 1.0F);
+        spawnRainbowParticlesAt(level, pos);
+        return targets.size();
+    }
+
+    /** Trigger the death explosion caused by a revolver shot. */
+    public static void onRevolverDeath(ServerPlayer creeper) {
+        if (creeper == null || !(creeper.level() instanceof ServerLevel level))
+            return;
+
+        Vec3 explosionPos = creeper.position();
+        int hitCount = explodeAt(level, explosionPos, creeper, NORMAL_RADIUS);
+        if (hitCount > 5) {
+            Scheduler.schedule(() -> explodeAt(level, explosionPos, creeper, NORMAL_RADIUS), 20);
+        }
+    }
+
+    private static void spawnRainbowParticlesAt(ServerLevel level, Vec3 pos) {
+        for (ServerPlayer p : level.players()) {
+            if (p.distanceToSqr(pos) <= 4096) {
+                ServerPlayNetworking.send(p, new CreateCreeperBombAreaPacket(pos));
+            }
+        }
+    }
 
     @Override
     public void serverTick() {
