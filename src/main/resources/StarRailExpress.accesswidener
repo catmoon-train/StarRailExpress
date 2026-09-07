@@ -89,3 +89,6 @@ accessible field net/minecraft/client/gui/Gui overlayMessageString Lnet/minecraf
 accessible field net/minecraft/client/gui/Gui overlayMessageTime I
 accessible field net/minecraft/client/gui/Gui animateOverlayMessageColor Z
 accessible method net/minecraft/client/gui/Gui getCameraPlayer ()Lnet/minecraft/world/entity/player/Player;
+
+
+accessible field net/minecraft/commands/CommandSourceStack permissionLevel I
