@@ -32,6 +32,7 @@ import org.agmas.noellesroles.content.entity.WheelchairEntity;
 import org.agmas.noellesroles.game.modes.ChairWheelRaceGame;
 import org.agmas.noellesroles.role_data.innocence.SaltedFishRoleData;
 import org.agmas.noellesroles.role_data.killer.InsaneKillerRoleData;
+import org.agmas.noellesroles.utils.RoleUtils;
 import org.agmas.noellesroles.init.ModEffects;
 import org.agmas.noellesroles.init.ModItems;
 import org.agmas.noellesroles.role.ModRoles;
@@ -117,6 +118,11 @@ public class NRRulePredicateEvents {
                 }
             }
             return false;
+        });
+
+        //
+        CollisionRules.cantCollide.add(a -> {
+            return RoleUtils.isPlayerTheModifier(a, SEModifiers.TWIN_CHILDREN);
         });
 
         // 隐身/安全时间/无碰撞效果
