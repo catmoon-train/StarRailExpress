@@ -753,6 +753,7 @@ public class ModRoles {
                     .setRoleData(PhantomSpiritRoleData::new))
             .setCanSeeCoin(true)
             .setCanIncreaseSurvivingInnocents(true)
+            .setNeutralForInnocent(true)
             .setCanXiaonao(false)
             .setCanBeXiaonao(false)
             .setDefaultMax(1)
