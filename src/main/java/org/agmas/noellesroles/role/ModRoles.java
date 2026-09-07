@@ -769,7 +769,8 @@ public class ModRoles {
      * 张天使 - 平民中立（与乘客一同胜利）
      * - 每 10 秒吞电，使周围灯光闪烁
      * - 处于黑暗（亮度≤5 或关灯）时隐身并获得速度 I
-     * - 积攒 10 次吞电后，花费 100 金币对准目标召雷：随机失一感官 30 秒 + 缓慢 III 2 分钟
+     * - 积攒 10 次吞电后，花费 100 金币对准目标召雷：随机失一感官 30 秒（视觉=盲视），
+     *   再随机附加失明 / 缓慢 III / 黑暗 / 反胃
      */
     public static SRERole ZHANG_ANGEL = TMMRoles.registerRole(
             new NormalRole(ZHANG_ANGEL_ID, new Color(170, 200, 255).getRGB(),

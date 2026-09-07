@@ -4525,8 +4525,12 @@
   "message.noellesroles.zhang_angel.swallowed": "Swallowed charge %s/%s",
   "message.noellesroles.zhang_angel.ready": "Charge full. Spend 100 gold to call lightning on your target.",
   "message.noellesroles.zhang_angel.not_enough_swallows": "Not enough charge: need %s, have %s.",
-  "message.noellesroles.zhang_angel.lightning_cast": "Lightning struck %s, who lost %s.",
-  "message.noellesroles.zhang_angel.lightning_hit": "Lightning struck you. You lost %s and your movement is slowed.",
-  "message.noellesroles.zhang_angel.sense.sight": "sight",
-  "message.noellesroles.zhang_angel.sense.hearing": "hearing"
+  "message.noellesroles.zhang_angel.lightning_cast": "Lightning struck %s, who lost %s and gained %s.",
+  "message.noellesroles.zhang_angel.lightning_hit": "Lightning struck you. You lost %s and gained %s.",
+  "message.noellesroles.zhang_angel.sense.sight": "sight (blind vision)",
+  "message.noellesroles.zhang_angel.sense.hearing": "hearing",
+  "message.noellesroles.zhang_angel.extra.blindness": "Blindness",
+  "message.noellesroles.zhang_angel.extra.slowness": "Slowness III",
+  "message.noellesroles.zhang_angel.extra.darkness": "Darkness",
+  "message.noellesroles.zhang_angel.extra.nausea": "Nausea"
 }

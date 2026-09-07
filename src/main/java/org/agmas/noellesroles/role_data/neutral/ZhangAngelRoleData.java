@@ -54,7 +54,8 @@ import java.util.List;
 
 /**
  * 张天使：平民中立。每 10 秒吞电使周围灯闪；黑暗中隐身并加速；
- * 积攒 10 次吞电后花费 100 金币召雷，使目标失一感官 30 秒并缓慢 III 2 分钟。
+ * 积攒 10 次吞电后花费 100 金币召雷：失一感官 30 秒（视觉=盲视），
+ * 再随机附加失明 / 缓慢 III / 黑暗 / 反胃。
  */
 public class ZhangAngelRoleData extends SimpleRoleData {
 
@@ -66,6 +67,7 @@ public class ZhangAngelRoleData extends SimpleRoleData {
     public static final int FLICKER_RADIUS = 12;
     public static final int FLICKER_TICKS = 8;
     public static final int SENSE_LOSS_TICKS = 30 * 20;
+    public static final int EXTRA_DEBUFF_TICKS = 30 * 20;
     public static final int SLOWNESS_TICKS = 2 * 60 * 20;
     public static final int SLOWNESS_AMPLIFIER = 2;
     public static final int DARKNESS_BUFF_TICKS = 40;
@@ -315,14 +317,17 @@ public class ZhangAngelRoleData extends SimpleRoleData {
         }
 
         SenseLoss sense = SenseLoss.random(level);
+        ExtraDebuff extra = ExtraDebuff.random(level);
         target.addEffect(new MobEffectInstance(sense.effect, SENSE_LOSS_TICKS, 0, false, false, true));
-        target.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SLOWDOWN, SLOWNESS_TICKS, SLOWNESS_AMPLIFIER,
-                false, false, true));
+        extra.apply(target);
 
         caster.displayClientMessage(Component.translatable("message.noellesroles.zhang_angel.lightning_cast",
-                target.getName(), Component.translatable(sense.translationKey)).withStyle(ChatFormatting.GOLD), true);
+                target.getName(),
+                Component.translatable(sense.translationKey),
+                Component.translatable(extra.translationKey)).withStyle(ChatFormatting.GOLD), true);
         target.displayClientMessage(Component.translatable("message.noellesroles.zhang_angel.lightning_hit",
-                Component.translatable(sense.translationKey)).withStyle(ChatFormatting.RED), true);
+                Component.translatable(sense.translationKey),
+                Component.translatable(extra.translationKey)).withStyle(ChatFormatting.RED), true);
         level.playSound(null, target.blockPosition(), SoundEvents.LIGHTNING_BOLT_THUNDER, SoundSource.WEATHER,
                 2.0f, 1.2f);
     }
@@ -355,6 +360,36 @@ public class ZhangAngelRoleData extends SimpleRoleData {
 
         static SenseLoss random(ServerLevel level) {
             SenseLoss[] values = values();
+            return values[level.random.nextInt(values.length)];
+        }
+    }
+
+    /** 失一感官之外再随机附加的残疾效果。 */
+    private enum ExtraDebuff {
+        BLINDNESS(MobEffects.BLINDNESS, 0, EXTRA_DEBUFF_TICKS, "message.noellesroles.zhang_angel.extra.blindness"),
+        SLOWNESS(MobEffects.MOVEMENT_SLOWDOWN, SLOWNESS_AMPLIFIER, SLOWNESS_TICKS,
+                "message.noellesroles.zhang_angel.extra.slowness"),
+        DARKNESS(MobEffects.DARKNESS, 0, EXTRA_DEBUFF_TICKS, "message.noellesroles.zhang_angel.extra.darkness"),
+        NAUSEA(MobEffects.CONFUSION, 0, EXTRA_DEBUFF_TICKS, "message.noellesroles.zhang_angel.extra.nausea");
+
+        final Holder<MobEffect> effect;
+        final int amplifier;
+        final int durationTicks;
+        final String translationKey;
+
+        ExtraDebuff(Holder<MobEffect> effect, int amplifier, int durationTicks, String translationKey) {
+            this.effect = effect;
+            this.amplifier = amplifier;
+            this.durationTicks = durationTicks;
+            this.translationKey = translationKey;
+        }
+
+        void apply(ServerPlayer target) {
+            target.addEffect(new MobEffectInstance(effect, durationTicks, amplifier, false, false, true));
+        }
+
+        static ExtraDebuff random(ServerLevel level) {
+            ExtraDebuff[] values = values();
             return values[level.random.nextInt(values.length)];
         }
     }

@@ -4638,8 +4638,12 @@
   "message.noellesroles.zhang_angel.swallowed": "吞電 %s/%s",
   "message.noellesroles.zhang_angel.ready": "吞電已滿，花費 100 金幣可對準目標召雷。",
   "message.noellesroles.zhang_angel.not_enough_swallows": "吞電不足：需要 %s 次，當前 %s 次。",
-  "message.noellesroles.zhang_angel.lightning_cast": "閃電擊中了 %s，對方失去了%s。",
-  "message.noellesroles.zhang_angel.lightning_hit": "你被閃電擊中，失去了%s，並且行動變得遲緩。",
-  "message.noellesroles.zhang_angel.sense.sight": "視覺",
-  "message.noellesroles.zhang_angel.sense.hearing": "聽覺"
+  "message.noellesroles.zhang_angel.lightning_cast": "閃電擊中了 %s，對方失去了%s，並獲得了%s。",
+  "message.noellesroles.zhang_angel.lightning_hit": "你被閃電擊中，失去了%s，並獲得了%s。",
+  "message.noellesroles.zhang_angel.sense.sight": "視覺（盲視）",
+  "message.noellesroles.zhang_angel.sense.hearing": "聽覺",
+  "message.noellesroles.zhang_angel.extra.blindness": "失明",
+  "message.noellesroles.zhang_angel.extra.slowness": "緩慢 III",
+  "message.noellesroles.zhang_angel.extra.darkness": "黑暗",
+  "message.noellesroles.zhang_angel.extra.nausea": "反胃"
 }
