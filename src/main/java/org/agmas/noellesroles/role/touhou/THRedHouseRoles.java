@@ -144,7 +144,9 @@ public class THRedHouseRoles {
           TMMRoles.CIVILIAN.getMaxSprintTime() * 3, false),
       "th_redhouse")
       .setCanAutoAddMoney(true)
-      .setVigilanteTeam(true).setSpecialVigilante(true).setCanSeeCoin(true)
+      .setVigilanteTeam(true)
+      .setSpecialVigilante(true)
+      .setCanSeeCoin(true)
       .setRoleData(HoanMeirinRoleData::new)
       .setSpecialMapRole(MapSpecialFeatures.CAN_JUMP);
   // 好人：帕秋莉 Patchouli Knowledge

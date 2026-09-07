@@ -1394,6 +1394,7 @@ public class ModRoles {
                     true // showIcon（显示图标）
             )))
             .setCanSeeCoin(true).setVigilanteTeam(true).setCanPickUpRevolver(false)
+            .setSpecialPolice(true)
             .setSpecialMapRole(MapSpecialFeatures.UNDERWATER).setDefaultMax(1)
             .setCanKillWithTrident(true);
 

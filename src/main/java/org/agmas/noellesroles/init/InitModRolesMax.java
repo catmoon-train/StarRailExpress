@@ -30,6 +30,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import org.agmas.harpymodloader.Harpymodloader;
+import org.agmas.harpymodloader.SREDisableManager;
 import org.agmas.harpymodloader.events.GameInitializeEvent;
 import org.agmas.harpymodloader.modded_murder.RoleAssignmentManager;
 import org.agmas.harpymodloader.modifiers.EggModifier;
@@ -346,7 +347,8 @@ public class InitModRolesMax {
                 isEggEnabled = true;
                 for (var a : TMMRoles.ROLES.values()) {
                     if (a instanceof EggRoleInterface) {
-                        int max = a.getRoundMaxCount(serverLevel, gameWorldComponent, players, currentMap, areasSettings);
+                        int max = a.getRoundMaxCount(serverLevel, gameWorldComponent, players, currentMap,
+                                areasSettings);
                         if (max >= 0) {
                             Harpymodloader.setRoleMaximum(a, max);
                         }
@@ -414,7 +416,8 @@ public class InitModRolesMax {
                 isTouhouEnabled = true;
                 for (var a : TMMRoles.ROLES.values()) {
                     if (a instanceof TouhouRoleInterface) {
-                        int max = a.getRoundMaxCount(serverLevel, gameWorldComponent, players, currentMap, areasSettings);
+                        int max = a.getRoundMaxCount(serverLevel, gameWorldComponent, players, currentMap,
+                                areasSettings);
                         if (max >= 0) {
                             Harpymodloader.setRoleMaximum(a, max);
                         }
@@ -458,6 +461,9 @@ public class InitModRolesMax {
         ArrayList<SRERole> specialVigilantes = new ArrayList<>();
         var roleMaxBackup = new HashMap<>(Harpymodloader.ROLE_MAX);
         for (var role : TMMRoles.ROLES.values()) {
+            // 跳过禁用的
+            if (SREDisableManager.isRoleDisabled(role))
+                continue;
             if (role.isSpecialVigilante() && roleMaxBackup.get(role.identifier()) > 0) {
                 // 仅处理启用的
                 specialVigilantes.add(role);
@@ -470,23 +476,12 @@ public class InitModRolesMax {
         Collections.shuffle(specialVigilantes);
         ArrayList<SRERole> selected = new ArrayList<>();
         for (var role : specialVigilantes) {
-            int chance = role.spawnInfo.enableChance;
-            if (chance >= 0 && random.nextInt(0, 10000) < chance) {
-                selected.add(role);
-                if (role.canRefreshableSpecialVigilante()) {
-                    int secondChance = role.getRefreshableSpecialVigilanteChance();
-                    if (secondChance >= 0 && random.nextInt(0, 10000) < secondChance) {
-                        selected.add(role);
-                    }
-                }
-            } else {
-                // 如果chance为-1则表明默认值
-                selected.add(role);
-                if (role.canRefreshableSpecialVigilante()) {
-                    int secondChance = role.getRefreshableSpecialVigilanteChance();
-                    if (secondChance >= 0 && random.nextInt(0, 10000) < secondChance) {
-                        selected.add(role);
-                    }
+            // 不需要比较 chance，初始化前已经比较过一次了。
+            selected.add(role);
+            if (role.canRefreshableSpecialVigilante()) {
+                int secondChance = role.getRefreshableSpecialVigilanteChance();
+                if (secondChance >= 0 && random.nextInt(0, 10000) < secondChance) {
+                    selected.add(role);
                 }
             }
         }
