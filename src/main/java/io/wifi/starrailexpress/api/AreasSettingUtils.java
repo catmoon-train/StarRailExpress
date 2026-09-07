@@ -26,6 +26,7 @@ public class AreasSettingUtils {
         UNDERWATER,
         FLY,
         TRAP,
+        HORSE,
         /** 仅可跳跃地图生成 */
         CAN_JUMP,
         /** 仅可召开会议地图生成 */
@@ -35,9 +36,8 @@ public class AreasSettingUtils {
         /** 仅可游玩小游戏地图生成 */
         MINIGAME_QUEST,
         /** 仅拥有状态栏地图生成（mapStatusBar != NONE） */
-        MAP_STATUS_BAR,
+        MAP_STATUS_BAR
         /** 仅骑马地图生成（驯马师、猎人） */
-        HORSE
     }
 
     public static class StoreableAABB {
