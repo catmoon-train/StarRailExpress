@@ -424,4 +424,37 @@ public class PlayerRoleWeightManager {
         return weight;
     }
 
+    /**
+     * 排序比较大小用
+     * 好人数字小，坏人数字大
+     * @param role
+     * @return
+     */
+    public static int getRoleTypeForSorting(SRERole role) {
+        if (role == null)
+            return -1;
+
+        if (role.isInnocent()) {
+            return 1;
+        }
+
+        if (role.isVigilanteTeam()) {
+            return 2;
+        }
+
+        if (role.isNeutrals() && role.isNeutralForInnocent()) {
+            return 3;
+        }
+        if (role.isNeutrals() && !role.isNeutralForKiller()) {
+            return 4;
+        }
+        if (role.isNeutrals() && role.isNeutralForKiller()) {
+            return 5;
+        }
+        if (role.canUseKiller()) {
+            return 6;
+        }
+        return -1; // Unknown
+    }
+
 }

@@ -99,8 +99,8 @@ public class Noellesroles implements ModInitializer {
      *         - 3: Neturals for killer
      *         - 4: Killer
      */
-    public static int getRoleType$Int(SRERole role) {
-        return PlayerRoleWeightManager.getRoleType(role);
+    public static int getRoleType$forSorting(SRERole role) {
+        return PlayerRoleWeightManager.getRoleTypeForSorting(role);
     }
 
     public static List<SRERole> getAllRolesSorted() {
@@ -131,8 +131,8 @@ public class Noellesroles implements ModInitializer {
                     return -1;
                 }
             }
-            int rt_a = getRoleType$Int(a);
-            int rt_b = getRoleType$Int(b);
+            int rt_a = getRoleType$forSorting(a);
+            int rt_b = getRoleType$forSorting(b);
             if (a != null && b != null) {
                 if (rt_a > rt_b)
                     return killerFirst ? -1 : 1;
