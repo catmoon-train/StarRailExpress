@@ -15,6 +15,7 @@
 
 package io.wifi.starrailexpress.sponsor;
 
+import com.mojang.authlib.GameProfile;
 import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.SREConfig;
 import io.wifi.starrailexpress.api.PlushApi;
@@ -28,11 +29,14 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.component.ItemLore;
+import net.minecraft.world.item.component.ResolvableProfile;
+import org.agmas.noellesroles.init.SREFumoBlocks;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
 /**
@@ -40,7 +44,7 @@ import java.util.concurrent.CompletableFuture;
  * <p>
  * 从 {@link SREConfig#sponsorListUrl 云端 URL} 拉取一份纯文本名单（每行一个赞助者名，{@code #} 开头与空行忽略），
  * 按命名约定把名字映射到 plush（名字 {@code X} → {@code noellesroles:X_plush}，见 {@link PlushApi}）。
- * 只保留<b>有对应 plush</b> 的赞助者。
+ * 有已注册 plush 时优先使用；没有时使用绑定赞助者玩家名的自定义玩家 plush。
  * <p>
  * 若存在赞助者，则玩家开局拿到的信封（intro 物品）会被
  * {@link #decorateIntroStack 替换为某个赞助者的 plush}（玩家本人优先，否则随机），
@@ -53,13 +57,13 @@ public final class SponsorManager {
     /** 末尾可能附带的「老鼠赞助者」图标字符，匹配玩家名时需去掉。 */
     private static final char SUPPORTER_ICON = (char) 0xE780;
 
-    /** 已确认拥有对应 plush 的赞助者名（规范化为小写）。 */
+    /** 当前赞助者名（去重，保留名单中的大小写以供自定义玩家皮肤查询）。 */
     private static volatile List<String> sponsorPlushNames = List.of();
 
     private SponsorManager() {
     }
 
-    /** 当前是否存在可用的赞助者（且其有对应 plush）。 */
+    /** 当前是否存在可用的赞助者。 */
     public static boolean hasSponsors() {
         return !sponsorPlushNames.isEmpty();
     }
@@ -96,24 +100,25 @@ public final class SponsorManager {
         });
     }
 
-    /** 把原始名单解析为去重后的、有对应 plush 的小写名字列表，更新缓存并同步。 */
+    /** 把原始名单解析为去重后的名字列表，更新缓存并同步。 */
     private static void apply(MinecraftServer server, List<String> rawNames) {
-        List<String> withPlush = new ArrayList<>();
+        List<String> sponsors = new ArrayList<>();
+        List<String> normalizedNames = new ArrayList<>();
         for (String raw : rawNames) {
-            String name = normalize(raw);
-            if (name.isEmpty() || withPlush.contains(name)) {
+            String displayName = raw == null ? "" : raw.trim();
+            String normalizedName = normalize(displayName);
+            if (normalizedName.isEmpty() || normalizedNames.contains(normalizedName)) {
                 continue;
             }
-            if (PlushApi.hasPlush(name)) {
-                withPlush.add(name);
-            }
+            normalizedNames.add(normalizedName);
+            sponsors.add(displayName);
         }
-        sponsorPlushNames = List.copyOf(withPlush);
+        sponsorPlushNames = List.copyOf(sponsors);
         if(rawNames.isEmpty()){
             return;
         }
-        SRE.LOGGER.info("[Sponsor] 赞助者名单已更新：{} 个原始条目，{} 个有对应 plush。",
-                rawNames.size(), withPlush.size());
+        SRE.LOGGER.info("[Sponsor] 赞助者名单已更新：{} 个原始条目，{} 个有效赞助者。",
+                rawNames.size(), sponsors.size());
         if (server != null) {
             syncToAll(server);
         }
@@ -162,7 +167,7 @@ public final class SponsorManager {
         }
         String self = cleanPlayerName(player.getName().getString());
         for (String s : names) {
-            if (s.equals(self)) {
+            if (normalize(s).equals(self)) {
                 return s;
             }
         }
@@ -178,11 +183,16 @@ public final class SponsorManager {
         if (name == null) {
             return letter;
         }
-        Optional<Item> plush = PlushApi.getPlushForSkin(name);
-        if (plush.isEmpty()) {
-            return letter;
+        ItemStack stack;
+        Optional<Item> registeredPlush = PlushApi.getPlushForSkin(name);
+        if (registeredPlush.isPresent()) {
+            stack = new ItemStack(registeredPlush.get());
+        } else {
+            stack = new ItemStack(SREFumoBlocks.CUSTOM_PLAYER_PLUSH.asItem());
+            // 只提供玩家名，让客户端的 ResolvableProfile 按名字查询该赞助者的皮肤。
+            stack.set(DataComponents.PROFILE,
+                    new ResolvableProfile(new GameProfile((UUID) null, name)));
         }
-        ItemStack stack = new ItemStack(plush.get());
         // 沿用信封的名称与描述（信封由 LETTER_UpdateItemFunc 设置 ITEM_NAME 与 LORE）
         Component itemName = letter.get(DataComponents.ITEM_NAME);
         if (itemName != null) {
