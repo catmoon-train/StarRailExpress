@@ -98,7 +98,7 @@ public class RandomSelector<T> {
 
     /**
      * 简易布尔判定：以 numerator/denominator 的概率返回 true。
-     * 例如 tryChance(1, 10000) 约有万分之一概率为 true。
+     * 内部会自动约分（例如 1000/10000 会自动化简为 1/10），再生成随机数。
      *
      * @param numerator   分子（命中次数），必须 ≥ 0
      * @param denominator 分母（总次数），必须 > 0
@@ -106,7 +106,7 @@ public class RandomSelector<T> {
      */
     public static boolean tryChance(int numerator, int denominator) {
         if (denominator <= 0) {
-            throw new IllegalArgumentException("Denominator must bigger than 0.");
+            throw new IllegalArgumentException("The denominator must bigger than 0.");
         }
         if (numerator <= 0) {
             return false;
@@ -114,8 +114,26 @@ public class RandomSelector<T> {
         if (numerator >= denominator) {
             return true;
         }
-        // 生成 [0, denominator) 的随机整数，小于 numerator 即命中
+
+        // 1. 自动约分（化简为最简整数比）
+        int gcd = gcd(numerator, denominator);
+        numerator /= gcd;
+        denominator /= gcd;
+
+        // 2. 生成 [0, denominator) 随机整数，小于 numerator 即命中
         return ThreadLocalRandom.current().nextInt(denominator) < numerator;
+    }
+
+    /**
+     * 辗转相除法求最大公约数（支持正数）
+     */
+    private static int gcd(int a, int b) {
+        while (b != 0) {
+            int temp = a % b;
+            a = b;
+            b = temp;
+        }
+        return a;
     }
 
     /**
