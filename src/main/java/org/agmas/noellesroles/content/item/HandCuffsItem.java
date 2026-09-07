@@ -39,6 +39,7 @@ import org.agmas.noellesroles.init.ModItems;
 
 public class HandCuffsItem extends Item {
     public static final int MAX_DAMAGE = 10;
+
     public HandCuffsItem(Item.Properties settings) {
         super(settings.durability(10));
     }
@@ -62,8 +63,8 @@ public class HandCuffsItem extends Item {
 
     public static ItemStack breakHandCuff(Player player) {
         var stack = ExtraSlotComponent.getSlot(player, SLOT_HANDCUFFS);
-        if(stack.is(ModItems.HANDCUFFS)){
-            ExtraSlotComponent.hurtAndBreak(player,stack,MAX_DAMAGE,SLOT_HANDCUFFS);
+        if (stack.is(ModItems.HANDCUFFS)) {
+            ExtraSlotComponent.hurtAndBreak(player, stack, MAX_DAMAGE, SLOT_HANDCUFFS);
             return ExtraSlotComponent.removeSlot(player, SLOT_HANDCUFFS);
         }
         return ItemStack.EMPTY;
@@ -139,11 +140,13 @@ public class HandCuffsItem extends Item {
             }
             ItemStack cuffStack = stack.copy();
             // 判断是否从前面铐住
-            if (isInFrontOf(target, user)) {
-                CompoundTag tag = cuffStack.getOrDefault(DataComponents.CUSTOM_DATA, CustomData.EMPTY).copyTag();
-                tag.putBoolean(TAG_CUFFED_FRONT, true);
-                cuffStack.set(DataComponents.CUSTOM_DATA, CustomData.of(tag));
-            }
+
+            CompoundTag tag = cuffStack.getOrDefault(DataComponents.CUSTOM_DATA, CustomData.EMPTY).copyTag();
+
+            tag.putBoolean(TAG_CUFFED_FRONT, isInFrontOf(target, user));
+
+            cuffStack.set(DataComponents.CUSTOM_DATA, CustomData.of(tag));
+            
             putOnHandCuff(target, cuffStack);
             stack.shrink(1);
             user.displayClientMessage(Component.translatable("item.noellesroles.handcuffs.put", target.getName())
@@ -158,9 +161,7 @@ public class HandCuffsItem extends Item {
         return InteractionResult.SUCCESS;
     }
 
-
-
-    //判断 subject 是否位于 target 的正面朝向内
+    // 判断 subject 是否位于 target 的正面朝向内
     private static boolean isInFrontOf(Player target, LivingEntity subject) {
         Vec3 look = target.getViewVector(1.0F);
         Vec3 toSubject = subject.position().subtract(target.position());
