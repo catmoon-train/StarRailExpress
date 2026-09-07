@@ -119,7 +119,7 @@ public class EchoListenerRoleData extends SimpleRoleData {
             int amplifier = distance <= 5.0 ? 1 : 0;
             target.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SLOWDOWN, 15, amplifier, false, false, false));
             target.addEffect(new MobEffectInstance(MobEffects.CONFUSION, 40, 0, false, false, false));
-            SREPlayerMoodComponent.KEY.get(target).addMood(distance <= 5.0 ? -0.008f : -0.003f);
+            SREPlayerMoodComponent.KEY.get(target).addMood(distance <= 5.0 ? -0.0004f : -0.0002f);
         }
     }
 
