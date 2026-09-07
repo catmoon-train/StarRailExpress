@@ -1524,29 +1524,36 @@ public class ModRoles {
                         boolean isFollower = data != null && data.isFollower(target.getUUID());
                         boolean isNonKillerNeutral = targetRole.isNeutrals()
                                 && !targetRole.isNeutralForKiller();
+                        // 好人方中立（isNeutralForInnocent）：除失忆患者(amnesiac)与初学者(initiate)外，领袖无法透视到
+                        boolean isGoodSideNeutral = targetRole.isNeutralForInnocent();
+                        boolean seeableGoodNeutral = isGoodSideNeutral
+                                && (targetRole.identifier().getPath().equals("amnesiac")
+                                        || targetRole.identifier().getPath().equals("initiate"));
+                        boolean showNonKillerNeutral = isNonKillerNeutral
+                                && (!isGoodSideNeutral || seeableGoodNeutral);
                         boolean hasFollowers = data != null && !data.followers.isEmpty();
                         // 自己的追随者 → 蓝色（可无限距离透视）
                         if (isFollower) {
                             return InstinctType.custom(new Color(0, 0, 255).getRGB());
                         }
                         // 有追随者时：不再额外显示其它非杀手方中立的特殊框
-                        if (hasFollowers && isNonKillerNeutral) {
+                        if (hasFollowers && showNonKillerNeutral) {
                             return InstinctType.NONE;
                         }
                         double dist = self.distanceTo(target);
                         // 超出 10 格：仅当没有追随者时可无限透视非杀手方中立（黄色），其余不透视
                         if (dist > 10.0D) {
-                            if (!hasFollowers && isNonKillerNeutral) {
+                            if (!hasFollowers && showNonKillerNeutral) {
                                 return InstinctType.custom(
                                         new Color(255, 255, 0).getRGB());
                             }
                             return InstinctType.NONE;
                         }
                         // 10 格内
-                        if (isNonKillerNeutral) {
+                        if (showNonKillerNeutral) {
                             return InstinctType.custom(new Color(255, 255, 0).getRGB());
                         }
-                        // 其余（杀手、好人、杀手方中立、自己） → 领袖色
+                        // 其余（杀手、好人、杀手方中立、好人方中立、自己） → 领袖色
                         return InstinctType.custom(new Color(255, 0, 255).getRGB());
                     }));
     public static SRERole TAMER = TMMRoles

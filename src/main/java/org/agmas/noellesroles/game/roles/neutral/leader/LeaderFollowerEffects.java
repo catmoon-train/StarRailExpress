@@ -175,7 +175,6 @@ public final class LeaderFollowerEffects {
 
         switch (path) {
             case "bee_queen" -> applyBeeQueen(leader, follower);
-            case "heng_xing_ti" -> applyHengXingTi(leader, follower);
             case "dummy_bird" -> applyDummyBird(leader, follower);
             case "amon" -> applyAmon(leader, follower);
             case "candlebearer" -> applyCandleBearer(leader, follower);
@@ -226,40 +225,6 @@ public final class LeaderFollowerEffects {
                 Component.translatable("message.noellesroles.leader.bee_queen_bonus_follower"));
         leader.sendSystemMessage(
                 Component.translatable("message.noellesroles.leader.bee_queen_bonus"));
-    }
-
-    /**
-     * 恒星体：领袖对恒星体释放技能后：
-     * - 恒星体的技能冷却缩短一半，直至本局游戏结束（全局标记，由 OnRoleSkillUse.AFTER 生效）；
-     * - 领袖获得一把刀；
-     * - 领袖本局随好人（乘客/好人阵营）胜利。
-     */
-    private static void applyHengXingTi(ServerPlayer leader, ServerPlayer follower) {
-        // 全局效果：恒星体技能冷却减半（直至本局结束）
-        HENG_XING_TI_COOLDOWN_HALVED = true;
-
-        // 领袖获得一把刀
-        giveItem(leader, TMMItems.KNIFE.getDefaultInstance());
-
-        // 领袖随好人胜利
-        RoleData.getNullable(LeaderRoleData.class, leader).withInnocent = true;
-
-        follower.sendSystemMessage(
-                Component.translatable("message.noellesroles.leader.heng_xing_ti_bonus_follower"));
-        leader.sendSystemMessage(
-                Component.translatable("message.noellesroles.leader.heng_xing_ti_bonus"));
-    }
-
-    // ==================== 静态标记与复位 ====================
-
-    /**
-     * 任意领袖对恒星体释放技能后置为 true：恒星体的技能冷却缩短一半，直至本局结束。
-     * 每局开始时由 {@link #resetHengXingTiBonus()} 复位。
-     */
-    public static boolean HENG_XING_TI_COOLDOWN_HALVED = false;
-
-    public static void resetHengXingTiBonus() {
-        HENG_XING_TI_COOLDOWN_HALVED = false;
     }
 
     // ==================== 具体效果 ====================
@@ -613,6 +578,11 @@ public final class LeaderFollowerEffects {
             // 中立目标：额外排除无辜者（isInnocent）与可使用杀手能力的目标（canUseKiller）
             if (!targetRole.isNeutrals() || targetRole.isNeutralForKiller()
                     || targetRole.isInnocent() || targetRole.canUseKiller()) {
+                return false;
+            }
+            // 好人方中立（isNeutralForInnocent）：除失忆患者(amnesiac)与初学者(initiate)外禁止释放技能
+            if (targetRole.isNeutralForInnocent()
+                    && !path.equals("amnesiac") && !path.equals("initiate")) {
                 return false;
             }
             // 蜜蜂家族：仅可对蜂后释放，其余蜜蜂家族职业（工蜂、胡蜂等）禁止

@@ -115,8 +115,6 @@ public class NRGameStateEvents {
             org.agmas.noellesroles.game.roles.innocence.angler.AnglerWorldMemory.reset(serverLevel);
             // 复位蜂后领袖加成（蜜蜂家族中毒致死时间减半）
             BeeFamilyManager.resetQueenLeaderBonus();
-            // 复位恒星体领袖加成（恒星体技能冷却减半）
-            LeaderFollowerEffects.resetHengXingTiBonus();
             // 重置疫使时刻状态
             org.agmas.noellesroles.game.roles.neutral.infected.InfectedWinChecker.resetAcceleratedState();
 

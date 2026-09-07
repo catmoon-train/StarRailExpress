@@ -26,9 +26,7 @@ import org.agmas.noellesroles.utils.RoleUtils;
 
 import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.api.RoleSkill;
-import io.wifi.starrailexpress.cca.SREAbilityPlayerComponent;
 import io.wifi.starrailexpress.event.OnKillPlayerTriggered;
-import io.wifi.starrailexpress.event.OnRoleSkillUse;
 import io.wifi.starrailexpress.game.GameConstants;
 import io.wifi.starrailexpress.game.GameUtils;
 import io.wifi.starrailexpress.game.forensic.ForensicCategory;
@@ -66,18 +64,6 @@ public class BounsHandlers {
                 }
             }
             return TrueFalseResult.PASS;
-        });
-        // 领袖对恒星体释放技能后：恒星体技能冷却减半（OnRoleSkillUse.AFTER 在 markSkillUsed 之后触发，可覆盖完整冷却）
-        OnRoleSkillUse.AFTER.register((player, role) -> {
-            if (LeaderFollowerEffects.HENG_XING_TI_COOLDOWN_HALVED
-                    && BounsRoles.HENG_XING_TI.equals(role)
-                    && player instanceof ServerPlayer sp) {
-                SREAbilityPlayerComponent ability = SREAbilityPlayerComponent.KEY.get(sp);
-                for (var def : RoleSkill.getDefinitions(role)) {
-                    ability.setSkillCooldown(def.id(), def.cooldownTicks() / 2);
-                }
-            }
-            return true;
         });
 
         RoleSkill.register(BounsRoles.LAO_DA,
