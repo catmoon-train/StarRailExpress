@@ -84,6 +84,7 @@ import org.agmas.noellesroles.role_data.innocence.AvengerRoleData;
 import org.agmas.noellesroles.role_data.innocence.BoxerRoleData;
 import org.agmas.noellesroles.role_data.innocence.GlitchRobotRoleData;
 import org.agmas.noellesroles.role_data.killer.BanditRoleData;
+import org.agmas.noellesroles.role_data.killer.CreeperRoleData;
 import org.agmas.noellesroles.role_data.killer.DoremyRoleData;
 import org.agmas.noellesroles.role_data.killer.ShadowFalconRoleData;
 import org.agmas.noellesroles.role_data.killer.SkincrawlerRoleData;
@@ -96,6 +97,7 @@ import org.agmas.noellesroles.init.FunnyItems;
 import org.agmas.noellesroles.init.ModItems;
 import org.agmas.noellesroles.init.RoleShopHandler;
 import org.agmas.noellesroles.role.ModRoles;
+import org.agmas.noellesroles.role.bouns.BounsRoles;
 import org.agmas.noellesroles.role.touhou.THMiscRoles;
 import org.agmas.noellesroles.role.touhou.THRedHouseRoles;
 import org.agmas.noellesroles.utils.MCItemsUtils;
@@ -981,6 +983,16 @@ public class NRDeathEvents {
     // --- OnPlayerDeathWithKiller ---
 
     private static void registerOnPlayerDeathWithKiller() {
+        // A creeper killed by a revolver explodes at its death position.
+        OnPlayerDeathWithKiller.EVENT.register((victim, killer, deathReason) -> {
+            if (!(victim instanceof ServerPlayer creeper)
+                    || !GameConstants.DeathReasons.REVOLVER.equals(deathReason))
+                return;
+            SREGameWorldComponent gameWorld = SREGameWorldComponent.KEY.get(creeper.level());
+            if (gameWorld != null && gameWorld.isRole(creeper, BounsRoles.CREEPER)) {
+                CreeperRoleData.onRevolverDeath(creeper);
+            }
+        });
         // 渡鸦击杀目标
         OnPlayerDeathWithKiller.EVENT.register((victim, killer, reason) -> {
             if (killer == null || !SREGameWorldComponent.KEY.get(killer.level()).isRole(killer, ModRoles.RAVEN))
