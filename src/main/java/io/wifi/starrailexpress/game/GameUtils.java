@@ -44,6 +44,7 @@ import org.agmas.noellesroles.game.roles.innocence.hoan_meirin.HoanMeirinFistPun
 import org.agmas.noellesroles.init.ModEffects;
 import org.agmas.noellesroles.init.ModItems;
 import org.agmas.noellesroles.packet.NameTagSyncPayload;
+import org.agmas.noellesroles.packet.RefreshDimensionsS2CPacket;
 import org.agmas.noellesroles.utils.EntityClearUtils;
 import org.agmas.noellesroles.utils.LocalDateData;
 import org.agmas.noellesroles.utils.MCItemsUtils;
@@ -1699,5 +1700,14 @@ public class GameUtils {
             }
         }
         return false;
+    }
+
+    /**
+     * 更新玩家的 dimension（服务端+客户端）
+     * @param player
+     */
+    public static void refreshPlayerDimension(ServerPlayer player) {
+        player.refreshDimensions();
+        ServerPlayNetworking.send(player, new RefreshDimensionsS2CPacket());
     }
 }
