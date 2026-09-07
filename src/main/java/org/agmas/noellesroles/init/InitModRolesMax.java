@@ -25,7 +25,6 @@ import io.wifi.starrailexpress.api.TMMRoles;
 import io.wifi.starrailexpress.api.TouhouRoleInterface;
 import io.wifi.starrailexpress.cca.AreasWorldComponent;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
-import io.wifi.starrailexpress.game.roles.SpecialGameModeRoles;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -42,7 +41,6 @@ import org.agmas.noellesroles.config.SpawnInfoConfig;
 import org.agmas.noellesroles.config.SpawnInfoConfig.SpawnInfo;
 import org.agmas.noellesroles.role.ModRoles;
 import org.agmas.noellesroles.role.TraitorAndModifiers;
-import org.agmas.noellesroles.role.bouns.BounsRoles;
 import org.agmas.noellesroles.role.touhou.THRedHouseRoles;
 
 import pro.fazeclan.river.stupid_express.StupidExpress;
@@ -114,148 +112,10 @@ public class InitModRolesMax {
     public static int TOUHOU_CHANCE = 10;
 
     public static void registerStatics() {
+        // 无需注册默认为1.
         // ==================== 设置角色数量限制 ====================
         // 某些角色可能需要限制每局游戏中的数量
         // 复仇者每局只能有 1 个
-        Harpymodloader.setRoleMaximum(ModRoles.AVENGER_ID, 1);
-
-        // 捣蛋鬼每局只能有 1 个
-        Harpymodloader.setRoleMaximum(ModRoles.PRANKSTER_ID, 1);
-
-        // 不应该刷新
-        Harpymodloader.setRoleMaximum(SpecialGameModeRoles.CUSTOM_PENDING, 0);
-
-        // 工程师每局只能有 1 个
-        Harpymodloader.setRoleMaximum(ModRoles.ENGINEER_ID, 1);
-        Harpymodloader.setRoleMaximum(BounsRoles.BASEBALL_PLAYER_ID, 1);
-        Harpymodloader.setRoleMaximum(ModRoles.LOCKSMITH_ID, 0);
-        // 斗士每局只能有 1 个
-        Harpymodloader.setRoleMaximum(ModRoles.FIGHTER_ID, 1);
-
-        // 小偷每局只能有 1 个
-        Harpymodloader.setRoleMaximum(ModRoles.THIEF_ID, 1);
-
-        // 秉烛人每局最多 1 个（具体是否出现由动态规则控制）
-        Harpymodloader.setRoleMaximum(ModRoles.CANDLE_BEARER_ID, 1);
-        Harpymodloader.setRoleMaximum(ModRoles.REASONER_ID, 1);
-
-        // 鹈鹕每局最多 1 个（具体是否出现由动态概率控制）
-        Harpymodloader.setRoleMaximum(ModRoles.PELICAN_ID, 1);
-
-        // 探员每局只能有 1 个
-        Harpymodloader.setRoleMaximum(ModRoles.AGENT_ID, 1);
-
-        // 运动员每局只能有 1 个
-        Harpymodloader.setRoleMaximum(ModRoles.ATHLETE_ID, 1);
-
-        // 明星每局只能有 1 个
-        Harpymodloader.setRoleMaximum(ModRoles.SUPERSTAR_ID, 1);
-
-        // 退伍军人每局只能有 1 个
-        Harpymodloader.setRoleMaximum(ModRoles.VETERAN_ID, 1);
-
-        // 歌手每局只能有 1 个
-        Harpymodloader.setRoleMaximum(ModRoles.SINGER_ID, 1);
-
-        // 心理学家每局只能有 1 个
-        Harpymodloader.setRoleMaximum(ModRoles.PSYCHOLOGIST_ID, 1);
-
-        // 咒法师每局只能有 1 个
-        Harpymodloader.setRoleMaximum(ModRoles.WARLOCK_ID, 1);
-
-        // Dream（梦魇）每局只能有 1 个
-        Harpymodloader.setRoleMaximum(ModRoles.DREAM_ID, 1);
-
-        // 嬉命人每局只能有 1 个
-        Harpymodloader.setRoleMaximum(ModRoles.EMBALMER_ID, 1);
-
-        // 窃皮者每局只能有 1 个
-        Harpymodloader.setRoleMaximum(ModRoles.SKINCRAWLER_ID, 1);
-
-        // 摄影师每局只能有 1 个
-        Harpymodloader.setRoleMaximum(ModRoles.PHOTOGRAPHER_ID, 1);
-
-        // 阴谋家每局只能有 1 个
-        Harpymodloader.setRoleMaximum(ModRoles.CONSPIRATOR_ID, 1);
-
-        // 设陷者每局只能有 1 个
-        Harpymodloader.setRoleMaximum(ModRoles.TRAPPER_ID, 1);
-
-        // 炸弹客每局只能有 1 个
-        Harpymodloader.setRoleMaximum(ModRoles.BOMBER_ID, 1);
-        Harpymodloader.setRoleMaximum(ModRoles.WATCHER_ID, 1);
-
-        // 跟踪者每局只能有 1 个
-        Harpymodloader.setRoleMaximum(ModRoles.STALKER_ID, 1);
-
-        // 慕恋者每局只能有 1 个
-        Harpymodloader.setRoleMaximum(ModRoles.ADMIRER_ID, 1);
-
-        Harpymodloader.setRoleMaximum(ModRoles.POISONER, 1);
-
-        Harpymodloader.setRoleMaximum(ModRoles.ADMIRER_ID, 1);
-
-        // 傀儡师每局只能有 1 个
-        Harpymodloader.setRoleMaximum(ModRoles.PUPPETEER_ID, 1);
-
-        // 记录员每局只能有 1 个
-        Harpymodloader.setRoleMaximum(ModRoles.RECORDER_ID, 1);
-
-        // 监察员每局只能有 1 个
-        Harpymodloader.setRoleMaximum(ModRoles.MONITOR_ID, 1);
-
-        // 故障机器人每局只能有 1 个
-        Harpymodloader.setRoleMaximum(ModRoles.GLITCH_ROBOT_ID, 1);
-
-        // 年兽每局只能有 1 个
-        Harpymodloader.setRoleMaximum(ModRoles.NIAN_SHOU_ID, 1);
-
-        // 游侠
-
-        // 巡警
-
-        // 特警（默认为0，在动态设置中根据地图判断）
-
-        // 武术教官（默认为0，在动态设置中根据警卫数量判断）
-
-        // 魔术师
-        Harpymodloader.setRoleMaximum(ModRoles.MAGICIAN_ID, 1);
-
-        // 迷失杀手 - 由动态概率控制
-        Harpymodloader.setRoleMaximum(ModRoles.LOST_KILLER_ID, 0);
-
-        // 强盗
-        Harpymodloader.setRoleMaximum(ModRoles.BANDIT_ID, 1);
-        // 悍匪
-        Harpymodloader.setRoleMaximum(ModRoles.GANGSTERS_ID, 1);
-        // 钳工
-        Harpymodloader.setRoleMaximum(ModRoles.FITTER_ID, 1);
-        Harpymodloader.setRoleMaximum(ModRoles.DIO_ID, 0);
-
-        // 仇杀客 - 仅在12人及以上对局生成
-        Harpymodloader.setRoleMaximum(ModRoles.BLOOD_FEUDIST_ID, 1);
-
-        // 钟表匠 - 仅在12人及以上对局生成
-        // 注意：具体限制在 InitModRolesMax 中设置
-
-        // 更好的义警 - 仅在12人及以上对局生成，0.5%概率
-
-        // 红海军 - 设置为0（不会自然生成，只能通过远征队修饰符获得）
-        Harpymodloader.setRoleMaximum(ModRoles.BETTER_VIGILANTE_ID, 0);
-
-        // 作家 - 默认为0，在 InitModRolesMax 中动态设置（0.5%概率刷新）
-        Harpymodloader.setRoleMaximum(BounsRoles.WRITER_ID, 0);
-
-        // 电报员 - 默认为0，在 InitModRolesMax 中动态设置（0.5%概率刷新）
-        Harpymodloader.setRoleMaximum(BounsRoles.TELEGRAPHER_ID, 0);
-
-        // 设置角色最大数量
-        Harpymodloader.setRoleMaximum(ModRoles.POISONER_ID, 0);
-        // 和医生一起生成
-        Harpymodloader.setRoleMaximum(ModRoles.DOCTOR_ID, 0);
-        Harpymodloader.setRoleMaximum(ModRoles.ATTENDANT_ID, 1);
-        Harpymodloader.setRoleMaximum(ModRoles.CORONER_ID, 1);
-
         // 同时出现
         Harpymodloader.addOccupationRole(ModRoles.ENGINEER, ModRoles.LOCKSMITH);
         Harpymodloader.addOccupationRole(ModRoles.MA_CHEN_XU, ModRoles.GUEST_GHOST);
@@ -431,11 +291,6 @@ public class InitModRolesMax {
                         }
                     }
                 }
-                Harpymodloader.setRoleMaximum(THRedHouseRoles.BAKA_ID, 1);
-                Harpymodloader.setRoleMaximum(THRedHouseRoles.PACHURI, 1);
-                Harpymodloader.setRoleMaximum(THRedHouseRoles.REMILIA, 1);
-                Harpymodloader.setRoleMaximum(THRedHouseRoles.FURANDORU, 1);
-                Harpymodloader.setRoleMaximum(THRedHouseRoles.HOAN_MEIRIN, 1);
             } else {
                 isTouhouEnabled = false;
                 for (var a : TMMRoles.ROLES.values()) {
@@ -467,7 +322,6 @@ public class InitModRolesMax {
             if (role.isSpecialVigilante() && roleMaxBackup.get(role.identifier()) > 0) {
                 // 仅处理启用的
                 specialVigilantes.add(role);
-                Harpymodloader.setRoleMaximum(role, 0);
             }
         }
         if (limit <= 0) {
