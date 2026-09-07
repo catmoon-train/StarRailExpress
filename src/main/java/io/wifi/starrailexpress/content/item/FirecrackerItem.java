@@ -15,12 +15,10 @@
 
 package io.wifi.starrailexpress.content.item;
 
-import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.content.entity.FirecrackerEntity;
 import io.wifi.starrailexpress.index.TMMEntities;
 import io.wifi.starrailexpress.util.AdventureUsable;
 import net.minecraft.core.Direction;
-import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
@@ -47,9 +45,11 @@ public class FirecrackerItem extends Item implements AdventureUsable {
                 firecracker.setYRot(player.getYHeadRot());
                 world.addFreshEntity(firecracker);
                 if (!player.isCreative()) {
-                    if (SRE.REPLAY_MANAGER != null) {
-                        SRE.REPLAY_MANAGER.recordItemUse(player.getUUID(), BuiltInRegistries.ITEM.getKey(this));
-                    }
+                    // 不再记录，太刷屏
+                    // if (SRE.REPLAY_MANAGER != null) {
+                        // SRE.REPLAY_MANAGER.recordItemUse(player.getUUID(),
+                        // BuiltInRegistries.ITEM.getKey(this));
+                    // }
                     player.getItemInHand(context.getHand()).shrink(1);
                 }
             }
