@@ -77,8 +77,11 @@ public abstract class EntityDisguisePlayerRenderMixin {
             }
             return;
         }
-        if(state.tomato){
-            TomatoHeadDisguiseRenderer.render(player, yaw, tickDelta, poseStack, bufferSource, packedLight);
+        if (state.tomato) {
+            if (TomatoHeadDisguiseRenderer.render(player, yaw, tickDelta, poseStack, bufferSource, packedLight)) {
+                ci.cancel();
+                return;
+            }
         }
         if (state.allay) {
             if (AllayDisguiseRenderer.render(player, yaw, tickDelta, poseStack, bufferSource, packedLight)) {
