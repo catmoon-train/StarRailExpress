@@ -20,6 +20,8 @@ import io.wifi.starrailexpress.api.impl.SimpleRoleData;
 import io.wifi.starrailexpress.cca.SREGameTimeComponent;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.cca.SREPlayerShopComponent;
+import io.wifi.starrailexpress.util.SRENetworkMessageUtils;
+import org.agmas.harpymodloader.component.WorldModifierComponent;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
@@ -30,6 +32,9 @@ import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import org.agmas.noellesroles.ConfigWorldComponent;
+import org.agmas.noellesroles.role.ModRoles;
+import org.agmas.noellesroles.role.TraitorAndModifiers;
+import org.agmas.noellesroles.utils.RoleUtils;
 import org.jetbrains.annotations.NotNull;
 
 public class ClockmakerRoleData extends SimpleRoleData {
@@ -57,6 +62,9 @@ public class ClockmakerRoleData extends SimpleRoleData {
     /** 是否正在使用技能 */
     public boolean isUsingSkill = false;
 
+    /** 本局成功加速次数；逐日修饰符在第三次成功加速时触发。 */
+    private int accelerationCount = 0;
+
     /**
      * 构造函数
      */
@@ -72,6 +80,7 @@ public class ClockmakerRoleData extends SimpleRoleData {
     @Override
     public void init() {
         this.isUsingSkill = false;
+        this.accelerationCount = 0;
         this.sync();
     }
 
@@ -121,7 +130,28 @@ public class ClockmakerRoleData extends SimpleRoleData {
         ConfigWorldComponent.onPlayerUsedSkill( (ServerPlayer) player);
 
         // 执行时间削减
-        executeTimeReduction();
+        accelerationCount++;
+        boolean transformToSunChaser = hasSunwardModifier() && accelerationCount >= 3;
+        executeTimeReduction(transformToSunChaser);
+
+        if (transformToSunChaser) {
+            ServerPlayer serverPlayer = (ServerPlayer) player;
+            Component awakeningSubtitle = Component.translatable(
+                    "message.noellesroles.clockmaker.sun_chaser_transformation",
+                    Component.translatable("message.noellesroles.clockmaker.sun_chaser_transformation.failed")
+                            .withStyle(ChatFormatting.RED, ChatFormatting.BOLD));
+            SRENetworkMessageUtils.sendTitleTime(serverPlayer, 10, 50, 10);
+            SRENetworkMessageUtils.sendSubtitle(serverPlayer, awakeningSubtitle);
+            SRENetworkMessageUtils.sendTitle(serverPlayer, Component.empty());
+
+            RoleUtils.changeRole(player, ModRoles.SUN_CHASER);
+            var server = serverPlayer.getServer();
+            server.tell(new net.minecraft.server.TickTask(server.getTickCount() + 70, () -> {
+                ServerPlayer onlinePlayer = server.getPlayerList().getPlayer(serverPlayer.getUUID());
+                if (onlinePlayer != null) RoleUtils.sendWelcomeAnnouncement(onlinePlayer, ModRoles.SUN_CHASER);
+            }));
+            return true;
+        }
 
         this.isUsingSkill = true;
 
@@ -138,7 +168,7 @@ public class ClockmakerRoleData extends SimpleRoleData {
     /**
      * 执行时间削减逻辑
      */
-    private void executeTimeReduction() {
+    private void executeTimeReduction(boolean skipWorldTimeBoost) {
         // 获取当前游戏时间
         Level level = player.level();
 
@@ -152,7 +182,7 @@ public class ClockmakerRoleData extends SimpleRoleData {
         gameTime.setTime((int) newTime);
 //        level.getServer().tickRateManager().requestGameToSprint((int) (currentTime-newTime));
         // 加快世界时间（Minecraft原版时间）
-        if (level instanceof net.minecraft.server.level.ServerLevel serverLevel) {
+        if (!skipWorldTimeBoost && level instanceof net.minecraft.server.level.ServerLevel serverLevel) {
             long currentDayTime = serverLevel.getDayTime();
             serverLevel.setDayTime(currentDayTime + WORLD_TIME_BOOST_TICKS);
         }
@@ -173,6 +203,11 @@ public class ClockmakerRoleData extends SimpleRoleData {
         }
 
         this.sync();
+    }
+
+    private boolean hasSunwardModifier() {
+        return WorldModifierComponent.KEY.get(player.level())
+                .isModifier(player.getUUID(), TraitorAndModifiers.SUNWARD);
     }
 
     /**
@@ -222,11 +257,13 @@ public class ClockmakerRoleData extends SimpleRoleData {
     @Override
     public void writeToSyncNbt(@NotNull CompoundTag tag, HolderLookup.Provider registryLookup) {
         tag.putBoolean("isUsingSkill", this.isUsingSkill);
+        tag.putInt("accelerationCount", this.accelerationCount);
     }
 
     @Override
     public void readFromSyncNbt(@NotNull CompoundTag tag, HolderLookup.Provider registryLookup) {
         this.isUsingSkill = tag.contains("isUsingSkill") && tag.getBoolean("isUsingSkill");
+        this.accelerationCount = Math.max(0, tag.getInt("accelerationCount"));
     }
     
 

@@ -362,6 +362,34 @@ public class RoleShopHandler {
         haveRegistered = true;
         ShopContent.customEntries.clear();
         ShopContent.register();
+        var refreshTaskIcon = Items.PAPER.getDefaultInstance();
+        refreshTaskIcon.set(DataComponents.ITEM_NAME,
+                Component.translatable("item.noellesroles.sun_chaser.shop.refresh"));
+        refreshTaskIcon.set(DataComponents.LORE, new ItemLore(List.of(
+                Component.translatable("item.noellesroles.sun_chaser.shop.refresh.desc"))));
+        ShopContent.customEntries.put(ModRoles.SUN_CHASER_ID, new ArrayList<>(List.of(
+                new ShopEntry(refreshTaskIcon,
+                        org.agmas.noellesroles.game.roles.neutral.sun_chaser.SunChaserProgress.REFRESH_PRICE,
+                        ShopEntry.Type.TOOL) {
+                    @Override
+                    public boolean canBuy(@NotNull Player player) {
+                        var data = RoleData.getNullable(
+                                org.agmas.noellesroles.role_data.neutral.SunChaserRoleData.class, player);
+                        if (data == null) return false;
+                        if (!data.progress.canRefreshTasks()) {
+                            setFailedMessage(Component.translatable("message.noellesroles.sun_chaser.refresh_locked"));
+                            return false;
+                        }
+                        return super.canBuy(player);
+                    }
+
+                    @Override
+                    public boolean onBuy(@NotNull Player player) {
+                        var data = RoleData.getNullable(
+                                org.agmas.noellesroles.role_data.neutral.SunChaserRoleData.class, player);
+                        return data != null && data.refreshTask();
+                    }
+                })));
         // 初始化其他角色商店
         // 初始化框架角色商店
         initializeFramingShop();

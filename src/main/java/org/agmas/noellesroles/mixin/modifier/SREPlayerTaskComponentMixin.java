@@ -47,7 +47,8 @@ public abstract class SREPlayerTaskComponentMixin {
         if (self.getPlayer() instanceof ServerPlayer player) {
             if (self.nextTaskTimer > 2) {
                 WorldModifierComponent modifiers = WorldModifierComponent.KEY.get(player.level());
-                if (modifiers.isModifier(player.getUUID(), TraitorAndModifiers.WORKAHOLIC)) {
+                if (modifiers.isModifier(player.getUUID(), TraitorAndModifiers.WORKAHOLIC)
+                        || modifiers.isModifier(player.getUUID(), TraitorAndModifiers.SUNWARD)) {
                     // 获取当前游戏时间
                     long currentGameTime = player.serverLevel().getGameTime();
                     UUID uuid = player.getUUID();
