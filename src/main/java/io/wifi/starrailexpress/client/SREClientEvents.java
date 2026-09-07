@@ -115,6 +115,7 @@ public class SREClientEvents {
     }
 
     public static void registerClientEvents() {
+        SponsorIntroClientEvents.register();
         registerRoleNameRendererEvents();
         OnGameStartedClient.EVENT.register(() -> {
             if (Minecraft.getInstance().player != null)
