@@ -60,8 +60,6 @@ public class ServerPlayerEntityMixin {
 
     @Inject(method = "onEffectRemoved", at = @At("TAIL"), cancellable = true)
     private void sre$callSimpleMobEffectEffectStop(MobEffectInstance mobEffectInstance, CallbackInfo cir) {
-        // SRE.LOGGER.info("On effect removed
-        // {}",mobEffectInstance.getEffect(),mobEffectInstance.getEffect().getClass().getSimpleName());
         if (mobEffectInstance.getEffect().value() instanceof SimpleMobEffect sb) {
             sb.onEffectEnded((ServerPlayer) (Object) this);
         }
