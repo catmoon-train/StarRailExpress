@@ -13,7 +13,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package org.agmas.noellesroles.mixin.client.roles.leather_pig;
+package org.agmas.noellesroles.mixin.client.entity;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 
@@ -28,6 +28,7 @@ import java.util.UUID;
 import org.agmas.noellesroles.client.AllayDisguiseRenderer;
 import org.agmas.noellesroles.client.LeatherPigDisguiseRenderer;
 import org.agmas.noellesroles.client.RabbitDisguiseRenderer;
+import org.agmas.noellesroles.client.TomatoHeadDisguiseRenderer;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
@@ -35,7 +36,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(PlayerRenderer.class)
-public abstract class LeatherPigPlayerRenderMixin {
+public abstract class EntityDisguisePlayerRenderMixin {
     @Unique
     private long lastCacheTime = 0;
     private static final int CACHE_TIME_GAP_EXTREMELY = 200;
@@ -49,14 +50,16 @@ public abstract class LeatherPigPlayerRenderMixin {
         // 获取或创建该玩家的缓存条目
         CachedDisguiseState state = ClientSkinCache.DISGUISE_CACHE.computeIfAbsent(
                 playerId,
-                id -> new CachedDisguiseState(false, false, 0));
+                id -> new CachedDisguiseState());
 
         // 缓存过期则重新计算
         if (now - state.lastCheckTime > CACHE_TIME_GAP_EXTREMELY) {
             boolean pig = LeatherPigDisguiseRenderer.shouldDisguise(player);
             boolean rabbit = RabbitDisguiseRenderer.shouldDisguise(player);
             state.pig = pig;
+            state.tomato = TomatoHeadDisguiseRenderer.shouldDisguise(player);
             state.rabbit = rabbit;
+            state.allay = AllayDisguiseRenderer.shouldDisguise(player);
             state.lastCheckTime = now;
         }
 
@@ -74,8 +77,10 @@ public abstract class LeatherPigPlayerRenderMixin {
             }
             return;
         }
-
-        if (AllayDisguiseRenderer.shouldDisguise(player)) {
+        if(state.tomato){
+            TomatoHeadDisguiseRenderer.render(player, yaw, tickDelta, poseStack, bufferSource, packedLight);
+        }
+        if (state.allay) {
             if (AllayDisguiseRenderer.render(player, yaw, tickDelta, poseStack, bufferSource, packedLight)) {
                 ci.cancel();
             }

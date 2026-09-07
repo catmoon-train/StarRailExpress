@@ -40,14 +40,13 @@ public class ClientSkinCache {
     public static final Map<UUID, CachedDisguiseState> DISGUISE_CACHE = new ConcurrentHashMap<>();
 
     public static class CachedDisguiseState {
-        public boolean pig;
-        public boolean rabbit;
-        public long lastCheckTime;
+        public long lastCheckTime = 0;
+        public boolean pig = false;
+        public boolean rabbit = false;
+        public boolean tomato = false;
+        public boolean allay = false;
 
-        public CachedDisguiseState(boolean pig, boolean rabbit, long time) {
-            this.pig = pig;
-            this.rabbit = rabbit;
-            this.lastCheckTime = time;
+        public CachedDisguiseState() {
         }
     }
 

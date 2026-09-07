@@ -13,7 +13,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package org.agmas.noellesroles.mixin.client.roles.leather_pig;
+package org.agmas.noellesroles.mixin.client.entity;
 
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
@@ -39,7 +39,7 @@ import org.spongepowered.asm.mixin.injection.At;
  * 那边会把自己这只猪整体后移，猪头因此落在相机之后，不会挡住视野。
  */
 @Mixin(LevelRenderer.class)
-public abstract class LeatherPigSelfRenderMixin {
+public abstract class EntityDisguiseSelfRenderMixin {
 
     @Unique
     private long lastCacheTime = 0;
