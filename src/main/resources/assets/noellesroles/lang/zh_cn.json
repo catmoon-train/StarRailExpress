@@ -4949,22 +4949,5 @@
   "skill.noellesroles.echo_listener.sonic_wave": "声波",
   "message.noellesroles.echo_listener.no_money": "发放声波需要 %s 金币！",
   "message.noellesroles.echo_listener.no_target": "声波方向上没有玩家。",
-  "message.noellesroles.echo_listener.respawned": "你循着回声重新回到了列车。",
-  "announcement.star.role.sun_chaser": "逐日者",
-  "announcement.star.goals.sun_chaser": "完成所需任务即可独立获胜，初始目标为7个。",
-  "announcement.star.modifier.noellesroles.sunward": "逐日",
-  "announcement.star.win.sun_chaser": "逐日者胜利！",
-  "game.win.star.sun_chaser": "逐日者完成了所有所需任务，独自迎来了黎明！",
-  "message.noellesroles.sun_chaser.heat_wave": "你感觉热浪正在逼近",
-  "message.noellesroles.sun_chaser.refresh_locked": "只剩最后一个任务时无法购买任务刷新。",
-  "message.noellesroles.sun_chaser.witness": "目睹死亡：所需任务总数 +%s，获得 %s 金币。",
-  "message.noellesroles.sun_chaser.refreshed": "任务已刷新为：%s。累计胜利进度保持不变。",
-  "message.noellesroles.sun_chaser.refresh_failed": "当前没有可替换的任务，未扣除金币。",
-  "hud.noellesroles.sun_chaser.progress": "逐日进度：%s/%s",
-  "hud.noellesroles.sun_chaser.ready": "目睹死亡奖励：就绪",
-  "hud.noellesroles.sun_chaser.cooldown": "目睹死亡奖励冷却：%s秒",
-  "item.noellesroles.sun_chaser.shop.refresh": "刷新任务",
-  "item.noellesroles.sun_chaser.shop.refresh.desc": "花费200金币替换当前普通任务，保留累计胜利进度；剩余最后1个任务时不可购买。",
-  "message.noellesroles.clockmaker.sun_chaser_transformation": "太阳照常升起，但是今天他%s了。",
-  "message.noellesroles.clockmaker.sun_chaser_transformation.failed": "失败"
+  "message.noellesroles.echo_listener.respawned": "你循着回声重新回到了列车。"
 }

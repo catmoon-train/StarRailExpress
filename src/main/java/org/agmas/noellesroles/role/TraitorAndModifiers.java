@@ -139,15 +139,6 @@ public class TraitorAndModifiers {
             null, null, false, false))
             .setDefaultEnableChance(2000);
 
-    /** 仅钟表匠可获得的隐藏修饰符；第三次加速时转变为逐日者。 */
-    public static SREModifier SUNWARD = HMLModifiers.registerModifier(new SREModifier(
-            Noellesroles.id("sunward"),
-            new Color(255, 181, 46).getRGB(),
-            null, null, false, true))
-            .setDefaultEnableChance(2000)
-            .setDefaultMax(1)
-            .setHidden(true);
-
     // 大胃王 - 每1.5分钟获得苹果，吃食物任务恢复75% san和25金币
     public static SREModifier BIG_EATER = HMLModifiers.registerModifier(new SREModifier(
             Noellesroles.id("big_eater"),
@@ -292,7 +283,6 @@ public class TraitorAndModifiers {
     public static void init() {
         // 起义军修饰符排除巫毒师职业
         REBEL.cannotBeAppliedTo = new HashSet<>(List.of(ModRoles.VOODOO));
-        SUNWARD.canOnlyBeAppliedTo = new HashSet<>(List.of(ModRoles.CLOCKMAKER));
 
         registerModifierEvents();
         registerDeathEvents();

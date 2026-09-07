@@ -418,7 +418,7 @@ public class SREModifier extends SREAbstractInfoClass {
         int chance = this.spawnInfo.enableChance;
         if (chance >= 0) {
             int nchance = random.nextInt(0, 10000);
-            if (nchance >= chance) {
+            if (nchance > chance) {
                 return 0;
             }
         }
