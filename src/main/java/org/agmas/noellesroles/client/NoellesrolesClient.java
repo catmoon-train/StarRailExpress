@@ -515,7 +515,7 @@ public class NoellesrolesClient implements ClientModInitializer {
                     SRE.LOGGER.info("Refreshed client player dimensions.");
                     context.client().player.refreshDimensions();
                 }
-            }, 5);
+            }, 1);
         });
         ClientPlayNetworking.registerGlobalReceiver(OpenScreenPayload.ID, (payload, context) -> {
             ClientOpenScreenManager.openScreen(payload, context);
