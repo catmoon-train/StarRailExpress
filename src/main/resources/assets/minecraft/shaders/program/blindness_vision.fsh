@@ -4,11 +4,11 @@ uniform sampler2D DiffuseSampler;
 uniform sampler2D DepthSampler;
 
 uniform vec2 OutSize;
+uniform mat4 ProjectionInv;
+uniform mat4 ModelViewInv;
+uniform vec3 CameraPosition;
 uniform float EffectStrength;
-uniform float Near;
-uniform float Far;
-uniform float TanHalfFov;
-uniform float Aspect;
+uniform float PassMode;
 uniform float ScreenBrightness;
 
 uniform vec4 Sound0;
@@ -48,33 +48,57 @@ in vec2 texCoord;
 out vec4 fragColor;
 
 vec3 reconstructView(vec2 uv, float depth) {
-    float zNdc = depth * 2.0 - 1.0;
-    float denominator = Far + Near - zNdc * (Far - Near);
-    float distanceToSurface = (2.0 * Near * Far) / max(abs(denominator), 0.00001);
-    vec2 ndc = uv * 2.0 - 1.0;
-    return vec3(ndc.x * TanHalfFov * Aspect * distanceToSurface,
-            ndc.y * TanHalfFov * distanceToSurface, -distanceToSurface);
+    vec4 clipPosition = vec4(uv * 2.0 - 1.0, depth * 2.0 - 1.0, 1.0);
+    vec4 viewPosition = ProjectionInv * clipPosition;
+    return viewPosition.xyz / max(abs(viewPosition.w), 0.00001);
 }
 
-float surfaceDistance(vec2 uv, float depth) {
-    return length(reconstructView(uv, depth));
+vec3 reconstructWorld(vec2 uv, float depth) {
+    vec4 viewPosition = vec4(reconstructView(uv, depth), 1.0);
+    vec4 worldPosition = ModelViewInv * viewPosition;
+    return worldPosition.xyz + CameraPosition;
 }
 
 float sceneEdge(vec2 uv) {
     ivec2 size = textureSize(DepthSampler, 0);
     vec2 step = 1.0 / vec2(size);
-    float leftDepth = surfaceDistance(uv - vec2(step.x, 0.0), texture(DepthSampler, uv - vec2(step.x, 0.0)).r);
-    float rightDepth = surfaceDistance(uv + vec2(step.x, 0.0), texture(DepthSampler, uv + vec2(step.x, 0.0)).r);
-    float upDepth = surfaceDistance(uv + vec2(0.0, step.y), texture(DepthSampler, uv + vec2(0.0, step.y)).r);
-    float downDepth = surfaceDistance(uv - vec2(0.0, step.y), texture(DepthSampler, uv - vec2(0.0, step.y)).r);
-    float depthEdge = abs(leftDepth - rightDepth) + abs(upDepth - downDepth);
+    vec2 p00 = clamp(uv + vec2(-step.x, -step.y), vec2(0.0), vec2(1.0));
+    vec2 p01 = clamp(uv + vec2(0.0, -step.y), vec2(0.0), vec2(1.0));
+    vec2 p02 = clamp(uv + vec2(step.x, -step.y), vec2(0.0), vec2(1.0));
+    vec2 p10 = clamp(uv + vec2(-step.x, 0.0), vec2(0.0), vec2(1.0));
+    vec2 p11 = clamp(uv, vec2(0.0), vec2(1.0));
+    vec2 p12 = clamp(uv + vec2(step.x, 0.0), vec2(0.0), vec2(1.0));
+    vec2 p20 = clamp(uv + vec2(-step.x, step.y), vec2(0.0), vec2(1.0));
+    vec2 p21 = clamp(uv + vec2(0.0, step.y), vec2(0.0), vec2(1.0));
+    vec2 p22 = clamp(uv + vec2(step.x, step.y), vec2(0.0), vec2(1.0));
 
-    vec3 leftColor = texture(DiffuseSampler, uv - vec2(step.x, 0.0)).rgb;
-    vec3 rightColor = texture(DiffuseSampler, uv + vec2(step.x, 0.0)).rgb;
-    vec3 upColor = texture(DiffuseSampler, uv + vec2(0.0, step.y)).rgb;
-    vec3 downColor = texture(DiffuseSampler, uv - vec2(0.0, step.y)).rgb;
-    float colorEdge = length(leftColor - rightColor) + length(upColor - downColor);
-    return clamp(depthEdge * 0.8 + colorEdge * 0.7, 0.0, 1.0);
+    // Match composite.fsh: a 3x3 Sobel of the rendered colour/depth. The
+    // original colour buffer contained encoded face normals; using the final
+    // scene colour plus depth is the portable Fabric equivalent.
+    vec4 m00 = vec4(texture(DiffuseSampler, p00).rgb * 255.0,
+            length(reconstructView(p00, texture(DepthSampler, p00).r)));
+    vec4 m01 = vec4(texture(DiffuseSampler, p01).rgb * 255.0,
+            length(reconstructView(p01, texture(DepthSampler, p01).r)));
+    vec4 m02 = vec4(texture(DiffuseSampler, p02).rgb * 255.0,
+            length(reconstructView(p02, texture(DepthSampler, p02).r)));
+    vec4 m10 = vec4(texture(DiffuseSampler, p10).rgb * 255.0,
+            length(reconstructView(p10, texture(DepthSampler, p10).r)));
+    vec4 m11 = vec4(texture(DiffuseSampler, p11).rgb * 255.0,
+            length(reconstructView(p11, texture(DepthSampler, p11).r)));
+    vec4 m12 = vec4(texture(DiffuseSampler, p12).rgb * 255.0,
+            length(reconstructView(p12, texture(DepthSampler, p12).r)));
+    vec4 m20 = vec4(texture(DiffuseSampler, p20).rgb * 255.0,
+            length(reconstructView(p20, texture(DepthSampler, p20).r)));
+    vec4 m21 = vec4(texture(DiffuseSampler, p21).rgb * 255.0,
+            length(reconstructView(p21, texture(DepthSampler, p21).r)));
+    vec4 m22 = vec4(texture(DiffuseSampler, p22).rgb * 255.0,
+            length(reconstructView(p22, texture(DepthSampler, p22).r)));
+
+    vec4 gx = -m00 + m02 + 2.0 * -m10 + 2.0 * m12 - m20 + m22;
+    vec4 gy = -m00 + m20 + 2.0 * -m01 + 2.0 * m21 - m02 + m22;
+    float colourEdge = length(gx.xyz) + length(gy.xyz);
+    float depthEdge = abs(gx.w) + abs(gy.w);
+    return float(colourEdge > 1.0 || depthEdge > max(0.15, m11.w * 0.04));
 }
 
 vec4 soundAt(int index) {
@@ -123,14 +147,17 @@ void main() {
         return;
     }
     if (depth <= 0.002 || depth >= 0.9992) {
-        fragColor = vec4(0.0, 0.0, 0.0, scene.a);
+        // During the second pass the vanilla hand renderer has cleared the
+        // world depth. Keep the already processed world image untouched.
+        fragColor = PassMode > 0.5 ? scene : vec4(0.0, 0.0, 0.0, scene.a);
         return;
     }
 
     vec3 viewPosition = reconstructView(texCoord, depth);
+    vec3 worldPosition = reconstructWorld(texCoord, depth);
     float viewDistance = length(viewPosition);
     if (viewPosition.z > -0.35 || viewDistance <= 0.35 || viewDistance >= 96.0) {
-        fragColor = vec4(0.0, 0.0, 0.0, scene.a);
+        fragColor = PassMode > 0.5 ? scene : vec4(0.0, 0.0, 0.0, scene.a);
         return;
     }
 
@@ -149,9 +176,14 @@ void main() {
             continue;
         }
 
-        float fade = distance(source.xyz, viewPosition) / source.w;
+        // The original shader uses the sound's raw volume. Some StarRailExpress
+        // sounds are authored at 0.15, which is valid audio volume but too dim
+        // to perceive after the original gamma curve. Keep the range/age model
+        // while applying the same perceptual floor used by the water branch.
+        float soundVolume = max(0.2, config.y);
+        float fade = distance(source.xyz, worldPosition) / source.w;
         if (fade <= 1.0) {
-            float agedFade = clamp(1.0 - ((1.0 - fade * fade) - config.z) * min(0.75, config.y), 0.0, 1.0);
+            float agedFade = clamp(1.0 - ((1.0 - fade * fade) - config.z) * min(0.75, soundVolume), 0.0, 1.0);
             float fadeOutline = agedFade * agedFade * agedFade + 0.01;
             agedFade += 0.01;
             colorOutline += clamp(1.0 - fadeOutline, 0.0, 1.0) * outline;
@@ -159,11 +191,11 @@ void main() {
         }
 
         // Sounds within eight blocks expose the nearby body more strongly.
-        float sourceDistance = length(source.xyz);
+        float sourceDistance = distance(source.xyz, CameraPosition);
         if (sourceDistance < 8.0) {
-            fade = distance(source.xyz, viewPosition) * 2.0 / min(source.w, 8.0);
+            fade = distance(source.xyz, worldPosition) * 2.0 / min(source.w, 8.0);
             if (fade <= 1.0) {
-                fade = clamp(1.0 - ((1.0 - fade * fade) - config.z) * config.y, 0.0, 1.0) + 0.01;
+                fade = clamp(1.0 - ((1.0 - fade * fade) - config.z) * soundVolume, 0.0, 1.0) + 0.01;
                 colorBlindness += clamp(1.0 - fade, 0.0, 1.0);
             }
         }
@@ -172,6 +204,9 @@ void main() {
     float color = 1.0 - 1.0 / (colorFade + 1.0) + colorOutline;
     colorBlindness = 1.0 - 1.0 / (colorBlindness + 1.0);
     color = mix(color, colorBlindness, EffectStrength);
+    // Keep the Sobel boundary bright enough to read as the white outline from
+    // the Forge composite pass, even when the sound itself is quiet.
+    color = max(color, clamp(colorOutline * 4.0, 0.0, 1.0));
     color = pow(min(color, 1.0), 1.0 / (ScreenBrightness + 0.5));
     fragColor = vec4(vec3(color), scene.a);
 }

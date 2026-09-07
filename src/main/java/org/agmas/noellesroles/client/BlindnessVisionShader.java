@@ -21,11 +21,11 @@ public final class BlindnessVisionShader {
     public static final BlindnessVisionShader INSTANCE = new BlindnessVisionShader();
 
     private final Matrix4f projection = new Matrix4f();
+    private final Matrix4f projectionInverse = new Matrix4f();
+    private final Matrix4f modelViewInverse = new Matrix4f();
     private PostProcessor post;
-    private float near = 0.05f;
-    private float far = 256.0f;
-    private float tanHalfFov = 0.7f;
-    private float aspect = 1.777f;
+    /** 0 = world pass, 1 = hand-only pass after vanilla clears depth. */
+    private float passMode;
 
     private BlindnessVisionShader() {
     }
@@ -60,17 +60,23 @@ public final class BlindnessVisionShader {
         updateProjection(client);
         Camera camera = client.gameRenderer.getMainCamera();
         BlindnessVisionClientHandle.prepareForRender(camera);
+        projection.invert(projectionInverse);
+        modelViewInverse.identity().rotate(camera.rotation());
 
         var effect = pass.getEffect();
         if (effect == null) {
             return false;
         }
         set(effect, "EffectStrength", 1.0f);
-        set(effect, "Near", near);
-        set(effect, "Far", far);
-        set(effect, "TanHalfFov", tanHalfFov);
-        set(effect, "Aspect", aspect);
-        set(effect, "ScreenBrightness", 0.0f);
+        set(effect, "PassMode", passMode);
+        set(effect, "ProjectionInv", projectionInverse);
+        set(effect, "ModelViewInv", modelViewInverse);
+        set(effect, "CameraPosition", (float) camera.getPosition().x,
+                (float) camera.getPosition().y, (float) camera.getPosition().z);
+        // The Forge shader receives OptiFine's screenBrightness uniform. A
+        // zero value makes low-volume sounds mathematically almost black, so
+        // keep a visible baseline while retaining the grayscale falloff.
+        set(effect, "ScreenBrightness", 0.75f);
         for (int i = 0; i < BlindnessVisionClientHandle.MAX_SOURCES; i++) {
             set(effect, "Sound" + i,
                     BlindnessVisionClientHandle.sourceValue(i, 0),
@@ -88,35 +94,26 @@ public final class BlindnessVisionShader {
 
     private void updateProjection(Minecraft client) {
         projection.set(client.gameRenderer.getProjectionMatrix(client.options.fov().get()));
-        float m00 = projection.m00();
-        float m11 = projection.m11();
-        if (Math.abs(m11) > 1.0e-5f) {
-            tanHalfFov = 1.0f / m11;
-            if (Math.abs(m00) > 1.0e-5f) {
-                aspect = m11 / m00;
-            }
-        }
-
-        float nearDenominator = projection.m22() - 1.0f;
-        if (Math.abs(nearDenominator) > 1.0e-5f) {
-            float candidate = projection.m32() / nearDenominator;
-            if (candidate > 0.001f && candidate < 8.0f) {
-                near = candidate;
-            }
-        }
-        float farDenominator = projection.m22() + 1.0f;
-        if (Math.abs(farDenominator) > 1.0e-5f) {
-            float candidate = projection.m32() / farDenominator;
-            if (candidate > 16.0f && candidate < 100000.0f) {
-                far = candidate;
-            }
-        }
     }
 
     private static void set(EffectInstance effect, String name, float value) {
         var uniform = effect.safeGetUniform(name);
         if (uniform != null) {
             uniform.set(value);
+        }
+    }
+
+    private static void set(EffectInstance effect, String name, Matrix4f value) {
+        var uniform = effect.safeGetUniform(name);
+        if (uniform != null) {
+            uniform.set(value);
+        }
+    }
+
+    private static void set(EffectInstance effect, String name, float x, float y, float z) {
+        var uniform = effect.safeGetUniform(name);
+        if (uniform != null) {
+            uniform.set(x, y, z);
         }
     }
 
@@ -128,9 +125,14 @@ public final class BlindnessVisionShader {
     }
 
     public void renderPostProcess(float partialTicks) {
+        renderPostProcess(partialTicks, false);
+    }
+
+    public void renderPostProcess(float partialTicks, boolean handOnly) {
         if (post == null) {
             return;
         }
+        passMode = handOnly ? 1.0f : 0.0f;
         Minecraft client = Minecraft.getInstance();
         if (client.player == null || client.level == null) {
             return;

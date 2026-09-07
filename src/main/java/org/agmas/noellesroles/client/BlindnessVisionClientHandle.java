@@ -12,8 +12,6 @@ import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.Mth;
 import net.minecraft.world.phys.Vec3;
 import org.agmas.noellesroles.init.ModEffects;
-import org.joml.Quaternionf;
-import org.joml.Vector3f;
 
 import java.util.ArrayDeque;
 import java.util.ArrayList;
@@ -39,8 +37,6 @@ public final class BlindnessVisionClientHandle {
 
     private static final Queue<PendingSource> PENDING = new ArrayDeque<>();
     private static final List<Source> SOURCES = new ArrayList<>(MAX_SOURCES);
-    private static final Quaternionf ROTATION = new Quaternionf();
-    private static final Vector3f VIEW_POSITION = new Vector3f();
     private static final float[] VIEW_DATA = new float[MAX_SOURCES * 8];
     private static final SoundEventListener SOUND_LISTENER = BlindnessVisionClientHandle::onSoundEvent;
 
@@ -78,7 +74,13 @@ public final class BlindnessVisionClientHandle {
     }
 
     private static void recordSound(SoundInstance sound, boolean longLived) {
-        if (sound == null || sound.isRelative() || sound.getAttenuation() != SoundInstance.Attenuation.LINEAR) {
+        if (sound == null) {
+            return;
+        }
+        if (sound.isRelative()) {
+            return;
+        }
+        if (sound.getAttenuation() != SoundInstance.Attenuation.LINEAR) {
             return;
         }
 
@@ -122,7 +124,7 @@ public final class BlindnessVisionClientHandle {
         }
     }
 
-    /** Prepares uniform rows in camera space for the current post-process pass. */
+    /** Prepares uniform rows in world space for the current post-process pass. */
     public static void prepareForRender(Camera camera) {
         long now = Util.getMillis();
         synchronized (PENDING) {
@@ -150,11 +152,13 @@ public final class BlindnessVisionClientHandle {
         int count = Math.min(MAX_SOURCES, SOURCES.size());
         for (int i = 0; i < count; i++) {
             Source source = SOURCES.get(i);
-            Vec3ToView(camera, source.x, source.y, source.z, VIEW_POSITION);
             int offset = i * 8;
-            VIEW_DATA[offset] = VIEW_POSITION.x;
-            VIEW_DATA[offset + 1] = VIEW_POSITION.y;
-            VIEW_DATA[offset + 2] = VIEW_POSITION.z;
+            // Keep the original Forge representation: Source.pos is an absolute
+            // world position. The fragment shader converts its depth sample back
+            // to world space before comparing it with this value.
+            VIEW_DATA[offset] = (float) source.x;
+            VIEW_DATA[offset + 1] = (float) source.y;
+            VIEW_DATA[offset + 2] = (float) source.z;
             VIEW_DATA[offset + 3] = source.range;
             float age = Mth.clamp((now - source.time) / (float) SOURCE_LIFETIME_MS, 0.0f, 1.0f);
             // Match the Forge std140 Source.cfg layout exactly:
@@ -167,12 +171,7 @@ public final class BlindnessVisionClientHandle {
         for (int i = count * 8; i < VIEW_DATA.length; i++) {
             VIEW_DATA[i] = 0.0f;
         }
-    }
 
-    private static void Vec3ToView(Camera camera, double x, double y, double z, Vector3f destination) {
-        destination.set((float) (x - camera.getPosition().x), (float) (y - camera.getPosition().y),
-                (float) (z - camera.getPosition().z));
-        camera.rotation().conjugate(ROTATION).transform(destination);
     }
 
     public static float sourceValue(int source, int value) {

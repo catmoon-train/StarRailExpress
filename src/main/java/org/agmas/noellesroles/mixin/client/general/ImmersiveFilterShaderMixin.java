@@ -34,9 +34,29 @@ public class ImmersiveFilterShaderMixin {
             if (renderer != null && bl && renderer.getMinecraft().level != null) {
                 ImmersiveFilterShader.instance.initPostProcessor();
                 ImmersiveFilterShader.instance.renderPostProcess(deltaTracker.getGameTimeDeltaPartialTick(true));
+                // The world pass ran before the hand. Run a hand-only pass here
+                // so the hand receives the same outline without overwriting the
+                // world image revealed by the first pass.
                 BlindnessVisionShader.INSTANCE.initPostProcessor();
-                BlindnessVisionShader.INSTANCE.renderPostProcess(deltaTracker.getGameTimeDeltaPartialTick(true));
+                BlindnessVisionShader.INSTANCE.renderPostProcess(
+                        deltaTracker.getGameTimeDeltaPartialTick(true), true);
             }
+        }
+    }
+
+    /**
+     * The vanilla first-person hand renderer clears the depth buffer before
+     * drawing the hand. Run BlindVision immediately before that clear so its
+     * DepthSampler still contains world blocks and entities, not just the hand.
+     */
+    @Inject(method = "renderLevel", at = @At(value = "INVOKE",
+            target = "Lcom/mojang/blaze3d/systems/RenderSystem;clear(IZ)V"))
+    private void renderBlindnessBeforeHand(DeltaTracker deltaTracker, CallbackInfo ci) {
+        @SuppressWarnings("resource")
+        GameRenderer renderer = (GameRenderer) (Object) this;
+        if (renderer != null && renderer.getMinecraft().level != null) {
+            BlindnessVisionShader.INSTANCE.initPostProcessor();
+            BlindnessVisionShader.INSTANCE.renderPostProcess(deltaTracker.getGameTimeDeltaPartialTick(true));
         }
     }
 
