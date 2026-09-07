@@ -27,7 +27,7 @@ import io.wifi.starrailexpress.index.tag.TMMItemTags;
 import net.minecraft.client.Minecraft;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
-
+import org.agmas.noellesroles.content.block.SREPlushItem;
 import org.agmas.noellesroles.content.entity.NiaoshoushouMissileEntity;
 import org.agmas.noellesroles.content.item.HandCuffsItem;
 import org.agmas.noellesroles.content.item.StalkerKnifeItem;
@@ -40,6 +40,12 @@ import org.agmas.noellesroles.utils.RoleUtils;
 public class InvisbleHandItem {
 
     public static void register() {
+        AllowItemShowInHand.EVENT.register((player, itemStack, mainHand) -> {
+            if (itemStack.getItem() instanceof SREPlushItem) {
+                return ItemStack.EMPTY;
+            }
+            return null;
+        });
         AllowItemShowInHand.EVENT.register((player, itemStack, mainHand) -> {
             if (itemStack.is(Items.BONE)) {
                 if (RoleUtils.isPlayerTheJob(player, THMiscRoles.KAENBYOU_RIN))
