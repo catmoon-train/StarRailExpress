@@ -1655,8 +1655,8 @@ public class ModRoles {
             .setCanUseInstinctAndNightVision(true)
             .setCanSeeCoin(true)
             .setDefaultMax(1)
-            .setDefaultEnableChance(5000)
-            .setDefaultEnableNeededPlayerCount(12)
+            .setDefaultEnableChance(1000)
+            .setDefaultEnableNeededPlayerCount(18)
             .setAddedVersion("4.4"); // versiontag 4.4
 
     public static SRERole SPELLBREAKER = TMMRoles
