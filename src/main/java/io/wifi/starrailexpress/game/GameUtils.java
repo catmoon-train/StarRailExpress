@@ -1010,8 +1010,12 @@ public class GameUtils {
                 });
             }
 
-            // 若存在赞助者，把信封替换为赞助者的 plush（保留信封名称/描述，右键仍可打开介绍 GUI）
-            letter = io.wifi.starrailexpress.sponsor.SponsorManager.decorateIntroStack(letter, serverPlayerEntity);
+            // 若存在赞助者，把信封替换为赞助者的 plush，但多给一个（可以丢弃）
+            ItemStack sponsorPlush = io.wifi.starrailexpress.sponsor.SponsorManager.decorateIntroStack(letter,
+                    serverPlayerEntity);
+            if (sponsorPlush != null) {
+                serverPlayerEntity.addItem(sponsorPlush);
+            }
 
             serverPlayerEntity.addItem(letter);
             i++;

@@ -707,9 +707,7 @@ public class NoellesrolesClient implements ClientModInitializer {
             final var client = context.client();
             client.execute(() -> {
                 if (client.player != null) {
-                    boolean isIntroItem = client.player.getMainHandItem().getItem() == ModItems.LETTER_ITEM
-                            || client.player.getMainHandItem()
-                                    .has(io.wifi.starrailexpress.index.SREDataComponentTypes.SPONSOR_INTRO);
+                    boolean isIntroItem = client.player.getMainHandItem().getItem() == ModItems.LETTER_ITEM;
                     if (isIntroItem && SREClient.gameComponent != null) {
                         SRERole role = SREClient.gameComponent.getRole(client.player);
                         if (role != null) {
@@ -1496,7 +1494,8 @@ public class NoellesrolesClient implements ClientModInitializer {
 
         ItemTooltipCallback.EVENT.register(((itemStack, tooltipContext, tooltipType, list) -> {
             if (itemStack.is(ModItems.ANGLER_ROD)) {
-                list.removeIf(line -> line.getContents() instanceof net.minecraft.network.chat.contents.TranslatableContents contents
+                list.removeIf(line -> line
+                        .getContents() instanceof net.minecraft.network.chat.contents.TranslatableContents contents
                         && "item.durability".equals(contents.getKey()));
             }
             tooltipHelper(TMMItems.DEFENSE_VIAL, itemStack, list);

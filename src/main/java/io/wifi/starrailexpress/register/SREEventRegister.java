@@ -93,7 +93,6 @@ public class SREEventRegister {
 
     public static void registerServerLifecycleEvents() {
         // 赞助者 plush 右键打开介绍 GUI 的交互拦截（只需注册一次）
-        io.wifi.starrailexpress.sponsor.SponsorIntroEvents.register();
         ServerPlayConnectionEvents.JOIN.register((handler, sender, server) -> {
             SRE.LOGGER.info("[CONFIG] Sync configs to {}", handler.getPlayer().getName().getString());
             SREConfig.HANDLER.syncToClient(handler.getPlayer());
