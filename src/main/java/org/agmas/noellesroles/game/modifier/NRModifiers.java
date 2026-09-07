@@ -38,6 +38,18 @@ import java.util.List;
  * NoellesRoles 修饰符注册类
  */
 public class NRModifiers {
+    /** 体弱修饰符。拥有此修饰符的无需完成跑步任务：它会自动完成。 */
+    public static final SREModifier FRAIL = HMLModifiers.registerModifier(new SREModifier(
+            Noellesroles.id("frail"),
+            0x303030,
+            null,
+            null,
+            false,
+            false))
+            .setCanSetSpawnInfoInConfig(false)
+            .setDefaultEnableChance(0)
+            .setDefaultMax(0)
+            .setAddedVersion("4.4");
     /** Runtime-only marker for a player cosplayed as a Rabbit. */
     public static final SREModifier RABBIT_SHAPE = HMLModifiers.registerModifier(new SREModifier(
             Noellesroles.id("rabbit_shape"),

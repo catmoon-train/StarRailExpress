@@ -95,10 +95,10 @@ public class CustomRoleLoader {
         gameEndCommandsByRoleId.clear();
         customWinDataMap.clear();
         // 先清除旧的自定义职业
-        List<String> toRemove = new ArrayList<>();
+        List<SRERole> toRemove = new ArrayList<>();
         for (var entry : TMMRoles.ROLES.entrySet()) {
             if (entry.getValue() instanceof CustomNormalRole || "customrole".equals(entry.getKey().getNamespace())) {
-                toRemove.add(entry.getKey().toString());
+                toRemove.add(entry.getValue());
                 // 同时清除已注册的技能，避免 re-register 时报 "already registered"
                 RoleSkill.unregister(entry.getKey());
                 // 清除 INITIAL_ITEMS_MAP 中的条目
@@ -113,8 +113,8 @@ public class CustomRoleLoader {
                 removeRoleReferences(entry.getValue());
             }
         }
-        for (String key : toRemove) {
-            TMMRoles.ROLES.remove(ResourceLocation.parse(key));
+        for (SRERole key : toRemove) {
+            TMMRoles.unregisterCustomRole(key);
         }
         registeredRoles.clear();
         loadedRoles.clear();
@@ -173,11 +173,11 @@ public class CustomRoleLoader {
      */
     public static void reloadClient() {
         // 清除旧的客户端注册的自定义职业（包括技能注册，避免 re-register 抛异常）
-        List<String> toRemove = new ArrayList<>();
+        List<SRERole> toRemove = new ArrayList<>();
         List<SRERole> removedRoles = new ArrayList<>();
         for (var entry : TMMRoles.ROLES.entrySet()) {
             if (entry.getValue() instanceof CustomNormalRole || "customrole".equals(entry.getKey().getNamespace())) {
-                toRemove.add(entry.getKey().toString());
+                toRemove.add(entry.getValue());
                 removedRoles.add(entry.getValue());
                 RoleSkill.unregister(entry.getKey());
                 org.agmas.noellesroles.init.RoleInitialItems.INITIAL_ITEMS_MAP.remove(entry.getValue());
@@ -194,7 +194,7 @@ public class CustomRoleLoader {
         for (SRERole oldRole : removedRoles) {
             removeRoleReferences(oldRole);
         }
-        toRemove.forEach(id -> TMMRoles.ROLES.remove(ResourceLocation.parse(id)));
+        toRemove.forEach(role -> TMMRoles.unregisterCustomRole(role));
         registeredRoles.clear();
         loadedRoles.clear();
         instinctMaxRanges.clear();

@@ -92,6 +92,14 @@ public class TMMRoles {
         return registerRole(role);
     }
 
+    public static boolean unregisterCustomRole(SRERole role) {
+        if (role == null)
+            return false;
+        ROLES_BY_PATH.remove(role.identifier.getPath());
+        ROLES.remove(role.identifier());
+        return true;
+    }
+
     public static SRERole registerRole(SRERole role) {
         if (ROLES_BY_PATH.containsKey(role.identifier.getPath())) {
             // 拒绝注册
