@@ -2443,7 +2443,7 @@ public class ModRoles {
             }
         }
     }).setRoleData(EchoListenerRoleData::new).setCanSeeCoin(true).setNeutrals(true)
-            .setNeutralForKiller(true).setCanUseInstinctAndNightVision(false).setDefaultMax(1);
+            .setNeutralForKiller(false).setNeutralForInnocent(true).setCanUseInstinctAndNightVision(false).setDefaultMax(1);
 
     public static SRERole REASONER = TMMRoles.registerRole(new NormalRole(
             REASONER_ID,
