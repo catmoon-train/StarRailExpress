@@ -15,10 +15,12 @@
 
 package org.agmas.noellesroles.game.roles.innocence.fool;
 
+import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.content.entity.NoteEntity;
 import io.wifi.starrailexpress.content.item.NoteItem;
 import net.minecraft.ChatFormatting;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.InteractionHand;
@@ -86,7 +88,13 @@ public class HonoredNoteItem extends NoteItem {
         }
 
         // 调用父类的 useOn 逻辑来放置纸条
-        return createNote(context, HONORED_NOTE_MESSAGES);
+        var result = createNote(context, HONORED_NOTE_MESSAGES);
+        if (result.equals(InteractionResult.SUCCESS)) {
+            if (SRE.REPLAY_MANAGER != null) {
+                SRE.REPLAY_MANAGER.recordItemUse(player.getUUID(), BuiltInRegistries.ITEM.getKey(this));
+            }
+        }
+        return result;
     }
 
     @Override
