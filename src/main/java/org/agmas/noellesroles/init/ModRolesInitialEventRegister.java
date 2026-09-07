@@ -909,7 +909,7 @@ public class ModRolesInitialEventRegister {
                 context -> {
                     EchoListenerRoleData data = RoleData.getNullable(EchoListenerRoleData.class, context.player());
                     return data != null && data.useSonicWave();
-                }).cooldownSeconds(30).build());
+                }).showOnHud(true).recordReplay().cooldownSeconds(30).build());
 
         // 小透明技能注册：隐身，冷却20秒，消耗150金币
         RoleSkill.register(ModRoles.GHOST, RoleSkill.skill(
