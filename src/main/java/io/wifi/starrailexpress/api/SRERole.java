@@ -1724,8 +1724,8 @@ public abstract class SRERole extends SREAbstractInfoClass {
         if (settings.minigameQuestEnabled) {
             result.add(MapSpecialFeatures.MINIGAME_QUEST);
         }
-
-        result.addAll(settings.customMapFeatures);
+        if (settings.customMapFeatures != null)
+            result.addAll(settings.customMapFeatures);
         return result;
     }
 
