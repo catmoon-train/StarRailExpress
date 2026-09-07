@@ -242,9 +242,12 @@ public class InitModRolesMax {
             {
                 // 杀手中立（只处理没有配置的职业：无概率 且 无显式 setMax 且 允许修改生成配置的职业）
                 var neutralRoles = new ArrayList<SRERole>(TMMRoles.ROLES.values());
+                final String map = currentMap;
+                final AreasSettings setting = areasSettings;
                 neutralRoles.removeIf((r) -> {
                     if (r.isNeutrals() && r.isNeutralForKiller() && (r.spawnInfo.enableChance < 0)
                             && r.canSetSpawnInfoInConfig()
+                            && r.canSpawnInMap(map, setting)
                             && r.spawnInfo.maxSpawn < 0)
                         return false;
                     return true;
