@@ -21,6 +21,7 @@ import java.util.HashMap;
 import java.util.List;
 
 import org.agmas.noellesroles.Noellesroles;
+import org.agmas.noellesroles.component.DefibrillatorComponent;
 import org.agmas.noellesroles.component.FoodDrinkGlowComponent;
 import org.agmas.noellesroles.component.ModComponents;
 import org.agmas.noellesroles.content.item.StalkerKnifeItem;
@@ -2441,12 +2442,21 @@ public class ModRoles {
 
     public static SRERole ECHO_LISTENER = TMMRoles.registerRole(new NormalRole(
             ECHO_LISTENER_ID, new Color(78, 110, 122).getRGB(), false, false,
-            SRERole.MoodType.REAL, TMMRoles.CIVILIAN.getMaxSprintTime(), true) {
+            SRERole.MoodType.FAKE, Integer.MAX_VALUE, true) {
         @Override
         public void onFinishQuest(Player player, String quest) {
             super.onFinishQuest(player, quest);
             if (player instanceof ServerPlayer serverPlayer) {
                 SREPlayerShopComponent.KEY.get(serverPlayer).addToBalance(50);
+            }
+        }
+
+        @Override
+        public void onDeath(Player victim, boolean spawnBody, @Nullable Player killer, ResourceLocation deathReason,
+                boolean forceDeath) {
+            if (!forceDeath) {
+                DefibrillatorComponent component = ModComponents.DEFIBRILLATOR.get(victim);
+                component.triggerDeath(60 * 20, null, victim.position());
             }
         }
     }).setRoleData(EchoListenerRoleData::new).setCanSeeCoin(true).setNeutrals(true)

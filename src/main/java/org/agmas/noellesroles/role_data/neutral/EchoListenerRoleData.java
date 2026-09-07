@@ -63,7 +63,7 @@ public class EchoListenerRoleData extends SimpleRoleData {
     public void serverTick() {
         if (!(player instanceof ServerPlayer listener))
             return;
-        if (player.isCreative() || player.isSpectator()) {
+        if (player.isCreative()) {
             return;
         }
         if (!player.hasEffect(ModEffects.BLIND_VISION) || player.level().getGameTime() % 40 == 0) {
