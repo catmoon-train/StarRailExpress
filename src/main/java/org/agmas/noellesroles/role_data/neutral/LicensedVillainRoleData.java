@@ -210,7 +210,7 @@ public class LicensedVillainRoleData extends SimpleRoleData {
         return switch (targetPhase) {
             case PHASE_KILLER -> role.isKillerTeam();
             case PHASE_CIVILIAN -> role.isInnocent() || role.isNeutralForInnocent();
-            case PHASE_NEUTRAL -> role.isNeutrals() && !role.isNeutralForKiller();
+            case PHASE_NEUTRAL -> role.isNeutrals() && !role.isNeutralForKiller() && !role.isNeutralForInnocent();
             default -> false;
         };
     }
@@ -244,7 +244,7 @@ public class LicensedVillainRoleData extends SimpleRoleData {
             boolean target = switch (phase) {
                 case PHASE_KILLER -> role.isKillerTeam();
                 case PHASE_CIVILIAN -> role.isInnocent() || role.isNeutralForInnocent();
-                case PHASE_NEUTRAL -> role.isNeutrals() && !role.isNeutralForKiller();
+                case PHASE_NEUTRAL -> role.isNeutrals() && !role.isNeutralForKiller() && !role.isNeutralForInnocent();
                 default -> false;
             };
             if (target)
