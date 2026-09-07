@@ -4628,5 +4628,22 @@
   "skill.noellesroles.echo_listener.sonic_wave": "聲波",
   "message.noellesroles.echo_listener.no_money": "發放聲波需要 %s 金幣！",
   "message.noellesroles.echo_listener.no_target": "聲波方向上沒有玩家。",
-  "message.noellesroles.echo_listener.respawned": "你循著回聲重新回到了列車。"
+  "message.noellesroles.echo_listener.respawned": "你循著回聲重新回到了列車。",
+  "announcement.star.modifier.noellesroles.sunward": "逐日",
+  "message.noellesroles.sun_chaser.heat_wave": "你覺得熱浪越來越近",
+  "message.noellesroles.sun_chaser.refresh_locked": "只剩最後一個任務時無法購買刷新任務。",
+  "announcement.star.role.sun_chaser": "逐日者",
+  "announcement.star.goals.sun_chaser": "完成所需任務，獨自追上太陽；初始目標為7個任務。",
+  "announcement.star.win.sun_chaser": "逐日者勝利！",
+  "game.win.star.sun_chaser": "逐日者完成了所有所需任務，獨自迎來了黎明！",
+  "message.noellesroles.sun_chaser.witness": "目擊死亡：需要完成的任務總數 +%s，獲得 %s 元。",
+  "message.noellesroles.sun_chaser.refreshed": "任務已刷新為：%s。累計勝利進度保持不變。",
+  "message.noellesroles.sun_chaser.refresh_failed": "目前沒有可替換的任務，未扣款。",
+  "hud.noellesroles.sun_chaser.progress": "逐日進度：%s/%s",
+  "hud.noellesroles.sun_chaser.ready": "目擊死亡獎勵：就緒",
+  "hud.noellesroles.sun_chaser.cooldown": "目擊死亡獎勵冷卻：%s秒",
+  "item.noellesroles.sun_chaser.shop.refresh": "刷新任務",
+  "item.noellesroles.sun_chaser.shop.refresh.desc": "花費200元替換目前普通任務，保留累計勝利進度；剩最後1個任務時不可購買。",
+  "message.noellesroles.clockmaker.sun_chaser_transformation": "太陽照常升起，但是今天他%s了。",
+  "message.noellesroles.clockmaker.sun_chaser_transformation.failed": "失敗"
 }

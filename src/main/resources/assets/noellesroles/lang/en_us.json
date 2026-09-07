@@ -4515,5 +4515,22 @@
   "skill.noellesroles.echo_listener.sonic_wave": "Sonic Wave",
   "message.noellesroles.echo_listener.no_money": "You need %s coins to emit a sonic wave!",
   "message.noellesroles.echo_listener.no_target": "No player is aligned with the sonic wave.",
-  "message.noellesroles.echo_listener.respawned": "You followed the echoes back to life."
+  "message.noellesroles.echo_listener.respawned": "You followed the echoes back to life.",
+  "announcement.star.modifier.noellesroles.sunward": "Sunward",
+  "message.noellesroles.sun_chaser.heat_wave": "You feel the heat wave drawing closer",
+  "message.noellesroles.sun_chaser.refresh_locked": "You cannot buy a task refresh with only one task remaining.",
+  "announcement.star.role.sun_chaser": "Sun Chaser",
+  "announcement.star.goals.sun_chaser": "Complete the required tasks to win independently. The initial target is 7.",
+  "announcement.star.win.sun_chaser": "The Sun Chaser wins!",
+  "game.win.star.sun_chaser": "The Sun Chaser completed all required tasks and reached the dawn alone!",
+  "message.noellesroles.sun_chaser.witness": "Witnessed a death: +%s required tasks and %s money.",
+  "message.noellesroles.sun_chaser.refreshed": "Task replaced with: %s. Victory progress is preserved.",
+  "message.noellesroles.sun_chaser.refresh_failed": "No replacement task is available. You were not charged.",
+  "hud.noellesroles.sun_chaser.progress": "Sun Chaser progress: %s/%s",
+  "hud.noellesroles.sun_chaser.ready": "Death witness reward: ready",
+  "hud.noellesroles.sun_chaser.cooldown": "Death witness reward: %ss",
+  "item.noellesroles.sun_chaser.shop.refresh": "Refresh Task",
+  "item.noellesroles.sun_chaser.shop.refresh.desc": "Spend 200 money to replace current normal tasks without losing victory progress. Unavailable with one task remaining.",
+  "message.noellesroles.clockmaker.sun_chaser_transformation": "The sun rises as usual, but today he has %s.",
+  "message.noellesroles.clockmaker.sun_chaser_transformation.failed": "failed"
 }
