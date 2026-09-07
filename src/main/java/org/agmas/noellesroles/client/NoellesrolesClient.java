@@ -490,7 +490,7 @@ public class NoellesrolesClient implements ClientModInitializer {
         PointerClientHandle.register();
         HakoniwaVisionClientHandle.register();
         IlliterateTextClientHandle.register();
-        BlindVisionClientHandle.register();
+        BlindnessVisionClientHandle.register();
         DeafnessClientHandle.register();
         org.agmas.noellesroles.client.ClientAmonState.register();
         CommonClientHudRenderer.registerRenderersEvent();

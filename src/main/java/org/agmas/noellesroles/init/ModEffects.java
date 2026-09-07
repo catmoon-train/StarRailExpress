@@ -617,12 +617,8 @@ public class ModEffects {
             new SimpleMobEffect(MobEffectCategory.HARMFUL, 0x5C4033));
 
     /**
-     * 盲视
-     * - 有害效果，近黑白
-     * - 世界只剩黑白；默认全黑，只有声音在三维空间中传播过的区域才变得可见。
-     * 声音越大传播越远、越清晰；同一处被声音覆盖越久则越白。
-     * 行为见 {@code org.agmas.noellesroles.client.BlindVisionClientHandle} 与
-     * {@code BlindVisionShader}。
+     * 盲视。客户端视觉行为移植自 Blindness 1.5-streamer 的声音范围 shader，
+     * 见 {@code org.agmas.noellesroles.client.BlindnessVisionClientHandle}。
      */
     public static final Holder<MobEffect> BLIND_VISION = register("blind_vision",
             new SimpleMobEffect(MobEffectCategory.HARMFUL, 0x111111));

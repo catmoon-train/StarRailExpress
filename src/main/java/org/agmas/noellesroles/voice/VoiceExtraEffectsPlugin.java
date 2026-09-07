@@ -24,7 +24,6 @@ import net.fabricmc.api.EnvType;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.client.Minecraft;
 import net.minecraft.world.entity.player.Player;
-import org.agmas.noellesroles.client.BlindVisionClientHandle;
 import org.agmas.noellesroles.init.ModEffects;
 import org.lwjgl.openal.AL11;
 import org.lwjgl.openal.EXTEfx;
@@ -244,7 +243,6 @@ public class VoiceExtraEffectsPlugin implements VoicechatPlugin {
         if (mc.level == null) return;
 
         Player player = mc.level.getPlayerByUUID(speaker);
-        BlindVisionClientHandle.onVoice(speaker, player, pcm);
         if (player == null) {
             cleanupSpeaker(speaker);
             return;
