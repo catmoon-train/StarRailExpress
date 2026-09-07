@@ -23,7 +23,6 @@ import io.wifi.starrailexpress.game.GameUtils;
 import io.wifi.starrailexpress.util.Scheduler;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.core.HolderLookup;
-import net.minecraft.core.HolderLookup.Provider;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
