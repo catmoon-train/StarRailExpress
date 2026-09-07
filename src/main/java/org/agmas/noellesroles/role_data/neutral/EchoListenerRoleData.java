@@ -63,12 +63,13 @@ public class EchoListenerRoleData extends SimpleRoleData {
     public void serverTick() {
         if (!(player instanceof ServerPlayer listener))
             return;
-        SREGameWorldComponent game = SREGameWorldComponent.KEY.get(listener.level());
-        if (!game.isRunning() || !game.isRole(listener, ModRoles.ECHO_LISTENER))
+        if (player.isCreative() || player.isSpectator()) {
             return;
-
+        }
+        if (!player.hasEffect(ModEffects.BLIND_VISION) || player.level().getGameTime() % 40 == 0) {
+            listener.addEffect(new MobEffectInstance(ModEffects.BLIND_VISION, 60, 0, false, false, false));
+        }
         // The effect drives the existing sound-reactive blind-vision shader.
-        listener.addEffect(new MobEffectInstance(ModEffects.BLIND_VISION, 40, 0, false, false, false));
 
         if (!GameUtils.isPlayerAliveAndSurvival(listener)) {
             if (respawnTicks < 0)
@@ -118,7 +119,7 @@ public class EchoListenerRoleData extends SimpleRoleData {
             int amplifier = distance <= 5.0 ? 1 : 0;
             target.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SLOWDOWN, 15, amplifier, false, false, false));
             target.addEffect(new MobEffectInstance(MobEffects.CONFUSION, 40, 0, false, false, false));
-            SREPlayerMoodComponent.KEY.get(target).addMood(distance <= 5.0 ? -0.008f : -0.003f);
+            SREPlayerMoodComponent.KEY.get(target).addMood(distance <= 5.0 ? -0.0004f : -0.0002f);
         }
     }
 

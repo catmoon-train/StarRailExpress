@@ -44,6 +44,7 @@ import org.agmas.noellesroles.game.roles.neutral.mafia.MafiaRole;
 import org.agmas.noellesroles.game.roles.neutral.monokuma.MonokumaRole;
 import org.agmas.noellesroles.game.roles.neutral.nian_shou.NianShouRole;
 import org.agmas.noellesroles.game.roles.neutral.puppeteer.PuppeteerPlayerComponent;
+import org.agmas.noellesroles.game.roles.neutral.raven.RavenRole;
 import org.agmas.noellesroles.game.roles.vigilante.genshin.TartagliaRole;
 import org.agmas.noellesroles.init.ModEffects;
 import org.agmas.noellesroles.init.ModItems;
@@ -62,6 +63,7 @@ import org.jetbrains.annotations.Nullable;
 
 import com.mojang.serialization.Codec;
 
+import io.wifi.starrailexpress.api.AreasSettingUtils.MapSpecialFeatures;
 import io.wifi.starrailexpress.api.EggRole;
 import io.wifi.starrailexpress.api.ExtraEffectRole;
 import io.wifi.starrailexpress.api.InstinctType;
@@ -353,7 +355,7 @@ public class ModRoles {
             TMMRoles.CIVILIAN.getMaxSprintTime(), // 标准冲刺时间
             false // 显示计分板
     )).setCanSeeCoin(true).setCanBeRandomedByOtherRoles(false)
-            .setSpecialMapRole(SRERole.SpecialMapRoleMap.FLY).setDefaultMax(0)
+            .setSpecialMapRole(MapSpecialFeatures.FLY).setDefaultMax(0)
             .setRoleData(PilotRoleData::new);
 
     /**
@@ -381,7 +383,7 @@ public class ModRoles {
             Integer.MAX_VALUE, // 无限体力
             true // 隐藏计分板
     )).setCanSeeCoin(true).setCanBeRandomedByOtherRoles(false)
-            .setSpecialMapRole(SRERole.SpecialMapRoleMap.FLY).setDefaultMax(1)
+            .setSpecialMapRole(MapSpecialFeatures.FLY).setDefaultMax(1)
             .setRoleData(ShadowFalconRoleData::new);
 
     /**
@@ -583,7 +585,7 @@ public class ModRoles {
             TMMRoles.CIVILIAN.getMaxSprintTime(), // 无限冲刺时间
             true // 隐藏计分板
     )).setCanSeeCoin(true).setOccupiedRoleCount(2).setVigilanteTeam(true).setCanBeRandomedByOtherRoles(false)
-            .setSpecialMapRole(SRERole.SpecialMapRoleMap.QIYUCUN).setDefaultMax(0);
+            .setSpecialMapRole(MapSpecialFeatures.QIYUCUN).setDefaultMax(0);
     public static SRERole MA_CHEN_XU = TMMRoles.registerRole(new NormalRole(
             MA_CHEN_XU_ID, // 角色 ID
             new Color(75, 0, 130).getRGB(), // 深紫色 - 代表恐惧与神秘
@@ -593,7 +595,7 @@ public class ModRoles {
             Integer.MAX_VALUE, // 无限冲刺时间
             true // 隐藏计分板
     )).setRoleData(MaChenXuRoleData::new).setCanSeeCoin(true).setOccupiedRoleCount(2)
-            .setCanBeRandomedByOtherRoles(false).setSpecialMapRole(SRERole.SpecialMapRoleMap.QIYUCUN)
+            .setCanBeRandomedByOtherRoles(false).setSpecialMapRole(MapSpecialFeatures.QIYUCUN)
             .setDefaultMax(1).setToggledOnInstinctType(
                     InstinctType.customWithFunction((self, target, selfRole, targetRole) -> {
                         MaChenXuRoleData macComp = RoleData.getNullable(MaChenXuRoleData.class,
@@ -753,6 +755,7 @@ public class ModRoles {
                     .setRoleData(PhantomSpiritRoleData::new))
             .setCanSeeCoin(true)
             .setCanIncreaseSurvivingInnocents(true)
+            .setNeutralForInnocent(true)
             .setCanXiaonao(false)
             .setCanBeXiaonao(false)
             .setDefaultMax(1)
@@ -878,7 +881,8 @@ public class ModRoles {
             .setCanSeeCoin(false).setVigilanteTeam(true).setCanPickUpRevolver(false)
             .setSpecialVigilante(true).setDefaultMax(1).setDefaultEnableChance(6500)
             .setCanUseSpVanillaWeapon(true).setNoCoinSystem(true).setCanBeRandomedByOtherRoles(false)
-            .setSpecialMapRoles(SRERole.SpecialMapRoleMap.CAN_JUMP, SRERole.SpecialMapRoleMap.MINIGAME_QUEST)
+            .setSpecialMapRolesCondition((t) -> t.contains(MapSpecialFeatures.CAN_JUMP)
+                    && t.contains(MapSpecialFeatures.MINIGAME_QUEST))
             // 小游戏任务独立计算：不并入轮换派发，始终独立计时刷新
             .setIndependentMinigameTiming(true)
             .setRoleData(NetCopRoleData::new);
@@ -1003,7 +1007,7 @@ public class ModRoles {
             .setCanJumpManhole(true).setCanAcrossFog(true)
             .setRoleData(AdventurerRoleData::new)
             .setDefaultEnableNeededPlayerCount(6)
-            .setSpecialMapRole(SRERole.SpecialMapRoleMap.TRAP).setDefaultMax(1)
+            .setSpecialMapRole(MapSpecialFeatures.TRAP).setDefaultMax(1)
             .setCanBeRandomedByOtherRoles(false)
             .setEnvironmentalImmunity(true);
     // 红尘客
@@ -1308,7 +1312,7 @@ public class ModRoles {
             )))
             .setCanSeeCoin(true).setCanBeRandomedByOtherRoles(false)
             .setRoleData(DiverRoleData::new)
-            .setSpecialMapRole(SRERole.SpecialMapRoleMap.UNDERWATER).setDefaultMax(0);
+            .setSpecialMapRole(MapSpecialFeatures.UNDERWATER).setDefaultMax(0);
 
     /**
      * 特警角色
@@ -1335,7 +1339,7 @@ public class ModRoles {
             .setServerGameTickEvent((player, gameComponent) -> {
                 org.agmas.noellesroles.game.roles.vigilante.swast.SwastTickHandler.serverTick(player,
                         gameComponent);
-            }).setSpecialVigilante(true).setSpecialMapRole(SRERole.SpecialMapRoleMap.BIGMAP)
+            }).setSpecialVigilante(true).setSpecialMapRole(MapSpecialFeatures.BIGMAP)
             .setDefaultMax(1).setDefaultEnableChance(7000);
 
     /**
@@ -1391,7 +1395,8 @@ public class ModRoles {
                     true // showIcon（显示图标）
             )))
             .setCanSeeCoin(true).setVigilanteTeam(true).setCanPickUpRevolver(false)
-            .setSpecialMapRole(SRERole.SpecialMapRoleMap.UNDERWATER).setDefaultMax(1)
+            .setSpecialPolice(true)
+            .setSpecialMapRole(MapSpecialFeatures.UNDERWATER).setDefaultMax(1)
             .setCanKillWithTrident(true);
 
     /**
@@ -1425,7 +1430,7 @@ public class ModRoles {
                     true // showIcon（显示图标）
             )))
             .setRoleData(WaterGhostRoleData::new).setCanSeeCoin(true)
-            .setCanBeRandomedByOtherRoles(false).setSpecialMapRole(SRERole.SpecialMapRoleMap.UNDERWATER)
+            .setCanBeRandomedByOtherRoles(false).setSpecialMapRole(MapSpecialFeatures.UNDERWATER)
             .setDefaultMax(1)
             .setCanKillWithTrident(true);
 
@@ -1528,7 +1533,8 @@ public class ModRoles {
                         boolean isGoodSideNeutral = targetRole.isNeutralForInnocent();
                         boolean seeableGoodNeutral = isGoodSideNeutral
                                 && (targetRole.identifier().getPath().equals("amnesiac")
-                                        || targetRole.identifier().getPath().equals("initiate"));
+                                        || targetRole.identifier().getPath()
+                                                .equals("initiate"));
                         boolean showNonKillerNeutral = isNonKillerNeutral
                                 && (!isGoodSideNeutral || seeableGoodNeutral);
                         boolean hasFollowers = data != null && !data.followers.isEmpty();
@@ -1560,13 +1566,13 @@ public class ModRoles {
             .registerRole(new NormalRole(TAMER_ID, new Color(210, 180, 140).getRGB(), true,
                     false, SRERole.MoodType.REAL, TMMRoles.CIVILIAN.getMaxSprintTime(), false))
             .setNeutrals(false).setCanSeeCoin(true)
-            .setSpecialMapRole(SRERole.SpecialMapRoleMap.HORSE).setDefaultMax(0)
+            .setSpecialMapRole(MapSpecialFeatures.HORSE).setDefaultMax(0)
             .setCanBeRandomedByOtherRoles(false);
     public static SRERole HUNTER = TMMRoles
             .registerRole(new NormalRole(HUNTER_ID, new Color(160, 82, 45).getRGB(), false,
                     true, SRERole.MoodType.FAKE, Integer.MAX_VALUE, true))
             .setNeutrals(false).setCanSeeCoin(true)
-            .setSpecialMapRole(SRERole.SpecialMapRoleMap.HORSE).setDefaultMax(1)
+            .setSpecialMapRole(MapSpecialFeatures.HORSE).setDefaultMax(1)
             .setCanBeRandomedByOtherRoles(false)
             .setRoleData(HunterRoleData::new)
             .setCanKillWithBowAndCrossbow(true);
@@ -1650,8 +1656,8 @@ public class ModRoles {
             .setCanUseInstinctAndNightVision(true)
             .setCanSeeCoin(true)
             .setDefaultMax(1)
-            .setDefaultEnableChance(5000)
-            .setDefaultEnableNeededPlayerCount(12)
+            .setDefaultEnableChance(1000)
+            .setDefaultEnableNeededPlayerCount(18)
             .setAddedVersion("4.4"); // versiontag 4.4
 
     public static SRERole SPELLBREAKER = TMMRoles
@@ -2421,14 +2427,15 @@ public class ModRoles {
             .setDefaultEnableNeededPlayerCount(12)
             .setBeSeenInstinctType(InstinctType.DEFAULT, InstinctType.NONE);
 
-    public static SRERole RAVEN = TMMRoles.registerRole(new NormalRole(
+    public static SRERole RAVEN = TMMRoles.registerRole(new RavenRole(
             RAVEN_ID,
             new Color(130, 100, 160).getRGB(),
             false,
             false,
             SRERole.MoodType.FAKE,
             Integer.MAX_VALUE,
-            true)).setRoleData(RavenRoleData::new).setCanSeeCoin(true).setNeutrals(true)
+            true))
+            .setRoleData(RavenRoleData::new).setCanSeeCoin(true).setNeutrals(true)
             .setCanSeeTeammateKillerRole(false).setCanUseInstinctAndNightVision(true)
             .setDefaultEnableNeededPlayerCount(10);
 
@@ -2443,7 +2450,8 @@ public class ModRoles {
             }
         }
     }).setRoleData(EchoListenerRoleData::new).setCanSeeCoin(true).setNeutrals(true)
-            .setNeutralForKiller(true).setCanUseInstinctAndNightVision(false).setDefaultMax(1);
+            .setNeutralForKiller(false).setNeutralForInnocent(true).setCanUseInstinctAndNightVision(false)
+            .setDefaultMax(1);
 
     public static SRERole REASONER = TMMRoles.registerRole(new NormalRole(
             REASONER_ID,

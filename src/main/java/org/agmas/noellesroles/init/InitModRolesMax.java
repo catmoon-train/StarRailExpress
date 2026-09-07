@@ -18,19 +18,18 @@ package org.agmas.noellesroles.init;
 import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.SREConfig;
 import io.wifi.starrailexpress.SREConfig.AutoPresetInfo;
+import io.wifi.starrailexpress.api.AreasSettings;
 import io.wifi.starrailexpress.api.EggRoleInterface;
 import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.api.TMMRoles;
 import io.wifi.starrailexpress.api.TouhouRoleInterface;
 import io.wifi.starrailexpress.cca.AreasWorldComponent;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
-import io.wifi.starrailexpress.game.data.MapStatusBarType;
-import io.wifi.starrailexpress.game.roles.SpecialGameModeRoles;
-import io.wifi.starrailexpress.util.TrueFalseResult;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import org.agmas.harpymodloader.Harpymodloader;
+import org.agmas.harpymodloader.SREDisableManager;
 import org.agmas.harpymodloader.events.GameInitializeEvent;
 import org.agmas.harpymodloader.modded_murder.RoleAssignmentManager;
 import org.agmas.harpymodloader.modifiers.EggModifier;
@@ -42,7 +41,6 @@ import org.agmas.noellesroles.config.SpawnInfoConfig;
 import org.agmas.noellesroles.config.SpawnInfoConfig.SpawnInfo;
 import org.agmas.noellesroles.role.ModRoles;
 import org.agmas.noellesroles.role.TraitorAndModifiers;
-import org.agmas.noellesroles.role.bouns.BounsRoles;
 import org.agmas.noellesroles.role.touhou.THRedHouseRoles;
 
 import pro.fazeclan.river.stupid_express.StupidExpress;
@@ -114,148 +112,10 @@ public class InitModRolesMax {
     public static int TOUHOU_CHANCE = 10;
 
     public static void registerStatics() {
+        // 无需注册默认为1.
         // ==================== 设置角色数量限制 ====================
         // 某些角色可能需要限制每局游戏中的数量
         // 复仇者每局只能有 1 个
-        Harpymodloader.setRoleMaximum(ModRoles.AVENGER_ID, 1);
-
-        // 捣蛋鬼每局只能有 1 个
-        Harpymodloader.setRoleMaximum(ModRoles.PRANKSTER_ID, 1);
-
-        // 不应该刷新
-        Harpymodloader.setRoleMaximum(SpecialGameModeRoles.CUSTOM_PENDING, 0);
-
-        // 工程师每局只能有 1 个
-        Harpymodloader.setRoleMaximum(ModRoles.ENGINEER_ID, 1);
-        Harpymodloader.setRoleMaximum(BounsRoles.BASEBALL_PLAYER_ID, 1);
-        Harpymodloader.setRoleMaximum(ModRoles.LOCKSMITH_ID, 0);
-        // 斗士每局只能有 1 个
-        Harpymodloader.setRoleMaximum(ModRoles.FIGHTER_ID, 1);
-
-        // 小偷每局只能有 1 个
-        Harpymodloader.setRoleMaximum(ModRoles.THIEF_ID, 1);
-
-        // 秉烛人每局最多 1 个（具体是否出现由动态规则控制）
-        Harpymodloader.setRoleMaximum(ModRoles.CANDLE_BEARER_ID, 1);
-        Harpymodloader.setRoleMaximum(ModRoles.REASONER_ID, 1);
-
-        // 鹈鹕每局最多 1 个（具体是否出现由动态概率控制）
-        Harpymodloader.setRoleMaximum(ModRoles.PELICAN_ID, 1);
-
-        // 探员每局只能有 1 个
-        Harpymodloader.setRoleMaximum(ModRoles.AGENT_ID, 1);
-
-        // 运动员每局只能有 1 个
-        Harpymodloader.setRoleMaximum(ModRoles.ATHLETE_ID, 1);
-
-        // 明星每局只能有 1 个
-        Harpymodloader.setRoleMaximum(ModRoles.SUPERSTAR_ID, 1);
-
-        // 退伍军人每局只能有 1 个
-        Harpymodloader.setRoleMaximum(ModRoles.VETERAN_ID, 1);
-
-        // 歌手每局只能有 1 个
-        Harpymodloader.setRoleMaximum(ModRoles.SINGER_ID, 1);
-
-        // 心理学家每局只能有 1 个
-        Harpymodloader.setRoleMaximum(ModRoles.PSYCHOLOGIST_ID, 1);
-
-        // 咒法师每局只能有 1 个
-        Harpymodloader.setRoleMaximum(ModRoles.WARLOCK_ID, 1);
-
-        // Dream（梦魇）每局只能有 1 个
-        Harpymodloader.setRoleMaximum(ModRoles.DREAM_ID, 1);
-
-        // 嬉命人每局只能有 1 个
-        Harpymodloader.setRoleMaximum(ModRoles.EMBALMER_ID, 1);
-
-        // 窃皮者每局只能有 1 个
-        Harpymodloader.setRoleMaximum(ModRoles.SKINCRAWLER_ID, 1);
-
-        // 摄影师每局只能有 1 个
-        Harpymodloader.setRoleMaximum(ModRoles.PHOTOGRAPHER_ID, 1);
-
-        // 阴谋家每局只能有 1 个
-        Harpymodloader.setRoleMaximum(ModRoles.CONSPIRATOR_ID, 1);
-
-        // 设陷者每局只能有 1 个
-        Harpymodloader.setRoleMaximum(ModRoles.TRAPPER_ID, 1);
-
-        // 炸弹客每局只能有 1 个
-        Harpymodloader.setRoleMaximum(ModRoles.BOMBER_ID, 1);
-        Harpymodloader.setRoleMaximum(ModRoles.WATCHER_ID, 1);
-
-        // 跟踪者每局只能有 1 个
-        Harpymodloader.setRoleMaximum(ModRoles.STALKER_ID, 1);
-
-        // 慕恋者每局只能有 1 个
-        Harpymodloader.setRoleMaximum(ModRoles.ADMIRER_ID, 1);
-
-        Harpymodloader.setRoleMaximum(ModRoles.POISONER, 1);
-
-        Harpymodloader.setRoleMaximum(ModRoles.ADMIRER_ID, 1);
-
-        // 傀儡师每局只能有 1 个
-        Harpymodloader.setRoleMaximum(ModRoles.PUPPETEER_ID, 1);
-
-        // 记录员每局只能有 1 个
-        Harpymodloader.setRoleMaximum(ModRoles.RECORDER_ID, 1);
-
-        // 监察员每局只能有 1 个
-        Harpymodloader.setRoleMaximum(ModRoles.MONITOR_ID, 1);
-
-        // 故障机器人每局只能有 1 个
-        Harpymodloader.setRoleMaximum(ModRoles.GLITCH_ROBOT_ID, 1);
-
-        // 年兽每局只能有 1 个
-        Harpymodloader.setRoleMaximum(ModRoles.NIAN_SHOU_ID, 1);
-
-        // 游侠
-
-        // 巡警
-
-        // 特警（默认为0，在动态设置中根据地图判断）
-
-        // 武术教官（默认为0，在动态设置中根据警卫数量判断）
-
-        // 魔术师
-        Harpymodloader.setRoleMaximum(ModRoles.MAGICIAN_ID, 1);
-
-        // 迷失杀手 - 由动态概率控制
-        Harpymodloader.setRoleMaximum(ModRoles.LOST_KILLER_ID, 0);
-
-        // 强盗
-        Harpymodloader.setRoleMaximum(ModRoles.BANDIT_ID, 1);
-        // 悍匪
-        Harpymodloader.setRoleMaximum(ModRoles.GANGSTERS_ID, 1);
-        // 钳工
-        Harpymodloader.setRoleMaximum(ModRoles.FITTER_ID, 1);
-        Harpymodloader.setRoleMaximum(ModRoles.DIO_ID, 0);
-
-        // 仇杀客 - 仅在12人及以上对局生成
-        Harpymodloader.setRoleMaximum(ModRoles.BLOOD_FEUDIST_ID, 1);
-
-        // 钟表匠 - 仅在12人及以上对局生成
-        // 注意：具体限制在 InitModRolesMax 中设置
-
-        // 更好的义警 - 仅在12人及以上对局生成，0.5%概率
-
-        // 红海军 - 设置为0（不会自然生成，只能通过远征队修饰符获得）
-        Harpymodloader.setRoleMaximum(ModRoles.BETTER_VIGILANTE_ID, 0);
-
-        // 作家 - 默认为0，在 InitModRolesMax 中动态设置（0.5%概率刷新）
-        Harpymodloader.setRoleMaximum(BounsRoles.WRITER_ID, 0);
-
-        // 电报员 - 默认为0，在 InitModRolesMax 中动态设置（0.5%概率刷新）
-        Harpymodloader.setRoleMaximum(BounsRoles.TELEGRAPHER_ID, 0);
-
-        // 设置角色最大数量
-        Harpymodloader.setRoleMaximum(ModRoles.POISONER_ID, 0);
-        // 和医生一起生成
-        Harpymodloader.setRoleMaximum(ModRoles.DOCTOR_ID, 0);
-        Harpymodloader.setRoleMaximum(ModRoles.ATTENDANT_ID, 1);
-        Harpymodloader.setRoleMaximum(ModRoles.CORONER_ID, 1);
-
         // 同时出现
         Harpymodloader.addOccupationRole(ModRoles.ENGINEER, ModRoles.LOCKSMITH);
         Harpymodloader.addOccupationRole(ModRoles.MA_CHEN_XU, ModRoles.GUEST_GHOST);
@@ -321,19 +181,23 @@ public class InitModRolesMax {
         GameInitializeEvent.EVENT.register((serverLevel, gameWorldComponent, players) -> {
             // 从配置应用角色概率
             applyRoleChanceFromConfig();
-            autoRoleMaxCount(serverLevel, gameWorldComponent, players);
-            autoModifierMaxCount(serverLevel, gameWorldComponent, players);
-
-            autoChangePresent();
 
             // 获取当前地图ID
             String currentMap = "unknown";
+            AreasSettings areasSettings = new AreasSettings();
             if (serverLevel.getServer() != null) {
                 var areas = io.wifi.starrailexpress.cca.AreasWorldComponent.KEY.get(serverLevel);
-                if (areas != null && areas.mapName != null) {
+                if (areas != null && areas.mapName != null && areas.areasSettings != null) {
                     currentMap = areas.mapName;
+                    areasSettings = areas.areasSettings;
                 }
             }
+
+            autoRoleMaxCount(serverLevel, gameWorldComponent, players, areasSettings);
+            autoModifierMaxCount(serverLevel, gameWorldComponent, players, areasSettings);
+
+            autoChangePresent();
+
             final int players_count = serverLevel.getServer().getPlayerCount();
             initModifiersCount(players_count);
 
@@ -343,7 +207,8 @@ public class InitModRolesMax {
                 isEggEnabled = true;
                 for (var a : TMMRoles.ROLES.values()) {
                     if (a instanceof EggRoleInterface) {
-                        int max = a.getRoundMaxCount(serverLevel, gameWorldComponent, players, currentMap);
+                        int max = a.getRoundMaxCount(serverLevel, gameWorldComponent, players, currentMap,
+                                areasSettings);
                         if (max >= 0) {
                             Harpymodloader.setRoleMaximum(a, max);
                         }
@@ -377,9 +242,12 @@ public class InitModRolesMax {
             {
                 // 杀手中立（只处理没有配置的职业：无概率 且 无显式 setMax 且 允许修改生成配置的职业）
                 var neutralRoles = new ArrayList<SRERole>(TMMRoles.ROLES.values());
+                final String map = currentMap;
+                final AreasSettings setting = areasSettings;
                 neutralRoles.removeIf((r) -> {
                     if (r.isNeutrals() && r.isNeutralForKiller() && (r.spawnInfo.enableChance < 0)
                             && r.canSetSpawnInfoInConfig()
+                            && r.canSpawnInMap(map, setting)
                             && r.spawnInfo.maxSpawn < 0)
                         return false;
                     return true;
@@ -411,7 +279,8 @@ public class InitModRolesMax {
                 isTouhouEnabled = true;
                 for (var a : TMMRoles.ROLES.values()) {
                     if (a instanceof TouhouRoleInterface) {
-                        int max = a.getRoundMaxCount(serverLevel, gameWorldComponent, players, currentMap);
+                        int max = a.getRoundMaxCount(serverLevel, gameWorldComponent, players, currentMap,
+                                areasSettings);
                         if (max >= 0) {
                             Harpymodloader.setRoleMaximum(a, max);
                         }
@@ -425,11 +294,6 @@ public class InitModRolesMax {
                         }
                     }
                 }
-                Harpymodloader.setRoleMaximum(THRedHouseRoles.BAKA_ID, 1);
-                Harpymodloader.setRoleMaximum(THRedHouseRoles.PACHURI, 1);
-                Harpymodloader.setRoleMaximum(THRedHouseRoles.REMILIA, 1);
-                Harpymodloader.setRoleMaximum(THRedHouseRoles.FURANDORU, 1);
-                Harpymodloader.setRoleMaximum(THRedHouseRoles.HOAN_MEIRIN, 1);
             } else {
                 isTouhouEnabled = false;
                 for (var a : TMMRoles.ROLES.values()) {
@@ -444,26 +308,8 @@ public class InitModRolesMax {
                 }
             }
 
-            applySpecialMapRoles(serverLevel, currentMap, config);
             applySpecialVigilanteRoles(serverLevel, players_count, config, random, currentMap);
         });
-    }
-
-    private static void applySpecialMapRoles(ServerLevel serverLevel, String currentMap, NoellesRolesConfig config) {
-        for (var role : TMMRoles.ROLES.values()) {
-            if (!role.isSpecialMapRole()) {
-                continue;
-            }
-            if (isSpecialMapRoleEnabled(serverLevel, role, currentMap, config)) {
-                if (role instanceof EggRoleInterface) {
-                    // 彩蛋职业已由彩蛋池掷过上限；地图匹配时不要在池子未开时强行打开
-                    continue;
-                }
-                Harpymodloader.setRoleMaximum(role, Math.max(0, role.spawnInfo.maxSpawn));
-            } else {
-                Harpymodloader.setRoleMaximum(role, 0);
-            }
-        }
     }
 
     private static void applySpecialVigilanteRoles(ServerLevel serverLevel, int playersCount,
@@ -473,6 +319,9 @@ public class InitModRolesMax {
         ArrayList<SRERole> specialVigilantes = new ArrayList<>();
         var roleMaxBackup = new HashMap<>(Harpymodloader.ROLE_MAX);
         for (var role : TMMRoles.ROLES.values()) {
+            // 跳过禁用的
+            if (SREDisableManager.isRoleDisabled(role))
+                continue;
             if (role.isSpecialVigilante() && roleMaxBackup.get(role.identifier()) > 0) {
                 // 仅处理启用的
                 specialVigilantes.add(role);
@@ -485,26 +334,12 @@ public class InitModRolesMax {
         Collections.shuffle(specialVigilantes);
         ArrayList<SRERole> selected = new ArrayList<>();
         for (var role : specialVigilantes) {
-            if (!isSpecialMapRoleEnabled(serverLevel, role, currentMap, config)) {
-                continue;
-            }
-            int chance = role.spawnInfo.enableChance;
-            if (chance >= 0 && random.nextInt(0, 10000) < chance) {
-                selected.add(role);
-                if (role.canRefreshableSpecialVigilante()) {
-                    int secondChance = role.getRefreshableSpecialVigilanteChance();
-                    if (secondChance >= 0 && random.nextInt(0, 10000) < secondChance) {
-                        selected.add(role);
-                    }
-                }
-            } else {
-                // 如果chance为-1则表明默认值
-                selected.add(role);
-                if (role.canRefreshableSpecialVigilante()) {
-                    int secondChance = role.getRefreshableSpecialVigilanteChance();
-                    if (secondChance >= 0 && random.nextInt(0, 10000) < secondChance) {
-                        selected.add(role);
-                    }
+            // 不需要比较 chance，初始化前已经比较过一次了。
+            selected.add(role);
+            if (role.canRefreshableSpecialVigilante()) {
+                int secondChance = role.getRefreshableSpecialVigilanteChance();
+                if (secondChance >= 0 && random.nextInt(0, 10000) < secondChance) {
+                    selected.add(role);
                 }
             }
         }
@@ -535,67 +370,8 @@ public class InitModRolesMax {
         return 0;
     }
 
-    private static boolean isSpecialMapRoleEnabled(ServerLevel serverLevel, SRERole role, String currentMap,
-            NoellesRolesConfig config) {
-        // 多条件模式：AND 关系=所有条件同时满足才刷新；OR 关系=任一条件满足即刷新
-        // （见 SRERole#setSpecialMapRoles / SRERole#setSpecialMapRolesOr）
-        if (role.isSpecialMapRoles()) {
-            if (role.isSpecialMapRolesOr()) {
-                for (SRERole.SpecialMapRoleMap condition : role.getSpecialMapRoles()) {
-                    if (isSpecialMapConditionMet(serverLevel, condition, currentMap, config)) {
-                        return true;
-                    }
-                }
-                return false;
-            }
-            for (SRERole.SpecialMapRoleMap condition : role.getSpecialMapRoles()) {
-                if (!isSpecialMapConditionMet(serverLevel, condition, currentMap, config)) {
-                    return false;
-                }
-            }
-            return true;
-        }
-        return isSpecialMapConditionMet(serverLevel, role.getSpecialMapRole(), currentMap, config);
-    }
-
-    /** 判定单个地图条件是否满足。 */
-    private static boolean isSpecialMapConditionMet(ServerLevel serverLevel, SRERole.SpecialMapRoleMap condition,
-            String currentMap, NoellesRolesConfig config) {
-        return switch (condition) {
-            case ALL -> true;
-            case QIYUCUN -> config.maChenXuMaps.contains(currentMap);
-            case BIGMAP -> config.swastMaps.contains(currentMap);
-            case UNDERWATER -> config.underwaterRolesMaps.contains(currentMap);
-            case FLY -> config.airRolesMaps.contains(currentMap);
-            case TRAP -> config.trapRolesMaps.contains(currentMap);
-            case CAN_JUMP -> {
-                var areas = AreasWorldComponent.KEY.get(serverLevel);
-                yield areas != null && areas.areasSettings.canJump;
-            }
-            case MEETING -> {
-                var areas = AreasWorldComponent.KEY.get(serverLevel);
-                yield areas != null && areas.areasSettings.meetingEnabled;
-            }
-            case MEETING_VOTE -> {
-                var areas = AreasWorldComponent.KEY.get(serverLevel);
-                yield areas != null && areas.areasSettings.meetingEnabled
-                        && (areas.areasSettings.meetingVoteEnabled
-                                || areas.areasSettings.emergencyMeetingVoteEnabled == (TrueFalseResult.TRUE));
-            }
-            case MINIGAME_QUEST -> {
-                var areas = AreasWorldComponent.KEY.get(serverLevel);
-                yield areas != null && areas.areasSettings.minigameQuestEnabled;
-            }
-            case MAP_STATUS_BAR -> {
-                var areas = AreasWorldComponent.KEY.get(serverLevel);
-                yield areas != null && areas.areasSettings.mapStatusBar != MapStatusBarType.NONE;
-            }
-            case HORSE -> config.horseRolesMaps.contains(currentMap);
-        };
-    }
-
     private static void autoRoleMaxCount(ServerLevel serverLevel, SREGameWorldComponent gameWorldComponent,
-            List<ServerPlayer> players) {
+            List<ServerPlayer> players, AreasSettings areasSettings) {
         var areacca = AreasWorldComponent.KEY.get(serverLevel);
         var mapName = areacca.mapName;
         for (var entry : TMMRoles.ROLES.entrySet()) {
@@ -605,7 +381,7 @@ public class InitModRolesMax {
                 continue;
             ResourceLocation name = entry.getKey();
             SRERole role = entry.getValue();
-            int count = role.getRoundMaxCount(serverLevel, gameWorldComponent, players, mapName);
+            int count = role.getRoundMaxCount(serverLevel, gameWorldComponent, players, mapName, areasSettings);
             if (count >= 0) {
                 Harpymodloader.setRoleMaximum(name, count);
             }
@@ -613,7 +389,7 @@ public class InitModRolesMax {
     }
 
     private static void autoModifierMaxCount(ServerLevel serverLevel, SREGameWorldComponent gameWorldComponent,
-            List<ServerPlayer> players) {
+            List<ServerPlayer> players, AreasSettings areasSettings) {
         var areacca = AreasWorldComponent.KEY.get(serverLevel);
         var mapName = areacca.mapName;
         for (SREModifier modifier : HMLModifiers.MODIFIERS) {

@@ -19,6 +19,7 @@ import java.util.ArrayList;
 
 import io.wifi.ConfigCompact.annotation.Category;
 import io.wifi.ConfigCompact.annotation.ConfigSync;
+import io.wifi.starrailexpress.api.AreasSettingUtils.MapSpecialFeatures;
 import io.wifi.starrailexpress.api.AreasSettingUtils.StoreableAABB;
 import io.wifi.starrailexpress.api.AreasSettingUtils.StoreableVec3;
 import io.wifi.starrailexpress.game.data.MapStatusBarType;
@@ -111,7 +112,9 @@ public class AreasSettings {
     public boolean noReset = false;
     @Category("map")
     public boolean mustCopy = false;
-
+    @Category("map")
+    public ArrayList<MapSpecialFeatures> customMapFeatures = new ArrayList<>();
+    
     // ==================== action ====================
     /** 是否可跳跃 */
     @Category("action")

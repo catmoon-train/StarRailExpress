@@ -22,8 +22,6 @@ import io.wifi.starrailexpress.api.PlushApi;
 import io.wifi.starrailexpress.index.SREDataComponentTypes;
 import io.wifi.syncrequests.SyncRequests;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
-import net.minecraft.core.component.DataComponents;
-import net.minecraft.network.chat.Component;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.item.Item;
@@ -39,16 +37,24 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
+import org.jetbrains.annotations.Nullable;
+
 /**
  * 赞助者名单管理（服务端）。
  * <p>
  * 从 {@link SREConfig#sponsorListUrl 云端 URL} 拉取一份纯文本名单（每行一个赞助者名，{@code #} 开头与空行忽略），
  * 按命名约定把名字映射到 plush（名字 {@code X} → {@code noellesroles:X_plush}，见 {@link PlushApi}）。
  * 有已注册 plush 时优先使用；没有时使用绑定赞助者玩家名的自定义玩家 plush。
+ * 从 {@link SREConfig#sponsorListUrl 云端 URL} 拉取一份纯文本名单（每行一个赞助者名，{@code #}
+ * 开头与空行忽略），
+ * 按命名约定把名字映射到 plush（名字 {@code X} → {@code noellesroles:X_plush}，见
+ * {@link PlushApi}）。
+ * 只保留<b>有对应 plush</b> 的赞助者。
  * <p>
  * 若存在赞助者，则玩家开局拿到的信封（intro 物品）会被
  * {@link #decorateIntroStack 替换为某个赞助者的 plush}（玩家本人优先，否则随机），
- * 该 plush 带 {@link SREDataComponentTypes#SPONSOR_INTRO} 标记，右键时打开游戏介绍 GUI 而非放置方块。
+ * 该 plush 带 {@link SREDataComponentTypes#SPONSOR_INTRO} 标记，右键时打开游戏介绍 GUI
+ * 而非放置方块。
  * <p>
  * 名单会通过 {@link SponsorListPayload} 同步到客户端，供游戏介绍 GUI 列出赞助者 plush。
  */
@@ -115,6 +121,8 @@ public final class SponsorManager {
         }
         sponsorPlushNames = List.copyOf(sponsors);
         if(rawNames.isEmpty()){
+        sponsorPlushNames = List.copyOf(withPlush);
+        if (rawNames.isEmpty()) {
             return;
         }
         SRE.LOGGER.info("[Sponsor] 赞助者名单已更新：{} 个原始条目，{} 个有效赞助者。",
@@ -156,7 +164,7 @@ public final class SponsorManager {
     }
 
     /**
-     * 为该玩家挑选一个赞助者 plush 名：玩家本人在名单中则用本人，否则随机一个。
+     * 为该玩家挑选一个赞助者 plush 名：玩家本人在名单中则用本人，否则不给。
      *
      * @return 赞助者 plush 名；当前没有任何可用赞助者时返回 {@code null}
      */
@@ -171,17 +179,17 @@ public final class SponsorManager {
                 return s;
             }
         }
-        return names.get(player.getRandom().nextInt(names.size()));
+        return null;
     }
 
     /**
-     * 若存在赞助者，则把开局信封替换为某个赞助者的 plush（保留信封的名称与描述，
-     * 并打上 {@link SREDataComponentTypes#SPONSOR_INTRO} 标记）。否则原样返回信封。
+     * 若存在赞助者，则获取新的plush，否则返回NULL。
      */
+    @Nullable
     public static ItemStack decorateIntroStack(ItemStack letter, ServerPlayer player) {
         String name = pickPlushNameForPlayer(player);
         if (name == null) {
-            return letter;
+            return null;
         }
         ItemStack stack;
         Optional<Item> registeredPlush = PlushApi.getPlushForSkin(name);
@@ -203,6 +211,11 @@ public final class SponsorManager {
             stack.set(DataComponents.LORE, lore);
         }
         stack.set(SREDataComponentTypes.SPONSOR_INTRO, true);
+        Optional<Item> plush = PlushApi.getPlushForSkin(name);
+        if (plush.isEmpty()) {
+            return null;
+        }
+        ItemStack stack = new ItemStack(plush.get());
         return stack;
     }
 

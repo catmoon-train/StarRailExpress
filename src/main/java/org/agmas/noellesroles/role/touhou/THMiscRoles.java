@@ -25,6 +25,7 @@ import io.wifi.starrailexpress.api.InstinctType;
 import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.api.TMMRoles;
 import io.wifi.starrailexpress.api.TouhouRole;
+import io.wifi.starrailexpress.api.AreasSettingUtils.MapSpecialFeatures;
 import io.wifi.starrailexpress.api.NormalRole.RoleType;
 import io.wifi.starrailexpress.api.SRERole.MoodType;
 import io.wifi.starrailexpress.util.Color;
@@ -57,6 +58,7 @@ public class THMiscRoles {
             .setDefaultMax(1)
             .setDefaultEnableNeededPlayerCount(18)
             .setDefaultEnableChance(5000)
+            .setSpecialMapRole(MapSpecialFeatures.CAN_JUMP)
             .setAddedVersion("4.4");
 
     public static final ResourceLocation HAKUREI_REIMU_ID = id("hakurei_reimu");

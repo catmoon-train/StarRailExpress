@@ -15,6 +15,7 @@
 
 package org.agmas.noellesroles.role;
 
+import io.wifi.starrailexpress.api.AreasSettingUtils.MapSpecialFeatures;
 import io.wifi.starrailexpress.api.InstinctType;
 import io.wifi.starrailexpress.api.NormalRole;
 import io.wifi.starrailexpress.api.SRERole;
@@ -47,7 +48,7 @@ public class ModMeetingRoles {
             new NormalRole(id(CANADA_GOOSE_ID), new Color(200, 200, 200).getRGB(),
                     true, false, SRERole.MoodType.REAL,
                     TMMRoles.CIVILIAN.getMaxSprintTime(), false)
-    ).setSpecialMapRole(SRERole.SpecialMapRoleMap.MEETING).setCanSeeCoin(true).setCanBeRandomedByOtherRoles(false).setDefaultMax(1);
+    ).setSpecialMapRole(MapSpecialFeatures.MEETING).setCanSeeCoin(true).setCanBeRandomedByOtherRoles(false).setDefaultMax(1);
 
     /**
      * 呆呆鸟 — 独立胜利中立：有杀手透视但看不到人，被投票出局即胜。
@@ -59,7 +60,7 @@ public class ModMeetingRoles {
             new NormalRole(id(DUMMY_BIRD_ID), new Color(255, 215, 0).getRGB(),
                     false, false, SRERole.MoodType.FAKE,
                     Integer.MAX_VALUE, true)
-    ).setSpecialMapRole(SRERole.SpecialMapRoleMap.MEETING_VOTE)
+    ).setSpecialMapRole(MapSpecialFeatures.MEETING_VOTE)
             .setCanUseInstinctAndNightVision(true)
             .setInstinctType(InstinctType.DEFAULT, InstinctType.NONE)
             .setBeSeenInstinctType(InstinctType.DEFAULT, InstinctType.NONE)
@@ -70,7 +71,7 @@ public class ModMeetingRoles {
             new NormalRole(id(POLITICIAN_ID), new Color(0, 128, 0).getRGB(),
                     true, false, SRERole.MoodType.REAL,
                     TMMRoles.CIVILIAN.getMaxSprintTime(), false)
-    ).setSpecialMapRole(SRERole.SpecialMapRoleMap.MEETING_VOTE).setCanSeeCoin(true).setCanBeRandomedByOtherRoles(false).setDefaultMax(1);
+    ).setSpecialMapRole(MapSpecialFeatures.MEETING_VOTE).setCanSeeCoin(true).setCanBeRandomedByOtherRoles(false).setDefaultMax(1);
 
     /** 传教士 — 杀手：背包点击玩家头像增加其投票权重 */
     public static SRERole MISSIONARY = TMMRoles.registerRole(
@@ -78,7 +79,7 @@ public class ModMeetingRoles {
                     false, true, SRERole.MoodType.FAKE,
                     Integer.MAX_VALUE, true)
     ).setRoleData(MissionaryRoleData::new)
-            .setSpecialMapRole(SRERole.SpecialMapRoleMap.MEETING_VOTE)
+            .setSpecialMapRole(MapSpecialFeatures.MEETING_VOTE)
             .setCanBeRandomedByOtherRoles(false).setDefaultMax(1);
 
     public static void init() {

@@ -21,7 +21,7 @@ public final class SilverWingRules {
     public static final int BIRD_SKILL_BAN_SECONDS = 8;
     public static final float BIRD_MOOD_DRAIN = 0.30F;
     public static final int BIRD_GOLD_PENALTY = 25;
-    public static final float BIRD_SHIELD_BREAK_CHANCE = 0.75F;
+    public static final float BIRD_SHIELD_BREAK_CHANCE = 0.5F;
     public static final double BIRD_FLY_SPEED = 0.45D;
     public static final double BIRD_DASH_SPEED = 1.15D;
     public static final int BIRD_DASH_EXPLODE_SECONDS = 3;

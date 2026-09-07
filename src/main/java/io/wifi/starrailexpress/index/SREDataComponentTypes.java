@@ -56,9 +56,6 @@ public interface SREDataComponentTypes {
             stringBuilder -> stringBuilder.persistent(Codec.INT).networkSynchronized(ByteBufCodecs.VAR_INT));
     DataComponentType<Integer> WEAPON_USED_TIME = register("weapon_used_time",
             stringBuilder -> stringBuilder.persistent(Codec.INT).networkSynchronized(ByteBufCodecs.VAR_INT));
-    // 标记：该物品（赞助者 plush）替代了开局信封，右键应打开游戏介绍 GUI 而非放置方块
-    DataComponentType<Boolean> SPONSOR_INTRO = register("sponsor_intro",
-            stringBuilder -> stringBuilder.persistent(Codec.BOOL).networkSynchronized(ByteBufCodecs.BOOL));
 
     private static <T> DataComponentType<T> register(String name,
             @NotNull UnaryOperator<DataComponentType.Builder<T>> builderOperator) {

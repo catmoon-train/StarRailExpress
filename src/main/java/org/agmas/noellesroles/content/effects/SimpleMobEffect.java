@@ -16,6 +16,7 @@
 package org.agmas.noellesroles.content.effects;
 
 import net.minecraft.core.particles.ParticleOptions;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectCategory;
 
@@ -27,5 +28,13 @@ public class SimpleMobEffect extends MobEffect {
 
     public SimpleMobEffect(MobEffectCategory mobEffectCategory, int i, ParticleOptions particleOptions) {
         super(mobEffectCategory, i, particleOptions);
+    }
+
+    /**
+     * 当药水效果结束时
+     * 
+     * @param livingEntity
+     */
+    public void onEffectEnded(ServerPlayer livingEntity) {
     }
 }

@@ -21,7 +21,7 @@ import net.minecraft.world.phys.AABB;
 public class HengXingTiRole extends ExtraEffectRole implements EggRoleInterface {
     public static final int SKILL_DURATION = 15 * 20;
     public static final int SKILL_RANGE = 10;
-    public static final int MAX_TP_PLAYER_COUNT = 8;
+    public static final int MAX_TP_PLAYER_COUNT = 12;
     public static final double PULL_RANGE = 1;
     public static final double ROTATION_SPEED = 2 * Math.PI / 100; // 每 100 tick 转一圈
 
@@ -106,7 +106,9 @@ public class HengXingTiRole extends ExtraEffectRole implements EggRoleInterface 
         target.addEffect(ModEffects.of(ModEffects.NO_COLLIDE, 20, 1, false, false, true));
         target.addEffect(ModEffects.of(ModEffects.MOVE_BANED, 20, 1, false, false, true));
         target.addEffect(ModEffects.of(ModEffects.SKILL_BANED, 20, 1, false, false, true));
-
+        target.addEffect(ModEffects.of(ModEffects.USED_BANED, 20, 1, false, false, true));
+        target.addEffect(ModEffects.of(ModEffects.INVINCIBLE, 20, 1, false, false, true));
+        
         ServerLevel level = player.serverLevel();
 
         // 目标玩家碰撞箱尺寸

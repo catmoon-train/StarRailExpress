@@ -16,6 +16,30 @@
 package io.wifi.starrailexpress.api;
 
 public class AreasSettingUtils {
+    /**
+     * 地图特殊属性。用于特定职业生成。
+     */
+    public static enum MapSpecialFeatures {
+        ALL,
+        QIYUCUN,
+        BIGMAP,
+        UNDERWATER,
+        FLY,
+        TRAP,
+        HORSE,
+        /** 仅可跳跃地图生成 */
+        CAN_JUMP,
+        /** 仅可召开会议地图生成 */
+        MEETING,
+        /** 仅可召开会议且启用了投票的地图生成 */
+        MEETING_VOTE,
+        /** 仅可游玩小游戏地图生成 */
+        MINIGAME_QUEST,
+        /** 仅拥有状态栏地图生成（mapStatusBar != NONE） */
+        MAP_STATUS_BAR
+        /** 仅骑马地图生成（驯马师、猎人） */
+    }
+
     public static class StoreableAABB {
         public final double minX;
         public final double minY;

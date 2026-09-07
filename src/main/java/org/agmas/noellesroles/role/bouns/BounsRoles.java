@@ -16,6 +16,7 @@
 package org.agmas.noellesroles.role.bouns;
 
 import io.wifi.starrailexpress.SRE;
+import io.wifi.starrailexpress.api.AreasSettingUtils.MapSpecialFeatures;
 import io.wifi.starrailexpress.api.EggRole;
 import io.wifi.starrailexpress.api.InstinctType;
 import io.wifi.starrailexpress.api.NormalRole;
@@ -33,13 +34,11 @@ import io.wifi.starrailexpress.util.Color;
 import io.wifi.starrailexpress.util.SRENetworkMessageUtils;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
-import org.agmas.noellesroles.config.NoellesRolesConfig;
 import org.agmas.noellesroles.role_data.innocence.AnglerRoleData;
 import org.agmas.noellesroles.role_data.innocence.VoodooRoleData;
 import org.agmas.noellesroles.role_data.innocence.DiscMasterRoleData;
@@ -60,8 +59,6 @@ import org.agmas.noellesroles.role.touhou.THMiscRoles;
 import org.agmas.noellesroles.role.bouns.roles.*;
 import io.wifi.starrailexpress.index.TMMItems;
 import org.agmas.noellesroles.role_data.neutral.LicensedVillainRoleData;
-
-import java.util.List;
 
 /**
  * 彩蛋角色类，受到彩蛋刷新概率影响
@@ -190,17 +187,8 @@ public class BounsRoles {
             SRERole.MoodType.REAL,
             TMMRoles.CIVILIAN.getMaxSprintTime(),
             false
-    ) {
-        @Override
-        public int getRoundMaxCount(ServerLevel serverLevel, SREGameWorldComponent gameWorldComponent,
-                List<ServerPlayer> players, String mapName) {
-            if (!NoellesRolesConfig.instance().underwaterRolesMaps.contains(mapName)) {
-                return 0;
-            }
-            return super.getRoundMaxCount(serverLevel, gameWorldComponent, players, mapName);
-        }
-    }).setCanSeeCoin(true).setRoleData(AnglerRoleData::new)
-            .setSpecialMapRole(SRERole.SpecialMapRoleMap.UNDERWATER)
+    )).setCanSeeCoin(true).setRoleData(AnglerRoleData::new)
+            .setSpecialMapRole(MapSpecialFeatures.UNDERWATER)
             .setDefaultEnableChance(4000).setDefaultMax(1).setCanBeRandomedByOtherRoles(false)
             .setAddedVersion("4.4"); // versiontag 4.4
 

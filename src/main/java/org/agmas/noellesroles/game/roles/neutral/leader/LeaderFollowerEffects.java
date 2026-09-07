@@ -26,9 +26,7 @@ import io.wifi.starrailexpress.cca.SREPlayerShopComponent;
 import io.wifi.starrailexpress.game.GameUtils;
 import io.wifi.starrailexpress.index.TMMItems;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
-import org.agmas.harpymodloader.component.WorldModifierComponent;
 import org.agmas.noellesroles.game.modifier.NRModifiers;
-import org.agmas.noellesroles.packet.RefreshDimensionsS2CPacket;
 import net.minecraft.core.Holder;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
@@ -457,9 +455,7 @@ public final class LeaderFollowerEffects {
         // 追随者立即获得 500 金币
         SREPlayerShopComponent.KEY.get(follower).addToBalance(500);
         // 领袖获得 rabbit_shape 修饰符
-        WorldModifierComponent.KEY.get(leader.level()).addModifier(leader, NRModifiers.RABBIT_SHAPE);
-        ServerPlayNetworking.send(leader, new RefreshDimensionsS2CPacket());
-        leader.refreshDimensions();
+        RoleUtils.addModifier(leader, NRModifiers.RABBIT_SHAPE);
     }
 
     // 追随者：黑警

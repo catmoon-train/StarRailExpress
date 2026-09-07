@@ -44,6 +44,7 @@ import org.agmas.noellesroles.game.roles.innocence.hoan_meirin.HoanMeirinFistPun
 import org.agmas.noellesroles.init.ModEffects;
 import org.agmas.noellesroles.init.ModItems;
 import org.agmas.noellesroles.packet.NameTagSyncPayload;
+import org.agmas.noellesroles.packet.RefreshDimensionsS2CPacket;
 import org.agmas.noellesroles.utils.EntityClearUtils;
 import org.agmas.noellesroles.utils.LocalDateData;
 import org.agmas.noellesroles.utils.MCItemsUtils;
@@ -1010,8 +1011,12 @@ public class GameUtils {
                 });
             }
 
-            // 若存在赞助者，把信封替换为赞助者的 plush（保留信封名称/描述，右键仍可打开介绍 GUI）
-            letter = io.wifi.starrailexpress.sponsor.SponsorManager.decorateIntroStack(letter, serverPlayerEntity);
+            // 若存在赞助者，把信封替换为赞助者的 plush，但多给一个（可以丢弃）
+            ItemStack sponsorPlush = io.wifi.starrailexpress.sponsor.SponsorManager.decorateIntroStack(letter,
+                    serverPlayerEntity);
+            if (sponsorPlush != null) {
+                serverPlayerEntity.addItem(sponsorPlush);
+            }
 
             serverPlayerEntity.addItem(letter);
             i++;
@@ -1695,5 +1700,14 @@ public class GameUtils {
             }
         }
         return false;
+    }
+
+    /**
+     * 更新玩家的 dimension（服务端+客户端）
+     * @param player
+     */
+    public static void refreshPlayerDimension(ServerPlayer player) {
+        player.refreshDimensions();
+        ServerPlayNetworking.send(player, new RefreshDimensionsS2CPacket());
     }
 }

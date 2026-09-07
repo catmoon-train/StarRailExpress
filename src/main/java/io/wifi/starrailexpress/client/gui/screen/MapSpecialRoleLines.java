@@ -16,6 +16,8 @@
 package io.wifi.starrailexpress.client.gui.screen;
 
 import com.google.gson.JsonObject;
+
+import io.wifi.starrailexpress.api.AreasSettingUtils.MapSpecialFeatures;
 import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.api.TMMRoles;
 import net.minecraft.network.chat.Component;
@@ -41,18 +43,18 @@ public final class MapSpecialRoleLines {
     }
 
     /** 显示顺序：先配置列表类，后地图属性类。 */
-    private static final SRERole.SpecialMapRoleMap[] DISPLAY_ORDER = {
-            SRERole.SpecialMapRoleMap.QIYUCUN,
-            SRERole.SpecialMapRoleMap.UNDERWATER,
-            SRERole.SpecialMapRoleMap.BIGMAP,
-            SRERole.SpecialMapRoleMap.FLY,
-            SRERole.SpecialMapRoleMap.TRAP,
-            SRERole.SpecialMapRoleMap.CAN_JUMP,
-            SRERole.SpecialMapRoleMap.MEETING,
-            SRERole.SpecialMapRoleMap.MEETING_VOTE,
-            SRERole.SpecialMapRoleMap.MINIGAME_QUEST,
-            SRERole.SpecialMapRoleMap.MAP_STATUS_BAR,
-            SRERole.SpecialMapRoleMap.HORSE
+    private static final MapSpecialFeatures[] DISPLAY_ORDER = {
+            MapSpecialFeatures.QIYUCUN,
+            MapSpecialFeatures.UNDERWATER,
+            MapSpecialFeatures.BIGMAP,
+            MapSpecialFeatures.FLY,
+            MapSpecialFeatures.TRAP,
+            MapSpecialFeatures.CAN_JUMP,
+            MapSpecialFeatures.MEETING,
+            MapSpecialFeatures.MEETING_VOTE,
+            MapSpecialFeatures.MINIGAME_QUEST,
+            MapSpecialFeatures.MAP_STATUS_BAR,
+            MapSpecialFeatures.HORSE
     };
 
     /**
@@ -72,7 +74,7 @@ public final class MapSpecialRoleLines {
             Set<String> bagMaps, Set<String> policeMaps, Set<String> underwaterMaps,
             Set<String> airMaps, Set<String> trapMaps, Set<String> horseMaps, JsonObject mapJson) {
         List<Component> lines = new ArrayList<>();
-        for (SRERole.SpecialMapRoleMap category : DISPLAY_ORDER) {
+        for (MapSpecialFeatures category : DISPLAY_ORDER) {
             if (!isActive(category, mapId, bagMaps, policeMaps, underwaterMaps, airMaps, trapMaps, horseMaps, mapJson)) {
                 continue;
             }
@@ -85,7 +87,7 @@ public final class MapSpecialRoleLines {
         return lines;
     }
 
-    private static boolean isActive(SRERole.SpecialMapRoleMap category, String mapId,
+    private static boolean isActive(MapSpecialFeatures category, String mapId,
             Set<String> bagMaps, Set<String> policeMaps, Set<String> underwaterMaps,
             Set<String> airMaps, Set<String> trapMaps, Set<String> horseMaps, JsonObject json) {
         return switch (category) {
@@ -112,7 +114,7 @@ public final class MapSpecialRoleLines {
     }
 
     /** 收集该类别下所有职业的翻译名，以“/”连接。 */
-    private static String gatherRoleNames(SRERole.SpecialMapRoleMap category) {
+    private static String gatherRoleNames(MapSpecialFeatures category) {
         List<String> names = new ArrayList<>();
         for (SRERole role : TMMRoles.ROLES.values()) {
             if (role.getSpecialMapRole() == category) {

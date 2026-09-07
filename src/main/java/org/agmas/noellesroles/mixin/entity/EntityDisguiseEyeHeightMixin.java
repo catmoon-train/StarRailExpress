@@ -13,16 +13,16 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package org.agmas.noellesroles.mixin.roles.leather_pig;
+package org.agmas.noellesroles.mixin.entity;
 
 import com.llamalad7.mixinextras.injector.ModifyReturnValue;
-
 import net.minecraft.world.entity.EntityDimensions;
 import net.minecraft.world.entity.Pose;
 import net.minecraft.world.entity.player.Player;
 
 import org.agmas.noellesroles.game.modifier.NRModifiers;
 import org.agmas.noellesroles.role_data.innocence.LeatherPigRoleData;
+import org.agmas.noellesroles.role_data.innocence.TomatoHeadRoleData;
 import org.agmas.noellesroles.role_data.neutral.PhantomSpiritRoleData;
 import org.agmas.noellesroles.utils.RoleUtils;
 import net.minecraft.world.entity.EntityType;
@@ -38,7 +38,7 @@ import org.spongepowered.asm.mixin.injection.At;
  * 枪械命中判定这些读 {@code getEyeY()} 的地方一起下移，画面和命中点不会错开。
  */
 @Mixin(Player.class)
-public abstract class LeatherPigEyeHeightMixin {
+public abstract class EntityDisguiseEyeHeightMixin {
 
     @ModifyReturnValue(method = "getDefaultDimensions", at = @At("RETURN"))
     private EntityDimensions noellesroles$lowerEyeToPig(EntityDimensions dimensions, Pose pose) {
@@ -57,13 +57,15 @@ public abstract class LeatherPigEyeHeightMixin {
             }
             return allay;
         }
+        if (TomatoHeadRoleData.isTomatoForm(self)) {
+            return original.withEyeHeight(TomatoHeadRoleData.TOMATO_EYE_HEIGHT);
+        }
         if (RoleUtils.isPlayerTheModifier(self, NRModifiers.RABBIT_SHAPE)) {
             // 取较小值：游泳、睡觉等姿态的眼高本就低于猪，不该被抬回来
             float eyeHeight = Math.min(original.eyeHeight(), LeatherPigRoleData.PIG_EYE_HEIGHT);
             return original.withEyeHeight(eyeHeight);
         }
         if (LeatherPigRoleData.isDisguised(self)) {
-
             // 取较小值：游泳、睡觉等姿态的眼高本就低于猪，不该被抬回来
             float eyeHeight = Math.min(original.eyeHeight(), LeatherPigRoleData.PIG_EYE_HEIGHT);
             return original.withEyeHeight(eyeHeight);

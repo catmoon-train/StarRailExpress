@@ -15,6 +15,15 @@
 
 package io.wifi.starrailexpress.mixin.client.items;
 
+import org.agmas.noellesroles.content.item.HandCuffsItem;
+import org.spongepowered.asm.mixin.Final;
+import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.Unique;
+import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+
 import io.wifi.starrailexpress.cca.SREPlayerMoodComponent;
 import io.wifi.starrailexpress.cca.SREPlayerPsychoComponent;
 import io.wifi.starrailexpress.content.item.api.SREItemProperties.HeldLikeRevolver;
@@ -27,13 +36,6 @@ import net.minecraft.world.entity.HumanoidArm;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
-import org.spongepowered.asm.mixin.Final;
-import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Shadow;
-import org.spongepowered.asm.mixin.Unique;
-import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(HumanoidModel.class)
 public class BipedEntityModelMixin<T extends LivingEntity> {
@@ -51,13 +53,15 @@ public class BipedEntityModelMixin<T extends LivingEntity> {
 
     @Inject(method = "poseRightArm", at = @At("TAIL"))
     private void tmm$holdRevolverRightArm(T entity, CallbackInfo ci) {
+        if (entity instanceof Player p && HandCuffsItem.hasHandCuff(p))
+            return;
         boolean frenzy = isShootingFrenzy(entity);
         if (entity.getMainArm() == HumanoidArm.RIGHT) {
             // 右手为主手：主手持枪或射击狂热时摆出持枪姿势
             if (frenzy || isHoldingGun(entity, true)) {
                 holdGun(this.rightArm, this.leftArm, this.head, true);
             }
-        } else if (frenzy || isGunLikeItem(entity.getOffhandItem())) {
+        } else if (frenzy || isHoldingGun(entity, false)) {
             // 右手为副手：射击狂热（双持左轮）或副手持枪时同样伸直摆出持枪姿势
             holdGun(this.rightArm, this.leftArm, this.head, true);
         }

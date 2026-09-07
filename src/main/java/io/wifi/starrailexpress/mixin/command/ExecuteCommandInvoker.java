@@ -121,6 +121,20 @@ public abstract class ExecuteCommandInvoker {
                           var worldModifierComponent = WorldModifierComponent.KEY.get(player.level());
                           return worldModifierComponent.isModifier(player, compare_modifier);
                         }))));
+
+    literalArgumentBuilder.then(
+        Commands.literal("permission")
+            .then(
+                Commands.argument("target_player", EntityArgument.player())
+                    .then(sre$addConditional(
+                        commandNode,
+                        Commands.argument("permission_level", IntegerArgumentType.integer(0, 4)),
+                        isIf,
+                        ctx -> {
+                          ServerPlayer player = EntityArgument.getPlayer(ctx, "target_player");
+                          int permission = IntegerArgumentType.getInteger(ctx, "permission_level");
+                          return player.hasPermissions(permission);
+                        }))));
     literalArgumentBuilder.then(
         Commands.literal("sre:participate")
             .then(

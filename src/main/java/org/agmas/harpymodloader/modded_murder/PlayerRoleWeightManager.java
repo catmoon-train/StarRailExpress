@@ -434,14 +434,12 @@ public class PlayerRoleWeightManager {
         if (role == null)
             return -1;
 
-        if (role.isInnocent()) {
-            return 1;
-        }
-
         if (role.isVigilanteTeam()) {
             return 2;
         }
-
+        if (role.isInnocent()) {
+            return 1;
+        }
         if (role.isNeutrals() && role.isNeutralForInnocent()) {
             return 3;
         }

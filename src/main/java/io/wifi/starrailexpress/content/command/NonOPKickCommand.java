@@ -56,17 +56,7 @@ public class NonOPKickCommand {
     if (!ctx.getServer().isPublished()) {
       throw ERROR_SINGLEPLAYER.create();
     } else {
-      int playerPermission = 2;
-      final var server = ctx.getServer();
-      if (ctx.isPlayer()) {
-
-        var runner = ctx.getPlayer();
-        if (runner != null) {
-          playerPermission = server.getProfilePermissions(runner.getGameProfile());
-        }
-      } else {
-        playerPermission = 4;
-      }
+      int playerPermission = ctx.permissionLevel;
       int i = 0;
       for (ServerPlayer serverPlayer : collection) {
         if (serverPlayer.hasPermissions(playerPermission))

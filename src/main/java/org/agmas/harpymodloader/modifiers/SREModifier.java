@@ -18,6 +18,7 @@ package org.agmas.harpymodloader.modifiers;
 import io.wifi.starrailexpress.api.SREAbstractInfoClass;
 import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
+import io.wifi.utils.RandomSelector;
 import net.minecraft.locale.Language;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
@@ -32,7 +33,6 @@ import java.util.*;
 import java.util.function.Consumer;
 
 public class SREModifier extends SREAbstractInfoClass {
-    private final Random random = new Random();
     private ResourceLocation identifier;
     public boolean canSetSpawnInfoInConfig = true;
     public int color;
@@ -56,6 +56,7 @@ public class SREModifier extends SREAbstractInfoClass {
         super.setAddedVersion(versionName);
         return this;
     }
+
     /**
      * 添加与此相关的职业。互相添加。用于职业介绍。
      * 
@@ -181,7 +182,7 @@ public class SREModifier extends SREAbstractInfoClass {
             if (!SREDisableManager.isModifierDisabled(this))
                 return false;
         }
-        
+
         Optional<String> versionTag = test.stream().filter((t) -> t.startsWith("inner.version.")).findFirst();
         if (versionTag.isPresent()) {
             String judgeVersion = versionTag.get();
@@ -417,8 +418,7 @@ public class SREModifier extends SREAbstractInfoClass {
         // 优先使用 spawnInfo（来自用户配置），若未设置则不回退。如果要设置默认的请设置canSetSpawnInfoInConfig为false
         int chance = this.spawnInfo.enableChance;
         if (chance >= 0) {
-            int nchance = random.nextInt(0, 10000);
-            if (nchance > chance) {
+            if (!RandomSelector.tryChance(chance, 10000)) {
                 return 0;
             }
         }

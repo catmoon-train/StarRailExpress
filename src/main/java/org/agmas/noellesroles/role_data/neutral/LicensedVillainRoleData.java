@@ -130,7 +130,8 @@ public class LicensedVillainRoleData extends SimpleRoleData {
                 continue;
             if (role.isKillerTeam()) {
                 killerCount++;
-            } else if (role.isInnocent()) {
+            } else if (role.isInnocent() || role.isNeutralForInnocent()) {
+                // 平民阵营含警长阵营；好人方中立（isNeutralForInnocent）也计入平民阵营
                 civilianCount++;
             } else if (role.isNeutrals() && !role.isNeutralForKiller()) {
                 neutralCount++;
@@ -208,8 +209,8 @@ public class LicensedVillainRoleData extends SimpleRoleData {
             return false; // 黑警自己永远不是目标
         return switch (targetPhase) {
             case PHASE_KILLER -> role.isKillerTeam();
-            case PHASE_CIVILIAN -> role.isInnocent();
-            case PHASE_NEUTRAL -> role.isNeutrals() && !role.isNeutralForKiller();
+            case PHASE_CIVILIAN -> role.isInnocent() || role.isNeutralForInnocent();
+            case PHASE_NEUTRAL -> role.isNeutrals() && !role.isNeutralForKiller() && !role.isNeutralForInnocent();
             default -> false;
         };
     }
@@ -242,8 +243,8 @@ public class LicensedVillainRoleData extends SimpleRoleData {
                 continue;
             boolean target = switch (phase) {
                 case PHASE_KILLER -> role.isKillerTeam();
-                case PHASE_CIVILIAN -> role.isInnocent();
-                case PHASE_NEUTRAL -> role.isNeutrals() && !role.isNeutralForKiller();
+                case PHASE_CIVILIAN -> role.isInnocent() || role.isNeutralForInnocent();
+                case PHASE_NEUTRAL -> role.isNeutrals() && !role.isNeutralForKiller() && !role.isNeutralForInnocent();
                 default -> false;
             };
             if (target)

@@ -374,7 +374,7 @@ public class RoleShopHandler {
         ArrayList<ShopEntry> PELICAN_SHOP = new ArrayList<>();
         ArrayList<ShopEntry> CONSPIRATOR_SHOP = new ArrayList<>();
         ArrayList<ShopEntry> 柜子区的商店 = new ArrayList<>();
-        ArrayList<ShopEntry> SLIPPERY_GHOST_SHOP = new ArrayList<>();
+        ArrayList<ShopEntry> 盲人朵拉的捣蛋鬼商店 = new ArrayList<>();
         ArrayList<ShopEntry> ENGINEER_SHOP = new ArrayList<>();
         ArrayList<ShopEntry> BOXER_SHOP = new ArrayList<>();
         ArrayList<ShopEntry> PSYCHOLOGIST_SHOP = new ArrayList<>();
@@ -526,25 +526,25 @@ public class RoleShopHandler {
         // 捣蛋鬼商店
         {
             // 空包弹 - 150金币
-            SLIPPERY_GHOST_SHOP.add(new ShopEntry(
+            盲人朵拉的捣蛋鬼商店.add(new ShopEntry(
                     ModItems.BLANK_CARTRIDGE.getDefaultInstance(),
                     150,
                     ShopEntry.Type.TOOL));
 
             // 烟雾弹 - 150金币
-            SLIPPERY_GHOST_SHOP.add(new ShopEntry(
+            盲人朵拉的捣蛋鬼商店.add(new ShopEntry(
                     ModItems.SMOKE_GRENADE.getDefaultInstance(),
                     150,
                     ShopEntry.Type.TOOL));
 
             // 撬锁器 - 50金币 (原版杀手商店物品)
-            SLIPPERY_GHOST_SHOP.add(new ShopEntry(
+            盲人朵拉的捣蛋鬼商店.add(new ShopEntry(
                     io.wifi.starrailexpress.index.TMMItems.LOCKPICK.getDefaultInstance(),
                     50,
                     ShopEntry.Type.TOOL));
 
             // 闪光弹 - 175金币（捣蛋鬼专用）
-            SLIPPERY_GHOST_SHOP
+            盲人朵拉的捣蛋鬼商店
                     .add(new ShopEntry(ModItems.FLASH_GRENADE.getDefaultInstance(), 175, ShopEntry.Type.TOOL) {
                         @Override
                         public boolean canBuy(@NotNull Player player) {
@@ -553,11 +553,11 @@ public class RoleShopHandler {
                     });
 
             // 诱饵弹 - 25金币（捣蛋鬼专用）
-            SLIPPERY_GHOST_SHOP
+            盲人朵拉的捣蛋鬼商店
                     .add(new ShopEntry(ModItems.DECOY_GRENADE.getDefaultInstance(), 25, ShopEntry.Type.TOOL));
 
             // 监控失灵 - 50金币（捣蛋鬼专属）
-            SLIPPERY_GHOST_SHOP
+            盲人朵拉的捣蛋鬼商店
                     .add(new ShopEntry(TMMItems.MONITOR_BROKEN.getDefaultInstance(), 50, ShopEntry.Type.TOOL) {
                         @Override
                         public boolean onBuy(@NotNull Player player) {
@@ -566,14 +566,8 @@ public class RoleShopHandler {
                         }
                     });
 
-            // 关灯 - 300金币 (原版杀手商店物品)
-            SLIPPERY_GHOST_SHOP.add(
-                    new ShopEntry(TMMItems.BLACKOUT.getDefaultInstance(), SREConfig.instance().blackoutPrice,
-                            ShopEntry.Type.TOOL) {
-                        public boolean onBuy(@NotNull Player player) {
-                            return SREPlayerShopComponent.useBlackout(player);
-                        }
-                    });
+            // 关灯 - 300(杀手关灯*2.5)金币 (原版杀手商店物品)
+            盲人朵拉的捣蛋鬼商店.add(ShopContent.getBlackoutShopEntry(2f));
         }
 
         // 工程师商店
@@ -2791,12 +2785,12 @@ public class RoleShopHandler {
         // 捣蛋鬼商店
         {
             ShopContent.customEntries.put(
-                    ModRoles.PRANKSTER_ID, SLIPPERY_GHOST_SHOP);
+                    ModRoles.PRANKSTER_ID, 盲人朵拉的捣蛋鬼商店);
 
             // 小恶魔的商店。继承捣蛋鬼
             {
                 var SHOP = new ArrayList<ShopEntry>();
-                SHOP.addAll(SLIPPERY_GHOST_SHOP);
+                SHOP.addAll(盲人朵拉的捣蛋鬼商店);
                 ShopContent.customEntries.put(THRedHouseRoles.KOAKUMA_ID, SHOP);
             }
         }

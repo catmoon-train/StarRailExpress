@@ -16,6 +16,7 @@
 package io.wifi.starrailexpress.api;
 
 import io.wifi.starrailexpress.SRE;
+import io.wifi.starrailexpress.api.AreasSettingUtils.MapSpecialFeatures;
 import io.wifi.starrailexpress.api.data.RoleData;
 import io.wifi.starrailexpress.api.data.RoleDataContext;
 import io.wifi.starrailexpress.cca.SREAbilityPlayerComponent;
@@ -27,9 +28,11 @@ import io.wifi.starrailexpress.client.gui.screen.ingame.LimitedInventoryScreen;
 import io.wifi.starrailexpress.client.gui.screen.ingame.RoleInventoryScreenExtension;
 import io.wifi.starrailexpress.content.entity.PlayerBodyEntity;
 import io.wifi.starrailexpress.content.gui.PlayerBodyEntityContainer;
+import io.wifi.starrailexpress.game.data.MapStatusBarType;
 import io.wifi.starrailexpress.index.TMMItems;
 import io.wifi.starrailexpress.util.ShopEntry;
 import io.wifi.starrailexpress.util.TrueFalseResult;
+import io.wifi.utils.RandomSelector;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.core.NonNullList;
@@ -55,6 +58,7 @@ import org.agmas.harpymodloader.SREDisableManager;
 import org.agmas.harpymodloader.events.ModdedRoleAssigned;
 import org.agmas.harpymodloader.modded_murder.PlayerRoleWeightManager;
 import org.agmas.harpymodloader.modifiers.SREModifier;
+import org.agmas.noellesroles.config.NoellesRolesConfig;
 import org.agmas.noellesroles.config.SpawnInfoConfig.SpawnInfo;
 import org.agmas.noellesroles.init.ModEffects;
 import org.agmas.noellesroles.utils.RoleUtils;
@@ -68,7 +72,6 @@ import java.util.function.*;
 
 // 此类AI禁止修改。
 public abstract class SRERole extends SREAbstractInfoClass {
-    protected final Random random = new Random();
     protected ResourceLocation identifier;
     protected boolean canSetSpawnInfoInConfig = true;
     protected boolean canSeeCoin = true;
@@ -195,12 +198,9 @@ public abstract class SRERole extends SREAbstractInfoClass {
     public int defaultEnableChance = -1;
     public int defaultEnableNeedPlayerCount = -1;
     public int defaultEnableMaxPlayerCount = -1;
-    protected SpecialMapRoleMap specialMapRole = SpecialMapRoleMap.ALL;
-    /** 多条件模式：非 null 时，根据 {@link #specialMapRolesOr} 的关系判定是否允许刷新。 */
-    @Nullable
-    protected EnumSet<SpecialMapRoleMap> specialMapRoles = null;
-    /** 多条件地图限定的条件关系：false = AND（默认，全部满足），true = OR（任一满足）。 */
-    protected boolean specialMapRolesOr = false;
+    protected MapSpecialFeatures specialMapRole = MapSpecialFeatures.ALL;
+    protected BiPredicate<String, AreasSettings> canSpawnInMapPredicate = null;
+
     protected boolean specialVigilante = false;
     protected boolean refreshableSpecialVigilante = false;
     protected int refreshableSpecialVigilanteChance = -1;
@@ -439,10 +439,6 @@ public abstract class SRERole extends SREAbstractInfoClass {
         return this;
     }
 
-    public Random getRandom() {
-        return random;
-    }
-
     public SRERole setClientGameTickEvent(BiConsumer<Player, SREGameWorldComponent> event) {
         this.clientTickEvent = event;
         return this;
@@ -538,6 +534,7 @@ public abstract class SRERole extends SREAbstractInfoClass {
     protected final Set<SREPlayerTaskComponent.Task> unrefreshableTasks = new HashSet<>();
     /** 该职业仅可刷出的任务类型（白名单，为空表示不限制）。 */
     protected final Set<SREPlayerTaskComponent.Task> onlyRefreshableTasks = new HashSet<>();
+    protected Predicate<Set<MapSpecialFeatures>> specialMapRolesPredicate = null;
 
     /** 指定该职业不可刷出的任务类型（链式，可多次调用叠加）。 */
     public SRERole addUnrefreshableTasks(SREPlayerTaskComponent.Task... tasks) {
@@ -650,81 +647,24 @@ public abstract class SRERole extends SREAbstractInfoClass {
         return this.occupiedRoleCount;
     }
 
-    public enum SpecialMapRoleMap {
-        ALL, QIYUCUN, BIGMAP, UNDERWATER, FLY, TRAP,
-        /** 仅可跳跃地图生成 */
-        CAN_JUMP,
-        /** 仅可召开会议地图生成 */
-        MEETING,
-        /** 仅可召开会议且启用了投票的地图生成 */
-        MEETING_VOTE,
-        /** 仅可游玩小游戏地图生成 */
-        MINIGAME_QUEST,
-        /** 仅拥有状态栏地图生成（mapStatusBar != NONE） */
-        MAP_STATUS_BAR,
-        /** 仅骑马地图生成（驯马师、猎人） */
-        HORSE
-    }
-
-    public SpecialMapRoleMap getSpecialMapRole() {
+    public MapSpecialFeatures getSpecialMapRole() {
         return this.specialMapRole;
     }
 
-    public SRERole setSpecialMapRole(SpecialMapRoleMap specialMapRole) {
-        this.specialMapRole = specialMapRole == null ? SpecialMapRoleMap.ALL : specialMapRole;
+    public SRERole setSpecialMapRole(MapSpecialFeatures specialMapRole) {
+        this.specialMapRole = specialMapRole == null ? MapSpecialFeatures.ALL : specialMapRole;
         return this;
     }
 
     /**
-     * 多条件地图限定：至少填写 2 个 {@link SpecialMapRoleMap}，
-     * 只有当前地图同时满足所有条件时才会刷新（AND 关系）。
-     * <p>
-     * 例如 {@code setSpecialMapRoles(CAN_JUMP, MINIGAME_QUEST)} 表示该职业
-     * 只会在既可跳跃又开启了小游戏任务的地图刷新。
-     * <p>
-     * 注意：多条件模式优先生效，会覆盖 {@link #setSpecialMapRole(SpecialMapRoleMap)} 的单条件设置。
-     * 需要任一条件满足即可刷新（OR 关系）时，请使用 {@link #setSpecialMapRolesOr}。
+     * 是否在指定 SpecialMapRoleMap 启用
+     * 
+     * @param predicate
+     * @return
      */
-    public SRERole setSpecialMapRoles(SpecialMapRoleMap first, SpecialMapRoleMap second,
-            SpecialMapRoleMap... more) {
-        return setSpecialMapRoles(false, first, second, more);
-    }
-
-    /**
-     * 多条件地图限定（OR 关系）：至少填写 2 个 {@link SpecialMapRoleMap}，
-     * 当前地图满足任一条件即可刷新。
-     * <p>
-     * 例如 {@code setSpecialMapRolesOr(UNDERWATER, FLY)} 表示该职业
-     * 在水下地图或飞行地图都会刷新。
-     * <p>
-     * 注意：多条件模式优先生效，会覆盖 {@link #setSpecialMapRole(SpecialMapRoleMap)} 的单条件设置。
-     */
-    public SRERole setSpecialMapRolesOr(SpecialMapRoleMap first, SpecialMapRoleMap second,
-            SpecialMapRoleMap... more) {
-        return setSpecialMapRoles(true, first, second, more);
-    }
-
-    /**
-     * 多条件地图限定的实际实现。
-     *
-     * @param orRelation true = OR 关系（任一条件满足即可刷新），false = AND 关系（全部满足）
-     */
-    public SRERole setSpecialMapRoles(boolean orRelation, SpecialMapRoleMap first, SpecialMapRoleMap second,
-            SpecialMapRoleMap... more) {
-        EnumSet<SpecialMapRoleMap> set = EnumSet.noneOf(SpecialMapRoleMap.class);
-        addSpecialMapRoles(set, first);
-        addSpecialMapRoles(set, second);
-        for (SpecialMapRoleMap m : more) {
-            addSpecialMapRoles(set, m);
-        }
-        this.specialMapRoles = set.isEmpty() ? null : set;
-        this.specialMapRolesOr = orRelation;
+    public SRERole setSpecialMapRolesCondition(Predicate<Set<MapSpecialFeatures>> predicate) {
+        this.specialMapRolesPredicate = predicate;
         return this;
-    }
-
-    /** 多条件地图限定是否为 OR 关系（任一条件满足即可刷新）。false 时为 AND 关系（默认）。 */
-    public boolean isSpecialMapRolesOr() {
-        return this.specialMapRolesOr;
     }
 
     /**
@@ -739,25 +679,6 @@ public abstract class SRERole extends SREAbstractInfoClass {
     /** 该职业的小游戏任务是否为独立计算（独立计时派发，不参与轮换）。默认 false。 */
     public boolean hasIndependentMinigameTiming() {
         return this.independentMinigameTiming;
-    }
-
-    private void addSpecialMapRoles(EnumSet<SpecialMapRoleMap> set, SpecialMapRoleMap condition) {
-        if (condition != null && condition != SpecialMapRoleMap.ALL) {
-            set.add(condition);
-        }
-    }
-
-    public EnumSet<SpecialMapRoleMap> getSpecialMapRoles() {
-        return this.specialMapRoles;
-    }
-
-    /** 是否处于多条件地图限定模式（setSpecialMapRoles 已设置）。 */
-    public boolean isSpecialMapRoles() {
-        return this.specialMapRoles != null && !this.specialMapRoles.isEmpty();
-    }
-
-    public boolean isSpecialMapRole() {
-        return this.specialMapRole != SpecialMapRoleMap.ALL || this.isSpecialMapRoles();
     }
 
     public boolean isSpecialVigilante() {
@@ -1552,9 +1473,12 @@ public abstract class SRERole extends SREAbstractInfoClass {
      * @return
      */
     public int getRoundMaxCount(ServerLevel serverLevel, SREGameWorldComponent gameWorldComponent,
-            List<ServerPlayer> players, String mapName) {
+            List<ServerPlayer> players, String mapName, AreasSettings settings) {
         if (spawnInfo.maxSpawn == -1)
             return -1;
+        if (!canSpawnInMap(mapName, settings)) {
+            return 0;
+        }
         // 优先使用 spawnInfo（来自用户配置），若未设置则跳过
         int minPlayer = this.spawnInfo.minEnabledPlayer;
         if (minPlayer >= 0) {
@@ -1572,8 +1496,7 @@ public abstract class SRERole extends SREAbstractInfoClass {
         }
         int chance = this.spawnInfo.enableChance;
         if (chance >= 0) {
-            int nchance = random.nextInt(0, 10000);
-            if (nchance > chance) {
+            if (!RandomSelector.tryChance(chance, 10000)) {
                 return 0;
             }
         }
@@ -1732,6 +1655,73 @@ public abstract class SRERole extends SREAbstractInfoClass {
      */
     public int getRoleType() {
         return PlayerRoleWeightManager.getRoleType(this);
+    }
+
+    /**
+     * 自定义职业生成条件
+     * 
+     * @param condition
+     * @return
+     */
+    public SRERole setCanSpawnInMap(BiPredicate<String, AreasSettings> condition) {
+        this.canSpawnInMapPredicate = condition;
+        return this;
+    }
+
+    public boolean canSpawnInMap(String mapId, AreasSettings areasSettings) {
+        if (canSpawnInMapPredicate != null && !canSpawnInMapPredicate.test(mapId, areasSettings)) {
+            return false;
+        }
+        var features = getMapFeatures(mapId, areasSettings);
+        if (specialMapRole != null && !specialMapRole.equals(MapSpecialFeatures.ALL)
+                && !features.contains(specialMapRole)) {
+            return false;
+        }
+        if (specialMapRolesPredicate != null && !specialMapRolesPredicate.test(features)) {
+            return false;
+        }
+        return true;
+    }
+
+    public static Set<MapSpecialFeatures> getMapFeatures(String id, AreasSettings settings) {
+        Set<MapSpecialFeatures> result = new HashSet<>();
+        NoellesRolesConfig config = NoellesRolesConfig.instance();
+        if (config.airRolesMaps != null && config.airRolesMaps.contains(id)) {
+            result.add(MapSpecialFeatures.FLY);
+        }
+        if (config.trapRolesMaps != null && config.trapRolesMaps.contains(id)) {
+            result.add(MapSpecialFeatures.TRAP);
+        }
+        if (config.horseRolesMaps != null && config.horseRolesMaps.contains(id)) {
+            result.add(MapSpecialFeatures.HORSE);
+        }
+        if (config.underwaterRolesMaps != null && config.underwaterRolesMaps.contains(id)) {
+            result.add(MapSpecialFeatures.UNDERWATER);
+        }
+        if (config.maChenXuMaps != null && config.maChenXuMaps.contains(id)) {
+            result.add(MapSpecialFeatures.QIYUCUN);
+        }
+        if (config.swastMaps != null && config.swastMaps.contains(id)) {
+            result.add(MapSpecialFeatures.BIGMAP);
+        }
+        if (settings.canJump) {
+            result.add(MapSpecialFeatures.CAN_JUMP);
+        }
+        if (settings.mapStatusBar != null && settings.mapStatusBar != MapStatusBarType.NONE) {
+            result.add(MapSpecialFeatures.MAP_STATUS_BAR);
+        }
+        if (settings.meetingEnabled) {
+            result.add(MapSpecialFeatures.MEETING);
+            if (settings.meetingVoteEnabled || settings.emergencyMeetingVoteEnabled == TrueFalseResult.TRUE) {
+                result.add(MapSpecialFeatures.MEETING_VOTE);
+            }
+        }
+        if (settings.minigameQuestEnabled) {
+            result.add(MapSpecialFeatures.MINIGAME_QUEST);
+        }
+        if (settings.customMapFeatures != null)
+            result.addAll(settings.customMapFeatures);
+        return result;
     }
 
     public boolean canSeeBodyName() {

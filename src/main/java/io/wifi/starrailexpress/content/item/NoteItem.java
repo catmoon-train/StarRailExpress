@@ -15,13 +15,11 @@
 
 package io.wifi.starrailexpress.content.item;
 
-import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.cca.SREPlayerNoteComponent;
 import io.wifi.starrailexpress.content.entity.NoteEntity;
 import io.wifi.starrailexpress.index.TMMEntities;
 import io.wifi.starrailexpress.util.AdventureUsable;
 import net.minecraft.core.Direction;
-import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.Mth;
 import net.minecraft.world.InteractionHand;
@@ -88,9 +86,9 @@ public class NoteItem extends Item implements AdventureUsable {
         note.setPos(hitPos.x(), hitPos.y(), hitPos.z());
         world.addFreshEntity(note);
         if (!player.isCreative()) {
-            if (SRE.REPLAY_MANAGER != null) {
-                SRE.REPLAY_MANAGER.recordItemUse(player.getUUID(), BuiltInRegistries.ITEM.getKey(this));
-            }
+            // if (SRE.REPLAY_MANAGER != null) {
+            //     // SRE.REPLAY_MANAGER.recordItemUse(player.getUUID(), BuiltInRegistries.ITEM.getKey(this));
+            // }
             player.getItemInHand(context.getHand()).shrink(1);
         }
         return InteractionResult.SUCCESS;
