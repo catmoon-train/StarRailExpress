@@ -14,6 +14,8 @@ import io.wifi.starrailexpress.cca.SREPlayerShopComponent;
 import io.wifi.starrailexpress.game.GameUtils;
 import io.wifi.starrailexpress.game.GameConstants;
 import io.wifi.starrailexpress.event.OnGiveKillerBalance;
+import net.minecraft.core.HolderLookup.Provider;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.game.ClientboundSetEntityDataPacket;
 import net.minecraft.network.syncher.EntityDataAccessor;
@@ -33,7 +35,8 @@ import org.agmas.noellesroles.role.ModRoles;
 import java.util.List;
 
 public class EchoListenerRoleData extends SimpleRoleData {
-    private static final EntityDataAccessor<Byte> SHARED_FLAGS = new EntityDataAccessor<>(0, EntityDataSerializers.BYTE);
+    private static final EntityDataAccessor<Byte> SHARED_FLAGS = new EntityDataAccessor<>(0,
+            EntityDataSerializers.BYTE);
     private static final byte GLOWING_FLAG = 0x40;
     private static final int INCOME_INTERVAL = 5 * 20;
     private static final int RESPAWN_DELAY = 60 * 20;
@@ -41,9 +44,10 @@ public class EchoListenerRoleData extends SimpleRoleData {
     private int respawnTicks = -1;
 
     static {
-        OnGiveKillerBalance.EVENT.register((victim, killer, reason) ->
-                SREGameWorldComponent.KEY.get(victim.level()).isRole(victim, ModRoles.ECHO_LISTENER)
-                        ? -(GameConstants.getMoneyPerKill() / 2) : 0);
+        OnGiveKillerBalance.EVENT.register((victim, killer,
+                reason) -> SREGameWorldComponent.KEY.get(victim.level()).isRole(victim, ModRoles.ECHO_LISTENER)
+                        ? -(GameConstants.getMoneyPerKill() / 2)
+                        : 0);
     }
 
     public EchoListenerRoleData(RoleDataContext context) {
@@ -57,19 +61,23 @@ public class EchoListenerRoleData extends SimpleRoleData {
 
     @Override
     public void serverTick() {
-        if (!(player instanceof ServerPlayer listener)) return;
+        if (!(player instanceof ServerPlayer listener))
+            return;
         SREGameWorldComponent game = SREGameWorldComponent.KEY.get(listener.level());
-        if (!game.isRunning() || !game.isRole(listener, ModRoles.ECHO_LISTENER)) return;
+        if (!game.isRunning() || !game.isRole(listener, ModRoles.ECHO_LISTENER))
+            return;
 
         // The effect drives the existing sound-reactive blind-vision shader.
         listener.addEffect(new MobEffectInstance(ModEffects.BLIND_VISION, 40, 0, false, false, false));
 
         if (!GameUtils.isPlayerAliveAndSurvival(listener)) {
-            if (respawnTicks < 0) respawnTicks = RESPAWN_DELAY;
+            if (respawnTicks < 0)
+                respawnTicks = RESPAWN_DELAY;
             if (--respawnTicks <= 0) {
                 GameUtils.revivePlayerToItsRoom(listener);
                 respawnTicks = -1;
-                listener.displayClientMessage(Component.translatable("message.noellesroles.echo_listener.respawned"), true);
+                listener.displayClientMessage(Component.translatable("message.noellesroles.echo_listener.respawned"),
+                        true);
             }
             return;
         }
@@ -88,21 +96,25 @@ public class EchoListenerRoleData extends SimpleRoleData {
 
     private void revealNoisyPlayers(ServerPlayer listener) {
         for (ServerPlayer target : listener.serverLevel().players()) {
-            if (target == listener || !GameUtils.isPlayerAliveAndSurvival(target)) continue;
+            if (target == listener || !GameUtils.isPlayerAliveAndSurvival(target))
+                continue;
             boolean noisy = target.getDeltaMovement().horizontalDistanceSqr() > 0.0025
                     || target.fallDistance > 0.1f || target.swinging;
             byte flags = target.getEntityData().get(SHARED_FLAGS);
             byte visibleFlags = noisy ? (byte) (flags | GLOWING_FLAG) : flags;
             listener.connection.send(new ClientboundSetEntityDataPacket(target.getId(),
-                    List.of(new SynchedEntityData.DataValue<>(SHARED_FLAGS.id(), SHARED_FLAGS.serializer(), visibleFlags))));
+                    List.of(new SynchedEntityData.DataValue<>(SHARED_FLAGS.id(), SHARED_FLAGS.serializer(),
+                            visibleFlags))));
         }
     }
 
     private void spreadFear(ServerPlayer listener) {
         for (ServerPlayer target : listener.serverLevel().players()) {
-            if (target == listener || !GameUtils.isPlayerAliveAndSurvival(target)) continue;
+            if (target == listener || !GameUtils.isPlayerAliveAndSurvival(target))
+                continue;
             double distance = target.distanceTo(listener);
-            if (distance > 16.0) continue;
+            if (distance > 16.0)
+                continue;
             int amplifier = distance <= 5.0 ? 1 : 0;
             target.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SLOWDOWN, 15, amplifier, false, false, false));
             target.addEffect(new MobEffectInstance(MobEffects.CONFUSION, 40, 0, false, false, false));
@@ -111,10 +123,12 @@ public class EchoListenerRoleData extends SimpleRoleData {
     }
 
     public boolean useSonicWave() {
-        if (!(player instanceof ServerPlayer listener) || !GameUtils.isPlayerAliveAndSurvival(listener)) return false;
+        if (!(player instanceof ServerPlayer listener) || !GameUtils.isPlayerAliveAndSurvival(listener))
+            return false;
         SREPlayerShopComponent shop = SREPlayerShopComponent.KEY.get(listener);
         if (shop.balance < 50) {
-            listener.displayClientMessage(Component.translatable("message.noellesroles.echo_listener.no_money", 50), true);
+            listener.displayClientMessage(Component.translatable("message.noellesroles.echo_listener.no_money", 50),
+                    true);
             return false;
         }
         Vec3 start = listener.getEyePosition();
@@ -143,5 +157,15 @@ public class EchoListenerRoleData extends SimpleRoleData {
         ServerLevel level = listener.serverLevel();
         level.playSound(null, listener.blockPosition(), SoundEvents.WARDEN_SONIC_BOOM, SoundSource.PLAYERS, 1.2f, 1.0f);
         return true;
+    }
+
+    /** 不传输内容 */
+    @Override
+    public void writeToSyncNbt(CompoundTag tag, Provider registryLookup) {
+    }
+
+    /** 不传输内容 */
+    @Override
+    public void readFromSyncNbt(CompoundTag tag, Provider registryLookup) {
     }
 }
