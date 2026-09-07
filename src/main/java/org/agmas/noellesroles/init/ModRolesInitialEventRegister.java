@@ -76,6 +76,7 @@ import org.agmas.noellesroles.role_data.neutral.MorticianBodyMakerRoleData;
 import org.agmas.noellesroles.role_data.innocence.LeatherPigRoleData;
 import org.agmas.noellesroles.role_data.innocence.TomatoHeadRoleData;
 import org.agmas.noellesroles.role_data.neutral.PhantomSpiritRoleData;
+import org.agmas.noellesroles.role_data.neutral.ZhangAngelRoleData;
 import org.agmas.noellesroles.role_data.innocence.MagicianRoleData;
 import org.agmas.noellesroles.role_data.innocence.MediumRoleData;
 import org.agmas.noellesroles.role_data.killer.StalkerRoleData;
@@ -1366,6 +1367,16 @@ public class ModRolesInitialEventRegister {
                         .cooldownSeconds(PhantomSpiritRoleData.COOLDOWN_SECONDS)
                         .withTarget()
                         .toggleable(true)
+                        .showOnHud(true).announceToSelf(false).build());
+
+        RoleSkill.register(ModRoles.ZHANG_ANGEL,
+                RoleSkill.skill(ZhangAngelRoleData.SKILL_ID, "skill.noellesroles.zhang_angel.lightning",
+                        context -> {
+                            var data = RoleData.getNullable(ZhangAngelRoleData.class, context.player());
+                            return data != null && data.useLightning(context);
+                        })
+                        .cooldownSeconds(1)
+                        .withTarget()
                         .showOnHud(true).announceToSelf(false).build());
 
         // 出题人不适用于统一的技能注册：其需要不同的触发方式但这个api不兼容。

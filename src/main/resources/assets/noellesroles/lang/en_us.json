@@ -4515,5 +4515,18 @@
   "skill.noellesroles.echo_listener.sonic_wave": "Sonic Wave",
   "message.noellesroles.echo_listener.no_money": "You need %s coins to emit a sonic wave!",
   "message.noellesroles.echo_listener.no_target": "No player is aligned with the sonic wave.",
-  "message.noellesroles.echo_listener.respawned": "You followed the echoes back to life."
+  "message.noellesroles.echo_listener.respawned": "You followed the echoes back to life.",
+  "announcement.star.role.zhang_angel": "Zhang Angel",
+  "announcement.star.role.noellesroles.zhang_angel": "Zhang Angel",
+  "announcement.star.goals.zhang_angel": "Survive with the passengers.",
+  "skill.noellesroles.zhang_angel.lightning": "Call Lightning",
+  "hud.noellesroles.zhang_angel.swallows": "Charge: %s/%s",
+  "hud.noellesroles.zhang_angel.stealth": "Hidden in darkness",
+  "message.noellesroles.zhang_angel.swallowed": "Swallowed charge %s/%s",
+  "message.noellesroles.zhang_angel.ready": "Charge full. Spend 100 gold to call lightning on your target.",
+  "message.noellesroles.zhang_angel.not_enough_swallows": "Not enough charge: need %s, have %s.",
+  "message.noellesroles.zhang_angel.lightning_cast": "Lightning struck %s, who lost %s.",
+  "message.noellesroles.zhang_angel.lightning_hit": "Lightning struck you. You lost %s and your movement is slowed.",
+  "message.noellesroles.zhang_angel.sense.sight": "sight",
+  "message.noellesroles.zhang_angel.sense.hearing": "hearing"
 }

@@ -4628,5 +4628,18 @@
   "skill.noellesroles.echo_listener.sonic_wave": "聲波",
   "message.noellesroles.echo_listener.no_money": "發放聲波需要 %s 金幣！",
   "message.noellesroles.echo_listener.no_target": "聲波方向上沒有玩家。",
-  "message.noellesroles.echo_listener.respawned": "你循著回聲重新回到了列車。"
+  "message.noellesroles.echo_listener.respawned": "你循著回聲重新回到了列車。",
+  "announcement.star.role.zhang_angel": "張天使",
+  "announcement.star.role.noellesroles.zhang_angel": "張天使",
+  "announcement.star.goals.zhang_angel": "與乘客一同活到最後。",
+  "skill.noellesroles.zhang_angel.lightning": "召雷",
+  "hud.noellesroles.zhang_angel.swallows": "吞電：%s/%s",
+  "hud.noellesroles.zhang_angel.stealth": "黑暗隱身中",
+  "message.noellesroles.zhang_angel.swallowed": "吞電 %s/%s",
+  "message.noellesroles.zhang_angel.ready": "吞電已滿，花費 100 金幣可對準目標召雷。",
+  "message.noellesroles.zhang_angel.not_enough_swallows": "吞電不足：需要 %s 次，當前 %s 次。",
+  "message.noellesroles.zhang_angel.lightning_cast": "閃電擊中了 %s，對方失去了%s。",
+  "message.noellesroles.zhang_angel.lightning_hit": "你被閃電擊中，失去了%s，並且行動變得遲緩。",
+  "message.noellesroles.zhang_angel.sense.sight": "視覺",
+  "message.noellesroles.zhang_angel.sense.hearing": "聽覺"
 }

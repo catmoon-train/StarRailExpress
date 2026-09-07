@@ -232,6 +232,8 @@ public class ModRoles {
     public static final ResourceLocation TOMATO_HEAD_ID = Noellesroles.id("tomato_head");
     // 幻灵角色 ID
     public static final ResourceLocation PHANTOM_SPIRIT_ID = Noellesroles.id("phantom_spirit");
+    // 张天使角色 ID
+    public static final ResourceLocation ZHANG_ANGEL_ID = Noellesroles.id("zhang_angel");
     // 野人角色 ID
     public static final ResourceLocation BARBARIAN_ID = BounsRoles.id("barbarian");
     // 亡灵之主角色 ID
@@ -762,6 +764,25 @@ public class ModRoles {
             .setDefaultMax(1)
             .setDefaultEnableChance(4000)
             .setAddedVersion("4.4");
+
+    /**
+     * 张天使 - 平民中立（与乘客一同胜利）
+     * - 每 10 秒吞电，使周围灯光闪烁
+     * - 处于黑暗（亮度≤5 或关灯）时隐身并获得速度 I
+     * - 积攒 10 次吞电后，花费 100 金币对准目标召雷：随机失一感官 30 秒 + 缓慢 III 2 分钟
+     */
+    public static SRERole ZHANG_ANGEL = TMMRoles.registerRole(
+            new NormalRole(ZHANG_ANGEL_ID, new Color(170, 200, 255).getRGB(),
+                    RoleType.NEUTRALS_FOR_INNOCENT, SRERole.MoodType.REAL,
+                    TMMRoles.CIVILIAN.getMaxSprintTime(), true)
+                    .setRoleData(ZhangAngelRoleData::new))
+            .setCanSeeCoin(true)
+            .setCanIncreaseSurvivingInnocents(true)
+            .setNeutralForInnocent(true)
+            .setDarknessImmune(true)
+            .setDefaultMax(1)
+            .setDefaultEnableChance(4000)
+            .setAddedVersion("4.5");
 
     /**
      * 野人 - 平民阵营。
@@ -3110,6 +3131,7 @@ public class ModRoles {
         FIREFIGHTER.setAddedVersion("3.3");
         ACCOUNTANT.setAddedVersion("3.3");
         TOMATO_HEAD.setAddedVersion("4.5");
+        ZHANG_ANGEL.setAddedVersion("4.5");
         ALCHEMIST.setAddedVersion("3.3");
         DIVER.setAddedVersion("4.0");
         SWAST.setAddedVersion("3.3");
