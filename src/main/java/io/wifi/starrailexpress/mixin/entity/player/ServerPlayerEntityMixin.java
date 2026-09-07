@@ -34,7 +34,6 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
@@ -61,8 +60,10 @@ public class ServerPlayerEntityMixin {
 
     @Inject(method = "onEffectRemoved", at = @At("TAIL"), cancellable = true)
     private void sre$callSimpleMobEffectEffectStop(MobEffectInstance mobEffectInstance, CallbackInfo cir) {
-        if (mobEffectInstance.getEffect() instanceof SimpleMobEffect sb) {
-            sb.onEffectEnded((LivingEntity) (Object) this);
+        // SRE.LOGGER.info("On effect removed
+        // {}",mobEffectInstance.getEffect(),mobEffectInstance.getEffect().getClass().getSimpleName());
+        if (mobEffectInstance.getEffect().value() instanceof SimpleMobEffect sb) {
+            sb.onEffectEnded((ServerPlayer) (Object) this);
         }
     }
 

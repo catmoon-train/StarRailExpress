@@ -509,8 +509,10 @@ public class NoellesrolesClient implements ClientModInitializer {
         BeeFamilyClientManager.registerEvents();
 
         ClientPlayNetworking.registerGlobalReceiver(RefreshDimensionsS2CPacket.ID, (payload, context) -> {
+            SRE.LOGGER.info("Scheduling refresh client player dimensions...");
             ClientScheduler.schedule(() -> {
                 if (context.client().player != null) {
+                    SRE.LOGGER.info("Refreshed client player dimensions.");
                     context.client().player.refreshDimensions();
                 }
             }, 5);

@@ -19,10 +19,8 @@ public class TomatoFormMobEffect extends SimpleMobEffect {
     }
 
     @Override
-    public void onEffectEnded(LivingEntity livingEntity) {
-        if (livingEntity instanceof ServerPlayer sp) {
-            GameUtils.refreshPlayerDimension(sp);
-        }
+    public void onEffectEnded(ServerPlayer sp) {
+        GameUtils.refreshPlayerDimension(sp);
     }
 
 }

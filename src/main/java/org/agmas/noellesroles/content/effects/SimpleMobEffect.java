@@ -16,9 +16,9 @@
 package org.agmas.noellesroles.content.effects;
 
 import net.minecraft.core.particles.ParticleOptions;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectCategory;
-import net.minecraft.world.entity.LivingEntity;
 
 public class SimpleMobEffect extends MobEffect {
 
@@ -35,6 +35,6 @@ public class SimpleMobEffect extends MobEffect {
      * 
      * @param livingEntity
      */
-    public void onEffectEnded(LivingEntity livingEntity) {
+    public void onEffectEnded(ServerPlayer livingEntity) {
     }
 }
