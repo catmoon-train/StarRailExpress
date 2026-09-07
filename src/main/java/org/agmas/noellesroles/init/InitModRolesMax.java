@@ -325,6 +325,7 @@ public class InitModRolesMax {
             if (role.isSpecialVigilante() && roleMaxBackup.get(role.identifier()) > 0) {
                 // 仅处理启用的
                 specialVigilantes.add(role);
+                Harpymodloader.setRoleMaximum(role, 0);
             }
         }
         if (limit <= 0) {

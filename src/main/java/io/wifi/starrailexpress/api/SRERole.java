@@ -32,6 +32,7 @@ import io.wifi.starrailexpress.game.data.MapStatusBarType;
 import io.wifi.starrailexpress.index.TMMItems;
 import io.wifi.starrailexpress.util.ShopEntry;
 import io.wifi.starrailexpress.util.TrueFalseResult;
+import io.wifi.utils.RandomSelector;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.core.NonNullList;
@@ -71,7 +72,6 @@ import java.util.function.*;
 
 // 此类AI禁止修改。
 public abstract class SRERole extends SREAbstractInfoClass {
-    protected final Random random = new Random();
     protected ResourceLocation identifier;
     protected boolean canSetSpawnInfoInConfig = true;
     protected boolean canSeeCoin = true;
@@ -437,10 +437,6 @@ public abstract class SRERole extends SREAbstractInfoClass {
             this.flags.remove(i);
         }
         return this;
-    }
-
-    public Random getRandom() {
-        return random;
     }
 
     public SRERole setClientGameTickEvent(BiConsumer<Player, SREGameWorldComponent> event) {
@@ -1500,8 +1496,7 @@ public abstract class SRERole extends SREAbstractInfoClass {
         }
         int chance = this.spawnInfo.enableChance;
         if (chance >= 0) {
-            int nchance = random.nextInt(0, 10000);
-            if (nchance >= chance) {
+            if (!RandomSelector.tryChance(chance, 10000)) {
                 return 0;
             }
         }
