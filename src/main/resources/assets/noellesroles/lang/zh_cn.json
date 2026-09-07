@@ -1837,6 +1837,7 @@
   "block.noellesroles.custom_player_plush": "自定义玩家玩偶",
   "block.noellesroles.custom_player_plush.texture": "自定义材质玩偶",
   "block.noellesroles.custom_player_plush.player": "%s的玩偶",
+  "tooltip.sre.custom_player_plush.droppable": "可以直接丢弃，丢弃后会消失。",
   "tooltip.sre.custom_player_plush.player": "玩家：%s",
   "tooltip.sre.custom_player_plush.texture": "材质：%s",
   "tooltip.sre.custom_player_plush.sound": "音效：%s",

@@ -21,6 +21,7 @@ import org.agmas.noellesroles.init.NRSounds;
 import org.agmas.noellesroles.init.SREFumoBlocks;
 
 import io.wifi.starrailexpress.client.util.SREClientUtils;
+import io.wifi.starrailexpress.content.item.api.SREItemProperties.DropAndClearItem;
 import io.wifi.starrailexpress.index.SREDataComponentTypes;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.loader.api.FabricLoader;
@@ -41,7 +42,7 @@ import net.minecraft.world.item.component.ResolvableProfile;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 
-public class SREPlushItem extends BlockItem {
+public class SREPlushItem extends BlockItem implements DropAndClearItem {
     protected Block block = null;
 
     public SREPlushItem(Block block, Properties properties) {
@@ -107,5 +108,6 @@ public class SREPlushItem extends BlockItem {
                 }
             }
         }
+        tooltip.add(Component.translatable("tooltip.sre.custom_player_plush.droppable").withStyle(ChatFormatting.GRAY));
     }
 }
