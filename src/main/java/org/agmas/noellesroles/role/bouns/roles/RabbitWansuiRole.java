@@ -67,10 +67,7 @@ public class RabbitWansuiRole extends CustomWinnerRole implements EggRoleInterfa
                     SRE.REPLAY_MANAGER.recordCustomEvent(
                             Component.translatable("replay.event.rabbit.restore",
                                     GameReplayUtils.getReplayPlayerDisplayText(player, true)));
-                    wmcca.removeModifier(p, NRModifiers.RABBIT_SHAPE);
-
-                    ServerPlayNetworking.send(player, new RefreshDimensionsS2CPacket());
-                    player.refreshDimensions();
+                    RoleUtils.removeModifier(p, NRModifiers.RABBIT_SHAPE);
                 }
             }
         }
@@ -93,12 +90,12 @@ public class RabbitWansuiRole extends CustomWinnerRole implements EggRoleInterfa
                         MoneyUtils.sendNotEnoughtMoneyMessage(player, COST);
                         return false;
                     }
-                    wmcca.addModifier(target, NRModifiers.RABBIT_SHAPE);
                     target.displayClientMessage(Component.translatable("skill.noellesroles.rabbit_wansui.target.tip")
                             .withStyle(ChatFormatting.AQUA), true);
                     target.addEffect(ModEffects.of(MobEffects.DARKNESS, 5 * 20, 0, false, false, true));
                     target.addEffect(ModEffects.of(MobEffects.BLINDNESS, 5 * 20, 0, false, false, true));
                     target.addEffect(ModEffects.of(ModEffects.USED_BANED, 15 * 20, 0, false, false, true));
+                    target.addEffect(ModEffects.of(ModEffects.SKILL_BANED, 30 * 20, 0, false, false, true));
                     target.addEffect(ModEffects.of(ModEffects.MOVE_BANED, 5 * 20, 0, false, false, true));
                     target.addEffect(ModEffects.of(ModEffects.JUMP_DECREASE, 5 * 20, 10, false, false, true));
                     target.addEffect(ModEffects.of(ModEffects.CHAT_BAN, 30 * 20, 10, false, false, true));
@@ -106,8 +103,7 @@ public class RabbitWansuiRole extends CustomWinnerRole implements EggRoleInterfa
                     target.addEffect(ModEffects.of(ModEffects.NO_INSTINCT, 120 * 20, 10, false, false, true));
                     target.addEffect(ModEffects.of(ModEffects.INVENTORY_BANED, 30 * 20, 10, false, false, true));
                     target.addEffect(ModEffects.of(ModEffects.NO_STAMINA, 60 * 20, 10, false, false, true));
-                    ServerPlayNetworking.send(player, new RefreshDimensionsS2CPacket());
-                    player.refreshDimensions();
+                    RoleUtils.addModifier(target, NRModifiers.RABBIT_SHAPE);
                     return true;
                 })
                         .withTarget()

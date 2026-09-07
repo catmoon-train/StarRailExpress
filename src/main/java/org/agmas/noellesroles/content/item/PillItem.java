@@ -35,6 +35,7 @@ import org.agmas.noellesroles.game.modifier.NRModifiers;
 import org.agmas.noellesroles.init.HSRConstants;
 import org.agmas.noellesroles.init.ModItems;
 import org.agmas.noellesroles.packet.RefreshDimensionsS2CPacket;
+import org.agmas.noellesroles.utils.RoleUtils;
 import org.jetbrains.annotations.NotNull;
 
 public class PillItem extends Item {
@@ -65,7 +66,7 @@ public class PillItem extends Item {
                 SRE.REPLAY_MANAGER.recordCustomEvent(
                         Component.translatable("replay.event.rabbit.restore",
                                 GameReplayUtils.getReplayPlayerDisplayText(player, true)));
-                wmcca.removeModifier(player, NRModifiers.RABBIT_SHAPE);
+                RoleUtils.removeModifier(player, NRModifiers.RABBIT_SHAPE);
 
                 ServerPlayNetworking.send(player, new RefreshDimensionsS2CPacket());
                 player.refreshDimensions();
