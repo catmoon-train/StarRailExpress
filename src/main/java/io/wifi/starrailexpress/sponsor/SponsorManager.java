@@ -152,7 +152,7 @@ public final class SponsorManager {
     }
 
     /**
-     * 为该玩家挑选一个赞助者 plush 名：玩家本人在名单中则用本人，否则随机一个。
+     * 为该玩家挑选一个赞助者 plush 名：玩家本人在名单中则用本人，否则不给。
      *
      * @return 赞助者 plush 名；当前没有任何可用赞助者时返回 {@code null}
      */
@@ -167,7 +167,7 @@ public final class SponsorManager {
                 return s;
             }
         }
-        return names.get(player.getRandom().nextInt(names.size()));
+        return null;
     }
 
     /**
