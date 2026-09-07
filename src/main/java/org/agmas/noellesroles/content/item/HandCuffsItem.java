@@ -47,7 +47,7 @@ public class HandCuffsItem extends Item {
     public static final ResourceLocation SLOT_HANDCUFFS = SRE.id("handcuffs");
 
     /** CUSTOM_DATA 中标记"从前面铐住"的键 */
-    public static final String TAG_CUFFED_FRONT = "c_front";
+    public static final String TAG_CUFFED_FRONT = "is_front";
 
     public static void putOnHandCuff(Player player, ItemStack stack) {
         ExtraSlotComponent.setSlot(player, SLOT_HANDCUFFS, stack);
