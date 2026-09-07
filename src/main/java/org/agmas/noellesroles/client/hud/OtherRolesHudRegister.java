@@ -34,7 +34,6 @@ public class OtherRolesHudRegister {
         StuckHelperHud.register();
         THMamizouHud.register();
         CuckooHud.register();
-        SunChaserHud.register();
         ShitSplitHud.register();
         VoteHud.register();
         GreatDetectiveHud.register();

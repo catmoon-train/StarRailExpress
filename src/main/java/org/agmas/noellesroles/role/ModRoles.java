@@ -1018,11 +1018,6 @@ public class ModRoles {
             .setRoleData(WayfarerRoleData::new).setCanUseInstinctAndNightVision(false)
             .setCanSeeBodyDeathReason(true)
             .setDefaultEnableChance(2500).setDefaultEnableNeededPlayerCount(10);
-    public static final ResourceLocation SUN_CHASER_ID = Noellesroles.id("sun_chaser");
-    public static SRERole SUN_CHASER = TMMRoles.registerRole(
-            new org.agmas.noellesroles.game.roles.neutral.sun_chaser.SunChaserRole(SUN_CHASER_ID))
-            .setDefaultEnableChance(0);
-
     public static final ResourceLocation CUCKOO_ID = Noellesroles.id("cuckoo");
 
     public static SRERole CUCKOO = TMMRoles.registerRole(
@@ -2984,7 +2979,6 @@ public class ModRoles {
      */
     public static void init() {
         BounsRoles.init();
-        SunChaserRoleData.registerEvents();
         SREPlayerPoisonComponent.canSyncedRolePaths.add(ModRoles.POISONER_ID.getPath());
         SREPlayerPoisonComponent.canSyncedRolePaths.add(ModRoles.BARTENDER_ID.getPath());
         SREArmorPlayerComponent.canSynced.add((entry) -> {
