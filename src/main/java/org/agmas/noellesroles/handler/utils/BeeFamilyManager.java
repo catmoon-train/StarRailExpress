@@ -430,7 +430,7 @@ public class BeeFamilyManager {
                 RoleData.ifPresent(BeeFamilyRoleData.class, player, (data) -> {
                     if (data.beforeRole != null && !(data.beforeRole instanceof BeeFamilyRole)) {
                         // 变回原有角色！
-                        RoleUtils.changeRole(player, data.beforeRole, true, false, false, true);
+                        RoleUtils.changeRole(player, data.beforeRole, true, false, false, true, false);
                     }
                 });
             }

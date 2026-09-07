@@ -16,8 +16,6 @@
 package org.agmas.noellesroles.mixin.entity;
 
 import com.llamalad7.mixinextras.injector.ModifyReturnValue;
-
-import io.wifi.starrailexpress.client.SREClient;
 import net.minecraft.world.entity.EntityDimensions;
 import net.minecraft.world.entity.Pose;
 import net.minecraft.world.entity.player.Player;
@@ -45,15 +43,6 @@ public abstract class EntityDisguiseEyeHeightMixin {
     @ModifyReturnValue(method = "getDefaultDimensions", at = @At("RETURN"))
     private EntityDimensions noellesroles$lowerEyeToPig(EntityDimensions dimensions, Pose pose) {
         Player self = (Player) (Object) this;
-        if (!self.level().isClientSide())
-            return dimensions;
-        if (SREClient.cached_player == null) {
-            return dimensions;
-        }
-        // 只改自己的
-        if (SREClient.cached_player != self) {
-            return dimensions;
-        }
         EntityDimensions cachResult = getResult(self, dimensions, pose);
         if (cachResult != null)
             return cachResult;

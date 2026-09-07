@@ -32,10 +32,14 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundSource;
+import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
+
+import org.agmas.noellesroles.content.effects.SimpleMobEffect;
 import org.agmas.noellesroles.content.entity.PuppeteerBodyEntity;
 import org.agmas.noellesroles.content.entity.WheelchairEntity;
 import org.jetbrains.annotations.Nullable;
@@ -53,6 +57,13 @@ public class ServerPlayerEntityMixin {
             return;
         }
         cir.setReturnValue(false);
+    }
+
+    @Inject(method = "onEffectRemoved", at = @At("TAIL"), cancellable = true)
+    private void sre$callSimpleMobEffectEffectStop(MobEffectInstance mobEffectInstance, CallbackInfo cir) {
+        if (mobEffectInstance.getEffect() instanceof SimpleMobEffect sb) {
+            sb.onEffectEnded((LivingEntity) (Object) this);
+        }
     }
 
     @Inject(method = "drop(Lnet/minecraft/world/item/ItemStack;ZZ)Lnet/minecraft/world/entity/item/ItemEntity;", at = @At("HEAD"), cancellable = true)

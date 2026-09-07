@@ -22,15 +22,12 @@ import io.wifi.starrailexpress.index.TMMItems;
 import io.wifi.starrailexpress.mixin.entity.EntityMixin;
 import net.minecraft.core.Holder;
 import net.minecraft.sounds.SoundEvent;
-import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.Attribute;
 import net.minecraft.world.entity.ai.attributes.AttributeInstance;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.player.Player;
-
-import org.agmas.noellesroles.content.effects.SimpleMobEffect;
 import org.agmas.noellesroles.init.ModEffects;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
@@ -55,13 +52,6 @@ public abstract class LivingEntityMixin extends EntityMixin {
 
     @Shadow
     public abstract @Nullable AttributeInstance getAttribute(Holder<Attribute> attribute);
-
-    @Inject(method = "onEffectRemoved", at = @At("HEAD"), cancellable = true)
-    private void sre$callSimpleMobEffectEffectStop(MobEffectInstance mobEffectInstance, CallbackInfo cir) {
-        if (mobEffectInstance.getEffect() instanceof SimpleMobEffect sb) {
-            sb.onEffectEnded((LivingEntity) (Object) this);
-        }
-    }
 
     @Inject(method = "decreaseAirSupply", at = @At("HEAD"), cancellable = true)
     private void sre$decreaseAirSupply(int currentAir, CallbackInfoReturnable<Integer> cir) {

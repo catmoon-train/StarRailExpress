@@ -33,6 +33,7 @@ import io.wifi.starrailexpress.client.StatusInit;
 import io.wifi.starrailexpress.client.data.ClientRoleRosterCache;
 import io.wifi.starrailexpress.client.gui.screen.NewspaperScreen;
 import io.wifi.starrailexpress.client.gui.screen.ingame.LimitedInventoryScreen;
+import io.wifi.starrailexpress.client.util.ClientScheduler;
 import io.wifi.starrailexpress.client.util.ClientSkinCache;
 import io.wifi.starrailexpress.client.util.TMMItemTooltips;
 import io.wifi.starrailexpress.client.util.TaskInstinctManager;
@@ -508,8 +509,11 @@ public class NoellesrolesClient implements ClientModInitializer {
         BeeFamilyClientManager.registerEvents();
 
         ClientPlayNetworking.registerGlobalReceiver(RefreshDimensionsS2CPacket.ID, (payload, context) -> {
-            if (context.client().player != null)
-                context.client().player.refreshDimensions();
+            ClientScheduler.schedule(() -> {
+                if (context.client().player != null) {
+                    context.client().player.refreshDimensions();
+                }
+            }, 5);
         });
         ClientPlayNetworking.registerGlobalReceiver(OpenScreenPayload.ID, (payload, context) -> {
             ClientOpenScreenManager.openScreen(payload, context);

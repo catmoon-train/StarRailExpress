@@ -274,31 +274,34 @@ public class RoleUtils extends MCItemsUtils {
     }
 
     public static void addModifier(Player player, SREModifier modifier) {
-        addModifier(player, modifier, false);
+        addModifier(player, modifier, false, true);
     }
 
-    public static void addModifier(Player player, SREModifier modifier, boolean noEventCall) {
+    public static void addModifier(Player player, SREModifier modifier, boolean noEventCall, boolean syncNow) {
         if (player == null || modifier == null) {
             return;
         }
         final var wmc = WorldModifierComponent.getInstance(player);
         wmc.addModifier(player, modifier);
-        wmc.syncNow();
+        if (syncNow)
+            wmc.syncNow();
         if (!noEventCall)
             ModifierAssigned.EVENT.invoker().assignModifier(player, modifier);
     }
 
     public static void removeModifier(Player player, SREModifier modifier) {
-        removeModifier(player, modifier, false);
+        removeModifier(player, modifier, false, false);
     }
 
-    public static void removeModifier(Player player, SREModifier modifier, boolean noEventCall) {
+    public static void removeModifier(Player player, SREModifier modifier, boolean noEventCall, boolean syncNow) {
         if (player == null || modifier == null) {
             return;
         }
 
         final var wmc = WorldModifierComponent.getInstance(player);
         wmc.removeModifier(player, modifier);
+        if (syncNow)
+            wmc.syncNow();
         if (!noEventCall)
             ModifierRemoved.EVENT.invoker().removeModifier(player, modifier);
     }
@@ -343,11 +346,11 @@ public class RoleUtils extends MCItemsUtils {
 
     public static void changeRole(Player player, SRERole role, boolean record, boolean addStats,
             boolean clearOldItems) {
-        changeRole(player, role, record, addStats, false, false);
+        changeRole(player, role, record, addStats, false, false, true);
     }
 
     public static void changeRole(Player player, SRERole role, boolean record, boolean addStats,
-            boolean clearOldItems, boolean noEventCall) {
+            boolean clearOldItems, boolean noEventCall, boolean syncNow) {
         SREGameWorldComponent gameWorldComponent = SREGameWorldComponent.KEY.get(player.level());
         // 删除旧职业
         var oldRole = gameWorldComponent.getRole(player);
@@ -385,7 +388,8 @@ public class RoleUtils extends MCItemsUtils {
         }
         // 给新职业
         gameWorldComponent.addRole(player, role);
-        gameWorldComponent.roleWorldComponent.syncNow();
+        if (syncNow)
+            gameWorldComponent.roleWorldComponent.syncNow();
         if (oldRole != null) {
             if (record) {
                 SRE.REPLAY_MANAGER.recordPlayerRoleChange(player.getUUID(), oldRole, role);
