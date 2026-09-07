@@ -74,9 +74,9 @@ import org.agmas.noellesroles.init.RoleShopHandler;
 import org.agmas.noellesroles.packet.BloodConfigS2CPacket;
 import org.agmas.noellesroles.packet.EmbalmerSkinSwapS2CPacket;
 import org.agmas.noellesroles.role.ModRoles;
+import org.agmas.noellesroles.role.RoleTickers;
 import org.agmas.noellesroles.role.bouns.BounsRoles;
 import org.agmas.noellesroles.handler.utils.BeeFamilyManager;
-import org.agmas.noellesroles.game.roles.neutral.leader.LeaderFollowerEffects;
 import org.agmas.noellesroles.utils.MCItemsUtils;
 import pro.fazeclan.river.stupid_express.constants.SERoles;
 
@@ -522,6 +522,17 @@ public class NRGameStateEvents {
     // --- ServerTick ---
 
     private static void registerServerTick() {
+        OnGameServerTick.EVENT.register((world) -> {
+            var gamecca = SREGameWorldComponent.KEY.get(world);
+            var modifiercca = WorldModifierComponent.KEY.get(world);
+            for (ServerPlayer p : world.players()) {
+                if (gamecca.isRole(p, ModRoles.OLDMAN)) {
+                    RoleTickers.skipRunningTaskTick(p, gamecca);
+                } else if (modifiercca.isModifier(p, NRModifiers.FRAIL)) {
+                    RoleTickers.skipRunningTaskTick(p, gamecca);
+                }
+            }
+        });
         // 烟雾/迷幻区域 + 塔罗 + 收音机
         ServerTickEvents.END_SERVER_TICK.register((server) -> {
             ServerSmokeAreaManager.tick();

@@ -46,9 +46,9 @@ public class NRModifiers {
             null,
             false,
             false))
-            .setCanSetSpawnInfoInConfig(false)
-            .setDefaultEnableChance(0)
-            .setDefaultMax(0)
+            .setCanSetSpawnInfoInConfig(true)
+            .setDefaultEnableChance(1000)
+            .setDefaultMax(1)
             .setAddedVersion("4.4");
     /** Runtime-only marker for a player cosplayed as a Rabbit. */
     public static final SREModifier RABBIT_SHAPE = HMLModifiers.registerModifier(new SREModifier(

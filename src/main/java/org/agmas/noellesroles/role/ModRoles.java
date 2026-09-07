@@ -662,7 +662,7 @@ public class ModRoles {
                                     false, // showParticles（显示粒子）
                                     true // showIcon（显示图标）
                             )))
-            .setCanSeeCoin(true).setServerGameTickEvent((p, g) -> RoleTickers.oldmanTick(p, g));
+            .setCanSeeCoin(true);
     // 算命大师
     public static SRERole FORTUNETELLER = TMMRoles.registerRole(
             new NormalRole(FORTUNETELLER_ID, new Color(239, 228, 176).getRGB(),
