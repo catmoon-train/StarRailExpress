@@ -55,10 +55,6 @@ public class CustomWinnerClass {
         }
         var gameComponent = SREGameWorldComponent.KEY.get(serverLevel);
 
-        if (org.agmas.noellesroles.role_data.neutral.SunChaserRoleData.checkVictory(serverLevel)) {
-            return WinStatus.CUSTOM;
-        }
-
         // 检查是否有小偷存活
         boolean hasFurandoru = false;
         boolean hasThiefAlive = false;
