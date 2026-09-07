@@ -56,7 +56,9 @@ import net.minecraft.world.level.Level;
 
 import org.agmas.noellesroles.client.FlashlightLightProvider;
 import org.agmas.noellesroles.content.entity.WheelchairEntity;
+import org.agmas.noellesroles.game.modifier.NRModifiers;
 import org.agmas.noellesroles.init.ModEffects;
+import org.agmas.noellesroles.utils.RoleUtils;
 import org.jetbrains.annotations.NotNull;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -110,6 +112,9 @@ public abstract class PlayerEntityMixin extends LivingEntity implements PlayerSt
                 speedModifier *= 0.8f;
             } else if (srePlayerMoodComponent.isHigherThanAngry()) {
                 speedModifier *= 1.2f;
+            }
+            if (RoleUtils.isPlayerTheModifier(player, NRModifiers.FRAIL)) {
+                speedModifier *= 0.8f;
             }
             if (player.hasEffect(MobEffects.MOVEMENT_SPEED)) {
                 final var speedEffect = player.getEffect(MobEffects.MOVEMENT_SPEED);
