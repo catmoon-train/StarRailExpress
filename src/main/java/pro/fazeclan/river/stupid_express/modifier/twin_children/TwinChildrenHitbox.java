@@ -13,10 +13,17 @@ public final class TwinChildrenHitbox {
     public static final float VISUAL_STANDING_HEIGHT = 1.8F;
 
     /**
-     * Unscaled collision height of the stacked unit. After the half-scale
-     * attribute this becomes 1.8, matching two half-size players.
+     * Stacked collision height after half-scale. Tall enough to block 1-block
+     * gaps, short enough that the upper twin's knife/gun is not inside the
+     * lower twin's hitbox.
      */
-    public static final float STACKED_UNSCALED_HEIGHT = VISUAL_STANDING_HEIGHT * 2.0F;
+    public static final float STACKED_COLLISION_HEIGHT = 1.1F;
+
+    /** Half-scale factor applied by the Twin Children attribute modifier. */
+    public static final float HALF_SCALE_FACTOR = 0.5F;
+
+    /** Unscaled collision height so that {@code height * 0.5 = 1.1}. */
+    public static final float STACKED_UNSCALED_HEIGHT = STACKED_COLLISION_HEIGHT / HALF_SCALE_FACTOR;
 
     private TwinChildrenHitbox() {
     }

@@ -26,8 +26,8 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import pro.fazeclan.river.stupid_express.modifier.twin_children.TwinChildrenHandler;
 
 /**
- * Stacked twins keep a full-height collision box so they cannot crawl into
- * 1-block gaps, and the upper twin cannot sneak-dismount.
+ * Stacked twins keep a 1.1-block collision box so they cannot crawl into
+ * 1-block gaps without covering the upper twin, who also cannot sneak-dismount.
  */
 @Mixin(Player.class)
 public abstract class TwinChildrenPlayerMixin {

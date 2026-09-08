@@ -18,12 +18,13 @@ class TwinChildrenHitboxTest {
         float crouching = CROUCHING * TwinChildrenHitbox.stackedHeightScale(CROUCHING) * HALF_SCALE;
         float crawling = CRAWLING * TwinChildrenHitbox.stackedHeightScale(CRAWLING) * HALF_SCALE;
 
-        assertEquals(1.8F, standing, 1.0e-4F);
-        assertEquals(1.8F, crouching, 1.0e-4F);
-        assertEquals(1.8F, crawling, 1.0e-4F);
+        assertEquals(TwinChildrenHitbox.STACKED_COLLISION_HEIGHT, standing, 1.0e-4F);
+        assertEquals(TwinChildrenHitbox.STACKED_COLLISION_HEIGHT, crouching, 1.0e-4F);
+        assertEquals(TwinChildrenHitbox.STACKED_COLLISION_HEIGHT, crawling, 1.0e-4F);
         assertTrue(standing > 1.0F);
         assertTrue(crouching > 1.0F);
         assertTrue(crawling > 1.0F);
+        assertTrue(standing < STANDING * HALF_SCALE + 0.81F);
     }
 
     @Test

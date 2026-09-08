@@ -201,7 +201,7 @@ public final class TwinChildrenHandler {
     }
 
     private static void refreshStackedCollision(ServerPlayer lower) {
-        float expected = VISUAL_STANDING_HEIGHT * lower.getScale() * 2.0F;
+        float expected = TwinChildrenHitbox.STACKED_UNSCALED_HEIGHT * lower.getScale();
         if (Math.abs(lower.getBbHeight() - expected) > HEIGHT_REFRESH_EPSILON) {
             lower.refreshDimensions();
         }
