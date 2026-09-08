@@ -3999,7 +3999,7 @@
   "skill.noellesroles.warlock.curse": "蚀骨之咒",
   "skill.noellesroles.warlock.domain": "领域展开·灰髓之境",
   "message.noellesroles.warlock.stolen": "窃得了 %s 的发肤",
-  "message.noellesroles.warlock.steal_no_target": "需要瞄准 8 格内的玩家",
+  "message.noellesroles.warlock.steal_no_target": "需要瞄准玩家",
   "message.noellesroles.warlock.steal_too_far": "距离太远，无法窃取",
   "message.noellesroles.warlock.steal_already": "已经取过此人的发肤了",
   "message.noellesroles.warlock.steal_victim_hint": "你感到脖颈掠过一丝凉意……",
