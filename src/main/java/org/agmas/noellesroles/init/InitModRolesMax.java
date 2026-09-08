@@ -451,7 +451,8 @@ public class InitModRolesMax {
                     role.setDefaultMax(1);
                 }
             }
-            if (role.spawnInfo.enableChance < 0 && role.canSetSpawnInfoInConfig() && role.isNeutralForKiller()) {
+            if (role.spawnInfo.enableChance < 0 && role.canSetSpawnInfoInConfig()
+                    && (role.isNeutrals() && (role.isNeutralForInnocent() || role.isNeutralForKiller()))) {
                 role.spawnInfo.enableChance = 7500;
             }
         }
