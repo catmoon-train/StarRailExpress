@@ -43,6 +43,7 @@ import io.wifi.starrailexpress.register.SREReceiverRegister;
 import io.wifi.starrailexpress.stats.PlayerStatsManager;
 import io.wifi.starrailexpress.util.CustomMotdManager;
 import io.wifi.starrailexpress.util.Scheduler;
+import io.wifi.utils.ServerLanguageManager;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
@@ -100,6 +101,7 @@ public class SRE extends StarRailExpressID implements ModInitializer {
         CustomMotdManager.init();
         OpenScreenManager.init();
         initConfig();
+        ServerLanguageManager.applyFromConfig();
         initConstants();
         initWaypoints();
         initReplayApi();

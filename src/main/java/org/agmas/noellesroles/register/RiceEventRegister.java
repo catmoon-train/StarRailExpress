@@ -101,7 +101,7 @@ public class RiceEventRegister {
                 if (SREAbilityPlayerComponent.KEY.get(player).hasCooldown()) {
                     return InteractionResult.FAIL;
                 }
-                
+
                 if (!gameWorld.isSkillAvailable) {
                     player.displayClientMessage(
                             Component.translatable("message.tip.skill_disabled").withStyle(ChatFormatting.RED), true);
@@ -125,10 +125,7 @@ public class RiceEventRegister {
                 java.util.UUID bodyOwnerUuid = body.getPlayerUuid();
 
                 // 获取游戏总人数
-                int totalPlayers = 1;
-                if (world instanceof net.minecraft.server.level.ServerLevel serverWorld) {
-                    totalPlayers = serverWorld.players().size();
-                }
+                int totalPlayers = SREGameWorldComponent.getInstance(world).getStartingPlayerCount();
 
                 // 回收尸体
                 puppeteerComp.collectBody(bodyOwnerUuid, totalPlayers);

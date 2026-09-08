@@ -133,7 +133,8 @@
     "harpymodloader.mixins.json",
     "starrailexpress.mixins.json",
     "starrailexpress_exmo.mixins.json",
-    "wathe_blocker.mixins.json"
+    "wathe_blocker.mixins.json",
+    "sre_language.mixins.json"
   ],
   "depends": {
     "minecraft": "1.21.1",
