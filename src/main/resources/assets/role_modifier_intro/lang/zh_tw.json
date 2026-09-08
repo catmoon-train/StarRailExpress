@@ -522,7 +522,5 @@
   "info.screen.roleid.repair_saboteur": "中立獨立勝利職業\n通過修機校準累計 10 點破壞記錄即可獨立獲勝。",
   "info.screen.roleid.repair_saboteur.simple": "",
   "info.screen.roleid.repair_collector": "中立獨立勝利職業\n使用 4 次修機道具或補給即可獨立獲勝。",
-  "info.screen.roleid.repair_collector.simple": "",
-  "==================== 修飾符 ====================": "",
-  "=======修機模式/特殊模式=======": ""
+  "info.screen.roleid.repair_collector.simple": ""
 }
