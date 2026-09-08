@@ -38,9 +38,8 @@ public abstract class MuffledHearingSoundMixin {
 
     @Inject(method = "tickNonPaused", at = @At("HEAD"))
     private void noellesroles$refreshMuffledHearing(CallbackInfo ci) {
-        if (!MuffledHearingClientHandle.active && !MuffledHearingClientHandle.hasFilter()) {
-            return;
-        }
+        // Also run while the effect is inactive. This immediately removes a
+        // filter left on a source when the potion expires or is cleared.
         channelAccess.executeOnChannels(channels -> channels.forEach(channel -> {
             if (channel instanceof MuffledHearingChannelAccess access) {
                 access.noellesroles$applyMuffledHearing();
