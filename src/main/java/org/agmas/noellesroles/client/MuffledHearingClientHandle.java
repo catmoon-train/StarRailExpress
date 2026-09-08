@@ -13,8 +13,15 @@ import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
 import org.agmas.noellesroles.init.ModEffects;
+import org.lwjgl.BufferUtils;
+import org.lwjgl.openal.AL10;
 import org.lwjgl.openal.AL11;
 import org.lwjgl.openal.EXTEfx;
+
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 /** 客户端听觉模糊效果：普通游戏音效的 OpenAL 低通滤波与轻微衰减。 */
 @Environment(EnvType.CLIENT)
@@ -26,6 +33,11 @@ public final class MuffledHearingClientHandle {
     private static final int AL_DIRECT_FILTER = 0x20005;
     private static final int AL_FILTER_NULL = 0;
     private static final int AL_AUXILIARY_SEND_FILTER = 0x20006;
+    private static final int AL_FORMAT_MONO16 = 0x1101;
+    private static final int AL_BUFFER = 0x1009;
+    private static final int AL_LOOPING = 0x1007;
+    private static final int AL_GAIN = 0x100A;
+    private static final int AL_SOURCE_RELATIVE = 0x0202;
     private static final int AL_EFFECT_TYPE = 0x8001;
     private static final int AL_EFFECT_REVERB = 0x0004;
     private static final int AL_EFFECTSLOT_EFFECT = 0x0001;
@@ -48,7 +60,10 @@ public final class MuffledHearingClientHandle {
     private static volatile int lowPassFilter;
     private static volatile int reverbSlot;
     private static volatile int reverbEffect;
+    private static volatile int noiseSource;
+    private static volatile int noiseBuffer;
     private static volatile boolean efxUnavailable;
+    private static final Map<Integer, Float> BASE_VOLUMES = new ConcurrentHashMap<>();
 
     private MuffledHearingClientHandle() {
     }
@@ -64,6 +79,30 @@ public final class MuffledHearingClientHandle {
 
     /** 在 Minecraft 的音频线程中为一个 OpenAL 声源应用或移除滤波器。 */
     public static void applyToSource(int source) {
+        applyToSource(source, -1.0f);
+    }
+
+    /** Apply attenuation directly to the OpenAL source after Minecraft sets its volume. */
+    public static void applyToSource(int source, float baseVolume) {
+        if (baseVolume >= 0.0f) {
+            BASE_VOLUMES.put(source, baseVolume);
+        } else {
+            baseVolume = BASE_VOLUMES.getOrDefault(source, -1.0f);
+            if (baseVolume < 0.0f) {
+                try {
+                    baseVolume = AL10.alGetSourcef(source, AL_GAIN);
+                    BASE_VOLUMES.put(source, baseVolume);
+                } catch (Throwable ignored) {
+                    return;
+                }
+            }
+        }
+
+        try {
+            AL10.alSourcef(source, AL_GAIN, baseVolume * (active ? getVolumeMultiplier() : 1.0f));
+        } catch (Throwable ignored) {
+        }
+
         if (!active) {
             if (lowPassFilter != 0) {
                 try {
@@ -77,30 +116,32 @@ public final class MuffledHearingClientHandle {
                 } catch (Throwable ignored) {
                 }
             }
+            stopNoiseSource();
             return;
         }
 
         int filter = getOrCreateFilter();
-        if (filter == 0) {
-            return;
+        if (filter != 0) {
+            try {
+                // Keep the overall loudness mostly intact and remove the
+                // high-frequency detail instead.
+                EXTEfx.alFilteri(filter, AL_FILTER_TYPE, AL_FILTER_LOWPASS);
+                EXTEfx.alFilterf(filter, AL_FILTER_LOWPASS_GAIN, 0.98f);
+                // Level I starts at the old level-V value.
+                float highFrequencyGain = 0.03f * (float) Math.pow(0.65f, Math.max(0, level - 1));
+                EXTEfx.alFilterf(filter, AL_FILTER_LOWPASS_GAINHF,
+                        Math.max(0.001f, highFrequencyGain));
+                AL11.alSourcei(source, AL_DIRECT_FILTER, filter);
+                applyDiffuseRoom(source);
+            } catch (Throwable ignored) {
+                efxUnavailable = true;
+            }
         }
+        ensureNoiseSource();
+    }
 
-        try {
-            // Keep the overall loudness almost unchanged and remove the
-            // high-frequency detail instead.  A low GAINHF is what makes the
-            // sound dull/muffled; changing only the category volume merely
-            // makes it quieter.
-            EXTEfx.alFilteri(filter, AL_FILTER_TYPE, AL_FILTER_LOWPASS);
-            EXTEfx.alFilterf(filter, AL_FILTER_LOWPASS_GAIN, 0.98f);
-            // Level I starts at the old level-V value, then keeps removing
-            // high-frequency detail for higher amplifiers.
-            float highFrequencyGain = 0.03f * (float) Math.pow(0.65f, Math.max(0, level - 1));
-            EXTEfx.alFilterf(filter, AL_FILTER_LOWPASS_GAINHF, Math.max(0.001f, highFrequencyGain));
-            AL11.alSourcei(source, AL_DIRECT_FILTER, filter);
-            applyDiffuseRoom(source);
-        } catch (Throwable ignored) {
-            efxUnavailable = true;
-        }
+    public static float getVolumeMultiplier() {
+        return Math.max(0.24f, 0.62f - Math.max(0, level - 1) * 0.055f);
     }
 
     /** 给声音加很轻的扩散残响，让音源边缘变散，产生混沌感。 */
@@ -119,13 +160,95 @@ public final class MuffledHearingClientHandle {
     }
 
     public static boolean hasFilter() {
-        return lowPassFilter != 0;
+        return lowPassFilter != 0 || noiseSource != 0 || reverbSlot != 0;
     }
 
     /** OpenAL 设备重载后 source/filter id 会失效，交给下一个音频通道重新创建。 */
     public static void resetOpenALState() {
         lowPassFilter = 0;
+        noiseSource = 0;
+        noiseBuffer = 0;
+        reverbSlot = 0;
+        reverbEffect = 0;
         efxUnavailable = false;
+    }
+
+    /** 创建一个循环播放的极低电平粉红噪声底，让听觉剥夺不只发生在有声音时。 */
+    private static void ensureNoiseSource() {
+        try {
+            if (noiseSource == 0) {
+                noiseBuffer = AL10.alGenBuffers();
+                ByteBuffer data = createPinkNoiseBuffer(48000);
+                AL10.alBufferData(noiseBuffer, AL_FORMAT_MONO16, data, 48000);
+                noiseSource = AL10.alGenSources();
+                AL10.alSourcei(noiseSource, AL_BUFFER, noiseBuffer);
+                AL10.alSourcei(noiseSource, AL_LOOPING, AL10.AL_TRUE);
+                AL10.alSourcei(noiseSource, AL_SOURCE_RELATIVE, AL10.AL_TRUE);
+                AL10.alSource3f(noiseSource, AL10.AL_POSITION, 0.0f, 0.0f, 0.0f);
+            }
+            float gain = Math.min(0.02f, 0.008f + Math.max(0, level - 1) * 0.0015f);
+            AL10.alSourcef(noiseSource, AL_GAIN, gain);
+            if (AL10.alGetSourcei(noiseSource, AL10.AL_SOURCE_STATE) != AL10.AL_PLAYING) {
+                AL10.alSourcePlay(noiseSource);
+            }
+        } catch (Throwable ignored) {
+            deleteNoiseSource();
+        }
+    }
+
+    private static void stopNoiseSource() {
+        if (noiseSource != 0) {
+            try {
+                AL10.alSourceStop(noiseSource);
+            } catch (Throwable ignored) {
+            }
+        }
+    }
+
+    private static void deleteNoiseSource() {
+        if (noiseSource != 0) {
+            try {
+                AL10.alDeleteSources(noiseSource);
+            } catch (Throwable ignored) {
+            }
+        }
+        if (noiseBuffer != 0) {
+            try {
+                AL10.alDeleteBuffers(noiseBuffer);
+            } catch (Throwable ignored) {
+            }
+        }
+        noiseSource = 0;
+        noiseBuffer = 0;
+    }
+
+    private static ByteBuffer createPinkNoiseBuffer(int sampleCount) {
+        ByteBuffer data = BufferUtils.createByteBuffer(sampleCount * 2).order(ByteOrder.nativeOrder());
+        long state = 0x1B873593L;
+        float p0 = 0.0f;
+        float p1 = 0.0f;
+        float p2 = 0.0f;
+        float p3 = 0.0f;
+        float p4 = 0.0f;
+        float p5 = 0.0f;
+        float p6 = 0.0f;
+        for (int i = 0; i < sampleCount; i++) {
+            state ^= state << 13;
+            state ^= state >>> 7;
+            state ^= state << 17;
+            float white = (float) ((state >>> 40) / (double) (1L << 24) - 0.5);
+            p0 = p0 * 0.99886f + white * 0.0555179f;
+            p1 = p1 * 0.99332f + white * 0.0750759f;
+            p2 = p2 * 0.96900f + white * 0.1538520f;
+            p3 = p3 * 0.86650f + white * 0.3104856f;
+            p4 = p4 * 0.55000f + white * 0.5329522f;
+            p5 = p5 * -0.7616f - white * 0.0168980f;
+            p6 = white * 0.115926f;
+            short sample = (short) Math.round((p0 + p1 + p2 + p3 + p4 + p5 + p6) * 2800.0f);
+            data.putShort(sample);
+        }
+        data.flip();
+        return data;
     }
 
     private static int getOrCreateFilter() {

@@ -18,7 +18,7 @@ public abstract class MuffledHearingChannelMixin implements MuffledHearingChanne
 
     @Inject(method = "setVolume", at = @At("TAIL"), remap = false)
     private void noellesroles$refreshFilter(float volume, CallbackInfo ci) {
-        noellesroles$applyMuffledHearing();
+        MuffledHearingClientHandle.applyToSource(source, volume);
     }
 
     @Inject(method = "play", at = @At("HEAD"), remap = false)

@@ -295,16 +295,15 @@ public class VoiceExtraEffectsPlugin implements VoicechatPlugin {
     /** 简单的一阶低通：保留低频轮廓，让语音能听见但不再清楚。 */
     private static short[] muffledHearingTransform(short[] pcm, UUID speaker, int level) {
         short[] result = new short[pcm.length];
-        // Level I uses the old level-V settings; higher levels make the
-        // two-stage filter slower and progressively quieter.
-        float alpha = Math.max(0.012f, 0.039f - Math.max(0, level - 1) * 0.006f);
-        float gain = Math.max(0.60f, 0.80f - Math.max(0, level - 1) * 0.025f);
+        // Level I uses the old level-V strength; higher levels lower the
+        // cutoff and continue to remove speech detail.
+        float gain = Math.max(0.48f, 0.72f - Math.max(0, level - 1) * 0.035f);
         MuffledHearingState state = MUFFLED_HEARING_STATE.computeIfAbsent(speaker,
                 ignored -> new MuffledHearingState());
+        state.configureFilter(level);
         for (int i = 0; i < pcm.length; i++) {
-            state.first += alpha * (pcm[i] - state.first);
-            state.second += alpha * (state.first - state.second);
-            float filtered = state.second * 0.93f + state.first * 0.07f;
+            float filtered = state.filter1.process(pcm[i]);
+            filtered = state.filter2.process(filtered);
 
             // A very short, moving smear makes consonants overlap slightly,
             // giving the sound a hazy/chaotic edge instead of simple silence.
@@ -321,7 +320,16 @@ public class VoiceExtraEffectsPlugin implements VoicechatPlugin {
             float wobble = (float) (0.5 * Math.sin(state.phase)
                     + 0.5 * Math.sin(state.phase * 1.71 + 1.2));
             state.phase += 2.0 * Math.PI * (0.65 + level * 0.04) / SAMPLE_RATE;
-            result[i] = clamp(smeared * (1.0f + wobble * (0.012f + level * 0.002f)) * gain);
+
+            // Recruitment: compress loud peaks with a soft clip instead of
+            // hard-clipping them, which gives loud speech a slightly rough
+            // inner-ear distortion.
+            float normalized = smeared / 32768.0f;
+            float drive = 1.15f + level * 0.12f;
+            float clipped = (float) (Math.tanh(normalized * drive) / Math.tanh(drive));
+            float noise = state.nextPinkNoise() * (0.0015f + level * 0.00035f);
+            float output = clipped * (1.0f + wobble * (0.012f + level * 0.002f)) * gain;
+            result[i] = clamp((output + noise) * 32767.0f);
         }
         return result;
     }
@@ -590,11 +598,83 @@ public class VoiceExtraEffectsPlugin implements VoicechatPlugin {
     // =========================================================================
 
     private static final class MuffledHearingState {
-        float first;
-        float second;
+        final BiquadLowPass filter1 = new BiquadLowPass();
+        final BiquadLowPass filter2 = new BiquadLowPass();
         final float[] smear = new float[2048];
         int smearPos;
         double phase;
+        int filterLevel;
+        long noiseState = 0x4D595DF4D0F33173L;
+        float pink0;
+        float pink1;
+        float pink2;
+        float pink3;
+        float pink4;
+        float pink5;
+        float pink6;
+
+        void configureFilter(int level) {
+            if (filterLevel == level) {
+                return;
+            }
+            float cutoff = Math.max(320.0f, 2200.0f
+                    * (float) Math.pow(0.72f, Math.max(0, level - 1)));
+            filter1.configure(cutoff, SAMPLE_RATE);
+            filter2.configure(cutoff, SAMPLE_RATE);
+            filterLevel = level;
+        }
+
+        float nextPinkNoise() {
+            long x = noiseState;
+            x ^= x << 13;
+            x ^= x >>> 7;
+            x ^= x << 17;
+            noiseState = x;
+            float white = (float) ((x >>> 40) / (double) (1L << 24) - 0.5);
+            pink0 = pink0 * 0.99886f + white * 0.0555179f;
+            pink1 = pink1 * 0.99332f + white * 0.0750759f;
+            pink2 = pink2 * 0.96900f + white * 0.1538520f;
+            pink3 = pink3 * 0.86650f + white * 0.3104856f;
+            pink4 = pink4 * 0.55000f + white * 0.5329522f;
+            pink5 = pink5 * -0.7616f - white * 0.0168980f;
+            pink6 = white * 0.115926f;
+            return (pink0 + pink1 + pink2 + pink3 + pink4 + pink5 + pink6) * 0.11f;
+        }
+    }
+
+    /** 二阶 Butterworth 低通，保留跨语音包的状态以避免分块爆音。 */
+    private static final class BiquadLowPass {
+        private float b0;
+        private float b1;
+        private float b2;
+        private float a1;
+        private float a2;
+        private float x1;
+        private float x2;
+        private float y1;
+        private float y2;
+
+        void configure(float cutoff, float sampleRate) {
+            double omega = 2.0 * Math.PI * cutoff / sampleRate;
+            double cos = Math.cos(omega);
+            double sin = Math.sin(omega);
+            double alpha = sin / (2.0 * Math.sqrt(0.5));
+            double a0 = 1.0 + alpha;
+            b0 = (float) (((1.0 - cos) * 0.5) / a0);
+            b1 = (float) ((1.0 - cos) / a0);
+            b2 = b0;
+            a1 = (float) ((-2.0 * cos) / a0);
+            a2 = (float) ((1.0 - alpha) / a0);
+        }
+
+        float process(float sample) {
+            float output = b0 * sample + b1 * x1 + b2 * x2 - a1 * y1 - a2 * y2;
+            x2 = x1;
+            x1 = sample;
+            y2 = y1;
+            y1 = output;
+            return output;
+        }
     }
 
     private static final class ChorusState {
