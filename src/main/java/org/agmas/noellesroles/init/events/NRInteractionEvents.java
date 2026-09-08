@@ -44,6 +44,7 @@ import org.agmas.noellesroles.content.item.*;
 import org.agmas.noellesroles.events.OnShopPurchase;
 import org.agmas.noellesroles.events.OnVendingMachinesBuyItems;
 import org.agmas.noellesroles.game.roles.killer.conspirator.ConspiratorKilledPlayer;
+import org.agmas.noellesroles.game.roles.innocence.insurance.InsuranceRoleHandler;
 import org.agmas.noellesroles.role_data.innocence.CakeMakerRoleData;
 import org.agmas.noellesroles.role_data.killer.InsaneKillerRoleData;
 import org.agmas.noellesroles.role_data.killer.NinjaRoleData;
@@ -262,6 +263,9 @@ public class NRInteractionEvents {
     private static void registerDropRules() {
         DropRules.canDrop.add((player) -> {
             var mainHandItem = player.getMainHandItem();
+            if (mainHandItem.is(ModItems.INSURANCE)) {
+                return InsuranceRoleHandler.isInsuranceClerk(player);
+            }
             if (mainHandItem.is(ModItems.NEWSPAPER)) {
                 if (mainHandItem.has(SREDataComponentTypes.WRITTEN_BOOK_CONTENT))
                     return true;

@@ -50,9 +50,7 @@ public class Harpymodloader {
      */
     public static boolean officialVerify = true;
     /**
-     * 职业对应关系映射
-     * 支持同时分配两个关联职业（例如医生+毒师）
-     * Key: 主职业, Value: 关联职业
+     * 职业数量
      */
     // public static HashMap<SRERole, SRERole> Occupations_Roles = new HashMap<>();
 

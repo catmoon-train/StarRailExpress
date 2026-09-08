@@ -4518,6 +4518,9 @@
   "effect.noellesroles.deafness": "耳聾",
   "mob_effect.noellesroles.deafness": "耳聾",
   "effect.noellesroles.deafness.description": "你聽不到任何聲音",
+  "effect.noellesroles.muffled_hearing": "聽覺模糊",
+  "mob_effect.noellesroles.muffled_hearing": "聽覺模糊",
+  "effect.noellesroles.muffled_hearing.description": "聲音變得低沉、模糊，只能勉強聽清",
   "effect.noellesroles.eerie_domain": "詭域",
   "mob_effect.noellesroles.eerie_domain": "詭域",
   "effect.noellesroles.domain_mark": "領域標記",
@@ -4628,5 +4631,96 @@
   "skill.noellesroles.echo_listener.sonic_wave": "聲波",
   "message.noellesroles.echo_listener.no_money": "發放聲波需要 %s 金幣！",
   "message.noellesroles.echo_listener.no_target": "聲波方向上沒有玩家。",
-  "message.noellesroles.echo_listener.respawned": "你循著回聲重新回到了列車。"
+  "message.noellesroles.echo_listener.respawned": "你循著回聲重新回到了列車。",
+  "announcement.star.role.zhang_angel": "張天使",
+  "announcement.star.role.noellesroles.zhang_angel": "張天使",
+  "announcement.star.goals.zhang_angel": "與乘客一同活到最後。",
+  "skill.noellesroles.zhang_angel.lightning": "召雷",
+  "hud.noellesroles.zhang_angel.swallows": "吞電：%s/%s",
+  "hud.noellesroles.zhang_angel.stealth": "黑暗隱身中",
+  "message.noellesroles.zhang_angel.swallowed": "吞電 %s/%s",
+  "message.noellesroles.zhang_angel.ready": "吞電已滿，花費 100 金幣可對準目標召雷。",
+  "message.noellesroles.zhang_angel.not_enough_swallows": "吞電不足：需要 %s 次，當前 %s 次。",
+  "message.noellesroles.zhang_angel.lightning_cast": "閃電擊中了 %s，對方陷入了%s。",
+  "message.noellesroles.zhang_angel.lightning_hit": "你被閃電擊中，陷入了%s。",
+  "message.noellesroles.zhang_angel.disability.slowness": "緩慢 II",
+  "message.noellesroles.zhang_angel.disability.blindness": "失明與盲視",
+  "message.noellesroles.zhang_angel.disability.deafness": "耳聾",
+  "message.noellesroles.zhang_angel.disability.limp": "腿瘸",
+  "effect.noellesroles.limp": "腿瘸",
+  "mob_effect.noellesroles.limp": "腿瘸",
+  "effect.noellesroles.limp.description": "走路一跛一跛。效果等級越高，跛得越明顯。",
+  "announcement.star.role.lender": "放貸人",
+  "announcement.star.goals.lender": "透過貸款合約賺取利息並存活到遊戲結束。",
+  "announcement.star.role.insurance": "保險職員",
+  "announcement.star.goals.insurance": "用保險保護自己免受指定死亡原因",
+  "skill.noellesroles.lender_request": "發起貸款請求",
+  "item.noellesroles.loan_contract": "貸款合約",
+  "item.noellesroles.loan_contract.amount": "本金：%s 金幣",
+  "item.noellesroles.loan_contract.tooltip": "右鍵償還本金和利息。",
+  "screen.noellesroles.loan_contract.title": "貸款合約",
+  "screen.noellesroles.loan_contract.amount": "貸款金額（金幣）",
+  "screen.noellesroles.loan_contract.limit": "上限：%s 金幣",
+  "screen.noellesroles.loan_contract.confirm": "簽訂合約",
+  "screen.noellesroles.loan_contract.terms": "每45秒增加25金幣利息；3分30秒後強制收款。",
+  "screen.noellesroles.loan_contract.esc": "按 Esc 離開合約頁面",
+  "message.noellesroles.loan.request": "%s 請求簽訂貸款合約。右鍵放貸人接受。",
+  "message.noellesroles.loan.request_sent": "已向 %s 發起貸款請求。",
+  "message.noellesroles.loan.accepted": "貸款請求已接受，請填寫合約金額。",
+  "message.noellesroles.loan.expired": "貸款請求已過期。",
+  "message.noellesroles.loan.invalid_amount": "金額必須在1到%s金幣之間。",
+  "message.noellesroles.loan.lender_unavailable": "放貸人目前不可用。",
+  "message.noellesroles.loan.lender_insufficient": "放貸人的金幣不足以發放這筆貸款。",
+  "message.noellesroles.loan.inventory_full": "沒有空間存放貸款合約，貸款已取消。",
+  "message.noellesroles.loan.created": "你向 %s 借出了 %s 金幣。",
+  "message.noellesroles.loan.received": "你獲得了 %s 金幣和一份貸款合約。",
+  "message.noellesroles.loan.payment_received": "你收到 %s 金幣還款。",
+  "message.noellesroles.loan.insufficient": "你需要 %s 金幣才能一次性還清合約。",
+  "message.noellesroles.loan.repaid": "已償還 %s 金幣，貸款合約已消失。",
+  "message.noellesroles.loan.reminder": "還款提醒：目前應還 %s 金幣。",
+  "message.noellesroles.loan.forced": "合約到期：應還 %s 金幣，已收取 %s 金幣。",
+  "message.noellesroles.loan.stomach_banned": "你的胃無法再接受食物或飲料。",
+  "message.noellesroles.loan.penalty.eye": "你失去了一隻眼睛：失明 II 與黑暗。",
+  "message.noellesroles.loan.penalty.heart": "你失去了心臟。",
+  "message.noellesroles.loan.penalty.hand": "你失去了一隻手：物品使用被禁用。",
+  "message.noellesroles.loan.penalty.liver": "你失去了肝臟：反胃 II。",
+  "message.noellesroles.loan.penalty.leg": "你失去了一條腿：緩慢 II。",
+  "message.noellesroles.loan.penalty.stomach": "你失去了胃：食物和飲料被禁用。",
+  "message.noellesroles.loan.penalty.tongue": "你失去了舌頭：無法說話。",
+  "message.noellesroles.loan.penalty.ear": "你失去了一隻耳朵：聽力模糊 II。",
+  "effect.noellesroles.loan_stomach_ban": "胃部損傷",
+  "mob_effect.noellesroles.loan_stomach_ban": "胃部損傷",
+  "item.noellesroles.loan_contract.desc": "右鍵償還貸款本金和利息。",
+  "message.noellesroles.loan.request_pending": "你已有一個等待接受的貸款請求，請等待10秒超時後再試。"
+  ,"item.noellesroles.insurance": "保險"
+  ,"item.noellesroles.insurance.status.unsigned": "狀態：未簽訂"
+  ,"item.noellesroles.insurance.status.signed": "狀態：已簽訂"
+  ,"item.noellesroles.insurance.status.active": "狀態：生效中"
+  ,"item.noellesroles.insurance.reason.knife": "保護死亡原因：刀"
+  ,"item.noellesroles.insurance.reason.revolver": "保護死亡原因：左輪手槍"
+  ,"item.noellesroles.insurance.reason.bat": "保護死亡原因：球棒"
+  ,"item.noellesroles.insurance.reason.grenade": "保護死亡原因：手榴彈"
+  ,"item.noellesroles.insurance.reason.short_shotgun": "保護死亡原因：短管霰彈槍"
+  ,"item.noellesroles.insurance.reason.heart_attack": "保護死亡原因：心臟驟停"
+  ,"item.noellesroles.insurance.reason.throwing_knife": "保護死亡原因：飛刀"
+  ,"item.noellesroles.insurance.reason.other": "保護死亡原因：其他"
+  ,"screen.noellesroles.insurance.title": "保險合約"
+  ,"screen.noellesroles.insurance.instruction": "選擇要保護的死亡原因"
+  ,"screen.noellesroles.insurance.reason.knife": "刀"
+  ,"screen.noellesroles.insurance.reason.revolver": "左輪手槍"
+  ,"screen.noellesroles.insurance.reason.bat": "球棒"
+  ,"screen.noellesroles.insurance.reason.grenade": "手榴彈"
+  ,"screen.noellesroles.insurance.reason.short_shotgun": "短管霰彈槍"
+  ,"screen.noellesroles.insurance.reason.heart_attack": "心臟驟停"
+  ,"screen.noellesroles.insurance.reason.throwing_knife": "飛刀"
+  ,"screen.noellesroles.insurance.reason.other": "其他"
+  ,"screen.noellesroles.insurance.selected": "已選擇：%s"
+  ,"screen.noellesroles.insurance.selected.none": "尚未選擇死亡原因"
+  ,"screen.noellesroles.insurance.confirm": "簽訂保險"
+  ,"screen.noellesroles.insurance.esc": "按 Esc 離開合約頁面"
+  ,"message.noellesroles.insurance.signed": "保險已簽訂。右鍵保險並支付25金幣即可生效。"
+  ,"message.noellesroles.insurance.activated": "保險已生效。"
+  ,"message.noellesroles.insurance.already_active": "這份保險已經生效。"
+  ,"message.noellesroles.insurance.invalid": "無法簽訂這份保險。"
+  ,"message.noellesroles.insurance.protected": "保險生效：本次死亡傷害已被抵擋，並獲得25金幣。"
 }

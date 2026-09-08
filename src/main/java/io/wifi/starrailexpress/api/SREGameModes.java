@@ -17,6 +17,7 @@ package io.wifi.starrailexpress.api;
 
 import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.game.modes.SREMurderGameMode;
+import io.wifi.starrailexpress.game.modes.SRERoleAssignDebugGameMode;
 import io.wifi.starrailexpress.game.modes.WTLooseEndsGameMode;
 import io.wifi.starrailexpress.game.modes.funny.*;
 import net.minecraft.resources.ResourceLocation;
@@ -28,6 +29,9 @@ import java.util.HashMap;
 
 public class SREGameModes {
     public static final HashMap<ResourceLocation, GameMode> GAME_MODES = new HashMap<>();
+
+    // Debug mode
+    public static final ResourceLocation DEBUG_ID = SRE.shortId("debug");
 
     // Modified from Harpymodloader
     public static final ResourceLocation MURDER_ID = SRE.shortId("murder");
@@ -74,6 +78,8 @@ public class SREGameModes {
 
     // Modified from Harpymodloader
     public static final GameMode MURDER = registerGameMode(new SREMurderGameMode(MURDER_ID));
+    // Modified from Harpymodloader
+    public static final GameMode DEBUG = registerGameMode(new SRERoleAssignDebugGameMode(DEBUG_ID));
 
     // Wathe Original Mode
     public static final GameMode LOOSE_ENDS = registerGameMode(new WTLooseEndsGameMode(LOOSE_ENDS_ID));

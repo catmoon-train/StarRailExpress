@@ -4409,6 +4409,9 @@
     "effect.noellesroles.deafness": "Deafness",
     "mob_effect.noellesroles.deafness": "Deafness",
     "effect.noellesroles.deafness.description": "You cannot hear any sounds",
+    "effect.noellesroles.muffled_hearing": "Muffled Hearing",
+    "mob_effect.noellesroles.muffled_hearing": "Muffled Hearing",
+    "effect.noellesroles.muffled_hearing.description": "Sounds are muffled and faint, but still barely audible",
     "effect.noellesroles.eerie_domain": "Eerie Domain",
     "mob_effect.noellesroles.eerie_domain": "Eerie Domain",
     "effect.noellesroles.domain_mark": "Domain Mark",
@@ -4515,5 +4518,96 @@
   "skill.noellesroles.echo_listener.sonic_wave": "Sonic Wave",
   "message.noellesroles.echo_listener.no_money": "You need %s coins to emit a sonic wave!",
   "message.noellesroles.echo_listener.no_target": "No player is aligned with the sonic wave.",
-  "message.noellesroles.echo_listener.respawned": "You followed the echoes back to life."
+  "message.noellesroles.echo_listener.respawned": "You followed the echoes back to life.",
+  "announcement.star.role.zhang_angel": "Zhang Angel",
+  "announcement.star.role.noellesroles.zhang_angel": "Zhang Angel",
+  "announcement.star.goals.zhang_angel": "Survive with the passengers.",
+  "skill.noellesroles.zhang_angel.lightning": "Call Lightning",
+  "hud.noellesroles.zhang_angel.swallows": "Charge: %s/%s",
+  "hud.noellesroles.zhang_angel.stealth": "Hidden in darkness",
+  "message.noellesroles.zhang_angel.swallowed": "Swallowed charge %s/%s",
+  "message.noellesroles.zhang_angel.ready": "Charge full. Spend 100 gold to call lightning on your target.",
+  "message.noellesroles.zhang_angel.not_enough_swallows": "Not enough charge: need %s, have %s.",
+  "message.noellesroles.zhang_angel.lightning_cast": "Lightning struck %s, who is afflicted with %s.",
+  "message.noellesroles.zhang_angel.lightning_hit": "Lightning struck you. You are afflicted with %s.",
+  "message.noellesroles.zhang_angel.disability.slowness": "Slowness II",
+  "message.noellesroles.zhang_angel.disability.blindness": "Blindness and Blind Vision",
+  "message.noellesroles.zhang_angel.disability.deafness": "Deafness",
+  "message.noellesroles.zhang_angel.disability.limp": "Limp",
+  "effect.noellesroles.limp": "Limp",
+  "mob_effect.noellesroles.limp": "Limp",
+  "effect.noellesroles.limp.description": "You hobble as you walk. Higher amplifier makes the limp worse.",
+  "announcement.star.role.lender": "Lender",
+  "announcement.star.goals.lender": "Earn interest through loan contracts and survive until the end.",
+  "announcement.star.role.insurance": "Insurance Clerk",
+  "announcement.star.goals.insurance": "Protect yourself from a selected death cause.",
+  "skill.noellesroles.lender_request": "Send loan request",
+  "item.noellesroles.loan_contract": "Loan Contract",
+  "item.noellesroles.loan_contract.amount": "Principal: %s gold",
+  "item.noellesroles.loan_contract.tooltip": "Right-click to repay principal and interest.",
+  "screen.noellesroles.loan_contract.title": "Loan Contract",
+  "screen.noellesroles.loan_contract.amount": "Loan amount (gold)",
+  "screen.noellesroles.loan_contract.limit": "Maximum: %s gold",
+  "screen.noellesroles.loan_contract.confirm": "Sign contract",
+  "screen.noellesroles.loan_contract.terms": "Interest +25 gold every 45 seconds; forced collection after 3:30.",
+  "screen.noellesroles.loan_contract.esc": "Press Esc to leave the contract page",
+  "message.noellesroles.loan.request": "%s requests a loan contract. Right-click the lender to accept.",
+  "message.noellesroles.loan.request_sent": "Loan request sent to %s.",
+  "message.noellesroles.loan.accepted": "Loan request accepted. Fill in the contract amount.",
+  "message.noellesroles.loan.expired": "The loan request has expired.",
+  "message.noellesroles.loan.invalid_amount": "The amount must be between 1 and %s gold.",
+  "message.noellesroles.loan.lender_unavailable": "The lender is unavailable.",
+  "message.noellesroles.loan.lender_insufficient": "The lender does not have enough gold for this loan.",
+  "message.noellesroles.loan.inventory_full": "No inventory space for the loan contract; the loan was cancelled.",
+  "message.noellesroles.loan.created": "You lent %s gold to %s.",
+  "message.noellesroles.loan.received": "You received %s gold and a loan contract.",
+  "message.noellesroles.loan.payment_received": "You received %s gold in repayment.",
+  "message.noellesroles.loan.insufficient": "You need %s gold to repay the contract in full.",
+  "message.noellesroles.loan.repaid": "Repaid %s gold; the loan contract is gone.",
+  "message.noellesroles.loan.reminder": "Loan reminder: %s gold is currently due.",
+  "message.noellesroles.loan.forced": "Contract expired. %s gold was due; %s gold was collected.",
+  "message.noellesroles.loan.stomach_banned": "Your stomach can no longer accept food or drinks.",
+  "message.noellesroles.loan.penalty.eye": "You lost an eye: Blindness II and Darkness.",
+  "message.noellesroles.loan.penalty.heart": "You lost your heart.",
+  "message.noellesroles.loan.penalty.hand": "You lost a hand: item use is disabled.",
+  "message.noellesroles.loan.penalty.liver": "You lost your liver: Nausea II.",
+  "message.noellesroles.loan.penalty.leg": "You lost a leg: Slowness II.",
+  "message.noellesroles.loan.penalty.stomach": "You lost your stomach: food and drinks are disabled.",
+  "message.noellesroles.loan.penalty.tongue": "You lost your tongue: speech is disabled.",
+  "message.noellesroles.loan.penalty.ear": "You lost an ear: Muffled Hearing II.",
+  "effect.noellesroles.loan_stomach_ban": "Stomach Injury",
+  "mob_effect.noellesroles.loan_stomach_ban": "Stomach Injury",
+  "item.noellesroles.loan_contract.desc": "Right-click to repay the loan principal and interest.",
+  "message.noellesroles.loan.request_pending": "You already have a pending loan request. Wait 10 seconds for it to expire."
+  ,"item.noellesroles.insurance": "Insurance"
+  ,"item.noellesroles.insurance.status.unsigned": "Status: unsigned"
+  ,"item.noellesroles.insurance.status.signed": "Status: signed"
+  ,"item.noellesroles.insurance.status.active": "Status: active (enchanted)"
+  ,"item.noellesroles.insurance.reason.knife": "Protected cause: knife"
+  ,"item.noellesroles.insurance.reason.revolver": "Protected cause: revolver"
+  ,"item.noellesroles.insurance.reason.bat": "Protected cause: bat"
+  ,"item.noellesroles.insurance.reason.grenade": "Protected cause: grenade"
+  ,"item.noellesroles.insurance.reason.short_shotgun": "Protected cause: short shotgun"
+  ,"item.noellesroles.insurance.reason.heart_attack": "Protected cause: cardiac arrest"
+  ,"item.noellesroles.insurance.reason.throwing_knife": "Protected cause: throwing knife"
+  ,"item.noellesroles.insurance.reason.other": "Protected cause: other"
+  ,"screen.noellesroles.insurance.title": "Insurance Contract"
+  ,"screen.noellesroles.insurance.instruction": "Choose a death cause to protect"
+  ,"screen.noellesroles.insurance.reason.knife": "Knife"
+  ,"screen.noellesroles.insurance.reason.revolver": "Revolver"
+  ,"screen.noellesroles.insurance.reason.bat": "Bat"
+  ,"screen.noellesroles.insurance.reason.grenade": "Grenade"
+  ,"screen.noellesroles.insurance.reason.short_shotgun": "Short shotgun"
+  ,"screen.noellesroles.insurance.reason.heart_attack": "Cardiac arrest"
+  ,"screen.noellesroles.insurance.reason.throwing_knife": "Throwing knife"
+  ,"screen.noellesroles.insurance.reason.other": "Other"
+  ,"screen.noellesroles.insurance.selected": "Selected: %s"
+  ,"screen.noellesroles.insurance.selected.none": "No death cause selected"
+  ,"screen.noellesroles.insurance.confirm": "Sign Insurance"
+  ,"screen.noellesroles.insurance.esc": "Press Esc to leave the contract page"
+  ,"message.noellesroles.insurance.signed": "Insurance signed. Right-click it and pay 25 gold to activate."
+  ,"message.noellesroles.insurance.activated": "Insurance activated."
+  ,"message.noellesroles.insurance.already_active": "This insurance is already active."
+  ,"message.noellesroles.insurance.invalid": "This insurance cannot be signed."
+  ,"message.noellesroles.insurance.protected": "Insurance protected you from this death and paid you 25 gold."
 }

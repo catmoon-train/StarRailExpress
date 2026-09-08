@@ -33,7 +33,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.UUID;
 
 public class GameReplayUtils {
-    public static boolean UseTMMColor = true;
+    public static final boolean USE_TMM_COLOR = true;
 
     public static Component getItemDisplayName(ResourceLocation itemId) {
         Item item = GameReplayData.DEATH_REASON_TO_ITEM.get(itemId);
@@ -123,6 +123,8 @@ public class GameReplayUtils {
                     return ChatFormatting.GREEN;
                 } else if (role.canUseKiller()) {
                     return ChatFormatting.RED;
+                } else if (role.isNeutralForInnocent()) {
+                    return ChatFormatting.DARK_GREEN;
                 } else if (role.isNeutralForKiller()) {
                     return ChatFormatting.LIGHT_PURPLE;
                 } else if (!role.isInnocent() || role.isNeutrals()) {
@@ -203,7 +205,7 @@ public class GameReplayUtils {
         if (showInitialIfChanged && initialRoleId != null && !initialRoleId.isBlank()
                 && !initialRoleId.equals(roleId)) {
             MutableComponent initialName = ReplayDisplayUtils.getRoleDisplayName(initialRoleId);
-            if (UseTMMColor) {
+            if (USE_TMM_COLOR) {
                 return sourceName.copy().withStyle(tmmColor)
                         .append(Component.translatable(" (%s(%s))", roleName.withStyle(tmmColor),
                                 initialName.withStyle(ChatFormatting.GRAY)).withStyle(ChatFormatting.GRAY));
@@ -212,7 +214,7 @@ public class GameReplayUtils {
                     .append(Component.translatable(" (%s(%s))", roleName.withColor(roleColor),
                             initialName.withStyle(ChatFormatting.GRAY)).withStyle(ChatFormatting.GRAY));
         }
-        if (UseTMMColor) {
+        if (USE_TMM_COLOR) {
             return sourceName.copy()
                     .append(Component.translatable(" (%s)", roleName.withStyle(tmmColor))
                             .withStyle(ChatFormatting.GRAY))

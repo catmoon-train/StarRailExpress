@@ -38,7 +38,6 @@ public class ShadowFalconRoleData extends SimpleRoleData {
 
     /** 组件键 */
 
-
     // ==================== 常量定义 ====================
 
     /** 开局冷却时间（60秒 = 1200 tick） */
@@ -54,7 +53,6 @@ public class ShadowFalconRoleData extends SimpleRoleData {
     private static final double AIR_CHECK_DISTANCE = 0.1;
 
     // ==================== 状态变量 ====================
-
 
     /** 技能冷却时间（tick） */
     public int cooldown = INITIAL_COOLDOWN;
@@ -77,7 +75,6 @@ public class ShadowFalconRoleData extends SimpleRoleData {
     public ShadowFalconRoleData(RoleDataContext context) {
         super(context);
     }
-
 
     /**
      * 重置组件状态
@@ -386,15 +383,17 @@ public class ShadowFalconRoleData extends SimpleRoleData {
      */
     private void endPredation() {
         this.isPredationActive = false;
-
         // 清除虚弱效果和创造模式飞行
         if (player instanceof ServerPlayer serverPlayer) {
             player.removeEffect(MobEffects.WEAKNESS);
 
             // 关闭创造模式飞行能力
-            serverPlayer.getAbilities().mayfly = false;
-            serverPlayer.getAbilities().flying = false;
-            serverPlayer.onUpdateAbilities();
+
+            if (player.isAlive()) {
+                serverPlayer.getAbilities().mayfly = false;
+                serverPlayer.getAbilities().flying = false;
+                serverPlayer.onUpdateAbilities();
+            }
 
             // 如果护盾还在，移除护盾
             if (temporaryShield > 0 && !shieldBroken) {
@@ -474,8 +473,6 @@ public class ShadowFalconRoleData extends SimpleRoleData {
         tag.putInt("temporaryShield", this.temporaryShield);
         tag.putBoolean("shieldBroken", this.shieldBroken);
     }
-
-
 
     @Override
     public void readFromSyncNbt(@NotNull CompoundTag tag, HolderLookup.Provider registryLookup) {

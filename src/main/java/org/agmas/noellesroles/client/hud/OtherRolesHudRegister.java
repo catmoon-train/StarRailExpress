@@ -101,6 +101,7 @@ public class OtherRolesHudRegister {
         THReimuHud.register();
         LeaderHud.register();
         NiaoshoushouHud.register();
+        ZhangAngelHud.register();
         SilverWingHud.register();
         AsatyaHud.register();
         // 自定义职业HUD

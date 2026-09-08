@@ -846,7 +846,8 @@ public class SREClient implements ClientModInitializer {
         ClientPlayNetworking.registerGlobalReceiver(OnGameStartedPayload.TYPE, (payload, context) -> {
             MapStatusBarClientState.set(MapStatusBarType.NONE, 20, 20);
             context.client().execute(() -> {
-                // Always refresh map metadata: direct tmm:start must receive the same briefing as tmm:votemap.
+                // Always refresh map metadata: direct tmm:start must receive the same briefing
+                // as tmm:votemap.
                 io.wifi.starrailexpress.client.gui.screen.mapui.MapIntroClientCache.beginRefresh();
                 ClientPlayNetworking.send(new io.wifi.starrailexpress.network.MapIntroRequestPayload());
                 io.wifi.starrailexpress.client.gui.OpeningPresentationCoordinator.onGameStarted(payload.mapId());
@@ -903,6 +904,13 @@ public class SREClient implements ClientModInitializer {
                 }
             });
         });
+        // 服务端无法"发车"（如玩家人数不足）时，关闭地图投票结果页的铺黑显示，避免卡黑屏
+        ClientPlayNetworking.registerGlobalReceiver(io.wifi.starrailexpress.network.MapDepartCancelPayload.TYPE,
+                (payload, context) -> context.client().execute(() -> {
+                    if (context.client().screen instanceof MapVoteScreen) {
+                        context.client().setScreen(null);
+                    }
+                }));
         ClientPlayNetworking.registerGlobalReceiver(OpenSkinScreenPaylod.ID, (payload, context) -> {
 
             context.client().execute(() -> {
@@ -1072,12 +1080,14 @@ public class SREClient implements ClientModInitializer {
             FourthRoomCameraDirector.renderOverlay(guiGraphics);
             net.exmo.sre.camera.client.AdvancedCameraDirector.renderOverlay(guiGraphics);
         });
-        // Run map rules inside the project's frame lifecycle so text remains visible while a Letter is held.
-        net.fabricmc.fabric.api.client.screen.v1.ScreenEvents.AFTER_INIT.register((client, screen, width, height) ->
-                net.fabricmc.fabric.api.client.screen.v1.ScreenEvents.afterRender(screen).register(
-                        (renderedScreen, graphics, mouseX, mouseY, partialTick) ->
-                                io.wifi.starrailexpress.client.gui.OpeningPresentationCoordinator.renderScreenOverlay(
-                                        renderedScreen, graphics, partialTick)));
+        // Run map rules inside the project's frame lifecycle so text remains visible
+        // while a Letter is held.
+        net.fabricmc.fabric.api.client.screen.v1.ScreenEvents.AFTER_INIT.register((client, screen, width,
+                height) -> net.fabricmc.fabric.api.client.screen.v1.ScreenEvents.afterRender(screen).register(
+                        (renderedScreen, graphics, mouseX, mouseY,
+                                partialTick) -> io.wifi.starrailexpress.client.gui.OpeningPresentationCoordinator
+                                        .renderScreenOverlay(
+                                                renderedScreen, graphics, partialTick)));
         io.wifi.utils.client.betterrender.FakeHudRenderCallback.EVENT.register((guiGraphics, deltaTick) -> {
             io.wifi.starrailexpress.client.gui.OpeningPresentationCoordinator.render(
                     guiGraphics, deltaTick.getGameTimeDeltaPartialTick(false));
@@ -1515,5 +1525,16 @@ public class SREClient implements ClientModInitializer {
         if (cached_player == null)
             return false;
         return DeathPenaltyComponent.hasPenalty(cached_player);
+    }
+
+    public static Player getMinecraftPlayer() {
+        if (cached_player == null) {
+            cached_player = Minecraft.getInstance().player;
+        }
+        return cached_player;
+    }
+
+    public static Level getMinecraftLevel() {
+        return Minecraft.getInstance().level;
     }
 }

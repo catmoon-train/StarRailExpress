@@ -38,6 +38,8 @@ public class MapVoteScreen extends Screen {
     private static final long RESULT_COUNTDOWN_MS = 2_500L;
     private static final float COVER_FADE_MS = 480.0F;
     private static final long DOUBLE_CLICK_MS = 400L;
+    /** 客户端自卫：结果页铺黑后超过该时长仍未开局则自动关闭，防止卡黑屏。 */
+    private static final long RESULT_SAFETY_CLOSE_MS = 10_000L;
     private final MapBackdropRenderer backdrop = new MapBackdropRenderer(0.28F);
     private final List<MapRow> rows = new ArrayList<>();
     private int focusIndex;
@@ -374,7 +376,13 @@ public class MapVoteScreen extends Screen {
 
     @Override
     public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
-        if (isShowingResult()) return true;
+        if (isShowingResult()) {
+            // 结果铺黑期间允许用 ESC 打开暂停菜单，作为手动脱困出口
+            if (keyCode == GLFW.GLFW_KEY_ESCAPE) {
+                minecraft.setScreen(new WithParentScreenPauseScreen(this, true));
+            }
+            return true;
+        }
         switch (keyCode) {
             case GLFW.GLFW_KEY_RIGHT, GLFW.GLFW_KEY_DOWN -> { moveFocus(1); return true; }
             case GLFW.GLFW_KEY_LEFT, GLFW.GLFW_KEY_UP -> { moveFocus(-1); return true; }
@@ -382,6 +390,16 @@ public class MapVoteScreen extends Screen {
             case GLFW.GLFW_KEY_END -> { moveFocus(rows.size() - 1 - focusIndex); return true; }
             case GLFW.GLFW_KEY_ENTER, GLFW.GLFW_KEY_KP_ENTER, GLFW.GLFW_KEY_SPACE -> { submitFocused(); return true; }
             default -> { return super.keyPressed(keyCode, scanCode, modifiers); }
+        }
+    }
+
+    @Override
+    public void tick() {
+        super.tick();
+        // 客户端自卫：结果页铺黑后若长时间未真正开局（服务端没有推送关闭/开局），自动关闭黑屏
+        if (isShowingResult() && System.currentTimeMillis() - resultStartedAt > RESULT_SAFETY_CLOSE_MS
+                && minecraft != null) {
+            minecraft.setScreen(null);
         }
     }
 

@@ -30,6 +30,7 @@ import io.wifi.starrailexpress.game.GameUtils;
 import io.wifi.starrailexpress.game.modes.SREMurderGameMode;
 import io.wifi.starrailexpress.game.modes.funny.rotation.LightningDraftState;
 import io.wifi.starrailexpress.game.roles.SpecialGameModeRoles;
+import io.wifi.starrailexpress.network.packet.RoleRotationConfirmC2SPacket;
 import io.wifi.starrailexpress.network.packet.RoleRotationSelectC2SPacket;
 import io.wifi.starrailexpress.network.packet.RoleRotationSyncS2CPacket;
 import io.wifi.starrailexpress.network.CloseUiPayload;
@@ -79,6 +80,17 @@ public class SRERoleRotationGameMode extends SREMurderGameMode {
                         rotationMode.handlePlayerSelection(player, packet.choiceIndex());
                     } else if (gameMode instanceof SRERoleRotationSingleSelectGameMode singleMode) {
                         singleMode.handlePlayerSelection(player, packet.choiceIndex());
+                    }
+                }
+            });
+        });
+        ServerPlayNetworking.registerGlobalReceiver(RoleRotationConfirmC2SPacket.TYPE, (packet, context) -> {
+            context.player().server.execute(() -> {
+                ServerPlayer player = context.player();
+                if (player.level() instanceof ServerLevel serverLevel) {
+                    var gameMode = SREGameWorldComponent.getInstance(serverLevel).getGameMode();
+                    if (gameMode instanceof SRERoleRotationGameMode rotationMode) {
+                        rotationMode.handlePlayerConfirm(player);
                     }
                 }
             });
@@ -136,7 +148,9 @@ public class SRERoleRotationGameMode extends SREMurderGameMode {
                 draftState.playerOrder,
                 draftState.getSelectedRolesAsStrings(),
                 draftState.randomChoosers,
-                draftState.getRoundCandidatesAsStrings());
+                draftState.getRoundCandidatesAsStrings(),
+                draftState.confirmRequired,
+                draftState.confirmedPlayers);
         for (ServerPlayer p : world.players()) {
             ServerPlayNetworking.send(p, packet);
         }
@@ -148,6 +162,31 @@ public class SRERoleRotationGameMode extends SREMurderGameMode {
         if (draftState.processSelection(player.serverLevel(), player.getUUID(), choiceIndex)) {
             broadcastSync(player.serverLevel());
         }
+    }
+
+    private void handlePlayerConfirm(ServerPlayer player) {
+        if (!isInRotationPhase || draftState == null)
+            return;
+        if (draftState.confirm(player.getUUID())) {
+            broadcastSync(player.serverLevel());
+        }
+    }
+
+    /**
+     * 手动确认阶段是否已收齐所有（在线且已分配职业）玩家的确认。
+     * 离线玩家不阻塞开局，由确认倒计时兜底。
+     */
+    private boolean allDraftPlayersConfirmed(ServerLevel world) {
+        for (UUID uuid : draftState.playerOrder) {
+            if (!draftState.selectedRoles.containsKey(uuid))
+                continue;
+            ServerPlayer player = world.getServer().getPlayerList().getPlayer(uuid);
+            if (player == null || player.isRemoved())
+                continue;
+            if (!draftState.confirmedPlayers.contains(uuid))
+                return false;
+        }
+        return true;
     }
 
     @Override
@@ -170,6 +209,11 @@ public class SRERoleRotationGameMode extends SREMurderGameMode {
 
         // 确认倒计时
         if (!draftState.isSelecting && draftState.confirmCountdown > 0) {
+            // 手动确认模式：全部在线玩家确认后立刻开局（否则等倒计时走完兜底）
+            if (draftState.confirmRequired && allDraftPlayersConfirmed(world)) {
+                finishRotationPhase(world, gameComp);
+                return;
+            }
             draftState.confirmCountdown--;
             if (draftState.confirmCountdown % 20 == 0)
                 broadcastSync(world);

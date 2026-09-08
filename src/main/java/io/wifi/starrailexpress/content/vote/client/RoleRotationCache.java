@@ -27,6 +27,7 @@ public class RoleRotationCache {
     private static int currentRoundIndex = 0; // 当前轮次（从1开始）
     private static int totalPlayerCount = 0;
     private static int confirmCountdown = -1; // 确认阶段倒计时（tick）
+    private static boolean confirmRequired = false; // 确认阶段是否要求手动确认
     private static int perPlayerTimeLimit = 0; // 每个玩家的选择时限（tick）
     private static long roundStartGameTime = 0; // 服务端本轮开始时的世界游戏时间（tick）
 
@@ -35,6 +36,7 @@ public class RoleRotationCache {
     private static final Map<UUID, Integer> rotationOrder = new LinkedHashMap<>(); // UUID -> 序号
     private static final Map<UUID, String> selectedRoles = new LinkedHashMap<>(); // UUID -> 角色ID字符串
     private static final Set<UUID> randomChoosers = new HashSet<>();
+    private static final Set<UUID> confirmedPlayers = new HashSet<>(); // 已手动确认的玩家
     private static final Map<UUID, List<String>> roundCandidates = new LinkedHashMap<>(); // 本轮玩家 -> 候选角色ID列表
 
     // ==================== 缓存辅助 ====================
@@ -47,6 +49,7 @@ public class RoleRotationCache {
         currentRoundIndex = packet.currentRoundIndex();
         totalPlayerCount = packet.totalPlayerCount();
         confirmCountdown = packet.confirmCountdown();
+        confirmRequired = packet.confirmRequired();
         perPlayerTimeLimit = packet.perPlayerTimeLimit();
         roundStartGameTime = packet.roundStartTime();
 
@@ -65,6 +68,10 @@ public class RoleRotationCache {
         // 随机选择者
         randomChoosers.clear();
         randomChoosers.addAll(packet.randomChoosers());
+
+        // 已手动确认的玩家
+        confirmedPlayers.clear();
+        confirmedPlayers.addAll(packet.confirmedPlayers());
 
         // 本轮候选映射
         roundCandidates.clear();
@@ -101,6 +108,20 @@ public class RoleRotationCache {
 
     public static int getConfirmCountdown() {
         return confirmCountdown;
+    }
+
+    public static boolean isConfirmRequired() {
+        return confirmRequired;
+    }
+
+    public static Set<UUID> getConfirmedPlayers() {
+        return Collections.unmodifiableSet(confirmedPlayers);
+    }
+
+    // 本地玩家是否已手动确认
+    public static boolean isLocalPlayerConfirmed() {
+        Minecraft mc = Minecraft.getInstance();
+        return mc.player != null && confirmedPlayers.contains(mc.player.getUUID());
     }
 
     /**
@@ -193,6 +214,8 @@ public class RoleRotationCache {
     public static void finishRotation() {
         isSelecting = false;
         confirmCountdown = -1;
+        confirmRequired = false;
+        confirmedPlayers.clear();
     }
 
     // 清空（游戏结束）
@@ -201,12 +224,14 @@ public class RoleRotationCache {
         currentRoundIndex = 0;
         totalPlayerCount = 0;
         confirmCountdown = -1;
+        confirmRequired = false;
         perPlayerTimeLimit = 0;
         roundStartGameTime = 0;
         playerOrder.clear();
         rotationOrder.clear();
         selectedRoles.clear();
         randomChoosers.clear();
+        confirmedPlayers.clear();
         roundCandidates.clear();
         localPlayerUuid = null;
         wasMyTurn = false;

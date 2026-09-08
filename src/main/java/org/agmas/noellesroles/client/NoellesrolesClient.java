@@ -41,6 +41,7 @@ import io.wifi.starrailexpress.content.entity.PlayerBodyEntity;
 import io.wifi.starrailexpress.content.vote.client.ClientVoteCache;
 import io.wifi.starrailexpress.content.vote.client.RoleRotationCache;
 import io.wifi.starrailexpress.content.vote.client.VolunteerCache;
+import io.wifi.starrailexpress.customrole.CustomRoleLoader;
 import io.wifi.starrailexpress.event.AllowNameRender;
 import io.wifi.starrailexpress.event.OnRoundStartWelcomeTimmer;
 import io.wifi.starrailexpress.game.GameConstants;
@@ -493,6 +494,7 @@ public class NoellesrolesClient implements ClientModInitializer {
         IlliterateTextClientHandle.register();
         BlindnessVisionClientHandle.register();
         DeafnessClientHandle.register();
+        MuffledHearingClientHandle.register();
         org.agmas.noellesroles.client.ClientAmonState.register();
         CommonClientHudRenderer.registerRenderersEvent();
         WorldRenderEvents.AFTER_TRANSLUCENT.register((renderContext) -> {
@@ -513,11 +515,15 @@ public class NoellesrolesClient implements ClientModInitializer {
                 if (context.client().player != null) {
                     context.client().player.refreshDimensions();
                 }
-            }, 1);
+            }, 10);
         });
         ClientPlayNetworking.registerGlobalReceiver(OpenScreenPayload.ID, (payload, context) -> {
             ClientOpenScreenManager.openScreen(payload, context);
         });
+        ClientPlayNetworking.registerGlobalReceiver(LoanContractOpenS2CPacket.ID, (payload, context) ->
+                context.client().execute(() -> context.client().setScreen(new LoanContractScreen(payload))));
+        ClientPlayNetworking.registerGlobalReceiver(InsuranceOpenS2CPacket.ID, (payload, context) ->
+                context.client().execute(() -> context.client().setScreen(new InsuranceScreen(payload.hand()))));
         ClientPlayNetworking.registerGlobalReceiver(ReasonerOpenScreenS2CPacket.ID, (payload, context) -> {
             context.client().execute(() -> context.client().setScreen(new ReasonerCompassScreen(payload)));
         });
@@ -1150,6 +1156,7 @@ public class NoellesrolesClient implements ClientModInitializer {
             ClientEmbalmerState.clear();
             ClientAmonState.clearAll();
             ClientSkincrawlerState.clearAll();
+            CustomRoleLoader.removeClientCache();
             // 在断开连接时，强制清理所有玩家的渲染缓存
 
         });

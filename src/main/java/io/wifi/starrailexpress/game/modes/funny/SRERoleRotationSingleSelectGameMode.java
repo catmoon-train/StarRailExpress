@@ -134,7 +134,9 @@ public class SRERoleRotationSingleSelectGameMode extends SREMurderGameMode {
                 orderList,
                 draftState.getSelectedRolesAsStrings(),
                 draftState.randomChoosers,
-                draftState.getRoundCandidatesAsStrings());
+                draftState.getRoundCandidatesAsStrings(),
+                false,
+                Collections.emptySet());
         for (ServerPlayer p : world.players()) {
             ServerPlayNetworking.send(p, packet);
         }

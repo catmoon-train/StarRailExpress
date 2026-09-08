@@ -29,6 +29,7 @@ import com.mojang.brigadier.suggestion.SuggestionsBuilder;
 import io.wifi.ConfigCompact.ConfigClassHandler;
 import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.SREConfig;
+import io.wifi.utils.ServerLanguageManager;
 import me.shedaniel.autoconfig.ConfigData;
 import me.shedaniel.autoconfig.ConfigHolder;
 import net.minecraft.ChatFormatting;
@@ -293,6 +294,7 @@ public class ConfigCommand {
         CommandSourceStack source = context.getSource();
         try {
             SREConfig.instance().reload();
+            ServerLanguageManager.applyFromConfig();
             SREConfig.HANDLER.syncToClient(source.getServer());
             HarpyModLoaderConfig.HANDLER.load();
             SpawnInfoConfig.HANDLER.load();

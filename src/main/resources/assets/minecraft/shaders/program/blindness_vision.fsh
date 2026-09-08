@@ -59,46 +59,48 @@ vec3 reconstructWorld(vec2 uv, float depth) {
     return worldPosition.xyz + CameraPosition;
 }
 
+float sceneDepth(vec2 uv) {
+    float depth = texture(DepthSampler, clamp(uv, vec2(0.0), vec2(1.0))).r;
+    if (depth <= 0.002 || depth >= 0.9992) {
+        return 10000.0;
+    }
+    return length(reconstructView(uv, depth));
+}
+
 float sceneEdge(vec2 uv) {
+    // Use geometry discontinuities as the primary outline. Sampling final
+    // colour with a low Sobel threshold made every texture/light change look
+    // like a tiny tile, which produced the mosaic effect.
     ivec2 size = textureSize(DepthSampler, 0);
     vec2 step = 1.0 / vec2(size);
-    vec2 p00 = clamp(uv + vec2(-step.x, -step.y), vec2(0.0), vec2(1.0));
-    vec2 p01 = clamp(uv + vec2(0.0, -step.y), vec2(0.0), vec2(1.0));
-    vec2 p02 = clamp(uv + vec2(step.x, -step.y), vec2(0.0), vec2(1.0));
-    vec2 p10 = clamp(uv + vec2(-step.x, 0.0), vec2(0.0), vec2(1.0));
-    vec2 p11 = clamp(uv, vec2(0.0), vec2(1.0));
-    vec2 p12 = clamp(uv + vec2(step.x, 0.0), vec2(0.0), vec2(1.0));
-    vec2 p20 = clamp(uv + vec2(-step.x, step.y), vec2(0.0), vec2(1.0));
-    vec2 p21 = clamp(uv + vec2(0.0, step.y), vec2(0.0), vec2(1.0));
-    vec2 p22 = clamp(uv + vec2(step.x, step.y), vec2(0.0), vec2(1.0));
+    vec2 leftUv = clamp(uv - vec2(step.x, 0.0), vec2(0.0), vec2(1.0));
+    vec2 rightUv = clamp(uv + vec2(step.x, 0.0), vec2(0.0), vec2(1.0));
+    vec2 downUv = clamp(uv - vec2(0.0, step.y), vec2(0.0), vec2(1.0));
+    vec2 upUv = clamp(uv + vec2(0.0, step.y), vec2(0.0), vec2(1.0));
 
-    // Match composite.fsh: a 3x3 Sobel of the rendered colour/depth. The
-    // original colour buffer contained encoded face normals; using the final
-    // scene colour plus depth is the portable Fabric equivalent.
-    vec4 m00 = vec4(texture(DiffuseSampler, p00).rgb * 255.0,
-            length(reconstructView(p00, texture(DepthSampler, p00).r)));
-    vec4 m01 = vec4(texture(DiffuseSampler, p01).rgb * 255.0,
-            length(reconstructView(p01, texture(DepthSampler, p01).r)));
-    vec4 m02 = vec4(texture(DiffuseSampler, p02).rgb * 255.0,
-            length(reconstructView(p02, texture(DepthSampler, p02).r)));
-    vec4 m10 = vec4(texture(DiffuseSampler, p10).rgb * 255.0,
-            length(reconstructView(p10, texture(DepthSampler, p10).r)));
-    vec4 m11 = vec4(texture(DiffuseSampler, p11).rgb * 255.0,
-            length(reconstructView(p11, texture(DepthSampler, p11).r)));
-    vec4 m12 = vec4(texture(DiffuseSampler, p12).rgb * 255.0,
-            length(reconstructView(p12, texture(DepthSampler, p12).r)));
-    vec4 m20 = vec4(texture(DiffuseSampler, p20).rgb * 255.0,
-            length(reconstructView(p20, texture(DepthSampler, p20).r)));
-    vec4 m21 = vec4(texture(DiffuseSampler, p21).rgb * 255.0,
-            length(reconstructView(p21, texture(DepthSampler, p21).r)));
-    vec4 m22 = vec4(texture(DiffuseSampler, p22).rgb * 255.0,
-            length(reconstructView(p22, texture(DepthSampler, p22).r)));
+    float centerDepth = sceneDepth(uv);
+    float leftDepth = sceneDepth(leftUv);
+    float rightDepth = sceneDepth(rightUv);
+    float downDepth = sceneDepth(downUv);
+    float upDepth = sceneDepth(upUv);
+    float depthDifference = max(max(abs(leftDepth - centerDepth), abs(rightDepth - centerDepth)),
+            max(abs(downDepth - centerDepth), abs(upDepth - centerDepth)));
 
-    vec4 gx = -m00 + m02 + 2.0 * -m10 + 2.0 * m12 - m20 + m22;
-    vec4 gy = -m00 + m20 + 2.0 * -m01 + 2.0 * m21 - m02 + m22;
-    float colourEdge = length(gx.xyz) + length(gy.xyz);
-    float depthEdge = abs(gx.w) + abs(gy.w);
-    return float(colourEdge > 1.0 || depthEdge > max(0.15, m11.w * 0.04));
+    // Make the threshold scale with distance so distant surfaces do not turn
+    // into noisy bands while nearby block/entity silhouettes remain visible.
+    float depthThreshold = max(0.20, centerDepth * 0.035);
+    float depthOutline = smoothstep(depthThreshold, depthThreshold * 2.5, depthDifference);
+
+    // Retain only very strong colour boundaries (mainly entity silhouettes),
+    // never ordinary texture detail. This is deliberately a small supplement
+    // to the depth outline rather than a second full Sobel pass.
+    vec3 centerColor = texture(DiffuseSampler, uv).rgb;
+    float colourDifference = max(max(length(texture(DiffuseSampler, leftUv).rgb - centerColor),
+            length(texture(DiffuseSampler, rightUv).rgb - centerColor)),
+            max(length(texture(DiffuseSampler, downUv).rgb - centerColor),
+            length(texture(DiffuseSampler, upUv).rgb - centerColor)));
+    float colourOutline = smoothstep(0.75, 0.95, colourDifference) * 0.15;
+    return max(depthOutline, colourOutline);
 }
 
 vec4 soundAt(int index) {

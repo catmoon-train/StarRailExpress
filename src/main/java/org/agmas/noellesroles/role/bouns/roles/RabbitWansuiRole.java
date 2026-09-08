@@ -1,3 +1,18 @@
+/*
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ */
+
 package org.agmas.noellesroles.role.bouns.roles;
 
 import org.agmas.harpymodloader.component.WorldModifierComponent;
@@ -27,7 +42,7 @@ import org.jetbrains.annotations.Nullable;
 
 public class RabbitWansuiRole extends CustomWinnerRole implements EggRoleInterface {
 
-    private static final int COST = 75;
+    private static final int COST = 25;
 
     public RabbitWansuiRole(ResourceLocation identifier, int color, RoleType roleType, MoodType moodType,
             int maxSprintTime, boolean canSeeTime) {
@@ -66,7 +81,7 @@ public class RabbitWansuiRole extends CustomWinnerRole implements EggRoleInterfa
                 if (wmcca.isModifier(p, NRModifiers.RABBIT_SHAPE)) {
                     SRE.REPLAY_MANAGER.recordCustomEvent(
                             Component.translatable("replay.event.rabbit.restore",
-                                    GameReplayUtils.getReplayPlayerDisplayText(player, true)));
+                                    GameReplayUtils.getReplayPlayerDisplayText(p, true)));
                     RoleUtils.removeModifier(p, NRModifiers.RABBIT_SHAPE);
                 }
             }

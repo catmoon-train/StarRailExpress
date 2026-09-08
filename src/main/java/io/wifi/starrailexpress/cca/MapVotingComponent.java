@@ -16,15 +16,20 @@
 package io.wifi.starrailexpress.cca;
 
 import io.wifi.starrailexpress.SRE;
+import io.wifi.starrailexpress.api.GameMode;
 import io.wifi.starrailexpress.api.SREGameModes;
+import io.wifi.starrailexpress.game.GameUtils;
+import io.wifi.starrailexpress.network.MapDepartCancelPayload;
 import io.wifi.starrailexpress.network.MapVotingResultsPayload;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.NotNull;
@@ -295,6 +300,20 @@ public class MapVotingComponent implements AutoSyncedComponent, CommonTickingCom
             // 已经启动了不要启动。
             return;
         }
+        if (world instanceof ServerLevel serverWorld
+                && GameUtils.getStartingPlayerCount(serverWorld) < resolveGameModeObject().minPlayerCount) {
+            // 人数不足以启动该模式：不发车、不换图，通知客户端关闭地图投票的铺黑显示。
+            if (server != null) {
+                int need = resolveGameModeObject().minPlayerCount;
+                for (ServerPlayer p : server.getPlayerList().getPlayers()) {
+                    ServerPlayNetworking.send(p, new MapDepartCancelPayload());
+                    p.displayClientMessage(
+                            Component.translatable("game.start_error.sre.not_enough_players", need), true);
+                }
+            }
+            this.shouldSync = true;
+            return;
+        }
         if (server != null) {
 
             if (!winningMap.equals("random")) {
@@ -351,6 +370,18 @@ public class MapVotingComponent implements AutoSyncedComponent, CommonTickingCom
             }
         }
         return resultGameMode;
+    }
+
+    private GameMode resolveGameModeObject() {
+        for (ResourceLocation key : SREGameModes.GAME_MODES.keySet()) {
+            if (key.getPath().equals(presetGameMode)) {
+                GameMode mode = SREGameModes.GAME_MODES.get(key);
+                if (mode != null) {
+                    return mode;
+                }
+            }
+        }
+        return SREGameModes.MURDER;
     }
 
     private void startPendingGame() {

@@ -57,6 +57,8 @@
   "text.autoconfig.starrailexpress-client.option.showMainhandCooldown": "显示手持物品的冷却以及冷却结束提示音",
   "text.autoconfig.starrailexpress-client.category.default": "通用",
   "text.autoconfig.starrailexpress-client.option.autoSortVotes": "自动根据投票数量排序投票项目",
+  "text.autoconfig.starrailexpress-client.option.roleRotationAutoScroll": "职业轮选界面：玩家列表自动滚动跟随当前选择玩家",
+  "text.autoconfig.starrailexpress-client.option.roleRotationAutoScroll.@Tooltip": "开启后，职业轮选界面会保持正在选择职业的玩家在可视范围内。也可在轮选界面左下角按钮一键开关。",
   "text.autoconfig.starrailexpress-client.option.hideAllHats": "不显示所有人的帽子",
   "text.autoconfig.starrailexpress-client.option.hideAllHats.@Tooltip": "开启后，所有玩家的帽子都不会渲染",
   "text.autoconfig.starrailexpress-client.option.showOwnHatOnly": "只显示自己的帽子",
@@ -223,11 +225,14 @@
   "text.autoconfig.starrailexpress.option.mysqlSyncPoolSize": "mysql 连接池大小",
   "text.autoconfig.starrailexpress.option.mysqlSyncConnectTimeoutMs": "mysql 连接超时时长",
   "====== 游戏模式 ======": "",
+  "text.autoconfig.starrailexpress.option.loadServerLanguageId": "服务端：加载模组本地翻译文件id（输入auto自动检测环境，留空不加载）",
   "text.autoconfig.starrailexpress.option.hideAndSeekRewardKillRemoveTime": "躲猫猫模式：躲藏者击杀追捕者，奖励时长减少(单位：秒)",
   "text.autoconfig.starrailexpress.option.hideAndSeekRewardKillAddTime": "躲猫猫模式：追捕者击杀躲藏者，奖励时长(单位：秒)",
   "text.autoconfig.starrailexpress.option.hideAndSeekBaseTime": "躲猫猫模式：时长基数（总时长=基数+玩家数*增量）(单位：秒)",
   "text.autoconfig.starrailexpress.option.hideAndSeekTimePerPlayer": "躲猫猫模式：每个玩家的时长增量（总时长=基数+玩家数*增量）(单位：秒)",
   "text.autoconfig.starrailexpress.option.hideAndSeekHiderScale": "躲猫猫模式：躲藏者体型缩放",
+  "text.autoconfig.starrailexpress.option.roleRotationPreparingConfirmRequire": "轮抽模式：确认阶段需要玩家手动确认。",
+  "text.autoconfig.starrailexpress.option.roleRotationPreparingConfirmTimeout": "轮抽模式：手动确认超时时长（单位：秒）",
   "text.autoconfig.starrailexpress.option.roleRotationPerPlayerPerRoleTime": "轮抽模式：每个玩家的选择时间乘数（最终时间=可选择职业数量*此乘数，单位：秒）",
   "text.autoconfig.starrailexpress.option.roleRotationForceRoleSettings": "轮抽模式：强制应用职业的绑定/对立设定",
   "text.autoconfig.starrailexpress.option.roleRotationForceRoleSettings.@Tooltip": "如果禁用，将不会让职业池中剩余的平民职业替换多余的2个平民（但非平民依然会替换）。启用将会让职业池剩下的所有职业替换多余的2个平民。",
@@ -692,5 +697,6 @@
   "text.autoconfig.noellesroles.option.manipulatorMarkNauseaSeconds": "操纵者 - 成功标记时对目标施加的恶心时长（秒）",
   "text.autoconfig.noellesroles.option.manipulatorMarkReward": "操纵者 - 成功标记奖励的金币",
   "text.autoconfig.noellesroles.option.manipulatorTargetDeathReward": "操纵者 - 控制期间目标死亡奖励的金币",
-  "text.autoconfig.noellesroles.option.chanceOfSilencer": "静语者生成概率（%）"
+  "text.autoconfig.noellesroles.option.chanceOfSilencer": "静语者生成概率（%）",
+  "text.autoconfig.starrailexpress.option.downloadVanillaLanguageFile": "服务端：从Mojang官方下载上面语言id对应的原版(vanilla)语言文件并应用，缓存到游戏根目录sre_lang_cache（需先设置loadServerLanguageId且非en_us）"
 }

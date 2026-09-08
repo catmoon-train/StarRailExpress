@@ -50,6 +50,8 @@
     "text.autoconfig.starrailexpress-client.option.showMainhandCooldown": "Displays the cooldown of handheld items and the cooldown end sound",
     "text.autoconfig.starrailexpress-client.category.default": "Universal",
     "text.autoconfig.starrailexpress-client.option.autoSortVotes": "Automatically sort voting items based on number of votes",
+    "text.autoconfig.starrailexpress-client.option.roleRotationAutoScroll": "Role rotation screen: auto-scroll player list to the player who is choosing",
+    "text.autoconfig.starrailexpress-client.option.roleRotationAutoScroll.@Tooltip": "When enabled, the role rotation screen keeps the currently choosing player in view. You can also toggle it with one click on the button at the bottom-left of the rotation screen.",
     "text.autoconfig.starrailexpress-client.option.hideAllHats": "Don't show everyone's hats",
     "text.autoconfig.starrailexpress-client.option.hideAllHats.@Tooltip": "When turned on, all player hats will not be rendered.",
     "text.autoconfig.starrailexpress-client.option.showOwnHatOnly": "Show only your own hat",
@@ -542,5 +544,7 @@
     "=== 角色刷新概率設置 ===": "",
     "=== 修飾符配置 ===": "",
     "=== StupidExpress 角色設置 ===": "",
-    "=== 叛徒擴展包修飾符 ===": ""
+    "=== 叛徒擴展包修飾符 ===": "",
+    "text.autoconfig.starrailexpress.option.loadServerLanguageId": "Server-side language file id to use for translations (enter auto to detect environment, leave empty to disable)",
+    "text.autoconfig.starrailexpress.option.downloadVanillaLanguageFile": "Server-side: download the matching vanilla (assets/minecraft/lang/<id>.json) language file from Mojang and apply it, so vanilla keys are also translated; cached under <game dir>/sre_lang_cache (requires loadServerLanguageId set and not en_us)"
 }

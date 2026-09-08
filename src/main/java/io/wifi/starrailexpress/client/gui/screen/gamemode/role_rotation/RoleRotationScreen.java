@@ -15,11 +15,13 @@
 
 package io.wifi.starrailexpress.client.gui.screen.gamemode.role_rotation;
 
+import io.wifi.starrailexpress.SREClientConfig;
 import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.api.TMMRoles;
 import io.wifi.starrailexpress.client.SREClient;
 import io.wifi.starrailexpress.client.gui.screen.WithParentScreenPauseScreen;
 import io.wifi.starrailexpress.content.vote.client.RoleRotationCache;
+import io.wifi.starrailexpress.network.packet.RoleRotationConfirmC2SPacket;
 import io.wifi.starrailexpress.network.packet.RoleRotationSelectC2SPacket;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.minecraft.ChatFormatting;
@@ -48,6 +50,9 @@ public class RoleRotationScreen extends Screen {
     private static final int CARD_H = 104;
     private static final int DETAIL_LINE_H = 11;
     private static final int TOOLTIP_W = 200;
+    private static final int AUTO_TOGGLE_H = 20; // 底部"自动滚动"开关高度
+    private static final int CONFIRM_W = 220; // 手动确认按钮宽度
+    private static final int CONFIRM_H = 24; // 手动确认按钮高度
 
     private static final int BG_TOP = 0xF018120A;
     private static final int BG_BOTTOM = 0xF0061018;
@@ -71,6 +76,10 @@ public class RoleRotationScreen extends Screen {
     private int hoveredCardIndex = -1;
     private int hoveredDetailIndex = -1;
     private int hoveredPlayerIndex = -1;
+
+    // 底部控件几何（每次 render / computeLayout 刷新）
+    private int autoToggleX, autoToggleY, autoToggleW;
+    private int confirmX, confirmY;
 
     private boolean scrolling;
     private double scrollBarClickOffset;
@@ -104,6 +113,13 @@ public class RoleRotationScreen extends Screen {
         detailY = cardY + CARD_H + GAP;
         detailW = rightW - PAD * 2;
         detailH = Math.max(70, rightY + panelH - detailY - PAD);
+
+        // 底部控件几何
+        confirmX = (width - CONFIRM_W) / 2;
+        confirmY = height - CONFIRM_H - 16;
+        autoToggleX = leftX + PAD;
+        autoToggleY = leftY + panelH - AUTO_TOGGLE_H - 10;
+        autoToggleW = Math.max(120, leftW - PAD * 2);
     }
 
     private void calculateScroll() {
@@ -197,6 +213,8 @@ public class RoleRotationScreen extends Screen {
         drawTurnInfo(g);
         drawRoleArea(g, mouseX, mouseY);
         drawFooter(g);
+        drawAutoScrollToggle(g, mouseX, mouseY);
+        drawConfirmButton(g, mouseX, mouseY);
 
         renderPlayerRoleTooltip(g, mouseX, mouseY);
 
@@ -268,6 +286,10 @@ public class RoleRotationScreen extends Screen {
 
             String index = "#" + entry.getValue();
             g.drawString(font, index, x + 6, rowY + 8, rowHover ? GOLD : (inThisRound ? GREEN : MUTED), false);
+            // 手动确认模式下，标记已确认的玩家
+            if (RoleRotationCache.getConfirmedPlayers().contains(uuid)) {
+                g.drawString(font, "✔", x + 32, rowY + 8, GREEN, false);
+            }
 
             Component roleName = selectedRoleText(uuid);
             int roleColor = roleName.getStyle().getColor() != null ? roleName.getStyle().getColor().getValue() : BLUE;
@@ -540,6 +562,61 @@ public class RoleRotationScreen extends Screen {
         g.drawCenteredString(font, hint, width / 2, height - 12, MUTED);
     }
 
+    // ---------- 底部"自动滚动"开关（写入客户端配置） ----------
+    private void drawAutoScrollToggle(GuiGraphics g, int mouseX, int mouseY) {
+        boolean enabled = SREClientConfig.instance().roleRotationAutoScroll;
+        boolean hover = inside(mouseX, mouseY, autoToggleX, autoToggleY, autoToggleW, AUTO_TOGGLE_H);
+        g.fillGradient(autoToggleX, autoToggleY, autoToggleX + autoToggleW, autoToggleY + AUTO_TOGGLE_H,
+                hover ? 0x553A2E12 : 0x331A1008, hover ? 0x44112536 : 0x220B1722);
+        g.renderOutline(autoToggleX, autoToggleY, autoToggleW, AUTO_TOGGLE_H,
+                hover ? GOLD : (enabled ? 0x665A4530 : 0x443B2F1E));
+        Component label = Component.translatable(enabled
+                ? "gui.sre.role_rotation.auto_scroll_on"
+                : "gui.sre.role_rotation.auto_scroll_off");
+        g.drawCenteredString(font, label, autoToggleX + autoToggleW / 2,
+                autoToggleY + AUTO_TOGGLE_H / 2 - 4, enabled ? GREEN : MUTED);
+    }
+
+    // 点击自动滚动开关：切换并保存到客户端配置
+    private void toggleAutoScroll() {
+        SREClientConfig config = SREClientConfig.instance();
+        config.roleRotationAutoScroll = !config.roleRotationAutoScroll;
+        SREClientConfig.HANDLER.save();
+        if (!config.roleRotationAutoScroll) {
+            autoScrolling = false;
+            cancelAutoScroll();
+        }
+    }
+
+    // ---------- 最终确认按钮（手动确认模式） ----------
+    private boolean isConfirmStageActive() {
+        return !RoleRotationCache.isSelecting()
+                && RoleRotationCache.getConfirmCountdown() > 0
+                && RoleRotationCache.isConfirmRequired();
+    }
+
+    private boolean isConfirmButtonClickable() {
+        return isConfirmStageActive() && !RoleRotationCache.isLocalPlayerConfirmed();
+    }
+
+    private void drawConfirmButton(GuiGraphics g, int mouseX, int mouseY) {
+        if (!isConfirmStageActive())
+            return;
+        boolean confirmed = RoleRotationCache.isLocalPlayerConfirmed();
+        boolean hover = !confirmed && inside(mouseX, mouseY, confirmX, confirmY, CONFIRM_W, CONFIRM_H);
+        g.fillGradient(confirmX, confirmY, confirmX + CONFIRM_W, confirmY + CONFIRM_H,
+                hover ? 0xFF3A2E12 : 0xE01A1008, hover ? 0xFF112536 : 0xE00B1722);
+        g.renderOutline(confirmX, confirmY, CONFIRM_W, CONFIRM_H,
+                hover ? GOLD : (confirmed ? 0x665A4530 : BORDER));
+        g.fill(confirmX + 1, confirmY + 1, confirmX + CONFIRM_W - 1, confirmY + 3,
+                hover ? GOLD : 0x33FFE8C0);
+        Component label = Component.translatable(confirmed
+                ? "gui.sre.role_rotation.confirm_waiting"
+                : "gui.sre.role_rotation.confirm_ready");
+        g.drawCenteredString(font, label, confirmX + CONFIRM_W / 2, confirmY + CONFIRM_H / 2 - 4,
+                confirmed ? MUTED : TEXT);
+    }
+
     private void drawCenteredWrapped(GuiGraphics g, Component text, int x, int y, int w, int color) {
         List<FormattedCharSequence> lines = font.split(text, w);
         for (int i = 0; i < Math.min(3, lines.size()); i++) {
@@ -580,6 +657,10 @@ public class RoleRotationScreen extends Screen {
     }
 
     private void updateAutoScroll() {
+        if (!SREClientConfig.instance().roleRotationAutoScroll) {
+            autoScrolling = false;
+            return;
+        }
         int anchor = computeAnchorRow();
         if (anchor != lastAutoScrollRow) {
             lastAutoScrollRow = anchor;
@@ -664,6 +745,17 @@ public class RoleRotationScreen extends Screen {
     @Override
     public boolean mouseClicked(double mouseX, double mouseY, int button) {
         if (button == 0) {
+            if (inside(mouseX, mouseY, autoToggleX, autoToggleY, autoToggleW, AUTO_TOGGLE_H)) {
+                playClickSound();
+                toggleAutoScroll();
+                return true;
+            }
+            if (isConfirmButtonClickable()
+                    && inside(mouseX, mouseY, confirmX, confirmY, CONFIRM_W, CONFIRM_H)) {
+                playClickSound();
+                ClientPlayNetworking.send(new RoleRotationConfirmC2SPacket());
+                return true;
+            }
             if (handleScrollBarClick(mouseX, mouseY))
                 return true;
             if (hoveredPlayerIndex >= 0) {

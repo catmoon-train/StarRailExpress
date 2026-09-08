@@ -94,6 +94,7 @@ import io.wifi.starrailexpress.index.TMMEntities;
 import io.wifi.starrailexpress.index.TMMItems;
 import io.wifi.starrailexpress.index.tag.TMMItemTags;
 import io.wifi.starrailexpress.network.CloseUiPayload;
+import io.wifi.starrailexpress.network.MapDepartCancelPayload;
 import io.wifi.starrailexpress.network.original.AnnounceEndingPayload;
 import io.wifi.starrailexpress.progression.ProgressionDataManager;
 import io.wifi.starrailexpress.stats.PlayerStats;
@@ -598,6 +599,8 @@ public class GameUtils {
                 player.displayClientMessage(
                         Component.translatable("game.start_error.sre.not_enough_players", gameMode.minPlayerCount),
                         true);
+                // 无法发车：让客户端关闭地图投票结果页的铺黑，避免卡黑屏
+                ServerPlayNetworking.send(player, new MapDepartCancelPayload());
             }
             isStartingGame = false;
         }
@@ -1100,6 +1103,10 @@ public class GameUtils {
         return getReadyPlayerList(serverWorld);
     }
 
+    public static int getStartingPlayerCount(ServerLevel serverWorld) {
+        return getStartingPlayers(serverWorld).size();
+    }
+
     private static List<ServerPlayer> getReadyPlayerList(ServerLevel serverWorld) {
         AreasWorldComponent areas = AreasWorldComponent.KEY.get(serverWorld);
         ParticipationComponent participation = ParticipationComponent.KEY.get(serverWorld);
@@ -1286,6 +1293,7 @@ public class GameUtils {
         player.removeVehicle();
         ExtraSlotComponent.KEY.get(player).clear();
         player.setInvulnerable(false);
+        player.setNoGravity(false);
         // 体力重置。-1代表职业最大值
         StaminaCommand.setStamina(player, -1);
         player.setLastHurtByMob(null);
@@ -1704,6 +1712,7 @@ public class GameUtils {
 
     /**
      * 更新玩家的 dimension（服务端+客户端）
+     * 
      * @param player
      */
     public static void refreshPlayerDimension(ServerPlayer player) {

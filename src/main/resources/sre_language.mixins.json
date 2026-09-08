@@ -1,0 +1,11 @@
+{
+  "required": true,
+  "package": "io.wifi.mixins",
+  "compatibilityLevel": "JAVA_21",
+  "mixins": [
+    "LanguageInstanceAccessor"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

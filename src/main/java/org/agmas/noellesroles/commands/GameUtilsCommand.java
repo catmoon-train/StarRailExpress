@@ -64,6 +64,7 @@ import org.agmas.harpymodloader.commands.argument.RoleArgumentType;
 import org.agmas.harpymodloader.events.ModdedRoleAssigned;
 import org.agmas.harpymodloader.events.ModdedRoleRemoved;
 import org.agmas.noellesroles.content.effects.TimeStopEffect;
+import org.agmas.noellesroles.game.roles.neutral.lender.LenderRoleHandler;
 import org.agmas.noellesroles.role_data.neutral.GamblerRoleData;
 import org.agmas.noellesroles.init.ModEffects;
 import org.agmas.noellesroles.init.ModItems;
@@ -232,6 +233,13 @@ public class GameUtilsCommand {
                       true);
                   return 1;
                 })))
+            .then(Commands.literal("debug").executes((ctx) -> {
+              ServerPlayer player = ctx.getSource().getPlayerOrException();
+              LenderRoleHandler.debugAccept(player);
+              ctx.getSource().sendSuccess(
+                  () -> Component.literal("Opened a debug loan contract for " + player.getName().getString()), false);
+              return 1;
+            }))
             .then(Commands.literal("tests")
 
                 .then(Commands.literal("open_screen")
