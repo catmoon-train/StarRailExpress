@@ -351,6 +351,45 @@ public class FakeSteveAi {
         }
     }
 
+    /**
+     * Wander-only subset of {@link #tick} for 失心症.
+     * Reuses Fake Steve locomotion without stare, hunt, assimilate, or impostor tells.
+     */
+    public static void tickWanderOnly(ServerLevel level, ServerPlayer body, FakeSteveAgentState state) {
+        long now = level.getGameTime();
+        if (state.lastTickAt == 0L) {
+            state.modeStartedTick = now;
+        }
+        int elapsed = state.lastTickAt == 0L ? 5
+                : (int) Math.max(1L, Math.min(20L, now - state.lastTickAt));
+        state.lastTickAt = now;
+        state.tickStep = elapsed;
+        state.mode = AgentMode.DISGUISE_IDLE;
+        updateStuck(level, body, state, now);
+        FakeSteveMotionController.applyServerMotion(body, state);
+
+        state.idleTicks += elapsed;
+        if (FakeSteveMotionPolicy.shouldSprint(false, state.idleTicks,
+                body.getUUID().hashCode() + (int) (now / 20L))) {
+            state.sprintUntilTick = Math.max(state.sprintUntilTick,
+                    now + 30L + level.getRandom().nextInt(30));
+            state.idleTicks = 0;
+        }
+        boolean reselectWander = FakeSteveWanderPolicy.shouldReselectNow(
+                state.pathGoal == null, state.pathFailureCount, now >= state.nextDecisionTick);
+        if (reselectWander) {
+            state.nextDecisionTick = now + 40L + level.getRandom().nextInt(80);
+            state.pathGoal = wanderGoal(level, body, state);
+            state.path.clear();
+            state.pathFailureCount = 0;
+        }
+        if (state.pathGoal != null) {
+            follow(level, body, state.pathGoal, state, 0.15D);
+        } else {
+            idleHold(level, body, state, now);
+        }
+    }
+
     /** Periodic gaze sweep so a waiting body never looks like a frozen statue. */
     private static void idleHold(ServerLevel level, ServerPlayer body,
             FakeSteveAgentState state, long now) {
