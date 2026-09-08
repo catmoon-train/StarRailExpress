@@ -105,6 +105,8 @@ public class ModPackets {
         PayloadTypeRegistry.playS2C().register(ScanAllTaskPointsPayload.ID, ScanAllTaskPointsPayload.CODEC);
 
         PayloadTypeRegistry.playS2C().register(OpenScreenPayload.ID, OpenScreenPayload.CODEC);
+        PayloadTypeRegistry.playS2C().register(LoanContractOpenS2CPacket.ID, LoanContractOpenS2CPacket.CODEC);
+        PayloadTypeRegistry.playC2S().register(LoanContractSubmitC2SPacket.ID, LoanContractSubmitC2SPacket.CODEC);
 
         PayloadTypeRegistry.playS2C().register(ShowCustomNewspaperPacket.ID,
                 ShowCustomNewspaperPacket.STREAM_CODEC);

@@ -651,6 +651,10 @@ public class ModEffects {
      */
     public static final Holder<MobEffect> LIMP = register("limp", new LimpEffect());
 
+    /** Prevents eating food and drinking module beverages. */
+    public static final Holder<MobEffect> LOAN_STOMACH_BAN = register("loan_stomach_ban",
+            new SimpleMobEffect(MobEffectCategory.HARMFUL, 0x7A4A2B));
+
     /** 视野迷雾：根据效果等级计算雾的可见距离（格）。1 级=2 格，每升 1 级多看 3 格。 */
     public static float getVisionFogDistance(int amplifier) {
         return 2.0f + Math.max(0, amplifier) * 3.0f;

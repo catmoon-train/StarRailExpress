@@ -257,6 +257,7 @@ public class ModRoles {
     public static ResourceLocation POISONER_ID = Noellesroles.id("poisoner");
     public static ResourceLocation SPELLBREAKER_ID = Noellesroles.id("spellbreaker");
     public static ResourceLocation LEADER_ID = Noellesroles.id("leader");
+    public static final ResourceLocation LENDER_ID = Noellesroles.id("lender");
     public static final ResourceLocation ECHO_LISTENER_ID = BounsRoles.id("echo_listener");
 
     public static ResourceLocation LOCKSMITH_ID = Noellesroles.id("locksmith");
@@ -1581,6 +1582,15 @@ public class ModRoles {
                         // 其余（杀手、好人、杀手方中立、好人方中立、自己） → 领袖色
                         return InstinctType.custom(new Color(255, 0, 255).getRGB());
                     }));
+    /** 放贷人：中立阵营，以合同把金币借给其他玩家。 */
+    public static SRERole LENDER = TMMRoles.registerRole(new NormalRole(
+            LENDER_ID, new Color(184, 134, 11).getRGB(), RoleType.NEUTRALS,
+            SRERole.MoodType.REAL, Integer.MAX_VALUE, true))
+            .setCanSeeCoin(true)
+            .setCanUseInstinctAndNightVision(true)
+            .setDefaultMax(1)
+            .setDefaultEnableChance(5000);
+
     public static SRERole TAMER = TMMRoles
             .registerRole(new NormalRole(TAMER_ID, new Color(210, 180, 140).getRGB(), true,
                     false, SRERole.MoodType.REAL, TMMRoles.CIVILIAN.getMaxSprintTime(), false))

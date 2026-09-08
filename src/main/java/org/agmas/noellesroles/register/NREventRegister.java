@@ -36,6 +36,7 @@ public class NREventRegister {
         // 注册事件处理器
         ModEventsRegister.registerEvents();
         org.agmas.noellesroles.content.item.SealedArtifactHandler.register();
+        org.agmas.noellesroles.game.roles.neutral.lender.LenderRoleHandler.register();
         AAAHandlerFather.register();
         // 
         org.agmas.noellesroles.game.roles.neutral.monokuma.MonokumaEventHandler.register();
