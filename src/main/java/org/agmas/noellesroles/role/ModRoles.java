@@ -774,16 +774,15 @@ public class ModRoles {
      */
     public static SRERole ZHANG_ANGEL = TMMRoles.registerRole(
             new NormalRole(ZHANG_ANGEL_ID, new Color(170, 200, 255).getRGB(),
-                    RoleType.NEUTRALS_FOR_INNOCENT, SRERole.MoodType.REAL,
+                    RoleType.CIVILIAN, SRERole.MoodType.REAL,
                     TMMRoles.CIVILIAN.getMaxSprintTime(), true)
                     .setRoleData(ZhangAngelRoleData::new))
             .setCanSeeCoin(true)
             .setCanIncreaseSurvivingInnocents(true)
-            .setNeutralForInnocent(true)
             .setDarknessImmune(true)
             .setDefaultMax(1)
             .setDefaultEnableChance(4000)
-            .setAddedVersion("4.5");
+            .setAddedVersion("4.4");
 
     /**
      * 野人 - 平民阵营。
