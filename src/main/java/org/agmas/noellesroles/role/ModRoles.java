@@ -753,14 +753,13 @@ public class ModRoles {
      */
     public static SRERole PHANTOM_SPIRIT = TMMRoles.registerRole(
             new EggRole(PHANTOM_SPIRIT_ID, new Color(90, 196, 208).getRGB(),
-                    RoleType.NEUTRALS_FOR_INNOCENT, SRERole.MoodType.REAL,
+                    RoleType.CIVILIAN, SRERole.MoodType.REAL,
                     TMMRoles.CIVILIAN.getMaxSprintTime(), false)
                     .setRoleData(PhantomSpiritRoleData::new))
             .setCanSeeCoin(true)
-            .setCanIncreaseSurvivingInnocents(true)
             .setNeutralForInnocent(true)
             .setCanXiaonao(false)
-            .setCanBeXiaonao(false)
+            .setCanBeXiaonao(true)
             .setDefaultMax(1)
             .setDefaultEnableChance(500)
             .setAddedVersion("4.4");
