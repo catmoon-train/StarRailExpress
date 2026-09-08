@@ -283,7 +283,7 @@ public class InitModRolesMax {
                 }
                 Collections.shuffle(neutralRoles);
                 int neutralForKillers = 0;
-                neutralForKillers = Math.max(0, (int) (players_count / 9f));
+                neutralForKillers = Math.max(0, (int) (players_count / 7f));
                 for (int i = 0; i < neutralForKillers && i < neutralRoles.size(); i++) {
                     var r = neutralRoles.get(i);
                     Harpymodloader.setRoleMaximum(r, Harpymodloader.ROLE_MAX.getOrDefault(r.identifier(), 0) + 1);
