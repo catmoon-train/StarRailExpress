@@ -514,7 +514,7 @@ public class NoellesrolesClient implements ClientModInitializer {
                 if (context.client().player != null) {
                     context.client().player.refreshDimensions();
                 }
-            }, 1);
+            }, 10);
         });
         ClientPlayNetworking.registerGlobalReceiver(OpenScreenPayload.ID, (payload, context) -> {
             ClientOpenScreenManager.openScreen(payload, context);
