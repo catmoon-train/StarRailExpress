@@ -258,7 +258,7 @@ public class InitModRolesMax {
                 }
                 Collections.shuffle(neutralRoles);
                 int neutralsForInnocent = 0;
-                neutralsForInnocent = Math.max(0, (int) (players_count / 18f));
+                neutralsForInnocent = Math.max(0, (int) (players_count / 15f));
                 for (int i = 0; i < neutralsForInnocent && i < neutralRoles.size(); i++) {
                     var r = neutralRoles.get(i);
                     Harpymodloader.setRoleMaximum(r, Harpymodloader.ROLE_MAX.getOrDefault(r.identifier(), 0) + 1);
