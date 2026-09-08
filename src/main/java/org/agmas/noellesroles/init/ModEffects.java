@@ -36,6 +36,7 @@ import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.flag.FeatureFlagSet;
 import org.agmas.noellesroles.Noellesroles;
 import org.agmas.noellesroles.component.GhostStateComponent;
+import org.agmas.noellesroles.content.effects.LimpEffect;
 import org.agmas.noellesroles.content.effects.NoCollideEffect;
 import org.agmas.noellesroles.content.effects.PuppetWanderEffect;
 import org.agmas.noellesroles.content.effects.SimpleMobEffect;
@@ -642,6 +643,13 @@ public class ModEffects {
      */
     public static final Holder<MobEffect> MUFFLED_HEARING = register("muffled_hearing",
             new SimpleMobEffect(MobEffectCategory.HARMFUL, 0x59636B));
+
+    /**
+     * 腿瘸。拥有此效果时走路一瘸一拐，幅度随药水等级增加。
+     * 移动见 {@code LimpTravelMixin}，第三人称迈腿见 {@code LimpPlayerModelMixin}，
+     * 第一人称视角见 {@code LimpCameraMixin}。
+     */
+    public static final Holder<MobEffect> LIMP = register("limp", new LimpEffect());
 
     /** 视野迷雾：根据效果等级计算雾的可见距离（格）。1 级=2 格，每升 1 级多看 3 格。 */
     public static float getVisionFogDistance(int amplifier) {
