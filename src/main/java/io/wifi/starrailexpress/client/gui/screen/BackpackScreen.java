@@ -99,7 +99,6 @@ public class BackpackScreen extends Screen {
     @Override
     public void render(GuiGraphics g, int mouseX, int mouseY, float partialTick) {
         super.render(g, mouseX, mouseY, partialTick);
-        this.backpack = ClientPlayerDataCache.backpack(player.getUUID());
         computeLayout();
 
         drawPanelBg(g, panelX, panelY, panelW, panelH);
