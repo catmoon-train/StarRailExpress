@@ -34,9 +34,9 @@ public class MapVoteCommand {
     dispatcher.register(
         Commands.literal("tmm:votemap")
             .requires(source -> source.hasPermission(2))
-            .executes(context -> startVoting(context.getSource(), 60 * 20)) // 默认60秒
+            .executes(context -> startVoting(context.getSource(), 20 * 20)) // 默认20秒
             .then(Commands.argument("time",
-                IntegerArgumentType.integer(10 * 20, 300 * 20)) // 时间范围10-300秒
+                IntegerArgumentType.integer(2 * 20, 300 * 20)) // 时间范围10-300秒
                 .executes(context -> startVoting(context.getSource(),
                     IntegerArgumentType.getInteger(context,
                         "time"))))
