@@ -4963,12 +4963,13 @@
   "message.noellesroles.zhang_angel.swallowed": "吞电 %s/%s",
   "message.noellesroles.zhang_angel.ready": "吞电已满，花费 100 金币可对准目标召雷。",
   "message.noellesroles.zhang_angel.not_enough_swallows": "吞电不足：需要 %s 次，当前 %s 次。",
-  "message.noellesroles.zhang_angel.lightning_cast": "闪电击中了 %s，对方失去了%s，并获得了%s。",
-  "message.noellesroles.zhang_angel.lightning_hit": "你被闪电击中，失去了%s，并获得了%s。",
-  "message.noellesroles.zhang_angel.sense.sight": "视觉（盲视）",
-  "message.noellesroles.zhang_angel.sense.hearing": "听觉",
-  "message.noellesroles.zhang_angel.extra.blindness": "失明",
-  "message.noellesroles.zhang_angel.extra.slowness": "缓慢 III",
-  "message.noellesroles.zhang_angel.extra.darkness": "黑暗",
-  "message.noellesroles.zhang_angel.extra.nausea": "反胃"
+  "message.noellesroles.zhang_angel.lightning_cast": "闪电击中了 %s，对方陷入了%s。",
+  "message.noellesroles.zhang_angel.lightning_hit": "你被闪电击中，陷入了%s。",
+  "message.noellesroles.zhang_angel.disability.slowness": "缓慢 II",
+  "message.noellesroles.zhang_angel.disability.blindness": "失明与盲视",
+  "message.noellesroles.zhang_angel.disability.deafness": "耳聋",
+  "message.noellesroles.zhang_angel.disability.limp": "腿瘸",
+  "effect.noellesroles.limp": "腿瘸",
+  "mob_effect.noellesroles.limp": "腿瘸",
+  "effect.noellesroles.limp.description": "走路一瘸一拐。效果等级越高，瘸得越明显。"
 }
