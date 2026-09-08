@@ -4975,6 +4975,8 @@
   "effect.noellesroles.limp.description": "走路一瘸一拐。效果等级越高，瘸得越明显。",
   "announcement.star.role.lender": "放贷人",
   "announcement.star.goals.lender": "给予需要的人有代价的帮助",
+  "announcement.star.role.insurance": "保险职员",
+  "announcement.star.goals.insurance": "为绝境中的人们签订生命最后的保险",
   "skill.noellesroles.lender_request": "发起贷款请求",
   "item.noellesroles.loan_contract": "贷款合同",
   "item.noellesroles.loan_contract.amount": "本金：%s 金币",
@@ -5013,4 +5015,35 @@
   "mob_effect.noellesroles.loan_stomach_ban": "胃部损伤",
   "item.noellesroles.loan_contract.desc": "右键偿还贷款本金和利息。",
   "message.noellesroles.loan.request_pending": "你已有一个等待接受的贷款请求，请等待10秒超时后再试。"
+  ,"item.noellesroles.insurance": "保险"
+  ,"item.noellesroles.insurance.status.unsigned": "状态：未签订"
+  ,"item.noellesroles.insurance.status.signed": "状态：已签订"
+  ,"item.noellesroles.insurance.status.active": "状态：生效中"
+  ,"item.noellesroles.insurance.reason.knife": "保护死亡原因：刀"
+  ,"item.noellesroles.insurance.reason.revolver": "保护死亡原因：左轮手枪"
+  ,"item.noellesroles.insurance.reason.bat": "保护死亡原因：球棒"
+  ,"item.noellesroles.insurance.reason.grenade": "保护死亡原因：手榴弹"
+  ,"item.noellesroles.insurance.reason.short_shotgun": "保护死亡原因：短管霰弹枪"
+  ,"item.noellesroles.insurance.reason.heart_attack": "保护死亡原因：心脏骤停"
+  ,"item.noellesroles.insurance.reason.throwing_knife": "保护死亡原因：飞刀"
+  ,"item.noellesroles.insurance.reason.other": "保护死亡原因：其它"
+  ,"screen.noellesroles.insurance.title": "保险合同"
+  ,"screen.noellesroles.insurance.instruction": "选择要保护的死亡原因"
+  ,"screen.noellesroles.insurance.reason.knife": "刀"
+  ,"screen.noellesroles.insurance.reason.revolver": "左轮手枪"
+  ,"screen.noellesroles.insurance.reason.bat": "球棒"
+  ,"screen.noellesroles.insurance.reason.grenade": "手榴弹"
+  ,"screen.noellesroles.insurance.reason.short_shotgun": "短管霰弹枪"
+  ,"screen.noellesroles.insurance.reason.heart_attack": "心脏骤停"
+  ,"screen.noellesroles.insurance.reason.throwing_knife": "飞刀"
+  ,"screen.noellesroles.insurance.reason.other": "其它"
+  ,"screen.noellesroles.insurance.selected": "已选择：%s"
+  ,"screen.noellesroles.insurance.selected.none": "尚未选择死亡原因"
+  ,"screen.noellesroles.insurance.confirm": "签订保险"
+  ,"screen.noellesroles.insurance.esc": "按 Esc 退出合同页面"
+  ,"message.noellesroles.insurance.signed": "保险已签订。右键保险并支付25金币即可生效。"
+  ,"message.noellesroles.insurance.activated": "保险已生效。"
+  ,"message.noellesroles.insurance.already_active": "这份保险已经生效。"
+  ,"message.noellesroles.insurance.invalid": "无法签订这份保险。"
+  ,"message.noellesroles.insurance.protected": "保险生效：本次死亡伤害已被抵挡，并获得25金币。"
 }

@@ -4652,6 +4652,8 @@
   "effect.noellesroles.limp.description": "走路一跛一跛。效果等級越高，跛得越明顯。",
   "announcement.star.role.lender": "放貸人",
   "announcement.star.goals.lender": "透過貸款合約賺取利息並存活到遊戲結束。",
+  "announcement.star.role.insurance": "保險職員",
+  "announcement.star.goals.insurance": "用保險保護自己免受指定死亡原因",
   "skill.noellesroles.lender_request": "發起貸款請求",
   "item.noellesroles.loan_contract": "貸款合約",
   "item.noellesroles.loan_contract.amount": "本金：%s 金幣",
@@ -4690,4 +4692,35 @@
   "mob_effect.noellesroles.loan_stomach_ban": "胃部損傷",
   "item.noellesroles.loan_contract.desc": "右鍵償還貸款本金和利息。",
   "message.noellesroles.loan.request_pending": "你已有一個等待接受的貸款請求，請等待10秒超時後再試。"
+  ,"item.noellesroles.insurance": "保險"
+  ,"item.noellesroles.insurance.status.unsigned": "狀態：未簽訂"
+  ,"item.noellesroles.insurance.status.signed": "狀態：已簽訂"
+  ,"item.noellesroles.insurance.status.active": "狀態：生效中"
+  ,"item.noellesroles.insurance.reason.knife": "保護死亡原因：刀"
+  ,"item.noellesroles.insurance.reason.revolver": "保護死亡原因：左輪手槍"
+  ,"item.noellesroles.insurance.reason.bat": "保護死亡原因：球棒"
+  ,"item.noellesroles.insurance.reason.grenade": "保護死亡原因：手榴彈"
+  ,"item.noellesroles.insurance.reason.short_shotgun": "保護死亡原因：短管霰彈槍"
+  ,"item.noellesroles.insurance.reason.heart_attack": "保護死亡原因：心臟驟停"
+  ,"item.noellesroles.insurance.reason.throwing_knife": "保護死亡原因：飛刀"
+  ,"item.noellesroles.insurance.reason.other": "保護死亡原因：其他"
+  ,"screen.noellesroles.insurance.title": "保險合約"
+  ,"screen.noellesroles.insurance.instruction": "選擇要保護的死亡原因"
+  ,"screen.noellesroles.insurance.reason.knife": "刀"
+  ,"screen.noellesroles.insurance.reason.revolver": "左輪手槍"
+  ,"screen.noellesroles.insurance.reason.bat": "球棒"
+  ,"screen.noellesroles.insurance.reason.grenade": "手榴彈"
+  ,"screen.noellesroles.insurance.reason.short_shotgun": "短管霰彈槍"
+  ,"screen.noellesroles.insurance.reason.heart_attack": "心臟驟停"
+  ,"screen.noellesroles.insurance.reason.throwing_knife": "飛刀"
+  ,"screen.noellesroles.insurance.reason.other": "其他"
+  ,"screen.noellesroles.insurance.selected": "已選擇：%s"
+  ,"screen.noellesroles.insurance.selected.none": "尚未選擇死亡原因"
+  ,"screen.noellesroles.insurance.confirm": "簽訂保險"
+  ,"screen.noellesroles.insurance.esc": "按 Esc 離開合約頁面"
+  ,"message.noellesroles.insurance.signed": "保險已簽訂。右鍵保險並支付25金幣即可生效。"
+  ,"message.noellesroles.insurance.activated": "保險已生效。"
+  ,"message.noellesroles.insurance.already_active": "這份保險已經生效。"
+  ,"message.noellesroles.insurance.invalid": "無法簽訂這份保險。"
+  ,"message.noellesroles.insurance.protected": "保險生效：本次死亡傷害已被抵擋，並獲得25金幣。"
 }

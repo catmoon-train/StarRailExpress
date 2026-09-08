@@ -749,6 +749,9 @@ public class ModItems {
     public static final Item LOAN_CONTRACT = register(
             new LoanContractItem(new Item.Properties().stacksTo(1)),
             "loan_contract", ROLE_ITEMS_GROUP);
+    public static final Item INSURANCE = register(
+            new InsuranceItem(new Item.Properties().stacksTo(1)),
+            "insurance", ROLE_ITEMS_GROUP);
     /**
      * 锁
      * - 工程师专属物品

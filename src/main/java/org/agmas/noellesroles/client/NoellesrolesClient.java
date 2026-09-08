@@ -522,6 +522,8 @@ public class NoellesrolesClient implements ClientModInitializer {
         });
         ClientPlayNetworking.registerGlobalReceiver(LoanContractOpenS2CPacket.ID, (payload, context) ->
                 context.client().execute(() -> context.client().setScreen(new LoanContractScreen(payload))));
+        ClientPlayNetworking.registerGlobalReceiver(InsuranceOpenS2CPacket.ID, (payload, context) ->
+                context.client().execute(() -> context.client().setScreen(new InsuranceScreen(payload.hand()))));
         ClientPlayNetworking.registerGlobalReceiver(ReasonerOpenScreenS2CPacket.ID, (payload, context) -> {
             context.client().execute(() -> context.client().setScreen(new ReasonerCompassScreen(payload)));
         });
