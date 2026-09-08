@@ -17,7 +17,9 @@ package io.wifi.starrailexpress.content.command;
 
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.StringArgumentType;
-import io.wifi.starrailexpress.progression.ProgressionDataManager;
+import io.wifi.starrailexpress.backpack.BackpackManager;
+import io.wifi.starrailexpress.backpack.BackpackManager.ActivateResult;
+import io.wifi.starrailexpress.backpack.FactionCardCooldown;
 import io.wifi.starrailexpress.progression.ProgressionState;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
@@ -39,10 +41,19 @@ public final class ProgressionCommand {
 
     private static int activate(ServerPlayer player, String rawType) {
         ProgressionState.FactionCardType type = ProgressionState.FactionCardType.fromString(rawType);
-        if (!ProgressionDataManager.activateFactionCard(player, type)) {
-            player.displayClientMessage(Component.translatable("message.sre.pass.faction.assign_failed"), true);
-            return 0;
+        ActivateResult result = BackpackManager.activateCardResult(player, type);
+        if (result == ActivateResult.SUCCESS) {
+            return 1;
         }
-        return 1;
+        Component message = switch (result) {
+            case ON_COOLDOWN -> Component.translatable("message.sre.progression.faction_card_on_cooldown",
+                    Component.translatable(type.displayName),
+                    FactionCardCooldown.formatRemaining(BackpackManager.remainingCooldownMs(player, type)));
+            case ALREADY_ACTIVE -> Component.translatable("message.sre.progression.faction_card_already_active");
+            case INVALID, SUCCESS -> Component.translatable("message.sre.progression.faction_card_activate_failed",
+                    Component.translatable(type.displayName));
+        };
+        player.displayClientMessage(message, true);
+        return 0;
     }
 }
