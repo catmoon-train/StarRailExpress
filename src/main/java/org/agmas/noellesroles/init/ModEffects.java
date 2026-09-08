@@ -488,9 +488,9 @@ public class ModEffects {
     /**
      * 破镜重圆：客户端世界坍缩回溯特效。
      * <ul>
-     *   <li>生效即视野震颤</li>
-     *   <li>4 秒后周围方块由外向内向下坍缩，10 秒时完全坍缩</li>
-     *   <li>效果结束后面块由内向外升起还原</li>
+     * <li>生效即视野震颤</li>
+     * <li>4 秒后周围方块由外向内向下坍缩，10 秒时完全坍缩</li>
+     * <li>效果结束后面块由内向外升起还原</li>
      * </ul>
      * 方块坍缩/还原仅在客户端进行，见 {@code MirrorReunionSceneManager}。
      */
@@ -845,7 +845,7 @@ public class ModEffects {
         // 导致“伪装只有自己能看到”。
         io.wifi.starrailexpress.content.item.DisguiseEffectSync.init();
         io.wifi.starrailexpress.content.item.TrueSkinEffectSync.init();
-        
+
         // 把“脚步消失”效果同步给所有客户端，否则其它玩家侧的脚步声/疾跑粒子拦截查不到该效果。
         org.agmas.noellesroles.init.FootstepVanishEffectSync.init();
         // 把怀旧者“里世界标记”效果同步给所有客户端，否则其它客户端查不到怀旧者的里世界状态，
