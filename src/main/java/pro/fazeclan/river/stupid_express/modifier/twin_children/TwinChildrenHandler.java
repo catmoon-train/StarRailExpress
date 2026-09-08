@@ -71,6 +71,10 @@ public final class TwinChildrenHandler {
         return TwinChildrenHitbox.stackedHeightScale(currentUnscaledHeight);
     }
 
+    public static float upperHeightScale(float currentUnscaledHeight) {
+        return TwinChildrenHitbox.upperHeightScale(currentUnscaledHeight);
+    }
+
     public static double headPassengerAttachmentY(float vehicleScale, double passengerVehicleAttachY) {
         return TwinChildrenHitbox.headPassengerAttachmentY(vehicleScale, passengerVehicleAttachY);
     }
@@ -196,14 +200,18 @@ public final class TwinChildrenHandler {
             return;
         }
 
-        refreshStackedCollision(lower);
+        refreshStackedCollision(lower, upper);
         syncUpperPosition(lower, upper, remounted);
     }
 
-    private static void refreshStackedCollision(ServerPlayer lower) {
-        float expected = TwinChildrenHitbox.STACKED_UNSCALED_HEIGHT * lower.getScale();
-        if (Math.abs(lower.getBbHeight() - expected) > HEIGHT_REFRESH_EPSILON) {
+    private static void refreshStackedCollision(ServerPlayer lower, ServerPlayer upper) {
+        float expectedLower = TwinChildrenHitbox.STACKED_UNSCALED_HEIGHT * lower.getScale();
+        if (Math.abs(lower.getBbHeight() - expectedLower) > HEIGHT_REFRESH_EPSILON) {
             lower.refreshDimensions();
+        }
+        float expectedUpper = TwinChildrenHitbox.UPPER_UNSCALED_HEIGHT * upper.getScale();
+        if (Math.abs(upper.getBbHeight() - expectedUpper) > HEIGHT_REFRESH_EPSILON) {
+            upper.refreshDimensions();
         }
     }
 

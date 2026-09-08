@@ -28,6 +28,17 @@ class TwinChildrenHitboxTest {
     }
 
     @Test
+    void upperCollisionIsPointSevenAfterHalfScale() {
+        float standing = STANDING * TwinChildrenHitbox.upperHeightScale(STANDING) * HALF_SCALE;
+        float crouching = CROUCHING * TwinChildrenHitbox.upperHeightScale(CROUCHING) * HALF_SCALE;
+        float crawling = CRAWLING * TwinChildrenHitbox.upperHeightScale(CRAWLING) * HALF_SCALE;
+
+        assertEquals(TwinChildrenHitbox.UPPER_COLLISION_HEIGHT, standing, 1.0e-4F);
+        assertEquals(TwinChildrenHitbox.UPPER_COLLISION_HEIGHT, crouching, 1.0e-4F);
+        assertEquals(TwinChildrenHitbox.UPPER_COLLISION_HEIGHT, crawling, 1.0e-4F);
+    }
+
+    @Test
     void halfScaleStandingWithoutStackFitsInOneBlock() {
         assertTrue(STANDING * HALF_SCALE < 1.0F);
     }

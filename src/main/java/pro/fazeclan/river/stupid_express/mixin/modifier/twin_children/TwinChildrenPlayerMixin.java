@@ -26,8 +26,9 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import pro.fazeclan.river.stupid_express.modifier.twin_children.TwinChildrenHandler;
 
 /**
- * Stacked twins keep a 1.1-block collision box so they cannot crawl into
- * 1-block gaps without covering the upper twin, who also cannot sneak-dismount.
+ * Lower twin: 1.1-block collision so the unit cannot crawl into 1-block gaps.
+ * Upper twin: 0.7-block collision so weapons from above do not sit inside the
+ * rider. The upper twin also cannot sneak-dismount.
  */
 @Mixin(Player.class)
 public abstract class TwinChildrenPlayerMixin {
@@ -35,14 +36,21 @@ public abstract class TwinChildrenPlayerMixin {
     @ModifyReturnValue(method = "getDefaultDimensions", at = @At("RETURN"))
     private EntityDimensions stupidExpress$stackedTwinHitbox(EntityDimensions dimensions, Pose pose) {
         Player self = (Player) (Object) this;
-        if (!TwinChildrenHandler.isStackedLower(self)) {
-            return dimensions;
+        if (TwinChildrenHandler.isStackedLower(self)) {
+            float heightScale = TwinChildrenHandler.stackedHeightScale(dimensions.height());
+            if (Math.abs(heightScale - 1.0F) <= 1.0e-4F) {
+                return dimensions;
+            }
+            return dimensions.scale(1.0F, heightScale).withEyeHeight(dimensions.eyeHeight());
         }
-        float heightScale = TwinChildrenHandler.stackedHeightScale(dimensions.height());
-        if (heightScale <= 1.0F) {
-            return dimensions;
+        if (TwinChildrenHandler.isStackedUpper(self)) {
+            float heightScale = TwinChildrenHandler.upperHeightScale(dimensions.height());
+            if (Math.abs(heightScale - 1.0F) <= 1.0e-4F) {
+                return dimensions;
+            }
+            return dimensions.scale(1.0F, heightScale);
         }
-        return dimensions.scale(1.0F, heightScale).withEyeHeight(dimensions.eyeHeight());
+        return dimensions;
     }
 
     @Inject(method = "wantsToStopRiding", at = @At("HEAD"), cancellable = true)

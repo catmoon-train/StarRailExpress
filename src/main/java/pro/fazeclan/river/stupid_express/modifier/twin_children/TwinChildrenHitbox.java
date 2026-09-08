@@ -25,6 +25,15 @@ public final class TwinChildrenHitbox {
     /** Unscaled collision height so that {@code height * 0.5 = 1.1}. */
     public static final float STACKED_UNSCALED_HEIGHT = STACKED_COLLISION_HEIGHT / HALF_SCALE_FACTOR;
 
+    /**
+     * Upper twin collision height after half-scale. Shorter than the visual
+     * 0.9 model so the rider is not wrapped by a tall hitbox.
+     */
+    public static final float UPPER_COLLISION_HEIGHT = 0.7F;
+
+    /** Unscaled collision height so that {@code height * 0.5 = 0.7}. */
+    public static final float UPPER_UNSCALED_HEIGHT = UPPER_COLLISION_HEIGHT / HALF_SCALE_FACTOR;
+
     private TwinChildrenHitbox() {
     }
 
@@ -33,10 +42,22 @@ public final class TwinChildrenHitbox {
      * lower twin's collision is {@link #STACKED_UNSCALED_HEIGHT}.
      */
     public static float stackedHeightScale(float currentUnscaledHeight) {
+        return heightScaleTo(currentUnscaledHeight, STACKED_UNSCALED_HEIGHT);
+    }
+
+    /**
+     * Height multiplier so the stacked upper twin's collision is
+     * {@link #UPPER_UNSCALED_HEIGHT}.
+     */
+    public static float upperHeightScale(float currentUnscaledHeight) {
+        return heightScaleTo(currentUnscaledHeight, UPPER_UNSCALED_HEIGHT);
+    }
+
+    static float heightScaleTo(float currentUnscaledHeight, float targetUnscaledHeight) {
         if (currentUnscaledHeight <= 0.01F) {
             return 1.0F;
         }
-        return Math.max(1.0F, STACKED_UNSCALED_HEIGHT / currentUnscaledHeight);
+        return targetUnscaledHeight / currentUnscaledHeight;
     }
 
     /**
