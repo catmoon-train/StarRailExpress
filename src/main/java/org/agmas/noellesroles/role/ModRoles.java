@@ -231,9 +231,9 @@ public class ModRoles {
     // 特码头角色 ID
     public static final ResourceLocation TOMATO_HEAD_ID = Noellesroles.id("tomato_head");
     // 幻灵角色 ID
-    public static final ResourceLocation PHANTOM_SPIRIT_ID = Noellesroles.id("phantom_spirit");
+    public static final ResourceLocation PHANTOM_SPIRIT_ID = BounsRoles.id("phantom_spirit");
     // 张天使角色 ID
-    public static final ResourceLocation ZHANG_ANGEL_ID = Noellesroles.id("zhang_angel");
+    public static final ResourceLocation ZHANG_ANGEL_ID = BounsRoles.id("zhang_angel");
     // 野人角色 ID
     public static final ResourceLocation BARBARIAN_ID = BounsRoles.id("barbarian");
     // 亡灵之主角色 ID
@@ -257,7 +257,7 @@ public class ModRoles {
     public static ResourceLocation POISONER_ID = Noellesroles.id("poisoner");
     public static ResourceLocation SPELLBREAKER_ID = Noellesroles.id("spellbreaker");
     public static ResourceLocation LEADER_ID = Noellesroles.id("leader");
-    public static final ResourceLocation ECHO_LISTENER_ID = Noellesroles.id("echo_listener");
+    public static final ResourceLocation ECHO_LISTENER_ID = BounsRoles.id("echo_listener");
 
     public static ResourceLocation LOCKSMITH_ID = Noellesroles.id("locksmith");
     public static ResourceLocation EXAMPLER_ID = Noellesroles.id("exampler");
@@ -752,7 +752,7 @@ public class ModRoles {
      * - 与阴谋家互斥生成
      */
     public static SRERole PHANTOM_SPIRIT = TMMRoles.registerRole(
-            new NormalRole(PHANTOM_SPIRIT_ID, new Color(90, 196, 208).getRGB(),
+            new EggRole(PHANTOM_SPIRIT_ID, new Color(90, 196, 208).getRGB(),
                     RoleType.NEUTRALS_FOR_INNOCENT, SRERole.MoodType.REAL,
                     TMMRoles.CIVILIAN.getMaxSprintTime(), false)
                     .setRoleData(PhantomSpiritRoleData::new))
@@ -762,7 +762,7 @@ public class ModRoles {
             .setCanXiaonao(false)
             .setCanBeXiaonao(false)
             .setDefaultMax(1)
-            .setDefaultEnableChance(4000)
+            .setDefaultEnableChance(500)
             .setAddedVersion("4.4");
 
     /**
@@ -770,10 +770,10 @@ public class ModRoles {
      * - 每 10 秒吞电，使周围灯光闪烁
      * - 处于黑暗（亮度≤5 或关灯）时隐身并获得速度 I
      * - 积攒 10 次吞电后，花费 100 金币对准目标召雷：随机失一感官 30 秒（视觉=盲视），
-     *   再随机附加失明 / 缓慢 III / 黑暗 / 反胃
+     * 再随机附加失明 / 缓慢 III / 黑暗 / 反胃
      */
     public static SRERole ZHANG_ANGEL = TMMRoles.registerRole(
-            new NormalRole(ZHANG_ANGEL_ID, new Color(170, 200, 255).getRGB(),
+            new EggRole(ZHANG_ANGEL_ID, new Color(170, 200, 255).getRGB(),
                     RoleType.NEUTRALS_FOR_INNOCENT, SRERole.MoodType.REAL,
                     TMMRoles.CIVILIAN.getMaxSprintTime(), true)
                     .setRoleData(ZhangAngelRoleData::new))
@@ -781,7 +781,7 @@ public class ModRoles {
             .setCanIncreaseSurvivingInnocents(true)
             .setDarknessImmune(true)
             .setDefaultMax(1)
-            .setDefaultEnableChance(4000)
+            .setDefaultEnableChance(500)
             .setAddedVersion("4.4");
 
     /**
@@ -2461,7 +2461,7 @@ public class ModRoles {
             .setCanSeeTeammateKillerRole(false).setCanUseInstinctAndNightVision(true)
             .setDefaultEnableNeededPlayerCount(10);
 
-    public static SRERole ECHO_LISTENER = TMMRoles.registerRole(new NormalRole(
+    public static SRERole ECHO_LISTENER = TMMRoles.registerRole(new EggRole(
             ECHO_LISTENER_ID, new Color(78, 110, 122).getRGB(), false, false,
             SRERole.MoodType.FAKE, Integer.MAX_VALUE, true) {
         @Override
@@ -2480,8 +2480,13 @@ public class ModRoles {
                 component.triggerDeath(60 * 20, null, victim.position());
             }
         }
-    }).setRoleData(EchoListenerRoleData::new).setCanSeeCoin(true).setNeutrals(true)
-            .setNeutralForKiller(false).setNeutralForInnocent(true).setCanUseInstinctAndNightVision(false)
+    }).setRoleData(EchoListenerRoleData::new)
+            .setCanSeeCoin(true)
+            .setNeutrals(true)
+            .setNeutralForKiller(false)
+            .setNeutralForInnocent(true)
+            .setDefaultEnableChance(500)
+            .setCanUseInstinctAndNightVision(false)
             .setDefaultMax(1);
 
     public static SRERole REASONER = TMMRoles.registerRole(new NormalRole(
