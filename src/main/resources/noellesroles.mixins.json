@@ -106,6 +106,8 @@
     "client.general.BlindnessSoundMixin",
     "client.general.BlindnessLevelRendererAccessor",
     "client.general.DeafnessSoundMixin",
+    "client.general.MuffledHearingChannelMixin",
+    "client.general.MuffledHearingSoundMixin",
     "client.general.IlliterateFontMixin",
     "client.general.IlliterateGameRendererMixin",
     "client.general.IlliterateRoleIntroduceMixin",

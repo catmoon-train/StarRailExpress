@@ -65,6 +65,7 @@ public class VoiceExtraEffectsPlugin implements VoicechatPlugin {
     // ---- OpenAL / EFX 常量（显式定义以兼容） ----
     private static final int AL_FILTER_TYPE = 0x8001;
     private static final int AL_FILTER_LOWPASS = 0x0003;
+    private static final int AL_FILTER_LOWPASS_GAIN = 0x0001;
     private static final int AL_FILTER_LOWPASS_GAINHF = 0x0002;
     private static final int AL_DIRECT_FILTER = 0x20005;
     private static final int AL_FILTER_NULL = 0;
@@ -103,6 +104,7 @@ public class VoiceExtraEffectsPlugin implements VoicechatPlugin {
     private static final Map<UUID, StutterState> STUTTER = new ConcurrentHashMap<>();
     private static final Map<UUID, ReverseState> REVERSE = new ConcurrentHashMap<>();
     private static final Map<UUID, EchoState> ECHO = new ConcurrentHashMap<>();
+    private static final Map<UUID, MuffledHearingState> MUFFLED_HEARING_STATE = new ConcurrentHashMap<>();
 
     @Override
     public String getPluginId() {
@@ -146,16 +148,18 @@ public class VoiceExtraEffectsPlugin implements VoicechatPlugin {
         int helmet = ModEffects.getVoiceHelmetLevel(player);
         int underwater = ModEffects.getVoiceUnderwaterLevel(player);
         int reverb = ModEffects.getVoiceReverbLevel(player);
+        int muffledHearing = mc.player == null ? 0 : ModEffects.getMuffledHearingLevel(mc.player);
 
-        applyLowPassGain(source, speaker, helmet, underwater);
+        applyLowPassGain(source, speaker, helmet, underwater, muffledHearing);
         applyReverb(source, speaker, reverb);
     }
 
     /**
      * 头盔/水下：低通直接滤波。
      */
-    private static void applyLowPassGain(int source, UUID speaker, int helmet, int underwater) {
-        if (helmet <= 0 && underwater <= 0) {
+    private static void applyLowPassGain(int source, UUID speaker, int helmet, int underwater,
+            int muffledHearing) {
+        if (helmet <= 0 && underwater <= 0 && muffledHearing <= 0) {
             try {
                 AL11.alSourcei(source, AL_DIRECT_FILTER, AL_FILTER_NULL);
             } catch (Throwable ignored) {}
@@ -172,7 +176,14 @@ public class VoiceExtraEffectsPlugin implements VoicechatPlugin {
             float hf = 1.0f;
             if (helmet > 0) hf = Math.min(hf, 0.5f - (helmet - 1) * 0.05f);      // 0.5 -> 0.3
             if (underwater > 0) hf = Math.min(hf, 0.6f - (underwater - 1) * 0.075f); // 0.6 -> 0.3
+            if (muffledHearing > 0) {
+                // Level I starts at the old level-V filter strength.
+                float hearingGain = 0.03f * (float) Math.pow(0.65f, Math.max(0, muffledHearing - 1));
+                hf = Math.min(hf, hearingGain);
+            }
             EXTEfx.alFilteri(filter, AL_FILTER_TYPE, AL_FILTER_LOWPASS);
+            EXTEfx.alFilterf(filter, AL_FILTER_LOWPASS_GAIN, 0.98f);
+            hf = Math.max(0.03f, hf);
             EXTEfx.alFilterf(filter, AL_FILTER_LOWPASS_GAINHF, hf);
             AL11.alSourcei(source, AL_DIRECT_FILTER, filter);
         } catch (Throwable t) {
@@ -258,6 +269,9 @@ public class VoiceExtraEffectsPlugin implements VoicechatPlugin {
         int underwater = ModEffects.getVoiceUnderwaterLevel(player);
         int echo = ModEffects.getVoiceEchoCount(player);
 
+        // 听觉模糊是听者侧效果：保留声音，但降低清晰度和音量。
+        int muffledHearing = mc.player == null ? 0 : ModEffects.getMuffledHearingLevel(mc.player);
+
         // 注意：多个效果可叠加，按固定顺序串联处理。
         // 升调（氦气）最先处理，作用在原始信号上，使其余效果叠加在变调后的音频上。
         if (underwater > 0) pcm = underwaterTransform(pcm, underwater);
@@ -269,8 +283,47 @@ public class VoiceExtraEffectsPlugin implements VoicechatPlugin {
         if (trem > 0) pcm = tremoloTransform(pcm, speaker, trem);
         if (echo > 0) pcm = echoTransform(pcm, speaker, echo);
         if (stut > 0) pcm = stutterTransform(pcm, speaker, stut);
+        if (muffledHearing > 0) {
+            pcm = muffledHearingTransform(pcm, speaker, muffledHearing);
+        } else {
+            MUFFLED_HEARING_STATE.remove(speaker);
+        }
 
         event.setRawAudio(pcm);
+    }
+
+    /** 简单的一阶低通：保留低频轮廓，让语音能听见但不再清楚。 */
+    private static short[] muffledHearingTransform(short[] pcm, UUID speaker, int level) {
+        short[] result = new short[pcm.length];
+        // Level I uses the old level-V settings; higher levels make the
+        // two-stage filter slower and progressively quieter.
+        float alpha = Math.max(0.012f, 0.039f - Math.max(0, level - 1) * 0.006f);
+        float gain = Math.max(0.60f, 0.80f - Math.max(0, level - 1) * 0.025f);
+        MuffledHearingState state = MUFFLED_HEARING_STATE.computeIfAbsent(speaker,
+                ignored -> new MuffledHearingState());
+        for (int i = 0; i < pcm.length; i++) {
+            state.first += alpha * (pcm[i] - state.first);
+            state.second += alpha * (state.first - state.second);
+            float filtered = state.second * 0.93f + state.first * 0.07f;
+
+            // A very short, moving smear makes consonants overlap slightly,
+            // giving the sound a hazy/chaotic edge instead of simple silence.
+            int delay = Math.min(state.smear.length - 1, 120 + level * 20);
+            int delayedIndex = (state.smearPos - delay + state.smear.length) % state.smear.length;
+            float delayed = state.smear[delayedIndex];
+            state.smear[state.smearPos] = filtered;
+            state.smearPos = (state.smearPos + 1) % state.smear.length;
+            float wet = Math.min(0.26f, 0.10f + level * 0.012f);
+            float smeared = filtered * (1.0f - wet) + delayed * wet;
+
+            // Two slow, incommensurate oscillations keep the smear from
+            // sounding like a clean static echo.
+            float wobble = (float) (0.5 * Math.sin(state.phase)
+                    + 0.5 * Math.sin(state.phase * 1.71 + 1.2));
+            state.phase += 2.0 * Math.PI * (0.65 + level * 0.04) / SAMPLE_RATE;
+            result[i] = clamp(smeared * (1.0f + wobble * (0.012f + level * 0.002f)) * gain);
+        }
+        return result;
     }
 
     /** 合成人声 / 自动调音：检测基频，量化到最近半音，用 WSOLA 变调（复用 HeliumPitchShifter）。 */
@@ -479,6 +532,7 @@ public class VoiceExtraEffectsPlugin implements VoicechatPlugin {
     /** 清理某说话者的全部状态与 EFX 资源（说话者离开时调用）。 */
     private static void cleanupSpeaker(UUID speaker) {
         HELIUM_SHIFTERS.remove(speaker);
+        MUFFLED_HEARING_STATE.remove(speaker);
         SYNTH_SHIFTERS.remove(speaker);
         SYNTH_RATIO.remove(speaker);
         CHORUS.remove(speaker);
@@ -521,6 +575,7 @@ public class VoiceExtraEffectsPlugin implements VoicechatPlugin {
         }
         REVERB_RESOURCES.clear();
         HELIUM_SHIFTERS.clear();
+        MUFFLED_HEARING_STATE.clear();
         SYNTH_SHIFTERS.clear();
         SYNTH_RATIO.clear();
         CHORUS.clear();
@@ -533,6 +588,14 @@ public class VoiceExtraEffectsPlugin implements VoicechatPlugin {
     // =========================================================================
     //  PCM 效果内部状态
     // =========================================================================
+
+    private static final class MuffledHearingState {
+        float first;
+        float second;
+        final float[] smear = new float[2048];
+        int smearPos;
+        double phase;
+    }
 
     private static final class ChorusState {
         final float[] buf = new float[2048];

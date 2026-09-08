@@ -635,6 +635,14 @@ public class ModEffects {
     public static final Holder<MobEffect> DEAFNESS = register("deafness",
             new SimpleMobEffect(MobEffectCategory.HARMFUL, 0x3A3A3A));
 
+    /**
+     * 听觉模糊（轻度耳聋）
+     * - 有害效果，灰蓝色
+     * - 客户端保留少量音量，并对游戏音效和语音施加低通滤波，模拟听见但难以听清。
+     */
+    public static final Holder<MobEffect> MUFFLED_HEARING = register("muffled_hearing",
+            new SimpleMobEffect(MobEffectCategory.HARMFUL, 0x59636B));
+
     /** 视野迷雾：根据效果等级计算雾的可见距离（格）。1 级=2 格，每升 1 级多看 3 格。 */
     public static float getVisionFogDistance(int amplifier) {
         return 2.0f + Math.max(0, amplifier) * 3.0f;
@@ -738,6 +746,14 @@ public class ModEffects {
     public static int getVoiceHelmetLevel(LivingEntity entity) {
         int amp = getAmplifier(entity, VOICE_HELMET);
         return amp < 0 ? 0 : Mth.clamp(amp + 1, 1, 5);
+    }
+
+    /** 听觉模糊等级（0 = 无效果，1~5 = amplifier+1）。 */
+    public static int getMuffledHearingLevel(LivingEntity entity) {
+        int amp = getAmplifier(entity, MUFFLED_HEARING);
+        // Potion level I uses the previous level-V strength. Higher potion
+        // levels are represented by larger values and continue to stack.
+        return amp < 0 ? 0 : amp + 1;
     }
 
     /** 水下语音等级（0 = 无效果，1~5 = amplifier+1）。 */

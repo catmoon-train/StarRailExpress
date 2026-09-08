@@ -493,6 +493,7 @@ public class NoellesrolesClient implements ClientModInitializer {
         IlliterateTextClientHandle.register();
         BlindnessVisionClientHandle.register();
         DeafnessClientHandle.register();
+        MuffledHearingClientHandle.register();
         org.agmas.noellesroles.client.ClientAmonState.register();
         CommonClientHudRenderer.registerRenderersEvent();
         WorldRenderEvents.AFTER_TRANSLUCENT.register((renderContext) -> {

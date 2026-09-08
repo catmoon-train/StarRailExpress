@@ -43,4 +43,19 @@ public class SoundVolumeMixin {
             }
         }
     }
+
+    @Inject(method = "getSoundSourceVolume", at = @At("RETURN"), cancellable = true)
+    private void noellesroles$reduceMuffledHearingVolume(SoundSource soundSource,
+            CallbackInfoReturnable<Float> cir) {
+        LocalPlayer player = Minecraft.getInstance().player;
+        if (player != null && player.hasEffect(ModEffects.MUFFLED_HEARING)) {
+            int level = ModEffects.getMuffledHearingLevel(player);
+            // The low-pass filter handles the loss of clarity. Keep enough
+            // loudness so the effect does not sound like a mute switch.
+            // Level I keeps the old level-V loudness; higher levels reduce it
+            // further while the filter removes clarity.
+            float gain = Math.max(0.45f, 0.72f - Math.max(0, level - 1) * 0.04f);
+            cir.setReturnValue(cir.getReturnValue() * gain);
+        }
+    }
 }
