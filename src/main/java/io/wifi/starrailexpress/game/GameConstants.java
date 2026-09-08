@@ -301,6 +301,7 @@ public class GameConstants {
         // Dream 特殊原版武器死因（伤害扣除虚拟血量），与铁斧/消防斧同类
         public static ResourceLocation DREAM_DIAMOND_SWORD = Noellesroles.id("dream_diamond_sword");
         public static ResourceLocation DREAM_MACE = Noellesroles.id("dream_mace");
+        public static ResourceLocation FIREWORK_CROSSBOW = Noellesroles.id("firework_crossbow");
 
         public static ResourceLocation RADIATION = Noellesroles.id("radiation");
         public static ResourceLocation BROKEN_HEART = StupidExpress.id("broken_heart");

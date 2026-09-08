@@ -573,6 +573,7 @@
   "death_reason.starrailexpress.arrow": "被箭射死",
   "death_reason.starrailexpress.trident": "被三叉戟刺死",
   "death_reason.noellesroles.trident": "被三叉戟刺死",
+  "death_reason.noellesroles.firework_crossbow": "爆炸弩",
   "death_reason.starrailexpress.voodoo": "巫毒魔法",
   "hud.coroner.death_info.new": "死于 %s秒前，死因是 %s",
   "hud.coroner.death_info.name": "%s 的尸体",

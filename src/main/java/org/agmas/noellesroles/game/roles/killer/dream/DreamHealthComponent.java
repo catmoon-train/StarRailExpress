@@ -175,6 +175,29 @@ public class DreamHealthComponent implements RoleComponent {
         return true;
     }
 
+    /**
+     * 扣除虚拟血量但始终保留 1 点，不通过 death reason 使玩家死亡。
+     * 用于烟花弩的范围溅射伤害；精确命中目标的击杀由烟花弩自身单独处理。
+     */
+    public boolean hurtWithoutKilling(@Nullable ServerPlayer attacker, int damage) {
+        if (!(player instanceof ServerPlayer sp) || damage <= 0) {
+            return false;
+        }
+        if (!GameUtils.isPlayerAliveAndSurvival(sp)) {
+            return false;
+        }
+        long gameTime = sp.level().getGameTime();
+        int current = getEffectiveHealth(gameTime);
+        int appliedDamage = Math.min(damage, Math.max(0, current - 1));
+        if (appliedDamage <= 0) {
+            return false;
+        }
+        baseHealth = current - appliedDamage;
+        lastHurtGameTime = gameTime;
+        sync();
+        return true;
+    }
+
     // ── NBT 同步 ───────────────────────────────────────────────
 
     @Override

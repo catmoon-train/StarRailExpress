@@ -537,6 +537,7 @@
     "death_reason.starrailexpress.arrow": "Shot by arrow",
     "death_reason.starrailexpress.trident": "Impaled by trident",
     "death_reason.noellesroles.trident": "Impaled by trident",
+    "death_reason.noellesroles.firework_crossbow": "Explosive Crossbow",
     "death_reason.starrailexpress.voodoo": "Voodoo Magic",
     "hud.coroner.death_info.new": "Died %s seconds ago, cause: %s",
     "hud.coroner.death_info.name": "Corpse of %s",
