@@ -240,32 +240,53 @@ public class InitModRolesMax {
             }
 
             {
-                // 杀手中立（只处理没有配置的职业：无概率 且 无显式 setMax 且 允许修改生成配置的职业）
-                var neutralRoles = new ArrayList<SRERole>(TMMRoles.ROLES.values());
-                final String map = currentMap;
-                final AreasSettings setting = areasSettings;
-                neutralRoles.removeIf((r) -> {
-                    if (r.isNeutrals() && r.isNeutralForKiller() && (r.spawnInfo.enableChance < 0)
-                            && r.canSetSpawnInfoInConfig()
-                            && r.canSpawnInMap(map, setting)
-                            && r.spawnInfo.maxSpawn < 0)
-                        return false;
-                    return true;
-                });
-                Collections.shuffle(neutralRoles);
-                for (var r : neutralRoles) {
-                    Harpymodloader.setRoleMaximum(r, 0);
+                // 好人中立
+                var neutralRoles = new ArrayList<SRERole>();
+                for (var r : TMMRoles.ROLES.values()) {
+                    if (SREDisableManager.isRoleDisabled(r))
+                        continue;
+                    if (r.isNeutrals() && r.isNeutralForInnocent()) {
+                        int maxCount = Harpymodloader.ROLE_MAX.getOrDefault(r.identifier(), 0);
+                        if (maxCount > 0) {
+                            while (maxCount > 0) {
+                                neutralRoles.add(r);
+                                maxCount--;
+                            }
+                            Harpymodloader.setRoleMaximum(r, 0);
+                        }
+                    }
                 }
+                Collections.shuffle(neutralRoles);
+                int neutralsForInnocent = 0;
+                neutralsForInnocent = Math.max(0, (int) (players_count / 18f));
+                for (int i = 0; i < neutralsForInnocent && i < neutralRoles.size(); i++) {
+                    var r = neutralRoles.get(i);
+                    Harpymodloader.setRoleMaximum(r, Harpymodloader.ROLE_MAX.getOrDefault(r.identifier(), 0) + 1);
+                }
+            }
+            {
+                // 杀手中立
+                var neutralRoles = new ArrayList<SRERole>();
+                for (var r : TMMRoles.ROLES.values()) {
+                    if (SREDisableManager.isRoleDisabled(r))
+                        continue;
+                    if (r.isNeutrals() && r.isNeutralForKiller()) {
+                        int maxCount = Harpymodloader.ROLE_MAX.getOrDefault(r.identifier(), 0);
+                        if (maxCount > 0) {
+                            while (maxCount > 0) {
+                                neutralRoles.add(r);
+                                maxCount--;
+                            }
+                            Harpymodloader.setRoleMaximum(r, 0);
+                        }
+                    }
+                }
+                Collections.shuffle(neutralRoles);
                 int neutralForKillers = 0;
-                neutralForKillers = players_count / 6;
-                // 减去已有配置的职业数，避免超额分配
-                neutralForKillers -= (int) TMMRoles.ROLES.values().stream()
-                        .filter(r -> r.isNeutrals() && r.isNeutralForKiller()
-                                && (r.spawnInfo.enableChance >= 0 || r.defaultMaxCount > 0))
-                        .count();
-                neutralForKillers = Math.max(0, neutralForKillers);
+                neutralForKillers = Math.max(0, (int) (players_count / 9f));
                 for (int i = 0; i < neutralForKillers && i < neutralRoles.size(); i++) {
-                    Harpymodloader.setRoleMaximum(neutralRoles.get(i), 1);
+                    var r = neutralRoles.get(i);
+                    Harpymodloader.setRoleMaximum(r, Harpymodloader.ROLE_MAX.getOrDefault(r.identifier(), 0) + 1);
                 }
             }
             // 动态大小
@@ -424,10 +445,13 @@ public class InitModRolesMax {
         // 对没有 enableChance 的杀手方中立职业，默认 max=1、概率 75%
         for (var entry : TMMRoles.ROLES.entrySet()) {
             var role = entry.getValue();
-            if (role.spawnInfo.enableChance < 0 && role.canSetSpawnInfoInConfig() && role.isNeutralForKiller()) {
+            if (role.isNeutrals()) {
                 if (role.spawnInfo.maxSpawn < 0) {
+                    // 不允许设置为 -1
                     role.setDefaultMax(1);
                 }
+            }
+            if (role.spawnInfo.enableChance < 0 && role.canSetSpawnInfoInConfig() && role.isNeutralForKiller()) {
                 role.spawnInfo.enableChance = 7500;
             }
         }
