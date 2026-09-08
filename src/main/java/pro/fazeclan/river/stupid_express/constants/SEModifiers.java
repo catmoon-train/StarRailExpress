@@ -244,6 +244,7 @@ public class SEModifiers {
             // 一次自然分配会由处理器补齐第二名玩家，因此 max=1 表示一对。
             .setDefaultEnableChance(3000).setDefaultMax(1)
             .setServerGameTickEvent(TwinChildrenHandler::serverTick)
+            .setClientGameTickEvent(TwinChildrenHandler::clientTick)
             .setAddedVersion("4.4");
 
     public static void init() {

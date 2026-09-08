@@ -42,7 +42,7 @@ import org.jetbrains.annotations.Nullable;
 
 public class RabbitWansuiRole extends CustomWinnerRole implements EggRoleInterface {
 
-    private static final int COST = 75;
+    private static final int COST = 25;
 
     public RabbitWansuiRole(ResourceLocation identifier, int color, RoleType roleType, MoodType moodType,
             int maxSprintTime, boolean canSeeTime) {
