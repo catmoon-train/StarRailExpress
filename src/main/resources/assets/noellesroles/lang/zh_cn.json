@@ -4996,7 +4996,7 @@
   "message.noellesroles.loan.received": "你获得了 %s 金币和一份贷款合同。",
   "message.noellesroles.loan.payment_received": "你收到 %s 金币还款。",
   "message.noellesroles.loan.insufficient": "你需要 %s 金币才能一次性还清合同。",
-  "message.noellesroles.loan.repaid": "已偿还 %s 金币，贷款合同已消失。",
+  "message.noellesroles.loan.repaid": "已偿还 %s 金币。",
   "message.noellesroles.loan.reminder": "还款提醒：当前应还 %s 金币。",
   "message.noellesroles.loan.forced": "合同到期：应还 %s 金币，已收取 %s 金币。",
   "message.noellesroles.loan.stomach_banned": "你的胃无法再接受食物或饮料。",

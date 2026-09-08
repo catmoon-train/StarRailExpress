@@ -1585,9 +1585,9 @@ public class ModRoles {
     /** 放贷人：中立阵营，以合同把金币借给其他玩家。 */
     public static SRERole LENDER = TMMRoles.registerRole(new NormalRole(
             LENDER_ID, new Color(184, 134, 11).getRGB(), RoleType.NEUTRALS,
-            SRERole.MoodType.REAL, Integer.MAX_VALUE, true))
+            SRERole.MoodType.FAKE, Integer.MAX_VALUE, true))
             .setCanSeeCoin(true)
-            .setCanUseInstinctAndNightVision(true)
+            .setCanUseInstinctAndNightVision(false)
             .setDefaultMax(1)
             .setDefaultEnableChance(5000);
 

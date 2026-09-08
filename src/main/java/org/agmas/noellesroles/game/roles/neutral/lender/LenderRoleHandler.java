@@ -197,6 +197,17 @@ public final class LenderRoleHandler {
                 .withStyle(ChatFormatting.GREEN), true);
     }
 
+    /** Deducts the full current debt from the player holding the contract. */
+    public static boolean repayContract(ServerPlayer borrower, ItemStack contract) {
+        int due = LoanContractItem.totalDue(contract, borrower.level().getGameTime());
+        if (due <= 0 || !MoneyUtils.cost(borrower, due)) {
+            borrower.displayClientMessage(Component.translatable("message.noellesroles.loan.insufficient", due)
+                    .withStyle(ChatFormatting.RED), true);
+            return false;
+        }
+        return true;
+    }
+
     /** Opens the contract form without requiring a real lender request. */
     public static void debugAccept(ServerPlayer borrower) {
         long now = borrower.level().getGameTime();
@@ -204,18 +215,6 @@ public final class LenderRoleHandler {
         ServerPlayNetworking.send(borrower, new LoanContractOpenS2CPacket(borrower.getUUID()));
         borrower.displayClientMessage(Component.translatable("message.noellesroles.loan.accepted")
                 .withStyle(ChatFormatting.GREEN), true);
-    }
-
-    public static void payLender(ServerPlayer borrower, UUID lenderId, int amount) {
-        if (lenderId == null) {
-            return;
-        }
-        ServerPlayer lender = borrower.server.getPlayerList().getPlayer(lenderId);
-        if (lender != null) {
-            MoneyUtils.addToBalance(lender, amount);
-            lender.displayClientMessage(Component.translatable("message.noellesroles.loan.payment_received", amount)
-                    .withStyle(ChatFormatting.GOLD), true);
-        }
     }
 
     private static void tick(MinecraftServer server) {
@@ -270,7 +269,6 @@ public final class LenderRoleHandler {
         int paid = Math.min(available, due);
         if (paid > 0) {
             MoneyUtils.addToBalance(borrower, -paid);
-            payLender(borrower, LoanContractItem.lender(contract), paid);
         }
         int remaining = due - paid;
         if (remaining > 0) {

@@ -15,7 +15,6 @@ import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.component.CustomData;
 import net.minecraft.world.level.Level;
 import org.agmas.noellesroles.game.roles.neutral.lender.LenderRoleHandler;
-import org.agmas.noellesroles.utils.MoneyUtils;
 
 import java.util.List;
 import java.util.UUID;
@@ -97,12 +96,9 @@ public class LoanContractItem extends Item {
         if (due <= 0) {
             return InteractionResultHolder.fail(stack);
         }
-        if (!MoneyUtils.cost(borrower, due)) {
-            borrower.displayClientMessage(Component.translatable("message.noellesroles.loan.insufficient", due)
-                    .withStyle(ChatFormatting.RED), true);
+        if (!LenderRoleHandler.repayContract(borrower, stack)) {
             return InteractionResultHolder.fail(stack);
         }
-        LenderRoleHandler.payLender(borrower, lender(stack), due);
         stack.shrink(1);
         borrower.displayClientMessage(Component.translatable("message.noellesroles.loan.repaid", due)
                 .withStyle(ChatFormatting.GREEN), true);
