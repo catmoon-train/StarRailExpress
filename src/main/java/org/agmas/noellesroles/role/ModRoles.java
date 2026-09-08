@@ -774,7 +774,7 @@ public class ModRoles {
      */
     public static SRERole ZHANG_ANGEL = TMMRoles.registerRole(
             new NormalRole(ZHANG_ANGEL_ID, new Color(170, 200, 255).getRGB(),
-                    RoleType.CIVILIAN, SRERole.MoodType.REAL,
+                    RoleType.NEUTRALS_FOR_INNOCENT, SRERole.MoodType.REAL,
                     TMMRoles.CIVILIAN.getMaxSprintTime(), true)
                     .setRoleData(ZhangAngelRoleData::new))
             .setCanSeeCoin(true)
