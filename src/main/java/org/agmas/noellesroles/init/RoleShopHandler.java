@@ -2589,7 +2589,7 @@ public class RoleShopHandler {
         {
             ShopContent.customEntries.put(
                     BounsRoles.RABBIT_WANSUI.identifier(),
-                    List.of(new KillerKnifeShopEntry(TMMItems.KNIFE.getDefaultInstance(), 300, 50),
+                    List.of(new KillerKnifeShopEntry(TMMItems.KNIFE.getDefaultInstance(), 200, 50),
                             new ShopEntry(TMMItems.LOCKPICK.getDefaultInstance(), 100, ShopEntry.Type.TOOL)));
         }
         // bee商店：开锁器
