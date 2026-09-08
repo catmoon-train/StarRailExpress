@@ -81,7 +81,7 @@ public class RabbitWansuiRole extends CustomWinnerRole implements EggRoleInterfa
                 if (wmcca.isModifier(p, NRModifiers.RABBIT_SHAPE)) {
                     SRE.REPLAY_MANAGER.recordCustomEvent(
                             Component.translatable("replay.event.rabbit.restore",
-                                    GameReplayUtils.getReplayPlayerDisplayText(player, true)));
+                                    GameReplayUtils.getReplayPlayerDisplayText(p, true)));
                     RoleUtils.removeModifier(p, NRModifiers.RABBIT_SHAPE);
                 }
             }
