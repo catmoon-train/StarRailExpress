@@ -776,7 +776,6 @@ public class ModRoles {
                     TMMRoles.CIVILIAN.getMaxSprintTime(), true)
                     .setRoleData(ZhangAngelRoleData::new))
             .setCanSeeCoin(true)
-            .setCanIncreaseSurvivingInnocents(true)
             .setDarknessImmune(true)
             .setDefaultMax(1)
             .setDefaultEnableChance(500)
