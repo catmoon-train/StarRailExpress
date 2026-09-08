@@ -499,7 +499,7 @@
   "info.screen.modifier.flexible": "修飾符\n你的潛行速度增加40%%。",
   "info.screen.modifier.anti_newton": "修飾符\n你的重力減少20%%。",
   "info.screen.modifier.fake_steve_replaced": "修飾符\n此修飾符無法自然獲取\n你的職業不變，但身體由Fake Steve接管。你無法說話或操作，只能以第三人稱觀看AI行動；死亡後可旁觀，若復活則再次被接管。",
-  "info.screen.modifier.twin_children": "你會與一名同陣營玩家組成雙生集合體。你們的體型均為正常的一半：一人在下方負責移動，另一人騎乘在上方。任意一方死亡時集合體暫時解除，但體型不變；雙方再次存活後會重新組合。獨立中立玩家不會獲得此修飾符。與高大、矮小衝突。",
+  "info.screen.modifier.twin_children": "你會與一名同陣營玩家組成雙生集合體。你們的體型均為正常的一半：一人在下方負責移動，另一人騎乘在上方。任意一方死亡時集合體暫時解除，但體型不變；雙方再次存活後會重新組合。任意一方完成任務時，另一方若仍有任務也會同時完成。獨立中立玩家不會獲得此修飾符。與高大、矮小衝突。",
   "=======修機模式/特殊模式=======": "",
   "info.screen.roleid.repair_survivor": "逃脫陣營\n修滿 5 臺修機方塊後，前往逃脫大門離開。可用工具箱、零件加速修機，也能救援籠中的隊友。",
   "info.screen.roleid.repair_survivor.simple": "",

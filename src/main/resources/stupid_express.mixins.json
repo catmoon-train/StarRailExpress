@@ -8,6 +8,8 @@
     "general.StuckGameExitMixin",
     "modifier.split_personality.SplitPersonalityServerInputBlockMixin",
     "modifier.taskmaster.TaskmasterGiveCoinsMixin",
+    "modifier.twin_children.TwinChildrenShareQuestMixin",
+    "modifier.twin_children.TwinChildrenShareMinigameMixin"
     "modifier.twin_children.TwinChildrenAttachMixin",
     "modifier.twin_children.TwinChildrenPlayerMixin"
   ],

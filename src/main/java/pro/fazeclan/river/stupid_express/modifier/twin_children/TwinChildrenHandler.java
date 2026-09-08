@@ -22,6 +22,7 @@ import org.agmas.harpymodloader.component.WorldModifierComponent;
 import org.agmas.harpymodloader.events.GameInitializeEvent;
 import org.agmas.harpymodloader.events.ModifierAssigned;
 import org.agmas.harpymodloader.events.ModifierRemoved;
+import org.jetbrains.annotations.Nullable;
 import pro.fazeclan.river.stupid_express.StupidExpress;
 import pro.fazeclan.river.stupid_express.constants.SEModifiers;
 
@@ -166,6 +167,21 @@ public final class TwinChildrenHandler {
         if (isStackedUpper(player) && player.getVehicle() instanceof Player lower) {
             lower.positionRider(player);
         }
+    }
+
+    /** The other twin in this player's pair, or null if unpaired / offline. */
+    @Nullable
+    public static ServerPlayer getPartner(ServerPlayer player) {
+        Pair pair = PAIRS.get(player.getUUID());
+        if (pair == null) {
+            return null;
+        }
+        UUID partnerId = pair.lower().equals(player.getUUID()) ? pair.upper() : pair.lower();
+        return player.server.getPlayerList().getPlayer(partnerId);
+    }
+
+    public static boolean isPairedAlivePlayer(ServerPlayer player) {
+        return isAlivePlayer(player) && PAIRS.containsKey(player.getUUID());
     }
 
     private static void updateMount(Pair pair, ServerLevel level) {
