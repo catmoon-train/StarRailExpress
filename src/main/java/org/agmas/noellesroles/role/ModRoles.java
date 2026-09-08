@@ -663,7 +663,7 @@ public class ModRoles {
                     true, false, SRERole.MoodType.REAL,
                     TMMRoles.CIVILIAN.getMaxSprintTime(), false).addEffect(
                             new MobEffectInstance(
-                                    MobEffects.MOVEMENT_SLOWDOWN,
+                                    ModEffects.LIMP,
                                     30 * 20, // 持续时间 60s（tick）
                                     0, // 等级（0 = 缓慢 I）
                                     true, // ambient（环境效果，如信标）
