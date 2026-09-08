@@ -94,6 +94,7 @@ import io.wifi.starrailexpress.index.TMMEntities;
 import io.wifi.starrailexpress.index.TMMItems;
 import io.wifi.starrailexpress.index.tag.TMMItemTags;
 import io.wifi.starrailexpress.network.CloseUiPayload;
+import io.wifi.starrailexpress.network.MapDepartCancelPayload;
 import io.wifi.starrailexpress.network.original.AnnounceEndingPayload;
 import io.wifi.starrailexpress.progression.ProgressionDataManager;
 import io.wifi.starrailexpress.stats.PlayerStats;
@@ -598,6 +599,8 @@ public class GameUtils {
                 player.displayClientMessage(
                         Component.translatable("game.start_error.sre.not_enough_players", gameMode.minPlayerCount),
                         true);
+                // 无法发车：让客户端关闭地图投票结果页的铺黑，避免卡黑屏
+                ServerPlayNetworking.send(player, new MapDepartCancelPayload());
             }
             isStartingGame = false;
         }
@@ -1098,6 +1101,10 @@ public class GameUtils {
             }
         }
         return getReadyPlayerList(serverWorld);
+    }
+
+    public static int getStartingPlayerCount(ServerLevel serverWorld) {
+        return getStartingPlayers(serverWorld).size();
     }
 
     private static List<ServerPlayer> getReadyPlayerList(ServerLevel serverWorld) {

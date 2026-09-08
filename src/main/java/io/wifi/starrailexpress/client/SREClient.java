@@ -904,6 +904,13 @@ public class SREClient implements ClientModInitializer {
                 }
             });
         });
+        // 服务端无法"发车"（如玩家人数不足）时，关闭地图投票结果页的铺黑显示，避免卡黑屏
+        ClientPlayNetworking.registerGlobalReceiver(io.wifi.starrailexpress.network.MapDepartCancelPayload.TYPE,
+                (payload, context) -> context.client().execute(() -> {
+                    if (context.client().screen instanceof MapVoteScreen) {
+                        context.client().setScreen(null);
+                    }
+                }));
         ClientPlayNetworking.registerGlobalReceiver(OpenSkinScreenPaylod.ID, (payload, context) -> {
 
             context.client().execute(() -> {
