@@ -41,6 +41,7 @@ import io.wifi.starrailexpress.content.entity.PlayerBodyEntity;
 import io.wifi.starrailexpress.content.vote.client.ClientVoteCache;
 import io.wifi.starrailexpress.content.vote.client.RoleRotationCache;
 import io.wifi.starrailexpress.content.vote.client.VolunteerCache;
+import io.wifi.starrailexpress.customrole.CustomRoleLoader;
 import io.wifi.starrailexpress.event.AllowNameRender;
 import io.wifi.starrailexpress.event.OnRoundStartWelcomeTimmer;
 import io.wifi.starrailexpress.game.GameConstants;
@@ -1151,6 +1152,7 @@ public class NoellesrolesClient implements ClientModInitializer {
             ClientEmbalmerState.clear();
             ClientAmonState.clearAll();
             ClientSkincrawlerState.clearAll();
+            CustomRoleLoader.removeClientCache();
             // 在断开连接时，强制清理所有玩家的渲染缓存
 
         });

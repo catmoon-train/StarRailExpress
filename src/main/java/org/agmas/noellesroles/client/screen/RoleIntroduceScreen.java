@@ -235,8 +235,8 @@ public class RoleIntroduceScreen extends Screen {
     private String searchContent = null;
     private ArrayList<Object> prevRole = new ArrayList<>();
     private ArrayList<Integer> prevRoleTab = new ArrayList<>();
-    private final HashSet<SRERole> NOW_ROUND_ROLES = new HashSet<>();
-    private final HashSet<SREModifier> NOW_ROUND_MODIFIERS = new HashSet<>();
+    private final HashSet<ResourceLocation> NOW_ROUND_ROLES = new HashSet<>();
+    private final HashSet<ResourceLocation> NOW_ROUND_MODIFIERS = new HashSet<>();
 
     public RoleIntroduceScreen() {
         super(Component.translatable("gui.roleintroduce.select_role.title"));
@@ -253,11 +253,13 @@ public class RoleIntroduceScreen extends Screen {
         NOW_ROUND_ROLES.clear();
         NOW_ROUND_MODIFIERS.clear();
         if (SREClient.gameComponent != null) {
-            NOW_ROUND_ROLES.addAll(SREClient.gameComponent.roleWorldComponent.getRoles().values());
+            NOW_ROUND_ROLES.addAll(SREClient.gameComponent.roleWorldComponent.getRoles().values().stream()
+                    .map(t -> t.identifier()).toList());
         }
         if (SREClient.modifierComponent != null) {
             for (Set<SREModifier> value : SREClient.modifierComponent.getModifiers().values()) {
-                NOW_ROUND_MODIFIERS.addAll(value);
+                NOW_ROUND_MODIFIERS.addAll(value.stream()
+                        .map(t -> t.identifier()).toList());
             }
         }
     }
@@ -453,7 +455,9 @@ public class RoleIntroduceScreen extends Screen {
                     yield false;
                 }
                 // yield SREClient.gameComponent.roleWorldComponent.hasRole(role);
-                yield NOW_ROUND_ROLES.contains(role);
+                if (role == null)
+                    yield false;
+                yield NOW_ROUND_ROLES.contains(role.identifier());
             }
         };
     }
@@ -495,8 +499,9 @@ public class RoleIntroduceScreen extends Screen {
                     // 未似不可见
                     yield false;
                 }
-
-                yield NOW_ROUND_MODIFIERS.contains(mod);
+                if (mod == null)
+                    yield false;
+                yield NOW_ROUND_MODIFIERS.contains(mod.identifier());
             }
         };
     }
