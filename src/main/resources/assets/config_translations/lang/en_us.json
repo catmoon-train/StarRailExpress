@@ -544,5 +544,7 @@
     "=== 角色刷新概率設置 ===": "",
     "=== 修飾符配置 ===": "",
     "=== StupidExpress 角色設置 ===": "",
-    "=== 叛徒擴展包修飾符 ===": ""
+    "=== 叛徒擴展包修飾符 ===": "",
+    "text.autoconfig.starrailexpress.option.loadServerLanguageId": "Server-side language file id to use for translations (enter auto to detect environment, leave empty to disable)",
+    "text.autoconfig.starrailexpress.option.downloadVanillaLanguageFile": "Server-side: download the matching vanilla (assets/minecraft/lang/<id>.json) language file from Mojang and apply it, so vanilla keys are also translated; cached under <game dir>/sre_lang_cache (requires loadServerLanguageId set and not en_us)"
 }

@@ -694,5 +694,7 @@
   "text.autoconfig.noellesroles.option.manipulatorMarkNauseaSeconds": "操縱者 - 成功標記時對目標施加的噁心時長（秒）",
   "text.autoconfig.noellesroles.option.manipulatorMarkReward": "操縱者 - 成功標記獎勵的金幣",
   "text.autoconfig.noellesroles.option.manipulatorTargetDeathReward": "操縱者 - 控制期間目標死亡獎勵的金幣",
-  "text.autoconfig.noellesroles.option.chanceOfSilencer": "靜語者生成概率（%）"
+  "text.autoconfig.noellesroles.option.chanceOfSilencer": "靜語者生成概率（%）",
+  "text.autoconfig.starrailexpress.option.loadServerLanguageId": "服務端：載入模組本地翻譯檔案id（輸入auto自動偵測環境，留空不載入）",
+  "text.autoconfig.starrailexpress.option.downloadVanillaLanguageFile": "服務端：從Mojang官方下載上述語言對應的原版(vanilla)翻譯檔並套用，快取至遊戲根目錄sre_lang_cache（需先設定loadServerLanguageId且非en_us）"
 }

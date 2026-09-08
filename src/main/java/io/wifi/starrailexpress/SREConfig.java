@@ -37,6 +37,8 @@ public class SREConfig implements ConfigData {
             
     // 服务端：加载模组本地翻译文件id（输入auto自动检测环境，留空不加载）
     public String loadServerLanguageId = "";
+    // 服务端：为上面的语言从Mojang官方下载原版(vanilla)翻译文件(assets/minecraft/lang/<id>.json)，缓存到游戏根目录sre_lang_cache
+    public boolean downloadVanillaLanguageFile = false;
     // 游戏模式设置
     @ConfigEntry.Category(value = "gamemodes")
     public int defaultStartTimeForMurder = 10;
