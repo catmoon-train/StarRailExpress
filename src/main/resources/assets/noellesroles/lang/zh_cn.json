@@ -1904,6 +1904,7 @@
   "screen.roleintroduce.flag.inner.version.prefix": "ℹ 加入版本: %s",
   "screen.roleintroduce.flag.inner.disable": "❌ 当前已禁用",
   "screen.roleintroduce.flag.inner.enable": "✔ 当前已启用",
+  "screen.roleintroduce.flag.inner.custom_role": "地图自定义角色",
   "screen.roleintroduce.flag.inner.hidden": "隐藏修饰符",
   "screen.roleintroduce.flag.inner.original": "原版列车角色",
   "screen.roleintroduce.flag.inner.role_rotation.hidden": "轮抽中不显示真名的角色",
