@@ -142,13 +142,15 @@ public class THReimuRole extends TouhouRole {
     }
 
     public static void stopFlying(ServerPlayer player) {
-        player.displayClientMessage(
-                Component.translatable("skill.noellesroles.reimu.stopped").withStyle(ChatFormatting.RED), true);
-        player.getAbilities().mayfly = false;
-        player.getAbilities().flying = false;
-        player.getAbilities().setFlyingSpeed(0.05F);
-        player.fallDistance = 0;
-        player.onUpdateAbilities();
+        if (player.isAlive() && GameUtils.isPlayerAliveAndSurvivalIgnoreShitSplit(player)) {
+            player.displayClientMessage(
+                    Component.translatable("skill.noellesroles.reimu.stopped").withStyle(ChatFormatting.RED), true);
+            player.getAbilities().mayfly = false;
+            player.getAbilities().flying = false;
+            player.getAbilities().setFlyingSpeed(0.05F);
+            player.fallDistance = 0;
+            player.onUpdateAbilities();
+        }
     }
 
     public static void startFlying(ServerPlayer player) {
