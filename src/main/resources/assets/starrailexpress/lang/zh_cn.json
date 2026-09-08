@@ -1445,6 +1445,7 @@
     "hud.sre.tip.gamemode.loose_ends": "亡命徒模式",
     "hud.sre.tip.gamemode.lover": "恋人模式",
     "hud.sre.tip.gamemode.murder": "谋杀模式",
+    "hud.sre.tip.gamemode.debug": "分配测试模式",
     "hud.sre.tip.gamemode.refugee": "难民模式",
     "hud.sre.tip.gamemode.refugee_lover": "难民恋人模式",
     "hud.sre.tip.gamemode.role_pick": "阳光自选模式",
