@@ -41,6 +41,7 @@ import net.minecraft.world.level.Level;
 import org.agmas.noellesroles.content.effects.SimpleMobEffect;
 import org.agmas.noellesroles.content.entity.PuppeteerBodyEntity;
 import org.agmas.noellesroles.content.entity.WheelchairEntity;
+import org.agmas.noellesroles.game.roles.innocence.insurance.InsuranceRoleHandler;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
@@ -67,6 +68,10 @@ public class ServerPlayerEntityMixin {
 
     @Inject(method = "drop(Lnet/minecraft/world/item/ItemStack;ZZ)Lnet/minecraft/world/entity/item/ItemEntity;", at = @At("HEAD"), cancellable = true)
     public void onDropItem(ItemStack itemStack, boolean bl, boolean bl2, CallbackInfoReturnable<ItemEntity> cir) {
+        if (!InsuranceRoleHandler.canDrop((ServerPlayer) (Object) this, itemStack)) {
+            cir.setReturnValue(null);
+            return;
+        }
         if (itemStack.getItem() instanceof DropAndClearItem) {
             cir.setReturnValue(null);
         }

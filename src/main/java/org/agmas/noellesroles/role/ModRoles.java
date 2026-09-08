@@ -29,6 +29,7 @@ import org.agmas.noellesroles.game.roles.innocence.adventurer.AdventurerRole;
 import org.agmas.noellesroles.game.roles.innocence.cake_maker.CakeMakerRole;
 import org.agmas.noellesroles.game.roles.innocence.great_detective.GreatDetectiveRole;
 import org.agmas.noellesroles.game.roles.innocence.mortician.MorticianRole;
+import org.agmas.noellesroles.game.roles.innocence.insurance.InsuranceRole;
 import org.agmas.noellesroles.game.roles.innocence.veteran.VeteranKnifeHandler;
 import org.agmas.noellesroles.game.roles.killer.manipulator.ManipulatorRole;
 import org.agmas.noellesroles.game.roles.killer.ninja.NinjaRole;
@@ -258,6 +259,7 @@ public class ModRoles {
     public static ResourceLocation SPELLBREAKER_ID = Noellesroles.id("spellbreaker");
     public static ResourceLocation LEADER_ID = Noellesroles.id("leader");
     public static final ResourceLocation LENDER_ID = Noellesroles.id("lender");
+    public static final ResourceLocation INSURANCE_ID = Noellesroles.id("insurance");
     public static final ResourceLocation ECHO_LISTENER_ID = BounsRoles.id("echo_listener");
 
     public static ResourceLocation LOCKSMITH_ID = Noellesroles.id("locksmith");
@@ -1588,6 +1590,13 @@ public class ModRoles {
             SRERole.MoodType.FAKE, Integer.MAX_VALUE, true))
             .setCanSeeCoin(true)
             .setCanUseInstinctAndNightVision(false)
+            .setDefaultMax(1)
+            .setDefaultEnableChance(5000);
+
+    /** 保险职员：平民阵营，可以在职业商店购买保险。 */
+    public static SRERole INSURANCE = TMMRoles.registerRole(new InsuranceRole(
+            INSURANCE_ID, new Color(35, 105, 180).getRGB()))
+            .setCanSeeCoin(true)
             .setDefaultMax(1)
             .setDefaultEnableChance(5000);
 

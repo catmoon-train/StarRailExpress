@@ -22,6 +22,7 @@ import de.maxhenkel.voicechat.api.events.EventRegistration;
 import de.maxhenkel.voicechat.api.events.OpenALSoundEvent;
 import io.wifi.starrailexpress.client.SREClient;
 import net.fabricmc.api.EnvType;
+import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
@@ -109,6 +110,7 @@ public class VoiceExtraEffectsPlugin implements VoicechatPlugin {
     private static final Map<UUID, ReverseState> REVERSE = new ConcurrentHashMap<>();
     private static final Map<UUID, EchoState> ECHO = new ConcurrentHashMap<>();
     private static final Map<UUID, MuffledHearingState> MUFFLED_HEARING_STATE = new ConcurrentHashMap<>();
+    private static final Map<UUID, Integer> VOICE_SOURCES = new ConcurrentHashMap<>();
 
     @Override
     public String getPluginId() {
@@ -130,6 +132,7 @@ public class VoiceExtraEffectsPlugin implements VoicechatPlugin {
         registration.registerEvent(ClientReceiveSoundEvent.EntitySound.class, this::onClientSound);
         registration.registerEvent(ClientReceiveSoundEvent.LocationalSound.class, this::onClientSound);
         registration.registerEvent(ClientReceiveSoundEvent.StaticSound.class, this::onClientSound);
+        ClientTickEvents.END_CLIENT_TICK.register(client -> refreshVoiceSourceEffects());
     }
 
     // =========================================================================
@@ -144,6 +147,7 @@ public class VoiceExtraEffectsPlugin implements VoicechatPlugin {
         Level level = SREClient.getMinecraftLevel();
         if (level == null)
             return;
+        VOICE_SOURCES.put(speaker, source);
         Player localPlayer = SREClient.getMinecraftPlayer();
         Player player = level.getPlayerByUUID(speaker);
         if (player == null) {
@@ -158,6 +162,26 @@ public class VoiceExtraEffectsPlugin implements VoicechatPlugin {
 
         applyLowPassGain(source, speaker, helmet, underwater, muffledHearing);
         applyReverb(source, speaker, reverb);
+    }
+
+    /** Reapply listener-side voice filters so removing an effect is immediate. */
+    private static void refreshVoiceSourceEffects() {
+        Level level = SREClient.getMinecraftLevel();
+        if (level == null)
+            return;
+        Player localPlayer = SREClient.getMinecraftPlayer();
+        int muffledHearing = localPlayer == null ? 0 : ModEffects.getMuffledHearingLevel(localPlayer);
+        VOICE_SOURCES.forEach((speaker, source) -> {
+            Player player = level.getPlayerByUUID(speaker);
+            if (player == null) {
+                VOICE_SOURCES.remove(speaker, source);
+                return;
+            }
+            applyLowPassGain(source, speaker,
+                    ModEffects.getVoiceHelmetLevel(player),
+                    ModEffects.getVoiceUnderwaterLevel(player),
+                    muffledHearing);
+        });
     }
 
     /**
@@ -582,6 +606,7 @@ public class VoiceExtraEffectsPlugin implements VoicechatPlugin {
 
     /** 清理某说话者的全部状态与 EFX 资源（说话者离开时调用）。 */
     private static void cleanupSpeaker(UUID speaker) {
+        VOICE_SOURCES.remove(speaker);
         HELIUM_SHIFTERS.remove(speaker);
         MUFFLED_HEARING_STATE.remove(speaker);
         SYNTH_SHIFTERS.remove(speaker);
@@ -638,6 +663,7 @@ public class VoiceExtraEffectsPlugin implements VoicechatPlugin {
         STUTTER.clear();
         REVERSE.clear();
         ECHO.clear();
+        VOICE_SOURCES.clear();
     }
 
     // =========================================================================
