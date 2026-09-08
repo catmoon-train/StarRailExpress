@@ -337,7 +337,7 @@ public class CustomRoleLoader {
     private static SRERole createRole(CustomRoleData data) {
         data.englishId = data.englishId.toLowerCase(); // 兜底：确保英文id全小写
         ResourceLocation id = ResourceLocation.fromNamespaceAndPath("customrole", data.englishId);
-
+        
         // 解析颜色
         int color = (data.colorR << 16) | (data.colorG << 8) | data.colorB;
 
@@ -384,6 +384,7 @@ public class CustomRoleLoader {
 
         // === 高级定义 ===
         role.setCanSeeCoin(data.canSeeCoin);
+        role.addFlag("inner.custom_role");
         if (data.canUseInstinct) {
             role.setCanUseInstinctAndNightVision(true);
 
