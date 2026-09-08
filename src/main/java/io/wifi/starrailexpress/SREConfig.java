@@ -432,6 +432,16 @@ public class SREConfig implements ConfigData {
     public int dailyTaskCount = 6;
     @ConfigEntry.Category(value = "progression")
     public int weeklyTaskCount = 6;
+    /** 同种类阵营卡使用间隔开关。默认开启。 */
+    @ConfigEntry.Category(value = "progression")
+    @ConfigSync(shouldSync = true)
+    @Tooltip
+    public boolean enableFactionCardTypeCooldown = true;
+    /** 同种类阵营卡再次使用所需间隔（分钟）。默认 45。 */
+    @ConfigEntry.Category(value = "progression")
+    @ConfigSync(shouldSync = true)
+    @Tooltip
+    public int factionCardTypeCooldownMinutes = 45;
     // 皮肤设置
     @ConfigEntry.Category(value = "skin")
     public boolean isItemSkinEnabled = true;

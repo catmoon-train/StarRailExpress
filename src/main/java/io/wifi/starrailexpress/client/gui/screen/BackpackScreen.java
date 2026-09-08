@@ -16,6 +16,7 @@
 package io.wifi.starrailexpress.client.gui.screen;
 
 import io.wifi.starrailexpress.backpack.BackpackState;
+import io.wifi.starrailexpress.backpack.FactionCardCooldown;
 import io.wifi.starrailexpress.client.data.ClientPlayerDataCache;
 import io.wifi.starrailexpress.progression.ProgressionState.FactionCardType;
 import net.minecraft.ChatFormatting;
@@ -98,7 +99,7 @@ public class BackpackScreen extends Screen {
     @Override
     public void render(GuiGraphics g, int mouseX, int mouseY, float partialTick) {
         super.render(g, mouseX, mouseY, partialTick);
-        
+        this.backpack = ClientPlayerDataCache.backpack(player.getUUID());
         computeLayout();
 
         drawPanelBg(g, panelX, panelY, panelW, panelH);
@@ -130,29 +131,37 @@ public class BackpackScreen extends Screen {
         int accent = ACCENT[index];
         int count = count(type);
         boolean owned = count > 0;
+        long remaining = FactionCardCooldown.remainingMs(backpack, type);
+        boolean cooling = remaining > 0L;
+        boolean usable = owned && !cooling;
         int x = rowX;
         int y = rowY(index);
-        boolean hovered = owned && inside(mouseX, mouseY, x, y, rowW, ROW_H);
+        boolean hovered = usable && inside(mouseX, mouseY, x, y, rowW, ROW_H);
 
-        // 行背景：拥有时金色渐变，悬停更亮；空卡暗淡
+        // 行背景：拥有时金色渐变，悬停更亮；空卡/冷却暗淡
         if (hovered) {
             g.fillGradient(x, y, x + rowW, y + ROW_H,
                     blendColors(PANEL_TOP, accent, 0.42F), blendColors(PANEL_BOTTOM, accent, 0.24F));
-        } else if (owned) {
+        } else if (usable) {
             g.fillGradient(x, y, x + rowW, y + ROW_H,
                     blendColors(PANEL_TOP, accent, 0.22F), blendColors(PANEL_BOTTOM, accent, 0.10F));
         } else {
             g.fillGradient(x, y, x + rowW, y + ROW_H, 0x66120A04, 0x66120A04);
         }
-        g.renderOutline(x, y, rowW, ROW_H, hovered ? GOLD : (owned ? 0xFF5A4530 : 0xFF3A2C1E));
+        g.renderOutline(x, y, rowW, ROW_H, hovered ? GOLD : (usable ? 0xFF5A4530 : 0xFF3A2C1E));
         // 左侧阵营色条
-        g.fill(x + 1, y + 1, x + 4, y + ROW_H - 1, owned ? accent : (accent & 0x66FFFFFF));
+        g.fill(x + 1, y + 1, x + 4, y + ROW_H - 1, usable ? accent : (accent & 0x66FFFFFF));
 
         // 卡名 + 状态副行
         Component name = Component.translatable("sre.pass.faction." + type.questKey);
-        g.drawString(font, name, x + 12, y + 8, owned ? TEXT : MUTED, false);
-        Component hint = Component.translatable(owned ? "sre.backpack.click_activate" : "sre.backpack.unavailable");
-        g.drawString(font, hint, x + 12, y + 22, owned ? 0xFFB8C9A8 : 0xFF6A5A48, false);
+        g.drawString(font, name, x + 12, y + 8, usable ? TEXT : MUTED, false);
+        Component hint;
+        if (cooling) {
+            hint = Component.translatable("sre.backpack.cooldown", FactionCardCooldown.formatRemaining(remaining));
+        } else {
+            hint = Component.translatable(owned ? "sre.backpack.click_activate" : "sre.backpack.unavailable");
+        }
+        g.drawString(font, hint, x + 12, y + 22, usable ? 0xFFB8C9A8 : 0xFF6A5A48, false);
 
         // 右侧计数
         String countText = "×" + count;
@@ -174,7 +183,8 @@ public class BackpackScreen extends Screen {
         if (button == 0) {
             for (int i = 0; i < DISPLAY_ORDER.length; i++) {
                 FactionCardType type = DISPLAY_ORDER[i];
-                if (count(type) > 0 && inside(mouseX, mouseY, rowX, rowY(i), rowW, ROW_H)) {
+                if (count(type) > 0 && !FactionCardCooldown.isOnCooldown(backpack, type)
+                        && inside(mouseX, mouseY, rowX, rowY(i), rowW, ROW_H)) {
                     sendCommand("sre:pass activate " + type.questKey);
                     onClose();
                     return true;
