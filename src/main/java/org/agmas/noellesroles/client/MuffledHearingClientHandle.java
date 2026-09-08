@@ -12,6 +12,7 @@ import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
+import org.agmas.noellesroles.client.utils.ModSoundManager;
 import org.agmas.noellesroles.init.ModEffects;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.openal.AL10;
@@ -20,8 +21,6 @@ import org.lwjgl.openal.EXTEfx;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 /** 客户端听觉模糊效果：普通游戏音效的 OpenAL 低通滤波与轻微衰减。 */
 @Environment(EnvType.CLIENT)
@@ -63,7 +62,7 @@ public final class MuffledHearingClientHandle {
     private static volatile int noiseSource;
     private static volatile int noiseBuffer;
     private static volatile boolean efxUnavailable;
-    private static final Map<Integer, Float> BASE_VOLUMES = new ConcurrentHashMap<>();
+    private static boolean masterVolumeApplied;
 
     private MuffledHearingClientHandle() {
     }
@@ -79,30 +78,6 @@ public final class MuffledHearingClientHandle {
 
     /** 在 Minecraft 的音频线程中为一个 OpenAL 声源应用或移除滤波器。 */
     public static void applyToSource(int source) {
-        applyToSource(source, -1.0f);
-    }
-
-    /** Apply attenuation directly to the OpenAL source after Minecraft sets its volume. */
-    public static void applyToSource(int source, float baseVolume) {
-        if (baseVolume >= 0.0f) {
-            BASE_VOLUMES.put(source, baseVolume);
-        } else {
-            baseVolume = BASE_VOLUMES.getOrDefault(source, -1.0f);
-            if (baseVolume < 0.0f) {
-                try {
-                    baseVolume = AL10.alGetSourcef(source, AL_GAIN);
-                    BASE_VOLUMES.put(source, baseVolume);
-                } catch (Throwable ignored) {
-                    return;
-                }
-            }
-        }
-
-        try {
-            AL10.alSourcef(source, AL_GAIN, baseVolume * (active ? getVolumeMultiplier() : 1.0f));
-        } catch (Throwable ignored) {
-        }
-
         if (!active) {
             if (lowPassFilter != 0) {
                 try {
@@ -141,7 +116,9 @@ public final class MuffledHearingClientHandle {
     }
 
     public static float getVolumeMultiplier() {
-        return Math.max(0.24f, 0.62f - Math.max(0, level - 1) * 0.055f);
+        // Level I is 15% of the normal MASTER volume. Each level removes
+        // another 3 percentage points until level VI becomes completely silent.
+        return Math.max(0.0f, 0.15f - Math.max(0, level - 1) * 0.03f);
     }
 
     /** 给声音加很轻的扩散残响，让音源边缘变散，产生混沌感。 */
@@ -186,9 +163,12 @@ public final class MuffledHearingClientHandle {
                 AL10.alSourcei(noiseSource, AL_SOURCE_RELATIVE, AL10.AL_TRUE);
                 AL10.alSource3f(noiseSource, AL10.AL_POSITION, 0.0f, 0.0f, 0.0f);
             }
-            float gain = Math.min(0.02f, 0.008f + Math.max(0, level - 1) * 0.0015f);
+            float gain = Math.min(0.02f, 0.008f + Math.max(0, level - 1) * 0.0015f)
+                    * getVolumeMultiplier();
             AL10.alSourcef(noiseSource, AL_GAIN, gain);
-            if (AL10.alGetSourcei(noiseSource, AL10.AL_SOURCE_STATE) != AL10.AL_PLAYING) {
+            if (gain <= 0.0f) {
+                stopNoiseSource();
+            } else if (AL10.alGetSourcei(noiseSource, AL10.AL_SOURCE_STATE) != AL10.AL_PLAYING) {
                 AL10.alSourcePlay(noiseSource);
             }
         } catch (Throwable ignored) {
@@ -313,5 +293,14 @@ public final class MuffledHearingClientHandle {
         int newLevel = player == null ? 0 : ModEffects.getMuffledHearingLevel(player);
         active = newLevel > 0;
         level = newLevel;
+        if (active) {
+            // Same mechanism as Wind Yaose: refresh every currently playing
+            // MASTER sound source to the selected fraction of its normal volume.
+            ModSoundManager.setGameSoundLevel(getVolumeMultiplier());
+            masterVolumeApplied = true;
+        } else if (masterVolumeApplied) {
+            ModSoundManager.resetGameSoundLevel();
+            masterVolumeApplied = false;
+        }
     }
 }

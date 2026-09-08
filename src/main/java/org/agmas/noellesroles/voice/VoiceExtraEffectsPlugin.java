@@ -295,9 +295,9 @@ public class VoiceExtraEffectsPlugin implements VoicechatPlugin {
     /** 简单的一阶低通：保留低频轮廓，让语音能听见但不再清楚。 */
     private static short[] muffledHearingTransform(short[] pcm, UUID speaker, int level) {
         short[] result = new short[pcm.length];
-        // Level I uses the old level-V strength; higher levels lower the
-        // cutoff and continue to remove speech detail.
-        float gain = Math.max(0.48f, 0.72f - Math.max(0, level - 1) * 0.035f);
+        // Keep voice chat in step with the global MASTER attenuation:
+        // level I is 15%, and level VI (and above) is silent.
+        float gain = Math.max(0.0f, 0.15f - Math.max(0, level - 1) * 0.03f);
         MuffledHearingState state = MUFFLED_HEARING_STATE.computeIfAbsent(speaker,
                 ignored -> new MuffledHearingState());
         state.configureFilter(level);
@@ -327,7 +327,8 @@ public class VoiceExtraEffectsPlugin implements VoicechatPlugin {
             float normalized = smeared / 32768.0f;
             float drive = 1.15f + level * 0.12f;
             float clipped = (float) (Math.tanh(normalized * drive) / Math.tanh(drive));
-            float noise = state.nextPinkNoise() * (0.0015f + level * 0.00035f);
+            float noise = state.nextPinkNoise() * (0.0015f + level * 0.00035f)
+                    * (gain / 0.15f);
             float output = clipped * (1.0f + wobble * (0.012f + level * 0.002f)) * gain;
             result[i] = clamp((output + noise) * 32767.0f);
         }
