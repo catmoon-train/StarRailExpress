@@ -23,6 +23,7 @@ import io.wifi.starrailexpress.network.*;
 import io.wifi.starrailexpress.network.original.*;
 import io.wifi.starrailexpress.network.packet.CustomNarratorPacket;
 import io.wifi.starrailexpress.network.packet.ModVersionPacket;
+import io.wifi.starrailexpress.network.packet.RoleRotationConfirmC2SPacket;
 import io.wifi.starrailexpress.network.packet.RoleRotationSelectC2SPacket;
 import io.wifi.starrailexpress.network.packet.RoleRotationSyncS2CPacket;
 import io.wifi.starrailexpress.network.packet.StaminaS2CPacket;
@@ -258,6 +259,8 @@ public class SREPayloadRegister {
         // 职业轮选数据包
         PayloadTypeRegistry.playC2S().register(RoleRotationSelectC2SPacket.TYPE,
                 RoleRotationSelectC2SPacket.CODEC);
+        PayloadTypeRegistry.playC2S().register(RoleRotationConfirmC2SPacket.TYPE,
+                RoleRotationConfirmC2SPacket.CODEC);
         PayloadTypeRegistry.playS2C().register(RoleRotationSyncS2CPacket.TYPE, RoleRotationSyncS2CPacket.CODEC);
 
         // 全局战绩 / 回放查询数据包

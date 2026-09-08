@@ -35,7 +35,9 @@ public record RoleRotationSyncS2CPacket(
         List<UUID> playerOrder, // 全局玩家顺序（按权重）
         Map<UUID, String> selectedRoles, // UUID -> 角色ID
         Set<UUID> randomChoosers,
-        Map<UUID, List<String>> roundCandidates // 本轮玩家 -> 候选角色ID列表（最多3个）
+        Map<UUID, List<String>> roundCandidates, // 本轮玩家 -> 候选角色ID列表（最多3个）
+        boolean confirmRequired, // 最终确认阶段是否要求手动点击确认
+        Set<UUID> confirmedPlayers // 已手动确认的玩家
 ) implements CustomPacketPayload {
 
     public static final Type<RoleRotationSyncS2CPacket> TYPE = new Type<>(
@@ -73,7 +75,9 @@ public record RoleRotationSyncS2CPacket(
                     UUID_LIST_CODEC.decode(buf),
                     SELECTED_CODEC.decode(buf),
                     UUID_SET_CODEC.decode(buf),
-                    ROUND_CANDIDATES_CODEC.decode(buf));
+                    ROUND_CANDIDATES_CODEC.decode(buf),
+                    ByteBufCodecs.BOOL.decode(buf),
+                    UUID_SET_CODEC.decode(buf));
         }
 
         @Override
@@ -88,6 +92,8 @@ public record RoleRotationSyncS2CPacket(
             SELECTED_CODEC.encode(buf, pkt.selectedRoles);
             UUID_SET_CODEC.encode(buf, pkt.randomChoosers);
             ROUND_CANDIDATES_CODEC.encode(buf, pkt.roundCandidates);
+            ByteBufCodecs.BOOL.encode(buf, pkt.confirmRequired);
+            UUID_SET_CODEC.encode(buf, pkt.confirmedPlayers);
         }
     };
 

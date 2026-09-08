@@ -50,6 +50,8 @@
     "text.autoconfig.starrailexpress-client.option.showMainhandCooldown": "Displays the cooldown of handheld items and the cooldown end sound",
     "text.autoconfig.starrailexpress-client.category.default": "Universal",
     "text.autoconfig.starrailexpress-client.option.autoSortVotes": "Automatically sort voting items based on number of votes",
+    "text.autoconfig.starrailexpress-client.option.roleRotationAutoScroll": "Role rotation screen: auto-scroll player list to the player who is choosing",
+    "text.autoconfig.starrailexpress-client.option.roleRotationAutoScroll.@Tooltip": "When enabled, the role rotation screen keeps the currently choosing player in view. You can also toggle it with one click on the button at the bottom-left of the rotation screen.",
     "text.autoconfig.starrailexpress-client.option.hideAllHats": "Don't show everyone's hats",
     "text.autoconfig.starrailexpress-client.option.hideAllHats.@Tooltip": "When turned on, all player hats will not be rendered.",
     "text.autoconfig.starrailexpress-client.option.showOwnHatOnly": "Show only your own hat",

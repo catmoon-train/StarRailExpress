@@ -37,12 +37,18 @@ public class THKaenbyouRinRole extends TouhouRole {
     @Override
     public List<ShopEntry> getShopEntries(@Nullable Player player) {
         ArrayList<ShopEntry> SHOP = new ArrayList<>();
-        SHOP.add(new KaenbyouRinShopEntry(TMMItems.CROWBAR.getDefaultInstance(), 4, ShopEntry.Type.TOOL));
-        SHOP.add(new KaenbyouRinShopEntry(TMMItems.REVOLVER.getDefaultInstance(), 6, ShopEntry.Type.TOOL));
-        SHOP.add(new KaenbyouRinShopEntry(FunnyItems.SHISIYE.getDefaultInstance(), 10, ShopEntry.Type.TOOL));
-        SHOP.add(new KaenbyouRinShopEntry(TMMItems.KNIFE.getDefaultInstance(), 16, ShopEntry.Type.TOOL));
-        SHOP.add(new KaenbyouRinShopEntry(TMMItems.DEFENSE_VIAL.getDefaultInstance(), 16, ShopEntry.Type.TOOL));
-        SHOP.add(new KaenbyouRinShopEntry(TMMItems.BAT.getDefaultInstance(), 28, ShopEntry.Type.TOOL));
+        float baseMutiplier = 1f;
+        if (player != null) {
+            var cca = SREGameWorldComponent.getInstance(player);
+            baseMutiplier = Math.max(1f, cca.getStartingPlayerCount() / 9f);
+        }
+        SHOP.add(new KaenbyouRinShopEntry(TMMItems.CROWBAR.getDefaultInstance(), (int)(1 * baseMutiplier),
+                ShopEntry.Type.TOOL));
+        SHOP.add(new KaenbyouRinShopEntry(TMMItems.REVOLVER.getDefaultInstance(), (int)(1.5 * baseMutiplier), ShopEntry.Type.TOOL));
+        SHOP.add(new KaenbyouRinShopEntry(FunnyItems.SHISIYE.getDefaultInstance(), (int)(2.5 * baseMutiplier), ShopEntry.Type.TOOL));
+        SHOP.add(new KaenbyouRinShopEntry(TMMItems.KNIFE.getDefaultInstance(), (int)(4 * baseMutiplier), ShopEntry.Type.TOOL));
+        SHOP.add(new KaenbyouRinShopEntry(TMMItems.DEFENSE_VIAL.getDefaultInstance(), (int)(4 * baseMutiplier), ShopEntry.Type.TOOL));
+        SHOP.add(new KaenbyouRinShopEntry(TMMItems.BAT.getDefaultInstance(), (int)(7 * baseMutiplier), ShopEntry.Type.TOOL));
         return SHOP;
     }
 
@@ -81,7 +87,7 @@ public class THKaenbyouRinRole extends TouhouRole {
             loreLines.addFirst(Component
                     .translatable("message.noellesroles.kaenbyou_rin.buy.lore",
                             Component.literal(String.valueOf(boneNeeds)).withStyle(ChatFormatting.AQUA))
-                    .withStyle(ChatFormatting.LIGHT_PURPLE).withStyle(style->style.withItalic(false)));
+                    .withStyle(ChatFormatting.LIGHT_PURPLE).withStyle(style -> style.withItalic(false)));
             it.set(DataComponents.LORE, new ItemLore(loreLines));
             return it;
         }

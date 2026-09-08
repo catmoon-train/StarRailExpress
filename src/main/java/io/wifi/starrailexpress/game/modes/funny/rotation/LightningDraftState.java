@@ -73,6 +73,10 @@ public class LightningDraftState {
     public boolean isSelecting = false;
     public int confirmCountdown = -1;
 
+    // ===== 最终确认阶段 =====
+    public boolean confirmRequired = false; // 是否要求每位玩家手动点击确认
+    public final Set<UUID> confirmedPlayers = new HashSet<>(); // 已手动确认的玩家
+
     // ===== 卡片追踪 =====
     private final Map<Integer, Integer> cardUsedCount = new HashMap<>();
     private final Map<Integer, Integer> cardMaxPerType = new HashMap<>();
@@ -458,7 +462,7 @@ public class LightningDraftState {
         roundStartTime = world.getGameTime();
 
         int maxCandidates = roundCandidates.values().stream().mapToInt(List::size).max().orElse(0);
-        int baseTime = maxCandidates * SREConfig.instance().roleRotationPerPlayerPerRoleTime * 20;
+        int baseTime = (int) (maxCandidates * SREConfig.instance().roleRotationPerPlayerPerRoleTime * 20);
         perPlayerTimeLimit = currentRoundIndex == 1 ? baseTime + 60 : baseTime;
 
         isSelecting = true;
@@ -532,7 +536,22 @@ public class LightningDraftState {
 
     private void startConfirmCountdown() {
         isSelecting = false;
-        confirmCountdown = 6 * 20;
+        confirmRequired = SREConfig.instance().roleRotationPreparingConfirmRequire;
+        confirmedPlayers.clear();
+        confirmCountdown = (confirmRequired
+                ? Math.max(1, SREConfig.instance().roleRotationPreparingConfirmTimeout) * 20
+                : 6 * 20);
+    }
+
+    /**
+     * 记录玩家在最终确认阶段的手动确认。
+     *
+     * @return 是否为新确认（已确认过则返回 false）
+     */
+    public boolean confirm(UUID playerUuid) {
+        if (!confirmRequired)
+            return false;
+        return confirmedPlayers.add(playerUuid);
     }
 
     private RoleInstance selectRandomRole(ServerLevel world) {

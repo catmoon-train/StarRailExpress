@@ -57,6 +57,8 @@
   "text.autoconfig.starrailexpress-client.option.showMainhandCooldown": "顯示手持物品的冷卻以及冷卻結束提示音",
   "text.autoconfig.starrailexpress-client.category.default": "通用",
   "text.autoconfig.starrailexpress-client.option.autoSortVotes": "自動根據投票數量排序投票專案",
+  "text.autoconfig.starrailexpress-client.option.roleRotationAutoScroll": "職業輪選介面：玩家列表自動滾動跟隨當前選擇玩家",
+  "text.autoconfig.starrailexpress-client.option.roleRotationAutoScroll.@Tooltip": "開啟後，職業輪選介面會保持正在選擇職業的玩家在可視範圍內。也可在輪選介面左下角按鈕一鍵開關。",
   "text.autoconfig.starrailexpress-client.option.hideAllHats": "不顯示所有人的帽子",
   "text.autoconfig.starrailexpress-client.option.hideAllHats.@Tooltip": "開啟後，所有玩家的帽子都不會渲染",
   "text.autoconfig.starrailexpress-client.option.showOwnHatOnly": "只顯示自己的帽子",

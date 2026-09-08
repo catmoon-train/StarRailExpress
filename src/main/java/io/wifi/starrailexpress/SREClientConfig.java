@@ -127,6 +127,9 @@ public class SREClientConfig implements ConfigData {
 
     public boolean autoSortVotes = false;
 
+    @ConfigEntry.Gui.Tooltip
+    public boolean roleRotationAutoScroll = true; // 职业轮选界面：玩家列表自动滚动跟随当前选择玩家
+
     @Category("skin")
     @ConfigEntry.Gui.Tooltip
     public boolean hideAllHats = false; // 不显示所有人的帽子
