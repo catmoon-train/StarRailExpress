@@ -3151,8 +3151,12 @@ public class ModRoles {
         RESCUER.setAddedVersion("3.3");
         FIREFIGHTER.setAddedVersion("3.3");
         ACCOUNTANT.setAddedVersion("3.3");
-        TOMATO_HEAD.setAddedVersion("4.5");
-        ZHANG_ANGEL.setAddedVersion("4.5");
+        TOMATO_HEAD.setAddedVersion("4.4");
+        ZHANG_ANGEL.setAddedVersion("4.4");
+        NET_COP.setAddedVersion("4.4");
+        LENDER.setAddedVersion("4.4");
+        INSURANCE.setAddedVersion("4.4");
+        ECHO_LISTENER.setAddedVersion("4.4");
         ALCHEMIST.setAddedVersion("3.3");
         DIVER.setAddedVersion("4.0");
         SWAST.setAddedVersion("3.3");
