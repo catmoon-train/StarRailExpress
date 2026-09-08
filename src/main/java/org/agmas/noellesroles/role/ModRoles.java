@@ -753,7 +753,7 @@ public class ModRoles {
      */
     public static SRERole PHANTOM_SPIRIT = TMMRoles.registerRole(
             new EggRole(PHANTOM_SPIRIT_ID, new Color(90, 196, 208).getRGB(),
-                    RoleType.CIVILIAN, SRERole.MoodType.REAL,
+                    RoleType.NEUTRALS_FOR_INNOCENT, SRERole.MoodType.REAL,
                     TMMRoles.CIVILIAN.getMaxSprintTime(), false)
                     .setRoleData(PhantomSpiritRoleData::new))
             .setCanSeeCoin(true)
