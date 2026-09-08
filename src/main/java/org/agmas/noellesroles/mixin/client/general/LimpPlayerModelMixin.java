@@ -18,7 +18,6 @@ package org.agmas.noellesroles.mixin.client.general;
 import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.client.model.PlayerModel;
 import net.minecraft.client.model.geom.ModelPart;
-import net.minecraft.util.Mth;
 import net.minecraft.world.entity.LivingEntity;
 import org.agmas.noellesroles.content.effects.LimpEffect;
 import org.spongepowered.asm.mixin.Final;
@@ -29,7 +28,8 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 /**
- * 腿瘸第三人称迈腿。注入 {@link HumanoidModel#setupAnim}，右腿前摆时拖步、身体向受伤侧倾斜。
+ * 腿瘸第三人称迈腿。只改正原版每帧都会重写的腿部旋转，避免改 {@code ModelPart.y}
+ * 造成坐标累加。
  */
 @Mixin(HumanoidModel.class)
 public abstract class LimpPlayerModelMixin<T extends LivingEntity> {
@@ -42,14 +42,6 @@ public abstract class LimpPlayerModelMixin<T extends LivingEntity> {
     @Final
     public ModelPart leftLeg;
 
-    @Shadow
-    @Final
-    public ModelPart body;
-
-    @Shadow
-    @Final
-    public ModelPart head;
-
     @Inject(method = "setupAnim", at = @At("RETURN"))
     private void noellesroles$limpAnim(T entity, float limbSwing, float limbSwingAmount, float ageInTicks,
             float netHeadYaw, float headPitch, CallbackInfo ci) {
@@ -59,23 +51,15 @@ public abstract class LimpPlayerModelMixin<T extends LivingEntity> {
         }
         float severity = LimpEffect.severity(amplifier);
         float weak = LimpEffect.limpWeight(limbSwing, amplifier);
-        float lean = 0.12f * severity + 0.16f * weak;
+        float twist = 0.10f * severity + 0.18f * weak;
 
         rightLeg.xRot *= 1f - 0.78f * weak;
-        rightLeg.zRot = 0.16f * lean;
-        rightLeg.y += 0.7f * weak;
+        rightLeg.zRot = twist;
         leftLeg.xRot *= 1f + 0.26f * weak;
-
-        float bob = Math.abs(Mth.sin(limbSwing * LimpEffect.GAIT_FREQ)) * 1.4f * weak;
-        body.y += bob;
-        body.zRot = lean;
-        head.zRot = 0.35f * lean;
 
         if ((Object) this instanceof PlayerModel<?> playerModel) {
             playerModel.rightPants.copyFrom(rightLeg);
             playerModel.leftPants.copyFrom(leftLeg);
-            playerModel.jacket.copyFrom(body);
-            playerModel.hat.copyFrom(head);
         }
     }
 }
