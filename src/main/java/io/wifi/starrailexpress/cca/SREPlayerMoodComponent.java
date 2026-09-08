@@ -133,6 +133,10 @@ public class SREPlayerMoodComponent implements RoleComponent, ServerTickingCompo
             this.mood = 1f;
             return;
         }
+        if (ModEffects.hasFullMoodLock(this.player)) {
+            this.mood = 1f;
+            return;
+        }
         if (!this.playerTaskComponent.tasks.isEmpty()) {
             float drainMultiplier = ModEffects.getMoodDrainMultiplier(this.player);
             if (this.mood > 0) {
@@ -191,7 +195,12 @@ public class SREPlayerMoodComponent implements RoleComponent, ServerTickingCompo
         }
         boolean shouldSync = false;
         if (gameWorldComponent.gameMode.hasMood()) {
-            if (!this.playerTaskComponent.tasks.isEmpty()) {
+            if (ModEffects.hasFullMoodLock(this.player)) {
+                if (this.mood != 1f) {
+                    this.mood = 1f;
+                    shouldSync = true;
+                }
+            } else if (!this.playerTaskComponent.tasks.isEmpty()) {
                 float drainMultiplier = ModEffects.getMoodDrainMultiplier(this.player);
                 if (this.mood > 0) {
                     this.mood = this.mood
@@ -222,6 +231,9 @@ public class SREPlayerMoodComponent implements RoleComponent, ServerTickingCompo
     }
 
     public float getMood() {
+        if (ModEffects.hasFullMoodLock(this.player)) {
+            return 1f;
+        }
         SREGameWorldComponent gameWorldComponent = SREGameWorldComponent.KEY.get(this.player.level());
 
         SRERole role = gameWorldComponent.getRole(player);
@@ -232,6 +244,13 @@ public class SREPlayerMoodComponent implements RoleComponent, ServerTickingCompo
     }
 
     public void setMood(float mood) {
+        if (ModEffects.hasFullMoodLock(this.player)) {
+            if (this.mood != 1f) {
+                this.mood = 1f;
+                this.sync();
+            }
+            return;
+        }
         SRERole role = SREGameWorldComponent.KEY.get(this.player.level()).getRole(player);
         if (this.mood > 1f)
             this.mood = 1f;

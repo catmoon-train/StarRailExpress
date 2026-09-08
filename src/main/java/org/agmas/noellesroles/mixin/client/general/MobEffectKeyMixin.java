@@ -87,7 +87,8 @@ public abstract class MobEffectKeyMixin {
         if (player.hasEffect(ModEffects.TURN_BANED) && this.same(options.keyTogglePerspective))
             return true;
         if (player.hasEffect(ModEffects.USED_BANED) || player.hasEffect(ModEffects.GHOST_CURSE)
-                || player.hasEffect(ModEffects.TAROT_ASSEMBLY)) {
+                || player.hasEffect(ModEffects.TAROT_ASSEMBLY)
+                || org.agmas.noellesroles.content.effects.StatusAilmentHandler.isIntellectLocked(player)) {
             if (this.same(options.keyAttack) || this.same(options.keyDrop))
                 return true;
             if (this.same(options.keyUse)) {

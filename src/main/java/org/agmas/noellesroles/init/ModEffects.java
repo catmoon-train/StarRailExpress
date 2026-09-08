@@ -40,6 +40,7 @@ import org.agmas.noellesroles.content.effects.LimpEffect;
 import org.agmas.noellesroles.content.effects.NoCollideEffect;
 import org.agmas.noellesroles.content.effects.PuppetWanderEffect;
 import org.agmas.noellesroles.content.effects.SimpleMobEffect;
+import org.agmas.noellesroles.content.effects.StatusAilmentHandler;
 import org.agmas.noellesroles.content.effects.TimeStopEffect;
 import org.agmas.noellesroles.content.effects.TomatoFormMobEffect;
 import org.agmas.noellesroles.game.backworld.BackworldOutlineEffectSync;
@@ -655,6 +656,76 @@ public class ModEffects {
     public static final Holder<MobEffect> LOAN_STOMACH_BAN = register("loan_stomach_ban",
             new SimpleMobEffect(MobEffectCategory.HARMFUL, 0x7A4A2B));
 
+    /**
+     * 近视：远处模糊，近处相对清晰。shader 见 {@code MyopiaShader}。
+     */
+    public static final Holder<MobEffect> MYOPIA = register("myopia",
+            new SimpleMobEffect(MobEffectCategory.HARMFUL, 0x7A8BA6));
+
+    /**
+     * 手疾：持刀/枪时准星轻微抖动，刚抽出时最强，等级提高幅度。
+     */
+    public static final Holder<MobEffect> HAND_TREMOR = register("hand_tremor",
+            new SimpleMobEffect(MobEffectCategory.HARMFUL, 0xC47A4A));
+
+    /**
+     * 心灵失聪：mood 永远视为满值，不再自然下降。
+     */
+    public static final Holder<MobEffect> MENTAL_DEAFNESS = register("mental_deafness",
+            new SimpleMobEffect(MobEffectCategory.HARMFUL, 0xB8A4C8));
+
+    /**
+     * 人类认知偏差：其他人的皮肤随机替换，名字像低 mood 一样模糊。
+     */
+    public static final Holder<MobEffect> COGNITIVE_BIAS = register("cognitive_bias",
+            new SimpleMobEffect(MobEffectCategory.HARMFUL, 0x9A6BB5));
+
+    /**
+     * 食欲不振：无法食用食物和饮品。
+     */
+    public static final Holder<MobEffect> LOSS_OF_APPETITE = register("loss_of_appetite",
+            new SimpleMobEffect(MobEffectCategory.HARMFUL, 0x6B7A4A));
+
+    /**
+     * 肺部缺失：一段时间后窒息而死。默认一级 115 秒（120-5），每级再减 5 秒。
+     */
+    public static final Holder<MobEffect> MISSING_LUNGS = register("missing_lungs",
+            new SimpleMobEffect(MobEffectCategory.HARMFUL, 0x4A6B7A) {
+                @Override
+                public void onEffectEnded(ServerPlayer livingEntity) {
+                    StatusAilmentHandler.onMissingLungsEnded(livingEntity);
+                }
+            });
+
+    /**
+     * 失心症：间歇失去自我，由 Fake Steve 漫走接管，无凝视/伪人特征。
+     * 默认间隔 30-45 秒，持续 10-15 秒。
+     */
+    public static final Holder<MobEffect> APHRENIA = register("aphrenia",
+            new SimpleMobEffect(MobEffectCategory.HARMFUL, 0x5C3A6E) {
+                @Override
+                public void onEffectEnded(ServerPlayer livingEntity) {
+                    StatusAilmentHandler.onAphreniaEnded(livingEntity);
+                }
+            });
+
+    /**
+     * 智力下降：间歇无法使用物品。
+     */
+    public static final Holder<MobEffect> INTELLECT_DROP = register("intellect_drop",
+            new SimpleMobEffect(MobEffectCategory.HARMFUL, 0x6E5C3A) {
+                @Override
+                public void onEffectEnded(ServerPlayer livingEntity) {
+                    StatusAilmentHandler.onIntellectEnded(livingEntity);
+                }
+            });
+
+    /**
+     * 运动障碍：移动时有概率摔倒（游泳姿态）。
+     */
+    public static final Holder<MobEffect> MOTOR_DYSFUNCTION = register("motor_dysfunction",
+            new SimpleMobEffect(MobEffectCategory.HARMFUL, 0x7A5A4A));
+
     /** 视野迷雾：根据效果等级计算雾的可见距离（格）。1 级=2 格，每升 1 级多看 3 格。 */
     public static float getVisionFogDistance(int amplifier) {
         return 2.0f + Math.max(0, amplifier) * 3.0f;
@@ -681,8 +752,12 @@ public class ModEffects {
         return instance != null ? instance.getAmplifier() : -1;
     }
 
+    public static boolean hasFullMoodLock(LivingEntity entity) {
+        return entity != null && entity.hasEffect(MENTAL_DEAFNESS);
+    }
+
     public static float getMoodDrainMultiplier(LivingEntity entity) {
-        if (entity.hasEffect(MOOD_DRAIN_IMMUNITY)) {
+        if (hasFullMoodLock(entity) || entity.hasEffect(MOOD_DRAIN_IMMUNITY)) {
             return 0f;
         }
         int amp = getAmplifier(entity, MOOD_DRAIN_REDUCTION);
@@ -842,6 +917,7 @@ public class ModEffects {
     public static boolean pierceDeath = false;
 
     public static void init() {
+        StatusAilmentHandler.register();
         // 把说话者侧的语音效果（重金属/回响）同步给所有客户端，
         // 否则听者客户端查不到说话者的效果，OpenAL 语音处理无法生效。
         org.agmas.noellesroles.voice.VoiceEffectSync.init();
@@ -873,6 +949,8 @@ public class ModEffects {
                 return false;
             }
             if (deathReason.equals(Noellesroles.id("bomb_death")))
+                return true;
+            if (deathReason.equals(GameConstants.DeathReasons.MISSING_LUNGS))
                 return true;
             if (player.hasEffect(ModEffects.TAROT_ASSEMBLY)) {
                 if (player.position().z >= 19000)

@@ -19,6 +19,7 @@ import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.renderer.GameRenderer;
 import org.agmas.noellesroles.client.BlindnessVisionShader;
 import org.agmas.noellesroles.client.ImmersiveFilterShader;
+import org.agmas.noellesroles.client.MyopiaShader;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -57,6 +58,8 @@ public class ImmersiveFilterShaderMixin {
         if (renderer != null && renderer.getMinecraft().level != null) {
             BlindnessVisionShader.INSTANCE.initPostProcessor();
             BlindnessVisionShader.INSTANCE.renderPostProcess(deltaTracker.getGameTimeDeltaPartialTick(true));
+            MyopiaShader.INSTANCE.initPostProcessor();
+            MyopiaShader.INSTANCE.renderPostProcess(deltaTracker.getGameTimeDeltaPartialTick(true));
         }
     }
 
@@ -64,5 +67,6 @@ public class ImmersiveFilterShaderMixin {
     private void resizeImmersive(int w, int h, CallbackInfo ci) {
         ImmersiveFilterShader.instance.resize(w, h);
         BlindnessVisionShader.INSTANCE.resize(w, h);
+        MyopiaShader.INSTANCE.resize(w, h);
     }
 }
