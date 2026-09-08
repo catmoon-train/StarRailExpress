@@ -34,7 +34,9 @@ public class SREConfig implements ConfigData {
     // 存储默认配置值 - 在静态初始化块中设置
     public static ConfigClassHandler<SREConfig> HANDLER = new ConfigClassHandler<>(
             SREConfig.class);
-
+            
+    // 服务端：加载模组本地翻译文件id（输入auto自动检测环境，留空不加载）
+    public String loadServerLanguageId = "";
     // 游戏模式设置
     @ConfigEntry.Category(value = "gamemodes")
     public int defaultStartTimeForMurder = 10;
