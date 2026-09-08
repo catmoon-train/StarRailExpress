@@ -86,7 +86,7 @@ public class SERoles {
             false,
             SRERole.MoodType.REAL,
             TMMRoles.CIVILIAN.getMaxSprintTime(),
-            true)).setCanBeRandomedByOtherRoles(false).setDefaultMax(1).setDefaultEnableChance(8000)
+            true)).setCanBeRandomedByOtherRoles(false).setDefaultMax(1).setDefaultEnableChance(6000)
             .setDefaultEnableNeededPlayerCount(12)
             .setCannotKnifeLeftClick(true);
 

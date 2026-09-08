@@ -1286,6 +1286,7 @@ public class GameUtils {
         player.removeVehicle();
         ExtraSlotComponent.KEY.get(player).clear();
         player.setInvulnerable(false);
+        player.setNoGravity(false);
         // 体力重置。-1代表职业最大值
         StaminaCommand.setStamina(player, -1);
         player.setLastHurtByMob(null);
@@ -1704,6 +1705,7 @@ public class GameUtils {
 
     /**
      * 更新玩家的 dimension（服务端+客户端）
+     * 
      * @param player
      */
     public static void refreshPlayerDimension(ServerPlayer player) {
