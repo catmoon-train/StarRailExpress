@@ -52,8 +52,11 @@ public class DIORoleData extends SimpleRoleData {
 
     // ==================== 常量定义 ====================
 
-    /** 时间停止持续时间（10 秒 = 200 tick） */
+    /** 时间停止基础持续时间（10 秒 = 200 tick） */
     public static final int TIME_STOP_DURATION = 200;
+
+    /** 每次成功释放时停后，下一次时长增加 0.5 秒 */
+    public static final int TIME_STOP_DURATION_GROWTH = 10;
 
     /** 时间停止冷却时间（15 秒 = 300 tick） */
     public static final int TIME_STOP_COOLDOWN = 300;
@@ -99,6 +102,9 @@ public class DIORoleData extends SimpleRoleData {
     /** 时间停止冷却计时器（tick） */
     public int timeStopCooldown = 0;
 
+    /** 已成功释放时停的次数（每次使下次时长 +0.5s） */
+    public int timeStopUseCount = 0;
+
     /** "最后的狂欢"是否已解锁 */
     public boolean isFinalCarnivalUnlocked = false;
 
@@ -134,6 +140,7 @@ public class DIORoleData extends SimpleRoleData {
     public void init() {
         this.totalFeedCount = 0;
         this.timeStopCharges = 0;
+        this.timeStopUseCount = 0;
 
         this.timeStopCooldown = 0;
 
@@ -150,6 +157,7 @@ public class DIORoleData extends SimpleRoleData {
     public void clear() {
         this.totalFeedCount = 0;
         this.timeStopCharges = 0;
+        this.timeStopUseCount = 0;
 
         this.timeStopCooldown = 0;
 
@@ -246,13 +254,15 @@ public class DIORoleData extends SimpleRoleData {
         if (!canUseTimeStop())
             return false;
 
-        if (!TimeStopEffect.tryTriggerStart(serverPlayer, TIME_STOP_DURATION,
+        int duration = TIME_STOP_DURATION + this.timeStopUseCount * TIME_STOP_DURATION_GROWTH;
+        if (!TimeStopEffect.tryTriggerStart(serverPlayer, duration,
                 Component.translatable("message.noellesroles.time_stop.the_world").withStyle(ChatFormatting.GOLD,
                         ChatFormatting.BOLD))) {
             return false;
         }
-        // 消耗一次使用次数
+        // 消耗一次使用次数，并让下一次时停再延长 0.5s
         this.timeStopCharges--;
+        this.timeStopUseCount++;
 
         this.timeStopCooldown = TIME_STOP_COOLDOWN;
 
@@ -562,6 +572,7 @@ public class DIORoleData extends SimpleRoleData {
         }
         tag.putInt("totalFeedCount", this.totalFeedCount);
         tag.putInt("timeStopCharges", this.timeStopCharges);
+        tag.putInt("timeStopUseCount", this.timeStopUseCount);
 
         tag.putInt("timeStopCooldown", this.timeStopCooldown);
 
@@ -577,6 +588,7 @@ public class DIORoleData extends SimpleRoleData {
     public void readFromSyncNbt(@NotNull CompoundTag tag, HolderLookup.Provider registryLookup) {
         this.totalFeedCount = tag.contains("totalFeedCount") ? tag.getInt("totalFeedCount") : 0;
         this.timeStopCharges = tag.contains("timeStopCharges") ? tag.getInt("timeStopCharges") : 0;
+        this.timeStopUseCount = tag.contains("timeStopUseCount") ? tag.getInt("timeStopUseCount") : 0;
         this.timeStopCooldown = tag.contains("timeStopCooldown") ? tag.getInt("timeStopCooldown") : 0;
         this.isFinalCarnivalUnlocked = tag.contains("isFinalCarnivalUnlocked")
                 && tag.getBoolean("isFinalCarnivalUnlocked");
@@ -592,6 +604,7 @@ public class DIORoleData extends SimpleRoleData {
         // 回溯快照：绕过 writeToSyncNbt 的 isRunning/isRole 守卫，始终写入完整状态
         tag.putInt("totalFeedCount", this.totalFeedCount);
         tag.putInt("timeStopCharges", this.timeStopCharges);
+        tag.putInt("timeStopUseCount", this.timeStopUseCount);
         tag.putInt("timeStopCooldown", this.timeStopCooldown);
         tag.putBoolean("isFinalCarnivalUnlocked", this.isFinalCarnivalUnlocked);
         tag.putBoolean("isFinalCarnivalActive", this.isFinalCarnivalActive);
@@ -605,6 +618,7 @@ public class DIORoleData extends SimpleRoleData {
         // 回溯恢复：纯回填字段，不触发 sync()
         this.totalFeedCount = tag.contains("totalFeedCount") ? tag.getInt("totalFeedCount") : 0;
         this.timeStopCharges = tag.contains("timeStopCharges") ? tag.getInt("timeStopCharges") : 0;
+        this.timeStopUseCount = tag.contains("timeStopUseCount") ? tag.getInt("timeStopUseCount") : 0;
         this.timeStopCooldown = tag.contains("timeStopCooldown") ? tag.getInt("timeStopCooldown") : 0;
         this.isFinalCarnivalUnlocked = tag.contains("isFinalCarnivalUnlocked")
                 && tag.getBoolean("isFinalCarnivalUnlocked");

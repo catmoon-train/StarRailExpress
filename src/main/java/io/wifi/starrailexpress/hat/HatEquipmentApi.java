@@ -19,6 +19,7 @@ import io.wifi.starrailexpress.SREClientConfig;
 import io.wifi.starrailexpress.api.data.RoleData;
 import io.wifi.starrailexpress.cca.SREPlayerSkinsComponent;
 import io.wifi.starrailexpress.client.hat.ClientHatEquipmentCache;
+import io.wifi.starrailexpress.client.morph.ClientMorphCache;
 import io.wifi.starrailexpress.event.OnResolveDisplayedSkinOwner;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -44,10 +45,6 @@ public final class HatEquipmentApi {
     private HatEquipmentApi() {
     }
 
-    /**
-     * 注册本体默认的显示皮肤拥有者解析器（客户端初始化时调用）。
-     * 覆盖窃皮者（Skincrawler）与入殓师（Embalmer）两种皮肤替换机制。
-     */
     /**
      * 注册本体默认的显示皮肤拥有者解析器（客户端初始化时调用）。
      * <p>
@@ -100,6 +97,17 @@ public final class HatEquipmentApi {
     }
 
     /**
+     * 帽子 / 名牌前缀 / 身份玩偶在这些状态下应隐藏（显示既不是本人、也不属于任何真实玩家）。
+     */
+    @Environment(EnvType.CLIENT)
+    public static boolean shouldHideBoundCosmetics(AbstractClientPlayer player) {
+        if (player != null && player.hasEffect(org.agmas.noellesroles.init.ModEffects.DISGUISE)) {
+            return true;
+        }
+        return isConcealedByFixedSkin(player);
+    }
+
+    /**
      * 判断玩家当前是否处于"固定皮肤替换"的隐藏状态（客户端）。
      * <p>
      * 这些状态下皮肤管线把玩家渲染为固定的伪装/角色皮肤
@@ -116,6 +124,9 @@ public final class HatEquipmentApi {
         // 大堂中皮肤不替换，帽子正常显示
         if (io.wifi.starrailexpress.SRE.isLobby || io.wifi.starrailexpress.client.SREClient.isInLobby) {
             return false;
+        }
+        if (ClientMorphCache.get(player.getUUID()).isTexture()) {
+            return true;
         }
         // 疯魔模式
         if (io.wifi.starrailexpress.client.SREClient.PLAYER_PSYCHO_CACHE
@@ -217,7 +228,7 @@ public final class HatEquipmentApi {
         if (isConcealedByFixedSkin(player)) {
             return "default";
         }
-        UUID ownerUuid = resolveDisplayedOwnerUuid(player);
+        UUID ownerUuid = io.wifi.starrailexpress.morph.MorphApi.resolveDisplayedOwnerUuid(player);
         String skin = ClientHatEquipmentCache.getHatSkin(ownerUuid);
         if (!"default".equals(skin)) {
             return skin;

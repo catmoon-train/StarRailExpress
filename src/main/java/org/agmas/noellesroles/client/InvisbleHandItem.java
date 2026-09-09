@@ -27,14 +27,15 @@ import io.wifi.starrailexpress.index.tag.TMMItemTags;
 import net.minecraft.client.Minecraft;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
-import org.agmas.noellesroles.content.block.SREPlushItem;
 import org.agmas.noellesroles.content.entity.NiaoshoushouMissileEntity;
 import org.agmas.noellesroles.content.item.HandCuffsItem;
 import org.agmas.noellesroles.content.item.StalkerKnifeItem;
+import org.agmas.noellesroles.init.FunnyItems;
 import org.agmas.noellesroles.init.ModEffects;
 import org.agmas.noellesroles.init.ModItems;
 import org.agmas.noellesroles.role.ModRoles;
 import org.agmas.noellesroles.role.touhou.THMiscRoles;
+import org.agmas.noellesroles.role_data.vigilante.JojoRoleData;
 import org.agmas.noellesroles.utils.RoleUtils;
 
 public class InvisbleHandItem {
@@ -42,6 +43,15 @@ public class InvisbleHandItem {
     public static void register() {
         AllowItemShowInHand.EVENT.register((player, itemStack, mainHand) -> {
             if (itemStack.getItem() instanceof SREPlushItem) {
+                return ItemStack.EMPTY;
+            }
+            return null;
+        });
+        AllowItemShowInHand.EVENT.register((player, itemStack, mainHand) -> {
+            if (itemStack.is(FunnyItems.BOWEN_BADGE)) {
+                return ItemStack.EMPTY;
+            }
+            if (!mainHand && JojoRoleData.isRushing(player) && JojoRoleData.isHoldingOraPunch(player)) {
                 return ItemStack.EMPTY;
             }
             return null;
@@ -165,6 +175,10 @@ public class InvisbleHandItem {
                 }
             }
             return null;
+        });
+        // 身份玩偶跟随显示皮肤拥有者（与帽子绑定相同）。放在最后，避免抢先覆盖隐身/副手替换。
+        AllowItemShowInHand.EVENT.register((player, itemStack, mainHand) -> {
+            return io.wifi.starrailexpress.morph.MorphApi.remapHeldPlush(player, itemStack, mainHand);
         });
 
     }

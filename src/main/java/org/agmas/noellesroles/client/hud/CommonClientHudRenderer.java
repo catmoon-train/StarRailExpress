@@ -79,6 +79,7 @@ import org.agmas.noellesroles.role.touhou.THMountainRoles;
 import org.agmas.noellesroles.role.touhou.THRedHouseRoles;
 import org.agmas.noellesroles.role_data.neutral.RemiliaBloodServantRoleData;
 import org.agmas.noellesroles.role_data.vigilante.HoanMeirinRoleData;
+import org.agmas.noellesroles.role_data.vigilante.JojoRoleData;
 import org.agmas.noellesroles.utils.MessageDetail;
 
 import java.awt.*;
@@ -987,6 +988,23 @@ public class CommonClientHudRenderer {
             .withStyle(ChatFormatting.GREEN);
         guiGraphics.drawString(font, text, xOffset - font.width(text), yOffset - font.lineHeight - 4,
             Color.WHITE.getRGB());
+      }
+      JojoRoleData jojo = RoleData.getNullable(JojoRoleData.class, client.player);
+      if (jojo != null && jojo.attacking) {
+        Component oraText;
+        if (jojo.targetUuid != null) {
+          oraText = Component.translatable(
+                  "hud.noellesroles.jojo.ora.rush",
+                  jojo.punchCount,
+                  JojoRoleData.PUNCHES_TO_KILL,
+                  String.format("%.1f", jojo.remainingSeconds(client.level)))
+              .withStyle(ChatFormatting.GOLD);
+        } else {
+          oraText = Component.translatable("hud.noellesroles.jojo.ora.seeking")
+              .withStyle(ChatFormatting.YELLOW);
+        }
+        guiGraphics.drawString(font, oraText, xOffset - font.width(oraText),
+            yOffset - font.lineHeight * 2 - 8, Color.WHITE.getRGB());
       }
       return;
     });
