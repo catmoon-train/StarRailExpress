@@ -99,10 +99,12 @@ public class EntityMixin {
                 } else if (result2.equals(TrueFalseResult.TRUE)) {
                     return true;
                 }
-                if (self.level().isClientSide) {
-                    return false;
+                if (other instanceof Player) {
+                    if (self.level().isClientSide) {
+                        return false;
+                    }
+                    return true;
                 }
-                return true;
             }
         }
         return original.call(other);

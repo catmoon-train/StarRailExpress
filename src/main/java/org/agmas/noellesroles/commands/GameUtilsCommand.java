@@ -25,6 +25,7 @@ import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.suggestion.Suggestions;
 import com.mojang.brigadier.suggestion.SuggestionsBuilder;
 import io.wifi.starrailexpress.SREConfig;
+import io.wifi.starrailexpress.api.RoleSkill;
 import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.api.replay.GameReplayUtils;
 import io.wifi.starrailexpress.cca.*;
@@ -771,6 +772,97 @@ public class GameUtilsCommand {
                       return executeTimeStopStop(context);
                     }))));
 
+    dispatcher.register(Commands.literal("tmm:game")
+        .requires(source -> Harpymodloader.officialVerify
+            && source.hasPermission(SREConfig.instance().gameUtilsRequiredPermission))
+        .then(Commands.literal("use_skill")
+            .executes(context -> useSkill(context, null, 0, null))
+            .then(Commands.argument("idx", IntegerArgumentType.integer(0))
+                .suggests(GameUtilsCommand::suggestSelfSkillIndices)
+                .executes(context -> useSkill(context, null, IntegerArgumentType.getInteger(context, "idx"), null))
+                .then(Commands.argument("target", EntityArgument.entity())
+                    .executes(context -> useSkill(context, null, IntegerArgumentType.getInteger(context, "idx"),
+                        EntityArgument.getEntity(context, "target").getUUID()))))
+            .then(Commands.literal("as")
+                .then(Commands.argument("caster", EntityArgument.player())
+                    .executes(context -> useSkill(context, EntityArgument.getPlayer(context, "caster"), 0, null))
+                    .then(Commands.argument("idx", IntegerArgumentType.integer(0))
+                        .suggests((context, builder) -> suggestSkillIndices(
+                            EntityArgument.getPlayer(context, "caster"), builder))
+                        .executes(context -> useSkill(context, EntityArgument.getPlayer(context, "caster"),
+                            IntegerArgumentType.getInteger(context, "idx"), null))
+                        .then(Commands.argument("target", EntityArgument.entity())
+                            .executes(context -> useSkill(context,
+                                EntityArgument.getPlayer(context, "caster"),
+                                IntegerArgumentType.getInteger(context, "idx"),
+                                EntityArgument.getEntity(context, "target").getUUID()))))))));
+
+  }
+
+  /**
+   * 纯服务端模拟玩家释放技能：直接调用 RoleSkill 统一入口，不经过客户端输入包。
+   * idx 为适用技能列表下标（越界取模），默认 0 即第一个技能；caster 为空时用命令执行者；
+   * target 为技能目标实体 UUID（可空，部分技能需要）。
+   */
+  private static int useSkill(CommandContext<CommandSourceStack> context, @Nullable ServerPlayer caster, int idx,
+      @Nullable UUID target) throws CommandSyntaxException {
+    CommandSourceStack source = context.getSource();
+    ServerPlayer player = caster != null ? caster : source.getPlayerOrException();
+    boolean shifted = player.isShiftKeyDown();
+    List<RoleSkill.Definition> applicable = applicableSkills(player, shifted);
+    if (applicable.isEmpty()) {
+      source.sendFailure(Component.literal("Player %s has no usable skill."
+          .formatted(player.getName().getString())).withStyle(ChatFormatting.RED));
+      return 0;
+    }
+    RoleSkill.Definition definition = applicable.get(Math.floorMod(idx, applicable.size()));
+    boolean used = RoleSkill.beginUse(player, target, idx, RoleSkill.Phase.PRESS, shifted);
+    if (!used) {
+      source.sendFailure(Component.literal("Skill [")
+          .append(Component.translatable(definition.nameKey()))
+          .append(Component.literal("] was rejected (cooldown/charges/spectator)."))
+          .withStyle(ChatFormatting.RED));
+      return 0;
+    }
+    String targetName = target == null ? null
+        : Optional.ofNullable(player.serverLevel().getEntity(target))
+            .map(entity -> entity.getName().getString()).orElse(target.toString());
+    source.sendSuccess(() -> Component.literal("Player %s used skill ["
+        .formatted(player.getName().getString()))
+        .append(Component.translatable(definition.nameKey()))
+        .append(Component.literal("]"))
+        .append(targetName == null ? Component.empty() : Component.literal(" on " + targetName))
+        .withStyle(ChatFormatting.GREEN), true);
+    return 1;
+  }
+
+  /** 与 RoleSkill 内部的适用技能筛选保持一致，仅用于反馈与补全。 */
+  private static List<RoleSkill.Definition> applicableSkills(ServerPlayer player, boolean shifted) {
+    SRERole role = SRERoleWorldComponent.KEY.get(player.level()).getRole(player);
+    List<RoleSkill.Definition> all = RoleSkill.getDefinitions(role);
+    List<RoleSkill.Definition> applicable = all.stream().filter(d -> d.shifted() == shifted).toList();
+    if (applicable.isEmpty() && shifted) {
+      applicable = all.stream().filter(d -> !d.shifted() && !d.modeSwitch()).toList();
+    }
+    return applicable;
+  }
+
+  private static CompletableFuture<Suggestions> suggestSelfSkillIndices(
+      CommandContext<CommandSourceStack> context, SuggestionsBuilder builder) {
+    ServerPlayer player = context.getSource().getPlayer();
+    if (player == null) {
+      return builder.buildFuture();
+    }
+    return suggestSkillIndices(player, builder);
+  }
+
+  private static CompletableFuture<Suggestions> suggestSkillIndices(ServerPlayer caster,
+      SuggestionsBuilder builder) {
+    List<RoleSkill.Definition> applicable = applicableSkills(caster, caster.isShiftKeyDown());
+    for (int i = 0; i < applicable.size(); i++) {
+      builder.suggest(i, Component.translatable(applicable.get(i).nameKey()));
+    }
+    return builder.buildFuture();
   }
 
   public static int executeKillPlayer(CommandContext<CommandSourceStack> context, ServerPlayer victim,

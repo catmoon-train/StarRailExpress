@@ -69,10 +69,14 @@ public class THKaguyaRole extends TouhouRole {
             boolean forceDeath) {
         if (!(victim instanceof ServerPlayer serverVictim))
             return;
-        int remaningPlayerCount = RoleUtils.getAlivePlayers(serverVictim.serverLevel()).size();
-        if (remaningPlayerCount <= NORMAL_DEATH_THRESHOLD) {
-            THLostForestRoles.recordImmortalPairRealDeath(serverVictim, THLostForestRoles.MOKOU_ID);
-            return;
+        // 殉情（链子）死亡时场上人数已因伴侣死亡而减少，若仍按人数阈值判定，
+        // 会出现伴侣复活而自己彻底死亡的分裂结果；此时跳过阈值，统一由下方伴侣状态决定去留。
+        if (!deathReason.equals(GameConstants.DeathReasons.BROKEN_HEART)) {
+            int remaningPlayerCount = RoleUtils.getAlivePlayers(serverVictim.serverLevel()).size();
+            if (remaningPlayerCount <= NORMAL_DEATH_THRESHOLD) {
+                THLostForestRoles.recordImmortalPairRealDeath(serverVictim, THLostForestRoles.MOKOU_ID);
+                return;
+            }
         }
         if (deathReason.equals(GameConstants.DeathReasons.FELL_OUT_OF_TRAIN)) {
             THLostForestRoles.recordImmortalPairRealDeath(serverVictim, THLostForestRoles.MOKOU_ID);

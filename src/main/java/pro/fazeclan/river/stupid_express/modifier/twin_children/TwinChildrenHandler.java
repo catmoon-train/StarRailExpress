@@ -10,10 +10,12 @@ package pro.fazeclan.river.stupid_express.modifier.twin_children;
 import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.game.GameUtils;
+import net.fabricmc.fabric.api.entity.event.v1.ServerLivingEntityEvents;
 import net.minecraft.network.protocol.game.ClientboundSetPassengersPacket;
 import net.minecraft.network.protocol.game.ClientboundTeleportEntityPacket;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.damagesource.DamageTypes;
 import net.minecraft.world.entity.ai.attributes.AttributeInstance;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
@@ -39,6 +41,10 @@ import java.util.concurrent.ConcurrentHashMap;
  * player passenger attachments sit the rider inside the vehicle, so the upper
  * twin is placed on the visual head and other clients are told that position
  * every tick.
+ *
+ * <p>The upper twin cannot be pushed into a block by its own movement, so the
+ * lower twin's jump can shove it into a ceiling; wall suffocation is therefore
+ * waived while stacked (drowning is unaffected).
  */
 public final class TwinChildrenHandler {
     public static final AttributeModifier HALF_SCALE = new AttributeModifier(
@@ -66,6 +72,14 @@ public final class TwinChildrenHandler {
             }
         });
         GameInitializeEvent.EVENT.register((level, game, players) -> PAIRS.clear());
+        ServerLivingEntityEvents.ALLOW_DAMAGE.register((entity, source, amount) -> {
+            if (!(entity instanceof Player player) || !source.is(DamageTypes.IN_WALL)) {
+                return true;
+            }
+            // 下方玩家跳跃时，上方玩家的坐标由 positionRider 直接写入并穿过方块，
+            // 会被顶进天花板。这并非玩家自己卡墙，故免除窒息伤害；溺水等其它伤害照常。
+            return !isStackedUpper(player);
+        });
     }
 
     public static float stackedHeightScale(float currentUnscaledHeight) {

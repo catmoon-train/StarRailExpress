@@ -27,6 +27,7 @@ import java.util.UUID;
 
 import org.agmas.noellesroles.client.AllayDisguiseRenderer;
 import org.agmas.noellesroles.client.LeatherPigDisguiseRenderer;
+import org.agmas.noellesroles.client.PandaDisguiseRenderer;
 import org.agmas.noellesroles.client.RabbitDisguiseRenderer;
 import org.agmas.noellesroles.client.TomatoHeadDisguiseRenderer;
 import org.spongepowered.asm.mixin.Mixin;
@@ -60,10 +61,18 @@ public abstract class EntityDisguisePlayerRenderMixin {
             state.tomato = TomatoHeadDisguiseRenderer.shouldDisguise(player);
             state.rabbit = rabbit;
             state.allay = AllayDisguiseRenderer.shouldDisguise(player);
+            state.panda = PandaDisguiseRenderer.shouldDisguise(player);
             state.lastCheckTime = now;
         }
 
         // 执行伪装渲染
+        if (state.panda) {
+            if (PandaDisguiseRenderer.render(player, yaw, tickDelta, poseStack, bufferSource, packedLight)) {
+                ci.cancel();
+            }
+            return;
+        }
+
         if (state.pig) {
             if (LeatherPigDisguiseRenderer.render(player, yaw, tickDelta, poseStack, bufferSource, packedLight)) {
                 ci.cancel();

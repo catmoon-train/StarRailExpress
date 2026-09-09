@@ -138,8 +138,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import static org.agmas.noellesroles.client.RicesRoleRhapsodyClient.*;
 import static org.agmas.noellesroles.content.effects.TimeStopEffect.clientPositions;
-import static org.agmas.noellesroles.role_data.killer.InsaneKillerRoleData.isPlayerBodyEntity;
-import static org.agmas.noellesroles.role_data.killer.InsaneKillerRoleData.playerBodyEntities;
 
 public class NoellesrolesClient implements ClientModInitializer {
     public static boolean hasInitStatusBar = false;
@@ -952,21 +950,8 @@ public class NoellesrolesClient implements ClientModInitializer {
             if (payload.toggle()) {
                 Minecraft.getInstance().options.setCameraType(CameraType.THIRD_PERSON_BACK);
             } else {
-                var abstractClientPlayer = Minecraft.getInstance().player;
-                var clientLevel = Minecraft.getInstance().level;
+                // 假尸体由 PlayerBodyDisguiseRenderer 纯渲染维护，伪装结束时自行丢弃
                 Minecraft.getInstance().options.setCameraType(CameraType.FIRST_PERSON);
-                if (isPlayerBodyEntity.getOrDefault(abstractClientPlayer.getUUID(), false)) {
-                    // if (abstractClientPlayer == Minecraft.getInstance().player) {
-                    // Minecraft.getInstance().options.setCameraType(CameraType.FIRST_PERSON);
-                    // }
-                    isPlayerBodyEntity.put(abstractClientPlayer.getUUID(), false);
-                    if (playerBodyEntities.containsKey(abstractClientPlayer.getUUID())) {
-                        clientLevel.removeEntity(playerBodyEntities.get(abstractClientPlayer.getUUID()).getId(),
-                                Entity.RemovalReason.DISCARDED);
-                        playerBodyEntities.remove(abstractClientPlayer.getUUID());
-
-                    }
-                }
             }
 
         });

@@ -151,6 +151,8 @@
   "sre_commands.tmm.game.revive.desc": "將玩家復活到屍體位置或指定座標。",
   "sre_commands.tmm.game.kill.name": "擊殺玩家",
   "sre_commands.tmm.game.kill.desc": "以指定死亡原因擊殺玩家, 可選兇手、是否生成屍體及強制標記。",
+  "sre_commands.tmm.game.use_skill.name": "使用技能",
+  "sre_commands.tmm.game.use_skill.desc": "服務端釋放職業技能: 可選技能下標與目標實體, 用 as <玩家> 指定釋放者。",
   "sre_commands.tmm.game.timestop.name": "時停",
   "sre_commands.tmm.game.timestop.desc": "啟動或停止帶提示消息的全局時停效果。",
 

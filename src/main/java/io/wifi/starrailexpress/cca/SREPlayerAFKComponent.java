@@ -25,6 +25,9 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
+import pro.fazeclan.river.stupid_express.constants.SEModifiers;
+import pro.fazeclan.river.stupid_express.modifier.twin_children.TwinChildrenHandler;
+
 import org.agmas.noellesroles.game.modifier.NRModifiers;
 import org.agmas.noellesroles.utils.RoleUtils;
 import org.jetbrains.annotations.NotNull;
@@ -128,8 +131,10 @@ public class SREPlayerAFKComponent implements RoleComponent, ServerTickingCompon
         if (player.isSpectator()) {
             this.lastActionTime = 0;
             this.afkTime = 0;
+
+            return;
         }
-        if (RoleUtils.isPlayerTheModifier(player, NRModifiers.FAKE_STEVE_REPLACED)) {
+        if (shouldNotRecordAfk()) {
             this.lastActionTime = 0;
             this.afkTime = 0;
             if (this.player instanceof ServerPlayer sp) {
@@ -137,6 +142,8 @@ public class SREPlayerAFKComponent implements RoleComponent, ServerTickingCompon
                     sp.resetLastActionTime();
                 }
             }
+
+            return;
         }
         if (!SRE.isPlayerInGame(this.player))
             return;
@@ -150,7 +157,7 @@ public class SREPlayerAFKComponent implements RoleComponent, ServerTickingCompon
         int warningThreshold = SREConfig.instance().afkWarningSeconds * 20; // 转换为ticks
         int sleepyThreshold = SREConfig.instance().afkSleepySeconds * 20; // 转换为ticks
         int deathThreshold = SREConfig.instance().afkDeathSeconds * 20; // 添加死亡阈值，转换为ticks
-        if (tickR % 400 == 0) {// 20s 同步一次
+        if (tickR % 600 == 15) {// 30s 同步一次
             this.sync(); // 确保客户端同步进度
         }
 
@@ -186,6 +193,18 @@ public class SREPlayerAFKComponent implements RoleComponent, ServerTickingCompon
         }
     }
 
+    private boolean shouldNotRecordAfk() {
+        if (RoleUtils.isPlayerTheModifier(player, NRModifiers.FAKE_STEVE_REPLACED))
+            return true;
+        if (RoleUtils.isPlayerTheModifier(player, SEModifiers.TWIN_CHILDREN)) {
+            // 双生子上面那人不会AFK
+            if (TwinChildrenHandler.isStackedUpper(player)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     @Override
     public void readFromSyncNbt(@NotNull CompoundTag tag, HolderLookup.@NotNull Provider registryLookup) {
         this.afkTime = tag.getInt("afkTime");
@@ -206,7 +225,7 @@ public class SREPlayerAFKComponent implements RoleComponent, ServerTickingCompon
             this.afkTime = 0;
         }
 
-        if (RoleUtils.isPlayerTheModifier(player, NRModifiers.FAKE_STEVE_REPLACED)) {
+        if (shouldNotRecordAfk()) {
             this.lastActionTime = 0;
             this.afkTime = 0;
         }

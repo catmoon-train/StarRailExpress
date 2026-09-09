@@ -45,6 +45,7 @@ public class ClientSkinCache {
         public boolean rabbit = false;
         public boolean tomato = false;
         public boolean allay = false;
+        public boolean panda = false;
 
         public CachedDisguiseState() {
         }

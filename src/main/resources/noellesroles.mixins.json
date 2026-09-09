@@ -147,7 +147,6 @@
     "client.roles.manipulator.ManipulatorControllerInputMixin",
     "client.roles.manipulator.ManipulatorUseSuppressMixin",
     "client.roles.monokuma.MonokumaInkShaderMixin",
-    "client.roles.panda.PandaClientMixin",
     "client.roles.phantom.PhantomRattatoulieMixin",
     "client.roles.puppeteer.PuppeteerBodyKnifeTargetMixin",
     "client.roles.salted_fish.SaltedFishBodyRenderMixin",

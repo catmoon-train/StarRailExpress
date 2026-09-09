@@ -19,83 +19,35 @@ import io.wifi.starrailexpress.client.SREClient;
 import io.wifi.starrailexpress.event.AllowOtherCameraType;
 import io.wifi.starrailexpress.event.client.OnGameFinishedClient;
 import io.wifi.starrailexpress.event.client.OnGameStartedClient;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.multiplayer.ClientLevel;
-import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.animal.Panda;
 import net.minecraft.world.entity.player.Player;
+import org.agmas.noellesroles.client.PandaDisguiseRenderer;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
-
+/**
+ * 黑白熊猫形态的客户端状态维护。
+ *
+ * <p>熊猫外观本身由 {@link PandaDisguiseRenderer} 纯渲染，这里只负责在形态结束时丢掉缓存的熊猫，
+ * 以及熊猫形态下强制第三人称视角。
+ */
 public class PandaClientHandle {
-    public static Map<UUID, Panda> pandaMap = new HashMap<>();
 
     public static void tickVisual(Player player, boolean isPanda) {
         if (SREClient.gameComponent == null || !SREClient.gameComponent.isRunning()) {
-            if (!pandaMap.isEmpty()) {
-                pandaMap.clear();
-            }
+            PandaDisguiseRenderer.clear();
             return;
         }
-        if (isPanda) {
-            if (player.isSpectator()) {
-                pandaMap.remove(player.getUUID());
-                return;
-            }
-            ClientLevel level = Minecraft.getInstance().level;
-            if (level != null) {
-                getOrCreatePanda(player, level);
-            }
-        } else {
-            pandaMap.remove(player.getUUID());
+        if (!isPanda || player.isSpectator()) {
+            PandaDisguiseRenderer.discard(player.getUUID());
         }
     }
 
-    public static void getOrCreatePanda(Player player, ClientLevel clientLevel) {
-        UUID uuid = player.getUUID();
-        if (!pandaMap.containsKey(uuid)){
-            Panda value = new Panda(EntityType.PANDA, clientLevel);
-            value.setPos(player.getX(),player.getY(),player.getZ());
-            value.setNoAi(true);
-
-            value.setYHeadRot(player.getYHeadRot());
-            pandaMap.put(uuid, value);
-            clientLevel.addEntity(pandaMap.get(uuid));
-        }else {
-            pandaMap.get(uuid);
-        }
-    }
     static {
         AllowOtherCameraType.EVENT.register((original, localplayer) -> {
-            if (pandaMap.containsKey(localplayer.getUUID())){
+            if (PandaDisguiseRenderer.shouldDisguise(localplayer)) {
                 return AllowOtherCameraType.ReturnCameraType.THIRD_PERSON_BACK;
-
             }
             return AllowOtherCameraType.ReturnCameraType.NO_CHANGE;
         });
-        OnGameStartedClient.EVENT.register(() -> {
-            pandaMap.clear();
-        });
-        OnGameFinishedClient.EVENT.register(() -> {
-            pandaMap.clear();
-        });
-//        ClientTickEvents.END_CLIENT_TICK.register(
-//                client -> {
-//                    ClientLevel level = client.level;
-//                    if (level.getGameTime()%20==0){
-//                        level.players().forEach(player -> {
-//                            PandaComponent pandaComponent = PandaComponent.KEY.get(player);
-//                            if (pandaComponent.isPanda){
-//                                getOrCreatePanda(player, level);
-//                            }else {
-//                                pandaMap.remove(player.getUUID());
-//                            }
-//                        });
-//                    }
-//
-//                }
-//        );
+        OnGameStartedClient.EVENT.register(PandaDisguiseRenderer::clear);
+        OnGameFinishedClient.EVENT.register(PandaDisguiseRenderer::clear);
     }
 }

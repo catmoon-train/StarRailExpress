@@ -71,6 +71,17 @@ public class TarotAssemblyManager {
     public static final double MEETING_X = 0.0;
     public static final double MEETING_Z = 20000.0;
 
+    /**
+     * 是否处于塔罗会会议区。
+     *
+     * <p>范围与 {@code PlayerBodyEntity#tick()} 中清除尸体的判定保持一致：会议厅内不出现尸体，
+     * 因此咸鱼/亡语杀手的假尸体伪装在这里也不渲染。
+     */
+    public static boolean isInMeetingArea(double x, double z) {
+        return x > MEETING_X - 100 && x < MEETING_X + 100
+                && z > MEETING_Z - 100 && z < MEETING_Z + 100;
+    }
+
     private static final int BLINDNESS_DURATION_TICKS = MEETING_DURATION_TICKS + VOTE_DURATION_TICKS + 60;
     private static final int MANUAL_ADVANCE_LOCK_TICKS = 20;
 

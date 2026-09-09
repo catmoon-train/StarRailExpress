@@ -114,6 +114,7 @@ public class SREHelpCommand {
                 new Entry("/tmm:game body", "tmm.game.body"),
                 new Entry("/tmm:game revive", "tmm.game.revive"),
                 new Entry("/tmm:game kill", "tmm.game.kill"),
+                new Entry("/tmm:game use_skill", "tmm.game.use_skill"),
                 new Entry("/tmm:game timestop", "tmm.game.timestop")));
 
         CATEGORIES.put("harpy", List.of(

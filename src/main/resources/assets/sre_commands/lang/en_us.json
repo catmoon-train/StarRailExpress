@@ -144,6 +144,8 @@
     "sre_commands.tmm.game.revive.desc": "Resurrect the player to the corpse location or specified coordinates.",
     "sre_commands.tmm.game.kill.name": "Kill player",
     "sre_commands.tmm.game.kill.desc": "Kill the player with the specified cause of death, select the murderer, whether to generate a corpse, and a mandatory mark.",
+    "sre_commands.tmm.game.use_skill.name": "Use skill",
+    "sre_commands.tmm.game.use_skill.desc": "Cast a role skill server-side: optional skill index and target entity; use 'as <player>' to pick the caster.",
     "sre_commands.tmm.game.timestop.name": "time stop",
     "sre_commands.tmm.game.timestop.desc": "Start or stop the global time-stop effect with prompt message.",
     "sre_commands.changerole.name": "Changerole",

@@ -20,10 +20,7 @@ import io.wifi.starrailexpress.api.data.RoleDataContext;
 import io.wifi.starrailexpress.api.impl.SimpleRoleData;
 import io.wifi.starrailexpress.cca.SREAbilityPlayerComponent;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
-import io.wifi.starrailexpress.content.entity.PlayerBodyEntity;
 import io.wifi.starrailexpress.game.GameUtils;
-import org.agmas.noellesroles.content.entity.SaltedFishBodyEntity;
-import org.agmas.noellesroles.init.ModEntities;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
@@ -36,15 +33,12 @@ import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.Mth;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
-import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.Vec3;
 import org.agmas.noellesroles.Noellesroles;
 import org.agmas.noellesroles.component.ModComponents;
 import org.agmas.noellesroles.init.ModEffects;
 import org.agmas.noellesroles.role.ModRoles;
 import org.jetbrains.annotations.NotNull;
-import java.util.UUID;
 
 public class SaltedFishRoleData extends SimpleRoleData {
 
@@ -61,7 +55,6 @@ public class SaltedFishRoleData extends SimpleRoleData {
     public int side = 0;
     public int previousSide = 0;
     public float sunYaw = 0;
-    private UUID fakeBodyUuid = null;
 
     public SaltedFishRoleData(RoleDataContext context) {
         super(context);
@@ -81,14 +74,12 @@ public class SaltedFishRoleData extends SimpleRoleData {
 
     @Override
     public void init() {
-        discardFakeBody();
         activeTicks = 0;
         cooldownTicks = 0;
         flipTicks = 0;
         side = 0;
         previousSide = 0;
         sunYaw = 0.0f;
-        fakeBodyUuid = null;
         sync();
     }
 
@@ -125,7 +116,6 @@ public class SaltedFishRoleData extends SimpleRoleData {
         side = 0;
         previousSide = 0;
         updateSunYaw(sp.serverLevel());
-        spawnFakeBody(sp);
         applyRestraints();
         sync();
         sp.serverLevel().playSound(null, sp.blockPosition(), SoundEvents.WOOL_PLACE, SoundSource.PLAYERS, 1.0f, 0.75f);
@@ -143,7 +133,6 @@ public class SaltedFishRoleData extends SimpleRoleData {
         if (!gameWorld.isRunning() || !gameWorld.isRole(sp, ModRoles.SALTED_FISH)
                 || !GameUtils.isPlayerAliveAndSurvival(sp)) {
             if (activeTicks > 0) {
-                discardFakeBody();
                 activeTicks = 0;
                 flipTicks = 0;
                 sync();
@@ -166,7 +155,6 @@ public class SaltedFishRoleData extends SimpleRoleData {
         }
 
         updateSunYaw(sp.serverLevel());
-        updateFakeBody(sp.serverLevel());
         applyRestraints();
         stopHorizontalMotion(sp);
 
@@ -211,7 +199,6 @@ public class SaltedFishRoleData extends SimpleRoleData {
         activeTicks = 0;
         flipTicks = 0;
         cooldownTicks = COOLDOWN_TICKS;
-        discardFakeBody();
         stopHorizontalMotion(sp);
         SREAbilityPlayerComponent.KEY.get(sp).setSkillCooldown(SKILL_ID, COOLDOWN_TICKS);
         sp.serverLevel().playSound(null, sp.blockPosition(), SoundEvents.WOOL_BREAK, SoundSource.PLAYERS, 0.8f, 0.9f);
@@ -237,70 +224,6 @@ public class SaltedFishRoleData extends SimpleRoleData {
     private void updateSunYaw(ServerLevel level) {
         long time = Math.floorMod(level.getDayTime(), 24000L);
         sunYaw = Mth.wrapDegrees((time / 24000.0f) * 360.0f - 90.0f);
-    }
-
-    private void spawnFakeBody(ServerPlayer sp) {
-        discardFakeBody();
-        SaltedFishBodyEntity body = ModEntities.SALTED_FISH_BODY.create(sp.serverLevel());
-        if (body == null) {
-            return;
-        }
-        body.setPlayerUuid(sp.getUUID());
-        // 关闭重力：位置每 tick 由 updateFakeBody 同步到本体，避免假尸体因自身重力下落而与本体分离。
-        body.setNoGravity(true);
-        body.moveTo(sp.getX(), sp.getY(), sp.getZ(), sunYaw, 0.0f);
-        body.setYRot(sunYaw);
-        body.setYHeadRot(sunYaw);
-        body.setYBodyRot(sunYaw);
-        body.yBodyRotO = sunYaw;
-        body.setXRot(0.0f);
-        sp.serverLevel().addFreshEntity(body);
-        fakeBodyUuid = body.getUUID();
-    }
-
-    private PlayerBodyEntity getFakeBody(ServerLevel level) {
-        if (fakeBodyUuid == null) {
-            return null;
-        }
-        Entity entity = level.getEntity(fakeBodyUuid);
-        if (entity instanceof SaltedFishBodyEntity body) {
-            return body;
-        }
-        fakeBodyUuid = null;
-        return null;
-    }
-
-    private void updateFakeBody(ServerLevel level) {
-        PlayerBodyEntity body = getFakeBody(level);
-        if (body == null) {
-            return;
-        }
-        // 位置：每 tick 跟随本体，避免本体被推动/下落/传送后假尸体留在原地而分离。
-        // 用 setPos 而非 moveTo，保留客户端插值，跟随更平滑。
-        body.setPos(player.getX(), player.getY(), player.getZ());
-        body.setDeltaMovement(0.0, 0.0, 0.0);
-        // 朝向：始终对准太阳方向
-        body.setYRot(sunYaw);
-        body.setYHeadRot(sunYaw);
-        body.setYBodyRot(sunYaw);
-        body.yBodyRot = sunYaw;
-        body.yBodyRotO = sunYaw;
-        body.setXRot(0.0f);
-    }
-
-    private void discardFakeBody() {
-        if (!(player.level() instanceof ServerLevel level)) {
-            return;
-        }
-        PlayerBodyEntity body = getFakeBody(level);
-        if (body != null) {
-            body.discard();
-        }
-        fakeBodyUuid = null;
-    }
-
-    public static boolean isSaltedFishFakeBody(Entity entity) {
-        return entity instanceof SaltedFishBodyEntity;
     }
 
     public float getRenderRoll(float partialTick) {
