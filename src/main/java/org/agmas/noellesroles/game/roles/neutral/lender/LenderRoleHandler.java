@@ -8,20 +8,16 @@ import io.wifi.starrailexpress.game.GameConstants;
 import io.wifi.starrailexpress.game.GameUtils;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.fabricmc.fabric.api.event.player.UseEntityCallback;
-import net.fabricmc.fabric.api.event.player.UseItemCallback;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionResult;
-import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.Level;
-import org.agmas.harpymodloader.component.WorldModifierComponent;
 import org.agmas.noellesroles.content.item.LoanContractItem;
 import org.agmas.noellesroles.init.ModEffects;
 import org.agmas.noellesroles.init.ModItems;
@@ -30,11 +26,8 @@ import org.agmas.noellesroles.role.ModRoles;
 import org.agmas.noellesroles.role.TraitorAndModifiers;
 import org.agmas.noellesroles.utils.MoneyUtils;
 import org.agmas.noellesroles.utils.RoleUtils;
-import io.wifi.starrailexpress.content.item.CocktailItem;
-import net.minecraft.world.item.Items;
 
-import java.util.ArrayList;
-import java.util.EnumSet;
+
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
@@ -131,26 +124,8 @@ public final class LenderRoleHandler {
                     .withStyle(ChatFormatting.GREEN), true);
             return InteractionResult.CONSUME;
         });
-        UseItemCallback.EVENT.register((player, level, hand) -> {
-            ItemStack stack = player.getItemInHand(hand);
-            if (level.isClientSide || !player.hasEffect(ModEffects.LOAN_STOMACH_BAN)) {
-                return InteractionResultHolder.pass(stack);
-            }
-            if (isFoodOrDrink(stack)) {
-                player.displayClientMessage(Component.translatable("message.noellesroles.loan.stomach_banned")
-                        .withStyle(ChatFormatting.RED), true);
-                return InteractionResultHolder.fail(stack);
-            }
-            return InteractionResultHolder.pass(stack);
-        });
+        // 进食/饮水禁用统一由 StatusAilmentHandler 通过食欲不振（LOSS_OF_APPETITE）处理
         ServerTickEvents.END_SERVER_TICK.register(LenderRoleHandler::tick);
-    }
-
-    private static boolean isFoodOrDrink(ItemStack stack) {
-        return stack.get(net.minecraft.core.component.DataComponents.FOOD) != null
-                || stack.getItem() instanceof CocktailItem
-                || stack.is(Items.POTION)
-                || stack.is(Items.HONEY_BOTTLE);
     }
 
     public static void submit(ServerPlayer borrower, UUID lenderId, int amount) {
@@ -303,7 +278,7 @@ public final class LenderRoleHandler {
                 notifyPenalty(player, "leg");
             }
             case 5 -> {
-                player.addEffect(new MobEffectInstance(ModEffects.LOAN_STOMACH_BAN, Integer.MAX_VALUE, 0, false, false, true));
+                player.addEffect(new MobEffectInstance(ModEffects.LOSS_OF_APPETITE, Integer.MAX_VALUE, 0, false, false, true));
                 notifyPenalty(player, "stomach");
             }
             case 6 -> {

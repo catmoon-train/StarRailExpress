@@ -233,7 +233,7 @@ public class SEModifiers {
             false))
             .setDefaultEnableChance(1000).setDefaultMax(1);
 
-    /** 双生之子：两名同阵营玩家以半身大小叠在一起行动。 */
+    /** 双生之子：两名同阵营玩家以半身大小叠在一起行动；任一方完成任务时同伴当前任务一并完成。 */
     public static SREModifier TWIN_CHILDREN = HMLModifiers.registerModifier(new SREModifier(
             StupidExpress.id("twin_children"),
             new Color(255, 183, 197).getRGB(),
@@ -244,6 +244,7 @@ public class SEModifiers {
             // 一次自然分配会由处理器补齐第二名玩家，因此 max=1 表示一对。
             .setDefaultEnableChance(3000).setDefaultMax(1)
             .setServerGameTickEvent(TwinChildrenHandler::serverTick)
+            .setClientGameTickEvent(TwinChildrenHandler::clientTick)
             .setAddedVersion("4.4");
 
     public static void init() {

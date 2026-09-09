@@ -9,14 +9,20 @@ package pro.fazeclan.river.stupid_express.modifier.twin_children;
 
 import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
+import io.wifi.starrailexpress.game.GameUtils;
+import net.minecraft.network.protocol.game.ClientboundSetPassengersPacket;
+import net.minecraft.network.protocol.game.ClientboundTeleportEntityPacket;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.ai.attributes.AttributeInstance;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
+import net.minecraft.world.entity.player.Player;
 import org.agmas.harpymodloader.component.WorldModifierComponent;
 import org.agmas.harpymodloader.events.GameInitializeEvent;
 import org.agmas.harpymodloader.events.ModifierAssigned;
 import org.agmas.harpymodloader.events.ModifierRemoved;
+import org.jetbrains.annotations.Nullable;
 import pro.fazeclan.river.stupid_express.StupidExpress;
 import pro.fazeclan.river.stupid_express.constants.SEModifiers;
 
@@ -26,10 +32,22 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
-/** Server-side pairing, mounting, and scale lifecycle for Twin Children. */
+/**
+ * Server-side pairing, mounting, and scale lifecycle for Twin Children.
+ *
+ * <p>Half-scale is only applied while both twins are alive and stacked. Vanilla
+ * player passenger attachments sit the rider inside the vehicle, so the upper
+ * twin is placed on the visual head and other clients are told that position
+ * every tick.
+ */
 public final class TwinChildrenHandler {
     public static final AttributeModifier HALF_SCALE = new AttributeModifier(
             StupidExpress.id("twin_children_half_scale"), -0.5D, AttributeModifier.Operation.ADD_VALUE);
+
+    public static final float VISUAL_STANDING_HEIGHT = TwinChildrenHitbox.VISUAL_STANDING_HEIGHT;
+    public static final float STACKED_UNSCALED_HEIGHT = TwinChildrenHitbox.STACKED_UNSCALED_HEIGHT;
+
+    private static final float HEIGHT_REFRESH_EPSILON = 0.05F;
 
     private static final Map<UUID, Pair> PAIRS = new ConcurrentHashMap<>();
 
@@ -50,9 +68,46 @@ public final class TwinChildrenHandler {
         GameInitializeEvent.EVENT.register((level, game, players) -> PAIRS.clear());
     }
 
+    public static float stackedHeightScale(float currentUnscaledHeight) {
+        return TwinChildrenHitbox.stackedHeightScale(currentUnscaledHeight);
+    }
+
+    public static float upperHeightScale(float currentUnscaledHeight) {
+        return TwinChildrenHitbox.upperHeightScale(currentUnscaledHeight);
+    }
+
+    public static double headPassengerAttachmentY(float vehicleScale, double passengerVehicleAttachY) {
+        return TwinChildrenHitbox.headPassengerAttachmentY(vehicleScale, passengerVehicleAttachY);
+    }
+
+    public static boolean hasHalfScale(Player player) {
+        if (player == null) {
+            return false;
+        }
+        AttributeInstance scale = player.getAttribute(Attributes.SCALE);
+        return scale != null && scale.hasModifier(HALF_SCALE.id());
+    }
+
+    public static boolean isStackedLower(Player player) {
+        return hasHalfScale(player)
+                && player.getFirstPassenger() instanceof Player passenger
+                && hasHalfScale(passenger);
+    }
+
+    public static boolean isStackedUpper(Player player) {
+        return hasHalfScale(player)
+                && player.getVehicle() instanceof Player vehicle
+                && hasHalfScale(vehicle);
+    }
+
+    public static boolean shouldStayRiding(Player player) {
+        return isStackedUpper(player);
+    }
+
     private static void assign(ServerPlayer first) {
-        if (PAIRS.containsKey(first.getUUID())) {
-            applyHalfScale(first);
+        Pair existing = PAIRS.get(first.getUUID());
+        if (existing != null) {
+            updateMount(existing, first.serverLevel());
             return;
         }
 
@@ -88,17 +143,45 @@ public final class TwinChildrenHandler {
         Pair pair = new Pair(first.getUUID(), second.getUUID());
         PAIRS.put(first.getUUID(), pair);
         PAIRS.put(second.getUUID(), pair);
-        applyHalfScale(first);
-        applyHalfScale(second);
         updateMount(pair, level);
     }
 
-    /** Called by the modifier tick; only the lower twin performs the pair update. */
+    /** Called by the modifier tick for either twin. */
     public static void serverTick(ServerPlayer player) {
         Pair pair = PAIRS.get(player.getUUID());
-        if (pair != null && pair.lower().equals(player.getUUID())) {
-            updateMount(pair, player.serverLevel());
+        if (pair == null) {
+            removeHalfScale(player);
+            return;
         }
+        if (!player.getUUID().equals(pair.lower())
+                && player.server.getPlayerList().getPlayer(pair.lower()) != null) {
+            return;
+        }
+        updateMount(pair, player.serverLevel());
+    }
+
+    public static void clientTick(Player player) {
+        if (isStackedLower(player) && player.getFirstPassenger() instanceof Player upper) {
+            player.positionRider(upper);
+        }
+        if (isStackedUpper(player) && player.getVehicle() instanceof Player lower) {
+            lower.positionRider(player);
+        }
+    }
+
+    /** The other twin in this player's pair, or null if unpaired / offline. */
+    @Nullable
+    public static ServerPlayer getPartner(ServerPlayer player) {
+        Pair pair = PAIRS.get(player.getUUID());
+        if (pair == null) {
+            return null;
+        }
+        UUID partnerId = pair.lower().equals(player.getUUID()) ? pair.upper() : pair.lower();
+        return player.server.getPlayerList().getPlayer(partnerId);
+    }
+
+    public static boolean isPairedAlivePlayer(ServerPlayer player) {
+        return isAlivePlayer(player) && PAIRS.containsKey(player.getUUID());
     }
 
     private static void updateMount(Pair pair, ServerLevel level) {
@@ -107,6 +190,12 @@ public final class TwinChildrenHandler {
         if (lower == null || upper == null || lower.serverLevel() != upper.serverLevel()
                 || !isAlivePlayer(lower) || !isAlivePlayer(upper)) {
             dismount(lower, upper);
+            if (lower != null) {
+                removeHalfScale(lower);
+            }
+            if (upper != null) {
+                removeHalfScale(upper);
+            }
             return;
         }
 
@@ -115,9 +204,44 @@ public final class TwinChildrenHandler {
         if (lower.isPassenger()) {
             lower.stopRiding();
         }
+        boolean remounted = false;
         if (upper.getVehicle() != lower) {
             upper.stopRiding();
             upper.startRiding(lower, true);
+            remounted = true;
+        }
+        if (upper.getVehicle() != lower) {
+            removeHalfScale(lower);
+            removeHalfScale(upper);
+            return;
+        }
+
+        refreshStackedCollision(lower, upper);
+        syncUpperPosition(lower, upper, remounted);
+    }
+
+    private static void refreshStackedCollision(ServerPlayer lower, ServerPlayer upper) {
+        float expectedLower = TwinChildrenHitbox.STACKED_UNSCALED_HEIGHT * lower.getScale();
+        if (Math.abs(lower.getBbHeight() - expectedLower) > HEIGHT_REFRESH_EPSILON) {
+            lower.refreshDimensions();
+        }
+        float expectedUpper = TwinChildrenHitbox.UPPER_UNSCALED_HEIGHT * upper.getScale();
+        if (Math.abs(upper.getBbHeight() - expectedUpper) > HEIGHT_REFRESH_EPSILON) {
+            upper.refreshDimensions();
+        }
+    }
+
+    private static void syncUpperPosition(ServerPlayer lower, ServerPlayer upper, boolean remounted) {
+        lower.positionRider(upper);
+        ClientboundTeleportEntityPacket teleport = new ClientboundTeleportEntityPacket(upper);
+        ClientboundSetPassengersPacket passengers = remounted ? new ClientboundSetPassengersPacket(lower) : null;
+        for (ServerPlayer viewer : upper.serverLevel().players()) {
+            if (passengers != null) {
+                viewer.connection.send(passengers);
+            }
+            if (viewer != upper) {
+                viewer.connection.send(teleport);
+            }
         }
     }
 
@@ -142,8 +266,12 @@ public final class TwinChildrenHandler {
         ServerPlayer lower = player.server.getPlayerList().getPlayer(pair.lower());
         ServerPlayer upper = player.server.getPlayerList().getPlayer(pair.upper());
         dismount(lower, upper);
-        if (lower != null) removeHalfScale(lower);
-        if (upper != null) removeHalfScale(upper);
+        if (lower != null) {
+            removeHalfScale(lower);
+        }
+        if (upper != null) {
+            removeHalfScale(upper);
+        }
         if (removeModifiers) {
             WorldModifierComponent modifiers = WorldModifierComponent.KEY.get(player.serverLevel());
             modifiers.removeModifier(pair.lower(), SEModifiers.TWIN_CHILDREN, false);
@@ -166,30 +294,44 @@ public final class TwinChildrenHandler {
     }
 
     private static void applyHalfScale(ServerPlayer player) {
-        var scale = player.getAttribute(Attributes.SCALE);
+        AttributeInstance scale = player.getAttribute(Attributes.SCALE);
         if (scale != null && !scale.hasModifier(HALF_SCALE.id())) {
             scale.addPermanentModifier(HALF_SCALE);
+            player.refreshDimensions();
         }
     }
 
     private static void removeHalfScale(ServerPlayer player) {
-        var scale = player.getAttribute(Attributes.SCALE);
-        if (scale != null) scale.removeModifier(HALF_SCALE);
+        AttributeInstance scale = player.getAttribute(Attributes.SCALE);
+        if (scale != null && scale.hasModifier(HALF_SCALE.id())) {
+            scale.removeModifier(HALF_SCALE);
+            player.refreshDimensions();
+        }
     }
 
     private static void dismount(ServerPlayer lower, ServerPlayer upper) {
-        if (upper != null && (lower == null || upper.getVehicle() == lower)) upper.stopRiding();
+        if (upper != null && (lower == null || upper.getVehicle() == lower)) {
+            upper.stopRiding();
+        }
     }
 
     private static boolean isAlivePlayer(ServerPlayer player) {
-        return player.isAlive() && !player.isSpectator() && !player.isCreative();
+        return GameUtils.isPlayerAliveAndSurvival(player);
     }
 
     static Faction factionOf(SRERole role) {
-        if (role == null) return Faction.INDEPENDENT_NEUTRAL;
-        if (role.isNeutrals() && !role.isNeutralForKiller()) return Faction.INDEPENDENT_NEUTRAL;
-        if (role.isNeutralForKiller() || SREGameWorldComponent.isKillerTeamRoleStatic(role)) return Faction.KILLER;
-        if (role.isInnocent()) return Faction.INNOCENT;
+        if (role == null) {
+            return Faction.INDEPENDENT_NEUTRAL;
+        }
+        if (role.isNeutrals() && !role.isNeutralForKiller()) {
+            return Faction.INDEPENDENT_NEUTRAL;
+        }
+        if (role.isNeutralForKiller() || SREGameWorldComponent.isKillerTeamRoleStatic(role)) {
+            return Faction.KILLER;
+        }
+        if (role.isInnocent()) {
+            return Faction.INNOCENT;
+        }
         return Faction.INDEPENDENT_NEUTRAL;
     }
 

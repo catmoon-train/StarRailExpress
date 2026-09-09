@@ -136,6 +136,7 @@
     "announcement.star.role.net_cop": "Net Cop",
     "announcement.star.goals.net_cop": "Keep order on the train and bring killers to justice!",
     "message.noellesroles.net_cop.shop_already_owned": "You already own this weapon",
+    "skill.noellesroles.net_cop.swap_hands": "Swap Held Item",
     "message.noellesroles.net_cop.shop_need_axe": "Buy Dream's iron axe first",
     "message.noellesroles.net_cop.shop_need_axe_and_sword": "You must hold both Dream's iron axe and diamond sword first",
     "announcement.star.role.noellesroles.magician": "Magician",
@@ -537,6 +538,7 @@
     "death_reason.starrailexpress.arrow": "Shot by arrow",
     "death_reason.starrailexpress.trident": "Impaled by trident",
     "death_reason.noellesroles.trident": "Impaled by trident",
+    "death_reason.noellesroles.firework_crossbow": "Explosive Crossbow",
     "death_reason.starrailexpress.voodoo": "Voodoo Magic",
     "hud.coroner.death_info.new": "Died %s seconds ago, cause: %s",
     "hud.coroner.death_info.name": "Corpse of %s",
@@ -4566,7 +4568,6 @@
   "message.noellesroles.loan.repaid": "Repaid %s gold; the loan contract is gone.",
   "message.noellesroles.loan.reminder": "Loan reminder: %s gold is currently due.",
   "message.noellesroles.loan.forced": "Contract expired. %s gold was due; %s gold was collected.",
-  "message.noellesroles.loan.stomach_banned": "Your stomach can no longer accept food or drinks.",
   "message.noellesroles.loan.penalty.eye": "You lost an eye: Blindness II and Darkness.",
   "message.noellesroles.loan.penalty.heart": "You lost your heart.",
   "message.noellesroles.loan.penalty.hand": "You lost a hand: item use is disabled.",
@@ -4575,8 +4576,6 @@
   "message.noellesroles.loan.penalty.stomach": "You lost your stomach: food and drinks are disabled.",
   "message.noellesroles.loan.penalty.tongue": "You lost your tongue: speech is disabled.",
   "message.noellesroles.loan.penalty.ear": "You lost an ear: Muffled Hearing II.",
-  "effect.noellesroles.loan_stomach_ban": "Stomach Injury",
-  "mob_effect.noellesroles.loan_stomach_ban": "Stomach Injury",
   "item.noellesroles.loan_contract.desc": "Right-click to repay the loan principal and interest.",
   "message.noellesroles.loan.request_pending": "You already have a pending loan request. Wait 10 seconds for it to expire."
   ,"item.noellesroles.insurance": "Insurance"
@@ -4610,4 +4609,33 @@
   ,"message.noellesroles.insurance.already_active": "This insurance is already active."
   ,"message.noellesroles.insurance.invalid": "This insurance cannot be signed."
   ,"message.noellesroles.insurance.protected": "Insurance protected you from this death and paid you 25 gold."
+  ,"death_reason.noellesroles.missing_lungs": "Asphyxia"
+  ,"effect.noellesroles.myopia": "Myopia"
+  ,"mob_effect.noellesroles.myopia": "Myopia"
+  ,"effect.noellesroles.myopia.description": "Distant objects become blurry. Higher levels make far vision worse."
+  ,"effect.noellesroles.hand_tremor": "Hand Tremor"
+  ,"mob_effect.noellesroles.hand_tremor": "Hand Tremor"
+  ,"effect.noellesroles.hand_tremor.description": "Holding a knife or gun makes the view tremble, strongest when first drawn."
+  ,"effect.noellesroles.mental_deafness": "Mental Deafness"
+  ,"mob_effect.noellesroles.mental_deafness": "Mental Deafness"
+  ,"effect.noellesroles.mental_deafness.description": "Mood stays full."
+  ,"effect.noellesroles.cognitive_bias": "Cognitive Bias"
+  ,"mob_effect.noellesroles.cognitive_bias": "Cognitive Bias"
+  ,"effect.noellesroles.cognitive_bias.description": "Other players' skins shuffle and their names blur."
+  ,"effect.noellesroles.loss_of_appetite": "Loss of Appetite"
+  ,"mob_effect.noellesroles.loss_of_appetite": "Loss of Appetite"
+  ,"effect.noellesroles.loss_of_appetite.description": "You cannot eat food or drink."
+  ,"effect.noellesroles.missing_lungs": "Missing Lungs"
+  ,"mob_effect.noellesroles.missing_lungs": "Missing Lungs"
+  ,"effect.noellesroles.missing_lungs.description": "You suffocate after a while. Higher levels die faster."
+  ,"effect.noellesroles.aphrenia": "Aphrenia"
+  ,"mob_effect.noellesroles.aphrenia": "Aphrenia"
+  ,"effect.noellesroles.aphrenia.description": "You occasionally lose control and wander on your own, then recover."
+  ,"effect.noellesroles.intellect_drop": "Reduced Intellect"
+  ,"mob_effect.noellesroles.intellect_drop": "Reduced Intellect"
+  ,"effect.noellesroles.intellect_drop.description": "You sometimes cannot use items."
+  ,"effect.noellesroles.motor_dysfunction": "Motor Dysfunction"
+  ,"mob_effect.noellesroles.motor_dysfunction": "Motor Dysfunction"
+  ,"effect.noellesroles.motor_dysfunction.description": "You may trip while moving."
+  ,"message.noellesroles.ailment.appetite_banned": "You have no appetite and cannot eat or drink."
 }

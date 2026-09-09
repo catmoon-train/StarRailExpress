@@ -53,7 +53,8 @@ public final class ClientPlayerDataCache {
     }
 
     public static BackpackState backpack(UUID playerUuid) {
-        return read(playerUuid, "backpack", BackpackState.class, BackpackState.createDefault());
+        BackpackState state = read(playerUuid, "backpack", BackpackState.class, BackpackState.createDefault());
+        return state == null ? BackpackState.createDefault() : state.normalized();
     }
 
     public static void clear() {

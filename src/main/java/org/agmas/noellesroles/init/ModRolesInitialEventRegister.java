@@ -38,6 +38,7 @@ import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import org.agmas.harpymodloader.events.ModdedRoleAssigned;
 import org.agmas.harpymodloader.events.ModdedRoleRemoved;
@@ -408,6 +409,46 @@ public class ModRolesInitialEventRegister {
         // 宿命的罪人技能注册：
         // 技能 1「命运的启示」(G)：近距离查看准星目标最近 3 次杀人方式
         // 技能 2「重启」(潜行+技能键)：随机死因死亡脱离，回房间 + 短暂无敌
+        // 网警技能：将主手物品收进副手；副手原有物品必须放入快捷栏才能完成交换。
+        RoleSkill.register(ModRoles.NET_COP,
+                RoleSkill.skill(SRE.id("net_cop_swap_hands"),
+                        "skill.noellesroles.net_cop.swap_hands",
+                        context -> {
+                            ServerPlayer player = context.player();
+                            if (player.isSpectator() || !GameUtils.isPlayerAliveAndSurvival(player)) {
+                                return false;
+                            }
+
+                            int selectedHotbarSlot = player.getInventory().selected;
+                            ItemStack mainHand = player.getInventory().getItem(selectedHotbarSlot).copy();
+                            ItemStack offHand = player.getOffhandItem().copy();
+                            if (mainHand.isEmpty() && offHand.isEmpty()) {
+                                return false;
+                            }
+
+                            if (!offHand.isEmpty()) {
+                                // 与故障机器人技能相同：先清空当前手上的物品，再把副手物品插入快捷栏。
+                                // 这样即使两者是同一种物品，也不会先合并到主手后再被清空。
+                                if (!RoleUtils.isPlayerHasFreeSlot(player)) {
+                                    return false;
+                                }
+                                player.getInventory().setItem(selectedHotbarSlot, ItemStack.EMPTY);
+                                if (!RoleUtils.insertStackInFreeSlot(player, offHand)) {
+                                    player.getInventory().setItem(selectedHotbarSlot, mainHand);
+                                    return false;
+                                }
+                            } else {
+                                player.getInventory().setItem(selectedHotbarSlot, ItemStack.EMPTY);
+                            }
+
+                            player.getInventory().offhand.set(0, mainHand);
+                            player.getInventory().setChanged();
+                            player.inventoryMenu.slotsChanged(player.getInventory());
+                            player.inventoryMenu.broadcastChanges();
+                            player.containerMenu.broadcastChanges();
+                            return true;
+                        }).cooldownTicks(0).showOnHud(true).announceToSelf(false).build());
+
         RoleSkill.register(ModRoles.DOOMED_SINNER,
                 RoleSkill.skill(SRE.id("doomed_sinner_revelation"),
                         "skill.noellesroles.doomed_sinner.revelation",

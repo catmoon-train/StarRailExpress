@@ -8,6 +8,7 @@
     "AbstractContainerMenuMixin",
     "DecServerJoinPlayer",
     "EntityMixinForInvisible",
+    "FireworkRocketMixin",
     "FootstepVanishMixin",
     "GunFireTracerMixin",
     "LivingEntityAccessor",
