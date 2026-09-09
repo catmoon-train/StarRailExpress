@@ -1223,7 +1223,7 @@
     "gui.sre.disclaimer.health.body": "合理安排时间，享受健康生活。本游戏内含持续游玩奖励机制，建议您每游玩 1小时 起身活动片刻。若您感到视觉疲劳、眼部干涩或情绪焦虑，请立即暂停游戏并休息。如您已有游戏成瘾倾向，请自觉遵守防沉迷系统限制。",
     "gui.sre.disclaimer.health.title": "适度游戏益脑，沉迷游戏伤身",
     "gui.sre.disclaimer.hint": "滚动阅读全部内容后点击下方按钮继续",
-    "gui.sre.disclaimer.opensource.body": "① 免费声明： 本游戏永久免费，不含任何内购、抽卡或付费解锁内容。若您从非官方渠道被收取费用，请立即举报。\n② 开源协议： 游戏源码遵循 LGPL-3.0 协议开源，您可自由学习、修改及分发。",
+    "gui.sre.disclaimer.opensource.body": "① 免费声明： 本游戏永久免费，不含任何内购、抽卡或付费解锁内容。若您从非官方渠道下载了本版本并被收取费用，请立即举报。残月列车官方版不存在任何收费行为！\n② 开源协议： 游戏源码遵循 LGPL-3.0 协议开源，您可自由学习、修改及分发。",
     "gui.sre.disclaimer.opensource.title": "完全开源 · 免费畅玩 · MOD自由",
     "gui.sre.disclaimer.subtitle": "进入列车前请阅读以下声明",
     "gui.sre.gamemode.custom.subtitle": "剩余选择时间：%ss",

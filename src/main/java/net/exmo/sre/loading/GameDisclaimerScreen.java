@@ -15,6 +15,7 @@
 
 package net.exmo.sre.loading;
 
+import io.wifi.starrailexpress.SREClientConfig;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.ChatFormatting;
@@ -35,8 +36,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * 进入主菜单前的健康 / 医学 / 开源 / 二创免责声明。
- * 每次启动会话展示一次，必须点击确认后才能继续。
- * 各段独立成卡片、标题与正文居中，内容区可滚动。
+ * 仅首次启动展示：必须滚动到内容底部、点击确认按钮后写入客户端配置，之后不再弹出。
+ * 各段独立成卡片、标题与正文居中，内容区可滚动，确认按钮是内容的最后一项。
  */
 @Environment(EnvType.CLIENT)
 public class GameDisclaimerScreen extends Screen {
@@ -60,12 +61,15 @@ public class GameDisclaimerScreen extends Screen {
     }
 
     public static boolean isAcknowledged() {
-        return ACKNOWLEDGED.get();
+        return ACKNOWLEDGED.get() || SREClientConfig.instance().gameDisclaimerAccepted;
     }
 
-    /** 测试 / 调试用：重置本会话已确认状态。 */
+    /** 测试 / 调试用：清除已确认状态，下次启动会重新弹出声明。 */
     public static void resetAcknowledged() {
         ACKNOWLEDGED.set(false);
+        SREClientConfig config = SREClientConfig.instance();
+        config.gameDisclaimerAccepted = false;
+        SREClientConfig.HANDLER.save();
     }
 
     @Override
@@ -117,7 +121,8 @@ public class GameDisclaimerScreen extends Screen {
         this.scrollOffset = Mth.clamp(this.scrollOffset, 0, this.maxScroll);
     }
 
-    private int totalContentHeight() {
+    /** 所有卡片连同间距的总高度。 */
+    private int sectionsHeight() {
         if (this.sections.isEmpty()) {
             return 0;
         }
@@ -126,6 +131,29 @@ public class GameDisclaimerScreen extends Screen {
             h += block.height + GameDisclaimerLayout.SECTION_GAP;
         }
         return h - GameDisclaimerLayout.SECTION_GAP;
+    }
+
+    /** 提示文字与确认按钮在内容坐标系中的起点。 */
+    private int buttonContentY() {
+        return sectionsHeight() + GameDisclaimerLayout.BUTTON_TOP_GAP;
+    }
+
+    private int totalContentHeight() {
+        return buttonContentY() + layout.buttonH() + GameDisclaimerLayout.CONTENT_BOTTOM_PAD;
+    }
+
+    /** 确认按钮在当前滚动位置下的屏幕 Y。 */
+    private int buttonScreenY() {
+        return layout.contentY() - (int) this.scrollOffset + buttonContentY();
+    }
+
+    private boolean inButton(double mouseX, double mouseY) {
+        if (layout == null
+                || !GameDisclaimerLayout.isButtonReachable(this.scrollOffset, this.maxScroll)) {
+            return false;
+        }
+        return GameDisclaimerLayout.inRect(mouseX, mouseY,
+                layout.buttonX(), buttonScreenY(), layout.buttonW(), layout.buttonH());
     }
 
     @Override
@@ -191,18 +219,18 @@ public class GameDisclaimerScreen extends Screen {
                 }
                 y += block.height + GameDisclaimerLayout.SECTION_GAP;
             }
+
+            Component hint = Component.translatable(GameDisclaimerContent.HINT);
+            int hintY = buttonScreenY() - GameDisclaimerLayout.HINT_GAP;
+            g.drawString(this.font, hint,
+                    cx - this.font.width(hint) / 2, hintY,
+                    LoadingFx.withAlpha(0x9E8B6E, enter * 0.9F), false);
+            drawConfirmButton(g, mouseX, mouseY, enter);
         } finally {
             g.disableScissor();
         }
 
         drawScrollbar(g, enter);
-        drawConfirmButton(g, mouseX, mouseY, enter);
-
-        Component hint = Component.translatable(GameDisclaimerContent.HINT);
-        int hintY = layout.buttonY() - 12;
-        g.drawString(this.font, hint,
-                cx - this.font.width(hint) / 2, hintY,
-                LoadingFx.withAlpha(0x9E8B6E, enter * 0.9F), false);
     }
 
     private void drawSectionCard(GuiGraphics g, int y, SectionBlock block, float enter) {
@@ -237,10 +265,10 @@ public class GameDisclaimerScreen extends Screen {
     }
 
     private void drawConfirmButton(GuiGraphics g, int mouseX, int mouseY, float enter) {
-        boolean hovered = layout.inButton(mouseX, mouseY);
+        boolean hovered = inButton(mouseX, mouseY);
         this.buttonHover += ((hovered ? 1.0F : 0.0F) - this.buttonHover) * 0.22F;
         int x = layout.buttonX();
-        int y = layout.buttonY();
+        int y = buttonScreenY();
         int w = layout.buttonW();
         int h = layout.buttonH();
         int bg = SreUiStyle.blend(0xFF1A1008, 0xFFC9A84C, 0.18F + this.buttonHover * 0.22F);
@@ -273,7 +301,7 @@ public class GameDisclaimerScreen extends Screen {
         if (button != 0) {
             return super.mouseClicked(mouseX, mouseY, button);
         }
-        if (layout.inButton(mouseX, mouseY)) {
+        if (inButton(mouseX, mouseY)) {
             confirm();
             return true;
         }
@@ -358,7 +386,13 @@ public class GameDisclaimerScreen extends Screen {
     }
 
     private void confirm() {
+        if (!GameDisclaimerLayout.isButtonReachable(this.scrollOffset, this.maxScroll)) {
+            return; // 必须滚动到底部才能确认
+        }
         ACKNOWLEDGED.set(true);
+        SREClientConfig config = SREClientConfig.instance();
+        config.gameDisclaimerAccepted = true;
+        SREClientConfig.HANDLER.save();
         StarRailExpressTitleScreen.skipOpeningPrompt();
         if (this.minecraft != null) {
             this.minecraft.getSoundManager().play(

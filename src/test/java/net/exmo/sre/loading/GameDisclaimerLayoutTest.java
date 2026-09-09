@@ -43,13 +43,21 @@ class GameDisclaimerLayoutTest {
                 assertTrue(l.panelY() + l.panelH() <= height, l.toString());
                 assertTrue(l.contentX() >= l.panelX());
                 assertTrue(l.contentY() >= l.panelY() + 8);
-                assertTrue(l.contentY() + l.contentH() <= l.buttonY() - 12);
-                assertTrue(l.buttonY() + l.buttonH() <= l.panelY() + l.panelH());
+                assertTrue(l.contentH() >= 40, l.toString());
+                assertTrue(l.contentY() + l.contentH() <= l.panelY() + l.panelH(), l.toString());
+                assertTrue(l.buttonX() >= l.contentX(), l.toString());
+                assertTrue(l.buttonX() + l.buttonW() <= l.contentX() + l.contentW(), l.toString());
                 assertTrue(l.sbX() + l.sbW() <= l.panelX() + l.panelW());
-                assertTrue(l.inButton(l.buttonX() + 1, l.buttonY() + 1));
-                assertFalse(l.inButton(l.buttonX() - 2, l.buttonY() + 1));
             }
         }
+    }
+
+    @Test
+    void confirmButtonOnlyReachableWhenScrolledToBottom() {
+        assertTrue(GameDisclaimerLayout.isButtonReachable(0, 0), "内容不足一屏时可直接点击");
+        assertFalse(GameDisclaimerLayout.isButtonReachable(0, 100), "未滚动时不可点击");
+        assertFalse(GameDisclaimerLayout.isButtonReachable(99, 100), "未滚到底时不可点击");
+        assertTrue(GameDisclaimerLayout.isButtonReachable(100, 100), "滚到底后可点击");
     }
 
     @Test
