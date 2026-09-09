@@ -4568,7 +4568,6 @@
   "message.noellesroles.loan.repaid": "Repaid %s gold; the loan contract is gone.",
   "message.noellesroles.loan.reminder": "Loan reminder: %s gold is currently due.",
   "message.noellesroles.loan.forced": "Contract expired. %s gold was due; %s gold was collected.",
-  "message.noellesroles.loan.stomach_banned": "Your stomach can no longer accept food or drinks.",
   "message.noellesroles.loan.penalty.eye": "You lost an eye: Blindness II and Darkness.",
   "message.noellesroles.loan.penalty.heart": "You lost your heart.",
   "message.noellesroles.loan.penalty.hand": "You lost a hand: item use is disabled.",
@@ -4577,8 +4576,6 @@
   "message.noellesroles.loan.penalty.stomach": "You lost your stomach: food and drinks are disabled.",
   "message.noellesroles.loan.penalty.tongue": "You lost your tongue: speech is disabled.",
   "message.noellesroles.loan.penalty.ear": "You lost an ear: Muffled Hearing II.",
-  "effect.noellesroles.loan_stomach_ban": "Stomach Injury",
-  "mob_effect.noellesroles.loan_stomach_ban": "Stomach Injury",
   "item.noellesroles.loan_contract.desc": "Right-click to repay the loan principal and interest.",
   "message.noellesroles.loan.request_pending": "You already have a pending loan request. Wait 10 seconds for it to expire."
   ,"item.noellesroles.insurance": "Insurance"

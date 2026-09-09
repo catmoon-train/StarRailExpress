@@ -652,10 +652,6 @@ public class ModEffects {
      */
     public static final Holder<MobEffect> LIMP = register("limp", new LimpEffect());
 
-    /** Prevents eating food and drinking module beverages. */
-    public static final Holder<MobEffect> LOAN_STOMACH_BAN = register("loan_stomach_ban",
-            new SimpleMobEffect(MobEffectCategory.HARMFUL, 0x7A4A2B));
-
     /**
      * 近视：远处模糊，近处相对清晰。shader 见 {@code MyopiaShader}。
      */
