@@ -98,6 +98,7 @@ public class SREItemProperties {
          * @return boolean 是否启用原版逻辑
          */
         public default boolean onServerAttack(ServerPlayer attacker, ServerPlayer target, ItemStack mainhandItem) {
+            target.setLastHurtByMob(attacker);
             return true;
         }
     }
@@ -113,6 +114,7 @@ public class SREItemProperties {
             }
             if (GameUtils.isPlayerAliveAndSurvival(attacker) && GameUtils.isPlayerAliveAndSurvival(target)) {
                 GameUtils.killPlayer(target, true, attacker, SkinUtils.getItemTypeResourceLocation(mainhandItem));
+                target.setLastHurtByMob(attacker);
             }
             return false;
         }
