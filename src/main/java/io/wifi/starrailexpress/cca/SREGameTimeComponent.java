@@ -151,4 +151,13 @@ public class SREGameTimeComponent implements AutoSyncedComponent, CommonTickingC
     public long getTicksFromGameStart() {
         return this.tickCount;
     }
+
+    public void addKillRewardTime(int time) {
+        this.time += time;
+        int threshold = (int) ((float) this.resetTime * 0.7f);
+        if (this.time > threshold) {
+            this.time = threshold;
+        }
+        this.sync();
+    }
 }

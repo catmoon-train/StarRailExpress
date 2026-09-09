@@ -825,7 +825,7 @@ public abstract class GameMode {
 
     public void addKillRewardTime(SREGameTimeComponent gameTimeComponent) {
         if (gameTimeComponent.getTime() < gameTimeComponent.getResetTime()) {
-            gameTimeComponent.addTime(GameConstants.TIME_ON_CIVILIAN_KILL);
+            gameTimeComponent.addKillRewardTime(GameConstants.TIME_ON_CIVILIAN_KILL);
         }
     }
 
