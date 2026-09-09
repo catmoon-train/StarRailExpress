@@ -18,8 +18,6 @@ import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.Level;
-import org.agmas.harpymodloader.component.WorldModifierComponent;
 import org.agmas.noellesroles.content.item.LoanContractItem;
 import org.agmas.noellesroles.init.ModEffects;
 import org.agmas.noellesroles.init.ModItems;
@@ -30,8 +28,6 @@ import org.agmas.noellesroles.utils.MoneyUtils;
 import org.agmas.noellesroles.utils.RoleUtils;
 
 
-import java.util.ArrayList;
-import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
