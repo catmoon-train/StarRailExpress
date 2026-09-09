@@ -260,8 +260,8 @@ public record GunShootPayload(int target) implements CustomPacketPayload {
             }
 
             player.level().playSound(null, player.getX(), player.getEyeY(), player.getZ(),
-                    TMMSounds.ITEM_REVOLVER_SHOOT, SoundSource.PLAYERS, 5f,
-                    1f + player.getRandom().nextFloat() * .1f - .05f);
+                    TMMSounds.ITEM_REVOLVER_SHOOT, SoundSource.PLAYERS, 3f,
+                    0.7f + player.getRandom().nextFloat() * .1f - .05f);
 
             for (ServerPlayer tracking : PlayerLookup.tracking(player))
                 PacketTracker.sendToClient(tracking, new ShootMuzzleS2CPayload(player.getId()));
