@@ -204,6 +204,15 @@ public class StarRailExpressTitleScreen extends Screen {
     public StarRailExpressTitleScreen(boolean fading, @Nullable LogoRenderer logoRenderer) {
         super(TITLE);
         this.logoRenderer = Objects.requireNonNullElseGet(logoRenderer, () -> new LogoRenderer(false));
+        if (!waitingForContinue.get()) {
+            this.isTransitioning = true;
+            this.fadeOutProgress = 0.0F;
+        }
+    }
+
+    /** 免责声明确认后跳过标题屏「按任意键继续」黑屏。 */
+    public static void skipOpeningPrompt() {
+        waitingForContinue.set(false);
     }
 
     // ─────────────────────────────────────────────────────────────────
