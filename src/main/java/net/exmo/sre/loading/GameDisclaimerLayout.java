@@ -25,12 +25,14 @@ public record GameDisclaimerLayout(
         int sbX, int sbTop, int sbBot, int sbW,
         int buttonX, int buttonY, int buttonW, int buttonH) {
 
-    public static final int PAD = 12;
+    public static final int PAD = 14;
     public static final int HEADER_H = 40;
     public static final int FOOTER_H = 54;
     public static final int SB_W = 5;
     public static final int BUTTON_W = 168;
     public static final int BUTTON_H = 22;
+    public static final int SECTION_INNER_PAD = 8;
+    public static final int SECTION_GAP = 8;
 
     public static GameDisclaimerLayout of(int width, int height) {
         int panelW = Math.min(700, Math.max(280, (int) (width * 0.90F)));

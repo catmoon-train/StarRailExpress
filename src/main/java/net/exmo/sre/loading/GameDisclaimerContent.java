@@ -33,6 +33,8 @@ public final class GameDisclaimerContent {
     public static final String EPILEPSY_BODY = "gui.sre.disclaimer.epilepsy.body";
     public static final String OPENSOURCE_TITLE = "gui.sre.disclaimer.opensource.title";
     public static final String OPENSOURCE_BODY = "gui.sre.disclaimer.opensource.body";
+    public static final String FANWORK_TITLE = "gui.sre.disclaimer.fanwork.title";
+    public static final String FANWORK_BODY = "gui.sre.disclaimer.fanwork.body";
 
     /** 健康忠告：金色 */
     public static final int HEALTH_COLOR = 0xFFD4AF37;
@@ -40,6 +42,8 @@ public final class GameDisclaimerContent {
     public static final int EPILEPSY_COLOR = 0xFFE06B65;
     /** 开源免费：确认绿 */
     public static final int OPENSOURCE_COLOR = 0xFF72C17B;
+    /** 二创声明：功能蓝 */
+    public static final int FANWORK_COLOR = 0xFF5EB7D8;
 
     public record Section(String titleKey, String bodyKey, int titleColor) {}
 
@@ -49,7 +53,8 @@ public final class GameDisclaimerContent {
         return List.of(
                 new Section(HEALTH_TITLE, HEALTH_BODY, HEALTH_COLOR),
                 new Section(EPILEPSY_TITLE, EPILEPSY_BODY, EPILEPSY_COLOR),
-                new Section(OPENSOURCE_TITLE, OPENSOURCE_BODY, OPENSOURCE_COLOR));
+                new Section(OPENSOURCE_TITLE, OPENSOURCE_BODY, OPENSOURCE_COLOR),
+                new Section(FANWORK_TITLE, FANWORK_BODY, FANWORK_COLOR));
     }
 
     public static List<String> allKeys() {
@@ -57,6 +62,12 @@ public final class GameDisclaimerContent {
                 HEADER, SUBTITLE, HINT, CONFIRM,
                 HEALTH_TITLE, HEALTH_BODY,
                 EPILEPSY_TITLE, EPILEPSY_BODY,
-                OPENSOURCE_TITLE, OPENSOURCE_BODY);
+                OPENSOURCE_TITLE, OPENSOURCE_BODY,
+                FANWORK_TITLE, FANWORK_BODY);
+    }
+
+    /** 文本相对中轴线的绘制 X，保证换行后仍居中。 */
+    public static int centerX(int axisX, int textWidth) {
+        return axisX - textWidth / 2;
     }
 }

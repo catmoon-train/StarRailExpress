@@ -1196,6 +1196,8 @@
     "gui.sre.disclaimer.confirm": "I have read and agree",
     "gui.sre.disclaimer.epilepsy.body": "This game contains frequent flashing, high-contrast transitions, and certain spectral light effects that may trigger photosensitive epileptic seizures. If you or a family member has a history of epilepsy, consult a physician before playing.\nIf any of the following occur during play, stop immediately and seek medical help:\n• Dizziness, blurred vision, or nystagmus\n• Twitching of the face or limbs\n• Confusion or disorientation",
     "gui.sre.disclaimer.epilepsy.title": "Photosensitive Epilepsy Warning",
+    "gui.sre.disclaimer.fanwork.body": "This game is a non-commercial fan-made derivative work. It is completely free and open source.\n\nSome roles, characters, and settings are adapted from other commercial works. All related copyrights belong to their respective owners. This game as a whole is an original work and is not affiliated with, authorized, or endorsed by those official rights holders.\n\nAll fan-derived content is for player discussion and learning only. Do not use this game for commercial purposes or present it as an official derivative.",
+    "gui.sre.disclaimer.fanwork.title": "Fan-work Disclaimer",
     "gui.sre.disclaimer.header": "Before You Play",
     "gui.sre.disclaimer.health.body": "Manage your time and enjoy a healthy life. This game includes rewards for continued play. We recommend standing up and stretching every hour. If you feel visual fatigue, dry eyes, or anxiety, pause immediately and rest. If you have signs of gaming addiction, please follow the anti-addiction limits.",
     "gui.sre.disclaimer.health.title": "Play in moderation — excessive gaming harms your health",

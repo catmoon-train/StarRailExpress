@@ -53,17 +53,29 @@ class GameDisclaimerLayoutTest {
     }
 
     @Test
-    void contentDefinesThreeDisclaimerSectionsWithDistinctColors() {
+    void contentDefinesFourDisclaimerSectionsWithDistinctColors() {
         var sections = GameDisclaimerContent.sections();
-        assertEquals(3, sections.size());
+        assertEquals(4, sections.size());
         assertEquals(GameDisclaimerContent.HEALTH_TITLE, sections.get(0).titleKey());
         assertEquals(GameDisclaimerContent.EPILEPSY_TITLE, sections.get(1).titleKey());
         assertEquals(GameDisclaimerContent.OPENSOURCE_TITLE, sections.get(2).titleKey());
+        assertEquals(GameDisclaimerContent.FANWORK_TITLE, sections.get(3).titleKey());
         assertEquals(GameDisclaimerContent.HEALTH_COLOR, sections.get(0).titleColor());
         assertEquals(GameDisclaimerContent.EPILEPSY_COLOR, sections.get(1).titleColor());
         assertEquals(GameDisclaimerContent.OPENSOURCE_COLOR, sections.get(2).titleColor());
-        assertTrue(sections.get(0).titleColor() != sections.get(1).titleColor());
-        assertTrue(sections.get(1).titleColor() != sections.get(2).titleColor());
+        assertEquals(GameDisclaimerContent.FANWORK_COLOR, sections.get(3).titleColor());
+        assertEquals(4, sections.stream().map(GameDisclaimerContent.Section::titleColor).distinct().count());
+    }
+
+    @Test
+    void wrappedLinesStayCenteredOnThePanelAxis() {
+        assertEquals(100, GameDisclaimerContent.centerX(120, 40));
+        assertEquals(0, GameDisclaimerContent.centerX(10, 20));
+        int axis = 350;
+        for (int textW : new int[] {8, 41, 120, 333}) {
+            int x = GameDisclaimerContent.centerX(axis, textW);
+            assertEquals(axis, x + textW / 2);
+        }
     }
 
     @Test
@@ -86,6 +98,12 @@ class GameDisclaimerLayoutTest {
                     || json.get(GameDisclaimerContent.EPILEPSY_TITLE).getAsString().contains("癲癇")
                     || json.get(GameDisclaimerContent.EPILEPSY_TITLE).getAsString().toLowerCase().contains("epilepsy"));
             assertTrue(json.get(GameDisclaimerContent.OPENSOURCE_BODY).getAsString().contains("LGPL-3.0"));
+            assertTrue(json.get(GameDisclaimerContent.FANWORK_TITLE).getAsString().contains("二创")
+                    || json.get(GameDisclaimerContent.FANWORK_TITLE).getAsString().contains("二創")
+                    || json.get(GameDisclaimerContent.FANWORK_TITLE).getAsString().toLowerCase().contains("fan"));
+            assertTrue(json.get(GameDisclaimerContent.FANWORK_BODY).getAsString().contains("非商业")
+                    || json.get(GameDisclaimerContent.FANWORK_BODY).getAsString().contains("非商業")
+                    || json.get(GameDisclaimerContent.FANWORK_BODY).getAsString().contains("non-commercial"));
         }
     }
 }

@@ -1217,6 +1217,8 @@
     "gui.sre.disclaimer.confirm": "我已阅读并同意",
     "gui.sre.disclaimer.epilepsy.body": "本游戏包含频繁闪烁、高对比度转场及特定频谱光效，可能诱发光敏性癫痫发作。若您或您的家人有癫痫病史，请在游玩前咨询医师。\n游玩期间，如出现以下任一症状，请立即停止游玩并就医：\n• 头晕、视力模糊或眼球震颤\n• 面部或四肢肌肉抽搐\n• 意识混乱或定向障碍",
     "gui.sre.disclaimer.epilepsy.title": "光敏性癫痫预警",
+    "gui.sre.disclaimer.fanwork.body": "本游戏为非商业性同人二次创作作品，完全免费且开源。\n\n游戏中部分职业、角色及设定取材或改编自其他商业作品，相关版权均归其各自权利人所有。本游戏整体为原创作品，与上述原作官方无任何关联，亦未经任何官方授权或认可。\n\n所有二创内容仅供玩家交流学习之用，请勿将本游戏内容用于任何商业用途或冒认为官方衍生作品。",
+    "gui.sre.disclaimer.fanwork.title": "二创免责声明",
     "gui.sre.disclaimer.header": "游戏须知",
     "gui.sre.disclaimer.health.body": "合理安排时间，享受健康生活。本游戏内含持续游玩奖励机制，建议您每游玩 1小时 起身活动片刻。若您感到视觉疲劳、眼部干涩或情绪焦虑，请立即暂停游戏并休息。如您已有游戏成瘾倾向，请自觉遵守防沉迷系统限制。",
     "gui.sre.disclaimer.health.title": "适度游戏益脑，沉迷游戏伤身",

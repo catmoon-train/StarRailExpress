@@ -34,8 +34,9 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
- * 进入主菜单前的健康 / 医学 / 开源免责声明。
+ * 进入主菜单前的健康 / 医学 / 开源 / 二创免责声明。
  * 每次启动会话展示一次，必须点击确认后才能继续。
+ * 各段独立成卡片、标题与正文居中，内容区可滚动。
  */
 @Environment(EnvType.CLIENT)
 public class GameDisclaimerScreen extends Screen {
@@ -43,11 +44,10 @@ public class GameDisclaimerScreen extends Screen {
     private static final AtomicBoolean ACKNOWLEDGED = new AtomicBoolean(false);
 
     private static final int BODY_COLOR = 0xFFC8B898;
-    private static final int TITLE_LINE_H = 14;
-    private static final int BODY_LINE_H = 12;
-    private static final int SECTION_GAP = 10;
+    private static final int TITLE_LINE_H = 16;
+    private static final int BODY_LINE_H = 13;
 
-    private final List<Line> lines = new ArrayList<>();
+    private final List<SectionBlock> sections = new ArrayList<>();
     private GameDisclaimerLayout layout;
     private long openedAt = -1L;
     private float scrollOffset;
@@ -79,35 +79,53 @@ public class GameDisclaimerScreen extends Screen {
     }
 
     private void rebuildLines() {
-        this.lines.clear();
-        int maxW = Math.max(40, layout.contentW());
-        for (GameDisclaimerContent.Section section : GameDisclaimerContent.sections()) {
+        this.sections.clear();
+        int pad = GameDisclaimerLayout.SECTION_INNER_PAD;
+        int textW = Math.max(40, layout.contentW() - pad * 2);
+        List<GameDisclaimerContent.Section> defs = GameDisclaimerContent.sections();
+        for (int i = 0; i < defs.size(); i++) {
+            GameDisclaimerContent.Section section = defs.get(i);
+            List<Line> lines = new ArrayList<>();
+            String index = String.format("%02d", i + 1);
+            lines.add(new Line(Component.literal(index).getVisualOrderText(),
+                    0xFF9E8B6E, 11, false));
             Component title = Component.translatable(section.titleKey())
                     .withStyle(ChatFormatting.BOLD);
-            for (FormattedCharSequence seq : this.font.split(title, maxW)) {
-                this.lines.add(new Line(seq, section.titleColor(), TITLE_LINE_H));
+            for (FormattedCharSequence seq : this.font.split(title, textW)) {
+                lines.add(new Line(seq, section.titleColor(), TITLE_LINE_H, true));
             }
-            this.lines.add(new Line(null, 0, 4));
+            lines.add(new Line(null, 0, 6, false));
             String body = Component.translatable(section.bodyKey()).getString();
             String[] paras = body.split("\n", -1);
-            for (int i = 0; i < paras.length; i++) {
-                String para = paras[i];
+            for (int p = 0; p < paras.length; p++) {
+                String para = paras[p];
                 if (para.isEmpty()) {
-                    this.lines.add(new Line(null, 0, 6));
+                    lines.add(new Line(null, 0, 8, false));
                     continue;
                 }
-                for (FormattedCharSequence seq : this.font.split(Component.literal(para), maxW)) {
-                    this.lines.add(new Line(seq, BODY_COLOR, BODY_LINE_H));
+                for (FormattedCharSequence seq : this.font.split(Component.literal(para), textW)) {
+                    lines.add(new Line(seq, BODY_COLOR, BODY_LINE_H, false));
                 }
-                if (i < paras.length - 1) {
-                    this.lines.add(new Line(null, 0, 3));
+                if (p < paras.length - 1 && !paras[p + 1].isEmpty()) {
+                    lines.add(new Line(null, 0, 5, false));
                 }
             }
-            this.lines.add(new Line(null, 0, SECTION_GAP));
+            int innerH = lines.stream().mapToInt(l -> l.height).sum();
+            this.sections.add(new SectionBlock(lines, innerH + pad * 2, section.titleColor()));
         }
-        int totalH = this.lines.stream().mapToInt(l -> l.height).sum();
-        this.maxScroll = Math.max(0, totalH - layout.contentH() + 4);
+        this.maxScroll = Math.max(0, totalContentHeight() - layout.contentH());
         this.scrollOffset = Mth.clamp(this.scrollOffset, 0, this.maxScroll);
+    }
+
+    private int totalContentHeight() {
+        if (this.sections.isEmpty()) {
+            return 0;
+        }
+        int h = 0;
+        for (SectionBlock block : this.sections) {
+            h += block.height + GameDisclaimerLayout.SECTION_GAP;
+        }
+        return h - GameDisclaimerLayout.SECTION_GAP;
     }
 
     @Override
@@ -143,16 +161,35 @@ public class GameDisclaimerScreen extends Screen {
         g.enableScissor(layout.contentX(), layout.contentY(),
                 layout.contentX() + layout.contentW(), layout.contentY() + layout.contentH());
         try {
-            int y = layout.contentY() + 2 - (int) this.scrollOffset;
+            int y = layout.contentY() - (int) this.scrollOffset;
+            int clipTop = layout.contentY();
             int clipBottom = layout.contentY() + layout.contentH();
-            for (Line line : this.lines) {
-                if (line.text != null
-                        && y + line.height >= layout.contentY() - 8
-                        && y <= clipBottom + 8) {
-                    g.drawString(this.font, line.text, layout.contentX(), y,
-                            LoadingFx.withAlpha(line.color, enter), false);
+            int axisX = layout.contentX() + layout.contentW() / 2;
+            int pad = GameDisclaimerLayout.SECTION_INNER_PAD;
+            for (SectionBlock block : this.sections) {
+                int blockBottom = y + block.height;
+                if (blockBottom >= clipTop - 8 && y <= clipBottom + 8) {
+                    drawSectionCard(g, y, block, enter);
+                    int lineY = y + pad;
+                    for (Line line : block.lines) {
+                        if (line.text != null
+                                && lineY + line.height >= clipTop - 8
+                                && lineY <= clipBottom + 8) {
+                            int textW = this.font.width(line.text);
+                            int textX = GameDisclaimerContent.centerX(axisX, textW);
+                            g.drawString(this.font, line.text, textX, lineY,
+                                    LoadingFx.withAlpha(line.color, enter), false);
+                            if (line.title) {
+                                int ruleW = Math.min(56, Math.max(24, textW / 2));
+                                int ruleY = lineY + line.height - 3;
+                                g.fill(axisX - ruleW / 2, ruleY, axisX + ruleW / 2, ruleY + 1,
+                                        LoadingFx.withAlpha(block.accent, 0.55F * enter));
+                            }
+                        }
+                        lineY += line.height;
+                    }
                 }
-                y += line.height;
+                y += block.height + GameDisclaimerLayout.SECTION_GAP;
             }
         } finally {
             g.disableScissor();
@@ -168,12 +205,27 @@ public class GameDisclaimerScreen extends Screen {
                 LoadingFx.withAlpha(0x9E8B6E, enter * 0.9F), false);
     }
 
+    private void drawSectionCard(GuiGraphics g, int y, SectionBlock block, float enter) {
+        int x = layout.contentX();
+        int w = layout.contentW();
+        int h = block.height;
+        int top = LoadingFx.lerpArgb(enter, 0x001A1008, 0xB81A1008);
+        int bot = LoadingFx.lerpArgb(enter, 0x00120804, 0xB8120804);
+        g.fillGradient(x, y, x + w, y + h, top, bot);
+        int border = SreUiStyle.blend(SreUiStyle.BORDER, block.accent, 0.40F);
+        g.renderOutline(x, y, w, h, LoadingFx.lerpArgb(enter, 0x008B6914, border));
+        g.fill(x + 1, y + 1, x + w - 1, y + 2, LoadingFx.lerpArgb(enter, 0x00FFE8C0, 0x22FFE8C0));
+        int accentBar = LoadingFx.withAlpha(block.accent, 0.85F * enter);
+        g.fill(x, y + 4, x + 2, y + h - 4, accentBar);
+        g.fill(x + w - 2, y + 4, x + w, y + h - 4, accentBar);
+    }
+
     private void drawScrollbar(GuiGraphics g, float enter) {
         if (this.maxScroll <= 0.01F) {
             return;
         }
         int trackH = layout.sbBot() - layout.sbTop();
-        int totalH = this.lines.stream().mapToInt(l -> l.height).sum();
+        int totalH = totalContentHeight();
         int thumbH = Math.max(18, (int) (trackH * (layout.contentH() / (float) Math.max(1, totalH))));
         float prog = this.maxScroll <= 0 ? 0 : this.scrollOffset / this.maxScroll;
         int thumbY = layout.sbTop() + (int) (prog * (trackH - thumbH));
@@ -205,7 +257,7 @@ public class GameDisclaimerScreen extends Screen {
     @Override
     public boolean mouseScrolled(double mouseX, double mouseY,
             double horizontalAmount, double verticalAmount) {
-        if (layout != null && this.maxScroll > 0 && layout.inPanel(mouseX, mouseY)) {
+        if (layout != null && this.maxScroll > 0) {
             this.scrollOffset = Mth.clamp(
                     (float) (this.scrollOffset - verticalAmount * 16.0), 0, this.maxScroll);
             return true;
@@ -260,7 +312,30 @@ public class GameDisclaimerScreen extends Screen {
         if (keyCode == GLFW.GLFW_KEY_ESCAPE) {
             return true;
         }
+        if (scrollByKey(keyCode)) {
+            return true;
+        }
         return super.keyPressed(keyCode, scanCode, modifiers);
+    }
+
+    private boolean scrollByKey(int keyCode) {
+        if (this.maxScroll <= 0) {
+            return false;
+        }
+        float delta = switch (keyCode) {
+            case GLFW.GLFW_KEY_DOWN, GLFW.GLFW_KEY_S -> 16.0F;
+            case GLFW.GLFW_KEY_UP, GLFW.GLFW_KEY_W -> -16.0F;
+            case GLFW.GLFW_KEY_PAGE_DOWN -> layout.contentH() * 0.8F;
+            case GLFW.GLFW_KEY_PAGE_UP -> -layout.contentH() * 0.8F;
+            case GLFW.GLFW_KEY_HOME -> -this.scrollOffset;
+            case GLFW.GLFW_KEY_END -> this.maxScroll - this.scrollOffset;
+            default -> 0.0F;
+        };
+        if (delta == 0.0F) {
+            return false;
+        }
+        this.scrollOffset = Mth.clamp(this.scrollOffset + delta, 0, this.maxScroll);
+        return true;
     }
 
     @Override
@@ -292,5 +367,7 @@ public class GameDisclaimerScreen extends Screen {
         }
     }
 
-    private record Line(FormattedCharSequence text, int color, int height) {}
+    private record Line(FormattedCharSequence text, int color, int height, boolean title) {}
+
+    private record SectionBlock(List<Line> lines, int height, int accent) {}
 }
