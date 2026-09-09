@@ -234,15 +234,16 @@ public class GameUtilsCommand {
                       true);
                   return 1;
                 })))
-            .then(Commands.literal("debug").executes((ctx) -> {
-              ServerPlayer player = ctx.getSource().getPlayerOrException();
-              LenderRoleHandler.debugAccept(player);
-              ctx.getSource().sendSuccess(
-                  () -> Component.literal("Opened a debug loan contract for " + player.getName().getString()), false);
-              return 1;
-            }))
-            .then(Commands.literal("tests")
 
+            .then(Commands.literal("tests")
+                .then(Commands.literal("loan").executes((ctx) -> {
+                  ServerPlayer player = ctx.getSource().getPlayerOrException();
+                  LenderRoleHandler.debugAccept(player);
+                  ctx.getSource().sendSuccess(
+                      () -> Component.literal("Opened a debug loan contract for " + player.getName().getString()),
+                      false);
+                  return 1;
+                }))
                 .then(Commands.literal("open_screen")
                     .then(Commands.argument("screen_id", ResourceLocationArgument.id())
                         .suggests((a, b) -> {
