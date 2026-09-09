@@ -64,7 +64,8 @@ public record KnifeStabPayload(int target) implements CustomPacketPayload {
             if (player.isSpectator()) {
                 return;
             }
-            if(player.hasEffect(ModEffects.USED_BANED)){
+            if (player.hasEffect(ModEffects.USED_BANED)
+                    || org.agmas.noellesroles.content.effects.StatusAilmentHandler.isIntellectLocked(player)) {
                 return;
             }
             Entity targetEntity = player.serverLevel().getEntity(payload.target());

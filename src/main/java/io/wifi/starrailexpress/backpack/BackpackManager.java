@@ -85,22 +85,43 @@ public final class BackpackManager {
         markDirty(player, entry);
     }
 
+    public enum ActivateResult {
+        SUCCESS,
+        INVALID,
+        ALREADY_ACTIVE,
+        ON_COOLDOWN
+    }
+
     /** 逐字复刻 {@code ProgressionDataManager.activateFactionCard}：卡库写改为背包。 */
     public static boolean activateCard(ServerPlayer player, FactionCardType type) {
+        return activateCardResult(player, type) == ActivateResult.SUCCESS;
+    }
+
+    public static ActivateResult activateCardResult(ServerPlayer player, FactionCardType type) {
         Entry entry = getEntry(player.getUUID());
         int current = entry.state.cards.getOrDefault(type, 0);
-        if (type == FactionCardType.NONE || current < 1
-                || PlayerRoleWeightManager.ForcePlayerTeam.containsKey(player.getUUID())) {
-            return false;
+        if (type == FactionCardType.NONE || current < 1) {
+            return ActivateResult.INVALID;
+        }
+        if (PlayerRoleWeightManager.ForcePlayerTeam.containsKey(player.getUUID())) {
+            return ActivateResult.ALREADY_ACTIVE;
+        }
+        if (FactionCardCooldown.isOnCooldown(entry.state, type)) {
+            return ActivateResult.ON_COOLDOWN;
         }
         PlayerRoleWeightManager.ForcePlayerTeam.put(player.getUUID(), new ForceTeamInfo(type.getTypeRoleId(), ForceTeamType.CARD));
         entry.state.cards.put(type, current - 1);
+        entry.state.markUsed(type, System.currentTimeMillis());
         markDirty(player, entry);
         Component message = Component.translatable("message.sre.progression.faction_card_activated",
                 Component.translatable(type.displayName));
         player.sendSystemMessage(message);
         player.displayClientMessage(message, true);
-        return true;
+        return ActivateResult.SUCCESS;
+    }
+
+    public static long remainingCooldownMs(ServerPlayer player, FactionCardType type) {
+        return FactionCardCooldown.remainingMs(getEntry(player.getUUID()).state, type);
     }
 
     /** 命令开屏前可调用以保证客户端数据新鲜。 */

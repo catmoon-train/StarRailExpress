@@ -72,7 +72,8 @@ public record GunShootPayload(int target) implements CustomPacketPayload {
             if (player.isSpectator()) {
                 return;
             }
-            if(player.hasEffect(ModEffects.USED_BANED)){
+            if (player.hasEffect(ModEffects.USED_BANED)
+                    || org.agmas.noellesroles.content.effects.StatusAilmentHandler.isIntellectLocked(player)) {
                 return;
             }
             if (player.getCooldowns().isOnCooldown(mainHandStack.getItem()))

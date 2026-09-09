@@ -16,6 +16,7 @@
 package io.wifi.starrailexpress.client.gui.screen;
 
 import io.wifi.starrailexpress.backpack.BackpackState;
+import io.wifi.starrailexpress.backpack.FactionCardCooldown;
 import io.wifi.starrailexpress.client.data.ClientPlayerDataCache;
 import io.wifi.starrailexpress.progression.ProgressionState;
 import io.wifi.starrailexpress.progression.ProgressionState.FactionCardType;
@@ -197,16 +198,17 @@ public class ProgressionPassScreen extends Screen {
 
     private Button createCardButton(int x, int y, int width, FactionCardType type, int accentColor) {
         int count = backpack.cards.getOrDefault(type, 0);
+        boolean cooling = FactionCardCooldown.isOnCooldown(backpack, type);
         Component label = Component.literal(
                 Component.translatable("sre.pass.faction." + type.questKey).getString() + " x" + count);
         var btn = ModernButton.builder(label, b -> {
-            if (count > 0) {
+            if (count > 0 && !FactionCardCooldown.isOnCooldown(backpack, type)) {
                 sendCommand("sre:pass activate " + type.questKey);
                 onClose();
             }
         })
                 .bounds(x, y, width, 22).accentColor(accentColor).build();
-        btn.active = count > 0;
+        btn.active = count > 0 && !cooling;
         return btn;
     }
 

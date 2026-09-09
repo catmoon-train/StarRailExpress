@@ -1,0 +1,17 @@
+{
+  "blend": {"func": "add", "srcrgb": "one", "dstrgb": "zero"},
+  "vertex": "blit",
+  "fragment": "myopia",
+  "attributes": ["Position"],
+  "samplers": [
+    {"name": "DiffuseSampler"},
+    {"name": "DepthSampler"}
+  ],
+  "uniforms": [
+    {"name": "ProjMat", "type": "matrix4x4", "count": 16, "values": [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]},
+    {"name": "ProjectionInv", "type": "matrix4x4", "count": 16, "values": [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]},
+    {"name": "OutSize", "type": "float", "count": 2, "values": [1, 1]},
+    {"name": "Strength", "type": "float", "count": 1, "values": [0]},
+    {"name": "FocusDistance", "type": "float", "count": 1, "values": [6]}
+  ]
+}
