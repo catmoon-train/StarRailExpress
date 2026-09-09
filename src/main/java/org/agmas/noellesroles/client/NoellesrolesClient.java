@@ -336,6 +336,7 @@ public class NoellesrolesClient implements ClientModInitializer {
                     if (entityRenderer instanceof net.minecraft.client.renderer.entity.player.PlayerRenderer pr) {
                         registrationHelper.register(new C4BackFeatureRenderer(pr));
                         registrationHelper.register(new HandCuffsFeatureRenderer(pr));
+                        registrationHelper.register(new OraGoldArmFeatureRenderer(pr));
                     }
                 });
 

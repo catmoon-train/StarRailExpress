@@ -27,7 +27,7 @@ import org.agmas.noellesroles.content.item.*;
 public class FunnyItems {
     public static final ItemRegistrar registrar = new ItemRegistrar(Noellesroles.MOD_ID);
 
-    // 波纹勋章
+    // 欧拉一拳（原波纹勋章）
     public static final Item HOT_POTATO = register(
             new HotPotatoItem(new Item.Properties().stacksTo(1)),
             "hot_potato");

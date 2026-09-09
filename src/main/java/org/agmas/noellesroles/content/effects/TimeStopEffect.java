@@ -112,6 +112,9 @@ public class TimeStopEffect extends MobEffect {
                         if (gameWorldComponent.isRole(player, ModRoles.CLOCKMAKER)) {
                             canMovePlayers.add(player.getUUID());
                         }
+                        if (gameWorldComponent.isRole(player, ModRoles.JOJO)) {
+                            canMovePlayers.add(player.getUUID());
+                        }
                     }
                 });
         serverPlayer.serverLevel().players().forEach(
