@@ -120,8 +120,13 @@ public class MorphlingRoleData extends SimpleRoleData {
     }
 
     public boolean startMorph(UUID id) {
-        if (player instanceof ServerPlayer)
-            ConfigWorldComponent.onPlayerUsedSkill((ServerPlayer) player);
+        if (!(player instanceof ServerPlayer serverPlayer)) {
+            return false;
+        }
+        if (!io.wifi.starrailexpress.morph.MorphApi.morphToPlayer(serverPlayer, id)) {
+            return false;
+        }
+        ConfigWorldComponent.onPlayerUsedSkill(serverPlayer);
         setMorphTicks(GameConstants.getInTicks(0, NoellesRolesConfig.HANDLER.instance().morphlingMorphDuration));
         disguise = id;
         this.sync();
@@ -148,6 +153,9 @@ public class MorphlingRoleData extends SimpleRoleData {
      * If false, simply end morphing without applying cooldown.
      */
     public void stopMorph(boolean startCooldown) {
+        if (player instanceof ServerPlayer serverPlayer) {
+            io.wifi.starrailexpress.morph.MorphApi.clearMorph(serverPlayer);
+        }
         if (startCooldown) {
             this.morphTicks = -GameConstants.getInTicks(0,
                     NoellesRolesConfig.HANDLER.instance().morphlingMorphCooldown);

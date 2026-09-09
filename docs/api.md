@@ -38,11 +38,13 @@
 9. [皮肤系统 / Skin System](#皮肤系统--skin-system)
    - [SkinManager — 皮肤工具类](#skinmanager--皮肤工具类)
    - [注册自定义皮肤](#注册自定义皮肤)
+   - [变形 API / Morph API](#变形-api--morph-api)
 10. [事件系统 / Event System](#事件系统--event-system)
     - [游戏生命周期事件](#游戏生命周期事件)
     - [玩家死亡事件](#玩家死亡事件)
     - [技能与交互事件](#技能与交互事件)
     - [渲染与客户端事件](#渲染与客户端事件)
+    - [变形事件](#变形事件)
     - [其他事件](#其他事件)
 11. [Harpymodloader API](#harpymodloader-api)
     - [Harpymodloader — 主入口](#harpymodloader--主入口)
@@ -1033,6 +1035,43 @@ SkinManager.QualityColor.UNBELIEVABLE // 0xFFFF3F3F 红色
 
 ---
 
+## 变形 API / Morph API
+
+**包 / Package:** `io.wifi.starrailexpress.morph`
+
+统一玩家外观变形：指定玩家、随机玩家、指定贴图。变形为玩家时，皮肤 / 帽子 / 名牌 / 身份玩偶一律跟随显示对象（与帽子绑定相同），避免用赞助玩偶识人。
+
+```java
+import io.wifi.starrailexpress.morph.MorphApi;
+
+// 变形成指定玩家（帽子、名牌、赞助玩偶一并绑定）
+MorphApi.morphToPlayer(serverPlayer, target.getUUID());
+MorphApi.morphToPlayer(serverPlayer, target.getUUID(), 20 * 15); // 15 秒后自动解除
+
+// 随机变形成一名存活玩家
+MorphApi.morphToRandomPlayer(serverPlayer);
+MorphApi.morphToRandomPlayer(serverPlayer, candidate -> GameUtils.isPlayerAliveAndSurvival(candidate), 0);
+
+// 使用其他贴图变形（无真实玩家可复制，帽子/名牌前缀/玩偶隐藏）
+MorphApi.morphToTexture(serverPlayer, SRE.id("textures/entity/disguise/disguise_skin_1.png"), false);
+
+// 解除变形
+MorphApi.clearMorph(serverPlayer);
+
+MorphAppearance appearance = MorphApi.getAppearance(player);
+boolean morphed = MorphApi.isMorphed(player);
+```
+
+客户端查询当前应显示的拥有者 / 名称 / 玩偶：
+
+```java
+UUID owner = MorphApi.resolveDisplayedOwnerUuid(clientPlayer);
+Component name = MorphApi.getDisplayedName(clientPlayer);
+ItemStack plush = MorphApi.getDisplayedPlushStack(clientPlayer);
+```
+
+---
+
 ## 事件系统 / Event System
 
 所有事件位于 `io.wifi.starrailexpress.event` 包（以及 `org.agmas.noellesroles.events`）。  
@@ -1373,6 +1412,34 @@ AllowOtherCameraType.EVENT.register((player) -> true);
 ```java
 OnOpenInventory.EVENT.register((localPlayer, screen) -> false);
 ```
+
+---
+
+### 变形事件
+
+#### `AllowPlayerMorph` — 是否允许变形
+
+**包 / Package:** `io.wifi.starrailexpress.event`  
+**类型:** 可拦截，任意监听器返回 `false` 则取消。
+
+```java
+AllowPlayerMorph.EVENT.register((player, appearance) -> {
+    // appearance 为 MorphAppearance.NONE 时表示解除变形
+    return true;
+});
+```
+
+#### `OnPlayerMorph` — 变形完成
+
+**类型:** 通知型。外观已写入并开始同步。`next` 为 `NONE` 时表示解除变形。
+
+```java
+OnPlayerMorph.EVENT.register((player, previous, next) -> { /* ... */ });
+```
+
+#### `OnResolveDisplayedSkinOwner` — 解析显示皮肤拥有者（客户端）
+
+帽子、名牌、身份玩偶都通过此事件解析「看起来是谁」。返回非本人 UUID 即生效。
 
 ---
 
