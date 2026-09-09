@@ -76,12 +76,7 @@ import java.util.UUID;
 public class SREClientEvents {
 
     public static Component getName(Player target) {
-        if (target == null)
-            return Component.literal("");
-        var prefix = ClientSkinCache.somePrefix(target.getUUID());
-        if (prefix == null)
-            return target.getName();
-        return Component.literal("").append(prefix).append(target.getName());
+        return io.wifi.starrailexpress.morph.MorphApi.getDisplayedName(target);
     }
 
     public static Component getName(PlayerInfo playerInfo) {

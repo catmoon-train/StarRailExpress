@@ -127,6 +127,10 @@ public class SREPayloadRegister {
         PayloadTypeRegistry.playS2C().register(SkillCastAnnouncePayload.ID, SkillCastAnnouncePayload.CODEC);
         PayloadTypeRegistry.playS2C().register(io.wifi.starrailexpress.network.HatEquipmentSyncPayload.ID,
                 io.wifi.starrailexpress.network.HatEquipmentSyncPayload.CODEC);
+        PayloadTypeRegistry.playS2C().register(io.wifi.starrailexpress.network.MorphSyncPayload.ID,
+                io.wifi.starrailexpress.network.MorphSyncPayload.CODEC);
+        PayloadTypeRegistry.playS2C().register(io.wifi.starrailexpress.network.PlushEquipmentSyncPayload.ID,
+                io.wifi.starrailexpress.network.PlushEquipmentSyncPayload.CODEC);
         PayloadTypeRegistry.playS2C().register(io.wifi.starrailexpress.network.RoleRosterSyncPayload.ID,
                 io.wifi.starrailexpress.network.RoleRosterSyncPayload.CODEC);
         PayloadTypeRegistry.playS2C().register(io.wifi.starrailexpress.sponsor.SponsorListPayload.ID,
