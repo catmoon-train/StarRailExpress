@@ -68,6 +68,9 @@ public class PlayerMountainHandler {
 
     public static void register() {
         CanCollideWith.PLAYER.register((player, entity) -> {
+            if (player.level().isClientSide) {
+                return TrueFalseResult.PASS;
+            }
             if (GameUtils.isGameRunning(player)) {
                 if (SREConfig.instance().disablePlayerMountain) {
                     if (entity instanceof Player other) {
