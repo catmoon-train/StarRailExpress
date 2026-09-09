@@ -53,7 +53,7 @@ public class BounsHandlers {
         OnKillPlayerTriggered.EVENT.register((victim, spawnBody, killer, deathReasosn, forceKill) -> {
             if (killer == null || RoleUtils.isPlayerTheJob(killer, BounsRoles.HENG_XING_TI)) {
                 if (ForensicCategory.fromDeathReason(deathReasosn).equals(ForensicCategory.ENVIRONMENT)) {
-                    if (victim.getKillCredit() instanceof ServerPlayer sp) {
+                    if (victim.getLastHurtByMob() instanceof ServerPlayer sp) {
                         if (RoleUtils.isPlayerTheJob(sp, BounsRoles.HENG_XING_TI)) {
                             victim.setLastHurtByMob(null);
                             victim.setLastHurtByPlayer(null);
