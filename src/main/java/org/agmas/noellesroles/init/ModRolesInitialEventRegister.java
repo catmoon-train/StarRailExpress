@@ -67,6 +67,7 @@ import org.agmas.noellesroles.role_data.killer.MaChenXuRoleData;
 import org.agmas.noellesroles.game.roles.killer.manipulator.InControlCCA;
 import org.agmas.noellesroles.role_data.innocence.BuilderRoleData;
 import org.agmas.noellesroles.role_data.innocence.BarbarianRoleData;
+import org.agmas.noellesroles.role_data.vigilante.JojoRoleData;
 import org.agmas.noellesroles.role_data.innocence.FortunetellerRoleData;
 import org.agmas.noellesroles.role_data.neutral.AmonRoleData;
 import org.agmas.noellesroles.role_data.neutral.CandleBearerRoleData;
@@ -128,6 +129,7 @@ public class ModRolesInitialEventRegister {
         TomatoHeadRoleData.registerEvents();
         PhantomSpiritRoleData.registerEvents();
         BarbarianRoleData.registerEvents();
+        JojoRoleData.registerEvents();
         // 初始化操纵师操控限制（被拖入水/岩浆/虚空/摔落致死时否决并弹回）
         InControlCCA.registerEvents();
         ModdedRoleAssigned.EVENT.register((player, role) -> {

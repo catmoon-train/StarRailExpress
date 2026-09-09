@@ -1318,7 +1318,6 @@ public class ModItems {
         ExamplerPsychoItemStack.set(DataComponents.ITEM_NAME,
                 Component.translatable("itemstack.exampler.psychoitem.item_name"));
         ChargeableItemRegistry.register(ANTIDOTE_REAGENT, new AntidoteReagentChargeItem());
-        ChargeableItemRegistry.register(FunnyItems.BOWEN_BADGE, new BowenBadgeChargeItem());
         ChargeableItemRegistry.register(ModItems.STALKER_KNIFE, new StalkerKnifeChargeItem());
         ChargeableItemRegistry.register(ModItems.SILENCE_TOTEM, new SilenceTotemChargeItem());
         ChargeableItemRegistry.register(ModItems.STALKER_KNIFE_OFFHAND, new StalkerKnifeChargeItem());
