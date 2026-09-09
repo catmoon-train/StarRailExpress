@@ -33,6 +33,7 @@ import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.Mth;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.Vec3;
 import org.agmas.noellesroles.Noellesroles;
 import org.agmas.noellesroles.component.ModComponents;
@@ -90,6 +91,17 @@ public class SaltedFishRoleData extends SimpleRoleData {
 
     public boolean isActive() {
         return activeTicks > 0;
+    }
+
+    /**
+     * 是否处于「伪装成尸体」的形态（晒咸鱼期间）。
+     *
+     * <p>此时玩家被渲染成一具躺平的尸体，碰撞箱也要按尸体尺寸走，
+     * 否则瞄准那具「尸体」时命中的是一根看不见的站立碰撞箱。
+     */
+    public static boolean isCorpseForm(Player player) {
+        SaltedFishRoleData data = RoleData.getNullable(SaltedFishRoleData.class, player);
+        return data != null && data.isActive();
     }
 
     public boolean useSkill(ServerPlayer sp) {

@@ -23,6 +23,7 @@ import net.minecraft.world.entity.player.Player;
 
 import org.agmas.noellesroles.game.modifier.NRModifiers;
 import org.agmas.noellesroles.role_data.innocence.LeatherPigRoleData;
+import org.agmas.noellesroles.role_data.innocence.SaltedFishRoleData;
 import org.agmas.noellesroles.role_data.innocence.TomatoHeadRoleData;
 import org.agmas.noellesroles.role_data.killer.InsaneKillerRoleData;
 import org.agmas.noellesroles.role_data.neutral.PhantomSpiritRoleData;
@@ -37,7 +38,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 /**
  * 皮革噶的：伪装成猪期间把玩家的眼高压到猪的眼高。
  * 幻灵：伪装成悦灵期间改用悦灵碰撞箱与眼高。
- * 亡语杀手：伪装成尸体期间改用尸体碰撞箱（眼高保持原值，否则第三人称相机会掉到地里）。
+ * 亡语杀手 / 咸鱼：伪装成尸体期间改用尸体碰撞箱（眼高保持原值，否则第三人称相机会掉到地里）。
  *
  * <p>
  * 猪的碰撞箱（0.6×1.8）保持不变——地图是按人的尺寸做的。只改眼高，于是相机、准星射线、
@@ -57,7 +58,7 @@ public abstract class EntityDisguiseEyeHeightMixin {
     @Inject(method = "tick", at = @At("TAIL"))
     private void noellesroles$refreshCorpseBox(CallbackInfo ci) {
         Player self = (Player) (Object) this;
-        boolean corpse = InsaneKillerRoleData.isCorpseForm(self);
+        boolean corpse = InsaneKillerRoleData.isCorpseForm(self) || SaltedFishRoleData.isCorpseForm(self);
         if (corpse != noellesroles$corpseBoxActive) {
             noellesroles$corpseBoxActive = corpse;
             self.refreshDimensions();

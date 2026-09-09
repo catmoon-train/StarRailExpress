@@ -24,6 +24,7 @@ import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.Entity;
 
 import java.util.Collection;
 import java.util.List;
@@ -64,17 +65,25 @@ public final class MeetingReportServerHandler {
     }
 
     private static void handleReport(ServerPlayer player, int bodyEntityId) {
-        if (!(player.serverLevel().getEntity(bodyEntityId) instanceof PlayerBodyEntity body)) {
-            return;
-        }
-        if (!player.canInteractWithEntity(body, 3.0)) {
-            return;
-        }
         if (player.hasEffect(ModEffects.USED_BANED)) {
             return;
         }
-        // 启用开关 / 存活 / 重复上报 / 冷却均由 tryReportBody 校验
-        MeetingManager.tryReportBody(player, body);
+        Entity target = player.serverLevel().getEntity(bodyEntityId);
+        if (target instanceof PlayerBodyEntity body) {
+            if (!player.canInteractWithEntity(body, 3.0)) {
+                return;
+            }
+            // 启用开关 / 存活 / 重复上报 / 冷却均由 tryReportBody 校验
+            MeetingManager.tryReportBody(player, body);
+            return;
+        }
+        // 假尸体（咸鱼 / 亡语杀手伪装成尸体）：客户端发来的是伪装者本人的 id
+        if (target instanceof ServerPlayer fake && MeetingManager.isFakeCorpseForm(fake)) {
+            if (!player.canInteractWithEntity(fake, 3.0)) {
+                return;
+            }
+            MeetingManager.tryReportFakeCorpse(player, fake);
+        }
     }
 
     public static void broadcast(ServerLevel serverLevel, long cooldownEndGameTime, long bellCooldownEndGameTime,

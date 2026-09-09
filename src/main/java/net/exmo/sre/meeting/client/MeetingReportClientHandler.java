@@ -33,10 +33,12 @@ import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.network.chat.Component;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.EntityHitResult;
+import org.agmas.noellesroles.client.PlayerBodyDisguiseRenderer;
 import java.util.Set;
 import java.util.UUID;
 
@@ -107,7 +109,8 @@ public final class MeetingReportClientHandler {
 
         Component text;
         int color;
-        if (reportedBodies.contains(body.getUUID())) {
+        UUID reportKey = reportTargetUuid(client);
+        if (reportKey != null && reportedBodies.contains(reportKey)) {
             text = Component.translatable("meeting.sre.report_already");
             color = MUTED;
         } else {
@@ -190,9 +193,39 @@ public final class MeetingReportClientHandler {
     }
 
     public static PlayerBodyEntity targetedBody(Minecraft client) {
-        if (client.hitResult instanceof EntityHitResult hit
-                && hit.getEntity() instanceof PlayerBodyEntity body && body.isAlive()) {
+        Entity target = reportableTarget(client);
+        if (target instanceof PlayerBodyEntity body) {
             return body;
+        }
+        if (target instanceof Player player) {
+            // 假尸体：用客户端缓存的纯渲染尸体，让提示与验尸 HUD 都按尸体走
+            return PlayerBodyDisguiseRenderer.getCachedBody(player);
+        }
+        return null;
+    }
+
+    /** 上报去重用的 UUID：真尸体用尸体自身，假尸体用伪装者本人（服务端按形态识别）。 */
+    public static UUID reportTargetUuid(Minecraft client) {
+        Entity target = reportableTarget(client);
+        return target == null ? null : target.getUUID();
+    }
+
+    /** 上报发包用的实体 id：真尸体用尸体 id，假尸体用伪装者 id。 */
+    public static int reportTargetId(Minecraft client) {
+        Entity target = reportableTarget(client);
+        return target == null ? -1 : target.getId();
+    }
+
+    /** 准星命中的可上报目标：真尸体返回尸体实体，假尸体返回伪装者本人；否则 null。 */
+    private static Entity reportableTarget(Minecraft client) {
+        if (client.hitResult instanceof EntityHitResult hit) {
+            if (hit.getEntity() instanceof PlayerBodyEntity body && body.isAlive()) {
+                return body;
+            }
+            if (hit.getEntity() instanceof Player target
+                    && PlayerBodyDisguiseRenderer.getCachedBody(target) != null) {
+                return target;
+            }
         }
         return null;
     }

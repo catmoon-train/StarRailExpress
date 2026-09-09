@@ -66,16 +66,17 @@ public class PlayerBodyDisguiseRenderer {
     /**
      * 渲染某玩家的假尸体。
      *
+     * @param forgedMarker 是否标记为「伪造的尸体」——验尸官（能看到死因的职业）一眼就能看穿
      * @return 是否成功绘制（调用方据此决定是否取消本体渲染）
      */
     public static boolean render(AbstractClientPlayer player, EntityType<? extends PlayerBodyEntity> bodyType,
             float yaw, float bodyYaw, float headYaw, float tickDelta, PoseStack poseStack,
-            MultiBufferSource bufferSource, int packedLight) {
+            MultiBufferSource bufferSource, int packedLight, boolean forgedMarker) {
         // 塔罗会/紧急会议期间不允许出现尸体：伪装停用，本体按正常玩家渲染
         if (isDisguiseSuspended(player)) {
             return false;
         }
-        DisguisedBody disguised = getBody(player, bodyType);
+        DisguisedBody disguised = getBody(player, bodyType, forgedMarker);
         if (disguised == null) {
             return false;
         }
@@ -141,7 +142,7 @@ public class PlayerBodyDisguiseRenderer {
     }
 
     private static DisguisedBody getBody(AbstractClientPlayer player,
-            EntityType<? extends PlayerBodyEntity> bodyType) {
+            EntityType<? extends PlayerBodyEntity> bodyType, boolean forgedMarker) {
         DisguisedBody disguised = BODIES.get(player.getUUID());
         if (disguised == null || disguised.body.level() != player.level()) {
             PlayerBodyEntity body = bodyType.create(player.level());
@@ -149,16 +150,23 @@ public class PlayerBodyDisguiseRenderer {
                 return null;
             }
             body.setPlayerUuid(player.getUUID());
-            fillCorpseData(body, player);
+            fillCorpseData(body, player, forgedMarker);
             disguised = new DisguisedBody(body, player.tickCount);
             BODIES.put(player.getUUID(), disguised);
         }
         return disguised;
     }
 
-    /** 把假尸体填成和真尸体一样的数据，保证验尸 HUD 的显示无法区分真假。 */
-    private static void fillCorpseData(PlayerBodyEntity body, AbstractClientPlayer player) {
+    /**
+     * 把假尸体填成和真尸体一样的数据。
+     *
+     * <p>{@code forgedMarker} 为真时额外打上「伪造的尸体」标记（验尸官可察觉）；
+     * 为假时验尸 HUD 的显示与真尸体完全一致。
+     */
+    private static void fillCorpseData(PlayerBodyEntity body, AbstractClientPlayer player, boolean forgedMarker) {
         PlayerBodyEntityComponent cca = body.getComponent();
+        // 伪造标记：验尸官看这具尸体时会显示「伪造的尸体」而不是死因/身份
+        cca.isFakeBody = forgedMarker;
         cca.setOwnerName(player.getScoreboardName(), false);
         cca.setDeathReason(GameConstants.DeathReasons.GENERIC.toString(), false);
         SREGameWorldComponent gameWorld = SREGameWorldComponent.KEY.get(player.level());

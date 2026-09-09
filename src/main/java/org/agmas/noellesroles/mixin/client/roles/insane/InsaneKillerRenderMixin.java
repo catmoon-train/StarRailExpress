@@ -52,8 +52,9 @@ public abstract class InsaneKillerRenderMixin
         if (component.isActive) {
             // 伪装尸体改为纯渲染：不入世界的客户端尸体不会被会议区/游记放逐区清理掉，
             // 进塔罗会、用游记传送后回来都照常显示。
+            // 标记为「伪造的尸体」：验尸官能察觉这是亡语杀手假扮的。
             if (PlayerBodyDisguiseRenderer.render(abstractClientPlayer, TMMEntities.PLAYER_BODY, f, 0.0F, 0.0F, g,
-                    poseStack, multiBufferSource, i)) {
+                    poseStack, multiBufferSource, i, true)) {
                 ci.cancel();
             }
         } else {

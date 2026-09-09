@@ -45,8 +45,9 @@ public abstract class SaltedFishPlayerRenderMixin {
         }
         // 晒咸鱼期间本体不渲染，改渲染一具纯客户端的假尸体：不入世界，因此不会被
         // 会议区/游记放逐区清理掉，进塔罗会回来也照常显示。
+        // 不标记「伪造的尸体」——咸鱼是好人方的诱饵，验尸官看不出真假。
         if (PlayerBodyDisguiseRenderer.render(player, ModEntities.SALTED_FISH_BODY, yaw, component.sunYaw,
-                component.sunYaw, tickDelta, poseStack, bufferSource, packedLight)) {
+                component.sunYaw, tickDelta, poseStack, bufferSource, packedLight, false)) {
             ci.cancel();
         }
     }

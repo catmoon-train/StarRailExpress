@@ -238,11 +238,12 @@ public final class MeetingClientHandler {
                 if (player.hasEffect(ModEffects.USED_BANED)) {
                     break;
                 }
-                var body = MeetingReportClientHandler.targetedBody(client);
-                if (body != null && MeetingReportClientHandler.canPromptBodyMeeting(client)
+                // 真尸体发尸体 id，假尸体（咸鱼/亡语杀手）发伪装者 id，服务端按形态识别
+                int reportTarget = MeetingReportClientHandler.reportTargetId(client);
+                if (reportTarget >= 0 && MeetingReportClientHandler.canPromptBodyMeeting(client)
                         && MeetingReportClientHandler.cooldownRemainingTicks(client) <= 0) {
                     ClientPlayNetworking.send(
-                            new net.exmo.sre.meeting.network.MeetingReportC2SPayload(body.getId()));
+                            new net.exmo.sre.meeting.network.MeetingReportC2SPayload(reportTarget));
                 }
                 break;
             }
