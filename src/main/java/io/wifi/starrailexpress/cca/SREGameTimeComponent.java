@@ -15,15 +15,16 @@
 
 package io.wifi.starrailexpress.cca;
 
-import io.wifi.starrailexpress.SRE;
-import net.minecraft.core.HolderLookup;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.NotNull;
 import org.ladysnake.cca.api.v3.component.ComponentKey;
 import org.ladysnake.cca.api.v3.component.ComponentRegistry;
 import org.ladysnake.cca.api.v3.component.sync.AutoSyncedComponent;
 import org.ladysnake.cca.api.v3.component.tick.CommonTickingComponent;
+
+import io.wifi.starrailexpress.SRE;
+import net.minecraft.core.HolderLookup;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.level.Level;
 
 public class SREGameTimeComponent implements AutoSyncedComponent, CommonTickingComponent {
     public static final ComponentKey<SREGameTimeComponent> KEY = ComponentRegistry.getOrCreate(SRE.id("time"),
@@ -153,8 +154,11 @@ public class SREGameTimeComponent implements AutoSyncedComponent, CommonTickingC
     }
 
     public void addKillRewardTime(int time) {
-        this.time += time;
         int threshold = (int) ((float) this.resetTime * 0.7f);
+        if (this.time > threshold) {
+            return;
+        }
+        this.time += time;
         if (this.time > threshold) {
             this.time = threshold;
         }
