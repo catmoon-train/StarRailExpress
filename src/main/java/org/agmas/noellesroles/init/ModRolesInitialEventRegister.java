@@ -34,7 +34,6 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
-import net.minecraft.world.InteractionHand;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.item.ItemEntity;
@@ -420,29 +419,31 @@ public class ModRolesInitialEventRegister {
                                 return false;
                             }
 
-                            ItemStack mainHand = player.getMainHandItem();
-                            ItemStack offHand = player.getOffhandItem();
+                            int selectedHotbarSlot = player.getInventory().selected;
+                            ItemStack mainHand = player.getInventory().getItem(selectedHotbarSlot).copy();
+                            ItemStack offHand = player.getOffhandItem().copy();
                             if (mainHand.isEmpty() && offHand.isEmpty()) {
                                 return false;
                             }
 
                             if (!offHand.isEmpty()) {
-                                int emptyHotbarSlot = -1;
-                                for (int slot = 0; slot < 9; slot++) {
-                                    if (player.getInventory().getItem(slot).isEmpty()) {
-                                        emptyHotbarSlot = slot;
-                                        break;
-                                    }
-                                }
-                                if (emptyHotbarSlot < 0) {
+                                // 与故障机器人技能相同：先清空当前手上的物品，再把副手物品插入快捷栏。
+                                // 这样即使两者是同一种物品，也不会先合并到主手后再被清空。
+                                if (!RoleUtils.isPlayerHasFreeSlot(player)) {
                                     return false;
                                 }
-                                player.getInventory().setItem(emptyHotbarSlot, offHand.copy());
+                                player.getInventory().setItem(selectedHotbarSlot, ItemStack.EMPTY);
+                                if (!RoleUtils.insertStackInFreeSlot(player, offHand)) {
+                                    player.getInventory().setItem(selectedHotbarSlot, mainHand);
+                                    return false;
+                                }
+                            } else {
+                                player.getInventory().setItem(selectedHotbarSlot, ItemStack.EMPTY);
                             }
 
-                            player.setItemInHand(InteractionHand.OFF_HAND, mainHand.copy());
-                            player.setItemInHand(InteractionHand.MAIN_HAND, ItemStack.EMPTY);
+                            player.getInventory().offhand.set(0, mainHand);
                             player.getInventory().setChanged();
+                            player.inventoryMenu.slotsChanged(player.getInventory());
                             player.inventoryMenu.broadcastChanges();
                             player.containerMenu.broadcastChanges();
                             return true;
