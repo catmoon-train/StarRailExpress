@@ -32,14 +32,13 @@ import org.jetbrains.annotations.NotNull;
 public class WatcherRoleData extends SimpleRoleData {
 
     /** 姿态切换冷却（60秒） */
-    public static final int STANCE_SWITCH_COOLDOWN_TICKS = 60 * 20;
+    public static final int STANCE_SWITCH_COOLDOWN_TICKS = 30 * 20;
     /** 速度效果持续时间（tick） */
     private static final int SPEED_EFFECT_DURATION = 60;
     /** 速度效果刷新阈值（tick） */
     private static final int SPEED_REFRESH_THRESHOLD = 30;
 
     private boolean isCalm = true;
-    private int cooldown = 0;
     private boolean shieldConsumed = false;
 
     public WatcherRoleData(RoleDataContext context) {
@@ -55,26 +54,13 @@ public class WatcherRoleData extends SimpleRoleData {
 
     @Override
     public void init() {
-        this.isCalm = true;
-        this.cooldown = 0;
-        this.shieldConsumed = false;
         SREArmorPlayerComponent.KEY.get(player).giveArmor();
         applyCalmState();
-        this.sync();
     }
 
     @Override
     public void clear() {
         this.init();
-    }
-
-    public void setCooldown(int ticks) {
-        this.cooldown = ticks;
-        this.sync();
-    }
-
-    public int getCooldown() {
-        return this.cooldown;
     }
 
     public boolean isInCalmStance() {
@@ -90,7 +76,6 @@ public class WatcherRoleData extends SimpleRoleData {
 
     public void toggleStance() {
         this.isCalm = !this.isCalm;
-        setCooldown(STANCE_SWITCH_COOLDOWN_TICKS);
         if (this.isCalm) {
             applyCalmState();
             player.displayClientMessage(
@@ -139,12 +124,6 @@ public class WatcherRoleData extends SimpleRoleData {
         }
     }
 
-    @Override
-    public void clientTick() {
-        if (cooldown > 1) {
-            cooldown--;
-        }
-    }
 
     @Override
     public void serverTick() {
@@ -152,34 +131,22 @@ public class WatcherRoleData extends SimpleRoleData {
         if (!gameWorldComponent.isRunning() || !gameWorldComponent.isRole(player, ModRoles.WATCHER)) {
             return;
         }
-        boolean shouldSync = false;
-        if (cooldown > 0) {
-            cooldown--;
-            if (cooldown % 200 == 0 || cooldown == 0) {
-                shouldSync = true;
-            }
-        }
         if (isCalm) {
             applyCalmState();
         } else {
             ensureAngrySpeed();
-        }
-        if (shouldSync) {
-            sync();
         }
     }
 
     @Override
     public void writeToSyncNbt(@NotNull CompoundTag tag, HolderLookup.Provider registryLookup) {
         tag.putBoolean("isCalm", this.isCalm);
-        tag.putInt("cooldown", this.cooldown);
         tag.putBoolean("shieldConsumed", this.shieldConsumed);
     }
 
     @Override
     public void readFromSyncNbt(@NotNull CompoundTag tag, HolderLookup.Provider registryLookup) {
         this.isCalm = tag.getBoolean("isCalm");
-        this.cooldown = tag.contains("cooldown") ? tag.getInt("cooldown") : 0;
         this.shieldConsumed = tag.getBoolean("shieldConsumed");
     }
 

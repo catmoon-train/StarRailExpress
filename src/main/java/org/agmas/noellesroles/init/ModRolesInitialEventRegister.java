@@ -994,7 +994,7 @@ public class ModRolesInitialEventRegister {
                     ServerPlayer player = context.player();
                     RoleData.getOptional(WatcherRoleData.class, player).ifPresent(WatcherRoleData::toggleStance);
                     return true;
-                }).cooldownSeconds(30).build());
+                }).cooldownSeconds(WatcherRoleData.STANCE_SWITCH_COOLDOWN_TICKS).build());
 
         // 方名美铃技能注册：可切换飘浮效果，冷却60秒
         // RoleSkill.register(RedHouseRoles.HOAN_MEIRIN, RoleSkill.skill(

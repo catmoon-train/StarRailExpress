@@ -1078,6 +1078,7 @@ public class CommonClientHudRenderer {
       int xOffset = screenWidth - 10; // 右下角
       int yOffset = screenHeight - 10 - font.lineHeight; // 右下角
       var abpc = SREArmorPlayerComponent.KEY.get(client.player);
+      var apc = SREAbilityPlayerComponent.KEY.get(client.player);
       var wtpc = RoleData.getOptional(WatcherRoleData.class, client.player);
       if (wtpc.isEmpty()) return;
       {
@@ -1089,20 +1090,20 @@ public class CommonClientHudRenderer {
             Color.WHITE.getRGB());
       }
       {
-        if (wtpc.get().getCooldown() > 0) {
+        if (apc.getCooldown() > 0) {
           var text = Component
-              .translatable("message.noellesroles.detective.on_cooldown", wtpc.get().getCooldown() / 20)
+              .translatable("message.noellesroles.detective.on_cooldown", apc.getCooldown() / 20)
               .withStyle(ChatFormatting.AQUA);
           guiGraphics.drawString(font, text, xOffset - font.width(text), yOffset - font.lineHeight * 2 - 8,
               Color.WHITE.getRGB());
         }
         {
           var text = Component
-              .translatable("hud.noellesroles.watcher.stance_angry", wtpc.get().getCooldown() / 20)
+              .translatable("hud.noellesroles.watcher.stance_angry", apc.getCooldown() / 20)
               .withStyle(ChatFormatting.YELLOW);
           if (wtpc.get().isInCalmStance()) {
             text = Component
-                .translatable("hud.noellesroles.watcher.stance_calm", wtpc.get().getCooldown() / 20)
+                .translatable("hud.noellesroles.watcher.stance_calm", apc.getCooldown() / 20)
                 .withStyle(ChatFormatting.GREEN);
           }
           guiGraphics.drawString(font, text, xOffset - font.width(text), yOffset - font.lineHeight - 4,
