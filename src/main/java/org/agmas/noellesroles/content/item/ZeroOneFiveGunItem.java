@@ -132,7 +132,7 @@ public class ZeroOneFiveGunItem extends SkinableItem implements DropRevolverWhen
             spawnHandParticle();
 
             world.playSound(user, user.getX(), user.getY(), user.getZ(),
-                    TMMSounds.ITEM_REVOLVER_SHOOT, SoundSource.PLAYERS, 1.0F, 1.0F);
+                    TMMSounds.ITEM_REVOLVER_SHOOT, SoundSource.PLAYERS, 1.0F, 0.7F);
         } else {
             SREGameWorldComponent gameComponent = (SREGameWorldComponent) SREGameWorldComponent.KEY.get(world);
             SRERole role = gameComponent.getRole(user);

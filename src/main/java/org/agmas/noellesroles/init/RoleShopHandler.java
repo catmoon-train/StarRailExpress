@@ -1884,7 +1884,7 @@ public class RoleShopHandler {
                         c.revolverSoundCooldown = PhantomMusicianRoleData.REVOLVER_SOUND_COOLDOWN;
                         c.sync();
                         p.level().playSound(null, p.blockPosition(), TMMSounds.ITEM_REVOLVER_SHOOT, SoundSource.PLAYERS,
-                                1F, 1F);
+                                1F, 0.7F);
                         return true;
                     }
                 });

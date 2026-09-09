@@ -123,7 +123,7 @@ public record BanditRevolverShootPayload(int target) implements CustomPacketPayl
 
                 player.level().playSound((Player) null, player.getX(), player.getEyeY(), player.getZ(),
                         TMMSounds.ITEM_REVOLVER_SHOOT, SoundSource.PLAYERS, 5.0F,
-                        1.0F + player.getRandom().nextFloat() * 0.1F - 0.05F);
+                        0.7F + player.getRandom().nextFloat() * 0.1F - 0.05F);
 
                 if (!player.isCreative()) {
                     if (ExecutionerRoleData.isInFrenzy(player)) {

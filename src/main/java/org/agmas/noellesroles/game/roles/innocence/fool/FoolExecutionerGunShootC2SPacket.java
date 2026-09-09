@@ -84,7 +84,7 @@ public record FoolExecutionerGunShootC2SPacket(int targetId) implements CustomPa
 
             shooter.level().playSound(null, shooter.getX(), shooter.getEyeY(), shooter.getZ(),
                     TMMSounds.ITEM_REVOLVER_SHOOT, SoundSource.PLAYERS, 5f,
-                    1f + shooter.getRandom().nextFloat() * .1f - .05f);
+                    0.7f + shooter.getRandom().nextFloat() * .1f - .05f);
 
             for (ServerPlayer tracking : PlayerLookup.tracking(shooter)) {
                 PacketTracker.sendToClient(tracking, new ShootMuzzleS2CPayload(shooter.getId()));

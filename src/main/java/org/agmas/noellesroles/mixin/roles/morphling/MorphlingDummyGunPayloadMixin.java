@@ -59,7 +59,7 @@ public class MorphlingDummyGunPayloadMixin {
             // 与其它枪击一致：播放射击音效、枪口火光，并进入冷却
             player.level().playSound(null, player.getX(), player.getEyeY(), player.getZ(),
                     TMMSounds.ITEM_REVOLVER_SHOOT, SoundSource.PLAYERS, 5f,
-                    1f + player.getRandom().nextFloat() * .1f - .05f);
+                    0.7f + player.getRandom().nextFloat() * .1f - .05f);
 
             for (ServerPlayer tracking : PlayerLookup.tracking(player)) {
                 ServerPlayNetworking.send(tracking, new ShootMuzzleS2CPayload(player.getId()));

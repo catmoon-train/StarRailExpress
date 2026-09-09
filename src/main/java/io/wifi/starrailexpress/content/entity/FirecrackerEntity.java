@@ -43,7 +43,7 @@ public class FirecrackerEntity extends Entity {
                 this.level().addParticle(ParticleTypes.SMOKE, this.getX() + particlePos.x(), this.getY() + particlePos.y(), this.getZ() + particlePos.z(), 0, 0, 0);
         } else {
             if (this.tickCount >= GameConstants.getFirecrackerTimer()) {
-                serverWorld.playSound(null, this.blockPosition(), TMMSounds.ITEM_REVOLVER_SHOOT, SoundSource.PLAYERS, 5f, 1f + this.getRandom().nextFloat() * .1f - .05f);
+                serverWorld.playSound(null, this.blockPosition(), TMMSounds.ITEM_REVOLVER_SHOOT, SoundSource.PLAYERS, 5f, 0.7f + this.getRandom().nextFloat() * .1f - .05f);
                 serverWorld.sendParticles(TMMParticles.EXPLOSION, this.getX(), this.getY() + .1f, this.getZ(), 1, 0, 0, 0, 0);
                 serverWorld.sendParticles(ParticleTypes.SMOKE, this.getX(), this.getY() + .1f, this.getZ(), 25, 0, 0, 0, .05f);
                 this.discard();

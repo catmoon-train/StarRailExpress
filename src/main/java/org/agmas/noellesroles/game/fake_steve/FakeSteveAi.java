@@ -1035,7 +1035,7 @@ public class FakeSteveAi {
         if (gun) {
             ItemStack firedGun = attacker.getMainHandItem();
             attacker.level().playSound(null, attacker.blockPosition(), TMMSounds.ITEM_REVOLVER_SHOOT,
-                    SoundSource.PLAYERS, 5.0f, 1.0f);
+                    SoundSource.PLAYERS, 5.0f, 0.6f);
             attacker.getCooldowns().addCooldown(attacker.getMainHandItem().getItem(),
                     GameConstants.ITEM_COOLDOWNS.getOrDefault(attacker.getMainHandItem().getItem(),
                             GameConstants.ITEM_COOLDOWNS.getOrDefault(TMMItems.REVOLVER, 600)));

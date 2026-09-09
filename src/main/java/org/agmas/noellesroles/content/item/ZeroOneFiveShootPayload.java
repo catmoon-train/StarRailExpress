@@ -75,7 +75,7 @@ public record ZeroOneFiveShootPayload(int target) implements CustomPacketPayload
                     1f + player.getRandom().nextFloat() * .1f - .05f);
             player.level().playSound(null, player.getX(), player.getEyeY(), player.getZ(),
                     TMMSounds.ITEM_REVOLVER_SHOOT, SoundSource.PLAYERS, 5f,
-                    1f + player.getRandom().nextFloat() * .1f - .05f);
+                    0.7f + player.getRandom().nextFloat() * .1f - .05f);
 
             org.agmas.noellesroles.gunfx.GunTracers.broadcast(player,
                     payload.target() >= 0 ? player.serverLevel().getEntity(payload.target()) : null, 30.0D);
