@@ -981,26 +981,21 @@ public class RoleShopHandler {
                         return false;
                     }
                     crossbow.enchant(quickCharge, 2);
-                    return RoleUtils.insertStackInFreeSlot(player, crossbow);
-                }
-            });
-
-            // 烟花火箭 - 1 游戏币，附带一枚烟火之星效果的烟花火箭
-            NET_COP_SHOP.add(new ShopEntry(
-                    createNetCopFirework(FireworkExplosion.Shape.LARGE_BALL),
-                    1, ShopEntry.Type.TOOL, ShopEntry.Currency.MINIGAME_TOKEN) {
-                @Override
-                public boolean onBuy(@NotNull Player player) {
-                    if (!super.onBuy(player)) {
+                    if (!RoleUtils.insertStackInFreeSlot(player, crossbow)) {
                         return false;
                     }
-                    ItemStack starFirework = createNetCopFirework(FireworkExplosion.Shape.STAR);
-                    if (!RoleUtils.insertStackInFreeSlot(player, starFirework)) {
-                        player.drop(starFirework, true);
+                    ItemStack firework = createNetCopFirework(FireworkExplosion.Shape.STAR);
+                    if (!RoleUtils.insertStackInFreeSlot(player, firework)) {
+                        player.drop(firework, true);
                     }
                     return true;
                 }
             });
+
+            // 烟花火箭 - 1 游戏币
+            NET_COP_SHOP.add(new ShopEntry(
+                    createNetCopFirework(FireworkExplosion.Shape.LARGE_BALL),
+                    1, ShopEntry.Type.TOOL, ShopEntry.Currency.MINIGAME_TOKEN));
 
             ShopContent.customEntries.put(ModRoles.NET_COP_ID, NET_COP_SHOP);
         }

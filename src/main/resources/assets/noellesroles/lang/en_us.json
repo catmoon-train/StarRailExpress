@@ -136,6 +136,7 @@
     "announcement.star.role.net_cop": "Net Cop",
     "announcement.star.goals.net_cop": "Keep order on the train and bring killers to justice!",
     "message.noellesroles.net_cop.shop_already_owned": "You already own this weapon",
+    "skill.noellesroles.net_cop.swap_hands": "Swap Held Item",
     "message.noellesroles.net_cop.shop_need_axe": "Buy Dream's iron axe first",
     "message.noellesroles.net_cop.shop_need_axe_and_sword": "You must hold both Dream's iron axe and diamond sword first",
     "announcement.star.role.noellesroles.magician": "Magician",

@@ -136,6 +136,7 @@
   "announcement.star.role.net_cop": "网警",
   "announcement.star.goals.net_cop": "维护列车的秩序，让杀手得到应有的制裁！",
   "message.noellesroles.net_cop.shop_already_owned": "你已经拥有该武器",
+  "skill.noellesroles.net_cop.swap_hands": "交换手中物品",
   "message.noellesroles.net_cop.shop_need_axe": "需要先购买 Dream 的铁斧",
   "message.noellesroles.net_cop.shop_need_axe_and_sword": "需要先同时持有 Dream 的铁斧与钻石剑",
   "announcement.star.role.noellesroles.magician": "魔术师",
