@@ -38,6 +38,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * 进入主菜单前的健康 / 医学 / 开源 / 二创免责声明。
  * 仅首次启动展示：必须滚动到内容底部、点击确认按钮后写入客户端配置，之后不再弹出。
  * 各段独立成卡片、标题与正文居中，内容区可滚动，确认按钮是内容的最后一项。
+ * 滚动提示固定在标题下方，始终可见。
  */
 @Environment(EnvType.CLIENT)
 public class GameDisclaimerScreen extends Screen {
@@ -186,6 +187,12 @@ public class GameDisclaimerScreen extends Screen {
         SreUiStyle.drawTitleUnderline(g, cx, layout.panelY() + layout.headerH() - 4,
                 Math.min(90, layout.panelW() / 5), enter);
 
+        Component hint = Component.translatable(GameDisclaimerContent.HINT);
+        g.drawString(this.font, hint,
+                cx - this.font.width(hint) / 2,
+                layout.panelY() + GameDisclaimerLayout.HINT_Y,
+                LoadingFx.withAlpha(0x9E8B6E, enter * 0.9F), false);
+
         g.enableScissor(layout.contentX(), layout.contentY(),
                 layout.contentX() + layout.contentW(), layout.contentY() + layout.contentH());
         try {
@@ -220,11 +227,6 @@ public class GameDisclaimerScreen extends Screen {
                 y += block.height + GameDisclaimerLayout.SECTION_GAP;
             }
 
-            Component hint = Component.translatable(GameDisclaimerContent.HINT);
-            int hintY = buttonScreenY() - GameDisclaimerLayout.HINT_GAP;
-            g.drawString(this.font, hint,
-                    cx - this.font.width(hint) / 2, hintY,
-                    LoadingFx.withAlpha(0x9E8B6E, enter * 0.9F), false);
             drawConfirmButton(g, mouseX, mouseY, enter);
         } finally {
             g.disableScissor();

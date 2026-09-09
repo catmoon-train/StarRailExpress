@@ -27,18 +27,18 @@ public record GameDisclaimerLayout(
         int buttonX, int buttonW, int buttonH) {
 
     public static final int PAD = 14;
-    public static final int HEADER_H = 40;
+    public static final int HEADER_H = 54;
     public static final int SB_W = 5;
     public static final int BUTTON_W = 168;
     public static final int BUTTON_H = 22;
     public static final int SECTION_INNER_PAD = 8;
     public static final int SECTION_GAP = 8;
-    /** 最后一张卡片与提示 / 按钮之间的间距（内容坐标系）。 */
+    /** 最后一张卡片与确认按钮之间的间距（内容坐标系）。 */
     public static final int BUTTON_TOP_GAP = 22;
     /** 按钮下方的内容留白（内容坐标系）。 */
     public static final int CONTENT_BOTTOM_PAD = 8;
-    /** 提示文字与按钮上沿的间距。 */
-    public static final int HINT_GAP = 12;
+    /** 滚动提示在面板内的固定 Y 偏移，不随内容滚动。 */
+    public static final int HINT_Y = 34;
 
     public static GameDisclaimerLayout of(int width, int height) {
         int panelW = Math.min(700, Math.max(280, (int) (width * 0.90F)));
