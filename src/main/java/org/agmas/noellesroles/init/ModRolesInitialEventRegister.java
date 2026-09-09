@@ -442,6 +442,8 @@ public class ModRolesInitialEventRegister {
 
                             player.setItemInHand(InteractionHand.OFF_HAND, mainHand.copy());
                             player.setItemInHand(InteractionHand.MAIN_HAND, ItemStack.EMPTY);
+                            player.getInventory().setChanged();
+                            player.inventoryMenu.broadcastChanges();
                             player.containerMenu.broadcastChanges();
                             return true;
                         }).cooldownTicks(0).showOnHud(true).announceToSelf(false).build());
