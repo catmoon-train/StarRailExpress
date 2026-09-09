@@ -44,8 +44,8 @@ import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.HitResult;
 import org.agmas.harpymodloader.component.WorldModifierComponent;
 import org.agmas.noellesroles.client.NoellesrolesClient;
-import org.agmas.noellesroles.client.PlayerBodyDisguiseRenderer;
 import org.agmas.noellesroles.component.ModComponents;
+import org.agmas.noellesroles.role_data.killer.InsaneKillerRoleData;
 import org.agmas.noellesroles.role.ModRoles;
 import org.agmas.noellesroles.utils.RoleUtils;
 import pro.fazeclan.river.stupid_express.constants.SEModifiers;
@@ -55,6 +55,7 @@ import java.util.UUID;
 
 public class PlayerBodyHud {
     public static PlayerBodyEntity targetBody;
+    public static Player targetFakeBody;
     public static Player hudTarget;
     /** 迟滞状态标记：防止理智在阈值附近波动时页面闪烁 */
     private static boolean coronerWasShowingWarning = false;
@@ -85,6 +86,55 @@ public class PlayerBodyHud {
             DeltaTracker tickCounter) {
         SREGameWorldComponent gameWorldComponent = (SREGameWorldComponent) SREGameWorldComponent.KEY
                 .get(player.level());
+
+        if (targetFakeBody != null) {
+            SRERole selfrole = SREClient.getCachedPlayerRole();
+            boolean canSeeBody = false;
+            if (selfrole != null && selfrole.canSeeBodyDeathReason(SREClient.cached_player))
+                canSeeBody = true;
+            if (canSeeBody
+                    || SREClient.isPlayerSpectatingOrCreative()) {
+                context.pose().pushPose();
+                context.pose().translate((float) context.guiWidth() / 2.0F, (float) context.guiHeight() / 2.0F + 6.0F,
+                        0.0F);
+                context.pose().scale(SREClient.bodyHUDScale, SREClient.bodyHUDScale, 1.0F);
+                // 死亡惩罚
+                boolean hasPenalty = ModComponents.DEATH_PENALTY.get(Minecraft.getInstance().player).hasPenalty();
+
+                final var worldModifierComponent = WorldModifierComponent.KEY
+                        .get(player.level());
+                if (worldModifierComponent != null) {
+                    if (worldModifierComponent.isModifier(player, SEModifiers.SPLIT_PERSONALITY)) {
+                        var splitComponent = SplitPersonalityComponent.KEY.get(player);
+                        if (splitComponent != null && player.isSpectator() && !splitComponent.isDeath()) {
+                            hasPenalty = true;
+                        }
+                    }
+                }
+                SREPlayerMoodComponent moodComponent = (SREPlayerMoodComponent) SREPlayerMoodComponent.KEY
+                        .get(Minecraft.getInstance().player);
+                if (shouldShowSanityWarning(moodComponent, SREClient.isPlayerAliveAndInSurvival())) {
+                    Component name = Component.translatable("hud.coroner.sanity_requirements");
+                    context.drawString(renderer, name, -renderer.width(name) / 2, 32, CommonColors.YELLOW);
+                    context.pose().popPose();
+                    return;
+                }
+
+                SRERole role = gameWorldComponent.getRole(targetFakeBody);
+                if (role == null)
+                    role = TMMRoles.CIVILIAN;
+                Component roleInfo = Component.translatable("hud.coroner.role_info").withColor(CommonColors.RED)
+                        .append(RoleUtils.getRoleName(role.identifier()).copy().withColor(role.color()));
+                if (hasPenalty) {
+                    roleInfo = Component.translatable("message.noellesroles.penalty.limit")
+                            .withStyle(ChatFormatting.LIGHT_PURPLE, ChatFormatting.ITALIC);
+                }
+                context.drawString(renderer, roleInfo, -renderer.width(roleInfo) / 2, 48, CommonColors.WHITE);
+
+                context.pose().popPose();
+                return;
+            }
+        }
 
         if (targetBody != null) {
             ForensicHud.renderCorpse(renderer, player, targetBody, context, tickCounter);
@@ -297,23 +347,20 @@ public class PlayerBodyHud {
             NoellesrolesClient.targetBody = null;
             NoellesrolesClient.targetPlayer = null;
             targetBody = null;
+            targetFakeBody = null;
             if (line instanceof EntityHitResult ehr) {
                 if (ehr.getEntity() instanceof PlayerBodyEntity playerBodyEntity) {
                     targetBody = playerBodyEntity;
                     NoellesrolesClient.targetBody = targetBody;// 用于秃鹫兼容
                 } else if (ehr.getEntity() instanceof Player targetPlayer) {
                     NoellesrolesClient.targetPlayer = targetPlayer;
-                    // 假尸体（咸鱼/亡语杀手）：取纯渲染的客户端尸体，走与真尸体完全相同的验尸 HUD。
-                    // 旁观/创造模式看穿伪装，按正常玩家 HUD 显示，不套尸体 HUD。
-                    if (!SREClient.isPlayerSpectatingOrCreative()) {
-                        PlayerBodyEntity fakeBody = PlayerBodyDisguiseRenderer.getCachedBody(targetPlayer);
-                        if (fakeBody != null) {
-                            targetBody = fakeBody;
-                        }
+                    InsaneKillerRoleData component = RoleData.getNullable(InsaneKillerRoleData.class, targetPlayer);
+                    if (component != null && component.isActive) {
+                        targetFakeBody = targetPlayer;
                     }
                 }
             }
-            if (targetBody != null) {
+            if (targetBody != null || targetFakeBody != null) {
                 renderCoronerHud(font, player, context, tickCounter);
             }
         });

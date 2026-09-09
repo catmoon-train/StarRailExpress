@@ -40,7 +40,9 @@ import org.agmas.noellesroles.Noellesroles;
 import org.agmas.noellesroles.packet.ToggleInsaneSkillC2SPacket;
 import org.agmas.noellesroles.role.ModRoles;
 import org.jetbrains.annotations.NotNull;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 public class InsaneKillerRoleData extends SimpleRoleData {
@@ -50,6 +52,9 @@ public class InsaneKillerRoleData extends SimpleRoleData {
     public boolean isActive = false;
     public int deathState = 0;
     public int cooldown = 200;
+    // public UUID target = null;
+    public static Map<UUID, PlayerBodyEntity> playerBodyEntities = new HashMap<>();
+    public static Map<UUID, Boolean> isPlayerBodyEntity = new HashMap<>();
 
     public InsaneKillerRoleData(RoleDataContext context) {
         super(context);

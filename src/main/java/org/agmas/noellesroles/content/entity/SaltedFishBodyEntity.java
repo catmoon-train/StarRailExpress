@@ -23,9 +23,8 @@ import net.minecraft.world.level.Level;
 /**
  * 咸鱼「晒咸鱼」时的假尸体。
  *
- * <p>这个实体只作为客户端渲染用的壳：由 {@code PlayerBodyDisguiseRenderer} 创建、不入世界，
- * 位置每帧复制本体，再由 {@code SaltedFishBodyRenderMixin} 摆成躺姿与翻身动画。
- * 因此这里关闭重力、且不可被推动。
+ * <p>位置每 tick 由 {@code SaltedFishRoleData} 同步到本体，因此这里关闭重力、
+ * 且不可被推动，避免假尸体因自身重力下落或被其他实体挤开而与本体分离。
  */
 public class SaltedFishBodyEntity extends PlayerBodyEntity {
     public SaltedFishBodyEntity(EntityType<? extends LivingEntity> entityType, Level world) {

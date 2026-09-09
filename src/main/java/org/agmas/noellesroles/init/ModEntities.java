@@ -292,7 +292,7 @@ public class ModEntities {
                     .build());
 
     /**
-     * 咸鱼假尸体实体 - 晒咸鱼技能期间用于渲染的纯客户端假尸体（不入世界，不会被清场/会议区清理）
+     * 咸鱼假尸体实体 - 咸鱼晒咸鱼技能时生成的假尸体
      */
     @SuppressWarnings("deprecation")
     public static final EntityType<SaltedFishBodyEntity> SALTED_FISH_BODY = Registry.register(

@@ -70,8 +70,6 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import org.agmas.noellesroles.init.ModEffects;
-import org.agmas.noellesroles.role_data.innocence.SaltedFishRoleData;
-import org.agmas.noellesroles.role_data.killer.InsaneKillerRoleData;
 import org.jetbrains.annotations.Nullable;
 import pro.fazeclan.river.stupid_express.modifier.refugee.cca.RefugeeComponent;
 
@@ -246,6 +244,21 @@ public final class MeetingManager {
 
     /** 尸体被右键：满足条件则召开会议。返回是否已消费该交互。 */
     public static boolean tryReportBody(ServerPlayer reporter, PlayerBodyEntity body) {
+        // SRE.LOGGER.info("[MEETING] Try report body");
+
+        ServerLevel serverLevel = reporter.serverLevel();
+        AreasSettings settings = settings(serverLevel);
+        if (settings == null || !settings.meetingEnabled || !settings.bodyMeetingEnabled) {
+            return false;
+        }
+        if (!GameUtils.isPlayerAliveAndSurvival(reporter)) {
+            return false;
+        }
+        if (reportedBodies.contains(body.getUUID())) {
+            // SRE.LOGGER.info("[MEETING] Body has already reported");
+
+            return false;
+        }
         String victim = body.getComponent().getOwnerName();
         if (victim == null || victim.isBlank()) {
             victim = body.getName().getString();
@@ -257,43 +270,10 @@ public final class MeetingManager {
                 victim = ownerPlayer.getGameProfile().getName();
             }
         }
-        return tryReport(reporter, victim, body.getUUID());
-    }
-
-    /**
-     * 上报伪装尸体（咸鱼晒咸鱼 / 亡语杀手伪装成尸体）。
-     *
-     * <p>与上报真尸体等价，只是去重键用伪装者本人、受害者名取伪装者的名字——
-     * 否则玩家一按上报键就发现「这具尸体不能上报」，伪装当场穿帮。
-     */
-    public static boolean tryReportFakeCorpse(ServerPlayer reporter, ServerPlayer fake) {
-        return tryReport(reporter, fake.getGameProfile().getName(), fake.getUUID());
-    }
-
-    /** 该玩家此刻是否正伪装成尸体（咸鱼 / 亡语杀手）。 */
-    public static boolean isFakeCorpseForm(ServerPlayer player) {
-        return InsaneKillerRoleData.isCorpseForm(player) || SaltedFishRoleData.isCorpseForm(player);
-    }
-
-    /** 上报的公共校验与结算。reportKey 仅用于「同一目标不能重复上报」。 */
-    private static boolean tryReport(ServerPlayer reporter, String victim, UUID reportKey) {
-        ServerLevel serverLevel = reporter.serverLevel();
-        AreasSettings settings = settings(serverLevel);
-        if (settings == null || !settings.meetingEnabled || !settings.bodyMeetingEnabled) {
-            return false;
-        }
-        if (!GameUtils.isPlayerAliveAndSurvival(reporter)) {
-            return false;
-        }
-        if (reportedBodies.contains(reportKey)) {
-            // SRE.LOGGER.info("[MEETING] Body has already reported");
-
-            return false;
-        }
         if (!startMeeting(serverLevel, reporter, victim)) {
             return false;
         }
-        reportedBodies.add(reportKey);
+        reportedBodies.add(body.getUUID());
         io.wifi.starrailexpress.progression.ProgressionDataManager.onReportBody(reporter);
         return true;
     }
