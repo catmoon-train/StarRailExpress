@@ -26,8 +26,8 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import pro.fazeclan.river.stupid_express.modifier.twin_children.TwinChildrenHandler;
 
 /**
- * Lower twin: 1.1-block collision so the unit cannot crawl into 1-block gaps.
- * Upper twin: 0.7-block collision so weapons from above do not sit inside the
+ * Lower twin: 1.3-block collision so the unit cannot crawl into 1-block gaps.
+ * Upper twin: 0.5-block collision so weapons from above do not sit inside the
  * rider. The upper twin also cannot sneak-dismount.
  */
 @Mixin(Player.class)

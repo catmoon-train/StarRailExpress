@@ -32,7 +32,7 @@ public class VoteClientReceiver {
                         // 更新屏幕数据
                         screen.updateData(packet);
                     } else if (packet.hasOptions()) {
-                        if ("game_mode".equals(packet.typeId())) {
+                        if (ClientVoteCache.isGameModeVote()) {
                             client.setScreen(new GameModeVoteScreen());
                         } else {
                             client.setScreen(new VoteScreen()); // 无参构造

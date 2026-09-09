@@ -121,6 +121,12 @@ public class NRRulePredicateEvents {
         });
 
         //
+
+        CollisionRules.cantPushableBy.add(a -> {
+            if (!(a instanceof Player p))
+                return false;
+            return RoleUtils.isPlayerTheModifier(p, SEModifiers.TWIN_CHILDREN);
+        });
         CollisionRules.cantCollide.add(a -> {
             return RoleUtils.isPlayerTheModifier(a, SEModifiers.TWIN_CHILDREN);
         });

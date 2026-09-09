@@ -44,7 +44,10 @@ public final class GameModeVoteScreen extends Screen {
     }
 
     public void updateData(VoteSyncS2CPacket packet) {
-        focusIndex = Mth.clamp(focusIndex, 0, Math.max(0, packet.options().size() - 1));
+        // 增量同步包不带选项列表（VoteSyncS2CPacket.update 的 options 为空），拿它算边界会把焦点压回第一项
+        int size = ClientVoteCache.getOptions().size();
+        if (size > 0)
+            focusIndex = Mth.clamp(focusIndex, 0, size - 1);
     }
 
     @Override
@@ -224,7 +227,7 @@ public final class GameModeVoteScreen extends Screen {
             moveFocus(keyCode == 264 ? 1 : -1);
             return true;
         }
-        if (keyCode == 257 || keyCode == 32) {
+        if (keyCode == 257 || keyCode == 335) {
             submit();
             return true;
         }

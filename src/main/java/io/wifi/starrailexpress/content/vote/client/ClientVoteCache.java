@@ -117,6 +117,11 @@ public class ClientVoteCache {
         return typeId;
     }
 
+    /** 当前投票是否为"模式投票"（地图投票前的游戏模式投票）。 */
+    public static boolean isGameModeVote() {
+        return active && "game_mode".equals(typeId);
+    }
+
     public static int getRemainingSeconds() {
         if (endTick == -1)
             return -1;

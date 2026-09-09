@@ -310,8 +310,27 @@ public final class TwinChildrenHandler {
     }
 
     private static void dismount(ServerPlayer lower, ServerPlayer upper) {
-        if (upper != null && (lower == null || upper.getVehicle() == lower)) {
-            upper.stopRiding();
+        if (upper == null || upper.getVehicle() == null) {
+            return;
+        }
+        if (lower != null && upper.getVehicle() != lower) {
+            return;
+        }
+        upper.stopRiding();
+        if (lower != null) {
+            broadcastPassengerList(lower);
+        }
+    }
+
+    /**
+     * Vanilla only syncs a vehicle's passenger list to the players tracking
+     * that entity, so a server-initiated dismount never reaches the vehicle's
+     * own client and it keeps rendering the rider on the attachment point.
+     */
+    private static void broadcastPassengerList(ServerPlayer vehicle) {
+        ClientboundSetPassengersPacket packet = new ClientboundSetPassengersPacket(vehicle);
+        for (ServerPlayer viewer : vehicle.server.getPlayerList().getPlayers()) {
+            viewer.connection.send(packet);
         }
     }
 
