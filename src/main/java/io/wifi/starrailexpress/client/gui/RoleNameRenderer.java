@@ -122,17 +122,23 @@ public class RoleNameRenderer {
                         targetRoleType = TrainRole.BYSTANDER;
                         targetRole = null;
                         nametag = Component.literal("");
+                        // 名字虽然被隐藏，但 HUD 事件仍要触发（尸体 HUD、会议上报提示等都挂在 RENDER_END 上）
+                        fireRenderEnd(self, range, ctx, tickCounter, font);
                         return;
                     } else if (result == TrueFalseResult.PASS) {
                         if (!AllowNameRender.EVENT.invoker().allowRenderName(target)) {
                             targetRoleType = TrainRole.BYSTANDER;
                             targetRole = null;
                             nametag = Component.literal("");
+                            // 名字虽然被隐藏，但 HUD 事件仍要触发（尸体 HUD、会议上报提示等都挂在 RENDER_END 上）
+                            fireRenderEnd(self, range, ctx, tickCounter, font);
                             return;
                         } else if (target.isInvisibleTo(self) && !GameUtils.isPlayerSpectatingOrCreative(self)) {
                             targetRoleType = TrainRole.BYSTANDER;
                             targetRole = null;
                             nametag = Component.literal("");
+                            // 名字虽然被隐藏，但 HUD 事件仍要触发（尸体 HUD、会议上报提示等都挂在 RENDER_END 上）
+                            fireRenderEnd(self, range, ctx, tickCounter, font);
                             return;
                         }
                     }
@@ -347,11 +353,15 @@ public class RoleNameRenderer {
             }
             ctx.pose().popPose();
         }
-        {
-            ctx.pose().pushPose();
-            OnRenderRoleName.RENDER_END.invoker().render(self, range, ctx, tickCounter, font);
-            ctx.pose().popPose();
-        }
+        fireRenderEnd(self, range, ctx, tickCounter, font);
+    }
+
+    /** 触发 HUD 末尾事件（尸体 HUD、会议上报提示等都挂在这里）。 */
+    private static void fireRenderEnd(Player self, float range, FakeGuiGraphics ctx,
+            DeltaTracker tickCounter, Font font) {
+        ctx.pose().pushPose();
+        OnRenderRoleName.RENDER_END.invoker().render(self, range, ctx, tickCounter, font);
+        ctx.pose().popPose();
     }
 
     private static Component getName(Player target) {

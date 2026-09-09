@@ -303,11 +303,13 @@ public class PlayerBodyHud {
                     NoellesrolesClient.targetBody = targetBody;// 用于秃鹫兼容
                 } else if (ehr.getEntity() instanceof Player targetPlayer) {
                     NoellesrolesClient.targetPlayer = targetPlayer;
-                    // 假尸体（咸鱼/亡语杀手）：取纯渲染的客户端尸体，走与真尸体完全相同的验尸 HUD，
-                    // 伪装才不会因为「看不到尸体信息」而露馅。
-                    PlayerBodyEntity fakeBody = PlayerBodyDisguiseRenderer.getCachedBody(targetPlayer);
-                    if (fakeBody != null) {
-                        targetBody = fakeBody;
+                    // 假尸体（咸鱼/亡语杀手）：取纯渲染的客户端尸体，走与真尸体完全相同的验尸 HUD。
+                    // 旁观/创造模式看穿伪装，按正常玩家 HUD 显示，不套尸体 HUD。
+                    if (!SREClient.isPlayerSpectatingOrCreative()) {
+                        PlayerBodyEntity fakeBody = PlayerBodyDisguiseRenderer.getCachedBody(targetPlayer);
+                        if (fakeBody != null) {
+                            targetBody = fakeBody;
+                        }
                     }
                 }
             }

@@ -474,7 +474,8 @@ public class NoellesrolesClient implements ClientModInitializer {
                 var insaneComponent = RoleData.getNullable(InsaneKillerRoleData.class, target);
                 if (insaneComponent != null) {
                     if (insaneComponent.isActive || insaneComponent.inNearDeath()) {
-                        return false;
+                        // 伪装期间名字照旧隐藏；但旁观/创造模式看穿伪装，按正常玩家显示
+                        return SREClient.isPlayerSpectatingOrCreative();
                     }
                 }
 

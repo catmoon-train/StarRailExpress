@@ -50,6 +50,12 @@ import org.agmas.noellesroles.game.roles.innocence.fool.TarotAssemblyManager;
  * <p>会议厅内不渲染假尸体（见 {@link TarotAssemblyManager#isInMeetingArea}），此时本体按正常玩家渲染。
  */
 public class PlayerBodyDisguiseRenderer {
+    /**
+     * 尸体渲染后其中心相对锚点沿朝向的偏移量（实测值）。
+     * 渲染时反向补偿，让尸体落在玩家判定盒里。
+     */
+    private static final double CORPSE_CENTER_OFFSET = 0.53;
+
     private static final Map<UUID, DisguisedBody> BODIES = new HashMap<>();
 
     /** 缓存条目：尸体实体 + 伪装开始时的本体 tick，用来给尸体一个「死亡时长」。 */
@@ -85,11 +91,19 @@ public class PlayerBodyDisguiseRenderer {
             return false;
         }
         PlayerBodyEntity body = disguised.body;
-        // 逐帧复制本体位置与姿态（含插值用的旧坐标），尸体因此始终贴在本体身上
-        body.setPos(player.getX(), player.getY(), player.getZ());
-        body.xo = player.xo;
-        body.yo = player.yo;
-        body.zo = player.zo;
+        // 逐帧复制本体位置与姿态（含插值用的旧坐标），尸体因此始终贴在本体身上。
+        //
+        // 但尸体渲染器会把模型转成躺姿，尸体中心相对锚点沿朝向偏移约 0.53 格（实测：
+        // 锚点+bodyYaw 方向的 0.53 格处才是尸体中心）。这里反向补偿掉这个偏移，
+        // 让尸体正好躺在玩家身上——也就是躺在玩家的判定盒里，
+        // 这样客户端准星（client.hitResult）才会像打真尸体一样直接命中，不需要特殊判定。
+        double corpseOffset = Math.toRadians(bodyYaw);
+        double offsetX = -Math.sin(corpseOffset) * CORPSE_CENTER_OFFSET;
+        double offsetZ = Math.cos(corpseOffset) * CORPSE_CENTER_OFFSET;
+        body.setPos(player.getX() + offsetX, player.getY(), player.getZ() + offsetZ);
+        body.xo = body.getX();
+        body.yo = body.getY();
+        body.zo = body.getZ();
         body.setYRot(bodyYaw);
         body.yRotO = bodyYaw;
         body.setYBodyRot(bodyYaw);

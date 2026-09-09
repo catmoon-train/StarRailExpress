@@ -222,7 +222,10 @@ public final class MeetingReportClientHandler {
             if (hit.getEntity() instanceof PlayerBodyEntity body && body.isAlive()) {
                 return body;
             }
+            // 假尸体：玩家判定盒就是尸体的 1.0×0.25，尸体也渲染在盒子里，原版准星直接命中即可。
+            // 旁观/创造模式看穿伪装，不显示上报提示。
             if (hit.getEntity() instanceof Player target
+                    && !SREClient.isPlayerSpectatingOrCreative()
                     && PlayerBodyDisguiseRenderer.getCachedBody(target) != null) {
                 return target;
             }
