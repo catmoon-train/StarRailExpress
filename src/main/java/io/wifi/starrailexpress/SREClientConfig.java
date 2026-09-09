@@ -125,6 +125,9 @@ public class SREClientConfig implements ConfigData {
     public boolean enableSecurityCameraHUD = true; // 启用安全摄像头HUD显示
     public boolean welcome_voice = false;
 
+    @ConfigEntry.Gui.Excluded
+    public boolean gameDisclaimerAccepted = false; // 已阅读并同意开局免责声明，确认后不再弹出
+
     public boolean autoSortVotes = false;
 
     @ConfigEntry.Gui.Tooltip

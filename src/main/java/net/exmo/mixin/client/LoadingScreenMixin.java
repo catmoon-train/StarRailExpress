@@ -17,6 +17,7 @@ package net.exmo.mixin.client;
 
 import io.wifi.starrailexpress.SREClientConfig;
 import io.wifi.starrailexpress.client.gui.screen.WithParentScreenPauseScreen;
+import net.exmo.sre.loading.GameDisclaimerScreen;
 import net.exmo.sre.loading.SREReceivingLevelScreen;
 import net.exmo.sre.loading.StarRailExpressTitleScreen;
 import net.exmo.sre.loading.StarRailLoadingOverlay;
@@ -38,6 +39,9 @@ public class LoadingScreenMixin {
             if (screen instanceof ReceivingLevelScreen receivingLevelScreen) {
                 return new SREReceivingLevelScreen(receivingLevelScreen.levelReceived, receivingLevelScreen.reason);
             }
+        }
+        if (screen instanceof TitleScreen && !GameDisclaimerScreen.isAcknowledged()) {
+            return new GameDisclaimerScreen();
         }
         if (!SREClientConfig.instance().disableCustomTitleScreen) {
             if (screen instanceof TitleScreen) {
