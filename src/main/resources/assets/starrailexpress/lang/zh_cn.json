@@ -1493,7 +1493,7 @@
     "item.starrailexpress.binding_tool.tooltip": "用于连接摄像头，或者无线红石。\n右键点击摄像头/无线红石保存位置，再右键点击监控器/无线红石进行绑定\n潜行右键取消无线红石中的绑定信息",
     "item.starrailexpress.broken_gun": "破损的枪",
     "item.starrailexpress.broken_gun.tooltip": "枪管已经变形，无法拾取，10秒后消失。",
-    "item.starrailexpress.custom_role_tool": "§b自定义职业工具",
+    "item.starrailexpress.custom_role_tool": "自定义职业工具",
     "item.starrailexpress.custom_role_tool.info": "右键打开自定义职业编辑页面",
     "item.starrailexpress.custom_role_tool.tooltip": "§7右键打开自定义职业编辑页面",
     "item.starrailexpress.drawing_board": "画板",
