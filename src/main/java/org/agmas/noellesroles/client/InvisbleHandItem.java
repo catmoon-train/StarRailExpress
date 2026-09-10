@@ -27,6 +27,8 @@ import io.wifi.starrailexpress.index.tag.TMMItemTags;
 import net.minecraft.client.Minecraft;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+
+import org.agmas.noellesroles.content.block.SREPlushItem;
 import org.agmas.noellesroles.content.entity.NiaoshoushouMissileEntity;
 import org.agmas.noellesroles.content.item.HandCuffsItem;
 import org.agmas.noellesroles.content.item.StalkerKnifeItem;
