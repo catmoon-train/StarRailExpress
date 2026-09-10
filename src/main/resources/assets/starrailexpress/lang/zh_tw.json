@@ -3171,5 +3171,17 @@
     "gui.sre.vote_flow.mode_description.hide_and_seek": "融合躲藏與追捕的特殊玩法",
     "gui.sre.vote_flow.mode_description.evil_war": "亡命徒與殺手之間的陣營戰爭",
     "gui.sre.vote_flow.mode_description.lovers": "戀人修飾符出現概率大幅提高",
-    "== 檔末尾 END ==": ""
+    "== 檔末尾 END ==": "",
+    "item_group.starrailexpress.theme_decorations": "主題裝飾方塊",
+    "block.starrailexpress.warning_line": "警戒線方塊",
+    "block.starrailexpress.missing_material": "材質遺失方塊",
+    "block.starrailexpress.light_blue_oak_log": "淡藍色原木方塊",
+    "block.starrailexpress.light_blue_oak_planks": "淡藍色木板",
+    "block.starrailexpress.magenta_grass_block": "品紅色草方塊",
+    "block.starrailexpress.signal_lost": "亂碼方塊",
+    "block.starrailexpress.scp_reinforced_concrete": "SCP強化混凝土",
+    "block.starrailexpress.scp_containment_panel": "SCP收容室面板",
+    "block.starrailexpress.scp_reinforced_glass": "SCP收容區強化玻璃",
+    "block.starrailexpress.scp_clearance_stripe": "SCP安全等級警示條",
+    "block.starrailexpress.scp_breach_screen": "SCP失控訊號屏"
 }

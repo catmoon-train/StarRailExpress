@@ -3064,5 +3064,17 @@
     "gui.sre.vote_flow.mode_description.hide_and_seek": "A special blend of hiding and pursuit",
     "gui.sre.vote_flow.mode_description.evil_war": "A faction war between Outlaws and Killers",
     "gui.sre.vote_flow.mode_description.lovers": "The Lovers modifier appears much more often",
-    "== 文件末尾 END ==": ""
+    "== 文件末尾 END ==": "",
+    "item_group.starrailexpress.theme_decorations": "Theme Decorations",
+    "block.starrailexpress.warning_line": "Warning Line Block",
+    "block.starrailexpress.missing_material": "Missing Material Block",
+    "block.starrailexpress.light_blue_oak_log": "Light Blue Oak Log",
+    "block.starrailexpress.light_blue_oak_planks": "Light Blue Oak Planks",
+    "block.starrailexpress.magenta_grass_block": "Magenta Grass Block",
+    "block.starrailexpress.signal_lost": "Signal-Lost Block",
+    "block.starrailexpress.scp_reinforced_concrete": "SCP Reinforced Concrete",
+    "block.starrailexpress.scp_containment_panel": "SCP Containment Panel",
+    "block.starrailexpress.scp_reinforced_glass": "SCP Reinforced Glass",
+    "block.starrailexpress.scp_clearance_stripe": "SCP Clearance Stripe",
+    "block.starrailexpress.scp_breach_screen": "SCP Breach Screen"
 }
