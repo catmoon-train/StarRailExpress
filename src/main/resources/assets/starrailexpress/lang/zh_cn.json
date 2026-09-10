@@ -3193,5 +3193,13 @@
     "block.starrailexpress.blue_torch": "蓝色火把",
     "block.starrailexpress.black_tall_grass": "黑色高草丛",
     "block.starrailexpress.light_blue_flowering_azalea": "淡蓝色花丛",
-    "block.starrailexpress.light_purple_spore_block": "淡紫色孢子方块"
+    "block.starrailexpress.light_purple_spore_block": "淡紫色孢子方块",
+    "block.starrailexpress.deep_blue_oak_planks": "深蓝色木板",
+    "block.starrailexpress.deep_blue_oak_stairs": "深蓝色木板楼梯",
+    "block.starrailexpress.deep_blue_oak_slab": "深蓝色木板台阶",
+    "block.starrailexpress.deep_blue_oak_fence": "深蓝色木板栅栏",
+    "block.starrailexpress.deep_blue_bricks": "深蓝色砖块",
+    "block.starrailexpress.deep_blue_brick_stairs": "深蓝色砖块楼梯",
+    "block.starrailexpress.deep_blue_brick_slab": "深蓝色砖块台阶",
+    "block.starrailexpress.pure_blue_block": "纯蓝色方块"
 }

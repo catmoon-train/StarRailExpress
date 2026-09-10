@@ -3085,5 +3085,13 @@
     "block.starrailexpress.blue_torch": "Blue Torch",
     "block.starrailexpress.black_tall_grass": "Black Tall Grass",
     "block.starrailexpress.light_blue_flowering_azalea": "Light Blue Flowering Azalea",
-    "block.starrailexpress.light_purple_spore_block": "Light Purple Spore Block"
+    "block.starrailexpress.light_purple_spore_block": "Light Purple Spore Block",
+    "block.starrailexpress.deep_blue_oak_planks": "Deep Blue Oak Planks",
+    "block.starrailexpress.deep_blue_oak_stairs": "Deep Blue Oak Stairs",
+    "block.starrailexpress.deep_blue_oak_slab": "Deep Blue Oak Slab",
+    "block.starrailexpress.deep_blue_oak_fence": "Deep Blue Oak Fence",
+    "block.starrailexpress.deep_blue_bricks": "Deep Blue Bricks",
+    "block.starrailexpress.deep_blue_brick_stairs": "Deep Blue Brick Stairs",
+    "block.starrailexpress.deep_blue_brick_slab": "Deep Blue Brick Slab",
+    "block.starrailexpress.pure_blue_block": "Pure Blue Block"
 }

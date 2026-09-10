@@ -1,0 +1,9 @@
+{
+  "parent": "minecraft:block/inner_stairs",
+  "textures": {
+    "bottom": "starrailexpress:block/deep_blue_oak_planks",
+    "side": "starrailexpress:block/deep_blue_oak_planks",
+    "top": "starrailexpress:block/deep_blue_oak_planks"
+  }
+}
+

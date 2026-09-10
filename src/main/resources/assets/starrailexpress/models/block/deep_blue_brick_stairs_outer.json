@@ -1,0 +1,8 @@
+{
+  "parent": "minecraft:block/outer_stairs",
+  "textures": {
+    "bottom": "starrailexpress:block/deep_blue_bricks",
+    "side": "starrailexpress:block/deep_blue_bricks",
+    "top": "starrailexpress:block/deep_blue_bricks"
+  }
+}

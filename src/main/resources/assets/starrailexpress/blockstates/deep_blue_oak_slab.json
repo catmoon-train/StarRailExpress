@@ -1,0 +1,14 @@
+{
+  "variants": {
+    "type=bottom": {
+      "model": "starrailexpress:block/deep_blue_oak_slab"
+    },
+    "type=double": {
+      "model": "starrailexpress:block/deep_blue_oak_planks"
+    },
+    "type=top": {
+      "model": "starrailexpress:block/deep_blue_oak_slab_top"
+    }
+  }
+}
+

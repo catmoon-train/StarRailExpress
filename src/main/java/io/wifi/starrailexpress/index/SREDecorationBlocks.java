@@ -52,6 +52,12 @@ public final class SREDecorationBlocks {
             new RotatedPillarBlock(BlockBehaviour.Properties.ofFullCopy(Blocks.OAK_LOG)));
     public static final Block LIGHT_BLUE_OAK_PLANKS = registerBlock("light_blue_oak_planks",
             BlockBehaviour.Properties.ofFullCopy(Blocks.OAK_PLANKS));
+    public static final Block DEEP_BLUE_OAK_PLANKS = registerBlock("deep_blue_oak_planks",
+            BlockBehaviour.Properties.ofFullCopy(Blocks.OAK_PLANKS));
+    public static final Block DEEP_BLUE_BRICKS = registerBlock("deep_blue_bricks",
+            BlockBehaviour.Properties.ofFullCopy(Blocks.BRICKS));
+    public static final Block PURE_BLUE_BLOCK = registerBlock("pure_blue_block",
+            BlockBehaviour.Properties.ofFullCopy(Blocks.BLUE_CONCRETE));
     public static final Block MAGENTA_GRASS_BLOCK = registerBlock("magenta_grass_block",
             BlockBehaviour.Properties.ofFullCopy(Blocks.GRASS_BLOCK));
     public static final Block SIGNAL_LOST = registerBlock("signal_lost",
@@ -64,6 +70,18 @@ public final class SREDecorationBlocks {
             new SlabBlock(BlockBehaviour.Properties.ofFullCopy(LIGHT_BLUE_OAK_PLANKS)));
     public static final Block LIGHT_BLUE_OAK_FENCE = registerBlock("light_blue_oak_fence",
             new FenceBlock(BlockBehaviour.Properties.ofFullCopy(LIGHT_BLUE_OAK_PLANKS)));
+    public static final Block DEEP_BLUE_OAK_STAIRS = registerBlock("deep_blue_oak_stairs",
+            new StairBlock(DEEP_BLUE_OAK_PLANKS.defaultBlockState(),
+                    BlockBehaviour.Properties.ofFullCopy(DEEP_BLUE_OAK_PLANKS)));
+    public static final Block DEEP_BLUE_OAK_SLAB = registerBlock("deep_blue_oak_slab",
+            new SlabBlock(BlockBehaviour.Properties.ofFullCopy(DEEP_BLUE_OAK_PLANKS)));
+    public static final Block DEEP_BLUE_OAK_FENCE = registerBlock("deep_blue_oak_fence",
+            new FenceBlock(BlockBehaviour.Properties.ofFullCopy(DEEP_BLUE_OAK_PLANKS)));
+    public static final Block DEEP_BLUE_BRICK_STAIRS = registerBlock("deep_blue_brick_stairs",
+            new StairBlock(DEEP_BLUE_BRICKS.defaultBlockState(),
+                    BlockBehaviour.Properties.ofFullCopy(DEEP_BLUE_BRICKS)));
+    public static final Block DEEP_BLUE_BRICK_SLAB = registerBlock("deep_blue_brick_slab",
+            new SlabBlock(BlockBehaviour.Properties.ofFullCopy(DEEP_BLUE_BRICKS)));
     public static final Block LIGHT_BLUE_OAK_DOOR = registerBlock("light_blue_oak_door",
             new DoorBlock(BlockSetType.OAK, BlockBehaviour.Properties.ofFullCopy(Blocks.OAK_DOOR)));
     public static final Block LIGHT_BLUE_DIRT_PATH = registerBlock("light_blue_dirt_path",
@@ -98,11 +116,19 @@ public final class SREDecorationBlocks {
             registerBlockItem(MISSING_MATERIAL),
             registerBlockItem(LIGHT_BLUE_OAK_LOG),
             registerBlockItem(LIGHT_BLUE_OAK_PLANKS),
+            registerBlockItem(DEEP_BLUE_OAK_PLANKS),
+            registerBlockItem(DEEP_BLUE_BRICKS),
+            registerBlockItem(PURE_BLUE_BLOCK),
             registerBlockItem(MAGENTA_GRASS_BLOCK),
             registerBlockItem(SIGNAL_LOST),
             registerBlockItem(LIGHT_BLUE_OAK_STAIRS),
             registerBlockItem(LIGHT_BLUE_OAK_SLAB),
             registerBlockItem(LIGHT_BLUE_OAK_FENCE),
+            registerBlockItem(DEEP_BLUE_OAK_STAIRS),
+            registerBlockItem(DEEP_BLUE_OAK_SLAB),
+            registerBlockItem(DEEP_BLUE_OAK_FENCE),
+            registerBlockItem(DEEP_BLUE_BRICK_STAIRS),
+            registerBlockItem(DEEP_BLUE_BRICK_SLAB),
             registerBlockItem(LIGHT_BLUE_OAK_DOOR),
             registerBlockItem(LIGHT_BLUE_DIRT_PATH),
             registerStandingAndWallItem(BLUE_TORCH, WALL_BLUE_TORCH),

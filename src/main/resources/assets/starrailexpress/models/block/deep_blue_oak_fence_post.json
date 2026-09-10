@@ -1,0 +1,7 @@
+{
+  "parent": "minecraft:block/fence_post",
+  "textures": {
+    "texture": "starrailexpress:block/deep_blue_oak_planks"
+  }
+}
+
