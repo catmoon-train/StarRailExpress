@@ -115,6 +115,8 @@
     "client.general.IlliterateRoleIntroduceMixin",
     "client.general.ImmersiveFilterShaderMixin",
     "client.general.InventoryIntroductionRenderer",
+    "client.modifier.FatSkinnyBodyRenderMixin",
+    "client.modifier.FatSkinnyLivingRenderMixin",
     "client.general.LimpCameraMixin",
     "client.general.LimpPlayerModelMixin",
     "client.general.MirrorReunionCameraMixin",
