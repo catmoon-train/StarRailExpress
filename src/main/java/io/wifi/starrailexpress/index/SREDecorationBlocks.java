@@ -163,6 +163,68 @@ public final class SREDecorationBlocks {
     public static final Block BLUE_SIGNAL_LOST = registerBlock("blue_signal_lost",
             BlockBehaviour.Properties.ofFullCopy(Blocks.BLACK_CONCRETE));
 
+    // Backrooms-themed materials: a separate set of newly drawn liminal facility textures.
+    public static final Block BACKROOMS_YELLOW_WALLPAPER = registerBlock("backrooms_yellow_wallpaper",
+            BlockBehaviour.Properties.ofFullCopy(Blocks.YELLOW_CONCRETE));
+    public static final Block BACKROOMS_STAINED_WALLPAPER = registerBlock("backrooms_stained_wallpaper",
+            BlockBehaviour.Properties.ofFullCopy(Blocks.YELLOW_CONCRETE));
+    public static final Block BACKROOMS_OFFICE_CARPET = registerBlock("backrooms_office_carpet",
+            BlockBehaviour.Properties.ofFullCopy(Blocks.BROWN_CONCRETE));
+    public static final Block BACKROOMS_WET_CONCRETE = registerBlock("backrooms_wet_concrete",
+            BlockBehaviour.Properties.ofFullCopy(Blocks.GRAY_CONCRETE));
+    public static final Block BACKROOMS_FLUORESCENT_CEILING = registerBlock("backrooms_fluorescent_ceiling",
+            BlockBehaviour.Properties.ofFullCopy(Blocks.LIGHT_GRAY_CONCRETE));
+    public static final Block BACKROOMS_EXPOSED_CEILING = registerBlock("backrooms_exposed_ceiling",
+            BlockBehaviour.Properties.ofFullCopy(Blocks.GRAY_CONCRETE));
+    public static final Block BACKROOMS_YELLOW_PIPES = registerBlock("backrooms_yellow_pipes",
+            BlockBehaviour.Properties.ofFullCopy(Blocks.YELLOW_CONCRETE));
+    public static final Block BACKROOMS_SERVICE_DOOR = registerBlock("backrooms_service_door",
+            BlockBehaviour.Properties.ofFullCopy(Blocks.IRON_BLOCK));
+    public static final Block BACKROOMS_EMERGENCY_PANEL = registerBlock("backrooms_emergency_panel",
+            BlockBehaviour.Properties.ofFullCopy(Blocks.RED_CONCRETE));
+    public static final Block BACKROOMS_HAZARD_FLOOR = registerBlock("backrooms_hazard_floor",
+            BlockBehaviour.Properties.ofFullCopy(Blocks.YELLOW_CONCRETE));
+    public static final Block BACKROOMS_MOLDY_PLASTER = registerBlock("backrooms_moldy_plaster",
+            BlockBehaviour.Properties.ofFullCopy(Blocks.LIGHT_GRAY_CONCRETE));
+    public static final Block BACKROOMS_PEELING_WALLPAPER = registerBlock("backrooms_peeling_wallpaper",
+            BlockBehaviour.Properties.ofFullCopy(Blocks.YELLOW_CONCRETE));
+    public static final Block BACKROOMS_WALL_CLOCK = registerBlock("backrooms_wall_clock",
+            BlockBehaviour.Properties.ofFullCopy(Blocks.YELLOW_CONCRETE));
+    public static final Block BACKROOMS_CUBICLE_PANEL = registerBlock("backrooms_cubicle_panel",
+            BlockBehaviour.Properties.ofFullCopy(Blocks.GRAY_CONCRETE));
+    public static final Block BACKROOMS_ELEVATOR_PANEL = registerBlock("backrooms_elevator_panel",
+            BlockBehaviour.Properties.ofFullCopy(Blocks.GRAY_CONCRETE));
+    public static final Block BACKROOMS_UTILITY_BRICK = registerBlock("backrooms_utility_brick",
+            BlockBehaviour.Properties.ofFullCopy(Blocks.BLACK_CONCRETE));
+    public static final Block BACKROOMS_DAMAGED_ACOUSTIC = registerBlock("backrooms_damaged_acoustic",
+            BlockBehaviour.Properties.ofFullCopy(Blocks.WHITE_CONCRETE));
+    public static final Block BACKROOMS_FLICKERING_LIGHT = registerBlock("backrooms_flickering_light",
+            BlockBehaviour.Properties.ofFullCopy(Blocks.LIGHT_GRAY_CONCRETE));
+    public static final Block BACKROOMS_FILING_CABINET = registerBlock("backrooms_filing_cabinet",
+            BlockBehaviour.Properties.ofFullCopy(Blocks.IRON_BLOCK));
+    public static final Block BACKROOMS_SHADOW_DOORWAY = registerBlock("backrooms_shadow_doorway",
+            BlockBehaviour.Properties.ofFullCopy(Blocks.BLACK_CONCRETE));
+    public static final Block BACKROOMS_RED_CARPET = registerBlock("backrooms_red_carpet",
+            BlockBehaviour.Properties.ofFullCopy(Blocks.RED_CONCRETE));
+    public static final Block BACKROOMS_BROWN_CARPET = registerBlock("backrooms_brown_carpet",
+            BlockBehaviour.Properties.ofFullCopy(Blocks.BROWN_CONCRETE));
+    public static final Block BACKROOMS_DAMP_CEILING = registerBlock("backrooms_damp_ceiling",
+            BlockBehaviour.Properties.ofFullCopy(Blocks.LIGHT_GRAY_CONCRETE));
+    public static final Block BACKROOMS_WATER_STAINED_TILE = registerBlock("backrooms_water_stained_tile",
+            BlockBehaviour.Properties.ofFullCopy(Blocks.YELLOW_CONCRETE));
+    public static final Block BACKROOMS_YELLOW_METAL_PANEL = registerBlock("backrooms_yellow_metal_panel",
+            BlockBehaviour.Properties.ofFullCopy(Blocks.YELLOW_CONCRETE));
+    public static final Block BACKROOMS_RUST_VENT = registerBlock("backrooms_rust_vent",
+            BlockBehaviour.Properties.ofFullCopy(Blocks.IRON_BLOCK));
+    public static final Block BACKROOMS_SERVER_RACK = registerBlock("backrooms_server_rack",
+            BlockBehaviour.Properties.ofFullCopy(Blocks.BLACK_CONCRETE));
+    public static final Block BACKROOMS_STAIRWELL_WALL = registerBlock("backrooms_stairwell_wall",
+            BlockBehaviour.Properties.ofFullCopy(Blocks.GRAY_CONCRETE));
+    public static final Block BACKROOMS_DIRTY_LOCKER = registerBlock("backrooms_dirty_locker",
+            BlockBehaviour.Properties.ofFullCopy(Blocks.IRON_BLOCK));
+    public static final Block BACKROOMS_BLACK_MOLD_PANEL = registerBlock("backrooms_black_mold_panel",
+            BlockBehaviour.Properties.ofFullCopy(Blocks.YELLOW_CONCRETE));
+
     private static final Item[] TAB_ITEMS = {
             registerBlockItem(WARNING_LINE),
             registerBlockItem(MISSING_MATERIAL),
@@ -216,7 +278,37 @@ public final class SREDecorationBlocks {
             registerBlockItem(SCP_EMERGENCY_LIGHT_PANEL),
             registerBlockItem(SCP_TEST_CHAMBER_PANEL),
             registerBlockItem(SCP_SEALED_BULKHEAD),
-            registerBlockItem(BLUE_SIGNAL_LOST)
+            registerBlockItem(BLUE_SIGNAL_LOST),
+            registerBlockItem(BACKROOMS_YELLOW_WALLPAPER),
+            registerBlockItem(BACKROOMS_STAINED_WALLPAPER),
+            registerBlockItem(BACKROOMS_OFFICE_CARPET),
+            registerBlockItem(BACKROOMS_WET_CONCRETE),
+            registerBlockItem(BACKROOMS_FLUORESCENT_CEILING),
+            registerBlockItem(BACKROOMS_EXPOSED_CEILING),
+            registerBlockItem(BACKROOMS_YELLOW_PIPES),
+            registerBlockItem(BACKROOMS_SERVICE_DOOR),
+            registerBlockItem(BACKROOMS_EMERGENCY_PANEL),
+            registerBlockItem(BACKROOMS_HAZARD_FLOOR),
+            registerBlockItem(BACKROOMS_MOLDY_PLASTER),
+            registerBlockItem(BACKROOMS_PEELING_WALLPAPER),
+            registerBlockItem(BACKROOMS_WALL_CLOCK),
+            registerBlockItem(BACKROOMS_CUBICLE_PANEL),
+            registerBlockItem(BACKROOMS_ELEVATOR_PANEL),
+            registerBlockItem(BACKROOMS_UTILITY_BRICK),
+            registerBlockItem(BACKROOMS_DAMAGED_ACOUSTIC),
+            registerBlockItem(BACKROOMS_FLICKERING_LIGHT),
+            registerBlockItem(BACKROOMS_FILING_CABINET),
+            registerBlockItem(BACKROOMS_SHADOW_DOORWAY),
+            registerBlockItem(BACKROOMS_RED_CARPET),
+            registerBlockItem(BACKROOMS_BROWN_CARPET),
+            registerBlockItem(BACKROOMS_DAMP_CEILING),
+            registerBlockItem(BACKROOMS_WATER_STAINED_TILE),
+            registerBlockItem(BACKROOMS_YELLOW_METAL_PANEL),
+            registerBlockItem(BACKROOMS_RUST_VENT),
+            registerBlockItem(BACKROOMS_SERVER_RACK),
+            registerBlockItem(BACKROOMS_STAIRWELL_WALL),
+            registerBlockItem(BACKROOMS_DIRTY_LOCKER),
+            registerBlockItem(BACKROOMS_BLACK_MOLD_PANEL)
     };
 
     private SREDecorationBlocks() {
