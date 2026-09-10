@@ -109,9 +109,9 @@ public class CustomRoleLoader {
         // 在移除旧自定义职业前，先清理其它职业/修饰符对它的关联引用，
         // 否则重载后旧 SRERole 实例会残留在 relatedRoles/opposingRoles/occupationRoles 中，
         // 导致 postInit 重新绑定时出现重复，表现为“其它相关职业”出现两个相同的自定义职业。
-        for (var entry : TMMRoles.ROLES.entrySet()) {
-            if (entry.getValue() instanceof CustomNormalRole || "customrole".equals(entry.getKey().getNamespace())) {
-                removeRoleReferences(entry.getValue());
+        for (var entry : toRemove) {
+            {
+                removeRoleReferences(entry);
             }
         }
         for (SRERole key : toRemove) {
