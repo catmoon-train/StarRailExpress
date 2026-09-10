@@ -18,6 +18,7 @@ package org.agmas.noellesroles.mixin.client.modifier;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.renderer.entity.LivingEntityRenderer;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Player;
 import org.agmas.noellesroles.game.modifier.fatskinny.FatSkinnyVisual;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
@@ -32,6 +33,9 @@ public class FatSkinnyLivingRenderMixin {
     @Inject(method = "scale", at = @At("HEAD"))
     private void noellesroles$fatSkinnyScale(LivingEntity entity, PoseStack poseStack, float partialTick,
             CallbackInfo ci) {
+        if (!(entity instanceof Player)) {
+            return;
+        }
         float scale = FatSkinnyVisual.horizontalScale(entity);
         if (scale != 1.0F) {
             poseStack.scale(scale, 1.0F, scale);
