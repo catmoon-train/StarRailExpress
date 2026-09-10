@@ -1,0 +1,8 @@
+﻿{
+  "parent": "minecraft:block/stairs",
+  "textures": {
+    "bottom": "starrailexpress:block/light_blue_oak_planks",
+    "side": "starrailexpress:block/light_blue_oak_planks",
+    "top": "starrailexpress:block/light_blue_oak_planks"
+  }
+}

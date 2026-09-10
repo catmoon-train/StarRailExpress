@@ -1,0 +1,6 @@
+﻿{
+  "parent": "minecraft:block/fence_side",
+  "textures": {
+    "texture": "starrailexpress:block/light_blue_oak_planks"
+  }
+}

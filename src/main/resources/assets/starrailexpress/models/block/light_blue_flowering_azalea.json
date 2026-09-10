@@ -1,0 +1,7 @@
+﻿{
+  "parent": "minecraft:block/template_azalea",
+  "textures": {
+    "side": "starrailexpress:block/light_blue_flowering_azalea_side",
+    "top": "starrailexpress:block/light_blue_flowering_azalea_top"
+  }
+}

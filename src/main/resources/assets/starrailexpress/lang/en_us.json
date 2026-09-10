@@ -3076,5 +3076,14 @@
     "block.starrailexpress.scp_containment_panel": "SCP Containment Panel",
     "block.starrailexpress.scp_reinforced_glass": "SCP Reinforced Glass",
     "block.starrailexpress.scp_clearance_stripe": "SCP Clearance Stripe",
-    "block.starrailexpress.scp_breach_screen": "SCP Breach Screen"
+    "block.starrailexpress.scp_breach_screen": "SCP Breach Screen",
+    "block.starrailexpress.light_blue_oak_stairs": "Light Blue Oak Stairs",
+    "block.starrailexpress.light_blue_oak_slab": "Light Blue Oak Slab",
+    "block.starrailexpress.light_blue_oak_fence": "Light Blue Oak Fence",
+    "block.starrailexpress.light_blue_oak_door": "Light Blue Oak Door",
+    "block.starrailexpress.light_blue_dirt_path": "Light Blue Dirt Path",
+    "block.starrailexpress.blue_torch": "Blue Torch",
+    "block.starrailexpress.black_tall_grass": "Black Tall Grass",
+    "block.starrailexpress.light_blue_flowering_azalea": "Light Blue Flowering Azalea",
+    "block.starrailexpress.light_purple_spore_block": "Light Purple Spore Block"
 }

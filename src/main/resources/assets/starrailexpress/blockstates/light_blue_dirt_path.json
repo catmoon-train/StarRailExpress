@@ -1,0 +1,21 @@
+﻿{
+  "variants": {
+    "": [
+      {
+        "model": "starrailexpress:block/light_blue_dirt_path"
+      },
+      {
+        "model": "starrailexpress:block/light_blue_dirt_path",
+        "y": 90
+      },
+      {
+        "model": "starrailexpress:block/light_blue_dirt_path",
+        "y": 180
+      },
+      {
+        "model": "starrailexpress:block/light_blue_dirt_path",
+        "y": 270
+      }
+    ]
+  }
+}

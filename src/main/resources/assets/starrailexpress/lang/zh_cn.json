@@ -3184,5 +3184,14 @@
     "block.starrailexpress.scp_containment_panel": "SCP收容室面板",
     "block.starrailexpress.scp_reinforced_glass": "SCP收容区强化玻璃",
     "block.starrailexpress.scp_clearance_stripe": "SCP安全等级警示条",
-    "block.starrailexpress.scp_breach_screen": "SCP失控信号屏"
+    "block.starrailexpress.scp_breach_screen": "SCP失控信号屏",
+    "block.starrailexpress.light_blue_oak_stairs": "淡蓝色木板楼梯",
+    "block.starrailexpress.light_blue_oak_slab": "淡蓝色木板台阶",
+    "block.starrailexpress.light_blue_oak_fence": "淡蓝色木板栅栏",
+    "block.starrailexpress.light_blue_oak_door": "淡蓝色木门",
+    "block.starrailexpress.light_blue_dirt_path": "淡蓝色土径",
+    "block.starrailexpress.blue_torch": "蓝色火把",
+    "block.starrailexpress.black_tall_grass": "黑色高草丛",
+    "block.starrailexpress.light_blue_flowering_azalea": "淡蓝色花丛",
+    "block.starrailexpress.light_purple_spore_block": "淡紫色孢子方块"
 }

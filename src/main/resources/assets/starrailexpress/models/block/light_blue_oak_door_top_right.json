@@ -1,0 +1,7 @@
+﻿{
+  "parent": "minecraft:block/door_top_right",
+  "textures": {
+    "bottom": "starrailexpress:block/light_blue_oak_door_bottom",
+    "top": "starrailexpress:block/light_blue_oak_door_top"
+  }
+}

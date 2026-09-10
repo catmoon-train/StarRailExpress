@@ -1,0 +1,10 @@
+﻿{
+  "variants": {
+    "half=lower": {
+      "model": "starrailexpress:block/black_tall_grass_bottom"
+    },
+    "half=upper": {
+      "model": "starrailexpress:block/black_tall_grass_top"
+    }
+  }
+}

@@ -1,0 +1,19 @@
+﻿{
+  "variants": {
+    "facing=east": {
+      "model": "starrailexpress:block/wall_blue_torch"
+    },
+    "facing=north": {
+      "model": "starrailexpress:block/wall_blue_torch",
+      "y": 270
+    },
+    "facing=south": {
+      "model": "starrailexpress:block/wall_blue_torch",
+      "y": 90
+    },
+    "facing=west": {
+      "model": "starrailexpress:block/wall_blue_torch",
+      "y": 180
+    }
+  }
+}
