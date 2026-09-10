@@ -23,6 +23,7 @@ import io.wifi.starrailexpress.client.render.block_entity.PlaneSmallDoorBlockEnt
 import io.wifi.starrailexpress.client.render.block_entity.SmallDoorBlockEntityRenderer;
 import io.wifi.starrailexpress.client.render.block_entity.UpSmallDoorBlockEntityRenderer;
 import io.wifi.starrailexpress.client.render.block_entity.WheelBlockEntityRenderer;
+import io.wifi.starrailexpress.index.SREDecorationBlocks;
 import io.wifi.starrailexpress.index.SREBlocks;
 import net.fabricmc.fabric.api.blockrenderlayer.v1.BlockRenderLayerMap;
 import net.fabricmc.fabric.api.client.rendering.v1.EntityModelLayerRegistry;
@@ -49,6 +50,9 @@ public interface TMMModelLayers {
         BlockRenderLayerMap.INSTANCE.putBlock(SREBlocks.TRAIN_VANILLA_LANTERN, RenderType.cutout());
         BlockRenderLayerMap.INSTANCE.putBlock(SREBlocks.WALL_TRAIN_TORCH, RenderType.cutout());
         BlockRenderLayerMap.INSTANCE.putBlock(SREBlocks.TRAIN_TORCH_LEVER, RenderType.cutout());
+        BlockRenderLayerMap.INSTANCE.putBlock(SREDecorationBlocks.BLUE_TORCH, RenderType.cutout());
+        BlockRenderLayerMap.INSTANCE.putBlock(SREDecorationBlocks.WALL_BLUE_TORCH, RenderType.cutout());
+        BlockRenderLayerMap.INSTANCE.putBlock(SREDecorationBlocks.LIGHT_BLUE_OAK_DOOR, RenderType.cutout());
         EntityModelLayerRegistry.registerModelLayer(SMALL_DOOR, SmallDoorBlockEntityRenderer::getTexturedModelData);
         EntityModelLayerRegistry.registerModelLayer(UP_SMALL_DOOR,
                 UpSmallDoorBlockEntityRenderer::getTexturedModelData);

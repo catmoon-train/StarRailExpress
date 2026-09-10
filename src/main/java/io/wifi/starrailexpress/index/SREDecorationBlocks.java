@@ -29,6 +29,7 @@ import net.minecraft.world.level.block.DirtPathBlock;
 import net.minecraft.world.level.block.DoublePlantBlock;
 import net.minecraft.world.level.block.DoorBlock;
 import net.minecraft.world.level.block.FenceBlock;
+import net.minecraft.world.level.block.RotatedPillarBlock;
 import net.minecraft.world.level.block.SlabBlock;
 import net.minecraft.world.level.block.StairBlock;
 import net.minecraft.world.level.block.TorchBlock;
@@ -48,7 +49,7 @@ public final class SREDecorationBlocks {
     public static final Block MISSING_MATERIAL = registerBlock("missing_material",
             BlockBehaviour.Properties.ofFullCopy(Blocks.STONE));
     public static final Block LIGHT_BLUE_OAK_LOG = registerBlock("light_blue_oak_log",
-            BlockBehaviour.Properties.ofFullCopy(Blocks.OAK_LOG));
+            new RotatedPillarBlock(BlockBehaviour.Properties.ofFullCopy(Blocks.OAK_LOG)));
     public static final Block LIGHT_BLUE_OAK_PLANKS = registerBlock("light_blue_oak_planks",
             BlockBehaviour.Properties.ofFullCopy(Blocks.OAK_PLANKS));
     public static final Block MAGENTA_GRASS_BLOCK = registerBlock("magenta_grass_block",
