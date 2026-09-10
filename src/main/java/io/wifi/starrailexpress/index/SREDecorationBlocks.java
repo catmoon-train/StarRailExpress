@@ -111,6 +111,58 @@ public final class SREDecorationBlocks {
     public static final Block SCP_BREACH_SCREEN = registerBlock("scp_breach_screen",
             BlockBehaviour.Properties.ofFullCopy(Blocks.BLACK_CONCRETE));
 
+    // Newly drawn containment-facility materials, kept separate from the original SCP set.
+    public static final Block SCP_SECURE_FLOOR = registerBlock("scp_secure_floor",
+            BlockBehaviour.Properties.ofFullCopy(Blocks.GRAY_CONCRETE));
+    public static final Block SCP_CLEANROOM_TILE = registerBlock("scp_cleanroom_tile",
+            BlockBehaviour.Properties.ofFullCopy(Blocks.QUARTZ_BLOCK));
+    public static final Block SCP_CEILING_PANEL = registerBlock("scp_ceiling_panel",
+            BlockBehaviour.Properties.ofFullCopy(Blocks.GRAY_CONCRETE));
+    public static final Block SCP_AIRLOCK_PANEL = registerBlock("scp_airlock_panel",
+            BlockBehaviour.Properties.ofFullCopy(Blocks.IRON_BLOCK));
+    public static final Block SCP_BULKHEAD_PANEL = registerBlock("scp_bulkhead_panel",
+            BlockBehaviour.Properties.ofFullCopy(Blocks.IRON_BLOCK));
+    public static final Block SCP_ACCESS_CONTROL_PANEL = registerBlock("scp_access_control_panel",
+            BlockBehaviour.Properties.ofFullCopy(Blocks.IRON_BLOCK));
+    public static final Block SCP_CONTROL_CONSOLE = registerBlock("scp_control_console",
+            BlockBehaviour.Properties.ofFullCopy(Blocks.BLACK_CONCRETE));
+    public static final Block SCP_OBSERVATION_SCREEN = registerBlock("scp_observation_screen",
+            BlockBehaviour.Properties.ofFullCopy(Blocks.BLACK_CONCRETE));
+    public static final Block SCP_LOCKDOWN_PANEL = registerBlock("scp_lockdown_panel",
+            BlockBehaviour.Properties.ofFullCopy(Blocks.RED_CONCRETE));
+    public static final Block SCP_QUARANTINE_PANEL = registerBlock("scp_quarantine_panel",
+            BlockBehaviour.Properties.ofFullCopy(Blocks.ORANGE_CONCRETE));
+    public static final Block SCP_BIOHAZARD_PANEL = registerBlock("scp_biohazard_panel",
+            BlockBehaviour.Properties.ofFullCopy(Blocks.GREEN_CONCRETE));
+    public static final Block SCP_RADIATION_PANEL = registerBlock("scp_radiation_panel",
+            BlockBehaviour.Properties.ofFullCopy(Blocks.YELLOW_CONCRETE));
+    public static final Block SCP_REACTOR_PANEL = registerBlock("scp_reactor_panel",
+            BlockBehaviour.Properties.ofFullCopy(Blocks.BLUE_CONCRETE));
+    public static final Block SCP_RESEARCH_PANEL = registerBlock("scp_research_panel",
+            BlockBehaviour.Properties.ofFullCopy(Blocks.PURPLE_CONCRETE));
+    public static final Block SCP_MAINTENANCE_GRATE = registerBlock("scp_maintenance_grate",
+            BlockBehaviour.Properties.ofFullCopy(Blocks.IRON_BLOCK));
+    public static final Block SCP_VENT_GRILLE = registerBlock("scp_vent_grille",
+            BlockBehaviour.Properties.ofFullCopy(Blocks.IRON_BLOCK));
+    public static final Block SCP_CABLE_TRAY = registerBlock("scp_cable_tray",
+            BlockBehaviour.Properties.ofFullCopy(Blocks.GRAY_CONCRETE));
+    public static final Block SCP_ACOUSTIC_PANEL = registerBlock("scp_acoustic_panel",
+            BlockBehaviour.Properties.ofFullCopy(Blocks.GRAY_CONCRETE));
+    public static final Block SCP_SEALED_BLAST_DOOR = registerBlock("scp_sealed_blast_door",
+            BlockBehaviour.Properties.ofFullCopy(Blocks.IRON_BLOCK));
+    public static final Block SCP_FOUNDATION_BRICK = registerBlock("scp_foundation_brick",
+            BlockBehaviour.Properties.ofFullCopy(Blocks.BRICKS));
+    public static final Block SCP_CONTAINMENT_FOAM = registerBlock("scp_containment_foam",
+            BlockBehaviour.Properties.ofFullCopy(Blocks.WHITE_CONCRETE));
+    public static final Block SCP_EMERGENCY_LIGHT_PANEL = registerBlock("scp_emergency_light_panel",
+            BlockBehaviour.Properties.ofFullCopy(Blocks.RED_CONCRETE));
+    public static final Block SCP_TEST_CHAMBER_PANEL = registerBlock("scp_test_chamber_panel",
+            BlockBehaviour.Properties.ofFullCopy(Blocks.PURPLE_CONCRETE));
+    public static final Block SCP_SEALED_BULKHEAD = registerBlock("scp_sealed_bulkhead",
+            BlockBehaviour.Properties.ofFullCopy(Blocks.IRON_BLOCK));
+    public static final Block BLUE_SIGNAL_LOST = registerBlock("blue_signal_lost",
+            BlockBehaviour.Properties.ofFullCopy(Blocks.BLACK_CONCRETE));
+
     private static final Item[] TAB_ITEMS = {
             registerBlockItem(WARNING_LINE),
             registerBlockItem(MISSING_MATERIAL),
@@ -139,7 +191,32 @@ public final class SREDecorationBlocks {
             registerBlockItem(SCP_CONTAINMENT_PANEL),
             registerBlockItem(SCP_REINFORCED_GLASS),
             registerBlockItem(SCP_CLEARANCE_STRIPE),
-            registerBlockItem(SCP_BREACH_SCREEN)
+            registerBlockItem(SCP_BREACH_SCREEN),
+            registerBlockItem(SCP_SECURE_FLOOR),
+            registerBlockItem(SCP_CLEANROOM_TILE),
+            registerBlockItem(SCP_CEILING_PANEL),
+            registerBlockItem(SCP_AIRLOCK_PANEL),
+            registerBlockItem(SCP_BULKHEAD_PANEL),
+            registerBlockItem(SCP_ACCESS_CONTROL_PANEL),
+            registerBlockItem(SCP_CONTROL_CONSOLE),
+            registerBlockItem(SCP_OBSERVATION_SCREEN),
+            registerBlockItem(SCP_LOCKDOWN_PANEL),
+            registerBlockItem(SCP_QUARANTINE_PANEL),
+            registerBlockItem(SCP_BIOHAZARD_PANEL),
+            registerBlockItem(SCP_RADIATION_PANEL),
+            registerBlockItem(SCP_REACTOR_PANEL),
+            registerBlockItem(SCP_RESEARCH_PANEL),
+            registerBlockItem(SCP_MAINTENANCE_GRATE),
+            registerBlockItem(SCP_VENT_GRILLE),
+            registerBlockItem(SCP_CABLE_TRAY),
+            registerBlockItem(SCP_ACOUSTIC_PANEL),
+            registerBlockItem(SCP_SEALED_BLAST_DOOR),
+            registerBlockItem(SCP_FOUNDATION_BRICK),
+            registerBlockItem(SCP_CONTAINMENT_FOAM),
+            registerBlockItem(SCP_EMERGENCY_LIGHT_PANEL),
+            registerBlockItem(SCP_TEST_CHAMBER_PANEL),
+            registerBlockItem(SCP_SEALED_BULKHEAD),
+            registerBlockItem(BLUE_SIGNAL_LOST)
     };
 
     private SREDecorationBlocks() {
