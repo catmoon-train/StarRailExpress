@@ -25,8 +25,11 @@ import io.wifi.starrailexpress.client.render.block_entity.UpSmallDoorBlockEntity
 import io.wifi.starrailexpress.client.render.block_entity.WheelBlockEntityRenderer;
 import io.wifi.starrailexpress.index.SREDecorationBlocks;
 import io.wifi.starrailexpress.index.SREBlocks;
+import io.wifi.starrailexpress.index.SREFluids;
 import net.fabricmc.fabric.api.blockrenderlayer.v1.BlockRenderLayerMap;
 import net.fabricmc.fabric.api.client.rendering.v1.EntityModelLayerRegistry;
+import net.fabricmc.fabric.api.client.render.fluid.v1.FluidRenderHandlerRegistry;
+import net.fabricmc.fabric.api.client.render.fluid.v1.SimpleFluidRenderHandler;
 import net.minecraft.client.model.PlayerModel;
 import net.minecraft.client.model.geom.ModelLayerLocation;
 import net.minecraft.client.model.geom.builders.CubeDeformation;
@@ -55,6 +58,9 @@ public interface TMMModelLayers {
         BlockRenderLayerMap.INSTANCE.putBlock(SREDecorationBlocks.LIGHT_BLUE_OAK_DOOR, RenderType.cutout());
         BlockRenderLayerMap.INSTANCE.putBlock(SREDecorationBlocks.PURPLE_POPPY, RenderType.cutout());
         BlockRenderLayerMap.INSTANCE.putBlock(SREDecorationBlocks.GRAY_BLUE_PORTAL, RenderType.translucent());
+        FluidRenderHandlerRegistry.INSTANCE.register(SREFluids.COBBLESTONE, SREFluids.FLOWING_COBBLESTONE,
+                new SimpleFluidRenderHandler(SRE.id("block/cobblestone_liquid"),
+                        SRE.id("block/cobblestone_liquid")));
         EntityModelLayerRegistry.registerModelLayer(SMALL_DOOR, SmallDoorBlockEntityRenderer::getTexturedModelData);
         EntityModelLayerRegistry.registerModelLayer(UP_SMALL_DOOR,
                 UpSmallDoorBlockEntityRenderer::getTexturedModelData);

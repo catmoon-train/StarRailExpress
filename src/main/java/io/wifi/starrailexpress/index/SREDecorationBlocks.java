@@ -19,6 +19,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.BlockItem;
+import net.minecraft.world.item.BucketItem;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -106,6 +107,11 @@ public final class SREDecorationBlocks {
             BlockBehaviour.Properties.ofFullCopy(Blocks.OBSIDIAN));
     public static final Block GRAY_BLUE_PORTAL = registerBlock("gray_blue_portal",
             new DecorativePortalBlock(BlockBehaviour.Properties.ofFullCopy(Blocks.NETHER_PORTAL)));
+    public static final Block COBBLESTONE_LIQUID = registerBlock("cobblestone_liquid",
+            new net.minecraft.world.level.block.LiquidBlock(SREFluids.COBBLESTONE,
+                    BlockBehaviour.Properties.ofFullCopy(Blocks.LAVA)));
+    public static final Item COBBLESTONE_BUCKET = registerItem("cobblestone_bucket",
+            new BucketItem(SREFluids.COBBLESTONE, new Item.Properties().stacksTo(1)));
     public static final Block LIGHT_PURPLE_SPORE_BLOCK = registerBlock("light_purple_spore_block",
             BlockBehaviour.Properties.ofFullCopy(Blocks.MOSS_BLOCK));
 
@@ -261,6 +267,7 @@ public final class SREDecorationBlocks {
             registerBlockItem(PURPLE_POPPY),
             registerBlockItem(GRAY_BLUE_OBSIDIAN),
             registerBlockItem(GRAY_BLUE_PORTAL),
+            COBBLESTONE_BUCKET,
             registerBlockItem(LIGHT_PURPLE_SPORE_BLOCK),
             registerBlockItem(SCP_REINFORCED_CONCRETE),
             registerBlockItem(SCP_CONTAINMENT_PANEL),
@@ -354,6 +361,10 @@ public final class SREDecorationBlocks {
         BlockItem item = new BlockItem(block, new Item.Properties());
         item.registerBlocks(Item.BY_BLOCK, item);
         return Registry.register(BuiltInRegistries.ITEM, id, item);
+    }
+
+    private static <T extends Item> T registerItem(String id, T item) {
+        return Registry.register(BuiltInRegistries.ITEM, SRE.id(id), item);
     }
 
     private static Item registerStandingAndWallItem(Block standingBlock, Block wallBlock) {
