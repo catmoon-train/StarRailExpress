@@ -425,22 +425,21 @@ public class SREEvilWarGameMode extends WTLooseEndsGameMode {
             if (role == ModRoles.IMITATOR) {
                 // 模仿者初始化：随机3个技能，目前没有合适的公有修改方法
                 ImitatorRoleData imitatorPlayerComponent = RoleData.getNullable(ImitatorRoleData.class, player);
-                if (imitatorPlayerComponent == null) {
-                    return;
+                if (imitatorPlayerComponent != null) {
+                    // 获取所有可复制技能并打乱
+                    List<ResourceLocation> roleIds = new ArrayList<>(ImitatorSkillRegistry.ALLOWED_ROLES);
+                    Collections.shuffle(roleIds);
+                    for (int slotIndex = 0; slotIndex < ImitatorRoleData.MAX_SLOTS; ++slotIndex) {
+                        // 每个槽插入一个技能
+                        imitatorPlayerComponent.slotRoleId[slotIndex] = roleIds
+                                .get(Math.min(slotIndex, roleIds.size() - 1));
+                        imitatorPlayerComponent.slotCooldown[slotIndex] = 0;
+                        imitatorPlayerComponent.slotFillOrder[slotIndex] = slotIndex;
+                        imitatorPlayerComponent.activeSlotIndex = slotIndex;
+                        imitatorPlayerComponent.filledSlots++;
+                    }
+                    imitatorPlayerComponent.sync();
                 }
-                // 获取所有可复制技能并打乱
-                List<ResourceLocation> roleIds = new ArrayList<>(ImitatorSkillRegistry.ALLOWED_ROLES);
-                Collections.shuffle(roleIds);
-                for (int slotIndex = 0; slotIndex < ImitatorRoleData.MAX_SLOTS; ++slotIndex) {
-                    // 每个槽插入一个技能
-                    imitatorPlayerComponent.slotRoleId[slotIndex] = roleIds
-                            .get(Math.min(slotIndex, roleIds.size() - 1));
-                    imitatorPlayerComponent.slotCooldown[slotIndex] = 0;
-                    imitatorPlayerComponent.slotFillOrder[slotIndex] = slotIndex;
-                    imitatorPlayerComponent.activeSlotIndex = slotIndex;
-                    imitatorPlayerComponent.filledSlots++;
-                }
-                imitatorPlayerComponent.sync();
             }
             // 蕾米莉亚开局获得20分钟速度2
             else if (role == THRedHouseRoles.REMILIA) {
@@ -627,16 +626,16 @@ public class SREEvilWarGameMode extends WTLooseEndsGameMode {
                 // 判断是否是特定角色，进行特定操作，每30秒判断一次
                 else if (role == ModRoles.STALKER) {
                     StalkerRoleData stalkerPlayerComponent = RoleData.getNullable(StalkerRoleData.class, player);
-                    if (stalkerPlayerComponent == null)
-                        return;
-                    // 潜行每30s获得 500 能量
-                    stalkerPlayerComponent.energy += 500;
-                    // 每30s获得 4 击杀数
-                    stalkerPlayerComponent.phase2Kills += 4;
-                    stalkerPlayerComponent.sync();
-                    // 30s获得1个盾
-                    SREArmorPlayerComponent armor = SREArmorPlayerComponent.KEY.get(player);
-                    armor.giveArmor();
+                    if (stalkerPlayerComponent != null) {
+                        // 潜行每30s获得 500 能量
+                        stalkerPlayerComponent.energy += 500;
+                        // 每30s获得 4 击杀数
+                        stalkerPlayerComponent.phase2Kills += 4;
+                        stalkerPlayerComponent.sync();
+                        // 30s获得1个盾
+                        SREArmorPlayerComponent armor = SREArmorPlayerComponent.KEY.get(player);
+                        armor.giveArmor();
+                    }
                 }
                 // 刽子手每30秒重新锁定目标为超级亡命徒：现已能自动锁定
                 else if (role == ModRoles.EXECUTIONER) {
