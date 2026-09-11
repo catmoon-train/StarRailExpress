@@ -19,6 +19,7 @@ import dev.doctor4t.ratatouille.util.registrar.EntityTypeRegistrar;
 import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.content.block.entity.SeatEntity;
 import io.wifi.starrailexpress.content.entity.*;
+import net.exmo.sre.planecrash.CrashPlaneEntity;
 import net.fabricmc.fabric.api.object.builder.v1.entity.FabricDefaultAttributeRegistry;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MobCategory;
@@ -64,6 +65,14 @@ public interface TMMEntities {
                     .sized(0.5f, 0.5f)
                     .clientTrackingRange(256)
                     .noSummon()
+    );
+
+    EntityType<CrashPlaneEntity> CRASH_PLANE = registrar.create("crash_plane",
+            EntityType.Builder.of(CrashPlaneEntity::new, MobCategory.MISC)
+                    .sized(6.0f, 2.5f)
+                    .clientTrackingRange(256)
+                    .updateInterval(1)
+                    .fireImmune()
     );
 
     static void initialize() {

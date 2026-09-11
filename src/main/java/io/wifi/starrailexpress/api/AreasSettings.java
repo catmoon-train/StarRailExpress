@@ -314,4 +314,25 @@ public class AreasSettings {
     /** 摇铃冷却（秒）。摇铃后间隔多少秒才能再次摇铃。 */
     @Category("meeting")
     public int bellMeetingCooldown = 120;
+
+    // ==================== 地图事件 / Map Events ====================
+
+    /** 是否启用飞机坠落事件：开局刷新一架撞向地图中心的飞机，并周期性震颤。 */
+    @Category("event")
+    public boolean planeCrashEventEnabled = false;
+
+    /**
+     * 震颤时玩家统一倾泻的水平朝向（度）。
+     * Minecraft：0=南（+Z），90=西（-X）。飞机也沿此方向撞向中心。
+     */
+    @Category("event")
+    public float planeCrashTiltYaw = 0f;
+
+    /** 飞机刷新的水平距离（相对地图中心）。小于等于 0 时按游戏区自动估算。 */
+    @Category("event")
+    public float planeCrashSpawnDistance = 0f;
+
+    /** 飞机刷新高度（相对游戏区顶）。 */
+    @Category("event")
+    public float planeCrashSpawnHeight = 36f;
 }

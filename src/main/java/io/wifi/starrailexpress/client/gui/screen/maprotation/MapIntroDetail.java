@@ -132,6 +132,9 @@ public final class MapIntroDetail {
             if (boolValue(json, "sandEnabled", false)) {
                 sink.key("map_intro.property.sand");
             }
+            if (boolValue(json, "planeCrashEventEnabled", false)) {
+                sink.key("map_intro.property.plane_crash");
+            }
             if (!boolValue(json, "fogEnabled", true)) {
                 sink.key("map_intro.property.no_fog");
             }
@@ -196,6 +199,9 @@ public final class MapIntroDetail {
                 }
                 if (areasSettings.sandEnabled) {
                     sink.key("map_intro.property.sand");
+                }
+                if (areasSettings.planeCrashEventEnabled) {
+                    sink.key("map_intro.property.plane_crash");
                 }
                 if (areasSettings.fogEnabled) {
                     sink.key("map_intro.property.no_fog");

@@ -19,6 +19,7 @@ import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.mojang.blaze3d.vertex.PoseStack;
 import io.wifi.starrailexpress.client.SREClient;
+import net.exmo.sre.planecrash.client.PlaneCrashClientEffects;
 import net.minecraft.client.model.EntityModel;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.EntityRenderer;
@@ -36,6 +37,7 @@ import org.agmas.noellesroles.utils.RoleUtils;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(LivingEntityRenderer.class)
@@ -75,6 +77,15 @@ public abstract class LivingEntityRendererMixin<T extends LivingEntity, M extend
                 cir.setReturnValue(true);
                 return;
             }
+        }
+    }
+
+    @Inject(method = "setupRotations(Lnet/minecraft/world/entity/LivingEntity;Lcom/mojang/blaze3d/vertex/PoseStack;FFFF)V",
+            at = @At("TAIL"))
+    private void sre$planeCrashLean(LivingEntity entity, PoseStack poseStack, float bob, float yBodyRot,
+            float partialTick, float scale, CallbackInfo ci) {
+        if (entity instanceof Player) {
+            PlaneCrashClientEffects.applyPlayerLean(poseStack, entity, partialTick);
         }
     }
 

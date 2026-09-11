@@ -19,6 +19,7 @@ import org.agmas.noellesroles.init.ModSceneBlocks;
 
 import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.client.model.entity.PlayerSkeletonEntityModel;
+import net.exmo.sre.planecrash.client.CrashPlaneEntityModel;
 import io.wifi.starrailexpress.client.render.block_entity.PlaneSmallDoorBlockEntityRenderer;
 import io.wifi.starrailexpress.client.render.block_entity.SmallDoorBlockEntityRenderer;
 import io.wifi.starrailexpress.client.render.block_entity.UpSmallDoorBlockEntityRenderer;
@@ -72,6 +73,8 @@ public interface TMMModelLayers {
                 () -> LayerDefinition.create(PlayerModel.createMesh(CubeDeformation.NONE, true), 64, 64));
         EntityModelLayerRegistry.registerModelLayer(WHEEL, WheelBlockEntityRenderer::getTexturedModelData);
         EntityModelLayerRegistry.registerModelLayer(PLAYER_SKELETON, PlayerSkeletonEntityModel::getTexturedModelData);
+        EntityModelLayerRegistry.registerModelLayer(CrashPlaneEntityModel.LAYER_LOCATION,
+                CrashPlaneEntityModel::createBodyLayer);
     }
 
     public static ModelLayerLocation layer(String id, String name) {

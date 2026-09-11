@@ -61,6 +61,7 @@ public class SREEventRegister {
         PlayerMountainHandler.register();
 
         // 游戏开始：通知客户端（驱动 OnGameStartedClient 事件），并向本局玩家播放默认开场镜头
+        net.exmo.sre.planecrash.PlaneCrashManager.register();
 
         OnGameEnd.EVENT.register((serverLevel, __cca) -> {
             RefugeeComponent.KEY.get(serverLevel).clear();
@@ -72,17 +73,22 @@ public class SREEventRegister {
             RefugeeComponent.KEY.get(serverLevel).clear();
             boolean deferIntro = defersIntroUntilRolesChosen(serverLevel);
             String mapId = io.wifi.starrailexpress.cca.AreasWorldComponent.KEY.get(serverLevel).mapName;
+            net.exmo.sre.planecrash.PlaneCrashManager.onGameStarted(serverLevel);
+            boolean planeIntro = !deferIntro && net.exmo.sre.planecrash.PlaneCrashManager.startIntro(serverLevel);
             for (ServerPlayer player : serverLevel.players()) {
                 // The authoritative map id also drives the opening briefing when no map vote was used.
                 PacketTracker.sendToClient(player, new OnGameStartedPayload(mapId));
                 // 轮选模式职业尚未确定，开场镜头延后到 OnGameTrueStarted
-                if (!deferIntro) {
+                if (!deferIntro && !planeIntro) {
                     sendDefaultIntroIfParticipant(player);
                 }
             }
         });
         OnGameTrueStarted.EVENT.register(serverLevel -> {
             if (!defersIntroUntilRolesChosen(serverLevel)) {
+                return;
+            }
+            if (net.exmo.sre.planecrash.PlaneCrashManager.startIntro(serverLevel)) {
                 return;
             }
             for (ServerPlayer player : serverLevel.players()) {

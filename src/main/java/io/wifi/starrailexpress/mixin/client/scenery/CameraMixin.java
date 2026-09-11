@@ -19,6 +19,7 @@ import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.SREClientConfig;
 import io.wifi.starrailexpress.api.AreasSettings.BackgroundAmbienceSound;
 import io.wifi.starrailexpress.client.SREClient;
+import net.exmo.sre.planecrash.client.PlaneCrashClientEffects;
 import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
@@ -26,7 +27,9 @@ import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.levelgen.synth.ImprovedNoise;
+import org.joml.Quaternionf;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -34,6 +37,9 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(Camera.class)
 public class CameraMixin {
+    @Shadow
+    private Quaternionf rotation;
+
     @Unique
     private static final ImprovedNoise sampler = new ImprovedNoise(RandomSource.create());
 
@@ -81,6 +87,13 @@ public class CameraMixin {
             camera.setRotation(camera.getYRot() + yawOffset, camera.getXRot() + pitchOffset);
             camera.setPosition(camera.getPosition().add(0, Math.sin((age + tickDelta) * strength) / 2f * amplitude,
                     Math.cos((age + tickDelta) * strength) * amplitude));
+        }
+        if (PlaneCrashClientEffects.isTremorActive()) {
+            Camera camera = (Camera) (Object) this;
+            var jitter = PlaneCrashClientEffects.computeCamera(camera, tickDelta);
+            camera.setRotation(camera.getYRot() + jitter.yaw(), camera.getXRot() + jitter.pitch());
+            camera.setPosition(camera.getPosition().add(jitter.x(), jitter.y(), jitter.z()));
+            PlaneCrashClientEffects.applyRoll(this.rotation, jitter.roll());
         }
     }
 }

@@ -1,0 +1,56 @@
+{
+  "event.plane_crash.engine": {
+    "category": "weather",
+    "subtitle": "subtitles.starrailexpress.plane_crash.engine",
+    "sounds": [
+      {
+        "name": "minecraft:item.elytra.flying",
+        "type": "event",
+        "volume": 0.9,
+        "pitch": 0.7
+      }
+    ]
+  },
+  "event.plane_crash.crash": {
+    "category": "weather",
+    "subtitle": "subtitles.starrailexpress.plane_crash.crash",
+    "sounds": [
+      {
+        "name": "minecraft:entity.generic.explode",
+        "type": "event",
+        "volume": 1.0,
+        "pitch": 0.7
+      }
+    ]
+  },
+  "event.plane_crash.glass": {
+    "category": "ambient",
+    "subtitle": "subtitles.starrailexpress.plane_crash.glass",
+    "sounds": [
+      {
+        "name": "minecraft:block.glass.break",
+        "type": "event",
+        "volume": 1.0,
+        "pitch": 0.75
+      }
+    ]
+  },
+  "event.plane_crash.collapse": {
+    "category": "ambient",
+    "subtitle": "subtitles.starrailexpress.plane_crash.collapse",
+    "sounds": [
+      {
+        "name": "minecraft:entity.wither.break_block",
+        "type": "event",
+        "volume": 0.9,
+        "pitch": 0.55
+      },
+      {
+        "name": "minecraft:entity.zombie.attack_iron_door",
+        "type": "event",
+        "volume": 0.7,
+        "pitch": 0.4
+      }
+    ]
+  }
+}

@@ -38,6 +38,9 @@ public class DevItems {
     public static Item LOOPING_MIRROR_TOOL = register(
             new LoopingMirrorToolItem(new Item.Properties().stacksTo(1)),
             "looping_mirror_tool");
+    public static Item VERTICAL_LOOPING_MIRROR_TOOL = register(
+            new VerticalLoopingMirrorToolItem(new Item.Properties().stacksTo(1)),
+            "vertical_looping_mirror_tool");
     public static Item MAP_TOOL = register(new MapBuildHelperItem(new Item.Properties().stacksTo(1)),
             "map_tool");
 

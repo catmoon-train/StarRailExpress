@@ -23,14 +23,14 @@ import net.minecraft.network.chat.Component;
 
 /** Normalized read-only map capabilities shared by map voting and the opening HUD. */
 public record MapCapabilitySummary(boolean canSwim, boolean canJump, String weather, boolean snow,
-        boolean sand, boolean oxygenDrowning, boolean minigameQuest, int roomCount) {
+        boolean sand, boolean oxygenDrowning, boolean minigameQuest, boolean planeCrash, int roomCount) {
 
     public static MapCapabilitySummary forMap(String mapId) {
         return fromJson(MapIntroClientCache.get(mapId));
     }
 
     public static MapCapabilitySummary fromJson(JsonObject root) {
-        if (root == null) return new MapCapabilitySummary(false, false, "clear", false, false, false, false, -1);
+        if (root == null) return new MapCapabilitySummary(false, false, "clear", false, false, false, false, false, -1);
         JsonObject settings = object(root, "settings");
         JsonObject source = settings == null ? root : settings;
         boolean canJump = bool(source, "canJump", false);
@@ -43,10 +43,12 @@ public record MapCapabilitySummary(boolean canSwim, boolean canJump, String weat
         } else {
             canSwim = bool(source, "canSwim", false);
         }
+        boolean planeCrash = bool(source, "planeCrashEventEnabled", false)
+                || bool(root, "planeCrashEventEnabled", false);
         return new MapCapabilitySummary(canSwim, canJump, string(source, "weather", "clear"),
                 bool(source, "snowEnabled", false), bool(source, "sandEnabled", false),
                 bool(source, "enableOxygenDrowning", false), bool(root, "minigameQuestEnabled", false),
-                integer(root, "roomCount", -1));
+                planeCrash, integer(root, "roomCount", -1));
     }
 
     public List<Component> ruleLines(int limit) {
@@ -60,6 +62,7 @@ public record MapCapabilitySummary(boolean canSwim, boolean canJump, String weat
         if (sand) lines.add(Component.translatable("gui.sre.map_briefing.sand"));
         if (oxygenDrowning) lines.add(Component.translatable("gui.sre.map_briefing.oxygen"));
         if (minigameQuest) lines.add(Component.translatable("gui.sre.map_briefing.minigame"));
+        if (planeCrash) lines.add(Component.translatable("gui.sre.map_briefing.plane_crash"));
         if (lines.size() <= 2) lines.add(Component.translatable("gui.sre.map_briefing.explore"));
         return List.copyOf(lines.subList(0, Math.min(Math.max(0, limit), lines.size())));
     }

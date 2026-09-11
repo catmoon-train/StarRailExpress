@@ -40,6 +40,7 @@ import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import org.agmas.noellesroles.content.block_entity.scene.LoopingMirrorBlockEntity;
 import org.agmas.noellesroles.scene.LoopingMirrorManager;
+import org.agmas.noellesroles.scene.VerticalLoopingMirrorManager;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
@@ -89,6 +90,7 @@ public class LoopingMirrorBlock extends Block implements EntityBlock {
         }
         if (context.isHoldingItem(asItem())
                 || context.isHoldingItem(DevItems.LOOPING_MIRROR_TOOL)
+                || context.isHoldingItem(DevItems.VERTICAL_LOOPING_MIRROR_TOOL)
                 || context.isHoldingItem(Items.DEBUG_STICK)) {
             return Shapes.block();
         }
@@ -98,7 +100,8 @@ public class LoopingMirrorBlock extends Block implements EntityBlock {
     @Override
     protected InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos, Player player,
             BlockHitResult hit) {
-        if (player.getMainHandItem().is(DevItems.LOOPING_MIRROR_TOOL)) {
+        if (player.getMainHandItem().is(DevItems.LOOPING_MIRROR_TOOL)
+                || player.getMainHandItem().is(DevItems.VERTICAL_LOOPING_MIRROR_TOOL)) {
             return InteractionResult.PASS;
         }
         if (player.isCreative() && !level.isClientSide
@@ -113,6 +116,7 @@ public class LoopingMirrorBlock extends Block implements EntityBlock {
     protected void onRemove(BlockState state, Level level, BlockPos pos, BlockState newState, boolean movedByPiston) {
         if (!state.is(newState.getBlock())) {
             LoopingMirrorManager.removeContaining(level, pos);
+            VerticalLoopingMirrorManager.removeContaining(level, pos);
         }
         super.onRemove(state, level, pos, newState, movedByPiston);
     }

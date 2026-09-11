@@ -50,6 +50,7 @@
   "item.noellesroles.giant_note.desc": "生成一个5倍大小的便签，记者可贴在别人身上。",
   "item.starrailexpress.binding_tool.desc": "绑定工具，用于绑定监控。",
   "item.starrailexpress.looping_mirror_tool.desc": "建图工具。先选一块循环镜子，再框选两个平面绑定到它身上。客户端在镜子后方生成对面场景，前后穿行都会循环。",
+  "item.starrailexpress.vertical_looping_mirror_tool.desc": "建图工具。先选一块循环镜子，再勾选 A、B 两个对角。穿过顶底面会上下循环；上方只叠有限份场景，下方是雾。",
   "item.starrailexpress.nunchuck.desc": "双截棍，武术教官专属武器，使用教程详见武术教官职业。",
   "item.starrailexpress.lockpick.desc": "右键打开任意一扇门，shift右键门可以将门上锁。",
   "item.noellesroles.a_bottle_of_water.desc": "一瓶水，可以饮用。",

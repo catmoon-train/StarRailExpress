@@ -50,6 +50,7 @@
     "item.noellesroles.giant_note.desc": "Generate a sticky note 5 times the size that reporters can paste on others.",
     "item.starrailexpress.binding_tool.desc": "Binding tool for binding monitoring.",
     "item.starrailexpress.looping_mirror_tool.desc": "Map tool. Pick one looping mirror, then box-select two planes bound to it. The client builds the opposite scene behind each plane; walking through either side loops.",
+    "item.starrailexpress.vertical_looping_mirror_tool.desc": "Map tool. Pick a looping mirror, then corners A and B. Crossing the top or bottom loops vertically. The client stacks a limited number of copies above; the bottom is fog.",
     "item.starrailexpress.nunchuck.desc": "Twin sticks, weapons exclusive to martial arts instructors. For detailed tutorials, see martial arts instructor role.",
     "item.starrailexpress.lockpick.desc": "Right-click on any door to open it, and shift-right-click on the door to lock it.",
     "item.noellesroles.a_bottle_of_water.desc": "A bottle of water for drinking.",

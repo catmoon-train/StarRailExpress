@@ -99,6 +99,10 @@ public class SREPayloadRegister {
         // 高级相机轨道
         PayloadTypeRegistry.playS2C().register(net.exmo.sre.camera.AdvancedCameraPayload.ID,
                 net.exmo.sre.camera.AdvancedCameraPayload.CODEC);
+        PayloadTypeRegistry.playS2C().register(net.exmo.sre.planecrash.PlaneCrashIntroPayload.ID,
+                net.exmo.sre.planecrash.PlaneCrashIntroPayload.CODEC);
+        PayloadTypeRegistry.playS2C().register(net.exmo.sre.planecrash.PlaneCrashTremorPayload.ID,
+                net.exmo.sre.planecrash.PlaneCrashTremorPayload.CODEC);
 
         PayloadTypeRegistry.playS2C().register(SyncMapConfigPayload.ID, SyncMapConfigPayload.CODEC);
         PayloadTypeRegistry.playS2C().register(TriggerScreenEdgeEffectPayload.ID,
