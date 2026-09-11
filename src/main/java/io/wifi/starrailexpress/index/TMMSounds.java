@@ -70,6 +70,11 @@ public interface TMMSounds {
     SoundEvent UI_PIANO_STINGER = registrar.create("ui.piano_stinger");
     SoundEvent UI_RISER = registrar.create("ui.riser");
 
+    SoundEvent EVENT_PLANE_CRASH_ENGINE = registrar.create("event.plane_crash.engine");
+    SoundEvent EVENT_PLANE_CRASH_CRASH = registrar.create("event.plane_crash.crash");
+    SoundEvent EVENT_PLANE_CRASH_GLASS = registrar.create("event.plane_crash.glass");
+    SoundEvent EVENT_PLANE_CRASH_COLLAPSE = registrar.create("event.plane_crash.collapse");
+
     static void initialize() {
         registrar.registerEntries();
     }

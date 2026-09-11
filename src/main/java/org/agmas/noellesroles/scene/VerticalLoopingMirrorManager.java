@@ -19,7 +19,6 @@ import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.RelativeMovement;
 import net.minecraft.world.level.Level;
@@ -34,27 +33,26 @@ import java.util.List;
 import java.util.Set;
 
 /**
- * 循环镜子运行时：实体穿过任一平面时相对传送到另一平面，保留速度并按夹角旋转朝向。
- * 对面场景由客户端生成，服务端不再复制方块。
+ * 上下循环运行时：实体穿过顶/底面时按高度回绕，速度与朝向不变。
  */
-public final class LoopingMirrorManager {
+public final class VerticalLoopingMirrorManager {
     private static final Set<RelativeMovement> RELATIVE_ALL = EnumSet.of(
             RelativeMovement.X, RelativeMovement.Y, RelativeMovement.Z,
             RelativeMovement.X_ROT, RelativeMovement.Y_ROT);
 
-    private LoopingMirrorManager() {
+    private VerticalLoopingMirrorManager() {
     }
 
     public static void register() {
-        ServerTickEvents.END_WORLD_TICK.register(LoopingMirrorManager::tick);
+        ServerTickEvents.END_WORLD_TICK.register(VerticalLoopingMirrorManager::tick);
     }
 
-    public static void add(ServerLevel level, LoopingMirrorLoop loop) {
-        LoopingMirrorSavedData.get(level).add(loop);
+    public static void add(ServerLevel level, VerticalLoopingMirrorLoop loop) {
+        VerticalLoopingMirrorSavedData.get(level).add(loop);
     }
 
-    public static void addAndBind(ServerLevel level, LoopingMirrorLoop loop) {
-        VerticalLoopingMirrorSavedData.get(level).removeContaining(loop.controller());
+    public static void addAndBind(ServerLevel level, VerticalLoopingMirrorLoop loop) {
+        LoopingMirrorSavedData.get(level).removeContaining(loop.controller());
         add(level, loop);
         writeToBlockEntity(level, loop);
     }
@@ -63,9 +61,9 @@ public final class LoopingMirrorManager {
         if (!(level instanceof ServerLevel serverLevel)) {
             return false;
         }
-        LoopingMirrorSavedData data = LoopingMirrorSavedData.get(serverLevel);
-        List<LoopingMirrorLoop> removed = new ArrayList<>();
-        for (LoopingMirrorLoop loop : List.copyOf(data.loops())) {
+        VerticalLoopingMirrorSavedData data = VerticalLoopingMirrorSavedData.get(serverLevel);
+        List<VerticalLoopingMirrorLoop> removed = new ArrayList<>();
+        for (VerticalLoopingMirrorLoop loop : List.copyOf(data.loops())) {
             if (loop.contains(pos)) {
                 removed.add(loop);
             }
@@ -74,33 +72,34 @@ public final class LoopingMirrorManager {
             return false;
         }
         data.removeContaining(pos);
-        for (LoopingMirrorLoop loop : removed) {
+        for (VerticalLoopingMirrorLoop loop : removed) {
             clearBlockEntity(serverLevel, loop);
         }
         return true;
     }
 
-    public static void writeToBlockEntity(ServerLevel level, LoopingMirrorLoop loop) {
+    public static void writeToBlockEntity(ServerLevel level, VerticalLoopingMirrorLoop loop) {
         if (level.getBlockEntity(loop.controller()) instanceof LoopingMirrorBlockEntity be) {
-            be.setLoop(loop);
+            be.setVerticalLoop(loop);
         }
     }
 
-    public static void clearBlockEntity(ServerLevel level, LoopingMirrorLoop loop) {
+    public static void clearBlockEntity(ServerLevel level, VerticalLoopingMirrorLoop loop) {
         if (level.getBlockEntity(loop.controller()) instanceof LoopingMirrorBlockEntity be) {
-            be.clearLoop();
+            be.clearVerticalLoop();
         }
     }
 
     private static void tick(ServerLevel level) {
-        List<LoopingMirrorLoop> loops = LoopingMirrorSavedData.get(level).loops();
+        List<VerticalLoopingMirrorLoop> loops = VerticalLoopingMirrorSavedData.get(level).loops();
         if (loops.isEmpty()) {
             return;
         }
         Set<Entity> wrapped = java.util.Collections.newSetFromMap(new IdentityHashMap<>());
-        for (LoopingMirrorLoop loop : loops) {
+        for (VerticalLoopingMirrorLoop loop : loops) {
             AABB search = loop.searchBox();
-            List<Entity> entities = level.getEntities((Entity) null, search, entity -> entity != null && !entity.isRemoved());
+            List<Entity> entities = level.getEntities((Entity) null, search,
+                    entity -> entity != null && !entity.isRemoved());
             for (Entity entity : entities) {
                 Entity root = entity.getRootVehicle();
                 if (!wrapped.add(root)) {
@@ -111,45 +110,34 @@ public final class LoopingMirrorManager {
         }
     }
 
-    private static void wrap(Entity root, LoopingMirrorLoop loop) {
+    private static void wrap(Entity root, VerticalLoopingMirrorLoop loop) {
         if (root instanceof ServerPlayer player && player.isSleeping()) {
             return;
         }
         Vec3 prev = new Vec3(root.xo, root.yo, root.zo);
         Vec3 curr = root.position();
-        LoopingMirrorPlane from = loop.crossedFrom(prev, curr);
-        if (from == null) {
+        int direction = loop.crossed(prev, curr);
+        if (direction == 0) {
             return;
         }
-        LoopingMirrorPlane to = loop.other(from);
-        Vec3 mapped = loop.mapPoint(from, to, curr);
+        Vec3 mapped = loop.wrap(curr, direction);
         Vec3 delta = mapped.subtract(curr);
         if (delta.lengthSqr() < 1.0E-8D) {
             return;
         }
-        Vec3 velocity = loop.mapVec(from, to, root.getDeltaMovement());
-        Vec3 look = loop.mapVec(from, to, root.getLookAngle());
-        float yawDelta = Mth.wrapDegrees(loop.yawOf(look) - root.getYRot());
-        float pitchDelta = Mth.wrapDegrees(loop.pitchOf(look) - root.getXRot());
         if (root instanceof ServerPlayer player && !player.isPassenger()) {
-            player.teleportTo(player.serverLevel(), delta.x, delta.y, delta.z, RELATIVE_ALL, yawDelta, pitchDelta);
-            player.setDeltaMovement(velocity);
+            player.teleportTo(player.serverLevel(), delta.x, delta.y, delta.z, RELATIVE_ALL, 0.0F, 0.0F);
             player.hurtMarked = true;
             player.setOldPosAndRot();
             return;
         }
-        float yRot = root.getYRot() + yawDelta;
-        float xRot = root.getXRot() + pitchDelta;
         root.teleportTo(mapped.x, mapped.y, mapped.z);
-        root.setYRot(yRot);
-        root.setXRot(xRot);
-        root.setDeltaMovement(velocity);
         root.setOldPosAndRot();
         root.xo = mapped.x;
         root.yo = mapped.y;
         root.zo = mapped.z;
         if (root instanceof ServerPlayer player) {
-            player.connection.teleport(mapped.x, mapped.y, mapped.z, yRot, xRot);
+            player.connection.teleport(mapped.x, mapped.y, mapped.z, root.getYRot(), root.getXRot());
             player.hurtMarked = true;
         }
     }

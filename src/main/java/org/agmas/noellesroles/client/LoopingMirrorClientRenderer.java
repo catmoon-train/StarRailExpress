@@ -50,6 +50,7 @@ public final class LoopingMirrorClientRenderer {
     public static void register() {
         WorldRenderEvents.AFTER_TRANSLUCENT.register(LoopingMirrorClientRenderer::render);
         LoopingMirrorClientScenes.register();
+        VerticalLoopingMirrorClient.register();
     }
 
     private static void render(WorldRenderContext context) {

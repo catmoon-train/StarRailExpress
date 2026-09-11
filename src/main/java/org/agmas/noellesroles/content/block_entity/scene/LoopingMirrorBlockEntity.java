@@ -29,13 +29,16 @@ import net.minecraft.world.level.block.state.BlockState;
 import org.agmas.noellesroles.init.ModSceneBlocks;
 import org.agmas.noellesroles.scene.LoopingMirrorLoop;
 import org.agmas.noellesroles.scene.LoopingMirrorManager;
+import org.agmas.noellesroles.scene.VerticalLoopingMirrorLoop;
+import org.agmas.noellesroles.scene.VerticalLoopingMirrorManager;
 import org.jetbrains.annotations.Nullable;
 
 /**
- * 保存绑定在这块循环镜子上的两个平面，并同步给客户端生成后方场景。
+ * 保存绑定在这块循环镜子上的平面循环或上下循环，并同步给客户端。
  */
 public class LoopingMirrorBlockEntity extends BlockEntity {
     private @Nullable LoopingMirrorLoop loop;
+    private @Nullable VerticalLoopingMirrorLoop verticalLoop;
 
     public LoopingMirrorBlockEntity(BlockPos pos, BlockState state) {
         super(ModSceneBlocks.LOOPING_MIRROR_ENTITY, pos, state);
@@ -45,12 +48,24 @@ public class LoopingMirrorBlockEntity extends BlockEntity {
         return loop;
     }
 
+    public @Nullable VerticalLoopingMirrorLoop getVerticalLoop() {
+        return verticalLoop;
+    }
+
     public boolean isConfigured() {
-        return loop != null;
+        return loop != null || verticalLoop != null;
     }
 
     public void setLoop(LoopingMirrorLoop loop) {
         this.loop = loop;
+        this.verticalLoop = null;
+        setChanged();
+        sync();
+    }
+
+    public void setVerticalLoop(VerticalLoopingMirrorLoop verticalLoop) {
+        this.verticalLoop = verticalLoop;
+        this.loop = null;
         setChanged();
         sync();
     }
@@ -61,7 +76,19 @@ public class LoopingMirrorBlockEntity extends BlockEntity {
         sync();
     }
 
+    public void clearVerticalLoop() {
+        this.verticalLoop = null;
+        setChanged();
+        sync();
+    }
+
     public Component describe() {
+        if (verticalLoop != null) {
+            return Component.translatable("message.noellesroles.vertical_looping_mirror.info",
+                            verticalLoop.sizeX(), verticalLoop.sizeY(), verticalLoop.sizeZ(),
+                            verticalLoop.copiesUp())
+                    .withStyle(ChatFormatting.AQUA);
+        }
         if (loop == null) {
             return Component.translatable("message.noellesroles.looping_mirror.not_configured")
                     .withStyle(ChatFormatting.GRAY);
@@ -84,8 +111,13 @@ public class LoopingMirrorBlockEntity extends BlockEntity {
     @Override
     public void setLevel(net.minecraft.world.level.Level level) {
         super.setLevel(level);
-        if (level instanceof ServerLevel serverLevel && loop != null) {
-            LoopingMirrorManager.add(serverLevel, loop);
+        if (level instanceof ServerLevel serverLevel) {
+            if (loop != null) {
+                LoopingMirrorManager.add(serverLevel, loop);
+            }
+            if (verticalLoop != null) {
+                VerticalLoopingMirrorManager.add(serverLevel, verticalLoop);
+            }
         }
     }
 
@@ -95,18 +127,29 @@ public class LoopingMirrorBlockEntity extends BlockEntity {
         if (loop != null) {
             tag.put("Loop", loop.save());
         }
+        if (verticalLoop != null) {
+            tag.put("VerticalLoop", verticalLoop.save());
+        }
     }
 
     @Override
     protected void loadAdditional(CompoundTag tag, net.minecraft.core.HolderLookup.Provider registries) {
         super.loadAdditional(tag, registries);
-        if (tag.contains("Loop")) {
+        if (tag.contains("VerticalLoop")) {
+            verticalLoop = VerticalLoopingMirrorLoop.load(tag.getCompound("VerticalLoop"));
+            if (verticalLoop != null) {
+                verticalLoop = verticalLoop.withController(worldPosition);
+            }
+            loop = null;
+        } else if (tag.contains("Loop")) {
             loop = LoopingMirrorLoop.load(tag.getCompound("Loop"));
             if (loop != null) {
                 loop = loop.withController(worldPosition);
             }
+            verticalLoop = null;
         } else {
             loop = null;
+            verticalLoop = null;
         }
     }
 

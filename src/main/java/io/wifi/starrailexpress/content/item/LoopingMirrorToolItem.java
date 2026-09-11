@@ -40,6 +40,7 @@ import org.agmas.noellesroles.content.block_entity.scene.LoopingMirrorBlockEntit
 import org.agmas.noellesroles.scene.LoopingMirrorLoop;
 import org.agmas.noellesroles.scene.LoopingMirrorManager;
 import org.agmas.noellesroles.scene.LoopingMirrorPlane;
+import org.agmas.noellesroles.scene.VerticalLoopingMirrorManager;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
@@ -79,7 +80,9 @@ public class LoopingMirrorToolItem extends Item {
         }
 
         boolean isMirror = level.getBlockState(pos).getBlock() instanceof LoopingMirrorBlock;
-        if (player.isShiftKeyDown() && isMirror && LoopingMirrorManager.removeContaining(serverLevel, pos)) {
+        if (player.isShiftKeyDown() && isMirror
+                && (LoopingMirrorManager.removeContaining(serverLevel, pos)
+                || VerticalLoopingMirrorManager.removeContaining(serverLevel, pos))) {
             clearSelection(stack);
             player.displayClientMessage(Component.translatable("message.noellesroles.looping_mirror.cleared")
                     .withStyle(ChatFormatting.GREEN), true);

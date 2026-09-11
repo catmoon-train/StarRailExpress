@@ -39,6 +39,7 @@ public final class SceneServerEvents {
         net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents.END_WORLD_TICK.register(
                 SceneTaskManager::tick);
         LoopingMirrorManager.register();
+        VerticalLoopingMirrorManager.register();
 
         // 手枪射线命中列车标靶 → 发出红石信号
         OnRevolverUsed.EVENT.register((ServerPlayer shooter, ServerPlayer target) -> {

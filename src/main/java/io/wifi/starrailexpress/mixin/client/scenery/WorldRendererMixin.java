@@ -28,6 +28,7 @@ import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.renderer.FogRenderer;
 import net.minecraft.client.renderer.LevelRenderer;
 import net.minecraft.world.effect.MobEffects;
+import org.agmas.noellesroles.client.VerticalLoopingMirrorClient;
 import org.agmas.noellesroles.init.ModEffects;
 import org.joml.Matrix4f;
 import org.spongepowered.asm.mixin.Mixin;
@@ -48,6 +49,9 @@ public abstract class WorldRendererMixin {
     public void tmm$applyBlizzardFog(Camera camera, FogRenderer.FogMode fogType, float viewDistance, boolean thickFog,
             float tickDelta, Operation<Void> original) {
         if (SREClient.isInLobby) {
+            return;
+        }
+        if (VerticalLoopingMirrorClient.applyBottomFog(camera)) {
             return;
         }
         if (SREClient.shouldRenderVanillaHud()) {

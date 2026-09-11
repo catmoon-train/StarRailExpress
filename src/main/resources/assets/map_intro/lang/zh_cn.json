@@ -43,6 +43,7 @@
   "map_intro.property.can_jump.false": "不允许在地图中跳跃",
   "map_intro.property.snow": "地图会下雪",
   "map_intro.property.sand": "地图会刮沙尘暴",
+  "map_intro.property.plane_crash": "地图启用飞机坠落事件，开场会有飞机撞向中心，建筑会间歇震颤",
   "map_intro.property.no_fog": "地图无雾气",
   "map_intro.property.fog_end": "能见度范围：%s 格",
   "map_intro.property.weather": "地图默认天气：%s",
