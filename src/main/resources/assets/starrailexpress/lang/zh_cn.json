@@ -915,7 +915,7 @@
     "container.cabinet": "柜子",
     "container.cargo_box": "货物箱",
     "container.starrailexpress.player_body": "玩家尸体",
-    "credits.starrailexpress.thank_you": "感谢您游玩《哈比快车谋杀案》DLC版！\n 残月团队花了很多时间为这个模组增加了更多的功能与游戏内容。\n我们还添加了许多可供游玩的地图与新职业。 \n如果您喜欢并想制作视频或直播，请务必注明我的频道、视频和模组页面！\n 原作者 - RAT / doctor4t \nDLC版作者 - 残月团队 \n本DLC完全开源且免费",
+    "credits.starrailexpress.thank_you": "感谢您游玩《哈比快车谋杀案》DLC版！\n 残月列车团队花了很多时间为这个模组增加了更多的功能与游戏内容。\n我们还添加了许多可供游玩的地图与新职业。 \n如果您喜欢并想制作视频或直播，请务必注明我的频道、视频和模组页面！\n 原作者 - RAT / doctor4t \nDLC版作者 - 残月列车团队 \n本DLC完全开源且免费",
     "commands.sre.addshield": "给 %s 添加了 %s 层护盾",
     "commands.sre.addshield.multiple": "给 %s 个玩家添加了 %s 层护盾",
     "commands.sre.setshield": "给 %s 设置了 %s 层护盾",
