@@ -3154,5 +3154,7 @@
     "block.starrailexpress.backrooms_server_rack": "Backrooms Old Server Rack",
     "block.starrailexpress.backrooms_stairwell_wall": "Backrooms Stairwell Wall",
     "block.starrailexpress.backrooms_dirty_locker": "Backrooms Dirty Locker",
-    "block.starrailexpress.backrooms_black_mold_panel": "Backrooms Black Mold Panel"
+    "block.starrailexpress.backrooms_black_mold_panel": "Backrooms Black Mold Panel",
+    "block.starrailexpress.iron_block_stairs": "Iron Block Stairs",
+    "block.starrailexpress.iron_block_slab": "Iron Block Slab"
 }

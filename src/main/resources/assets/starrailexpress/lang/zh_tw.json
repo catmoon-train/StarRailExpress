@@ -3261,5 +3261,7 @@
     "block.starrailexpress.backrooms_server_rack": "後室舊伺服器機櫃",
     "block.starrailexpress.backrooms_stairwell_wall": "後室樓梯間牆面",
     "block.starrailexpress.backrooms_dirty_locker": "後室髒污儲物櫃",
-    "block.starrailexpress.backrooms_black_mold_panel": "後室黑霉牆板"
+    "block.starrailexpress.backrooms_black_mold_panel": "後室黑霉牆板",
+    "block.starrailexpress.iron_block_stairs": "鐵塊樓梯",
+    "block.starrailexpress.iron_block_slab": "鐵塊台階"
 }

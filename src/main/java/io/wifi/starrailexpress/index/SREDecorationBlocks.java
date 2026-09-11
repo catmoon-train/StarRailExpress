@@ -86,6 +86,11 @@ public final class SREDecorationBlocks {
                     BlockBehaviour.Properties.ofFullCopy(DEEP_BLUE_BRICKS)));
     public static final Block DEEP_BLUE_BRICK_SLAB = registerBlock("deep_blue_brick_slab",
             new SlabBlock(BlockBehaviour.Properties.ofFullCopy(DEEP_BLUE_BRICKS)));
+    public static final Block IRON_BLOCK_STAIRS = registerBlock("iron_block_stairs",
+            new StairBlock(Blocks.IRON_BLOCK.defaultBlockState(),
+                    BlockBehaviour.Properties.ofFullCopy(Blocks.IRON_BLOCK)));
+    public static final Block IRON_BLOCK_SLAB = registerBlock("iron_block_slab",
+            new SlabBlock(BlockBehaviour.Properties.ofFullCopy(Blocks.IRON_BLOCK)));
     public static final Block LIGHT_BLUE_OAK_DOOR = registerBlock("light_blue_oak_door",
             new DoorBlock(BlockSetType.OAK, BlockBehaviour.Properties.ofFullCopy(Blocks.OAK_DOOR)));
     public static final Block LIGHT_BLUE_DIRT_PATH = registerBlock("light_blue_dirt_path",
@@ -261,6 +266,8 @@ public final class SREDecorationBlocks {
             registerBlockItem(DEEP_BLUE_OAK_FENCE),
             registerBlockItem(DEEP_BLUE_BRICK_STAIRS),
             registerBlockItem(DEEP_BLUE_BRICK_SLAB),
+            registerBlockItem(IRON_BLOCK_STAIRS),
+            registerBlockItem(IRON_BLOCK_SLAB),
             registerBlockItem(LIGHT_BLUE_OAK_DOOR),
             registerBlockItem(LIGHT_BLUE_DIRT_PATH),
             registerStandingAndWallItem(BLUE_TORCH, WALL_BLUE_TORCH),
