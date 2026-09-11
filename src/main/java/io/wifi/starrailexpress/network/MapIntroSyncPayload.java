@@ -31,7 +31,8 @@ public record MapIntroSyncPayload(
         List<String> underwaterMaps,
         List<String> airMaps,
         List<String> trapMaps,
-        List<String> horseMaps) implements CustomPacketPayload {
+        List<String> horseMaps,
+        List<String> labMaps) implements CustomPacketPayload {
     public static final Type<MapIntroSyncPayload> ID = new Type<>(SRE.id("map_intro_sync"));
     public static final StreamCodec<FriendlyByteBuf, MapIntroSyncPayload> CODEC =
             CustomPacketPayload.codec(MapIntroSyncPayload::write, MapIntroSyncPayload::new);
@@ -66,7 +67,7 @@ public record MapIntroSyncPayload(
 
     private MapIntroSyncPayload(FriendlyByteBuf buffer) {
         this(readMaps(buffer), readVoteMaps(buffer), readStrings(buffer), readStrings(buffer), readStrings(buffer),
-                readStrings(buffer), readStrings(buffer), readStrings(buffer));
+                readStrings(buffer), readStrings(buffer), readStrings(buffer), readStrings(buffer));
     }
 
     private void write(FriendlyByteBuf buffer) {
@@ -86,6 +87,7 @@ public record MapIntroSyncPayload(
         writeStrings(buffer, airMaps);
         writeStrings(buffer, trapMaps);
         writeStrings(buffer, horseMaps);
+        writeStrings(buffer, labMaps);
     }
 
     private static List<MapJson> readMaps(FriendlyByteBuf buffer) {

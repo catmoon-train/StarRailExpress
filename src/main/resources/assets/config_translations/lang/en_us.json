@@ -361,6 +361,7 @@
     "text.autoconfig.noellesroles.option.maChenXuMaps": "Refreshes the map of the puppet ghost",
     "text.autoconfig.noellesroles.option.swastMaps": "Characters that will be refreshed in the big picture (such as SWAT)",
     "text.autoconfig.noellesroles.option.underwaterRolesMaps": "Will refresh the map of underwater characters (such as Aquaman, Diver, Water Ghost, Angler)",
+    "text.autoconfig.noellesroles.option.labRolesMaps": "Maps that will spawn lab-map roles (laboratory)",
     "text.autoconfig.noellesroles.option.trapRolesMaps": "Maps for characters who know how to brush machine maps (adventurers)",
     "text.autoconfig.noellesroles.option.horseRolesMaps": "The map of the horse riding map character (horse trainer, hunter) will be refreshed",
     "text.autoconfig.noellesroles.option.airRolesMaps": "Will refresh the map of flying characters (such as pilot, shadow falcon)",

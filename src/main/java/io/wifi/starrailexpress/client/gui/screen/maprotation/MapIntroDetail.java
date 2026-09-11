@@ -59,7 +59,7 @@ public final class MapIntroDetail {
 
     /** 各类特殊职业可用的地图集合。 */
     public record SpecialSets(Set<String> bag, Set<String> police, Set<String> underwater,
-            Set<String> air, Set<String> trap, Set<String> horse) {
+            Set<String> air, Set<String> trap, Set<String> horse, Set<String> lab) {
     }
 
     public static List<FormattedCharSequence> build(Font font, int wrapW, String id, Component displayName,
@@ -87,7 +87,7 @@ public final class MapIntroDetail {
         if (special != null) {
             sink.section("map_intro.section.special_roles");
             List<Component> specialLines = MapSpecialRoleLines.build(id, special.bag(), special.police(),
-                    special.underwater(), special.air(), special.trap(), special.horse(), json);
+                    special.underwater(), special.air(), special.trap(), special.horse(), special.lab(), json);
             if (specialLines.isEmpty()) {
                 sink.wrapped(Component.translatable("map_intro.special.none").withStyle(ChatFormatting.GRAY));
             } else {

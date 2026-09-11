@@ -583,7 +583,7 @@ public class CustomRoleScreen extends Screen {
                         .append(Component.literal(data.specialMapRole)),
                 () -> {
                     String[] vals = { "ALL", "QIYUCUN", "BIGMAP", "UNDERWATER", "FLY", "TRAP", "CAN_JUMP", "MEETING",
-                            "MEETING_VOTE", "MINIGAME_QUEST", "MAP_STATUS_BAR" };
+                            "MEETING_VOTE", "MINIGAME_QUEST", "MAP_STATUS_BAR", "LAB" };
                     int idx = java.util.Arrays.asList(vals).indexOf(data.specialMapRole);
                     if (idx < 0)
                         idx = 0;

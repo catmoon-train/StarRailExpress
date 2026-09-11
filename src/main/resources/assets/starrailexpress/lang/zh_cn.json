@@ -3017,6 +3017,8 @@
     "sre.map_helper.settings.customMapFeatures.HORSE.@tooltip": "生成马相关的职业",
     "sre.map_helper.settings.customMapFeatures.UNDERWATER": "水图",
     "sre.map_helper.settings.customMapFeatures.UNDERWATER.@tooltip": "生成水相关的职业",
+    "sre.map_helper.settings.customMapFeatures.LAB": "实验室图",
+    "sre.map_helper.settings.customMapFeatures.LAB.@tooltip": "生成实验室相关的职业",
     "sre.map_helper.settings.haveOutsideSound": "外部环境音效",
     "sre.map_helper.settings.haveOutsideSound.@tooltip": "是否启用地图专属的背景音效",
     "sre.map_helper.settings.sceneOutsideSound": "室外背景音效类型",

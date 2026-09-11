@@ -1701,6 +1701,9 @@ public abstract class SRERole extends SREAbstractInfoClass {
         if (config.maChenXuMaps != null && config.maChenXuMaps.contains(id)) {
             result.add(MapSpecialFeatures.QIYUCUN);
         }
+        if (config.labRolesMaps != null && config.labRolesMaps.contains(id)) {
+            result.add(MapSpecialFeatures.LAB);
+        }
         if (config.swastMaps != null && config.swastMaps.contains(id)) {
             result.add(MapSpecialFeatures.BIGMAP);
         }

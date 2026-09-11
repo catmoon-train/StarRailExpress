@@ -3016,6 +3016,8 @@
     "sre.map_helper.settings.customMapFeatures.HORSE.@tooltip": "生成馬相關的職業",
     "sre.map_helper.settings.customMapFeatures.UNDERWATER": "水圖",
     "sre.map_helper.settings.customMapFeatures.UNDERWATER.@tooltip": "生成水相關的職業",
+    "sre.map_helper.settings.customMapFeatures.LAB": "實驗室圖",
+    "sre.map_helper.settings.customMapFeatures.LAB.@tooltip": "生成實驗室相關的職業",
     "sre.map_helper.settings.haveOutsideSound": "外部環境音效",
     "sre.map_helper.settings.haveOutsideSound.@tooltip": "是否啟用地圖專屬的背景音效",
     "sre.map_helper.settings.sceneOutsideSound": "室外背景音效類型",

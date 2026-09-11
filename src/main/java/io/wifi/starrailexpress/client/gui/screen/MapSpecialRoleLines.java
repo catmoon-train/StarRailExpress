@@ -33,7 +33,7 @@ import java.util.Set;
  * 后面跟上该类别下所有职业的翻译名，以“/”分隔。地图类别是否激活的判断与
  * {@code InitModRolesMax.isSpecialMapRoleEnabled} 保持一致：
  * <ul>
- *     <li>配置列表类（QIYUCUN/BIGMAP/UNDERWATER/FLY/TRAP）：由服务端下发的地图集合决定；</li>
+ *     <li>配置列表类（QIYUCUN/BIGMAP/UNDERWATER/FLY/TRAP/HORSE/LAB）：由服务端下发的地图集合决定；</li>
  *     <li>地图属性类（CAN_JUMP/MEETING/MEETING_VOTE/MINIGAME_QUEST/MAP_STATUS_BAR）：由地图自身的配置决定。</li>
  * </ul>
  */
@@ -54,7 +54,8 @@ public final class MapSpecialRoleLines {
             MapSpecialFeatures.MEETING_VOTE,
             MapSpecialFeatures.MINIGAME_QUEST,
             MapSpecialFeatures.MAP_STATUS_BAR,
-            MapSpecialFeatures.HORSE
+            MapSpecialFeatures.HORSE,
+            MapSpecialFeatures.LAB
     };
 
     /**
@@ -67,15 +68,18 @@ public final class MapSpecialRoleLines {
      * @param airMaps        天空地图集合
      * @param trapMaps       机关地图集合
      * @param horseMaps      骑马地图集合
+     * @param labMaps        实验室地图集合
      * @param mapJson        当前地图的属性 JSON（用于判断地图属性类）
      * @return 每行一条 {@link Component}，无匹配时返回空列表
      */
     public static List<Component> build(String mapId,
             Set<String> bagMaps, Set<String> policeMaps, Set<String> underwaterMaps,
-            Set<String> airMaps, Set<String> trapMaps, Set<String> horseMaps, JsonObject mapJson) {
+            Set<String> airMaps, Set<String> trapMaps, Set<String> horseMaps, Set<String> labMaps,
+            JsonObject mapJson) {
         List<Component> lines = new ArrayList<>();
         for (MapSpecialFeatures category : DISPLAY_ORDER) {
-            if (!isActive(category, mapId, bagMaps, policeMaps, underwaterMaps, airMaps, trapMaps, horseMaps, mapJson)) {
+            if (!isActive(category, mapId, bagMaps, policeMaps, underwaterMaps, airMaps, trapMaps, horseMaps, labMaps,
+                    mapJson)) {
                 continue;
             }
             String names = gatherRoleNames(category);
@@ -89,7 +93,7 @@ public final class MapSpecialRoleLines {
 
     private static boolean isActive(MapSpecialFeatures category, String mapId,
             Set<String> bagMaps, Set<String> policeMaps, Set<String> underwaterMaps,
-            Set<String> airMaps, Set<String> trapMaps, Set<String> horseMaps, JsonObject json) {
+            Set<String> airMaps, Set<String> trapMaps, Set<String> horseMaps, Set<String> labMaps, JsonObject json) {
         return switch (category) {
             case QIYUCUN -> contains(bagMaps, mapId);
             case UNDERWATER -> contains(underwaterMaps, mapId);
@@ -97,6 +101,7 @@ public final class MapSpecialRoleLines {
             case FLY -> contains(airMaps, mapId);
             case TRAP -> contains(trapMaps, mapId);
             case HORSE -> contains(horseMaps, mapId);
+            case LAB -> contains(labMaps, mapId);
             case CAN_JUMP -> boolValue(json, "canJump", false);
             case MEETING -> meetingEnabled(json);
             case MEETING_VOTE -> meetingEnabled(json) && meetingVoteEnabled(json);

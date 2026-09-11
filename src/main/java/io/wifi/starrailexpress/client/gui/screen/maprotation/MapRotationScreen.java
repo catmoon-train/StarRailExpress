@@ -162,7 +162,8 @@ public class MapRotationScreen extends Screen {
                 new HashSet<>(payload.underwaterMaps()),
                 new HashSet<>(payload.airMaps()),
                 new HashSet<>(payload.trapMaps()),
-                new HashSet<>(payload.horseMaps()));
+                new HashSet<>(payload.horseMaps()),
+                new HashSet<>(payload.labMaps()));
 
         allRows.clear();
         for (MapIntroSyncPayload.VoteMap voteMap : payload.voteMaps()) {

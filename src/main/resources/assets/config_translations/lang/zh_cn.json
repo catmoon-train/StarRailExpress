@@ -382,6 +382,7 @@
   "text.autoconfig.noellesroles.option.maChenXuMaps": "会刷新布袋鬼的地图",
   "text.autoconfig.noellesroles.option.swastMaps": "会刷新在大图的角色（如特警）",
   "text.autoconfig.noellesroles.option.underwaterRolesMaps": "会刷新水下角色的地图（如海王、潜水员、水鬼、垂钓者）",
+  "text.autoconfig.noellesroles.option.labRolesMaps": "会刷新实验室地图角色的地图（实验室）",
   "text.autoconfig.noellesroles.option.trapRolesMaps": "会刷机关地图角色的地图（冒险家）",
   "text.autoconfig.noellesroles.option.horseRolesMaps": "会刷新骑马地图角色（驯马师、猎人）的地图",
   "text.autoconfig.noellesroles.option.airRolesMaps": "会刷新飞行角色的地图（如飞行员、影隼）",

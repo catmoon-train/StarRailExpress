@@ -65,6 +65,11 @@ public class NoellesRolesConfig implements ConfigData {
     public ArrayList<String> airRolesMaps = new ArrayList<>(List.of("areas_konggang"));
 
     /**
+     * Areas that will spawn lab-map roles (laboratory)
+     */
+    public ArrayList<String> labRolesMaps = new ArrayList<>(List.of("areas_lab"));
+
+    /**
      * Areas that will spawn trap-map roles (Adventurer)
      */
     public ArrayList<String> trapRolesMaps = new ArrayList<>(List.of("areas_shamo"));

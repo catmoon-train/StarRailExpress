@@ -34,6 +34,7 @@ public final class MapIntroClientCache {
     private static final Set<String> AIR_MAPS = new HashSet<>();
     private static final Set<String> TRAP_MAPS = new HashSet<>();
     private static final Set<String> HORSE_MAPS = new HashSet<>();
+    private static final Set<String> LAB_MAPS = new HashSet<>();
     private static long refreshRequestedAt;
 
     private MapIntroClientCache() {}
@@ -47,6 +48,7 @@ public final class MapIntroClientCache {
         AIR_MAPS.clear();
         TRAP_MAPS.clear();
         HORSE_MAPS.clear();
+        LAB_MAPS.clear();
         for (MapIntroSyncPayload.MapJson entry : payload.maps()) {
             try {
                 MAPS.put(entry.id(), JsonParser.parseString(entry.json()).getAsJsonObject());
@@ -63,6 +65,7 @@ public final class MapIntroClientCache {
         AIR_MAPS.addAll(payload.airMaps());
         TRAP_MAPS.addAll(payload.trapMaps());
         HORSE_MAPS.addAll(payload.horseMaps());
+        LAB_MAPS.addAll(payload.labMaps());
         refreshRequestedAt = 0L;
     }
 
@@ -93,6 +96,7 @@ public final class MapIntroClientCache {
         if (AIR_MAPS.contains(id)) tags.add("air");
         if (TRAP_MAPS.contains(id)) tags.add("trap");
         if (HORSE_MAPS.contains(id)) tags.add("horse");
+        if (LAB_MAPS.contains(id)) tags.add("lab");
         return Set.copyOf(tags);
     }
 }

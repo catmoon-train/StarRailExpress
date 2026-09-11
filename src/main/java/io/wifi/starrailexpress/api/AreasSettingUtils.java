@@ -36,7 +36,9 @@ public class AreasSettingUtils {
         /** 仅可游玩小游戏地图生成 */
         MINIGAME_QUEST,
         /** 仅拥有状态栏地图生成（mapStatusBar != NONE） */
-        MAP_STATUS_BAR
+        MAP_STATUS_BAR,
+        /** 仅实验室地图生成（实验室专属职业） */
+        LAB
         /** 仅骑马地图生成（驯马师、猎人） */
     }
 

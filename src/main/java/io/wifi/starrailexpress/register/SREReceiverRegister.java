@@ -290,7 +290,8 @@ public class SREReceiverRegister {
                 config.underwaterRolesMaps,
                 config.airRolesMaps,
                 config.trapRolesMaps,
-                config.horseRolesMaps));
+                config.horseRolesMaps,
+                config.labRolesMaps));
     }
 
     private static void executeDialogueCommand(ServerPlayNetworking.Context context, String command,
