@@ -28,6 +28,11 @@ public abstract class CobblestoneFluid extends LavaFluid {
     }
 
     @Override
+    public boolean isSame(Fluid fluid) {
+        return fluid == SREFluids.COBBLESTONE || fluid == SREFluids.FLOWING_COBBLESTONE;
+    }
+
+    @Override
     public BlockState createLegacyBlock(FluidState state) {
         return SREDecorationBlocks.COBBLESTONE_LIQUID.defaultBlockState()
                 .setValue(LiquidBlock.LEVEL, getLegacyLevel(state));
