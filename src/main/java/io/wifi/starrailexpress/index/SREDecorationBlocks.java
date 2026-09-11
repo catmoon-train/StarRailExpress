@@ -29,6 +29,7 @@ import net.minecraft.world.level.block.DirtPathBlock;
 import net.minecraft.world.level.block.DoublePlantBlock;
 import net.minecraft.world.level.block.DoorBlock;
 import net.minecraft.world.level.block.FenceBlock;
+import net.minecraft.world.level.block.FlowerBlock;
 import net.minecraft.world.level.block.RotatedPillarBlock;
 import net.minecraft.world.level.block.SlabBlock;
 import net.minecraft.world.level.block.StairBlock;
@@ -37,6 +38,7 @@ import net.minecraft.world.level.block.WallTorchBlock;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.properties.BlockSetType;
 import net.minecraft.core.Direction;
+import net.minecraft.world.effect.MobEffects;
 
 /** Decorative blocks used by map builders and themed scene layouts. */
 public final class SREDecorationBlocks {
@@ -96,6 +98,11 @@ public final class SREDecorationBlocks {
             new DoublePlantBlock(BlockBehaviour.Properties.ofFullCopy(Blocks.TALL_GRASS)));
     public static final Block LIGHT_BLUE_FLOWERING_AZALEA = registerBlock("light_blue_flowering_azalea",
             new AzaleaBlock(BlockBehaviour.Properties.ofFullCopy(Blocks.FLOWERING_AZALEA)));
+    public static final Block PURPLE_POPPY = registerBlock("purple_poppy",
+            new FlowerBlock(MobEffects.NIGHT_VISION, 5.0f,
+                    BlockBehaviour.Properties.ofFullCopy(Blocks.POPPY)));
+    public static final Block GRAY_BLUE_OBSIDIAN = registerBlock("gray_blue_obsidian",
+            BlockBehaviour.Properties.ofFullCopy(Blocks.OBSIDIAN));
     public static final Block LIGHT_PURPLE_SPORE_BLOCK = registerBlock("light_purple_spore_block",
             BlockBehaviour.Properties.ofFullCopy(Blocks.MOSS_BLOCK));
 
@@ -248,6 +255,8 @@ public final class SREDecorationBlocks {
             registerStandingAndWallItem(BLUE_TORCH, WALL_BLUE_TORCH),
             registerBlockItem(BLACK_TALL_GRASS),
             registerBlockItem(LIGHT_BLUE_FLOWERING_AZALEA),
+            registerBlockItem(PURPLE_POPPY),
+            registerBlockItem(GRAY_BLUE_OBSIDIAN),
             registerBlockItem(LIGHT_PURPLE_SPORE_BLOCK),
             registerBlockItem(SCP_REINFORCED_CONCRETE),
             registerBlockItem(SCP_CONTAINMENT_PANEL),

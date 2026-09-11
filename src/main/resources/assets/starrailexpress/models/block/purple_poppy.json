@@ -1,0 +1,7 @@
+{
+  "parent": "minecraft:block/cross",
+  "textures": {
+    "cross": "starrailexpress:block/purple_poppy",
+    "particle": "starrailexpress:block/purple_poppy"
+  }
+}
