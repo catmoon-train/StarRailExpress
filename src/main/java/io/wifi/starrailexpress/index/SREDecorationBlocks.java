@@ -112,6 +112,8 @@ public final class SREDecorationBlocks {
                     BlockBehaviour.Properties.ofFullCopy(Blocks.LAVA)));
     public static final Item COBBLESTONE_BUCKET = registerItem("cobblestone_bucket",
             new BucketItem(SREFluids.COBBLESTONE, new Item.Properties().stacksTo(1)));
+    public static final Item ANOMALOUS_NAME_TAG = registerItem("anomalous_name_tag",
+            new Item(new Item.Properties().stacksTo(1)));
     public static final Block LIGHT_PURPLE_SPORE_BLOCK = registerBlock("light_purple_spore_block",
             BlockBehaviour.Properties.ofFullCopy(Blocks.MOSS_BLOCK));
 
@@ -268,6 +270,7 @@ public final class SREDecorationBlocks {
             registerBlockItem(GRAY_BLUE_OBSIDIAN),
             registerBlockItem(GRAY_BLUE_PORTAL),
             COBBLESTONE_BUCKET,
+            ANOMALOUS_NAME_TAG,
             registerBlockItem(LIGHT_PURPLE_SPORE_BLOCK),
             registerBlockItem(SCP_REINFORCED_CONCRETE),
             registerBlockItem(SCP_CONTAINMENT_PANEL),
