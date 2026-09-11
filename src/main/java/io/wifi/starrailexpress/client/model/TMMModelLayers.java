@@ -54,6 +54,7 @@ public interface TMMModelLayers {
         BlockRenderLayerMap.INSTANCE.putBlock(SREDecorationBlocks.WALL_BLUE_TORCH, RenderType.cutout());
         BlockRenderLayerMap.INSTANCE.putBlock(SREDecorationBlocks.LIGHT_BLUE_OAK_DOOR, RenderType.cutout());
         BlockRenderLayerMap.INSTANCE.putBlock(SREDecorationBlocks.PURPLE_POPPY, RenderType.cutout());
+        BlockRenderLayerMap.INSTANCE.putBlock(SREDecorationBlocks.GRAY_BLUE_PORTAL, RenderType.translucent());
         EntityModelLayerRegistry.registerModelLayer(SMALL_DOOR, SmallDoorBlockEntityRenderer::getTexturedModelData);
         EntityModelLayerRegistry.registerModelLayer(UP_SMALL_DOOR,
                 UpSmallDoorBlockEntityRenderer::getTexturedModelData);

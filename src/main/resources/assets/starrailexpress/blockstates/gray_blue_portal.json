@@ -1,0 +1,10 @@
+{
+  "variants": {
+    "axis=x": {
+      "model": "starrailexpress:block/gray_blue_portal_ns"
+    },
+    "axis=z": {
+      "model": "starrailexpress:block/gray_blue_portal_ew"
+    }
+  }
+}
