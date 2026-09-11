@@ -110,6 +110,8 @@ public final class SREDecorationBlocks {
                     BlockBehaviour.Properties.ofFullCopy(Blocks.POPPY)));
     public static final Block GRAY_BLUE_OBSIDIAN = registerBlock("gray_blue_obsidian",
             BlockBehaviour.Properties.ofFullCopy(Blocks.OBSIDIAN));
+    public static final Block LIGHT_GRAY_BLUE_OBSIDIAN = registerBlock("light_gray_blue_obsidian",
+            BlockBehaviour.Properties.ofFullCopy(Blocks.OBSIDIAN));
     public static final Block GRAY_BLUE_PORTAL = registerBlock("gray_blue_portal",
             new DecorativePortalBlock(BlockBehaviour.Properties.ofFullCopy(Blocks.NETHER_PORTAL)));
     public static final Block COBBLESTONE_LIQUID = registerBlock("cobblestone_liquid",
@@ -275,6 +277,7 @@ public final class SREDecorationBlocks {
             registerBlockItem(LIGHT_BLUE_FLOWERING_AZALEA),
             registerBlockItem(PURPLE_POPPY),
             registerBlockItem(GRAY_BLUE_OBSIDIAN),
+            registerBlockItem(LIGHT_GRAY_BLUE_OBSIDIAN),
             registerBlockItem(GRAY_BLUE_PORTAL),
             COBBLESTONE_BUCKET,
             ANOMALOUS_NAME_TAG,

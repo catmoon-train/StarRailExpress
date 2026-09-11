@@ -1,0 +1,6 @@
+{
+  "parent": "minecraft:block/cube_all",
+  "textures": {
+    "all": "starrailexpress:block/light_gray_blue_obsidian"
+  }
+}
