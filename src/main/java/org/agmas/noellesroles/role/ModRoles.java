@@ -227,6 +227,8 @@ public class ModRoles {
     public static final ResourceLocation RETURN_TRAVELER_ID = Noellesroles.id("return_traveler");
     // 裂隙行者角色 ID
     public static final ResourceLocation RIFT_WALKER_ID = Noellesroles.id("rift_walker");
+    // 残疾患者角色 ID
+    public static final ResourceLocation DISABLED_PATIENT_ID = Noellesroles.id("disabled_patient");
     // 皮革噶的角色 ID
     public static final ResourceLocation LEATHER_PIG_ID = Noellesroles.id("leather_pig");
     // 特码头角色 ID
@@ -724,6 +726,21 @@ public class ModRoles {
                     TMMRoles.CIVILIAN.getMaxSprintTime(), false))
             .setCanSeeCoin(true)
             .setRoleData(RiftWalkerRoleData::new)
+            .setDefaultMax(1)
+            .setDefaultEnableChance(4000)
+            .setAddedVersion("4.4");
+
+    /**
+     * 残疾患者（乘客阵营）。
+     * - 每 70 秒获得一种永久负面药水，并获得 100 金币。
+     * - 商店：一次性手枪 300、弱化护盾药水 500、劣质开锁器 200。
+     */
+    public static SRERole DISABLED_PATIENT = TMMRoles.registerRole(
+            new NormalRole(DISABLED_PATIENT_ID, new Color(168, 148, 128).getRGB(),
+                    true, false, SRERole.MoodType.REAL,
+                    TMMRoles.CIVILIAN.getMaxSprintTime(), false))
+            .setCanSeeCoin(true)
+            .setRoleData(DisabledPatientRoleData::new)
             .setDefaultMax(1)
             .setDefaultEnableChance(4000)
             .setAddedVersion("4.4");
@@ -3117,6 +3134,7 @@ public class ModRoles {
         SALTED_FISH.setAddedVersion("4.3");
         RETURN_TRAVELER.setAddedVersion("4.4");
         RIFT_WALKER.setAddedVersion("4.4");
+        DISABLED_PATIENT.setAddedVersion("4.4");
         LEATHER_PIG.setAddedVersion("4.3");
         BARBARIAN.setAddedVersion("4.4");
         NIAOSHOU_SHOU.setAddedVersion("4.4");

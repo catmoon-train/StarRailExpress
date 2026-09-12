@@ -489,6 +489,7 @@ public class NoellesrolesClient implements ClientModInitializer {
         ClientSkincrawlerState.register();
         SaltedFishClientHandle.register();
         TomatoHeadClientHandle.register();
+        DeathReactionClientHandle.register();
         PhantomSpiritClientHandle.register();
         TwoDimensionalCameraClientHandle.register();
         PointerClientHandle.register();

@@ -40,6 +40,7 @@ import org.agmas.noellesroles.content.effects.LimpEffect;
 import org.agmas.noellesroles.content.effects.NoCollideEffect;
 import org.agmas.noellesroles.content.effects.PuppetWanderEffect;
 import org.agmas.noellesroles.content.effects.SimpleMobEffect;
+import org.agmas.noellesroles.content.effects.DeathReactionHandler;
 import org.agmas.noellesroles.content.effects.StatusAilmentHandler;
 import org.agmas.noellesroles.content.effects.TimeStopEffect;
 import org.agmas.noellesroles.content.effects.TomatoFormMobEffect;
@@ -646,6 +647,12 @@ public class ModEffects {
             new SimpleMobEffect(MobEffectCategory.HARMFUL, 0x59636B));
 
     /**
+     * 耳聪：周围声音变得极小，仍能隐约听见，但远弱于正常音量。
+     */
+    public static final Holder<MobEffect> KEEN_HEARING = register("keen_hearing",
+            new SimpleMobEffect(MobEffectCategory.HARMFUL, 0xC8B56A));
+
+    /**
      * 腿瘸。拥有此效果时走路一瘸一拐，幅度随药水等级增加。
      * 移动见 {@code LimpTravelMixin}，第三人称迈腿见 {@code LimpPlayerModelMixin}，
      * 第一人称视角见 {@code LimpCameraMixin}。
@@ -721,6 +728,48 @@ public class ModEffects {
      */
     public static final Holder<MobEffect> MOTOR_DYSFUNCTION = register("motor_dysfunction",
             new SimpleMobEffect(MobEffectCategory.HARMFUL, 0x7A5A4A));
+
+    /**
+     * 胆小鬼：面前有人死亡时施加害怕。
+     */
+    public static final Holder<MobEffect> COWARD = register("coward",
+            new SimpleMobEffect(MobEffectCategory.HARMFUL, 0x6B8E6B));
+
+    /**
+     * 害怕：先坐下 1 秒，随后屏幕与玩家模型发抖。
+     */
+    public static final Holder<MobEffect> FEAR = register("fear",
+            new SimpleMobEffect(MobEffectCategory.HARMFUL, 0x4A3C6E));
+
+    /**
+     * 暴怒：旁边有人死亡时进入短时爆发（红屏、加速、锁定最近玩家）。
+     */
+    public static final Holder<MobEffect> RAGE = register("rage",
+            new SimpleMobEffect(MobEffectCategory.HARMFUL, 0xC41E1E));
+
+    /**
+     * 暴怒爆发：客户端红屏与锁视角标记，持续 5 秒。
+     */
+    public static final Holder<MobEffect> RAGE_SURGE = register("rage_surge",
+            new SimpleMobEffect(MobEffectCategory.HARMFUL, 0xFF2020));
+
+    /**
+     * 怯懦：旁边有人死亡后一次性失控跑走。
+     */
+    public static final Holder<MobEffect> COWARDICE = register("cowardice",
+            new SimpleMobEffect(MobEffectCategory.HARMFUL, 0x8A7A4A));
+
+    /**
+     * 第三人称：视角固定为第三人称背面。
+     */
+    public static final Holder<MobEffect> THIRD_PERSON = register("third_person",
+            new SimpleMobEffect(MobEffectCategory.NEUTRAL, 0x5A8FBF));
+
+    /**
+     * 故障：周围方块渲染随机变色。
+     */
+    public static final Holder<MobEffect> GLITCH = register("glitch",
+            new SimpleMobEffect(MobEffectCategory.HARMFUL, 0xE23CFF));
 
     /** 视野迷雾：根据效果等级计算雾的可见距离（格）。1 级=2 格，每升 1 级多看 3 格。 */
     public static float getVisionFogDistance(int amplifier) {
@@ -839,6 +888,21 @@ public class ModEffects {
         return amp < 0 ? 0 : amp + 1;
     }
 
+    /** 耳聪等级（0 = 无效果，1+ = amplifier+1）。 */
+    public static int getKeenHearingLevel(LivingEntity entity) {
+        int amp = getAmplifier(entity, KEEN_HEARING);
+        return amp < 0 ? 0 : amp + 1;
+    }
+
+    /** 耳聪对周围声音的音量倍率。等级越高越轻，最低约 2%。 */
+    public static float getKeenHearingVolumeScale(LivingEntity entity) {
+        int level = getKeenHearingLevel(entity);
+        if (level <= 0) {
+            return 1.0f;
+        }
+        return Math.max(0.02f, 0.08f / level);
+    }
+
     /** 水下语音等级（0 = 无效果，1~5 = amplifier+1）。 */
     public static int getVoiceUnderwaterLevel(LivingEntity entity) {
         int amp = getAmplifier(entity, VOICE_UNDERWATER);
@@ -914,6 +978,7 @@ public class ModEffects {
 
     public static void init() {
         StatusAilmentHandler.register();
+        DeathReactionHandler.register();
         // 把说话者侧的语音效果（重金属/回响）同步给所有客户端，
         // 否则听者客户端查不到说话者的效果，OpenAL 语音处理无法生效。
         org.agmas.noellesroles.voice.VoiceEffectSync.init();

@@ -390,6 +390,69 @@ public class FakeSteveAi {
         }
     }
 
+    /**
+     * One-shot flee toward a standable point away from {@code awayFrom}.
+     * Used by 怯懦; reuses Fake Steve pathing without hunt or disguise tells.
+     */
+    public static void tickFlee(ServerLevel level, ServerPlayer body, FakeSteveAgentState state,
+            BlockPos awayFrom) {
+        long now = level.getGameTime();
+        if (state.lastTickAt == 0L) {
+            state.modeStartedTick = now;
+        }
+        int elapsed = state.lastTickAt == 0L ? 5
+                : (int) Math.max(1L, Math.min(20L, now - state.lastTickAt));
+        state.lastTickAt = now;
+        state.tickStep = elapsed;
+        state.mode = AgentMode.DISGUISE_IDLE;
+        updateStuck(level, body, state, now);
+        FakeSteveMotionController.applyServerMotion(body, state);
+        state.sprintUntilTick = Math.max(state.sprintUntilTick, now + 20L);
+        if (state.pathGoal == null || now >= state.nextDecisionTick) {
+            state.nextDecisionTick = now + 30L;
+            BlockPos goal = fleeGoal(level, body, state, awayFrom);
+            if (goal != null) {
+                state.pathGoal = goal.immutable();
+                state.path.clear();
+                state.pathFailureCount = 0;
+            }
+        }
+        if (state.pathGoal != null) {
+            follow(level, body, state.pathGoal, state, 0.28D);
+        } else {
+            idleHold(level, body, state, now);
+        }
+    }
+
+    public static boolean hasReachedFleeGoal(ServerPlayer body, FakeSteveAgentState state) {
+        return body != null && state != null && state.pathGoal != null
+                && body.blockPosition().closerThan(state.pathGoal, 2.0D);
+    }
+
+    private static BlockPos fleeGoal(ServerLevel level, ServerPlayer body, FakeSteveAgentState state,
+            BlockPos awayFrom) {
+        Vec3 origin = body.position();
+        Vec3 away = origin.subtract(Vec3.atCenterOf(awayFrom == null ? body.blockPosition() : awayFrom));
+        if (away.horizontalDistanceSqr() < 0.01D) {
+            away = new Vec3(1.0D, 0.0D, 0.0D);
+        }
+        away = new Vec3(away.x, 0.0D, away.z).normalize();
+        for (int dist : new int[] { 28, 20, 14, 8 }) {
+            for (int attempt = 0; attempt < 8; attempt++) {
+                double yaw = (level.getRandom().nextDouble() - 0.5D) * 1.2D;
+                double cos = Math.cos(yaw);
+                double sin = Math.sin(yaw);
+                Vec3 dir = new Vec3(away.x * cos - away.z * sin, 0.0D, away.x * sin + away.z * cos);
+                BlockPos candidate = BlockPos.containing(origin.add(dir.scale(dist)));
+                if (FakeSteveNavigator.safeStand(level, candidate)) {
+                    state.lastWanderGoal = candidate.immutable();
+                    return state.lastWanderGoal;
+                }
+            }
+        }
+        return wanderGoal(level, body, state);
+    }
+
     /** Periodic gaze sweep so a waiting body never looks like a frozen statue. */
     private static void idleHold(ServerLevel level, ServerPlayer body,
             FakeSteveAgentState state, long now) {

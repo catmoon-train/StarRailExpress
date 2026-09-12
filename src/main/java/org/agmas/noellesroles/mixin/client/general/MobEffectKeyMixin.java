@@ -84,7 +84,8 @@ public abstract class MobEffectKeyMixin {
                     return true;
             }
         }
-        if (player.hasEffect(ModEffects.TURN_BANED) && this.same(options.keyTogglePerspective))
+        if ((player.hasEffect(ModEffects.TURN_BANED) || player.hasEffect(ModEffects.THIRD_PERSON))
+                && this.same(options.keyTogglePerspective))
             return true;
         if (player.hasEffect(ModEffects.USED_BANED) || player.hasEffect(ModEffects.GHOST_CURSE)
                 || player.hasEffect(ModEffects.TAROT_ASSEMBLY)

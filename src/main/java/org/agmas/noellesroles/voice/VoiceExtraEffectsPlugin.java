@@ -339,7 +339,23 @@ public class VoiceExtraEffectsPlugin implements VoicechatPlugin {
             MUFFLED_HEARING_STATE.remove(speaker);
         }
 
+        if (localPlayer != null) {
+            float keenScale = ModEffects.getKeenHearingVolumeScale(localPlayer);
+            if (keenScale < 1.0f) {
+                pcm = scalePcm(pcm, keenScale);
+            }
+        }
+
         event.setRawAudio(pcm);
+    }
+
+    /** 按倍率缩放语音 PCM，用于耳聪把周围说话声压到极小。 */
+    private static short[] scalePcm(short[] pcm, float gain) {
+        short[] result = new short[pcm.length];
+        for (int i = 0; i < pcm.length; i++) {
+            result[i] = (short) Math.round(pcm[i] * gain);
+        }
+        return result;
     }
 
     /** 简单的一阶低通：保留低频轮廓，让语音能听见但不再清楚。 */

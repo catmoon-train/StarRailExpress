@@ -192,6 +192,7 @@
     "announcement.star.modifier.noellesroles.sealed_relics": "Sealed Relics",
     "announcement.star.modifier.noellesroles.fat": "Fat",
     "announcement.star.modifier.noellesroles.skinny": "Skinny",
+    "announcement.star.modifier.noellesroles.coward": "Coward",
     "announcement.star.modifier.introverted": "Introverted",
     "announcement.star.modifier.taxed": "Taxed",
     "announcement.star.modifier.hungry": "Hungry",
@@ -199,6 +200,7 @@
     "announcement.star.modifier.sealed_relics": "Sealed Relics",
     "announcement.star.modifier.fat": "Fat",
     "announcement.star.modifier.skinny": "Skinny",
+    "announcement.star.modifier.coward": "Coward",
     "death_reason.noellesroles.pelican_eaten": "Eaten by Pelican",
     "death_reason.noellesroles.sealed_choke": "Choked by Breathless Bread",
     "death_reason.noellesroles.sealed_lightning": "Thunderstruck",
@@ -4399,6 +4401,16 @@
     "message.noellesroles.rift_walker.enter": "You entered the rift.",
     "message.noellesroles.rift_walker.cancelled": "You died before entering the rift. The skill did not take effect.",
     "message.noellesroles.rift_walker.already_active": "You are already inside the rift.",
+    "announcement.star.role.disabled_patient": "Disabled Patient",
+    "announcement.star.role.noellesroles.disabled_patient": "Disabled Patient",
+    "announcement.star.goals.disabled_patient": "A broken body still has to reach the end.",
+    "message.noellesroles.disabled_patient.gained": "Your condition worsens: permanent effect \"%s\", plus %s gold",
+    "message.noellesroles.disabled_patient.gained_gold_only": "Your condition cannot worsen further, but you still gain %s gold",
+    "message.noellesroles.disabled_patient.effect.mute": "Mute",
+    "message.noellesroles.disabled_patient.effect.hoarse": "Hoarse",
+    "effect.noellesroles.keen_hearing": "Keen Hearing",
+    "mob_effect.noellesroles.keen_hearing": "Keen Hearing",
+    "effect.noellesroles.keen_hearing.description": "Surrounding sounds become extremely quiet and are only barely audible.",
     "announcement.star.role.barbarian": "Barbarian",
     "announcement.star.goals.barbarian": "Hoard coins, then answer a fatal strike with savage fury.",
     "skill.noellesroles.barbarian.smoke_breath": "Smoke Breath",
@@ -4660,6 +4672,27 @@
   ,"effect.noellesroles.motor_dysfunction": "Motor Dysfunction"
   ,"mob_effect.noellesroles.motor_dysfunction": "Motor Dysfunction"
   ,"effect.noellesroles.motor_dysfunction.description": "You may trip while moving."
+  ,"effect.noellesroles.coward": "Coward"
+  ,"mob_effect.noellesroles.coward": "Coward"
+  ,"effect.noellesroles.coward.description": "If someone dies in front of you, you sit down and then tremble."
+  ,"effect.noellesroles.fear": "Fear"
+  ,"mob_effect.noellesroles.fear": "Fear"
+  ,"effect.noellesroles.fear.description": "Sit for 1 second, then the screen and player model shake."
+  ,"effect.noellesroles.rage": "Rage"
+  ,"mob_effect.noellesroles.rage": "Rage"
+  ,"effect.noellesroles.rage.description": "When someone nearby dies, the screen turns red, you gain 50% speed, and your view locks onto the nearest player for 5 seconds."
+  ,"effect.noellesroles.rage_surge": "Rage Surge"
+  ,"mob_effect.noellesroles.rage_surge": "Rage Surge"
+  ,"effect.noellesroles.rage_surge.description": "Red screen, 50% speed, and camera lock on the nearest player."
+  ,"effect.noellesroles.cowardice": "Cowardice"
+  ,"mob_effect.noellesroles.cowardice": "Cowardice"
+  ,"effect.noellesroles.cowardice.description": "When someone nearby dies, you lose control and flee along a path once."
+  ,"effect.noellesroles.third_person": "Third Person"
+  ,"mob_effect.noellesroles.third_person": "Third Person"
+  ,"effect.noellesroles.third_person.description": "Camera is locked to third person."
+  ,"effect.noellesroles.glitch": "Glitch"
+  ,"mob_effect.noellesroles.glitch": "Glitch"
+  ,"effect.noellesroles.glitch.description": "Nearby blocks render with random colors."
   ,"effect.noellesroles.puppet_wander": "Puppet Wander"
   ,"mob_effect.noellesroles.puppet_wander": "Puppet Wander"
   ,"message.noellesroles.ailment.appetite_banned": "You have no appetite and cannot eat or drink."

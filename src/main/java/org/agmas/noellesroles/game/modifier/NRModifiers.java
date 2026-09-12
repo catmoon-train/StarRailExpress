@@ -27,6 +27,7 @@ import org.agmas.harpymodloader.modifiers.SREModifier;
 import org.agmas.noellesroles.Noellesroles;
 import org.agmas.noellesroles.game.modifier.expedition.ExpeditionComponent;
 import org.agmas.noellesroles.game.modifier.fatskinny.FatSkinnyModifier;
+import org.agmas.noellesroles.game.modifier.coward.CowardModifier;
 import org.agmas.noellesroles.game.modifier.hoarse.HoarseModifier;
 import org.agmas.noellesroles.game.modifier.introverted.IntrovertedModifier;
 import org.agmas.noellesroles.game.modifier.taxed.TaxedModifier;
@@ -147,6 +148,19 @@ public class NRModifiers {
             .setServerGameTickEvent((p) -> HoarseModifier.serverTick(p))
             .setDefaultMax(2)
             .setDefaultEnableChance(5000);
+
+    /** 胆小鬼修饰符：持续获得胆小鬼药水，面前有人死亡时坐下并发抖 */
+    public static SREModifier COWARD = HMLModifiers.registerModifier(new SREModifier(
+            Noellesroles.id("coward"),
+            0x6B8E6B,
+            null,
+            null,
+            false,
+            false))
+            .setServerGameTickEvent(CowardModifier::serverTick)
+            .setDefaultMax(2)
+            .setDefaultEnableChance(4000)
+            .setAddedVersion("4.4");
 
     /** 胖子修饰符：模型左右拉伸变胖，并推动周围玩家 */
     public static SREModifier FAT = HMLModifiers.registerModifier(new SREModifier(

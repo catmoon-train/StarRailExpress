@@ -39,8 +39,29 @@ public class SoundVolumeMixin {
             if (player.hasEffect(ModEffects.TIME_STOP)) {
                 if (!TimeStopEffect.clientCanMovePlayers.contains(player.getUUID())) {
                     cir.setReturnValue(0.0f);
+                    return;
                 }
             }
         }
+    }
+
+    @Inject(method = "getSoundSourceVolume", at = @At("RETURN"), cancellable = true)
+    public void noellesroles$keenHearingVolume(SoundSource soundSource, CallbackInfoReturnable<Float> cir) {
+        LocalPlayer player = Minecraft.getInstance().player;
+        if (player == null || player.hasEffect(ModEffects.DEAFNESS)) {
+            return;
+        }
+        if (player.hasEffect(ModEffects.TIME_STOP)
+                && !TimeStopEffect.clientCanMovePlayers.contains(player.getUUID())) {
+            return;
+        }
+        float scale = ModEffects.getKeenHearingVolumeScale(player);
+        if (scale < 1.0f && isSurroundingSound(soundSource)) {
+            cir.setReturnValue(cir.getReturnValueF() * scale);
+        }
+    }
+
+    private static boolean isSurroundingSound(SoundSource source) {
+        return source != SoundSource.MASTER && source != SoundSource.MUSIC && source != SoundSource.RECORDS;
     }
 }

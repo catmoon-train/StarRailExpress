@@ -126,6 +126,7 @@
   "effect.noellesroles.blind_vision.desc": "盲视：世界只剩黑白。只有声音传播过的地方才会显现，声音越大范围越远越清晰。",
   "effect.noellesroles.deafness.desc": "耳聋：听不到游戏音效、音乐、环境声，也无法接收语音。",
   "effect.noellesroles.muffled_hearing.desc": "听觉模糊：仍有少量音量，但对游戏音与语音施加低通，难以听清。",
+  "effect.noellesroles.keen_hearing.desc": "耳聪：周围声音变得极小，只能隐约听见。",
   "effect.noellesroles.limp.desc": "腿瘸：走路一瘸一拐，幅度随等级增加，并影响第一/第三人称迈腿。",
   "effect.noellesroles.myopia.desc": "近视：远处模糊，近处相对清晰。等级越高越看不清远处。",
   "effect.noellesroles.hand_tremor.desc": "手疾：持刀/枪时准星轻微抖动，刚抽出时最强，等级提高幅度。",
@@ -136,6 +137,13 @@
   "effect.noellesroles.aphrenia.desc": "失心症：间歇失去自我，由假人漫走接管。默认间隔 30-45 秒，持续 10-15 秒。",
   "effect.noellesroles.intellect_drop.desc": "智力下降：间歇无法使用物品。",
   "effect.noellesroles.motor_dysfunction.desc": "运动障碍：移动时有概率摔倒（游泳姿态）。",
+  "effect.noellesroles.coward.desc": "胆小鬼：面前有人死亡时会害怕，先坐下再发抖。",
+  "effect.noellesroles.fear.desc": "害怕：先坐下1秒，随后屏幕和玩家模型发抖。",
+  "effect.noellesroles.rage.desc": "暴怒：旁边有人死亡后屏幕变红、速度提升50%，并锁定最近的玩家5秒。",
+  "effect.noellesroles.rage_surge.desc": "暴怒爆发：红屏、加速并锁定最近玩家。",
+  "effect.noellesroles.cowardice.desc": "怯懦：旁边有人死亡后会一次性失控沿路径跑走。",
+  "effect.noellesroles.third_person.desc": "第三人称：视角固定为第三人称背面。",
+  "effect.noellesroles.glitch.desc": "故障：周围方块的渲染会变成随机颜色。",
 
   "effect.stupid_express.arsonist_burning.desc": "燃烧：纵火犯点燃目标后持续着火，燃烧结束时会被烧死。"
 }

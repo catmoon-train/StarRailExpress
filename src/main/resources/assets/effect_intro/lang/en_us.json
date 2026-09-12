@@ -126,6 +126,7 @@
   "effect.noellesroles.blind_vision.desc": "The world is black until sound reveals it. Louder sounds reveal farther.",
   "effect.noellesroles.deafness.desc": "No game audio, music, or voice chat.",
   "effect.noellesroles.muffled_hearing.desc": "Quiet, low-passed audio that is hard to understand.",
+  "effect.noellesroles.keen_hearing.desc": "Surrounding sounds become extremely quiet and are only barely audible.",
   "effect.noellesroles.limp.desc": "Limping walk. Higher levels limp harder.",
   "effect.noellesroles.myopia.desc": "Distance blur. Higher levels hide far objects more.",
   "effect.noellesroles.hand_tremor.desc": "Slight aim shake with knives/guns, strongest just after drawing.",
@@ -136,6 +137,13 @@
   "effect.noellesroles.aphrenia.desc": "Periodically lose control while a fake walk takes over.",
   "effect.noellesroles.intellect_drop.desc": "Sometimes cannot use items.",
   "effect.noellesroles.motor_dysfunction.desc": "Chance to trip into a swimming pose while moving.",
+  "effect.noellesroles.coward.desc": "If someone dies in front of you, sit down and then tremble.",
+  "effect.noellesroles.fear.desc": "Sit for 1 second, then the screen and player model shake.",
+  "effect.noellesroles.rage.desc": "When someone nearby dies: red screen, +50% speed, lock onto the nearest player for 5s.",
+  "effect.noellesroles.rage_surge.desc": "Red screen, speed boost, and camera lock on the nearest player.",
+  "effect.noellesroles.cowardice.desc": "When someone nearby dies, lose control and flee along a path once.",
+  "effect.noellesroles.third_person.desc": "Camera is locked to third-person back.",
+  "effect.noellesroles.glitch.desc": "Nearby blocks render with random colors.",
 
   "effect.stupid_express.arsonist_burning.desc": "Arsonist burn: stay on fire and die when the burn ends."
 }
