@@ -86,7 +86,9 @@ public class StartCommand {
     }
     // 检查当前地图是否支持该游戏模式
     AreasWorldComponent areas = AreasWorldComponent.KEY.get(source.getLevel());
-    if (gameMode != SREGameModes.REPAIR_ESCAPE_MODE && areas.gameModes != null && !areas.gameModes.isEmpty()) {
+    if (gameMode != SREGameModes.REPAIR_ESCAPE_MODE
+        && !gameMode.identifier.equals(SREGameModes.MOB_RIOT_MODE_ID)
+        && areas.gameModes != null && !areas.gameModes.isEmpty()) {
       String modeId = gameMode.identifier.getPath();
       boolean isSupported = areas.gameModes.contains(modeId);
       if (!isSupported) {
@@ -94,6 +96,12 @@ public class StartCommand {
             gameMode.getName(), areas.mapName != null ? areas.mapName : "unknown"));
         return -1;
       }
+    }
+    if (gameMode.identifier.equals(SREGameModes.MOB_RIOT_MODE_ID)
+        && !io.wifi.starrailexpress.game.modes.funny.mob.MobRiotRules.isCurrentMapEligible(areas)) {
+      source.sendFailure(Component.translatable("commands.sre.start.error.mob_riot_map",
+          areas.mapName != null ? areas.mapName : "unknown", gameMode.getName()));
+      return -1;
     }
     int startMinutes = minutes;
     if (gameMode == SREGameModes.FOURTH_ROOM) {

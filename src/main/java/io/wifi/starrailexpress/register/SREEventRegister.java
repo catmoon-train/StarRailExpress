@@ -59,6 +59,7 @@ public class SREEventRegister {
         EntityInteractionHandler.register();
         AFKEventHandler.register();
         PlayerMountainHandler.register();
+        io.wifi.starrailexpress.game.modes.funny.mob.MobRiotRules.registerEvents();
 
         // 游戏开始：通知客户端（驱动 OnGameStartedClient 事件），并向本局玩家播放默认开场镜头
         net.exmo.sre.planecrash.PlaneCrashManager.register();

@@ -521,6 +521,10 @@ public class SREClient implements ClientModInitializer {
                 stam.starrailexpress$setStamina((float) value);
             }
         });
+        ClientPlayNetworking.registerGlobalReceiver(
+                io.wifi.starrailexpress.network.packet.MobRiotStateS2CPacket.ID,
+                (payload, context) -> context.client().execute(() ->
+                        io.wifi.starrailexpress.client.gui.MobRiotHudRenderer.update(payload)));
         ClientPlayNetworking.registerGlobalReceiver(io.wifi.starrailexpress.network.ClickLockoutPayload.TYPE,
                 (payload, context) -> io.wifi.starrailexpress.anticheat.ClickAntiCheatClient
                         .applyLockout(payload.remainingMillis()));
@@ -866,6 +870,7 @@ public class SREClient implements ClientModInitializer {
         ClientPlayNetworking.registerGlobalReceiver(OnGameFinishedPayload.TYPE, (payload, context) -> {
             MapStatusBarClientState.set(MapStatusBarType.NONE, 20, 20);
             io.wifi.starrailexpress.client.gui.OpeningPresentationCoordinator.clear();
+            io.wifi.starrailexpress.client.gui.MobRiotHudRenderer.reset();
             OnGameFinishedClient.EVENT.invoker().gameFinished();
         });
         ClientPlayNetworking.registerGlobalReceiver(OnGameStartedPayload.TYPE, (payload, context) -> {

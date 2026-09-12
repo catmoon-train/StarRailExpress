@@ -135,6 +135,9 @@ public interface TMMItems {
     Item DISGUISE_3 = registrar.create("disguise_3",
             new DisguiseItem(new Item.Properties().stacksTo(16), 2),
             TOOLS_GROUP, SRE_ALL_GROUP);
+    Item MOB_PSYCHO_DISGUISE = sreRegistrar.create("mob_psycho_disguise",
+            new MobPsychoDisguiseItem(new Item.Properties().stacksTo(1)),
+            TOOLS_GROUP, SRE_ALL_GROUP);
     Item SCOPE = registrar.create("scope", new ScopeItem(new Item.Properties().stacksTo(1)),
             TOOLS_GROUP, SRE_ALL_GROUP);
     Item BODY_BAG = registrar.create("body_bag", new BodyBagItem(new Item.Properties().stacksTo(1)),

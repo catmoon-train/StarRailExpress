@@ -82,6 +82,9 @@ public class SREPayloadRegister {
         PayloadTypeRegistry.playS2C().register(CustomNarratorPacket.ID, CustomNarratorPacket.CODEC);
 
         PayloadTypeRegistry.playS2C().register(StaminaS2CPacket.ID, StaminaS2CPacket.CODEC);
+        PayloadTypeRegistry.playS2C().register(
+                io.wifi.starrailexpress.network.packet.MobRiotStateS2CPacket.ID,
+                io.wifi.starrailexpress.network.packet.MobRiotStateS2CPacket.CODEC);
 
         PayloadTypeRegistry.playS2C().register(SyncRoomToPlayerPayload.ID, SyncRoomToPlayerPayload.CODEC);
         PayloadTypeRegistry.playC2S().register(SyncRoomToPlayerPayload.ID, SyncRoomToPlayerPayload.CODEC);

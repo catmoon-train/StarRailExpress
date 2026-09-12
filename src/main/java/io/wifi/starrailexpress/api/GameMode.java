@@ -290,6 +290,50 @@ public abstract class GameMode {
         return true;
     }
 
+    /**
+     * 是否禁止生成普通 Mood 任务。默认 false。
+     */
+    public boolean suppressMoodTasks() {
+        return false;
+    }
+
+    /**
+     * 小游戏任务是否顶替 Mood 任务：完成后回同等 SAN，并走 Mood 完成逻辑
+     *（警卫手枪、厨师食材、进度任务等）。默认与 {@link #suppressMoodTasks()} 一致。
+     */
+    public boolean minigameReplacesMoodTasks() {
+        return suppressMoodTasks();
+    }
+
+    /**
+     * 完成任务时是否发放普通 Mood 任务金币（civilianTaskReward / killerTaskIncome）。
+     * 小游戏已有独立金币的模式可返回 false，避免叠算。
+     */
+    public boolean shouldGrantDefaultQuestMoneyOnFinish() {
+        return true;
+    }
+
+    /**
+     * 是否强制小游戏任务走独立计时（不并入 Mood 轮换槽）。默认 false。
+     */
+    public boolean usesIndependentMinigameTasks() {
+        return false;
+    }
+
+    /**
+     * 小游戏任务独立刷新间隔倍率。默认 1。
+     */
+    public float getMinigameTaskIntervalMultiplier() {
+        return 1f;
+    }
+
+    /**
+     * 会议讨论结束后是否允许进入投票阶段。默认 true。
+     */
+    public boolean canHaveMeetingVote() {
+        return true;
+    }
+
     public Component getName() {
         // 根据游戏模式ID返回本地化的名称
         String gameModeId = this.identifier.getPath();

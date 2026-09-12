@@ -87,12 +87,19 @@ public class RoleMethodDispatcher {
                     GameConstants.MAX_STREAK_BONUS);
             // 并列任务奖励倍率
             float rewardMultiplier = isParallelTask ? GameConstants.PARALLEL_TASK_REWARD_MULTIPLIER : 1f;
+            boolean grantDefaultMoney = true;
+            if (player.level() instanceof ServerLevel serverLevel) {
+                var gameMode = SREGameWorldComponent.KEY.get(serverLevel).getGameMode();
+                if (gameMode != null) {
+                    grantDefaultMoney = gameMode.shouldGrantDefaultQuestMoneyOnFinish();
+                }
+            }
             // 平民/中立完成任务：本人获得金币，并以此喂养场上所有杀手（任务驱动收入）
-            if (role.isInnocent() || role.isNeutrals()) {
+            if (grantDefaultMoney && (role.isInnocent() || role.isNeutrals())) {
                 SREPlayerShopComponent shopComponent = SREPlayerShopComponent.KEY.get(player);
                 shopComponent.addToBalance(
                         (int) ((SREConfig.instance().civilianTaskReward + streakBonus) * rewardMultiplier));
-            } else if (role.isKiller() && !role.isNeutrals() && !role.isInnocent()) {
+            } else if (grantDefaultMoney && role.isKiller() && !role.isNeutrals() && !role.isInnocent()) {
                 // 任意杀手完成一个任务 -> 每个杀手获得 killerTaskIncome
                 int killerGain = (int) (SREConfig.instance().killerTaskIncome * rewardMultiplier);
                 if (killerGain > 0) {

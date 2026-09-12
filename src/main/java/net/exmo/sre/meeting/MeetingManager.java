@@ -217,6 +217,13 @@ public final class MeetingManager {
         return phase != PHASE_NONE;
     }
 
+    /** 夜晚等禁止投票的阶段：若已进入投票则直接结束会议。 */
+    public static void cancelVotePhase() {
+        if (isActive() && phase == PHASE_VOTE) {
+            endMeeting(false);
+        }
+    }
+
     public static boolean isParticipant(UUID uuid) {
         return participants.containsKey(uuid);
     }
@@ -585,7 +592,7 @@ public final class MeetingManager {
                 }
             }
         }
-        if (hasMeeting) {
+        if (hasMeeting && SREGameWorldComponent.KEY.get(serverLevel).getGameMode().canHaveMeetingVote()) {
             startVotingPhase(serverLevel);
         } else {
             endMeeting(false);
@@ -696,7 +703,7 @@ public final class MeetingManager {
                         }
                     }
                 }
-                if (hasMeeting) {
+                if (hasMeeting && SREGameWorldComponent.KEY.get(serverLevel).getGameMode().canHaveMeetingVote()) {
                     startVotingPhase(serverLevel);
                 } else {
                     endMeeting(false);

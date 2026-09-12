@@ -185,6 +185,7 @@ public class CommonClientHudRenderer {
             SREClientConfig.instance().moodTopOffset, 0);
         HudMoodRenderer.renderHud(player, font, guiGraphics, deltaTracker);
         MiniGameHudRenderer.render(player, font, guiGraphics, trueDeltaTracker);
+        MobRiotHudRenderer.render(font, guiGraphics);
         guiGraphics.pose().popPose();
       }
       {

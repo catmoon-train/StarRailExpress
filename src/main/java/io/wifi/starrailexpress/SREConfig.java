@@ -48,6 +48,9 @@ public class SREConfig implements ConfigData {
     @ConfigEntry.Category(value = "gamemodes")
     public boolean enableNoLimitLoversInLoverMode = false;
     @ConfigEntry.Category(value = "gamemodes")
+    @Tooltip
+    public int mobRiotTokenPerPlayer = 10;
+    @ConfigEntry.Category(value = "gamemodes")
     public int volunteerModeVolunteerCount = 3;
     @ConfigEntry.Category(value = "gamemodes")
     public int volunteerModeSelectionTime = 20;

@@ -20,6 +20,7 @@ import io.wifi.starrailexpress.game.modes.SREMurderGameMode;
 import io.wifi.starrailexpress.game.modes.SRERoleAssignDebugGameMode;
 import io.wifi.starrailexpress.game.modes.WTLooseEndsGameMode;
 import io.wifi.starrailexpress.game.modes.funny.*;
+import io.wifi.starrailexpress.game.modes.funny.mob.SREMobRiotGameMode;
 import net.minecraft.resources.ResourceLocation;
 import org.agmas.noellesroles.game.modes.ChairWheelRaceGame;
 import org.agmas.noellesroles.game.modes.fourthroom.game.FourthRoomGameMode;
@@ -52,6 +53,7 @@ public class SREGameModes {
     // Author: canyuesama (catmoon233)
     public static final ResourceLocation REPAIR_ESCAPE_ID = SRE.canyueId("repair_escape");
     public static final ResourceLocation FOURTH_ROOM_ID = SRE.canyueId("fourth_room");
+    public static final ResourceLocation MOB_RIOT_MODE_ID = SRE.canyueId("mob_riot");
 
     // Author: xiao_hei_hand
     public static final ResourceLocation ANT_WAR_MODE_ID = SRE.xiaoheihandId("ant_war");
@@ -100,6 +102,7 @@ public class SREGameModes {
     // written by canyuesama
     public static final GameMode FOURTH_ROOM = registerGameMode(new FourthRoomGameMode(FOURTH_ROOM_ID));
     public static final GameMode WHEELCHAR_GAME_MODE = registerGameMode(new ChairWheelRaceGame());
+    public static final GameMode MOB_RIOT_MODE = registerGameMode(new SREMobRiotGameMode(MOB_RIOT_MODE_ID));
 
     // written by xiao_hei_hand
     public static final GameMode ANT_WAR_MODE = registerGameMode(new SREAntWarGameMode(ANT_WAR_MODE_ID));

@@ -185,7 +185,10 @@ public class SREPlayerMinigameTaskComponent implements RoleComponent, ServerTick
         // 轮换模式下小游戏任务并入 Mood 任务轮换派发（见 SREPlayerTaskComponent），不再独立计时；
         // 「小游戏任务独立计算」职业豁免：不参与轮换，保持独立计时派发
         SRERole role = SREGameWorldComponent.KEY.get(serverLevel).getRole(sp);
-        if (isRotationModeActive(serverLevel) && !(role != null && role.hasIndependentMinigameTiming())) {
+        var gameMode = SREGameWorldComponent.KEY.get(serverLevel).getGameMode();
+        boolean forceIndependent = gameMode != null && gameMode.usesIndependentMinigameTasks();
+        if (isRotationModeActive(serverLevel) && !forceIndependent
+                && !(role != null && role.hasIndependentMinigameTiming())) {
             this.minigameTaskTimer = SREConfig.instance().minigameTaskIntervalSeconds * 20;
             return;
         }
@@ -194,7 +197,9 @@ public class SREPlayerMinigameTaskComponent implements RoleComponent, ServerTick
             if (this.pendingMinigameTasks < 1) {
                 dispatchMinigameTask(sp, serverLevel);
             }
-            this.minigameTaskTimer = SREConfig.instance().minigameTaskIntervalSeconds * 20;
+            float multiplier = gameMode != null ? gameMode.getMinigameTaskIntervalMultiplier() : 1f;
+            this.minigameTaskTimer = Math.max(2,
+                    (int) (SREConfig.instance().minigameTaskIntervalSeconds * 20 * multiplier));
         }
     }
 
@@ -332,8 +337,20 @@ public class SREPlayerMinigameTaskComponent implements RoleComponent, ServerTick
         this.pendingMinigameTasks--;
         this.targetMinigameId = null; // 完成后清除目标，等待下次刷新
         addTokens(reward);
-        // 轮换模式：完成小游戏任务额外获得金币奖励
-        if (sp.level() instanceof ServerLevel serverLevel && isRotationModeActive(serverLevel)) {
+        // 暴民模式：按阵营发放金币，跳过轮换金币以免叠算
+        if (sp.level() instanceof ServerLevel serverLevel
+                && SREGameWorldComponent.KEY.get(serverLevel).getGameMode()
+                        instanceof io.wifi.starrailexpress.game.modes.funny.mob.SREMobRiotGameMode) {
+            SRERole completedRole = SREGameWorldComponent.KEY.get(serverLevel).getRole(sp);
+            int coins = completedRole != null && completedRole.isInnocent()
+                    ? io.wifi.starrailexpress.game.modes.funny.mob.SREMobRiotGameMode.INNOCENT_MINIGAME_GOLD
+                    : io.wifi.starrailexpress.game.modes.funny.mob.SREMobRiotGameMode.KILLER_MINIGAME_GOLD;
+            SREPlayerShopComponent shop = SREPlayerShopComponent.KEY.get(sp);
+            if (shop != null) {
+                shop.addToBalance(coins);
+            }
+        } else if (sp.level() instanceof ServerLevel serverLevel && isRotationModeActive(serverLevel)) {
+            // 轮换模式：完成小游戏任务额外获得金币奖励
             SREPlayerShopComponent shop = SREPlayerShopComponent.KEY.get(sp);
             if (shop != null) {
                 shop.addToBalance(SREConfig.instance().minigameRotationCoinBonus);
@@ -341,6 +358,15 @@ public class SREPlayerMinigameTaskComponent implements RoleComponent, ServerTick
         }
         // 网警：完成小游戏任务额外恢复 30% 理智
         org.agmas.noellesroles.role_data.vigilante.NetCopRoleData.restoreSanityAfterMinigame(sp);
+        if (sp.level() instanceof ServerLevel completedLevel) {
+            var completedMode = SREGameWorldComponent.KEY.get(completedLevel).getGameMode();
+            if (completedMode != null && completedMode.minigameReplacesMoodTasks()) {
+                String quest = (blockMinigameId != null && !blockMinigameId.isEmpty())
+                        ? blockMinigameId
+                        : "minigame";
+                SREPlayerTaskComponent.KEY.get(sp).applyMoodEquivalentCompletion(sp, quest);
+            }
+        }
         this.sync();
         return true;
     }

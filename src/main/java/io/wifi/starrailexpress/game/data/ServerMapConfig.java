@@ -56,6 +56,7 @@ public class ServerMapConfig {
 
     public static synchronized void reload(MinecraftServer sl) {
         instance = loadOrCreateConfig(sl);
+        io.wifi.starrailexpress.game.modes.funny.mob.MobRiotRules.clearMapEligibilityCache();
     }
 
     public static synchronized void reload(ServerLevel sl) {
@@ -91,12 +92,18 @@ public class ServerMapConfig {
                                 &&
                                 ((mapEntry.maxCount >= 0 && playerCount > mapEntry.maxCount)
                                         || (mapEntry.minCount >= 0 && playerCount < mapEntry.minCount))));
+        if (io.wifi.starrailexpress.game.modes.funny.mob.MobRiotRules.MODE_PATH.equals(gameMode)
+                && SRE.SERVER != null) {
+            a.removeIf(mapEntry -> !io.wifi.starrailexpress.game.modes.funny.mob.MobRiotRules
+                    .isVoteMapEligible(SRE.SERVER, mapEntry.id));
+        }
         if (count < 0) {
             cache_maps = a;
             return a;
         }
         Collections.shuffle(a);
-        List<MapEntry> mapEntries = a.subList(0, count);
+        int take = Math.min(count, a.size());
+        List<MapEntry> mapEntries = take <= 0 ? new ArrayList<>() : a.subList(0, take);
         cache_maps = mapEntries;
         return mapEntries;
     }

@@ -184,7 +184,8 @@ public class SREPlayerTaskComponent implements RoleComponent, ServerTickingCompo
                 }
             }
 
-            if (!minigameDispatched || parallelMinigame) {
+            if ((!minigameDispatched || parallelMinigame)
+                    && !gameWorldComponent.getGameMode().suppressMoodTasks()) {
                 TrainTask task = this.generateTask();
                 if (task != null) {
                     this.tasks.put(task.getType(), task);
@@ -327,6 +328,24 @@ public class SREPlayerTaskComponent implements RoleComponent, ServerTickingCompo
         }
         if (shouldSync)
             this.sync();
+    }
+
+    /**
+     * 小游戏顶替 Mood 任务时：回同等 SAN，并走 Mood 完成管线
+     *（{@link io.wifi.starrailexpress.api.RoleMethodDispatcher#callOnFinishQuest}、连击、附近联动）。
+     */
+    public void applyMoodEquivalentCompletion(ServerPlayer sp, String quest) {
+        if (this.playerMoodComponent == null) {
+            this.playerMoodComponent = SREPlayerMoodComponent.KEY.get(this.player);
+        }
+        if (this.playerMoodComponent != null) {
+            this.playerMoodComponent.addMood(GameConstants.MOOD_GAIN);
+        }
+        ServerPlayNetworking.send(sp, new TaskCompletePayload());
+        io.wifi.starrailexpress.api.RoleMethodDispatcher.callOnFinishQuest(sp, quest, this.taskStreak, false);
+        this.taskStreak++;
+        notifyNearbyTaskComplete(sp);
+        this.sync();
     }
 
     public boolean completeManicTask() {
