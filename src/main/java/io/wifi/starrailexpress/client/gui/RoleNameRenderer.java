@@ -25,6 +25,7 @@ import io.wifi.starrailexpress.content.entity.NoteEntity;
 import io.wifi.starrailexpress.event.AllowNameRender;
 import io.wifi.starrailexpress.event.client.OnRenderRoleName;
 import io.wifi.starrailexpress.game.GameUtils;
+import io.wifi.starrailexpress.morph.MorphApiClient;
 import io.wifi.starrailexpress.util.TrueFalseResult;
 import io.wifi.utils.client.betterrender.FakeGuiGraphics;
 import net.minecraft.ChatFormatting;
@@ -354,7 +355,7 @@ public class RoleNameRenderer {
     }
 
     private static Component getName(Player target) {
-        return io.wifi.starrailexpress.morph.MorphApi.getDisplayedName(target);
+        return MorphApiClient.getDisplayedName(target);
     }
 
     public enum TrainRole {

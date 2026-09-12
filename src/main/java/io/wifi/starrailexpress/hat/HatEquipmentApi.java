@@ -21,6 +21,7 @@ import io.wifi.starrailexpress.cca.SREPlayerSkinsComponent;
 import io.wifi.starrailexpress.client.hat.ClientHatEquipmentCache;
 import io.wifi.starrailexpress.client.morph.ClientMorphCache;
 import io.wifi.starrailexpress.event.OnResolveDisplayedSkinOwner;
+import io.wifi.starrailexpress.morph.MorphApiClient;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.Minecraft;
@@ -228,7 +229,7 @@ public final class HatEquipmentApi {
         if (isConcealedByFixedSkin(player)) {
             return "default";
         }
-        UUID ownerUuid = io.wifi.starrailexpress.morph.MorphApi.resolveDisplayedOwnerUuid(player);
+        UUID ownerUuid = MorphApiClient.resolveDisplayedOwnerUuid(player);
         String skin = ClientHatEquipmentCache.getHatSkin(ownerUuid);
         if (!"default".equals(skin)) {
             return skin;

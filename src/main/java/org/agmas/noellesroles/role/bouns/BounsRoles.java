@@ -51,6 +51,7 @@ import org.agmas.noellesroles.init.NRSounds;
 import org.agmas.noellesroles.modifier.BounsModifiers;
 import org.agmas.noellesroles.role.touhou.THMagicForestRoles;
 import org.agmas.noellesroles.role.ModRoles;
+import org.agmas.noellesroles.role.anime.AnimeRoles;
 import org.agmas.noellesroles.role.touhou.THHumanVillageRoles;
 import org.agmas.noellesroles.role.touhou.THLostForestRoles;
 import org.agmas.noellesroles.role.touhou.THMountainRoles;
@@ -177,7 +178,7 @@ public class BounsRoles {
             .setDefaultEnableChance(200);
 
     /**
-     * 垂钓者：常驻平民。仅在水下职业地图刷新（与海王/潜水员同一份名单）。
+     * 垂钓者：常驻平民。在水下职业地图或实验室地图刷新（两者为「或」关系）。
      */
     public static SRERole ANGLER = TMMRoles.registerRole(new NormalRole(
             ANGLER_ID,
@@ -188,7 +189,9 @@ public class BounsRoles {
             TMMRoles.CIVILIAN.getMaxSprintTime(),
             false
     )).setCanSeeCoin(true).setRoleData(AnglerRoleData::new)
-            .setSpecialMapRole(MapSpecialFeatures.UNDERWATER)
+            // 水下图或实验室图均可刷新（参照网警，用 SpecialMapRolesCondition 表达组合关系）
+            .setSpecialMapRolesCondition((t) -> t.contains(MapSpecialFeatures.UNDERWATER)
+                    || t.contains(MapSpecialFeatures.LAB))
             .setDefaultEnableChance(4000).setDefaultMax(1).setCanBeRandomedByOtherRoles(false)
             .setAddedVersion("4.4"); // versiontag 4.4
 
@@ -390,6 +393,7 @@ public class BounsRoles {
         BounsModifiers.init();
         THLostForestRoles.init();
         THHumanVillageRoles.init();
+        AnimeRoles.init();
         registerEvents();
     }
 

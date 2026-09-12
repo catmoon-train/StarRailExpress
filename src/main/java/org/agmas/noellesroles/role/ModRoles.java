@@ -733,7 +733,7 @@ public class ModRoles {
     /**
      * 残疾患者（乘客阵营）。
      * - 每 70 秒获得一种永久负面药水，并获得 100 金币。
-     * - 商店：一次性手枪 300、弱化护盾药水 500、劣质开锁器 200。
+     * - 商店：一次性手枪 300、弱效护盾试剂 500、劣质开锁器 200。
      */
     public static SRERole DISABLED_PATIENT = TMMRoles.registerRole(
             new NormalRole(DISABLED_PATIENT_ID, new Color(168, 148, 128).getRGB(),

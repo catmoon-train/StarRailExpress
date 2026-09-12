@@ -16,6 +16,7 @@
 package org.agmas.noellesroles.init;
 
 import dev.doctor4t.ratatouille.util.registrar.ItemRegistrar;
+import io.wifi.starrailexpress.content.item.CocktailItem;
 import io.wifi.starrailexpress.index.TMMDescItems;
 import io.wifi.starrailexpress.index.TMMItems;
 import net.minecraft.resources.ResourceKey;
@@ -27,6 +28,7 @@ import org.agmas.noellesroles.content.item.*;
 public class FunnyItems {
     public static final ItemRegistrar registrar = new ItemRegistrar(Noellesroles.MOD_ID);
 
+    public static final Item CHINO_COFFEE = register(new CocktailItem(new Item.Properties().stacksTo(64).food(Foods.HONEY_BOTTLE)), "chino_coffee");
     // 欧拉一拳（原波纹勋章）
     public static final Item HOT_POTATO = register(
             new HotPotatoItem(new Item.Properties().stacksTo(1)),

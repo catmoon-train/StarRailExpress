@@ -3832,6 +3832,11 @@
   "announcement.star.role.traitor": "叛徒",
   "announcement.star.role.noellesroles.traitor": "叛徒",
   "announcement.star.goals.traitor": "去反抗所有不公！",
+  "==================== 彩蛋职业 ====================": "",
+  "announcement.star.role.kafu_chino": "智乃",
+  "announcement.star.goals.kafu_chino": "咖啡拿铁，咖啡摩卡，卡布奇诺！",
+  "announcement.star.role.hoto_kokoa": "心爱",
+  "announcement.star.goals.hoto_kokoa": "作为姐姐加油哦！",
   "==================== 彩蛋修饰符 ====================": "",
   "announcement.star.modifier.anime.re0_486": "486",
   "message.anime.re0_486.trigger.time_stop": "“486” 位置回溯",
@@ -4028,6 +4033,7 @@
   "role.noellesroles.embalmer": "嬉命人",
   "role.noellesroles.skincrawler": "窃皮者",
   "role.noellesroles.mercenary": "雇佣兵",
+  "skill.noellesroles.hoto_kokoa": "制作面包",
   "skill.noellesroles.warlock.steal": "窃取发肤",
   "skill.noellesroles.warlock.curse": "蚀骨之咒",
   "skill.noellesroles.warlock.domain": "领域展开·灰髓之境",
@@ -4101,6 +4107,11 @@
   "message.noellesroles.dream.brew_already_has": "你已经有一瓶酒了，喝完再酿吧！",
   "death_reason.noellesroles.dream_axe": "铁斧劈砍",
   "death_reason.noellesroles.time_stop": "时停",
+  "item.noellesroles.chino_coffee": "手作咖啡",
+  "item.noellesroles.chino_coffee.unknown": "手作咖啡",
+  "item.noellesroles.chino_coffee.blue_mountain": "蓝山咖啡",
+  "item.noellesroles.chino_coffee.kabuchino": "卡布奇诺",
+  "item.noellesroles.chino_coffee.hot_koko": "热可可",
   "item.noellesroles.dream_axe": "Dream的铁斧",
   "item.noellesroles.dream_axe.tooltip.attack": "左键（蓄力条满才能攻击）：造成 %s 点伤害，跳劈 %s 点",
   "item.noellesroles.dream_axe.tooltip.jump": "右键：原地跳跃（0.2秒冷却）",
@@ -5106,36 +5117,36 @@
   "mob_effect.noellesroles.puppet_wander": "傀儡游走",
   "message.noellesroles.ailment.appetite_banned": "你现在没有食欲，无法进食或饮水。",
   "item.noellesroles.loan_contract.desc": "右键偿还贷款本金和利息。",
-  "message.noellesroles.loan.request_pending": "你已有一个等待接受的贷款请求，请等待10秒超时后再试。"
-  ,"item.noellesroles.insurance": "保险"
-  ,"item.noellesroles.insurance.status.unsigned": "状态：未签订"
-  ,"item.noellesroles.insurance.status.signed": "状态：已签订"
-  ,"item.noellesroles.insurance.status.active": "状态：生效中"
-  ,"item.noellesroles.insurance.reason.knife": "保护死亡原因：刀"
-  ,"item.noellesroles.insurance.reason.revolver": "保护死亡原因：左轮手枪"
-  ,"item.noellesroles.insurance.reason.bat": "保护死亡原因：球棒"
-  ,"item.noellesroles.insurance.reason.grenade": "保护死亡原因：手榴弹"
-  ,"item.noellesroles.insurance.reason.short_shotgun": "保护死亡原因：短管霰弹枪"
-  ,"item.noellesroles.insurance.reason.heart_attack": "保护死亡原因：心脏骤停"
-  ,"item.noellesroles.insurance.reason.throwing_knife": "保护死亡原因：飞刀"
-  ,"item.noellesroles.insurance.reason.other": "保护死亡原因：其它"
-  ,"screen.noellesroles.insurance.title": "保险合同"
-  ,"screen.noellesroles.insurance.instruction": "选择要保护的死亡原因"
-  ,"screen.noellesroles.insurance.reason.knife": "刀"
-  ,"screen.noellesroles.insurance.reason.revolver": "左轮手枪"
-  ,"screen.noellesroles.insurance.reason.bat": "球棒"
-  ,"screen.noellesroles.insurance.reason.grenade": "手榴弹"
-  ,"screen.noellesroles.insurance.reason.short_shotgun": "短管霰弹枪"
-  ,"screen.noellesroles.insurance.reason.heart_attack": "心脏骤停"
-  ,"screen.noellesroles.insurance.reason.throwing_knife": "飞刀"
-  ,"screen.noellesroles.insurance.reason.other": "其它"
-  ,"screen.noellesroles.insurance.selected": "已选择：%s"
-  ,"screen.noellesroles.insurance.selected.none": "尚未选择死亡原因"
-  ,"screen.noellesroles.insurance.confirm": "签订保险"
-  ,"screen.noellesroles.insurance.esc": "按 Esc 退出合同页面"
-  ,"message.noellesroles.insurance.signed": "保险已签订。右键保险并支付25金币即可生效。"
-  ,"message.noellesroles.insurance.activated": "保险已生效。"
-  ,"message.noellesroles.insurance.already_active": "这份保险已经生效。"
-  ,"message.noellesroles.insurance.invalid": "无法签订这份保险。"
-  ,"message.noellesroles.insurance.protected": "保险生效：本次死亡伤害已被抵挡，并获得25金币。"
+  "message.noellesroles.loan.request_pending": "你已有一个等待接受的贷款请求，请等待10秒超时后再试。",
+  "item.noellesroles.insurance": "保险",
+  "item.noellesroles.insurance.status.unsigned": "状态：未签订",
+  "item.noellesroles.insurance.status.signed": "状态：已签订",
+  "item.noellesroles.insurance.status.active": "状态：生效中",
+  "item.noellesroles.insurance.reason.knife": "保护死亡原因：刀",
+  "item.noellesroles.insurance.reason.revolver": "保护死亡原因：左轮手枪",
+  "item.noellesroles.insurance.reason.bat": "保护死亡原因：球棒",
+  "item.noellesroles.insurance.reason.grenade": "保护死亡原因：手榴弹",
+  "item.noellesroles.insurance.reason.short_shotgun": "保护死亡原因：短管霰弹枪",
+  "item.noellesroles.insurance.reason.heart_attack": "保护死亡原因：心脏骤停",
+  "item.noellesroles.insurance.reason.throwing_knife": "保护死亡原因：飞刀",
+  "item.noellesroles.insurance.reason.other": "保护死亡原因：其它",
+  "screen.noellesroles.insurance.title": "保险合同",
+  "screen.noellesroles.insurance.instruction": "选择要保护的死亡原因",
+  "screen.noellesroles.insurance.reason.knife": "刀",
+  "screen.noellesroles.insurance.reason.revolver": "左轮手枪",
+  "screen.noellesroles.insurance.reason.bat": "球棒",
+  "screen.noellesroles.insurance.reason.grenade": "手榴弹",
+  "screen.noellesroles.insurance.reason.short_shotgun": "短管霰弹枪",
+  "screen.noellesroles.insurance.reason.heart_attack": "心脏骤停",
+  "screen.noellesroles.insurance.reason.throwing_knife": "飞刀",
+  "screen.noellesroles.insurance.reason.other": "其它",
+  "screen.noellesroles.insurance.selected": "已选择：%s",
+  "screen.noellesroles.insurance.selected.none": "尚未选择死亡原因",
+  "screen.noellesroles.insurance.confirm": "签订保险",
+  "screen.noellesroles.insurance.esc": "按 Esc 退出合同页面",
+  "message.noellesroles.insurance.signed": "保险已签订。右键保险并支付25金币即可生效。",
+  "message.noellesroles.insurance.activated": "保险已生效。",
+  "message.noellesroles.insurance.already_active": "这份保险已经生效。",
+  "message.noellesroles.insurance.invalid": "无法签订这份保险。",
+  "message.noellesroles.insurance.protected": "保险生效：本次死亡伤害已被抵挡，并获得25金币。"
 }
