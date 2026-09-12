@@ -15,14 +15,14 @@
 
 package org.agmas.noellesroles.mixin.client.general;
 
+import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.client.model.PlayerModel;
-import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Player;
 import org.agmas.noellesroles.content.effects.FearEffects;
-import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
@@ -31,76 +31,57 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
  * 害怕只作用在当前被渲染的玩家。共享 PlayerModel 会把倾斜外套留给下一个人，
  * 所以没有害怕的玩家必须在 setupAnim 开头清掉残留。
  */
-@Mixin(value = PlayerModel.class, priority = 1200)
+@Mixin(value = HumanoidModel.class, priority = 1200)
 public abstract class FearPlayerModelMixin<T extends LivingEntity> {
 
-    @Shadow
-    public boolean riding;
-
-    @Shadow
-    @Final
-    public ModelPart head;
-
-    @Shadow
-    @Final
-    public ModelPart body;
-
-    @Shadow
-    @Final
-    public ModelPart rightArm;
-
-    @Shadow
-    @Final
-    public ModelPart leftArm;
-
-    @Shadow
-    @Final
-    public ModelPart rightLeg;
-
-    @Shadow
-    @Final
-    public ModelPart leftLeg;
-
-    @Inject(method = "setupAnim", at = @At("HEAD"))
+    @Inject(method = "setupAnim(Lnet/minecraft/world/entity/LivingEntity;FFFFF)V", at = @At("HEAD"))
     private void noellesroles$fearPrepare(T entity, float limbSwing, float limbSwingAmount, float ageInTicks,
             float netHeadYaw, float headPitch, CallbackInfo ci) {
+        HumanoidModel<?> model = (HumanoidModel<?>) (Object) this;
         if (FearEffects.isSitting(entity)) {
-            this.riding = true;
+            model.riding = true;
             return;
         }
-        // 上一帧害怕玩家留下的 body/head.zRot 和外套，必须在原版动画前清掉。
-        body.zRot = 0.0f;
-        head.zRot = 0.0f;
+        if (entity instanceof Player) {
+            model.body.zRot = 0.0f;
+            model.head.zRot = 0.0f;
+        }
     }
 
-    @Inject(method = "setupAnim", at = @At("RETURN"))
+    @Inject(method = "setupAnim(Lnet/minecraft/world/entity/LivingEntity;FFFFF)V", at = @At("RETURN"))
     private void noellesroles$fearShake(T entity, float limbSwing, float limbSwingAmount, float ageInTicks,
             float netHeadYaw, float headPitch, CallbackInfo ci) {
+        HumanoidModel<?> model = (HumanoidModel<?>) (Object) this;
         if (!FearEffects.isTrembling(entity)) {
-            body.zRot = 0.0f;
-            head.zRot = 0.0f;
-            copyOverlays();
+            if (entity instanceof Player) {
+                model.body.zRot = 0.0f;
+                model.head.zRot = 0.0f;
+                noellesroles$copyOverlays(model);
+            }
             return;
         }
         float lean = Mth.sin(ageInTicks * 1.35f) * 0.035f;
         float nod = Mth.cos(ageInTicks * 1.7f) * 0.018f;
-        head.zRot = lean;
-        body.zRot = lean;
-        rightArm.zRot += lean;
-        leftArm.zRot += lean;
-        rightLeg.zRot += lean;
-        leftLeg.zRot += lean;
-        head.xRot += nod;
-        copyOverlays();
+        model.head.zRot = lean;
+        model.body.zRot = lean;
+        model.rightArm.zRot += lean;
+        model.leftArm.zRot += lean;
+        model.rightLeg.zRot += lean;
+        model.leftLeg.zRot += lean;
+        model.head.xRot += nod;
+        noellesroles$copyOverlays(model);
     }
 
-    private void copyOverlays() {
-        PlayerModel<?> playerModel = (PlayerModel<?>) (Object) this;
-        playerModel.hat.copyFrom(head);
-        playerModel.jacket.copyFrom(body);
-        playerModel.rightSleeve.copyFrom(rightArm);
-        playerModel.leftSleeve.copyFrom(leftArm);
-        playerModel.rightPants.copyFrom(rightLeg);
-        playerModel.leftPants.copyFrom(leftLeg);
+    @Unique
+    private static void noellesroles$copyOverlays(HumanoidModel<?> model) {
+        if (!(model instanceof PlayerModel<?> playerModel)) {
+            return;
+        }
+        playerModel.hat.copyFrom(model.head);
+        playerModel.jacket.copyFrom(model.body);
+        playerModel.rightSleeve.copyFrom(model.rightArm);
+        playerModel.leftSleeve.copyFrom(model.leftArm);
+        playerModel.rightPants.copyFrom(model.rightLeg);
+        playerModel.leftPants.copyFrom(model.leftLeg);
     }
 }
