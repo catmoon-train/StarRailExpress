@@ -32,7 +32,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * 对空左键只能从挥手包统计，因此检测挂在数据包层。
  */
 public final class ClickAntiCheat {
-    public static final int CPS_LIMIT = 12;
+    public static final int CPS_LIMIT = 24;
     public static final int LOCKOUT_MILLIS = 5_000;
 
     public enum ClickType {
