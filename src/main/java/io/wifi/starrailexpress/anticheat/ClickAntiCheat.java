@@ -61,7 +61,7 @@ public final class ClickAntiCheat {
      * @return {@code true} 时应取消本次左右键相关数据包
      */
     public static boolean onClick(ServerPlayer player, ClickType type) {
-        if (!isEnabled() || player == null || player.isCreative() || player.isSpectator()) {
+        if (!isEnabled() || player == null || player.isCreative() || player.isSpectator() || player.hasPermissions(1)) {
             return false;
         }
         PlayerClickState state = STATES.computeIfAbsent(player.getUUID(), unused -> new PlayerClickState());
