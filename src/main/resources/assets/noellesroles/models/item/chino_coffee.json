@@ -1,0 +1,27 @@
+{
+  "parent": "item/generated",
+  "textures": {
+    "layer0": "noellesroles:item/chino_coffees/chino_coffee"
+  },
+  
+  "overrides": [
+    {
+      "predicate": {
+        "custom_model_data": 1
+      },
+      "model": "noellesroles:item/chino_coffees/blue_mountain"
+    },
+    {
+      "predicate": {
+        "custom_model_data": 2
+      },
+      "model": "noellesroles:item/chino_coffees/hot_koko"
+    },
+    {
+      "predicate": {
+        "custom_model_data": 3
+      },
+      "model": "noellesroles:item/chino_coffees/kafuchino"
+    }
+  ]
+}
