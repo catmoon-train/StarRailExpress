@@ -123,6 +123,8 @@ public final class SREDecorationBlocks {
             new BucketItem(SREFluids.COBBLESTONE, new Item.Properties().stacksTo(1)));
     public static final Item ANOMALOUS_NAME_TAG = registerItem("anomalous_name_tag",
             new Item(new Item.Properties().stacksTo(1)));
+    public static final Item CROSS_DIMENSIONAL_SPYGLASS = registerItem("cross_dimensional_spyglass",
+            new Item(new Item.Properties().stacksTo(1)));
     public static final Item NEGATIVE_VALUE_ITEM_1 = registerItem("negative_value_item_1",
             new Item(new Item.Properties().stacksTo(1)));
     public static final Item NEGATIVE_VALUE_ITEM_2 = registerItem("negative_value_item_2",
@@ -302,6 +304,7 @@ public final class SREDecorationBlocks {
             registerBlockItem(GRAY_PORTAL),
             COBBLESTONE_BUCKET,
             ANOMALOUS_NAME_TAG,
+            CROSS_DIMENSIONAL_SPYGLASS,
             NEGATIVE_VALUE_ITEM_1,
             NEGATIVE_VALUE_ITEM_2,
             NEGATIVE_VALUE_ITEM_3,
