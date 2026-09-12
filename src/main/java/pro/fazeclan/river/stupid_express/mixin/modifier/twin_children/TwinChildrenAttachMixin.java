@@ -16,9 +16,7 @@
 package pro.fazeclan.river.stupid_express.mixin.modifier.twin_children;
 
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.EntityDimensions;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.phys.Vec3;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -26,43 +24,21 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import pro.fazeclan.river.stupid_express.modifier.twin_children.TwinChildrenHandler;
 
 /**
- * Put the upper twin on the visual head instead of the default sitting point,
- * and allow the paired player to ride.
+ * The upper twin already rides the invisible seat. Sitting on a chair should
+ * move the walking twin instead of stealing the rider.
  */
 @Mixin(Entity.class)
 public abstract class TwinChildrenAttachMixin {
-
-    @Inject(method = "getPassengerAttachmentPoint", at = @At("HEAD"), cancellable = true)
-    private void stupidExpress$putTwinOnHead(Entity passenger, EntityDimensions dimensions, float scale,
-            CallbackInfoReturnable<Vec3> cir) {
-        Entity self = (Entity) (Object) this;
-        if (self instanceof Player vehicle && passenger instanceof Player rider
-                && TwinChildrenHandler.hasHalfScale(vehicle)
-                && TwinChildrenHandler.hasHalfScale(rider)) {
-            double attachY = TwinChildrenHandler.headPassengerAttachmentY(
-                    vehicle.getScale(), rider.getVehicleAttachmentPoint(vehicle).y);
-            cir.setReturnValue(new Vec3(0.0, attachY, 0.0));
-        }
-    }
-
-    @Inject(method = "canAddPassenger", at = @At("HEAD"), cancellable = true)
-    private void stupidExpress$allowTwinPassenger(Entity passenger, CallbackInfoReturnable<Boolean> cir) {
-        Entity self = (Entity) (Object) this;
-        if (self instanceof Player vehicle && passenger instanceof Player rider
-                && TwinChildrenHandler.hasHalfScale(vehicle)
-                && TwinChildrenHandler.hasHalfScale(rider)) {
-            cir.setReturnValue(self.getPassengers().isEmpty() || self.hasPassenger(passenger));
-        }
-    }
 
     @Inject(method = "startRiding(Lnet/minecraft/world/entity/Entity;Z)Z", at = @At("HEAD"), cancellable = true)
     private void stupidExpress$redirectTwinStackMount(Entity vehicle, boolean force,
             CallbackInfoReturnable<Boolean> cir) {
         Entity self = (Entity) (Object) this;
-        if (TwinChildrenHandler.shouldRedirectMount(self, vehicle)
-                && self instanceof Player rider
-                && rider.getVehicle() instanceof Player lower) {
-            cir.setReturnValue(lower.startRiding(vehicle, force));
+        if (TwinChildrenHandler.shouldRedirectMount(self, vehicle) && self instanceof Player rider) {
+            Player lower = TwinChildrenHandler.stackMover(rider);
+            if (lower != rider) {
+                cir.setReturnValue(lower.startRiding(vehicle, force));
+            }
         }
     }
 }

@@ -71,6 +71,7 @@ public class StupidExpress {
         // mod stuff
         SEItems.init();
         pro.fazeclan.river.stupid_express.constants.SEEffects.init();
+        pro.fazeclan.river.stupid_express.constants.SEEntities.init();
         SEModifiers.init();
         InitiateUtils.InitiateChange();
 

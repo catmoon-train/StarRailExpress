@@ -41,6 +41,7 @@ public final class DeathReactionHandler {
     public static final double FRONT_RANGE = 24.0D;
     public static final double FRONT_COSINE = 0.4D;
     public static final double NEARBY_RANGE = 16.0D;
+    public static final double RAGE_LOCK_RANGE = 12.0D;
     public static final int RAGE_SURGE_TICKS = 100;
     public static final int RAGE_SPEED_AMPLIFIER = 1;
 
@@ -136,22 +137,24 @@ public final class DeathReactionHandler {
     }
 
     private static ServerPlayer findNearest(ServerPlayer observer, UUID preferredId) {
+        double maxDistanceSqr = RAGE_LOCK_RANGE * RAGE_LOCK_RANGE;
         if (preferredId != null) {
             Player preferred = observer.serverLevel().getPlayerByUUID(preferredId);
             if (preferred instanceof ServerPlayer preferredPlayer
                     && GameUtils.isPlayerAliveAndSurvival(preferredPlayer)
-                    && !preferredPlayer.getUUID().equals(observer.getUUID())) {
+                    && !preferredPlayer.getUUID().equals(observer.getUUID())
+                    && observer.distanceToSqr(preferredPlayer) <= maxDistanceSqr) {
                 return preferredPlayer;
             }
         }
         ServerPlayer best = null;
-        double bestDistance = Double.MAX_VALUE;
+        double bestDistance = maxDistanceSqr;
         for (ServerPlayer other : observer.serverLevel().players()) {
             if (other.getUUID().equals(observer.getUUID()) || !GameUtils.isPlayerAliveAndSurvival(other)) {
                 continue;
             }
             double distance = observer.distanceToSqr(other);
-            if (distance < bestDistance) {
+            if (distance <= bestDistance) {
                 bestDistance = distance;
                 best = other;
             }

@@ -2083,6 +2083,8 @@
   "insane.tip.neardeath.line3": "只要到達那個地方...",
   "death_reason.noellesroles.nianshou_firecrackers": "被鞭炮驅逐",
   "message.split_personality.broadcast_prefix": "[雙重人格] %s: %s",
+  "message.twin_children.broadcast_prefix": "[雙生子] %s: %s",
+  "message.twin_children.swap": "你們互換了位置。現在由 %s 負責移動。",
   "message.broadcast.more_message": "... (剩餘 %s 條未顯示) ...",
   "item_group.noellesroles.misc": "殘月版 Noellesroles 雜項",
   "item_group.noellesroles.block": "SRE方塊",

@@ -209,5 +209,7 @@
     "cmd.stupid_express.progression.xp.set": "%s's total experience set to %s",
     "cmd.stupid_express.progression.xp.add": "%s %s experience given",
     "cmd.stupid_express.progression.error.player_not_found": "The target player does not exist.",
-  "announcement.star.modifier.stupid_express.twin_children": "Twin Children"
+  "announcement.star.modifier.stupid_express.twin_children": "Twin Children",
+  "message.twin_children.broadcast_prefix": "[Twin Children] %s: %s",
+  "message.twin_children.swap": "You swapped places. %s is now moving the pair."
 }

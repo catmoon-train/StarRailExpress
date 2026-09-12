@@ -545,5 +545,6 @@
     "info.screen.modifier.sunward": "",
     "info.screen.modifier.frail": "",
     "info.screen.modifier.rabbit_shape": "",
-    "info.screen.modifier.twin_children": ""
+    "info.screen.modifier.twin_children": "You form a twin unit with a civilian. Your size is locked at half and cannot be changed by Tall, Tiny, Dwarf, Fat, or Skinny. The lower twin walks; the upper twin stands on an invisible seat above their head. You swap places every 60 seconds. The unit separates when either twin dies and reforms when both are alive again. While stacked, the unit cannot fit into 1-block-high spaces. Completing a task also completes your partner's current task. Chat is broadcast to both twins. Killers and independent neutrals cannot receive this modifier.",
+    "info.screen.modifier.twin_children.simple": "Modifier\nForm a half-size twin unit with a civilian and swap places every 60 seconds.\nSize is locked and ignores other size modifiers.\nChat is broadcast to your partner. Does not spawn on killers."
 }

@@ -2046,6 +2046,8 @@
     "insane.tip.neardeath.line3": "Just reach that place...",
     "death_reason.noellesroles.nianshou_firecrackers": "Driven away by firecrackers",
     "message.split_personality.broadcast_prefix": "[Split Personality] %s: %s",
+    "message.twin_children.broadcast_prefix": "[Twin Children] %s: %s",
+    "message.twin_children.swap": "You swapped places. %s is now moving the pair.",
     "message.broadcast.more_message": "... (%s more messages not shown) ...",
     "item_group.noellesroles.misc": "Canyue Noellesroles Miscellaneous",
     "item_group.noellesroles.block": "SRE Blocks",

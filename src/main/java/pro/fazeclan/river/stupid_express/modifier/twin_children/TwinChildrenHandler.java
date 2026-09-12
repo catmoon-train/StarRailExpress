@@ -11,7 +11,9 @@ import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.game.GameUtils;
 import net.fabricmc.fabric.api.entity.event.v1.ServerLivingEntityEvents;
-import net.minecraft.network.protocol.game.ClientboundSetPassengersPacket;
+import net.fabricmc.fabric.api.message.v1.ServerMessageEvents;
+import net.minecraft.ChatFormatting;
+import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.damagesource.DamageTypes;
@@ -24,8 +26,13 @@ import org.agmas.harpymodloader.component.WorldModifierComponent;
 import org.agmas.harpymodloader.events.GameInitializeEvent;
 import org.agmas.harpymodloader.events.ModifierAssigned;
 import org.agmas.harpymodloader.events.ModifierRemoved;
+import org.agmas.harpymodloader.modifiers.SREModifier;
+import org.agmas.noellesroles.commands.BroadcastCommand;
+import org.agmas.noellesroles.game.modifier.NRModifiers;
+import org.agmas.noellesroles.role.TraitorAndModifiers;
 import org.jetbrains.annotations.Nullable;
 import pro.fazeclan.river.stupid_express.StupidExpress;
+import pro.fazeclan.river.stupid_express.constants.SEEntities;
 import pro.fazeclan.river.stupid_express.constants.SEModifiers;
 
 import java.util.ArrayList;
@@ -35,14 +42,12 @@ import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * Server-side pairing, mounting, and scale lifecycle for Twin Children.
+ * Pairing, invisible-seat stacking, fixed half-scale, and swap lifecycle for
+ * Twin Children.
  *
- * <p>Half-scale is only applied while both twins are alive and stacked. Vanilla
- * player passenger attachments sit the rider inside the vehicle, so the upper
- * twin is placed on the visual head. The vehicle player never receives vanilla
- * passenger-list packets, and tracker interpolation of a rider looks frozen, so
- * the vehicle client is told about the rider every tick and rider lerp is
- * cancelled on clients.
+ * <p>Half-scale is only applied while both twins are alive and stacked. An
+ * invisible seat stays on the lower twin's head; the upper twin rides that
+ * seat. Size-changing modifiers cannot override the locked scale.
  *
  * <p>The upper twin cannot be pushed into a block by its own movement, so the
  * lower twin's jump can shove it into a ceiling; wall suffocation is therefore
@@ -73,14 +78,33 @@ public final class TwinChildrenHandler {
                 removePair(serverPlayer, true);
             }
         });
-        GameInitializeEvent.EVENT.register((level, game, players) -> PAIRS.clear());
+        GameInitializeEvent.EVENT.register((level, game, players) -> {
+            discardAllSeats(level);
+            PAIRS.clear();
+        });
         ServerLivingEntityEvents.ALLOW_DAMAGE.register((entity, source, amount) -> {
             if (!(entity instanceof Player player) || !source.is(DamageTypes.IN_WALL)) {
                 return true;
             }
-            // 下方玩家跳跃时，上方玩家的坐标由 positionRider 直接写入并穿过方块，
-            // 会被顶进天花板。这并非玩家自己卡墙，故免除窒息伤害；溺水等其它伤害照常。
             return !isStackedUpper(player);
+        });
+        ServerMessageEvents.ALLOW_CHAT_MESSAGE.register((message, serverPlayer, bound) -> {
+            if (!hasTwinChildren(serverPlayer)) {
+                return true;
+            }
+            ServerPlayer partner = getPartner(serverPlayer);
+            if (partner == null || !isPairedAlivePlayer(partner)) {
+                return true;
+            }
+            Component broadcastMessage = Component
+                    .translatable("message.twin_children.broadcast_prefix",
+                            Component.literal("").append(serverPlayer.getDisplayName())
+                                    .withStyle(ChatFormatting.AQUA),
+                            Component.literal(message.signedContent()).withStyle(ChatFormatting.WHITE))
+                    .withStyle(ChatFormatting.GOLD);
+            BroadcastCommand.BroadcastMessage(serverPlayer, broadcastMessage);
+            BroadcastCommand.BroadcastMessage(partner, broadcastMessage);
+            return true;
         });
     }
 
@@ -96,6 +120,14 @@ public final class TwinChildrenHandler {
         return TwinChildrenHitbox.headPassengerAttachmentY(vehicleScale, passengerVehicleAttachY);
     }
 
+    public static boolean hasTwinChildren(Player player) {
+        if (player == null) {
+            return false;
+        }
+        WorldModifierComponent cca = WorldModifierComponent.KEY.maybeGet(player.level()).orElse(null);
+        return cca != null && cca.isModifier(player, SEModifiers.TWIN_CHILDREN);
+    }
+
     public static boolean hasHalfScale(Player player) {
         if (player == null) {
             return false;
@@ -105,15 +137,11 @@ public final class TwinChildrenHandler {
     }
 
     public static boolean isStackedLower(Player player) {
-        return hasHalfScale(player)
-                && player.getFirstPassenger() instanceof Player passenger
-                && hasHalfScale(passenger);
+        return hasHalfScale(player) && hasTwinChildren(player) && !isStackedUpper(player);
     }
 
     public static boolean isStackedUpper(Player player) {
-        return hasHalfScale(player)
-                && player.getVehicle() instanceof Player vehicle
-                && hasHalfScale(vehicle);
+        return player != null && player.getVehicle() instanceof TwinChildrenSeatEntity;
     }
 
     public static boolean shouldStayRiding(Player player) {
@@ -125,14 +153,15 @@ public final class TwinChildrenHandler {
      * already a passenger and cannot mount a chair on their own.
      */
     public static Player stackMover(Player player) {
-        if (isStackedUpper(player) && player.getVehicle() instanceof Player lower && hasHalfScale(lower)) {
-            return lower;
+        if (player.getVehicle() instanceof TwinChildrenSeatEntity seat) {
+            Player lower = seat.getLowerPlayer();
+            return lower != null ? lower : player;
         }
         return player;
     }
 
     public static boolean shouldRedirectMount(Entity rider, Entity vehicle) {
-        if (!(rider instanceof Player player) || vehicle == null) {
+        if (!(rider instanceof Player player) || vehicle == null || vehicle instanceof TwinChildrenSeatEntity) {
             return false;
         }
         return TwinChildrenRideLogic.redirectMountToLower(
@@ -142,12 +171,22 @@ public final class TwinChildrenHandler {
     }
 
     public static boolean shouldKeepLowerOnVehicle(Entity vehicle) {
-        return TwinChildrenRideLogic.keepLowerOnVehicle(vehicle instanceof Player);
+        return TwinChildrenRideLogic.keepLowerOnVehicle(
+                vehicle instanceof Player || vehicle instanceof TwinChildrenSeatEntity);
     }
 
     public static void positionStackedRider(Player lower) {
-        if (isStackedLower(lower) && lower.getFirstPassenger() instanceof Player upper) {
-            lower.positionRider(upper);
+        if (!isStackedLower(lower)) {
+            return;
+        }
+        TwinChildrenSeatEntity seat = findSeatOwnedBy(lower);
+        if (seat == null) {
+            return;
+        }
+        seat.snapTo(lower);
+        Entity rider = seat.getFirstPassenger();
+        if (rider != null) {
+            seat.positionRider(rider);
         }
     }
 
@@ -161,7 +200,7 @@ public final class TwinChildrenHandler {
         ServerLevel level = first.serverLevel();
         SREGameWorldComponent game = SREGameWorldComponent.KEY.get(level);
         SRERole firstRole = game.getRole(first);
-        if (factionOf(firstRole) == Faction.INDEPENDENT_NEUTRAL) {
+        if (!TwinChildrenAssignLogic.canReceive(factionOf(firstRole))) {
             rejectAssignment(first);
             return;
         }
@@ -174,7 +213,7 @@ public final class TwinChildrenHandler {
                 .filter(candidate -> !PAIRS.containsKey(candidate.getUUID()))
                 .filter(candidate -> !WorldModifierComponent.KEY.get(level)
                         .isModifier(candidate, SEModifiers.TWIN_CHILDREN))
-                .filter(candidate -> factionOf(game.getRole(candidate)) == factionOf(firstRole))
+                .filter(candidate -> TwinChildrenAssignLogic.canReceive(factionOf(game.getRole(candidate))))
                 .findFirst().orElse(null);
 
         if (second == null) {
@@ -188,6 +227,8 @@ public final class TwinChildrenHandler {
         modifiers.addModifier(second, SEModifiers.TWIN_CHILDREN);
 
         Pair pair = new Pair(first.getUUID(), second.getUUID());
+        pair.nextSwapAt = TwinChildrenSwapLogic.scheduleNext(
+                GameUtils.getTicksFromGameStart(level), TwinChildrenSwapLogic.intervalTicks());
         PAIRS.put(first.getUUID(), pair);
         PAIRS.put(second.getUUID(), pair);
         updateMount(pair, level);
@@ -200,8 +241,8 @@ public final class TwinChildrenHandler {
             removeHalfScale(player);
             return;
         }
-        if (!player.getUUID().equals(pair.lower())
-                && player.server.getPlayerList().getPlayer(pair.lower()) != null) {
+        if (!player.getUUID().equals(pair.lower)
+                && player.server.getPlayerList().getPlayer(pair.lower) != null) {
             return;
         }
         updateMount(pair, player.serverLevel());
@@ -209,8 +250,12 @@ public final class TwinChildrenHandler {
 
     public static void clientTick(Player player) {
         positionStackedRider(player);
-        if (isStackedUpper(player) && player.getVehicle() instanceof Player lower) {
-            lower.positionRider(player);
+        if (isStackedUpper(player) && player.getVehicle() instanceof TwinChildrenSeatEntity seat) {
+            Player lower = seat.getLowerPlayer();
+            if (lower != null) {
+                seat.snapTo(lower);
+                seat.positionRider(player);
+            }
         }
     }
 
@@ -221,20 +266,47 @@ public final class TwinChildrenHandler {
         if (pair == null) {
             return null;
         }
-        UUID partnerId = pair.lower().equals(player.getUUID()) ? pair.upper() : pair.lower();
-        return player.server.getPlayerList().getPlayer(partnerId);
+        return player.server.getPlayerList().getPlayer(pair.partnerOf(player.getUUID()));
     }
 
     public static boolean isPairedAlivePlayer(ServerPlayer player) {
         return isAlivePlayer(player) && PAIRS.containsKey(player.getUUID());
     }
 
+    /**
+     * Twin size is locked. Size-changing modifiers are stripped instead of
+     * breaking the pair.
+     *
+     * @return {@code true} if the incoming modifier was rejected
+     */
+    public static boolean rejectForeignSizeModifier(Player player, SREModifier incoming) {
+        if (!hasTwinChildren(player) || incoming == null) {
+            return false;
+        }
+        if (player instanceof ServerPlayer serverPlayer) {
+            WorldModifierComponent.KEY.get(serverPlayer.level()).removeModifier(serverPlayer, incoming);
+            stripForeignScale(serverPlayer);
+            if (PAIRS.containsKey(serverPlayer.getUUID())) {
+                ServerPlayer partner = getPartner(serverPlayer);
+                if (isAlivePlayer(serverPlayer) && partner != null && isAlivePlayer(partner)) {
+                    applyHalfScale(serverPlayer);
+                }
+            }
+        }
+        return true;
+    }
+
     private static void updateMount(Pair pair, ServerLevel level) {
-        ServerPlayer lower = level.getServer().getPlayerList().getPlayer(pair.lower());
-        ServerPlayer upper = level.getServer().getPlayerList().getPlayer(pair.upper());
+        maybeSwap(pair, level);
+
+        ServerPlayer lower = playerOf(level, pair.lower);
+        ServerPlayer upper = playerOf(level, pair.upper);
         if (lower == null || upper == null || lower.serverLevel() != upper.serverLevel()
                 || !isAlivePlayer(lower) || !isAlivePlayer(upper)) {
-            dismount(lower, upper);
+            discardSeat(pair, level);
+            if (upper != null && upper.getVehicle() instanceof TwinChildrenSeatEntity) {
+                upper.stopRiding();
+            }
             if (lower != null) {
                 removeHalfScale(lower);
             }
@@ -244,29 +316,88 @@ public final class TwinChildrenHandler {
             return;
         }
 
-        applyHalfScale(lower);
-        applyHalfScale(upper);
+        applyFixedScale(lower);
+        applyFixedScale(upper);
         if (lower.isPassenger() && !shouldKeepLowerOnVehicle(lower.getVehicle())) {
             lower.stopRiding();
         }
-        boolean remounted = false;
-        if (upper.getVehicle() != lower) {
+
+        TwinChildrenSeatEntity seat = ensureSeat(pair, level, lower, upper);
+        if (seat == null) {
+            return;
+        }
+        seat.bind(lower, upper);
+        if (upper.getVehicle() != seat) {
             Entity vehicle = upper.getVehicle();
             if (vehicle != null && shouldKeepLowerOnVehicle(vehicle) && !lower.isPassenger()) {
                 lower.startRiding(vehicle, true);
             }
-            upper.stopRiding();
-            upper.startRiding(lower, true);
-            remounted = true;
+            if (upper.isPassenger()) {
+                upper.stopRiding();
+            }
+            upper.startRiding(seat, true);
         }
-        if (upper.getVehicle() != lower) {
-            removeHalfScale(lower);
-            removeHalfScale(upper);
+        refreshStackedCollision(lower, upper);
+    }
+
+    private static void maybeSwap(Pair pair, ServerLevel level) {
+        ServerPlayer lower = playerOf(level, pair.lower);
+        ServerPlayer upper = playerOf(level, pair.upper);
+        if (lower == null || upper == null || !isAlivePlayer(lower) || !isAlivePlayer(upper)) {
             return;
         }
+        long now = GameUtils.getTicksFromGameStart(level);
+        if (!TwinChildrenSwapLogic.due(now, pair.nextSwapAt)) {
+            return;
+        }
+        pair.nextSwapAt = TwinChildrenSwapLogic.scheduleNext(now, TwinChildrenSwapLogic.intervalTicks());
+        pair.swap();
+        ServerPlayer newLower = playerOf(level, pair.lower);
+        if (newLower == null) {
+            return;
+        }
+        Component message = Component.translatable("message.twin_children.swap", newLower.getDisplayName())
+                .withStyle(ChatFormatting.GOLD);
+        BroadcastCommand.BroadcastMessage(lower, message);
+        BroadcastCommand.BroadcastMessage(upper, message);
+    }
 
-        refreshStackedCollision(lower, upper);
-        syncStackedRide(lower, remounted);
+    private static TwinChildrenSeatEntity ensureSeat(Pair pair, ServerLevel level,
+            ServerPlayer lower, ServerPlayer upper) {
+        if (pair.seatId != null) {
+            Entity existing = level.getEntity(pair.seatId);
+            if (existing instanceof TwinChildrenSeatEntity seat && seat.isAlive()) {
+                return seat;
+            }
+        }
+        TwinChildrenSeatEntity seat = SEEntities.TWIN_CHILDREN_SEAT.create(level);
+        if (seat == null) {
+            return null;
+        }
+        seat.bind(lower, upper);
+        level.addFreshEntity(seat);
+        pair.seatId = seat.getUUID();
+        return seat;
+    }
+
+    @Nullable
+    private static TwinChildrenSeatEntity findSeatOwnedBy(Player lower) {
+        if (lower.level() instanceof ServerLevel serverLevel) {
+            Pair pair = PAIRS.get(lower.getUUID());
+            if (pair != null && pair.seatId != null) {
+                Entity existing = serverLevel.getEntity(pair.seatId);
+                if (existing instanceof TwinChildrenSeatEntity seat) {
+                    return seat;
+                }
+            }
+        }
+        for (TwinChildrenSeatEntity seat : lower.level().getEntitiesOfClass(TwinChildrenSeatEntity.class,
+                lower.getBoundingBox().inflate(2.0D, 3.0D, 2.0D))) {
+            if (lower.getUUID().equals(seat.getLowerUuid())) {
+                return seat;
+            }
+        }
+        return null;
     }
 
     private static void refreshStackedCollision(ServerPlayer lower, ServerPlayer upper) {
@@ -280,27 +411,24 @@ public final class TwinChildrenHandler {
         }
     }
 
-    /**
-     * Vanilla never tells a player-vehicle that it has passengers, and tracker
-     * interpolation of the rider fights {@code positionRider}. Keep the lower
-     * twin's client informed; do not teleport the rider.
-     */
-    private static void syncStackedRide(ServerPlayer lower, boolean remounted) {
-        positionStackedRider(lower);
-        ClientboundSetPassengersPacket passengers = new ClientboundSetPassengersPacket(lower);
-        lower.connection.send(passengers);
-        if (remounted) {
-            for (ServerPlayer viewer : lower.server.getPlayerList().getPlayers()) {
-                if (viewer != lower) {
-                    viewer.connection.send(passengers);
-                }
-            }
+    private static void discardSeat(Pair pair, ServerLevel level) {
+        if (pair.seatId == null) {
+            return;
         }
+        Entity existing = level.getEntity(pair.seatId);
+        if (existing instanceof TwinChildrenSeatEntity seat) {
+            seat.ejectPassengers();
+            seat.discard();
+        }
+        pair.seatId = null;
     }
 
-    public static void removePairForConflictingModifier(net.minecraft.world.entity.player.Player player) {
-        if (player instanceof ServerPlayer serverPlayer) {
-            removePair(serverPlayer, true);
+    private static void discardAllSeats(ServerLevel level) {
+        for (Entity entity : level.getAllEntities()) {
+            if (entity instanceof TwinChildrenSeatEntity seat) {
+                seat.ejectPassengers();
+                seat.discard();
+            }
         }
     }
 
@@ -314,11 +442,14 @@ public final class TwinChildrenHandler {
             }
             return;
         }
-        PAIRS.remove(pair.lower());
-        PAIRS.remove(pair.upper());
-        ServerPlayer lower = player.server.getPlayerList().getPlayer(pair.lower());
-        ServerPlayer upper = player.server.getPlayerList().getPlayer(pair.upper());
-        dismount(lower, upper);
+        PAIRS.remove(pair.lower);
+        PAIRS.remove(pair.upper);
+        discardSeat(pair, player.serverLevel());
+        ServerPlayer lower = player.server.getPlayerList().getPlayer(pair.lower);
+        ServerPlayer upper = player.server.getPlayerList().getPlayer(pair.upper);
+        if (upper != null && upper.getVehicle() instanceof TwinChildrenSeatEntity) {
+            upper.stopRiding();
+        }
         if (lower != null) {
             removeHalfScale(lower);
         }
@@ -327,8 +458,8 @@ public final class TwinChildrenHandler {
         }
         if (removeModifiers) {
             WorldModifierComponent modifiers = WorldModifierComponent.KEY.get(player.serverLevel());
-            modifiers.removeModifier(pair.lower(), SEModifiers.TWIN_CHILDREN, false);
-            modifiers.removeModifier(pair.upper(), SEModifiers.TWIN_CHILDREN, true);
+            modifiers.removeModifier(pair.lower, SEModifiers.TWIN_CHILDREN, false);
+            modifiers.removeModifier(pair.upper, SEModifiers.TWIN_CHILDREN, true);
         }
     }
 
@@ -342,8 +473,15 @@ public final class TwinChildrenHandler {
         WorldModifierComponent modifiers = WorldModifierComponent.KEY.get(player.serverLevel());
         modifiers.removeModifier(player, SEModifiers.TINY);
         modifiers.removeModifier(player, SEModifiers.TALL);
-        player.getAttribute(Attributes.SCALE).removeModifier(SEModifiers.TINY_MODIFIER);
-        player.getAttribute(Attributes.SCALE).removeModifier(SEModifiers.TALL_MODIFIER);
+        modifiers.removeModifier(player, TraitorAndModifiers.DWARF);
+        modifiers.removeModifier(player, NRModifiers.FAT);
+        modifiers.removeModifier(player, NRModifiers.SKINNY);
+        stripForeignScale(player);
+    }
+
+    private static void applyFixedScale(ServerPlayer player) {
+        stripForeignScale(player);
+        applyHalfScale(player);
     }
 
     private static void applyHalfScale(ServerPlayer player) {
@@ -354,6 +492,16 @@ public final class TwinChildrenHandler {
         }
     }
 
+    private static void stripForeignScale(ServerPlayer player) {
+        AttributeInstance scale = player.getAttribute(Attributes.SCALE);
+        if (scale == null) {
+            return;
+        }
+        scale.removeModifier(SEModifiers.TINY_MODIFIER);
+        scale.removeModifier(SEModifiers.TALL_MODIFIER);
+        scale.removeModifier(TraitorAndModifiers.DWARF_MODIFIER);
+    }
+
     private static void removeHalfScale(ServerPlayer player) {
         AttributeInstance scale = player.getAttribute(Attributes.SCALE);
         if (scale != null && scale.hasModifier(HALF_SCALE.id())) {
@@ -362,53 +510,51 @@ public final class TwinChildrenHandler {
         }
     }
 
-    private static void dismount(ServerPlayer lower, ServerPlayer upper) {
-        if (upper == null || upper.getVehicle() == null) {
-            return;
-        }
-        if (lower != null && upper.getVehicle() != lower) {
-            return;
-        }
-        upper.stopRiding();
-        if (lower != null) {
-            broadcastPassengerList(lower);
-        }
-    }
-
-    /**
-     * Vanilla only syncs a vehicle's passenger list to the players tracking
-     * that entity, so a server-initiated dismount never reaches the vehicle's
-     * own client and it keeps rendering the rider on the attachment point.
-     */
-    private static void broadcastPassengerList(ServerPlayer vehicle) {
-        ClientboundSetPassengersPacket packet = new ClientboundSetPassengersPacket(vehicle);
-        for (ServerPlayer viewer : vehicle.server.getPlayerList().getPlayers()) {
-            viewer.connection.send(packet);
-        }
+    @Nullable
+    private static ServerPlayer playerOf(ServerLevel level, UUID id) {
+        return level.getServer().getPlayerList().getPlayer(id);
     }
 
     private static boolean isAlivePlayer(ServerPlayer player) {
         return GameUtils.isPlayerAliveAndSurvival(player);
     }
 
-    static Faction factionOf(SRERole role) {
+    static TwinChildrenAssignLogic.Faction factionOf(SRERole role) {
         if (role == null) {
-            return Faction.INDEPENDENT_NEUTRAL;
+            return TwinChildrenAssignLogic.Faction.INDEPENDENT_NEUTRAL;
         }
         if (role.isNeutrals() && !role.isNeutralForKiller()) {
-            return Faction.INDEPENDENT_NEUTRAL;
+            return TwinChildrenAssignLogic.Faction.INDEPENDENT_NEUTRAL;
         }
         if (role.isNeutralForKiller() || SREGameWorldComponent.isKillerTeamRoleStatic(role)) {
-            return Faction.KILLER;
+            return TwinChildrenAssignLogic.Faction.KILLER;
         }
         if (role.isInnocent()) {
-            return Faction.INNOCENT;
+            return TwinChildrenAssignLogic.Faction.INNOCENT;
         }
-        return Faction.INDEPENDENT_NEUTRAL;
+        return TwinChildrenAssignLogic.Faction.INDEPENDENT_NEUTRAL;
     }
 
-    enum Faction { INNOCENT, KILLER, INDEPENDENT_NEUTRAL }
+    private static final class Pair {
+        UUID lower;
+        UUID upper;
+        @Nullable
+        UUID seatId;
+        long nextSwapAt;
 
-    private record Pair(UUID lower, UUID upper) {
+        Pair(UUID lower, UUID upper) {
+            this.lower = lower;
+            this.upper = upper;
+        }
+
+        UUID partnerOf(UUID id) {
+            return lower.equals(id) ? upper : lower;
+        }
+
+        void swap() {
+            UUID previousLower = lower;
+            lower = upper;
+            upper = previousLower;
+        }
     }
 }

@@ -51,4 +51,9 @@ class TwinChildrenHitboxTest {
 
         assertEquals(STANDING * HALF_SCALE, feetY, 1.0e-6);
     }
+
+    @Test
+    void invisibleSeatSitsOnHalfScaleHead() {
+        assertEquals(STANDING * HALF_SCALE, TwinChildrenHitbox.headSeatY(0.0D, HALF_SCALE), 1.0e-6);
+    }
 }

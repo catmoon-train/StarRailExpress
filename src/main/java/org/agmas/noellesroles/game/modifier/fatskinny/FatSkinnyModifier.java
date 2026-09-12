@@ -28,6 +28,7 @@ import org.agmas.noellesroles.game.modifier.NRModifiers;
 import org.agmas.noellesroles.init.ModEffects;
 import org.agmas.noellesroles.utils.RoleUtils;
 import pro.fazeclan.river.stupid_express.constants.SEModifiers;
+import pro.fazeclan.river.stupid_express.modifier.twin_children.TwinChildrenHandler;
 
 /**
  * 胖子推动周围玩家；瘦子被周围玩家挤压移动。
@@ -41,6 +42,10 @@ public final class FatSkinnyModifier {
     public static void init() {
         ModifierAssigned.EVENT.register((player, modifier) -> {
             WorldModifierComponent cca = WorldModifierComponent.KEY.get(player.level());
+            if ((modifier.equals(NRModifiers.FAT) || modifier.equals(NRModifiers.SKINNY))
+                    && TwinChildrenHandler.rejectForeignSizeModifier(player, modifier)) {
+                return;
+            }
             if (modifier.equals(NRModifiers.FAT) && cca.isModifier(player, NRModifiers.SKINNY)) {
                 RoleUtils.removeModifier(player, NRModifiers.SKINNY);
             } else if (modifier.equals(NRModifiers.SKINNY) && cca.isModifier(player, NRModifiers.FAT)) {

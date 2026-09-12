@@ -67,4 +67,12 @@ public final class TwinChildrenHitbox {
     public static double headPassengerAttachmentY(float vehicleScale, double passengerVehicleAttachY) {
         return VISUAL_STANDING_HEIGHT * vehicleScale + passengerVehicleAttachY;
     }
+
+    /** World Y of the invisible seat sitting on the lower twin's visual head. */
+    public static double headSeatY(double lowerY, float lowerScale) {
+        return lowerY + VISUAL_STANDING_HEIGHT * lowerScale;
+    }
+
+    /** Rider offset on the invisible seat. */
+    public static final double SEAT_PASSENGER_ATTACHMENT_Y = 0.05D;
 }

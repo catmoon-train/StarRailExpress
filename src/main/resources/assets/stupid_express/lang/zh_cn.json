@@ -211,5 +211,7 @@
   "cmd.stupid_express.progression.xp.set": "已将 %s 的总经验设置为 %s",
   "cmd.stupid_express.progression.xp.add": "已给予 %s %s 经验",
   "cmd.stupid_express.progression.error.player_not_found": "目标玩家不存在。",
-  "announcement.star.modifier.stupid_express.twin_children": "双生之子"
+  "announcement.star.modifier.stupid_express.twin_children": "双生之子",
+  "message.twin_children.broadcast_prefix": "[双生子] %s: %s",
+  "message.twin_children.swap": "你们互换了位置。现在由 %s 负责移动。"
 }

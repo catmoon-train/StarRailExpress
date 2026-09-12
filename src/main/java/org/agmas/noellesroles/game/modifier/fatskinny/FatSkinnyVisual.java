@@ -21,6 +21,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import org.agmas.harpymodloader.component.WorldModifierComponent;
 import org.agmas.noellesroles.game.modifier.NRModifiers;
+import pro.fazeclan.river.stupid_express.constants.SEModifiers;
 
 import java.util.UUID;
 
@@ -51,6 +52,9 @@ public final class FatSkinnyVisual {
         }
         WorldModifierComponent cca = WorldModifierComponent.KEY.maybeGet(level).orElse(null);
         if (cca == null) {
+            return 1.0F;
+        }
+        if (cca.isModifier(uuid, SEModifiers.TWIN_CHILDREN)) {
             return 1.0F;
         }
         boolean fat = cca.isModifier(uuid, NRModifiers.FAT);

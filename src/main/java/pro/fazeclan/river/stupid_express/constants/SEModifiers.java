@@ -233,7 +233,7 @@ public class SEModifiers {
             false))
             .setDefaultEnableChance(1000).setDefaultMax(1);
 
-    /** 双生之子：两名同阵营玩家以半身大小叠在一起行动；任一方完成任务时同伴当前任务一并完成。 */
+    /** 双生之子：两名平民以半身大小叠在一起行动；任一方完成任务时同伴当前任务一并完成。 */
     public static SREModifier TWIN_CHILDREN = HMLModifiers.registerModifier(new SREModifier(
             StupidExpress.id("twin_children"),
             new Color(255, 183, 197).getRGB(),
@@ -252,6 +252,7 @@ public class SEModifiers {
         SPLIT_PERSONALITY.setDefaultMax(SREConfig.instance().splitPersonalityMax);
         SPLIT_PERSONALITY.civilianOnly = true;
         VIGOROUS.civilianOnly = true;
+        TWIN_CHILDREN.civilianOnly = true;
 
         assignModifierComponents();
         TwinChildrenHandler.init();
@@ -466,7 +467,9 @@ public class SEModifiers {
         ModifierAssigned.EVENT.register(((player, modifier) -> {
             var worldModifierComponent = WorldModifierComponent.KEY.get(player.level());
             if (modifier.equals(TINY)) {
-                TwinChildrenHandler.removePairForConflictingModifier(player);
+                if (TwinChildrenHandler.rejectForeignSizeModifier(player, TINY)) {
+                    return;
+                }
                 // Cannot assign TALL if player has TINY
                 if (worldModifierComponent.isModifier(player.getUUID(), TALL)) {
                     worldModifierComponent.removeModifier(player.getUUID(), TALL);
@@ -481,7 +484,9 @@ public class SEModifiers {
                 player.getAttribute(Attributes.SCALE).addPermanentModifier(TINY_MODIFIER);
             }
             if (modifier.equals(TALL)) {
-                TwinChildrenHandler.removePairForConflictingModifier(player);
+                if (TwinChildrenHandler.rejectForeignSizeModifier(player, TALL)) {
+                    return;
+                }
                 // Cannot assign TINY if player has TALL
                 if (worldModifierComponent.isModifier(player.getUUID(), TINY)) {
                     worldModifierComponent.removeModifier(player.getUUID(), TINY);

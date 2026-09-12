@@ -16,8 +16,8 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import pro.fazeclan.river.stupid_express.modifier.twin_children.TwinChildrenHandler;
 
 /**
- * Tracker interpolation of a player-rider fights {@code positionRider} and
- * leaves the upper twin frozen on the lower twin's client.
+ * The invisible seat is snapped every tick. Tracker interpolation of the
+ * rider fights that snap and leaves the upper twin jittering.
  */
 @Mixin(LivingEntity.class)
 public abstract class TwinChildrenLerpMixin {
