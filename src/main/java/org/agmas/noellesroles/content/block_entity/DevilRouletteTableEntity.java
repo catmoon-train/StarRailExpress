@@ -271,8 +271,11 @@ public class DevilRouletteTableEntity extends BlockEntity {
         RandomSource random = RandomSource.create();
         if (level != null)
             random = level.getRandom();
+        ArrayList<UUID> playerUUIDs = new ArrayList<>();
+        playerUUIDs.add(frontPlayerUUID);
+        playerUUIDs.add(backPlayerUUID);
         // 创建游戏
-        game = new DevilRouletteGame(frontPlayerUUID, backPlayerUUID, random, level);
+        game = new DevilRouletteGame(playerUUIDs, random, level);
         if (gameMode != null)
             game.setGameMode(gameMode);
         // 初始化游戏
