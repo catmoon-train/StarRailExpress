@@ -259,7 +259,8 @@ public class SREReceiverRegister {
                 }
                 maps.add(new io.wifi.starrailexpress.network.MapIntroSyncPayload.MapJson(
                         mapId,
-                        Files.readString(path, StandardCharsets.UTF_8)));
+                        io.wifi.starrailexpress.network.MapIntroSyncPayload.slimMapJson(
+                                Files.readString(path, StandardCharsets.UTF_8))));
             } catch (Exception e) {
                 SRE.LOGGER.warn("Failed to read map intro json for {}", mapId, e);
             }
@@ -282,16 +283,19 @@ public class SREReceiverRegister {
         }
         org.agmas.noellesroles.config.NoellesRolesConfig config = org.agmas.noellesroles.config.NoellesRolesConfig.HANDLER
                 .instance();
-        ServerPlayNetworking.send(player, new io.wifi.starrailexpress.network.MapIntroSyncPayload(
-                maps,
-                voteMaps,
-                config.maChenXuMaps,
-                config.swastMaps,
-                config.underwaterRolesMaps,
-                config.airRolesMaps,
-                config.trapRolesMaps,
-                config.horseRolesMaps,
-                config.labRolesMaps));
+        for (io.wifi.starrailexpress.network.MapIntroSyncPayload payload : io.wifi.starrailexpress.network.MapIntroSyncPayload
+                .split(
+                        maps,
+                        voteMaps,
+                        config.maChenXuMaps,
+                        config.swastMaps,
+                        config.underwaterRolesMaps,
+                        config.airRolesMaps,
+                        config.trapRolesMaps,
+                        config.horseRolesMaps,
+                        config.labRolesMaps)) {
+            ServerPlayNetworking.send(player, payload);
+        }
     }
 
     private static void executeDialogueCommand(ServerPlayNetworking.Context context, String command,

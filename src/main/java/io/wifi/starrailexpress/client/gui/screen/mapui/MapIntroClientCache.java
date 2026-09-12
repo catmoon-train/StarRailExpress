@@ -18,8 +18,10 @@ package io.wifi.starrailexpress.client.gui.screen.mapui;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import io.wifi.starrailexpress.network.MapIntroSyncPayload;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import org.jetbrains.annotations.Nullable;
@@ -40,15 +42,61 @@ public final class MapIntroClientCache {
     private MapIntroClientCache() {}
 
     public static void update(MapIntroSyncPayload payload) {
-        MAPS.clear();
-        VOTE_MAPS.clear();
-        BAG_MAPS.clear();
-        POLICE_MAPS.clear();
-        UNDERWATER_MAPS.clear();
-        AIR_MAPS.clear();
-        TRAP_MAPS.clear();
-        HORSE_MAPS.clear();
-        LAB_MAPS.clear();
+        accept(payload);
+    }
+
+    /**
+     * 合并分块：{@code chunkIndex == 0} 时重置，后续块只追加地图 JSON。
+     * 返回当前已累积的完整视图，供界面一次性刷新。
+     */
+    public static MapIntroSyncPayload accept(MapIntroSyncPayload payload) {
+        if (payload == null) {
+            return snapshot();
+        }
+        if (payload.chunkIndex() <= 0) {
+            MAPS.clear();
+            VOTE_MAPS.clear();
+            BAG_MAPS.clear();
+            POLICE_MAPS.clear();
+            UNDERWATER_MAPS.clear();
+            AIR_MAPS.clear();
+            TRAP_MAPS.clear();
+            HORSE_MAPS.clear();
+            LAB_MAPS.clear();
+        }
+        applyMeta(payload);
+        applyMaps(payload);
+        refreshRequestedAt = 0L;
+        return snapshot();
+    }
+
+    private static void applyMeta(MapIntroSyncPayload payload) {
+        if (payload.voteMaps() != null) {
+            for (MapIntroSyncPayload.VoteMap entry : payload.voteMaps()) {
+                if (entry != null && entry.id() != null) {
+                    VOTE_MAPS.put(entry.id(), entry);
+                }
+            }
+        }
+        addAll(BAG_MAPS, payload.bagMaps());
+        addAll(POLICE_MAPS, payload.policeMaps());
+        addAll(UNDERWATER_MAPS, payload.underwaterMaps());
+        addAll(AIR_MAPS, payload.airMaps());
+        addAll(TRAP_MAPS, payload.trapMaps());
+        addAll(HORSE_MAPS, payload.horseMaps());
+        addAll(LAB_MAPS, payload.labMaps());
+    }
+
+    private static void addAll(Set<String> target, List<String> values) {
+        if (values != null) {
+            target.addAll(values);
+        }
+    }
+
+    private static void applyMaps(MapIntroSyncPayload payload) {
+        if (payload.maps() == null) {
+            return;
+        }
         for (MapIntroSyncPayload.MapJson entry : payload.maps()) {
             try {
                 MAPS.put(entry.id(), JsonParser.parseString(entry.json()).getAsJsonObject());
@@ -56,17 +104,23 @@ public final class MapIntroClientCache {
                 // A malformed optional map description should not prevent the vote UI from opening.
             }
         }
-        for (MapIntroSyncPayload.VoteMap entry : payload.voteMaps()) {
-            VOTE_MAPS.put(entry.id(), entry);
+    }
+
+    public static MapIntroSyncPayload snapshot() {
+        List<MapIntroSyncPayload.MapJson> maps = new ArrayList<>();
+        for (Map.Entry<String, JsonObject> entry : MAPS.entrySet()) {
+            maps.add(new MapIntroSyncPayload.MapJson(entry.getKey(), entry.getValue().toString()));
         }
-        BAG_MAPS.addAll(payload.bagMaps());
-        POLICE_MAPS.addAll(payload.policeMaps());
-        UNDERWATER_MAPS.addAll(payload.underwaterMaps());
-        AIR_MAPS.addAll(payload.airMaps());
-        TRAP_MAPS.addAll(payload.trapMaps());
-        HORSE_MAPS.addAll(payload.horseMaps());
-        LAB_MAPS.addAll(payload.labMaps());
-        refreshRequestedAt = 0L;
+        return new MapIntroSyncPayload(
+                maps,
+                List.copyOf(VOTE_MAPS.values()),
+                List.copyOf(BAG_MAPS),
+                List.copyOf(POLICE_MAPS),
+                List.copyOf(UNDERWATER_MAPS),
+                List.copyOf(AIR_MAPS),
+                List.copyOf(TRAP_MAPS),
+                List.copyOf(HORSE_MAPS),
+                List.copyOf(LAB_MAPS));
     }
 
     public static void beginRefresh() {

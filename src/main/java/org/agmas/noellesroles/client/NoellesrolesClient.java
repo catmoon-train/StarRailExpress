@@ -738,17 +738,17 @@ public class NoellesrolesClient implements ClientModInitializer {
         });
         ClientPlayNetworking.registerGlobalReceiver(io.wifi.starrailexpress.network.MapIntroSyncPayload.ID,
                 (payload, context) -> context.client().execute(() -> {
-                    io.wifi.starrailexpress.client.gui.screen.mapui.MapIntroClientCache.update(payload);
+                    var view = io.wifi.starrailexpress.client.gui.screen.mapui.MapIntroClientCache.accept(payload);
                     if (context
                             .client().screen instanceof io.wifi.starrailexpress.client.gui.screen.MapIntroduceScreen screen) {
-                        screen.updateFromPacket(payload);
+                        screen.updateFromPacket(view);
                     } else if (context
                             .client().screen instanceof io.wifi.starrailexpress.client.gui.screen.maprotation.MapRotationScreen rotationScreen) {
                         // 地图轮换界面复用同一份地图介绍数据（Fabric 每个包 ID 只允许一个全局接收器）
-                        rotationScreen.updateFromPacket(payload);
+                        rotationScreen.updateFromPacket(view);
                     } else if (context
                             .client().screen instanceof io.wifi.starrailexpress.client.gui.screen.MapVoteScreen voteScreen) {
-                        voteScreen.updateIntroFromPacket(payload);
+                        voteScreen.updateIntroFromPacket(view);
                     }
                 }));
         ClientPlayNetworking.registerGlobalReceiver(io.wifi.starrailexpress.network.MapRotationSyncPayload.ID,
