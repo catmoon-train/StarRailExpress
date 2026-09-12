@@ -36,6 +36,7 @@
     "item.ItemPickupProgressionMixin",
     "item.ItemStackMixin",
     "item.UseItemProgressionMixin",
+    "network.ClickAntiCheatMixin",
     "network.NetworkReceiveStatisticsMixin",
     "network.NetworkStatisticsMixin",
     "network.ServerListFixMixin",

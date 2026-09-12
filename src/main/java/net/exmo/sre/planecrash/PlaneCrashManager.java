@@ -40,6 +40,7 @@ import java.util.WeakHashMap;
 public final class PlaneCrashManager {
     public static final int INTRO_DURATION_TICKS = 120;
     public static final int TREMOR_DURATION_TICKS = 36;
+    public static final int TREMOR_WARN_TICKS = 70;
     private static final int TREMOR_MIN_TICKS = 20 * 60;
     private static final int TREMOR_EXTRA_TICKS = 20 * 30;
 
@@ -102,6 +103,7 @@ public final class PlaneCrashManager {
         Runtime runtime = RUNTIMES.get(level);
         if (runtime != null) {
             runtime.planeId = -1;
+            runtime.warningSent = false;
             runtime.nextTremorTick = GameUtils.getTicksFromGameStart(level) + nextInterval(level);
         }
         triggerTremor(level, tiltYaw);
@@ -128,6 +130,10 @@ public final class PlaneCrashManager {
         if (now >= runtime.nextTremorTick) {
             triggerTremor(level, runtime.tiltYaw);
             runtime.nextTremorTick = now + nextInterval(level);
+            runtime.warningSent = false;
+        } else if (!runtime.warningSent && now >= runtime.nextTremorTick - TREMOR_WARN_TICKS) {
+            sendToPlayers(level, new PlaneCrashTremorPayload(runtime.tiltYaw, TREMOR_WARN_TICKS, true));
+            runtime.warningSent = true;
         }
     }
 
@@ -135,15 +141,21 @@ public final class PlaneCrashManager {
         double rad = Math.toRadians(tiltYaw);
         double dx = -Math.sin(rad);
         double dz = Math.cos(rad);
-        PlaneCrashTremorPayload payload = new PlaneCrashTremorPayload(tiltYaw, TREMOR_DURATION_TICKS);
+        PlaneCrashTremorPayload payload = new PlaneCrashTremorPayload(tiltYaw, TREMOR_DURATION_TICKS, false);
+        sendToPlayers(level, payload);
         for (ServerPlayer player : level.players()) {
-            PacketTracker.sendToClient(player, payload);
             if (!GameUtils.isPlayerAliveAndSurvival(player)) {
                 continue;
             }
-            player.setDeltaMovement(dx * 0.95D, 0.22D, dz * 0.95D);
+            player.setDeltaMovement(dx * 1.90D, 0.44D, dz * 1.90D);
             player.hurtMarked = true;
             player.connection.send(new ClientboundSetEntityMotionPacket(player));
+        }
+    }
+
+    private static void sendToPlayers(ServerLevel level, PlaneCrashTremorPayload payload) {
+        for (ServerPlayer player : level.players()) {
+            PacketTracker.sendToClient(player, payload);
         }
     }
 
@@ -201,5 +213,6 @@ public final class PlaneCrashManager {
         long nextTremorTick;
         float tiltYaw;
         int planeId = -1;
+        boolean warningSent;
     }
 }

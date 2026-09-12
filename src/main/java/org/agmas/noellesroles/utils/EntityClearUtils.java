@@ -97,6 +97,7 @@ public class EntityClearUtils {
                 entity instanceof WheelchairEntity ||
                 entity instanceof AnglerRodMountEntity ||
                 entity instanceof RainbowHorseEntity ||
+                entity instanceof io.wifi.starrailexpress.content.entity.AbstractPurpleMonsterEntity ||
                 entity instanceof KuiXiPuppetEntity ||
                 entity instanceof NoteEntity ||
                 entity instanceof NoHeavyWaterInfluencedThrowableProjectile ||

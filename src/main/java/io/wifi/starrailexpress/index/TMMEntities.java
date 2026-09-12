@@ -75,9 +75,27 @@ public interface TMMEntities {
                     .fireImmune()
     );
 
+    EntityType<PurpleMonsterEntity> PURPLE_MONSTER = registrar.create("purple_monster",
+            EntityType.Builder.of(PurpleMonsterEntity::new, MobCategory.MONSTER)
+                    .sized(0.6f, 2.9f)
+                    .eyeHeight(2.55f)
+                    .clientTrackingRange(64)
+                    .updateInterval(2)
+    );
+
+    EntityType<PurpleMonsterSecondEntity> PURPLE_MONSTER_SECOND = registrar.create("purple_monster_second",
+            EntityType.Builder.of(PurpleMonsterSecondEntity::new, MobCategory.MONSTER)
+                    .sized(1.4f, 2.8f)
+                    .eyeHeight(1.8f)
+                    .clientTrackingRange(64)
+                    .updateInterval(2)
+    );
+
     static void initialize() {
         registrar.registerEntries();
 
         FabricDefaultAttributeRegistry.register(PLAYER_BODY, PlayerBodyEntity.createAttributes());
+        FabricDefaultAttributeRegistry.register(PURPLE_MONSTER, PurpleMonsterEntity.createAttributes());
+        FabricDefaultAttributeRegistry.register(PURPLE_MONSTER_SECOND, PurpleMonsterSecondEntity.createAttributes());
     }
 }

@@ -38,6 +38,7 @@ import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.InteractionResultHolder;
+import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.ProjectileUtil;
@@ -51,6 +52,7 @@ import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 import org.agmas.noellesroles.Noellesroles;
 import org.agmas.noellesroles.init.FunnyItems;
+import org.agmas.noellesroles.init.ModEffects;
 import org.agmas.noellesroles.role.ModRoles;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -61,16 +63,18 @@ import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * 承太郎：欧拉一拳绑定/连打状态。绑定目标无法使用物品，直到自身或目标死亡，
- * 或 6 秒内未打满 20 次而超时。
+ * 承太郎：欧拉一拳绑定/连打状态。绑定目标无法移动、无法使用物品，
+ * 并始终被固定在使用者前方，直到自身或目标死亡，或 6 秒内未打满 20 次而超时。
  */
 public class JojoRoleData extends SimpleRoleData {
 
     public static final int RUSH_TICKS = 6 * 20;
     public static final int PUNCHES_TO_KILL = 20;
-    public static final int FULL_COOLDOWN_TICKS = 30 * 20;
+    /** 原 30s，冷却 -60% 后为 12s。 */
+    public static final int FULL_COOLDOWN_TICKS = 12 * 20;
     public static final int FAIL_COOLDOWN_TICKS = FULL_COOLDOWN_TICKS / 2;
     public static final double PUNCH_REACH = 4.0;
+    public static final double HOLD_FRONT_DISTANCE = 1.6;
     public static final int MIN_PUNCH_INTERVAL_TICKS = 2;
 
     private static final DustParticleOptions GOLD_DUST =
@@ -244,6 +248,7 @@ public class JojoRoleData extends SimpleRoleData {
         this.rushEndGameTime = attacker.level().getGameTime() + RUSH_TICKS;
         BOUND_TARGET_TO_ATTACKER.put(target.getUUID(), attacker.getUUID());
         lockTargetItems(target);
+        restrainBoundTarget(attacker, target);
         attacker.displayClientMessage(
                 Component.translatable("message.noellesroles.jojo.ora.bound", target.getName())
                         .withStyle(ChatFormatting.GOLD, ChatFormatting.BOLD),
@@ -269,6 +274,7 @@ public class JojoRoleData extends SimpleRoleData {
         target.hurtMarked = true;
         spawnOraEffects(attacker, target);
         lockTargetItems(target);
+        restrainBoundTarget(attacker, target);
 
         if (punchCount >= PUNCHES_TO_KILL) {
             finishKill(attacker, target);
@@ -350,6 +356,35 @@ public class JojoRoleData extends SimpleRoleData {
         cooldowns.addCooldown(stack.getItem(), ticks);
     }
 
+    /** 禁止移动，并把目标钉在使用者水平正前方。 */
+    private static void restrainBoundTarget(Player attacker, Player target) {
+        if (attacker == null || target == null) {
+            return;
+        }
+        target.addEffect(new MobEffectInstance(ModEffects.MOVE_BANED, 10, 0, false, false, false));
+        pinTargetInFront(attacker, target);
+    }
+
+    private static void pinTargetInFront(Player attacker, Player target) {
+        Vec3 look = attacker.getViewVector(1.0F);
+        Vec3 flat = new Vec3(look.x, 0.0, look.z);
+        if (flat.lengthSqr() < 1.0e-6) {
+            flat = new Vec3(0.0, 0.0, 1.0);
+        } else {
+            flat = flat.normalize();
+        }
+        Vec3 front = attacker.position().add(flat.scale(HOLD_FRONT_DISTANCE));
+        target.setDeltaMovement(Vec3.ZERO);
+        target.fallDistance = 0f;
+        target.hurtMarked = true;
+        if (target instanceof ServerPlayer serverTarget) {
+            serverTarget.connection.teleport(front.x, attacker.getY(), front.z,
+                    serverTarget.getYRot(), serverTarget.getXRot());
+        } else {
+            target.teleportTo(front.x, attacker.getY(), front.z);
+        }
+    }
+
     @Nullable
     private static Player findPunchTarget(Player attacker) {
         Vec3 eye = attacker.getEyePosition();
@@ -424,6 +459,7 @@ public class JojoRoleData extends SimpleRoleData {
                 endRush(true);
                 return;
             }
+            restrainBoundTarget(player, target);
             if (player.level().getGameTime() % 5 == 0) {
                 lockTargetItems(target);
             }

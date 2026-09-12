@@ -95,6 +95,7 @@ public class SREPayloadRegister {
 
         PayloadTypeRegistry.playS2C().register(OnGameStartedPayload.TYPE, OnGameStartedPayload.CODEC);
         PayloadTypeRegistry.playS2C().register(OnGameFinishedPayload.TYPE, OnGameFinishedPayload.CODEC);
+        PayloadTypeRegistry.playS2C().register(ClickLockoutPayload.TYPE, ClickLockoutPayload.CODEC);
 
         // 高级相机轨道
         PayloadTypeRegistry.playS2C().register(net.exmo.sre.camera.AdvancedCameraPayload.ID,

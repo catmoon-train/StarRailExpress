@@ -99,7 +99,7 @@ public class SREConfig implements ConfigData {
     // 可由命令 /sre:mirror_end_egg on|off 修改并保存到本配置。
     @Tooltip
     public boolean enableMirrorReunionEndEgg = false;
-    // 时长
+    // 时长（tick）。实际结局还会再多 1.5 秒。
     public int mirrorReunionEndEggTime = 5 * 20;
 
     // 随机地图设置
@@ -451,6 +451,10 @@ public class SREConfig implements ConfigData {
     @ConfigEntry.Category(value = "skin")
     public boolean itemSkinSyncServerEnabled = false;
     // AFK设置
+
+    @ConfigEntry.Category(value = "anticheat")
+    @Tooltip
+    public boolean enableClickAc = true; // 点击频率反作弊，默认开启
 
     @ConfigEntry.Category(value = "afk")
     public boolean afkKickEnabled = true; // 是否启用挂机踢出功能

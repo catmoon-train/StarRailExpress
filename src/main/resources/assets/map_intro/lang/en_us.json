@@ -43,7 +43,7 @@
     "map_intro.property.can_jump.false": "No jumping allowed in the map",
     "map_intro.property.snow": "It will snow on the map",
     "map_intro.property.sand": "There will be sandstorms on the map",
-    "map_intro.property.plane_crash": "A plane crash event is enabled: a plane flies into the center and buildings tremor",
+    "map_intro.property.plane_crash": "A plane crash event is enabled: a plane flies into the center, buildings tremor, and indoor fires may appear",
     "map_intro.property.no_fog": "Map without fog",
     "map_intro.property.fog_end": "Visibility range: %s grid",
     "map_intro.property.weather": "Map default weather: %s",

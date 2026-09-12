@@ -27,12 +27,16 @@ import org.agmas.noellesroles.init.ModEffects;
 /**
  * 破镜重圆结局彩蛋：开启后，游戏进入 STOPPING 时全员进入破镜崩裂；
  * 沉底后才黑屏，药水结束后才真正结束。
+ * 实际持续时间 = 配置时长 + {@link #EXTRA_END_TICKS}（1.5 秒）。
  *
  * <p>
  * 启用状态保存在 {@link SREConfig#enableMirrorReunionEndEgg}，
  * 可由 {@code /sre:mirror_end_egg on|off} 命令修改并写入配置。
  */
 public final class MirrorReunionEndEgg {
+    /** 结局整体额外停留，给沉底黑屏留出时间。 */
+    public static final int EXTRA_END_TICKS = 30;
+
     public static int BLACK_DURATION_TICKS = 7 * 20;
 
     private static boolean delayingThisRound;
@@ -72,7 +76,8 @@ public final class MirrorReunionEndEgg {
         if (!isEnabled()) {
             return;
         }
-        BLACK_DURATION_TICKS = SREConfig.instance().mirrorReunionEndEggTime;
+        int configured = SREConfig.instance().mirrorReunionEndEggTime;
+        BLACK_DURATION_TICKS = Math.max(1, configured) + EXTRA_END_TICKS;
         for (ServerPlayer player : world.players()) {
             player.addEffect(
                     new MobEffectInstance(ModEffects.MIRROR_REUNION, BLACK_DURATION_TICKS, 0, false, false, false));

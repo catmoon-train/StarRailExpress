@@ -7,7 +7,7 @@
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+    10| * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
@@ -16,11 +16,7 @@
 package org.agmas.noellesroles.client;
 
 import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.BufferBuilder;
-import com.mojang.blaze3d.vertex.MeshData;
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.blaze3d.vertex.Tesselator;
-import com.mojang.blaze3d.vertex.VertexBuffer;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import io.wifi.starrailexpress.client.mirror.MirrorReflectionManager;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
@@ -30,18 +26,14 @@ import it.unimi.dsi.fastutil.ints.IntSet;
 import net.fabricmc.fabric.api.client.rendering.v1.WorldRenderContext;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
-import net.minecraft.client.renderer.ItemBlockRenderTypes;
-import net.minecraft.client.renderer.LevelRenderer;
 import net.minecraft.client.renderer.RenderType;
-import net.minecraft.client.renderer.block.BlockRenderDispatcher;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.block.RenderShape;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
@@ -51,30 +43,31 @@ import org.joml.Matrix4f;
 
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.Iterator;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
 /**
- * 把 A–B 体积烤成网格，在上方叠有限份；实体只复制最近的一批。
+ * 把 A–B 体积用客户端 {@code setBlock} 叠到上方有限份；失活时还原。下方只画雾。
  */
 public final class VerticalLoopingMirrorClientScene {
+    private static final int BLOCK_FLAGS = Block.UPDATE_CLIENTS | Block.UPDATE_KNOWN_SHAPE;
     private static final int REHASH_INTERVAL = 20;
-    private static final float[] COPY_ALPHA = {1.0F, 0.72F};
 
     private final ClientLevel level;
     private final VerticalLoopingMirrorLoop loop;
+    private final int copiesUp;
+    private final Map<BlockPos, BlockState> overwritten = new HashMap<>();
     private final List<Int2ObjectMap<Entity>> layerCopies = new ArrayList<>();
-    private final List<CopyMesh> meshes = new ArrayList<>();
-    private Vec3 meshOrigin = Vec3.ZERO;
     private long sourceHash = Long.MIN_VALUE;
     private int rehashCountdown = 0;
 
     public VerticalLoopingMirrorClientScene(ClientLevel level, VerticalLoopingMirrorLoop loop) {
         this.level = level;
         this.loop = loop;
-        for (int i = 0; i < loop.copiesUp(); i++) {
+        this.copiesUp = effectiveCopies(level, loop);
+        for (int i = 0; i < copiesUp; i++) {
             layerCopies.add(new Int2ObjectOpenHashMap<>());
         }
     }
@@ -88,70 +81,123 @@ public final class VerticalLoopingMirrorClientScene {
             rehashCountdown = REHASH_INTERVAL;
             long hash = computeSourceHash();
             if (hash != sourceHash) {
+                rebuildBlocks();
                 sourceHash = hash;
-                rebuildMeshes();
             }
         }
         updateEntities();
     }
 
     public void close() {
+        restoreBlocks();
         for (Int2ObjectMap<Entity> copies : layerCopies) {
             discardAll(copies);
         }
-        releaseMeshes();
     }
 
     public void render(WorldRenderContext context) {
-        if (meshes.isEmpty() || context.matrixStack() == null) {
+        renderFog(context);
+    }
+
+    private void rebuildBlocks() {
+        restoreBlocks();
+        if (copiesUp <= 0) {
             return;
         }
-        PoseStack poseStack = context.matrixStack();
-        Vec3 camera = context.camera().getPosition();
         int period = loop.periodY();
-        for (int layer = 1; layer <= loop.copiesUp(); layer++) {
-            AABB copyBox = loop.cellBox().move(0.0D, layer * period, 0.0D);
-            if (context.frustum() != null && !context.frustum().isVisible(copyBox)) {
-                continue;
+        int written = 0;
+        BlockPos.MutableBlockPos source = new BlockPos.MutableBlockPos();
+        BlockPos.MutableBlockPos target = new BlockPos.MutableBlockPos();
+        int minBuild = level.getMinBuildHeight();
+        int maxBuild = level.getMaxBuildHeight();
+        for (int layer = 1; layer <= copiesUp
+                && written < VerticalLoopingMirrorLoop.MAX_COPY_BLOCKS; layer++) {
+            int dy = layer * period;
+            for (int y = loop.minY(); y <= loop.maxY()
+                    && written < VerticalLoopingMirrorLoop.MAX_COPY_BLOCKS; y++) {
+                int ty = y + dy;
+                if (ty < minBuild || ty >= maxBuild) {
+                    continue;
+                }
+                for (int x = loop.minX(); x <= loop.maxX()
+                        && written < VerticalLoopingMirrorLoop.MAX_COPY_BLOCKS; x++) {
+                    for (int z = loop.minZ(); z <= loop.maxZ()
+                            && written < VerticalLoopingMirrorLoop.MAX_COPY_BLOCKS; z++) {
+                        source.set(x, y, z);
+                        target.set(x, ty, z);
+                        if (writeCopy(source, target)) {
+                            written++;
+                        }
+                    }
+                }
             }
-            float alpha = COPY_ALPHA[Math.min(layer - 1, COPY_ALPHA.length - 1)];
-            drawCopy(context, poseStack, camera, layer * period, alpha);
         }
-        renderFog(context, poseStack, camera);
     }
 
-    private void drawCopy(WorldRenderContext context, PoseStack poseStack, Vec3 camera, int yOffset, float alpha) {
-        poseStack.pushPose();
-        poseStack.translate(
-                meshOrigin.x - camera.x,
-                meshOrigin.y + yOffset - camera.y,
-                meshOrigin.z - camera.z);
-        for (CopyMesh mesh : meshes) {
-            mesh.renderType().setupRenderState();
-            RenderSystem.enableBlend();
-            RenderSystem.defaultBlendFunc();
-            RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, alpha);
-            mesh.vbo().bind();
-            mesh.vbo().drawWithShader(
-                    poseStack.last().pose(),
-                    context.projectionMatrix(),
-                    RenderSystem.getShader());
-            VertexBuffer.unbind();
-            mesh.renderType().clearRenderState();
+    private boolean writeCopy(BlockPos source, BlockPos target) {
+        if (!level.hasChunkAt(source) || !level.hasChunkAt(target)) {
+            return false;
         }
-        RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
-        RenderSystem.disableBlend();
-        poseStack.popPose();
+        BlockState state = level.getBlockState(source);
+        if (state.getBlock() instanceof LoopingMirrorBlock) {
+            return false;
+        }
+        BlockState current = level.getBlockState(target);
+        if (current.getBlock() instanceof LoopingMirrorBlock) {
+            return false;
+        }
+        if (state.isAir() && current.isAir()) {
+            return false;
+        }
+        overwritten.putIfAbsent(target.immutable(), current);
+        if (current != state) {
+            level.setBlock(target, state, BLOCK_FLAGS, 0);
+        }
+        return true;
     }
 
-    private void renderFog(WorldRenderContext context, PoseStack poseStack, Vec3 camera) {
-        if (context.consumers() == null) {
+    private void restoreBlocks() {
+        for (Map.Entry<BlockPos, BlockState> entry : overwritten.entrySet()) {
+            if (level.hasChunkAt(entry.getKey())) {
+                BlockState current = level.getBlockState(entry.getKey());
+                if (current.getBlock() instanceof LoopingMirrorBlock) {
+                    continue;
+                }
+                if (current != entry.getValue()) {
+                    level.setBlock(entry.getKey(), entry.getValue(), BLOCK_FLAGS, 0);
+                }
+            }
+        }
+        overwritten.clear();
+    }
+
+    private long computeSourceHash() {
+        long hash = 1125899906842597L;
+        BlockPos.MutableBlockPos cursor = new BlockPos.MutableBlockPos();
+        for (int y = loop.minY(); y <= loop.maxY(); y++) {
+            for (int x = loop.minX(); x <= loop.maxX(); x++) {
+                for (int z = loop.minZ(); z <= loop.maxZ(); z++) {
+                    cursor.set(x, y, z);
+                    int id = level.hasChunkAt(cursor)
+                            ? System.identityHashCode(level.getBlockState(cursor))
+                            : 0;
+                    hash = hash * 31L + id;
+                }
+            }
+        }
+        return hash;
+    }
+
+    private void renderFog(WorldRenderContext context) {
+        if (context.consumers() == null || context.matrixStack() == null) {
             return;
         }
         AABB fog = loop.fogBox();
         if (context.frustum() != null && !context.frustum().isVisible(fog)) {
             return;
         }
+        PoseStack poseStack = context.matrixStack();
+        Vec3 camera = context.camera().getPosition();
         poseStack.pushPose();
         poseStack.translate(-camera.x, -camera.y, -camera.z);
         Matrix4f matrix = poseStack.last().pose();
@@ -208,134 +254,10 @@ public final class VerticalLoopingMirrorClientScene {
                 .setNormal(0.0F, 1.0F, 0.0F);
     }
 
-    private void rebuildMeshes() {
-        if (!RenderSystem.isOnRenderThread()) {
-            RenderSystem.recordRenderCall(this::rebuildMeshesOnThread);
-            return;
-        }
-        rebuildMeshesOnThread();
-    }
-
-    private void rebuildMeshesOnThread() {
-        RenderSystem.assertOnRenderThread();
-        releaseMeshesOnThread();
-        meshOrigin = new Vec3(loop.minX(), loop.minY(), loop.minZ());
-        Map<RenderType, List<BlockPos>> byType = new LinkedHashMap<>();
-        int counted = 0;
-        BlockPos.MutableBlockPos cursor = new BlockPos.MutableBlockPos();
-        for (int y = loop.minY(); y <= loop.maxY() && counted < VerticalLoopingMirrorLoop.MAX_MESH_BLOCKS; y++) {
-            for (int x = loop.minX(); x <= loop.maxX() && counted < VerticalLoopingMirrorLoop.MAX_MESH_BLOCKS; x++) {
-                for (int z = loop.minZ(); z <= loop.maxZ() && counted < VerticalLoopingMirrorLoop.MAX_MESH_BLOCKS; z++) {
-                    cursor.set(x, y, z);
-                    if (!level.hasChunkAt(cursor)) {
-                        continue;
-                    }
-                    BlockState state = level.getBlockState(cursor);
-                    if (state.isAir()
-                            || state.getRenderShape() != RenderShape.MODEL
-                            || state.getBlock() instanceof LoopingMirrorBlock
-                            || isOccluded(cursor)) {
-                        continue;
-                    }
-                    RenderType renderType = ItemBlockRenderTypes.getRenderType(state, false);
-                    byType.computeIfAbsent(renderType, ignored -> new ArrayList<>()).add(cursor.immutable());
-                    counted++;
-                }
-            }
-        }
-        if (byType.isEmpty()) {
-            return;
-        }
-        BlockRenderDispatcher dispatcher = Minecraft.getInstance().getBlockRenderer();
-        for (Map.Entry<RenderType, List<BlockPos>> entry : byType.entrySet()) {
-            RenderType renderType = entry.getKey();
-            BufferBuilder builder = Tesselator.getInstance().begin(renderType.mode(), renderType.format());
-            PoseStack poseStack = new PoseStack();
-            for (BlockPos pos : entry.getValue()) {
-                BlockState state = level.getBlockState(pos);
-                poseStack.pushPose();
-                poseStack.translate(
-                        pos.getX() - meshOrigin.x,
-                        pos.getY() - meshOrigin.y,
-                        pos.getZ() - meshOrigin.z);
-                dispatcher.getModelRenderer().renderModel(
-                        poseStack.last(),
-                        builder,
-                        state,
-                        dispatcher.getBlockModel(state),
-                        1.0F, 1.0F, 1.0F,
-                        LevelRenderer.getLightColor(level, pos),
-                        OverlayTexture.NO_OVERLAY);
-                poseStack.popPose();
-            }
-            try (MeshData mesh = builder.buildOrThrow()) {
-                VertexBuffer vbo = new VertexBuffer(VertexBuffer.Usage.STATIC);
-                vbo.bind();
-                vbo.upload(mesh);
-                VertexBuffer.unbind();
-                meshes.add(new CopyMesh(renderType, vbo));
-            } catch (IllegalStateException ignored) {
-                // 本层没有真正写出顶点时跳过
-            }
-        }
-    }
-
-    private void releaseMeshes() {
-        if (!RenderSystem.isOnRenderThread()) {
-            RenderSystem.recordRenderCall(this::releaseMeshesOnThread);
-            return;
-        }
-        releaseMeshesOnThread();
-    }
-
-    private void releaseMeshesOnThread() {
-        RenderSystem.assertOnRenderThread();
-        for (CopyMesh mesh : meshes) {
-            mesh.vbo().close();
-        }
-        meshes.clear();
-    }
-
-    private long computeSourceHash() {
-        long hash = 1125899906842597L;
-        BlockPos.MutableBlockPos cursor = new BlockPos.MutableBlockPos();
-        int stride = sourceStride();
-        for (int y = loop.minY(); y <= loop.maxY(); y += stride) {
-            for (int x = loop.minX(); x <= loop.maxX(); x += stride) {
-                for (int z = loop.minZ(); z <= loop.maxZ(); z += stride) {
-                    cursor.set(x, y, z);
-                    int id = level.hasChunkAt(cursor)
-                            ? System.identityHashCode(level.getBlockState(cursor))
-                            : 0;
-                    hash = hash * 31L + id;
-                }
-            }
-        }
-        return hash;
-    }
-
-    private boolean isOccluded(BlockPos pos) {
-        for (Direction direction : Direction.values()) {
-            BlockPos neighbour = pos.relative(direction);
-            if (!level.hasChunkAt(neighbour) || !level.getBlockState(neighbour).isSolidRender(level, neighbour)) {
-                return false;
-            }
-        }
-        return true;
-    }
-
-    private int sourceStride() {
-        int cells = loop.sizeX() * loop.sizeY() * loop.sizeZ();
-        if (cells > 8192) {
-            return 3;
-        }
-        if (cells > 3072) {
-            return 2;
-        }
-        return 1;
-    }
-
     private void updateEntities() {
+        if (copiesUp <= 0) {
+            return;
+        }
         List<Entity> sources = level.getEntities((Entity) null, loop.cellBox(),
                 entity -> entity != null && entity.getId() >= 0 && MirrorReflectionManager.canReflect(entity));
         if (sources.size() > VerticalLoopingMirrorLoop.MAX_ENTITY_SOURCES) {
@@ -350,7 +272,7 @@ public final class VerticalLoopingMirrorClientScene {
             seen.add(src.getId());
         }
         int period = loop.periodY();
-        for (int layer = 1; layer <= loop.copiesUp(); layer++) {
+        for (int layer = 1; layer <= copiesUp; layer++) {
             Int2ObjectMap<Entity> copies = layerCopies.get(layer - 1);
             for (Entity src : sources) {
                 Entity copy = copies.get(src.getId());
@@ -424,6 +346,12 @@ public final class VerticalLoopingMirrorClientScene {
         copies.clear();
     }
 
-    private record CopyMesh(RenderType renderType, VertexBuffer vbo) {
+    private static int effectiveCopies(ClientLevel level, VerticalLoopingMirrorLoop loop) {
+        int period = loop.periodY();
+        if (period <= 0) {
+            return 0;
+        }
+        int maxByHeight = (level.getMaxBuildHeight() - 1 - loop.maxY()) / period;
+        return Math.max(0, Math.min(loop.copiesUp(), maxByHeight));
     }
 }

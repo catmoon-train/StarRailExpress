@@ -337,6 +337,11 @@ public class SREClient implements ClientModInitializer {
         EntityRendererRegistry.register(TMMEntities.ZIPLINE_RIDER, NoopRenderer::new);
         EntityRendererRegistry.register(TMMEntities.CRASH_PLANE,
                 net.exmo.sre.planecrash.client.CrashPlaneEntityRenderer::new);
+        EntityRendererRegistry.register(TMMEntities.PURPLE_MONSTER,
+                io.wifi.starrailexpress.client.render.entity.PurpleMonsterRenderer::new);
+        EntityRendererRegistry.register(TMMEntities.PURPLE_MONSTER_SECOND,
+                io.wifi.starrailexpress.client.render.entity.PurpleMonsterSecondRenderer::new);
+        net.exmo.sre.planecrash.client.PlaneCrashFakeFlames.register();
 
         // Register entity model layers
         TMMModelLayers.initialize();
@@ -483,6 +488,7 @@ public class SREClient implements ClientModInitializer {
             trainComponent = null;
             moodComponent = null;
             timeComponent = null;
+            io.wifi.starrailexpress.anticheat.ClickAntiCheatClient.clear();
         });
         // Lock options
         OptionLocker.overrideOption("gamma", 0d);
@@ -514,6 +520,9 @@ public class SREClient implements ClientModInitializer {
                 stam.starrailexpress$setStamina((float) value);
             }
         });
+        ClientPlayNetworking.registerGlobalReceiver(io.wifi.starrailexpress.network.ClickLockoutPayload.TYPE,
+                (payload, context) -> io.wifi.starrailexpress.anticheat.ClickAntiCheatClient
+                        .applyLockout(payload.remainingMillis()));
         ClientPlayNetworking.registerGlobalReceiver(IsLobbyConfigPayload.ID, (payload, context) -> {
             SREClient.isInLobby = payload.isLobby();
             SRE.isLobby = payload.isLobby();
@@ -1022,8 +1031,15 @@ public class SREClient implements ClientModInitializer {
                 });
         ClientPlayNetworking.registerGlobalReceiver(
                 net.exmo.sre.planecrash.PlaneCrashTremorPayload.ID, (payload, context) -> {
-                    context.client().execute(() -> net.exmo.sre.planecrash.client.PlaneCrashClientEffects
-                            .startTremor(payload.tiltYaw(), payload.durationTicks()));
+                    context.client().execute(() -> {
+                        if (payload.warning()) {
+                            net.exmo.sre.planecrash.client.PlaneCrashClientEffects
+                                    .startWarning(payload.tiltYaw(), payload.durationTicks());
+                        } else {
+                            net.exmo.sre.planecrash.client.PlaneCrashClientEffects
+                                    .startTremor(payload.tiltYaw(), payload.durationTicks());
+                        }
+                    });
                 });
 
         // Subtitle 字幕报幕

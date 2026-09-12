@@ -64,9 +64,14 @@ public class MirrorReunionSceneManager {
 
     private static final int Y_DOWN = 96;
     private static final int Y_UP = 160;
-    private static final int COLLAPSE_START_TICKS = 80;
-    private static final int COLLAPSE_END_TICKS = 200;
-    private static final int COLLAPSE_DURATION_TICKS = COLLAPSE_END_TICKS - COLLAPSE_START_TICKS;
+    private static final int DEFAULT_COLLAPSE_START_TICKS = 80;
+    private static final int DEFAULT_COLLAPSE_END_TICKS = 200;
+    private static final int DEFAULT_COLLAPSE_DURATION_TICKS = DEFAULT_COLLAPSE_END_TICKS - DEFAULT_COLLAPSE_START_TICKS;
+    /** 默认重力下镜头落到 {@link #MAX_CAMERA_FALL} 所需 tick。 */
+    private static final int DEFAULT_CAMERA_FALL_TICKS = 51;
+    private static final int DEFAULT_MOTION_TICKS = DEFAULT_COLLAPSE_END_TICKS + DEFAULT_CAMERA_FALL_TICKS;
+    /** 压缩时间线时尽量留给沉底黑屏的时间（与结局彩蛋 +1.5s 对齐）。 */
+    private static final int RESERVED_BLACK_TICKS = 30;
     private static final int RESTORE_DURATION_TICKS = 32;
     private static final int SCAN_BUDGET = 20000;
     private static final int FALL_STARTS_PER_TICK = 320;
@@ -75,6 +80,7 @@ public class MirrorReunionSceneManager {
     private static final int MAX_RISING = 72;
     private static final float GRAVITY = 0.055f;
     private static final float CAMERA_GRAVITY = 0.038f;
+    private static final float CAMERA_FALL_VY0 = -0.12f;
     private static final float MAX_CAMERA_FALL = 56.0f;
     private static final float NEAR_ANIM_DIST = 48.0f;
     private static final float NEAR_ANIM_DIST_SQ = NEAR_ANIM_DIST * NEAR_ANIM_DIST;
@@ -120,6 +126,11 @@ public class MirrorReunionSceneManager {
     private float cameraFallPrevY;
     private float cameraFallVy;
     private float cameraReturnStartY;
+    private int collapseStartTicks = DEFAULT_COLLAPSE_START_TICKS;
+    private int collapseEndTicks = DEFAULT_COLLAPSE_END_TICKS;
+    private int collapseDurationTicks = DEFAULT_COLLAPSE_DURATION_TICKS;
+    private int fallStartsPerTick = FALL_STARTS_PER_TICK;
+    private float cameraGravity = CAMERA_GRAVITY;
     private int tickCounter = 0;
     private int radius = 40;
     private int scanDx;
@@ -167,11 +178,11 @@ public class MirrorReunionSceneManager {
             return 0.0f;
         }
         float t = tickCounter + partialTick;
-        if (t < COLLAPSE_START_TICKS) {
-            return 0.32f + 0.45f * (t / COLLAPSE_START_TICKS);
+        if (t < collapseStartTicks) {
+            return 0.32f + 0.45f * (t / Math.max(1.0f, collapseStartTicks));
         }
-        if (t < COLLAPSE_END_TICKS) {
-            float p = (t - COLLAPSE_START_TICKS) / COLLAPSE_DURATION_TICKS;
+        if (t < collapseEndTicks) {
+            float p = (t - collapseStartTicks) / Math.max(1.0f, collapseDurationTicks);
             return 0.7f + 0.45f * p;
         }
         return 1.05f;
@@ -184,10 +195,11 @@ public class MirrorReunionSceneManager {
         if (!active) {
             return 0.0f;
         }
-        if (tickCounter < 36) {
-            return 0.75f * (tickCounter / 36.0f);
+        int filterIn = Math.max(1, Math.min(36, collapseStartTicks));
+        if (tickCounter < filterIn) {
+            return 0.75f * (tickCounter / (float) filterIn);
         }
-        if (tickCounter < COLLAPSE_END_TICKS) {
+        if (tickCounter < collapseEndTicks) {
             return 0.8f + 0.2f * collapseProgress();
         }
         return 1.0f;
@@ -252,6 +264,7 @@ public class MirrorReunionSceneManager {
         affectedSections.clear();
         fallCells.clear();
         resetCameraFall();
+        retargetTimeline(mc.player);
         publishHidden();
     }
 
@@ -330,11 +343,11 @@ public class MirrorReunionSceneManager {
         tickCounter++;
         ClientLevel level = mc.level;
         tickScan(level);
-        if (tickCounter == COLLAPSE_START_TICKS && !collapseStartedSound) {
+        if (tickCounter == collapseStartTicks && !collapseStartedSound) {
             collapseStartedSound = true;
             playLocal(level, origin, 0.55f, 0.5f);
         }
-        if (tickCounter >= COLLAPSE_START_TICKS) {
+        if (tickCounter >= collapseStartTicks) {
             publishWaveRadius(NEAR_ANIM_DIST * (1.0f - collapseProgress()));
             tickCollapse(level);
             spawnFallsOnWave(level);
@@ -393,7 +406,7 @@ public class MirrorReunionSceneManager {
             horizDist = next;
         }
         horizDist[n - 1] = dist;
-        if (active && tickCounter >= COLLAPSE_START_TICKS && shouldAlreadyFall(n - 1)) {
+        if (active && tickCounter >= collapseStartTicks && shouldAlreadyFall(n - 1)) {
             beginFall(level, packed, state);
         }
     }
@@ -415,7 +428,7 @@ public class MirrorReunionSceneManager {
         float progress = collapseProgress();
         int target = (int) (orderSize * progress);
         int started = 0;
-        while (orderCursor < target && orderCursor < orderSize && started < FALL_STARTS_PER_TICK) {
+        while (orderCursor < target && orderCursor < orderSize && started < fallStartsPerTick) {
             int index = order[orderCursor++];
             long packed = packedPos.getLong(index);
             BlockPos pos = BlockPos.of(packed);
@@ -428,9 +441,63 @@ public class MirrorReunionSceneManager {
     }
 
     private float collapseProgress() {
-        int elapsed = tickCounter - COLLAPSE_START_TICKS;
-        float linear = Mth.clamp(elapsed / (float) COLLAPSE_DURATION_TICKS, 0.0f, 1.0f);
+        int elapsed = tickCounter - collapseStartTicks;
+        float linear = Mth.clamp(elapsed / (float) Math.max(1, collapseDurationTicks), 0.0f, 1.0f);
         return linear * linear * (3.0f - 2.0f * linear);
+    }
+
+    /**
+     * 药水短于默认崩解时间线时，按剩余时长压缩预热/崩解/下坠，保证碎完世界后再留一点黑屏。
+     */
+    private void retargetTimeline(LocalPlayer player) {
+        resetTimeline();
+        var effect = player.getEffect(ModEffects.MIRROR_REUNION);
+        if (effect == null) {
+            return;
+        }
+        int remaining = effect.getDuration();
+        if (remaining >= DEFAULT_MOTION_TICKS) {
+            return;
+        }
+        int minWarmup = 4;
+        int minCollapse = 8;
+        int minCamera = 8;
+        int minMotion = minWarmup + minCollapse + minCamera;
+        int reservedBlack = Math.min(RESERVED_BLACK_TICKS, Math.max(0, remaining - minMotion));
+        int motionBudget = Math.max(minMotion, remaining - reservedBlack);
+
+        int cameraBudget = Math.max(minCamera,
+                Math.round(motionBudget * (DEFAULT_CAMERA_FALL_TICKS / (float) DEFAULT_MOTION_TICKS)));
+        int collapseBudget = motionBudget - cameraBudget;
+        if (collapseBudget < minWarmup + minCollapse) {
+            collapseBudget = minWarmup + minCollapse;
+            cameraBudget = Math.max(minCamera, motionBudget - collapseBudget);
+        }
+
+        collapseStartTicks = Math.max(minWarmup, Math.round(
+                collapseBudget * (DEFAULT_COLLAPSE_START_TICKS / (float) DEFAULT_COLLAPSE_END_TICKS)));
+        collapseDurationTicks = Math.max(minCollapse, collapseBudget - collapseStartTicks);
+        collapseEndTicks = collapseStartTicks + collapseDurationTicks;
+        cameraGravity = gravityForFall(MAX_CAMERA_FALL, CAMERA_FALL_VY0, cameraBudget);
+        float speed = DEFAULT_COLLAPSE_DURATION_TICKS / (float) collapseDurationTicks;
+        fallStartsPerTick = Math.max(FALL_STARTS_PER_TICK, Math.round(FALL_STARTS_PER_TICK * speed));
+    }
+
+    private void resetTimeline() {
+        collapseStartTicks = DEFAULT_COLLAPSE_START_TICKS;
+        collapseEndTicks = DEFAULT_COLLAPSE_END_TICKS;
+        collapseDurationTicks = DEFAULT_COLLAPSE_DURATION_TICKS;
+        fallStartsPerTick = FALL_STARTS_PER_TICK;
+        cameraGravity = CAMERA_GRAVITY;
+    }
+
+    private static float gravityForFall(float maxFall, float vy0, int ticks) {
+        int n = Math.max(1, ticks);
+        float need = maxFall + vy0 * n;
+        if (need <= 0.02f) {
+            return CAMERA_GRAVITY;
+        }
+        return need / (n * (n + 1) * 0.5f);
     }
 
     private void ensureOrder() {
@@ -850,12 +917,12 @@ public class MirrorReunionSceneManager {
         if (!cameraFalling && isFloorCollapsed(mc.player)) {
             cameraFalling = true;
             controlLocked = true;
-            cameraFallVy = -0.12f;
+            cameraFallVy = CAMERA_FALL_VY0;
         }
         if (!cameraFalling) {
             return;
         }
-        cameraFallVy -= CAMERA_GRAVITY;
+        cameraFallVy -= cameraGravity;
         cameraFallY += cameraFallVy;
         if (cameraFallY < -MAX_CAMERA_FALL) {
             cameraFallY = -MAX_CAMERA_FALL;
@@ -1035,6 +1102,7 @@ public class MirrorReunionSceneManager {
         restoring = false;
         scanDone = false;
         collapseStartedSound = false;
+        resetTimeline();
         tickCounter = 0;
         orderSize = 0;
         orderCursor = 0;

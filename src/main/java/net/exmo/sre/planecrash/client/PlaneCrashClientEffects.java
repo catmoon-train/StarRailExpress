@@ -23,6 +23,7 @@ import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.network.chat.Component;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.Mth;
@@ -31,7 +32,7 @@ import net.minecraft.world.phys.Vec3;
 import org.joml.Quaternionf;
 
 /**
- * 飞机事件的客户端反馈：镜头抖动 / 倾泻、玩家模型统一倾斜、碎玻璃与倒塌音效。
+ * 飞机事件的客户端反馈：震颤预警、镜头抖动 / 倾泻、玩家模型统一倾斜、碎玻璃与倒塌音效。
  */
 public final class PlaneCrashClientEffects {
     private static final float MAX_ROLL = 11.0F;
@@ -39,54 +40,84 @@ public final class PlaneCrashClientEffects {
 
     private static int tremorTicks;
     private static int tremorDuration;
+    private static int warningTicks;
+    private static int warningDuration;
     private static float tiltYaw;
 
     private PlaneCrashClientEffects() {
     }
 
+    public static void startWarning(float yaw, int durationTicks) {
+        if (tremorTicks > 0) {
+            return;
+        }
+        tiltYaw = yaw;
+        warningDuration = Math.max(20, durationTicks);
+        warningTicks = warningDuration;
+        playWarningSounds();
+        spawnDust(8, 2.4D);
+        showWarningMessage();
+    }
+
     public static void startTremor(float yaw, int durationTicks) {
+        warningTicks = 0;
+        warningDuration = 0;
         tremorDuration = Math.max(8, durationTicks);
         tremorTicks = tremorDuration;
         tiltYaw = yaw;
         playTremorSounds();
-        spawnDust();
+        spawnDust(18, 4.0D);
+        PlaneCrashFakeFlames.onTremor();
     }
 
     public static void tick() {
         if (tremorTicks > 0) {
             tremorTicks--;
         }
+        if (warningTicks > 0) {
+            warningTicks--;
+            tickWarning();
+        }
+        PlaneCrashFakeFlames.tick();
     }
 
     public static void clear() {
         tremorTicks = 0;
         tremorDuration = 0;
+        warningTicks = 0;
+        warningDuration = 0;
+        PlaneCrashFakeFlames.clear();
     }
 
     public static boolean isTremorActive() {
-        return tremorTicks > 0;
+        return tremorTicks > 0 || warningTicks > 0;
     }
 
     /** 由 Camera mixin 调用：返回抖动偏移，并直接把世界倾泻写进相机四元数。 */
     public static CameraJitter computeCamera(Camera camera, float tickDelta) {
-        if (tremorTicks <= 0) {
+        if (tremorTicks <= 0 && warningTicks <= 0) {
             return CameraJitter.NONE;
         }
-        float intensity = intensity(tickDelta);
+        boolean warningOnly = tremorTicks <= 0;
+        float intensity = warningOnly ? warningIntensity(tickDelta) : intensity(tickDelta);
         float yawJitter = 0.0F;
         float pitchJitter = 0.0F;
         double ox = 0.0D;
         double oy = 0.0D;
         double oz = 0.0D;
         if (!SREClientConfig.instance().disableScreenShake) {
-            float t = tremorDuration - tremorTicks + tickDelta;
-            yawJitter = Mth.sin(t * 1.7F) * 1.35F * intensity;
-            pitchJitter = Mth.cos(t * 2.1F) * 1.05F * intensity;
-            ox = Mth.sin(t * 2.4F) * 0.08F * intensity;
-            oy = Mth.cos(t * 1.9F) * 0.05F * intensity;
-            oz = Mth.sin(t * 1.3F) * 0.08F * intensity;
+            float t = warningOnly
+                    ? warningDuration - warningTicks + tickDelta
+                    : tremorDuration - tremorTicks + tickDelta;
+            float shake = warningOnly ? 0.28F : 1.0F;
+            yawJitter = Mth.sin(t * 1.7F) * 1.35F * intensity * shake;
+            pitchJitter = Mth.cos(t * 2.1F) * 1.05F * intensity * shake;
+            ox = Mth.sin(t * 2.4F) * 0.16F * intensity * shake;
+            oy = Mth.cos(t * 1.9F) * 0.10F * intensity * shake;
+            oz = Mth.sin(t * 1.3F) * 0.16F * intensity * shake;
         }
-        float worldRoll = worldSpaceRoll(camera.getYRot()) * MAX_ROLL * intensity;
+        float rollScale = warningOnly ? 0.35F : 1.0F;
+        float worldRoll = worldSpaceRoll(camera.getYRot()) * MAX_ROLL * intensity * rollScale;
         return new CameraJitter(yawJitter, pitchJitter, ox, oy, oz, worldRoll);
     }
 
@@ -101,10 +132,12 @@ public final class PlaneCrashClientEffects {
     }
 
     public static void applyPlayerLean(PoseStack poseStack, LivingEntity entity, float tickDelta) {
-        if (tremorTicks <= 0) {
+        if (tremorTicks <= 0 && warningTicks <= 0) {
             return;
         }
-        float lean = MAX_LEAN * intensity(tickDelta);
+        float lean = tremorTicks > 0
+                ? MAX_LEAN * intensity(tickDelta)
+                : MAX_LEAN * warningIntensity(tickDelta) * 0.4F;
         if (lean < 0.05F) {
             return;
         }
@@ -118,6 +151,56 @@ public final class PlaneCrashClientEffects {
         float fadeIn = Mth.clamp((tremorDuration - remaining) / 4.0F, 0.0F, 1.0F);
         float fadeOut = Mth.clamp(remaining / 10.0F, 0.0F, 1.0F);
         return fadeIn * fadeOut;
+    }
+
+    /** 预警由轻到重，接到正式震颤前会明显起来，但不会突然炸开。 */
+    private static float warningIntensity(float tickDelta) {
+        float remaining = warningTicks - tickDelta;
+        float progress = Mth.clamp(1.0F - remaining / Math.max(1.0F, warningDuration), 0.0F, 1.0F);
+        return 0.10F + 0.32F * progress * progress;
+    }
+
+    private static void tickWarning() {
+        Minecraft minecraft = Minecraft.getInstance();
+        LocalPlayer player = minecraft.player;
+        if (player == null || minecraft.level == null) {
+            return;
+        }
+        if (warningTicks % 16 == 0) {
+            showWarningMessage();
+        }
+        if (warningTicks % 12 == 0) {
+            spawnDust(3, 1.8D);
+            float progress = 1.0F - warningTicks / (float) Math.max(1, warningDuration);
+            player.playNotifySound(SoundEvents.WOOD_HIT, SoundSource.AMBIENT,
+                    0.18F + progress * 0.22F, 0.55F + player.getRandom().nextFloat() * 0.15F);
+            if (player.getRandom().nextBoolean()) {
+                player.playNotifySound(SoundEvents.GRAVEL_HIT, SoundSource.AMBIENT,
+                        0.12F + progress * 0.12F, 0.45F);
+            }
+        }
+        if (warningTicks == 18) {
+            player.playNotifySound(SoundEvents.MINECART_RIDING, SoundSource.AMBIENT, 0.28F, 0.4F);
+        }
+    }
+
+    private static void playWarningSounds() {
+        Minecraft minecraft = Minecraft.getInstance();
+        LocalPlayer player = minecraft.player;
+        if (player == null) {
+            return;
+        }
+        player.playNotifySound(SoundEvents.MINECART_RIDING, SoundSource.AMBIENT, 0.32F, 0.42F);
+        player.playNotifySound(SoundEvents.WOOD_HIT, SoundSource.AMBIENT, 0.35F, 0.58F);
+        player.playNotifySound(SoundEvents.STONE_HIT, SoundSource.AMBIENT, 0.18F, 0.4F);
+    }
+
+    private static void showWarningMessage() {
+        LocalPlayer player = Minecraft.getInstance().player;
+        if (player != null) {
+            player.displayClientMessage(
+                    Component.translatable("message.starrailexpress.plane_crash.tremor_warn"), true);
+        }
     }
 
     /**
@@ -146,19 +229,19 @@ public final class PlaneCrashClientEffects {
         player.playNotifySound(SoundEvents.GENERIC_EXPLODE.value(), SoundSource.AMBIENT, 0.35F, 0.45F);
     }
 
-    private static void spawnDust() {
+    private static void spawnDust(int count, double spread) {
         Minecraft minecraft = Minecraft.getInstance();
         LocalPlayer player = minecraft.player;
         if (player == null || minecraft.level == null) {
             return;
         }
         Vec3 pos = player.position();
-        for (int i = 0; i < 18; i++) {
+        for (int i = 0; i < count; i++) {
             minecraft.level.addParticle(ParticleTypes.CAMPFIRE_COSY_SMOKE,
-                    pos.x + (player.getRandom().nextDouble() - 0.5D) * 4.0D,
+                    pos.x + (player.getRandom().nextDouble() - 0.5D) * spread,
                     pos.y + player.getRandom().nextDouble() * 1.6D,
-                    pos.z + (player.getRandom().nextDouble() - 0.5D) * 4.0D,
-                    0.0D, 0.03D, 0.0D);
+                    pos.z + (player.getRandom().nextDouble() - 0.5D) * spread,
+                    0.0D, 0.02D, 0.0D);
         }
     }
 }

@@ -184,6 +184,7 @@ public class SREEventRegister {
             io.wifi.starrailexpress.shop.ShopPriceSyncServer.syncTo(handler.player);
         });
         ServerPlayConnectionEvents.DISCONNECT.register((handler, server) -> {
+            io.wifi.starrailexpress.anticheat.ClickAntiCheat.onPlayerDisconnect(handler.player.getUUID());
             CustomRoleServerNetwork.onPlayerDisconnect(handler.player.getUUID());
             SREGameWorldComponent gameWorldComponent = SREGameWorldComponent.KEY.get(handler.player.level());
             var psychocca = SREPlayerPsychoComponent.KEY.get(handler.player);

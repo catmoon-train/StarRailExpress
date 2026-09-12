@@ -68,6 +68,9 @@ public record GunShootPayload(int target) implements CustomPacketPayload {
         @Override
         public void receive(@NotNull GunShootPayload payload, ServerPlayNetworking.@NotNull Context context) {
             ServerPlayer player = context.player();
+            if (io.wifi.starrailexpress.anticheat.ClickAntiCheat.isLocked(player)) {
+                return;
+            }
             ItemStack mainHandStack = player.getMainHandItem();
             if (player.isSpectator()) {
                 return;

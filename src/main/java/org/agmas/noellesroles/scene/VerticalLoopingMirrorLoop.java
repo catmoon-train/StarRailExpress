@@ -28,14 +28,14 @@ import java.util.Objects;
 /**
  * 上下循环：勾选 A、B 两个对角后，这一段竖向空间按高度循环。
  *
- * <p>穿过顶面或底面会按同一 XZ 传送到另一端；客户端只在上方叠有限份场景，下方用雾收口。
+ * <p>穿过顶面或底面会按同一 XZ 传送到另一端；客户端用 setBlock 在上方叠有限份，下方用雾收口。
  */
 public final class VerticalLoopingMirrorLoop {
     public static final int MAX_SIZE_XZ = 24;
     public static final int MAX_SIZE_Y = 32;
     public static final int MIN_SIZE_Y = 2;
     public static final int MAX_UP_COPIES = 2;
-    public static final int MAX_MESH_BLOCKS = 2560;
+    public static final int MAX_COPY_BLOCKS = 4096;
     public static final int MAX_ENTITY_SOURCES = 16;
     public static final int FOG_DEPTH = 10;
 

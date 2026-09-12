@@ -297,7 +297,7 @@
     "bellMeetingCooldown": 120,                                // 摇铃冷却(秒), 两次摇铃间隔          默认: 120
 
     // --- 飞机坠落事件 ---
-    "planeCrashEventEnabled": false,                           // 开局刷新飞机撞向地图中心            默认: false
+    "planeCrashEventEnabled": false,                           // 开局飞机坠落+震颤+室内客户端假火     默认: false
     "planeCrashTiltYaw": 0.0,                                  // 震颤时玩家统一倾泻朝向(度)          默认: 0 (南)
     "planeCrashSpawnDistance": 0.0,                            // 刷新距离, 0=按游戏区自动估算
     "planeCrashSpawnHeight": 36.0                              // 相对游戏区顶的高度

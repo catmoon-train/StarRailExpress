@@ -117,7 +117,7 @@
   "item.noellesroles.signature_paper.desc": "明星職業專屬道具，右鍵可以簽名，蹲下右鍵簽生死狀，具體詳見明星職業介紹。",
   "item.noellesroles.life_and_death_shape.desc": "生死狀，可以讓明星為你抵擋一次傷害。",
   "item.noellesroles.signed_paper.desc": "簽名紙，擁有簽名紙的玩家能持續透視明星的位置，並在看向明星時獲得速度1效果。",
-  "item.noellesroles.bowen_badge.desc": "歐拉一拳，承太郎專屬。右鍵進入攻擊期間，綁定第一個打到的目標；目標無法使用物品。6秒內右鍵攻擊20次即可擊殺，每次攻擊都會使目標受擊。超時取消並進入一半冷卻。持有時手臂會被金色漸變包裹。仍可右鍵打開列車門。",
+  "item.noellesroles.bowen_badge.desc": "歐拉一拳，承太郎專屬。右鍵進入攻擊期間，綁定第一個打到的目標；目標無法移動、無法使用物品，並始終被固定在使用者前方。6秒內右鍵攻擊20次即可擊殺，每次攻擊都會使目標受擊。超時取消並進入一半冷卻。持有時手臂會被金色漸變包裹。仍可右鍵打開列車門。",
   "item.noellesroles.shisiye.desc": "女僕咲夜職業專屬道具，飲用後獲得速度10。",
   "item.noellesroles.problem_set.desc": "習題集，右鍵開始做題，做題正確會給予獎勵，失敗會給予懲罰。",
   "item.noellesroles.antidote.desc": "右鍵對玩家使用，可以使玩家解毒，使用後進入cd，當場上存在疫使時cd更快。",

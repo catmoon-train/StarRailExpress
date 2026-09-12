@@ -20,7 +20,7 @@ package org.agmas.noellesroles.game.modifier.fatskinny;
  */
 public final class FatSkinnyPushLogic {
     /** 胖子模型左右（水平）拉伸倍率。高度不变。 */
-    public static final float FAT_HORIZONTAL_SCALE = 1.8F;
+    public static final float FAT_HORIZONTAL_SCALE = 2.1F;
     /** 瘦子模型左右压扁倍率。高度不变。 */
     public static final float SKINNY_HORIZONTAL_SCALE = 0.45F;
 

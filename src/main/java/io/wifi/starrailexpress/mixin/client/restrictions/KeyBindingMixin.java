@@ -16,6 +16,7 @@
 package io.wifi.starrailexpress.mixin.client.restrictions;
 
 import com.llamalad7.mixinextras.injector.ModifyReturnValue;
+import io.wifi.starrailexpress.anticheat.ClickAntiCheatClient;
 import io.wifi.starrailexpress.api.RoleMethodDispatcher;
 import io.wifi.starrailexpress.client.SREClient;
 import io.wifi.starrailexpress.content.item.api.SREItemProperties.DropAndClearItem;
@@ -45,6 +46,10 @@ public abstract class KeyBindingMixin {
         if (player == null)
             return false;
         final var options = instance.options;
+        if (ClickAntiCheatClient.isLocked()
+                && (this.same(options.keyAttack) || this.same(options.keyUse))) {
+            return true;
+        }
         if (SREClient.isInLobby) {
             return false;
         }

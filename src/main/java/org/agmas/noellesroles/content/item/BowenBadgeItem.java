@@ -33,7 +33,7 @@ import org.agmas.noellesroles.role_data.vigilante.JojoRoleData;
 
 /**
  * 欧拉一拳：右键进入攻击期间，绑定第一个打到的目标，6 秒内右键 20 次即可击杀。
- * 开门等其他特性仍由方块侧检测本物品。
+ * 被绑定目标无法移动，并始终固定在使用者前方。开门等其他特性仍由方块侧检测本物品。
  */
 public class BowenBadgeItem extends Item implements AdventureUsable {
 

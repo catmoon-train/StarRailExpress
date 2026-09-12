@@ -13,7 +13,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package net.exmo.sre.planecrash;
+package io.wifi.starrailexpress.network;
 
 import io.wifi.starrailexpress.SRE;
 import net.minecraft.network.FriendlyByteBuf;
@@ -21,25 +21,22 @@ import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.resources.ResourceLocation;
 
-/** 服务端通知客户端播放震颤预警或正式震颤。 */
-public record PlaneCrashTremorPayload(float tiltYaw, int durationTicks, boolean warning) implements CustomPacketPayload {
-    public static final Type<PlaneCrashTremorPayload> ID = new Type<>(
-            ResourceLocation.fromNamespaceAndPath(SRE.MOD_ID, "plane_crash_tremor"));
-    public static final StreamCodec<FriendlyByteBuf, PlaneCrashTremorPayload> CODEC = StreamCodec
-            .ofMember(PlaneCrashTremorPayload::encode, PlaneCrashTremorPayload::decode);
+public record ClickLockoutPayload(int remainingMillis) implements CustomPacketPayload {
+    public static final ResourceLocation ID = ResourceLocation.fromNamespaceAndPath(SRE.MOD_ID, "click_lockout");
+    public static final Type<ClickLockoutPayload> TYPE = new Type<>(ID);
+    public static final StreamCodec<FriendlyByteBuf, ClickLockoutPayload> CODEC =
+            StreamCodec.ofMember(ClickLockoutPayload::write, ClickLockoutPayload::read);
 
     @Override
     public Type<? extends CustomPacketPayload> type() {
-        return ID;
+        return TYPE;
     }
 
-    public void encode(FriendlyByteBuf buf) {
-        buf.writeFloat(tiltYaw);
-        buf.writeVarInt(durationTicks);
-        buf.writeBoolean(warning);
+    public void write(FriendlyByteBuf buf) {
+        buf.writeVarInt(remainingMillis);
     }
 
-    public static PlaneCrashTremorPayload decode(FriendlyByteBuf buf) {
-        return new PlaneCrashTremorPayload(buf.readFloat(), buf.readVarInt(), buf.readBoolean());
+    public static ClickLockoutPayload read(FriendlyByteBuf buf) {
+        return new ClickLockoutPayload(buf.readVarInt());
     }
 }
