@@ -24,7 +24,6 @@ import io.wifi.starrailexpress.event.AllowItemShowInHand;
 import io.wifi.starrailexpress.game.GameUtils;
 import io.wifi.starrailexpress.index.TMMItems;
 import io.wifi.starrailexpress.index.tag.TMMItemTags;
-import io.wifi.starrailexpress.morph.MorphApiClient;
 import net.minecraft.client.Minecraft;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -178,11 +177,7 @@ public class InvisbleHandItem {
                 }
             }
             return null;
-        });
-        // 身份玩偶跟随显示皮肤拥有者（与帽子绑定相同）。放在最后，避免抢先覆盖隐身/副手替换。
-        AllowItemShowInHand.EVENT.register((player, itemStack, mainHand) -> {
-            return MorphApiClient.remapHeldPlush(player, itemStack, mainHand);
-        });
+        }); 
 
     }
 }
