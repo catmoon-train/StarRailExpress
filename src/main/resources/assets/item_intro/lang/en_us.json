@@ -224,5 +224,8 @@
     "item.noellesroles.tomato.desc": "Dropped when Tomato Head dies. Press Q to throw it as a projectile; landing on a block turns it into a dropped item. Walking over it trips you for 2s and picks it up. The thrower and the tripped player both get a 20s tomato cooldown. Hitting a player gives them the tomato and covers their screen with sauce for 3 seconds.",
     "item.noellesroles.tomato.desc.simple": "Press Q to throw. Walking over a landed tomato trips and picks it up (20s cooldown for both). Hitting a player smears sauce for 3s.",
     "item.noellesroles.loan_contract.desc": "Right-click to repay the loan principal and interest.",
-    "item.noellesroles.insurance.desc": "Choose a death cause to sign the policy; right-click and pay 25 gold to activate it."
+    "item.noellesroles.insurance.desc": "Choose a death cause to sign the policy; right-click and pay 25 gold to activate it.",
+    "item.noellesroles.spellbreaker_potion.desc": "Spellbreaker only. Use on a living player to seal their next skill for 80 seconds.",
+    "item.trainmurdermystery.weak_defense_vial.desc": "Weak shield vial. Desperados can drink it; others can pour it onto a tray. Grants a ~20s weak shield that blocks one knife hit.",
+    "item.noellesroles.sanity_meds.desc": "Repair-mode sedative. Restores 40 sanity. Darkness and nearby pursuers still drain sanity."
 }

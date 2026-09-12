@@ -12,10 +12,10 @@ import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.game.GameUtils;
 import net.fabricmc.fabric.api.entity.event.v1.ServerLivingEntityEvents;
 import net.minecraft.network.protocol.game.ClientboundSetPassengersPacket;
-import net.minecraft.network.protocol.game.ClientboundTeleportEntityPacket;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.damagesource.DamageTypes;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.ai.attributes.AttributeInstance;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
@@ -39,8 +39,10 @@ import java.util.concurrent.ConcurrentHashMap;
  *
  * <p>Half-scale is only applied while both twins are alive and stacked. Vanilla
  * player passenger attachments sit the rider inside the vehicle, so the upper
- * twin is placed on the visual head and other clients are told that position
- * every tick.
+ * twin is placed on the visual head. The vehicle player never receives vanilla
+ * passenger-list packets, and tracker interpolation of a rider looks frozen, so
+ * the vehicle client is told about the rider every tick and rider lerp is
+ * cancelled on clients.
  *
  * <p>The upper twin cannot be pushed into a block by its own movement, so the
  * lower twin's jump can shove it into a ceiling; wall suffocation is therefore
@@ -118,6 +120,37 @@ public final class TwinChildrenHandler {
         return isStackedUpper(player);
     }
 
+    /**
+     * Interaction / sitting should move the walking twin. The upper twin is
+     * already a passenger and cannot mount a chair on their own.
+     */
+    public static Player stackMover(Player player) {
+        if (isStackedUpper(player) && player.getVehicle() instanceof Player lower && hasHalfScale(lower)) {
+            return lower;
+        }
+        return player;
+    }
+
+    public static boolean shouldRedirectMount(Entity rider, Entity vehicle) {
+        if (!(rider instanceof Player player) || vehicle == null) {
+            return false;
+        }
+        return TwinChildrenRideLogic.redirectMountToLower(
+                isStackedUpper(player),
+                vehicle == player.getVehicle(),
+                vehicle instanceof Player);
+    }
+
+    public static boolean shouldKeepLowerOnVehicle(Entity vehicle) {
+        return TwinChildrenRideLogic.keepLowerOnVehicle(vehicle instanceof Player);
+    }
+
+    public static void positionStackedRider(Player lower) {
+        if (isStackedLower(lower) && lower.getFirstPassenger() instanceof Player upper) {
+            lower.positionRider(upper);
+        }
+    }
+
     private static void assign(ServerPlayer first) {
         Pair existing = PAIRS.get(first.getUUID());
         if (existing != null) {
@@ -175,9 +208,7 @@ public final class TwinChildrenHandler {
     }
 
     public static void clientTick(Player player) {
-        if (isStackedLower(player) && player.getFirstPassenger() instanceof Player upper) {
-            player.positionRider(upper);
-        }
+        positionStackedRider(player);
         if (isStackedUpper(player) && player.getVehicle() instanceof Player lower) {
             lower.positionRider(player);
         }
@@ -215,11 +246,15 @@ public final class TwinChildrenHandler {
 
         applyHalfScale(lower);
         applyHalfScale(upper);
-        if (lower.isPassenger()) {
+        if (lower.isPassenger() && !shouldKeepLowerOnVehicle(lower.getVehicle())) {
             lower.stopRiding();
         }
         boolean remounted = false;
         if (upper.getVehicle() != lower) {
+            Entity vehicle = upper.getVehicle();
+            if (vehicle != null && shouldKeepLowerOnVehicle(vehicle) && !lower.isPassenger()) {
+                lower.startRiding(vehicle, true);
+            }
             upper.stopRiding();
             upper.startRiding(lower, true);
             remounted = true;
@@ -231,7 +266,7 @@ public final class TwinChildrenHandler {
         }
 
         refreshStackedCollision(lower, upper);
-        syncUpperPosition(lower, upper, remounted);
+        syncStackedRide(lower, remounted);
     }
 
     private static void refreshStackedCollision(ServerPlayer lower, ServerPlayer upper) {
@@ -245,16 +280,20 @@ public final class TwinChildrenHandler {
         }
     }
 
-    private static void syncUpperPosition(ServerPlayer lower, ServerPlayer upper, boolean remounted) {
-        lower.positionRider(upper);
-        ClientboundTeleportEntityPacket teleport = new ClientboundTeleportEntityPacket(upper);
-        ClientboundSetPassengersPacket passengers = remounted ? new ClientboundSetPassengersPacket(lower) : null;
-        for (ServerPlayer viewer : upper.serverLevel().players()) {
-            if (passengers != null) {
-                viewer.connection.send(passengers);
-            }
-            if (viewer != upper) {
-                viewer.connection.send(teleport);
+    /**
+     * Vanilla never tells a player-vehicle that it has passengers, and tracker
+     * interpolation of the rider fights {@code positionRider}. Keep the lower
+     * twin's client informed; do not teleport the rider.
+     */
+    private static void syncStackedRide(ServerPlayer lower, boolean remounted) {
+        positionStackedRider(lower);
+        ClientboundSetPassengersPacket passengers = new ClientboundSetPassengersPacket(lower);
+        lower.connection.send(passengers);
+        if (remounted) {
+            for (ServerPlayer viewer : lower.server.getPlayerList().getPlayers()) {
+                if (viewer != lower) {
+                    viewer.connection.send(passengers);
+                }
             }
         }
     }

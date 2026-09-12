@@ -22,6 +22,7 @@ import net.minecraft.world.entity.player.Player;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import pro.fazeclan.river.stupid_express.modifier.twin_children.TwinChildrenHandler;
 
@@ -59,5 +60,10 @@ public abstract class TwinChildrenPlayerMixin {
         if (TwinChildrenHandler.shouldStayRiding(self)) {
             cir.setReturnValue(false);
         }
+    }
+
+    @Inject(method = "tick", at = @At("TAIL"))
+    private void stupidExpress$positionStackedTwin(CallbackInfo ci) {
+        TwinChildrenHandler.positionStackedRider((Player) (Object) this);
     }
 }

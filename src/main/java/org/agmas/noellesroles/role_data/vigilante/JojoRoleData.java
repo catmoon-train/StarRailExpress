@@ -194,6 +194,9 @@ public class JojoRoleData extends SimpleRoleData {
         if (!GameUtils.isPlayerAliveAndSurvival(serverPlayer)) {
             return;
         }
+        if (endRushIfExpired(serverPlayer.level())) {
+            return;
+        }
         if (serverPlayer.getCooldowns().isOnCooldown(FunnyItems.BOWEN_BADGE)) {
             return;
         }
@@ -217,6 +220,9 @@ public class JojoRoleData extends SimpleRoleData {
     }
 
     private void tryPunch(ServerPlayer attacker) {
+        if (endRushIfExpired(attacker.level())) {
+            return;
+        }
         Player looked = findPunchTarget(attacker);
         if (targetUuid == null) {
             if (looked == null || looked.getUUID().equals(attacker.getUUID())) {
@@ -304,6 +310,19 @@ public class JojoRoleData extends SimpleRoleData {
         this.rushEndGameTime = 0;
         this.targetUuid = null;
         this.sync();
+    }
+
+    public boolean isRushExpired(Level level) {
+        return attacking && targetUuid != null && rushEndGameTime > 0
+                && level != null && level.getGameTime() >= rushEndGameTime;
+    }
+
+    private boolean endRushIfExpired(Level level) {
+        if (!isRushExpired(level)) {
+            return false;
+        }
+        endRush(true);
+        return true;
     }
 
     public void endRush(boolean failCooldown) {
@@ -454,6 +473,9 @@ public class JojoRoleData extends SimpleRoleData {
             return;
         }
         if (targetUuid != null) {
+            if (endRushIfExpired(player.level())) {
+                return;
+            }
             Player target = player.level().getPlayerByUUID(targetUuid);
             if (target == null || !GameUtils.isPlayerAliveAndSurvival(target)) {
                 endRush(true);
@@ -462,9 +484,6 @@ public class JojoRoleData extends SimpleRoleData {
             restrainBoundTarget(player, target);
             if (player.level().getGameTime() % 5 == 0) {
                 lockTargetItems(target);
-            }
-            if (rushEndGameTime > 0 && player.level().getGameTime() >= rushEndGameTime) {
-                endRush(true);
             }
         }
     }

@@ -11,7 +11,9 @@
     "modifier.twin_children.TwinChildrenShareQuestMixin",
     "modifier.twin_children.TwinChildrenShareMinigameMixin",
     "modifier.twin_children.TwinChildrenAttachMixin",
-    "modifier.twin_children.TwinChildrenPlayerMixin"
+    "modifier.twin_children.TwinChildrenPlayerMixin",
+    "modifier.twin_children.TwinChildrenMountableMixin",
+    "modifier.twin_children.TwinChildrenToiletMixin"
   ],
   "injectors": {
     "defaultRequire": 1
@@ -25,6 +27,7 @@
     "client.modifier.split_personality.SplitPersonalityInputBlockMixin",
     "client.modifier.split_personality.SplitPersonalityPlayerHideMixin",
     "client.modifier.split_personality.SplitPersonalityPositionSyncMixin",
-    "client.modifier.split_personality.SplitPersonalityVisibilityMixin"
+    "client.modifier.split_personality.SplitPersonalityVisibilityMixin",
+    "client.modifier.twin_children.TwinChildrenLerpMixin"
   ]
 }

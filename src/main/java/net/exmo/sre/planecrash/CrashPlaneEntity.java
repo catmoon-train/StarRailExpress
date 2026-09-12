@@ -98,14 +98,14 @@ public class CrashPlaneEntity extends Entity {
     }
 
     private void tickClient() {
-        Vec3 back = getViewVector(1.0F).scale(-1.4D);
-        for (int i = 0; i < 3; i++) {
-            double ox = (random.nextDouble() - 0.5D) * 1.6D;
-            double oy = (random.nextDouble() - 0.5D) * 0.7D;
-            double oz = (random.nextDouble() - 0.5D) * 1.6D;
+        Vec3 back = getViewVector(1.0F).scale(-8.5D);
+        for (int i = 0; i < 5; i++) {
+            double ox = (random.nextDouble() - 0.5D) * 3.2D;
+            double oy = (random.nextDouble() - 0.5D) * 1.4D;
+            double oz = (random.nextDouble() - 0.5D) * 3.2D;
             level().addParticle(ParticleTypes.CAMPFIRE_COSY_SMOKE,
                     getX() + back.x + ox, getY() + oy, getZ() + back.z + oz,
-                    0.0D, 0.02D, 0.0D);
+                    0.0D, 0.03D, 0.0D);
         }
         if (tickCount % 8 == 0) {
             level().playLocalSound(getX(), getY(), getZ(), TMMSounds.EVENT_PLANE_CRASH_ENGINE,

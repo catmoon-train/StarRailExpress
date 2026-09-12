@@ -25,6 +25,8 @@ import io.wifi.starrailexpress.client.SREClient;
 import io.wifi.starrailexpress.client.gui.screen.ingame.LimitedInventoryScreen;
 import io.wifi.starrailexpress.client.util.PinYinUtils;
 import io.wifi.starrailexpress.game.GameUtils;
+import io.wifi.starrailexpress.index.IntroMobEffect;
+import io.wifi.starrailexpress.index.TMMDescEffects;
 import io.wifi.starrailexpress.index.TMMDescItems;
 import io.wifi.starrailexpress.util.ShopEntry;
 import net.minecraft.ChatFormatting;
@@ -32,6 +34,7 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.resources.sounds.SimpleSoundInstance;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.locale.Language;
@@ -152,6 +155,8 @@ public class RoleIntroduceScreen extends Screen {
                 item -> item instanceof SREModifier));
         CATEGORIES
                 .add(new RoleCategory("screen.roleintroduce.category.item", 0x55FF22BB, item -> item instanceof Item));
+        CATEGORIES.add(new RoleCategory("screen.roleintroduce.category.potion", 0xFF66CCEE,
+                item -> item instanceof IntroMobEffect || (item instanceof Item it && TMMDescEffects.isPotionItem(it))));
         CATEGORIES.add(new RoleCategory("screen.roleintroduce.category.other", 0xFFFF66AA,
                 item -> (item instanceof Item it
                         && io.wifi.starrailexpress.client.data.ClientSponsorCache.isSponsorPlush(it))
@@ -241,6 +246,7 @@ public class RoleIntroduceScreen extends Screen {
     public RoleIntroduceScreen() {
         super(Component.translatable("gui.roleintroduce.select_role.title"));
         availableRoles.addAll(Noellesroles.getAllRolesSorted(false));
+        TMMDescEffects.ensureRegistered();
         filterFlags.clear();
         excludeFlags.clear();
         if (!RoleShopHandler.haveRegistered) {
@@ -410,6 +416,15 @@ public class RoleIntroduceScreen extends Screen {
                     || PinYinUtils.contains(searchContent, name))
                 filteredItems.add(item);
         }
+        for (IntroMobEffect effect : TMMDescEffects.introEffects) {
+            if (!cat.filter.test(effect) || !matchesEffectMode(effect))
+                continue;
+            String name = effect.getDisplayName().getString();
+            if (searchContent == null || name.toLowerCase().contains(searchContent.toLowerCase())
+                    || effect.id().toString().contains(searchContent.toLowerCase())
+                    || PinYinUtils.contains(searchContent, name))
+                filteredItems.add(effect);
+        }
         if (currentMode.equals(IntroductionGameMode.CURRENT)
                 || currentMode.equals(IntroductionGameMode.CURRENT_ROUND)) {
             if (SREClient.areaComponent != null && SREClient.areaComponent.areasSettings != null) {
@@ -535,6 +550,24 @@ public class RoleIntroduceScreen extends Screen {
         return path.equals("magnifying_glass") || path.equals("chewing") || path.equals("clip")
                 || path.equals("steel_ball") || path.equals("reversing_card") || path.equals("telephone")
                 || path.equals("hot_potato");
+    }
+
+    private boolean matchesEffectMode(IntroMobEffect effect) {
+        return switch (currentMode) {
+            case ALL, MURDER, REPAIR -> true;
+            case FILTER -> filterFlags.isEmpty();
+            case CURRENT -> this.minecraft != null && this.minecraft.player != null
+                    && this.minecraft.player.hasEffect(effect.holder);
+            case CURRENT_ROUND -> {
+                if (this.minecraft == null || this.minecraft.level == null)
+                    yield false;
+                for (Player player : this.minecraft.level.players()) {
+                    if (player.hasEffect(effect.holder))
+                        yield true;
+                }
+                yield false;
+            }
+        };
     }
 
     private RoleCategory currentCategory() {
@@ -1432,6 +1465,9 @@ public class RoleIntroduceScreen extends Screen {
                     }
                 } else if (selectedRole instanceof Item it) {
                     lines.addAll(font.split(it.getDescription(), textW));
+                } else if (selectedRole instanceof IntroMobEffect effect) {
+                    lines.addAll(font.split(effect.getDisplayName(), textW));
+                    lines.addAll(font.split(RoleUtils.getEffectCategoryName(effect), textW));
                 } else if (selectedRole instanceof SREModifier mod) {
                     lines.addAll(font.split(mod.getName(), textW));
                 }
@@ -1444,6 +1480,13 @@ public class RoleIntroduceScreen extends Screen {
                     lines.addAll(font.split(Component.literal(dashes).withStyle(ChatFormatting.DARK_GRAY), textW));
                     lines.addAll(font.split(flagInfoable.getSimpleDescription().copy().withStyle(ChatFormatting.WHITE),
                             textW));
+                } else if (selectedRole instanceof IntroMobEffect effect) {
+                    lines.add(FormattedCharSequence.EMPTY);
+                    lines.addAll(font.split(Component.translatable("screen.roleintroduce.detail.simple_description")
+                            .withStyle(ChatFormatting.GREEN, ChatFormatting.BOLD), textW));
+                    lines.addAll(font.split(Component.literal(dashes).withStyle(ChatFormatting.DARK_GRAY), textW));
+                    lines.addAll(font.split(RoleUtils.getEffectDescription(effect)
+                            .copy().withStyle(ChatFormatting.WHITE), textW));
                 } else if (selectedRole instanceof Item item) {
                     lines.add(FormattedCharSequence.EMPTY);
                     lines.addAll(font.split(Component.translatable("screen.roleintroduce.detail.simple_description")
@@ -1476,6 +1519,9 @@ public class RoleIntroduceScreen extends Screen {
                 if (selectedRole instanceof Item item) {
                     return RoleUtils.hasItemExtraDescription(item);
                 }
+                if (selectedRole instanceof IntroMobEffect effect) {
+                    return RoleUtils.hasEffectExtraDescription(effect);
+                }
                 return super.isVisible();
             }
 
@@ -1484,6 +1530,11 @@ public class RoleIntroduceScreen extends Screen {
                 lines.clear();
                 if (selectedRole instanceof Item item && RoleUtils.hasItemExtraDescription(item)) {
                     lines.addAll(font.split(RoleUtils.getItemExtraDescription(item)
+                            .withStyle(ChatFormatting.WHITE), textW));
+                    return;
+                }
+                if (selectedRole instanceof IntroMobEffect effect && RoleUtils.hasEffectExtraDescription(effect)) {
+                    lines.addAll(font.split(RoleUtils.getEffectExtraDescription(effect)
                             .withStyle(ChatFormatting.WHITE), textW));
                     return;
                 }
@@ -1635,6 +1686,8 @@ public class RoleIntroduceScreen extends Screen {
     }
 
     private String getObjectType(Object it) {
+        if (it instanceof IntroMobEffect)
+            return "effect";
         if (it instanceof Item)
             return "item";
         if (it instanceof SREModifier)
@@ -1914,6 +1967,10 @@ public class RoleIntroduceScreen extends Screen {
         if (role instanceof Item it) {
             iconOk = true;
             g.renderItem(it.getDefaultInstance(), iconX + 5, iconY + 5);
+        } else if (role instanceof IntroMobEffect effect && this.minecraft != null) {
+            iconOk = true;
+            TextureAtlasSprite sprite = this.minecraft.getMobEffectTextures().get(effect.holder);
+            g.blit(iconX + 5, iconY + 5, 0, 16, 16, sprite);
         } else if (role instanceof AreasSettings) {
             iconOk = true;
             g.renderItem(Items.MAP.getDefaultInstance(), iconX + 5, iconY + 5);
@@ -1988,6 +2045,9 @@ public class RoleIntroduceScreen extends Screen {
                 default -> Component.literal("UNKNOWN");
             };
         }
+        if (role instanceof IntroMobEffect effect) {
+            return RoleUtils.getEffectCategoryName(effect);
+        }
         return Component.literal("");
     }
 
@@ -2043,6 +2103,9 @@ public class RoleIntroduceScreen extends Screen {
                 blendColors(0xFF120A04, rawColor | 0xFF000000, 0.3f));
         if (selectedRole instanceof Item it) {
             g.renderItem(it.getDefaultInstance(), bIconX + (bIconSize - 16) / 2, bIconY + (bIconSize - 16) / 2);
+        } else if (selectedRole instanceof IntroMobEffect effect && this.minecraft != null) {
+            TextureAtlasSprite sprite = this.minecraft.getMobEffectTextures().get(effect.holder);
+            g.blit(bIconX + (bIconSize - 16) / 2, bIconY + (bIconSize - 16) / 2, 0, 16, 16, sprite);
         } else {
             try {
                 g.blit(getTypeIcon(selectedRole), bIconX, bIconY, 0f, 0f, bIconSize, bIconSize, bIconSize, bIconSize);

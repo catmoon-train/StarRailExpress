@@ -215,5 +215,8 @@
   "item.noellesroles.sealed_last_match.desc": "封印物。右鍵點燃附近的人；火焰也可能回火燒到你自己。",
   "item.noellesroles.tomato.desc": "特碼頭死後掉落。\n按 Q 鍵丟出投擲物，落到方塊上會變成掉落物。\n走過會絆倒 2 秒並撿起。\n投擲方和被絆倒者的番茄同時進入 20 秒冷卻。\n砸中玩家會把番茄交給對方，並讓對方螢幕糊滿番茄醬 3 秒。",
   "item.noellesroles.loan_contract.desc": "右鍵償還貸款本金和利息。",
-  "item.noellesroles.insurance.desc": "選擇死亡原因簽訂保險；右鍵已簽訂的保險並支付25金幣使其生效。"
+  "item.noellesroles.insurance.desc": "選擇死亡原因簽訂保險；右鍵已簽訂的保險並支付25金幣使其生效。",
+  "item.noellesroles.spellbreaker_potion.desc": "破咒者專用。瞄準存活玩家使用後，目標在 80 秒內下一次技能會被封印。",
+  "item.trainmurdermystery.weak_defense_vial.desc": "弱效護盾試劑。亡命徒等可直接右鍵飲用；普通玩家可倒在托盤上。提供持續約 20 秒、僅能抵擋一次刀傷害的弱效護盾。",
+  "item.noellesroles.sanity_meds.desc": "修機模式鎮靜劑。服用後恢復 40 點理智。黑暗與追捕者靠近時會侵蝕理智。"
 }

@@ -31,7 +31,7 @@ import net.minecraft.util.Mth;
 
 public class CrashPlaneEntityRenderer extends EntityRenderer<CrashPlaneEntity> {
     private static final ResourceLocation TEXTURE = SRE.id("textures/entity/crash_plane.png");
-    private static final float MODEL_SCALE = 2.6F;
+    private static final float MODEL_SCALE = 5.0F;
 
     private final CrashPlaneEntityModel model;
 
@@ -51,6 +51,7 @@ public class CrashPlaneEntityRenderer extends EntityRenderer<CrashPlaneEntity> {
             MultiBufferSource buffer, int light) {
         poseStack.pushPose();
         poseStack.scale(MODEL_SCALE, MODEL_SCALE, MODEL_SCALE);
+        // -yaw 让模型局部 +Z（机头）对准实体朝向；+pitch 让机头向下俯冲。
         poseStack.mulPose(Axis.YP.rotationDegrees(-Mth.lerp(tickDelta, entity.yRotO, entity.getYRot())));
         poseStack.mulPose(Axis.XP.rotationDegrees(Mth.lerp(tickDelta, entity.xRotO, entity.getXRot())));
         model.setupAnim(entity, 0.0F, 0.0F, entity.tickCount + tickDelta, 0.0F, 0.0F);

@@ -54,4 +54,15 @@ public abstract class TwinChildrenAttachMixin {
             cir.setReturnValue(self.getPassengers().isEmpty() || self.hasPassenger(passenger));
         }
     }
+
+    @Inject(method = "startRiding(Lnet/minecraft/world/entity/Entity;Z)Z", at = @At("HEAD"), cancellable = true)
+    private void stupidExpress$redirectTwinStackMount(Entity vehicle, boolean force,
+            CallbackInfoReturnable<Boolean> cir) {
+        Entity self = (Entity) (Object) this;
+        if (TwinChildrenHandler.shouldRedirectMount(self, vehicle)
+                && self instanceof Player rider
+                && rider.getVehicle() instanceof Player lower) {
+            cir.setReturnValue(lower.startRiding(vehicle, force));
+        }
+    }
 }

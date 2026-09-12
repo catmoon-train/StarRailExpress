@@ -29,6 +29,7 @@ import io.wifi.starrailexpress.cca.SRERoleWorldComponent;
 import io.wifi.starrailexpress.client.SREClient;
 import io.wifi.starrailexpress.game.GameUtils;
 import io.wifi.starrailexpress.game.GameUtils.WinStatus;
+import io.wifi.starrailexpress.index.IntroMobEffect;
 import io.wifi.starrailexpress.index.TMMItems;
 import io.wifi.starrailexpress.index.tag.TMMItemTags;
 import io.wifi.starrailexpress.network.original.AnnounceWelcomePayload;
@@ -514,6 +515,8 @@ public class RoleUtils extends MCItemsUtils {
             return getRoleName(r);
         } else if (role instanceof SREModifier m) {
             return getModifierName(m);
+        } else if (role instanceof IntroMobEffect effect) {
+            return effect.getDisplayName();
         } else {
             return Component.translatable("Unknown");
         }
@@ -526,6 +529,8 @@ public class RoleUtils extends MCItemsUtils {
             return getRoleName(r).withColor(0xff000000 | r.color());
         } else if (role instanceof SREModifier m) {
             return m.getName(true);
+        } else if (role instanceof IntroMobEffect effect) {
+            return effect.getDisplayName().copy().withColor(effect.getColor());
         } else {
             return Component.translatable("Unknown");
         }
@@ -584,6 +589,8 @@ public class RoleUtils extends MCItemsUtils {
             return 0xff000000 | r.color();
         } else if (role instanceof SREModifier m) {
             return 0xff000000 | m.color();
+        } else if (role instanceof IntroMobEffect effect) {
+            return effect.getColor();
         } else if (role instanceof Item) {
             return java.awt.Color.CYAN.getRGB();
         } else if (role instanceof AreasSettings) {
@@ -608,13 +615,17 @@ public class RoleUtils extends MCItemsUtils {
             return r.identifier();
         } else if (role instanceof SREModifier m) {
             return m.identifier();
+        } else if (role instanceof IntroMobEffect effect) {
+            return effect.id();
         } else {
             return null;
         }
     }
 
     public static MutableComponent getRoleOrModifierOrItemNameWithColor(Object selectedRole) {
-        if (selectedRole instanceof Item it) {
+        if (selectedRole instanceof IntroMobEffect effect) {
+            return effect.getDisplayName().copy().withColor(effect.getColor());
+        } else if (selectedRole instanceof Item it) {
             return it.getDescription().copy().withStyle(ChatFormatting.WHITE);
         } else if (selectedRole instanceof AreasSettings) {
             return Component.translatable("screen.roleintroduce.detail.map_areas_settings")
@@ -625,7 +636,9 @@ public class RoleUtils extends MCItemsUtils {
     }
 
     public static int getRoleOrModifierOrItemColor(Object obj) {
-        if (obj instanceof Item) {
+        if (obj instanceof IntroMobEffect effect) {
+            return effect.getColor();
+        } else if (obj instanceof Item) {
             return (ChatFormatting.WHITE.getColor());
         } else {
             return getRoleOrModifierColor(obj);
@@ -633,7 +646,9 @@ public class RoleUtils extends MCItemsUtils {
     }
 
     public static ResourceLocation getRoleOrModifierOrItemIdentifier(Object selectedRole) {
-        if (selectedRole instanceof Item it) {
+        if (selectedRole instanceof IntroMobEffect effect) {
+            return effect.id();
+        } else if (selectedRole instanceof Item it) {
             return BuiltInRegistries.ITEM.getKey(it);
         } else if (selectedRole instanceof AreasSettings) {
             if (FabricLoader.getInstance().getEnvironmentType().equals(EnvType.CLIENT)) {
@@ -649,7 +664,9 @@ public class RoleUtils extends MCItemsUtils {
     }
 
     public static Component getRoleOrModifierOrItemName(Object selectedRole) {
-        if (selectedRole instanceof Item it) {
+        if (selectedRole instanceof IntroMobEffect effect) {
+            return effect.getDisplayName();
+        } else if (selectedRole instanceof Item it) {
             return it.getDescription().copy();
         } else if (selectedRole instanceof AreasSettings) {
             return Component.translatable("screen.roleintroduce.detail.map_areas_settings");
@@ -659,7 +676,9 @@ public class RoleUtils extends MCItemsUtils {
     }
 
     public static MutableComponent getRoleOrModifierOrItemTypeName(Object role) {
-        if (role instanceof Item) {
+        if (role instanceof IntroMobEffect) {
+            return Component.translatable("display.type.effect");
+        } else if (role instanceof Item) {
             return Component.translatable("display.type.item");
         } else if (role instanceof AreasSettings) {
             return Component.translatable("screen.roleintroduce.detail.map_areas_settings");
@@ -669,7 +688,9 @@ public class RoleUtils extends MCItemsUtils {
     }
 
     public static MutableComponent getRoleOrModifierOrItemSimpleDescription(Object selectedRole) {
-        if (selectedRole instanceof Item it) {
+        if (selectedRole instanceof IntroMobEffect effect) {
+            return getEffectDescription(effect);
+        } else if (selectedRole instanceof Item it) {
             String key = it.getDescriptionId() + ".desc.simple";
             if (Language.getInstance().has(key))
                 return Component.translatable(key);
@@ -686,7 +707,9 @@ public class RoleUtils extends MCItemsUtils {
     }
 
     public static MutableComponent getRoleOrModifierOrItemDescription(Object selectedRole) {
-        if (selectedRole instanceof Item it) {
+        if (selectedRole instanceof IntroMobEffect effect) {
+            return getEffectDescription(effect);
+        } else if (selectedRole instanceof Item it) {
             String key = it.getDescriptionId() + ".desc";
             if (Language.getInstance().has(key))
                 return Component.translatable(key);
@@ -713,6 +736,45 @@ public class RoleUtils extends MCItemsUtils {
 
     public static MutableComponent getItemExtraDescription(Item item) {
         return Component.translatable(getItemExtraDescriptionKey(item));
+    }
+
+    public static String getEffectDescriptionKey(IntroMobEffect effect) {
+        return effect.getDescriptionId() + ".desc";
+    }
+
+    public static String getEffectExtraDescriptionKey(IntroMobEffect effect) {
+        return effect.getDescriptionId() + ".desc.detail";
+    }
+
+    public static MutableComponent getEffectDescription(IntroMobEffect effect) {
+        String descKey = getEffectDescriptionKey(effect);
+        if (Language.getInstance().has(descKey)) {
+            return Component.translatable(descKey);
+        }
+        String legacyKey = effect.getDescriptionId() + ".description";
+        if (Language.getInstance().has(legacyKey)) {
+            return Component.translatable(legacyKey);
+        }
+        return effect.getDisplayName().copy();
+    }
+
+    public static boolean hasEffectExtraDescription(IntroMobEffect effect) {
+        return effect != null && Language.getInstance().has(getEffectExtraDescriptionKey(effect));
+    }
+
+    public static MutableComponent getEffectExtraDescription(IntroMobEffect effect) {
+        return Component.translatable(getEffectExtraDescriptionKey(effect));
+    }
+
+    public static MutableComponent getEffectCategoryName(IntroMobEffect effect) {
+        return switch (effect.getCategory()) {
+            case BENEFICIAL -> Component.translatable("display.type.effect.beneficial")
+                    .withStyle(ChatFormatting.GREEN);
+            case HARMFUL -> Component.translatable("display.type.effect.harmful")
+                    .withStyle(ChatFormatting.RED);
+            default -> Component.translatable("display.type.effect.neutral")
+                    .withStyle(ChatFormatting.YELLOW);
+        };
     }
 
     public static Component getTeamName(int roleType) {

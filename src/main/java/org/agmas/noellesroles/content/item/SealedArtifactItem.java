@@ -93,8 +93,8 @@ public class SealedArtifactItem extends Item {
             tooltip.add(Component.translatable("item.noellesroles.sealed_artifact.tooltip.use")
                     .withStyle(ChatFormatting.YELLOW));
         }
-        tooltip.add(Component.translatable("item.noellesroles.sealed_artifact.tooltip.warning")
-                .withStyle(ChatFormatting.GRAY));
+     //   tooltip.add(Component.translatable("item.noellesroles.sealed_artifact.tooltip.warning")
+      //          .withStyle(ChatFormatting.GRAY));
     }
 
     public Tier getTier() {

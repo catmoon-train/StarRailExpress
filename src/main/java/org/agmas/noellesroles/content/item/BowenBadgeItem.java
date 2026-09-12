@@ -54,11 +54,15 @@ public class BowenBadgeItem extends Item implements AdventureUsable {
         if (player.isSpectator()) {
             return InteractionResultHolder.fail(itemStack);
         }
-        if (!level.isClientSide) {
-            JojoRoleData data = RoleData.getNullable(JojoRoleData.class, player);
-            if (data != null) {
+        JojoRoleData data = RoleData.getNullable(JojoRoleData.class, player);
+        if (data != null && data.isRushExpired(level)) {
+            if (!level.isClientSide) {
                 data.onOraUse(player);
             }
+            return InteractionResultHolder.fail(itemStack);
+        }
+        if (!level.isClientSide && data != null) {
+            data.onOraUse(player);
         }
         return InteractionResultHolder.consume(itemStack);
     }

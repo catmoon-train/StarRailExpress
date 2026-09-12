@@ -69,7 +69,7 @@ public interface TMMEntities {
 
     EntityType<CrashPlaneEntity> CRASH_PLANE = registrar.create("crash_plane",
             EntityType.Builder.of(CrashPlaneEntity::new, MobCategory.MISC)
-                    .sized(6.0f, 2.5f)
+                    .sized(12.0f, 4.0f)
                     .clientTrackingRange(256)
                     .updateInterval(1)
                     .fireImmune()

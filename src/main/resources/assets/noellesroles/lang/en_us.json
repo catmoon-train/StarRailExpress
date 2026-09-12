@@ -1801,6 +1801,7 @@
     "display.type.role": "Role",
     "screen.roleintroduce.category.all": "All",
     "screen.roleintroduce.category.item": "Item",
+    "screen.roleintroduce.category.potion": "Potion Page",
     "screen.roleintroduce.category.other": "Other",
     "block.noellesroles.custom_player_plush": "Custom Player Plush",
     "block.noellesroles.custom_player_plush.texture": "Custom Texture Plush",
@@ -1846,6 +1847,10 @@
     "screen.noellesroles.search.empty.3": "or change search term.",
     "screen.roleintroduce.error": "An error occurred, so we couldn't get item tooltips.\nYou may need to enter the game to see item tooltips.\nError: %s",
     "display.type.item": "Item",
+    "display.type.effect": "Potion Effect",
+    "display.type.effect.beneficial": "Beneficial",
+    "display.type.effect.harmful": "Harmful",
+    "display.type.effect.neutral": "Neutral",
     "display.type.modifier": "Modifier",
     "display.type.unknown": "Unknown",
     "gui.roleintroduce.right.warp": "【%s】%s",
@@ -4655,5 +4660,7 @@
   ,"effect.noellesroles.motor_dysfunction": "Motor Dysfunction"
   ,"mob_effect.noellesroles.motor_dysfunction": "Motor Dysfunction"
   ,"effect.noellesroles.motor_dysfunction.description": "You may trip while moving."
+  ,"effect.noellesroles.puppet_wander": "Puppet Wander"
+  ,"mob_effect.noellesroles.puppet_wander": "Puppet Wander"
   ,"message.noellesroles.ailment.appetite_banned": "You have no appetite and cannot eat or drink."
 }
