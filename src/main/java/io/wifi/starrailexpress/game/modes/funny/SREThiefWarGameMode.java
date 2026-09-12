@@ -152,7 +152,7 @@ public class SREThiefWarGameMode extends SREBaseCustomizationGameMode {
                 new TickTimer(GLOWING_INTERVAL, false, tickTimer -> {
                     for (ServerPlayer player : serverWorld.players()) {
                         if (GameUtils.isPlayerEliminated(player))
-                            return;
+                            continue;
                         // 刷新发光效果
                         if (player.hasEffect(MobEffects.GLOWING))
                             player.removeEffect(MobEffects.GLOWING);

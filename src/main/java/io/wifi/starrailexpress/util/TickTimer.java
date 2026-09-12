@@ -40,11 +40,12 @@ public class TickTimer {
             return;
         ++delayTime;
         if (delayTime >= endTime) {
-            if(onCompleteCallback != null)
-                onCompleteCallback.accept(this);
+            // 定时器到时后先设置为触发，再扣除执行过的时间以支持回调中对定时器本身修改
             if (!isShot)
                 isShot = true;
             delayTime -= endTime;
+            if(onCompleteCallback != null)
+                onCompleteCallback.accept(this);
         }
     }
     /** 重置计时器 */
