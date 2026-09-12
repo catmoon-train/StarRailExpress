@@ -31,34 +31,34 @@ import net.minecraft.client.model.geom.builders.PartDefinition;
 import net.minecraft.util.Mth;
 
 /**
- * 紫怪第二形态：细肢悬挂，丝线吊在上方。
+ * 紫怪第二形态：小方头 + 细肢，部件全部挂在躯干上避免崩裂。
  */
 public class PurpleMonsterSecondModel extends EntityModel<PurpleMonsterSecondEntity> {
     public static final ModelLayerLocation LAYER_LOCATION =
             new ModelLayerLocation(SRE.id("purple_monster_second"), "main");
 
     private final ModelPart root;
-    private final ModelPart silk;
+    private final ModelPart thorax;
     private final ModelPart head;
-    private final ModelPart body;
-    private final ModelPart leftArm;
-    private final ModelPart rightArm;
-    private final ModelPart leftLeg;
-    private final ModelPart rightLeg;
-    private final ModelPart midLeftLimb;
-    private final ModelPart midRightLimb;
+    private final ModelPart silk;
+    private final ModelPart limbA;
+    private final ModelPart limbB;
+    private final ModelPart limbC;
+    private final ModelPart limbD;
+    private final ModelPart limbE;
+    private final ModelPart limbF;
 
     public PurpleMonsterSecondModel(ModelPart root) {
         this.root = root.getChild("root");
-        this.silk = this.root.getChild("silk");
-        this.head = this.root.getChild("head");
-        this.body = this.root.getChild("body");
-        this.leftArm = this.root.getChild("left_arm");
-        this.rightArm = this.root.getChild("right_arm");
-        this.leftLeg = this.root.getChild("left_leg");
-        this.rightLeg = this.root.getChild("right_leg");
-        this.midLeftLimb = this.root.getChild("mid_left_limb");
-        this.midRightLimb = this.root.getChild("mid_right_limb");
+        this.thorax = this.root.getChild("thorax");
+        this.head = this.thorax.getChild("head");
+        this.silk = this.thorax.getChild("silk");
+        this.limbA = this.thorax.getChild("limb_a");
+        this.limbB = this.thorax.getChild("limb_b");
+        this.limbC = this.thorax.getChild("limb_c");
+        this.limbD = this.thorax.getChild("limb_d");
+        this.limbE = this.thorax.getChild("limb_e");
+        this.limbF = this.thorax.getChild("limb_f");
     }
 
     public static LayerDefinition createBodyLayer() {
@@ -66,64 +66,49 @@ public class PurpleMonsterSecondModel extends EntityModel<PurpleMonsterSecondEnt
         PartDefinition root = mesh.getRoot().addOrReplaceChild("root", CubeListBuilder.create(),
                 PartPose.offset(0.0F, 24.0F, 0.0F));
 
-        root.addOrReplaceChild("silk",
+        PartDefinition thorax = root.addOrReplaceChild("thorax",
                 CubeListBuilder.create()
-                        .texOffs(60, 0).addBox(-0.5F, -18.0F, -0.5F, 1.0F, 18.0F, 1.0F, new CubeDeformation(0.0F)),
-                PartPose.offset(1.5F, -38.0F, 0.0F));
+                        .texOffs(24, 0).addBox(-2.0F, -4.0F, -2.0F, 4.0F, 8.0F, 4.0F, new CubeDeformation(0.0F)),
+                PartPose.offset(0.0F, -18.0F, 0.0F));
 
-        PartDefinition head = root.addOrReplaceChild("head",
+        PartDefinition head = thorax.addOrReplaceChild("head",
                 CubeListBuilder.create()
-                        .texOffs(0, 0).addBox(-3.5F, -3.5F, -3.5F, 7.0F, 7.0F, 7.0F, new CubeDeformation(0.0F)),
-                PartPose.offsetAndRotation(-8.0F, -24.0F, 0.0F, 0.22F, 0.55F, -0.18F));
+                        .texOffs(0, 0).addBox(-3.0F, -6.0F, -3.0F, 6.0F, 6.0F, 6.0F, new CubeDeformation(0.0F)),
+                PartPose.offset(0.0F, -4.0F, 0.0F));
         head.addOrReplaceChild("eye",
                 CubeListBuilder.create()
-                        .texOffs(0, 14).addBox(-1.2F, -0.6F, -3.7F, 2.5F, 1.2F, 0.6F, new CubeDeformation(0.0F)),
+                        .texOffs(0, 40).addBox(-3.0F, -6.0F, -3.0F, 6.0F, 6.0F, 6.0F, new CubeDeformation(0.4F)),
                 PartPose.ZERO);
 
-        root.addOrReplaceChild("neck",
+        thorax.addOrReplaceChild("silk",
                 CubeListBuilder.create()
-                        .texOffs(28, 0).addBox(-1.0F, -3.0F, -1.0F, 2.0F, 5.0F, 2.0F, new CubeDeformation(0.0F)),
-                PartPose.offsetAndRotation(-3.5F, -21.0F, 0.0F, 0.25F, 0.35F, -0.55F));
+                        .texOffs(40, 4).addBox(-1.0F, -16.0F, -1.0F, 2.0F, 16.0F, 2.0F, new CubeDeformation(-0.4F)),
+                PartPose.offset(0.0F, -4.0F, 0.0F));
 
-        root.addOrReplaceChild("body",
+        thorax.addOrReplaceChild("limb_a",
                 CubeListBuilder.create()
-                        .texOffs(36, 0).addBox(-2.0F, -6.0F, -2.0F, 4.0F, 10.0F, 4.0F, new CubeDeformation(0.0F))
-                        .texOffs(36, 14).addBox(-2.5F, 3.0F, -2.5F, 5.0F, 6.0F, 5.0F, new CubeDeformation(0.0F)),
-                PartPose.offsetAndRotation(1.0F, -18.0F, 0.0F, 0.15F, 0.0F, 0.1F));
-
-        root.addOrReplaceChild("left_arm",
+                        .texOffs(0, 16).addBox(-1.0F, 0.0F, -1.0F, 2.0F, 16.0F, 2.0F, new CubeDeformation(0.0F)),
+                PartPose.offsetAndRotation(-2.0F, -3.0F, 0.0F, 0.55F, 0.20F, 1.15F));
+        thorax.addOrReplaceChild("limb_b",
                 CubeListBuilder.create()
-                        .texOffs(0, 16).addBox(-1.0F, -1.0F, -1.0F, 2.0F, 16.0F, 2.0F, new CubeDeformation(0.0F))
-                        .texOffs(8, 16).addBox(-0.5F, 14.0F, -0.5F, 1.0F, 10.0F, 1.0F, new CubeDeformation(0.0F)),
-                PartPose.offsetAndRotation(-2.0F, -23.0F, 0.0F, 0.4F, 0.25F, 1.95F));
-
-        root.addOrReplaceChild("right_arm",
+                        .texOffs(8, 16).addBox(-1.0F, 0.0F, -1.0F, 2.0F, 18.0F, 2.0F, new CubeDeformation(0.0F)),
+                PartPose.offsetAndRotation(2.0F, -3.0F, 0.0F, -0.35F, -0.15F, -1.35F));
+        thorax.addOrReplaceChild("limb_c",
                 CubeListBuilder.create()
-                        .texOffs(12, 16).addBox(-1.0F, -1.0F, -1.0F, 2.0F, 15.0F, 2.0F, new CubeDeformation(0.0F))
-                        .texOffs(20, 16).addBox(-0.5F, 13.0F, -0.5F, 1.0F, 12.0F, 1.0F, new CubeDeformation(0.0F)),
-                PartPose.offsetAndRotation(3.0F, -24.0F, 0.0F, -0.6F, -0.2F, -2.25F));
-
-        root.addOrReplaceChild("mid_left_limb",
+                        .texOffs(16, 16).addBox(-1.0F, 0.0F, -1.0F, 2.0F, 14.0F, 2.0F, new CubeDeformation(0.0F)),
+                PartPose.offsetAndRotation(-1.0F, 0.0F, 1.0F, 0.85F, 0.40F, 0.70F));
+        thorax.addOrReplaceChild("limb_d",
                 CubeListBuilder.create()
-                        .texOffs(24, 16).addBox(-0.5F, 0.0F, -0.5F, 1.0F, 14.0F, 1.0F, new CubeDeformation(0.0F)),
-                PartPose.offsetAndRotation(-1.0F, -16.0F, 1.0F, 0.75F, 0.45F, 1.05F));
-
-        root.addOrReplaceChild("mid_right_limb",
+                        .texOffs(24, 16).addBox(-1.0F, 0.0F, -1.0F, 2.0F, 15.0F, 2.0F, new CubeDeformation(0.0F)),
+                PartPose.offsetAndRotation(1.0F, 0.0F, -1.0F, -0.55F, -0.25F, -0.75F));
+        thorax.addOrReplaceChild("limb_e",
                 CubeListBuilder.create()
-                        .texOffs(28, 16).addBox(-0.5F, 0.0F, -0.5F, 1.0F, 16.0F, 1.0F, new CubeDeformation(0.0F)),
-                PartPose.offsetAndRotation(2.5F, -17.0F, -1.0F, -0.4F, -0.25F, -0.9F));
-
-        root.addOrReplaceChild("left_leg",
+                        .texOffs(32, 16).addBox(-1.0F, 0.0F, -1.0F, 2.0F, 14.0F, 2.0F, new CubeDeformation(0.0F)),
+                PartPose.offsetAndRotation(-1.0F, 3.0F, 0.0F, 0.20F, 0.05F, 0.25F));
+        thorax.addOrReplaceChild("limb_f",
                 CubeListBuilder.create()
-                        .texOffs(48, 16).addBox(-1.0F, 0.0F, -1.0F, 2.0F, 12.0F, 2.0F, new CubeDeformation(0.0F))
-                        .texOffs(56, 16).addBox(-0.5F, 11.0F, -0.5F, 1.0F, 6.0F, 1.0F, new CubeDeformation(0.0F)),
-                PartPose.offsetAndRotation(-1.0F, -8.0F, 0.0F, 0.12F, 0.08F, 0.22F));
-
-        root.addOrReplaceChild("right_leg",
-                CubeListBuilder.create()
-                        .texOffs(48, 34).addBox(-1.0F, 0.0F, -1.0F, 2.0F, 11.0F, 2.0F, new CubeDeformation(0.0F))
-                        .texOffs(56, 34).addBox(-0.5F, 10.0F, -0.5F, 1.0F, 6.0F, 1.0F, new CubeDeformation(0.0F)),
-                PartPose.offsetAndRotation(2.0F, -8.0F, 0.5F, -0.06F, -0.04F, -0.14F));
+                        .texOffs(40, 22).addBox(-1.0F, 0.0F, -1.0F, 2.0F, 13.0F, 2.0F, new CubeDeformation(0.0F)),
+                PartPose.offsetAndRotation(1.0F, 3.0F, 0.0F, -0.10F, -0.05F, -0.20F));
 
         return LayerDefinition.create(mesh, 64, 64);
     }
@@ -131,20 +116,19 @@ public class PurpleMonsterSecondModel extends EntityModel<PurpleMonsterSecondEnt
     @Override
     public void setupAnim(PurpleMonsterSecondEntity entity, float limbSwing, float limbSwingAmount, float ageInTicks,
             float netHeadYaw, float headPitch) {
-        this.head.yRot = 0.55F + netHeadYaw * Mth.DEG_TO_RAD * 0.35F;
-        this.head.xRot = 0.22F + headPitch * Mth.DEG_TO_RAD * 0.25F;
+        this.head.yRot = netHeadYaw * Mth.DEG_TO_RAD * 0.25F;
+        this.head.xRot = headPitch * Mth.DEG_TO_RAD * 0.20F;
 
-        float sway = Mth.sin(ageInTicks * 0.08F) * 0.06F;
-        float swaySlow = Mth.sin(ageInTicks * 0.05F + 1.2F) * 0.05F;
-        this.root.zRot = sway * 0.35F;
-        this.silk.zRot = -sway * 0.4F;
-        this.leftArm.zRot = 1.95F + sway;
-        this.rightArm.zRot = -2.25F - swaySlow;
-        this.leftLeg.zRot = 0.22F + swaySlow;
-        this.rightLeg.zRot = -0.14F - sway;
-        this.midLeftLimb.zRot = 1.05F + sway * 0.6F;
-        this.midRightLimb.zRot = -0.9F - swaySlow * 0.6F;
-        this.body.zRot = 0.1F + sway * 0.25F;
+        float sway = Mth.sin(ageInTicks * 0.06F) * 0.04F;
+        float swayB = Mth.sin(ageInTicks * 0.045F + 1.1F) * 0.03F;
+        this.thorax.zRot = sway * 0.4F;
+        this.silk.zRot = -sway * 0.3F;
+        this.limbA.zRot = 1.15F + sway;
+        this.limbB.zRot = -1.35F - swayB;
+        this.limbC.zRot = 0.70F + swayB;
+        this.limbD.zRot = -0.75F - sway;
+        this.limbE.zRot = 0.25F + swayB * 0.5F;
+        this.limbF.zRot = -0.20F - sway * 0.5F;
     }
 
     @Override

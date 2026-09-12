@@ -31,7 +31,7 @@ import net.minecraft.client.model.geom.builders.PartDefinition;
 import net.minecraft.util.Mth;
 
 /**
- * 紫怪第一形态：细长单眼人形，比例接近末影人。
+ * 紫怪第一形态：玩家体型人形，面部中央单眼。
  */
 public class PurpleMonsterModel extends EntityModel<PurpleMonsterEntity> {
     public static final ModelLayerLocation LAYER_LOCATION = new ModelLayerLocation(SRE.id("purple_monster"), "main");
@@ -61,36 +61,34 @@ public class PurpleMonsterModel extends EntityModel<PurpleMonsterEntity> {
         PartDefinition head = root.addOrReplaceChild("head",
                 CubeListBuilder.create()
                         .texOffs(0, 0).addBox(-4.0F, -8.0F, -4.0F, 8.0F, 8.0F, 8.0F, new CubeDeformation(0.0F)),
-                PartPose.offset(0.0F, -13.0F, 0.0F));
+                PartPose.offset(0.0F, 0.0F, 0.0F));
         head.addOrReplaceChild("eye",
                 CubeListBuilder.create()
-                        .texOffs(0, 16).addBox(-2.5F, -5.2F, -4.2F, 5.0F, 2.0F, 1.0F, new CubeDeformation(0.0F)),
+                        .texOffs(32, 0).addBox(-4.0F, -8.0F, -4.0F, 8.0F, 8.0F, 8.0F, new CubeDeformation(0.5F)),
                 PartPose.ZERO);
 
         root.addOrReplaceChild("body",
                 CubeListBuilder.create()
-                        .texOffs(32, 16).addBox(-4.0F, 0.0F, -2.0F, 8.0F, 12.0F, 4.0F, new CubeDeformation(0.0F)),
-                PartPose.offset(0.0F, -14.0F, 0.0F));
+                        .texOffs(16, 16).addBox(-4.0F, 0.0F, -2.0F, 8.0F, 12.0F, 4.0F, new CubeDeformation(0.0F)),
+                PartPose.offset(0.0F, 0.0F, 0.0F));
         root.addOrReplaceChild("right_arm",
                 CubeListBuilder.create()
-                        .texOffs(56, 0).addBox(-1.0F, -2.0F, -1.0F, 2.0F, 30.0F, 2.0F, new CubeDeformation(0.0F)),
-                PartPose.offset(-5.0F, -12.0F, 0.0F));
+                        .texOffs(40, 16).addBox(-3.0F, -2.0F, -2.0F, 4.0F, 12.0F, 4.0F, new CubeDeformation(0.0F)),
+                PartPose.offset(-5.0F, 2.0F, 0.0F));
         root.addOrReplaceChild("left_arm",
                 CubeListBuilder.create()
-                        .texOffs(56, 0).mirror()
-                        .addBox(-1.0F, -2.0F, -1.0F, 2.0F, 30.0F, 2.0F, new CubeDeformation(0.0F)),
-                PartPose.offset(5.0F, -12.0F, 0.0F));
+                        .texOffs(32, 48).addBox(-1.0F, -2.0F, -2.0F, 4.0F, 12.0F, 4.0F, new CubeDeformation(0.0F)),
+                PartPose.offset(5.0F, 2.0F, 0.0F));
         root.addOrReplaceChild("right_leg",
                 CubeListBuilder.create()
-                        .texOffs(56, 0).addBox(-1.0F, 0.0F, -1.0F, 2.0F, 30.0F, 2.0F, new CubeDeformation(0.0F)),
-                PartPose.offset(-2.0F, -2.0F, 0.0F));
+                        .texOffs(0, 16).addBox(-2.0F, 0.0F, -2.0F, 4.0F, 12.0F, 4.0F, new CubeDeformation(0.0F)),
+                PartPose.offset(-1.9F, 12.0F, 0.0F));
         root.addOrReplaceChild("left_leg",
                 CubeListBuilder.create()
-                        .texOffs(56, 0).mirror()
-                        .addBox(-1.0F, 0.0F, -1.0F, 2.0F, 30.0F, 2.0F, new CubeDeformation(0.0F)),
-                PartPose.offset(2.0F, -2.0F, 0.0F));
+                        .texOffs(16, 48).addBox(-2.0F, 0.0F, -2.0F, 4.0F, 12.0F, 4.0F, new CubeDeformation(0.0F)),
+                PartPose.offset(1.9F, 12.0F, 0.0F));
 
-        return LayerDefinition.create(mesh, 64, 32);
+        return LayerDefinition.create(mesh, 64, 64);
     }
 
     @Override
@@ -98,14 +96,12 @@ public class PurpleMonsterModel extends EntityModel<PurpleMonsterEntity> {
             float netHeadYaw, float headPitch) {
         this.head.yRot = netHeadYaw * Mth.DEG_TO_RAD;
         this.head.xRot = headPitch * Mth.DEG_TO_RAD;
-
-        this.rightArm.xRot = Mth.cos(limbSwing * 0.6662F + Mth.PI) * 1.2F * limbSwingAmount;
-        this.leftArm.xRot = Mth.cos(limbSwing * 0.6662F) * 1.2F * limbSwingAmount;
+        this.rightArm.xRot = Mth.cos(limbSwing * 0.6662F + Mth.PI) * 2.0F * limbSwingAmount * 0.5F;
+        this.leftArm.xRot = Mth.cos(limbSwing * 0.6662F) * 2.0F * limbSwingAmount * 0.5F;
         this.rightLeg.xRot = Mth.cos(limbSwing * 0.6662F) * 1.4F * limbSwingAmount;
         this.leftLeg.xRot = Mth.cos(limbSwing * 0.6662F + Mth.PI) * 1.4F * limbSwingAmount;
-
-        this.rightArm.zRot = 0.04F;
-        this.leftArm.zRot = -0.04F;
+        this.rightArm.zRot = 0.0F;
+        this.leftArm.zRot = 0.0F;
         this.body.xRot = 0.0F;
     }
 
