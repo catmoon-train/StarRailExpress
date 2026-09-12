@@ -1484,7 +1484,7 @@
     "item.starrailexpress.admin_drawing_board.tooltip": "管理员专用画板，可查看模版并输出pattern代码",
     "item.starrailexpress.admission_ticket": "入场券",
     "item.starrailexpress.mob_psycho_disguise": "暴民伪装",
-    "item.starrailexpress.mob_psycho_disguise.tooltip": "夜晚使用可重新套上疯魔伪装，天亮后失效",
+    "item.starrailexpress.mob_psycho_disguise.tooltip": "夜晚使用可重新套上疯魔伪装：皮肤变为疯魔，名字变成乱码，天亮后失效",
     "message.sre.mob_riot.day_start": "白天开始：好人获得金币与体力加成",
     "message.sre.mob_riot.night_start": "夜晚降临：会议投票关闭，杀手即将获得伪装",
     "message.sre.mob_riot.disguise_granted": "你获得了暴民伪装，皮肤已变为疯魔",

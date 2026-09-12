@@ -15,10 +15,20 @@
 
 package io.wifi.starrailexpress.client.gui;
 
+import io.wifi.starrailexpress.client.SREClient;
+import io.wifi.starrailexpress.event.client.OnRenderRoleName;
+import io.wifi.starrailexpress.game.GameUtils;
+import io.wifi.starrailexpress.index.TMMItems;
+import io.wifi.starrailexpress.morph.MorphApiClient;
 import io.wifi.starrailexpress.network.packet.MobRiotStateS2CPacket;
+import io.wifi.starrailexpress.util.TrueFalseAndCustomResult;
 import io.wifi.utils.client.betterrender.FakeGuiGraphics;
+import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.Font;
+import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.network.chat.Component;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
 
 public final class MobRiotHudRenderer {
     private static boolean active;
@@ -42,6 +52,60 @@ public final class MobRiotHudRenderer {
 
     public static void reset() {
         active = false;
+    }
+
+    public static boolean isActive() {
+        return active;
+    }
+
+    public static boolean isNight() {
+        return active && !day;
+    }
+
+    public static void registerClientEvents() {
+        OnRenderRoleName.RENDER_PLAYER_NAME.register((player, target, context, tickCounter, font) -> {
+            if (!shouldShowDisguiseName(player, target)) {
+                return TrueFalseAndCustomResult.pass();
+            }
+            return TrueFalseAndCustomResult.custom(Component
+                    .literal("????????" + "X".repeat(player.getRandom().nextInt(6)))
+                    .withStyle(style -> style.applyFormats(ChatFormatting.OBFUSCATED, ChatFormatting.DARK_PURPLE)));
+        });
+        OnRenderRoleName.RENDER_PLAYER_ROLE.register((player, target, context, tickCounter, font) ->
+                shouldShowDisguiseName(player, target)
+                        ? TrueFalseAndCustomResult.disallow()
+                        : TrueFalseAndCustomResult.pass());
+        OnRenderRoleName.RENDER_PLAYER_COHORT.register((player, target, context, tickCounter, font) ->
+                shouldShowDisguiseName(player, target)
+                        ? TrueFalseAndCustomResult.disallow()
+                        : TrueFalseAndCustomResult.pass());
+        OnRenderRoleName.RENDER_PLAYER_MODIFIER.register((player, target, context, tickCounter, font) ->
+                shouldShowDisguiseName(player, target)
+                        ? TrueFalseAndCustomResult.disallow()
+                        : TrueFalseAndCustomResult.pass());
+    }
+
+    private static boolean shouldShowDisguiseName(Player viewer, Player target) {
+        if (!isNight() || target == null) {
+            return false;
+        }
+        if (viewer != null && !GameUtils.isPlayerAliveAndSurvival(viewer) && !SREClient.hasPenalty()) {
+            return false;
+        }
+        return isDisguised(target);
+    }
+
+    private static boolean isDisguised(Player target) {
+        if (target instanceof AbstractClientPlayer clientPlayer && MorphApiClient.isTextureMorph(clientPlayer)) {
+            return true;
+        }
+        for (int i = 0; i < target.getInventory().getContainerSize(); i++) {
+            ItemStack stack = target.getInventory().getItem(i);
+            if (stack.is(TMMItems.MOB_PSYCHO_DISGUISE)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     public static void render(Font font, FakeGuiGraphics context) {

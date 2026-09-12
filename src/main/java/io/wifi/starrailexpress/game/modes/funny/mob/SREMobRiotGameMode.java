@@ -55,7 +55,11 @@ import java.util.UUID;
 public class SREMobRiotGameMode extends SRERoleRotationGameMode {
     public static final int DAY_TICKS = 60 * 20;
     public static final int NIGHT_TICKS = 90 * 20;
-    public static final int INVIS_TICKS = 10 * 20;
+    public static final int INVIS_TICKS = 5 * 20;
+    /** Speed II */
+    public static final int NIGHT_SPEED_AMPLIFIER = 1;
+    /** VISION_FOG：2 + amp×3 ≈ 29 格，夜晚略收视野 */
+    public static final int NIGHT_FOG_AMPLIFIER = 9;
     public static final int DAY_GOLD = 30;
     public static final int NIGHT_GOLD = 30;
     public static final int ESCAPE_GOLD = 45;
@@ -114,6 +118,9 @@ public class SREMobRiotGameMode extends SRERoleRotationGameMode {
         if (this.phase == Phase.NIGHT && !this.nightRewardsGranted && now >= this.nightGrantAtTick) {
             grantNightRewards(world, gameComp);
             this.nightRewardsGranted = true;
+        }
+        if (this.phase == Phase.NIGHT && world.getGameTime() % 20L == 0L) {
+            applyNightAmbience(world, gameComp);
         }
         if (now >= this.phaseEndTick) {
             beginPhase(world, this.phase == Phase.DAY ? Phase.NIGHT : Phase.DAY);
@@ -235,6 +242,7 @@ public class SREMobRiotGameMode extends SRERoleRotationGameMode {
             this.nightRewardsGranted = false;
             MeetingManager.cancelVotePhase();
             grantInvisibility(world);
+            applyNightAmbience(world, game);
             broadcast(world, Component.translatable("message.sre.mob_riot.night_start").withStyle(ChatFormatting.DARK_PURPLE));
         }
         syncToPlayers(world);
@@ -246,6 +254,22 @@ public class SREMobRiotGameMode extends SRERoleRotationGameMode {
                 continue;
             }
             player.addEffect(new MobEffectInstance(MobEffects.INVISIBILITY, INVIS_TICKS, 0, true, false, true));
+            player.addEffect(new MobEffectInstance(ModEffects.NO_INSTINCT, INVIS_TICKS, 0, true, false, true));
+        }
+    }
+
+    private void applyNightAmbience(ServerLevel world, SREGameWorldComponent game) {
+        int duration = Math.max(20, remainingPhaseTicks(world));
+        for (ServerPlayer player : world.players()) {
+            if (!GameUtils.isPlayerAliveAndSurvival(player)) {
+                continue;
+            }
+            player.addEffect(new MobEffectInstance(ModEffects.VISION_FOG, duration, NIGHT_FOG_AMPLIFIER, true, false,
+                    false));
+            if (MobRiotRules.isKillerCamp(game.getRole(player))) {
+                player.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SPEED, duration, NIGHT_SPEED_AMPLIFIER, true,
+                        false, true));
+            }
         }
     }
 
@@ -305,6 +329,12 @@ public class SREMobRiotGameMode extends SRERoleRotationGameMode {
         for (ServerPlayer player : world.players()) {
             MorphApi.clearMorph(player);
             clearDisguiseItems(player);
+            player.removeEffect(ModEffects.VISION_FOG);
+            player.removeEffect(ModEffects.NO_INSTINCT);
+            MobEffectInstance speed = player.getEffect(MobEffects.MOVEMENT_SPEED);
+            if (speed != null && speed.getAmplifier() == NIGHT_SPEED_AMPLIFIER && speed.isAmbient()) {
+                player.removeEffect(MobEffects.MOVEMENT_SPEED);
+            }
         }
     }
 

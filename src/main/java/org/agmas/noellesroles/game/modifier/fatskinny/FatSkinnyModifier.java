@@ -106,7 +106,9 @@ public final class FatSkinnyModifier {
         if (player.hasEffect(ModEffects.NO_COLLIDE)) {
             return false;
         }
-        return !WorldModifierComponent.KEY.get(player.level()).isModifier(player, SEModifiers.FEATHER);
+        WorldModifierComponent modifiers = WorldModifierComponent.KEY.get(player.level());
+        return !modifiers.isModifier(player, SEModifiers.FEATHER)
+                && !modifiers.isModifier(player, SEModifiers.TWIN_CHILDREN);
     }
 
     /**

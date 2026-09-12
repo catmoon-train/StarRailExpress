@@ -23,6 +23,7 @@ import io.wifi.starrailexpress.cca.SREAbilityPlayerComponent;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.cca.SREPlayerMoodComponent;
 import io.wifi.starrailexpress.cca.SREPlayerPsychoComponent;
+import io.wifi.starrailexpress.client.gui.MobRiotHudRenderer;
 import io.wifi.starrailexpress.client.util.ClientSkinCache;
 import io.wifi.starrailexpress.content.item.DisguiseEffectSync;
 import io.wifi.starrailexpress.event.OnGettingPlayerSkin;
@@ -167,6 +168,7 @@ public class SREClientEvents {
     public static void registerRoleNameRendererEvents() {
         PlayerBodyHud.registerEvents();
         ForensicHud.registerEvents();
+        MobRiotHudRenderer.registerClientEvents();
         // 大小姐的仆从显示大小姐
         OnRenderRoleName.RENDER_PLAYER_ROLE.register((player, target, context, tickCounter, renderer) -> {
             if (target == null)
