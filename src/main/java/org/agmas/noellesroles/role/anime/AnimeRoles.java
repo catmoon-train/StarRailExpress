@@ -30,13 +30,13 @@ public class AnimeRoles {
         return ResourceLocation.fromNamespaceAndPath(NAMESPACE, path);
     }
 
-    public static final SRERole KAFU_CHINO = new ChinoRole(
+    public static final SRERole KAFU_CHINO = TMMRoles.registerRole(new ChinoRole(
             id("kafu_chino"), new Color(235, 238, 255).getRGB(), RoleType.CIVILIAN, MoodType.REAL,
-            TMMRoles.CIVILIAN_MAX_SPRINT_TICKS, false)
+            TMMRoles.CIVILIAN_MAX_SPRINT_TICKS, false))
             .setDefaultEnableChance(7000);
-    public static final SRERole HOTO_KOKOA = new KokoaRole(
+    public static final SRERole HOTO_KOKOA = TMMRoles.registerRole(new KokoaRole(
             id("hoto_kokoa"), new Color(250, 204, 165).getRGB(), RoleType.CIVILIAN, MoodType.REAL,
-            TMMRoles.CIVILIAN_MAX_SPRINT_TICKS, false)
+            TMMRoles.CIVILIAN_MAX_SPRINT_TICKS, false))
             .setDefaultEnableChance(7000);
 
     public static void init() {
