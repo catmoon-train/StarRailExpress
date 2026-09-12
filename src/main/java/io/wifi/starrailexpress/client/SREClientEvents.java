@@ -32,6 +32,7 @@ import io.wifi.starrailexpress.event.client.OnGameStartedClient;
 import io.wifi.starrailexpress.event.client.OnRenderRoleName;
 import io.wifi.starrailexpress.event.client.OnRenderRoleName.RenderPlayerNameInterface;
 import io.wifi.starrailexpress.game.GameUtils;
+import io.wifi.starrailexpress.morph.MorphApiClient;
 import io.wifi.starrailexpress.util.TrueFalseAndCustomResult;
 import io.wifi.starrailexpress.util.TrueFalseResult;
 import net.minecraft.ChatFormatting;
@@ -76,7 +77,7 @@ import java.util.UUID;
 public class SREClientEvents {
 
     public static Component getName(Player target) {
-        return io.wifi.starrailexpress.morph.MorphApi.getDisplayedName(target);
+        return MorphApiClient.getDisplayedName(target);
     }
 
     public static Component getName(PlayerInfo playerInfo) {

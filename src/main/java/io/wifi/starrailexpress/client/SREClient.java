@@ -125,6 +125,7 @@ import io.wifi.starrailexpress.index.TMMEntities;
 import io.wifi.starrailexpress.index.TMMItems;
 import io.wifi.starrailexpress.index.TMMParticles;
 import io.wifi.starrailexpress.index.TMMSounds;
+import io.wifi.starrailexpress.morph.MorphApiClient;
 import io.wifi.starrailexpress.network.BreakArmorPayload;
 import io.wifi.starrailexpress.network.CloseUiPayload;
 import io.wifi.starrailexpress.network.IsLobbyConfigPayload;
@@ -301,7 +302,7 @@ public class SREClient implements ClientModInitializer {
         SceneAssetNetwork.registerClientReceivers();
         ClientScheduler.init();
         ClientSkinCache.init();
-        io.wifi.starrailexpress.morph.MorphApi.registerClient();
+        MorphApiClient.registerClient();
         io.wifi.starrailexpress.hat.HatEquipmentApi.registerDefaultOwnerResolvers();
         net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents.DISCONNECT
                 .register((handler, client) -> {

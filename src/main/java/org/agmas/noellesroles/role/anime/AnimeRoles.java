@@ -13,16 +13,29 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package org.agmas.noellesroles.role;
+package org.agmas.noellesroles.role.anime;
 
+import org.agmas.noellesroles.role.anime.roles.*;
+import io.wifi.starrailexpress.api.SRERole;
+import io.wifi.starrailexpress.api.TMMRoles;
+import io.wifi.starrailexpress.api.NormalRole.RoleType;
+import io.wifi.starrailexpress.api.SRERole.MoodType;
+import io.wifi.starrailexpress.util.Color;
 import net.minecraft.resources.ResourceLocation;
 
 public class AnimeRoles {
     public static final String NAMESPACE = "anime";
-    
+
     public static ResourceLocation id(String path) {
         return ResourceLocation.fromNamespaceAndPath(NAMESPACE, path);
     }
+
+    public static final SRERole KAFU_CHINO = new ChinoRole(
+            id("kafu_chino"), new Color(235, 238, 255).getRGB(), RoleType.CIVILIAN, MoodType.REAL,
+            TMMRoles.CIVILIAN_MAX_SPRINT_TICKS, false);
+    public static final SRERole HOTO_KOKOA = new ChinoRole(
+            id("hoto_kokoa"), new Color(235, 238, 255).getRGB(), RoleType.CIVILIAN, MoodType.REAL,
+            TMMRoles.CIVILIAN_MAX_SPRINT_TICKS, false);
 
     public static void init() {
     }
