@@ -28,7 +28,9 @@ import org.agmas.noellesroles.Noellesroles;
 import org.agmas.noellesroles.game.modifier.expedition.ExpeditionComponent;
 import org.agmas.noellesroles.game.modifier.fatskinny.FatSkinnyModifier;
 import org.agmas.noellesroles.game.modifier.coward.CowardModifier;
+import org.agmas.noellesroles.game.modifier.cowardice.CowardiceModifier;
 import org.agmas.noellesroles.game.modifier.hoarse.HoarseModifier;
+import org.agmas.noellesroles.game.modifier.rage.RageModifier;
 import org.agmas.noellesroles.game.modifier.introverted.IntrovertedModifier;
 import org.agmas.noellesroles.game.modifier.taxed.TaxedModifier;
 import org.agmas.noellesroles.role.ModRoles;
@@ -158,6 +160,32 @@ public class NRModifiers {
             false,
             false))
             .setServerGameTickEvent(CowardModifier::serverTick)
+            .setDefaultMax(2)
+            .setDefaultEnableChance(4000)
+            .setAddedVersion("4.4");
+
+    /** 暴怒修饰符：持续获得暴怒药水，附近有人死亡时红屏加速并锁定最近玩家 */
+    public static SREModifier RAGE = HMLModifiers.registerModifier(new SREModifier(
+            Noellesroles.id("rage"),
+            0xC41E1E,
+            null,
+            null,
+            false,
+            false))
+            .setServerGameTickEvent(RageModifier::serverTick)
+            .setDefaultMax(2)
+            .setDefaultEnableChance(4000)
+            .setAddedVersion("4.4");
+
+    /** 怯懦修饰符：持续获得怯懦药水，附近有人死亡后一次性失控跑走 */
+    public static SREModifier COWARDICE = HMLModifiers.registerModifier(new SREModifier(
+            Noellesroles.id("cowardice"),
+            0x8A7A4A,
+            null,
+            null,
+            false,
+            false))
+            .setServerGameTickEvent(CowardiceModifier::serverTick)
             .setDefaultMax(2)
             .setDefaultEnableChance(4000)
             .setAddedVersion("4.4");

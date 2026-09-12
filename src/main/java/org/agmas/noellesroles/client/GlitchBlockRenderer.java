@@ -45,9 +45,9 @@ import java.awt.Color;
  */
 @Environment(EnvType.CLIENT)
 public final class GlitchBlockRenderer {
-    private static final int RADIUS = 8;
+    private static final int RADIUS = 20;
     private static final float INSET = 0.002f;
-    private static final ByteBufferBuilder BYTES = new ByteBufferBuilder(262144);
+    private static final ByteBufferBuilder BYTES = new ByteBufferBuilder(1 << 20);
 
     private GlitchBlockRenderer() {
     }

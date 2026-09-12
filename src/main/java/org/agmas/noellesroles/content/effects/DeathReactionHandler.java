@@ -99,7 +99,7 @@ public final class DeathReactionHandler {
             return;
         }
         player.addEffect(ModEffects.of(ModEffects.FEAR, FearEffects.DURATION_TICKS, 0, false, false, true));
-        player.addEffect(ModEffects.of(ModEffects.MOVE_BANED, FearEffects.SIT_TICKS, 0, false, false, false));
+        player.addEffect(ModEffects.of(ModEffects.MOVE_BANED, FearEffects.DURATION_TICKS, 0, false, false, false));
     }
 
     private static void applyRageSurge(ServerPlayer player) {

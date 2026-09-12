@@ -15,7 +15,6 @@
 
 package org.agmas.noellesroles.mixin.client.general;
 
-import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.client.model.PlayerModel;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.util.Mth;
@@ -28,8 +27,15 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-@Mixin(HumanoidModel.class)
+/**
+ * 害怕只作用在当前被渲染的玩家。共享 PlayerModel 会把倾斜外套留给下一个人，
+ * 所以没有害怕的玩家必须在 setupAnim 开头清掉残留。
+ */
+@Mixin(value = PlayerModel.class, priority = 1200)
 public abstract class FearPlayerModelMixin<T extends LivingEntity> {
+
+    @Shadow
+    public boolean riding;
 
     @Shadow
     @Final
@@ -55,43 +61,46 @@ public abstract class FearPlayerModelMixin<T extends LivingEntity> {
     @Final
     public ModelPart leftLeg;
 
-    @Inject(method = "setupAnim", at = @At("RETURN"))
-    private void noellesroles$fearAnim(T entity, float limbSwing, float limbSwingAmount, float ageInTicks,
+    @Inject(method = "setupAnim", at = @At("HEAD"))
+    private void noellesroles$fearPrepare(T entity, float limbSwing, float limbSwingAmount, float ageInTicks,
             float netHeadYaw, float headPitch, CallbackInfo ci) {
         if (FearEffects.isSitting(entity)) {
-            rightLeg.xRot = -1.4137167F;
-            rightLeg.yRot = (float) (Math.PI / 10.0);
-            rightLeg.zRot = 0.07853982F;
-            leftLeg.xRot = -1.4137167F;
-            leftLeg.yRot = (float) (-Math.PI / 10.0);
-            leftLeg.zRot = -0.07853982F;
-            copyPants();
-        }
-        if (!FearEffects.isTrembling(entity)) {
+            this.riding = true;
             return;
         }
-        float shake = 0.16f;
-        body.zRot += Mth.sin(ageInTicks * 1.7f) * shake;
-        body.xRot += Mth.cos(ageInTicks * 2.1f) * shake * 0.45f;
-        head.zRot += Mth.sin(ageInTicks * 2.3f) * shake;
-        head.xRot += Mth.cos(ageInTicks * 1.9f) * shake * 0.35f;
-        rightArm.xRot += Mth.sin(ageInTicks * 2.8f) * shake;
-        leftArm.xRot += Mth.cos(ageInTicks * 2.6f) * shake;
-        rightArm.zRot += Mth.sin(ageInTicks * 2.2f) * shake * 0.4f;
-        leftArm.zRot += Mth.cos(ageInTicks * 2.4f) * shake * 0.4f;
-        if ((Object) this instanceof PlayerModel<?> playerModel) {
-            playerModel.jacket.copyFrom(body);
-            playerModel.rightSleeve.copyFrom(rightArm);
-            playerModel.leftSleeve.copyFrom(leftArm);
-            playerModel.hat.copyFrom(head);
-        }
-        copyPants();
+        // 上一帧害怕玩家留下的 body/head.zRot 和外套，必须在原版动画前清掉。
+        body.zRot = 0.0f;
+        head.zRot = 0.0f;
     }
 
-    private void copyPants() {
-        if ((Object) this instanceof PlayerModel<?> playerModel) {
-            playerModel.rightPants.copyFrom(rightLeg);
-            playerModel.leftPants.copyFrom(leftLeg);
+    @Inject(method = "setupAnim", at = @At("RETURN"))
+    private void noellesroles$fearShake(T entity, float limbSwing, float limbSwingAmount, float ageInTicks,
+            float netHeadYaw, float headPitch, CallbackInfo ci) {
+        if (!FearEffects.isTrembling(entity)) {
+            body.zRot = 0.0f;
+            head.zRot = 0.0f;
+            copyOverlays();
+            return;
         }
+        float lean = Mth.sin(ageInTicks * 1.35f) * 0.035f;
+        float nod = Mth.cos(ageInTicks * 1.7f) * 0.018f;
+        head.zRot = lean;
+        body.zRot = lean;
+        rightArm.zRot += lean;
+        leftArm.zRot += lean;
+        rightLeg.zRot += lean;
+        leftLeg.zRot += lean;
+        head.xRot += nod;
+        copyOverlays();
+    }
+
+    private void copyOverlays() {
+        PlayerModel<?> playerModel = (PlayerModel<?>) (Object) this;
+        playerModel.hat.copyFrom(head);
+        playerModel.jacket.copyFrom(body);
+        playerModel.rightSleeve.copyFrom(rightArm);
+        playerModel.leftSleeve.copyFrom(leftArm);
+        playerModel.rightPants.copyFrom(rightLeg);
+        playerModel.leftPants.copyFrom(leftLeg);
     }
 }

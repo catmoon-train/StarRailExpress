@@ -208,7 +208,7 @@
   "item.noellesroles.sealed_breathless_bread.desc": "封印物。吃饭/喝水任务收益提高，进食也可能恢复少量 SAN；每次进食都有极低概率噎死。",
   "item.noellesroles.sealed_thunderbolt_nail.desc": "封印物。击杀后追加金币或短暂加速；在能看见天空的开阔处可能招来雷击。",
   "item.noellesroles.sealed_vanishing_cloak.desc": "封印物。右键短暂隐身，结束后会发光暴露并持续掉 SAN。",
-  "item.noellesroles.sealed_doorless_key.desc": "封印物。右键短距瞬移、可穿越封锁；落点可能偏移，甚至把你送进危险处。",
+  "item.noellesroles.sealed_doorless_key.desc": "封印物。右键短距瞬移、可穿越封锁，4 秒后回到原处；落点可能偏移，甚至把你送进危险处。",
   "item.noellesroles.sealed_hungry_purse.desc": "封印物。缓慢产出金币；遭到攻击时会吐出金币。",
   "item.noellesroles.sealed_whisper_bell.desc": "封印物。偶尔告知最近存活者的方位，但铃声也会搅乱视野。",
   "item.noellesroles.sealed_splintered_compass.desc": "封印物。指向最近的杀手方向；指针偶尔会把你拽去别处。",

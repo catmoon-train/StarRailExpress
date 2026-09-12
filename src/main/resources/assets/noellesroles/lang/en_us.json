@@ -193,6 +193,8 @@
     "announcement.star.modifier.noellesroles.fat": "Fat",
     "announcement.star.modifier.noellesroles.skinny": "Skinny",
     "announcement.star.modifier.noellesroles.coward": "Coward",
+    "announcement.star.modifier.noellesroles.rage": "Rage",
+    "announcement.star.modifier.noellesroles.cowardice": "Cowardice",
     "announcement.star.modifier.introverted": "Introverted",
     "announcement.star.modifier.taxed": "Taxed",
     "announcement.star.modifier.hungry": "Hungry",
@@ -201,6 +203,8 @@
     "announcement.star.modifier.fat": "Fat",
     "announcement.star.modifier.skinny": "Skinny",
     "announcement.star.modifier.coward": "Coward",
+    "announcement.star.modifier.rage": "Rage",
+    "announcement.star.modifier.cowardice": "Cowardice",
     "death_reason.noellesroles.pelican_eaten": "Eaten by Pelican",
     "death_reason.noellesroles.sealed_choke": "Choked by Breathless Bread",
     "death_reason.noellesroles.sealed_lightning": "Thunderstruck",
@@ -3106,7 +3110,7 @@
     "item.noellesroles.sealed_vanishing_cloak.tooltip.boon": "Boon: Briefly turn invisible to escape pursuit.",
     "item.noellesroles.sealed_vanishing_cloak.tooltip.curse": "Curse: After invisibility ends, your presence is revealed and SAN drains continuously.",
     "item.noellesroles.sealed_doorless_key": "Doorless Key",
-    "item.noellesroles.sealed_doorless_key.tooltip.boon": "Boon: Perform a short-range teleport or bypass a blockade.",
+    "item.noellesroles.sealed_doorless_key.tooltip.boon": "Boon: Short-range teleport or bypass a blockade, then return after 4 seconds.",
     "item.noellesroles.sealed_doorless_key.tooltip.curse": "Curse: Destination may drift, even sending you into danger.",
     "item.noellesroles.sealed_hungry_purse": "Hungry Purse",
     "item.noellesroles.sealed_hungry_purse.tooltip.boon": "Boon: Slowly produces gold.",
@@ -3138,6 +3142,7 @@
     "message.noellesroles.sealed.key_use": "The Doorless Key takes you through the blockade.",
     "message.noellesroles.sealed.key_offset": "The key slips. Your landing is off.",
     "message.noellesroles.sealed.key_danger": "The keyhole leads somewhere dangerous.",
+    "message.noellesroles.sealed.key_return": "The Doorless Key pulls you back.",
     "message.noellesroles.sealed.purse_loss": "The Hungry Purse spat out your gold.",
     "message.noellesroles.sealed.bell_whisper": "The Whisper Bell says: %s is to the %s.",
     "message.noellesroles.sealed.bell_curse": "The ringing explodes in your ears.",
@@ -4674,10 +4679,10 @@
   ,"effect.noellesroles.motor_dysfunction.description": "You may trip while moving."
   ,"effect.noellesroles.coward": "Coward"
   ,"mob_effect.noellesroles.coward": "Coward"
-  ,"effect.noellesroles.coward.description": "If someone dies in front of you, you sit down and then tremble."
+  ,"effect.noellesroles.coward.description": "If someone dies in front of you, you sit and tremble for the whole Fear duration."
   ,"effect.noellesroles.fear": "Fear"
   ,"mob_effect.noellesroles.fear": "Fear"
-  ,"effect.noellesroles.fear.description": "Sit for 1 second, then the screen and player model shake."
+  ,"effect.noellesroles.fear.description": "Remain sitting for the whole effect, with a light screen and body tremble."
   ,"effect.noellesroles.rage": "Rage"
   ,"mob_effect.noellesroles.rage": "Rage"
   ,"effect.noellesroles.rage.description": "When someone nearby dies, the screen turns red, you gain 50% speed, and your view locks onto the nearest player for 5 seconds."

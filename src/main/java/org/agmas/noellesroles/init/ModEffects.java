@@ -736,7 +736,7 @@ public class ModEffects {
             new SimpleMobEffect(MobEffectCategory.HARMFUL, 0x6B8E6B));
 
     /**
-     * 害怕：先坐下 1 秒，随后屏幕与玩家模型发抖。
+     * 害怕：整段效果期间坐下，同时屏幕与玩家模型轻微发抖。
      */
     public static final Holder<MobEffect> FEAR = register("fear",
             new SimpleMobEffect(MobEffectCategory.HARMFUL, 0x4A3C6E));

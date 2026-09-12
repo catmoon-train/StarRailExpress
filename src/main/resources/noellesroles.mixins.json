@@ -120,6 +120,7 @@
     "client.modifier.FatSkinnyLivingRenderMixin",
     "client.general.LimpCameraMixin",
     "client.general.FearPlayerModelMixin",
+    "client.general.FearPlayerRenderCleanupMixin",
     "client.general.LimpPlayerModelMixin",
     "client.general.MirrorReunionCameraMixin",
     "client.general.MobEffectKeyMixin",

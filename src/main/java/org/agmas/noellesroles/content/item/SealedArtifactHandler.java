@@ -59,6 +59,7 @@ import org.agmas.noellesroles.init.ModEffects;
 import org.agmas.noellesroles.init.ModItems;
 
 import java.util.List;
+import java.util.Set;
 
 /**
  * 封印物效果：任务收益、SAN、闪避、技能失败、击杀、开局发放。
@@ -164,6 +165,7 @@ public final class SealedArtifactHandler {
             case "sealed_whisper_bell" -> tickBell(player, gameTime);
             case "sealed_splintered_compass" -> tickCompass(player, gameTime);
             case "sealed_last_match" -> tickMatch(player, gameTime);
+            case "sealed_doorless_key" -> tickKey(player, stack);
             default -> {
             }
         }
@@ -411,7 +413,30 @@ public final class SealedArtifactHandler {
         return InteractionResultHolder.success(stack);
     }
 
+    private static void tickKey(ServerPlayer player, ItemStack stack) {
+        long until = getLong(stack, "key_return_until");
+        if (until <= 0) {
+            return;
+        }
+        long now = GameUtils.getTicksFromGameStart(player.level());
+        if (now < until) {
+            return;
+        }
+        double x = getDouble(stack, "key_return_x");
+        double y = getDouble(stack, "key_return_y");
+        double z = getDouble(stack, "key_return_z");
+        float yaw = getFloat(stack, "key_return_yaw");
+        float pitch = getFloat(stack, "key_return_pitch");
+        setLong(stack, "key_return_until", 0);
+        player.teleportTo(player.serverLevel(), x, y, z, Set.of(), yaw, pitch);
+        player.level().playSound(null, player.blockPosition(), SoundEvents.ENDERMAN_TELEPORT,
+                SoundSource.PLAYERS, 0.8f, 0.9f);
+        player.displayClientMessage(Component.translatable("message.noellesroles.sealed.key_return")
+                .withStyle(ChatFormatting.AQUA), true);
+    }
+
     private static InteractionResultHolder<ItemStack> useKey(ServerPlayer player, ItemStack stack, Item item) {
+        markKeyReturn(stack, player);
         boolean cursed = player.getRandom().nextFloat() < 0.28f;
         if (cursed && player.getRandom().nextFloat() < 0.35f) {
             GameUtils.teleportToRandomRoom(player);
@@ -578,8 +603,27 @@ public final class SealedArtifactHandler {
                 .withStyle(ChatFormatting.RED), true);
     }
 
+    private static void markKeyReturn(ItemStack stack, ServerPlayer player) {
+        CompoundTag tag = stack.getOrDefault(DataComponents.CUSTOM_DATA, CustomData.EMPTY).copyTag();
+        tag.putLong("key_return_until", GameUtils.getTicksFromGameStart(player.level()) + 4 * 20);
+        tag.putDouble("key_return_x", player.getX());
+        tag.putDouble("key_return_y", player.getY());
+        tag.putDouble("key_return_z", player.getZ());
+        tag.putFloat("key_return_yaw", player.getYRot());
+        tag.putFloat("key_return_pitch", player.getXRot());
+        stack.set(DataComponents.CUSTOM_DATA, CustomData.of(tag));
+    }
+
     private static long getLong(ItemStack stack, String key) {
         return stack.getOrDefault(DataComponents.CUSTOM_DATA, CustomData.EMPTY).copyTag().getLong(key);
+    }
+
+    private static double getDouble(ItemStack stack, String key) {
+        return stack.getOrDefault(DataComponents.CUSTOM_DATA, CustomData.EMPTY).copyTag().getDouble(key);
+    }
+
+    private static float getFloat(ItemStack stack, String key) {
+        return stack.getOrDefault(DataComponents.CUSTOM_DATA, CustomData.EMPTY).copyTag().getFloat(key);
     }
 
     private static void setLong(ItemStack stack, String key, long value) {

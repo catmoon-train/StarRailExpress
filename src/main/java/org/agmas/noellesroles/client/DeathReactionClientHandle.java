@@ -70,8 +70,8 @@ public final class DeathReactionClientHandle {
         }
         if (FearEffects.isTrembling(player)) {
             float t = player.tickCount;
-            float yawDrift = (Mth.sin(t * 0.37f) + 0.7f * Mth.sin(t * 0.61f + 1.3f)) * 1.15f;
-            float pitchDrift = (Mth.cos(t * 0.41f + 0.4f) + 0.7f * Mth.sin(t * 0.53f)) * 0.85f;
+            float yawDrift = (Mth.sin(t * 0.31f) + 0.45f * Mth.sin(t * 0.47f + 1.1f)) * 0.28f;
+            float pitchDrift = (Mth.cos(t * 0.29f + 0.4f) + 0.45f * Mth.sin(t * 0.41f)) * 0.18f;
             player.turn(yawDrift / 0.15f, pitchDrift / 0.15f);
         }
         if (!player.hasEffect(ModEffects.RAGE_SURGE)) {

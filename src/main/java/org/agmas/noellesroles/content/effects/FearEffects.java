@@ -15,43 +15,27 @@
 
 package org.agmas.noellesroles.content.effects;
 
-import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.LivingEntity;
 import org.agmas.noellesroles.init.ModEffects;
 
 /**
- * 害怕：先坐下 1 秒，随后屏幕与玩家模型发抖。
+ * 害怕：整段效果期间坐下，同时屏幕与模型轻微发抖。
  */
 public final class FearEffects {
     public static final int DURATION_TICKS = 80;
-    public static final int SIT_TICKS = 20;
 
     private FearEffects() {
     }
 
+    public static boolean isActive(LivingEntity entity) {
+        return entity != null && entity.hasEffect(ModEffects.FEAR);
+    }
+
     public static boolean isSitting(LivingEntity entity) {
-        MobEffectInstance instance = effect(entity);
-        if (instance == null) {
-            return false;
-        }
-        if (instance.isInfiniteDuration()) {
-            return Math.floorMod(entity.tickCount, DURATION_TICKS) < SIT_TICKS;
-        }
-        return instance.getDuration() > DURATION_TICKS - SIT_TICKS;
+        return isActive(entity);
     }
 
     public static boolean isTrembling(LivingEntity entity) {
-        MobEffectInstance instance = effect(entity);
-        if (instance == null) {
-            return false;
-        }
-        if (instance.isInfiniteDuration()) {
-            return Math.floorMod(entity.tickCount, DURATION_TICKS) >= SIT_TICKS;
-        }
-        return instance.getDuration() <= DURATION_TICKS - SIT_TICKS;
-    }
-
-    private static MobEffectInstance effect(LivingEntity entity) {
-        return entity == null ? null : entity.getEffect(ModEffects.FEAR);
+        return isActive(entity);
     }
 }

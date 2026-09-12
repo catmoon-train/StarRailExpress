@@ -185,7 +185,7 @@ public class DisabledPatientRoleData extends SimpleRoleData {
         BLINDNESS("blindness", 10, spec(MobEffects.BLINDNESS, 0)),
         DARKNESS("darkness", 10, spec(MobEffects.DARKNESS, 0)),
         SLOWNESS("slowness", 10, spec(MobEffects.MOVEMENT_SLOWDOWN, 1)),
-        MYOPIA("myopia", 10, spec(ModEffects.MYOPIA, 3)),
+        MYOPIA("myopia", 10, spec(ModEffects.MYOPIA, 8)),
         LIMP("limp", 10, spec(ModEffects.LIMP, 0)),
         BLIND_VISION("blind_vision", 1, spec(ModEffects.BLIND_VISION, 0)),
         HAND_TREMOR("hand_tremor", 10, spec(ModEffects.HAND_TREMOR, 4)),
