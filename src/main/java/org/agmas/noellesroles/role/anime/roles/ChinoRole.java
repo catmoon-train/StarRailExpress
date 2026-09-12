@@ -2,16 +2,20 @@ package org.agmas.noellesroles.role.anime.roles;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
+import org.agmas.harpymodloader.modifiers.SREModifier;
 import org.agmas.noellesroles.game.modifier.NRModifiers;
 import org.agmas.noellesroles.init.FunnyItems;
 import org.agmas.noellesroles.init.ModEffects;
+import org.agmas.noellesroles.role.TraitorAndModifiers;
 import org.agmas.noellesroles.role.anime.AnimeRoles;
 import org.agmas.noellesroles.utils.RoleUtils;
 
 import io.wifi.starrailexpress.api.AnimeRole;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.game.GameUtils;
+import io.wifi.starrailexpress.index.SREDataComponentTypes;
 import io.wifi.starrailexpress.util.ShopEntry;
 import net.minecraft.core.Holder;
 import net.minecraft.core.component.DataComponents;
@@ -21,12 +25,16 @@ import net.minecraft.server.level.ServerPlayer;
 
 import org.jetbrains.annotations.Nullable;
 
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.effect.MobEffect;
+import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.food.FoodProperties;
 import net.minecraft.world.food.FoodProperties.PossibleEffect;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.component.CustomModelData;
+import pro.fazeclan.river.stupid_express.constants.SEModifiers;
 
 public class ChinoRole extends AnimeRole {
 
@@ -39,7 +47,9 @@ public class ChinoRole extends AnimeRole {
     public void serverTick(ServerPlayer player) {
         if (player.level().getGameTime() % 20 == 0) {
             final var gamecca = SREGameWorldComponent.getInstance(player);
-            if (!player.hasEffect(ModEffects.MOOD_DRAIN_REDUCTION)) {
+            if (!player.hasEffect(ModEffects.MOOD_DRAIN_REDUCTION)
+                    || (player.getEffect(ModEffects.MOOD_DRAIN_REDUCTION) instanceof MobEffectInstance mei
+                            && mei.getDuration() <= 20)) {
                 for (var t : player.serverLevel().getPlayers(p -> GameUtils.isPlayerAliveAndSurvival(p))) {
                     if (gamecca.isRole(t, AnimeRoles.HOTO_KOKOA)) {
                         if (t.distanceToSqr(player) <= 3 * 3) {
@@ -100,4 +110,21 @@ public class ChinoRole extends AnimeRole {
         }
         return true;
     }
+
+    @Override
+    public InteractionResult onDropItem(Player player, ItemStack item) {
+        if (item.is(FunnyItems.CHINO_COFFEE) && !item.getOrDefault(SREDataComponentTypes.TRAY_ITEM, false)) {
+            return InteractionResult.SUCCESS;
+        }
+        return InteractionResult.PASS;
+    }
+
+    @Override
+    public void onAssignedModifiers(ServerPlayer player, Set<SREModifier> modifiers) {
+        modifiers.remove(SEModifiers.TALL);
+        modifiers.remove(SEModifiers.TINY);
+        modifiers.add(TraitorAndModifiers.DWARF);
+        modifiers.add(SEModifiers.FEATHER);
+    };
+
 }

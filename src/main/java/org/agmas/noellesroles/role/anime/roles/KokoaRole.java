@@ -2,7 +2,6 @@ package org.agmas.noellesroles.role.anime.roles;
 
 import java.util.List;
 import java.util.Optional;
-
 import org.agmas.noellesroles.init.ModEffects;
 import org.agmas.noellesroles.role.anime.AnimeRoles;
 import org.agmas.noellesroles.utils.MCItemsUtils;
@@ -12,14 +11,18 @@ import io.wifi.starrailexpress.api.RoleSkill;
 import io.wifi.starrailexpress.api.RoleSkill.RoleSkillContext;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.game.GameUtils;
+import io.wifi.starrailexpress.index.SREDataComponentTypes;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.Holder;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.effect.MobEffect;
+import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.food.FoodProperties;
 import net.minecraft.world.food.FoodProperties.PossibleEffect;
 import net.minecraft.world.item.ItemStack;
@@ -37,7 +40,9 @@ public class KokoaRole extends AnimeRole {
     public void serverTick(ServerPlayer player) {
         if (player.level().getGameTime() % 20 == 0) {
             final var gamecca = SREGameWorldComponent.getInstance(player);
-            if (!player.hasEffect(ModEffects.MOOD_DRAIN_REDUCTION)) {
+            if (!player.hasEffect(ModEffects.MOOD_DRAIN_REDUCTION)
+                    || (player.getEffect(ModEffects.MOOD_DRAIN_REDUCTION) instanceof MobEffectInstance mei
+                            && mei.getDuration() <= 20)) {
                 for (var t : player.serverLevel().getPlayers(p -> GameUtils.isPlayerAliveAndSurvival(p))) {
                     if (gamecca.isRole(t, AnimeRoles.KAFU_CHINO)) {
                         if (t.distanceToSqr(player) <= 3 * 3) {
@@ -49,6 +54,13 @@ public class KokoaRole extends AnimeRole {
                 }
             }
         }
+    }
+    @Override
+    public InteractionResult onDropItem(Player player, ItemStack item) {
+        if (item.is(Items.BREAD) && !item.getOrDefault(SREDataComponentTypes.TRAY_ITEM, false)) {
+            return InteractionResult.SUCCESS;
+        }
+        return InteractionResult.PASS;
     }
 
     public static void registerSkills() {
