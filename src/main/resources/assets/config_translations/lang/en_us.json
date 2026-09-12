@@ -225,7 +225,7 @@
     "text.autoconfig.starrailexpress.option.hideRandomRoleInRoleRotation.@Tooltip": "When enabled, in role draft mode, if a player selects Random, the player list on the left side of the GUI will show \"Random\" instead of the actual assigned role.",
     "text.autoconfig.starrailexpress.option.enableNoLimitLoversInLoverMode": "Lover mode: No limit on the number of lovers for a single person (allows multiple chains to exist)",
     "text.autoconfig.starrailexpress.option.mobRiotTokenPerPlayer": "Mob Riot token goal per player",
-    "text.autoconfig.starrailexpress.option.mobRiotTokenPerPlayer.@Tooltip": "Escape unlocks when total tokens reach starting players × this value. Default 10.",
+    "text.autoconfig.starrailexpress.option.mobRiotTokenPerPlayer.@Tooltip": "Escape unlocks when total tokens reach starting players × this value. Default 7.",
     "text.autoconfig.starrailexpress.option.loverModeLoversPercent": "Lover mode: The proportion of lovers entries to the total number of players. (maximum 1)",
     "text.autoconfig.starrailexpress.option.volunteerModeVolunteerCount": "Sunshine Volunteer Model: Number of Volunteers",
     "text.autoconfig.starrailexpress.option.volunteerModeSelectionTime": "Sunshine volunteer mode: volunteer selection time (seconds)",
