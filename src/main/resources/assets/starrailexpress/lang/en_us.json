@@ -3177,5 +3177,15 @@
     "block.starrailexpress.backrooms_black_mold_panel": "Backrooms Black Mold Panel",
     "block.starrailexpress.light_gray_blue_obsidian": "Light Gray-Blue Obsidian",
     "block.starrailexpress.iron_block_stairs": "Iron Block Stairs",
-    "block.starrailexpress.iron_block_slab": "Iron Block Slab"
+    "block.starrailexpress.iron_block_slab": "Iron Block Slab",
+    "block.starrailexpress.gray_portal": "Gray Nether Portal Decoration",
+    "item.starrailexpress.negative_value_item_1": "Negative Value Item 1",
+    "item.starrailexpress.negative_value_item_2": "Negative Value Item 2",
+    "item.starrailexpress.negative_value_item_3": "Negative Value Item 3",
+    "item.starrailexpress.negative_value_item_4": "Negative Value Item 4",
+    "item.starrailexpress.negative_value_item_5": "Negative Value Item 5",
+    "item.starrailexpress.negative_value_item_6": "Negative Value Item 6",
+    "item.starrailexpress.negative_value_item_7": "Negative Value Item 7",
+    "item.starrailexpress.negative_value_item_8": "Negative Value Item 8",
+    "item.starrailexpress.negative_value_item_9": "Negative Value Item 9"
 }

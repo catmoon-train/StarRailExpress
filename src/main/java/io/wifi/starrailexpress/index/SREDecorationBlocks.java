@@ -114,12 +114,32 @@ public final class SREDecorationBlocks {
             BlockBehaviour.Properties.ofFullCopy(Blocks.OBSIDIAN));
     public static final Block GRAY_BLUE_PORTAL = registerBlock("gray_blue_portal",
             new DecorativePortalBlock(BlockBehaviour.Properties.ofFullCopy(Blocks.NETHER_PORTAL)));
+    public static final Block GRAY_PORTAL = registerBlock("gray_portal",
+            new DecorativePortalBlock(BlockBehaviour.Properties.ofFullCopy(Blocks.NETHER_PORTAL)));
     public static final Block COBBLESTONE_LIQUID = registerBlock("cobblestone_liquid",
             new net.minecraft.world.level.block.LiquidBlock(SREFluids.COBBLESTONE,
                     BlockBehaviour.Properties.ofFullCopy(Blocks.LAVA)));
     public static final Item COBBLESTONE_BUCKET = registerItem("cobblestone_bucket",
             new BucketItem(SREFluids.COBBLESTONE, new Item.Properties().stacksTo(1)));
     public static final Item ANOMALOUS_NAME_TAG = registerItem("anomalous_name_tag",
+            new Item(new Item.Properties().stacksTo(1)));
+    public static final Item NEGATIVE_VALUE_ITEM_1 = registerItem("negative_value_item_1",
+            new Item(new Item.Properties().stacksTo(1)));
+    public static final Item NEGATIVE_VALUE_ITEM_2 = registerItem("negative_value_item_2",
+            new Item(new Item.Properties().stacksTo(1)));
+    public static final Item NEGATIVE_VALUE_ITEM_3 = registerItem("negative_value_item_3",
+            new Item(new Item.Properties().stacksTo(1)));
+    public static final Item NEGATIVE_VALUE_ITEM_4 = registerItem("negative_value_item_4",
+            new Item(new Item.Properties().stacksTo(1)));
+    public static final Item NEGATIVE_VALUE_ITEM_5 = registerItem("negative_value_item_5",
+            new Item(new Item.Properties().stacksTo(1)));
+    public static final Item NEGATIVE_VALUE_ITEM_6 = registerItem("negative_value_item_6",
+            new Item(new Item.Properties().stacksTo(1)));
+    public static final Item NEGATIVE_VALUE_ITEM_7 = registerItem("negative_value_item_7",
+            new Item(new Item.Properties().stacksTo(1)));
+    public static final Item NEGATIVE_VALUE_ITEM_8 = registerItem("negative_value_item_8",
+            new Item(new Item.Properties().stacksTo(1)));
+    public static final Item NEGATIVE_VALUE_ITEM_9 = registerItem("negative_value_item_9",
             new Item(new Item.Properties().stacksTo(1)));
     public static final Block LIGHT_PURPLE_SPORE_BLOCK = registerBlock("light_purple_spore_block",
             BlockBehaviour.Properties.ofFullCopy(Blocks.MOSS_BLOCK));
@@ -279,8 +299,18 @@ public final class SREDecorationBlocks {
             registerBlockItem(GRAY_BLUE_OBSIDIAN),
             registerBlockItem(LIGHT_GRAY_BLUE_OBSIDIAN),
             registerBlockItem(GRAY_BLUE_PORTAL),
+            registerBlockItem(GRAY_PORTAL),
             COBBLESTONE_BUCKET,
             ANOMALOUS_NAME_TAG,
+            NEGATIVE_VALUE_ITEM_1,
+            NEGATIVE_VALUE_ITEM_2,
+            NEGATIVE_VALUE_ITEM_3,
+            NEGATIVE_VALUE_ITEM_4,
+            NEGATIVE_VALUE_ITEM_5,
+            NEGATIVE_VALUE_ITEM_6,
+            NEGATIVE_VALUE_ITEM_7,
+            NEGATIVE_VALUE_ITEM_8,
+            NEGATIVE_VALUE_ITEM_9,
             registerBlockItem(LIGHT_PURPLE_SPORE_BLOCK),
             registerBlockItem(SCP_REINFORCED_CONCRETE),
             registerBlockItem(SCP_CONTAINMENT_PANEL),

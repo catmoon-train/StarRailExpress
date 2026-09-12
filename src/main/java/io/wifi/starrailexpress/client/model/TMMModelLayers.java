@@ -59,6 +59,7 @@ public interface TMMModelLayers {
         BlockRenderLayerMap.INSTANCE.putBlock(SREDecorationBlocks.LIGHT_BLUE_OAK_DOOR, RenderType.cutout());
         BlockRenderLayerMap.INSTANCE.putBlock(SREDecorationBlocks.PURPLE_POPPY, RenderType.cutout());
         BlockRenderLayerMap.INSTANCE.putBlock(SREDecorationBlocks.GRAY_BLUE_PORTAL, RenderType.translucent());
+        BlockRenderLayerMap.INSTANCE.putBlock(SREDecorationBlocks.GRAY_PORTAL, RenderType.translucent());
         FluidRenderHandlerRegistry.INSTANCE.register(SREFluids.COBBLESTONE, SREFluids.FLOWING_COBBLESTONE,
                 new SimpleFluidRenderHandler(SRE.id("block/cobblestone_liquid"),
                         SRE.id("block/cobblestone_liquid")));

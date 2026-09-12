@@ -3271,5 +3271,15 @@
     "block.starrailexpress.backrooms_black_mold_panel": "後室黑霉牆板",
     "block.starrailexpress.light_gray_blue_obsidian": "淡灰藍色黑曜石",
     "block.starrailexpress.iron_block_stairs": "鐵塊樓梯",
-    "block.starrailexpress.iron_block_slab": "鐵塊台階"
+    "block.starrailexpress.iron_block_slab": "鐵塊台階",
+    "block.starrailexpress.gray_portal": "灰色地獄傳送門裝飾方塊",
+    "item.starrailexpress.negative_value_item_1": "負值物品1",
+    "item.starrailexpress.negative_value_item_2": "負值物品2",
+    "item.starrailexpress.negative_value_item_3": "負值物品3",
+    "item.starrailexpress.negative_value_item_4": "負值物品4",
+    "item.starrailexpress.negative_value_item_5": "負值物品5",
+    "item.starrailexpress.negative_value_item_6": "負值物品6",
+    "item.starrailexpress.negative_value_item_7": "負值物品7",
+    "item.starrailexpress.negative_value_item_8": "負值物品8",
+    "item.starrailexpress.negative_value_item_9": "負值物品9"
 }
