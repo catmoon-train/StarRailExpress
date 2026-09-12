@@ -93,6 +93,42 @@ public class DevilRouletteGame {
     }
 
     public static class FireResult {
+        public static class Builder {
+            public Builder() {
+                fireResult = new FireResult();
+            }
+            /** 默认有效，需要无效化时直接调用 */
+            public Builder setFireUnable() {
+                fireResult.isFireUseable = false;
+                return this;
+            }
+            public Builder setIsTrueBullet(boolean isTrueBullet) {
+                fireResult.isTrueBullet = isTrueBullet;
+                return this;
+            }
+            public Builder setIsReload(boolean isReload) {
+                fireResult.isReload = isReload;
+                return this;
+            }
+            public Builder setIsTargetAlive(boolean isTargetAlive) {
+                fireResult.isTargetAlive = isTargetAlive;
+                return this;
+            }
+            public Builder setIsSwitch(boolean isSwitch) {
+                fireResult.isSwitch = isSwitch;
+                return this;
+            }
+            public Builder setOperatorUUID(UUID operatorUUID) {
+                fireResult.operatorUUID = operatorUUID;
+                return this;
+            }
+            public FireResult build() {
+                return fireResult;
+            }
+            protected  FireResult fireResult;
+        }
+        /** 操作是否有效 */
+        public boolean isFireUseable = true;
         /** 是否是真弹 */
         public boolean isTrueBullet = false;
         /** 是否重装弹（当子弹打空后返回true） */
@@ -124,10 +160,11 @@ public class DevilRouletteGame {
         protected UUID playerUUID;
         protected int health = MAX_HEALTH;
     }
-    public DevilRouletteGame(UUID player1ID, UUID player2ID, RandomSource random, Level level) {
+    public DevilRouletteGame(ArrayList<UUID> playerIDs, RandomSource random, Level level) {
         playerDataList = new ArrayList<>();
-        playerDataList.add(new GamePlayerData(player1ID));
-        playerDataList.add(new GamePlayerData(player2ID));
+        for (UUID playerID : playerIDs) {
+            playerDataList.add(new GamePlayerData(playerID));
+        }
         currentPlayerData = playerDataList.getFirst();
         this.random = random;
         this.level = level;
@@ -345,7 +382,7 @@ public class DevilRouletteGame {
     }
 
     public int indexOfResult(UUID playerID, Target target) {
-        if (playerDataList.getFirst().playerUUID ==  playerID) {
+        if (playerDataList.getFirst().playerUUID.equals(playerID)) {
             // 如果操作玩家是玩家1，且目标为自己，则返回索引0
             return target == Target.self ? 0 : 1;
         }
@@ -358,13 +395,13 @@ public class DevilRouletteGame {
     }
     public int getHealth(UUID playerID) {
         for (GamePlayerData playerData : playerDataList)
-            if (playerData.playerUUID == playerID)
+            if (playerData.playerUUID.equals(playerID))
                 return playerData.health;
         return 0;
     }
     public GamePlayerData getPlayerData(UUID playerID) {
         for (GamePlayerData playerData : playerDataList)
-            if (playerData.playerUUID == playerID)
+            if (playerData.playerUUID.equals(playerID))
                 return playerData;
         return NONE_PLAYER;
     }
