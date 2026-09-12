@@ -51,6 +51,7 @@ import org.agmas.noellesroles.init.NRSounds;
 import org.agmas.noellesroles.modifier.BounsModifiers;
 import org.agmas.noellesroles.role.touhou.THMagicForestRoles;
 import org.agmas.noellesroles.role.ModRoles;
+import org.agmas.noellesroles.role.anime.AnimeRoles;
 import org.agmas.noellesroles.role.touhou.THHumanVillageRoles;
 import org.agmas.noellesroles.role.touhou.THLostForestRoles;
 import org.agmas.noellesroles.role.touhou.THMountainRoles;
@@ -392,6 +393,7 @@ public class BounsRoles {
         BounsModifiers.init();
         THLostForestRoles.init();
         THHumanVillageRoles.init();
+        AnimeRoles.init();
         registerEvents();
     }
 
