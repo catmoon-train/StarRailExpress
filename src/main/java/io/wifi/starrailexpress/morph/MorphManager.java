@@ -16,6 +16,8 @@
 package io.wifi.starrailexpress.morph;
 
 import io.wifi.starrailexpress.event.AllowPlayerMorph;
+import io.wifi.starrailexpress.event.OnGameEnd;
+import io.wifi.starrailexpress.event.OnGameInitialized;
 import io.wifi.starrailexpress.event.OnPlayerMorph;
 import io.wifi.starrailexpress.network.MorphSyncPayload;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
@@ -57,6 +59,9 @@ public final class MorphManager {
                 clear(serverPlayer, false);
             }
         });
+        // 开局（角色分配前）与结束时清空变形，避免上一局的伪装带进下一局。
+        OnGameInitialized.EVENT.register(level -> resetAll(level.getServer()));
+        OnGameEnd.EVENT.register((level, game) -> resetAll(level.getServer()));
     }
 
     public static MorphAppearance get(UUID uuid) {
@@ -137,6 +142,28 @@ public final class MorphManager {
         }
     }
 
+    /**
+     * 强制清空全部变形并广播空快照（游戏开始 / 结束时调用）。
+     * <p>
+     * 与 {@link #clearAll} 不同：不经 {@link AllowPlayerMorph}——生命周期清理不应被监听器否决；
+     * 且无论服务端是否有记录都会广播一次全量空快照，确保客户端缓存与服务端一致。
+     */
+    public static void resetAll(MinecraftServer server) {
+        Map<UUID, MorphAppearance> previous = new HashMap<>(APPEARANCES);
+        APPEARANCES.clear();
+        EXPIRE_AT.clear();
+        if (server == null) {
+            return;
+        }
+        for (Map.Entry<UUID, MorphAppearance> entry : previous.entrySet()) {
+            ServerPlayer player = server.getPlayerList().getPlayer(entry.getKey());
+            if (player != null) {
+                OnPlayerMorph.EVENT.invoker().onMorph(player, entry.getValue(), MorphAppearance.NONE);
+            }
+        }
+        broadcast(server, MorphSyncPayload.full(Map.of()));
+    }
+
     private static void tickExpires(MinecraftServer server) {
         if (EXPIRE_AT.isEmpty()) {
             return;
@@ -177,16 +204,18 @@ public final class MorphManager {
         ServerPlayNetworking.send(recipient, MorphSyncPayload.full(snapshot));
     }
 
-    private static void broadcastIncremental(MinecraftServer server, UUID uuid, MorphAppearance appearance) {
+    private static void broadcast(MinecraftServer server, MorphSyncPayload payload) {
         if (server == null) {
             return;
         }
-        Map<UUID, MorphAppearance> changes = Map.of(uuid, appearance);
-        MorphSyncPayload payload = MorphSyncPayload.incremental(changes);
         for (ServerPlayer recipient : server.getPlayerList().getPlayers()) {
             if (ServerPlayNetworking.canSend(recipient, MorphSyncPayload.ID)) {
                 ServerPlayNetworking.send(recipient, payload);
             }
         }
+    }
+
+    private static void broadcastIncremental(MinecraftServer server, UUID uuid, MorphAppearance appearance) {
+        broadcast(server, MorphSyncPayload.incremental(Map.of(uuid, appearance)));
     }
 }

@@ -10,6 +10,8 @@ import io.wifi.starrailexpress.client.util.ClientSkinCache;
 import io.wifi.starrailexpress.event.OnGettingPlayerSkin;
 import io.wifi.starrailexpress.event.OnGettingPlayerSkin.PlayerSkinResult;
 import io.wifi.starrailexpress.event.OnResolveDisplayedSkinOwner;
+import io.wifi.starrailexpress.event.client.OnGameFinishedClient;
+import io.wifi.starrailexpress.event.client.OnGameStartedClient;
 import io.wifi.starrailexpress.hat.HatEquipmentApi;
 import io.wifi.starrailexpress.plush.PlushEquipmentIdentity;
 import io.wifi.starrailexpress.plush.PlushEquipmentManager;
@@ -169,5 +171,8 @@ public class MorphApiClient {
             }
             return PlayerSkinResult.SKIP;
         });
+        // 开局 / 结束时清空本地缓存，与服务端的生命周期清理保持一致。
+        OnGameStartedClient.EVENT.register(ClientMorphCache::clear);
+        OnGameFinishedClient.EVENT.register(ClientMorphCache::clear);
     }
 }

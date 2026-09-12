@@ -19,6 +19,7 @@ import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.client.morph.ClientMorphCache;
 import io.wifi.starrailexpress.game.GameUtils;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 import java.util.ArrayList;
@@ -148,6 +149,15 @@ public final class MorphApi {
 
     public static boolean clearMorph(ServerPlayer player) {
         return MorphManager.clear(player, false);
+    }
+
+    /**
+     * 清空全部玩家的变形并同步到客户端（服务端）。
+     * <p>
+     * 游戏开始 / 结束时由 {@link MorphManager} 注册的生命周期钩子调用。
+     */
+    public static void clearAllMorphs(MinecraftServer server) {
+        MorphManager.resetAll(server);
     }
 
     private static boolean defaultRandomCandidate(ServerPlayer player) {
