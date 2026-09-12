@@ -24,6 +24,7 @@ import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.StandingAndWallBlockItem;
+import net.minecraft.world.food.FoodProperties;
 import net.minecraft.world.level.block.AzaleaBlock;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
@@ -125,6 +126,12 @@ public final class SREDecorationBlocks {
             new Item(new Item.Properties().stacksTo(1)));
     public static final Item CROSS_DIMENSIONAL_SPYGLASS = registerItem("cross_dimensional_spyglass",
             new Item(new Item.Properties().stacksTo(1)));
+    public static final Item END_CHORUS_FRUIT = registerItem("end_chorus_fruit",
+            new Item(new Item.Properties().food(new FoodProperties.Builder()
+                    .nutrition(4).saturationModifier(0.3F).build())));
+    public static final Item ENDER_STEW = registerItem("ender_stew",
+            new Item(new Item.Properties().stacksTo(1).food(new FoodProperties.Builder()
+                    .nutrition(6).saturationModifier(0.6F).build())));
     public static final Item NEGATIVE_VALUE_ITEM_1 = registerItem("negative_value_item_1",
             new Item(new Item.Properties().stacksTo(1)));
     public static final Item NEGATIVE_VALUE_ITEM_2 = registerItem("negative_value_item_2",
@@ -305,6 +312,8 @@ public final class SREDecorationBlocks {
             COBBLESTONE_BUCKET,
             ANOMALOUS_NAME_TAG,
             CROSS_DIMENSIONAL_SPYGLASS,
+            END_CHORUS_FRUIT,
+            ENDER_STEW,
             NEGATIVE_VALUE_ITEM_1,
             NEGATIVE_VALUE_ITEM_2,
             NEGATIVE_VALUE_ITEM_3,
