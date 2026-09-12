@@ -127,12 +127,6 @@ public class MorphApiClient {
             }
             return ItemStack.isSameItemSameComponents(stack, displayed) ? null : displayed;
         }
-        if (!mainHand && stack.isEmpty() && !displayed.isEmpty()) {
-            ItemStack main = player.getMainHandItem();
-            if (!(main.getItem() instanceof SREPlushItem)) {
-                return displayed;
-            }
-        }
         return null;
     }
 
