@@ -2,10 +2,13 @@ package org.agmas.noellesroles.role.anime.roles;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
+import org.agmas.harpymodloader.modifiers.SREModifier;
 import org.agmas.noellesroles.game.modifier.NRModifiers;
 import org.agmas.noellesroles.init.FunnyItems;
 import org.agmas.noellesroles.init.ModEffects;
+import org.agmas.noellesroles.role.TraitorAndModifiers;
 import org.agmas.noellesroles.role.anime.AnimeRoles;
 import org.agmas.noellesroles.utils.RoleUtils;
 
@@ -31,6 +34,7 @@ import net.minecraft.world.food.FoodProperties;
 import net.minecraft.world.food.FoodProperties.PossibleEffect;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.component.CustomModelData;
+import pro.fazeclan.river.stupid_express.constants.SEModifiers;
 
 public class ChinoRole extends AnimeRole {
 
@@ -114,4 +118,13 @@ public class ChinoRole extends AnimeRole {
         }
         return InteractionResult.PASS;
     }
+
+    @Override
+    public void onAssignedModifiers(ServerPlayer player, Set<SREModifier> modifiers) {
+        modifiers.remove(SEModifiers.TALL);
+        modifiers.remove(SEModifiers.TINY);
+        modifiers.add(TraitorAndModifiers.DWARF);
+        modifiers.add(SEModifiers.FEATHER);
+    };
+
 }
