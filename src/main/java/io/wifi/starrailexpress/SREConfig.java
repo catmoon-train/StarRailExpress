@@ -457,7 +457,7 @@ public class SREConfig implements ConfigData {
 
     @ConfigEntry.Category(value = "anticheat")
     @Tooltip
-    public boolean enableClickAc = true; // 点击频率反作弊，默认开启
+    public boolean enableClickAc = false; // 点击频率反作弊，默认关闭避免误判
 
     @ConfigEntry.Category(value = "afk")
     public boolean afkKickEnabled = true; // 是否启用挂机踢出功能
