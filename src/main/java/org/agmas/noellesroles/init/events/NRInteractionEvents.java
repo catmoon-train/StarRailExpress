@@ -57,6 +57,7 @@ import org.agmas.noellesroles.ModDataComponentTypes;
 import org.agmas.noellesroles.init.*;
 import org.agmas.noellesroles.role.ModRoles;
 import org.agmas.noellesroles.role.bouns.BounsRoles;
+import org.agmas.noellesroles.role.bouns.roles.ProgrammerRole;
 import org.agmas.noellesroles.role.touhou.THRedHouseRoles;
 import org.agmas.noellesroles.utils.EntityClearUtils;
 import org.agmas.noellesroles.utils.MapScanner;
@@ -121,14 +122,15 @@ public class NRInteractionEvents {
             return InteractionResult.PASS;
         });
 
-        // 手铐交互 - 巡警队可取下他人手铐
+        // 手铐交互 - 巡警队/黑警/程序员可取下他人手铐
         UseEntityCallback.EVENT.register((player, level, interactionHand, entity, entityHitResult) -> {
             if (player.isSpectator())
                 return InteractionResult.PASS;
             var gameC = SREGameWorldComponent.KEY.get(level);
             var playerRole = gameC.getRole(player);
             if (playerRole == null
-                    || (!playerRole.isVigilanteTeam() && !gameC.isRole(player, BounsRoles.LICENSED_VILLAIN)))
+                    || (!playerRole.isVigilanteTeam() && !gameC.isRole(player, BounsRoles.LICENSED_VILLAIN)
+                            && !ProgrammerRole.canUncuffOthers(player)))
                 return InteractionResult.PASS;
             if (HandCuffsItem.hasHandCuff(player))
                 return InteractionResult.PASS;

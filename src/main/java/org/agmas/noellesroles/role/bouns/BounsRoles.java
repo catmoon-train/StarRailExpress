@@ -405,7 +405,7 @@ public class BounsRoles {
             true // 显示计分板
     )).setCanBeRandomedByOtherRoles(false)
             .setDefaultMax(1)
-            .setDefaultEnableChance(200) // 彩蛋刷新率 2%
+            .setDefaultEnableChance(2000) // 彩蛋刷新率 20%
             .setAddedVersion("4.4"); // versiontag 4.4
 
     public static void init() {

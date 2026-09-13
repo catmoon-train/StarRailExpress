@@ -1,16 +1,20 @@
 package org.agmas.noellesroles.role.bouns.roles;
 
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
 import org.agmas.noellesroles.init.FunnyItems;
+import org.agmas.noellesroles.init.ModItems;
 import org.agmas.noellesroles.role.bouns.BounsRoles;
 import org.agmas.noellesroles.utils.RoleUtils;
 
+import io.wifi.starrailexpress.SREConfig;
 import io.wifi.starrailexpress.api.EggRole;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
+import io.wifi.starrailexpress.cca.SREPlayerShopComponent;
 import io.wifi.starrailexpress.game.GameUtils;
 import io.wifi.starrailexpress.game.ShopContent;
 import io.wifi.starrailexpress.index.TMMItems;
@@ -53,8 +57,19 @@ public class ProgrammerRole extends EggRole {
     private static final Map<String, Item> TERMINAL_ITEM_POOL = new LinkedHashMap<>();
 
     static {
+        // ---- 杀伤性（原本就有）----
         TERMINAL_ITEM_POOL.put("trainmurdermystery:revolver", TMMItems.REVOLVER);
         TERMINAL_ITEM_POOL.put("trainmurdermystery:knife", TMMItems.KNIFE);
+        // ---- 非杀伤性工具：价格参考各自商店定价，与终端（150）同档 ----
+        TERMINAL_ITEM_POOL.put("trainmurdermystery:body_bag", TMMItems.BODY_BAG); // 裹尸袋 100
+        TERMINAL_ITEM_POOL.put("trainmurdermystery:lockpick", TMMItems.LOCKPICK); // 开锁器 80
+        TERMINAL_ITEM_POOL.put("noellesroles:handcuffs", ModItems.HANDCUFFS); // 手铐 150
+        TERMINAL_ITEM_POOL.put("noellesroles:master_key_p", ModItems.MASTER_KEY_P); // 乘务员钥匙 100
+        TERMINAL_ITEM_POOL.put("noellesroles:radio", ModItems.RADIO); // 对讲机 150
+        TERMINAL_ITEM_POOL.put("noellesroles:flash_grenade", ModItems.FLASH_GRENADE); // 闪光弹 125
+        TERMINAL_ITEM_POOL.put("noellesroles:smoke_grenade", ModItems.SMOKE_GRENADE); // 烟雾弹 175
+        TERMINAL_ITEM_POOL.put("noellesroles:monitoring_terminal", ModItems.MONITORING_TERMINAL); // 远程监控终端 150
+        TERMINAL_ITEM_POOL.put("noellesroles:wheelchair", ModItems.WHEELCHAIR); // 轮椅 100
     }
 
     public ProgrammerRole(ResourceLocation identifier, int color, boolean isInnocent, boolean canUseKiller,
@@ -94,6 +109,30 @@ public class ProgrammerRole extends EggRole {
         return null;
     }
 
+    /**
+     * 终端 {@code /help} 的清单（客户端画进终端日志；服务端不用它）。
+     * 指令与物品都从这里取，所以往白名单里加物品时帮助内容会自动更新。
+     */
+    public static List<Component> getTerminalHelpLines() {
+        List<Component> lines = new ArrayList<>();
+        lines.add(Component.translatable("screen.noellesroles.terminal.help.header").withStyle(ChatFormatting.GRAY));
+        lines.add(Component.translatable("screen.noellesroles.terminal.help.give_usage")
+                .withStyle(ChatFormatting.WHITE));
+        for (Map.Entry<String, Item> entry : TERMINAL_ITEM_POOL.entrySet()) {
+            lines.add(Component.translatable("screen.noellesroles.terminal.help.item_line", entry.getKey(),
+                    entry.getValue().getDefaultInstance().getHoverName()).withStyle(ChatFormatting.GREEN));
+        }
+        lines.add(Component.translatable("screen.noellesroles.terminal.help.tp_usage")
+                .withStyle(ChatFormatting.WHITE));
+        lines.add(Component.translatable("screen.noellesroles.terminal.help.blackout_usage")
+                .withStyle(ChatFormatting.WHITE));
+        lines.add(Component.translatable("screen.noellesroles.terminal.help.monitor_usage")
+                .withStyle(ChatFormatting.WHITE));
+        lines.add(Component.translatable("screen.noellesroles.terminal.help.help_usage")
+                .withStyle(ChatFormatting.WHITE));
+        return lines;
+    }
+
     // ==================== 终端指令解析 ====================
 
     /** 终端指令类型 */
@@ -101,7 +140,13 @@ public class ProgrammerRole extends EggRole {
         /** 生成物品 */
         GIVE,
         /** 传送回自己的房间 */
-        TELEPORT_ROOM
+        TELEPORT_ROOM,
+        /** 切断全场照明（模拟 /tmm:game blackout trigger） */
+        BLACKOUT,
+        /** 让所有监控失灵（模拟 /tmm:game monitor_blackout trigger） */
+        MONITOR_BLACKOUT,
+        /** 列出所有可用指令（客户端本地处理） */
+        HELP
     }
 
     /** 解析后的终端指令；{@link #errorKey()} 为 null 表示合法 */
@@ -120,7 +165,10 @@ public class ProgrammerRole extends EggRole {
      * <ul>
      * <li>{@code /give @s <物品ID>} —— 生成白名单内的物品</li>
      * <li>{@code /tp @s room} —— 传送回自己的房间</li>
+     * <li>{@code /tmm:game blackout trigger} —— 切断全场照明</li>
+     * <li>{@code /tmm:game monitor_blackout trigger} —— 让所有监控失灵（也接受 {@code monitor_broken}）</li>
      * </ul>
+     * 结尾的 {@code trigger} 可写可不写（原版调试指令本身没有这个子参数，这里只是让输入更像一条指令）。
      *
      * @return 解析结果，{@link TerminalCommand#errorKey()} 是给玩家看的错误提示翻译键
      */
@@ -133,6 +181,26 @@ public class ProgrammerRole extends EggRole {
             text = text.substring(1).trim();
         }
         String[] args = text.split("\\s+");
+
+        // 0) /help —— 列出所有可用指令（客户端本地处理，不发包、不消耗终端）
+        if (args.length == 1 && "help".equalsIgnoreCase(args[0])) {
+            return new TerminalCommand(TerminalCommandType.HELP, null, null);
+        }
+
+        // 1) 模拟原版调试指令：/tmm:game <子命令> [trigger]
+        if (args.length >= 2 && "tmm:game".equalsIgnoreCase(args[0])) {
+            if (args.length > 2 && !"trigger".equalsIgnoreCase(args[args.length - 1])) {
+                return new TerminalCommand(null, null, "message.noellesroles.terminal.error.usage");
+            }
+            return switch (args[1].toLowerCase(Locale.ROOT)) {
+                case "blackout" -> new TerminalCommand(TerminalCommandType.BLACKOUT, null, null);
+                case "monitor_blackout", "monitor_broken" ->
+                    new TerminalCommand(TerminalCommandType.MONITOR_BLACKOUT, null, null);
+                default -> new TerminalCommand(null, null, "message.noellesroles.terminal.error.unknown_command");
+            };
+        }
+
+        // 2) 其余指令统一要求 @s 形式
         if (args.length < 2 || !"@s".equalsIgnoreCase(args[1])) {
             return new TerminalCommand(null, null, "message.noellesroles.terminal.error.usage");
         }
@@ -245,10 +313,55 @@ public class ProgrammerRole extends EggRole {
                         false);
                 yield true;
             }
+            case BLACKOUT -> {
+                // 复用商店关灯的同一套逻辑（含全局冷却、音效、回放记录）
+                if (!SREPlayerShopComponent.useBlackout(player)) {
+                    player.displayClientMessage(
+                            Component.translatable("message.noellesroles.terminal.blackout_already")
+                                    .withStyle(ChatFormatting.RED),
+                            false);
+                    yield false;
+                }
+                player.displayClientMessage(
+                        Component.translatable("message.noellesroles.terminal.blackout_success")
+                                .withStyle(ChatFormatting.GREEN),
+                        false);
+                yield true;
+            }
+            case MONITOR_BLACKOUT -> {
+                if (!SREPlayerShopComponent.useMonitorBroken(player,
+                        SREConfig.instance().monitorBrokenDuration * 20)) {
+                    player.displayClientMessage(
+                            Component.translatable("message.noellesroles.terminal.monitor_blackout_already")
+                                    .withStyle(ChatFormatting.RED),
+                            false);
+                    yield false;
+                }
+                player.displayClientMessage(
+                        Component.translatable("message.noellesroles.terminal.monitor_blackout_success")
+                                .withStyle(ChatFormatting.GREEN),
+                        false);
+                yield true;
+            }
+            case HELP -> {
+                // /help 由客户端本地展开成日志，正常不会发到服务端；万一发过来了也不消耗终端
+                yield false;
+            }
         };
         if (success) {
             consumeTerminal(player);
         }
         return success;
+    }
+
+    /**
+     * 该玩家能不能取下别人的手铐（巡警队/黑警之外的第三种人：程序员）。
+     * 逻辑集中在这里，判定点见 {@code NRInteractionEvents} 的手铐交互回调。
+     */
+    public static boolean canUncuffOthers(Player player) {
+        if (player == null) {
+            return false;
+        }
+        return SREGameWorldComponent.KEY.get(player.level()).isRole(player, BounsRoles.PROGRAMMER);
     }
 }
