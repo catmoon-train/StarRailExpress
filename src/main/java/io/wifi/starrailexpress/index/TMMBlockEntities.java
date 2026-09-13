@@ -163,6 +163,10 @@ public interface TMMBlockEntities {
   BlockEntityType<MirrorBlockEntity> MIRROR = registrar.create("mirror",
       BlockEntityType.Builder.of(MirrorBlockEntity::new, TMMBlocks.MIRROR));
 
+  /** 假太阳：仅用于客户端生成持久太阳粒子。 */
+  BlockEntityType<FakeSunBlockEntity> FAKE_SUN = registrar.create("fake_sun",
+      BlockEntityType.Builder.of(FakeSunBlockEntity::new, SREDecorationBlocks.FAKE_SUN));
+
   static void initialize() {
     registrar.registerEntries();
   }

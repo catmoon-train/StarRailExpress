@@ -26,6 +26,7 @@ import net.minecraft.core.particles.SimpleParticleType;
 public interface TMMParticles {
     ParticleTypeRegistrar registrar = new ParticleTypeRegistrar(SRE.WATHE_MOD_ID);
     ParticleTypeRegistrar tmmRegistrar = new ParticleTypeRegistrar(StarRailExpressID.TMM_MOD_ID);
+    ParticleTypeRegistrar sreRegistrar = new ParticleTypeRegistrar(SRE.MOD_ID);
 
     SimpleParticleType SNOWFLAKE = (SimpleParticleType) registrar.create("snowflake", FabricParticleTypes.simple(true));
     SimpleParticleType SAND = (SimpleParticleType) tmmRegistrar.create("sand", FabricParticleTypes.simple(true));
@@ -34,10 +35,13 @@ public interface TMMParticles {
     SimpleParticleType BIG_EXPLOSION = (SimpleParticleType) registrar.create("big_explosion", FabricParticleTypes.simple(true));
     SimpleParticleType POISON = (SimpleParticleType) registrar.create("poison", FabricParticleTypes.simple(true));
     SimpleParticleType BLACK_SMOKE = (SimpleParticleType) registrar.create("black_smoke", FabricParticleTypes.simple(true));
+    /** 假太阳方块使用的太阳粒子（持久、约 4 格宽）。 */
+    SimpleParticleType SUN = (SimpleParticleType) sreRegistrar.create("sun", FabricParticleTypes.simple(true));
 
     static void initialize() {
         registrar.registerEntries();
         tmmRegistrar.registerEntries();
+        sreRegistrar.registerEntries();
     }
 
     static void registerFactories() {
@@ -48,5 +52,6 @@ public interface TMMParticles {
         ParticleFactoryRegistry.getInstance().register(BIG_EXPLOSION, FlashParticle.BigExplosionFactory::new);
         ParticleFactoryRegistry.getInstance().register(POISON, PoisonParticle.Factory::new);
         ParticleFactoryRegistry.getInstance().register(BLACK_SMOKE, BlackSmokeParticle.Factory::new);
+        ParticleFactoryRegistry.getInstance().register(SUN, SunParticle.Factory::new);
     }
 }
