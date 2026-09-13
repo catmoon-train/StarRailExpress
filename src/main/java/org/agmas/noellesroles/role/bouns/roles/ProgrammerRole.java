@@ -63,6 +63,9 @@ public class ProgrammerRole extends EggRole {
     /** 指令**输错**时的冷却（秒）：比正常冷却短得多，输错不至于直接报废一局 */
     public static final int TERMINAL_MISTAKE_COOLDOWN_SECONDS = 10;
 
+    /** {@code /kill @r} 命中**自己**的概率（百分比）；其余概率随机清除一名其他存活玩家。 */
+    public static final int KILL_RANDOM_SELF_PERCENT = 5;
+
     /**
      * 终端可生成的物品白名单：指令里的物品ID → 物品。
      * 想增加终端可生成的物品，在这里加一行即可（界面上的提示会自动跟着变）。
@@ -143,6 +146,8 @@ public class ProgrammerRole extends EggRole {
                 .withStyle(ChatFormatting.WHITE));
         lines.add(Component.translatable("screen.noellesroles.terminal.help.kill_usage")
                 .withStyle(ChatFormatting.WHITE));
+        lines.add(Component.translatable("screen.noellesroles.terminal.help.kill_random_usage")
+                .withStyle(ChatFormatting.WHITE));
         lines.add(Component.translatable("screen.noellesroles.terminal.help.blackout_usage")
                 .withStyle(ChatFormatting.WHITE));
         lines.add(Component.translatable("screen.noellesroles.terminal.help.monitor_usage")
@@ -166,6 +171,8 @@ public class ProgrammerRole extends EggRole {
         EFFECT_CLEAR,
         /** 杀死自己（死因：代码死亡） */
         SUICIDE,
+        /** 随机事故：5% 杀自己，95% 杀一名随机存活玩家（含队友） */
+        KILL_RANDOM,
         /** 切断全场照明（模拟 /tmm:game blackout） */
         BLACKOUT,
         /** 让所有监控失灵（模拟 /tmm:game monitor_broken） */
@@ -242,6 +249,17 @@ public class ProgrammerRole extends EggRole {
                 case "monitor_broken" -> new TerminalCommand(TerminalCommandType.MONITOR_BLACKOUT, null, null);
                 default -> new TerminalCommand(null, null, "message.noellesroles.terminal.error.unknown_command");
             };
+        }
+
+        // 1.5) /kill —— 自杀（等价于 /kill @s）；/kill @r —— 随机事故：5% 杀自己，95% 杀一名随机存活玩家（含队友）。
+        // /kill @r 的参数是 @r 而不是 @s，所以要放在下面那条统一的 @s 校验之前。
+        if ("kill".equalsIgnoreCase(args[0])) {
+            if (args.length == 1) {
+                return new TerminalCommand(TerminalCommandType.SUICIDE, null, null);
+            }
+            if (args.length == 2 && "@r".equalsIgnoreCase(args[1])) {
+                return new TerminalCommand(TerminalCommandType.KILL_RANDOM, null, null);
+            }
         }
 
         // 2) 其余指令统一要求 @s 形式
@@ -485,6 +503,44 @@ public class ProgrammerRole extends EggRole {
                         Component.translatable("message.noellesroles.terminal.monitor_blackout_success")
                                 .withStyle(ChatFormatting.GREEN),
                         false);
+                yield true;
+            }
+            case KILL_RANDOM -> {
+                // 5% 炸自己，95% 炸一名随机存活玩家（含队友，但随机池里不含自己）
+                ServerPlayer victim = player;
+                if (player.getRandom().nextInt(100) >= KILL_RANDOM_SELF_PERCENT) {
+                    List<ServerPlayer> candidates = player.serverLevel().players().stream()
+                            .filter(other -> !other.getUUID().equals(player.getUUID()))
+                            .filter(GameUtils::isPlayerAliveAndSurvival)
+                            .toList();
+                    if (candidates.isEmpty()) {
+                        player.displayClientMessage(
+                                Component.translatable("message.noellesroles.terminal.kill_random_none")
+                                        .withStyle(ChatFormatting.RED),
+                                false);
+                        // 没人可炸：不消耗终端（与 /tp @r 找不到人时一致）
+                        yield false;
+                    }
+                    victim = candidates.get(player.getRandom().nextInt(candidates.size()));
+                }
+                if (victim == player) {
+                    player.displayClientMessage(
+                            Component.translatable("message.noellesroles.terminal.kill_random_self")
+                                    .withStyle(ChatFormatting.RED),
+                            false);
+                } else {
+                    player.displayClientMessage(
+                            Component.translatable("message.noellesroles.terminal.kill_random_other",
+                                    victim.getName()).withStyle(ChatFormatting.RED),
+                            false);
+                    victim.displayClientMessage(
+                            Component.translatable("message.noellesroles.terminal.kill_random_victim")
+                                    .withStyle(ChatFormatting.RED),
+                            false);
+                }
+                // 不记击杀归属：这是终端随机事故（死因沿用「代码死亡」），
+                // 否则随机砸到队友会被算成击杀方
+                GameUtils.killPlayer(victim, true, null, GameConstants.DeathReasons.CODE_DEATH);
                 yield true;
             }
             case HELP -> {
