@@ -426,9 +426,6 @@ public class LinFamilyRoleData extends SimpleRoleData {
             return;
         }
         SREGameWorldComponent game = SREGameWorldComponent.KEY.get(serverPlayer.level());
-        if (game == null || !game.isRunning()) {
-            return;
-        }
         int playerCount = Math.max(1, game.getPlayerCount());
         int gold = playerCount * 300;
         SREPlayerShopComponent.KEY.get(serverPlayer).setBalance(gold);
