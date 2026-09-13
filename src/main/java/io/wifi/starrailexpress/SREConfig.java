@@ -117,6 +117,11 @@ public class SREConfig implements ConfigData {
     public int entityInteractionBlockEntityPlayerPermission = 2;
     @ConfigEntry.Category(value = "commands")
     public int entityInteractionBlockEntityPermission = 2;
+    // 开启后：原版命令方块（含命令方块矿车）与实体交互方块执行指令的权限提升为 3。
+    // 可由 /sre:block_cmd_perm on|off 修改并保存到本配置。
+    @ConfigEntry.Category(value = "commands")
+    @Tooltip
+    public boolean elevateBlockCommandPermission = false;
     @ConfigEntry.Category(value = "commands")
     public int timeRewindPermission = 2;
     @ConfigEntry.Category(value = "commands")

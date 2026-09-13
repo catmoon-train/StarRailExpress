@@ -110,6 +110,8 @@
     "sre_commands.sre.infected.desc": "Sets the duration of the player's infected state in ticks.",
     "sre_commands.sre.helium.name": "Helium voice change",
     "sre_commands.sre.helium.desc": "Applies a helium voice-changing effect to the player for a specified number of seconds.",
+    "sre_commands.sre.block_cmd_perm.name": "Elevate block command permission",
+    "sre_commands.sre.block_cmd_perm.desc": "When enabled, command blocks and entity interaction blocks run commands at permission 3. Saved to config. No args shows status.",
     "sre_commands.tmm.game.visual.name": "visual effects",
     "sre_commands.tmm.game.visual.desc": "Switch snow, sand, fog, HUD, set train speed and time, or reset all visual effects.",
     "sre_commands.tmm.game.time.name": "game timing",

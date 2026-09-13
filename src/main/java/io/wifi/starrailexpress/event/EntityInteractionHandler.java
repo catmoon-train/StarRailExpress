@@ -17,6 +17,7 @@ package io.wifi.starrailexpress.event;
 
 import io.wifi.starrailexpress.SREConfig;
 import io.wifi.starrailexpress.content.command.EntityDataCommand;
+import io.wifi.starrailexpress.game.ElevatedBlockCommandPermission;
 import net.fabricmc.fabric.api.event.player.UseEntityCallback;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.InteractionHand;
@@ -179,7 +180,8 @@ public class EntityInteractionHandler {
         // 注意：出于安全考虑，我们不直接执行任意命令
         // 可以实现特定的安全命令执行逻辑
         // player.sendSystemMessage(Component.literal("执行命令: " + command));
-        player.getServer().getCommands().performPrefixedCommand(player.createCommandSourceStack().withPermission(SREConfig.instance().entityInteractionBlockEntityPlayerPermission),
+        player.getServer().getCommands().performPrefixedCommand(player.createCommandSourceStack().withPermission(
+                ElevatedBlockCommandPermission.resolve(SREConfig.instance().entityInteractionBlockEntityPlayerPermission)),
                 command);
     }
 

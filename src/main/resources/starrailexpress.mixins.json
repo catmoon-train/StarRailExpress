@@ -9,6 +9,7 @@
     "block.FarmBlockTrampleMixin",
     "cca.CCASyncSatMixin",
     "chat.PlayerPrefixMixin",
+    "command.CommandSourceStackPermissionMixin",
     "command.ExecuteCommandInvoker",
     "entity.EntityMixin",
     "entity.FallDamageCheckMixin",

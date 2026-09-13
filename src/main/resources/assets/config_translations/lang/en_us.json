@@ -103,6 +103,8 @@
     "text.autoconfig.starrailexpress.option.customRolePermission": "Customize role command execution permission level",
     "text.autoconfig.starrailexpress.option.entityInteractionBlockEntityPermission": "Permission levels of entity interaction blocks",
     "text.autoconfig.starrailexpress.option.entityInteractionBlockEntityPlayerPermission": "The permission level of the player executing the entity interaction block",
+    "text.autoconfig.starrailexpress.option.elevateBlockCommandPermission": "Elevate command-block permission",
+    "text.autoconfig.starrailexpress.option.elevateBlockCommandPermission.@Tooltip": "Server toggle. When on, vanilla command blocks (including command minecarts) and entity interaction blocks run commands at permission 3. Can be changed and saved via /sre:block_cmd_perm on|off. Off by default.",
     "text.autoconfig.starrailexpress.option.meetingVoteProcessorFunctionPermission": "Meeting voting results processing permission level to execute functions",
     "text.autoconfig.starrailexpress.option.startGameRequiredPermission": "Permission level required to start the game (/tmm:start)",
     "text.autoconfig.starrailexpress.option.stopGameRequiredPermission": "Permission levels required to stop the game (/tmm:stop and /tmm:game win)",

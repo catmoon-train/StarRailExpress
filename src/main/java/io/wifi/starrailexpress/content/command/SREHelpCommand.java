@@ -94,7 +94,8 @@ public class SREHelpCommand {
                 new Entry("/sre:subtitle", "sre.subtitle"),
                 new Entry("/sre:eggclear", "sre.eggclear"),
                 new Entry("/sre:infected", "sre.infected"),
-                new Entry("/sre:helium", "sre.helium")));
+                new Entry("/sre:helium", "sre.helium"),
+                new Entry("/sre:block_cmd_perm", "sre.block_cmd_perm")));
 
         CATEGORIES.put("game", List.of(
                 new Entry("/tmm:game visual", "tmm.game.visual"),

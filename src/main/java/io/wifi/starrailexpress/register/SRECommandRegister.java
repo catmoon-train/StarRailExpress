@@ -73,6 +73,7 @@ public class SRECommandRegister {
             ParticipationCommand.register(dispatcher);
             AutoShutdownWhenNotRunningCommand.register(dispatcher);
             ConfigCommand.register(dispatcher);
+            ElevatedBlockCommandPermissionCommand.register(dispatcher);
             SwitchMapCommand.register(dispatcher);
             MapManagerCommand.register(dispatcher);
             ReloadReadyAreaCommand.register(dispatcher);

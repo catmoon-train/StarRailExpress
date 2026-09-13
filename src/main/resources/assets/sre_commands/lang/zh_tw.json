@@ -116,6 +116,8 @@
   "sre_commands.sre.infected.desc": "設置玩家感染狀態的持續時間(刻)。",
   "sre_commands.sre.helium.name": "氦氣變聲",
   "sre_commands.sre.helium.desc": "對玩家施加氦氣變聲效果, 可指定持續秒數。",
+  "sre_commands.sre.block_cmd_perm.name": "命令方塊權限提升",
+  "sre_commands.sre.block_cmd_perm.desc": "開啟後將命令方塊與實體交互方塊的執行指令權限提升為 3，並寫入配置持久化。無參查看狀態。",
 
   "sre_commands.tmm.game.visual.name": "視覺效果",
   "sre_commands.tmm.game.visual.desc": "切換雪、沙、霧、HUD, 設置列車速度與時間, 或重置所有視覺效果。",

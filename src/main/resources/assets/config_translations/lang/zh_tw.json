@@ -115,6 +115,8 @@
   "text.autoconfig.starrailexpress.option.timeRewindPermission": "回溯命令需要的許可權等級",
   "text.autoconfig.starrailexpress.option.entityInteractionBlockEntityPermission": "實體交互方塊的許可權等級",
   "text.autoconfig.starrailexpress.option.entityInteractionBlockEntityPlayerPermission": "實體交互方塊玩家執行的許可權等級",
+  "text.autoconfig.starrailexpress.option.elevateBlockCommandPermission": "提升命令方塊執行權限",
+  "text.autoconfig.starrailexpress.option.elevateBlockCommandPermission.@Tooltip": "服務端開關。開啟後，原版命令方塊（含命令方塊礦車）與實體交互方塊執行指令的權限提升為 3。可由 /sre:block_cmd_perm on|off 修改並保存到本配置。默認關閉。",
   "text.autoconfig.starrailexpress.option.meetingVoteProcessorFunctionPermission": "會議投票結果處理執行function的許可權等級",
   "text.autoconfig.starrailexpress.option.startGameRequiredPermission": "啟動遊戲需要的許可權等級 (/tmm:start)",
   "text.autoconfig.starrailexpress.option.stopGameRequiredPermission": "停止遊戲需要的許可權等級 (/tmm:stop 以及 /tmm:game win)",
