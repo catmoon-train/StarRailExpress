@@ -24,8 +24,11 @@ import java.util.concurrent.ConcurrentHashMap;
 import org.agmas.harpymodloader.events.GameInitializeEvent;
 import org.agmas.noellesroles.game.modifier.NRModifiers;
 import org.agmas.noellesroles.init.ModEffects;
+import org.agmas.noellesroles.role.TraitorAndModifiers;
 import org.agmas.noellesroles.utils.RoleUtils;
 import org.jetbrains.annotations.Nullable;
+
+import pro.fazeclan.river.stupid_express.constants.SEModifiers;
 
 import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.api.data.RoleData;
@@ -235,6 +238,18 @@ public final class ChinoHeadRideManager {
         return SREGameWorldComponent.KEY.get(vehiclePlayer.level()).isRole(vehiclePlayer, AnimeRoles.KAFU_CHINO);
     }
 
+    /**
+     * 可以被抱到头顶的目标：带兔兔修饰符的玩家（原设定），
+     * 或矮小（TINY）/ 侏儒（DWARF）修饰符的玩家。
+     * <p>
+     * 三个判定要分开调用：{@code isPlayerTheModifier} 传多个修饰符时要求同时具备。
+     */
+    public static boolean isRideableTarget(@Nullable Player player) {
+        return player != null && (RoleUtils.isPlayerTheModifier(player, NRModifiers.RABBIT_SHAPE)
+                || RoleUtils.isPlayerTheModifier(player, SEModifiers.TINY)
+                || RoleUtils.isPlayerTheModifier(player, TraitorAndModifiers.DWARF));
+    }
+
     /** 该玩家头顶是否正抱着兔兔（客户端没有登记表，用同步下来的乘客+职业判定）。 */
     public static boolean isCarrying(@Nullable Player vehicle) {
         if (vehicle == null) {
@@ -328,9 +343,9 @@ public final class ChinoHeadRideManager {
         RideState state = RIDES.get(vehicleId);
         ServerPlayer rider = state != null ? chino.server.getPlayerList().getPlayer(state.rider) : null;
         if (rider == null && chino.getFirstPassenger() instanceof ServerPlayer passenger
-                && RoleUtils.isPlayerTheModifier(passenger, NRModifiers.RABBIT_SHAPE)) {
-            // 状态因故丢失（例如兔兔中途死亡变旁观）时，仍然允许把头顶的兔兔放下；
-            // 限定兔兔修饰符，避免误伤骑在头上的其它机制（幻灵等）
+                && isRideableTarget(passenger)) {
+            // 状态因故丢失（例如兔兔中途死亡变旁观）时，仍然允许把头顶的人放下；
+            // 限定可抱目标，避免误伤骑在头上的其它机制（幻灵等）
             rider = passenger;
         }
         if (state == null && rider == null) {

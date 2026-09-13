@@ -13,6 +13,8 @@ import org.agmas.noellesroles.utils.RoleUtils;
 
 import io.wifi.starrailexpress.SREConfig;
 import io.wifi.starrailexpress.api.EggRole;
+import io.wifi.starrailexpress.SRE;
+import io.wifi.starrailexpress.api.replay.GameReplayUtils;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.cca.SREPlayerShopComponent;
 import io.wifi.starrailexpress.game.GameConstants;
@@ -491,9 +493,29 @@ public class ProgrammerRole extends EggRole {
             }
         };
         if (success) {
+            recordTerminalCommand(player, raw);
             finishTerminal(player, false);
         }
         return success;
+    }
+
+    /**
+     * 回放：记录程序员用终端**正确执行**的指令（输错的指令与 {@code /help} 不记录）。
+     * <p>
+     * 文本写法对齐 {@code GameReplayManager#recordSkillUsed}：玩家显示名 + 白色高亮的指令内容。
+     */
+    private static void recordTerminalCommand(ServerPlayer player, String raw) {
+        if (SRE.REPLAY_MANAGER == null) {
+            return;
+        }
+        String command = normalizeTerminalInput(raw);
+        if (command.startsWith("/")) {
+            command = command.substring(1).trim();
+        }
+        SRE.REPLAY_MANAGER.recordCustomEvent(
+                Component.translatable("sre.replay.event.terminal_command",
+                        GameReplayUtils.getReplayPlayerDisplayText(player, true),
+                        Component.literal(command).withStyle(ChatFormatting.WHITE)));
     }
 
     /**

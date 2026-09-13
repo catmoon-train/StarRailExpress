@@ -129,8 +129,8 @@ public class ChinoRole extends AnimeRole {
 
     @Override
     public InteractionResult rightClickEntity(Player player, Entity victim) {
-        if (victim instanceof Player rabbit
-                && RoleUtils.isPlayerTheModifier(rabbit, NRModifiers.RABBIT_SHAPE)) {
+        // 可抱的目标见 ChinoHeadRideManager#isRideableTarget：兔兔 / 矮小 / 侏儒
+        if (victim instanceof Player rabbit && ChinoHeadRideManager.isRideableTarget(rabbit)) {
             // 已经在头顶的兔兔由技能放下，右键不再处理
             if (ChinoHeadRideManager.isCarriedBy(rabbit, player)) {
                 return InteractionResult.PASS;

@@ -2508,6 +2508,7 @@
     "sre.replay.event.round_end": "回合结束: %s",
     "sre.replay.event.skill_release": "§b✦ §r%s 释放了技能 %s",
     "sre.replay.event.skill_release_with_target": "§b✦ §r%s 对 %s 释放了技能 %s",
+    "sre.replay.event.terminal_command": "§b✦ §r%s 用终端执行了指令 %s",
     "sre.replay.event.skill_release.warp": "[%s]",
     "sre.replay.event.skill_used": "§b✦ §r%s 使用了 %s",
     "sre.replay.event.store_buy": "§a🏠§r %s 购买了 %s，花费 %s",

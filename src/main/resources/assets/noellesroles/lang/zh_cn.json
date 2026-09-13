@@ -3836,7 +3836,7 @@
   "announcement.star.role.kafu_chino": "卡布奇诺咖啡师",
   "announcement.star.goals.kafu_chino": "咖啡拿铁，咖啡摩卡，卡布奇诺！",
   "skill.noellesroles.kafu_chino.release": "放下兔兔",
-  "hud.noellesroles.kafu_chino.ready": "右键兔兔抱到头顶",
+  "hud.noellesroles.kafu_chino.ready": "右键兔兔/矮小玩家抱到头顶",
   "hud.noellesroles.kafu_chino.cooldown": "抱兔兔冷却：%s秒",
   "hud.noellesroles.kafu_chino.release_hint": "按 %s 放下头顶的兔兔",
   "message.noellesroles.chino_head_ride.mounted": "你把 %s 抱到了头顶，最多 60 秒",
