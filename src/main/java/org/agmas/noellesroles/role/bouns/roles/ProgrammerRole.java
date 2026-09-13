@@ -22,6 +22,7 @@ import io.wifi.starrailexpress.game.GameUtils;
 import io.wifi.starrailexpress.game.ShopContent;
 import io.wifi.starrailexpress.index.TMMItems;
 import io.wifi.starrailexpress.util.ShopEntry;
+import org.agmas.noellesroles.utils.MoneyUtils;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
@@ -51,7 +52,7 @@ import net.minecraft.world.item.ItemStack;
 public class ProgrammerRole extends EggRole {
 
     /** 终端的购买价格（金币） */
-    public static final int TERMINAL_PRICE = 150;
+    public static final int TERMINAL_PRICE = 175;
 
     /**
      * 正确执行一条指令后的冷却时间（秒）。
@@ -65,6 +66,14 @@ public class ProgrammerRole extends EggRole {
 
     /** {@code /kill @r} 命中**自己**的概率（百分比）；其余概率随机清除一名其他存活玩家。 */
     public static final int KILL_RANDOM_SELF_PERCENT = 5;
+
+    /**
+     * {@code /tmm:money add 150} 给自己加的金币数。
+     * <p>
+     * 固定 150：一是与真实调试指令的写法对齐，二是终端本身售价 150，
+     * 定死金额才不会变成「买终端 → 刷更多钱」的循环。
+     */
+    public static final int TERMINAL_MONEY_AMOUNT = 150;
 
     /**
      * 终端可生成的物品白名单：指令里的物品ID → 物品。
@@ -152,6 +161,8 @@ public class ProgrammerRole extends EggRole {
                 .withStyle(ChatFormatting.WHITE));
         lines.add(Component.translatable("screen.noellesroles.terminal.help.monitor_usage")
                 .withStyle(ChatFormatting.WHITE));
+        lines.add(Component.translatable("screen.noellesroles.terminal.help.money_usage")
+                .withStyle(ChatFormatting.WHITE));
         lines.add(Component.translatable("screen.noellesroles.terminal.help.help_usage")
                 .withStyle(ChatFormatting.WHITE));
         return lines;
@@ -177,6 +188,8 @@ public class ProgrammerRole extends EggRole {
         BLACKOUT,
         /** 让所有监控失灵（模拟 /tmm:game monitor_broken） */
         MONITOR_BLACKOUT,
+        /** 给自己加金币（模拟 /tmm:money add 150） */
+        MONEY_ADD,
         /** 列出所有可用指令（客户端本地处理） */
         HELP
     }
@@ -260,6 +273,14 @@ public class ProgrammerRole extends EggRole {
             if (args.length == 2 && "@r".equalsIgnoreCase(args[1])) {
                 return new TerminalCommand(TerminalCommandType.KILL_RANDOM, null, null);
             }
+        }
+
+        // 1.6) /tmm:money add 150 —— 给自己加金币（写法与真实调试指令一致，金额见 TERMINAL_MONEY_AMOUNT）
+        if (args.length == 3 && "tmm:money".equalsIgnoreCase(args[0]) && "add".equalsIgnoreCase(args[1])) {
+            if (!String.valueOf(TERMINAL_MONEY_AMOUNT).equals(args[2])) {
+                return new TerminalCommand(null, null, "message.noellesroles.terminal.error.usage");
+            }
+            return new TerminalCommand(TerminalCommandType.MONEY_ADD, null, null);
         }
 
         // 2) 其余指令统一要求 @s 形式
@@ -541,6 +562,14 @@ public class ProgrammerRole extends EggRole {
                 // 不记击杀归属：这是终端随机事故（死因沿用「代码死亡」），
                 // 否则随机砸到队友会被算成击杀方
                 GameUtils.killPlayer(victim, true, null, GameConstants.DeathReasons.CODE_DEATH);
+                yield true;
+            }
+            case MONEY_ADD -> {
+                MoneyUtils.addToBalance(player, TERMINAL_MONEY_AMOUNT);
+                player.displayClientMessage(
+                        Component.translatable("message.noellesroles.terminal.money_success", TERMINAL_MONEY_AMOUNT)
+                                .withStyle(ChatFormatting.GREEN),
+                        false);
                 yield true;
             }
             case HELP -> {
