@@ -42,7 +42,6 @@ public final class RepairGameSetup {
 
     public static void prepareWorld(ServerLevel serverWorld, SREGameWorldComponent gameWorldComponent,
             List<ServerPlayer> players) {
-        gameWorldComponent.setPlayerCount(players.size());
         applyGameRules(serverWorld);
         applyMapEnvironment(serverWorld);
         serverWorld.getServer().setDifficulty(Difficulty.PEACEFUL, true);
