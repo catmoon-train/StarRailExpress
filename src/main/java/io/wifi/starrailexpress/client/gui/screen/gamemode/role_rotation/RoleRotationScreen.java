@@ -65,6 +65,8 @@ public class RoleRotationScreen extends Screen {
     private static final int BLUE = 0xFF5EB7D8;
     private static final int GREEN = 0xFF72C17B;
     private static final int RED = 0xFFE06B65;
+    /** 好人方中立（与好人一同胜利的中立）阵营颜色，与回放界面 GameReplayUtils#getTMMRoleColor 的映射一致。 */
+    private static final int NEUTRAL_FOR_INNOCENT = 0xFF00AA00;
 
     private int leftX, leftY, leftW, panelH;
     private int rightX, rightY, rightW, cardW, cardY;
@@ -338,11 +340,49 @@ public class RoleRotationScreen extends Screen {
             return RED;
         if (role.isInnocent())
             return GREEN;
+        if (useGoodSideNeutralColor(role))
+            return NEUTRAL_FOR_INNOCENT;
         if (role.isNeutralForKiller())
             return 0xFFAA44CC;
-        if (role.isNeutrals())
+        if (role.isNeutrals() || isExcludedGoodSideNeutral(role))
             return GOLD;
         return BLUE;
+    }
+
+    /**
+     * 该职业是否按「好人方中立」的颜色显示职业名。
+     *
+     * <p>
+     * 好人方中立＝{@link SRERole#isNeutralForInnocent()}（与好人一同胜利的中立）。
+     * 失忆患者（amnesiac）与初学者（initiate）虽然数据上也是好人方中立，
+     * 但按要求排除在外，回退到普通中立的颜色（见 {@link #isExcludedGoodSideNeutral}）。
+     */
+    private static boolean useGoodSideNeutralColor(SRERole role) {
+        return role != null && role.isNeutralForInnocent() && !isExcludedGoodSideNeutral(role);
+    }
+
+    /** 被排除在「好人方中立」显示之外的两个职业（失忆患者、初学者），它们使用普通中立色。 */
+    private static boolean isExcludedGoodSideNeutral(SRERole role) {
+        if (role == null || !role.isNeutralForInnocent()) {
+            return false;
+        }
+        String path = role.identifier().getPath();
+        return "amnesiac".equals(path) || "initiate".equals(path);
+    }
+
+    /**
+     * 职业名在该界面使用的颜色。
+     *
+     * @param defaultColor 非特殊阵营时使用的颜色
+     */
+    private int getRoleNameColor(SRERole role, int defaultColor) {
+        if (useGoodSideNeutralColor(role)) {
+            return NEUTRAL_FOR_INNOCENT;
+        }
+        if (isExcludedGoodSideNeutral(role)) {
+            return GOLD;
+        }
+        return defaultColor;
     }
 
     private int getRoleDisplayColor(SRERole role) {
@@ -484,8 +524,10 @@ public class RoleRotationScreen extends Screen {
         }
         int roleColor = getRoleDisplayColor(role);
         g.fill(x + 8, y + 14, x + w - 8, y + 34, (roleColor & 0x00FFFFFF) | 0x66000000);
+        // 好人方中立的职业名用其中立色显示；失忆患者、初学者回退到普通中立色
+        int nameColor = getRoleNameColor(role, 0xFFFFFFFF);
         g.drawCenteredString(font, trim(RoleUtils.getRoleName(role).getString(), w - 16), x + w / 2, y + 20,
-                0xFFFFFFFF);
+                nameColor);
         Component faction = getRoleFactionText(role);
         g.drawCenteredString(font, trim(faction.getString(), w - 16), x + w / 2, y + 48,
                 faction.getStyle().getColor() != null ? faction.getStyle().getColor().getValue() : TEXT);
