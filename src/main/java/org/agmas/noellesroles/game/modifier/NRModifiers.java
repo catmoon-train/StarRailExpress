@@ -200,7 +200,7 @@ public class NRModifiers {
             false))
             .setServerGameTickEvent(FatSkinnyModifier::serverTickFat)
             .setDefaultMax(2)
-            .setDefaultEnableChance(1000)
+            .setDefaultEnableChance(3000)
             .setAddedVersion("4.4");
 
     /** 瘦子修饰符：模型左右压扁变瘦，并被周围玩家挤压移动 */
@@ -213,7 +213,7 @@ public class NRModifiers {
             false))
             .setServerGameTickEvent(FatSkinnyModifier::serverTickSkinny)
             .setDefaultMax(2)
-            .setDefaultEnableChance(1000)
+            .setDefaultEnableChance(3000)
             .setAddedVersion("4.4");
 
     /**
