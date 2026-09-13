@@ -70,6 +70,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import org.agmas.noellesroles.init.ModEffects;
+import org.agmas.noellesroles.utils.RoleUtils;
 import org.jetbrains.annotations.Nullable;
 import pro.fazeclan.river.stupid_express.modifier.refugee.cca.RefugeeComponent;
 
@@ -427,7 +428,7 @@ public final class MeetingManager {
                                 eff.isAmbient(), eff.isVisible(), eff.showIcon()));
                     }
                     participantEffects.put(participant.getUUID(), newEffMap);
-                    participant.removeAllEffects();
+                    RoleUtils.removeAllEffects(participant);
                 }
             }
             participant.stopSleeping();

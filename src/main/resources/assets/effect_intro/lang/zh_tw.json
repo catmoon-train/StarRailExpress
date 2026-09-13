@@ -144,6 +144,7 @@
   "effect.noellesroles.cowardice.desc": "怯懦：旁邊有人死亡後會一次性失控沿路徑跑走。",
   "effect.noellesroles.third_person.desc": "第三人稱：視角固定為第三人稱背面。",
   "effect.noellesroles.glitch.desc": "故障：周圍方塊的渲染會變成隨機顏色。",
+  "effect.noellesroles.hua_qu_wei_ren.desc": "化區為人：視同常駐運動障礙，倒下時獲得速度IV。",
 
   "effect.stupid_express.arsonist_burning.desc": "燃烧：纵火犯点燃目标后持续着火，燃烧结束时会被烧死。"
 }

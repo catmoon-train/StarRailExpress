@@ -144,6 +144,7 @@
   "effect.noellesroles.cowardice.desc": "When someone nearby dies, lose control and flee along a path once.",
   "effect.noellesroles.third_person.desc": "Camera is locked to third-person back.",
   "effect.noellesroles.glitch.desc": "Nearby blocks render with random colors.",
+  "effect.noellesroles.hua_qu_wei_ren.desc": "Acts as permanent motor dysfunction. Falling also grants Speed IV.",
 
   "effect.stupid_express.arsonist_burning.desc": "Arsonist burn: stay on fire and die when the burn ends."
 }
