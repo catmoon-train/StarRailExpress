@@ -74,6 +74,8 @@ public final class ChinoHeadRideManager {
     public static final int MAX_RIDE_TICKS = GameConstants.getInTicks(1, 0);
     /** 成功抱人后的冷却 75 秒（1500 tick）。 */
     public static final int RIDE_COOLDOWN_TICKS = GameConstants.getInTicks(1, 15);
+    /** 兔兔自己按潜行提前下来时，冷却缩短为 10 秒（200 tick）。 */
+    public static final int EARLY_DISMOUNT_COOLDOWN_TICKS = GameConstants.getInTicks(0, 10);
     /** 放下兔兔时，在咖啡师身前搜索空位的最大距离。 */
     public static final double RELEASE_PLACE_DISTANCE = 1.5D;
     /** 骑乘期间向载具客户端补发乘客列表包的间隔（tick）。 */
@@ -136,6 +138,23 @@ public final class ChinoHeadRideManager {
         }
         RIDES.clear();
         CARRIED_RIDERS.clear();
+    }
+
+    /**
+     * 兔兔自己提前下来时，把咖啡师正在走的冷却改成
+     * {@link #EARLY_DISMOUNT_COOLDOWN_TICKS}（10 秒）。
+     * <p>
+     * 只在冷却还没走完时改，避免凭空给一个不在冷却的人加冷却、也避免把更短的冷却变长。
+     */
+    private static void shortenCooldownForEarlyDismount(ServerPlayer chino) {
+        ChinoRoleData roleData = RoleData.getNullable(ChinoRoleData.class, chino);
+        if (roleData == null) {
+            return;
+        }
+        long left = roleData.getRideCooldownLeft();
+        if (left > EARLY_DISMOUNT_COOLDOWN_TICKS) {
+            roleData.startRideCooldown(EARLY_DISMOUNT_COOLDOWN_TICKS);
+        }
     }
 
     /**
@@ -362,8 +381,14 @@ public final class ChinoHeadRideManager {
             state.rememberVehiclePos(vehicle);
             ejectUnregisteredPassengers(vehicle, state);
 
-            // 潜行下骑（MC 默认逻辑）或其它脱离方式：结束并放到身前
-            if (rider.getVehicle() != vehicle || now >= state.endTick) {
+            // 兔兔主动下骑（按潜行，MC 默认逻辑）：结束乘骑并把咖啡师的冷却缩短为 10 秒
+            if (rider.getVehicle() != vehicle) {
+                shortenCooldownForEarlyDismount(vehicle);
+                release(vehicleId, state, vehicle, rider, true);
+                continue;
+            }
+            // 骑满 60 秒（或其它脱离方式）
+            if (now >= state.endTick) {
                 release(vehicleId, state, vehicle, rider, true);
                 continue;
             }
