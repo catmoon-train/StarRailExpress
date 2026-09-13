@@ -107,8 +107,8 @@ public class SRERoleRotationGameMode extends SREMurderGameMode {
             p.addEffect(
                     new MobEffectInstance(MobEffects.INVISIBILITY, ROTATION_SAFE_TIME + 40, 10, true, false, false));
             p.addEffect(new MobEffectInstance(ModEffects.MOVE_BANED, ROTATION_SAFE_TIME + 40, 10, true, false, false));
-            p.addEffect(new MobEffectInstance(ModEffects.SKILL_BANED, 40, 10, true, false, false));
-            p.addEffect(new MobEffectInstance(ModEffects.CCA_FREEZED, 40, 10, true, false, false));
+            p.addEffect(new MobEffectInstance(ModEffects.SKILL_BANED, ROTATION_SAFE_TIME + 40, 10, true, false, false));
+            p.addEffect(new MobEffectInstance(ModEffects.CCA_FREEZED, ROTATION_SAFE_TIME + 40, 10, true, false, false));
         }
 
         // 保底

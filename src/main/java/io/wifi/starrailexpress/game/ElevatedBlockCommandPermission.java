@@ -25,6 +25,7 @@ import io.wifi.starrailexpress.SREConfig;
  * 关闭时命令方块保持原版 2，实体交互方块沿用 {@link SREConfig} 里已有的权限配置。
  * 状态写入 {@link SREConfig#elevateBlockCommandPermission}，重启后仍生效。
  */
+// 这玩意就该在 server.propertise 里改...
 public final class ElevatedBlockCommandPermission {
     public static final int ELEVATED_LEVEL = 3;
 
