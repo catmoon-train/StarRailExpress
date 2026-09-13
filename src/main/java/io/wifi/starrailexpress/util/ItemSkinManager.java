@@ -17,7 +17,7 @@ package io.wifi.starrailexpress.util;
 
 import io.wifi.starrailexpress.content.item.Colors;
 import io.wifi.starrailexpress.content.item.SkinableItem;
-import io.wifi.starrailexpress.data.PlayerEconomyManager;
+import io.wifi.starrailexpress.data.PlayerSkinEconomyManager;
 import io.wifi.starrailexpress.index.SREDataComponentTypes;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
@@ -226,19 +226,19 @@ public class ItemSkinManager {
     }
 
     public static Integer getLootChance(Player player) {
-        return PlayerEconomyManager.getLootChance(player);
+        return PlayerSkinEconomyManager.getLootChance(player);
     }
 
     public static void addLootChance(Player player, Integer chance) {
-        PlayerEconomyManager.addLootChance(player, chance == null ? 0 : chance);
+        PlayerSkinEconomyManager.addLootChance(player, chance == null ? 0 : chance);
     }
 
     public static Integer getCoinNum(Player player) {
-        return PlayerEconomyManager.getCoinNum(player);
+        return PlayerSkinEconomyManager.getCoinNum(player);
     }
 
     public static void addCoinNum(Player player, Integer num) {
-        PlayerEconomyManager.addCoinNum(player, num == null ? 0 : num);
+        PlayerSkinEconomyManager.addCoinNum(player, num == null ? 0 : num);
     }
 
     /**
@@ -253,7 +253,7 @@ public class ItemSkinManager {
         if (itemStack.has(SREDataComponentTypes.SKIN)) {
             return itemStack.get(SREDataComponentTypes.SKIN);
         }
-        return PlayerEconomyManager.getEquippedSkin(player, itemStack);
+        return PlayerSkinEconomyManager.getEquippedSkin(player, itemStack);
     }
 
     /**
@@ -264,7 +264,7 @@ public class ItemSkinManager {
      * @param skinName  皮肤名称
      */
     public static void setEquippedSkin(Player player, ItemStack itemStack, String skinName) {
-        PlayerEconomyManager.setEquippedSkinForItemType(player, getItemTypeName(itemStack), skinName);
+        PlayerSkinEconomyManager.setEquippedSkinForItemType(player, getItemTypeName(itemStack), skinName);
     }
 
     /**
@@ -276,7 +276,7 @@ public class ItemSkinManager {
      * @return 是否解锁
      */
     public static boolean isSkinUnlocked(Player player, ItemStack itemStack, String skinName) {
-        return PlayerEconomyManager.isSkinUnlocked(player, itemStack, skinName);
+        return PlayerSkinEconomyManager.isSkinUnlocked(player, itemStack, skinName);
 
     }
 
@@ -288,7 +288,7 @@ public class ItemSkinManager {
      * @param skinName  皮肤名称
      */
     public static void unlockSkin(Player player, ItemStack itemStack, String skinName) {
-        PlayerEconomyManager.unlockSkin(player, itemStack, skinName);
+        PlayerSkinEconomyManager.unlockSkin(player, itemStack, skinName);
     }
 
     /**
@@ -299,7 +299,7 @@ public class ItemSkinManager {
      * @param skinName  皮肤名称
      */
     public static void lockSkin(Player player, ItemStack itemStack, String skinName) {
-        PlayerEconomyManager.lockSkinForItemType(player, getItemTypeName(itemStack), skinName);
+        PlayerSkinEconomyManager.lockSkinForItemType(player, getItemTypeName(itemStack), skinName);
     }
 
     /**
@@ -310,15 +310,15 @@ public class ItemSkinManager {
      * @param skinName     皮肤名称
      */
     public static void sync(Player player) {
-        PlayerEconomyManager.flushBlocking(player.getUUID());
+        PlayerSkinEconomyManager.flushBlocking(player.getUUID());
     }
 
     public static void unlockSkinForItemTypeNoSync(Player player, String itemTypeName, String skinName) {
-        PlayerEconomyManager.unlockSkinForItemType(player, itemTypeName, skinName);
+        PlayerSkinEconomyManager.unlockSkinForItemType(player, itemTypeName, skinName);
     }
 
     public static void unlockSkinForItemType(Player player, String itemTypeName, String skinName) {
-        PlayerEconomyManager.unlockSkinForItemType(player, itemTypeName, skinName);
+        PlayerSkinEconomyManager.unlockSkinForItemType(player, itemTypeName, skinName);
     }
 
     /**
@@ -329,7 +329,7 @@ public class ItemSkinManager {
      * @param skinName     皮肤名称
      */
     public static void setEquippedSkinForItemType(Player player, String itemTypeName, String skinName) {
-        PlayerEconomyManager.setEquippedSkinForItemType(player, itemTypeName, skinName);
+        PlayerSkinEconomyManager.setEquippedSkinForItemType(player, itemTypeName, skinName);
     }
 
     /**

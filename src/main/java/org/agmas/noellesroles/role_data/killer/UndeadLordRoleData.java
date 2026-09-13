@@ -18,7 +18,6 @@ package org.agmas.noellesroles.role_data.killer;
 import io.wifi.starrailexpress.api.data.RoleDataContext;
 import io.wifi.starrailexpress.api.impl.SimpleRoleData;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
-import io.wifi.starrailexpress.data.PlayerEconomyManager;
 import io.wifi.starrailexpress.game.GameConstants;
 import io.wifi.starrailexpress.game.GameUtils;
 import net.minecraft.ChatFormatting;
@@ -39,6 +38,7 @@ import net.minecraft.world.phys.Vec3;
 import org.agmas.noellesroles.config.NoellesRolesConfig;
 import org.agmas.noellesroles.content.entity.UndeadEntity;
 import org.agmas.noellesroles.init.ModEntities;
+import org.agmas.noellesroles.utils.MoneyUtils;
 import org.jetbrains.annotations.NotNull;
 import java.util.*;
 
@@ -191,7 +191,7 @@ public class UndeadLordRoleData extends SimpleRoleData {
 
         int reward = config().undeadLordInfectionCoinReward;
         if (reward != 0 && player instanceof ServerPlayer lord) {
-            PlayerEconomyManager.addCoinNum(lord, reward);
+            MoneyUtils.addToBalance(lord, reward);
         }
     }
 

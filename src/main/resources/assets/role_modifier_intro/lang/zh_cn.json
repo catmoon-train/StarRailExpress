@@ -543,6 +543,7 @@
   "info.screen.roleid.repair_saboteur.simple": "",
   "info.screen.roleid.repair_collector": "中立独立胜利职业\n使用 4 次修机道具或补给即可独立获胜。",
   "info.screen.roleid.repair_collector.simple": "",
+  "info.screen.roleid.programmer": "杀手阵营\n彩蛋职业，受彩蛋刷新概率影响\n专属商店可以花费150金币购买【终端】\n手持终端右键打开终端界面，输入指令后按回车执行\n成功执行一条指令后终端会被销毁（用掉可以再买）\n/give @s trainmurdermystery:revolver —— 生成左轮手枪\n/give @s trainmurdermystery:knife —— 生成刀\n/tp @s room —— 传送回自己的房间",
   "==================== 修飾符 ====================": "",
   "=======修機模式/特殊模式=======": ""
 }

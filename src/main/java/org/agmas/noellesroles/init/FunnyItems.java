@@ -69,6 +69,10 @@ public class FunnyItems {
     public static final Item SUPER_PIG_HORSESHOE = register(
             new SuperPigHorseshoeItem(new Item.Properties().stacksTo(1)),
             "super_pig_horseshoe");
+    // 终端 - 程序员专属，右键打开终端界面，执行一条指令后销毁
+    public static final Item TERMINAL = register(
+            new TerminalItem(new Item.Properties().stacksTo(1)),
+            "terminal");
 
     @SuppressWarnings("unchecked")
     public static Item register(Item item, String id) {

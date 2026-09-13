@@ -74,6 +74,7 @@ public class BounsRoles {
     public static final ResourceLocation TELEGRAPHER_ID = id("telegrapher");
     public static final ResourceLocation DISC_MASTER_ID = id("disc_master");
     public static final ResourceLocation ANGLER_ID = id("angler");
+    public static final ResourceLocation PROGRAMMER_ID = id("programmer");
 
     public static ResourceLocation id(String path) {
         return ResourceLocation.fromNamespaceAndPath(NAMESPACE, path);
@@ -384,6 +385,28 @@ public class BounsRoles {
             .setAddedVersion("4.4") // versiontag 4.4
             .setTaskReward(2, 1, new ItemStack(TMMItems.STANDARD_REVOLVER)) // 完成 2 个任务获制式左轮
             .setCanUseInstinctAndNightVision(true);
+
+    /**
+     * 程序员角色
+     * - 彩蛋职业（受彩蛋刷新概率影响）
+     * - 属于杀手阵营 (isInnocent = false, canUseKiller = true)
+     * - 假心情系统、无限冲刺时间、在计分板上显示
+     * - 商店：杀手默认刀具 + 终端（150金币）
+     * - 终端右键打开终端界面，可输入 /give @s <物品ID> 与 /tp @s room，执行成功后终端销毁
+     * - 职业相关规则全部集中在 {@link ProgrammerRole} 里
+     */
+    public static SRERole PROGRAMMER = TMMRoles.registerRole(new ProgrammerRole(
+            PROGRAMMER_ID, // 角色 ID
+            new Color(0, 170, 120).getRGB(), // 终端绿
+            false, // isInnocent = 杀手阵营
+            true, // canUseKiller = 有杀手能力
+            SRERole.MoodType.FAKE, // 假心情
+            -1, // 无限冲刺时间
+            true // 显示计分板
+    )).setCanBeRandomedByOtherRoles(false)
+            .setDefaultMax(1)
+            .setDefaultEnableChance(200) // 彩蛋刷新率 2%
+            .setAddedVersion("4.4"); // versiontag 4.4
 
     public static void init() {
         THRedHouseRoles.init();

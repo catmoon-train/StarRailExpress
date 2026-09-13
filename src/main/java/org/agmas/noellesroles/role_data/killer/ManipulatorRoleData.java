@@ -19,7 +19,6 @@ import io.wifi.starrailexpress.api.data.RoleDataContext;
 import io.wifi.starrailexpress.api.impl.SimpleRoleData;
 import io.wifi.starrailexpress.cca.SREAbilityPlayerComponent;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
-import io.wifi.starrailexpress.data.PlayerEconomyManager;
 import io.wifi.starrailexpress.event.AllowPlayerControlled;
 import io.wifi.starrailexpress.game.GameConstants;
 import io.wifi.starrailexpress.game.GameUtils;
@@ -43,6 +42,7 @@ import org.agmas.noellesroles.ConfigWorldComponent;
 import org.agmas.noellesroles.config.NoellesRolesConfig;
 import org.agmas.noellesroles.init.ModEffects;
 import org.agmas.noellesroles.role.ModRoles;
+import org.agmas.noellesroles.utils.MoneyUtils;
 import org.jetbrains.annotations.NotNull;
 import java.util.LinkedHashSet;
 import java.util.Set;
@@ -335,7 +335,7 @@ public class ManipulatorRoleData extends SimpleRoleData {
             if (markedTargets.add(candidate.getUUID())) {
                 candidate.addEffect(new MobEffectInstance(MobEffects.CONFUSION,
                         GameConstants.getInTicks(0, config().manipulatorMarkNauseaSeconds), 0));
-                PlayerEconomyManager.addCoinNum(sp, config().manipulatorMarkReward);
+                MoneyUtils.addToBalance(sp, config().manipulatorMarkReward);
                 sp.displayClientMessage(Component.translatable("message.noellesroles.manipulator.mark_success",
                         candidate.getName()).withStyle(ChatFormatting.GREEN), true);
                 sp.level().playSound(null, sp.blockPosition(),

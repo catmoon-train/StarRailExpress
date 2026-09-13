@@ -164,6 +164,7 @@ static int blendColors(int c1, int c2, float t) {
 
 ### 8.1 Title 主标题屏（`StarRailExpressTitleScreen`）
 - 背景：CubeMap 全景（`textures/gui/title/background/panorama_[0-5].png`）或 `video/frame_*.png` 帧动画（20 FPS，`FrameAnimationRenderer`，帧间 alpha 混合）。
+  注意：这两类资源**不在本仓库**里 —— 全景图由外部依赖 `sre_resource` 提供（代码里是 `SRE.id("textures/gui/title/background/panorama")`），帧动画从游戏目录 `<gameDir>/video` 读文件系统，不是 jar 内资源。
 - 全屏渐变遮罩 `0x33000000 → 0x88000010`。
 - 左侧菜单面板（宽 30% / [140,230]px）：菜单项逐个滑入（easeOutCubic + 0.08s 间隔），hover 右移 6px、颜色 `0xE8D5A8 → 0xFFF4DC`。
 - 右侧更新日志面板（宽 32%）：标题栏 24px + 可滚动 Markdown 内容，背景 `0x7A1A1008 → 0xCC8B6914`。
@@ -173,10 +174,10 @@ static int blendColors(int c1, int c2, float t) {
 - 左列表右详情双栏；顶部模式标签页（ALL 绿 / MURDER 红 / REPAIR 蓝等模式色）。
 - 左侧卡片：42px 行高 + 26px 图标 + hover `0x22FFFFFF`。
 - 右侧详情由 `DetailTab` 接口组成（简介 / 相关对象 / 初始物品 / 商店），标签分类标题 = 粗体 + 分类色。
-- 名称统一走 `RoleUtils.getRoleOrModifierOrItemNameWithColor()` 保证颜色一致。
+- 名称统一走 `RoleUtils.getRoleOrModifierOrItemNameWithColor(Object selectedRole)`（**需要一个参数**，传角色/修饰符/物品对象）保证颜色一致。
 
 ### 8.3 地图介绍屏（`MapIntroduceScreen`）
-- 常量：`BG_TOP 0xD81A1008 / BG_BOTTOM 0xD820140A / BORDER 0xFF8B6914 / TEXT 0xFFFFF4DC / MUTED 0xFF9E8B6E`。
+- 常量（**名字以源码为准**，见 `MapIntroduceScreen` 顶部）：`PANEL_BG_TOP 0xD81A1008 / PANEL_BG_BOTTOM 0xD820140A / PANEL_OUTLINE 0xFF8B6914 / TEXT 0xFFFFF4DC / MUTED 0xFF9E8B6E`；卡片边框是另一个常量 `CARD_BORDER 0xFF5A4530`（旧文档把这两个名字/值混在了一起）。
 - 底部标签页（高 24px）：地图属性 `0xFF5EB7D8` / 场景方块 `0xFF72C17B` / 任务方块 `0xFFE0AD5B` / 机制 `0xFFB18AE6`；
   活跃标签背景 `blend(0xFF1A1008, tabColor, 0.55F)`，hover `blend(..., 0.25F)`。
 - 地图名 `ChatFormatting.AQUA` 粗体，章节标题 `GOLD` 粗体。

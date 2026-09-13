@@ -17,7 +17,7 @@ package io.wifi.starrailexpress.network;
 
 import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.cca.SREPlayerSkinsComponent;
-import io.wifi.starrailexpress.data.PlayerEconomyManager;
+import io.wifi.starrailexpress.data.PlayerSkinEconomyManager;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
@@ -51,11 +51,11 @@ public record UpdateSkinSelectedPayload(String id, String name) implements Custo
         ServerPlayNetworking.registerGlobalReceiver(ID, (payload, context) -> {
             context.server().execute(() -> {
                 SREPlayerSkinsComponent skincca = SREPlayerSkinsComponent.KEY.get(context.player());
-                if (!skincca.isSkinUnlockedForItemType(payload.id, payload.name) && !PlayerEconomyManager
+                if (!skincca.isSkinUnlockedForItemType(payload.id, payload.name) && !PlayerSkinEconomyManager
                         .isSkinUnlockedForItemType(context.player(), payload.id, payload.name)) {
                     return;
                 }
-                PlayerEconomyManager.setEquippedSkinForItemType(context.player(), payload.id, payload.name);
+                PlayerSkinEconomyManager.setEquippedSkinForItemType(context.player(), payload.id, payload.name);
             });
         });
     }

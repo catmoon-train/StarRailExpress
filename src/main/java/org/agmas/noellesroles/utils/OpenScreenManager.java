@@ -17,6 +17,7 @@ package org.agmas.noellesroles.utils;
 
 import java.util.HashMap;
 
+import org.agmas.noellesroles.Noellesroles;
 import org.agmas.noellesroles.packet.OpenScreenPayload;
 
 import io.wifi.starrailexpress.SRE;
@@ -44,4 +45,7 @@ public interface OpenScreenManager {
 
     ResourceLocation RHYTHM_GAME_SCREEN = register(SRE.id("rhythm_game"), Component.translatable("gui.rhythm.title"));
     ResourceLocation RHYTHM_GAME_SCREEN_ROLE = register(SRE.id("rhythm_game_role"), Component.translatable("gui.rhythm.title"));
+    /** 程序员的终端界面（客户端映射见 ClientOpenScreenManager） */
+    ResourceLocation PROGRAMMER_TERMINAL_SCREEN = register(Noellesroles.id("programmer_terminal"),
+            Component.translatable("screen.noellesroles.terminal.title"));
 }

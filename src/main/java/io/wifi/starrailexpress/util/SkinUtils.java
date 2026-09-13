@@ -58,8 +58,8 @@ public class SkinUtils {
      * @return 皮肤统计信息字符串
      */
     public static String getPlayerSkinStats(Player player) {
-        Map<String, String> equippedSkins = io.wifi.starrailexpress.data.PlayerEconomyManager.getEquippedSkins(player);
-        Map<String, Map<String, Boolean>> unlockedSkins = io.wifi.starrailexpress.data.PlayerEconomyManager.getUnlockedSkins(player);
+        Map<String, String> equippedSkins = io.wifi.starrailexpress.data.PlayerSkinEconomyManager.getEquippedSkins(player);
+        Map<String, Map<String, Boolean>> unlockedSkins = io.wifi.starrailexpress.data.PlayerSkinEconomyManager.getUnlockedSkins(player);
         
         int totalEquipped = equippedSkins.size();
         int totalUnlocked = 0;

@@ -218,5 +218,6 @@
   "item.noellesroles.insurance.desc": "选择死亡原因签订保险；右键已签订的保险并支付25金币使其生效。",
   "item.noellesroles.spellbreaker_potion.desc": "破咒者专用。瞄准存活玩家使用后，目标在 80 秒内下一次技能会被封印。",
   "item.trainmurdermystery.weak_defense_vial.desc": "弱效护盾试剂。亡命徒等可直接右键饮用；普通玩家可倒在托盘上。提供持续约 20 秒、仅能抵挡一次刀伤害的弱效护盾。",
-  "item.noellesroles.sanity_meds.desc": "修机模式镇静剂。服用后恢复 40 点理智。黑暗与追捕者靠近时会侵蚀理智。"
+  "item.noellesroles.sanity_meds.desc": "修机模式镇静剂。服用后恢复 40 点理智。黑暗与追捕者靠近时会侵蚀理智。",
+  "item.noellesroles.terminal.desc": "程序员专用的终端。右键打开终端界面，输入 /give @s <物品ID> 或 /tp @s room 后按回车执行；成功执行一条指令后终端会被销毁。"
 }

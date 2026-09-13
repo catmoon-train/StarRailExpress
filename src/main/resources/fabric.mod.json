@@ -8,7 +8,7 @@
     "Catmoon Train Team"
   ],
   "contact": {},
-  "license": "LGPL-3.0",
+  "license": "GPL-3.0-only",
   "icon": "assets/starrailexpress/icon.png",
   "environment": "*",
   "entrypoints": {
