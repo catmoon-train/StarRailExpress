@@ -1543,4 +1543,11 @@ public class SREGameWorldComponent implements AutoSyncedComponent, ServerTicking
             return false;
         return getRole(player) != null;
     }
+
+    public static boolean isInnocentRoleStatic(SRERole value) {
+        if (value == null) {
+            return false;
+        }
+        return value.isInnocent();
+    }
 }

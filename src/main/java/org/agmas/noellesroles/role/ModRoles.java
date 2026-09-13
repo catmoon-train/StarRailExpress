@@ -3054,10 +3054,10 @@ public class ModRoles {
         SREPlayerPoisonComponent.canSyncedRolePaths.add(ModRoles.BARTENDER_ID.getPath());
         SREArmorPlayerComponent.canSynced.add((entry) -> {
             if (RoleUtils.compareRole(entry.getKey(), ModRoles.BARTENDER)) {
-                if (SREGameWorldComponent.isKillerTeamRoleStatic(entry.getValue())) {
-                    return false;
+                if (SREGameWorldComponent.isInnocentRoleStatic(entry.getValue())) {
+                    return true;
                 }
-                return true;
+                return false;
             }
             return false;
         });
