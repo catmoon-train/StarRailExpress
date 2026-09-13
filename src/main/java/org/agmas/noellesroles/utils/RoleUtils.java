@@ -51,7 +51,6 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.tags.TagKey;
-import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.entity.ai.attributes.Attribute;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.player.Player;
@@ -143,34 +142,10 @@ public class RoleUtils extends MCItemsUtils {
         }
     }
 
-    /**
-     * 先快照效果再逐个 {@link Player#removeEffect}。
-     * 原版 {@link Player#removeAllEffects()} 在 {@code onEffectRemoved} 之后才
-     * {@code iterator.remove()}；失心症等回调会在此时再改同一张效果表，触发 CME。
-     */
     public static boolean removeAllEffects(Player entity) {
-        if (entity == null || entity.getActiveEffects().isEmpty()) {
-            return false;
-        }
-        boolean removed = false;
-        int guard = 0;
-        while (!entity.getActiveEffects().isEmpty() && guard++ < 8) {
-            List<Holder<MobEffect>> snapshot = new ArrayList<>(entity.getActiveEffectsMap().keySet());
-            if (snapshot.isEmpty()) {
-                break;
-            }
-            boolean progress = false;
-            for (Holder<MobEffect> effect : snapshot) {
-                if (entity.removeEffect(effect)) {
-                    removed = true;
-                    progress = true;
-                }
-            }
-            if (!progress) {
-                break;
-            }
-        }
-        return removed;
+        if (entity.getActiveEffects() != null && !entity.getActiveEffects().isEmpty())
+            return entity.removeAllEffects();
+        return false;
     }
 
     public static boolean isPlayerHasFreeSlot(@NotNull Player player) {

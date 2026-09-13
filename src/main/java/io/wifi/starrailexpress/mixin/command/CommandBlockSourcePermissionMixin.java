@@ -16,34 +16,25 @@
 package io.wifi.starrailexpress.mixin.command;
 
 import io.wifi.starrailexpress.game.ElevatedBlockCommandPermission;
-import net.minecraft.commands.CommandSource;
 import net.minecraft.commands.CommandSourceStack;
-import net.minecraft.world.level.BaseCommandBlock;
-import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 /**
  * 原版命令方块 / 命令方块矿车的执行权限写死为 2，只能通过 mixin 提升。
- * 仅在开关开启且当前源是 {@link BaseCommandBlock} 时，把检查上限提到 3。
+ * 开关开启后把 {@code createCommandSourceStack} 的权限改成 3。
  */
-@Mixin(CommandSourceStack.class)
-public abstract class CommandSourceStackPermissionMixin {
-    @Shadow
-    @Final
-    private CommandSource source;
-
-    @Shadow
-    @Final
-    private int permissionLevel;
-
-    @Inject(method = "hasPermission", at = @At("HEAD"), cancellable = true)
-    private void sre$elevateCommandBlockPermission(int level, CallbackInfoReturnable<Boolean> cir) {
-        if (this.source instanceof BaseCommandBlock && ElevatedBlockCommandPermission.isEnabled()) {
-            cir.setReturnValue(Math.max(this.permissionLevel, ElevatedBlockCommandPermission.ELEVATED_LEVEL) >= level);
+@Mixin(targets = {
+        "net.minecraft.world.level.block.entity.CommandBlockEntity$1",
+        "net.minecraft.world.entity.vehicle.MinecartCommandBlock$MinecartCommandBase"
+})
+public abstract class CommandBlockSourcePermissionMixin {
+    @Inject(method = "createCommandSourceStack", at = @At("RETURN"), cancellable = true)
+    private void sre$elevateCommandBlockPermission(CallbackInfoReturnable<CommandSourceStack> cir) {
+        if (ElevatedBlockCommandPermission.isEnabled()) {
+            cir.setReturnValue(cir.getReturnValue().withPermission(ElevatedBlockCommandPermission.ELEVATED_LEVEL));
         }
     }
 }

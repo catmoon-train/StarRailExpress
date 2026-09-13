@@ -771,12 +771,6 @@ public class ModEffects {
     public static final Holder<MobEffect> GLITCH = register("glitch",
             new SimpleMobEffect(MobEffectCategory.HARMFUL, 0xE23CFF));
 
-    /**
-     * 化区为人：视同常驻运动障碍，摔倒时额外获得速度 IV。
-     */
-    public static final Holder<MobEffect> HUA_QU_WEI_REN = register("hua_qu_wei_ren",
-            new SimpleMobEffect(MobEffectCategory.HARMFUL, 0x8F6A3C));
-
     /** 视野迷雾：根据效果等级计算雾的可见距离（格）。1 级=2 格，每升 1 级多看 3 格。 */
     public static float getVisionFogDistance(int amplifier) {
         return 2.0f + Math.max(0, amplifier) * 3.0f;

@@ -195,9 +195,6 @@
     "announcement.star.modifier.noellesroles.coward": "Coward",
     "announcement.star.modifier.noellesroles.rage": "Rage",
     "announcement.star.modifier.noellesroles.cowardice": "Cowardice",
-    "announcement.star.modifier.noellesroles.weak_hands": "Weak Hands",
-    "announcement.star.modifier.noellesroles.nearsighted": "Nearsighted",
-    "announcement.star.modifier.noellesroles.strong_mind": "Strong Mind",
     "announcement.star.modifier.introverted": "Introverted",
     "announcement.star.modifier.taxed": "Taxed",
     "announcement.star.modifier.hungry": "Hungry",
@@ -208,9 +205,6 @@
     "announcement.star.modifier.coward": "Coward",
     "announcement.star.modifier.rage": "Rage",
     "announcement.star.modifier.cowardice": "Cowardice",
-    "announcement.star.modifier.weak_hands": "Weak Hands",
-    "announcement.star.modifier.nearsighted": "Nearsighted",
-    "announcement.star.modifier.strong_mind": "Strong Mind",
     "death_reason.noellesroles.pelican_eaten": "Eaten by Pelican",
     "death_reason.noellesroles.sealed_choke": "Choked by Breathless Bread",
     "death_reason.noellesroles.sealed_lightning": "Thunderstruck",
@@ -2052,8 +2046,6 @@
     "insane.tip.neardeath.line3": "Just reach that place...",
     "death_reason.noellesroles.nianshou_firecrackers": "Driven away by firecrackers",
     "message.split_personality.broadcast_prefix": "[Split Personality] %s: %s",
-    "message.twin_children.broadcast_prefix": "[Twin Children] %s: %s",
-    "message.twin_children.swap": "You swapped places. %s is now moving the pair.",
     "message.broadcast.more_message": "... (%s more messages not shown) ...",
     "item_group.noellesroles.misc": "Canyue Noellesroles Miscellaneous",
     "item_group.noellesroles.block": "SRE Blocks",
@@ -4706,9 +4698,6 @@
   ,"effect.noellesroles.glitch": "Glitch"
   ,"mob_effect.noellesroles.glitch": "Glitch"
   ,"effect.noellesroles.glitch.description": "Nearby blocks render with random colors."
-  ,"effect.noellesroles.hua_qu_wei_ren": "District Human"
-  ,"mob_effect.noellesroles.hua_qu_wei_ren": "District Human"
-  ,"effect.noellesroles.hua_qu_wei_ren.description": "Acts as permanent motor dysfunction. Falling also grants Speed IV."
   ,"effect.noellesroles.puppet_wander": "Puppet Wander"
   ,"mob_effect.noellesroles.puppet_wander": "Puppet Wander"
   ,"message.noellesroles.ailment.appetite_banned": "You have no appetite and cannot eat or drink."

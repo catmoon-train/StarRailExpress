@@ -31,7 +31,6 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemCooldowns;
 import net.minecraft.world.level.GameType;
 import org.agmas.noellesroles.api.time.internal.TimeRewindPlayerAccess;
-import org.agmas.noellesroles.utils.RoleUtils;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 
@@ -98,7 +97,7 @@ public abstract class ServerPlayerTimeRewindMixin implements TimeRewindPlayerAcc
         // client. Remove first, then re-add the loaded copies through vanilla hooks.
         player.closeContainer();
         player.stopRiding();
-        RoleUtils.removeAllEffects(player);
+        player.removeAllEffects();
         player.load(state.copy());
         player.setUUID(identity);
 
@@ -109,7 +108,7 @@ public abstract class ServerPlayerTimeRewindMixin implements TimeRewindPlayerAcc
         List<MobEffectInstance> loadedEffects = player.getActiveEffects().stream()
                 .map(MobEffectInstance::new)
                 .toList();
-        RoleUtils.removeAllEffects(player);
+        player.removeAllEffects();
         loadedEffects.forEach(player::addEffect);
 
         noellesroles$restoreCooldowns(player, state);

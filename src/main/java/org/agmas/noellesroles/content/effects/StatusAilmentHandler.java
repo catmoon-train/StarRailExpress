@@ -26,7 +26,6 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.effect.MobEffectInstance;
-import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import org.agmas.noellesroles.game.fake_steve.AphreniaFakeSteveControl;
@@ -201,8 +200,7 @@ public final class StatusAilmentHandler {
 
     private static void tickMotor(ServerPlayer player, long now) {
         MobEffectInstance instance = player.getEffect(ModEffects.MOTOR_DYSFUNCTION);
-        boolean huaQu = player.hasEffect(ModEffects.HUA_QU_WEI_REN);
-        if (instance == null && !huaQu) {
+        if (instance == null) {
             MOTOR_COOLDOWN_UNTIL.remove(player.getUUID());
             return;
         }
@@ -216,16 +214,12 @@ public final class StatusAilmentHandler {
         if (player.getDeltaMovement().horizontalDistanceSqr() < 1.0E-4) {
             return;
         }
-        int amplifier = instance != null ? instance.getAmplifier() : 0;
+        int amplifier = instance.getAmplifier();
         if (player.getRandom().nextFloat() >= StatusAilmentPolicy.motorFallChance(amplifier)) {
             return;
         }
         int fallTicks = StatusAilmentPolicy.motorFallDurationTicks(amplifier);
         player.addEffect(new MobEffectInstance(ModEffects.SWIM_POSE, fallTicks, 0, false, false, true));
-        if (huaQu) {
-            player.addEffect(new MobEffectInstance(
-                    MobEffects.MOVEMENT_SPEED, fallTicks + 40, 3, false, false, true));
-        }
         MOTOR_COOLDOWN_UNTIL.put(player.getUUID(),
                 now + fallTicks + StatusAilmentPolicy.motorFallCooldownTicks(amplifier));
     }

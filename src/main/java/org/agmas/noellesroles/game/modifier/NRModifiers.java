@@ -25,7 +25,6 @@ import org.agmas.harpymodloader.events.ResetPlayerEvent;
 import org.agmas.harpymodloader.modifiers.HMLModifiers;
 import org.agmas.harpymodloader.modifiers.SREModifier;
 import org.agmas.noellesroles.Noellesroles;
-import org.agmas.noellesroles.init.ModEffects;
 import org.agmas.noellesroles.game.modifier.expedition.ExpeditionComponent;
 import org.agmas.noellesroles.game.modifier.fatskinny.FatSkinnyModifier;
 import org.agmas.noellesroles.game.modifier.coward.CowardModifier;
@@ -187,45 +186,6 @@ public class NRModifiers {
             false,
             false))
             .setServerGameTickEvent(CowardiceModifier::serverTick)
-            .setDefaultMax(2)
-            .setDefaultEnableChance(4000)
-            .setAddedVersion("4.4");
-
-    /** 手弱：全程颤抖 */
-    public static SREModifier WEAK_HANDS = HMLModifiers.registerModifier(new SREModifier(
-            Noellesroles.id("weak_hands"),
-            0xC47A4A,
-            null,
-            null,
-            false,
-            false))
-            .setServerGameTickEvent(p -> HeldEffectModifier.tick(p, ModEffects.TREMBLE))
-            .setDefaultMax(2)
-            .setDefaultEnableChance(5000)
-            .setAddedVersion("4.4");
-
-    /** 近视眼：近视药水 */
-    public static SREModifier NEARSIGHTED = HMLModifiers.registerModifier(new SREModifier(
-            Noellesroles.id("nearsighted"),
-            0x7A8BA6,
-            null,
-            null,
-            false,
-            false))
-            .setServerGameTickEvent(p -> HeldEffectModifier.tick(p, ModEffects.MYOPIA))
-            .setDefaultMax(2)
-            .setDefaultEnableChance(1000)
-            .setAddedVersion("4.4");
-
-    /** 心灵强大：常驻心灵失聪 */
-    public static SREModifier STRONG_MIND = HMLModifiers.registerModifier(new SREModifier(
-            Noellesroles.id("strong_mind"),
-            0xB8A4C8,
-            null,
-            null,
-            false,
-            false))
-            .setServerGameTickEvent(p -> HeldEffectModifier.tick(p, ModEffects.MENTAL_DEAFNESS))
             .setDefaultMax(2)
             .setDefaultEnableChance(4000)
             .setAddedVersion("4.4");

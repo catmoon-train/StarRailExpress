@@ -26,7 +26,6 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.Vec3;
 import org.agmas.noellesroles.client.event.CommonHudRenderCallback;
-import org.agmas.noellesroles.content.effects.DeathReactionHandler;
 import org.agmas.noellesroles.content.effects.FearEffects;
 import org.agmas.noellesroles.init.ModEffects;
 
@@ -88,23 +87,21 @@ public final class DeathReactionClientHandle {
     }
 
     private static Player resolveRageTarget(Minecraft client, LocalPlayer observer) {
-        double maxDistanceSqr = DeathReactionHandler.RAGE_LOCK_RANGE * DeathReactionHandler.RAGE_LOCK_RANGE;
         if (rageLockId != null) {
             Player locked = client.level.getPlayerByUUID(rageLockId);
             if (locked != null && GameUtils.isPlayerAliveAndSurvival(locked)
-                    && !locked.getUUID().equals(observer.getUUID())
-                    && observer.distanceToSqr(locked) <= maxDistanceSqr) {
+                    && !locked.getUUID().equals(observer.getUUID())) {
                 return locked;
             }
         }
         Player best = null;
-        double bestDistance = maxDistanceSqr;
+        double bestDistance = Double.MAX_VALUE;
         for (Player other : client.level.players()) {
             if (other.getUUID().equals(observer.getUUID()) || !GameUtils.isPlayerAliveAndSurvival(other)) {
                 continue;
             }
             double distance = observer.distanceToSqr(other);
-            if (distance <= bestDistance) {
+            if (distance < bestDistance) {
                 bestDistance = distance;
                 best = other;
             }

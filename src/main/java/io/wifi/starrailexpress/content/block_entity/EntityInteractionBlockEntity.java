@@ -23,7 +23,6 @@ import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.api.TMMRoles;
 import io.wifi.starrailexpress.cca.*;
 import io.wifi.starrailexpress.content.entity.PlayerBodyEntity;
-import io.wifi.starrailexpress.game.ElevatedBlockCommandPermission;
 import io.wifi.starrailexpress.game.GameConstants;
 import io.wifi.starrailexpress.game.GameUtils;
 import io.wifi.starrailexpress.index.TMMBlockEntities;
@@ -1540,8 +1539,7 @@ public class EntityInteractionBlockEntity extends BlockEntity {
                 command = replaceRelativeCoordinates(command, pos);
                 world.getServer().getCommands().performPrefixedCommand(
                         world.getServer().createCommandSourceStack()
-                                .withPermission(ElevatedBlockCommandPermission.resolve(
-                                        SREConfig.instance().entityInteractionBlockEntityPermission))
+                                .withPermission(SREConfig.instance().entityInteractionBlockEntityPermission)
                                 .withLevel(world),
                         command);
             }

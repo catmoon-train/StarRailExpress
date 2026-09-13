@@ -429,12 +429,6 @@
     "info.screen.modifier.rage.simple": "Modifier\nWhen someone nearby dies: red screen, speed boost, lock onto the nearest player.",
     "info.screen.modifier.cowardice": "Modifier\nYou keep the Cowardice potion.\nWhen someone nearby dies, you lose control and flee along a path once.",
     "info.screen.modifier.cowardice.simple": "Modifier\nWhen someone nearby dies, lose control and flee once.",
-    "info.screen.modifier.weak_hands": "Modifier\nYou keep Tremble for the whole game; your crosshair and view keep drifting.",
-    "info.screen.modifier.weak_hands.simple": "Modifier\nPermanent tremble; view keeps drifting.",
-    "info.screen.modifier.nearsighted": "Modifier\nYou keep Myopia; distant objects become blurry.",
-    "info.screen.modifier.nearsighted.simple": "Modifier\nDistant objects are blurry.",
-    "info.screen.modifier.strong_mind": "Modifier\nYou keep Mental Deafness; mood is always treated as full.",
-    "info.screen.modifier.strong_mind.simple": "Modifier\nMood is always treated as full.",
     "info.screen.modifier.fat": "Modifier\nYour model is stretched left and right, making you look fatter.\nYou push nearby players away.\nMutually exclusive with Skinny.",
     "info.screen.modifier.fat.simple": "Modifier\nStretched wider; pushes nearby players away.",
     "info.screen.modifier.skinny": "Modifier\nYour model is flattened left and right, making you look skinnier.\nNearby players squeeze you out of the way.\nMutually exclusive with Fat.",
@@ -551,6 +545,5 @@
     "info.screen.modifier.sunward": "",
     "info.screen.modifier.frail": "",
     "info.screen.modifier.rabbit_shape": "",
-    "info.screen.modifier.twin_children": "You form a twin unit with a civilian. Your size is locked at half and cannot be changed by Tall, Tiny, Dwarf, Fat, or Skinny. The lower twin walks; the upper twin stands on an invisible seat above their head. You swap places every 60 seconds. The unit separates when either twin dies and reforms when both are alive again. While stacked, the unit cannot fit into 1-block-high spaces. Completing a task also completes your partner's current task. Chat is broadcast to both twins. Killers and independent neutrals cannot receive this modifier.",
-    "info.screen.modifier.twin_children.simple": "Modifier\nForm a half-size twin unit with a civilian and swap places every 60 seconds.\nSize is locked and ignores other size modifiers.\nChat is broadcast to your partner. Does not spawn on killers."
+    "info.screen.modifier.twin_children": ""
 }
