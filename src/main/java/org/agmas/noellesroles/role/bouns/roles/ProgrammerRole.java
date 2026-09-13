@@ -68,12 +68,12 @@ public class ProgrammerRole extends EggRole {
     public static final int KILL_RANDOM_SELF_PERCENT = 5;
 
     /**
-     * {@code /tmm:money add 150} 给自己加的金币数。
+     * {@code /tmm:money set <金额>} 相对当前余额的最大增量。
      * <p>
-     * 固定 150：一是与真实调试指令的写法对齐，二是终端本身售价 150，
-     * 定死金额才不会变成「买终端 → 刷更多钱」的循环。
+     * 也就是把余额最多设成「当前金币 + 175」；扣除终端售价 150 后一次净赚 25，
+     * 所以这条指令能刷钱但刷不快。
      */
-    public static final int TERMINAL_MONEY_AMOUNT = 150;
+    public static final int TERMINAL_MONEY_GAIN_LIMIT = 175;
 
     /**
      * 终端可生成的物品白名单：指令里的物品ID → 物品。
@@ -188,14 +188,19 @@ public class ProgrammerRole extends EggRole {
         BLACKOUT,
         /** 让所有监控失灵（模拟 /tmm:game monitor_broken） */
         MONITOR_BLACKOUT,
-        /** 给自己加金币（模拟 /tmm:money add 150） */
-        MONEY_ADD,
+        /** 把自己的金币设成指定值（模拟 /tmm:money set <金额>） */
+        MONEY_SET,
         /** 列出所有可用指令（客户端本地处理） */
         HELP
     }
 
-    /** 解析后的终端指令；{@link #errorKey()} 为 null 表示合法 */
-    public record TerminalCommand(TerminalCommandType type, Item item, String errorKey) {
+    /** 解析后的终端指令；{@link #errorKey()} 为 null 表示合法。{@link #amount()} 仅供需要数值参数的指令使用 */
+    public record TerminalCommand(TerminalCommandType type, Item item, String errorKey, int amount) {
+        /** 大多数指令不带数值参数 */
+        public TerminalCommand(TerminalCommandType type, Item item, String errorKey) {
+            this(type, item, errorKey, 0);
+        }
+
         public boolean isValid() {
             return errorKey == null;
         }
@@ -275,12 +280,16 @@ public class ProgrammerRole extends EggRole {
             }
         }
 
-        // 1.6) /tmm:money add 150 —— 给自己加金币（写法与真实调试指令一致，金额见 TERMINAL_MONEY_AMOUNT）
-        if (args.length == 3 && "tmm:money".equalsIgnoreCase(args[0]) && "add".equalsIgnoreCase(args[1])) {
-            if (!String.valueOf(TERMINAL_MONEY_AMOUNT).equals(args[2])) {
+        // 1.6) /tmm:money set <金额> —— 把自己的金币设成该值，最多比当前多 TERMINAL_MONEY_GAIN_LIMIT。
+        // 超过上限时这里仍返回合法指令，由 executeTerminalCommand 拒绝执行并且**不消耗终端**。
+        if (args.length == 3 && "tmm:money".equalsIgnoreCase(args[0]) && "set".equalsIgnoreCase(args[1])) {
+            int amount;
+            try {
+                amount = Integer.parseInt(args[2]);
+            } catch (NumberFormatException e) {
                 return new TerminalCommand(null, null, "message.noellesroles.terminal.error.usage");
             }
-            return new TerminalCommand(TerminalCommandType.MONEY_ADD, null, null);
+            return new TerminalCommand(TerminalCommandType.MONEY_SET, null, null, amount);
         }
 
         // 2) 其余指令统一要求 @s 形式
@@ -564,10 +573,19 @@ public class ProgrammerRole extends EggRole {
                 GameUtils.killPlayer(victim, true, null, GameConstants.DeathReasons.CODE_DEATH);
                 yield true;
             }
-            case MONEY_ADD -> {
-                MoneyUtils.addToBalance(player, TERMINAL_MONEY_AMOUNT);
+            case MONEY_SET -> {
+                // 目标值必须落在 [0, 当前金币 + 上限]：超限只报错、不消耗终端（返回 false 即不结算终端）
+                int max = MoneyUtils.getBalance(player) + TERMINAL_MONEY_GAIN_LIMIT;
+                if (command.amount() < 0 || command.amount() > max) {
+                    player.displayClientMessage(
+                            Component.translatable("message.noellesroles.terminal.money_over_limit", max)
+                                    .withStyle(ChatFormatting.RED),
+                            false);
+                    yield false;
+                }
+                MoneyUtils.setBalance(player, command.amount());
                 player.displayClientMessage(
-                        Component.translatable("message.noellesroles.terminal.money_success", TERMINAL_MONEY_AMOUNT)
+                        Component.translatable("message.noellesroles.terminal.money_success", command.amount())
                                 .withStyle(ChatFormatting.GREEN),
                         false);
                 yield true;
