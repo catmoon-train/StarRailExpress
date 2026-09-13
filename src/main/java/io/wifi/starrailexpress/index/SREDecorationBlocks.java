@@ -9,6 +9,7 @@ package io.wifi.starrailexpress.index;
 
 import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.content.block.DecorativePortalBlock;
+import io.wifi.starrailexpress.content.block.FakeSunBlock;
 import net.fabricmc.fabric.api.itemgroup.v1.FabricItemGroup;
 import net.fabricmc.fabric.api.itemgroup.v1.ItemGroupEvents;
 import net.minecraft.core.Registry;
@@ -117,6 +118,9 @@ public final class SREDecorationBlocks {
             new DecorativePortalBlock(BlockBehaviour.Properties.ofFullCopy(Blocks.NETHER_PORTAL)));
     public static final Block GRAY_PORTAL = registerBlock("gray_portal",
             new DecorativePortalBlock(BlockBehaviour.Properties.ofFullCopy(Blocks.NETHER_PORTAL)));
+    /** 假太阳：无碰撞箱、自身贴图全透明，放下后由客户端渲染一个持久的太阳粒子。 */
+    public static final Block FAKE_SUN = registerBlock("fake_sun",
+            new FakeSunBlock(BlockBehaviour.Properties.ofFullCopy(Blocks.GLASS).noCollission().instabreak()));
     public static final Block COBBLESTONE_LIQUID = registerBlock("cobblestone_liquid",
             new net.minecraft.world.level.block.LiquidBlock(SREFluids.COBBLESTONE,
                     BlockBehaviour.Properties.ofFullCopy(Blocks.LAVA)));
@@ -314,6 +318,7 @@ public final class SREDecorationBlocks {
             registerBlockItem(LIGHT_GRAY_BLUE_OBSIDIAN),
             registerBlockItem(GRAY_BLUE_PORTAL),
             registerBlockItem(GRAY_PORTAL),
+            registerBlockItem(FAKE_SUN),
             COBBLESTONE_BUCKET,
             ANOMALOUS_NAME_TAG,
             CROSS_DIMENSIONAL_SPYGLASS,
