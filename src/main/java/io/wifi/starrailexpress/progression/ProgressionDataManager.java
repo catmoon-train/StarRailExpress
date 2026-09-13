@@ -26,7 +26,7 @@ import io.wifi.starrailexpress.SREConfig;
 import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.backpack.BackpackManager;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
-import io.wifi.starrailexpress.data.PlayerEconomyManager;
+import io.wifi.starrailexpress.data.PlayerSkinEconomyManager;
 import io.wifi.starrailexpress.network.PlayerDataPartSyncPayload;
 import io.wifi.starrailexpress.network.ProgressionQuestToastPayload;
 import io.wifi.starrailexpress.progression.ProgressionState.FactionCardType;
@@ -141,7 +141,7 @@ public final class ProgressionDataManager {
         }
         grantExperience(player, isWinner ? 85 : 25);
         if (isWinner) {
-            PlayerEconomyManager.addCoinNum(player, 20);
+            PlayerSkinEconomyManager.addCoinNum(player, 20);
             getEntry(player.getUUID()).state.claimedCoinRewards += 20;
         }
         increment(player, ProgressionObjectives.PLAY_MATCH, null, 1);
@@ -310,11 +310,11 @@ public final class ProgressionDataManager {
             quest.rewarded = true;
             grantExperience(player, quest.rewardExperience);
             if (quest.rewardCoins > 0) {
-                PlayerEconomyManager.addCoinNum(player, quest.rewardCoins);
+                PlayerSkinEconomyManager.addCoinNum(player, quest.rewardCoins);
                 entry.state.claimedCoinRewards += quest.rewardCoins;
             }
             if (quest.rewardLoot > 0) {
-                PlayerEconomyManager.addLootChance(player, quest.rewardLoot);
+                PlayerSkinEconomyManager.addLootChance(player, quest.rewardLoot);
                 entry.state.claimedLootRewards += quest.rewardLoot;
             }
             if (quest.rewardCard != null && quest.rewardCard != FactionCardType.NONE) {
@@ -341,10 +341,10 @@ public final class ProgressionDataManager {
             entry.state.experience -= entry.state.getExperienceForNextLevel();
             entry.state.level++;
             int coinReward = 20 + entry.state.level * 2;
-            PlayerEconomyManager.addCoinNum(player, coinReward);
+            PlayerSkinEconomyManager.addCoinNum(player, coinReward);
             entry.state.claimedCoinRewards += coinReward;
             if (entry.state.level % 5 == 0) {
-                PlayerEconomyManager.addLootChance(player, 1);
+                PlayerSkinEconomyManager.addLootChance(player, 1);
                 entry.state.claimedLootRewards++;
             }
         }

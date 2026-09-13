@@ -38,22 +38,24 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
-// 请注意这个不是游戏内的金币，游戏内的金币是SREPlayerShopComponent在管理！
-public final class PlayerEconomyManager {
+/**
+ * 请注意这个不是游戏内的金币，游戏内的金币是SREPlayerShopComponent在管理！
+ */
+public final class PlayerSkinEconomyManager {
     public static final String PART = "economy";
     private static final Gson GSON = new GsonBuilder().create();
     private static final long FLUSH_INTERVAL_MS = 5_000L;
     private static final long FLUSH_TIMEOUT_MS = 4_000L;
     private static final Map<UUID, Entry> ENTRIES = new ConcurrentHashMap<>();
 
-    private PlayerEconomyManager() {
+    private PlayerSkinEconomyManager() {
     }
 
     public static void registerEvents() {
         ServerPlayConnectionEvents.JOIN.register((handler, sender, server) -> onJoin(handler.getPlayer()));
         ServerPlayConnectionEvents.DISCONNECT.register((handler, server) -> onDisconnect(handler.getPlayer()));
-        ServerTickEvents.END_SERVER_TICK.register(PlayerEconomyManager::tick);
-        ServerLifecycleEvents.SERVER_STOPPING.register(PlayerEconomyManager::flushAllBlocking);
+        ServerTickEvents.END_SERVER_TICK.register(PlayerSkinEconomyManager::tick);
+        ServerLifecycleEvents.SERVER_STOPPING.register(PlayerSkinEconomyManager::flushAllBlocking);
         ServerLifecycleEvents.SERVER_STOPPED.register(server -> ENTRIES.clear());
     }
 

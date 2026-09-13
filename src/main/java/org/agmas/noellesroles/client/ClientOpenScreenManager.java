@@ -15,6 +15,7 @@
 
 package org.agmas.noellesroles.client;
 
+import org.agmas.noellesroles.client.screen.TerminalScreen;
 import org.agmas.noellesroles.packet.OpenScreenPayload;
 import org.agmas.noellesroles.utils.OpenScreenManager;
 
@@ -46,6 +47,9 @@ public class ClientOpenScreenManager {
                 context.client().player
                         .displayClientMessage(Component.translatable("skill.noellesroles.mistia.error.no_music").withStyle(ChatFormatting.RED), true);
             }
+        }
+        if (id.equals(OpenScreenManager.PROGRAMMER_TERMINAL_SCREEN)) {
+            screen = new TerminalScreen();
         }
         if (screen != null) {
             final var finalScreen = screen;

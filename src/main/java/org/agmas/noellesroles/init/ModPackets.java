@@ -77,6 +77,7 @@ public class ModPackets {
         PayloadTypeRegistry.playC2S().register(RhythmGameResultC2SPacket.ID,
                 RhythmGameResultC2SPacket.CODEC);
         PayloadTypeRegistry.playC2S().register(BroadcasterC2SPacket.ID, BroadcasterC2SPacket.CODEC);
+        PayloadTypeRegistry.playC2S().register(TerminalCommandC2SPacket.ID, TerminalCommandC2SPacket.CODEC);
         PayloadTypeRegistry.playC2S().register(NinjaAbilityC2SPacket.ID, NinjaAbilityC2SPacket.CODEC);
 
         // 幽露：自由摄像机进入/退出（S2C）、摄像机位置上报与 ESC 取消（C2S）

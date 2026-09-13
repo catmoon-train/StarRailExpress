@@ -25,7 +25,7 @@ import io.wifi.starrailexpress.api.replay.ReplayApiInitializer;
 import io.wifi.starrailexpress.cca.*;
 import io.wifi.starrailexpress.client.SREClient;
 import io.wifi.starrailexpress.content.block.DoorPartBlock;
-import io.wifi.starrailexpress.data.PlayerEconomyManager;
+import io.wifi.starrailexpress.data.PlayerSkinEconomyManager;
 import io.wifi.starrailexpress.game.GameConstants;
 import io.wifi.starrailexpress.game.GameUtils;
 import io.wifi.starrailexpress.game.modes.SREMurderGameMode;
@@ -114,7 +114,7 @@ public class SRE extends StarRailExpressID implements ModInitializer {
         SRECommandRegister.registerCommands();
         SREEventRegister.registerServerPlayConnectionEvents();
         PlayerStatsManager.registerEvents();
-        PlayerEconomyManager.registerEvents();
+        PlayerSkinEconomyManager.registerEvents();
         io.wifi.starrailexpress.hat.HatEquipmentManager.registerEvents();
         io.wifi.starrailexpress.morph.MorphManager.registerEvents();
         io.wifi.starrailexpress.plush.PlushEquipmentManager.registerEvents();

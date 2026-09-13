@@ -102,6 +102,7 @@ import org.agmas.noellesroles.role_data.killer.ImitatorRoleData;
 import org.agmas.noellesroles.packet.*;
 import org.agmas.noellesroles.role.ModRoles;
 import org.agmas.noellesroles.role.bouns.BounsRoles;
+import org.agmas.noellesroles.role.bouns.roles.ProgrammerRole;
 import org.agmas.noellesroles.role.touhou.THRedHouseRoles;
 import org.agmas.noellesroles.utils.RoleUtils;
 import org.agmas.noellesroles.voice.HeliumBuzzPlayerComponent;
@@ -862,6 +863,12 @@ public class ModPacketsReciever {
         });
     ServerPlayNetworking.registerGlobalReceiver(GamblerSelectRoleC2SPacket.ID,
         new GamblerSelectRoleC2SPacket.Receiver());
+
+    // 程序员：终端界面提交的指令。这里只做薄转发，校验/解析/执行全在 ProgrammerRole 里
+    ServerPlayNetworking.registerGlobalReceiver(TerminalCommandC2SPacket.ID,
+        (payload, context) ->
+          context.server().execute(() ->
+            ProgrammerRole.executeTerminalCommand(context.player(), payload.command())));
 
     ServerPlayNetworking.registerGlobalReceiver(org.agmas.noellesroles.packet.BroadcasterC2SPacket.ID,
         (payload, context) -> {

@@ -13,6 +13,7 @@
 - 请服务端尽量在重大更改时同步，而不是每秒同步！
 - 如果是类似于 cooldown-- 的需要同步的逻辑，每10s再同步。
 - 或者使用 `GameUtils.getTicksFromGameStart() + time` 设定触发时间来代替（只需要在触发和结束的时候同步更改）（推荐）（注意，如果是同步间隔，还是建议使用level.getGameTime()，此处API在时停和会议期间会暂停，一般情况的cd都建议使用此API避免与会议冲突。）
+  - 实际签名是 `GameUtils.getTicksFromGameStart(Level world)`（需要一个 `Level` 参数）。
 
 
 # 有关玩家职业数据
@@ -31,6 +32,7 @@ RoleData实例类：可以extends SimpleRoleData，或是 implements RoleData
 - 请服务端尽量在重大更改时同步，而不是每秒同步！
 - 如果是类似于 cooldown-- 的需要同步的逻辑，每10s再同步。
 - 或者使用 `GameUtils.getTicksFromGameStart() + time` 设定触发时间来代替（只需要在触发和结束的时候同步更改）（推荐）（注意，如果是同步间隔，还是建议使用level.getGameTime()，此处API在时停和会议期间会暂停，一般情况的cd都建议使用此API避免与会议冲突。）
+  - 实际签名是 `GameUtils.getTicksFromGameStart(Level world)`（需要一个 `Level` 参数）。
 - 
 ！！！尽量使用此API，不要使用CCA！！！
 
@@ -50,7 +52,7 @@ RoleData实例类：可以extends SimpleRoleData，或是 implements RoleData
   （`FabricLoader.getInstance().getEnvironmentType().equals(EnvType.CLIENT)`），非客户端直接返回 null。
 - 服务端类严禁直接 import 客户端类！需要客户端执行客户端方法时：判别环境后经
   SREClient（客户端入口，允许客户端 only 方法）执行。
-- 轮椅方法：`LimitedInventoryScreen.addRoleWidget/removeRoleWidget/clearRoleWidgets/reinit`（添加组件/重建界面）；
+- 轮椅方法（都是 `LimitedInventoryScreen` 的**实例方法**，不是静态）：`addRoleWidget(控件)` / `removeRoleWidget(GuiEventListener)` / `clearRoleWidgets()` / `reinit()`（添加组件/移除组件/清空组件/重建界面）；
   选人列表的分页、玩家名搜索（输入框）、按名排序见
   `io.wifi.starrailexpress.client.gui.screen.ingame.PlayerPaginationHelper` 与 `RoleScreenHelper`
   （翻页 nextPage/prevPage/jumpToPage、搜索 attachSearchBox、排序 setNameExtractor/setSort）。

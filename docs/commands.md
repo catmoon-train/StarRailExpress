@@ -19,10 +19,16 @@
 
 ---
 
+## 〇、阅读须知
+
+- 命令名、权限、参数都会随版本变化，**以源码为准**：服务端命令在 `src/main/java/io/wifi/starrailexpress/content/command/` 与 `org/agmas/noellesroles/commands/`（另有 `net/exmo/sre/**`、`org/agmas/harpymodloader/commands/` 等），客户端命令在 `org/agmas/noellesroles/client/commands/SREClientCommand.java`（根命令 **`sre:client`**，如 `sre:client screen role_introduction`、`sre:client resource reload`、`sre:client debug rhythm_game`；本文件目前未逐条收录客户端命令）。
+- 权限数字不要照抄：不少命令读的是 `SREConfig` 里的可配置项（如 `startGameRequiredPermission`、`changeRoleRequiredPermission`、`modifyEnableStatusRequiredPermission`），默认值与历史文档里写的往往不同，本文已尽量标出实际来源与默认值。
+- 反查某个命令是否存在：`grep -rn 'literal("命令名")' src/main/java`。
+
 ## 一、SRE 核心命令
 
 ### `tmm:start` — 开始游戏
-- **权限**: `2`
+- **权限**: `SREConfig.startGameRequiredPermission`（默认 1）
 - **结构**: `<gameMode>` (ResourceLocation) `[startTimeInMinutes]` (int)
 - **用途**: 启动指定游戏模式
 
@@ -80,8 +86,8 @@
 ### `tmm:votemap` — 地图投票
 - **权限**: `2`
 - **结构**:
-  - (无参) — 启动投票，默认 60 秒
-  - `<time>` (int, tick, 200~6000) — 启动投票，指定时长
+  - (无参) — 启动投票，默认 20 秒
+  - `<time>` (int, tick, 40~6000，即 2~300 秒) — 启动投票，指定时长
   - `status` — 查看投票状态
   - `pause` — 暂停投票
   - `resume` — 恢复投票
@@ -90,13 +96,15 @@
 - **用途**: 地图投票系统
 
 ### `tmm:switchmap` — 切换地图
-- **权限**: `2`
+- **权限**: `2`（`scan_all` / `reset_and_scan_all` 需要 3）
 - **结构**:
-  - `reset_and_scan_all` — 重置并扫描所有地图
-  - `scan_all` — 扫描所有地图
+  - `reset_and_scan_all` — 重置并扫描所有地图（需要 3）
+  - `scan_all` — 扫描所有地图（需要 3）
   - `load <mapName>` (string) — 加载指定地图
   - `list` — 列出所有可用地图
+  - `list_vote_map` — 列出投票地图
   - `random` — 随机加载地图
+  - 注意：**没有** `scan` 和 `save`
 - **用途**: 服务器地图切换
 
 ### `tmm:fourthroom` — 第四房间模式
@@ -138,7 +146,7 @@
 - **用途**: 查看个人游戏统计数据
 
 ### `tmm:showSelectedMapUI` — 显示已选地图 UI
-- **权限**: 无
+- **权限**: `2`
 - **用途**: 向玩家展示当前选中地图的投票 UI
 
 ### `tmm:netstats` — 网络统计
@@ -171,18 +179,18 @@
   - `status` — 查看参与度
 - **用途**: 管理玩家是否参与下一局游戏
 
-### `tmm:entityData` — 实体数据
+### `tmm:entity_interact_cmd` — 实体数据
 - **权限**: `2`
-- **结构**: `set <targets> (EntitySelector) <data>` (string)
+- **结构**: `set <targets> (EntitySelector) <data>` (string)（**只有 `set`，没有 `get`**）
 - **用途**: 为实体附加自定义持久化字符串数据
 
-### `tmm:reloadMapConfig` — 重载地图配置
+### `tmm:reload vote_map_config` — 重载投票地图配置
 - **权限**: `2`
-- **用途**: 重载地图配置文件
+- **用途**: 重载投票地图配置文件（**不存在 `tmm:reloadMapConfig`**）
 
-### `tmm:reloadReadyArea` — 重载准备区域
+### `tmm:reload default_ready_area` — 重载准备区域
 - **权限**: `2`
-- **用途**: 重载玩家准备区域配置
+- **用途**: 重载玩家准备区域配置（**不存在 `tmm:reloadReadyArea`**）
 
 ### `tmm:nr fielditem` — 场地物品管理
 - **权限**: `2`
@@ -190,7 +198,7 @@
 - **用途**: 管理轮椅等场地物品的生成
 
 ### `forceTeam` — 强制设置玩家队伍
-- **权限**: `3`
+- **权限**: `SREConfig.forceTeamRequiredPermission`（默认 2）
 - **结构**: `<players>` (EntitySelector) + (`innocent`|`neutral`|`neutral_for_killer`|`killer`|`vigilante`|`reset`)
 - **用途**: 强制设置玩家的阵营权重
 
@@ -234,14 +242,14 @@
 - **结构**: `<targets>` (EntitySelector) `[reason]` (string)
 - **用途**: 踢出指定的非 OP 玩家
 
-### `sre:shield` — 护盾管理
+### `sre:shield`（别名 `sre:armor`）— 护盾管理
 - **权限**: `2`
-- **结构**:
-  - `add <amount>` (int) — 给自己加护盾
-  - `add <amount> [targets]` — 给指定玩家加护盾
-  - `set <amount>` (int) — 设置护盾
-  - `set <amount> [targets]` — 设置指定玩家的护盾
-- **用途**: 管理玩家护盾值
+- **结构**: `sre:shield <normal|timed|weak> add|set|get|clear <layers> [更多参数] [targets]`
+  - 第一段必须是**护盾类型**：`normal` / `timed` / `weak`（所以 `/sre:shield add 5` 是错的，应为 `/sre:shield normal add 5`）
+  - 数量参数名是 `layers`（int >= 0），不是 `amount`
+  - `timed` 额外需要 `<seconds> <reset>`（bool）；`weak` 额外需要 `<seconds> <deathReason>`
+  - `get` / `clear` 可直接执行或加 `[targets]`
+- **用途**: 管理玩家护盾层数
 
 ### `sre:poison` — 中毒管理
 - **权限**: `2`
@@ -299,7 +307,7 @@
 ## 二、HarpyModLoader 命令
 
 ### `changeRole` — 改变玩家职业
-- **权限**: `3`
+- **权限**: `SREConfig.changeRoleRequiredPermission`（默认 2）
 - **结构**:
   - `<player> reset` — 重置玩家职业为平民
   - `<player> <role>` — 改变玩家职业
@@ -308,54 +316,58 @@
 - **用途**: 改变玩家的职业，支持回放记录和数据统计控制
 
 ### `changeModifier` — 改变玩家修饰符
-- **权限**: `3`
+- **权限**: `SREConfig.changeModifierRequiredPermission`（默认 2）
 - **结构**: `<player> <modifier> [add/remove/toggle]`
 - **用途**: 管理玩家身上的修饰符
 
 ### `forceRole` — 强制分配职业
-- **权限**: `3`
+- **权限**: `SREConfig.forceRoleRequiredPermission`（默认 2）
 - **结构**: `<player> [role]`
 - **用途**: 为玩家强制分配职业
 
 ### `forceModifier` — 强制分配修饰符
-- **权限**: `3`
+- **权限**: `SREConfig.forceModifierRequiredPermission`（默认 2）
 - **结构**: `<player> <modifier>`
 - **用途**: 为指定玩家强制分配修饰符
 
 ### `setRoleCount` — 设置职业数量
-- **权限**: `3`
+- **权限**: `SREConfig.modifyEnableStatusRequiredPermission`（默认 1）
 - **结构**:
   - `killer <count>` — 设置杀手数量
-  - `detective <count>` — 设置警长数量
+  - `vigilante <count>` — 设置警长/义警数量（**没有 `detective` 分支**）
   - `neutral <count>` — 设置中立数量
   - `reset` — 重置为自动计算
 - **用途**: 覆盖自动计算的职业分配数量
 
 ### `setRoleWeight` — 设置职业权重
-- **权限**: `3`
+- **权限**: `2`（硬编码 `hasPermission(2)`）
 - **结构**: `<role> <weight>` (float >= 0)
 - **用途**: 设置角色类型的权重值
 
-### `setPlayerWeight` — 设置玩家权重
-- **权限**: `3`
+### `myRoleWeight` / `playerRoleWeight` — 玩家权重
+- **权限**: `myRoleWeight` 需要 1；`playerRoleWeight` 需要 2（**没有 `setPlayerWeight` 这个根命令**，是两个独立命令）
 - **结构**:
-  - `myRoleWeight` — 查看自己的权重
-  - `playerRoleWeight <player> get [role]` — 查看玩家指定职业权重
-  - `playerRoleWeight <player> set <role> <weight>` — 设置玩家权重
+  - `myRoleWeight get` — 查看自己的权重
+  - `playerRoleWeight <player> get <role>` — 查看玩家指定职业类型的权重
+  - `playerRoleWeight <player> set <role> <weight>` — 设置玩家权重（`role` 是 **1~5 的职业类型序号**，不是职业 id）
 - **用途**: 指定玩家的角色类型权重
 
 ### `toggleCustomRoleWeights` — 切换自定义职业权重
-- **权限**: `3`
+- **权限**: `2`（硬编码）
 - **结构**: `<enabled>` (bool)
 - **用途**: 启用/禁用自定义角色权重系统
 
-### `setOccupationRole` — 设置职业绑定
-- **权限**: `3`
-- **结构**: `<mainRole> <companionRole>`
-- **用途**: 设置两个职业的绑定生成关系
+### `sre:occupation_role` — 设置职业绑定（同伴职业）
+- **权限**: `2`
+- **结构**:
+  - `<mainRole> <companionRole>` — 绑定
+  - `remove <mainRole> <companionRole>` — 解除绑定
+  - `clear <role>` — 清空某职业的绑定
+  - `list` — 列出所有绑定
+- **用途**: 设置两个职业的绑定生成关系（**不叫 `setOccupationRole`**）
 
 ### `setEnabledRole` — 启用/禁用职业
-- **权限**: `3`
+- **权限**: `SREConfig.modifyEnableStatusRequiredPermission`（默认 1）
 - **结构**:
   - `enableAll` — 启用所有职业
   - `disableAll` — 禁用所有职业
@@ -363,17 +375,15 @@
 - **用途**: 控制指定职业是否在本局可用
 
 ### `setEnabledModifier` — 启用/禁用修饰符
-- **权限**: `3`
+- **权限**: `SREConfig.modifyEnableStatusRequiredPermission`（默认 1）
 - **结构**:
   - `enableAll` — 启用所有修饰符
   - `disableAll` — 禁用所有修饰符
   - `<modifier> <enabled>` (bool) — 控制指定修饰符
 - **用途**: 控制指定修饰符是否在本局可用
 
-### `setCompanionRole` — 设置绑定职业
-- **权限**: `3`
-- **结构**: `<primaryRole> <companionRole>`
-- **用途**: 设置两个职业的绑定生成关系
+### ~~`setCompanionRole`~~ — **该命令不存在**
+- 绑定职业请用上面的 `sre:occupation_role`（源码里没有 `setCompanionRole` 注册）
 
 ### `listRoles` — 列出所有职业
 - **权限**: 无
@@ -390,7 +400,7 @@
 - **用途**: 查看职业/修饰符的详细信息
 
 ### `manageRolesUI` — 职业管理 UI
-- **权限**: `3`
+- **权限**: `SREConfig.modifyEnableStatusRequiredPermission`（默认 1）
 - **用途**: 打开职业管理 GUI
 
 ---
@@ -402,8 +412,10 @@
 - **结构**: `<targets> (EntitySelector) <message>` (greedy String)
 - **用途**: 向所有玩家广播带格式的消息
 
-### `noellesroles config` — NoelleRole 专属配置
-- **权限**: `3`
+### `tmm:config noellesroles ...` — NoelleRole 专属配置
+- **权限**: `tmm:config` 需要 3
+- **结构**: 这些配置项挂在 `tmm:config` 下（**没有 `noellesroles config` 这个根命令**），例如 `tmm:config noellesroles <项> set <值>`；
+  另外 `tmm:config spawn_info role|modifier ...` 用于配置各职业/修饰符的刷新（chance / max_count / min_player / max_player / maps）
 - **结构**:
   - `reload` — 重载配置
   - `reset` — 重置配置
@@ -414,7 +426,7 @@
 - **用途**: 管理 Noelle's Roles 的配置
 
 ### `noellesroles preset` — 职业预设管理
-- **权限**: `3`
+- **权限**: `2`
 - **结构**:
   - `apply <presetName>` — 应用预设
   - `list` — 列出所有预设
@@ -424,7 +436,7 @@
 - **用途**: 保存和应用职业配置预设
 
 ### `noellesroles setmax` — 设置职业最大数量
-- **权限**: `3`
+- **权限**: `1`
 - **结构**: `<role> <count>`
 - **用途**: 设置指定职业每局最大出现数量
 
@@ -452,16 +464,16 @@
 - **用途**: 对指定玩家启用氦气变声效果
 
 ### `sre:infected` — 感染管理
-- **权限**: `3`
+- **权限**: `2`
 - **结构**: `<player> <tick>` (int)
 - **用途**: 设置玩家感染状态时长
 
 ### `sre:eggclear` — 清除布谷鸟蛋
-- **权限**: `3`
+- **权限**: `2`
 - **结构**: `<range>` (float 1.0~500.0)
 - **用途**: 清除范围内的布谷鸟蛋实体
 
-### `DisplayItem` — 手持物品展示
+### `item_display` — 手持物品展示
 - **权限**: 无
 - **用途**: 在聊天栏中展示手持物品的信息
 
@@ -472,47 +484,49 @@
 
 ### `item extra` — 额外物品管理
 - **权限**: `2`
-- **结构**:
-  - `extra add <player> <slot> <item> [count]` — 添加额外物品
-  - `extra set <player> <slot> <item> [count]` — 设置额外物品
-  - `extra get <player> <slot>` — 查看指定槽位
-  - `extra remove <player> <slot>` — 移除指定槽位物品
+- **结构**: `item extra <player> set <slot> <item> [count]` / `item extra <player> list` / `item extra <player> clear`
+  - 槽位参数 `slot` 是 ResourceLocation；物品是 `ItemArgument`
+  - **没有** `add` / `get` / `remove` 子命令（只有 `set` / `list` / `clear`）
 - **用途**: 管理玩家额外物品栏
 
-### `goods:add` / `goods:remove` / `goods:list` — 商品管理
-- **权限**: `3`
+### `goods:add` / `goods:remove` / `goods:list` / `goods:cost` — 商品管理
+- **权限**: `2`
 - **结构**:
-  - `goods:add <pos> (Vec3) <slot> (int) <item> [price]` — 添加商品
-  - `goods:remove <pos> (Vec3) <slot> (int)` — 移除商品
-  - `goods:list <pos> (Vec3)` — 列出该位置商品
-- **用途**: 管理游戏内商品 (Vending Machine)
+  - `goods:add <pos> player <player> <price> [currency]` — 把「某个玩家的头颅」作为商品
+  - `goods:add <pos> item <item> <count> <price> [currency]` — 把某物品作为商品
+  - `goods:remove <pos> player <player>` / `goods:remove <pos> stack <stackIndex>` — 移除商品
+  - `goods:list <pos>` — 列出该位置商品
+  - `goods:cost <pos> <price> [currency]` — 修改费用
+  - `goods:lottery add ...` — 抽奖机专用
+  - **没有 `<slot>` 参数**，`player` / `item` 是「添加哪种商品」的互斥分支
+- **用途**: 管理售货机 / 抽奖机的商品（另见 `COMMANDS.md` 的 `goods:export/import/unbind`）
 
-### `repairshop` — 修机商店
+### `cy:repairshop` — 修机商店
 - **权限**: `2`
 - **用途**: 打开修机模式的商店管理界面
 
-### `repair start` — 启动修机
+### `cy:repair start` — 启动修机
 - **权限**: `2`
-- **结构**: `start [minutes]` (int)
+- **结构**: `cy:repair start <minutes>` (int)
 - **用途**: 启动修机模式
 
-### `repairrole` — 修机职业管理
-- **权限**: `3`
+### `cy:repairrole` — 修机职业管理
+- **权限**: `2`（`unlock` 子命令）
 - **结构**:
   - `force <players> <roleId>` — 强制分配修机职业
   - `clear <players>` — 清除所有修机职业
 - **用途**: 管理修机模式的职业分配
 
-### `repairmap` — 修机地图管理
+### `cy:repairmap` — 修机地图管理
 - **权限**: `2`
 - **结构**:
-  - `lock add` / `lock remove` / `lock list` — 维修锁管理
-  - `escape add` / `escape remove` / `escape list` — 逃脱点管理
+  - `lock ...` / `escape ...` — 维修锁 / 逃脱点管理
+  - 命令名带 **`cy:` 命名空间**
 - **用途**: 管理修机模式地图数据
 
-### `repairpreset` — 修机预设导出
+### `cy:repairpreset` — 修机预设导出
 - **权限**: `2`
-- **结构**: `export <mapId> <entryId>`
+- **结构**: `cy:repairpreset export <mapId> <entryId>`
 - **用途**: 导出修机模式地图预设
 
 ---
@@ -598,7 +612,7 @@
 
 ### `tmm:game role role_change_mode` — 改变职业清理手持物并欢迎 (ClassChangeTestCommand)
 
-- **权限**: `3` (本身 2，但调用 changeRole 需 3)
+- **权限**: `2`（命令本身与 `changeRole` 都读 `SREConfig.changeRoleRequiredPermission`，默认 2）
 - **结构**: `role role_change_mode <player> <role> [record_replay] [add_stats]`
 - **用途**: 改变玩家职业，清理玩家背包中除了信件和钥匙的其他物品，并欢迎
 
@@ -698,7 +712,7 @@
 
 ### `nametag:add` — 添加名签
 - **权限**: `2`
-- **结构**: `<nameTag>` (string) `[target]` (Player)
+- **结构**: `<nameTag>` (文本组件，**不是纯字符串**) `<target>` (Player)
 - **用途**: 为玩家添加自定义名签
 
 ### `nametag:remove` — 移除名签
@@ -713,7 +727,7 @@
 
 ### `nametag:get` — 查看名签
 - **权限**: `2`
-- **结构**: `[target]` (Player)
+- **结构**: `<target>` (Player)（虽然注册了无参分支，但无参分支内部读不到 `target` 参数会报错，**请务必带目标**）
 - **用途**: 查看玩家名签列表
 
 ### `nametag:list` — 列出名签
@@ -723,7 +737,7 @@
 
 ### `nametag:clear` — 清除名签
 - **权限**: `2`
-- **结构**: `[target]` (Player)
+- **结构**: `<target>` (Player)（同上：**请务必带目标**）
 - **用途**: 清除玩家所有名签
 
 ### `nametag:sync` — 同步名签
@@ -736,11 +750,11 @@
 ## 六、模组白名单 (MW)
 
 ### `mw:reload` — 重载白名单
-- **权限**: `4`
+- **权限**: `3`
 - **用途**: 重新加载模组白名单配置
 
 ### `mw:maxplayers` — 最大玩家数
-- **权限**: `4`
+- **权限**: `3`
 - **结构**:
   - `get` — 查看当前最大玩家数
   - `set <count>` — 设置最大玩家数
@@ -762,7 +776,7 @@
 - **用途**: 物品皮肤远程同步管理
 
 ### `tmm:skins` — 皮肤管理
-- **权限**: `2`
+- **权限**: 根命令无限制（受 `Harpymodloader.officialVerify` 限制）；只有 `<player>` 分支需要 2
 - **结构**: `[player]` (GameProfile)
 - **用途**: 管理物品皮肤 (查看玩家皮肤)
 
@@ -845,4 +859,4 @@
   - `intro <targets> [durationTicks] (int 1~12000, 默认 80) [distance] (double 0~256, 默认 12) [height] (double -128~256, 默认 6)` — 播放"由远及近到玩家位置"的开场镜头
   - `path <targets> <json> (greedy string)` — 按 JSON 播放自定义轨道（服务端先校验 JSON）
 - **用途**: 电影化运镜（多段关键帧、位置插值、注视目标、FOV、黑边、结束恢复视角）。游戏开始时自动给本局玩家播放默认开场镜头。
-- **详细文档**: 见 [`docs/advanced-camera.md`](advanced-camera.md)（含 JSON schema 与示例）
+- **详细实现**: `src/main/java/net/exmo/sre/camera/AdvancedCameraCommand.java`（JSON schema 见其中的解析代码与错误提示；仓库里**没有** `advanced-camera.md`）

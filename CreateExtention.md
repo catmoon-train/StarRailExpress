@@ -9,7 +9,7 @@
 在开始开发前，确保项目可以正常编译和运行：
 
 ```bash
-# 编译并打包（产物在 build/libs/）
+# 编译并打包（产物在 build/libs/starrailexpress.jar）
 ./gradlew build
 
 # 启动测试客户端
@@ -23,19 +23,24 @@
 ```
 
 > **环境要求：** JDK 21，并能访问 `maven.fabricmc.net`、`maven.terraformersmc.com` 等 Maven 仓库。
+>
+> 依赖已在本机缓存时，加 `--offline` 更快（`./gradlew compileJava --offline`）。若 `GRADLE_USER_HOME=E:\gradle_home` 报 `Plugin [id: 'fabric-loom'] was not found`，说明该目录的缓存不全 —— 用默认 gradle home（`~/.gradle`）即可。
 
 ## 注册新角色/职业
 
+> **动手前先看 [`docs/AI创建新职业攻略.md`](docs/AI创建新职业攻略.md)**：可直接抄的角色/物品/商店/技能/网络包/GUI 模板、翻译键位置对照表与踩坑清单（核心原则：职业相关逻辑集中在 `SRERole` 子类与 `RoleData` 里）。
+
 ### 注册方式：
 
-在ModRoles.java文件中
+普通职业写在 `org/agmas/noellesroles/role/ModRoles.java`，彩蛋职业写在 `org/agmas/noellesroles/role/bouns/BounsRoles.java`（复杂职业单独建类放 `role/bouns/roles/XxxRole.java`）。
 
-- 添加自定义角色id
-- 注册公有静态角色：可以在初始化函数中初始化或直接在声明时初始化
+- 添加自定义角色id（`ResourceLocation`，注意**路径不能与已有角色重复**，重复会抛 `IllegalArgumentException`）
+- 注册公有静态角色：`TMMRoles.registerRole(new NormalRole(...))`，可以在初始化函数中初始化或直接在声明时初始化
+- 补翻译键：`announcement.star.role.<路径>` / `announcement.star.goals.<路径>` / `info.screen.roleid.<路径>`（缺了游戏里会显示错误文本）
 
 ## 注册角色/职业数据（CCA替代品）
 
-本模组使用 `RoleData` 接口及其实现类来管理玩家职业的持久化数据，不再依赖 Cardinal Components API（CCA）。下文将介绍如何为您的职业创建数据类，并将其注册到职业系统中。
+本模组使用 `RoleData` 接口及其实现类来管理玩家职业的持久化数据，写职业逻辑时不再需要自己碰 Cardinal Components API（CCA）。下文将介绍如何为您的职业创建数据类，并将其注册到职业系统中。
 
 ---
 
@@ -56,7 +61,7 @@
 #### 示例：继承 `SimpleRoleData`
 
 ```java
-import io.wifi.starrailexpress.api.data.SimpleRoleData;
+import io.wifi.starrailexpress.api.impl.SimpleRoleData;
 import io.wifi.starrailexpress.api.data.RoleDataContext;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.core.HolderLookup;
@@ -209,6 +214,8 @@ if (data != null) {
 - 数据类必须提供 `RoleDataContext` 构造器，否则 `RoleData.create()` 会失败。
 - 若使用 `SimpleRoleData`，您可以直接使用其提供的 `getXxxTag` 辅助方法简化 NBT 操作。
 
+- 包名核对（写错直接编译失败）：`RoleData` = `io.wifi.starrailexpress.api.data.RoleData`；`RoleDataContext` = `io.wifi.starrailexpress.api.data.RoleDataContext`；**`SimpleRoleData` = `io.wifi.starrailexpress.api.impl.SimpleRoleData`**（不是 `api.data`）；NBT 辅助方法（`getIntTag` / `getStringTag` / `getBooleanTag` / `getLongTag` …）是 `RoleData` 接口上的 default 方法。
+
 ---
 
 ### 8. 完整示例
@@ -228,8 +235,8 @@ public class WarriorData extends SimpleRoleData {
  }
  public void addRage(int amount) { this.rage += amount; }
 }
-// 2. 在职业注册处绑定
-Role warriorRole = ...;
+// 2. 在职业注册处绑定（角色类型是 io.wifi.starrailexpress.api.SRERole / NormalRole / EggRole）
+SRERole warriorRole = TMMRoles.registerRole(new NormalRole(...));
 warriorRole.setRoleData(WarriorData::new);
 // 3. 在逻辑中获取
 Optional<WarriorData> data = RoleData.getOptional(WarriorData.class, player);
@@ -274,17 +281,17 @@ data.ifPresent(d -> d.addRage(10));
 实体类创建java文件后在ModEntities.java件中进行注册
 
 再在client.renderer中创建EntityRender.java渲染器类用于客户端渲染，
-并在NoellesrolesClient.java中的registerEntityRenderers方法中对实体的渲染器进行注册
+并在 `org.agmas.noellesroles.client.RicesRoleRhapsodyClient` 的 `registerEntityRenderers(...)` 里注册渲染器
+（`NoellesrolesClient.onInitializeClient` 会调用它；在 `NoellesrolesClient` 里搜不到这个方法名是正常的）。
 
 ## 注册新商店
 
 ### 注册方式：
 
-在Noellesroles.java文件中
+集中在 `org/agmas/noellesroles/init/RoleShopHandler.java`（由 `Noellesroles` 初始化时调用 `RoleShopHandler.shopRegister()`）：
 
-- 声明新的静态商品对象列表
-- 在initShops()函数中对列表进行初始化添加新物品
-- 在shopRegiester()函数中为角色注册商店
+- 在 `shopRegister()` 里声明并填充 `ArrayList<ShopEntry>`（或专用的 `initializeXxxShop()` 方法）
+- 用 `ShopContent.customEntries.put(roleId, 列表)` 为角色注册商店；**更推荐**直接在职业类里覆写 `SRERole.getShopEntries()`（逻辑跟着职业走，见 `docs/AI创建新职业攻略.md` §5）
 
 ## 注册网络包
 
@@ -307,8 +314,8 @@ data.ifPresent(d -> d.addRage(10));
 
 对于S2C网络包
 
-- 在registerPackets1中进行注册
-- 在Client主类中进行处理
+- 在 `PayloadTypeRegistry.playS2C().register(ID, CODEC)` 里注册；统一入口是 `io.wifi.starrailexpress.register.PayloadBootstrap.registerAll()`（它会依次调用 `SREPayloadRegister` / `ModPackets` / `RicePacketTypeRegister` 等），所以通常写进 `org.agmas.noellesroles.init.ModPackets#registerPackets()` 就够了
+- 在客户端用 `ClientPlayNetworking.registerGlobalReceiver(ID, (payload, ctx) -> ctx.client().execute(() -> ...))` 处理（位置：`client/NoellesrolesClient.onInitializeClient`）
 
 ## 创建GUI
 
@@ -322,10 +329,12 @@ client下创建___Screen.java类继承Screen作为新GUI
 
 ### 代码混合：
 
-- 在mixin文件夹内创建java类，使用@Minin注解进行混合
-- 在noellesroles.minin.json文件中添加混合配置
+- 在mixin文件夹内创建java类，使用 `@Mixin` 注解进行混合
+- 在 `src/main/resources/noellesroles.mixins.json`（noellesroles 侧；主模组是 `starrailexpress.mixins.json`）中添加混合配置
 
 ## 翻译
 
 在en_us.json 和 zh_cn.json中添加注册的id对应的汉化（根据已有汉化即可）
+
+> 完整位置对照（职业文案是重点，缺了会显示错误文本）：职业名/目标在 `assets/noellesroles/lang/{zh_cn,zh_tw,en_us}.json`（键 `announcement.star.role.<路径>` / `announcement.star.goals.<路径>`，`<路径>` 是 `identifier().getPath()` 而不是完整 id）；职业详细介绍在 `assets/role_modifier_intro/lang/*`（`info.screen.roleid.<路径>`）；物品名/`<id>.tooltip` 在 `assets/noellesroles/lang/*`；物品介绍 `item.<命名空间>.<id>.desc` 在 `assets/item_intro/lang/*`。
 
