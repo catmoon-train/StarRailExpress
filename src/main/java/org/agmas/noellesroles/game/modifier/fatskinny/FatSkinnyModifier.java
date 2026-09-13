@@ -19,6 +19,7 @@ import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.game.GameUtils;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
@@ -32,7 +33,8 @@ import pro.fazeclan.river.stupid_express.constants.SEModifiers;
 /**
  * 胖子推动周围玩家；瘦子被周围玩家挤压移动。
  *
- * <p>不改方块碰撞箱，避免胖子卡门。只在玩家之间施加水平速度。
+ * <p>
+ * 不改方块碰撞箱，避免胖子卡门。只在玩家之间施加水平速度。
  */
 public final class FatSkinnyModifier {
     private FatSkinnyModifier() {
@@ -89,6 +91,10 @@ public final class FatSkinnyModifier {
         if (SRE.isLobby) {
             return false;
         }
+        if (player.hasEffect(ModEffects.SAFE_TIME) || player.hasEffect(ModEffects.NO_COLLIDE)
+                || player.hasEffect(MobEffects.INVISIBILITY)) {
+            return false;
+        }
         SREGameWorldComponent game = SREGameWorldComponent.KEY.get(player.level());
         if (game == null || !game.isRunning()) {
             return false;
@@ -104,6 +110,10 @@ public final class FatSkinnyModifier {
             return false;
         }
         if (player.hasEffect(ModEffects.NO_COLLIDE)) {
+            return false;
+        }
+        if (player.hasEffect(ModEffects.SAFE_TIME) || player.hasEffect(ModEffects.NO_COLLIDE)
+                || player.hasEffect(MobEffects.INVISIBILITY)) {
             return false;
         }
         WorldModifierComponent modifiers = WorldModifierComponent.KEY.get(player.level());

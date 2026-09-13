@@ -1138,6 +1138,13 @@ public abstract class SRERole extends SREAbstractInfoClass {
     public void clientTick(Player player) {
     }
 
+    /**
+     * 客户端+服务端 当右键实体时触发
+     * 
+     * @param player
+     * @param victim
+     * @return
+     */
     public InteractionResult rightClickEntity(Player player, Entity victim) {
         return InteractionResult.PASS;
     }

@@ -94,9 +94,6 @@ public class EntityInteractionHandler {
             if (hitResult == null) {
                 return InteractionResult.PASS;
             }
-            if (world.isClientSide) {
-                return InteractionResult.PASS;
-            }
             if (!hand.equals(InteractionHand.OFF_HAND) && hitResult != null) {
                 if (hitResult.getEntity() != null) {
                     // 调用角色的右键点击实体方法
@@ -105,6 +102,10 @@ public class EntityInteractionHandler {
                             hitResult.getEntity());
                     if (result != InteractionResult.PASS) {
                         return result;
+                    }
+
+                    if (world.isClientSide) {
+                        return InteractionResult.PASS;
                     }
                     // 获取实体上的自定义数据
                     String customData = entity.getAttached(EntityDataCommand.ENTITY_CUSTOM_DATA_COMMAND);
@@ -179,7 +180,9 @@ public class EntityInteractionHandler {
         // 注意：出于安全考虑，我们不直接执行任意命令
         // 可以实现特定的安全命令执行逻辑
         // player.sendSystemMessage(Component.literal("执行命令: " + command));
-        player.getServer().getCommands().performPrefixedCommand(player.createCommandSourceStack().withPermission(SREConfig.instance().entityInteractionBlockEntityPlayerPermission),
+        player.getServer().getCommands().performPrefixedCommand(
+                player.createCommandSourceStack()
+                        .withPermission(SREConfig.instance().entityInteractionBlockEntityPlayerPermission),
                 command);
     }
 

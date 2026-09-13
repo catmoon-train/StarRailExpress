@@ -29,6 +29,7 @@ import net.minecraft.world.InteractionResult;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.food.FoodProperties;
 import net.minecraft.world.food.FoodProperties.PossibleEffect;
@@ -115,6 +116,23 @@ public class ChinoRole extends AnimeRole {
     public InteractionResult onDropItem(Player player, ItemStack item) {
         if (item.is(FunnyItems.CHINO_COFFEE) && !item.getOrDefault(SREDataComponentTypes.TRAY_ITEM, false)) {
             return InteractionResult.SUCCESS;
+        }
+        return InteractionResult.PASS;
+    }
+
+    @Override
+    public InteractionResult rightClickEntity(Player player, Entity victim) {
+        if (victim instanceof Player vc) {
+            if (RoleUtils.isPlayerTheModifier(vc, NRModifiers.RABBIT_SHAPE)) {
+                if (player.getPassengers().isEmpty()) {
+                    return InteractionResult.PASS;
+                }
+                if (player.level().isClientSide) {
+                    return InteractionResult.SUCCESS;
+                }
+                // vc.startRiding(player);
+                return InteractionResult.SUCCESS;
+            }
         }
         return InteractionResult.PASS;
     }
