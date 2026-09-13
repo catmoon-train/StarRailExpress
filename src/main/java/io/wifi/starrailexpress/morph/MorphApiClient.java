@@ -4,6 +4,7 @@ import java.util.UUID;
 
 import org.agmas.noellesroles.content.block.SREPlushItem;
 
+import io.wifi.starrailexpress.client.SREClient;
 import io.wifi.starrailexpress.client.morph.ClientMorphCache;
 import io.wifi.starrailexpress.client.plush.ClientPlushEquipmentCache;
 import io.wifi.starrailexpress.client.util.ClientSkinCache;
@@ -50,6 +51,9 @@ public class MorphApiClient {
 
     /**
      * 客户端：应显示的玩家名 + 名牌前缀（跟随显示皮肤拥有者）。
+     * <p>
+     * 例外：本地观察者处于旁观（无死亡惩罚）/ 创造时，名字不跟随伪装，一律显示本人真实名字
+     * （皮肤与附属物仍按伪装渲染，见 {@link #resolveDisplayedOwnerUuid}）。
      */
     
     public static Component getDisplayedName(Player target) {
@@ -62,7 +66,7 @@ public class MorphApiClient {
         if (isTextureMorph(clientPlayer) || HatEquipmentApi.shouldHideBoundCosmetics(clientPlayer)) {
             return target.getName();
         }
-        UUID owner = resolveDisplayedOwnerUuid(clientPlayer);
+        UUID owner = shouldRevealRealName() ? target.getUUID() : resolveDisplayedOwnerUuid(clientPlayer);
         if (owner == null || owner.equals(target.getUUID())) {
             return fallbackName(target.getUUID(), target.getName());
         }
@@ -86,6 +90,17 @@ public class MorphApiClient {
             return playerName;
         }
         return Component.literal("").append(prefix).append(playerName);
+    }
+
+    /**
+     * 本地观察者是否不参与变幻、名牌一律显示本人真实名字。
+     * <p>
+     * 即旁观（无死亡惩罚）与创造：判定与 {@code SREClientEvents} 中「旁观不参与变幻」的名牌事件一致。
+     * 死亡惩罚下名牌本来就不渲染，故排除。
+     */
+    
+    public static boolean shouldRevealRealName() {
+        return !SREClient.hasPenalty() && !SREClient.isPlayerAliveAndInSurvival();
     }
 
     /**

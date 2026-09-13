@@ -36,8 +36,8 @@ public abstract class ChinoHeadRideAttachMixin {
     private void noellesroles$putRabbitOnChinoHead(Entity passenger, EntityDimensions dimensions, float scale,
             CallbackInfoReturnable<Vec3> cir) {
         Entity self = (Entity) (Object) this;
-        if (self instanceof Player && ChinoHeadRideManager.isCarriedBy(passenger, self)) {
-            cir.setReturnValue(new Vec3(0.0, dimensions.height() + 0.12, 0.0));
+        if (self instanceof Player vehicle && ChinoHeadRideManager.isCarriedBy(passenger, self)) {
+            cir.setReturnValue(new Vec3(0.0, ChinoHeadRideManager.headPassengerAttachmentY(vehicle, passenger), 0.0));
         }
     }
 

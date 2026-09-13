@@ -359,7 +359,7 @@ public class SREClientEvents {
         });
 
         OnRenderRoleName.RENDER_PLAYER_NAME.register((player, target, ctx, delta, font) -> {
-            if (!SREClient.isPlayerAliveAndInSurvival() && !SREClient.hasPenalty()) {
+            if (MorphApiClient.shouldRevealRealName()) {
                 // 旁观不参与变幻
                 return TrueFalseAndCustomResult.pass();
             }

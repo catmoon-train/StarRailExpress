@@ -12,6 +12,7 @@ import org.agmas.noellesroles.init.ModEffects;
 import org.agmas.noellesroles.role.TraitorAndModifiers;
 import org.agmas.noellesroles.role.anime.AnimeRoles;
 import org.agmas.noellesroles.role.anime.chino.ChinoHeadRideManager;
+import org.agmas.noellesroles.role_data.innocence.ChinoRoleData;
 import org.agmas.noellesroles.utils.RoleUtils;
 
 import io.wifi.starrailexpress.api.AnimeRole;
@@ -47,6 +48,7 @@ public class ChinoRole extends AnimeRole {
     public ChinoRole(ResourceLocation identifier, int color, RoleType roleType, MoodType moodType, int maxSprintTime,
             boolean canSeeTime) {
         super(identifier, color, roleType, moodType, maxSprintTime, canSeeTime);
+        this.setRoleData(ChinoRoleData::new);
     }
 
     @Override
@@ -175,5 +177,11 @@ public class ChinoRole extends AnimeRole {
         modifiers.add(TraitorAndModifiers.DWARF);
         modifiers.add(SEModifiers.FEATHER);
     };
+
+    /** 每局开始时（{@code SRERole.resetStatic()}）清空乘骑状态与冷却。 */
+    @Override
+    public void resetVariables() {
+        ChinoHeadRideManager.clearRides(null);
+    }
 
 }

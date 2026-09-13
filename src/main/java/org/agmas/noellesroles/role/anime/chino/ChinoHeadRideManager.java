@@ -22,23 +22,32 @@ import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.agmas.harpymodloader.events.GameInitializeEvent;
+import org.agmas.noellesroles.game.modifier.NRModifiers;
+import org.agmas.noellesroles.init.ModEffects;
 import org.agmas.noellesroles.utils.RoleUtils;
 import org.jetbrains.annotations.Nullable;
 
+import io.wifi.starrailexpress.SRE;
+import io.wifi.starrailexpress.api.data.RoleData;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
+import io.wifi.starrailexpress.event.OnGameEnd;
 import io.wifi.starrailexpress.game.GameConstants;
 import io.wifi.starrailexpress.game.GameUtils;
 import org.agmas.noellesroles.role.anime.AnimeRoles;
+import org.agmas.noellesroles.role_data.innocence.ChinoRoleData;
 import net.fabricmc.fabric.api.entity.event.v1.ServerLivingEntityEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.game.ClientboundSetPassengersPacket;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.damagesource.DamageTypes;
+import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 
 /**
@@ -70,10 +79,14 @@ public final class ChinoHeadRideManager {
     /** 骑乘期间向载具客户端补发乘客列表包的间隔（tick）。 */
     private static final int PASSENGER_RESYNC_INTERVAL = 20;
 
+    /** 玩家模型站立高度（未缩放），用来把乘客放到载具的视觉头顶。 */
+    public static final float PLAYER_VISUAL_HEIGHT = 1.8F;
+
+    /** no_collide 的续期余量：剩余时长低于它才重新挂一次。 */
+    private static final int NO_COLLIDE_MARGIN = 40;
+
     /** 载具 UUID -> 骑乘状态。 */
     private static final Map<UUID, RideState> RIDES = new ConcurrentHashMap<>();
-    /** 载具 UUID -> 冷却结束的游戏刻。 */
-    private static final Map<UUID, Long> COOLDOWNS = new ConcurrentHashMap<>();
     /** 正在被抱着的兔兔 UUID（O(1) 判定，供 mixin、免窒息伤害与唯一性校验使用）。 */
     private static final Set<UUID> CARRIED_RIDERS = ConcurrentHashMap.newKeySet();
 
@@ -82,7 +95,9 @@ public final class ChinoHeadRideManager {
 
     public static void register() {
         ServerTickEvents.END_SERVER_TICK.register(ChinoHeadRideManager::serverTick);
-        GameInitializeEvent.EVENT.register((level, game, players) -> reset());
+        // 开局与结束都清空乘骑状态（先把还骑着的兔兔放下来，再清表）
+        GameInitializeEvent.EVENT.register((level, game, players) -> clearRides(level));
+        OnGameEnd.EVENT.register((level, game) -> clearRides(level));
         ServerLivingEntityEvents.ALLOW_DAMAGE.register((entity, source, amount) -> {
             if (!(entity instanceof Player player) || !source.is(DamageTypes.IN_WALL)) {
                 return true;
@@ -93,11 +108,79 @@ public final class ChinoHeadRideManager {
         });
     }
 
-    /** 每局开始时清空，避免上一局的冷却与乘骑状态残留。 */
-    public static void reset() {
+    /**
+     * 清空乘骑状态与冷却。
+     * <p>
+     * 必须先把还骑着的兔兔放下来再清表，否则状态没了而上骑关系还在，
+     * 会变成「兔兔还在头上却查不到状态」（按技能键提示头上没有兔兔）。
+     *
+     * @param level 用于解析玩家；为 null 时退回 {@link SRE#SERVER}
+     */
+    public static void clearRides(@Nullable Level level) {
+        MinecraftServer server = level instanceof ServerLevel serverLevel ? serverLevel.getServer() : SRE.SERVER;
+        if (server != null) {
+            for (RideState state : RIDES.values()) {
+                ServerPlayer rider = server.getPlayerList().getPlayer(state.rider);
+                if (rider == null) {
+                    continue;
+                }
+                if (rider.getVehicle() != null) {
+                    rider.stopRiding();
+                }
+                removeOurNoCollide(rider);
+            }
+            // 冷却也存在职业数据里，一并清掉
+            for (ServerPlayer player : server.getPlayerList().getPlayers()) {
+                RoleData.ifPresent(ChinoRoleData.class, player, ChinoRoleData::clearRideCooldown);
+            }
+        }
         RIDES.clear();
-        COOLDOWNS.clear();
         CARRIED_RIDERS.clear();
+    }
+
+    /**
+     * 续期兔兔身上的 no_collide。
+     * <p>
+     * 挂载时已经给了覆盖整段骑乘的时长，所以正常情况下这里不会发包；
+     * 只有会议/时停让骑乘计时暂停、而效果按真实 tick 走完时才会补挂一次。
+     */
+    private static void keepNoCollide(ServerPlayer rider, long endTick, long now) {
+        MobEffectInstance instance = rider.getEffect(ModEffects.NO_COLLIDE);
+        if (instance != null && instance.getDuration() > NO_COLLIDE_MARGIN) {
+            return;
+        }
+        int duration = (int) Math.max(20L,
+                Math.min(MAX_RIDE_TICKS + NO_COLLIDE_MARGIN, endTick - now + NO_COLLIDE_MARGIN));
+        applyNoCollide(rider, duration);
+    }
+
+    /**
+     * 骑乘期间给兔兔挂 no_collide：否则它与咖啡师会互相碰撞推挤，挡住咖啡师跳跃。
+     * 隐藏粒子与图标，避免骑乘者看到莫名的效果。
+     */
+    private static void applyNoCollide(ServerPlayer rider, int duration) {
+        rider.addEffect(ModEffects.of(ModEffects.NO_COLLIDE, duration, 0, true, false, false));
+    }
+
+    /** 只清掉本机制加的那一份（时长不超过骑乘窗口），避免误删别的系统给的 no_collide。 */
+    private static void removeOurNoCollide(ServerPlayer rider) {
+        MobEffectInstance instance = rider.getEffect(ModEffects.NO_COLLIDE);
+        if (instance != null && instance.getDuration() <= MAX_RIDE_TICKS + NO_COLLIDE_MARGIN) {
+            rider.removeEffect(ModEffects.NO_COLLIDE);
+        }
+    }
+
+    /**
+     * 乘客挂点 Y：让乘客的脚正好落在载具的视觉头顶。
+     * <p>
+     * {@code Entity#positionRider} 最终把乘客放在
+     * {@code 载具Y + 挂点Y - 乘客自身 getVehicleAttachmentPoint(载具).y}，
+     * 而玩家的 VEHICLE 挂点不为 0，所以要把乘客那一段加回来，否则乘客会陷进载具身体里。
+     * 载具的视觉头顶按 {@code 1.8 * 载具缩放} 计（玩家模型高度乘以 SCALE 属性），
+     * 算法与双子叠罗汉一致。
+     */
+    public static double headPassengerAttachmentY(Player vehicle, Entity passenger) {
+        return PLAYER_VISUAL_HEIGHT * vehicle.getScale() + passenger.getVehicleAttachmentPoint(vehicle).y;
     }
 
     /** 该玩家是否正被抱在别人头顶。 */
@@ -162,11 +245,12 @@ public final class ChinoHeadRideManager {
         }
 
         long now = GameUtils.getTicksFromGameStart(chino.level());
-        long cooldownEnd = COOLDOWNS.getOrDefault(chino.getUUID(), 0L);
-        if (now < cooldownEnd) {
+        ChinoRoleData roleData = RoleData.getNullable(ChinoRoleData.class, chino);
+        long cooldownLeft = roleData == null ? 0L : roleData.getRideCooldownLeft();
+        if (cooldownLeft > 0) {
             chino.displayClientMessage(
                     Component.translatable("message.noellesroles.chino_head_ride.cooldown",
-                            (cooldownEnd - now + 19) / 20).withStyle(ChatFormatting.YELLOW),
+                            (cooldownLeft + 19) / 20).withStyle(ChatFormatting.YELLOW),
                     true);
             return false;
         }
@@ -193,8 +277,13 @@ public final class ChinoHeadRideManager {
                     true);
             return false;
         }
-        COOLDOWNS.put(chino.getUUID(), now + RIDE_COOLDOWN_TICKS);
+        if (roleData != null) {
+            // 冷却记在职业数据里，客户端 HUD 才能显示剩余秒数
+            roleData.startRideCooldown(RIDE_COOLDOWN_TICKS);
+        }
 
+        // 一次骑乘只挂一次 no_collide（时长覆盖整段骑乘），避免逐 tick 刷效果包
+        applyNoCollide(rabbit, MAX_RIDE_TICKS + NO_COLLIDE_MARGIN);
         broadcastPassengers(chino);
         chino.displayClientMessage(
                 Component.translatable("message.noellesroles.chino_head_ride.mounted", rabbit.getName())
@@ -216,11 +305,19 @@ public final class ChinoHeadRideManager {
         if (chino == null) {
             return false;
         }
-        RideState state = RIDES.get(chino.getUUID());
-        if (state == null) {
+        UUID vehicleId = chino.getUUID();
+        RideState state = RIDES.get(vehicleId);
+        ServerPlayer rider = state != null ? chino.server.getPlayerList().getPlayer(state.rider) : null;
+        if (rider == null && chino.getFirstPassenger() instanceof ServerPlayer passenger
+                && RoleUtils.isPlayerTheModifier(passenger, NRModifiers.RABBIT_SHAPE)) {
+            // 状态因故丢失（例如兔兔中途死亡变旁观）时，仍然允许把头顶的兔兔放下；
+            // 限定兔兔修饰符，避免误伤骑在头上的其它机制（幻灵等）
+            rider = passenger;
+        }
+        if (state == null && rider == null) {
             return false;
         }
-        release(chino.getUUID(), state, chino, chino.server.getPlayerList().getPlayer(state.rider), true);
+        release(vehicleId, state, chino, rider, true);
         return true;
     }
 
@@ -234,13 +331,14 @@ public final class ChinoHeadRideManager {
             ServerPlayer vehicle = server.getPlayerList().getPlayer(vehicleId);
             ServerPlayer rider = server.getPlayerList().getPlayer(state.rider);
 
-            // 兔兔掉线：位置缓存与乘骑状态一起清掉，不传送
+            // 兔兔掉线/实体被移除：清掉位置缓存与乘骑状态，不传送，但要把残留的上骑关系解除
             if (rider == null || rider.isRemoved()) {
-                RIDES.remove(vehicleId);
-                CARRIED_RIDERS.remove(state.rider);
                 if (vehicle != null && !vehicle.isRemoved()) {
+                    ejectPassengerOfUuid(vehicle, state.rider);
                     broadcastPassengers(vehicle);
                 }
+                RIDES.remove(vehicleId);
+                CARRIED_RIDERS.remove(state.rider);
                 continue;
             }
             // 兔兔已死亡/变旁观：只清理状态，不传送（但要清掉载具客户端上的乘客渲染）
@@ -273,36 +371,47 @@ public final class ChinoHeadRideManager {
             if (now % PASSENGER_RESYNC_INTERVAL == 0) {
                 vehicle.connection.send(new ClientboundSetPassengersPacket(vehicle));
             }
+            // 兔兔身上的 no_collide 只在快过期时补一次（会议暂停会让骑乘计时比效果更晚结束）
+            keepNoCollide(rider, state.endTick, now);
         }
-        long now = GameUtils.getTicksFromGameStart(server.overworld());
-        COOLDOWNS.entrySet().removeIf(entry -> entry.getValue() <= now);
     }
 
     /**
-     * 结束乘骑。
+     * 结束乘骑：先把人放下来，再广播乘客列表（顺序反了载具客户端会继续渲染头顶乘客）。
      *
-     * @param vehicle   咖啡师，已退出/被移除时传 null，此时改用缓存的最后位置落点
-     * @param rider     兔兔，已掉线/被移除时传 null，此时只清理状态
+     * @param state      乘骑状态，状态丢失时可为 null（此时没有缓存位置）
+     * @param vehicle    咖啡师，已退出/被移除时传 null，此时改用缓存的最后位置落点
+     * @param rider      兔兔，已掉线/被移除时传 null，此时只清状态
      * @param placeRider 是否把兔兔放到咖啡师身前（死亡/旁观等情况下不传送）
      */
-    private static void release(UUID vehicleId, RideState state, @Nullable ServerPlayer vehicle,
+    private static void release(UUID vehicleId, @Nullable RideState state, @Nullable ServerPlayer vehicle,
             @Nullable ServerPlayer rider, boolean placeRider) {
         RIDES.remove(vehicleId);
-        CARRIED_RIDERS.remove(state.rider);
+        if (state != null) {
+            CARRIED_RIDERS.remove(state.rider);
+        }
+        if (rider != null) {
+            CARRIED_RIDERS.remove(rider.getUUID());
+        }
+        // 无论因为什么结束（包括兔兔死亡变旁观、咖啡师死亡后重生换了实体）都必须真的把人放下来。
+        // 咖啡师重生会让乘客手里的 vehicle 指向已被移除的旧实体，所以这里也接受“载具已消失”的情况。
+        if (rider != null && rider.getVehicle() != null
+                && (vehicle == null || rider.getVehicle() == vehicle || rider.getVehicle().isRemoved())) {
+            rider.stopRiding();
+        }
         if (vehicle != null) {
-            // 无论兔兔还在不在，都要清掉载具客户端上残留的乘客渲染
             broadcastPassengers(vehicle);
+        }
+        if (rider != null) {
+            removeOurNoCollide(rider);
         }
         if (rider == null || !placeRider) {
             return;
         }
 
-        if (rider.getVehicle() != null && (vehicle == null || rider.getVehicle() == vehicle)) {
-            rider.stopRiding();
-        }
         if (vehicle != null && vehicle.level() == rider.level()) {
             RoleUtils.placeInFrontOf(vehicle, rider, RELEASE_PLACE_DISTANCE);
-        } else if (state.hasVehiclePos) {
+        } else if (state != null && state.hasVehiclePos) {
             // 咖啡师已不在场：放到它最后所在的位置（等效于与咖啡师重合）
             rider.teleportTo(rider.serverLevel(), state.lastVehicleX, state.lastVehicleY, state.lastVehicleZ,
                     Set.of(), rider.getYRot(), rider.getXRot());
@@ -331,6 +440,15 @@ public final class ChinoHeadRideManager {
         }
         if (ejected) {
             broadcastPassengers(vehicle);
+        }
+    }
+
+    /** 把指定 UUID 的残留乘客从载具身上摘下来（玩家实体已被移除时也能生效）。 */
+    private static void ejectPassengerOfUuid(ServerPlayer vehicle, UUID passengerId) {
+        for (Entity passenger : List.copyOf(vehicle.getPassengers())) {
+            if (passenger.getUUID().equals(passengerId)) {
+                passenger.stopRiding();
+            }
         }
     }
 
