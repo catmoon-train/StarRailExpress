@@ -592,6 +592,14 @@ public final class RoleSkill {
         if (player == null) {
             return false;
         }
+        // 技能释放会访问世界与组件状态，必须在服务端主线程执行；非主线程调用时推迟到主线程。
+        var server = player.getServer();
+        if (server != null && !server.isSameThread()) {
+            SRE.LOGGER.warn("RoleSkill.beginUse called off the server thread: {}", player.getScoreboardName());
+            server.execute(() -> beginUse(player, target, requestedSlot, phase, shifted, ignoreEffect));
+            // 推迟后无法同步取回 handler 返回值，乐观返回 true（现有调用方都在主线程，此分支仅作兜底）
+            return true;
+        }
         SRERole role = getRole(player);
         if (role == null) {
             return false;

@@ -1,4 +1,4 @@
-﻿{
+{
     "=== END ===": "",
     "=== 遊戲管理UI ===": "",
     "============ 地圖構建助手 ============": "",
@@ -1293,6 +1293,7 @@
     "gui.sre.map_vote.leaderboard": "投票排行",
     "gui.sre.map_vote.no_votes": "暫無投票",
     "gui.sre.map_vote.empty": "該分類下沒有可用地圖",
+    "gui.sre.map_vote.detail_scroll": "詳情 %s/%s 行（PageUp/PageDown 翻看）",
     "gui.sre.map_vote.hint": "雙擊地圖投票 · 方向鍵切換 · ESC 關閉",
     "gui.sre.map_vote.votes": "%s 票",
     "gui.sre.map_vote.votes_percent": "%s 票 · %s%%",
@@ -3159,7 +3160,7 @@
     "gui.sre.map_vote.capacity_unlimited": "人數不限",
     "gui.sre.map_vote.no_description": "暫無地圖介紹",
     "gui.sre.map_vote.route_hint": "滾輪 / 方向鍵切換 · 雙擊地圖投票",
-    "gui.sre.map_vote.browse_hint": "%s / %s  ·  雙擊地圖投票 · 方向鍵流覽",
+    "gui.sre.map_vote.browse_hint": "%s / %s  ·  雙擊地圖投票 · 方向鍵流覽 · PageUp/PageDown 翻看詳情",
     "gui.sre.map_vote.cast_vote": "投票給此地圖",
     "gui.sre.map_vote.unavailable": "暫不可選",
     "gui.sre.map_vote.result_countdown": "%s 秒後發車",

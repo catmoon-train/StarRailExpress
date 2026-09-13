@@ -15,6 +15,7 @@
 
 package org.agmas.noellesroles.game.wallbreak;
 
+import io.wifi.starrailexpress.util.ParticleFx;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.core.registries.Registries;
@@ -68,13 +69,16 @@ public final class WallBreakManager {
                     }
                     data.add(new WallBreakSavedData.Entry(dim, pos.immutable(), state, restoreAt));
                     world.removeBlock(pos, false);
-                    world.sendParticles(ParticleTypes.CLOUD, pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5,
-                            3, 0.2, 0.2, 0.2, 0.01);
                     broken++;
                 }
             }
         }
         if (broken > 0) {
+            // 所有被拆方块合并成一个包（原实现是每个方块一个包，半径大时单 tick 上千个包）
+            ParticleFx.burst(world, ParticleTypes.CLOUD,
+                    center.getX() + 0.5, center.getY() + 0.5, center.getZ() + 0.5,
+                    Math.min(broken * 3, 400),
+                    radius * 0.4, radius * 0.4, radius * 0.4, 0.01);
             world.playSound(null, center, SoundEvents.GENERIC_EXPLODE.value(), SoundSource.BLOCKS, 1.2F, 1.1F);
         }
     }

@@ -299,9 +299,11 @@ public class ConspiratorRoleData extends SimpleRoleData {
         if (!gameWorld.isRole(player, ModRoles.CONSPIRATOR))
             return;
 
-        // 处理所有目标的倒计时
-        for (int i = targetList.size() - 1; i >= 0; i--) {
-            TargetInfo targetInfo = targetList.get(i);
+        // 处理所有目标的倒计时。快照迭代 + 倒序：保持原有击杀顺序，且击杀链重入改动
+        // targetList（职业撤销/回溯都会 clear 本列表）不会让索引错位。
+        List<TargetInfo> snapshot = new ArrayList<>(targetList);
+        for (int i = snapshot.size() - 1; i >= 0; i--) {
+            TargetInfo targetInfo = snapshot.get(i);
 
             // 如果有正在进行的死亡倒计时
             if (targetInfo.deathCountdown > 0 && targetInfo.guessCorrect && targetInfo.targetPlayer != null) {
@@ -349,8 +351,8 @@ public class ConspiratorRoleData extends SimpleRoleData {
                         }
                     }
 
-                    // 从列表中移除已完成的猜测
-                    targetList.remove(i);
+                    // 从列表中移除已完成的猜测（按实例删除；TargetInfo 未覆写 equals）
+                    targetList.remove(targetInfo);
                     this.sync();
                 }
             }

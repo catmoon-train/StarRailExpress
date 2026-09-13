@@ -64,6 +64,7 @@ import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.cca.SREPlayerMoodComponent;
 import io.wifi.starrailexpress.cca.SREPlayerPsychoComponent;
 import io.wifi.starrailexpress.cca.SRETrainWorldComponent;
+import io.wifi.starrailexpress.client.command.NetworkStatsClientCommand;
 import io.wifi.starrailexpress.client.commandmacro.CommandMacroExecutor;
 import io.wifi.starrailexpress.client.data.ClientPlayerDataCache;
 import io.wifi.starrailexpress.client.fourthroom.FourthRoomCameraDirector;
@@ -131,6 +132,7 @@ import io.wifi.starrailexpress.network.CloseUiPayload;
 import io.wifi.starrailexpress.network.IsLobbyConfigPayload;
 import io.wifi.starrailexpress.network.JoinSpecGroupPayload;
 import io.wifi.starrailexpress.network.MapVotingResultsPayload;
+import io.wifi.starrailexpress.network.NetworkStatistics;
 import io.wifi.starrailexpress.network.OnGameFinishedPayload;
 import io.wifi.starrailexpress.network.OnGameStartedPayload;
 import io.wifi.starrailexpress.network.OpenProgressionScreenPayload;
@@ -294,6 +296,21 @@ public class SREClient implements ClientModInitializer {
         return cachedPlayerCreative;
     }
 
+    /**
+     * 客户端侧网络统计：注册 {@code /tmm:netstatsc}，并给统计内核补上只有客户端才知道的两件事——
+     * 编码载荷时用的注册表访问，以及本地玩家名（用于按玩家归集）。数据留在客户端本地，
+     * 导出到 {@code .minecraft/netstats/}，与服务端的 /tmm:netstats 完全独立。
+     */
+    private static void initNetworkStatisticsClient() {
+        NetworkStatistics clientStats = NetworkStatistics.getClientInstance();
+        clientStats.setRegistryAccessSupplier(() -> {
+            LocalPlayer player = Minecraft.getInstance().player;
+            return player != null ? player.level().registryAccess() : null;
+        });
+        clientStats.setLocalPlayerSupplier(() -> Minecraft.getInstance().player);
+        NetworkStatsClientCommand.register();
+    }
+
     @Override
     public void onInitializeClient() {
         LetterNewspaperBuilder.init();
@@ -312,6 +329,7 @@ public class SREClient implements ClientModInitializer {
                 });
         io.wifi.starrailexpress.client.mirror.MirrorReflectionManager.init();
         ClientConfigEvents.register();
+        initNetworkStatisticsClient();
         new EXSREClient().onInitializeClient();
         // Load config
         ModWhitelistClient.onInitializeClient();
@@ -534,6 +552,11 @@ public class SREClient implements ClientModInitializer {
             LoggerFactory.getLogger(this.getClass())
                     .info("Is Lobby status: " + (SREClient.isInLobby ? "Yes" : "No"));
         });
+        // 自定义形状粒子：服务端只说"在哪、播哪条、多久"，形状由客户端按 id 生成
+        ClientPlayNetworking.registerGlobalReceiver(
+                io.wifi.starrailexpress.network.packet.CustomParticleS2CPayload.ID,
+                (payload, context) -> context.client().execute(
+                        () -> io.wifi.starrailexpress.client.particle.CustomParticleHandlers.dispatch(payload)));
 
         // Item tooltips
         TMMItemTooltips.addTooltips();

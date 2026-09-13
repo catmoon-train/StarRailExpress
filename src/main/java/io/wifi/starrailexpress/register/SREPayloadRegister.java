@@ -22,6 +22,7 @@ import io.wifi.starrailexpress.content.vote.network.VoteSyncS2CPacket;
 import io.wifi.starrailexpress.network.*;
 import io.wifi.starrailexpress.network.original.*;
 import io.wifi.starrailexpress.network.packet.CustomNarratorPacket;
+import io.wifi.starrailexpress.network.packet.CustomParticleS2CPayload;
 import io.wifi.starrailexpress.network.packet.ModVersionPacket;
 import io.wifi.starrailexpress.network.packet.RoleRotationConfirmC2SPacket;
 import io.wifi.starrailexpress.network.packet.RoleRotationSelectC2SPacket;
@@ -286,5 +287,8 @@ public class SREPayloadRegister {
                 net.exmo.sre.record.network.RecordReplayRequestC2SPayload.CODEC);
         PayloadTypeRegistry.playS2C().register(net.exmo.sre.record.network.RecordReplayS2CPayload.ID,
                 net.exmo.sre.record.network.RecordReplayS2CPayload.CODEC);
+
+        // 通用"自定义形状粒子"包：服务端发 id + 原点 + 参数，客户端按 id 生成形状
+        PayloadTypeRegistry.playS2C().register(CustomParticleS2CPayload.ID, CustomParticleS2CPayload.CODEC);
     }
 }

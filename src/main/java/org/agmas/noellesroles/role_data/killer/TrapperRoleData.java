@@ -48,7 +48,6 @@ import org.agmas.noellesroles.init.ModItems;
 import org.agmas.noellesroles.utils.RoleUtils;
 import org.jetbrains.annotations.NotNull;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import java.util.UUID;
 
@@ -510,11 +509,10 @@ public class TrapperRoleData extends SimpleRoleData {
     }
 
     private static void pruneList(ServerLevel serverLevel, List<UUID> list) {
-        Iterator<UUID> it = list.iterator();
-        while (it.hasNext()) {
-            Entity entity = serverLevel.getEntity(it.next());
+        for (UUID id : new ArrayList<>(list)) {
+            Entity entity = serverLevel.getEntity(id);
             if (entity == null || entity.isRemoved()) {
-                it.remove();
+                list.remove(id);
             }
         }
     }

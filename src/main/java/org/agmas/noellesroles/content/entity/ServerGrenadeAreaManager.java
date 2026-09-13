@@ -17,6 +17,7 @@ package org.agmas.noellesroles.content.entity;
 
 import io.wifi.starrailexpress.game.GameConstants;
 import io.wifi.starrailexpress.game.GameUtils;
+import io.wifi.starrailexpress.util.ParticleFx;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -225,25 +226,18 @@ public class ServerGrenadeAreaManager {
         }
 
         private void spawnParticles() {
+            // 整个区域一次发完：原实现是每个粒子一个包
             if (type != Type.SLIME) {
-                for (int i = 0; i < 6; i++) {
-                    double ox = (world.random.nextDouble() - 0.5) * radius * 2;
-                    double oz = (world.random.nextDouble() - 0.5) * radius * 2;
-                    double oy = world.random.nextDouble() * 0.5;
-                    world.sendParticles(ParticleTypes.FLAME, center.x + ox, center.y + oy, center.z + oz,
-                            1, 0.05, 0.1, 0.05, 0.02);
-                    if (i % 2 == 0) {
-                        world.sendParticles(ParticleTypes.LAVA, center.x + ox, center.y + oy, center.z + oz,
-                                1, 0.05, 0.05, 0.05, 0.0);
-                    }
-                }
+                ParticleFx.burst(world, ParticleTypes.FLAME,
+                        center.x, center.y + 0.25, center.z,
+                        6, radius * 0.5, 0.25, radius * 0.5, 0.02);
+                ParticleFx.burst(world, ParticleTypes.LAVA,
+                        center.x, center.y + 0.25, center.z,
+                        3, radius * 0.5, 0.25, radius * 0.5, 0.0);
             } else {
-                for (int i = 0; i < 6; i++) {
-                    double ox = (world.random.nextDouble() - 0.5) * radius * 2;
-                    double oz = (world.random.nextDouble() - 0.5) * radius * 2;
-                    world.sendParticles(ParticleTypes.ITEM_SLIME, center.x + ox, center.y + 0.1, center.z + oz,
-                            1, 0.05, 0.02, 0.05, 0.01);
-                }
+                ParticleFx.burst(world, ParticleTypes.ITEM_SLIME,
+                        center.x, center.y + 0.1, center.z,
+                        6, radius * 0.5, 0.1, radius * 0.5, 0.01);
             }
         }
     }

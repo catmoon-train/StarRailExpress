@@ -18,6 +18,7 @@ package org.agmas.noellesroles.content.entity;
 import io.wifi.starrailexpress.cca.SREPlayerPoisonComponent;
 import io.wifi.starrailexpress.content.entity.no_water_influenced.NoHeavyWaterInfluencedThrowableItemProjectile;
 import io.wifi.starrailexpress.game.GameUtils;
+import io.wifi.starrailexpress.util.ParticleFx;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -105,26 +106,14 @@ public class PurifyBombEntity extends NoHeavyWaterInfluencedThrowableItemProject
      * 生成水滴粒子效果
      */
     private void spawnBubbleParticles(ServerLevel world) {
-        // 使用水滴粒子模拟净化效果
-        for (int i = 0; i < 80; i++) {
-            double offsetX = (this.random.nextDouble() - 0.5) * PURIFY_RADIUS * 2;
-            double offsetY = this.random.nextDouble() * 3;
-            double offsetZ = (this.random.nextDouble() - 0.5) * PURIFY_RADIUS * 2;
-
-            // 使用水滴粒子
-            world.sendParticles(ParticleTypes.DRIPPING_WATER,
-                    this.getX() + offsetX, this.getY() + offsetY, this.getZ() + offsetZ,
-                    1, 0.1, 0.1, 0.1, 0.03);
-        }
+        // 使用水滴粒子模拟净化效果：两段效果各一个包（原实现是逐颗粒子一个包）
+        ParticleFx.burst(world, ParticleTypes.DRIPPING_WATER,
+                this.getX(), this.getY() + 1.5, this.getZ(),
+                80, PURIFY_RADIUS * 0.5, 1.5, PURIFY_RADIUS * 0.5, 0.03);
 
         // 额外的水滴下落效果
-        for (int i = 0; i < 30; i++) {
-            double offsetX = (this.random.nextDouble() - 0.5) * PURIFY_RADIUS;
-            double offsetZ = (this.random.nextDouble() - 0.5) * PURIFY_RADIUS;
-
-            world.sendParticles(ParticleTypes.DRIPPING_WATER,
-                    this.getX() + offsetX, this.getY(), this.getZ() + offsetZ,
-                    1, 0, 0.1, 0, 0.05);
-        }
+        ParticleFx.burst(world, ParticleTypes.DRIPPING_WATER,
+                this.getX(), this.getY(), this.getZ(),
+                30, PURIFY_RADIUS * 0.25, 0.1, PURIFY_RADIUS * 0.25, 0.05);
     }
 }

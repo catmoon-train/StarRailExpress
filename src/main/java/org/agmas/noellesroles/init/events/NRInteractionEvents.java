@@ -348,6 +348,7 @@ public class NRInteractionEvents {
         org.agmas.noellesroles.game.roles.neutral.infected.InfectedWinChecker.registerEvent();
         EntityClearUtils.registerResetEvent();
         org.agmas.noellesroles.game.roles.innocence.photographer.PhotographerFrameEvents.register();
+        org.agmas.noellesroles.game.roles.innocence.photographer.RoundPhotoCleanup.register();
         MapScanner.registerMapScanEvent();
         XiaoNaoHandler.registerEvent();
         org.agmas.noellesroles.role_data.innocence.AwesomeRoleData.registerEvents();

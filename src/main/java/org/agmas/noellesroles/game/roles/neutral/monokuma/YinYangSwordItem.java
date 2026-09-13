@@ -17,6 +17,7 @@ package org.agmas.noellesroles.game.roles.neutral.monokuma;
 
 import io.wifi.starrailexpress.api.data.RoleData;
 import io.wifi.starrailexpress.game.GameUtils;
+import io.wifi.starrailexpress.util.ParticleFx;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.particles.DustParticleOptions;
 import net.minecraft.core.particles.ParticleTypes;
@@ -103,36 +104,19 @@ public class YinYangSwordItem extends Item {
         ServerLevel serverLevel = sp.serverLevel();
         float progress = 1.0f - ((float) chargeTimer / CHARGE_TIME);
         double radius = 0.65 + progress * 1.35;
-        int particleCount = 6 + (int) (progress * 18.0f);
+        int particleCount = 4 + (int) (progress * 8.0f);
         double baseY = sp.getY() + 1.0 + progress * 0.35;
 
-        for (int i = 0; i < particleCount; i++) {
-            double angle = (serverLevel.random.nextDouble() * Math.PI * 2.0) + serverLevel.getGameTime() * 0.12;
-            double spiral = radius * (0.55 + serverLevel.random.nextDouble() * 0.45);
-            double px = sp.getX() + Math.cos(angle) * spiral;
-            double py = baseY + (serverLevel.random.nextDouble() - 0.5) * 1.4;
-            double pz = sp.getZ() + Math.sin(angle) * spiral;
+        // 黑白尘各一个包：原实现是逐颗粒子发包（最多 48 包/tick）
+        ParticleFx.burst(serverLevel,
+                new DustParticleOptions(new Vector3f(0.02f, 0.02f, 0.02f), 1.0f + progress * 1.2f),
+                sp.getX(), baseY, sp.getZ(),
+                particleCount, radius * 0.5, 0.7, radius * 0.5, 0.04 + progress * 0.04);
 
-            serverLevel.sendParticles(
-                    new DustParticleOptions(new Vector3f(0.02f, 0.02f, 0.02f), 1.0f + progress * 1.2f),
-                    px, py, pz,
-                    1,
-                    -Math.cos(angle) * 0.04,
-                    0.02 + progress * 0.04,
-                    -Math.sin(angle) * 0.04,
-                    0.0);
-
-            serverLevel.sendParticles(
-                    new DustParticleOptions(new Vector3f(1.0f, 1.0f, 1.0f), 0.9f + progress),
-                    px * 0.35 + sp.getX() * 0.65,
-                    py,
-                    pz * 0.35 + sp.getZ() * 0.65,
-                    1,
-                    0.0,
-                    0.01 + progress * 0.03,
-                    0.0,
-                    0.0);
-        }
+        ParticleFx.burst(serverLevel,
+                new DustParticleOptions(new Vector3f(1.0f, 1.0f, 1.0f), 0.9f + progress),
+                sp.getX(), baseY, sp.getZ(),
+                particleCount, radius * 0.2, 0.7, radius * 0.2, 0.01 + progress * 0.03);
 
         // 中心聚能火花
         int flashCount = 1 + (int) (progress * 4.0f);

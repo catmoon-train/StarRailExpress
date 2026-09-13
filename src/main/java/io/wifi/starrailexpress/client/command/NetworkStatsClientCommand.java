@@ -13,7 +13,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package io.wifi.starrailexpress.content.command;
+package io.wifi.starrailexpress.client.command;
 
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
@@ -25,12 +25,12 @@ import io.wifi.starrailexpress.network.NetworkStatsExporter;
 import io.wifi.starrailexpress.network.NetworkStatistics;
 import io.wifi.starrailexpress.network.PacketStats;
 import io.wifi.starrailexpress.network.PlayerPacketStats;
+import net.fabricmc.fabric.api.client.command.v2.ClientCommandManager;
+import net.fabricmc.fabric.api.client.command.v2.ClientCommandRegistrationCallback;
+import net.fabricmc.fabric.api.client.command.v2.FabricClientCommandSource;
 import net.minecraft.ChatFormatting;
-import net.minecraft.commands.CommandSourceStack;
-import net.minecraft.commands.Commands;
-import net.minecraft.commands.arguments.EntityArgument;
 import net.minecraft.network.chat.Component;
-import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.player.Player;
 import org.jetbrains.annotations.Nullable;
 
 import java.nio.file.Path;
@@ -44,71 +44,75 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * 服务端网络统计命令 {@code /tmm:netstats}。
+ * 客户端网络统计命令 {@code /tmm:netstatsc}。
  *
- * <p>统计需要先 {@code start} 才会写入内存；{@code start} 会清空上一次的数据，开始新的统计会话。
- * 数据是本服务端的流量（本服发出与本服收到），导出到服务端运行目录下的 {@code netstats/}。
- * 客户端的对应命令是 {@code /tmm:netstatsc}。
+ * <p>统计的是客户端这一侧看到的流量（本客户端发出与本客户端收到），数据存在客户端本地，
+ * 导出到客户端运行目录（{@code .minecraft}）下的 {@code netstats/}。服务端的对应命令是
+ * {@code /tmm:netstats}，两侧的 {@code start}/{@code stop} 互不影响。
+ *
+ * <p>客户端命令没有权限体系，因此不加 {@code requires} 判断。
  */
-public class NetworkStatsCommand {
+public class NetworkStatsClientCommand {
 
     private static final int DEFAULT_RANKING_LIMIT = 10;
     private static final int DEFAULT_EXPORT_LIMIT = 200;
     private static final int MAX_LIMIT = 5000;
-    /** 聊天里每个玩家最多列几种包类型，完整数据看导出文件。 */
     private static final int MAX_TYPES_PER_PLAYER = 8;
 
     private static final DateTimeFormatter TIME_STAMP = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
-    public static void register(CommandDispatcher<CommandSourceStack> dispatcher) {
-        dispatcher.register(Commands.literal("tmm:netstats")
-                .requires(source -> source.hasPermission(2))
-                .executes(NetworkStatsCommand::showGlobalStats)
-                .then(Commands.literal("start").executes(NetworkStatsCommand::startRecording))
-                .then(Commands.literal("stop").executes(NetworkStatsCommand::stopRecording))
-                .then(Commands.literal("status").executes(NetworkStatsCommand::showStatus))
-                .then(Commands.literal("reset").executes(NetworkStatsCommand::resetStats))
-                .then(Commands.literal("global").executes(NetworkStatsCommand::showGlobalStats))
+    public static void register() {
+        ClientCommandRegistrationCallback.EVENT.register((dispatcher, registryAccess) ->
+                register(dispatcher));
+    }
+
+    public static void register(CommandDispatcher<FabricClientCommandSource> dispatcher) {
+        dispatcher.register(ClientCommandManager.literal("tmm:netstatsc")
+                .executes(NetworkStatsClientCommand::showGlobalStats)
+                .then(ClientCommandManager.literal("start").executes(NetworkStatsClientCommand::startRecording))
+                .then(ClientCommandManager.literal("stop").executes(NetworkStatsClientCommand::stopRecording))
+                .then(ClientCommandManager.literal("status").executes(NetworkStatsClientCommand::showStatus))
+                .then(ClientCommandManager.literal("reset").executes(NetworkStatsClientCommand::resetStats))
+                .then(ClientCommandManager.literal("global").executes(NetworkStatsClientCommand::showGlobalStats))
                 .then(rankingBranch("rankings", null))
                 .then(rankingBranch("outbound_rankings", Boolean.TRUE))
                 .then(rankingBranch("inbound_rankings", Boolean.FALSE))
-                // 旧名别名：原名里的 server/client 指的是包的方向，容易误解，保留仅为兼容。
-                .then(rankingBranch("server_rankings", Boolean.TRUE))
-                .then(rankingBranch("client_rankings", Boolean.FALSE))
-                .then(Commands.literal("byplayer").executes(NetworkStatsCommand::showStatsByPlayer))
-                .then(Commands.literal("player")
-                        .executes(ctx -> showPlayerStats(ctx, ctx.getSource().getPlayer()))
-                        .then(Commands.argument("target", EntityArgument.player())
-                                .executes(ctx -> showPlayerStats(ctx, EntityArgument.getPlayer(ctx, "target")))))
-                .then(Commands.literal("export")
+                .then(ClientCommandManager.literal("byplayer").executes(NetworkStatsClientCommand::showStatsByPlayer))
+                .then(ClientCommandManager.literal("player").executes(NetworkStatsClientCommand::showPlayerStats))
+                .then(ClientCommandManager.literal("export")
                         .executes(ctx -> exportStats(ctx, DEFAULT_EXPORT_LIMIT))
-                        .then(Commands.argument("limit", IntegerArgumentType.integer(1, MAX_LIMIT))
+                        .then(ClientCommandManager.argument("limit", IntegerArgumentType.integer(1, MAX_LIMIT))
                                 .executes(ctx -> exportStats(ctx,
                                         IntegerArgumentType.getInteger(ctx, "limit")))))
         );
     }
 
     private static NetworkStatistics stats() {
-        return NetworkStatistics.getInstance();
+        return NetworkStatistics.getClientInstance();
     }
 
-    private static void reply(CommandSourceStack source, Component message) {
-        source.sendSuccess(() -> message, false);
+    private static void reply(FabricClientCommandSource source, Component message) {
+        source.sendFeedback(message);
+    }
+
+    private static void hint(FabricClientCommandSource source, Component message) {
+        source.sendFeedback(message.copy().withStyle(ChatFormatting.GRAY));
     }
 
     // ------------------------------------------------------------------ 记录开关
 
-    private static int startRecording(CommandContext<CommandSourceStack> context) {
-        CommandSourceStack source = context.getSource();
+    private static int startRecording(CommandContext<FabricClientCommandSource> context) {
+        FabricClientCommandSource source = context.getSource();
         stats().startRecording();
-        reply(source, Component.literal("已开始记录网络统计（已清空上一次的数据）").withStyle(ChatFormatting.GREEN));
-        reply(source, Component.literal("只统计自定义载荷包，原版 Minecraft 包不计入").withStyle(ChatFormatting.GRAY));
-        reply(source, Component.literal("用 /tmm:netstats export 导出到服务端 netstats/ 目录").withStyle(ChatFormatting.GRAY));
+        reply(source, Component.literal("已开始记录客户端网络统计（已清空上一次的数据）")
+                .withStyle(ChatFormatting.GREEN));
+        hint(source, Component.literal("只统计自定义载荷包，原版 Minecraft 包不计入"));
+        hint(source, Component.literal("用 /tmm:netstatsc export 导出到客户端 netstats/ 目录"));
         return 1;
     }
 
-    private static int stopRecording(CommandContext<CommandSourceStack> context) {
-        CommandSourceStack source = context.getSource();
+    private static int stopRecording(CommandContext<FabricClientCommandSource> context) {
+        FabricClientCommandSource source = context.getSource();
         boolean wasRecording = stats().isRecording();
         stats().stopRecording();
         reply(source, Component.literal(wasRecording
@@ -117,17 +121,17 @@ public class NetworkStatsCommand {
         return 1;
     }
 
-    private static int resetStats(CommandContext<CommandSourceStack> context) {
+    private static int resetStats(CommandContext<FabricClientCommandSource> context) {
         stats().resetStats();
-        reply(context.getSource(), Component.literal("已清空网络统计数据").withStyle(ChatFormatting.YELLOW));
+        reply(context.getSource(), Component.literal("已清空客户端网络统计数据").withStyle(ChatFormatting.YELLOW));
         return 1;
     }
 
-    private static int showStatus(CommandContext<CommandSourceStack> context) {
-        CommandSourceStack source = context.getSource();
+    private static int showStatus(CommandContext<FabricClientCommandSource> context) {
+        FabricClientCommandSource source = context.getSource();
         NetworkStatistics stats = stats();
 
-        reply(source, Component.literal("=== 网络统计状态 (服务端) ===").withStyle(ChatFormatting.BOLD));
+        reply(source, Component.literal("=== 网络统计状态 (客户端) ===").withStyle(ChatFormatting.BOLD));
         reply(source, Component.literal("记录中: " + (stats.isRecording() ? "是" : "否"))
                 .withStyle(stats.isRecording() ? ChatFormatting.GREEN : ChatFormatting.RED));
         long startedAt = stats.getRecordingStartedAt();
@@ -142,11 +146,11 @@ public class NetworkStatsCommand {
 
     // ------------------------------------------------------------------ 展示
 
-    private static int showGlobalStats(CommandContext<CommandSourceStack> context) {
-        CommandSourceStack source = context.getSource();
+    private static int showGlobalStats(CommandContext<FabricClientCommandSource> context) {
+        FabricClientCommandSource source = context.getSource();
         NetworkStatistics stats = stats();
 
-        reply(source, Component.literal("=== 全局网络统计 (服务端) ===").withStyle(ChatFormatting.BOLD));
+        reply(source, Component.literal("=== 全局网络统计 (客户端) ===").withStyle(ChatFormatting.BOLD));
         reply(source, Component.literal("记录中: " + (stats.isRecording() ? "是" : "否"))
                 .withStyle(stats.isRecording() ? ChatFormatting.GREEN : ChatFormatting.RED));
         reply(source, Component.literal("本端发出: " + stats.getOutboundPackets() + " 包 / "
@@ -164,26 +168,26 @@ public class NetworkStatsCommand {
      *
      * @param outbound {@code null} 表示分支同时显示收发两个方向
      */
-    private static LiteralArgumentBuilder<CommandSourceStack> rankingBranch(String name,
-                                                                           @Nullable Boolean outbound) {
-        LiteralArgumentBuilder<CommandSourceStack> branch = Commands.literal(name)
+    private static LiteralArgumentBuilder<FabricClientCommandSource> rankingBranch(String name,
+                                                                                  @Nullable Boolean outbound) {
+        LiteralArgumentBuilder<FabricClientCommandSource> branch = ClientCommandManager.literal(name)
                 .executes(ctx -> showRankings(ctx, DEFAULT_RANKING_LIMIT, outbound, RankingMode.COUNT));
         for (RankingMode mode : RankingMode.values()) {
-            branch.then(Commands.literal(mode.argument())
+            branch.then(ClientCommandManager.literal(mode.argument())
                     .executes(ctx -> showRankings(ctx, DEFAULT_RANKING_LIMIT, outbound, mode))
-                    .then(Commands.argument("limit", IntegerArgumentType.integer(1, MAX_LIMIT))
+                    .then(ClientCommandManager.argument("limit", IntegerArgumentType.integer(1, MAX_LIMIT))
                             .executes(ctx -> showRankings(ctx,
                                     IntegerArgumentType.getInteger(ctx, "limit"), outbound, mode))));
         }
-        branch.then(Commands.argument("limit", IntegerArgumentType.integer(1, MAX_LIMIT))
+        branch.then(ClientCommandManager.argument("limit", IntegerArgumentType.integer(1, MAX_LIMIT))
                 .executes(ctx -> showRankings(ctx,
                         IntegerArgumentType.getInteger(ctx, "limit"), outbound, RankingMode.COUNT)));
         return branch;
     }
 
-    private static int showRankings(CommandContext<CommandSourceStack> context, int limit,
+    private static int showRankings(CommandContext<FabricClientCommandSource> context, int limit,
                                     @Nullable Boolean outbound, RankingMode mode) {
-        CommandSourceStack source = context.getSource();
+        FabricClientCommandSource source = context.getSource();
         NetworkStatistics stats = stats();
 
         if (outbound == null || outbound) {
@@ -197,16 +201,15 @@ public class NetworkStatsCommand {
         return 1;
     }
 
-    private static int showStatsByPlayer(CommandContext<CommandSourceStack> context) {
-        CommandSourceStack source = context.getSource();
+    private static int showStatsByPlayer(CommandContext<FabricClientCommandSource> context) {
+        FabricClientCommandSource source = context.getSource();
         Map<String, PlayerPacketStats> all = stats().getPlayerStats();
 
-        reply(source, Component.literal("=== 按玩家网络统计 (服务端) ===").withStyle(ChatFormatting.BOLD));
+        reply(source, Component.literal("=== 按玩家网络统计 (客户端) ===").withStyle(ChatFormatting.BOLD));
         if (all.isEmpty()) {
-            reply(source, Component.literal("暂无玩家统计数据").withStyle(ChatFormatting.GRAY));
+            hint(source, Component.literal("暂无玩家统计数据"));
             return 1;
         }
-
         for (Map.Entry<String, PlayerPacketStats> entry : all.entrySet()) {
             PlayerPacketStats playerStats = entry.getValue();
             reply(source, Component.literal("玩家: " + entry.getKey()).withStyle(ChatFormatting.YELLOW));
@@ -221,22 +224,25 @@ public class NetworkStatsCommand {
         return 1;
     }
 
-    private static int showPlayerStats(CommandContext<CommandSourceStack> context, @Nullable ServerPlayer target) {
-        CommandSourceStack source = context.getSource();
-        if (target == null) {
-            source.sendFailure(Component.literal("找不到目标玩家"));
-            return 0;
-        }
+    /** 客户端只认识本地玩家，因此这个子命令固定展示本地玩家的统计。 */
+    private static int showPlayerStats(CommandContext<FabricClientCommandSource> context) {
+        FabricClientCommandSource source = context.getSource();
+        NetworkStatistics stats = stats();
 
-        PlayerPacketStats playerStats = stats().getPlayerStats().get(target.getName().getString());
+        Player localPlayer = stats.getLocalPlayer();
+        if (localPlayer == null) {
+            hint(source, Component.literal("当前拿不到本地玩家身份（是否还没进入世界）"));
+            return 1;
+        }
+        String name = localPlayer.getName().getString();
+
+        PlayerPacketStats playerStats = stats.getPlayerStats().get(name);
         if (playerStats == null) {
-            reply(source, Component.literal("没有玩家 " + target.getName().getString() + " 的统计数据")
-                    .withStyle(ChatFormatting.GRAY));
+            hint(source, Component.literal("没有本地玩家 " + name + " 的统计数据"));
             return 1;
         }
 
-        reply(source, Component.literal("=== 玩家 " + target.getName().getString() + " 的网络统计 ===")
-                .withStyle(ChatFormatting.BOLD));
+        reply(source, Component.literal("=== 玩家 " + name + " 的网络统计 (客户端) ===").withStyle(ChatFormatting.BOLD));
         reply(source, Component.literal("发出: " + playerStats.getOutboundPackets() + " 包 / "
                 + playerStats.getOutboundBytes() + " 字节"));
         reply(source, Component.literal("接收: " + playerStats.getInboundPackets() + " 包 / "
@@ -249,22 +255,21 @@ public class NetworkStatsCommand {
 
     // ------------------------------------------------------------------ 导出
 
-    private static int exportStats(CommandContext<CommandSourceStack> context, int limit) {
-        CommandSourceStack source = context.getSource();
+    private static int exportStats(CommandContext<FabricClientCommandSource> context, int limit) {
+        FabricClientCommandSource source = context.getSource();
         try {
             Path file = NetworkStatsExporter.export(stats(), limit);
             reply(source, Component.literal("网络统计已导出到: ").withStyle(ChatFormatting.GREEN)
                     .append(Component.literal(file.toAbsolutePath().toString()).withStyle(ChatFormatting.WHITE)));
             return 1;
         } catch (Exception e) {
-            source.sendFailure(Component.literal("导出网络统计失败: " + e.getMessage()));
+            source.sendError(Component.literal("导出网络统计失败: " + e.getMessage()));
             return 0;
         }
     }
 
     // ------------------------------------------------------------------ 工具
 
-    /** 取玩家按包类型统计里计数最高的若干项。 */
     private static List<Map.Entry<String, PacketStats>> topTypes(Map<String, PacketStats> typeStats) {
         List<Map.Entry<String, PacketStats>> entries = new ArrayList<>(typeStats.entrySet());
         entries.sort(Comparator.comparingLong((Map.Entry<String, PacketStats> e) -> e.getValue().getCount()).reversed());

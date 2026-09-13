@@ -1,4 +1,4 @@
-﻿{
+{
     "=== END ===": "",
     "=== 游戏管理UI ===": "",
     "============ 地图构建助手 ============": "============ Map Builder Helper ============",
@@ -1274,6 +1274,7 @@
     "gui.sre.map_vote.leaderboard": "Vote Leaderboard",
     "gui.sre.map_vote.no_votes": "No votes yet",
     "gui.sre.map_vote.empty": "No maps available in this category",
+    "gui.sre.map_vote.detail_scroll": "Details %s/%s lines (PageUp/PageDown)",
     "gui.sre.map_vote.hint": "Double-click a map to vote · Arrows to browse · ESC to close",
     "gui.sre.map_vote.votes": "%s votes",
     "gui.sre.map_vote.votes_percent": "%s votes · %s%%",
@@ -3081,7 +3082,7 @@
     "gui.sre.map_vote.capacity_unlimited": "No passenger limit",
     "gui.sre.map_vote.no_description": "No destination description available",
     "gui.sre.map_vote.route_hint": "Wheel / arrows to browse · Double-click a map to vote",
-    "gui.sre.map_vote.browse_hint": "%s / %s  ·  Double-click a map to vote · Arrows to browse",
+    "gui.sre.map_vote.browse_hint": "%s / %s  ·  Double-click a map to vote · Arrows to browse · PageUp/PageDown for details",
     "gui.sre.map_vote.cast_vote": "Vote for this map",
     "gui.sre.map_vote.unavailable": "Unavailable",
     "gui.sre.map_vote.result_countdown": "Departing in %s seconds",

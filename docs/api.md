@@ -105,6 +105,10 @@
     - [屏幕公开"轮椅"方法](#屏幕公开轮椅方法)
     - [PlayerPaginationHelper — 翻页/搜索/排序](#playerpaginationhelper--翻页搜索排序)
     - [RoleScreenHelper — 角色选人辅助](#rolescreenhelper--角色选人辅助)
+17. [粒子与特效 / Particle & FX](#粒子与特效--particle--fx)
+    - [ParticleFx — 服务端粒子助手](#particlefx--服务端粒子助手)
+    - [SceneParticles — 场景方块粒子](#sceneparticles--场景方块粒子)
+    - [自定义形状粒子 / Custom Shape Particles](#自定义形状粒子--custom-shape-particles)
 
 ---
 
@@ -2227,6 +2231,95 @@ helper.onRender(graphics, screen);// 画提示文字 + 页码
 
 ---
 
+## 粒子与特效 / Particle & FX
+
+### 前置事实：粒子是怎么过网的
+
+`ServerLevel.sendParticles(type, x, y, z, count, dx, dy, dz, speed)` 每次调用都会构造**一个** `ClientboundLevelParticlesPacket`，发送给 32 格内的**每个**玩家。包里的 `count` 就是"这次生成几颗粒子"，**不额外增加包体积**；客户端把每颗粒子放在 `pos + nextGaussian() * spread`、速度取 `nextGaussian() * speed`。
+
+因此两条硬规则：
+
+1. **禁止在循环里反复调用 `sendParticles` 凑粒子数** —— 需要 N 颗就传 `count = N`。
+2. **禁止为了"摆形状"在服务端逐点发包** —— 需要自定义形状时走下面的自定义粒子包，形状交给客户端算。
+
+```java
+// 错误：20 个包 × 附近玩家数
+for (int i = 0; i < 20; i++) level.sendParticles(P, x, y, z, 1, 0.3, 0.3, 0.3, 0.0);
+
+// 正确：1 个包，20 颗粒子
+level.sendParticles(P, x, y, z, 20, 0.3, 0.3, 0.3, 0.0);
+```
+
+不适用上述规则的情况：面向单个玩家的私有包 `sendParticles(ServerPlayer, ...)`，以及位置随玩家变化的"每玩家一包"（如每个玩家脚下各来一簇）。纯客户端的 `level.addParticle` / `addAlwaysVisibleParticle` 不进网络，随便用。
+
+### ParticleFx — 服务端粒子助手
+
+`io.wifi.starrailexpress.util.ParticleFx`，每个方法都只发一个包。
+
+| 方法 | 用途 |
+| --- | --- |
+| `burst(level, particle, x, y, z, count, spreadX, spreadY, spreadZ, speed)` | 一次发包的通用入口 |
+| `sphere(level, particle, Vec3 center, count, radius, speed)` | 球形体积（原"绕圈摆点"的效果退化用） |
+| `segment(level, particle, Vec3 from, Vec3 to, count, thickness, speed)` | 两点之间的柱体（原"沿轨迹逐点摆"退化用） |
+| `region(level, particle, AABB box, count, speed)` | AABB 区域内散布 |
+| `regionCapped(level, particle, AABB box, count, speed, maxSpread)` | 同上，但各轴散布有上限（长轨迹不会被摊成一整片） |
+| `sendCustom(...)` / `sendCustomBatch(...)` | 自定义形状粒子，见下节 |
+
+### SceneParticles — 场景方块粒子
+
+`org.agmas.noellesroles.scene.SceneParticles`（服务端），同样每个方法只发一个包：`burst` / `blockBurst` / `ring` / `column` / `columnDown` / `regionScatter`。
+
+### 自定义形状粒子 / Custom Shape Particles
+
+环形、螺旋、沿轨迹、跟随实体、多边形范围提示等形状，原版包**表达不了**（原版只有"一个点 + 高斯散布"）。约定：**服务端只发一个包，形状由客户端按 id 生成**——客户端逐点 `addParticle` 不进网络，形状可以任意复杂，也不会有额外包数。
+
+服务端只提供 id、原点、时长和自定义参数：
+
+```java
+public static final ResourceLocation SHOCK_WAVE =
+        ResourceLocation.fromNamespaceAndPath("mymod", "shock_wave");
+
+// 一条；最后是自定义参数（最多 8 个 float，含义完全由客户端处理器定义）
+ParticleFx.sendCustom(level, SHOCK_WAVE, pos, 20, 6.0F, 0.5F);
+
+// 同一时刻多条：合并成一个包（不要循环调用 sendCustom）
+ParticleFx.sendCustomBatch(level, center, List.of(
+        CustomParticleS2CPayload.Entry.at(SHOCK_WAVE, pos.x, pos.y, pos.z, 20, 6.0F),
+        CustomParticleS2CPayload.Entry.at(SHOCK_WAVE, pos2.x, pos2.y, pos2.z, 20, 3.0F)));
+```
+
+客户端注册处理器（客户端初始化处注册一次，例如 `SREClient` 的初始化流程或该功能自己的客户端初始化方法）：
+
+```java
+CustomParticleHandlers.register(SHOCK_WAVE, (level, origin, durationTicks, params) -> {
+    double radius = params.length > 0 ? params[0] : 1.0D;
+    double speed = params.length > 1 ? params[1] : 0.0D;
+    for (int i = 0; i < 64; i++) {
+        double a = Math.PI * 2.0 * i / 64;
+        level.addParticle(ParticleTypes.END_ROD,
+                origin.x + Math.cos(a) * radius, origin.y, origin.z + Math.sin(a) * radius,
+                0, 0, 0);
+    }
+});
+```
+
+`Handler.play(ClientLevel level, Vec3 origin, int durationTicks, float[] params)` 在客户端主线程调用，未做距离判断（服务端已按半径筛过接收者）。需要持续多帧的特效可利用 `durationTicks`，在客户端自行按 tick 推进（例如存到客户端的特效列表里逐帧生成）。
+
+约束与行为：
+
+| 项 | 值 / 行为 |
+| --- | --- |
+| 单个包最多携带 | `CustomParticleS2CPayload.MAX_ENTRIES` = 64 条（服务端超出会截断并打告警；客户端超出直接断开连接） |
+| 每条最多参数 | `CustomParticleS2CPayload.MAX_PARAMS` = 8 个 float |
+| 广播半径 | `ParticleFx.CUSTOM_FX_RANGE` = 64 格（按原点筛选接收者，不会发给其他维度） |
+| 未知 id | 客户端**静默忽略**，不报错——服务端可以先上新特效，客户端后续版本再补处理器 |
+| 重复注册 id | 客户端立刻抛 `IllegalStateException`，便于早发现冲突 |
+| 调试 | `CustomParticleHandlers.isRegistered(id)` / `registeredIds()` |
+
+包 id 为 `starrailexpress:custom_particle_s2c`（`CustomParticleS2CPayload.ID`），类型注册在 `SREPayloadRegister`，客户端接收在 `SREClient`。
+
+---
+
 ## 参考 / References
 
 - 角色系统源码：`src/main/java/io/wifi/starrailexpress/api/`
@@ -2236,6 +2329,7 @@ helper.onRender(graphics, screen);// 画提示文字 + 页码
 - Harpymodloader 事件：`src/main/java/org/agmas/harpymodloader/events/`
 - Noellesroles 事件：`src/main/java/org/agmas/noellesroles/events/`
 - 皮肤管理：`src/main/java/io/wifi/starrailexpress/util/ItemSkinManager.java`
+- 粒子/特效：`src/main/java/io/wifi/starrailexpress/util/ParticleFx.java` · `src/main/java/io/wifi/starrailexpress/client/particle/CustomParticleHandlers.java` · `src/main/java/io/wifi/starrailexpress/network/packet/CustomParticleS2CPayload.java` · `src/main/java/org/agmas/noellesroles/scene/SceneParticles.java`
 - 工具类：`src/main/java/io/wifi/starrailexpress/util/SREItemUtils.java` · `src/main/java/org/agmas/noellesroles/utils/RoleUtils.java`
 - 创建扩展指南：[`CreateExtention.md`](../CreateExtention.md)
 - 中文 README：[`README.zh.md`](../README.zh.md)

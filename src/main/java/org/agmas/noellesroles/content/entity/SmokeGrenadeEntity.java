@@ -19,6 +19,7 @@ package org.agmas.noellesroles.content.entity;
 import io.wifi.starrailexpress.cca.SREPlayerMoodComponent;
 import io.wifi.starrailexpress.content.entity.no_water_influenced.NoHeavyWaterInfluencedThrowableItemProjectile;
 import io.wifi.starrailexpress.game.GameUtils;
+import io.wifi.starrailexpress.util.ParticleFx;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -97,31 +98,17 @@ public class SmokeGrenadeEntity extends NoHeavyWaterInfluencedThrowableItemProje
             // 创建一个区域效果云或使用定时任务
             ServerSmokeAreaManager.createSmokeArea(world, this.position(), SMOKE_RADIUS, SMOKE_DURATION_TICKS);
             
-            // 初始烟雾粒子爆发 - 大幅增强效果（10倍粒子）
-            for (int i = 0; i < 150; i++) {
-                double offsetX = (this.random.nextDouble() - 0.5) * SMOKE_RADIUS * 2;
-                double offsetY = this.random.nextDouble() * 3;  // 增加高度范围
-                double offsetZ = (this.random.nextDouble() - 0.5) * SMOKE_RADIUS * 2;
-                
-                // 主要烟雾粒子（增加数量）
-                world.sendParticles(ParticleTypes.CAMPFIRE_COSY_SMOKE,
-                        this.getX() + offsetX, this.getY() + offsetY, this.getZ() + offsetZ,
-                        3, 0.1, 0.1, 0.1, 0.03);
-                        
-                // 额外添加大量大型烟雾粒子
-                if (i % 3 == 0) {
-                    world.sendParticles(ParticleTypes.LARGE_SMOKE,
-                            this.getX() + offsetX, this.getY() + offsetY, this.getZ() + offsetZ,
-                            2, 0.2, 0.2, 0.2, 0.05);
-                }
-                
-                // 添加更多的烟雾效果粒子
-                if (i % 5 == 0) {
-                    world.sendParticles(ParticleTypes.SMOKE,
-                            this.getX() + offsetX, this.getY() + offsetY, this.getZ() + offsetZ,
-                            1, 0.15, 0.15, 0.15, 0.04);
-                }
-            }
+            // 初始烟雾粒子爆发：三种粒子各合并成一个包（原实现 150 次循环 = 230 个包同 tick 喷出）
+            double smokeSpread = Math.max(0.5D, SMOKE_RADIUS * 0.5D);
+            ParticleFx.burst(world, ParticleTypes.CAMPFIRE_COSY_SMOKE,
+                    this.getX(), this.getY() + 1.5D, this.getZ(),
+                    450, smokeSpread, 1.5D, smokeSpread, 0.03D);
+            ParticleFx.burst(world, ParticleTypes.LARGE_SMOKE,
+                    this.getX(), this.getY() + 1.5D, this.getZ(),
+                    100, smokeSpread, 1.5D, smokeSpread, 0.05D);
+            ParticleFx.burst(world, ParticleTypes.SMOKE,
+                    this.getX(), this.getY() + 1.5D, this.getZ(),
+                    30, smokeSpread, 1.5D, smokeSpread, 0.04D);
             
             // 立即对范围内玩家应用失明
             applyBlindnessToPlayersInRadius(world);

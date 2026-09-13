@@ -53,17 +53,23 @@ public class CropBlockEntity extends BlockEntity {
         List<Player> players = serverLevel.getEntitiesOfClass(Player.class, top,
                 p -> p.isAlive() && !p.isSpectator() && p.getDeltaMovement().y > 0.2);
         long now = serverLevel.getGameTime();
+        int bounced = 0;
         for (Player p : players) {
             Long last = be.lastBounce.get(p.getUUID());
             if (last != null && now - last < DEBOUNCE) {
                 continue;
             }
             be.lastBounce.put(p.getUUID(), now);
-            serverLevel.sendParticles(new BlockParticleOption(ParticleTypes.BLOCK, state),
-                    pos.getX() + 0.5, pos.getY() + 1.0, pos.getZ() + 0.5, 8, 0.3, 0.1, 0.3, 0.05);
+            bounced++;
             if (p instanceof ServerPlayer sp) {
                 SceneTaskManager.reportCropBounce(sp);
             }
+        }
+        // 粒子与具体玩家无关：所有踩踏合并成一个包（原实现是每个玩家一个包）
+        if (bounced > 0) {
+            serverLevel.sendParticles(new BlockParticleOption(ParticleTypes.BLOCK, state),
+                    pos.getX() + 0.5, pos.getY() + 1.0, pos.getZ() + 0.5,
+                    8 * bounced, 0.3, 0.1, 0.3, 0.05);
         }
     }
 }

@@ -1096,9 +1096,7 @@ public class ThiefRoleData extends SimpleRoleData {
 
         // 处理延迟通知
         if (!pendingNotifications.isEmpty()) {
-            java.util.Iterator<PendingNotification> iterator = pendingNotifications.iterator();
-            while (iterator.hasNext()) {
-                PendingNotification notification = iterator.next();
+            for (PendingNotification notification : new java.util.ArrayList<>(pendingNotifications)) {
                 notification.delayTicks--;
                 if (notification.delayTicks <= 0) {
                     if (notification.targetPlayer != null
@@ -1108,7 +1106,7 @@ public class ThiefRoleData extends SimpleRoleData {
                                         .withStyle(ChatFormatting.RED),
                                 true);
                     }
-                    iterator.remove();
+                    pendingNotifications.remove(notification);
                 }
             }
         }

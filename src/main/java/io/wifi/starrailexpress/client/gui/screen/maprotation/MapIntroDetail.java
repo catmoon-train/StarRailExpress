@@ -52,15 +52,26 @@ public final class MapIntroDetail {
      * @param info 地图展示数据（null 时给一行提示）
      */
     public static List<FormattedCharSequence> build(Font font, int wrapW, MapDisplayInfo info) {
+        return build(font, wrapW, info, true);
+    }
+
+    /**
+     * @param includeHeader 是否输出顶部的「名称 + 地图 ID」两行。
+     *                      投票界面自己已经画了大标题，传 {@code false} 避免重复、把空间留给属性。
+     */
+    public static List<FormattedCharSequence> build(Font font, int wrapW, MapDisplayInfo info,
+            boolean includeHeader) {
         Sink sink = new Sink(font, Math.max(16, wrapW));
         if (info == null) {
             sink.wrapped(Component.translatable("map_intro.loading").withStyle(ChatFormatting.RED));
             return sink.lines;
         }
         Component displayName = mapDisplayName(info.id(), info);
-        sink.wrapped(displayName.copy().withStyle(ChatFormatting.AQUA, ChatFormatting.BOLD));
-        sink.wrapped(Component.translatable("map_intro.map.id", info.id()).withStyle(ChatFormatting.GRAY));
-        sink.blank();
+        if (includeHeader) {
+            sink.wrapped(displayName.copy().withStyle(ChatFormatting.AQUA, ChatFormatting.BOLD));
+            sink.wrapped(Component.translatable("map_intro.map.id", info.id()).withStyle(ChatFormatting.GRAY));
+            sink.blank();
+        }
 
         // ---- 投票配置 ----
         if (info.hasVoteConfig()) {

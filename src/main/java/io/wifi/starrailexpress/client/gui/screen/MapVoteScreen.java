@@ -14,6 +14,7 @@ import io.wifi.starrailexpress.client.gui.screen.mapui.MapCapabilitySummary;
 import io.wifi.starrailexpress.client.gui.screen.mapui.MapIntroClientCache;
 import io.wifi.starrailexpress.client.gui.screen.mapui.MapUiGraphics;
 import io.wifi.starrailexpress.client.gui.screen.mapui.MapVoteLayout;
+import io.wifi.starrailexpress.client.gui.screen.maprotation.MapIntroDetail;
 import io.wifi.starrailexpress.content.vote.client.VoteFlowFrame;
 import io.wifi.starrailexpress.content.vote.client.VoteFlowTransition;
 import io.wifi.starrailexpress.content.vote.client.VoteModePresentation;
@@ -30,6 +31,7 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.sounds.SoundEvents;
+import net.minecraft.util.FormattedCharSequence;
 import net.minecraft.util.Mth;
 import org.lwjgl.glfw.GLFW;
 
@@ -40,6 +42,9 @@ public class MapVoteScreen extends Screen {
     private static final long DOUBLE_CLICK_MS = 400L;
     /** 客户端自卫：结果页铺黑后超过该时长仍未开局则自动关闭，防止卡黑屏。 */
     private static final long RESULT_SAFETY_CLOSE_MS = 10_000L;
+
+    /** PageUp/PageDown 一次翻几行详情 */
+    private static final int DETAIL_PAGE_LINES = 8;
     private final MapBackdropRenderer backdrop = new MapBackdropRenderer(0.28F);
     private final List<MapRow> rows = new ArrayList<>();
     private int focusIndex;
@@ -51,6 +56,10 @@ public class MapVoteScreen extends Screen {
     private float resultTitleHeight = 22;
     private boolean introDataReceived;
     private MapCapabilitySummary summary;
+    /** 与地图轮换界面同源的完整详情行（MapIntroDetail.build） */
+    private List<FormattedCharSequence> detailLines = List.of();
+    private String detailCacheKey = "";
+    private int detailScroll = 0;
     private long lastMapClickAt;
     private int lastMapClickIndex = -1;
 
@@ -222,21 +231,51 @@ public class MapVoteScreen extends Screen {
         int textY = metaY + 21;
         g.fill(x, textY - 7, x + Math.round(Math.min(180, l.infoWidth() - 12) * enter), textY - 6,
                 VoteFlowFrame.withAlpha(VoteFlowFrame.GOLD, Math.round(detailAlpha * 0.55F)));
-        int maxLines = Math.min(l.compact() ? 2 : 3, Math.max(0, (bottom - textY - 25) / 13));
+        // 非紧凑布局把描述压到 2 行，腾出的空间给完整属性详情
+        int maxLines = Math.min(2, Math.max(0, (bottom - textY - 25) / 13));
         var lines = font.split(row.description(), l.infoWidth() - 12);
         for (int i = 0; i < Math.min(maxLines, lines.size()); i++) {
             g.drawString(font, lines.get(i), x, textY, VoteFlowFrame.withAlpha(0xFFD8C9AC, detailAlpha), false);
             textY += 13;
         }
         if (textY + 20 < bottom) textY += 9;
-        if (summary != null) {
-            for (Component rule : summary.ruleLines(l.compact() ? 2 : 3)) {
-                if (textY + 10 > bottom) break;
-                g.fill(x, textY + 3, x + 3, textY + 6, VoteFlowFrame.withAlpha(VoteFlowFrame.GOLD_DIM, detailAlpha));
-                g.drawString(font, MapUiGraphics.clip(font, rule.getString(), l.infoWidth() - 22), x + 11, textY,
-                        VoteFlowFrame.withAlpha(VoteFlowFrame.MUTED, detailAlpha), false);
-                textY += 15;
+        if (l.compact()) {
+            // 窗口太矮时退回简短摘要（否则一行详情都放不下）
+            if (summary != null) {
+                for (Component rule : summary.ruleLines(2)) {
+                    if (textY + 10 > bottom) break;
+                    g.fill(x, textY + 3, x + 3, textY + 6, VoteFlowFrame.withAlpha(VoteFlowFrame.GOLD_DIM, detailAlpha));
+                    g.drawString(font, MapUiGraphics.clip(font, rule.getString(), l.infoWidth() - 22), x + 11, textY,
+                            VoteFlowFrame.withAlpha(VoteFlowFrame.MUTED, detailAlpha), false);
+                    textY += 15;
+                }
             }
+            g.disableScissor();
+            return;
+        }
+        // 与地图轮换界面显示同样多的信息：完整的属性/投票/特殊职业行，可 PageUp/PageDown 翻看
+        ensureDetail(row, l.infoWidth() - 26);
+        int lineH = 13;
+        int viewTop = textY;
+        int viewHeight = Math.max(0, bottom - viewTop);
+        int visible = Math.max(1, viewHeight / lineH);
+        int maxScroll = Math.max(0, detailLines.size() - visible);
+        detailScroll = Mth.clamp(detailScroll, 0, maxScroll);
+        int end = Math.min(detailLines.size(), detailScroll + visible);
+        for (int i = detailScroll; i < end; i++) {
+            FormattedCharSequence line = detailLines.get(i);
+            int lineY = viewTop + (i - detailScroll) * lineH;
+            g.drawString(font, line, x, lineY, VoteFlowFrame.withAlpha(0xFFD8C9AC, detailAlpha), false);
+        }
+        if (maxScroll > 0) {
+            // 右侧细滚动条 + 位置提示
+            int trackX = x + l.infoWidth() - 6;
+            g.fill(trackX, viewTop, trackX + 2, viewTop + visible * lineH,
+                    VoteFlowFrame.withAlpha(0xFF000000, Math.round(detailAlpha * 0.35F)));
+            int thumbH = Math.max(10, visible * visible * lineH / (detailLines.size() * lineH));
+            int thumbY = viewTop + (visible * lineH - thumbH) * detailScroll / maxScroll;
+            g.fill(trackX, thumbY, trackX + 2, thumbY + thumbH,
+                    VoteFlowFrame.withAlpha(VoteFlowFrame.GOLD, detailAlpha));
         }
         g.disableScissor();
     }
@@ -398,6 +437,11 @@ public class MapVoteScreen extends Screen {
             case GLFW.GLFW_KEY_HOME -> { moveFocus(-focusIndex); return true; }
             case GLFW.GLFW_KEY_END -> { moveFocus(rows.size() - 1 - focusIndex); return true; }
             case GLFW.GLFW_KEY_ENTER, GLFW.GLFW_KEY_KP_ENTER, GLFW.GLFW_KEY_SPACE -> { submitFocused(); return true; }
+            case GLFW.GLFW_KEY_PAGE_UP -> { detailScroll = Math.max(0, detailScroll - DETAIL_PAGE_LINES); return true; }
+            case GLFW.GLFW_KEY_PAGE_DOWN -> {
+                detailScroll = Math.min(Math.max(0, detailLines.size()), detailScroll + DETAIL_PAGE_LINES);
+                return true;
+            }
             default -> { return super.keyPressed(keyCode, scanCode, modifiers); }
         }
     }
@@ -433,6 +477,28 @@ public class MapVoteScreen extends Screen {
         focusIndex = Mth.clamp(index, 0, rows.size() - 1);
         selectionChangedAt = System.currentTimeMillis();
         summary = MapCapabilitySummary.forMap(targetMapId());
+        detailCacheKey = "";
+        detailScroll = 0;
+    }
+
+    /** 详情行：聚焦地图变化或换行宽时重建（内容与地图轮换界面完全一致）。 */
+    private void ensureDetail(MapRow row, int wrapW) {
+        if (row == null) {
+            detailLines = List.of();
+            detailCacheKey = "";
+            return;
+        }
+        String key = row.id() + "|" + wrapW;
+        if (key.equals(detailCacheKey)) {
+            return;
+        }
+        boolean sameRow = detailCacheKey.startsWith(row.id() + "|");
+        detailCacheKey = key;
+        // 投票界面自己已有大标题，详情不重复输出「名称 + ID」
+        detailLines = MapIntroDetail.build(font, Math.max(60, wrapW), row.info, false);
+        if (!sameRow) {
+            detailScroll = 0;
+        }
     }
     private boolean canVote() {
         MapRow row = focused();

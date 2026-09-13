@@ -244,17 +244,23 @@ public class HunterCageBlockEntity extends BlockEntity {
             long t = level.getGameTime();
             // 笼子抖动粒子
             if (t % 6 == 0) {
+                // 所有囚犯的粒子位置完全相同，按类型各合并成一个包
+                int soulCount = 0;
+                int smokeCount = 0;
                 for (TrialEntry entry : entity.prisoners) {
                     float progress = Math.min(1.0F, entry.progress / (float) RepairModeState.TRIAL_EXECUTION_TICKS);
-                    int particleCount = 1 + (int) (progress * 4);
-                    serverLevel.sendParticles(ParticleTypes.SOUL_FIRE_FLAME,
-                            pos.getX() + 0.5D, pos.getY() + 1.8D, pos.getZ() + 0.5D,
-                            particleCount, 0.4D, 0.2D, 0.4D, 0.01D);
+                    soulCount += 1 + (int) (progress * 4);
                     if (progress > 0.5F) {
-                        serverLevel.sendParticles(ParticleTypes.LARGE_SMOKE,
-                                pos.getX() + 0.5D, pos.getY() + 1.2D, pos.getZ() + 0.5D,
-                                2, 0.35D, 0.3D, 0.35D, 0.02D);
+                        smokeCount += 2;
                     }
+                }
+                serverLevel.sendParticles(ParticleTypes.SOUL_FIRE_FLAME,
+                        pos.getX() + 0.5D, pos.getY() + 1.8D, pos.getZ() + 0.5D,
+                        soulCount, 0.4D, 0.2D, 0.4D, 0.01D);
+                if (smokeCount > 0) {
+                    serverLevel.sendParticles(ParticleTypes.LARGE_SMOKE,
+                            pos.getX() + 0.5D, pos.getY() + 1.2D, pos.getZ() + 0.5D,
+                            smokeCount, 0.35D, 0.3D, 0.35D, 0.02D);
                 }
             }
             // 笼子震颤音效

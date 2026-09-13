@@ -16,6 +16,7 @@
 package org.agmas.noellesroles.content.entity;
 
 import io.wifi.starrailexpress.content.entity.no_water_influenced.NoHeavyWaterInfluencedThrowableItemProjectile;
+import io.wifi.starrailexpress.util.ParticleFx;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
@@ -66,13 +67,10 @@ public class IncendiaryGrenadeEntity extends NoHeavyWaterInfluencedThrowableItem
             world.playSound(null, this.blockPosition(), SoundEvents.FIRECHARGE_USE, SoundSource.PLAYERS, 1.5F, 0.9F);
             ServerGrenadeAreaManager.createArea(world, this.position(), AREA_RADIUS, AREA_DURATION_TICKS,
                     getAreaType(), this.getOwner() != null ? this.getOwner().getUUID() : null);
-            for (int i = 0; i < 60; i++) {
-                double ox = (this.random.nextDouble() - 0.5) * AREA_RADIUS * 2;
-                double oz = (this.random.nextDouble() - 0.5) * AREA_RADIUS * 2;
-                double oy = this.random.nextDouble() * 1.5;
-                world.sendParticles(ParticleTypes.FLAME, this.getX() + ox, this.getY() + oy, this.getZ() + oz,
-                        2, 0.1, 0.1, 0.1, 0.03);
-            }
+            // 60 次循环 ×2 粒 = 120 粒，一个包发完
+            ParticleFx.burst(world, ParticleTypes.FLAME,
+                    this.getX(), this.getY() + 0.75, this.getZ(),
+                    120, AREA_RADIUS * 0.5, 0.75, AREA_RADIUS * 0.5, 0.03);
             this.discard();
         }
     }

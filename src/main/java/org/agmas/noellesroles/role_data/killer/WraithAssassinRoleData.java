@@ -172,9 +172,8 @@ public class WraithAssassinRoleData extends SimpleRoleData {
         if (floatingTargets.isEmpty())
             return;
         ServerLevel level = self.serverLevel();
-        Iterator<Map.Entry<UUID, Integer>> it = floatingTargets.entrySet().iterator();
-        while (it.hasNext()) {
-            Map.Entry<UUID, Integer> entry = it.next();
+        // 快照迭代：处决链可能重入并改动 floatingTargets（职业撤销/回溯都会 clear 本集合）。
+        for (Map.Entry<UUID, Integer> entry : new ArrayList<>(floatingTargets.entrySet())) {
             int remaining = entry.getValue() - 1;
             if (remaining <= 0) {
                 // 漂浮结束，处决目标
@@ -209,7 +208,7 @@ public class WraithAssassinRoleData extends SimpleRoleData {
                             SoundSource.HOSTILE, 1.2f, 0.6f);
                     GameUtils.forceKillPlayer(target, true, self, DEATH_REASON);
                 }
-                it.remove();
+                floatingTargets.remove(entry.getKey(), entry.getValue());
             } else {
                 entry.setValue(remaining);
             }

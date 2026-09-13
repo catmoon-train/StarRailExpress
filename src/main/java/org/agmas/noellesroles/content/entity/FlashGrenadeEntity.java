@@ -17,6 +17,7 @@ package org.agmas.noellesroles.content.entity;
 
 import io.wifi.starrailexpress.content.entity.no_water_influenced.NoHeavyWaterInfluencedThrowableItemProjectile;
 import io.wifi.starrailexpress.game.GameUtils;
+import io.wifi.starrailexpress.util.ParticleFx;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -147,27 +148,13 @@ public class FlashGrenadeEntity extends NoHeavyWaterInfluencedThrowableItemProje
      * 生成闪光粒子效果
      */
     private void spawnFlashParticles(ServerLevel world) {
-        // 使用末地烛白色粒子模拟闪光效果
-        for (int i = 0; i < 100; i++) {
-            double offsetX = (this.random.nextDouble() - 0.5) * FLASH_RADIUS * 2;
-            double offsetY = this.random.nextDouble() * 3;
-            double offsetZ = (this.random.nextDouble() - 0.5) * FLASH_RADIUS * 2;
+        // 两种粒子各一个包（原实现是逐颗粒子一个包）
+        ParticleFx.burst(world, ParticleTypes.END_ROD,
+                this.getX(), this.getY() + 1.5, this.getZ(),
+                100, FLASH_RADIUS * 0.5, 1.5, FLASH_RADIUS * 0.5, 0.03);
 
-            // 使用末地烛粒子
-            world.sendParticles(ParticleTypes.END_ROD,
-                    this.getX() + offsetX, this.getY() + offsetY, this.getZ() + offsetZ,
-                    1, 0.1, 0.1, 0.1, 0.03);
-        }
-
-        // 额外的白色烟雾粒子
-        for (int i = 0; i < 50; i++) {
-            double offsetX = (this.random.nextDouble() - 0.5) * FLASH_RADIUS * 1.5;
-            double offsetY = this.random.nextDouble() * 2;
-            double offsetZ = (this.random.nextDouble() - 0.5) * FLASH_RADIUS * 1.5;
-
-            world.sendParticles(ParticleTypes.WHITE_SMOKE,
-                    this.getX() + offsetX, this.getY() + offsetY, this.getZ() + offsetZ,
-                    1, 0.05, 0.05, 0.05, 0.02);
-        }
+        ParticleFx.burst(world, ParticleTypes.WHITE_SMOKE,
+                this.getX(), this.getY() + 1.0, this.getZ(),
+                50, FLASH_RADIUS * 0.375, 1.0, FLASH_RADIUS * 0.375, 0.02);
     }
 }

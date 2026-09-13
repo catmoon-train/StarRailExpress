@@ -44,7 +44,7 @@ import org.agmas.noellesroles.role.ModRoles;
 import org.agmas.noellesroles.utils.MoneyUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import java.util.Iterator;
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
@@ -278,11 +278,9 @@ public class WarlockRoleData extends SimpleRoleData {
             return;
 
         boolean changed = false;
-        Iterator<Map.Entry<UUID, Long>> it = cursedPlayers.entrySet().iterator();
-        while (it.hasNext()) {
-            Map.Entry<UUID, Long> entry = it.next();
+        for (Map.Entry<UUID, Long> entry : new ArrayList<>(cursedPlayers.entrySet())) {
             if (now >= entry.getValue()) {
-                it.remove();
+                cursedPlayers.remove(entry.getKey(), entry.getValue());
                 changed = true;
                 continue;
             }

@@ -16,6 +16,7 @@
 package org.agmas.noellesroles.utils;
 
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
+import io.wifi.starrailexpress.util.ParticleFx;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.network.chat.Component;
@@ -91,15 +92,10 @@ public class WheelchairEffectBlockHandler {
         if (!applied)
             return;
 
-        // 发送粒子效果
-        for (int i = 0; i < 10; i++) {
-            serverLevel.sendParticles(
-                    ParticleTypes.TOTEM_OF_UNDYING,
-                    wheelchair.getX() + serverLevel.random.nextDouble(),
-                    wheelchair.getY() + serverLevel.random.nextDouble() * 2,
-                    wheelchair.getZ() + serverLevel.random.nextDouble(),
-                    1, 0, 0, 0, 0);
-        }
+        // 发送粒子效果（一个包）
+        ParticleFx.burst(serverLevel, ParticleTypes.TOTEM_OF_UNDYING,
+                wheelchair.getX() + 0.5, wheelchair.getY() + 1.0, wheelchair.getZ() + 0.5,
+                10, 0.5, 1.0, 0.5, 0.0);
 
         // 播放音效
         serverLevel.playSound(null, wheelchair.blockPosition(),
@@ -124,15 +120,10 @@ public class WheelchairEffectBlockHandler {
         // 应用明显的减速效果：持续 4 秒，速度减半
         wheelchair.applySlow(80, 0.5f);
 
-        // 发送粒子效果
-        for (int i = 0; i < 5; i++) {
-            serverLevel.sendParticles(
-                    ParticleTypes.SMOKE,
-                    wheelchair.getX() + serverLevel.random.nextDouble(),
-                    wheelchair.getY() + 0.5,
-                    wheelchair.getZ() + serverLevel.random.nextDouble(),
-                    1, 0, 0.1, 0, 0);
-        }
+        // 发送粒子效果（一个包）
+        ParticleFx.burst(serverLevel, ParticleTypes.SMOKE,
+                wheelchair.getX() + 0.5, wheelchair.getY() + 0.5, wheelchair.getZ() + 0.5,
+                5, 0.5, 0.1, 0.5, 0.0);
 
         // 播放音效
         serverLevel.playSound(null, wheelchair.blockPosition(),
@@ -153,15 +144,10 @@ public class WheelchairEffectBlockHandler {
         wheelchair.durability = Math.min(wheelchair.durability + 20 * 20, 60 * 20);
 
         if (previousDurability < 60) {
-            // 发送粒子效果
-            for (int i = 0; i < 8; i++) {
-                serverLevel.sendParticles(
-                        ParticleTypes.HEART,
-                        wheelchair.getX() + serverLevel.random.nextDouble(),
-                        wheelchair.getY() + 1.0 + serverLevel.random.nextDouble(),
-                        wheelchair.getZ() + serverLevel.random.nextDouble(),
-                        1, 0, 0, 0, 0);
-            }
+            // 发送粒子效果（一个包）
+            ParticleFx.burst(serverLevel, ParticleTypes.HEART,
+                    wheelchair.getX() + 0.5, wheelchair.getY() + 1.5, wheelchair.getZ() + 0.5,
+                    8, 0.5, 0.5, 0.5, 0.0);
 
             // 播放音效
             serverLevel.playSound(null, wheelchair.blockPosition(),
@@ -189,15 +175,10 @@ public class WheelchairEffectBlockHandler {
         // 停止所有加速效果
         wheelchair.stopBoost();
 
-        // 发送粒子效果
-        for (int i = 0; i < 15; i++) {
-            serverLevel.sendParticles(
-                    ParticleTypes.ANGRY_VILLAGER,
-                    wheelchair.getX() + serverLevel.random.nextDouble(),
-                    wheelchair.getY() + 1.0 + serverLevel.random.nextDouble(),
-                    wheelchair.getZ() + serverLevel.random.nextDouble(),
-                    1, 0, 0, 0, 0);
-        }
+        // 发送粒子效果（一个包）
+        ParticleFx.burst(serverLevel, ParticleTypes.ANGRY_VILLAGER,
+                wheelchair.getX() + 0.5, wheelchair.getY() + 1.5, wheelchair.getZ() + 0.5,
+                15, 0.5, 0.5, 0.5, 0.0);
 
         // 播放音效
         serverLevel.playSound(null, wheelchair.blockPosition(),

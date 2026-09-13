@@ -25,6 +25,7 @@ import io.wifi.starrailexpress.game.GameConstants;
 import io.wifi.starrailexpress.game.GameUtils;
 import io.wifi.starrailexpress.game.GameUtils.WinStatus;
 import io.wifi.starrailexpress.index.SREDataComponentTypes;
+import io.wifi.starrailexpress.util.ParticleFx;
 import io.wifi.starrailexpress.util.SREPlayerUtils;
 import net.fabricmc.api.EnvType;
 import net.minecraft.core.BlockPos;
@@ -276,13 +277,28 @@ public class SREGameWorldComponent implements AutoSyncedComponent, ServerTicking
             return;
         }
         java.util.Iterator<BloodSpot> it = bloodSpots.iterator();
+        int liveSpots = 0;
+        double minX = Double.MAX_VALUE, minY = Double.MAX_VALUE, minZ = Double.MAX_VALUE;
+        double maxX = -Double.MAX_VALUE, maxY = -Double.MAX_VALUE, maxZ = -Double.MAX_VALUE;
         while (it.hasNext()) {
             BloodSpot s = it.next();
             if (now - s.spawnTick >= maxAge) {
                 it.remove();
                 continue;
             }
-            serverWorld.sendParticles(BLOOD_DUST, s.x, s.y, s.z, 1, 0.03, 0.0, 0.03, 0.0);
+            liveSpots++;
+            minX = Math.min(minX, s.x);
+            minY = Math.min(minY, s.y);
+            minZ = Math.min(minZ, s.z);
+            maxX = Math.max(maxX, s.x);
+            maxY = Math.max(maxY, s.y);
+            maxZ = Math.max(maxZ, s.z);
+        }
+        if (liveSpots > 0) {
+            // 整条血迹重播合并为一个包，散布上限 16 格以免长轨迹被摊成一整片
+            ParticleFx.regionCapped(serverWorld, BLOOD_DUST,
+                    new net.minecraft.world.phys.AABB(minX, minY, minZ, maxX, maxY, maxZ),
+                    liveSpots, 0.0D, 16.0D);
         }
     }
 

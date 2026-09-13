@@ -345,16 +345,14 @@ public class BuilderRoleData extends SimpleRoleData {
         }
 
         // 处理墙过期
-        Iterator<Map.Entry<UUID, WallData>> iterator = builtWalls.entrySet().iterator();
-        while (iterator.hasNext()) {
-            Map.Entry<UUID, WallData> entry = iterator.next();
+        for (Map.Entry<UUID, WallData> entry : new ArrayList<>(builtWalls.entrySet())) {
             WallData wall = entry.getValue();
             wall.remainingTicks--;
             if (wall.remainingTicks <= 0) {
                 // 墙过期，从全局表中移除并通知所有客户端
                 BuilderWallPositions.removeWall(new HashSet<>(wall.positions));
                 sendRemoveWallToAllPlayers(entry.getKey());
-                iterator.remove();
+                builtWalls.remove(entry.getKey(), entry.getValue());
             }
         }
     }

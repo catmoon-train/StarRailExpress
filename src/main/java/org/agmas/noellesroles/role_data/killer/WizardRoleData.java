@@ -501,12 +501,11 @@ public class WizardRoleData extends SimpleRoleData {
         if (fireArrowMarks.isEmpty()) {
             return;
         }
-        Iterator<Map.Entry<UUID, FireArrowMark>> it = fireArrowMarks.entrySet().iterator();
-        while (it.hasNext()) {
-            Map.Entry<UUID, FireArrowMark> entry = it.next();
+        // 快照迭代：击杀链可能重入并改动 fireArrowMarks（职业撤销/回溯都会 clear 本集合）。
+        for (Map.Entry<UUID, FireArrowMark> entry : new ArrayList<>(fireArrowMarks.entrySet())) {
             Player target = caster.level().getPlayerByUUID(entry.getKey());
             if (!(target instanceof ServerPlayer serverTarget) || !GameUtils.isPlayerAliveAndSurvival(target)) {
-                it.remove();
+                fireArrowMarks.remove(entry.getKey(), entry.getValue());
                 continue;
             }
             FireArrowMark mark = entry.getValue();
@@ -520,7 +519,7 @@ public class WizardRoleData extends SimpleRoleData {
                 caster.getCooldowns().addCooldown(ModItems.WIZARD_STAFF,
                         io.wifi.starrailexpress.game.GameConstants.ITEM_COOLDOWNS.get(
                                 io.wifi.starrailexpress.index.TMMItems.KNIFE));
-                it.remove();
+                fireArrowMarks.remove(entry.getKey(), entry.getValue());
             }
         }
     }

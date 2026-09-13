@@ -64,6 +64,7 @@ public class SREHelpCommand {
                 new Entry("/tmm:showStats", "tmm.showstats"),
                 new Entry("/tmm:showSelectedMapUI", "tmm.showselectedmapui"),
                 new Entry("/tmm:netstats", "tmm.netstats"),
+                new Entry("/tmm:netstatsc", "tmm.netstatsc"),
                 new Entry("/tmm:giveRoomKey", "tmm.giveroomkey"),
                 new Entry("/tmm:participate", "tmm.participate"),
                 new Entry("/tmm:entity_interact_cmd", "tmm.entity_interact_cmd"),

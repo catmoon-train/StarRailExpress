@@ -47,7 +47,6 @@ import org.agmas.noellesroles.utils.MoneyUtils;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
 /**
@@ -228,9 +227,7 @@ public class ZhangAngelRoleData extends SimpleRoleData {
             flickers.clear();
             return;
         }
-        Iterator<LightFlicker> it = flickers.iterator();
-        while (it.hasNext()) {
-            LightFlicker flicker = it.next();
+        for (LightFlicker flicker : new ArrayList<>(flickers)) {
             flicker.ticksLeft--;
             if (flicker.ticksLeft == 6 || flicker.ticksLeft == 2) {
                 setLight(level, flicker.pos, true, true);
@@ -238,7 +235,7 @@ public class ZhangAngelRoleData extends SimpleRoleData {
                 setLight(level, flicker.pos, false, false);
             } else if (flicker.ticksLeft <= 0) {
                 setLight(level, flicker.pos, flicker.originalLit, flicker.originalActive);
-                it.remove();
+                flickers.remove(flicker);
             }
         }
     }

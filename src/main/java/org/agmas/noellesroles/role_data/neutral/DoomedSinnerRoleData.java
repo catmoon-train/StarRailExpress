@@ -326,16 +326,15 @@ public class DoomedSinnerRoleData extends SimpleRoleData {
         if (corpseTimers.isEmpty() || !(player.level() instanceof ServerLevel serverLevel)) {
             return;
         }
-        var iterator = corpseTimers.entrySet().iterator();
-        while (iterator.hasNext()) {
-            var entry = iterator.next();
+        // 快照迭代：尸体消散可能重入，写入方 trackFreshCorpse() 会改本 map。
+        for (var entry : new ArrayList<>(corpseTimers.entrySet())) {
             int remaining = entry.getValue() - 1;
             if (remaining <= 0) {
                 Entity body = serverLevel.getEntity(entry.getKey());
                 if (body != null) {
                     body.discard();
                 }
-                iterator.remove();
+                corpseTimers.remove(entry.getKey(), entry.getValue());
             } else {
                 entry.setValue(remaining);
             }

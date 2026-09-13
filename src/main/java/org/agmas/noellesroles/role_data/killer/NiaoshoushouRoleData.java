@@ -47,7 +47,6 @@ import org.jetbrains.annotations.NotNull;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -228,16 +227,15 @@ public class NiaoshoushouRoleData extends SimpleRoleData {
         if (!(player.level() instanceof ServerLevel serverLevel) || burningBodies.isEmpty()) {
             return;
         }
-        Iterator<Map.Entry<UUID, Integer>> iterator = burningBodies.entrySet().iterator();
-        while (iterator.hasNext()) {
-            Map.Entry<UUID, Integer> entry = iterator.next();
+        // 快照迭代：burnBody() 会在玩家死亡事件里往本 map 写入，死亡若发生在遍历栈上就是 CME。
+        for (Map.Entry<UUID, Integer> entry : new ArrayList<>(burningBodies.entrySet())) {
             Entity entity = serverLevel.getEntity(entry.getKey());
             int remaining = entry.getValue() - 1;
             if (entity == null || remaining <= 0) {
                 if (entity != null) {
                     entity.discard();
                 }
-                iterator.remove();
+                burningBodies.remove(entry.getKey(), entry.getValue());
             } else {
                 entry.setValue(remaining);
             }
@@ -248,14 +246,12 @@ public class NiaoshoushouRoleData extends SimpleRoleData {
         if (walls.isEmpty()) {
             return;
         }
-        Iterator<Map.Entry<UUID, WallState>> iterator = walls.entrySet().iterator();
-        while (iterator.hasNext()) {
-            Map.Entry<UUID, WallState> entry = iterator.next();
+        for (Map.Entry<UUID, WallState> entry : new ArrayList<>(walls.entrySet())) {
             WallState wall = entry.getValue();
             if (--wall.remainingTicks <= 0) {
                 BuilderWallPositions.removeWall(wall.positions);
                 sendRemoveWall(entry.getKey());
-                iterator.remove();
+                walls.remove(entry.getKey(), entry.getValue());
             }
         }
     }

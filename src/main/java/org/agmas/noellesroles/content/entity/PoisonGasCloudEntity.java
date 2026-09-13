@@ -18,6 +18,7 @@ package org.agmas.noellesroles.content.entity;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.cca.SREPlayerPoisonComponent;
 import io.wifi.starrailexpress.game.GameUtils;
+import io.wifi.starrailexpress.util.ParticleFx;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.particles.DustParticleOptions;
@@ -156,20 +157,26 @@ public class PoisonGasCloudEntity extends Entity {
             }
         }
 
-        // 粒子效果
-        if (!gasBlocks.isEmpty()) {
-            List<BlockPos> blockList = new ArrayList<>(gasBlocks);
-            int particleCount = 4 + serverWorld.random.nextInt(3);
-            for (int i = 0; i < particleCount && !blockList.isEmpty(); i++) {
-                BlockPos pos = blockList.get(serverWorld.random.nextInt(blockList.size()));
-                serverWorld.sendParticles(
-                        GAS_PARTICLE,
-                        pos.getX() + 0.5 + serverWorld.random.nextGaussian() * 0.3,
-                        pos.getY() + 0.5 + serverWorld.random.nextGaussian() * 0.3,
-                        pos.getZ() + 0.5 + serverWorld.random.nextGaussian() * 0.3,
-                        1, 0, 0, 0, 0
-                );
+        // 粒子效果：取整团毒气的 AABB，每 2 tick 合并成一个包（原实现是逐颗粒子一个包）
+        if (!gasBlocks.isEmpty() && age % 2 == 0) {
+            int particleCount = 3 + serverWorld.random.nextInt(3);
+            int minX = Integer.MAX_VALUE, minY = Integer.MAX_VALUE, minZ = Integer.MAX_VALUE;
+            int maxX = Integer.MIN_VALUE, maxY = Integer.MIN_VALUE, maxZ = Integer.MIN_VALUE;
+            for (BlockPos p : gasBlocks) {
+                minX = Math.min(minX, p.getX());
+                minY = Math.min(minY, p.getY());
+                minZ = Math.min(minZ, p.getZ());
+                maxX = Math.max(maxX, p.getX());
+                maxY = Math.max(maxY, p.getY());
+                maxZ = Math.max(maxZ, p.getZ());
             }
+            ParticleFx.burst(serverWorld, GAS_PARTICLE,
+                    (minX + maxX) * 0.5 + 0.5, (minY + maxY) * 0.5 + 0.5, (minZ + maxZ) * 0.5 + 0.5,
+                    particleCount,
+                    Math.min((maxX - minX) * 0.5 + 0.3, 3.0),
+                    Math.min((maxY - minY) * 0.5 + 0.3, 3.0),
+                    Math.min((maxZ - minZ) * 0.5 + 0.3, 3.0),
+                    0.0);
         }
     }
 

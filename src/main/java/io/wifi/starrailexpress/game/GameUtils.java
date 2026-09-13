@@ -1365,12 +1365,24 @@ public class GameUtils {
             return;
         if (victim.level() == null)
             return;
+        // 非 ServerPlayer（傀儡尸体、Dummy 等）不参与死亡结算，维持原有行为。
+        if (!(victim instanceof ServerPlayer serverPlayer))
+            return;
+        var server = serverPlayer.getServer();
+        if (server == null)
+            return;
+        // 整条死亡链（含游戏模式查找与异常溯源日志）都必须在服务端主线程执行。
+        // 主线程调用时 execute 会内联执行，顺序与直接调用一致，因此调用方照旧能同步拿到死亡结果。
+        server.execute(() -> killPlayerOnServerThread(victim, spawnBody, _killer, deathReason, forceDeath));
+    }
+
+    private static void killPlayerOnServerThread(Player victim, boolean spawnBody, @Nullable Player _killer,
+            ResourceLocation deathReason, boolean forceDeath) {
         var gameMode = SREGameWorldComponent.KEY.get(victim.level()).getGameMode();
         if (gameMode == null)
             return;
         try {
-            gameMode.killPlayer(victim, spawnBody, _killer, deathReason,
-                    forceDeath);
+            gameMode.killPlayer(victim, spawnBody, _killer, deathReason, forceDeath);
         } catch (Exception e) {
             // 溯源输出，方便找bug
             String victimName = victim.getScoreboardName();

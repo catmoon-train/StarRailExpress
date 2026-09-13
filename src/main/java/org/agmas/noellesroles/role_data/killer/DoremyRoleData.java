@@ -29,6 +29,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 
+import java.util.ArrayList;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
@@ -73,9 +74,10 @@ public class DoremyRoleData extends SimpleRoleData {
 
     @Override
     public void clear() {
-        REWIND_INFOS.forEach((uuid, info) -> {
+        // 快照：restoreImmediately 期间的地图改动不会打断本次遍历。
+        for (DoremyDreamInfo info : new ArrayList<>(REWIND_INFOS.values())) {
             info.restoreImmediately();
-        });
+        }
         REWIND_INFOS.clear();
     }
 
@@ -120,23 +122,22 @@ public class DoremyRoleData extends SimpleRoleData {
 
     public static void serverTickStatic(ServerLevel world) {
         long now = GameUtils.getTicksFromGameStart(world);
-        final var it = REWIND_INFOS.entrySet().iterator();
-        while (it.hasNext()) {
-            final var entry = it.next();
+        // 快照迭代：恢复流程可能重入并改动 REWIND_INFOS（clear() 会整体清空）。
+        for (final var entry : new ArrayList<>(REWIND_INFOS.entrySet())) {
             final DoremyDreamInfo info = entry.getValue();
 
             if (info.player == null) {
-                it.remove();
+                REWIND_INFOS.remove(entry.getKey(), entry.getValue());
                 continue;
             }
             if (info.player.hasDisconnected()) {
-                it.remove();
+                REWIND_INFOS.remove(entry.getKey(), entry.getValue());
                 continue;
             }
             if (now >= info.endTime) {
                 info.restoreSmoothly();
                 SRE.REPLAY_MANAGER.recordPlayerRevival(info.player().getUUID(), null);
-                it.remove();
+                REWIND_INFOS.remove(entry.getKey(), entry.getValue());
                 continue;
             }
 

@@ -245,18 +245,17 @@ public class AmonRoleData extends SimpleRoleData {
         boolean changed = false;
 
         // 潜伏与成熟
-        Iterator<Map.Entry<UUID, Integer>> it = seeds.entrySet().iterator();
-        while (it.hasNext()) {
-            Map.Entry<UUID, Integer> entry = it.next();
+        // 快照迭代：寄生击杀会跑完整条死亡链，可能重入并改动 seeds（职业撤销/回溯都会 clear 本集合）。
+        for (Map.Entry<UUID, Integer> entry : new ArrayList<>(seeds.entrySet())) {
             Player host = amon.level().getPlayerByUUID(entry.getKey());
             if (host == null || !GameUtils.isPlayerAliveAndSurvival(host)) {
-                it.remove();
+                seeds.remove(entry.getKey(), entry.getValue());
                 changed = true;
                 continue;
             }
             int ticks = entry.getValue() + 1;
             if (ticks >= INCUBATION_TICKS) {
-                it.remove();
+                seeds.remove(entry.getKey(), entry.getValue());
                 // 控制名额已满（≥3）：不再走附身流程，直接寄生杀死宿主
                 if (controlCount >= MAX_CONTROL_COUNT) {
                     Player hostPlayer = amon.level().getPlayerByUUID(entry.getKey());
@@ -523,12 +522,10 @@ public class AmonRoleData extends SimpleRoleData {
     private UUID pickAliveMaturedHost(ServerPlayer amon) {
         UUID best = null;
         double bestDist = Double.MAX_VALUE;
-        Iterator<UUID> it = maturedHosts.iterator();
-        while (it.hasNext()) {
-            UUID uuid = it.next();
+        for (UUID uuid : new ArrayList<>(maturedHosts)) {
             Player host = amon.level().getPlayerByUUID(uuid);
             if (host == null || !GameUtils.isPlayerAliveAndSurvival(host)) {
-                it.remove();
+                maturedHosts.remove(uuid);
                 continue;
             }
             double d = amon.distanceToSqr(host);

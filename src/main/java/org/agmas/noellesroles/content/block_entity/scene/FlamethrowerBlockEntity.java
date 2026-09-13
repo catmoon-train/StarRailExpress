@@ -17,6 +17,7 @@ package org.agmas.noellesroles.content.block_entity.scene;
 
 import io.wifi.starrailexpress.game.GameConstants;
 import io.wifi.starrailexpress.game.GameUtils;
+import io.wifi.starrailexpress.util.ParticleFx;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.particles.ParticleTypes;
@@ -67,26 +68,31 @@ public class FlamethrowerBlockEntity extends BlockEntity {
             firing = sabotage || phase < BURST; // 无红石信号时正常逻辑
         }
 
-        // 点火嘴常亮小火苗
-        serverLevel.sendParticles(ParticleTypes.SMALL_FLAME,
-                pos.getX() + 0.5 + dir.getStepX() * 0.5,
-                pos.getY() + 0.5,
-                pos.getZ() + 0.5 + dir.getStepZ() * 0.5,
-                1, 0.05, 0.05, 0.05, 0.0);
+        // 点火嘴小火苗（每 2 tick 一个包）
+        if (serverLevel.getGameTime() % 2 == 0) {
+            ParticleFx.burst(serverLevel, ParticleTypes.SMALL_FLAME,
+                    pos.getX() + 0.5 + dir.getStepX() * 0.5,
+                    pos.getY() + 0.5,
+                    pos.getZ() + 0.5 + dir.getStepZ() * 0.5,
+                    1, 0.05, 0.05, 0.05, 0.0);
+        }
 
         if (!firing) {
             return;
         }
 
-        // 火焰柱 + 灼烧范围
+        // 火焰柱 + 灼烧范围：整条火柱合并成 2 个包（FLAME / LAVA 各一个）
         AABB flame = flameBox(pos, dir);
-        for (int i = 1; i <= RANGE; i++) {
-            double fx = pos.getX() + 0.5 + dir.getStepX() * i;
-            double fy = pos.getY() + 0.5;
-            double fz = pos.getZ() + 0.5 + dir.getStepZ() * i;
-            serverLevel.sendParticles(ParticleTypes.FLAME, fx, fy, fz, 3, 0.25, 0.25, 0.25, 0.02);
-            serverLevel.sendParticles(ParticleTypes.LAVA, fx, fy, fz, 1, 0.2, 0.2, 0.2, 0.0);
-        }
+        double mid = (RANGE + 1) * 0.5D;
+        double beamX = pos.getX() + 0.5 + dir.getStepX() * mid;
+        double beamZ = pos.getZ() + 0.5 + dir.getStepZ() * mid;
+        double beamY = pos.getY() + 0.5;
+        double spreadX = Math.abs(dir.getStepX()) * mid * 0.5 + 0.35;
+        double spreadZ = Math.abs(dir.getStepZ()) * mid * 0.5 + 0.35;
+        ParticleFx.burst(serverLevel, ParticleTypes.FLAME, beamX, beamY, beamZ,
+                RANGE * 3, spreadX, 0.25, spreadZ, 0.02);
+        ParticleFx.burst(serverLevel, ParticleTypes.LAVA, beamX, beamY, beamZ,
+                RANGE, spreadX, 0.25, spreadZ, 0.0);
         if (serverLevel.getGameTime() % 8 == 0) {
             serverLevel.playSound(null, pos, SoundEvents.FIRE_AMBIENT, SoundSource.BLOCKS, 1.0F, 0.8F);
         }

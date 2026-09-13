@@ -15,232 +15,377 @@
 
 package io.wifi.starrailexpress.network;
 
-import io.wifi.starrailexpress.cca.NetworkStatsComponent;
-import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
-import net.minecraft.network.protocol.PacketFlow;
-import net.minecraft.resources.ResourceLocation;
+import io.wifi.starrailexpress.SRE;
+import net.minecraft.core.RegistryAccess;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
+import net.minecraft.server.MinecraftServer;
+import net.minecraft.world.entity.player.Player;
+import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.atomic.AtomicLong;
-import java.util.stream.Collectors;
+import java.util.concurrent.atomic.LongAdder;
+import java.util.function.Supplier;
 
-public class NetworkStatistics {
+/**
+ * 网络数据包统计内核。
+ *
+ * <p>这里有两个实例，分别对应一个 JVM 侧的流量：
+ * <ul>
+ *   <li>{@link #getInstance()} —— 服务端侧（服务端发出 / 收到）</li>
+ *   <li>{@link #getClientInstance()} —— 客户端侧（客户端发出 / 收到）</li>
+ * </ul>
+ * 集成服务器（单人游戏）里两者处于同一个 JVM，因此 {@code Connection} 的注入点会先判定这条
+ * 连接属于哪一侧，再路由到对应实例，两边的 {@code start}/{@code stop} 互不影响。
+ *
+ * <p>统计只在 {@link #startRecording()} 之后才写入内存；未记录时热路径只有一次 volatile 读取。
+ *
+ * <p>热路径设计（每包）为：1 次 volatile 读 → 1 次 instanceof → 1 次按包类型的查表 →
+ * 若干原子累加。包类型的显示用 id 字符串、累加器对象、以及是否由外部（CCA 同步）接管，
+ * 都在 {@link TypeCacheEntry} 里缓存，因此不会每包都拼接字符串或反复查统计表。
+ */
+public final class NetworkStatistics {
+
     private static final Logger LOGGER = LoggerFactory.getLogger("TMM-NetworkStats");
-    private static final NetworkStatistics INSTANCE = new NetworkStatistics();
-    
-    // 统计数据
-    private final AtomicLong totalPacketsSent = new AtomicLong(0);
-    private final AtomicLong totalPacketsReceived = new AtomicLong(0);
-    private final AtomicLong totalBytesSent = new AtomicLong(0);
-    private final AtomicLong totalBytesReceived = new AtomicLong(0);
-    
-    // 按包类型统计
-    private final ConcurrentHashMap<String, NetworkStatsComponent.PacketStats> serverPacketStats = new ConcurrentHashMap<>();
-    private final ConcurrentHashMap<String, NetworkStatsComponent.PacketStats> clientPacketStats = new ConcurrentHashMap<>();
-    
-    // 按玩家统计
-    private final ConcurrentHashMap<String, NetworkStatsComponent.PlayerPacketStats> playerPacketStats = new ConcurrentHashMap<>();
-    
+
+    private static final NetworkStatistics SERVER_INSTANCE = new NetworkStatistics("server");
+    private static final NetworkStatistics CLIENT_INSTANCE = new NetworkStatistics("client");
+
+    /** 单个包类型的累计统计，也是导出时会枚举到的对象。 */
+    public static final class PacketTypeStats {
+        private final String id;
+        private final PacketStats outbound = new PacketStats();
+        private final PacketStats inbound = new PacketStats();
+
+        PacketTypeStats(String id) {
+            this.id = id;
+        }
+
+        /** 包类型 id，例如 {@code starrailexpress:click_lockout}。 */
+        public String getId() {
+            return id;
+        }
+
+        /** 本侧发往对端的统计。 */
+        public PacketStats getOutbound() {
+            return outbound;
+        }
+
+        /** 对端发往本侧的统计。 */
+        public PacketStats getInbound() {
+            return inbound;
+        }
+    }
+
+    /**
+     * 热路径用的按包类型缓存条目。{@code stats} 为 {@code null} 表示该类型由外部记账
+     * （CCA 组件同步有自己的标签，见 {@link #markExternallyTracked}），注入点应整包跳过。
+     */
+    public static final class TypeCacheEntry {
+        private final String id;
+        private final PacketTypeStats stats;
+
+        private TypeCacheEntry(String id, PacketTypeStats stats) {
+            this.id = id;
+            this.stats = stats;
+        }
+
+        public String getId() {
+            return id;
+        }
+
+        /** 导出标签与累加器；{@code null} 表示该类型被外部接管。 */
+        public PacketTypeStats getStats() {
+            return stats;
+        }
+    }
+
+    private final String side;
+
+    /** 包类型 -> 缓存条目，热路径查这张表。 */
+    private final ConcurrentHashMap<CustomPacketPayload.Type<?>, TypeCacheEntry> typeCache = new ConcurrentHashMap<>();
+    /** 包类型 id -> 累计统计，导出与命令枚举这张表。 */
+    private final ConcurrentHashMap<String, PacketTypeStats> trackedTypes = new ConcurrentHashMap<>();
+
+    private final ConcurrentHashMap<String, PlayerPacketStats> playerStats = new ConcurrentHashMap<>();
+
+    private final LongAdder outboundPackets = new LongAdder();
+    private final LongAdder outboundBytes = new LongAdder();
+    private final LongAdder inboundPackets = new LongAdder();
+    private final LongAdder inboundBytes = new LongAdder();
+    /** 真实序列化成功 / 回退到估算值的包数，用于让导出的字节数可信度可自查。 */
+    private final LongAdder measuredSizes = new LongAdder();
+    private final LongAdder fallbackSizes = new LongAdder();
+
+    private volatile boolean recording = false;
+    private volatile long recordingStartedAt = 0L;
+
+    private volatile Supplier<RegistryAccess> registryAccessSupplier = NetworkStatistics::serverRegistryAccess;
+    private volatile Supplier<Player> localPlayerSupplier;
+
+    private NetworkStatistics(String side) {
+        this.side = side;
+    }
+
     public static NetworkStatistics getInstance() {
-        return INSTANCE;
+        return SERVER_INSTANCE;
     }
-    
+
+    public static NetworkStatistics getClientInstance() {
+        return CLIENT_INSTANCE;
+    }
+
+    private static RegistryAccess serverRegistryAccess() {
+        MinecraftServer server = SRE.SERVER;
+        return server != null ? server.registryAccess() : RegistryAccess.EMPTY;
+    }
+
+    /** 由服务端初始化调用，保留为记录一条日志的入口。 */
     public void initialize() {
-        // 注册服务器端发送包监听器
-        ServerPlayConnectionEvents.JOIN.register((handler, sender, server) -> {
-            // 当玩家加入时，可以添加额外的初始化逻辑
-        });
-        
-        // 通过事件总线注册包监听器
-        registerPacketListeners();
-        
-        LOGGER.info("Network Statistics initialized");
+        LOGGER.info("Network Statistics initialized (server instance ready)");
     }
-    
-    private void registerPacketListeners() {
-        // 由于Fabric API没有直接的包拦截器，我们需要在每个包的发送/接收处手动添加统计
-        // 这里提供一个通用的工具方法，供其他地方调用进行统计
+
+    // ------------------------------------------------------------------ 记录开关
+
+    public boolean isRecording() {
+        return recording;
     }
-    
-    public void recordPacketSend(ResourceLocation packetId, long size, PacketFlow flow) {
-        recordPacketSend(packetId.toString(), size, flow, null);
+
+    /** 开启记录：先清空上一次的数据，再开始新的统计会话。 */
+    public void startRecording() {
+        // 先停写再清空，避免清空过程中仍有网络线程写入半截数据。
+        recording = false;
+        resetStats();
+        recordingStartedAt = System.currentTimeMillis();
+        recording = true;
     }
-    
-    public void recordPacketSend(String packetId, long size, PacketFlow flow) {
-        recordPacketSend(packetId, size, flow, null);
+
+    /** 停止记录，已收集的数据保留在内存中。 */
+    public void stopRecording() {
+        recording = false;
     }
-    
-    // 新增：支持记录发包对象
-    public void recordPacketSend(ResourceLocation packetId, long size, PacketFlow flow, String targetPlayer) {
-        recordPacketSend(packetId.toString(), size, flow, targetPlayer);
-    }
-    
-    // 新增：支持记录发包对象
-    public void recordPacketSend(String packetId, long size, PacketFlow flow, String targetPlayer) {
-        totalPacketsSent.incrementAndGet();
-        totalBytesSent.addAndGet(size);
-        
-        if (flow == PacketFlow.SERVERBOUND) {
-            serverPacketStats.computeIfAbsent(packetId, k -> new NetworkStatsComponent.PacketStats()).update(size);
-        } else {
-            clientPacketStats.computeIfAbsent(packetId, k -> new NetworkStatsComponent.PacketStats()).update(size);
-        }
-        
-        // 如果指定了目标玩家，则更新玩家统计
-        if (targetPlayer != null) {
-            NetworkStatsComponent.PlayerPacketStats playerStats = 
-                playerPacketStats.computeIfAbsent(targetPlayer, k -> new NetworkStatsComponent.PlayerPacketStats());
-            playerStats.incrementPacketsSent(packetId, size);
-        }
-    }
-    
-    public void recordPacketReceive(ResourceLocation packetId, long size, PacketFlow flow) {
-        recordPacketReceive(packetId.toString(), size, flow, null);
-    }
-    
-    public void recordPacketReceive(String packetId, long size, PacketFlow flow) {
-        recordPacketReceive(packetId, size, flow, null);
-    }
-    
-    // 新增：支持记录发包对象
-    public void recordPacketReceive(ResourceLocation packetId, long size, PacketFlow flow, String sourcePlayer) {
-        recordPacketReceive(packetId.toString(), size, flow, sourcePlayer);
-    }
-    
-    // 新增：支持记录发包对象
-    public void recordPacketReceive(String packetId, long size, PacketFlow flow, String sourcePlayer) {
-        totalPacketsReceived.incrementAndGet();
-        totalBytesReceived.addAndGet(size);
-        
-        if (flow == PacketFlow.SERVERBOUND) {
-            serverPacketStats.computeIfAbsent(packetId, k -> new NetworkStatsComponent.PacketStats()).update(size);
-        } else {
-            clientPacketStats.computeIfAbsent(packetId, k -> new NetworkStatsComponent.PacketStats()).update(size);
-        }
-        
-        // 如果指定了源玩家，则更新玩家统计
-        if (sourcePlayer != null) {
-            NetworkStatsComponent.PlayerPacketStats playerStats = 
-                playerPacketStats.computeIfAbsent(sourcePlayer, k -> new NetworkStatsComponent.PlayerPacketStats());
-            playerStats.incrementPacketsReceived(packetId, size);
-        }
-    }
-    
-    // 获取全局统计信息
-    public long getTotalPacketsSent() {
-        return totalPacketsSent.get();
-    }
-    
-    public long getTotalPacketsReceived() {
-        return totalPacketsReceived.get();
-    }
-    
-    public long getTotalBytesSent() {
-        return totalBytesSent.get();
-    }
-    
-    public long getTotalBytesReceived() {
-        return totalBytesReceived.get();
-    }
-    
-    public double getAveragePacketSize() {
-        long totalPackets = getTotalPacketsSent() + getTotalPacketsReceived();
-        long totalBytes = getTotalBytesSent() + getTotalBytesReceived();
-        return totalPackets > 0 ? (double) totalBytes / totalPackets : 0.0;
-    }
-    
-    // 获取特定包类型的统计信息
-    public NetworkStatsComponent.PacketStats getServerPacketStats(String packetId) {
-        return serverPacketStats.getOrDefault(packetId, new NetworkStatsComponent.PacketStats());
-    }
-    
-    public NetworkStatsComponent.PacketStats getClientPacketStats(String packetId) {
-        return clientPacketStats.getOrDefault(packetId, new NetworkStatsComponent.PacketStats());
-    }
-    
-    // 获取玩家统计信息
-    public NetworkStatsComponent.PlayerPacketStats getPlayerPacketStats(String playerName) {
-        return playerPacketStats.getOrDefault(playerName, new NetworkStatsComponent.PlayerPacketStats());
-    }
-    
-    // 获取所有玩家统计信息
-    public ConcurrentHashMap<String, NetworkStatsComponent.PlayerPacketStats> getAllPlayerPacketStats() {
-        return playerPacketStats;
-    }
-    
-    // 获取所有服务器包统计信息
-    public ConcurrentHashMap<String, NetworkStatsComponent.PacketStats> getAllServerPacketStats() {
-        return serverPacketStats;
-    }
-    
-    // 获取所有客户端包统计信息
-    public ConcurrentHashMap<String, NetworkStatsComponent.PacketStats> getAllClientPacketStats() {
-        return clientPacketStats;
-    }
-    
-    // 新增：获取按发送包数量排行的包类型
-    public List<String> getTopPacketsByCount(int limit, boolean isServerBound) {
-        ConcurrentHashMap<String, NetworkStatsComponent.PacketStats> statsMap = 
-            isServerBound ? serverPacketStats : clientPacketStats;
-            
-        return statsMap.entrySet().stream()
-            .sorted(Map.Entry.<String, NetworkStatsComponent.PacketStats>comparingByValue(
-                Comparator.comparingLong(packetStats -> packetStats.count)).reversed())
-            .limit(limit)
-            .map(Map.Entry::getKey)
-            .collect(Collectors.toList());
-    }
-    
-    // 新增：获取按发送字节数排行的包类型
-    public List<String> getTopPacketsByBytes(int limit, boolean isServerBound) {
-        ConcurrentHashMap<String, NetworkStatsComponent.PacketStats> statsMap = 
-            isServerBound ? serverPacketStats : clientPacketStats;
-            
-        return statsMap.entrySet().stream()
-            .sorted(Map.Entry.<String, NetworkStatsComponent.PacketStats>comparingByValue(
-                Comparator.comparingLong(packetStats -> packetStats.totalSize)).reversed())
-            .limit(limit)
-            .map(Map.Entry::getKey)
-            .collect(Collectors.toList());
-    }
-    
-    // 新增：获取按平均包大小排行的包类型
-    public List<String> getTopPacketsByAvgSize(int limit, boolean isServerBound) {
-        ConcurrentHashMap<String, NetworkStatsComponent.PacketStats> statsMap = 
-            isServerBound ? serverPacketStats : clientPacketStats;
-            
-        return statsMap.entrySet().stream()
-            .filter(entry -> entry.getValue().count > 0) // 确保至少有一个包
-            .sorted(Map.Entry.<String, NetworkStatsComponent.PacketStats>comparingByValue(
-                Comparator.comparingDouble(packetStats -> packetStats.getAverageSize())).reversed())
-            .limit(limit)
-            .map(Map.Entry::getKey)
-            .collect(Collectors.toList());
-    }
-    
-    // 重置统计信息
+
+    /** 清空统计数据（不清除记录状态）。 */
     public void resetStats() {
-        totalPacketsSent.set(0);
-        totalPacketsReceived.set(0);
-        totalBytesSent.set(0);
-        totalBytesReceived.set(0);
-        serverPacketStats.clear();
-        clientPacketStats.clear();
-        playerPacketStats.clear();
+        outboundPackets.reset();
+        outboundBytes.reset();
+        inboundPackets.reset();
+        inboundBytes.reset();
+        measuredSizes.reset();
+        fallbackSizes.reset();
+        typeCache.clear();
+        trackedTypes.clear();
+        playerStats.clear();
     }
-    
+
+    public String getSide() {
+        return side;
+    }
+
+    /** 本次记录会话开始的时刻（epoch 毫秒），未开始时为 0。 */
+    public long getRecordingStartedAt() {
+        return recordingStartedAt;
+    }
+
+    // ------------------------------------------------------------------ 热路径
+
+    /**
+     * 取得（必要时创建）该包类型的缓存条目。每包一次查表，之后只读字段。
+     */
+    public TypeCacheEntry cacheEntry(CustomPacketPayload.Type<?> type) {
+        TypeCacheEntry cached = typeCache.get(type);
+        if (cached != null) {
+            return cached;
+        }
+        return typeCache.computeIfAbsent(type, key -> {
+            String id = key.id().toString();
+            return new TypeCacheEntry(id, trackedTypes.computeIfAbsent(id, PacketTypeStats::new));
+        });
+    }
+
+    /**
+     * 声明某个包类型由外部记账（CCA 组件同步会因为要知道是哪个组件而自行记录），
+     * {@code Connection} 注入点遇到这些类型直接跳过，避免重复计数。
+     *
+     * <p>每次同步都会调用，因此正常路径只做一次查表；重新标记（例如刚 clear 过或已被记成普通类型）
+     * 才会新建条目。
+     */
+    public void markExternallyTracked(CustomPacketPayload.Type<?> type) {
+        TypeCacheEntry existing = typeCache.get(type);
+        if (existing != null && existing.stats == null) {
+            return;
+        }
+        typeCache.put(type, new TypeCacheEntry(type.id().toString(), null));
+    }
+
+    /**
+     * 记录一次数据包。{@code player} 可为 {@code null}（拿不到玩家身份时只记全局与类型维度）。
+     *
+     * @param outbound {@code true} 表示本侧发出，{@code false} 表示本侧收到
+     */
+    public void record(PacketTypeStats stats, long size, boolean outbound, PlayerPacketStats player) {
+        if (outbound) {
+            outboundPackets.increment();
+            outboundBytes.add(size);
+            stats.outbound.update(size);
+            if (player != null) {
+                player.recordOutbound(stats.id, size);
+            }
+        } else {
+            inboundPackets.increment();
+            inboundBytes.add(size);
+            stats.inbound.update(size);
+            if (player != null) {
+                player.recordInbound(stats.id, size);
+            }
+        }
+    }
+
+    /**
+     * 记录一次由外部自行命名的数据包（CCA 组件同步用，标签含组件 key）。
+     */
+    public void recordExternal(String label, long size, boolean outbound, PlayerPacketStats player) {
+        PacketTypeStats stats = trackedTypes.computeIfAbsent(label, PacketTypeStats::new);
+        record(stats, size, outbound, player);
+    }
+
+    // ------------------------------------------------------------------ 玩家维度
+
+    public PlayerPacketStats playerStatsFor(String playerName) {
+        return playerStats.computeIfAbsent(playerName, k -> new PlayerPacketStats());
+    }
+
+    public Map<String, PlayerPacketStats> getPlayerStats() {
+        return playerStats;
+    }
+
+    /** 客户端侧用：当前本地玩家，取不到时返回 {@code null}。 */
+    @Nullable
+    public Player getLocalPlayer() {
+        Supplier<Player> supplier = localPlayerSupplier;
+        if (supplier == null) {
+            return null;
+        }
+        try {
+            return supplier.get();
+        } catch (Throwable ignored) {
+            return null;
+        }
+    }
+
+    /** 由客户端初始化注入；服务端实例不需要。 */
+    public void setLocalPlayerSupplier(Supplier<Player> supplier) {
+        this.localPlayerSupplier = supplier;
+    }
+
+    // ------------------------------------------------------------------ 字节数可信度
+
+    public void countMeasuredSize() {
+        measuredSizes.increment();
+    }
+
+    public void countFallbackSize() {
+        fallbackSizes.increment();
+    }
+
+    public long getMeasuredSizeCount() {
+        return measuredSizes.sum();
+    }
+
+    public long getFallbackSizeCount() {
+        return fallbackSizes.sum();
+    }
+
+    // ------------------------------------------------------------------ 注册表访问（真实序列化用）
+
+    public void setRegistryAccessSupplier(Supplier<RegistryAccess> supplier) {
+        this.registryAccessSupplier = supplier != null ? supplier : () -> RegistryAccess.EMPTY;
+    }
+
+    /** 供 {@link NetworkUtils} 编码载荷时使用；取不到时返回空注册表。 */
+    public RegistryAccess resolveRegistryAccess() {
+        try {
+            RegistryAccess access = registryAccessSupplier.get();
+            return access != null ? access : RegistryAccess.EMPTY;
+        } catch (Throwable ignored) {
+            return RegistryAccess.EMPTY;
+        }
+    }
+
+    // ------------------------------------------------------------------ 查询与排行
+
+    public long getOutboundPackets() {
+        return outboundPackets.sum();
+    }
+
+    public long getInboundPackets() {
+        return inboundPackets.sum();
+    }
+
+    public long getOutboundBytes() {
+        return outboundBytes.sum();
+    }
+
+    public long getInboundBytes() {
+        return inboundBytes.sum();
+    }
+
+    public double getAveragePacketSize() {
+        long totalPackets = getOutboundPackets() + getInboundPackets();
+        long totalBytes = getOutboundBytes() + getInboundBytes();
+        return totalPackets > 0L ? (double) totalBytes / totalPackets : 0.0D;
+    }
+
+    /** 已跟踪的包类型数量。 */
+    public int getTrackedTypeCount() {
+        return trackedTypes.size();
+    }
+
+    public Collection<PacketTypeStats> getTrackedTypes() {
+        return trackedTypes.values();
+    }
+
+    /**
+     * 按指定维度排行。
+     *
+     * @param outbound {@code true} 排本侧发出的，{@code false} 排本侧收到的
+     * @param byBytes  {@code true} 按总字节数，{@code false} 按包数量
+     */
+    public List<PacketTypeStats> topBy(boolean outbound, boolean byBytes, int limit) {
+        Comparator<PacketTypeStats> comparator = byBytes
+                ? Comparator.comparingLong((PacketTypeStats s) ->
+                        (outbound ? s.outbound : s.inbound).getTotalSize())
+                : Comparator.comparingLong((PacketTypeStats s) ->
+                        (outbound ? s.outbound : s.inbound).getCount());
+        List<PacketTypeStats> result = new ArrayList<>(trackedTypes.values());
+        result.removeIf(s -> (outbound ? s.outbound : s.inbound).getCount() == 0L);
+        result.sort(comparator.reversed());
+        return result.size() > limit ? result.subList(0, limit) : result;
+    }
+
+    /** 按平均包大小排行，同样过滤掉没有样本的类型。 */
+    public List<PacketTypeStats> topByAverageSize(boolean outbound, int limit) {
+        List<PacketTypeStats> result = new ArrayList<>(trackedTypes.values());
+        result.removeIf(s -> (outbound ? s.outbound : s.inbound).getCount() == 0L);
+        result.sort(Comparator.comparingDouble((PacketTypeStats s) ->
+                (outbound ? s.outbound : s.inbound).getAverageSize()).reversed());
+        return result.size() > limit ? result.subList(0, limit) : result;
+    }
+
     public void logStats() {
-        LOGGER.info("=== Network Statistics ===");
-        LOGGER.info("Total packets sent: {}", getTotalPacketsSent());
-        LOGGER.info("Total packets received: {}", getTotalPacketsReceived());
-        LOGGER.info("Total bytes sent: {}", getTotalBytesSent());
-        LOGGER.info("Total bytes received: {}", getTotalBytesReceived());
-        LOGGER.info("Average packet size: {:.2f}", getAveragePacketSize());
-        LOGGER.info("========================");
+        LOGGER.info("=== Network Statistics [{}] ===", side);
+        LOGGER.info("Recording: {}", recording);
+        LOGGER.info("Total packets sent: {}", getOutboundPackets());
+        LOGGER.info("Total packets received: {}", getInboundPackets());
+        LOGGER.info("Total bytes sent: {}", getOutboundBytes());
+        LOGGER.info("Total bytes received: {}", getInboundBytes());
+        LOGGER.info("Tracked packet types: {}", getTrackedTypeCount());
+        LOGGER.info("================================");
     }
 }

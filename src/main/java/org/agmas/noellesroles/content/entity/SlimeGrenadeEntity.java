@@ -16,6 +16,7 @@
 package org.agmas.noellesroles.content.entity;
 
 import io.wifi.starrailexpress.content.entity.no_water_influenced.NoHeavyWaterInfluencedThrowableItemProjectile;
+import io.wifi.starrailexpress.util.ParticleFx;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
@@ -55,13 +56,10 @@ public class SlimeGrenadeEntity extends NoHeavyWaterInfluencedThrowableItemProje
             world.playSound(null, this.blockPosition(), SoundEvents.SLIME_BLOCK_PLACE, SoundSource.PLAYERS, 1.5F, 0.8F);
             ServerGrenadeAreaManager.createArea(world, this.position(), AREA_RADIUS, AREA_DURATION_TICKS,
                     Type.SLIME, this.getOwner() != null ? this.getOwner().getUUID() : null);
-            for (int i = 0; i < 60; i++) {
-                double ox = (this.random.nextDouble() - 0.5) * AREA_RADIUS * 2;
-                double oz = (this.random.nextDouble() - 0.5) * AREA_RADIUS * 2;
-                double oy = this.random.nextDouble() * 0.6;
-                world.sendParticles(ParticleTypes.ITEM_SLIME, this.getX() + ox, this.getY() + oy, this.getZ() + oz,
-                        2, 0.1, 0.05, 0.1, 0.02);
-            }
+            // 60 次循环 ×2 粒 = 120 粒，一个包发完
+            ParticleFx.burst(world, ParticleTypes.ITEM_SLIME,
+                    this.getX(), this.getY() + 0.3, this.getZ(),
+                    120, AREA_RADIUS * 0.5, 0.3, AREA_RADIUS * 0.5, 0.02);
             this.discard();
         }
     }

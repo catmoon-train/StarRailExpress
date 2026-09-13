@@ -1347,13 +1347,9 @@ public class NRDeathEvents {
                         sp.serverLevel().playSound(null, sp.blockPosition(), SoundEvents.SHIELD_BLOCK,
                                 SoundSource.MASTER, 1.0F, 1.0F);
                         ServerLevel level = sp.serverLevel();
-                        for (int i = 0; i < 30; i++) {
-                            level.sendParticles(ParticleTypes.TOTEM_OF_UNDYING,
-                                    sp.getX() + level.random.nextDouble() * 2.0 - 1.0,
-                                    sp.getY() + 0.5 + level.random.nextDouble() * 2.5,
-                                    sp.getZ() + level.random.nextDouble() * 2.0 - 1.0,
-                                    1, 0, 0, 0, 0);
-                        }
+                        level.sendParticles(ParticleTypes.TOTEM_OF_UNDYING,
+                                sp.getX(), sp.getY() + 0.5, sp.getZ(),
+                                30, 1.0, 1.25, 1.0, 0.0);
                     }
                     return false;
                 }
@@ -1369,11 +1365,10 @@ public class NRDeathEvents {
                         sp.displayClientMessage(Component.translatable("message.sre.unyielding.immune_civilian")
                                 .withStyle(ChatFormatting.GREEN), true);
                         ServerLevel level = sp.serverLevel();
-                        for (var p : level.players()) {
-                            level.sendParticles(p, ParticleTypes.TOTEM_OF_UNDYING, true,
-                                    sp.getX(), sp.getY(), sp.getZ(),
-                                    30, 1, 1, 1, 0);
-                        }
+                        // 原实现是遍历所有玩家、给每人发一份完全相同的包，纯重复；改为一次广播
+                        level.sendParticles(ParticleTypes.TOTEM_OF_UNDYING,
+                                sp.getX(), sp.getY(), sp.getZ(),
+                                30, 1, 1, 1, 0);
                     }
                     return false;
                 }

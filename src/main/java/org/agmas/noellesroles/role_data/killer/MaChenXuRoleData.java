@@ -15,6 +15,7 @@
 
 package org.agmas.noellesroles.role_data.killer;
 
+import io.wifi.starrailexpress.api.data.RoleData;
 import io.wifi.starrailexpress.api.data.RoleDataContext;
 import io.wifi.starrailexpress.api.impl.SimpleRoleData;
 import io.wifi.starrailexpress.SRE;
@@ -558,7 +559,7 @@ public class MaChenXuRoleData extends SimpleRoleData {
         Level world = player.level();
 
         if (world.getGameTime() % 60 == 0) {
-            for (UUID uuid : markedPlayers) {
+            for (UUID uuid : new ArrayList<>(markedPlayers)) {
                 Player marked = world.getPlayerByUUID(uuid);
                 if (marked != null && GameUtils.isPlayerAliveAndSurvival(marked)) {
                     marked.addEffect(new MobEffectInstance(MobEffects.GLOWING, 80, 0, false, false, true));
@@ -751,7 +752,9 @@ public class MaChenXuRoleData extends SimpleRoleData {
         Level world = player.level();
 
         int markCount = 0;
-        for (UUID uuid : markedPlayers) {
+        // 处决会同步跑完整条死亡事件链（反噬/殉情可反过来击杀布袋鬼并使其降级，见
+        // MaChenXuEventHandler），期间 markedPlayers 可能被 clear()；必须遍历快照
+        for (UUID uuid : new ArrayList<>(markedPlayers)) {
             Player markedPlayer = world.getPlayerByUUID(uuid);
             if (markedPlayer != null && GameUtils.isPlayerAliveAndSurvival(markedPlayer)) {
                 GameUtils.killPlayer(markedPlayer, true, player, Noellesroles.id("machenxu"));
@@ -776,7 +779,9 @@ public class MaChenXuRoleData extends SimpleRoleData {
                 .count();
         double dynamicMultiplier = Math.clamp(8.0 / Math.max(1.0, (double) aliveInnocents), 0.5, 2.0);
 
-        if (markCount >= 3) {
+        // 结算途中职业可能已被撤销（反噬/殉情击杀导致降级）：不再发放个人奖励
+        boolean canReward = RoleData.isAttached(this);
+        if (canReward && markCount >= 3) {
             int reward = (int) Math.round(150 * dynamicMultiplier);
             shopComponent.setBalance(shopComponent.balance + reward);
             permanentSpeedBonus = Math.min(30, permanentSpeedBonus + 10);
@@ -785,7 +790,7 @@ public class MaChenXuRoleData extends SimpleRoleData {
                     Component.translatable("message.noellesroles.ma_chen_xu.ult_reward_3", reward)
                             .withStyle(ChatFormatting.GOLD, ChatFormatting.BOLD),
                     true);
-        } else if (markCount >= 2) {
+        } else if (canReward && markCount >= 2) {
             int reward = (int) Math.round(100 * dynamicMultiplier);
             shopComponent.setBalance(shopComponent.balance + reward);
             permanentShield = true;
@@ -793,7 +798,7 @@ public class MaChenXuRoleData extends SimpleRoleData {
                     Component.translatable("message.noellesroles.ma_chen_xu.ult_reward_2", reward)
                             .withStyle(ChatFormatting.GOLD),
                     true);
-        } else if (markCount >= 1) {
+        } else if (canReward && markCount >= 1) {
             int reward = (int) Math.round(50 * dynamicMultiplier);
             shopComponent.setBalance(shopComponent.balance + reward);
             ultimateCooldown = Math.max(0, ultimateCooldown - 600);
@@ -1867,7 +1872,11 @@ public class MaChenXuRoleData extends SimpleRoleData {
 
     @Override
     public void readFromSyncNbt(@NotNull CompoundTag tag, HolderLookup.Provider registryLookup) {
-        int mask = tag.contains("_mask") ? tag.getInt("_mask") : SYNC_ALL;
+        // 没有 _mask 说明写入方被 writeToSyncNbt 的守卫拦下（stage<=0 / 非 ACTIVE），tag 是空的。
+        // 按 SYNC_ALL 解读空 tag 会把 stage、阈值、冷却和三个集合全部重置，所以这里直接跳过。
+        if (!tag.contains("_mask"))
+            return;
+        int mask = tag.getInt("_mask");
 
         if ((mask & SYNC_CORE) != 0) {
             this.STAGE_2_THRESHOLD = tag.contains("STAGE_2_THRESHOLD") ? tag.getInt("STAGE_2_THRESHOLD") : 100000;
@@ -1949,7 +1958,7 @@ public class MaChenXuRoleData extends SimpleRoleData {
 
     @Override
     public void readFromRewindNbt(CompoundTag tag, HolderLookup.Provider registryLookup) {
-        // 回溯恢复：纯回填字段，不触发 clear()/sync()
+        // 回溯恢复：纯回填字段，不触发 clear()/sync()。写入方被守卫拦下的空快照会被 readFromSyncNbt 跳过。
         readFromSyncNbt(tag, registryLookup);
     }
 }

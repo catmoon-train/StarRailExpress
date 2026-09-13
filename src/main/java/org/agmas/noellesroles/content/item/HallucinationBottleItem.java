@@ -16,6 +16,7 @@
 package org.agmas.noellesroles.content.item;
 
 import io.wifi.starrailexpress.game.GameUtils;
+import io.wifi.starrailexpress.util.ParticleFx;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -106,31 +107,16 @@ public class HallucinationBottleItem extends Item {
      * 生成初始烟雾粒子 - 数量是烟雾弹的2倍
      */
     private void spawnInitialSmokeParticles(ServerLevel world, Vec3 center) {
-        // 3000个粒子（烟雾弹1500的2倍）
-        for (int i = 0; i < 100; i++) {
-            double offsetX = (world.random.nextDouble() - 0.5) * HALLUCINATION_RADIUS * 2;
-            double offsetY = world.random.nextDouble() * 4;  // 高度范围
-            double offsetZ = (world.random.nextDouble() - 0.5) * HALLUCINATION_RADIUS * 2;
-            
-            // 主要烟雾粒子 - 使用紫色效果
-            world.sendParticles(ParticleTypes.DRAGON_BREATH,
-                    center.x + offsetX, center.y + offsetY, center.z + offsetZ,
-                    2, 0.15, 0.15, 0.15, 0.02);
-            
-            // 添加大型烟雾粒子
-            if (i % 2 == 0) {
-                world.sendParticles(ParticleTypes.CAMPFIRE_COSY_SMOKE,
-                        center.x + offsetX, center.y + offsetY, center.z + offsetZ,
-                        2, 0.2, 0.2, 0.2, 0.04);
-            }
-            
-            // 添加迷幻效果粒子
-            if (i % 4 == 0) {
-                world.sendParticles(ParticleTypes.WITCH,
-                        center.x + offsetX, center.y + offsetY, center.z + offsetZ,
-                        1, 0.1, 0.1, 0.1, 0.03);
-            }
-        }
+        // 三种粒子各一个包（原实现 100 次循环 × 3 类 ≈ 300 个包）
+        double spread = HALLUCINATION_RADIUS * 0.5;
+        ParticleFx.burst(world, ParticleTypes.DRAGON_BREATH,
+                center.x, center.y + 2.0, center.z, 200, spread, 2.0, spread, 0.02);
+
+        ParticleFx.burst(world, ParticleTypes.CAMPFIRE_COSY_SMOKE,
+                center.x, center.y + 2.0, center.z, 100, spread, 2.0, spread, 0.04);
+
+        ParticleFx.burst(world, ParticleTypes.WITCH,
+                center.x, center.y + 2.0, center.z, 25, spread, 2.0, spread, 0.03);
     }
     
     /**

@@ -17,6 +17,7 @@ package net.exmo.sre.repair.content.block;
 
 import io.wifi.starrailexpress.game.GameUtils;
 import io.wifi.starrailexpress.game.ServerTaskInfoClasses;
+import io.wifi.starrailexpress.util.ParticleFx;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.network.chat.Component;
@@ -210,14 +211,19 @@ public class RepairExitGateBlock extends Block {
 
         // 阶段3 (t=10 ticks)：铁栅栏崩解，立柱继续碎裂
         GameUtils.serverTaskQueue.add(new ServerTaskInfoClasses.SchedulerTask(10, () -> {
+            int barsRemoved = 0;
             for (int[] off : ARCH_OFFSETS) {
                 BlockPos p = pos.offset(off[0], off[1], off[2]);
                 if (level.getBlockState(p).is(Blocks.IRON_BARS)) {
                     level.setBlock(p, Blocks.AIR.defaultBlockState(), Block.UPDATE_ALL);
-                    level.sendParticles(ParticleTypes.SOUL_FIRE_FLAME,
-                            p.getX() + 0.5D, p.getY() + 0.5D, p.getZ() + 0.5D,
-                            5, 0.2D, 0.2D, 0.2D, 0.02D);
+                    barsRemoved++;
                 }
+            }
+            if (barsRemoved > 0) {
+                // 所有崩解的铁栅栏合并成一个包
+                ParticleFx.burst(level, ParticleTypes.SOUL_FIRE_FLAME,
+                        pos.getX() + 0.5D, pos.getY() + 2.0D, pos.getZ() + 0.5D,
+                        barsRemoved * 5, 1.6D, 1.6D, 1.6D, 0.02D);
             }
             for (int[] off : PILLAR_OFFSETS) {
                 BlockPos p = pos.offset(off[0], off[1], off[2]);

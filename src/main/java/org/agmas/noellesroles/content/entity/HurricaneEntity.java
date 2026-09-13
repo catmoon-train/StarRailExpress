@@ -16,6 +16,7 @@
 package org.agmas.noellesroles.content.entity;
 
 import io.wifi.starrailexpress.game.GameUtils;
+import io.wifi.starrailexpress.util.ParticleFx;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.DustParticleOptions;
 import net.minecraft.nbt.CompoundTag;
@@ -180,16 +181,16 @@ public class HurricaneEntity extends Entity {
     }
 
     private void spawnParticles(ServerLevel level) {
-        int particleCount = (int) Math.clamp(height * 15, 120, 800);
-        for (int i = 0; i < particleCount; i++) {
-            double h = level.random.nextDouble() * height;
-            double radius = 0.25D + h * 0.28D;
-            double angle = age * 0.34D + h * 1.4D + i * 0.42D;
-            double x = getX() + Math.cos(angle) * radius + level.random.nextGaussian() * 0.05D;
-            double z = getZ() + Math.sin(angle) * radius + level.random.nextGaussian() * 0.05D;
-            double y = getY() + h;
-            level.sendParticles(PARTICLE, x, y, z, 1, 0.02D, 0.02D, 0.02D, 0.0D);
+        // 每 2 tick 发一次，且整根飓风的粒子合并成一个包（详见 ParticleFx 的说明）
+        if (age % 2 != 0) {
+            return;
         }
+        int particleCount = (int) Math.clamp(height * 6, 48, 240);
+        double maxRadius = 0.25D + height * 0.28D;
+        ParticleFx.burst(level, PARTICLE,
+                getX(), getY() + height * 0.5D, getZ(),
+                particleCount,
+                maxRadius, height * 0.5D, maxRadius, 0.0D);
     }
 
     @Override

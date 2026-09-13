@@ -44,5 +44,56 @@ RoleData实例类：可以extends SimpleRoleData，或是 implements RoleData
 # 语言文件
 遵循使用翻译键，优先补全 `zh_cn.json`
 
+# 粒子发包（服务端）
+
+`ServerLevel.sendParticles(...)` 每次调用都会构造**一个** `ClientboundLevelParticlesPacket`，发给 32 格内**每个**玩家；包里的 `count` 参数才是"这次生成几颗粒子"，不额外增加包体积。
+
+**禁止在循环里反复调用 `sendParticles` 来凑粒子数**，需要 N 颗就传 `count = N`：
+
+```java
+// 错误：N 个包 × 玩家数
+for (int i = 0; i < 20; i++) level.sendParticles(P, x, y, z, 1, 0.3, 0.3, 0.3, 0.0);
+
+// 正确：1 个包
+level.sendParticles(P, x, y, z, 20, 0.3, 0.3, 0.3, 0.0);
+```
+
+服务端写粒子优先用 `io.wifi.starrailexpress.util.ParticleFx`（`burst` / `sphere` / `segment` / `region`），它保证一次调用只发一个包，语义见其类注释。场景方块用 `org.agmas.noellesroles.scene.SceneParticles`。
+
+代价是环形/螺旋/柱状这类"按形状摆点"的效果会退化成中心高斯团——网络与性能优先时接受这一取舍；反之也不要为了形状再写回循环。
+
+面向单个玩家的私有包 `sendParticles(ServerPlayer, ...)`、以及位置随玩家变化的"每玩家一包"不适用本条。
+
+## 自定义形状粒子：服务端发 id，客户端渲染
+
+环形、螺旋、沿轨迹、跟随实体、多边形范围提示等形状，**用原版包表达不了**（原版只能"在一个点按高斯散布"），而为了摆形状在服务端循环里逐点发包又会把包数放大成百上千倍。
+
+约定：**服务端只发一个包（id + 原点 + 时长 + 参数），形状由客户端按 id 生成**（客户端逐点 `addParticle` 不进网络，形状可以任意复杂）。
+
+服务端（一个包，可携带多条）：
+
+```java
+ResourceLocation id = ResourceLocation.fromNamespaceAndPath("mymod", "shock_wave");
+ParticleFx.sendCustom(level, id, pos, 20, 6.0F, 0.5F);        // 一条，参数含义由客户端处理器定义
+ParticleFx.sendCustomBatch(level, center, entries);           // 同一时刻多条：合并成一个包
+```
+
+客户端（注册一次，按 id 生成形状）：
+
+```java
+CustomParticleHandlers.register(id, (level, origin, durationTicks, params) -> {
+    double radius = params.length > 0 ? params[0] : 1.0D;
+    for (int i = 0; i < 64; i++) {
+        double a = Math.PI * 2.0 * i / 64;
+        level.addParticle(ParticleTypes.END_ROD,
+                origin.x + Math.cos(a) * radius, origin.y, origin.z + Math.sin(a) * radius, 0, 0, 0);
+    }
+});
+```
+
+约束与行为：单包最多 64 条、每条最多 8 个 float 参数（服务端超限会截断并告警，客户端超限直接断开连接）；广播半径 64 格；**未知 id 客户端静默忽略**，所以服务端可以先上新特效、客户端后续版本再补处理器；同一个 id 客户端重复注册会立刻抛错。
+
+文档：[`docs/api.md`](docs/api.md) 的「粒子与特效」章节。
+
 # 测试/调试
 必须完成一个功能块再一次性进行test

@@ -16,6 +16,7 @@
 package org.agmas.noellesroles.content.entity;
 
 import io.wifi.starrailexpress.game.GameUtils;
+import io.wifi.starrailexpress.util.ParticleFx;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -135,8 +136,8 @@ public class HallucinationAreaManager {
                 return true;
             }
             
-            // 每3tick生成粒子效果
-            if (tickCounter % 3 == 0) {
+            // 每6tick生成粒子效果（三种粒子各合并成一个包）
+            if (tickCounter % 6 == 0) {
                 spawnHallucinationParticles();
             }
             
@@ -152,31 +153,18 @@ public class HallucinationAreaManager {
          * 生成迷幻粒子效果
          */
         private void spawnHallucinationParticles() {
+            // 同一种粒子一个包：原循环里每颗粒子一个包，是纯浪费
+            double midY = center.y + 2.5D;
+            double spreadXZ = Math.max(1.0D, radius * 0.5D);
 
-            for (int i = 0; i < 80; i++) {
-                double offsetX = (world.random.nextDouble() - 0.5) * radius * 2;
-                double offsetY = world.random.nextDouble() * 5;  // 高度范围
-                double offsetZ = (world.random.nextDouble() - 0.5) * radius * 2;
-                
-                // 紫色龙息粒子 - 主要效果
-                world.sendParticles(ParticleTypes.DRAGON_BREATH,
-                        center.x + offsetX, center.y + offsetY, center.z + offsetZ,
-                        1, 0.1, 0.1, 0.1, 0.02);
-                
-                // 烟雾粒子
-                if (i % 2 == 0) {
-                    world.sendParticles(ParticleTypes.CAMPFIRE_COSY_SMOKE,
-                            center.x + offsetX, center.y + offsetY, center.z + offsetZ,
-                            2, 0.15, 0.15, 0.15, 0.03);
-                }
-                
-                // 女巫粒子 - 迷幻效果
-                if (i % 3 == 0) {  // 增加女巫粒子频率
-                    world.sendParticles(ParticleTypes.WITCH,
-                            center.x + offsetX, center.y + offsetY, center.z + offsetZ,
-                            1, 0.1, 0.1, 0.1, 0.02);
-                }
-            }
+            ParticleFx.burst(world, ParticleTypes.DRAGON_BREATH, center.x, midY, center.z,
+                    40, spreadXZ, 1.25D, spreadXZ, 0.02D);
+
+            ParticleFx.burst(world, ParticleTypes.CAMPFIRE_COSY_SMOKE, center.x, midY, center.z,
+                    40, spreadXZ, 1.25D, spreadXZ, 0.03D);
+
+            ParticleFx.burst(world, ParticleTypes.WITCH, center.x, midY, center.z,
+                    14, spreadXZ, 1.25D, spreadXZ, 0.02D);
         }
         
         /**

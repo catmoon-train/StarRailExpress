@@ -355,12 +355,10 @@ public class UndeadLordRoleData extends SimpleRoleData {
             return;
         }
         float radius = (float) config().undeadLordFogRadius;
-        Iterator<FogZone> it = fogZones.iterator();
-        while (it.hasNext()) {
-            FogZone zone = it.next();
+        for (FogZone zone : new ArrayList<>(fogZones)) {
             zone.ticksLeft--;
             if (zone.ticksLeft <= 0) {
-                it.remove();
+                fogZones.remove(zone);
                 continue;
             }
             // 视觉粒子
@@ -395,9 +393,8 @@ public class UndeadLordRoleData extends SimpleRoleData {
     private void tickInfection(ServerLevel serverLevel, SREGameWorldComponent gameWorldComponent) {
         float decayPerTick = (float) config().undeadLordInfectionDecayPerSecond / 20f;
 
-        Iterator<Map.Entry<UUID, Float>> it = infection.entrySet().iterator();
-        while (it.hasNext()) {
-            Map.Entry<UUID, Float> entry = it.next();
+        // 快照迭代：感染致死会跑完整条死亡链，可能重入并改动 infection（职业撤销/回溯都会 clear 本集合）。
+        for (Map.Entry<UUID, Float> entry : new ArrayList<>(infection.entrySet())) {
             UUID victimId = entry.getKey();
             ServerPlayer victim = serverLevel.getServer().getPlayerList().getPlayer(victimId);
 
@@ -405,7 +402,7 @@ public class UndeadLordRoleData extends SimpleRoleData {
                     || victim.gameMode.getGameModeForPlayer() != GameType.ADVENTURE) {
                 removeBossBar(victimId);
                 deathTimers.remove(victimId);
-                it.remove();
+                infection.remove(victimId, entry.getValue());
                 continue;
             }
 
@@ -427,7 +424,7 @@ public class UndeadLordRoleData extends SimpleRoleData {
                     convertToUndead(serverLevel, victim);
                     deathTimers.remove(victimId);
                     removeBossBar(victimId);
-                    it.remove();
+                    infection.remove(victimId, entry.getValue());
                     continue;
                 }
                 deathTimers.put(victimId, t);
@@ -439,7 +436,7 @@ public class UndeadLordRoleData extends SimpleRoleData {
 
             if (value <= 0f && !deathTimers.containsKey(victimId)) {
                 removeBossBar(victimId);
-                it.remove();
+                infection.remove(victimId, entry.getValue());
                 continue;
             }
 
