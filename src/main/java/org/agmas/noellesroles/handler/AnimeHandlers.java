@@ -15,11 +15,13 @@
 
 package org.agmas.noellesroles.handler;
 
+import org.agmas.noellesroles.role.anime.roles.ChinoRole;
 import org.agmas.noellesroles.role.anime.roles.KokoaRole;
 
 public class AnimeHandlers {
     
     public static void register(){
         KokoaRole.registerSkills();
+        ChinoRole.registerSkills();
     }
 }

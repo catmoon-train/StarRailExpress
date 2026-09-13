@@ -491,6 +491,7 @@ public class NoellesrolesClient implements ClientModInitializer {
         TomatoHeadClientHandle.register();
         DeathReactionClientHandle.register();
         PhantomSpiritClientHandle.register();
+        ChinoHeadRideClientHandle.register();
         TwoDimensionalCameraClientHandle.register();
         PointerClientHandle.register();
         HakoniwaVisionClientHandle.register();

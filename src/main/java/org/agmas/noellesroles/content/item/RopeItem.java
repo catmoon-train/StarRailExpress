@@ -17,6 +17,7 @@ package org.agmas.noellesroles.content.item;
 
 import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.util.AdventureUsable;
+import org.agmas.noellesroles.utils.RoleUtils;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.network.chat.Component;
@@ -251,7 +252,7 @@ public class RopeItem extends Item implements AdventureUsable {
 
     /**
      * 将目标玩家拉到玩家身前，并避免卡入方块。
-     * 从玩家位置开始逐步向外尝试，找到首个无效位置后回退到上一个有效位置。
+     * 落点搜索见 {@link RoleUtils#findFreeSpotInFrontOf}。
      *
      * @param player 执行拉取操作的玩家
      * @param target 被拉取的目标玩家
@@ -259,58 +260,8 @@ public class RopeItem extends Item implements AdventureUsable {
     public static void pullPlayer(Player player, Player target, double maxDistance) {
         // 记录拉拽者为最近攻击者，使被搜救绳拉入列车碾压区的死亡能归属到拉人者（拉拽本身不造成伤害）。
         target.setLastHurtByMob(player);
-        if (player instanceof ServerPlayer) {
-            target.setLastHurtByMob(player);
-        }
-
-        var viewVector = player.getViewVector(1.0f);
-        double step = 0.2; // 步长
-        int steps = (int) Math.ceil(maxDistance / step) + 1;
-
-        Level level = player.level();
-        AABB lastValidBox = null;
-        var lastValidPos = player.position(); // 默认回退位置（玩家自身）
-
-        // 从距离 0 开始，逐步增加距离
-        for (int i = 0; i <= steps; i++) {
-            double currentDistance = Math.min(i * step, maxDistance);
-            var targetPos = player.position().add(
-                    viewVector.x * currentDistance,
-                    0,
-                    viewVector.z * currentDistance);
-
-            // 获取目标玩家碰撞箱
-            var pose = target.getPose();
-            var dimensions = target.getDimensions(pose);
-            double width = dimensions.width();
-            double height = dimensions.height();
-            var candidateBox = new AABB(
-                    targetPos.x - width / 2, targetPos.y,
-                    targetPos.z - width / 2,
-                    targetPos.x + width / 2, targetPos.y + height,
-                    targetPos.z + width / 2);
-
-            // 检查该位置是否有效（无方块碰撞、无其他实体碰撞，排除 target 自身）
-            if (level.noCollision(target, candidateBox)) {
-                // 有效：记录为最后一个有效位置
-                lastValidBox = candidateBox;
-                lastValidPos = targetPos;
-            } else {
-                // 遇到第一个无效位置 -> 使用上一个有效位置（如果存在）
-                if (lastValidBox != null) {
-                    teleportPlayer(target, lastValidPos.x, lastValidPos.y, lastValidPos.z);
-                } else {
-                    // 连距离 0 都无效（极罕见，例如目标与玩家完全重叠且玩家实体无法忽略？）
-                    // 回退到玩家位置
-                    var fallbackPos = player.position();
-                    teleportPlayer(target, fallbackPos.x, fallbackPos.y, fallbackPos.z);
-                }
-                return;
-            }
-        }
-
-        // 所有尝试距离均有效 -> 使用最远距离（maxDistance）
-        teleportPlayer(target, lastValidPos.x, lastValidPos.y, lastValidPos.z);
+        var spot = RoleUtils.findFreeSpotInFrontOf(player, target, maxDistance);
+        teleportPlayer(target, spot.x, spot.y, spot.z);
     }
 
     /**

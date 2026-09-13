@@ -5,18 +5,23 @@ import java.util.Optional;
 import java.util.Set;
 
 import org.agmas.harpymodloader.modifiers.SREModifier;
+import org.agmas.noellesroles.Noellesroles;
 import org.agmas.noellesroles.game.modifier.NRModifiers;
 import org.agmas.noellesroles.init.FunnyItems;
 import org.agmas.noellesroles.init.ModEffects;
 import org.agmas.noellesroles.role.TraitorAndModifiers;
 import org.agmas.noellesroles.role.anime.AnimeRoles;
+import org.agmas.noellesroles.role.anime.chino.ChinoHeadRideManager;
 import org.agmas.noellesroles.utils.RoleUtils;
 
 import io.wifi.starrailexpress.api.AnimeRole;
+import io.wifi.starrailexpress.api.RoleSkill;
+import io.wifi.starrailexpress.api.RoleSkill.RoleSkillContext;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.game.GameUtils;
 import io.wifi.starrailexpress.index.SREDataComponentTypes;
 import io.wifi.starrailexpress.util.ShopEntry;
+import net.minecraft.ChatFormatting;
 import net.minecraft.core.Holder;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
@@ -122,19 +127,45 @@ public class ChinoRole extends AnimeRole {
 
     @Override
     public InteractionResult rightClickEntity(Player player, Entity victim) {
-        if (victim instanceof Player vc) {
-            if (RoleUtils.isPlayerTheModifier(vc, NRModifiers.RABBIT_SHAPE)) {
-                if (player.getPassengers().isEmpty()) {
-                    return InteractionResult.PASS;
-                }
-                if (player.level().isClientSide) {
-                    return InteractionResult.SUCCESS;
-                }
-                // vc.startRiding(player);
+        if (victim instanceof Player rabbit
+                && RoleUtils.isPlayerTheModifier(rabbit, NRModifiers.RABBIT_SHAPE)) {
+            // 已经在头顶的兔兔由技能放下，右键不再处理
+            if (ChinoHeadRideManager.isCarriedBy(rabbit, player)) {
+                return InteractionResult.PASS;
+            }
+            if (player.level().isClientSide) {
                 return InteractionResult.SUCCESS;
             }
+            if (player instanceof ServerPlayer chino && rabbit instanceof ServerPlayer rabbitPlayer) {
+                ChinoHeadRideManager.tryMount(chino, rabbitPlayer);
+            }
+            return InteractionResult.SUCCESS;
         }
         return InteractionResult.PASS;
+    }
+
+    /**
+     * 技能：把头顶的兔兔放到身前。
+     * 没抱人时返回 false，按统一技能入口的约定不消耗冷却、不发通告。
+     */
+    public static void registerSkills() {
+        RoleSkill.register(AnimeRoles.KAFU_CHINO,
+                RoleSkill.skill(Noellesroles.id("chino_head_ride_release"),
+                        "skill.noellesroles.kafu_chino.release", ChinoRole::handleRelease)
+                        .noAnnouncement()
+                        .build());
+    }
+
+    private static boolean handleRelease(RoleSkillContext ctx) {
+        final ServerPlayer chino = ctx.player();
+        if (!ChinoHeadRideManager.forceRelease(chino)) {
+            chino.displayClientMessage(
+                    Component.translatable("message.noellesroles.chino_head_ride.no_rider")
+                            .withStyle(ChatFormatting.YELLOW),
+                    true);
+            return false;
+        }
+        return true;
     }
 
     @Override

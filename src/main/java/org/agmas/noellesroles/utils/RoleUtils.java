@@ -56,6 +56,8 @@ import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.Vec3;
 import org.agmas.harpymodloader.component.WorldModifierComponent;
 import org.agmas.harpymodloader.events.ModdedRoleAssigned;
 import org.agmas.harpymodloader.events.ModdedRoleRemoved;
@@ -979,6 +981,60 @@ public class RoleUtils extends MCItemsUtils {
 
     public static SRERole getRoleByPath(String rolePath) {
         return TMMRoles.getRoleByPath(rolePath);
+    }
+
+    /**
+     * 把目标玩家放到执行者身前 {@code maxDistance} 格内的合适空位。
+     * <p>
+     * 算法参考绳索拉人（{@code RopeItem#pullPlayer}）：沿执行者的水平视线以 0.2 格为步长由近及远试探，
+     * 取最远的无碰撞位置；一个空位都没有时与执行者重合。
+     *
+     * @param player      落点参考者（视线与位置基准）
+     * @param target      被移动的目标
+     * @param maxDistance 身前的最大搜索距离
+     */
+    public static void placeInFrontOf(Player player, Player target, double maxDistance) {
+        Vec3 spot = findFreeSpotInFrontOf(player, target, maxDistance);
+        if (target instanceof ServerPlayer serverTarget) {
+            serverTarget.teleportTo(spot.x, spot.y, spot.z);
+        } else {
+            target.moveTo(spot.x, spot.y, spot.z);
+        }
+    }
+
+    /**
+     * 只计算落点、不移动实体。找不到空位时返回执行者自身位置（即与执行者重合）。
+     *
+     * @see #placeInFrontOf(Player, Player, double)
+     */
+    public static Vec3 findFreeSpotInFrontOf(Player player, Player target, double maxDistance) {
+        final double step = 0.2;
+        final int steps = (int) Math.ceil(maxDistance / step) + 1;
+        final var level = player.level();
+        final Vec3 viewVector = player.getViewVector(1.0F);
+        Vec3 origin = player.position();
+        Vec3 lastValidPos = origin;
+
+        for (int i = 0; i <= steps; i++) {
+            double currentDistance = Math.min(i * step, maxDistance);
+            Vec3 candidate = origin.add(viewVector.x * currentDistance, 0.0, viewVector.z * currentDistance);
+
+            var dimensions = target.getDimensions(target.getPose());
+            double width = dimensions.width();
+            double height = dimensions.height();
+            AABB candidateBox = new AABB(
+                    candidate.x - width / 2, candidate.y, candidate.z - width / 2,
+                    candidate.x + width / 2, candidate.y + height, candidate.z + width / 2);
+
+            if (!level.noCollision(target, candidateBox)) {
+                // 遇到第一个无效位置：退回上一个有效位置
+                return lastValidPos;
+            }
+            lastValidPos = candidate;
+        }
+
+        // 所有尝试距离均有效：使用最远处
+        return lastValidPos;
     }
 
 }
