@@ -15,6 +15,7 @@ import io.wifi.starrailexpress.SREConfig;
 import io.wifi.starrailexpress.api.EggRole;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.cca.SREPlayerShopComponent;
+import io.wifi.starrailexpress.game.GameConstants;
 import io.wifi.starrailexpress.game.GameUtils;
 import io.wifi.starrailexpress.game.ShopContent;
 import io.wifi.starrailexpress.index.TMMItems;
@@ -49,6 +50,16 @@ public class ProgrammerRole extends EggRole {
 
     /** 终端的购买价格（金币） */
     public static final int TERMINAL_PRICE = 150;
+
+    /**
+     * 正确执行一条指令后的冷却时间（秒）。
+     * 走原版物品冷却：冷却期间既不能再打开终端界面，也不能立刻用新买的终端，
+     * 所以「用掉终端 → 再买一个 → 马上再来一发」这条路也被堵住了。
+     */
+    public static final int TERMINAL_COOLDOWN_SECONDS = 120;
+
+    /** 指令**输错**时的冷却（秒）：比正常冷却短得多，输错不至于直接报废一局 */
+    public static final int TERMINAL_MISTAKE_COOLDOWN_SECONDS = 10;
 
     /**
      * 终端可生成的物品白名单：指令里的物品ID → 物品。
@@ -141,9 +152,9 @@ public class ProgrammerRole extends EggRole {
         GIVE,
         /** 传送回自己的房间 */
         TELEPORT_ROOM,
-        /** 切断全场照明（模拟 /tmm:game blackout trigger） */
+        /** 切断全场照明（模拟 /tmm:game blackout） */
         BLACKOUT,
-        /** 让所有监控失灵（模拟 /tmm:game monitor_blackout trigger） */
+        /** 让所有监控失灵（模拟 /tmm:game monitor_broken） */
         MONITOR_BLACKOUT,
         /** 列出所有可用指令（客户端本地处理） */
         HELP
@@ -157,26 +168,37 @@ public class ProgrammerRole extends EggRole {
     }
 
     /**
-     * 解析终端指令。纯逻辑、双端可用：客户端拿它做本地预校验（不合法的指令根本不发包，
-     * 终端也不会被白白消耗），服务端拿它执行。
+     * 归一化输入：全角空格/NBSP 换成半角，并去掉首尾空白。
+     * 中文输入法很容易在指令前后带出空格，前后多打的空格不应该影响解析。
+     */
+    public static String normalizeTerminalInput(String raw) {
+        if (raw == null) {
+            return "";
+        }
+        return raw.replace('\u3000', ' ').replace('\u00a0', ' ').trim();
+    }
+
+    /**
+     * 解析终端指令。纯逻辑、双端可用：客户端用它识别 {@code /help}，服务端用它执行。
      *
      * <p>
-     * 支持（前导 / 可省略、大小写不敏感）：
+     * 支持（前导 / 可省略、大小写不敏感、首尾空格自动忽略）：
      * <ul>
      * <li>{@code /give @s <物品ID>} —— 生成白名单内的物品</li>
      * <li>{@code /tp @s room} —— 传送回自己的房间</li>
-     * <li>{@code /tmm:game blackout trigger} —— 切断全场照明</li>
-     * <li>{@code /tmm:game monitor_blackout trigger} —— 让所有监控失灵（也接受 {@code monitor_broken}）</li>
+     * <li>{@code /tmm:game blackout} —— 切断全场照明</li>
+     * <li>{@code /tmm:game monitor_broken} —— 让所有监控失灵</li>
+     * <li>{@code /help} —— 列出所有可用指令（只对程序员开放）</li>
      * </ul>
-     * 结尾的 {@code trigger} 可写可不写（原版调试指令本身没有这个子参数，这里只是让输入更像一条指令）。
+     * 写法与真实调试指令一致（没有额外的子参数，也不接受多余参数）。
      *
      * @return 解析结果，{@link TerminalCommand#errorKey()} 是给玩家看的错误提示翻译键
      */
     public static TerminalCommand parseTerminalCommand(String raw) {
-        if (raw == null) {
+        String text = normalizeTerminalInput(raw);
+        if (text.isEmpty()) {
             return new TerminalCommand(null, null, "message.noellesroles.terminal.error.usage");
         }
-        String text = raw.trim();
         if (text.startsWith("/")) {
             text = text.substring(1).trim();
         }
@@ -187,15 +209,14 @@ public class ProgrammerRole extends EggRole {
             return new TerminalCommand(TerminalCommandType.HELP, null, null);
         }
 
-        // 1) 模拟原版调试指令：/tmm:game <子命令> [trigger]
+        // 1) 模拟原版调试指令：/tmm:game blackout、/tmm:game monitor_broken（与真实指令完全一致的写法）
         if (args.length >= 2 && "tmm:game".equalsIgnoreCase(args[0])) {
-            if (args.length > 2 && !"trigger".equalsIgnoreCase(args[args.length - 1])) {
+            if (args.length != 2) {
                 return new TerminalCommand(null, null, "message.noellesroles.terminal.error.usage");
             }
             return switch (args[1].toLowerCase(Locale.ROOT)) {
                 case "blackout" -> new TerminalCommand(TerminalCommandType.BLACKOUT, null, null);
-                case "monitor_blackout", "monitor_broken" ->
-                    new TerminalCommand(TerminalCommandType.MONITOR_BLACKOUT, null, null);
+                case "monitor_broken" -> new TerminalCommand(TerminalCommandType.MONITOR_BLACKOUT, null, null);
                 default -> new TerminalCommand(null, null, "message.noellesroles.terminal.error.unknown_command");
             };
         }
@@ -230,11 +251,17 @@ public class ProgrammerRole extends EggRole {
     // ==================== 终端使用 ====================
 
     /**
-     * 该玩家是不是「能使用终端的程序员」：必须是本职业且存活。
-     * 终端物品用它决定能不能开界面，指令执行前也用它再校验一次。
+     * 该玩家能不能用终端。
+     * 不要求是程序员（谁捡到/被塞了终端都能用，非程序员只是看不到 {@code /help}），
+     * 但旁观者（含死亡后变旁观的人）不行。
      */
     public static boolean canUseTerminal(Player player) {
-        if (player == null || !GameUtils.isPlayerAliveAndSurvival(player)) {
+        return player != null && !player.isSpectator();
+    }
+
+    /** 是不是程序员：终端里的 {@code /help} 只给他看（其他人只能自己背指令） */
+    public static boolean isProgrammer(Player player) {
+        if (player == null) {
             return false;
         }
         return SREGameWorldComponent.KEY.get(player.level()).isRole(player, BounsRoles.PROGRAMMER);
@@ -244,6 +271,24 @@ public class ProgrammerRole extends EggRole {
     public static boolean isHoldingTerminal(Player player) {
         return player != null && (player.getMainHandItem().is(FunnyItems.TERMINAL)
                 || player.getOffhandItem().is(FunnyItems.TERMINAL));
+    }
+
+    /** 终端是不是还在冷却里（原版物品冷却，新买到的终端同样受影响） */
+    public static boolean isTerminalOnCooldown(Player player) {
+        return player != null && player.getCooldowns().isOnCooldown(FunnyItems.TERMINAL);
+    }
+
+    /** 终端冷却剩余秒数（向上取整），拿来写提示 */
+    public static int getTerminalCooldownSecondsLeft(Player player) {
+        if (player == null) {
+            return 0;
+        }
+        var instance = player.getCooldowns().cooldowns.get(FunnyItems.TERMINAL);
+        if (instance == null) {
+            return 0;
+        }
+        int ticksLeft = Math.max(0, instance.endTime - player.getCooldowns().tickCount);
+        return (ticksLeft + 19) / 20;
     }
 
     /** 销毁一个手持的终端（终端只能执行一条指令） */
@@ -263,15 +308,39 @@ public class ProgrammerRole extends EggRole {
     }
 
     /**
-     * 服务端执行一条终端指令（由 TerminalCommandC2SPacket 的接收器薄转发进来）。
-     * 校验 → 执行 → 成功则销毁终端。
+     * 终端「被用掉」：销毁一个终端并进入冷却。
+     * 创造模式不计冷却（方便调试/测试）；指令输错用的是很短的冷却。
      *
-     * @return true 表示指令执行成功（此时终端已被销毁）
+     * @param mistake 本次是不是「指令输错」
+     */
+    private static void finishTerminal(ServerPlayer player, boolean mistake) {
+        consumeTerminal(player);
+        if (player.isCreative()) {
+            return;
+        }
+        player.getCooldowns().addCooldown(FunnyItems.TERMINAL,
+                GameConstants.getInTicks(0,
+                        mistake ? TERMINAL_MISTAKE_COOLDOWN_SECONDS : TERMINAL_COOLDOWN_SECONDS));
+    }
+
+    /**
+     * 服务端执行一条终端指令（由 TerminalCommandC2SPacket 的接收器薄转发进来）。
+     *
+     * <p>
+     * 消耗规则：
+     * <ul>
+     * <li>指令**输错**（格式错误 / 未知指令 / 物品不在白名单）→ 照样销毁终端，只在聊天栏说明原因（冷却只有 10 秒）；</li>
+     * <li>指令合法但当前状态执行不了（灯已经关着、监控已经失灵、本局没分配房间）→ **不消耗**，可以改指令重试；</li>
+     * <li>{@code /help} 由客户端本地展开，不会进到这里，因此不消耗。</li>
+     * </ul>
+     * 消耗终端的同时写入物品冷却（正常 2 分钟，输错 10 秒，创造模式不计）。
+     *
+     * @return true 表示终端已被销毁
      */
     public static boolean executeTerminalCommand(ServerPlayer player, String raw) {
         if (!canUseTerminal(player)) {
             player.displayClientMessage(
-                    Component.translatable("message.noellesroles.terminal.not_programmer")
+                    Component.translatable("message.noellesroles.terminal.spectator")
                             .withStyle(ChatFormatting.RED),
                     false);
             return false;
@@ -284,8 +353,10 @@ public class ProgrammerRole extends EggRole {
         }
         TerminalCommand command = parseTerminalCommand(raw);
         if (!command.isValid()) {
+            // 输错也烧掉终端（/help 不走这里），但只给很短的冷却
             player.displayClientMessage(Component.translatable(command.errorKey()).withStyle(ChatFormatting.RED), false);
-            return false;
+            finishTerminal(player, true);
+            return true;
         }
         boolean success = switch (command.type()) {
             case GIVE -> {
@@ -349,7 +420,7 @@ public class ProgrammerRole extends EggRole {
             }
         };
         if (success) {
-            consumeTerminal(player);
+            finishTerminal(player, false);
         }
         return success;
     }

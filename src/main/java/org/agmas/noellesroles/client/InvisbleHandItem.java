@@ -15,7 +15,6 @@
 
 package org.agmas.noellesroles.client;
 
-import io.wifi.starrailexpress.cca.ExtraSlotComponent;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.cca.SREPlayerPsychoComponent;
 import io.wifi.starrailexpress.client.SREClient;
@@ -85,15 +84,20 @@ public class InvisbleHandItem {
             }
             return null; // 不修改
         });
-        // 显示手铐（改由 HandCuffsFeatureRenderer 动态渲染，副手此处隐藏避免重复）
+        // 显示手铐：
+        //  - 第三人称由 HandCuffsFeatureRenderer 画在手腕上，副手保持隐藏以免双重渲染；
+        //  - 第一人称不会渲染自己的模型，所以以前戴上后自己什么都看不到 ——
+        //    这里把自己视角里的副手直接渲染成手铐堆。
         AllowItemShowInHand.EVENT.register((player, itemStack, mainHand) -> {
             if (mainHand)
                 return null;
-            var item = ExtraSlotComponent.getSlot(player, HandCuffsItem.SLOT_HANDCUFFS);
-            if (item.is(ModItems.HANDCUFFS)) {
-                return ItemStack.EMPTY;
+            if (!HandCuffsItem.hasHandCuff(player))
+                return null;
+            if (player == Minecraft.getInstance().player
+                    && Minecraft.getInstance().options.getCameraType().isFirstPerson()) {
+                return HandCuffsItem.getHandCuffItemStack(player);
             }
-            return null; // 不修改
+            return ItemStack.EMPTY; // 第三人称/其他玩家视角：交给 HandCuffsFeatureRenderer
         });
         // 隐藏指定的物品
         AllowItemShowInHand.EVENT.register((player, itemStack, mainHand) -> {

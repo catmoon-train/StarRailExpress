@@ -38,8 +38,15 @@ public class TerminalItem extends Item {
         }
         if (!ProgrammerRole.canUseTerminal(player)) {
             player.displayClientMessage(
-                    Component.translatable("message.noellesroles.terminal.not_programmer")
+                    Component.translatable("message.noellesroles.terminal.spectator")
                             .withStyle(ChatFormatting.RED),
+                    true);
+            return InteractionResultHolder.fail(stack);
+        }
+        if (ProgrammerRole.isTerminalOnCooldown(player)) {
+            player.displayClientMessage(
+                    Component.translatable("message.noellesroles.terminal.cooldown",
+                            ProgrammerRole.getTerminalCooldownSecondsLeft(player)).withStyle(ChatFormatting.RED),
                     true);
             return InteractionResultHolder.fail(stack);
         }
