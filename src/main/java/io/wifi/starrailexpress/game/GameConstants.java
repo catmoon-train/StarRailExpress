@@ -207,6 +207,8 @@ public class GameConstants {
 
     public static class DeathReasons {
         public static final ResourceLocation CANNOT_WIN = SRE.id("cannot_win");
+        /** 代码死亡：被程序/终端逻辑直接杀死（例如程序员终端的 /kill @s） */
+        public static ResourceLocation CODE_DEATH = SRE.id("code_death");
         public static ResourceLocation FALL_DAMAGE = SRE.id("fall_damage");
         public static ResourceLocation DISCONNECT = SRE.id("disconnected");
         public static ResourceLocation DEATH_AFK = SRE.id("death_afk");

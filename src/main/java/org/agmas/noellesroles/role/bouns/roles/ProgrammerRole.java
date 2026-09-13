@@ -135,6 +135,12 @@ public class ProgrammerRole extends EggRole {
         }
         lines.add(Component.translatable("screen.noellesroles.terminal.help.tp_usage")
                 .withStyle(ChatFormatting.WHITE));
+        lines.add(Component.translatable("screen.noellesroles.terminal.help.tp_player_usage")
+                .withStyle(ChatFormatting.WHITE));
+        lines.add(Component.translatable("screen.noellesroles.terminal.help.effect_usage")
+                .withStyle(ChatFormatting.WHITE));
+        lines.add(Component.translatable("screen.noellesroles.terminal.help.kill_usage")
+                .withStyle(ChatFormatting.WHITE));
         lines.add(Component.translatable("screen.noellesroles.terminal.help.blackout_usage")
                 .withStyle(ChatFormatting.WHITE));
         lines.add(Component.translatable("screen.noellesroles.terminal.help.monitor_usage")
@@ -152,6 +158,12 @@ public class ProgrammerRole extends EggRole {
         GIVE,
         /** 传送回自己的房间 */
         TELEPORT_ROOM,
+        /** 传送到随机一名存活玩家身上（位置重合） */
+        TELEPORT_PLAYER,
+        /** 清除自身的药水效果 */
+        EFFECT_CLEAR,
+        /** 杀死自己（死因：代码死亡） */
+        SUICIDE,
         /** 切断全场照明（模拟 /tmm:game blackout） */
         BLACKOUT,
         /** 让所有监控失灵（模拟 /tmm:game monitor_broken） */
@@ -186,6 +198,9 @@ public class ProgrammerRole extends EggRole {
      * <ul>
      * <li>{@code /give @s <物品ID>} —— 生成白名单内的物品</li>
      * <li>{@code /tp @s room} —— 传送回自己的房间</li>
+     * <li>{@code /tp @s @r} —— 传送到随机一名存活玩家身上（位置重合）</li>
+     * <li>{@code /effect clear @s} —— 清除自身全部药水效果</li>
+     * <li>{@code /kill @s} —— 杀死自己（死因：代码死亡）</li>
      * <li>{@code /tmm:game blackout} —— 切断全场照明</li>
      * <li>{@code /tmm:game monitor_broken} —— 让所有监控失灵</li>
      * <li>{@code /help} —— 列出所有可用指令（只对程序员开放）</li>
@@ -207,6 +222,12 @@ public class ProgrammerRole extends EggRole {
         // 0) /help —— 列出所有可用指令（客户端本地处理，不发包、不消耗终端）
         if (args.length == 1 && "help".equalsIgnoreCase(args[0])) {
             return new TerminalCommand(TerminalCommandType.HELP, null, null);
+        }
+
+        // 0.5) /effect clear @s —— 清除自身全部药水效果
+        if (args.length == 3 && "effect".equalsIgnoreCase(args[0]) && "clear".equalsIgnoreCase(args[1])
+                && "@s".equalsIgnoreCase(args[2])) {
+            return new TerminalCommand(TerminalCommandType.EFFECT_CLEAR, null, null);
         }
 
         // 1) 模拟原版调试指令：/tmm:game blackout、/tmm:game monitor_broken（与真实指令完全一致的写法）
@@ -237,10 +258,22 @@ public class ProgrammerRole extends EggRole {
                 return new TerminalCommand(TerminalCommandType.GIVE, item, null);
             }
             case "tp" -> {
-                if (args.length != 3 || !"room".equalsIgnoreCase(args[2])) {
+                if (args.length != 3) {
                     return new TerminalCommand(null, null, "message.noellesroles.terminal.error.usage");
                 }
-                return new TerminalCommand(TerminalCommandType.TELEPORT_ROOM, null, null);
+                if ("room".equalsIgnoreCase(args[2])) {
+                    return new TerminalCommand(TerminalCommandType.TELEPORT_ROOM, null, null);
+                }
+                if ("@r".equalsIgnoreCase(args[2])) {
+                    return new TerminalCommand(TerminalCommandType.TELEPORT_PLAYER, null, null);
+                }
+                return new TerminalCommand(null, null, "message.noellesroles.terminal.error.usage");
+            }
+            case "kill" -> {
+                if (args.length != 2) {
+                    return new TerminalCommand(null, null, "message.noellesroles.terminal.error.usage");
+                }
+                return new TerminalCommand(TerminalCommandType.SUICIDE, null, null);
             }
             default -> {
                 return new TerminalCommand(null, null, "message.noellesroles.terminal.error.unknown_command");
@@ -382,6 +415,44 @@ public class ProgrammerRole extends EggRole {
                         Component.translatable("message.noellesroles.terminal.tp_success")
                                 .withStyle(ChatFormatting.GREEN),
                         false);
+                yield true;
+            }
+            case TELEPORT_PLAYER -> {
+                // 随机挑一名其他存活玩家，直接重合到他身上
+                List<ServerPlayer> candidates = player.serverLevel().players().stream()
+                        .filter(other -> !other.getUUID().equals(player.getUUID()))
+                        .filter(GameUtils::isPlayerAliveAndSurvival)
+                        .toList();
+                if (candidates.isEmpty()) {
+                    player.displayClientMessage(
+                            Component.translatable("message.noellesroles.terminal.tp_player_none")
+                                    .withStyle(ChatFormatting.RED),
+                            false);
+                    yield false;
+                }
+                ServerPlayer target = candidates.get(player.getRandom().nextInt(candidates.size()));
+                player.stopRiding();
+                player.stopSleeping();
+                player.teleportTo(target.getX(), target.getY(), target.getZ());
+                player.displayClientMessage(Component
+                        .translatable("message.noellesroles.terminal.tp_player_success", target.getName())
+                        .withStyle(ChatFormatting.GREEN), false);
+                yield true;
+            }
+            case EFFECT_CLEAR -> {
+                RoleUtils.removeAllEffects(player);
+                player.displayClientMessage(
+                        Component.translatable("message.noellesroles.terminal.effect_clear_success")
+                                .withStyle(ChatFormatting.GREEN),
+                        false);
+                yield true;
+            }
+            case SUICIDE -> {
+                player.displayClientMessage(
+                        Component.translatable("message.noellesroles.terminal.suicide").withStyle(ChatFormatting.RED),
+                        false);
+                // 走正常死亡流程（会生成尸体、记录回放），死因用新增的「代码死亡」
+                GameUtils.killPlayer(player, true, null, GameConstants.DeathReasons.CODE_DEATH);
                 yield true;
             }
             case BLACKOUT -> {
