@@ -132,8 +132,13 @@ public final class SREDecorationBlocks {
     public static final Item ENDER_STEW = registerItem("ender_stew",
             new Item(new Item.Properties().stacksTo(1).food(new FoodProperties.Builder()
                     .nutrition(6).saturationModifier(0.6F).build())));
+    /** 蓝色马肉：与生牛肉同级的食物。 */
+    public static final Item BLUE_HORSE_MEAT = registerItem("blue_horse_meat",
+            new Item(new Item.Properties().food(new FoodProperties.Builder()
+                    .nutrition(3).saturationModifier(0.3F).build())));
     public static final Item NEGATIVE_VALUE_ITEM_1 = registerItem("negative_value_item_1",
-            new Item(new Item.Properties().stacksTo(1)));
+            new Item(new Item.Properties().stacksTo(1).food(new FoodProperties.Builder()
+                    .nutrition(2).saturationModifier(0.2F).build())));
     public static final Item NEGATIVE_VALUE_ITEM_2 = registerItem("negative_value_item_2",
             new Item(new Item.Properties().stacksTo(1)));
     public static final Item NEGATIVE_VALUE_ITEM_3 = registerItem("negative_value_item_3",
@@ -314,6 +319,7 @@ public final class SREDecorationBlocks {
             CROSS_DIMENSIONAL_SPYGLASS,
             END_CHORUS_FRUIT,
             ENDER_STEW,
+            BLUE_HORSE_MEAT,
             NEGATIVE_VALUE_ITEM_1,
             NEGATIVE_VALUE_ITEM_2,
             NEGATIVE_VALUE_ITEM_3,
