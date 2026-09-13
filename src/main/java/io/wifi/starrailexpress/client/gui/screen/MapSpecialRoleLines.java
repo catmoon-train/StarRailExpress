@@ -15,27 +15,22 @@
 
 package io.wifi.starrailexpress.client.gui.screen;
 
-import com.google.gson.JsonObject;
-
 import io.wifi.starrailexpress.api.AreasSettingUtils.MapSpecialFeatures;
 import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.api.TMMRoles;
+import io.wifi.starrailexpress.network.MapDisplayInfo;
 import net.minecraft.network.chat.Component;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 
 /**
- * 根据地图配置与各职业的 {@code setSpecialMapRole} 标记，动态生成“特定地图刷新的职业”条目。
+ * 「该地图会出现哪些特殊职业」的展示行。
  *
- * <p>每种匹配到的类别单独成行，行首统一为 {@code map_intro.special.prefix}（如“地图会刷新”），
- * 后面跟上该类别下所有职业的翻译名，以“/”分隔。地图类别是否激活的判断与
- * {@code InitModRolesMax.isSpecialMapRoleEnabled} 保持一致：
- * <ul>
- *     <li>配置列表类（QIYUCUN/BIGMAP/UNDERWATER/FLY/TRAP/HORSE/LAB）：由服务端下发的地图集合决定；</li>
- *     <li>地图属性类（CAN_JUMP/MEETING/MEETING_VOTE/MINIGAME_QUEST/MAP_STATUS_BAR）：由地图自身的配置决定。</li>
- * </ul>
+ * <p>
+ * 完全基于服务端解析好的 {@link MapDisplayInfo}：地图特性（自身 {@code customMapFeatures} ∪
+ * 被兼容进来的旧 NoellesRolesConfig 列表）与由属性派生的特性（可跳跃 / 会议 / 会议投票 /
+ * 小游戏 / 状态栏）在这里取并集，不再读取原始 JSON。
  */
 public final class MapSpecialRoleLines {
 
@@ -61,25 +56,16 @@ public final class MapSpecialRoleLines {
     /**
      * 生成特殊地图职业条目。
      *
-     * @param mapId          当前地图 ID
-     * @param bagMaps        布袋鬼（奇遇村）地图集合
-     * @param policeMaps     大图（特警）地图集合
-     * @param underwaterMaps 水下地图集合
-     * @param airMaps        天空地图集合
-     * @param trapMaps       机关地图集合
-     * @param horseMaps      骑马地图集合
-     * @param labMaps        实验室地图集合
-     * @param mapJson        当前地图的属性 JSON（用于判断地图属性类）
+     * @param info 地图展示数据（null 时返回空列表）
      * @return 每行一条 {@link Component}，无匹配时返回空列表
      */
-    public static List<Component> build(String mapId,
-            Set<String> bagMaps, Set<String> policeMaps, Set<String> underwaterMaps,
-            Set<String> airMaps, Set<String> trapMaps, Set<String> horseMaps, Set<String> labMaps,
-            JsonObject mapJson) {
+    public static List<Component> build(MapDisplayInfo info) {
         List<Component> lines = new ArrayList<>();
+        if (info == null) {
+            return lines;
+        }
         for (MapSpecialFeatures category : DISPLAY_ORDER) {
-            if (!isActive(category, mapId, bagMaps, policeMaps, underwaterMaps, airMaps, trapMaps, horseMaps, labMaps,
-                    mapJson)) {
+            if (!isActive(category, info)) {
                 continue;
             }
             String names = gatherRoleNames(category);
@@ -91,31 +77,22 @@ public final class MapSpecialRoleLines {
         return lines;
     }
 
-    private static boolean isActive(MapSpecialFeatures category, String mapId,
-            Set<String> bagMaps, Set<String> policeMaps, Set<String> underwaterMaps,
-            Set<String> airMaps, Set<String> trapMaps, Set<String> horseMaps, Set<String> labMaps, JsonObject json) {
+    /**
+     * 特性是否生效：地图声明的特性优先，属性派生特性作为兜底（两者取并集，
+     * 与运行时职业刷新条件保持一致）。
+     */
+    private static boolean isActive(MapSpecialFeatures category, MapDisplayInfo info) {
+        if (info.hasFeature(category)) {
+            return true;
+        }
         return switch (category) {
-            case QIYUCUN -> contains(bagMaps, mapId);
-            case UNDERWATER -> contains(underwaterMaps, mapId);
-            case BIGMAP -> contains(policeMaps, mapId);
-            case FLY -> contains(airMaps, mapId);
-            case TRAP -> contains(trapMaps, mapId);
-            case HORSE -> contains(horseMaps, mapId);
-            case LAB -> contains(labMaps, mapId);
-            case CAN_JUMP -> boolValue(json, "canJump", false);
-            case MEETING -> meetingEnabled(json);
-            case MEETING_VOTE -> meetingEnabled(json) && meetingVoteEnabled(json);
-            case MINIGAME_QUEST -> boolValue(json, "minigameQuestEnabled", false);
-            case MAP_STATUS_BAR -> {
-                String status = stringValue(json, "mapStatusBar", "NONE");
-                yield !status.equalsIgnoreCase("NONE") && !status.isBlank();
-            }
+            case CAN_JUMP -> info.canJump();
+            case MEETING -> info.meetingEnabled();
+            case MEETING_VOTE -> info.meetingEnabled() && info.meetingVoteEnabled();
+            case MINIGAME_QUEST -> info.minigameQuestEnabled();
+            case MAP_STATUS_BAR -> info.displayHasStatusBar();
             default -> false;
         };
-    }
-
-    private static boolean contains(Set<String> set, String mapId) {
-        return set != null && mapId != null && set.contains(mapId);
     }
 
     /** 收集该类别下所有职业的翻译名，以“/”连接。 */
@@ -127,48 +104,5 @@ public final class MapSpecialRoleLines {
             }
         }
         return String.join("/", names);
-    }
-
-    // ---- 类型安全的 JSON 取值（字段类型不符时退回默认值） ----
-
-    private static boolean meetingEnabled(JsonObject json) {
-        return meetingBoolValue(json, "meetingEnabled", false);
-    }
-
-    private static boolean meetingVoteEnabled(JsonObject json) {
-        return meetingBoolValue(json, "meetingVoteEnabled", false);
-    }
-
-    private static boolean boolValue(JsonObject json, String key, boolean fallback) {
-        if (json == null || !json.has(key)) {
-            return fallback;
-        }
-        var el = json.get(key);
-        if (!el.isJsonPrimitive() || !el.getAsJsonPrimitive().isBoolean()) {
-            return fallback;
-        }
-        return el.getAsBoolean();
-    }
-
-    private static String stringValue(JsonObject json, String key, String fallback) {
-        if (json == null || !json.has(key)) {
-            return fallback;
-        }
-        var el = json.get(key);
-        if (!el.isJsonPrimitive() || !el.getAsJsonPrimitive().isString()) {
-            return fallback;
-        }
-        return el.getAsString();
-    }
-
-    /** 会议相关字段可能被嵌在 settings 子对象里。 */
-    private static boolean meetingBoolValue(JsonObject json, String key, boolean fallback) {
-        if (boolValue(json, key, fallback)) {
-            return true;
-        }
-        if (json != null && json.has("settings") && json.get("settings").isJsonObject()) {
-            return boolValue(json.getAsJsonObject("settings"), key, fallback);
-        }
-        return fallback;
     }
 }

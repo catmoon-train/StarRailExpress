@@ -3,6 +3,7 @@
     "map_intro.title": "Map introduction",
     "map_intro.search": "Search map/block/dictionary",
     "map_intro.loading": "Waiting for server map configuration...",
+    "map_intro.show_all_maps": "Show all maps (incl. not in vote config)",
     "map_intro.hint": "Press ESC to return",
     "map_intro.tab.map_properties": "Map properties",
     "map_intro.tab.scene_blocks": "scene block",

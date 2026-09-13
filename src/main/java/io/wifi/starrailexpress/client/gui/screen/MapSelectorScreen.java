@@ -102,15 +102,22 @@ public class MapSelectorScreen extends Screen {
     private void initMapOptions() {
         mapOptions.clear();
 
-        List<MapConfig.MapEntry> configMaps = MapConfig.getInstance().getMaps();
-        if (configMaps != null && !configMaps.isEmpty()) {
-            for (int i = 0; i < configMaps.size(); i++) {
-                MapConfig.MapEntry entry = configMaps.get(i);
+        // 候选与显示数据都来自服务端解析好的 DTO 缓存（不再反序列化 MapConfig JSON）
+        var candidates = io.wifi.starrailexpress.client.gui.screen.mapui.MapIntroClientCache.candidates();
+        if (!candidates.isEmpty()) {
+            for (int i = 0; i < candidates.size(); i++) {
+                var info = candidates.get(i);
+                String displayName = info.displayName();
+                String description = info.description();
                 mapOptions.add(new MapOption(
-                        entry.getId(),
-                        Component.translatable(entry.getDisplayName()).getString(),
-                        Component.translatable(entry.getDescription()).getString(),
-                        entry.getColor(),
+                        info.id(),
+                        io.wifi.starrailexpress.client.gui.screen.maprotation.MapIntroDetail
+                                .translateConfiguredText(displayName == null || displayName.isBlank() ? info.id()
+                                        : displayName).getString(),
+                        description == null || description.isBlank() ? ""
+                                : io.wifi.starrailexpress.client.gui.screen.maprotation.MapIntroDetail
+                                        .translateConfiguredText(description).getString(),
+                        info.color() == 0 ? 0xFF4CC9F0 : info.color(),
                         Math.min(i * 0.07f, 0.35f)));
             }
             return;
@@ -209,6 +216,12 @@ public class MapSelectorScreen extends Screen {
         openedAt = System.currentTimeMillis();
         introProgress = 0.0f;
         backgroundTick = 0.0f;
+        // 地图展示数据现在单独同步：缓存为空时先拉一次（否则列表只有占位项）
+        if (io.wifi.starrailexpress.client.gui.screen.mapui.MapIntroClientCache.isEmpty()
+                && !io.wifi.starrailexpress.client.gui.screen.mapui.MapIntroClientCache.isRefreshPending()) {
+            io.wifi.starrailexpress.client.gui.screen.mapui.MapIntroClientCache.beginRefresh(false);
+            ClientPlayNetworking.send(new io.wifi.starrailexpress.network.MapIntroRequestPayload(false));
+        }
         recalculateLayout();
         scrollTarget = Mth.clamp(scrollTarget, 0.0f, getMaxScroll());
         scrollPosition = scrollTarget;

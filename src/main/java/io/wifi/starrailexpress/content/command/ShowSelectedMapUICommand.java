@@ -69,6 +69,7 @@ public class ShowSelectedMapUICommand {
     }
 
     private static void openMapVoteScreen(ServerPlayer player, UUID targetPlayerUuid) {
-        ServerPlayNetworking.send(player, new ShowSelectedMapUIPayload(ServerMapConfig.getInstance(player.getServer())));
+        ServerPlayNetworking.send(player,
+                ShowSelectedMapUIPayload.ofCandidates(ServerMapConfig.getInstance(player.getServer()).getMaps()));
     }
 }

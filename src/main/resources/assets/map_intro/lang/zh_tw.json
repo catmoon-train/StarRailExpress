@@ -3,6 +3,7 @@
   "map_intro.title": "地圖介紹",
   "map_intro.search": "搜索地圖 / 方塊 / 詞典",
   "map_intro.loading": "正在等待服務端地圖配置...",
+  "map_intro.show_all_maps": "顯示全部地圖（含未登記進投票配置的）",
   "map_intro.hint": "按 ESC 返回",
   "map_intro.tab.map_properties": "地圖屬性",
   "map_intro.tab.scene_blocks": "場景方塊",

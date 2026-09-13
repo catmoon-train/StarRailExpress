@@ -15,12 +15,11 @@
 
 package io.wifi.starrailexpress.client.gui.screen.maprotation;
 
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
 import com.mojang.blaze3d.vertex.PoseStack;
 import io.wifi.starrailexpress.client.gui.screen.mapui.MapBackdropRenderer;
 import io.wifi.starrailexpress.client.gui.screen.mapui.MapUiGraphics;
 import io.wifi.starrailexpress.network.MapIntroRequestPayload;
+import io.wifi.starrailexpress.network.MapDisplayInfo;
 import io.wifi.starrailexpress.network.MapIntroSyncPayload;
 import io.wifi.starrailexpress.network.MapRotationSyncPayload;
 import io.wifi.starrailexpress.network.MapRotationTogglePayload;
@@ -35,7 +34,6 @@ import net.minecraft.util.Mth;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -91,7 +89,6 @@ public class MapRotationScreen extends Screen {
     private final List<MapRow> visibleRows = new ArrayList<>();
     private final List<String> tabs = new ArrayList<>();
 
-    private MapIntroDetail.SpecialSets specialSets;
     private boolean loaded;
     private boolean requested;
     private boolean admin;
@@ -143,34 +140,20 @@ public class MapRotationScreen extends Screen {
         }
     }
 
-    /** 收到地图介绍数据（复用地图介绍屏的同一个 S2C 包）。 */
+    /** 收到地图展示数据（与地图介绍屏共用同一个 S2C 包，内容已是解析好的 DTO）。 */
     public void updateFromPacket(MapIntroSyncPayload payload) {
+        if (payload == null || payload.isIgnored()) {
+            return; // 不兼容/损坏的包：保持现状
+        }
         String previousId = selectedRow == null ? null : selectedRow.id;
 
-        Map<String, JsonObject> jsonById = new HashMap<>();
-        for (MapIntroSyncPayload.MapJson map : payload.maps()) {
-            try {
-                jsonById.put(map.id(), JsonParser.parseString(map.json()).getAsJsonObject());
-            } catch (Exception ignored) {
-                // 单张地图 JSON 损坏不该拖垮整个列表
-            }
-        }
-
-        specialSets = new MapIntroDetail.SpecialSets(
-                new HashSet<>(payload.bagMaps()),
-                new HashSet<>(payload.policeMaps()),
-                new HashSet<>(payload.underwaterMaps()),
-                new HashSet<>(payload.airMaps()),
-                new HashSet<>(payload.trapMaps()),
-                new HashSet<>(payload.horseMaps()),
-                new HashSet<>(payload.labMaps()));
-
         allRows.clear();
-        for (MapIntroSyncPayload.VoteMap voteMap : payload.voteMaps()) {
-            if (voteMap.id() == null || voteMap.id().isBlank()) {
+        for (MapDisplayInfo info : payload.maps()) {
+            // 轮抽只管理「登记在投票配置里」的地图；管理员「显示全部」带回来的其它地图不参与开关
+            if (info == null || info.id() == null || info.id().isBlank() || !info.hasVoteConfig()) {
                 continue;
             }
-            allRows.add(new MapRow(voteMap, jsonById.get(voteMap.id())));
+            allRows.add(new MapRow(info));
         }
         loaded = true;
 
@@ -221,7 +204,7 @@ public class MapRotationScreen extends Screen {
         tabs.add("");
         Set<String> modes = new LinkedHashSet<>();
         for (MapRow row : allRows) {
-            for (String mode : row.voteMap.gameModes()) {
+            for (String mode : row.info.gameModes()) {
                 if (mode != null && !mode.isBlank()) {
                     modes.add(mode);
                 }
@@ -574,8 +557,7 @@ public class MapRotationScreen extends Screen {
             return;
         }
         detailCacheKey = key;
-        detailLines = MapIntroDetail.build(font, wrapW, selectedRow.id, selectedRow.name,
-                selectedRow.json, selectedRow.currentVoteMap(), specialSets);
+        detailLines = MapIntroDetail.build(font, wrapW, selectedRow.currentInfo());
         detailScrollTarget = Mth.clamp(detailScrollTarget, 0.0f, maxDetailScroll());
     }
 
@@ -777,38 +759,35 @@ public class MapRotationScreen extends Screen {
 
     private static final class MapRow {
         private final String id;
-        private final MapIntroSyncPayload.VoteMap voteMap;
-        private final JsonObject json;
+        private final MapDisplayInfo info;
         private final Component name;
         private final int accent;
         private boolean enabled;
         private float hoverAnim;
         private float selectAnim;
 
-        private MapRow(MapIntroSyncPayload.VoteMap voteMap, JsonObject json) {
-            this.id = voteMap.id();
-            this.voteMap = voteMap;
-            this.json = json;
-            this.name = MapIntroDetail.mapDisplayName(voteMap.id(), voteMap);
-            this.accent = accentFromId(voteMap.id());
-            this.enabled = voteMap.canSelect();
+        private MapRow(MapDisplayInfo info) {
+            this.id = info.id();
+            this.info = info;
+            this.name = MapIntroDetail.mapDisplayName(info.id(), info);
+            this.accent = accentFromId(info.id());
+            this.enabled = info.canSelect();
         }
 
         /**
          * 详情页要用当前的启用状态，而不是包里那份不可变的 canSelect ——
          * 管理员切换后只更新了 {@link #enabled}，否则"可被选择"那一行会一直显示旧值。
          */
-        private MapIntroSyncPayload.VoteMap currentVoteMap() {
-            if (voteMap.canSelect() == enabled) {
-                return voteMap;
+        private MapDisplayInfo currentInfo() {
+            if (info.canSelect() == enabled) {
+                return info;
             }
-            return new MapIntroSyncPayload.VoteMap(voteMap.id(), voteMap.displayName(), voteMap.minCount(),
-                    voteMap.maxCount(), enabled, voteMap.gameModes());
+            return info.withCanSelect(enabled);
         }
 
         /** 空的 gameModes 表示支持所有模式，与 {@code MapConfig.MapEntry.isSupportedGameMode} 一致。 */
         private boolean supportsMode(String mode) {
-            List<String> modes = voteMap.gameModes();
+            List<String> modes = info.gameModes();
             if (modes == null || modes.isEmpty() || modes.getFirst().isBlank()) {
                 return true;
             }
@@ -817,15 +796,15 @@ public class MapRotationScreen extends Screen {
 
         /** 悬停时展开的副标题：游戏模式 + 人数区间。 */
         private Component subtitle() {
-            Component modes = MapIntroDetail.gameModesText(voteMap.gameModes());
-            if (voteMap.minCount() > 0 && voteMap.maxCount() > 0) {
+            Component modes = MapIntroDetail.gameModesText(info.gameModes());
+            if (info.minCount() > 0 && info.maxCount() > 0) {
                 return Component.translatable("gui.sre.map_rotation.row_subtitle", modes,
-                        Component.translatable("gui.sre.map_rotation.capacity", voteMap.minCount(),
-                                voteMap.maxCount()));
+                        Component.translatable("gui.sre.map_rotation.capacity", info.minCount(),
+                                info.maxCount()));
             }
-            if (voteMap.maxCount() > 0) {
+            if (info.maxCount() > 0) {
                 return Component.translatable("gui.sre.map_rotation.row_subtitle", modes,
-                        Component.translatable("gui.sre.map_rotation.capacity_max", voteMap.maxCount()));
+                        Component.translatable("gui.sre.map_rotation.capacity_max", info.maxCount()));
             }
             return modes;
         }

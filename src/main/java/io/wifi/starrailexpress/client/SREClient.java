@@ -907,17 +907,9 @@ public class SREClient implements ClientModInitializer {
         net.exmo.sre.meeting.client.MeetingReportClientHandler.register();
 
         ClientPlayNetworking.registerGlobalReceiver(ShowSelectedMapUIPayload.ID, (payload, context) -> {
-            var str = payload.serverConfig();
-
-            // @SuppressWarnings("unchecked")
-            try {
-                var a = MapConfig.gson.fromJson(str, MapConfig.class);
-                MapConfig.getInstance().maps.clear();
-                MapConfig.getInstance().maps.addAll(a.maps);
-            } catch (JsonSyntaxException e) {
-                LoggerFactory.getLogger("TMMClient").error(e.getMessage());
-                e.printStackTrace();
-            }
+            // 候选只有 id；地图展示数据来自 MapIntroSyncPayload（MapIntroClientCache）
+            io.wifi.starrailexpress.client.gui.screen.mapui.MapIntroClientCache
+                    .setCandidateIds(payload.candidateIds());
             context.client().execute(() -> {
                 io.wifi.starrailexpress.content.vote.client.VoteFlowTransition.beginIfArmed();
                 context.client().setScreen(MapVoteScreen.create());

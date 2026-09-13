@@ -61,13 +61,13 @@ public class MapVotingManager {
                 SRE.LOGGER.warn("Voting start failed: Game has already started!");
                 return;
             }
-            votingMapconfigs = ShowSelectedMapUIPayload
-                    .getRandomConfig(ServerMapConfig.getInstance(server));
+            votingMapconfigs = new MapConfig();
+            votingMapconfigs.maps = ServerMapConfig.getInstance(server).getRandomMaps();
             MapVotingComponent votingComponent = MapVotingComponent.KEY.get(level);
             server.getPlayerList().getPlayers().forEach(
                     serverPlayer -> {
                         ServerPlayNetworking.send(serverPlayer,
-                                new ShowSelectedMapUIPayload(votingMapconfigs));
+                                ShowSelectedMapUIPayload.ofCandidates(votingMapconfigs.maps));
                     });
             votingComponent.startVoting(votingTimeSeconds);
         }

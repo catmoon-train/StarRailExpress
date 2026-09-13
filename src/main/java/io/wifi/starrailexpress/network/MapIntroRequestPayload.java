@@ -20,16 +20,22 @@ import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 
-public record MapIntroRequestPayload() implements CustomPacketPayload {
+public record MapIntroRequestPayload(boolean includeAll) implements CustomPacketPayload {
     public static final Type<MapIntroRequestPayload> ID = new Type<>(SRE.id("map_intro_request"));
     public static final StreamCodec<FriendlyByteBuf, MapIntroRequestPayload> CODEC =
             CustomPacketPayload.codec(MapIntroRequestPayload::write, MapIntroRequestPayload::new);
 
+    public MapIntroRequestPayload() {
+        this(false);
+    }
+
     private MapIntroRequestPayload(FriendlyByteBuf buffer) {
-        this();
+        // 旧客户端的这个包是空的：没有字节就当作 includeAll=false，别抛异常
+        this(buffer.readableBytes() >= 1 && buffer.readBoolean());
     }
 
     private void write(FriendlyByteBuf buffer) {
+        buffer.writeBoolean(includeAll);
     }
 
     @Override

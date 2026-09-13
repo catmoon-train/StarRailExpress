@@ -184,7 +184,7 @@ public final class MapRuleIntroHud {
         MapConfig.MapEntry entry = MapConfig.getInstance().getMapById(id);
         String displayName = entry == null ? null : entry.getDisplayName();
         if (displayName == null || displayName.isBlank()) {
-            var synced = MapIntroClientCache.getVoteMap(id);
+            var synced = MapIntroClientCache.get(id);
             displayName = synced == null ? null : synced.displayName();
         }
         if (displayName == null || displayName.isBlank())

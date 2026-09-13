@@ -19,6 +19,7 @@ import com.google.gson.*;
 import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.SREConfig;
 import io.wifi.starrailexpress.api.AreasSettings;
+import io.wifi.starrailexpress.network.MapIntroData;
 import io.wifi.starrailexpress.cca.AreasWorldComponent;
 import io.wifi.starrailexpress.game.data.MapConfig;
 import io.wifi.starrailexpress.game.data.ServerMapConfig;
@@ -297,6 +298,171 @@ public class MapManager {
     }
 
     /**
+     * 解析地图 JSON 的属性配置：把 {@code settings} 反序列化成 {@link AreasSettings}，
+     * 再套用旧版扁平键兼容（{@code canSwim}→{@code canSimpleSwim}、{@code effect}→{@code mobEffects}、
+     * {@code gravity}→{@code gravityModifier} 等），最后做空值兜底。
+     *
+     * <p>
+     * 「实际加载地图」（{@link #loadMap}）与「浏览地图属性」（地图介绍 / 轮抽界面用的
+     * {@code MapIntroData}）都走这里，保证两边判断完全一致；
+     * 单个旧键畸形只记日志，不影响整张地图的解析。
+     */
+    public static AreasSettings parseAreasSettings(JsonObject jsonObject) {
+        AreasSettings settings;
+        if (jsonObject != null && jsonObject.has("settings")) {
+            try {
+                settings = gson.fromJson(jsonObject.get("settings"), AreasSettings.class);
+            } catch (Exception e) {
+                settings = new AreasSettings();
+                SRE.LOGGER.error("Error while loading map config 'settings'", e);
+            }
+        } else {
+            settings = new AreasSettings();
+        }
+        if (settings == null) {
+            settings = new AreasSettings();
+        }
+        if (jsonObject == null) {
+            return withDefaults(settings);
+        }
+        try {
+            if (jsonObject.has("noReset")) {
+                settings.noReset = jsonObject.get("noReset").getAsBoolean();
+            }
+            if (jsonObject.has("mustCopy")) {
+                settings.mustCopy = jsonObject.get("mustCopy").getAsBoolean();
+            }
+            if (jsonObject.has("haveOutsideSound")) {
+                settings.haveOutsideSound = jsonObject.get("haveOutsideSound").getAsBoolean();
+            }
+            if (jsonObject.has("sceneOutsideSound")) {
+                settings.sceneOutsideSound = AreasSettings.BackgroundAmbienceSound
+                        .valueOf(jsonObject.get("sceneOutsideSound").getAsString());
+                if (settings.sceneOutsideSound == null) {
+                    settings.sceneOutsideSound = AreasSettings.BackgroundAmbienceSound.train;
+                }
+            }
+
+            // 以下均为旧版格式兼容
+            if (jsonObject.has("fallToDeathHeight")) {
+                settings.fallToDeathHeight = jsonObject.get("fallToDeathHeight").getAsInt();
+            }
+            if (jsonObject.has("canJump")) {
+                settings.canJump = jsonObject.get("canJump").getAsBoolean();
+            }
+            if (jsonObject.has("canSwim")) {
+                settings.canSimpleSwim = jsonObject.get("canSwim").getAsBoolean();
+            }
+            if (jsonObject.has("enableOxygenDrowning")) {
+                settings.enableOxygenDrowning = jsonObject.get("enableOxygenDrowning").getAsBoolean();
+            }
+            if (jsonObject.has("mapStatusBar")) {
+                settings.mapStatusBar = io.wifi.starrailexpress.game.data.MapStatusBarType
+                        .byName(jsonObject.get("mapStatusBar").getAsString());
+            }
+            if (jsonObject.has("snowEnabled")) {
+                settings.snowEnabled = jsonObject.get("snowEnabled").getAsBoolean();
+            }
+            if (jsonObject.has("sandEnabled")) {
+                settings.sandEnabled = jsonObject.get("sandEnabled").getAsBoolean();
+            }
+            if (jsonObject.has("fogEnabled")) {
+                settings.fogEnabled = jsonObject.get("fogEnabled").getAsBoolean();
+            }
+            if (jsonObject.has("fogEnd")) {
+                settings.fogEnd = jsonObject.get("fogEnd").getAsFloat();
+            }
+            if (jsonObject.has("fogShape")) {
+                settings.fogShape = AreasSettings.FogShape
+                        .valueOf(jsonObject.get("fogShape").getAsString().toUpperCase());
+            }
+            if (jsonObject.has("weather")) {
+                settings.weather = AreasSettings.MinecraftWeather
+                        .valueOf(jsonObject.get("weather").getAsString());
+            }
+            if (jsonObject.has("gravity")) {
+                settings.gravityModifier = jsonObject.get("gravity").getAsDouble() - 0.08;
+                SRE.LOGGER.info("Loaded old gravity modifier config: " + settings.gravityModifier);
+            }
+            if (jsonObject.has("effect")) {
+                settings.mobEffects = new java.util.ArrayList<>();
+                var effectElement = jsonObject.get("effect");
+                if (effectElement.isJsonArray()) {
+                    for (var e : effectElement.getAsJsonArray()) {
+                        settings.mobEffects.add(e.getAsString());
+                    }
+                } else if (effectElement.isJsonPrimitive()) {
+                    // 兼容旧格式：单个字符串 "namespace:id,level"
+                    String oldFormat = effectElement.getAsString();
+                    if (!oldFormat.isEmpty()) {
+                        settings.mobEffects.add(oldFormat);
+                    }
+                }
+                SRE.LOGGER.info("Loaded Old Effect Settings: {}", settings.mobEffects);
+            }
+            if (jsonObject.has("time")) {
+                settings.time = jsonObject.get("time").getAsLong();
+            }
+            if (jsonObject.has("daylightCycle")) {
+                settings.daylightCycle = jsonObject.get("daylightCycle").getAsBoolean();
+            }
+            if (jsonObject.has("weatherCycle")) {
+                settings.weatherCycle = jsonObject.get("weatherCycle").getAsBoolean();
+            }
+            if (jsonObject.has("minigameQuestEnabled")) {
+                settings.minigameQuestEnabled = jsonObject.get("minigameQuestEnabled").getAsBoolean();
+            }
+            if (jsonObject.has("planeCrashEventEnabled")) {
+                settings.planeCrashEventEnabled = jsonObject.get("planeCrashEventEnabled").getAsBoolean();
+            }
+            if (jsonObject.has("planeCrashTiltYaw")) {
+                settings.planeCrashTiltYaw = jsonObject.get("planeCrashTiltYaw").getAsFloat();
+            }
+            if (jsonObject.has("planeCrashSpawnDistance")) {
+                settings.planeCrashSpawnDistance = jsonObject.get("planeCrashSpawnDistance").getAsFloat();
+            }
+            if (jsonObject.has("planeCrashSpawnHeight")) {
+                settings.planeCrashSpawnHeight = jsonObject.get("planeCrashSpawnHeight").getAsFloat();
+            }
+            if (jsonObject.has("initialItems")) {
+                settings.initialItems = new java.util.ArrayList<>();
+                var iiElement = jsonObject.get("initialItems");
+                if (iiElement.isJsonArray()) {
+                    for (var e : iiElement.getAsJsonArray()) {
+                        settings.initialItems.add(e.getAsString());
+                    }
+                }
+            }
+        } catch (Exception e) {
+            SRE.LOGGER.warn("Invalid legacy key in map config, keeping parsed settings as-is", e);
+        }
+        return withDefaults(settings);
+    }
+
+    /** 空值兜底：Gson 反序列化缺字段时可能留下 null，浏览界面需要能安全读取。 */
+    private static AreasSettings withDefaults(AreasSettings settings) {
+        if (settings.mapStatusBar == null) {
+            settings.mapStatusBar = io.wifi.starrailexpress.game.data.MapStatusBarType.NONE;
+        }
+        if (settings.weather == null) {
+            settings.weather = AreasSettings.MinecraftWeather.clear;
+        }
+        if (settings.fogShape == null) {
+            settings.fogShape = AreasSettings.FogShape.SPHERE;
+        }
+        if (settings.sceneOutsideSound == null) {
+            settings.sceneOutsideSound = AreasSettings.BackgroundAmbienceSound.train;
+        }
+        if (settings.mobEffects == null) {
+            settings.mobEffects = new java.util.ArrayList<>();
+        }
+        if (settings.initialItems == null) {
+            settings.initialItems = new java.util.ArrayList<>();
+        }
+        return settings;
+    }
+
+    /**
      * 加载指定的地图配置
      * 
      * @param serverWorld 服务器世界
@@ -330,162 +496,8 @@ public class MapManager {
                 areas.mapDisplayName = mapName;
                 areas.mapDescription = null;
             }
-            // 先读取，避免后面被覆盖了
-            if (jsonObject.has("settings")) {
-                try {
-                    areas.areasSettings = gson.fromJson(jsonObject.get("settings"), AreasSettings.class);
-                } catch (Exception e) {
-                    areas.areasSettings = new AreasSettings();
-                    SRE.LOGGER.error("Error while loading map config 'settings'", e);
-                }
-            } else {
-                areas.areasSettings = new AreasSettings();
-            }
-
-            if (jsonObject.has("noReset")) {
-                areas.areasSettings.noReset = jsonObject.get("noReset").getAsBoolean();
-            }
-
-            if (jsonObject.has("mustCopy")) {
-                areas.areasSettings.mustCopy = jsonObject.get("mustCopy").getAsBoolean();
-            }
-            if (jsonObject.has("haveOutsideSound")) {
-                areas.areasSettings.haveOutsideSound = jsonObject.get("haveOutsideSound").getAsBoolean();
-            }
-            if (jsonObject.has("sceneOutsideSound")) {
-                areas.areasSettings.sceneOutsideSound = AreasSettings.BackgroundAmbienceSound
-                        .valueOf(jsonObject.get("sceneOutsideSound").getAsString());
-                if (areas.areasSettings.sceneOutsideSound == null) {
-
-                    areas.areasSettings.sceneOutsideSound = AreasSettings.BackgroundAmbienceSound.train;
-                }
-            }
-
-            // 旧版格式兼容
-            if (jsonObject.has("fallToDeathHeight")) {
-                areas.areasSettings.fallToDeathHeight = jsonObject.get("fallToDeathHeight").getAsInt();
-            }
-            // 旧版格式兼容
-
-            if (jsonObject.has("canJump")) {
-                areas.areasSettings.canJump = jsonObject.get("canJump").getAsBoolean();
-            }
-            // 旧版格式兼容
-
-            if (jsonObject.has("canSwim")) {
-                areas.areasSettings.canSimpleSwim = jsonObject.get("canSwim").getAsBoolean();
-            }
-            // 旧版格式兼容
-            if (jsonObject.has("enableOxygenDrowning")) {
-                areas.areasSettings.enableOxygenDrowning = jsonObject.get("enableOxygenDrowning").getAsBoolean();
-            }
-            // 旧版格式兼容
-            if (jsonObject.has("mapStatusBar")) {
-                areas.areasSettings.mapStatusBar = io.wifi.starrailexpress.game.data.MapStatusBarType
-                        .byName(jsonObject.get("mapStatusBar").getAsString());
-            }
-
-            // 加载雪花效果配置（默认关闭）
-            // 旧版格式兼容
-            if (jsonObject.has("snowEnabled")) {
-                areas.areasSettings.snowEnabled = jsonObject.get("snowEnabled").getAsBoolean();
-            }
-            // 加载沙尘暴效果配置（默认关闭）
-            // 旧版格式兼容
-            if (jsonObject.has("sandEnabled")) {
-                areas.areasSettings.sandEnabled = jsonObject.get("sandEnabled").getAsBoolean();
-            }
-            // 旧版格式兼容
-            if (jsonObject.has("fogEnabled")) {
-                areas.areasSettings.fogEnabled = jsonObject.get("fogEnabled").getAsBoolean();
-            }
-            // 旧版格式兼容
-            if (jsonObject.has("fogEnd")) {
-                areas.areasSettings.fogEnd = jsonObject.get("fogEnd").getAsFloat();
-            }
-            if (jsonObject.has("fogShape")) {
-                String fogShape = jsonObject.get("fogShape").getAsString();
-                fogShape = fogShape.toUpperCase();
-                areas.areasSettings.fogShape = AreasSettings.FogShape.valueOf(fogShape);
-            }
-
-            // 加载天气配置（默认晴天）
-            // 旧版兼容
-            if (jsonObject.has("weather")) {
-                areas.areasSettings.weather = AreasSettings.MinecraftWeather
-                        .valueOf(jsonObject.get("weather").getAsString());
-            }
-
-            // 加载重力配置（默认0.08）
-            // 旧版兼容
-            if (jsonObject.has("gravity")) {
-                areas.areasSettings.gravityModifier = jsonObject.get("gravity").getAsDouble() - 0.08;
-                SRE.LOGGER.info("Loaded old gravity modifier config: " + areas.areasSettings.gravityModifier);
-            }
-
-            // 加载药水效果配置（默认空数组）
-            if (jsonObject.has("effect")) {
-                areas.areasSettings.mobEffects = new java.util.ArrayList<>();
-                var effectElement = jsonObject.get("effect");
-                if (effectElement.isJsonArray()) {
-                    for (var e : effectElement.getAsJsonArray()) {
-                        areas.areasSettings.mobEffects.add(e.getAsString());
-                    }
-                } else if (effectElement.isJsonPrimitive()) {
-                    // 兼容旧格式：单个字符串 "namespace:id,level"
-                    String oldFormat = effectElement.getAsString();
-                    if (!oldFormat.isEmpty()) {
-                        areas.areasSettings.mobEffects.add(oldFormat);
-                    }
-                }
-                SRE.LOGGER.info("Loaded Old Effect Settings: {}", areas.areasSettings.mobEffects);
-            }
-
-            // 加载时间配置（默认午夜 18000）
-            // 旧版兼容
-            if (jsonObject.has("time")) {
-                areas.areasSettings.time = jsonObject.get("time").getAsLong();
-            }
-
-            // 加载昼夜循环配置（默认关闭）
-            // 旧版兼容
-            if (jsonObject.has("daylightCycle")) {
-                areas.areasSettings.daylightCycle = jsonObject.get("daylightCycle").getAsBoolean();
-            }
-
-            // 加载天气循环配置（默认关闭）
-            // 旧版兼容
-            if (jsonObject.has("weatherCycle")) {
-                areas.areasSettings.weatherCycle = jsonObject.get("weatherCycle").getAsBoolean();
-            }
-
-            // 加载小游戏任务系统开关（默认关闭）
-            if (jsonObject.has("minigameQuestEnabled")) {
-                areas.areasSettings.minigameQuestEnabled = jsonObject.get("minigameQuestEnabled").getAsBoolean();
-            }
-            if (jsonObject.has("planeCrashEventEnabled")) {
-                areas.areasSettings.planeCrashEventEnabled = jsonObject.get("planeCrashEventEnabled").getAsBoolean();
-            }
-            if (jsonObject.has("planeCrashTiltYaw")) {
-                areas.areasSettings.planeCrashTiltYaw = jsonObject.get("planeCrashTiltYaw").getAsFloat();
-            }
-            if (jsonObject.has("planeCrashSpawnDistance")) {
-                areas.areasSettings.planeCrashSpawnDistance = jsonObject.get("planeCrashSpawnDistance").getAsFloat();
-            }
-            if (jsonObject.has("planeCrashSpawnHeight")) {
-                areas.areasSettings.planeCrashSpawnHeight = jsonObject.get("planeCrashSpawnHeight").getAsFloat();
-            }
-
-            // 加载地图初始物品配置
-            if (jsonObject.has("initialItems")) {
-                areas.areasSettings.initialItems = new java.util.ArrayList<>();
-                var iiElement = jsonObject.get("initialItems");
-                if (iiElement.isJsonArray()) {
-                    for (var e : iiElement.getAsJsonArray()) {
-                        areas.areasSettings.initialItems.add(e.getAsString());
-                    }
-                }
-            }
+            // 先读取，避免后面被覆盖了（解析 + 旧键兼容都在 parseAreasSettings 里，与浏览界面共用同一套语义）
+            areas.areasSettings = parseAreasSettings(jsonObject);
 
             // 应用配置到AreasWorldComponent，使用新的嵌套结构
             if (jsonObject.has("spawnPos")) {
@@ -742,6 +754,9 @@ public class MapManager {
             io.wifi.starrailexpress.scenery.server.SceneAssetServer.activate(serverWorld);
             io.wifi.starrailexpress.scenery.network.SceneAssetNetwork.sendManifestToAll(serverWorld);
             last_start_map = mapName;
+
+            // 地图介绍/轮抽界面用的展示数据缓存 —— 每次加载地图时重建（本局唯一权威刷新点）
+            MapIntroData.rebuild(serverWorld.getServer(), mapName);
 
             SRE.LOGGER.info("Successfully loaded map: " + mapName);
             return true;

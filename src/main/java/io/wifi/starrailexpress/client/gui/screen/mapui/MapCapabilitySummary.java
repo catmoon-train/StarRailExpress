@@ -15,8 +15,7 @@
 
 package io.wifi.starrailexpress.client.gui.screen.mapui;
 
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
+import io.wifi.starrailexpress.network.MapDisplayInfo;
 import java.util.ArrayList;
 import java.util.List;
 import net.minecraft.network.chat.Component;
@@ -26,29 +25,17 @@ public record MapCapabilitySummary(boolean canSwim, boolean canJump, String weat
         boolean sand, boolean oxygenDrowning, boolean minigameQuest, boolean planeCrash, int roomCount) {
 
     public static MapCapabilitySummary forMap(String mapId) {
-        return fromJson(MapIntroClientCache.get(mapId));
+        return fromDisplayInfo(MapIntroClientCache.get(mapId));
     }
 
-    public static MapCapabilitySummary fromJson(JsonObject root) {
-        if (root == null) return new MapCapabilitySummary(false, false, "clear", false, false, false, false, false, -1);
-        JsonObject settings = object(root, "settings");
-        JsonObject source = settings == null ? root : settings;
-        boolean canJump = bool(source, "canJump", false);
-        boolean canSwim;
-        if (settings != null) {
-            boolean simple = bool(source, "canSimpleSwim", true);
-            boolean underwater = bool(source, "canUnderWater", true);
-            boolean deepWater = bool(source, "allowInDeepWater", true);
-            canSwim = simple && underwater && deepWater && (canJump || bool(source, "canSwim", false));
-        } else {
-            canSwim = bool(source, "canSwim", false);
+    /** 直接从服务端解析好的展示数据取，不再解析 JSON。 */
+    public static MapCapabilitySummary fromDisplayInfo(MapDisplayInfo info) {
+        if (info == null) {
+            return new MapCapabilitySummary(false, false, "clear", false, false, false, false, false, -1);
         }
-        boolean planeCrash = bool(source, "planeCrashEventEnabled", false)
-                || bool(root, "planeCrashEventEnabled", false);
-        return new MapCapabilitySummary(canSwim, canJump, string(source, "weather", "clear"),
-                bool(source, "snowEnabled", false), bool(source, "sandEnabled", false),
-                bool(source, "enableOxygenDrowning", false), bool(root, "minigameQuestEnabled", false),
-                planeCrash, integer(root, "roomCount", -1));
+        return new MapCapabilitySummary(info.displayCanSwim(), info.canJump(), info.weather(), info.snowEnabled(),
+                info.sandEnabled(), info.enableOxygenDrowning(), info.minigameQuestEnabled(),
+                info.planeCrashEventEnabled(), info.roomCount());
     }
 
     public List<Component> ruleLines(int limit) {
@@ -65,37 +52,5 @@ public record MapCapabilitySummary(boolean canSwim, boolean canJump, String weat
         if (planeCrash) lines.add(Component.translatable("gui.sre.map_briefing.plane_crash"));
         if (lines.size() <= 2) lines.add(Component.translatable("gui.sre.map_briefing.explore"));
         return List.copyOf(lines.subList(0, Math.min(Math.max(0, limit), lines.size())));
-    }
-
-    private static JsonObject object(JsonObject root, String key) {
-        JsonElement value = root.get(key);
-        return value != null && value.isJsonObject() ? value.getAsJsonObject() : null;
-    }
-
-    private static boolean bool(JsonObject root, String key, boolean fallback) {
-        try {
-            JsonElement value = root.get(key);
-            return value == null || value.isJsonNull() ? fallback : value.getAsBoolean();
-        } catch (Exception ignored) {
-            return fallback;
-        }
-    }
-
-    private static int integer(JsonObject root, String key, int fallback) {
-        try {
-            JsonElement value = root.get(key);
-            return value == null || value.isJsonNull() ? fallback : value.getAsInt();
-        } catch (Exception ignored) {
-            return fallback;
-        }
-    }
-
-    private static String string(JsonObject root, String key, String fallback) {
-        try {
-            JsonElement value = root.get(key);
-            return value == null || value.isJsonNull() ? fallback : value.getAsString();
-        } catch (Exception ignored) {
-            return fallback;
-        }
     }
 }

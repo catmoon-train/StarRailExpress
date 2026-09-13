@@ -15,16 +15,10 @@
 
 package io.wifi.starrailexpress.client.gui.screen.maprotation;
 
-import com.google.gson.Gson;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-
-import io.wifi.starrailexpress.api.AreasSettings;
 import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.api.TMMRoles;
 import io.wifi.starrailexpress.client.gui.screen.MapSpecialRoleLines;
-import io.wifi.starrailexpress.game.data.MapStatusBarType;
-import io.wifi.starrailexpress.network.MapIntroSyncPayload;
+import io.wifi.starrailexpress.network.MapDisplayInfo;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.Font;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -38,207 +32,127 @@ import net.minecraft.world.item.Items;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
-import java.util.Set;
 
 /**
- * 把一张地图的属性 JSON + 投票配置渲染成可换行的详情文本行。
+ * 把服务端解析好的 {@link MapDisplayInfo} 渲染成可换行的地图详情文本行。
  *
  * <p>
- * 内容与 {@code MapIntroduceScreen.buildMapDetail} 对齐，复用同一套 {@code map_intro.*}
- * 翻译键。
- * 之所以独立成类而不是直接调用那个屏幕：它的构建方法与静态工具全部是 {@code private}，
- * 且绑定在实例状态（{@code detailLines}、{@code font}）上，按 {@code ai_doc.md}
- * 不应改动既有代码。这里的 JSON 取值做了类型校验，字段类型不符时退回默认值而不是抛异常。
+ * 与 {@code MapIntroduceScreen} 共用同一份 DTO 与同一套 {@code map_intro.*} 翻译键，
+ * 属性判定全部走 DTO 上的 {@code displayXxx()} 辅助方法（以 {@code AreasSettings} 语义为准），
+ * 因此两个界面不会再出现「同一张图显示不同属性」的情况；这里也不再解析任何 JSON。
  */
 public final class MapIntroDetail {
-
-    private static final Gson GSON = new Gson();
 
     private MapIntroDetail() {
     }
 
-    /** 各类特殊职业可用的地图集合。 */
-    public record SpecialSets(Set<String> bag, Set<String> police, Set<String> underwater,
-            Set<String> air, Set<String> trap, Set<String> horse, Set<String> lab) {
-    }
-
-    public static List<FormattedCharSequence> build(Font font, int wrapW, String id, Component displayName,
-            JsonObject json, MapIntroSyncPayload.VoteMap voteMap, SpecialSets special) {
+    /**
+     * 构建详情行。
+     *
+     * @param info 地图展示数据（null 时给一行提示）
+     */
+    public static List<FormattedCharSequence> build(Font font, int wrapW, MapDisplayInfo info) {
         Sink sink = new Sink(font, Math.max(16, wrapW));
-
+        if (info == null) {
+            sink.wrapped(Component.translatable("map_intro.loading").withStyle(ChatFormatting.RED));
+            return sink.lines;
+        }
+        Component displayName = mapDisplayName(info.id(), info);
         sink.wrapped(displayName.copy().withStyle(ChatFormatting.AQUA, ChatFormatting.BOLD));
-        sink.wrapped(Component.translatable("map_intro.map.id", id).withStyle(ChatFormatting.GRAY));
+        sink.wrapped(Component.translatable("map_intro.map.id", info.id()).withStyle(ChatFormatting.GRAY));
         sink.blank();
 
-        if (voteMap != null) {
+        // ---- 投票配置 ----
+        if (info.hasVoteConfig()) {
             sink.section("map_intro.section.vote_config");
             sink.line("map_intro.vote.display_name", displayName.getString());
             sink.line("map_intro.vote.min_count", Component.translatable(
-                    voteMap.minCount() == -1 ? "map_intro.vote.no_min_count" : "map_intro.vote.count_value",
-                    voteMap.minCount()));
+                    info.minCount() == -1 ? "map_intro.vote.no_min_count" : "map_intro.vote.count_value",
+                    info.minCount()));
             sink.line("map_intro.vote.max_count", Component.translatable(
-                    voteMap.maxCount() == -1 ? "map_intro.vote.no_max_count" : "map_intro.vote.count_value",
-                    voteMap.maxCount()));
-            sink.key(voteMap.canSelect() ? "map_intro.vote.can_select.true" : "map_intro.vote.can_select.false");
-            sink.line("map_intro.vote.game_modes", gameModesText(voteMap.gameModes()));
+                    info.maxCount() == -1 ? "map_intro.vote.no_max_count" : "map_intro.vote.count_value",
+                    info.maxCount()));
+            sink.key(info.canSelect() ? "map_intro.vote.can_select.true" : "map_intro.vote.can_select.false");
+            sink.line("map_intro.vote.game_modes", gameModesText(info.gameModes()));
             sink.blank();
         }
 
-        if (special != null) {
-            sink.section("map_intro.section.special_roles");
-            List<Component> specialLines = MapSpecialRoleLines.build(id, special.bag(), special.police(),
-                    special.underwater(), special.air(), special.trap(), special.horse(), special.lab(), json);
-            if (specialLines.isEmpty()) {
-                sink.wrapped(Component.translatable("map_intro.special.none").withStyle(ChatFormatting.GRAY));
-            } else {
-                for (Component specialLine : specialLines) {
-                    sink.wrapped(specialLine);
-                }
+        // ---- 特殊职业 ----
+        sink.section("map_intro.section.special_roles");
+        List<Component> specialLines = MapSpecialRoleLines.build(info);
+        if (specialLines.isEmpty()) {
+            sink.wrapped(Component.translatable("map_intro.special.none").withStyle(ChatFormatting.GRAY));
+        } else {
+            for (Component specialLine : specialLines) {
+                sink.wrapped(specialLine);
             }
-            sink.blank();
         }
+        sink.blank();
 
-        if (json == null) {
-            return sink.lines;
-        }
-
+        // ---- 属性 ----
         sink.section("map_intro.section.properties");
-        sink.line("map_intro.property.room_count", intValue(json, "roomCount", 1));
-        addNameSet(sink, json, "disabledTasks", "map_intro.property.disabled_tasks",
-                value -> taskName(value, false));
-        addNameSet(sink, json, "disabledRoles", "map_intro.property.disabled_roles", MapIntroDetail::roleName);
-        addNameSet(sink, json, "enableSceneTask", "map_intro.property.scene_tasks", value -> taskName(value, true));
-        {
-            // 老配置
-            if (boolValue(json, "minigameQuestEnabled", false)) {
-                sink.key("map_intro.property.minigame_quest");
-            }
-            String status = stringValue(json, "mapStatusBar", "NONE");
-            if (!status.equalsIgnoreCase("NONE") && !status.isBlank()) {
-                sink.line("map_intro.property.status_bar", statusName(status));
-            }
-            sink.key(boolValue(json, "canSwim", false)
-                    ? "map_intro.property.can_swim.true"
-                    : "map_intro.property.can_swim.false");
-            if (boolValue(json, "enableOxygenDrowning", false)) {
-                sink.key("map_intro.property.oxygen_drowning");
-            }
-            sink.key(boolValue(json, "canJump", false)
-                    ? "map_intro.property.can_jump.true"
-                    : "map_intro.property.can_jump.false");
-            if (boolValue(json, "snowEnabled", false)) {
-                sink.key("map_intro.property.snow");
-            }
-            if (boolValue(json, "sandEnabled", false)) {
-                sink.key("map_intro.property.sand");
-            }
-            if (boolValue(json, "planeCrashEventEnabled", false)) {
-                sink.key("map_intro.property.plane_crash");
-            }
-            if (!boolValue(json, "fogEnabled", true)) {
-                sink.key("map_intro.property.no_fog");
-            }
-            sink.line("map_intro.property.fog_end", trimNumber(doubleValue(json, "fogEnd", 200.0D)));
-            String weather = stringValue(json, "weather", "clear");
-            if (!weather.equalsIgnoreCase("clear")) {
-                sink.line("map_intro.property.weather",
-                        Component.translatableWithFallback("map_intro.weather." + weather.toLowerCase(Locale.ROOT),
-                                weather));
-            }
-            double gravity = doubleValue(json, "gravity", 0.08D);
-            if (Math.abs(gravity - 0.08D) > 0.0001D) {
-                sink.line("map_intro.property.gravity",
-                        Component.translatable(gravity < 0.08D ? "map_intro.gravity.low" : "map_intro.gravity.high"));
-            }
-            addEffects(sink, json);
-            addInitialItems(sink, json);
-            long time = longValue(json, "time", 18000L);
-            if (time != 18000L) {
-                sink.line("map_intro.property.time", Component.translatable(timeName(time)));
-            }
-            if (boolValue(json, "daylightCycle", false)) {
-                sink.key("map_intro.property.daylight_cycle");
-            }
-            if (boolValue(json, "weatherCycle", false)) {
-                sink.key("map_intro.property.weather_cycle");
-            }
+        sink.line("map_intro.property.room_count", info.roomCount());
+        addNameSet(sink, info.disabledTasks(), "map_intro.property.disabled_tasks", value -> taskName(value, false));
+        addNameSet(sink, info.disabledRoles(), "map_intro.property.disabled_roles", MapIntroDetail::roleName);
+        addNameSet(sink, info.enableSceneTask(), "map_intro.property.scene_tasks", value -> taskName(value, true));
+        if (info.minigameQuestEnabled()) {
+            sink.key("map_intro.property.minigame_quest");
         }
-        if (json.has("settings")) {
-            // 新配置。Gson 用 Unsafe 分配实例，会跳过字段初值，缺省枚举/列表会是 null。
-            AreasSettings areasSettings = parseSettings(json.get("settings"));
-            if (areasSettings != null) {
-                if (areasSettings.minigameQuestEnabled) {
-                    sink.key("map_intro.property.minigame_quest");
-                }
-
-                if (areasSettings.meetingEnabled) {
-                    sink.key("map_intro.property.meeting_enabled");
-                }
-                if (areasSettings.meetingVoteEnabled) {
-                    sink.key("map_intro.property.meeting_vote_enabled");
-                }
-                if (areasSettings.bellMeetingEnabled) {
-                    sink.key("map_intro.property.bell_meeting_enabled");
-                }
-                String status = areasSettings.mapStatusBar.name();
-                if (!status.equalsIgnoreCase("NONE") && !status.isBlank()) {
-                    sink.line("map_intro.property.status_bar", statusName(status));
-                }
-                sink.key(areasSettings.canSimpleSwim && areasSettings.canUnderWater && areasSettings.allowInDeepWater
-                        && (areasSettings.canJump || areasSettings.canSwim)
-                                ? "map_intro.property.can_swim.true"
-                                : "map_intro.property.can_swim.false");
-                if (areasSettings.enableOxygenDrowning) {
-                    sink.key("map_intro.property.oxygen_drowning");
-                }
-                sink.key(areasSettings.canJump
-                        ? "map_intro.property.can_jump.true"
-                        : "map_intro.property.can_jump.false");
-                if (areasSettings.snowEnabled) {
-                    sink.key("map_intro.property.snow");
-                }
-                if (areasSettings.sandEnabled) {
-                    sink.key("map_intro.property.sand");
-                }
-                if (areasSettings.planeCrashEventEnabled) {
-                    sink.key("map_intro.property.plane_crash");
-                }
-                if (areasSettings.fogEnabled) {
-                    sink.key("map_intro.property.no_fog");
-                }
-                sink.line("map_intro.property.fog_end", trimNumber(areasSettings.fogEnd));
-                String weather = areasSettings.weather.name();
-                if (!weather.equalsIgnoreCase("clear")) {
-                    sink.line("map_intro.property.weather",
-                            Component.translatableWithFallback("map_intro.weather." + weather.toLowerCase(Locale.ROOT),
-                                    weather));
-                }
-                double gravity = areasSettings.gravityModifier;
-                if (Math.abs(gravity - 0.08D) > 0.0001D) {
-                    sink.line("map_intro.property.gravity",
-                            Component.translatable(gravity < 0.08D ? "map_intro.gravity.low" : "map_intro.gravity.high"));
-                }
-                addEffects(sink, areasSettings);
-                addInitialItems(sink, areasSettings);
-                long time = areasSettings.time;
-                if (time != 18000L) {
-                    sink.line("map_intro.property.time", Component.translatable(timeName(time)));
-                }
-                if (areasSettings.daylightCycle) {
-                    sink.key("map_intro.property.daylight_cycle");
-                }
-                if (areasSettings.weatherCycle) {
-                    sink.key("map_intro.property.weather_cycle");
-                }
-            }
+        if (info.meetingEnabled()) {
+            sink.key("map_intro.property.meeting_enabled");
+        }
+        if (info.meetingVoteEnabled()) {
+            sink.key("map_intro.property.meeting_vote_enabled");
+        }
+        if (info.bellMeetingEnabled()) {
+            sink.key("map_intro.property.bell_meeting_enabled");
+        }
+        if (info.displayHasStatusBar()) {
+            sink.line("map_intro.property.status_bar", statusName(info.mapStatusBar()));
+        }
+        sink.key(info.displayCanSwim() ? "map_intro.property.can_swim.true" : "map_intro.property.can_swim.false");
+        if (info.enableOxygenDrowning()) {
+            sink.key("map_intro.property.oxygen_drowning");
+        }
+        sink.key(info.canJump() ? "map_intro.property.can_jump.true" : "map_intro.property.can_jump.false");
+        if (info.snowEnabled()) {
+            sink.key("map_intro.property.snow");
+        }
+        if (info.sandEnabled()) {
+            sink.key("map_intro.property.sand");
+        }
+        if (info.planeCrashEventEnabled()) {
+            sink.key("map_intro.property.plane_crash");
+        }
+        if (info.displayNoFog()) {
+            sink.key("map_intro.property.no_fog");
+        }
+        sink.line("map_intro.property.fog_end", trimNumber(info.fogEnd()));
+        if (info.displayHasWeather()) {
+            sink.line("map_intro.property.weather", weatherText(info.weather()));
+        }
+        if (info.displayGravityChanged()) {
+            sink.line("map_intro.property.gravity",
+                    Component.translatable(info.displayGravityLow() ? "map_intro.gravity.low" : "map_intro.gravity.high"));
+        }
+        addEffects(sink, info.mobEffects());
+        addInitialItems(sink, info.initialItems());
+        if (info.displayCustomTime()) {
+            sink.line("map_intro.property.time", Component.translatable(timeName(info.time())));
+        }
+        if (info.daylightCycle()) {
+            sink.key("map_intro.property.daylight_cycle");
+        }
+        if (info.weatherCycle()) {
+            sink.key("map_intro.property.weather_cycle");
         }
         return sink.lines;
     }
 
     /** 地图显示名：优先投票配置里的 displayName（可能是翻译键），否则退回 {@code map.<id>.name}。 */
-    public static Component mapDisplayName(String id, MapIntroSyncPayload.VoteMap voteMap) {
-        if (voteMap != null && voteMap.displayName() != null && !voteMap.displayName().isBlank()) {
-            return translateConfiguredText(voteMap.displayName());
+    public static Component mapDisplayName(String id, MapDisplayInfo info) {
+        if (info != null && info.displayName() != null && !info.displayName().isBlank()) {
+            return translateConfiguredText(info.displayName());
         }
         return Component.translatableWithFallback("map." + id + ".name", id);
     }
@@ -286,6 +200,14 @@ public final class MapIntroDetail {
                 Component.translatableWithFallback("game_mode.starrailexpress." + path, mode).getString());
     }
 
+    /** 天气名 → 翻译键（{@code map_intro.weather.<小写枚举名>}，缺失时回退枚举名）。 */
+    public static Component weatherText(String weather) {
+        if (weather == null || weather.isBlank()) {
+            return Component.literal("");
+        }
+        return Component.translatableWithFallback("map_intro.weather." + weather.toLowerCase(Locale.ROOT), weather);
+    }
+
     // ------------------------------------------------------------------
     // 列表型属性
     // ------------------------------------------------------------------
@@ -294,11 +216,14 @@ public final class MapIntroDetail {
         String apply(String rawId);
     }
 
-    private static void addNameSet(Sink sink, JsonObject json, String key, String labelKey, NameMapper mapper) {
+    private static void addNameSet(Sink sink, List<String> ids, String labelKey, NameMapper mapper) {
+        if (ids == null || ids.isEmpty()) {
+            return;
+        }
         List<String> names = new ArrayList<>();
-        for (JsonElement element : arrayOf(json, key)) {
-            if (element.isJsonPrimitive()) {
-                names.add(mapper.apply(element.getAsString()));
+        for (String id : ids) {
+            if (id != null && !id.isBlank()) {
+                names.add(mapper.apply(id));
             }
         }
         if (!names.isEmpty()) {
@@ -306,10 +231,15 @@ public final class MapIntroDetail {
         }
     }
 
-    private static void addInitialItems(Sink sink, AreasSettings areasSettings) {
+    private static void addInitialItems(Sink sink, List<String> initialItems) {
+        if (initialItems == null || initialItems.isEmpty()) {
+            return;
+        }
         List<String> parts = new ArrayList<>();
-        for (String element : areasSettings.initialItems) {
-            if(element.isBlank()) continue;
+        for (String element : initialItems) {
+            if (element == null || element.isBlank()) {
+                continue;
+            }
             String[] split = element.split("[;,]", 2);
             ResourceLocation id = ResourceLocation.tryParse(split[0]);
             if (id == null) {
@@ -328,10 +258,15 @@ public final class MapIntroDetail {
         }
     }
 
-    private static void addEffects(Sink sink, AreasSettings areasSettings) {
+    private static void addEffects(Sink sink, List<String> mobEffects) {
+        if (mobEffects == null || mobEffects.isEmpty()) {
+            return;
+        }
         List<String> parts = new ArrayList<>();
-        for (String element : areasSettings.mobEffects) {
-            if(element.isBlank()) continue;
+        for (String element : mobEffects) {
+            if (element == null || element.isBlank()) {
+                continue;
+            }
             String[] split = element.split(",", 2);
             int level = split.length > 1 ? parseInt(split[1], 1) : 1;
             String name = split[0];
@@ -346,52 +281,6 @@ public final class MapIntroDetail {
         }
         if (!parts.isEmpty()) {
             sink.line("map_intro.property.effects", String.join(", ", parts));
-        }
-    }
-    private static void addEffects(Sink sink, JsonObject json) {
-        List<String> parts = new ArrayList<>();
-        for (JsonElement element : arrayOf(json, "effect")) {
-            if (!element.isJsonPrimitive()) {
-                continue;
-            }
-            String[] split = element.getAsString().split(",", 2);
-            int level = split.length > 1 ? parseInt(split[1], 1) : 1;
-            String name = split[0];
-            ResourceLocation id = ResourceLocation.tryParse(split[0]);
-            if (id != null) {
-                var effect = BuiltInRegistries.MOB_EFFECT.getHolder(id).orElse(null);
-                if (effect != null) {
-                    name = Component.translatable(effect.value().getDescriptionId()).getString();
-                }
-            }
-            parts.add(Component.translatable("map_intro.effect.entry", name, level).getString());
-        }
-        if (!parts.isEmpty()) {
-            sink.line("map_intro.property.effects", String.join(", ", parts));
-        }
-    }
-
-    private static void addInitialItems(Sink sink, JsonObject json) {
-        List<String> parts = new ArrayList<>();
-        for (JsonElement element : arrayOf(json, "initialItems")) {
-            if (!element.isJsonPrimitive()) {
-                continue;
-            }
-            String[] split = element.getAsString().split("[;,]", 2);
-            ResourceLocation id = ResourceLocation.tryParse(split[0]);
-            if (id == null) {
-                continue;
-            }
-            Item item = BuiltInRegistries.ITEM.get(id);
-            if (item == Items.AIR) {
-                continue;
-            }
-            int count = split.length > 1 ? parseInt(split[1], 1) : 1;
-            String name = item.getDescription().getString();
-            parts.add(count > 1 ? Component.translatable("map_intro.item.entry", name, count).getString() : name);
-        }
-        if (!parts.isEmpty()) {
-            sink.line("map_intro.property.initial_items", String.join(", ", parts));
         }
     }
 
@@ -426,10 +315,14 @@ public final class MapIntroDetail {
     }
 
     private static String statusName(String value) {
+        if (value == null) {
+            return "";
+        }
         return switch (value.toUpperCase(Locale.ROOT)) {
             case "COLD", "WARM", "WARMTH" -> Component.translatable("map_intro.status.warmth").getString();
             case "THIRST" -> Component.translatable("map_intro.status.thirst").getString();
             case "HUNGER" -> Component.translatable("map_intro.status.hunger").getString();
+            case "POLLUTION" -> Component.translatable("map_intro.status.pollution").getString();
             default -> value;
         };
     }
@@ -449,88 +342,6 @@ public final class MapIntroDetail {
             }
         }
         return keys[best];
-    }
-
-    // ------------------------------------------------------------------
-    // 类型安全的 JSON 取值：字段类型不符时退回默认值
-    // ------------------------------------------------------------------
-
-    private static List<JsonElement> arrayOf(JsonObject json, String key) {
-        if (json == null || !json.has(key) || !json.get(key).isJsonArray()) {
-            return List.of();
-        }
-        List<JsonElement> result = new ArrayList<>();
-        json.getAsJsonArray(key).forEach(result::add);
-        return result;
-    }
-
-    private static boolean isNumber(JsonObject json, String key) {
-        return json.has(key) && json.get(key).isJsonPrimitive() && json.getAsJsonPrimitive(key).isNumber();
-    }
-
-    private static int intValue(JsonObject json, String key, int fallback) {
-        return isNumber(json, key) ? json.get(key).getAsInt() : fallback;
-    }
-
-    private static long longValue(JsonObject json, String key, long fallback) {
-        return isNumber(json, key) ? json.get(key).getAsLong() : fallback;
-    }
-
-    private static double doubleValue(JsonObject json, String key, double fallback) {
-        return isNumber(json, key) ? json.get(key).getAsDouble() : fallback;
-    }
-
-    private static boolean boolValue(JsonObject json, String key, boolean fallback) {
-        if (json.has(key) && json.get(key).isJsonPrimitive() && json.getAsJsonPrimitive(key).isBoolean()) {
-            return json.get(key).getAsBoolean();
-        }
-        return fallback;
-    }
-
-    private static String stringValue(JsonObject json, String key, String fallback) {
-        if (json.has(key) && json.get(key).isJsonPrimitive() && json.getAsJsonPrimitive(key).isString()) {
-            return json.get(key).getAsString();
-        }
-        return fallback;
-    }
-
-    /** 会议相关字段可能被嵌在 settings 子对象里。 */
-    private static boolean meetingBoolValue(JsonObject json, String key, boolean fallback) {
-        if (json.has(key) && json.get(key).isJsonPrimitive() && json.getAsJsonPrimitive(key).isBoolean()) {
-            return json.get(key).getAsBoolean();
-        }
-        if (json.has("settings") && json.get("settings").isJsonObject()) {
-            return boolValue(json.getAsJsonObject("settings"), key, fallback);
-        }
-        return fallback;
-    }
-
-    /** Gson 反序列化后补齐会被跳过的字段初值。 */
-    private static AreasSettings parseSettings(JsonElement element) {
-        if (element == null || element.isJsonNull()) {
-            return null;
-        }
-        try {
-            AreasSettings settings = GSON.fromJson(element, AreasSettings.class);
-            if (settings == null) {
-                return null;
-            }
-            if (settings.mapStatusBar == null) {
-                settings.mapStatusBar = MapStatusBarType.NONE;
-            }
-            if (settings.weather == null) {
-                settings.weather = AreasSettings.MinecraftWeather.clear;
-            }
-            if (settings.initialItems == null) {
-                settings.initialItems = new ArrayList<>();
-            }
-            if (settings.mobEffects == null) {
-                settings.mobEffects = new ArrayList<>();
-            }
-            return settings;
-        } catch (Exception ignored) {
-            return null;
-        }
     }
 
     private static int parseInt(String value, int fallback) {
@@ -577,14 +388,6 @@ public final class MapIntroDetail {
 
         private void blank() {
             lines.add(FormattedCharSequence.EMPTY);
-        }
-
-        private boolean ifContains(Set<String> set, String mapId, String key) {
-            if (set == null || !set.contains(mapId)) {
-                return false;
-            }
-            wrapped(Component.translatable(key));
-            return true;
         }
     }
 }
