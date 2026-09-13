@@ -51,13 +51,16 @@ public class KillBlockPanel extends BarrierPanelBlock implements SimpleWaterlogg
     @Override
     protected void entityInside(BlockState state, Level level, BlockPos pos, Entity entity) {
         if (entity instanceof Player player) {
-            GameUtils.killPlayer(player, false, null, GameConstants.DeathReasons.FELL_OUT_OF_TRAIN);
+            if (GameUtils.isPlayerAliveAndSurvival(player)) {
+                GameUtils.killPlayer(player, false, null, GameConstants.DeathReasons.FELL_OUT_OF_TRAIN);
+            }
         }
         super.entityInside(state, level, pos, entity);
     }
 
     @Override
-    public void appendHoverText(ItemStack stack, Item.TooltipContext context, List<Component> tooltip, TooltipFlag options) {
+    public void appendHoverText(ItemStack stack, Item.TooltipContext context, List<Component> tooltip,
+            TooltipFlag options) {
         tooltip.add(Component.translatable("tooltip.noellesroles.kill_block_panel").withColor(0x7b9aba));
         super.appendHoverText(stack, context, tooltip, options);
     }
@@ -84,7 +87,8 @@ public class KillBlockPanel extends BarrierPanelBlock implements SimpleWaterlogg
     }
 
     @Override
-    public BlockState updateShape(BlockState state, Direction direction, BlockState neighborState, LevelAccessor level, BlockPos pos, BlockPos neighborPos) {
+    public BlockState updateShape(BlockState state, Direction direction, BlockState neighborState, LevelAccessor level,
+            BlockPos pos, BlockPos neighborPos) {
         if (state.getValue(WATERLOGGED)) {
             level.scheduleTick(pos, Fluids.WATER, Fluids.WATER.getTickDelay(level));
         }

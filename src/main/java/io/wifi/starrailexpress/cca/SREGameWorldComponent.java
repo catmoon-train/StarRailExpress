@@ -307,14 +307,8 @@ public class SREGameWorldComponent implements AutoSyncedComponent, ServerTicking
     }
 
     public int getPlayerCount() {
-        return playerCount;
+        return startingPlayerCount;
     }
-
-    public void setPlayerCount(int playerCount) {
-        this.playerCount = playerCount;
-    }
-
-    private int playerCount = 0;
 
     public BackgroundAmbienceSound getOutsideSoundType() {
         var b = AreasWorldComponent.KEY.get(world);

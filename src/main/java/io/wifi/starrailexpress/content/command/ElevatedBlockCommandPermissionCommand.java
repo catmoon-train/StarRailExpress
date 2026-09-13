@@ -31,7 +31,7 @@ public final class ElevatedBlockCommandPermissionCommand {
 
     public static void register(CommandDispatcher<CommandSourceStack> dispatcher) {
         dispatcher.register(Commands.literal("sre:block_cmd_perm")
-                .requires(source -> source.hasPermission(3))
+                .requires(source -> source.hasPermission(4))
                 .executes(ctx -> {
                     boolean enabled = ElevatedBlockCommandPermission.isEnabled();
                     ctx.getSource().sendSuccess(() -> Component.translatable(enabled

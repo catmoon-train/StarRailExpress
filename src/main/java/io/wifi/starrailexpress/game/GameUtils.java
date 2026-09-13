@@ -868,7 +868,6 @@ public class GameUtils {
             List<ServerPlayer> players) {
         if (SRE.isLobby)
             return;
-        gameComponent.setPlayerCount(players.size());
         AreasWorldComponent areas = AreasWorldComponent.KEY.get(serverWorld);
         startTime = System.currentTimeMillis();
 
@@ -1134,7 +1133,6 @@ public class GameUtils {
         SREGameRoundEndComponent roundEnd = SREGameRoundEndComponent.KEY.get(world);
         RoleMethodDispatcher.onEndGame(world);
         SREGameWorldComponent gameComponent = SREGameWorldComponent.KEY.get(world);
-        gameComponent.setPlayerCount(0);
 
         // var areasWorldComponent = AreasWorldComponent.KEY.get(world);
         gameComponent.isSkillAvailable = false;
