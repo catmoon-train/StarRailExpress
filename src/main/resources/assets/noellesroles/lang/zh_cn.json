@@ -5180,7 +5180,7 @@
   "screen.noellesroles.terminal.help.kill_random_usage": "/kill @r —— 终端事故：5% 杀死自己，95% 杀死随机一名存活玩家（包括队友）",
   "screen.noellesroles.terminal.help.blackout_usage": "/tmm:game blackout —— 切断全场照明",
   "screen.noellesroles.terminal.help.monitor_usage": "/tmm:game monitor_broken —— 让所有监控失灵",
-  "screen.noellesroles.terminal.help.money_usage": "/tmm:money set <金额> —— 把自己的金币设为该值（最多比当前多 175）",
+  "screen.noellesroles.terminal.help.money_usage": "/tmm:money set <金额> —— 把自己的金币设为该值",
   "screen.noellesroles.terminal.help.help_usage": "/help —— 再次显示这份清单",
   "screen.noellesroles.terminal.warning": "警告：成功执行一条指令后终端将被销毁！",
   "screen.noellesroles.terminal.close_hint": "ESC 关闭",
