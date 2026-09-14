@@ -31,10 +31,15 @@ import io.wifi.starrailexpress.cca.SRERoleWorldComponent;
 import io.wifi.starrailexpress.content.command.argument.GameModeArgumentType;
 import io.wifi.starrailexpress.content.command.misc.CommandPredicate;
 import io.wifi.starrailexpress.content.vote.VoteManager;
+import io.wifi.starrailexpress.disguise.DisguiseQuery;
 import net.minecraft.commands.CommandBuildContext;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.arguments.EntityArgument;
+import net.minecraft.commands.arguments.ResourceArgument;
+import net.minecraft.commands.arguments.ResourceLocationArgument;
+import net.minecraft.commands.synchronization.SuggestionProviders;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.commands.ExecuteCommand;
 import net.minecraft.server.level.ServerPlayer;
@@ -195,6 +200,64 @@ public abstract class ExecuteCommandInvoker {
                   String desired = StringArgumentType.getString(ctx, "status");
                   return VoteManager.isStatus(desired);
                 })));
+
+    // ── 新增：伪装相关条件，两个分支 ──────────────────────────
+    // 1) 是否处于伪装（任意来源：实体伪装 / 职业形态 / 皮肤变形）
+    literalArgumentBuilder.then(
+        Commands.literal("sre:disguised")
+            .then(sre$addConditional(
+                commandNode,
+                Commands.argument("target_player", EntityArgument.player()),
+                isIf,
+                ctx -> DisguiseQuery.isDisguised(EntityArgument.getPlayer(ctx, "target_player")))));
+    // 2) 是否伪装成指定实体类型（只认实体伪装这个来源）
+    literalArgumentBuilder.then(
+        Commands.literal("sre:disguised_type")
+            .then(
+                Commands.argument("target_player", EntityArgument.player())
+                    .then(sre$addConditional(
+                        commandNode,
+                        // 实体类型用原版注册表参数（/summon 那个），候选与报错都跟原版一致。
+                        Commands.argument("entity_type", ResourceArgument.resource(buildContext, Registries.ENTITY_TYPE))
+                            .suggests(SuggestionProviders.SUMMONABLE_ENTITIES),
+                        isIf,
+                        ctx -> DisguiseQuery.isDisguisedAs(
+                            EntityArgument.getPlayer(ctx, "target_player"),
+                            ResourceArgument.getEntityType(ctx, "entity_type").value())))));
+    // 注：外观 NBT 的判断并入原版 `if data sre:disguise <player> <path>`（见 DataCommandsMixin），
+    // 不再单开一个复合匹配的分支。
+
+    // ── 变形（MorphApi）条件，三层：任意 / 指定玩家 / 指定贴图 ──────────────
+    // 注：sre:disguised 已经把变形算作「一种伪装」，这三个是**只看变形**的收窄判定。
+    literalArgumentBuilder.then(
+        Commands.literal("sre:morphed")
+            .then(sre$addConditional(
+                commandNode,
+                Commands.argument("target_player", EntityArgument.player()),
+                isIf,
+                ctx -> DisguiseQuery.isMorphed(EntityArgument.getPlayer(ctx, "target_player")))));
+    literalArgumentBuilder.then(
+        Commands.literal("sre:morphed_player")
+            .then(
+                Commands.argument("target_player", EntityArgument.player())
+                    .then(sre$addConditional(
+                        commandNode,
+                        Commands.argument("morph_target", EntityArgument.player()),
+                        isIf,
+                        ctx -> DisguiseQuery.isMorphedAsPlayer(
+                            EntityArgument.getPlayer(ctx, "target_player"),
+                            EntityArgument.getPlayer(ctx, "morph_target"))))));
+    literalArgumentBuilder.then(
+        Commands.literal("sre:morphed_texture")
+            .then(
+                Commands.argument("target_player", EntityArgument.player())
+                    .then(sre$addConditional(
+                        commandNode,
+                        Commands.argument("texture", ResourceLocationArgument.id()),
+                        isIf,
+                        ctx -> DisguiseQuery.isMorphedAsTexture(
+                            EntityArgument.getPlayer(ctx, "target_player"),
+                            ResourceLocationArgument.getId(ctx, "texture"))))));
 
     cir.setReturnValue(literalArgumentBuilder);
   }

@@ -97,3 +97,6 @@ CustomParticleHandlers.register(id, (level, origin, durationTicks, params) -> {
 
 # 测试/调试
 必须完成一个功能块再一次性进行test
+
+# 编码
+请使用 `UTF8 without BOM` 编码

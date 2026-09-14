@@ -17,82 +17,62 @@ package org.agmas.noellesroles.mixin.client.entity;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 
-import io.wifi.starrailexpress.client.util.ClientSkinCache;
-import io.wifi.starrailexpress.client.util.ClientSkinCache.CachedDisguiseState;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.player.PlayerRenderer;
-
-import java.util.UUID;
 
 import org.agmas.noellesroles.client.AllayDisguiseRenderer;
 import org.agmas.noellesroles.client.LeatherPigDisguiseRenderer;
 import org.agmas.noellesroles.client.PandaDisguiseRenderer;
 import org.agmas.noellesroles.client.RabbitDisguiseRenderer;
+import org.agmas.noellesroles.client.RoleDisguiseResolver;
 import org.agmas.noellesroles.client.TomatoHeadDisguiseRenderer;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
+/**
+ * 职业形态伪装：把玩家画成猪 / 兔 / 番茄头 / 悦灵 / 熊猫。
+ * <p>
+ * 判定交给 {@link RoleDisguiseResolver}——按 tick 打戳，所以这里每帧只是一次查表加几次布尔读，
+ * 不再每帧读墙钟、也不再有最多 200ms 的形态滞后。分支顺序与取消逻辑与原实现逐条一致。
+ */
 @Mixin(PlayerRenderer.class)
 public abstract class EntityDisguisePlayerRenderMixin {
-    @Unique
-    private long lastCacheTime = 0;
-    private static final int CACHE_TIME_GAP_EXTREMELY = 200;
 
     @Inject(method = "render(Lnet/minecraft/client/player/AbstractClientPlayer;FFLcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;I)V", at = @At("HEAD"), cancellable = true)
     private void noellesroles$renderLeatherPigAsPig(AbstractClientPlayer player, float yaw, float tickDelta,
             PoseStack poseStack, MultiBufferSource bufferSource, int packedLight, CallbackInfo ci) {
-        UUID playerId = player.getUUID();
-        long now = System.currentTimeMillis();
+        RoleDisguiseResolver.Flags flags = RoleDisguiseResolver.resolve(player);
 
-        // 获取或创建该玩家的缓存条目
-        CachedDisguiseState state = ClientSkinCache.DISGUISE_CACHE.computeIfAbsent(
-                playerId,
-                id -> new CachedDisguiseState());
-
-        // 缓存过期则重新计算
-        if (now - state.lastCheckTime > CACHE_TIME_GAP_EXTREMELY) {
-            boolean pig = LeatherPigDisguiseRenderer.shouldDisguise(player);
-            boolean rabbit = RabbitDisguiseRenderer.shouldDisguise(player);
-            state.pig = pig;
-            state.tomato = TomatoHeadDisguiseRenderer.shouldDisguise(player);
-            state.rabbit = rabbit;
-            state.allay = AllayDisguiseRenderer.shouldDisguise(player);
-            state.panda = PandaDisguiseRenderer.shouldDisguise(player);
-            state.lastCheckTime = now;
-        }
-
-        // 执行伪装渲染
-        if (state.panda) {
+        if (flags.panda) {
             if (PandaDisguiseRenderer.render(player, yaw, tickDelta, poseStack, bufferSource, packedLight)) {
                 ci.cancel();
             }
             return;
         }
 
-        if (state.pig) {
+        if (flags.pig) {
             if (LeatherPigDisguiseRenderer.render(player, yaw, tickDelta, poseStack, bufferSource, packedLight)) {
                 ci.cancel();
             }
             return;
         }
 
-        if (state.rabbit) {
+        if (flags.rabbit) {
             if (RabbitDisguiseRenderer.render(player, yaw, tickDelta, poseStack, bufferSource, packedLight)) {
                 ci.cancel();
             }
             return;
         }
-        if (state.tomato) {
+        if (flags.tomato) {
             if (TomatoHeadDisguiseRenderer.render(player, yaw, tickDelta, poseStack, bufferSource, packedLight)) {
                 ci.cancel();
                 return;
             }
         }
-        if (state.allay) {
+        if (flags.allay) {
             if (AllayDisguiseRenderer.render(player, yaw, tickDelta, poseStack, bufferSource, packedLight)) {
                 ci.cancel();
             }

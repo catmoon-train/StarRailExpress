@@ -39,6 +39,7 @@ public final class EntityDisguiseClient {
     public static void registerClient() {
         ClientPlayNetworking.registerGlobalReceiver(EntityDisguiseSyncPayload.ID,
                 (payload, context) -> context.client().execute(() -> apply(payload)));
+        EntityDisguiseHud.register();
         OnGameStartedClient.EVENT.register(EntityDisguiseClient::resetClient);
         OnGameFinishedClient.EVENT.register(EntityDisguiseClient::resetClient);
     }

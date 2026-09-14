@@ -19,6 +19,7 @@ import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.client.disguise.ClientEntityDisguiseCache;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
+import net.minecraft.network.chat.Component;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
@@ -74,17 +75,30 @@ public final class EntityDisguise {
     /**
      * 与客户端渲染无关、或不该跟着伪装走的键。刻意只列「确定非外观」的：
      * <ul>
-     * <li>名字与身份：{@code CustomName} / {@code CustomNameVisible} / {@code id} / {@code UUID} / {@code Tags}</li>
+     * <li>身份标记（无外观作用）：{@code id} / {@code UUID}</li>
      * <li>位置与运动：{@code Pos} / {@code Motion} / {@code Rotation} / {@code FallDistance} / {@code OnGround}
      * ——位置由客户端逐帧从客户端自己的玩家实体上抄，见 {@code EntityDisguiseRenderer#copyPlayerState}</li>
      * <li>生存状态：{@code Health} / {@code Air} / {@code Fire} / {@code Invulnerable} / {@code PortalCooldown}
      * / {@code HurtTime} / {@code HurtByTimestamp} / {@code DeathTime} / {@code AbsorptionAmount}</li>
      * <li>AI 与服务端数据：{@code Brain} / {@code Memories} / 各类目标与计时器 / 掉落表 / 拴绳 / 刷新与持久化标记</li>
+     * <li>{@code CustomNameVisible}：伪装永远不显示名牌，所以只留名字本身、不带上可见标记
+     * （见 {@link #CustomName} 为什么不删）</li>
      * </ul>
      * 这些键如果与裸实体不同（受伤、AI 记忆、被拴绳……）就会被差集留下，所以这里再兜一层。
+     * <p>
+     * <b>刻意保留</b>：
+     * <ul>
+     * <li>{@code CustomName}——原版有些外观效果就是靠名字触发的：{@code jeb_} 绵羊（彩虹毛）、
+     * {@code Toast} 兔子、{@code Dinnerbone} / {@code Grumm}（倒过来）。删掉名字这些效果全部失效。
+     * 渲染时只把 {@code CustomNameVisible} 按掉，所以不会凭空多出名牌。</li>
+     * <li>{@code Tags}——让指令能区分「这一类伪装」，例如
+     * {@code /sre:disguise start infinite @p minecraft:cow {Tags:["boss_cow"]}} 之后用
+     * {@code /execute if data sre:disguise @p Tags} 就能筛人。空标签列表等于默认值，
+     * 会被差集自动丢掉，不占包体。</li>
+     * </ul>
      */
     private static final Set<String> NON_RENDER_KEYS = Set.of(
-            "CustomName", "CustomNameVisible", "id", "UUID", "Tags",
+            "CustomNameVisible", "id", "UUID",
             "Pos", "Motion", "Rotation", "FallDistance", "OnGround",
             "Health", "Air", "Fire", "Invulnerable", "PortalCooldown",
             "HurtTime", "HurtByTimestamp", "DeathTime", "AbsorptionAmount",
@@ -195,6 +209,30 @@ public final class EntityDisguise {
         return EntityDisguiseManager.clear(player, false);
     }
 
+    /**
+     * 覆写现有伪装的外观 NBT（保留时长 / predicate 等结束条件），返回是否真的改了。
+     * <p>
+     * 主要给 {@code /data modify ... sre:disguise} 用；默认值味道的键不会被差集投影丢掉，
+     * 也就是「你写什么就是什么」，便于指令来回读写。
+     */
+    public static boolean setNbt(ServerPlayer player, @Nullable CompoundTag nbt) {
+        return EntityDisguiseManager.setNbt(player, nbt);
+    }
+
+    /**
+     * 剩余伪装时间（游戏刻），服务端可读（不动包体）。
+     *
+     * @return {@code -1} 表示没有到期时间（无限期或由 predicate 结束）；{@code 0} 表示未伪装或已到期
+     */
+    public static int getRemainingTicks(@Nullable Player player) {
+        return EntityDisguiseManager.remainingTicks(player == null ? null : player.getUUID());
+    }
+
+    /** 是否挂了自定义结束条件（predicate）。 */
+    public static boolean hasEndPredicate(@Nullable Player player) {
+        return EntityDisguiseManager.hasEndPredicate(player == null ? null : player.getUUID());
+    }
+
     /** 清空全部玩家的伪装并同步到客户端（服务端）。 */
     public static void clearAll(MinecraftServer server) {
         EntityDisguiseManager.resetAll(server);
@@ -282,6 +320,17 @@ public final class EntityDisguise {
             SRE.LOGGER.warn("EntityDisguise 计算投影失败，回退到原样发送 NBT {}", EntityType.getKey(type), throwable);
             return new Projection(sanitizeNbt(nbt), fallbackEye);
         }
+    }
+
+    /**
+     * 实体类型的本地化名字（{@code entity.minecraft.cow} → 「牛」/「Cow」）。
+     * 其他模组的实体没提供翻译时回退到 {@code namespace:path}，不会显示成裸的翻译键。
+     */
+    public static Component displayName(EntityType<?> type) {
+        if (type == null) {
+            return Component.empty();
+        }
+        return Component.translatableWithFallback(type.getDescriptionId(), EntityType.getKey(type).toString());
     }
 
     private static CompoundTag diff(CompoundTag baseline, CompoundTag actual) {

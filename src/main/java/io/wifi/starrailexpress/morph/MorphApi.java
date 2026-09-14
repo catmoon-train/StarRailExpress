@@ -160,6 +160,25 @@ public final class MorphApi {
         MorphManager.resetAll(server);
     }
 
+    /**
+     * 剩余变形时间（游戏刻），服务端可读。
+     *
+     * @return {@code -1} 表示无限期（直到手动解除或局末重置）；{@code 0} 表示未变形或已到期
+     */
+    public static int getRemainingTicks(Player player) {
+        return player == null ? 0 : MorphManager.remainingTicks(player.getUUID());
+    }
+
+    /** 是否处于「无限期」变形（未变形时为 {@code false}）。 */
+    public static boolean isPermanent(Player player) {
+        return getRemainingTicks(player) < 0;
+    }
+
+    /** 当前处于变形状态的全部玩家 UUID（只读快照，服务端）。 */
+    public static java.util.Set<UUID> getMorphedPlayers() {
+        return MorphManager.morphedPlayers();
+    }
+
     private static boolean defaultRandomCandidate(ServerPlayer player) {
         return GameUtils.isPlayerAliveAndSurvival(player);
     }

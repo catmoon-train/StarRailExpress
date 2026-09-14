@@ -67,6 +67,11 @@ public class DevItems {
             new io.wifi.starrailexpress.customitem.CustomItemToolItem(
                     new Item.Properties().stacksTo(1).rarity(Rarity.EPIC)),
             "custom_item_tool");
+    /** 自定义方块工具（材质继承原版木棍）。方块本体与其物品在 SREBlocks 里注册。 */
+    public static Item CUSTOM_BLOCK_TOOL = register(
+            new io.wifi.starrailexpress.customblock.CustomBlockToolItem(
+                    new Item.Properties().stacksTo(1).rarity(Rarity.EPIC)),
+            "custom_block_tool");
 
     @SuppressWarnings("unchecked")
     public static Item register(Item item, String id) {
@@ -83,5 +88,7 @@ public class DevItems {
         registrar.registerEntries();
         // 自定义列车物品的行为引擎（事件注册幂等）
         io.wifi.starrailexpress.customitem.CustomItemRuntime.init();
+        // 自定义方块的交互事件引擎（事件注册幂等）
+        io.wifi.starrailexpress.customblock.CustomBlockRuntime.init();
     }
 }

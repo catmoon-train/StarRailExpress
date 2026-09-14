@@ -31,6 +31,9 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
  * <p>
  * 取消整个 {@code render} 而不是只换皮肤，所以名牌、帽子、身份玩偶、手持物这些附属渲染
  * 也会一起消失，不会出现「一头牛顶着玩家名牌」。
+ * <p>
+ * 另外接住第一人称的两条手臂：原版的 {@code ItemInHandRenderer.renderPlayerArm} 就是把手臂绘制
+ * 委托给这两个 public 方法的，所以在这里换成目标实体的手臂即可，位姿由原版保证。
  */
 @Mixin(PlayerRenderer.class)
 public abstract class DisguisedPlayerRenderMixin {
@@ -39,6 +42,22 @@ public abstract class DisguisedPlayerRenderMixin {
     private void sre$renderEntityDisguise(AbstractClientPlayer player, float yaw, float tickDelta,
             PoseStack poseStack, MultiBufferSource bufferSource, int packedLight, CallbackInfo ci) {
         if (EntityDisguiseRenderer.render(player, yaw, tickDelta, poseStack, bufferSource, packedLight)) {
+            ci.cancel();
+        }
+    }
+
+    @Inject(method = "renderRightHand(Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;ILnet/minecraft/client/player/AbstractClientPlayer;)V", at = @At("HEAD"), cancellable = true)
+    private void sre$renderDisguisedRightHand(PoseStack poseStack, MultiBufferSource bufferSource, int packedLight,
+            AbstractClientPlayer player, CallbackInfo ci) {
+        if (EntityDisguiseRenderer.renderFirstPersonHand(player, true, poseStack, bufferSource, packedLight)) {
+            ci.cancel();
+        }
+    }
+
+    @Inject(method = "renderLeftHand(Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;ILnet/minecraft/client/player/AbstractClientPlayer;)V", at = @At("HEAD"), cancellable = true)
+    private void sre$renderDisguisedLeftHand(PoseStack poseStack, MultiBufferSource bufferSource, int packedLight,
+            AbstractClientPlayer player, CallbackInfo ci) {
+        if (EntityDisguiseRenderer.renderFirstPersonHand(player, false, poseStack, bufferSource, packedLight)) {
             ci.cancel();
         }
     }

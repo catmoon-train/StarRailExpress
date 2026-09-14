@@ -18,91 +18,57 @@ package io.wifi.starrailexpress.client.network;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
+import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.custommodifier.CustomModifierConfig;
 import io.wifi.starrailexpress.custommodifier.CustomModifierData;
 import io.wifi.starrailexpress.custommodifier.CustomModifierLoader;
-import io.wifi.starrailexpress.network.CustomModifierSyncPayload;
-import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
+import io.wifi.starrailexpress.synccontent.ContentChannel;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 import net.fabricmc.loader.api.FabricLoader;
 
-import java.io.BufferedWriter;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 /**
- * 自定义修饰符客户端网络处理（照抄 {@link CustomRoleClientNetwork}）。
+ * 自定义修饰符客户端处理。
+ *
+ * <p>
+ * 传输由 {@link ContentSyncClient} 统一负责，这里只做「内容到手之后」的解析、落盘与重载。
  */
+@Environment(EnvType.CLIENT)
 public class CustomModifierClientNetwork {
 
     private static final Gson GSON = new GsonBuilder().create();
 
-    private static int lastReceivedHash = 0;
     private static String syncedJson = null;
     private static final List<CustomModifierData> syncedModifiers = new ArrayList<>();
-    private static boolean hasSyncedData = false;
-
-    // ---- 分块接收状态 ----
-    private static int assemblingHash = 0;
-    private static int assemblingTotalChunks = 0;
-    private static final Map<Integer, String> assemblingChunks = new HashMap<>();
 
     public static void register() {
-        ClientPlayNetworking.registerGlobalReceiver(CustomModifierSyncPayload.TYPE, (payload, context) -> {
-            context.client().execute(() -> handleChunk(payload.hash(), payload.totalChunks(), payload.chunkIndex(),
-                    payload.chunkData()));
-        });
+        ContentSyncClient.registerChannel(ContentChannel.CUSTOM_MODIFIER, CustomModifierClientNetwork::applyJson);
     }
 
-    private static void handleChunk(int hash, int totalChunks, int chunkIndex, String chunkData) {
-        if (hasSyncedData && hash == lastReceivedHash && totalChunks == 1)
-            return;
-
-        if (hash != assemblingHash) {
-            assemblingHash = hash;
-            assemblingTotalChunks = totalChunks;
-            assemblingChunks.clear();
-        }
-        assemblingChunks.put(chunkIndex, chunkData);
-
-        if (assemblingChunks.size() >= assemblingTotalChunks) {
-            StringBuilder sb = new StringBuilder();
-            for (int i = 0; i < assemblingTotalChunks; i++) {
-                String part = assemblingChunks.get(i);
-                if (part == null) {
-                    assemblingChunks.clear();
-                    return;
-                }
-                sb.append(part);
-            }
-            String fullJson = sb.toString();
-            assemblingChunks.clear();
-            if (fullJson.isEmpty())
-                return;
-
-            lastReceivedHash = hash;
-            syncedJson = fullJson;
-            syncedModifiers.clear();
-            try {
-                JsonObject root = GSON.fromJson(fullJson, JsonObject.class);
-                if (root != null && root.has("modifiers")) {
-                    for (var element : root.getAsJsonArray("modifiers")) {
-                        CustomModifierData data = GSON.fromJson(element, CustomModifierData.class);
-                        if (data != null && data.englishId != null) {
-                            syncedModifiers.add(data);
-                        }
+    /** 应用服务端下发的完整配置内容。 */
+    private static void applyJson(String fullJson) {
+        syncedJson = fullJson;
+        syncedModifiers.clear();
+        try {
+            JsonObject root = GSON.fromJson(fullJson, JsonObject.class);
+            if (root != null && root.has("modifiers")) {
+                for (var element : root.getAsJsonArray("modifiers")) {
+                    CustomModifierData data = GSON.fromJson(element, CustomModifierData.class);
+                    if (data != null && data.englishId != null) {
+                        syncedModifiers.add(data);
                     }
                 }
-                writeToLocalConfig(fullJson);
-                CustomModifierLoader.reloadClient();
-            } catch (Exception e) {
-                e.printStackTrace();
             }
-            hasSyncedData = true;
+            writeToLocalConfig(fullJson);
+            CustomModifierLoader.reloadClient();
+        } catch (Exception e) {
+            SRE.LOGGER.error("[CustomModifier-Client] Failed to apply synced content", e);
         }
     }
 
@@ -110,12 +76,10 @@ public class CustomModifierClientNetwork {
         try {
             Path configDir = FabricLoader.getInstance().getConfigDir();
             Files.createDirectories(configDir);
-            try (BufferedWriter writer = Files.newBufferedWriter(configDir.resolve(CustomModifierConfig.FILE_NAME),
-                    StandardCharsets.UTF_8)) {
-                writer.write(json);
-            }
+            Files.writeString(configDir.resolve(CustomModifierConfig.FILE_NAME),
+                    json == null ? "" : json, StandardCharsets.UTF_8);
         } catch (Exception e) {
-            e.printStackTrace();
+            SRE.LOGGER.warn("[CustomModifier-Client] Failed to write local config copy", e);
         }
     }
 
@@ -129,26 +93,21 @@ public class CustomModifierClientNetwork {
 
     public static CustomModifierData getSyncedModifier(String englishId) {
         for (CustomModifierData data : syncedModifiers) {
-            if (data.englishId.equals(englishId))
+            if (data.englishId.equals(englishId)) {
                 return data;
+            }
         }
         return null;
     }
 
     public static boolean hasSyncedData() {
-        return hasSyncedData;
+        return syncedJson != null;
     }
 
-    /** 清理缓存（离开服务器时），并把本地文件删除。 */
+    /** 清理缓存（离开服务器时），并删除本地副本（磁盘缓存保留在 ContentSyncClient 里）。 */
     public static void clearCache() {
-        lastReceivedHash = 0;
         syncedJson = null;
         syncedModifiers.clear();
-        hasSyncedData = false;
-        assemblingHash = 0;
-        assemblingTotalChunks = 0;
-        assemblingChunks.clear();
-
         CustomModifierLoader.removeClientCache();
         try {
             Files.deleteIfExists(FabricLoader.getInstance().getConfigDir().resolve(CustomModifierConfig.FILE_NAME));

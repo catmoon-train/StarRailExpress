@@ -23,7 +23,12 @@ import net.minecraft.commands.Commands;
 import net.minecraft.network.chat.Component;
 
 /**
- * 自定义职业重载命令: sre:reload custom_roles
+ * 自定义职业重载命令：{@code sre:reload custom_roles}
+ *
+ * <p>
+ * 只重载职业。修饰符 / 列车物品 / 方块各有自己的子命令
+ * （{@code custom_modifiers} / {@code custom_items} / {@code custom_blocks}），
+ * 不需要重载全部内容时只跑对应的一条。
  */
 public class CustomRoleReloadCommand {
 
@@ -37,15 +42,6 @@ public class CustomRoleReloadCommand {
                         // 清除缓存并同步到所有客户端
                         CustomRoleServerNetwork.clearCache();
                         CustomRoleServerNetwork.syncToAllPlayers(source.getServer());
-                        // 自定义职业重载时一并重载自定义修饰符的配置
-                        io.wifi.starrailexpress.custommodifier.CustomModifierLoader.reload(source.getServer());
-                        io.wifi.starrailexpress.network.CustomModifierServerNetwork.clearCache();
-                        io.wifi.starrailexpress.network.CustomModifierServerNetwork
-                                .syncToAllPlayers(source.getServer());
-                        // 以及自定义列车物品的配置
-                        io.wifi.starrailexpress.customitem.CustomItemLoader.reload(source.getServer());
-                        io.wifi.starrailexpress.network.CustomItemServerNetwork.clearCache();
-                        io.wifi.starrailexpress.network.CustomItemServerNetwork.syncToAllPlayers(source.getServer());
                         source.sendSuccess(
                                 () -> Component.literal("[CustomRole] 自定义职业配置已重新加载")
                                         .withStyle(s -> s.withColor(0x55FF55)),

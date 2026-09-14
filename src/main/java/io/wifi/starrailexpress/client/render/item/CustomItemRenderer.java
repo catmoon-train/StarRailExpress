@@ -48,8 +48,12 @@ import java.util.concurrent.ConcurrentHashMap;
  * <li><b>资源包物品材质继承</b>：{@code ns:item/x} 与 {@code ns:textures/item/x.png} 两种写法都支持，
  * 直接从资源包取贴图渲染（不需要进图集）。</li>
  * <li><b>物品材质继承</b>：取被继承物品模型的主贴图（{@code getParticleIcon}）渲染。</li>
- * <li>两者都没有 → 不渲染（默认无材质）。</li>
+ * <li>两者都没有 → 兜底显示 {@link #FALLBACK_TEXTURE_ITEM}（石头）的贴图，而不是什么都不画
+ * ——否则未配置材质的物品在背包 / 手上看起来像空气，容易让人以为物品没了。</li>
  * </ol>
+ *
+ * <p>
+ * 物品编辑界面里的预览仍然用紫黑棋盘表示「还没配外观」，那是有意的提示，与这里的兜底无关。
  */
 @Environment(EnvType.CLIENT)
 public class CustomItemRenderer implements BuiltinItemRendererRegistry.DynamicItemRenderer {
@@ -65,11 +69,16 @@ public class CustomItemRenderer implements BuiltinItemRendererRegistry.DynamicIt
         INHERITED_SPRITE_CACHE.clear();
     }
 
+    /** 兜底外观：没有配置资源包贴图、也没写材质继承时显示这个物品的贴图（石头）。 */
+    public static final String FALLBACK_TEXTURE_ITEM = "minecraft:stone";
+
     @Override
     public void render(ItemStack stack, ItemDisplayContext mode, PoseStack poseStack, MultiBufferSource buffers,
             int light, int overlay) {
         CustomItemData data = CustomItemLoader.getData(stack);
         if (data == null) {
+            // 连数据都没有的裸物品（直接拿到的注册物品）也画成石头，避免看起来像空气
+            drawFallback(poseStack, buffers, light, overlay);
             return;
         }
 
@@ -86,8 +95,21 @@ public class CustomItemRenderer implements BuiltinItemRendererRegistry.DynamicIt
         if (sprite != null) {
             drawQuad(poseStack, buffers, RenderType.entityTranslucent(sprite.atlasLocation()),
                     sprite.getU0(), sprite.getV0(), sprite.getU1(), sprite.getV1(), light, overlay);
+            return;
         }
-        // ③ 都没有 → 默认无材质（不渲染）
+
+        // ③ 都没配置 → 显示石头（不再是什么都不画）
+        drawFallback(poseStack, buffers, light, overlay);
+    }
+
+    /** 兜底外观（石头贴图）；连石头都解析不到时保持不渲染。 */
+    private static void drawFallback(PoseStack poseStack, MultiBufferSource buffers, int light, int overlay) {
+        TextureAtlasSprite sprite = resolveInheritedSprite(FALLBACK_TEXTURE_ITEM);
+        if (sprite == null) {
+            return;
+        }
+        drawQuad(poseStack, buffers, RenderType.entityTranslucent(sprite.atlasLocation()),
+                sprite.getU0(), sprite.getV0(), sprite.getU1(), sprite.getV1(), light, overlay);
     }
 
     /**

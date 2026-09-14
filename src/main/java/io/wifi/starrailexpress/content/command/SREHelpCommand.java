@@ -82,11 +82,12 @@ public class SREHelpCommand {
                 new Entry("/sre:shield", "sre.shield"),
                 new Entry("/sre:poison", "sre.poison"),
                 new Entry("/sre:stamina", "sre.stamina"),
+                new Entry("/sre:disguise", "sre.entitydisguise"),
+                new Entry("/sre:morph", "sre.morph"),
                 new Entry("/sre:inventory", "sre.inventory"),
                 new Entry("/sre:invsee", "sre.invsee"),
                 new Entry("/sre:monitor", "sre.monitor"),
                 new Entry("/sre:vote", "sre.vote"),
-                new Entry("/sre:reloadRoleConfig", "sre.reloadroleconfig"),
                 new Entry("/sre:area_manager", "sre.area_manager"),
                 new Entry("/sre:pass", "sre.pass"),
                 new Entry("/sre:roster", "sre.roster"),
@@ -103,6 +104,7 @@ public class SREHelpCommand {
                 new Entry("/tmm:game time", "tmm.game.time"),
                 new Entry("/tmm:game penalty", "tmm.game.penalty"),
                 new Entry("/tmm:game bounds", "tmm.game.bounds"),
+                new Entry("/tmm:game abilities", "tmm.game.abilities"),
                 new Entry("/tmm:game role", "tmm.game.role"),
                 new Entry("/tmm:game murder_time", "tmm.game.murder_time"),
                 new Entry("/tmm:game tests", "tmm.game.tests"),
@@ -118,6 +120,15 @@ public class SREHelpCommand {
                 new Entry("/tmm:game kill", "tmm.game.kill"),
                 new Entry("/tmm:game use_skill", "tmm.game.use_skill"),
                 new Entry("/tmm:game timestop", "tmm.game.timestop")));
+
+        CATEGORIES.put("content", List.of(
+                new Entry("/sre:give", "sre.give"),
+                new Entry("/sre:setblock", "sre.setblock"),
+                new Entry("/sre:clone", "sre.clone"),
+                new Entry("/sre:reload custom_roles", "sre.reload.custom_roles"),
+                new Entry("/sre:reload custom_modifiers", "sre.reload.custom_modifiers"),
+                new Entry("/sre:reload custom_items", "sre.reload.custom_items"),
+                new Entry("/sre:reload custom_blocks", "sre.reload.custom_blocks")));
 
         CATEGORIES.put("harpy", List.of(
                 new Entry("/changeRole", "changerole"),

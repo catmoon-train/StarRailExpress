@@ -20,12 +20,8 @@ import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import net.minecraft.client.Camera;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.renderer.LevelRenderer;
-import org.agmas.noellesroles.client.AllayDisguiseRenderer;
-import org.agmas.noellesroles.client.LeatherPigDisguiseRenderer;
-import org.agmas.noellesroles.client.RabbitDisguiseRenderer;
-import org.agmas.noellesroles.client.TomatoHeadDisguiseRenderer;
+import org.agmas.noellesroles.client.RoleDisguiseResolver;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 
 /**
@@ -35,32 +31,22 @@ import org.spongepowered.asm.mixin.injection.At;
  * 原版 renderLevel 里靠 {@code entity != camera.getEntity() || camera.isDetached()}
  * 跳过相机所在的实体，
  * 所以第一人称下自己的模型压根不进渲染。伪装期间谎报 isDetached，玩家实体照常走 PlayerRenderer，
- * 再由 LeatherPigPlayerRenderMixin 换成猪——低头就能看到自己的猪吻。
+ * 再由 EntityDisguisePlayerRenderMixin 换成猪——低头就能看到自己的猪吻。
  * 那边会把自己这只猪整体后移，猪头因此落在相机之后，不会挡住视野。
+ *
+ * <p>
+ * 判定走 {@link RoleDisguiseResolver}（每 tick 一次，按 tick 打戳），不再每帧读墙钟；
+ * 「哪些形态第一人称自见」由 {@code Flags#anyForFirstPersonSelfView} 决定，与原来的四项一致（不含熊猫）。
  */
 @Mixin(LevelRenderer.class)
 public abstract class EntityDisguiseSelfRenderMixin {
-
-    @Unique
-    private long lastCacheTime = 0;
-    @Unique
-    private boolean cacheResult = false;
-    private static final int CACHE_TIME_GAP_EXTREMELY = 200;
 
     @WrapOperation(method = "renderLevel", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/Camera;isDetached()Z"))
     private boolean noellesroles$renderSelfWhileDisguised(Camera camera, Operation<Boolean> original) {
         if (original.call(camera)) {
             return true;
         }
-        long now = System.currentTimeMillis();
-        if (now - lastCacheTime > CACHE_TIME_GAP_EXTREMELY) {
-            lastCacheTime = now;
-            cacheResult = camera.getEntity() instanceof AbstractClientPlayer player
-                    && (LeatherPigDisguiseRenderer.shouldDisguise(player)
-                            || RabbitDisguiseRenderer.shouldDisguise(player)
-                            || AllayDisguiseRenderer.shouldDisguise(player)
-                            || TomatoHeadDisguiseRenderer.shouldDisguise(player));
-        }
-        return cacheResult;
+        return camera.getEntity() instanceof AbstractClientPlayer player
+                && RoleDisguiseResolver.resolve(player).anyForFirstPersonSelfView();
     }
 }

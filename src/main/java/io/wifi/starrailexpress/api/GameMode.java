@@ -763,6 +763,8 @@ public abstract class GameMode {
                     && GameUtils.isPlayerAliveAndSurvival(serverPlayerEntity)
                     && canDeath) {
                 serverPlayerEntity.setGameMode(net.minecraft.world.level.GameType.SPECTATOR);
+                // 必须在 setGameMode 之后：职业飞行技能残留的 mayfly/flyingSpeed 会让旁观者飞不起来
+                GameUtils.normalizeSpectatorFlightAbilities(serverPlayerEntity);
 
                 // 关闭任务透视发包
                 ServerPlayNetworking.send(serverPlayerEntity, new PlayerDeathPayload());

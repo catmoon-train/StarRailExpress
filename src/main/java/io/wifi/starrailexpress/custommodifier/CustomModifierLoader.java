@@ -19,6 +19,8 @@ import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.api.RoleTeam;
 import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.api.TMMRoles;
+import net.minecraft.ChatFormatting;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.level.storage.LevelResource;
@@ -64,7 +66,7 @@ public final class CustomModifierLoader {
         if (config == null || config.modifiers == null) {
             config = new CustomModifierConfig();
         }
-        registerAll(config);
+        registerAll(config, server);
         SRE.LOGGER.info("[CustomModifier] Loaded {} custom modifiers", config.modifiers.size());
     }
 
@@ -72,7 +74,7 @@ public final class CustomModifierLoader {
     public static void reloadClient() {
         removeAll();
         CustomModifierConfig config = CustomModifierConfig.loadFromDefaultPath();
-        registerAll(config);
+        registerAll(config, null);
         SRE.LOGGER.info("[CustomModifier-Client] Reloaded {} custom modifiers from local config",
                 config.modifiers == null ? 0 : config.modifiers.size());
     }
@@ -89,7 +91,9 @@ public final class CustomModifierLoader {
             for (SREModifier other : HMLModifiers.MODIFIERS) {
                 other.relatedModifiers.remove(modifier);
             }
-            HMLModifiers.MODIFIERS.remove(modifier);
+            // 走注册表接口，保证 MODIFIERS_BY_PATH 索引与列表同步，
+            // 否则重载后同名自定义修饰符会被判成重复而注册失败
+            HMLModifiers.unregisterModifier(modifier);
         }
         loadedModifiers.clear();
         registeredModifiers.clear();
@@ -103,7 +107,12 @@ public final class CustomModifierLoader {
 
     // ==================== 注册 ====================
 
-    private static void registerAll(CustomModifierConfig config) {
+    /**
+     * 注册所有配置中的自定义修饰符。
+     *
+     * @param server 服务端重载时传入，注册失败（id 冲突）会向全体玩家播报；客户端传 {@code null}
+     */
+    private static void registerAll(CustomModifierConfig config, MinecraftServer server) {
         if (config == null || config.modifiers == null)
             return;
         List<CustomModifierData> pending = new ArrayList<>();
@@ -113,8 +122,10 @@ public final class CustomModifierLoader {
                 if (data == null || data.englishId == null || data.englishId.isBlank())
                     continue;
                 SREModifier modifier = createModifier(data);
-                if (modifier == null)
+                if (modifier == null) {
+                    notifyDuplicated(server, data);
                     continue;
+                }
                 registeredModifiers.put(data.englishId, modifier);
                 loadedModifiers.put(data.englishId, data);
                 pending.add(data);
@@ -141,10 +152,6 @@ public final class CustomModifierLoader {
     public static SREModifier createModifier(CustomModifierData data) {
         if (data == null || data.englishId == null || data.englishId.isBlank())
             return null;
-        if (findExistingById(data.englishId) != null) {
-            SRE.LOGGER.error("[CustomModifier] Duplicated modifier id: {}", data.englishId);
-            return null;
-        }
 
         SREModifier modifier = new CustomModifierEntry(data);
 
@@ -183,8 +190,34 @@ public final class CustomModifierLoader {
         CustomModifierRuntime.init();
         modifier.setServerGameTickEvent(player -> CustomModifierRuntime.serverTick(player, modifier));
 
-        HMLModifiers.registerModifier(modifier);
-        return modifier;
+        SREModifier registered = HMLModifiers.registerCustomModifier(modifier);
+        if (registered == null) {
+            SRE.LOGGER.error("[CustomModifier] Skipped duplicated modifier id: {}", data.englishId);
+            return null;
+        }
+        return registered;
+    }
+
+    /**
+     * 注册失败（id 冲突）时在服务端向全体玩家播报，与 {@code CustomRoleLoader} 的重复职业提示保持一致。
+     * 客户端重载与单机无玩家列表时不播报，只留日志。
+     */
+    private static void notifyDuplicated(MinecraftServer server, CustomModifierData data) {
+        if (server == null)
+            return;
+        server.getPlayerList().broadcastSystemMessage(
+                Component.translatable("sre.custom_modifier.error.duplicated", displayNameOf(data), data.englishId)
+                        .withStyle(ChatFormatting.RED),
+                false);
+    }
+
+    /** 播报用名称：优先显示名，未填写时回退到英文 ID。 */
+    private static String displayNameOf(CustomModifierData data) {
+        if (data == null)
+            return "";
+        if (data.displayName == null || data.displayName.isBlank())
+            return data.englishId == null ? "" : data.englishId;
+        return data.displayName;
     }
 
     /** 应用关联设置（双向/单向关联与移除，仅作用于介绍页面）。 */
@@ -245,6 +278,13 @@ public final class CustomModifierLoader {
         return new ArrayList<>(loadedModifiers.values());
     }
 
+    /**
+     * 查找已注册的同名自定义修饰符（限于 {@link CustomModifierData#NAMESPACE}，忽略大小写）。
+     *
+     * <p>
+     * 仅作查询用：实际注册时的去重由 {@link HMLModifiers#registerCustomModifier} 按 path 全局判定，
+     * 比这里更严格（自定义修饰符也会与内置修饰符的 path 冲突）。
+     */
     public static SREModifier findExistingById(String englishId) {
         for (SREModifier modifier : HMLModifiers.MODIFIERS) {
             if (modifier.identifier() != null
@@ -287,11 +327,7 @@ public final class CustomModifierLoader {
                 return modifier;
         }
         String path = id.contains(":") ? id.substring(id.indexOf(':') + 1) : id;
-        for (SREModifier modifier : HMLModifiers.MODIFIERS) {
-            if (modifier.identifier() != null && modifier.identifier().getPath().equals(path))
-                return modifier;
-        }
-        return null;
+        return HMLModifiers.getModifierByPath(path);
     }
 
     // ==================== 工具 ====================

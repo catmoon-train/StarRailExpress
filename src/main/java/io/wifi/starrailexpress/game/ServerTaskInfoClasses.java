@@ -28,6 +28,7 @@ import io.wifi.starrailexpress.content.block_entity.*;
 import io.wifi.starrailexpress.game.GameUtils.BlockEntityInfo;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
@@ -621,6 +622,161 @@ public class ServerTaskInfoClasses {
 
         public void onFinished() {
             func.run();
+        }
+    }
+
+    /**
+     * 区域整块复制（{@code /sre:clone} 用）。
+     *
+     * <p>
+     * 推进方式与 {@link FullTrainResetTask} 一致：把源区域按体积切成若干分块，
+     * 每 tick 处理一个分块（{@link BlockCopyUtils#copyLayer}），避免一次性写几万个方块卡住主线程；
+     * 方块实体（含自定义方块的 id）由 copyLayer 连 NBT 一起搬过去。
+     *
+     * <p>
+     * <b>源与目标重叠时</b>改用「先整体快照、再按分块写入」：逐块直搬在重叠区域会边写边读
+     * （先写的目标方块会污染还没读的源方块），快照后写才是原版 {@code /clone} 的语义。
+     * 快照体积上限因此更小（{@link #MAX_VOLUME_OVERLAP}）。
+     */
+    public static class CloneRegionTask extends ServerTaskInfo {
+
+        /** 每个分块的目标方块数（与 FullTrainResetTask 同一个数量级）。 */
+        private static final int TARGET_BLOCKS_PER_CHUNK = 5000;
+
+        /** 不重叠时的源区域体积上限（分块直搬，不占内存）。 */
+        public static final int MAX_VOLUME = 32 * 64 * 128;
+
+        /** 重叠时（需要整体快照）的源区域体积上限。 */
+        public static final int MAX_VOLUME_OVERLAP = 32 * 32 * 32;
+
+        private final ServerLevel level;
+        private final BoundingBox sourceBox;
+        private final BlockPos offset;
+        private final List<BoundingBox> chunks;
+        private final int volume;
+
+        /** 源区域与目标区域是否有交集（决定走哪条复制路径）。 */
+        private final boolean overlapping;
+
+        /** 重叠复制时的整体快照（按源坐标索引）。 */
+        private BlockState[] stateSnapshot;
+        private java.util.Map<BlockPos, CompoundTag> blockEntitySnapshot;
+
+        private int progress = 0;
+
+        /** 完成后给发起者回执（可为 null）。 */
+        private final net.minecraft.commands.CommandSourceStack feedback;
+
+        public CloneRegionTask(ServerLevel level, BoundingBox sourceBox, BlockPos offset,
+                net.minecraft.commands.CommandSourceStack feedback) {
+            this.level = level;
+            this.sourceBox = sourceBox;
+            this.offset = offset;
+            this.feedback = feedback;
+            this.volume = sourceBox.getXSpan() * sourceBox.getYSpan() * sourceBox.getZSpan();
+            // 分块列表复用 FullTrainResetTask 的切分算法（同一个类里的 private 方法可直接调用）
+            this.chunks = FullTrainResetTask.buildChunks(sourceBox, TARGET_BLOCKS_PER_CHUNK);
+            BoundingBox destBox = sourceBox.moved(offset.getX(), offset.getY(), offset.getZ());
+            this.overlapping = destBox.intersects(sourceBox);
+            if (overlapping) {
+                captureSnapshot();
+            }
+        }
+
+        /** 源区域体积（方块数）。 */
+        public int volume() {
+            return volume;
+        }
+
+        /** 是否为重叠复制（走快照路径）。 */
+        public boolean isOverlapping() {
+            return overlapping;
+        }
+
+        private int indexOf(int x, int y, int z) {
+            int dx = x - sourceBox.minX();
+            int dy = y - sourceBox.minY();
+            int dz = z - sourceBox.minZ();
+            return (dy * sourceBox.getYSpan() + dx) * sourceBox.getZSpan() + dz;
+        }
+
+        /** 一次性把源区域读进内存（方块状态 + 方块实体 NBT）。 */
+        private void captureSnapshot() {
+            stateSnapshot = new BlockState[volume];
+            blockEntitySnapshot = new java.util.HashMap<>();
+            for (int y = sourceBox.minY(); y <= sourceBox.maxY(); y++) {
+                for (int x = sourceBox.minX(); x <= sourceBox.maxX(); x++) {
+                    for (int z = sourceBox.minZ(); z <= sourceBox.maxZ(); z++) {
+                        BlockPos pos = new BlockPos(x, y, z);
+                        stateSnapshot[indexOf(x, y, z)] = level.getBlockState(pos);
+                        BlockEntity entity = level.getBlockEntity(pos);
+                        if (entity != null) {
+                            blockEntitySnapshot.put(pos.immutable(),
+                                    entity.saveWithFullMetadata(level.registryAccess()));
+                        }
+                    }
+                }
+            }
+        }
+
+        @Override
+        public boolean onTick(MinecraftServer server) {
+            if (progress >= chunks.size()) {
+                return true;
+            }
+            BoundingBox chunk = chunks.get(progress++);
+            if (overlapping) {
+                copyChunkFromSnapshot(chunk);
+            } else {
+                BlockCopyUtils.copyLayer(level, chunk, offset);
+            }
+            return progress >= chunks.size();
+        }
+
+        /** 从快照写一个分块（方块 + 该分块内的方块实体）。 */
+        private void copyChunkFromSnapshot(BoundingBox chunk) {
+            for (int y = chunk.minY(); y <= chunk.maxY(); y++) {
+                for (int x = chunk.minX(); x <= chunk.maxX(); x++) {
+                    for (int z = chunk.minZ(); z <= chunk.maxZ(); z++) {
+                        BlockState state = stateSnapshot[indexOf(x, y, z)];
+                        if (state == null) {
+                            continue;
+                        }
+                        BlockPos dst = new BlockPos(x, y, z).offset(offset);
+                        level.setBlock(dst, state, Block.UPDATE_CLIENTS | Block.UPDATE_KNOWN_SHAPE);
+                        level.getLightEngine().checkBlock(dst);
+                    }
+                }
+            }
+            if (blockEntitySnapshot.isEmpty()) {
+                return;
+            }
+            for (java.util.Map.Entry<BlockPos, CompoundTag> entry : blockEntitySnapshot.entrySet()) {
+                BlockPos src = entry.getKey();
+                if (!chunk.isInside(src)) {
+                    continue;
+                }
+                BlockPos dst = src.offset(offset);
+                CompoundTag tag = entry.getValue().copy();
+                tag.putInt("x", dst.getX());
+                tag.putInt("y", dst.getY());
+                tag.putInt("z", dst.getZ());
+                BlockEntity dstEntity = level.getBlockEntity(dst);
+                if (dstEntity != null) {
+                    dstEntity.loadWithComponents(tag, level.registryAccess());
+                    dstEntity.setChanged();
+                }
+            }
+        }
+
+        @Override
+        public void onFinished() {
+            SRE.LOGGER.info("[Clone] Copied {} blocks ({} chunk(s), overlapping={})",
+                    volume, chunks.size(), overlapping);
+            if (feedback != null) {
+                feedback.sendSuccess(() -> Component.translatable("sre.custom_content.clone.done", volume)
+                        .withStyle(ChatFormatting.GREEN), false);
+            }
         }
     }
 }

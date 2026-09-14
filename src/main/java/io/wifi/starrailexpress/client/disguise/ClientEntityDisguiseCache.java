@@ -25,11 +25,15 @@ import java.util.concurrent.ConcurrentHashMap;
 /**
  * 客户端实体伪装缓存（uuid → 当前伪装状态）。由 {@link EntityDisguiseSyncPayload} 维护。
  * <p>
- * 只依赖 common 类，因此眼高 mixin 在客户端也能直接查这张表；查表就是一次哈希查找。
+ * 只依赖 common 类，因此眼高 mixin 在客户端也能直接查这张表。
+ * <p>
+ * {@link #isEmpty()} 走一个 volatile 标记，让「没有任何人伪装」这个绝大多数情况下的判断
+ * 只是一次字段读（渲染与眼高两条路径每帧都会问一次）；真正的表仍是并发实现，读写都在客户端主线程。
  */
 public final class ClientEntityDisguiseCache {
 
     private static final Map<UUID, EntityDisguiseState> STATES = new ConcurrentHashMap<>();
+    private static volatile boolean empty = true;
 
     private ClientEntityDisguiseCache() {
     }
@@ -41,6 +45,7 @@ public final class ClientEntityDisguiseCache {
         for (Map.Entry<UUID, EntityDisguiseState> entry : payload.entries().entrySet()) {
             apply(entry.getKey(), entry.getValue());
         }
+        empty = STATES.isEmpty();
     }
 
     public static EntityDisguiseState get(UUID uuid) {
@@ -51,13 +56,14 @@ public final class ClientEntityDisguiseCache {
         return state == null ? EntityDisguiseState.NONE : state;
     }
 
-    /** 无人被伪装时快速跳过，省掉一次哈希查找。 */
+    /** 无人被伪装时快速跳过：一次 volatile 读，不做哈希查找。 */
     public static boolean isEmpty() {
-        return STATES.isEmpty();
+        return empty;
     }
 
     public static void clear() {
         STATES.clear();
+        empty = true;
     }
 
     private static void apply(UUID uuid, EntityDisguiseState state) {
@@ -69,5 +75,6 @@ public final class ClientEntityDisguiseCache {
         } else {
             STATES.put(uuid, state);
         }
+        empty = STATES.isEmpty();
     }
 }

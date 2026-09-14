@@ -155,6 +155,8 @@ public class SREConfig implements ConfigData {
     @ConfigEntry.Category(value = "commands")
     public int gameUtilsRequiredPermission = 2;
     @ConfigEntry.Category(value = "commands")
+    public int gameAbilitiesRequiredPermission = 2;
+    @ConfigEntry.Category(value = "commands")
     public int forceResetRequiredPermission = 2;
     @ConfigEntry.Category(value = "commands")
     public int cooldownCommandsRequiredPermission = 2;

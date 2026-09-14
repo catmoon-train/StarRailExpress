@@ -175,6 +175,15 @@ public class RicesRoleRhapsodyClient {
                     () -> new io.wifi.starrailexpress.customitem.CustomItemScreen()));
             return true;
         };
+        // 自定义方块工具：右键打开方块管理界面（可新建 / 编辑 / 删除）
+        io.wifi.starrailexpress.customblock.CustomBlockToolItem.openScreenCallback = (p) -> {
+            Minecraft client = Minecraft.getInstance();
+            if (client.player == null)
+                return false;
+            client.setScreen(new io.wifi.starrailexpress.customblock.CustomBlockManageScreen(
+                    () -> new io.wifi.starrailexpress.customblock.CustomBlockScreen()));
+            return true;
+        };
     }
 
     /**

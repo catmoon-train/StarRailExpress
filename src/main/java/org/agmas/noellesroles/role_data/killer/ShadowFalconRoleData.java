@@ -387,13 +387,8 @@ public class ShadowFalconRoleData extends SimpleRoleData {
         if (player instanceof ServerPlayer serverPlayer) {
             player.removeEffect(MobEffects.WEAKNESS);
 
-            // 关闭创造模式飞行能力
-
-            if (player.isAlive()) {
-                serverPlayer.getAbilities().mayfly = false;
-                serverPlayer.getAbilities().flying = false;
-                serverPlayer.onUpdateAbilities();
-            }
+            // 关闭创造模式飞行能力。死亡（已切旁观）时不能直接清 mayfly，否则旁观者飞不起来
+            GameUtils.releaseRoleFlight(serverPlayer);
 
             // 如果护盾还在，移除护盾
             if (temporaryShield > 0 && !shieldBroken) {

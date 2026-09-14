@@ -93,6 +93,11 @@ public class SREReceiverRegister {
                 io.wifi.starrailexpress.shop.network.ShopPriceRequestC2SPayload.TYPE,
                 (payload, context) -> context.server().execute(() -> io.wifi.starrailexpress.shop.ShopPriceSyncServer
                         .handleRequest(context.player(), payload.hash())));
+        // 自定义内容同步：客户端本地缓存未命中时请求该通道的完整内容
+        ServerPlayNetworking.registerGlobalReceiver(
+                io.wifi.starrailexpress.synccontent.ContentRequestC2SPayload.TYPE,
+                (payload, context) -> context.server().execute(() -> io.wifi.starrailexpress.synccontent.ContentSyncServer
+                        .serve(context.player(), payload.channel(), payload.hash())));
         ServerPlayNetworking.registerGlobalReceiver(NoteEditPayload.ID, new NoteEditPayload.Receiver());
         ServerPlayNetworking.registerGlobalReceiver(RequestOpenClueArchivePayload.ID,
                 new RequestOpenClueArchivePayload.Receiver());
@@ -103,6 +108,8 @@ public class SREReceiverRegister {
 
         // 实体交互方块服务端网络处理
         EntityInteractionBlockServerNetwork.register();
+        // 展示方块（文本展示 / 方块展示）服务端网络处理
+        DisplayBlockServerNetwork.register();
         MinigameQuestServerNetwork.register();
         TicketOfficeServerNetwork.register();
         EffectGeneratorServerNetwork.register();

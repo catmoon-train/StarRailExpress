@@ -142,15 +142,12 @@ public class THReimuRole extends TouhouRole {
     }
 
     public static void stopFlying(ServerPlayer player) {
-        if (player.isAlive() && GameUtils.isPlayerAliveAndSurvivalIgnoreShitSplit(player)) {
+        if (GameUtils.isPlayerAliveAndSurvivalIgnoreShitSplit(player)) {
             player.displayClientMessage(
                     Component.translatable("skill.noellesroles.reimu.stopped").withStyle(ChatFormatting.RED), true);
-            player.getAbilities().mayfly = false;
-            player.getAbilities().flying = false;
-            player.getAbilities().setFlyingSpeed(0.05F);
-            player.fallDistance = 0;
-            player.onUpdateAbilities();
         }
+        // 死亡瞬间同样要收尾：残留的 flyingSpeed 会让玩家的旁观飞行变慢
+        GameUtils.releaseRoleFlight(player);
     }
 
     public static void startFlying(ServerPlayer player) {

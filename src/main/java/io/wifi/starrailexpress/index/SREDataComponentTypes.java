@@ -59,6 +59,9 @@ public interface SREDataComponentTypes {
     /** 自定义列车物品的编号（同一个 custom_item 物品靠它区分不同自定义物品）。 */
     DataComponentType<String> CUSTOM_ITEM_ID = register("custom_item_id",
             stringBuilder -> stringBuilder.persistent(Codec.STRING).networkSynchronized(ByteBufCodecs.STRING_UTF8));
+    /** 自定义方块的编号（同一个 custom_block 方块 / 物品靠它区分不同自定义方块）。 */
+    DataComponentType<String> CUSTOM_BLOCK_ID = register("custom_block_id",
+            stringBuilder -> stringBuilder.persistent(Codec.STRING).networkSynchronized(ByteBufCodecs.STRING_UTF8));
 
     private static <T> DataComponentType<T> register(String name,
             @NotNull UnaryOperator<DataComponentType.Builder<T>> builderOperator) {

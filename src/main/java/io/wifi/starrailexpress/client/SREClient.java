@@ -119,6 +119,7 @@ import io.wifi.starrailexpress.game.GameUtils;
 import io.wifi.starrailexpress.game.data.MapConfig;
 import io.wifi.starrailexpress.game.data.MapStatusBarType;
 import io.wifi.starrailexpress.index.SREDataComponentTypes;
+import io.wifi.starrailexpress.index.SREDisplayBlocks;
 import io.wifi.starrailexpress.index.SREDoorBlocks;
 import io.wifi.starrailexpress.index.TMMBlockEntities;
 import io.wifi.starrailexpress.index.TMMBlocks;
@@ -351,6 +352,10 @@ public class SREClient implements ClientModInitializer {
         BuiltinItemRendererRegistry.INSTANCE.register(
                 io.wifi.starrailexpress.index.DevItems.CUSTOM_ITEM,
                 new io.wifi.starrailexpress.client.render.item.CustomItemRenderer());
+        // 自定义方块物品 Renderer（与放置后的方块共用同一套外观来源）
+        BuiltinItemRendererRegistry.INSTANCE.register(
+                io.wifi.starrailexpress.index.SREBlocks.CUSTOM_BLOCK.asItem(),
+                new io.wifi.starrailexpress.client.render.item.CustomBlockItemRenderer());
         // Entity renderer registration
         EntityRendererRegistry.register(TMMEntities.SEAT, NoopRenderer::new);
         EntityRendererRegistry.register(TMMEntities.FIRECRACKER, FirecrackerEntityRenderer::new);
@@ -421,6 +426,10 @@ public class SREClient implements ClientModInitializer {
         ModelLoadingPlugin.register(customModelProvider);
 
         // Block Entity Renderers
+        // 自定义方块（外观由方块实体渲染器按配置绘制）
+        BlockEntityRenderers.register(
+                io.wifi.starrailexpress.index.SREBlocks.CUSTOM_BLOCK_ENTITY,
+                io.wifi.starrailexpress.client.render.block.CustomBlockRenderer::new);
         // 门
         // 自动注册的自定义材质门
         for (final var entry : SREDoorBlocks.DOOR_BLOCK_AND_ENTITIES.values()) {
@@ -486,6 +495,11 @@ public class SREClient implements ClientModInitializer {
         BlockEntityRenderers.register(TMMBlockEntities.HORN, HornBlockEntityRenderer::new);
         BlockEntityRenderers.register(TMMBlockEntities.ZIPLINE, ZiplineBlockEntityRenderer::new);
         BlockEntityRenderers.register(TMMBlockEntities.FOURTH_ROOM_TABLE, FourthRoomTableBlockEntityRenderer::new);
+        // 展示方块：方块本体不渲染，内容全部由这两个渲染器按原版展示实体的规则画
+        BlockEntityRenderers.register(SREDisplayBlocks.TEXT_DISPLAY_BLOCK_ENTITY,
+                io.wifi.starrailexpress.client.render.block_entity.TextDisplayBlockEntityRenderer::new);
+        BlockEntityRenderers.register(SREDisplayBlocks.BLOCK_DISPLAY_BLOCK_ENTITY,
+                io.wifi.starrailexpress.client.render.block_entity.BlockDisplayBlockEntityRenderer::new);
 
         AmbienceUtil.registerBackgroundAmbience(
                 new BackgroundAmbience(TMMSounds.AMBIENT_PSYCHO_DRONE,
@@ -783,10 +797,16 @@ public class SREClient implements ClientModInitializer {
                     client.setScreen(new io.wifi.starrailexpress.client.gui.screen.ingame.FourthRoomPeekDeckScreen(
                             client.screen));
                 }));
+        // 连接刚建立（还没登录、没收到服务端任何数据）就清一次：严格意义上的「进服前」，
+        // 保证上一台服务器 / 单机残留的自定义内容不会参与这次连接的渲染与判定
+        ClientPlayConnectionEvents.INIT.register((handler, client) -> clearCustomContentCaches());
         ClientPlayConnectionEvents.JOIN.register((handler, sender, client) -> {
             FourthRoomClientState.clear();
             FourthRoomCameraDirector.clear();
             io.wifi.starrailexpress.client.gui.OpeningPresentationCoordinator.clear();
+            // 进入世界时再清一次（与 INIT 同一段逻辑）：服务的握手在这之后才会到，
+            // 所以不会把马上要同步下来的内容清掉
+            clearCustomContentCaches();
         });
         ClientPlayConnectionEvents.DISCONNECT.register((handler, client) -> client.execute(() -> {
             FourthRoomClientState.clear();
@@ -799,13 +819,9 @@ public class SREClient implements ClientModInitializer {
             ClientPlayerStatsCache.clear();
             RoleRotationCache.clear();
             io.wifi.starrailexpress.client.gui.OpeningPresentationCoordinator.clear();
-            // 清理自定义职业客户端缓存
-            io.wifi.starrailexpress.client.network.CustomRoleClientNetwork.clearCache();
-            // 清理自定义修饰符客户端缓存
-            io.wifi.starrailexpress.client.network.CustomModifierClientNetwork.clearCache();
-            // 清理自定义列车物品客户端缓存
-            io.wifi.starrailexpress.client.network.CustomItemClientNetwork.clearCache();
-            io.wifi.starrailexpress.client.render.item.CustomItemRenderer.clearCache();
+            // 清理自定义内容（职业 / 修饰符 / 列车物品 / 方块）客户端缓存，
+            // 与进服前走同一段逻辑，保证两边不会漏项
+            clearCustomContentCaches();
             // 清理 OpenAL 语音特效资源
             org.agmas.noellesroles.voice.VoiceEffectsOpenALPlugin.cleanupAll();
         }));
@@ -821,6 +837,11 @@ public class SREClient implements ClientModInitializer {
 
         // 注册自定义列车物品同步接收器（客户端）
         io.wifi.starrailexpress.client.network.CustomItemClientNetwork.register();
+
+        // 自定义内容同步（握手 + 按需下载 + 磁盘缓存，多个自定义内容系统共用）
+        io.wifi.starrailexpress.client.network.ContentSyncClient.register();
+        // 自定义方块客户端通道（注册内容应用回调）
+        io.wifi.starrailexpress.client.network.CustomBlockClientNetwork.register();
 
         // 注册自定义职业 HUD（技能名称 / 切换提示）
         io.wifi.starrailexpress.customrole.CustomRoleHud.register();
@@ -1028,6 +1049,8 @@ public class SREClient implements ClientModInitializer {
         });
         // 注册实体交互方块的客户端网络接收器
         io.wifi.starrailexpress.client.network.EntityInteractionBlockClientNetwork.register();
+        // 注册展示方块（文本展示 / 方块展示）的客户端网络接收器
+        io.wifi.starrailexpress.client.network.DisplayBlockClientNetwork.register();
         // 注册小游戏任务点的客户端网络接收器
         io.wifi.starrailexpress.client.network.MinigameQuestClientNetwork.register();
         io.wifi.starrailexpress.client.network.TicketOfficeClientNetwork.register();
@@ -1290,6 +1313,34 @@ public class SREClient implements ClientModInitializer {
             return cachedPlayerRole.haveInstinctNightVision(cached_player);
         }
         return false;
+    }
+
+    /**
+     * 清空「自定义内容」（自定义职业 / 修饰符 / 列车物品 / 方块）在客户端的一切缓存。
+     *
+     * <p>
+     * <b>进服前与离服后都要调用</b>：配置是按服务器同步的，上一条连接残留的索引（以及编辑器、
+     * 渲染器里按配置生成的贴图 / 模型缓存）会串到下一台服务器；反过来离服时若只清了索引、
+     * 漏了渲染缓存，回到单机也会用到别人服务器的贴图。
+     *
+     * <p>
+     * 这里清的都是「本地运行时缓存」：磁盘上的哈希缓存（{@code config/sre_sync_cache}）保留，
+     * 那是下次加入同一台服务器时零流量同步的前提。config 目录里那份同步副本会被删掉，
+     * 避免它被单机 / 编辑器当成自己的配置读走。
+     */
+    public static void clearCustomContentCaches() {
+        // 索引 + config 目录副本 + 各自的渲染缓存
+        io.wifi.starrailexpress.client.network.CustomRoleClientNetwork.clearCache();
+        io.wifi.starrailexpress.client.network.CustomModifierClientNetwork.clearCache();
+        io.wifi.starrailexpress.client.network.CustomItemClientNetwork.clearCache();
+        io.wifi.starrailexpress.client.network.CustomBlockClientNetwork.clearCache();
+        io.wifi.starrailexpress.client.render.item.CustomItemRenderer.clearCache();
+        io.wifi.starrailexpress.client.render.block.CustomBlockAppearance.clearCache();
+        io.wifi.starrailexpress.client.render.item.CustomBlockItemRenderer.clearCache();
+        // 自定义列车物品的运行时状态（自动开火窗口 / 命中计数 / 蓄力记录）
+        io.wifi.starrailexpress.customitem.CustomItemRuntime.clearAll();
+        // 同步会话状态（已应用哈希 / 未收完的分块）；磁盘缓存不动
+        io.wifi.starrailexpress.client.network.ContentSyncClient.clearSession();
     }
 
     private static void updateInstinctCache(Minecraft client) {

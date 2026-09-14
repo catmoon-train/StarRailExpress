@@ -1,4 +1,4 @@
-﻿{
+{
     "sre_commands.intro.title": "StarRailExpress command reference",
     "sre_commands.intro.desc": "All commands registered by this module are grouped by namespace. Permission level: 2=OP, 3=Advanced Management, 4=Server Owner.",
     "sre_commands.help.header": "===== StarRailExpress Commands =====",
@@ -84,6 +84,10 @@
     "sre_commands.sre.poison.desc": "Give/remove/trigger poison or fake poison from the player: sre:poison <normal|fake> <set|get|clear|trigger> [tick] [target]. set passes the game tick number (tick, 1 second = 20 ticks); clear removes it directly; trigger immediately triggers the current poisoning and causes death (fake poison can also cause death).",
     "sre_commands.sre.stamina.name": "physical strength",
     "sre_commands.sre.stamina.desc": "Increase or set the sprint stamina value for the player.",
+    "sre_commands.sre.entitydisguise.name": "Entity disguise",
+    "sre_commands.sre.entitydisguise.desc": "Disguise a player as any entity (model replaced, eye height lowered to that entity's, collision box unchanged): sre:disguise start infinite <player> <entity_type> [NBT], or sre:disguise start <seconds> <player> <entity_type> [NBT] for a timed disguise; sre:disguise clear <player>; sre:disguise query <player>. The appearance NBT is also a /data and /execute if data source: `data sre:disguise <player> ...`.",
+    "sre_commands.sre.morph.name": "Player morph",
+    "sre_commands.sre.morph.desc": "Morph a player through MorphApi: sre:morph start infinite| <seconds> player <target> <player> (copy a player's skin / hat / nametag / plush), random <player> (a random alive player), texture <texture> <slim|wide> <player> (a texture, e.g. starrailexpress:textures/entity/disguise/disguise_skin_1.png); sre:morph clear <player>; sre:morph clearall; sre:morph query <player> (shows what and how long). Cleared at round start/end.",
     "sre_commands.sre.inventory.name": "View inventory",
     "sre_commands.sre.inventory.desc": "View the target player's inventory as a GUI.",
     "sre_commands.sre.invsee.name": "View inventory (alias)",
@@ -122,6 +126,8 @@
     "sre_commands.tmm.game.penalty.desc": "Starts or stops death penalty, can be bound to an entity or location.",
     "sre_commands.tmm.game.bounds.name": "boundary",
     "sre_commands.tmm.game.bounds.desc": "Toggles whether players are restricted to play boundaries.",
+    "sre_commands.tmm.game.abilities.name": "abilities",
+    "sre_commands.tmm.game.abilities.desc": "Reads or writes the target player's abilities (mayfly/flying/instabuild/invulnerable/flying_speed/walk_speed); reset restores the defaults.",
     "sre_commands.tmm.game.role.name": "role Management",
     "sre_commands.tmm.game.role.desc": "In-game role tools: Silent changes, send welcome, sync characters, execute/remove assigned events.",
     "sre_commands.tmm.game.murder_time.name": "Murder time event",
@@ -241,5 +247,21 @@
     "sre_commands.sreclient.scene.name": "Client scenario",
     "sre_commands.sreclient.scene.desc": "Client scene resource directive (only executed on the client).",
     "sre_commands.kill.name": "Kill (overwritten)",
-    "sre_commands.kill.desc": "vanilla /kill overridden by Mixin: player requires permission 3, command block requires permission 2."
+    "sre_commands.kill.desc": "vanilla /kill overridden by Mixin: player requires permission 3, command block requires permission 2.",
+    "=== custom content commands ===": "",
+    "category.content": "Custom content & building",
+    "sre.give.name": "Give custom content",
+    "sre.give.desc": "Give a custom train item or custom block: /sre:give [players] item|block <id>[components] [count]; items accept vanilla component syntax, omit players to give yourself.",
+    "sre.setblock.name": "Place custom block",
+    "sre.setblock.desc": "Place a custom block at a position: /sre:setblock <pos> <id> [facing].",
+    "sre.clone.name": "Clone region",
+    "sre.clone.desc": "Copy a region as a whole (block entities and custom block ids included), chunk by chunk: /sre:clone <from_pos1> <from_pos2> <to_pos1>.",
+    "sre.reload.custom_roles.name": "Reload custom roles",
+    "sre.reload.custom_roles.desc": "Reload only the custom role configs and sync them to clients.",
+    "sre.reload.custom_modifiers.name": "Reload custom modifiers",
+    "sre.reload.custom_modifiers.desc": "Reload only the custom modifier configs and sync them to clients.",
+    "sre.reload.custom_items.name": "Reload custom items",
+    "sre.reload.custom_items.desc": "Reload only the custom train item configs and sync them to clients.",
+    "sre.reload.custom_blocks.name": "Reload custom blocks",
+    "sre.reload.custom_blocks.desc": "Reload only the custom block configs and sync them to clients."
 }

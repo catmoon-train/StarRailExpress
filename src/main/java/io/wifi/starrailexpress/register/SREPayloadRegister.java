@@ -245,6 +245,10 @@ public class SREPayloadRegister {
         PayloadTypeRegistry.playC2S().register(EntityInteractionBlockPayload.SaveConfig.TYPE,
                 EntityInteractionBlockPayload.SaveConfig.CODEC);
 
+        // 展示方块（文本展示 / 方块展示）数据包：保存后的同步复用原版方块实体更新包，不需要额外类型
+        PayloadTypeRegistry.playS2C().register(DisplayBlockPayload.OpenUI.TYPE, DisplayBlockPayload.OpenUI.CODEC);
+        PayloadTypeRegistry.playC2S().register(DisplayBlockPayload.Save.TYPE, DisplayBlockPayload.Save.CODEC);
+
         // 小游戏任务点数据包
         PayloadTypeRegistry.playS2C().register(MinigameQuestPayload.OpenConfig.TYPE,
                 MinigameQuestPayload.OpenConfig.CODEC);

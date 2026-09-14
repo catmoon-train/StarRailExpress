@@ -32,24 +32,11 @@ import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.agmas.noellesroles.mixin.SkinManagerAccessor;
-import org.spongepowered.asm.mixin.Unique;
 
 public class ClientSkinCache {
     public static final Map<UUID, PlayerInfo> PLAYER_ENTRIES_CACHE = new HashMap<>();
-    @Unique
-    public static final Map<UUID, CachedDisguiseState> DISGUISE_CACHE = new ConcurrentHashMap<>();
-
-    public static class CachedDisguiseState {
-        public long lastCheckTime = 0;
-        public boolean pig = false;
-        public boolean rabbit = false;
-        public boolean tomato = false;
-        public boolean allay = false;
-        public boolean panda = false;
-
-        public CachedDisguiseState() {
-        }
-    }
+    // 职业形态伪装的判定缓存已移到 org.agmas.noellesroles.client.RoleDisguiseResolver
+    // （按 tick 打戳，不再按墙钟节流）。
 
     public static ConcurrentHashMap<UUID, String> displayTags = new ConcurrentHashMap<>();
 
@@ -70,12 +57,10 @@ public class ClientSkinCache {
     public static void init() {
         ClientPlayConnectionEvents.JOIN.register((a, b, c) -> {
             // 加入游戏清空信息
-            DISGUISE_CACHE.clear();
             ClientSkinCache.PLAYER_ENTRIES_CACHE.clear();
         });
         ClientPlayConnectionEvents.DISCONNECT.register((a, client) -> {
             // 加入游戏清空信息
-            DISGUISE_CACHE.clear();
             ClientSkinCache.PLAYER_ENTRIES_CACHE.clear();
 
             // 清除皮肤缓存

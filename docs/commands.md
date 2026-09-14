@@ -277,16 +277,89 @@
 ### `sre:disguise` — 实体伪装
 - **权限**: `2`
 - **结构**:
-  - `<player>` (Player) `<entity_type>` (实体类型 id) — 长期伪装，直到手动解除 / 开局结束重置
-  - `<player>` `<entity_type>` `[nbt]` (SNBT) — 带外观 NBT 的长期伪装（羊的颜色、史莱姆尺寸、村民职业等）
-  - `seconds <seconds>` (int, 秒) `<player>` `<entity_type>` `[nbt]` — 限时伪装，到点自动解除
+  - `start infinite <player>` (Player) `<entity_type>` (实体类型 id) `[nbt]` (SNBT) — 无限期伪装，直到手动解除 / 开局结束重置
+  - `start <seconds>` (int, 秒) `<player>` `<entity_type>` `[nbt]` — 限时伪装，到点自动解除
   - `clear <player>` — 解除伪装
-  - `query <player>` — 查询是否处于伪装状态（连同眼高一起显示）
+  - `query <player>` — 查询是否处于伪装状态（眼高、外观 NBT 字节数、剩余时间 / 由条件结束）
 - **用途**: 把玩家整体伪装成任意实体（模型替换 + 眼高压到该实体眼高，碰撞箱不变）
 - **备注**:
+  - 时长**必填**：`infinite` 字面量或秒数；两个分支都支持 `[nbt]`
   - `entity_type` 候选来自实体注册表，含其他模组注册的实体；`minecraft:player` 被排除（要伪装成别的玩家请用 `MorphApi`）
-  - 参数类型 `sre:entity_type` 在 `SRECommandRegister#registerCommandArgumentTypes` 注册
+  - `entity_type` 用的是原版实体注册表参数（`/summon` 那个），候选由原版可召唤实体列表给出，本模组不注册参数类型
   - 代码入口 `io.wifi.starrailexpress.disguise.EntityDisguise`，支持自定义结束条件（predicate）
+
+### `execute if sre:disguised*` / `sre:morphed*` — 伪装与变形状态条件
+- **权限**: 跟随原版 `/execute`（需要执行目标命令的权限）
+- **结构**:
+
+  | 条件 | 参数 | 判定 |
+  | --- | --- | --- |
+  | `sre:disguised` | `<target_player>` (Player) | 是否处于**任何形式**的伪装 |
+  | `sre:disguised_type` | `<target_player>` `<entity_type>` (实体类型 id) | 是否伪装成**该实体** |
+  | `sre:morphed` | `<target_player>` | 是否处于**变形**状态（任意形态） |
+  | `sre:morphed_player` | `<target_player>` `<morph_target>` (Player) | 是否正变形为**该玩家** |
+  | `sre:morphed_texture` | `<target_player>` `<texture>` (ResourceLocation) | 是否正变形成**该贴图** |
+
+- **示例**:
+  - `/execute if sre:disguised @p run say 你在伪装中`
+  - `/execute if sre:disguised_type @p minecraft:cow run say 你现在是牛`
+  - `/execute unless sre:disguised_type @s minecraft:cow run say 我不是牛`
+  - `/execute if sre:morphed @p run say 你被变形了`
+  - `/execute if sre:morphed_player @p Steve run say 你现在是 Steve 的样子`
+  - `/execute if sre:morphed_texture @p starrailexpress:textures/entity/disguise/disguise_skin_1.png run ...`
+- **备注**:
+  - `sre:disguised` 覆盖**全部**来源：实体伪装、职业形态（猪 / 兔 / 番茄头 / 悦灵 / 熊猫）、变形（`MorphApi`）；`sre:morphed*` 则是**只看变形**的收窄判定（变形只是伪装的一种）
+  - `sre:disguised_type` 只针对**实体伪装**（只有它带「实体类型」）；`sre:morphed_player` / `sre:morphed_texture` 只针对变形（只有它带「像谁 / 哪张贴图」）
+  - `sre:morphed_texture` 忽略 `slim|wide` 的区别；贴图同样**不做存在性校验**
+  - 所有条件用 `if` / `unless` 都行；与 `run` 组合即原版条件语义，单独执行（不带 `run`）会回显原版的条件成功 / 失败提示
+  - **外观 NBT 的判断不在这里**，而是并入了原版 `if data`：`/execute if data sre:disguise <player> <path>`，路径语义与原版完全一致（见下一节）
+  - 同一套自定义条件（都定义在 `ExecuteCommandInvoker`）还有：`sre:role`、`sre:modifier`、`sre:participate`、`sre:gamemode`、`sre:role_type`、`sre:vote_status`
+  - 判定走 common 侧的 `io.wifi.starrailexpress.disguise.DisguiseQuery`；客户端渲染路径用的是按 tick 打戳的另一套（`RoleDisguiseResolver`）
+
+### `data sre:disguise` — 伪装 NBT 数据源（并入原版 /data 与 /execute if data）
+- **权限**: `2`（同原版 `/data`）
+- **结构**（`<player>` 是原版玩家参数，`<path>` 是原版 NBT 路径）:
+  - `/data get sre:disguise <player> [path] [scale]` — 读取（整份或某条路径）
+  - `/data merge sre:disguise <player> <nbt>` — 合并（SNBT）
+  - `/data modify sre:disguise <player> <path> set|merge|append|insert|prepend|from ...` — 修改
+  - `/data remove sre:disguise <player> <path>` — 删除路径
+  - `/execute if data sre:disguise <player> <path>` / `unless` — 判断路径是否存在
+  - `/execute store ... data sre:disguise <player> <path>` — 把别的命令结果写进伪装 NBT
+  - 作为 **NBT 来源**：`/data modify entity @s ... set from sre:disguise <player> <path>`
+- **示例**:
+  - `/data get sre:disguise @p` — 看完整外观 NBT
+  - `/data get sre:disguise @p Color` — 取某个键
+  - `/execute if data sre:disguise @p Tags` — 该伪装是否带标签
+  - `/data modify sre:disguise @p Color set value 3` — 改羊的颜色（`/sre:disguise query` 能看到外观 NBT 字节数变化）
+  - `/data merge sre:disguise @p {CustomName:'"jeb_"'}` — 让它变成 jeb_ 彩虹羊
+- **备注**:
+  - 语义与原版完全一致：路径用原版 NBT 路径；`if data` 只判**路径是否存在**（与原版 `if data entity` 一样，不比较数值——要比较就用 `/execute store` 或 `/data get`）
+  - 读写的对象是**已保存的外观 NBT**，也就是同步给客户端、决定伪装长相的那份
+  - 写入会：清洗（坐标 / 生存状态 / AI 记忆等不跟着伪装走的键会被丢掉）、按新 NBT **重算眼高**、重新同步给所有客户端；**结束条件（时长 / predicate）保持不变**
+  - 没有伪装的玩家：`if data` 得到 `false`、`data get` 得到空、`data merge/modify` 会报「没有伪装可修改」（伪装必须先用 `/sre:disguise start` 建，因为实体类型不在 NBT 里）
+  - 原版禁止 `/data modify entity <player>`（"Unable to modify player data"），本数据源不受此限：它改的是模组自己的伪装存储，不碰玩家本体 NBT
+
+### `sre:morph` — 玩家变形（MorphApi）
+- **权限**: `2`
+- **结构**（时长必填：`infinite` 或秒数）:
+  - `start infinite|<秒数> player <目标>` (Player) `<玩家>` (Player) — 复制目标玩家：皮肤 / 帽子 / 名牌 / 身份玩偶全部跟随目标
+  - `start infinite|<秒数> random <玩家>` — 随机一名**存活**玩家（排除自己与旁观 / 创造）
+  - `start infinite|<秒数> texture <贴图>` (ResourceLocation) `<slim|wide>` `<玩家>` — 指定贴图变形
+  - `clear <player>` — 解除变形
+  - `clearall` — 清空全部玩家的变形
+  - `query <player>` — 查询变形为什么（谁 / 哪张贴图）与剩余时间
+- **示例**:
+  - `/sre:morph start infinite player Steve @p`
+  - `/sre:morph start 30 random @p`
+  - `/sre:morph start infinite texture starrailexpress:textures/entity/disguise/disguise_skin_3.png slim @p`
+  - `/sre:morph query @p` → `Steve 变形为 Alex，还剩 12 秒`
+- **备注**:
+  - 语法与 `/sre:disguise` 同构（同样 `start infinite|<秒数>` + `clear` / `query`），回显走 `commands.sre.morph.*` 翻译键
+  - 贴图用原版 `ResourceLocationArgument`：可填**任意**路径，但**不做存在性校验**（填错只是画不出来）；模型型别 `slim|wide` 直接对应 `PlayerSkin.Model`。内置 5 张在 `assets/starrailexpress/textures/entity/disguise/`（`disguise_skin_1/2/3`、`disguise_skin_black`、`disguise_skin_white`，其中 `3` 是 slim）
+  - `player` 分支填自己等于解除变形，这一条直接报错而不是静默清除
+  - 变形会被 `MorphManager` 既有的生命周期清空（开局 / 结束 / 玩家重置 / 离线），所以 `infinite` 只在**本局内**无限期
+  - `clearall` 走 `MorphApi.clearAllMorphs`（= `MorphManager.resetAll`），属于生命周期级清理，**不经** `AllowPlayerMorph` 否决；单人的 `clear` / `start` 则可以被该事件否决
+  - 变形与 `/sre:disguise` 的实体伪装是两套独立外观：本命令只管皮肤 / 名牌归属，不换模型
 
 ### `sre:inventory` / `sre:invsee` — 查看玩家物品栏
 - **权限**: `2`
@@ -316,9 +389,40 @@
   - `result` — 查看投票结果
 - **用途**: 完整的游戏内投票系统
 
-### `sre:reloadRoleConfig` — 重载自定义职业配置
+### `sre:give` — 发放自定义内容（自定义列车物品 / 自定义方块）
+- **权限**: `2`
+- **结构**（与原版 `give` 同形，物品参数支持原版组件语法）:
+  - `sre:give block|item <id>[组件] [数量]` — 不给玩家时发给自己
+  - `sre:give <玩家> block|item <id>[组件] [数量]`
+  - `item` 支持原版组件块：`sre:give item my_sword[minecraft:custom_name="Excalibur",minecraft:unbreakable={}] 1`
+    （组件名可省略 `minecraft:` 前缀，与原版一致；`block` 不接受组件）
+  - `<id>` 支持 Tab 补全（按 `block` / `item` 分别列出已配置的 id）
+- **用途**: 发放自定义列车物品或自定义方块物品
+
+### `sre:setblock` — 放置自定义方块
+- **权限**: `2`
+- **结构**: `/sre:setblock <坐标> <id> [朝向]`
+  - 朝向：`north` / `south` / `east` / `west`（可只写首字母），省略时用执行者朝向
+  - 坐标支持相对坐标 `~`、局部坐标 `^`，可 Tab 补全（原版 `BlockPosArgument`）
+- **用途**: 地图作者直接摆放自定义方块（含水状态按该位置是否在水里自动决定）
+
+### `sre:clone` — 区域整块复制
+- **权限**: `2`
+- **结构**: `/sre:clone <from_pos1> <from_pos2> <to_pos1>`
+  - 两个角点围出源区域，`to_pos1` 是目标区域的最小角（新区域被平移到该点）
+  - 方块状态与方块实体（含自定义方块记录的 id、容器内容等）都会一起复制
+- **实现**: 按体积切成分块放进 `GameUtils.serverTaskQueue`，每 tick 处理一个分块
+  （与 `FullTrainResetTask` 同一套推进方式）；源与目标重叠时先整体快照再写，语义同原版 `/clone`
+- **上限**: 不重叠 262144 个方块；重叠时（需要整体快照）32768 个方块
+
+### `sre:reload <子命令>` — 按内容类型重载
 - **权限**: `3`
-- **用途**: 重新加载并同步所有客户端自定义职业配置
+- **子命令**（各自独立，互不牵连）:
+  - `sre:reload custom_roles` — 重载自定义职业
+  - `sre:reload custom_modifiers` — 重载自定义修饰符
+  - `sre:reload custom_items` — 重载自定义列车物品
+  - `sre:reload custom_blocks` — 重载自定义方块
+- **同步**: 重载后只发一次哈希握手，客户端本地缓存命中时不重发全文（见 `synccontent` 包）
 
 ---
 

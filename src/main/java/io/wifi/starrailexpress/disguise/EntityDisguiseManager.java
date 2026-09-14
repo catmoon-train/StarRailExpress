@@ -25,6 +25,7 @@ import io.wifi.starrailexpress.network.EntityDisguiseSyncPayload;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 import org.agmas.harpymodloader.events.ResetPlayerEvent;
@@ -108,6 +109,27 @@ public final class EntityDisguiseManager {
     }
 
     /**
+     * 剩余游戏刻，只读（供 {@code /sre:disguise query} 显示，不涉及包体）。
+     *
+     * @return {@code -1} 表示没有到期时间（无限期或由 predicate 结束）；{@code 0} 表示未伪装或已到期
+     */
+    public static int remainingTicks(@Nullable UUID uuid) {
+        if (uuid == null || get(uuid).isNone()) {
+            return 0;
+        }
+        long expireAt = EXPIRE_AT.getOrDefault(uuid, 0L);
+        if (expireAt <= 0) {
+            return -1;
+        }
+        return (int) Math.max(0L, expireAt - SRE.getTicksFromGameStart());
+    }
+
+    /** 是否挂了自定义结束条件（predicate）。 */
+    public static boolean hasEndPredicate(@Nullable UUID uuid) {
+        return uuid != null && END_PREDICATES.containsKey(uuid);
+    }
+
+    /**
      * 写入伪装状态。返回是否实际发生了变化（含被 {@link AllowPlayerDisguise} 取消的情况返回 {@code false}）。
      *
      * @param expireAtGameTick 到期游戏刻；{@code <=0} 表示不自动解除
@@ -143,8 +165,40 @@ public final class EntityDisguiseManager {
         return true;
     }
 
-    public static boolean clear(ServerPlayer player, boolean fireIfUnchanged) {
+    /**
+     * 覆写现有伪装的外观 NBT（供 {@code /data ... sre:disguise} 使用）。
+     * <p>
+     * 与 {@link #set} 的区别：这里**保留原有的结束条件**（时长 / predicate），并且不经过
+     * {@link AllowPlayerDisguise}——那是个「是否允许伪装 / 解除」的开关，而这里只是改一份已有伪装的
+     * 外观，把它当成一次新的伪装会让语义跑偏。仍然会清洗 NBT、重算眼高、重新同步并通知
+     * {@link OnPlayerDisguise}。
+     *
+     * @return 是否真的发生了变化
+     */
+    public static boolean setNbt(ServerPlayer player, @Nullable CompoundTag nbt) {
         if (player == null) {
+            return false;
+        }
+        UUID uuid = player.getUUID();
+        EntityDisguiseState previous = get(uuid);
+        if (previous.isNone() || previous.type() == null) {
+            return false;
+        }
+        CompoundTag clean = EntityDisguise.sanitizeNbt(nbt);
+        EntityDisguiseState next = EntityDisguiseState.of(previous.type(), clean,
+                EntityDisguise.computeEyeHeight(player.level(), previous.type(), clean));
+        if (previous.equals(next)) {
+            return false;
+        }
+        STATES.put(uuid, next);
+        // 服务端立刻生效，客户端等本 tick 的 flush（同 set）。
+        player.refreshDimensions();
+        PENDING.put(uuid, next);
+        OnPlayerDisguise.EVENT.invoker().onDisguise(player, previous, next);
+        return true;
+    }
+
+    public static boolean clear(ServerPlayer player, boolean fireIfUnchanged) {        if (player == null) {
             return false;
         }
         if (!fireIfUnchanged && get(player.getUUID()).isNone()) {

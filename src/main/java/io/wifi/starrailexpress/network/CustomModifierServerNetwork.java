@@ -15,97 +15,32 @@
 
 package io.wifi.starrailexpress.network;
 
-import io.wifi.starrailexpress.SRE;
-import io.wifi.starrailexpress.custommodifier.CustomModifierConfig;
-import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
+import io.wifi.starrailexpress.synccontent.ContentChannel;
+import io.wifi.starrailexpress.synccontent.ContentSyncServer;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.level.storage.LevelResource;
-
-import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.util.Map;
-import java.util.UUID;
-import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * 自定义修饰符服务端网络处理（照抄 {@link CustomRoleServerNetwork}）。
+ * 自定义修饰符服务端同步（走统一的内容同步通道，见 {@link ContentSyncServer}）。
  */
-public class CustomModifierServerNetwork {
+public final class CustomModifierServerNetwork {
 
-    private static String cachedJsonContent = null;
-    private static int cachedHash = 0;
-    private static boolean hasCustomModifiers = false;
-    private static final Map<UUID, Integer> playerHashCache = new ConcurrentHashMap<>();
+    private CustomModifierServerNetwork() {
+    }
 
+    /** 配置变更后调用：丢弃缓存并给所有在线玩家重新握手。 */
     public static void syncToAllPlayers(MinecraftServer server) {
-        loadConfigContent(server);
-        if (!hasCustomModifiers)
-            return;
-        int currentHash = cachedHash;
-        for (ServerPlayer player : server.getPlayerList().getPlayers()) {
-            sendChunked(player, currentHash, cachedJsonContent);
-        }
+        ContentSyncServer.invalidate(ContentChannel.CUSTOM_MODIFIER);
+        ContentSyncServer.broadcastHandshake(server);
     }
 
+    /** 玩家加入时调用：只发哈希。 */
     public static void syncToPlayer(MinecraftServer server, ServerPlayer player) {
-        loadConfigContent(server);
-        if (!hasCustomModifiers)
-            return;
-        sendChunked(player, cachedHash, cachedJsonContent);
+        ContentSyncServer.handshakeTo(player);
     }
 
-    private static void sendChunked(ServerPlayer player, int hash, String fullContent) {
-        Integer lastHash = playerHashCache.get(player.getUUID());
-        if (lastHash != null && lastHash == hash)
-            return;
-
-        int totalLength = fullContent.length();
-        int maxChunkChars = CustomModifierSyncPayload.MAX_CHUNK_CHARS;
-        int totalChunks = (totalLength + maxChunkChars - 1) / maxChunkChars;
-
-        for (int i = 0; i < totalChunks; i++) {
-            int start = i * maxChunkChars;
-            int end = Math.min(start + maxChunkChars, totalLength);
-            String chunk = fullContent.substring(start, end);
-            ServerPlayNetworking.send(player, new CustomModifierSyncPayload(hash, totalChunks, i, chunk));
-        }
-        playerHashCache.put(player.getUUID(), hash);
-    }
-
-    public static void onPlayerDisconnect(UUID playerId) {
-        playerHashCache.remove(playerId);
-    }
-
-    private static void loadConfigContent(MinecraftServer server) {
-        if (cachedJsonContent != null)
-            return;
-        try {
-            Path worldPath = server.getWorldPath(LevelResource.ROOT);
-            Path configPath = worldPath.resolve(CustomModifierConfig.FILE_NAME);
-            if (Files.exists(configPath)) {
-                String content = Files.readString(configPath, StandardCharsets.UTF_8);
-                String trimmed = content.trim();
-                if (!trimmed.isEmpty() && !trimmed.equals("{}") && !trimmed.equals("{\"modifiers\":[]}")) {
-                    cachedJsonContent = content;
-                    cachedHash = content.hashCode();
-                    hasCustomModifiers = true;
-                    return;
-                }
-            }
-        } catch (IOException e) {
-            SRE.LOGGER.error("[CustomModifier] Failed to read {} for sync", CustomModifierConfig.FILE_NAME, e);
-        }
-        hasCustomModifiers = false;
-    }
-
-    /** 清除所有缓存（重载配置后调用）。 */
+    /** 丢弃服务端缓存的内容与哈希。 */
     public static void clearCache() {
-        cachedJsonContent = null;
-        cachedHash = 0;
-        hasCustomModifiers = false;
-        playerHashCache.clear();
+        ContentSyncServer.invalidate(ContentChannel.CUSTOM_MODIFIER);
     }
 }

@@ -263,17 +263,16 @@ public class ModPackets {
         PayloadTypeRegistry.playS2C().register(PelicanStateS2CPacket.ID, PelicanStateS2CPacket.CODEC);
         PayloadTypeRegistry.playS2C().register(PelicanProgressS2CPacket.ID, PelicanProgressS2CPacket.CODEC);
 
-        // 自定义职业同步
-        PayloadTypeRegistry.playS2C().register(io.wifi.starrailexpress.network.CustomRoleSyncPayload.TYPE,
-                io.wifi.starrailexpress.network.CustomRoleSyncPayload.CODEC);
-
-        // 自定义修饰符同步
-        PayloadTypeRegistry.playS2C().register(io.wifi.starrailexpress.network.CustomModifierSyncPayload.TYPE,
-                io.wifi.starrailexpress.network.CustomModifierSyncPayload.CODEC);
-
-        // 自定义列车物品同步
-        PayloadTypeRegistry.playS2C().register(io.wifi.starrailexpress.network.CustomItemSyncPayload.TYPE,
-                io.wifi.starrailexpress.network.CustomItemSyncPayload.CODEC);
+        // 自定义内容同步（职业 / 修饰符 / 列车物品 / 方块共用一套握手 + 压缩下发协议）
+        PayloadTypeRegistry.playS2C().register(
+                io.wifi.starrailexpress.synccontent.ContentHandshakeS2CPayload.TYPE,
+                io.wifi.starrailexpress.synccontent.ContentHandshakeS2CPayload.CODEC);
+        PayloadTypeRegistry.playC2S().register(
+                io.wifi.starrailexpress.synccontent.ContentRequestC2SPayload.TYPE,
+                io.wifi.starrailexpress.synccontent.ContentRequestC2SPayload.CODEC);
+        PayloadTypeRegistry.playS2C().register(
+                io.wifi.starrailexpress.synccontent.ContentDataS2CPayload.TYPE,
+                io.wifi.starrailexpress.synccontent.ContentDataS2CPayload.CODEC);
 
         // 注册物品展示 ui网络包
         PayloadTypeRegistry.playS2C().register(DisplayItemS2CPacket.ID, DisplayItemS2CPacket.CODEC);

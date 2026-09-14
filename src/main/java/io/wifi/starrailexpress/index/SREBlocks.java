@@ -40,6 +40,8 @@ import java.util.function.Function;
 
 public interface SREBlocks {
   public static final BlockRegistrar blockRegistrar = new BlockRegistrar(SRE.MOD_ID);
+  public static final dev.doctor4t.ratatouille.util.registrar.BlockEntityTypeRegistrar customBlockEntityRegistrar = new dev.doctor4t.ratatouille.util.registrar.BlockEntityTypeRegistrar(
+      SRE.MOD_ID);
 
   Block TRAIN_LIGHT = registerOpBlock("train_light", new TrainLightBlock(
       (Block.Properties.of().replaceable().strength(-1.0F, 3600000.8F)
@@ -119,11 +121,49 @@ public interface SREBlocks {
         CreativeModeTabs.OP_BLOCKS, ModSceneBlocks.SCENE_CREATIVE_GROUP);
   }
 
+  /**
+   * 自定义方块：全模组唯一的那个方块，具体是哪个自定义方块由方块实体里记录的 id 决定。
+   * 立即注册（不能延后），因为方块物品要按方块的注册名注册到同一个 id 上。
+   *
+   * <p>
+   * 放在所有既有字段之后声明：接口字段按声明顺序初始化，而物品注册会读取 SREItems
+   * （它的静态字段又会读本接口前面的 TRAIN_TORCH 等），提前声明会让那些字段还没赋值就被读到。
+   */
+  Block CUSTOM_BLOCK = onlyRegisterBlock(SRE.id("custom_block"),
+      new io.wifi.starrailexpress.customblock.CustomBlock(
+          io.wifi.starrailexpress.customblock.CustomBlock.defaultProperties()));
+
+  net.minecraft.world.level.block.entity.BlockEntityType<io.wifi.starrailexpress.customblock.CustomBlockEntity> CUSTOM_BLOCK_ENTITY = customBlockEntityRegistrar
+      .create("custom_block", net.minecraft.world.level.block.entity.BlockEntityType.Builder
+          .of(io.wifi.starrailexpress.customblock.CustomBlockEntity::new, CUSTOM_BLOCK));
+
   static void initialize() {
     // SRE 方块现已合并到 ModBlocks.BLOCK_CREATIVE_GROUP，不再单独注册 starrailexpress:misc_block
     // 标签
     blockRegistrar.registerEntries();
+    customBlockEntityRegistrar.registerEntries();
+    registerCustomBlockItem();
     SREDoorBlocks.initialize();
+  }
+
+  /**
+   * 注册自定义方块物品。
+   *
+   * <p>
+   * 用自定义的 {@link io.wifi.starrailexpress.customblock.CustomBlockItem}，所以不能用
+   * {@code blockRegistrar.createWithItem}；和 {@link SREItems#registerItem} 一样补上
+   * {@code Item.BY_BLOCK}（让 {@code Block.asItem()} 拿得到物品），并放进 OP 方块标签栏。
+   */
+  private static void registerCustomBlockItem() {
+    if (BuiltInRegistries.ITEM.containsKey(SRE.id("custom_block"))) {
+      return;
+    }
+    io.wifi.starrailexpress.customblock.CustomBlockItem item = new io.wifi.starrailexpress.customblock.CustomBlockItem(
+        CUSTOM_BLOCK, new Item.Properties().stacksTo(64));
+    item.registerBlocks(Item.BY_BLOCK, item);
+    Item registered = Registry.register(BuiltInRegistries.ITEM, SRE.id("custom_block"), item);
+    net.fabricmc.fabric.api.itemgroup.v1.ItemGroupEvents.modifyEntriesEvent(CreativeModeTabs.OP_BLOCKS)
+        .register(entries -> entries.accept(registered));
   }
 
   private static Function<BlockState, MapColor> waterloggedMapColor(MapColor mapColor) {

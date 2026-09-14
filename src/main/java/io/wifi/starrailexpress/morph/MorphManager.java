@@ -116,8 +116,28 @@ public final class MorphManager {
         return true;
     }
 
-    public static boolean clear(ServerPlayer player, boolean fireIfUnchanged) {
-        if (player == null) {
+    /**
+     * 剩余游戏刻。
+     *
+     * @return {@code -1} 表示无限期（直到手动解除或局末重置）；{@code 0} 表示未变形或已到期
+     */
+    public static int remainingTicks(UUID uuid) {
+        if (uuid == null || get(uuid).isNone()) {
+            return 0;
+        }
+        long expireAt = EXPIRE_AT.getOrDefault(uuid, 0L);
+        if (expireAt <= 0) {
+            return -1;
+        }
+        return (int) Math.max(0L, expireAt - io.wifi.starrailexpress.SRE.getTicksFromGameStart());
+    }
+
+    /** 当前处于变形状态的全部玩家 UUID（只读快照）。 */
+    public static java.util.Set<UUID> morphedPlayers() {
+        return java.util.Set.copyOf(APPEARANCES.keySet());
+    }
+
+    public static boolean clear(ServerPlayer player, boolean fireIfUnchanged) {        if (player == null) {
             return false;
         }
         if (!fireIfUnchanged && get(player.getUUID()).isNone()) {

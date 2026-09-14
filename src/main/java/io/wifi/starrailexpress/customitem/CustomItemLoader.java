@@ -263,14 +263,22 @@ public final class CustomItemLoader {
      * 「被作用 / 被击中的玩家执行的指令」把 {@code base} 传成该玩家即可。
      */
     public static void executeCommand(String command, ServerPlayer base) {
-        if (command == null || command.isBlank() || base == null) {
+        if (command == null || base == null) {
+            return;
+        }
+        // 允许按游戏里的习惯带前导斜杠写（"/say x" 与 "say x" 等价）
+        String raw = command.trim();
+        if (raw.startsWith("/")) {
+            raw = raw.substring(1);
+        }
+        if (raw.isBlank()) {
             return;
         }
         MinecraftServer server = base.getServer();
         if (server == null) {
             return;
         }
-        String processed = processCommandSelectors(command
+        String processed = processCommandSelectors(raw
                 .replace("<player>", base.getGameProfile().getName())
                 .replace("~ ~ ~", String.format("%.1f %.1f %.1f", base.getX(), base.getY(), base.getZ())),
                 base);

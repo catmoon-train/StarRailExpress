@@ -1261,15 +1261,71 @@ public class GameUtils {
         }
     }
 
+    /** 原版 Abilities 的飞行速度默认值。 */
+    public static final float DEFAULT_FLYING_SPEED = 0.05F;
+    /** 原版 Abilities 的行走速度默认值。 */
+    public static final float DEFAULT_WALKING_SPEED = 0.1F;
+    /** 速度浮点比较容差。这些值只由本类常量与职业技能写入，不需要更严格。 */
+    private static final float SPEED_EPSILON = 1.0E-4F;
+
+    /**
+     * 把玩家的 abilities 恢复为原版默认值。
+     * <p>
+     * 只用于确实要离开游戏玩法的场合（开局与对局结束），旁观者请在调用前先
+     * 通过 {@link #normalizeSpectatorFlightAbilities(ServerPlayer)} 处理。
+     */
+    public static void resetPlayerAbilities(ServerPlayer player) {
+        var abilities = player.getAbilities();
+        abilities.mayfly = false;
+        abilities.flying = false;
+        abilities.instabuild = false;
+        abilities.invulnerable = false;
+        abilities.setFlyingSpeed(DEFAULT_FLYING_SPEED);
+        abilities.setWalkingSpeed(DEFAULT_WALKING_SPEED);
+        player.onUpdateAbilities();
+    }
+
+    /**
+     * 死亡切换旁观后收尾 abilities：仅在明显异常时才写回旁观基线。
+     * <p>
+     * 职业飞行技能（例如灵梦把 flyingSpeed 改成 0.018）在玩家死亡时可能来不及收尾，
+     * 残留的速度会让旁观者"飞不动"。这里把 mayfly 与两个速度拉回默认。
+     * 刻意不动 flying：旁观者的飞行开关由客户端接管，强行置假会让刚死的玩家一直下坠。
+     */
+    public static void normalizeSpectatorFlightAbilities(ServerPlayer player) {
+        var abilities = player.getAbilities();
+        if (abilities.mayfly
+                && Math.abs(abilities.getFlyingSpeed() - DEFAULT_FLYING_SPEED) <= SPEED_EPSILON
+                && Math.abs(abilities.getWalkingSpeed() - DEFAULT_WALKING_SPEED) <= SPEED_EPSILON) {
+            return;
+        }
+        abilities.mayfly = true;
+        abilities.setFlyingSpeed(DEFAULT_FLYING_SPEED);
+        abilities.setWalkingSpeed(DEFAULT_WALKING_SPEED);
+        player.onUpdateAbilities();
+    }
+
+    /**
+     * 职业飞行技能收尾。旁观/创造下只回收被技能改过的速度，避免连旁观者的飞行权限一起清掉。
+     */
+    public static void releaseRoleFlight(ServerPlayer player) {
+        if (player.isSpectator() || player.isCreative()) {
+            normalizeSpectatorFlightAbilities(player);
+            return;
+        }
+        var abilities = player.getAbilities();
+        abilities.mayfly = false;
+        abilities.flying = false;
+        abilities.setFlyingSpeed(DEFAULT_FLYING_SPEED);
+        abilities.setWalkingSpeed(DEFAULT_WALKING_SPEED);
+        player.fallDistance = 0;
+        player.onUpdateAbilities();
+    }
+
     public static void resetPlayer(ServerPlayer player) {
         SREItemUtils.clearItem(player, (item) -> true, -1);
-        {
-            player.getAbilities().mayfly = false;
-            player.getAbilities().flying = false;
-            player.getAbilities().setFlyingSpeed(0.05F);
-            player.fallDistance = 0;
-            player.onUpdateAbilities();
-        }
+        resetPlayerAbilities(player);
+        player.fallDistance = 0;
         InfectedPlayerComponent.KEY.get(player).clear();
         SRERoleDataPlayerComponent.KEY.get(player).clear();
         SREPlayerMoodComponent.KEY.get(player).clear();

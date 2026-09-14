@@ -13,6 +13,7 @@
     "command.EntityInteractionBlockCommandPermissionMixin",
     "command.EntityInteractionHandlerCommandPermissionMixin",
     "command.ExecuteCommandInvoker",
+    "command.DataCommandsMixin",
     "entity.EntityMixin",
     "entity.DisguisedPlayerDimensionsMixin",
     "entity.FallDamageCheckMixin",

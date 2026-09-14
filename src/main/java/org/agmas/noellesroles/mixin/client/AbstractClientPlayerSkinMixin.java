@@ -30,15 +30,26 @@ import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import com.llamalad7.mixinextras.injector.ModifyReturnValue;
 
+/**
+ * 皮肤覆盖（伪装 / 换肤 / 火眼金睛）。
+ * <p>
+ * {@code getSkin()} 每帧会被问好几次（渲染、标签页、皮肤层……），而解析要遍历
+ * {@link OnGettingPlayerSkin} 的全部监听器，所以这里保留缓存；但把节流从**读墙钟**
+ * （原来 100ms，超性能模式 200ms）换成**按 tick 打戳**，顺带把窗口砍半：
+ * 普通模式每 tick 一次、超性能模式每 2 tick 一次。于是换肤 / 伪装生效最迟 1 个 tick（50ms），
+ * 而不是原来的 100~200ms，同时不再每帧读一次系统时间。
+ */
 @Mixin(AbstractClientPlayer.class)
 public abstract class AbstractClientPlayerSkinMixin {
 
     @Unique
-    private long lastCacheTime = 0;
+    private int lastResolveTick = -1;
     @Unique
     private PlayerSkin cacheResult = null;
-    private static final int CACHE_TIME_GAP = 100;
-    private static final int CACHE_TIME_GAP_EXTREMELY = 200;
+    /** 普通模式每 tick 解析一次。 */
+    private static final int CACHE_TICK_GAP = 1;
+    /** 超性能模式每 2 tick 一次：节流思路保留，但只有原来 200ms 的一半。 */
+    private static final int CACHE_TICK_GAP_ULTRA = 2;
 
     @ModifyReturnValue(method = "getSkin", at = @At("RETURN"))
     private PlayerSkin applySkinSwap(PlayerSkin originalSkin) {
@@ -50,14 +61,13 @@ public abstract class AbstractClientPlayerSkinMixin {
         final Minecraft client = Minecraft.getInstance();
         if (client == null || client.level == null)
             return originalSkin;
-        long now = System.currentTimeMillis();
-        int gap = CACHE_TIME_GAP;
-        if (SREClientConfig.instance().ultraPerfMode) {
-            gap = CACHE_TIME_GAP_EXTREMELY;
-        }
-        if (now - lastCacheTime > gap || cacheResult == null) {
+        final int tick = self.tickCount;
+        final int gap = SREClientConfig.instance().ultraPerfMode ? CACHE_TICK_GAP_ULTRA : CACHE_TICK_GAP;
+        // delta < 0 是 tickCount 被重置（重生 / 换维度）时的兜底，避免缓存一直不刷新。
+        final int delta = tick - lastResolveTick;
+        if (cacheResult == null || delta >= gap || delta < 0) {
             cacheResult = getResult(client, self, originalSkin);
-            lastCacheTime = now;
+            lastResolveTick = tick;
         }
         if (cacheResult != null) {
             return cacheResult;

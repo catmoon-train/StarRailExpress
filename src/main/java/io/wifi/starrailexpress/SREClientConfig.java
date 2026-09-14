@@ -94,6 +94,10 @@ public class SREClientConfig implements ConfigData {
 
     @Category("style")
     @ConfigEntry.Gui.Tooltip
+    public boolean showDisguiseHud = true; // 伪装时在左上角信息行下方显示「当前伪装：xxx」
+
+    @Category("style")
+    @ConfigEntry.Gui.Tooltip
     public boolean useLegacyMapSelector = false; // 使用旧版地图投票界面（卡片墙）
 
     @Category("style")

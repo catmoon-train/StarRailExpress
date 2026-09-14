@@ -15,97 +15,38 @@
 
 package io.wifi.starrailexpress.network;
 
-import io.wifi.starrailexpress.SRE;
-import io.wifi.starrailexpress.customitem.CustomItemConfig;
-import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
+import io.wifi.starrailexpress.synccontent.ContentChannel;
+import io.wifi.starrailexpress.synccontent.ContentSyncServer;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.level.storage.LevelResource;
-
-import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.util.Map;
-import java.util.UUID;
-import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * 自定义列车物品服务端网络处理（照抄 {@link CustomRoleServerNetwork}）。
+ * 自定义列车物品服务端同步。
+ *
+ * <p>
+ * 传输已统一到 {@link ContentSyncServer}：「先发哈希，客户端缓存未命中才下全文（deflate 压缩）」。
+ * 旧实现是「把 JSON 切成 30000 字符的分块、无条件推给每个玩家，并且服务端自己维护
+ * 每个玩家的哈希表」，改为统一的握手协议后，加入服务器从「N 个分块包」降到 1 个小包，
+ * 配置没变的客户端一个字节都不用发。
  */
-public class CustomItemServerNetwork {
+public final class CustomItemServerNetwork {
 
-    private static String cachedJsonContent = null;
-    private static int cachedHash = 0;
-    private static boolean hasCustomItems = false;
-    private static final Map<UUID, Integer> playerHashCache = new ConcurrentHashMap<>();
+    private CustomItemServerNetwork() {
+    }
 
+    /** 配置变更后调用：丢弃缓存并给所有在线玩家重新握手。 */
     public static void syncToAllPlayers(MinecraftServer server) {
-        loadConfigContent(server);
-        if (!hasCustomItems)
-            return;
-        int currentHash = cachedHash;
-        for (ServerPlayer player : server.getPlayerList().getPlayers()) {
-            sendChunked(player, currentHash, cachedJsonContent);
-        }
+        ContentSyncServer.invalidate(ContentChannel.CUSTOM_ITEM);
+        ContentSyncServer.broadcastHandshake(server);
     }
 
+    /** 玩家加入时调用：只发哈希（几十字节）。 */
     public static void syncToPlayer(MinecraftServer server, ServerPlayer player) {
-        loadConfigContent(server);
-        if (!hasCustomItems)
-            return;
-        sendChunked(player, cachedHash, cachedJsonContent);
+        ContentSyncServer.handshakeTo(player);
     }
 
-    private static void sendChunked(ServerPlayer player, int hash, String fullContent) {
-        Integer lastHash = playerHashCache.get(player.getUUID());
-        if (lastHash != null && lastHash == hash)
-            return;
-
-        int totalLength = fullContent.length();
-        int maxChunkChars = CustomItemSyncPayload.MAX_CHUNK_CHARS;
-        int totalChunks = (totalLength + maxChunkChars - 1) / maxChunkChars;
-
-        for (int i = 0; i < totalChunks; i++) {
-            int start = i * maxChunkChars;
-            int end = Math.min(start + maxChunkChars, totalLength);
-            String chunk = fullContent.substring(start, end);
-            ServerPlayNetworking.send(player, new CustomItemSyncPayload(hash, totalChunks, i, chunk));
-        }
-        playerHashCache.put(player.getUUID(), hash);
-    }
-
-    public static void onPlayerDisconnect(UUID playerId) {
-        playerHashCache.remove(playerId);
-    }
-
-    private static void loadConfigContent(MinecraftServer server) {
-        if (cachedJsonContent != null)
-            return;
-        try {
-            Path worldPath = server.getWorldPath(LevelResource.ROOT);
-            Path configPath = worldPath.resolve(CustomItemConfig.FILE_NAME);
-            if (Files.exists(configPath)) {
-                String content = Files.readString(configPath, StandardCharsets.UTF_8);
-                String trimmed = content.trim();
-                if (!trimmed.isEmpty() && !trimmed.equals("{}") && !trimmed.equals("{\"items\":[]}")) {
-                    cachedJsonContent = content;
-                    cachedHash = content.hashCode();
-                    hasCustomItems = true;
-                    return;
-                }
-            }
-        } catch (IOException e) {
-            SRE.LOGGER.error("[CustomItem] Failed to read {} for sync", CustomItemConfig.FILE_NAME, e);
-        }
-        hasCustomItems = false;
-    }
-
-    /** 清除所有缓存（重载配置后调用）。 */
+    /** 丢弃服务端缓存的内容与哈希（下次握手重新读文件计算）。 */
     public static void clearCache() {
-        cachedJsonContent = null;
-        cachedHash = 0;
-        hasCustomItems = false;
-        playerHashCache.clear();
+        ContentSyncServer.invalidate(ContentChannel.CUSTOM_ITEM);
     }
 }

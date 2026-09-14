@@ -175,6 +175,7 @@ public class SRE extends StarRailExpressID implements ModInitializer {
         SREDecorationBlocks.initialize();
         TMMItems.initialize();
         TMMBlockEntities.initialize();
+        SREDisplayBlocks.initialize();
         TMMParticles.initialize();
         TMMDescItems.register();
     }
