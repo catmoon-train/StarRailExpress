@@ -47,6 +47,11 @@ public class SREModifier extends SREAbstractInfoClass {
      * 与 {@link #cannotBeAppliedTo}（按具体职业排除）叠加生效，见 {@link #setCannotAppliedToTeam}。
      */
     public final EnumSet<RoleTeam> cannotBeAppliedToTeams = EnumSet.noneOf(RoleTeam.class);
+    /**
+     * 只作用于这些阵营：设置后只有它们的职业会获得此修饰符（为空表示不限制）。
+     * 与 {@link #cannotBeAppliedToTeams} 同时设置时，黑名单优先否决。见 {@link #setCanOnlyBeAppliedToTeam}。
+     */
+    public final EnumSet<RoleTeam> canOnlyBeAppliedToTeams = EnumSet.noneOf(RoleTeam.class);
     public Consumer<ServerPlayer> serverTickEvent = null;
     public Consumer<Player> clientTickEvent = null;
     public int defaultMaxCount = 1;
@@ -502,6 +507,71 @@ public class SREModifier extends SREAbstractInfoClass {
             return false;
         }
         for (RoleTeam team : this.cannotBeAppliedToTeams) {
+            if (team.matches(role)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * 只作用于指定阵营：设置后，只有这些阵营的职业会获得此修饰符（可多次调用叠加，命中其中任意一个即可）。
+     *
+     * <p>
+     * 例：{@code setCanOnlyBeAppliedToTeam(RoleTeam.CIVILIAN, RoleTeam.SHERIFF)} 表示只给好人阵营。
+     * 若同时设置了 {@link #setCannotAppliedToTeam}，黑名单优先（命中黑名单必定不通过）。
+     *
+     * @param teams 阵营，{@code null} 会被忽略
+     * @return this
+     */
+    public SREModifier setCanOnlyBeAppliedToTeam(RoleTeam... teams) {
+        if (teams != null) {
+            for (RoleTeam team : teams) {
+                if (team != null) {
+                    this.canOnlyBeAppliedToTeams.add(team);
+                }
+            }
+        }
+        return this;
+    }
+
+    /**
+     * 取消 {@link #setCanOnlyBeAppliedToTeam} 添加的阵营白名单。
+     *
+     * @param teams 要取消的阵营，{@code null} 会被忽略
+     * @return this
+     */
+    public SREModifier removeCanOnlyBeAppliedToTeam(RoleTeam... teams) {
+        if (teams != null) {
+            for (RoleTeam team : teams) {
+                if (team != null) {
+                    this.canOnlyBeAppliedToTeams.remove(team);
+                }
+            }
+        }
+        return this;
+    }
+
+    /**
+     * 阵营综合判定：该职业是否允许获得此修饰符。
+     *
+     * <ul>
+     * <li>命中 {@link #cannotBeAppliedToTeams} 中任意一个阵营 → 不允许</li>
+     * <li>{@link #canOnlyBeAppliedToTeams} 非空且一个都没命中 → 不允许</li>
+     * <li>两者都未设置（或白名单非空但职业未知）→ 允许</li>
+     * </ul>
+     *
+     * @param role 目标职业，{@code null} 时只做黑名单判定
+     */
+    public boolean isTeamApplicable(SRERole role) {
+        if (isTeamExcluded(role)) {
+            return false;
+        }
+        if (this.canOnlyBeAppliedToTeams.isEmpty() || role == null) {
+            // 职业未知时按原 canOnlyBeAppliedTo 的处理方式：不否决
+            return true;
+        }
+        for (RoleTeam team : this.canOnlyBeAppliedToTeams) {
             if (team.matches(role)) {
                 return true;
             }
