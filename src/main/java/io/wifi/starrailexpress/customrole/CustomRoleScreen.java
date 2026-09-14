@@ -24,12 +24,11 @@ import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractWidget;
+import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.Mth;
-import org.agmas.noellesroles.client.widget.custom_button.ModernButton;
-import org.agmas.noellesroles.client.widget.custom_button.ModernButton.AccentSide;
 
 import java.util.ArrayList;
 import java.util.IdentityHashMap;
@@ -109,8 +108,10 @@ public class CustomRoleScreen extends Screen {
     // ══════════════════════════════════════════════════════════════════
     private void computeLayout() {
         panelWidth = Math.min((int) (width * USABLE_RATIO), MAX_PANEL_WIDTH);
+        // 窗口很小时以窗口为准：面板必须完整落在显示区域内，超出的内容靠滚动查看
+        int windowLimit = Math.max(120, height - 4);
         int rawH = Math.min((int) (height * USABLE_RATIO), MAX_PANEL_HEIGHT);
-        panelHeight = Math.max(rawH, MIN_PANEL_HEIGHT);
+        panelHeight = Math.min(Math.max(rawH, MIN_PANEL_HEIGHT), windowLimit);
         panelLeftX = (width - panelWidth) / 2;
         panelTopY = (height - panelHeight) / 2;
     }
@@ -269,32 +270,28 @@ public class CustomRoleScreen extends Screen {
         widgetBaseY.put(w, baseY);
     }
 
-    private AbstractWidget makeModernButton(int x, int baseY, int w, int h, Component text, Runnable onClick,
-            AccentSide accent) {
-        var btn = ModernButton.builder(text, b -> {
+    private AbstractWidget makeButton(int x, int baseY, int w, int h, Component text, Runnable onClick) {
+        var btn = Button.builder(text, b -> {
             onClick.run();
         })
-                .bounds(x, baseY, w, h).accentBar(accent).build();
+                .bounds(x, baseY, w, h).build();
         recordWidgetBase(btn, baseY);
         return btn;
     }
 
     private void buildTabBar() {
-        int tw = 68, th = 20, tg = 4;
+        int th = 20, tg = 4, tabs = 5;
+        int tw = Math.min(68, Math.max(48, (panelWidth - 24 - tg * (tabs - 1)) / tabs));
         int sx = panelLeftX + (panelWidth - (tw * 5 + tg * 4)) / 2;
         tabBarButtons.clear();
         for (int i = 0; i < 5; i++) {
             final int idx = i;
-            var b = ModernButton.builder(Component.translatable("sre.custom_role.tab." + TAB_NAMES[i]),
+            var b = Button.builder(tabLabel(i),
                     btn -> {
                         activeTab = idx;
                         init(minecraft, width, height);
                     })
                     .bounds(sx + i * (tw + tg), panelTopY + 8, tw, th);
-            if (activeTab == i)
-                b.accentBar(AccentSide.BOTTOM);
-            else
-                b.accentBar();
             var btn = b.build();
             addRenderableWidget(btn);
             tabBarButtons.add(btn);
@@ -374,14 +371,13 @@ public class CustomRoleScreen extends Screen {
         Component ml = Component.translatable("sre.custom_role.mood." + (moodIndex == 0 ? "real" : "fake"));
         int moodRow = r++;
         addLabel(tabLabels0, "sre.custom_role.label.mood", moodRow);
-        var moodBtn = makeModernButton(fieldX(), baseRowY(moodRow), FIELD_W, 18,
+        var moodBtn = makeButton(fieldX(), baseRowY(moodRow), FIELD_W, 18,
                 Component.translatable("sre.custom_role.mood.current").append(": ").append(ml),
                 () -> {
                     moodIndex = (moodIndex + 1) % 2;
                     data.moodType = moodIndex == 0 ? "REAL" : "FAKE";
                     init(minecraft, width, height);
-                },
-                AccentSide.LEFT);
+                });
         tabWidgets0.add(moodBtn);
 
         // 心情颜色覆盖（R/G/B，任一 <0 视为不覆盖）
@@ -579,7 +575,7 @@ public class CustomRoleScreen extends Screen {
         // 特殊地图类型限制（枚举按钮，默认 ALL）
         int smRow = r++;
         addLabel(tabLabels1, "sre.custom_role.special_map_role", smRow);
-        var smBtn = makeModernButton(fieldX(), baseRowY(smRow), FIELD_W, 18,
+        var smBtn = makeButton(fieldX(), baseRowY(smRow), FIELD_W, 18,
                 Component.translatable("sre.custom_role.special_map_role.current").append(": ")
                         .append(Component.literal(data.specialMapRole)),
                 () -> {
@@ -591,8 +587,7 @@ public class CustomRoleScreen extends Screen {
                     idx = (idx + 1) % vals.length;
                     data.specialMapRole = vals[idx];
                     init(minecraft, width, height);
-                },
-                AccentSide.LEFT);
+                });
         tabWidgets1.add(smBtn);
     }
 
@@ -607,7 +602,7 @@ public class CustomRoleScreen extends Screen {
             int y = rowY(r);
             addLabel(tabLabels2, "sre.custom_role.label.initial_items", r);
             EditBox ib = makeBox(fieldX(), y, 130, 18, en.itemId, v -> en.itemId = v);
-            ib.setHint(Component.literal("物品id"));
+            ib.setHint(Component.translatable("sre.custom_role.hint.item_id"));
             EditBox cb = makeBox(fieldX() + 138, y, 50, 18, String.valueOf(en.count), v -> {
                 try {
                     en.count = Integer.parseInt(v);
@@ -618,20 +613,18 @@ public class CustomRoleScreen extends Screen {
             recordWidgetBase(ib, baseRowY(r));
             recordWidgetBase(cb, baseRowY(r));
             tabWidgets2.addAll(List.of(ib, cb));
-            var plusBtn = makeModernButton(fieldX() + 196, baseRowY(r), 20, 18, Component.literal("+"),
+            var plusBtn = makeButton(fieldX() + 196, baseRowY(r), 20, 18, Component.literal("+"),
                     () -> {
                         data.initialItems.add(new InitialItemEntry());
                         init(minecraft, width, height);
-                    },
-                    AccentSide.TOP);
+                    });
             tabWidgets2.add(plusBtn);
             if (data.initialItems.size() > 1) {
-                var minusBtn = makeModernButton(fieldX() + 220, baseRowY(r), 20, 18, Component.literal("-"),
+                var minusBtn = makeButton(fieldX() + 220, baseRowY(r), 20, 18, Component.literal("-"),
                         () -> {
                             data.initialItems.remove(idx);
                             init(minecraft, width, height);
-                        },
-                        AccentSide.TOP);
+                        });
                 tabWidgets2.add(minusBtn);
             }
             r++;
@@ -670,7 +663,7 @@ public class CustomRoleScreen extends Screen {
             int y = rowY(r);
             addLabel(tabLabels2, "sre.custom_role.label.task_reward_items", r);
             EditBox ib = makeBox(fieldX(), y, 130, 18, en.itemId, v -> en.itemId = v);
-            ib.setHint(Component.literal("物品id"));
+            ib.setHint(Component.translatable("sre.custom_role.hint.item_id"));
             EditBox cb = makeBox(fieldX() + 138, y, 50, 18, String.valueOf(en.count), v -> {
                 try {
                     en.count = Integer.parseInt(v);
@@ -681,20 +674,18 @@ public class CustomRoleScreen extends Screen {
             recordWidgetBase(ib, baseRowY(r));
             recordWidgetBase(cb, baseRowY(r));
             tabWidgets2.addAll(List.of(ib, cb));
-            var plusBtn = makeModernButton(fieldX() + 196, baseRowY(r), 20, 18, Component.literal("+"),
+            var plusBtn = makeButton(fieldX() + 196, baseRowY(r), 20, 18, Component.literal("+"),
                     () -> {
                         data.taskRewardItems.add(new InitialItemEntry());
                         init(minecraft, width, height);
-                    },
-                    AccentSide.TOP);
+                    });
             tabWidgets2.add(plusBtn);
             if (data.taskRewardItems.size() > 1) {
-                var minusBtn = makeModernButton(fieldX() + 220, baseRowY(r), 20, 18, Component.literal("-"),
+                var minusBtn = makeButton(fieldX() + 220, baseRowY(r), 20, 18, Component.literal("-"),
                         () -> {
                             data.taskRewardItems.remove(idx);
                             init(minecraft, width, height);
-                        },
-                        AccentSide.TOP);
+                        });
                 tabWidgets2.add(minusBtn);
             }
             r++;
@@ -798,17 +789,17 @@ public class CustomRoleScreen extends Screen {
 
                     // 模块标题（技能N）+ 删除模块按钮
                     addLabel(tabLabels2, "sre.custom_role.skill_module", r);
-                    var moduleTitle = makeModernButton(fieldX(), baseRowY(r), FIELD_W - 24, 18,
+                    var moduleTitle = makeButton(fieldX(), baseRowY(r), FIELD_W - 24, 18,
                             Component.translatable("sre.custom_role.skill_module_title", m + 1),
                             () -> {
-                            }, AccentSide.LEFT);
+                            });
                     tabWidgets2.add(moduleTitle);
-                    var delModule = makeModernButton(fieldX() + FIELD_W - 22, baseRowY(r), 22, 18,
+                    var delModule = makeButton(fieldX() + FIELD_W - 22, baseRowY(r), 22, 18,
                             Component.literal("X"),
                             () -> {
                                 data.skillModules.remove(mi);
                                 init(minecraft, width, height);
-                            }, AccentSide.RIGHT);
+                            });
                     tabWidgets2.add(delModule);
                     r++;
 
@@ -828,19 +819,19 @@ public class CustomRoleScreen extends Screen {
                         cmdBox.setHint(Component.literal("不需/ 例: say <player>"));
                         recordWidgetBase(cmdBox, baseRowY(r));
                         tabWidgets2.add(cmdBox);
-                        var plusBtn2 = makeModernButton(fieldX() + 258, baseRowY(r), 20, 18, Component.literal("+"),
+                        var plusBtn2 = makeButton(fieldX() + 258, baseRowY(r), 20, 18, Component.literal("+"),
                                 () -> {
                                     sd.commands.add("");
                                     init(minecraft, width, height);
-                                }, AccentSide.TOP);
+                                });
                         tabWidgets2.add(plusBtn2);
                         if (sd.commands.size() > 1) {
-                            var minusBtn2 = makeModernButton(fieldX() + 282, baseRowY(r), 20, 18,
+                            var minusBtn2 = makeButton(fieldX() + 282, baseRowY(r), 20, 18,
                                     Component.literal("-"),
                                     () -> {
                                         sd.commands.remove(idx);
                                         init(minecraft, width, height);
-                                    }, AccentSide.TOP);
+                                    });
                             tabWidgets2.add(minusBtn2);
                         }
                         r++;
@@ -881,18 +872,18 @@ public class CustomRoleScreen extends Screen {
                         dcBox.setHint(Component.literal("不需要 /"));
                         recordWidgetBase(dcBox, baseRowY(r));
                         tabWidgets2.add(dcBox);
-                        var dplus = makeModernButton(fieldX() + 258, baseRowY(r), 20, 18, Component.literal("+"),
+                        var dplus = makeButton(fieldX() + 258, baseRowY(r), 20, 18, Component.literal("+"),
                                 () -> {
                                     sd.delayedCommands.add("");
                                     init(minecraft, width, height);
-                                }, AccentSide.TOP);
+                                });
                         tabWidgets2.add(dplus);
                         if (sd.delayedCommands.size() > 1) {
-                            var dminus = makeModernButton(fieldX() + 282, baseRowY(r), 20, 18, Component.literal("-"),
+                            var dminus = makeButton(fieldX() + 282, baseRowY(r), 20, 18, Component.literal("-"),
                                     () -> {
                                         sd.delayedCommands.remove(idx);
                                         init(minecraft, width, height);
-                                    }, AccentSide.TOP);
+                                    });
                             tabWidgets2.add(dminus);
                         }
                         r++;
@@ -908,18 +899,18 @@ public class CustomRoleScreen extends Screen {
                         geBox.setHint(Component.literal("不需要 /"));
                         recordWidgetBase(geBox, baseRowY(r));
                         tabWidgets2.add(geBox);
-                        var gePlus = makeModernButton(fieldX() + 258, baseRowY(r), 20, 18, Component.literal("+"),
+                        var gePlus = makeButton(fieldX() + 258, baseRowY(r), 20, 18, Component.literal("+"),
                                 () -> {
                                     sd.gameEndCommands.add("");
                                     init(minecraft, width, height);
-                                }, AccentSide.TOP);
+                                });
                         tabWidgets2.add(gePlus);
                         if (sd.gameEndCommands.size() > 1) {
-                            var geMinus = makeModernButton(fieldX() + 282, baseRowY(r), 20, 18, Component.literal("-"),
+                            var geMinus = makeButton(fieldX() + 282, baseRowY(r), 20, 18, Component.literal("-"),
                                     () -> {
                                         sd.gameEndCommands.remove(idx);
                                         init(minecraft, width, height);
-                                    }, AccentSide.TOP);
+                                    });
                             tabWidgets2.add(geMinus);
                         }
                         r++;
@@ -927,13 +918,12 @@ public class CustomRoleScreen extends Screen {
                     r++; // 模块间隔
                 }
                 // 添加技能模块按钮
-                var addModuleBtn = makeModernButton(fieldX(), baseRowY(r), 160, 18,
+                var addModuleBtn = makeButton(fieldX(), baseRowY(r), 160, 18,
                         Component.translatable("sre.custom_role.add_skill_module"),
                         () -> {
                             data.skillModules.add(new CustomRoleData.SkillData());
                             init(minecraft, width, height);
-                        },
-                        AccentSide.BOTTOM);
+                        });
                 tabWidgets2.add(addModuleBtn);
                 r++;
             } else {
@@ -953,18 +943,18 @@ public class CustomRoleScreen extends Screen {
                     cmdBox.setHint(Component.literal("不需/ 例: say <player>"));
                     recordWidgetBase(cmdBox, baseRowY(r));
                     tabWidgets2.add(cmdBox);
-                    var plusBtn2 = makeModernButton(fieldX() + 258, baseRowY(r), 20, 18, Component.literal("+"),
+                    var plusBtn2 = makeButton(fieldX() + 258, baseRowY(r), 20, 18, Component.literal("+"),
                             () -> {
                                 data.abilitySkillCommands.add("");
                                 init(minecraft, width, height);
-                            }, AccentSide.TOP);
+                            });
                     tabWidgets2.add(plusBtn2);
                     if (data.abilitySkillCommands.size() > 1) {
-                        var minusBtn2 = makeModernButton(fieldX() + 282, baseRowY(r), 20, 18, Component.literal("-"),
+                        var minusBtn2 = makeButton(fieldX() + 282, baseRowY(r), 20, 18, Component.literal("-"),
                                 () -> {
                                     data.abilitySkillCommands.remove(idx);
                                     init(minecraft, width, height);
-                                }, AccentSide.TOP);
+                                });
                         tabWidgets2.add(minusBtn2);
                     }
                     r++;
@@ -1004,18 +994,18 @@ public class CustomRoleScreen extends Screen {
                     dcBox.setHint(Component.literal("不需要 /"));
                     recordWidgetBase(dcBox, baseRowY(r));
                     tabWidgets2.add(dcBox);
-                    var dplus = makeModernButton(fieldX() + 258, baseRowY(r), 20, 18, Component.literal("+"),
+                    var dplus = makeButton(fieldX() + 258, baseRowY(r), 20, 18, Component.literal("+"),
                             () -> {
                                 data.abilityDelayedCommands.add("");
                                 init(minecraft, width, height);
-                            }, AccentSide.TOP);
+                            });
                     tabWidgets2.add(dplus);
                     if (data.abilityDelayedCommands.size() > 1) {
-                        var dminus = makeModernButton(fieldX() + 282, baseRowY(r), 20, 18, Component.literal("-"),
+                        var dminus = makeButton(fieldX() + 282, baseRowY(r), 20, 18, Component.literal("-"),
                                 () -> {
                                     data.abilityDelayedCommands.remove(idx);
                                     init(minecraft, width, height);
-                                }, AccentSide.TOP);
+                                });
                         tabWidgets2.add(dminus);
                     }
                     r++;
@@ -1031,18 +1021,18 @@ public class CustomRoleScreen extends Screen {
                     geBox.setHint(Component.literal("不需要 /"));
                     recordWidgetBase(geBox, baseRowY(r));
                     tabWidgets2.add(geBox);
-                    var gePlus = makeModernButton(fieldX() + 258, baseRowY(r), 20, 18, Component.literal("+"),
+                    var gePlus = makeButton(fieldX() + 258, baseRowY(r), 20, 18, Component.literal("+"),
                             () -> {
                                 data.gameEndCommands.add("");
                                 init(minecraft, width, height);
-                            }, AccentSide.TOP);
+                            });
                     tabWidgets2.add(gePlus);
                     if (data.gameEndCommands.size() > 1) {
-                        var geMinus = makeModernButton(fieldX() + 282, baseRowY(r), 20, 18, Component.literal("-"),
+                        var geMinus = makeButton(fieldX() + 282, baseRowY(r), 20, 18, Component.literal("-"),
                                 () -> {
                                     data.gameEndCommands.remove(idx);
                                     init(minecraft, width, height);
-                                }, AccentSide.TOP);
+                                });
                         tabWidgets2.add(geMinus);
                     }
                     r++;
@@ -1140,15 +1130,14 @@ public class CustomRoleScreen extends Screen {
             final int idx = i;
             ShopEntryData en = data.shopEntries.get(i);
             // 类型按钮
-            var typeBtn = makeModernButton(lx, baseRowY(r), 75, bh, Component.literal("[" + en.type + "]"),
+            var typeBtn = makeButton(lx, baseRowY(r), 75, bh, Component.literal("[" + en.type + "]"),
                     () -> {
                         int next = (java.util.Arrays.asList(types).indexOf(en.type) + 1) % types.length;
                         if (next < 0)
                             next = 0;
                         en.type = types[next];
                         init(minecraft, width, height);
-                    },
-                    AccentSide.LEFT);
+                    });
             tabWidgets4.add(typeBtn);
             // 价格
             EditBox pb = makeBox(lx + 83, rowY(r), 55, bh, String.valueOf(en.price), v -> {
@@ -1175,35 +1164,32 @@ public class CustomRoleScreen extends Screen {
             // 禁止重复(item)
             if ("item".equals(en.type)) {
                 boolean nd = !en.allowDuplicate;
-                var dupBtn = makeModernButton(lx + 199, baseRowY(r), 55, bh,
+                var dupBtn = makeButton(lx + 199, baseRowY(r), 55, bh,
                         Component.literal(nd ? "禁重复" : "允重复"),
                         () -> {
                             en.allowDuplicate = !en.allowDuplicate;
                             init(minecraft, width, height);
-                        },
-                        nd ? AccentSide.RIGHT : AccentSide.LEFT);
+                        });
                 tabWidgets4.add(dupBtn);
-                var delBtn = makeModernButton(lx + 260, baseRowY(r), 20, bh, Component.literal("X"),
+                var delBtn = makeButton(lx + 260, baseRowY(r), 20, bh, Component.literal("X"),
                         () -> {
                             data.shopEntries.remove(idx);
                             init(minecraft, width, height);
-                        },
-                        AccentSide.RIGHT);
+                        });
                 tabWidgets4.add(delBtn);
             } else {
-                var delBtn = makeModernButton(lx + 199, baseRowY(r), 20, bh, Component.literal("X"),
+                var delBtn = makeButton(lx + 199, baseRowY(r), 20, bh, Component.literal("X"),
                         () -> {
                             data.shopEntries.remove(idx);
                             init(minecraft, width, height);
-                        },
-                        AccentSide.RIGHT);
+                        });
                 tabWidgets4.add(delBtn);
             }
             r++;
             if ("item".equals(en.type)) {
                 addLabel(tabLabels4, "sre.custom_role.label.shop_item_id", r);
                 EditBox ib2 = makeBox(lx, rowY(r), 160, bh, en.itemId, v -> en.itemId = v);
-                ib2.setHint(Component.literal("物品id"));
+                ib2.setHint(Component.translatable("sre.custom_role.hint.item_id"));
                 recordWidgetBase(ib2, baseRowY(r));
                 tabWidgets4.add(ib2);
                 r++;
@@ -1231,33 +1217,30 @@ public class CustomRoleScreen extends Screen {
                     cm.setHint(Component.literal("不需/ 例: say <player>"));
                     recordWidgetBase(cm, baseRowY(r));
                     tabWidgets4.add(cm);
-                    var plusBtn = makeModernButton(lx + 238, baseRowY(r), 20, bh, Component.literal("+"),
+                    var plusBtn = makeButton(lx + 238, baseRowY(r), 20, bh, Component.literal("+"),
                             () -> {
                                 en.commands.add("");
                                 init(minecraft, width, height);
-                            },
-                            AccentSide.TOP);
+                            });
                     tabWidgets4.add(plusBtn);
                     if (en.commands.size() > 1) {
-                        var minusBtn = makeModernButton(lx + 262, baseRowY(r), 20, bh, Component.literal("-"),
+                        var minusBtn = makeButton(lx + 262, baseRowY(r), 20, bh, Component.literal("-"),
                                 () -> {
                                     en.commands.remove(cdx);
                                     init(minecraft, width, height);
-                                },
-                                AccentSide.TOP);
+                                });
                         tabWidgets4.add(minusBtn);
                     }
                     r++;
                 }
             }
         }
-        var addEntryBtn = makeModernButton(lx, baseRowY(r), 140, bh,
+        var addEntryBtn = makeButton(lx, baseRowY(r), 140, bh,
                 Component.translatable("sre.custom_role.add_shop_entry"),
                 () -> {
                     data.shopEntries.add(new ShopEntryData());
                     init(minecraft, width, height);
-                },
-                AccentSide.BOTTOM);
+                });
         tabWidgets4.add(addEntryBtn);
     }
 
@@ -1340,16 +1323,16 @@ public class CustomRoleScreen extends Screen {
     }
 
     /** 构建一个点击循环的类型按钮，并返回 */
-    private ModernButton makeInstinctTypeBtn(int x, int baseY, int w, int h, java.util.function.Supplier<String> getter,
+    private Button makeInstinctTypeBtn(int x, int baseY, int w, int h, java.util.function.Supplier<String> getter,
             java.util.function.Consumer<String> setter) {
         String cur = getter.get();
         String display = instinctTypeDisplay(cur);
-        ModernButton btn = ModernButton.builder(
+        Button btn = Button.builder(
                 Component.literal(display).append(Component.literal(" ↻").withStyle(s -> s.withColor(0xFF9E8B6E))),
                 b -> {
                     setter.accept(cycleInstinctTypeStr(getter.get()));
                     init(minecraft, width, height);
-                }).bounds(x, baseY, w, h).accentBar(AccentSide.LEFT).build();
+                }).bounds(x, baseY, w, h).build();
         recordWidgetBase(btn, baseY);
         return btn;
     }
@@ -1358,15 +1341,15 @@ public class CustomRoleScreen extends Screen {
     private void buildBottomButtons() {
         int by = panelTopY + panelHeight - 26, bw = 100, gap = 8;
         int sx = panelLeftX + (panelWidth - (bw * 3 + gap * 2)) / 2;
-        var btn1 = ModernButton.builder(Component.translatable("sre.custom_role.save"), b -> saveRole())
-                .bounds(sx, by, bw, 20).accentBar(AccentSide.BOTTOM).build();
-        var btn2 = ModernButton.builder(Component.translatable("sre.custom_role.manage"), b -> {
+        var btn1 = Button.builder(Component.translatable("sre.custom_role.save"), b -> saveRole())
+                .bounds(sx, by, bw, 20).build();
+        var btn2 = Button.builder(Component.translatable("sre.custom_role.manage"), b -> {
             CustomRoleConfig config = CustomRoleConfig.getInstance();
             config.savePreferWorldPath(minecraft.getSingleplayerServer());
             minecraft.setScreen(new CustomRoleManageScreen(new CustomRoleScreen()));
-        }).bounds(sx + bw + gap, by, bw, 20).accentBar(AccentSide.BOTTOM).build();
-        var btn3 = ModernButton.builder(Component.translatable("sre.custom_role.cancel"), b -> onClose())
-                .bounds(sx + (bw + gap) * 2, by, bw, 20).accentBar(AccentSide.BOTTOM).build();
+        }).bounds(sx + bw + gap, by, bw, 20).build();
+        var btn3 = Button.builder(Component.translatable("sre.custom_role.cancel"), b -> onClose())
+                .bounds(sx + (bw + gap) * 2, by, bw, 20).build();
         addRenderableWidget(btn1);
         addRenderableWidget(btn2);
         addRenderableWidget(btn3);
@@ -1410,11 +1393,11 @@ public class CustomRoleScreen extends Screen {
             java.util.function.Consumer<Boolean> toggle, boolean rebuild) {
         Component st = cur ? Component.literal(" [✓]").withStyle(s -> s.withColor(0xFF72C17B))
                 : Component.literal(" [✗]").withStyle(s -> s.withColor(0xFFE06B65));
-        var btn = ModernButton.builder(Component.translatable(key).copy().append(st), b -> {
+        var btn = Button.builder(Component.translatable(key).copy().append(st), b -> {
             toggle.accept(!cur);
             if (rebuild)
                 init(minecraft, width, height);
-        }).bounds(fieldX(), baseRowY(r), FIELD_W, 18).accentBar(cur ? AccentSide.LEFT : AccentSide.RIGHT).build();
+        }).bounds(fieldX(), baseRowY(r), FIELD_W, 18).build();
         recordWidgetBase(btn, baseRowY(r));
         l.add(btn);
     }
@@ -1423,11 +1406,11 @@ public class CustomRoleScreen extends Screen {
             java.util.function.Consumer<Boolean> toggle, boolean rebuild) {
         Component st = cur ? Component.literal(" [✓]").withStyle(s -> s.withColor(0xFF72C17B))
                 : Component.literal(" [✗]").withStyle(s -> s.withColor(0xFFE06B65));
-        var btn = ModernButton.builder(Component.translatable(key).copy().append(st), b -> {
+        var btn = Button.builder(Component.translatable(key).copy().append(st), b -> {
             toggle.accept(!cur);
             if (rebuild)
                 init(minecraft, width, height);
-        }).bounds(fieldX() + 170, baseRowY(r), 150, 18).accentBar(cur ? AccentSide.LEFT : AccentSide.RIGHT).build();
+        }).bounds(fieldX() + 170, baseRowY(r), 150, 18).build();
         recordWidgetBase(btn, baseRowY(r));
         l.add(btn);
     }
@@ -1447,24 +1430,20 @@ public class CustomRoleScreen extends Screen {
     private void addTriBtn(List<AbstractWidget> l, int r, String key, Boolean cur,
             java.util.function.Consumer<Boolean> toggle, boolean rebuild) {
         String ss;
-        AccentSide as;
         if (cur == null) {
             ss = " (--)";
-            as = AccentSide.TOP;
         } else if (cur.booleanValue()) {
             ss = " [✓]";
-            as = AccentSide.LEFT;
         } else {
             ss = " [✗]";
-            as = AccentSide.RIGHT;
         }
         final Boolean captured = cur;
-        var btn = ModernButton.builder(Component.translatable(key)
+        var btn = Button.builder(Component.translatable(key)
                 .append(Component.literal(ss).withStyle(s -> s.withColor(safeColor(captured)))), b -> {
                     toggle.accept(safeNext(captured));
                     if (rebuild)
                         init(minecraft, width, height);
-                }).bounds(fieldX(), baseRowY(r), 150, 18).accentBar(as).build();
+                }).bounds(fieldX(), baseRowY(r), 150, 18).build();
         recordWidgetBase(btn, baseRowY(r));
         l.add(btn);
     }
@@ -1472,24 +1451,20 @@ public class CustomRoleScreen extends Screen {
     private void addTriBtnX(List<AbstractWidget> l, int r, String key, Boolean cur,
             java.util.function.Consumer<Boolean> toggle, boolean rebuild) {
         String ss;
-        AccentSide as;
         if (cur == null) {
             ss = " (--)";
-            as = AccentSide.TOP;
         } else if (cur.booleanValue()) {
             ss = " [✓]";
-            as = AccentSide.LEFT;
         } else {
             ss = " [✗]";
-            as = AccentSide.RIGHT;
         }
         final Boolean captured = cur;
-        var btn = ModernButton.builder(Component.translatable(key)
+        var btn = Button.builder(Component.translatable(key)
                 .append(Component.literal(ss).withStyle(s -> s.withColor(safeColor(captured)))), b -> {
                     toggle.accept(safeNext(captured));
                     if (rebuild)
                         init(minecraft, width, height);
-                }).bounds(fieldX() + 170, baseRowY(r), 150, 18).accentBar(as).build();
+                }).bounds(fieldX() + 170, baseRowY(r), 150, 18).build();
         recordWidgetBase(btn, baseRowY(r));
         l.add(btn);
     }
@@ -1658,5 +1633,20 @@ public class CustomRoleScreen extends Screen {
     @Override
     public boolean isPauseScreen() {
         return false;
+    }
+
+    /**
+     * 页签文字：活跃页签用金色粗体。
+     *
+     * <p>
+     * 按钮已换成原版按钮（没有 accent 装饰条了），页签的活跃状态用文字区分，
+     * 符合 {@code docs/ui_style.md} 第 5 节的文字层级（重点金色 / 次要土褐）。
+     */
+    private Component tabLabel(int index) {
+        Component label = Component.translatable("sre.custom_role.tab." + TAB_NAMES[index]);
+        if (index == activeTab) {
+            return label.copy().withStyle(style -> style.withBold(true).withColor(SREPanelStyle.GOLD));
+        }
+        return label.copy().withStyle(style -> style.withColor(SREPanelStyle.MUTED));
     }
 }

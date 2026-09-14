@@ -3808,5 +3808,7 @@
     "gui.display_block.entity_parse_ok": "目前：%s",
     "gui.display_block.entity_parse_error": "解析失敗：%s",
     "gui.display_block.entity_parse_no_id": "缺少實體類型：文字裡沒有 id，也沒選類型",
-    "gui.display_block.entity_clipboard_empty": "剪貼簿是空的：先用 F3+I 複製實體"
+    "gui.display_block.entity_clipboard_empty": "剪貼簿是空的：先用 F3+I 複製實體",
+    "sre.custom_role.hint.item_id": "自訂列車物品 id 或原版物品 id",
+    "sre.custom_content.reload.all": "§a已一鍵重載自訂內容：%d/4 項"
 }

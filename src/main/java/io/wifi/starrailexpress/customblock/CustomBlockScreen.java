@@ -26,6 +26,7 @@ import net.fabricmc.api.Environment;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractWidget;
+import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
@@ -36,8 +37,6 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
-import org.agmas.noellesroles.client.widget.custom_button.ModernButton;
-import org.agmas.noellesroles.client.widget.custom_button.ModernButton.AccentSide;
 
 import java.util.ArrayList;
 import java.util.IdentityHashMap;
@@ -50,7 +49,7 @@ import java.util.function.DoubleConsumer;
  * 自定义方块编辑界面（四个页签：基础数据 / 外观 / 属性 / 事件）。
  *
  * <p>
- * UI 风格与 {@code CustomItemScreen} 一致（面板 + 页签 + 自绘标签 + EditBox + ModernButton + 滚动），
+ * UI 风格与 {@code CustomItemScreen} 一致（面板 + 页签 + 自绘标签 + EditBox + Button + 滚动），
  * 重建统一走 {@link #requestRebuild()}，在 render 里执行。所有文案均走翻译键
  * （{@code sre.custom_block.*}），代码中不出现硬编码文案。
  *
@@ -119,8 +118,10 @@ public class CustomBlockScreen extends Screen {
     // ══════════════════════════════════════════════════════════════════
     private void computeLayout() {
         panelWidth = Math.min((int) (width * USABLE_RATIO), MAX_PANEL_WIDTH);
+        // 窗口很小时以窗口为准：面板必须完整落在显示区域内，超出的内容靠滚动查看
+        int windowLimit = Math.max(120, height - 4);
         int rawH = Math.min((int) (height * USABLE_RATIO), MAX_PANEL_HEIGHT);
-        panelHeight = Math.max(rawH, MIN_PANEL_HEIGHT);
+        panelHeight = Math.min(Math.max(rawH, MIN_PANEL_HEIGHT), windowLimit);
         panelLeftX = (width - panelWidth) / 2;
         panelTopY = (height - panelHeight) / 2;
     }
@@ -207,21 +208,17 @@ public class CustomBlockScreen extends Screen {
     }
 
     private void buildTabBar() {
-        int tw = 100, th = 20, tg = 4;
+        int th = 20, tg = 4, tabs = TAB_KEYS.length;
+        int tw = Math.min(100, Math.max(48, (panelWidth - 24 - tg * (tabs - 1)) / tabs));
         int total = tw * TAB_KEYS.length + tg * (TAB_KEYS.length - 1);
         int sx = panelLeftX + (panelWidth - total) / 2;
         for (int i = 0; i < TAB_KEYS.length; i++) {
             final int index = i;
-            var builder = ModernButton.builder(Component.translatable(TAB_KEYS[i]), button -> {
+            var builder = Button.builder(tabLabel(i), button -> {
                 activeTab = index;
                 scrollOffset = 0;
                 requestRebuild();
             }).bounds(sx + i * (tw + tg), panelTopY + 8, tw, th);
-            if (activeTab == i) {
-                builder.accentBar(AccentSide.BOTTOM);
-            } else {
-                builder.accentBar();
-            }
             var built = builder.build();
             addRenderableWidget(built);
             tabBarButtons.add(built);
@@ -258,13 +255,8 @@ public class CustomBlockScreen extends Screen {
         return track(box, baseY(row));
     }
 
-    private AbstractWidget button(int row, int x, int w, int h, Component text, Runnable onClick, AccentSide accent) {
-        var builder = ModernButton.builder(text, b -> onClick.run()).bounds(x, rowY(baseY(row)), w, h);
-        if (accent == null) {
-            builder.accentBar();
-        } else {
-            builder.accentBar(accent);
-        }
+    private AbstractWidget button(int row, int x, int w, int h, Component text, Runnable onClick) {
+        var builder = Button.builder(text, b -> onClick.run()).bounds(x, rowY(baseY(row)), w, h);
         return track(builder.build(), baseY(row));
     }
 
@@ -306,8 +298,7 @@ public class CustomBlockScreen extends Screen {
                 () -> {
                     setter.accept(!current);
                     requestRebuild();
-                },
-                current ? AccentSide.LEFT : AccentSide.RIGHT);
+                });
         return r + 1;
     }
 
@@ -344,7 +335,7 @@ public class CustomBlockScreen extends Screen {
                 list.add(TEAMS[next].name());
             }
             requestRebuild();
-        }, AccentSide.LEFT);
+        });
         return r + 1;
     }
 
@@ -378,14 +369,14 @@ public class CustomBlockScreen extends Screen {
                     () -> {
                         list.remove(index);
                         requestRebuild();
-                    }, AccentSide.RIGHT);
+                    });
             r++;
         }
         button(r++, fieldX(), 160, 18, Component.translatable(addKey),
                 () -> {
                     list.add("");
                     requestRebuild();
-                }, AccentSide.BOTTOM);
+                });
         return r;
     }
 
@@ -481,7 +472,7 @@ public class CustomBlockScreen extends Screen {
             BlockEvent event = new BlockEvent();
             data.events.add(event);
             requestRebuild();
-        }, AccentSide.BOTTOM);
+        });
     }
 
     /** 单个事件的编辑块（类型 / 指令 / 冷却 / 条件，字段按类型显示）。 */
@@ -497,11 +488,11 @@ public class CustomBlockScreen extends Screen {
                 () -> {
                     event.setType(EVENT_TYPES[(type.ordinal() + 1) % EVENT_TYPES.length]);
                     requestRebuild();
-                }, AccentSide.LEFT);
+                });
         button(r, fieldX() + 186, 60, 18, Component.translatable("sre.custom_block.event.remove"), () -> {
             data.events.remove(index);
             requestRebuild();
-        }, AccentSide.RIGHT);
+        });
         r++;
 
         r = textLines(r, Component.translatable("sre.custom_block.label.commands"), event.commands,
@@ -541,16 +532,16 @@ public class CustomBlockScreen extends Screen {
         int by = panelTopY + panelHeight - 26, bw = 110, gap = 8;
         int sx = panelLeftX + (panelWidth - (bw * 3 + gap * 2)) / 2;
 
-        var save = ModernButton.builder(Component.translatable("sre.custom_role.save"), b -> save())
-                .bounds(sx, by, bw, 20).accentBar(AccentSide.BOTTOM).build();
-        var manage = ModernButton.builder(Component.translatable("sre.custom_block.manage"),
+        var save = Button.builder(Component.translatable("sre.custom_role.save"), b -> save())
+                .bounds(sx, by, bw, 20).build();
+        var manage = Button.builder(Component.translatable("sre.custom_block.manage"),
                 b -> {
                     CustomBlockConfig config = CustomBlockConfig.getInstance();
                     config.savePreferWorldPath(minecraft.getSingleplayerServer());
                     minecraft.setScreen(new CustomBlockManageScreen(() -> new CustomBlockScreen()));
-                }).bounds(sx + bw + gap, by, bw, 20).accentBar(AccentSide.BOTTOM).build();
-        var cancel = ModernButton.builder(Component.translatable("sre.custom_role.cancel"), b -> onClose())
-                .bounds(sx + (bw + gap) * 2, by, bw, 20).accentBar(AccentSide.BOTTOM).build();
+                }).bounds(sx + bw + gap, by, bw, 20).build();
+        var cancel = Button.builder(Component.translatable("sre.custom_role.cancel"), b -> onClose())
+                .bounds(sx + (bw + gap) * 2, by, bw, 20).build();
 
         addRenderableWidget(save);
         addRenderableWidget(manage);
@@ -789,5 +780,20 @@ public class CustomBlockScreen extends Screen {
     private static String num(double value) {
         return Math.abs(value - Math.rint(value)) < 0.0001D ? String.valueOf((long) Math.rint(value))
                 : String.valueOf(value);
+    }
+
+    /**
+     * 页签文字：活跃页签用金色粗体。
+     *
+     * <p>
+     * 按钮已换成原版按钮（没有 accent 装饰条了），页签的活跃状态用文字区分，
+     * 符合 {@code docs/ui_style.md} 第 5 节的文字层级（重点金色 / 次要土褐）。
+     */
+    private Component tabLabel(int index) {
+        Component label = Component.translatable(TAB_KEYS[index]);
+        if (index == activeTab) {
+            return label.copy().withStyle(style -> style.withBold(true).withColor(SREPanelStyle.GOLD));
+        }
+        return label.copy().withStyle(style -> style.withColor(SREPanelStyle.MUTED));
     }
 }

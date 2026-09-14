@@ -21,6 +21,7 @@ import io.wifi.starrailexpress.network.CustomRoleServerNetwork;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.network.chat.Component;
+import net.minecraft.server.MinecraftServer;
 
 /**
  * 自定义职业重载命令：{@code sre:reload custom_roles}
@@ -28,20 +29,22 @@ import net.minecraft.network.chat.Component;
  * <p>
  * 只重载职业。修饰符 / 列车物品 / 方块各有自己的子命令
  * （{@code custom_modifiers} / {@code custom_items} / {@code custom_blocks}），
- * 不需要重载全部内容时只跑对应的一条。
+ * 不带子命令的 {@code sre:reload} 则一键重载全部（见
+ * {@link io.wifi.starrailexpress.content.command.SREReloadCommand}）。
  */
 public class CustomRoleReloadCommand {
 
     public static void register(CommandDispatcher<CommandSourceStack> dispatcher) {
         dispatcher.register(Commands.literal("sre:reload")
                 .requires(source -> source.hasPermission(3))
+                // 无参 = 一键重载全部内容。四个内容类型各自注册了同名根节点，Brigadier 合并同名节点时
+                // 只合并子命令、并且「只有非 null 的执行器才会覆盖已有的」（见 CommandNode#addChild），
+                // 所以全项目只在**这一处**挂执行器即可，另外三处不用重复挂。
+                .executes(io.wifi.starrailexpress.content.command.SREReloadCommand::reloadAll)
                 .then(Commands.literal("custom_roles").executes(context -> {
                     CommandSourceStack source = context.getSource();
                     try {
-                        CustomRoleLoader.reload(source.getServer());
-                        // 清除缓存并同步到所有客户端
-                        CustomRoleServerNetwork.clearCache();
-                        CustomRoleServerNetwork.syncToAllPlayers(source.getServer());
+                        reload(source.getServer());
                         source.sendSuccess(
                                 () -> Component.literal("[CustomRole] 自定义职业配置已重新加载")
                                         .withStyle(s -> s.withColor(0x55FF55)),
@@ -54,5 +57,12 @@ public class CustomRoleReloadCommand {
                         return 0;
                     }
                 })));
+    }
+
+    /** 重载服务端索引并同步给所有在线玩家（供本命令与一键重载复用）。 */
+    public static void reload(MinecraftServer server) {
+        CustomRoleLoader.reload(server);
+        CustomRoleServerNetwork.clearCache();
+        CustomRoleServerNetwork.syncToAllPlayers(server);
     }
 }

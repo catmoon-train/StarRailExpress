@@ -125,6 +125,7 @@ public class SREHelpCommand {
                 new Entry("/sre:give", "sre.give"),
                 new Entry("/sre:setblock", "sre.setblock"),
                 new Entry("/sre:clone", "sre.clone"),
+                new Entry("/sre:reload", "sre.reload"),
                 new Entry("/sre:reload custom_roles", "sre.reload.custom_roles"),
                 new Entry("/sre:reload custom_modifiers", "sre.reload.custom_modifiers"),
                 new Entry("/sre:reload custom_items", "sre.reload.custom_items"),

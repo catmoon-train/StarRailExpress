@@ -3732,5 +3732,7 @@
     "gui.display_block.entity_parse_ok": "Current: %s",
     "gui.display_block.entity_parse_error": "Parse failed: %s",
     "gui.display_block.entity_parse_no_id": "Missing entity type: no id in the text and none selected",
-    "gui.display_block.entity_clipboard_empty": "Clipboard is empty: copy an entity with F3+I first"
+    "gui.display_block.entity_clipboard_empty": "Clipboard is empty: copy an entity with F3+I first",
+    "sre.custom_role.hint.item_id": "Custom train item id or vanilla item id",
+    "sre.custom_content.reload.all": "§aReloaded custom content: %d/4"
 }

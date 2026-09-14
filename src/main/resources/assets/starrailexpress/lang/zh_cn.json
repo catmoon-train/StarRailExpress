@@ -3844,5 +3844,7 @@
     "gui.display_block.entity_parse_ok": "当前：%s",
     "gui.display_block.entity_parse_error": "解析失败：%s",
     "gui.display_block.entity_parse_no_id": "缺少实体类型：文本里没有 id，也没选类型",
-    "gui.display_block.entity_clipboard_empty": "剪贴板是空的：先用 F3+I 复制实体"
+    "gui.display_block.entity_clipboard_empty": "剪贴板是空的：先用 F3+I 复制实体",
+    "sre.custom_role.hint.item_id": "自定义列车物品 id 或原版物品 id",
+    "sre.custom_content.reload.all": "§a已一键重载自定义内容：%d/4 项"
 }

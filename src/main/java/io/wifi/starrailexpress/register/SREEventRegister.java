@@ -129,6 +129,24 @@ public class SREEventRegister {
             net.exmo.sre.client.chat.ChatDialogueManager.getInstance(server);
             SRE.REPLAY_MANAGER = new GameReplayManager(server);
             SyncMapConfigPayload.sendToAllPlayers();
+            // 加载自定义列车物品（必须在自定义职业之前：职业的初始物品 / 任务奖励支持
+            // [custom_item] 前缀，要在职业解析时就能查到自定义物品索引）
+            try {
+                io.wifi.starrailexpress.customitem.CustomItemLoader.reload(server);
+                io.wifi.starrailexpress.network.CustomItemServerNetwork.clearCache();
+                io.wifi.starrailexpress.network.CustomItemServerNetwork.syncToAllPlayers(server);
+            } catch (Throwable e) {
+                SRE.LOGGER.error("[CustomItem] Failed to load custom items on server start", e);
+            }
+            // 加载自定义方块
+            try {
+                io.wifi.starrailexpress.customblock.CustomBlockLoader.reload(server);
+                io.wifi.starrailexpress.synccontent.ContentSyncServer.invalidate(
+                        io.wifi.starrailexpress.synccontent.ContentChannel.CUSTOM_BLOCK);
+                io.wifi.starrailexpress.synccontent.ContentSyncServer.broadcastHandshake(server);
+            } catch (Throwable e) {
+                SRE.LOGGER.error("[CustomBlock] Failed to load custom blocks on server start", e);
+            }
             // 加载自定义职业
             try {
                 io.wifi.starrailexpress.customrole.CustomRoleLoader.reload(server);
@@ -145,23 +163,6 @@ public class SREEventRegister {
                 io.wifi.starrailexpress.network.CustomModifierServerNetwork.syncToAllPlayers(server);
             } catch (Throwable e) {
                 SRE.LOGGER.error("[CustomModifier] Failed to load custom modifiers on server start", e);
-            }
-            // 加载自定义列车物品
-            try {
-                io.wifi.starrailexpress.customitem.CustomItemLoader.reload(server);
-                io.wifi.starrailexpress.network.CustomItemServerNetwork.clearCache();
-                io.wifi.starrailexpress.network.CustomItemServerNetwork.syncToAllPlayers(server);
-            } catch (Throwable e) {
-                SRE.LOGGER.error("[CustomItem] Failed to load custom items on server start", e);
-            }
-            // 加载自定义方块
-            try {
-                io.wifi.starrailexpress.customblock.CustomBlockLoader.reload(server);
-                io.wifi.starrailexpress.synccontent.ContentSyncServer.invalidate(
-                        io.wifi.starrailexpress.synccontent.ContentChannel.CUSTOM_BLOCK);
-                io.wifi.starrailexpress.synccontent.ContentSyncServer.broadcastHandshake(server);
-            } catch (Throwable e) {
-                SRE.LOGGER.error("[CustomBlock] Failed to load custom blocks on server start", e);
             }
             // 拉取赞助者名单（异步）
             io.wifi.starrailexpress.sponsor.SponsorManager.fetchAsync(server);

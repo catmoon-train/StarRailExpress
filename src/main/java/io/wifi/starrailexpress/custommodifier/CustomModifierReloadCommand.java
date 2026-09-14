@@ -21,9 +21,14 @@ import io.wifi.starrailexpress.network.CustomModifierServerNetwork;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.network.chat.Component;
+import net.minecraft.server.MinecraftServer;
 
 /**
  * 自定义修饰符重载命令：{@code sre:reload custom_modifiers}
+ *
+ * <p>
+ * 不带子命令的 {@code sre:reload} 一键重载全部（见
+ * {@link io.wifi.starrailexpress.content.command.SREReloadCommand}）。
  */
 public class CustomModifierReloadCommand {
 
@@ -34,9 +39,7 @@ public class CustomModifierReloadCommand {
                         .executes(context -> {
                             CommandSourceStack source = context.getSource();
                             try {
-                                CustomModifierLoader.reload(source.getServer());
-                                CustomModifierServerNetwork.clearCache();
-                                CustomModifierServerNetwork.syncToAllPlayers(source.getServer());
+                                reload(source.getServer());
                                 source.sendSuccess(
                                         () -> Component.literal("[CustomModifier] 自定义修饰符配置已重新加载")
                                                 .withStyle(s -> s.withColor(0x55FF55)),
@@ -50,5 +53,12 @@ public class CustomModifierReloadCommand {
                                 return 0;
                             }
                         })));
+    }
+
+    /** 重载服务端索引并同步给所有在线玩家（供本命令与一键重载复用）。 */
+    public static void reload(MinecraftServer server) {
+        CustomModifierLoader.reload(server);
+        CustomModifierServerNetwork.clearCache();
+        CustomModifierServerNetwork.syncToAllPlayers(server);
     }
 }

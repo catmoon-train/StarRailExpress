@@ -27,14 +27,13 @@ import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractWidget;
+import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
-import org.agmas.noellesroles.client.widget.custom_button.ModernButton;
-import org.agmas.noellesroles.client.widget.custom_button.ModernButton.AccentSide;
 
 import java.util.ArrayList;
 import java.util.IdentityHashMap;
@@ -48,7 +47,7 @@ import java.util.function.DoubleConsumer;
  *
  * <p>
  * UI 风格与 {@code CustomModifierScreen} / {@code CustomRoleScreen} 一致（面板 + 页签 + 自绘标签 +
- * EditBox + ModernButton + 滚动），重建统一走 {@link #requestRebuild()}，在 render 里执行。
+ * EditBox + Button + 滚动），重建统一走 {@link #requestRebuild()}，在 render 里执行。
  * 所有文案均走翻译键（{@code sre.custom_item.*}），代码中不出现硬编码文案。
  */
 @Environment(EnvType.CLIENT)
@@ -110,8 +109,10 @@ public class CustomItemScreen extends Screen {
     // ══════════════════════════════════════════════════════════════════
     private void computeLayout() {
         panelWidth = Math.min((int) (width * USABLE_RATIO), MAX_PANEL_WIDTH);
+        // 窗口很小时以窗口为准：面板必须完整落在显示区域内，超出的内容靠滚动查看
+        int windowLimit = Math.max(120, height - 4);
         int rawH = Math.min((int) (height * USABLE_RATIO), MAX_PANEL_HEIGHT);
-        panelHeight = Math.max(rawH, MIN_PANEL_HEIGHT);
+        panelHeight = Math.min(Math.max(rawH, MIN_PANEL_HEIGHT), windowLimit);
         panelLeftX = (width - panelWidth) / 2;
         panelTopY = (height - panelHeight) / 2;
     }
@@ -201,21 +202,17 @@ public class CustomItemScreen extends Screen {
     }
 
     private void buildTabBar() {
-        int tw = 90, th = 20, tg = 4;
+        int th = 20, tg = 4, tabs = TAB_NAMES.length;
+        int tw = Math.min(90, Math.max(48, (panelWidth - 24 - tg * (tabs - 1)) / tabs));
         int total = tw * TAB_NAMES.length + tg * (TAB_NAMES.length - 1);
         int sx = panelLeftX + (panelWidth - total) / 2;
         for (int i = 0; i < TAB_NAMES.length; i++) {
             final int index = i;
-            var builder = ModernButton.builder(Component.translatable(TAB_KEYS[i]), button -> {
+            var builder = Button.builder(tabLabel(i), button -> {
                 activeTab = index;
                 scrollOffset = 0;
                 requestRebuild();
             }).bounds(sx + i * (tw + tg), panelTopY + 8, tw, th);
-            if (activeTab == i) {
-                builder.accentBar(AccentSide.BOTTOM);
-            } else {
-                builder.accentBar();
-            }
             var built = builder.build();
             addRenderableWidget(built);
             tabBarButtons.add(built);
@@ -252,13 +249,8 @@ public class CustomItemScreen extends Screen {
         return track(box, baseY(row));
     }
 
-    private AbstractWidget button(int row, int x, int w, int h, Component text, Runnable onClick, AccentSide accent) {
-        var builder = ModernButton.builder(text, b -> onClick.run()).bounds(x, rowY(baseY(row)), w, h);
-        if (accent == null) {
-            builder.accentBar();
-        } else {
-            builder.accentBar(accent);
-        }
+    private AbstractWidget button(int row, int x, int w, int h, Component text, Runnable onClick) {
+        var builder = Button.builder(text, b -> onClick.run()).bounds(x, rowY(baseY(row)), w, h);
         return track(builder.build(), baseY(row));
     }
 
@@ -292,8 +284,7 @@ public class CustomItemScreen extends Screen {
                 () -> {
                     setter.accept(!current);
                     requestRebuild();
-                },
-                current ? AccentSide.LEFT : AccentSide.RIGHT);
+                });
         return r + 1;
     }
 
@@ -305,8 +296,7 @@ public class CustomItemScreen extends Screen {
                 () -> {
                     setter.accept((current.ordinal() + 1) % current.getDeclaringClass().getEnumConstants().length);
                     requestRebuild();
-                },
-                AccentSide.LEFT);
+                });
         return r + 1;
     }
 
@@ -321,7 +311,7 @@ public class CustomItemScreen extends Screen {
             int index = ids.indexOf(current);
             setter.accept(ids.get((index + 1) % ids.size()));
             requestRebuild();
-        }, AccentSide.LEFT);
+        });
         return r + 1;
     }
 
@@ -354,14 +344,14 @@ public class CustomItemScreen extends Screen {
                     () -> {
                         list.remove(index);
                         requestRebuild();
-                    }, AccentSide.RIGHT);
+                    });
             r++;
         }
         button(r++, fieldX(), 160, 18, Component.translatable(addKey),
                 () -> {
                     list.add("");
                     requestRebuild();
-                }, AccentSide.BOTTOM);
+                });
         return r;
     }
 
@@ -419,7 +409,7 @@ public class CustomItemScreen extends Screen {
                     data.kind = KINDS[(data.kind().ordinal() + 1) % KINDS.length].name();
                     scrollOffset = 0;
                     requestRebuild();
-                }, AccentSide.LEFT);
+                });
         r += 2;
 
         r = switch (data.kind()) {
@@ -547,16 +537,16 @@ public class CustomItemScreen extends Screen {
         int by = panelTopY + panelHeight - 26, bw = 110, gap = 8;
         int sx = panelLeftX + (panelWidth - (bw * 3 + gap * 2)) / 2;
 
-        var save = ModernButton.builder(Component.translatable("sre.custom_role.save"), b -> save())
-                .bounds(sx, by, bw, 20).accentBar(AccentSide.BOTTOM).build();
-        var manage = ModernButton.builder(Component.translatable("sre.custom_item.manage"),
+        var save = Button.builder(Component.translatable("sre.custom_role.save"), b -> save())
+                .bounds(sx, by, bw, 20).build();
+        var manage = Button.builder(Component.translatable("sre.custom_item.manage"),
                 b -> {
                     CustomItemConfig config = CustomItemConfig.getInstance();
                     config.savePreferWorldPath(minecraft.getSingleplayerServer());
                     minecraft.setScreen(new CustomItemManageScreen(() -> new CustomItemScreen()));
-                }).bounds(sx + bw + gap, by, bw, 20).accentBar(AccentSide.BOTTOM).build();
-        var cancel = ModernButton.builder(Component.translatable("sre.custom_role.cancel"), b -> onClose())
-                .bounds(sx + (bw + gap) * 2, by, bw, 20).accentBar(AccentSide.BOTTOM).build();
+                }).bounds(sx + bw + gap, by, bw, 20).build();
+        var cancel = Button.builder(Component.translatable("sre.custom_role.cancel"), b -> onClose())
+                .bounds(sx + (bw + gap) * 2, by, bw, 20).build();
 
         addRenderableWidget(save);
         addRenderableWidget(manage);
@@ -783,5 +773,20 @@ public class CustomItemScreen extends Screen {
     /** 供外部（指令补全等）复用的整数解析。 */
     public static int parseIntSafe(String value, int fallback) {
         return parseInt(value, fallback);
+    }
+
+    /**
+     * 页签文字：活跃页签用金色粗体。
+     *
+     * <p>
+     * 按钮已换成原版按钮（没有 accent 装饰条了），页签的活跃状态用文字区分，
+     * 符合 {@code docs/ui_style.md} 第 5 节的文字层级（重点金色 / 次要土褐）。
+     */
+    private Component tabLabel(int index) {
+        Component label = Component.translatable(TAB_KEYS[index]);
+        if (index == activeTab) {
+            return label.copy().withStyle(style -> style.withBold(true).withColor(SREPanelStyle.GOLD));
+        }
+        return label.copy().withStyle(style -> style.withColor(SREPanelStyle.MUTED));
     }
 }

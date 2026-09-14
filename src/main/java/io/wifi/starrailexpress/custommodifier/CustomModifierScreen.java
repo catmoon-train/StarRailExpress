@@ -25,12 +25,11 @@ import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractWidget;
+import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.Mth;
-import org.agmas.noellesroles.client.widget.custom_button.ModernButton;
-import org.agmas.noellesroles.client.widget.custom_button.ModernButton.AccentSide;
 
 import java.util.ArrayList;
 import java.util.IdentityHashMap;
@@ -41,7 +40,7 @@ import java.util.Map;
  * 自定义修饰符编辑界面（6 页：基础 / 关联 / 生成 / 生成限制 / 触发条件 / 触发内容）。
  *
  * <p>
- * UI 风格与 {@code CustomRoleScreen} 一致（面板 + 页签 + 自绘标签 + EditBox + ModernButton + 滚动）；
+ * UI 风格与 {@code CustomRoleScreen} 一致（面板 + 页签 + 自绘标签 + EditBox + Button + 滚动）；
  * 重建统一走 {@link #requestRebuild()}，在 render 里执行，避免在按钮回调中清空控件列表。
  */
 @Environment(EnvType.CLIENT)
@@ -105,8 +104,10 @@ public class CustomModifierScreen extends Screen {
     // ══════════════════════════════════════════════════════════════════
     private void computeLayout() {
         panelWidth = Math.min((int) (width * USABLE_RATIO), MAX_PANEL_WIDTH);
+        // 窗口很小时以窗口为准：面板必须完整落在显示区域内，超出的内容靠滚动查看
+        int windowLimit = Math.max(120, height - 4);
         int rawH = Math.min((int) (height * USABLE_RATIO), MAX_PANEL_HEIGHT);
-        panelHeight = Math.max(rawH, MIN_PANEL_HEIGHT);
+        panelHeight = Math.min(Math.max(rawH, MIN_PANEL_HEIGHT), windowLimit);
         panelLeftX = (width - panelWidth) / 2;
         panelTopY = (height - panelHeight) / 2;
     }
@@ -198,24 +199,19 @@ public class CustomModifierScreen extends Screen {
     }
 
     private void buildTabBar() {
-        int tw = 74, th = 20, tg = 4;
+        int th = 20, tg = 4, tabs = TAB_NAMES.length;
+        int tw = Math.min(74, Math.max(48, (panelWidth - 24 - tg * (tabs - 1)) / tabs));
         int total = tw * TAB_NAMES.length + tg * (TAB_NAMES.length - 1);
         int sx = panelLeftX + (panelWidth - total) / 2;
         for (int i = 0; i < TAB_NAMES.length; i++) {
             final int index = i;
-            var builder = ModernButton.builder(
-                    Component.translatableWithFallback("sre.custom_modifier.tab." + TAB_NAMES[i],
-                            tabFallback(TAB_NAMES[i])),
+            var builder = Button.builder(
+                    tabLabel(i),
                     button -> {
                         activeTab = index;
                         scrollOffset = 0;
                         requestRebuild();
                     }).bounds(sx + i * (tw + tg), panelTopY + 8, tw, th);
-            if (activeTab == i) {
-                builder.accentBar(AccentSide.BOTTOM);
-            } else {
-                builder.accentBar();
-            }
             var built = builder.build();
             addRenderableWidget(built);
             tabBarButtons.add(built);
@@ -280,13 +276,8 @@ public class CustomModifierScreen extends Screen {
         });
     }
 
-    private AbstractWidget button(int row, int x, int w, int h, Component text, Runnable onClick, AccentSide accent) {
-        var builder = ModernButton.builder(text, b -> onClick.run()).bounds(x, rowY(baseY(row)), w, h);
-        if (accent == null) {
-            builder.accentBar();
-        } else {
-            builder.accentBar(accent);
-        }
+    private AbstractWidget button(int row, int x, int w, int h, Component text, Runnable onClick) {
+        var builder = Button.builder(text, b -> onClick.run()).bounds(x, rowY(baseY(row)), w, h);
         return track(builder.build(), baseY(row));
     }
 
@@ -300,8 +291,7 @@ public class CustomModifierScreen extends Screen {
                 () -> {
                     setter.accept(!current);
                     requestRebuild();
-                },
-                current ? AccentSide.LEFT : AccentSide.RIGHT);
+                });
     }
 
     // ══════════════════════════════════════════════════════════════════
@@ -385,15 +375,13 @@ public class CustomModifierScreen extends Screen {
                     () -> {
                         toggle(data.cannotAppliedToTeams, team.name());
                         requestRebuild();
-                    },
-                    cannot ? AccentSide.LEFT : null);
+                    });
             button(r, fieldX() + 116, 110, 18,
                     Component.literal((only ? "§a✓ " : "§7· ")).append(label),
                     () -> {
                         toggle(data.canOnlyAppliedToTeams, team.name());
                         requestRebuild();
-                    },
-                    only ? AccentSide.LEFT : null);
+                    });
             r++;
         }
         listBox(r++, "sre.custom_modifier.label.cannot_roles", "不作用于特定职业", data.cannotBeAppliedTo,
@@ -424,8 +412,7 @@ public class CustomModifierScreen extends Screen {
                         ConditionType[] values = ConditionType.values();
                         applyDefaultParams(condition, values[(type.ordinal() + 1) % values.length]);
                         requestRebuild();
-                    },
-                    AccentSide.LEFT);
+                    });
 
             switch (paramKind(type)) {
                 case 1 -> box(r, fieldX() + 116, 64, num(condition.value), valueHint(type),
@@ -440,8 +427,7 @@ public class CustomModifierScreen extends Screen {
                             () -> {
                                 condition.comparison = nextComparison(condition.comparison);
                                 requestRebuild();
-                            },
-                            null);
+                            });
                     box(r, fieldX() + 196, 64, num(condition.value), "数值",
                             v -> condition.value = parseDouble(v, condition.value));
                 }
@@ -451,8 +437,7 @@ public class CustomModifierScreen extends Screen {
                         () -> {
                             condition.worldTimeType = nextTime(condition.worldTimeType);
                             requestRebuild();
-                        },
-                        null);
+                        });
                 case 5 -> {
                     box(r, fieldX() + 116, 54, String.valueOf(condition.intervalSeconds), "间隔秒",
                             v -> condition.intervalSeconds = parseInt(v, condition.intervalSeconds));
@@ -471,14 +456,13 @@ public class CustomModifierScreen extends Screen {
                     () -> {
                         condition.logic = or ? "AND" : "OR";
                         requestRebuild();
-                    },
-                    null);
+                    });
 
             // 删除
             button(r, fieldX() + 332, 18, 18, Component.literal("§c×"), () -> {
                 data.conditions.remove(index);
                 requestRebuild();
-            }, AccentSide.RIGHT);
+            });
             r++;
         }
 
@@ -488,7 +472,7 @@ public class CustomModifierScreen extends Screen {
                     applyDefaultParams(condition, ConditionType.TIMER);
                     data.conditions.add(condition);
                     requestRebuild();
-                }, AccentSide.BOTTOM);
+                });
     }
 
     /**
@@ -565,7 +549,7 @@ public class CustomModifierScreen extends Screen {
                 button(r, fieldX() + 326, 18, 18, Component.literal("§c×"), () -> {
                     data.commands.remove(index);
                     requestRebuild();
-                }, AccentSide.RIGHT);
+                });
                 r++;
             }
             button(r++, fieldX(), 140, 18,
@@ -573,7 +557,7 @@ public class CustomModifierScreen extends Screen {
                     () -> {
                         data.commands.add("");
                         requestRebuild();
-                    }, AccentSide.BOTTOM);
+                    });
         }
 
         // 给予药水效果
@@ -594,7 +578,7 @@ public class CustomModifierScreen extends Screen {
             button(r, fieldX() + 252, 18, 18, Component.literal("§c×"), () -> {
                 data.effects.remove(index);
                 requestRebuild();
-            }, AccentSide.RIGHT);
+            });
             r++;
         }
         button(r++, fieldX(), 140, 18,
@@ -605,7 +589,7 @@ public class CustomModifierScreen extends Screen {
                     effect.durationSeconds = 10;
                     data.effects.add(effect);
                     requestRebuild();
-                }, AccentSide.BOTTOM);
+                });
 
         // 玩家属性（仅全局触发）
         if (global) {
@@ -620,7 +604,7 @@ public class CustomModifierScreen extends Screen {
                 button(r, fieldX() + 272, 18, 18, Component.literal("§c×"), () -> {
                     data.attributes.remove(index);
                     requestRebuild();
-                }, AccentSide.RIGHT);
+                });
                 r++;
             }
             button(r++, fieldX(), 140, 18,
@@ -628,7 +612,7 @@ public class CustomModifierScreen extends Screen {
                     () -> {
                         data.attributes.add(new AttributeData());
                         requestRebuild();
-                    }, AccentSide.BOTTOM);
+                    });
         } else {
             boolButton(r++, "sre.custom_modifier.effect.remove_on_trigger", "条件触发后移除该修饰符",
                     data.removeModifierOnTrigger, v -> data.removeModifierOnTrigger = v);
@@ -642,17 +626,17 @@ public class CustomModifierScreen extends Screen {
         int by = panelTopY + panelHeight - 26, bw = 110, gap = 8;
         int sx = panelLeftX + (panelWidth - (bw * 3 + gap * 2)) / 2;
 
-        var save = ModernButton.builder(Component.translatable("sre.custom_role.save"), b -> save())
-                .bounds(sx, by, bw, 20).accentBar(AccentSide.BOTTOM).build();
-        var manage = ModernButton.builder(
+        var save = Button.builder(Component.translatable("sre.custom_role.save"), b -> save())
+                .bounds(sx, by, bw, 20).build();
+        var manage = Button.builder(
                 Component.translatableWithFallback("sre.custom_modifier.manage", "§6管理修饰符"),
                 b -> {
                     CustomModifierConfig config = CustomModifierConfig.getInstance();
                     config.savePreferWorldPath(minecraft.getSingleplayerServer());
                     minecraft.setScreen(new CustomModifierManageScreen(() -> new CustomModifierScreen()));
-                }).bounds(sx + bw + gap, by, bw, 20).accentBar(AccentSide.BOTTOM).build();
-        var cancel = ModernButton.builder(Component.translatable("sre.custom_role.cancel"), b -> onClose())
-                .bounds(sx + (bw + gap) * 2, by, bw, 20).accentBar(AccentSide.BOTTOM).build();
+                }).bounds(sx + bw + gap, by, bw, 20).build();
+        var cancel = Button.builder(Component.translatable("sre.custom_role.cancel"), b -> onClose())
+                .bounds(sx + (bw + gap) * 2, by, bw, 20).build();
 
         addRenderableWidget(save);
         addRenderableWidget(manage);
@@ -964,5 +948,21 @@ public class CustomModifierScreen extends Screen {
             case FAKE_POISONED -> "触发过假毒";
             case HAS_WEAK_ARMOR -> "拥有弱效护盾";
         };
+    }
+
+    /**
+     * 页签文字：活跃页签用金色粗体。
+     *
+     * <p>
+     * 按钮已换成原版按钮（没有 accent 装饰条了），页签的活跃状态用文字区分，
+     * 符合 {@code docs/ui_style.md} 第 5 节的文字层级（重点金色 / 次要土褐）。
+     */
+    private Component tabLabel(int index) {
+        Component label = Component.translatableWithFallback("sre.custom_modifier.tab." + TAB_NAMES[index],
+                tabFallback(TAB_NAMES[index]));
+        if (index == activeTab) {
+            return label.copy().withStyle(style -> style.withBold(true).withColor(SREPanelStyle.GOLD));
+        }
+        return label.copy().withStyle(style -> style.withColor(SREPanelStyle.MUTED));
     }
 }

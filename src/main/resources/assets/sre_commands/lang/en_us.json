@@ -263,5 +263,7 @@
     "sre.reload.custom_items.name": "Reload custom items",
     "sre.reload.custom_items.desc": "Reload only the custom train item configs and sync them to clients.",
     "sre.reload.custom_blocks.name": "Reload custom blocks",
-    "sre.reload.custom_blocks.desc": "Reload only the custom block configs and sync them to clients."
+    "sre.reload.custom_blocks.desc": "Reload only the custom block configs and sync them to clients.",
+    "sre.reload.name": "Reload all custom content",
+    "sre.reload.desc": "Without a subcommand, reloads all custom content (items / blocks / roles / modifiers); a subcommand reloads just one kind."
 }

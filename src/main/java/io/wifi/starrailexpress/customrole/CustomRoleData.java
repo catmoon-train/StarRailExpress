@@ -352,6 +352,7 @@ public class CustomRoleData {
     }
 
     public static class InitialItemEntry {
+        /** 物品 id：先按自定义列车物品解析，找不到再当原版物品（两种都能填）。 */
         @SerializedName("itemId")
         public String itemId = "";
         @SerializedName("count")
@@ -396,6 +397,11 @@ public class CustomRoleData {
     }
 
     public static class ShopEntryData {
+        /**
+         * 商品类型：{@code item} 物品（id 先按自定义列车物品解析，找不到再当原版物品；旧配置里的
+         * {@code custom_item} 等价于它）/ {@code psycho} 偏执模式 / {@code blackout} 停电 /
+         * {@code monitor_fail} 监控失效 / {@code custom} 自定义（名称+图标+指令）。
+         */
         @SerializedName("type")
         public String type = "item";
 

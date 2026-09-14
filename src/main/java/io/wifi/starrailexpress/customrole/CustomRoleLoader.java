@@ -539,16 +539,9 @@ public class CustomRoleLoader {
         if (data.taskRewardCount > 0 && !data.taskRewardItems.isEmpty()) {
             List<ItemStack> rewardStacks = new ArrayList<>();
             for (CustomRoleData.InitialItemEntry entry : data.taskRewardItems) {
-                if (entry.itemId == null || entry.itemId.isEmpty())
-                    continue;
-                try {
-                    ResourceLocation itemId = ResourceLocation.parse(entry.itemId);
-                    Optional<Item> itemOpt = BuiltInRegistries.ITEM.getOptional(itemId);
-                    if (itemOpt.isPresent()) {
-                        int count = Math.max(1, entry.count);
-                        rewardStacks.add(new ItemStack(itemOpt.get(), count));
-                    }
-                } catch (Exception ignored) {
+                ItemStack stack = parseConfiguredItem(entry.itemId, entry.count);
+                if (!stack.isEmpty()) {
+                    rewardStacks.add(stack);
                 }
             }
             if (!rewardStacks.isEmpty()) {
@@ -599,16 +592,9 @@ public class CustomRoleLoader {
         if (!data.initialItems.isEmpty()) {
             List<ItemStack> stacks = new ArrayList<>();
             for (CustomRoleData.InitialItemEntry entry : data.initialItems) {
-                if (entry.itemId == null || entry.itemId.isEmpty())
-                    continue;
-                try {
-                    ResourceLocation itemId = ResourceLocation.parse(entry.itemId);
-                    Optional<Item> itemOpt = BuiltInRegistries.ITEM.getOptional(itemId);
-                    if (itemOpt.isPresent()) {
-                        int count = Math.max(1, entry.count);
-                        stacks.add(new ItemStack(itemOpt.get(), count));
-                    }
-                } catch (Exception ignored) {
+                ItemStack stack = parseConfiguredItem(entry.itemId, entry.count);
+                if (!stack.isEmpty()) {
+                    stacks.add(stack);
                 }
             }
             if (role instanceof CustomNormalRole customRole) {
@@ -1137,41 +1123,37 @@ public class CustomRoleLoader {
         for (CustomRoleData.ShopEntryData entry : data.shopEntries) {
             final int cooldownTicks = entry.cooldownSeconds * 20;
             switch (entry.type) {
-                case "item": {
-                    if (!entry.itemId.isEmpty()) {
-                        try {
-                            ResourceLocation itemId = ResourceLocation.parse(entry.itemId);
-                            Optional<Item> item = BuiltInRegistries.ITEM.getOptional(itemId);
-                            if (item.isPresent()) {
-                                final Item theItem = item.get();
-                                if (entry.allowDuplicate && cooldownTicks <= 0) {
-                                    // 避免Mamizou不能购买所有的自定义职业的物品。
-                                    entries.add(new ShopEntry(
-                                            new ItemStack(theItem), entry.price, ShopEntry.Type.TOOL));
-                                } else {
-                                    entries.add(new ShopEntry(
-                                            new ItemStack(theItem), entry.price, ShopEntry.Type.TOOL) {
-                                        @Override
-                                        public boolean onBuy(net.minecraft.world.entity.player.Player player) {
-                                            // 禁止重复购买：检查快捷栏是否已有该物品
-                                            if (!entry.allowDuplicate) {
-                                                for (var stack : player.getInventory().items) {
-                                                    if (stack.is(theItem))
-                                                        return false;
-                                                }
-                                            }
-                                            boolean result = super.onBuy(player);
-                                            // 冷却
-                                            if (result && cooldownTicks > 0
-                                                    && player instanceof net.minecraft.server.level.ServerPlayer sp) {
-                                                sp.getCooldowns().addCooldown(theItem, cooldownTicks);
-                                            }
-                                            return result;
+                case "item":
+                case "custom_item": {
+                    // 统一的「物品」条目：id 先按自定义列车物品解析，找不到再当原版物品
+                    //（custom_item 是旧配置里的写法，等价处理）
+                    ItemStack base = parseConfiguredItem(entry.itemId, 1);
+                    if (!base.isEmpty()) {
+                        final ItemStack shopStack = base.copy();
+                        final Item theItem = shopStack.getItem();
+                        if (entry.allowDuplicate && cooldownTicks <= 0) {
+                            // 避免Mamizou不能购买所有的自定义职业的物品。
+                            entries.add(new ShopEntry(shopStack.copy(), entry.price, ShopEntry.Type.TOOL));
+                        } else {
+                            entries.add(new ShopEntry(shopStack.copy(), entry.price, ShopEntry.Type.TOOL) {
+                                @Override
+                                public boolean onBuy(net.minecraft.world.entity.player.Player player) {
+                                    // 禁止重复购买：检查快捷栏是否已有该物品（自定义物品连组件一起比对）
+                                    if (!entry.allowDuplicate) {
+                                        for (var stack : player.getInventory().items) {
+                                            if (ItemStack.isSameItemSameComponents(stack, shopStack))
+                                                return false;
                                         }
-                                    });
+                                    }
+                                    boolean result = super.onBuy(player);
+                                    // 冷却
+                                    if (result && cooldownTicks > 0
+                                            && player instanceof net.minecraft.server.level.ServerPlayer sp) {
+                                        sp.getCooldowns().addCooldown(theItem, cooldownTicks);
+                                    }
+                                    return result;
                                 }
-                            }
-                        } catch (Exception ignored) {
+                            });
                         }
                     }
                     break;
@@ -1547,6 +1529,61 @@ public class CustomRoleLoader {
         } else {
             // 无自定义文本时使用 CUSTOM 模式，走翻译键
             RoleUtils.customWinnerWin(serverLevel, data.englishId, color);
+        }
+    }
+
+    /**
+     * 解析职业配置里的「物品 id」：<b>先按自定义列车物品解析，找不到再当原版物品</b>。
+     *
+     * <p>
+     * 两种物品共用同一个 id 字段，所以自定义列车物品与模组/原版物品可以混在一张表里写。
+     * 兼容两种历史写法：
+     * <ul>
+     * <li>{@code [custom_item] my_sword} / {@code [item] minecraft:stone} —— 前缀会被忽略，
+     * 直接按统一规则解析（前缀不再有实际作用，仅为不破坏已保存的配置而保留）；</li>
+     * <li>旧配置里 {@code type = custom_item} 的条目走的是同一个 id，因此照常生效。</li>
+     * </ul>
+     *
+     * <p>
+     * 解析失败返回空栈，调用方直接跳过。
+     */
+    public static ItemStack parseConfiguredItem(String spec, int count) {
+        if (spec == null || spec.isBlank()) {
+            return ItemStack.EMPTY;
+        }
+        String value = spec.trim();
+        int amount = Math.max(1, count);
+
+        if (value.startsWith("[")) {
+            int close = value.indexOf(']');
+            if (close < 0) {
+                return ItemStack.EMPTY;
+            }
+            value = value.substring(close + 1).trim();
+            if (value.isEmpty()) {
+                return ItemStack.EMPTY;
+            }
+        }
+
+        // ① 自定义列车物品（同名 id）
+        String customId = value.toLowerCase(java.util.Locale.ROOT);
+        io.wifi.starrailexpress.customitem.CustomItemData custom = io.wifi.starrailexpress.customitem.CustomItemLoader
+                .get(customId);
+        if (custom != null) {
+            return io.wifi.starrailexpress.customitem.CustomItemLoader.buildStack(custom, amount);
+        }
+
+        // ② 原版 / 模组物品
+        try {
+            ResourceLocation itemId = ResourceLocation.tryParse(value);
+            if (itemId == null) {
+                return ItemStack.EMPTY;
+            }
+            return BuiltInRegistries.ITEM.getOptional(itemId)
+                    .map(item -> new ItemStack(item, amount))
+                    .orElse(ItemStack.EMPTY);
+        } catch (Exception e) {
+            return ItemStack.EMPTY;
         }
     }
 }

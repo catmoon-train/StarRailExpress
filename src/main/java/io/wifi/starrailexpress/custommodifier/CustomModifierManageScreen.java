@@ -19,12 +19,11 @@ import io.wifi.starrailexpress.client.gui.SREPanelStyle;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.Style;
 import net.minecraft.util.Mth;
-import org.agmas.noellesroles.client.widget.custom_button.ModernButton;
-import org.agmas.noellesroles.client.widget.custom_button.ModernButton.AccentSide;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -36,12 +35,22 @@ import java.util.function.Supplier;
 @Environment(EnvType.CLIENT)
 public class CustomModifierManageScreen extends Screen {
 
-    private static final int PANEL_WIDTH = 460;
-    private static final int PANEL_HEIGHT = 380;
+    private static final int PREF_PANEL_WIDTH = 460;
+    private static final int PREF_PANEL_HEIGHT = 380;
     private static final int SCROLL_W = 7;
     private static final int SCROLL_MIN_THUMB = 20;
     private static final int ROW_HEIGHT = 24;
-    private static final int VISIBLE_ROWS = 12;
+    private static final int PREF_VISIBLE_ROWS = 12;
+
+    /** 实际面板尺寸（小窗口下会被裁进窗口）。 */
+    private int panelW;
+    private int panelH;
+    /** 实际可见行数（由面板高度算出）。 */
+    private int visibleRows;
+    /** 列表行布局（由面板宽度算出）。 */
+    private int nameW;
+    private int delX;
+    private int infoX;
 
     private int panelLeftX, panelTopY;
     private final Supplier<Screen> backScreenSupplier;
@@ -67,18 +76,25 @@ public class CustomModifierManageScreen extends Screen {
 
     @Override
     protected void init() {
-        panelLeftX = (width - PANEL_WIDTH) / 2;
-        panelTopY = (height - PANEL_HEIGHT) / 2;
+        // 小窗口下面板跟着窗口收缩（列表靠滚动查看），保证面板不超出显示区域
+        panelW = Math.min(PREF_PANEL_WIDTH, Math.max(240, width - 8));
+        panelH = Math.min(PREF_PANEL_HEIGHT, Math.max(140, height - 8));
+        panelLeftX = (width - panelW) / 2;
+        panelTopY = (height - panelH) / 2;
+        visibleRows = Math.max(2, Math.min(PREF_VISIBLE_ROWS, (panelH - 68) / ROW_HEIGHT));
+        nameW = Math.min(220, Math.max(80, panelW - 60));
+        delX = panelLeftX + 10 + nameW + 8;
+        infoX = delX + 38;
 
         CustomModifierConfig config = CustomModifierConfig.loadPreferWorldPath(minecraft.getSingleplayerServer());
         modifiers = config.modifiers;
 
-        maxScroll = Math.max(0, (modifiers.size() - VISIBLE_ROWS) * ROW_HEIGHT);
+        maxScroll = Math.max(0, (modifiers.size() - visibleRows) * ROW_HEIGHT);
         scrollOffset = Mth.clamp(scrollOffset, 0, maxScroll);
 
         int baseY = panelTopY + 34;
         int startIdx = scrollOffset / ROW_HEIGHT;
-        int visibleCount = Math.min(VISIBLE_ROWS + 1, modifiers.size() - startIdx);
+        int visibleCount = Math.min(visibleRows + 1, modifiers.size() - startIdx);
 
         for (int i = 0; i < visibleCount; i++) {
             final int index = startIdx + i;
@@ -90,12 +106,12 @@ public class CustomModifierManageScreen extends Screen {
             String displayText = modifier.englishId
                     + (modifier.displayName == null || modifier.displayName.isEmpty() ? ""
                             : " (" + modifier.displayName + ")");
-            ModernButton nameBtn = ModernButton
+            Button nameBtn = Button
                     .builder(Component.literal(displayText), b -> minecraft.setScreen(new CustomModifierScreen(modifier)))
-                    .bounds(panelLeftX + 10, y, 220, 20).accentBar(AccentSide.LEFT).build();
+                    .bounds(panelLeftX + 10, y, nameW, 20).build();
             addRenderableWidget(nameBtn);
 
-            ModernButton delBtn = ModernButton.builder(Component.literal("X"), b -> {
+            Button delBtn = Button.builder(Component.literal("X"), b -> {
                 config.modifiers.remove(index);
                 config.savePreferWorldPath(minecraft.getSingleplayerServer());
                 var server = minecraft.getSingleplayerServer();
@@ -108,26 +124,26 @@ public class CustomModifierManageScreen extends Screen {
                     });
                 }
                 requestRebuild();
-            }).bounds(panelLeftX + 238, y, 30, 20).accentBar(AccentSide.RIGHT).build();
+            }).bounds(panelLeftX + delX, y, 30, 20).build();
             addRenderableWidget(delBtn);
         }
 
-        ModernButton backBtn = ModernButton
+        Button backBtn = Button
                 .builder(Component.translatableWithFallback("sre.custom_modifier.back", "返回"),
                         b -> minecraft.setScreen(backScreenSupplier.get()))
-                .bounds(panelLeftX + 10, panelTopY + PANEL_HEIGHT - 28, 90, 20).accentBar(AccentSide.BOTTOM).build();
+                .bounds(panelLeftX + 10, panelTopY + panelH - 28, 90, 20).build();
         addRenderableWidget(backBtn);
 
-        ModernButton newBtn = ModernButton
+        Button newBtn = Button
                 .builder(Component.translatableWithFallback("sre.custom_modifier.new", "新建修饰符"),
                         b -> minecraft.setScreen(new CustomModifierScreen()))
-                .bounds(panelLeftX + 110, panelTopY + PANEL_HEIGHT - 28, 110, 20).accentBar(AccentSide.BOTTOM).build();
+                .bounds(panelLeftX + 110, panelTopY + panelH - 28, 110, 20).build();
         addRenderableWidget(newBtn);
     }
 
     @Override
     public void renderBackground(GuiGraphics g, int mouseX, int mouseY, float delta) {
-        SREPanelStyle.drawPanel(g, panelLeftX - 6, panelTopY - 3, PANEL_WIDTH + 12, PANEL_HEIGHT + 6);
+        SREPanelStyle.drawPanel(g, panelLeftX - 6, panelTopY - 3, panelW + 12, panelH + 6);
     }
 
     @Override
@@ -140,18 +156,18 @@ public class CustomModifierManageScreen extends Screen {
         renderBackground(g, mouseX, mouseY, partialTick);
         super.render(g, mouseX, mouseY, partialTick);
 
-        int centerX = panelLeftX + PANEL_WIDTH / 2;
+        int centerX = panelLeftX + panelW / 2;
         g.drawCenteredString(font, Component
                 .translatableWithFallback("sre.custom_modifier.manage.title", "管理自定义修饰符")
                 .withStyle(s -> s.withColor(0xFFD4AF37).withBold(true)), centerX, panelTopY + 10, 0xFFFFFF);
 
         int listTop = panelTopY + 32;
-        int listBottom = panelTopY + PANEL_HEIGHT - 34;
-        g.enableScissor(panelLeftX + 8, listTop, panelLeftX + PANEL_WIDTH - 16, listBottom);
+        int listBottom = panelTopY + panelH - 34;
+        g.enableScissor(panelLeftX + 8, listTop, panelLeftX + panelW - 16, listBottom);
 
         int baseY = panelTopY + 34;
         int startIdx = scrollOffset / ROW_HEIGHT;
-        int visibleCount = Math.min(VISIBLE_ROWS + 1, modifiers.size() - startIdx);
+        int visibleCount = Math.min(visibleRows + 1, modifiers.size() - startIdx);
         for (int i = 0; i < visibleCount; i++) {
             int index = startIdx + i;
             if (index >= modifiers.size())
@@ -163,7 +179,7 @@ public class CustomModifierManageScreen extends Screen {
                     + "max:" + modifier.defaultMax + " 概率:" + modifier.defaultEnableChance
                     + (modifier.isGlobalTrigger() ? " 全局触发" : " 条件:" + modifier.conditions.size());
             g.drawString(font, Component.literal(info).withStyle(Style.EMPTY.withColor(color)),
-                    panelLeftX + 276, y + 6, 0xFFFFFF, false);
+                    panelLeftX + infoX, y + 6, 0xFFFFFF, false);
         }
         g.disableScissor();
 
@@ -173,14 +189,14 @@ public class CustomModifierManageScreen extends Screen {
         if (modifiers.isEmpty()) {
             g.drawCenteredString(font,
                     Component.translatableWithFallback("sre.custom_modifier.manage.empty", "§7暂无自定义修饰符"),
-                    centerX, panelTopY + PANEL_HEIGHT / 2, 0xFFFFFF);
+                    centerX, panelTopY + panelH / 2, 0xFFFFFF);
         }
     }
 
     private void renderVScrollbar(GuiGraphics g, int mouseX, int mouseY) {
-        int sbX = panelLeftX + PANEL_WIDTH - 12;
+        int sbX = panelLeftX + panelW - 12;
         int sbY = panelTopY + 34;
-        int sbH = PANEL_HEIGHT - 68;
+        int sbH = panelH - 68;
         int totalContentH = sbH + maxScroll;
         float ratio = Math.min(1f, (float) sbH / Math.max(1, totalContentH));
         int thumbH = Math.max(SCROLL_MIN_THUMB, (int) (sbH * ratio));
@@ -192,8 +208,8 @@ public class CustomModifierManageScreen extends Screen {
 
     @Override
     public boolean mouseScrolled(double mouseX, double mouseY, double scrollX, double scrollY) {
-        if (mouseX >= panelLeftX && mouseX < panelLeftX + PANEL_WIDTH
-                && mouseY >= panelTopY + 32 && mouseY < panelTopY + PANEL_HEIGHT - 34 && maxScroll > 0) {
+        if (mouseX >= panelLeftX && mouseX < panelLeftX + panelW
+                && mouseY >= panelTopY + 32 && mouseY < panelTopY + panelH - 34 && maxScroll > 0) {
             scrollOffset = Mth.clamp((int) (scrollOffset - scrollY * ROW_HEIGHT), 0, maxScroll);
             requestRebuild();
             return true;

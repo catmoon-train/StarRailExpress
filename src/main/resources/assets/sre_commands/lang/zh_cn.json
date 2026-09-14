@@ -276,5 +276,7 @@
     "sre.reload.custom_items.name": "重载自定义列车物品",
     "sre.reload.custom_items.desc": "只重载自定义列车物品配置并同步给客户端。",
     "sre.reload.custom_blocks.name": "重载自定义方块",
-    "sre.reload.custom_blocks.desc": "只重载自定义方块配置并同步给客户端。"
+    "sre.reload.custom_blocks.desc": "只重载自定义方块配置并同步给客户端。",
+    "sre.reload.name": "一键重载自定义内容",
+    "sre.reload.desc": "不带子命令时重载全部自定义内容（列车物品 / 方块 / 职业 / 修饰符）；也可以只重载其中一类。"
 }
