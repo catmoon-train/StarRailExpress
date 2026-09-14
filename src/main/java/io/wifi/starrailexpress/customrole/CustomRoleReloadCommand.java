@@ -41,6 +41,10 @@ public class CustomRoleReloadCommand {
                     io.wifi.starrailexpress.custommodifier.CustomModifierLoader.reload(source.getServer());
                     io.wifi.starrailexpress.network.CustomModifierServerNetwork.clearCache();
                     io.wifi.starrailexpress.network.CustomModifierServerNetwork.syncToAllPlayers(source.getServer());
+                    // 以及自定义列车物品的配置
+                    io.wifi.starrailexpress.customitem.CustomItemLoader.reload(source.getServer());
+                    io.wifi.starrailexpress.network.CustomItemServerNetwork.clearCache();
+                    io.wifi.starrailexpress.network.CustomItemServerNetwork.syncToAllPlayers(source.getServer());
                     source.sendSuccess(
                         () -> Component.literal("[CustomRole] 自定义职业配置已重新加载")
                             .withStyle(s -> s.withColor(0x55FF55)),

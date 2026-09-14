@@ -1,0 +1,263 @@
+/*
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ */
+
+package io.wifi.starrailexpress.customitem;
+
+import io.wifi.starrailexpress.api.ChargeableItem;
+import io.wifi.starrailexpress.client.StaminaRenderer;
+import io.wifi.starrailexpress.content.item.api.SREItemProperties;
+import io.wifi.starrailexpress.index.TMMSounds;
+import net.minecraft.network.chat.Component;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResultHolder;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.world.item.UseAnim;
+import net.minecraft.world.level.Level;
+
+import java.awt.Color;
+import java.util.List;
+
+/**
+ * 自定义列车物品（全模组唯一的那个注册物品）。
+ *
+ * <p>
+ * 自身的模型引用到不存在的地方（默认无材质），每个自定义列车物品都是它加上
+ * {@link io.wifi.starrailexpress.index.SREDataComponentTypes#CUSTOM_ITEM_ID} 组件，
+ * 具体行为由 {@link CustomItemRuntime} 按配置分发。
+ */
+public class CustomItem extends Item implements SREItemProperties.LeftClickHurtable, ChargeableItem {
+
+    public CustomItem(Properties properties) {
+        super(properties);
+    }
+
+    // ==================== 右键 ====================
+
+    @Override
+    public InteractionResultHolder<ItemStack> use(Level world, Player player, InteractionHand hand) {
+        ItemStack stack = player.getItemInHand(hand);
+        CustomItemData data = CustomItemLoader.getData(stack);
+        if (data == null) {
+            return InteractionResultHolder.pass(stack);
+        }
+        switch (data.kind()) {
+            case BASIC -> {
+                if (!world.isClientSide() && player instanceof ServerPlayer serverPlayer) {
+                    CustomItemRuntime.executeBasic(serverPlayer, stack, data);
+                }
+                return InteractionResultHolder.consume(stack);
+            }
+            case CHARGE -> {
+                if (player.getCooldowns().isOnCooldown(this)) {
+                    return InteractionResultHolder.fail(stack);
+                }
+                player.startUsingItem(hand);
+                return InteractionResultHolder.consume(stack);
+            }
+            case GUN -> {
+                if (world.isClientSide()) {
+                    // 后坐力是客户端视角变化，与左轮手枪/德林加一致
+                    applyRecoil(player, data);
+                    return InteractionResultHolder.consume(stack);
+                }
+                if (!(player instanceof ServerPlayer serverPlayer)) {
+                    return InteractionResultHolder.pass(stack);
+                }
+                boolean fired = CustomItemRuntime.useGun(serverPlayer, stack, data);
+                if (fired) {
+                    world.playSound(null, player.getX(), player.getEyeY(), player.getZ(),
+                            TMMSounds.ITEM_REVOLVER_SHOOT, SoundSource.PLAYERS, 5.0F,
+                            0.7F + player.getRandom().nextFloat() * 0.1F - 0.05F);
+                }
+                return fired ? InteractionResultHolder.consume(stack) : InteractionResultHolder.fail(stack);
+            }
+            case VANILLA_WEAPON -> {
+                if (!world.isClientSide() && player instanceof ServerPlayer serverPlayer) {
+                    CustomItemRuntime.useVanillaWeapon(serverPlayer, stack, data);
+                }
+                return InteractionResultHolder.consume(stack);
+            }
+            case FOOD -> {
+                if (data.isDrink || player.canEat(false)) {
+                    player.startUsingItem(hand);
+                    return InteractionResultHolder.consume(stack);
+                }
+                return InteractionResultHolder.fail(stack);
+            }
+        }
+        return InteractionResultHolder.pass(stack);
+    }
+
+    private static void applyRecoil(Player player, CustomItemData data) {
+        if (data.recoil <= 0) {
+            return;
+        }
+        player.setXRot(player.getXRot() - (float) data.recoil);
+    }
+
+    // ==================== 使用时长 / 动作 ====================
+
+    @Override
+    public int getUseDuration(ItemStack stack, LivingEntity entity) {
+        CustomItemData data = CustomItemLoader.getData(stack);
+        if (data == null) {
+            return 0;
+        }
+        return switch (data.kind()) {
+            case CHARGE -> Math.max(1, data.chargeTicks);
+            case FOOD -> Math.max(1, data.eatTicks);
+            default -> 0;
+        };
+    }
+
+    @Override
+    public UseAnim getUseAnimation(ItemStack stack) {
+        CustomItemData data = CustomItemLoader.getData(stack);
+        if (data == null) {
+            return UseAnim.NONE;
+        }
+        return switch (data.kind()) {
+            case CHARGE -> switch (data.chargeAnim()) {
+                case BOW -> UseAnim.BOW;
+                case SPEAR -> UseAnim.SPEAR;
+                case CROSSBOW -> UseAnim.CROSSBOW;
+                case DRINK -> UseAnim.DRINK;
+                case EAT -> UseAnim.EAT;
+                case BLOCK -> UseAnim.BLOCK;
+                case BRUSH -> UseAnim.BRUSH;
+                case NONE -> UseAnim.NONE;
+            };
+            case FOOD -> data.isDrink ? UseAnim.DRINK : UseAnim.EAT;
+            default -> UseAnim.NONE;
+        };
+    }
+
+    // ==================== 蓄力 ====================
+
+    @Override
+    public void releaseUsing(ItemStack stack, Level level, LivingEntity user, int timeCharged) {
+        if (level.isClientSide() || !(user instanceof ServerPlayer player)) {
+            return;
+        }
+        CustomItemData data = CustomItemLoader.getData(stack);
+        if (data == null || data.kind() != CustomItemData.Kind.CHARGE) {
+            return;
+        }
+        int charged = getUseDuration(stack, user) - timeCharged;
+        if (CustomItemRuntime.isChargeComplete(data, charged)) {
+            CustomItemRuntime.completeCharge(player, stack, data);
+        }
+    }
+
+    // ==================== 食用 / 蓄力条走满 ====================
+
+    @Override
+    public ItemStack finishUsingItem(ItemStack stack, Level level, net.minecraft.world.entity.LivingEntity entity) {
+        CustomItemData data = CustomItemLoader.getData(stack);
+        if (data == null || !(entity instanceof ServerPlayer player)) {
+            return super.finishUsingItem(stack, level, entity);
+        }
+        return switch (data.kind()) {
+            case FOOD -> {
+                if (data.consumeOnEat) {
+                    // 原版路径：施加食物数值并消耗 1 个
+                    ItemStack result = super.finishUsingItem(stack, level, entity);
+                    CustomItemRuntime.onFoodConsumed(player, result, data);
+                    yield result;
+                }
+                // 不消耗：手动结算食物数值
+                CustomItemRuntime.applyFoodValues(player, stack);
+                CustomItemRuntime.onFoodConsumed(player, stack, data);
+                yield stack;
+            }
+            case CHARGE -> {
+                // 蓄力条自然走满 → 直接触发（无需松手）
+                CustomItemRuntime.completeCharge(player, stack, data);
+                yield stack;
+            }
+            default -> super.finishUsingItem(stack, level, entity);
+        };
+    }
+
+    // ==================== 左键攻击（特殊原版物品） ====================
+
+    @Override
+    public boolean onServerAttack(ServerPlayer attacker, ServerPlayer target, ItemStack mainhandItem) {
+        CustomItemData data = CustomItemLoader.getData(mainhandItem);
+        if (data == null || data.kind() != CustomItemData.Kind.VANILLA_WEAPON) {
+            return true;
+        }
+        return CustomItemRuntime.onVanillaWeaponAttack(attacker, target, mainhandItem, data);
+    }
+
+    // ==================== 蓄力条（客户端 HUD） ====================
+
+    @Override
+    public int getMaxChargeTime(ItemStack stack, Player player) {
+        CustomItemData data = CustomItemLoader.getData(stack);
+        if (data != null && data.kind() == CustomItemData.Kind.CHARGE) {
+            return Math.max(1, data.chargeTicks);
+        }
+        return 0;
+    }
+
+    @Override
+    public float getChargePercentage(ItemStack stack, Player player, int ticksUsingItem) {
+        int max = getMaxChargeTime(stack, player);
+        return max <= 0 ? 0f : Math.min(1f, (float) ticksUsingItem / (float) max);
+    }
+
+    @Override
+    public float getMaxStamina(ItemStack stack, Player player) {
+        return getMaxChargeTime(stack, player);
+    }
+
+    @Override
+    public boolean hasSpecialVisualEffects(ItemStack stack, Player player) {
+        return getMaxChargeTime(stack, player) > 0;
+    }
+
+    @Override
+    public void onFullyCharged(ItemStack stack, Player player) {
+        StaminaRenderer.triggerScreenEdgeEffect(Color.pink.getRGB(), 300L, 0.5f);
+    }
+
+    // ==================== tooltip ====================
+
+    @Override
+    public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> tooltip, TooltipFlag flag) {
+        CustomItemData data = CustomItemLoader.getData(stack);
+        if (data == null) {
+            // 没有配置数据的裸物品（例如直接拿到的注册物品）
+            tooltip.add(Component.translatable("item.starrailexpress.custom_item.empty")
+                    .withStyle(style -> style.withColor(0xFF5555)));
+            return;
+        }
+        tooltip.add(Component.translatable("item.starrailexpress.custom_item.kind",
+                Component.translatable("sre.custom_item.kind." + data.kind().name().toLowerCase()))
+                .withStyle(style -> style.withColor(0x00C2FF)));
+        if (data.kind() == CustomItemData.Kind.GUN && data.ammoSystem) {
+            tooltip.add(Component.translatable("item.starrailexpress.custom_item.ammo",
+                    CustomItemRuntime.getAmmo(stack, data), data.maxAmmo)
+                    .withStyle(style -> style.withColor(0xFFB300)));
+        }
+    }
+}

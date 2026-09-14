@@ -56,6 +56,9 @@ public interface SREDataComponentTypes {
             stringBuilder -> stringBuilder.persistent(Codec.INT).networkSynchronized(ByteBufCodecs.VAR_INT));
     DataComponentType<Integer> WEAPON_USED_TIME = register("weapon_used_time",
             stringBuilder -> stringBuilder.persistent(Codec.INT).networkSynchronized(ByteBufCodecs.VAR_INT));
+    /** 自定义列车物品的编号（同一个 custom_item 物品靠它区分不同自定义物品）。 */
+    DataComponentType<String> CUSTOM_ITEM_ID = register("custom_item_id",
+            stringBuilder -> stringBuilder.persistent(Codec.STRING).networkSynchronized(ByteBufCodecs.STRING_UTF8));
 
     private static <T> DataComponentType<T> register(String name,
             @NotNull UnaryOperator<DataComponentType.Builder<T>> builderOperator) {

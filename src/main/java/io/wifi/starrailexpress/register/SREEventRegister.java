@@ -146,6 +146,14 @@ public class SREEventRegister {
             } catch (Throwable e) {
                 SRE.LOGGER.error("[CustomModifier] Failed to load custom modifiers on server start", e);
             }
+            // 加载自定义列车物品
+            try {
+                io.wifi.starrailexpress.customitem.CustomItemLoader.reload(server);
+                io.wifi.starrailexpress.network.CustomItemServerNetwork.clearCache();
+                io.wifi.starrailexpress.network.CustomItemServerNetwork.syncToAllPlayers(server);
+            } catch (Throwable e) {
+                SRE.LOGGER.error("[CustomItem] Failed to load custom items on server start", e);
+            }
             // 拉取赞助者名单（异步）
             io.wifi.starrailexpress.sponsor.SponsorManager.fetchAsync(server);
         });
@@ -188,6 +196,8 @@ public class SREEventRegister {
             CustomRoleServerNetwork.syncToPlayer(server, handler.player);
             // 同步自定义修饰符配置给新加入的玩家
             io.wifi.starrailexpress.network.CustomModifierServerNetwork.syncToPlayer(server, handler.player);
+            // 同步自定义列车物品配置给新加入的玩家
+            io.wifi.starrailexpress.network.CustomItemServerNetwork.syncToPlayer(server, handler.player);
             SceneAssetServer.sendCurrentManifest(handler.player);
             // 同步当前路径点给新加入的玩家
             io.wifi.starrailexpress.util.WaypointSync.syncTo(handler.player);
@@ -198,6 +208,7 @@ public class SREEventRegister {
             io.wifi.starrailexpress.anticheat.ClickAntiCheat.onPlayerDisconnect(handler.player.getUUID());
             CustomRoleServerNetwork.onPlayerDisconnect(handler.player.getUUID());
             io.wifi.starrailexpress.network.CustomModifierServerNetwork.onPlayerDisconnect(handler.player.getUUID());
+            io.wifi.starrailexpress.network.CustomItemServerNetwork.onPlayerDisconnect(handler.player.getUUID());
             SREGameWorldComponent gameWorldComponent = SREGameWorldComponent.KEY.get(handler.player.level());
             var psychocca = SREPlayerPsychoComponent.KEY.get(handler.player);
             if (psychocca.psychoTicks > 0) {

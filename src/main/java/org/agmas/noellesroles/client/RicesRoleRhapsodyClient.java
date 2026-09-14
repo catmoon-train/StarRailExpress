@@ -166,6 +166,15 @@ public class RicesRoleRhapsodyClient {
             client.setScreen(new io.wifi.starrailexpress.custommodifier.CustomModifierScreen());
             return true;
         };
+        // 自定义列车物品工具：右键打开列表管理界面（可新建 / 编辑 / 删除）
+        io.wifi.starrailexpress.customitem.CustomItemToolItem.openScreenCallback = (p) -> {
+            Minecraft client = Minecraft.getInstance();
+            if (client.player == null)
+                return false;
+            client.setScreen(new io.wifi.starrailexpress.customitem.CustomItemManageScreen(
+                    () -> new io.wifi.starrailexpress.customitem.CustomItemScreen()));
+            return true;
+        };
     }
 
     /**

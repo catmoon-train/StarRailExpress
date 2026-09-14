@@ -346,6 +346,10 @@ public class SREClient implements ClientModInitializer {
         BuiltinItemRendererRegistry.INSTANCE.register(
                 SREFumoBlocks.CUSTOM_PLAYER_PLUSH.asItem(),
                 new io.wifi.starrailexpress.client.render.item.CustomPlayerPlushItemRenderer());
+        // 自定义列车物品 Renderer（同一个物品按物品数据渲染不同贴图）
+        BuiltinItemRendererRegistry.INSTANCE.register(
+                io.wifi.starrailexpress.index.DevItems.CUSTOM_ITEM,
+                new io.wifi.starrailexpress.client.render.item.CustomItemRenderer());
         // Entity renderer registration
         EntityRendererRegistry.register(TMMEntities.SEAT, NoopRenderer::new);
         EntityRendererRegistry.register(TMMEntities.FIRECRACKER, FirecrackerEntityRenderer::new);
@@ -798,6 +802,9 @@ public class SREClient implements ClientModInitializer {
             io.wifi.starrailexpress.client.network.CustomRoleClientNetwork.clearCache();
             // 清理自定义修饰符客户端缓存
             io.wifi.starrailexpress.client.network.CustomModifierClientNetwork.clearCache();
+            // 清理自定义列车物品客户端缓存
+            io.wifi.starrailexpress.client.network.CustomItemClientNetwork.clearCache();
+            io.wifi.starrailexpress.client.render.item.CustomItemRenderer.clearCache();
             // 清理 OpenAL 语音特效资源
             org.agmas.noellesroles.voice.VoiceEffectsOpenALPlugin.cleanupAll();
         }));
@@ -810,6 +817,9 @@ public class SREClient implements ClientModInitializer {
 
         // 注册自定义修饰符同步接收器（客户端）
         io.wifi.starrailexpress.client.network.CustomModifierClientNetwork.register();
+
+        // 注册自定义列车物品同步接收器（客户端）
+        io.wifi.starrailexpress.client.network.CustomItemClientNetwork.register();
 
         // 注册自定义职业 HUD（技能名称 / 切换提示）
         io.wifi.starrailexpress.customrole.CustomRoleHud.register();
