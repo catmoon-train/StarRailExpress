@@ -23,12 +23,16 @@ import io.wifi.starrailexpress.content.item.api.SREItemProperties;
 import io.wifi.starrailexpress.customitem.CustomItemData.TargetMode;
 import io.wifi.starrailexpress.game.GameUtils;
 import io.wifi.starrailexpress.index.SREDataComponentTypes;
+import io.wifi.starrailexpress.index.TMMSounds;
 import io.wifi.starrailexpress.util.SkinUtils;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.fabricmc.fabric.api.event.player.UseItemCallback;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
 import net.minecraft.core.component.DataComponents;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.sounds.SoundEvent;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -77,6 +81,13 @@ public final class CustomItemRuntime {
     private static final Map<String, Long> CHARGE_FIRED = new ConcurrentHashMap<>();
     /** 自动射击状态：{@code 射手UUID|物品id} -> 状态。 */
     private static final Map<String, AutoFire> AUTO_FIRES = new ConcurrentHashMap<>();
+    /**
+     * 客户端自动射击镜像：{@code 玩家UUID|物品id} -> 窗口截止游戏刻。
+     *
+     * <p>
+     * 客户端没有服务端的 tick 状态，用它判断「自动射击期间右键」从而不给任何反馈与后坐力。
+     */
+    private static final Map<String, Long> CLIENT_AUTO_FIRE = new ConcurrentHashMap<>();
 
     private static boolean initialized = false;
 
@@ -226,9 +237,49 @@ public final class CustomItemRuntime {
 
     // ==================== 枪械道具 ====================
 
-    /** 是否正处于自动射击状态。 */
-    public static boolean isAutoFiring(Player player, String itemId) {
+    /** 服务端：是否正处于自动射击状态（权威）。 */
+    public static boolean isServerAutoFiring(Player player, String itemId) {
         return AUTO_FIRES.containsKey(key(player.getUUID(), itemId));
+    }
+
+    /** 客户端：记录自动射击窗口（右键启动自动射击时调用）。 */
+    public static void beginClientAutoFire(Player player, CustomItemData data) {
+        if (!data.autoFire) {
+            return;
+        }
+        int shots = Math.max(1, data.autoShots);
+        long until = player.level().getGameTime()
+                + (long) shots * Math.max(1, data.autoShotIntervalTicks) + 2L;
+        CLIENT_AUTO_FIRE.put(key(player.getUUID(), data.id), until);
+    }
+
+    /**
+     * 客户端：是否仍在自动射击窗口内（切换掉手持物品会立即失效）。
+     */
+    public static boolean isClientAutoFiring(Player player, String itemId) {
+        String mapKey = key(player.getUUID(), itemId);
+        Long until = CLIENT_AUTO_FIRE.get(mapKey);
+        if (until == null) {
+            return false;
+        }
+        if (player.level().getGameTime() > until) {
+            CLIENT_AUTO_FIRE.remove(mapKey);
+            return false;
+        }
+        if (!isStillHolding(player, itemId)) {
+            CLIENT_AUTO_FIRE.remove(mapKey);
+            return false;
+        }
+        return true;
+    }
+
+    /** 物品是否仍在手持（主手或副手）。 */
+    public static boolean isStillHolding(Player player, String itemId) {
+        if (itemId == null || itemId.isEmpty()) {
+            return false;
+        }
+        return itemId.equals(CustomItemLoader.getCustomItemId(player.getMainHandItem()))
+                || itemId.equals(CustomItemLoader.getCustomItemId(player.getOffhandItem()));
     }
 
     /**
@@ -238,7 +289,7 @@ public final class CustomItemRuntime {
      */
     public static boolean useGun(ServerPlayer player, ItemStack stack, CustomItemData data) {
         if (data.autoFire) {
-            if (isAutoFiring(player, data.id)) {
+            if (isServerAutoFiring(player, data.id)) {
                 // 自动射击期间右键不再触发射击与其它效果
                 return false;
             }
@@ -307,6 +358,13 @@ public final class CustomItemRuntime {
                 iterator.remove();
                 continue;
             }
+            // 自动射击期间切换了手持物品 → 立即中断本次自动射击并进入冷却
+            if (!isStillHolding(shooter, itemId)) {
+                applyCooldown(shooter, stack,
+                        data.finalCooldownTicks > 0 ? data.finalCooldownTicks : data.shotCooldownTicks);
+                iterator.remove();
+                continue;
+            }
             long now = shooter.level().getGameTime();
             if (now < state.nextShotTick) {
                 continue;
@@ -356,6 +414,9 @@ public final class CustomItemRuntime {
             }
             setAmmo(stack, ammo - 1);
         }
+
+        // 开火音效（手动开火与自动射击都会播放）
+        playFireSound(shooter, data);
 
         // 右键发射时执行的指令
         CustomItemLoader.executeCommands(data.shootCommands, shooter);
@@ -574,6 +635,28 @@ public final class CustomItemRuntime {
 
     // ==================== 工具方法 ====================
 
+    /** 播放枪械开火音效（配置里填的是音效 id，默认左轮手枪开火）。 */
+    private static void playFireSound(ServerPlayer shooter, CustomItemData data) {
+        SoundEvent sound = resolveSound(data.fireSound, TMMSounds.ITEM_REVOLVER_SHOOT);
+        if (sound == null) {
+            return;
+        }
+        shooter.serverLevel().playSound(null, shooter.getX(), shooter.getEyeY(), shooter.getZ(),
+                sound, SoundSource.PLAYERS, 5.0F, 0.7F + shooter.getRandom().nextFloat() * 0.1F - 0.05F);
+    }
+
+    /** 把配置里填的音效 id 解析成 {@link SoundEvent}（解析失败回退默认音效）。 */
+    public static SoundEvent resolveSound(String id, SoundEvent fallback) {
+        if (id == null || id.isBlank()) {
+            return fallback;
+        }
+        ResourceLocation location = ResourceLocation.tryParse(id.trim());
+        if (location == null) {
+            return fallback;
+        }
+        return BuiltInRegistries.SOUND_EVENT.getOptional(location).orElse(fallback);
+    }
+
     private static boolean isValidTarget(ServerPlayer shooter, Entity entity) {
         return entity instanceof ServerPlayer player && player != shooter
                 && GameUtils.isPlayerAliveAndSurvival(player);
@@ -630,6 +713,7 @@ public final class CustomItemRuntime {
         HIT_COUNTS.keySet().removeIf(key -> key.startsWith(prefix));
         CHARGE_FIRED.keySet().removeIf(key -> key.startsWith(prefix));
         AUTO_FIRES.keySet().removeIf(key -> key.startsWith(prefix));
+        CLIENT_AUTO_FIRE.keySet().removeIf(key -> key.startsWith(prefix));
     }
 
     /** 供物品类复用：清理玩家全部状态（重载 / 开局）。 */
@@ -637,6 +721,7 @@ public final class CustomItemRuntime {
         HIT_COUNTS.clear();
         CHARGE_FIRED.clear();
         AUTO_FIRES.clear();
+        CLIENT_AUTO_FIRE.clear();
     }
 
     /** 记录一条错误日志（避免各处重复判断）。 */

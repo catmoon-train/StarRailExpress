@@ -37,6 +37,9 @@ public class CustomItemData {
     /** 自定义列车物品统一命名空间（仅用于展示 / 标识）。 */
     public static final String NAMESPACE = "customitem";
 
+    /** 默认枪械开火音效（左轮手枪开火）。 */
+    public static final String DEFAULT_FIRE_SOUND = "starrailexpress:item.revolver.shoot";
+
     // ==================== 基础数据 ====================
 
     /** 物品编号（英文，供指令 {@code /sre:givecustomitem} 获取）。 */
@@ -112,6 +115,10 @@ public class CustomItemData {
     public List<String> targetCommands = new ArrayList<>();
 
     // ==================== 性质：枪械道具 ====================
+
+    /** 枪械开火音效 id（开火与自动开火时播放），默认左轮手枪开火。 */
+    @SerializedName("fireSound")
+    public String fireSound = DEFAULT_FIRE_SOUND;
 
     /** 是否显示弹道射线。 */
     @SerializedName("showTracer")
@@ -345,6 +352,9 @@ public class CustomItemData {
         }
         if (holdPose == null || holdPose.isBlank()) {
             holdPose = HoldPose.REVOLVER.name();
+        }
+        if (fireSound == null || fireSound.isBlank()) {
+            fireSound = DEFAULT_FIRE_SOUND;
         }
         if (lethalDeathReason == null || lethalDeathReason.isBlank()) {
             lethalDeathReason = GameConstants.DeathReasons.REVOLVER.toString();

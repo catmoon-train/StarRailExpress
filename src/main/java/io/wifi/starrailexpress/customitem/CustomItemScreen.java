@@ -449,6 +449,8 @@ public class CustomItemScreen extends Screen {
     }
 
     private int buildGunKind(int r) {
+        r = textRow(r, "sre.custom_item.label.fire_sound", data.fireSound,
+                Component.translatable("sre.custom_item.hint.fire_sound"), v -> data.fireSound = v);
         r = boolRow(r, "sre.custom_item.label.show_tracer", data.showTracer, v -> data.showTracer = v);
         r = numRow(r, "sre.custom_item.label.gun_range", data.gunRange, "sre.custom_item.unit.blocks",
                 v -> data.gunRange = v);

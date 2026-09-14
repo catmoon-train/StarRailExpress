@@ -18,10 +18,8 @@ package io.wifi.starrailexpress.customitem;
 import io.wifi.starrailexpress.api.ChargeableItem;
 import io.wifi.starrailexpress.client.StaminaRenderer;
 import io.wifi.starrailexpress.content.item.api.SREItemProperties;
-import io.wifi.starrailexpress.index.TMMSounds;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.LivingEntity;
@@ -74,19 +72,30 @@ public class CustomItem extends Item implements SREItemProperties.LeftClickHurta
             }
             case GUN -> {
                 if (world.isClientSide()) {
+                    // 自动射击期间该枪械不可用：不给任何反馈（不摆臂、无后坐力、无音效）
+                    if (CustomItemRuntime.isClientAutoFiring(player, data.id)) {
+                        return InteractionResultHolder.pass(stack);
+                    }
+                    // 弹药不足：空枪，不给后坐力
+                    if (data.ammoSystem && CustomItemRuntime.getAmmo(stack, data) <= 0) {
+                        return InteractionResultHolder.fail(stack);
+                    }
                     // 后坐力是客户端视角变化，与左轮手枪/德林加一致
                     applyRecoil(player, data);
+                    if (data.autoFire) {
+                        // 记录客户端自动射击窗口，窗口内右键不再给任何反馈
+                        CustomItemRuntime.beginClientAutoFire(player, data);
+                    }
                     return InteractionResultHolder.consume(stack);
                 }
                 if (!(player instanceof ServerPlayer serverPlayer)) {
                     return InteractionResultHolder.pass(stack);
                 }
-                boolean fired = CustomItemRuntime.useGun(serverPlayer, stack, data);
-                if (fired) {
-                    world.playSound(null, player.getX(), player.getEyeY(), player.getZ(),
-                            TMMSounds.ITEM_REVOLVER_SHOOT, SoundSource.PLAYERS, 5.0F,
-                            0.7F + player.getRandom().nextFloat() * 0.1F - 0.05F);
+                // 自动射击期间右键不触发射击与其它效果（音效由每发开火时播放）
+                if (CustomItemRuntime.isServerAutoFiring(player, data.id)) {
+                    return InteractionResultHolder.pass(stack);
                 }
+                boolean fired = CustomItemRuntime.useGun(serverPlayer, stack, data);
                 return fired ? InteractionResultHolder.consume(stack) : InteractionResultHolder.fail(stack);
             }
             case VANILLA_WEAPON -> {
