@@ -159,6 +159,13 @@ public class RicesRoleRhapsodyClient {
             client.setScreen(new CustomRoleScreen());
             return true;
         };
+        io.wifi.starrailexpress.custommodifier.CustomModifierToolItem.openScreenCallback = (p) -> {
+            Minecraft client = Minecraft.getInstance();
+            if (client.player == null)
+                return false;
+            client.setScreen(new io.wifi.starrailexpress.custommodifier.CustomModifierScreen());
+            return true;
+        };
     }
 
     /**

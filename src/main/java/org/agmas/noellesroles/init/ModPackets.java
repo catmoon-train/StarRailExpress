@@ -267,6 +267,10 @@ public class ModPackets {
         PayloadTypeRegistry.playS2C().register(io.wifi.starrailexpress.network.CustomRoleSyncPayload.TYPE,
                 io.wifi.starrailexpress.network.CustomRoleSyncPayload.CODEC);
 
+        // 自定义修饰符同步
+        PayloadTypeRegistry.playS2C().register(io.wifi.starrailexpress.network.CustomModifierSyncPayload.TYPE,
+                io.wifi.starrailexpress.network.CustomModifierSyncPayload.CODEC);
+
         // 注册物品展示 ui网络包
         PayloadTypeRegistry.playS2C().register(DisplayItemS2CPacket.ID, DisplayItemS2CPacket.CODEC);
 

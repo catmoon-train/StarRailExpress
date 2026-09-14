@@ -1163,6 +1163,7 @@ public class NoellesrolesClient implements ClientModInitializer {
             ClientAmonState.clearAll();
             ClientSkincrawlerState.clearAll();
             CustomRoleLoader.removeClientCache();
+            io.wifi.starrailexpress.custommodifier.CustomModifierLoader.removeClientCache();
             // 在断开连接时，强制清理所有玩家的渲染缓存
 
         });

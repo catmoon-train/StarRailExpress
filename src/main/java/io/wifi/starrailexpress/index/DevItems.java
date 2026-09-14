@@ -51,6 +51,10 @@ public class DevItems {
             "fake_block_tool");
     public static Item CUSTOM_ROLE_TOOL = register(new CustomRoleToolItem(new Item.Properties().stacksTo(1).rarity(Rarity.EPIC)),
             "custom_role_tool");
+    public static Item CUSTOM_MODIFIER_TOOL = register(
+            new io.wifi.starrailexpress.custommodifier.CustomModifierToolItem(
+                    new Item.Properties().stacksTo(1).rarity(Rarity.EPIC)),
+            "custom_modifier_tool");
 
     @SuppressWarnings("unchecked")
     public static Item register(Item item, String id) {

@@ -796,6 +796,8 @@ public class SREClient implements ClientModInitializer {
             io.wifi.starrailexpress.client.gui.OpeningPresentationCoordinator.clear();
             // 清理自定义职业客户端缓存
             io.wifi.starrailexpress.client.network.CustomRoleClientNetwork.clearCache();
+            // 清理自定义修饰符客户端缓存
+            io.wifi.starrailexpress.client.network.CustomModifierClientNetwork.clearCache();
             // 清理 OpenAL 语音特效资源
             org.agmas.noellesroles.voice.VoiceEffectsOpenALPlugin.cleanupAll();
         }));
@@ -805,6 +807,9 @@ public class SREClient implements ClientModInitializer {
 
         // 注册自定义职业同步接收器（客户端）
         io.wifi.starrailexpress.client.network.CustomRoleClientNetwork.register();
+
+        // 注册自定义修饰符同步接收器（客户端）
+        io.wifi.starrailexpress.client.network.CustomModifierClientNetwork.register();
 
         // 注册自定义职业 HUD（技能名称 / 切换提示）
         io.wifi.starrailexpress.customrole.CustomRoleHud.register();

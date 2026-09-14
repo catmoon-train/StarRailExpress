@@ -138,6 +138,14 @@ public class SREEventRegister {
             } catch (Throwable e) {
                 SRE.LOGGER.error("[CustomRole] Failed to load custom roles on server start", e);
             }
+            // 加载自定义修饰符
+            try {
+                io.wifi.starrailexpress.custommodifier.CustomModifierLoader.reload(server);
+                io.wifi.starrailexpress.network.CustomModifierServerNetwork.clearCache();
+                io.wifi.starrailexpress.network.CustomModifierServerNetwork.syncToAllPlayers(server);
+            } catch (Throwable e) {
+                SRE.LOGGER.error("[CustomModifier] Failed to load custom modifiers on server start", e);
+            }
             // 拉取赞助者名单（异步）
             io.wifi.starrailexpress.sponsor.SponsorManager.fetchAsync(server);
         });
@@ -178,6 +186,8 @@ public class SREEventRegister {
             }
             // 同步自定义职业配置给新加入的玩家
             CustomRoleServerNetwork.syncToPlayer(server, handler.player);
+            // 同步自定义修饰符配置给新加入的玩家
+            io.wifi.starrailexpress.network.CustomModifierServerNetwork.syncToPlayer(server, handler.player);
             SceneAssetServer.sendCurrentManifest(handler.player);
             // 同步当前路径点给新加入的玩家
             io.wifi.starrailexpress.util.WaypointSync.syncTo(handler.player);
@@ -187,6 +197,7 @@ public class SREEventRegister {
         ServerPlayConnectionEvents.DISCONNECT.register((handler, server) -> {
             io.wifi.starrailexpress.anticheat.ClickAntiCheat.onPlayerDisconnect(handler.player.getUUID());
             CustomRoleServerNetwork.onPlayerDisconnect(handler.player.getUUID());
+            io.wifi.starrailexpress.network.CustomModifierServerNetwork.onPlayerDisconnect(handler.player.getUUID());
             SREGameWorldComponent gameWorldComponent = SREGameWorldComponent.KEY.get(handler.player.level());
             var psychocca = SREPlayerPsychoComponent.KEY.get(handler.player);
             if (psychocca.psychoTicks > 0) {

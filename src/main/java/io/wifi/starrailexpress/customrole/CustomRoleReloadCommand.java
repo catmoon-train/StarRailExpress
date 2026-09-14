@@ -37,6 +37,10 @@ public class CustomRoleReloadCommand {
                     // 清除缓存并同步到所有客户端
                     CustomRoleServerNetwork.clearCache();
                     CustomRoleServerNetwork.syncToAllPlayers(source.getServer());
+                    // 自定义职业重载时一并重载自定义修饰符的配置
+                    io.wifi.starrailexpress.custommodifier.CustomModifierLoader.reload(source.getServer());
+                    io.wifi.starrailexpress.network.CustomModifierServerNetwork.clearCache();
+                    io.wifi.starrailexpress.network.CustomModifierServerNetwork.syncToAllPlayers(source.getServer());
                     source.sendSuccess(
                         () -> Component.literal("[CustomRole] 自定义职业配置已重新加载")
                             .withStyle(s -> s.withColor(0x55FF55)),

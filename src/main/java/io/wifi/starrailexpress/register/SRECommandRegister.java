@@ -107,6 +107,7 @@ public class SRECommandRegister {
             io.wifi.starrailexpress.content.command.MinigameTaskCommand.register(dispatcher);
             io.wifi.starrailexpress.cca.network.SkinsNetworkSyncCommand.register(dispatcher);
             io.wifi.starrailexpress.customrole.CustomRoleReloadCommand.register(dispatcher);
+            io.wifi.starrailexpress.custommodifier.CustomModifierReloadCommand.register(dispatcher);
             // CoinModifier.register(dispatcher, registryAccess);
             net.exmo.sre.nametag.NameTagCommand.register(dispatcher, registryAccess);
             net.exmo.sre.subtitle.SubtitleCommand.register(dispatcher, registryAccess);
