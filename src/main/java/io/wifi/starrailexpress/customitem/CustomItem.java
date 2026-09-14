@@ -260,9 +260,6 @@ public class CustomItem extends Item implements SREItemProperties.LeftClickHurta
                     .withStyle(style -> style.withColor(0xFF5555)));
             return;
         }
-        tooltip.add(Component.translatable("item.starrailexpress.custom_item.kind",
-                Component.translatable("sre.custom_item.kind." + data.kind().name().toLowerCase()))
-                .withStyle(style -> style.withColor(0x00C2FF)));
         if (data.kind() == CustomItemData.Kind.GUN && data.ammoSystem) {
             tooltip.add(Component.translatable("item.starrailexpress.custom_item.ammo",
                     CustomItemRuntime.getAmmo(stack, data), data.maxAmmo)
