@@ -271,6 +271,10 @@ public class ModPackets {
         PayloadTypeRegistry.playS2C().register(io.wifi.starrailexpress.network.CustomModifierSyncPayload.TYPE,
                 io.wifi.starrailexpress.network.CustomModifierSyncPayload.CODEC);
 
+        // 自定义列车物品同步
+        PayloadTypeRegistry.playS2C().register(io.wifi.starrailexpress.network.CustomItemSyncPayload.TYPE,
+                io.wifi.starrailexpress.network.CustomItemSyncPayload.CODEC);
+
         // 注册物品展示 ui网络包
         PayloadTypeRegistry.playS2C().register(DisplayItemS2CPacket.ID, DisplayItemS2CPacket.CODEC);
 
