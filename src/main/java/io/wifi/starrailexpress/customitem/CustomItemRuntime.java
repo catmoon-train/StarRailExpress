@@ -16,20 +16,26 @@
 package io.wifi.starrailexpress.customitem;
 
 import io.wifi.starrailexpress.SRE;
+import io.wifi.starrailexpress.api.RoleTeam;
 import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.cca.SREPlayerMoodComponent;
 import io.wifi.starrailexpress.content.item.api.SREItemProperties;
 import io.wifi.starrailexpress.customitem.CustomItemData.TargetMode;
+import io.wifi.starrailexpress.event.OnPlayerDeath;
+import io.wifi.starrailexpress.event.OnPlayerDeathWithKiller;
+import io.wifi.starrailexpress.event.ShouldDropOnDeath;
 import io.wifi.starrailexpress.game.GameUtils;
 import io.wifi.starrailexpress.index.SREDataComponentTypes;
 import io.wifi.starrailexpress.index.TMMSounds;
+import io.wifi.starrailexpress.rules.DropRules;
 import io.wifi.starrailexpress.util.SkinUtils;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.fabricmc.fabric.api.event.player.UseItemCallback;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundSource;
@@ -132,6 +138,140 @@ public final class CustomItemRuntime {
             AUTO_FIRES.clear();
             CHARGE_FIRED.clear();
         });
+
+        // 丢弃限制：是否可丢弃 / 仅特定职业可丢弃（与物品自身规则一起决定，其它物品不受影响）
+        DropRules.canDrop.add(CustomItemRuntime::canDropCustomItem);
+
+        // 死亡掉落：配置了「死后掉落」的自定义物品
+        ShouldDropOnDeath.EVENT.register(stack -> {
+            CustomItemData data = CustomItemLoader.getData(stack);
+            return data != null && data.dropOnDeath;
+        });
+
+        // 死亡传递：持有者的职业匹配时，把物品交给附近指定阵营的玩家
+        OnPlayerDeath.EVENT.register((player, reason) -> handlePassOnDeath(player));
+        OnPlayerDeathWithKiller.EVENT.register((player, killer, reason) -> handlePassOnDeath(player));
+    }
+
+    // ==================== 丢弃 / 死亡处理 ====================
+
+    /**
+     * 自定义列车物品是否允许被该玩家主动丢弃。
+     *
+     * <p>
+     * 非自定义物品直接返回 false（不影响原有 DropRules 判定）；自定义物品遵循：
+     * 填写了「仅特定职业可丢弃」→ 只有该职业能丢；否则看「是否可丢弃」。
+     */
+    private static boolean canDropCustomItem(Player player) {
+        ItemStack stack = player.getMainHandItem();
+        CustomItemData data = CustomItemLoader.getData(stack);
+        if (data == null) {
+            return false;
+        }
+        if (!data.dropOnlyRole.isEmpty()) {
+            return roleMatches(player, data.dropOnlyRole);
+        }
+        return data.canDropItem;
+    }
+
+    /** 玩家当前职业是否匹配配置里填的职业 id（支持 {@code ns:path} 与纯 path，大小写不敏感）。 */
+    public static boolean roleMatches(Player player, String configuredRoleId) {
+        if (player == null || configuredRoleId == null || configuredRoleId.isBlank()) {
+            return false;
+        }
+        SREGameWorldComponent gameWorld = SREGameWorldComponent.KEY.get(player.level());
+        SRERole role = gameWorld == null ? null : gameWorld.getRole(player);
+        if (role == null || role.identifier() == null) {
+            return false;
+        }
+        String wanted = configuredRoleId.trim();
+        ResourceLocation parsed = ResourceLocation.tryParse(wanted);
+        if (parsed != null && parsed.equals(role.identifier())) {
+            return true;
+        }
+        String path = wanted.contains(":") ? wanted.substring(wanted.indexOf(':') + 1) : wanted;
+        return role.identifier().getPath().equalsIgnoreCase(path);
+    }
+
+    /**
+     * 持有者死亡时执行「死亡传递」：职业匹配时把物品交给附近目标阵营的玩家。
+     *
+     * <p>
+     * 与会计传递存折一致：先从死亡玩家背包里取出，再交给目标玩家；
+     * 附近找不到目标阵营玩家时退化为原地掉落，避免物品凭空消失。
+     */
+    private static void handlePassOnDeath(Player victim) {
+        if (!(victim instanceof ServerPlayer serverVictim) || victim.level().isClientSide()) {
+            return;
+        }
+        List<ItemStack> toPass = new ArrayList<>();
+        for (int i = 0; i < serverVictim.getInventory().getContainerSize(); i++) {
+            ItemStack stack = serverVictim.getInventory().getItem(i);
+            CustomItemData data = CustomItemLoader.getData(stack);
+            if (data == null || data.passOnDeathRole.isEmpty()) {
+                continue;
+            }
+            if (!roleMatches(serverVictim, data.passOnDeathRole)) {
+                continue;
+            }
+            toPass.add(stack.copy());
+            serverVictim.getInventory().setItem(i, ItemStack.EMPTY);
+        }
+        if (toPass.isEmpty()) {
+            return;
+        }
+        serverVictim.containerMenu.broadcastChanges();
+
+        for (ItemStack stack : toPass) {
+            CustomItemData data = CustomItemLoader.getData(stack);
+            if (data == null) {
+                continue;
+            }
+            ServerPlayer target = findPassTarget(serverVictim, data.passOnDeathTeam());
+            if (target == null) {
+                serverVictim.drop(stack, true, false);
+                continue;
+            }
+            if (!target.getInventory().add(stack)) {
+                target.drop(stack, false);
+            }
+            target.containerMenu.broadcastChanges();
+            target.displayClientMessage(Component
+                    .translatable("sre.custom_item.pass_received", serverVictim.getName())
+                    .withStyle(style -> style.withColor(0xFFB300)), true);
+        }
+    }
+
+    /** 在附近（32 格内优先）随机挑一名目标阵营的存活玩家；附近没有则在全场同阵营里随机。 */
+    private static ServerPlayer findPassTarget(ServerPlayer victim, RoleTeam team) {
+        if (team == null) {
+            return null;
+        }
+        SREGameWorldComponent gameWorld = SREGameWorldComponent.KEY.get(victim.level());
+        if (gameWorld == null) {
+            return null;
+        }
+        List<ServerPlayer> nearby = new ArrayList<>();
+        List<ServerPlayer> all = new ArrayList<>();
+        double radiusSqr = 32.0D * 32.0D;
+        for (ServerPlayer other : victim.serverLevel().players()) {
+            if (other == victim || !GameUtils.isPlayerAliveAndSurvival(other)) {
+                continue;
+            }
+            SRERole role = gameWorld.getRole(other);
+            if (role == null || !team.matches(role)) {
+                continue;
+            }
+            all.add(other);
+            if (victim.distanceToSqr(other) <= radiusSqr) {
+                nearby.add(other);
+            }
+        }
+        List<ServerPlayer> pool = nearby.isEmpty() ? all : nearby;
+        if (pool.isEmpty()) {
+            return null;
+        }
+        return pool.get(victim.getRandom().nextInt(pool.size()));
     }
 
     // ==================== 基础道具 ====================

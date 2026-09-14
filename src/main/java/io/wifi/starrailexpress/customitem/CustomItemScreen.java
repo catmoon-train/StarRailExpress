@@ -15,6 +15,7 @@
 
 package io.wifi.starrailexpress.customitem;
 
+import io.wifi.starrailexpress.api.RoleTeam;
 import io.wifi.starrailexpress.client.render.item.CustomItemRenderer;
 import io.wifi.starrailexpress.customitem.CustomItemData.ChargeAnim;
 import io.wifi.starrailexpress.customitem.CustomItemData.HoldPose;
@@ -69,6 +70,7 @@ public class CustomItemScreen extends Screen {
     private static final ChargeAnim[] CHARGE_ANIMS = ChargeAnim.values();
     private static final TargetMode[] TARGET_MODES = TargetMode.values();
     private static final HoldPose[] HOLD_POSES = HoldPose.values();
+    private static final RoleTeam[] TEAMS = RoleTeam.values();
 
     private int panelWidth, panelHeight, panelLeftX, panelTopY, activeTab = 0;
     private int scrollOffset = 0, maxScroll = 0;
@@ -391,6 +393,17 @@ public class CustomItemScreen extends Screen {
         // 物品 tooltip：多行文本，每行一个输入框，＋ 追加一行
         r = textLines(r, "sre.custom_item.label.tooltip", data.tooltip,
                 "sre.custom_item.hint.tooltip", "sre.custom_item.add_tooltip");
+
+        // 丢弃 / 死亡规则
+        addHintText(r++, Component.translatable("sre.custom_item.section.drop"), 0x00C2FF);
+        r = boolRow(r, "sre.custom_item.label.can_drop", data.canDropItem, v -> data.canDropItem = v);
+        r = textRow(r, "sre.custom_item.label.drop_only_role", data.dropOnlyRole,
+                Component.translatable("sre.custom_item.hint.drop_only_role"), v -> data.dropOnlyRole = v);
+        r = boolRow(r, "sre.custom_item.label.drop_on_death", data.dropOnDeath, v -> data.dropOnDeath = v);
+        r = textRow(r, "sre.custom_item.label.pass_on_death_role", data.passOnDeathRole,
+                Component.translatable("sre.custom_item.hint.pass_on_death_role"), v -> data.passOnDeathRole = v);
+        r = enumRow(r, "sre.custom_item.label.pass_on_death_team", "sre.custom_item.team", data.passOnDeathTeam(),
+                index -> data.passOnDeathTeam = TEAMS[index].name());
     }
 
     // ══════════════════════════════════════════════════════════════════

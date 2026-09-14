@@ -16,6 +16,7 @@
 package io.wifi.starrailexpress.customitem;
 
 import com.google.gson.annotations.SerializedName;
+import io.wifi.starrailexpress.api.RoleTeam;
 import io.wifi.starrailexpress.game.GameConstants;
 
 import java.util.ArrayList;
@@ -65,6 +66,28 @@ public class CustomItemData {
     /** 物品性质（单选）。 */
     @SerializedName("kind")
     public String kind = Kind.BASIC.name();
+
+    // ==================== 基础数据：丢弃 / 死亡 ====================
+
+    /** 是否可丢弃（默认否）：为是时玩家可在游戏内主动丢弃该物品。 */
+    @SerializedName("canDropItem")
+    public boolean canDropItem = false;
+
+    /** 仅能被该职业丢弃（职业 id，留空表示不做职业限制，只看 {@link #canDropItem}）。 */
+    @SerializedName("dropOnlyRole")
+    public String dropOnlyRole = "";
+
+    /** 持有者（任意玩家）死亡时是否掉落该物品（默认否）。 */
+    @SerializedName("dropOnDeath")
+    public boolean dropOnDeath = false;
+
+    /** 持有者死亡时把该物品传递给附近玩家的职业条件（职业 id，留空则此项不生效）。 */
+    @SerializedName("passOnDeathRole")
+    public String passOnDeathRole = "";
+
+    /** 死亡传递的目标阵营（{@link RoleTeam} 名称）。 */
+    @SerializedName("passOnDeathTeam")
+    public String passOnDeathTeam = RoleTeam.CIVILIAN.name();
 
     // ==================== 性质：基础道具 ====================
 
@@ -306,6 +329,15 @@ public class CustomItemData {
         }
     }
 
+    /** 死亡传递的目标阵营（解析失败回退平民阵营）。 */
+    public RoleTeam passOnDeathTeam() {
+        try {
+            return RoleTeam.valueOf(passOnDeathTeam);
+        } catch (Exception e) {
+            return RoleTeam.CIVILIAN;
+        }
+    }
+
     /** 完整的展示用标识：{@code customitem:<id>}。 */
     public String getFullIdentifier() {
         return NAMESPACE + ":" + id;
@@ -355,6 +387,17 @@ public class CustomItemData {
         }
         if (fireSound == null || fireSound.isBlank()) {
             fireSound = DEFAULT_FIRE_SOUND;
+        }
+        if (dropOnlyRole == null) {
+            dropOnlyRole = "";
+        }
+        dropOnlyRole = dropOnlyRole.trim();
+        if (passOnDeathRole == null) {
+            passOnDeathRole = "";
+        }
+        passOnDeathRole = passOnDeathRole.trim();
+        if (passOnDeathTeam == null || passOnDeathTeam.isBlank()) {
+            passOnDeathTeam = RoleTeam.CIVILIAN.name();
         }
         if (lethalDeathReason == null || lethalDeathReason.isBlank()) {
             lethalDeathReason = GameConstants.DeathReasons.REVOLVER.toString();
