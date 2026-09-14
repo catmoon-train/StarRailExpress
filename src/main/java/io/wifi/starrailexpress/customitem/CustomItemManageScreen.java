@@ -56,7 +56,7 @@ public class CustomItemManageScreen extends Screen {
     }
 
     public CustomItemManageScreen(Supplier<Screen> backSupplier) {
-        super(Component.translatableWithFallback("sre.custom_item.manage.title", "管理自定义列车物品"));
+        super(Component.translatable("sre.custom_item.manage.title"));
         this.backScreenSupplier = backSupplier;
     }
 
@@ -113,13 +113,13 @@ public class CustomItemManageScreen extends Screen {
         }
 
         ModernButton backBtn = ModernButton
-                .builder(Component.translatableWithFallback("sre.custom_item.back", "返回"),
+                .builder(Component.translatable("sre.custom_item.back"),
                         b -> minecraft.setScreen(backScreenSupplier.get()))
                 .bounds(panelLeftX + 10, panelTopY + PANEL_HEIGHT - 28, 90, 20).accentBar(AccentSide.BOTTOM).build();
         addRenderableWidget(backBtn);
 
         ModernButton newBtn = ModernButton
-                .builder(Component.translatableWithFallback("sre.custom_item.new", "新建物品"),
+                .builder(Component.translatable("sre.custom_item.new"),
                         b -> minecraft.setScreen(new CustomItemScreen()))
                 .bounds(panelLeftX + 110, panelTopY + PANEL_HEIGHT - 28, 110, 20).accentBar(AccentSide.BOTTOM).build();
         addRenderableWidget(newBtn);
@@ -143,7 +143,7 @@ public class CustomItemManageScreen extends Screen {
 
         int centerX = panelLeftX + PANEL_WIDTH / 2;
         g.drawCenteredString(font, Component
-                .translatableWithFallback("sre.custom_item.manage.title", "管理自定义列车物品")
+                .translatable("sre.custom_item.manage.title")
                 .withStyle(s -> s.withColor(0x55BBFF).withBold(true)), centerX, panelTopY + 10, 0xFFFFFF);
 
         int listTop = panelTopY + 32;
@@ -159,12 +159,9 @@ public class CustomItemManageScreen extends Screen {
                 break;
             CustomItemData item = items.get(index);
             int y = baseY + i * ROW_HEIGHT - (scrollOffset % ROW_HEIGHT);
-            String info = Component
-                    .translatableWithFallback("sre.custom_item.kind." + item.kind().name().toLowerCase(),
-                            item.kind().name())
-                    .getString()
-                    + "  " + summary(item);
-            g.drawString(font, Component.literal(info).withStyle(Style.EMPTY.withColor(0x98A2B3)),
+            Component info = Component.translatable("sre.custom_item.kind." + item.kind().name().toLowerCase())
+                    .append(Component.literal("  ").append(summary(item)));
+            g.drawString(font, info.copy().withStyle(Style.EMPTY.withColor(0x98A2B3)),
                     panelLeftX + 316, y + 6, 0xFFFFFF, false);
         }
         g.disableScissor();
@@ -174,18 +171,29 @@ public class CustomItemManageScreen extends Screen {
         }
         if (items.isEmpty()) {
             g.drawCenteredString(font,
-                    Component.translatableWithFallback("sre.custom_item.manage.empty", "§7暂无自定义列车物品"),
+                    Component.translatable("sre.custom_item.manage.empty").withStyle(s -> s.withColor(0x98A2B3)),
                     centerX, panelTopY + PANEL_HEIGHT / 2, 0xFFFFFF);
         }
     }
 
-    private static String summary(CustomItemData item) {
+    /** 列表右侧摘要（全部走翻译键）。 */
+    private static Component summary(CustomItemData item) {
         return switch (item.kind()) {
-            case BASIC -> "指令:" + item.commands.size();
-            case CHARGE -> item.chargeTicks + "t" + (item.affectOthers ? " 群体" : "");
-            case GUN -> (item.autoFire ? "自动" : "手动") + (item.ammoSystem ? " 弹药" + item.maxAmmo : "");
-            case VANILLA_WEAPON -> "伤害:" + item.virtualDamage;
-            case FOOD -> "饥饿:" + item.nutrition + (item.isDrink ? " 饮料" : "");
+            case BASIC -> Component.translatable("sre.custom_item.summary.commands", item.commands.size());
+            case CHARGE -> Component
+                    .translatable("sre.custom_item.summary.charge", item.chargeTicks)
+                    .append(item.affectOthers ? Component.translatable("sre.custom_item.summary.multi")
+                            : Component.empty());
+            case GUN -> Component
+                    .translatable(item.autoFire ? "sre.custom_item.summary.auto" : "sre.custom_item.summary.manual")
+                    .append(item.ammoSystem
+                            ? Component.translatable("sre.custom_item.summary.ammo", item.maxAmmo)
+                            : Component.empty());
+            case VANILLA_WEAPON -> Component.translatable("sre.custom_item.summary.damage", item.virtualDamage);
+            case FOOD -> Component
+                    .translatable("sre.custom_item.summary.nutrition", item.nutrition)
+                    .append(item.isDrink ? Component.translatable("sre.custom_item.summary.drink")
+                            : Component.empty());
         };
     }
 

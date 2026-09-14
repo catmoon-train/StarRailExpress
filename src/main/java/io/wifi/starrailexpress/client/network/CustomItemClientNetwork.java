@@ -99,6 +99,8 @@ public class CustomItemClientNetwork {
                 }
                 writeToLocalConfig(fullJson);
                 CustomItemLoader.reloadClient();
+                // 贴图解析缓存依赖配置，同步后清一次
+                io.wifi.starrailexpress.client.render.item.CustomItemRenderer.clearCache();
             } catch (Exception e) {
                 e.printStackTrace();
             }

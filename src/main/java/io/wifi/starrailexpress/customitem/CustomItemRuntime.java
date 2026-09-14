@@ -239,16 +239,21 @@ public final class CustomItemRuntime {
     public static boolean useGun(ServerPlayer player, ItemStack stack, CustomItemData data) {
         if (data.autoFire) {
             if (isAutoFiring(player, data.id)) {
+                // 自动射击期间右键不再触发射击与其它效果
                 return false;
             }
             return startAutoFire(player, stack, data);
         }
-        return fireGun(player, stack, data, false) != null || true;
+        if (!canFire(player, stack, data)) {
+            return false;
+        }
+        fireGun(player, stack, data, false);
+        return true;
     }
 
     /** 启动自动射击：立即打第一发，其余按间隔在 tick 中补齐。 */
     private static boolean startAutoFire(ServerPlayer player, ItemStack stack, CustomItemData data) {
-        if (player.getCooldowns().isOnCooldown(stack.getItem())) {
+        if (!canFire(player, stack, data)) {
             return false;
         }
         AutoFire state = new AutoFire();
