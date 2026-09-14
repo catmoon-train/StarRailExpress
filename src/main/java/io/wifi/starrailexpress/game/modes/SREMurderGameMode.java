@@ -375,6 +375,10 @@ public class SREMurderGameMode extends GameMode {
         if (modifier.cannotBeAppliedTo != null && role != null && modifier.cannotBeAppliedTo.contains(role)) {
             return false;
         }
+        // 按阵营整体排除（setCannotAppliedToTeam）
+        if (modifier.isTeamExcluded(role)) {
+            return false;
+        }
         if (modifier.killerOnly && (role == null || !role.canUseKiller())) {
             return false;
         }

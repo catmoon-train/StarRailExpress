@@ -15,6 +15,7 @@
 
 package org.agmas.harpymodloader.modifiers;
 
+import io.wifi.starrailexpress.api.RoleTeam;
 import io.wifi.starrailexpress.api.SREAbstractInfoClass;
 import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
@@ -41,6 +42,11 @@ public class SREModifier extends SREAbstractInfoClass {
     public boolean killerOnly = false;
     public boolean civilianOnly = false;
     public boolean notVigilante = false;
+    /**
+     * 按阵营整体排除：这些阵营的职业不会获得此修饰符。
+     * 与 {@link #cannotBeAppliedTo}（按具体职业排除）叠加生效，见 {@link #setCannotAppliedToTeam}。
+     */
+    public final EnumSet<RoleTeam> cannotBeAppliedToTeams = EnumSet.noneOf(RoleTeam.class);
     public Consumer<ServerPlayer> serverTickEvent = null;
     public Consumer<Player> clientTickEvent = null;
     public int defaultMaxCount = 1;
@@ -446,6 +452,61 @@ public class SREModifier extends SREAbstractInfoClass {
     public SREModifier setCannotAppliedToVigilante(boolean flag) {
         this.notVigilante = flag;
         return this;
+    }
+
+    /**
+     * 按阵营排除：不把此修饰符分配给这些阵营的职业（可多次调用叠加）。
+     *
+     * <p>
+     * 例：{@code setCannotAppliedToTeam(RoleTeam.KILLER, RoleTeam.NEUTRAL_KILLER)}
+     * 表示不给杀手与杀手方中立。
+     *
+     * @param teams 阵营，{@code null} 会被忽略
+     * @return this
+     */
+    public SREModifier setCannotAppliedToTeam(RoleTeam... teams) {
+        if (teams != null) {
+            for (RoleTeam team : teams) {
+                if (team != null) {
+                    this.cannotBeAppliedToTeams.add(team);
+                }
+            }
+        }
+        return this;
+    }
+
+    /**
+     * 取消 {@link #setCannotAppliedToTeam} 添加的阵营排除。
+     *
+     * @param teams 要取消的阵营，{@code null} 会被忽略
+     * @return this
+     */
+    public SREModifier removeCannotAppliedToTeam(RoleTeam... teams) {
+        if (teams != null) {
+            for (RoleTeam team : teams) {
+                if (team != null) {
+                    this.cannotBeAppliedToTeams.remove(team);
+                }
+            }
+        }
+        return this;
+    }
+
+    /**
+     * 该职业是否因阵营排除（{@link #cannotBeAppliedToTeams}）而不应获得此修饰符。
+     *
+     * @param role 目标职业，{@code null} 时返回 false
+     */
+    public boolean isTeamExcluded(SRERole role) {
+        if (role == null || this.cannotBeAppliedToTeams.isEmpty()) {
+            return false;
+        }
+        for (RoleTeam team : this.cannotBeAppliedToTeams) {
+            if (team.matches(role)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /**
