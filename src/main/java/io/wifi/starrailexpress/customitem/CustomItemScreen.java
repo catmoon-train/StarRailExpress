@@ -327,14 +327,22 @@ public class CustomItemScreen extends Screen {
         return Component.translatable("death_reason." + id.replace(':', '.'));
     }
 
-    /** 多指令列表块（每行输入框 + ×，末尾 ＋ 添加）。 */
-    private int commandList(int r, String labelKey, List<String> list) {
+    /**
+     * 通用多行文本列表块：每行一个输入框 + × 删除，末尾 ＋ 追加一行。
+     *
+     * <p>
+     * 列表为空时也会先补一行空输入框，保证界面上一定有可以打字的地方。
+     */
+    private int textLines(int r, String labelKey, List<String> list, String hintKey, String addKey) {
         addLabelKey(r, labelKey);
         r++;
-        addHintText(r++, Component.translatable("sre.custom_item.hint.commands"), 0x98A2B3);
+        addHintText(r++, Component.translatable(hintKey), 0x98A2B3);
+        if (list.isEmpty()) {
+            list.add("");
+        }
         for (int i = 0; i < list.size(); i++) {
             final int index = i;
-            box(r, fieldX(), 300, list.get(i), Component.translatable("sre.custom_item.hint.command"),
+            box(r, fieldX(), 300, list.get(i), Component.translatable("sre.custom_item.hint.text_line"),
                     v -> list.set(index, v));
             button(r, fieldX() + 306, 22, 18,
                     Component.translatable("sre.custom_item.remove_command"),
@@ -344,12 +352,17 @@ public class CustomItemScreen extends Screen {
                     }, AccentSide.RIGHT);
             r++;
         }
-        button(r++, fieldX(), 160, 18, Component.translatable("sre.custom_item.add_command"),
+        button(r++, fieldX(), 160, 18, Component.translatable(addKey),
                 () -> {
                     list.add("");
                     requestRebuild();
                 }, AccentSide.BOTTOM);
         return r;
+    }
+
+    /** 多指令列表块（每行输入框 + ×，末尾 ＋ 添加）。 */
+    private int commandList(int r, String labelKey, List<String> list) {
+        return textLines(r, labelKey, list, "sre.custom_item.hint.commands", "sre.custom_item.add_command");
     }
 
     // ══════════════════════════════════════════════════════════════════
@@ -373,7 +386,9 @@ public class CustomItemScreen extends Screen {
         addHintText(r++, Component.translatable("sre.custom_item.hint.pack_priority"), 0xFFB300);
         addHintText(r++, Component.translatable("sre.custom_item.label.preview"), 0xCCDDEE);
 
-        r = commandList(r, "sre.custom_item.label.tooltip", data.tooltip);
+        // 物品 tooltip：多行文本，每行一个输入框，＋ 追加一行
+        r = textLines(r, "sre.custom_item.label.tooltip", data.tooltip,
+                "sre.custom_item.hint.tooltip", "sre.custom_item.add_tooltip");
     }
 
     // ══════════════════════════════════════════════════════════════════

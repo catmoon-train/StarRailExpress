@@ -15,6 +15,11 @@
 
 package io.wifi.starrailexpress.custommodifier;
 
+import io.wifi.starrailexpress.client.network.CustomModifierClientNetwork;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.loader.api.FabricLoader;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceLocation;
 import org.agmas.harpymodloader.modifiers.SREModifier;
 
@@ -25,6 +30,10 @@ import java.util.Locale;
  *
  * <p>
  * 与自定义职业的 {@code CustomNormalRole} 对应：持有配置数据，方便运行时读取触发条件 / 触发内容。
+ *
+ * <p>
+ * 名称与介绍<b>直接来自配置</b>（{@code displayName} / {@code description}），不走翻译键
+ * —— 否则介绍页面会显示成 {@code announcement.star.modifier.xxx} 这样的原始键名。
  */
 public class CustomModifierEntry extends SREModifier {
 
@@ -56,5 +65,74 @@ public class CustomModifierEntry extends SREModifier {
 
     public CustomModifierData getData() {
         return data;
+    }
+
+    // ==================== 名称 / 介绍（直连配置，不走翻译键） ====================
+
+    /**
+     * 当前生效的配置数据：服务端优先用加载器里的权威数据，
+     * 客户端在拿不到时回退到网络同步副本（与 {@code CustomNormalRole} 同一套处理）。
+     */
+    private CustomModifierData liveData() {
+        CustomModifierData live = CustomModifierLoader.getCustomModifierData(this.data.englishId);
+        if (live != null) {
+            return live;
+        }
+        if (FabricLoader.getInstance().getEnvironmentType() == EnvType.CLIENT) {
+            CustomModifierData synced = CustomModifierClientNetwork.getSyncedModifier(this.data.englishId);
+            if (synced != null) {
+                return synced;
+            }
+        }
+        return this.data;
+    }
+
+    /** 配置里的显示名称（未填写时回退到完整 id）。 */
+    private String configuredName() {
+        CustomModifierData data = liveData();
+        if (data != null && data.displayName != null && !data.displayName.isBlank()) {
+            return data.displayName;
+        }
+        return identifier().toString();
+    }
+
+    /** 配置里的介绍（未填写时返回空串）。 */
+    private String configuredDescription() {
+        CustomModifierData data = liveData();
+        if (data != null && data.description != null && !data.description.isEmpty()) {
+            return fixNewlines(data.description);
+        }
+        return "";
+    }
+
+    @Override
+    public Component getName() {
+        return getName(false);
+    }
+
+    @Override
+    public MutableComponent getName(boolean color) {
+        MutableComponent text = Component.literal(configuredName());
+        return color ? text.withColor(color()) : text;
+    }
+
+    @Override
+    public Component getDescription() {
+        return Component.literal(configuredDescription());
+    }
+
+    @Override
+    public Component getSimpleDescription() {
+        return getDescription();
+    }
+
+    @Override
+    public boolean hasSimpleDescription() {
+        return !configuredDescription().isEmpty();
+    }
+
+    /** 允许配置里用 {@code \n} 写换行（与自定义职业一致）。 */
+    private static String fixNewlines(String text) {
+        return text == null ? "" : text.replace("\\n", "\n");
     }
 }
