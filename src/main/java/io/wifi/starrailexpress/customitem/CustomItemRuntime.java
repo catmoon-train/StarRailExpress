@@ -363,10 +363,10 @@ public final class CustomItemRuntime {
         HitResult hit = ProjectileUtil.getHitResultOnViewVector(shooter,
                 entity -> isValidTarget(shooter, entity), data.gunRange);
 
-        // 弹道射线
+        // 弹道射线：是否显示完全由物品自身配置决定，不受服务端总开关影响
         if (data.showTracer) {
             Entity hitEntity = hit instanceof EntityHitResult entityHit ? entityHit.getEntity() : null;
-            GunTracers.broadcast(shooter, hitEntity, data.gunRange);
+            GunTracers.broadcast(shooter, hitEntity, data.gunRange, true);
         }
 
         ServerPlayer victim = null;

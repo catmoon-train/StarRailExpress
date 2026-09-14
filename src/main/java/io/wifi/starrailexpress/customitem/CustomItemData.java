@@ -197,6 +197,10 @@ public class CustomItemData {
     @SerializedName("bulletItemSupport")
     public boolean bulletItemSupport = false;
 
+    /** 手持姿势（{@link HoldPose} 名称，默认「左轮手枪式」）。 */
+    @SerializedName("holdPose")
+    public String holdPose = HoldPose.REVOLVER.name();
+
     // ==================== 性质：特殊原版物品 ====================
 
     /** 原版攻击速度（写入攻击速度属性修饰）。 */
@@ -287,6 +291,14 @@ public class CustomItemData {
         }
     }
 
+    public HoldPose holdPose() {
+        try {
+            return HoldPose.valueOf(holdPose);
+        } catch (Exception e) {
+            return HoldPose.REVOLVER;
+        }
+    }
+
     /** 完整的展示用标识：{@code customitem:<id>}。 */
     public String getFullIdentifier() {
         return NAMESPACE + ":" + id;
@@ -330,6 +342,9 @@ public class CustomItemData {
         }
         if (targetMode == null || targetMode.isBlank()) {
             targetMode = TargetMode.CIRCLE.name();
+        }
+        if (holdPose == null || holdPose.isBlank()) {
+            holdPose = HoldPose.REVOLVER.name();
         }
         if (lethalDeathReason == null || lethalDeathReason.isBlank()) {
             lethalDeathReason = GameConstants.DeathReasons.REVOLVER.toString();
@@ -428,5 +443,22 @@ public class CustomItemData {
         LINE,
         /** 指向的玩家（视线命中的单个玩家）。 */
         LOOKED_PLAYER
+    }
+
+    /**
+     * 枪械手持姿势（决定手持该物品时的手臂姿势与枪口位置追踪）。
+     *
+     * <p>
+     * 与项目内既有物品保持一致：{@code HeldLikeRevolver}（左轮手枪）、{@code HeldLikeBat}（球棒/弩蓄力）。
+     */
+    public enum HoldPose {
+        /** 左轮手枪式：手臂伸直持枪 + 枪口位置追踪（默认）。 */
+        REVOLVER,
+        /** 举起式：像球棒 / 弩蓄力那样举起。 */
+        RAISED,
+        /** 瞄准式：像端弩瞄准那样。 */
+        AIM,
+        /** 原版默认手持。 */
+        DEFAULT
     }
 }

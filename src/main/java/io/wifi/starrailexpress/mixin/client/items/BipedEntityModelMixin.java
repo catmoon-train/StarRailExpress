@@ -116,7 +116,9 @@ public class BipedEntityModelMixin<T extends LivingEntity> {
             return true;
         if (stack.getItem() instanceof HeldLikeRevolver)
             return true;
-        return false;
+        // 自定义列车物品：手持姿势设为「左轮手枪式」时同样摆出持枪姿势
+        return io.wifi.starrailexpress.customitem.CustomItemLoader.holdPose(stack)
+                == io.wifi.starrailexpress.customitem.CustomItemData.HoldPose.REVOLVER;
     }
 
     @Unique

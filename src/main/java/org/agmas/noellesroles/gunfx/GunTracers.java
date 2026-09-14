@@ -38,8 +38,19 @@ public final class GunTracers {
 
     /** @param hit 命中的实体（null=未命中，按视线方向延伸 range）。 */
     public static void broadcast(ServerPlayer shooter, @Nullable Entity hit, double range) {
+        broadcast(shooter, hit, range, false);
+    }
+
+    /**
+     * @param hit                命中的实体（null=未命中，按视线方向延伸 range）
+     * @param ignoreGlobalSwitch true 时不看服务端总开关
+     *                           （{@link NoellesRolesConfig#gunTracerEffect}），
+     *                           供自定义列车物品按物品自身配置独立控制弹道
+     */
+    public static void broadcast(ServerPlayer shooter, @Nullable Entity hit, double range,
+            boolean ignoreGlobalSwitch) {
         // 服务端侧开关：关闭时不广播任何轨迹线
-        if (!NoellesRolesConfig.instance().gunTracerEffect) {
+        if (!ignoreGlobalSwitch && !NoellesRolesConfig.instance().gunTracerEffect) {
             return;
         }
         Vec3 eye = shooter.getEyePosition();

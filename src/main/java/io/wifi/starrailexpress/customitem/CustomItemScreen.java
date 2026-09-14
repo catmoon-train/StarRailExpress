@@ -17,6 +17,7 @@ package io.wifi.starrailexpress.customitem;
 
 import io.wifi.starrailexpress.client.render.item.CustomItemRenderer;
 import io.wifi.starrailexpress.customitem.CustomItemData.ChargeAnim;
+import io.wifi.starrailexpress.customitem.CustomItemData.HoldPose;
 import io.wifi.starrailexpress.customitem.CustomItemData.Kind;
 import io.wifi.starrailexpress.customitem.CustomItemData.TargetMode;
 import io.wifi.starrailexpress.game.GameConstants;
@@ -67,6 +68,7 @@ public class CustomItemScreen extends Screen {
     private static final Kind[] KINDS = Kind.values();
     private static final ChargeAnim[] CHARGE_ANIMS = ChargeAnim.values();
     private static final TargetMode[] TARGET_MODES = TargetMode.values();
+    private static final HoldPose[] HOLD_POSES = HoldPose.values();
 
     private int panelWidth, panelHeight, panelLeftX, panelTopY, activeTab = 0;
     private int scrollOffset = 0, maxScroll = 0;
@@ -452,6 +454,8 @@ public class CustomItemScreen extends Screen {
                 v -> data.gunRange = v);
         r = numRow(r, "sre.custom_item.label.recoil", data.recoil, "sre.custom_item.unit.degree",
                 v -> data.recoil = v);
+        r = enumRow(r, "sre.custom_item.label.hold_pose", "sre.custom_item.hold_pose", data.holdPose(),
+                index -> data.holdPose = HOLD_POSES[index].name());
         r = numRow(r, "sre.custom_item.label.hits_to_final", data.hitsToFinal, "sre.custom_item.unit.times",
                 v -> data.hitsToFinal = (int) v);
         r = numRow(r, "sre.custom_item.label.shot_cooldown", data.shotCooldownTicks, "sre.custom_item.unit.tick",

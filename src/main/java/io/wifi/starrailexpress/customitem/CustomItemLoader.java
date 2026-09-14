@@ -163,6 +163,14 @@ public final class CustomItemLoader {
         return id.isEmpty() ? null : get(id);
     }
 
+    /**
+     * 物品配置的枪械手持姿势（非自定义列车物品返回 null，客户端渲染可直接用）。
+     */
+    public static CustomItemData.HoldPose holdPose(ItemStack stack) {
+        CustomItemData data = getData(stack);
+        return data == null ? null : data.holdPose();
+    }
+
     // ==================== 构建物品栈 ====================
 
     /** 按配置构建一个自定义列车物品栈。 */

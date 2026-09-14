@@ -43,6 +43,18 @@ public class PlayerEntityRendererMixin {
         ItemStack heldStack = player.getItemInHand(hand);
         if (heldStack.is(TMMItemTags.HELD_LIKE_BAT_ITEMS) || heldStack.getItem() instanceof HeldLikeBat) {
             cir.setReturnValue(HumanoidModel.ArmPose.CROSSBOW_CHARGE);
+            return;
+        }
+        // 自定义列车物品：按物品配置的手持姿势设置手臂姿势
+        // （REVOLVER 由 BipedEntityModelMixin 的持枪姿势处理，DEFAULT 不干预）
+        var customPose = io.wifi.starrailexpress.customitem.CustomItemLoader.holdPose(heldStack);
+        if (customPose != null) {
+            switch (customPose) {
+                case RAISED -> cir.setReturnValue(HumanoidModel.ArmPose.CROSSBOW_CHARGE);
+                case AIM -> cir.setReturnValue(HumanoidModel.ArmPose.CROSSBOW_HOLD);
+                default -> {
+                }
+            }
         }
     }
 
