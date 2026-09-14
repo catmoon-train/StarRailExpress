@@ -15,6 +15,7 @@
 
 package io.wifi.starrailexpress.customrole;
 
+import io.wifi.starrailexpress.client.gui.SREPanelStyle;
 import io.wifi.starrailexpress.customrole.CustomRoleData.EffectEntry;
 import io.wifi.starrailexpress.customrole.CustomRoleData.InstinctModeData;
 import io.wifi.starrailexpress.customrole.CustomRoleData.InitialItemEntry;
@@ -1287,7 +1288,7 @@ public class CustomRoleScreen extends Screen {
             return "DEFAULT";
         for (int i = 0; i < INSTINCT_TYPE_NAMES.length; i++) {
             if (INSTINCT_TYPE_NAMES[i].equals(upper))
-                return (i + 1 < INSTINCT_TYPE_NAMES.length) ? INSTINCT_TYPE_NAMES[i + 1] : "CUSTOM(0xFFFF0000)";
+                return (i + 1 < INSTINCT_TYPE_NAMES.length) ? INSTINCT_TYPE_NAMES[i + 1] : "CUSTOM(0xFFE06B65)";
         }
         return "DEFAULT";
     }
@@ -1344,7 +1345,7 @@ public class CustomRoleScreen extends Screen {
         String cur = getter.get();
         String display = instinctTypeDisplay(cur);
         ModernButton btn = ModernButton.builder(
-                Component.literal(display).append(Component.literal(" ↻").withStyle(s -> s.withColor(0x8899AA))),
+                Component.literal(display).append(Component.literal(" ↻").withStyle(s -> s.withColor(0xFF9E8B6E))),
                 b -> {
                     setter.accept(cycleInstinctTypeStr(getter.get()));
                     init(minecraft, width, height);
@@ -1407,8 +1408,8 @@ public class CustomRoleScreen extends Screen {
     // ══════════════════════════════════════════════════════════════════
     private void addBoolBtn(List<AbstractWidget> l, int r, String key, boolean cur,
             java.util.function.Consumer<Boolean> toggle, boolean rebuild) {
-        Component st = cur ? Component.literal(" [✓]").withStyle(s -> s.withColor(0x55FF55))
-                : Component.literal(" [✗]").withStyle(s -> s.withColor(0xFF5555));
+        Component st = cur ? Component.literal(" [✓]").withStyle(s -> s.withColor(0xFF72C17B))
+                : Component.literal(" [✗]").withStyle(s -> s.withColor(0xFFE06B65));
         var btn = ModernButton.builder(Component.translatable(key).copy().append(st), b -> {
             toggle.accept(!cur);
             if (rebuild)
@@ -1420,8 +1421,8 @@ public class CustomRoleScreen extends Screen {
 
     private void addBoolBtnX(List<AbstractWidget> l, int r, String key, boolean cur,
             java.util.function.Consumer<Boolean> toggle, boolean rebuild) {
-        Component st = cur ? Component.literal(" [✓]").withStyle(s -> s.withColor(0x55FF55))
-                : Component.literal(" [✗]").withStyle(s -> s.withColor(0xFF5555));
+        Component st = cur ? Component.literal(" [✓]").withStyle(s -> s.withColor(0xFF72C17B))
+                : Component.literal(" [✗]").withStyle(s -> s.withColor(0xFFE06B65));
         var btn = ModernButton.builder(Component.translatable(key).copy().append(st), b -> {
             toggle.accept(!cur);
             if (rebuild)
@@ -1433,8 +1434,8 @@ public class CustomRoleScreen extends Screen {
 
     private static int safeColor(Boolean b) {
         if (b == null)
-            return 0x778899;
-        return b.booleanValue() ? 0x55FF55 : 0xFF5555;
+            return 0xFF9E8B6E;
+        return b.booleanValue() ? 0xFF72C17B : 0xFFE06B65;
     }
 
     private static Boolean safeNext(Boolean cur) {
@@ -1522,11 +1523,9 @@ public class CustomRoleScreen extends Screen {
     @Override
     public void renderBackground(GuiGraphics g, int i, int j, float f) {
         // 面板背景
-        g.fill(panelLeftX - 6, panelTopY - 3, panelLeftX + panelWidth + 6, panelTopY + panelHeight + 3, 0xCC080C18);
-        // 面板顶部高亮边框
-        g.fill(panelLeftX - 6, panelTopY - 3, panelLeftX + panelWidth + 6, panelTopY - 2, 0xFF5577CC);
+        SREPanelStyle.drawPanel(g, panelLeftX - 6, panelTopY - 3, panelWidth + 12, panelHeight + 6);
         // 内容区域下方填充（覆盖超出内容的 widget 绘制）
-        g.fill(panelLeftX - 6, contentBottom(), panelLeftX + panelWidth + 6, panelTopY + panelHeight + 3, 0xCC080C18);
+        g.fill(panelLeftX - 6, contentBottom(), panelLeftX + panelWidth + 6, panelTopY + panelHeight + 3, SREPanelStyle.PANEL_BG_BOTTOM);
     }
 
     @Override
@@ -1551,7 +1550,7 @@ public class CustomRoleScreen extends Screen {
         List<LabelEntry> al = getActiveLabels();
         for (LabelEntry e : al) {
             int labelY = e.y() - scrollOffset;
-            g.drawString(font, Component.translatable(e.key), e.x(), labelY + 4, 0xAABBCC, false);
+            g.drawString(font, Component.translatable(e.key), e.x(), labelY + 4, 0xFFC8B898, false);
         }
 
         g.disableScissor();
@@ -1568,7 +1567,7 @@ public class CustomRoleScreen extends Screen {
 
         // 8. 标题
         g.drawCenteredString(font,
-                Component.translatable("sre.custom_role.title").withStyle(s -> s.withColor(0x55BBFF).withBold(true)),
+                Component.translatable("sre.custom_role.title").withStyle(s -> s.withColor(0xFFD4AF37).withBold(true)),
                 panelLeftX + panelWidth / 2, panelTopY + 18, 0xFFFFFF);
     }
 
@@ -1581,9 +1580,6 @@ public class CustomRoleScreen extends Screen {
         int sbH = contentHeight();
 
         // 轨道
-        g.fill(sbX, sbY, sbX + SCROLL_W, sbY + sbH, 0xFF111828);
-        g.fill(sbX + 1, sbY + 1, sbX + SCROLL_W - 1, sbY + sbH - 1, 0x55334466);
-
         // 滑块
         int totalContentH = sbH + maxScroll;
         float ratio = Math.min(1f, (float) sbH / Math.max(1, totalContentH));
@@ -1591,11 +1587,7 @@ public class CustomRoleScreen extends Screen {
         int thumbY = sbY + (int) ((sbH - thumbH) * ((float) scrollOffset / maxScroll));
 
         boolean hl = isDraggingScroll || isInRect(mouseX, mouseY, sbX, thumbY, SCROLL_W, thumbH);
-        g.fill(sbX, thumbY, sbX + SCROLL_W, thumbY + thumbH,
-                hl ? 0xFF8899CC : 0xFF556699);
-        g.fill(sbX + 1, thumbY + 1, sbX + SCROLL_W - 1, thumbY + thumbH - 1,
-                hl ? 0xFFAABBEE : 0xFF7788BB);
-        g.fill(sbX + 1, thumbY + 1, sbX + SCROLL_W - 1, thumbY + 3, 0x44FFFFFF);
+        SREPanelStyle.drawScrollbar(g, sbX, sbY, sbH, thumbY, thumbH, hl);
     }
 
     // ══════════════════════════════════════════════════════════════════

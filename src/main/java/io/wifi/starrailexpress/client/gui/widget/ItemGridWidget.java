@@ -15,8 +15,8 @@
 
 package io.wifi.starrailexpress.client.gui.widget;
 
-import io.wifi.starrailexpress.client.util.BlockNames;
 import io.wifi.starrailexpress.client.util.PinYinUtils;
+import io.wifi.starrailexpress.client.util.SafeNames;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
@@ -36,13 +36,12 @@ import java.util.Locale;
 import java.util.function.Consumer;
 
 /**
- * 方块选择网格：把注册表里所有"有对应物品的方块"排成可滚动的图标网格，
- * 支持按 方块ID / 显示名 / 显示名拼音 过滤。
+ * 可滚动的图标网格选择器：方块和物品共用，选中回调交出对应的 {@link ItemStack}。
  *
- * <p>滚轮只在鼠标位于网格内时滚动网格自己（返回 true 吃掉事件），
- * 否则事件会冒泡给界面去滚动整页。
+ * <p>过滤支持 注册 ID / 显示名 / 显示名拼音。滚轮只在鼠标位于网格内时滚动网格自己
+ * （返回 true 吃掉事件），否则事件会冒泡给界面去滚动整页。
  */
-public class BlockGridWidget extends AbstractWidget {
+public class ItemGridWidget extends AbstractWidget {
 
     private static final int CELL = 18;
     private static final int COLOR_GRID_BG = 0x66000000;
@@ -50,59 +49,95 @@ public class BlockGridWidget extends AbstractWidget {
     private static final int COLOR_SELECTION = 0x88D4AF37;
     private static final int COLOR_BORDER = 0xFF5A4530;
 
-    /** 全量方块表只建一次：方块注册表在运行期不会变。 */
-    private static List<Entry> allEntries;
+    /** 缓存：全量方块表 / 全量物品表都只建一次（注册表在运行期不变）。 */
+    private static List<Entry> blockEntries;
+    private static List<Entry> itemEntries;
 
-    private final Consumer<Block> onSelect;
+    private final Consumer<ItemStack> onSelect;
+    /** 未过滤的基准表。 */
+    private final List<Entry> base;
 
     private List<Entry> matched;
-    private Block selected;
+    private ItemStack selected = ItemStack.EMPTY;
     private double scroll;
     private int columns = 1;
 
-    public BlockGridWidget(int x, int y, int width, int height, Consumer<Block> onSelect) {
+    private ItemGridWidget(int x, int y, int width, int height, List<Entry> entries,
+            Consumer<ItemStack> onSelect) {
         super(x, y, width, height, Component.empty());
         this.onSelect = onSelect;
-        this.matched = allEntries();
+        this.base = entries;
+        this.matched = entries;
     }
 
-    private record Entry(Block block, ItemStack stack, String search) {
+    /** 有对应物品的方块（也就是能摆出来的方块）。 */
+    public static ItemGridWidget forBlocks(int x, int y, int width, int height, Consumer<ItemStack> onSelect) {
+        return new ItemGridWidget(x, y, width, height, blockEntries(), onSelect);
     }
 
-    private static synchronized List<Entry> allEntries() {
-        if (allEntries == null) {
+    /** 所有物品（排除空气）。 */
+    public static ItemGridWidget forItems(int x, int y, int width, int height, Consumer<ItemStack> onSelect) {
+        return new ItemGridWidget(x, y, width, height, itemEntries(), onSelect);
+    }
+
+    private record Entry(ItemStack stack, String search) {
+    }
+
+    private static synchronized List<Entry> blockEntries() {
+        if (blockEntries == null) {
             List<Entry> entries = new ArrayList<>();
             for (Block block : BuiltInRegistries.BLOCK) {
                 if (block == Blocks.AIR || block.asItem() == Items.AIR) {
                     continue;
                 }
                 String id = BuiltInRegistries.BLOCK.getKey(block).toString();
-                // 用安全取名字：个别第三方方块的 getDescriptionId 会递归到栈溢出
-                String name = BlockNames.of(block);
-                String search = id.toLowerCase(Locale.ROOT) + '\u0000'
-                        + name.toLowerCase(Locale.ROOT) + '\u0000'
-                        + PinYinUtils.toSearchablePinyin(name).toLowerCase(Locale.ROOT);
-                entries.add(new Entry(block, new ItemStack(block), search));
+                entries.add(new Entry(new ItemStack(block), searchKey(id, SafeNames.of(block))));
             }
-            entries.sort(Comparator.comparing(entry -> BuiltInRegistries.BLOCK.getKey(entry.block).toString()));
-            allEntries = List.copyOf(entries);
+            entries.sort(Comparator.comparing(entry -> registryId(entry.stack)));
+            blockEntries = List.copyOf(entries);
         }
-        return allEntries;
+        return blockEntries;
     }
 
-    public void setSelected(Block block) {
-        this.selected = block;
+    private static synchronized List<Entry> itemEntries() {
+        if (itemEntries == null) {
+            List<Entry> entries = new ArrayList<>();
+            for (var item : BuiltInRegistries.ITEM) {
+                if (item == Items.AIR) {
+                    continue;
+                }
+                String id = BuiltInRegistries.ITEM.getKey(item).toString();
+                entries.add(new Entry(new ItemStack(item), searchKey(id, SafeNames.of(item))));
+            }
+            entries.sort(Comparator.comparing(entry -> registryId(entry.stack)));
+            itemEntries = List.copyOf(entries);
+        }
+        return itemEntries;
     }
 
-    /** 过滤词同时充当"手输方块ID"的搜索词。 */
+    private static String registryId(ItemStack stack) {
+        return BuiltInRegistries.ITEM.getKey(stack.getItem()).toString();
+    }
+
+    private static String searchKey(String id, String name) {
+        return id.toLowerCase(Locale.ROOT) + '\u0000'
+                + name.toLowerCase(Locale.ROOT) + '\u0000'
+                + PinYinUtils.toSearchablePinyin(name).toLowerCase(Locale.ROOT);
+    }
+
+    public void setSelected(ItemStack stack) {
+        this.selected = stack == null ? ItemStack.EMPTY : stack;
+    }
+
+    /** 过滤词同时充当"手输 ID"的搜索词。 */
     public void setFilter(String filter) {
         String normalized = filter == null ? "" : filter.trim().toLowerCase(Locale.ROOT);
         if (normalized.isEmpty()) {
-            this.matched = allEntries();
+            this.matched = this.base;
         } else {
             List<Entry> matches = new ArrayList<>();
-            for (Entry entry : allEntries()) {
-                if (entry.search.contains(normalized)) {
+            for (Entry entry : this.base) {
+                if (entry.search().contains(normalized)) {
                     matches.add(entry);
                 }
             }
@@ -111,21 +146,16 @@ public class BlockGridWidget extends AbstractWidget {
         this.scroll = 0.0D;
     }
 
-    /** 过滤结果里的第一个方块，用于手输 ID 时直接选中。 */
-    public Block firstMatch() {
-        return this.matched.isEmpty() ? null : this.matched.get(0).block;
+    /** 过滤结果里的第一个物品，用于手输 ID 时直接选中。 */
+    public ItemStack firstMatch() {
+        return this.matched.isEmpty() ? ItemStack.EMPTY : this.matched.get(0).stack();
     }
 
-    public boolean hasNoMatch() {
-        return this.matched.isEmpty();
-    }
-
-    /** 显示"没有匹配方块"提示用。 */
     public void renderEmptyHint(GuiGraphics graphics, Font font) {
         if (!this.matched.isEmpty()) {
             return;
         }
-        graphics.drawString(font, Component.translatable("gui.display_block.block_search.empty"),
+        graphics.drawString(font, Component.translatable("gui.display_block.item_search.empty"),
                 this.getX() + 4, this.getY() + 4, 0xFF9E8B6E, false);
     }
 
@@ -152,7 +182,7 @@ public class BlockGridWidget extends AbstractWidget {
 
         int hovered = this.isHovered() ? cellAt(mouseX, mouseY) : -1;
         int rows = rowCount();
-        // 只遍历可见的那几行：方块表有近千项，全遍历是纯浪费（每格渲染都不便宜）。
+        // 只遍历可见的那几行：表里有上千项，全遍历是纯浪费（每格渲染都不便宜）
         int firstRow = Math.max(0, (int) (this.scroll / CELL));
         int lastRow = Math.min(rows - 1, (int) ((this.scroll + height) / CELL));
 
@@ -166,15 +196,19 @@ public class BlockGridWidget extends AbstractWidget {
                 }
                 int cellX = this.getX() + column * CELL;
                 Entry entry = this.matched.get(index);
-                if (entry.block == this.selected) {
+                if (isSelected(entry.stack())) {
                     graphics.fill(cellX, rowY, cellX + CELL, rowY + CELL, COLOR_SELECTION);
                 } else if (index == hovered) {
                     graphics.fill(cellX, rowY, cellX + CELL, rowY + CELL, COLOR_HOVER);
                 }
-                graphics.renderItem(entry.stack, cellX + 1, rowY + 1);
+                graphics.renderItem(entry.stack(), cellX + 1, rowY + 1);
             }
         }
         graphics.disableScissor();
+    }
+
+    private boolean isSelected(ItemStack stack) {
+        return !this.selected.isEmpty() && ItemStack.isSameItemSameComponents(this.selected, stack);
     }
 
     /** 把鼠标坐标换算成网格下标，不在网格内或越界返回 -1。 */
@@ -198,7 +232,7 @@ public class BlockGridWidget extends AbstractWidget {
             return false;
         }
         this.playDownSound(Minecraft.getInstance().getSoundManager());
-        this.selected = this.matched.get(index).block;
+        this.selected = this.matched.get(index).stack();
         this.onSelect.accept(this.selected);
         return true;
     }

@@ -114,8 +114,8 @@ public class SRECommandRegister {
             io.wifi.starrailexpress.custommodifier.CustomModifierReloadCommand.register(dispatcher);
             io.wifi.starrailexpress.customitem.CustomItemReloadCommand.register(dispatcher);
             io.wifi.starrailexpress.customblock.CustomBlockReloadCommand.register(dispatcher);
-            // 自定义内容统一指令：/sre:give、/sre:setblock
-            io.wifi.starrailexpress.customcontent.CustomContentCommands.register(dispatcher);
+            // 自定义内容统一指令：/sre:give、/sre:setblock（参数借原版物品参数解析组件，需要 buildContext）
+            io.wifi.starrailexpress.customcontent.CustomContentCommands.register(dispatcher, registryAccess);
             // 区域整块复制：/sre:clone
             io.wifi.starrailexpress.content.command.SRECloneCommand.register(dispatcher);
             io.wifi.starrailexpress.content.command.EntityDisguiseCommand.register(dispatcher, registryAccess);

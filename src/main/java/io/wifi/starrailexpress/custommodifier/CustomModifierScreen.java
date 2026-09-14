@@ -16,6 +16,7 @@
 package io.wifi.starrailexpress.custommodifier;
 
 import io.wifi.starrailexpress.api.RoleTeam;
+import io.wifi.starrailexpress.client.gui.SREPanelStyle;
 import io.wifi.starrailexpress.custommodifier.CustomModifierData.ConditionData;
 import io.wifi.starrailexpress.custommodifier.CustomModifierData.ConditionType;
 import io.wifi.starrailexpress.custommodifier.CustomModifierData.EffectData;
@@ -237,7 +238,7 @@ public class CustomModifierScreen extends Screen {
     // ══════════════════════════════════════════════════════════════════
     private void addLabel(int row, String key, String fallback) {
         contentLabels.add(new LabelEntry(
-                Component.translatableWithFallback(key, fallback).withStyle(s -> s.withColor(0xCCDDEE)),
+                Component.translatableWithFallback(key, fallback).withStyle(s -> s.withColor(0xFFFFF4DC)),
                 labelX(), baseY(row), 0xFFFFFF));
     }
 
@@ -292,8 +293,8 @@ public class CustomModifierScreen extends Screen {
     private void boolButton(int row, String key, String fallback, boolean current,
             java.util.function.Consumer<Boolean> setter) {
         Component state = current
-                ? Component.literal(" [✓]").withStyle(s -> s.withColor(0x55FF55))
-                : Component.literal(" [✗]").withStyle(s -> s.withColor(0xFF5555));
+                ? Component.literal(" [✓]").withStyle(s -> s.withColor(0xFF72C17B))
+                : Component.literal(" [✗]").withStyle(s -> s.withColor(0xFFE06B65));
         button(row, fieldX(), 260, 18,
                 Component.translatableWithFallback(key, fallback).copy().append(state),
                 () -> {
@@ -373,7 +374,7 @@ public class CustomModifierScreen extends Screen {
     // ══════════════════════════════════════════════════════════════════
     private void buildRestrictionTab() {
         int r = 0;
-        addHint(r++, "阵营限制（左=不给该阵营刷新，右=仅给该阵营刷新）", 0x88AACC);
+        addHint(r++, "阵营限制（左=不给该阵营刷新，右=仅给该阵营刷新）", 0xFF5EB7D8);
         for (RoleTeam team : RoleTeam.values()) {
             Component label = Component.translatableWithFallback("sre.custom_modifier.team." + team.name(),
                     teamFallback(team));
@@ -408,7 +409,7 @@ public class CustomModifierScreen extends Screen {
         int r = 0;
         boolean global = data.conditions.isEmpty();
         addHint(r++, global ? "当前为【全局触发】：拥有该修饰符即持续生效（不加条件）" : "条件从左到右按「与 / 或」串联；满足时触发",
-                global ? 0x88DD88 : 0xFFCC88);
+                global ? 0xFF72C17B : 0xFFD4AF37);
 
         for (int i = 0; i < data.conditions.size(); i++) {
             final int index = i;
@@ -556,7 +557,7 @@ public class CustomModifierScreen extends Screen {
 
         // 执行指令（全局触发时不显示）
         if (!global) {
-            addHint(r++, "执行指令（<player> = 拥有该修饰符的玩家，位置随该玩家）", 0xCCDDEE);
+            addHint(r++, "执行指令（<player> = 拥有该修饰符的玩家，位置随该玩家）", 0xFFFFF4DC);
             for (int i = 0; i < data.commands.size(); i++) {
                 final int index = i;
                 box(r, fieldX(), 320, data.commands.get(i), "say <player>",
@@ -577,7 +578,7 @@ public class CustomModifierScreen extends Screen {
 
         // 给予药水效果
         addHint(r++, global ? "给予药水效果（全局：持续获得，直到失去该修饰符）"
-                : "给予药水效果（条件触发时给予指定时长）", 0xCCDDEE);
+                : "给予药水效果（条件触发时给予指定时长）", 0xFFFFF4DC);
         for (int i = 0; i < data.effects.size(); i++) {
             final int index = i;
             EffectData effect = data.effects.get(i);
@@ -608,7 +609,7 @@ public class CustomModifierScreen extends Screen {
 
         // 玩家属性（仅全局触发）
         if (global) {
-            addHint(r++, "玩家属性（仅全局触发可用；失去修饰符后自动重置）", 0xCCDDEE);
+            addHint(r++, "玩家属性（仅全局触发可用；失去修饰符后自动重置）", 0xFFFFF4DC);
             for (int i = 0; i < data.attributes.size(); i++) {
                 final int index = i;
                 AttributeData attribute = data.attributes.get(i);
@@ -740,25 +741,22 @@ public class CustomModifierScreen extends Screen {
 
     @Override
     public void renderBackground(GuiGraphics g, int mouseX, int mouseY, float delta) {
-        g.fill(panelLeftX - 6, panelTopY - 3, panelLeftX + panelWidth + 6, panelTopY + panelHeight + 3, 0xCC080C18);
-        g.fill(panelLeftX - 6, panelTopY - 3, panelLeftX + panelWidth + 6, panelTopY - 2, 0xFF5577CC);
-        g.fill(panelLeftX - 6, contentBottom(), panelLeftX + panelWidth + 6, panelTopY + panelHeight + 3, 0xCC080C18);
+        SREPanelStyle.drawPanel(g, panelLeftX - 6, panelTopY - 3, panelWidth + 12, panelHeight + 6);
+        g.fill(panelLeftX - 6, contentBottom(), panelLeftX + panelWidth + 6, panelTopY + panelHeight + 3, SREPanelStyle.PANEL_BG_BOTTOM);
         Component title = Component.translatableWithFallback("sre.custom_modifier.title", "自定义修饰符");
-        g.drawString(font, title, panelLeftX - 4, panelTopY - 16, 0x55BBFF, false);
+        g.drawString(font, title.copy().withStyle(s -> s.withBold(true)), panelLeftX - 4, panelTopY - 16, 0xFFD4AF37, false);
     }
 
     private void renderScrollbar(GuiGraphics g, int mouseX, int mouseY) {
         int sbX = panelLeftX + panelWidth + 1;
         int sbY = contentTop();
         int sbH = contentBottom() - contentTop();
-        g.fill(sbX, sbY, sbX + SCROLL_W, sbY + sbH, 0xFF111828);
         int totalContentH = sbH + maxScroll;
         float ratio = Math.min(1f, (float) sbH / Math.max(1, totalContentH));
         int thumbH = Math.max(SCROLL_MIN_THUMB, (int) (sbH * ratio));
         int thumbY = sbY + (int) ((sbH - thumbH) * ((float) scrollOffset / maxScroll));
         boolean hover = inside(mouseX, mouseY, sbX, thumbY, SCROLL_W, thumbH);
-        g.fill(sbX, thumbY, sbX + SCROLL_W, thumbY + thumbH, hover ? 0xFF8899CC : 0xFF556699);
-        g.fill(sbX + 1, thumbY + 1, sbX + SCROLL_W - 1, thumbY + thumbH - 1, hover ? 0xFFAABBEE : 0xFF7788BB);
+        SREPanelStyle.drawScrollbar(g, sbX, sbY, sbH, thumbY, thumbH, hover);
     }
 
     @Override

@@ -15,6 +15,7 @@
 
 package io.wifi.starrailexpress.customitem;
 
+import io.wifi.starrailexpress.client.gui.SREPanelStyle;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.gui.GuiGraphics;
@@ -127,8 +128,7 @@ public class CustomItemManageScreen extends Screen {
 
     @Override
     public void renderBackground(GuiGraphics g, int mouseX, int mouseY, float delta) {
-        g.fill(panelLeftX - 6, panelTopY - 3, panelLeftX + PANEL_WIDTH + 6, panelTopY + PANEL_HEIGHT + 3, 0xCC080C18);
-        g.fill(panelLeftX - 6, panelTopY - 3, panelLeftX + PANEL_WIDTH + 6, panelTopY - 2, 0xFF5577CC);
+        SREPanelStyle.drawPanel(g, panelLeftX - 6, panelTopY - 3, PANEL_WIDTH + 12, PANEL_HEIGHT + 6);
     }
 
     @Override
@@ -144,7 +144,7 @@ public class CustomItemManageScreen extends Screen {
         int centerX = panelLeftX + PANEL_WIDTH / 2;
         g.drawCenteredString(font, Component
                 .translatable("sre.custom_item.manage.title")
-                .withStyle(s -> s.withColor(0x55BBFF).withBold(true)), centerX, panelTopY + 10, 0xFFFFFF);
+                .withStyle(s -> s.withColor(0xFFD4AF37).withBold(true)), centerX, panelTopY + 10, 0xFFFFFF);
 
         int listTop = panelTopY + 32;
         int listBottom = panelTopY + PANEL_HEIGHT - 34;
@@ -161,7 +161,7 @@ public class CustomItemManageScreen extends Screen {
             int y = baseY + i * ROW_HEIGHT - (scrollOffset % ROW_HEIGHT);
             Component info = Component.translatable("sre.custom_item.kind." + item.kind().name().toLowerCase())
                     .append(Component.literal("  ").append(summary(item)));
-            g.drawString(font, info.copy().withStyle(Style.EMPTY.withColor(0x98A2B3)),
+            g.drawString(font, info.copy().withStyle(Style.EMPTY.withColor(0xFF9E8B6E)),
                     panelLeftX + 316, y + 6, 0xFFFFFF, false);
         }
         g.disableScissor();
@@ -171,7 +171,7 @@ public class CustomItemManageScreen extends Screen {
         }
         if (items.isEmpty()) {
             g.drawCenteredString(font,
-                    Component.translatable("sre.custom_item.manage.empty").withStyle(s -> s.withColor(0x98A2B3)),
+                    Component.translatable("sre.custom_item.manage.empty").withStyle(s -> s.withColor(0xFF9E8B6E)),
                     centerX, panelTopY + PANEL_HEIGHT / 2, 0xFFFFFF);
         }
     }
@@ -201,16 +201,13 @@ public class CustomItemManageScreen extends Screen {
         int sbX = panelLeftX + PANEL_WIDTH - 12;
         int sbY = panelTopY + 34;
         int sbH = PANEL_HEIGHT - 68;
-        g.fill(sbX, sbY, sbX + SCROLL_W, sbY + sbH, 0xFF111828);
-        g.fill(sbX + 1, sbY + 1, sbX + SCROLL_W - 1, sbY + sbH - 1, 0x55334466);
         int totalContentH = sbH + maxScroll;
         float ratio = Math.min(1f, (float) sbH / Math.max(1, totalContentH));
         int thumbH = Math.max(SCROLL_MIN_THUMB, (int) (sbH * ratio));
         int thumbY = sbY + (int) ((sbH - thumbH) * ((float) scrollOffset / maxScroll));
         boolean hover = mouseX >= sbX && mouseX < sbX + SCROLL_W && mouseY >= thumbY
                 && mouseY < thumbY + thumbH;
-        g.fill(sbX, thumbY, sbX + SCROLL_W, thumbY + thumbH, hover ? 0xFF8899CC : 0xFF556699);
-        g.fill(sbX + 1, thumbY + 1, sbX + SCROLL_W - 1, thumbY + thumbH - 1, hover ? 0xFFAABBEE : 0xFF7788BB);
+        SREPanelStyle.drawScrollbar(g, sbX, sbY, sbH, thumbY, thumbH, hover);
     }
 
     @Override

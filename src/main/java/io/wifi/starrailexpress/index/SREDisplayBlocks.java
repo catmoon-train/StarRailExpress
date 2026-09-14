@@ -19,8 +19,12 @@ import dev.doctor4t.ratatouille.util.registrar.BlockEntityTypeRegistrar;
 import dev.doctor4t.ratatouille.util.registrar.BlockRegistrar;
 import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.content.block.BlockDisplayBlock;
+import io.wifi.starrailexpress.content.block.EntityDisplayBlock;
+import io.wifi.starrailexpress.content.block.ItemDisplayBlock;
 import io.wifi.starrailexpress.content.block.TextDisplayBlock;
 import io.wifi.starrailexpress.content.block_entity.BlockDisplayBlockEntity;
+import io.wifi.starrailexpress.content.block_entity.EntityDisplayBlockEntity;
+import io.wifi.starrailexpress.content.block_entity.ItemDisplayBlockEntity;
 import io.wifi.starrailexpress.content.block_entity.TextDisplayBlockEntity;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.SoundType;
@@ -51,6 +55,16 @@ public interface SREDisplayBlocks {
             new BlockDisplayBlock(displayProperties()),
             ModSceneBlocks.SCENE_CREATIVE_GROUP);
 
+    /** 物品展示方块：显示一个物品堆（含组件）。 */
+    Block ITEM_DISPLAY_BLOCK = blockRegistrar.createWithItem("item_display_block",
+            new ItemDisplayBlock(displayProperties()),
+            ModSceneBlocks.SCENE_CREATIVE_GROUP);
+
+    /** 实体展示方块：在该方块位置渲染任意实体。 */
+    Block ENTITY_DISPLAY_BLOCK = blockRegistrar.createWithItem("entity_display_block",
+            new EntityDisplayBlock(displayProperties()),
+            ModSceneBlocks.SCENE_CREATIVE_GROUP);
+
     BlockEntityType<TextDisplayBlockEntity> TEXT_DISPLAY_BLOCK_ENTITY = blockEntityRegistrar
             .create("text_display_block",
                     BlockEntityType.Builder.of(TextDisplayBlockEntity::new, TEXT_DISPLAY_BLOCK));
@@ -58,6 +72,14 @@ public interface SREDisplayBlocks {
     BlockEntityType<BlockDisplayBlockEntity> BLOCK_DISPLAY_BLOCK_ENTITY = blockEntityRegistrar
             .create("block_display_block",
                     BlockEntityType.Builder.of(BlockDisplayBlockEntity::new, BLOCK_DISPLAY_BLOCK));
+
+    BlockEntityType<ItemDisplayBlockEntity> ITEM_DISPLAY_BLOCK_ENTITY = blockEntityRegistrar
+            .create("item_display_block",
+                    BlockEntityType.Builder.of(ItemDisplayBlockEntity::new, ITEM_DISPLAY_BLOCK));
+
+    BlockEntityType<EntityDisplayBlockEntity> ENTITY_DISPLAY_BLOCK_ENTITY = blockEntityRegistrar
+            .create("entity_display_block",
+                    BlockEntityType.Builder.of(EntityDisplayBlockEntity::new, ENTITY_DISPLAY_BLOCK));
 
     static void initialize() {
         blockRegistrar.registerEntries();

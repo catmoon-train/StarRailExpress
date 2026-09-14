@@ -100,7 +100,6 @@ public abstract class DisplayBlockScreenBase extends Screen {
 
     protected enum Tab {
         CONTENT("gui.display_block.tab.content"),
-        PREVIEW("gui.display_block.tab.preview"),
         TRANSFORM("gui.display_block.tab.transform"),
         APPEARANCE("gui.display_block.tab.appearance"),
         ANIMATION("gui.display_block.tab.animation"),
@@ -230,9 +229,10 @@ public abstract class DisplayBlockScreenBase extends Screen {
         }
 
         buildTabBar();
+        // 右侧预览框是所有页签共用的，里面自带"信息 / 3D"两个小页签
+        buildPreviewBox();
         switch (this.tab) {
             case CONTENT -> buildContentTab();
-            case PREVIEW -> buildPreviewTab();
             case TRANSFORM -> buildTransformTab();
             case APPEARANCE -> buildAppearanceTab();
             case ANIMATION -> buildAnimationTab();
@@ -720,31 +720,69 @@ public abstract class DisplayBlockScreenBase extends Screen {
         hint("gui.display_block.glow_hint");
     }
 
-    // ───────────────────────── 预览页签（可环绕的 3D 视口） ─────────────────────────
+    // ───────────────────────── 右侧预览框（信息 / 3D 两个小页签） ─────────────────────────
 
-    private void buildPreviewTab() {
-        int top = contentTop();
-        int rowHeight = 20;
+    /** 预览框内部的小页签。 */
+    private enum PreviewMode {
+        INFO("gui.display_block.preview.tab.info"),
+        VIEW_3D("gui.display_block.preview.tab.view");
+
+        private final String translationKey;
+
+        PreviewMode(String translationKey) {
+            this.translationKey = translationKey;
+        }
+
+        Component label() {
+            return Component.translatable(this.translationKey);
+        }
+    }
+
+    private PreviewMode previewMode = PreviewMode.INFO;
+    private OrbitPreviewWidget orbitPreview;
+    private final Map<PreviewMode, Button> previewModeButtons = new IdentityHashMap<>();
+    private int previewTabY;
+    private int previewBodyTop;
+    private int previewBodyBottom;
+
+    /**
+     * 右侧预览框：顶部是"信息 / 3D"两个小页签和一个复位视角按钮，
+     * 中间是内容（信息卡或可环绕的 3D 视口），底部留给动画状态。
+     */
+    private void buildPreviewBox() {
+        this.previewModeButtons.clear();
+        this.previewTabY = this.contentTop + 14;
+
+        int x = this.previewLeft + 2;
+        for (PreviewMode mode : PreviewMode.values()) {
+            int width = this.font.width(mode.label()) + 12;
+            Button button = Button.builder(mode.label(), b -> {
+                if (this.previewMode != mode) {
+                    this.previewMode = mode;
+                    requestRebuild();
+                }
+            }).bounds(x, this.previewTabY, width, 14).build();
+            button.active = this.previewMode != mode;
+            addRenderableWidget(button);
+            this.previewModeButtons.put(mode, button);
+            x += width + 2;
+        }
+
         addRenderableWidget(Button.builder(Component.translatable("gui.display_block.preview.reset_view"), b -> {
             if (this.orbitPreview != null) {
                 this.orbitPreview.resetView();
             }
-        }).bounds(contentLeft(), top, 84, WIDGET_H).build());
-        this.previewHintY = top + 5;
+        }).bounds(this.previewLeft + PREVIEW_W - 54, this.previewTabY, 52, 14).build());
 
-        // 视口占满整块面板：把原来的右侧预览栏位置也算进来（顶部留两行给提示文字）
-        int viewportTop = top + rowHeight + 12;
-        int viewportWidth = contentWidth() + 6 + PREVIEW_W;
-        int viewportHeight = Math.max(60, contentBottom() - viewportTop);
-        OrbitPreviewWidget widget = new OrbitPreviewWidget(contentLeft(), viewportTop, viewportWidth,
-                viewportHeight, (graphics, poseStack, cameraYaw, cameraPitch) ->
+        this.previewBodyTop = this.previewTabY + 18;
+        this.previewBodyBottom = this.contentBottom - 22;
+        int bodyHeight = Math.max(40, this.previewBodyBottom - this.previewBodyTop);
+        this.orbitPreview = new OrbitPreviewWidget(this.previewLeft + 2, this.previewBodyTop,
+                PREVIEW_W - 4, bodyHeight, (graphics, poseStack, cameraYaw, cameraPitch) ->
                         renderOrbitPreview(graphics, poseStack, cameraYaw, cameraPitch));
-        addRenderableWidget(widget);
-        this.orbitPreview = widget;
+        this.orbitPreview.visible = this.previewMode == PreviewMode.VIEW_3D;
+        addRenderableWidget(this.orbitPreview);
     }
-
-    private OrbitPreviewWidget orbitPreview;
-    private int previewHintY;
 
     // ───────────────────────── 关键帧动画页签 ─────────────────────────
 
@@ -1188,10 +1226,6 @@ public abstract class DisplayBlockScreenBase extends Screen {
                     active.getX() + active.getWidth(), active.getY() + active.getHeight() + 2, COLOR_GOLD);
         }
 
-        // 预览页签的视口占满整个面板，不需要右侧那栏小预览
-        if (!hasSidePreview()) {
-            return;
-        }
         // 右栏预览卡片
         graphics.fillGradient(this.previewLeft, this.contentTop, this.previewLeft + PREVIEW_W,
                 this.contentBottom, CARD_BG, CARD_BG);
@@ -1201,11 +1235,6 @@ public abstract class DisplayBlockScreenBase extends Screen {
         // 内容区与预览之间的分隔线
         int dividerX = this.contentLeft + this.contentWidth + 3;
         graphics.fill(dividerX, this.contentTop, dividerX + 1, this.contentBottom, ROW_SEPARATOR);
-    }
-
-    /** 当前页签要不要右侧那栏窄预览（预览页签用整块面板，所以不要）。 */
-    private boolean hasSidePreview() {
-        return this.tab != Tab.PREVIEW;
     }
 
     @Override
@@ -1223,26 +1252,12 @@ public abstract class DisplayBlockScreenBase extends Screen {
 
         if (this.tab == Tab.ADVANCED) {
             renderSnbtStatus(graphics);
-        } else if (this.tab != Tab.PREVIEW) {
+        } else {
             renderScrolledLabels(graphics);
         }
 
-        if (this.tab == Tab.PREVIEW) {
-            renderPreviewTabHints(graphics);
-        } else {
-            renderPreview(graphics);
-        }
+        renderPreview(graphics);
         renderFooterHints(graphics);
-    }
-
-    /** 预览页签顶部那行操作提示。 */
-    private void renderPreviewTabHints(GuiGraphics graphics) {
-        graphics.drawString(this.font, Component.translatable("gui.display_block.preview.controls"),
-                this.contentLeft + 92, this.previewHintY, COLOR_MUTED, false);
-        if (this.orbitPreview != null) {
-            graphics.drawString(this.font, Component.translatable("gui.display_block.preview.axes_hint"),
-                    this.contentLeft + 92, this.previewHintY + 10, COLOR_MUTED, false);
-        }
     }
 
     private void renderScrolledLabels(GuiGraphics graphics) {
@@ -1304,15 +1319,23 @@ public abstract class DisplayBlockScreenBase extends Screen {
     }
 
     private void renderPreview(GuiGraphics graphics) {
-        if (!hasSidePreview()) {
-            return;
-        }
         int x = this.previewLeft + 6;
         int y = this.contentTop + 6;
         int width = PREVIEW_W - 12;
         graphics.drawString(this.font, Component.translatable("gui.display_block.preview"), x, y, COLOR_GOLD, false);
         graphics.fill(x, y + 12, x + width, y + 13, ROW_SEPARATOR);
-        renderPreviewContent(graphics, x, y + 18, width, this.contentBottom - y - 24);
+
+        // 当前小页签的金色下划线
+        Button active = this.previewModeButtons.get(this.previewMode);
+        if (active != null) {
+            graphics.fill(active.getX(), active.getY() + active.getHeight(),
+                    active.getX() + active.getWidth(), active.getY() + active.getHeight() + 1, COLOR_GOLD);
+        }
+
+        if (this.previewMode == PreviewMode.INFO) {
+            renderPreviewContent(graphics, x, this.previewBodyTop, width,
+                    this.previewBodyBottom - this.previewBodyTop);
+        }
         renderAnimationStatus(graphics, x, this.contentBottom - 12, width);
     }
 

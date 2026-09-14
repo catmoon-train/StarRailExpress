@@ -21,14 +21,13 @@ import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
-import com.mojang.brigadier.exceptions.DynamicCommandExceptionType;
-import com.mojang.serialization.DynamicOps;
 import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.customblock.CustomBlockData;
 import io.wifi.starrailexpress.customblock.CustomBlockEntity;
 import io.wifi.starrailexpress.customblock.CustomBlockLoader;
 import io.wifi.starrailexpress.customitem.CustomItemData;
 import io.wifi.starrailexpress.customitem.CustomItemLoader;
+import net.minecraft.commands.CommandBuildContext;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.arguments.EntityArgument;
@@ -36,12 +35,7 @@ import net.minecraft.commands.arguments.coordinates.BlockPosArgument;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.component.DataComponentPatch;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.NbtOps;
-import net.minecraft.nbt.Tag;
-import net.minecraft.nbt.TagParser;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.RegistryOps;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.item.ItemStack;
@@ -74,22 +68,22 @@ public final class CustomContentCommands {
     private CustomContentCommands() {
     }
 
-    public static void register(CommandDispatcher<CommandSourceStack> dispatcher) {
+    public static void register(CommandDispatcher<CommandSourceStack> dispatcher, CommandBuildContext buildContext) {
         LiteralArgumentBuilder<CommandSourceStack> give = Commands.literal("sre:give")
                 .requires(source -> source.hasPermission(2));
         // 不写玩家 = 给自己
-        give.then(giveBranch(CustomContentArgument.Kind.BLOCK, null));
-        give.then(giveBranch(CustomContentArgument.Kind.ITEM, null));
+        give.then(giveBranch(CustomContentArgument.Kind.BLOCK, null, buildContext));
+        give.then(giveBranch(CustomContentArgument.Kind.ITEM, null, buildContext));
         // 与原版一致：<targets> 在最前
         give.then(Commands.argument("targets", EntityArgument.players())
-                .then(giveBranch(CustomContentArgument.Kind.BLOCK, "targets"))
-                .then(giveBranch(CustomContentArgument.Kind.ITEM, "targets")));
+                .then(giveBranch(CustomContentArgument.Kind.BLOCK, "targets", buildContext))
+                .then(giveBranch(CustomContentArgument.Kind.ITEM, "targets", buildContext)));
         dispatcher.register(give);
 
         dispatcher.register(Commands.literal("sre:setblock")
                 .requires(source -> source.hasPermission(2))
                 .then(Commands.argument("pos", BlockPosArgument.blockPos())
-                        .then(Commands.argument("id", CustomContentArgument.block())
+                        .then(Commands.argument("id", CustomContentArgument.block(buildContext))
                                 .executes(context -> setBlock(context, null))
                                 .then(Commands.argument("facing", StringArgumentType.word())
                                         .suggests((context, builder) -> {
@@ -103,10 +97,10 @@ public final class CustomContentCommands {
     // ==================== /sre:give ====================
 
     private static LiteralArgumentBuilder<CommandSourceStack> giveBranch(CustomContentArgument.Kind kind,
-            @Nullable String targetsArg) {
+            @Nullable String targetsArg, CommandBuildContext buildContext) {
         CustomContentArgument argument = kind == CustomContentArgument.Kind.BLOCK
-                ? CustomContentArgument.block()
-                : CustomContentArgument.item();
+                ? CustomContentArgument.block(buildContext)
+                : CustomContentArgument.item(buildContext);
         return Commands.literal(kind == CustomContentArgument.Kind.BLOCK ? "block" : "item")
                 .then(Commands.argument("id", argument)
                         .executes(context -> give(context, kind, targetsArg, 1))
@@ -131,7 +125,8 @@ public final class CustomContentCommands {
             source.sendFailure(Component.translatable("sre.custom_content.error.unknown_item", id));
             return 0;
         }
-        DataComponentPatch patch = parseComponents(source, value.components());
+        // 组件在参数解析阶段就由原版物品参数解析好了（语法 / 报错都与原版一致）
+        DataComponentPatch patch = value.hasComponents() ? value.components() : null;
 
         Collection<ServerPlayer> targets = targetsArg == null
                 ? List.of(source.getPlayerOrException())
@@ -171,36 +166,6 @@ public final class CustomContentCommands {
         return data == null ? ItemStack.EMPTY : CustomItemLoader.buildStack(data, count);
     }
 
-    /**
-     * 解析原版风格的组件块：{@code custom_name="x",unbreakable={}}。
-     *
-     * <p>
-     * 直接把这段内容套进一个复合标签，交给原版的 {@link DataComponentPatch} 编解码器解析，
-     * 因此支持原版全部物品组件（含 {@code minecraft:} 前缀省略、字符串引号、嵌套复合标签）。
-     *
-     * @return 解析出的组件补丁；没写组件时返回 null（表示不需要改动物品栈）
-     */
-    @Nullable
-    private static DataComponentPatch parseComponents(CommandSourceStack source, @Nullable String components)
-            throws CommandSyntaxException {
-        if (components == null || components.isBlank()) {
-            return null;
-        }
-        CompoundTag tag;
-        try {
-            tag = TagParser.parseTag("{" + components + "}");
-        } catch (CommandSyntaxException e) {
-            throw ERROR_BAD_COMPONENTS.create(components + " -> " + e.getMessage());
-        }
-        DynamicOps<Tag> ops = RegistryOps.create(NbtOps.INSTANCE, source.registryAccess());
-        return DataComponentPatch.CODEC.parse(ops, tag)
-                .getOrThrow(message -> ERROR_BAD_COMPONENTS.create(components + " -> " + message));
-    }
-
-    /** 组件块解析失败（把原始文本与原因一起显示出来，方便定位）。 */
-    private static final DynamicCommandExceptionType ERROR_BAD_COMPONENTS = new DynamicCommandExceptionType(
-            detail -> Component.translatable("sre.custom_content.error.bad_components", detail));
-
     // ==================== /sre:setblock ====================
 
     private static int setBlock(CommandContext<CommandSourceStack> context, @Nullable String facingArg)
@@ -213,7 +178,7 @@ public final class CustomContentCommands {
             source.sendFailure(Component.translatable("sre.custom_content.error.unknown_block", id));
             return 0;
         }
-        if (value.components() != null && !value.components().isBlank()) {
+        if (value.hasComponents()) {
             // 方块实体目前不保存任何物品组件，直接说清楚，避免玩家以为写进去生效了
             source.sendFailure(Component.translatable("sre.custom_content.error.block_components"));
             return 0;

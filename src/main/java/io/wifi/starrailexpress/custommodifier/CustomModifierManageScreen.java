@@ -15,6 +15,7 @@
 
 package io.wifi.starrailexpress.custommodifier;
 
+import io.wifi.starrailexpress.client.gui.SREPanelStyle;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.gui.GuiGraphics;
@@ -126,8 +127,7 @@ public class CustomModifierManageScreen extends Screen {
 
     @Override
     public void renderBackground(GuiGraphics g, int mouseX, int mouseY, float delta) {
-        g.fill(panelLeftX - 6, panelTopY - 3, panelLeftX + PANEL_WIDTH + 6, panelTopY + PANEL_HEIGHT + 3, 0xCC080C18);
-        g.fill(panelLeftX - 6, panelTopY - 3, panelLeftX + PANEL_WIDTH + 6, panelTopY - 2, 0xFF5577CC);
+        SREPanelStyle.drawPanel(g, panelLeftX - 6, panelTopY - 3, PANEL_WIDTH + 12, PANEL_HEIGHT + 6);
     }
 
     @Override
@@ -143,7 +143,7 @@ public class CustomModifierManageScreen extends Screen {
         int centerX = panelLeftX + PANEL_WIDTH / 2;
         g.drawCenteredString(font, Component
                 .translatableWithFallback("sre.custom_modifier.manage.title", "管理自定义修饰符")
-                .withStyle(s -> s.withColor(0x55BBFF).withBold(true)), centerX, panelTopY + 10, 0xFFFFFF);
+                .withStyle(s -> s.withColor(0xFFD4AF37).withBold(true)), centerX, panelTopY + 10, 0xFFFFFF);
 
         int listTop = panelTopY + 32;
         int listBottom = panelTopY + PANEL_HEIGHT - 34;
@@ -181,16 +181,13 @@ public class CustomModifierManageScreen extends Screen {
         int sbX = panelLeftX + PANEL_WIDTH - 12;
         int sbY = panelTopY + 34;
         int sbH = PANEL_HEIGHT - 68;
-        g.fill(sbX, sbY, sbX + SCROLL_W, sbY + sbH, 0xFF111828);
-        g.fill(sbX + 1, sbY + 1, sbX + SCROLL_W - 1, sbY + sbH - 1, 0x55334466);
         int totalContentH = sbH + maxScroll;
         float ratio = Math.min(1f, (float) sbH / Math.max(1, totalContentH));
         int thumbH = Math.max(SCROLL_MIN_THUMB, (int) (sbH * ratio));
         int thumbY = sbY + (int) ((sbH - thumbH) * ((float) scrollOffset / maxScroll));
         boolean hover = mouseX >= sbX && mouseX < sbX + SCROLL_W && mouseY >= thumbY
                 && mouseY < thumbY + thumbH;
-        g.fill(sbX, thumbY, sbX + SCROLL_W, thumbY + thumbH, hover ? 0xFF8899CC : 0xFF556699);
-        g.fill(sbX + 1, thumbY + 1, sbX + SCROLL_W - 1, thumbY + thumbH - 1, hover ? 0xFFAABBEE : 0xFF7788BB);
+        SREPanelStyle.drawScrollbar(g, sbX, sbY, sbH, thumbY, thumbH, hover);
     }
 
     @Override

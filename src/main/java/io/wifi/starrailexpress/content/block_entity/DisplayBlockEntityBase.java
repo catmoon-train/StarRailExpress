@@ -132,6 +132,22 @@ public abstract class DisplayBlockEntityBase extends BlockEntity {
         this.clientRenderState = state;
     }
 
+    /**
+     * 第二个客户端槽位，给需要额外缓存（例如实体展示的假实体实例）的渲染器用。
+     * 同样只在客户端写，服务端恒为 null。
+     */
+    @Nullable
+    private Object clientContentState;
+
+    @Nullable
+    public final Object clientContentState() {
+        return this.clientContentState;
+    }
+
+    public final void setClientContentState(@Nullable Object state) {
+        this.clientContentState = state;
+    }
+
     /** 该展示方块自己特有的 NBT 键（文本方块是 text 等，方块方块是 block_state）。 */
     protected abstract List<String> contentKeys();
 

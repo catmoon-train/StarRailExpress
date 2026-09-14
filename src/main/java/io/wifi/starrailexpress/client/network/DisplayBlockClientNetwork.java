@@ -16,7 +16,15 @@
 package io.wifi.starrailexpress.client.network;
 
 import io.wifi.starrailexpress.client.gui.screen.BlockDisplayBlockScreen;
+import io.wifi.starrailexpress.client.gui.screen.EntityDisplayBlockScreen;
+import io.wifi.starrailexpress.client.gui.screen.ItemDisplayBlockScreen;
 import io.wifi.starrailexpress.client.gui.screen.TextDisplayBlockScreen;
+import io.wifi.starrailexpress.content.block.BlockDisplayBlock;
+import io.wifi.starrailexpress.content.block.EntityDisplayBlock;
+import io.wifi.starrailexpress.content.block.ItemDisplayBlock;
+import io.wifi.starrailexpress.content.block_entity.BlockDisplayBlockEntity;
+import io.wifi.starrailexpress.content.block_entity.EntityDisplayBlockEntity;
+import io.wifi.starrailexpress.content.block_entity.ItemDisplayBlockEntity;
 import io.wifi.starrailexpress.network.DisplayBlockPayload;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.minecraft.client.Minecraft;
@@ -40,17 +48,25 @@ public class DisplayBlockClientNetwork {
                     return;
                 }
                 BlockPos pos = payload.pos();
-                Screen screen = isBlockDisplay(level, pos)
-                        ? new BlockDisplayBlockScreen(pos, payload.data())
-                        : new TextDisplayBlockScreen(pos, payload.data());
-                minecraft.setScreen(screen);
+                minecraft.setScreen(createScreen(level, pos, payload.data()));
             });
         });
     }
 
-    private static boolean isBlockDisplay(Level level, BlockPos pos) {
-        return level.getBlockEntity(pos) instanceof io.wifi.starrailexpress.content.block_entity.BlockDisplayBlockEntity
-                || level.getBlockState(pos).getBlock() instanceof io.wifi.starrailexpress.content.block.BlockDisplayBlock;
+    /** 按方块实体（退回方块类型）选对应的编辑界面。 */
+    private static Screen createScreen(Level level, BlockPos pos, CompoundTag data) {
+        Object blockEntity = level.getBlockEntity(pos);
+        var block = level.getBlockState(pos).getBlock();
+        if (blockEntity instanceof BlockDisplayBlockEntity || block instanceof BlockDisplayBlock) {
+            return new BlockDisplayBlockScreen(pos, data);
+        }
+        if (blockEntity instanceof ItemDisplayBlockEntity || block instanceof ItemDisplayBlock) {
+            return new ItemDisplayBlockScreen(pos, data);
+        }
+        if (blockEntity instanceof EntityDisplayBlockEntity || block instanceof EntityDisplayBlock) {
+            return new EntityDisplayBlockScreen(pos, data);
+        }
+        return new TextDisplayBlockScreen(pos, data);
     }
 
     /** 把编辑好的展示数据发回服务端。 */

@@ -15,6 +15,7 @@
 
 package io.wifi.starrailexpress.customrole;
 
+import io.wifi.starrailexpress.client.gui.SREPanelStyle;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.gui.GuiGraphics;
@@ -111,8 +112,7 @@ public class CustomRoleManageScreen extends Screen {
 
     @Override
     public void renderBackground(GuiGraphics g, int i, int j, float f) {
-        g.fill(panelLeftX - 6, panelTopY - 3, panelLeftX + PANEL_WIDTH + 6, panelTopY + PANEL_HEIGHT + 3, 0xCC080C18);
-        g.fill(panelLeftX - 6, panelTopY - 3, panelLeftX + PANEL_WIDTH + 6, panelTopY - 2, 0xFF5577CC);
+        SREPanelStyle.drawPanel(g, panelLeftX - 6, panelTopY - 3, PANEL_WIDTH + 12, PANEL_HEIGHT + 6);
     }
 
     @Override
@@ -121,7 +121,7 @@ public class CustomRoleManageScreen extends Screen {
         int cx = panelLeftX + PANEL_WIDTH / 2;
         g.drawCenteredString(font,
             Component.translatable("sre.custom_role.manage.title")
-                .withStyle(s -> s.withColor(0x55BBFF).withBold(true)),
+                .withStyle(s -> s.withColor(0xFFD4AF37).withBold(true)),
             cx, panelTopY + 10, 0xFFFFFF);
 
         // 裁剪内容区域，防止行溢出到面板外
@@ -155,7 +155,7 @@ public class CustomRoleManageScreen extends Screen {
         if (roles.isEmpty()) {
             g.drawCenteredString(font,
                 Component.translatable("sre.custom_role.manage.empty")
-                    .withStyle(s -> s.withColor(0x778899)),
+                    .withStyle(s -> s.withColor(0xFF9E8B6E)),
                 cx, panelTopY + PANEL_HEIGHT / 2, 0xFFFFFF);
         }
     }
@@ -164,20 +164,13 @@ public class CustomRoleManageScreen extends Screen {
         int sbX = panelLeftX + PANEL_WIDTH - 12;
         int sbY = panelTopY + 34;
         int sbH = PANEL_HEIGHT - 68; // 减去顶部标题和底部按钮区域
-        // 轨道背景
-        g.fill(sbX, sbY, sbX + SCROLL_W, sbY + sbH, 0xFF111828);
-        g.fill(sbX + 1, sbY + 1, sbX + SCROLL_W - 1, sbY + sbH - 1, 0x55334466);
-        // 滑块
+        // 轨道背景        // 滑块
         int totalContentH = sbH + maxScroll;
         float ratio = Math.min(1f, (float) sbH / Math.max(1, totalContentH));
         int thumbH = Math.max(SCROLL_MIN_THUMB, (int) (sbH * ratio));
         int thumbY = sbY + (int) ((sbH - thumbH) * ((float) scrollOffset / maxScroll));
         boolean hl = isInRect(mouseX, mouseY, sbX, thumbY, SCROLL_W, thumbH);
-        g.fill(sbX, thumbY, sbX + SCROLL_W, thumbY + thumbH,
-                hl ? 0xFF8899CC : 0xFF556699);
-        g.fill(sbX + 1, thumbY + 1, sbX + SCROLL_W - 1, thumbY + thumbH - 1,
-                hl ? 0xFFAABBEE : 0xFF7788BB);
-        g.fill(sbX + 1, thumbY + 1, sbX + SCROLL_W - 1, thumbY + 3, 0x44FFFFFF);
+        SREPanelStyle.drawScrollbar(g, sbX, sbY, sbH, thumbY, thumbH, hl);
     }
 
     @Override

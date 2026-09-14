@@ -16,6 +16,7 @@
 package io.wifi.starrailexpress.customblock;
 
 import io.wifi.starrailexpress.api.RoleTeam;
+import io.wifi.starrailexpress.client.gui.SREPanelStyle;
 import io.wifi.starrailexpress.client.render.block.CustomBlockAppearance;
 import io.wifi.starrailexpress.client.render.item.CustomBlockItemRenderer;
 import io.wifi.starrailexpress.customblock.CustomBlockData.BlockEvent;
@@ -231,7 +232,7 @@ public class CustomBlockScreen extends Screen {
     // 控件工具
     // ══════════════════════════════════════════════════════════════════
     private void addLabelKey(int row, String key) {
-        contentLabels.add(new LabelEntry(Component.translatable(key).withStyle(s -> s.withColor(0xCCDDEE)),
+        contentLabels.add(new LabelEntry(Component.translatable(key).withStyle(s -> s.withColor(0xFFFFF4DC)),
                 labelX(), baseY(row), 0xFFFFFF));
     }
 
@@ -284,7 +285,7 @@ public class CustomBlockScreen extends Screen {
     private int numRow(int r, String labelKey, double value, String unitKey, DoubleConsumer setter) {
         addLabelKey(r, labelKey);
         box(r, fieldX(), 90, num(value), null, v -> setter.accept(parseDouble(v, value)));
-        addFieldHint(r, Component.translatable(unitKey), 0x98A2B3);
+        addFieldHint(r, Component.translatable(unitKey), 0xFF9E8B6E);
         return r + 1;
     }
 
@@ -292,7 +293,7 @@ public class CustomBlockScreen extends Screen {
     private int intRow(int r, String labelKey, int value, String unitKey, Consumer<Integer> setter) {
         addLabelKey(r, labelKey);
         box(r, fieldX(), 90, String.valueOf(value), null, v -> setter.accept(parseInt(v, value)));
-        addFieldHint(r, Component.translatable(unitKey), 0x98A2B3);
+        addFieldHint(r, Component.translatable(unitKey), 0xFF9E8B6E);
         return r + 1;
     }
 
@@ -301,7 +302,7 @@ public class CustomBlockScreen extends Screen {
         addLabelKey(r, labelKey);
         button(r, fieldX(), FIELD_W, 18,
                 Component.translatable(current ? "sre.custom_block.value.yes" : "sre.custom_block.value.no")
-                        .withStyle(s -> s.withColor(current ? 0x55FF55 : 0xFF5555)),
+                        .withStyle(s -> s.withColor(current ? 0xFF72C17B : 0xFFE06B65)),
                 () -> {
                     setter.accept(!current);
                     requestRebuild();
@@ -361,10 +362,10 @@ public class CustomBlockScreen extends Screen {
      * 列表为空时也会先补一行空输入框，保证界面上一定有可以打字的地方。
      */
     private int textLines(int r, Component title, List<String> list, String hintKey, String addKey) {
-        contentLabels.add(new LabelEntry(title.copy().withStyle(s -> s.withColor(0xCCDDEE)),
+        contentLabels.add(new LabelEntry(title.copy().withStyle(s -> s.withColor(0xFFFFF4DC)),
                 labelX(), baseY(r), 0xFFFFFF));
         r++;
-        addHintText(r++, Component.translatable(hintKey), 0x98A2B3);
+        addHintText(r++, Component.translatable(hintKey), 0xFF9E8B6E);
         if (list.isEmpty()) {
             list.add("");
         }
@@ -400,14 +401,14 @@ public class CustomBlockScreen extends Screen {
         r = textRow(r, "sre.custom_block.label.display_name", data.displayName,
                 Component.translatable("sre.custom_block.hint.display_name"), v -> data.displayName = v);
 
-        addHintText(r++, Component.translatable("sre.custom_block.hint.tooltip_title"), 0x00C2FF);
+        addHintText(r++, Component.translatable("sre.custom_block.hint.tooltip_title"), 0xFFD4AF37);
         r = textLines(r, Component.translatable("sre.custom_block.label.tooltip"), data.tooltip,
                 "sre.custom_block.hint.tooltip", "sre.custom_block.add_line");
 
-        addHintText(r++, Component.translatable("sre.custom_block.hint.fixed_behaviour"), 0xFFB300);
+        addHintText(r++, Component.translatable("sre.custom_block.hint.fixed_behaviour"), 0xFFC9A84C);
         r = boolRow(r, "sre.custom_block.label.rotate", data.rotate, v -> data.rotate = v);
-        addHintText(r++, Component.translatable("sre.custom_block.hint.waterlogged"), 0x98A2B3);
-        addHintText(r++, Component.translatable("sre.custom_block.hint.drop_self"), 0x98A2B3);
+        addHintText(r++, Component.translatable("sre.custom_block.hint.waterlogged"), 0xFF9E8B6E);
+        addHintText(r++, Component.translatable("sre.custom_block.hint.drop_self"), 0xFF9E8B6E);
     }
 
     // ══════════════════════════════════════════════════════════════════
@@ -415,21 +416,21 @@ public class CustomBlockScreen extends Screen {
     // ══════════════════════════════════════════════════════════════════
     private void buildAppearanceTab() {
         int r = 0;
-        addHintText(r++, Component.translatable("sre.custom_block.hint.appearance_priority"), 0xFFB300);
+        addHintText(r++, Component.translatable("sre.custom_block.hint.appearance_priority"), 0xFFC9A84C);
         r = textRow(r, "sre.custom_block.label.pack_texture", data.packTexturePath,
                 Component.translatable("sre.custom_block.hint.pack_texture"), v -> data.packTexturePath = v);
         r = textRow(r, "sre.custom_block.label.inherit_block", data.inheritBlock,
                 Component.translatable("sre.custom_block.hint.inherit_block"),
                 v -> data.inheritBlock = v.trim().toLowerCase());
-        addHintText(r++, Component.translatable("sre.custom_block.hint.inherit_block_note"), 0x98A2B3);
+        addHintText(r++, Component.translatable("sre.custom_block.hint.inherit_block_note"), 0xFF9E8B6E);
         r = intRow(r, "sre.custom_block.label.light_level", data.lightLevel, "sre.custom_block.unit.level",
                 v -> data.lightLevel = v);
 
-        addHintText(r++, Component.translatable("sre.custom_block.label.preview"), 0xCCDDEE);
-        addHintText(r++, previewLine("sre.custom_block.preview.inherit"), 0x98A2B3);
-        addHintText(r++, previewLine("sre.custom_block.preview.texture"), 0x98A2B3);
-        addHintText(r++, previewLine("sre.custom_block.preview.light"), 0x98A2B3);
-        addHintText(r++, previewLine("sre.custom_block.preview.sound"), 0x98A2B3);
+        addHintText(r++, Component.translatable("sre.custom_block.label.preview"), 0xFFFFF4DC);
+        addHintText(r++, previewLine("sre.custom_block.preview.inherit"), 0xFF9E8B6E);
+        addHintText(r++, previewLine("sre.custom_block.preview.texture"), 0xFF9E8B6E);
+        addHintText(r++, previewLine("sre.custom_block.preview.light"), 0xFF9E8B6E);
+        addHintText(r++, previewLine("sre.custom_block.preview.sound"), 0xFF9E8B6E);
     }
 
     private Component previewLine(String key) {
@@ -448,11 +449,11 @@ public class CustomBlockScreen extends Screen {
     private void buildPropertiesTab() {
         int r = 0;
         r = boolRow(r, "sre.custom_block.label.no_collision", data.noCollision, v -> data.noCollision = v);
-        addHintText(r++, Component.translatable("sre.custom_block.hint.no_collision"), 0x98A2B3);
+        addHintText(r++, Component.translatable("sre.custom_block.hint.no_collision"), 0xFF9E8B6E);
         r = boolRow(r, "sre.custom_block.label.blocks_skylight", data.blocksSkylight, v -> data.blocksSkylight = v);
-        addHintText(r++, Component.translatable("sre.custom_block.hint.blocks_skylight"), 0x98A2B3);
-        addHintText(r++, Component.translatable("sre.custom_block.hint.hardness_fixed"), 0x98A2B3);
-        addHintText(r++, Component.translatable("sre.custom_block.hint.shape_from_inherit"), 0x98A2B3);
+        addHintText(r++, Component.translatable("sre.custom_block.hint.blocks_skylight"), 0xFF9E8B6E);
+        addHintText(r++, Component.translatable("sre.custom_block.hint.hardness_fixed"), 0xFF9E8B6E);
+        addHintText(r++, Component.translatable("sre.custom_block.hint.shape_from_inherit"), 0xFF9E8B6E);
     }
 
     // ══════════════════════════════════════════════════════════════════
@@ -460,12 +461,12 @@ public class CustomBlockScreen extends Screen {
     // ══════════════════════════════════════════════════════════════════
     private void buildEventsTab() {
         int r = 0;
-        addHintText(r++, Component.translatable("sre.custom_block.hint.events"), 0x00C2FF);
+        addHintText(r++, Component.translatable("sre.custom_block.hint.events"), 0xFFD4AF37);
         if (data.events == null) {
             data.events = new ArrayList<>();
         }
         if (data.events.isEmpty()) {
-            addHintText(r++, Component.translatable("sre.custom_block.events.empty"), 0x98A2B3);
+            addHintText(r++, Component.translatable("sre.custom_block.events.empty"), 0xFF9E8B6E);
         }
         for (int i = 0; i < data.events.size(); i++) {
             r = eventBlock(r, data.events.get(i), i);
@@ -489,7 +490,7 @@ public class CustomBlockScreen extends Screen {
 
         contentLabels.add(new LabelEntry(
                 Component.translatable("sre.custom_block.event.title", index + 1)
-                        .withStyle(s -> s.withColor(0xFFD37A)),
+                        .withStyle(s -> s.withColor(0xFFD4AF37)),
                 labelX(), baseY(r), 0xFFFFFF));
         button(r, fieldX(), 180, 18,
                 Component.translatable("sre.custom_block.event_type." + type.name().toLowerCase()),
@@ -523,13 +524,13 @@ public class CustomBlockScreen extends Screen {
                     v -> event.oncePerPlayer = v);
         }
 
-        addHintText(r++, Component.translatable("sre.custom_block.label.conditions"), 0x00C2FF);
+        addHintText(r++, Component.translatable("sre.custom_block.label.conditions"), 0xFFD4AF37);
         r = boolRow(r, "sre.custom_block.label.game_running_only", event.gameRunningOnly,
                 v -> event.gameRunningOnly = v);
         r = textLines(r, Component.translatable("sre.custom_block.label.required_roles"), event.requiredRoles,
                 "sre.custom_block.hint.required_roles", "sre.custom_block.add_line");
         r = teamRow(r, "sre.custom_block.label.required_team", event.requiredTeams);
-        addHintText(r++, Component.translatable("sre.custom_block.hint.conditions_note"), 0x98A2B3);
+        addHintText(r++, Component.translatable("sre.custom_block.hint.conditions_note"), 0xFF9E8B6E);
         return r;
     }
 
@@ -647,8 +648,8 @@ public class CustomBlockScreen extends Screen {
     private void renderPreview(GuiGraphics g) {
         int px = panelLeftX + panelWidth - PREVIEW_SIZE - 14;
         int py = contentTop() + 2;
-        g.fill(px - 2, py - 2, px + PREVIEW_SIZE + 2, py + PREVIEW_SIZE + 2, 0xFF263041);
-        g.fill(px, py, px + PREVIEW_SIZE, py + PREVIEW_SIZE, 0xFF0E1116);
+        g.fill(px - 2, py - 2, px + PREVIEW_SIZE + 2, py + PREVIEW_SIZE + 2, 0xFF8B6914);
+        g.fill(px, py, px + PREVIEW_SIZE, py + PREVIEW_SIZE, 0xFF120A04);
 
         ResourceLocation packTexture = CustomBlockAppearance.resolvePackTexture(data.packTexturePath);
         if (packTexture != null) {
@@ -691,25 +692,22 @@ public class CustomBlockScreen extends Screen {
 
     @Override
     public void renderBackground(GuiGraphics g, int mouseX, int mouseY, float delta) {
-        g.fill(panelLeftX - 6, panelTopY - 3, panelLeftX + panelWidth + 6, panelTopY + panelHeight + 3, 0xCC080C18);
-        g.fill(panelLeftX - 6, panelTopY - 3, panelLeftX + panelWidth + 6, panelTopY - 2, 0xFF5577CC);
-        g.fill(panelLeftX - 6, contentBottom(), panelLeftX + panelWidth + 6, panelTopY + panelHeight + 3, 0xCC080C18);
+        SREPanelStyle.drawPanel(g, panelLeftX - 6, panelTopY - 3, panelWidth + 12, panelHeight + 6);
+        g.fill(panelLeftX - 6, contentBottom(), panelLeftX + panelWidth + 6, panelTopY + panelHeight + 3, SREPanelStyle.PANEL_BG_BOTTOM);
         Component title = Component.translatable("sre.custom_block.title");
-        g.drawString(font, title, panelLeftX - 4, panelTopY - 16, 0x55BBFF, false);
+        g.drawString(font, title.copy().withStyle(s -> s.withBold(true)), panelLeftX - 4, panelTopY - 16, 0xFFD4AF37, false);
     }
 
     private void renderScrollbar(GuiGraphics g, int mouseX, int mouseY) {
         int sbX = panelLeftX + panelWidth + 1;
         int sbY = contentTop();
         int sbH = contentBottom() - contentTop();
-        g.fill(sbX, sbY, sbX + SCROLL_W, sbY + sbH, 0xFF111828);
         int totalContentH = sbH + maxScroll;
         float ratio = Math.min(1f, (float) sbH / Math.max(1, totalContentH));
         int thumbH = Math.max(SCROLL_MIN_THUMB, (int) (sbH * ratio));
         int thumbY = sbY + (int) ((sbH - thumbH) * ((float) scrollOffset / maxScroll));
         boolean hover = inside(mouseX, mouseY, sbX, thumbY, SCROLL_W, thumbH);
-        g.fill(sbX, thumbY, sbX + SCROLL_W, thumbY + thumbH, hover ? 0xFF8899CC : 0xFF556699);
-        g.fill(sbX + 1, thumbY + 1, sbX + SCROLL_W - 1, thumbY + thumbH - 1, hover ? 0xFFAABBEE : 0xFF7788BB);
+        SREPanelStyle.drawScrollbar(g, sbX, sbY, sbH, thumbY, thumbH, hover);
     }
 
     @Override

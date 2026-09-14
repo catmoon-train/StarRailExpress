@@ -500,6 +500,10 @@ public class SREClient implements ClientModInitializer {
                 io.wifi.starrailexpress.client.render.block_entity.TextDisplayBlockEntityRenderer::new);
         BlockEntityRenderers.register(SREDisplayBlocks.BLOCK_DISPLAY_BLOCK_ENTITY,
                 io.wifi.starrailexpress.client.render.block_entity.BlockDisplayBlockEntityRenderer::new);
+        BlockEntityRenderers.register(SREDisplayBlocks.ITEM_DISPLAY_BLOCK_ENTITY,
+                io.wifi.starrailexpress.client.render.block_entity.ItemDisplayBlockEntityRenderer::new);
+        BlockEntityRenderers.register(SREDisplayBlocks.ENTITY_DISPLAY_BLOCK_ENTITY,
+                io.wifi.starrailexpress.client.render.block_entity.EntityDisplayBlockEntityRenderer::new);
 
         AmbienceUtil.registerBackgroundAmbience(
                 new BackgroundAmbience(TMMSounds.AMBIENT_PSYCHO_DRONE,

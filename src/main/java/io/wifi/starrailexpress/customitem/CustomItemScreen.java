@@ -16,6 +16,7 @@
 package io.wifi.starrailexpress.customitem;
 
 import io.wifi.starrailexpress.api.RoleTeam;
+import io.wifi.starrailexpress.client.gui.SREPanelStyle;
 import io.wifi.starrailexpress.client.render.item.CustomItemRenderer;
 import io.wifi.starrailexpress.customitem.CustomItemData.ChargeAnim;
 import io.wifi.starrailexpress.customitem.CustomItemData.HoldPose;
@@ -225,7 +226,7 @@ public class CustomItemScreen extends Screen {
     // 控件工具
     // ══════════════════════════════════════════════════════════════════
     private void addLabelKey(int row, String key) {
-        contentLabels.add(new LabelEntry(Component.translatable(key).withStyle(s -> s.withColor(0xCCDDEE)),
+        contentLabels.add(new LabelEntry(Component.translatable(key).withStyle(s -> s.withColor(0xFFFFF4DC)),
                 labelX(), baseY(row), 0xFFFFFF));
     }
 
@@ -278,7 +279,7 @@ public class CustomItemScreen extends Screen {
     private int numRow(int r, String labelKey, double value, String unitKey, DoubleConsumer setter) {
         addLabelKey(r, labelKey);
         box(r, fieldX(), 90, num(value), null, v -> setter.accept(parseDouble(v, value)));
-        addFieldHint(r, Component.translatable(unitKey), 0x98A2B3);
+        addFieldHint(r, Component.translatable(unitKey), 0xFF9E8B6E);
         return r + 1;
     }
 
@@ -287,7 +288,7 @@ public class CustomItemScreen extends Screen {
         addLabelKey(r, labelKey);
         button(r, fieldX(), 300, 18,
                 Component.translatable(current ? "sre.custom_item.value.yes" : "sre.custom_item.value.no")
-                        .withStyle(s -> s.withColor(current ? 0x55FF55 : 0xFF5555)),
+                        .withStyle(s -> s.withColor(current ? 0xFF72C17B : 0xFFE06B65)),
                 () -> {
                     setter.accept(!current);
                     requestRebuild();
@@ -340,7 +341,7 @@ public class CustomItemScreen extends Screen {
     private int textLines(int r, String labelKey, List<String> list, String hintKey, String addKey) {
         addLabelKey(r, labelKey);
         r++;
-        addHintText(r++, Component.translatable(hintKey), 0x98A2B3);
+        addHintText(r++, Component.translatable(hintKey), 0xFF9E8B6E);
         if (list.isEmpty()) {
             list.add("");
         }
@@ -387,15 +388,15 @@ public class CustomItemScreen extends Screen {
         r = textRow(r, "sre.custom_item.label.pack_texture", data.packTexturePath,
                 Component.translatable("sre.custom_item.hint.pack_texture"), v -> data.packTexturePath = v);
 
-        addHintText(r++, Component.translatable("sre.custom_item.hint.pack_priority"), 0xFFB300);
-        addHintText(r++, Component.translatable("sre.custom_item.label.preview"), 0xCCDDEE);
+        addHintText(r++, Component.translatable("sre.custom_item.hint.pack_priority"), 0xFFC9A84C);
+        addHintText(r++, Component.translatable("sre.custom_item.label.preview"), 0xFFFFF4DC);
 
         // 物品 tooltip：多行文本，每行一个输入框，＋ 追加一行
         r = textLines(r, "sre.custom_item.label.tooltip", data.tooltip,
                 "sre.custom_item.hint.tooltip", "sre.custom_item.add_tooltip");
 
         // 丢弃 / 死亡规则
-        addHintText(r++, Component.translatable("sre.custom_item.section.drop"), 0x00C2FF);
+        addHintText(r++, Component.translatable("sre.custom_item.section.drop"), 0xFFD4AF37);
         r = boolRow(r, "sre.custom_item.label.can_drop", data.canDropItem, v -> data.canDropItem = v);
         r = textRow(r, "sre.custom_item.label.drop_only_role", data.dropOnlyRole,
                 Component.translatable("sre.custom_item.hint.drop_only_role"), v -> data.dropOnlyRole = v);
@@ -654,8 +655,8 @@ public class CustomItemScreen extends Screen {
     private void renderPreview(GuiGraphics g) {
         int px = panelLeftX + panelWidth - PREVIEW_SIZE - 14;
         int py = contentTop() + 2;
-        g.fill(px - 2, py - 2, px + PREVIEW_SIZE + 2, py + PREVIEW_SIZE + 2, 0xFF263041);
-        g.fill(px, py, px + PREVIEW_SIZE, py + PREVIEW_SIZE, 0xFF0E1116);
+        g.fill(px - 2, py - 2, px + PREVIEW_SIZE + 2, py + PREVIEW_SIZE + 2, 0xFF8B6914);
+        g.fill(px, py, px + PREVIEW_SIZE, py + PREVIEW_SIZE, 0xFF120A04);
 
         ResourceLocation packTexture = CustomItemRenderer.resolvePackTexture(data.packTexturePath);
         if (packTexture != null) {
@@ -680,25 +681,22 @@ public class CustomItemScreen extends Screen {
 
     @Override
     public void renderBackground(GuiGraphics g, int mouseX, int mouseY, float delta) {
-        g.fill(panelLeftX - 6, panelTopY - 3, panelLeftX + panelWidth + 6, panelTopY + panelHeight + 3, 0xCC080C18);
-        g.fill(panelLeftX - 6, panelTopY - 3, panelLeftX + panelWidth + 6, panelTopY - 2, 0xFF5577CC);
-        g.fill(panelLeftX - 6, contentBottom(), panelLeftX + panelWidth + 6, panelTopY + panelHeight + 3, 0xCC080C18);
+        SREPanelStyle.drawPanel(g, panelLeftX - 6, panelTopY - 3, panelWidth + 12, panelHeight + 6);
+        g.fill(panelLeftX - 6, contentBottom(), panelLeftX + panelWidth + 6, panelTopY + panelHeight + 3, SREPanelStyle.PANEL_BG_BOTTOM);
         Component title = Component.translatable("sre.custom_item.title");
-        g.drawString(font, title, panelLeftX - 4, panelTopY - 16, 0x55BBFF, false);
+        g.drawString(font, title.copy().withStyle(s -> s.withBold(true)), panelLeftX - 4, panelTopY - 16, 0xFFD4AF37, false);
     }
 
     private void renderScrollbar(GuiGraphics g, int mouseX, int mouseY) {
         int sbX = panelLeftX + panelWidth + 1;
         int sbY = contentTop();
         int sbH = contentBottom() - contentTop();
-        g.fill(sbX, sbY, sbX + SCROLL_W, sbY + sbH, 0xFF111828);
         int totalContentH = sbH + maxScroll;
         float ratio = Math.min(1f, (float) sbH / Math.max(1, totalContentH));
         int thumbH = Math.max(SCROLL_MIN_THUMB, (int) (sbH * ratio));
         int thumbY = sbY + (int) ((sbH - thumbH) * ((float) scrollOffset / maxScroll));
         boolean hover = inside(mouseX, mouseY, sbX, thumbY, SCROLL_W, thumbH);
-        g.fill(sbX, thumbY, sbX + SCROLL_W, thumbY + thumbH, hover ? 0xFF8899CC : 0xFF556699);
-        g.fill(sbX + 1, thumbY + 1, sbX + SCROLL_W - 1, thumbY + thumbH - 1, hover ? 0xFFAABBEE : 0xFF7788BB);
+        SREPanelStyle.drawScrollbar(g, sbX, sbY, sbH, thumbY, thumbH, hover);
     }
 
     @Override

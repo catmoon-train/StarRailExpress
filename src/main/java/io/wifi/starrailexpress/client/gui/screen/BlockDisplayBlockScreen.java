@@ -15,13 +15,15 @@
 
 package io.wifi.starrailexpress.client.gui.screen;
 
+import com.mojang.blaze3d.platform.Lighting;
 import com.mojang.blaze3d.vertex.PoseStack;
-import io.wifi.starrailexpress.client.gui.widget.BlockGridWidget;
+import io.wifi.starrailexpress.client.gui.widget.ItemGridWidget;
 import io.wifi.starrailexpress.client.render.block_entity.DisplayBlockRenderSupport;
-import io.wifi.starrailexpress.client.util.BlockNames;
+import io.wifi.starrailexpress.client.util.SafeNames;
 import io.wifi.starrailexpress.content.block_entity.BlockDisplayBlockEntity;
 import io.wifi.starrailexpress.content.block_entity.DisplayBlockEntityBase;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.EditBox;
@@ -56,7 +58,7 @@ public class BlockDisplayBlockScreen extends DisplayBlockScreenBase {
     private static final String NO_FILTER = "\u0000";
 
     private EditBox idBox;
-    private BlockGridWidget grid;
+    private ItemGridWidget grid;
     private String lastFilter = NO_FILTER;
     private int hintY;
     private boolean contentBuilt;
@@ -91,9 +93,9 @@ public class BlockDisplayBlockScreen extends DisplayBlockScreenBase {
 
         int gridTop = this.hintY + 14;
         int gridHeight = Math.max(36, contentBottom() - gridTop);
-        BlockGridWidget widget = new BlockGridWidget(contentLeft(), gridTop, contentWidth() + 5, gridHeight,
-                this::onBlockPicked);
-        widget.setSelected(currentBlockState().getBlock());
+        ItemGridWidget widget = ItemGridWidget.forBlocks(contentLeft(), gridTop, contentWidth() + 5, gridHeight,
+                stack -> onBlockPicked(Block.byItem(stack.getItem())));
+        widget.setSelected(new ItemStack(currentBlockState().getBlock()));
         widget.setFilter(box.getValue());
         addRenderableWidget(widget);
         this.grid = widget;
@@ -127,7 +129,7 @@ public class BlockDisplayBlockScreen extends DisplayBlockScreenBase {
         }
         this.display.put(BlockDisplayBlockEntity.TAG_BLOCK_STATE, NbtUtils.writeBlockState(block.defaultBlockState()));
         if (this.grid != null) {
-            this.grid.setSelected(block);
+            this.grid.setSelected(new ItemStack(block));
         }
         if (updateIdBox && this.idBox != null) {
             String id = BuiltInRegistries.BLOCK.getKey(block).toString();
@@ -262,29 +264,32 @@ public class BlockDisplayBlockScreen extends DisplayBlockScreenBase {
      * 的 getDescriptionId 会和自己物品互相递归，直接调用会栈溢出。
      */
     private static String blockName(BlockState state) {
-        return BlockNames.of(state.getBlock());
+        return SafeNames.of(state.getBlock());
     }
 
     /**
-     * 预览页签的 3D 视口：用原版在 GUI 里画 3D 物品的那条路径（{@code GuiGraphics.renderItem}）
-     * 画方块模型，再叠上展示数据自己的变换，所以旋转/缩放/动画在预览里都能看到。
+     * 预览的 3D 视口：**直接调用世界渲染器用的同一个 {@code renderSingleBlock}**，
+     * 所以姿态、透明度、光照和真正摆出来的方块完全一致。
+     *
+     * <p>不要用 {@code GuiGraphics.renderItem}：那是"物品栏图标"路径，会套上模型 json 里
+     * {@code display.gui} 的等轴测变换（旋转 30°/225°、缩放 0.625），方块会看起来是歪着/立起来的；
+     * 而且它的渲染类型走物品那条路，半透明方块的表现也和对不齐。
      */
     @Override
     protected void renderOrbitPreview(GuiGraphics graphics, PoseStack poseStack, float cameraYaw, float cameraPitch) {
         BlockState state = currentBlockState();
-        ItemStack stack = new ItemStack(state.getBlock());
-        if (stack.isEmpty()) {
-            // 没有对应物品的方块（水、火之类）拿不到物品模型，画不出来
+        if (state.isAir()) {
             return;
         }
 
         poseStack.pushPose();
         DisplayBlockRenderSupport.applyDisplayTransform(poseStack,
                 DisplayBlockEntityBase.readBillboard(this.display), effectiveTransformation(), cameraYaw, cameraPitch);
-        // 预览约定"1 方块 = 1 单位"，而 renderItem 内部会按 16 倍缩放并把 y 轴翻到 GUI 方向，
-        // 所以这里预先抵消掉这两件事，方块就正好占一个单位、而且是正立向上的。
-        poseStack.scale(1.0F / 16.0F, -1.0F / 16.0F, 1.0F);
-        graphics.renderItem(stack, 0, 0);
+        // 方块模型占 (0,0,0)-(1,1,1)，挪到以原点为中心，才和预览的"方块中心"约定对上
+        DisplayBlockRenderSupport.restoreModelOrigin(poseStack);
+        Lighting.setupFor3DItems();
+        Minecraft.getInstance().getBlockRenderer().renderSingleBlock(state, poseStack, graphics.bufferSource(),
+                DisplayBlockRenderSupport.GUI_LIGHT, OverlayTexture.NO_OVERLAY);
         poseStack.popPose();
     }
 
