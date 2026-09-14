@@ -23,39 +23,40 @@ import net.minecraft.commands.Commands;
 import net.minecraft.network.chat.Component;
 
 /**
- * 自定义职业重载命令: sre:reloadRoleConfig
+ * 自定义职业重载命令: sre:reload custom_roles
  */
 public class CustomRoleReloadCommand {
 
     public static void register(CommandDispatcher<CommandSourceStack> dispatcher) {
-        dispatcher.register(Commands.literal("sre:reloadRoleConfig")
-            .requires(source -> source.hasPermission(3))
-            .executes(context -> {
-                CommandSourceStack source = context.getSource();
-                try {
-                    CustomRoleLoader.reload(source.getServer());
-                    // 清除缓存并同步到所有客户端
-                    CustomRoleServerNetwork.clearCache();
-                    CustomRoleServerNetwork.syncToAllPlayers(source.getServer());
-                    // 自定义职业重载时一并重载自定义修饰符的配置
-                    io.wifi.starrailexpress.custommodifier.CustomModifierLoader.reload(source.getServer());
-                    io.wifi.starrailexpress.network.CustomModifierServerNetwork.clearCache();
-                    io.wifi.starrailexpress.network.CustomModifierServerNetwork.syncToAllPlayers(source.getServer());
-                    // 以及自定义列车物品的配置
-                    io.wifi.starrailexpress.customitem.CustomItemLoader.reload(source.getServer());
-                    io.wifi.starrailexpress.network.CustomItemServerNetwork.clearCache();
-                    io.wifi.starrailexpress.network.CustomItemServerNetwork.syncToAllPlayers(source.getServer());
-                    source.sendSuccess(
-                        () -> Component.literal("[CustomRole] 自定义职业配置已重新加载")
-                            .withStyle(s -> s.withColor(0x55FF55)),
-                        true);
-                    SRE.LOGGER.info("[CustomRole] Reloaded custom roles by {}", source.getTextName());
-                    return 1;
-                } catch (Exception e) {
-                    source.sendFailure(Component.literal("[CustomRole] 重载失败: " + e.getMessage()));
-                    SRE.LOGGER.error("[CustomRole] Reload failed", e);
-                    return 0;
-                }
-            }));
+        dispatcher.register(Commands.literal("sre:reload")
+                .requires(source -> source.hasPermission(3))
+                .then(Commands.literal("custom_roles").executes(context -> {
+                    CommandSourceStack source = context.getSource();
+                    try {
+                        CustomRoleLoader.reload(source.getServer());
+                        // 清除缓存并同步到所有客户端
+                        CustomRoleServerNetwork.clearCache();
+                        CustomRoleServerNetwork.syncToAllPlayers(source.getServer());
+                        // 自定义职业重载时一并重载自定义修饰符的配置
+                        io.wifi.starrailexpress.custommodifier.CustomModifierLoader.reload(source.getServer());
+                        io.wifi.starrailexpress.network.CustomModifierServerNetwork.clearCache();
+                        io.wifi.starrailexpress.network.CustomModifierServerNetwork
+                                .syncToAllPlayers(source.getServer());
+                        // 以及自定义列车物品的配置
+                        io.wifi.starrailexpress.customitem.CustomItemLoader.reload(source.getServer());
+                        io.wifi.starrailexpress.network.CustomItemServerNetwork.clearCache();
+                        io.wifi.starrailexpress.network.CustomItemServerNetwork.syncToAllPlayers(source.getServer());
+                        source.sendSuccess(
+                                () -> Component.literal("[CustomRole] 自定义职业配置已重新加载")
+                                        .withStyle(s -> s.withColor(0x55FF55)),
+                                true);
+                        SRE.LOGGER.info("[CustomRole] Reloaded custom roles by {}", source.getTextName());
+                        return 1;
+                    } catch (Exception e) {
+                        source.sendFailure(Component.literal("[CustomRole] 重载失败: " + e.getMessage()));
+                        SRE.LOGGER.error("[CustomRole] Reload failed", e);
+                        return 0;
+                    }
+                })));
     }
 }

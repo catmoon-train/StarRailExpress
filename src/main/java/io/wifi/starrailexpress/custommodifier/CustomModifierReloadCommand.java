@@ -23,30 +23,32 @@ import net.minecraft.commands.Commands;
 import net.minecraft.network.chat.Component;
 
 /**
- * 自定义修饰符重载命令：{@code sre:reloadModifierConfig}
+ * 自定义修饰符重载命令：{@code sre:reload custom_modifiers}
  */
 public class CustomModifierReloadCommand {
 
     public static void register(CommandDispatcher<CommandSourceStack> dispatcher) {
-        dispatcher.register(Commands.literal("sre:reloadModifierConfig")
+        dispatcher.register(Commands.literal("sre:reload")
                 .requires(source -> source.hasPermission(3))
-                .executes(context -> {
-                    CommandSourceStack source = context.getSource();
-                    try {
-                        CustomModifierLoader.reload(source.getServer());
-                        CustomModifierServerNetwork.clearCache();
-                        CustomModifierServerNetwork.syncToAllPlayers(source.getServer());
-                        source.sendSuccess(
-                                () -> Component.literal("[CustomModifier] 自定义修饰符配置已重新加载")
-                                        .withStyle(s -> s.withColor(0x55FF55)),
-                                true);
-                        SRE.LOGGER.info("[CustomModifier] Reloaded custom modifiers by {}", source.getTextName());
-                        return 1;
-                    } catch (Exception e) {
-                        source.sendFailure(Component.literal("[CustomModifier] 重载失败: " + e.getMessage()));
-                        SRE.LOGGER.error("[CustomModifier] Reload failed", e);
-                        return 0;
-                    }
-                }));
+                .then(Commands.literal("custom_modifiers")
+                        .executes(context -> {
+                            CommandSourceStack source = context.getSource();
+                            try {
+                                CustomModifierLoader.reload(source.getServer());
+                                CustomModifierServerNetwork.clearCache();
+                                CustomModifierServerNetwork.syncToAllPlayers(source.getServer());
+                                source.sendSuccess(
+                                        () -> Component.literal("[CustomModifier] 自定义修饰符配置已重新加载")
+                                                .withStyle(s -> s.withColor(0x55FF55)),
+                                        true);
+                                SRE.LOGGER.info("[CustomModifier] Reloaded custom modifiers by {}",
+                                        source.getTextName());
+                                return 1;
+                            } catch (Exception e) {
+                                source.sendFailure(Component.literal("[CustomModifier] 重载失败: " + e.getMessage()));
+                                SRE.LOGGER.error("[CustomModifier] Reload failed", e);
+                                return 0;
+                            }
+                        })));
     }
 }
