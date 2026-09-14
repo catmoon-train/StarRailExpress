@@ -20,6 +20,7 @@ import net.minecraft.network.chat.Component;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 /**
  * 命令里展示网络统计的公共部分，服务端与客户端命令共用，保证两侧输出一致。
@@ -100,6 +101,82 @@ public final class NetworkStatsDisplay {
     public static Component typeLine(String packetId, PacketStats stats, String indent) {
         return Component.literal(indent + packetId + ": " + stats.getCount() + " 包, "
                 + stats.getTotalSize() + " 字节, 均 " + format(stats.getAverageSize()) + " 字节/包");
+    }
+
+    // ------------------------------------------------------------------ HTTP / SQL 通道
+
+    /**
+     * HTTP 与 SQL 各自的汇总行，用在 {@code global} 末尾。通道没数据时也照常显示，
+     * 以免看起来像统计丢了。
+     */
+    public static List<Component> channelSummaryLines(NetworkStatistics stats) {
+        List<Component> lines = new ArrayList<>();
+        for (TrafficChannel channel : TrafficChannel.values()) {
+            lines.add(channelSummaryLine(channel, stats));
+        }
+        lines.add(Component.literal("合计（含数据包）: " + stats.getTotalBytes() + " 字节")
+                .withStyle(ChatFormatting.GRAY));
+        return lines;
+    }
+
+    private static Component channelSummaryLine(TrafficChannel channel, NetworkStatistics stats) {
+        ChannelTrafficStats traffic = channel.stats(stats);
+        boolean recording = channel.isRecording(stats);
+        String state = recording ? "记录中" : "未开启";
+        String body = traffic.hasData()
+                ? traffic.getOutboundCount() + " 次 · 发出 " + traffic.getOutboundBytes()
+                        + " 字节 · 接收 " + traffic.getInboundBytes() + " 字节"
+                : "暂无数据";
+        return Component.literal(channel.label() + ": " + state + " · " + body)
+                .withStyle(recording ? ChatFormatting.GREEN : ChatFormatting.GRAY);
+    }
+
+    /**
+     * 单条通道的明细：汇总 + 按字节倒序的端点排行。
+     *
+     * @param sideLabel 侧别，例如 {@code 服务端}
+     * @param outbound  {@code true} 排本端发出的，{@code false} 排本端收到的
+     */
+    public static List<Component> channelDetailLines(TrafficChannel channel, NetworkStatistics stats,
+                                                     String sideLabel, boolean outbound, int limit) {
+        ChannelTrafficStats traffic = channel.stats(stats);
+        List<Component> lines = new ArrayList<>();
+        lines.add(Component.literal("=== " + channel.label() + " 流量 (" + sideLabel + ") ===")
+                .withStyle(ChatFormatting.BOLD));
+
+        if (outbound) {
+            lines.add(Component.literal("发出: " + traffic.getOutboundCount() + " 次 / "
+                    + traffic.getOutboundBytes() + " 字节 · 均 "
+                    + format(traffic.getOutbound().getAverageSize()) + " 字节/次"));
+        } else {
+            lines.add(Component.literal("接收: " + traffic.getInboundCount() + " 次 / "
+                    + traffic.getInboundBytes() + " 字节 · 均 "
+                    + format(traffic.getInbound().getAverageSize()) + " 字节/次"));
+        }
+        lines.add(Component.literal("端点: " + traffic.getEndpointCount() + " 个").withStyle(ChatFormatting.GRAY));
+
+        lines.add(Component.literal("--- 本端" + (outbound ? "发出" : "接收") + "排行 · 按字节 (前"
+                + limit + "名) ---").withStyle(ChatFormatting.BOLD));
+
+        List<Map.Entry<String, PacketStats>> entries = traffic.topEndpoints(outbound, true, limit);
+        if (entries.isEmpty()) {
+            lines.add(Component.literal("暂无数据（该方向是否还没产生流量）").withStyle(ChatFormatting.GRAY));
+            return lines;
+        }
+        for (int i = 0; i < entries.size(); i++) {
+            Map.Entry<String, PacketStats> entry = entries.get(i);
+            PacketStats counters = entry.getValue();
+            lines.add(Component.literal((i + 1) + ". " + entry.getKey() + " — "
+                    + counters.getTotalSize() + " 字节（" + counters.getCount() + " 次, 均 "
+                    + format(counters.getAverageSize()) + " 字节/次）"));
+        }
+        return lines;
+    }
+
+    /** 端点标签里 {@code {uuid}} / {@code {token}} 占位符的含义，跟在明细后面输出。 */
+    public static Component endpointPlaceholderNote() {
+        return Component.literal("注: 标签里的 {uuid}/{token} 是路径中的玩家 UUID 与随机令牌占位符，"
+                + "查询串不计入；字节为载荷下界，不含请求头、TLS 与协议开销").withStyle(ChatFormatting.GRAY);
     }
 
     public static String format(double value) {

@@ -170,11 +170,12 @@ AFK管理
   - `player`: 指定玩家 (可选)
 - **示例**: `/tmm:showSelectedMapUI Steve`
 
-### `tmm:netstats [start|stop|global|player|byplayer]`
-网络统计
+### `tmm:netstats [start|stop|global|player|byplayer|http|sql]`
+网络统计（自定义载荷包 + HTTP + SQL 三类流量）
 - **权限**: 2
-- **子命令**: `start` / `stop` / `global` / `player` / `byplayer`
-- **示例**: `/tmm:netstats start`
+- **子命令**: `start` / `stop` / `global` / `player` / `byplayer` / `http` / `sql`
+- **http / sql 子命令**: `start` / `stop` / `status` / `reset` / `show`（按字节倒序的端点明细）
+- **示例**: `/tmm:netstats start`、`/tmm:netstats sql show`
 
 ## 其他命令
 

@@ -92,7 +92,8 @@ public final class NetworkStatsExporter {
         meta.addProperty("direction_note",
                 "outbound = 本端发出，inbound = 本端收到；每个排行按各自维度排序，行内同时给出两个方向的计数。"
                         + "以 CCA_ 开头的条目是 CCA 组件同步，按组件 key 分列。");
-        meta.addProperty("scope_note", "只统计自定义载荷包，原版 Minecraft 包不计入。");
+        meta.addProperty("scope_note",
+                "只统计自定义载荷包，原版 Minecraft 包不计入；HTTP 与 SQL 流量另见 traffic_channels。");
         FabricLoader.getInstance().getModContainer("starrailexpress")
                 .ifPresent(container -> meta.addProperty("mod_version", container.getMetadata().getVersion().getFriendlyString()));
         root.add("meta", meta);
@@ -103,7 +104,10 @@ public final class NetworkStatsExporter {
         global.addProperty("inbound_packets", stats.getInboundPackets());
         global.addProperty("inbound_bytes", stats.getInboundBytes());
         global.addProperty("average_packet_size", stats.getAveragePacketSize());
+        global.addProperty("total_bytes_including_channels", stats.getTotalBytes());
         root.add("global_stats", global);
+
+        root.add("traffic_channels", trafficChannels(stats, limit));
 
         // 字节数可信度：实测与回退估算各占多少，避免再次出现“看不出字节数是假的”情况。
         JsonObject sizes = new JsonObject();
@@ -143,6 +147,46 @@ public final class NetworkStatsExporter {
         root.add("player_stats", players);
 
         return root;
+    }
+
+    /**
+     * HTTP 与 SQL 两条通道：开关状态、收发次数与字节，以及按字节倒序的端点明细。
+     * 字节口径见文件末尾的 note 字段。
+     */
+    private static JsonObject trafficChannels(NetworkStatistics stats, int limit) {
+        JsonObject channels = new JsonObject();
+        for (TrafficChannel channel : TrafficChannel.values()) {
+            ChannelTrafficStats traffic = channel.stats(stats);
+            JsonObject entry = new JsonObject();
+            entry.addProperty("recording", channel.isRecording(stats));
+            entry.addProperty("interactions", traffic.getOutboundCount());
+            entry.addProperty("outbound_bytes", traffic.getOutboundBytes());
+            entry.addProperty("inbound_bytes", traffic.getInboundBytes());
+            entry.addProperty("average_size", traffic.getOutbound().getAverageSize());
+            entry.addProperty("endpoints", traffic.getEndpointCount());
+            entry.add("top_endpoints_by_outbound_bytes", endpointRanking(traffic, true, limit));
+            entry.add("top_endpoints_by_inbound_bytes", endpointRanking(traffic, false, limit));
+            channels.add(channel.argument(), entry);
+        }
+        channels.addProperty("note",
+                "HTTP: 发出 = URL 字节 + 请求体字节，收到 = 响应体字节；"
+                        + "SQL: 发出 = 语句文本 + 绑定参数，收到 = 结果集列值（写入类语句只计次数、收到的字节为 0）。"
+                        + "两者都不含请求头/响应头、TLS 与协议开销，属于下界；"
+                        + "端点标签里的 {uuid}/{token} 是路径中玩家 UUID 与随机令牌的占位符。");
+        return channels;
+    }
+
+    private static JsonArray endpointRanking(ChannelTrafficStats traffic, boolean outbound, int limit) {
+        JsonArray array = new JsonArray();
+        List<Map.Entry<String, PacketStats>> entries = traffic.topEndpoints(outbound, true, limit);
+        for (int i = 0; i < entries.size(); i++) {
+            JsonObject row = new JsonObject();
+            row.addProperty("rank", i + 1);
+            row.addProperty("endpoint", entries.get(i).getKey());
+            writeCounters(row, entries.get(i).getValue());
+            array.add(row);
+        }
+        return array;
     }
 
     private static JsonArray ranking(List<NetworkStatistics.PacketTypeStats> entries) {

@@ -45,6 +45,8 @@ import java.util.function.Supplier;
  * 连接属于哪一侧，再路由到对应实例，两边的 {@code start}/{@code stop} 互不影响。
  *
  * <p>统计只在 {@link #startRecording()} 之后才写入内存；未记录时热路径只有一次 volatile 读取。
+ * HTTP 与 SQL 另有独立的开关（{@link #startHttpRecording()} / {@link #startSqlRecording()}），
+ * 可以脱离数据包统计单独记录。
  *
  * <p>热路径设计（每包）为：1 次 volatile 读 → 1 次 instanceof → 1 次按包类型的查表 →
  * 若干原子累加。包类型的显示用 id 字符串、累加器对象、以及是否由外部（CCA 同步）接管，
@@ -115,6 +117,10 @@ public final class NetworkStatistics {
 
     private final ConcurrentHashMap<String, PlayerPacketStats> playerStats = new ConcurrentHashMap<>();
 
+    /** HTTP 与 SQL 不属于 Minecraft 数据包，各自单独成一条通道。 */
+    private final ChannelTrafficStats httpTraffic = new ChannelTrafficStats("http");
+    private final ChannelTrafficStats sqlTraffic = new ChannelTrafficStats("sql");
+
     private final LongAdder outboundPackets = new LongAdder();
     private final LongAdder outboundBytes = new LongAdder();
     private final LongAdder inboundPackets = new LongAdder();
@@ -125,6 +131,11 @@ public final class NetworkStatistics {
 
     private volatile boolean recording = false;
     private volatile long recordingStartedAt = 0L;
+    /** HTTP 通道有自己的开关，可以被单独 start/stop，不受数据包统计影响。 */
+    private volatile boolean httpRecording = false;
+    private volatile long httpRecordingStartedAt = 0L;
+    private volatile boolean sqlRecording = false;
+    private volatile long sqlRecordingStartedAt = 0L;
 
     private volatile Supplier<RegistryAccess> registryAccessSupplier = NetworkStatistics::serverRegistryAccess;
     private volatile Supplier<Player> localPlayerSupplier;
@@ -157,18 +168,71 @@ public final class NetworkStatistics {
         return recording;
     }
 
-    /** 开启记录：先清空上一次的数据，再开始新的统计会话。 */
+    /** HTTP 通道的记录开关，独立于数据包统计。 */
+    public boolean isHttpRecording() {
+        return httpRecording;
+    }
+
+    /** SQL 通道的记录开关，独立于数据包统计。 */
+    public boolean isSqlRecording() {
+        return sqlRecording;
+    }
+
+    /** 开启记录：先清空上一次的数据，再开始新的统计会话；同时联动开启 HTTP 与 SQL 通道。 */
     public void startRecording() {
         // 先停写再清空，避免清空过程中仍有网络线程写入半截数据。
         recording = false;
+        httpRecording = false;
+        sqlRecording = false;
         resetStats();
-        recordingStartedAt = System.currentTimeMillis();
+        long now = System.currentTimeMillis();
+        recordingStartedAt = now;
+        httpRecordingStartedAt = now;
+        sqlRecordingStartedAt = now;
         recording = true;
+        httpRecording = true;
+        sqlRecording = true;
     }
 
-    /** 停止记录，已收集的数据保留在内存中。 */
+    /** 停止记录（数据包、HTTP、SQL 三项一起停），已收集的数据保留在内存中。 */
     public void stopRecording() {
         recording = false;
+        httpRecording = false;
+        sqlRecording = false;
+    }
+
+    /** 只开启 HTTP 通道：先清空该通道上一次的数据，再开始新的统计，不影响数据包与 SQL。 */
+    public void startHttpRecording() {
+        httpRecording = false;
+        httpTraffic.reset();
+        httpRecordingStartedAt = System.currentTimeMillis();
+        httpRecording = true;
+    }
+
+    /** 只停止 HTTP 通道的记录，数据保留。 */
+    public void stopHttpRecording() {
+        httpRecording = false;
+    }
+
+    /** 只开启 SQL 通道：先清空该通道上一次的数据，再开始新的统计，不影响数据包与 HTTP。 */
+    public void startSqlRecording() {
+        sqlRecording = false;
+        sqlTraffic.reset();
+        sqlRecordingStartedAt = System.currentTimeMillis();
+        sqlRecording = true;
+    }
+
+    /** 只停止 SQL 通道的记录，数据保留。 */
+    public void stopSqlRecording() {
+        sqlRecording = false;
+    }
+
+    public long getHttpRecordingStartedAt() {
+        return httpRecordingStartedAt;
+    }
+
+    public long getSqlRecordingStartedAt() {
+        return sqlRecordingStartedAt;
     }
 
     /** 清空统计数据（不清除记录状态）。 */
@@ -182,6 +246,18 @@ public final class NetworkStatistics {
         typeCache.clear();
         trackedTypes.clear();
         playerStats.clear();
+        httpTraffic.reset();
+        sqlTraffic.reset();
+    }
+
+    /** 只清空 HTTP 通道的数据。 */
+    public void resetHttpStats() {
+        httpTraffic.reset();
+    }
+
+    /** 只清空 SQL 通道的数据。 */
+    public void resetSqlStats() {
+        sqlTraffic.reset();
     }
 
     public String getSide() {
@@ -336,6 +412,21 @@ public final class NetworkStatistics {
         return inboundBytes.sum();
     }
 
+    /** HTTP 通道的流量统计，由 {@code /tmm:netstats http ...} 控制开关。 */
+    public ChannelTrafficStats getHttpTraffic() {
+        return httpTraffic;
+    }
+
+    /** SQL 通道的流量统计，由 {@code /tmm:netstats sql ...} 控制开关。 */
+    public ChannelTrafficStats getSqlTraffic() {
+        return sqlTraffic;
+    }
+
+    /** 数据包 + HTTP + SQL 的收发字节合计。 */
+    public long getTotalBytes() {
+        return getOutboundBytes() + getInboundBytes() + httpTraffic.getTotalBytes() + sqlTraffic.getTotalBytes();
+    }
+
     public double getAveragePacketSize() {
         long totalPackets = getOutboundPackets() + getInboundPackets();
         long totalBytes = getOutboundBytes() + getInboundBytes();
@@ -386,6 +477,10 @@ public final class NetworkStatistics {
         LOGGER.info("Total bytes sent: {}", getOutboundBytes());
         LOGGER.info("Total bytes received: {}", getInboundBytes());
         LOGGER.info("Tracked packet types: {}", getTrackedTypeCount());
+        LOGGER.info("HTTP traffic: {} requests, {} bytes sent, {} bytes received",
+                httpTraffic.getOutboundCount(), httpTraffic.getOutboundBytes(), httpTraffic.getInboundBytes());
+        LOGGER.info("SQL traffic: {} statements, {} bytes sent, {} bytes received",
+                sqlTraffic.getOutboundCount(), sqlTraffic.getOutboundBytes(), sqlTraffic.getInboundBytes());
         LOGGER.info("================================");
     }
 }

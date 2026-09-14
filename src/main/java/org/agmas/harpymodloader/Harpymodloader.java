@@ -39,6 +39,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.UUID;
 
@@ -59,6 +60,19 @@ public class Harpymodloader {
      * 最大修饰符数量，-2为无限制
      */
     public static HashMap<ResourceLocation, Integer> MODIFIER_MAX = new HashMap<>();
+
+    /**
+     * 本局由地图强制进入选择池的职业（{@code AreasSettings.enabledRoles} + {@code forcedRoles}）：
+     * 构建角色池时即使 ROLE_MAX 为 0 也保证至少能出现 1 个。
+     * 每局游戏开始时由 InitModRolesMax 刷新。
+     */
+    public static HashSet<ResourceLocation> MAP_ENABLED_ROLES = new HashSet<>();
+
+    /**
+     * 本局由地图强制选择的职业（{@code AreasSettings.forcedRoles}）：在 {@link #MAP_ENABLED_ROLES} 的基础上，
+     * 构建角色池时权重拉满，优先被抽中。每局游戏开始时由 InitModRolesMax 刷新。
+     */
+    public static HashSet<ResourceLocation> MAP_FORCED_ROLES = new HashSet<>();
 
     public static HashMap<UUID, SRERole> FORCED_MODDED_ROLE = new HashMap<>();
 

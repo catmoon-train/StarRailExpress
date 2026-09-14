@@ -162,8 +162,12 @@
   - `rankings <limit>` (int 1~50) — 指定排行数量
   - `server_rankings [limit]` (int 1~50) — 服务端排行
   - `client_rankings [limit]` (int 1~50) — 客户端排行
+  - `http` / `sql` — HTTP / SQL 流量统计，子命令 `start` / `stop` / `status` / `reset` / `show`
+    - `show [outbound|inbound] [limit]` — 汇总 + 按字节倒序的端点明细（HTTP 按 `方法 + 主机 + 路径` 分类，SQL 按 `语句类型 + 表名` 分类）
+    - 两条通道各自独立开关；主 `start` 会联动开启两者，`http stop` / `sql stop` 可单独停
   - `export [limit]` (int 1~200) — 导出统计数据
 - **用途**: 监控和分析服务器网络性能
+- **备注**: 数据包统计只覆盖自定义载荷包（原版 Minecraft 包不计入）；HTTP/SQL 的字节为载荷下界，不含请求头、TLS 与协议开销
 
 ### `tmm:giveRoomKey` — 给房间钥匙
 - **权限**: `2`
@@ -269,6 +273,20 @@
   - `set <amount>` (int) — 设置体力
   - `set <amount> [targets]` — 设置指定玩家的体力
 - **用途**: 管理玩家体力冲刺值
+
+### `sre:disguise` — 实体伪装
+- **权限**: `2`
+- **结构**:
+  - `<player>` (Player) `<entity_type>` (实体类型 id) — 长期伪装，直到手动解除 / 开局结束重置
+  - `<player>` `<entity_type>` `[nbt]` (SNBT) — 带外观 NBT 的长期伪装（羊的颜色、史莱姆尺寸、村民职业等）
+  - `seconds <seconds>` (int, 秒) `<player>` `<entity_type>` `[nbt]` — 限时伪装，到点自动解除
+  - `clear <player>` — 解除伪装
+  - `query <player>` — 查询是否处于伪装状态（连同眼高一起显示）
+- **用途**: 把玩家整体伪装成任意实体（模型替换 + 眼高压到该实体眼高，碰撞箱不变）
+- **备注**:
+  - `entity_type` 候选来自实体注册表，含其他模组注册的实体；`minecraft:player` 被排除（要伪装成别的玩家请用 `MorphApi`）
+  - 参数类型 `sre:entity_type` 在 `SRECommandRegister#registerCommandArgumentTypes` 注册
+  - 代码入口 `io.wifi.starrailexpress.disguise.EntityDisguise`，支持自定义结束条件（predicate）
 
 ### `sre:inventory` / `sre:invsee` — 查看玩家物品栏
 - **权限**: `2`
@@ -820,6 +838,16 @@
 | `set disabledTasks remove <taskId>` | string | 移除禁用任务 |
 | `set disabledRoles add <roleId>` | string | 添加禁用职业 |
 | `set disabledRoles remove <roleId>` | string | 移除禁用职业 |
+| `set disabledModifiers add <modifierId>` | string | 添加禁用修饰符 |
+| `set disabledModifiers remove <modifierId>` | string | 移除禁用修饰符 |
+| `set enabledRoles add <roleId>` | string | 强制职业进入选择池（无视概率/人数/地图条件） |
+| `set enabledRoles remove <roleId>` | string | 取消强制进入 |
+| `set enabledModifiers add <modifierId>` | string | 强制修饰符进入选择池 |
+| `set enabledModifiers remove <modifierId>` | string | 取消强制进入 |
+| `set forcedRoles add <roleId>` | string | 强制职业入池并把池内权重拉满（最大可能被选中） |
+| `set forcedRoles remove <roleId>` | string | 取消强制选择 |
+| `set forcedModifiers add <modifierId>` | string | 强制修饰符入池且不限制数量（尽可能多分配） |
+| `set forcedModifiers remove <modifierId>` | string | 取消强制选择 |
 | `set weather <value>` | string (clear/rain/thunder) | 设置天气 |
 | `set gravity <value>` | double | 设置重力 |
 | `set effect <value>` | string | 设置药水效果 |

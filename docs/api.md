@@ -77,12 +77,13 @@
    - [ItemSkinManager — 皮肤工具类](#itemskinmanager--皮肤工具类)
    - [注册自定义皮肤](#注册自定义皮肤)
    - [变形 API / Morph API](#变形-api--morph-api)
+   - [实体伪装 API / Entity Disguise API](#实体伪装-api--entity-disguise-api)
 10. [事件系统 / Event System](#事件系统--event-system)
     - [游戏生命周期事件](#游戏生命周期事件)
     - [玩家死亡事件](#玩家死亡事件)
     - [技能与交互事件](#技能与交互事件)
     - [渲染与客户端事件](#渲染与客户端事件)
-    - [变形事件](#变形事件)
+    - [变形与伪装事件](#变形与伪装事件)
     - [其他事件](#其他事件)
 11. [Harpymodloader API](#harpymodloader-api)
     - [Harpymodloader — 主入口](#harpymodloader--主入口)
@@ -1119,6 +1120,114 @@ ItemStack plush = MorphApiClient.getDisplayedPlushStack(clientPlayer);
 
 ---
 
+## 实体伪装 API / Entity Disguise API
+
+**包 / Package:** `io.wifi.starrailexpress.disguise`
+
+把玩家整体伪装成**任意已注册实体**：客户端用目标实体的渲染器绘制玩家（玩家本体、名牌、帽子、手持物等附属渲染一起被替换），同时把眼高压到该实体眼高。
+
+**碰撞箱尺寸保持不变**。地图是按人的尺寸做的，只改眼睛高度，于是相机、准星射线、枪械命中判定这些读 `getEyeY()` 的地方一起下移，画面与命中点不会错开。
+
+实现上不枚举任何具体实体：状态只存「实体类型 + 外观 NBT」，眼高在设置伪装时用一个临时实体算一次，之后查询都是 O(1) 查表，渲染与命中路径上不创建实体。因此其他模组注册的实体同样可用。
+
+```java
+import io.wifi.starrailexpress.disguise.EntityDisguise;
+
+// 长期伪装成牛：直到 clear，或开局 / 结束重置
+EntityDisguise.disguise(serverPlayer, EntityType.COW);
+
+// 限时伪装：20*30 tick（30 秒）后自动解除
+EntityDisguise.disguise(serverPlayer, EntityType.COW, 20 * 30);
+
+// 带外观 NBT 的伪装（羊的颜色、狼的项圈、史莱姆尺寸、村民职业……都在 NBT 里）
+CompoundTag nbt = new CompoundTag();
+nbt.putByte("Color", (byte) 3);
+EntityDisguise.disguise(serverPlayer, EntityType.SHEEP, nbt, 20 * 60);
+
+// 直接传入一个实体：复制它的类型与外观 NBT
+EntityDisguise.disguise(serverPlayer, someEntity, 20 * 30);
+
+// 自定义结束条件：test 返回 true 即解除（这里：下水就现原形）
+EntityDisguise.disguise(serverPlayer, EntityType.COW, null, 0, Player::isInWater);
+
+// 解除 / 清空
+EntityDisguise.clear(serverPlayer);
+EntityDisguise.clearAll(server.getServer());
+
+// 查询（服务端读管理表，客户端读同步缓存，两边都能用）
+boolean disguised = EntityDisguise.isDisguised(player);
+EntityDisguiseState state = EntityDisguise.get(player);      // NONE 表示未伪装
+ResourceLocation typeId = EntityType.getKey(state.type());
+float eyeHeight = state.eyeHeight();
+```
+
+### 三种结束方式 / End conditions
+
+| 方式 | 用法 | 说明 |
+| --- | --- | --- |
+| 时长 | `durationTicks > 0` | 到游戏刻自动解除。走 `SRE.getTicksFromGameStart()`，游戏时间暂停时不推进 |
+| 自定义条件 | 传 `Predicate<ServerPlayer>` | 每 tick 求值，`test` 返回 `true` 即解除；条件抛异常时按「已结束」处理并打日志 |
+| 长期 | `durationTicks <= 0` 且不传条件 | 直到代码 `clear`、指令 `clear`，或开局 / 结束重置 |
+
+### 眼高规则 / Eye height
+
+取 `min(玩家当前姿态眼高, 实体眼高)`：
+
+- 游泳、睡觉等本就低于实体的姿态不会被抬高，第三人称相机不会掉进地里；
+- 末影人这类高个子实体也不会把玩家眼高抬起来；
+- 碰撞箱 `width` / `height` 原样保留。
+
+眼高由 `Player#getDefaultDimensions` 的 mixin 提供，而 `Entity` 会把结果缓存进 `eyeHeight` 字段，所以设置 / 解除伪装时服务端会自动 `refreshDimensions()` 并下发 `RefreshDimensionsS2CPacket`；客户端收到同步后也会对受影响的玩家 `refreshDimensions()`。**这一步不可省**，否则眼高不会生效。
+
+### 指令 / Command
+
+```
+/sre:disguise <player> <entity_type> [nbt]                    长期伪装，直到手动解除
+/sre:disguise seconds <seconds> <player> <entity_type> [nbt]  限时伪装
+/sre:disguise clear <player>                                  解除伪装
+/sre:disguise query <player>                                  查询是否处于伪装状态
+```
+
+`entity_type` 的候选来自实体注册表（含其他模组的实体）；`minecraft:player` 被排除。
+
+### 生命周期 / Lifecycle
+
+开局（`OnGameInitialized`）、结束（`OnGameEnd`）、玩家重置（`ResetPlayerEvent`）时自动清空，**不写入存档**——伪装是局内状态。
+
+### 网络发包 / Sync policy
+
+伪装是纯服务端权威状态，客户端只读，因此**没有 C2S 包**，服务端也不会每 tick 发包：
+
+| 场景 | 发包 |
+| --- | --- |
+| 一次 `disguise` / `clear` | 变更先攒着，tick 结束时**合并成一个增量包**广播；同一玩家同一 tick 内多次变更只发最终状态 |
+| 一局里 N 人同时伪装 | 1 个包 × 收件人数，而不是 N 个包 × 收件人数 |
+| 包体：状态调色板 | 相同的「实体类型 + 外观 NBT」只写一次，每条记录只花 `UUID(16) + varint(1)`（「解除」也是一个调色板项） |
+| 包体：外观 NBT | **只发偏离「同类型裸实体」默认值的键**。正常生成的生物，其 `Health`/`Attributes`/`Air`/`Motion`/`Pos`/`Brain`… 全等于默认值，于是全部不发；通常只剩几个字节到几十字节（不带 NBT 时**完全不发**，即 1 字节 END 标记） |
+| 位置 / 朝向 / 行走动画 | **0 字节**。客户端逐帧从**客户端自己的那个玩家实体**上抄（`EntityDisguiseRenderer#copyPlayerState`），移动本来就有原版的实体追踪包，伪装不额外发任何移动数据 |
+| 眼高生效 | 每个受影响玩家补一个 `RefreshDimensionsS2CPacket`（极小）；同一条连接上先到状态包、后到刷新包，客户端才是「先知道伪装成什么，再按新眼高 refreshDimensions」 |
+| 玩家进服 | 补一次全量快照；服务端没有任何伪装时一个包都不发 |
+| 玩家离线 | 若其处于伪装状态，在同一批变更里广播一次「解除」，清掉其他客户端的本地缓存（否则他重进服时别人会继续按旧伪装渲染他） |
+| 开局 / 结束 | 只发**一个**全量空快照 |
+| 每 tick（无人伪装） | **0 包**，tick 里只有一次 `isEmpty()` |
+| 到期 / 自定义条件 / 查询 | **0 包**（纯服务端判定，客户端本地查缓存） |
+
+临时实体只存在于客户端内存里，**不会真的生成实体**，所以没有实体生成 / 追踪包。
+
+想知道某次伪装实际多大，用 `/sre:disguise query <player>` —— 它会把投影后的外观 NBT 字节数一起打出来。
+
+### 注意事项 / Notes
+
+- **第一人称看不到自己的伪装体**：原版不渲染相机所在的实体。现有「皮革噶的」角色伪装成猪靠谎报 `isDetached` + 模型后移实现自见，泛化版对任意实体存在相机陷在模型里的风险，故不做。
+- **不带 NBT 时用实体默认外观**：伪装不调用 `finalizeSpawn`，所以不会像 `/summon` 那样随机变体（羊不会随机颜色、马不会随机花纹）。要变体就显式给 NBT，或直接把一个实体交给 `disguise(player, entity)` 让它连 NBT 一起复制。
+- **外观 NBT 会被自动瘦身**：只发与「同类型裸实体默认值」不同的键，因此你完全可以放心把 `entity.saveWithoutId(...)` 的完整结果整个丢进来，多余的部分不会上路。
+- **伪装期间不显示玩家名**：整个玩家渲染被取消，临时实体的 customName 也被清空，不会出现「一头牛顶着玩家名牌」。外观 NBT 里的 `CustomName` / `CustomNameVisible` / `Pos` / `Motion` 会被自动剥掉。
+- **不支持 `minecraft:player`**：玩家模型需要 `AbstractClientPlayer`，包装成人形会直接 `ClassCastException`；「看起来是别的玩家」请用上面的 [变形 API / Morph API](#变形-api--morph-api)。
+- 头部俯仰跟随玩家真实视角（与原版一致）。四足模型的头部枢轴在脖子处，极端俯仰时头部可能显得扎进身体——纯外观问题。
+- 与 `MorphApi` 可以叠加：`MorphApi` 管皮肤 / 名牌归属，实体伪装会整体替换玩家渲染，此时看不到 `MorphApi` 的效果。
+
+---
+
 ## 事件系统 / Event System
 
 所有事件位于 `io.wifi.starrailexpress.event` 包（以及 `org.agmas.noellesroles.events`）。  
@@ -1464,7 +1573,7 @@ OnOpenInventory.EVENT.register((localPlayer, screen) -> false);
 
 ---
 
-### 变形事件
+### 变形与伪装事件
 
 #### `AllowPlayerMorph` — 是否允许变形
 
@@ -1484,6 +1593,28 @@ AllowPlayerMorph.EVENT.register((player, appearance) -> {
 
 ```java
 OnPlayerMorph.EVENT.register((player, previous, next) -> { /* ... */ });
+```
+
+#### `AllowPlayerDisguise` — 是否允许实体伪装
+
+**包 / Package:** `io.wifi.starrailexpress.event`  
+**类型:** 可拦截，任意监听器返回 `false` 则取消本次伪装 / 解除。
+
+```java
+AllowPlayerDisguise.EVENT.register((player, state) -> {
+    // state 为 EntityDisguiseState.NONE 时表示解除伪装
+    return true;
+});
+```
+
+注意：开局 / 结束时的生命周期清理**不走此事件**——清理不应被监听器否决。
+
+#### `OnPlayerDisguise` — 实体伪装变更
+
+**类型:** 通知型。状态已写入、尺寸已刷新、开始同步。`next` 为 `NONE` 时表示解除伪装。
+
+```java
+OnPlayerDisguise.EVENT.register((player, previous, next) -> { /* ... */ });
 ```
 
 #### `OnResolveDisplayedSkinOwner` — 解析显示皮肤拥有者（客户端）

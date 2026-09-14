@@ -41,6 +41,14 @@ public final class PacketStats {
         minSize.accumulate(size);
     }
 
+    /** 清空累计值，供只重置单条通道时复用。 */
+    public void reset() {
+        count.reset();
+        totalSize.reset();
+        maxSize.reset();
+        minSize.reset();
+    }
+
     public long getCount() {
         return count.sum();
     }

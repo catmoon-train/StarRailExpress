@@ -16,6 +16,7 @@
 package net.exmo.sre.record;
 
 import com.zaxxer.hikari.HikariDataSource;
+import io.wifi.starrailexpress.network.TrafficRecorder;
 import net.exmo.sre.sync.MysqlPlayerDataStore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -145,19 +146,29 @@ public final class MatchRecordStore {
         try (Connection connection = source.getConnection()) {
             ensureSchema(connection);
             connection.setAutoCommit(false);
+            // SQL 流量统计：一个语句块记一次交互（批量与循环执行合并为一次），字节按行累计。
+            TrafficRecorder.SqlStatement tracked = TrafficRecorder.sql("INSERT", tableName()).text(sql);
             try {
                 try (PreparedStatement statement = connection.prepareStatement(sql)) {
                     statement.setQueryTimeout(STATEMENT_TIMEOUT_SECONDS);
+                    String summaryJson = record.toSummaryJson();
+                    String payloadJson = record.toJson();
                     statement.setString(1, record.matchId);
                     statement.setLong(2, record.createdAt);
                     statement.setString(3, record.winningTeam);
                     statement.setInt(4, record.playerCount);
-                    statement.setString(5, record.toSummaryJson());
-                    statement.setString(6, record.toJson());
+                    statement.setString(5, summaryJson);
+                    statement.setString(6, payloadJson);
                     statement.executeUpdate();
+                    tracked.param(record.matchId)
+                            .param(record.winningTeam)
+                            .param(summaryJson)
+                            .param(payloadJson)
+                            .numbers(2);
                 }
                 replacePlayers(connection, record);
                 connection.commit();
+                tracked.record();
             } catch (SQLException exception) {
                 connection.rollback();
                 throw exception;
@@ -174,31 +185,40 @@ public final class MatchRecordStore {
      * 详情仍只在用户点击对应局时才读取完整 payload。
      */
     private static void replacePlayers(Connection connection, MatchRecord record) throws SQLException {
-        try (PreparedStatement delete = connection.prepareStatement(
-                "DELETE FROM " + playerTableName() + " WHERE match_id = ?")) {
+        String deleteSql = "DELETE FROM " + playerTableName() + " WHERE match_id = ?";
+        TrafficRecorder.SqlStatement deleteTracked = TrafficRecorder.sql("DELETE", playerTableName())
+                .text(deleteSql)
+                .param(record.matchId);
+        try (PreparedStatement delete = connection.prepareStatement(deleteSql)) {
             delete.setQueryTimeout(STATEMENT_TIMEOUT_SECONDS);
             delete.setString(1, record.matchId);
             delete.executeUpdate();
         }
+        deleteTracked.record();
         if (record.players == null || record.players.isEmpty()) {
             return;
         }
         String sql = "INSERT INTO " + playerTableName()
                 + " (match_id, player_uuid, created_at, player_json) VALUES (?, ?, ?, ?)";
+        // 一次 executeBatch 记一次交互，字节把每行参数累加进去。
+        TrafficRecorder.SqlStatement insertTracked = TrafficRecorder.sql("INSERT", playerTableName()).text(sql);
         try (PreparedStatement insert = connection.prepareStatement(sql)) {
             insert.setQueryTimeout(STATEMENT_TIMEOUT_SECONDS);
             for (MatchRecord.MatchPlayer player : record.players) {
                 if (player == null || player.uuid == null || player.uuid.isBlank()) {
                     continue;
                 }
+                String playerJson = MatchRecord.GSON.toJson(player);
                 insert.setString(1, record.matchId);
                 insert.setString(2, player.uuid);
                 insert.setLong(3, record.createdAt);
-                insert.setString(4, MatchRecord.GSON.toJson(player));
+                insert.setString(4, playerJson);
                 insert.addBatch();
+                insertTracked.param(record.matchId).param(player.uuid).param(playerJson).numbers(1);
             }
             insert.executeBatch();
         }
+        insertTracked.record();
     }
 
     private static MatchPage listWindow(int offset, int limit) {
@@ -210,6 +230,10 @@ public final class MatchRecordStore {
         }
         String countSql = "SELECT COUNT(*) FROM " + tableName();
         String pageSql = "SELECT summary_json FROM " + tableName() + " ORDER BY created_at DESC LIMIT ? OFFSET ?";
+        TrafficRecorder.SqlStatement countTracked = TrafficRecorder.sql("SELECT", tableName()).text(countSql);
+        TrafficRecorder.SqlStatement pageTracked = TrafficRecorder.sql("SELECT", tableName())
+                .text(pageSql)
+                .numbers(2);
         try (Connection connection = source.getConnection()) {
             ensureSchema(connection);
             try (Statement statement = connection.createStatement()) {
@@ -217,8 +241,10 @@ public final class MatchRecordStore {
                 try (ResultSet resultSet = statement.executeQuery(countSql)) {
                     if (resultSet.next()) {
                         total = resultSet.getInt(1);
+                        countTracked.numbers(1);
                     }
                 }
+                countTracked.record();
             }
             try (PreparedStatement statement = connection.prepareStatement(pageSql)) {
                 statement.setQueryTimeout(STATEMENT_TIMEOUT_SECONDS);
@@ -226,11 +252,14 @@ public final class MatchRecordStore {
                 statement.setInt(2, offset);
                 try (ResultSet resultSet = statement.executeQuery()) {
                     while (resultSet.next()) {
-                        MatchRecord.Summary summary = MatchRecord.summaryFromJson(resultSet.getString("summary_json"));
+                        String summaryJson = resultSet.getString("summary_json");
+                        MatchRecord.Summary summary = MatchRecord.summaryFromJson(summaryJson);
                         if (summary != null) {
                             items.add(summary);
                         }
+                        pageTracked.result(summaryJson);
                     }
+                    pageTracked.record();
                 }
             }
         } catch (SQLException exception) {
@@ -245,6 +274,10 @@ public final class MatchRecordStore {
             return Optional.empty();
         }
         String sql = "SELECT payload_json FROM " + tableName() + " WHERE match_id = ? LIMIT 1";
+        TrafficRecorder.SqlStatement tracked = TrafficRecorder.sql("SELECT", tableName())
+                .text(sql)
+                .param(matchId);
+        Optional<MatchRecord> loaded = Optional.empty();
         try (Connection connection = source.getConnection()) {
             ensureSchema(connection);
             try (PreparedStatement statement = connection.prepareStatement(sql)) {
@@ -252,14 +285,17 @@ public final class MatchRecordStore {
                 statement.setString(1, matchId);
                 try (ResultSet resultSet = statement.executeQuery()) {
                     if (resultSet.next()) {
-                        return Optional.ofNullable(MatchRecord.fromJson(resultSet.getString("payload_json")));
+                        String payloadJson = resultSet.getString("payload_json");
+                        loaded = Optional.ofNullable(MatchRecord.fromJson(payloadJson));
+                        tracked.result(payloadJson);
                     }
+                    tracked.record();
                 }
             }
         } catch (SQLException exception) {
             logger.warn("读取全局战绩 {} 失败。", matchId, exception);
         }
-        return Optional.empty();
+        return loaded;
     }
 
     private static synchronized void ensureSchema(Connection connection) throws SQLException {
@@ -285,11 +321,15 @@ public final class MatchRecordStore {
                 + "KEY idx_player_created_at (player_uuid, created_at),"
                 + "KEY idx_created_at (created_at)"
                 + ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci";
+        TrafficRecorder.SqlStatement tracked = TrafficRecorder.sql("DDL", tableName()).text(ddl);
+        TrafficRecorder.SqlStatement playerTracked = TrafficRecorder.sql("DDL", playerTableName()).text(playerDdl);
         try (Statement statement = connection.createStatement()) {
             statement.setQueryTimeout(STATEMENT_TIMEOUT_SECONDS);
             statement.execute(ddl);
             statement.execute(playerDdl);
         }
+        tracked.record();
+        playerTracked.record();
         schemaReady = true;
         logger.info("全局战绩表 {} 已就绪。", tableName());
     }

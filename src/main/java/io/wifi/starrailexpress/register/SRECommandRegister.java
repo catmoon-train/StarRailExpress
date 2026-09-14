@@ -44,6 +44,10 @@ public class SRECommandRegister {
                 SingletonArgumentInfo.contextFree(SkinArgumentType::string));
         ArgumentTypeRegistry.registerArgumentType(SRE.id("map_load"), MapLoadArgumentType.class,
                 SingletonArgumentInfo.contextFree(MapLoadArgumentType::string));
+        ArgumentTypeRegistry.registerArgumentType(SRE.id("entity_type"),
+                io.wifi.starrailexpress.content.command.argument.EntityTypeArgumentType.class,
+                SingletonArgumentInfo.contextFree(
+                        io.wifi.starrailexpress.content.command.argument.EntityTypeArgumentType::entityType));
     }
 
     public static void registerCommands() {
@@ -109,6 +113,7 @@ public class SRECommandRegister {
             io.wifi.starrailexpress.customrole.CustomRoleReloadCommand.register(dispatcher);
             io.wifi.starrailexpress.custommodifier.CustomModifierReloadCommand.register(dispatcher);
             io.wifi.starrailexpress.customitem.CustomItemCommands.register(dispatcher);
+            io.wifi.starrailexpress.content.command.EntityDisguiseCommand.register(dispatcher);
             // CoinModifier.register(dispatcher, registryAccess);
             net.exmo.sre.nametag.NameTagCommand.register(dispatcher, registryAccess);
             net.exmo.sre.subtitle.SubtitleCommand.register(dispatcher, registryAccess);

@@ -117,6 +117,7 @@ public class SRE extends StarRailExpressID implements ModInitializer {
         PlayerSkinEconomyManager.registerEvents();
         io.wifi.starrailexpress.hat.HatEquipmentManager.registerEvents();
         io.wifi.starrailexpress.morph.MorphManager.registerEvents();
+        io.wifi.starrailexpress.disguise.EntityDisguiseManager.registerEvents();
         io.wifi.starrailexpress.plush.PlushEquipmentManager.registerEvents();
         net.exmo.sre.sync.EquippedSkinsDatabaseSync.registerEvents();
         ProgressionDataManager.registerEvents();

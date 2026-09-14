@@ -4,6 +4,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -157,8 +158,8 @@ public final class MapIntroData {
                 hasVoteConfig && voteEntry.canSelect,
                 hasVoteConfig && voteEntry.gameModes != null ? List.copyOf(voteEntry.gameModes) : List.of(),
                 intValue(root, "roomCount", 1),
-                stringArray(root, "disabledTasks"),
-                stringArray(root, "disabledRoles"),
+                safeList(settings.disabledTasks),
+                safeList(settings.disabledRoles),
                 stringArray(root, "enableSceneTask"),
                 settings.minigameQuestEnabled,
                 settings.meetingEnabled,
@@ -247,5 +248,10 @@ public final class MapIntroData {
             }
         }
         return List.copyOf(out);
+    }
+
+    /** settings 里的集合可能为 null（Gson 缺字段），统一兜底为空列表。 */
+    private static List<String> safeList(Collection<String> values) {
+        return values == null ? List.of() : List.copyOf(values);
     }
 }

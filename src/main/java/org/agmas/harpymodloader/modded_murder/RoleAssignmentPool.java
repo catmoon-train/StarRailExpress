@@ -34,6 +34,9 @@ import java.util.function.Predicate;
  * 避免重复代码，提高可维护性
  */
 public class RoleAssignmentPool {
+    /** 强制职业的权重相对其余职业之和的倍数，保证它几乎一定先被抽中。 */
+    private static final float FORCED_WEIGHT_FACTOR = 1000f;
+
     private final WeightedUtil<SRERole> roleWeights;
     private final Map<ResourceLocation, Integer> roleCountMap;
     private final String poolName;
@@ -91,15 +94,25 @@ public class RoleAssignmentPool {
 
         // 构建权重映射
         HashMap<SRERole, Float> roleWeights = new HashMap<>();
+        HashMap<SRERole, Float> forcedRoles = new HashMap<>();
         for (SRERole role : availableRoles) {
+            boolean forced = isMapForced(role);
             float weight = 1f;
             if (HarpyModLoaderConfig.HANDLER.instance().useCustomRoleWeights) {
                 weight = ModdedWeights.getRoleWeight(role);
-                if (weight <= 0)
-                    continue;
+                if (weight <= 0) {
+                    if (!forced)
+                        continue;
+                    // 被地图强制的职业即使自定义权重为 0 也要留在池里
+                    weight = 1f;
+                }
             }
             roleWeights.put(role, weight);
+            if (forced) {
+                forcedRoles.put(role, weight);
+            }
         }
+        applyForcedWeights(roleWeights, forcedRoles);
 
         // 构建计数映射
         Map<ResourceLocation, Integer> countMap = new HashMap<>();
@@ -109,11 +122,48 @@ public class RoleAssignmentPool {
                 countMap.put(role.identifier(), Integer.MAX_VALUE);
             } else {
                 // 正常模式：使用ROLE_MAX配置或默认值1
-                countMap.put(role.identifier(), Harpymodloader.ROLE_MAX.getOrDefault(role.identifier(), 1));
+                int count = Harpymodloader.ROLE_MAX.getOrDefault(role.identifier(), 1);
+                // 地图 enabled/forced 的职业必须能进池：即使 ROLE_MAX 被后续逻辑清成 0 也保证 1 个
+                if (count <= 0 && isMapEnabled(role)) {
+                    count = 1;
+                }
+                countMap.put(role.identifier(), count);
             }
         }
 
         return new RoleAssignmentPool(poolName, new WeightedUtil<>(roleWeights), countMap, allowUnlimitedRepeats);
+    }
+
+    /** 地图 enabledRoles / forcedRoles 命中的职业（必须进入选择池）。 */
+    private static boolean isMapEnabled(SRERole role) {
+        var enabled = Harpymodloader.MAP_ENABLED_ROLES;
+        return enabled != null && enabled.contains(role.identifier());
+    }
+
+    /** 地图 forcedRoles 命中的职业（除进池外权重拉满）。 */
+    private static boolean isMapForced(SRERole role) {
+        var forced = Harpymodloader.MAP_FORCED_ROLES;
+        return forced != null && !forced.isEmpty() && forced.contains(role.identifier());
+    }
+
+    /**
+     * 把强制职业的权重抬到远大于其余职业之和，使其在池内优先被抽中（"最大可能被选择"）。
+     * 只影响抽取概率，不影响 opposing / 关联职业等后续逻辑。
+     */
+    private static void applyForcedWeights(HashMap<SRERole, Float> roleWeights,
+            HashMap<SRERole, Float> forcedRoles) {
+        if (forcedRoles.isEmpty())
+            return;
+        float othersSum = 0f;
+        for (var entry : roleWeights.entrySet()) {
+            if (!forcedRoles.containsKey(entry.getKey())) {
+                othersSum += entry.getValue();
+            }
+        }
+        float forcedWeight = Math.max(1f, othersSum * FORCED_WEIGHT_FACTOR + 1f);
+        for (var entry : forcedRoles.entrySet()) {
+            roleWeights.put(entry.getKey(), Math.max(entry.getValue(), forcedWeight));
+        }
     }
 
     /**

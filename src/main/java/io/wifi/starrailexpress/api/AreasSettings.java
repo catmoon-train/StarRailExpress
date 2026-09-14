@@ -16,6 +16,7 @@
 package io.wifi.starrailexpress.api;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 
 import io.wifi.ConfigCompact.annotation.Category;
 import io.wifi.ConfigCompact.annotation.ConfigSync;
@@ -335,4 +336,47 @@ public class AreasSettings {
     /** 飞机刷新高度（相对游戏区顶）。 */
     @Category("event")
     public float planeCrashSpawnHeight = 36f;
+
+    // ==================== roles ====================
+    // 职业 / 修饰符 / 任务的地图级开关。见 InitModRolesMax#applyMapForcedSettings。
+
+    /** 禁用非场景任务列表（仅可填非场景任务名）。 */
+    @Category("roles")
+    public HashSet<String> disabledTasks = new HashSet<>();
+
+    /**
+     * 此地图禁用的职业 ID。可填完整 ID 或职业 path。
+     * 禁用优先于 enabledRoles / forcedRoles。
+     */
+    @Category("roles")
+    public HashSet<String> disabledRoles = new HashSet<>();
+
+    /**
+     * 此地图禁用的修饰符 ID。可填完整 ID 或修饰符 path。
+     * 禁用优先于 enabledModifiers / forcedModifiers。
+     */
+    @Category("roles")
+    public HashSet<String> disabledModifiers = new HashSet<>();
+
+    /**
+     * 强制进入选择池的职业 ID：无视原本的概率生成条件（启用概率、人数上下限、地图条件等），
+     * 数量取该职业配置的最大数量（未配置则为 1）。
+     */
+    @Category("roles")
+    public HashSet<String> enabledRoles = new HashSet<>();
+
+    /** 强制进入选择池的修饰符 ID：无视原本的概率生成条件。 */
+    @Category("roles")
+    public HashSet<String> enabledModifiers = new HashSet<>();
+
+    /**
+     * 最大可能被选中的职业 ID：在保证进入选择池的基础上，池内权重拉满（优先被抽中）。
+     * 互斥（opposing）与关联职业逻辑不受影响。
+     */
+    @Category("roles")
+    public HashSet<String> forcedRoles = new HashSet<>();
+
+    /** 最大可能被选中的修饰符 ID：在保证进入选择池的基础上不限制数量，尽可能多分配。 */
+    @Category("roles")
+    public HashSet<String> forcedModifiers = new HashSet<>();
 }

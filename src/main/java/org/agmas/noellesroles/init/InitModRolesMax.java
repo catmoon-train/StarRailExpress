@@ -49,8 +49,10 @@ import pro.fazeclan.river.stupid_express.constants.SEModifiers;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Random;
+import java.util.Set;
 
 public class InitModRolesMax {
     public static Random random = new Random();
@@ -110,6 +112,9 @@ public class InitModRolesMax {
     public static int REFUGEE_CHANCE = 10; // 10 in 100
     public static int EGGS_CHANCE = 10;
     public static int TOUHOU_CHANCE = 10;
+
+    /** MODIFIER_MAX 的「无限制」约定值，见 Harpymodloader.MODIFIER_MAX 注释。 */
+    private static final int MODIFIER_MAX_UNLIMITED = -2;
 
     public static void registerStatics() {
         // 无需注册默认为1.
@@ -330,7 +335,124 @@ public class InitModRolesMax {
             }
 
             applySpecialVigilanteRoles(serverLevel, players_count, config, random, currentMap);
+
+            // 地图强制职业/修饰符：放在最后应用，覆盖上面全部概率判定结果
+            applyMapForcedSettings(areasSettings);
         });
+    }
+
+    /**
+     * 应用地图设置里的强制职业/修饰符（{@code AreasSettings.enabledRoles} / {@code forcedRoles} /
+     * {@code enabledModifiers} / {@code forcedModifiers}）。
+     *
+     * <p>
+     * 本方法在游戏初始化事件的最后调用：此时彩蛋/东方开关、中立职业配额、特殊义警等随机判定都已算完，
+     * 这里的写入会覆盖它们，即「无视原本的概率生成条件」。
+     * <ul>
+     * <li>{@code enabled*}：强制进入选择池，数量取该职业/修饰符配置的最大数量（未配置则为 1）</li>
+     * <li>{@code forced*}：在 enabled 的基础上，职业池内权重拉满（优先被抽中），修饰符不限制数量（尽可能多分配）</li>
+     * </ul>
+     * 被禁用的职业/修饰符不会被强制（禁用优先），只记录一条警告日志。
+     * 互斥（opposing）与关联职业逻辑不受影响。
+     */
+    private static void applyMapForcedSettings(AreasSettings areasSettings) {
+        if (areasSettings == null)
+            return;
+        // 每局刷新，避免上一局的强制职业残留
+        Harpymodloader.MAP_ENABLED_ROLES.clear();
+        Harpymodloader.MAP_FORCED_ROLES.clear();
+
+        for (String id : safeSet(areasSettings.enabledRoles)) {
+            applyRoleSetting(id, false);
+        }
+        for (String id : safeSet(areasSettings.forcedRoles)) {
+            applyRoleSetting(id, true);
+        }
+        for (String id : safeSet(areasSettings.enabledModifiers)) {
+            applyModifierSetting(id, false);
+        }
+        for (String id : safeSet(areasSettings.forcedModifiers)) {
+            applyModifierSetting(id, true);
+        }
+    }
+
+    private static void applyRoleSetting(String rawId, boolean forced) {
+        String listName = forced ? "forcedRoles" : "enabledRoles";
+        SRERole role = resolveRole(rawId);
+        if (role == null) {
+            SRE.LOGGER.warn("[MapForce] 地图 {} 里的职业 '{}' 不存在，已忽略", listName, rawId);
+            return;
+        }
+        if (SREDisableManager.isRoleDisabled(role)) {
+            SRE.LOGGER.warn("[MapForce] 职业 {} 已被禁用，{} 不生效", role.identifier(), listName);
+            return;
+        }
+        Harpymodloader.setRoleMaximum(role,
+                role.spawnInfo != null && role.spawnInfo.maxSpawn > 0 ? role.spawnInfo.maxSpawn : 1);
+        // 同时登记到池构建阶段，保证后续监听器把 ROLE_MAX 改成 0 时它依然能进池
+        Harpymodloader.MAP_ENABLED_ROLES.add(role.identifier());
+        if (forced) {
+            Harpymodloader.MAP_FORCED_ROLES.add(role.identifier());
+        }
+    }
+
+    private static void applyModifierSetting(String rawId, boolean forced) {
+        String listName = forced ? "forcedModifiers" : "enabledModifiers";
+        SREModifier modifier = resolveModifier(rawId);
+        if (modifier == null) {
+            SRE.LOGGER.warn("[MapForce] 地图 {} 里的修饰符 '{}' 不存在，已忽略", listName, rawId);
+            return;
+        }
+        if (SREDisableManager.isModifierDisabled(modifier)) {
+            SRE.LOGGER.warn("[MapForce] 修饰符 {} 已被禁用，{} 不生效", modifier.identifier(), listName);
+            return;
+        }
+        if (forced) {
+            // -2 = 无限制：尽可能多地分配给玩家
+            Harpymodloader.setModifierMaximum(modifier, MODIFIER_MAX_UNLIMITED);
+            return;
+        }
+        int max = modifier.spawnInfo == null ? 1 : modifier.spawnInfo.maxSpawn;
+        if (max <= 0 && max != MODIFIER_MAX_UNLIMITED) {
+            max = 1;
+        }
+        Harpymodloader.setModifierMaximum(modifier, max);
+    }
+
+    /** 按完整 ID 或 path 查找职业；不区分是否带 namespace。 */
+    private static SRERole resolveRole(String rawId) {
+        if (rawId == null || rawId.isBlank())
+            return null;
+        String id = rawId.trim();
+        ResourceLocation location = ResourceLocation.tryParse(id);
+        if (location != null) {
+            SRERole role = TMMRoles.ROLES.get(location);
+            if (role != null)
+                return role;
+        }
+        for (var entry : TMMRoles.ROLES.entrySet()) {
+            if (entry.getKey().toString().equals(id) || entry.getKey().getPath().equals(id))
+                return entry.getValue();
+        }
+        return null;
+    }
+
+    /** 按完整 ID 或 path 查找修饰符；不区分是否带 namespace。 */
+    private static SREModifier resolveModifier(String rawId) {
+        if (rawId == null || rawId.isBlank())
+            return null;
+        String id = rawId.trim();
+        for (SREModifier modifier : HMLModifiers.MODIFIERS) {
+            if (modifier == null || modifier.identifier() == null)
+                continue;
+            if (modifier.identifier().toString().equals(id) || modifier.identifier().getPath().equals(id))
+                return modifier;
+        }
+        return null;
+    }
+
+    private static Set<String> safeSet(HashSet<String> set) {
+        return set == null ? Set.of() : set;
     }
 
     private static void applySpecialVigilanteRoles(ServerLevel serverLevel, int playersCount,

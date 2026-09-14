@@ -142,9 +142,6 @@ public class MapManagerCommand {
                 .executes((ctx) -> {
                   var areas = AreasWorldComponent.KEY.get(ctx.getSource().getLevel());
                   areas.areasSettings = new AreasSettings();
-                  areas.disabledTasks = new HashSet<>();
-                  areas.disabledRoles = new HashSet<>();
-                  areas.disabledModifiers = new HashSet<>();
                   areas.enableSceneTask = new HashSet<>();
                   areas.mapName = "new_area";
                   io.wifi.starrailexpress.scenery.server.SceneLibrary.clearScene(areas);
@@ -170,6 +167,10 @@ public class MapManagerCommand {
                 .then(setDisabledTasks())
                 .then(setDisabledRoles())
                 .then(setDisabledModifiers())
+                .then(setEnabledRoles())
+                .then(setEnabledModifiers())
+                .then(setForcedRoles())
+                .then(setForcedModifiers())
                 .then(setEnableSceneTask()))
             .then(Commands.literal("get")
                 .requires(source -> source.hasPermission(2))
@@ -186,6 +187,10 @@ public class MapManagerCommand {
                 .then(getDisabledTasks())
                 .then(getDisabledRoles())
                 .then(getDisabledModifiers())
+                .then(getEnabledRoles())
+                .then(getEnabledModifiers())
+                .then(getForcedRoles())
+                .then(getForcedModifiers())
                 .then(getEnableSceneTask()))
             .then(buildGetSimple("mapName", a -> "\"" + a.mapName + "\""))
             .then(Commands.literal("remove")
@@ -357,20 +362,40 @@ public class MapManagerCommand {
     sendSetFeedback(source, "mapName", "\"" + name + "\"");
   }
 
-  // 9. disabledTasks
+  // 9. disabledTasks / disabledRoles / disabledModifiers / enabled* / forced*
+  // 数据已迁移到 AreasSettings（见 AreasSettings#disabledRoles 等），命令路径保持不变。
+  private static AreasWorldComponent areasOf(CommandSourceStack source) {
+    return AreasWorldComponent.KEY.get(source.getLevel());
+  }
+
+  /** 只读地取地图设置里的集合；设置缺失时返回 null（调用方/格式化方法需能处理 null）。 */
+  private static Set<String> settingsOf(AreasSettings settings, Function<AreasSettings, HashSet<String>> getter) {
+    return settings == null ? null : getter.apply(settings);
+  }
+
+  /** 取地图设置里的职业/修饰符/任务列表，设置缺失时补一个空集合，避免命令写空指针。 */
+  private static HashSet<String> settingsSet(CommandSourceStack source, Function<AreasSettings,
+      HashSet<String>> getter, BiConsumer<AreasSettings, HashSet<String>> setter) {
+    AreasWorldComponent areas = areasOf(source);
+    if (areas.areasSettings == null)
+      areas.areasSettings = new AreasSettings();
+    HashSet<String> current = getter.apply(areas.areasSettings);
+    if (current == null) {
+      current = new HashSet<>();
+      setter.accept(areas.areasSettings, current);
+    }
+    return current;
+  }
+
   private static void addDisabledTask(CommandSourceStack source, String taskId) {
-    AreasWorldComponent areas = AreasWorldComponent.KEY.get(source.getLevel());
-    if (areas.disabledTasks == null)
-      areas.disabledTasks = new HashSet<>();
-    areas.disabledTasks.add(taskId);
-    areas.sync();
+    settingsSet(source, s -> s.disabledTasks, (s, v) -> s.disabledTasks = v).add(taskId);
+    areasOf(source).sync();
     sendSetFeedback(source, "disabledTasks.add", taskId);
   }
 
   private static void removeDisabledTask(CommandSourceStack source, String taskId) {
-    AreasWorldComponent areas = AreasWorldComponent.KEY.get(source.getLevel());
-    if (areas.disabledTasks != null && areas.disabledTasks.remove(taskId)) {
-      areas.sync();
+    if (settingsSet(source, s -> s.disabledTasks, (s, v) -> s.disabledTasks = v).remove(taskId)) {
+      areasOf(source).sync();
       sendSetFeedback(source, "disabledTasks.remove", taskId);
     } else {
       source.sendFailure(Component.literal("任务 " + taskId + " 不在禁用列表中"));
@@ -378,18 +403,14 @@ public class MapManagerCommand {
   }
 
   private static void addDisabledRole(CommandSourceStack source, String roleId) {
-    AreasWorldComponent areas = AreasWorldComponent.KEY.get(source.getLevel());
-    if (areas.disabledRoles == null)
-      areas.disabledRoles = new HashSet<>();
-    areas.disabledRoles.add(roleId);
-    areas.sync();
+    settingsSet(source, s -> s.disabledRoles, (s, v) -> s.disabledRoles = v).add(roleId);
+    areasOf(source).sync();
     sendSetFeedback(source, "disabledRoles.add", roleId);
   }
 
   private static void removeDisabledRole(CommandSourceStack source, String roleId) {
-    AreasWorldComponent areas = AreasWorldComponent.KEY.get(source.getLevel());
-    if (areas.disabledRoles != null && areas.disabledRoles.remove(roleId)) {
-      areas.sync();
+    if (settingsSet(source, s -> s.disabledRoles, (s, v) -> s.disabledRoles = v).remove(roleId)) {
+      areasOf(source).sync();
       sendSetFeedback(source, "disabledRoles.remove", roleId);
     } else {
       source.sendFailure(Component.literal("职业 " + roleId + " 不在禁用列表中"));
@@ -397,21 +418,77 @@ public class MapManagerCommand {
   }
 
   private static void addDisabledModifiers(CommandSourceStack source, String roleId) {
-    AreasWorldComponent areas = AreasWorldComponent.KEY.get(source.getLevel());
-    if (areas.disabledModifiers == null)
-      areas.disabledModifiers = new HashSet<>();
-    areas.disabledModifiers.add(roleId);
-    areas.sync();
+    settingsSet(source, s -> s.disabledModifiers, (s, v) -> s.disabledModifiers = v).add(roleId);
+    areasOf(source).sync();
     sendSetFeedback(source, "disabledModifiers.add", roleId);
   }
 
   private static void removeDisabledModifiers(CommandSourceStack source, String roleId) {
-    AreasWorldComponent areas = AreasWorldComponent.KEY.get(source.getLevel());
-    if (areas.disabledModifiers != null && areas.disabledModifiers.remove(roleId)) {
-      areas.sync();
+    if (settingsSet(source, s -> s.disabledModifiers, (s, v) -> s.disabledModifiers = v).remove(roleId)) {
+      areasOf(source).sync();
       sendSetFeedback(source, "disabledModifiers.remove", roleId);
     } else {
       source.sendFailure(Component.literal("Modifier " + roleId + " not disabled in the map!"));
+    }
+  }
+
+  private static void addEnabledRole(CommandSourceStack source, String roleId) {
+    settingsSet(source, s -> s.enabledRoles, (s, v) -> s.enabledRoles = v).add(roleId);
+    areasOf(source).sync();
+    sendSetFeedback(source, "enabledRoles.add", roleId);
+  }
+
+  private static void removeEnabledRole(CommandSourceStack source, String roleId) {
+    if (settingsSet(source, s -> s.enabledRoles, (s, v) -> s.enabledRoles = v).remove(roleId)) {
+      areasOf(source).sync();
+      sendSetFeedback(source, "enabledRoles.remove", roleId);
+    } else {
+      source.sendFailure(Component.literal("职业 " + roleId + " 不在强制进入列表中"));
+    }
+  }
+
+  private static void addEnabledModifiers(CommandSourceStack source, String roleId) {
+    settingsSet(source, s -> s.enabledModifiers, (s, v) -> s.enabledModifiers = v).add(roleId);
+    areasOf(source).sync();
+    sendSetFeedback(source, "enabledModifiers.add", roleId);
+  }
+
+  private static void removeEnabledModifiers(CommandSourceStack source, String roleId) {
+    if (settingsSet(source, s -> s.enabledModifiers, (s, v) -> s.enabledModifiers = v).remove(roleId)) {
+      areasOf(source).sync();
+      sendSetFeedback(source, "enabledModifiers.remove", roleId);
+    } else {
+      source.sendFailure(Component.literal("Modifier " + roleId + " not enabled in the map!"));
+    }
+  }
+
+  private static void addForcedRole(CommandSourceStack source, String roleId) {
+    settingsSet(source, s -> s.forcedRoles, (s, v) -> s.forcedRoles = v).add(roleId);
+    areasOf(source).sync();
+    sendSetFeedback(source, "forcedRoles.add", roleId);
+  }
+
+  private static void removeForcedRole(CommandSourceStack source, String roleId) {
+    if (settingsSet(source, s -> s.forcedRoles, (s, v) -> s.forcedRoles = v).remove(roleId)) {
+      areasOf(source).sync();
+      sendSetFeedback(source, "forcedRoles.remove", roleId);
+    } else {
+      source.sendFailure(Component.literal("职业 " + roleId + " 不在强制选择列表中"));
+    }
+  }
+
+  private static void addForcedModifiers(CommandSourceStack source, String roleId) {
+    settingsSet(source, s -> s.forcedModifiers, (s, v) -> s.forcedModifiers = v).add(roleId);
+    areasOf(source).sync();
+    sendSetFeedback(source, "forcedModifiers.add", roleId);
+  }
+
+  private static void removeForcedModifiers(CommandSourceStack source, String roleId) {
+    if (settingsSet(source, s -> s.forcedModifiers, (s, v) -> s.forcedModifiers = v).remove(roleId)) {
+      areasOf(source).sync();
+      sendSetFeedback(source, "forcedModifiers.remove", roleId);
+    } else {
+      source.sendFailure(Component.literal("Modifier " + roleId + " not forced in the map!"));
     }
   }
 
@@ -434,9 +511,17 @@ public class MapManagerCommand {
     sb.append("roomPositions: ").append(formatRoomPositions(areas.getRoomPositions())).append("\n");
     sb.append("Vote List Display Name: \"").append(areas.mapDisplayName).append("\"\n");
     sb.append("mapName: \"").append(areas.mapName).append("\"\n");
-    sb.append("disabledTasks: ").append(formatDisabledTasks(areas.disabledTasks)).append("\n");
-    sb.append("disabledRoles: ").append(formatDisabledTasks(areas.disabledRoles)).append("\n");
-    sb.append("disabledModifiers: ").append(formatDisabledTasks(areas.disabledModifiers)).append("\n");
+    AreasSettings settings = areas.areasSettings;
+    sb.append("disabledTasks: ").append(formatDisabledTasks(settingsOf(settings, s -> s.disabledTasks))).append("\n");
+    sb.append("disabledRoles: ").append(formatDisabledTasks(settingsOf(settings, s -> s.disabledRoles))).append("\n");
+    sb.append("disabledModifiers: ").append(formatDisabledTasks(settingsOf(settings, s -> s.disabledModifiers)))
+        .append("\n");
+    sb.append("enabledRoles: ").append(formatDisabledTasks(settingsOf(settings, s -> s.enabledRoles))).append("\n");
+    sb.append("enabledModifiers: ").append(formatDisabledTasks(settingsOf(settings, s -> s.enabledModifiers)))
+        .append("\n");
+    sb.append("forcedRoles: ").append(formatDisabledTasks(settingsOf(settings, s -> s.forcedRoles))).append("\n");
+    sb.append("forcedModifiers: ").append(formatDisabledTasks(settingsOf(settings, s -> s.forcedModifiers)))
+        .append("\n");
     sb.append("enableSceneTask: ").append(formatDisabledTasks(areas.enableSceneTask));
     source.sendSuccess(
         () -> Component.literal(sb.toString()).withStyle(style -> style.withColor(ChatFormatting.AQUA)),
@@ -724,52 +809,57 @@ public class MapManagerCommand {
             }));
   }
 
-  private static LiteralArgumentBuilder<CommandSourceStack> setDisabledTasks() {
-    return Commands.literal("disabledTasks")
+  /** 生成 disabled / enabled / forced 这类集合的 set add/remove 子树。 */
+  private static LiteralArgumentBuilder<CommandSourceStack> buildSetStringSet(String name, String idArgName,
+      BiConsumer<CommandSourceStack, String> addAction, BiConsumer<CommandSourceStack, String> removeAction) {
+    return Commands.literal(name)
         .then(Commands.literal("add")
-            .then(Commands.argument("taskId", StringArgumentType.string())
+            .then(Commands.argument(idArgName, StringArgumentType.string())
                 .executes(ctx -> {
-                  addDisabledTask(ctx.getSource(), StringArgumentType.getString(ctx, "taskId"));
+                  addAction.accept(ctx.getSource(), StringArgumentType.getString(ctx, idArgName));
                   return 1;
                 })))
         .then(Commands.literal("remove")
-            .then(Commands.argument("taskId", StringArgumentType.string())
+            .then(Commands.argument(idArgName, StringArgumentType.string())
                 .executes(ctx -> {
-                  removeDisabledTask(ctx.getSource(), StringArgumentType.getString(ctx, "taskId"));
+                  removeAction.accept(ctx.getSource(), StringArgumentType.getString(ctx, idArgName));
                   return 1;
                 })));
+  }
+
+  private static LiteralArgumentBuilder<CommandSourceStack> setDisabledTasks() {
+    return buildSetStringSet("disabledTasks", "taskId", MapManagerCommand::addDisabledTask,
+        MapManagerCommand::removeDisabledTask);
   }
 
   private static LiteralArgumentBuilder<CommandSourceStack> setDisabledModifiers() {
-    return Commands.literal("disabledModifiers")
-        .then(Commands.literal("add")
-            .then(Commands.argument("roleId", StringArgumentType.string())
-                .executes(ctx -> {
-                  addDisabledModifiers(ctx.getSource(), StringArgumentType.getString(ctx, "roleId"));
-                  return 1;
-                })))
-        .then(Commands.literal("remove")
-            .then(Commands.argument("roleId", StringArgumentType.string())
-                .executes(ctx -> {
-                  removeDisabledModifiers(ctx.getSource(), StringArgumentType.getString(ctx, "roleId"));
-                  return 1;
-                })));
+    return buildSetStringSet("disabledModifiers", "roleId", MapManagerCommand::addDisabledModifiers,
+        MapManagerCommand::removeDisabledModifiers);
   }
 
   private static LiteralArgumentBuilder<CommandSourceStack> setDisabledRoles() {
-    return Commands.literal("disabledRoles")
-        .then(Commands.literal("add")
-            .then(Commands.argument("roleId", StringArgumentType.string())
-                .executes(ctx -> {
-                  addDisabledRole(ctx.getSource(), StringArgumentType.getString(ctx, "roleId"));
-                  return 1;
-                })))
-        .then(Commands.literal("remove")
-            .then(Commands.argument("roleId", StringArgumentType.string())
-                .executes(ctx -> {
-                  removeDisabledRole(ctx.getSource(), StringArgumentType.getString(ctx, "roleId"));
-                  return 1;
-                })));
+    return buildSetStringSet("disabledRoles", "roleId", MapManagerCommand::addDisabledRole,
+        MapManagerCommand::removeDisabledRole);
+  }
+
+  private static LiteralArgumentBuilder<CommandSourceStack> setEnabledRoles() {
+    return buildSetStringSet("enabledRoles", "roleId", MapManagerCommand::addEnabledRole,
+        MapManagerCommand::removeEnabledRole);
+  }
+
+  private static LiteralArgumentBuilder<CommandSourceStack> setEnabledModifiers() {
+    return buildSetStringSet("enabledModifiers", "roleId", MapManagerCommand::addEnabledModifiers,
+        MapManagerCommand::removeEnabledModifiers);
+  }
+
+  private static LiteralArgumentBuilder<CommandSourceStack> setForcedRoles() {
+    return buildSetStringSet("forcedRoles", "roleId", MapManagerCommand::addForcedRole,
+        MapManagerCommand::removeForcedRole);
+  }
+
+  private static LiteralArgumentBuilder<CommandSourceStack> setForcedModifiers() {
+    return buildSetStringSet("forcedModifiers", "roleId", MapManagerCommand::addForcedModifiers,
+        MapManagerCommand::removeForcedModifiers);
   }
 
   // enableSceneTask
@@ -898,55 +988,51 @@ public class MapManagerCommand {
         });
   }
 
-  private static LiteralArgumentBuilder<CommandSourceStack> getDisabledTasks() {
-    return Commands.literal("disabledTasks")
+  /** 生成 disabled / enabled / forced 这类「集合 + contains 查询」的 get 子树。 */
+  private static LiteralArgumentBuilder<CommandSourceStack> buildGetStringSet(String name,
+      Function<AreasSettings, HashSet<String>> getter, String idArgName) {
+    return Commands.literal(name)
         .executes(ctx -> {
-          AreasWorldComponent a = AreasWorldComponent.KEY.get(ctx.getSource().getLevel());
-          sendGetFeedback(ctx.getSource(), "disabledTasks", formatDisabledTasks(a.disabledTasks));
+          AreasSettings settings = areasOf(ctx.getSource()).areasSettings;
+          sendGetFeedback(ctx.getSource(), name, formatDisabledTasks(settingsOf(settings, getter)));
           return 1;
         })
-        .then(Commands.argument("taskId", StringArgumentType.string())
+        .then(Commands.argument(idArgName, StringArgumentType.string())
             .executes(ctx -> {
-              String taskId = StringArgumentType.getString(ctx, "taskId");
-              AreasWorldComponent a = AreasWorldComponent.KEY.get(ctx.getSource().getLevel());
-              boolean has = a.disabledTasks != null && a.disabledTasks.contains(taskId);
-              sendGetFeedback(ctx.getSource(), "disabledTasks.contains(" + taskId + ")", String.valueOf(has));
+              String id = StringArgumentType.getString(ctx, idArgName);
+              Set<String> values = settingsOf(areasOf(ctx.getSource()).areasSettings, getter);
+              boolean has = values != null && values.contains(id);
+              sendGetFeedback(ctx.getSource(), name + ".contains(" + id + ")", String.valueOf(has));
               return 1;
             }));
+  }
+
+  private static LiteralArgumentBuilder<CommandSourceStack> getDisabledTasks() {
+    return buildGetStringSet("disabledTasks", s -> s.disabledTasks, "taskId");
   }
 
   private static LiteralArgumentBuilder<CommandSourceStack> getDisabledRoles() {
-    return Commands.literal("disabledRoles")
-        .executes(ctx -> {
-          AreasWorldComponent a = AreasWorldComponent.KEY.get(ctx.getSource().getLevel());
-          sendGetFeedback(ctx.getSource(), "disabledRoles", formatDisabledTasks(a.disabledRoles));
-          return 1;
-        })
-        .then(Commands.argument("roleId", StringArgumentType.string())
-            .executes(ctx -> {
-              String roleId = StringArgumentType.getString(ctx, "roleId");
-              AreasWorldComponent a = AreasWorldComponent.KEY.get(ctx.getSource().getLevel());
-              boolean has = a.disabledRoles != null && a.disabledRoles.contains(roleId);
-              sendGetFeedback(ctx.getSource(), "disabledRoles.contains(" + roleId + ")", String.valueOf(has));
-              return 1;
-            }));
+    return buildGetStringSet("disabledRoles", s -> s.disabledRoles, "roleId");
   }
 
   private static LiteralArgumentBuilder<CommandSourceStack> getDisabledModifiers() {
-    return Commands.literal("disabledModifiers")
-        .executes(ctx -> {
-          AreasWorldComponent a = AreasWorldComponent.KEY.get(ctx.getSource().getLevel());
-          sendGetFeedback(ctx.getSource(), "disabledModifiers", formatDisabledTasks(a.disabledModifiers));
-          return 1;
-        })
-        .then(Commands.argument("roleId", StringArgumentType.string())
-            .executes(ctx -> {
-              String roleId = StringArgumentType.getString(ctx, "roleId");
-              AreasWorldComponent a = AreasWorldComponent.KEY.get(ctx.getSource().getLevel());
-              boolean has = a.disabledModifiers != null && a.disabledModifiers.contains(roleId);
-              sendGetFeedback(ctx.getSource(), "disabledModifiers.contains(" + roleId + ")", String.valueOf(has));
-              return 1;
-            }));
+    return buildGetStringSet("disabledModifiers", s -> s.disabledModifiers, "roleId");
+  }
+
+  private static LiteralArgumentBuilder<CommandSourceStack> getEnabledRoles() {
+    return buildGetStringSet("enabledRoles", s -> s.enabledRoles, "roleId");
+  }
+
+  private static LiteralArgumentBuilder<CommandSourceStack> getEnabledModifiers() {
+    return buildGetStringSet("enabledModifiers", s -> s.enabledModifiers, "roleId");
+  }
+
+  private static LiteralArgumentBuilder<CommandSourceStack> getForcedRoles() {
+    return buildGetStringSet("forcedRoles", s -> s.forcedRoles, "roleId");
+  }
+
+  private static LiteralArgumentBuilder<CommandSourceStack> getForcedModifiers() {
+    return buildGetStringSet("forcedModifiers", s -> s.forcedModifiers, "roleId");
   }
 
   private static LiteralArgumentBuilder<CommandSourceStack> getEnableSceneTask() {

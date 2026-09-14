@@ -209,19 +209,17 @@
   // 支持的游戏模式列表 — 空数组 = 所有模式可用
   "gameModes": [],
 
-  // 禁用的任务 ID 列表
+  // 禁用的任务 / 职业 / 修饰符 ID 列表
+  // 已迁移到 "settings"（见下文「职业 / 修饰符 / 任务」）；写在根级仍会被读取，
+  // 但两者同时存在时以 "settings" 内的值为准，新保存的地图只写 "settings"。
   "disabledTasks": [
     "sleep",
     "eat"
   ],
-
-  // 禁用的职业 ID 列表
   "disabledRoles": [
     "killer",
     "jester"
   ],
-
-  // 禁用的修饰符 ID 列表
   "disabledModifiers": [
     "unstable"
   ],
@@ -311,7 +309,16 @@
     "planeCrashEventEnabled": false,                           // 开局飞机坠落+震颤+室内客户端假火     默认: false
     "planeCrashTiltYaw": 0.0,                                  // 震颤时玩家统一倾泻朝向(度)          默认: 0 (南)
     "planeCrashSpawnDistance": 0.0,                            // 刷新距离, 0=按游戏区自动估算
-    "planeCrashSpawnHeight": 36.0                              // 相对游戏区顶的高度
+    "planeCrashSpawnHeight": 36.0,                             // 相对游戏区顶的高度
+
+    // --- 职业 / 修饰符 / 任务（禁用优先于强制） ---
+    "disabledTasks": ["sleep", "eat"],                          // 禁用的非场景任务名
+    "disabledRoles": ["killer", "jester"],                      // 禁用的职业 ID（完整 ID 或 path）
+    "disabledModifiers": ["unstable"],                          // 禁用的修饰符 ID
+    "enabledRoles": ["sre:detective"],                          // 强制进入选择池：无视概率/人数/地图条件
+    "enabledModifiers": [],                                     // 强制进入选择池的修饰符
+    "forcedRoles": [],                                          // 强制选择：入池 + 池内权重拉满（最大可能被选中）
+    "forcedModifiers": []                                       // 强制选择：入池 + 不限制数量（尽可能多分配）
   }
 }
 ```

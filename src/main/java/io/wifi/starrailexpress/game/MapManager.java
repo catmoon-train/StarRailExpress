@@ -38,6 +38,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.*;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Random;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -257,9 +258,7 @@ public class MapManager {
             }
         }
         jsonObject.add("roomPositions", roomPositionsObj);
-        jsonObject.add("disabledTasks", gson.toJsonTree(areas.disabledTasks));
-        jsonObject.add("disabledRoles", gson.toJsonTree(areas.disabledRoles));
-        jsonObject.add("disabledModifiers", gson.toJsonTree(areas.disabledModifiers));
+        // disabledTasks / disabledRoles / disabledModifiers 已迁移到 areasSettings（见 AreasSettings）
         jsonObject.add("enableSceneTask", gson.toJsonTree(areas.enableSceneTask));
         // 保存支持的游戏模式列表
         jsonObject.add("gameModes", gson.toJsonTree(areas.gameModes));
@@ -325,6 +324,16 @@ public class MapManager {
         if (jsonObject == null) {
             return withDefaults(settings);
         }
+        JsonObject settingsJson = jsonObject.has("settings") && jsonObject.get("settings").isJsonObject()
+                ? jsonObject.getAsJsonObject("settings")
+                : null;
+        // disabled* 曾经写在地图 JSON 的根级键上，迁移到 settings 后仍需兼容读取
+        settings.disabledTasks = mergeLegacyStringSet(jsonObject, settingsJson, "disabledTasks",
+                settings.disabledTasks);
+        settings.disabledRoles = mergeLegacyStringSet(jsonObject, settingsJson, "disabledRoles",
+                settings.disabledRoles);
+        settings.disabledModifiers = mergeLegacyStringSet(jsonObject, settingsJson, "disabledModifiers",
+                settings.disabledModifiers);
         try {
             if (jsonObject.has("noReset")) {
                 settings.noReset = jsonObject.get("noReset").getAsBoolean();
@@ -439,6 +448,33 @@ public class MapManager {
         return withDefaults(settings);
     }
 
+    /**
+     * 合并旧版根级字符串集合键到 settings 字段。
+     *
+     * <p>
+     * {@code disabledTasks} / {@code disabledRoles} / {@code disabledModifiers} 旧版写在地图 JSON 根级；
+     * 若新旧位置同时存在，以 {@code settings} 内的值为准（新保存的地图只写 settings）。
+     * 返回的集合一定非 null。
+     */
+    private static HashSet<String> mergeLegacyStringSet(JsonObject root, JsonObject settingsJson, String key,
+            HashSet<String> parsed) {
+        HashSet<String> result = parsed != null ? parsed : new HashSet<>();
+        if ((settingsJson != null && settingsJson.has(key)) || root == null || !root.has(key)) {
+            return result;
+        }
+        JsonElement element = root.get(key);
+        if (element == null || !element.isJsonArray()) {
+            return result;
+        }
+        result.clear();
+        for (JsonElement data : element.getAsJsonArray()) {
+            if (data != null && data.isJsonPrimitive()) {
+                result.add(data.getAsString());
+            }
+        }
+        return result;
+    }
+
     /** 空值兜底：Gson 反序列化缺字段时可能留下 null，浏览界面需要能安全读取。 */
     private static AreasSettings withDefaults(AreasSettings settings) {
         if (settings.mapStatusBar == null) {
@@ -458,6 +494,27 @@ public class MapManager {
         }
         if (settings.initialItems == null) {
             settings.initialItems = new java.util.ArrayList<>();
+        }
+        if (settings.disabledTasks == null) {
+            settings.disabledTasks = new HashSet<>();
+        }
+        if (settings.disabledRoles == null) {
+            settings.disabledRoles = new HashSet<>();
+        }
+        if (settings.disabledModifiers == null) {
+            settings.disabledModifiers = new HashSet<>();
+        }
+        if (settings.enabledRoles == null) {
+            settings.enabledRoles = new HashSet<>();
+        }
+        if (settings.enabledModifiers == null) {
+            settings.enabledModifiers = new HashSet<>();
+        }
+        if (settings.forcedRoles == null) {
+            settings.forcedRoles = new HashSet<>();
+        }
+        if (settings.forcedModifiers == null) {
+            settings.forcedModifiers = new HashSet<>();
         }
         return settings;
     }
@@ -675,28 +732,6 @@ public class MapManager {
                         resetPasteAreaObj.get("maxZ").getAsDouble());
             } else {
                 SRE.LOGGER.warn("Missing reset paste area data in map config: " + mapName);
-            }
-            areas.disabledTasks.clear();
-            if (jsonObject.has("disabledTasks")) {
-                var jsonArr = jsonObject.get("disabledTasks").getAsJsonArray();
-                for (JsonElement data : jsonArr.asList()) {
-                    areas.disabledTasks.add(data.getAsString());
-                }
-            }
-
-            areas.disabledRoles.clear();
-            if (jsonObject.has("disabledRoles")) {
-                var jsonArr = jsonObject.get("disabledRoles").getAsJsonArray();
-                for (JsonElement data : jsonArr.asList()) {
-                    areas.disabledRoles.add(data.getAsString());
-                }
-            }
-
-            if (jsonObject.has("disabledModifiers")) {
-                var jsonArr = jsonObject.get("disabledModifiers").getAsJsonArray();
-                for (JsonElement data : jsonArr.asList()) {
-                    areas.disabledModifiers.add(data.getAsString());
-                }
             }
             areas.enableSceneTask.clear();
             if (jsonObject.has("enableSceneTask")) {

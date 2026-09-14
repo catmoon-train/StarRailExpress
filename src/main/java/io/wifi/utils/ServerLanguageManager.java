@@ -5,6 +5,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import io.wifi.mixins.LanguageInstanceAccessor;
 import io.wifi.starrailexpress.SREConfig;
+import io.wifi.starrailexpress.network.TrafficRecorder;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.loader.api.FabricLoader;
 import net.fabricmc.loader.api.ModContainer;
@@ -368,6 +369,8 @@ public final class ServerLanguageManager {
                     .GET()
                     .build();
             HttpResponse<String> response = HTTP.send(request, HttpResponse.BodyHandlers.ofString());
+            // 非 200 也会带回响应体（错误页），一样算进收到的字节。
+            TrafficRecorder.httpServer("GET", url, null, response.body());
             if (response.statusCode() != 200) {
                 LOGGER.warn("[SRE-Server][Language Override] 请求返回状态码 {}: {}", response.statusCode(), url);
                 return null;

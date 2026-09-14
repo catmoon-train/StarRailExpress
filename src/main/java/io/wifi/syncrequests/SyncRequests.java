@@ -15,6 +15,7 @@
 
 package io.wifi.syncrequests;
 
+import io.wifi.starrailexpress.network.TrafficRecorder;
 import org.jetbrains.annotations.Nullable;
 
 import java.net.URI;
@@ -71,6 +72,7 @@ public class SyncRequests {
                 .build();
 
         HttpResponse<String> response = CLIENT.send(request, HttpResponse.BodyHandlers.ofString());
+        TrafficRecorder.httpServer("GET", url, null, response.body());
         return response.body();
     }
 
@@ -81,7 +83,8 @@ public class SyncRequests {
                 .POST(HttpRequest.BodyPublishers.ofString(textBody))
                 .build();
 
-        CLIENT.send(request, HttpResponse.BodyHandlers.ofString());
+        HttpResponse<String> response = CLIENT.send(request, HttpResponse.BodyHandlers.ofString());
+        TrafficRecorder.httpServer("POST", url, textBody, response.body());
         return true;
     }
 }

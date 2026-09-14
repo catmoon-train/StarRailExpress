@@ -320,6 +320,7 @@ public class SREClient implements ClientModInitializer {
         ClientScheduler.init();
         ClientSkinCache.init();
         MorphApiClient.registerClient();
+        io.wifi.starrailexpress.client.disguise.EntityDisguiseClient.registerClient();
         io.wifi.starrailexpress.hat.HatEquipmentApi.registerDefaultOwnerResolvers();
         net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents.DISCONNECT
                 .register((handler, client) -> {

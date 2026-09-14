@@ -75,26 +75,6 @@ public class AreasWorldComponent implements AutoSyncedComponent {
     private String sceneAssetRemoteUrl = "";
     private boolean sceneAssetTrusted = false;
     private Vec3 sceneDisplayOffset = Vec3.ZERO;
-    /** 禁用非场景任务列表（仅可填非场景任务名）。 */
-    public HashSet<String> disabledTasks = new HashSet<>();
-
-    public HashSet<String> getDisabledTasks() {
-        if (this.disabledTasks == null)
-            return new HashSet<>();
-        return new HashSet<>(this.disabledTasks);
-    }
-
-    /**
-     * 此地图禁用的职业 ID。可填完整 ID 或职业 path。
-     * 直接访问，避免额外消耗
-     */
-    public HashSet<String> disabledRoles = new HashSet<>();
-
-    /**
-     * 此地图禁用的修饰符 ID。可填完整 ID 或职业 path。
-     * 直接访问，避免额外消耗
-     */
-    public HashSet<String> disabledModifiers = new HashSet<>();
 
     /** 启用场景任务列表（仅可填场景任务名）。为空表示不启用任何场景任务。 */
     public HashSet<String> enableSceneTask = new HashSet<>();
@@ -527,13 +507,6 @@ public class AreasWorldComponent implements AutoSyncedComponent {
         // tag.getBoolean("daylightCycle") : false;
         // this.weatherCycle = tag.contains("weatherCycle") ?
         // tag.getBoolean("weatherCycle") : false;
-        this.disabledRoles = new HashSet<>();
-        if (tag.contains("disabledRoles")) {
-            var disabledRolesList = tag.getList("disabledRoles", net.minecraft.nbt.Tag.TAG_STRING);
-            for (int i = 0; i < disabledRolesList.size(); i++) {
-                this.disabledRoles.add(disabledRolesList.getString(i));
-            }
-        }
         this.availableMinigameIds.clear();
         if (tag.contains("AvailableMinigameIds")) {
             var mgList = tag.getList("AvailableMinigameIds", net.minecraft.nbt.Tag.TAG_STRING);
@@ -636,22 +609,6 @@ public class AreasWorldComponent implements AutoSyncedComponent {
 
         // 客户端无用，不发包
         // tag.putBoolean("minigameQuestEnabled", this.minigameQuestEnabled);
-
-        var disabledRolesList = new net.minecraft.nbt.ListTag();
-        if (this.disabledRoles != null) {
-            for (String role : this.disabledRoles) {
-                disabledRolesList.add(net.minecraft.nbt.StringTag.valueOf(role));
-            }
-        }
-
-        var disabledModifiersList = new net.minecraft.nbt.ListTag();
-        if (this.disabledModifiers != null) {
-            for (String role : this.disabledModifiers) {
-                disabledModifiersList.add(net.minecraft.nbt.StringTag.valueOf(role));
-            }
-        }
-        tag.put("disabledRoles", disabledRolesList);
-        tag.put("disabledModifiers", disabledModifiersList);
 
         // 序列化 availableMinigameIds
         // 客户端无用，不发包

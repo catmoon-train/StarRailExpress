@@ -18,6 +18,7 @@ package net.exmo.sre.sync;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 import io.wifi.starrailexpress.SREConfig;
+import io.wifi.starrailexpress.network.TrafficRecorder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -216,6 +217,13 @@ public final class MysqlPlayerDataStore {
                 + " WHERE player_uuid = ? AND data_key IN (" + placeholders + ")";
         Map<String, SyncRecord> records = new LinkedHashMap<>();
         Set<String> foundKeys = new HashSet<>();
+        // SQL 流量统计：语句文本与绑定参数算发出，读出的列值算接收；只在语句成功时记账。
+        TrafficRecorder.SqlStatement tracked = TrafficRecorder.sql("SELECT", tableName)
+                .text(sql)
+                .param(playerUuid.toString());
+        for (String dataKey : dataKeys) {
+            tracked.param(dataKey);
+        }
         try (Connection connection = source.getConnection();
                 PreparedStatement statement = connection.prepareStatement(sql)) {
             statement.setQueryTimeout(getStatementTimeoutSeconds());
@@ -228,12 +236,14 @@ public final class MysqlPlayerDataStore {
                     String dataKey = resultSet.getString("data_key");
                     long recordVersion = resultSet.getLong("record_version");
                     String updatedBy = resultSet.getString("updated_by");
+                    String payloadJson = resultSet.getString("payload_json");
                     records.put(dataKey,
                             new SyncRecord(
-                                    resultSet.getString("payload_json"),
+                                    payloadJson,
                                     resultSet.getLong("updated_at"),
                                     recordVersion,
                                     updatedBy == null ? "" : updatedBy));
+                    tracked.result(payloadJson).result(dataKey).result(updatedBy).numbers(2);
                     foundKeys.add(dataKey);
                     KNOWN_REVISIONS.put(new RecordKey(playerUuid, dataKey), recordVersion);
                 }
@@ -243,6 +253,7 @@ public final class MysqlPlayerDataStore {
                     KNOWN_REVISIONS.put(new RecordKey(playerUuid, dataKey), 0L);
                 }
             }
+            tracked.record();
             clearFastFail();
         } catch (SQLException exception) {
             handleSqlFailure("读取", playerUuid, exception);
@@ -267,6 +278,8 @@ public final class MysqlPlayerDataStore {
                 + "record_version = IF(? = -1 OR record_version = ?, record_version + 1, record_version)";
 
         Connection connection = null;
+        // 写入类语句没有结果集，所以只计发出（语句 + 每行的绑定参数）与次数。
+        TrafficRecorder.SqlStatement tracked = TrafficRecorder.sql("INSERT", tableName).text(sql);
         try {
             connection = source.getConnection();
             connection.setAutoCommit(false);
@@ -291,6 +304,11 @@ public final class MysqlPlayerDataStore {
                     statement.setLong(13, expectedRevision);
                     statement.setLong(14, expectedRevision);
                     int changedRows = statement.executeUpdate();
+                    tracked.param(playerUuid.toString())
+                            .param(entry.getKey())
+                            .param(entry.getValue())
+                            .param(GAME_SERVER_WRITER)
+                            .numbers(10);
                     if (changedRows == 0) {
                         rollbackQuietly(connection, playerUuid);
                         if (expectedRevision == PRESERVE_REVISION) {
@@ -306,6 +324,7 @@ public final class MysqlPlayerDataStore {
             }
             connection.commit();
             refreshKnownRevisions(connection, playerUuid, payloads.keySet());
+            tracked.record();
             clearFastFail();
             return true;
         } catch (SQLException exception) {
@@ -329,19 +348,26 @@ public final class MysqlPlayerDataStore {
             return null;
         }
         String sql = "SELECT record_version FROM " + tableName + " WHERE player_uuid = ? AND data_key = ? LIMIT 1";
+        TrafficRecorder.SqlStatement tracked = TrafficRecorder.sql("SELECT", tableName)
+                .text(sql)
+                .param(playerUuid.toString())
+                .param(dataKey);
+        Long revision = null;
         try (PreparedStatement statement = connection.prepareStatement(sql)) {
             statement.setQueryTimeout(getStatementTimeoutSeconds());
             statement.setString(1, playerUuid.toString());
             statement.setString(2, dataKey);
             try (ResultSet resultSet = statement.executeQuery()) {
                 if (resultSet.next()) {
-                    return resultSet.getLong("record_version");
+                    revision = resultSet.getLong("record_version");
+                    tracked.numbers(1);
                 }
             }
+            tracked.record();
         } catch (SQLException exception) {
             logger.debug("读取玩家 {} 的 MySQL 同步版本失败，数据键 {}。", playerUuid, dataKey, exception);
         }
-        return null;
+        return revision;
     }
 
     private static void refreshKnownRevisions(Connection connection, UUID playerUuid, Collection<String> dataKeys)
@@ -353,6 +379,12 @@ public final class MysqlPlayerDataStore {
         String placeholders = String.join(",", Collections.nCopies(normalizedKeys.size(), "?"));
         String sql = "SELECT data_key, record_version FROM " + tableName
                 + " WHERE player_uuid = ? AND data_key IN (" + placeholders + ")";
+        TrafficRecorder.SqlStatement tracked = TrafficRecorder.sql("SELECT", tableName)
+                .text(sql)
+                .param(playerUuid.toString());
+        for (String dataKey : normalizedKeys) {
+            tracked.param(dataKey);
+        }
         try (PreparedStatement statement = connection.prepareStatement(sql)) {
             statement.setQueryTimeout(getStatementTimeoutSeconds());
             statement.setString(1, playerUuid.toString());
@@ -361,10 +393,13 @@ public final class MysqlPlayerDataStore {
             }
             try (ResultSet resultSet = statement.executeQuery()) {
                 while (resultSet.next()) {
+                    String dataKey = resultSet.getString("data_key");
                     KNOWN_REVISIONS.put(
-                            new RecordKey(playerUuid, resultSet.getString("data_key")),
+                            new RecordKey(playerUuid, dataKey),
                             resultSet.getLong("record_version"));
+                    tracked.result(dataKey).numbers(1);
                 }
+                tracked.record();
             }
         }
     }
@@ -480,10 +515,12 @@ public final class MysqlPlayerDataStore {
                 + "KEY idx_data_key_updated_at (data_key, updated_at),"
                 + "KEY idx_player_uuid_updated_at (player_uuid, updated_at)"
                 + ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci";
+        TrafficRecorder.SqlStatement tracked = TrafficRecorder.sql("DDL", tableName).text(ddl);
         try (Statement statement = connection.createStatement()) {
             statement.setQueryTimeout(5);  // 5秒，超过抛出 SQLException
             statement.execute(ddl);
         }
+        tracked.record();
         ensureColumn(connection, "record_version", "BIGINT NOT NULL DEFAULT 0");
         ensureColumn(connection, "created_at", "BIGINT NOT NULL DEFAULT 0");
         ensureColumn(connection, "updated_by", "VARCHAR(64) NOT NULL DEFAULT 'legacy'");

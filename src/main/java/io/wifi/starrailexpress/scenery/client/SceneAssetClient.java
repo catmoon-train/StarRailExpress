@@ -25,6 +25,7 @@ import io.wifi.starrailexpress.SREClientConfig;
 import io.wifi.starrailexpress.cca.AreasWorldComponent;
 import io.wifi.starrailexpress.client.SREClient;
 import io.wifi.starrailexpress.client.gui.screen.map_dev.SceneManagerScreen;
+import io.wifi.starrailexpress.network.TrafficRecorder;
 import io.wifi.starrailexpress.scenery.SceneAsset;
 import io.wifi.starrailexpress.scenery.SceneAssetCodec;
 import io.wifi.starrailexpress.scenery.SceneGeometry;
@@ -587,6 +588,9 @@ public final class SceneAssetClient {
                 output.write(buffer, 0, read);
             }
         }
+        // 本次响应真正读到的字节：续传时 written 从续传点开始累计，所以要减去起始 offset，
+        // 否则会把磁盘上已有的部分重复算成流量。
+        TrafficRecorder.httpClientStreamed("GET", next.remoteUrl(), 0L, written - offset);
         if (written != next.size()) {
             throw new IOException("remote asset ended at " + written + " of " + next.size() + " bytes");
         }

@@ -19,12 +19,14 @@ import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
+import io.wifi.starrailexpress.network.ChannelTrafficStats;
 import io.wifi.starrailexpress.network.NetworkStatsDisplay;
 import io.wifi.starrailexpress.network.NetworkStatsDisplay.RankingMode;
 import io.wifi.starrailexpress.network.NetworkStatsExporter;
 import io.wifi.starrailexpress.network.NetworkStatistics;
 import io.wifi.starrailexpress.network.PacketStats;
 import io.wifi.starrailexpress.network.PlayerPacketStats;
+import io.wifi.starrailexpress.network.TrafficChannel;
 import net.fabricmc.fabric.api.client.command.v2.ClientCommandManager;
 import net.fabricmc.fabric.api.client.command.v2.ClientCommandRegistrationCallback;
 import net.fabricmc.fabric.api.client.command.v2.FabricClientCommandSource;
@@ -51,6 +53,9 @@ import java.util.Map;
  * {@code /tmm:netstats}，两侧的 {@code start}/{@code stop} 互不影响。
  *
  * <p>客户端命令没有权限体系，因此不加 {@code requires} 判断。
+ *
+ * <p>除自定义载荷包外，还有 HTTP 与 SQL 两条通道各自统计，用 {@code http} / {@code sql}
+ * 子命令独立 start/stop/show；主 {@code start} 会联动开启两条通道，{@code http stop} 之类可以单独停。
  */
 public class NetworkStatsClientCommand {
 
@@ -79,6 +84,9 @@ public class NetworkStatsClientCommand {
                 .then(rankingBranch("inbound_rankings", Boolean.FALSE))
                 .then(ClientCommandManager.literal("byplayer").executes(NetworkStatsClientCommand::showStatsByPlayer))
                 .then(ClientCommandManager.literal("player").executes(NetworkStatsClientCommand::showPlayerStats))
+                // HTTP / SQL 流量各成一条通道，能被单独 start/stop/show。
+                .then(channelBranch(TrafficChannel.HTTP))
+                .then(channelBranch(TrafficChannel.SQL))
                 .then(ClientCommandManager.literal("export")
                         .executes(ctx -> exportStats(ctx, DEFAULT_EXPORT_LIMIT))
                         .then(ClientCommandManager.argument("limit", IntegerArgumentType.integer(1, MAX_LIMIT))
@@ -106,24 +114,28 @@ public class NetworkStatsClientCommand {
         stats().startRecording();
         reply(source, Component.literal("已开始记录客户端网络统计（已清空上一次的数据）")
                 .withStyle(ChatFormatting.GREEN));
-        hint(source, Component.literal("只统计自定义载荷包，原版 Minecraft 包不计入"));
+        hint(source, Component.literal("统计自定义载荷包 + HTTP + SQL；原版 Minecraft 包不计入"));
+        hint(source, Component.literal("只想记录其中一项时，用 /tmm:netstatsc http stop 或 sql stop 单独停"));
         hint(source, Component.literal("用 /tmm:netstatsc export 导出到客户端 netstats/ 目录"));
         return 1;
     }
 
     private static int stopRecording(CommandContext<FabricClientCommandSource> context) {
         FabricClientCommandSource source = context.getSource();
-        boolean wasRecording = stats().isRecording();
-        stats().stopRecording();
+        NetworkStatistics stats = stats();
+        // 主 stop 联动三项，只要有一项在记录就算「停到了东西」。
+        boolean wasRecording = stats.isRecording() || stats.isHttpRecording() || stats.isSqlRecording();
+        stats.stopRecording();
         reply(source, Component.literal(wasRecording
-                ? "已停止记录，数据仍保留在内存中"
+                ? "已停止记录（数据包、HTTP、SQL 三项都已停），数据仍保留在内存中"
                 : "当前本来就没有在记录").withStyle(wasRecording ? ChatFormatting.YELLOW : ChatFormatting.GRAY));
         return 1;
     }
 
     private static int resetStats(CommandContext<FabricClientCommandSource> context) {
         stats().resetStats();
-        reply(context.getSource(), Component.literal("已清空客户端网络统计数据").withStyle(ChatFormatting.YELLOW));
+        reply(context.getSource(), Component.literal("已清空客户端网络统计数据（含 HTTP 与 SQL）")
+                .withStyle(ChatFormatting.YELLOW));
         return 1;
     }
 
@@ -140,6 +152,12 @@ public class NetworkStatsClientCommand {
         reply(source, Component.literal("已跟踪包类型: " + stats.getTrackedTypeCount()));
         reply(source, Component.literal("字节数来源: 实测 " + stats.getMeasuredSizeCount()
                 + " 包，回退估算 " + stats.getFallbackSizeCount() + " 包"));
+        for (TrafficChannel channel : TrafficChannel.values()) {
+            reply(source, Component.literal(channel.label() + " 记录中: "
+                    + (channel.isRecording(stats) ? "是" : "否")
+                    + " · 交互 " + channel.stats(stats).getOutboundCount() + " 次")
+                    .withStyle(channel.isRecording(stats) ? ChatFormatting.GREEN : ChatFormatting.RED));
+        }
         reply(source, Component.literal("导出目录: " + NetworkStatsExporter.exportDirectory()));
         return 1;
     }
@@ -158,6 +176,7 @@ public class NetworkStatsClientCommand {
         reply(source, Component.literal("本端接收: " + stats.getInboundPackets() + " 包 / "
                 + stats.getInboundBytes() + " 字节"));
         reply(source, Component.literal("平均包大小: " + NetworkStatsDisplay.format(stats.getAveragePacketSize()) + " 字节"));
+        NetworkStatsDisplay.channelSummaryLines(stats).forEach(line -> reply(source, line));
         return 1;
     }
 
@@ -198,6 +217,106 @@ public class NetworkStatsClientCommand {
             NetworkStatsDisplay.rankingLines(stats, false, mode, limit)
                     .forEach(line -> reply(source, line));
         }
+        return 1;
+    }
+
+    // ------------------------------------------------------------------ HTTP / SQL 通道
+
+    /** 构造 {@code http} / {@code sql} 分支：{@code <通道> [start|stop|status|reset|show]}。 */
+    private static LiteralArgumentBuilder<FabricClientCommandSource> channelBranch(TrafficChannel channel) {
+        return ClientCommandManager.literal(channel.argument())
+                .executes(ctx -> showChannel(ctx, channel, DEFAULT_RANKING_LIMIT, null))
+                .then(ClientCommandManager.literal("start").executes(ctx -> startChannel(ctx, channel)))
+                .then(ClientCommandManager.literal("stop").executes(ctx -> stopChannel(ctx, channel)))
+                .then(ClientCommandManager.literal("status").executes(ctx -> showChannelStatus(ctx, channel)))
+                .then(ClientCommandManager.literal("reset").executes(ctx -> resetChannel(ctx, channel)))
+                .then(channelShowBranch(channel));
+    }
+
+    /** {@code show [outbound|inbound] [limit]}：不带方向时收发两个排行都打印。 */
+    private static LiteralArgumentBuilder<FabricClientCommandSource> channelShowBranch(TrafficChannel channel) {
+        LiteralArgumentBuilder<FabricClientCommandSource> show = ClientCommandManager.literal("show")
+                .executes(ctx -> showChannel(ctx, channel, DEFAULT_RANKING_LIMIT, null));
+        show.then(directionBranch(channel, "outbound", Boolean.TRUE));
+        show.then(directionBranch(channel, "inbound", Boolean.FALSE));
+        show.then(ClientCommandManager.argument("limit", IntegerArgumentType.integer(1, MAX_LIMIT))
+                .executes(ctx -> showChannel(ctx, channel,
+                        IntegerArgumentType.getInteger(ctx, "limit"), null)));
+        return show;
+    }
+
+    private static LiteralArgumentBuilder<FabricClientCommandSource> directionBranch(TrafficChannel channel,
+                                                                                    String name,
+                                                                                    boolean outbound) {
+        return ClientCommandManager.literal(name)
+                .executes(ctx -> showChannel(ctx, channel, DEFAULT_RANKING_LIMIT, outbound))
+                .then(ClientCommandManager.argument("limit", IntegerArgumentType.integer(1, MAX_LIMIT))
+                        .executes(ctx -> showChannel(ctx, channel,
+                                IntegerArgumentType.getInteger(ctx, "limit"), outbound)));
+    }
+
+    private static int startChannel(CommandContext<FabricClientCommandSource> context, TrafficChannel channel) {
+        FabricClientCommandSource source = context.getSource();
+        channel.start(stats());
+        reply(source, Component.literal("已开始记录 " + channel.label() + " 流量（已清空该通道上一次的数据）")
+                .withStyle(ChatFormatting.GREEN));
+        hint(source, Component.literal("用 /tmm:netstatsc " + channel.argument() + " show 查看明细"));
+        hint(source, Component.literal(channel.scopeNote(false)));
+        return 1;
+    }
+
+    private static int stopChannel(CommandContext<FabricClientCommandSource> context, TrafficChannel channel) {
+        FabricClientCommandSource source = context.getSource();
+        boolean wasRecording = channel.isRecording(stats());
+        channel.stop(stats());
+        reply(source, Component.literal(wasRecording
+                ? "已停止记录 " + channel.label() + " 流量，数据仍保留在内存中"
+                : channel.label() + " 当前本来就没有在记录")
+                .withStyle(wasRecording ? ChatFormatting.YELLOW : ChatFormatting.GRAY));
+        return 1;
+    }
+
+    private static int resetChannel(CommandContext<FabricClientCommandSource> context, TrafficChannel channel) {
+        channel.reset(stats());
+        reply(context.getSource(), Component.literal("已清空 " + channel.label() + " 流量数据")
+                .withStyle(ChatFormatting.YELLOW));
+        return 1;
+    }
+
+    private static int showChannelStatus(CommandContext<FabricClientCommandSource> context, TrafficChannel channel) {
+        FabricClientCommandSource source = context.getSource();
+        NetworkStatistics stats = stats();
+        ChannelTrafficStats traffic = channel.stats(stats);
+        boolean recording = channel.isRecording(stats);
+
+        reply(source, Component.literal("=== " + channel.label() + " 流量状态 (客户端) ===")
+                .withStyle(ChatFormatting.BOLD));
+        reply(source, Component.literal("记录中: " + (recording ? "是" : "否"))
+                .withStyle(recording ? ChatFormatting.GREEN : ChatFormatting.RED));
+        long startedAt = channel.recordingStartedAt(stats);
+        reply(source, Component.literal("本次开始时间: " + (startedAt > 0L ? formatTime(startedAt) : "尚未开始")));
+        reply(source, Component.literal("交互次数: " + traffic.getOutboundCount()));
+        reply(source, Component.literal("字节数: 发出 " + traffic.getOutboundBytes()
+                + " / 接收 " + traffic.getInboundBytes()));
+        reply(source, Component.literal("端点数: " + traffic.getEndpointCount()));
+        hint(source, Component.literal(channel.scopeNote(false)));
+        return 1;
+    }
+
+    private static int showChannel(CommandContext<FabricClientCommandSource> context, TrafficChannel channel,
+                                   int limit, @Nullable Boolean outbound) {
+        FabricClientCommandSource source = context.getSource();
+        NetworkStatistics stats = stats();
+
+        if (outbound == null || outbound) {
+            NetworkStatsDisplay.channelDetailLines(channel, stats, "客户端", true, limit)
+                    .forEach(line -> reply(source, line));
+        }
+        if (outbound == null || !outbound) {
+            NetworkStatsDisplay.channelDetailLines(channel, stats, "客户端", false, limit)
+                    .forEach(line -> reply(source, line));
+        }
+        hint(source, NetworkStatsDisplay.endpointPlaceholderNote());
         return 1;
     }
 

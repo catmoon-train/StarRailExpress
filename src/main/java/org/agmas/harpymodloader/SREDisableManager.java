@@ -28,15 +28,31 @@ import org.agmas.harpymodloader.config.HarpyModLoaderConfig;
 import org.agmas.harpymodloader.modifiers.SREModifier;
 import org.agmas.noellesroles.client.utils.RoleDisabledUtilsForClient;
 
+import java.util.Set;
+
 public class SREDisableManager {
     public static HarpyModLoaderConfig config = HarpyModLoaderConfig.instance();
+
+    /** 地图禁用的职业 ID；组件或设置缺失时返回空集合。 */
+    private static Set<String> areaDisabledRoles(AreasWorldComponent areas) {
+        if (areas == null || areas.areasSettings == null || areas.areasSettings.disabledRoles == null)
+            return Set.of();
+        return areas.areasSettings.disabledRoles;
+    }
+
+    /** 地图禁用的修饰符 ID；组件或设置缺失时返回空集合。 */
+    private static Set<String> areaDisabledModifiers(AreasWorldComponent areas) {
+        if (areas == null || areas.areasSettings == null || areas.areasSettings.disabledModifiers == null)
+            return Set.of();
+        return areas.areasSettings.disabledModifiers;
+    }
 
     public static boolean isRoleDisabled(SRERole role) {
         if (role == null)
             return true;
         if (FabricLoader.getInstance().getEnvironmentType().equals(EnvType.CLIENT)) {
             if (SREClient.areaComponent != null) {
-                if (SREClient.areaComponent.disabledRoles.contains(role.identifier().toString()))
+                if (areaDisabledRoles(SREClient.areaComponent).contains(role.identifier().toString()))
                     return true;
             }
             boolean onewayflag = false;
@@ -62,7 +78,7 @@ public class SREDisableManager {
         }
         if (SRE.SERVER != null) {
             var cca = AreasWorldComponent.KEY.get(SRE.SERVER.overworld());
-            if (cca.disabledRoles.contains(role.identifier().toString())) {
+            if (areaDisabledRoles(cca).contains(role.identifier().toString())) {
                 return true;
             }
         }
@@ -77,7 +93,7 @@ public class SREDisableManager {
     public static boolean isModifierDisabled(SREModifier modifier) {
         if (FabricLoader.getInstance().getEnvironmentType().equals(EnvType.CLIENT)) {
             if (SREClient.areaComponent != null) {
-                if (SREClient.areaComponent.disabledModifiers.contains(modifier.identifier().toString()))
+                if (areaDisabledModifiers(SREClient.areaComponent).contains(modifier.identifier().toString()))
                     return true;
             }
             boolean onewayflag = false;
@@ -104,7 +120,7 @@ public class SREDisableManager {
 
         if (SRE.SERVER != null) {
             var cca = AreasWorldComponent.KEY.get(SRE.SERVER.overworld());
-            if (cca.disabledModifiers.contains(modifier.identifier().toString())) {
+            if (areaDisabledModifiers(cca).contains(modifier.identifier().toString())) {
                 return true;
             }
         }
