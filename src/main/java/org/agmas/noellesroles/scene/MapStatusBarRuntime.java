@@ -127,6 +127,85 @@ public final class MapStatusBarRuntime {
         add(player, MapStatusBarType.POLLUTION, delta);
     }
 
+    // ==================== 指令读写（/sre:state） ====================
+
+    /**
+     * 当前地图配置使用的状态条类型。
+     *
+     * @return 未配置或非服务端时返回 {@link MapStatusBarType#NONE}
+     */
+    public static MapStatusBarType getMapStatusBarType(Level level) {
+        if (!(level instanceof ServerLevel serverLevel)) {
+            return MapStatusBarType.NONE;
+        }
+        return currentStatusBar(serverLevel);
+    }
+
+    /**
+     * 该玩家当前实际使用的状态条类型（运行时追踪的那个）。
+     *
+     * <p>
+     * 玩家还没被追踪时回退到当前地图配置的类型，因此「无论当前处于何种状态」都能拿到一个目标，
+     * 是否真的能读写再由 {@link #getValue} / {@link #setValue} 的返回值判定。
+     */
+    public static MapStatusBarType getTrackedType(ServerPlayer player) {
+        State state = STATES.get(player.getUUID());
+        return state != null ? state.type : getMapStatusBarType(player.level());
+    }
+
+    /**
+     * 读取状态条数值。
+     *
+     * @param type 目标状态条类型
+     * @return 该玩家当前没有此类型的状态条时返回 {@code null}
+     */
+    public static Integer getValue(ServerPlayer player, MapStatusBarType type) {
+        State state = stateOf(player, type);
+        return state == null ? null : state.value;
+    }
+
+    /**
+     * 设置状态条数值（自动夹取到 {@code 0..MAX_VALUE}）并立即同步给客户端。
+     *
+     * <p>
+     * 降到 0 时的死亡判定仍由 {@link #tick(ServerLevel)} 里原有的规则处理，指令不额外做特殊处理。
+     *
+     * @return 该玩家当前没有此类型的状态条时返回 {@code false}
+     */
+    public static boolean setValue(ServerPlayer player, MapStatusBarType type, int value) {
+        State state = stateOf(player, type);
+        if (state == null) {
+            return false;
+        }
+        state.set(value);
+        state.sync(player);
+        return true;
+    }
+
+    /**
+     * 增减状态条数值（超出范围会夹取）并立即同步给客户端。
+     *
+     * @return 该玩家当前没有此类型的状态条时返回 {@code false}
+     */
+    public static boolean addValue(ServerPlayer player, MapStatusBarType type, int delta) {
+        State state = stateOf(player, type);
+        if (state == null) {
+            return false;
+        }
+        state.change(delta);
+        state.sync(player);
+        return true;
+    }
+
+    /** 取该玩家指定类型的状态；类型不符或玩家未被追踪时返回 {@code null}。 */
+    private static State stateOf(ServerPlayer player, MapStatusBarType type) {
+        if (player == null || type == null || type == MapStatusBarType.NONE) {
+            return null;
+        }
+        State state = STATES.get(player.getUUID());
+        return state != null && state.type == type ? state : null;
+    }
+
     public static void onFinishUsingItem(ItemStack stack, Level level, LivingEntity user) {
         if (level.isClientSide || !(user instanceof ServerPlayer player)) {
             return;

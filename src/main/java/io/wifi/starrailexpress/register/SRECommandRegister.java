@@ -105,6 +105,8 @@ public class SRECommandRegister {
             ShieldCommand.register(dispatcher);
             PoisonCommand.register(dispatcher);
             StaminaCommand.register(dispatcher);
+            // 地图状态条数值：/sre:state <状态名|all|now> add|set|get <玩家> [数值]
+            StateCommand.register(dispatcher);
             SceneCommand.register(dispatcher);
             SceneEventCommand.register(dispatcher);
             SceneTaskCommand.register(dispatcher);
