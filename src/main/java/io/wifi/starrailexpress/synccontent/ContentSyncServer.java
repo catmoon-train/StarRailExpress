@@ -28,6 +28,7 @@ import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.EnumMap;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -61,6 +62,10 @@ public final class ContentSyncServer {
 
     /** 通道 → 已缓存的（内容, 哈希）。配置重载时清空。 */
     private static final Map<ContentChannel, CachedContent> CACHE = new EnumMap<>(ContentChannel.class);
+
+    /** 上一次广播的握手与其所在刻，用于去掉同一刻内内容相同的重复广播。 */
+    private static ContentHandshakeS2CPayload lastBroadcast;
+    private static long lastBroadcastTick = Long.MIN_VALUE;
 
     private record CachedContent(String json, String hash) {
     }
@@ -127,8 +132,21 @@ public final class ContentSyncServer {
         if (server == null) {
             return;
         }
+        List<ServerPlayer> players = server.getPlayerList().getPlayers();
+        if (players.isEmpty()) {
+            // 没人在线：不必读配置算哈希，玩家进服时的 handshakeTo 会做同样的事
+            return;
+        }
         ContentHandshakeS2CPayload payload = buildHandshake(server);
-        for (ServerPlayer player : server.getPlayerList().getPlayers()) {
+        long tick = server.getTickCount();
+        if (tick == lastBroadcastTick && payload.equals(lastBroadcast)) {
+            // 握手包本来就带全部通道的哈希：同一刻内后几次广播（如 /sre:reload 依次重载四个类型）
+            // 内容完全一样，只发一次
+            return;
+        }
+        lastBroadcast = payload;
+        lastBroadcastTick = tick;
+        for (ServerPlayer player : players) {
             ServerPlayNetworking.send(player, payload);
         }
     }

@@ -749,7 +749,8 @@ public class CustomModifierScreen extends Screen {
         if (server != null) {
             server.execute(() -> {
                 try {
-                    CustomModifierLoader.reload(server);
+                    // 走重载命令的路径：除了重建服务端索引，还会给在线客户端重新握手
+                    CustomModifierReloadCommand.reload(server);
                 } catch (Exception ignored) {
                 }
             });

@@ -4041,5 +4041,7 @@
     "sre.custom_role.manage.summary": " %s max:%s",
     "sre.custom_role.reload.success": "[CustomRole] 自訂職業設定已重新載入",
     "sre.custom_role.reload.failed": "[CustomRole] 重新載入失敗: %s",
-    "sre.custom_content.reload.all": "§a已一鍵重載自訂內容：%d/4 項"
+    "sre.custom_content.reload.all": "§a已一鍵重載自訂內容：%d/4 項",
+    "sre.custom_content.manage.search_hint": "搜尋 id / 顯示名稱",
+    "sre.custom_content.manage.no_match": "沒有符合的內容"
 }

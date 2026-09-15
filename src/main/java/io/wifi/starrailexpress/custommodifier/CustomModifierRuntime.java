@@ -126,6 +126,7 @@ public final class CustomModifierRuntime {
         final ConditionType type;
         final boolean revive;
         final Vec3 pos;
+        /** 到期刻，基准为「游戏开始刻」（见 {@link #countdownNow}）。 */
         final long deadline;
 
         Countdown(UUID playerId, String modifierId, String label, ConditionType type, boolean revive, Vec3 pos,
@@ -268,7 +269,7 @@ public final class CustomModifierRuntime {
     /** 扫描该玩家身上的自定义修饰符，为含「死亡 N 秒后」条件的修饰符启动倒计时。 */
     private static void startDeathCountdowns(ServerPlayer player, Vec3 pos) {
         WorldModifierComponent component = WorldModifierComponent.KEY.get(player.level());
-        long now = gameTime(player);
+        long now = countdownNow(player);
         for (SREModifier modifier : component.getModifiers(player)) {
             if (!(modifier instanceof CustomModifierEntry entry)) {
                 continue;
@@ -605,7 +606,7 @@ public final class CustomModifierRuntime {
                 sendCountdown(player, countdown, false);
                 continue;
             }
-            if (gameTime(player) < countdown.deadline) {
+            if (countdownNow(player) < countdown.deadline) {
                 continue;
             }
             iterator.remove();
@@ -646,7 +647,7 @@ public final class CustomModifierRuntime {
 
     /** 通知客户端倒计时状态（只发给当事人）。 */
     private static void sendCountdown(ServerPlayer player, Countdown countdown, boolean active) {
-        long remaining = Math.max(0L, countdown.deadline - gameTime(player));
+        long remaining = Math.max(0L, countdown.deadline - countdownNow(player));
         int seconds = (int) ((remaining + 19L) / 20L);
         ServerPlayNetworking.send(player, new CustomModifierCountdownPacket(countdown.modifierId, countdown.label,
                 seconds, countdown.revive, active));
@@ -819,6 +820,14 @@ public final class CustomModifierRuntime {
 
     private static long gameTime(ServerPlayer player) {
         return player.level().getGameTime();
+    }
+
+    /**
+     * 「死亡 N 秒后」倒计时专用的时间基准：自游戏开始以来的刻数，时间冻结时不递增，
+     * 因此会议等冻结期间倒计时会停住（与客户端 HUD 用的时钟一致）。
+     */
+    private static long countdownNow(ServerPlayer player) {
+        return GameUtils.getTicksFromGameStart(player.level());
     }
 
     private static State state(ServerPlayer player, CustomModifierEntry entry) {

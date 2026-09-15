@@ -15,6 +15,7 @@
 
 package io.wifi.starrailexpress.custommodifier.client;
 
+import io.wifi.starrailexpress.client.SREClient;
 import io.wifi.starrailexpress.network.packet.CustomModifierCountdownPacket;
 import io.wifi.utils.client.betterrender.FakeGuiGraphics;
 import net.fabricmc.api.EnvType;
@@ -35,8 +36,9 @@ import java.util.Map;
  * 自定义修饰符「死亡后倒计时」HUD（与难民修饰符同款：屏幕中下方的一行倒计时）。
  *
  * <p>
- * 倒计时的权威时间在服务端，这里只按服务端下发的剩余秒数换算成本地的到期游戏刻来显示，
- * 与 {@code RefugeeHud} 的做法一致（客户端与服务端的 {@code level.getGameTime()} 同步）。
+ * 倒计时的权威时间在服务端，这里只按服务端下发的剩余秒数换算成本地的到期刻来显示，
+ * 与 {@code RefugeeHud} 的做法一致。时钟用「游戏开始刻」（{@link SREClient#getTicksFromGameStart()}）：
+ * 它只在非冻结刻递增，所以时间冻结（会议等）时倒计时数字会跟着停住，与服务端行为一致。
  */
 @Environment(EnvType.CLIENT)
 public final class CustomModifierCountdownHud {
@@ -53,21 +55,21 @@ public final class CustomModifierCountdownHud {
 
     public static void register() {
         ClientPlayNetworking.registerGlobalReceiver(CustomModifierCountdownPacket.ID,
-                (payload, context) -> context.client().execute(() -> apply(context.client(), payload)));
+                (payload, context) -> context.client().execute(() -> apply(payload)));
         ClientPlayConnectionEvents.DISCONNECT.register((handler, client) -> ACTIVE.clear());
         CommonHudRenderCallback.EVENT.register(
                 (graphics, deltaTracker) -> render(graphics.guiWidth(), graphics.guiHeight(), graphics));
     }
 
-    private static void apply(Minecraft client, CustomModifierCountdownPacket payload) {
-        if (payload == null) {
+    private static void apply(CustomModifierCountdownPacket payload) {
+        if (payload == null || SREClient.timeComponent == null) {
             return;
         }
         if (!payload.active()) {
             ACTIVE.remove(payload.modifierId());
             return;
         }
-        long now = client.level == null ? 0L : client.level.getGameTime();
+        long now = SREClient.getTicksFromGameStart();
         ACTIVE.put(payload.modifierId(),
                 new Entry(now + Math.max(0, payload.seconds()) * 20L, payload.revive(), payload.label()));
     }
@@ -80,7 +82,7 @@ public final class CustomModifierCountdownHud {
         if (client.player == null || client.level == null || client.options.hideGui) {
             return;
         }
-        long now = client.level.getGameTime();
+        long now = SREClient.getTicksFromGameStart();
         // 服务端会主动发取消包；这里再兜一层，避免包丢失时倒计时卡在屏幕上
         ACTIVE.entrySet().removeIf(entry -> now > entry.getValue().deadline() + 20L);
         if (ACTIVE.isEmpty()) {
