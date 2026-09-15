@@ -23,6 +23,8 @@ import io.wifi.starrailexpress.cca.AreasWorldComponent;
 import io.wifi.starrailexpress.content.block.*;
 import io.wifi.starrailexpress.content.block.api.AutoResetBlockInterface;
 import io.wifi.starrailexpress.content.block.api.LightBlockInterface;
+import io.wifi.starrailexpress.customblock.CustomBlock;
+import io.wifi.starrailexpress.customblock.CustomBlockLoader;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.block.LecternBlock;
@@ -131,6 +133,10 @@ public class MapResetManager {
                     } else if (blockState.getBlock() instanceof VentHatchBlock) {
                         GameUtils.resetPoints.add(blockPos6);
                     } else if (blockState.getBlock() instanceof AutoResetBlockInterface) {
+                        GameUtils.resetPoints.add(blockPos6);
+                    } else if (blockState.getBlock() instanceof CustomBlock
+                            && CustomBlockLoader.isBlackoutAffected(serverWorld, blockPos6)) {
+                        // 自定义方块勾了「受关灯影响」时才登记（关灯事件按这份点位表工作）
                         GameUtils.resetPoints.add(blockPos6);
                     }
                 }

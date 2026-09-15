@@ -43,6 +43,7 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
+import io.wifi.starrailexpress.index.TMMProperties;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.level.block.state.properties.EnumProperty;
@@ -92,6 +93,10 @@ public class CustomBlock extends BaseEntityBlock implements SimpleWaterloggedBlo
     public static final EnumProperty<Direction> FACING = BlockStateProperties.HORIZONTAL_FACING;
     /** 发光等级 0~15。 */
     public static final IntegerProperty LIGHT = IntegerProperty.create("light", 0, 15);
+    /** 是否点亮（关灯事件会临时熄灭；参考 {@code TrainLightBlock}）。 */
+    public static final BooleanProperty LIT = BlockStateProperties.LIT;
+    /** 是否有电（关灯事件会临时断电）。 */
+    public static final BooleanProperty ACTIVE = TMMProperties.ACTIVE;
     /** 音效桶（跟随继承方块自动推导，见 {@link SoundPattern}）。 */
     public static final EnumProperty<SoundPattern> PATTERN = EnumProperty.create("pattern", SoundPattern.class);
 
@@ -101,6 +106,8 @@ public class CustomBlock extends BaseEntityBlock implements SimpleWaterloggedBlo
                 .setValue(WATERLOGGED, false)
                 .setValue(FACING, Direction.NORTH)
                 .setValue(LIGHT, 0)
+                .setValue(LIT, true)
+                .setValue(ACTIVE, true)
                 .setValue(PATTERN, SoundPattern.STONE));
     }
 
@@ -112,7 +119,23 @@ public class CustomBlock extends BaseEntityBlock implements SimpleWaterloggedBlo
                 .sound(SoundType.STONE)
                 .noOcclusion()
                 .pushReaction(PushReaction.NORMAL)
-                .lightLevel(state -> state.getValue(LIGHT));
+                // 形状 / 碰撞是按「该坐标上记录的配置」动态算的（见 getShape / getCollisionShape），
+                // 必须声明 dynamicShape：否则原版会在注册时按「没有世界与坐标」调用一次并把结果
+                // 缓存成完整方块，继承楼梯这类非完整形状的方块就会变成整块碰撞——走上去被挤出来。
+                .dynamicShape()
+                .lightLevel(state -> lightEmission(state));
+    }
+
+    /**
+     * 发光等级：与列车灯（{@code TrainLightBlock}）一致，熄灭或停电时归零。
+     *
+     * <p>
+     * {@code LIT} / {@code ACTIVE} 是给「关灯」事件用的（{@code SREWorldBlackoutComponent}
+     * 只处理同时带这两个属性的方块）。配置里没勾「受关灯影响」的方块不会被登记进关灯点位，
+     * 这两个属性会一直是 true，亮度也就等于配置的 {@link #LIGHT}。
+     */
+    public static int lightEmission(BlockState state) {
+        return state.getValue(LIT) && state.getValue(ACTIVE) ? state.getValue(LIGHT) : 0;
     }
 
     @Override
@@ -128,7 +151,7 @@ public class CustomBlock extends BaseEntityBlock implements SimpleWaterloggedBlo
 
     @Override
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
-        builder.add(WATERLOGGED, FACING, LIGHT, PATTERN);
+        builder.add(WATERLOGGED, FACING, LIGHT, LIT, ACTIVE, PATTERN);
     }
 
     /** 外观完全由方块实体渲染。 */
@@ -285,15 +308,14 @@ public class CustomBlock extends BaseEntityBlock implements SimpleWaterloggedBlo
     @Override
     protected InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos, Player player,
             BlockHitResult hitResult) {
-        if (level.isClientSide || !(player instanceof ServerPlayer serverPlayer)) {
-            return InteractionResult.SUCCESS;
-        }
         CustomBlockData data = CustomBlockLoader.getDataAt(level, pos);
-        if (data == null) {
-            return InteractionResult.PASS;
+        List<BlockEvent> events = data == null ? List.of() : data.eventsOf(BlockEventType.RIGHT_CLICK);
+        if (level.isClientSide) {
+            // 客户端只负责挥手反馈：没有右键事件就不摆臂（原版仍然会把这次点击发给服务端，
+            // 见 MultiPlayerGameMode#useItemOn —— 返回值只影响本地预测动画）。
+            return events.isEmpty() ? InteractionResult.PASS : InteractionResult.SUCCESS;
         }
-        List<BlockEvent> events = data.eventsOf(BlockEventType.RIGHT_CLICK);
-        if (events.isEmpty()) {
+        if (!(player instanceof ServerPlayer serverPlayer) || events.isEmpty()) {
             return InteractionResult.PASS;
         }
         boolean fired = CustomBlockRuntime.fireRightClick(serverPlayer, level, pos, data, events);

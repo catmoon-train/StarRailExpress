@@ -66,6 +66,16 @@ public final class CustomBlockRuntime {
     /** 维度 → （方块坐标 → 自定义方块 id）。只收录有靠近事件的方块。 */
     private static final Map<ResourceKey<Level>, Map<BlockPos, String>> PROXIMITY_INDEX = new ConcurrentHashMap<>();
 
+    /**
+     * 维度 → 待按配置校正状态的方块坐标。
+     *
+     * <p>
+     * id 在区块加载（{@code loadAdditional}）与放置（{@code applyImplicitComponents}）里才知道，
+     * 而这两个时机都还在区块/方块的构建过程中，此时直接改方块不安全，所以先攒下来，
+     * 等下一刻由 {@link #tickProximity} 统一校正（见 {@link #updateIndex}）。
+     */
+    private static final Map<ResourceKey<Level>, Set<BlockPos>> PENDING_TUNE = new ConcurrentHashMap<>();
+
     /** 玩家运行时状态（冷却 / 已触发集合 / 当前半径内集合）。 */
     private static final Map<UUID, PlayerState> PLAYERS = new ConcurrentHashMap<>();
 
@@ -101,10 +111,10 @@ public final class CustomBlockRuntime {
     /** 方块实体加载 / 数据变化时登记索引（只有带靠近事件的方块会进索引）。 */
     public static void onBlockLoaded(CustomBlockEntity entity) {
         refreshIndex(entity);
-        tuneState(entity);
+        scheduleTune(entity);
     }
 
-    /** 方块实体数据变化时刷新索引与状态（亮度 / 音效桶）。 */
+    /** 方块实体数据变化时刷新索引与状态（亮度 / 音效桶）。运行中改 id，可以当场校正。 */
     public static void onBlockChanged(CustomBlockEntity entity) {
         refreshIndex(entity);
         tuneState(entity);
@@ -145,14 +155,48 @@ public final class CustomBlockRuntime {
     }
 
     /**
-     * 只更新靠近索引（不做状态校正）。
+     * id 确定之后补登记索引，并安排一次状态校正。
      *
      * <p>
-     * 给「NBT 载入完成」用：区块加载时 {@code setLevel} 先于 {@code loadAdditional}，
-     * 那时还不知道 id；载入结束后需要按最终 id 补登记一次。
+     * 给「NBT 载入完成」与「物品组件写入」用：这两条路径都晚于 {@code setLevel}，
+     * 那时状态校正因为还不知道 id 而跳过了，所以这里按最终 id 补一次。
+     *
+     * <p>
+     * 校正本身延到下一刻（{@link #PENDING_TUNE}）：这两个时机分别处于区块加载与放置的过程中，
+     * 当场 {@code setBlockAndUpdate} 会去改动正在构建的区块 / 方块。
      */
     public static void updateIndex(CustomBlockEntity entity) {
         refreshIndex(entity);
+        scheduleTune(entity);
+    }
+
+    /** 安排一次「下一刻的状态校正」。 */
+    private static void scheduleTune(CustomBlockEntity entity) {
+        Level level = entity.getLevel();
+        if (level == null || level.isClientSide) {
+            return;
+        }
+        PENDING_TUNE.computeIfAbsent(level.dimension(), key -> ConcurrentHashMap.newKeySet())
+                .add(entity.getBlockPos().immutable());
+    }
+
+    /** 把攒下的状态校正做掉（下一刻执行；方块所在区块已卸载时自动跳过）。 */
+    private static void applyPendingTunes(MinecraftServer server) {
+        if (PENDING_TUNE.isEmpty()) {
+            return;
+        }
+        for (ServerLevel level : server.getAllLevels()) {
+            Set<BlockPos> pending = PENDING_TUNE.get(level.dimension());
+            if (pending == null || pending.isEmpty()) {
+                continue;
+            }
+            for (BlockPos pos : pending) {
+                if (level.getBlockEntity(pos) instanceof CustomBlockEntity entity) {
+                    tuneState(entity);
+                }
+            }
+            pending.clear();
+        }
     }
 
     /**
@@ -160,13 +204,26 @@ public final class CustomBlockRuntime {
      *
      * <p>
      * 只在服务端做，并且只在值确实不同的时候改方块（{@code setBlockAndUpdate} 会同步给客户端）。
+     *
+     * <p>
+     * <b>id 未知时必须跳过</b>：放置时 {@code setLevel}（→ 这里）早于 {@code applyImplicitComponents}，
+     * 区块加载时早于 {@code loadAdditional}，那一刻读到的 data 是 null。若照 null 校正，就会把刚由
+     * {@code placedState} 写好的亮度 / 音效桶清成 0 / STONE——表现为「放下时亮一瞬间，随后不亮」。
      */
     private static void tuneState(CustomBlockEntity entity) {
         Level level = entity.getLevel();
         if (level == null || level.isClientSide) {
             return;
         }
+        String id = entity.getCustomBlockId();
+        if (id == null || id.isBlank()) {
+            return;
+        }
         CustomBlockData data = entity.data();
+        if (data == null) {
+            // id 已知但配置里没有（配置被删了）：不动状态，保住放置时写进去的值
+            return;
+        }
         BlockState state = entity.getBlockState();
         if (!(state.getBlock() instanceof CustomBlock block)) {
             return;
@@ -231,6 +288,9 @@ public final class CustomBlockRuntime {
     // ==================== 靠近（唯一的扫描型事件）====================
 
     private static void tickProximity(MinecraftServer server) {
+        // 状态校正与靠近索引无关，且每次只有零星几个方块，所以放在间隔判断之前、每刻处理
+        applyPendingTunes(server);
+
         if (PROXIMITY_INDEX.isEmpty()) {
             return;
         }

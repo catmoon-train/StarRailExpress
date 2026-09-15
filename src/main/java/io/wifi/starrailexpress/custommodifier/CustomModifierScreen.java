@@ -16,6 +16,7 @@
 package io.wifi.starrailexpress.custommodifier;
 
 import io.wifi.starrailexpress.api.RoleTeam;
+import io.wifi.starrailexpress.client.gui.HintText;
 import io.wifi.starrailexpress.client.gui.SREPanelStyle;
 import io.wifi.starrailexpress.custommodifier.CustomModifierData.ConditionData;
 import io.wifi.starrailexpress.custommodifier.CustomModifierData.ConditionType;
@@ -27,6 +28,7 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.EditBox;
+import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.Mth;
@@ -76,7 +78,11 @@ public class CustomModifierScreen extends Screen {
     /** 需要重建界面时置为 true，在 render 中统一重建（避免在控件回调里改控件列表）。 */
     private boolean pendingRebuild = false;
 
-    private record LabelEntry(Component text, int x, int baseY, int color) {
+    private record LabelEntry(Component text, int x, int baseY, int color, int maxWidth, int maxLines) {
+        /** 该条文字实际会占用的高度（换行的提示要算两行，滚动范围才不会少算）。 */
+        int height() {
+            return maxLines > 1 ? HintText.LINE_H * maxLines : HintText.LINE_H;
+        }
     }
 
     public CustomModifierScreen() {
@@ -136,6 +142,16 @@ public class CustomModifierScreen extends Screen {
         return panelLeftX + 6;
     }
 
+    /** 字段标签列的可用宽度（旁边就是输入框，只能单行 + 省略号）。 */
+    private int labelW() {
+        return LABEL_W - 10;
+    }
+
+    /** 整段提示的可用宽度：独占一行，可以直接用面板内容宽度。 */
+    private int hintW() {
+        return Math.max(60, panelWidth - 12);
+    }
+
     private void requestRebuild() {
         this.pendingRebuild = true;
     }
@@ -189,7 +205,7 @@ public class CustomModifierScreen extends Screen {
             }
         }
         for (LabelEntry label : contentLabels) {
-            maxY = Math.max(maxY, label.baseY() + 10);
+            maxY = Math.max(maxY, label.baseY() + label.height());
         }
         maxScroll = Math.max(0, maxY + 4 - contentBottom());
     }
@@ -242,12 +258,13 @@ public class CustomModifierScreen extends Screen {
     private void addLabel(int row, String key) {
         contentLabels.add(new LabelEntry(
                 Component.translatable(key).withStyle(s -> s.withColor(0xFFFFF4DC)),
-                labelX(), baseY(row), 0xFFFFFF));
+                labelX(), baseY(row), 0xFFFFFF, labelW(), 1));
     }
 
     private void addHint(int row, Component text, int color) {
+        // 整段提示占满一行，放不下就换行（最多两行），再放不下靠悬停看全文
         contentLabels.add(new LabelEntry(text.copy().withStyle(s -> s.withColor(color)),
-                labelX(), baseY(row), color));
+                labelX(), baseY(row), color, hintW(), 2));
     }
 
     /** 段落提示（走翻译键）。 */
@@ -274,6 +291,8 @@ public class CustomModifierScreen extends Screen {
         box.setResponder(setter);
         if (hint != null) {
             box.setHint(hint);
+            // 输入框内画不下完整提示：悬停看全文
+            box.setTooltip(Tooltip.create(hint));
         }
         return track(box, baseY(row));
     }
@@ -768,11 +787,11 @@ public class CustomModifierScreen extends Screen {
     // ══════════════════════════════════════════════════════════════════
     @Override
     public void render(GuiGraphics g, int mouseX, int mouseY, float partialTick) {
-        // 统一在这里重建，避免在按钮回调中修改控件列表
+        // 统一在这里重建，避免在按钮回调中修改控件列表；
+        // 重建后不要 return —— return 会让这一帧什么都不画，切换标签时会闪一下
         if (pendingRebuild) {
             pendingRebuild = false;
             rebuildWidgets();
-            return;
         }
 
         renderBackground(g, mouseX, mouseY, partialTick);
@@ -784,12 +803,18 @@ public class CustomModifierScreen extends Screen {
         for (AbstractWidget widget : contentWidgets) {
             widget.render(g, mouseX, mouseY, partialTick);
         }
+        List<HintText.Line> lines = new ArrayList<>(contentLabels.size());
         for (LabelEntry label : contentLabels) {
-            String text = label.text().getString();
-            g.drawString(font, font.plainSubstrByWidth(text, LABEL_W - 10), label.x(), rowY(label.baseY()),
-                    label.color(), false);
+            lines.add(new HintText.Line(label.text(), label.x(), rowY(label.baseY()), label.color(),
+                    label.maxWidth(), label.maxLines()));
         }
+        HintText.Line hovered = HintText.draw(g, font, lines, mouseX, mouseY);
         g.disableScissor();
+
+        // tooltip 不能被内容区的裁剪切掉，放在关闭裁剪之后
+        if (hovered != null) {
+            HintText.drawTooltip(g, font, hovered, mouseX, mouseY);
+        }
 
         for (AbstractWidget widget : bottomButtons) {
             widget.render(g, mouseX, mouseY, partialTick);

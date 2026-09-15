@@ -3852,6 +3852,8 @@
     "sre.custom_block.label.pack_texture": "資源包貼圖",
     "sre.custom_block.label.inherit_block": "繼承方塊",
     "sre.custom_block.label.light_level": "發光等級",
+    "sre.custom_block.label.light_blackout": "發光受關燈影響",
+    "sre.custom_block.hint.light_blackout": "開啟後關燈事件會讓它熄滅（同列車燈）；關閉則亮度恆定。",
     "sre.custom_block.label.preview": "預覽",
     "sre.custom_block.label.no_collision": "無碰撞（可穿過）",
     "sre.custom_block.label.blocks_skylight": "遮蔽天空光",

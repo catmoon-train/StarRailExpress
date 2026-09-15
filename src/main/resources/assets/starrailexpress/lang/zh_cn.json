@@ -3888,6 +3888,8 @@
     "sre.custom_block.label.pack_texture": "资源包贴图",
     "sre.custom_block.label.inherit_block": "继承方块",
     "sre.custom_block.label.light_level": "发光等级",
+    "sre.custom_block.label.light_blackout": "发光受关灯影响",
+    "sre.custom_block.hint.light_blackout": "开启后关灯事件会让它熄灭（同列车灯）；关闭则亮度恒定。",
     "sre.custom_block.label.preview": "预览",
     "sre.custom_block.label.no_collision": "无碰撞（可穿过）",
     "sre.custom_block.label.blocks_skylight": "屏蔽天空光",
