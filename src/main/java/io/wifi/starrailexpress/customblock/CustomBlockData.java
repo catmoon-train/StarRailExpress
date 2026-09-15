@@ -55,7 +55,7 @@ public class CustomBlockData {
 
     // ==================== 基础数据 ====================
 
-    /** 方块编号（英文，供指令 {@code /sre:givecustomblock} 获取）。 */
+    /** 方块编号（英文，供指令 {@code /sre:give block <id>} 获取）。 */
     @SerializedName("id")
     public String id = "";
 

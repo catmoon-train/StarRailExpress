@@ -164,20 +164,33 @@ public class CustomItemConfig {
         return items.stream().filter(item -> item != null && id.equals(item.id)).findFirst().orElse(null);
     }
 
-    /** 该 id 是否已被别的条目占用（{@code exceptId} 是当前正在编辑的条目自身 id）。 */
-    public boolean isIdTaken(String id, String exceptId) {
+    /**
+     * 该 id 是否已被别的条目占用。
+     *
+     * @param id       待检查的 id
+     * @param exceptId 正在编辑的条目原始 id（会跳过它，避免「自己和自己冲突」）
+     * @param self     正在编辑的条目对象本身（按引用跳过，避免直接编辑列表内对象时误判）
+     */
+    public boolean isIdTaken(String id, String exceptId, CustomItemData self) {
         if (id == null || id.isBlank()) {
             return false;
         }
+        String wanted = id.trim();
         for (CustomItemData item : items) {
-            if (item == null || item.id == null) {
+            if (item == null || item == self || item.id == null) {
                 continue;
             }
-            if (item.id.equals(id) && !item.id.equals(exceptId)) {
+            String existing = item.id.trim();
+            if (existing.equalsIgnoreCase(wanted) && !existing.equalsIgnoreCase(exceptId == null ? "" : exceptId.trim())) {
                 return true;
             }
         }
         return false;
+    }
+
+    /** 该 id 是否已被别的条目占用（不含自身引用）。 */
+    public boolean isIdTaken(String id, String exceptId) {
+        return isIdTaken(id, exceptId, null);
     }
 
     /** 保存到 world 存档目录（server 为 null 时不保存）。 */

@@ -40,6 +40,13 @@ public class CustomModifierEntry extends SREModifier {
     /** 自定义修饰符标记 flag。 */
     public static final String FLAG = "inner.custom_modifier";
 
+    /**
+     * 构造时的配置数据。
+     *
+     * <p>
+     * <b>只用来记 {@code englishId}</b>：运行时读取一律按 id 到 {@link CustomModifierLoader}
+     * 实时解析（见 {@link #getData()}），不把这里当数据源。
+     */
     private final CustomModifierData data;
 
     public CustomModifierEntry(CustomModifierData data) {
@@ -63,8 +70,16 @@ public class CustomModifierEntry extends SREModifier {
                 && CustomModifierData.NAMESPACE.equals(modifier.identifier().getNamespace());
     }
 
+    /**
+     * 当前生效的配置数据。
+     *
+     * <p>
+     * 必须走「实时解析」而不是构造时捕获的对象：修饰符实例在开局分配后就固定住了，
+     * 而工具里改完配置会重载并生成<b>新的</b>数据对象；旧实例若继续用旧对象，就会出现
+     * 「条件 / 指令明明填了却永远不触发」。
+     */
     public CustomModifierData getData() {
-        return data;
+        return liveData();
     }
 
     // ==================== 名称 / 介绍（直连配置，不走翻译键） ====================
@@ -74,7 +89,12 @@ public class CustomModifierEntry extends SREModifier {
      * 客户端在拿不到时回退到网络同步副本（与 {@code CustomNormalRole} 同一套处理）。
      */
     private CustomModifierData liveData() {
-        CustomModifierData live = CustomModifierLoader.getCustomModifierData(this.data.englishId);
+        // 构造尚未完成时（父类构造里的虚调用）没有 id 可用
+        if (this.data == null || this.data.englishId == null) {
+            return null;
+        }
+        // 忽略大小写：identifier 是小写的，配置里改过 id 大小写时旧实例也能查到新数据
+        CustomModifierData live = CustomModifierLoader.getCustomModifierDataIgnoreCase(this.data.englishId);
         if (live != null) {
             return live;
         }
@@ -84,7 +104,10 @@ public class CustomModifierEntry extends SREModifier {
                 return synced;
             }
         }
-        return this.data;
+        // 加载器与同步副本都查不到 = 该 id 已从配置里删除 / 改名。
+        // 这里绝不能退回构造时的 this.data：那正是「改完配置重载后仍按旧数据跑」的来源。
+        // 返回 null 让调用方停用该修饰符（名称自动回退成 id）。
+        return null;
     }
 
     /** 配置里的显示名称（未填写时回退到完整 id）。 */
@@ -114,6 +137,19 @@ public class CustomModifierEntry extends SREModifier {
     public MutableComponent getName(boolean color) {
         MutableComponent text = Component.literal(configuredName());
         return color ? text.withColor(color()) : text;
+    }
+
+    /**
+     * 颜色也实时取自配置。
+     *
+     * <p>
+     * 构造时 {@code super(id, data.getColor(), ...)} 把颜色存成了字段，改完颜色重载后
+     * 玩家身上的旧实例还会是旧颜色，所以这里覆盖掉，直接读当前配置。
+     */
+    @Override
+    public int color() {
+        CustomModifierData live = liveData();
+        return live != null ? live.getColor() : super.color();
     }
 
     @Override

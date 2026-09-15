@@ -265,5 +265,10 @@ public class CustomItem extends Item implements SREItemProperties.LeftClickHurta
                     CustomItemRuntime.getAmmo(stack, data), data.maxAmmo)
                     .withStyle(style -> style.withColor(0xFFB300)));
         }
+        if (data.invisibleInHand) {
+            // 与项目内其它「手持不可见」物品一致的提示
+            tooltip.add(Component.translatable("starrailexpress.tip.invisible")
+                    .withStyle(style -> style.withColor(0xFFAFAFAF)));
+        }
     }
 }

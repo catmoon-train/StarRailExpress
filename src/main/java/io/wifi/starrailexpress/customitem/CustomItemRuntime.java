@@ -22,6 +22,7 @@ import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.cca.SREPlayerMoodComponent;
 import io.wifi.starrailexpress.content.item.api.SREItemProperties;
 import io.wifi.starrailexpress.customitem.CustomItemData.TargetMode;
+import io.wifi.starrailexpress.event.AllowItemShowInHand;
 import io.wifi.starrailexpress.event.OnPlayerDeath;
 import io.wifi.starrailexpress.event.OnPlayerDeathWithKiller;
 import io.wifi.starrailexpress.event.ShouldDropOnDeath;
@@ -30,9 +31,11 @@ import io.wifi.starrailexpress.index.SREDataComponentTypes;
 import io.wifi.starrailexpress.index.TMMSounds;
 import io.wifi.starrailexpress.rules.DropRules;
 import io.wifi.starrailexpress.util.SkinUtils;
+import net.fabricmc.api.EnvType;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.fabricmc.fabric.api.event.player.UseItemCallback;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
+import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
@@ -151,6 +154,14 @@ public final class CustomItemRuntime {
         // 死亡传递：持有者的职业匹配时，把物品交给附近指定阵营的玩家
         OnPlayerDeath.EVENT.register((player, reason) -> handlePassOnDeath(player));
         OnPlayerDeathWithKiller.EVENT.register((player, killer, reason) -> handlePassOnDeath(player));
+
+        // 手持不可见：客户端事件，返回 EMPTY 即可让第一人称 / 第三人称 / 手臂姿势全部隐藏该物品
+        if (FabricLoader.getInstance().getEnvironmentType() == EnvType.CLIENT) {
+            AllowItemShowInHand.EVENT.register((player, stack, mainHand) -> {
+                CustomItemData data = CustomItemLoader.getData(stack);
+                return data != null && data.invisibleInHand ? ItemStack.EMPTY : null;
+            });
+        }
     }
 
     // ==================== 丢弃 / 死亡处理 ====================

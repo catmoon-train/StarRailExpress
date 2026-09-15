@@ -15,6 +15,7 @@
 
 package io.wifi.starrailexpress.customitem;
 
+import com.google.gson.Gson;
 import com.google.gson.annotations.SerializedName;
 import io.wifi.starrailexpress.api.RoleTeam;
 import io.wifi.starrailexpress.game.GameConstants;
@@ -43,7 +44,7 @@ public class CustomItemData {
 
     // ==================== 基础数据 ====================
 
-    /** 物品编号（英文，供指令 {@code /sre:givecustomitem} 获取）。 */
+    /** 物品编号（英文，供指令 {@code /sre:give item <id>} 获取）。 */
     @SerializedName("id")
     public String id = "";
 
@@ -62,6 +63,10 @@ public class CustomItemData {
     /** 资源包物品材质继承：填写贴图路径，与上一项冲突时优先本项。 */
     @SerializedName("packTexturePath")
     public String packTexturePath = "";
+
+    /** 是否手持时不可见（与项目内「大侦探的笔记」「占卜师的水晶球」同类效果）。 */
+    @SerializedName("invisibleInHand")
+    public boolean invisibleInHand = false;
 
     /** 物品性质（单选）。 */
     @SerializedName("kind")
@@ -341,6 +346,25 @@ public class CustomItemData {
     /** 完整的展示用标识：{@code customitem:<id>}。 */
     public String getFullIdentifier() {
         return NAMESPACE + ":" + id;
+    }
+
+    /**
+     * 深拷贝。
+     *
+     * <p>
+     * 编辑界面打开已有条目时必须用拷贝，否则在界面里改 id 会直接改到配置列表里的那个对象，
+     * 导致「重名检查把自己算作冲突」而永远提示编号已被占用。
+     */
+    public CustomItemData copy() {
+        try {
+            CustomItemData copy = new Gson().fromJson(new Gson().toJson(this), CustomItemData.class);
+            if (copy != null) {
+                copy.sanitize();
+                return copy;
+            }
+        } catch (Exception ignored) {
+        }
+        return new CustomItemData();
     }
 
     /**

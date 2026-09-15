@@ -153,7 +153,7 @@ public class CustomBlock extends BaseEntityBlock implements SimpleWaterloggedBlo
     }
 
     /**
-     * 构造放置时的方块状态（放置与 {@code /sre:setcustomblock} 指令共用）。
+     * 构造放置时的方块状态（放置与 {@code /sre:setblock} 指令共用）。
      *
      * <p>
      * 把「原版只能从状态读到」的三样东西写进去：含水、朝向、亮度 + 音效桶。

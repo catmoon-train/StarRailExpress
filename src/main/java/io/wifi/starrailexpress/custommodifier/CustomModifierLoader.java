@@ -261,6 +261,30 @@ public final class CustomModifierLoader {
         return loadedModifiers.get(englishId);
     }
 
+    /**
+     * 按 englishId 取配置数据，找不到时忽略大小写再找一次。
+     *
+     * <p>
+     * 修饰符实例的 {@code identifier} 会把 id 转成小写，而注册表的键用的是配置里原始的大小写。
+     * 工具里若只改了 id 的大小写，玩家身上已有的旧实例按原名就会查不到，
+     * 会被误判成「已删除」而停用；这里补一次忽略大小写的匹配。
+     * 不会歧义：{@link HMLModifiers#registerModifier(SREModifier)} 按小写后的 path 全局去重，
+     * 仅大小写不同的两个 id 只有一个能注册成功。
+     */
+    public static CustomModifierData getCustomModifierDataIgnoreCase(String englishId) {
+        if (englishId == null || englishId.isBlank())
+            return null;
+        CustomModifierData exact = loadedModifiers.get(englishId);
+        if (exact != null)
+            return exact;
+        for (Map.Entry<String, CustomModifierData> entry : loadedModifiers.entrySet()) {
+            if (entry.getKey() != null && entry.getKey().equalsIgnoreCase(englishId)) {
+                return entry.getValue();
+            }
+        }
+        return null;
+    }
+
     /** 该修饰符对应的自定义配置数据（非自定义修饰符返回 null）。 */
     public static CustomModifierData getDataOf(SREModifier modifier) {
         if (!(modifier instanceof CustomModifierEntry entry))

@@ -69,8 +69,10 @@ import java.util.UUID;
  *
  * <p>
  * <b>全局触发</b>（没有任何条件）：拥有该修饰符即持续生效——
- * 药水效果持续挂载（每 30 秒补一次，失去修饰符后最多 30 秒自然消失）、玩家属性直接加上；
- * 「执行指令」这一行在界面中不会出现，所以全局触发不执行指令。
+ * 药水效果持续挂载（每 30 秒补一次，失去修饰符后最多 30 秒自然消失）、玩家属性直接加上，
+ * 并在「获得该修饰符」的那一刻把指令执行一次（全局触发没有「条件满足」的时机）。
+ * 界面里对全局触发不显示指令行；但配置从「条件触发」改回全局触发时指令会残留在数据里，
+ * 这种残留同样按「获得时执行一次」处理。
  *
  * <p>
  * <b>条件触发</b>：每秒判定一次条件（死亡 / 说话 / 使用物品为事件型，由对应事件触发判定）；
@@ -98,7 +100,11 @@ public final class CustomModifierRuntime {
     /** 每（玩家, 修饰符）的运行时状态。 */
     private static final class State {
         boolean lastResult = false;
+        /** 全局触发时指令只执行一次。 */
+        boolean globalFired = false;
         final Set<Integer> oneShotFired = new HashSet<>();
+        /** 定时类条件的「下次到期刻」（按条件下标存），不受整秒判定对齐影响。 */
+        final Map<Integer, Long> nextDue = new HashMap<>();
     }
 
     // ==================== 初始化 ====================
@@ -158,6 +164,11 @@ public final class CustomModifierRuntime {
 
         if (data.isGlobalTrigger()) {
             applyGlobal(player, entry, data, now);
+            // 全局触发没有「条件满足」的时机：获得该修饰符时把指令执行一次
+            if (!state.globalFired) {
+                state.globalFired = true;
+                fireActions(player, entry, data);
+            }
             return;
         }
         // 条件触发：每秒判定一次
@@ -263,8 +274,9 @@ public final class CustomModifierRuntime {
         // ---- 计时型条件 ----
         switch (type) {
             case TIMER: {
-                int interval = (int) (condition.value * SECOND_TICKS);
-                return interval > 0 && now % interval == 0;
+                // 用「到期刻」而不是 now % interval == 0：后者在间隔不是 20 的整数倍时永远不会命中
+                int interval = (int) Math.max(SECOND_TICKS, Math.round(condition.value * SECOND_TICKS));
+                return dueNow(state, index, now, interval);
             }
             case TIME_ANCHOR: {
                 if (state.oneShotFired.contains(index))
@@ -356,6 +368,41 @@ public final class CustomModifierRuntime {
             case HAS_WEAK_ARMOR -> SREWeakArmorPlayerComponent.KEY.get(player).getWeakArmor() > 0;
             default -> false;
         };
+    }
+
+    /**
+     * 定时类条件（{@link ConditionType#TIMER}）的「本次是否到期」判定。
+     *
+     * <p>
+     * 不用 {@code now % interval == 0}：判定只发生在 {@link #SECOND_TICKS} 的整数倍刻上，
+     * 与「间隔的整数倍」未必重合（间隔不是 20 的整数倍时几乎永远不重合），
+     * 会出现「填了 1.5 秒却完全不触发 / 填了 0.5 秒反而每秒都触发」。
+     * 这里记录下次到期刻，按实际经过的时间判定。
+     *
+     * <p>
+     * 到期刻按「条件下标」存放：工具里改完配置重载后条件对象会换成新的，下标仍可对齐，
+     * 但间隔被改小时要把过远的到期刻拉近，否则会继续等旧的长间隔。
+     */
+    private static boolean dueNow(State state, int index, long now, int interval) {
+        Long due = state.nextDue.get(index);
+        if (due == null) {
+            // 第一次判定：从当前时刻起算一个完整间隔（「拥有该修饰符后每 N 秒」）
+            state.nextDue.put(index, now + interval);
+            return false;
+        }
+        if (now < due) {
+            if (due - now > interval) {
+                state.nextDue.put(index, now + interval);
+            }
+            return false;
+        }
+        // 中间若漏判（长时间没走到这里），直接跳到下一个未到期的周期，不补触发
+        long next = due;
+        while (next <= now) {
+            next += interval;
+        }
+        state.nextDue.put(index, next);
+        return true;
     }
 
     // ==================== 触发内容 ====================

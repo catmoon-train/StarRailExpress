@@ -99,8 +99,9 @@ public class CustomItemScreen extends Screen {
     public CustomItemScreen(CustomItemData source) {
         super(Component.translatable("sre.custom_item.title"));
         if (source != null) {
-            this.data = source;
-            this.originalId = source.id == null ? "" : source.id;
+            // 用拷贝编辑：直接改列表里的对象会让自己和重名检查冲突（改 id 永远提示已被占用）
+            this.data = source.copy();
+            this.originalId = this.data.id == null ? "" : this.data.id;
         }
     }
 
@@ -563,7 +564,7 @@ public class CustomItemScreen extends Screen {
         }
         data.sanitize();
         CustomItemConfig config = CustomItemConfig.getInstance();
-        if (config.isIdTaken(data.id, originalId)) {
+        if (config.isIdTaken(data.id, originalId, data)) {
             showMessage(Component.translatable("sre.custom_item.error.duplicate_id", data.id));
             return;
         }
