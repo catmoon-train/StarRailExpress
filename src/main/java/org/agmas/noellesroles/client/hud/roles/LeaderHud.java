@@ -20,6 +20,8 @@ import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.api.data.RoleData;
 import io.wifi.starrailexpress.cca.SREGameTimeComponent;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
+import io.wifi.starrailexpress.customrole.CustomRoleData;
+import io.wifi.starrailexpress.customrole.CustomRoleLoader;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
@@ -191,10 +193,15 @@ public abstract class LeaderHud {
         return Math.max(0, remaining);
     }
 
-    /** 职业名：优先翻译键，支持自定义职业 */
+    /** 职业名：自定义职业优先用配置里的名字，其次翻译键，最后退回 englishId。 */
     private static String displayRoleName(String path) {
-        if (path.isEmpty()) {
+        if (path == null || path.isEmpty()) {
             return "?";
+        }
+        // followerRoleIds 只存了 path（自定义职业即 englishId），按 englishId 查配置
+        CustomRoleData customData = CustomRoleLoader.getCustomRoleData(path);
+        if (customData != null && customData.displayName != null && !customData.displayName.isBlank()) {
+            return customData.displayName;
         }
         String key = "announcement.star.role." + path;
         String translated = Component.translatable(key).getString();

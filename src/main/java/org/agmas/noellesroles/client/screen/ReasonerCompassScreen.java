@@ -384,8 +384,12 @@ public class ReasonerCompassScreen extends Screen {
     private Component displayFor(int question, String value) {
         if (question == 2) {
             ResourceLocation id = ResourceLocation.tryParse(value);
-            return id == null ? Component.literal(value)
-                    : Component.translatable("announcement.star.role." + id.getPath());
+            if (id == null) {
+                return Component.literal(value);
+            }
+            // 统一走 RoleUtils：自定义职业显示配置里的名字，内置职业走翻译键
+            Component roleName = RoleUtils.getRoleName(id);
+            return roleName != null ? roleName : Component.literal(value);
         }
         if (question == 3) {
             return Component.translatable("death_reason." + value.replace(':', '.'));

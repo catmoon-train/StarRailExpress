@@ -16,15 +16,15 @@
 package org.agmas.noellesroles.client.hud.roles;
 
 import io.wifi.starrailexpress.client.SREClient;
-import io.wifi.starrailexpress.client.network.CustomRoleClientNetwork;
-import io.wifi.starrailexpress.customrole.CustomRoleLoader;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceLocation;
 import org.agmas.noellesroles.client.event.RoleHudRenderCallback;
 import io.wifi.starrailexpress.api.data.RoleData;
 import org.agmas.noellesroles.role_data.neutral.RavenRoleData;
 import org.agmas.noellesroles.role.ModRoles;
+import org.agmas.noellesroles.utils.RoleUtils;
 
 import java.util.Locale;
 
@@ -87,16 +87,16 @@ public final class RavenHud {
         });
     }
 
+    /**
+     * 职业显示名：统一走 {@link RoleUtils#getRoleName(net.minecraft.resources.ResourceLocation)}。
+     *
+     * <p>
+     * 自定义职业会拿到配置里的自定义名字（已注册时走 {@code CustomNormalRole#getName()}，
+     * 未注册时回退查自定义职业配置），不会再退成 {@code announcement.star.role.<englishId>}
+     * 这种没人填过的翻译键。
+     */
     private static Component roleDisplayName(ResourceLocation roleId) {
-        String path = roleId.getPath();
-        var customData = CustomRoleLoader.getCustomRoleData(path);
-        if (customData != null && !customData.displayName.isEmpty()) {
-            return Component.literal(customData.displayName);
-        }
-        customData = CustomRoleClientNetwork.getSyncedRole(path);
-        if (customData != null && !customData.displayName.isEmpty()) {
-            return Component.literal(customData.displayName);
-        }
-        return Component.translatable("announcement.star.role." + path);
+        MutableComponent name = RoleUtils.getRoleName(roleId);
+        return name != null ? name : Component.empty();
     }
 }

@@ -27,6 +27,8 @@ import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.cca.SRERoleDataPlayerComponent;
 import io.wifi.starrailexpress.cca.SRERoleWorldComponent;
 import io.wifi.starrailexpress.client.SREClient;
+import io.wifi.starrailexpress.customrole.CustomRoleData;
+import io.wifi.starrailexpress.customrole.CustomRoleLoader;
 import io.wifi.starrailexpress.game.GameUtils;
 import io.wifi.starrailexpress.game.GameUtils.WinStatus;
 import io.wifi.starrailexpress.index.IntroMobEffect;
@@ -415,11 +417,17 @@ public class RoleUtils extends MCItemsUtils {
     public static MutableComponent getRoleName(ResourceLocation roleIdentifier) {
         if (roleIdentifier == null)
             return null;
-        SRERole role = TMMRoles.ROLES.getOrDefault(roleIdentifier, null);
-        if (role == null) {
-            return Component.translatable("announcement.star.role." + roleIdentifier.getPath());
+        SRERole role = TMMRoles.getRole(roleIdentifier);
+        if (role != null) {
+            return role.getName().copy();
         }
-        return role.getName().copy();
+        // 未注册时（例如客户端还没完成自定义职业注册）先查自定义职业配置，
+        // 否则自定义职业会退成 "announcement.star.role.<englishId>" 这种没人填过的翻译键。
+        CustomRoleData customData = CustomRoleLoader.getCustomRoleData(roleIdentifier.getPath());
+        if (customData != null && customData.displayName != null && !customData.displayName.isBlank()) {
+            return Component.literal(customData.displayName);
+        }
+        return Component.translatable("announcement.star.role." + roleIdentifier.getPath());
     }
 
     /**
@@ -901,11 +909,17 @@ public class RoleUtils extends MCItemsUtils {
     public static Component getRoleNameWithColor(ResourceLocation id) {
         if (id == null)
             return null;
-        SRERole role = TMMRoles.ROLES.getOrDefault(id, null);
-        if (role == null) {
-            return Component.translatable("announcement.star.role." + id.getPath());
+        SRERole role = TMMRoles.getRole(id);
+        if (role != null) {
+            return role.getName().copy().withColor(role.color());
         }
-        return role.getName().copy().withColor(role.color());
+        // 未注册时先查自定义职业配置（连同配置里的边框颜色），避免把翻译键显示给玩家
+        CustomRoleData customData = CustomRoleLoader.getCustomRoleData(id.getPath());
+        if (customData != null && customData.displayName != null && !customData.displayName.isBlank()) {
+            int color = 0xFF000000 | (customData.colorR << 16) | (customData.colorG << 8) | customData.colorB;
+            return Component.literal(customData.displayName).withColor(color);
+        }
+        return Component.translatable("announcement.star.role." + id.getPath());
     }
 
     public static ArrayList<ServerPlayer> getAlivePlayers(ServerLevel level) {
