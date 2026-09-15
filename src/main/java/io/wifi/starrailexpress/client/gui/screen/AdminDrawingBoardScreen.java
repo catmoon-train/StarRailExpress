@@ -39,6 +39,12 @@ public class AdminDrawingBoardScreen extends DrawingBoardScreen {
         super(stack);
     }
 
+    /** 管理员画板不需要「整体移动」方向键（也不显示它的标题）。 */
+    @Override
+    protected boolean showShiftButtons() {
+        return false;
+    }
+
     @Override
     protected void init() {
         // 调用父类 init 生成基础按钮

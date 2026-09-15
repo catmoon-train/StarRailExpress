@@ -72,13 +72,11 @@ public class DrawingBoardScreen extends Screen {
     private Button btnEraser;
     protected Button btnClose;
 
-    // 整体移动方向键（每次把画布内容朝对应方向挪一格）
+    // 整体移动方向键（每次把画布内容朝对应方向挪一格；管理员画板不创建这组键）
     private Button btnShiftUp;
     private Button btnShiftDown;
     private Button btnShiftLeft;
     private Button btnShiftRight;
-    /** 整体移动方向键的起点与整组宽度（标签与按钮共用，避免两边各算一次导致错位）。 */
-    protected int shiftPadX, shiftPadY, shiftPadWidth;
 
     private boolean isDrawing = false;
     private int lastRecognizeResult = DrawingBoardRecognizer.UNKNOWN;
@@ -170,38 +168,50 @@ public class DrawingBoardScreen extends Screen {
                 .bounds(btnX, btnY + (BUTTON_HEIGHT + 5) * 4, BUTTON_WIDTH, BUTTON_HEIGHT).build();
         addRenderableWidget(btnClose);
 
-        // 整体移动：用小箭头组成的方向键，放在「关闭」按钮下方（整组在面板里水平居中）
-        int arrowW = 24;
-        int arrowGap = 2;
-        shiftPadWidth = arrowW * 3 + arrowGap * 2;
-        int moveX = btnX + (COLOR_PANEL_WIDTH - shiftPadWidth) / 2;
-        // 关闭按钮是工具列的第 5 行（offset 4），方向键从它下面再留 14px（给标题一行）开始
-        int moveY = btnY + (BUTTON_HEIGHT + 5) * 5 + 14;
-        shiftPadX = moveX;
-        shiftPadY = moveY;
-        int secondRowY = moveY + BUTTON_HEIGHT + arrowGap;
+        // 整体移动：用小箭头组成的方向键，放在「关闭」按钮下方，并与工具按钮列（含「关闭」）左右对齐
+        // 管理员画板不要这组键（见 showShiftButtons()）
+        if (showShiftButtons()) {
+            int arrowW = 24;
+            // 间距取 4：3 个箭头 + 2 个间隙正好 = 工具按钮宽（80），整组与「关闭」按钮左右边缘对齐
+            int arrowGap = 4;
+            int moveX = btnX;
+            // 关闭按钮是工具列的第 5 行（offset 4），方向键从它下面 14px 处开始
+            int moveY = btnY + (BUTTON_HEIGHT + 5) * 5 + 14;
+            int secondRowY = moveY + BUTTON_HEIGHT + arrowGap;
 
-        btnShiftUp = Button.builder(Component.translatable("starrailexpress.drawing_board.shift_up"),
-                b -> shiftCanvas(0, -1))
-                .bounds(moveX + arrowW + arrowGap, moveY, arrowW, BUTTON_HEIGHT).build();
-        addRenderableWidget(btnShiftUp);
+            btnShiftUp = Button.builder(Component.translatable("starrailexpress.drawing_board.shift_up"),
+                    b -> shiftCanvas(0, -1))
+                    .bounds(moveX + arrowW + arrowGap, moveY, arrowW, BUTTON_HEIGHT).build();
+            addRenderableWidget(btnShiftUp);
 
-        btnShiftLeft = Button.builder(Component.translatable("starrailexpress.drawing_board.shift_left"),
-                b -> shiftCanvas(-1, 0))
-                .bounds(moveX, secondRowY, arrowW, BUTTON_HEIGHT).build();
-        addRenderableWidget(btnShiftLeft);
+            btnShiftLeft = Button.builder(Component.translatable("starrailexpress.drawing_board.shift_left"),
+                    b -> shiftCanvas(-1, 0))
+                    .bounds(moveX, secondRowY, arrowW, BUTTON_HEIGHT).build();
+            addRenderableWidget(btnShiftLeft);
 
-        btnShiftDown = Button.builder(Component.translatable("starrailexpress.drawing_board.shift_down"),
-                b -> shiftCanvas(0, 1))
-                .bounds(moveX + arrowW + arrowGap, secondRowY, arrowW, BUTTON_HEIGHT).build();
-        addRenderableWidget(btnShiftDown);
+            btnShiftDown = Button.builder(Component.translatable("starrailexpress.drawing_board.shift_down"),
+                    b -> shiftCanvas(0, 1))
+                    .bounds(moveX + arrowW + arrowGap, secondRowY, arrowW, BUTTON_HEIGHT).build();
+            addRenderableWidget(btnShiftDown);
 
-        btnShiftRight = Button.builder(Component.translatable("starrailexpress.drawing_board.shift_right"),
-                b -> shiftCanvas(1, 0))
-                .bounds(moveX + (arrowW + arrowGap) * 2, secondRowY, arrowW, BUTTON_HEIGHT).build();
-        addRenderableWidget(btnShiftRight);
+            btnShiftRight = Button.builder(Component.translatable("starrailexpress.drawing_board.shift_right"),
+                    b -> shiftCanvas(1, 0))
+                    .bounds(moveX + (arrowW + arrowGap) * 2, secondRowY, arrowW, BUTTON_HEIGHT).build();
+            addRenderableWidget(btnShiftRight);
+        }
 
         updateToolButtons();
+    }
+
+    /**
+     * 是否创建「整体移动」方向键。
+     *
+     * <p>
+     * 管理员画板（{@code AdminDrawingBoardScreen}）不需要这组键，会重写成 {@code false}；
+     * 这里用方法而不是直接判断类型，是为了让子类替换布局时不用关心父类的控件创建细节。
+     */
+    protected boolean showShiftButtons() {
+        return true;
     }
 
     /**
@@ -406,11 +416,6 @@ public class DrawingBoardScreen extends Screen {
         }
 
         graphics.drawString(font, Component.translatable("starrailexpress.drawing_board.color_palette").getString(), colorPanelX, colorPanelY - 15, 0xFFFFFF);
-
-        // 「整体移动」标题：画在方向键整组正上方居中
-        Component shiftTitle = Component.translatable("starrailexpress.drawing_board.shift_move");
-        graphics.drawString(font, shiftTitle.getString(),
-                shiftPadX + (shiftPadWidth - font.width(shiftTitle)) / 2, shiftPadY - 12, 0xFFFFFF);
 
         for (int i = 0; i < PALETTE.length; i++) {
             int row = i / COLORS_PER_ROW;
