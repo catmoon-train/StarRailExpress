@@ -215,20 +215,50 @@ public class CustomItemRenderer implements BuiltinItemRendererRegistry.DynamicIt
         }
     }
 
-    /** 在 [0,1]² 平面上画一个 item/generated 风格的四边形。 */
+    /**
+     * 单层相对中心的偏移：0.5/16。
+     *
+     * <p>
+     * 这里的四边形占满 [0,1]²（= 原版模型空间的 0..16），所以 1 个贴图像素 = 1/16；
+     * 前后两层各偏 0.5/16，合起来正好 <b>1 个像素厚</b> —— 与原版 {@code item/generated}
+     * 的两层（z=7.5 / 8.5）完全一致。
+     */
+    private static final float LAYER_OFFSET = 0.5F / 16.0F;
+
+    /**
+     * 在 [0,1]² 平面上画一个 item/generated 风格的物品（<b>前后两层</b>）。
+     *
+     * <p>
+     * 只画 z=0.5 的单个平面时，物品是一张没有厚度的纸片（比 1 像素还薄），而且从背面看是空的。
+     * 这里按原版 {@code item/generated} 的做法画两层：正面朝 +Z、背面朝 -Z（顶点顺序相反、
+     * UV 跟着同一个角走，所以从背后看不会左右镜像）。
+     */
     private static void drawQuad(PoseStack poseStack, MultiBufferSource buffers, RenderType renderType,
             float u0, float v0, float u1, float v1, int light, int overlay) {
         VertexConsumer consumer = buffers.getBuffer(renderType);
         PoseStack.Pose pose = poseStack.last();
         Matrix4f matrix = pose.pose();
-        float z = 0.5F;
-        consumer.addVertex(matrix, 0.0F, 1.0F, z).setColor(255, 255, 255, 255).setUv(u0, v0)
+        float front = 0.5F - LAYER_OFFSET;
+        float back = 0.5F + LAYER_OFFSET;
+
+        // 正面（朝 +Z）
+        consumer.addVertex(matrix, 0.0F, 1.0F, front).setColor(255, 255, 255, 255).setUv(u0, v0)
                 .setOverlay(overlay).setLight(light).setNormal(pose, 0.0F, 0.0F, 1.0F);
-        consumer.addVertex(matrix, 1.0F, 1.0F, z).setColor(255, 255, 255, 255).setUv(u1, v0)
+        consumer.addVertex(matrix, 1.0F, 1.0F, front).setColor(255, 255, 255, 255).setUv(u1, v0)
                 .setOverlay(overlay).setLight(light).setNormal(pose, 0.0F, 0.0F, 1.0F);
-        consumer.addVertex(matrix, 1.0F, 0.0F, z).setColor(255, 255, 255, 255).setUv(u1, v1)
+        consumer.addVertex(matrix, 1.0F, 0.0F, front).setColor(255, 255, 255, 255).setUv(u1, v1)
                 .setOverlay(overlay).setLight(light).setNormal(pose, 0.0F, 0.0F, 1.0F);
-        consumer.addVertex(matrix, 0.0F, 0.0F, z).setColor(255, 255, 255, 255).setUv(u0, v1)
+        consumer.addVertex(matrix, 0.0F, 0.0F, front).setColor(255, 255, 255, 255).setUv(u0, v1)
                 .setOverlay(overlay).setLight(light).setNormal(pose, 0.0F, 0.0F, 1.0F);
+
+        // 背面（朝 -Z，顶点顺序反过来）
+        consumer.addVertex(matrix, 0.0F, 0.0F, back).setColor(255, 255, 255, 255).setUv(u0, v1)
+                .setOverlay(overlay).setLight(light).setNormal(pose, 0.0F, 0.0F, -1.0F);
+        consumer.addVertex(matrix, 1.0F, 0.0F, back).setColor(255, 255, 255, 255).setUv(u1, v1)
+                .setOverlay(overlay).setLight(light).setNormal(pose, 0.0F, 0.0F, -1.0F);
+        consumer.addVertex(matrix, 1.0F, 1.0F, back).setColor(255, 255, 255, 255).setUv(u1, v0)
+                .setOverlay(overlay).setLight(light).setNormal(pose, 0.0F, 0.0F, -1.0F);
+        consumer.addVertex(matrix, 0.0F, 1.0F, back).setColor(255, 255, 255, 255).setUv(u0, v0)
+                .setOverlay(overlay).setLight(light).setNormal(pose, 0.0F, 0.0F, -1.0F);
     }
 }
