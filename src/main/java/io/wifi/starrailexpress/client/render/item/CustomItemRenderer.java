@@ -50,9 +50,8 @@ import java.util.concurrent.ConcurrentHashMap;
  * <li><b>PACK 资源包贴图</b>：{@link CustomItemData#packTexturePath}，{@code ns:item/x} 与
  * {@code ns:textures/item/x.png} 两种写法都支持，直接从资源包取贴图渲染（不需要进图集），
  * 画成前后两层 = 1 像素厚。</li>
- * <li><b>ANIMATED 导入动态贴图</b>：{@link CustomItemData#animatedTextures}，最多
- * {@link CustomItemData#MAX_ANIMATED_FRAMES} 帧按 {@link CustomItemData#animatedFrameTicks} 循环，
- * 每帧都是上面那种平面贴图。</li>
+ * <li><b>ANIMATED 导入动态贴图</b>：{@link CustomItemData#animatedTextures}（帧数不限）按
+ * {@link CustomItemData#animatedFrameTicks} 循环，每帧都是上面那种平面贴图。</li>
  * <li><b>MODEL 导入立体贴图</b>：{@link CustomItemData#inheritItemTexture} 填物品 id，
  * 直接渲染该物品的完整模型（{@code elements} 立体、图集动画贴图都跟着走）。</li>
  * </ol>
@@ -143,8 +142,7 @@ public class CustomItemRenderer implements BuiltinItemRendererRegistry.DynamicIt
     }
 
     /**
-     * ANIMATED 导入动态贴图：按客户端世界时间切帧循环，最多
-     * {@link CustomItemData#MAX_ANIMATED_FRAMES} 帧（每帧都是一张平面贴图）。
+     * ANIMATED 导入动态贴图：按客户端世界时间切帧循环（帧数不限，每帧都是一张平面贴图）。
      */
     private static boolean drawAnimated(CustomItemData data, PoseStack poseStack, MultiBufferSource buffers,
             int light, int overlay) {

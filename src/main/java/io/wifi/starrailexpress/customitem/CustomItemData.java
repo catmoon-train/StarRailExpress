@@ -43,9 +43,6 @@ public class CustomItemData {
     /** 默认枪械开火音效（左轮手枪开火）。 */
     public static final String DEFAULT_FIRE_SOUND = "starrailexpress:item.revolver.shoot";
 
-    /** 动态贴图最多支持的帧数（状态数）。 */
-    public static final int MAX_ANIMATED_FRAMES = 4;
-
     // ==================== 基础数据 ====================
 
     /** 物品编号（英文，供指令 {@code /sre:give item <id>} 获取）。 */
@@ -74,8 +71,9 @@ public class CustomItemData {
      * <p>
      * 三种来源<b>相互独立</b>，只生效当前选中的这一种：
      * {@link TextureMode#PACK} 用 {@link #packTexturePath}（平面 PNG）、
-     * {@link TextureMode#ANIMATED} 用 {@link #animatedTextures}（最多 4 帧循环）、
-     * {@link TextureMode#MODEL} 用 {@link #inheritItemTexture}（渲染该物品的完整立体模型）。
+     * {@link TextureMode#ANIMATED} 用 {@link #animatedTextures}（多帧循环，帧数不限）、
+     * {@link TextureMode#MODEL} 用 {@link #modelPath}（渲染资源包模型 json；留空时退回
+     * {@link #inheritItemTexture}，借某个物品的模型）。
      */
     @SerializedName("textureMode")
     public String textureMode = TextureMode.PACK.name();
@@ -84,7 +82,7 @@ public class CustomItemData {
      * 动态贴图的帧（{@link TextureMode#ANIMATED} 用）。
      *
      * <p>
-     * 最多 {@link #MAX_ANIMATED_FRAMES} 张，按填写顺序循环播放；空串会被跳过。
+     * 按填写顺序循环播放，<b>帧数不限</b>；空串会被跳过。
      */
     @SerializedName("animatedTextures")
     public List<String> animatedTextures = new ArrayList<>();
@@ -586,7 +584,7 @@ public class CustomItemData {
         return TextureMode.PACK;
     }
 
-    /** 动态贴图的帧路径：去掉空串、最多 {@link #MAX_ANIMATED_FRAMES} 张。 */
+    /** 动态贴图的帧路径：按填写顺序去掉空串（帧数不限）。 */
     public List<String> animatedFramePaths() {
         List<String> result = new ArrayList<>();
         if (animatedTextures == null) {
@@ -597,9 +595,6 @@ public class CustomItemData {
                 continue;
             }
             result.add(path.trim());
-            if (result.size() >= MAX_ANIMATED_FRAMES) {
-                break;
-            }
         }
         return result;
     }
@@ -899,7 +894,7 @@ public class CustomItemData {
          */
         PACK,
         /**
-         * 导入动态贴图：{@link #animatedTextures}（材质地址，最多 4 帧）按
+         * 导入动态贴图：{@link #animatedTextures}（材质地址，帧数不限）按
          * {@link #animatedFrameTicks} 循环播放。
          */
         ANIMATED,

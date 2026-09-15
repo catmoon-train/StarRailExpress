@@ -414,8 +414,7 @@ public class CustomItemScreen extends Screen {
         r = textRow(r, "sre.custom_item.label.texture_path", data.packTexturePath,
                 Component.translatable("sre.custom_item.hint.texture_path"), v -> data.packTexturePath = v);
         r = textLines(r, "sre.custom_item.label.animated_textures", data.animatedTextures,
-                "sre.custom_item.hint.animated_textures", "sre.custom_item.add_texture",
-                CustomItemData.MAX_ANIMATED_FRAMES);
+                "sre.custom_item.hint.animated_textures", "sre.custom_item.add_texture");
         r = numRow(r, "sre.custom_item.label.animated_frame_ticks", data.animatedFrameTicks,
                 "sre.custom_item.unit.tick", v -> data.animatedFrameTicks = (int) v);
         r = textRow(r, "sre.custom_item.label.model_path", data.modelPath,
