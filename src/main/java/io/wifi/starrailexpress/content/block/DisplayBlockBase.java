@@ -50,6 +50,9 @@ import org.joml.Quaternionf;
  */
 public abstract class DisplayBlockBase extends BaseEntityBlock {
 
+    /** 放置定向的对齐档位（22.5° = 16 个方向）。 */
+    public static final float YAW_STEP_DEGREES = 22.5F;
+
     protected DisplayBlockBase(Properties properties) {
         super(properties);
     }
@@ -75,6 +78,10 @@ public abstract class DisplayBlockBase extends BaseEntityBlock {
      * 放置时按放置者朝向定向：**内容正面朝放置者**，和原版展示实体「放下去正对着你」的手感一致。
      *
      * <p>
+     * 朝向对齐到 {@link #YAW_STEP_DEGREES} 一档（22.5°，共 16 个方向）：站位差一点点也不会放歪，
+     * 一排摆出来是整齐的。
+     *
+     * <p>
      * 只在「还没有人为转过角度」的方块上生效（left_rotation 仍是单位四元数）：用选取方块复制来的、
      * 或在编辑器里调过旋转的展示方块保持原有朝向，不会被重新摆正。
      */
@@ -95,8 +102,9 @@ public abstract class DisplayBlockBase extends BaseEntityBlock {
         double dx = pos.getX() + 0.5D - player.getX();
         double dz = pos.getZ() + 0.5D - player.getZ();
         float cameraYaw = (float) (Mth.atan2(dz, dx) * (180.0D / Math.PI)) - 90.0F;
+        float facingYaw = Math.round((180.0F - cameraYaw) / YAW_STEP_DEGREES) * YAW_STEP_DEGREES;
         Quaternionf rotation = new Quaternionf()
-                .rotationYXZ((float) Math.toRadians(180.0F - cameraYaw), 0.0F, 0.0F);
+                .rotationYXZ((float) Math.toRadians(facingYaw), 0.0F, 0.0F);
         Transformation oriented = new Transformation(current.getTranslation(), rotation, current.getScale(),
                 current.getRightRotation());
         DisplayBlockEntityBase.writeTransformation(data, oriented);
