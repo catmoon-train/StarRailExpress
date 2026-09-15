@@ -2951,6 +2951,8 @@ public class ModRoles {
             .setAddedVersion("4.4")
             .setDefaultEnableNeededPlayerCount(18)
             .setDefaultEnableChance(3000)
+            // 能用弓/弩和箭杀人（含毒箭）：判定入口在 ArrowMixin，死因与冷却走其专属分支
+            .setCanKillWithBowAndCrossbow(true)
             .setHiddenForRoleRotation(true);
 
     // ==================== 其他变量定义 ====================
