@@ -280,6 +280,62 @@ public class CustomRoleData {
     @SerializedName("canSpawnInMapMatchAll")
     public boolean canSpawnInMapMatchAll = true;
 
+    // ==================== 相关职业 / 相关修饰符（介绍页展示） ====================
+    /** 双向相关职业（职业 id），对应 {@code SRERole#addBothRelatedRole}。 */
+    @SerializedName("bothRelatedRoles")
+    public List<String> bothRelatedRoles = new ArrayList<>();
+    /** 单向相关职业（职业 id），对应 {@code SRERole#addRelatedRole}。 */
+    @SerializedName("relatedRoles")
+    public List<String> relatedRoles = new ArrayList<>();
+    /** 移除相关职业（职业 id），对应 {@code SRERole#removeRelatedRole}。 */
+    @SerializedName("removeRelatedRoles")
+    public List<String> removeRelatedRoles = new ArrayList<>();
+    /** 双向相关修饰符（修饰符 id），对应 {@code SRERole#addBothRelatedModifier}。 */
+    @SerializedName("bothRelatedModifiers")
+    public List<String> bothRelatedModifiers = new ArrayList<>();
+    /** 单向相关修饰符（修饰符 id），对应 {@code SRERole#addRelatedModifier}。 */
+    @SerializedName("relatedModifiers")
+    public List<String> relatedModifiers = new ArrayList<>();
+    /** 移除相关修饰符（修饰符 id），对应 {@code SRERole#removeRelatedModifier}。 */
+    @SerializedName("removeRelatedModifiers")
+    public List<String> removeRelatedModifiers = new ArrayList<>();
+
+    // ==================== 关联（绑定生成）职业的移除 ====================
+    /** 移除关联（绑定生成）职业（职业 id），对应 {@code SRERole#removeOccupationRole}。 */
+    @SerializedName("removeOccupationRoles")
+    public List<String> removeOccupationRoles = new ArrayList<>();
+    /** 清空关联（绑定生成）职业，对应 {@code SRERole#clearOccupationRole}；在 bindWithRoles 之前生效。 */
+    @SerializedName("clearOccupationRoles")
+    public boolean clearOccupationRoles = false;
+
+    // ==================== 任务刷新黑 / 白名单 ====================
+    /** 任务刷新黑名单（任务枚举名，如 {@code CLEAN_DUST}），对应 {@code SRERole#addUnrefreshableTasks}。 */
+    @SerializedName("unrefreshableTasks")
+    public List<String> unrefreshableTasks = new ArrayList<>();
+    /** 任务刷新白名单（任务枚举名），对应 {@code SRERole#addOnlyRefreshableTasks}。 */
+    @SerializedName("onlyRefreshableTasks")
+    public List<String> onlyRefreshableTasks = new ArrayList<>();
+
+    // ==================== 杂项开关（null = 不设置） ====================
+    /** 小游戏任务独立计时，对应 {@code SRERole#setIndependentMinigameTiming}。 */
+    @SerializedName("independentMinigameTiming")
+    public Boolean independentMinigameTiming = null;
+    /** 被透视时隐藏职业信息，对应 {@code SRERole#setHideRoleInfoWhenSeen}。 */
+    @SerializedName("hideRoleInfoWhenSeen")
+    public Boolean hideRoleInfoWhenSeen = null;
+    /** 能否"小脑"别人，对应 {@code SRERole#setCanXiaonao}。 */
+    @SerializedName("canXiaonao")
+    public Boolean canXiaonao = null;
+    /** 能否被别人"小脑"，对应 {@code SRERole#setCanBeXiaonao}。 */
+    @SerializedName("canBeXiaonao")
+    public Boolean canBeXiaonao = null;
+    /** 结算时计入"存活好人"计数，对应 {@code SRERole#setCanIncreaseSurvivingInnocents}。 */
+    @SerializedName("canIncreaseSurvivingInnocents")
+    public Boolean canIncreaseSurvivingInnocents = null;
+    /** 结算时计入"存活杀手"计数，对应 {@code SRERole#setCanIncreaseSurvivingKillers}。 */
+    @SerializedName("canIncreaseSurvivingKillers")
+    public Boolean canIncreaseSurvivingKillers = null;
+
     @SerializedName("enableChance")
     public int enableChance = 100;
 

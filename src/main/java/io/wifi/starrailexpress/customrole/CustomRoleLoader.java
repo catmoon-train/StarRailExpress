@@ -26,6 +26,7 @@ import io.wifi.starrailexpress.api.AreasSettings;
 import io.wifi.starrailexpress.cca.SREAbilityPlayerComponent;
 import io.wifi.starrailexpress.cca.SREGameRoundEndComponent;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
+import io.wifi.starrailexpress.cca.SREPlayerTaskComponent;
 import io.wifi.starrailexpress.customrole.CustomRoleData.EffectEntry;
 import io.wifi.starrailexpress.customrole.CustomRoleData.InstinctModeData;
 import io.wifi.starrailexpress.event.OnGameEnd;
@@ -600,6 +601,30 @@ public class CustomRoleLoader {
         }
         role.setSpawnInfo(customSpawn);
 
+        // === 任务刷新黑 / 白名单 ===
+        SREPlayerTaskComponent.Task[] unrefreshable = parseTasks(data.unrefreshableTasks);
+        if (unrefreshable.length > 0) {
+            role.addUnrefreshableTasks(unrefreshable);
+        }
+        SREPlayerTaskComponent.Task[] onlyRefreshable = parseTasks(data.onlyRefreshableTasks);
+        if (onlyRefreshable.length > 0) {
+            role.addOnlyRefreshableTasks(onlyRefreshable);
+        }
+
+        // === 杂项开关（null = 不设置，保持基类默认） ===
+        if (data.independentMinigameTiming != null)
+            role.setIndependentMinigameTiming(data.independentMinigameTiming);
+        if (data.hideRoleInfoWhenSeen != null)
+            role.setHideRoleInfoWhenSeen(data.hideRoleInfoWhenSeen);
+        if (data.canXiaonao != null)
+            role.setCanXiaonao(data.canXiaonao);
+        if (data.canBeXiaonao != null)
+            role.setCanBeXiaonao(data.canBeXiaonao);
+        if (data.canIncreaseSurvivingInnocents != null)
+            role.setCanIncreaseSurvivingInnocents(data.canIncreaseSurvivingInnocents);
+        if (data.canIncreaseSurvivingKillers != null)
+            role.setCanIncreaseSurvivingKillers(data.canIncreaseSurvivingKillers);
+
         // 互斥和绑定生成（需要在所有角色注册完成后处理，这里只存储引用）
         // 这些将在 postInit 中处理
 
@@ -778,6 +803,17 @@ public class CustomRoleLoader {
                 }
             }
 
+            // 关联（绑定生成）职业：先清空 / 移除，再按 bindWithRoles 添加，便于「声明式重写」
+            if (data.clearOccupationRoles) {
+                role.clearOccupationRole();
+            }
+            for (String removeId : data.removeOccupationRoles) {
+                SRERole other = findRole(removeId);
+                if (other != null) {
+                    role.removeOccupationRole(other);
+                }
+            }
+
             // 绑定生成
             for (String bindId : data.bindWithRoles) {
                 SRERole bindRole = findRole(bindId);
@@ -785,6 +821,9 @@ public class CustomRoleLoader {
                     Harpymodloader.addOccupationRole(role, bindRole);
                 }
             }
+
+            // 相关职业 / 相关修饰符（介绍页展示，需要所有职业都已注册好再解析）
+            applyRelations(data, role);
         }
 
         // 注册地图限制事件处理（仅首次，避免重复注册）
@@ -880,6 +919,92 @@ public class CustomRoleLoader {
             id = SRE.id(roleId);
         }
         return TMMRoles.ROLES.get(id);
+    }
+
+    /** 按「完整 id 或路径」查找修饰符。 */
+    private static SREModifier findModifier(String modifierId) {
+        if (modifierId == null || modifierId.isBlank()) {
+            return null;
+        }
+        String id = modifierId.trim();
+        ResourceLocation location = ResourceLocation.tryParse(id);
+        if (location != null) {
+            SREModifier modifier = HMLModifiers.getModifier(location);
+            if (modifier != null) {
+                return modifier;
+            }
+        }
+        String path = id.contains(":") ? id.substring(id.indexOf(':') + 1) : id;
+        return HMLModifiers.getModifierByPath(path);
+    }
+
+    /**
+     * 应用相关职业 / 相关修饰符设置（仅作用于职业介绍页面）。
+     *
+     * <p>
+     * 需要在所有职业注册完成之后调用（{@link #postInit()}），否则引用不到尚未注册的自定义职业。
+     */
+    private static void applyRelations(CustomRoleData data, SRERole role) {
+        for (String id : safeList(data.bothRelatedRoles)) {
+            SRERole other = findRole(id);
+            if (other != null && other != role) {
+                role.addBothRelatedRole(other);
+            }
+        }
+        for (String id : safeList(data.relatedRoles)) {
+            SRERole other = findRole(id);
+            if (other != null && other != role) {
+                role.addRelatedRole(other);
+            }
+        }
+        for (String id : safeList(data.removeRelatedRoles)) {
+            SRERole other = findRole(id);
+            if (other != null) {
+                role.removeRelatedRole(other);
+            }
+        }
+        for (String id : safeList(data.bothRelatedModifiers)) {
+            SREModifier other = findModifier(id);
+            if (other != null) {
+                role.addBothRelatedModifier(other);
+            }
+        }
+        for (String id : safeList(data.relatedModifiers)) {
+            SREModifier other = findModifier(id);
+            if (other != null) {
+                role.addRelatedModifier(other);
+            }
+        }
+        for (String id : safeList(data.removeRelatedModifiers)) {
+            SREModifier other = findModifier(id);
+            if (other != null) {
+                role.removeRelatedModifier(other);
+            }
+        }
+    }
+
+    /** 解析任务枚举名列表（忽略非法名并记录警告）。 */
+    private static SREPlayerTaskComponent.Task[] parseTasks(List<String> names) {
+        List<SREPlayerTaskComponent.Task> result = new ArrayList<>();
+        for (String raw : safeList(names)) {
+            if (raw == null || raw.isBlank()) {
+                continue;
+            }
+            try {
+                SREPlayerTaskComponent.Task task = SREPlayerTaskComponent.Task
+                        .valueOf(raw.trim().toUpperCase(Locale.ROOT));
+                if (!result.contains(task)) {
+                    result.add(task);
+                }
+            } catch (IllegalArgumentException e) {
+                SRE.LOGGER.warn("[CustomRole] 未知的任务类型：'{}'（已忽略）", raw);
+            }
+        }
+        return result.toArray(new SREPlayerTaskComponent.Task[0]);
+    }
+
+    private static List<String> safeList(List<String> list) {
+        return list == null ? List.of() : list;
     }
 
     /**

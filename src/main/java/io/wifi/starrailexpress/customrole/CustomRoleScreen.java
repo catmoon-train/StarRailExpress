@@ -16,6 +16,7 @@
 package io.wifi.starrailexpress.customrole;
 
 import io.wifi.starrailexpress.api.AreasSettingUtils.MapSpecialFeatures;
+import io.wifi.starrailexpress.cca.SREPlayerTaskComponent;
 import io.wifi.starrailexpress.client.gui.HintText;
 import io.wifi.starrailexpress.client.gui.SREPanelStyle;
 import io.wifi.starrailexpress.customrole.CustomRoleData.EffectEntry;
@@ -68,6 +69,10 @@ public class CustomRoleScreen extends Screen {
      * 而且原版会在回调返回后把「焦点」设到已经被清掉的那个按钮上。
      */
     private boolean pendingRebuild = false;
+
+    /** 任务列表编辑器里「候选类型」的下标持有者（点按钮循环切换，重建界面后保持）。 */
+    private final int[] unrefreshableTaskCursor = { 0 };
+    private final int[] onlyRefreshableTaskCursor = { 0 };
 
     private static final String[] TAB_NAMES = { "basic", "advanced", "ability", "generation", "shop" };
     private static final int FIELD_LEFT = 140, FIELD_W = 200;
@@ -623,6 +628,22 @@ public class CustomRoleScreen extends Screen {
                     init(minecraft, width, height);
                 });
         tabWidgets1.add(smBtn);
+
+        // 小游戏任务独立计时 / 被透视时隐藏职业信息
+        addTriBtn(tabWidgets1, r, "sre.custom_role.independent_minigame_timing",
+                data.independentMinigameTiming, v -> data.independentMinigameTiming = v, true);
+        addTriBtnX(tabWidgets1, r++, "sre.custom_role.hide_role_info_when_seen",
+                data.hideRoleInfoWhenSeen, v -> data.hideRoleInfoWhenSeen = v, true);
+        // 能否"小脑"别人 / 能否被别人"小脑"
+        addTriBtn(tabWidgets1, r, "sre.custom_role.can_xiaonao",
+                data.canXiaonao, v -> data.canXiaonao = v, true);
+        addTriBtnX(tabWidgets1, r++, "sre.custom_role.can_be_xiaonao",
+                data.canBeXiaonao, v -> data.canBeXiaonao = v, true);
+        // 结算时计入"存活好人" / "存活杀手"计数
+        addTriBtn(tabWidgets1, r, "sre.custom_role.can_increase_surviving_innocents",
+                data.canIncreaseSurvivingInnocents, v -> data.canIncreaseSurvivingInnocents = v, true);
+        addTriBtnX(tabWidgets1, r++, "sre.custom_role.can_increase_surviving_killers",
+                data.canIncreaseSurvivingKillers, v -> data.canIncreaseSurvivingKillers = v, true);
     }
 
     // ---- TAB 2: Ability ----
@@ -1119,6 +1140,37 @@ public class CustomRoleScreen extends Screen {
                             data.bindWithRoles.add(t);
                     }
                 });
+        // 相关职业 / 相关修饰符（介绍页展示）
+        makeLabeledHintBox(tabWidgets3, tabLabels3, r++, FIELD_W, "sre.custom_role.label.both_related_roles",
+                String.join(",", data.bothRelatedRoles), "sre.custom_role.hint.role_list",
+                v -> replaceCsv(data.bothRelatedRoles, v));
+        makeLabeledHintBox(tabWidgets3, tabLabels3, r++, FIELD_W, "sre.custom_role.label.related_roles",
+                String.join(",", data.relatedRoles), "sre.custom_role.hint.role_list",
+                v -> replaceCsv(data.relatedRoles, v));
+        makeLabeledHintBox(tabWidgets3, tabLabels3, r++, FIELD_W, "sre.custom_role.label.remove_related_roles",
+                String.join(",", data.removeRelatedRoles), "sre.custom_role.hint.role_list",
+                v -> replaceCsv(data.removeRelatedRoles, v));
+        makeLabeledHintBox(tabWidgets3, tabLabels3, r++, FIELD_W, "sre.custom_role.label.both_related_modifiers",
+                String.join(",", data.bothRelatedModifiers), "sre.custom_role.hint.modifier_list",
+                v -> replaceCsv(data.bothRelatedModifiers, v));
+        makeLabeledHintBox(tabWidgets3, tabLabels3, r++, FIELD_W, "sre.custom_role.label.related_modifiers",
+                String.join(",", data.relatedModifiers), "sre.custom_role.hint.modifier_list",
+                v -> replaceCsv(data.relatedModifiers, v));
+        makeLabeledHintBox(tabWidgets3, tabLabels3, r++, FIELD_W, "sre.custom_role.label.remove_related_modifiers",
+                String.join(",", data.removeRelatedModifiers), "sre.custom_role.hint.modifier_list",
+                v -> replaceCsv(data.removeRelatedModifiers, v));
+        // 关联（绑定生成）职业的移除 / 清空（清空在添加之前生效）
+        makeLabeledHintBox(tabWidgets3, tabLabels3, r++, FIELD_W, "sre.custom_role.label.remove_occupation_roles",
+                String.join(",", data.removeOccupationRoles), "sre.custom_role.hint.role_list",
+                v -> replaceCsv(data.removeOccupationRoles, v));
+        addBoolBtn(tabWidgets3, r++, "sre.custom_role.label.clear_occupation_roles", data.clearOccupationRoles,
+                v -> data.clearOccupationRoles = v, true);
+        // 任务刷新黑 / 白名单（按钮选择任务类型）
+        r = buildTaskListEditor(tabWidgets3, tabLabels3, r, "sre.custom_role.label.unrefreshable_tasks",
+                data.unrefreshableTasks, unrefreshableTaskCursor);
+        r = buildTaskListEditor(tabWidgets3, tabLabels3, r, "sre.custom_role.label.only_refreshable_tasks",
+                data.onlyRefreshableTasks, onlyRefreshableTaskCursor);
+
         makeLabeledHintBox(tabWidgets3, tabLabels3, r++, FIELD_W, "sre.custom_role.label.map_restrict",
                 String.join(",", data.mapRestrictedTo), "sre.custom_role.hint.map_list",
                 v -> replaceCsv(data.mapRestrictedTo, v));
@@ -1492,6 +1544,72 @@ public class CustomRoleScreen extends Screen {
             return;
         target.clear();
         target.addAll(splitCsv(value));
+    }
+
+    /**
+     * 任务类型列表编辑器：一行「候选类型（点击循环切换）+ 添加」，之后每个已选类型一行（点击移除）。
+     *
+     * @param cursor 候选类型下标的持有者
+     * @return 下一行行号
+     */
+    private int buildTaskListEditor(List<AbstractWidget> widgets, List<LabelEntry> labels, int row, String labelKey,
+            List<String> list, int[] cursor) {
+        SREPlayerTaskComponent.Task[] tasks = SREPlayerTaskComponent.Task.values();
+        if (tasks.length == 0) {
+            return row;
+        }
+        if (cursor[0] < 0 || cursor[0] >= tasks.length) {
+            cursor[0] = 0;
+        }
+        final SREPlayerTaskComponent.Task candidate = tasks[cursor[0]];
+        addLabel(labels, labelKey, row);
+        widgets.add(makeButton(fieldX(), baseRowY(row), 130, 18,
+                Component.translatable("sre.custom_role.task_candidate", taskName(candidate)),
+                () -> {
+                    cursor[0] = (cursor[0] + 1) % tasks.length;
+                    init(minecraft, width, height);
+                }));
+        widgets.add(makeButton(fieldX() + 136, baseRowY(row), 64, 18,
+                Component.translatable("sre.custom_role.task_add"),
+                () -> {
+                    if (!list.contains(candidate.name())) {
+                        list.add(candidate.name());
+                    }
+                    init(minecraft, width, height);
+                }));
+        row++;
+        for (int i = 0; i < list.size(); i++) {
+            final int index = i;
+            widgets.add(makeButton(fieldX() + 40, baseRowY(row), 226, 18,
+                    Component.translatable("sre.custom_role.task_remove", taskNameOf(list.get(i))),
+                    () -> {
+                        list.remove(index);
+                        init(minecraft, width, height);
+                    }));
+            row++;
+        }
+        return row;
+    }
+
+    /** 任务显示名：优先 {@code task.<小写枚举名>} 翻译键，缺失时回退枚举名。 */
+    private static Component taskName(SREPlayerTaskComponent.Task task) {
+        String name = task.name().toLowerCase(java.util.Locale.ROOT);
+        if ("raed_book".equals(name)) {
+            name = "read_book"; // 枚举名是历史拼写，语言文件里的键是 read_book
+        }
+        String key = "task." + name;
+        return net.minecraft.locale.Language.getInstance().has(key)
+                ? Component.translatable(key)
+                : Component.literal(task.name());
+    }
+
+    /** 配置里存的枚举名 → 显示名（解析失败时按原样显示）。 */
+    private static Component taskNameOf(String raw) {
+        try {
+            return taskName(SREPlayerTaskComponent.Task.valueOf(raw.trim().toUpperCase(java.util.Locale.ROOT)));
+        } catch (IllegalArgumentException e) {
+            return Component.literal(raw);
+        }
     }
 
     private static int safeColor(Boolean b) {
