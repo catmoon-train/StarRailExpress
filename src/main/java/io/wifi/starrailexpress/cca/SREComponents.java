@@ -91,5 +91,8 @@ public class SREComponents
                 .end(CustomRoleGameModeTeamsPlayerComponent::new);
         registry.beginRegistration(Player.class, SREPlayerDamageTrackerComponent.KEY)
                 .respawnStrategy(RespawnCopyStrategy.NEVER_COPY).end(SREPlayerDamageTrackerComponent::new);
+        // 自定义列车物品的命中标记（挂在被击中者身上，按物品 id 分开计数、超时自动消失）
+        registry.beginRegistration(Player.class, CustomItemHitMarkerComponent.KEY)
+                .respawnStrategy(RespawnCopyStrategy.NEVER_COPY).end(CustomItemHitMarkerComponent::new);
     }
 }

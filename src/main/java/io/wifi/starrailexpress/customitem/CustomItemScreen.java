@@ -506,6 +506,9 @@ public class CustomItemScreen extends Screen {
                 index -> data.holdPose = HOLD_POSES[index].name());
         r = numRow(r, "sre.custom_item.label.hits_to_final", data.hitsToFinal, "sre.custom_item.unit.times",
                 v -> data.hitsToFinal = (int) v);
+        r = numRow(r, "sre.custom_item.label.hit_marker_ticks", data.hitMarkerTicks, "sre.custom_item.unit.tick",
+                v -> data.hitMarkerTicks = (int) v);
+        addHintText(r++, Component.translatable("sre.custom_item.hint.hit_marker_ticks"), 0xFFC9A84C);
         r = numRow(r, "sre.custom_item.label.shot_cooldown", data.shotCooldownTicks, "sre.custom_item.unit.tick",
                 v -> data.shotCooldownTicks = (int) v);
         r = numRow(r, "sre.custom_item.label.final_cooldown", data.finalCooldownTicks,

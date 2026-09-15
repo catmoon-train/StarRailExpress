@@ -182,6 +182,17 @@ public class CustomItemData {
     @SerializedName("hitsToFinal")
     public int hitsToFinal = 1;
 
+    /**
+     * 命中标记的持续时间（tick，默认 100 = 5 秒）。
+     *
+     * <p>
+     * 命中标记记在<b>被击中的玩家</b>身上：如果迟迟没凑够 {@link #hitsToFinal} 次，超过这段时间
+     * 标记就自动消失、计数从 0 重新开始（同警棍的命中窗口）。标记按物品 id 分开存，
+     * 不同物品的计数互不影响，不会错误叠加。
+     */
+    @SerializedName("hitMarkerTicks")
+    public int hitMarkerTicks = 100;
+
     /** 射击间隔冷却（tick）。 */
     @SerializedName("shotCooldownTicks")
     public int shotCooldownTicks = 10;
@@ -698,6 +709,7 @@ public class CustomItemData {
         gunRange = clampDouble(gunRange, 1.0, 256.0);
         recoil = clampDouble(recoil, 0.0, 90.0);
         hitsToFinal = clamp(hitsToFinal, 1, 1000);
+        hitMarkerTicks = clamp(hitMarkerTicks, 1, 20 * 60 * 10);
         shotCooldownTicks = clamp(shotCooldownTicks, 0, 20 * 60 * 10);
         finalCooldownTicks = clamp(finalCooldownTicks, 0, 20 * 60 * 10);
         autoShots = clamp(autoShots, 1, 1000);

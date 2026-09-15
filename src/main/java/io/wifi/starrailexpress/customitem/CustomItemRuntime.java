@@ -18,6 +18,7 @@ package io.wifi.starrailexpress.customitem;
 import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.api.RoleTeam;
 import io.wifi.starrailexpress.api.SRERole;
+import io.wifi.starrailexpress.cca.CustomItemHitMarkerComponent;
 import io.wifi.starrailexpress.cca.ExtraSlotComponent;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.cca.SREPlayerMoodComponent;
@@ -101,8 +102,6 @@ public final class CustomItemRuntime {
     private CustomItemRuntime() {
     }
 
-    /** 命中计数：{@code 目标UUID|物品id} -> 已命中次数。 */
-    private static final Map<String, Integer> HIT_COUNTS = new ConcurrentHashMap<>();
     /** 蓄力完成去重：{@code 玩家UUID|物品id} -> 触发时的游戏刻（避免 releaseUsing 与 finishUsingItem 双触发）。 */
     private static final Map<String, Long> CHARGE_FIRED = new ConcurrentHashMap<>();
     /** 自动射击状态：{@code 射手UUID|物品id} -> 状态。 */
@@ -181,9 +180,12 @@ public final class CustomItemRuntime {
         ServerPlayConnectionEvents.DISCONNECT.register(
                 (handler, server) -> clearPlayer(handler.getPlayer().getUUID()));
 
-        // 每局开始重置命中计数与自动射击状态
+        // 每局开始重置命中标记与自动射击状态
         GameInitializeEvent.EVENT.register((serverLevel, gameWorldComponent, players) -> {
-            HIT_COUNTS.clear();
+            // 命中标记记在玩家身上（{@link CustomItemHitMarkerComponent}）：开局把所有人的标记清干净
+            for (ServerPlayer online : serverLevel.getServer().getPlayerList().getPlayers()) {
+                CustomItemHitMarkerComponent.KEY.get(online).clearAllMarkers();
+            }
             AUTO_FIRES.clear();
             CHARGE_FIRED.clear();
             CustomThrowableAreas.clear();
@@ -409,7 +411,8 @@ public final class CustomItemRuntime {
         double halfAngleCos = Math.cos(Math.toRadians(Math.max(1.0, data.coneAngle) / 2.0));
 
         for (ServerPlayer other : level.players()) {
-            if (other == player || !GameUtils.isPlayerAliveAndSurvival(other)) {
+            // 与枪械命中同一条判定，避免「射线不认、范围技能也不认」这类静默跳过
+            if (!isValidTarget(player, other)) {
                 continue;
             }
             Vec3 targetPos = other.getEyePosition();
@@ -585,7 +588,8 @@ public final class CustomItemRuntime {
 
             ServerPlayer shooter = server.getPlayerList().getPlayer(shooterId);
             CustomItemData data = CustomItemLoader.get(itemId);
-            if (shooter == null || data == null || !GameUtils.isPlayerAliveAndSurvival(shooter)) {
+            // 与 fireGun 的射手判定保持一致：创造模式也能继续连发，旁观（含死亡）才中断
+            if (shooter == null || data == null || shooter.isSpectator()) {
                 iterator.remove();
                 continue;
             }
@@ -637,7 +641,9 @@ public final class CustomItemRuntime {
      * @return 命中的玩家（未命中 / 未开火返回 null）
      */
     private static ServerPlayer fireGun(ServerPlayer shooter, ItemStack stack, CustomItemData data, boolean autoMode) {
-        if (!GameUtils.isPlayerAliveAndSurvival(shooter)) {
+        // 与模组自带枪械（{@code GunShootPayload} 只拦旁观）一致：创造模式也能开枪，
+        // 否则在创造模式下测试时枪会完全没有反馈（无音效 / 无弹道 / 不命中），很难排查
+        if (shooter.isSpectator()) {
             return null;
         }
         if (!autoMode && shooter.getCooldowns().isOnCooldown(stack.getItem())) {
@@ -676,7 +682,7 @@ public final class CustomItemRuntime {
 
         ServerPlayer victim = null;
         if (hit instanceof EntityHitResult entityHit && entityHit.getEntity() instanceof ServerPlayer target
-                && target != shooter && GameUtils.isPlayerAliveAndSurvival(target)) {
+                && isValidTarget(shooter, target)) {
             victim = target;
             handleGunHit(shooter, victim, stack, data, autoMode);
             applyDistanceRules(shooter, victim, data);
@@ -704,12 +710,13 @@ public final class CustomItemRuntime {
             setAmmo(stack, Math.min(data.maxAmmo, getAmmo(stack, data) + 1));
         }
 
-        // 非自动枪械：按「被第几次命中」触发最终效果
+        // 非自动枪械：按「被第几次命中」触发最终效果。
+        // 命中标记记在被击中的玩家身上、按物品 id 分开存，超过 hitMarkerTicks 没触发就自动消失
         if (!autoMode) {
-            String hitKey = key(victim.getUUID(), data.id);
-            int hits = HIT_COUNTS.merge(hitKey, 1, Integer::sum);
+            CustomItemHitMarkerComponent hitMarkers = CustomItemHitMarkerComponent.KEY.get(victim);
+            int hits = hitMarkers.addHit(data.id, data.hitMarkerTicks, victim.level().getGameTime());
             if (hits >= Math.max(1, data.hitsToFinal)) {
-                HIT_COUNTS.remove(hitKey);
+                hitMarkers.clearMarker(data.id);
                 triggerFinalEffect(shooter, victim, stack, data);
             }
         }
@@ -1297,9 +1304,18 @@ public final class CustomItemRuntime {
         return BuiltInRegistries.SOUND_EVENT.getOptional(location).orElse(fallback);
     }
 
+    /**
+     * 自定义枪械 / 指向型道具的合法目标。
+     *
+     * <p>
+     * 判定与模组自带枪械对齐（见 {@code GunShootPayload.Receiver}：只要求目标是别的
+     * {@link ServerPlayer}），<b>不再</b>额外要求 {@code GameUtils.isPlayerAliveAndSurvival}
+     * （= 非创造 / 非旁观）。之前多这一层会让「创造 / 旁观状态的真实玩家」被射线静默穿过：
+     * 不执行命中指令、不计命中次数，于是 {@code hitsToFinal} 永远到不了，最终效果与最终冷却都不会触发，
+     * 而同一个目标用原版左轮是打得到的，排查时极易被误判成「物品没生效」。
+     */
     private static boolean isValidTarget(ServerPlayer shooter, Entity entity) {
-        return entity instanceof ServerPlayer player && player != shooter
-                && GameUtils.isPlayerAliveAndSurvival(player);
+        return entity instanceof ServerPlayer player && player != shooter;
     }
 
     private static void applyCooldown(ServerPlayer player, ItemStack stack, int ticks) {
@@ -1442,7 +1458,7 @@ public final class CustomItemRuntime {
             return;
         }
         String prefix = playerId + "|";
-        HIT_COUNTS.keySet().removeIf(key -> key.startsWith(prefix));
+        // 命中标记挂在玩家自己的组件上，随实体一起消失，这里只需要清理按 UUID 建表的运行时状态
         CHARGE_FIRED.keySet().removeIf(key -> key.startsWith(prefix));
         AUTO_FIRES.keySet().removeIf(key -> key.startsWith(prefix));
         CLIENT_AUTO_FIRE.keySet().removeIf(key -> key.startsWith(prefix));
@@ -1450,7 +1466,6 @@ public final class CustomItemRuntime {
 
     /** 供物品类复用：清理玩家全部状态（重载 / 开局）。 */
     public static void clearAll() {
-        HIT_COUNTS.clear();
         CHARGE_FIRED.clear();
         AUTO_FIRES.clear();
         CLIENT_AUTO_FIRE.clear();

@@ -1614,6 +1614,8 @@
     "sre.custom_item.hint.rule_command": "指令 <player>",
     "sre.custom_item.add_distance_rule": "＋ 新增距離規則",
     "sre.custom_item.label.hits_to_final": "被第幾次命中觸發最終效果",
+    "sre.custom_item.label.hit_marker_ticks": "命中標記持續",
+    "sre.custom_item.hint.hit_marker_ticks": "命中後超過該 tick 未觸發最終效果，命中標記自動消失、計數從 0 重新開始；標記記在被擊中的人身上並按物品分開，不同物品不會疊加",
     "sre.custom_item.label.shot_cooldown": "射擊間隔冷卻",
     "sre.custom_item.label.final_cooldown": "觸發最終效果時槍械冷卻",
     "sre.custom_item.label.shoot_commands": "槍械右鍵發射時執行的指令",

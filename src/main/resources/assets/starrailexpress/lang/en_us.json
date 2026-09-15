@@ -1608,6 +1608,8 @@
     "sre.custom_item.hint.rule_command": "Command <player>",
     "sre.custom_item.add_distance_rule": "+ Add distance rule",
     "sre.custom_item.label.hits_to_final": "Hits Needed for Final Effect",
+    "sre.custom_item.label.hit_marker_ticks": "Hit Marker Duration",
+    "sre.custom_item.hint.hit_marker_ticks": "If the final effect is not reached within this many ticks after a hit, the hit marker expires and the count restarts from 0. Markers are per-item and never stack across items.",
     "sre.custom_item.label.shot_cooldown": "Shot Interval Cooldown",
     "sre.custom_item.label.final_cooldown": "Gun Cooldown on Final Effect",
     "sre.custom_item.label.shoot_commands": "Commands When Firing",
