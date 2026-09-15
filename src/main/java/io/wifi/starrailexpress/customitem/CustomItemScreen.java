@@ -408,19 +408,26 @@ public class CustomItemScreen extends Screen {
         r = textRow(r, "sre.custom_item.label.display_name", data.displayName,
                 Component.translatable("sre.custom_item.hint.display_name"), v -> data.displayName = v);
 
-        // 材质来源：三选一按钮，只决定「渲染哪一个」；下面几项互相独立，任何模式下都一直可填、值都保留
+        // 材质来源：三选一按钮；下面只显示当前来源相关的设置（切换不会清空其它来源已填的值）
         r = enumRow(r, "sre.custom_item.label.texture_mode", "sre.custom_item.texture_mode",
                 data.textureMode(), index -> data.textureMode = TEXTURE_MODES[index].name());
-        r = textRow(r, "sre.custom_item.label.texture_path", data.packTexturePath,
-                Component.translatable("sre.custom_item.hint.texture_path"), v -> data.packTexturePath = v);
-        r = textLines(r, "sre.custom_item.label.animated_textures", data.animatedTextures,
-                "sre.custom_item.hint.animated_textures", "sre.custom_item.add_texture");
-        r = numRow(r, "sre.custom_item.label.animated_frame_ticks", data.animatedFrameTicks,
-                "sre.custom_item.unit.tick", v -> data.animatedFrameTicks = (int) v);
-        r = textRow(r, "sre.custom_item.label.model_path", data.modelPath,
-                Component.translatable("sre.custom_item.hint.model_path"), v -> data.modelPath = v);
-        r = textRow(r, "sre.custom_item.label.inherit_item", data.inheritItemTexture,
-                Component.translatable("sre.custom_item.hint.inherit_item"), v -> data.inheritItemTexture = v);
+        switch (data.textureMode()) {
+            case PACK -> r = textRow(r, "sre.custom_item.label.texture_path", data.packTexturePath,
+                    Component.translatable("sre.custom_item.hint.texture_path"), v -> data.packTexturePath = v);
+            case ANIMATED -> {
+                r = textLines(r, "sre.custom_item.label.animated_textures", data.animatedTextures,
+                        "sre.custom_item.hint.animated_textures", "sre.custom_item.add_texture");
+                r = numRow(r, "sre.custom_item.label.animated_frame_ticks", data.animatedFrameTicks,
+                        "sre.custom_item.unit.tick", v -> data.animatedFrameTicks = (int) v);
+            }
+            case MODEL -> {
+                r = textRow(r, "sre.custom_item.label.model_path", data.modelPath,
+                        Component.translatable("sre.custom_item.hint.model_path"), v -> data.modelPath = v);
+                r = textRow(r, "sre.custom_item.label.inherit_item", data.inheritItemTexture,
+                        Component.translatable("sre.custom_item.hint.inherit_item"),
+                        v -> data.inheritItemTexture = v);
+            }
+        }
         addHintText(r++, Component.translatable("sre.custom_item.hint.texture_mode"), 0xFFC9A84C);
         addHintText(r++, Component.translatable("sre.custom_item.label.preview"), 0xFFFFF4DC);
 

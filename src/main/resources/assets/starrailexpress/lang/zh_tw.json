@@ -1587,7 +1587,7 @@
     "sre.custom_item.texture_mode.pack": "資源包貼圖",
     "sre.custom_item.texture_mode.animated": "導入動態貼圖",
     "sre.custom_item.texture_mode.model": "導入立體模型",
-    "sre.custom_item.hint.texture_mode": "按鈕只切換「渲染哪一個」，下面幾項互相獨立、任何模式下都一直可填、值都保留：資源包貼圖用材質地址、動態貼圖用材質地址的多幀循環、立體模型用模型地址",
+    "sre.custom_item.hint.texture_mode": "按鈕切換渲染用的來源，下面只顯示當前來源的設置：資源包貼圖 = 材質地址；動態貼圖 = 材質地址的多幀循環；立體模型 = 模型地址（可輔以物品 id）。切換不會清空其它來源已填的值",
     "sre.custom_item.label.texture_path": "材質地址",
     "sre.custom_item.hint.texture_path": "一張 PNG 的地址，例如 mypack:textures/item/my_gun.png；動態貼圖第 1 幀留空時也會回落到它",
     "sre.custom_item.label.animated_textures": "動態貼圖幀",

@@ -1581,7 +1581,7 @@
     "sre.custom_item.texture_mode.pack": "Pack Texture",
     "sre.custom_item.texture_mode.animated": "Animated Texture",
     "sre.custom_item.texture_mode.model": "3D Model",
-    "sre.custom_item.hint.texture_mode": "The button only switches which source is rendered; the fields below are independent, always editable and always kept: pack texture uses the texture address, animated loops through its frames, 3D model uses the model address",
+    "sre.custom_item.hint.texture_mode": "The button switches which source is rendered and only the settings of that source are shown: pack texture = texture address; animated = multiple texture addresses looped; 3D model = model address (optionally an item id as fallback). Switching never clears the other values",
     "sre.custom_item.label.texture_path": "Texture Address",
     "sre.custom_item.hint.texture_path": "Address of a PNG, e.g. mypack:textures/item/my_gun.png; also used as the fallback when animated frame 1 is empty",
     "sre.custom_item.label.animated_textures": "Animated Frames",
