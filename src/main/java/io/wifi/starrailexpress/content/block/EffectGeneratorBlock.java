@@ -19,6 +19,7 @@ import com.mojang.serialization.MapCodec;
 import io.wifi.starrailexpress.content.block_entity.EffectGeneratorBlockEntity;
 import io.wifi.starrailexpress.index.TMMBlockEntities;
 import io.wifi.starrailexpress.network.EffectGeneratorPayload;
+import io.wifi.starrailexpress.util.EditorGuard;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerPlayer;
@@ -70,7 +71,7 @@ public class EffectGeneratorBlock extends BaseEntityBlock {
             return InteractionResult.SUCCESS;
         }
         BlockEntity be = level.getBlockEntity(pos);
-        if (player.isCreative() && be instanceof EffectGeneratorBlockEntity generator) {
+        if (EditorGuard.canEdit(player) && be instanceof EffectGeneratorBlockEntity generator) {
             ServerPlayNetworking.send(serverPlayer,
                     new EffectGeneratorPayload.OpenConfig(pos, generator.toConfigTag()));
             return InteractionResult.CONSUME;

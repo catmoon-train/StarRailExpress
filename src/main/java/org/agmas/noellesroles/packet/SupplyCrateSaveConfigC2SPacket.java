@@ -15,6 +15,7 @@
 
 package org.agmas.noellesroles.packet;
 
+import io.wifi.starrailexpress.util.EditorGuard;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.RegistryFriendlyByteBuf;
@@ -86,14 +87,18 @@ public record SupplyCrateSaveConfigC2SPacket(
      */
     public static void handle(SupplyCrateSaveConfigC2SPacket packet, ServerPlayNetworking.Context context) {
         ServerPlayer player = context.player();
-        if (!player.isCreative()) return; // 仅创造模式可配置
-
-        BlockEntity be = player.level().getBlockEntity(packet.blockPos());
-        if (be instanceof SupplyCrateBlockEntity crate) {
-            crate.setConfigItems(packet.configItems());
-            crate.setRefreshIntervalTicks(packet.refreshIntervalTicks());
-            crate.setRefreshAllSimultaneously(packet.refreshAll());
-            crate.setSharedSupplies(packet.shared());
-        }
+        // 权限 + 距离校验；并切回服务端线程再改方块
+        context.server().execute(() -> {
+            if (!EditorGuard.canEditAt(player, packet.blockPos())) {
+                return;
+            }
+            BlockEntity be = player.level().getBlockEntity(packet.blockPos());
+            if (be instanceof SupplyCrateBlockEntity crate) {
+                crate.setConfigItems(packet.configItems());
+                crate.setRefreshIntervalTicks(packet.refreshIntervalTicks());
+                crate.setRefreshAllSimultaneously(packet.refreshAll());
+                crate.setSharedSupplies(packet.shared());
+            }
+        });
     }
 }

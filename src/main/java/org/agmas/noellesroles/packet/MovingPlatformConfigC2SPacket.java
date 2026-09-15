@@ -15,6 +15,7 @@
 
 package org.agmas.noellesroles.packet;
 
+import io.wifi.starrailexpress.util.EditorGuard;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.FriendlyByteBuf;
@@ -47,17 +48,23 @@ public record MovingPlatformConfigC2SPacket(BlockPos pos, int distance, double s
 
     public static void handle(MovingPlatformConfigC2SPacket payload, ServerPlayNetworking.Context context) {
         ServerPlayer player = context.player();
-        if (!player.isCreative()) return;
-        BlockEntity be = player.serverLevel().getBlockEntity(payload.pos());
-        if (be instanceof MovingPlatformBlockEntity mbe) {
-            mbe.setDistance(payload.distance());
-            mbe.setSpeed(payload.speed());
-            mbe.setCollisionSize(payload.collisionSize());
-            // 立刻重建平台实体，使配置立即生效
-            mbe.recreatePlatform();
-            // 同步到客户端，确保客户端 BlockEntity 数据更新
-            var state = player.serverLevel().getBlockState(payload.pos());
-            player.serverLevel().sendBlockUpdated(payload.pos(), state, state, net.minecraft.world.level.block.Block.UPDATE_ALL);
-        }
+        // 权限 + 距离校验；并切回服务端线程再改方块（原来在网络线程直接改，存在数据竞争）
+        context.server().execute(() -> {
+            if (!EditorGuard.canEditAt(player, payload.pos())) {
+                return;
+            }
+            BlockEntity be = player.serverLevel().getBlockEntity(payload.pos());
+            if (be instanceof MovingPlatformBlockEntity mbe) {
+                mbe.setDistance(payload.distance());
+                mbe.setSpeed(payload.speed());
+                mbe.setCollisionSize(payload.collisionSize());
+                // 立刻重建平台实体，使配置立即生效
+                mbe.recreatePlatform();
+                // 同步到客户端，确保客户端 BlockEntity 数据更新
+                var state = player.serverLevel().getBlockState(payload.pos());
+                player.serverLevel().sendBlockUpdated(payload.pos(), state, state,
+                        net.minecraft.world.level.block.Block.UPDATE_ALL);
+            }
+        });
     }
 }

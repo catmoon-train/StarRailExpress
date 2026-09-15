@@ -22,6 +22,7 @@ import io.wifi.starrailexpress.cca.SREPlayerMinigameTaskComponent;
 import io.wifi.starrailexpress.content.block.api.TaskInstinctShowableInterface;
 import io.wifi.starrailexpress.content.block_entity.MinigameQuestBlockEntity;
 import io.wifi.starrailexpress.index.TMMBlockEntities;
+import io.wifi.starrailexpress.util.EditorGuard;
 import net.minecraft.Util;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -109,7 +110,7 @@ public class MinigameQuestPanelBlock extends BaseEntityBlock
 
         BlockEntity be = world.getBlockEntity(pos);
         if (be instanceof MinigameQuestBlockEntity questBe) {
-            if (player instanceof ServerPlayer sp && sp.isCreative()) {
+            if (player instanceof ServerPlayer sp && EditorGuard.canEdit(sp)) {
                 questBe.openConfigUI(sp);
             } else if (player instanceof ServerPlayer sp) {
                 // 破坏任务触发点：杀手 + canUseSabotage 角色可右键

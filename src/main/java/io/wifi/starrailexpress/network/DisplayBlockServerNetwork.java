@@ -18,6 +18,7 @@ package io.wifi.starrailexpress.network;
 import io.wifi.starrailexpress.content.block.DisplayBlockBase;
 import io.wifi.starrailexpress.content.block_entity.DisplayAnimation;
 import io.wifi.starrailexpress.content.block_entity.DisplayBlockEntityBase;
+import io.wifi.starrailexpress.util.EditorGuard;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
@@ -35,14 +36,10 @@ public class DisplayBlockServerNetwork {
         ServerPlayNetworking.registerGlobalReceiver(DisplayBlockPayload.Save.TYPE, (payload, context) -> {
             ServerPlayer player = context.player();
             context.server().execute(() -> {
-                if (!DisplayBlockBase.canEdit(player)) {
+                if (!EditorGuard.canEditAt(player, payload.pos())) {
                     return;
                 }
                 BlockPos pos = payload.pos();
-                // 只接受玩家附近方块的数据，避免远程改图。
-                if (player.distanceToSqr(pos.getX() + 0.5D, pos.getY() + 0.5D, pos.getZ() + 0.5D) > 64.0D * 64.0D) {
-                    return;
-                }
                 if (player.level().getBlockEntity(pos) instanceof DisplayBlockEntityBase display) {
                     CompoundTag incoming = payload.data();
                     // 单次动画以"保存这一刻"为起点，这样它是确定性的、也随时能通过再保存一次重播。

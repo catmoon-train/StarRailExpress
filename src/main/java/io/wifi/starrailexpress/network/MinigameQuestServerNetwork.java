@@ -16,6 +16,7 @@
 package io.wifi.starrailexpress.network;
 
 import io.wifi.starrailexpress.content.block_entity.MinigameQuestBlockEntity;
+import io.wifi.starrailexpress.util.EditorGuard;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
@@ -40,6 +41,10 @@ public class MinigameQuestServerNetwork {
             ServerPlayNetworking.Context context) {
         ServerPlayer player = context.player();
         player.getServer().execute(() -> {
+            // 配置保存必须校验权限与距离（这里原来完全没有校验）
+            if (!EditorGuard.canEditAt(player, payload.pos())) {
+                return;
+            }
             BlockEntity be = player.level().getBlockEntity(payload.pos());
             if (be instanceof MinigameQuestBlockEntity questBe) {
                 questBe.loadConfigFromTag(payload.data());
@@ -57,6 +62,10 @@ public class MinigameQuestServerNetwork {
         ServerPlayer player = context.player();
         player.getServer().execute(() -> {
             BlockPos pos = payload.pos();
+            // 玩法交互不加权限，但必须在场（原来可以从任意距离上报完成）
+            if (!EditorGuard.isNear(player, pos)) {
+                return;
+            }
             BlockEntity be = player.level().getBlockEntity(pos);
             if (be instanceof MinigameQuestBlockEntity questBe) {
                 // 破坏任务触发点：启动破坏任务（含冷却检查）

@@ -15,6 +15,7 @@
 
 package org.agmas.noellesroles.packet;
 
+import io.wifi.starrailexpress.util.EditorGuard;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.FriendlyByteBuf;
@@ -52,13 +53,20 @@ public record HurricaneDeviceConfigC2SPacket(BlockPos pos, int radius, double he
 
     public static void handle(HurricaneDeviceConfigC2SPacket payload, ServerPlayNetworking.Context context) {
         ServerPlayer player = context.player();
-        if (!player.isCreative()) return;
-        BlockEntity be = player.serverLevel().getBlockEntity(payload.pos());
-        if (be instanceof HurricaneDeviceBlockEntity hbe) {
-            hbe.setConfig(payload.radius(), payload.height(), payload.persistent(), payload.intervalSeconds(), payload.durationSeconds());
-            BlockPos pos = payload.pos();
-            var state = player.serverLevel().getBlockState(pos);
-            player.serverLevel().sendBlockUpdated(pos, state, state, net.minecraft.world.level.block.Block.UPDATE_ALL);
-        }
+        // 权限 + 距离校验；并切回服务端线程再改方块
+        context.server().execute(() -> {
+            if (!EditorGuard.canEditAt(player, payload.pos())) {
+                return;
+            }
+            BlockEntity be = player.serverLevel().getBlockEntity(payload.pos());
+            if (be instanceof HurricaneDeviceBlockEntity hbe) {
+                hbe.setConfig(payload.radius(), payload.height(), payload.persistent(), payload.intervalSeconds(),
+                        payload.durationSeconds());
+                BlockPos pos = payload.pos();
+                var state = player.serverLevel().getBlockState(pos);
+                player.serverLevel().sendBlockUpdated(pos, state, state,
+                        net.minecraft.world.level.block.Block.UPDATE_ALL);
+            }
+        });
     }
 }

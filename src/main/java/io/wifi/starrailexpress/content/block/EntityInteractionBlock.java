@@ -19,6 +19,7 @@ import com.mojang.serialization.MapCodec;
 import io.wifi.starrailexpress.content.block.api.TaskInstinctShowableInterface;
 import io.wifi.starrailexpress.content.block_entity.EntityInteractionBlockEntity;
 import io.wifi.starrailexpress.index.TMMBlockEntities;
+import io.wifi.starrailexpress.util.EditorGuard;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerPlayer;
@@ -105,8 +106,8 @@ public class EntityInteractionBlock extends BaseEntityBlock implements TaskInsti
             if (player instanceof ServerPlayer serverPlayer) {
                 interactionBlockEntity.recordPlayerClick(serverPlayer, false); // false = 右键
             }
-            // 只有创造模式玩家可以打开UI
-            if (player instanceof ServerPlayer serverPlayer && serverPlayer.isCreative()) {
+            // 只有「创造 + 权限 2」的玩家可以打开 UI（与保存数据的服务端校验同源）
+            if (player instanceof ServerPlayer serverPlayer && EditorGuard.canEdit(player)) {
                 interactionBlockEntity.openUI(serverPlayer);
             }
         }

@@ -18,6 +18,7 @@ package io.wifi.starrailexpress.content.block;
 import com.mojang.serialization.MapCodec;
 import io.wifi.starrailexpress.content.block_entity.TicketOfficeBlockEntity;
 import io.wifi.starrailexpress.network.TicketPayload;
+import io.wifi.starrailexpress.util.EditorGuard;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerPlayer;
@@ -72,7 +73,8 @@ public class TicketOfficeBlock extends BaseEntityBlock {
         if (!(be instanceof TicketOfficeBlockEntity office)) {
             return InteractionResult.FAIL;
         }
-        if (player.isCreative()) {
+        // 有编辑权限才开配置界面，否则给普通玩家开购买界面
+        if (EditorGuard.canEdit(player)) {
             ServerPlayNetworking.send(serverPlayer, new TicketPayload.OpenOfficeConfig(pos, office.toConfigTag()));
         } else {
             ServerPlayNetworking.send(serverPlayer, new TicketPayload.OpenOfficeShop(pos, office.toConfigTag()));

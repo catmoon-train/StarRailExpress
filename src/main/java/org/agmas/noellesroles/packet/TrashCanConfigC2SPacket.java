@@ -15,6 +15,7 @@
 
 package org.agmas.noellesroles.packet;
 
+import io.wifi.starrailexpress.util.EditorGuard;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.FriendlyByteBuf;
@@ -71,12 +72,18 @@ public record TrashCanConfigC2SPacket(BlockPos pos, boolean whitelistEnabled, Li
 
     public static void handle(TrashCanConfigC2SPacket payload, ServerPlayNetworking.Context context) {
         ServerPlayer player = context.player();
-        if (!player.isCreative()) return;
-        BlockEntity be = player.serverLevel().getBlockEntity(payload.pos());
-        if (be instanceof TrashCanBlockEntity trashCan) {
-            trashCan.setConfig(payload.whitelistEnabled(), payload.whitelist(), payload.blacklistEnabled(), payload.blacklist());
-            var state = player.serverLevel().getBlockState(payload.pos());
-            player.serverLevel().sendBlockUpdated(payload.pos(), state, state, Block.UPDATE_ALL);
-        }
+        // 权限 + 距离校验；并切回服务端线程再改方块
+        context.server().execute(() -> {
+            if (!EditorGuard.canEditAt(player, payload.pos())) {
+                return;
+            }
+            BlockEntity be = player.serverLevel().getBlockEntity(payload.pos());
+            if (be instanceof TrashCanBlockEntity trashCan) {
+                trashCan.setConfig(payload.whitelistEnabled(), payload.whitelist(), payload.blacklistEnabled(),
+                        payload.blacklist());
+                var state = player.serverLevel().getBlockState(payload.pos());
+                player.serverLevel().sendBlockUpdated(payload.pos(), state, state, Block.UPDATE_ALL);
+            }
+        });
     }
 }

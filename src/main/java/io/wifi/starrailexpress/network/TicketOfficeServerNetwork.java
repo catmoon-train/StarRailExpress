@@ -19,6 +19,7 @@ import io.wifi.starrailexpress.cca.AreasWorldComponent;
 import io.wifi.starrailexpress.content.block_entity.TicketOfficeBlockEntity;
 import io.wifi.starrailexpress.content.item.AdmissionTicketItem;
 import io.wifi.starrailexpress.event.OnGameEnd;
+import io.wifi.starrailexpress.util.EditorGuard;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
@@ -63,7 +64,7 @@ public class TicketOfficeServerNetwork {
     private static void handleSave(TicketPayload.SaveOfficeConfig payload, ServerPlayNetworking.Context context) {
         ServerPlayer player = context.player();
         player.getServer().execute(() -> {
-            if (!player.isCreative()) {
+            if (!EditorGuard.canEditAt(player, payload.pos())) {
                 return;
             }
             BlockEntity be = player.level().getBlockEntity(payload.pos());
@@ -79,6 +80,9 @@ public class TicketOfficeServerNetwork {
         player.getServer().execute(() -> {
             BlockEntity be = player.level().getBlockEntity(payload.pos());
             if (!(be instanceof TicketOfficeBlockEntity office)) {
+                return;
+            }
+            if (!EditorGuard.isNear(player, payload.pos())) {
                 return;
             }
             if (!office.canPurchase(player)) {

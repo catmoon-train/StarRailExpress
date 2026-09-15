@@ -16,6 +16,7 @@
 package io.wifi.starrailexpress.network;
 
 import io.wifi.starrailexpress.content.block_entity.EntityInteractionBlockEntity;
+import io.wifi.starrailexpress.util.EditorGuard;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
@@ -43,7 +44,8 @@ public class EntityInteractionBlockServerNetwork {
                 (payload, context) -> {
 
                     ServerPlayer player = context.player();
-                    if (!player.isCreative() || !player.hasPermissions(2)) {
+                    // 创造 + 权限 2 + 在场：统一走 EditorGuard
+                    if (!EditorGuard.canEditAt(player, payload.pos())) {
                         return;
                     }
                     context.server().execute(() -> {

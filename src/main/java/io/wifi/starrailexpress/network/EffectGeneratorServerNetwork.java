@@ -16,6 +16,7 @@
 package io.wifi.starrailexpress.network;
 
 import io.wifi.starrailexpress.content.block_entity.EffectGeneratorBlockEntity;
+import io.wifi.starrailexpress.util.EditorGuard;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
@@ -29,7 +30,7 @@ public class EffectGeneratorServerNetwork {
     private static void handleSave(EffectGeneratorPayload.SaveConfig payload, ServerPlayNetworking.Context context) {
         ServerPlayer player = context.player();
         player.getServer().execute(() -> {
-            if (!player.isCreative()) {
+            if (!EditorGuard.canEditAt(player, payload.pos())) {
                 return;
             }
             var be = player.level().getBlockEntity(payload.pos());

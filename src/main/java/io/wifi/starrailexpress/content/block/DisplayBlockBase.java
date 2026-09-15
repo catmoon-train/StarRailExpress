@@ -17,6 +17,7 @@ package io.wifi.starrailexpress.content.block;
 
 import com.mojang.serialization.MapCodec;
 import io.wifi.starrailexpress.content.block_entity.DisplayBlockEntityBase;
+import io.wifi.starrailexpress.util.EditorGuard;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
@@ -83,11 +84,10 @@ public abstract class DisplayBlockBase extends BaseEntityBlock {
      * 仅「创造模式 + 拥有权限（OP 等级 2）」的玩家可以编辑内容。
      *
      * <p>
-     * 与实体交互方块（{@code EntityInteractionBlockServerNetwork}）的判定保持一致。
+     * 判定统一走 {@link EditorGuard}，与保存数据的服务端校验同源（见 {@code DisplayBlockServerNetwork}）。
      */
     public static boolean canEdit(Player player) {
-        return player != null && player.isCreative()
-                && player instanceof ServerPlayer serverPlayer && serverPlayer.hasPermissions(2);
+        return EditorGuard.canEdit(player);
     }
 
     @Override
