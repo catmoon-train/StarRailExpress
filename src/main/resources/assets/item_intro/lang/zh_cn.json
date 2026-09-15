@@ -145,6 +145,7 @@
   "item.noellesroles.leon_blue_herb.desc": "里昂专属物品。右键立即使用，刷新格斗体术的冷却。场上仅剩 6 位玩家时获得；里昂死亡后不会随手枪一起掉落。",
   "item.noellesroles.leon_red_herb.desc": "里昂专属物品。长按右键使用，为自己套上一层护盾（不可叠加）。场上仅剩 3 位玩家时获得；里昂死亡后不会随手枪一起掉落。",
   "item.noellesroles.radio.desc": "右键使用，可以与其他玩家进行远程通讯。",
+  "item.noellesroles.speaker.desc": "便携音响。右键打开真实操作面板，选择原版唱片或本模组音乐，按红色电源键循环播放。开启后会扛在肩膀上，音源跟随玩家移动。",
   "item.noellesroles.short_shotgun.desc": "一次性用品。右键蓄力射击，击杀扇形射程随蓄力平滑增加（2-4格）；击杀射程达到3格后，当前击杀射程外2格扇形内的玩家会受到1点伤害并被击退。",
   "item.noellesroles.executioner_gun.desc": "愚者专属武器，只能对拥有“异端”效果的玩家造成伤害（一击必杀）。初始子弹数1，只能通过塔罗会补充子弹。",
   "item.noellesroles.honored_note.desc": "愚者商店购买。右键墙壁/地面贴附，生成不可破坏的文本实体。玩家对着纸条按J键祷告，加入“塔罗会成员”。",

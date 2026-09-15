@@ -133,6 +133,7 @@
     "client.general.PointerSprintDirectionMixin",
     "client.general.PointerSprintJumpYawMixin",
     "client.general.SoundEngineListenerMixin",
+    "client.general.SpeakerSoundEngineMixin",
     "client.general.ThrowItemMixin",
     "client.general.UpsideDownEffectMouseMixin",
     "client.general.VoicechatALSpeakerBaseMixin",
