@@ -25,9 +25,11 @@ import com.mojang.brigadier.tree.CommandNode;
 
 import io.wifi.starrailexpress.api.GameMode;
 import io.wifi.starrailexpress.api.SRERole;
+import io.wifi.starrailexpress.cca.AreasWorldComponent;
 import io.wifi.starrailexpress.cca.ParticipationComponent;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.cca.SRERoleWorldComponent;
+import io.wifi.starrailexpress.cca.SREGameWorldComponent.GameStatus;
 import io.wifi.starrailexpress.content.command.argument.GameModeArgumentType;
 import io.wifi.starrailexpress.content.command.misc.CommandPredicate;
 import io.wifi.starrailexpress.content.vote.VoteManager;
@@ -102,9 +104,11 @@ public abstract class ExecuteCommandInvoker {
                         Commands.argument("role_id", RoleArgumentType.create(false)), // 最末端，无子节点
                         isIf,
                         ctx -> {
-                          ServerPlayer player = EntityArgument.getPlayer(ctx, "target_player");
+                          ServerPlayer player = EntityArgument.getPlayer(ctx,
+                              "target_player");
                           SRERole compare_role = RoleArgumentType.getRole(ctx, "role_id");
-                          var roleWorldComponent = SRERoleWorldComponent.KEY.get(player.level());
+                          var roleWorldComponent = SRERoleWorldComponent.KEY
+                              .get(player.level());
                           SRERole player_role = roleWorldComponent.getRole(player);
                           if (player_role == null)
                             return false;
@@ -119,11 +123,14 @@ public abstract class ExecuteCommandInvoker {
                         Commands.argument("modifier_id", ModifierArgumentType.create()),
                         isIf,
                         ctx -> {
-                          ServerPlayer player = EntityArgument.getPlayer(ctx, "target_player");
-                          SREModifier compare_modifier = ModifierArgumentType.getModifier(ctx, "modifier_id");
+                          ServerPlayer player = EntityArgument.getPlayer(ctx,
+                              "target_player");
+                          SREModifier compare_modifier = ModifierArgumentType.getModifier(ctx,
+                              "modifier_id");
                           if (compare_modifier == null)
                             return false;
-                          var worldModifierComponent = WorldModifierComponent.KEY.get(player.level());
+                          var worldModifierComponent = WorldModifierComponent.KEY
+                              .get(player.level());
                           return worldModifierComponent.isModifier(player, compare_modifier);
                         }))));
 
@@ -133,11 +140,14 @@ public abstract class ExecuteCommandInvoker {
                 Commands.argument("target_player", EntityArgument.player())
                     .then(sre$addConditional(
                         commandNode,
-                        Commands.argument("permission_level", IntegerArgumentType.integer(0, 4)),
+                        Commands.argument("permission_level",
+                            IntegerArgumentType.integer(0, 4)),
                         isIf,
                         ctx -> {
-                          ServerPlayer player = EntityArgument.getPlayer(ctx, "target_player");
-                          int permission = IntegerArgumentType.getInteger(ctx, "permission_level");
+                          ServerPlayer player = EntityArgument.getPlayer(ctx,
+                              "target_player");
+                          int permission = IntegerArgumentType.getInteger(ctx,
+                              "permission_level");
                           return player.hasPermissions(permission);
                         }))));
     literalArgumentBuilder.then(
@@ -149,13 +159,54 @@ public abstract class ExecuteCommandInvoker {
                         Commands.argument("is_join", BoolArgumentType.bool()),
                         isIf,
                         ctx -> {
-                          ServerPlayer player = EntityArgument.getPlayer(ctx, "target_player");
+                          ServerPlayer player = EntityArgument.getPlayer(ctx,
+                              "target_player");
                           boolean judgeJoin = BoolArgumentType.getBool(ctx, "is_join");
                           var cca = ParticipationComponent.KEY.getNullable(player.level());
                           if (cca == null)
                             return false;
                           return judgeJoin == cca.isParticipating(player.getUUID());
                         }))));
+    literalArgumentBuilder.then(
+        Commands.literal("sre:game_status")
+            .then(sre$addConditional(
+                commandNode,
+                Commands.argument("status", StringArgumentType.string()).suggests((a, ctx) -> {
+                  String inp = ctx.getRemainingLowerCase();
+                  for (var status : GameStatus.values()) {
+                    if (status.name().startsWith(inp)) {
+                      ctx.suggest(status.name());
+                    }
+                  }
+                  return ctx.buildFuture();
+                }),
+                isIf,
+                ctx -> {
+                  String status = StringArgumentType.getString(ctx, "status");
+                  var gamecca = SREGameWorldComponent.KEY.get(ctx.getSource().getLevel());
+                  GameStatus trueStatus = null;
+                  for (var s : GameStatus.values()) {
+                    if (s.name().toLowerCase().equals(status)) {
+                      trueStatus = s;
+                    }
+                  }
+                  if (trueStatus == null)
+                    return false;
+                  return trueStatus.equals(gamecca.getGameStatus());
+                })));
+    literalArgumentBuilder.then(
+        Commands.literal("sre:area")
+            .then(sre$addConditional(
+                commandNode,
+                Commands.argument("id", StringArgumentType.string()),
+                isIf,
+                ctx -> {
+                  String areaId = StringArgumentType.getString(ctx, "id");
+                  var area = AreasWorldComponent.KEY.get(ctx.getSource().getLevel());
+                  if (area.mapName != null && area.mapName.equals(areaId))
+                    return true;
+                  return false;
+                })));
     literalArgumentBuilder.then(
         Commands.literal("sre:gamemode")
             .then(sre$addConditional(
@@ -164,7 +215,8 @@ public abstract class ExecuteCommandInvoker {
                 isIf,
                 ctx -> {
                   GameMode gameMode = GameModeArgumentType.getGameModeArgument(ctx, "gamemode");
-                  SREGameWorldComponent gameWorldComponent = SREGameWorldComponent.KEY.get(ctx.getSource().getLevel());
+                  SREGameWorldComponent gameWorldComponent = SREGameWorldComponent.KEY
+                      .get(ctx.getSource().getLevel());
                   return gameWorldComponent.getGameMode().identifier.equals(gameMode.identifier);
                 })));
     literalArgumentBuilder.then(
@@ -176,11 +228,14 @@ public abstract class ExecuteCommandInvoker {
                         Commands.argument("role_type", IntegerArgumentType.integer(-1, 5)),
                         isIf,
                         ctx -> {
-                          ServerPlayer player = EntityArgument.getPlayer(ctx, "target_player");
+                          ServerPlayer player = EntityArgument.getPlayer(ctx,
+                              "target_player");
                           int role_type = IntegerArgumentType.getInteger(ctx, "role_type");
-                          var roleWorldComponent = SRERoleWorldComponent.KEY.get(player.level());
+                          var roleWorldComponent = SRERoleWorldComponent.KEY
+                              .get(player.level());
                           SRERole player_role = roleWorldComponent.getRole(player);
-                          int player_role_type = PlayerRoleWeightManager.getRoleType(player_role);
+                          int player_role_type = PlayerRoleWeightManager
+                              .getRoleType(player_role);
                           return player_role_type == role_type;
                         }))));
     // ── 新增：sre:vote_status 条件 ──────────────────────────
@@ -218,7 +273,8 @@ public abstract class ExecuteCommandInvoker {
                     .then(sre$addConditional(
                         commandNode,
                         // 实体类型用原版注册表参数（/summon 那个），候选与报错都跟原版一致。
-                        Commands.argument("entity_type", ResourceArgument.resource(buildContext, Registries.ENTITY_TYPE))
+                        Commands.argument("entity_type",
+                            ResourceArgument.resource(buildContext, Registries.ENTITY_TYPE))
                             .suggests(SuggestionProviders.SUMMONABLE_ENTITIES),
                         isIf,
                         ctx -> DisguiseQuery.isDisguisedAs(

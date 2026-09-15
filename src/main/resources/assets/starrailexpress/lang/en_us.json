@@ -3966,5 +3966,7 @@
     "sre.custom_role.manage.summary": " %s max:%s",
     "sre.custom_role.reload.success": "[CustomRole] Custom roles reloaded",
     "sre.custom_role.reload.failed": "[CustomRole] Reload failed: %s",
-    "sre.custom_content.reload.all": "§aReloaded custom content: %d/4"
+    "sre.custom_content.reload.all": "§aReloaded custom content: %d/4",
+    "sre.custom_content.manage.search_hint": "Search id / name",
+    "sre.custom_content.manage.no_match": "No matching entries"
 }

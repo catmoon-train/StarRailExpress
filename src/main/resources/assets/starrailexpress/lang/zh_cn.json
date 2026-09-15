@@ -4077,5 +4077,7 @@
     "sre.custom_role.manage.summary": " %s max:%s",
     "sre.custom_role.reload.success": "[CustomRole] 自定义职业配置已重新加载",
     "sre.custom_role.reload.failed": "[CustomRole] 重载失败: %s",
-    "sre.custom_content.reload.all": "§a已一键重载自定义内容：%d/4 项"
+    "sre.custom_content.reload.all": "§a已一键重载自定义内容：%d/4 项",
+    "sre.custom_content.manage.search_hint": "搜索 id / 显示名",
+    "sre.custom_content.manage.no_match": "没有匹配的内容"
 }

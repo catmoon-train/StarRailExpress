@@ -1380,7 +1380,8 @@ public class CustomRoleScreen extends Screen {
             
             server.execute(() -> {
                 try {
-                    io.wifi.starrailexpress.customrole.CustomRoleLoader.reload(server);
+                    // 走重载命令的路径：除了重建服务端索引，还会给在线客户端重新握手
+                    CustomRoleReloadCommand.reload(server);
                 } catch (Exception ignored) {
                 }
             });
