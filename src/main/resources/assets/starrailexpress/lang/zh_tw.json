@@ -3900,7 +3900,7 @@
     "sre.custom_block.label.game_running_only": "僅遊戲進行中生效",
     "sre.custom_block.label.required_roles": "限定職業",
     "sre.custom_block.label.required_team": "限定陣營",
-    "sre.custom_block.hint.id": "英文 id，/sre:givecustomblock 使用",
+    "sre.custom_block.hint.id": "英文 id，/sre:give block 使用",
     "sre.custom_block.hint.display_name": "留空則使用預設名稱",
     "sre.custom_block.hint.tooltip": "每行一條說明，可留空",
     "sre.custom_block.hint.tooltip_title": "物品說明（每行一條）",

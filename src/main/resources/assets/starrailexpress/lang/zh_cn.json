@@ -3936,7 +3936,7 @@
     "sre.custom_block.label.game_running_only": "仅游戏进行中生效",
     "sre.custom_block.label.required_roles": "限定职业",
     "sre.custom_block.label.required_team": "限定阵营",
-    "sre.custom_block.hint.id": "英文 id，/sre:givecustomblock 用",
+    "sre.custom_block.hint.id": "英文 id，/sre:give block 用",
     "sre.custom_block.hint.display_name": "留空则使用默认名称",
     "sre.custom_block.hint.tooltip": "每行一条说明，可留空",
     "sre.custom_block.hint.tooltip_title": "物品说明（每行一条）",

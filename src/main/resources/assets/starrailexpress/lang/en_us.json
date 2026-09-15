@@ -3824,7 +3824,7 @@
     "sre.custom_block.label.game_running_only": "Only while game is running",
     "sre.custom_block.label.required_roles": "Allowed roles",
     "sre.custom_block.label.required_team": "Allowed team",
-    "sre.custom_block.hint.id": "Lowercase id used by /sre:givecustomblock",
+    "sre.custom_block.hint.id": "Lowercase id used by /sre:give block",
     "sre.custom_block.hint.display_name": "Leave empty for the default name",
     "sre.custom_block.hint.tooltip": "One line each, may be empty",
     "sre.custom_block.hint.tooltip_title": "Item lore (one per line)",
