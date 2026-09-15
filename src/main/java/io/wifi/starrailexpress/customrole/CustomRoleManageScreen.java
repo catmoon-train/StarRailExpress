@@ -22,6 +22,7 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.util.Mth;
 
 import java.util.ArrayList;
@@ -155,7 +156,7 @@ public class CustomRoleManageScreen extends Screen {
             Component teamTag = Component.translatable(role.isInnocent ? "sre.custom_role.manage.team.innocent"
                     : (role.canUseKiller ? "sre.custom_role.manage.team.killer"
                             : "sre.custom_role.manage.team.neutral"));
-            Component info = teamTag.copy()
+            MutableComponent info = teamTag.copy()
                     .append(Component.translatable("sre.custom_role.manage.summary", role.moodType, role.maxCount));
             g.drawString(font, info.withStyle(s -> s.withColor(color)),
                 panelLeftX + 260, y + 4, 0xFFFFFF, false);

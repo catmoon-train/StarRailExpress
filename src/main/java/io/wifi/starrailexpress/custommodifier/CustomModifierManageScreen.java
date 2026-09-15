@@ -22,6 +22,7 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.util.Mth;
 
 import java.util.ArrayList;
@@ -174,7 +175,7 @@ public class CustomModifierManageScreen extends Screen {
             CustomModifierData modifier = modifiers.get(index);
             int y = baseY + i * ROW_HEIGHT - (scrollOffset % ROW_HEIGHT);
             int color = modifier.getColor();
-            Component info = Component.empty()
+            MutableComponent info = Component.empty()
                     .append(modifier.hidden ? Component.translatable("sre.custom_modifier.manage.hidden")
                             : Component.empty())
                     .append(Component.translatable("sre.custom_modifier.manage.summary", modifier.defaultMax,
