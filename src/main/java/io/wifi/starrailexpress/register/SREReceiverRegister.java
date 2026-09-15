@@ -87,6 +87,10 @@ public class SREReceiverRegister {
                         payload.matchId()));
         ServerPlayNetworking.registerGlobalReceiver(GunShootPayload.ID, new GunShootPayload.Receiver());
         ServerPlayNetworking.registerGlobalReceiver(SniperShootPayload.TYPE, new SniperShootPayload.Receiver());
+        // 自定义枪械「左键发射」请求
+        ServerPlayNetworking.registerGlobalReceiver(
+                io.wifi.starrailexpress.network.original.CustomItemFirePayload.TYPE,
+                new io.wifi.starrailexpress.network.original.CustomItemFirePayload.Receiver());
         ServerPlayNetworking.registerGlobalReceiver(StoreBuyPayload.ID, new StoreBuyPayload.Receiver());
         // 商店价格同步：客户端缓存未命中时请求完整价格表 / Shop price sync: full-table request on cache miss
         ServerPlayNetworking.registerGlobalReceiver(

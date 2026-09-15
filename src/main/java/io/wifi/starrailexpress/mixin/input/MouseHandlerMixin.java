@@ -18,7 +18,11 @@ package io.wifi.starrailexpress.mixin.input;
 import io.wifi.starrailexpress.anticheat.ClickAntiCheatClient;
 import io.wifi.starrailexpress.client.SecurityCameraClientState;
 import io.wifi.starrailexpress.content.item.SniperRifleItem;
+import io.wifi.starrailexpress.customitem.CustomItemData;
+import io.wifi.starrailexpress.customitem.CustomItemLoader;
+import io.wifi.starrailexpress.customitem.CustomItemRuntime;
 import io.wifi.starrailexpress.index.TMMItems;
+import io.wifi.starrailexpress.network.original.CustomItemFirePayload;
 import io.wifi.starrailexpress.network.original.SniperShootPayload;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.minecraft.client.Minecraft;
@@ -80,8 +84,17 @@ public class MouseHandlerMixin {
             LocalPlayer player = client.player;
             ItemStack mainHandStack = player.getMainHandItem();
             
-            // 只处理狙击枪
+            // 自定义枪械：配置为「发射按键 = 左键」时，左键开火（同狙击枪）
             if (!mainHandStack.is(TMMItems.SNIPER_RIFLE)) {
+                CustomItemData customGun = CustomItemLoader.getData(mainHandStack);
+                if (customGun != null && customGun.kind() == CustomItemData.Kind.GUN
+                        && customGun.fireButton() == CustomItemData.FireButton.LEFT) {
+                    if (CustomItemRuntime.clientLeftClickFire(player, mainHandStack, customGun)) {
+                        ClientPlayNetworking.send(new CustomItemFirePayload());
+                    }
+                    // 吞掉这次左键，避免同时触发原版攻击
+                    ci.cancel();
+                }
                 return;
             }
             

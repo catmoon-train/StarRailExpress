@@ -72,6 +72,10 @@ public class CustomItem extends Item implements SREItemProperties.LeftClickHurta
                 return InteractionResultHolder.consume(stack);
             }
             case GUN -> {
+                // 发射按键 = 左键：右键完全不做事（与狙击枪一致：左键才开火，右键吞掉防止顺手开箱子）
+                if (data.fireButton() == CustomItemData.FireButton.LEFT) {
+                    return InteractionResultHolder.consume(stack);
+                }
                 if (world.isClientSide()) {
                     // 自动射击期间该枪械不可用：不给任何反馈（不摆臂、无后坐力、无音效）
                     if (CustomItemRuntime.isClientAutoFiring(player, data.id)) {
@@ -135,7 +139,8 @@ public class CustomItem extends Item implements SREItemProperties.LeftClickHurta
         return InteractionResultHolder.pass(stack);
     }
 
-    private static void applyRecoil(Player player, CustomItemData data) {
+    /** 后坐力（客户端视角变化，与左轮手枪/德林加一致）。右键与左键发射共用。 */
+    public static void applyRecoil(Player player, CustomItemData data) {
         if (data.recoil <= 0) {
             return;
         }

@@ -19,6 +19,7 @@ import io.wifi.starrailexpress.api.RoleTeam;
 import io.wifi.starrailexpress.client.gui.SREPanelStyle;
 import io.wifi.starrailexpress.client.render.item.CustomItemRenderer;
 import io.wifi.starrailexpress.customitem.CustomItemData.ChargeAnim;
+import io.wifi.starrailexpress.customitem.CustomItemData.FireButton;
 import io.wifi.starrailexpress.customitem.CustomItemData.HoldPose;
 import io.wifi.starrailexpress.customitem.CustomItemData.Kind;
 import io.wifi.starrailexpress.customitem.CustomItemData.TargetMode;
@@ -70,6 +71,7 @@ public class CustomItemScreen extends Screen {
     private static final ChargeAnim[] CHARGE_ANIMS = ChargeAnim.values();
     private static final TargetMode[] TARGET_MODES = TargetMode.values();
     private static final HoldPose[] HOLD_POSES = HoldPose.values();
+    private static final FireButton[] FIRE_BUTTONS = FireButton.values();
     private static final io.wifi.starrailexpress.customitem.CustomItemData.CuffWearMode[] CUFF_WEAR_MODES = io.wifi.starrailexpress.customitem.CustomItemData.CuffWearMode
             .values();
     private static final io.wifi.starrailexpress.customitem.CustomItemData.CuffPose[] CUFF_POSES = io.wifi.starrailexpress.customitem.CustomItemData.CuffPose
@@ -464,6 +466,9 @@ public class CustomItemScreen extends Screen {
     }
 
     private int buildGunKind(int r) {
+        // 发射按键：右键（默认，同左轮）/ 左键（同狙击枪）
+        r = enumRow(r, "sre.custom_item.label.fire_button", "sre.custom_item.fire_button", data.fireButton(),
+                index -> data.fireButton = FIRE_BUTTONS[index].name());
         r = textRow(r, "sre.custom_item.label.fire_sound", data.fireSound,
                 Component.translatable("sre.custom_item.hint.fire_sound"), v -> data.fireSound = v);
         r = boolRow(r, "sre.custom_item.label.show_tracer", data.showTracer, v -> data.showTracer = v);

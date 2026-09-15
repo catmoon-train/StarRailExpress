@@ -503,6 +503,39 @@ public final class CustomItemRuntime {
         return true;
     }
 
+    /**
+     * 「左键发射」枪械：客户端左键时调用，处理后坐力与自动射击窗口。
+     *
+     * <p>
+     * 与右键路径（{@link CustomItem#use}）的客户端分支保持一致：不出手时就完全不给反馈，
+     * 所以返回 {@code false} 时调用方不要发包。
+     *
+     * @return 是否需要向服务端发送开火请求
+     */
+    public static boolean clientLeftClickFire(Player player, ItemStack stack, CustomItemData data) {
+        if (data == null || data.kind() != CustomItemData.Kind.GUN
+                || data.fireButton() != CustomItemData.FireButton.LEFT) {
+            return false;
+        }
+        if (!isStillHolding(player, data.id)) {
+            return false;
+        }
+        // 自动射击期间不再给任何反馈（不摆臂、无后坐力、无音效）
+        if (isClientAutoFiring(player, data.id)) {
+            return false;
+        }
+        // 弹药不足：空枪，不给后坐力
+        if (data.ammoSystem && getAmmo(stack, data) <= 0) {
+            return false;
+        }
+        CustomItem.applyRecoil(player, data);
+        if (data.autoFire) {
+            // 记录客户端自动射击窗口，窗口内左键不再给任何反馈
+            beginClientAutoFire(player, data);
+        }
+        return true;
+    }
+
     /** 启动自动射击：立即打第一发，其余按间隔在 tick 中补齐。 */
     private static boolean startAutoFire(ServerPlayer player, ItemStack stack, CustomItemData data) {
         if (!canFire(player, stack, data)) {

@@ -236,6 +236,10 @@ public class CustomItemData {
     @SerializedName("holdPose")
     public String holdPose = HoldPose.REVOLVER.name();
 
+    /** 发射按键（{@link FireButton} 名称，默认右键）。设为左键时同狙击枪：左键发射。 */
+    @SerializedName("fireButton")
+    public String fireButton = FireButton.RIGHT.name();
+
     // ==================== 性质：特殊原版物品 ====================
 
     /** 原版攻击速度（写入攻击速度属性修饰）。 */
@@ -507,6 +511,15 @@ public class CustomItemData {
         }
     }
 
+    /** 枪械发射按键（解析失败回退右键）。 */
+    public FireButton fireButton() {
+        try {
+            return FireButton.valueOf(fireButton);
+        } catch (Exception e) {
+            return FireButton.RIGHT;
+        }
+    }
+
     /** 手铐耐久消耗形式（解析失败回退「蹲下时减少」）。 */
     public CuffWearMode cuffWearMode() {
         try {
@@ -599,6 +612,9 @@ public class CustomItemData {
         }
         if (holdPose == null || holdPose.isBlank()) {
             holdPose = HoldPose.REVOLVER.name();
+        }
+        if (fireButton == null || fireButton.isBlank()) {
+            fireButton = FireButton.RIGHT.name();
         }
         if (fireSound == null || fireSound.isBlank()) {
             fireSound = DEFAULT_FIRE_SOUND;
@@ -810,5 +826,13 @@ public class CustomItemData {
         AIM,
         /** 原版默认手持。 */
         DEFAULT
+    }
+
+    /** 枪械发射按键（默认右键，可切换为左键）。 */
+    public enum FireButton {
+        /** 右键发射（默认，同左轮手枪）。 */
+        RIGHT,
+        /** 左键发射（同狙击枪：左键即开火）。 */
+        LEFT
     }
 }
