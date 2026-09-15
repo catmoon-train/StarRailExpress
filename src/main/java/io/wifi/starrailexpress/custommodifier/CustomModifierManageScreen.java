@@ -22,7 +22,6 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.Style;
 import net.minecraft.util.Mth;
 
 import java.util.ArrayList;
@@ -183,7 +182,7 @@ public class CustomModifierManageScreen extends Screen {
                     .append(modifier.isGlobalTrigger() ? Component.translatable("sre.custom_modifier.manage.global")
                             : Component.translatable("sre.custom_modifier.manage.conditions",
                                     modifier.conditions.size()));
-            g.drawString(font, info.withStyle(Style.EMPTY.withColor(color)),
+            g.drawString(font, info.withStyle(s -> s.withColor(color)),
                     panelLeftX + infoX, y + 6, 0xFFFFFF, false);
         }
         g.disableScissor();
