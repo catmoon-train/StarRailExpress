@@ -60,6 +60,17 @@ public interface TMMEntities {
                     .clientTrackingRange(128)
     );
 
+    /**
+     * 自定义列车物品·投掷物的实体：拉栓 / 粘附 / 拆除 / 延迟 / 爆炸 / 区域等行为
+     * 全部由物品配置（{@code CUSTOM_ITEM_ID} 组件）驱动，只有一个注册实体。
+     */
+    EntityType<io.wifi.starrailexpress.customitem.CustomThrowableEntity> CUSTOM_THROWABLE = registrar.create(
+            "custom_throwable",
+            EntityType.Builder.of(io.wifi.starrailexpress.customitem.CustomThrowableEntity::new, MobCategory.MISC)
+                    .sized(.2f, .2f)
+                    .clientTrackingRange(128)
+    );
+
     EntityType<ZiplineRiderEntity> ZIPLINE_RIDER = registrar.create("zipline_rider",
             EntityType.Builder.of(ZiplineRiderEntity::new, MobCategory.MISC)
                     .sized(0.5f, 0.5f)

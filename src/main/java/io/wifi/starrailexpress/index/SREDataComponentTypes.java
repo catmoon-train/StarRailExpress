@@ -59,6 +59,16 @@ public interface SREDataComponentTypes {
     /** 自定义列车物品的编号（同一个 custom_item 物品靠它区分不同自定义物品）。 */
     DataComponentType<String> CUSTOM_ITEM_ID = register("custom_item_id",
             stringBuilder -> stringBuilder.persistent(Codec.STRING).networkSynchronized(ByteBufCodecs.STRING_UTF8));
+    /**
+     * 自定义列车物品的「已用次数」（耐久消耗）。
+     *
+     * <p>
+     * 刻意<b>不占用</b>原版 {@code MAX_DAMAGE} 组件：所有自定义列车物品共用同一个注册物品，
+     * 耐久上限只能实时读配置（改完配置重载立即生效），所以物品堆上只存「已经用了几次」，
+     * 耐久条由 {@code CustomItem} 的 {@code isBarVisible/getBarWidth/getBarColor} 自己画。
+     */
+    DataComponentType<Integer> CUSTOM_ITEM_DAMAGE = register("custom_item_damage",
+            stringBuilder -> stringBuilder.persistent(Codec.INT).networkSynchronized(ByteBufCodecs.VAR_INT));
     /** 自定义方块的编号（同一个 custom_block 方块 / 物品靠它区分不同自定义方块）。 */
     DataComponentType<String> CUSTOM_BLOCK_ID = register("custom_block_id",
             stringBuilder -> stringBuilder.persistent(Codec.STRING).networkSynchronized(ByteBufCodecs.STRING_UTF8));

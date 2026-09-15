@@ -43,6 +43,10 @@ public class SREPayloadRegister {
 
     public static void registerPayloadTypes() {
         SceneAssetNetwork.registerPayloadTypes();
+        // 自定义列车物品·投掷物的区域粒子（服务端发一次，客户端自己渲染）
+        PayloadTypeRegistry.playS2C().register(
+                io.wifi.starrailexpress.network.CustomAreaParticlePayload.ID,
+                io.wifi.starrailexpress.network.CustomAreaParticlePayload.CODEC);
         // 商店价格同步 / Shop price sync
         PayloadTypeRegistry.playS2C().register(
                 io.wifi.starrailexpress.shop.network.ShopPriceHandshakeS2CPayload.TYPE,

@@ -18,36 +18,48 @@ package io.wifi.starrailexpress.customitem;
 import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.api.RoleTeam;
 import io.wifi.starrailexpress.api.SRERole;
+import io.wifi.starrailexpress.cca.ExtraSlotComponent;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.cca.SREPlayerMoodComponent;
 import io.wifi.starrailexpress.content.item.api.SREItemProperties;
 import io.wifi.starrailexpress.customitem.CustomItemData.TargetMode;
+import io.wifi.starrailexpress.custommodifier.CustomModifierLoader;
 import io.wifi.starrailexpress.event.AllowItemShowInHand;
 import io.wifi.starrailexpress.event.OnPlayerDeath;
 import io.wifi.starrailexpress.event.OnPlayerDeathWithKiller;
 import io.wifi.starrailexpress.event.ShouldDropOnDeath;
 import io.wifi.starrailexpress.game.GameUtils;
 import io.wifi.starrailexpress.index.SREDataComponentTypes;
+import io.wifi.starrailexpress.index.TMMEntities;
 import io.wifi.starrailexpress.index.TMMSounds;
 import io.wifi.starrailexpress.rules.DropRules;
 import io.wifi.starrailexpress.util.SkinUtils;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
+import net.fabricmc.fabric.api.event.player.UseEntityCallback;
 import net.fabricmc.fabric.api.event.player.UseItemCallback;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
 import net.fabricmc.loader.api.FabricLoader;
+import net.minecraft.core.Holder;
 import net.minecraft.core.component.DataComponents;
+import net.minecraft.core.particles.ParticleOptions;
+import net.minecraft.core.particles.ParticleType;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvent;
+import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.Mth;
 import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.InteractionResultHolder;
+import net.minecraft.world.effect.MobEffect;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.ProjectileUtil;
@@ -57,14 +69,19 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
+import org.agmas.harpymodloader.component.WorldModifierComponent;
 import org.agmas.harpymodloader.events.GameInitializeEvent;
+import org.agmas.harpymodloader.modifiers.SREModifier;
 import org.agmas.noellesroles.component.FoodDrinkGlowComponent;
+import org.agmas.noellesroles.content.item.HandCuffsItem;
 import org.agmas.noellesroles.game.roles.killer.dream.DreamHealthComponent;
 import org.agmas.noellesroles.gunfx.GunTracers;
 import org.agmas.noellesroles.init.ModItems;
+import org.agmas.noellesroles.utils.RoleUtils;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
@@ -128,8 +145,37 @@ public final class CustomItemRuntime {
             return InteractionResultHolder.pass(stack);
         });
 
-        // 自动枪械状态机 + 过期数据清理
+        // 自动枪械状态机 + 手铐结算 + 过期数据清理
         ServerTickEvents.END_SERVER_TICK.register(CustomItemRuntime::tickServer);
+
+        // 空手右键被铐玩家：按「能被什么阵营 / 职业 / 修饰符取下」的配置取下手铐
+        UseEntityCallback.EVENT.register((player, world, hand, entity, hitResult) -> {
+            if (world.isClientSide() || !(player instanceof ServerPlayer remover)
+                    || !(entity instanceof ServerPlayer holder)) {
+                return InteractionResult.PASS;
+            }
+            if (hand != InteractionHand.MAIN_HAND || !remover.getMainHandItem().isEmpty()) {
+                return InteractionResult.PASS;
+            }
+            return takeOffCuff(remover, holder);
+        });
+
+        // 拆弹钳：右键投掷物实体开始拆除（拆除时间 / 失败概率按配置）
+        UseEntityCallback.EVENT.register((player, world, hand, entity, hitResult) -> {
+            if (world.isClientSide() || !(player instanceof ServerPlayer user)) {
+                return InteractionResult.PASS;
+            }
+            if (!user.getMainHandItem().is(ModItems.PLIERS)) {
+                return InteractionResult.PASS;
+            }
+            if (!(entity instanceof CustomThrowableEntity charge)) {
+                return InteractionResult.PASS;
+            }
+            return beginDefuse(user, charge);
+        });
+
+        // 投掷物区域（粒子区域 / 燃烧弹式持续生效区域）
+        ServerTickEvents.END_SERVER_TICK.register(CustomThrowableAreas::tick);
 
         // 玩家断线清理
         ServerPlayConnectionEvents.DISCONNECT.register(
@@ -140,6 +186,7 @@ public final class CustomItemRuntime {
             HIT_COUNTS.clear();
             AUTO_FIRES.clear();
             CHARGE_FIRED.clear();
+            CustomThrowableAreas.clear();
         });
 
         // 丢弃限制：是否可丢弃 / 仅特定职业可丢弃（与物品自身规则一起决定，其它物品不受影响）
@@ -161,6 +208,9 @@ public final class CustomItemRuntime {
                 CustomItemData data = CustomItemLoader.getData(stack);
                 return data != null && data.invisibleInHand ? ItemStack.EMPTY : null;
             });
+            // 投掷物区域粒子（客户端自己渲染）+ 钳子拆除进度条 HUD
+            io.wifi.starrailexpress.client.CustomAreaParticleClient.register();
+            io.wifi.starrailexpress.client.CustomThrowableDefuseHud.register();
         }
     }
 
@@ -475,8 +525,9 @@ public final class CustomItemRuntime {
         return true;
     }
 
-    /** 自动射击状态机。 */
+    /** 自动射击状态机 + 手铐类结算。 */
     private static void tickServer(MinecraftServer server) {
+        tickCuffs(server);
         if (AUTO_FIRES.isEmpty()) {
             return;
         }
@@ -748,6 +799,10 @@ public final class CustomItemRuntime {
         if (damaged) {
             attacker.setLastHurtByMob(target);
             target.setLastHurtByMob(attacker);
+            // 耐久：每次成功命中消耗 1 点（与 dream 铁斧一致），耗尽即碎裂（此后不再处理冷却）
+            if (consumeDurability(attacker, stack, data, 1)) {
+                return false;
+            }
             // 成功把虚拟血量削减至 0 → 物品进入冷却
             if (health.getEffectiveHealth(now) <= 0) {
                 applyCooldown(attacker, stack, data.killCooldownTicks);
@@ -782,6 +837,352 @@ public final class CustomItemRuntime {
     /** 默认死亡原因（用于左键 / 食用等需要归属攻击者的场景）。 */
     public static ResourceLocation defaultDeathReason(ItemStack stack) {
         return SkinUtils.getItemTypeResourceLocation(stack);
+    }
+
+    // ==================== 能不能被小偷偷窃 ====================
+
+    /** 该物品堆是否被配置为「可被小偷窃取」（小偷白名单用，见 {@code ThiefRoleData}）。 */
+    public static boolean isStealable(ItemStack stack) {
+        CustomItemData data = CustomItemLoader.getData(stack);
+        return data != null && data.stealable;
+    }
+
+    // ==================== 耐久 ====================
+
+    /** 配置里的耐久上限（0 = 不消耗耐久、不显示耐久条）。 */
+    public static int maxDurability(CustomItemData data) {
+        return data == null ? 0 : Math.max(0, data.durability);
+    }
+
+    /** 物品堆上已经用掉的次数。 */
+    public static int usedDurability(ItemStack stack) {
+        if (stack == null || stack.isEmpty()) {
+            return 0;
+        }
+        return Math.max(0, stack.getOrDefault(SREDataComponentTypes.CUSTOM_ITEM_DAMAGE, 0));
+    }
+
+    /** 剩余耐久（未配置耐久时返回 0）。 */
+    public static int remainingDurability(ItemStack stack, CustomItemData data) {
+        int max = maxDurability(data);
+        return max <= 0 ? 0 : Math.max(0, max - usedDurability(stack));
+    }
+
+    /** 是否显示耐久条（用掉至少一次才显示，与原版一致）。 */
+    public static boolean hasDurabilityBar(ItemStack stack) {
+        CustomItemData data = CustomItemLoader.getData(stack);
+        return data != null && maxDurability(data) > 0 && usedDurability(stack) > 0;
+    }
+
+    /** 耐久条宽度（13 格制，与原版一致）。 */
+    public static int durabilityBarWidth(ItemStack stack) {
+        CustomItemData data = CustomItemLoader.getData(stack);
+        int max = maxDurability(data);
+        if (max <= 0) {
+            return 13;
+        }
+        int remaining = remainingDurability(stack, data);
+        return remaining <= 0 ? 1 : Math.max(1, Math.round(13.0F * remaining / max));
+    }
+
+    /** 耐久条颜色（绿 → 黄 → 红，与原版 {@code Item#getBarColor} 同一算法）。 */
+    public static int durabilityBarColor(ItemStack stack) {
+        CustomItemData data = CustomItemLoader.getData(stack);
+        int max = maxDurability(data);
+        if (max <= 0) {
+            return 0xFF00FF00;
+        }
+        float ratio = (float) remainingDurability(stack, data) / (float) max;
+        return Mth.hsvToRgb(Math.max(0.0F, Math.min(1.0F, ratio)) / 3.0F, 1.0F, 1.0F);
+    }
+
+    /**
+     * 消耗耐久。
+     *
+     * <p>
+     * 耐久上限实时读配置（改完配置重载立即生效），已用次数存在物品堆的
+     * {@link SREDataComponentTypes#CUSTOM_ITEM_DAMAGE} 组件上。
+     *
+     * @return 本次消耗后物品是否已损坏（损坏时物品堆已被清空）
+     */
+    public static boolean consumeDurability(ServerPlayer player, ItemStack stack, CustomItemData data, int amount) {
+        int max = maxDurability(data);
+        if (max <= 0 || stack == null || stack.isEmpty() || amount <= 0) {
+            return false;
+        }
+        int used = usedDurability(stack) + amount;
+        if (used < max) {
+            stack.set(SREDataComponentTypes.CUSTOM_ITEM_DAMAGE, used);
+            if (player != null) {
+                player.containerMenu.broadcastChanges();
+            }
+            return false;
+        }
+        breakByDurability(player, stack);
+        return true;
+    }
+
+    /** 耐久耗尽：播放碎裂音效 + 提示使用提示 + 移除整个物品堆。 */
+    private static void breakByDurability(ServerPlayer player, ItemStack stack) {
+        if (stack == null || stack.isEmpty()) {
+            return;
+        }
+        if (player != null) {
+            player.serverLevel().playSound(null, player.getX(), player.getY(), player.getZ(),
+                    SoundEvents.ITEM_BREAK, SoundSource.PLAYERS, 0.8F, 1.0F);
+            player.displayClientMessage(
+                    Component.translatableWithFallback("sre.custom_item.broken", "§c物品已因耐久耗尽而损坏"),
+                    true);
+        }
+        stack.remove(SREDataComponentTypes.CUSTOM_ITEM_DAMAGE);
+        stack.shrink(stack.getCount());
+    }
+
+    // ==================== 手铐类物品 ====================
+
+    /** 自定义手铐占用的特殊栏位键前缀（每种自定义手铐一个槽位，互不覆盖）。 */
+    public static final String CUFF_SLOT_PREFIX = "custom_cuff_";
+
+    /** 手铐类结算间隔（「每秒」的换算基准）。 */
+    private static final int CUFF_TICK_INTERVAL = 20;
+
+    /** 「移动时消耗耐久」用：记录上一秒所在位置（走路与疾跑都会产生位移）。 */
+    private static final Map<UUID, Vec3> LAST_POS = new ConcurrentHashMap<>();
+
+    /** 某个自定义手铐对应的特殊栏位键。 */
+    public static ResourceLocation cuffSlot(CustomItemData data) {
+        return SRE.id(CUFF_SLOT_PREFIX + (data == null || data.id == null ? "unknown" : data.id));
+    }
+
+    /** 玩家身上被铐住的那份自定义手铐（没有则 {@link ItemStack#EMPTY}）。 */
+    public static ItemStack getCuffOn(Player player) {
+        if (player == null) {
+            return ItemStack.EMPTY;
+        }
+        for (Map.Entry<ResourceLocation, ItemStack> entry : ExtraSlotComponent.KEY.get(player).SLOTS.entrySet()) {
+            if (entry.getKey() == null || !entry.getKey().getPath().startsWith(CUFF_SLOT_PREFIX)) {
+                continue;
+            }
+            CustomItemData data = CustomItemLoader.getData(entry.getValue());
+            if (data != null && data.kind() == CustomItemData.Kind.CUFF) {
+                return entry.getValue();
+            }
+        }
+        return ItemStack.EMPTY;
+    }
+
+    /** 玩家身上自定义手铐的配置（没有则 null）。 */
+    public static CustomItemData getCuffData(Player player) {
+        return CustomItemLoader.getData(getCuffOn(player));
+    }
+
+    /** 是否被「自定义手铐」铐住（不含原版手铐）。 */
+    public static boolean isCuffed(Player player) {
+        return getCuffData(player) != null;
+    }
+
+    /** 右键玩家：把这份自定义手铐铐进目标玩家的特殊栏位。 */
+    public static InteractionResult cuffPlayer(ServerPlayer user, ItemStack stack, CustomItemData data, Player target) {
+        if (!(target instanceof ServerPlayer targetPlayer) || user == targetPlayer) {
+            return InteractionResult.PASS;
+        }
+        if (!GameUtils.isPlayerAliveAndSurvival(user) || !GameUtils.isPlayerAliveAndSurvival(targetPlayer)) {
+            return InteractionResult.PASS;
+        }
+        if (isCuffed(targetPlayer) || HandCuffsItem.hasHandCuff(targetPlayer)) {
+            user.displayClientMessage(
+                    Component.translatableWithFallback("sre.custom_item.cuff.already", "§c对方已经被铐住了"), true);
+            return InteractionResult.FAIL;
+        }
+        // 拷过去的是手上这份的副本（已消耗的耐久跟着走）
+        ItemStack cuffStack = stack.copy();
+        cuffStack.setCount(1);
+        ExtraSlotComponent.setSlot(targetPlayer, cuffSlot(data), cuffStack);
+        stack.shrink(1);
+
+        applyCuffEffects(targetPlayer, data);
+        applyCuffRestriction(targetPlayer, data);
+
+        user.displayClientMessage(Component.translatableWithFallback("sre.custom_item.cuff.put",
+                "§6你铐住了 %s", targetPlayer.getName().getString()), true);
+        targetPlayer.displayClientMessage(Component.translatableWithFallback("sre.custom_item.cuff.received",
+                "§c你被 %s 铐住了", user.getName().getString()), true);
+        return InteractionResult.SUCCESS;
+    }
+
+    /** 给被拷住玩家挂上「直到被解除」的药水效果（缺了就补）。 */
+    public static void applyCuffEffects(ServerPlayer holder, CustomItemData data) {
+        for (CustomItemData.EffectData effect : effectList(data.cuffEffects)) {
+            Holder<MobEffect> effectHolder = resolveEffect(effect.effectId);
+            if (effectHolder == null) {
+                continue;
+            }
+            int amplifier = Math.max(0, effect.amplifier);
+            MobEffectInstance current = holder.getEffect(effectHolder);
+            if (current != null && current.isInfiniteDuration() && current.getAmplifier() == amplifier) {
+                continue;
+            }
+            holder.addEffect(new MobEffectInstance(effectHolder, MobEffectInstance.INFINITE_DURATION,
+                    amplifier, false, false, true));
+        }
+    }
+
+    /** 解除手铐时移除配置里带来的药水效果。 */
+    public static void clearCuffEffects(ServerPlayer holder, CustomItemData data) {
+        for (CustomItemData.EffectData effect : effectList(data.cuffEffects)) {
+            Holder<MobEffect> effectHolder = resolveEffect(effect.effectId);
+            if (effectHolder != null) {
+                holder.removeEffect(effectHolder);
+            }
+        }
+    }
+
+    /** 「是否限制玩家行为」为是时持续施加手铐同款减速（按键屏蔽在客户端 mixin 里）。 */
+    private static void applyCuffRestriction(ServerPlayer holder, CustomItemData data) {
+        if (data.cuffRestrict && !holder.isSpectator()) {
+            holder.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SLOWDOWN, CUFF_TICK_INTERVAL, 3,
+                    false, true, true));
+        }
+    }
+
+    /**
+     * 取下权限：阵营 / 职业 / 修饰符任一命中即可。
+     *
+     * <p>
+     * 三样都没配 = 无人能取（默认）。
+     */
+    public static boolean canTakeOffCuff(ServerPlayer remover, CustomItemData data) {
+        if (remover == null || data == null) {
+            return false;
+        }
+        SREGameWorldComponent gameWorld = SREGameWorldComponent.KEY.get(remover.level());
+        SRERole removerRole = gameWorld == null ? null : gameWorld.getRole(remover);
+        // 阵营
+        String teamName = data.cuffTakeOffTeam == null ? "" : data.cuffTakeOffTeam.trim();
+        if (!teamName.isEmpty()) {
+            try {
+                if (RoleTeam.valueOf(teamName.toUpperCase(Locale.ROOT)).matches(removerRole)) {
+                    return true;
+                }
+            } catch (IllegalArgumentException ignored) {
+                // 配置里填了不存在的阵营：按没配处理
+            }
+        }
+        // 职业
+        for (String roleId : stringList(data.cuffTakeOffRoles)) {
+            if (roleMatches(remover, roleId)) {
+                return true;
+            }
+        }
+        // 修饰符
+        WorldModifierComponent modifierComponent = WorldModifierComponent.KEY.get(remover.level());
+        for (String modifierId : stringList(data.cuffTakeOffModifiers)) {
+            SREModifier modifier = CustomModifierLoader.findModifier(modifierId);
+            if (modifier != null && modifierComponent.isModifier(remover, modifier)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /** 空手右键被铐玩家：按权限取下，物品交给取下者。 */
+    public static InteractionResult takeOffCuff(ServerPlayer remover, ServerPlayer holder) {
+        if (remover == null || holder == null || remover == holder) {
+            return InteractionResult.PASS;
+        }
+        ItemStack cuff = getCuffOn(holder);
+        CustomItemData data = CustomItemLoader.getData(cuff);
+        if (data == null) {
+            return InteractionResult.PASS;
+        }
+        if (!canTakeOffCuff(remover, data)) {
+            remover.displayClientMessage(
+                    Component.translatableWithFallback("sre.custom_item.cuff.denied", "§c你不能取下这个物品"), true);
+            return InteractionResult.FAIL;
+        }
+        ExtraSlotComponent.removeSlot(holder, cuffSlot(data));
+        clearCuffEffects(holder, data);
+        if (!RoleUtils.insertStackInFreeSlot(remover, cuff)) {
+            // 背包放不下就还给被铐的人，避免物品凭空消失
+            holder.getInventory().placeItemBackInInventory(cuff);
+        }
+        remover.displayClientMessage(Component.translatableWithFallback("sre.custom_item.cuff.takeoff",
+                "§a你取下了 %s 身上的物品", holder.getName().getString()), true);
+        holder.displayClientMessage(Component.translatableWithFallback("sre.custom_item.cuff.takeoff.self",
+                "§a%s 取下了你身上的物品", remover.getName().getString()), true);
+        return InteractionResult.SUCCESS;
+    }
+
+    /** 被铐住玩家的每 tick 处理：药水维持 / 限行 / 定时指令 / 耐久消耗。 */
+    private static void tickCuffs(MinecraftServer server) {
+        long now = server.getTickCount();
+        for (ServerPlayer player : server.getPlayerList().getPlayers()) {
+            ItemStack cuff = getCuffOn(player);
+            CustomItemData data = CustomItemLoader.getData(cuff);
+            if (data == null || data.kind() != CustomItemData.Kind.CUFF) {
+                LAST_POS.remove(player.getUUID());
+                continue;
+            }
+            applyCuffEffects(player, data);
+            applyCuffRestriction(player, data);
+
+            // 定时指令：目标就是被铐住者本人
+            int interval = Math.max(1, data.cuffCommandIntervalTicks);
+            if (now % interval == 0) {
+                CustomItemLoader.executeCommands(data.cuffCommands, player);
+            }
+
+            // 耐久消耗：每秒最多结算一次
+            if (now % CUFF_TICK_INTERVAL != 0) {
+                continue;
+            }
+            if (consumeCuffDurability(player, cuff, data)) {
+                // 耐久耗尽 → 手铐碎裂，自动解除
+                ExtraSlotComponent.removeSlot(player, cuffSlot(data));
+                clearCuffEffects(player, data);
+            }
+        }
+    }
+
+    /**
+     * 手铐耐久消耗（每秒结算一次）。
+     *
+     * @return 手铐是否已因耐久耗尽而损坏
+     */
+    private static boolean consumeCuffDurability(ServerPlayer holder, ItemStack cuff, CustomItemData data) {
+        boolean consume = switch (data.cuffWearMode()) {
+            case NONE -> false;
+            case WORN -> true;
+            case CROUCH -> holder.isShiftKeyDown();
+            case MOVE -> {
+                // 走路与疾跑都算：比较上一秒的位置位移
+                Vec3 last = LAST_POS.put(holder.getUUID(), holder.position());
+                yield last != null && last.distanceTo(holder.position()) > 0.05D;
+            }
+        };
+        return consume && consumeDurability(holder, cuff, data, 1);
+    }
+
+    /** 药水效果列表（null 安全）。 */
+    private static List<CustomItemData.EffectData> effectList(List<CustomItemData.EffectData> list) {
+        return list == null ? List.of() : list;
+    }
+
+    /** 字符串列表（null 安全）。 */
+    private static List<String> stringList(List<String> list) {
+        return list == null ? List.of() : list;
+    }
+
+    /** 把配置里填的药水效果 id 解析成效果（解析失败返回 null）。 */
+    private static Holder<MobEffect> resolveEffect(String id) {
+        if (id == null || id.isBlank()) {
+            return null;
+        }
+        ResourceLocation location = ResourceLocation.tryParse(id.trim());
+        if (location == null) {
+            return null;
+        }
+        return BuiltInRegistries.MOB_EFFECT.getHolder(location).orElse(null);
     }
 
     // ==================== 工具方法 ====================
@@ -825,12 +1226,104 @@ public final class CustomItemRuntime {
         }
     }
 
-    private static ResourceLocation parseDeathReason(String value, ResourceLocation fallback) {
+    /** 把配置里填的死亡原因 id 解析成 {@link ResourceLocation}（解析失败回退默认）。 */
+    public static ResourceLocation parseDeathReason(String value, ResourceLocation fallback) {
         if (value == null || value.isBlank()) {
             return fallback;
         }
         ResourceLocation parsed = ResourceLocation.tryParse(value.trim());
         return parsed == null ? fallback : parsed;
+    }
+
+    // ==================== 投掷物 ====================
+
+    /** 投出（需要拉栓时由蓄力完成触发，否则直接投掷，两条路都走这里）。 */
+    public static void throwCustom(ServerPlayer user, ItemStack stack, CustomItemData data) {
+        if (user.getCooldowns().isOnCooldown(stack.getItem())) {
+            return;
+        }
+        // 与手榴弹一致的投掷 / 拉栓音效
+        user.serverLevel().playSound(null, user.getX(), user.getY(), user.getZ(), TMMSounds.ITEM_GRENADE_THROW,
+                SoundSource.PLAYERS, 0.5F, 1.0F + (user.getRandom().nextFloat() - 0.5F) / 10.0F);
+
+        CustomThrowableEntity entity = new CustomThrowableEntity(TMMEntities.CUSTOM_THROWABLE, user, user.level());
+        entity.setItem(stack.copyWithCount(1));
+        entity.shootFromRotation(user, user.getXRot(), user.getYRot(), 0.0F, 1.0F, 1.0F);
+        user.level().addFreshEntity(entity);
+
+        // 耐久：每次投出算一次使用（耗尽时物品已碎裂）
+        if (consumeDurability(user, stack, data, 1)) {
+            return;
+        }
+        stack.shrink(1);
+    }
+
+    /** 钳子拆除入口（由空手 / 钳子右键投掷物触发）。 */
+    public static InteractionResult beginDefuse(ServerPlayer user, CustomThrowableEntity charge) {
+        CustomItemData data = CustomItemLoader.getData(charge.getItem());
+        if (data == null) {
+            return InteractionResult.PASS;
+        }
+        if (!data.throwDefusable) {
+            user.displayClientMessage(
+                    Component.translatableWithFallback("sre.custom_item.throw.not_defusable", "§c这个东西没法拆"),
+                    true);
+            return InteractionResult.FAIL;
+        }
+        if (charge.isDefusing()) {
+            return InteractionResult.FAIL;
+        }
+        if (data.throwDefuseTicks <= 0) {
+            // 拆除时间为 0：直接拆除（同粘性炸弹）
+            charge.defuseInstantly();
+            user.displayClientMessage(
+                    Component.translatableWithFallback("sre.custom_item.throw.defused", "§a你拆除了它"), true);
+            return InteractionResult.SUCCESS;
+        }
+        charge.beginDefuse(user, defuseFailPercent(user, data));
+        user.displayClientMessage(
+                Component.translatableWithFallback("sre.custom_item.throw.defusing", "§e正在拆除…"), true);
+        return InteractionResult.SUCCESS;
+    }
+
+    /** 拆除失败概率：按配置的职业 id 取第一个命中的规则，没配则不会失败。 */
+    private static int defuseFailPercent(ServerPlayer user, CustomItemData data) {
+        for (CustomItemData.DefuseFailRule rule : defuseRules(data.throwDefuseFailRules)) {
+            String roleId = rule.roleId == null ? "" : rule.roleId.trim();
+            if (roleId.isEmpty() || roleMatches(user, roleId)) {
+                return Math.max(0, Math.min(100, rule.failPercent));
+            }
+        }
+        return 0;
+    }
+
+    private static List<CustomItemData.DefuseFailRule> defuseRules(List<CustomItemData.DefuseFailRule> rules) {
+        return rules == null ? List.of() : rules;
+    }
+
+    /** 对目标施加一批药水效果（投掷物触发 / 区域触发共用）。 */
+    public static void applyEffects(ServerPlayer target, List<CustomItemData.EffectData> effects) {
+        for (CustomItemData.EffectData effect : effectList(effects)) {
+            Holder<MobEffect> effectHolder = resolveEffect(effect.effectId);
+            if (effectHolder == null) {
+                continue;
+            }
+            target.addEffect(new MobEffectInstance(effectHolder, Math.max(1, effect.durationSeconds) * 20,
+                    Math.max(0, effect.amplifier), false, true, true));
+        }
+    }
+
+    /** 把配置里填的粒子 id 解析成粒子（解析失败回退默认粒子）。 */
+    public static ParticleOptions resolveParticle(String id, ParticleOptions fallback) {
+        if (id == null || id.isBlank()) {
+            return fallback;
+        }
+        ResourceLocation location = ResourceLocation.tryParse(id.trim());
+        if (location == null) {
+            return fallback;
+        }
+        ParticleType<?> type = BuiltInRegistries.PARTICLE_TYPE.get(location);
+        return type instanceof ParticleOptions options ? options : fallback;
     }
 
     /** 在玩家物品栏里找指定自定义物品 id 的物品栈。 */

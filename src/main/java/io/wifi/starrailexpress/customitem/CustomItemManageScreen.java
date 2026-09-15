@@ -210,6 +210,12 @@ public class CustomItemManageScreen extends Screen {
                     .translatable("sre.custom_item.summary.nutrition", item.nutrition)
                     .append(item.isDrink ? Component.translatable("sre.custom_item.summary.drink")
                             : Component.empty());
+            case CUFF -> Component.translatable("sre.custom_item.summary.cuff",
+                    Component.translatable("sre.custom_item.cuff_pose." + item.cuffPose().name().toLowerCase()));
+            case THROWABLE -> Component.translatable("sre.custom_item.summary.throwable",
+                    (int) item.throwRadius, item.throwExplode
+                            ? Component.translatable("sre.custom_item.value.yes")
+                            : Component.translatable("sre.custom_item.value.no"));
         };
     }
 

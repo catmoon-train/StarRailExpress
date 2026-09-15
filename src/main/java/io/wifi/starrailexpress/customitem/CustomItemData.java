@@ -300,6 +300,179 @@ public class CustomItemData {
     @SerializedName("eatCooldownTicks")
     public int eatCooldownTicks = 0;
 
+    // ==================== 耐久 ====================
+
+    /**
+     * 耐久上限：这个物品使用多少次后会损坏。
+     *
+     * <p>
+     * {@code 0} = 不消耗耐久、不显示耐久条。由「特殊原版物品」「手铐类」「投掷物」共用：
+     * 特殊原版物品按「每次命中玩家」计一次，手铐按 {@link #cuffWearMode} 持续消耗，
+     * 投掷物按「每次投出」计一次。
+     */
+    @SerializedName("durability")
+    public int durability = 0;
+
+    // ==================== 能否被小偷偷窃 ====================
+
+    /** 是否能被小偷窃取：为是时这个物品会被加入小偷的可偷白名单（默认为否）。 */
+    @SerializedName("stealable")
+    public boolean stealable = false;
+
+    // ==================== 手铐类物品 ====================
+
+    /** 耐久消耗形式（{@link CuffWearMode} 名称）。 */
+    @SerializedName("cuffWearMode")
+    public String cuffWearMode = CuffWearMode.CROUCH.name();
+
+    /** 被拷住时的姿势（{@link CuffPose} 名称）。 */
+    @SerializedName("cuffPose")
+    public String cuffPose = CuffPose.CUFFS.name();
+
+    /** 是否限制玩家行为：为是时自带手铐效果（禁止跳跃/丢物品/换手 + 减速）。 */
+    @SerializedName("cuffRestrict")
+    public boolean cuffRestrict = false;
+
+    /** 能被取下的阵营（{@link io.wifi.starrailexpress.api.RoleTeam} 名称）；留空 = 无人能取。 */
+    @SerializedName("cuffTakeOffTeam")
+    public String cuffTakeOffTeam = "";
+
+    /** 能被取下的职业 id（可多个，{@code +} 添加）。 */
+    @SerializedName("cuffTakeOffRoles")
+    public List<String> cuffTakeOffRoles = new ArrayList<>();
+
+    /** 能被取下的修饰符 id（可多个，{@code +} 添加）。 */
+    @SerializedName("cuffTakeOffModifiers")
+    public List<String> cuffTakeOffModifiers = new ArrayList<>();
+
+    /**
+     * 施加给被拷住玩家的药水效果。
+     *
+     * <p>
+     * 持续时间固定为「直到被解除」（{@link EffectData#durationSeconds} 在此用途下被忽略），
+     * 解除手铐时会被移除。
+     */
+    @SerializedName("cuffEffects")
+    public List<EffectData> cuffEffects = new ArrayList<>();
+
+    /** 被拷住玩家执行指令的间隔（tick）。 */
+    @SerializedName("cuffCommandIntervalTicks")
+    public int cuffCommandIntervalTicks = 100;
+
+    /** 被拷住玩家执行的指令（{@code <player>} = 被拷住者本人，仅被拷住时运行）。 */
+    @SerializedName("cuffCommands")
+    public List<String> cuffCommands = new ArrayList<>();
+
+    // ==================== 投掷物 ====================
+
+    /** 是否需要拉栓：为是时按住右键蓄力后投出（同手榴弹）；为否时右键直接投出并播放拉栓音效。 */
+    @SerializedName("throwNeedPin")
+    public boolean throwNeedPin = true;
+
+    /** 拉栓/蓄力时间（tick），仅 {@link #throwNeedPin} 为是时有意义。 */
+    @SerializedName("throwPinTicks")
+    public int throwPinTicks = 20;
+
+    /** 是否会粘附在玩家/方块上直到生效（同粘性炸弹 / C4）。 */
+    @SerializedName("throwSticky")
+    public boolean throwSticky = false;
+
+    /** 粘附后多久生效（tick）。 */
+    @SerializedName("throwStickTicks")
+    public int throwStickTicks = 60;
+
+    /** 是否能被钳子拆除（默认否）。 */
+    @SerializedName("throwDefusable")
+    public boolean throwDefusable = false;
+
+    /** 拆除所需时间（tick）：0 = 直接拆除（同粘性炸弹），>0 需要按住对应时间（同 C4）。 */
+    @SerializedName("throwDefuseTicks")
+    public int throwDefuseTicks = 0;
+
+    /** 非特定职业拆除失败概率（职业 id + 百分比），留空不生效。 */
+    @SerializedName("throwDefuseFailRules")
+    public List<DefuseFailRule> throwDefuseFailRules = new ArrayList<>();
+
+    /** 是否延迟生效（同滞时雷：落地会弹起，过一段时间才生效）。 */
+    @SerializedName("throwDelayed")
+    public boolean throwDelayed = false;
+
+    /** 延迟生效的时间（秒）。 */
+    @SerializedName("throwDelaySeconds")
+    public double throwDelaySeconds = 1.0;
+
+    /** 生效半径：以落点为圆心的球形范围，同时决定下面所有范围（含爆炸）的大小。 */
+    @SerializedName("throwRadius")
+    public double throwRadius = 4.0;
+
+    /** 是否触发爆炸（同手榴弹）。 */
+    @SerializedName("throwExplode")
+    public boolean throwExplode = true;
+
+    /** 爆炸是否无视墙体。 */
+    @SerializedName("throwIgnoreWalls")
+    public boolean throwIgnoreWalls = false;
+
+    /** 无视多少格墙体（仅 {@link #throwIgnoreWalls} 为是时生效）。 */
+    @SerializedName("throwWallIgnoreBlocks")
+    public int throwWallIgnoreBlocks = 1;
+
+    /** 投掷物触发爆炸时的粒子效果 id（留空 = 手榴弹默认粒子）。 */
+    @SerializedName("throwExplosionParticle")
+    public String throwExplosionParticle = "";
+
+    /** 投掷物触发爆炸时的音效 id（留空 = 手榴弹默认音效）。 */
+    @SerializedName("throwExplosionSound")
+    public String throwExplosionSound = "";
+
+    /** 爆炸时的死亡原因 id（默认手榴弹）。 */
+    @SerializedName("throwDeathReason")
+    public String throwDeathReason = "starrailexpress:grenade";
+
+    /** 触发时对生效范围内玩家执行的指令（{@code <player>} = 范围内玩家）。 */
+    @SerializedName("throwHitCommands")
+    public List<String> throwHitCommands = new ArrayList<>();
+
+    /** 触发时对生效范围内玩家施加的药水效果（id / 等级 / 持续秒数）。 */
+    @SerializedName("throwHitEffects")
+    public List<EffectData> throwHitEffects = new ArrayList<>();
+
+    /** 触发时是否释放粒子区域（同烟雾弹）。 */
+    @SerializedName("throwParticleArea")
+    public boolean throwParticleArea = false;
+
+    /** 粒子区域的粒子 id（留空 = 烟雾弹默认粒子）。 */
+    @SerializedName("throwParticleAreaId")
+    public String throwParticleAreaId = "";
+
+    /** 粒子区域持续时间（tick）。 */
+    @SerializedName("throwParticleAreaTicks")
+    public int throwParticleAreaTicks = 200;
+
+    /** 落地后是否留下持续生效范围（同燃烧弹，平面范围）。 */
+    @SerializedName("throwPersistentArea")
+    public boolean throwPersistentArea = false;
+
+    /** 持续生效范围内持续释放的粒子 id（留空 = 燃烧弹默认粒子）。 */
+    @SerializedName("throwAreaParticleId")
+    public String throwAreaParticleId = "";
+
+    /** 区域效果滞留时间（秒）。 */
+    @SerializedName("throwAreaDurationSeconds")
+    public int throwAreaDurationSeconds = 7;
+
+    /** 玩家在区域内停留多少 tick 后触发效果。 */
+    @SerializedName("throwAreaStayTicks")
+    public int throwAreaStayTicks = 40;
+
+    /** 区域内触发的药水效果。 */
+    @SerializedName("throwAreaEffects")
+    public List<EffectData> throwAreaEffects = new ArrayList<>();
+
+    /** 区域内触发时对触发者执行的指令（{@code <player>} = 触发者本人）。 */
+    @SerializedName("throwAreaCommands")
+    public List<String> throwAreaCommands = new ArrayList<>();
+
     // ==================== 工具方法 ====================
 
     public Kind kind() {
@@ -331,6 +504,24 @@ public class CustomItemData {
             return HoldPose.valueOf(holdPose);
         } catch (Exception e) {
             return HoldPose.REVOLVER;
+        }
+    }
+
+    /** 手铐耐久消耗形式（解析失败回退「蹲下时减少」）。 */
+    public CuffWearMode cuffWearMode() {
+        try {
+            return CuffWearMode.valueOf(cuffWearMode);
+        } catch (Exception e) {
+            return CuffWearMode.CROUCH;
+        }
+    }
+
+    /** 被拷住时的姿势（解析失败回退手铐姿势）。 */
+    public CuffPose cuffPose() {
+        try {
+            return CuffPose.valueOf(cuffPose);
+        } catch (Exception e) {
+            return CuffPose.CUFFS;
         }
     }
 
@@ -451,6 +642,21 @@ public class CustomItemData {
         saturation = clampDouble(saturation, 0.0, 20.0);
         eatTicks = clamp(eatTicks, 1, 20 * 60);
         eatCooldownTicks = clamp(eatCooldownTicks, 0, 20 * 60 * 10);
+        durability = clamp(durability, 0, 100000);
+
+        // 手铐
+        cuffCommandIntervalTicks = clamp(cuffCommandIntervalTicks, 1, 20 * 60 * 10);
+
+        // 投掷物
+        throwPinTicks = clamp(throwPinTicks, 1, 20 * 60);
+        throwStickTicks = clamp(throwStickTicks, 1, 20 * 60 * 10);
+        throwDefuseTicks = clamp(throwDefuseTicks, 0, 20 * 60 * 10);
+        throwDelaySeconds = clampDouble(throwDelaySeconds, 0.0, 600.0);
+        throwRadius = clampDouble(throwRadius, 0.5, 64.0);
+        throwWallIgnoreBlocks = clamp(throwWallIgnoreBlocks, 1, 16);
+        throwParticleAreaTicks = clamp(throwParticleAreaTicks, 1, 20 * 60 * 10);
+        throwAreaDurationSeconds = clamp(throwAreaDurationSeconds, 1, 600);
+        throwAreaStayTicks = clamp(throwAreaStayTicks, 1, 20 * 60 * 10);
 
         if (kind().requiresAmmo()) {
             // 弹药系统依赖物品上的 AMMO_COUNT 组件（组件不存在时按满弹处理）
@@ -482,12 +688,66 @@ public class CustomItemData {
         /** 特殊原版物品：可左键攻击玩家，扣除虚拟血量。 */
         VANILLA_WEAPON,
         /** 食物道具。 */
-        FOOD;
+        FOOD,
+        /** 手铐类物品：右键玩家，把物品铐进目标玩家的特殊栏位。 */
+        CUFF,
+        /** 投掷物：右键投出，落地 / 粘附后按配置生效。 */
+        THROWABLE;
 
         /** 是否与「弹药 / 命中计数」这类物品自身状态有关（用于保存 AMMO_COUNT）。 */
         public boolean requiresAmmo() {
             return this == GUN;
         }
+    }
+
+    /** 手铐类物品的耐久消耗形式（单选）。 */
+    public enum CuffWearMode {
+        /** 玩家蹲下时减少耐久（同手铐）。 */
+        CROUCH,
+        /** 玩家被穿戴时每秒扣除耐久（无论是否蹲下）。 */
+        WORN,
+        /** 玩家移动时消耗耐久（走路与疾跑都算）。 */
+        MOVE,
+        /** 不消耗耐久（只能被其它玩家取下）。 */
+        NONE
+    }
+
+    /**
+     * 被拷住时的姿势（单选）。
+     *
+     * <p>
+     * 全部对应项目里已有的姿势实现，客户端按该值套用对应预设：
+     * {@link #CUFFS} = 手铐姿势，{@link #SIT}/{@link #TREMBLE} = 恐惧坐姿与发抖，
+     * {@link #LIMP} = 腿瘸，{@link #ORA} = 双臂前伸乱挥，{@link #HOLD} = 持枪举起，
+     * {@link #SWIM} = 游泳姿势。
+     */
+    public enum CuffPose {
+        /** 手铐姿势（双臂相交于身后，默认）。 */
+        CUFFS,
+        /** 不改变姿势。 */
+        NONE,
+        /** 坐下。 */
+        SIT,
+        /** 发抖。 */
+        TREMBLE,
+        /** 腿瘸。 */
+        LIMP,
+        /** 双臂前伸乱挥。 */
+        ORA,
+        /** 持枪举起。 */
+        HOLD,
+        /** 游泳姿势。 */
+        SWIM
+    }
+
+    /** 非特定职业拆除失败概率规则。 */
+    public static class DefuseFailRule {
+        /** 职业 id（留空表示「其它所有职业」）。 */
+        @SerializedName("roleId")
+        public String roleId = "";
+        /** 拆除失败概率（百分比，0~100）。 */
+        @SerializedName("failPercent")
+        public int failPercent = 0;
     }
 
     /** 蓄力动作（对应原版 {@code UseAnim}）。 */

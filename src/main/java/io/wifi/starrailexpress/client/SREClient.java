@@ -362,6 +362,7 @@ public class SREClient implements ClientModInitializer {
         EntityRendererRegistry.register(TMMEntities.GRENADE, ThrownItemRenderer::new);
         EntityRendererRegistry.register(TMMEntities.STICKY_GRENADE, ThrownItemRenderer::new);
         EntityRendererRegistry.register(TMMEntities.TIMED_GRENADE, ThrownItemRenderer::new);
+        EntityRendererRegistry.register(TMMEntities.CUSTOM_THROWABLE, ThrownItemRenderer::new);
         EntityRendererRegistry.register(TMMEntities.NOTE, NoteEntityRenderer::new);
         EntityRendererRegistry.register(TMMEntities.ZIPLINE_RIDER, NoopRenderer::new);
         EntityRendererRegistry.register(TMMEntities.CRASH_PLANE,

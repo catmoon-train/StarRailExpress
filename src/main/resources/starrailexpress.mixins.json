@@ -59,6 +59,9 @@
     "defaultRequire": 1
   },
   "client": [
+    "client.CustomCuffBodyPoseMixin",
+    "client.CustomCuffKeyBindingMixin",
+    "client.CustomCuffPoseMixin",
     "entity.player.PlayerEntityClientMixin",
     "client.AbstractClientPlayerEntityMixin",
     "client.AdvancedCameraMixin",

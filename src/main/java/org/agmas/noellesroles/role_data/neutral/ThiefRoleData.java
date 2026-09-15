@@ -440,6 +440,9 @@ public class ThiefRoleData extends SimpleRoleData {
         // 金锭（小偷的荣誉）
         if (stack.is(Items.GOLD_INGOT))
             return false;
+        // 自定义列车物品：配置里勾选「能被小偷窃取」的按白名单放行
+        if (io.wifi.starrailexpress.customitem.CustomItemRuntime.isStealable(stack))
+            return true;
         // 只允许偷取以下物品：
 
         // 枪械类
@@ -816,6 +819,9 @@ public class ThiefRoleData extends SimpleRoleData {
         // 金锭（小偷的荣誉）
         if (stack.is(Items.GOLD_INGOT))
             return false;
+        // 自定义列车物品：配置里勾选「能被小偷窃取」的按白名单放行
+        if (io.wifi.starrailexpress.customitem.CustomItemRuntime.isStealable(stack))
+            return true;
 
         // 枪械类
         if (stack.is(ModItems.BANDIT_REVOLVER))

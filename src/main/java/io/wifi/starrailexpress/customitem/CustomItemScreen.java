@@ -70,6 +70,10 @@ public class CustomItemScreen extends Screen {
     private static final ChargeAnim[] CHARGE_ANIMS = ChargeAnim.values();
     private static final TargetMode[] TARGET_MODES = TargetMode.values();
     private static final HoldPose[] HOLD_POSES = HoldPose.values();
+    private static final io.wifi.starrailexpress.customitem.CustomItemData.CuffWearMode[] CUFF_WEAR_MODES = io.wifi.starrailexpress.customitem.CustomItemData.CuffWearMode
+            .values();
+    private static final io.wifi.starrailexpress.customitem.CustomItemData.CuffPose[] CUFF_POSES = io.wifi.starrailexpress.customitem.CustomItemData.CuffPose
+            .values();
     private static final RoleTeam[] TEAMS = RoleTeam.values();
 
     private int panelWidth, panelHeight, panelLeftX, panelTopY, activeTab = 0;
@@ -396,6 +400,10 @@ public class CustomItemScreen extends Screen {
                 Component.translatable("sre.custom_item.hint.pass_on_death_role"), v -> data.passOnDeathRole = v);
         r = enumRow(r, "sre.custom_item.label.pass_on_death_team", "sre.custom_item.team", data.passOnDeathTeam(),
                 index -> data.passOnDeathTeam = TEAMS[index].name());
+
+        // 小偷
+        addHintText(r++, Component.translatable("sre.custom_item.section.steal"), 0xFFD4AF37);
+        r = boolRow(r, "sre.custom_item.label.stealable", data.stealable, v -> data.stealable = v);
     }
 
     // ══════════════════════════════════════════════════════════════════
@@ -419,6 +427,8 @@ public class CustomItemScreen extends Screen {
             case GUN -> buildGunKind(r);
             case VANILLA_WEAPON -> buildWeaponKind(r);
             case FOOD -> buildFoodKind(r);
+            case CUFF -> buildCuffKind(r);
+            case THROWABLE -> buildThrowableKind(r);
         };
     }
 
@@ -500,6 +510,8 @@ public class CustomItemScreen extends Screen {
     }
 
     private int buildWeaponKind(int r) {
+        r = numRow(r, "sre.custom_item.label.durability", data.durability, "sre.custom_item.unit.times",
+                v -> data.durability = (int) v);
         r = numRow(r, "sre.custom_item.label.attack_speed", data.attackSpeed, "sre.custom_item.unit.attack_speed",
                 v -> data.attackSpeed = v);
         r = numRow(r, "sre.custom_item.label.virtual_damage", data.virtualDamage, "sre.custom_item.unit.point",
@@ -528,6 +540,218 @@ public class CustomItemScreen extends Screen {
         r = boolRow(r, "sre.custom_item.label.consume_on_eat", data.consumeOnEat, v -> data.consumeOnEat = v);
         r = numRow(r, "sre.custom_item.label.eat_cooldown", data.eatCooldownTicks, "sre.custom_item.unit.tick",
                 v -> data.eatCooldownTicks = (int) v);
+        return r;
+    }
+
+    // ══════════════════════════════════════════════════════════════════
+    // 页 1：物品性质 —— 手铐类
+    // ══════════════════════════════════════════════════════════════════
+    private int buildCuffKind(int r) {
+        r = numRow(r, "sre.custom_item.label.durability", data.durability, "sre.custom_item.unit.times",
+                v -> data.durability = (int) v);
+        r = enumRow(r, "sre.custom_item.label.cuff_wear_mode", "sre.custom_item.cuff_wear_mode",
+                data.cuffWearMode(), index -> data.cuffWearMode = CUFF_WEAR_MODES[index].name());
+        r = enumRow(r, "sre.custom_item.label.cuff_pose", "sre.custom_item.cuff_pose", data.cuffPose(),
+                index -> data.cuffPose = CUFF_POSES[index].name());
+        r = boolRow(r, "sre.custom_item.label.cuff_restrict", data.cuffRestrict, v -> data.cuffRestrict = v);
+
+        addHintText(r++, Component.translatable("sre.custom_item.section.cuff_take_off"), 0xFFD4AF37);
+        r = teamRow(r, "sre.custom_item.label.cuff_take_off_team", data.cuffTakeOffTeam,
+                v -> data.cuffTakeOffTeam = v);
+        r = textLines(r, "sre.custom_item.label.cuff_take_off_roles", data.cuffTakeOffRoles,
+                "sre.custom_item.hint.role_id", "sre.custom_item.add_role");
+        r = textLines(r, "sre.custom_item.label.cuff_take_off_modifiers", data.cuffTakeOffModifiers,
+                "sre.custom_item.hint.modifier_id", "sre.custom_item.add_modifier");
+
+        addHintText(r++, Component.translatable("sre.custom_item.section.cuff_effects"), 0xFFD4AF37);
+        r = effectList(r, "sre.custom_item.label.cuff_effects", data.cuffEffects);
+        r = numRow(r, "sre.custom_item.label.cuff_command_interval", data.cuffCommandIntervalTicks,
+                "sre.custom_item.unit.tick", v -> data.cuffCommandIntervalTicks = (int) v);
+        r = commandList(r, "sre.custom_item.label.cuff_commands", data.cuffCommands);
+        return r;
+    }
+
+    // ══════════════════════════════════════════════════════════════════
+    // 页 1：物品性质 —— 投掷物
+    // ══════════════════════════════════════════════════════════════════
+    private int buildThrowableKind(int r) {
+        r = numRow(r, "sre.custom_item.label.durability", data.durability, "sre.custom_item.unit.times",
+                v -> data.durability = (int) v);
+
+        // 投掷方式
+        r = boolRow(r, "sre.custom_item.label.throw_need_pin", data.throwNeedPin, v -> data.throwNeedPin = v);
+        if (data.throwNeedPin) {
+            r = numRow(r, "sre.custom_item.label.throw_pin_ticks", data.throwPinTicks,
+                    "sre.custom_item.unit.tick", v -> data.throwPinTicks = (int) v);
+        }
+        r = boolRow(r, "sre.custom_item.label.throw_sticky", data.throwSticky, v -> data.throwSticky = v);
+        if (data.throwSticky) {
+            r = numRow(r, "sre.custom_item.label.throw_stick_ticks", data.throwStickTicks,
+                    "sre.custom_item.unit.tick", v -> data.throwStickTicks = (int) v);
+        }
+        r = boolRow(r, "sre.custom_item.label.throw_defusable", data.throwDefusable, v -> data.throwDefusable = v);
+        if (data.throwDefusable) {
+            r = numRow(r, "sre.custom_item.label.throw_defuse_ticks", data.throwDefuseTicks,
+                    "sre.custom_item.unit.tick", v -> data.throwDefuseTicks = (int) v);
+            r = defuseRules(r, data.throwDefuseFailRules);
+        }
+        r = boolRow(r, "sre.custom_item.label.throw_delayed", data.throwDelayed, v -> data.throwDelayed = v);
+        if (data.throwDelayed) {
+            r = numRow(r, "sre.custom_item.label.throw_delay_seconds", data.throwDelaySeconds,
+                    "sre.custom_item.unit.second", v -> data.throwDelaySeconds = v);
+        }
+
+        // 触发效果
+        addHintText(r++, Component.translatable("sre.custom_item.section.throw_trigger"), 0xFFD4AF37);
+        r = numRow(r, "sre.custom_item.label.throw_radius", data.throwRadius, "sre.custom_item.unit.blocks",
+                v -> data.throwRadius = v);
+        r = boolRow(r, "sre.custom_item.label.throw_explode", data.throwExplode, v -> data.throwExplode = v);
+        if (data.throwExplode) {
+            r = boolRow(r, "sre.custom_item.label.throw_ignore_walls", data.throwIgnoreWalls,
+                    v -> data.throwIgnoreWalls = v);
+            if (data.throwIgnoreWalls) {
+                r = numRow(r, "sre.custom_item.label.throw_wall_blocks", data.throwWallIgnoreBlocks,
+                        "sre.custom_item.unit.blocks", v -> data.throwWallIgnoreBlocks = (int) v);
+            }
+            r = textRow(r, "sre.custom_item.label.throw_particle", data.throwExplosionParticle,
+                    Component.translatable("sre.custom_item.hint.particle"), v -> data.throwExplosionParticle = v);
+            r = textRow(r, "sre.custom_item.label.throw_sound", data.throwExplosionSound,
+                    Component.translatable("sre.custom_item.hint.sound"), v -> data.throwExplosionSound = v);
+            r = deathReasonRow(r, "sre.custom_item.label.throw_death_reason", data.throwDeathReason,
+                    v -> data.throwDeathReason = v);
+        }
+        r = commandList(r, "sre.custom_item.label.throw_hit_commands", data.throwHitCommands);
+        r = effectList(r, "sre.custom_item.label.throw_hit_effects", data.throwHitEffects);
+
+        // 粒子区域
+        r = boolRow(r, "sre.custom_item.label.throw_particle_area", data.throwParticleArea,
+                v -> data.throwParticleArea = v);
+        if (data.throwParticleArea) {
+            r = textRow(r, "sre.custom_item.label.throw_particle_id", data.throwParticleAreaId,
+                    Component.translatable("sre.custom_item.hint.particle"), v -> data.throwParticleAreaId = v);
+            r = numRow(r, "sre.custom_item.label.throw_particle_ticks", data.throwParticleAreaTicks,
+                    "sre.custom_item.unit.tick", v -> data.throwParticleAreaTicks = (int) v);
+        }
+
+        // 持续生效区域（燃烧弹式，平面）
+        r = boolRow(r, "sre.custom_item.label.throw_persistent_area", data.throwPersistentArea,
+                v -> data.throwPersistentArea = v);
+        if (data.throwPersistentArea) {
+            r = textRow(r, "sre.custom_item.label.throw_area_particle", data.throwAreaParticleId,
+                    Component.translatable("sre.custom_item.hint.particle"), v -> data.throwAreaParticleId = v);
+            r = numRow(r, "sre.custom_item.label.throw_area_duration", data.throwAreaDurationSeconds,
+                    "sre.custom_item.unit.second", v -> data.throwAreaDurationSeconds = (int) v);
+            r = numRow(r, "sre.custom_item.label.throw_area_stay", data.throwAreaStayTicks,
+                    "sre.custom_item.unit.tick", v -> data.throwAreaStayTicks = (int) v);
+            r = effectList(r, "sre.custom_item.label.throw_area_effects", data.throwAreaEffects);
+            r = commandList(r, "sre.custom_item.label.throw_area_commands", data.throwAreaCommands);
+        }
+        return r;
+    }
+
+    // ══════════════════════════════════════════════════════════════════
+    // 控件：阵营轮回 / 药水效果列表 / 拆除失败规则
+    // ══════════════════════════════════════════════════════════════════
+
+    /** 「标签 + 阵营轮回」按钮行，第一项是「无人能取 / 未限制」（空串）。 */
+    private int teamRow(int r, String labelKey, String current, Consumer<String> setter) {
+        addLabelKey(r, labelKey);
+        button(r, fieldX(), 300, 18, teamName(current), () -> {
+            if (current == null || current.isBlank()) {
+                setter.accept(TEAMS[0].name());
+            } else {
+                int next = TEAMS.length;
+                for (int i = 0; i < TEAMS.length; i++) {
+                    if (TEAMS[i].name().equalsIgnoreCase(current)) {
+                        next = i + 1;
+                        break;
+                    }
+                }
+                setter.accept(next >= TEAMS.length ? "" : TEAMS[next].name());
+            }
+            requestRebuild();
+        });
+        return r + 1;
+    }
+
+    private static Component teamName(String team) {
+        if (team == null || team.isBlank()) {
+            return Component.translatable("sre.custom_item.value.none");
+        }
+        try {
+            return Component.translatable("sre.custom_item.team." + team.toLowerCase());
+        } catch (Exception e) {
+            return Component.literal(team);
+        }
+    }
+
+    /**
+     * 药水效果列表块：每行「效果 id + 等级 + 持续秒数」+ ×，末尾 ＋ 添加。
+     *
+     * <p>
+     * 手铐用它的「id + 等级」（持续时间为「直到解除」）；投掷物用完整的三个字段。
+     */
+    private int effectList(int r, String labelKey, List<CustomItemData.EffectData> effects) {
+        addLabelKey(r, labelKey);
+        r++;
+        addHintText(r++, Component.translatable("sre.custom_item.hint.effects"), 0xFF9E8B6E);
+        if (effects.isEmpty()) {
+            effects.add(new CustomItemData.EffectData());
+        }
+        for (int i = 0; i < effects.size(); i++) {
+            final int index = i;
+            CustomItemData.EffectData effect = effects.get(i);
+            box(r, fieldX(), 180, effect.effectId, Component.translatable("sre.custom_item.hint.effect_id"),
+                    v -> effect.effectId = v);
+            box(r, fieldX() + 186, 48, num(effect.amplifier),
+                    Component.translatable("sre.custom_item.hint.amplifier"),
+                    v -> effect.amplifier = parseInt(v, effect.amplifier));
+            box(r, fieldX() + 240, 54, num(effect.durationSeconds),
+                    Component.translatable("sre.custom_item.hint.duration"),
+                    v -> effect.durationSeconds = parseInt(v, effect.durationSeconds));
+            button(r, fieldX() + 300, 22, 18, Component.translatable("sre.custom_item.remove_command"),
+                    () -> {
+                        effects.remove(index);
+                        requestRebuild();
+                    });
+            r++;
+        }
+        button(r++, fieldX(), 160, 18, Component.translatable("sre.custom_item.add_effect"),
+                () -> {
+                    effects.add(new CustomItemData.EffectData());
+                    requestRebuild();
+                });
+        return r;
+    }
+
+    /** 拆除失败概率列表块：每行「职业 id + 失败百分比」+ ×，末尾 ＋ 添加。 */
+    private int defuseRules(int r, List<CustomItemData.DefuseFailRule> rules) {
+        addLabelKey(r, "sre.custom_item.label.throw_defuse_fail");
+        r++;
+        addHintText(r++, Component.translatable("sre.custom_item.hint.defuse_fail"), 0xFF9E8B6E);
+        if (rules.isEmpty()) {
+            rules.add(new CustomItemData.DefuseFailRule());
+        }
+        for (int i = 0; i < rules.size(); i++) {
+            final int index = i;
+            CustomItemData.DefuseFailRule rule = rules.get(i);
+            box(r, fieldX(), 220, rule.roleId, Component.translatable("sre.custom_item.hint.role_id"),
+                    v -> rule.roleId = v);
+            box(r, fieldX() + 226, 68, num(rule.failPercent),
+                    Component.translatable("sre.custom_item.hint.fail_percent"),
+                    v -> rule.failPercent = parseInt(v, rule.failPercent));
+            button(r, fieldX() + 300, 22, 18, Component.translatable("sre.custom_item.remove_command"),
+                    () -> {
+                        rules.remove(index);
+                        requestRebuild();
+                    });
+            r++;
+        }
+        button(r++, fieldX(), 160, 18, Component.translatable("sre.custom_item.add_defuse_rule"),
+                () -> {
+                    rules.add(new CustomItemData.DefuseFailRule());
+                    requestRebuild();
+                });
         return r;
     }
 

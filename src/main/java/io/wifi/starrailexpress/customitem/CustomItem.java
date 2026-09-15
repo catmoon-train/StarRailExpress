@@ -21,6 +21,7 @@ import io.wifi.starrailexpress.content.item.api.SREItemProperties;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
@@ -104,6 +105,25 @@ public class CustomItem extends Item implements SREItemProperties.LeftClickHurta
                 }
                 return InteractionResultHolder.consume(stack);
             }
+            case CUFF -> {
+                // 手铐类物品只能对玩家用：右键空气没有效果
+                return InteractionResultHolder.pass(stack);
+            }
+            case THROWABLE -> {
+                if (data.throwNeedPin) {
+                    // 需要拉栓：按住右键蓄力，松手投出（同手榴弹）
+                    if (player.getCooldowns().isOnCooldown(this)) {
+                        return InteractionResultHolder.fail(stack);
+                    }
+                    player.startUsingItem(hand);
+                    return InteractionResultHolder.consume(stack);
+                }
+                // 不需要拉栓：右键直接投出（同烟雾弹，投出时播放拉栓音效）
+                if (!world.isClientSide() && player instanceof ServerPlayer serverPlayer) {
+                    CustomItemRuntime.throwCustom(serverPlayer, stack, data);
+                }
+                return InteractionResultHolder.consume(stack);
+            }
             case FOOD -> {
                 if (data.isDrink || player.canEat(false)) {
                     player.startUsingItem(hand);
@@ -122,6 +142,25 @@ public class CustomItem extends Item implements SREItemProperties.LeftClickHurta
         player.setXRot(player.getXRot() - (float) data.recoil);
     }
 
+    // ==================== 右键玩家（手铐类物品） ====================
+
+    @Override
+    public InteractionResult interactLivingEntity(ItemStack stack, Player user, LivingEntity entity,
+            InteractionHand hand) {
+        CustomItemData data = CustomItemLoader.getData(stack);
+        if (data == null || data.kind() != CustomItemData.Kind.CUFF) {
+            return InteractionResult.PASS;
+        }
+        if (user.level().isClientSide()) {
+            // 客户端只负责挥手反馈，实际铐人在服务端做
+            return InteractionResult.SUCCESS;
+        }
+        if (!(user instanceof ServerPlayer serverPlayer) || !(entity instanceof Player target)) {
+            return InteractionResult.PASS;
+        }
+        return CustomItemRuntime.cuffPlayer(serverPlayer, stack, data, target);
+    }
+
     // ==================== 使用时长 / 动作 ====================
 
     @Override
@@ -132,6 +171,7 @@ public class CustomItem extends Item implements SREItemProperties.LeftClickHurta
         }
         return switch (data.kind()) {
             case CHARGE -> Math.max(1, data.chargeTicks);
+            case THROWABLE -> data.throwNeedPin ? Math.max(1, data.throwPinTicks) : 0;
             case FOOD -> Math.max(1, data.eatTicks);
             default -> 0;
         };
@@ -154,6 +194,7 @@ public class CustomItem extends Item implements SREItemProperties.LeftClickHurta
                 case BRUSH -> UseAnim.BRUSH;
                 case NONE -> UseAnim.NONE;
             };
+            case THROWABLE -> data.throwNeedPin ? UseAnim.BOW : UseAnim.NONE;
             case FOOD -> data.isDrink ? UseAnim.DRINK : UseAnim.EAT;
             default -> UseAnim.NONE;
         };
@@ -167,7 +208,17 @@ public class CustomItem extends Item implements SREItemProperties.LeftClickHurta
             return;
         }
         CustomItemData data = CustomItemLoader.getData(stack);
-        if (data == null || data.kind() != CustomItemData.Kind.CHARGE) {
+        if (data == null) {
+            return;
+        }
+        if (data.kind() == CustomItemData.Kind.THROWABLE) {
+            // 需要拉栓的投掷物：松手即投出（与手榴弹一致，不要求蓄满）
+            if (data.throwNeedPin) {
+                CustomItemRuntime.throwCustom(player, stack, data);
+            }
+            return;
+        }
+        if (data.kind() != CustomItemData.Kind.CHARGE) {
             return;
         }
         int charged = getUseDuration(stack, user) - timeCharged;
@@ -249,6 +300,23 @@ public class CustomItem extends Item implements SREItemProperties.LeftClickHurta
         StaminaRenderer.triggerScreenEdgeEffect(Color.pink.getRGB(), 300L, 0.5f);
     }
 
+    // ==================== 耐久条 ====================
+
+    @Override
+    public boolean isBarVisible(ItemStack stack) {
+        return CustomItemRuntime.hasDurabilityBar(stack);
+    }
+
+    @Override
+    public int getBarWidth(ItemStack stack) {
+        return CustomItemRuntime.durabilityBarWidth(stack);
+    }
+
+    @Override
+    public int getBarColor(ItemStack stack) {
+        return CustomItemRuntime.durabilityBarColor(stack);
+    }
+
     // ==================== tooltip ====================
 
     @Override
@@ -264,6 +332,12 @@ public class CustomItem extends Item implements SREItemProperties.LeftClickHurta
             tooltip.add(Component.translatable("item.starrailexpress.custom_item.ammo",
                     CustomItemRuntime.getAmmo(stack, data), data.maxAmmo)
                     .withStyle(style -> style.withColor(0xFFB300)));
+        }
+        int maxDurability = CustomItemRuntime.maxDurability(data);
+        if (maxDurability > 0) {
+            tooltip.add(Component.translatableWithFallback("sre.custom_item.durability", "耐久 %s/%s",
+                    CustomItemRuntime.remainingDurability(stack, data), maxDurability)
+                    .withStyle(style -> style.withColor(0xFFAFAFAF)));
         }
         if (data.invisibleInHand) {
             // 与项目内其它「手持不可见」物品一致的提示
