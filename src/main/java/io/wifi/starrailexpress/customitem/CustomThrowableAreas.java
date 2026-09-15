@@ -61,12 +61,15 @@ public final class CustomThrowableAreas {
         final int stayTicks;
         final List<CustomItemData.EffectData> effects;
         final List<String> commands;
+        /** 投掷者：区域指令里的 {@code <attacker>} 指他（可能为 null）。 */
+        final ServerPlayer attacker;
         /** 每个玩家在区域内已停留的 tick。 */
         final Map<UUID, Integer> stayTicksByPlayer = new HashMap<>();
         int remainingTicks;
 
         PersistentArea(ServerLevel level, Vec3 center, double radius, int stayTicks,
-                List<CustomItemData.EffectData> effects, List<String> commands, int durationTicks) {
+                List<CustomItemData.EffectData> effects, List<String> commands, int durationTicks,
+                ServerPlayer attacker) {
             this.level = level;
             this.center = center;
             this.radius = radius;
@@ -74,6 +77,7 @@ public final class CustomThrowableAreas {
             this.effects = effects;
             this.commands = commands;
             this.remainingTicks = durationTicks;
+            this.attacker = attacker;
         }
     }
 
@@ -86,7 +90,8 @@ public final class CustomThrowableAreas {
     }
 
     /** 创建持续生效区域（半径 / 滞留时间 / 停留 tick / 药水效果 / 指令全部来自配置）。 */
-    public static void createPersistentArea(ServerLevel level, Vec3 center, double radius, CustomItemData data) {
+    public static void createPersistentArea(ServerLevel level, Vec3 center, double radius, CustomItemData data,
+            ServerPlayer attacker) {
         int durationTicks = Math.max(1, data.throwAreaDurationSeconds) * 20;
         double areaRadius = Math.max(1.0D, radius);
         broadcast(level, center, areaRadius, durationTicks, data.throwAreaParticleId, true);
@@ -94,7 +99,7 @@ public final class CustomThrowableAreas {
                 Math.max(1, data.throwAreaStayTicks),
                 data.throwAreaEffects == null ? List.of() : data.throwAreaEffects,
                 data.throwAreaCommands == null ? List.of() : data.throwAreaCommands,
-                durationTicks));
+                durationTicks, attacker));
     }
 
     /** 把区域交给客户端渲染（服务端不再自己广播粒子）。 */
@@ -133,7 +138,7 @@ public final class CustomThrowableAreas {
                 // 触发一次后重新累计，可以反复触发
                 area.stayTicksByPlayer.put(uuid, 0);
                 CustomItemRuntime.applyEffects(player, area.effects);
-                CustomItemLoader.executeCommands(area.commands, player);
+                CustomItemLoader.executeCommands(area.commands, player, area.attacker);
             }
         }
     }

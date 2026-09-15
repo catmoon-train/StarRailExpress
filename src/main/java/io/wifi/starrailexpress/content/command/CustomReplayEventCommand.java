@@ -16,6 +16,7 @@
 package io.wifi.starrailexpress.content.command;
 
 import com.mojang.brigadier.CommandDispatcher;
+import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import io.wifi.starrailexpress.SRE;
@@ -37,7 +38,13 @@ public class CustomReplayEventCommand {
                     .executes(ctx -> execute(ctx, false))))
             .then(Commands.literal("record_hidden")
                 .then(Commands.argument("message", ComponentArgument.textComponent(registryAccess))
-                    .executes(ctx -> execute(ctx, true)))));
+                    .executes(ctx -> execute(ctx, true))))
+            // easy：纯文本 + 玩家名参数，按顺序填入文本里的 <player>
+            .then(Commands.literal("easy")
+                .then(Commands.argument("text", StringArgumentType.string())
+                    .executes(ctx -> executeEasy(ctx, ""))
+                    .then(Commands.argument("names", StringArgumentType.greedyString())
+                        .executes(ctx -> executeEasy(ctx, StringArgumentType.getString(ctx, "names")))))));
     dispatcher.register(
         Commands.literal("sre:show_replay")
             .requires(source -> source.hasPermission(2))
@@ -71,6 +78,40 @@ public class CustomReplayEventCommand {
     Component result = SRE.REPLAY_MANAGER.recordCustomEvent(res, hidden);
     ctx.getSource().sendSuccess(() -> Component.literal("Successfully record custom event!"), true);
     ctx.getSource().sendSystemMessage(Component.literal("[ADD REPLAY] ").append(result));
+    return 1;
+  }
+
+  /** 「easy」分支填名字用的占位符。 */
+  private static final String PLAYER_PLACEHOLDER = "<player>";
+
+  /**
+   * 记录一条自定义回放文本（简易写法：纯文本 + 玩家名，按顺序填入 {@code <player>}）。
+   *
+   * <p>
+   * 例：{@code /sre:custom_replay easy "<player>受到了<player>的攻击" Alex1 Alex2}
+   * → 回放中新增词条「Alex1受到了Alex2的攻击」。
+   *
+   * <p>
+   * 名字按顺序消耗，多出来的名字会被忽略；名字不够时，剩下的 {@code <player>} 原样保留。
+   * 玩家名不做校验（按输入的文字原样填入）。
+   */
+  private static int executeEasy(CommandContext<CommandSourceStack> ctx, String names) {
+    String text = StringArgumentType.getString(ctx, "text");
+    String[] tokens = names == null || names.isBlank() ? new String[0] : names.trim().split("\\s+");
+    StringBuilder builder = new StringBuilder();
+    int tokenIndex = 0;
+    int cursor = 0;
+    int at;
+    while ((at = text.indexOf(PLAYER_PLACEHOLDER, cursor)) >= 0) {
+      builder.append(text, cursor, at);
+      builder.append(tokenIndex < tokens.length ? tokens[tokenIndex] : PLAYER_PLACEHOLDER);
+      tokenIndex++;
+      cursor = at + PLAYER_PLACEHOLDER.length();
+    }
+    builder.append(text, cursor, text.length());
+    Component message = Component.literal(builder.toString());
+    SRE.REPLAY_MANAGER.recordCustomEvent(message);
+    ctx.getSource().sendSuccess(() -> Component.literal("[ADD REPLAY] ").append(message), true);
     return 1;
   }
 }

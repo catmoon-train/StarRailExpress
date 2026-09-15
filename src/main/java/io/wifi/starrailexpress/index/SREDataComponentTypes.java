@@ -46,6 +46,9 @@ public interface SREDataComponentTypes {
             stringBuilder -> stringBuilder.persistent(Codec.BOOL).networkSynchronized(ByteBufCodecs.BOOL));
     DataComponentType<String> OWNER = register("owner",
             stringBuilder -> stringBuilder.persistent(Codec.STRING).networkSynchronized(ByteBufCodecs.STRING_UTF8));
+    /** 自定义手铐的「施加者」UUID：被铐住玩家的定时指令里 {@code <attacker>} 靠它解析。 */
+    DataComponentType<String> CUFF_APPLIER = register("cuff_applier",
+            stringBuilder -> stringBuilder.persistent(Codec.STRING).networkSynchronized(ByteBufCodecs.STRING_UTF8));
     DataComponentType<String> SKIN = register("skin",
             stringBuilder -> stringBuilder.persistent(Codec.STRING).networkSynchronized(ByteBufCodecs.STRING_UTF8));
     DataComponentType<ResourceLocation> TEXTURE = register("texture",

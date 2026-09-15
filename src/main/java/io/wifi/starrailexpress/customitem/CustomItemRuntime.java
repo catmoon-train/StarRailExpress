@@ -378,7 +378,8 @@ public final class CustomItemRuntime {
         // 对其它玩家作用
         if (data.affectOthers) {
             for (ServerPlayer target : findTargets(player, data)) {
-                CustomItemLoader.executeCommands(data.targetCommands, target);
+                // <attacker> = 手持该道具的使用者
+                CustomItemLoader.executeCommands(data.targetCommands, target, player);
             }
         }
 
@@ -689,8 +690,8 @@ public final class CustomItemRuntime {
 
     private static void handleGunHit(ServerPlayer shooter, ServerPlayer victim, ItemStack stack, CustomItemData data,
             boolean autoMode) {
-        // 被枪械击中的玩家执行的指令
-        CustomItemLoader.executeCommands(data.hitCommands, victim);
+        // 被枪械击中的玩家执行的指令（<attacker> = 开枪的玩家）
+        CustomItemLoader.executeCommands(data.hitCommands, victim, shooter);
 
         // 击退：1 点原版伤害
         if (data.knockbackOnHit) {
@@ -730,7 +731,7 @@ public final class CustomItemRuntime {
                 continue;
             }
             if (distance >= rule.distance) {
-                CustomItemLoader.executeCommands(List.of(rule.command), victim);
+                CustomItemLoader.executeCommands(List.of(rule.command), victim, shooter);
             }
         }
     }
@@ -738,7 +739,7 @@ public final class CustomItemRuntime {
     /** 最终效果：被击中玩家的指令 + 可选致死 + 枪械进入冷却。 */
     private static void triggerFinalEffect(ServerPlayer shooter, ServerPlayer victim, ItemStack stack,
             CustomItemData data) {
-        CustomItemLoader.executeCommands(data.finalHitCommands, victim);
+        CustomItemLoader.executeCommands(data.finalHitCommands, victim, shooter);
         if (data.lethalOnHit && GameUtils.isPlayerAliveAndSurvival(victim)) {
             GameUtils.killPlayer(victim, true, shooter, parseDeathReason(data.lethalDeathReason,
                     io.wifi.starrailexpress.game.GameConstants.DeathReasons.REVOLVER));
@@ -857,7 +858,7 @@ public final class CustomItemRuntime {
 
         // 攻击者 / 被攻击者指令
         CustomItemLoader.executeCommands(data.attackerHitCommands, attacker);
-        CustomItemLoader.executeCommands(data.victimCommands, target);
+        CustomItemLoader.executeCommands(data.victimCommands, target, attacker);
 
         if (damaged) {
             attacker.setLastHurtByMob(target);
@@ -1060,6 +1061,8 @@ public final class CustomItemRuntime {
         // 拷过去的是手上这份的副本（已消耗的耐久跟着走）
         ItemStack cuffStack = stack.copy();
         cuffStack.setCount(1);
+        // 记录施加者：被铐住玩家的定时指令里 <attacker> 指他
+        cuffStack.set(SREDataComponentTypes.CUFF_APPLIER, user.getUUID().toString());
         ExtraSlotComponent.setSlot(targetPlayer, cuffSlot(data), cuffStack);
         stack.shrink(1);
 
@@ -1189,10 +1192,10 @@ public final class CustomItemRuntime {
             applyCuffEffects(player, data);
             applyCuffRestriction(player, data);
 
-            // 定时指令：目标就是被铐住者本人
+            // 定时指令：目标就是被铐住者本人，<attacker> = 铐住他的人
             int interval = Math.max(1, data.cuffCommandIntervalTicks);
             if (now % interval == 0) {
-                CustomItemLoader.executeCommands(data.cuffCommands, player);
+                CustomItemLoader.executeCommands(data.cuffCommands, player, cuffApplier(server, cuff));
             }
 
             // 耐久消耗：每秒最多结算一次
@@ -1204,6 +1207,28 @@ public final class CustomItemRuntime {
                 ExtraSlotComponent.removeSlot(player, cuffSlot(data));
                 clearCuffEffects(player, data);
             }
+        }
+    }
+
+    /**
+     * 手铐的施加者（谁把它拷上去的）。
+     *
+     * <p>
+     * 施加时会把施加者 UUID 写在手铐物品堆上，这里按 UUID 取在线玩家；
+     * 没记录（旧存档 / 手改物品）或施加者已离线时返回 null，此时 {@code <attacker>} 退化为被铐者本人。
+     */
+    private static ServerPlayer cuffApplier(MinecraftServer server, ItemStack cuff) {
+        if (cuff == null || cuff.isEmpty()) {
+            return null;
+        }
+        String uuid = cuff.get(SREDataComponentTypes.CUFF_APPLIER);
+        if (uuid == null || uuid.isBlank()) {
+            return null;
+        }
+        try {
+            return server.getPlayerList().getPlayer(UUID.fromString(uuid));
+        } catch (Exception e) {
+            return null;
         }
     }
 

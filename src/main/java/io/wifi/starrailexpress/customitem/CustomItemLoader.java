@@ -246,23 +246,41 @@ public final class CustomItemLoader {
 
     /** 批量执行指令（空串自动跳过）。 */
     public static void executeCommands(List<String> commands, ServerPlayer base) {
+        executeCommands(commands, base, null);
+    }
+
+    /**
+     * 批量执行指令，并把 {@code <attacker>} 替换为「手持该道具影响 base 的玩家」。
+     *
+     * @param attacker 影响 base 的玩家（道具使用者 / 攻击者）；为 null 时 {@code <attacker>}
+     *                 等同于 {@code <player>}
+     */
+    public static void executeCommands(List<String> commands, ServerPlayer base, ServerPlayer attacker) {
         if (commands == null || base == null) {
             return;
         }
         for (String command : commands) {
-            executeCommand(command, base);
+            executeCommand(command, base, attacker);
         }
+    }
+
+    /** 执行一条配置指令（{@code <attacker>} 等同于 {@code <player>}）。 */
+    public static void executeCommand(String command, ServerPlayer base) {
+        executeCommand(command, base, null);
     }
 
     /**
      * 执行一条配置指令。
      *
      * <p>
-     * 语义与自定义职业一致：{@code <player>} 替换为 {@code base} 的玩家名，{@code ~ ~ ~}
-     * 替换为 {@code base} 的坐标，{@code @p} 替换为距离 {@code base} 最近的其他存活玩家。
-     * 「被作用 / 被击中的玩家执行的指令」把 {@code base} 传成该玩家即可。
+     * 语义与自定义职业一致：{@code <player>} 替换为 {@code base} 的玩家名，{@code <attacker>}
+     * 替换为「手持该道具影响 {@code base} 的玩家」（{@code attacker} 为 null 时等同于 {@code <player>}），
+     * {@code ~ ~ ~} 替换为 {@code base} 的坐标，{@code @p} 替换为距离 {@code base} 最近的其他存活玩家。
+     *
+     * <p>
+     * 「被作用 / 被击中的玩家执行的指令」把 {@code base} 传成该玩家、{@code attacker} 传成使用者即可。
      */
-    public static void executeCommand(String command, ServerPlayer base) {
+    public static void executeCommand(String command, ServerPlayer base, ServerPlayer attacker) {
         if (command == null || base == null) {
             return;
         }
@@ -280,6 +298,8 @@ public final class CustomItemLoader {
         }
         String processed = processCommandSelectors(raw
                 .replace("<player>", base.getGameProfile().getName())
+                .replace("<attacker>", attacker != null ? attacker.getGameProfile().getName()
+                        : base.getGameProfile().getName())
                 .replace("~ ~ ~", String.format("%.1f %.1f %.1f", base.getX(), base.getY(), base.getZ())),
                 base);
         try {

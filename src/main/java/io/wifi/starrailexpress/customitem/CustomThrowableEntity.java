@@ -282,8 +282,11 @@ public class CustomThrowableEntity extends NoHeavyWaterInfluencedThrowableItemPr
         double radius = Math.max(0.5D, data.throwRadius);
         List<ServerPlayer> targets = affectedPlayers(serverLevel, center, radius, data);
 
+        // 投掷者：范围指令里的 <attacker> 指他
+        Entity thrower = getOwner();
+        ServerPlayer attacker = thrower instanceof ServerPlayer serverPlayer ? serverPlayer : null;
         for (ServerPlayer target : targets) {
-            CustomItemLoader.executeCommands(data.throwHitCommands, target);
+            CustomItemLoader.executeCommands(data.throwHitCommands, target, attacker);
             CustomItemRuntime.applyEffects(target, data.throwHitEffects);
         }
         if (data.throwExplode) {
@@ -295,7 +298,7 @@ public class CustomThrowableEntity extends NoHeavyWaterInfluencedThrowableItemPr
         }
         if (data.throwPersistentArea) {
             CustomThrowableAreas.createPersistentArea(serverLevel, center,
-                    Math.max(0.5D, data.throwRadius), data);
+                    Math.max(0.5D, data.throwRadius), data, attacker);
         }
         discard();
     }
