@@ -750,6 +750,19 @@ public class CustomItemData {
         public int failPercent = 0;
     }
 
+    /** 一条「药水效果」（手铐 / 投掷物共用）。 */
+    public static class EffectData {
+        /** 效果 id，如 {@code minecraft:speed}。 */
+        @SerializedName("effectId")
+        public String effectId = "";
+        /** 0 = 等级 I。 */
+        @SerializedName("amplifier")
+        public int amplifier = 0;
+        /** 持续时间（秒）；手铐的持续时间固定到解除为止，该字段在那种用途下被忽略。 */
+        @SerializedName("durationSeconds")
+        public int durationSeconds = 10;
+    }
+
     /** 蓄力动作（对应原版 {@code UseAnim}）。 */
     public enum ChargeAnim {
         /** 无动作。 */
