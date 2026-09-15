@@ -412,17 +412,25 @@ public class CustomItemScreen extends Screen {
         r = enumRow(r, "sre.custom_item.label.texture_mode", "sre.custom_item.texture_mode",
                 data.textureMode(), index -> data.textureMode = TEXTURE_MODES[index].name());
         switch (data.textureMode()) {
-            case PACK -> r = textRow(r, "sre.custom_item.label.texture_path", data.packTexturePath,
-                    Component.translatable("sre.custom_item.hint.texture_path"), v -> data.packTexturePath = v);
+            case PACK -> {
+                r = textRow(r, "sre.custom_item.label.texture_path", data.packTexturePath,
+                        Component.translatable("sre.custom_item.hint.texture_path"), v -> data.packTexturePath = v);
+                // 贴图来源也支持填模型地址当外壳（留空走默认模型）
+                r = modelPathRow(r, true);
+            }
             case ANIMATED -> {
                 r = textLines(r, "sre.custom_item.label.animated_textures", data.animatedTextures,
                         "sre.custom_item.hint.animated_textures", "sre.custom_item.add_texture");
                 r = numRow(r, "sre.custom_item.label.animated_frame_ticks", data.animatedFrameTicks,
                         "sre.custom_item.unit.tick", v -> data.animatedFrameTicks = (int) v);
+                r = modelPathRow(r, true);
             }
             case MODEL -> {
-                r = textRow(r, "sre.custom_item.label.model_path", data.modelPath,
-                        Component.translatable("sre.custom_item.hint.model_path"), v -> data.modelPath = v);
+                r = modelPathRow(r, false);
+                // 模型也能配贴图：填了就给模型换皮（几何用模型、贴图用这张）
+                r = textRow(r, "sre.custom_item.label.texture_path", data.packTexturePath,
+                        Component.translatable("sre.custom_item.hint.model_texture"),
+                        v -> data.packTexturePath = v);
                 r = textRow(r, "sre.custom_item.label.inherit_item", data.inheritItemTexture,
                         Component.translatable("sre.custom_item.hint.inherit_item"),
                         v -> data.inheritItemTexture = v);
@@ -962,6 +970,24 @@ public class CustomItemScreen extends Screen {
         if (maxScroll > 0) {
             renderScrollbar(g, mouseX, mouseY);
         }
+    }
+
+    /**
+     * 「模型地址」输入行。
+     *
+     * <p>
+     * 三种材质来源下都能填：贴图来源（资源包贴图 / 动态贴图）下它是可选的<b>外壳模型</b>
+     * —— 填了就把贴图套在模型上，留空走默认模型（平面四边形）；模型来源下它就是主设置。
+     *
+     * @param shellHint 是否补一行「当外壳用」的说明（贴图来源下需要，模型来源下不需要）
+     */
+    private int modelPathRow(int r, boolean shellHint) {
+        r = textRow(r, "sre.custom_item.label.model_path", data.modelPath,
+                Component.translatable("sre.custom_item.hint.model_path"), v -> data.modelPath = v);
+        if (shellHint) {
+            addHintText(r++, Component.translatable("sre.custom_item.hint.model_shell"), 0xFF9E8B6E);
+        }
+        return r;
     }
 
     /**

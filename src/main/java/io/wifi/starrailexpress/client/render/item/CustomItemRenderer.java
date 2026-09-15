@@ -25,11 +25,14 @@ import net.fabricmc.fabric.api.client.rendering.v1.BuiltinItemRendererRegistry;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.client.resources.model.ModelResourceLocation;
+import net.minecraft.core.Direction;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
@@ -100,20 +103,22 @@ public class CustomItemRenderer implements BuiltinItemRendererRegistry.DynamicIt
             return;
         }
 
-        // 材质来源三选一（编辑界面里用按钮切换，三者相互独立、只生效选中的那个）
+        // 材质来源三选一（编辑界面里用按钮切换，三者相互独立、只生效选中的那个）：
+        // PACK / ANIMATED 是「贴图来源」，都还能再填一个模型地址当外壳；MODEL 是「模型来源」
         switch (data.textureMode()) {
+            case PACK -> {
+                if (drawTextured(data, resolvePackTexture(data.packTexturePath), poseStack, buffers, light,
+                        overlay)) {
+                    return;
+                }
+            }
             case ANIMATED -> {
-                if (drawAnimated(data, poseStack, buffers, light, overlay)) {
+                if (drawTextured(data, currentAnimatedFrame(data), poseStack, buffers, light, overlay)) {
                     return;
                 }
             }
             case MODEL -> {
                 if (drawModel(data, poseStack, buffers, light, overlay)) {
-                    return;
-                }
-            }
-            case PACK -> {
-                if (drawPack(data, poseStack, buffers, light, overlay)) {
                     return;
                 }
             }
@@ -129,45 +134,112 @@ public class CustomItemRenderer implements BuiltinItemRendererRegistry.DynamicIt
         drawFallback(poseStack, buffers, light, overlay);
     }
 
-    /** PACK 资源包贴图：一张 PNG 画成前后两层（1 像素厚）。 */
-    private static boolean drawPack(CustomItemData data, PoseStack poseStack, MultiBufferSource buffers,
-            int light, int overlay) {
-        ResourceLocation packTexture = resolvePackTexture(data.packTexturePath);
-        if (packTexture == null) {
-            return false;
-        }
-        drawQuad(poseStack, buffers, RenderType.entityTranslucent(packTexture),
-                0.0F, 0.0F, 1.0F, 1.0F, light, overlay);
-        return true;
-    }
-
     /**
-     * ANIMATED 导入动态贴图：按客户端世界时间切帧循环（帧数不限，每帧都是一张平面贴图）。
+     * PACK / ANIMATED 两种「贴图来源」的渲染：贴图取到之后再看有没有填「模型地址」——
+     * 填了就用该模型当外壳、把这张贴图套上去；没填（或模型没烘焙上）走<b>默认模型</b>：
+     * 一张平面四边形画成前后两层（1 像素厚）。
+     *
+     * @param texture 本次要用的贴图（资源包贴图 / 动态贴图当前帧；解析不到传 null）
+     * @return 是否已经画出来
      */
-    private static boolean drawAnimated(CustomItemData data, PoseStack poseStack, MultiBufferSource buffers,
-            int light, int overlay) {
-        List<String> frames = data.animatedFramePaths();
-        if (frames.isEmpty()) {
-            return false;
-        }
-        int frameTicks = Math.max(1, data.animatedFrameTicks);
-        int index = (int) (gameTime() / frameTicks % frames.size());
-        ResourceLocation texture = resolvePackTexture(frames.get(index));
+    private static boolean drawTextured(CustomItemData data, ResourceLocation texture, PoseStack poseStack,
+            MultiBufferSource buffers, int light, int overlay) {
         if (texture == null) {
             return false;
+        }
+        BakedModel shell = resolveConfiguredModel(data.modelPath);
+        if (shell != null) {
+            drawModelWithTexture(shell, texture, poseStack, buffers, light, overlay);
+            return true;
         }
         drawQuad(poseStack, buffers, RenderType.entityTranslucent(texture),
                 0.0F, 0.0F, 1.0F, 1.0F, light, overlay);
         return true;
     }
 
+    /** 动态贴图当前帧的贴图（没配帧 / 帧解析不到返回 null）。 */
+    private static ResourceLocation currentAnimatedFrame(CustomItemData data) {
+        List<String> frames = data.animatedFramePaths();
+        if (frames.isEmpty()) {
+            return null;
+        }
+        int frameTicks = Math.max(1, data.animatedFrameTicks);
+        int index = (int) (gameTime() / frameTicks % frames.size());
+        return resolvePackTexture(frames.get(index));
+    }
+
     /**
-     * MODEL 导入立体模型：优先渲染「模型地址」指向的资源包模型 json
-     * （{@code elements} 立体几何 + 图集动画贴图 + 模型自身材质，全都跟着走）；
-     * 模型地址没填 / 没烘焙上时，退回「借某个物品的模型」（老写法，兼容旧数据）。
+     * 用指定贴图渲染一个烘焙模型：几何与 UV 都跟着模型走，只把"采样哪张图"换成我们这张，
+     * 等价于给模型换皮；动态贴图逐帧换皮就是模型上的动画。
      *
      * <p>
-     * 两条路都用 {@link ItemDisplayContext#NONE} 渲染：物品模型一般不给 {@code none} 配 display
+     * 模型烘焙后的 UV 是<b>图集坐标</b>，而我们的贴图是独立纹理（0..1 = 整张图），
+     * 所以要按该 quad 原本使用的 sprite 把 UV 换算回 sprite 内部坐标，否则会采到图集别处。
+     */
+    private static void drawModelWithTexture(BakedModel model, ResourceLocation texture, PoseStack poseStack,
+            MultiBufferSource buffers, int light, int overlay) {
+        VertexConsumer consumer = buffers.getBuffer(RenderType.entityTranslucent(texture));
+        PoseStack.Pose pose = poseStack.last();
+        RandomSource random = RandomSource.create(42L);
+        for (Direction direction : Direction.values()) {
+            emitQuads(consumer, pose, model.getQuads(null, direction, random), light, overlay);
+        }
+        emitQuads(consumer, pose, model.getQuads(null, null, random), light, overlay);
+    }
+
+    /** 把一批 quad 的顶点写进给定 consumer（实际采样哪张贴图由 consumer 的渲染类型决定）。 */
+    private static void emitQuads(VertexConsumer consumer, PoseStack.Pose pose, List<BakedQuad> quads, int light,
+            int overlay) {
+        for (BakedQuad quad : quads) {
+            TextureAtlasSprite sprite = quad.getSprite();
+            float u0 = sprite == null ? 0.0F : sprite.getU0();
+            float v0 = sprite == null ? 0.0F : sprite.getV0();
+            float du = sprite == null ? 1.0F : sprite.getU1() - sprite.getU0();
+            float dv = sprite == null ? 1.0F : sprite.getV1() - sprite.getV0();
+            if (du == 0.0F) {
+                du = 1.0F;
+            }
+            if (dv == 0.0F) {
+                dv = 1.0F;
+            }
+            Direction direction = quad.getDirection();
+            int[] data = quad.getVertices();
+            int stride = Math.max(1, data.length / 4);
+            for (int i = 0; i < 4; i++) {
+                int base = i * stride;
+                if (base + 5 >= data.length) {
+                    break;
+                }
+                float x = Float.intBitsToFloat(data[base]);
+                float y = Float.intBitsToFloat(data[base + 1]);
+                float z = Float.intBitsToFloat(data[base + 2]);
+                float u = (Float.intBitsToFloat(data[base + 4]) - u0) / du;
+                float v = (Float.intBitsToFloat(data[base + 5]) - v0) / dv;
+                consumer.addVertex(pose, x, y, z)
+                        .setColor(255, 255, 255, 255)
+                        .setUv(u, v)
+                        .setOverlay(overlay)
+                        .setLight(light)
+                        .setNormal(pose, direction.getStepX(), direction.getStepY(), direction.getStepZ());
+            }
+        }
+    }
+
+    /**
+     * MODEL 导入立体模型：<b>模型地址</b>（资源包模型 json；没填时退回「借某个物品的模型」）
+     * ＋ <b>材质地址</b>（可选：填了就给模型换皮，留空用模型自带贴图）。
+     *
+     * <p>
+     * 组合规则：
+     * <ul>
+     * <li>有模型 + 有贴图 → 模型的几何 + 你导入的贴图（{@link #drawModelWithTexture}）；</li>
+     * <li>有模型 + 没贴图 → 模型自带贴图（走原版物品渲染器）；</li>
+     * <li>没模型 + 有贴图 → 默认模型（平面四边形两层）+ 这张贴图；</li>
+     * <li>都没有 → 返回 false，交给外层兜底链。</li>
+     * </ul>
+     *
+     * <p>
+     * 渲染模型一律用 {@link ItemDisplayContext#NONE}：物品模型一般不给 {@code none} 配 display
      * 变换，解析出来是单位变换 —— 于是模型用的就是「本物品自己那套 display」（外层
      * {@code ItemRenderer} 已经施加过），不会被叠加第二次变换；坐标空间也与我们画平面时用的
      * [0,1]³ 一致（原版模型空间 0..16 = 1 格）。
@@ -181,19 +253,31 @@ public class CustomItemRenderer implements BuiltinItemRendererRegistry.DynamicIt
         if (minecraft == null || minecraft.getItemRenderer() == null) {
             return false;
         }
+        // 材质地址：模型模式里它是「给模型换的皮」，留空就用模型自带的贴图
+        ResourceLocation texture = resolvePackTexture(data.packTexturePath);
         BakedModel configured = resolveConfiguredModel(data.modelPath);
         if (configured != null) {
-            minecraft.getItemRenderer().render(DUMMY_STACK, ItemDisplayContext.NONE, false, poseStack, buffers,
-                    light, overlay, configured);
+            if (texture != null) {
+                drawModelWithTexture(configured, texture, poseStack, buffers, light, overlay);
+            } else {
+                minecraft.getItemRenderer().render(DUMMY_STACK, ItemDisplayContext.NONE, false, poseStack, buffers,
+                        light, overlay, configured);
+            }
             return true;
         }
         ItemStack inherited = resolveInheritedStack(data.inheritItemTexture);
-        if (inherited.isEmpty() || CustomItemLoader.getData(inherited) != null) {
-            return false;
+        if (!inherited.isEmpty() && CustomItemLoader.getData(inherited) == null) {
+            minecraft.getItemRenderer().renderStatic(inherited, ItemDisplayContext.NONE, light, overlay, poseStack,
+                    buffers, minecraft.level, 0);
+            return true;
         }
-        minecraft.getItemRenderer().renderStatic(inherited, ItemDisplayContext.NONE, light, overlay, poseStack,
-                buffers, minecraft.level, 0);
-        return true;
+        // 模型地址空着但给了贴图：退回默认模型（平面两层）
+        if (texture != null) {
+            drawQuad(poseStack, buffers, RenderType.entityTranslucent(texture),
+                    0.0F, 0.0F, 1.0F, 1.0F, light, overlay);
+            return true;
+        }
+        return false;
     }
 
     /**
