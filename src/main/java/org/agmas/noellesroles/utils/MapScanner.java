@@ -35,6 +35,7 @@ import net.minecraft.world.food.FoodProperties;
 import net.minecraft.world.item.HoneyBottleItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.item.PotionItem;
 import net.minecraft.world.item.ThrowablePotionItem;
 import net.minecraft.world.level.block.Blocks;
@@ -52,6 +53,7 @@ import org.agmas.noellesroles.packet.ScanAllTaskPointsPayload;
 
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 
 public class MapScanner {
     public static void registerMapScanEvent() {
@@ -143,16 +145,24 @@ public class MapScanner {
             if (level.getBlockEntity(checkPos) instanceof BeveragePlateBlockEntity entity) {
                 var items = entity.getStoredItems();
                 if (items.size() > 0) {
-                    ItemStack item_0 = items.get(0);
-                    Item item_ = item_0.getItem();
-                    if ((item_ instanceof CocktailItem)
-                            || ((item_ instanceof PotionItem) && !(item_ instanceof ThrowablePotionItem))
-                            || (item_ instanceof HoneyBottleItem)) {
-                        GameUtils.taskBlocks.put(savePos, 2);
+                    // 场景任务要用的原版工具（刷子 / 剪刀）常被放在食物盘、饮料盘上：
+                    // 只把装着该工具的盘子登记成对应任务类型（17 灰尘 / 21 灌木），
+                    // 这样拥有「清扫灰尘」/「修剪灌木」任务的玩家也能透视到它们
+                    int toolTaskType = sceneToolTaskType(items);
+                    if (toolTaskType != 0) {
+                        GameUtils.taskBlocks.put(savePos, toolTaskType);
                     } else {
-                        FoodProperties foodPro = item_0.get(DataComponents.FOOD);
-                        if (foodPro != null) {
-                            GameUtils.taskBlocks.put(savePos, 1);
+                        ItemStack item_0 = items.get(0);
+                        Item item_ = item_0.getItem();
+                        if ((item_ instanceof CocktailItem)
+                                || ((item_ instanceof PotionItem) && !(item_ instanceof ThrowablePotionItem))
+                                || (item_ instanceof HoneyBottleItem)) {
+                            GameUtils.taskBlocks.put(savePos, 2);
+                        } else {
+                            FoodProperties foodPro = item_0.get(DataComponents.FOOD);
+                            if (foodPro != null) {
+                                GameUtils.taskBlocks.put(savePos, 1);
+                            }
                         }
                     }
                 }
@@ -204,4 +214,28 @@ public class MapScanner {
         }
     }
 
+    /**
+     * 盘子上是否放着场景任务需要的原版工具。
+     *
+     * <p>
+     * 刷子（{@link Items#BRUSH}）对应「清扫灰尘」，剪刀（{@link Items#SHEARS}）对应「修剪灌木」；
+     * 两者同时存在时按刷子优先。
+     *
+     * @param items 盘子里的物品
+     * @return 任务点类型（{@code 17} 灰尘 / {@code 21} 灌木），都不是则返回 {@code 0}
+     */
+    private static int sceneToolTaskType(List<ItemStack> items) {
+        boolean shears = false;
+        for (ItemStack stack : items) {
+            if (stack == null || stack.isEmpty())
+                continue;
+            if (stack.is(Items.BRUSH)) {
+                return 17;
+            }
+            if (stack.is(Items.SHEARS)) {
+                shears = true;
+            }
+        }
+        return shears ? 21 : 0;
+    }
 }
