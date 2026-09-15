@@ -16,10 +16,10 @@
 package io.wifi.starrailexpress.client;
 
 import io.wifi.starrailexpress.customitem.CustomThrowableEntity;
+import io.wifi.utils.client.betterrender.FakeGuiGraphics;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
@@ -48,7 +48,7 @@ public final class CustomThrowableDefuseHud {
         CommonHudRenderCallback.EVENT.register((graphics, deltaTracker) -> render(graphics));
     }
 
-    private static void render(GuiGraphics graphics) {
+    private static void render(FakeGuiGraphics graphics) {
         Minecraft client = Minecraft.getInstance();
         if (client.player == null || client.level == null || client.options.hideGui) {
             return;

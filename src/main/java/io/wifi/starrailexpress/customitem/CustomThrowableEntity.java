@@ -20,6 +20,7 @@ import io.wifi.starrailexpress.content.entity.no_water_influenced.NoHeavyWaterIn
 import io.wifi.starrailexpress.game.GameConstants;
 import io.wifi.starrailexpress.game.GameUtils;
 import io.wifi.starrailexpress.index.TMMParticles;
+import io.wifi.starrailexpress.index.TMMEntities;
 import io.wifi.starrailexpress.index.TMMSounds;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.core.particles.ParticleTypes;
@@ -143,13 +144,14 @@ public class CustomThrowableEntity extends NoHeavyWaterInfluencedThrowableItemPr
         entityData.set(DATA_DEFUSE_TOTAL, Math.max(0, defuseTicks));
     }
 
-    public CustomThrowableEntity(EntityType<? extends CustomThrowableEntity> entityType, Level level) {
-        super(entityType, level);
+    public CustomThrowableEntity(EntityType<?> entityType, Level level) {
+        // 与粘性手雷同一写法：super 需要「本实体的注册类型」，直接取注册表常量，
+        // 避免 EntityType.Builder.of 的泛型推断问题
+        super(TMMEntities.CUSTOM_THROWABLE, level);
     }
 
-    public CustomThrowableEntity(EntityType<? extends CustomThrowableEntity> entityType, LivingEntity owner,
-            Level level) {
-        super(entityType, owner, level);
+    public CustomThrowableEntity(EntityType<?> entityType, LivingEntity owner, Level level) {
+        super(TMMEntities.CUSTOM_THROWABLE, owner, level);
     }
 
     @Override
