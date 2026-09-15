@@ -1852,6 +1852,8 @@
     "sre.custom_modifier.label.min_players": "最少玩家启用数",
     "sre.custom_modifier.label.max_players": "最多玩家启用数",
     "sre.custom_modifier.label.spawn_maps": "限定地图",
+    "sre.custom_modifier.label.two_way_opposing_modifiers": "双向互斥修饰符",
+    "sre.custom_modifier.label.opposing_modifiers": "单向互斥修饰符",
     "sre.custom_modifier.label.cannot_roles": "不作用于特定职业",
     "sre.custom_modifier.label.only_roles": "仅作用于特定职业",
     "sre.custom_modifier.team.CIVILIAN": "平民",

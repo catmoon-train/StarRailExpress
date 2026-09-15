@@ -388,6 +388,12 @@ public class CustomModifierScreen extends Screen {
                 v -> data.enableMaxPlayerCount = parseInt(v, data.enableMaxPlayerCount));
 
         listBox(r++, "sre.custom_modifier.label.spawn_maps", data.spawnMaps, "sre.custom_modifier.hint.map_list");
+
+        // 互斥修饰符：逗号分隔，与自定义职业的互斥职业写法一致
+        listBox(r++, "sre.custom_modifier.label.two_way_opposing_modifiers", data.twoWayOpposingModifiers,
+                "sre.custom_modifier.hint.modifier_list");
+        listBox(r++, "sre.custom_modifier.label.opposing_modifiers", data.opposingModifiers,
+                "sre.custom_modifier.hint.modifier_list");
     }
 
     // ══════════════════════════════════════════════════════════════════

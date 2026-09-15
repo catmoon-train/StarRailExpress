@@ -223,7 +223,14 @@ public final class CustomModifierLoader {
         return data.displayName;
     }
 
-    /** 应用关联设置（双向/单向关联与移除，仅作用于介绍页面）。 */
+    /**
+     * 应用关联与互斥设置。
+     *
+     * <p>
+     * 关联字段（{@code bothRelated*} / {@code related*} / {@code removeRelated*}）仅作用于介绍页面；
+     * 互斥字段（{@code twoWayOpposingModifiers} / {@code opposingModifiers}）还会影响生成与运行时
+     * （见 {@code ModifierOpposingHelper}）。
+     */
     private static void applyRelations(CustomModifierData data, SREModifier modifier) {
         for (String id : safe(data.bothRelatedRoles)) {
             SRERole role = findRole(id);
@@ -254,6 +261,17 @@ public final class CustomModifierLoader {
             SREModifier other = findModifier(id);
             if (other != null)
                 modifier.removeRelatedModifier(other);
+        }
+        // 互斥修饰符：双向声明会同时写入对方，因此只在一侧填写也能生效
+        for (String id : safe(data.twoWayOpposingModifiers)) {
+            SREModifier other = findModifier(id);
+            if (other != null && other != modifier)
+                modifier.addTwoWayOpposingModifier(other);
+        }
+        for (String id : safe(data.opposingModifiers)) {
+            SREModifier other = findModifier(id);
+            if (other != null && other != modifier)
+                modifier.addOpposingModifier(other);
         }
     }
 

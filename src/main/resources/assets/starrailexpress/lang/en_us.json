@@ -1829,6 +1829,8 @@
     "sre.custom_modifier.label.min_players": "Min Players",
     "sre.custom_modifier.label.max_players": "Max Players",
     "sre.custom_modifier.label.spawn_maps": "Restricted Maps",
+    "sre.custom_modifier.label.two_way_opposing_modifiers": "Two-way Opposing Modifiers",
+    "sre.custom_modifier.label.opposing_modifiers": "One-way Opposing Modifiers",
     "sre.custom_modifier.label.cannot_roles": "Excluded Roles",
     "sre.custom_modifier.label.only_roles": "Only These Roles",
     "sre.custom_modifier.team.CIVILIAN": "Civilian",

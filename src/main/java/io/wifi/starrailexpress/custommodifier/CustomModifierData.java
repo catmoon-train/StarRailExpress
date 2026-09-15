@@ -113,6 +113,26 @@ public class CustomModifierData {
     @SerializedName("canOnlyBeAppliedTo")
     public List<String> canOnlyBeAppliedTo = new ArrayList<>();
 
+    // ==================== 互斥修饰符 ====================
+    /**
+     * 双向互斥修饰符（修饰符 id）：双方不会出现在同一名玩家身上。
+     *
+     * <p>
+     * 与自定义职业的 {@code twoWayOpposingJobs}（双向互斥职业）对应，
+     * 生效方式见 {@link SREModifier#addTwoWayOpposingModifier}。
+     */
+    @SerializedName("twoWayOpposingModifiers")
+    public List<String> twoWayOpposingModifiers = new ArrayList<>();
+    /**
+     * 单向互斥修饰符（修饰符 id）：本修饰符不会被分配给已持有这些修饰符的玩家。
+     *
+     * <p>
+     * 与自定义职业的 {@code opposingJobs}（单向互斥职业）对应，
+     * 生效方式见 {@link SREModifier#addOpposingModifier}。
+     */
+    @SerializedName("opposingModifiers")
+    public List<String> opposingModifiers = new ArrayList<>();
+
     // ==================== 触发条件（为空 = 全局触发） ====================
     @SerializedName("conditions")
     public List<ConditionData> conditions = new ArrayList<>();
