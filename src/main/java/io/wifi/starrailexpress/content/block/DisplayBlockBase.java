@@ -15,14 +15,19 @@
 
 package io.wifi.starrailexpress.content.block;
 
+import com.mojang.math.Transformation;
 import com.mojang.serialization.MapCodec;
 import io.wifi.starrailexpress.content.block_entity.DisplayBlockEntityBase;
 import io.wifi.starrailexpress.util.EditorGuard;
 import net.minecraft.core.BlockPos;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.util.Mth;
 import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.BaseEntityBlock;
@@ -33,6 +38,7 @@ import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jetbrains.annotations.Nullable;
+import org.joml.Quaternionf;
 
 /**
  * 展示方块基类（文本展示方块 / 方块展示方块）。
@@ -63,6 +69,40 @@ public abstract class DisplayBlockBase extends BaseEntityBlock {
     @Override
     public VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
         return Shapes.block();
+    }
+
+    /**
+     * 放置时按放置者朝向定向：**内容正面朝放置者**，和原版展示实体「放下去正对着你」的手感一致。
+     *
+     * <p>
+     * 只在「还没有人为转过角度」的方块上生效（left_rotation 仍是单位四元数）：用选取方块复制来的、
+     * 或在编辑器里调过旋转的展示方块保持原有朝向，不会被重新摆正。
+     */
+    @Override
+    public void setPlacedBy(Level level, BlockPos pos, BlockState state, @Nullable LivingEntity placer,
+            ItemStack stack) {
+        super.setPlacedBy(level, pos, state, placer, stack);
+        if (level.isClientSide() || !(placer instanceof Player player)
+                || !(level.getBlockEntity(pos) instanceof DisplayBlockEntityBase display)) {
+            return;
+        }
+        CompoundTag data = display.getDisplayData();
+        Transformation current = DisplayBlockEntityBase.readTransformation(data);
+        if (!current.getLeftRotation().equals(new Quaternionf())) {
+            return;
+        }
+        // 换算与渲染器里的 CENTER billboard 一致：rotationY = 180 - 相机看向方块的水平偏航
+        double dx = pos.getX() + 0.5D - player.getX();
+        double dz = pos.getZ() + 0.5D - player.getZ();
+        float cameraYaw = (float) (Mth.atan2(dz, dx) * (180.0D / Math.PI)) - 90.0F;
+        Quaternionf rotation = new Quaternionf()
+                .rotationYXZ((float) Math.toRadians(180.0F - cameraYaw), 0.0F, 0.0F);
+        Transformation oriented = new Transformation(current.getTranslation(), rotation, current.getScale(),
+                current.getRightRotation());
+        DisplayBlockEntityBase.writeTransformation(data, oriented);
+        if (display.setDisplayData(data)) {
+            display.syncToClients();
+        }
     }
 
     @Override
