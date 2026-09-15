@@ -77,8 +77,8 @@ public class DrawingBoardScreen extends Screen {
     private Button btnShiftDown;
     private Button btnShiftLeft;
     private Button btnShiftRight;
-    /** 工具按钮列的位置（用来给「整体移动」标签定位）。 */
-    protected int toolButtonX, toolButtonY;
+    /** 整体移动方向键的起点与整组宽度（标签与按钮共用，避免两边各算一次导致错位）。 */
+    protected int shiftPadX, shiftPadY, shiftPadWidth;
 
     private boolean isDrawing = false;
     private int lastRecognizeResult = DrawingBoardRecognizer.UNKNOWN;
@@ -170,17 +170,20 @@ public class DrawingBoardScreen extends Screen {
                 .bounds(btnX, btnY + (BUTTON_HEIGHT + 5) * 4, BUTTON_WIDTH, BUTTON_HEIGHT).build();
         addRenderableWidget(btnClose);
 
-        // 整体移动：用小箭头组成的方向键，放在工具按钮列右侧的空白处（不压到调色盘，也不压到工具按钮）
-        toolButtonX = btnX;
-        toolButtonY = btnY;
-        int moveX = btnX + 88;              // 工具按钮宽 80，面板宽 180：右侧留白正好放得下 76 宽的方向键
+        // 整体移动：用小箭头组成的方向键，放在「关闭」按钮下方（整组在面板里水平居中）
         int arrowW = 24;
         int arrowGap = 2;
-        int secondRowY = btnY + BUTTON_HEIGHT + arrowGap;
+        shiftPadWidth = arrowW * 3 + arrowGap * 2;
+        int moveX = btnX + (COLOR_PANEL_WIDTH - shiftPadWidth) / 2;
+        // 关闭按钮是工具列的第 5 行（offset 4），方向键从它下面再留 14px（给标题一行）开始
+        int moveY = btnY + (BUTTON_HEIGHT + 5) * 5 + 14;
+        shiftPadX = moveX;
+        shiftPadY = moveY;
+        int secondRowY = moveY + BUTTON_HEIGHT + arrowGap;
 
         btnShiftUp = Button.builder(Component.translatable("starrailexpress.drawing_board.shift_up"),
                 b -> shiftCanvas(0, -1))
-                .bounds(moveX + arrowW + arrowGap, btnY, arrowW, BUTTON_HEIGHT).build();
+                .bounds(moveX + arrowW + arrowGap, moveY, arrowW, BUTTON_HEIGHT).build();
         addRenderableWidget(btnShiftUp);
 
         btnShiftLeft = Button.builder(Component.translatable("starrailexpress.drawing_board.shift_left"),
@@ -404,9 +407,10 @@ public class DrawingBoardScreen extends Screen {
 
         graphics.drawString(font, Component.translatable("starrailexpress.drawing_board.color_palette").getString(), colorPanelX, colorPanelY - 15, 0xFFFFFF);
 
-        // 「整体移动」方向键的标题（贴在方向键上方，位置与 init() 里的按钮对齐）
-        graphics.drawString(font, Component.translatable("starrailexpress.drawing_board.shift_move").getString(),
-                toolButtonX + 88, toolButtonY - 12, 0xFFFFFF);
+        // 「整体移动」标题：画在方向键整组正上方居中
+        Component shiftTitle = Component.translatable("starrailexpress.drawing_board.shift_move");
+        graphics.drawString(font, shiftTitle.getString(),
+                shiftPadX + (shiftPadWidth - font.width(shiftTitle)) / 2, shiftPadY - 12, 0xFFFFFF);
 
         for (int i = 0; i < PALETTE.length; i++) {
             int row = i / COLORS_PER_ROW;
