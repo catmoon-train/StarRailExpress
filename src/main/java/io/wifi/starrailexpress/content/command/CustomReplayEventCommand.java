@@ -16,10 +16,11 @@
 package io.wifi.starrailexpress.content.command;
 
 import com.mojang.brigadier.CommandDispatcher;
-import com.mojang.brigadier.arguments.StringArgumentType;
+import com.mojang.brigadier.arguments.BoolArgumentType;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import io.wifi.starrailexpress.SRE;
+import io.wifi.starrailexpress.api.replay.GameReplayManager;
 import net.minecraft.commands.CommandBuildContext;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
@@ -33,18 +34,16 @@ public class CustomReplayEventCommand {
     dispatcher.register(
         Commands.literal("sre:custom_replay")
             .requires(source -> source.hasPermission(2))
-            .then(Commands.literal("record")
-                .then(Commands.argument("message", ComponentArgument.textComponent(registryAccess))
-                    .executes(ctx -> execute(ctx, false))))
-            .then(Commands.literal("record_hidden")
-                .then(Commands.argument("message", ComponentArgument.textComponent(registryAccess))
-                    .executes(ctx -> execute(ctx, true))))
-            // easy：纯文本 + 玩家名参数，按顺序填入文本里的 <player>
-            .then(Commands.literal("easy")
-                .then(Commands.argument("text", StringArgumentType.string())
-                    .executes(ctx -> executeEasy(ctx, ""))
-                    .then(Commands.argument("names", StringArgumentType.greedyString())
-                        .executes(ctx -> executeEasy(ctx, StringArgumentType.getString(ctx, "names")))))));
+            .then(Commands.argument("message", ComponentArgument.textComponent(registryAccess))
+                .executes(ctx -> execute(ctx, false, true))
+                // hidden：该词条是否在回放中隐藏
+                .then(Commands.argument("hidden", BoolArgumentType.bool())
+                    .executes(ctx -> execute(ctx, BoolArgumentType.getBool(ctx, "hidden"), true))
+                    // resolver：文本里的选择器是否用回放显示文本解析
+                    .then(Commands.argument("resolver", BoolArgumentType.bool())
+                        .executes(ctx -> execute(ctx,
+                            BoolArgumentType.getBool(ctx, "hidden"),
+                            BoolArgumentType.getBool(ctx, "resolver")))))));
     dispatcher.register(
         Commands.literal("sre:show_replay")
             .requires(source -> source.hasPermission(2))
@@ -59,59 +58,22 @@ public class CustomReplayEventCommand {
     return 1;
   }
 
-  private static int execute(CommandContext<CommandSourceStack> ctx, boolean hidden) {
-    ServerPlayer serverPlayer = ctx.getSource().getPlayer();
+  private static int execute(CommandContext<CommandSourceStack> ctx, boolean hidden, boolean resolver) {
+    CommandSourceStack source = ctx.getSource();
     Component res = ComponentArgument.getComponent(ctx, "message");
-    if (serverPlayer != null) {
-      try {
-        res = ComponentUtils.updateForEntity(
-            (CommandSourceStack) ctx.getSource(),
-            res,
-            serverPlayer, 0);
-      } catch (CommandSyntaxException e) {
-        e.printStackTrace();
-        ctx.getSource().sendFailure(Component.literal("ERROR: " + e.getMessage()));
-        return 0;
+    try {
+      if (resolver) {
+        res = GameReplayManager.resolveReplaySelectors(source, res);
       }
-    } else {
+      res = ComponentUtils.updateForEntity(source, res, source.getEntity(), 0);
+    } catch (CommandSyntaxException e) {
+      e.printStackTrace();
+      source.sendFailure(Component.literal("ERROR: " + e.getMessage()));
+      return 0;
     }
     Component result = SRE.REPLAY_MANAGER.recordCustomEvent(res, hidden);
-    ctx.getSource().sendSuccess(() -> Component.literal("Successfully record custom event!"), true);
-    ctx.getSource().sendSystemMessage(Component.literal("[ADD REPLAY] ").append(result));
-    return 1;
-  }
-
-  /** 「easy」分支填名字用的占位符。 */
-  private static final String PLAYER_PLACEHOLDER = "<player>";
-
-  /**
-   * 记录一条自定义回放文本（简易写法：纯文本 + 玩家名，按顺序填入 {@code <player>}）。
-   *
-   * <p>
-   * 例：{@code /sre:custom_replay easy "<player>受到了<player>的攻击" Alex1 Alex2}
-   * → 回放中新增词条「Alex1受到了Alex2的攻击」。
-   *
-   * <p>
-   * 名字按顺序消耗，多出来的名字会被忽略；名字不够时，剩下的 {@code <player>} 原样保留。
-   * 玩家名不做校验（按输入的文字原样填入）。
-   */
-  private static int executeEasy(CommandContext<CommandSourceStack> ctx, String names) {
-    String text = StringArgumentType.getString(ctx, "text");
-    String[] tokens = names == null || names.isBlank() ? new String[0] : names.trim().split("\\s+");
-    StringBuilder builder = new StringBuilder();
-    int tokenIndex = 0;
-    int cursor = 0;
-    int at;
-    while ((at = text.indexOf(PLAYER_PLACEHOLDER, cursor)) >= 0) {
-      builder.append(text, cursor, at);
-      builder.append(tokenIndex < tokens.length ? tokens[tokenIndex] : PLAYER_PLACEHOLDER);
-      tokenIndex++;
-      cursor = at + PLAYER_PLACEHOLDER.length();
-    }
-    builder.append(text, cursor, text.length());
-    Component message = Component.literal(builder.toString());
-    SRE.REPLAY_MANAGER.recordCustomEvent(message);
-    ctx.getSource().sendSuccess(() -> Component.literal("[ADD REPLAY] ").append(message), true);
+    source.sendSuccess(() -> Component.literal("Successfully record custom event!"), true);
+    source.sendSystemMessage(Component.literal("[ADD REPLAY] ").append(result));
     return 1;
   }
 }

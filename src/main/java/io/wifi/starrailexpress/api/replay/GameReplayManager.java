@@ -17,6 +17,7 @@ package io.wifi.starrailexpress.api.replay;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.SREConfig;
 import io.wifi.starrailexpress.api.SRERole;
@@ -27,13 +28,19 @@ import io.wifi.starrailexpress.cca.SRERoleWorldComponent;
 import io.wifi.starrailexpress.content.entity.PlayerBodyEntity;
 import io.wifi.starrailexpress.game.GameUtils;
 import io.wifi.starrailexpress.game.GameUtils.WinStatus;
+import io.wifi.starrailexpress.index.TMMEntities;
 import io.wifi.starrailexpress.rules.ReplayRules;
 import net.minecraft.ChatFormatting;
+import net.minecraft.commands.CommandSourceStack;
+import net.minecraft.commands.arguments.selector.EntitySelector;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.ComponentUtils;
 import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.network.chat.contents.SelectorContents;
+import net.minecraft.network.chat.contents.TranslatableContents;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
@@ -44,6 +51,7 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.level.storage.LevelResource;
 
 import org.agmas.noellesroles.content.entity.PuppeteerBodyEntity;
+import org.agmas.noellesroles.init.ModEntities;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
@@ -696,6 +704,158 @@ public class GameReplayManager implements IGameReplayRecorder {
       }
     }
     return targetEntity.getDisplayName();
+  }
+
+  /**
+   * 解析文本组件里的选择器（{@code {"selector":"..."}}），把命中的实体换成回放显示文本。
+   *
+   * <p>
+   * 玩家走 {@link GameReplayUtils#getReplayPlayerDisplayText(Player, boolean)}，尸体/傀儡走
+   * {@link #getTargetEntityText(ServerLevel, Entity)}；选择器解析不到实体（名字写错、玩家离线等）时
+   * 原样显示选择器文本。翻译参数、NBT 等其余内容不受影响，仍由原版
+   * {@code ComponentUtils.updateForEntity} 处理。
+   */
+  public static Component resolveReplaySelectors(CommandSourceStack source, Component component)
+      throws CommandSyntaxException {
+    return resolveReplaySelectors(source, component, 0);
+  }
+
+  private static Component resolveReplaySelectors(CommandSourceStack source, Component component, int depth)
+      throws CommandSyntaxException {
+    if (depth > 100) {
+      return component;
+    }
+    List<Component> siblings = new ArrayList<>(component.getSiblings().size());
+    boolean changed = false;
+    for (Component sibling : component.getSiblings()) {
+      Component resolvedSibling = resolveReplaySelectors(source, sibling, depth + 1);
+      changed |= resolvedSibling != sibling;
+      siblings.add(resolvedSibling);
+    }
+    MutableComponent resolved;
+    Component resolvedContents = null;
+    if (component.getContents() instanceof SelectorContents selectorContents) {
+      // 选择器自身的样式用一个空壳父组件承载，解析结果作为子内容继承它
+      resolved = Component.empty().withStyle(component.getStyle());
+      resolvedContents = resolveSelectorContents(source, selectorContents, depth);
+      changed = true;
+    } else if (component.getContents() instanceof TranslatableContents translatable) {
+      Object[] args = translatable.getArgs();
+      Object[] resolvedArgs = args;
+      for (int i = 0; i < args.length; i++) {
+        if (args[i] instanceof Component arg) {
+          Component resolvedArg = resolveReplaySelectors(source, arg, depth + 1);
+          if (resolvedArg != arg) {
+            if (resolvedArgs == args) {
+              resolvedArgs = args.clone();
+            }
+            resolvedArgs[i] = resolvedArg;
+            changed = true;
+          }
+        }
+      }
+      if (!changed) {
+        return component;
+      }
+      // 与 TranslatableContents.resolve 一致：保留 key / fallback，只换掉解析过的参数
+      resolved = MutableComponent
+          .create(new TranslatableContents(translatable.getKey(), translatable.getFallback(), resolvedArgs))
+          .withStyle(component.getStyle());
+    } else {
+      if (!changed) {
+        return component;
+      }
+      resolved = component.copy();
+    }
+    if (resolvedContents != null) {
+      resolved.append(resolvedContents);
+      for (Component sibling : siblings) {
+        resolved.append(sibling);
+      }
+    } else {
+      resolved.getSiblings().clear();
+      resolved.getSiblings().addAll(siblings);
+    }
+    return resolved;
+  }
+
+  private static Component resolveSelectorContents(CommandSourceStack source, SelectorContents contents, int depth)
+      throws CommandSyntaxException {
+    EntitySelector selector = contents.getSelector();
+    List<? extends Entity> targets = selector == null ? List.of() : selector.findEntities(source);
+    if (targets.isEmpty()) {
+      // 名字写错、玩家离线或选择器没命中：再按玩家名解析一次（回放记录表 → 尸体），仍解析不到就原样显示
+      return getPlayerNameOrReplayText(source, contents.getPattern());
+    }
+    ServerLevel level = source.getLevel();
+    List<Component> texts = new ArrayList<>(targets.size());
+    for (Entity target : targets) {
+      texts.add(getTargetEntityText(level, target));
+    }
+    if (texts.size() == 1) {
+      return texts.get(0).copy();
+    }
+    Optional<Component> separator = contents.getSeparator();
+    if (separator.isPresent()) {
+      separator = Optional.of(resolveReplaySelectors(source, separator.get(), depth + 1));
+    }
+    return ComponentUtils.formatList(texts, separator, text -> text);
+  }
+
+  /** 玩家名 → 回放显示文本：在线玩家 → 回放记录表 → 同名尸体/傀儡 → 原样显示该名字。 */
+  public static Component getPlayerNameOrReplayText(CommandSourceStack source, String name) {
+    ServerPlayer online = source.getServer() == null ? null
+        : source.getServer().getPlayerList().getPlayerByName(name);
+    if (online != null) {
+      return GameReplayUtils.getReplayPlayerDisplayText(online, true);
+    }
+    UUID recorded = findRecordedPlayerUuid(name);
+    if (recorded != null && SRE.REPLAY_MANAGER != null) {
+      return GameReplayUtils.getReplayPlayerDisplayText(recorded, SRE.REPLAY_MANAGER,
+          SRE.REPLAY_MANAGER.currentReplayData, true);
+    }
+    Entity body = findBodyByName(source.getLevel(), name);
+    if (body != null) {
+      return getTargetEntityText(source.getLevel(), body);
+    }
+    return Component.literal(name);
+  }
+
+  /** 反查回放记录表里的玩家名（忽略大小写）。 */
+  private static @Nullable UUID findRecordedPlayerUuid(String name) {
+    for (Map.Entry<UUID, String> entry : playerNames.entrySet()) {
+      if (name.equalsIgnoreCase(entry.getValue())) {
+        return entry.getKey();
+      }
+    }
+    return null;
+  }
+
+  private static @Nullable Entity findBodyByName(ServerLevel level, String name) {
+    for (PlayerBodyEntity body : level.getEntities(TMMEntities.PLAYER_BODY, e -> true)) {
+      if (name.equalsIgnoreCase(body.getComponent().getOwnerName())
+          || name.equalsIgnoreCase(playerNameOf(level, body.getPlayerUuid()))) {
+        return body;
+      }
+    }
+    for (PuppeteerBodyEntity body : level.getEntities(ModEntities.PUPPETEER_BODY, e -> true)) {
+      if (name.equalsIgnoreCase(playerNameOf(level, body.getOwnerUuid().orElse(null)))) {
+        return body;
+      }
+    }
+    return null;
+  }
+
+  /** 尸体/傀儡的主人名：优先用回放记录表，其次是在线玩家名。 */
+  private static @Nullable String playerNameOf(ServerLevel level, @Nullable UUID uuid) {
+    if (uuid == null) {
+      return null;
+    }
+    String recorded = playerNames.get(uuid);
+    if (recorded != null) {
+      return recorded;
+    }
+    return level.getPlayerByUUID(uuid) instanceof ServerPlayer player ? player.getScoreboardName() : null;
   }
 
   /** 以字面技能名记录技能释放（自定义职业优先显示用户填写的技能名）。 */
