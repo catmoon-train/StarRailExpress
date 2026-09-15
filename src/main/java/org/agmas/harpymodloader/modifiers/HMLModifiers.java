@@ -58,6 +58,8 @@ public class HMLModifiers {
     }
 
     public static void init() {
+        // 修饰符互斥（SREModifier#addTwoWayOpposingModifier）的运行时兜底
+        ModifierOpposingHelper.init();
     }
 
     public static SREModifier register(SREModifier modifier) {

@@ -28,6 +28,7 @@
     "screen.roleintroduce.detail.related": "Related Content",
     "screen.roleintroduce.related.occupation": "Associated Roles (if this role appears, the following roles will also appear)",
     "screen.roleintroduce.related.opposite": "Opposing Roles (cannot appear together)",
+    "screen.roleintroduce.related.opposite_modifiers": "Opposing Modifiers (cannot appear on the same player)",
     "screen.roleintroduce.related.other": "Other Related Roles",
     "screen.roleintroduce.related.other.only": "Related Roles",
     "screen.roleintroduce.related.modifiers": "Related Modifiers",

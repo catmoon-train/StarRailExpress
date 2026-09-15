@@ -90,6 +90,9 @@ public final class CustomModifierLoader {
             }
             for (SREModifier other : HMLModifiers.MODIFIERS) {
                 other.relatedModifiers.remove(modifier);
+                // 互斥列表同样要清，否则重载后旧实例残留在 opposingModifiers 里，
+                // 既会造成互斥判定失效（按实例比较），也会让介绍页出现重复条目
+                other.opposingModifiers.remove(modifier);
             }
             // 走注册表接口，保证 MODIFIERS_BY_PATH 索引与列表同步，
             // 否则重载后同名自定义修饰符会被判成重复而注册失败

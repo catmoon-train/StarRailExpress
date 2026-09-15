@@ -175,7 +175,7 @@ public class CustomModifierManageScreen extends Screen {
             CustomModifierData modifier = modifiers.get(index);
             int y = baseY + i * ROW_HEIGHT - (scrollOffset % ROW_HEIGHT);
             int color = modifier.getColor();
-            Mutable            Component info = Component.empty()
+            MutableComponent info = Component.empty()
                     .append(modifier.hidden ? Component.translatable("sre.custom_modifier.manage.hidden")
                             : Component.empty())
                     .append(modifier.markerOnly ? Component.translatable("sre.custom_modifier.manage.marker")

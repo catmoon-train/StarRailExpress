@@ -24,6 +24,7 @@ import org.agmas.harpymodloader.component.WorldModifierComponent;
 import org.agmas.harpymodloader.events.GameInitializeEvent;
 import org.agmas.harpymodloader.events.ModifierAssigned;
 import org.agmas.harpymodloader.events.ModifierRemoved;
+import org.agmas.harpymodloader.modifiers.ModifierOpposingHelper;
 import org.jetbrains.annotations.Nullable;
 import pro.fazeclan.river.stupid_express.StupidExpress;
 import pro.fazeclan.river.stupid_express.constants.SEModifiers;
@@ -298,12 +299,6 @@ public final class TwinChildrenHandler {
         }
     }
 
-    public static void removePairForConflictingModifier(net.minecraft.world.entity.player.Player player) {
-        if (player instanceof ServerPlayer serverPlayer) {
-            removePair(serverPlayer, true);
-        }
-    }
-
     private static void removePair(ServerPlayer player, boolean removeModifiers) {
         Pair pair = PAIRS.remove(player.getUUID());
         if (pair == null) {
@@ -339,11 +334,9 @@ public final class TwinChildrenHandler {
     }
 
     private static void removeSizeConflicts(ServerPlayer player) {
-        WorldModifierComponent modifiers = WorldModifierComponent.KEY.get(player.serverLevel());
-        modifiers.removeModifier(player, SEModifiers.TINY);
-        modifiers.removeModifier(player, SEModifiers.TALL);
-        player.getAttribute(Attributes.SCALE).removeModifier(SEModifiers.TINY_MODIFIER);
-        player.getAttribute(Attributes.SCALE).removeModifier(SEModifiers.TALL_MODIFIER);
+        // 与双子互斥的修饰符（TINY / TALL / DWARF，声明见 SEModifiers#init 与 TraitorAndModifiers#init）
+        // 统一由互斥机制清理：走 ModifierRemoved 事件顺带回滚各自的缩放属性
+        ModifierOpposingHelper.removeOpposingModifiers(player, SEModifiers.TWIN_CHILDREN);
     }
 
     private static void applyHalfScale(ServerPlayer player) {

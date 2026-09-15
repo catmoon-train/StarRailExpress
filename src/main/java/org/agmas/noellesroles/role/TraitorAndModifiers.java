@@ -284,6 +284,9 @@ public class TraitorAndModifiers {
         // 起义军修饰符排除巫毒师职业
         REBEL.cannotBeAppliedTo = new HashSet<>(List.of(ModRoles.VOODOO));
 
+        // 侏儒与体型类/双子修饰符互斥（与 TINY/TALL 共用同一套互斥机制）
+        DWARF.addTwoWayOpposingModifier(SEModifiers.TINY, SEModifiers.TALL, SEModifiers.TWIN_CHILDREN);
+
         registerModifierEvents();
         registerDeathEvents();
         registerGameEvents();
@@ -326,18 +329,7 @@ public class TraitorAndModifiers {
 
             // 侏儒 - 缩小50%（同时移除高大/矮小修饰符）
             if (modifier.equals(DWARF)) {
-                pro.fazeclan.river.stupid_express.modifier.twin_children.TwinChildrenHandler
-                        .removePairForConflictingModifier(player);
-                // 移除高大修饰符（如果存在）
-                if (worldModifierComponent.isModifier(player.getUUID(), SEModifiers.TALL)) {
-                    worldModifierComponent.removeModifier(player.getUUID(), SEModifiers.TALL);
-                    player.getAttribute(Attributes.SCALE).removeModifier(SEModifiers.TALL_MODIFIER);
-                }
-                // 移除矮小修饰符（如果之前有）
-                if (worldModifierComponent.isModifier(player.getUUID(), SEModifiers.TINY)) {
-                    worldModifierComponent.removeModifier(player.getUUID(), SEModifiers.TINY);
-                    player.getAttribute(Attributes.SCALE).removeModifier(SEModifiers.TINY_MODIFIER);
-                }
+                // 与 TINY / TALL / TWIN_CHILDREN 的互斥由 ModifierOpposingHelper 统一处理
                 player.getAttribute(Attributes.SCALE).removeModifier(DWARF_MODIFIER);
                 player.getAttribute(Attributes.SCALE).addPermanentModifier(DWARF_MODIFIER);
             }

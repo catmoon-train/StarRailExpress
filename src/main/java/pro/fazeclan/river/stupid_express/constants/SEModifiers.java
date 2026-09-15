@@ -34,7 +34,6 @@ import org.agmas.harpymodloader.modifiers.HMLModifiers;
 import org.agmas.harpymodloader.modifiers.SREModifier;
 import org.agmas.noellesroles.init.ModEffects;
 import org.agmas.noellesroles.role.ModRoles;
-import org.agmas.noellesroles.role.TraitorAndModifiers;
 import org.agmas.noellesroles.role.touhou.THLostForestRoles;
 import org.agmas.noellesroles.role.touhou.THMiscRoles;
 import org.agmas.noellesroles.utils.RoleUtils;
@@ -253,6 +252,12 @@ public class SEModifiers {
         SPLIT_PERSONALITY.civilianOnly = true;
         VIGOROUS.civilianOnly = true;
 
+        // 体型类修饰符互斥声明（与互斥职业同一套写法：SREModifier#addTwoWayOpposingModifier）。
+        // 生成时由 SREMurderGameMode#canAssignModifierToPlayer 排除，运行时由 ModifierOpposingHelper 兜底移除，
+        // TWIN_CHILDREN 与 DWARF 的互斥分别在 TwinChildrenHandler 的配对逻辑与 TraitorAndModifiers#init 中声明。
+        TINY.addTwoWayOpposingModifier(TALL, TWIN_CHILDREN);
+        TALL.addTwoWayOpposingModifier(TWIN_CHILDREN);
+
         assignModifierComponents();
         TwinChildrenHandler.init();
         pro.fazeclan.river.stupid_express.modifier.magnate.MagnatePassiveIncomeHandler.init();
@@ -290,6 +295,13 @@ public class SEModifiers {
                 if (b != null) {
                     b.clear();
                 }
+            }
+            // 体型缩放回滚：互斥替换（例如 TINY 顶掉 TALL）后不能残留旧的 AttributeModifier
+            if (modifier.equals(TINY)) {
+                player.getAttribute(Attributes.SCALE).removeModifier(TINY_MODIFIER);
+            }
+            if (modifier.equals(TALL)) {
+                player.getAttribute(Attributes.SCALE).removeModifier(TALL_MODIFIER);
             }
         });
         /// LOVERS
@@ -464,43 +476,15 @@ public class SEModifiers {
         /// TINY & TALL & FEATHER & ALLERGIST & CURSED & SECRETIVE & KNIGHT &
         /// SPLIT_PERSONALITY TINY & FEATHER & ALLERGIST & CURSED & SECRETIVE & KNIGHT &
         ModifierAssigned.EVENT.register(((player, modifier) -> {
-            var worldModifierComponent = WorldModifierComponent.KEY.get(player.level());
+            // TINY / TALL / DWARF / TWIN_CHILDREN 之间的互斥由 ModifierOpposingHelper 统一处理
+            // （声明见 SEModifiers#init 与 TraitorAndModifiers#init），这里只负责应用自己的缩放
             if (modifier.equals(TINY)) {
-                TwinChildrenHandler.removePairForConflictingModifier(player);
-                // Cannot assign TALL if player has TINY
-                if (worldModifierComponent.isModifier(player.getUUID(), TALL)) {
-                    worldModifierComponent.removeModifier(player.getUUID(), TALL);
-                    player.getAttribute(Attributes.SCALE).removeModifier(TALL_MODIFIER);
-                }
-                // Cannot assign TINY if player already has DWARF (mutually exclusive)
-                if (worldModifierComponent.isModifier(player.getUUID(), TraitorAndModifiers.DWARF)) {
-                    worldModifierComponent.removeModifier(player.getUUID(), TraitorAndModifiers.DWARF);
-                    player.getAttribute(Attributes.SCALE).removeModifier(TraitorAndModifiers.DWARF_MODIFIER);
-                }
                 player.getAttribute(Attributes.SCALE).removeModifier(TINY_MODIFIER);
                 player.getAttribute(Attributes.SCALE).addPermanentModifier(TINY_MODIFIER);
             }
             if (modifier.equals(TALL)) {
-                TwinChildrenHandler.removePairForConflictingModifier(player);
-                // Cannot assign TINY if player has TALL
-                if (worldModifierComponent.isModifier(player.getUUID(), TINY)) {
-                    worldModifierComponent.removeModifier(player.getUUID(), TINY);
-                    player.getAttribute(Attributes.SCALE).removeModifier(TINY_MODIFIER);
-                }
-                // Cannot assign TALL if player already has DWARF (mutually exclusive)
-                if (worldModifierComponent.isModifier(player.getUUID(), TraitorAndModifiers.DWARF)) {
-                    worldModifierComponent.removeModifier(player.getUUID(), TraitorAndModifiers.DWARF);
-                    player.getAttribute(Attributes.SCALE).removeModifier(TraitorAndModifiers.DWARF_MODIFIER);
-                }
                 player.getAttribute(Attributes.SCALE).removeModifier(TALL_MODIFIER);
                 player.getAttribute(Attributes.SCALE).addPermanentModifier(TALL_MODIFIER);
-            }
-            // Double-check: ensure TINY and TALL are never both present
-            if (worldModifierComponent.isModifier(player.getUUID(), TINY)
-                    && worldModifierComponent.isModifier(player.getUUID(), TALL)) {
-                // If both are present, remove TALL (arbitrary choice)
-                worldModifierComponent.removeModifier(player.getUUID(), TALL);
-                player.getAttribute(Attributes.SCALE).removeModifier(TALL_MODIFIER);
             }
 
             if (modifier.equals(VIGOROUS)) {

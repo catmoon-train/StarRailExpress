@@ -28,6 +28,7 @@
   "screen.roleintroduce.detail.related": "关联内容",
   "screen.roleintroduce.related.occupation": "关联职业（出现此职业会同时出现下面的职业）",
   "screen.roleintroduce.related.opposite": "对立职业（不能同时出现）",
+  "screen.roleintroduce.related.opposite_modifiers": "互斥修饰符（不能同时出现在同一名玩家身上）",
   "screen.roleintroduce.related.other": "其他相关职业",
   "screen.roleintroduce.related.other.only": "相关职业",
   "screen.roleintroduce.related.modifiers": "相关修饰符",

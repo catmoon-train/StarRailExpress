@@ -62,6 +62,7 @@ import org.agmas.harpymodloader.modded_murder.RoleAssignmentManager;
 import org.agmas.harpymodloader.modded_murder.RoleAssignmentPool;
 import org.agmas.harpymodloader.modded_murder.ForceTeamInfo.ForceTeamType;
 import org.agmas.harpymodloader.modifiers.HMLModifiers;
+import org.agmas.harpymodloader.modifiers.ModifierOpposingHelper;
 import org.agmas.harpymodloader.modifiers.SREModifier;
 import org.agmas.noellesroles.CustomWinnerClass;
 import org.agmas.noellesroles.commands.BroadcastCommand;
@@ -363,6 +364,10 @@ public class SREMurderGameMode extends GameMode {
         HashSet<SREModifier> playerModifiers = modifierAssignments.get(playerUuid);
         if (playerModifiers != null) {
             if (playerModifiers.contains(modifier)) {
+                return false;
+            }
+            // 互斥修饰符：与互斥职业同一套声明方式（SREModifier#addTwoWayOpposingModifier）
+            if (ModifierOpposingHelper.hasOpposingModifier(modifier, playerModifiers)) {
                 return false;
             }
         }
