@@ -152,6 +152,11 @@ public class CustomModifierScreen extends Screen {
         bottomButtons.clear();
 
         computeLayout();
+        // 「仅标记使用」时触发条件 / 触发内容页签不可见，回到基础页
+        if (data.markerOnly && (activeTab == 4 || activeTab == 5)) {
+            activeTab = 0;
+            scrollOffset = 0;
+        }
         buildTabBar();
 
         switch (activeTab) {
@@ -199,23 +204,36 @@ public class CustomModifierScreen extends Screen {
     }
 
     private void buildTabBar() {
-        int th = 20, tg = 4, tabs = TAB_NAMES.length;
+        List<Integer> visible = visibleTabs();
+        int th = 20, tg = 4, tabs = visible.size();
         int tw = Math.min(74, Math.max(48, (panelWidth - 24 - tg * (tabs - 1)) / tabs));
-        int total = tw * TAB_NAMES.length + tg * (TAB_NAMES.length - 1);
+        int total = tw * tabs + tg * (tabs - 1);
         int sx = panelLeftX + (panelWidth - total) / 2;
-        for (int i = 0; i < TAB_NAMES.length; i++) {
-            final int index = i;
+        for (int slot = 0; slot < visible.size(); slot++) {
+            int index = visible.get(slot);
             var builder = Button.builder(
-                    tabLabel(i),
+                    tabLabel(index),
                     button -> {
                         activeTab = index;
                         scrollOffset = 0;
                         requestRebuild();
-                    }).bounds(sx + i * (tw + tg), panelTopY + 8, tw, th);
+                    }).bounds(sx + slot * (tw + tg), panelTopY + 8, tw, th);
             var built = builder.build();
             addRenderableWidget(built);
             tabBarButtons.add(built);
         }
+    }
+
+    /** 可见页签下标：「仅标记使用」时隐藏「触发条件 / 触发内容」。 */
+    private List<Integer> visibleTabs() {
+        List<Integer> result = new ArrayList<>();
+        for (int i = 0; i < TAB_NAMES.length; i++) {
+            if (data.markerOnly && (i == 4 || i == 5)) {
+                continue;
+            }
+            result.add(i);
+        }
+        return result;
     }
 
     // ══════════════════════════════════════════════════════════════════
@@ -323,6 +341,8 @@ public class CustomModifierScreen extends Screen {
         r++;
 
         boolButton(r++, "sre.custom_modifier.label.hidden", data.hidden, v -> data.hidden = v);
+        boolButton(r++, "sre.custom_modifier.label.marker_only", data.markerOnly, v -> data.markerOnly = v);
+        addHintKey(r++, "sre.custom_modifier.hint.marker_only", 0xFF9E8B6E);
     }
 
     // ══════════════════════════════════════════════════════════════════
@@ -426,8 +446,7 @@ public class CustomModifierScreen extends Screen {
             switch (paramKind(type)) {
                 case 1 -> box(r, fieldX() + 116, 64, num(condition.value), valueHint(type),
                         v -> condition.value = parseDouble(v, condition.value));
-                case 2 -> box(r, fieldX() + 116, 150, condition.stringValue,
-                        Component.translatable("sre.custom_modifier.hint.string_value"),
+                case 2 -> box(r, fieldX() + 116, 150, condition.stringValue, stringHint(type),
                         v -> condition.stringValue = v);
                 case 3 -> {
                     button(r, fieldX() + 116, 74, 18,
@@ -454,6 +473,13 @@ public class CustomModifierScreen extends Screen {
                             Component.translatable("sre.custom_modifier.hint.chance"),
                             v -> condition.chance = parseInt(v, condition.chance));
                 }
+                // 阵营：点击在「平民 / 警长 / 中立 / 好人方中立 / 杀手方中立 / 特殊中立 / 杀手」之间切换
+                case 6 -> button(r, fieldX() + 116, 120, 18,
+                        Component.translatable("sre.custom_modifier.team." + teamName(condition.stringValue)),
+                        () -> {
+                            condition.stringValue = nextTeam(condition.stringValue);
+                            requestRebuild();
+                        });
                 default -> {
                 }
             }
@@ -527,6 +553,10 @@ public class CustomModifierScreen extends Screen {
             case HAS_ITEM -> condition.stringValue = "minecraft:iron_ingot";
             case HAS_EFFECT -> condition.stringValue = "minecraft:speed";
             case NEED_TASK_TYPE -> condition.stringValue = "random";
+            case DEATH_COUNTDOWN, DEATH_COUNTDOWN_REVIVE -> condition.value = 30;
+            case KILLED_BY_TEAM -> condition.stringValue = RoleTeam.values()[0].name();
+            case KILLED_BY_ROLE -> condition.stringValue = "noellesroles:raven";
+            case KILLED_BY_MODIFIER -> condition.stringValue = "";
             default -> {
             }
         }
@@ -536,8 +566,40 @@ public class CustomModifierScreen extends Screen {
         return switch (type) {
             case TIME_ANCHOR, ELAPSED_TIME -> Component.translatable("sre.custom_modifier.hint.seconds_since_start");
             case TIMER -> Component.translatable("sre.custom_modifier.hint.seconds");
+            case DEATH_COUNTDOWN, DEATH_COUNTDOWN_REVIVE -> Component
+                    .translatable("sre.custom_modifier.hint.death_seconds");
             default -> Component.translatable("sre.custom_modifier.hint.number");
         };
+    }
+
+    /** 字符串参数的占位提示（职业 / 修饰符 id 各有专门提示）。 */
+    private static Component stringHint(ConditionType type) {
+        return switch (type) {
+            case KILLED_BY_ROLE -> Component.translatable("sre.custom_modifier.hint.role_id");
+            case KILLED_BY_MODIFIER -> Component.translatable("sre.custom_modifier.hint.modifier_id");
+            default -> Component.translatable("sre.custom_modifier.hint.string_value");
+        };
+    }
+
+    /** 阵营名（解析失败回退第一个阵营）。 */
+    private static String teamName(String current) {
+        try {
+            return RoleTeam.valueOf(current.trim().toUpperCase()).name();
+        } catch (Exception e) {
+            return RoleTeam.values()[0].name();
+        }
+    }
+
+    /** 下一个阵营。 */
+    private static String nextTeam(String current) {
+        RoleTeam[] values = RoleTeam.values();
+        String name = teamName(current);
+        for (int i = 0; i < values.length; i++) {
+            if (values[i].name().equals(name)) {
+                return values[(i + 1) % values.length].name();
+            }
+        }
+        return values[0].name();
     }
 
     // ══════════════════════════════════════════════════════════════════
@@ -856,16 +918,19 @@ public class CustomModifierScreen extends Screen {
                 : String.valueOf(value);
     }
 
-    /** 条件参数形态：0 无；1 数值；2 字符串；3 比较+数值；4 世界时间；5 间隔+概率。 */
+    /** 条件参数形态：0 无；1 数值；2 字符串；3 比较+数值；4 世界时间；5 间隔+概率；6 阵营。 */
     private static int paramKind(ConditionType type) {
         return switch (type) {
-            case TIMER, TIME_ANCHOR, ELAPSED_TIME -> 1;
-            case HAS_ITEM, USE_ITEM, SPEAK, HAS_EFFECT, NEED_TASK_TYPE, DEATH -> 2;
+            case TIMER, TIME_ANCHOR, ELAPSED_TIME, DEATH_COUNTDOWN, DEATH_COUNTDOWN_REVIVE -> 1;
+            case HAS_ITEM, USE_ITEM, SPEAK, HAS_EFFECT, NEED_TASK_TYPE, DEATH, KILLED_BY_ROLE,
+                    KILLED_BY_MODIFIER ->
+                2;
             case COIN_AMOUNT, HAS_KILLED, PLAYER_COUNT, ALIVE_PLAYERS, MOOD_VALUE, ARMOR_AMOUNT, TASK_STREAK,
                     PSYCHOS_ACTIVE ->
                 3;
             case WORLD_TIME -> 4;
             case INTERVAL_CHANCE -> 5;
+            case KILLED_BY_TEAM -> 6;
             default -> 0;
         };
     }
