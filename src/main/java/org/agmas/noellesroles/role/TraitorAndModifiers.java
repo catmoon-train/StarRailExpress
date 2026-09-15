@@ -286,6 +286,8 @@ public class TraitorAndModifiers {
 
         // 侏儒与体型类/双子修饰符互斥（与 TINY/TALL 共用同一套互斥机制）
         DWARF.addTwoWayOpposingModifier(SEModifiers.TINY, SEModifiers.TALL, SEModifiers.TWIN_CHILDREN);
+        // 狂躁症与任务大师/工作狂互斥（取代 registerModifierEvents 里逐条 removeModifier 的手写逻辑）
+        MANIC.addTwoWayOpposingModifier(SEModifiers.TASKMASTER, WORKAHOLIC);
 
         registerModifierEvents();
         registerDeathEvents();
@@ -301,24 +303,8 @@ public class TraitorAndModifiers {
 
             WorldModifierComponent worldModifierComponent = WorldModifierComponent.KEY.get(player.level());
 
-            // === 狂躁症互斥 - 与任务大师和工作狂互斥 ===
-            if (modifier.equals(MANIC)) {
-                // 移除任务大师
-                if (worldModifierComponent.isModifier(player.getUUID(), SEModifiers.TASKMASTER)) {
-                    worldModifierComponent.removeModifier(player.getUUID(), SEModifiers.TASKMASTER);
-                }
-                // 移除工作狂
-                if (worldModifierComponent.isModifier(player.getUUID(), WORKAHOLIC)) {
-                    worldModifierComponent.removeModifier(player.getUUID(), WORKAHOLIC);
-                }
-            }
-
-            // === 任务大师和工作狂与狂躁症互斥 ===
-            if (modifier.equals(SEModifiers.TASKMASTER) || modifier.equals(WORKAHOLIC)) {
-                if (worldModifierComponent.isModifier(player.getUUID(), MANIC)) {
-                    worldModifierComponent.removeModifier(player.getUUID(), MANIC);
-                }
-            }
+            // 狂躁症与任务大师/工作狂的互斥由 ModifierOpposingHelper 统一处理
+            // （声明见 TraitorAndModifiers#init），这里不再逐条判断与移除
 
             // 强壮 - 添加击退抗性
             if (modifier.equals(STRONG)) {
