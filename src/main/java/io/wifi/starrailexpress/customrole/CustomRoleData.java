@@ -251,6 +251,35 @@ public class CustomRoleData {
     @SerializedName("mapRestrictedTo")
     public List<String> mapRestrictedTo = new ArrayList<>();
 
+    /**
+     * 组合地图特性条件：{@code MapSpecialFeatures} 名称列表（如 {@code UNDERWATER,LAB}）。
+     *
+     * <p>
+     * 与 {@link #specialMapRolesMatchAll} 配合决定「全部满足」还是「任一满足」，为空表示不限制。
+     * 对应代码里的 {@code SRERole#setSpecialMapRolesCondition}。
+     */
+    @SerializedName("specialMapRoles")
+    public List<String> specialMapRoles = new ArrayList<>();
+
+    /** 组合地图特性的匹配方式：{@code true} = 全部满足（AND），{@code false} = 任一满足（OR）。 */
+    @SerializedName("specialMapRolesMatchAll")
+    public boolean specialMapRolesMatchAll = true;
+
+    /**
+     * 自定义生成条件：每条形如 {@code 字段 运算符 值}（如 {@code snow = true}、
+     * {@code features contains LAB}），条件之间以逗号分隔。
+     *
+     * <p>
+     * 对应代码里的 {@code SRERole#setCanSpawnInMap}，支持的字段见
+     * {@link CustomRoleSpawnCondition}；为空表示不限制。
+     */
+    @SerializedName("canSpawnInMapConditions")
+    public List<String> canSpawnInMapConditions = new ArrayList<>();
+
+    /** 自定义生成条件的匹配方式：{@code true} = 全部满足（AND），{@code false} = 任一满足（OR）。 */
+    @SerializedName("canSpawnInMapMatchAll")
+    public boolean canSpawnInMapMatchAll = true;
+
     @SerializedName("enableChance")
     public int enableChance = 100;
 

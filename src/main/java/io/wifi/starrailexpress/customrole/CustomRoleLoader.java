@@ -22,6 +22,7 @@ import io.wifi.starrailexpress.api.RoleSkill;
 import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.api.TMMRoles;
 import io.wifi.starrailexpress.api.AreasSettingUtils.MapSpecialFeatures;
+import io.wifi.starrailexpress.api.AreasSettings;
 import io.wifi.starrailexpress.cca.SREAbilityPlayerComponent;
 import io.wifi.starrailexpress.cca.SREGameRoundEndComponent;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
@@ -54,6 +55,7 @@ import org.agmas.noellesroles.utils.RoleUtils;
 import pro.fazeclan.river.stupid_express.modifier.lovers.LoversWinCheckEvent;
 
 import java.util.*;
+import java.util.function.BiPredicate;
 
 /**
  * 自定义职业加载器
@@ -489,6 +491,20 @@ public class CustomRoleLoader {
                 role.setSpecialMapRole(MapSpecialFeatures.valueOf(data.specialMapRole.trim().toUpperCase()));
             } catch (IllegalArgumentException ignored) {
             }
+        }
+        // 组合特性条件（setSpecialMapRolesCondition）：全部满足 / 任一满足
+        Set<MapSpecialFeatures> specialMapRoles = CustomRoleSpawnCondition.parseFeatures(data.specialMapRoles);
+        if (!specialMapRoles.isEmpty()) {
+            final boolean matchAllFeatures = data.specialMapRolesMatchAll;
+            role.setSpecialMapRolesCondition(features -> matchAllFeatures
+                    ? features.containsAll(specialMapRoles)
+                    : specialMapRoles.stream().anyMatch(features::contains));
+        }
+        // 自定义生成条件（setCanSpawnInMap）：按地图 id / 地图配置项自定义判定
+        BiPredicate<String, AreasSettings> mapCondition = CustomRoleSpawnCondition.parse(
+                data.canSpawnInMapConditions, data.canSpawnInMapMatchAll);
+        if (mapCondition != null) {
+            role.setCanSpawnInMap(mapCondition);
         }
         if (data.specialVigilante != null)
             role.setSpecialVigilante(data.specialVigilante);

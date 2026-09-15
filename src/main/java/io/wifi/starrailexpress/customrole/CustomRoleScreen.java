@@ -15,6 +15,7 @@
 
 package io.wifi.starrailexpress.customrole;
 
+import io.wifi.starrailexpress.api.AreasSettingUtils.MapSpecialFeatures;
 import io.wifi.starrailexpress.client.gui.HintText;
 import io.wifi.starrailexpress.client.gui.SREPanelStyle;
 import io.wifi.starrailexpress.customrole.CustomRoleData.EffectEntry;
@@ -609,13 +610,16 @@ public class CustomRoleScreen extends Screen {
                 Component.translatable("sre.custom_role.special_map_role.current").append(": ")
                         .append(Component.literal(data.specialMapRole)),
                 () -> {
-                    String[] vals = { "ALL", "QIYUCUN", "BIGMAP", "UNDERWATER", "FLY", "TRAP", "CAN_JUMP", "MEETING",
-                            "MEETING_VOTE", "MINIGAME_QUEST", "MAP_STATUS_BAR", "LAB" };
+                    // 直接取自枚举，避免像以前那样漏掉 HORSE 之类的特性
+                    String[] vals = java.util.Arrays.stream(MapSpecialFeatures.values()).map(MapSpecialFeatures::name)
+                            .toArray(String[]::new);
                     int idx = java.util.Arrays.asList(vals).indexOf(data.specialMapRole);
-                    if (idx < 0)
-                        idx = 0;
-                    idx = (idx + 1) % vals.length;
-                    data.specialMapRole = vals[idx];
+                    if (idx < 0) {
+                        // 配置里是非法值（或大小写不符）：先回到 ALL，避免按一下按钮就跳到别的特性上
+                        data.specialMapRole = "ALL";
+                    } else {
+                        data.specialMapRole = vals[(idx + 1) % vals.length];
+                    }
                     init(minecraft, width, height);
                 });
         tabWidgets1.add(smBtn);
@@ -1117,14 +1121,19 @@ public class CustomRoleScreen extends Screen {
                 });
         makeLabeledHintBox(tabWidgets3, tabLabels3, r++, FIELD_W, "sre.custom_role.label.map_restrict",
                 String.join(",", data.mapRestrictedTo), "sre.custom_role.hint.map_list",
-                v -> {
-                    data.mapRestrictedTo.clear();
-                    for (String s : v.split(",")) {
-                        String t = s.trim();
-                        if (!t.isEmpty())
-                            data.mapRestrictedTo.add(t);
-                    }
-                });
+                v -> replaceCsv(data.mapRestrictedTo, v));
+        // 组合地图特性条件（setSpecialMapRolesCondition）
+        makeLabeledHintBox(tabWidgets3, tabLabels3, r++, FIELD_W, "sre.custom_role.label.special_map_roles",
+                String.join(",", data.specialMapRoles), "sre.custom_role.hint.special_map_roles",
+                v -> replaceCsv(data.specialMapRoles, v));
+        addBoolBtn(tabWidgets3, r++, "sre.custom_role.label.special_map_roles_match_all",
+                data.specialMapRolesMatchAll, v -> data.specialMapRolesMatchAll = v, true);
+        // 自定义生成条件（setCanSpawnInMap）
+        makeLabeledHintBox(tabWidgets3, tabLabels3, r++, FIELD_W, "sre.custom_role.label.spawn_conditions",
+                String.join(",", data.canSpawnInMapConditions), "sre.custom_role.hint.spawn_conditions",
+                v -> replaceCsv(data.canSpawnInMapConditions, v));
+        addBoolBtn(tabWidgets3, r++, "sre.custom_role.label.spawn_conditions_match_all",
+                data.canSpawnInMapMatchAll, v -> data.canSpawnInMapMatchAll = v, true);
         addBoolBtn(tabWidgets3, r++, "sre.custom_role.use_rare_chance", data.useRareChance, v -> data.useRareChance = v,
                 true);
         if (data.useRareChance)
@@ -1462,6 +1471,27 @@ public class CustomRoleScreen extends Screen {
         }).bounds(fieldX() + 170, baseRowY(r), 150, 18).build();
         recordWidgetBase(btn, baseRowY(r));
         l.add(btn);
+    }
+
+    /** 逗号分隔文本 → 列表（逐项 trim，忽略空项）。 */
+    private static List<String> splitCsv(String value) {
+        List<String> result = new java.util.ArrayList<>();
+        if (value == null)
+            return result;
+        for (String s : value.split(",")) {
+            String t = s.trim();
+            if (!t.isEmpty())
+                result.add(t);
+        }
+        return result;
+    }
+
+    /** 用逗号分隔文本覆盖列表。 */
+    private static void replaceCsv(List<String> target, String value) {
+        if (target == null)
+            return;
+        target.clear();
+        target.addAll(splitCsv(value));
     }
 
     private static int safeColor(Boolean b) {
