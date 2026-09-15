@@ -79,31 +79,37 @@ public abstract class DisplayBlockBase extends BaseEntityBlock {
         return true;
     }
 
-    /** 创造模式或 OP 等级 2 可以编辑内容。 */
+    /**
+     * 仅「创造模式 + 拥有权限（OP 等级 2）」的玩家可以编辑内容。
+     *
+     * <p>
+     * 与实体交互方块（{@code EntityInteractionBlockServerNetwork}）的判定保持一致。
+     */
     public static boolean canEdit(Player player) {
-        if (player.isCreative()) {
-            return true;
-        }
-        return player instanceof ServerPlayer serverPlayer && serverPlayer.hasPermissions(2);
+        return player != null && player.isCreative()
+                && player instanceof ServerPlayer serverPlayer && serverPlayer.hasPermissions(2);
     }
 
     @Override
     protected InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos, Player player,
             BlockHitResult hit) {
         if (level.isClientSide) {
-            // 客户端直接返回 SUCCESS 让手臂有挥动反馈，真正的判定在服务端。
-            return InteractionResult.SUCCESS;
+            // 客户端拿不到权限信息，只按「创造模式」预测：非创造不给任何反馈（不摆臂）、
+            // 也不吞掉这次点击。返回值只影响本地预测动画，包照发，真正的判定在服务端。
+            return player.isCreative() ? InteractionResult.SUCCESS : InteractionResult.PASS;
         }
-        if (!(player instanceof ServerPlayer serverPlayer)) {
-            return InteractionResult.SUCCESS;
+        if (!(player instanceof ServerPlayer serverPlayer)
+                || !(level.getBlockEntity(pos) instanceof DisplayBlockEntityBase display)) {
+            return InteractionResult.PASS;
         }
-        if (level.getBlockEntity(pos) instanceof DisplayBlockEntityBase display) {
-            if (canEdit(player)) {
-                display.openEditScreen(serverPlayer);
-            } else {
+        if (!canEdit(player)) {
+            // 创造但没权限：给一句提示；非创造则静默（当作没点到）
+            if (player.isCreative()) {
                 player.displayClientMessage(Component.translatable("gui.display_block.no_permission"), true);
             }
+            return InteractionResult.PASS;
         }
+        display.openEditScreen(serverPlayer);
         return InteractionResult.SUCCESS;
     }
 
