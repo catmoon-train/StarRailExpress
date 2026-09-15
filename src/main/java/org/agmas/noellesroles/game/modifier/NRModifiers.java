@@ -224,11 +224,12 @@ public class NRModifiers {
         EXPEDITION.civilianOnly = true;
         EXPEDITION.cannotBeAppliedTo = new HashSet<>(List.of(ModRoles.GHOST));
         INTROVERTED.civilianOnly = true;
-        FAT.addBothRelatedModifier(SKINNY);
+        // 胖子与瘦子互斥：同一名玩家身上不会共存（生成时排除 + 运行时兜底），
+        // 介绍页也会显示在「互斥修饰符」分组（原 addBothRelatedModifier 的关联展示已被其取代）
+        FAT.addTwoWayOpposingModifier(SKINNY);
         excludeLeonFromAllModifiers();
         assignModifierComponents();
         TaxedModifier.init();
-        FatSkinnyModifier.init();
     }
 
     /**

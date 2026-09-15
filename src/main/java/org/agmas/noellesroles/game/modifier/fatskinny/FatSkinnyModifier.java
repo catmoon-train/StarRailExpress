@@ -24,10 +24,8 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import org.agmas.harpymodloader.component.WorldModifierComponent;
-import org.agmas.harpymodloader.events.ModifierAssigned;
 import org.agmas.noellesroles.game.modifier.NRModifiers;
 import org.agmas.noellesroles.init.ModEffects;
-import org.agmas.noellesroles.utils.RoleUtils;
 import pro.fazeclan.river.stupid_express.constants.SEModifiers;
 
 /**
@@ -35,20 +33,13 @@ import pro.fazeclan.river.stupid_express.constants.SEModifiers;
  *
  * <p>
  * 不改方块碰撞箱，避免胖子卡门。只在玩家之间施加水平速度。
+ *
+ * <p>
+ * 胖子与瘦子的互斥声明在 {@link NRModifiers#init()}（{@code FAT.addTwoWayOpposingModifier(SKINNY)}），
+ * 由 {@code ModifierOpposingHelper} 在生成与运行时统一保证同一名玩家不会同时持有两者。
  */
 public final class FatSkinnyModifier {
     private FatSkinnyModifier() {
-    }
-
-    public static void init() {
-        ModifierAssigned.EVENT.register((player, modifier) -> {
-            WorldModifierComponent cca = WorldModifierComponent.KEY.get(player.level());
-            if (modifier.equals(NRModifiers.FAT) && cca.isModifier(player, NRModifiers.SKINNY)) {
-                RoleUtils.removeModifier(player, NRModifiers.SKINNY);
-            } else if (modifier.equals(NRModifiers.SKINNY) && cca.isModifier(player, NRModifiers.FAT)) {
-                RoleUtils.removeModifier(player, NRModifiers.FAT);
-            }
-        });
     }
 
     public static void serverTickFat(ServerPlayer player) {
