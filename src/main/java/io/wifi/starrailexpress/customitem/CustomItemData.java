@@ -19,6 +19,7 @@ import com.google.gson.Gson;
 import com.google.gson.annotations.SerializedName;
 import io.wifi.starrailexpress.api.RoleTeam;
 import io.wifi.starrailexpress.game.GameConstants;
+import net.minecraft.resources.ResourceLocation;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -42,6 +43,9 @@ public class CustomItemData {
     /** 默认枪械开火音效（左轮手枪开火）。 */
     public static final String DEFAULT_FIRE_SOUND = "starrailexpress:item.revolver.shoot";
 
+    /** 动态贴图最多支持的帧数（状态数）。 */
+    public static final int MAX_ANIMATED_FRAMES = 4;
+
     // ==================== 基础数据 ====================
 
     /** 物品编号（英文，供指令 {@code /sre:give item <id>} 获取）。 */
@@ -63,6 +67,45 @@ public class CustomItemData {
     /** 资源包物品材质继承：填写贴图路径，与上一项冲突时优先本项。 */
     @SerializedName("packTexturePath")
     public String packTexturePath = "";
+
+    /**
+     * 材质来源（单选，{@link TextureMode}）。
+     *
+     * <p>
+     * 三种来源<b>相互独立</b>，只生效当前选中的这一种：
+     * {@link TextureMode#PACK} 用 {@link #packTexturePath}（平面 PNG）、
+     * {@link TextureMode#ANIMATED} 用 {@link #animatedTextures}（最多 4 帧循环）、
+     * {@link TextureMode#MODEL} 用 {@link #inheritItemTexture}（渲染该物品的完整立体模型）。
+     */
+    @SerializedName("textureMode")
+    public String textureMode = TextureMode.PACK.name();
+
+    /**
+     * 动态贴图的帧（{@link TextureMode#ANIMATED} 用）。
+     *
+     * <p>
+     * 最多 {@link #MAX_ANIMATED_FRAMES} 张，按填写顺序循环播放；空串会被跳过。
+     */
+    @SerializedName("animatedTextures")
+    public List<String> animatedTextures = new ArrayList<>();
+
+    /** 动态贴图每帧停留的 tick（{@link TextureMode#ANIMATED} 用）。 */
+    @SerializedName("animatedFrameTicks")
+    public int animatedFrameTicks = 8;
+
+    /**
+     * 模型地址（{@link TextureMode#MODEL} 用）：资源包里<b>模型 json</b> 的路径。
+     *
+     * <p>
+     * 写法：{@code mypack:item/my_gun}、{@code mypack:models/item/my_gun.json}、
+     * {@code models/item/my_gun.json}（默认 minecraft）、{@code assets/mypack/models/item/my_gun.json}
+     * —— 对应文件都是 {@code assets/mypack/models/item/my_gun.json}。
+     *
+     * <p>
+     * 与材质地址完全独立：材质地址管贴图，模型地址管立体模型，两者都一直显示、都保留。
+     */
+    @SerializedName("modelPath")
+    public String modelPath = "";
 
     /** 是否手持时不可见（与项目内「大侦探的笔记」「占卜师的水晶球」同类效果）。 */
     @SerializedName("invisibleInHand")
@@ -530,6 +573,84 @@ public class CustomItemData {
         }
     }
 
+    /** 材质来源（大小写不敏感；解析失败回退资源包贴图，保证老数据行为不变）。 */
+    public TextureMode textureMode() {
+        if (textureMode == null) {
+            return TextureMode.PACK;
+        }
+        for (TextureMode mode : TextureMode.values()) {
+            if (mode.name().equalsIgnoreCase(textureMode.trim())) {
+                return mode;
+            }
+        }
+        return TextureMode.PACK;
+    }
+
+    /** 动态贴图的帧路径：去掉空串、最多 {@link #MAX_ANIMATED_FRAMES} 张。 */
+    public List<String> animatedFramePaths() {
+        List<String> result = new ArrayList<>();
+        if (animatedTextures == null) {
+            return result;
+        }
+        for (String path : animatedTextures) {
+            if (path == null || path.isBlank()) {
+                continue;
+            }
+            result.add(path.trim());
+            if (result.size() >= MAX_ANIMATED_FRAMES) {
+                break;
+            }
+        }
+        return result;
+    }
+
+    /**
+     * 把「模型地址」解析成模型 id（Fabric extra model / {@code ModelResourceLocation} 用的那个 id）。
+     *
+     * <p>
+     * 支持：{@code ns:item/x}、{@code ns:models/item/x.json}、{@code models/item/x.json}（默认 minecraft）、
+     * {@code assets/ns/models/item/x.json}；反斜杠、前导斜杠、大小写命名空间都会归一。
+     *
+     * @return 解析不出来（空串 / 非法字符）返回 null
+     */
+    public static ResourceLocation resolveModelId(String configured) {
+        if (configured == null) {
+            return null;
+        }
+        String raw = configured.trim();
+        if (raw.isEmpty()) {
+            return null;
+        }
+        String namespace;
+        String path;
+        int split = raw.indexOf(':');
+        if (split >= 0) {
+            namespace = raw.substring(0, split).toLowerCase();
+            path = raw.substring(split + 1);
+        } else {
+            namespace = "minecraft";
+            path = raw;
+        }
+        path = path.replace('\\', '/');
+        if (path.startsWith("/")) {
+            path = path.substring(1);
+        }
+        String assetsPrefix = "assets/" + namespace + "/";
+        if (path.startsWith(assetsPrefix)) {
+            path = path.substring(assetsPrefix.length());
+        }
+        if (path.startsWith("models/")) {
+            path = path.substring("models/".length());
+        }
+        if (path.endsWith(".json")) {
+            path = path.substring(0, path.length() - ".json".length());
+        }
+        if (path.isEmpty()) {
+            return null;
+        }
+        return ResourceLocation.tryBuild(namespace, path);
+    }
+
     public ChargeAnim chargeAnim() {
         try {
             return ChargeAnim.valueOf(chargeAnim);
@@ -644,6 +765,17 @@ public class CustomItemData {
         if (packTexturePath == null) {
             packTexturePath = "";
         }
+        if (modelPath == null) {
+            modelPath = "";
+        }
+        modelPath = modelPath.trim();
+        if (textureMode == null || textureMode.isBlank()) {
+            textureMode = TextureMode.PACK.name();
+        } else {
+            // 手工改过的 JSON 可能写成小写，统一成枚举名
+            textureMode = textureMode().name();
+        }
+        animatedTextures = safeList(animatedTextures);
         tooltip = safeList(tooltip);
         commands = safeList(commands);
         selfCommands = safeList(selfCommands);
@@ -710,6 +842,7 @@ public class CustomItemData {
         recoil = clampDouble(recoil, 0.0, 90.0);
         hitsToFinal = clamp(hitsToFinal, 1, 1000);
         hitMarkerTicks = clamp(hitMarkerTicks, 1, 20 * 60 * 10);
+        animatedFrameTicks = clamp(animatedFrameTicks, 1, 20 * 60);
         shotCooldownTicks = clamp(shotCooldownTicks, 0, 20 * 60 * 10);
         finalCooldownTicks = clamp(finalCooldownTicks, 0, 20 * 60 * 10);
         autoShots = clamp(autoShots, 1, 1000);
@@ -758,6 +891,25 @@ public class CustomItemData {
     }
 
     // ==================== 枚举 ====================
+
+    /** 材质来源（单选）：三种来源相互独立，只生效当前选中的那一种。 */
+    public enum TextureMode {
+        /**
+         * 资源包贴图：{@link #packTexturePath}（材质地址）指到一张 PNG，画成平面（前后两层 = 1 像素厚）。
+         */
+        PACK,
+        /**
+         * 导入动态贴图：{@link #animatedTextures}（材质地址，最多 4 帧）按
+         * {@link #animatedFrameTicks} 循环播放。
+         */
+        ANIMATED,
+        /**
+         * 导入立体模型：{@link #modelPath}（模型地址）指向资源包里的模型 json，
+         * 直接渲染该模型（立体 elements / 图集动画贴图都跟着走）；
+         * 模型地址留空时退回 {@link #inheritItemTexture}（借某个物品的模型）。
+         */
+        MODEL
+    }
 
     /** 物品性质（单选）。 */
     public enum Kind {

@@ -24,6 +24,7 @@ import io.wifi.starrailexpress.customitem.CustomItemData.FireButton;
 import io.wifi.starrailexpress.customitem.CustomItemData.HoldPose;
 import io.wifi.starrailexpress.customitem.CustomItemData.Kind;
 import io.wifi.starrailexpress.customitem.CustomItemData.TargetMode;
+import io.wifi.starrailexpress.customitem.CustomItemData.TextureMode;
 import io.wifi.starrailexpress.customitem.CustomItemData.TracerStyle;
 import io.wifi.starrailexpress.game.GameConstants;
 import net.fabricmc.api.EnvType;
@@ -71,6 +72,7 @@ public class CustomItemScreen extends Screen {
     private static final String[] TAB_KEYS = { "sre.custom_item.tab.basic", "sre.custom_item.tab.kind" };
 
     private static final Kind[] KINDS = Kind.values();
+    private static final TextureMode[] TEXTURE_MODES = TextureMode.values();
     private static final ChargeAnim[] CHARGE_ANIMS = ChargeAnim.values();
     private static final TargetMode[] TARGET_MODES = TargetMode.values();
     private static final HoldPose[] HOLD_POSES = HoldPose.values();
@@ -354,6 +356,11 @@ public class CustomItemScreen extends Screen {
      * 列表为空时也会先补一行空输入框，保证界面上一定有可以打字的地方。
      */
     private int textLines(int r, String labelKey, List<String> list, String hintKey, String addKey) {
+        return textLines(r, labelKey, list, hintKey, addKey, Integer.MAX_VALUE);
+    }
+
+    /** 与上面相同，但限制最多 {@code max} 行（达到上限后不再显示 ＋ 按钮）。 */
+    private int textLines(int r, String labelKey, List<String> list, String hintKey, String addKey, int max) {
         addLabelKey(r, labelKey);
         r++;
         addHintText(r++, Component.translatable(hintKey), 0xFF9E8B6E);
@@ -372,11 +379,15 @@ public class CustomItemScreen extends Screen {
                     });
             r++;
         }
-        button(r++, fieldX(), 160, 18, Component.translatable(addKey),
-                () -> {
-                    list.add("");
-                    requestRebuild();
-                });
+        if (list.size() < max) {
+            button(r++, fieldX(), 160, 18, Component.translatable(addKey),
+                    () -> {
+                        list.add("");
+                        requestRebuild();
+                    });
+        } else {
+            r++;
+        }
         return r;
     }
 
@@ -397,13 +408,21 @@ public class CustomItemScreen extends Screen {
         r = textRow(r, "sre.custom_item.label.display_name", data.displayName,
                 Component.translatable("sre.custom_item.hint.display_name"), v -> data.displayName = v);
 
+        // 材质来源：三选一按钮，只决定「渲染哪一个」；下面几项互相独立，任何模式下都一直可填、值都保留
+        r = enumRow(r, "sre.custom_item.label.texture_mode", "sre.custom_item.texture_mode",
+                data.textureMode(), index -> data.textureMode = TEXTURE_MODES[index].name());
+        r = textRow(r, "sre.custom_item.label.texture_path", data.packTexturePath,
+                Component.translatable("sre.custom_item.hint.texture_path"), v -> data.packTexturePath = v);
+        r = textLines(r, "sre.custom_item.label.animated_textures", data.animatedTextures,
+                "sre.custom_item.hint.animated_textures", "sre.custom_item.add_texture",
+                CustomItemData.MAX_ANIMATED_FRAMES);
+        r = numRow(r, "sre.custom_item.label.animated_frame_ticks", data.animatedFrameTicks,
+                "sre.custom_item.unit.tick", v -> data.animatedFrameTicks = (int) v);
+        r = textRow(r, "sre.custom_item.label.model_path", data.modelPath,
+                Component.translatable("sre.custom_item.hint.model_path"), v -> data.modelPath = v);
         r = textRow(r, "sre.custom_item.label.inherit_item", data.inheritItemTexture,
                 Component.translatable("sre.custom_item.hint.inherit_item"), v -> data.inheritItemTexture = v);
-
-        r = textRow(r, "sre.custom_item.label.pack_texture", data.packTexturePath,
-                Component.translatable("sre.custom_item.hint.pack_texture"), v -> data.packTexturePath = v);
-
-        addHintText(r++, Component.translatable("sre.custom_item.hint.pack_priority"), 0xFFC9A84C);
+        addHintText(r++, Component.translatable("sre.custom_item.hint.texture_mode"), 0xFFC9A84C);
         addHintText(r++, Component.translatable("sre.custom_item.label.preview"), 0xFFFFF4DC);
 
         // 物品 tooltip：多行文本，每行一个输入框，＋ 追加一行
@@ -939,14 +958,33 @@ public class CustomItemScreen extends Screen {
         }
     }
 
-    /** 右侧材质预览（继承物品贴图 / 资源包贴图 / 未配置占位）。 */
+    /**
+     * 预览用的平面贴图：按材质来源挑。
+     *
+     * <p>
+     * PACK 用 {@code packTexturePath}；ANIMATED 用当前帧；MODEL 返回 null（交给下面的
+     * 「被引用物品的主贴图」预览 —— 立体模型在 16×16 的平面预览里画不出来，预览只做近似）。
+     */
+    private static ResourceLocation resolvePreviewTexture(CustomItemData data) {
+        if (data.textureMode() == TextureMode.ANIMATED) {
+            List<String> frames = data.animatedFramePaths();
+            if (!frames.isEmpty()) {
+                int frameTicks = Math.max(1, data.animatedFrameTicks);
+                long now = System.currentTimeMillis() / 50L;
+                return CustomItemRenderer.resolvePackTexture(frames.get((int) (now / frameTicks % frames.size())));
+            }
+        }
+        return CustomItemRenderer.resolvePackTexture(data.packTexturePath);
+    }
+
+    /** 右侧材质预览（资源包/动态贴图 / 立体贴图的物品主贴图 / 未配置占位）。 */
     private void renderPreview(GuiGraphics g) {
         int px = panelLeftX + panelWidth - PREVIEW_SIZE - 14;
         int py = contentTop() + 2;
         g.fill(px - 2, py - 2, px + PREVIEW_SIZE + 2, py + PREVIEW_SIZE + 2, 0xFF8B6914);
         g.fill(px, py, px + PREVIEW_SIZE, py + PREVIEW_SIZE, 0xFF120A04);
 
-        ResourceLocation packTexture = CustomItemRenderer.resolvePackTexture(data.packTexturePath);
+        ResourceLocation packTexture = resolvePreviewTexture(data);
         if (packTexture != null) {
             g.blit(packTexture, px, py, PREVIEW_SIZE, PREVIEW_SIZE, 0.0F, 0.0F, 16, 16, 16, 16);
             return;

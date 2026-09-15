@@ -342,6 +342,8 @@ public class SREClient implements ClientModInitializer {
         particleMap = new HashMap<>();
         // Custom Baked Models
         ModelLoadingPlugin.register(new GeneralModelLoadingPlugin());
+        // 自定义列车物品「模型地址」指向的模型（资源包里没被引用的模型默认不会烘焙）
+        ModelLoadingPlugin.register(new io.wifi.starrailexpress.client.model.CustomItemModelPlugin());
         // Register particle factories
         TMMParticles.registerFactories();
         // 自定义Plush Renderer
