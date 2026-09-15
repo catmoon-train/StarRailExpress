@@ -18,6 +18,7 @@ package io.wifi.starrailexpress.index;
 import dev.doctor4t.ratatouille.util.registrar.EntityTypeRegistrar;
 import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.content.block.entity.SeatEntity;
+import io.wifi.starrailexpress.customitem.CustomThrowableEntity;
 import io.wifi.starrailexpress.content.entity.*;
 import net.exmo.sre.planecrash.CrashPlaneEntity;
 import net.fabricmc.fabric.api.object.builder.v1.entity.FabricDefaultAttributeRegistry;
@@ -63,10 +64,18 @@ public interface TMMEntities {
     /**
      * 自定义列车物品·投掷物的实体：拉栓 / 粘附 / 拆除 / 延迟 / 爆炸 / 区域等行为
      * 全部由物品配置（{@code CUSTOM_ITEM_ID} 组件）驱动，只有一个注册实体。
+     *
+     * <p>
+     * 这里两处都写了<b>显式类型实参</b>并用 lambda 代替方法引用：否则
+     * {@code create} 与 {@code Builder.of} 各自的类型变量会被推成不同的值
+     * （target 推 {@code CustomThrowableEntity}、实参推上界 {@code Entity}）而报
+     * 「推论变量 T 具有不兼容的等式约束条件」。
      */
-    EntityType<io.wifi.starrailexpress.customitem.CustomThrowableEntity> CUSTOM_THROWABLE = registrar.create(
+    EntityType<CustomThrowableEntity> CUSTOM_THROWABLE = registrar.<CustomThrowableEntity>create(
             "custom_throwable",
-            EntityType.Builder.of(io.wifi.starrailexpress.customitem.CustomThrowableEntity::new, MobCategory.MISC)
+            EntityType.Builder.<CustomThrowableEntity>of(
+                    (type, level) -> new CustomThrowableEntity(type, level),
+                    MobCategory.MISC)
                     .sized(.2f, .2f)
                     .clientTrackingRange(128)
     );
