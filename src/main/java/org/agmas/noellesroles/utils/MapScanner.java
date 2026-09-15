@@ -226,9 +226,10 @@ public class MapScanner {
      */
     private static int sceneToolTaskType(List<ItemStack> items) {
         boolean shears = false;
-        for (ItemStack stack : items) {
-            if (stack == null || stack.isEmpty())
-                continue;
+        if (items.isEmpty())
+            return 0;
+        ItemStack stack = items.getFirst();
+        {
             if (stack.is(Items.BRUSH)) {
                 return 17;
             }
