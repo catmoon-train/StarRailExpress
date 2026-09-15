@@ -152,6 +152,14 @@ public class CustomItemData {
     @SerializedName("showTracer")
     public boolean showTracer = true;
 
+    /** 射线样式（{@link TracerStyle} 名称，仅在 {@link #showTracer} 开启时生效）。 */
+    @SerializedName("tracerStyle")
+    public String tracerStyle = TracerStyle.YELLOW.name();
+
+    /** 射线是否允许穿过屏障（默认否；开启后同狙击枪，可穿过屏障类方块命中后方目标）。 */
+    @SerializedName("tracerThroughBarrier")
+    public boolean tracerThroughBarrier = false;
+
     /** 枪械射程（格）。 */
     @SerializedName("gunRange")
     public double gunRange = 20.0;
@@ -183,6 +191,10 @@ public class CustomItemData {
     /** 枪械触发最终效果时，被击中的玩家执行的指令。 */
     @SerializedName("finalHitCommands")
     public List<String> finalHitCommands = new ArrayList<>();
+
+    /** 距离检测：命中距离 ≥ {@code distance} 格以外的玩家时，对其执行 {@code command}。 */
+    @SerializedName("distanceRules")
+    public List<DistanceRule> distanceRules = new ArrayList<>();
 
     /** 被击中的玩家是否会被击退（用 1 点原版伤害实现）。 */
     @SerializedName("knockbackOnHit")
@@ -520,6 +532,15 @@ public class CustomItemData {
         }
     }
 
+    /** 射线样式（解析失败回退黄色射线）。 */
+    public TracerStyle tracerStyle() {
+        try {
+            return TracerStyle.valueOf(tracerStyle);
+        } catch (Exception e) {
+            return TracerStyle.YELLOW;
+        }
+    }
+
     /** 手铐耐久消耗形式（解析失败回退「蹲下时减少」）。 */
     public CuffWearMode cuffWearMode() {
         try {
@@ -615,6 +636,19 @@ public class CustomItemData {
         }
         if (fireButton == null || fireButton.isBlank()) {
             fireButton = FireButton.RIGHT.name();
+        }
+        if (tracerStyle == null || tracerStyle.isBlank()) {
+            tracerStyle = TracerStyle.YELLOW.name();
+        }
+        if (distanceRules == null) {
+            distanceRules = new ArrayList<>();
+        }
+        distanceRules.removeIf(rule -> rule == null);
+        for (DistanceRule rule : distanceRules) {
+            rule.distance = clampDouble(rule.distance, 0.0D, 256.0D);
+            if (rule.command == null) {
+                rule.command = "";
+            }
         }
         if (fireSound == null || fireSound.isBlank()) {
             fireSound = DEFAULT_FIRE_SOUND;
@@ -834,5 +868,23 @@ public class CustomItemData {
         RIGHT,
         /** 左键发射（同狙击枪：左键即开火）。 */
         LEFT
+    }
+
+    /** 枪械射线样式（仅在「显示枪械射线」开启时生效）。 */
+    public enum TracerStyle {
+        /** 目前的琥珀色轨迹线（默认）。 */
+        YELLOW,
+        /** 狙击枪发射时的表现：轨迹线之外再沿弹道生成烟雾。 */
+        SNIPER
+    }
+
+    /** 距离检测规则：命中「distance」格以外的玩家时，对其执行 command。 */
+    public static class DistanceRule {
+        /** 触发距离（格）：命中距离 ≥ 该值的玩家时生效。 */
+        @SerializedName("distance")
+        public double distance = 50.0D;
+        /** 被击中的玩家（{@code <player>}）执行的指令。 */
+        @SerializedName("command")
+        public String command = "";
     }
 }

@@ -26,11 +26,24 @@ import org.agmas.noellesroles.Noellesroles;
  */
 public record GunTracerS2CPacket(int shooterId,
         double fromX, double fromY, double fromZ,
-        double toX, double toY, double toZ)
+        double toX, double toY, double toZ,
+        int style)
         implements CustomPacketPayload {
+    /** 默认样式：琥珀色轨迹线。 */
+    public static final int STYLE_DEFAULT = 0;
+    /** 狙击枪样式：轨迹线之外，客户端再沿弹道生成烟雾。 */
+    public static final int STYLE_SNIPER = 1;
+
     public static final Type<GunTracerS2CPacket> ID = new Type<>(Noellesroles.id("gun_tracer"));
     public static final StreamCodec<RegistryFriendlyByteBuf, GunTracerS2CPacket> CODEC =
             StreamCodec.ofMember(GunTracerS2CPacket::encode, GunTracerS2CPacket::decode);
+
+    /** 默认样式（琥珀色轨迹线）的兼容构造。 */
+    public GunTracerS2CPacket(int shooterId,
+            double fromX, double fromY, double fromZ,
+            double toX, double toY, double toZ) {
+        this(shooterId, fromX, fromY, fromZ, toX, toY, toZ, STYLE_DEFAULT);
+    }
 
     public void encode(RegistryFriendlyByteBuf buf) {
         buf.writeVarInt(shooterId);
@@ -40,12 +53,14 @@ public record GunTracerS2CPacket(int shooterId,
         buf.writeDouble(toX);
         buf.writeDouble(toY);
         buf.writeDouble(toZ);
+        buf.writeVarInt(style);
     }
 
     public static GunTracerS2CPacket decode(RegistryFriendlyByteBuf buf) {
         return new GunTracerS2CPacket(buf.readVarInt(),
                 buf.readDouble(), buf.readDouble(), buf.readDouble(),
-                buf.readDouble(), buf.readDouble(), buf.readDouble());
+                buf.readDouble(), buf.readDouble(), buf.readDouble(),
+                buf.readVarInt());
     }
 
     @Override

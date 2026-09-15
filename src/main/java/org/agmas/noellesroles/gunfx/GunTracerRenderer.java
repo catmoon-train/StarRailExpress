@@ -17,6 +17,7 @@ package org.agmas.noellesroles.gunfx;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
+import io.wifi.starrailexpress.content.item.SniperRifleItem;
 import net.fabricmc.fabric.api.client.rendering.v1.WorldRenderContext;
 import net.minecraft.client.Minecraft;
 import net.minecraft.util.Mth;
@@ -56,6 +57,10 @@ public final class GunTracerRenderer {
         }
         if (to.distanceToSqr(from) < 0.04D) {
             return;
+        }
+        // 狙击枪样式：额外沿弹道生成烟雾（与狙击枪开火一致）
+        if (packet.style() == GunTracerS2CPacket.STYLE_SNIPER) {
+            SniperRifleItem.spawnSmokeTrail(client.level, from, to);
         }
         double distance = from.distanceTo(to);
         double travelTicks = Mth.clamp(0.85D + distance / 38.0D, 1.15D, 3.4D);

@@ -143,12 +143,20 @@ public class SniperRifleItem extends Item implements HeldLikeRevolver {
     }
 
     /**
-     * 在子弹路径上生成 SMOKE 粒子轨迹
+     * 在子弹路径上生成 SMOKE 粒子轨迹（从玩家眼睛出发）
      */
-    private static void spawnSmokeTrail(Level world, Player user, net.minecraft.world.phys.Vec3 hitPos) {
-        // 获取玩家眼睛位置（子弹起点）
-        net.minecraft.world.phys.Vec3 startPos = user.getEyePosition();
+    public static void spawnSmokeTrail(Level world, Player user, net.minecraft.world.phys.Vec3 hitPos) {
+        spawnSmokeTrail(world, user.getEyePosition(), hitPos);
+    }
 
+    /**
+     * 在子弹路径上生成 SMOKE 粒子轨迹
+     *
+     * <p>
+     * 供狙击枪自身与自定义枪械的「狙击枪射线」样式共用。
+     */
+    public static void spawnSmokeTrail(Level world, net.minecraft.world.phys.Vec3 startPos,
+            net.minecraft.world.phys.Vec3 hitPos) {
         // 计算从起点到终点的向量
         net.minecraft.world.phys.Vec3 direction = hitPos.subtract(startPos);
         double distance = direction.length();

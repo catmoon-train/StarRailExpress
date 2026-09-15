@@ -656,13 +656,21 @@ public final class CustomItemRuntime {
         // 右键发射时执行的指令
         CustomItemLoader.executeCommands(data.shootCommands, shooter);
 
-        HitResult hit = ProjectileUtil.getHitResultOnViewVector(shooter,
-                entity -> isValidTarget(shooter, entity), data.gunRange);
+        // 射线是否允许穿过屏障：开启后与狙击枪一致，忽略屏障类方块继续向后命中
+        HitResult hit = data.tracerThroughBarrier
+                ? io.wifi.starrailexpress.util.SniperProjectileUtil.getSniperHitResult(shooter,
+                        entity -> isValidTarget(shooter, entity), data.gunRange)
+                : ProjectileUtil.getHitResultOnViewVector(shooter,
+                        entity -> isValidTarget(shooter, entity), data.gunRange);
 
-        // 弹道射线：是否显示完全由物品自身配置决定，不受服务端总开关影响
+        // 弹道射线：是否显示 / 样式完全由物品自身配置决定，不受服务端总开关影响
         if (data.showTracer) {
             Entity hitEntity = hit instanceof EntityHitResult entityHit ? entityHit.getEntity() : null;
-            GunTracers.broadcast(shooter, hitEntity, data.gunRange, true);
+            if (data.tracerStyle() == CustomItemData.TracerStyle.SNIPER) {
+                GunTracers.broadcastSniper(shooter, hitEntity, data.gunRange);
+            } else {
+                GunTracers.broadcast(shooter, hitEntity, data.gunRange, true);
+            }
         }
 
         ServerPlayer victim = null;
@@ -670,6 +678,7 @@ public final class CustomItemRuntime {
                 && target != shooter && GameUtils.isPlayerAliveAndSurvival(target)) {
             victim = target;
             handleGunHit(shooter, victim, stack, data, autoMode);
+            applyDistanceRules(shooter, victim, data);
         }
 
         if (!autoMode) {
@@ -701,6 +710,27 @@ public final class CustomItemRuntime {
             if (hits >= Math.max(1, data.hitsToFinal)) {
                 HIT_COUNTS.remove(hitKey);
                 triggerFinalEffect(shooter, victim, stack, data);
+            }
+        }
+    }
+
+    /**
+     * 距离检测：命中「distance 格以外」的玩家时，对被击中的玩家执行配置的指令。
+     *
+     * <p>
+     * 同时满足多条规则时全部执行（参考狙击枪：命中 50 格外的玩家会穿盾）。
+     */
+    private static void applyDistanceRules(ServerPlayer shooter, ServerPlayer victim, CustomItemData data) {
+        if (data.distanceRules == null || data.distanceRules.isEmpty()) {
+            return;
+        }
+        double distance = shooter.distanceTo(victim);
+        for (CustomItemData.DistanceRule rule : data.distanceRules) {
+            if (rule == null || rule.command == null || rule.command.isBlank()) {
+                continue;
+            }
+            if (distance >= rule.distance) {
+                CustomItemLoader.executeCommands(List.of(rule.command), victim);
             }
         }
     }

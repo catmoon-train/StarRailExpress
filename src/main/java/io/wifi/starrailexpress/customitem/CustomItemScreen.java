@@ -23,6 +23,7 @@ import io.wifi.starrailexpress.customitem.CustomItemData.FireButton;
 import io.wifi.starrailexpress.customitem.CustomItemData.HoldPose;
 import io.wifi.starrailexpress.customitem.CustomItemData.Kind;
 import io.wifi.starrailexpress.customitem.CustomItemData.TargetMode;
+import io.wifi.starrailexpress.customitem.CustomItemData.TracerStyle;
 import io.wifi.starrailexpress.game.GameConstants;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -72,6 +73,7 @@ public class CustomItemScreen extends Screen {
     private static final TargetMode[] TARGET_MODES = TargetMode.values();
     private static final HoldPose[] HOLD_POSES = HoldPose.values();
     private static final FireButton[] FIRE_BUTTONS = FireButton.values();
+    private static final TracerStyle[] TRACER_STYLES = TracerStyle.values();
     private static final io.wifi.starrailexpress.customitem.CustomItemData.CuffWearMode[] CUFF_WEAR_MODES = io.wifi.starrailexpress.customitem.CustomItemData.CuffWearMode
             .values();
     private static final io.wifi.starrailexpress.customitem.CustomItemData.CuffPose[] CUFF_POSES = io.wifi.starrailexpress.customitem.CustomItemData.CuffPose
@@ -472,6 +474,14 @@ public class CustomItemScreen extends Screen {
         r = textRow(r, "sre.custom_item.label.fire_sound", data.fireSound,
                 Component.translatable("sre.custom_item.hint.fire_sound"), v -> data.fireSound = v);
         r = boolRow(r, "sre.custom_item.label.show_tracer", data.showTracer, v -> data.showTracer = v);
+        if (data.showTracer) {
+            // 射线效果：黄色射线（默认）/ 狙击枪射线（仅开启射线时可选）
+            r = enumRow(r, "sre.custom_item.label.tracer_style", "sre.custom_item.tracer_style", data.tracerStyle(),
+                    index -> data.tracerStyle = TRACER_STYLES[index].name());
+        }
+        // 射线是否允许穿过屏障（参考狙击枪：只忽略屏障类方块）
+        r = boolRow(r, "sre.custom_item.label.tracer_through_barrier", data.tracerThroughBarrier,
+                v -> data.tracerThroughBarrier = v);
         r = numRow(r, "sre.custom_item.label.gun_range", data.gunRange, "sre.custom_item.unit.blocks",
                 v -> data.gunRange = v);
         r = numRow(r, "sre.custom_item.label.recoil", data.recoil, "sre.custom_item.unit.degree",
@@ -486,6 +496,7 @@ public class CustomItemScreen extends Screen {
                 "sre.custom_item.unit.tick", v -> data.finalCooldownTicks = (int) v);
         r = commandList(r, "sre.custom_item.label.shoot_commands", data.shootCommands);
         r = commandList(r, "sre.custom_item.label.hit_commands", data.hitCommands);
+        r = distanceRules(r, data.distanceRules);
         r = commandList(r, "sre.custom_item.label.final_hit_commands", data.finalHitCommands);
         r = boolRow(r, "sre.custom_item.label.knockback", data.knockbackOnHit, v -> data.knockbackOnHit = v);
         r = boolRow(r, "sre.custom_item.label.lethal", data.lethalOnHit, v -> data.lethalOnHit = v);
@@ -724,6 +735,38 @@ public class CustomItemScreen extends Screen {
         button(r++, fieldX(), 160, 18, Component.translatable("sre.custom_item.add_effect"),
                 () -> {
                     effects.add(new CustomItemData.EffectData());
+                    requestRebuild();
+                });
+        return r;
+    }
+
+    /** 距离检测列表块：每行「距离（格）+ 指令」+ ×，末尾 ＋ 添加。 */
+    private int distanceRules(int r, List<CustomItemData.DistanceRule> rules) {
+        addLabelKey(r, "sre.custom_item.label.distance_rules");
+        r++;
+        addHintText(r++, Component.translatable("sre.custom_item.hint.distance_rules"), 0xFF9E8B6E);
+        if (rules.isEmpty()) {
+            rules.add(new CustomItemData.DistanceRule());
+        }
+        for (int i = 0; i < rules.size(); i++) {
+            final int index = i;
+            CustomItemData.DistanceRule rule = rules.get(i);
+            box(r, fieldX(), 68, num(rule.distance),
+                    Component.translatable("sre.custom_item.hint.rule_distance"),
+                    v -> rule.distance = parseDouble(v, rule.distance));
+            box(r, fieldX() + 74, 220, rule.command,
+                    Component.translatable("sre.custom_item.hint.rule_command"),
+                    v -> rule.command = v);
+            button(r, fieldX() + 300, 22, 18, Component.translatable("sre.custom_item.remove_command"),
+                    () -> {
+                        rules.remove(index);
+                        requestRebuild();
+                    });
+            r++;
+        }
+        button(r++, fieldX(), 160, 18, Component.translatable("sre.custom_item.add_distance_rule"),
+                () -> {
+                    rules.add(new CustomItemData.DistanceRule());
                     requestRebuild();
                 });
         return r;

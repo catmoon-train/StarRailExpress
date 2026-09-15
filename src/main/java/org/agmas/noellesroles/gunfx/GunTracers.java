@@ -49,6 +49,20 @@ public final class GunTracers {
      */
     public static void broadcast(ServerPlayer shooter, @Nullable Entity hit, double range,
             boolean ignoreGlobalSwitch) {
+        broadcast(shooter, hit, range, ignoreGlobalSwitch, GunTracerS2CPacket.STYLE_DEFAULT);
+    }
+
+    /**
+     * 狙击枪样式：轨迹线之外，客户端还会沿弹道生成一层烟雾（与狙击枪开火的表现一致）。
+     *
+     * @param hit 命中的实体（null=未命中，按视线方向延伸 range）
+     */
+    public static void broadcastSniper(ServerPlayer shooter, @Nullable Entity hit, double range) {
+        broadcast(shooter, hit, range, true, GunTracerS2CPacket.STYLE_SNIPER);
+    }
+
+    private static void broadcast(ServerPlayer shooter, @Nullable Entity hit, double range,
+            boolean ignoreGlobalSwitch, int style) {
         // 服务端侧开关：关闭时不广播任何轨迹线
         if (!ignoreGlobalSwitch && !NoellesRolesConfig.instance().gunTracerEffect) {
             return;
@@ -66,7 +80,7 @@ public final class GunTracers {
             }
         }
         GunTracerS2CPacket packet = new GunTracerS2CPacket(shooter.getId(),
-                from.x, from.y, from.z, to.x, to.y, to.z);
+                from.x, from.y, from.z, to.x, to.y, to.z, style);
         for (ServerPlayer tracking : PlayerLookup.tracking(shooter)) {
             ServerPlayNetworking.send(tracking, packet);
         }
