@@ -36,13 +36,13 @@ public class CustomItemReloadCommand {
                     try {
                         reload(source.getServer());
                         source.sendSuccess(
-                                () -> Component.literal("[CustomItem] 自定义列车物品配置已重新加载")
+                                () -> Component.translatable("sre.custom_item.reload.success")
                                         .withStyle(s -> s.withColor(0x55FF55)),
                                 true);
                         SRE.LOGGER.info("[CustomItem] Reloaded custom items by {}", source.getTextName());
                         return 1;
                     } catch (Exception e) {
-                        source.sendFailure(Component.literal("[CustomItem] 重载失败: " + e.getMessage()));
+                        source.sendFailure(Component.translatable("sre.custom_item.reload.failed", e.getMessage()));
                         SRE.LOGGER.error("[CustomItem] Reload failed", e);
                         return 0;
                     }

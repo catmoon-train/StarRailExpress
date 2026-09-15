@@ -66,7 +66,7 @@ public class CustomModifierManageScreen extends Screen {
     }
 
     public CustomModifierManageScreen(Supplier<Screen> backSupplier) {
-        super(Component.translatableWithFallback("sre.custom_modifier.manage.title", "管理自定义修饰符"));
+        super(Component.translatable("sre.custom_modifier.manage.title"));
         this.backScreenSupplier = backSupplier;
     }
 
@@ -129,13 +129,13 @@ public class CustomModifierManageScreen extends Screen {
         }
 
         Button backBtn = Button
-                .builder(Component.translatableWithFallback("sre.custom_modifier.back", "返回"),
+                .builder(Component.translatable("sre.custom_modifier.back"),
                         b -> minecraft.setScreen(backScreenSupplier.get()))
                 .bounds(panelLeftX + 10, panelTopY + panelH - 28, 90, 20).build();
         addRenderableWidget(backBtn);
 
         Button newBtn = Button
-                .builder(Component.translatableWithFallback("sre.custom_modifier.new", "新建修饰符"),
+                .builder(Component.translatable("sre.custom_modifier.new"),
                         b -> minecraft.setScreen(new CustomModifierScreen()))
                 .bounds(panelLeftX + 110, panelTopY + panelH - 28, 110, 20).build();
         addRenderableWidget(newBtn);
@@ -158,7 +158,7 @@ public class CustomModifierManageScreen extends Screen {
 
         int centerX = panelLeftX + panelW / 2;
         g.drawCenteredString(font, Component
-                .translatableWithFallback("sre.custom_modifier.manage.title", "管理自定义修饰符")
+                .translatable("sre.custom_modifier.manage.title")
                 .withStyle(s -> s.withColor(0xFFD4AF37).withBold(true)), centerX, panelTopY + 10, 0xFFFFFF);
 
         int listTop = panelTopY + 32;
@@ -175,10 +175,15 @@ public class CustomModifierManageScreen extends Screen {
             CustomModifierData modifier = modifiers.get(index);
             int y = baseY + i * ROW_HEIGHT - (scrollOffset % ROW_HEIGHT);
             int color = modifier.getColor();
-            String info = (modifier.hidden ? "[隐藏] " : "")
-                    + "max:" + modifier.defaultMax + " 概率:" + modifier.defaultEnableChance
-                    + (modifier.isGlobalTrigger() ? " 全局触发" : " 条件:" + modifier.conditions.size());
-            g.drawString(font, Component.literal(info).withStyle(Style.EMPTY.withColor(color)),
+            Component info = Component.empty()
+                    .append(modifier.hidden ? Component.translatable("sre.custom_modifier.manage.hidden")
+                            : Component.empty())
+                    .append(Component.translatable("sre.custom_modifier.manage.summary", modifier.defaultMax,
+                            modifier.defaultEnableChance))
+                    .append(modifier.isGlobalTrigger() ? Component.translatable("sre.custom_modifier.manage.global")
+                            : Component.translatable("sre.custom_modifier.manage.conditions",
+                                    modifier.conditions.size()));
+            g.drawString(font, info.withStyle(Style.EMPTY.withColor(color)),
                     panelLeftX + infoX, y + 6, 0xFFFFFF, false);
         }
         g.disableScissor();
@@ -188,7 +193,7 @@ public class CustomModifierManageScreen extends Screen {
         }
         if (modifiers.isEmpty()) {
             g.drawCenteredString(font,
-                    Component.translatableWithFallback("sre.custom_modifier.manage.empty", "§7暂无自定义修饰符"),
+                    Component.translatable("sre.custom_modifier.manage.empty"),
                     centerX, panelTopY + panelH / 2, 0xFFFFFF);
         }
     }

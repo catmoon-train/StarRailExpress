@@ -75,7 +75,7 @@ import java.util.UUID;
  * 这种残留同样按「获得时执行一次」处理。
  *
  * <p>
- * <b>条件触发</b>：每秒判定一次条件（死亡 / 说话 / 使用物品为事件型，由对应事件触发判定）；
+ * <b>条件触发</b>：每秒判定一次条件（死亡 / 聊天栏说话 / 使用物品为事件型，由对应事件触发判定）；
  * 条件由「与 / 或」逐条串联；满足时（上升到「满足」的那一次）执行指令 + 给予药水效果，
  * 若勾选了「条件触发后移除修饰符」则在触发后移除该修饰符。
  */
@@ -117,7 +117,7 @@ public final class CustomModifierRuntime {
         // 死亡：事件型条件。与实体交互方块一致，两个事件都挂（无击杀者 / 被玩家击杀）
         OnPlayerDeath.EVENT.register((player, reason) -> handleDeath(player, reason));
         OnPlayerDeathWithKiller.EVENT.register((player, killer, reason) -> handleDeath(player, reason));
-        // 说话：事件型条件
+        // 聊天栏说话：事件型条件（只认聊天栏文字，不含语音与指令）
         ServerMessageEvents.CHAT_MESSAGE.register((message, sender, bound) -> {
             if (sender != null) {
                 triggerEvent(sender, ConditionType.SPEAK,

@@ -259,10 +259,11 @@ public class CustomRoleScreen extends Screen {
         return b;
     }
 
+    /** hintKey 是翻译键：提示文本统一走语言文件，不要在这里硬编码中文。 */
     private EditBox makeLabeledHintBox(List<AbstractWidget> wl, List<LabelEntry> ll, int r, int w, String key,
-            String val, String hint, java.util.function.Consumer<String> cb) {
+            String val, String hintKey, java.util.function.Consumer<String> cb) {
         EditBox b = makeLabeledBox(wl, ll, r, w, key, val, cb);
-        b.setHint(Component.literal(hint));
+        b.setHint(Component.translatable(hintKey));
         return b;
     }
 
@@ -302,13 +303,13 @@ public class CustomRoleScreen extends Screen {
     private void buildBasicTab() {
         int r = 0;
         makeLabeledHintBox(tabWidgets0, tabLabels0, r++, FIELD_W, "sre.custom_role.label.english_id", data.englishId,
-                "my_custom_role", v -> data.englishId = v.toLowerCase()).setMaxLength(64);
+                "sre.custom_role.hint.english_id", v -> data.englishId = v.toLowerCase()).setMaxLength(64);
         makeLabeledHintBox(tabWidgets0, tabLabels0, r++, FIELD_W, "sre.custom_role.label.display_name",
-                data.displayName, "职业显示的名字", v -> data.displayName = v);
-        makeLabeledHintBox(tabWidgets0, tabLabels0, r++, FIELD_W, "sre.custom_role.label.goals", data.goals, "职业的胜利目标",
-                v -> data.goals = v);
+                data.displayName, "sre.custom_role.hint.display_name", v -> data.displayName = v);
+        makeLabeledHintBox(tabWidgets0, tabLabels0, r++, FIELD_W, "sre.custom_role.label.goals", data.goals,
+                "sre.custom_role.hint.goals", v -> data.goals = v);
         makeLabeledHintBox(tabWidgets0, tabLabels0, r++, FIELD_W, "sre.custom_role.label.description", data.description,
-                "职业描述", v -> data.description = v);
+                "sre.custom_role.hint.description", v -> data.description = v);
 
         StringBuilder efSb = new StringBuilder();
         for (EffectEntry e : data.initialEffects) {
@@ -334,7 +335,7 @@ public class CustomRoleScreen extends Screen {
                 data.initialEffects.add(new EffectEntry(id, lvl));
             }
         });
-        effectsBox.setHint(Component.literal("minecraft:conduit_power,1; minecraft:speed,2"));
+        effectsBox.setHint(Component.translatable("sre.custom_role.hint.effects_example"));
         recordWidgetBase(effectsBox, baseRowY(r));
         tabWidgets0.add(effectsBox);
         r++;
@@ -382,7 +383,7 @@ public class CustomRoleScreen extends Screen {
 
         // 心情颜色覆盖（R/G/B，任一 <0 视为不覆盖）
         makeLabeledHintBox(tabWidgets0, tabLabels0, r++, 60, "sre.custom_role.label.mood_color_r",
-                String.valueOf(data.moodColorR), "-1=默认",
+                String.valueOf(data.moodColorR), "sre.custom_role.hint.minus_one_default",
                 v -> {
                     try {
                         data.moodColorR = Integer.parseInt(v);
@@ -390,7 +391,7 @@ public class CustomRoleScreen extends Screen {
                     }
                 });
         makeLabeledHintBox(tabWidgets0, tabLabels0, r++, 60, "sre.custom_role.label.mood_color_g",
-                String.valueOf(data.moodColorG), "-1=默认",
+                String.valueOf(data.moodColorG), "sre.custom_role.hint.minus_one_default",
                 v -> {
                     try {
                         data.moodColorG = Integer.parseInt(v);
@@ -398,7 +399,7 @@ public class CustomRoleScreen extends Screen {
                     }
                 });
         makeLabeledHintBox(tabWidgets0, tabLabels0, r++, 60, "sre.custom_role.label.mood_color_b",
-                String.valueOf(data.moodColorB), "-1=默认",
+                String.valueOf(data.moodColorB), "sre.custom_role.hint.minus_one_default",
                 v -> {
                     try {
                         data.moodColorB = Integer.parseInt(v);
@@ -407,7 +408,7 @@ public class CustomRoleScreen extends Screen {
                 });
 
         makeLabeledHintBox(tabWidgets0, tabLabels0, r++, 80, "sre.custom_role.label.sprint_mult",
-                String.valueOf(data.sprintMultiplier), "默认1",
+                String.valueOf(data.sprintMultiplier), "sre.custom_role.hint.default_one",
                 v -> {
                     try {
                         data.sprintMultiplier = Double.parseDouble(v);
@@ -433,7 +434,7 @@ public class CustomRoleScreen extends Screen {
         addTriBtn(tabWidgets1, r++, "sre.custom_role.can_see_teammate_killer", data.canSeeTeammateKiller,
                 v -> data.canSeeTeammateKiller = v, true);
         makeLabeledHintBox(tabWidgets1, tabLabels1, r++, 80, "sre.custom_role.label.occupied_role_count",
-                String.valueOf(data.occupiedRoleCount), "默认1",
+                String.valueOf(data.occupiedRoleCount), "sre.custom_role.hint.default_one",
                 v -> {
                     try {
                         data.occupiedRoleCount = Integer.parseInt(v);
@@ -441,7 +442,7 @@ public class CustomRoleScreen extends Screen {
                     }
                 });
         makeLabeledHintBox(tabWidgets1, tabLabels1, r++, 80, "sre.custom_role.label.max_count",
-                String.valueOf(data.maxCount), "默认1",
+                String.valueOf(data.maxCount), "sre.custom_role.hint.default_one",
                 v -> {
                     try {
                         data.maxCount = Integer.parseInt(v);
@@ -480,7 +481,7 @@ public class CustomRoleScreen extends Screen {
         addTriBtnX(tabWidgets1, r++, "sre.custom_role.refreshable_special_vigilante", data.refreshableSpecialVigilante,
                 v -> data.refreshableSpecialVigilante = v, true);
         makeLabeledHintBox(tabWidgets1, tabLabels1, r++, 80, "sre.custom_role.label.refresh_special_vigilante_chance",
-                String.valueOf(data.refreshableSpecialVigilanteChance), "0-10000",
+                String.valueOf(data.refreshableSpecialVigilanteChance), "sre.custom_role.hint.chance_range_10000",
                 v -> {
                     try {
                         data.refreshableSpecialVigilanteChance = Math.min(10000, Math.max(0, Integer.parseInt(v)));
@@ -504,7 +505,7 @@ public class CustomRoleScreen extends Screen {
         addTriBtnX(tabWidgets1, r++, "sre.custom_role.no_coin_system", data.noCoinSystem, v -> data.noCoinSystem = v,
                 true);
         makeLabeledHintBox(tabWidgets1, tabLabels1, r++, 80, "sre.custom_role.label.initial_coin_count",
-                String.valueOf(data.initialCoinCount), "-1=不改",
+                String.valueOf(data.initialCoinCount), "sre.custom_role.hint.minus_one_no_change",
                 v -> {
                     try {
                         data.initialCoinCount = Integer.parseInt(v);
@@ -514,7 +515,7 @@ public class CustomRoleScreen extends Screen {
         addTriBtn(tabWidgets1, r++, "sre.custom_role.cannot_earn_coin_from_kills", data.cannotEarnCoinFromKills,
                 v -> data.cannotEarnCoinFromKills = v, true);
         makeLabeledHintBox(tabWidgets1, tabLabels1, r++, 80, "sre.custom_role.label.neutral_kill_coin",
-                String.valueOf(data.neutralKillCoin), "0=不给",
+                String.valueOf(data.neutralKillCoin), "sre.custom_role.hint.zero_no_give",
                 v -> {
                     try {
                         data.neutralKillCoin = Math.max(0, Integer.parseInt(v));
@@ -557,7 +558,8 @@ public class CustomRoleScreen extends Screen {
                         data.customWinSurviveToLast = false;
                 }, true);
                 makeLabeledHintBox(tabWidgets1, tabLabels1, r++, FIELD_W, "sre.custom_role.custom_win_with_roles",
-                        String.join(";", data.customWinLastWithRoles), "职业id;职业id...", v -> {
+                        String.join(";", data.customWinLastWithRoles), "sre.custom_role.hint.role_semicolon_list",
+                        v -> {
                             data.customWinLastWithRoles.clear();
                             for (String s : v.split(";")) {
                                 String t = s.trim();
@@ -566,9 +568,11 @@ public class CustomRoleScreen extends Screen {
                             }
                         });
                 makeLabeledHintBox(tabWidgets1, tabLabels1, r++, FIELD_W, "sre.custom_role.custom_win_tag_sleep",
-                        data.customWinTagSleep, "customwin标签名", v -> data.customWinTagSleep = v.trim());
+                        data.customWinTagSleep, "sre.custom_role.hint.customwin_tag",
+                        v -> data.customWinTagSleep = v.trim());
                 makeLabeledHintBox(tabWidgets1, tabLabels1, r++, FIELD_W, "sre.custom_role.custom_win_held_item",
-                        data.customWinHeldItem, "minecraft:diamond", v -> data.customWinHeldItem = v.trim());
+                        data.customWinHeldItem, "sre.custom_role.hint.item_example",
+                        v -> data.customWinHeldItem = v.trim());
             }
         }
 
@@ -609,7 +613,7 @@ public class CustomRoleScreen extends Screen {
                 } catch (Exception ignored) {
                 }
             });
-            cb.setHint(Component.literal("数量"));
+            cb.setHint(Component.translatable("sre.custom_role.hint.count"));
             recordWidgetBase(ib, baseRowY(r));
             recordWidgetBase(cb, baseRowY(r));
             tabWidgets2.addAll(List.of(ib, cb));
@@ -634,7 +638,7 @@ public class CustomRoleScreen extends Screen {
         // ═══ 任务奖励（完成 N 个任务给物品） ═══
         addLabel(tabLabels2, "sre.custom_role.task_reward_section", r++);
         makeLabeledHintBox(tabWidgets2, tabLabels2, r++, 60, "sre.custom_role.label.task_reward_count",
-                String.valueOf(data.taskRewardCount), "0=关闭",
+                String.valueOf(data.taskRewardCount), "sre.custom_role.hint.zero_off",
                 v -> {
                     try {
                         data.taskRewardCount = Integer.parseInt(v);
@@ -642,7 +646,7 @@ public class CustomRoleScreen extends Screen {
                     }
                 });
         makeLabeledHintBox(tabWidgets2, tabLabels2, r++, 60, "sre.custom_role.label.task_reward_max_triggers",
-                String.valueOf(data.taskRewardMaxTriggers), "默认1",
+                String.valueOf(data.taskRewardMaxTriggers), "sre.custom_role.hint.default_one",
                 v -> {
                     try {
                         data.taskRewardMaxTriggers = Integer.parseInt(v);
@@ -670,7 +674,7 @@ public class CustomRoleScreen extends Screen {
                 } catch (Exception ignored) {
                 }
             });
-            cb.setHint(Component.literal("数量"));
+            cb.setHint(Component.translatable("sre.custom_role.hint.count"));
             recordWidgetBase(ib, baseRowY(r));
             recordWidgetBase(cb, baseRowY(r));
             tabWidgets2.addAll(List.of(ib, cb));
@@ -751,7 +755,7 @@ public class CustomRoleScreen extends Screen {
                     if (isCustomType(mode.beSeenOn))
                         mode.beSeenOn = newVal;
                 });
-                colorBox.setHint(Component.literal("RRGGBB hex"));
+                colorBox.setHint(Component.translatable("sre.custom_role.hint.hex"));
                 recordWidgetBase(colorBox, baseRowY(r));
                 tabWidgets2.add(colorBox);
                 r++;
@@ -759,10 +763,10 @@ public class CustomRoleScreen extends Screen {
 
             // 看别人最大距离（透视范围）
             makeLabeledHintBox(tabWidgets2, tabLabels2, r++, 80, "sre.custom_role.label.instinct_range",
-                    mode.maxRange, "* = 不限", v -> mode.maxRange = v);
+                    mode.maxRange, "sre.custom_role.hint.any_range", v -> mode.maxRange = v);
             // 被透视最大距离（被别人看范围，独立）
             makeLabeledHintBox(tabWidgets2, tabLabels2, r++, 80, "sre.custom_role.label.instinct_beseen_range",
-                    mode.beSeenMaxRange == null ? "*" : mode.beSeenMaxRange, "* = 不限（回退到透视范围）",
+                    mode.beSeenMaxRange == null ? "*" : mode.beSeenMaxRange, "sre.custom_role.hint.any_range_beseen",
                     v -> mode.beSeenMaxRange = v);
             addBoolBtn(tabWidgets2, r++, "sre.custom_role.instinct_unlimited_teammate", mode.unlimitedTeammate,
                     v -> mode.unlimitedTeammate = v, false);
@@ -816,7 +820,7 @@ public class CustomRoleScreen extends Screen {
                         addLabel(tabLabels2, "sre.custom_role.label.ability_commands", r);
                         EditBox cmdBox = makeBox(fieldX(), y, 250, 18, sd.commands.get(i),
                                 v -> sd.commands.set(idx, v));
-                        cmdBox.setHint(Component.literal("不需/ 例: say <player>"));
+                        cmdBox.setHint(Component.translatable("sre.custom_role.hint.command"));
                         recordWidgetBase(cmdBox, baseRowY(r));
                         tabWidgets2.add(cmdBox);
                         var plusBtn2 = makeButton(fieldX() + 258, baseRowY(r), 20, 18, Component.literal("+"),
@@ -837,7 +841,7 @@ public class CustomRoleScreen extends Screen {
                         r++;
                     }
                     makeLabeledHintBox(tabWidgets2, tabLabels2, r++, 80, "sre.custom_role.label.ability_cooldown",
-                            String.valueOf(sd.cooldownSeconds), "冷却秒数",
+                            String.valueOf(sd.cooldownSeconds), "sre.custom_role.hint.cooldown_seconds",
                             v -> {
                                 try {
                                     sd.cooldownSeconds = Integer.parseInt(v);
@@ -846,7 +850,7 @@ public class CustomRoleScreen extends Screen {
                             });
                     makeLabeledHintBox(tabWidgets2, tabLabels2, r++, 80,
                             "sre.custom_role.label.ability_initial_cooldown", String.valueOf(sd.initialCooldownSeconds),
-                            "初始冷却秒数",
+                            "sre.custom_role.hint.initial_cooldown_seconds",
                             v -> {
                                 try {
                                     sd.initialCooldownSeconds = Integer.parseInt(v);
@@ -854,7 +858,7 @@ public class CustomRoleScreen extends Screen {
                                 }
                             });
                     makeLabeledHintBox(tabWidgets2, tabLabels2, r++, 80, "sre.custom_role.label.ability_delay_seconds",
-                            String.valueOf(sd.delaySeconds), "延迟秒数",
+                            String.valueOf(sd.delaySeconds), "sre.custom_role.hint.delay_seconds",
                             v -> {
                                 try {
                                     sd.delaySeconds = Integer.parseInt(v);
@@ -869,7 +873,7 @@ public class CustomRoleScreen extends Screen {
                         addLabel(tabLabels2, "sre.custom_role.label.ability_delayed_commands", r);
                         EditBox dcBox = makeBox(fieldX(), y, 250, 18, sd.delayedCommands.get(i),
                                 v -> sd.delayedCommands.set(idx, v));
-                        dcBox.setHint(Component.literal("不需要 /"));
+                        dcBox.setHint(Component.translatable("sre.custom_role.hint.command_no_slash"));
                         recordWidgetBase(dcBox, baseRowY(r));
                         tabWidgets2.add(dcBox);
                         var dplus = makeButton(fieldX() + 258, baseRowY(r), 20, 18, Component.literal("+"),
@@ -896,7 +900,7 @@ public class CustomRoleScreen extends Screen {
                         addLabel(tabLabels2, "sre.custom_role.label.game_end_commands", r);
                         EditBox geBox = makeBox(fieldX(), y, 250, 18, sd.gameEndCommands.get(i),
                                 v -> sd.gameEndCommands.set(idx, v));
-                        geBox.setHint(Component.literal("不需要 /"));
+                        geBox.setHint(Component.translatable("sre.custom_role.hint.command_no_slash"));
                         recordWidgetBase(geBox, baseRowY(r));
                         tabWidgets2.add(geBox);
                         var gePlus = makeButton(fieldX() + 258, baseRowY(r), 20, 18, Component.literal("+"),
@@ -940,7 +944,7 @@ public class CustomRoleScreen extends Screen {
                     addLabel(tabLabels2, "sre.custom_role.label.ability_commands", r);
                     EditBox cmdBox = makeBox(fieldX(), y, 250, 18, data.abilitySkillCommands.get(i),
                             v -> data.abilitySkillCommands.set(idx, v));
-                    cmdBox.setHint(Component.literal("不需/ 例: say <player>"));
+                    cmdBox.setHint(Component.translatable("sre.custom_role.hint.command"));
                     recordWidgetBase(cmdBox, baseRowY(r));
                     tabWidgets2.add(cmdBox);
                     var plusBtn2 = makeButton(fieldX() + 258, baseRowY(r), 20, 18, Component.literal("+"),
@@ -960,7 +964,7 @@ public class CustomRoleScreen extends Screen {
                     r++;
                 }
                 makeLabeledHintBox(tabWidgets2, tabLabels2, r++, 80, "sre.custom_role.label.ability_cooldown",
-                        String.valueOf(data.abilityCooldownSeconds), "冷却秒数",
+                        String.valueOf(data.abilityCooldownSeconds), "sre.custom_role.hint.cooldown_seconds",
                         v -> {
                             try {
                                 data.abilityCooldownSeconds = Integer.parseInt(v);
@@ -968,7 +972,7 @@ public class CustomRoleScreen extends Screen {
                             }
                         });
                 makeLabeledHintBox(tabWidgets2, tabLabels2, r++, 80, "sre.custom_role.label.ability_initial_cooldown",
-                        String.valueOf(data.abilityInitialCooldownSeconds), "初始冷却秒数",
+                        String.valueOf(data.abilityInitialCooldownSeconds), "sre.custom_role.hint.initial_cooldown_seconds",
                         v -> {
                             try {
                                 data.abilityInitialCooldownSeconds = Integer.parseInt(v);
@@ -976,7 +980,7 @@ public class CustomRoleScreen extends Screen {
                             }
                         });
                 makeLabeledHintBox(tabWidgets2, tabLabels2, r++, 80, "sre.custom_role.label.ability_delay_seconds",
-                        String.valueOf(data.abilityDelaySeconds), "延迟秒数",
+                        String.valueOf(data.abilityDelaySeconds), "sre.custom_role.hint.delay_seconds",
                         v -> {
                             try {
                                 data.abilityDelaySeconds = Integer.parseInt(v);
@@ -991,7 +995,7 @@ public class CustomRoleScreen extends Screen {
                     addLabel(tabLabels2, "sre.custom_role.label.ability_delayed_commands", r);
                     EditBox dcBox = makeBox(fieldX(), y, 250, 18, data.abilityDelayedCommands.get(i),
                             v -> data.abilityDelayedCommands.set(idx, v));
-                    dcBox.setHint(Component.literal("不需要 /"));
+                    dcBox.setHint(Component.translatable("sre.custom_role.hint.command_no_slash"));
                     recordWidgetBase(dcBox, baseRowY(r));
                     tabWidgets2.add(dcBox);
                     var dplus = makeButton(fieldX() + 258, baseRowY(r), 20, 18, Component.literal("+"),
@@ -1018,7 +1022,7 @@ public class CustomRoleScreen extends Screen {
                     addLabel(tabLabels2, "sre.custom_role.label.game_end_commands", r);
                     EditBox geBox = makeBox(fieldX(), y, 250, 18, data.gameEndCommands.get(i),
                             v -> data.gameEndCommands.set(idx, v));
-                    geBox.setHint(Component.literal("不需要 /"));
+                    geBox.setHint(Component.translatable("sre.custom_role.hint.command_no_slash"));
                     recordWidgetBase(geBox, baseRowY(r));
                     tabWidgets2.add(geBox);
                     var gePlus = makeButton(fieldX() + 258, baseRowY(r), 20, 18, Component.literal("+"),
@@ -1045,7 +1049,7 @@ public class CustomRoleScreen extends Screen {
     private void buildGenerationTab() {
         int r = 0;
         makeLabeledHintBox(tabWidgets3, tabLabels3, r++, FIELD_W, "sre.custom_role.label.two_way_opposing",
-                String.join(",", data.twoWayOpposingJobs), "roleId1,roleId2",
+                String.join(",", data.twoWayOpposingJobs), "sre.custom_role.hint.role_list",
                 v -> {
                     data.twoWayOpposingJobs.clear();
                     for (String s : v.split(",")) {
@@ -1055,7 +1059,7 @@ public class CustomRoleScreen extends Screen {
                     }
                 });
         makeLabeledHintBox(tabWidgets3, tabLabels3, r++, FIELD_W, "sre.custom_role.label.opposing",
-                String.join(",", data.opposingJobs), "roleId1,roleId2",
+                String.join(",", data.opposingJobs), "sre.custom_role.hint.role_list",
                 v -> {
                     data.opposingJobs.clear();
                     for (String s : v.split(",")) {
@@ -1065,7 +1069,7 @@ public class CustomRoleScreen extends Screen {
                     }
                 });
         makeLabeledHintBox(tabWidgets3, tabLabels3, r++, FIELD_W, "sre.custom_role.label.bind_with",
-                String.join(",", data.bindWithRoles), "roleId1,roleId2",
+                String.join(",", data.bindWithRoles), "sre.custom_role.hint.role_list",
                 v -> {
                     data.bindWithRoles.clear();
                     for (String s : v.split(",")) {
@@ -1075,7 +1079,7 @@ public class CustomRoleScreen extends Screen {
                     }
                 });
         makeLabeledHintBox(tabWidgets3, tabLabels3, r++, FIELD_W, "sre.custom_role.label.map_restrict",
-                String.join(",", data.mapRestrictedTo), "mapId1,mapId2",
+                String.join(",", data.mapRestrictedTo), "sre.custom_role.hint.map_list",
                 v -> {
                     data.mapRestrictedTo.clear();
                     for (String s : v.split(",")) {
@@ -1088,7 +1092,7 @@ public class CustomRoleScreen extends Screen {
                 true);
         if (data.useRareChance)
             makeLabeledHintBox(tabWidgets3, tabLabels3, r++, 80, "sre.custom_role.label.enable_rare_chance",
-                    String.valueOf(data.enableRareChance), "0-10000",
+                    String.valueOf(data.enableRareChance), "sre.custom_role.hint.chance_range_10000",
                     v -> {
                         try {
                             data.enableRareChance = Math.min(10000, Math.max(0, Integer.parseInt(v)));
@@ -1097,7 +1101,7 @@ public class CustomRoleScreen extends Screen {
                     });
         else
             makeLabeledHintBox(tabWidgets3, tabLabels3, r++, 80, "sre.custom_role.label.enable_chance",
-                    String.valueOf(data.enableChance), "0-100",
+                    String.valueOf(data.enableChance), "sre.custom_role.hint.chance_range_100",
                     v -> {
                         try {
                             data.enableChance = Math.min(100, Math.max(0, Integer.parseInt(v)));
@@ -1105,7 +1109,7 @@ public class CustomRoleScreen extends Screen {
                         }
                     });
         makeLabeledHintBox(tabWidgets3, tabLabels3, r++, 80, "sre.custom_role.label.min_players",
-                String.valueOf(data.enableNeededPlayerCount), "-1=无门槛",
+                String.valueOf(data.enableNeededPlayerCount), "sre.custom_role.hint.minus_one_no_threshold",
                 v -> {
                     try {
                         data.enableNeededPlayerCount = Integer.parseInt(v);
@@ -1113,7 +1117,7 @@ public class CustomRoleScreen extends Screen {
                     }
                 });
         makeLabeledHintBox(tabWidgets3, tabLabels3, r++, 80, "sre.custom_role.label.max_players",
-                String.valueOf(data.defaultEnableMaxPlayerCount), "-1=无上限",
+                String.valueOf(data.defaultEnableMaxPlayerCount), "sre.custom_role.hint.minus_one_no_limit",
                 v -> {
                     try {
                         data.defaultEnableMaxPlayerCount = Integer.parseInt(v);
@@ -1146,7 +1150,7 @@ public class CustomRoleScreen extends Screen {
                 } catch (Exception ignored) {
                 }
             });
-            pb.setHint(Component.literal("价格"));
+            pb.setHint(Component.translatable("sre.custom_role.hint.price"));
             recordWidgetBase(pb, baseRowY(r));
             tabWidgets4.add(pb);
             // 冷却(仅 item 和 custom)
@@ -1157,7 +1161,7 @@ public class CustomRoleScreen extends Screen {
                     } catch (Exception ignored) {
                     }
                 });
-                cd.setHint(Component.literal("CD秒"));
+                cd.setHint(Component.translatable("sre.custom_role.hint.cd_seconds"));
                 recordWidgetBase(cd, baseRowY(r));
                 tabWidgets4.add(cd);
             }
@@ -1165,7 +1169,8 @@ public class CustomRoleScreen extends Screen {
             if ("item".equals(en.type)) {
                 boolean nd = !en.allowDuplicate;
                 var dupBtn = makeButton(lx + 199, baseRowY(r), 55, bh,
-                        Component.literal(nd ? "禁重复" : "允重复"),
+                        Component.translatable(
+                                nd ? "sre.custom_role.shop.dup_forbidden" : "sre.custom_role.shop.dup_allowed"),
                         () -> {
                             en.allowDuplicate = !en.allowDuplicate;
                             init(minecraft, width, height);
@@ -1197,13 +1202,13 @@ public class CustomRoleScreen extends Screen {
             if ("custom".equals(en.type)) {
                 addLabel(tabLabels4, "sre.custom_role.label.shop_custom_name", r);
                 EditBox nb = makeBox(lx, rowY(r), 130, bh, en.displayName, v -> en.displayName = v);
-                nb.setHint(Component.literal("商品显示名称"));
+                nb.setHint(Component.translatable("sre.custom_role.hint.shop_name"));
                 recordWidgetBase(nb, baseRowY(r));
                 tabWidgets4.add(nb);
                 r++;
                 addLabel(tabLabels4, "sre.custom_role.label.shop_custom_icon", r);
                 EditBox ib3 = makeBox(lx, rowY(r), 130, bh, en.itemId, v -> en.itemId = v);
-                ib3.setHint(Component.literal("物品图标id"));
+                ib3.setHint(Component.translatable("sre.custom_role.hint.shop_icon"));
                 recordWidgetBase(ib3, baseRowY(r));
                 tabWidgets4.add(ib3);
                 r++;
@@ -1214,7 +1219,7 @@ public class CustomRoleScreen extends Screen {
                     int y = rowY(r);
                     addLabel(tabLabels4, "sre.custom_role.label.shop_custom_cmd", r);
                     EditBox cm = makeBox(lx, y, 230, bh, en.commands.get(c), v -> en.commands.set(cdx, v));
-                    cm.setHint(Component.literal("不需/ 例: say <player>"));
+                    cm.setHint(Component.translatable("sre.custom_role.hint.command"));
                     recordWidgetBase(cm, baseRowY(r));
                     tabWidgets4.add(cm);
                     var plusBtn = makeButton(lx + 238, baseRowY(r), 20, bh, Component.literal("+"),

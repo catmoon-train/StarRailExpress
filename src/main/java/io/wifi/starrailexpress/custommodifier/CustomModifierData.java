@@ -214,7 +214,7 @@ public class CustomModifierData {
         DEATH,
         /** 使用物品：stringValue = 物品 id（留空表示任意物品）。 */
         USE_ITEM,
-        /** 说话（聊天）：stringValue 为关键字，留空表示任意发言。 */
+        /** 聊天栏说话：stringValue 为关键字（包含匹配），留空表示任意发言。 */
         SPEAK,
         /** 金币数量：比较 value。 */
         COIN_AMOUNT,

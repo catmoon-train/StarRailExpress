@@ -931,7 +931,7 @@ public final class CustomItemRuntime {
             player.serverLevel().playSound(null, player.getX(), player.getY(), player.getZ(),
                     SoundEvents.ITEM_BREAK, SoundSource.PLAYERS, 0.8F, 1.0F);
             player.displayClientMessage(
-                    Component.translatableWithFallback("sre.custom_item.broken", "§c物品已因耐久耗尽而损坏"),
+                    Component.translatable("sre.custom_item.broken"),
                     true);
         }
         stack.remove(SREDataComponentTypes.CUSTOM_ITEM_DAMAGE);
@@ -991,7 +991,7 @@ public final class CustomItemRuntime {
         }
         if (isCuffed(targetPlayer) || HandCuffsItem.hasHandCuff(targetPlayer)) {
             user.displayClientMessage(
-                    Component.translatableWithFallback("sre.custom_item.cuff.already", "§c对方已经被铐住了"), true);
+                    Component.translatable("sre.custom_item.cuff.already"), true);
             return InteractionResult.FAIL;
         }
         // 拷过去的是手上这份的副本（已消耗的耐久跟着走）
@@ -1003,10 +1003,10 @@ public final class CustomItemRuntime {
         applyCuffEffects(targetPlayer, data);
         applyCuffRestriction(targetPlayer, data);
 
-        user.displayClientMessage(Component.translatableWithFallback("sre.custom_item.cuff.put",
-                "§6你铐住了 %s", targetPlayer.getName().getString()), true);
-        targetPlayer.displayClientMessage(Component.translatableWithFallback("sre.custom_item.cuff.received",
-                "§c你被 %s 铐住了", user.getName().getString()), true);
+        user.displayClientMessage(
+                Component.translatable("sre.custom_item.cuff.put", targetPlayer.getName().getString()), true);
+        targetPlayer.displayClientMessage(
+                Component.translatable("sre.custom_item.cuff.received", user.getName().getString()), true);
         return InteractionResult.SUCCESS;
     }
 
@@ -1097,7 +1097,7 @@ public final class CustomItemRuntime {
         }
         if (!canTakeOffCuff(remover, data)) {
             remover.displayClientMessage(
-                    Component.translatableWithFallback("sre.custom_item.cuff.denied", "§c你不能取下这个物品"), true);
+                    Component.translatable("sre.custom_item.cuff.denied"), true);
             return InteractionResult.FAIL;
         }
         ExtraSlotComponent.removeSlot(holder, cuffSlot(data));
@@ -1106,10 +1106,10 @@ public final class CustomItemRuntime {
             // 背包放不下就还给被铐的人，避免物品凭空消失
             holder.getInventory().placeItemBackInInventory(cuff);
         }
-        remover.displayClientMessage(Component.translatableWithFallback("sre.custom_item.cuff.takeoff",
-                "§a你取下了 %s 身上的物品", holder.getName().getString()), true);
-        holder.displayClientMessage(Component.translatableWithFallback("sre.custom_item.cuff.takeoff.self",
-                "§a%s 取下了你身上的物品", remover.getName().getString()), true);
+        remover.displayClientMessage(
+                Component.translatable("sre.custom_item.cuff.takeoff", holder.getName().getString()), true);
+        holder.displayClientMessage(
+                Component.translatable("sre.custom_item.cuff.takeoff.self", remover.getName().getString()), true);
         return InteractionResult.SUCCESS;
     }
 
@@ -1266,7 +1266,7 @@ public final class CustomItemRuntime {
         }
         if (!data.throwDefusable) {
             user.displayClientMessage(
-                    Component.translatableWithFallback("sre.custom_item.throw.not_defusable", "§c这个东西没法拆"),
+                    Component.translatable("sre.custom_item.throw.not_defusable"),
                     true);
             return InteractionResult.FAIL;
         }
@@ -1277,12 +1277,12 @@ public final class CustomItemRuntime {
             // 拆除时间为 0：直接拆除（同粘性炸弹）
             charge.defuseInstantly();
             user.displayClientMessage(
-                    Component.translatableWithFallback("sre.custom_item.throw.defused", "§a你拆除了它"), true);
+                    Component.translatable("sre.custom_item.throw.defused"), true);
             return InteractionResult.SUCCESS;
         }
         charge.beginDefuse(user, defuseFailPercent(user, data));
         user.displayClientMessage(
-                Component.translatableWithFallback("sre.custom_item.throw.defusing", "§e正在拆除…"), true);
+                Component.translatable("sre.custom_item.throw.defusing"), true);
         return InteractionResult.SUCCESS;
     }
 

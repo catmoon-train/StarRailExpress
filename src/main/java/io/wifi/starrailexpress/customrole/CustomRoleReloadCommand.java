@@ -46,13 +46,13 @@ public class CustomRoleReloadCommand {
                     try {
                         reload(source.getServer());
                         source.sendSuccess(
-                                () -> Component.literal("[CustomRole] 自定义职业配置已重新加载")
+                                () -> Component.translatable("sre.custom_role.reload.success")
                                         .withStyle(s -> s.withColor(0x55FF55)),
                                 true);
                         SRE.LOGGER.info("[CustomRole] Reloaded custom roles by {}", source.getTextName());
                         return 1;
                     } catch (Exception e) {
-                        source.sendFailure(Component.literal("[CustomRole] 重载失败: " + e.getMessage()));
+                        source.sendFailure(Component.translatable("sre.custom_role.reload.failed", e.getMessage()));
                         SRE.LOGGER.error("[CustomRole] Reload failed", e);
                         return 0;
                     }

@@ -153,9 +153,12 @@ public class CustomRoleManageScreen extends Screen {
             CustomRoleData role = roles.get(idx);
             int y = baseY + i * ROW_HEIGHT - (scrollOffset % ROW_HEIGHT);
             int color = 0xFF000000 | (role.colorR << 16) | (role.colorG << 8) | role.colorB;
-            String info = (role.isInnocent ? "[平民]" : (role.canUseKiller ? "[杀手]" : "[中立]"))
-                + " " + role.moodType + " max:" + role.maxCount;
-            g.drawString(font, Component.literal(info).withStyle(Style.EMPTY.withColor(color)),
+            Component teamTag = Component.translatable(role.isInnocent ? "sre.custom_role.manage.team.innocent"
+                    : (role.canUseKiller ? "sre.custom_role.manage.team.killer"
+                            : "sre.custom_role.manage.team.neutral"));
+            Component info = teamTag.copy()
+                    .append(Component.translatable("sre.custom_role.manage.summary", role.moodType, role.maxCount));
+            g.drawString(font, info.withStyle(Style.EMPTY.withColor(color)),
                 panelLeftX + 260, y + 4, 0xFFFFFF, false);
         }
 

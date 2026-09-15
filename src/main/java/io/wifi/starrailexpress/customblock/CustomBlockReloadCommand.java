@@ -41,13 +41,13 @@ public class CustomBlockReloadCommand {
                     try {
                         reload(source.getServer());
                         source.sendSuccess(
-                                () -> Component.literal("[CustomBlock] 自定义方块配置已重新加载")
+                                () -> Component.translatable("sre.custom_block.reload.success")
                                         .withStyle(s -> s.withColor(0x55FF55)),
                                 true);
                         SRE.LOGGER.info("[CustomBlock] Reloaded custom blocks by {}", source.getTextName());
                         return 1;
                     } catch (Exception e) {
-                        source.sendFailure(Component.literal("[CustomBlock] 重载失败: " + e.getMessage()));
+                        source.sendFailure(Component.translatable("sre.custom_block.reload.failed", e.getMessage()));
                         SRE.LOGGER.error("[CustomBlock] Reload failed", e);
                         return 0;
                     }

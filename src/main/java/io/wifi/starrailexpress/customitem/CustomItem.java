@@ -335,7 +335,7 @@ public class CustomItem extends Item implements SREItemProperties.LeftClickHurta
         }
         int maxDurability = CustomItemRuntime.maxDurability(data);
         if (maxDurability > 0) {
-            tooltip.add(Component.translatableWithFallback("sre.custom_item.durability", "耐久 %s/%s",
+            tooltip.add(Component.translatable("sre.custom_item.durability",
                     CustomItemRuntime.remainingDurability(stack, data), maxDurability)
                     .withStyle(style -> style.withColor(0xFFAFAFAF)));
         }

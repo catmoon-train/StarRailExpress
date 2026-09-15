@@ -41,14 +41,15 @@ public class CustomModifierReloadCommand {
                             try {
                                 reload(source.getServer());
                                 source.sendSuccess(
-                                        () -> Component.literal("[CustomModifier] 自定义修饰符配置已重新加载")
+                                        () -> Component.translatable("sre.custom_modifier.reload.success")
                                                 .withStyle(s -> s.withColor(0x55FF55)),
                                         true);
                                 SRE.LOGGER.info("[CustomModifier] Reloaded custom modifiers by {}",
                                         source.getTextName());
                                 return 1;
                             } catch (Exception e) {
-                                source.sendFailure(Component.literal("[CustomModifier] 重载失败: " + e.getMessage()));
+                                source.sendFailure(Component
+                                        .translatable("sre.custom_modifier.reload.failed", e.getMessage()));
                                 SRE.LOGGER.error("[CustomModifier] Reload failed", e);
                                 return 0;
                             }
