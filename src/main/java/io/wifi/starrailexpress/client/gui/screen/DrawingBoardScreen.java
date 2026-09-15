@@ -72,6 +72,14 @@ public class DrawingBoardScreen extends Screen {
     private Button btnEraser;
     protected Button btnClose;
 
+    // 整体移动方向键（每次把画布内容朝对应方向挪一格）
+    private Button btnShiftUp;
+    private Button btnShiftDown;
+    private Button btnShiftLeft;
+    private Button btnShiftRight;
+    /** 工具按钮列的位置（用来给「整体移动」标签定位）。 */
+    protected int toolButtonX, toolButtonY;
+
     private boolean isDrawing = false;
     private int lastRecognizeResult = DrawingBoardRecognizer.UNKNOWN;
     private String lastRecognizeMessage = "";
@@ -162,7 +170,77 @@ public class DrawingBoardScreen extends Screen {
                 .bounds(btnX, btnY + (BUTTON_HEIGHT + 5) * 4, BUTTON_WIDTH, BUTTON_HEIGHT).build();
         addRenderableWidget(btnClose);
 
+        // 整体移动：用小箭头组成的方向键，放在工具按钮列右侧的空白处（不压到调色盘，也不压到工具按钮）
+        toolButtonX = btnX;
+        toolButtonY = btnY;
+        int moveX = btnX + 88;              // 工具按钮宽 80，面板宽 180：右侧留白正好放得下 76 宽的方向键
+        int arrowW = 24;
+        int arrowGap = 2;
+        int secondRowY = btnY + BUTTON_HEIGHT + arrowGap;
+
+        btnShiftUp = Button.builder(Component.translatable("starrailexpress.drawing_board.shift_up"),
+                b -> shiftCanvas(0, -1))
+                .bounds(moveX + arrowW + arrowGap, btnY, arrowW, BUTTON_HEIGHT).build();
+        addRenderableWidget(btnShiftUp);
+
+        btnShiftLeft = Button.builder(Component.translatable("starrailexpress.drawing_board.shift_left"),
+                b -> shiftCanvas(-1, 0))
+                .bounds(moveX, secondRowY, arrowW, BUTTON_HEIGHT).build();
+        addRenderableWidget(btnShiftLeft);
+
+        btnShiftDown = Button.builder(Component.translatable("starrailexpress.drawing_board.shift_down"),
+                b -> shiftCanvas(0, 1))
+                .bounds(moveX + arrowW + arrowGap, secondRowY, arrowW, BUTTON_HEIGHT).build();
+        addRenderableWidget(btnShiftDown);
+
+        btnShiftRight = Button.builder(Component.translatable("starrailexpress.drawing_board.shift_right"),
+                b -> shiftCanvas(1, 0))
+                .bounds(moveX + (arrowW + arrowGap) * 2, secondRowY, arrowW, BUTTON_HEIGHT).build();
+        addRenderableWidget(btnShiftRight);
+
         updateToolButtons();
+    }
+
+    /**
+     * 把画布内容整体朝一个方向移动一格。
+     *
+     * <p>
+     * 移出画布的部分直接丢弃，空出来的那一行 / 一列填成背景白（与「清空」用的底色一致），
+     * 移动后立刻存回物品并同步给服务端，行为和画一笔是一样的。
+     *
+     * @param dx 水平方向：-1 左移，1 右移，0 不动
+     * @param dy 垂直方向：-1 上移，1 下移，0 不动
+     */
+    protected void shiftCanvas(int dx, int dy) {
+        if (dx == 0 && dy == 0) {
+            return;
+        }
+        byte[][] shifted = new byte[CANVAS_SIZE][CANVAS_SIZE];
+        for (int y = 0; y < CANVAS_SIZE; y++) {
+            for (int x = 0; x < CANVAS_SIZE; x++) {
+                shifted[y][x] = (byte) BACKGROUND_WHITE;
+            }
+        }
+        for (int y = 0; y < CANVAS_SIZE; y++) {
+            for (int x = 0; x < CANVAS_SIZE; x++) {
+                int nx = x + dx;
+                int ny = y + dy;
+                if (nx < 0 || nx >= CANVAS_SIZE || ny < 0 || ny >= CANVAS_SIZE) {
+                    continue;
+                }
+                shifted[ny][nx] = canvas[y][x];
+            }
+        }
+        for (int y = 0; y < CANVAS_SIZE; y++) {
+            System.arraycopy(shifted[y], 0, canvas[y], 0, CANVAS_SIZE);
+        }
+
+        // 和「应用模板」保持一致：画布变了就重置识别状态
+        canvasModifiedSinceLastRecognize = true;
+        lastRecognizeResult = DrawingBoardRecognizer.UNKNOWN;
+        lastRecognizeMessage = "";
+        lastHint = "";
+        saveCanvas();
     }
 
     private void updateToolButtons() {
@@ -325,6 +403,10 @@ public class DrawingBoardScreen extends Screen {
         }
 
         graphics.drawString(font, Component.translatable("starrailexpress.drawing_board.color_palette").getString(), colorPanelX, colorPanelY - 15, 0xFFFFFF);
+
+        // 「整体移动」方向键的标题（贴在方向键上方，位置与 init() 里的按钮对齐）
+        graphics.drawString(font, Component.translatable("starrailexpress.drawing_board.shift_move").getString(),
+                toolButtonX + 88, toolButtonY - 12, 0xFFFFFF);
 
         for (int i = 0; i < PALETTE.length; i++) {
             int row = i / COLORS_PER_ROW;
