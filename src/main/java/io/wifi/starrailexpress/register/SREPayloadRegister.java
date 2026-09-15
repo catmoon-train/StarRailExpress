@@ -47,6 +47,10 @@ public class SREPayloadRegister {
         PayloadTypeRegistry.playS2C().register(
                 io.wifi.starrailexpress.network.CustomAreaParticlePayload.ID,
                 io.wifi.starrailexpress.network.CustomAreaParticlePayload.CODEC);
+        // 自定义修饰符「死亡后倒计时」状态（只发给当事人，客户端画倒计时 HUD）
+        PayloadTypeRegistry.playS2C().register(
+                io.wifi.starrailexpress.network.packet.CustomModifierCountdownPacket.ID,
+                io.wifi.starrailexpress.network.packet.CustomModifierCountdownPacket.CODEC);
         // 商店价格同步 / Shop price sync
         PayloadTypeRegistry.playS2C().register(
                 io.wifi.starrailexpress.shop.network.ShopPriceHandshakeS2CPayload.TYPE,

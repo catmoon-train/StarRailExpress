@@ -840,6 +840,9 @@ public class SREClient implements ClientModInitializer {
         // 注册自定义修饰符同步接收器（客户端）
         io.wifi.starrailexpress.client.network.CustomModifierClientNetwork.register();
 
+        // 自定义修饰符「死亡后倒计时」HUD（含倒计时状态接收器）
+        io.wifi.starrailexpress.custommodifier.client.CustomModifierCountdownHud.register();
+
         // 注册自定义列车物品同步接收器（客户端）
         io.wifi.starrailexpress.client.network.CustomItemClientNetwork.register();
 

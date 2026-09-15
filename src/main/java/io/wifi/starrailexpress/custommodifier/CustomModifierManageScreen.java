@@ -175,14 +175,18 @@ public class CustomModifierManageScreen extends Screen {
             CustomModifierData modifier = modifiers.get(index);
             int y = baseY + i * ROW_HEIGHT - (scrollOffset % ROW_HEIGHT);
             int color = modifier.getColor();
-            MutableComponent info = Component.empty()
+            Mutable            Component info = Component.empty()
                     .append(modifier.hidden ? Component.translatable("sre.custom_modifier.manage.hidden")
+                            : Component.empty())
+                    .append(modifier.markerOnly ? Component.translatable("sre.custom_modifier.manage.marker")
                             : Component.empty())
                     .append(Component.translatable("sre.custom_modifier.manage.summary", modifier.defaultMax,
                             modifier.defaultEnableChance))
-                    .append(modifier.isGlobalTrigger() ? Component.translatable("sre.custom_modifier.manage.global")
-                            : Component.translatable("sre.custom_modifier.manage.conditions",
-                                    modifier.conditions.size()));
+                    .append(modifier.markerOnly ? Component.empty()
+                            : modifier.isGlobalTrigger()
+                                    ? Component.translatable("sre.custom_modifier.manage.global")
+                                    : Component.translatable("sre.custom_modifier.manage.conditions",
+                                            modifier.conditions.size()));
             g.drawString(font, info.withStyle(s -> s.withColor(color)),
                     panelLeftX + infoX, y + 6, 0xFFFFFF, false);
         }

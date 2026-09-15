@@ -53,6 +53,15 @@ public class CustomModifierData {
     @SerializedName("hidden")
     public boolean hidden = false;
 
+    /**
+     * 仅标记使用：该修饰符只作为标记，不拥有任何触发条件与触发内容。
+     *
+     * <p>
+     * 为 true 时编辑器会隐藏「触发条件 / 触发内容」两个页签，运行时也完全跳过条件判定与触发内容。
+     */
+    @SerializedName("markerOnly")
+    public boolean markerOnly = false;
+
     // ==================== 关联设置（仅作用于介绍页面） ====================
     /** 双向关联职业（职业 id）。 */
     @SerializedName("bothRelatedRoles")
@@ -265,6 +274,18 @@ public class CustomModifierData {
         /** 是否触发过假毒。 */
         FAKE_POISONED,
         /** 是否拥有弱效护盾。 */
-        HAS_WEAK_ARMOR
+        HAS_WEAK_ARMOR,
+        /** 被同阵营的玩家击杀时触发（阵营按 {@code RoleUtils.getRoleType} 的大类比较）。 */
+        KILLED_BY_SAME_TEAM,
+        /** 被特定阵营的玩家击杀时触发：stringValue = {@link io.wifi.starrailexpress.api.RoleTeam} 名称。 */
+        KILLED_BY_TEAM,
+        /** 被特定职业的玩家击杀时触发：stringValue = 职业 id。 */
+        KILLED_BY_ROLE,
+        /** 被「拥有特定修饰符」的玩家击杀时触发：stringValue = 修饰符 id。 */
+        KILLED_BY_MODIFIER,
+        /** 死亡 value 秒后触发，并自动复活玩家（附带倒计时 HUD）。 */
+        DEATH_COUNTDOWN_REVIVE,
+        /** 死亡 value 秒后触发，不自动复活（附带倒计时 HUD）。 */
+        DEATH_COUNTDOWN
     }
 }

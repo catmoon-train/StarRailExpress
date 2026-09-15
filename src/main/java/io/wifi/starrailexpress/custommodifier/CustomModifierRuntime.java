@@ -16,6 +16,8 @@
 package io.wifi.starrailexpress.custommodifier;
 
 import io.wifi.starrailexpress.SRE;
+import io.wifi.starrailexpress.api.RoleTeam;
+import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.cca.SREArmorPlayerComponent;
 import io.wifi.starrailexpress.cca.SREGameTimeComponent;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
@@ -33,8 +35,10 @@ import io.wifi.starrailexpress.custommodifier.CustomModifierData.ConditionType;
 import io.wifi.starrailexpress.event.OnPlayerDeath;
 import io.wifi.starrailexpress.event.OnPlayerDeathWithKiller;
 import io.wifi.starrailexpress.game.GameUtils;
+import io.wifi.starrailexpress.network.packet.CustomModifierCountdownPacket;
 import io.wifi.utils.RandomSelector;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
+import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.fabricmc.fabric.api.event.player.UseItemCallback;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
 import net.fabricmc.fabric.api.message.v1.ServerMessageEvents;
@@ -50,11 +54,15 @@ import net.minecraft.world.entity.ai.attributes.Attribute;
 import net.minecraft.world.entity.ai.attributes.AttributeInstance;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.phys.Vec3;
 import org.agmas.harpymodloader.component.WorldModifierComponent;
 import org.agmas.harpymodloader.events.ModifierRemoved;
+import org.agmas.harpymodloader.modded_murder.PlayerRoleWeightManager;
 import org.agmas.harpymodloader.modifiers.SREModifier;
+import org.agmas.noellesroles.component.DefibrillatorComponent;
 import org.agmas.noellesroles.component.InfectedPlayerComponent;
 import org.agmas.noellesroles.component.ModComponents;
+import org.agmas.noellesroles.content.entity.PlayerBodyEntity;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -90,9 +98,51 @@ public final class CustomModifierRuntime {
     private static final String ATTR_PREFIX = "attr_";
 
     private static final Map<String, State> STATES = new HashMap<>();
-    /** 玩家 UUID -> 上次处理死亡的游戏刻（用于两个死亡事件去重）。 */
-    private static final Map<UUID, Long> LAST_DEATH_FIRE = new HashMap<>();
+    /**
+     * 已登记、尚未处理的死亡（玩家 UUID -> 死亡信息）。
+     *
+     * <p>
+     * 一次死亡会先后触发 {@code OnPlayerDeath}（无击杀者）与 {@code OnPlayerDeathWithKiller}（有击杀者）
+     * 两个事件。这里先把两次登记合并，等本刻末的 {@code END_SERVER_TICK} 再统一结算，
+     * 保证「被谁击杀」类条件一定能拿到击杀者，同时天然避免了重复触发。
+     */
+    private static final Map<UUID, PendingDeath> PENDING_DEATHS = new HashMap<>();
+    /** 正在倒计时的「死亡 N 秒后」条件（键 = 玩家 UUID|修饰符 id）。 */
+    private static final Map<String, Countdown> COUNTDOWNS = new HashMap<>();
     private static boolean initialized = false;
+
+    /** 一条待处理的死亡信息。 */
+    private static final class PendingDeath {
+        ServerPlayer killer;
+        ResourceLocation reason;
+        Vec3 pos;
+    }
+
+    /** 一条「死亡 N 秒后」倒计时。 */
+    private static final class Countdown {
+        final UUID playerId;
+        final String modifierId;
+        final String label;
+        final ConditionType type;
+        final boolean revive;
+        final Vec3 pos;
+        final long deadline;
+
+        Countdown(UUID playerId, String modifierId, String label, ConditionType type, boolean revive, Vec3 pos,
+                long deadline) {
+            this.playerId = playerId;
+            this.modifierId = modifierId;
+            this.label = label;
+            this.type = type;
+            this.revive = revive;
+            this.pos = pos;
+            this.deadline = deadline;
+        }
+
+        String key() {
+            return playerId + "|" + modifierId;
+        }
+    }
 
     private CustomModifierRuntime() {
     }
@@ -114,21 +164,21 @@ public final class CustomModifierRuntime {
             return;
         initialized = true;
 
-        // 死亡：事件型条件。与实体交互方块一致，两个事件都挂（无击杀者 / 被玩家击杀）
-        OnPlayerDeath.EVENT.register((player, reason) -> handleDeath(player, reason));
-        OnPlayerDeathWithKiller.EVENT.register((player, killer, reason) -> handleDeath(player, reason));
+        // 死亡：两个事件都会触发（先无击杀者、后有击杀者），这里只登记，等本刻末统一结算
+        OnPlayerDeath.EVENT.register((player, reason) -> recordDeath(player, null, reason));
+        OnPlayerDeathWithKiller.EVENT.register((player, killer, reason) -> recordDeath(player, killer, reason));
         // 聊天栏说话：事件型条件（只认聊天栏文字，不含语音与指令）
         ServerMessageEvents.CHAT_MESSAGE.register((message, sender, bound) -> {
             if (sender != null) {
                 triggerEvent(sender, ConditionType.SPEAK,
-                        message == null ? "" : message.signedContent());
+                        message == null ? "" : message.signedContent(), null);
             }
         });
         // 使用物品：事件型条件
         UseItemCallback.EVENT.register((player, world, hand) -> {
             if (!world.isClientSide && player instanceof ServerPlayer serverPlayer) {
                 triggerEvent(serverPlayer, ConditionType.USE_ITEM,
-                        BuiltInRegistries.ITEM.getKey(serverPlayer.getItemInHand(hand).getItem()).toString());
+                        BuiltInRegistries.ITEM.getKey(serverPlayer.getItemInHand(hand).getItem()).toString(), null);
             }
             return InteractionResultHolder.pass(player.getItemInHand(hand));
         });
@@ -141,8 +191,10 @@ public final class CustomModifierRuntime {
         // 玩家退出时清掉全部状态
         ServerPlayConnectionEvents.DISCONNECT.register(
                 (handler, server) -> clearPlayerState(handler.getPlayer().getUUID()));
-        // 定期清理「已失去修饰符」的玩家属性加成
+        // 每刻：推进「死亡 N 秒后」倒计时、结算本刻登记的死亡；每 10 刻清理一次遗留属性
         ServerTickEvents.END_SERVER_TICK.register(server -> {
+            tickCountdowns(server);
+            processPendingDeaths(server);
             if (server.getTickCount() % 10 == 0) {
                 cleanupAttributes(server);
             }
@@ -159,6 +211,11 @@ public final class CustomModifierRuntime {
         if (data == null)
             return;
 
+        // 仅标记使用：不判条件、不执行任何内容
+        if (data.markerOnly) {
+            return;
+        }
+
         State state = state(player, entry);
         long now = gameTime(player);
 
@@ -174,52 +231,102 @@ public final class CustomModifierRuntime {
         // 条件触发：每秒判定一次
         if (now % SECOND_TICKS != 0)
             return;
-        evaluate(player, entry, data, null, null);
+        evaluate(player, entry, data, null, null, null);
     }
 
-    /**
-     * 死亡处理：两个死亡事件都注册了，同一刻只处理一次，避免被玩家击杀时重复触发。
-     */
-    private static void handleDeath(Player player, ResourceLocation reason) {
+    /** 登记一次死亡（两个死亡事件都会走到这里，后到的击杀者会覆盖先前的 null）。 */
+    private static void recordDeath(Player player, Player killer, ResourceLocation reason) {
         if (!(player instanceof ServerPlayer serverPlayer)) {
             return;
         }
-        long now = serverPlayer.level().getGameTime();
-        Long last = LAST_DEATH_FIRE.get(serverPlayer.getUUID());
-        if (last != null && last == now) {
+        PendingDeath pending = PENDING_DEATHS.computeIfAbsent(serverPlayer.getUUID(), id -> new PendingDeath());
+        if (killer instanceof ServerPlayer serverKiller) {
+            pending.killer = serverKiller;
+        }
+        pending.reason = reason;
+        pending.pos = serverPlayer.position();
+    }
+
+    /** 本刻末统一结算登记过的死亡：死亡条件 + 「死亡 N 秒后」倒计时。 */
+    private static void processPendingDeaths(MinecraftServer server) {
+        if (PENDING_DEATHS.isEmpty()) {
             return;
         }
-        LAST_DEATH_FIRE.put(serverPlayer.getUUID(), now);
-        triggerEvent(serverPlayer, ConditionType.DEATH, reason == null ? "" : reason.getPath());
+        List<UUID> ids = new ArrayList<>(PENDING_DEATHS.keySet());
+        for (UUID id : ids) {
+            PendingDeath pending = PENDING_DEATHS.remove(id);
+            ServerPlayer player = server.getPlayerList().getPlayer(id);
+            if (pending == null || player == null) {
+                continue;
+            }
+            triggerEvent(player, ConditionType.DEATH, pending.reason == null ? "" : pending.reason.getPath(),
+                    pending.killer);
+            startDeathCountdowns(player, pending.pos);
+        }
+    }
+
+    /** 扫描该玩家身上的自定义修饰符，为含「死亡 N 秒后」条件的修饰符启动倒计时。 */
+    private static void startDeathCountdowns(ServerPlayer player, Vec3 pos) {
+        WorldModifierComponent component = WorldModifierComponent.KEY.get(player.level());
+        long now = gameTime(player);
+        for (SREModifier modifier : component.getModifiers(player)) {
+            if (!(modifier instanceof CustomModifierEntry entry)) {
+                continue;
+            }
+            CustomModifierData data = entry.getData();
+            if (data == null || data.markerOnly) {
+                continue;
+            }
+            for (ConditionData condition : safe(data.conditions)) {
+                ConditionType type = parseType(condition.type);
+                if (type != ConditionType.DEATH_COUNTDOWN && type != ConditionType.DEATH_COUNTDOWN_REVIVE) {
+                    continue;
+                }
+                int seconds = (int) Math.max(1L, Math.round(condition.value));
+                String label = data.displayName != null && !data.displayName.isBlank() ? data.displayName
+                        : data.englishId;
+                Countdown countdown = new Countdown(player.getUUID(), entry.identifier().getPath(), label, type,
+                        type == ConditionType.DEATH_COUNTDOWN_REVIVE, pos, now + seconds * SECOND_TICKS);
+                COUNTDOWNS.put(countdown.key(), countdown);
+                sendCountdown(player, countdown, true);
+                // 同一修饰符只认第一个倒计时条件
+                break;
+            }
+        }
     }
 
     /** 事件型条件触发时，对所有拥有对应条件自定义修饰符的玩家做一次判定。 */
-    private static void triggerEvent(ServerPlayer player, ConditionType type, String payload) {
+    private static void triggerEvent(ServerPlayer player, ConditionType type, String payload, ServerPlayer killer) {
         WorldModifierComponent component = WorldModifierComponent.KEY.get(player.level());
         for (SREModifier modifier : component.getModifiers(player)) {
             if (!(modifier instanceof CustomModifierEntry entry))
                 continue;
             CustomModifierData data = entry.getData();
-            if (data == null || data.isGlobalTrigger())
+            if (data == null || data.markerOnly || data.isGlobalTrigger())
                 continue;
             boolean relevant = false;
             for (ConditionData condition : safe(data.conditions)) {
-                if (type.name().equals(condition.type)) {
+                ConditionType conditionType = parseType(condition.type);
+                if (conditionType == null) {
+                    continue;
+                }
+                // 四种「被谁击杀」条件同样由死亡事件驱动
+                if (conditionType == type || (type == ConditionType.DEATH && isKillerCondition(conditionType))) {
                     relevant = true;
                     break;
                 }
             }
             if (!relevant)
                 continue;
-            evaluate(player, entry, data, type, payload);
+            evaluate(player, entry, data, type, payload, killer);
         }
     }
 
     /** 判定条件并按「与 / 或」串联，满足时执行触发内容。 */
     private static void evaluate(ServerPlayer player, CustomModifierEntry entry, CustomModifierData data,
-            ConditionType eventType, String payload) {
+            ConditionType eventType, String payload, ServerPlayer killer) {
         List<ConditionData> conditions = safe(data.conditions);
-        if (conditions.isEmpty())
+        if (conditions.isEmpty() || data.markerOnly)
             return;
 
         State state = state(player, entry);
@@ -227,7 +334,7 @@ public final class CustomModifierRuntime {
 
         boolean result = false;
         for (int i = 0; i < conditions.size(); i++) {
-            boolean value = evalCondition(player, state, conditions.get(i), i, now, eventType, payload);
+            boolean value = evalCondition(player, state, conditions.get(i), i, now, eventType, payload, killer);
             if (i == 0) {
                 result = value;
             } else {
@@ -249,12 +356,23 @@ public final class CustomModifierRuntime {
     // ==================== 条件判定 ====================
 
     private static boolean evalCondition(ServerPlayer player, State state, ConditionData condition, int index,
-            long now, ConditionType eventType, String payload) {
-        ConditionType type;
-        try {
-            type = ConditionType.valueOf(condition.type);
-        } catch (Exception e) {
+            long now, ConditionType eventType, String payload, ServerPlayer killer) {
+        ConditionType type = parseType(condition.type);
+        if (type == null) {
             return false;
+        }
+
+        // ---- 倒计时型条件：「死亡 N 秒后」，只在服务端倒计时结束时判定为真 ----
+        if (type == ConditionType.DEATH_COUNTDOWN || type == ConditionType.DEATH_COUNTDOWN_REVIVE) {
+            return eventType == type;
+        }
+
+        // ---- 「被谁击杀」条件：只在死亡时判定 ----
+        if (isKillerCondition(type)) {
+            if (eventType != ConditionType.DEATH || killer == null || killer == player) {
+                return false;
+            }
+            return matchesKiller(player, killer, condition, type);
         }
 
         // ---- 事件型条件 ----
@@ -405,6 +523,135 @@ public final class CustomModifierRuntime {
         return true;
     }
 
+    // ==================== 「被谁击杀」条件 ====================
+
+    /** 是否为「被谁击杀」类条件（都由死亡事件驱动判定）。 */
+    private static boolean isKillerCondition(ConditionType type) {
+        return type == ConditionType.KILLED_BY_SAME_TEAM || type == ConditionType.KILLED_BY_TEAM
+                || type == ConditionType.KILLED_BY_ROLE || type == ConditionType.KILLED_BY_MODIFIER;
+    }
+
+    private static ConditionType parseType(String name) {
+        try {
+            return ConditionType.valueOf(name);
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    /** 判定「被谁击杀」类条件。 */
+    private static boolean matchesKiller(ServerPlayer victim, ServerPlayer killer, ConditionData condition,
+            ConditionType type) {
+        SREGameWorldComponent game = SREGameWorldComponent.KEY.get(victim.level());
+        SRERole killerRole = game.getRole(killer);
+        return switch (type) {
+            case KILLED_BY_SAME_TEAM -> {
+                // 「同阵营」按阵营大类比较（好人 / 中立 / 杀手方中立 / 杀手 / 警长），与角色权重系统一致
+                int victimType = PlayerRoleWeightManager.getRoleType(game.getRole(victim));
+                int killerType = PlayerRoleWeightManager.getRoleType(killerRole);
+                yield victimType > 0 && victimType == killerType;
+            }
+            case KILLED_BY_TEAM -> {
+                RoleTeam team = parseTeam(condition.stringValue);
+                yield team != null && team.matches(killerRole);
+            }
+            case KILLED_BY_ROLE -> {
+                String id = trim(condition.stringValue);
+                yield !id.isEmpty() && killerRole != null && matchesContentId(killerRole.identifier(), id);
+            }
+            case KILLED_BY_MODIFIER -> {
+                String id = trim(condition.stringValue);
+                yield !id.isEmpty() && WorldModifierComponent.KEY.get(victim.level()).getModifiers(killer).stream()
+                        .anyMatch(modifier -> modifier != null && matchesContentId(modifier.identifier(), id));
+            }
+            default -> false;
+        };
+    }
+
+    private static RoleTeam parseTeam(String name) {
+        try {
+            return RoleTeam.valueOf(trim(name).toUpperCase());
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    /** 职业 / 修饰符 id 匹配：完整 id（{@code namespace:path}）与 path 都认。 */
+    private static boolean matchesContentId(ResourceLocation id, String expected) {
+        if (id == null) {
+            return false;
+        }
+        return id.toString().equals(expected) || id.getPath().equals(expected);
+    }
+
+    // ==================== 「死亡 N 秒后」倒计时 ====================
+
+    /** 每刻推进倒计时：到点触发内容（按需复活），玩家被其它途径复活或游戏结束时取消。 */
+    private static void tickCountdowns(MinecraftServer server) {
+        if (COUNTDOWNS.isEmpty()) {
+            return;
+        }
+        for (var iterator = COUNTDOWNS.entrySet().iterator(); iterator.hasNext();) {
+            var mapEntry = iterator.next();
+            Countdown countdown = mapEntry.getValue();
+            ServerPlayer player = server.getPlayerList().getPlayer(countdown.playerId);
+            if (player == null) {
+                iterator.remove();
+                continue;
+            }
+            // 已经被别的途径复活 / 游戏已结束：取消倒计时
+            if (GameUtils.isPlayerAliveAndSurvivalIgnoreShitSplit(player) || !GameUtils.isGameRunning(player)) {
+                iterator.remove();
+                sendCountdown(player, countdown, false);
+                continue;
+            }
+            if (gameTime(player) < countdown.deadline) {
+                continue;
+            }
+            iterator.remove();
+            sendCountdown(player, countdown, false);
+            completeCountdown(player, countdown);
+        }
+    }
+
+    /** 倒计时结束：找到对应的自定义修饰符并触发内容；勾了「附带复活」时再复活玩家。 */
+    private static void completeCountdown(ServerPlayer player, Countdown countdown) {
+        WorldModifierComponent component = WorldModifierComponent.KEY.get(player.level());
+        boolean found = false;
+        for (SREModifier modifier : component.getModifiers(player)) {
+            if (!(modifier instanceof CustomModifierEntry entry))
+                continue;
+            if (!entry.identifier().getPath().equals(countdown.modifierId))
+                continue;
+            CustomModifierData data = entry.getData();
+            if (data == null || data.markerOnly)
+                continue;
+            found = true;
+            evaluate(player, entry, data, countdown.type, null, null);
+        }
+        if (!found || !countdown.revive) {
+            return;
+        }
+        if (GameUtils.isPlayerAliveAndSurvivalIgnoreShitSplit(player)) {
+            return;
+        }
+        // 复活：先清掉自己的尸体，再走与除颤器一致的复活流程（回死亡点 + 安全时间）
+        PlayerBodyEntity body = DefibrillatorComponent.findPlayerBodyEntity(player);
+        if (body != null) {
+            body.discard();
+        }
+        Vec3 pos = countdown.pos == null ? player.position() : countdown.pos;
+        GameUtils.revivePlayer(player, pos.x, pos.y, pos.z);
+    }
+
+    /** 通知客户端倒计时状态（只发给当事人）。 */
+    private static void sendCountdown(ServerPlayer player, Countdown countdown, boolean active) {
+        long remaining = Math.max(0L, countdown.deadline - gameTime(player));
+        int seconds = (int) ((remaining + 19L) / 20L);
+        ServerPlayNetworking.send(player, new CustomModifierCountdownPacket(countdown.modifierId, countdown.label,
+                seconds, countdown.revive, active));
+    }
+
     // ==================== 触发内容 ====================
 
     private static void fireActions(ServerPlayer player, CustomModifierEntry entry, CustomModifierData data) {
@@ -499,7 +746,7 @@ public final class CustomModifierRuntime {
             if (!(modifier instanceof CustomModifierEntry entry))
                 continue;
             CustomModifierData data = entry.getData();
-            if (data == null || !data.isGlobalTrigger())
+            if (data == null || data.markerOnly || !data.isGlobalTrigger())
                 continue;
             List<CustomModifierData.AttributeData> attributes = safe(data.attributes);
             for (int i = 0; i < attributes.size(); i++) {
@@ -622,6 +869,7 @@ public final class CustomModifierRuntime {
             return;
         String prefix = playerId + "|";
         STATES.keySet().removeIf(key -> key.startsWith(prefix));
-        LAST_DEATH_FIRE.remove(playerId);
+        COUNTDOWNS.keySet().removeIf(key -> key.startsWith(prefix));
+        PENDING_DEATHS.remove(playerId);
     }
 }
