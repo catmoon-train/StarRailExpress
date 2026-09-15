@@ -3783,6 +3783,8 @@
     "sre.custom_block.label.pack_texture": "Resource-pack texture",
     "sre.custom_block.label.inherit_block": "Inherit block",
     "sre.custom_block.label.light_level": "Light level",
+    "sre.custom_block.label.light_blackout": "Light follows blackout",
+    "sre.custom_block.hint.light_blackout": "When on, the blackout event turns this block dark like train lights; when off its light is constant.",
     "sre.custom_block.label.preview": "Preview",
     "sre.custom_block.label.no_collision": "No collision (walk through)",
     "sre.custom_block.label.blocks_skylight": "Blocks skylight",

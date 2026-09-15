@@ -15,6 +15,7 @@
 
 package io.wifi.starrailexpress.client.gui.screen;
 
+import io.wifi.starrailexpress.client.gui.HintText;
 import io.wifi.starrailexpress.client.gui.SREPanelStyle;
 import io.wifi.starrailexpress.client.gui.screen.mapui.MapUiGraphics;
 import net.fabricmc.api.EnvType;
@@ -211,8 +212,11 @@ public abstract class CustomContentManageScreen<T> extends Screen {
     private void buildSearchBox() {
         if (searchBox == null) {
             searchBox = new EditBox(font, 0, 0, 10, SEARCH_H, Component.empty());
-            searchBox.setHint(
-                    Component.translatable("sre.custom_content.manage.search_hint").withStyle(ChatFormatting.GRAY));
+            Component hint = Component.translatable("sre.custom_content.manage.search_hint")
+                    .withStyle(ChatFormatting.GRAY);
+            searchBox.setHint(hint);
+            // 输入框内画不下完整提示：悬停看全文
+            searchBox.setTooltip(Tooltip.create(hint));
             searchBox.setMaxLength(64);
             searchBox.setResponder(this::onSearchChanged);
         }
@@ -409,6 +413,9 @@ public abstract class CustomContentManageScreen<T> extends Screen {
 
         List<T> list = filteredRows();
         int start = firstVisibleIndex();
+        int hoveredRow = rowIndexAt(mouseX, mouseY);
+        // 摘要被截断且鼠标停在摘要列上时，悬停给出全文
+        Component hoveredSummary = null;
         g.enableScissor(rowLeft, listTop, rowRight, listBottom);
         for (int slot = 0; slot < visibleRows; slot++) {
             int index = start + slot;
@@ -417,10 +424,20 @@ public abstract class CustomContentManageScreen<T> extends Screen {
             }
             T row = list.get(index);
             int y = listTop + slot * ROW_HEIGHT;
-            String summary = MapUiGraphics.clip(font, rowSummary(row).getString(), summaryW);
-            g.drawString(font, Component.literal(summary), summaryX, y + 7, rowColor(row), false);
+            Component summary = rowSummary(row);
+            boolean clipped = font.width(summary) > summaryW;
+            String shown = clipped ? MapUiGraphics.clip(font, summary.getString(), summaryW) : summary.getString();
+            g.drawString(font, Component.literal(shown), summaryX, y + 7, rowColor(row), false);
+            if (clipped && index == hoveredRow && mouseX >= summaryX && mouseX < rowRight) {
+                hoveredSummary = summary;
+            }
         }
         g.disableScissor();
+
+        if (hoveredSummary != null) {
+            // tooltip 不能被行区域的裁剪切掉，放在关闭裁剪之后
+            g.renderTooltip(font, font.split(hoveredSummary, HintText.TOOLTIP_W), mouseX, mouseY);
+        }
 
         if (maxScroll > 0) {
             drawScrollbar(g, mouseX, mouseY);

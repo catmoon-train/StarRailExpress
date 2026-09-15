@@ -193,6 +193,17 @@ public final class CustomBlockLoader {
         return null;
     }
 
+    /**
+     * 该坐标的自定义方块是否要参与「关灯」（配置里勾了受关灯影响）。
+     *
+     * <p>
+     * 用于把这类方块登记进关灯点位；没勾的方块不进点位，亮度恒定。
+     */
+    public static boolean isBlackoutAffected(BlockGetter level, BlockPos pos) {
+        CustomBlockData data = getDataAt(level, pos);
+        return data != null && data.lightAffectedByBlackout && data.lightLevel > 0;
+    }
+
     // ==================== 构建物品栈 ====================
 
     /** 按配置构建一个自定义方块物品栈。 */

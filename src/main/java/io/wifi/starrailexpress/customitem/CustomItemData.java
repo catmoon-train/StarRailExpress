@@ -108,6 +108,16 @@ public class CustomItemData {
     @SerializedName("consumeItem")
     public boolean consumeItem = false;
 
+    /**
+     * 基础道具是否「右键什么都不会发生」：没配指令、没有冷却、也不消耗。
+     *
+     * <p>
+     * 这种情况服务端 {@code executeBasic} 什么都不做，所以客户端不该摆臂。
+     */
+    public boolean basicDoesNothing() {
+        return (commands == null || commands.isEmpty()) && cooldownTicks <= 0 && !consumeItem;
+    }
+
     // ==================== 性质：蓄力道具 ====================
 
     /** 蓄力动作（{@link ChargeAnim} 名称）。 */
@@ -269,6 +279,16 @@ public class CustomItemData {
     /** 物品右键后进入的冷却（tick）。 */
     @SerializedName("weaponRightClickCooldownTicks")
     public int weaponRightClickCooldownTicks = 0;
+
+    /**
+     * 特殊原版物品的右键是否「什么都不会发生」：没配右键指令。
+     *
+     * <p>
+     * 这种情况服务端 {@code useVanillaWeapon} 只是空转，所以客户端不该摆臂。
+     */
+    public boolean weaponDoesNothing() {
+        return weaponRightClickCommands == null || weaponRightClickCommands.isEmpty();
+    }
 
     /** 成功把目标虚拟血量削减至 0 时，物品进入的冷却（tick）。 */
     @SerializedName("killCooldownTicks")

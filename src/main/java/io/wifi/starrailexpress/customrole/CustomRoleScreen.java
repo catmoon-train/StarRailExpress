@@ -15,6 +15,7 @@
 
 package io.wifi.starrailexpress.customrole;
 
+import io.wifi.starrailexpress.client.gui.HintText;
 import io.wifi.starrailexpress.client.gui.SREPanelStyle;
 import io.wifi.starrailexpress.customrole.CustomRoleData.EffectEntry;
 import io.wifi.starrailexpress.customrole.CustomRoleData.InstinctModeData;
@@ -26,6 +27,7 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.EditBox;
+import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.Mth;
@@ -57,6 +59,15 @@ public class CustomRoleScreen extends Screen {
     private double dragScrollStartY = 0;
     private int dragScrollStartOffset = 0;
 
+    /**
+     * 换页签时置为 true，下一帧渲染前统一重建。
+     *
+     * <p>
+     * 不在按钮回调里直接重建：那一刻界面正在遍历自己的控件列表，清空会撞上并发修改，
+     * 而且原版会在回调返回后把「焦点」设到已经被清掉的那个按钮上。
+     */
+    private boolean pendingRebuild = false;
+
     private static final String[] TAB_NAMES = { "basic", "advanced", "ability", "generation", "shop" };
     private static final int FIELD_LEFT = 140, FIELD_W = 200;
     private CustomRoleData data = new CustomRoleData();
@@ -68,7 +79,11 @@ public class CustomRoleScreen extends Screen {
     private final List<AbstractWidget> tabWidgets3 = new ArrayList<>();
     private final List<AbstractWidget> tabWidgets4 = new ArrayList<>();
 
-    private record LabelEntry(String key, int x, int y) {
+    private record LabelEntry(String key, int x, int y, int maxWidth, int maxLines) {
+        /** 该条文字实际会占用的高度（滚动范围按它算）。 */
+        int height() {
+            return maxLines > 1 ? HintText.LINE_H * maxLines : HintText.LINE_H;
+        }
     }
 
     private final List<LabelEntry> tabLabels0 = new ArrayList<>();
@@ -149,6 +164,11 @@ public class CustomRoleScreen extends Screen {
         return panelLeftX + 4;
     }
 
+    /** 字段标签列的可用宽度（右边就是输入框，只能单行 + 省略号，放不下时悬停看全文）。 */
+    private int labelW() {
+        return Math.max(60, FIELD_LEFT - 12);
+    }
+
     // ══════════════════════════════════════════════════════════════════
     // init
     // ══════════════════════════════════════════════════════════════════
@@ -210,7 +230,7 @@ public class CustomRoleScreen extends Screen {
         }
         var labels = getActiveLabels();
         for (LabelEntry e : labels) {
-            maxY = Math.max(maxY, e.y() + 10);
+            maxY = Math.max(maxY, e.y() + e.height());
         }
         maxScroll = Math.max(0, maxY - contentBottom());
     }
@@ -247,7 +267,7 @@ public class CustomRoleScreen extends Screen {
     }
 
     private void addLabel(List<LabelEntry> l, String key, int r) {
-        l.add(new LabelEntry(key, labelX(), baseRowY(r)));
+        l.add(new LabelEntry(key, labelX(), baseRowY(r), labelW(), 1));
     }
 
     private EditBox makeLabeledBox(List<AbstractWidget> wl, List<LabelEntry> ll, int r, int w, String key, String val,
@@ -264,6 +284,7 @@ public class CustomRoleScreen extends Screen {
             String val, String hintKey, java.util.function.Consumer<String> cb) {
         EditBox b = makeLabeledBox(wl, ll, r, w, key, val, cb);
         b.setHint(Component.translatable(hintKey));
+        b.setTooltip(Tooltip.create(Component.translatable(hintKey)));
         return b;
     }
 
@@ -289,8 +310,12 @@ public class CustomRoleScreen extends Screen {
             final int idx = i;
             var b = Button.builder(tabLabel(i),
                     btn -> {
-                        activeTab = idx;
-                        init(minecraft, width, height);
+                        if (activeTab != idx) {
+                            activeTab = idx;
+                            // 新页签从头看起，避免继承上一个页签的滚动位置
+                            scrollOffset = 0;
+                            pendingRebuild = true;
+                        }
                     })
                     .bounds(sx + i * (tw + tg), panelTopY + 8, tw, th);
             var btn = b.build();
@@ -336,6 +361,7 @@ public class CustomRoleScreen extends Screen {
             }
         });
         effectsBox.setHint(Component.translatable("sre.custom_role.hint.effects_example"));
+        effectsBox.setTooltip(Tooltip.create(Component.translatable("sre.custom_role.hint.effects_example")));
         recordWidgetBase(effectsBox, baseRowY(r));
         tabWidgets0.add(effectsBox);
         r++;
@@ -607,6 +633,7 @@ public class CustomRoleScreen extends Screen {
             addLabel(tabLabels2, "sre.custom_role.label.initial_items", r);
             EditBox ib = makeBox(fieldX(), y, 130, 18, en.itemId, v -> en.itemId = v);
             ib.setHint(Component.translatable("sre.custom_role.hint.item_id"));
+            ib.setTooltip(Tooltip.create(Component.translatable("sre.custom_role.hint.item_id")));
             EditBox cb = makeBox(fieldX() + 138, y, 50, 18, String.valueOf(en.count), v -> {
                 try {
                     en.count = Integer.parseInt(v);
@@ -614,6 +641,7 @@ public class CustomRoleScreen extends Screen {
                 }
             });
             cb.setHint(Component.translatable("sre.custom_role.hint.count"));
+            cb.setTooltip(Tooltip.create(Component.translatable("sre.custom_role.hint.count")));
             recordWidgetBase(ib, baseRowY(r));
             recordWidgetBase(cb, baseRowY(r));
             tabWidgets2.addAll(List.of(ib, cb));
@@ -668,6 +696,7 @@ public class CustomRoleScreen extends Screen {
             addLabel(tabLabels2, "sre.custom_role.label.task_reward_items", r);
             EditBox ib = makeBox(fieldX(), y, 130, 18, en.itemId, v -> en.itemId = v);
             ib.setHint(Component.translatable("sre.custom_role.hint.item_id"));
+            ib.setTooltip(Tooltip.create(Component.translatable("sre.custom_role.hint.item_id")));
             EditBox cb = makeBox(fieldX() + 138, y, 50, 18, String.valueOf(en.count), v -> {
                 try {
                     en.count = Integer.parseInt(v);
@@ -675,6 +704,7 @@ public class CustomRoleScreen extends Screen {
                 }
             });
             cb.setHint(Component.translatable("sre.custom_role.hint.count"));
+            cb.setTooltip(Tooltip.create(Component.translatable("sre.custom_role.hint.count")));
             recordWidgetBase(ib, baseRowY(r));
             recordWidgetBase(cb, baseRowY(r));
             tabWidgets2.addAll(List.of(ib, cb));
@@ -756,6 +786,7 @@ public class CustomRoleScreen extends Screen {
                         mode.beSeenOn = newVal;
                 });
                 colorBox.setHint(Component.translatable("sre.custom_role.hint.hex"));
+                colorBox.setTooltip(Tooltip.create(Component.translatable("sre.custom_role.hint.hex")));
                 recordWidgetBase(colorBox, baseRowY(r));
                 tabWidgets2.add(colorBox);
                 r++;
@@ -821,6 +852,7 @@ public class CustomRoleScreen extends Screen {
                         EditBox cmdBox = makeBox(fieldX(), y, 250, 18, sd.commands.get(i),
                                 v -> sd.commands.set(idx, v));
                         cmdBox.setHint(Component.translatable("sre.custom_role.hint.command"));
+                        cmdBox.setTooltip(Tooltip.create(Component.translatable("sre.custom_role.hint.command")));
                         recordWidgetBase(cmdBox, baseRowY(r));
                         tabWidgets2.add(cmdBox);
                         var plusBtn2 = makeButton(fieldX() + 258, baseRowY(r), 20, 18, Component.literal("+"),
@@ -874,6 +906,7 @@ public class CustomRoleScreen extends Screen {
                         EditBox dcBox = makeBox(fieldX(), y, 250, 18, sd.delayedCommands.get(i),
                                 v -> sd.delayedCommands.set(idx, v));
                         dcBox.setHint(Component.translatable("sre.custom_role.hint.command_no_slash"));
+                        dcBox.setTooltip(Tooltip.create(Component.translatable("sre.custom_role.hint.command_no_slash")));
                         recordWidgetBase(dcBox, baseRowY(r));
                         tabWidgets2.add(dcBox);
                         var dplus = makeButton(fieldX() + 258, baseRowY(r), 20, 18, Component.literal("+"),
@@ -901,6 +934,7 @@ public class CustomRoleScreen extends Screen {
                         EditBox geBox = makeBox(fieldX(), y, 250, 18, sd.gameEndCommands.get(i),
                                 v -> sd.gameEndCommands.set(idx, v));
                         geBox.setHint(Component.translatable("sre.custom_role.hint.command_no_slash"));
+                        geBox.setTooltip(Tooltip.create(Component.translatable("sre.custom_role.hint.command_no_slash")));
                         recordWidgetBase(geBox, baseRowY(r));
                         tabWidgets2.add(geBox);
                         var gePlus = makeButton(fieldX() + 258, baseRowY(r), 20, 18, Component.literal("+"),
@@ -945,6 +979,7 @@ public class CustomRoleScreen extends Screen {
                     EditBox cmdBox = makeBox(fieldX(), y, 250, 18, data.abilitySkillCommands.get(i),
                             v -> data.abilitySkillCommands.set(idx, v));
                     cmdBox.setHint(Component.translatable("sre.custom_role.hint.command"));
+                    cmdBox.setTooltip(Tooltip.create(Component.translatable("sre.custom_role.hint.command")));
                     recordWidgetBase(cmdBox, baseRowY(r));
                     tabWidgets2.add(cmdBox);
                     var plusBtn2 = makeButton(fieldX() + 258, baseRowY(r), 20, 18, Component.literal("+"),
@@ -996,6 +1031,7 @@ public class CustomRoleScreen extends Screen {
                     EditBox dcBox = makeBox(fieldX(), y, 250, 18, data.abilityDelayedCommands.get(i),
                             v -> data.abilityDelayedCommands.set(idx, v));
                     dcBox.setHint(Component.translatable("sre.custom_role.hint.command_no_slash"));
+                    dcBox.setTooltip(Tooltip.create(Component.translatable("sre.custom_role.hint.command_no_slash")));
                     recordWidgetBase(dcBox, baseRowY(r));
                     tabWidgets2.add(dcBox);
                     var dplus = makeButton(fieldX() + 258, baseRowY(r), 20, 18, Component.literal("+"),
@@ -1023,6 +1059,7 @@ public class CustomRoleScreen extends Screen {
                     EditBox geBox = makeBox(fieldX(), y, 250, 18, data.gameEndCommands.get(i),
                             v -> data.gameEndCommands.set(idx, v));
                     geBox.setHint(Component.translatable("sre.custom_role.hint.command_no_slash"));
+                    geBox.setTooltip(Tooltip.create(Component.translatable("sre.custom_role.hint.command_no_slash")));
                     recordWidgetBase(geBox, baseRowY(r));
                     tabWidgets2.add(geBox);
                     var gePlus = makeButton(fieldX() + 258, baseRowY(r), 20, 18, Component.literal("+"),
@@ -1151,6 +1188,7 @@ public class CustomRoleScreen extends Screen {
                 }
             });
             pb.setHint(Component.translatable("sre.custom_role.hint.price"));
+            pb.setTooltip(Tooltip.create(Component.translatable("sre.custom_role.hint.price")));
             recordWidgetBase(pb, baseRowY(r));
             tabWidgets4.add(pb);
             // 冷却(仅 item 和 custom)
@@ -1162,6 +1200,7 @@ public class CustomRoleScreen extends Screen {
                     }
                 });
                 cd.setHint(Component.translatable("sre.custom_role.hint.cd_seconds"));
+                cd.setTooltip(Tooltip.create(Component.translatable("sre.custom_role.hint.cd_seconds")));
                 recordWidgetBase(cd, baseRowY(r));
                 tabWidgets4.add(cd);
             }
@@ -1195,6 +1234,7 @@ public class CustomRoleScreen extends Screen {
                 addLabel(tabLabels4, "sre.custom_role.label.shop_item_id", r);
                 EditBox ib2 = makeBox(lx, rowY(r), 160, bh, en.itemId, v -> en.itemId = v);
                 ib2.setHint(Component.translatable("sre.custom_role.hint.item_id"));
+                ib2.setTooltip(Tooltip.create(Component.translatable("sre.custom_role.hint.item_id")));
                 recordWidgetBase(ib2, baseRowY(r));
                 tabWidgets4.add(ib2);
                 r++;
@@ -1203,12 +1243,14 @@ public class CustomRoleScreen extends Screen {
                 addLabel(tabLabels4, "sre.custom_role.label.shop_custom_name", r);
                 EditBox nb = makeBox(lx, rowY(r), 130, bh, en.displayName, v -> en.displayName = v);
                 nb.setHint(Component.translatable("sre.custom_role.hint.shop_name"));
+                nb.setTooltip(Tooltip.create(Component.translatable("sre.custom_role.hint.shop_name")));
                 recordWidgetBase(nb, baseRowY(r));
                 tabWidgets4.add(nb);
                 r++;
                 addLabel(tabLabels4, "sre.custom_role.label.shop_custom_icon", r);
                 EditBox ib3 = makeBox(lx, rowY(r), 130, bh, en.itemId, v -> en.itemId = v);
                 ib3.setHint(Component.translatable("sre.custom_role.hint.shop_icon"));
+                ib3.setTooltip(Tooltip.create(Component.translatable("sre.custom_role.hint.shop_icon")));
                 recordWidgetBase(ib3, baseRowY(r));
                 tabWidgets4.add(ib3);
                 r++;
@@ -1220,6 +1262,7 @@ public class CustomRoleScreen extends Screen {
                     addLabel(tabLabels4, "sre.custom_role.label.shop_custom_cmd", r);
                     EditBox cm = makeBox(lx, y, 230, bh, en.commands.get(c), v -> en.commands.set(cdx, v));
                     cm.setHint(Component.translatable("sre.custom_role.hint.command"));
+                    cm.setTooltip(Tooltip.create(Component.translatable("sre.custom_role.hint.command")));
                     recordWidgetBase(cm, baseRowY(r));
                     tabWidgets4.add(cm);
                     var plusBtn = makeButton(lx + 238, baseRowY(r), 20, bh, Component.literal("+"),
@@ -1511,6 +1554,12 @@ public class CustomRoleScreen extends Screen {
 
     @Override
     public void render(GuiGraphics g, int mx, int my, float pt) {
+        // 换页签的重建放在这一帧开始前，且不 return：return 会让这一帧什么都不画，切换标签会闪一下
+        if (pendingRebuild) {
+            pendingRebuild = false;
+            rebuildWidgets();
+        }
+
         // 1. 面板背景
         renderBackground(g, mx, my, pt);
 
@@ -1527,14 +1576,21 @@ public class CustomRoleScreen extends Screen {
             w.render(g, mx, my, pt);
         }
 
-        // 5. 内容标签（受 scrollOffset 影响）
+        // 5. 内容标签（受 scrollOffset 影响；放不下用省略号截断，悬停看全文）
         List<LabelEntry> al = getActiveLabels();
+        List<HintText.Line> lines = new ArrayList<>(al.size());
         for (LabelEntry e : al) {
-            int labelY = e.y() - scrollOffset;
-            g.drawString(font, Component.translatable(e.key), e.x(), labelY + 4, 0xFFC8B898, false);
+            lines.add(new HintText.Line(Component.translatable(e.key()), e.x(), e.y() - scrollOffset + 4,
+                    0xFFC8B898, e.maxWidth(), e.maxLines()));
         }
+        HintText.Line hoveredText = HintText.draw(g, font, lines, mx, my);
 
         g.disableScissor();
+
+        // tooltip 不能被内容区的裁剪切掉，放在关闭裁剪之后
+        if (hoveredText != null) {
+            HintText.drawTooltip(g, font, hoveredText, mx, my);
+        }
 
         // 6. 滚动条（覆盖在面板右侧）
         if (maxScroll > 0) {

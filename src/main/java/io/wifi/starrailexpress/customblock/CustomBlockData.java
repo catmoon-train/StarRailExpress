@@ -81,6 +81,16 @@ public class CustomBlockData {
     @SerializedName("lightLevel")
     public int lightLevel = 0;
 
+    /**
+     * 发光是否受「关灯」事件影响（参考列车灯 {@code TrainLightBlock}）。
+     *
+     * <p>
+     * 开启后这个方块会被登记进关灯点位：关灯期间亮度归零并带闪烁，关灯结束后恢复；
+     * 关闭则亮度恒定，关灯不影响它。默认关闭（保持加这个选项之前的行为）。
+     */
+    @SerializedName("lightAffectedByBlackout")
+    public boolean lightAffectedByBlackout = false;
+
     // ==================== 朝向 ====================
 
     /** 是否按放置者朝向旋转（4 向水平朝向）。 */

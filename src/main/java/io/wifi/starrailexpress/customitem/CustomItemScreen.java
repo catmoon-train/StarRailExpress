@@ -16,6 +16,7 @@
 package io.wifi.starrailexpress.customitem;
 
 import io.wifi.starrailexpress.api.RoleTeam;
+import io.wifi.starrailexpress.client.gui.HintText;
 import io.wifi.starrailexpress.client.gui.SREPanelStyle;
 import io.wifi.starrailexpress.client.render.item.CustomItemRenderer;
 import io.wifi.starrailexpress.customitem.CustomItemData.ChargeAnim;
@@ -31,6 +32,7 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.EditBox;
+import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.network.chat.Component;
@@ -97,7 +99,11 @@ public class CustomItemScreen extends Screen {
 
     private boolean pendingRebuild = false;
 
-    private record LabelEntry(Component text, int x, int baseY, int color) {
+    private record LabelEntry(Component text, int x, int baseY, int color, int maxWidth, int maxLines) {
+        /** 该条文字实际会占用的高度（换行的提示要算两行，滚动范围才不会少算）。 */
+        int height() {
+            return maxLines > 1 ? HintText.LINE_H * maxLines : HintText.LINE_H;
+        }
     }
 
     public CustomItemScreen() {
@@ -154,6 +160,11 @@ public class CustomItemScreen extends Screen {
         return panelWidth - 12;
     }
 
+    /** 字段标签列的可用宽度（旁边就是输入框，只能单行 + 省略号）。 */
+    private int labelW() {
+        return LABEL_W - 10;
+    }
+
     private void requestRebuild() {
         this.pendingRebuild = true;
     }
@@ -196,7 +207,7 @@ public class CustomItemScreen extends Screen {
             }
         }
         for (LabelEntry label : contentLabels) {
-            maxY = Math.max(maxY, label.baseY() + 10);
+            maxY = Math.max(maxY, label.baseY() + label.height());
         }
         maxScroll = Math.max(0, maxY + 4 - contentBottom());
     }
@@ -233,12 +244,13 @@ public class CustomItemScreen extends Screen {
     // ══════════════════════════════════════════════════════════════════
     private void addLabelKey(int row, String key) {
         contentLabels.add(new LabelEntry(Component.translatable(key).withStyle(s -> s.withColor(0xFFFFF4DC)),
-                labelX(), baseY(row), 0xFFFFFF));
+                labelX(), baseY(row), 0xFFFFFF, labelW(), 1));
     }
 
     private void addHintText(int row, Component text, int color) {
+        // 整段提示独占一行：按内容宽度自动换行（最多两行），再放不下靠悬停看全文
         contentLabels.add(new LabelEntry(text.copy().withStyle(s -> s.withColor(color)),
-                labelX(), baseY(row), color));
+                labelX(), baseY(row), color, contentWidth(), 2));
     }
 
     private <T extends AbstractWidget> T track(T widget, int baseYValue) {
@@ -254,6 +266,8 @@ public class CustomItemScreen extends Screen {
         box.setResponder(setter);
         if (hint != null) {
             box.setHint(hint);
+            // 输入框内画不下完整提示：悬停看全文
+            box.setTooltip(Tooltip.create(hint));
         }
         return track(box, baseY(row));
     }
@@ -265,8 +279,10 @@ public class CustomItemScreen extends Screen {
 
     /** 输入框右侧的单位提示（跟随字段列，不占左侧标签列）。 */
     private void addFieldHint(int row, Component text, int color) {
+        int x = fieldX() + 96;
+        int width = Math.max(30, panelLeftX + panelWidth - 6 - x);
         contentLabels.add(new LabelEntry(text.copy().withStyle(s -> s.withColor(color)),
-                fieldX() + 96, baseY(row), color));
+                x, baseY(row), color, width, 1));
     }
 
     /** 「标签 + 文本」输入行。 */
@@ -880,10 +896,10 @@ public class CustomItemScreen extends Screen {
     // ══════════════════════════════════════════════════════════════════
     @Override
     public void render(GuiGraphics g, int mouseX, int mouseY, float partialTick) {
+        // 重建后不要 return —— return 会让这一帧什么都不画，切换标签时会闪一下
         if (pendingRebuild) {
             pendingRebuild = false;
             rebuildWidgets();
-            return;
         }
 
         renderBackground(g, mouseX, mouseY, partialTick);
@@ -895,15 +911,21 @@ public class CustomItemScreen extends Screen {
         for (AbstractWidget widget : contentWidgets) {
             widget.render(g, mouseX, mouseY, partialTick);
         }
+        List<HintText.Line> lines = new ArrayList<>(contentLabels.size());
         for (LabelEntry label : contentLabels) {
-            String text = label.text().getString();
-            g.drawString(font, font.plainSubstrByWidth(text, LABEL_W - 10), label.x(), rowY(label.baseY()),
-                    label.color(), false);
+            lines.add(new HintText.Line(label.text(), label.x(), rowY(label.baseY()), label.color(),
+                    label.maxWidth(), label.maxLines()));
         }
+        HintText.Line hoveredText = HintText.draw(g, font, lines, mouseX, mouseY);
         if (activeTab == 0) {
             renderPreview(g);
         }
         g.disableScissor();
+
+        // tooltip 不能被内容区的裁剪切掉，放在关闭裁剪之后
+        if (hoveredText != null) {
+            HintText.drawTooltip(g, font, hoveredText, mouseX, mouseY);
+        }
 
         for (AbstractWidget widget : bottomButtons) {
             widget.render(g, mouseX, mouseY, partialTick);

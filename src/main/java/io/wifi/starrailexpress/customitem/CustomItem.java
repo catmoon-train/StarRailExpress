@@ -59,6 +59,10 @@ public class CustomItem extends Item implements SREItemProperties.LeftClickHurta
         }
         switch (data.kind()) {
             case BASIC -> {
+                // 没有任何可用行为（没配指令 / 冷却 / 消耗），或正在冷却中：不给反馈（不摆臂）
+                if (data.basicDoesNothing() || player.getCooldowns().isOnCooldown(this)) {
+                    return InteractionResultHolder.pass(stack);
+                }
                 if (!world.isClientSide() && player instanceof ServerPlayer serverPlayer) {
                     CustomItemRuntime.executeBasic(serverPlayer, stack, data);
                 }
@@ -104,6 +108,10 @@ public class CustomItem extends Item implements SREItemProperties.LeftClickHurta
                 return fired ? InteractionResultHolder.consume(stack) : InteractionResultHolder.fail(stack);
             }
             case VANILLA_WEAPON -> {
+                // 没配右键指令、或正在冷却中：服务端什么都不会做，客户端也就不摆臂
+                if (data.weaponDoesNothing() || player.getCooldowns().isOnCooldown(this)) {
+                    return InteractionResultHolder.pass(stack);
+                }
                 if (!world.isClientSide() && player instanceof ServerPlayer serverPlayer) {
                     CustomItemRuntime.useVanillaWeapon(serverPlayer, stack, data);
                 }
@@ -157,8 +165,8 @@ public class CustomItem extends Item implements SREItemProperties.LeftClickHurta
             return InteractionResult.PASS;
         }
         if (user.level().isClientSide()) {
-            // 客户端只负责挥手反馈，实际铐人在服务端做
-            return InteractionResult.SUCCESS;
+            // 客户端只负责挥手反馈，实际铐人在服务端做；目标不是玩家就不给反馈（服务端也不会做事）
+            return entity instanceof Player ? InteractionResult.SUCCESS : InteractionResult.PASS;
         }
         if (!(user instanceof ServerPlayer serverPlayer) || !(entity instanceof Player target)) {
             return InteractionResult.PASS;
