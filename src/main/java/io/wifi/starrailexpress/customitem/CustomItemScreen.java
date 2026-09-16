@@ -125,6 +125,7 @@ public class CustomItemScreen extends CustomEditorScreen {
         return number(r, labelKey, String.valueOf(value), unitKey, text -> setter.accept(parseInt(text, value)));
     }
 
+    /** 开关行：标签在标签列、小方块左对齐在字段区（这类行不参与自动并排，一行一个更清楚）。 */
     private int boolRow(int r, String labelKey, boolean current, Consumer<Boolean> setter) {
         return cluster(r, labelKey, yesNoCell(current, setter, false));
     }

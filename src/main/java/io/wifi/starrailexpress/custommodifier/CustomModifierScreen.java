@@ -300,9 +300,20 @@ public class CustomModifierScreen extends CustomEditorScreen {
             r = groupBlock(r, groups.get(i), i);
         }
         r = addRow(r, PREFIX + ".group.add", () -> {
-            data.effectiveGroups().add(new CustomModifierData.TriggerGroupData());
+            // 新组默认是「条件组」并带一条默认条件：否则空条件会被当成全局组，用户永远加不上条件
+            CustomModifierData.TriggerGroupData group = new CustomModifierData.TriggerGroupData();
+            group.setGlobal(false);
+            group.conditions.add(defaultCondition());
+            data.effectiveGroups().add(group);
             requestRebuild();
         });
+    }
+
+    /** 一条默认条件（定时：每 30 秒一次），给「＋ 添加条件」和新建触发组用。 */
+    private static ConditionData defaultCondition() {
+        ConditionData condition = new ConditionData();
+        applyDefaultParams(condition, ConditionType.TIMER);
+        return condition;
     }
 
     /** 一个触发组：组头 + 条件 + 指令 / 效果 / 属性（属性只在全局组里常驻）。 */
@@ -316,15 +327,23 @@ public class CustomModifierScreen extends CustomEditorScreen {
                         : Component.translatable(PREFIX + ".group.conditional", group.conditions.size()),
                 () -> data.effectiveGroups().remove(index));
 
+        // 组类型：全局常驻（无条件、拥有即持续生效）/ 有条件触发。会改变下面显示哪些字段，所以要重建
+        r = stateButton(r, PREFIX + ".group.mode",
+                () -> Component.translatable(group.isGlobal()
+                        ? PREFIX + ".group.mode.global"
+                        : PREFIX + ".group.mode.conditional"),
+                () -> group.setGlobal(!group.isGlobal()), true);
+
         // 条件：这一组满足时才执行本组内容（全局组没有条件）
         if (!global) {
+            if (group.conditions.isEmpty()) {
+                r = note(r, PREFIX + ".hint.condition_empty", SREPanelStyle.GOLD_DIM, 1);
+            }
             for (int i = 0; i < group.conditions.size(); i++) {
                 r = conditionRow(r, group, i);
             }
             r = addRow(r, PREFIX + ".trigger.add", () -> {
-                ConditionData condition = new ConditionData();
-                applyDefaultParams(condition, ConditionType.TIMER);
-                group.conditions.add(condition);
+                group.conditions.add(defaultCondition());
                 requestRebuild();
             });
         }
@@ -347,7 +366,7 @@ public class CustomModifierScreen extends CustomEditorScreen {
             r = toggle(r, PREFIX + ".effect.remove_on_trigger", group.removeModifierOnTrigger,
                     value -> group.removeModifierOnTrigger = value);
         }
-        return cardEnd(gap(r));
+        return gap(cardEnd(gap(r)));
     }
 
     /** 组内一条条件：类型 + 参数 + 与/或 + 删除。 */

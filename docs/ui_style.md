@@ -272,6 +272,27 @@ public class FooScreen extends CustomEditorScreen {
     左右内缩，看得出是「装着一组字段」；三是**卡片头可点，点一下折叠成一行**，块多时可以只展开
     正在编辑的那一块。折叠状态按 id 记在基类里，重建界面（切页签、改开关）后仍然记得。
     不要把卡片套卡片。
+14. **相邻的开关行会自动并成一行**（`mergeSwitchRows`）：连续的「只有开关」或「标签 + 开关」行会被
+    排到同一行里（`pack` 放不下时照旧折回多行，窄面板不会挤坏），省掉整整一行的纵向空间 ——
+    一行一个开关太浪费。想让两个开关各占一行，中间插一条 `note(...)` / `gap(...)` 即可。
+    写「标签 + 开关」行时用 `cluster(r, null, labelCell(标签键), 开关单元)`（行内标签），
+    不要用 `cluster(r, 标签键, 开关单元)`（行级标签会占满标签列、无法并排）。
+15. **行内标签在排布时会被「提」回标签列**（`flushRow`）：一行里只有一组「标签 + 控件」时
+    （也就是没跟别人并排的那些），第一个行内标签会被当成行级标签画在标签列上，
+    控件因此左对齐到字段区起点 —— 与上下别的行完全对得上（标签同一列、控件左边同一条线）。
+
+    ```
+    是否能被小偷偷窃        [✗ 否]        ← 标签在标签列，控件与上面的输入框左对齐
+    仅指定职业允许使用      [______________]
+    ```
+
+    只有真的并排了（一行里两组标签），第二个标签才留在字段区里、按自己的文字宽度紧跟自己的控件
+    （`min(labelCellW, 文字宽 + 4)`），不会撑成整个标签列宽把控件推到面板中间。
+    **地图工具不合并**：`MapBuildHelperScreen` 不用这一套（它自己按 `LayoutContext` 排一行一组）。
+16. **输入框的占位提示（hint）按最终宽度裁省略号**（`clipBoxHint`）：原版 `EditBox` 画 hint 时
+    完全不裁剪，长提示会溢出输入框压住右边的文字。提示的最终宽度要等 `pack` 排完才知道，
+    所以 `editBox` 先把全文记进 `editHints`，`flushRow` 拿到宽度后回填裁过的 hint
+    （`MapUiGraphics.clip`），悬停 tooltip 里始终是全文。
 
 ### 8.6 只借几何：`EditorLayout` 的独立用法
 
@@ -282,12 +303,15 @@ public class FooScreen extends CustomEditorScreen {
 EditorLayout layout = EditorLayout.of(width, height,
         EditorLayout.Config.defaults()
                 .panelSize(0.7F, 500, 454, 320, 200)   // 面板比例与上下限（会再 clamp 进屏幕）
-                .headerExtra(48),                       // 标题条下方的自绘头部高度
+                .headerExtra(48)                        // 标题条下方的自绘头部高度
+                .topStrip(24),                          // 页签栏下方的常驻条（搜索框贴在这里）
         tabWidths,                                      // 每个页签按文字实测的宽度 → 放不下自动折行
         0);
 SREPanelStyle.drawPanel(g, layout.panelX(), layout.panelY(), layout.panelW(), layout.panelH(),
         0xF018120A, 0xF0061018);
 // 头部自绘区：[layout.headerTop(), layout.headerBottom())，夹在标题条与页签栏之间，永远不会互相压
+// 页签下常驻条：[layout.stripTop(), layout.stripTop() + layout.stripH())，内容区（裁剪/滚动/滚动条）
+// 整体从 layout.contentY() 开始 —— 搜索框这类「一直看得见」的控件放这里，不会被滚动内容盖住
 // 内容区裁剪：layout.contentX()..contentX+contentW()；右边界 layout.contentRight() 已把滚动条槽让开
 // 滚动条：layout.sbX()/sbTop()/sbH() + EditorLayout.thumbHeight()/thumbY() + SREPanelStyle.drawScrollbar
 ```

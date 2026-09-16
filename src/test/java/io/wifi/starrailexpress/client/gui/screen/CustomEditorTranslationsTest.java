@@ -121,7 +121,9 @@ class CustomEditorTranslationsTest {
         List<JsonObject> langs = allLanguages();
         String prefix = "sre.custom_modifier";
         for (String key : new String[] { "hint.groups_intro", "hint.groups_empty", "group.title",
-                "group.global", "group.conditional", "group.add", "manage.groups" }) {
+                "group.global", "group.conditional", "group.add", "manage.groups",
+                // 组类型开关（全局常驻 / 有条件触发）与「条件组还没条件」的提示
+                "group.mode", "group.mode.global", "group.mode.conditional", "hint.condition_empty" }) {
             assertHas(langs, prefix + "." + key);
         }
     }

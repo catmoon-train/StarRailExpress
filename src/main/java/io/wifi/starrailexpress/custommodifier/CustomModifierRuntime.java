@@ -303,6 +303,10 @@ public final class CustomModifierRuntime {
             }
             List<CustomModifierData.TriggerGroupData> groups = data.effectiveGroups();
             for (int groupIndex = 0; groupIndex < groups.size(); groupIndex++) {
+                // 全局组不判条件（条件只是切回条件组时的残留），也就不该驱动倒计时
+                if (groups.get(groupIndex).isGlobal()) {
+                    continue;
+                }
                 for (ConditionData condition : safe(groups.get(groupIndex).conditions)) {
                     ConditionType type = parseType(condition.type);
                     if (type != ConditionType.DEATH_COUNTDOWN && type != ConditionType.DEATH_COUNTDOWN_REVIVE) {
@@ -707,7 +711,8 @@ public final class CustomModifierRuntime {
         for (CustomModifierData.EffectData effect : safe(group.effects)) {
             applyEffect(player, effect, Math.max(1, effect.durationSeconds));
         }
-        if (group.removeModifierOnTrigger) {
+        // 全局组没有「触发」这一时机，文档里也写明全局触发时该开关不生效
+        if (group.removeModifierOnTrigger && !group.isGlobal()) {
             WorldModifierComponent.KEY.get(player.level()).removeModifier(player, entry);
             STATES.remove(key(player, entry));
         }

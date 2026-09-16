@@ -622,7 +622,7 @@ public class CustomRoleScreen extends CustomEditorScreen {
                             PREFIX + ".hint.command_no_slash");
                     r = stringList(r, skill.gameEndCommands, PREFIX + ".label.game_end_commands", 220,
                             PREFIX + ".hint.command_no_slash");
-                    r = cardEnd(gap(r));
+                    r = gap(cardEnd(gap(r)));
                 }
                 r = addRow(r, Component.translatable(PREFIX + ".add_skill_module"),
                         () -> {

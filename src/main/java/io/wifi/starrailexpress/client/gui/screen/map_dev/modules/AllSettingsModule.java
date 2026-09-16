@@ -93,17 +93,19 @@ public class AllSettingsModule implements TabModule {
      */
     private int labelColumnWidth = 100;
 
-    /** 搜索框占头部一行。 */
+    /** 搜索框占页签栏下面的一条常驻带（不随内容滚动）。 */
     @Override
-    public int headerExtraHeight() {
+    public int topStripHeight() {
         return 24;
     }
 
     @Override
-    public void buildHeader(LayoutContext layout, ModuleContext ctx, List<AbstractWidget> fixed) {
+    public void buildTopStrip(LayoutContext layout, ModuleContext ctx, List<AbstractWidget> fixed) {
         int width = Math.min(260, layout.contentWidth());
-        searchBox = new EditBox(layout.font, layout.leftColumnX(), layout.headerBottom - 20, width, 18,
-                Component.empty());
+        int height = 18;
+        // 贴在页签按钮正下方（LayoutContext.stripTop 就是这一段的上边界），竖直居中
+        int y = layout.stripTop + Math.max(0, (layout.stripHeight() - height) / 2);
+        searchBox = new EditBox(layout.font, layout.leftColumnX(), y, width, height, Component.empty());
         searchBox.setMaxLength(64);
         searchBox.setValue(searchQuery);
         searchBox.setHint(SREPanelStyle.hint(Component.translatable("sre.map_helper.settings.search_hint")));

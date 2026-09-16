@@ -224,10 +224,11 @@ public class MapBuildHelperScreen extends Screen implements ModuleContext, InvNo
      * 面板尺寸：按 {@code docs/ui_style.md} §4 的比例（占屏幕 90%）并 clamp，大屏上不会再显得小；
      * {@link EditorLayout} 会把最小尺寸再 clamp 进屏幕，小窗口也不会溢出去。
      */
-    private static EditorLayout.Config layoutConfig(int headerExtra) {
+    private static EditorLayout.Config layoutConfig(int topStrip) {
         return EditorLayout.Config.defaults()
                 .panelSize(0.9F, 700, 560, 320, 220)
-                .headerExtra(HEADER_H + headerExtra);
+                .headerExtra(HEADER_H)
+                .topStrip(topStrip);
     }
 
     @Override
@@ -248,18 +249,18 @@ public class MapBuildHelperScreen extends Screen implements ModuleContext, InvNo
         }
 
         TabModule module = modules.get(activeTab);
-        int headerExtra = module == null ? 0 : module.headerExtraHeight();
-        this.layout = EditorLayout.of(width, height, layoutConfig(headerExtra), tabWidths, 0);
+        int topStrip = module == null ? 0 : module.topStripHeight();
+        this.layout = EditorLayout.of(width, height, layoutConfig(topStrip), tabWidths, 0);
         this.layoutCtx = new LayoutContext(layout.panelX(), layout.panelY(), layout.panelW(), layout.panelH(),
                 layout.contentY(), layout.contentBottom(), PAD, font, layout.contentRight(),
-                layout.headerTop(), layout.headerBottom());
+                layout.headerTop(), layout.headerBottom(), layout.stripTop(), layout.contentY());
 
         buildOffsetRow();
         buildTabBar();
 
         if (module != null) {
-            // 模块想在头部多占一行（例如「全部设置」的搜索框）
-            module.buildHeader(layoutCtx, this, fixedWidgets);
+            // 模块想在页签下面多占一条常驻带（例如「全部设置」的搜索框）
+            module.buildTopStrip(layoutCtx, this, fixedWidgets);
             module.init(layoutCtx, this, currentTabPlacements);
             contentHeight = module.getContentHeight();
         }
@@ -543,6 +544,11 @@ public class MapBuildHelperScreen extends Screen implements ModuleContext, InvNo
         // 头部与页签栏之间的分割线（页签栏由 EditorLayout 排在 headerBottom 之下，不会互相压）
         int lineY2 = Math.max(layout.headerTop() + 1, layout.headerBottom() + 1);
         SREPanelStyle.drawFooterLine(g, layout.panelX() + 1, lineY2, layout.panelW() - 2);
+
+        // 页签下方常驻带与滚动内容之间的分割线（搜索框贴着页签、列表在它下面滚动）
+        if (layout.stripH() > 0) {
+            SREPanelStyle.drawFooterLine(g, layout.contentX(), layout.stripTop() - 1, layout.contentW());
+        }
     }
 
     private int thumbHeight() {

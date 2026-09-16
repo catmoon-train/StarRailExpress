@@ -29,7 +29,8 @@ import java.util.List;
 
 /**
  * 地图配置 GUI「会议」标签页：紧急会议系统（右键尸体召开会议）的可视化配置。
- * 对应 {@code AreasSettings.meeting*} 字段，见 {@code net.exmo.sre.meeting.MeetingManager}。
+ * 对应 {@code AreasSettings.meeting*} 字段，见
+ * {@code net.exmo.sre.meeting.MeetingManager}。
  */
 public class MeetingModule implements TabModule {
 
@@ -57,8 +58,7 @@ public class MeetingModule implements TabModule {
             if (meetingPair[1] != null)
                 meetingPair[1].setMessage(meetingStateLabel(false, false));
         }).bounds(leftX, y, bw, bh)
-                .accentBar(meetingOn ? new AccentSide[] { AccentSide.LEFT, AccentSide.TOP, AccentSide.BOTTOM }
-                        : new AccentSide[] { AccentSide.LEFT })
+                .accentBar(new AccentSide[] { AccentSide.LEFT })
                 .build();
         meetingPair[1] = ModernButton.builder(meetingStateLabel(false, !meetingOn), b -> {
             ctx.sendOnly("sre:area_manager set meetingEnabled false");
@@ -66,8 +66,7 @@ public class MeetingModule implements TabModule {
             if (meetingPair[0] != null)
                 meetingPair[0].setMessage(meetingStateLabel(true, false));
         }).bounds(rightX, y, bw, bh)
-                .accentBar(!meetingOn ? new AccentSide[] { AccentSide.RIGHT, AccentSide.TOP, AccentSide.BOTTOM }
-                        : new AccentSide[] { AccentSide.RIGHT })
+                .accentBar(new AccentSide[] { AccentSide.RIGHT })
                 .build();
         placements.add(new WidgetPlacement(meetingPair[0], y));
         placements.add(new WidgetPlacement(meetingPair[1], y));
@@ -77,9 +76,15 @@ public class MeetingModule implements TabModule {
         placements.add(new WidgetPlacement(
                 ModernButton.builder(Component.translatable("sre.map_helper.meeting.set_point"),
                         b -> {
-                            ctx.sendOnly(String.format("sre:area_manager set meetingPosition.x %f", ctx.ax()));
-                            ctx.sendOnly(String.format("sre:area_manager set meetingPosition.y %f", ctx.ay()));
-                            ctx.sendAndClose(String.format("sre:area_manager set meetingPosition.z %f", ctx.az()));
+                            ctx.sendOnly(String.format(
+                                    "sre:area_manager set meetingPosition.x %f",
+                                    ctx.ax()));
+                            ctx.sendOnly(String.format(
+                                    "sre:area_manager set meetingPosition.y %f",
+                                    ctx.ay()));
+                            ctx.sendAndClose(String.format(
+                                    "sre:area_manager set meetingPosition.z %f",
+                                    ctx.az()));
                         })
                         .bounds(leftX, y, fullW, bh).accentBar(AccentSide.BOTTOM).build(),
                 y));
@@ -125,8 +130,9 @@ public class MeetingModule implements TabModule {
 
         placements.add(new WidgetPlacement(
                 ModernButton.builder(Component.translatable("sre.map_helper.meeting.apply",
-                                Component.translatable(labelKey)),
-                        b -> ctx.sendOnly("sre:area_manager set " + field + " " + box.getValue().trim()))
+                        Component.translatable(labelKey)),
+                        b -> ctx.sendOnly("sre:area_manager set " + field + " "
+                                + box.getValue().trim()))
                         .bounds(rightX, y, bw, bh).accentBar(AccentSide.RIGHT).build(),
                 y));
         return y + bh + gap;

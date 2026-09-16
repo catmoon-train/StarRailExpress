@@ -114,7 +114,9 @@ public class CustomBlockScreen extends CustomEditorScreen {
         r = note(r, PREFIX + ".hint.drop_self", SREPanelStyle.MUTED);
     }
 
-    /** 「标签 + 是/否」开关行：标签在标签列上，按钮里是带颜色的状态符号 + 是/否。 */
+    /**
+     * 「标签 + 是/否」开关行：标签在标签列、小方块左对齐在字段区（这类行不参与自动并排，一行一个更清楚）。
+     */
     private int yesNoRow(int r, String labelKey, boolean current, Consumer<Boolean> setter) {
         return cluster(r, labelKey, yesNoSwitchCell(current,
                 on -> Component.translatable(on ? PREFIX + ".value.yes" : PREFIX + ".value.no"),
@@ -241,7 +243,7 @@ public class CustomBlockScreen extends CustomEditorScreen {
                 PREFIX + ".remove", Integer.MAX_VALUE);
         r = teamRow(r, PREFIX + ".label.required_team", event.requiredTeams);
         r = note(r, PREFIX + ".hint.conditions_note", SREPanelStyle.MUTED);
-        return cardEnd(gap(r));
+        return gap(cardEnd(gap(r)));
     }
 
     /** 「阵营轮回」按钮：空 = 任意阵营，点一下切到下一个阵营。 */

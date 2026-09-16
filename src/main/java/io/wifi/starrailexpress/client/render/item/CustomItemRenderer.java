@@ -702,8 +702,16 @@ public class CustomItemRenderer implements BuiltinItemRendererRegistry.DynamicIt
      *
      * <p>
      * 只画 z=0.5 的单个平面时，物品是一张没有厚度的纸片（比 1 像素还薄），而且从背面看是空的。
-     * 这里按原版 {@code item/generated} 的做法画两层：正面朝 +Z、背面朝 -Z（顶点顺序相反、
-     * UV 跟着同一个角走，所以从背后看不会左右镜像）。
+     * 这里按原版 {@code item/generated} 的做法画两层：两层各朝一边（顶点顺序相反、UV 跟着同一个角走，
+     * 所以从背后看不会左右镜像）。
+     *
+     * <p>
+     * <b>两层的法线要按「物品栏平铺光照」的方向给，别按几何朝向给</b>：物品栏渲染时原版会把光的
+     * 方向换成 {@code Lighting.setupForFlatItems()} 那一套（物品模型默认的 {@code gui_light: front}
+     * 就是为它准备的），在这一套光照下 <b>法线 (0,0,1) 只拿到 0.40 的亮度、(0,0,-1) 才是满亮</b>。
+     * 物品栏里能看到的是 z 较小的那一层，所以那一层必须是 (0,0,-1)：给反了整张贴图会暗掉 60%
+     * （实测颜色 = 贴图 × 0.40，看起来就是「物品栏里比正常暗一大截」）。
+     * 世界里 ±Z 两层的亮度相同（都是 0.74），所以这样给法不影响手持 / 掉落物的观感。
      */
     private static void drawQuad(PoseStack poseStack, MultiBufferSource buffers, RenderType renderType,
             float u0, float v0, float u1, float v1, int light, int overlay) {
@@ -713,24 +721,24 @@ public class CustomItemRenderer implements BuiltinItemRendererRegistry.DynamicIt
         float front = 0.5F - LAYER_OFFSET;
         float back = 0.5F + LAYER_OFFSET;
 
-        // 正面（朝 +Z）
+        // 物品栏/手里看到的那一层：法线迎着「物品栏平铺光」(-Z) —— 满亮
         consumer.addVertex(matrix, 0.0F, 1.0F, front).setColor(255, 255, 255, 255).setUv(u0, v0)
-                .setOverlay(overlay).setLight(light).setNormal(pose, 0.0F, 0.0F, 1.0F);
+                .setOverlay(overlay).setLight(light).setNormal(pose, 0.0F, 0.0F, -1.0F);
         consumer.addVertex(matrix, 1.0F, 1.0F, front).setColor(255, 255, 255, 255).setUv(u1, v0)
-                .setOverlay(overlay).setLight(light).setNormal(pose, 0.0F, 0.0F, 1.0F);
+                .setOverlay(overlay).setLight(light).setNormal(pose, 0.0F, 0.0F, -1.0F);
         consumer.addVertex(matrix, 1.0F, 0.0F, front).setColor(255, 255, 255, 255).setUv(u1, v1)
-                .setOverlay(overlay).setLight(light).setNormal(pose, 0.0F, 0.0F, 1.0F);
+                .setOverlay(overlay).setLight(light).setNormal(pose, 0.0F, 0.0F, -1.0F);
         consumer.addVertex(matrix, 0.0F, 0.0F, front).setColor(255, 255, 255, 255).setUv(u0, v1)
-                .setOverlay(overlay).setLight(light).setNormal(pose, 0.0F, 0.0F, 1.0F);
+                .setOverlay(overlay).setLight(light).setNormal(pose, 0.0F, 0.0F, -1.0F);
 
-        // 背面（朝 -Z，顶点顺序反过来）
+        // 另一层（顶点顺序反过来，从背后看才不是镜像）
         consumer.addVertex(matrix, 0.0F, 0.0F, back).setColor(255, 255, 255, 255).setUv(u0, v1)
-                .setOverlay(overlay).setLight(light).setNormal(pose, 0.0F, 0.0F, -1.0F);
+                .setOverlay(overlay).setLight(light).setNormal(pose, 0.0F, 0.0F, 1.0F);
         consumer.addVertex(matrix, 1.0F, 0.0F, back).setColor(255, 255, 255, 255).setUv(u1, v1)
-                .setOverlay(overlay).setLight(light).setNormal(pose, 0.0F, 0.0F, -1.0F);
+                .setOverlay(overlay).setLight(light).setNormal(pose, 0.0F, 0.0F, 1.0F);
         consumer.addVertex(matrix, 1.0F, 1.0F, back).setColor(255, 255, 255, 255).setUv(u1, v0)
-                .setOverlay(overlay).setLight(light).setNormal(pose, 0.0F, 0.0F, -1.0F);
+                .setOverlay(overlay).setLight(light).setNormal(pose, 0.0F, 0.0F, 1.0F);
         consumer.addVertex(matrix, 0.0F, 1.0F, back).setColor(255, 255, 255, 255).setUv(u0, v0)
-                .setOverlay(overlay).setLight(light).setNormal(pose, 0.0F, 0.0F, -1.0F);
+                .setOverlay(overlay).setLight(light).setNormal(pose, 0.0F, 0.0F, 1.0F);
     }
 }

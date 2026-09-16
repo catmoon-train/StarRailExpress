@@ -196,6 +196,34 @@ class EditorLayoutTest {
     }
 
     @Test
+    void topStripSitsBelowTheTabsAndAboveTheContent() {
+        // 地图工具「全部设置」的搜索框：贴在页签按钮下面、不随内容滚动
+        EditorLayout.Config plain = EditorLayout.Config.defaults();
+        EditorLayout.Config withStrip = plain.topStrip(24);
+        assertEquals(0, plain.topStrip(), "默认不能给编辑器凭空加常驻带");
+        assertEquals(0, EditorLayout.of(800, 600, plain, new int[] { 60, 60 }, 120).stripH());
+
+        for (int[] size : new int[][] { { 900, 600 }, { 500, 400 }, { 340, 260 } }) {
+            EditorLayout base = EditorLayout.of(size[0], size[1], plain, new int[] { 60, 60 }, 120);
+            EditorLayout strip = EditorLayout.of(size[0], size[1], withStrip, new int[] { 60, 60 }, 120);
+            String info = size[0] + "x" + size[1] + " " + strip;
+
+            assertEquals(24, strip.stripH(), info);
+            // 带子在页签下面，不该把页签顶下去
+            assertEquals(base.tabs().get(0).y(), strip.tabs().get(0).y(), info);
+            // 带子正好填在「页签下面 / 内容上面」，内容整体让开这一段
+            assertTrue(strip.stripTop() >= strip.tabs().get(0).y() + EditorLayout.TAB_H, info);
+            assertEquals(base.contentY() + 24, strip.contentY(), info);
+            assertEquals(strip.contentY(), strip.stripTop() + strip.stripH(), info);
+            // 内容裁剪区与滚动条槽都跟着下移，带子里的控件不会被滚动内容盖住
+            assertEquals(strip.contentY(), strip.sbTop(), info);
+            assertTrue(strip.stripTop() + 18 <= strip.contentY(), "搜索框放不进这一段就白留了：" + info);
+            assertTrue(strip.contentH() >= 1, info);
+            assertTrue(strip.panelY() >= 0 && strip.panelY() + strip.panelH() <= size[1], info);
+        }
+    }
+
+    @Test
     void packWrapsWhenTheRowIsTooNarrow() {
         List<EditorLayout.CellBox> boxes = EditorLayout.pack(240, 4, new int[] { 112, 64, 40, 18 },
                 new int[] { 0, 0, 0, 0 }, new float[] { 0, 0, 0, 0 });

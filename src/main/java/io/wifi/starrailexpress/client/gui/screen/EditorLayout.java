@@ -31,6 +31,7 @@ import java.util.List;
  * <li>面板：按屏幕比例计算并 clamp 进屏幕，永远完整可见（含最小宽度，不会比屏幕还大）；</li>
  * <li>标题条：面板内顶部一条，标题不再和页签抢位置；</li>
  * <li>页签栏：宽度按标签实测，放不下自动折成多行，内容区随之下移；</li>
+ * <li>常驻带（可选，{@code Config.topStrip}）：页签栏下方的一条固定控件带，内容区从它下面开始；</li>
  * <li>内容区：字段区 + 右侧预览列（放得下才有）；</li>
  * <li>滚动条槽：面板内右侧永久预留，内容永远不会画到滚动条底下，也不会跑到面板外。</li>
  * </ol>
@@ -46,7 +47,8 @@ public record EditorLayout(
         int contentX, int contentY, int contentW, int contentH, int contentBottom,
         int labelW, int fieldX, int fieldW, boolean compact,
         int sbX, int sbTop, int sbH,
-        int previewX, int previewY, int previewW, int previewH) {
+        int previewX, int previewY, int previewW, int previewH,
+        int stripH) {
 
     /** 面板内边距。 */
     public static final int PAD = 6;
@@ -108,36 +110,45 @@ public record EditorLayout(
      *
      * @param headerExtra 标题条下方、页签栏上方的自绘头部高度（地图工具用来放坐标行与偏移控件）；
      *                    编辑器用不到，保持 0
+     * @param topStrip    页签栏下方、内容区上方的常驻条高度（地图工具「全部设置」用它放搜索框：
+     *                    贴在页签下面、不随内容滚动）；编辑器用不到，保持 0
      */
     public record Config(
             float ratio, int maxPanelW, int maxPanelH, int minPanelW, int minPanelH,
-            int labelColW, int previewW, int titleH, int footerH, int headerExtra) {
+            int labelColW, int previewW, int titleH, int footerH, int headerExtra, int topStrip) {
 
         /** 面板占屏幕的比例与上下限（文档 §4：按比例算并 clamp）。 */
         public static Config defaults() {
-            return new Config(0.92F, 700, 560, 300, 200, 176, 0, TITLE_H, FOOTER_H, 0);
+            return new Config(0.92F, 700, 560, 300, 200, 176, 0, TITLE_H, FOOTER_H, 0, 0);
         }
 
         /** 带右侧预览列（自定义物品 / 自定义方块用）。 */
         public Config previewColumn(int width) {
             return new Config(ratio, maxPanelW, maxPanelH, minPanelW, minPanelH,
-                    labelColW, width, titleH, footerH, headerExtra);
+                    labelColW, width, titleH, footerH, headerExtra, topStrip);
         }
 
         /** 标签列宽度上限（长标签会被省略号截断并给悬停全文）。 */
         public Config labelColumn(int width) {
             return new Config(ratio, maxPanelW, maxPanelH, minPanelW, minPanelH,
-                    width, previewW, titleH, footerH, headerExtra);
+                    width, previewW, titleH, footerH, headerExtra, topStrip);
         }
 
         public Config panelSize(float ratio, int maxW, int maxH, int minW, int minH) {
-            return new Config(ratio, maxW, maxH, minW, minH, labelColW, previewW, titleH, footerH, headerExtra);
+            return new Config(ratio, maxW, maxH, minW, minH, labelColW, previewW, titleH, footerH, headerExtra,
+                    topStrip);
         }
 
         /** 标题条下方预留一段自绘头部（放坐标、状态行这类不属于页签内容的东西）。 */
         public Config headerExtra(int height) {
             return new Config(ratio, maxPanelW, maxPanelH, minPanelW, minPanelH,
-                    labelColW, previewW, titleH, footerH, Math.max(0, height));
+                    labelColW, previewW, titleH, footerH, Math.max(0, height), topStrip);
+        }
+
+        /** 页签栏下方预留一条常驻控件带（搜索框这类要一直看得见的东西）。 */
+        public Config topStrip(int height) {
+            return new Config(ratio, maxPanelW, maxPanelH, minPanelW, minPanelH,
+                    labelColW, previewW, titleH, footerH, headerExtra, Math.max(0, height));
         }
     }
 
@@ -200,7 +211,10 @@ public record EditorLayout(
         }
         int tabH = tabRows == 0 ? 0 : TAB_H;
 
-        int contentY = firstTabY + tabRows * TAB_ROW_H + (tabRows == 0 ? 0 : GAP);
+        // 页签栏下方可以再留一条常驻控件带（Config.topStrip）：搜索框这类控件贴在页签下面、
+        // 不随内容滚动，内容区整体让开这一段（裁剪、滚动、滚动条槽都跟着下移）。
+        int stripH = Math.max(0, cfg.topStrip());
+        int contentY = firstTabY + tabRows * TAB_ROW_H + (tabRows == 0 ? 0 : GAP) + stripH;
         int contentBottom = panelY + panelH - cfg.footerH();
 
         // ── 滚动条槽：面板内右侧，永久预留（内容不会画到滚动条底下，滚动条也不会跑到面板外）──
@@ -249,7 +263,8 @@ public record EditorLayout(
                 usableLeft, contentY, contentW, Math.max(1, contentBottom - contentY), contentBottom,
                 labelW, fieldX, fieldW, compact,
                 sbX, sbTop, sbH,
-                previewX, previewY, previewW, previewH);
+                previewX, previewY, previewW, previewH,
+                stripH);
     }
 
     /**
@@ -277,7 +292,18 @@ public record EditorLayout(
 
     /** 自绘头部区域的下边界（页签栏上方；没有页签时就是内容区上方）。 */
     public int headerBottom() {
-        return (tabs.isEmpty() ? contentY : tabs.get(0).y()) - 2;
+        return (tabs.isEmpty() ? contentY - stripH : tabs.get(0).y()) - 2;
+    }
+
+    /**
+     * 页签栏下方的常驻控件带（{@code Config.topStrip}），区域是 {@code [stripTop(), contentY)}。
+     *
+     * <p>
+     * 高度为 0 时这一段不存在（返回的 top 等于 {@link #contentY()}）。搜索框这类「要一直看得见」的
+     * 控件放这里：贴在页签按钮下面、不随内容滚动，内容区从它下面开始排，两边不会互相盖住。
+     */
+    public int stripTop() {
+        return contentY - stripH;
     }
 
     /** 整段说明文字可用的宽度（从左内边距一直到字段区右边界，紧凑模式下与字段区等宽）。 */
