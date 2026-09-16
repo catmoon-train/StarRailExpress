@@ -62,9 +62,9 @@ import java.util.concurrent.ConcurrentHashMap;
  * </ol>
  *
  * <p>
- * 当前来源没配 / 解析不到时逐级兜底：MODEL/ANIMATED/PACK → 被引用物品的主贴图（{@code getParticleIcon}）
- * → {@link #FALLBACK_TEXTURE_ITEM}（石头），而不是什么都不画 —— 否则未配置材质的物品在背包 / 手上
- * 看起来像空气，容易让人以为物品没了。
+ * 当前来源没配 / 解析不到时逐级兜底：MODEL/ANIMATED/PACK/INHERIT → 被继承物品的<b>完整模型</b>
+ * （{@link #drawInherited}）→ {@link #FALLBACK_TEXTURE_ITEM}（石头），而不是什么都不画 —— 否则
+ * 未配置材质的物品在背包 / 手上看起来像空气，容易让人以为物品没了。
  *
  * <p>
  * 物品编辑界面里的预览仍然用紫黑棋盘表示「还没配外观」，那是有意的提示，与这里的兜底无关。
@@ -132,11 +132,11 @@ public class CustomItemRenderer implements BuiltinItemRendererRegistry.DynamicIt
             }
         }
 
-        // 当前来源没配 / 解析不到 → 退到「被引用物品的主贴图」，再退到石头（不再是什么都不画）
-        TextureAtlasSprite sprite = resolveInheritedSprite(data.inheritItemTexture);
-        if (sprite != null) {
-            drawQuad(poseStack, buffers, RenderType.entityTranslucent(sprite.atlasLocation()),
-                    sprite.getU0(), sprite.getV0(), sprite.getU1(), sprite.getV1(), light, overlay);
+        // 当前来源没配 / 解析不到时的兜底链（顺序即语义）：
+        // ① 填了「继承现有物品」就整份用那个物品的模型与材质 —— 是整个模型，不是只贴它的一张平面主贴图
+        //    （否则会出现「明明继承了模型，却只是贴了张平面图标」这种半吊子外观）
+        // ② 再退到石头（不再是什么都不画，否则未配置材质的物品看起来像空气）
+        if (drawInherited(data, poseStack, buffers, light, overlay)) {
             return;
         }
         drawFallback(poseStack, buffers, light, overlay);
@@ -187,12 +187,27 @@ public class CustomItemRenderer implements BuiltinItemRendererRegistry.DynamicIt
     private static void drawModelWithTexture(BakedModel model, ResourceLocation texture, PoseStack poseStack,
             MultiBufferSource buffers, int light, int overlay) {
         VertexConsumer consumer = buffers.getBuffer(RenderType.entityTranslucent(texture));
-        PoseStack.Pose pose = poseStack.last();
         RandomSource random = RandomSource.create(42L);
+        poseStack.pushPose();
+        toItemSpace(poseStack);
+        PoseStack.Pose pose = poseStack.last();
         for (Direction direction : Direction.values()) {
             emitQuads(consumer, pose, model.getQuads(null, direction, random), light, overlay);
         }
         emitQuads(consumer, pose, model.getQuads(null, null, random), light, overlay);
+        poseStack.popPose();
+    }
+
+    /**
+     * 原版模型空间 → builtin 物品渲染器的物品空间。
+     *
+     * <p>
+     * 物品 / 方块模型 json 里的顶点坐标是「0..16 = 一格」，而 {@code builtin/entity} 的物品渲染器
+     * 拿到的坐标空间是「[0,1] = 一格」（我们自己画平面贴图用的就是这套，见 {@link #drawQuad}）。
+     * 直接按原样画模型会比原版大 16 倍、撑出物品栏，所以画模型前统一缩 1/16。
+     */
+    private static void toItemSpace(PoseStack poseStack) {
+        poseStack.scale(1.0F / 16.0F, 1.0F / 16.0F, 1.0F / 16.0F);
     }
 
     /** 把一批 quad 的顶点写进给定 consumer（实际采样哪张贴图由 consumer 的渲染类型决定）。 */
@@ -249,8 +264,8 @@ public class CustomItemRenderer implements BuiltinItemRendererRegistry.DynamicIt
      * <p>
      * 渲染模型一律用 {@link ItemDisplayContext#NONE}：物品模型一般不给 {@code none} 配 display
      * 变换，解析出来是单位变换 —— 于是模型用的就是「本物品自己那套 display」（外层
-     * {@code ItemRenderer} 已经施加过），不会被叠加第二次变换；坐标空间也与我们画平面时用的
-     * [0,1]³ 一致（原版模型空间 0..16 = 1 格）。
+     * {@code ItemRenderer} 已经施加过），不会被叠加第二次变换；坐标空间由 {@link #toItemSpace}
+     * 从原版的「0..16 = 一格」换算到我们的「[0,1] = 一格」。
      *
      * <p>
      * 借来的物品若本身是自定义物品，直接跳过，否则会递归渲染自己。
@@ -268,8 +283,11 @@ public class CustomItemRenderer implements BuiltinItemRendererRegistry.DynamicIt
             if (texture != null) {
                 drawModelWithTexture(configured, texture, poseStack, buffers, light, overlay);
             } else {
+                poseStack.pushPose();
+                toItemSpace(poseStack);
                 minecraft.getItemRenderer().render(DUMMY_STACK, ItemDisplayContext.NONE, false, poseStack, buffers,
                         light, overlay, configured);
+                poseStack.popPose();
             }
             return true;
         }
@@ -292,6 +310,10 @@ public class CustomItemRenderer implements BuiltinItemRendererRegistry.DynamicIt
      * <p>
      * 借来的物品若本身是自定义列车物品，直接跳过，否则会递归渲染自己。
      *
+     * <p>
+     * 继承的是「模型与材质」：手持姿态（第一/第三人称的朝向与缩放）仍用本物品自己那套 display
+     * （与标准物品一致），不跟随被继承物品的 display 表。
+     *
      * @return 是否已经画出来
      */
     private static boolean drawInherited(CustomItemData data, PoseStack poseStack, MultiBufferSource buffers,
@@ -304,8 +326,11 @@ public class CustomItemRenderer implements BuiltinItemRendererRegistry.DynamicIt
         if (inherited.isEmpty() || CustomItemLoader.getData(inherited) != null) {
             return false;
         }
+        poseStack.pushPose();
+        toItemSpace(poseStack);
         minecraft.getItemRenderer().renderStatic(inherited, ItemDisplayContext.NONE, light, overlay, poseStack,
                 buffers, minecraft.level, 0);
+        poseStack.popPose();
         return true;
     }
 
