@@ -251,12 +251,8 @@ public class NoellesRolesConfig implements ConfigData {
     public int greatDetectiveCooldownSeconds = 28;
 
     // ==================== Diviner (占卜家) ====================
-    /** Diviner - Divination cooldown in seconds */
-    public int divinerCooldown = 60;
     /** Diviner - Crystal ball targeting range in blocks */
     public double divinerRange = 4.0;
-    /** Diviner - Crystal ball shop price (coins) */
-    public int divinerCrystalBallPrice = 300;
 
     // ==================== Photographer (摄影师) 画框传送 ====================
     /** Photographer - 每局最多购买画框次数 */

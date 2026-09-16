@@ -681,14 +681,14 @@ public class ModRoles {
             .setCanSeeCoin(true).setCanSeeTime(false).setRoleData(FortunetellerRoleData::new);
 
     /**
-     * 占卜家（已并入大侦探，默认不刷出）。保留注册以便指令/旧配置指定。
+     * 占卜家。
      */
     public static SRERole DIVINER = TMMRoles.registerRole(
             new NormalRole(DIVINER_ID, new Color(148, 0, 211).getRGB(), // 紫水晶色
                     true, false, SRERole.MoodType.REAL,
                     TMMRoles.CIVILIAN.getMaxSprintTime(), false))
             .setCanSeeCoin(true).setRoleData(DivinerRoleData::new)
-            .setDefaultMax(0).setDefaultEnableChance(0);
+            .setDefaultEnableChance(6000);
 
     public static SRERole SALTED_FISH = TMMRoles.registerRole(
             new NormalRole(SALTED_FISH_ID, new Color(255, 184, 87).getRGB(),

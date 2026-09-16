@@ -18,85 +18,94 @@ package org.agmas.noellesroles.role_data.innocence;
 import io.wifi.starrailexpress.api.data.RoleData;
 import io.wifi.starrailexpress.api.data.RoleDataContext;
 import io.wifi.starrailexpress.api.impl.SimpleRoleData;
-import io.wifi.starrailexpress.api.SRERole;
-import io.wifi.starrailexpress.api.TMMRoles;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.content.entity.PlayerBodyEntity;
 import io.wifi.starrailexpress.game.GameConstants;
 import io.wifi.starrailexpress.game.GameUtils;
-import io.wifi.starrailexpress.util.SRENetworkMessageUtils;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
-import net.minecraft.world.effect.MobEffectInstance;
-import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.entity.projectile.ProjectileUtil;
 import net.minecraft.world.item.ItemCooldowns;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.phys.EntityHitResult;
-import net.minecraft.world.phys.HitResult;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
-import org.agmas.noellesroles.config.NoellesRolesConfig;
-import org.agmas.noellesroles.content.item.CrystalBallItem;
-import org.agmas.noellesroles.role_data.killer.InsaneKillerRoleData;
+import org.agmas.noellesroles.content.entity.DoomedSinnerBodyEntity;
 import org.agmas.noellesroles.init.ModItems;
 import org.agmas.noellesroles.role.ModRoles;
-import org.agmas.noellesroles.utils.RoleUtils;
 import org.jetbrains.annotations.NotNull;
+
 import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
 
+/**
+ * 占卜家（Diviner）数据。
+ *
+ * <p>
+ * 玩法：背包界面里点选一名玩家作为「占卜目标」；随后用晶球右键一具尸体开始 3 秒占卜，
+ * 完成后传送到目标的身边（目标存活→其位置；目标死亡→其尸体位置；死亡且无尸体→失败，不进入冷却也不破坏晶球）。
+ * 传送后 10 秒内再次右键晶球可传送回原位置并使晶球进入 50 秒冷却；超过 10 秒未回传则自动进入冷却。
+ * 每具尸体只能被同一名占卜家占卜一次。占卜成功后有 50% 概率破坏晶球（保留原有行为）。
+ */
 public class DivinerRoleData extends SimpleRoleData {
 
+    private static final int SECOND = 20;
 
+    /** 占卜施法时长（秒）。 */
+    private static final int CHANNEL_SECONDS = 3;
+    private static final int CHANNEL_TICKS = CHANNEL_SECONDS * SECOND;
 
-    // ==================== 常量 ====================
-    private static final int CHANNEL_TICKS = 10 * 20;          // 施法 10 秒
-    private static final double MOVE_THRESHOLD = 0.15;          // 移动判定阈值
-    private static final int KILLER_GLOW_TICKS = 1 * 20;       // 凶手高亮 1 秒
-    private static final float BREAK_CHANCE = 0.5f;             // 晶球破碎概率
-    private static final double REVEAL_RANGE = 15.0;            // 线索 a：靠近揭示范围
-    private static final int REVEAL_CHECK_INTERVAL = 20;        // 线索 a：每 20 tick 检查一次
+    /** 传送后可回传原位置的时间窗口（秒）。 */
+    private static final int RETURN_WINDOW_SECONDS = 10;
+    private static final int RETURN_WINDOW_TICKS = RETURN_WINDOW_SECONDS * SECOND;
+
+    /** 晶球破坏概率（保留原有行为）。 */
+    private static final float BREAK_CHANCE = 0.5f;
+
+    /** 晶球商店售价（金币，写死）。 */
+    public static final int CRYSTAL_BALL_PRICE = 150;
+
+    /** 晶球冷却时长（秒，写死）。 */
+    public static final int COOLDOWN_SECONDS = 50;
 
     // ==================== 状态字段 ====================
 
-    /** 已占卜过的尸体 UUID。 */
+    /** 背包界面里选中的占卜目标玩家 UUID。 */
+    private UUID target;
+
+    /** 已占卜过的尸体实体 UUID（每具尸体只能占卜一次）。 */
     private final Set<UUID> divinedCorpses = new HashSet<>();
 
     /** 是否已发放开局晶球。 */
     private boolean gaveItem = false;
 
     // --- 施法状态 ---
-    private boolean isChanneling = false;
-    private int channelTicks = 0;
-    private Vec3 channelStartPos;           // 施法起始位置（用于检测移动）
-    private UUID channelBodyId;              // 正在占卜的尸体 UUID
+    private boolean divining = false;
+    private int divineTicks = 0;
+    /** 正在占卜的尸体实体 UUID。 */
+    private UUID divineBodyId;
 
-    // --- 线索 a：延迟揭示 ---
-    /** 待揭示的凶手 UUID（线索类型 a 使用）。 */
-    private UUID pendingRevealKiller;
-    /** 凶手是否存活（线索类型 a 使用）。 */
-    private boolean pendingRevealKillerAlive;
-    /** 凶手名字是否已揭示。 */
-    private boolean killerRevealed;
+    // --- 回传窗口 ---
+    private boolean awaitingReturn = false;
+    private int returnWindowTicks = 0;
+    /** 传送前的位置（回传目标）。 */
+    private Vec3 returnPos;
+    private ResourceKey<Level> returnDim;
 
     public DivinerRoleData(RoleDataContext context) {
         super(context);
     }
 
     // ==================== 生命周期 ====================
-
 
     @Override
     public boolean shouldSyncWith(ServerPlayer p) {
@@ -105,11 +114,16 @@ public class DivinerRoleData extends SimpleRoleData {
 
     @Override
     public void init() {
+        this.target = null;
         this.divinedCorpses.clear();
         this.gaveItem = false;
-        cancelChannel();
-        this.pendingRevealKiller = null;
-        this.killerRevealed = false;
+        this.divining = false;
+        this.divineTicks = 0;
+        this.divineBodyId = null;
+        this.awaitingReturn = false;
+        this.returnWindowTicks = 0;
+        this.returnPos = null;
+        this.returnDim = null;
         sync();
     }
 
@@ -118,310 +132,215 @@ public class DivinerRoleData extends SimpleRoleData {
         init();
     }
 
+    // ==================== 选中目标 ====================
 
-    // ==================== 施法入口（由 CrystalBallItem 调用） ====================
+    /** 由选人界面（C2S 包）调用：设置占卜目标。 */
+    public void setTarget(UUID target) {
+        this.target = target;
+        sync();
+    }
+
+    public UUID getTarget() {
+        return this.target;
+    }
+
+    public boolean isAwaitingReturn() {
+        return this.awaitingReturn;
+    }
+
+    // ==================== 右键入口（由 CrystalBallItem 调用） ====================
 
     /**
-     * 开始占卜施法。若已经在施法中或冷却中，给出提示并返回 false。
+     * 右键一具尸体开始占卜。
+     *
+     * @return 是否成功开始（true 才在调用方记回放）
      */
-    public boolean startChannel(ServerPlayer sp, Entity target) {
-        NoellesRolesConfig cfg = NoellesRolesConfig.HANDLER.instance();
-        // 冷却检查
+    public boolean startDivination(ServerPlayer sp, Entity targetEntity) {
+        // 冷却中
         if (sp.getCooldowns().isOnCooldown(ModItems.CRYSTAL_BALL)) {
             sp.displayClientMessage(Component.translatable("message.noellesroles.diviner.cooldown",
                     (getCooldownSec(sp) + 1)).withStyle(ChatFormatting.RED), true);
             return false;
         }
-        if (isChanneling) {
+        if (divining || awaitingReturn) {
             return false;
         }
 
-        // —— 亡语杀手伪装尸体 ——
-        if (target instanceof ServerPlayer tp) {
-            SREGameWorldComponent gw = SREGameWorldComponent.KEY.get(sp.level());
-            if (gw.isRole(tp, ModRoles.INSANE_KILLER) && RoleData.test(InsaneKillerRoleData.class, tp, d -> d.isActive)) {
-                // 揭穿伪装：亡语杀手用刀刺死自己
-                GameUtils.killPlayer(tp, true, tp, GameConstants.DeathReasons.KNIFE, true);
-                setCooldown(sp, cfg);
-                playCompleteFx(sp);
-                sp.displayClientMessage(Component.translatable("message.noellesroles.diviner.insane_killer")
-                        .withStyle(ChatFormatting.DARK_RED), false);
-                SRENetworkMessageUtils.sendTitleTime(sp, 8, 60, 20);
-                SRENetworkMessageUtils.sendTitle(sp,
-                        Component.translatable("message.noellesroles.diviner.insane_killer.title")
-                                .withStyle(ChatFormatting.DARK_RED));
-                // 50% 概率碎晶球
-                breakCrystalBall(sp);
-                return true;
-            }
-            sp.displayClientMessage(Component.translatable("message.noellesroles.diviner.not_corpse")
+        // 未选中目标玩家
+        if (target == null) {
+            sp.displayClientMessage(Component.translatable("message.noellesroles.diviner.no_target")
                     .withStyle(ChatFormatting.GRAY), true);
             return false;
         }
 
-        // —— 尸体占卜 ——
-        if (target instanceof PlayerBodyEntity body) {
-            if (org.agmas.noellesroles.content.entity.DoomedSinnerBodyEntity.isDoomedSinnerBody(body)) {
-                sp.displayClientMessage(Component.translatable("message.noellesroles.diviner.not_corpse")
-                        .withStyle(ChatFormatting.GRAY), true);
-                return false;
-            }
-            UUID bodyId = body.getUUID();
-            if (divinedCorpses.contains(bodyId)) {
-                sp.displayClientMessage(Component.translatable("message.noellesroles.diviner.already")
-                        .withStyle(ChatFormatting.GRAY), true);
-                return false;
-            }
-
-            // 开始施法
-            this.isChanneling = true;
-            this.channelTicks = 0;
-            this.channelStartPos = sp.position();
-            this.channelBodyId = bodyId;
-
-            playChannelStartFx(sp);
-            sp.displayClientMessage(Component.translatable("message.noellesroles.diviner.channel_start")
-                    .withStyle(ChatFormatting.LIGHT_PURPLE), true);
-            return true;
+        // 必须对着尸体
+        if (!(targetEntity instanceof PlayerBodyEntity body)
+                || DoomedSinnerBodyEntity.isDoomedSinnerBody(body)) {
+            sp.displayClientMessage(Component.translatable("message.noellesroles.diviner.no_corpse")
+                    .withStyle(ChatFormatting.GRAY), true);
+            return false;
+        }
+        UUID bodyId = body.getUUID();
+        if (divinedCorpses.contains(bodyId)) {
+            sp.displayClientMessage(Component.translatable("message.noellesroles.diviner.already")
+                    .withStyle(ChatFormatting.GRAY), true);
+            return false;
         }
 
-        sp.displayClientMessage(Component.translatable("message.noellesroles.diviner.no_corpse")
-                .withStyle(ChatFormatting.GRAY), true);
-        return false;
+        this.divining = true;
+        this.divineTicks = 0;
+        this.divineBodyId = bodyId;
+
+        playChannelStartFx(sp);
+        sp.displayClientMessage(Component.translatable("message.noellesroles.diviner.channel_start",
+                CHANNEL_SECONDS).withStyle(ChatFormatting.LIGHT_PURPLE), true);
+        return true;
     }
 
-    // ==================== 施法 Tick 逻辑 ====================
-
-    /** 在 serverTick 中调用：推进施法进度；若完成则执行占卜结果。 */
-    private void tickChannel(ServerPlayer sp, NoellesRolesConfig cfg) {
-        if (!isChanneling) return;
-
-        // 检查玩家是否移动
-        double moved = sp.position().distanceTo(channelStartPos);
-        if (moved > MOVE_THRESHOLD) {
-            cancelChannel();
-            sp.displayClientMessage(Component.translatable("message.noellesroles.diviner.channel_moved")
-                    .withStyle(ChatFormatting.RED), true);
-            return;
+    /** 回传窗口内再次右键晶球：传送回原位置并使晶球进入冷却。 */
+    public boolean returnToOrigin(ServerPlayer sp) {
+        if (!awaitingReturn) {
+            return false;
         }
+        this.awaitingReturn = false;
+        this.returnWindowTicks = 0;
 
-        // 推进进度
-        channelTicks++;
-        // 每 2 秒播放一次施法粒子
-        if (channelTicks % 40 == 0) {
-            playChannelTickFx(sp);
+        if (returnPos != null) {
+            ServerLevel level = returnDim != null && sp.getServer() != null
+                    ? sp.getServer().getLevel(returnDim)
+                    : sp.serverLevel();
+            if (level != null) {
+                teleport(sp, level, returnPos);
+            }
         }
-
-        if (channelTicks >= CHANNEL_TICKS) {
-            completeDivination(sp, cfg);
-        }
-    }
-
-    /** 完成占卜。 */
-    private void completeDivination(ServerPlayer sp, NoellesRolesConfig cfg) {
-        isChanneling = false;
-
-        // 重新获取尸体——可能在这 10 秒内被清除
-        Entity target = findBodyById(sp, channelBodyId);
-        if (!(target instanceof PlayerBodyEntity body)) {
-            sp.displayClientMessage(Component.translatable("message.noellesroles.diviner.corpse_gone")
-                    .withStyle(ChatFormatting.RED), true);
-            channelBodyId = null;
-            return;
-        }
-
-        divinedCorpses.add(channelBodyId);
-        setCooldown(sp, cfg);
+        setCooldown(sp);
         playCompleteFx(sp);
-
-        UUID killerUuid = body.getKillerUuid();
-        int deathSeconds = body.tickCount / 20;
-        Component deadName = resolveDeadName(sp, body);
-
-        // 死亡时间
-        MutableComponent deathTimeMsg = Component.translatable("message.noellesroles.diviner.death_time",
-                deadName, formatTime(deathSeconds));
-
-        // 随机凶手线索（三选一）
-        int clueType = sp.level().random.nextInt(3);
-        switch (clueType) {
-            case 0 -> revealClueA(sp, body, killerUuid, deathTimeMsg);
-            case 1 -> revealClueB(sp, body, killerUuid, deathTimeMsg);
-            case 2 -> revealClueC(sp, body, killerUuid, deathTimeMsg);
-        }
-
-        // 50% 概率晶球破碎
-        breakCrystalBall(sp);
-
-        channelBodyId = null;
-    }
-
-    // ==================== 三种凶手线索 ====================
-
-    /** 线索 A：凶手存活/死亡 + 凶手名字（远距 ???，靠近揭示）。 */
-    private void revealClueA(ServerPlayer sp, PlayerBodyEntity body, UUID killerUuid, MutableComponent deathTimeMsg) {
-        sp.displayClientMessage(deathTimeMsg, false);
-
-        boolean killerAlive;
-        Component killerName;
-        if (killerUuid != null && sp.getServer() != null) {
-            ServerPlayer killer = sp.getServer().getPlayerList().getPlayer(killerUuid);
-            killerAlive = (killer != null && GameUtils.isPlayerAliveAndSurvival(killer));
-        } else {
-            killerAlive = false;
-        }
-
-        // 存入待揭示状态
-        this.pendingRevealKiller = killerUuid != null ? killerUuid : null;
-        this.pendingRevealKillerAlive = killerAlive;
-        this.killerRevealed = false;
-
-        MutableComponent aliveMsg = killerAlive
-                ? Component.translatable("message.noellesroles.diviner.killer_alive").withStyle(ChatFormatting.GREEN)
-                : Component.translatable("message.noellesroles.diviner.killer_dead").withStyle(ChatFormatting.GRAY);
-
-        MutableComponent nameMsg = Component.translatable("message.noellesroles.diviner.killer_name_hidden")
-                .withStyle(ChatFormatting.GOLD);
-
-        sp.displayClientMessage(Component.translatable("message.noellesroles.diviner.clue_a",
-                aliveMsg, nameMsg).withStyle(ChatFormatting.DARK_PURPLE), false);
-
-        SRENetworkMessageUtils.sendTitleTime(sp, 8, 70, 20);
-        SRENetworkMessageUtils.sendTitle(sp, Component.translatable("message.noellesroles.diviner.clue_a_title")
-                .withStyle(ChatFormatting.DARK_PURPLE));
-        SRENetworkMessageUtils.sendSubtitle(sp, aliveMsg);
-    }
-
-    /** 线索 B：凶手具体职业。 */
-    private void revealClueB(ServerPlayer sp, PlayerBodyEntity body, UUID killerUuid, MutableComponent deathTimeMsg) {
-        sp.displayClientMessage(deathTimeMsg, false);
-
-        Component killerRole;
-        if (killerUuid != null && sp.getServer() != null) {
-            ServerPlayer killer = sp.getServer().getPlayerList().getPlayer(killerUuid);
-            if (killer != null) {
-                SREGameWorldComponent gw = SREGameWorldComponent.KEY.get(sp.level());
-                ResourceLocation roleId = gw.getRole(killer).identifier();
-                killerRole = RoleUtils.getRoleName(roleId);
-            } else {
-                // 凶手已离线：从尸体 NBT 查
-                killerRole = Component.translatable("message.noellesroles.diviner.unknown");
-            }
-        } else {
-            // 无凶手（自然死亡等）
-            killerRole = Component.translatable("message.noellesroles.diviner.no_killer");
-        }
-
-        sp.displayClientMessage(Component.translatable("message.noellesroles.diviner.clue_b",
-                killerRole).withStyle(ChatFormatting.RED), false);
-
-        SRENetworkMessageUtils.sendTitleTime(sp, 8, 70, 20);
-        SRENetworkMessageUtils.sendTitle(sp, Component.translatable("message.noellesroles.diviner.clue_b_title")
-                .withStyle(ChatFormatting.RED));
-        SRENetworkMessageUtils.sendSubtitle(sp, killerRole);
-    }
-
-    /** 线索 C：凶手全局高亮 1 秒。 */
-    private void revealClueC(ServerPlayer sp, PlayerBodyEntity body, UUID killerUuid, MutableComponent deathTimeMsg) {
-        sp.displayClientMessage(deathTimeMsg, false);
-
-        if (killerUuid != null && sp.getServer() != null) {
-            ServerPlayer killer = sp.getServer().getPlayerList().getPlayer(killerUuid);
-            if (killer != null && GameUtils.isPlayerAliveAndSurvival(killer)) {
-                killer.addEffect(new MobEffectInstance(MobEffects.GLOWING, KILLER_GLOW_TICKS, 0,
-                        false, false, true));
-                sp.displayClientMessage(Component.translatable("message.noellesroles.diviner.clue_c")
-                        .withStyle(ChatFormatting.GOLD), false);
-                SRENetworkMessageUtils.sendTitleTime(sp, 8, 40, 20);
-                SRENetworkMessageUtils.sendTitle(sp, Component.translatable("message.noellesroles.diviner.clue_c_title")
-                        .withStyle(ChatFormatting.GOLD));
-            } else {
-                sp.displayClientMessage(Component.translatable("message.noellesroles.diviner.clue_c_gone")
-                        .withStyle(ChatFormatting.GRAY), false);
-                SRENetworkMessageUtils.sendTitleTime(sp, 8, 40, 20);
-                SRENetworkMessageUtils.sendTitle(sp, Component.translatable("message.noellesroles.diviner.clue_c_title")
-                        .withStyle(ChatFormatting.GOLD));
-                SRENetworkMessageUtils.sendSubtitle(sp,
-                        Component.translatable("message.noellesroles.diviner.clue_c_gone")
-                                .withStyle(ChatFormatting.GRAY));
-            }
-        } else {
-            sp.displayClientMessage(Component.translatable("message.noellesroles.diviner.clue_c_gone")
-                    .withStyle(ChatFormatting.GRAY), false);
-            SRENetworkMessageUtils.sendTitleTime(sp, 8, 40, 20);
-            SRENetworkMessageUtils.sendTitle(sp, Component.translatable("message.noellesroles.diviner.clue_c_title")
-                    .withStyle(ChatFormatting.GOLD));
-        }
-    }
-
-    // ==================== 延迟揭示（线索 a）Tick ====================
-
-    private int revealCheckTimer = 0;
-
-    private void tickReveal(ServerPlayer sp) {
-        if (pendingRevealKiller == null || killerRevealed) return;
-
-        revealCheckTimer++;
-        if (revealCheckTimer < REVEAL_CHECK_INTERVAL) return;
-        revealCheckTimer = 0;
-
-        if (sp.getServer() == null) return;
-        ServerPlayer killer = sp.getServer().getPlayerList().getPlayer(pendingRevealKiller);
-        if (killer == null || !GameUtils.isPlayerAliveAndSurvival(killer)) {
-            // 凶手已死/离线：直接揭示
-            this.killerRevealed = true;
-            sp.displayClientMessage(Component.translatable("message.noellesroles.diviner.killer_revealed_dead")
-                    .withStyle(ChatFormatting.GRAY), false);
-            return;
-        }
-
-        double dist = sp.position().distanceTo(killer.position());
-        if (dist <= REVEAL_RANGE) {
-            this.killerRevealed = true;
-            Component killerDisplayName = killer.getDisplayName();
-            sp.displayClientMessage(Component.translatable("message.noellesroles.diviner.killer_revealed",
-                    killerDisplayName).withStyle(ChatFormatting.GOLD), false);
-            SRENetworkMessageUtils.sendTitleTime(sp, 8, 40, 20);
-            SRENetworkMessageUtils.sendTitle(sp, killerDisplayName);
-        }
+        sp.displayClientMessage(Component.translatable("message.noellesroles.diviner.returned")
+                .withStyle(ChatFormatting.LIGHT_PURPLE), true);
+        return true;
     }
 
     // ==================== serverTick ====================
 
     @Override
     public void serverTick() {
-        if (!(player instanceof ServerPlayer sp)) return;
-
+        if (!(player instanceof ServerPlayer sp)) {
+            return;
+        }
         SREGameWorldComponent gw = SREGameWorldComponent.KEY.get(sp.level());
-        if (!gw.isRunning() || !gw.isRole(sp, ModRoles.DIVINER)) return;
+        if (!gw.isRunning() || !gw.isRole(sp, ModRoles.DIVINER)) {
+            return;
+        }
 
         // 开局发放晶球
         if (!gaveItem && GameUtils.isPlayerAliveAndSurvival(sp)) {
             sp.addItem(ModItems.CRYSTAL_BALL.getDefaultInstance().copy());
             gaveItem = true;
-            NoellesRolesConfig cfg = NoellesRolesConfig.HANDLER.instance();
             sp.displayClientMessage(Component.translatable("message.noellesroles.diviner.intro",
-                    cfg.divinerCooldown, cfg.divinerCrystalBallPrice), false);
+                    COOLDOWN_SECONDS, CRYSTAL_BALL_PRICE), false);
         }
 
-        // 施法进度
-        tickChannel(sp, NoellesRolesConfig.HANDLER.instance());
+        tickDivination(sp);
+        tickReturnWindow(sp);
+    }
 
-        // 线索 a 延迟揭示
-        tickReveal(sp);
+    // ==================== 施法 / 传送 ====================
+
+    private void tickDivination(ServerPlayer sp) {
+        if (!divining) {
+            return;
+        }
+        divineTicks++;
+        if (divineTicks % SECOND == 0) {
+            playChannelTickFx(sp);
+        }
+        if (divineTicks >= CHANNEL_TICKS) {
+            completeDivination(sp);
+        }
+    }
+
+    /** 施法完成：解析目标位置并传送；失败（找不到目标位置）时不冷却也不破坏晶球。 */
+    private void completeDivination(ServerPlayer sp) {
+        this.divining = false;
+        this.divineTicks = 0;
+        UUID bodyId = this.divineBodyId;
+        this.divineBodyId = null;
+
+        // 施法用的尸体可能已消失
+        if (!(findBodyById(sp, bodyId) instanceof PlayerBodyEntity)) {
+            sp.displayClientMessage(Component.translatable("message.noellesroles.diviner.corpse_gone")
+                    .withStyle(ChatFormatting.RED), true);
+            return;
+        }
+
+        // 解析目标位置：存活→玩家位置；死亡/离线→尸体位置；都没有→失败
+        ServerLevel destLevel = null;
+        Vec3 destPos = null;
+        Component targetName = resolveTargetName(sp);
+
+        ServerPlayer targetPlayer = target == null || sp.getServer() == null
+                ? null
+                : sp.getServer().getPlayerList().getPlayer(target);
+        if (targetPlayer != null && GameUtils.isPlayerAliveAndSurvival(targetPlayer)) {
+            destLevel = targetPlayer.serverLevel();
+            destPos = targetPlayer.position();
+        } else {
+            PlayerBodyEntity corpse = findCorpseByPlayer(sp, target);
+            if (corpse != null && corpse.level() instanceof ServerLevel corpseLevel) {
+                destLevel = corpseLevel;
+                destPos = corpse.position();
+            }
+        }
+
+        if (destLevel == null || destPos == null) {
+            sp.displayClientMessage(Component.translatable("message.noellesroles.diviner.target_no_body")
+                    .withStyle(ChatFormatting.GRAY), true);
+            return;
+        }
+
+        // 该尸体标记为已占卜
+        if (bodyId != null) {
+            divinedCorpses.add(bodyId);
+        }
+
+        // 记录回传点
+        this.returnPos = sp.position();
+        this.returnDim = sp.serverLevel().dimension();
+
+        teleport(sp, destLevel, destPos);
+        playCompleteFx(sp);
+        sp.displayClientMessage(Component.translatable("message.noellesroles.diviner.teleported", targetName)
+                .withStyle(ChatFormatting.LIGHT_PURPLE), true);
+
+        // 保留原有行为：占卜成功后有概率破坏晶球
+        breakCrystalBall(sp);
+
+        // 开启回传窗口
+        this.awaitingReturn = true;
+        this.returnWindowTicks = 0;
+    }
+
+    private void tickReturnWindow(ServerPlayer sp) {
+        if (!awaitingReturn) {
+            return;
+        }
+        returnWindowTicks++;
+        if (returnWindowTicks >= RETURN_WINDOW_TICKS) {
+            awaitingReturn = false;
+            returnWindowTicks = 0;
+            setCooldown(sp);
+            sp.displayClientMessage(Component.translatable("message.noellesroles.diviner.return_expired")
+                    .withStyle(ChatFormatting.GRAY), true);
+        }
     }
 
     // ==================== 辅助方法 ====================
 
-    /** 中断施法。 */
-    private void cancelChannel() {
-        this.isChanneling = false;
-        this.channelTicks = 0;
-        this.channelStartPos = null;
-        this.channelBodyId = null;
+    private static void teleport(ServerPlayer sp, ServerLevel level, Vec3 pos) {
+        sp.teleportTo(level, pos.x, pos.y, pos.z, sp.getYRot(), sp.getXRot());
     }
 
-    /** 根据 UUID 查找尸体。 */
+    /** 根据实体 UUID 查找尸体（施法结束时重新获取）。 */
     private Entity findBodyById(ServerPlayer sp, UUID bodyId) {
         if (bodyId != null && sp.level() instanceof ServerLevel sl) {
             return sl.getEntity(bodyId);
@@ -429,7 +348,36 @@ public class DivinerRoleData extends SimpleRoleData {
         return null;
     }
 
-    /** 50% 概率消耗晶球。 */
+    /** 按「死者玩家 UUID」在全部维度里查找其尸体。 */
+    private static PlayerBodyEntity findCorpseByPlayer(ServerPlayer sp, UUID playerUuid) {
+        if (playerUuid == null || sp.getServer() == null) {
+            return null;
+        }
+        for (ServerLevel level : sp.getServer().getAllLevels()) {
+            AABB allWorld = new AABB(-30000000, level.getMinBuildHeight(), -30000000,
+                    30000000, level.getMaxBuildHeight(), 30000000);
+            for (PlayerBodyEntity body : level.getEntitiesOfClass(PlayerBodyEntity.class, allWorld)) {
+                if (playerUuid.equals(body.getPlayerUuid())
+                        && !DoomedSinnerBodyEntity.isDoomedSinnerBody(body)) {
+                    return body;
+                }
+            }
+        }
+        return null;
+    }
+
+    /** 目标玩家的显示名（离线 / 找不到时回退占位文本）。 */
+    private Component resolveTargetName(ServerPlayer sp) {
+        if (target != null && sp.getServer() != null) {
+            ServerPlayer t = sp.getServer().getPlayerList().getPlayer(target);
+            if (t != null) {
+                return t.getDisplayName();
+            }
+        }
+        return Component.translatable("message.noellesroles.diviner.unknown");
+    }
+
+    /** 50% 概率破坏晶球（保留原有行为）。 */
     private void breakCrystalBall(ServerPlayer sp) {
         if (sp.level().random.nextFloat() < BREAK_CHANCE) {
             ItemStack held = sp.getMainHandItem();
@@ -441,38 +389,19 @@ public class DivinerRoleData extends SimpleRoleData {
         }
     }
 
-    /** 设置冷却。 */
-    private void setCooldown(ServerPlayer sp, NoellesRolesConfig cfg) {
-        sp.getCooldowns().addCooldown(ModItems.CRYSTAL_BALL, GameConstants.getInTicks(0, cfg.divinerCooldown));
+    /** 设置晶球冷却。 */
+    private void setCooldown(ServerPlayer sp) {
+        sp.getCooldowns().addCooldown(ModItems.CRYSTAL_BALL, GameConstants.getInTicks(0, COOLDOWN_SECONDS));
     }
 
     /** 获取冷却剩余秒数。 */
     private int getCooldownSec(ServerPlayer sp) {
         ItemCooldowns cooldowns = sp.getCooldowns();
         ItemCooldowns.CooldownInstance cd = cooldowns.cooldowns.get(ModItems.CRYSTAL_BALL);
-        if (cd == null) return 0;
+        if (cd == null) {
+            return 0;
+        }
         return Math.max(0, (cd.endTime - cooldowns.tickCount + 19) / 20);
-    }
-
-    /** 解析死者名称。 */
-    private Component resolveDeadName(ServerPlayer sp, PlayerBodyEntity body) {
-        UUID id = body.getPlayerUuid();
-        if (id != null && sp.getServer() != null) {
-            ServerPlayer dead = sp.getServer().getPlayerList().getPlayer(id);
-            if (dead != null) return dead.getDisplayName();
-        }
-        if (body.getCustomName() != null) return body.getCustomName();
-        return Component.translatable("message.noellesroles.diviner.unknown");
-    }
-
-    /** 格式化秒数为 "X分Y秒"。 */
-    private String formatTime(int totalSeconds) {
-        int mins = totalSeconds / 60;
-        int secs = totalSeconds % 60;
-        if (mins > 0) {
-            return mins + "分" + secs + "秒";
-        }
-        return secs + "秒";
     }
 
     // ==================== 特效 ====================
@@ -504,11 +433,12 @@ public class DivinerRoleData extends SimpleRoleData {
 
     // ==================== NBT 持久化 ====================
 
-
-
     @Override
     public void writeToSyncNbt(@NotNull CompoundTag tag, HolderLookup.Provider registryLookup) {
-        // 已占卜过的尸体 UUID 列表
+        if (this.target != null) {
+            tag.putUUID("target", this.target);
+        }
+
         net.minecraft.nbt.ListTag divinedList = new net.minecraft.nbt.ListTag();
         for (UUID id : this.divinedCorpses) {
             CompoundTag entry = new CompoundTag();
@@ -518,20 +448,22 @@ public class DivinerRoleData extends SimpleRoleData {
         tag.put("divinedCorpses", divinedList);
 
         tag.putBoolean("gaveItem", this.gaveItem);
-        tag.putBoolean("isChanneling", this.isChanneling);
-        tag.putInt("channelTicks", this.channelTicks);
-        if (this.channelBodyId != null) {
-            tag.putUUID("channelBodyId", this.channelBodyId);
+        tag.putBoolean("awaitingReturn", this.awaitingReturn);
+        tag.putInt("returnWindowTicks", this.returnWindowTicks);
+        if (this.returnPos != null) {
+            tag.putDouble("returnX", this.returnPos.x);
+            tag.putDouble("returnY", this.returnPos.y);
+            tag.putDouble("returnZ", this.returnPos.z);
         }
-        if (this.pendingRevealKiller != null) {
-            tag.putUUID("pendingRevealKiller", this.pendingRevealKiller);
-            tag.putBoolean("pendingRevealKillerAlive", this.pendingRevealKillerAlive);
+        if (this.returnDim != null) {
+            tag.putString("returnDim", this.returnDim.location().toString());
         }
-        tag.putBoolean("killerRevealed", this.killerRevealed);
     }
 
     @Override
     public void readFromSyncNbt(@NotNull CompoundTag tag, HolderLookup.Provider registryLookup) {
+        this.target = tag.hasUUID("target") ? tag.getUUID("target") : null;
+
         this.divinedCorpses.clear();
         if (tag.contains("divinedCorpses")) {
             net.minecraft.nbt.ListTag divinedList = tag.getList("divinedCorpses", net.minecraft.nbt.Tag.TAG_COMPOUND);
@@ -542,13 +474,18 @@ public class DivinerRoleData extends SimpleRoleData {
                 }
             }
         }
+
         this.gaveItem = tag.contains("gaveItem") && tag.getBoolean("gaveItem");
-        this.isChanneling = tag.contains("isChanneling") && tag.getBoolean("isChanneling");
-        this.channelTicks = tag.contains("channelTicks") ? tag.getInt("channelTicks") : 0;
-        this.channelBodyId = tag.hasUUID("channelBodyId") ? tag.getUUID("channelBodyId") : null;
-        this.pendingRevealKiller = tag.hasUUID("pendingRevealKiller") ? tag.getUUID("pendingRevealKiller") : null;
-        this.pendingRevealKillerAlive = tag.contains("pendingRevealKillerAlive")
-                && tag.getBoolean("pendingRevealKillerAlive");
-        this.killerRevealed = tag.contains("killerRevealed") && tag.getBoolean("killerRevealed");
+        this.awaitingReturn = tag.contains("awaitingReturn") && tag.getBoolean("awaitingReturn");
+        this.returnWindowTicks = tag.contains("returnWindowTicks") ? tag.getInt("returnWindowTicks") : 0;
+        if (tag.contains("returnX")) {
+            this.returnPos = new Vec3(tag.getDouble("returnX"), tag.getDouble("returnY"),
+                    tag.getDouble("returnZ"));
+        }
+        if (tag.contains("returnDim")) {
+            net.minecraft.resources.ResourceLocation loc = net.minecraft.resources.ResourceLocation
+                    .tryParse(tag.getString("returnDim"));
+            this.returnDim = loc == null ? null : ResourceKey.create(net.minecraft.core.registries.Registries.DIMENSION, loc);
+        }
     }
 }

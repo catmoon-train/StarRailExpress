@@ -427,6 +427,12 @@ public class ModPacketsReciever {
                     true)));
 
       }
+      if (gameWorldComponent.isRole(context.player(), ModRoles.DIVINER)) {
+        // 占卜家：把选中的玩家写入 DivinerRoleData（选人不占用任何冷却）
+        RoleData.getOptional(org.agmas.noellesroles.role_data.innocence.DivinerRoleData.class,
+            context.player())
+            .ifPresent(d -> d.setTarget(payload.player()));
+      }
       if (gameWorldComponent.isRole(context.player(), ModRoles.MORPHLING)) {
         MorphlingRoleData morphlingPlayerComponent = RoleData.getNullable(MorphlingRoleData.class, context.player());
         // 变形使用自身独立冷却（morphTicks，负值表示冷却中），不受举刀假人共享技能冷却影响。
