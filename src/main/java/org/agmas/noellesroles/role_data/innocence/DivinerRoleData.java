@@ -287,8 +287,8 @@ public class DivinerRoleData extends SimpleRoleData {
             destPos = targetPlayer.position();
         } else {
             PlayerBodyEntity corpse = findCorpseByPlayer(sp, target);
-            if (corpse != null) {
-                destLevel = corpse.serverLevel();
+            if (corpse != null && corpse.level() instanceof ServerLevel corpseLevel) {
+                destLevel = corpseLevel;
                 destPos = corpse.position();
             }
         }
