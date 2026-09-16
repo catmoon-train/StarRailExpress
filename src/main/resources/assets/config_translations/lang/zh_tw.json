@@ -113,6 +113,7 @@
   "text.autoconfig.starrailexpress.option.allowRandomChooseMapNotInMapConfig": "允許“隨機選擇地圖”時選擇不在“可投票地圖配置”中的地圖",
   "text.autoconfig.starrailexpress.option.minigameTaskParallelMode": "小遊戲任務並列模式：不會擠佔默認任務刷新",
   "text.autoconfig.starrailexpress.option.customRolePermission": "自定義職業命令執行許可權等級",
+  "text.autoconfig.starrailexpress.option.customModifierPermission": "自定義修飾符命令執行許可權等級",
   "text.autoconfig.starrailexpress.option.teamKillViolationMcFunctionPermission": "腦人懲罰function執行許可權等級",
   "text.autoconfig.starrailexpress.option.timeRewindPermission": "回溯命令需要的許可權等級",
   "text.autoconfig.starrailexpress.option.entityInteractionBlockEntityPermission": "實體交互方塊的許可權等級",
