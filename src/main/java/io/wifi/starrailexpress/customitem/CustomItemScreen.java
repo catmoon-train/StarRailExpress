@@ -539,6 +539,17 @@ public class CustomItemScreen extends Screen {
             r = numRow(r, "sre.custom_item.label.range", data.range, "sre.custom_item.unit.blocks",
                     v -> data.range = v);
             r = commandList(r, "sre.custom_item.label.target_commands", data.targetCommands);
+            // 空放（蓄力完成但没命中玩家）：独立冷却数值，只有会打人的道具才有这个概念
+            r = numRow(r, "sre.custom_item.label.empty_fire_cooldown", data.emptyFireCooldownTicks,
+                    "sre.custom_item.unit.tick", v -> data.emptyFireCooldownTicks = (int) v);
+            addHintText(r++, Component.translatable("sre.custom_item.hint.empty_fire_cooldown"), 0xFF9E8B6E);
+            r = boolRow(r, "sre.custom_item.label.empty_fire_message_enabled", data.emptyFireMessageEnabled,
+                    v -> data.emptyFireMessageEnabled = v);
+            if (data.emptyFireMessageEnabled) {
+                r = textRow(r, "sre.custom_item.label.empty_fire_message", data.emptyFireMessage,
+                        Component.translatable("sre.custom_item.hint.empty_fire_message"),
+                        v -> data.emptyFireMessage = v);
+            }
         }
         return r;
     }

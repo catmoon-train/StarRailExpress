@@ -27,6 +27,7 @@ import io.wifi.starrailexpress.content.item.api.SREItemProperties;
 import io.wifi.starrailexpress.customitem.CustomItemData.TargetMode;
 import io.wifi.starrailexpress.custommodifier.CustomModifierLoader;
 import io.wifi.starrailexpress.event.AllowItemShowInHand;
+import io.wifi.starrailexpress.event.OnGameEnd;
 import io.wifi.starrailexpress.event.OnPlayerDeath;
 import io.wifi.starrailexpress.event.OnPlayerDeathWithKiller;
 import io.wifi.starrailexpress.event.ShouldDropOnDeath;
@@ -186,10 +187,19 @@ public final class CustomItemRuntime {
             // 命中标记记在玩家身上（{@link CustomItemHitMarkerComponent}）：开局把所有人的标记清干净
             for (ServerPlayer online : serverLevel.getServer().getPlayerList().getPlayers()) {
                 CustomItemHitMarkerComponent.KEY.get(online).clearAllMarkers();
+                // 冷却同样要清：否则上一局残留的冷却会被带进新的一局
+                CustomItemCooldownComponent.KEY.get(online).clearAllCooldowns();
             }
             AUTO_FIRES.clear();
             CHARGE_FIRED.clear();
             CustomThrowableAreas.clear();
+        });
+
+        // 游戏结束时清空所有在线玩家的自定义物品冷却（冷却过的物品不该把冷却带出本局）
+        OnGameEnd.EVENT.register((serverLevel, gameWorldComponent) -> {
+            for (ServerPlayer online : serverLevel.getServer().getPlayerList().getPlayers()) {
+                CustomItemCooldownComponent.KEY.get(online).clearAllCooldowns();
+            }
         });
 
         // 丢弃限制：是否可丢弃 / 仅特定职业可丢弃（与物品自身规则一起决定，其它物品不受影响）
@@ -379,11 +389,27 @@ public final class CustomItemRuntime {
         CustomItemLoader.executeCommands(data.selfCommands, player);
 
         // 对其它玩家作用
+        boolean hitAnyone = false;
         if (data.affectOthers) {
-            for (ServerPlayer target : findTargets(player, data)) {
+            List<ServerPlayer> targets = findTargets(player, data);
+            hitAnyone = !targets.isEmpty();
+            for (ServerPlayer target : targets) {
                 // <attacker> = 手持该道具的使用者
                 CustomItemLoader.executeCommands(data.targetCommands, target, player);
             }
+        }
+
+        // 空放：配置了「对其它玩家作用」，但蓄力完成时没有命中任何玩家
+        if (data.affectOthers && !hitAnyone) {
+            // 空放提示：把配置的文本通过 actionbar 提示使用者
+            if (data.emptyFireMessageEnabled && data.emptyFireMessage != null
+                    && !data.emptyFireMessage.isBlank()) {
+                player.displayClientMessage(Component.literal(data.emptyFireMessage), true);
+            }
+            // 空放走「独立冷却」：与命中后的冷却无关，默认 0 = 空放不进入冷却
+            applyCooldown(player, stack, data.emptyFireCooldownTicks);
+            consumeItem(player, stack, data.consumeItem);
+            return true;
         }
 
         applyCooldown(player, stack, data.cooldownTicks);

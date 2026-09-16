@@ -230,6 +230,24 @@ public class CustomItemData {
     @SerializedName("targetCommands")
     public List<String> targetCommands = new ArrayList<>();
 
+    /**
+     * 空放冷却：蓄力完成但<b>没有命中任何玩家</b>时使用的「独立冷却」（tick）。
+     *
+     * <p>
+     * 与 {@link #cooldownTicks}（命中后的冷却）相互独立：默认 {@code 0} = 空放不进入冷却。
+     * 仅在 {@link #affectOthers} 为是时有意义（否则不存在「命中玩家」这个概念）。
+     */
+    @SerializedName("emptyFireCooldownTicks")
+    public int emptyFireCooldownTicks = 0;
+
+    /** 是否启用空放提示：为是时，蓄力完成但没有命中任何玩家会通过 actionbar 提示 {@link #emptyFireMessage}。 */
+    @SerializedName("emptyFireMessageEnabled")
+    public boolean emptyFireMessageEnabled = false;
+
+    /** 空放提示文本（actionbar 显示）。{@link #emptyFireMessageEnabled} 为是时生效。 */
+    @SerializedName("emptyFireMessage")
+    public String emptyFireMessage = "";
+
     // ==================== 性质：枪械道具 ====================
 
     /** 枪械开火音效 id（开火与自动开火时播放），默认左轮手枪开火。 */
@@ -829,6 +847,10 @@ public class CustomItemData {
         commands = safeList(commands);
         selfCommands = safeList(selfCommands);
         targetCommands = safeList(targetCommands);
+        if (emptyFireMessage == null) {
+            emptyFireMessage = "";
+        }
+        emptyFireCooldownTicks = clamp(emptyFireCooldownTicks, 0, 20 * 60 * 10);
         shootCommands = safeList(shootCommands);
         hitCommands = safeList(hitCommands);
         finalHitCommands = safeList(finalHitCommands);
