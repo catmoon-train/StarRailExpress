@@ -94,5 +94,8 @@ public class SREComponents
         // 自定义列车物品的命中标记（挂在被击中者身上，按物品 id 分开计数、超时自动消失）
         registry.beginRegistration(Player.class, CustomItemHitMarkerComponent.KEY)
                 .respawnStrategy(RespawnCopyStrategy.NEVER_COPY).end(CustomItemHitMarkerComponent::new);
+        // 自定义列车物品的每物品冷却（挂在使用者身上，按物品 id 分开记，避免不同自定义物品共用原版冷却）
+        registry.beginRegistration(Player.class, CustomItemCooldownComponent.KEY)
+                .respawnStrategy(RespawnCopyStrategy.NEVER_COPY).end(CustomItemCooldownComponent::new);
     }
 }

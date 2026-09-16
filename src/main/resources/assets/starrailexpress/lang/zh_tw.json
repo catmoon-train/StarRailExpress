@@ -1598,6 +1598,8 @@
     "sre.custom_item.hint.model_path": "資源包裡模型 json 的路徑，例如 mypack:item/my_gun 或 mypack:models/item/my_gun.json；改完要重載資源(F3+T)才會被烘焙",
     "sre.custom_item.hint.model_shell": "貼圖來源下填了模型地址就用該模型當外殼、把上面的貼圖套上去；留空走默認模型（平面四邊形，1 像素厚）",
     "sre.custom_item.hint.model_texture": "填了就給模型換皮：幾何用上面的模型、貼圖用這張（寫法同材質地址）；留空則用模型自帶的貼圖",
+    "sre.custom_item.label.allow_left_click_attack": "允許左鍵攻擊玩家",
+    "sre.custom_item.hint.allow_left_click_attack": "默認關：拿著它左鍵點玩家不會造成傷害與擊退；需要近戰的物品再打開（特殊原版物品類不受此項影響）",
     "sre.custom_item.label.preview": "材質預覽",
     "sre.custom_item.label.kind": "物品性質",
     "sre.custom_item.label.commands": "右鍵執行指令",

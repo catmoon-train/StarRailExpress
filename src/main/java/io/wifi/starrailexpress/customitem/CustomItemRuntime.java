@@ -18,6 +18,7 @@ package io.wifi.starrailexpress.customitem;
 import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.api.RoleTeam;
 import io.wifi.starrailexpress.api.SRERole;
+import io.wifi.starrailexpress.cca.CustomItemCooldownComponent;
 import io.wifi.starrailexpress.cca.CustomItemHitMarkerComponent;
 import io.wifi.starrailexpress.cca.ExtraSlotComponent;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
@@ -341,7 +342,7 @@ public final class CustomItemRuntime {
 
     /** 基础道具：右键执行指令 + 冷却 + 是否消耗。 */
     public static void executeBasic(ServerPlayer player, ItemStack stack, CustomItemData data) {
-        if (player.getCooldowns().isOnCooldown(stack.getItem())) {
+        if (isOnCooldown(player, stack)) {
             return;
         }
         CustomItemLoader.executeCommands(data.commands, player);
@@ -362,7 +363,7 @@ public final class CustomItemRuntime {
      * @return 是否成功触发（触发了才走冷却与消耗）
      */
     public static boolean completeCharge(ServerPlayer player, ItemStack stack, CustomItemData data) {
-        if (player.getCooldowns().isOnCooldown(stack.getItem())) {
+        if (isOnCooldown(player, stack)) {
             return false;
         }
         long now = player.level().getGameTime();
@@ -629,7 +630,7 @@ public final class CustomItemRuntime {
     }
 
     private static boolean canFire(ServerPlayer shooter, ItemStack stack, CustomItemData data) {
-        if (shooter.getCooldowns().isOnCooldown(stack.getItem())) {
+        if (isOnCooldown(shooter, stack)) {
             return false;
         }
         return !data.ammoSystem || getAmmo(stack, data) > 0;
@@ -646,7 +647,7 @@ public final class CustomItemRuntime {
         if (shooter.isSpectator()) {
             return null;
         }
-        if (!autoMode && shooter.getCooldowns().isOnCooldown(stack.getItem())) {
+        if (!autoMode && isOnCooldown(shooter, stack)) {
             return null;
         }
         if (data.ammoSystem) {
@@ -826,7 +827,7 @@ public final class CustomItemRuntime {
 
     /** 特殊原版物品右键：执行指令 + 冷却。 */
     public static void useVanillaWeapon(ServerPlayer player, ItemStack stack, CustomItemData data) {
-        if (player.getCooldowns().isOnCooldown(stack.getItem())) {
+        if (isOnCooldown(player, stack)) {
             return;
         }
         CustomItemLoader.executeCommands(data.weaponRightClickCommands, player);
@@ -849,7 +850,7 @@ public final class CustomItemRuntime {
         if (role == null || !role.canUseSpVanillaWeapon()) {
             return false;
         }
-        if (attacker.getCooldowns().isOnCooldown(stack.getItem())) {
+        if (isOnCooldown(attacker, stack)) {
             return false;
         }
         // 与 dream 系列武器一致：需要满蓄力
@@ -1318,10 +1319,36 @@ public final class CustomItemRuntime {
         return entity instanceof ServerPlayer player && player != shooter;
     }
 
+    /**
+     * 让某件自定义物品进入冷却。
+     *
+     * <p>
+     * 所有自定义物品共用同一个注册物品，用原版 {@code ItemCooldowns}（按 {@code Item} 记）会让
+     * 不同自定义物品互相顶掉冷却，所以这里按「玩家 + 物品 id」记在
+     * {@link CustomItemCooldownComponent} 上；只有拿不到配置的异常数据才退回原版冷却。
+     */
     private static void applyCooldown(ServerPlayer player, ItemStack stack, int ticks) {
-        if (ticks > 0) {
-            player.getCooldowns().addCooldown(stack.getItem(), ticks);
+        if (ticks <= 0) {
+            return;
         }
+        CustomItemData data = CustomItemLoader.getData(stack);
+        if (data == null || data.id == null || data.id.isEmpty()) {
+            player.getCooldowns().addCooldown(stack.getItem(), ticks);
+            return;
+        }
+        CustomItemCooldownComponent.KEY.get(player).setCooldown(data.id, ticks);
+    }
+
+    /** 该玩家手上这件自定义物品是否在冷却中（按物品 id 查，不共用原版冷却）。 */
+    public static boolean isOnCooldown(Player player, ItemStack stack) {
+        if (player == null || stack == null || stack.isEmpty()) {
+            return false;
+        }
+        CustomItemData data = CustomItemLoader.getData(stack);
+        if (data == null || data.id == null || data.id.isEmpty()) {
+            return player.getCooldowns().isOnCooldown(stack.getItem());
+        }
+        return CustomItemCooldownComponent.KEY.get(player).isOnCooldown(data.id);
     }
 
     private static void consumeItem(ServerPlayer player, ItemStack stack, boolean consume) {
@@ -1343,7 +1370,7 @@ public final class CustomItemRuntime {
 
     /** 投出（需要拉栓时由蓄力完成触发，否则直接投掷，两条路都走这里）。 */
     public static void throwCustom(ServerPlayer user, ItemStack stack, CustomItemData data) {
-        if (user.getCooldowns().isOnCooldown(stack.getItem())) {
+        if (isOnCooldown(user, stack)) {
             return;
         }
         // 与手榴弹一致的投掷 / 拉栓音效

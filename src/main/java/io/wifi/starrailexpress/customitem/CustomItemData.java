@@ -113,6 +113,17 @@ public class CustomItemData {
     @SerializedName("kind")
     public String kind = Kind.BASIC.name();
 
+    /**
+     * 是否允许「左键攻击玩家」（默认关）。
+     *
+     * <p>
+     * 关闭时：拿着这件自定义物品左键点玩家不会造成任何伤害与击退（也不会拉仇恨）；
+     * 需要近战的物品（例如枪托砸人、道具打人）可以打开。
+     * 特殊原版物品（{@link Kind#VANILLA_WEAPON}）走自己的虚拟血量逻辑，不受本项影响。
+     */
+    @SerializedName("allowLeftClickAttack")
+    public boolean allowLeftClickAttack = false;
+
     // ==================== 基础数据：丢弃 / 死亡 ====================
 
     /** 是否可丢弃（默认否）：为是时玩家可在游戏内主动丢弃该物品。 */

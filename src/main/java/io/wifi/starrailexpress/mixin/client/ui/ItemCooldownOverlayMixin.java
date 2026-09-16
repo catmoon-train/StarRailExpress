@@ -30,6 +30,40 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 @Mixin(GuiGraphics.class)
 public class ItemCooldownOverlayMixin {
 
+    /**
+     * 自定义列车物品的<b>每物品冷却条</b>：和原版冷却覆盖层同样的画法
+     * （从槽位顶部往下的半透明黑条，随时间缩短），但进度取自
+     * {@link io.wifi.starrailexpress.cca.CustomItemCooldownComponent}（按物品 id 记），
+     * 因为自定义物品共用同一个注册物品、原版 {@code ItemCooldowns} 上什么都没有。
+     */
+    @Inject(method = "renderItemDecorations(Lnet/minecraft/client/gui/Font;Lnet/minecraft/world/item/ItemStack;IILjava/lang/String;)V", at = @At("TAIL"))
+    private void sre$renderCustomItemCooldownBar(Font font, ItemStack stack, int x, int y, String text,
+            CallbackInfo ci) {
+        float progress = sre$customItemCooldownPercent(stack);
+        if (progress <= 0.0F) {
+            return;
+        }
+        GuiGraphics self = (GuiGraphics) (Object) this;
+        int top = y + net.minecraft.util.Mth.floor(16.0F * (1.0F - progress));
+        int bottom = top + net.minecraft.util.Mth.ceil(16.0F * progress);
+        self.fill(net.minecraft.client.renderer.RenderType.guiOverlay(), x, top, x + 16, bottom, Integer.MAX_VALUE);
+    }
+
+    /** 自定义列车物品的每物品冷却进度（1 = 刚开始，0 = 不在冷却 / 不是自定义物品）。 */
+    public static float sre$customItemCooldownPercent(ItemStack stack) {
+        Minecraft mc = Minecraft.getInstance();
+        LocalPlayer player = mc.player;
+        if (player == null || stack == null || stack.isEmpty()) {
+            return 0.0F;
+        }
+        io.wifi.starrailexpress.customitem.CustomItemData data = io.wifi.starrailexpress.customitem.CustomItemLoader
+                .getData(stack);
+        if (data == null || data.id == null || data.id.isEmpty()) {
+            return 0.0F;
+        }
+        return io.wifi.starrailexpress.cca.CustomItemCooldownComponent.KEY.get(player).percent(data.id);
+    }
+
     @Inject(method = "renderItemDecorations(Lnet/minecraft/client/gui/Font;Lnet/minecraft/world/item/ItemStack;IILjava/lang/String;)V", at = @At("TAIL"))
     private void sre$renderCooldownOnItem(Font font, ItemStack stack, int x, int y, String text, CallbackInfo ci) {
         // 检查开关：默认关闭，需手动开启

@@ -75,6 +75,7 @@
     "client.effects.EntityRendererInvisibleMixin",
     "client.GameNarratorMixin",
     "client.GameRendererMixin",
+    "client.CustomItemChargeAnimMixin",
     "client.ItemInHandRendererMixin",
     "client.LayeredDrawMixin",
     "client.LivingEntityRendererMixin",

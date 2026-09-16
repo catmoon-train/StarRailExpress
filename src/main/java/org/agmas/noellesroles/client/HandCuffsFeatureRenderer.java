@@ -52,8 +52,6 @@ public class HandCuffsFeatureRenderer extends RenderLayer<AbstractClientPlayer, 
     private static final float SCALE = 0.9F; // 整体大小
     private static final float WRIST_Y = 11.0F; // 手腕在手臂局部空间的Y偏移（像素），0=肩膀，12=手臂末端，可调
 
-    private final ItemStack handcuffStack = new ItemStack(ModItems.HANDCUFFS);
-
     public HandCuffsFeatureRenderer(
             RenderLayerParent<AbstractClientPlayer, PlayerModel<AbstractClientPlayer>> renderer) {
         super(renderer);
@@ -65,7 +63,13 @@ public class HandCuffsFeatureRenderer extends RenderLayer<AbstractClientPlayer, 
             float partialTick, float ageInTicks, float netHeadYaw, float headPitch) {
         if (player.isInvisible())
             return;
-        if (!HandCuffsItem.hasHandCuff(player))
+        // 原版手铐（SLOT_HANDCUFFS）或自定义列车手铐（cuff_<物品id> 槽位）都要画，
+        // 并且要画<b>玩家身上实际那一份</b>物品栈，不能固定成原版手铐
+        ItemStack cuffStack = HandCuffsItem.getHandCuffItemStack(player);
+        if (cuffStack.isEmpty() || !cuffStack.is(ModItems.HANDCUFFS)) {
+            cuffStack = io.wifi.starrailexpress.customitem.CustomItemRuntime.getCuffOn(player);
+        }
+        if (cuffStack.isEmpty())
             return;
 
         var model = this.getParentModel();
@@ -120,7 +124,8 @@ public class HandCuffsFeatureRenderer extends RenderLayer<AbstractClientPlayer, 
         }
 
         ItemRenderer ir = Minecraft.getInstance().getItemRenderer();
-        ir.renderStatic(this.handcuffStack, ItemDisplayContext.FIXED, light,
+        // 用玩家身上那一份真实物品栈渲染：自定义手铐会走 CustomItemRenderer（builtin/entity 动态渲染器）
+        ir.renderStatic(cuffStack, ItemDisplayContext.FIXED, light,
                 OverlayTexture.NO_OVERLAY, poseStack, buffer, player.level(), 0);
         poseStack.popPose();
     }

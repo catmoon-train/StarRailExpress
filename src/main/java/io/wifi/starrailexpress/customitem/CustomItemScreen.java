@@ -439,6 +439,11 @@ public class CustomItemScreen extends Screen {
         addHintText(r++, Component.translatable("sre.custom_item.hint.texture_mode"), 0xFFC9A84C);
         addHintText(r++, Component.translatable("sre.custom_item.label.preview"), 0xFFFFF4DC);
 
+        // 战斗设置：是否允许左键攻击玩家（默认关）
+        r = boolRow(r, "sre.custom_item.label.allow_left_click_attack", data.allowLeftClickAttack,
+                v -> data.allowLeftClickAttack = v);
+        addHintText(r++, Component.translatable("sre.custom_item.hint.allow_left_click_attack"), 0xFF9E8B6E);
+
         // 物品 tooltip：多行文本，每行一个输入框，＋ 追加一行
         r = textLines(r, "sre.custom_item.label.tooltip", data.tooltip,
                 "sre.custom_item.hint.tooltip", "sre.custom_item.add_tooltip");

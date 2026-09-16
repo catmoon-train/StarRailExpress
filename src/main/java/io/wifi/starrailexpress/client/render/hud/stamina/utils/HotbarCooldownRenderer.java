@@ -15,6 +15,9 @@
 
 package io.wifi.starrailexpress.client.render.hud.stamina.utils;
 
+import io.wifi.starrailexpress.cca.CustomItemCooldownComponent;
+import io.wifi.starrailexpress.customitem.CustomItemData;
+import io.wifi.starrailexpress.customitem.CustomItemLoader;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
@@ -27,7 +30,12 @@ import net.minecraft.world.item.ItemStack;
 
 /**
  * 在快捷栏上方显示物品冷却时间
- * <10s 显示1位小数，>=10s 不显示小数
+ * &lt;10s 显示1位小数，&gt;=10s 不显示小数
+ *
+ * <p>
+ * 两处都同时考虑两种冷却来源：
+ * <b>原版</b> {@link ItemCooldowns} 和<b>自定义列车物品</b>的
+ * {@link CustomItemCooldownComponent}（按物品 id 记，因为所有自定义物品共用一个注册物品）。
  */
 public class HotbarCooldownRenderer {
 
@@ -58,23 +66,22 @@ public class HotbarCooldownRenderer {
             ItemStack stack = player.getInventory().getItem(slot);
             if (stack.isEmpty()) continue;
 
-            Item item = stack.getItem();
-            if (!cooldowns.isOnCooldown(item)) continue;
+            // ① 自定义列车物品：冷却记在组件里（按物品 id）
+            int remainingTicks = customRemainingTicks(player, stack);
 
-            ItemCooldowns.CooldownInstance instance = cooldowns.cooldowns.get(item);
-            if (instance == null) continue;
-
-            int remainingTicks = instance.endTime - cooldowns.tickCount;
+            // ② 其它物品：原有原版冷却
+            if (remainingTicks <= 0) {
+                Item item = stack.getItem();
+                if (cooldowns.isOnCooldown(item)) {
+                    ItemCooldowns.CooldownInstance instance = cooldowns.cooldowns.get(item);
+                    if (instance != null) {
+                        remainingTicks = instance.endTime - cooldowns.tickCount;
+                    }
+                }
+            }
             if (remainingTicks <= 0) continue;
 
-            float remainingSeconds = remainingTicks / 20.0f;
-
-            String cooldownText;
-            if (remainingSeconds < 10.0f) {
-                cooldownText = String.format("%.1f", remainingSeconds);
-            } else {
-                cooldownText = String.format("%.0f", remainingSeconds);
-            }
+            String cooldownText = formatSeconds(remainingTicks);
 
             // 该槽位中心 X
             int slotCenterX = centerX + (slot - 4) * SLOT_WIDTH;
@@ -96,14 +103,16 @@ public class HotbarCooldownRenderer {
             context.pose().popPose();
         }
     }
-    
+
     /**
      * 渲染主手物品冷却提示
      */
     public static void renderMainHandCooldown(GuiGraphics context, LocalPlayer player, float delta) {
         ItemStack mainHandStack = player.getMainHandItem();
         ItemCooldowns cooldowns = player.getCooldowns();
-        float cooldown = cooldowns.getCooldownPercent(mainHandStack.getItem(), delta);
+        // 原版冷却与自定义列车物品（按物品 id）冷却取较长的那个
+        float cooldown = Math.max(cooldowns.getCooldownPercent(mainHandStack.getItem(), delta),
+                customCooldownPercent(player, mainHandStack));
 
         // 检查是否是同一个物品且冷却刚刚结束
         if (lastCooldown > 0 && cooldown == 0 && !playedCooldownSound
@@ -154,17 +163,6 @@ public class HotbarCooldownRenderer {
                 textColor = 0xFF00FF00; // 绿色
             }
 
-            // 绘制文字背景（半透明黑色）
-            // int textWidth = Minecraft.getInstance().font.width(cooldownText);
-            // int padding = 4;
-            // context.fill(
-            // x - textWidth / 2 - padding,
-            // y - padding,
-            // x + textWidth / 2 + padding,
-            // y + 9 + padding,
-            // 0x80000000
-            // );
-
             // 绘制冷却文字
             context.drawCenteredString(
                     Minecraft.getInstance().font,
@@ -176,4 +174,42 @@ public class HotbarCooldownRenderer {
         }
     }
 
+    // ==================== 自定义列车物品的每物品冷却 ====================
+
+    /** 该物品（自定义列车物品）的剩余冷却 tick；不是自定义物品或没在冷却返回 0。 */
+    private static int customRemainingTicks(LocalPlayer player, ItemStack stack) {
+        String itemId = customItemId(stack);
+        if (itemId == null) {
+            return 0;
+        }
+        return (int) Math.min(Integer.MAX_VALUE, CustomItemCooldownComponent.KEY.get(player).remainingTicks(itemId));
+    }
+
+    /** 该物品的剩余冷却比例（0 = 不在冷却 / 不是自定义物品）。 */
+    private static float customCooldownPercent(LocalPlayer player, ItemStack stack) {
+        String itemId = customItemId(stack);
+        if (itemId == null) {
+            return 0.0F;
+        }
+        return CustomItemCooldownComponent.KEY.get(player).percent(itemId);
+    }
+
+    /** 取物品栈里的自定义物品 id（不是自定义列车物品返回 null）。 */
+    private static String customItemId(ItemStack stack) {
+        if (stack == null || stack.isEmpty()) {
+            return null;
+        }
+        CustomItemData data = CustomItemLoader.getData(stack);
+        if (data == null || data.id == null || data.id.isEmpty()) {
+            return null;
+        }
+        return data.id;
+    }
+
+    /** 冷却秒数文本：<10s 一位小数，否则取整。 */
+    private static String formatSeconds(int remainingTicks) {
+        float remainingSeconds = remainingTicks / 20.0f;
+        return remainingSeconds < 10.0f ? String.format("%.1f", remainingSeconds)
+                : String.format("%.0f", remainingSeconds);
+    }
 }

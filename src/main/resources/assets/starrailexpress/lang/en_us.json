@@ -1592,6 +1592,8 @@
     "sre.custom_item.hint.model_path": "Path of a model json in a resource pack, e.g. mypack:item/my_gun or mypack:models/item/my_gun.json; reload resources (F3+T) after editing so it gets baked",
     "sre.custom_item.hint.model_shell": "For the texture sources, a model address turns the model into a shell rendered with the texture above; leave it empty to use the default model (flat quad, 1 pixel thick)",
     "sre.custom_item.hint.model_texture": "If set, the model is re-skinned: geometry from the model above, texture from this image (same syntax as the texture address); leave it empty to use the model's own textures",
+    "sre.custom_item.label.allow_left_click_attack": "Allow Left-Click Attacks",
+    "sre.custom_item.hint.allow_left_click_attack": "Off by default: left-clicking a player with this item deals no damage or knockback; enable it for melee items (VANILLA_WEAPON kind is unaffected)",
     "sre.custom_item.label.preview": "Texture Preview",
     "sre.custom_item.label.kind": "Item Kind",
     "sre.custom_item.label.commands": "Commands on Right-Click",

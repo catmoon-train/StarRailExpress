@@ -60,7 +60,7 @@ public class CustomItem extends Item implements SREItemProperties.LeftClickHurta
         switch (data.kind()) {
             case BASIC -> {
                 // 没有任何可用行为（没配指令 / 冷却 / 消耗），或正在冷却中：不给反馈（不摆臂）
-                if (data.basicDoesNothing() || player.getCooldowns().isOnCooldown(this)) {
+                if (data.basicDoesNothing() || CustomItemRuntime.isOnCooldown(player, stack)) {
                     return InteractionResultHolder.pass(stack);
                 }
                 if (!world.isClientSide() && player instanceof ServerPlayer serverPlayer) {
@@ -69,7 +69,7 @@ public class CustomItem extends Item implements SREItemProperties.LeftClickHurta
                 return InteractionResultHolder.consume(stack);
             }
             case CHARGE -> {
-                if (player.getCooldowns().isOnCooldown(this)) {
+                if (CustomItemRuntime.isOnCooldown(player, stack)) {
                     return InteractionResultHolder.fail(stack);
                 }
                 player.startUsingItem(hand);
@@ -109,7 +109,7 @@ public class CustomItem extends Item implements SREItemProperties.LeftClickHurta
             }
             case VANILLA_WEAPON -> {
                 // 没配右键指令、或正在冷却中：服务端什么都不会做，客户端也就不摆臂
-                if (data.weaponDoesNothing() || player.getCooldowns().isOnCooldown(this)) {
+                if (data.weaponDoesNothing() || CustomItemRuntime.isOnCooldown(player, stack)) {
                     return InteractionResultHolder.pass(stack);
                 }
                 if (!world.isClientSide() && player instanceof ServerPlayer serverPlayer) {
@@ -124,7 +124,7 @@ public class CustomItem extends Item implements SREItemProperties.LeftClickHurta
             case THROWABLE -> {
                 if (data.throwNeedPin) {
                     // 需要拉栓：按住右键蓄力，松手投出（同手榴弹）
-                    if (player.getCooldowns().isOnCooldown(this)) {
+                    if (CustomItemRuntime.isOnCooldown(player, stack)) {
                         return InteractionResultHolder.fail(stack);
                     }
                     player.startUsingItem(hand);
@@ -275,8 +275,12 @@ public class CustomItem extends Item implements SREItemProperties.LeftClickHurta
     @Override
     public boolean onServerAttack(ServerPlayer attacker, ServerPlayer target, ItemStack mainhandItem) {
         CustomItemData data = CustomItemLoader.getData(mainhandItem);
-        if (data == null || data.kind() != CustomItemData.Kind.VANILLA_WEAPON) {
+        if (data == null) {
             return true;
+        }
+        if (data.kind() != CustomItemData.Kind.VANILLA_WEAPON) {
+            // 普通自定义物品默认不允许左键攻击玩家（基础设置里的「允许左键攻击玩家」可开）
+            return data.allowLeftClickAttack;
         }
         return CustomItemRuntime.onVanillaWeaponAttack(attacker, target, mainhandItem, data);
     }
