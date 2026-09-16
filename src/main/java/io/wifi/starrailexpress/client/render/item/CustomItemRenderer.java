@@ -104,7 +104,88 @@ public class CustomItemRenderer implements BuiltinItemRendererRegistry.DynamicIt
             drawFallback(poseStack, buffers, light, overlay);
             return;
         }
+        if (data.holdOrientation() == CustomItemData.HoldOrientation.HORIZONTAL && isHandContext(mode)) {
+            // 「横着拿」：抵掉物品模型自带 display（原版 item/handheld 那套）的旋转与偏移，
+            // 换成原版普通物品（item/generated，苹果那类）的姿态
+            poseStack.pushPose();
+            applyFlatItemHold(poseStack, mode);
+            renderAppearance(data, poseStack, buffers, light, overlay);
+            poseStack.popPose();
+            return;
+        }
+        renderAppearance(data, poseStack, buffers, light, overlay);
+    }
 
+    /** 是否手持场景（第一 / 第三人称的手）：只有这里才需要处理「横着拿」。 */
+    private static boolean isHandContext(ItemDisplayContext mode) {
+        return mode.firstPerson()
+                || mode == ItemDisplayContext.THIRD_PERSON_LEFT_HAND
+                || mode == ItemDisplayContext.THIRD_PERSON_RIGHT_HAND;
+    }
+
+    // ==================== 手持方向（横着拿）====================
+
+    /*
+     * 物品模型 custom_item.json 的 display 取自原版 item/handheld（工具 / 剑那套）；下面是
+     * 「自带那套」与「原版 item/generated（苹果那类普通物品）」的数值，选「横着拿」时用它们把前者
+     * 抵掉、换成后者。display 里的平移是按 0..16 写的（解析时乘以 1/16）。
+     */
+    private static final float HOLD_SELF_SCALE_THIRD = 0.55F;
+    private static final float HOLD_SELF_SCALE_FIRST = 0.68F;
+    private static final float HOLD_SELF_ROT_Y_THIRD = -90.0F;
+    private static final float HOLD_SELF_ROT_Z_THIRD = 55.0F;
+    private static final float HOLD_SELF_ROT_Y_FIRST = -90.0F;
+    private static final float HOLD_SELF_ROT_Z_FIRST = 25.0F;
+    private static final float HOLD_SELF_TX_FIRST = 1.13F / 16.0F;
+    private static final float HOLD_SELF_TY_THIRD = 4.0F / 16.0F;
+    private static final float HOLD_SELF_TZ_THIRD = 0.5F / 16.0F;
+    private static final float HOLD_SELF_TY_FIRST = 3.2F / 16.0F;
+    private static final float HOLD_SELF_TZ_FIRST = 1.13F / 16.0F;
+    private static final float HOLD_VANILLA_TY_THIRD = 3.0F / 16.0F;
+    private static final float HOLD_VANILLA_TZ_THIRD = 1.0F / 16.0F;
+    private static final float HOLD_VANILLA_TX_FIRST = 1.13F / 16.0F;
+    private static final float HOLD_VANILLA_TY_FIRST = 3.2F / 16.0F;
+    private static final float HOLD_VANILLA_TZ_FIRST = 1.13F / 16.0F;
+
+    /**
+     * 「横着拿」的手持姿态修正。
+     *
+     * <p>
+     * 外层已经施加了物品模型自带的 display（原版 {@code item/handheld}：绕 Y -90°、绕 Z 55°/25°，
+     * 平移 [0,4,0.5] / [1.13,3.2,1.13]）。这里在<b>模型空间</b>里乘上它的逆旋转，再补上
+     * 「自带平移 → 原版 {@code item/generated} 平移」的差值，于是最终姿态与苹果那类普通物品一致。
+     * 两侧缩放相同（0.55 / 0.68），所以平移差值要再除一次缩放来抵消外层那一次缩放。
+     */
+    private static void applyFlatItemHold(PoseStack poseStack, ItemDisplayContext mode) {
+        boolean leftHand = mode == ItemDisplayContext.THIRD_PERSON_LEFT_HAND
+                || mode == ItemDisplayContext.FIRST_PERSON_LEFT_HAND;
+        boolean firstPerson = mode.firstPerson();
+        float scale = firstPerson ? HOLD_SELF_SCALE_FIRST : HOLD_SELF_SCALE_THIRD;
+        float selfRotY = firstPerson ? HOLD_SELF_ROT_Y_FIRST : HOLD_SELF_ROT_Y_THIRD;
+        float selfRotZ = firstPerson ? HOLD_SELF_ROT_Z_FIRST : HOLD_SELF_ROT_Z_THIRD;
+        // 左手时原版会把 Y / Z 旋转与 X 平移取反（见 ItemTransform#apply）
+        float appliedRotY = leftHand ? -selfRotY : selfRotY;
+        float appliedRotZ = leftHand ? -selfRotZ : selfRotZ;
+        float selfTx = firstPerson ? HOLD_SELF_TX_FIRST : 0.0F;
+        float selfTy = firstPerson ? HOLD_SELF_TY_FIRST : HOLD_SELF_TY_THIRD;
+        float selfTz = firstPerson ? HOLD_SELF_TZ_FIRST : HOLD_SELF_TZ_THIRD;
+        float vanillaTx = firstPerson ? HOLD_VANILLA_TX_FIRST : 0.0F;
+        float vanillaTy = firstPerson ? HOLD_VANILLA_TY_FIRST : HOLD_VANILLA_TY_THIRD;
+        float vanillaTz = firstPerson ? HOLD_VANILLA_TZ_FIRST : HOLD_VANILLA_TZ_THIRD;
+
+        // ① 逆旋转（rotationXYZ 三个角全取负即为逆旋转）
+        poseStack.mulPose(new org.joml.Quaternionf().rotationXYZ(0.0F,
+                -appliedRotY * net.minecraft.util.Mth.DEG_TO_RAD,
+                -appliedRotZ * net.minecraft.util.Mth.DEG_TO_RAD));
+        // ② 平移差值（自带平移在左手时 X 取反），并除掉外层那一次缩放
+        float appliedSelfTx = leftHand ? -selfTx : selfTx;
+        poseStack.translate((vanillaTx - appliedSelfTx) / scale, (vanillaTy - selfTy) / scale,
+                (vanillaTz - selfTz) / scale);
+    }
+
+    /** 按配置画外观（材质来源四选一 + 兜底链）。 */
+    private static void renderAppearance(CustomItemData data, PoseStack poseStack, MultiBufferSource buffers,
+            int light, int overlay) {
         // 材质来源四选一（编辑界面里用按钮切换，四者相互独立、只生效选中的那个）：
         // PACK / ANIMATED 是「贴图来源」，都还能再填一个模型地址当外壳；
         // MODEL 是「模型来源」，INHERIT 整份借用某个物品的模型与材质
@@ -187,27 +268,30 @@ public class CustomItemRenderer implements BuiltinItemRendererRegistry.DynamicIt
     private static void drawModelWithTexture(BakedModel model, ResourceLocation texture, PoseStack poseStack,
             MultiBufferSource buffers, int light, int overlay) {
         VertexConsumer consumer = buffers.getBuffer(RenderType.entityTranslucent(texture));
-        RandomSource random = RandomSource.create(42L);
-        poseStack.pushPose();
-        toItemSpace(poseStack);
         PoseStack.Pose pose = poseStack.last();
+        RandomSource random = RandomSource.create(42L);
         for (Direction direction : Direction.values()) {
             emitQuads(consumer, pose, model.getQuads(null, direction, random), light, overlay);
         }
         emitQuads(consumer, pose, model.getQuads(null, null, random), light, overlay);
-        poseStack.popPose();
     }
 
     /**
-     * 原版模型空间 → builtin 物品渲染器的物品空间。
+     * 抵消嵌套渲染多出来的一次 {@code translate(-0.5, -0.5, -0.5)}。
      *
      * <p>
-     * 物品 / 方块模型 json 里的顶点坐标是「0..16 = 一格」，而 {@code builtin/entity} 的物品渲染器
-     * 拿到的坐标空间是「[0,1] = 一格」（我们自己画平面贴图用的就是这套，见 {@link #drawQuad}）。
-     * 直接按原样画模型会比原版大 16 倍、撑出物品栏，所以画模型前统一缩 1/16。
+     * 烘焙后的模型顶点本来就在 <b>[0,1]³</b>（{@code FaceBakery} 会把 json 里的 0..16 除以 16），
+     * 我们被调用时外层 {@code ItemRenderer.render} 已经做过 display 变换和
+     * {@code translate(-0.5,-0.5,-0.5)} —— 也就是说我们已经站在「[0,1]³ 居中于物品格」的空间里，
+     * {@link #drawQuad} 直接按 [0,1] 画正是这个原因。
+     *
+     * <p>
+     * 而 {@code ItemRenderer#renderStatic} / {@code render} 自己还会再做一次同样的
+     * {@code translate(-0.5)}，于是被嵌套渲染的模型会整体偏移半格（在物品栏里就是一半露在格子外）。
+     * 这里补一个 {@code +0.5} 抵掉它，被继承 / 被引用的模型就与原版物品完全重合。
      */
-    private static void toItemSpace(PoseStack poseStack) {
-        poseStack.scale(1.0F / 16.0F, 1.0F / 16.0F, 1.0F / 16.0F);
+    private static void undoSelfCentering(PoseStack poseStack) {
+        poseStack.translate(0.5F, 0.5F, 0.5F);
     }
 
     /** 把一批 quad 的顶点写进给定 consumer（实际采样哪张贴图由 consumer 的渲染类型决定）。 */
@@ -264,8 +348,8 @@ public class CustomItemRenderer implements BuiltinItemRendererRegistry.DynamicIt
      * <p>
      * 渲染模型一律用 {@link ItemDisplayContext#NONE}：物品模型一般不给 {@code none} 配 display
      * 变换，解析出来是单位变换 —— 于是模型用的就是「本物品自己那套 display」（外层
-     * {@code ItemRenderer} 已经施加过），不会被叠加第二次变换；坐标空间由 {@link #toItemSpace}
-     * 从原版的「0..16 = 一格」换算到我们的「[0,1] = 一格」。
+     * {@code ItemRenderer} 已经施加过），不会被叠加第二次变换；只需用
+     * {@link #undoSelfCentering} 抵掉嵌套渲染多出来的那次 {@code translate(-0.5)}。
      *
      * <p>
      * 借来的物品若本身是自定义物品，直接跳过，否则会递归渲染自己。
@@ -284,7 +368,7 @@ public class CustomItemRenderer implements BuiltinItemRendererRegistry.DynamicIt
                 drawModelWithTexture(configured, texture, poseStack, buffers, light, overlay);
             } else {
                 poseStack.pushPose();
-                toItemSpace(poseStack);
+                undoSelfCentering(poseStack);
                 minecraft.getItemRenderer().render(DUMMY_STACK, ItemDisplayContext.NONE, false, poseStack, buffers,
                         light, overlay, configured);
                 poseStack.popPose();
@@ -327,7 +411,7 @@ public class CustomItemRenderer implements BuiltinItemRendererRegistry.DynamicIt
             return false;
         }
         poseStack.pushPose();
-        toItemSpace(poseStack);
+        undoSelfCentering(poseStack);
         minecraft.getItemRenderer().renderStatic(inherited, ItemDisplayContext.NONE, light, overlay, poseStack,
                 buffers, minecraft.level, 0);
         poseStack.popPose();

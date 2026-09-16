@@ -21,6 +21,7 @@ import io.wifi.starrailexpress.client.gui.SREPanelStyle;
 import io.wifi.starrailexpress.client.render.item.CustomItemRenderer;
 import io.wifi.starrailexpress.customitem.CustomItemData.ChargeAnim;
 import io.wifi.starrailexpress.customitem.CustomItemData.FireButton;
+import io.wifi.starrailexpress.customitem.CustomItemData.HoldOrientation;
 import io.wifi.starrailexpress.customitem.CustomItemData.HoldPose;
 import io.wifi.starrailexpress.customitem.CustomItemData.Kind;
 import io.wifi.starrailexpress.customitem.CustomItemData.TargetMode;
@@ -78,6 +79,7 @@ public class CustomItemScreen extends Screen {
     private static final ThirdPose[] THIRD_POSES = ThirdPose.values();
     private static final TargetMode[] TARGET_MODES = TargetMode.values();
     private static final HoldPose[] HOLD_POSES = HoldPose.values();
+    private static final HoldOrientation[] HOLD_ORIENTATIONS = HoldOrientation.values();
     private static final FireButton[] FIRE_BUTTONS = FireButton.values();
     private static final TracerStyle[] TRACER_STYLES = TracerStyle.values();
     private static final io.wifi.starrailexpress.customitem.CustomItemData.CuffWearMode[] CUFF_WEAR_MODES = io.wifi.starrailexpress.customitem.CustomItemData.CuffWearMode
@@ -446,6 +448,11 @@ public class CustomItemScreen extends Screen {
         }
         addHintText(r++, Component.translatable("sre.custom_item.hint.texture_mode"), 0xFFC9A84C);
         addHintText(r++, Component.translatable("sre.custom_item.label.preview"), 0xFFFFF4DC);
+
+        // 手持方向：竖着拿（默认，物品模型自带 display）/ 横着拿（同原版普通物品）
+        r = enumRow(r, "sre.custom_item.label.hold_orientation", "sre.custom_item.hold_orientation",
+                data.holdOrientation(), index -> data.holdOrientation = HOLD_ORIENTATIONS[index].name());
+        addHintText(r++, Component.translatable("sre.custom_item.hint.hold_orientation"), 0xFFC9A84C);
 
         // 战斗设置：是否允许左键攻击玩家（默认关）
         r = boolRow(r, "sre.custom_item.label.allow_left_click_attack", data.allowLeftClickAttack,

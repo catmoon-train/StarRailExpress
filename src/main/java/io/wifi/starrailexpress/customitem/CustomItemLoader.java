@@ -164,6 +164,58 @@ public final class CustomItemLoader {
     }
 
     /**
+     * 解析「继承 / 引用」到的那个现有物品。
+     *
+     * @param configuredItemId 配置里填的物品 id（支持省略命名空间，如 {@code apple}）
+     * @return 解析出的物品栈；留空 / 写法非法 / 物品不存在 / 指向自定义列车物品时返回空栈
+     */
+    public static ItemStack inheritedStack(String configuredItemId) {
+        if (configuredItemId == null) {
+            return ItemStack.EMPTY;
+        }
+        String raw = configuredItemId.trim();
+        if (raw.isEmpty()) {
+            return ItemStack.EMPTY;
+        }
+        ResourceLocation location = ResourceLocation.tryParse(raw);
+        if (location == null) {
+            location = ResourceLocation.tryBuild("minecraft", raw);
+        }
+        if (location == null) {
+            return ItemStack.EMPTY;
+        }
+        Item item = BuiltInRegistries.ITEM.get(location);
+        if (item == null || item == Items.AIR) {
+            return ItemStack.EMPTY;
+        }
+        return new ItemStack(item);
+    }
+
+    /**
+     * 食用 / 使用自定义物品时，粒子该用的「外观物品栈」。
+     *
+     * <p>
+     * 自定义物品共用一个注册物品，它的模型是 {@code builtin/entity} 且<b>没有 particle 贴图</b>，
+     * 于是原版食用粒子（{@code ParticleTypes.ITEM} + 物品栈）会直接画出「材质丢失」的紫黑图标。
+     * 这里换成外观来源对应的那个物品：继承 / 引用到谁就用谁（粒子贴图与外观一致），
+     * 其它情况退回石头 —— 至少不会再是丢失材质。
+     *
+     * <p>
+     * 由 {@code mixin.entity.living.LivingEntityMixin} 注入 {@code spawnItemParticles} 调用。
+     */
+    public static ItemStack particleStack(ItemStack stack) {
+        CustomItemData data = getData(stack);
+        if (data == null) {
+            return stack;
+        }
+        ItemStack inherited = inheritedStack(data.inheritItemTexture);
+        if (!inherited.isEmpty() && getData(inherited) == null) {
+            return inherited;
+        }
+        return new ItemStack(Items.STONE);
+    }
+
+    /**
      * 物品配置的枪械手持姿势（非自定义列车物品返回 null，客户端渲染可直接用）。
      */
     public static CustomItemData.HoldPose holdPose(ItemStack stack) {

@@ -125,6 +125,17 @@ public class CustomItemData {
     @SerializedName("allowLeftClickAttack")
     public boolean allowLeftClickAttack = false;
 
+    /**
+     * 手持方向（{@link HoldOrientation} 名称，默认 {@link HoldOrientation#VERTICAL}「竖着拿」）。
+     *
+     * <p>
+     * 只影响第一 / 第三人称的手持姿态：竖着拿用物品模型自带 display（原版 {@code item/handheld}
+     * 那套，像工具 / 剑那样立着），横着拿会抵掉它、换成原版普通物品（{@code item/generated}，
+     * 苹果那类）的姿态。物品栏 / 掉落物 / 展示框不受影响。
+     */
+    @SerializedName("holdOrientation")
+    public String holdOrientation = HoldOrientation.VERTICAL.name();
+
     // ==================== 基础数据：丢弃 / 死亡 ====================
 
     /** 是否可丢弃（默认否）：为是时玩家可在游戏内主动丢弃该物品。 */
@@ -704,6 +715,15 @@ public class CustomItemData {
         }
     }
 
+    /** 手持方向（解析失败回退「竖着拿」= 物品模型自带 display，与老数据行为一致）。 */
+    public HoldOrientation holdOrientation() {
+        try {
+            return HoldOrientation.valueOf(holdOrientation);
+        } catch (Exception e) {
+            return HoldOrientation.VERTICAL;
+        }
+    }
+
     /** 枪械发射按键（解析失败回退右键）。 */
     public FireButton fireButton() {
         try {
@@ -829,6 +849,12 @@ public class CustomItemData {
         }
         if (holdPose == null || holdPose.isBlank()) {
             holdPose = HoldPose.REVOLVER.name();
+        }
+        if (holdOrientation == null || holdOrientation.isBlank()) {
+            holdOrientation = HoldOrientation.VERTICAL.name();
+        } else {
+            // 手工改过的 JSON 可能写成小写，统一成枚举名
+            holdOrientation = holdOrientation().name();
         }
         if (fireButton == null || fireButton.isBlank()) {
             fireButton = FireButton.RIGHT.name();
@@ -1126,6 +1152,21 @@ public class CustomItemData {
         AIM,
         /** 原版默认手持。 */
         DEFAULT
+    }
+
+    /**
+     * 手持方向（第一 / 第三人称的朝向，{@link #holdOrientation} 用）。
+     *
+     * <p>
+     * 物品模型 {@code custom_item.json} 的 display 取自原版 {@code item/handheld}（工具 / 剑那套），
+     * 所以默认看起来是「竖着拿」；选「横着拿」会抵掉那套旋转与偏移，换成原版普通物品
+     * （{@code item/generated}，苹果那类）的姿态。
+     */
+    public enum HoldOrientation {
+        /** 竖着拿：用物品模型自带 display（原版 {@code item/handheld}），像工具 / 剑那样立着。 */
+        VERTICAL,
+        /** 横着拿：换成原版普通物品（{@code item/generated}，苹果那类）的手持姿态。 */
+        HORIZONTAL
     }
 
     /** 枪械发射按键（默认右键，可切换为左键）。 */
