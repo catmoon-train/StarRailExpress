@@ -974,7 +974,7 @@ public final class MeetingManager {
         // ==================== 开始投票 ====================
         VoteManager.builder(Component.translatable("meeting.vote.title"))
                 .options(options)
-                .duration(VOTE_DURATION_MIN_SECONDS * 20)
+                .duration(voteTime)
                 .allowReVote(areasSettings.meetingVoteAllowRevote)
                 .showResults(areasSettings.meetingVoteShowResult)
                 .syncInterval(20)
