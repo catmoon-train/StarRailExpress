@@ -139,7 +139,10 @@ class CustomEditorTranslationsTest {
                 "sre.map_helper.expandable.expand", "sre.map_helper.expandable.unexpand",
                 "sre.map_helper.area.set_min", "sre.map_helper.area.set_max",
                 "sre.map_helper.set_room_count", "sre.map_helper.meeting.enable",
-                "sre.map_helper.meeting.disable", "sre.map_helper.toggle_client_scene" }) {
+                "sre.map_helper.meeting.disable", "sre.map_helper.toggle_client_scene",
+                // 开关统一成「✓ 开 / ✗ 关」之后新增的文案（地图工具与编辑器同一套观感）
+                "sre.map_helper.value.on", "sre.map_helper.value.off",
+                "sre.map_helper.meeting.toggle", "sre.map_helper.settings.category_count" }) {
             assertHas(langs, key);
         }
     }

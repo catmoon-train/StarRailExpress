@@ -138,7 +138,7 @@ public class CustomItemScreen extends CustomEditorScreen {
     /** 「是 / 否」开关：标签在标签列上，按钮里是带颜色的状态符号 + 是/否（文案键沿用本界面的）。 */
     private Cell yesNoCell(boolean current, Consumer<Boolean> setter, boolean rebuild) {
         return yesNoSwitchCell(current,
-                on -> Component.translatable(on ? PREFIX + ".value.yes" : PREFIX + ".value.no"),
+                on -> Component.translatable(Boolean.TRUE.equals(on) ? PREFIX + ".value.yes" : PREFIX + ".value.no"),
                 setter, rebuild);
     }
 

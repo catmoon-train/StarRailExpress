@@ -16,13 +16,12 @@
 package io.wifi.starrailexpress.client.gui.screen.map_dev.modules;
 
 import io.wifi.starrailexpress.client.gui.SREPanelStyle;
+import io.wifi.starrailexpress.client.gui.widget.SreButton;
 import io.wifi.starrailexpress.client.gui.screen.map_dev.*;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
-import org.agmas.noellesroles.client.widget.custom_button.ModernButton;
-import org.agmas.noellesroles.client.widget.custom_button.ModernButton.AccentSide;
 
 import java.util.List;
 
@@ -73,14 +72,14 @@ public class AreasModule implements TabModule {
     placements.add(new WidgetPlacement(pos1Field, y));
 
     int set1Y = y + inputHeight + smallGap;
-    ModernButton setPos1Btn = ModernButton.builder(
+    SreButton setPos1Btn = SreButton.create(
         Component.translatable("sre.map_helper.area.set_pos1"),
         b -> {
           pos1 = blockPosFromContext(ctx);
           pos1Field.setValue(formatPos(pos1));
         })
         .bounds(leftX, set1Y, bw, btnHeight)
-        .accentBar(AccentSide.LEFT)
+
         .build();
     placements.add(new WidgetPlacement(setPos1Btn, set1Y));
 
@@ -96,14 +95,14 @@ public class AreasModule implements TabModule {
     placements.add(new WidgetPlacement(pos2Field, y));
 
     int set2Y = y + inputHeight + smallGap;
-    ModernButton setPos2Btn = ModernButton.builder(
+    SreButton setPos2Btn = SreButton.create(
         Component.translatable("sre.map_helper.area.set_pos2"),
         b -> {
           pos2 = blockPosFromContext(ctx);
           pos2Field.setValue(formatPos(pos2));
         })
         .bounds(rightX, set2Y, bw, btnHeight)
-        .accentBar(AccentSide.RIGHT)
+
         .build();
     placements.add(new WidgetPlacement(setPos2Btn, set2Y));
 
@@ -114,11 +113,11 @@ public class AreasModule implements TabModule {
     for (String cmd : AREA_KEYS) {
       Component areaName = Component.translatable("sre.area." + cmd);
 
-      ModernButton applyBtn = ModernButton.builder(
+      SreButton applyBtn = SreButton.create(
           Component.translatable("sre.map_helper.area.apply", areaName),
           b -> applyArea(cmd, ctx)) // 提取为独立方法
           .bounds(leftX, y, fullWidth, btnHeight)
-          .accentBar(AccentSide.LEFT)
+
           .build();
       placements.add(new WidgetPlacement(applyBtn, y));
 

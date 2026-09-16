@@ -55,4 +55,14 @@ public interface TabModule {
 
     default void renderOverlay(GuiGraphics g, int mouseX, int mouseY, float partialTick) {
     }
+
+    /**
+     * 内容区控件<b>之前</b>画一层（垫在控件下面的东西：分类卡片底、分组底色这类）。
+     *
+     * <p>
+     * 调用时屏幕已经开好内容区裁剪，坐标请减去 {@code scrollOffset} 换算到当前视口；
+     * 画在这里的东西不会被控件盖住，也不会盖住控件。
+     */
+    default void renderContentBackground(GuiGraphics g, int scrollOffset) {
+    }
 }

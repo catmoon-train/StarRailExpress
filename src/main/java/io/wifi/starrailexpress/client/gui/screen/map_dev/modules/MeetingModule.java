@@ -16,14 +16,14 @@
 package io.wifi.starrailexpress.client.gui.screen.map_dev.modules;
 
 import io.wifi.starrailexpress.client.gui.SREPanelStyle;
+import io.wifi.starrailexpress.client.gui.widget.SreButton;
+import io.wifi.starrailexpress.client.gui.widget.SreSwitchButton;
 import io.wifi.starrailexpress.client.gui.screen.map_dev.*;
 import net.minecraft.client.gui.components.EditBox;
 import io.wifi.starrailexpress.api.AreasSettings;
 import io.wifi.starrailexpress.cca.AreasWorldComponent;
 import io.wifi.starrailexpress.client.SREClient;
 import net.minecraft.network.chat.Component;
-import org.agmas.noellesroles.client.widget.custom_button.ModernButton;
-import org.agmas.noellesroles.client.widget.custom_button.ModernButton.AccentSide;
 
 import java.util.List;
 
@@ -42,39 +42,25 @@ public class MeetingModule implements TabModule {
     @Override
     public void init(LayoutContext layout, ModuleContext ctx, List<WidgetPlacement> placements) {
         int gap = 10, bh = 22, rowStep = bh + gap;
-        int bw = layout.columnWidth(2, gap);
-        int leftX = layout.leftColumnX(), rightX = layout.rightColumnX(2, gap);
+        int leftX = layout.leftColumnX();
         int fullW = layout.contentWidth();
         int y = 0;
 
-        // 启用 / 禁用：当前生效的那个按钮带 ✓ 与更强的高亮，点了就地互换标记（不重建界面）
+        // 会议系统开关：与四个自定义工具编辑器同款 —— 按钮自带标题 + 带色状态方块，点一下切换
         boolean meetingOn = currentSetting(a -> a.meetingEnabled, false);
-        // [0] = 启用按钮，[1] = 禁用按钮：点一个就把另一个的 ✓ 标记去掉
-        // （用数组是为了让两个回调能互相引用，局部变量不能前向引用）
-        ModernButton[] meetingPair = new ModernButton[2];
-        meetingPair[0] = ModernButton.builder(meetingStateLabel(true, meetingOn), b -> {
-            ctx.sendOnly("sre:area_manager set meetingEnabled true");
-            b.setMessage(meetingStateLabel(true, true));
-            if (meetingPair[1] != null)
-                meetingPair[1].setMessage(meetingStateLabel(false, false));
-        }).bounds(leftX, y, bw, bh)
-                .accentBar(new AccentSide[] { AccentSide.LEFT })
-                .build();
-        meetingPair[1] = ModernButton.builder(meetingStateLabel(false, !meetingOn), b -> {
-            ctx.sendOnly("sre:area_manager set meetingEnabled false");
-            b.setMessage(meetingStateLabel(false, true));
-            if (meetingPair[0] != null)
-                meetingPair[0].setMessage(meetingStateLabel(true, false));
-        }).bounds(rightX, y, bw, bh)
-                .accentBar(new AccentSide[] { AccentSide.RIGHT })
-                .build();
-        placements.add(new WidgetPlacement(meetingPair[0], y));
-        placements.add(new WidgetPlacement(meetingPair[1], y));
+        SreSwitchButton enableSwitch = SreSwitchButton.toggle(layout.font,
+                Component.translatable("sre.map_helper.meeting.toggle"), meetingOn,
+                on -> Component.translatable(on.isOn() ? "sre.map_helper.value.on"
+                        : "sre.map_helper.value.off"),
+                now -> ctx.sendOnly("sre:area_manager set meetingEnabled " + now));
+        // 宽度按标题 + 状态词实测（与编辑器里并排开关的取齐规则一致）
+        int switchW = Math.min(fullW, Math.max(140, SreSwitchButton.naturalWidth(layout.font, enableSwitch)));
+        placements.add(new WidgetPlacement(enableSwitch.at(leftX, y, switchW, bh), y));
         y += rowStep;
 
         // 在当前（应用偏移后）位置设置会议地点
         placements.add(new WidgetPlacement(
-                ModernButton.builder(Component.translatable("sre.map_helper.meeting.set_point"),
+                SreButton.create(Component.translatable("sre.map_helper.meeting.set_point"),
                         b -> {
                             ctx.sendOnly(String.format(
                                     "sre:area_manager set meetingPosition.x %f",
@@ -86,7 +72,7 @@ public class MeetingModule implements TabModule {
                                     "sre:area_manager set meetingPosition.z %f",
                                     ctx.az()));
                         })
-                        .bounds(leftX, y, fullW, bh).accentBar(AccentSide.BOTTOM).build(),
+                        .bounds(leftX, y, fullW, bh).build(),
                 y));
         y += rowStep;
 
@@ -97,13 +83,6 @@ public class MeetingModule implements TabModule {
         addNumberRow(placements, layout, ctx, y,
                 "sre.map_helper.meeting.cooldown_seconds", "meetingCooldownSeconds",
                 String.valueOf(currentSetting(a -> a.meetingCooldownSeconds, 90)));
-    }
-
-    /** 按钮文字：当前生效的那个带 ✓。 */
-    private static Component meetingStateLabel(boolean enable, boolean active) {
-        Component base = Component.translatable(enable ? "sre.map_helper.meeting.enable"
-                : "sre.map_helper.meeting.disable");
-        return active ? base.copy().append(Component.literal(" ✓")) : base;
     }
 
     /** 读当前配置里的值（读不到就用默认值），避免界面永远显示写死的初值。 */
@@ -129,11 +108,11 @@ public class MeetingModule implements TabModule {
         placements.add(new WidgetPlacement(box, y));
 
         placements.add(new WidgetPlacement(
-                ModernButton.builder(Component.translatable("sre.map_helper.meeting.apply",
+                SreButton.create(Component.translatable("sre.map_helper.meeting.apply",
                         Component.translatable(labelKey)),
                         b -> ctx.sendOnly("sre:area_manager set " + field + " "
                                 + box.getValue().trim()))
-                        .bounds(rightX, y, bw, bh).accentBar(AccentSide.RIGHT).build(),
+                        .bounds(rightX, y, bw, bh).build(),
                 y));
         return y + bh + gap;
     }

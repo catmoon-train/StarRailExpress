@@ -18,6 +18,8 @@ package io.wifi.starrailexpress.client.gui.screen.map_dev;
 import io.wifi.starrailexpress.scenery.client.SceneAssetClient;
 import io.wifi.starrailexpress.client.api.InvNoMoveScreen;
 import io.wifi.starrailexpress.client.gui.SREPanelStyle;
+import io.wifi.starrailexpress.client.gui.widget.SreButton;
+import io.wifi.starrailexpress.client.gui.widget.SreTabButton;
 import io.wifi.starrailexpress.client.gui.screen.EditorLayout;
 import io.wifi.starrailexpress.client.gui.screen.map_dev.modules.*;
 import net.minecraft.client.Minecraft;
@@ -28,8 +30,6 @@ import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.Mth;
-import org.agmas.noellesroles.client.widget.custom_button.ModernButton;
-import org.agmas.noellesroles.client.widget.custom_button.ModernButton.AccentSide;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
@@ -340,8 +340,8 @@ public class MapBuildHelperScreen extends Screen implements ModuleContext, InvNo
         fixedWidgets.add(dzBox);
 
         int resetX = zStart + groupW + bigGap;
-        fixedWidgets.add(ModernButton.builder(Component.translatable("sre.map_helper.reset"), b -> resetOffsets())
-                .bounds(resetX, oy, resetW, ROW_H).accentBar(AccentSide.BOTTOM).build());
+        fixedWidgets.add(SreButton.create(Component.translatable("sre.map_helper.reset"), b -> resetOffsets())
+                .bounds(resetX, oy, resetW, ROW_H).build());
     }
 
     private void buildTabBar() {
@@ -352,18 +352,14 @@ public class MapBuildHelperScreen extends Screen implements ModuleContext, InvNo
             TabModule module = modules.get(key);
             Component title = module == null ? Component.literal("?") : module.getTabTitle();
             EditorLayout.TabSlot slot = slots.get(i);
-            var builder = ModernButton.builder(title, b -> {
-                if (!key.equals(activeTab)) {
-                    activeTab = key;
-                    refreshScreen();
-                }
-            }).bounds(slot.x(), slot.y(), slot.w(), EditorLayout.TAB_H);
-            if (activeTab.equals(key)) {
-                builder.accentBar(AccentSide.BOTTOM);
-            } else {
-                builder.accentBar();
-            }
-            fixedWidgets.add(builder.build());
+            // 与四个自定义工具编辑器同一份页签按钮：活跃页签金色粗体 + 底部金线 + 淡色底
+            fixedWidgets.add(new SreTabButton(font, slot.x(), slot.y(), slot.w(), title,
+                    activeTab.equals(key), () -> {
+                        if (!key.equals(activeTab)) {
+                            activeTab = key;
+                            refreshScreen();
+                        }
+                    }));
         }
     }
 
@@ -490,6 +486,11 @@ public class MapBuildHelperScreen extends Screen implements ModuleContext, InvNo
         }
         g.enableScissor(layout.contentX(), layout.contentY(), layout.contentX() + layout.contentW(),
                 layout.contentBottom());
+        // 卡片底这类「垫在控件下面」的东西先画（模块自己按 scrollOffset 平移）
+        TabModule backgroundModule = modules.get(activeTab);
+        if (backgroundModule != null) {
+            backgroundModule.renderContentBackground(g, scrollOffset);
+        }
         for (WidgetPlacement p : currentTabPlacements) {
             p.widget.render(g, mouseX, mouseY, partial);
         }

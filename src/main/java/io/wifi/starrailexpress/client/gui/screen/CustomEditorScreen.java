@@ -18,6 +18,10 @@ package io.wifi.starrailexpress.client.gui.screen;
 import io.wifi.starrailexpress.client.gui.HintText;
 import io.wifi.starrailexpress.client.gui.SREPanelStyle;
 import io.wifi.starrailexpress.client.gui.screen.mapui.MapUiGraphics;
+import io.wifi.starrailexpress.client.gui.widget.SreButton;
+import io.wifi.starrailexpress.client.gui.widget.SreSwitchButton;
+import io.wifi.starrailexpress.client.gui.widget.SreTabButton;
+import io.wifi.starrailexpress.client.gui.widget.SwitchState;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.gui.Font;
@@ -392,10 +396,11 @@ public abstract class CustomEditorScreen extends Screen {
 
     /** 可放进 {@link #cluster} 的开关按钮（一行并排两个开关时用）。 */
     protected Cell toggleCell(String labelKey, boolean current, Consumer<Boolean> setter, boolean rebuild) {
-        boolean[] state = { current };
-        SwitchButton button = new SwitchButton(font, Component.translatable(labelKey), () -> state[0], null, b -> {
-            state[0] = !state[0];
-            setter.accept(state[0]);
+        SwitchState[] state = { SwitchState.of(current) };
+        SreSwitchButton button = new SreSwitchButton(font, Component.translatable(labelKey), () -> state[0], null, b -> {
+            // 两态开关：开 ⇄ 关，不会跳到「未设置」
+            state[0] = state[0].toggled();
+            setter.accept(state[0].isOn());
             if (rebuild) {
                 requestRebuild();
             }
@@ -414,23 +419,24 @@ public abstract class CustomEditorScreen extends Screen {
      */
     protected Cell yesNoSwitchCell(boolean current, java.util.function.Function<Boolean, Component> stateText,
             Consumer<Boolean> setter, boolean rebuild) {
-        boolean[] state = { current };
-        SwitchButton button = new SwitchButton(font, null, () -> state[0], stateText, b -> {
-            state[0] = !state[0];
-            setter.accept(state[0]);
-            if (rebuild) {
-                requestRebuild();
-            }
-        });
+        SwitchState[] state = { SwitchState.of(current) };
+        SreSwitchButton button = new SreSwitchButton(font, null, () -> state[0],
+                s -> stateText.apply(s.isOn()), b -> {
+                    state[0] = state[0].toggled();
+                    setter.accept(state[0].isOn());
+                    if (rebuild) {
+                        requestRebuild();
+                    }
+                });
         return cell(button, SWITCH_W, SWITCH_W, 0F);
     }
 
     /** 三态开关（是 / 否 / 未设置）：未设置画成土褐色的「–」，和「否」区分开。 */
     protected Cell triSwitchCell(String labelKey, Boolean current, Consumer<Boolean> setter, boolean rebuild) {
-        Boolean[] state = { current };
-        SwitchButton button = new SwitchButton(font, Component.translatable(labelKey), () -> state[0], null, b -> {
-            state[0] = nextTriState(state[0]);
-            setter.accept(state[0]);
+        SwitchState[] state = { SwitchState.of(current) };
+        SreSwitchButton button = new SreSwitchButton(font, Component.translatable(labelKey), () -> state[0], null, b -> {
+            state[0] = state[0].next();
+            setter.accept(state[0].toBoolean());
             if (rebuild) {
                 requestRebuild();
             }
@@ -439,7 +445,7 @@ public abstract class CustomEditorScreen extends Screen {
     }
 
     /**
-     * 三态开关单元（自带标题 + <b>写出状态</b>）：点一下在「未设置 → 是 → 否 → 未设置」之间循环。
+     * 三态开关单元（自带标题 + <b>写出状态</b>）：点一下在「未设置 → 开 → 关 → 未设置」之间循环。
      *
      * <p>
      * 适合「一个类别一个按钮、三种状态都要看得懂」的场景（例如自定义修饰符的阵营限制：
@@ -450,13 +456,14 @@ public abstract class CustomEditorScreen extends Screen {
      * 这种单元自带标题，所以会和相邻的同类行自动并排（见 {@link #mergeSwitchRows}），宽度按一行里
      * 最宽的标题 + 状态词取齐。
      *
-     * @param stateText 状态词（{@code null} 表示未设置）
+     * @param stateText 状态词；收 {@link SwitchState}，三种状态都要处理（写 switch 时编译器会强制）
      */
-    protected Cell triStateCell(Component title, Boolean current,
-            java.util.function.Function<Boolean, Component> stateText, Consumer<Boolean> setter, boolean rebuild) {
-        Boolean[] state = { current };
-        SwitchButton button = new SwitchButton(font, title, () -> state[0], stateText, b -> {
-            state[0] = nextTriState(state[0]);
+    protected Cell triStateCell(Component title, SwitchState current,
+            java.util.function.Function<SwitchState, Component> stateText, Consumer<SwitchState> setter,
+            boolean rebuild) {
+        SwitchState[] state = { current };
+        SreSwitchButton button = new SreSwitchButton(font, title, () -> state[0], stateText, b -> {
+            state[0] = state[0].next();
             setter.accept(state[0]);
             if (rebuild) {
                 requestRebuild();
@@ -472,13 +479,6 @@ public abstract class CustomEditorScreen extends Screen {
         return cell;
     }
 
-    private static Boolean nextTriState(Boolean current) {
-        if (current == null) {
-            return Boolean.TRUE;
-        }
-        return current.booleanValue() ? Boolean.FALSE : null;
-    }
-
     /** 一行：标签 + 轮回按钮（每次点击切到枚举的下一个值）。 */
     protected int choice(int r, String labelKey, String keyPrefix, Enum<?> current, Consumer<Integer> setter) {
         return choice(r, labelKey, keyPrefix, current, setter, false);
@@ -488,7 +488,7 @@ public abstract class CustomEditorScreen extends Screen {
             boolean rebuild) {
         Object[] values = current.getDeclaringClass().getEnumConstants();
         int[] index = { current.ordinal() };
-        ClipButton button = new ClipButton(font, choiceLabel(keyPrefix, current.name()), b -> {
+        SreButton button = new SreButton(font, choiceLabel(keyPrefix, current.name()), b -> {
             index[0] = (index[0] + 1) % values.length;
             setter.accept(index[0]);
             b.setMessage(choiceLabel(keyPrefix, ((Enum<?>) values[index[0]]).name()));
@@ -510,7 +510,7 @@ public abstract class CustomEditorScreen extends Screen {
 
     protected int stateButton(int r, String labelKey, java.util.function.Supplier<Component> textSupplier,
             Runnable onClick, boolean rebuild) {
-        ClipButton button = new ClipButton(font, textSupplier.get(), b -> {
+        SreButton button = new SreButton(font, textSupplier.get(), b -> {
             onClick.run();
             b.setMessage(textSupplier.get());
             if (rebuild) {
@@ -574,7 +574,7 @@ public abstract class CustomEditorScreen extends Screen {
             }
             int widest = 0;
             for (Cell cell : row.cells) {
-                widest = Math.max(widest, SwitchButton.naturalWidth(font, cell.widget));
+                widest = Math.max(widest, SreSwitchButton.naturalWidth(font, cell.widget));
             }
             if (widest <= 0) {
                 continue;
@@ -724,18 +724,18 @@ public abstract class CustomEditorScreen extends Screen {
     /** 弹性按钮，宽度按文字实测兜底，永不放不下就截断。 */
     protected Cell button(Component text, Runnable onClick) {
         int minWidth = Math.max(60, font.width(text) + 12);
-        return cell(new ClipButton(font, text, b -> onClick.run()), minWidth, 0, 1F);
+        return cell(new SreButton(font, text, b -> onClick.run()), minWidth, 0, 1F);
     }
 
     /** 定宽按钮。 */
     protected Cell fixedButton(Component text, int width, Runnable onClick) {
-        return cell(new ClipButton(font, text, b -> onClick.run()), width, width, 0F);
+        return cell(new SreButton(font, text, b -> onClick.run()), width, width, 0F);
     }
 
     /** 可放进 {@link #cluster} 的「点一下就换文字」的按钮。 */
     protected Cell stateButtonCell(java.util.function.Supplier<Component> textSupplier, Runnable onClick,
             boolean rebuild) {
-        ClipButton button = new ClipButton(font, textSupplier.get(), b -> {
+        SreButton button = new SreButton(font, textSupplier.get(), b -> {
             onClick.run();
             b.setMessage(textSupplier.get());
             if (rebuild) {
@@ -1003,7 +1003,7 @@ public abstract class CustomEditorScreen extends Screen {
                 cell.widget.setWidth(cell.width);
                 cell.widget.visible = true;
                 // 宽度定下来才知道文字放不放得下：放不下就挂上「悬停看全文」
-                if (cell.widget instanceof ClipButton button) {
+                if (cell.widget instanceof SreButton button) {
                     button.refreshTooltip();
                 } else if (cell.widget instanceof EditBox box) {
                     clipBoxHint(box, cell.width);
@@ -1107,7 +1107,7 @@ public abstract class CustomEditorScreen extends Screen {
         for (int slot = 0; slot < slots.size() && slot < visible.size(); slot++) {
             final int index = visible.get(slot);
             EditorLayout.TabSlot place = slots.get(slot);
-            TabButton button = new TabButton(place.x(), place.y(), place.w(), tabLabel(index),
+            SreTabButton button = new SreTabButton(font, place.x(), place.y(), place.w(), tabLabel(index),
                     index == activeTab, () -> {
                         if (activeTab == index) {
                             return;
@@ -1129,13 +1129,13 @@ public abstract class CustomEditorScreen extends Screen {
         int sx = layout.panelX() + (layout.panelW() - total) / 2;
 
         // 也用可裁剪按钮：面板窄或译文长时，文字裁成省略号并给悬停全文，不会压到相邻按钮上
-        List<ClipButton> buttons = new ArrayList<>();
-        buttons.add(new ClipButton(font, Component.translatable(translationPrefix() + ".save"), b -> onSave()));
-        buttons.add(new ClipButton(font, Component.translatable(translationPrefix() + ".manage"),
+        List<SreButton> buttons = new ArrayList<>();
+        buttons.add(new SreButton(font, Component.translatable(translationPrefix() + ".save"), b -> onSave()));
+        buttons.add(new SreButton(font, Component.translatable(translationPrefix() + ".manage"),
                 b -> onOpenManage()));
-        buttons.add(new ClipButton(font, Component.translatable(translationPrefix() + ".cancel"), b -> onClose()));
+        buttons.add(new SreButton(font, Component.translatable(translationPrefix() + ".cancel"), b -> onClose()));
         for (int i = 0; i < buttons.size(); i++) {
-            ClipButton button = buttons.get(i);
+            SreButton button = buttons.get(i);
             button.setX(sx + i * (bw + gap));
             button.setY(by);
             button.setWidth(bw);
@@ -1619,225 +1619,6 @@ public abstract class CustomEditorScreen extends Screen {
     }
 
     /**
-     * 原版按钮 + 文字裁剪 + 「放不下就悬停看全文」。
-     *
-     * <p>
-     * 原版 {@code Button} 会把超宽文字直接画到按钮外面，压到相邻控件上；长翻译或轮回切换后的长取值
-     * 都会撞上这个问题，所以这里统一裁成省略号，并在<b>真的被裁掉</b>时挂上 tooltip 显示完整文案
-     * （文字放得下就把 tooltip 摘掉，不会平白多出一层提示）。
-     */
-    protected static class ClipButton extends Button {
-        private final Font buttonFont;
-
-        protected ClipButton(Font font, Component message, OnPress onPress) {
-            super(0, 0, 120, WIDGET_H, message, onPress, DEFAULT_NARRATION);
-            this.buttonFont = font;
-        }
-
-        /** 文字可用的宽度（子类画了别的东西时可以覆写）。 */
-        protected int textLimit() {
-            return Math.max(8, getWidth() - 6);
-        }
-
-        /** 按钮上实际要完整显示的文案（默认就是按钮文字）。 */
-        protected Component fullText() {
-            return getMessage();
-        }
-
-        /** 文字是否被裁掉了（裁掉才需要悬停看全文）。 */
-        protected boolean isTextClipped() {
-            Component full = fullText();
-            return full != null && !full.getString().isEmpty()
-                    && buttonFont.width(full) > textLimit();
-        }
-
-        /**
-         * 按当前宽度刷新「悬停看全文」的 tooltip。
-         *
-         * <p>
-         * 布局定下宽度后（以及按钮文字变了之后）调用一次即可，不需要每帧做。
-         */
-        protected void refreshTooltip() {
-            setTooltip(isTextClipped() ? Tooltip.create(fullText()) : null);
-        }
-
-        @Override
-        public void setMessage(Component message) {
-            super.setMessage(message);
-            // 轮回/开关按钮改文字后可能就放不下了（或反过来），tooltip 要跟着变
-            refreshTooltip();
-        }
-
-        @Override
-        public void renderString(GuiGraphics g, Font font, int color) {
-            Component full = fullText();
-            if (full == null || full.getString().isEmpty()) {
-                return;
-            }
-            String shown = MapUiGraphics.clip(font, full.getString(), textLimit());
-            g.drawCenteredString(font, Component.literal(shown), getX() + getWidth() / 2,
-                    getY() + (getHeight() - 8) / 2, color);
-        }
-    }
-
-    /**
-     * 「是否」开关按钮：文字右侧一枚带颜色的状态符号。
-     *
-     * <p>
-     * 开 = 绿底 ✓、关 = 红底 ✗、未设置 = 土褐底 -（三态），整行文字也随状态变亮/变暗，
-     * 隔着一列按钮扫一眼就能看清每一项是开还是关；符号用底色 + 描边画成小方块，比裸符号更醒目。
-     * 悬停时方块会向自己的强调色靠一点，点下去之前就能确认点的是哪一项。
-     *
-     * <p>
-     * 标签有两种摆法：{@code label} 非空时「左标签 + 右符号」（按钮自带标题的行用）；
-     * 标签为空时把「符号 + 状态文字」居中（标签已经画在标签列上的行用）。
-     */
-    protected static class SwitchButton extends ClipButton {
-        /** 状态符号方块边长。 */
-        private static final int CHIP = 12;
-        /** 状态方块底色（混一点深色底，免得高饱和色整块太亮）。 */
-        private static final int CHIP_ON_BG = SREPanelStyle.blendColors(0xFF120A04, SREPanelStyle.GREEN, 0.42F);
-        private static final int CHIP_OFF_BG = SREPanelStyle.blendColors(0xFF120A04, SREPanelStyle.RED, 0.42F);
-        private static final int CHIP_UNSET_BG = SREPanelStyle.blendColors(0xFF120A04, SREPanelStyle.MUTED, 0.32F);
-        private static final String SYMBOL_ON = "✓";
-        private static final String SYMBOL_OFF = "✗";
-        /** 未设置：用 ASCII 的短横，任何字体下都不会变成方块。 */
-        private static final String SYMBOL_UNSET = "-";
-
-        private final java.util.function.Supplier<Boolean> state;
-        private final java.util.function.Function<Boolean, Component> stateText;
-
-        protected SwitchButton(Font font, Component label, java.util.function.Supplier<Boolean> state,
-                java.util.function.Function<Boolean, Component> stateText, OnPress onPress) {
-            super(font, label == null ? Component.empty() : label, onPress);
-            this.state = state;
-            this.stateText = stateText;
-        }
-
-        /**
-         * 刚好放得下这个按钮的宽度（标题按文字实测，带状态词的算上状态词）。
-         *
-         * <p>
-         * 相邻开关行并排时会用<b>一行里最宽的那个</b>把这一行取齐（见 {@code mergeSwitchRows}）：
-         * 短标题的按钮不会拉成一大条空按钮，一行内两个按钮也等宽。
-         */
-        static int naturalWidth(Font font, AbstractWidget widget) {
-            if (font == null || widget == null) {
-                return 0;
-            }
-            if (widget instanceof SwitchButton button) {
-                return button.naturalWidth(font);
-            }
-            String text = widget.getMessage().getString();
-            return text.isEmpty() ? 0 : font.width(text) + CHIP + 14;
-        }
-
-        /** 宽度：左边距 5 + 标题 + （状态词 + 6）+ 方块 + 右边距（+1 余量），与 {@link #renderString} 对齐。 */
-        private int naturalWidth(Font font) {
-            int width = font.width(getMessage());
-            if (stateText != null) {
-                // 三种状态里挑最宽的那个：切换状态时按钮宽度不会跳
-                for (Boolean candidate : new Boolean[] { null, Boolean.TRUE, Boolean.FALSE }) {
-                    Component word = stateText.apply(candidate);
-                    if (word != null) {
-                        width = Math.max(width, font.width(getMessage()) + 6 + font.width(word));
-                    }
-                }
-            }
-            return width + CHIP + 14;
-        }
-
-        protected int textLimit() {
-            // 右侧要给状态符号留位置
-            return Math.max(8, getWidth() - CHIP - 12);
-        }
-
-        @Override
-        protected Component fullText() {
-            // 标签在标签列上时这里只放状态文字，没有会被裁掉的内容
-            return hasLabel() ? getMessage() : Component.empty();
-        }
-
-        @Override
-        public void renderString(GuiGraphics g, Font font, int color) {
-            Boolean value = state.get();
-            int bg = chipColor(value);
-            int border = chipBorder(value);
-            String symbol = chipSymbol(value);
-            if (isHovered()) {
-                // 悬停时状态方块向自己的强调色靠一点，点下去之前就能确认点的是哪一项
-                bg = SREPanelStyle.blendColors(bg, border, 0.35F);
-            }
-            int chipY = getY() + (getHeight() - CHIP) / 2;
-            Component word = stateText == null ? null : stateText.apply(value);
-            int wordWidth = word == null ? 0 : font.width(word) + 6;
-            int textY = getY() + (getHeight() - 8) / 2;
-
-            if (hasLabel()) {
-                int chipX = getX() + getWidth() - CHIP - 4;
-                drawChip(g, font, chipX, chipY, bg, border, symbol);
-                // 状态词贴在方块左边（右对齐），标题被截断也不会盖住它
-                if (word != null) {
-                    g.drawString(font, word, chipX - wordWidth, textY, border, false);
-                }
-                String shown = MapUiGraphics.clip(font, getMessage().getString(),
-                        Math.max(8, textLimit() - wordWidth));
-                // 关 / 未设置时整行暗一档，开的时候才是亮的
-                int labelColor = Boolean.TRUE.equals(value) ? SREPanelStyle.TEXT : SREPanelStyle.MUTED;
-                g.drawString(font, Component.literal(shown), getX() + 5, textY,
-                        isHovered() ? SREPanelStyle.TEXT : labelColor, false);
-                return;
-            }
-
-            // 标签在标签列上的行：把「符号 + 状态文字」居中
-            int groupWidth = CHIP + wordWidth;
-            int chipX = getX() + (getWidth() - groupWidth) / 2;
-            drawChip(g, font, chipX, chipY, bg, border, symbol);
-            if (word != null) {
-                g.drawString(font, word, chipX + CHIP + 4, textY, border, false);
-            }
-        }
-
-        private boolean hasLabel() {
-            return !getMessage().getString().isEmpty();
-        }
-
-        private static int chipColor(Boolean value) {
-            if (value == null) {
-                return CHIP_UNSET_BG;
-            }
-            return value.booleanValue() ? CHIP_ON_BG : CHIP_OFF_BG;
-        }
-
-        private static int chipBorder(Boolean value) {
-            if (value == null) {
-                return SREPanelStyle.MUTED;
-            }
-            return value.booleanValue() ? SREPanelStyle.GREEN : SREPanelStyle.RED;
-        }
-
-        private static String chipSymbol(Boolean value) {
-            if (value == null) {
-                return SYMBOL_UNSET;
-            }
-            return value.booleanValue() ? SYMBOL_ON : SYMBOL_OFF;
-        }
-
-        private static void drawChip(GuiGraphics g, Font font, int x, int y, int bg, int border, String symbol) {
-            MinigameUI.roundRect(g, x, y, x + CHIP, y + CHIP, 3, bg);
-            MinigameUI.roundBorder(g, x, y, x + CHIP, y + CHIP, 3, 1, border);
-            g.drawCenteredString(font, Component.literal(symbol), x + CHIP / 2, y + 2, SREPanelStyle.TEXT);
-        }
-    }
-
-    /**
-     * 页签按钮。
-     *
-     * <p>
-     * 宽度按文字实测（放不下由 {@link EditorLayout} 折行），文字再裁一次省略号，
-     * 所以长译文不会溢出到相邻页签上；活跃页签金色粗体 + 底部金线 + 淡色底，hover 有过渡（文档 §6）。
-     */
-    /**
      * 卡片头：一条可点的标题栏。
      *
      * <p>
@@ -1906,57 +1687,6 @@ public abstract class CustomEditorScreen extends Screen {
                 collapsedCards.add(card.id);
             }
             requestRebuild();
-        }
-
-        @Override
-        protected void updateWidgetNarration(NarrationElementOutput narrationElementOutput) {
-            this.defaultButtonNarrationText(narrationElementOutput);
-        }
-    }
-
-    private final class TabButton extends AbstractWidget {
-        private final boolean selected;
-        private final Runnable onPress;
-        private float hoverAnim;
-
-        private TabButton(int x, int y, int w, Component message, boolean selected, Runnable onPress) {
-            super(x, y, w, EditorLayout.TAB_H, message);
-            this.selected = selected;
-            this.onPress = onPress;
-            // 页签文字放不下时（长译文 / 极窄面板）悬停看全文
-            if (font.width(message) > Math.max(8, w - 8)) {
-                setTooltip(Tooltip.create(message));
-            }
-        }
-
-        @Override
-        protected void renderWidget(GuiGraphics g, int mouseX, int mouseY, float partialTick) {
-            if (selected) {
-                hoverAnim = 1F;
-            } else {
-                hoverAnim += ((isHovered() ? 1F : 0F) - hoverAnim) * 0.22F;
-            }
-            int alpha = (int) (0x33 * hoverAnim) << 24;
-            g.fill(getX(), getY(), getX() + getWidth(), getY() + getHeight(),
-                    (alpha & 0xFF000000) | (SREPanelStyle.GOLD & 0x00FFFFFF));
-            g.fill(getX(), getY(), getX() + 1, getY() + getHeight(),
-                    selected ? SREPanelStyle.GOLD : SREPanelStyle.CARD_BORDER);
-            g.fill(getX() + getWidth() - 1, getY(), getX() + getWidth(), getY() + getHeight(),
-                    selected ? SREPanelStyle.GOLD : SREPanelStyle.CARD_BORDER);
-            if (selected) {
-                g.fill(getX(), getY() + getHeight() - 2, getX() + getWidth(), getY() + getHeight(),
-                        SREPanelStyle.GOLD);
-            }
-
-            int color = selected ? SREPanelStyle.GOLD : (isHovered() ? SREPanelStyle.TEXT : SREPanelStyle.MUTED);
-            String shown = MapUiGraphics.clip(font, getMessage().getString(), Math.max(8, getWidth() - 8));
-            g.drawCenteredString(font, Component.literal(shown), getX() + getWidth() / 2,
-                    getY() + (getHeight() - 8) / 2, color);
-        }
-
-        @Override
-        public void onClick(double mouseX, double mouseY) {
-            onPress.run();
         }
 
         @Override

@@ -288,7 +288,8 @@ public class FooScreen extends CustomEditorScreen {
       （状态词画在方块左边、用状态色），点一下循环 不限 → 允许 → 不允许。比并排两个 `✓ / ✗`
       按钮清楚得多（标题只出现一次），而且天然不会出现「同时只允许又不允许」的矛盾配置 ——
       自定义修饰符的**阵营限制**就是这么写的（一个阵营一个按钮，相邻的自动两两并排）。
-    - **地图工具不合并**：`MapBuildHelperScreen` 不用这一套（它自己按 `LayoutContext` 排一行一组）。
+    - **地图工具不自动并排**：`MapBuildHelperScreen` 不用这一套行布局（它自己按 `LayoutContext` 一行一组），
+      但控件与这里同一套（`SreButton` / `SreSwitchButton`，见 §8.6）。
 15. **输入框的占位提示（hint）按最终宽度裁省略号**（`clipBoxHint`）：原版 `EditBox` 画 hint 时
     完全不裁剪，长提示会溢出输入框压住右边的文字。提示的最终宽度要等 `pack` 排完才知道，
     所以 `editBox` 先把全文记进 `editHints`，`flushRow` 拿到宽度后回填裁过的 hint
@@ -319,6 +320,36 @@ SREPanelStyle.drawPanel(g, layout.panelX(), layout.panelY(), layout.panelW(), la
 两条要点：**滚动条槽是永久预留的**（内容区右边界不含它）、**页签按实测宽度排**（不写死宽度，
 放不下就折行，而不是让文字互相压）。`LayoutContext` 会把这几个边界转发给各个模块，
 模块不要再自己算 `panelWidth - 10` 这种右边界。
+
+#### 控件也要用同一套：`client.gui.widget`
+
+地图工具与四个编辑器现在共用同一批控件（以前地图工具用的是自己画的 `ModernButton`，带强调色条，
+与别处的按钮不是一个观感）：
+
+| 控件 | 用途 | 地图工具里的用法 |
+|---|---|---|
+| `SreButton` | 普通按钮（模组替换过的原版 widget 贴图） | `SreButton.create(文字, 回调).bounds(x, y, w, h).build()` |
+| `SreSwitchButton` | 开关（带色方块：开绿 ✓ / 关红 ✗ / 未设置土褐 -） | `SreSwitchButton.toggle(font, 初值, 状态词, setter).at(x, y, w, h)`；要「按钮自带标题」时用带 `title` 的重载 |
+| `SreTabButton` | 页签（金色活跃态 + 底部金线 + 淡底） | `new SreTabButton(font, x, y, w, 文字, 是否活跃, 回调)` |
+
+- **开关的状态是 `SwitchState` 枚举（开 / 关 / 未设置），不是可空 `Boolean`**：状态词函数收枚举，
+  写 `switch` 时编译器会强制覆盖三种状态，从根上避免「量宽度 / 渲染时函数遇到没处理的取值而崩」；
+  只有真 / 假两种状态的开关用 `toggled()`（开 ⇄ 关，永远到不了未设置），三态用 `next()`
+  （未设置 → 开 → 关 → 未设置）。数据层若还是可空 `Boolean`，在边界上用
+  `SwitchState.of(boolean/Boolean)` 与 `toBoolean()` 换算。
+
+- **`SreButton` 会自动处理长文字**：放不下裁省略号，并且**只有真的裁到了**才挂「悬停看全文」；
+  按钮自带的 tooltip 用 `setTooltipText(...)` 设置（不是 `setTooltip(Tooltip.create(...))`）——
+  这样文字被裁时两者会**合并**成一条：全文 → 换行 → 自带说明，鼠标移上去一次就能看全。
+  `Tooltip` 里的文字读不出来，所以必须走这个入口基类才记得住原文。
+- **布尔设置一律用 `SreSwitchButton`**，不要再摆一对「启用 / 禁用」按钮：状态用色块表达，
+  点一下切换，占地也小（`sre.map_helper.value.on/off` 是通用的 开 / 关 文案）。
+- 模块要在内容区**垫一层底**（分类卡片、分组底色）时，覆写
+  `TabModule.renderContentBackground(g, scrollOffset)`：它是在内容控件**之前**、裁剪区内调用的，
+  所以垫在下面而不是盖在上面；坐标自己减 `scrollOffset`。「全部设置」的分类卡片就是这么做的：
+  展开的分类只画「一层内容底色 + 描边」，**不画任何横条**（标题不铺背景条、标题下也不画分割线 ——
+  这类横条一旦和行高对不上就会变成「位置奇怪的条状」）；**折叠的分类完全不画卡片框**
+  （只留可点的金色标题行，标题上带「· N 项」）—— 不这么做的话，一堆折叠分类会堆成一排条状。
 
 ---
 

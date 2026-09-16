@@ -18,6 +18,7 @@ package io.wifi.starrailexpress.custommodifier;
 import io.wifi.starrailexpress.api.RoleTeam;
 import io.wifi.starrailexpress.client.gui.SREPanelStyle;
 import io.wifi.starrailexpress.client.gui.screen.CustomEditorScreen;
+import io.wifi.starrailexpress.client.gui.widget.SwitchState;
 import io.wifi.starrailexpress.custommodifier.CustomModifierData.AttributeData;
 import io.wifi.starrailexpress.custommodifier.CustomModifierData.ConditionData;
 import io.wifi.starrailexpress.custommodifier.CustomModifierData.ConditionType;
@@ -277,17 +278,25 @@ public class CustomModifierScreen extends CustomEditorScreen {
     /** 一个阵营的「不限 / 仅给该阵营刷新 / 不给该阵营刷新」三态按钮。 */
     private Cell teamCell(RoleTeam team) {
         String name = team.name();
-        Boolean current = data.canOnlyAppliedToTeams.contains(name) ? Boolean.TRUE
-                : (data.cannotAppliedToTeams.contains(name) ? Boolean.FALSE : null);
+        SwitchState current = data.canOnlyAppliedToTeams.contains(name) ? SwitchState.ON
+                : (data.cannotAppliedToTeams.contains(name) ? SwitchState.OFF : SwitchState.UNSET);
         return triStateCell(Component.translatable(PREFIX + ".team." + name), current,
-                on -> Component.translatable(PREFIX + ".team_mode."
-                        + (on == null ? "unset" : (on.booleanValue() ? "only" : "deny"))),
-                value -> {
+                state -> Component.translatable(PREFIX + ".team_mode."
+                        + switch (state) {
+                            case ON -> "only";
+                            case OFF -> "deny";
+                            case UNSET -> "unset";
+                        }),
+                state -> {
                     // 先清掉这一阵营在两边列表里的旧记录，再按新状态写回：两边互斥
                     data.canOnlyAppliedToTeams.remove(name);
                     data.cannotAppliedToTeams.remove(name);
-                    if (value != null) {
-                        (value.booleanValue() ? data.canOnlyAppliedToTeams : data.cannotAppliedToTeams).add(name);
+                    switch (state) {
+                        case ON -> data.canOnlyAppliedToTeams.add(name);
+                        case OFF -> data.cannotAppliedToTeams.add(name);
+                        case UNSET -> {
+                            // 不限：两边都不放，什么都不用做
+                        }
                     }
                 }, false);
     }

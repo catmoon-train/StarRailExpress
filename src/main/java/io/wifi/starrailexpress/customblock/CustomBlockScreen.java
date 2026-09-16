@@ -119,7 +119,7 @@ public class CustomBlockScreen extends CustomEditorScreen {
      */
     private int yesNoRow(int r, String labelKey, boolean current, Consumer<Boolean> setter) {
         return cluster(r, labelKey, yesNoSwitchCell(current,
-                on -> Component.translatable(on ? PREFIX + ".value.yes" : PREFIX + ".value.no"),
+                on -> Component.translatable(Boolean.TRUE.equals(on) ? PREFIX + ".value.yes" : PREFIX + ".value.no"),
                 setter, false));
     }
 

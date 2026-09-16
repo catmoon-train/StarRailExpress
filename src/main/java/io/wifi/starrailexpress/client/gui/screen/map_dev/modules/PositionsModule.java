@@ -16,9 +16,8 @@
 package io.wifi.starrailexpress.client.gui.screen.map_dev.modules;
 
 import io.wifi.starrailexpress.client.gui.screen.map_dev.*;
+import io.wifi.starrailexpress.client.gui.widget.SreButton;
 import net.minecraft.network.chat.Component;
-import org.agmas.noellesroles.client.widget.custom_button.ModernButton;
-import org.agmas.noellesroles.client.widget.custom_button.ModernButton.AccentSide;
 import java.util.List;
 
 public class PositionsModule implements TabModule {
@@ -35,20 +34,20 @@ public class PositionsModule implements TabModule {
 
         // 坐标与朝向按「面板头部显示的那种紧凑格式」输出，不出现 12.300000 这种长尾巴
         placements.add(new WidgetPlacement(
-                ModernButton
+                SreButton
                         .builder(Component.translatable("sre.map_helper.set_spawn"),
                                 b -> ctx.sendAndClose(String.format("sre:area_manager set spawnPos %s %s %s %.1f %.1f",
                                         num(ctx.ax()), num(ctx.ay()), num(ctx.az()), ctx.playerYaw(),
                                         ctx.playerPitch())))
-                        .bounds(leftX, y, bw, bh).accentBar(AccentSide.LEFT).build(),
+                        .bounds(leftX, y, bw, bh).build(),
                 y));
         placements.add(new WidgetPlacement(
-                ModernButton.builder(Component.translatable("sre.map_helper.set_spectator_spawn"),
+                SreButton.create(Component.translatable("sre.map_helper.set_spectator_spawn"),
                         b -> ctx.sendAndClose(
                                 String.format("sre:area_manager set spectatorSpawnPos %s %s %s %.1f %.1f",
                                         num(ctx.ax()), num(ctx.ay()), num(ctx.az()), ctx.playerYaw(),
                                         ctx.playerPitch())))
-                        .bounds(rightX, y, bw, bh).accentBar(AccentSide.RIGHT).build(),
+                        .bounds(rightX, y, bw, bh).build(),
                 y));
     }
 
