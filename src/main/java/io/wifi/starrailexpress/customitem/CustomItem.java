@@ -57,6 +57,11 @@ public class CustomItem extends Item implements SREItemProperties.LeftClickHurta
         if (data == null) {
             return InteractionResultHolder.pass(stack);
         }
+        // 使用限制：仅指定职业 / 修饰符 / 阵营可用（服务端权威判定，不满足就不给任何反馈）
+        if (!world.isClientSide() && player instanceof ServerPlayer serverPlayer
+                && !CustomItemRuntime.ensureCanUse(serverPlayer, data)) {
+            return InteractionResultHolder.fail(stack);
+        }
         switch (data.kind()) {
             case BASIC -> {
                 // 没有任何可用行为（没配指令 / 冷却 / 消耗），或正在冷却中：不给反馈（不摆臂）
@@ -171,6 +176,9 @@ public class CustomItem extends Item implements SREItemProperties.LeftClickHurta
         if (!(user instanceof ServerPlayer serverPlayer) || !(entity instanceof Player target)) {
             return InteractionResult.PASS;
         }
+        if (!CustomItemRuntime.ensureCanUse(serverPlayer, data)) {
+            return InteractionResult.FAIL;
+        }
         return CustomItemRuntime.cuffPlayer(serverPlayer, stack, data, target);
     }
 
@@ -277,6 +285,10 @@ public class CustomItem extends Item implements SREItemProperties.LeftClickHurta
         CustomItemData data = CustomItemLoader.getData(mainhandItem);
         if (data == null) {
             return true;
+        }
+        // 使用限制不满足：取消这次左键攻击
+        if (!CustomItemRuntime.ensureCanUse(attacker, data)) {
+            return false;
         }
         if (data.kind() != CustomItemData.Kind.VANILLA_WEAPON) {
             // 普通自定义物品默认不允许左键攻击玩家（基础设置里的「允许左键攻击玩家」可开）

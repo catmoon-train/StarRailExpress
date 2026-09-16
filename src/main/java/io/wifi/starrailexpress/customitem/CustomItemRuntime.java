@@ -267,6 +267,84 @@ public final class CustomItemRuntime {
         return role.identifier().getPath().equalsIgnoreCase(path);
     }
 
+    // ==================== 使用限制（仅指定职业 / 修饰符 / 阵营） ====================
+
+    /**
+     * 玩家是否满足这件物品的使用限制。
+     *
+     * <p>
+     * 三项限制都为空 = 不限制；任意一项非空即要求玩家命中该项（同项内多项之间是「或」）。
+     * 三项之间是「与」的关系：全部满足才能使用。
+     */
+    public static boolean canUse(Player player, CustomItemData data) {
+        if (player == null || data == null) {
+            return false;
+        }
+        // 职业：命中任意一个职业 id 即可
+        List<String> roles = CustomItemData.splitIds(data.useOnlyRoles);
+        if (!roles.isEmpty()) {
+            boolean matched = false;
+            for (String roleId : roles) {
+                if (roleMatches(player, roleId)) {
+                    matched = true;
+                    break;
+                }
+            }
+            if (!matched) {
+                return false;
+            }
+        }
+        // 修饰符：带有任意一个修饰符即可
+        List<String> modifiers = CustomItemData.splitIds(data.useOnlyModifiers);
+        if (!modifiers.isEmpty()) {
+            WorldModifierComponent modifierComponent = WorldModifierComponent.KEY.get(player.level());
+            boolean matched = false;
+            for (String modifierId : modifiers) {
+                SREModifier modifier = CustomModifierLoader.findModifier(modifierId);
+                if (modifier != null && modifierComponent != null
+                        && modifierComponent.isModifier(player, modifier)) {
+                    matched = true;
+                    break;
+                }
+            }
+            if (!matched) {
+                return false;
+            }
+        }
+        // 阵营：属于列表中的任意一个阵营即可
+        if (data.useOnlyTeams != null && !data.useOnlyTeams.isEmpty()) {
+            SREGameWorldComponent gameWorld = SREGameWorldComponent.KEY.get(player.level());
+            SRERole role = gameWorld == null ? null : gameWorld.getRole(player);
+            boolean matched = false;
+            for (String teamName : data.useOnlyTeams) {
+                if (teamName == null || teamName.isBlank()) {
+                    continue;
+                }
+                try {
+                    if (RoleTeam.valueOf(teamName.trim().toUpperCase(Locale.ROOT)).matches(role)) {
+                        matched = true;
+                        break;
+                    }
+                } catch (IllegalArgumentException ignored) {
+                    // 配置里填了不存在的阵营：跳过该项
+                }
+            }
+            if (!matched) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    /** 使用限制不满足时向玩家提示并返回 false；满足时返回 true。 */
+    public static boolean ensureCanUse(ServerPlayer player, CustomItemData data) {
+        if (canUse(player, data)) {
+            return true;
+        }
+        player.displayClientMessage(Component.translatable("sre.custom_item.use_denied"), true);
+        return false;
+    }
+
     /**
      * 持有者死亡时执行「死亡传递」：职业匹配时把物品交给附近目标阵营的玩家。
      *
@@ -520,6 +598,9 @@ public final class CustomItemRuntime {
      * @return 是否成功射击
      */
     public static boolean useGun(ServerPlayer player, ItemStack stack, CustomItemData data) {
+        if (!ensureCanUse(player, data)) {
+            return false;
+        }
         if (data.autoFire) {
             if (isServerAutoFiring(player, data.id)) {
                 // 自动射击期间右键不再触发射击与其它效果

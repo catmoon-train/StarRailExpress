@@ -477,6 +477,14 @@ public class CustomItemScreen extends Screen {
         // 小偷
         addHintText(r++, Component.translatable("sre.custom_item.section.steal"), 0xFFD4AF37);
         r = boolRow(r, "sre.custom_item.label.stealable", data.stealable, v -> data.stealable = v);
+
+        // 使用限制：仅指定职业 / 修饰符 / 阵营可用
+        addHintText(r++, Component.translatable("sre.custom_item.section.use_limit"), 0xFFD4AF37);
+        r = textRow(r, "sre.custom_item.label.use_only_roles", data.useOnlyRoles,
+                Component.translatable("sre.custom_item.hint.use_only_roles"), v -> data.useOnlyRoles = v);
+        r = textRow(r, "sre.custom_item.label.use_only_modifiers", data.useOnlyModifiers,
+                Component.translatable("sre.custom_item.hint.use_only_modifiers"), v -> data.useOnlyModifiers = v);
+        r = teamList(r, "sre.custom_item.label.use_only_teams", data.useOnlyTeams);
     }
 
     // ══════════════════════════════════════════════════════════════════
@@ -789,6 +797,47 @@ public class CustomItemScreen extends Screen {
         } catch (Exception e) {
             return Component.literal(team);
         }
+    }
+
+    /**
+     * 阵营多选列表块：每行一个「阵营轮回按钮 + ×」，末尾 ＋ 添加一行。
+     *
+     * <p>
+     * 点击按钮切换该行阵营；＋ 可继续添加多个阵营（多项之间是「或」的关系）。
+     */
+    private int teamList(int r, String labelKey, List<String> teams) {
+        addLabelKey(r, labelKey);
+        r++;
+        addHintText(r++, Component.translatable("sre.custom_item.hint.use_only_teams"), 0xFF9E8B6E);
+        for (int i = 0; i < teams.size(); i++) {
+            final int index = i;
+            button(r, fieldX(), 300, 18, teamName(teams.get(i)), () -> {
+                teams.set(index, nextTeam(teams.get(index)));
+                requestRebuild();
+            });
+            button(r, fieldX() + 306, 22, 18, Component.translatable("sre.custom_item.remove_command"),
+                    () -> {
+                        teams.remove(index);
+                        requestRebuild();
+                    });
+            r++;
+        }
+        button(r++, fieldX(), 160, 18, Component.translatable("sre.custom_item.add_team"),
+                () -> {
+                    teams.add(TEAMS[0].name());
+                    requestRebuild();
+                });
+        return r;
+    }
+
+    /** 轮回取下一个阵营名。 */
+    private static String nextTeam(String current) {
+        for (int i = 0; i < TEAMS.length; i++) {
+            if (TEAMS[i].name().equalsIgnoreCase(current)) {
+                return TEAMS[(i + 1) % TEAMS.length].name();
+            }
+        }
+        return TEAMS[0].name();
     }
 
     /**

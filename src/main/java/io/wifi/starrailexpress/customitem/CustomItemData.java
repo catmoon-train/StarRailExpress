@@ -158,6 +158,36 @@ public class CustomItemData {
     @SerializedName("passOnDeathTeam")
     public String passOnDeathTeam = RoleTeam.CIVILIAN.name();
 
+    // ==================== 基础数据：使用限制 ====================
+
+    /**
+     * 仅指定职业允许使用（逗号分隔的职业 id，留空 = 不限制）。
+     *
+     * <p>
+     * 只有当前职业命中其中任意一个 id 的玩家才能使用该物品；职业 id 支持
+     * {@code ns:path} 与纯 {@code path}，大小写不敏感（与「仅特定职业可丢弃」同一套匹配）。
+     */
+    @SerializedName("useOnlyRoles")
+    public String useOnlyRoles = "";
+
+    /**
+     * 仅指定带有修饰符的玩家允许使用（逗号分隔的修饰符 id，留空 = 不限制）。
+     *
+     * <p>
+     * 只有身上带有其中任意一个修饰符的玩家才能使用该物品。
+     */
+    @SerializedName("useOnlyModifiers")
+    public String useOnlyModifiers = "";
+
+    /**
+     * 仅指定阵营允许使用（{@link RoleTeam} 名称列表，空列表 = 不限制）。
+     *
+     * <p>
+     * 只要玩家所属阵营命中列表中的任意一项即可使用；多项之间是「或」的关系。
+     */
+    @SerializedName("useOnlyTeams")
+    public List<String> useOnlyTeams = new ArrayList<>();
+
     // ==================== 性质：基础道具 ====================
 
     /** 玩家右键执行的指令（<player> = 使用物品的玩家）。 */
@@ -787,6 +817,21 @@ public class CustomItemData {
         }
     }
 
+    /** 把「逗号分隔的 id 串」拆成列表（去掉空白与空项）。 */
+    public static List<String> splitIds(String csv) {
+        List<String> result = new ArrayList<>();
+        if (csv == null || csv.isBlank()) {
+            return result;
+        }
+        for (String part : csv.split(",")) {
+            String id = part.trim();
+            if (!id.isEmpty()) {
+                result.add(id);
+            }
+        }
+        return result;
+    }
+
     /** 完整的展示用标识：{@code customitem:<id>}。 */
     public String getFullIdentifier() {
         return NAMESPACE + ":" + id;
@@ -908,6 +953,16 @@ public class CustomItemData {
         if (passOnDeathTeam == null || passOnDeathTeam.isBlank()) {
             passOnDeathTeam = RoleTeam.CIVILIAN.name();
         }
+        if (useOnlyRoles == null) {
+            useOnlyRoles = "";
+        }
+        useOnlyRoles = useOnlyRoles.trim();
+        if (useOnlyModifiers == null) {
+            useOnlyModifiers = "";
+        }
+        useOnlyModifiers = useOnlyModifiers.trim();
+        useOnlyTeams = safeList(useOnlyTeams);
+        useOnlyTeams.removeIf(team -> team == null || team.isBlank());
         if (lethalDeathReason == null || lethalDeathReason.isBlank()) {
             lethalDeathReason = GameConstants.DeathReasons.REVOLVER.toString();
         }
