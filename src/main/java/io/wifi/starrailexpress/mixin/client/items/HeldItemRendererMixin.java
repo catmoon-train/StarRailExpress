@@ -76,8 +76,7 @@ public class HeldItemRendererMixin {
         if (entity instanceof Player playerEntity
                 && (stack.is(TMMItemTags.HELD_LIKE_GUNS_ITEMS)
                         || (stack.getItem() instanceof HeldLikeRevolver)
-                        || io.wifi.starrailexpress.customitem.CustomItemLoader.holdPose(stack)
-                                == io.wifi.starrailexpress.customitem.CustomItemData.HoldPose.REVOLVER)) {
+                        || io.wifi.starrailexpress.customitem.CustomItemLoader.isHeldLikeRevolver(stack))) {
             if (playerEntity.getUUID() != Minecraft.getInstance().player.getUUID()) {
                 MatrixParticleManager.muzzlePosForPlayer$set(playerEntity, MatrixUtils.matrixToVec(matrices));
             } else if (!renderMode.firstPerson()) {
@@ -94,8 +93,8 @@ public class HeldItemRendererMixin {
             if (this.mainHandItem.is(TMMItemTags.HELD_LIKE_GUNS_ITEMS)
                     && newItemStack.is(TMMItemTags.HELD_LIKE_GUNS_ITEMS)
                     || (this.mainHandItem.getItem() instanceof HeldLikeRevolver)
-                    || io.wifi.starrailexpress.customitem.CustomItemLoader.holdPose(this.mainHandItem)
-                            == io.wifi.starrailexpress.customitem.CustomItemData.HoldPose.REVOLVER) {
+                    || io.wifi.starrailexpress.customitem.CustomItemLoader
+                            .isHeldLikeRevolver(this.mainHandItem)) {
                 return true;
             }
         }

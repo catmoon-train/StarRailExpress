@@ -41,13 +41,25 @@ public class PlayerEntityRendererMixin {
     private static void tmm$customArmPose(@NotNull AbstractClientPlayer player,
             @NotNull InteractionHand hand, CallbackInfoReturnable<HumanoidModel.ArmPose> cir) {
         ItemStack heldStack = player.getItemInHand(hand);
+        // 自定义列车物品正在蓄力：第三人称的手臂姿势取「第三人称蓄力动作」
+        // （第一人称那套由 CustomItem#getUseAnimation 交给原版 ItemInHandRenderer）
+        if (player.getUsedItemHand() == hand && player.getUseItemRemainingTicks() > 0
+                && io.wifi.starrailexpress.customitem.CustomItemLoader
+                        .kind(heldStack) == io.wifi.starrailexpress.customitem.CustomItemData.Kind.CHARGE) {
+            var thirdAnim = io.wifi.starrailexpress.customitem.CustomItemLoader.chargeAnimThirdPerson(heldStack);
+            if (thirdAnim != null) {
+                cir.setReturnValue(sre$chargeAnimToArmPose(thirdAnim));
+                return;
+            }
+        }
         if (heldStack.is(TMMItemTags.HELD_LIKE_BAT_ITEMS) || heldStack.getItem() instanceof HeldLikeBat) {
             cir.setReturnValue(HumanoidModel.ArmPose.CROSSBOW_CHARGE);
             return;
         }
-        // 自定义列车物品：按物品配置的手持姿势设置手臂姿势
+        // 自定义列车物品：按物品配置的手持姿势设置手臂姿势。
+        // 只认「枪械道具」的 holdPose —— 它的默认值是 REVOLVER，其它性质读它会被默认值污染；
         // （REVOLVER 由 BipedEntityModelMixin 的持枪姿势处理，DEFAULT 不干预）
-        var customPose = io.wifi.starrailexpress.customitem.CustomItemLoader.holdPose(heldStack);
+        var customPose = io.wifi.starrailexpress.customitem.CustomItemLoader.gunHoldPose(heldStack);
         if (customPose != null) {
             switch (customPose) {
                 case RAISED -> cir.setReturnValue(HumanoidModel.ArmPose.CROSSBOW_CHARGE);
@@ -56,6 +68,22 @@ public class PlayerEntityRendererMixin {
                 }
             }
         }
+    }
+
+    /**
+     * 蓄力动作 → 原版手臂姿势：与原版 {@code PlayerRenderer#getArmPose} 自己的映射保持一致
+     * （{@code EAT} / {@code DRINK} 在原版也是默认手持姿势）。
+     */
+    private static HumanoidModel.ArmPose sre$chargeAnimToArmPose(
+            io.wifi.starrailexpress.customitem.CustomItemData.ChargeAnim anim) {
+        return switch (anim) {
+            case NONE, DRINK, EAT -> HumanoidModel.ArmPose.ITEM;
+            case BOW -> HumanoidModel.ArmPose.BOW_AND_ARROW;
+            case SPEAR -> HumanoidModel.ArmPose.THROW_SPEAR;
+            case CROSSBOW -> HumanoidModel.ArmPose.CROSSBOW_CHARGE;
+            case BLOCK -> HumanoidModel.ArmPose.BLOCK;
+            case BRUSH -> HumanoidModel.ArmPose.BRUSH;
+        };
     }
 
     @ModifyExpressionValue(method = "getArmPose", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/player/AbstractClientPlayer;getItemInHand(Lnet/minecraft/world/InteractionHand;)Lnet/minecraft/world/item/ItemStack;"))

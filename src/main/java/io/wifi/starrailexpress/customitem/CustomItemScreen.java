@@ -435,6 +435,12 @@ public class CustomItemScreen extends Screen {
                         Component.translatable("sre.custom_item.hint.inherit_item"),
                         v -> data.inheritItemTexture = v);
             }
+            case INHERIT -> {
+                // 只填物品 id：模型与材质整份借用它
+                r = textRow(r, "sre.custom_item.label.inherit_item", data.inheritItemTexture,
+                        Component.translatable("sre.custom_item.hint.inherit_texture"),
+                        v -> data.inheritItemTexture = v);
+            }
         }
         addHintText(r++, Component.translatable("sre.custom_item.hint.texture_mode"), 0xFFC9A84C);
         addHintText(r++, Component.translatable("sre.custom_item.label.preview"), 0xFFFFF4DC);
@@ -498,8 +504,15 @@ public class CustomItemScreen extends Screen {
     }
 
     private int buildChargeKind(int r) {
-        r = enumRow(r, "sre.custom_item.label.charge_anim", "sre.custom_item.charge_anim", data.chargeAnim(),
+        // 蓄力动作分两套：第一人称（自己屏幕上看到的手部动作，走原版 UseAnim）与
+        // 第三人称（别人看到的手臂姿势）。第三人称那行显示的是「当前生效值」——
+        // JSON 里留空时它跟随第一人称，点过按钮后就是单独设置的那个。
+        r = enumRow(r, "sre.custom_item.label.charge_anim_first", "sre.custom_item.charge_anim", data.chargeAnim(),
                 index -> data.chargeAnim = CHARGE_ANIMS[index].name());
+        r = enumRow(r, "sre.custom_item.label.charge_anim_third", "sre.custom_item.charge_anim",
+                data.chargeAnimThirdPerson(),
+                index -> data.chargeAnimThird = CHARGE_ANIMS[index].name());
+        addHintText(r++, Component.translatable("sre.custom_item.hint.charge_anim_split"), 0xFFC9A84C);
         r = numRow(r, "sre.custom_item.label.charge_time", data.chargeTicks, "sre.custom_item.unit.tick",
                 v -> data.chargeTicks = (int) v);
         r = commandList(r, "sre.custom_item.label.self_commands", data.selfCommands);
@@ -999,8 +1012,9 @@ public class CustomItemScreen extends Screen {
      * 预览用的平面贴图：按材质来源挑。
      *
      * <p>
-     * PACK 用 {@code packTexturePath}；ANIMATED 用当前帧；MODEL 返回 null（交给下面的
-     * 「被引用物品的主贴图」预览 —— 立体模型在 16×16 的平面预览里画不出来，预览只做近似）。
+     * PACK 用 {@code packTexturePath}；ANIMATED 用当前帧；MODEL / INHERIT 返回 null（交给下面的
+     * 「被引用物品的主贴图」预览 —— 立体模型在 16×16 的平面预览里画不出来，预览只做近似；
+     * 继承现有物品时本来就该显示被继承物品的贴图，不看 {@code packTexturePath}）。
      */
     private static ResourceLocation resolvePreviewTexture(CustomItemData data) {
         if (data.textureMode() == TextureMode.ANIMATED) {
@@ -1010,6 +1024,9 @@ public class CustomItemScreen extends Screen {
                 long now = System.currentTimeMillis() / 50L;
                 return CustomItemRenderer.resolvePackTexture(frames.get((int) (now / frameTicks % frames.size())));
             }
+        }
+        if (data.textureMode() == TextureMode.INHERIT) {
+            return null;
         }
         return CustomItemRenderer.resolvePackTexture(data.packTexturePath);
     }

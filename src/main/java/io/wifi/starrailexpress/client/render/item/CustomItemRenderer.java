@@ -48,7 +48,7 @@ import java.util.concurrent.ConcurrentHashMap;
  *
  * <p>
  * 所有自定义列车物品共用 {@code custom_item} 这一个物品，物品模型为 {@code builtin/entity}，
- * 外观按 {@link CustomItemData.TextureMode} 三选一（编辑界面里用一个按钮切换，三者相互独立）：
+ * 外观按 {@link CustomItemData.TextureMode} 四选一（编辑界面里用一个按钮切换，四种相互独立）：
  * <ol>
  * <li><b>PACK 资源包贴图</b>：{@link CustomItemData#packTexturePath}，{@code ns:item/x} 与
  * {@code ns:textures/item/x.png} 两种写法都支持，直接从资源包取贴图渲染（不需要进图集），
@@ -57,6 +57,8 @@ import java.util.concurrent.ConcurrentHashMap;
  * {@link CustomItemData#animatedFrameTicks} 循环，每帧都是上面那种平面贴图。</li>
  * <li><b>MODEL 导入立体贴图</b>：{@link CustomItemData#inheritItemTexture} 填物品 id，
  * 直接渲染该物品的完整模型（{@code elements} 立体、图集动画贴图都跟着走）。</li>
+ * <li><b>INHERIT 继承现有物品贴图</b>：{@link CustomItemData#inheritItemTexture} 填物品 id，
+ * 整份借用该物品的模型与材质（{@link #drawInherited}）。</li>
  * </ol>
  *
  * <p>
@@ -103,8 +105,9 @@ public class CustomItemRenderer implements BuiltinItemRendererRegistry.DynamicIt
             return;
         }
 
-        // 材质来源三选一（编辑界面里用按钮切换，三者相互独立、只生效选中的那个）：
-        // PACK / ANIMATED 是「贴图来源」，都还能再填一个模型地址当外壳；MODEL 是「模型来源」
+        // 材质来源四选一（编辑界面里用按钮切换，四者相互独立、只生效选中的那个）：
+        // PACK / ANIMATED 是「贴图来源」，都还能再填一个模型地址当外壳；
+        // MODEL 是「模型来源」，INHERIT 整份借用某个物品的模型与材质
         switch (data.textureMode()) {
             case PACK -> {
                 if (drawTextured(data, resolvePackTexture(data.packTexturePath), poseStack, buffers, light,
@@ -119,6 +122,11 @@ public class CustomItemRenderer implements BuiltinItemRendererRegistry.DynamicIt
             }
             case MODEL -> {
                 if (drawModel(data, poseStack, buffers, light, overlay)) {
+                    return;
+                }
+            }
+            case INHERIT -> {
+                if (drawInherited(data, poseStack, buffers, light, overlay)) {
                     return;
                 }
             }
@@ -265,10 +273,7 @@ public class CustomItemRenderer implements BuiltinItemRendererRegistry.DynamicIt
             }
             return true;
         }
-        ItemStack inherited = resolveInheritedStack(data.inheritItemTexture);
-        if (!inherited.isEmpty() && CustomItemLoader.getData(inherited) == null) {
-            minecraft.getItemRenderer().renderStatic(inherited, ItemDisplayContext.NONE, light, overlay, poseStack,
-                    buffers, minecraft.level, 0);
+        if (drawInherited(data, poseStack, buffers, light, overlay)) {
             return true;
         }
         // 模型地址空着但给了贴图：退回默认模型（平面两层）
@@ -278,6 +283,30 @@ public class CustomItemRenderer implements BuiltinItemRendererRegistry.DynamicIt
             return true;
         }
         return false;
+    }
+
+    /**
+     * INHERIT 继承现有物品：直接渲染 {@link CustomItemData#inheritItemTexture} 指定物品的
+     * <b>模型与材质</b>（走原版物品渲染器，拿在手上 / 背包里和那个物品长得一模一样）。
+     *
+     * <p>
+     * 借来的物品若本身是自定义列车物品，直接跳过，否则会递归渲染自己。
+     *
+     * @return 是否已经画出来
+     */
+    private static boolean drawInherited(CustomItemData data, PoseStack poseStack, MultiBufferSource buffers,
+            int light, int overlay) {
+        Minecraft minecraft = Minecraft.getInstance();
+        if (minecraft == null || minecraft.getItemRenderer() == null) {
+            return false;
+        }
+        ItemStack inherited = resolveInheritedStack(data.inheritItemTexture);
+        if (inherited.isEmpty() || CustomItemLoader.getData(inherited) != null) {
+            return false;
+        }
+        minecraft.getItemRenderer().renderStatic(inherited, ItemDisplayContext.NONE, light, overlay, poseStack,
+                buffers, minecraft.level, 0);
+        return true;
     }
 
     /**

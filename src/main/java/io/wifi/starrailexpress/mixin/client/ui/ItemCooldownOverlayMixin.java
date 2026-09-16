@@ -50,7 +50,7 @@ public class ItemCooldownOverlayMixin {
     }
 
     /** 自定义列车物品的每物品冷却进度（1 = 刚开始，0 = 不在冷却 / 不是自定义物品）。 */
-    public static float sre$customItemCooldownPercent(ItemStack stack) {
+    private static float sre$customItemCooldownPercent(ItemStack stack) {
         Minecraft mc = Minecraft.getInstance();
         LocalPlayer player = mc.player;
         if (player == null || stack == null || stack.isEmpty()) {

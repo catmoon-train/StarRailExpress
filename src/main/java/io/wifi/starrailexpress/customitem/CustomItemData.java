@@ -69,11 +69,12 @@ public class CustomItemData {
      * 材质来源（单选，{@link TextureMode}）。
      *
      * <p>
-     * 三种来源<b>相互独立</b>，只生效当前选中的这一种：
+     * 四种来源<b>相互独立</b>，只生效当前选中的这一种：
      * {@link TextureMode#PACK} 用 {@link #packTexturePath}（平面 PNG）、
      * {@link TextureMode#ANIMATED} 用 {@link #animatedTextures}（多帧循环，帧数不限）、
      * {@link TextureMode#MODEL} 用 {@link #modelPath}（渲染资源包模型 json；留空时退回
-     * {@link #inheritItemTexture}，借某个物品的模型）。
+     * {@link #inheritItemTexture}，借某个物品的模型）、
+     * {@link TextureMode#INHERIT} 用 {@link #inheritItemTexture}（整份借用该物品的模型与材质）。
      */
     @SerializedName("textureMode")
     public String textureMode = TextureMode.PACK.name();
@@ -172,9 +173,22 @@ public class CustomItemData {
 
     // ==================== 性质：蓄力道具 ====================
 
-    /** 蓄力动作（{@link ChargeAnim} 名称）。 */
+    /**
+     * 蓄力动作（{@link ChargeAnim} 名称）：<b>第一人称</b>那套 —— 自己屏幕上看到的
+     * 手部 / 手持动作（走原版 {@code UseAnim}）。
+     */
     @SerializedName("chargeAnim")
     public String chargeAnim = ChargeAnim.BOW.name();
+
+    /**
+     * <b>第三人称</b>蓄力动作（{@link ChargeAnim} 名称）：别人看到的手臂姿势。
+     *
+     * <p>
+     * 留空（或写了非法值）时跟随 {@link #chargeAnim}，即与老配置行为一致。
+     * 客户端渲染见 {@code mixin.client.PlayerEntityRendererMixin}。
+     */
+    @SerializedName("chargeAnimThird")
+    public String chargeAnimThird = "";
 
     /** 蓄力时间（tick）。 */
     @SerializedName("chargeTicks")
@@ -665,6 +679,21 @@ public class CustomItemData {
         }
     }
 
+    /**
+     * 第三人称蓄力动作：没单独配（留空 / 非法值）时跟随第一人称的 {@link #chargeAnim()}，
+     * 所以老配置的行为不变。
+     */
+    public ChargeAnim chargeAnimThirdPerson() {
+        if (chargeAnimThird == null || chargeAnimThird.isBlank()) {
+            return chargeAnim();
+        }
+        try {
+            return ChargeAnim.valueOf(chargeAnimThird.trim());
+        } catch (Exception e) {
+            return chargeAnim();
+        }
+    }
+
     public TargetMode targetMode() {
         try {
             return TargetMode.valueOf(targetMode);
@@ -914,7 +943,12 @@ public class CustomItemData {
          * 直接渲染该模型（立体 elements / 图集动画贴图都跟着走）；
          * 模型地址留空时退回 {@link #inheritItemTexture}（借某个物品的模型）。
          */
-        MODEL
+        MODEL,
+        /**
+         * 继承现有物品贴图：{@link #inheritItemTexture} 填一个物品 id，
+         * 直接借用该物品的<b>模型与材质</b>（拿在手上 / 背包里和它长得一模一样）。
+         */
+        INHERIT
     }
 
     /** 物品性质（单选）。 */

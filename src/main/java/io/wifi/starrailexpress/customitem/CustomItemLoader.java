@@ -171,6 +171,41 @@ public final class CustomItemLoader {
         return data == null ? null : data.holdPose();
     }
 
+    /** 物品性质（{@code Kind}；非自定义列车物品返回 null，客户端渲染可直接用）。 */
+    public static CustomItemData.Kind kind(ItemStack stack) {
+        CustomItemData data = getData(stack);
+        return data == null ? null : data.kind();
+    }
+
+    /** 第三人称蓄力动作（非自定义列车物品返回 null）。 */
+    public static CustomItemData.ChargeAnim chargeAnimThirdPerson(ItemStack stack) {
+        CustomItemData data = getData(stack);
+        return data == null ? null : data.chargeAnimThirdPerson();
+    }
+
+    /**
+     * 枪械道具的手持姿势（非枪械道具返回 null）。
+     *
+     * <p>
+     * {@code holdPose} 的默认值是 {@link CustomItemData.HoldPose#REVOLVER}，但它只有枪械道具读才有意义：
+     * 蓄力道具 / 投掷物 / 食物等性质读它，只会被这个默认值污染（被套上持枪姿势、被追踪枪口位置）。
+     * 客户端所有读 {@code holdPose} 的地方都应该走这里。
+     */
+    public static CustomItemData.HoldPose gunHoldPose(ItemStack stack) {
+        return kind(stack) == CustomItemData.Kind.GUN ? holdPose(stack) : null;
+    }
+
+    /**
+     * 是否该按「左轮手枪式」持枪渲染（手臂伸直 + 枪口位置追踪）。
+     *
+     * <p>
+     * 必须是<b>枪械道具</b>把 {@code holdPose} 设成
+     * {@link CustomItemData.HoldPose#REVOLVER} 才算。
+     */
+    public static boolean isHeldLikeRevolver(ItemStack stack) {
+        return gunHoldPose(stack) == CustomItemData.HoldPose.REVOLVER;
+    }
+
     // ==================== 构建物品栈 ====================
 
     /** 按配置构建一个自定义列车物品栈。 */
