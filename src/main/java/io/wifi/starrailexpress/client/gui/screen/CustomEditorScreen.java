@@ -32,9 +32,11 @@ import net.minecraft.network.chat.Component;
 import org.lwjgl.glfw.GLFW;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.function.Consumer;
 
 /**
@@ -88,6 +90,9 @@ public abstract class CustomEditorScreen extends Screen {
     protected static final int CELL_GAP = EditorLayout.GAP;
     /** 「是 / 否」开关按钮的宽度（只放状态符号 + 状态文字，不铺满整行）。 */
     protected static final int SWITCH_W = 64;
+    /** 卡片（一组相关字段的容器）左右内缩与标题条高度。 */
+    protected static final int CARD_PAD = 5;
+    protected static final int CARD_HEADER_H = 18;
 
     // ══════════════════════════════════════════════════════════════════
     // 状态
@@ -102,6 +107,13 @@ public abstract class CustomEditorScreen extends Screen {
 
     private final List<TextEntry> texts = new ArrayList<>();
     private final List<int[]> separators = new ArrayList<>();
+
+    /** 构建期的卡片栈（cardBegin / cardEnd 配对）。 */
+    private final List<Card> openCards = new ArrayList<>();
+    /** 排布好的卡片（渲染背景 + 描边 + 标题条用）。 */
+    private final List<Card> cards = new ArrayList<>();
+    /** 折叠起来的卡片 id：折叠后只剩标题条一行，用来「一次只看一块」。 */
+    private final Set<String> collapsedCards = new HashSet<>();
 
     private EditorLayout layout;
     private int activeTab;
@@ -254,6 +266,8 @@ public abstract class CustomEditorScreen extends Screen {
         baseY.clear();
         texts.clear();
         separators.clear();
+        openCards.clear();
+        cards.clear();
         previewSlotSize = 0;
         previewLabelKey = null;
         building = null;
@@ -305,7 +319,7 @@ public abstract class CustomEditorScreen extends Screen {
 
     /** 子类在 {@link #buildTab(int)} 里为预览预留一行；宽屏会折叠成 0 高并由右侧预览列接管。 */
     protected int previewRow(int r, String labelKey) {
-        Row row = new Row(EditorLayout.RowKind.ROW);
+        Row row = newRow(EditorLayout.RowKind.ROW);
         row.previewRow = true;
         row.labelKey = labelKey;
         rows.add(row);
@@ -466,7 +480,7 @@ public abstract class CustomEditorScreen extends Screen {
 
     /** 一行：标签 + 若干自定义单元（输入框 / 按钮 / 单位文字），放不下自动折行。 */
     protected int cluster(int r, String labelKey, Cell... cells) {
-        Row row = new Row(EditorLayout.RowKind.ROW);
+        Row row = newRow(EditorLayout.RowKind.ROW);
         row.labelKey = labelKey;
         for (Cell cell : cells) {
             row.cells.add(cell);
@@ -477,7 +491,7 @@ public abstract class CustomEditorScreen extends Screen {
 
     /** 一行：只有标签（分组用）。 */
     protected int labelRow(int r, String labelKey) {
-        Row row = new Row(EditorLayout.RowKind.ROW);
+        Row row = newRow(EditorLayout.RowKind.ROW);
         row.labelKey = labelKey;
         rows.add(row);
         return r + 1;
@@ -485,7 +499,7 @@ public abstract class CustomEditorScreen extends Screen {
 
     /** 小节标题：金色粗体 + 一条分隔线。 */
     protected int section(int r, String key) {
-        Row row = new Row(EditorLayout.RowKind.SECTION);
+        Row row = newRow(EditorLayout.RowKind.SECTION);
         row.labelKey = key;
         rows.add(row);
         return r + 1;
@@ -512,7 +526,7 @@ public abstract class CustomEditorScreen extends Screen {
         if (text == null) {
             return r;
         }
-        Row row = new Row(EditorLayout.RowKind.NOTE);
+        Row row = newRow(EditorLayout.RowKind.NOTE);
         row.note = text;
         row.noteColor = color;
         row.noteMaxLines = Math.max(1, maxLines);
@@ -522,7 +536,7 @@ public abstract class CustomEditorScreen extends Screen {
 
     /** 留白。 */
     protected int gap(int r) {
-        rows.add(new Row(EditorLayout.RowKind.GAP));
+        rows.add(newRow(EditorLayout.RowKind.GAP));
         return r + 1;
     }
 
@@ -661,7 +675,8 @@ public abstract class CustomEditorScreen extends Screen {
             box.setResponder(setter);
         }
         if (hint != null) {
-            box.setHint(hint);
+            // 占位提示用 HINT 色：原版 EditBox 用输入框的文字色画 hint，不套样式会和真实内容同色
+            box.setHint(SREPanelStyle.hint(hint));
             // 输入框里画不下完整提示：悬停看全文
             box.setTooltip(Tooltip.create(hint));
         }
@@ -677,12 +692,64 @@ public abstract class CustomEditorScreen extends Screen {
     // ══════════════════════════════════════════════════════════════════
 
     private int row(int r, String labelKey, Cell... cells) {
-        Row row = new Row(EditorLayout.RowKind.ROW);
+        Row row = newRow(EditorLayout.RowKind.ROW);
         row.labelKey = labelKey;
         for (Cell cell : cells) {
             row.cells.add(cell);
         }
         rows.add(row);
+        return r + 1;
+    }
+
+    /**
+     * 建一行：自动打上「当前所在卡片」的标记（卡片里的行会左右内缩、折叠时整块隐藏）。
+     */
+    private Row newRow(EditorLayout.RowKind kind) {
+        Row row = new Row(kind);
+        row.cardId = openCards.isEmpty() ? null : openCards.get(openCards.size() - 1).id;
+        return row;
+    }
+
+    /**
+     * 开一张卡片：把一组相关字段（一个事件 / 一个触发组 / 一个技能模块）框起来。
+     *
+     * <p>
+     * 卡片头是它的标题（点一下折叠/展开），右侧可以带一个「×」删除按钮。标题条 + 描边 + 左右内缩
+     * 让每块内容一眼能分清边界；折叠后只剩标题条一行，于是又能「一次只编辑一块」。
+     *
+     * @param cardId  折叠状态的键：同一块内容在重建前后要用同一个 id（例如 {@code "block_event_0"}）
+     * @param title   卡片标题（例如「事件 1」）
+     * @param badge   标题右边的小字（例如事件类型 / 条件数量），可为 null
+     * @param onDelete 删除这一块的操作，可为 null（不显示删除按钮）
+     */
+    protected int cardBegin(int r, String cardId, Component title, Component badge, Runnable onDelete) {
+        Card card = new Card(cardId, title, badge);
+        openCards.add(card);
+
+        Row header = newRow(EditorLayout.RowKind.ROW);
+        card.startRowIndex = rows.size();
+        header.cardHeader = true;
+        header.card = card;
+        List<Cell> cells = new ArrayList<>();
+        cells.add(cell(new CardHeader(card), 120, 0, 1F));
+        if (onDelete != null) {
+            cells.add(fixedButton(Component.translatable(translationPrefix() + ".remove"), 22, () -> {
+                onDelete.run();
+                requestRebuild();
+            }));
+        }
+        header.cells.addAll(cells);
+        rows.add(header);
+        return r + 1;
+    }
+
+    /** 收尾一张卡片（与 {@link #cardBegin} 配对）。 */
+    protected int cardEnd(int r) {
+        if (openCards.isEmpty()) {
+            return r;
+        }
+        Card card = openCards.remove(openCards.size() - 1);
+        card.endRowIndex = rows.size();
         return r + 1;
     }
 
@@ -698,8 +765,25 @@ public abstract class CustomEditorScreen extends Screen {
         }
 
         int cursor = layout.contentY();
-        for (Row row : rows) {
+        Card openCard = null;
+        for (int rowIndex = 0; rowIndex < rows.size(); rowIndex++) {
+            Row row = rows.get(rowIndex);
             row.y = cursor;
+
+            // 折叠的卡片：里面的行整块收起（不占高度、不排控件），只留标题条那一行
+            if (row.cardId != null && !row.cardHeader && collapsedCards.contains(row.cardId)) {
+                row.height = 0;
+                continue;
+            }
+            // 卡片头：记下卡片的位置，等排完这一块再补高度
+            if (row.cardHeader && row.card != null) {
+                openCard = row.card;
+                openCard.x = layout.contentX() + 2;
+                openCard.w = Math.max(60, layout.contentRight() - layout.contentX() - 4);
+                openCard.y = cursor - 3;
+                openCard.headerH = EditorLayout.ROW_H + 3;
+            }
+
             if (row.previewRow) {
                 // 宽屏：预览在右侧专属列里，这一行折叠成 0 高；窄屏：在这里占一行，由 renderPreview 居中画出
                 row.height = layout.previewW() > 0 ? 0 : previewSize() + EditorLayout.LABEL_LINE_H + 6;
@@ -718,21 +802,39 @@ public abstract class CustomEditorScreen extends Screen {
             switch (row.kind) {
                 case GAP -> row.height = EditorLayout.rowHeight(EditorLayout.RowKind.GAP, false, 1, 1);
                 case SECTION -> {
+                    int pad = row.cardId != null ? CARD_PAD : 0;
                     row.height = EditorLayout.rowHeight(EditorLayout.RowKind.SECTION, false, 1, 1);
-                    texts.add(new TextEntry(Component.translatable(row.labelKey), layout.contentX(), row.y + 2,
-                            layout.textW(), 1, true, SREPanelStyle.GOLD));
-                    separators.add(new int[] { row.y + row.height - 4, layout.contentX(), layout.textW() });
+                    texts.add(new TextEntry(Component.translatable(row.labelKey), layout.contentX() + pad,
+                            row.y + 2, layout.textW() - pad * 2, 1, true, SREPanelStyle.GOLD));
+                    separators.add(new int[] { row.y + row.height - 4, layout.contentX() + pad,
+                            layout.textW() - pad * 2 });
                 }
                 case NOTE -> {
-                    int measured = Math.max(1, font.split(row.note, layout.textW()).size());
+                    int pad = row.cardId != null ? CARD_PAD : 0;
+                    int noteWidth = Math.max(20, layout.textW() - pad * 2);
+                    int measured = Math.max(1, font.split(row.note, noteWidth).size());
                     row.height = EditorLayout.rowHeight(EditorLayout.RowKind.NOTE, false, 1,
                             Math.min(measured, row.noteMaxLines));
-                    texts.add(new TextEntry(row.note, layout.contentX(), row.y + 1, layout.textW(),
+                    texts.add(new TextEntry(row.note, layout.contentX() + pad, row.y + 1, noteWidth,
                             row.noteMaxLines, false, row.noteColor));
                 }
                 case ROW -> row.height = flushRow(row);
             }
             cursor += row.height;
+
+            // 这一行是卡片的最后一行：卡片高 = 卡片底 → 这里
+            if (openCard != null && row.cardId != null && row.cardId.equals(openCard.id)
+                    && openCard.endRowIndex > 0 && rowIndex == openCard.endRowIndex - 1) {
+                openCard.h = cursor - openCard.y + 4;
+                cards.add(openCard);
+                openCard = null;
+            }
+        }
+
+        // 有控件这一轮没被排进布局（例如所在卡片被折叠了）：把焦点从它身上摘掉，
+        // 否则键盘输入会继续喂给一个看不见的输入框
+        if (getFocused() instanceof AbstractWidget focused && !focused.visible) {
+            setFocused(null);
         }
 
         // 宽屏：预览贴内容区右上角（不随内容滚动），标签画在预览下面
@@ -745,8 +847,10 @@ public abstract class CustomEditorScreen extends Screen {
 
     private int flushRow(Row row) {
         boolean fieldArea = !layout.compact();
-        int rowLeft = fieldArea ? layout.fieldX() : layout.contentX();
-        int rowWidth = fieldArea ? layout.fieldW() : layout.textW();
+        // 卡片里的行左右各内缩一点，卡片框才看得出来是「装着一组字段」
+        int pad = row.cardId != null && !row.cardHeader ? CARD_PAD : 0;
+        int rowLeft = (fieldArea ? layout.fieldX() : layout.contentX()) + pad;
+        int rowWidth = (fieldArea ? layout.fieldW() : layout.textW()) - pad * 2;
 
         int count = row.cells.size();
         int[] minW = new int[count];
@@ -796,8 +900,8 @@ public abstract class CustomEditorScreen extends Screen {
 
         if (row.labelKey != null) {
             int labelY = labelAbove ? row.y : row.y + EditorLayout.labelOffsetY(false);
-            int labelWidth = labelAbove ? layout.textW() : layout.labelW();
-            texts.add(new TextEntry(Component.translatable(row.labelKey), layout.contentX(), labelY,
+            int labelWidth = (labelAbove ? layout.textW() : layout.labelW()) - pad;
+            texts.add(new TextEntry(Component.translatable(row.labelKey), layout.contentX() + pad, labelY,
                     labelWidth, 1, false, SREPanelStyle.TEXT));
         }
         return height;
@@ -905,6 +1009,19 @@ public abstract class CustomEditorScreen extends Screen {
         }
     }
 
+    /**
+     * 文字被裁掉时挂一个「悬停看全文」的 tooltip，放得下就摘掉。
+     *
+     * <p>
+     * 只在状态变化时动 tooltip，避免每帧新建对象。
+     */
+    private static void applyClipTooltip(AbstractWidget widget, boolean fits, String full, boolean shown) {
+        if (fits == !shown) {
+            return;
+        }
+        widget.setTooltip(fits ? null : Tooltip.create(Component.literal(full)));
+    }
+
     /** 页签文字：活跃页签金色粗体，其余土褐（文档 §5 的文字层级）。 */
     private Component tabLabel(int index) {
         Component label = Component.translatable(translationPrefix() + ".tab." + tabKeys()[index]);
@@ -935,6 +1052,8 @@ public abstract class CustomEditorScreen extends Screen {
         int clipRight = layout.contentX() + layout.contentW();
         g.enableScissor(layout.contentX(), layout.contentY(), clipRight, layout.contentBottom());
 
+        // 卡片先画：它是一组字段的底，控件与文字画在它上面
+        renderCards(g);
         renderFocusedRow(g);
         for (AbstractWidget widget : contentWidgets) {
             widget.render(g, mouseX, mouseY, partialTick);
@@ -971,6 +1090,30 @@ public abstract class CustomEditorScreen extends Screen {
 
         if (maxScroll > 0) {
             renderScrollbar(g, mouseX, mouseY);
+        }
+    }
+
+    /**
+     * 画卡片：一层很淡的底 + 标题条 + 描边。
+     *
+     * <p>
+     * 卡片头本身是控件（{@link CardHeader}），负责画标题、徽标与折叠标记并处理点击，
+     * 这里只负责「框」的部分，于是每块内容（一个事件 / 一个触发组 / 一个技能模块）边界清楚。
+     */
+    private void renderCards(GuiGraphics g) {
+        for (Card card : cards) {
+            int y = card.y - textOffset;
+            // 卡片完全在视口外就不画（长列表里大部分卡片都是这种情况）
+            if (y + card.h < layout.contentY() || y > layout.contentBottom()) {
+                continue;
+            }
+            // 底：很淡的暗色，和面板背景区分开
+            g.fill(card.x + 1, y + 1, card.x + card.w - 1, y + card.h - 1, 0x1E000000);
+            // 标题条 + 它下面的分隔线
+            g.fill(card.x + 1, y + 1, card.x + card.w - 1, y + card.headerH, SREPanelStyle.ROW_SEPARATOR);
+            SREPanelStyle.drawFooterLine(g, card.x + 1, y + card.headerH, card.w - 2);
+            // 描边
+            g.renderOutline(card.x, y, card.w, card.h, SREPanelStyle.CARD_BORDER);
         }
     }
 
@@ -1280,6 +1423,12 @@ public abstract class CustomEditorScreen extends Screen {
     private static final class Row {
         private final EditorLayout.RowKind kind;
         private final List<Cell> cells = new ArrayList<>();
+        /** 所在卡片的 id（null = 不在卡片里）：卡片里的行会左右内缩，折叠时整块收起。 */
+        private String cardId;
+        /** 这一行是卡片头（标题条 + 折叠按钮所在行）。 */
+        private boolean cardHeader;
+        /** 卡片头行回指的卡片对象。 */
+        private Card card;
         private String labelKey;
         private Component note;
         private int noteColor;
@@ -1294,6 +1443,35 @@ public abstract class CustomEditorScreen extends Screen {
     }
 
     private record TextEntry(Component text, int x, int y, int maxWidth, int maxLines, boolean bold, int color) {
+    }
+
+    /**
+     * 一张卡片：把一组相关字段（一个事件 / 一个触发组 / 一个技能模块）框起来。
+     *
+     * <p>
+     * 构建期由 {@link #cardBegin}/{@link #cardEnd} 记录行的范围，排布时（{@link #flushRows}）再填
+     * 真实坐标；渲染时先画卡片底 + 标题条 + 描边，再画里面的控件，于是每块内容边界清楚。
+     * 折叠状态记在 {@link #collapsedCards} 里（id 稳定，重建界面后仍然记得）。
+     */
+    private static final class Card {
+        private final String id;
+        private final Component title;
+        private final Component badge;
+        /** 卡片头所在行在 {@code rows} 里的下标；{@code endRowIndex} 是卡片后第一行。 */
+        private int startRowIndex;
+        private int endRowIndex;
+        private int x;
+        private int y;
+        private int w;
+        private int h;
+        /** 标题条相对卡片底的高度。 */
+        private int headerH;
+
+        private Card(String id, Component title, Component badge) {
+            this.id = id;
+            this.title = title;
+            this.badge = badge;
+        }
     }
 
     /**
@@ -1477,6 +1655,56 @@ public abstract class CustomEditorScreen extends Screen {
      * 宽度按文字实测（放不下由 {@link EditorLayout} 折行），文字再裁一次省略号，
      * 所以长译文不会溢出到相邻页签上；活跃页签金色粗体 + 底部金线 + 淡色底，hover 有过渡（文档 §6）。
      */
+    /**
+     * 卡片头：一条可点的标题栏。
+     *
+     * <p>
+     * 点一下折叠/展开这一块（折叠后只剩这一行）；标题左边是名称、右边是折叠标记，中间可以带一个
+     * 小字徽标（事件类型 / 条件数量这类）。文字放不下就省略号截断，悬停看全文。
+     */
+    private final class CardHeader extends AbstractWidget {
+        private final Card card;
+        private boolean clipTooltipShown;
+
+        private CardHeader(Card card) {
+            super(0, 0, 120, EditorLayout.ROW_H, Component.empty());
+            this.card = card;
+        }
+
+        @Override
+        protected void renderWidget(GuiGraphics g, int mouseX, int mouseY, float partialTick) {
+            boolean collapsed = collapsedCards.contains(card.id);
+            Component text = card.badge == null || card.badge.getString().isEmpty()
+                    ? card.title.copy().withStyle(style -> style.withColor(SREPanelStyle.GOLD))
+                    : card.title.copy().withStyle(style -> style.withColor(SREPanelStyle.GOLD))
+                            .append(Component.literal("  ").withStyle(style -> style.withColor(SREPanelStyle.MUTED)))
+                            .append(card.badge.copy().withStyle(style -> style.withColor(SREPanelStyle.MUTED)));
+            // 右边留出折叠标记的位置
+            String shown = MapUiGraphics.clip(font, text.getString(), Math.max(8, getWidth() - 18));
+            applyClipTooltip(this, shown.equals(text.getString()), text.getString(), clipTooltipShown);
+            int textY = getY() + (getHeight() - 8) / 2;
+            if (isHovered()) {
+                g.fill(getX(), getY(), getX() + getWidth(), getY() + getHeight(), SREPanelStyle.ROW_HOVER);
+            }
+            g.drawString(font, Component.literal(shown), getX() + 4, textY, SREPanelStyle.GOLD, false);
+            g.drawString(font, Component.literal(collapsed ? "▸" : "▾"), getX() + getWidth() - 10, textY,
+                    SREPanelStyle.MUTED, false);
+        }
+
+        @Override
+        public void onClick(double mouseX, double mouseY) {
+            if (!collapsedCards.remove(card.id)) {
+                collapsedCards.add(card.id);
+            }
+            requestRebuild();
+        }
+
+        @Override
+        protected void updateWidgetNarration(NarrationElementOutput narrationElementOutput) {
+            this.defaultButtonNarrationText(narrationElementOutput);
+        }
+    }
+
     private final class TabButton extends AbstractWidget {
         private final boolean selected;
         private final Runnable onPress;

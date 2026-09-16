@@ -201,16 +201,16 @@ public class CustomBlockScreen extends CustomEditorScreen {
     private int eventBlock(int r, BlockEvent event, int index) {
         BlockEventType type = event.type();
 
-        r = note(r, Component.translatable(PREFIX + ".event.title", index + 1), SREPanelStyle.GOLD, 1);
+        // 一个事件一张卡片：标题「事件 N」+ 类型徽标，卡片头右侧可直接删掉这一块
+        r = cardBegin(r, "block_event_" + index,
+                Component.translatable(PREFIX + ".event.title", index + 1),
+                Component.translatable(PREFIX + ".event_type." + type.name().toLowerCase()),
+                () -> data.events.remove(index));
         r = cluster(r, null,
                 stateButtonCell(() -> Component.translatable(
                         PREFIX + ".event_type." + event.type().name().toLowerCase()), () -> {
                             event.setType(EVENT_TYPES[(event.type().ordinal() + 1) % EVENT_TYPES.length]);
-                        }, true),
-                fixedButton(Component.translatable(PREFIX + ".event.remove"), 60, () -> {
-                    data.events.remove(index);
-                    requestRebuild();
-                }));
+                        }, true));
 
         r = lines(r, PREFIX + ".label.commands", event.commands, LIMIT_COMMAND, PREFIX + ".hint.commands",
                 PREFIX + ".hint.text_line", PREFIX + ".add_command", PREFIX + ".remove", Integer.MAX_VALUE);
@@ -241,7 +241,7 @@ public class CustomBlockScreen extends CustomEditorScreen {
                 PREFIX + ".remove", Integer.MAX_VALUE);
         r = teamRow(r, PREFIX + ".label.required_team", event.requiredTeams);
         r = note(r, PREFIX + ".hint.conditions_note", SREPanelStyle.MUTED);
-        return r;
+        return cardEnd(gap(r));
     }
 
     /** 「阵营轮回」按钮：空 = 任意阵营，点一下切到下一个阵营。 */

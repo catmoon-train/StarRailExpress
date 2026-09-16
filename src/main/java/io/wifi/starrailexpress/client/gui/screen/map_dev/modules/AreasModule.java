@@ -15,6 +15,7 @@
 
 package io.wifi.starrailexpress.client.gui.screen.map_dev.modules;
 
+import io.wifi.starrailexpress.client.gui.SREPanelStyle;
 import io.wifi.starrailexpress.client.gui.screen.map_dev.*;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.EditBox;
@@ -66,7 +67,7 @@ public class AreasModule implements TabModule {
     pos1Field.setMaxLength(50);
     pos1Field.setValue(formatPos(pos1)); // 显示已保存的坐标
     // 输入框旁边没有标签位，用占位提示说明这是哪个角（悬停也能看全文）
-    pos1Field.setHint(Component.translatable("sre.map_helper.area.set_min"));
+    pos1Field.setHint(SREPanelStyle.hint(Component.translatable("sre.map_helper.area.set_min")));
     pos1Field.setTooltip(net.minecraft.client.gui.components.Tooltip
         .create(Component.translatable("sre.map_helper.area.set_min")));
     placements.add(new WidgetPlacement(pos1Field, y));
@@ -89,7 +90,7 @@ public class AreasModule implements TabModule {
         Component.empty());
     pos2Field.setMaxLength(50);
     pos2Field.setValue(formatPos(pos2));
-    pos2Field.setHint(Component.translatable("sre.map_helper.area.set_max"));
+    pos2Field.setHint(SREPanelStyle.hint(Component.translatable("sre.map_helper.area.set_max")));
     pos2Field.setTooltip(net.minecraft.client.gui.components.Tooltip
         .create(Component.translatable("sre.map_helper.area.set_max")));
     placements.add(new WidgetPlacement(pos2Field, y));

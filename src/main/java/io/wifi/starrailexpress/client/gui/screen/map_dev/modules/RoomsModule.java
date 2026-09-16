@@ -15,6 +15,7 @@
 
 package io.wifi.starrailexpress.client.gui.screen.map_dev.modules;
 
+import io.wifi.starrailexpress.client.gui.SREPanelStyle;
 import io.wifi.starrailexpress.client.gui.screen.map_dev.*;
 import net.minecraft.client.gui.components.EditBox;
 import io.wifi.starrailexpress.cca.AreasWorldComponent;
@@ -40,7 +41,7 @@ public class RoomsModule implements TabModule {
         EditBox roomCountBox = new EditBox(layout.font, leftX, y, fw, bh, Component.empty());
         roomCountBox.setMaxLength(20);
         roomCountBox.setValue(String.valueOf(currentRoomCount()));
-        roomCountBox.setHint(Component.translatable("sre.map_helper.set_room_count"));
+        roomCountBox.setHint(SREPanelStyle.hint(Component.translatable("sre.map_helper.set_room_count")));
         roomCountBox.setTooltip(Tooltip.create(Component.translatable("sre.map_helper.set_room_count")));
         placements.add(new WidgetPlacement(roomCountBox, y));
 
@@ -58,7 +59,7 @@ public class RoomsModule implements TabModule {
         EditBox roomIdBox = new EditBox(layout.font, leftX, row2, fw, bh, Component.empty());
         roomIdBox.setMaxLength(20);
         roomIdBox.setValue("0");
-        roomIdBox.setHint(Component.translatable("sre.map_helper.room_id_hint"));
+        roomIdBox.setHint(SREPanelStyle.hint(Component.translatable("sre.map_helper.room_id_hint")));
         roomIdBox.setTooltip(Tooltip.create(Component.translatable("sre.map_helper.room_id_hint")));
         placements.add(new WidgetPlacement(roomIdBox, row2));
 

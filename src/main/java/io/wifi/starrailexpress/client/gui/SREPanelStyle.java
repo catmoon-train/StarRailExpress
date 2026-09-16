@@ -56,6 +56,15 @@ public final class SREPanelStyle {
     public static final int TITLE = 0xFFF5E8C8;
     /** 次要文字（土褐）。 */
     public static final int MUTED = 0xFF9E8B6E;
+    /**
+     * 输入框占位提示色。
+     *
+     * <p>
+     * 取的就是 {@link #MUTED}（文档 §2.1 里这个色本来就是给「说明 / 占位符」用的）：
+     * 原版 {@code EditBox} 画 hint 时用的是<b>输入框的文字色</b>，所以不额外套样式的话，
+     * 占位提示会和用户真正输入的内容一模一样，很容易被误认成已有内容。
+     */
+    public static final int HINT = MUTED;
     /** 暗米色正文。 */
     public static final int BODY = 0xFFC8B898;
     /** 功能蓝（计时 / 地图属性）。 */
@@ -137,6 +146,22 @@ public final class SREPanelStyle {
     public static final int SCROLL_MIN_THUMB = 20;
 
     // ==================== 工具函数（文档第 6 节）====================
+
+    /**
+     * 给输入框的占位提示套上 {@link #HINT} 色。
+     *
+     * <p>
+     * 原版 {@code EditBox} 画 hint 时用的是输入框自己的文字色，所以必须给 hint 文案带上颜色样式
+     * （样式优先于传入的颜色），否则它和真实内容同色，用户会以为框里已经有内容了。
+     *
+     * @param text 占位提示文案，null 原样返回
+     */
+    public static net.minecraft.network.chat.Component hint(net.minecraft.network.chat.Component text) {
+        if (text == null) {
+            return null;
+        }
+        return text.copy().withStyle(style -> style.withColor(HINT));
+    }
 
     /** 缓动：入场用。 */
     public static float easeOutCubic(float t) {

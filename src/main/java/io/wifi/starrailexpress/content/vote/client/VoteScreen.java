@@ -218,7 +218,8 @@ public class VoteScreen extends Screen {
             // 保持默认带边框样式：文字/提示带 4px 内边距且垂直居中（setBordered(false) 会贴左上角）
             searchBox.setMaxLength(64);
             searchBox.setTextColor(COL_TEXT_NORMAL);
-            searchBox.setHint(Component.translatable("vote.search_hint"));
+            searchBox.setHint(io.wifi.starrailexpress.client.gui.SREPanelStyle
+                    .hint(Component.translatable("vote.search_hint")));
             searchBox.setResponder(text -> {
                 searchText = text;
                 scrollOffset = 0;

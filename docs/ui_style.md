@@ -120,6 +120,9 @@ g.fill(x + 1, y + 1, x + w - 1, y + 2, 0x33FFE8C0);
   - 价格等数值：`ChatFormatting.GOLD`。
 - 分割线用 `─` 字符串 + `ChatFormatting.DARK_GRAY`。
 - 长文本换行用 `font.split(text, maxWidth)`；居中用 `drawCenteredString`。
+- **输入框的占位提示必须套 `SREPanelStyle.hint(...)`**（HINT 色 = MUTED）：原版 `EditBox` 画 hint 用的
+  是输入框自己的文字色，不套样式的话占位提示和用户真正输入的内容一模一样，很容易被误认为框里已经有内容。
+  同理，自己写搜索框时也要给 hint 带颜色样式（别只写 `setHint(Component.translatable(key))`）。
 - Markdown 简易解析（`#`/`##`/`###` → 不同颜色粗体标题）参考 `StarRailExpressTitleScreen.parseChangelogLines`。
 
 ---
@@ -191,7 +194,7 @@ static int blendColors(int c1, int c2, float t) {
 
 ---
 
-## 8.5 自定义内容编辑器（`CustomEditorScreen` + `EditorLayout`）
+### 8.5 自定义内容编辑器（`CustomEditorScreen` + `EditorLayout`）
 
 `CustomRoleScreen` / `CustomModifierScreen` / `CustomItemScreen` / `CustomBlockScreen` 四个编辑器通用
 `io.wifi.starrailexpress.client.gui.screen.CustomEditorScreen`，**不要再复制一套布局/滚动/页签代码**。
@@ -252,6 +255,23 @@ public class FooScreen extends CustomEditorScreen {
    `Esc` 先取消焦点再关闭 —— 这些由基类提供，子类不用管。
 12. 布局几何是纯函数（`EditorLayout`），改动后跑 `./gradlew test --tests '*EditorLayoutTest*'`：
     它会按常见窗口尺寸 × GUI 缩放遍历断言「面板在屏幕内、字段不越界、页签不溢出、预览不压字段」。
+13. **一组相关字段用卡片包起来**：一个「多字段的子对象」（方块的事件、修饰符的触发组、职业的技能模块）
+    用 `cardBegin(...)` / `cardEnd(...)` 括起来，不要只画一行标题：
+
+    ```java
+    r = cardBegin(r, "block_event_" + index,                       // 稳定 id：折叠状态靠它记住
+            Component.translatable(PREFIX + ".event.title", index + 1),  // 标题
+            Component.translatable(PREFIX + ".event_type." + type),      // 徽标（可空）
+            () -> data.events.remove(index));                      // 卡片头右侧的「×」，可空
+    r = cluster(r, null, /* … 这个事件的字段 … */);
+    r = lines(/* … */);
+    return cardEnd(gap(r));
+    ```
+
+    卡片会自动做三件事：一是画「淡色底 + 标题条 + 描边」，块与块之间边界清楚；二是把里面的行
+    左右内缩，看得出是「装着一组字段」；三是**卡片头可点，点一下折叠成一行**，块多时可以只展开
+    正在编辑的那一块。折叠状态按 id 记在基类里，重建界面（切页签、改开关）后仍然记得。
+    不要把卡片套卡片。
 
 ### 8.6 只借几何：`EditorLayout` 的独立用法
 

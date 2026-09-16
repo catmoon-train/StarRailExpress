@@ -20,6 +20,8 @@ import com.google.gson.annotations.Expose;
 import io.wifi.ConfigCompact.annotation.Category;
 import io.wifi.starrailexpress.cca.AreasWorldComponent;
 import io.wifi.starrailexpress.client.SREClient;
+import io.wifi.starrailexpress.client.util.PinYinUtils;
+import io.wifi.starrailexpress.client.gui.SREPanelStyle;
 import io.wifi.starrailexpress.client.gui.screen.map_dev.*;
 import io.wifi.starrailexpress.client.gui.screen.mapui.MapUiGraphics;
 import net.minecraft.client.Minecraft;
@@ -82,6 +84,14 @@ public class AllSettingsModule implements TabModule {
     /** 搜索词（小写）。非空时只列命中项、忽略分类折叠。 */
     private String searchQuery = "";
     private EditBox searchBox;
+    /**
+     * 标签列宽度：按当前显示的条目里最宽的标签自适应，最多占内容宽度的一半。
+     *
+     * <p>
+     * 控件一律紧跟在这一列之后（左对齐），于是既不会出现「标签和控件之间空一大段」，
+     * 长标签也不会被截断成看不懂的样子。
+     */
+    private int labelColumnWidth = 100;
 
     /** 搜索框占头部一行。 */
     @Override
@@ -91,12 +101,12 @@ public class AllSettingsModule implements TabModule {
 
     @Override
     public void buildHeader(LayoutContext layout, ModuleContext ctx, List<AbstractWidget> fixed) {
-        int width = Math.min(200, layout.contentWidth());
-        searchBox = new EditBox(layout.font, layout.rightEdge() - width, layout.headerBottom - 20, width, 18,
+        int width = Math.min(260, layout.contentWidth());
+        searchBox = new EditBox(layout.font, layout.leftColumnX(), layout.headerBottom - 20, width, 18,
                 Component.empty());
         searchBox.setMaxLength(64);
         searchBox.setValue(searchQuery);
-        searchBox.setHint(Component.translatable("sre.map_helper.settings.search_hint"));
+        searchBox.setHint(SREPanelStyle.hint(Component.translatable("sre.map_helper.settings.search_hint")));
         searchBox.setTooltip(Tooltip.create(Component.translatable("sre.map_helper.settings.search_hint")));
         searchBox.setResponder(value -> {
             String next = value == null ? "" : value.trim().toLowerCase(Locale.ROOT);
@@ -134,7 +144,20 @@ public class AllSettingsModule implements TabModule {
             refreshValues(allSettingsEntries);
         }
 
-        totalContentHeight = createWidgetsForMixedEntries(layout, ctx, placements, buildDisplayList(), 0);
+        List<Object> display = buildDisplayList();
+        labelColumnWidth = measureLabelColumn(layout, display);
+        totalContentHeight = createWidgetsForMixedEntries(layout, ctx, placements, display, 0);
+    }
+
+    /** 标签列宽度：本页最宽标签 + 6，夹在 [60, 内容宽度的一半]。 */
+    private int measureLabelColumn(LayoutContext layout, List<Object> display) {
+        int widest = 0;
+        for (Object obj : display) {
+            if (obj instanceof SettingsEntry entry) {
+                widest = Math.max(widest, layout.font.width(entry.displayName) + entry.depth * 12);
+            }
+        }
+        return Mth.clamp(widest + 6, 60, Math.max(60, layout.contentWidth() / 2));
     }
 
     /** 重新读取整棵树的当前值（含嵌套条目）。 */
@@ -183,9 +206,8 @@ public class AllSettingsModule implements TabModule {
     }
 
     private boolean matchesQuery(SettingsEntry entry, String query) {
-        return entry.displayName.toLowerCase(Locale.ROOT).contains(query)
-                || entry.path.toLowerCase(Locale.ROOT).contains(query)
-                || entry.field.getName().toLowerCase(Locale.ROOT).contains(query);
+        // 索引里已经含「原文 / 全拼 / 首字母」三份，查一次就够
+        return entry.searchIndex.contains(query);
     }
 
     /** 搜索中：不自动展开子项，避免同一项既作为命中项出现、又作为父项的子项重复出现。 */
@@ -493,7 +515,7 @@ public class AllSettingsModule implements TabModule {
         int currentY = y;
         int depth = entry.depth + 1;
         int leftX = layout.leftColumnX() + depth * 12;
-        int rightEdge = layout.panelLeftX + layout.panelWidth - layout.gutter - 4;
+        int rightEdge = layout.rightEdge();
         int gap = 6;
         int rowHeight = 30;
         String tooltipKey = "sre.map_helper.settings." + entry.path + ".@tooltip";
@@ -522,7 +544,7 @@ public class AllSettingsModule implements TabModule {
             int arrowBtnW = 20, displayW = 80, gapBtn = 4;
             int totalW = arrowBtnW + gapBtn + displayW + gapBtn + arrowBtnW + 40 + gap;
             // 标签很长时 startX 可能被推到 controlStartX 左边：夹一下，保证不压到标签上
-            int startX = Math.max(controlStartX, rightEdge - totalW);
+            int startX = controlStartX;
 
             EnumValueLabel enumDisplay = new EnumValueLabel(layout.font, startX + arrowBtnW + gapBtn, currentY,
                     displayW, 20, displayText);
@@ -533,7 +555,7 @@ public class AllSettingsModule implements TabModule {
             }
             placements.add(new WidgetPlacement(enumDisplay, currentY));
 
-            ModernButton leftArrow = ModernButton.builder(Component.literal("<-"), b -> {
+            ModernButton leftArrow = ModernButton.builder(Component.literal("<"), b -> {
                 int idx = addSelectedIndex[0];
                 int newIdx = (idx - 1 + constants.length) % constants.length;
                 String newName = ((Enum<?>) constants[newIdx]).name();
@@ -549,7 +571,7 @@ public class AllSettingsModule implements TabModule {
             }).bounds(startX, currentY, arrowBtnW, 20).accentBar(AccentSide.LEFT).build();
             placements.add(new WidgetPlacement(leftArrow, currentY));
 
-            ModernButton rightArrow = ModernButton.builder(Component.literal("->"), b -> {
+            ModernButton rightArrow = ModernButton.builder(Component.literal(">"), b -> {
                 int idx = addSelectedIndex[0];
                 int newIdx = (idx + 1) % constants.length;
                 String newName = ((Enum<?>) constants[newIdx]).name();
@@ -619,7 +641,7 @@ public class AllSettingsModule implements TabModule {
 
             int arrowBtnW = 20, displayW = 80, gapBtn = 4;
             int totalW = arrowBtnW + gapBtn + displayW + gapBtn + arrowBtnW + 40 + gap;
-            int startX = rightEdge - totalW;
+            int startX = deleteControlStartX;
 
             EnumValueLabel enumDisplay = new EnumValueLabel(layout.font, startX + arrowBtnW + gapBtn, currentY,
                     displayW, 20, displayText);
@@ -629,7 +651,7 @@ public class AllSettingsModule implements TabModule {
             }
             placements.add(new WidgetPlacement(enumDisplay, currentY));
 
-            ModernButton leftArrow = ModernButton.builder(Component.literal("<-"), b -> {
+            ModernButton leftArrow = ModernButton.builder(Component.literal("<"), b -> {
                 int idx = deleteSelectedIndex[0];
                 int newIdx = (idx - 1 + constants.length) % constants.length;
                 String newName = ((Enum<?>) constants[newIdx]).name();
@@ -645,7 +667,7 @@ public class AllSettingsModule implements TabModule {
             }).bounds(startX, currentY, arrowBtnW, 20).accentBar(AccentSide.LEFT).build();
             placements.add(new WidgetPlacement(leftArrow, currentY));
 
-            ModernButton rightArrow = ModernButton.builder(Component.literal("->"), b -> {
+            ModernButton rightArrow = ModernButton.builder(Component.literal(">"), b -> {
                 int idx = deleteSelectedIndex[0];
                 int newIdx = (idx + 1) % constants.length;
                 String newName = ((Enum<?>) constants[newIdx]).name();
@@ -728,9 +750,9 @@ public class AllSettingsModule implements TabModule {
 
     private int createWidgetsForEntry(LayoutContext layout, ModuleContext ctx, List<WidgetPlacement> placements,
             SettingsEntry entry, int y) {
-        int rightEdge = layout.panelLeftX + layout.panelWidth - layout.gutter - 4;
+        int rightEdge = layout.rightEdge();
         int leftX = layout.leftColumnX() + entry.depth * 12;
-        int labelWidth = Math.min(140, (layout.contentWidth() - entry.depth * 12) / 3);
+        int labelWidth = Math.max(40, labelColumnWidth - entry.depth * 12);
         int gap = 6;
         Class<?> type = entry.field.getType();
         Object value = entry.currentValue;
@@ -745,7 +767,8 @@ public class AllSettingsModule implements TabModule {
             label.setTooltip(Tooltip.create(Component.translatable(tooltipKey)));
         }
 
-        int controlX = leftX + labelWidth + gap;
+        // 控件列：所有行（含嵌套行）对齐到同一列，跟在标签列之后
+        int controlX = layout.leftColumnX() + labelColumnWidth + gap;
         int remainingWidth = layout.contentWidth() - (controlX - layout.leftColumnX()) - 6;
 
         // 处理集合类型（优先判断）
@@ -755,8 +778,7 @@ public class AllSettingsModule implements TabModule {
                 // 自定义元素列表：Add, JSON, Clear, View
                 int btnW = 30;
                 int gapBtn = 3;
-                int totalWidth = btnW * 4 + gapBtn * 3; // 30*4 + 3*3 = 129
-                int startX = rightEdge - totalWidth;
+                int startX = controlX;
 
                 // Add 按钮：打开表单添加
                 ModernButton addBtn = ModernButton.builder(
@@ -801,8 +823,7 @@ public class AllSettingsModule implements TabModule {
                 int btnW = 50;
                 int viewW = 30;
                 int gapBtn = 4;
-                int totalWidth = btnW + gapBtn + 40 + gapBtn + viewW;
-                int startX = rightEdge - totalWidth;
+                int startX = controlX;
 
                 // 展开/收起按钮
                 ModernButton toggleBtn = ModernButton.builder(
@@ -810,7 +831,6 @@ public class AllSettingsModule implements TabModule {
                                 : "sre.map_helper.expandable.expand"),
                         b -> {
                             entry.expanded = !entry.expanded;
-                        recordExpanded(entry);
                             recordExpanded(entry);
                             ctx.requestModuleRefresh();
                         })
@@ -844,8 +864,7 @@ public class AllSettingsModule implements TabModule {
             if (type == boolean.class || type == Boolean.class) {
                 int btnW1 = 50, btnW2 = 50, btnW3 = 30;
                 int gapBtn = 4;
-                int totalControlWidth = btnW1 + gapBtn + btnW2 + gapBtn + btnW3;
-                int startX = rightEdge - totalControlWidth;
+                int startX = controlX;
 
                 ModernButton enableBtn = ModernButton.builder(
                         Component.translatable("sre.map_helper.set_true_null"),
@@ -867,9 +886,8 @@ public class AllSettingsModule implements TabModule {
             }
             // 字符串 & 数字
             else if (type == String.class || isNumberType(type)) {
-                int inputWidth = Math.max(70, remainingWidth - 120);
-                EditBox input = new EditBox(layout.font, rightEdge - inputWidth - 40 - 30 - gap * 2, y, inputWidth, 20,
-                        Component.empty());
+                int inputWidth = Mth.clamp(remainingWidth - 82, 70, 220);
+                EditBox input = new EditBox(layout.font, controlX, y, inputWidth, 20, Component.empty());
                 input.setMaxLength(200);
                 input.setValue(value != null ? value.toString() : "");
                 if (I18n.exists(tooltipKey)) {
@@ -880,11 +898,12 @@ public class AllSettingsModule implements TabModule {
                     String val = input.getValue().trim();
                     if (!val.isEmpty())
                         ctx.sendOnly("sre:area_manager set " + entry.path + " " + (val));
-                }).bounds(rightEdge - 30 - 40 - gap, y, 40, 20).accentBar(AccentSide.BOTTOM).build();
+                }).bounds(controlX + inputWidth + gap, y, 40, 20).accentBar(AccentSide.BOTTOM).build();
                 placements.add(new WidgetPlacement(modifyBtn, y));
                 ModernButton viewBtn = ModernButton.builder(Component.translatable("sre.map_helper.view"),
                         b -> ctx.sendOnly("sre:area_manager get " + entry.path))
-                        .bounds(rightEdge - 30, y, 30, 20).accentBar(AccentSide.BOTTOM).build();
+                        .bounds(controlX + inputWidth + gap + 40 + gap, y, 30, 20)
+                        .accentBar(AccentSide.BOTTOM).build();
                 placements.add(new WidgetPlacement(viewBtn, y));
             }
             // 枚举
@@ -893,7 +912,7 @@ public class AllSettingsModule implements TabModule {
                 if (constants == null || constants.length == 0) {
                     ModernButton viewBtn = ModernButton.builder(Component.translatable("sre.map_helper.view"),
                             b -> ctx.sendOnly("sre:area_manager get " + entry.path))
-                            .bounds(rightEdge - 30, y, 30, 20).accentBar(AccentSide.BOTTOM).build();
+                            .bounds(controlX, y, 30, 20).accentBar(AccentSide.BOTTOM).build();
                     placements.add(new WidgetPlacement(viewBtn, y));
                 } else {
                     int currentIdx = 0;
@@ -905,9 +924,8 @@ public class AllSettingsModule implements TabModule {
                         }
                     }
 
-                    int arrowBtnW = 20, displayW = 80, gapBtn = 4;
-                    int totalW = arrowBtnW + gapBtn + displayW + gapBtn + arrowBtnW + 30 + gap;
-                    int startX = rightEdge - totalW;
+                    int arrowBtnW = 22, displayW = 100, gapBtn = 4;
+                    int startX = controlX;
 
                     final int[] selectedIndex = { currentIdx };
 
@@ -925,7 +943,7 @@ public class AllSettingsModule implements TabModule {
                         displayLabel.setTooltip(Tooltip.create(Component.translatable(enumTooltipKey)));
                     }
 
-                    ModernButton leftArrow = ModernButton.builder(Component.literal("<-"), b -> {
+                    ModernButton leftArrow = ModernButton.builder(Component.literal("<"), b -> {
                         int idx = selectedIndex[0];
                         int newIdx = (idx - 1 + constants.length) % constants.length;
                         String newName = ((Enum<?>) constants[newIdx]).name();
@@ -940,7 +958,7 @@ public class AllSettingsModule implements TabModule {
                         }
                     }).bounds(startX, y, arrowBtnW, 20).accentBar(AccentSide.LEFT).build();
 
-                    ModernButton rightArrow = ModernButton.builder(Component.literal("->"), b -> {
+                    ModernButton rightArrow = ModernButton.builder(Component.literal(">"), b -> {
                         int idx = selectedIndex[0];
                         int newIdx = (idx + 1) % constants.length;
                         String newName = ((Enum<?>) constants[newIdx]).name();
@@ -958,7 +976,8 @@ public class AllSettingsModule implements TabModule {
 
                     ModernButton viewBtn = ModernButton.builder(Component.translatable("sre.map_helper.view"),
                             b -> ctx.sendOnly("sre:area_manager get " + entry.path))
-                            .bounds(rightEdge - 30, y, 30, 20).accentBar(AccentSide.BOTTOM).build();
+                            .bounds(startX + arrowBtnW + gapBtn + displayW + gapBtn + arrowBtnW + gap, y, 30, 20)
+                            .accentBar(AccentSide.BOTTOM).build();
                     placements.add(new WidgetPlacement(viewBtn, y));
                     placements.add(new WidgetPlacement(leftArrow, y));
                     placements.add(new WidgetPlacement(displayLabel, y));
@@ -967,7 +986,7 @@ public class AllSettingsModule implements TabModule {
             }
             // Map 类型
             else if (Map.class.isAssignableFrom(type)) {
-                int inputWidth = Math.min(120, remainingWidth - 40 - 30 - 2 * gap);
+                int inputWidth = Mth.clamp(remainingWidth - 82, 70, 220);
                 EditBox mapInput = new EditBox(layout.font, controlX, y, inputWidth, 20,
                         Component.translatable("sre.map_helper.json"));
                 mapInput.setMaxLength(1000);
@@ -984,7 +1003,8 @@ public class AllSettingsModule implements TabModule {
                 placements.add(new WidgetPlacement(modifyBtn, y));
                 ModernButton viewBtn = ModernButton.builder(Component.translatable("sre.map_helper.view"),
                         b -> ctx.sendOnly("sre:area_manager get " + entry.path))
-                        .bounds(controlX + inputWidth + gap + 44, y, 30, 20).accentBar(AccentSide.BOTTOM).build();
+                        .bounds(controlX + inputWidth + gap + 40 + gap, y, 30, 20).accentBar(AccentSide.BOTTOM)
+                        .build();
                 placements.add(new WidgetPlacement(viewBtn, y));
             }
             // 其他类型（自定义对象）但已经是叶子？理论上自定义对象应展开，所以不会到这里
@@ -996,7 +1016,7 @@ public class AllSettingsModule implements TabModule {
                     b -> {
                         entry.expanded = !entry.expanded;
                         ctx.requestModuleRefresh();
-                    }).bounds(rightEdge - 50, y, 50, 20).accentBar().build();
+                    }).bounds(controlX, y, 50, 20).accentBar().build();
             if (I18n.exists(tooltipKey)) {
                 toggleBtn.setTooltip(Tooltip.create(Component.translatable(tooltipKey)));
             }
@@ -1275,6 +1295,8 @@ public class AllSettingsModule implements TabModule {
         String displayName;
         String displayNameKey; // 保存用于工具提示的键
         Object currentValue;
+        /** 搜索索引：原文 + 全拼 + 拼音首字母（小写，建树时算一次） */
+        String searchIndex = "";
 
         SettingsEntry(String path, Field field, Object parent, int depth) {
             this.path = path;
@@ -1288,6 +1310,10 @@ public class AllSettingsModule implements TabModule {
                 this.displayNameKey = "sre.map_helper.settings.class." + className + "." + field.getName();
             }
             this.displayName = Component.translatableWithFallback(displayNameKey, field.getName()).getString();
+            // 原文（名称 / 路径 / 字段名）+ 拼音：于是「会议」「huiyi」「hy」都能搜到
+            String raw = (this.displayName + " " + path + " " + field.getName()).toLowerCase(Locale.ROOT);
+            this.searchIndex = raw + "|" + PinYinUtils.toSearchablePinyin(this.displayName)
+                    + "|" + PinYinUtils.toPinyinInitials(this.displayName);
             updateValue();
         }
 

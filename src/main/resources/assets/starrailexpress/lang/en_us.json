@@ -3288,7 +3288,7 @@
     "sre.area_manager.get.page": "Page %d/%d, %d items: [%s]",
     "sre.area_manager.clear.success": "Cleared list: %s",
     "sre.map_helper.title": "Map Builder Helper",
-    "sre.map_helper.settings.search_hint": "Search settings (name / path)",
+    "sre.map_helper.settings.search_hint": "Search settings (name / pinyin / path)",
     "sre.map_helper.settings.no_match": "No matching setting",
     "sre.map_helper.room_id_hint": "Room index (from 0)",
     "sre.map_helper.source_pos": "Source pos: %d, %d, %d",

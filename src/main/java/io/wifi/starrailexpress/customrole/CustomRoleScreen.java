@@ -587,15 +587,11 @@ public class CustomRoleScreen extends CustomEditorScreen {
                 for (int m = 0; m < data.skillModules.size(); m++) {
                     final int moduleIndex = m;
                     CustomRoleData.SkillData skill = data.skillModules.get(m);
-                    r = section(r, PREFIX + ".skill_module_title");
-                    r = cluster(r, PREFIX + ".skill_module",
-                            fixedButton(Component.translatable(PREFIX + ".skill_module_title", m + 1), 140,
-                                    () -> {
-                                    }),
-                            fixedButton(Component.literal("X"), 22, () -> {
-                                data.skillModules.remove(moduleIndex);
-                                requestRebuild();
-                            }));
+                    // 一个技能模块一张卡片：标题「技能 N」+ 技能名徽标，卡片头右侧删除模块
+                    r = cardBegin(r, "role_skill_" + moduleIndex,
+                            Component.translatable(PREFIX + ".skill_module_title", moduleIndex + 1),
+                            skill.name == null || skill.name.isBlank() ? null : Component.literal(skill.name),
+                            () -> data.skillModules.remove(moduleIndex));
                     r = textRow(r, PREFIX + ".skill_name", skill.name, LIMIT_NAME, null,
                             value -> skill.name = value);
                     r = stringList(r, skill.commands, PREFIX + ".label.ability_commands", 220,
@@ -626,6 +622,7 @@ public class CustomRoleScreen extends CustomEditorScreen {
                             PREFIX + ".hint.command_no_slash");
                     r = stringList(r, skill.gameEndCommands, PREFIX + ".label.game_end_commands", 220,
                             PREFIX + ".hint.command_no_slash");
+                    r = cardEnd(gap(r));
                 }
                 r = addRow(r, Component.translatable(PREFIX + ".add_skill_module"),
                         () -> {

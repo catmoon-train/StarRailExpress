@@ -3331,7 +3331,7 @@
     "sre.area_manager.get.page": "第 %d/%d 页，共 %d 项：[%s]",
     "sre.area_manager.clear.success": "已清空列表：%s",
     "sre.map_helper.title": "地图构建助手",
-    "sre.map_helper.settings.search_hint": "搜索设置项（名称 / 路径）",
+    "sre.map_helper.settings.search_hint": "搜索设置项（名称 / 拼音 / 路径）",
     "sre.map_helper.settings.no_match": "没有匹配的设置项",
     "sre.map_helper.room_id_hint": "房间序号（从 0 开始）",
     "sre.map_helper.source_pos": "源坐标: %d, %d, %d",

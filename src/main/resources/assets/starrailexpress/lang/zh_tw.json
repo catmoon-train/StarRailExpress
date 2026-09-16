@@ -3312,7 +3312,7 @@
     "sre.area_manager.get.page": "第 %d/%d 頁，共 %d 項：[%s]",
     "sre.area_manager.clear.success": "已清空列表：%s",
     "sre.map_helper.title": "地圖構建助手",
-    "sre.map_helper.settings.search_hint": "搜尋設定項（名稱 / 路徑）",
+    "sre.map_helper.settings.search_hint": "搜尋設定項（名稱 / 拼音 / 路徑）",
     "sre.map_helper.settings.no_match": "沒有符合的設定項",
     "sre.map_helper.room_id_hint": "房間序號（從 0 開始）",
     "sre.map_helper.source_pos": "源座標: %d, %d, %d",

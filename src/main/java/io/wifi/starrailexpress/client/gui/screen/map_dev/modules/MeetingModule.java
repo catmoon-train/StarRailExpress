@@ -15,6 +15,7 @@
 
 package io.wifi.starrailexpress.client.gui.screen.map_dev.modules;
 
+import io.wifi.starrailexpress.client.gui.SREPanelStyle;
 import io.wifi.starrailexpress.client.gui.screen.map_dev.*;
 import net.minecraft.client.gui.components.EditBox;
 import io.wifi.starrailexpress.api.AreasSettings;
@@ -119,7 +120,7 @@ public class MeetingModule implements TabModule {
         EditBox box = new EditBox(layout.font, leftX, y, bw, bh, Component.empty());
         box.setValue(defaultValue);
         box.setMaxLength(10);
-        box.setHint(Component.translatable(labelKey));
+        box.setHint(SREPanelStyle.hint(Component.translatable(labelKey)));
         placements.add(new WidgetPlacement(box, y));
 
         placements.add(new WidgetPlacement(

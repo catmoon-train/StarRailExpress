@@ -309,17 +309,12 @@ public class CustomModifierScreen extends CustomEditorScreen {
     private int groupBlock(int r, CustomModifierData.TriggerGroupData group, int index) {
         boolean global = group.isGlobal();
 
-        List<Cell> header = new ArrayList<>();
-        header.add(tag(Component.translatable(PREFIX + ".group.title", index + 1), SREPanelStyle.GOLD));
-        header.add(global
-                ? tag(Component.translatable(PREFIX + ".group.global"), SREPanelStyle.GREEN)
-                : tag(Component.translatable(PREFIX + ".group.conditional", group.conditions.size()),
-                        SREPanelStyle.BLUE));
-        header.add(fixedButton(Component.translatable(REMOVE), 22, () -> {
-            data.effectiveGroups().remove(index);
-            requestRebuild();
-        }));
-        r = cluster(r, null, header.toArray(new Cell[0]));
+        // 一个触发组一张卡片：标题「第 N 组」+（全局组 / N 个条件）徽标，卡片头右侧删除
+        r = cardBegin(r, "modifier_group_" + index,
+                Component.translatable(PREFIX + ".group.title", index + 1),
+                global ? Component.translatable(PREFIX + ".group.global")
+                        : Component.translatable(PREFIX + ".group.conditional", group.conditions.size()),
+                () -> data.effectiveGroups().remove(index));
 
         // 条件：这一组满足时才执行本组内容（全局组没有条件）
         if (!global) {
@@ -352,7 +347,7 @@ public class CustomModifierScreen extends CustomEditorScreen {
             r = toggle(r, PREFIX + ".effect.remove_on_trigger", group.removeModifierOnTrigger,
                     value -> group.removeModifierOnTrigger = value);
         }
-        return gap(r);
+        return cardEnd(gap(r));
     }
 
     /** 组内一条条件：类型 + 参数 + 与/或 + 删除。 */

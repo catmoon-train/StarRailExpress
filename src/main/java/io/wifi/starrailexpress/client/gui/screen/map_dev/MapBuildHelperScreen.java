@@ -220,10 +220,13 @@ public class MapBuildHelperScreen extends Screen implements ModuleContext, InvNo
     }
 
     // ── Screen init ─────────────────────────────────────────────────
-    /** 面板尺寸：占屏幕 70%、上限 500×454；{@link EditorLayout} 会把最小尺寸再 clamp 进屏幕。 */
+    /**
+     * 面板尺寸：按 {@code docs/ui_style.md} §4 的比例（占屏幕 90%）并 clamp，大屏上不会再显得小；
+     * {@link EditorLayout} 会把最小尺寸再 clamp 进屏幕，小窗口也不会溢出去。
+     */
     private static EditorLayout.Config layoutConfig(int headerExtra) {
         return EditorLayout.Config.defaults()
-                .panelSize(0.7F, 500, 454, 320, 200)
+                .panelSize(0.9F, 700, 560, 320, 220)
                 .headerExtra(HEADER_H + headerExtra);
     }
 
