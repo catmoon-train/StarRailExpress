@@ -104,5 +104,8 @@ public class RicePacketTypeRegister {
         PayloadTypeRegistry.playC2S().register(LockGameC2Packet.ID, LockGameC2Packet.CODEC);
         // 注册配钥小游戏完成包
         PayloadTypeRegistry.playC2S().register(KeyForgeGameC2Packet.ID, KeyForgeGameC2Packet.CODEC);
+
+        PayloadTypeRegistry.playC2S().register(SpeakerC2SPacket.ID, SpeakerC2SPacket.CODEC);
+        PayloadTypeRegistry.playS2C().register(SpeakerS2CPacket.ID, SpeakerS2CPacket.CODEC);
     }
 }

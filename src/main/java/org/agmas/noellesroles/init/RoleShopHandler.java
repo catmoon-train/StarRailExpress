@@ -2043,6 +2043,7 @@ public class RoleShopHandler {
 
         // ==================== 唱片师商店 ====================
         {
+            DISC_MASTER_SHOP.add(new ShopEntry(ModItems.SPEAKER.getDefaultInstance(), 80, ShopEntry.Type.TOOL));
             // 19 张原版唱片（截至 1.21） - 每张 50 金币，购买时播放对应音乐
             // 购买任意一张后，全部唱片进入 2 分钟购买冷却
             Item[] discs = {

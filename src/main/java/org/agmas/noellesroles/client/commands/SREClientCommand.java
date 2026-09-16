@@ -188,6 +188,14 @@ public class SREClientCommand {
                         }, 1);
                         return 1;
                       }))
+                  .then(ClientCommandManager.literal("speaker")
+                      .executes(context -> {
+                        ClientScheduler.schedule(() -> {
+                          context.getSource().getClient()
+                              .setScreen(new org.agmas.noellesroles.client.screen.SpeakerScreen());
+                        }, 1);
+                        return 1;
+                      }))
                   .then(ClientCommandManager.literal("test")
                       .executes(context -> {
                         ClientScheduler.schedule(() -> {
