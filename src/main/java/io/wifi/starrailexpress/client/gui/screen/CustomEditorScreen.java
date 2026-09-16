@@ -438,6 +438,33 @@ public abstract class CustomEditorScreen extends Screen {
         return switchCell(button, 120, 1F);
     }
 
+    /**
+     * 三态开关单元（自带标题 + <b>写出状态</b>）：点一下在「未设置 → 是 → 否 → 未设置」之间循环。
+     *
+     * <p>
+     * 适合「一个类别一个按钮、三种状态都要看得懂」的场景（例如自定义修饰符的阵营限制：
+     * 不限 / 仅给该阵营刷新 / 不给该阵营刷新）。比并排两个「✓ / ✗」按钮舒服得多：标题只出现一次、
+     * 状态写成文字，而且天然不会出现两个方向同时生效的矛盾状态。
+     *
+     * <p>
+     * 这种单元自带标题，所以会和相邻的同类行自动并排（见 {@link #mergeSwitchRows}），宽度按一行里
+     * 最宽的标题 + 状态词取齐。
+     *
+     * @param stateText 状态词（{@code null} 表示未设置）
+     */
+    protected Cell triStateCell(Component title, Boolean current,
+            java.util.function.Function<Boolean, Component> stateText, Consumer<Boolean> setter, boolean rebuild) {
+        Boolean[] state = { current };
+        SwitchButton button = new SwitchButton(font, title, () -> state[0], stateText, b -> {
+            state[0] = nextTriState(state[0]);
+            setter.accept(state[0]);
+            if (rebuild) {
+                requestRebuild();
+            }
+        });
+        return switchCell(button, 120, 1F);
+    }
+
     /** 开关按钮单元：额外标记「可与相邻开关行并排」。 */
     private Cell switchCell(AbstractWidget button, int minWidth, float weight) {
         Cell cell = cell(button, minWidth, 0, weight);
@@ -1680,30 +1707,95 @@ public abstract class CustomEditorScreen extends Screen {
         private final java.util.function.Supplier<Boolean> state;
         private final java.util.function.Function<Boolean, Component> stateText;
 
+        protected SwitchButton(Font font, Component label, java.util.function.Supplier<Boolean> state,
+                java.util.function.Function<Boolean, Component> stateText, OnPress onPress) {
+            super(font, label == null ? Component.empty() : label, onPress);
+            this.state = state;
+            this.stateText = stateText;
+        }
+
         /**
-         * 刚好放得下「标题 + 状态方块」的宽度（标题按文字实测）。
+         * 刚好放得下这个按钮的宽度（标题按文字实测，带状态词的算上状态词）。
          *
          * <p>
          * 相邻开关行并排时会用<b>一行里最宽的那个</b>把这一行取齐（见 {@code mergeSwitchRows}）：
          * 短标题的按钮不会拉成一大条空按钮，一行内两个按钮也等宽。
          */
         static int naturalWidth(Font font, AbstractWidget widget) {
-            if (widget == null || font == null) {
+            if (font == null || widget == null) {
                 return 0;
+            }
+            if (widget instanceof SwitchButton button) {
+                return button.naturalWidth(font);
             }
             String text = widget.getMessage().getString();
-            if (text.isEmpty()) {
-                return 0;
-            }
-            // 与 renderString 的排版对齐：左边距 5 + 标题 + 与方块之间 4 + 方块 + 右边距 4（+1 余量）
-            return font.width(text) + CHIP + 14;
+            return text.isEmpty() ? 0 : font.width(text) + CHIP + 14;
         }
 
-        protected SwitchButton(Font font, Component label, java.util.function.Supplier<Boolean> state,
-                java.util.function.Function<Boolean, Component> stateText, OnPress onPress) {
-            super(font, label == null ? Component.empty() : label, onPress);
-            this.state = state;
-            this.stateText = stateText;
+        /** 宽度：左边距 5 + 标题 + （状态词 + 6）+ 方块 + 右边距（+1 余量），与 {@link #renderString} 对齐。 */
+        private int naturalWidth(Font font) {
+            int width = font.width(getMessage());
+            if (stateText != null) {
+                // 三种状态里挑最宽的那个：切换状态时按钮宽度不会跳
+                for (Boolean candidate : new Boolean[] { null, Boolean.TRUE, Boolean.FALSE }) {
+                    Component word = stateText.apply(candidate);
+                    if (word != null) {
+                        width = Math.max(width, font.width(getMessage()) + 6 + font.width(word));
+                    }
+                }
+            }
+            return width + CHIP + 14;
+        }
+
+        protected int textLimit() {
+            // 右侧要给状态符号留位置
+            return Math.max(8, getWidth() - CHIP - 12);
+        }
+
+        @Override
+        protected Component fullText() {
+            // 标签在标签列上时这里只放状态文字，没有会被裁掉的内容
+            return hasLabel() ? getMessage() : Component.empty();
+        }
+
+        @Override
+        public void renderString(GuiGraphics g, Font font, int color) {
+            Boolean value = state.get();
+            int bg = chipColor(value);
+            int border = chipBorder(value);
+            String symbol = chipSymbol(value);
+            if (isHovered()) {
+                // 悬停时状态方块向自己的强调色靠一点，点下去之前就能确认点的是哪一项
+                bg = SREPanelStyle.blendColors(bg, border, 0.35F);
+            }
+            int chipY = getY() + (getHeight() - CHIP) / 2;
+            Component word = stateText == null ? null : stateText.apply(value);
+            int wordWidth = word == null ? 0 : font.width(word) + 6;
+            int textY = getY() + (getHeight() - 8) / 2;
+
+            if (hasLabel()) {
+                int chipX = getX() + getWidth() - CHIP - 4;
+                drawChip(g, font, chipX, chipY, bg, border, symbol);
+                // 状态词贴在方块左边（右对齐），标题被截断也不会盖住它
+                if (word != null) {
+                    g.drawString(font, word, chipX - wordWidth, textY, border, false);
+                }
+                String shown = MapUiGraphics.clip(font, getMessage().getString(),
+                        Math.max(8, textLimit() - wordWidth));
+                // 关 / 未设置时整行暗一档，开的时候才是亮的
+                int labelColor = Boolean.TRUE.equals(value) ? SREPanelStyle.TEXT : SREPanelStyle.MUTED;
+                g.drawString(font, Component.literal(shown), getX() + 5, textY,
+                        isHovered() ? SREPanelStyle.TEXT : labelColor, false);
+                return;
+            }
+
+            // 标签在标签列上的行：把「符号 + 状态文字」居中
+            int groupWidth = CHIP + wordWidth;
+            int chipX = getX() + (getWidth() - groupWidth) / 2;
+            drawChip(g, font, chipX, chipY, bg, border, symbol);
+            if (word != null) {
+                g.drawString(font, word, chipX + CHIP + 4, textY, border, false);
+            }
         }
 
         private boolean hasLabel() {
@@ -1729,52 +1821,6 @@ public abstract class CustomEditorScreen extends Screen {
                 return SYMBOL_UNSET;
             }
             return value.booleanValue() ? SYMBOL_ON : SYMBOL_OFF;
-        }
-
-        @Override
-        protected int textLimit() {
-            // 右侧要给状态符号留位置
-            return Math.max(8, getWidth() - CHIP - 12);
-        }
-
-        @Override
-        protected Component fullText() {
-            // 标签在标签列上时这里只放状态文字，没有会被裁掉的内容
-            return hasLabel() ? getMessage() : Component.empty();
-        }
-
-        @Override
-        public void renderString(GuiGraphics g, Font font, int color) {
-            Boolean value = state.get();
-            int bg = chipColor(value);
-            int border = chipBorder(value);
-            String symbol = chipSymbol(value);
-            if (isHovered()) {
-                // 悬停时状态方块向自己的强调色靠一点，点下去之前就能确认点的是哪一项
-                bg = SREPanelStyle.blendColors(bg, border, 0.35F);
-            }
-            int chipY = getY() + (getHeight() - CHIP) / 2;
-
-            if (hasLabel()) {
-                int chipX = getX() + getWidth() - CHIP - 4;
-                drawChip(g, font, chipX, chipY, bg, border, symbol);
-                String shown = MapUiGraphics.clip(font, getMessage().getString(), textLimit());
-                // 关 / 未设置时整行暗一档，开的时候才是亮的
-                int labelColor = Boolean.TRUE.equals(value) ? SREPanelStyle.TEXT : SREPanelStyle.MUTED;
-                g.drawString(font, Component.literal(shown), getX() + 5, getY() + (getHeight() - 8) / 2,
-                        isHovered() ? SREPanelStyle.TEXT : labelColor, false);
-                return;
-            }
-
-            // 标签在标签列上的行：把「符号 + 状态文字」居中
-            Component word = stateText == null ? null : stateText.apply(value);
-            int wordWidth = word == null ? 0 : font.width(word) + 4;
-            int groupWidth = CHIP + wordWidth;
-            int chipX = getX() + (getWidth() - groupWidth) / 2;
-            drawChip(g, font, chipX, chipY, bg, border, symbol);
-            if (word != null) {
-                g.drawString(font, word, chipX + CHIP + 4, getY() + (getHeight() - 8) / 2, border, false);
-            }
         }
 
         private static void drawChip(GuiGraphics g, Font font, int x, int y, int bg, int border, String symbol) {

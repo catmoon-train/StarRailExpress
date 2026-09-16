@@ -123,7 +123,9 @@ class CustomEditorTranslationsTest {
         for (String key : new String[] { "hint.groups_intro", "hint.groups_empty", "group.title",
                 "group.global", "group.conditional", "group.add", "manage.groups",
                 // 组类型开关（全局常驻 / 有条件触发）与「条件组还没条件」的提示
-                "group.mode", "group.mode.global", "group.mode.conditional", "hint.condition_empty" }) {
+                "group.mode", "group.mode.global", "group.mode.conditional", "hint.condition_empty",
+                // 阵营限制：每个阵营一个三态按钮（不限 / 仅给 / 不给）
+                "hint.team_restriction", "team_mode.unset", "team_mode.only", "team_mode.deny" }) {
             assertHas(langs, prefix + "." + key);
         }
     }

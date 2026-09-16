@@ -264,26 +264,32 @@ public class CustomModifierScreen extends CustomEditorScreen {
     private void buildRestrictionTab() {
         int r = 0;
         r = note(r, PREFIX + ".hint.team_restriction", SREPanelStyle.BLUE);
+        // 一个阵营一个三态按钮（不限 → 仅给 → 不给）：标题只出现一次、状态写成文字，
+        // 而且两个列表天然互斥，不会出现「同时只给又不给」的矛盾配置。
+        // 这种行自带标题，所以相邻的会自动并排成两个一行。
         for (RoleTeam team : RoleTeam.values()) {
-            Component label = Component.translatable(PREFIX + ".team." + team.name());
-            r = cluster(r, null,
-                    stateButtonCell(() -> mark(label, data.cannotAppliedToTeams.contains(team.name()),
-                            "✗", SREPanelStyle.RED),
-                            () -> toggle(data.cannotAppliedToTeams, team.name()), false),
-                    stateButtonCell(() -> mark(label, data.canOnlyAppliedToTeams.contains(team.name()),
-                            "✓", SREPanelStyle.GREEN),
-                            () -> toggle(data.canOnlyAppliedToTeams, team.name()), false));
+            r = cluster(r, null, teamCell(team));
         }
         r = listRow(r, PREFIX + ".label.cannot_roles", data.cannotBeAppliedTo, PREFIX + ".hint.role_list");
         r = listRow(r, PREFIX + ".label.only_roles", data.canOnlyBeAppliedTo, PREFIX + ".hint.role_list");
     }
 
-    /** 阵营开关按钮的文字：选中时亮色 ✓ / ✗，未选中时暗色 ·。 */
-    private static Component mark(Component label, boolean on, String symbol, int color) {
-        return Component.literal(on ? symbol + " " : "· ")
-                .withStyle(style -> style.withColor(on ? color : SREPanelStyle.MUTED))
-                .append(label.copy().withStyle(style -> style.withColor(on ? SREPanelStyle.TEXT
-                        : SREPanelStyle.MUTED)));
+    /** 一个阵营的「不限 / 仅给该阵营刷新 / 不给该阵营刷新」三态按钮。 */
+    private Cell teamCell(RoleTeam team) {
+        String name = team.name();
+        Boolean current = data.canOnlyAppliedToTeams.contains(name) ? Boolean.TRUE
+                : (data.cannotAppliedToTeams.contains(name) ? Boolean.FALSE : null);
+        return triStateCell(Component.translatable(PREFIX + ".team." + name), current,
+                on -> Component.translatable(PREFIX + ".team_mode."
+                        + (on == null ? "unset" : (on.booleanValue() ? "only" : "deny"))),
+                value -> {
+                    // 先清掉这一阵营在两边列表里的旧记录，再按新状态写回：两边互斥
+                    data.canOnlyAppliedToTeams.remove(name);
+                    data.cannotAppliedToTeams.remove(name);
+                    if (value != null) {
+                        (value.booleanValue() ? data.canOnlyAppliedToTeams : data.cannotAppliedToTeams).add(name);
+                    }
+                }, false);
     }
 
     // ══════════════════════════════════════════════════════════════════
