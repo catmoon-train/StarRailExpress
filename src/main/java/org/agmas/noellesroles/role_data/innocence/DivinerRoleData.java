@@ -38,7 +38,6 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
-import org.agmas.noellesroles.config.NoellesRolesConfig;
 import org.agmas.noellesroles.content.entity.DoomedSinnerBodyEntity;
 import org.agmas.noellesroles.init.ModItems;
 import org.agmas.noellesroles.role.ModRoles;
@@ -74,6 +73,9 @@ public class DivinerRoleData extends SimpleRoleData {
 
     /** 晶球商店售价（金币，写死）。 */
     public static final int CRYSTAL_BALL_PRICE = 150;
+
+    /** 晶球冷却时长（秒，写死）。 */
+    public static final int COOLDOWN_SECONDS = 50;
 
     // ==================== 状态字段 ====================
 
@@ -154,8 +156,6 @@ public class DivinerRoleData extends SimpleRoleData {
      * @return 是否成功开始（true 才在调用方记回放）
      */
     public boolean startDivination(ServerPlayer sp, Entity targetEntity) {
-        NoellesRolesConfig cfg = NoellesRolesConfig.HANDLER.instance();
-
         // 冷却中
         if (sp.getCooldowns().isOnCooldown(ModItems.CRYSTAL_BALL)) {
             sp.displayClientMessage(Component.translatable("message.noellesroles.diviner.cooldown",
@@ -236,9 +236,8 @@ public class DivinerRoleData extends SimpleRoleData {
         if (!gaveItem && GameUtils.isPlayerAliveAndSurvival(sp)) {
             sp.addItem(ModItems.CRYSTAL_BALL.getDefaultInstance().copy());
             gaveItem = true;
-            NoellesRolesConfig cfg = NoellesRolesConfig.HANDLER.instance();
             sp.displayClientMessage(Component.translatable("message.noellesroles.diviner.intro",
-                    cfg.divinerCooldown, CRYSTAL_BALL_PRICE), false);
+                    COOLDOWN_SECONDS, CRYSTAL_BALL_PRICE), false);
         }
 
         tickDivination(sp);
@@ -392,8 +391,7 @@ public class DivinerRoleData extends SimpleRoleData {
 
     /** 设置晶球冷却。 */
     private void setCooldown(ServerPlayer sp) {
-        NoellesRolesConfig cfg = NoellesRolesConfig.HANDLER.instance();
-        sp.getCooldowns().addCooldown(ModItems.CRYSTAL_BALL, GameConstants.getInTicks(0, cfg.divinerCooldown));
+        sp.getCooldowns().addCooldown(ModItems.CRYSTAL_BALL, GameConstants.getInTicks(0, COOLDOWN_SECONDS));
     }
 
     /** 获取冷却剩余秒数。 */

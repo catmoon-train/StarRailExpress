@@ -91,6 +91,8 @@ import java.util.UUID;
 public final class CustomModifierRuntime {
 
     private static final int SECOND_TICKS = 20;
+    /** 「静止不动」判定阈值：单刻位移平方不超过该值即视为未移动。 */
+    private static final double STILL_EPSILON_SQR = 0.01D * 0.01D;
     /** 全局药水效果的刷新时长（tick）：失去修饰符后最多这么久自然消失。 */
     private static final int GLOBAL_EFFECT_DURATION = 20 * 30;
     /** 剩余时间低于该值时补一次全局药水效果。 */
@@ -170,6 +172,12 @@ public final class CustomModifierRuntime {
         final Set<Integer> oneShotFired = new HashSet<>();
         /** 定时类条件的「下次到期刻」（按组内条件下标存），不受整秒判定对齐影响。 */
         final Map<Integer, Long> nextDue = new HashMap<>();
+        /** 「静止不动」连续计数（tick）。 */
+        int stillTicks = 0;
+        /** 上一刻位置（判断是否移动）。 */
+        Vec3 lastStillPos;
+        /** 上一次「静止刻数是否达标」的结果，用于只在翻转时判定。 */
+        boolean stillSatisfied = false;
     }
 
     // ==================== 初始化 ====================
@@ -252,10 +260,46 @@ public final class CustomModifierRuntime {
                 }
                 continue;
             }
+            // 含「静止不动」条件的组：每刻只做一次很便宜的位置比较来维护计数，
+            // 仅当「静止刻数是否达标」发生翻转时才判定——精确到填写的刻数，
+            // 其余条件仍按秒判定，避免每刻做全量判定（性能）。
+            int stillThreshold = stayStillThreshold(group);
+            if (stillThreshold > 0) {
+                updateStillTicks(groupState, player);
+                boolean satisfied = groupState.stillTicks >= stillThreshold;
+                if (satisfied != groupState.stillSatisfied) {
+                    groupState.stillSatisfied = satisfied;
+                    evaluate(player, entry, groupState, group, null, null, null);
+                    continue;
+                }
+            }
             if (evaluateNow) {
                 evaluate(player, entry, groupState, group, null, null, null);
             }
         }
+    }
+
+    /** 组内「静止不动」条件里最小的目标刻数；没有该条件时返回 -1。 */
+    private static int stayStillThreshold(CustomModifierData.TriggerGroupData group) {
+        int threshold = -1;
+        for (ConditionData condition : safe(group.conditions)) {
+            if (parseType(condition.type) == ConditionType.STAY_STILL) {
+                int value = Math.max(1, (int) Math.round(condition.value));
+                threshold = threshold < 0 ? value : Math.min(threshold, value);
+            }
+        }
+        return threshold;
+    }
+
+    /** 每刻更新「连续静止不动」计数（移动即清零）。 */
+    private static void updateStillTicks(GroupState state, ServerPlayer player) {
+        Vec3 pos = player.position();
+        if (state.lastStillPos != null && state.lastStillPos.distanceToSqr(pos) <= STILL_EPSILON_SQR) {
+            state.stillTicks++;
+        } else {
+            state.stillTicks = 0;
+        }
+        state.lastStillPos = pos;
     }
 
     /** 登记一次死亡（两个死亡事件都会走到这里，后到的击杀者会覆盖先前的 null）。 */
@@ -522,6 +566,7 @@ public final class CustomModifierRuntime {
             case ELAPSED_TIME -> compareDouble(elapsedSeconds(player), condition.value, condition.comparison);
             case FAKE_POISONED -> SREPlayerPoisonComponent.KEY.get(player).fakePoison;
             case HAS_WEAK_ARMOR -> SREWeakArmorPlayerComponent.KEY.get(player).getWeakArmor() > 0;
+            case STAY_STILL -> state.stillTicks >= Math.max(1, (int) Math.round(condition.value));
             default -> false;
         };
     }

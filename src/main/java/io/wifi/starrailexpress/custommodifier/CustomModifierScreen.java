@@ -539,6 +539,7 @@ public class CustomModifierScreen extends CustomEditorScreen {
             case KILLED_BY_TEAM -> condition.stringValue = RoleTeam.values()[0].name();
             case KILLED_BY_ROLE -> condition.stringValue = "noellesroles:raven";
             case KILLED_BY_MODIFIER -> condition.stringValue = "";
+            case STAY_STILL -> condition.value = 20;
             default -> {
             }
         }
@@ -551,6 +552,7 @@ public class CustomModifierScreen extends CustomEditorScreen {
             case TIMER -> Component.translatable(PREFIX + ".hint.seconds");
             case DEATH_COUNTDOWN, DEATH_COUNTDOWN_REVIVE -> Component
                     .translatable(PREFIX + ".hint.death_seconds");
+            case STAY_STILL -> Component.translatable(PREFIX + ".hint.ticks");
             default -> Component.translatable(PREFIX + ".hint.number");
         };
     }
@@ -588,7 +590,7 @@ public class CustomModifierScreen extends CustomEditorScreen {
     /** 条件参数形态：0 无；1 数值；2 字符串；3 比较+数值；4 世界时间；5 间隔+概率；6 阵营。 */
     private static int paramKind(ConditionType type) {
         return switch (type) {
-            case TIMER, TIME_ANCHOR, ELAPSED_TIME, DEATH_COUNTDOWN, DEATH_COUNTDOWN_REVIVE -> 1;
+            case TIMER, TIME_ANCHOR, ELAPSED_TIME, DEATH_COUNTDOWN, DEATH_COUNTDOWN_REVIVE, STAY_STILL -> 1;
             case HAS_ITEM, USE_ITEM, SPEAK, HAS_EFFECT, NEED_TASK_TYPE, DEATH, KILLED_BY_ROLE,
                     KILLED_BY_MODIFIER ->
                 2;

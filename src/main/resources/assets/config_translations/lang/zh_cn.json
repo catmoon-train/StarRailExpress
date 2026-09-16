@@ -584,7 +584,6 @@
   "text.autoconfig.noellesroles.option.ghostEyeDomainCooldown": "鬼眼·杨间 - 诡域技能冷却（秒）",
   "text.autoconfig.noellesroles.option.ghostEyeDomainDuration": "鬼眼·杨间 - 诡域持续时长（秒）",
   "text.autoconfig.noellesroles.option.ghostEyeDomainRadius": "鬼眼·杨间 - 诡域半径（格）",
-  "text.autoconfig.noellesroles.option.divinerCooldown": "占卜家 - 占卜冷却（秒）",
   "text.autoconfig.noellesroles.option.divinerRange": "占卜家 - 水晶球瞄准范围（格）",
   "text.autoconfig.noellesroles.option.photographerFrameMaxBuy": "摄影师 - 每局最多购买画框次数",
   "text.autoconfig.noellesroles.option.photographerFrameBlindSeconds": "摄影师 - 穿越画框赋予的失明秒数",

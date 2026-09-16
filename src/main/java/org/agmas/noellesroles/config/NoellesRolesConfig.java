@@ -251,8 +251,6 @@ public class NoellesRolesConfig implements ConfigData {
     public int greatDetectiveCooldownSeconds = 28;
 
     // ==================== Diviner (占卜家) ====================
-    /** Diviner - Crystal ball teleport cooldown in seconds */
-    public int divinerCooldown = 50;
     /** Diviner - Crystal ball targeting range in blocks */
     public double divinerRange = 4.0;
 

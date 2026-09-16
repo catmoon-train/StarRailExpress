@@ -410,6 +410,8 @@ public class CustomModifierData {
         /** 死亡 value 秒后触发，并自动复活玩家（附带倒计时 HUD）。 */
         DEATH_COUNTDOWN_REVIVE,
         /** 死亡 value 秒后触发，不自动复活（附带倒计时 HUD）。 */
-        DEATH_COUNTDOWN
+        DEATH_COUNTDOWN,
+        /** 玩家连续静止不动 value tick（移动会清零计数）。 */
+        STAY_STILL
     }
 }
