@@ -181,10 +181,11 @@ public class CustomItemData {
     public String chargeAnim = ChargeAnim.BOW.name();
 
     /**
-     * <b>第三人称</b>蓄力动作（{@link ChargeAnim} 名称）：别人看到的手臂姿势。
+     * <b>第三人称</b>蓄力姿势（{@link ThirdPose} 名称）：别人看到的手臂姿势。
      *
      * <p>
-     * 留空（或写了非法值）时跟随 {@link #chargeAnim}，即与老配置行为一致。
+     * 可选值是一整套原版手臂姿势（比第一人称那栏多出端弩瞄准 / 举望远镜 / 吹号角），
+     * 留空（或写了非法值）时等于 {@link ThirdPose#FOLLOW}，跟随第一人称动作 —— 与老配置行为一致。
      * 客户端渲染见 {@code mixin.client.PlayerEntityRendererMixin}。
      */
     @SerializedName("chargeAnimThird")
@@ -680,18 +681,11 @@ public class CustomItemData {
     }
 
     /**
-     * 第三人称蓄力动作：没单独配（留空 / 非法值）时跟随第一人称的 {@link #chargeAnim()}，
+     * 第三人称蓄力姿势：留空 / 非法值 → {@link ThirdPose#FOLLOW}（跟随第一人称动作），
      * 所以老配置的行为不变。
      */
-    public ChargeAnim chargeAnimThirdPerson() {
-        if (chargeAnimThird == null || chargeAnimThird.isBlank()) {
-            return chargeAnim();
-        }
-        try {
-            return ChargeAnim.valueOf(chargeAnimThird.trim());
-        } catch (Exception e) {
-            return chargeAnim();
-        }
+    public ThirdPose thirdPose() {
+        return ThirdPose.parse(chargeAnimThird);
     }
 
     public TargetMode targetMode() {
@@ -825,6 +819,10 @@ public class CustomItemData {
         eatCommands = safeList(eatCommands);
         if (chargeAnim == null || chargeAnim.isBlank()) {
             chargeAnim = ChargeAnim.BOW.name();
+        }
+        if (chargeAnimThird != null && !chargeAnimThird.isBlank()) {
+            // 手工改过的 JSON 可能写成小写 / 老的第一人称动作名（EAT / DRINK → 跟随第一人称），统一成枚举名
+            chargeAnimThird = thirdPose().name();
         }
         if (targetMode == null || targetMode.isBlank()) {
             targetMode = TargetMode.CIRCLE.name();
@@ -1055,6 +1053,50 @@ public class CustomItemData {
         BLOCK,
         /** 刷子。 */
         BRUSH
+    }
+
+    /**
+     * 蓄力物品的<b>第三人称</b>手臂姿势（{@link #chargeAnimThird} 用）。
+     *
+     * <p>
+     * 一一对应原版 {@code HumanoidModel.ArmPose}，所以选项比第一人称那栏
+     * （{@link ChargeAnim}，只能映射到原版 {@code UseAnim} 有的几种）更多，
+     * 多出「端弩瞄准」「举望远镜」「吹号角」。
+     */
+    public enum ThirdPose {
+        /** 跟随第一人称动作（默认，留空即此值）。 */
+        FOLLOW,
+        /** 原版默认手持（没有特殊手臂姿势）。 */
+        NONE,
+        /** 拉弓：双手举弓。 */
+        BOW,
+        /** 举矛：抬臂举矛（小刀 / 拳套同款）。 */
+        SPEAR,
+        /** 弩蓄力：双手端弩（带蓄力进度）。 */
+        CROSSBOW,
+        /** 端弩瞄准：像端着上膛的弩。 */
+        CROSSBOW_HOLD,
+        /** 举盾格挡。 */
+        BLOCK,
+        /** 刷子：抬臂擦拭（御币同款）。 */
+        BRUSH,
+        /** 举望远镜。 */
+        SPYGLASS,
+        /** 吹号角。 */
+        TOOT_HORN;
+
+        /** 解析配置字符串（大小写不敏感）。空 / 非法值回退 {@link #FOLLOW}。 */
+        public static ThirdPose parse(String value) {
+            if (value == null || value.isBlank()) {
+                return FOLLOW;
+            }
+            for (ThirdPose pose : values()) {
+                if (pose.name().equalsIgnoreCase(value.trim())) {
+                    return pose;
+                }
+            }
+            return FOLLOW;
+        }
     }
 
     /** 蓄力 / 右键作用范围。 */

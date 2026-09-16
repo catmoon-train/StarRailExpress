@@ -26,6 +26,7 @@ import io.wifi.starrailexpress.customitem.CustomItemData.Kind;
 import io.wifi.starrailexpress.customitem.CustomItemData.TargetMode;
 import io.wifi.starrailexpress.customitem.CustomItemData.TextureMode;
 import io.wifi.starrailexpress.customitem.CustomItemData.TracerStyle;
+import io.wifi.starrailexpress.customitem.CustomItemData.ThirdPose;
 import io.wifi.starrailexpress.game.GameConstants;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -74,6 +75,7 @@ public class CustomItemScreen extends Screen {
     private static final Kind[] KINDS = Kind.values();
     private static final TextureMode[] TEXTURE_MODES = TextureMode.values();
     private static final ChargeAnim[] CHARGE_ANIMS = ChargeAnim.values();
+    private static final ThirdPose[] THIRD_POSES = ThirdPose.values();
     private static final TargetMode[] TARGET_MODES = TargetMode.values();
     private static final HoldPose[] HOLD_POSES = HoldPose.values();
     private static final FireButton[] FIRE_BUTTONS = FireButton.values();
@@ -509,9 +511,9 @@ public class CustomItemScreen extends Screen {
         // JSON 里留空时它跟随第一人称，点过按钮后就是单独设置的那个。
         r = enumRow(r, "sre.custom_item.label.charge_anim_first", "sre.custom_item.charge_anim", data.chargeAnim(),
                 index -> data.chargeAnim = CHARGE_ANIMS[index].name());
-        r = enumRow(r, "sre.custom_item.label.charge_anim_third", "sre.custom_item.charge_anim",
-                data.chargeAnimThirdPerson(),
-                index -> data.chargeAnimThird = CHARGE_ANIMS[index].name());
+        r = enumRow(r, "sre.custom_item.label.charge_anim_third", "sre.custom_item.third_pose",
+                data.thirdPose(),
+                index -> data.chargeAnimThird = THIRD_POSES[index].name());
         addHintText(r++, Component.translatable("sre.custom_item.hint.charge_anim_split"), 0xFFC9A84C);
         r = numRow(r, "sre.custom_item.label.charge_time", data.chargeTicks, "sre.custom_item.unit.tick",
                 v -> data.chargeTicks = (int) v);

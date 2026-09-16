@@ -177,12 +177,6 @@ public final class CustomItemLoader {
         return data == null ? null : data.kind();
     }
 
-    /** 第三人称蓄力动作（非自定义列车物品返回 null）。 */
-    public static CustomItemData.ChargeAnim chargeAnimThirdPerson(ItemStack stack) {
-        CustomItemData data = getData(stack);
-        return data == null ? null : data.chargeAnimThirdPerson();
-    }
-
     /**
      * 枪械道具的手持姿势（非枪械道具返回 null）。
      *

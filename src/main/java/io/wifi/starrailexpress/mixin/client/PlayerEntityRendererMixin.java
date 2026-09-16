@@ -41,14 +41,12 @@ public class PlayerEntityRendererMixin {
     private static void tmm$customArmPose(@NotNull AbstractClientPlayer player,
             @NotNull InteractionHand hand, CallbackInfoReturnable<HumanoidModel.ArmPose> cir) {
         ItemStack heldStack = player.getItemInHand(hand);
-        // 自定义列车物品正在蓄力：第三人称的手臂姿势取「第三人称蓄力动作」
+        // 自定义列车物品正在蓄力：第三人称的手臂姿势取「第三人称蓄力姿势」
         // （第一人称那套由 CustomItem#getUseAnimation 交给原版 ItemInHandRenderer）
-        if (player.getUsedItemHand() == hand && player.getUseItemRemainingTicks() > 0
-                && io.wifi.starrailexpress.customitem.CustomItemLoader
-                        .kind(heldStack) == io.wifi.starrailexpress.customitem.CustomItemData.Kind.CHARGE) {
-            var thirdAnim = io.wifi.starrailexpress.customitem.CustomItemLoader.chargeAnimThirdPerson(heldStack);
-            if (thirdAnim != null) {
-                cir.setReturnValue(sre$chargeAnimToArmPose(thirdAnim));
+        if (player.getUsedItemHand() == hand && player.getUseItemRemainingTicks() > 0) {
+            var data = io.wifi.starrailexpress.customitem.CustomItemLoader.getData(heldStack);
+            if (data != null && data.kind() == io.wifi.starrailexpress.customitem.CustomItemData.Kind.CHARGE) {
+                cir.setReturnValue(sre$thirdPoseToArmPose(data.thirdPose(), data.chargeAnim()));
                 return;
             }
         }
@@ -83,6 +81,31 @@ public class PlayerEntityRendererMixin {
             case CROSSBOW -> HumanoidModel.ArmPose.CROSSBOW_CHARGE;
             case BLOCK -> HumanoidModel.ArmPose.BLOCK;
             case BRUSH -> HumanoidModel.ArmPose.BRUSH;
+        };
+    }
+
+    /**
+     * 第三人称蓄力姿势 → 原版手臂姿势。
+     *
+     * <p>
+     * {@link io.wifi.starrailexpress.customitem.CustomItemData.ThirdPose#FOLLOW}（默认）跟随第一人称动作；
+     * 其余选项一一对应原版 {@code HumanoidModel.ArmPose}，比第一人称能选的 {@code UseAnim} 更多
+     * （多出「端弩瞄准」「举望远镜」「吹号角」这几种）。
+     */
+    private static HumanoidModel.ArmPose sre$thirdPoseToArmPose(
+            io.wifi.starrailexpress.customitem.CustomItemData.ThirdPose pose,
+            io.wifi.starrailexpress.customitem.CustomItemData.ChargeAnim firstPerson) {
+        return switch (pose) {
+            case FOLLOW -> sre$chargeAnimToArmPose(firstPerson);
+            case NONE -> HumanoidModel.ArmPose.ITEM;
+            case BOW -> HumanoidModel.ArmPose.BOW_AND_ARROW;
+            case SPEAR -> HumanoidModel.ArmPose.THROW_SPEAR;
+            case CROSSBOW -> HumanoidModel.ArmPose.CROSSBOW_CHARGE;
+            case CROSSBOW_HOLD -> HumanoidModel.ArmPose.CROSSBOW_HOLD;
+            case BLOCK -> HumanoidModel.ArmPose.BLOCK;
+            case BRUSH -> HumanoidModel.ArmPose.BRUSH;
+            case SPYGLASS -> HumanoidModel.ArmPose.SPYGLASS;
+            case TOOT_HORN -> HumanoidModel.ArmPose.TOOT_HORN;
         };
     }
 
