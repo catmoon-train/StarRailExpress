@@ -205,5 +205,6 @@ public class NRCombatEvents {
         ExecutionerRoleData.registerFrenzyCooldownEvent();
         org.agmas.noellesroles.role_data.killer.SpellbreakerRoleData.registerEvents();
         VoodooDeathHandler.registerEvents();
+        org.agmas.noellesroles.game.roles.innocence.diviner.DivinerDeathHandler.registerEvents();
     }
 }
