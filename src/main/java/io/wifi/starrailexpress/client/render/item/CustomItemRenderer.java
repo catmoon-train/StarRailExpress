@@ -648,7 +648,7 @@ public class CustomItemRenderer implements BuiltinItemRendererRegistry.DynamicIt
         }
         try {
             TextureAtlasSprite sprite = Minecraft.getInstance().getTextureAtlas(InventoryMenu.BLOCK_ATLAS)
-                    .getSprite(SpriteSource.TEXTURE_ID_CONVERTER.fileToId(file));
+                    .apply(SpriteSource.TEXTURE_ID_CONVERTER.fileToId(file));
             return sprite == missingParticleIcon() ? null : sprite;
         } catch (Exception e) {
             return null;

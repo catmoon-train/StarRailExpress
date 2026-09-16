@@ -23,6 +23,7 @@ import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.client.render.item.CustomItemRenderer;
 import io.wifi.starrailexpress.customitem.CustomItemData;
 import io.wifi.starrailexpress.customitem.CustomItemLoader;
+import io.wifi.starrailexpress.mixin.client.texture.SpriteSourcesAccessor;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.renderer.texture.atlas.SpriteSource;
@@ -75,7 +76,7 @@ public class CustomItemSpriteSource implements SpriteSource {
     /** 客户端初始化时调用：把来源类型登记进 {@link SpriteSources}（必须在资源加载前）。 */
     public static void register() {
         SpriteSourceType sourceType = new SpriteSourceType(CODEC);
-        SpriteSourcesAccessor.getTypes().put(SRE.id("custom_item_textures"), sourceType);
+        SpriteSourcesAccessor.sre$getTypes().put(SRE.id("custom_item_textures"), sourceType);
         type = sourceType;
     }
 
