@@ -30,41 +30,25 @@ import net.minecraft.server.MinecraftServer;
  * 统一的无参执行器，四个注册点都挂它——不管合并时保留哪一个，{@code /sre:reload} 的行为都一致。
  *
  * <p>
- * 顺序固定为「物品 → 方块 → 职业 → 修饰符」：职业的初始物品 / 任务奖励物品支持自定义列车物品，
- * 必须在物品索引就绪之后再解析。
+ * 顺序由 {@link io.wifi.starrailexpress.customcontent.CustomContentReload#all} 统一决定
+ * （物品 → 方块 → 职业 → 修饰符）：职业的初始物品 / 任务奖励 / 商店条目按 id 查自定义物品索引，
+ * 必须在物品索引就绪之后再解析；修饰符又依赖已注册的职业。
  */
 public final class SREReloadCommand {
 
     private SREReloadCommand() {
     }
 
-    /** 一键重载全部自定义内容（任一项失败不影响其余项，逐项try）。 */
+    /** 一键重载全部自定义内容（任一项失败不影响其余项）。 */
     public static int reloadAll(CommandContext<CommandSourceStack> context) {
         CommandSourceStack source = context.getSource();
         MinecraftServer server = source.getServer();
-        int reloaded = 0;
-        reloaded += reloadOne("CustomItem", () -> io.wifi.starrailexpress.customitem.CustomItemReloadCommand.reload(server));
-        reloaded += reloadOne("CustomBlock",
-                () -> io.wifi.starrailexpress.customblock.CustomBlockReloadCommand.reload(server));
-        reloaded += reloadOne("CustomRole",
-                () -> io.wifi.starrailexpress.customrole.CustomRoleReloadCommand.reload(server));
-        reloaded += reloadOne("CustomModifier",
-                () -> io.wifi.starrailexpress.custommodifier.CustomModifierReloadCommand.reload(server));
+        int reloaded = io.wifi.starrailexpress.customcontent.CustomContentReload.all(server);
 
         final int count = reloaded;
         source.sendSuccess(() -> Component.translatable("sre.custom_content.reload.all", count)
                 .withStyle(style -> style.withColor(count == 4 ? 0x72C17B : 0xE06B65)), true);
         SRE.LOGGER.info("[CustomContent] Reloaded {}/4 custom content types by {}", count, source.getTextName());
         return count;
-    }
-
-    private static int reloadOne(String what, Runnable action) {
-        try {
-            action.run();
-            return 1;
-        } catch (Exception e) {
-            SRE.LOGGER.error("[CustomContent] Failed to reload {}", what, e);
-            return 0;
-        }
     }
 }

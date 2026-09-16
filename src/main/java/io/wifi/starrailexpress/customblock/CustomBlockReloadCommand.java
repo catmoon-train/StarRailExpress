@@ -56,10 +56,6 @@ public class CustomBlockReloadCommand {
 
     /** 重载服务端索引并重新握手（供本命令与其它需要刷新方块配置的地方复用）。 */
     public static void reload(MinecraftServer server) {
-        CustomBlockLoader.reload(server);
-        ContentSyncServer.invalidate(ContentChannel.CUSTOM_BLOCK);
-        ContentSyncServer.broadcastHandshake(server);
-        // 冷却 / 一次性触发记录跟着配置一起失效
-        CustomBlockRuntime.invalidatePlayerState();
+        io.wifi.starrailexpress.customcontent.CustomContentReload.withDependents(server, ContentChannel.CUSTOM_BLOCK);
     }
 }

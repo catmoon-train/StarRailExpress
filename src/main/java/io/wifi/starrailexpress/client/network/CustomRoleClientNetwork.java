@@ -26,6 +26,7 @@ import io.wifi.starrailexpress.synccontent.ContentChannel;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.loader.api.FabricLoader;
+import net.minecraft.client.Minecraft;
 import net.minecraft.resources.ResourceLocation;
 
 import java.nio.charset.StandardCharsets;
@@ -71,10 +72,22 @@ public class CustomRoleClientNetwork {
                 }
             }
             writeToLocalConfig(fullJson);
-            // 触发客户端把自定义角色注册进 TMMRoles.ROLES
+            // 触发客户端把自定义角色注册进 TMMRoles.ROLES（商店条目也在这一步按 id 解析自定义物品）
             CustomRoleLoader.reloadClient();
+            // 商店界面已经打开时，它里面那份控件是打开那一刻按旧条目建的，重注册后要重建一次，
+            // 否则「服务端已经重载、商店显示的还是旧的（或空的）」
+            refreshOpenShopScreen();
         } catch (Exception e) {
             SRE.LOGGER.error("[CustomRole-Client] Failed to apply synced content", e);
+        }
+    }
+
+    /** 重建正在打开的角色商店界面（若已打开），让重新注册后的条目立刻可见。 */
+    private static void refreshOpenShopScreen() {
+        Minecraft client = Minecraft.getInstance();
+        if (client != null
+                && client.screen instanceof io.wifi.starrailexpress.client.gui.screen.ingame.LimitedInventoryScreen shop) {
+            shop.reinit();
         }
     }
 

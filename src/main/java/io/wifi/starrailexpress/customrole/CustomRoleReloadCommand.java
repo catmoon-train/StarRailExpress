@@ -17,7 +17,7 @@ package io.wifi.starrailexpress.customrole;
 
 import com.mojang.brigadier.CommandDispatcher;
 import io.wifi.starrailexpress.SRE;
-import io.wifi.starrailexpress.network.CustomRoleServerNetwork;
+import io.wifi.starrailexpress.synccontent.ContentChannel;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.network.chat.Component;
@@ -27,8 +27,8 @@ import net.minecraft.server.MinecraftServer;
  * 自定义职业重载命令：{@code sre:reload custom_roles}
  *
  * <p>
- * 只重载职业。修饰符 / 列车物品 / 方块各有自己的子命令
- * （{@code custom_modifiers} / {@code custom_items} / {@code custom_blocks}），
+ * 重载职业（并连带重新注册引用这些职业的自定义修饰符）。修饰符 / 列车物品 / 方块各有自己的
+ * 子命令（{@code custom_modifiers} / {@code custom_items} / {@code custom_blocks}），
  * 不带子命令的 {@code sre:reload} 则一键重载全部（见
  * {@link io.wifi.starrailexpress.content.command.SREReloadCommand}）。
  */
@@ -59,10 +59,14 @@ public class CustomRoleReloadCommand {
                 })));
     }
 
-    /** 重载服务端索引并同步给所有在线玩家（供本命令与一键重载复用）。 */
+    /**
+     * 重载服务端索引并同步给所有在线玩家，随后**重新注册引用这些职业的自定义修饰符**。
+     *
+     * <p>
+     * 职业重载会把职业实例整个换掉，修饰符的阵营 / 职业限制持有的是旧实例，不跟着重解析就会
+     * 残留失效引用（表现为限制里出现重复或失效的职业条目）。
+     */
     public static void reload(MinecraftServer server) {
-        CustomRoleLoader.reload(server);
-        CustomRoleServerNetwork.clearCache();
-        CustomRoleServerNetwork.syncToAllPlayers(server);
+        io.wifi.starrailexpress.customcontent.CustomContentReload.withDependents(server, ContentChannel.CUSTOM_ROLE);
     }
 }

@@ -17,7 +17,7 @@ package io.wifi.starrailexpress.custommodifier;
 
 import com.mojang.brigadier.CommandDispatcher;
 import io.wifi.starrailexpress.SRE;
-import io.wifi.starrailexpress.network.CustomModifierServerNetwork;
+import io.wifi.starrailexpress.synccontent.ContentChannel;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.network.chat.Component;
@@ -58,8 +58,6 @@ public class CustomModifierReloadCommand {
 
     /** 重载服务端索引并同步给所有在线玩家（供本命令与一键重载复用）。 */
     public static void reload(MinecraftServer server) {
-        CustomModifierLoader.reload(server);
-        CustomModifierServerNetwork.clearCache();
-        CustomModifierServerNetwork.syncToAllPlayers(server);
+        io.wifi.starrailexpress.customcontent.CustomContentReload.withDependents(server, ContentChannel.CUSTOM_MODIFIER);
     }
 }

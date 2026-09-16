@@ -805,9 +805,9 @@ public class CustomItemScreen extends CustomEditorScreen {
         if (server != null) {
             server.execute(() -> {
                 try {
-                    CustomItemLoader.reload(server);
-                    io.wifi.starrailexpress.network.CustomItemServerNetwork.clearCache();
-                    io.wifi.starrailexpress.network.CustomItemServerNetwork.syncToAllPlayers(server);
+                    // 走重载命令的路径：除了重建物品索引与重新握手，还会连带重新注册引用这些物品的
+                    // 自定义职业（初始物品 / 任务奖励 / 商店条目）与修饰符
+                    CustomItemReloadCommand.reload(server);
                 } catch (Exception ignored) {
                 }
             });

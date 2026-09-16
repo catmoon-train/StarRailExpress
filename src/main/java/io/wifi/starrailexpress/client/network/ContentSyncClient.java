@@ -32,6 +32,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.attribute.FileTime;
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.EnumMap;
 import java.util.HashMap;
@@ -115,13 +116,21 @@ public final class ContentSyncClient {
             SRE.LOGGER.warn("[ContentSync] Protocol version mismatch: server {} / client {}",
                     payload.protocolVersion(), ContentChannel.PROTOCOL_VERSION);
         }
-        for (Map.Entry<String, String> entry : payload.hashes().entrySet()) {
-            ContentChannel channel = ContentChannel.byId(entry.getKey());
-            if (channel == null || !APPLIERS.containsKey(channel)) {
+        // 内容没变（哈希相同）的通道：不重新下载，但也不能当没发生——见循环后的重新解析
+        List<ContentChannel> unchanged = new ArrayList<>();
+        // 这里按 LOAD_ORDER 遍历，而不是按包里的顺序：通道之间有解析依赖，自定义职业 / 修饰符
+        // 注册时会按 id 查自定义物品索引（初始物品 / 任务奖励 / 商店条目），物品索引没就绪就
+        // 会把那些条目静默丢掉（不显示也买不到）。包里的顺序不可依赖（Map 迭代顺序未定义）。
+        for (ContentChannel channel : ContentChannel.LOAD_ORDER) {
+            if (!APPLIERS.containsKey(channel)) {
                 continue;
             }
-            String hash = entry.getValue();
-            if (hash == null || hash.isEmpty()) {
+            String hash = payload.hashes().get(channel.id());
+            if (hash == null) {
+                // 握手包里没有这个通道（对端版本更旧）：不动本地内容
+                continue;
+            }
+            if (hash.isEmpty()) {
                 // 服务端该通道为空：本地清空，无需回请求。
                 if (!"".equals(APPLIED_HASHES.get(channel))) {
                     apply(channel, "", "");
@@ -129,6 +138,7 @@ public final class ContentSyncClient {
                 continue;
             }
             if (hash.equals(APPLIED_HASHES.get(channel))) {
+                unchanged.add(channel);
                 continue;
             }
             String cached = readCache(channel, hash);
@@ -137,6 +147,29 @@ public final class ContentSyncClient {
                 continue;
             }
             ClientPlayNetworking.send(new ContentRequestC2SPayload(channel.id(), hash));
+        }
+        // 「内容没变」不代表「客户端不用动」：服务端执行 /sre:reload 时内容本来就可能一个字节都没变
+        // （哈希因此不变），但服务端已经按最新索引重建过一遍（例如自定义物品 → 职业商店）。这里把
+        // 没变的通道在本地重新解析一遍（不重新下载、不重新落盘），并级联它依赖的内容，客户端才会
+        // 跟着重建。unchanged 按 LOAD_ORDER 收集，所以「物品索引 → 职业 → 修饰符」的依赖一定先就绪。
+        for (int i = 0; i < unchanged.size(); i++) {
+            ContentChannel channel = unchanged.get(i);
+            boolean coveredByEarlier = false;
+            for (int j = 0; j < i; j++) {
+                if (unchanged.get(j).dependentsTransitive().contains(channel)) {
+                    // 排在前面的通道会级联到它（顺序还是 LOAD_ORDER），不用再来一次
+                    coveredByEarlier = true;
+                    break;
+                }
+            }
+            if (coveredByEarlier) {
+                continue;
+            }
+            String json = APPLIED_JSON.get(channel);
+            if (json == null) {
+                continue;
+            }
+            apply(channel, APPLIED_HASHES.getOrDefault(channel, ""), json);
         }
     }
 
@@ -203,25 +236,58 @@ public final class ContentSyncClient {
     }
 
     /**
-     * 应用内容并记录哈希。
+     * 应用内容、记录哈希，并把依赖它的通道重新解析一遍。
      *
      * @param persist 是否写入本地缓存（来自网络的新内容才需要；命中缓存时已经有了）
      */
     private static void apply(ContentChannel channel, String hash, String json, boolean persist) {
+        if (!applyChannel(channel, hash, json, persist)) {
+            return;
+        }
+        // 本通道是别的通道的解析依赖（自定义物品索引 → 职业 / 修饰符）：已经应用过的依赖者要
+        // 重新注册一遍。否则「职业先到、物品后到」时，职业商店里那条自定义物品会一直缺失。
+        refreshDependents(channel);
+    }
+
+    /**
+     * 各系统自己应用内容。返回是否成功；失败时保留该通道旧的「已应用」记录，
+     * 下次握手会再试一次（不会把失败当成功）。
+     */
+    private static boolean applyChannel(ContentChannel channel, String hash, String json, boolean persist) {
         Applier applier = APPLIERS.get(channel);
         if (applier == null) {
-            return;
+            return false;
         }
+        String content = json == null ? "" : json;
         try {
-            applier.apply(json == null ? "" : json);
+            applier.apply(content);
         } catch (Exception e) {
             SRE.LOGGER.error("[ContentSync] Failed to apply synced content for {}", channel.id(), e);
-            return;
+            return false;
         }
         APPLIED_HASHES.put(channel, hash == null ? "" : hash);
-        APPLIED_JSON.put(channel, json == null ? "" : json);
+        APPLIED_JSON.put(channel, content);
         if (persist && hash != null && !hash.isEmpty()) {
-            writeCache(channel, hash, json);
+            writeCache(channel, hash, content);
+        }
+        return true;
+    }
+
+    /**
+     * 把「本次会话已经应用过、且依赖 {@code channel}」的通道重新解析一遍（含间接依赖，见
+     * {@link ContentChannel#dependentsTransitive()}）。
+     *
+     * <p>
+     * 内容没有变化，所以不重新落盘、不改已应用哈希（否则会把同一个哈希当成新内容）。
+     */
+    private static void refreshDependents(ContentChannel channel) {
+        for (ContentChannel dependent : channel.dependentsTransitive()) {
+            String json = APPLIED_JSON.get(dependent);
+            if (json == null) {
+                continue; // 本次会话还没同步过这个通道，没有需要刷新的东西
+            }
+            String hash = APPLIED_HASHES.getOrDefault(dependent, "");
+            applyChannel(dependent, hash, json, false);
         }
     }
 
