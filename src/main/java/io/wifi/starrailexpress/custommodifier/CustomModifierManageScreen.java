@@ -69,7 +69,8 @@ public class CustomModifierManageScreen extends CustomContentManageScreen<Custom
 
     @Override
     protected Component rowSummary(CustomModifierData row) {
-        int conditionCount = row.conditions == null ? 0 : row.conditions.size();
+        int groupCount = row.groupCount();
+        boolean global = row.isGlobalTrigger();
         MutableComponent info = Component.empty()
                 .append(row.hidden ? Component.translatable("sre.custom_modifier.manage.hidden") : Component.empty())
                 .append(row.markerOnly ? Component.translatable("sre.custom_modifier.manage.marker")
@@ -77,9 +78,9 @@ public class CustomModifierManageScreen extends CustomContentManageScreen<Custom
                 .append(Component.translatable("sre.custom_modifier.manage.summary", row.defaultMax,
                         row.defaultEnableChance))
                 .append(row.markerOnly ? Component.empty()
-                        : row.isGlobalTrigger()
+                        : global
                                 ? Component.translatable("sre.custom_modifier.manage.global")
-                                : Component.translatable("sre.custom_modifier.manage.conditions", conditionCount));
+                                : Component.translatable("sre.custom_modifier.manage.groups", groupCount));
         return info;
     }
 

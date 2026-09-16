@@ -191,6 +191,70 @@ static int blendColors(int c1, int c2, float t) {
 
 ---
 
+## 8.5 自定义内容编辑器（`CustomEditorScreen` + `EditorLayout`）
+
+`CustomRoleScreen` / `CustomModifierScreen` / `CustomItemScreen` / `CustomBlockScreen` 四个编辑器通用
+`io.wifi.starrailexpress.client.gui.screen.CustomEditorScreen`，**不要再复制一套布局/滚动/页签代码**。
+新写同类编辑器时只要声明前缀、页签、字段与保存逻辑：
+
+```java
+public class FooScreen extends CustomEditorScreen {
+    private static final String PREFIX = "sre.custom_foo";
+    private static final String[] TABS = { "basic", "advanced" };
+
+    public FooScreen() { super(Component.translatable(PREFIX + ".title")); }
+
+    @Override protected String translationPrefix() { return PREFIX; }
+    @Override protected String[] tabKeys() { return TABS; }
+    @Override protected void onSave() { /* 写盘 + 重载 */ }
+    @Override protected void onOpenManage() { /* setScreen(new FooManageScreen(...)) */ }
+
+    @Override protected void buildTab(int tab) {
+        int r = 0;
+        r = field(r, PREFIX + ".label.name", data.name, LIMIT_NAME, null, v -> data.name = v);
+        r = number(r, PREFIX + ".label.count", String.valueOf(data.count), PREFIX + ".unit.tick",
+                v -> data.count = parseInt(v, data.count));
+        r = toggle(r, PREFIX + ".label.enabled", data.enabled, v -> data.enabled = v);
+        // 一行多控件：装不下会自动折行，不要写 fieldX() + 116 这类偏移
+        r = cluster(r, PREFIX + ".label.rule",
+                fixedBox(data.id, LIMIT_ID, 120, null, v -> data.id = v),
+                fixedButton(Component.literal("×"), 22, () -> { /* 删除 */ }));
+        r = section(r, PREFIX + ".hint.section");
+        r = note(r, PREFIX + ".hint.explain", SREPanelStyle.MUTED);
+    }
+}
+```
+
+约定（也都是这次改造踩过的坑）：
+
+1. **重建一律 `requestRebuild()`**，在 `render` 开头统一执行；不要在按钮回调里直接 `init(...)` ——
+   那样会跳过 `clearWidgets()`，控件会一遍遍重复注册进事件系统。
+2. **只构建当前页签**；把多个页签的控件一起注册会让同坐标的隐藏输入框抢走点击与键盘输入。
+3. **先 `setMaxLength` 再 `setValue`**（基类的 `editBox` 已经保证）：`EditBox` 默认上限 32，
+   顺序反了会把初始值静默截断，用户一编辑就把截断结果写回数据。
+4. **不要写死横向偏移**：用 `cluster(...)` 声明一行里的若干控件，窄屏由
+   `EditorLayout.pack` 自动折行，字段区永远不会戳出面板。
+5. `labelKey` 必传的场景：`field/number/toggle/choice/cluster` 的第一个参数是**标签列的翻译键**；
+   想让按钮自己当标题（不带标签列）就传 `null`。
+6. 会影响「后面显示哪些字段」的开关/枚举传 `rebuild = true`，纯数值开关保持 `false`，
+   这样切换时不会丢焦点、也不会跳回顶部。
+7. **按钮文字放不下时自动给悬停全文**：基类的 `ClipButton` 会把超宽文字裁成省略号，
+   并在真的裁掉时挂上 tooltip（放得下就摘掉，不会平白多一层提示）。自己写的按钮请继承
+   `ClipButton` 并实现 `fullText()` / `textLimit()`，然后在宽度定下来后调一次 `refreshTooltip()`。
+8. **「是否」开关一律用 `SwitchButton`**（`toggleCell` / `yesNoSwitchCell` / `triSwitchCell`）：
+   右端是一枚带颜色的状态方块 —— 开 = 绿底 ✓、关 = 红底 ✗、未设置 = 土褐底 -，
+   标签在标签列上时用 `yesNoSwitchCell`（只放「符号 + 是/否」），按钮自带标题时用 `toggleCell`。
+   不要再用「文字 + `[✓]`」拼字符串的方式表达开关状态。
+9. 需要右侧材质预览的界面覆写 `previewSize()` / `showPreview(tab)` / `renderPreviewContent(...)`，
+   并在内容里调一次 `previewRow(r, "…label.preview")`；窄屏放不下时基类会自动把它落回内容区里的一行。
+10. 文本长度用基类的 `LIMIT_ID / LIMIT_NAME / LIMIT_PATH / LIMIT_TEXT / LIMIT_COMMAND / LIMIT_NUMBER`。
+11. 键盘：`Tab`/`Shift+Tab`/`Enter` 在字段间移动并自动滚进视野，`Ctrl+S` 保存，
+   `Esc` 先取消焦点再关闭 —— 这些由基类提供，子类不用管。
+12. 布局几何是纯函数（`EditorLayout`），改动后跑 `./gradlew test --tests '*EditorLayoutTest*'`：
+    它会按常见窗口尺寸 × GUI 缩放遍历断言「面板在屏幕内、字段不越界、页签不溢出、预览不压字段」。
+
+---
+
 ## 9. 新界面 Checklist
 
 1. 用第 2 节色板，不要引入新的主色；阵营相关用 2.2 分类色。
@@ -200,3 +264,4 @@ static int blendColors(int c1, int c2, float t) {
 5. 文字层级、粗体与颜色遵循第 5 节；游戏内文字优先走翻译键。
 6. 有节奏的动画克制使用（第 6 节），时长 ≤ 0.4s。
 7. ESC 可退出；点击有音效。
+8. 编辑类界面直接继承 `CustomEditorScreen`（第 8.5 节），不要另起一套布局与滚动。

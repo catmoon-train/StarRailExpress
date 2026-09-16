@@ -52,6 +52,7 @@ import org.agmas.harpymodloader.modifiers.HMLModifiers;
 import org.agmas.harpymodloader.modifiers.SREModifier;
 import org.agmas.noellesroles.client.RoleInstinctRegister;
 import org.agmas.noellesroles.role.ModRoles;
+import org.agmas.noellesroles.utils.FlagUtils;
 import org.agmas.noellesroles.utils.RoleUtils;
 import pro.fazeclan.river.stupid_express.modifier.lovers.LoversWinCheckEvent;
 
@@ -388,6 +389,8 @@ public class CustomRoleLoader {
         // === 高级定义 ===
         role.setCanSeeCoin(data.canSeeCoin);
         role.addFlag("inner.custom_role");
+        // 作者自定义标签：挂成 flags，介绍页的分类筛选与 inner.* 语义都跟着生效
+        FlagUtils.applyCustomFlags(role, data.tags);
         if (data.canUseInstinct) {
             role.setCanUseInstinctAndNightVision(true);
 

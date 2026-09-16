@@ -36,6 +36,17 @@ public class CustomRoleData {
     @SerializedName("description")
     public String description = "";
 
+    /**
+     * 自定义标签（可多个）。
+     *
+     * <p>
+     * 加载时逐条挂到运行时职业的 flags 上（{@code FlagUtils.applyCustomFlags}），介绍页的分类筛选
+     * 就能按这些标签过滤；{@code inner.*} 前缀的标签仍然具备其语义（禁用、其它模式专用等）。
+     * 没有对应翻译的标签显示成「大写下划线转空格」的原文。
+     */
+    @SerializedName("tags")
+    public List<String> tags = new ArrayList<>();
+
     @SerializedName("initialEffects")
     public List<EffectEntry> initialEffects = new ArrayList<>();
 
