@@ -72,6 +72,9 @@ public class DivinerRoleData extends SimpleRoleData {
     /** 晶球破坏概率（保留原有行为）。 */
     private static final float BREAK_CHANCE = 0.5f;
 
+    /** 晶球商店售价（金币，写死）。 */
+    public static final int CRYSTAL_BALL_PRICE = 150;
+
     // ==================== 状态字段 ====================
 
     /** 背包界面里选中的占卜目标玩家 UUID。 */
@@ -235,7 +238,7 @@ public class DivinerRoleData extends SimpleRoleData {
             gaveItem = true;
             NoellesRolesConfig cfg = NoellesRolesConfig.HANDLER.instance();
             sp.displayClientMessage(Component.translatable("message.noellesroles.diviner.intro",
-                    cfg.divinerCooldown, cfg.divinerCrystalBallPrice), false);
+                    cfg.divinerCooldown, CRYSTAL_BALL_PRICE), false);
         }
 
         tickDivination(sp);

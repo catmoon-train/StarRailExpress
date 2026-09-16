@@ -2317,7 +2317,7 @@ public class RoleShopHandler {
         {
             var SHOP = new java.util.ArrayList<ShopEntry>();
             SHOP.add(new ShopEntry(ModItems.CRYSTAL_BALL.getDefaultInstance(),
-                    org.agmas.noellesroles.config.NoellesRolesConfig.HANDLER.instance().divinerCrystalBallPrice,
+                    org.agmas.noellesroles.role_data.innocence.DivinerRoleData.CRYSTAL_BALL_PRICE,
                     ShopEntry.Type.TOOL) {
                 @Override
                 public boolean onBuy(@NotNull Player player) {
