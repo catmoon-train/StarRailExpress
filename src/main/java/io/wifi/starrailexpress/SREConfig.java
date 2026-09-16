@@ -114,6 +114,8 @@ public class SREConfig implements ConfigData {
     @ConfigEntry.Category(value = "commands")
     public int customRolePermission = 2;
     @ConfigEntry.Category(value = "commands")
+    public int customModifierPermission = 2;
+    @ConfigEntry.Category(value = "commands")
     public int entityInteractionBlockEntityPlayerPermission = 2;
     @ConfigEntry.Category(value = "commands")
     public int entityInteractionBlockEntityPermission = 2;

@@ -103,6 +103,7 @@
     "text.autoconfig.starrailexpress.option.allowRandomChooseMapNotInMapConfig": "Allow Random Map selection to select maps that are not in the Votable Map Configuration",
     "text.autoconfig.starrailexpress.option.minigameTaskParallelMode": "Mini game task parallel mode: will not crowd out the default task refresh",
     "text.autoconfig.starrailexpress.option.customRolePermission": "Customize role command execution permission level",
+    "text.autoconfig.starrailexpress.option.customModifierPermission": "Custom modifier command execution permission level",
     "text.autoconfig.starrailexpress.option.entityInteractionBlockEntityPermission": "Permission levels of entity interaction blocks",
     "text.autoconfig.starrailexpress.option.entityInteractionBlockEntityPlayerPermission": "The permission level of the player executing the entity interaction block",
     "text.autoconfig.starrailexpress.option.elevateBlockCommandPermission": "Elevate command-block permission",

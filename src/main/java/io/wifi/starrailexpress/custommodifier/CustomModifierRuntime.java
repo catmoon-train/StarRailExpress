@@ -16,6 +16,7 @@
 package io.wifi.starrailexpress.custommodifier;
 
 import io.wifi.starrailexpress.SRE;
+import io.wifi.starrailexpress.SREConfig;
 import io.wifi.starrailexpress.api.RoleTeam;
 import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.cca.SREArmorPlayerComponent;
@@ -773,7 +774,7 @@ public final class CustomModifierRuntime {
         try {
             player.getServer().getCommands().performPrefixedCommand(
                     player.getServer().createCommandSourceStack()
-                            .withPermission(2)
+                            .withPermission(SREConfig.instance().customModifierPermission)
                             .withSuppressedOutput()
                             .withEntity(player)
                             .withLevel(player.serverLevel())
