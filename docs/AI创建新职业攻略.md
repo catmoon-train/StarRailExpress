@@ -139,7 +139,7 @@ public static SRERole PROGRAMMER = TMMRoles.registerRole(new ProgrammerRole(
 | `setTaskReward(int, int, ItemStack...)` / `setKillExtraCoinAwards(int)` | 任务奖励 / 击杀额外金币 |
 | `setPassiveIncome(int)` / `setCanAutoAddMoney(boolean)` / `setInitialCoinCount(int)` | 收入相关 |
 | `setSpecialMapRolesCondition(Predicate<Set<MapSpecialFeatures>>)` | 只在特定地图刷新（如 UNDERWATER / LAB） |
-| `setOtherModeRole(true)` / `setHiddenForRoleRotation(true)` | 特殊模式专用 / 不参与轮换 |
+| `setOtherModeRole(true)` / `setHiddenForRoleRotation(true)` | 特殊模式专用 / **轮抽界面隐藏真名**（显示为「随机」并抑制技能播报）。注意它**不会**把职业排除出轮抽候选池，职业仍可能被抽到 |
 | `addRelatedRole(...)` / `addOpposingRole(...)` / `addBothRelatedRole(...)` | 关系（供侦探/任务等系统用） |
 
 > 变体很多，**以 `SRERole.java` 的 setter 列表为准**；名字最稳的找法是 `grep -n "public SRERole set" src/main/java/io/wifi/starrailexpress/api/SRERole.java`。

@@ -42,6 +42,17 @@ public class CustomModifierData {
     @SerializedName("description")
     public String description = "";
 
+    /**
+     * 自定义标签（可多个）。
+     *
+     * <p>
+     * 加载时逐条挂到运行时修饰符的 flags 上（{@code FlagUtils.applyCustomFlags}），介绍页的分类筛选
+     * 据此过滤；{@code inner.*} 前缀的标签仍然具备其语义（例如 {@code inner.hidden}）。
+     * 没有对应翻译的标签显示成「大写下划线转空格」的原文。
+     */
+    @SerializedName("tags")
+    public List<String> tags = new ArrayList<>();
+
     @SerializedName("colorR")
     public int colorR = 255;
     @SerializedName("colorG")
@@ -133,30 +144,123 @@ public class CustomModifierData {
     @SerializedName("opposingModifiers")
     public List<String> opposingModifiers = new ArrayList<>();
 
-    // ==================== 触发条件（为空 = 全局触发） ====================
+    // ==================== 触发组（每组 = 一份条件 + 一份内容） ====================
+    /**
+     * 多个「触发条件 → 触发内容」组：每组各自判条件、各自执行自己的指令 / 效果 / 属性。
+     *
+     * <p>
+     * 空列表时回退到下面那几个旧的顶层字段（{@link #effectiveGroups()} 会就地迁移成一个组），
+     * 所以老 JSON 不需要手工改。组内 {@code conditions} 为空表示这一组是「全局」的：
+     * 拥有该修饰符就持续生效（药水效果常驻、属性常驻，指令只在获得时执行一次）。
+     */
+    @SerializedName("groups")
+    public List<TriggerGroupData> groups = new ArrayList<>();
+
+    // ==================== 旧版单组字段（仅用于读取老 JSON） ====================
+    @Deprecated
     @SerializedName("conditions")
     public List<ConditionData> conditions = new ArrayList<>();
 
     /** 条件触发后是否自动移除该修饰符。全局触发时不生效。 */
+    @Deprecated
     @SerializedName("removeModifierOnTrigger")
     public boolean removeModifierOnTrigger = false;
 
-    // ==================== 触发内容 ====================
     /** 执行指令（可用 &lt;player&gt; 代表拥有该修饰符的玩家）。 */
+    @Deprecated
     @SerializedName("commands")
     public List<String> commands = new ArrayList<>();
 
     /** 给予药水效果。 */
+    @Deprecated
     @SerializedName("effects")
     public List<EffectData> effects = new ArrayList<>();
 
     /** 玩家属性（仅全局触发时生效）。 */
+    @Deprecated
     @SerializedName("attributes")
     public List<AttributeData> attributes = new ArrayList<>();
 
-    /** 没有任何条件 = 全局触发：拥有该修饰符即持续生效。 */
+    /**
+     * 取触发组（必要时把旧版顶层字段迁移成一个组）。
+     *
+     * <p>
+     * 就地迁移：迁移后旧字段被清空，保存时写出的就是 {@code groups}。因为 Gson 是先构造对象再填字段，
+     * 所以迁移不能放在构造函数里，只能用这种「首次读取时迁移」的写法（幂等，重复调用无副作用）。
+     */
+    public List<TriggerGroupData> effectiveGroups() {
+        if (groups == null) {
+            groups = new ArrayList<>();
+        }
+        if (!groups.isEmpty()) {
+            return groups;
+        }
+        boolean hasLegacy = (conditions != null && !conditions.isEmpty())
+                || (removeModifierOnTrigger)
+                || (commands != null && !commands.isEmpty())
+                || (effects != null && !effects.isEmpty())
+                || (attributes != null && !attributes.isEmpty());
+        if (!hasLegacy) {
+            return groups;
+        }
+        TriggerGroupData legacy = new TriggerGroupData();
+        legacy.conditions = conditions == null ? new ArrayList<>() : conditions;
+        legacy.removeModifierOnTrigger = removeModifierOnTrigger;
+        legacy.commands = commands == null ? new ArrayList<>() : commands;
+        legacy.effects = effects == null ? new ArrayList<>() : effects;
+        legacy.attributes = attributes == null ? new ArrayList<>() : attributes;
+        groups.add(legacy);
+        conditions = new ArrayList<>();
+        removeModifierOnTrigger = false;
+        commands = new ArrayList<>();
+        effects = new ArrayList<>();
+        attributes = new ArrayList<>();
+        return groups;
+    }
+
+    /** 触发组数量（迁移后）。 */
+    public int groupCount() {
+        return effectiveGroups().size();
+    }
+
+    /** 所有组都没有条件 = 全局触发：拥有该修饰符即持续生效。 */
     public boolean isGlobalTrigger() {
-        return conditions == null || conditions.isEmpty();
+        List<TriggerGroupData> groups = effectiveGroups();
+        if (groups.isEmpty()) {
+            return true;
+        }
+        for (TriggerGroupData group : groups) {
+            if (!group.isGlobal()) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    /**
+     * 一组「触发条件 + 触发内容」。
+     *
+     * <p>
+     * 组内条件按「与 / 或」串联（{@link ConditionData#logic} 表示与下一个条件的关系），
+     * 满足时只执行<b>本组</b>的内容。
+     */
+    public static class TriggerGroupData {
+        @SerializedName("conditions")
+        public List<ConditionData> conditions = new ArrayList<>();
+        @SerializedName("commands")
+        public List<String> commands = new ArrayList<>();
+        @SerializedName("effects")
+        public List<EffectData> effects = new ArrayList<>();
+        @SerializedName("attributes")
+        public List<AttributeData> attributes = new ArrayList<>();
+        /** 本组触发后是否移除该修饰符（全局组不生效）。 */
+        @SerializedName("removeModifierOnTrigger")
+        public boolean removeModifierOnTrigger = false;
+
+        /** 没有条件 = 全局组：拥有该修饰符即持续生效。 */
+        public boolean isGlobal() {
+            return conditions == null || conditions.isEmpty();
+        }
     }
 
     public String getFullIdentifier() {

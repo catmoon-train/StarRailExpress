@@ -29,13 +29,14 @@ import org.jetbrains.annotations.NotNull;
  * 只发给被倒计时的当事人自己：{@code active = true} 表示开始（或刷新）倒计时，
  * {@code active = false} 表示结束 / 取消。客户端据此渲染与难民同款的倒计时 HUD。
  */
-public record CustomModifierCountdownPacket(String modifierId, String label, int seconds, boolean revive,
-        boolean active) implements CustomPacketPayload {
+public record CustomModifierCountdownPacket(String modifierId, int group, String label, int seconds,
+        boolean revive, boolean active) implements CustomPacketPayload {
 
     public static final Type<CustomModifierCountdownPacket> ID = new Type<>(SRE.id("custom_modifier_countdown"));
 
     public static final StreamCodec<FriendlyByteBuf, CustomModifierCountdownPacket> CODEC = StreamCodec.composite(
             ByteBufCodecs.STRING_UTF8, CustomModifierCountdownPacket::modifierId,
+            ByteBufCodecs.VAR_INT, CustomModifierCountdownPacket::group,
             ByteBufCodecs.STRING_UTF8, CustomModifierCountdownPacket::label,
             ByteBufCodecs.VAR_INT, CustomModifierCountdownPacket::seconds,
             ByteBufCodecs.BOOL, CustomModifierCountdownPacket::revive,

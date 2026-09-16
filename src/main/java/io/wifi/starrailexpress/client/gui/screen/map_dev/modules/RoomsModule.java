@@ -15,8 +15,12 @@
 
 package io.wifi.starrailexpress.client.gui.screen.map_dev.modules;
 
+import io.wifi.starrailexpress.client.gui.SREPanelStyle;
 import io.wifi.starrailexpress.client.gui.screen.map_dev.*;
 import net.minecraft.client.gui.components.EditBox;
+import io.wifi.starrailexpress.cca.AreasWorldComponent;
+import io.wifi.starrailexpress.client.SREClient;
+import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.network.chat.Component;
 import org.agmas.noellesroles.client.widget.custom_button.ModernButton;
 import org.agmas.noellesroles.client.widget.custom_button.ModernButton.AccentSide;
@@ -33,9 +37,12 @@ public class RoomsModule implements TabModule {
         int y = 0, gap = 10, bh = 22, fw = 60;
         int leftX = layout.leftColumnX();
 
+        // 初值取当前配置（而不是写死的 "0"），用户才看得到现在设的是几间房
         EditBox roomCountBox = new EditBox(layout.font, leftX, y, fw, bh, Component.empty());
-        roomCountBox.setValue("0");
         roomCountBox.setMaxLength(20);
+        roomCountBox.setValue(String.valueOf(currentRoomCount()));
+        roomCountBox.setHint(SREPanelStyle.hint(Component.translatable("sre.map_helper.set_room_count")));
+        roomCountBox.setTooltip(Tooltip.create(Component.translatable("sre.map_helper.set_room_count")));
         placements.add(new WidgetPlacement(roomCountBox, y));
 
         placements.add(new WidgetPlacement(
@@ -48,9 +55,12 @@ public class RoomsModule implements TabModule {
                 y));
 
         int row2 = y + bh + gap;
+        // 房间序号：提示里写清楚填什么（0 开始）
         EditBox roomIdBox = new EditBox(layout.font, leftX, row2, fw, bh, Component.empty());
-        roomIdBox.setValue("0");
         roomIdBox.setMaxLength(20);
+        roomIdBox.setValue("0");
+        roomIdBox.setHint(SREPanelStyle.hint(Component.translatable("sre.map_helper.room_id_hint")));
+        roomIdBox.setTooltip(Tooltip.create(Component.translatable("sre.map_helper.room_id_hint")));
         placements.add(new WidgetPlacement(roomIdBox, row2));
 
         placements.add(new WidgetPlacement(
@@ -83,6 +93,12 @@ public class RoomsModule implements TabModule {
                 }).bounds(leftX + fw + gap, row3, layout.columnWidth(1, 0) - fw - gap, bh).accentBar(AccentSide.RIGHT)
                         .build(),
                 row3));
+    }
+
+    /** 当前配置里已设的房间数量（读不到时回退 1）。 */
+    private static int currentRoomCount() {
+        AreasWorldComponent areas = SREClient.areaComponent;
+        return areas == null ? 1 : areas.getRoomCount();
     }
 
     @Override

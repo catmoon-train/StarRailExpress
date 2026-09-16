@@ -25,7 +25,9 @@ import org.agmas.noellesroles.client.widget.custom_button.ModernButton.AccentSid
 import java.util.List;
 
 public class MapModule implements TabModule {
-    private EditBox mapNameBox, mapImportBox, initialItemsBox;
+    private EditBox mapNameBox, mapImportBox;
+    /** 内容总高（按本次实际排到哪一行算，供滚动条用）。 */
+    private int contentHeight = 0;
 
     @Override
     public Component getTabTitle() {
@@ -103,15 +105,8 @@ public class MapModule implements TabModule {
                         ctx.sendOnly("sre:area_manager map name " + ctx.quoteCommandArgument(name));
                 }).bounds(leftX, row5, fullWidth, bh).accentBar(AccentSide.BOTTOM).build(), row5));
 
-        int row6 = row5;
-
-        int row7 = row6 + bh + gap;
-        placements.add(new WidgetPlacement(
-                ModernButton.builder(Component.translatable("sre.map_helper.set_initial_items"), b -> {
-                    String value = initialItemsBox.getValue().trim();
-                    if (!value.isEmpty())
-                        ctx.sendOnly("sre:area_manager set initialItems " + ctx.quoteCommandArgument(value));
-                }).bounds(leftX, row7, fullWidth, bh).accentBar(AccentSide.BOTTOM).build(), row7));
+        // 初始物品等条目请到「全部设置」页里改（那边的字段是反射出来的，这里不再重复放一个点了就崩的按钮）
+        contentHeight = row5 + bh + 8;
     }
 
     private void importMap(ModuleContext ctx, boolean force) {
@@ -125,6 +120,6 @@ public class MapModule implements TabModule {
 
     @Override
     public int getContentHeight() {
-        return 8 * 32;
+        return contentHeight;
     }
 }

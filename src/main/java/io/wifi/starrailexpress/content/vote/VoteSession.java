@@ -98,6 +98,8 @@ public class VoteSession {
 
     @Nullable
     public Set<UUID> getTargetPlayers() {
+        if (targetPlayers == null)
+            return Set.of();
         return targetPlayers;
     }
 
@@ -106,7 +108,7 @@ public class VoteSession {
     }
 
     // 新投票方法：接收索引列表
-    boolean castVote(UUID playerId, List<Integer> optionIndices) {
+    public boolean castVote(UUID playerId, List<Integer> optionIndices) {
         if (ended || !isAllowedToVote(playerId))
             return false;
         if (optionIndices.isEmpty())
@@ -124,7 +126,7 @@ public class VoteSession {
     }
 
     // 保留旧接口以便兼容（内部转为列表调用）
-    boolean castVote(UUID playerId, int optionIndex) {
+    public boolean castVote(UUID playerId, int optionIndex) {
         return castVote(playerId, List.of(optionIndex));
     }
 

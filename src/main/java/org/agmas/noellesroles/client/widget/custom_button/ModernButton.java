@@ -15,8 +15,11 @@
 
 package org.agmas.noellesroles.client.widget.custom_button;
 
+import io.wifi.starrailexpress.client.gui.SREPanelStyle;
+import io.wifi.starrailexpress.client.gui.screen.mapui.MapUiGraphics;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.Mth;
 import org.lwjgl.glfw.GLFW;
@@ -75,15 +78,20 @@ public class ModernButton extends net.minecraft.client.gui.components.Button {
     // 字段
     // ══════════════════════════════════════════════════════════════════
 
-    private static final int DEFAULT_ACCENT = 0xFF5577CC;
+    /** 默认强调色 = 文档 §2.1 的亮金。 */
+    private static final int DEFAULT_ACCENT = SREPanelStyle.GOLD;
     private static final int BAR_THICKNESS = 3;
     private static final int BAR_GLOW = 4;
     /** 单侧色条（实色 + 光晕）占用的总像素宽/高 */
     private static final int BAR_INSET = BAR_THICKNESS + BAR_GLOW;
+    /** 比这还窄的按钮不画色条：色条会吃掉 7px，文字就没地方放了 */
+    private static final int MIN_WIDTH_FOR_ACCENT = 48;
 
     private final int accentColor;
     private final Set<AccentSide> accentSides;
     private float hoverAnim = 0f;
+    /** 当前是否因为文字放不下而挂着「悬停看全文」的 tooltip（只在状态变化时改 tooltip）。 */
+    private boolean clipTooltipShown = false;
 
     // ══════════════════════════════════════════════════════════════════
     // 构造（私有）
@@ -190,31 +198,34 @@ public class ModernButton extends net.minecraft.client.gui.components.Button {
 
         final int x = getX(), y = getY(), w = getWidth(), h = getHeight();
 
+        // 配色一律取自 docs/ui_style.md §2.1 的色板：深棕底 + 棕褐描边 + 金色 hover/活跃
+        boolean showAccent = w >= MIN_WIDTH_FOR_ACCENT;
+
         // ── 1. 外边框 ────────────────────────────────────────────────
         int borderColor = pressed
-                ? 0xFF8899DD
-                : blendColors(0xFF2A3060, 0xFF6688EE, hoverAnim);
+                ? SREPanelStyle.GOLD
+                : blendColors(SREPanelStyle.CARD_BORDER, SREPanelStyle.GOLD, hoverAnim);
         g.fill(x, y, x + w, y + h, borderColor);
 
         // ── 2. 渐变背景 ──────────────────────────────────────────────
         int bgL, bgR;
         if (!isActive()) {
-            bgL = bgR = 0xFF0D1020;
+            bgL = bgR = 0xFF120A04;
         } else if (pressed) {
-            bgL = blendColors(0xFF141828, 0xFF223380, hoverAnim);
-            bgR = blendColors(0xFF0E1020, 0xFF162060, hoverAnim);
+            bgL = blendColors(0xFF2B2112, 0xFF3A2A14, hoverAnim);
+            bgR = blendColors(0xFF1A1008, 0xFF241708, hoverAnim);
         } else {
-            bgL = blendColors(0xFF141828, 0xFF1E2E68, hoverAnim);
-            bgR = blendColors(0xFF0E1020, 0xFF162050, hoverAnim);
+            bgL = blendColors(0xFF1A1008, 0xFF2B2112, hoverAnim);
+            bgR = blendColors(0xFF120A04, 0xFF1A1008, hoverAnim);
         }
         g.fillGradient(x + 1, y + 1, x + w - 1, y + h - 1, bgL, bgR);
 
-        // ── 3. 顶部高光条 ─────────────────────────────────────────────
-        int topAlpha = pressed ? 0x44 : (int) (0x10 + (0x25 - 0x10) * hoverAnim);
-        g.fill(x + 1, y + 1, x + w - 1, y + 2, (topAlpha << 24) | 0xFFFFFF);
+        // ── 3. 顶部高光条（文档的顶部装饰线色）─────────────────────
+        int topAlpha = pressed ? 0x44 : (int) (0x11 + (0x33 - 0x11) * hoverAnim);
+        g.fill(x + 1, y + 1, x + w - 1, y + 2, (topAlpha << 24) | 0x00FFE8C0);
 
         // ── 4. 色条（叠加在背景上，按各自方向绘制）──────────────────
-        if (isActive() && !accentSides.isEmpty()) {
+        if (isActive() && !accentSides.isEmpty() && showAccent) {
             for (AccentSide side : accentSides) {
                 renderAccentBar(g, x, y, w, h, side);
             }
@@ -223,15 +234,21 @@ public class ModernButton extends net.minecraft.client.gui.components.Button {
         // ── 5. 文字（居中于扣除色条后的剩余内容区）──────────────────
         int textColor;
         if (!isActive()) {
-            textColor = 0xFF555566;
+            textColor = SREPanelStyle.MUTED;
         } else if (pressed) {
-            textColor = accentColor | 0xFF000000;
+            textColor = SREPanelStyle.GOLD;
         } else {
-            textColor = blendColors(0xFFCCCCDD, 0xFFEEEEFF, hoverAnim);
+            textColor = blendColors(SREPanelStyle.TEXT, 0xFFFFE8C0, hoverAnim);
         }
         int[] tc = getTextCenter(x, y, w, h);
+        // 超宽就裁成省略号（原版会把文字画到按钮外面压住相邻控件）；
+        // 真被裁掉时才挂「悬停看全文」，放得下就把 tooltip 摘掉，不多出一层提示
+        Component label = getMessage();
+        String shown = MapUiGraphics.clip(Minecraft.getInstance().font, label.getString(),
+                Math.max(8, tc[2]));
+        updateClipTooltip(label, shown.equals(label.getString()));
         g.drawCenteredString(Minecraft.getInstance().font,
-                getMessage(), tc[0], tc[1], textColor);
+                Component.literal(shown), tc[0], tc[1], textColor);
 
         // ── 6. 焦点时右侧指示竖条 ────────────────────────────────────
         // if (isFocused() && isActive()) {
@@ -247,13 +264,16 @@ public class ModernButton extends net.minecraft.client.gui.components.Button {
      * 内容区 = 按钮背景内侧（各边 -1px 边框）再减去各激活色条的 BAR_INSET。
      * 对称方向（如同时 LEFT+RIGHT）会互相抵消，文字回到水平中心。
      *
-     * @return int[]{centerX, topY}，对应 drawCenteredString 的参数。
+     * @return int[]{centerX, topY, contentWidth}：前两项对应 drawCenteredString 的参数，
+     *         第三项是文字可用宽度（超宽要裁成省略号）
      */
     private int[] getTextCenter(int x, int y, int w, int h) {
-        boolean hasL = isActive() && accentSides.contains(AccentSide.LEFT);
-        boolean hasR = isActive() && accentSides.contains(AccentSide.RIGHT);
-        boolean hasT = isActive() && accentSides.contains(AccentSide.TOP);
-        boolean hasB = isActive() && accentSides.contains(AccentSide.BOTTOM);
+        // 窄按钮不画色条，文字也就该占满整宽（否则会出现「没画条但文字被缩进」）
+        boolean bars = w >= MIN_WIDTH_FOR_ACCENT;
+        boolean hasL = bars && isActive() && accentSides.contains(AccentSide.LEFT);
+        boolean hasR = bars && isActive() && accentSides.contains(AccentSide.RIGHT);
+        boolean hasT = bars && isActive() && accentSides.contains(AccentSide.TOP);
+        boolean hasB = bars && isActive() && accentSides.contains(AccentSide.BOTTOM);
 
         // 内容区左右边界（背景内侧 +1，再按色条内缩）
         int contentX1 = x + 1 + (hasL ? BAR_INSET : 0);
@@ -267,7 +287,22 @@ public class ModernButton extends net.minecraft.client.gui.components.Button {
         // drawCenteredString 第四参数为文字顶边 Y，9 为默认字体高度
         int topY = contentY1 + (contentY2 - contentY1 - 9) / 2;
 
-        return new int[] { centerX, topY };
+        return new int[] { centerX, topY, Math.max(8, contentX2 - contentX1 - 2) };
+    }
+
+    /**
+     * 文字被裁掉时挂一个「悬停看全文」的 tooltip，放得下就摘掉。
+     *
+     * <p>
+     * 只在状态变化时动 tooltip，避免每帧新建对象。
+     */
+    private void updateClipTooltip(Component full, boolean fits) {
+        boolean clipped = !fits && full != null && !full.getString().isEmpty();
+        if (clipped == clipTooltipShown) {
+            return;
+        }
+        clipTooltipShown = clipped;
+        setTooltip(clipped ? Tooltip.create(full) : null);
     }
 
     /** 绘制单条色条，覆盖在背景内侧，向按钮中心方向渐隐。 */

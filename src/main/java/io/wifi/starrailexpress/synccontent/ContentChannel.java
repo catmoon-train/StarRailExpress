@@ -32,8 +32,14 @@ public enum ContentChannel {
 
     /** 自定义职业（sre_custom_roles.json）。 */
     CUSTOM_ROLE("custom_role", 1, "sre_custom_roles.json"),
-    /** 自定义修饰符（sre_custom_modifiers.json）。 */
-    CUSTOM_MODIFIER("custom_modifier", 1, "sre_custom_modifiers.json"),
+    /**
+     * 自定义修饰符（sre_custom_modifiers.json）。
+     *
+     * <p>
+     * 协议版本 2：触发内容从「一份扁平列表」改成「多组（条件 → 内容）」（{@code groups}）。
+     * 客户端缓存按 id + 协议版本做哈希，改版本号能让老缓存失效、重新同步一次。
+     */
+    CUSTOM_MODIFIER("custom_modifier", 2, "sre_custom_modifiers.json"),
     /** 自定义列车物品（sre_custom_items.json）。 */
     CUSTOM_ITEM("custom_item", 1, "sre_custom_items.json"),
     /** 自定义方块（sre_custom_blocks.json）。 */

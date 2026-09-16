@@ -26,6 +26,7 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.level.storage.LevelResource;
 import org.agmas.harpymodloader.modifiers.HMLModifiers;
 import org.agmas.harpymodloader.modifiers.SREModifier;
+import org.agmas.noellesroles.utils.FlagUtils;
 
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -160,6 +161,8 @@ public final class CustomModifierLoader {
 
         // 基础
         modifier.setHidden(data.hidden);
+        // 作者自定义标签：挂成 flags，介绍页的分类筛选与 inner.* 语义都跟着生效
+        FlagUtils.applyCustomFlags(modifier, data.tags);
 
         // 生成设置
         modifier.setDefaultMax(data.defaultMax);

@@ -15,8 +15,12 @@
 
 package io.wifi.starrailexpress.client.gui.screen.map_dev.modules;
 
+import io.wifi.starrailexpress.client.gui.SREPanelStyle;
 import io.wifi.starrailexpress.client.gui.screen.map_dev.*;
 import net.minecraft.client.gui.components.EditBox;
+import io.wifi.starrailexpress.api.AreasSettings;
+import io.wifi.starrailexpress.cca.AreasWorldComponent;
+import io.wifi.starrailexpress.client.SREClient;
 import net.minecraft.network.chat.Component;
 import org.agmas.noellesroles.client.widget.custom_button.ModernButton;
 import org.agmas.noellesroles.client.widget.custom_button.ModernButton.AccentSide;
@@ -42,17 +46,31 @@ public class MeetingModule implements TabModule {
         int fullW = layout.contentWidth();
         int y = 0;
 
-        // 启用 / 禁用
-        placements.add(new WidgetPlacement(
-                ModernButton.builder(Component.translatable("sre.map_helper.meeting.enable"),
-                        b -> ctx.sendOnly("sre:area_manager set meetingEnabled true"))
-                        .bounds(leftX, y, bw, bh).accentBar(AccentSide.LEFT).build(),
-                y));
-        placements.add(new WidgetPlacement(
-                ModernButton.builder(Component.translatable("sre.map_helper.meeting.disable"),
-                        b -> ctx.sendOnly("sre:area_manager set meetingEnabled false"))
-                        .bounds(rightX, y, bw, bh).accentBar(AccentSide.RIGHT).build(),
-                y));
+        // 启用 / 禁用：当前生效的那个按钮带 ✓ 与更强的高亮，点了就地互换标记（不重建界面）
+        boolean meetingOn = currentSetting(a -> a.meetingEnabled, false);
+        // [0] = 启用按钮，[1] = 禁用按钮：点一个就把另一个的 ✓ 标记去掉
+        // （用数组是为了让两个回调能互相引用，局部变量不能前向引用）
+        ModernButton[] meetingPair = new ModernButton[2];
+        meetingPair[0] = ModernButton.builder(meetingStateLabel(true, meetingOn), b -> {
+            ctx.sendOnly("sre:area_manager set meetingEnabled true");
+            b.setMessage(meetingStateLabel(true, true));
+            if (meetingPair[1] != null)
+                meetingPair[1].setMessage(meetingStateLabel(false, false));
+        }).bounds(leftX, y, bw, bh)
+                .accentBar(meetingOn ? new AccentSide[] { AccentSide.LEFT, AccentSide.TOP, AccentSide.BOTTOM }
+                        : new AccentSide[] { AccentSide.LEFT })
+                .build();
+        meetingPair[1] = ModernButton.builder(meetingStateLabel(false, !meetingOn), b -> {
+            ctx.sendOnly("sre:area_manager set meetingEnabled false");
+            b.setMessage(meetingStateLabel(false, true));
+            if (meetingPair[0] != null)
+                meetingPair[0].setMessage(meetingStateLabel(true, false));
+        }).bounds(rightX, y, bw, bh)
+                .accentBar(!meetingOn ? new AccentSide[] { AccentSide.RIGHT, AccentSide.TOP, AccentSide.BOTTOM }
+                        : new AccentSide[] { AccentSide.RIGHT })
+                .build();
+        placements.add(new WidgetPlacement(meetingPair[0], y));
+        placements.add(new WidgetPlacement(meetingPair[1], y));
         y += rowStep;
 
         // 在当前（应用偏移后）位置设置会议地点
@@ -69,9 +87,28 @@ public class MeetingModule implements TabModule {
 
         // 数值项：椅子搜寻半径不再支持（因为是软定义的AABB，相对坐标的AABB） / 讨论时长（秒）/ 冷却（秒）
         y = addNumberRow(placements, layout, ctx, y,
-                "sre.map_helper.meeting.discuss_seconds", "meetingDiscussSeconds", "60");
+                "sre.map_helper.meeting.discuss_seconds", "meetingDiscussSeconds",
+                String.valueOf(currentSetting(a -> a.meetingDiscussSeconds, 60)));
         addNumberRow(placements, layout, ctx, y,
-                "sre.map_helper.meeting.cooldown_seconds", "meetingCooldownSeconds", "90");
+                "sre.map_helper.meeting.cooldown_seconds", "meetingCooldownSeconds",
+                String.valueOf(currentSetting(a -> a.meetingCooldownSeconds, 90)));
+    }
+
+    /** 按钮文字：当前生效的那个带 ✓。 */
+    private static Component meetingStateLabel(boolean enable, boolean active) {
+        Component base = Component.translatable(enable ? "sre.map_helper.meeting.enable"
+                : "sre.map_helper.meeting.disable");
+        return active ? base.copy().append(Component.literal(" ✓")) : base;
+    }
+
+    /** 读当前配置里的值（读不到就用默认值），避免界面永远显示写死的初值。 */
+    private static <T> T currentSetting(java.util.function.Function<AreasSettings, T> getter, T fallback) {
+        AreasWorldComponent areas = SREClient.areaComponent;
+        if (areas == null || areas.areasSettings == null) {
+            return fallback;
+        }
+        T value = getter.apply(areas.areasSettings);
+        return value == null ? fallback : value;
     }
 
     private int addNumberRow(List<WidgetPlacement> placements, LayoutContext layout, ModuleContext ctx,
@@ -83,7 +120,7 @@ public class MeetingModule implements TabModule {
         EditBox box = new EditBox(layout.font, leftX, y, bw, bh, Component.empty());
         box.setValue(defaultValue);
         box.setMaxLength(10);
-        box.setHint(Component.translatable(labelKey));
+        box.setHint(SREPanelStyle.hint(Component.translatable(labelKey)));
         placements.add(new WidgetPlacement(box, y));
 
         placements.add(new WidgetPlacement(

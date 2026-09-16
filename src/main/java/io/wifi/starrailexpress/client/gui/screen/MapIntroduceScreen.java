@@ -148,7 +148,8 @@ public class MapIntroduceScreen extends Screen {
         // 搜索框
         search = new EditBox(font, leftX + PANEL_PAD, topBarY, leftW - PANEL_PAD * 2, TOP_BAR_H,
                 Component.translatable("map_intro.search"));
-        search.setHint(Component.translatable("map_intro.search"));
+        search.setHint(io.wifi.starrailexpress.client.gui.SREPanelStyle
+                .hint(Component.translatable("map_intro.search")));
         search.setMaxLength(64);
         search.setResponder(text -> {
             listScrollOffset = 0;

@@ -108,7 +108,7 @@ public final class CustomModifierRuntime {
      * 保证「被谁击杀」类条件一定能拿到击杀者，同时天然避免了重复触发。
      */
     private static final Map<UUID, PendingDeath> PENDING_DEATHS = new HashMap<>();
-    /** 正在倒计时的「死亡 N 秒后」条件（键 = 玩家 UUID|修饰符 id）。 */
+    /** 正在倒计时的「死亡 N 秒后」条件（键 = 玩家 UUID|修饰符 id|组下标）。 */
     private static final Map<String, Countdown> COUNTDOWNS = new HashMap<>();
     private static boolean initialized = false;
 
@@ -123,6 +123,8 @@ public final class CustomModifierRuntime {
     private static final class Countdown {
         final UUID playerId;
         final String modifierId;
+        /** 该条件所在的触发组下标。 */
+        final int groupIndex;
         final String label;
         final ConditionType type;
         final boolean revive;
@@ -130,10 +132,11 @@ public final class CustomModifierRuntime {
         /** 到期刻，基准为「游戏开始刻」（见 {@link #countdownNow}）。 */
         final long deadline;
 
-        Countdown(UUID playerId, String modifierId, String label, ConditionType type, boolean revive, Vec3 pos,
-                long deadline) {
+        Countdown(UUID playerId, String modifierId, int groupIndex, String label, ConditionType type,
+                boolean revive, Vec3 pos, long deadline) {
             this.playerId = playerId;
             this.modifierId = modifierId;
+            this.groupIndex = groupIndex;
             this.label = label;
             this.type = type;
             this.revive = revive;
@@ -142,20 +145,30 @@ public final class CustomModifierRuntime {
         }
 
         String key() {
-            return playerId + "|" + modifierId;
+            return playerId + "|" + modifierId + "|" + groupIndex;
         }
     }
 
     private CustomModifierRuntime() {
     }
 
-    /** 每（玩家, 修饰符）的运行时状态。 */
+    /** 每（玩家, 修饰符）的运行时状态：按触发组分开存放，组与组之间互不影响。 */
     private static final class State {
+        final Map<Integer, GroupState> groups = new HashMap<>();
+
+        GroupState group(int index) {
+            return groups.computeIfAbsent(index, key -> new GroupState());
+        }
+    }
+
+    /** 单个触发组的运行时状态（键 = 组在 {@code data.effectiveGroups()} 里的下标）。 */
+    private static final class GroupState {
         boolean lastResult = false;
-        /** 全局触发时指令只执行一次。 */
+        /** 全局组：指令只在获得该修饰符时执行一次。 */
         boolean globalFired = false;
+        /** 「只触发一次」的条件（按组内条件下标存）。 */
         final Set<Integer> oneShotFired = new HashSet<>();
-        /** 定时类条件的「下次到期刻」（按条件下标存），不受整秒判定对齐影响。 */
+        /** 定时类条件的「下次到期刻」（按组内条件下标存），不受整秒判定对齐影响。 */
         final Map<Integer, Long> nextDue = new HashMap<>();
     }
 
@@ -220,20 +233,29 @@ public final class CustomModifierRuntime {
 
         State state = state(player, entry);
         long now = gameTime(player);
-
-        if (data.isGlobalTrigger()) {
-            applyGlobal(player, entry, data, now);
-            // 全局触发没有「条件满足」的时机：获得该修饰符时把指令执行一次
-            if (!state.globalFired) {
-                state.globalFired = true;
-                fireActions(player, entry, data);
-            }
+        List<CustomModifierData.TriggerGroupData> groups = data.effectiveGroups();
+        if (groups.isEmpty()) {
             return;
         }
-        // 条件触发：每秒判定一次
-        if (now % SECOND_TICKS != 0)
-            return;
-        evaluate(player, entry, data, null, null, null);
+
+        // 每个触发组各自判定、各自执行自己的内容：全局组每刻维持，条件组每秒判一次
+        boolean evaluateNow = now % SECOND_TICKS == 0;
+        for (int i = 0; i < groups.size(); i++) {
+            CustomModifierData.TriggerGroupData group = groups.get(i);
+            GroupState groupState = state.group(i);
+            if (group.isGlobal()) {
+                applyGlobal(player, entry, group, i, now);
+                // 全局组没有「条件满足」的时机：获得该修饰符时把指令执行一次
+                if (!groupState.globalFired) {
+                    groupState.globalFired = true;
+                    fireActions(player, entry, group);
+                }
+                continue;
+            }
+            if (evaluateNow) {
+                evaluate(player, entry, groupState, group, null, null, null);
+            }
+        }
     }
 
     /** 登记一次死亡（两个死亡事件都会走到这里，后到的击杀者会覆盖先前的 null）。 */
@@ -279,20 +301,24 @@ public final class CustomModifierRuntime {
             if (data == null || data.markerOnly) {
                 continue;
             }
-            for (ConditionData condition : safe(data.conditions)) {
-                ConditionType type = parseType(condition.type);
-                if (type != ConditionType.DEATH_COUNTDOWN && type != ConditionType.DEATH_COUNTDOWN_REVIVE) {
-                    continue;
+            List<CustomModifierData.TriggerGroupData> groups = data.effectiveGroups();
+            for (int groupIndex = 0; groupIndex < groups.size(); groupIndex++) {
+                for (ConditionData condition : safe(groups.get(groupIndex).conditions)) {
+                    ConditionType type = parseType(condition.type);
+                    if (type != ConditionType.DEATH_COUNTDOWN && type != ConditionType.DEATH_COUNTDOWN_REVIVE) {
+                        continue;
+                    }
+                    int seconds = (int) Math.max(1L, Math.round(condition.value));
+                    String label = data.displayName != null && !data.displayName.isBlank() ? data.displayName
+                            : data.englishId;
+                    Countdown countdown = new Countdown(player.getUUID(), entry.identifier().getPath(), groupIndex,
+                            label, type, type == ConditionType.DEATH_COUNTDOWN_REVIVE, pos,
+                            now + seconds * SECOND_TICKS);
+                    COUNTDOWNS.put(countdown.key(), countdown);
+                    sendCountdown(player, countdown, true);
+                    // 同一个组里只认第一个倒计时条件
+                    break;
                 }
-                int seconds = (int) Math.max(1L, Math.round(condition.value));
-                String label = data.displayName != null && !data.displayName.isBlank() ? data.displayName
-                        : data.englishId;
-                Countdown countdown = new Countdown(player.getUUID(), entry.identifier().getPath(), label, type,
-                        type == ConditionType.DEATH_COUNTDOWN_REVIVE, pos, now + seconds * SECOND_TICKS);
-                COUNTDOWNS.put(countdown.key(), countdown);
-                sendCountdown(player, countdown, true);
-                // 同一修饰符只认第一个倒计时条件
-                break;
             }
         }
     }
@@ -304,34 +330,44 @@ public final class CustomModifierRuntime {
             if (!(modifier instanceof CustomModifierEntry entry))
                 continue;
             CustomModifierData data = entry.getData();
-            if (data == null || data.markerOnly || data.isGlobalTrigger())
+            if (data == null || data.markerOnly)
                 continue;
-            boolean relevant = false;
-            for (ConditionData condition : safe(data.conditions)) {
-                ConditionType conditionType = parseType(condition.type);
-                if (conditionType == null) {
+            List<CustomModifierData.TriggerGroupData> groups = data.effectiveGroups();
+            State state = state(player, entry);
+            for (int i = 0; i < groups.size(); i++) {
+                CustomModifierData.TriggerGroupData group = groups.get(i);
+                if (group.isGlobal()) {
                     continue;
                 }
-                // 四种「被谁击杀」条件同样由死亡事件驱动
-                if (conditionType == type || (type == ConditionType.DEATH && isKillerCondition(conditionType))) {
-                    relevant = true;
-                    break;
+                boolean relevant = false;
+                for (ConditionData condition : safe(group.conditions)) {
+                    ConditionType conditionType = parseType(condition.type);
+                    if (conditionType == null) {
+                        continue;
+                    }
+                    // 四种「被谁击杀」条件同样由死亡事件驱动
+                    if (conditionType == type
+                            || (type == ConditionType.DEATH && isKillerCondition(conditionType))) {
+                        relevant = true;
+                        break;
+                    }
                 }
+                if (!relevant) {
+                    continue;
+                }
+                evaluate(player, entry, state.group(i), group, type, payload, killer);
             }
-            if (!relevant)
-                continue;
-            evaluate(player, entry, data, type, payload, killer);
         }
     }
 
     /** 判定条件并按「与 / 或」串联，满足时执行触发内容。 */
-    private static void evaluate(ServerPlayer player, CustomModifierEntry entry, CustomModifierData data,
-            ConditionType eventType, String payload, ServerPlayer killer) {
-        List<ConditionData> conditions = safe(data.conditions);
-        if (conditions.isEmpty() || data.markerOnly)
+    private static void evaluate(ServerPlayer player, CustomModifierEntry entry, GroupState state,
+            CustomModifierData.TriggerGroupData group, ConditionType eventType, String payload,
+            ServerPlayer killer) {
+        List<ConditionData> conditions = safe(group.conditions);
+        if (conditions.isEmpty())
             return;
 
-        State state = state(player, entry);
         long now = gameTime(player);
 
         boolean result = false;
@@ -348,7 +384,7 @@ public final class CustomModifierRuntime {
         if (result) {
             if (!state.lastResult) {
                 state.lastResult = true;
-                fireActions(player, entry, data);
+                fireActions(player, entry, group);
             }
         } else {
             state.lastResult = false;
@@ -357,7 +393,7 @@ public final class CustomModifierRuntime {
 
     // ==================== 条件判定 ====================
 
-    private static boolean evalCondition(ServerPlayer player, State state, ConditionData condition, int index,
+    private static boolean evalCondition(ServerPlayer player, GroupState state, ConditionData condition, int index,
             long now, ConditionType eventType, String payload, ServerPlayer killer) {
         ConditionType type = parseType(condition.type);
         if (type == null) {
@@ -503,7 +539,7 @@ public final class CustomModifierRuntime {
      * 到期刻按「条件下标」存放：工具里改完配置重载后条件对象会换成新的，下标仍可对齐，
      * 但间隔被改小时要把过远的到期刻拉近，否则会继续等旧的长间隔。
      */
-    private static boolean dueNow(State state, int index, long now, int interval) {
+    private static boolean dueNow(GroupState state, int index, long now, int interval) {
         Long due = state.nextDue.get(index);
         if (due == null) {
             // 第一次判定：从当前时刻起算一个完整间隔（「拥有该修饰符后每 N 秒」）
@@ -628,8 +664,13 @@ public final class CustomModifierRuntime {
             CustomModifierData data = entry.getData();
             if (data == null || data.markerOnly)
                 continue;
+            List<CustomModifierData.TriggerGroupData> groups = data.effectiveGroups();
+            if (countdown.groupIndex < 0 || countdown.groupIndex >= groups.size()) {
+                continue;
+            }
             found = true;
-            evaluate(player, entry, data, countdown.type, null, null);
+            evaluate(player, entry, state(player, entry).group(countdown.groupIndex),
+                    groups.get(countdown.groupIndex), countdown.type, null, null);
         }
         if (!found || !countdown.revive) {
             return;
@@ -650,31 +691,35 @@ public final class CustomModifierRuntime {
     private static void sendCountdown(ServerPlayer player, Countdown countdown, boolean active) {
         long remaining = Math.max(0L, countdown.deadline - countdownNow(player));
         int seconds = (int) ((remaining + 19L) / 20L);
-        ServerPlayNetworking.send(player, new CustomModifierCountdownPacket(countdown.modifierId, countdown.label,
-                seconds, countdown.revive, active));
+        ServerPlayNetworking.send(player,
+                new CustomModifierCountdownPacket(countdown.modifierId, countdown.groupIndex, countdown.label,
+                        seconds, countdown.revive, active));
     }
 
     // ==================== 触发内容 ====================
 
-    private static void fireActions(ServerPlayer player, CustomModifierEntry entry, CustomModifierData data) {
-        for (String command : safe(data.commands)) {
+    /** 触发某一组的内容（指令 + 药水效果 + 按需移除修饰符）。 */
+    private static void fireActions(ServerPlayer player, CustomModifierEntry entry,
+            CustomModifierData.TriggerGroupData group) {
+        for (String command : safe(group.commands)) {
             executeCommand(command, player);
         }
-        for (CustomModifierData.EffectData effect : safe(data.effects)) {
+        for (CustomModifierData.EffectData effect : safe(group.effects)) {
             applyEffect(player, effect, Math.max(1, effect.durationSeconds));
         }
-        if (data.removeModifierOnTrigger) {
+        if (group.removeModifierOnTrigger) {
             WorldModifierComponent.KEY.get(player.level()).removeModifier(player, entry);
             STATES.remove(key(player, entry));
         }
     }
 
-    /** 全局触发：持续药水效果 + 玩家属性。 */
-    private static void applyGlobal(ServerPlayer player, CustomModifierEntry entry, CustomModifierData data, long now) {
-        for (CustomModifierData.EffectData effect : safe(data.effects)) {
+    /** 全局组：持续药水效果 + 玩家属性。 */
+    private static void applyGlobal(ServerPlayer player, CustomModifierEntry entry,
+            CustomModifierData.TriggerGroupData group, int groupIndex, long now) {
+        for (CustomModifierData.EffectData effect : safe(group.effects)) {
             applyPermanentEffect(player, effect);
         }
-        applyAttributes(player, entry, data);
+        applyAttributes(player, entry, group, groupIndex);
     }
 
     private static void applyPermanentEffect(ServerPlayer player, CustomModifierData.EffectData effect) {
@@ -699,8 +744,9 @@ public final class CustomModifierRuntime {
     }
 
     /** 全局触发的玩家属性：只在缺失时添加，失去修饰符后由 {@link #cleanupAttributes} 移除。 */
-    private static void applyAttributes(ServerPlayer player, CustomModifierEntry entry, CustomModifierData data) {
-        List<CustomModifierData.AttributeData> attributes = safe(data.attributes);
+    private static void applyAttributes(ServerPlayer player, CustomModifierEntry entry,
+            CustomModifierData.TriggerGroupData group, int groupIndex) {
+        List<CustomModifierData.AttributeData> attributes = safe(group.attributes);
         for (int i = 0; i < attributes.size(); i++) {
             CustomModifierData.AttributeData config = attributes.get(i);
             Holder<Attribute> holder = resolveAttribute(config.attributeId);
@@ -709,7 +755,7 @@ public final class CustomModifierRuntime {
             AttributeInstance instance = player.getAttribute(holder);
             if (instance == null)
                 continue;
-            ResourceLocation id = attributeId(entry, i);
+            ResourceLocation id = attributeId(entry, groupIndex, i);
             if (instance.getModifier(id) == null) {
                 instance.addTransientModifier(
                         new AttributeModifier(id, config.value, AttributeModifier.Operation.ADD_VALUE));
@@ -748,18 +794,27 @@ public final class CustomModifierRuntime {
             if (!(modifier instanceof CustomModifierEntry entry))
                 continue;
             CustomModifierData data = entry.getData();
-            if (data == null || data.markerOnly || !data.isGlobalTrigger())
+            if (data == null || data.markerOnly)
                 continue;
-            List<CustomModifierData.AttributeData> attributes = safe(data.attributes);
-            for (int i = 0; i < attributes.size(); i++) {
-                result.add(attributeId(entry, i));
+            List<CustomModifierData.TriggerGroupData> groups = data.effectiveGroups();
+            for (int groupIndex = 0; groupIndex < groups.size(); groupIndex++) {
+                CustomModifierData.TriggerGroupData group = groups.get(groupIndex);
+                // 属性只在全局组里常驻
+                if (!group.isGlobal()) {
+                    continue;
+                }
+                List<CustomModifierData.AttributeData> attributes = safe(group.attributes);
+                for (int i = 0; i < attributes.size(); i++) {
+                    result.add(attributeId(entry, groupIndex, i));
+                }
             }
         }
         return result;
     }
 
-    private static ResourceLocation attributeId(CustomModifierEntry entry, int index) {
-        String path = entry.identifier().getPath() + "_" + ATTR_PREFIX + index;
+    /** 属性修饰符 id：带上组下标，多组之间的同名属性不会互相覆盖。 */
+    private static ResourceLocation attributeId(CustomModifierEntry entry, int groupIndex, int index) {
+        String path = entry.identifier().getPath() + "_" + ATTR_PREFIX + groupIndex + "_" + index;
         return ResourceLocation.fromNamespaceAndPath(CustomModifierData.NAMESPACE, path);
     }
 

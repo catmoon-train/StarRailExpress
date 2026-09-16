@@ -17,6 +17,7 @@ package org.agmas.noellesroles.utils;
 
 import org.agmas.harpymodloader.modifiers.HMLModifiers;
 
+import io.wifi.starrailexpress.api.SREAbstractInfoClass;
 import io.wifi.starrailexpress.api.TMMRoles;
 import net.minecraft.network.chat.Component;
 
@@ -55,6 +56,28 @@ public class FlagUtils {
         }
         String path = "screen.roleintroduce.flag." + flag;
         return Component.translatableWithFallback(path, flag.toUpperCase().replaceAll("_", " "));
+    }
+
+    /**
+     * 把配置里的自定义标签挂成 flags。
+     *
+     * <p>
+     * 自定义职业 / 修饰符的编辑器允许作者写若干标签；挂到 flags 上之后，介绍页的分类筛选
+     * （{@code screen.roleintroduce.flag.<flag>}）与 {@code inner.*} 语义旗标都会自动生效。
+     * 没写翻译的标签由 {@link #getFlagName} 回退成「大写下划线转空格」的原文，不会显示成原始键。
+     *
+     * @param info 运行时职业或修饰符（两者都继承自 {@code SREAbstractInfoClass}）
+     */
+    public static void applyCustomFlags(SREAbstractInfoClass info, List<String> tags) {
+        if (info == null || tags == null) {
+            return;
+        }
+        for (String tag : tags) {
+            String value = tag == null ? "" : tag.trim();
+            if (!value.isEmpty()) {
+                info.getFlags().add(value);
+            }
+        }
     }
 
     public static HashSet<String> getAllRoleFlags() {

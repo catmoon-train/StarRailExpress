@@ -15,17 +15,18 @@
 
 package io.wifi.starrailexpress.client.gui.screen.map_dev.modules;
 
+import io.wifi.starrailexpress.scenery.client.SceneAssetClient;
 import io.wifi.starrailexpress.cca.AreasWorldComponent;
 import io.wifi.starrailexpress.client.SREClient;
-import io.wifi.starrailexpress.scenery.client.SceneAssetClient;
 import io.wifi.starrailexpress.client.gui.screen.map_dev.*;
-import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.network.chat.Component;
+import net.minecraft.util.Mth;
 import org.agmas.noellesroles.client.widget.custom_button.ModernButton;
 import org.agmas.noellesroles.client.widget.custom_button.ModernButton.AccentSide;
 import java.util.List;
 
+/** 场景页：绑定/解绑场景 id、场景库、以及客户端场景预览的各种开关。 */
 public class SceneModule implements TabModule {
     private EditBox sceneIdBox;
 
@@ -38,10 +39,14 @@ public class SceneModule implements TabModule {
     public void init(LayoutContext layout, ModuleContext ctx, List<WidgetPlacement> placements) {
         int y = 0, gap = 10, bh = 22;
         int leftX = layout.leftColumnX(), rightX = layout.rightColumnX(2, gap);
-        int fullWidth = layout.contentWidth();
+        int half = layout.columnWidth(2, gap);
         AreasWorldComponent areas = SREClient.areaComponent;
 
-        int sceneBoxWidth = Math.min(190, fullWidth - 64 - 64 - 2 * gap);
+        // 第一行：场景 id 输入框 + 两个按钮。按钮宽度按文字实测，剩下的给输入框，
+        // 不再像以前那样写死 190/64/64（窄面板时右端会钻到滚动条底下）
+        int assignW = Mth.clamp(layout.font.width(Component.translatable("sre.map_helper.assign_scene")) + 14, 56, 96);
+        int editorW = Mth.clamp(layout.font.width(Component.translatable("sre.map_helper.scene_editor")) + 14, 56, 96);
+        int sceneBoxWidth = Math.max(60, layout.contentWidth() - assignW - editorW - 2 * gap);
         sceneIdBox = new EditBox(layout.font, leftX, y, sceneBoxWidth, bh,
                 Component.translatable("sre.map_helper.scene_id"));
         sceneIdBox.setMaxLength(128);
@@ -53,14 +58,13 @@ public class SceneModule implements TabModule {
                 ModernButton.builder(Component.translatable("sre.map_helper.assign_scene"), b -> {
                     String id = sceneIdBox.getValue().trim();
                     if (!id.isEmpty())
-                        ctx.sendOnly("sre:scene library assign "
-                                + ctx.quoteCommandArgument(id));
-                }).bounds(leftX + sceneBoxWidth + gap, y, 64, bh).accentBar(AccentSide.BOTTOM).build(),
+                        ctx.sendOnly("sre:scene library assign " + ctx.quoteCommandArgument(id));
+                }).bounds(leftX + sceneBoxWidth + gap, y, assignW, bh).accentBar(AccentSide.BOTTOM).build(),
                 y));
         placements.add(new WidgetPlacement(
                 ModernButton.builder(Component.translatable("sre.map_helper.scene_editor"),
                         b -> ctx.sendOnly("sre:scene manager"))
-                        .bounds(leftX + sceneBoxWidth + gap + 64 + gap, y, 64, bh)
+                        .bounds(leftX + sceneBoxWidth + gap + assignW + gap, y, editorW, bh)
                         .accentBar(AccentSide.RIGHT).build(),
                 y));
 
@@ -68,89 +72,118 @@ public class SceneModule implements TabModule {
         placements.add(new WidgetPlacement(
                 ModernButton.builder(Component.translatable("sre.map_helper.detach_scene"),
                         b -> ctx.sendOnly("sre:scene library detach"))
-                        .bounds(leftX, row1, layout.columnWidth(2, gap), bh)
+                        .bounds(leftX, row1, half, bh)
                         .accentBar(AccentSide.LEFT).build(),
                 row1));
         placements.add(new WidgetPlacement(ModernButton
                 .builder(Component.translatable("sre.map_helper.list_scene_library"),
                         b -> ctx.sendOnly("sre:scene library list"))
-                .bounds(rightX, row1, layout.columnWidth(2, gap), bh).accentBar(AccentSide.RIGHT)
+                .bounds(rightX, row1, half, bh).accentBar(AccentSide.RIGHT)
                 .build(), row1));
 
         int row2 = row1 + bh + gap;
         placements.add(new WidgetPlacement(
-                ModernButton.builder(Component.translatable("sre.map_helper.toggle_preview"),
-                        b -> SceneAssetClient.setPreviewEnabled(
-                                !SceneAssetClient.isPreviewEnabled()))
-                        .bounds(leftX, row2, layout.columnWidth(2, gap), bh)
+                ModernButton.builder(togglePreviewLabel(),
+                        b -> {
+                            SceneAssetClient.setPreviewEnabled(!SceneAssetClient.isPreviewEnabled());
+                            b.setMessage(togglePreviewLabel());
+                        })
+                        .bounds(leftX, row2, half, bh)
                         .accentBar(AccentSide.LEFT).build(),
                 row2));
         placements.add(new WidgetPlacement(ModernButton
-                .builder(Component.translatable("sre.map_helper.toggle_scroll"),
-                        b -> SceneAssetClient
-                                .setPreviewPaused(!SceneAssetClient.isPreviewPaused()))
-                .bounds(rightX, row2, layout.columnWidth(2, gap), bh).accentBar(AccentSide.RIGHT)
+                .builder(toggleScrollLabel(),
+                        b -> {
+                            SceneAssetClient.setPreviewPaused(!SceneAssetClient.isPreviewPaused());
+                            b.setMessage(toggleScrollLabel());
+                        })
+                .bounds(rightX, row2, half, bh).accentBar(AccentSide.RIGHT)
                 .build(), row2));
 
+        // 透明度：数值直接写在「＋」按钮上，省得点了不知道现在是几
         int row3 = row2 + bh + gap;
+        ModernButton alphaUp = ModernButton.builder(alphaLabel(),
+                b -> {
+                    SceneAssetClient.setPreviewAlpha(SceneAssetClient.getPreviewAlpha() + 0.05F);
+                    b.setMessage(alphaLabel());
+                }).bounds(rightX, row3, half, bh).accentBar(AccentSide.RIGHT).build();
         placements.add(new WidgetPlacement(
                 ModernButton.builder(Component.translatable("sre.map_helper.preview_alpha_down"),
-                        b -> SceneAssetClient.setPreviewAlpha(
-                                SceneAssetClient.getPreviewAlpha() - 0.05F))
-                        .bounds(leftX, row3, layout.columnWidth(2, gap), bh)
+                        b -> {
+                            SceneAssetClient.setPreviewAlpha(SceneAssetClient.getPreviewAlpha() - 0.05F);
+                            alphaUp.setMessage(alphaLabel());
+                        })
+                        .bounds(leftX, row3, half, bh)
                         .accentBar(AccentSide.LEFT).build(),
                 row3));
-        placements.add(new WidgetPlacement(ModernButton
-                .builder(Component.translatable("sre.map_helper.preview_alpha_up"),
-                        b -> SceneAssetClient.setPreviewAlpha(
-                                SceneAssetClient.getPreviewAlpha() + 0.05F))
-                .bounds(rightX, row3, layout.columnWidth(2, gap), bh).accentBar(AccentSide.RIGHT)
-                .build(), row3));
+        placements.add(new WidgetPlacement(alphaUp, row3));
 
+        // 播放速度：同样是「＋」按钮带上当前值
         int row4 = row3 + bh + gap;
+        ModernButton speedUp = ModernButton.builder(speedLabel(),
+                b -> {
+                    SceneAssetClient.setPreviewSpeed(SceneAssetClient.getPreviewSpeed() + 0.25F);
+                    b.setMessage(speedLabel());
+                }).bounds(rightX, row4, half, bh).accentBar(AccentSide.RIGHT).build();
         placements.add(new WidgetPlacement(
                 ModernButton.builder(Component.translatable("sre.map_helper.preview_speed_down"),
-                        b -> SceneAssetClient.setPreviewSpeed(
-                                SceneAssetClient.getPreviewSpeed() - 0.25F))
-                        .bounds(leftX, row4, layout.columnWidth(2, gap), bh)
+                        b -> {
+                            SceneAssetClient.setPreviewSpeed(SceneAssetClient.getPreviewSpeed() - 0.25F);
+                            speedUp.setMessage(speedLabel());
+                        })
+                        .bounds(leftX, row4, half, bh)
                         .accentBar(AccentSide.LEFT).build(),
                 row4));
-        placements.add(new WidgetPlacement(ModernButton
-                .builder(Component.translatable("sre.map_helper.preview_speed_up"),
-                        b -> SceneAssetClient.setPreviewSpeed(
-                                SceneAssetClient.getPreviewSpeed() + 0.25F))
-                .bounds(rightX, row4, layout.columnWidth(2, gap), bh).accentBar(AccentSide.RIGHT)
-                .build(), row4));
+        placements.add(new WidgetPlacement(speedUp, row4));
 
         int row5 = row4 + bh + gap;
         placements.add(new WidgetPlacement(
                 ModernButton.builder(Component.translatable("sre.map_helper.refresh_preview"),
                         b -> SceneAssetClient.refreshPreview())
-                        .bounds(leftX, row5, layout.columnWidth(2, gap), bh)
+                        .bounds(leftX, row5, half, bh)
                         .accentBar(AccentSide.LEFT).build(),
                 row5));
-        placements.add(new WidgetPlacement(ModernButton.builder(
-                Component.translatable("sre.map_helper.toggle_client_scene",
-                        SceneAssetClient.isMovingSceneEnabled()
-                                ? Component.translatable("sre.map_helper.on")
-                                : Component.translatable("sre.map_helper.off")),
+        // 「客户端场景」开关：点了只刷新自己的文案，不再整屏重建（以前会把整页输入都清掉）
+        placements.add(new WidgetPlacement(ModernButton.builder(clientSceneLabel(),
                 b -> {
-                    SceneAssetClient.setMovingSceneEnabled(
-                            !SceneAssetClient.isMovingSceneEnabled());
-                    ctx.refreshScreen();
+                    SceneAssetClient.setMovingSceneEnabled(!SceneAssetClient.isMovingSceneEnabled());
+                    b.setMessage(clientSceneLabel());
                 })
-                .bounds(rightX, row5, layout.columnWidth(2, gap), bh).accentBar(AccentSide.RIGHT)
+                .bounds(rightX, row5, half, bh).accentBar(AccentSide.RIGHT)
                 .build(), row5));
+    }
+
+    private static Component togglePreviewLabel() {
+        return Component.translatable("sre.map_helper.toggle_preview").copy().append(": ")
+                .append(onOff(SceneAssetClient.isPreviewEnabled()));
+    }
+
+    private static Component toggleScrollLabel() {
+        return Component.translatable("sre.map_helper.toggle_scroll").copy().append(": ")
+                .append(onOff(SceneAssetClient.isPreviewPaused()));
+    }
+
+    private static Component clientSceneLabel() {
+        return Component.translatable("sre.map_helper.toggle_client_scene").copy().append(": ")
+                .append(onOff(SceneAssetClient.isMovingSceneEnabled()));
+    }
+
+    private static Component alphaLabel() {
+        return Component.translatable("sre.map_helper.preview_alpha_up").copy().append(" ")
+                .append(Component.literal(Math.round(SceneAssetClient.getPreviewAlpha() * 100F) + "%"));
+    }
+
+    private static Component speedLabel() {
+        return Component.translatable("sre.map_helper.preview_speed_up").copy().append(" ")
+                .append(Component.literal(String.format("%.2fx", SceneAssetClient.getPreviewSpeed())));
+    }
+
+    private static Component onOff(boolean on) {
+        return Component.translatable(on ? "sre.map_helper.on" : "sre.map_helper.off");
     }
 
     @Override
     public int getContentHeight() {
         return 6 * 32;
-    }
-
-    @Override
-    public void renderOverlay(GuiGraphics g, int mouseX, int mouseY, float partial) {
-        // Scene summary rendering is now handled in MapBuildHelperScreen, but we can
-        // also provide extra info here if needed.
     }
 }

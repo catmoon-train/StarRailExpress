@@ -115,7 +115,7 @@ public class AreasSettings {
     public boolean mustCopy = false;
     @Category("map")
     public ArrayList<MapSpecialFeatures> customMapFeatures = new ArrayList<>();
-    
+
     // ==================== action ====================
     /** 是否可跳跃 */
     @Category("action")
@@ -259,6 +259,16 @@ public class AreasSettings {
 
     @Category("meeting")
     public boolean meetingVoteEnabled = false;
+    @Category("meeting")
+    public boolean meetingVoteShowResult = true;
+    @Category("meeting")
+    public int meetingVoteTimeSeconds = 30;
+    @Category("meeting")
+    public boolean meetingVoteAllowRevote = true;
+    @Category("meeting")
+    public int meetingVoteSelectionLimit = 1;
+    @Category("meeting")
+    public boolean meetingVoteAutoStop = false;
     @Category("meeting")
     public TrueFalseResult emergencyMeetingVoteEnabled = TrueFalseResult.PASS;
 

@@ -112,7 +112,7 @@ public final class MeetingManager {
     public static final int PHASE_DISCUSS = 2;
     public static final int PHASE_VOTE = 3;
     /** 投票阶段默认时长（秒） */
-    public static final int VOTE_DURATION_SECONDS = 30;
+    public static final int VOTE_DURATION_MIN_SECONDS = 15;
     /** 是否是紧急会议 */
     public static final AtomicBoolean emergencyMeeting = new AtomicBoolean(false);
 
@@ -819,7 +819,11 @@ public final class MeetingManager {
     /** 开始投票阶段：创建玩家投票 Session，投票结束时按新规则处理出局。 */
     private static void startVotingPhase(ServerLevel serverLevel) {
         phase = PHASE_VOTE;
-        phaseEndTick = serverLevel.getGameTime() + VOTE_DURATION_SECONDS * 20L;
+
+        final var areaCCA = AreasWorldComponent.getInstance(serverLevel);
+        final AreasSettings areasSettings = areaCCA.areasSettings;
+        final int voteTime = Math.max(VOTE_DURATION_MIN_SECONDS * 20, areasSettings.meetingVoteTimeSeconds * 20);
+        phaseEndTick = serverLevel.getGameTime() + voteTime;
         List<ServerPlayer> alive = new ArrayList<>(serverLevel.getServer().getPlayerList().getPlayers()).stream()
                 .filter(GameUtils::isPlayerAliveAndSurvival)
                 .toList();
@@ -839,7 +843,6 @@ public final class MeetingManager {
         Set<UUID> targetPlayers = new HashSet<>();
         for (ServerPlayer p : alive)
             targetPlayers.add(p.getUUID());
-
         // ==================== 投票结束时按新规则处理 ====================
         Consumer<VoteSession> callback = session -> {
             String expelledName = "";
@@ -875,8 +878,6 @@ public final class MeetingManager {
                         UUID votedOut = po.uuid();
                         ServerPlayer target = serverLevel.getServer().getPlayerList().getPlayer(votedOut);
                         if (target != null && GameUtils.isPlayerAliveAndSurvival(target)) {
-                            final var areaCCA = AreasWorldComponent.getInstance(serverLevel);
-                            final AreasSettings areasSettings = areaCCA.areasSettings;
                             if (MeetingVoteOutEvent.EVENT.invoker().onVoteOut(serverLevel, target)) {
                                 VoteResultProcessor processor = areasSettings.meetingVoteProcessor;
                                 if (emergencyMeeting.get()) {
@@ -972,9 +973,24 @@ public final class MeetingManager {
 
         // ==================== 开始投票 ====================
         VoteManager.builder(Component.translatable("meeting.vote.title"))
-                .options(options).duration(VOTE_DURATION_SECONDS * 20).allowReVote(true)
-                .showResults(true).syncInterval(20).targetPlayerUUIDs(targetPlayers)
-                .maxSelect(1).type("meeting").callback(callback).start();
+                .options(options)
+                .duration(voteTime)
+                .allowReVote(areasSettings.meetingVoteAllowRevote)
+                .showResults(areasSettings.meetingVoteShowResult)
+                .syncInterval(20)
+                .targetPlayerUUIDs(targetPlayers)
+                .maxSelect(Math.max(1, Math.min(areasSettings.meetingVoteSelectionLimit, options.size())))
+                .type("meeting")
+                .endCondition((session) -> {
+                    if (!areasSettings.meetingVoteAutoStop)
+                        return false;
+                    if (session.getTotalVotes() >= session.getTargetPlayers().size()) {
+                        return true;
+                    }
+                    return false;
+                })
+                .callback(callback)
+                .start();
         broadcastState(serverLevel);
     }
 

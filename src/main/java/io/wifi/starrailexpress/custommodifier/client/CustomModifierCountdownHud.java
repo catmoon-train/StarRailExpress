@@ -43,8 +43,12 @@ import java.util.Map;
 @Environment(EnvType.CLIENT)
 public final class CustomModifierCountdownHud {
 
-    /** 修饰符 id -> 倒计时状态。 */
+    /** 「修饰符 id + 触发组下标」-> 倒计时状态（同一个修饰符的多个触发组各占一行）。 */
     private static final Map<String, Entry> ACTIVE = new HashMap<>();
+
+    private static String key(String modifierId, int group) {
+        return modifierId + "|" + group;
+    }
 
     /** 一行倒计时：到期游戏刻 / 是否附带复活 / 修饰符显示名。 */
     private record Entry(long deadline, boolean revive, String label) {
@@ -66,11 +70,11 @@ public final class CustomModifierCountdownHud {
             return;
         }
         if (!payload.active()) {
-            ACTIVE.remove(payload.modifierId());
+            ACTIVE.remove(key(payload.modifierId(), payload.group()));
             return;
         }
         long now = SREClient.getTicksFromGameStart();
-        ACTIVE.put(payload.modifierId(),
+        ACTIVE.put(key(payload.modifierId(), payload.group()),
                 new Entry(now + Math.max(0, payload.seconds()) * 20L, payload.revive(), payload.label()));
     }
 

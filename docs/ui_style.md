@@ -120,6 +120,9 @@ g.fill(x + 1, y + 1, x + w - 1, y + 2, 0x33FFE8C0);
   - 价格等数值：`ChatFormatting.GOLD`。
 - 分割线用 `─` 字符串 + `ChatFormatting.DARK_GRAY`。
 - 长文本换行用 `font.split(text, maxWidth)`；居中用 `drawCenteredString`。
+- **输入框的占位提示必须套 `SREPanelStyle.hint(...)`**（HINT 色 = MUTED）：原版 `EditBox` 画 hint 用的
+  是输入框自己的文字色，不套样式的话占位提示和用户真正输入的内容一模一样，很容易被误认为框里已经有内容。
+  同理，自己写搜索框时也要给 hint 带颜色样式（别只写 `setHint(Component.translatable(key))`）。
 - Markdown 简易解析（`#`/`##`/`###` → 不同颜色粗体标题）参考 `StarRailExpressTitleScreen.parseChangelogLines`。
 
 ---
@@ -191,6 +194,110 @@ static int blendColors(int c1, int c2, float t) {
 
 ---
 
+### 8.5 自定义内容编辑器（`CustomEditorScreen` + `EditorLayout`）
+
+`CustomRoleScreen` / `CustomModifierScreen` / `CustomItemScreen` / `CustomBlockScreen` 四个编辑器通用
+`io.wifi.starrailexpress.client.gui.screen.CustomEditorScreen`，**不要再复制一套布局/滚动/页签代码**。
+新写同类编辑器时只要声明前缀、页签、字段与保存逻辑：
+
+```java
+public class FooScreen extends CustomEditorScreen {
+    private static final String PREFIX = "sre.custom_foo";
+    private static final String[] TABS = { "basic", "advanced" };
+
+    public FooScreen() { super(Component.translatable(PREFIX + ".title")); }
+
+    @Override protected String translationPrefix() { return PREFIX; }
+    @Override protected String[] tabKeys() { return TABS; }
+    @Override protected void onSave() { /* 写盘 + 重载 */ }
+    @Override protected void onOpenManage() { /* setScreen(new FooManageScreen(...)) */ }
+
+    @Override protected void buildTab(int tab) {
+        int r = 0;
+        r = field(r, PREFIX + ".label.name", data.name, LIMIT_NAME, null, v -> data.name = v);
+        r = number(r, PREFIX + ".label.count", String.valueOf(data.count), PREFIX + ".unit.tick",
+                v -> data.count = parseInt(v, data.count));
+        r = toggle(r, PREFIX + ".label.enabled", data.enabled, v -> data.enabled = v);
+        // 一行多控件：装不下会自动折行，不要写 fieldX() + 116 这类偏移
+        r = cluster(r, PREFIX + ".label.rule",
+                fixedBox(data.id, LIMIT_ID, 120, null, v -> data.id = v),
+                fixedButton(Component.literal("×"), 22, () -> { /* 删除 */ }));
+        r = section(r, PREFIX + ".hint.section");
+        r = note(r, PREFIX + ".hint.explain", SREPanelStyle.MUTED);
+    }
+}
+```
+
+约定（也都是这次改造踩过的坑）：
+
+1. **重建一律 `requestRebuild()`**，在 `render` 开头统一执行；不要在按钮回调里直接 `init(...)` ——
+   那样会跳过 `clearWidgets()`，控件会一遍遍重复注册进事件系统。
+2. **只构建当前页签**；把多个页签的控件一起注册会让同坐标的隐藏输入框抢走点击与键盘输入。
+3. **先 `setMaxLength` 再 `setValue`**（基类的 `editBox` 已经保证）：`EditBox` 默认上限 32，
+   顺序反了会把初始值静默截断，用户一编辑就把截断结果写回数据。
+4. **不要写死横向偏移**：用 `cluster(...)` 声明一行里的若干控件，窄屏由
+   `EditorLayout.pack` 自动折行，字段区永远不会戳出面板。
+5. `labelKey` 必传的场景：`field/number/toggle/choice/cluster` 的第一个参数是**标签列的翻译键**；
+   想让按钮自己当标题（不带标签列）就传 `null`。
+6. 会影响「后面显示哪些字段」的开关/枚举传 `rebuild = true`，纯数值开关保持 `false`，
+   这样切换时不会丢焦点、也不会跳回顶部。
+7. **按钮文字放不下时自动给悬停全文**：基类的 `ClipButton` 会把超宽文字裁成省略号，
+   并在真的裁掉时挂上 tooltip（放得下就摘掉，不会平白多一层提示）。自己写的按钮请继承
+   `ClipButton` 并实现 `fullText()` / `textLimit()`，然后在宽度定下来后调一次 `refreshTooltip()`。
+8. **「是否」开关一律用 `SwitchButton`**（`toggleCell` / `yesNoSwitchCell` / `triSwitchCell`）：
+   右端是一枚带颜色的状态方块 —— 开 = 绿底 ✓、关 = 红底 ✗、未设置 = 土褐底 -，
+   标签在标签列上时用 `yesNoSwitchCell`（只放「符号 + 是/否」），按钮自带标题时用 `toggleCell`。
+   不要再用「文字 + `[✓]`」拼字符串的方式表达开关状态。
+9. 需要右侧材质预览的界面覆写 `previewSize()` / `showPreview(tab)` / `renderPreviewContent(...)`，
+   并在内容里调一次 `previewRow(r, "…label.preview")`；窄屏放不下时基类会自动把它落回内容区里的一行。
+10. 文本长度用基类的 `LIMIT_ID / LIMIT_NAME / LIMIT_PATH / LIMIT_TEXT / LIMIT_COMMAND / LIMIT_NUMBER`。
+11. 键盘：`Tab`/`Shift+Tab`/`Enter` 在字段间移动并自动滚进视野，`Ctrl+S` 保存，
+   `Esc` 先取消焦点再关闭 —— 这些由基类提供，子类不用管。
+12. 布局几何是纯函数（`EditorLayout`），改动后跑 `./gradlew test --tests '*EditorLayoutTest*'`：
+    它会按常见窗口尺寸 × GUI 缩放遍历断言「面板在屏幕内、字段不越界、页签不溢出、预览不压字段」。
+13. **一组相关字段用卡片包起来**：一个「多字段的子对象」（方块的事件、修饰符的触发组、职业的技能模块）
+    用 `cardBegin(...)` / `cardEnd(...)` 括起来，不要只画一行标题：
+
+    ```java
+    r = cardBegin(r, "block_event_" + index,                       // 稳定 id：折叠状态靠它记住
+            Component.translatable(PREFIX + ".event.title", index + 1),  // 标题
+            Component.translatable(PREFIX + ".event_type." + type),      // 徽标（可空）
+            () -> data.events.remove(index));                      // 卡片头右侧的「×」，可空
+    r = cluster(r, null, /* … 这个事件的字段 … */);
+    r = lines(/* … */);
+    return cardEnd(gap(r));
+    ```
+
+    卡片会自动做三件事：一是画「淡色底 + 标题条 + 描边」，块与块之间边界清楚；二是把里面的行
+    左右内缩，看得出是「装着一组字段」；三是**卡片头可点，点一下折叠成一行**，块多时可以只展开
+    正在编辑的那一块。折叠状态按 id 记在基类里，重建界面（切页签、改开关）后仍然记得。
+    不要把卡片套卡片。
+
+### 8.6 只借几何：`EditorLayout` 的独立用法
+
+不用 `CustomEditorScreen` 那一整套（页签 + 字段行 + 页脚）时，也可以只借 `EditorLayout` 算几何、
+自己画头部与页签栏 —— 地图工具 `MapBuildHelperScreen` 就是这么用的：
+
+```java
+EditorLayout layout = EditorLayout.of(width, height,
+        EditorLayout.Config.defaults()
+                .panelSize(0.7F, 500, 454, 320, 200)   // 面板比例与上下限（会再 clamp 进屏幕）
+                .headerExtra(48),                       // 标题条下方的自绘头部高度
+        tabWidths,                                      // 每个页签按文字实测的宽度 → 放不下自动折行
+        0);
+SREPanelStyle.drawPanel(g, layout.panelX(), layout.panelY(), layout.panelW(), layout.panelH(),
+        0xF018120A, 0xF0061018);
+// 头部自绘区：[layout.headerTop(), layout.headerBottom())，夹在标题条与页签栏之间，永远不会互相压
+// 内容区裁剪：layout.contentX()..contentX+contentW()；右边界 layout.contentRight() 已把滚动条槽让开
+// 滚动条：layout.sbX()/sbTop()/sbH() + EditorLayout.thumbHeight()/thumbY() + SREPanelStyle.drawScrollbar
+```
+
+两条要点：**滚动条槽是永久预留的**（内容区右边界不含它）、**页签按实测宽度排**（不写死宽度，
+放不下就折行，而不是让文字互相压）。`LayoutContext` 会把这几个边界转发给各个模块，
+模块不要再自己算 `panelWidth - 10` 这种右边界。
+
+---
+
 ## 9. 新界面 Checklist
 
 1. 用第 2 节色板，不要引入新的主色；阵营相关用 2.2 分类色。
@@ -200,3 +307,4 @@ static int blendColors(int c1, int c2, float t) {
 5. 文字层级、粗体与颜色遵循第 5 节；游戏内文字优先走翻译键。
 6. 有节奏的动画克制使用（第 6 节），时长 ≤ 0.4s。
 7. ESC 可退出；点击有音效。
+8. 编辑类界面直接继承 `CustomEditorScreen`（第 8.5 节），不要另起一套布局与滚动。
