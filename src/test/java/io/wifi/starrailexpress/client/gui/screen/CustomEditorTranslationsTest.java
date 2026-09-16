@@ -127,6 +127,20 @@ class CustomEditorTranslationsTest {
     }
 
     @Test
+    void mapHelperKeysUsedByTheScreenExist() throws Exception {
+        List<JsonObject> langs = allLanguages();
+        // 地图工具新增/复用的固定文案：搜索框、无匹配提示、房间序号提示
+        for (String key : new String[] { "sre.map_helper.title", "sre.map_helper.settings.search_hint",
+                "sre.map_helper.settings.no_match", "sre.map_helper.room_id_hint",
+                "sre.map_helper.expandable.expand", "sre.map_helper.expandable.unexpand",
+                "sre.map_helper.area.set_min", "sre.map_helper.area.set_max",
+                "sre.map_helper.set_room_count", "sre.map_helper.meeting.enable",
+                "sre.map_helper.meeting.disable", "sre.map_helper.toggle_client_scene" }) {
+            assertHas(langs, key);
+        }
+    }
+
+    @Test
     void tabKeysExistForEveryEditor() throws Exception {
         List<JsonObject> langs = allLanguages();
         for (int i = 0; i < PREFIXES.length; i++) {

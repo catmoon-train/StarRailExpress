@@ -160,6 +160,42 @@ class EditorLayoutTest {
     }
 
     @Test
+    void headerExtraPushesTabsAndContentDownAndStaysInsidePanel() {
+        // 地图工具用这段高度放坐标行与偏移控件
+        EditorLayout.Config plain = EditorLayout.Config.defaults();
+        EditorLayout.Config withHeader = plain.headerExtra(56);
+        assertTrue(withHeader.headerExtra() > 0);
+        assertEquals(plain.headerExtra(), 0, "默认不能给编辑器凭空加高度");
+
+        for (int[] size : new int[][] { { 500, 400 }, { 900, 600 }, { 340, 260 }, { 300, 200 } }) {
+            EditorLayout base = EditorLayout.of(size[0], size[1], plain, new int[] { 60, 60, 60 }, 120);
+            EditorLayout extra = EditorLayout.of(size[0], size[1], withHeader, new int[] { 60, 60, 60 }, 120);
+            String info = size[0] + "x" + size[1] + " " + extra;
+
+            // 页签栏、内容区整体下移
+            assertEquals(base.tabs().get(0).y() + 56, extra.tabs().get(0).y(), info);
+            assertTrue(extra.contentY() > base.contentY(), info);
+            // 头部区域夹在标题条与页签栏之间，且非空
+            assertTrue(extra.headerTop() >= extra.titleY() + extra.titleH(), info);
+            assertTrue(extra.headerBottom() > extra.headerTop(), info);
+            assertTrue(extra.headerBottom() <= extra.tabs().get(0).y(), info);
+            // 面板仍然完整落在屏幕内
+            assertTrue(extra.panelY() >= 0 && extra.panelY() + extra.panelH() <= size[1], info);
+            assertTrue(extra.contentH() >= 1, info);
+        }
+    }
+
+    @Test
+    void headerExtraStillFitsWhenThePanelIsShort() {
+        // 头部很高时内容区可能被挤没：至少要保证 contentH >= 1、面板不出屏（由界面自己去调 headerExtra）
+        EditorLayout layout = EditorLayout.of(400, 200, EditorLayout.Config.defaults().headerExtra(60),
+                new int[] { 60, 60 }, 120);
+        assertTrue(layout.contentH() >= 1, layout.toString());
+        assertTrue(layout.panelY() + layout.panelH() <= 200, layout.toString());
+        assertTrue(layout.headerTop() < layout.headerBottom(), layout.toString());
+    }
+
+    @Test
     void packWrapsWhenTheRowIsTooNarrow() {
         List<EditorLayout.CellBox> boxes = EditorLayout.pack(240, 4, new int[] { 112, 64, 40, 18 },
                 new int[] { 0, 0, 0, 0 }, new float[] { 0, 0, 0, 0 });

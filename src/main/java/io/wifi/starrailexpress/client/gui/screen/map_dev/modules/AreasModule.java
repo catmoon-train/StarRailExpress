@@ -65,6 +65,10 @@ public class AreasModule implements TabModule {
         Component.empty());
     pos1Field.setMaxLength(50);
     pos1Field.setValue(formatPos(pos1)); // 显示已保存的坐标
+    // 输入框旁边没有标签位，用占位提示说明这是哪个角（悬停也能看全文）
+    pos1Field.setHint(Component.translatable("sre.map_helper.area.set_min"));
+    pos1Field.setTooltip(net.minecraft.client.gui.components.Tooltip
+        .create(Component.translatable("sre.map_helper.area.set_min")));
     placements.add(new WidgetPlacement(pos1Field, y));
 
     int set1Y = y + inputHeight + smallGap;
@@ -85,6 +89,9 @@ public class AreasModule implements TabModule {
         Component.empty());
     pos2Field.setMaxLength(50);
     pos2Field.setValue(formatPos(pos2));
+    pos2Field.setHint(Component.translatable("sre.map_helper.area.set_max"));
+    pos2Field.setTooltip(net.minecraft.client.gui.components.Tooltip
+        .create(Component.translatable("sre.map_helper.area.set_max")));
     placements.add(new WidgetPlacement(pos2Field, y));
 
     int set2Y = y + inputHeight + smallGap;
@@ -116,6 +123,7 @@ public class AreasModule implements TabModule {
 
       y += btnHeight + smallGap;
     }
+    // 每次 init 都注册一遍：整屏重建时界面会先清空钩子列表，所以不会累积重复项
     ctx.registerCloseHook(this::saveData);
   }
 

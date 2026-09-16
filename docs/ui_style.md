@@ -253,6 +253,29 @@ public class FooScreen extends CustomEditorScreen {
 12. 布局几何是纯函数（`EditorLayout`），改动后跑 `./gradlew test --tests '*EditorLayoutTest*'`：
     它会按常见窗口尺寸 × GUI 缩放遍历断言「面板在屏幕内、字段不越界、页签不溢出、预览不压字段」。
 
+### 8.6 只借几何：`EditorLayout` 的独立用法
+
+不用 `CustomEditorScreen` 那一整套（页签 + 字段行 + 页脚）时，也可以只借 `EditorLayout` 算几何、
+自己画头部与页签栏 —— 地图工具 `MapBuildHelperScreen` 就是这么用的：
+
+```java
+EditorLayout layout = EditorLayout.of(width, height,
+        EditorLayout.Config.defaults()
+                .panelSize(0.7F, 500, 454, 320, 200)   // 面板比例与上下限（会再 clamp 进屏幕）
+                .headerExtra(48),                       // 标题条下方的自绘头部高度
+        tabWidths,                                      // 每个页签按文字实测的宽度 → 放不下自动折行
+        0);
+SREPanelStyle.drawPanel(g, layout.panelX(), layout.panelY(), layout.panelW(), layout.panelH(),
+        0xF018120A, 0xF0061018);
+// 头部自绘区：[layout.headerTop(), layout.headerBottom())，夹在标题条与页签栏之间，永远不会互相压
+// 内容区裁剪：layout.contentX()..contentX+contentW()；右边界 layout.contentRight() 已把滚动条槽让开
+// 滚动条：layout.sbX()/sbTop()/sbH() + EditorLayout.thumbHeight()/thumbY() + SREPanelStyle.drawScrollbar
+```
+
+两条要点：**滚动条槽是永久预留的**（内容区右边界不含它）、**页签按实测宽度排**（不写死宽度，
+放不下就折行，而不是让文字互相压）。`LayoutContext` 会把这几个边界转发给各个模块，
+模块不要再自己算 `panelWidth - 10` 这种右边界。
+
 ---
 
 ## 9. 新界面 Checklist

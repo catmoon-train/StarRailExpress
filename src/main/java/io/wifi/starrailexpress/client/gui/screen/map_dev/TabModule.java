@@ -16,15 +16,42 @@
 package io.wifi.starrailexpress.client.gui.screen.map_dev;
 
 import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.network.chat.Component;
 import java.util.List;
 
 public interface TabModule {
     Component getTabTitle();
-    default Component getTabFullTitle(){
+
+    /** 页签全名（会显示在面板标题条里；默认与页签名相同）。 */
+    default Component getTabFullTitle() {
         return getTabTitle();
     }
+
     void init(LayoutContext layout, ModuleContext context, List<WidgetPlacement> placements);
+
     int getContentHeight();
-    default void renderOverlay(GuiGraphics g, int mouseX, int mouseY, float partialTick) {}
+
+    /**
+     * 需要额外头部高度时覆写（例如「全部设置」的搜索框占一行）。
+     *
+     * <p>
+     * 只报高度、不碰坐标：界面会先按这个高度把头部与页签排好，再回调
+     * {@link #buildHeader} 让你把控件放到头部区域里（见 {@link EditorLayout#headerTop()} 所在的那一段）。
+     */
+    default int headerExtraHeight() {
+        return 0;
+    }
+
+    /**
+     * 往头部区域放固定控件（在页签栏上方、不随内容滚动）。
+     *
+     * <p>
+     * 只有 {@link #headerExtraHeight()} 返回非 0 时才会被调用；控件请放进 {@code fixed} 列表。
+     */
+    default void buildHeader(LayoutContext layout, ModuleContext context, List<AbstractWidget> fixed) {
+    }
+
+    default void renderOverlay(GuiGraphics g, int mouseX, int mouseY, float partialTick) {
+    }
 }

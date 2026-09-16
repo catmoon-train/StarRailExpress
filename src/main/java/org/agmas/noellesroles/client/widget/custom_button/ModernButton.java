@@ -15,8 +15,10 @@
 
 package org.agmas.noellesroles.client.widget.custom_button;
 
+import io.wifi.starrailexpress.client.gui.screen.mapui.MapUiGraphics;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.Mth;
 import org.lwjgl.glfw.GLFW;
@@ -84,6 +86,8 @@ public class ModernButton extends net.minecraft.client.gui.components.Button {
     private final int accentColor;
     private final Set<AccentSide> accentSides;
     private float hoverAnim = 0f;
+    /** 当前是否因为文字放不下而挂着「悬停看全文」的 tooltip（只在状态变化时改 tooltip）。 */
+    private boolean clipTooltipShown = false;
 
     // ══════════════════════════════════════════════════════════════════
     // 构造（私有）
@@ -230,8 +234,14 @@ public class ModernButton extends net.minecraft.client.gui.components.Button {
             textColor = blendColors(0xFFCCCCDD, 0xFFEEEEFF, hoverAnim);
         }
         int[] tc = getTextCenter(x, y, w, h);
+        // 超宽就裁成省略号（原版会把文字画到按钮外面压住相邻控件）；
+        // 真被裁掉时才挂「悬停看全文」，放得下就把 tooltip 摘掉，不多出一层提示
+        Component label = getMessage();
+        String shown = MapUiGraphics.clip(Minecraft.getInstance().font, label.getString(),
+                Math.max(8, tc[2]));
+        updateClipTooltip(label, shown.equals(label.getString()));
         g.drawCenteredString(Minecraft.getInstance().font,
-                getMessage(), tc[0], tc[1], textColor);
+                Component.literal(shown), tc[0], tc[1], textColor);
 
         // ── 6. 焦点时右侧指示竖条 ────────────────────────────────────
         // if (isFocused() && isActive()) {
@@ -247,7 +257,8 @@ public class ModernButton extends net.minecraft.client.gui.components.Button {
      * 内容区 = 按钮背景内侧（各边 -1px 边框）再减去各激活色条的 BAR_INSET。
      * 对称方向（如同时 LEFT+RIGHT）会互相抵消，文字回到水平中心。
      *
-     * @return int[]{centerX, topY}，对应 drawCenteredString 的参数。
+     * @return int[]{centerX, topY, contentWidth}：前两项对应 drawCenteredString 的参数，
+     *         第三项是文字可用宽度（超宽要裁成省略号）
      */
     private int[] getTextCenter(int x, int y, int w, int h) {
         boolean hasL = isActive() && accentSides.contains(AccentSide.LEFT);
@@ -267,7 +278,22 @@ public class ModernButton extends net.minecraft.client.gui.components.Button {
         // drawCenteredString 第四参数为文字顶边 Y，9 为默认字体高度
         int topY = contentY1 + (contentY2 - contentY1 - 9) / 2;
 
-        return new int[] { centerX, topY };
+        return new int[] { centerX, topY, Math.max(8, contentX2 - contentX1 - 2) };
+    }
+
+    /**
+     * 文字被裁掉时挂一个「悬停看全文」的 tooltip，放得下就摘掉。
+     *
+     * <p>
+     * 只在状态变化时动 tooltip，避免每帧新建对象。
+     */
+    private void updateClipTooltip(Component full, boolean fits) {
+        boolean clipped = !fits && full != null && !full.getString().isEmpty();
+        if (clipped == clipTooltipShown) {
+            return;
+        }
+        clipTooltipShown = clipped;
+        setTooltip(clipped ? Tooltip.create(full) : null);
     }
 
     /** 绘制单条色条，覆盖在背景内侧，向按钮中心方向渐隐。 */

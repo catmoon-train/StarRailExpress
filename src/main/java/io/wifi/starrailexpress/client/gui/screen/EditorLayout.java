@@ -105,30 +105,39 @@ public record EditorLayout(
      * <p>
      * 四个编辑器原本各写一套 {@code USABLE_RATIO / MAX_PANEL_*}，值还不一样；现在统一到
      * {@link #defaults()}，各界面只声明自己没有共性的部分（有没有预览列）。
+     *
+     * @param headerExtra 标题条下方、页签栏上方的自绘头部高度（地图工具用来放坐标行与偏移控件）；
+     *                    编辑器用不到，保持 0
      */
     public record Config(
             float ratio, int maxPanelW, int maxPanelH, int minPanelW, int minPanelH,
-            int labelColW, int previewW, int titleH, int footerH) {
+            int labelColW, int previewW, int titleH, int footerH, int headerExtra) {
 
         /** 面板占屏幕的比例与上下限（文档 §4：按比例算并 clamp）。 */
         public static Config defaults() {
-            return new Config(0.92F, 700, 560, 300, 200, 176, 0, TITLE_H, FOOTER_H);
+            return new Config(0.92F, 700, 560, 300, 200, 176, 0, TITLE_H, FOOTER_H, 0);
         }
 
         /** 带右侧预览列（自定义物品 / 自定义方块用）。 */
         public Config previewColumn(int width) {
             return new Config(ratio, maxPanelW, maxPanelH, minPanelW, minPanelH,
-                    labelColW, width, titleH, footerH);
+                    labelColW, width, titleH, footerH, headerExtra);
         }
 
         /** 标签列宽度上限（长标签会被省略号截断并给悬停全文）。 */
         public Config labelColumn(int width) {
             return new Config(ratio, maxPanelW, maxPanelH, minPanelW, minPanelH,
-                    width, previewW, titleH, footerH);
+                    width, previewW, titleH, footerH, headerExtra);
         }
 
         public Config panelSize(float ratio, int maxW, int maxH, int minW, int minH) {
-            return new Config(ratio, maxW, maxH, minW, minH, labelColW, previewW, titleH, footerH);
+            return new Config(ratio, maxW, maxH, minW, minH, labelColW, previewW, titleH, footerH, headerExtra);
+        }
+
+        /** 标题条下方预留一段自绘头部（放坐标、状态行这类不属于页签内容的东西）。 */
+        public Config headerExtra(int height) {
+            return new Config(ratio, maxPanelW, maxPanelH, minPanelW, minPanelH,
+                    labelColW, previewW, titleH, footerH, Math.max(0, height));
         }
     }
 
@@ -167,7 +176,8 @@ public record EditorLayout(
         int titleH = Math.max(0, cfg.titleH());
 
         // ── 页签栏：宽度不够就折行，内容区随行数下移 ──
-        int firstTabY = panelY + titleH + 4;
+        // 标题条与页签栏之间可以再留一段自绘头部（Config.headerExtra），地图工具用它放坐标行与偏移控件
+        int firstTabY = panelY + titleH + Math.max(0, cfg.headerExtra()) + 4;
         int tabsLeft = panelX + PAD;
         int tabsMaxW = Math.max(1, panelW - PAD * 2);
 
@@ -251,6 +261,23 @@ public record EditorLayout(
      */
     public int contentRight() {
         return fieldX + fieldW;
+    }
+
+    /**
+     * 自绘头部区域的上边界（标题条下方）。
+     *
+     * <p>
+     * 只有当 {@code Config.headerExtra > 0} 时这段才有高度；地图工具在这里画「坐标来源 / 生效坐标」
+     * 两行文字与 dx/dy/dz 控件。区域是 {@code [headerTop(), headerBottom())}，夹在标题条与页签栏之间，
+     * 因此不会和标题、页签或滚动内容重叠。
+     */
+    public int headerTop() {
+        return titleY + titleH + 2;
+    }
+
+    /** 自绘头部区域的下边界（页签栏上方；没有页签时就是内容区上方）。 */
+    public int headerBottom() {
+        return (tabs.isEmpty() ? contentY : tabs.get(0).y()) - 2;
     }
 
     /** 整段说明文字可用的宽度（从左内边距一直到字段区右边界，紧凑模式下与字段区等宽）。 */
