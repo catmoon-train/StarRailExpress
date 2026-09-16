@@ -28,7 +28,6 @@ import net.minecraft.world.entity.ai.attributes.AttributeInstance;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.ItemStack;
 import org.agmas.noellesroles.init.ModEffects;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
@@ -36,7 +35,6 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.ModifyVariable;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
@@ -91,19 +89,5 @@ public abstract class LivingEntityMixin extends EntityMixin {
                 attribute.removeModifier(modifier);
             }
         }
-    }
-
-    /**
-     * 食用 / 使用自定义物品时的粒子外观。
-     *
-     * <p>
-     * 原版食用粒子是 {@code ParticleTypes.ITEM} + 手上那个物品栈，贴图取自物品模型的
-     * {@code particle} 贴图；自定义列车物品共用一个 {@code builtin/entity} 模型、没有该贴图，
-     * 于是会画出「材质丢失」的紫黑图标。这里把粒子用的物品栈换成外观来源对应的物品
-     * （见 {@link io.wifi.starrailexpress.customitem.CustomItemLoader#particleStack}）。
-     */
-    @ModifyVariable(method = "spawnItemParticles", at = @At("HEAD"), argsOnly = true)
-    private ItemStack sre$customItemParticles(ItemStack stack) {
-        return io.wifi.starrailexpress.customitem.CustomItemLoader.particleStack(stack);
     }
 }

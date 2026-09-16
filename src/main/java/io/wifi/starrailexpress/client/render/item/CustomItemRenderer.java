@@ -31,8 +31,10 @@ import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.client.resources.model.ModelResourceLocation;
 import net.minecraft.core.Direction;
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.client.renderer.texture.atlas.SpriteSource;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.RandomSource;
+import net.minecraft.world.inventory.InventoryMenu;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
@@ -592,6 +594,97 @@ public class CustomItemRenderer implements BuiltinItemRendererRegistry.DynamicIt
         } catch (Exception e) {
             return null;
         }
+    }
+
+    // ==================== 食用 / 破碎粒子的贴图 ====================
+
+    /**
+     * 食用 / 破碎自定义列车物品时，粒子该用的 sprite。
+     *
+     * <p>
+     * 原版 {@code ParticleTypes.ITEM} 粒子采样的是<b>方块图集</b>里「物品模型自带的 particle 贴图」，
+     * 而 {@code custom_item} 的模型是 {@code builtin/entity}、没有贴图 ⇒ 原样是材质丢失的紫黑图标。
+     * 配置里的贴图由 {@code CustomItemSpriteSource} 注册进方块图集，这里按材质来源取：
+     * 资源包贴图 / 动态贴图第一帧 / 引用模型与被继承物品的 particle 图标，取不到时退回石头，
+     * 保证不会是丢失材质。返回 {@code null} 表示不是自定义物品，保持原版行为。
+     *
+     * <p>
+     * 图集在资源加载阶段拼接：改完贴图后要重载一次资源（F3+T）。
+     * 由 {@code mixin.client.texture.BreakingItemParticleMixin} 调用。
+     */
+    public static TextureAtlasSprite resolveParticleSprite(ItemStack stack) {
+        Minecraft minecraft = Minecraft.getInstance();
+        CustomItemData data = CustomItemLoader.getData(stack);
+        if (data == null || minecraft == null) {
+            return null;
+        }
+        TextureAtlasSprite sprite = switch (data.textureMode()) {
+            case PACK -> atlasSprite(data.packTexturePath);
+            case ANIMATED -> {
+                List<String> frames = data.animatedFramePaths();
+                yield frames.isEmpty() ? null : atlasSprite(frames.get(0));
+            }
+            case MODEL -> configuredParticleIcon(data);
+            case INHERIT -> inheritedParticleIcon(data.inheritItemTexture);
+        };
+        if (sprite == null) {
+            // 来源没配 / 解析不到：退回继承物品，再退石头 —— 保证不会是材质丢失图标
+            sprite = atlasSprite(data.packTexturePath);
+        }
+        if (sprite == null) {
+            sprite = inheritedParticleIcon(data.inheritItemTexture);
+        }
+        if (sprite == null) {
+            sprite = resolveInheritedSprite(FALLBACK_TEXTURE_ITEM);
+        }
+        return sprite;
+    }
+
+    /** 从方块图集取 sprite（图集在资源加载时拼接；缺失贴图视为没配，返回 null）。 */
+    private static TextureAtlasSprite atlasSprite(String configured) {
+        ResourceLocation file = resolvePackTexture(configured);
+        if (file == null) {
+            return null;
+        }
+        try {
+            TextureAtlasSprite sprite = Minecraft.getInstance().getTextureAtlas(InventoryMenu.BLOCK_ATLAS)
+                    .getSprite(SpriteSource.TEXTURE_ID_CONVERTER.fileToId(file));
+            return sprite == missingParticleIcon() ? null : sprite;
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    /** 「模型地址」指向的模型自带的 particle 图标（缺失贴图视为没配）。 */
+    private static TextureAtlasSprite configuredParticleIcon(CustomItemData data) {
+        BakedModel model = resolveConfiguredModel(data.modelPath);
+        if (model == null) {
+            return null;
+        }
+        TextureAtlasSprite sprite = model.getParticleIcon();
+        return sprite == missingParticleIcon() ? null : sprite;
+    }
+
+    /** 被继承物品的 particle 图标（自定义列车物品无效；缺失贴图视为没配）。 */
+    private static TextureAtlasSprite inheritedParticleIcon(String configuredItemId) {
+        Minecraft minecraft = Minecraft.getInstance();
+        ItemStack inherited = resolveInheritedStack(configuredItemId);
+        if (inherited.isEmpty() || CustomItemLoader.getData(inherited) != null
+                || minecraft == null || minecraft.getItemRenderer() == null) {
+            return null;
+        }
+        try {
+            BakedModel model = minecraft.getItemRenderer().getModel(inherited, minecraft.level, null, 0);
+            TextureAtlasSprite sprite = model == null ? null : model.getParticleIcon();
+            return sprite == null || sprite == missingParticleIcon() ? null : sprite;
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    /** 「材质丢失」图标的 particle 图标（用来把缺失贴图识别成「没配」）。 */
+    private static TextureAtlasSprite missingParticleIcon() {
+        return Minecraft.getInstance().getModelManager().getMissingModel().getParticleIcon();
     }
 
     /**

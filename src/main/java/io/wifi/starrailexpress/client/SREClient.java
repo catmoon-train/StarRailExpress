@@ -354,6 +354,8 @@ public class SREClient implements ClientModInitializer {
         BuiltinItemRendererRegistry.INSTANCE.register(
                 io.wifi.starrailexpress.index.DevItems.CUSTOM_ITEM,
                 new io.wifi.starrailexpress.client.render.item.CustomItemRenderer());
+        // 自定义列车物品的图集来源：把配置里的贴图注册进方块图集（食用 / 破碎粒子、模型自带贴图要用）
+        io.wifi.starrailexpress.client.texture.CustomItemSpriteSource.register();
         // 自定义方块物品 Renderer（与放置后的方块共用同一套外观来源）
         BuiltinItemRendererRegistry.INSTANCE.register(
                 io.wifi.starrailexpress.index.SREBlocks.CUSTOM_BLOCK.asItem(),
