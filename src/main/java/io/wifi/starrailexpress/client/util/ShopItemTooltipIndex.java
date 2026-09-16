@@ -36,7 +36,7 @@ import java.util.Map;
  * 物品 → 商店职业 / 开局发放职业。随 {@link RoleShopHandler#shopRegister()} 版本号重建。
  */
 public final class ShopItemTooltipIndex {
-    private static int builtVersion = -1;
+    private static long builtVersion = -1;
     private static Map<Item, List<SRERole>> shopRolesByItem = Map.of();
     private static Map<Item, List<SRERole>> startRolesByItem = Map.of();
 
@@ -61,7 +61,7 @@ public final class ShopItemTooltipIndex {
     }
 
     private static void ensureBuilt() {
-        int version = RoleShopHandler.shopVersion;
+        long version = RoleShopHandler.shopVersion;
         if (builtVersion == version && (!shopRolesByItem.isEmpty() || !startRolesByItem.isEmpty())) {
             return;
         }
