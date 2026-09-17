@@ -240,6 +240,8 @@ public class VolunteerOpenSelectScreen extends Screen {
         volListW = searchW;
         int volAvailable = Math.max(60, bodyBottom - volListY - GAP);
         volListH = Math.max(36, (int) (volAvailable * 0.40F));
+        volDetailX = volListX;
+        volDetailW = volListW;
         volDetailY = volListY + volListH + GAP;
         volDetailH = Math.max(40, bodyBottom - volDetailY);
         volCols = Mth.clamp(volListW / 108, 2, 8);
