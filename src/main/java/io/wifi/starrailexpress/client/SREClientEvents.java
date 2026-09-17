@@ -120,6 +120,10 @@ public class SREClientEvents {
             if (!Minecraft.getInstance().isLocalServer()) {
                 SRE.LOGGER.info("[CLIENT] Re-register shop entries.");
                 RoleShopHandler.shopRegister();
+                // 自定义职业的商店同理：它是在职业注册时按 id 解析自定义物品建好的，开局时
+                // （内容已经全部同步完）按最新索引重建一次。单机下服务端已经在同一份实例上重建过
+                // （与上面 isLocalServer 判断同理）。
+                io.wifi.starrailexpress.customrole.CustomRoleLoader.rebuildShops();
             }
         });
         OnGameFinishedClient.EVENT.register(() -> {

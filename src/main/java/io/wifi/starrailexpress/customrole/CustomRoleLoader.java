@@ -179,6 +179,10 @@ public class CustomRoleLoader {
     public static void reloadClient() {
         removeClientCache();
 
+        // 职业的初始物品 / 任务奖励 / 商店条目在注册时按 id 查自定义物品索引：索引空着
+        // （物品内容还没应用 / 内存索引还没加载）就会解析不出自定义物品。这里先补一次本地副本。
+        io.wifi.starrailexpress.customitem.CustomItemLoader.ensureClientIndexLoaded();
+
         // 从客户端本地 config 目录加载（网络同步写入的）
         CustomRoleConfig config = CustomRoleConfig.loadFromDefaultPath();
         for (CustomRoleData data : config.roles) {
@@ -1260,6 +1264,46 @@ public class CustomRoleLoader {
     }
 
     /**
+     * 按当前的自定义物品索引重建全部已注册自定义职业的商店条目。
+     *
+     * <p>
+     * 商店是在职业注册时按 id 解析自定义物品建好的（见 {@link #createShopEntries}）：如果那一刻
+     * 物品索引还没就绪，那条自定义物品就解析不出来。**游戏开始时**（内容已经全部同步 / 加载完毕）
+     * 再重建一次，就与内置职业商店的处理一致了（{@code RoleShopHandler.shopRegister()} 也会在
+     * 开局时重注册一遍商店条目）。
+     *
+     * <p>
+     * 这里<b>不重新注册职业本身</b>，只把商店列表换掉（{@link CustomNormalRole#setCustomShop}）：
+     * 开局时替换职业实例会牵动正在进行的职业分配，而商店只是个列表，换掉即可。
+     *
+     * @return 重建了商店的自定义职业数
+     */
+    public static int rebuildShops() {
+        int rebuilt = 0;
+        for (Map.Entry<String, SRERole> entry : registeredRoles.entrySet()) {
+            if (!(entry.getValue() instanceof CustomNormalRole role)) {
+                continue;
+            }
+            CustomRoleData data = loadedRoles.get(entry.getKey());
+            if (data == null) {
+                continue;
+            }
+            try {
+                role.setCustomShop(createShopEntries(data));
+                rebuilt++;
+            } catch (Exception e) {
+                SRE.LOGGER.error("[CustomRole] Failed to rebuild shop for {}", entry.getKey(), e);
+            }
+        }
+        if (rebuilt > 0) {
+            // 商店内容变了：让按 shopVersion 缓存的索引（物品→职业提示、价格表）跟着失效
+            org.agmas.noellesroles.init.RoleShopHandler.shopVersion++;
+            SRE.LOGGER.info("[CustomRole] Rebuilt shops of {} custom role(s)", rebuilt);
+        }
+        return rebuilt;
+    }
+
+    /**
      * 创建商店条目（带冷却和禁止重复购买支持）
      */
     public static List<ShopEntry> createShopEntries(CustomRoleData data) {
@@ -1677,7 +1721,8 @@ public class CustomRoleLoader {
     }
 
     /**
-     * 解析职业配置里的「物品 id」：<b>先按自定义列车物品解析，找不到再当原版物品</b>。
+     * 解析职业配置里的「物品 id」：<b>先按自定义列车物品解析，找不到再当原版物品，都找不到就当
+     * 还没登记的自定义物品留个空壳</b>。
      *
      * <p>
      * 两种物品共用同一个 id 字段，所以自定义列车物品与模组/原版物品可以混在一张表里写。
@@ -1689,7 +1734,14 @@ public class CustomRoleLoader {
      * </ul>
      *
      * <p>
-     * 解析失败返回空栈，调用方直接跳过。
+     * <b>兜底（延后生效）</b>：两条路都没命中时不再返回空栈，而是
+     * {@link io.wifi.starrailexpress.customitem.CustomItemLoader#buildPlaceholder} 造一个只带 id
+     * 组件的「自定义列车物品」空壳——配置里引用的自定义物品可以先写、物品后加，商店 / 初始物品 /
+     * 任务奖励里那条目不会被静默丢掉；名称与贴图是按 id 现查配置的，物品登记好之后同一个栈就自动
+     * 显示成正确的自定义物品。真的是写错了 id 时，它会一直显示成「尚未配置物品数据」的通用物品，
+     * 配合日志里的告警可以看出问题。
+     *
+     * @return 只有 id 完全为空、或拿不到自定义物品本体时才返回空栈
      */
     public static ItemStack parseConfiguredItem(String spec, int count) {
         if (spec == null || spec.isBlank()) {
@@ -1718,16 +1770,22 @@ public class CustomRoleLoader {
         }
 
         // ② 原版 / 模组物品
-        try {
-            ResourceLocation itemId = ResourceLocation.tryParse(value);
-            if (itemId == null) {
-                return ItemStack.EMPTY;
+        ResourceLocation itemId = ResourceLocation.tryParse(value);
+        if (itemId != null) {
+            try {
+                Item resolved = BuiltInRegistries.ITEM.getOptional(itemId).orElse(null);
+                if (resolved != null && resolved != net.minecraft.world.item.Items.AIR) {
+                    return new ItemStack(resolved, amount);
+                }
+            } catch (Exception ignored) {
+                // 注册表还没就绪 / id 非法：当作还没登记的自定义物品，走下面的兜底
             }
-            return BuiltInRegistries.ITEM.getOptional(itemId)
-                    .map(item -> new ItemStack(item, amount))
-                    .orElse(ItemStack.EMPTY);
-        } catch (Exception e) {
-            return ItemStack.EMPTY;
         }
+
+        // ③ 兜底：当作「还没登记的自定义物品」，留一个空壳（延后生效）
+        SRE.LOGGER.warn(
+                "[CustomRole] Item '{}' is neither a loaded custom item nor a vanilla/mod item; kept as an unconfigured custom item placeholder",
+                value);
+        return io.wifi.starrailexpress.customitem.CustomItemLoader.buildPlaceholder(customId, amount);
     }
 }

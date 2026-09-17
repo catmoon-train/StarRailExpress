@@ -36,6 +36,16 @@ public class LayoutContext {
     /** 自绘头部区域：标题条下方、页签栏上方（模块可以往这里放自己的固定行，例如搜索框）。 */
     public final int headerTop;
     public final int headerBottom;
+    /**
+     * 页签栏下方的常驻控件带，区域是 {@code [stripTop, stripBottom)}。
+     *
+     * <p>
+     * 高度为 0 时 {@code stripTop == stripBottom == contentStartY}。要在页签下面放「一直看得见」的
+     * 控件（搜索框）时用这一段：它贴在页签按钮下面、不随内容滚动，内容区从 {@code contentStartY}
+     * 开始，所以两者不会重叠。
+     */
+    public final int stripTop;
+    public final int stripBottom;
 
     public LayoutContext(int panelLeftX, int panelTopY, int panelWidth, int panelHeight,
             int contentStartY, int contentEndY, int gutter, Font font) {
@@ -46,12 +56,19 @@ public class LayoutContext {
     public LayoutContext(int panelLeftX, int panelTopY, int panelWidth, int panelHeight,
             int contentStartY, int contentEndY, int gutter, Font font, int contentRight) {
         this(panelLeftX, panelTopY, panelWidth, panelHeight, contentStartY, contentEndY, gutter, font,
-                contentRight, contentStartY, contentStartY);
+                contentRight, contentStartY, contentStartY, contentStartY, contentStartY);
     }
 
     public LayoutContext(int panelLeftX, int panelTopY, int panelWidth, int panelHeight,
             int contentStartY, int contentEndY, int gutter, Font font, int contentRight, int headerTop,
             int headerBottom) {
+        this(panelLeftX, panelTopY, panelWidth, panelHeight, contentStartY, contentEndY, gutter, font,
+                contentRight, headerTop, headerBottom, contentStartY, contentStartY);
+    }
+
+    public LayoutContext(int panelLeftX, int panelTopY, int panelWidth, int panelHeight,
+            int contentStartY, int contentEndY, int gutter, Font font, int contentRight, int headerTop,
+            int headerBottom, int stripTop, int stripBottom) {
         this.panelLeftX = panelLeftX;
         this.panelTopY = panelTopY;
         this.panelWidth = panelWidth;
@@ -63,6 +80,13 @@ public class LayoutContext {
         this.contentRight = contentRight;
         this.headerTop = headerTop;
         this.headerBottom = headerBottom;
+        this.stripTop = stripTop;
+        this.stripBottom = stripBottom;
+    }
+
+    /** 页签下方常驻带的高度（没有这一段时是 0）。 */
+    public int stripHeight() {
+        return Math.max(0, stripBottom - stripTop);
     }
 
     /** 内容区右边界：模块把一行控件排到这里为止。 */

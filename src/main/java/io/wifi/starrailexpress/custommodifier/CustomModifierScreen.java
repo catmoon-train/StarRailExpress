@@ -18,6 +18,7 @@ package io.wifi.starrailexpress.custommodifier;
 import io.wifi.starrailexpress.api.RoleTeam;
 import io.wifi.starrailexpress.client.gui.SREPanelStyle;
 import io.wifi.starrailexpress.client.gui.screen.CustomEditorScreen;
+import io.wifi.starrailexpress.client.gui.widget.SwitchState;
 import io.wifi.starrailexpress.custommodifier.CustomModifierData.AttributeData;
 import io.wifi.starrailexpress.custommodifier.CustomModifierData.ConditionData;
 import io.wifi.starrailexpress.custommodifier.CustomModifierData.ConditionType;
@@ -264,26 +265,40 @@ public class CustomModifierScreen extends CustomEditorScreen {
     private void buildRestrictionTab() {
         int r = 0;
         r = note(r, PREFIX + ".hint.team_restriction", SREPanelStyle.BLUE);
+        // 一个阵营一个三态按钮（不限 → 仅给 → 不给）：标题只出现一次、状态写成文字，
+        // 而且两个列表天然互斥，不会出现「同时只给又不给」的矛盾配置。
+        // 这种行自带标题，所以相邻的会自动并排成两个一行。
         for (RoleTeam team : RoleTeam.values()) {
-            Component label = Component.translatable(PREFIX + ".team." + team.name());
-            r = cluster(r, null,
-                    stateButtonCell(() -> mark(label, data.cannotAppliedToTeams.contains(team.name()),
-                            "✗", SREPanelStyle.RED),
-                            () -> toggle(data.cannotAppliedToTeams, team.name()), false),
-                    stateButtonCell(() -> mark(label, data.canOnlyAppliedToTeams.contains(team.name()),
-                            "✓", SREPanelStyle.GREEN),
-                            () -> toggle(data.canOnlyAppliedToTeams, team.name()), false));
+            r = cluster(r, null, teamCell(team));
         }
         r = listRow(r, PREFIX + ".label.cannot_roles", data.cannotBeAppliedTo, PREFIX + ".hint.role_list");
         r = listRow(r, PREFIX + ".label.only_roles", data.canOnlyBeAppliedTo, PREFIX + ".hint.role_list");
     }
 
-    /** 阵营开关按钮的文字：选中时亮色 ✓ / ✗，未选中时暗色 ·。 */
-    private static Component mark(Component label, boolean on, String symbol, int color) {
-        return Component.literal(on ? symbol + " " : "· ")
-                .withStyle(style -> style.withColor(on ? color : SREPanelStyle.MUTED))
-                .append(label.copy().withStyle(style -> style.withColor(on ? SREPanelStyle.TEXT
-                        : SREPanelStyle.MUTED)));
+    /** 一个阵营的「不限 / 仅给该阵营刷新 / 不给该阵营刷新」三态按钮。 */
+    private Cell teamCell(RoleTeam team) {
+        String name = team.name();
+        SwitchState current = data.canOnlyAppliedToTeams.contains(name) ? SwitchState.ON
+                : (data.cannotAppliedToTeams.contains(name) ? SwitchState.OFF : SwitchState.UNSET);
+        return triStateCell(Component.translatable(PREFIX + ".team." + name), current,
+                state -> Component.translatable(PREFIX + ".team_mode."
+                        + switch (state) {
+                            case ON -> "only";
+                            case OFF -> "deny";
+                            case UNSET -> "unset";
+                        }),
+                state -> {
+                    // 先清掉这一阵营在两边列表里的旧记录，再按新状态写回：两边互斥
+                    data.canOnlyAppliedToTeams.remove(name);
+                    data.cannotAppliedToTeams.remove(name);
+                    switch (state) {
+                        case ON -> data.canOnlyAppliedToTeams.add(name);
+                        case OFF -> data.cannotAppliedToTeams.add(name);
+                        case UNSET -> {
+                            // 不限：两边都不放，什么都不用做
+                        }
+                    }
+                }, false);
     }
 
     // ══════════════════════════════════════════════════════════════════
@@ -300,9 +315,20 @@ public class CustomModifierScreen extends CustomEditorScreen {
             r = groupBlock(r, groups.get(i), i);
         }
         r = addRow(r, PREFIX + ".group.add", () -> {
-            data.effectiveGroups().add(new CustomModifierData.TriggerGroupData());
+            // 新组默认是「条件组」并带一条默认条件：否则空条件会被当成全局组，用户永远加不上条件
+            CustomModifierData.TriggerGroupData group = new CustomModifierData.TriggerGroupData();
+            group.setGlobal(false);
+            group.conditions.add(defaultCondition());
+            data.effectiveGroups().add(group);
             requestRebuild();
         });
+    }
+
+    /** 一条默认条件（定时：每 30 秒一次），给「＋ 添加条件」和新建触发组用。 */
+    private static ConditionData defaultCondition() {
+        ConditionData condition = new ConditionData();
+        applyDefaultParams(condition, ConditionType.TIMER);
+        return condition;
     }
 
     /** 一个触发组：组头 + 条件 + 指令 / 效果 / 属性（属性只在全局组里常驻）。 */
@@ -316,15 +342,23 @@ public class CustomModifierScreen extends CustomEditorScreen {
                         : Component.translatable(PREFIX + ".group.conditional", group.conditions.size()),
                 () -> data.effectiveGroups().remove(index));
 
+        // 组类型：全局常驻（无条件、拥有即持续生效）/ 有条件触发。会改变下面显示哪些字段，所以要重建
+        r = stateButton(r, PREFIX + ".group.mode",
+                () -> Component.translatable(group.isGlobal()
+                        ? PREFIX + ".group.mode.global"
+                        : PREFIX + ".group.mode.conditional"),
+                () -> group.setGlobal(!group.isGlobal()), true);
+
         // 条件：这一组满足时才执行本组内容（全局组没有条件）
         if (!global) {
+            if (group.conditions.isEmpty()) {
+                r = note(r, PREFIX + ".hint.condition_empty", SREPanelStyle.GOLD_DIM, 1);
+            }
             for (int i = 0; i < group.conditions.size(); i++) {
                 r = conditionRow(r, group, i);
             }
             r = addRow(r, PREFIX + ".trigger.add", () -> {
-                ConditionData condition = new ConditionData();
-                applyDefaultParams(condition, ConditionType.TIMER);
-                group.conditions.add(condition);
+                group.conditions.add(defaultCondition());
                 requestRebuild();
             });
         }
@@ -347,7 +381,7 @@ public class CustomModifierScreen extends CustomEditorScreen {
             r = toggle(r, PREFIX + ".effect.remove_on_trigger", group.removeModifierOnTrigger,
                     value -> group.removeModifierOnTrigger = value);
         }
-        return cardEnd(gap(r));
+        return gap(cardEnd(gap(r)));
     }
 
     /** 组内一条条件：类型 + 参数 + 与/或 + 删除。 */

@@ -89,6 +89,27 @@ public final class CustomItemLoader {
         SRE.LOGGER.info("[CustomItem-Client] Reloaded {} custom items from local config", loadedItems.size());
     }
 
+    /**
+     * 索引为空时补读一次本地副本（<b>不清空、不覆盖</b>已有的索引）。
+     *
+     * <p>
+     * 给「按 id 解析自定义物品时索引却还是空的」兜底：自定义职业的初始物品 / 任务奖励 / 商店条目
+     * 都是在**注册时**按 id 查这份索引的，索引空着就会把那些条目标成空壳或干脆无效。客户端在
+     * 注册自定义职业前调一下，能修掉「物品内容其实已经在本地副本里、只是内存索引还没加载」这种
+     * 顺序问题（读不到 / 是空配置时什么都不做，不会把服务端已经建好的索引清掉）。
+     */
+    public static void ensureClientIndexLoaded() {
+        if (!loadedItems.isEmpty()) {
+            return;
+        }
+        CustomItemConfig config = CustomItemConfig.loadFromDefaultPath();
+        if (config == null || config.items == null || config.items.isEmpty()) {
+            return;
+        }
+        registerAll(config);
+        SRE.LOGGER.info("[CustomItem-Client] Loaded {} custom items from local config on demand", loadedItems.size());
+    }
+
     private static void registerAll(CustomItemConfig config) {
         if (config == null || config.items == null) {
             return;
@@ -210,6 +231,36 @@ public final class CustomItemLoader {
         }
         ItemStack stack = new ItemStack(item, Math.max(1, Math.min(64, count)));
         applyData(stack, data);
+        return stack;
+    }
+
+    /**
+     * 「这份索引里还没有登记」的自定义列车物品<b>空壳</b>：物品本体仍是共用的
+     * {@code starrailexpress:custom_item}，只挂上 id 组件。
+     *
+     * <p>
+     * 给「配置里引用了自定义物品，但解析时物品还没加载 / 还没建好」的场景兜底（自定义职业的
+     * 初始物品 / 任务奖励 / 商店条目）：条目不会被静默丢掉，先显示成通用的「自定义列车物品」。
+     *
+     * <p>
+     * 名称、贴图、工具提示都是按 id <b>现查</b> {@link #get(String)} 的（见
+     * {@code CustomItemRenderer} / {@link CustomItem}），所以物品随后登记好时，这个栈会自动
+     * 表现为正确的自定义物品，不需要重新解析。反过来：id 一直没登记，它就是一个「尚未配置
+     * 物品数据」的通用自定义物品。
+     *
+     * @param id    自定义物品 id（为空返回空栈）
+     * @param count 数量（clamp 到 1..64）
+     */
+    public static ItemStack buildPlaceholder(String id, int count) {
+        if (id == null || id.isBlank()) {
+            return ItemStack.EMPTY;
+        }
+        Item item = customItem();
+        if (item == null || item == Items.AIR) {
+            return ItemStack.EMPTY;
+        }
+        ItemStack stack = new ItemStack(item, Math.max(1, Math.min(64, count)));
+        stack.set(SREDataComponentTypes.CUSTOM_ITEM_ID, id.trim().toLowerCase(java.util.Locale.ROOT));
         return stack;
     }
 

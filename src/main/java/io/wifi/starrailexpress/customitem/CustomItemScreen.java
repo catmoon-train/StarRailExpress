@@ -125,6 +125,7 @@ public class CustomItemScreen extends CustomEditorScreen {
         return number(r, labelKey, String.valueOf(value), unitKey, text -> setter.accept(parseInt(text, value)));
     }
 
+    /** 开关行：标签在标签列、小方块左对齐在字段区（这类行不参与自动并排，一行一个更清楚）。 */
     private int boolRow(int r, String labelKey, boolean current, Consumer<Boolean> setter) {
         return cluster(r, labelKey, yesNoCell(current, setter, false));
     }
@@ -137,7 +138,7 @@ public class CustomItemScreen extends CustomEditorScreen {
     /** 「是 / 否」开关：标签在标签列上，按钮里是带颜色的状态符号 + 是/否（文案键沿用本界面的）。 */
     private Cell yesNoCell(boolean current, Consumer<Boolean> setter, boolean rebuild) {
         return yesNoSwitchCell(current,
-                on -> Component.translatable(on ? PREFIX + ".value.yes" : PREFIX + ".value.no"),
+                on -> Component.translatable(Boolean.TRUE.equals(on) ? PREFIX + ".value.yes" : PREFIX + ".value.no"),
                 setter, rebuild);
     }
 
@@ -817,9 +818,9 @@ public class CustomItemScreen extends CustomEditorScreen {
         if (server != null) {
             server.execute(() -> {
                 try {
-                    CustomItemLoader.reload(server);
-                    io.wifi.starrailexpress.network.CustomItemServerNetwork.clearCache();
-                    io.wifi.starrailexpress.network.CustomItemServerNetwork.syncToAllPlayers(server);
+                    // 走重载命令的路径：除了重建物品索引与重新握手，还会连带重新注册引用这些物品的
+                    // 自定义职业（初始物品 / 任务奖励 / 商店条目）与修饰符
+                    CustomItemReloadCommand.reload(server);
                 } catch (Exception ignored) {
                 }
             });

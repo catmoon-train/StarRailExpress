@@ -20,6 +20,7 @@ import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 
+import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -31,6 +32,10 @@ import java.util.Map;
  * 「四份 JSON 全文（可能各拆成多个 30k 字符分块）」降到这一个几十字节的包；
  * 客户端本地缓存命中时服务端不再发送任何全文（见
  * {@link io.wifi.starrailexpress.client.network.ContentSyncClient}）。
+ *
+ * <p>
+ * 包里的通道顺序按 {@link ContentChannel#LOAD_ORDER} 发送（依赖项在前），便于排查同步问题；
+ * 客户端不依赖这个顺序（自己按 LOAD_ORDER 定序，见 {@code ContentSyncClient}）。
  */
 public record ContentHandshakeS2CPayload(int protocolVersion, Map<String, String> hashes)
         implements CustomPacketPayload {
@@ -41,7 +46,16 @@ public record ContentHandshakeS2CPayload(int protocolVersion, Map<String, String
 
     public ContentHandshakeS2CPayload(int protocolVersion, Map<String, String> hashes) {
         this.protocolVersion = protocolVersion;
-        this.hashes = Map.copyOf(hashes);
+        // 不能用 Map.copyOf：它返回的不可变 Map 迭代顺序未定义（同一次握手的顺序会随 JVM 变化，
+        // 排查同步问题时不可复现）。这里用 LinkedHashMap 保住传入顺序，顺手挡掉 null（writeUtf 会炸）。
+        Map<String, String> ordered = new LinkedHashMap<>();
+        for (Map.Entry<String, String> entry : hashes.entrySet()) {
+            if (entry.getKey() == null || entry.getValue() == null) {
+                continue;
+            }
+            ordered.put(entry.getKey(), entry.getValue());
+        }
+        this.hashes = Collections.unmodifiableMap(ordered);
     }
 
     @Override

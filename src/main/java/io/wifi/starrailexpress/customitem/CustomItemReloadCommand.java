@@ -17,7 +17,7 @@ package io.wifi.starrailexpress.customitem;
 
 import com.mojang.brigadier.CommandDispatcher;
 import io.wifi.starrailexpress.SRE;
-import io.wifi.starrailexpress.network.CustomItemServerNetwork;
+import io.wifi.starrailexpress.synccontent.ContentChannel;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.network.chat.Component;
@@ -49,10 +49,14 @@ public class CustomItemReloadCommand {
                 })));
     }
 
-    /** 重载服务端索引并同步给所有在线玩家（供本命令与其它需要刷新物品配置的地方复用）。 */
+    /**
+     * 重载服务端索引并同步给所有在线玩家，随后**重新注册依赖它的自定义职业与修饰符**。
+     *
+     * <p>
+     * 职业的初始物品 / 任务奖励 / 商店条目按 id 查这份物品索引，所以物品变了以后职业必须重新
+     * 解析一遍——否则商店里那条自定义物品会一直缺失（注册时物品还不存在，条目被静默丢掉）。
+     */
     public static void reload(MinecraftServer server) {
-        CustomItemLoader.reload(server);
-        CustomItemServerNetwork.clearCache();
-        CustomItemServerNetwork.syncToAllPlayers(server);
+        io.wifi.starrailexpress.customcontent.CustomContentReload.withDependents(server, ContentChannel.CUSTOM_ITEM);
     }
 }

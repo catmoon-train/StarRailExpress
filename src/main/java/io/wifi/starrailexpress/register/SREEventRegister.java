@@ -96,6 +96,15 @@ public class SREEventRegister {
                 sendDefaultIntroIfParticipant(player);
             }
         });
+        // 开局时按最新索引重建自定义职业的商店（与 RoleShopHandler.shopRegister() 在开局重注册
+        // 内置职业商店条目同理）：职业内容与自定义物品内容这时都已经加载 / 同步完毕，重建一次能兜住
+        // 「注册职业时物品索引还没就绪」的情况。只换商店列表，不重新注册职业实例。
+        OnGameStarted.EVENT.register(serverLevel -> {
+            if (io.wifi.starrailexpress.customrole.CustomRoleLoader.rebuildShops() > 0) {
+                // 商店条目变了：价格表是按商店内容构建并缓存的，让客户端也重新拉一次
+                io.wifi.starrailexpress.shop.ShopPriceSyncServer.resyncAll(serverLevel.getServer());
+            }
+        });
     }
 
     public static void registerServerLifecycleEvents() {
@@ -129,41 +138,11 @@ public class SREEventRegister {
             net.exmo.sre.client.chat.ChatDialogueManager.getInstance(server);
             SRE.REPLAY_MANAGER = new GameReplayManager(server);
             SyncMapConfigPayload.sendToAllPlayers();
-            // 加载自定义列车物品（必须在自定义职业之前：职业的初始物品 / 任务奖励支持
-            // [custom_item] 前缀，要在职业解析时就能查到自定义物品索引）
-            try {
-                io.wifi.starrailexpress.customitem.CustomItemLoader.reload(server);
-                io.wifi.starrailexpress.network.CustomItemServerNetwork.clearCache();
-                io.wifi.starrailexpress.network.CustomItemServerNetwork.syncToAllPlayers(server);
-            } catch (Throwable e) {
-                SRE.LOGGER.error("[CustomItem] Failed to load custom items on server start", e);
-            }
-            // 加载自定义方块
-            try {
-                io.wifi.starrailexpress.customblock.CustomBlockLoader.reload(server);
-                io.wifi.starrailexpress.synccontent.ContentSyncServer.invalidate(
-                        io.wifi.starrailexpress.synccontent.ContentChannel.CUSTOM_BLOCK);
-                io.wifi.starrailexpress.synccontent.ContentSyncServer.broadcastHandshake(server);
-            } catch (Throwable e) {
-                SRE.LOGGER.error("[CustomBlock] Failed to load custom blocks on server start", e);
-            }
-            // 加载自定义职业
-            try {
-                io.wifi.starrailexpress.customrole.CustomRoleLoader.reload(server);
-                // 同步自定义职业配置到所有客户端
-                CustomRoleServerNetwork.clearCache();
-                CustomRoleServerNetwork.syncToAllPlayers(server);
-            } catch (Throwable e) {
-                SRE.LOGGER.error("[CustomRole] Failed to load custom roles on server start", e);
-            }
-            // 加载自定义修饰符
-            try {
-                io.wifi.starrailexpress.custommodifier.CustomModifierLoader.reload(server);
-                io.wifi.starrailexpress.network.CustomModifierServerNetwork.clearCache();
-                io.wifi.starrailexpress.network.CustomModifierServerNetwork.syncToAllPlayers(server);
-            } catch (Throwable e) {
-                SRE.LOGGER.error("[CustomModifier] Failed to load custom modifiers on server start", e);
-            }
+            // 加载全部自定义内容：物品 → 方块 → 职业 → 修饰符。顺序由
+            // CustomContentReload / ContentChannel.LOAD_ORDER 统一决定——职业的初始物品 / 任务奖励 /
+            // 商店条目注册时按 id 查自定义物品索引，必须在物品索引就绪之后再解析（顺序错了会静默
+            // 丢掉商店条目）。单项失败不影响其余项。
+            io.wifi.starrailexpress.customcontent.CustomContentReload.all(server);
             // 拉取赞助者名单（异步）
             io.wifi.starrailexpress.sponsor.SponsorManager.fetchAsync(server);
         });

@@ -150,8 +150,9 @@ public class CustomModifierData {
      *
      * <p>
      * 空列表时回退到下面那几个旧的顶层字段（{@link #effectiveGroups()} 会就地迁移成一个组），
-     * 所以老 JSON 不需要手工改。组内 {@code conditions} 为空表示这一组是「全局」的：
-     * 拥有该修饰符就持续生效（药水效果常驻、属性常驻，指令只在获得时执行一次）。
+     * 所以老 JSON 不需要手工改。组类型见 {@link TriggerGroupData#isGlobal()}：全局组无条件、
+     * 拥有该修饰符就持续生效（药水效果常驻、属性常驻，指令只在获得时执行一次）；
+     * 条件组要有条件之后才会判定触发。
      */
     @SerializedName("groups")
     public List<TriggerGroupData> groups = new ArrayList<>();
@@ -205,6 +206,7 @@ public class CustomModifierData {
         }
         TriggerGroupData legacy = new TriggerGroupData();
         legacy.conditions = conditions == null ? new ArrayList<>() : conditions;
+        legacy.globalMode = legacy.conditions.isEmpty();
         legacy.removeModifierOnTrigger = removeModifierOnTrigger;
         legacy.commands = commands == null ? new ArrayList<>() : commands;
         legacy.effects = effects == null ? new ArrayList<>() : effects;
@@ -242,7 +244,8 @@ public class CustomModifierData {
      *
      * <p>
      * 组内条件按「与 / 或」串联（{@link ConditionData#logic} 表示与下一个条件的关系），
-     * 满足时只执行<b>本组</b>的内容。
+     * 满足时只执行<b>本组</b>的内容。组类型（{@link #isGlobal()}）用 {@link #setGlobal(boolean)} 显式设置：
+     * 全局组没有条件、拥有该修饰符就持续生效；条件组再有条件之后才判定。
      */
     public static class TriggerGroupData {
         @SerializedName("conditions")
@@ -256,10 +259,27 @@ public class CustomModifierData {
         /** 本组触发后是否移除该修饰符（全局组不生效）。 */
         @SerializedName("removeModifierOnTrigger")
         public boolean removeModifierOnTrigger = false;
+        /**
+         * 本组是否为全局组。{@code null} = 没写这个键（老存档），此时按「条件是否为空」推断。
+         *
+         * <p>
+         * 用包装类型而不是 {@code boolean} 是为了区分「显式设成条件组、但还没来得及加条件」与老数据：
+         * 前者必须保持条件组（否则编辑器会把「有条件」按钮又变成全局组，用户永远加不上条件）。
+         */
+        @SerializedName("global")
+        public Boolean globalMode = null;
 
-        /** 没有条件 = 全局组：拥有该修饰符即持续生效。 */
+        /** 是否全局组：拥有该修饰符即持续生效（药水效果 / 属性常驻，指令只在获得时执行一次）。 */
         public boolean isGlobal() {
+            if (globalMode != null) {
+                return globalMode.booleanValue();
+            }
             return conditions == null || conditions.isEmpty();
+        }
+
+        /** 设置组类型：{@code true} = 全局组（无条件常驻），{@code false} = 条件组。 */
+        public void setGlobal(boolean global) {
+            this.globalMode = global;
         }
     }
 

@@ -153,7 +153,9 @@ public final class ContentSyncServer {
 
     private static ContentHandshakeS2CPayload buildHandshake(MinecraftServer server) {
         Map<String, String> hashes = new LinkedHashMap<>();
-        for (ContentChannel channel : ContentChannel.values()) {
+        // 按 LOAD_ORDER（被依赖的通道在前）发送：客户端据此顺序应用，职业 / 修饰符的注册才看得到
+        // 已经就绪的自定义物品索引
+        for (ContentChannel channel : ContentChannel.LOAD_ORDER) {
             hashes.put(channel.id(), contentOf(channel, server).hash());
         }
         return new ContentHandshakeS2CPayload(ContentChannel.PROTOCOL_VERSION, hashes);

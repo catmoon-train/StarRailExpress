@@ -183,4 +183,79 @@ class CustomModifierGroupMigrationTest {
         assertTrue(data.effectiveGroups().get(0).removeModifierOnTrigger);
         assertTrue(data.effectiveGroups().get(0).isGlobal());
     }
+
+    // ==================== 组类型（global 键） ====================
+
+    @Test
+    void emptyConditionalGroupStaysConditional() {
+        // 编辑器「有条件」但还没加条件的组：不能因为条件为空就退回全局组，否则永远加不上条件
+        CustomModifierData.TriggerGroupData group = new CustomModifierData.TriggerGroupData();
+        group.setGlobal(false);
+        assertFalse(group.isGlobal());
+        assertTrue(group.conditions.isEmpty());
+    }
+
+    @Test
+    void explicitGlobalGroupKeepsGlobalEvenWithConditions() {
+        // 显式标成全局组 + 之后又残留了条件：仍然按全局组走
+        CustomModifierData.TriggerGroupData group = new CustomModifierData.TriggerGroupData();
+        group.setGlobal(true);
+        group.conditions.add(new CustomModifierData.ConditionData());
+        assertTrue(group.isGlobal());
+    }
+
+    @Test
+    void missingGlobalKeyStillFallsBackToConditionEmptiness() {
+        // 老存档（没有 global 键）保持旧语义：条件为空 = 全局组
+        String json = """
+                {
+                  "englishId": "no_global_key",
+                  "groups": [
+                    { "conditions": [], "effects": [{ "effectId": "minecraft:speed", "amplifier": 0,
+                      "durationSeconds": 5 }] },
+                    { "conditions": [{ "type": "DEATH" }], "commands": ["say died"] }
+                  ]
+                }
+                """;
+        List<CustomModifierData.TriggerGroupData> groups = parse(json).effectiveGroups();
+        assertTrue(groups.get(0).isGlobal());
+        assertFalse(groups.get(1).isGlobal());
+    }
+
+    @Test
+    void groupTypeSurvivesAJsonRoundTrip() {
+        CustomModifierData data = new CustomModifierData();
+        data.englishId = "round_trip_type";
+        CustomModifierData.TriggerGroupData conditional = new CustomModifierData.TriggerGroupData();
+        conditional.setGlobal(false);
+        CustomModifierData.TriggerGroupData global = new CustomModifierData.TriggerGroupData();
+        global.setGlobal(true);
+        data.groups.add(conditional);
+        data.groups.add(global);
+
+        CustomModifierData reloaded = parse(GSON.toJson(data));
+
+        assertEquals(2, reloaded.groupCount());
+        assertFalse(reloaded.effectiveGroups().get(0).isGlobal(), "空的「条件组」写出去再读回来还是条件组");
+        assertTrue(reloaded.effectiveGroups().get(1).isGlobal());
+    }
+
+    @Test
+    void legacyMigrationMarksTheTypeExplicitly() {
+        // 迁移后组类型是显式写下的（不依赖「条件为空」推断），以后加条件也不会变味
+        CustomModifierData withConditions = parse("""
+                { "englishId": "legacy_conditional", "conditions": [{ "type": "DEATH" }],
+                  "commands": ["say died"] }
+                """);
+        withConditions.effectiveGroups().get(0).setGlobal(false);
+        assertFalse(withConditions.effectiveGroups().get(0).isGlobal());
+        assertTrue(GSON.toJson(withConditions).contains("\"global\": false"));
+
+        CustomModifierData withoutConditions = parse("""
+                { "englishId": "legacy_global", "effects": [{ "effectId": "minecraft:speed" }] }
+                """);
+        assertTrue(withoutConditions.effectiveGroups().get(0).isGlobal());
+        assertTrue(GSON.toJson(withoutConditions).contains("\"global\": true"),
+                "迁移出来的全局组应该显式写下 global: true");
+    }
 }
