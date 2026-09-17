@@ -215,6 +215,11 @@ public class CustomItemScreen extends CustomEditorScreen {
                 index -> data.holdOrientation = HOLD_ORIENTATIONS[index].name());
         r = note(r, PREFIX + ".hint.hold_orientation", SREPanelStyle.GOLD_DIM);
 
+        // 手持时他人不可见（同占卜师的水晶球：别人看不到你手上拿的这件物品）
+        r = boolRow(r, PREFIX + ".label.invisible_in_hand", data.invisibleInHand,
+                value -> data.invisibleInHand = value);
+        r = note(r, PREFIX + ".hint.invisible_in_hand", SREPanelStyle.MUTED);
+
         // 战斗设置：是否允许左键攻击玩家（默认关）
         r = boolRow(r, PREFIX + ".label.allow_left_click_attack", data.allowLeftClickAttack,
                 value -> data.allowLeftClickAttack = value);

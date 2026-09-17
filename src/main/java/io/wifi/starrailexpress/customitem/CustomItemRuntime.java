@@ -215,6 +215,10 @@ public final class CustomItemRuntime {
         OnPlayerDeath.EVENT.register((player, reason) -> handlePassOnDeath(player));
         OnPlayerDeathWithKiller.EVENT.register((player, killer, reason) -> handlePassOnDeath(player));
 
+        // 被自定义手铐铐住的玩家死亡：手铐自动消失（不掉落），也不再对已成为旁观者的他生效
+        OnPlayerDeath.EVENT.register((player, reason) -> removeCuffOnDeath(player));
+        OnPlayerDeathWithKiller.EVENT.register((player, killer, reason) -> removeCuffOnDeath(player));
+
         // 手持不可见：客户端事件，返回 EMPTY 即可让第一人称 / 第三人称 / 手臂姿势全部隐藏该物品
         if (FabricLoader.getInstance().getEnvironmentType() == EnvType.CLIENT) {
             AllowItemShowInHand.EVENT.register((player, stack, mainHand) -> {
@@ -1160,9 +1164,35 @@ public final class CustomItemRuntime {
         return getCuffData(player) != null;
     }
 
+    /**
+     * 玩家死亡时把身上的自定义手铐取下来（手铐<b>自动消失</b>，不掉落）。
+     *
+     * <p>
+     * 光靠 {@code ExtraSlotComponent} 的 {@code NEVER_COPY} 不够：那是复活 / 重置时才清空，
+     * 而死亡到复活这段时间玩家已经是旁观者，手铐还挂在他身上会继续给他挂药水效果。
+     * 两个死亡事件（有 / 无击杀者）都登记，第二次调用取不到手铐，直接返回。
+     */
+    private static void removeCuffOnDeath(Player player) {
+        if (!(player instanceof ServerPlayer serverPlayer) || serverPlayer.level().isClientSide()) {
+            return;
+        }
+        ItemStack cuff = getCuffOn(serverPlayer);
+        CustomItemData data = CustomItemLoader.getData(cuff);
+        if (data == null || data.kind() != CustomItemData.Kind.CUFF) {
+            return;
+        }
+        ExtraSlotComponent.removeSlot(serverPlayer, cuffSlot(data));
+        clearCuffEffects(serverPlayer, data);
+        LAST_POS.remove(serverPlayer.getUUID());
+    }
+
     /** 右键玩家：把这份自定义手铐铐进目标玩家的特殊栏位。 */
     public static InteractionResult cuffPlayer(ServerPlayer user, ItemStack stack, CustomItemData data, Player target) {
         if (!(target instanceof ServerPlayer targetPlayer) || user == targetPlayer) {
+            return InteractionResult.PASS;
+        }
+        // 旁观者（含已死亡的玩家）不能被铐住
+        if (targetPlayer.isSpectator()) {
             return InteractionResult.PASS;
         }
         if (!GameUtils.isPlayerAliveAndSurvival(user) || !GameUtils.isPlayerAliveAndSurvival(targetPlayer)) {
@@ -1304,6 +1334,13 @@ public final class CustomItemRuntime {
                 LAST_POS.remove(player.getUUID());
                 continue;
             }
+            // 旁观者（含已死亡的玩家）：手铐自动消失，且不再给他挂效果 / 限行 / 定时指令
+            if (player.isSpectator()) {
+                ExtraSlotComponent.removeSlot(player, cuffSlot(data));
+                clearCuffEffects(player, data);
+                LAST_POS.remove(player.getUUID());
+                continue;
+            }
             applyCuffEffects(player, data);
             applyCuffRestriction(player, data);
 
@@ -1421,9 +1458,14 @@ public final class CustomItemRuntime {
      * （= 非创造 / 非旁观）。之前多这一层会让「创造 / 旁观状态的真实玩家」被射线静默穿过：
      * 不执行命中指令、不计命中次数，于是 {@code hitsToFinal} 永远到不了，最终效果与最终冷却都不会触发，
      * 而同一个目标用原版左轮是打得到的，排查时极易被误判成「物品没生效」。
+     *
+     * <p>
+     * 只有<b>旁观者</b>是例外：旁观（含死亡后的玩家）永远不是合法目标，所有自定义道具
+     * （枪械射线 / 范围与指向型道具）默认都不对旁观者生效，避免「人已经出局却还被道具打」。
+     * 创造模式的真实玩家仍然可被命中（保持上面的口径）。
      */
     private static boolean isValidTarget(ServerPlayer shooter, Entity entity) {
-        return entity instanceof ServerPlayer player && player != shooter;
+        return entity instanceof ServerPlayer player && player != shooter && !player.isSpectator();
     }
 
     /**

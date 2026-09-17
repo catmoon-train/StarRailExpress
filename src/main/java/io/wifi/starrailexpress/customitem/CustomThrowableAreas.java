@@ -126,6 +126,10 @@ public final class CustomThrowableAreas {
                 continue;
             }
             for (ServerPlayer player : area.level.players()) {
+                // 旁观者（含已死亡的玩家）不受持续生效区域影响
+                if (player.isSpectator()) {
+                    continue;
+                }
                 UUID uuid = player.getUUID();
                 if (!insidePlanar(area, player.position())) {
                     area.stayTicksByPlayer.remove(uuid);
