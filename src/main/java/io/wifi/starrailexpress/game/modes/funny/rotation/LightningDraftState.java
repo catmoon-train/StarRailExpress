@@ -124,6 +124,16 @@ public class LightningDraftState {
 
     // ---------- 初始化角色池 ----------
     public void initializeRolePool(ServerLevel world) {
+        initializeRolePool(world, true);
+    }
+
+    /**
+     * 初始化角色池。
+     *
+     * @param addReplaceableCivilians 是否额外往池子里塞「可替换的平民职业」（轮选模式需要，
+     *                                 志愿海选模式不需要：海选池的大小应当正好等于玩家人数）。
+     */
+    public void initializeRolePool(ServerLevel world, boolean addReplaceableCivilians) {
         rolePool.clear();
         canReplaceRole.clear();
 
@@ -200,22 +210,24 @@ public class LightningDraftState {
             }
         }
 
-        // 生成可替换职业列表
-        List<SRERole> replaceableTypes = new ArrayList<>(civilianPool.selectRoles(PLAYER_SELECT_COUNT - 1,
-                role -> role.canBeRandomed()
-                        && role.opposingRoles.isEmpty() && !isSpecialInnocent(role)));
-        int size = replaceableTypes.size();
-        for (int i = 0; i < PLAYER_SELECT_COUNT - 1 - size; i++) {
-            replaceableTypes.add(TMMRoles.CIVILIAN);
-        }
-        for (SRERole r : replaceableTypes) {
-            canReplaceRole.add(r); // 记录可替换的类型
-            rolePool.add(new RoleInstance(UUID.randomUUID(), r)); // 为每个类型创建一个实例
-        }
+        // 生成可替换职业列表（志愿海选模式不往池子里额外添加平民职业）
+        if (addReplaceableCivilians) {
+            List<SRERole> replaceableTypes = new ArrayList<>(civilianPool.selectRoles(PLAYER_SELECT_COUNT - 1,
+                    role -> role.canBeRandomed()
+                            && role.opposingRoles.isEmpty() && !isSpecialInnocent(role)));
+            int size = replaceableTypes.size();
+            for (int i = 0; i < PLAYER_SELECT_COUNT - 1 - size; i++) {
+                replaceableTypes.add(TMMRoles.CIVILIAN);
+            }
+            for (SRERole r : replaceableTypes) {
+                canReplaceRole.add(r); // 记录可替换的类型
+                rolePool.add(new RoleInstance(UUID.randomUUID(), r)); // 为每个类型创建一个实例
+            }
 
-        SRE.LOGGER.info("Replaceable role size {}", replaceableTypes.size());
-        for (var r : replaceableTypes) {
-            SRE.LOGGER.info("Replaceable Role {}", r.getName().getString());
+            SRE.LOGGER.info("Replaceable role size {}", replaceableTypes.size());
+            for (var r : replaceableTypes) {
+                SRE.LOGGER.info("Replaceable Role {}", r.getName().getString());
+            }
         }
 
         initializeCardTracking();

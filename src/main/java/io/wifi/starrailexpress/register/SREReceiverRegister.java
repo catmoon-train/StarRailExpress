@@ -139,6 +139,8 @@ public class SREReceiverRegister {
         // Role Rotation receivers（同时处理闪电轮抽和单选模式）
         SRERoleRotationGameMode.registerServerPacketRecievers();
         SREVolunteerGameMode.registerServerPacketRecievers();
+        // 志愿海选模式
+        io.wifi.starrailexpress.game.modes.funny.SREVolunteerOpenSelectGameMode.registerServerPacketRecievers();
 
         // 职业轮换系统：管理员编辑名单
         ServerPlayNetworking.registerGlobalReceiver(io.wifi.starrailexpress.network.RoleRosterUpdatePayload.ID,

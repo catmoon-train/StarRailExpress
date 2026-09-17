@@ -19,6 +19,7 @@ import io.wifi.starrailexpress.client.gui.screen.MapSelectorScreen;
 import io.wifi.starrailexpress.client.gui.screen.MapVoteResultScreen;
 import io.wifi.starrailexpress.client.gui.screen.MapVoteScreen;
 import io.wifi.starrailexpress.client.gui.screen.gamemode.role_rotation.RoleRotationScreen;
+import io.wifi.starrailexpress.client.gui.screen.gamemode.role_rotation.RoleSelectionScreenFactory;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.client.gui.screen.mapui.MapIntroClientCache;
 import io.wifi.starrailexpress.cca.AreasWorldComponent;
@@ -149,7 +150,10 @@ public final class OpeningPresentationCoordinator {
             if (rotationReady && departure.canHandoff(true)) {
                 if (!departure.isReleasing())
                     departure.release();
-                client.setScreen(new RoleRotationScreen());
+                // 开局运镜还在播时（志愿海选模式）先只把黑幕收掉，界面等运镜播完再打开
+                client.setScreen(RoleSelectionScreenFactory.canShowNow()
+                        ? RoleSelectionScreenFactory.create()
+                        : null);
             }
             return;
         }
@@ -196,14 +200,21 @@ public final class OpeningPresentationCoordinator {
     private static void leaveVoteGui(Minecraft client, boolean voteGui, boolean rotationReady) {
         if (!voteGui)
             return;
-        if (rotationReady) {
-            if (!departure.isReleasing())
-                departure.release();
-            client.setScreen(new RoleRotationScreen());
+        if (!rotationReady) {
+            client.setScreen(null);
+            departure.clear();
             return;
         }
-        client.setScreen(null);
-        departure.clear();
+        if (!departure.isReleasing())
+            departure.release();
+        // 开局运镜还在播时（志愿海选模式）先把投票结果页收掉、露出动画画面，
+        // 界面等运镜结束后由 SREClient / 接收器自动打开。
+        if (RoleSelectionScreenFactory.canShowNow()) {
+            client.setScreen(RoleSelectionScreenFactory.create());
+        } else {
+            client.setScreen(null);
+            departure.tick(0.0F, false);
+        }
     }
 
     /** Runs after Screen.render: destination artwork and text fade together. */

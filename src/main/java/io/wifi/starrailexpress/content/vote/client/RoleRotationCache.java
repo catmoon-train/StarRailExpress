@@ -216,6 +216,10 @@ public class RoleRotationCache {
         confirmCountdown = -1;
         confirmRequired = false;
         confirmedPlayers.clear();
+        // 注意：不要在这里顺带清理志愿海选模式的状态。
+        // 有些地图在开局（选职业之前）就会播一段开场运镜，此时这个方法也会被调用；
+        // 一旦清掉志愿海选的状态，界面就再也打不开了。
+        // 志愿海选由服务端在流程结束时发的终态同步（phase = 0）自己收尾。
     }
 
     // 清空（游戏结束）
@@ -235,6 +239,7 @@ public class RoleRotationCache {
         roundCandidates.clear();
         localPlayerUuid = null;
         wasMyTurn = false;
+        VolunteerOpenCache.clear();
         final var mc = Minecraft.getInstance();
         if (mc.screen instanceof RoleRotationScreen) {
             mc.setScreen(null);
