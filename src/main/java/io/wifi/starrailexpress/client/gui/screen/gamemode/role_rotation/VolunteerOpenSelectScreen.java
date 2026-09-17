@@ -66,6 +66,8 @@ public class VolunteerOpenSelectScreen extends Screen {
     private static final int AUTO_TOGGLE_H = 20;
     private static final int CONFIRM_W = 220;
     private static final int CONFIRM_H = 24;
+    /** 志愿阶段：职业列表与职业信息之间那句「蓝框」提示所占的高度（最多两行）。 */
+    private static final int VOL_HINT_H = 20;
 
     private static final int GOLD = SREPanelStyle.GOLD;
     private static final int TEXT = SREPanelStyle.TEXT;
@@ -86,6 +88,7 @@ public class VolunteerOpenSelectScreen extends Screen {
 
     private int searchX, searchY, searchW, searchH;
     private int volListX, volListY, volListW, volListH;
+    private int volHintY; // 列表与详情之间那句提示的顶边
     private int volDetailX, volDetailY, volDetailW, volDetailH;
     private int volCols, volCellW, volCellH;
 
@@ -238,11 +241,12 @@ public class VolunteerOpenSelectScreen extends Screen {
         volListX = searchX;
         volListY = searchY + searchH + GAP;
         volListW = searchW;
-        int volAvailable = Math.max(60, bodyBottom - volListY - GAP);
+        int volAvailable = Math.max(60, bodyBottom - volListY - GAP - VOL_HINT_H);
         volListH = Math.max(36, (int) (volAvailable * 0.40F));
         volDetailX = volListX;
         volDetailW = volListW;
-        volDetailY = volListY + volListH + GAP;
+        volHintY = volListY + volListH + 4;
+        volDetailY = volHintY + VOL_HINT_H;
         volDetailH = Math.max(40, bodyBottom - volDetailY);
         volCols = Mth.clamp(volListW / 108, 2, 8);
         volCellW = Math.max(24, (volListW - 4 * (volCols - 1)) / volCols);
@@ -553,7 +557,7 @@ public class VolunteerOpenSelectScreen extends Screen {
             }
             SRERole role = filteredRoles.get(i);
             boolean isMine = !volunteerId.isEmpty() && volunteerId.equals(role.identifier().toString());
-            boolean hover = !submitted && inside(mouseX, mouseY, x, y, volCellW, volCellH)
+            boolean hover = inside(mouseX, mouseY, x, y, volCellW, volCellH)
                     && mouseY >= volListY && mouseY < volListY + volListH;
             if (hover) {
                 hoveredRoleIndex = i;
@@ -578,6 +582,13 @@ public class VolunteerOpenSelectScreen extends Screen {
                     * (volScroll / (double) Math.max(1, maxVolScroll)));
             g.fill(barX, volListY, barX + 3, volListY + volListH, 0x661A1008);
             g.fill(barX, thumbY, barX + 3, thumbY + thumbH, GOLD);
+        }
+
+        // 列表与详情之间：蓝框标记的说明（最多两行）
+        Component blueHint = Component.translatable("gui.sre.volunteer_open.volunteer_blue_hint");
+        List<FormattedCharSequence> blueHintLines = font.split(blueHint, Math.max(40, volListW));
+        for (int i = 0; i < blueHintLines.size() && i < 2; i++) {
+            g.drawString(font, blueHintLines.get(i), volListX, volHintY + i * 10, BLUE, false);
         }
 
         // 下方：介绍
@@ -949,11 +960,13 @@ public class VolunteerOpenSelectScreen extends Screen {
                 }
             }
             if (VolunteerOpenCache.getPhase() == VolunteerOpenCache.PHASE_VOLUNTEER) {
-                if (hoveredRoleIndex >= 0 && hoveredRoleIndex < filteredRoles.size()
-                        && VolunteerOpenCache.getMyVolunteerRoleId().isEmpty()) {
-                    playClickSound();
-                    ClientPlayNetworking.send(new VolunteerOpenSelectC2SPacket(true, -1,
-                            filteredRoles.get(hoveredRoleIndex).identifier().toString()));
+                if (hoveredRoleIndex >= 0 && hoveredRoleIndex < filteredRoles.size()) {
+                    String clickedId = filteredRoles.get(hoveredRoleIndex).identifier().toString();
+                    // 一阶段内可以随时改选；重复点已选中的那个就不发包了
+                    if (!clickedId.equals(VolunteerOpenCache.getMyVolunteerRoleId())) {
+                        playClickSound();
+                        ClientPlayNetworking.send(new VolunteerOpenSelectC2SPacket(true, -1, clickedId));
+                    }
                     return true;
                 }
             } else if (hoveredPoolIndex >= 0 && VolunteerOpenCache.canSelect()) {

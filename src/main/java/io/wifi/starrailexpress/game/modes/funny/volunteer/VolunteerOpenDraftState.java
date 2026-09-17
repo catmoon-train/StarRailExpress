@@ -236,19 +236,25 @@ public class VolunteerOpenDraftState {
 
     // ==================== 一阶段：志愿职业 ====================
 
+    /**
+     * 提交 / 修改志愿职业（一阶段内一直可以改选）。
+     *
+     * @return 志愿是否真的发生了变化（没变化就不用广播）
+     */
     public boolean submitVolunteer(ServerLevel world, ServerPlayer player, String roleId) {
         if (phase != Phase.VOLUNTEER) {
             return false;
         }
         UUID id = player.getUUID();
-        if (volunteerRoleIds.containsKey(id)) {
-            return false;
-        }
         SRERole role = resolveRole(roleId);
         if (role == null) {
             return false;
         }
-        volunteerRoleIds.put(id, role.identifier().toString());
+        String newId = role.identifier().toString();
+        if (newId.equals(volunteerRoleIds.get(id)) && volunteerPoolIndex.containsKey(id)) {
+            return false;
+        }
+        volunteerRoleIds.put(id, newId);
         volunteerPoolIndex.put(id, indexOfRole(role));
         player.displayClientMessage(
                 Component.translatable("gui.sre.role_rotation.selected",
