@@ -415,7 +415,7 @@ public class VolunteerOpenSelectScreen extends Screen {
         int w = leftW - PAD * 2;
         int h = getPlayerListHeight();
 
-        Component listTitle = Component.translatable("gui.sre.role_rotation.player_list");
+        Component listTitle = Component.translatable("gui.sre.volunteer_open.player_list");
         g.drawString(font, listTitle, x, leftY + PAD, TEXT, false);
 
         List<Map.Entry<UUID, Integer>> players = getSortedPlayers();
@@ -482,14 +482,14 @@ public class VolunteerOpenSelectScreen extends Screen {
         }
         String rolePath = map.get(uuid);
         if (rolePath == null || rolePath.isEmpty()) {
-            return Component.translatable("gui.sre.role_rotation.random").withStyle(ChatFormatting.GOLD);
+            return Component.translatable("gui.sre.volunteer_open.random").withStyle(ChatFormatting.GOLD);
         }
         SRERole role = getRoleByPath(rolePath);
         if (role == null) {
             return Component.literal(rolePath).withStyle(ChatFormatting.AQUA);
         }
         if (role.isHiddenForRoleRotation()) {
-            return Component.translatable("gui.sre.role_rotation.random").withStyle(ChatFormatting.GOLD);
+            return Component.translatable("gui.sre.volunteer_open.random").withStyle(ChatFormatting.GOLD);
         }
         return RoleUtils.getRoleName(role).withStyle(style -> style.withColor(factionColor(role)));
     }
@@ -724,7 +724,7 @@ public class VolunteerOpenSelectScreen extends Screen {
         }
         int myIndex = VolunteerOpenCache.getMyIndex();
         if (myIndex > 0) {
-            Component mine = Component.translatable("gui.sre.role_rotation.your_index", myIndex)
+            Component mine = Component.translatable("gui.sre.volunteer_open.your_index", myIndex)
                     .withStyle(ChatFormatting.AQUA);
             g.drawString(font, mine, rightX + rightW - PAD - font.width(mine), rightY + PAD + 12, BLUE, false);
         }
@@ -734,7 +734,7 @@ public class VolunteerOpenSelectScreen extends Screen {
         if (role == null) {
             Component waiting = VolunteerOpenCache.canSelect()
                     ? Component.translatable("gui.sre.volunteer_open.click_to_pick")
-                    : Component.translatable("gui.sre.role_rotation.wait_for_others");
+                    : Component.translatable("gui.sre.volunteer_open.wait_for_others");
             g.drawCenteredString(font, waiting, x + w / 2, y + h / 2 - 4, MUTED);
             return;
         }
@@ -771,7 +771,7 @@ public class VolunteerOpenSelectScreen extends Screen {
             return Component.translatable("display.type.role.neutral_special")
                     .withStyle(style -> style.withColor(0xFFCCAA22));
         }
-        return Component.literal("Unknown").withStyle(ChatFormatting.GRAY);
+        return Component.translatable("gui.sre.volunteer_open.unknown_faction").withStyle(ChatFormatting.GRAY);
     }
 
     private int factionColor(SRERole role) {
@@ -803,7 +803,7 @@ public class VolunteerOpenSelectScreen extends Screen {
     }
 
     private void drawFooter(GuiGraphics g) {
-        Component hint = Component.translatable("gui.sre.role_rotation.scroll_hint").withStyle(ChatFormatting.GRAY);
+        Component hint = Component.translatable("gui.sre.volunteer_open.scroll_hint").withStyle(ChatFormatting.GRAY);
         g.drawCenteredString(font, hint, width / 2, height - 12, MUTED);
     }
 
@@ -817,8 +817,8 @@ public class VolunteerOpenSelectScreen extends Screen {
         g.renderOutline(autoToggleX, autoToggleY, autoToggleW, AUTO_TOGGLE_H,
                 hover ? GOLD : (enabled ? 0x665A4530 : 0x443B2F1E));
         Component label = Component.translatable(enabled
-                ? "gui.sre.role_rotation.auto_scroll_on"
-                : "gui.sre.role_rotation.auto_scroll_off");
+                ? "gui.sre.volunteer_open.auto_scroll_on"
+                : "gui.sre.volunteer_open.auto_scroll_off");
         g.drawCenteredString(font, label, autoToggleX + autoToggleW / 2,
                 autoToggleY + AUTO_TOGGLE_H / 2 - 4, enabled ? GREEN : MUTED);
     }
@@ -921,8 +921,8 @@ public class VolunteerOpenSelectScreen extends Screen {
         g.fill(confirmX + 1, confirmY + 1, confirmX + CONFIRM_W - 1, confirmY + 3,
                 hover ? GOLD : 0x33FFE8C0);
         Component label = Component.translatable(confirmed
-                ? "gui.sre.role_rotation.confirm_waiting"
-                : "gui.sre.role_rotation.confirm_ready");
+                ? "gui.sre.volunteer_open.confirm_waiting"
+                : "gui.sre.volunteer_open.confirm_ready");
         g.drawCenteredString(font, label, confirmX + CONFIRM_W / 2, confirmY + CONFIRM_H / 2 - 4,
                 confirmed ? MUTED : TEXT);
     }

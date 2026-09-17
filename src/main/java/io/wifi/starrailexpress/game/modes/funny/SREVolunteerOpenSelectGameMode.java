@@ -270,9 +270,6 @@ public class SREVolunteerOpenSelectGameMode extends SREMurderGameMode {
             boolean timedOut = now - draftState.holdStartTime >= VolunteerOpenDraftState.CLIENT_READY_TIMEOUT;
             if (allReady || timedOut) {
                 draftState.startPhaseTiming(now);
-                SRE.LOGGER.info("[VolunteerOpen] 开始一阶段计时：{}/{} 名玩家已打开界面{}",
-                        draftState.uiReadyPlayers.size(), draftState.playerOrder.size(),
-                        timedOut && !allReady ? "（等待超时，强制开始）" : "");
                 broadcastSync(world);
             } else if (now % 20 == 0) {
                 broadcastSync(world);
@@ -282,12 +279,8 @@ public class SREVolunteerOpenSelectGameMode extends SREMurderGameMode {
 
         switch (draftState.phase) {
             case VOLUNTEER -> {
-                boolean allSubmitted = draftState.allVolunteersSubmitted(world);
-                if (now - draftState.phaseStartTime >= draftState.phaseTimeLimit || allSubmitted) {
-                    SRE.LOGGER.info("[VolunteerOpen] 一阶段结束：用时 {} tick（{}），已提交志愿 {}/{}",
-                            now - draftState.phaseStartTime,
-                            allSubmitted ? "全员已提交" : "时间到",
-                            draftState.volunteerRoleIds.size(), draftState.playerOrder.size());
+                if (now - draftState.phaseStartTime >= draftState.phaseTimeLimit
+                        || draftState.allVolunteersSubmitted(world)) {
                     draftState.startOpenPhase(world);
                     broadcastSync(world);
                 } else if (now % 20 == 0) {
@@ -366,7 +359,7 @@ public class SREVolunteerOpenSelectGameMode extends SREMurderGameMode {
             if (role != null) {
                 gameComp.addRole(p, role, false);
                 p.displayClientMessage(
-                        Component.translatable("gui.sre.role_rotation.selected",
+                        Component.translatable("gui.sre.volunteer_open.selected",
                                 RoleUtils.getRoleName(role).withColor(role.getColor()))
                                 .withStyle(ChatFormatting.GREEN),
                         true);

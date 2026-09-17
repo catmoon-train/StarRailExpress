@@ -275,7 +275,7 @@ public class VolunteerOpenDraftState {
         volunteerRoleIds.put(id, newId);
         volunteerPoolIndex.put(id, indexOfRole(role));
         player.displayClientMessage(
-                Component.translatable("gui.sre.role_rotation.selected",
+                Component.translatable("gui.sre.volunteer_open.selected",
                         RoleUtils.getRoleName(role).withColor(role.getColor()))
                         .withStyle(ChatFormatting.GREEN),
                 true);
@@ -430,7 +430,7 @@ public class VolunteerOpenDraftState {
         SRERole role = pool.get(index).role();
         if (role != null) {
             player.displayClientMessage(
-                    Component.translatable("gui.sre.role_rotation.selected",
+                    Component.translatable("gui.sre.volunteer_open.selected",
                             RoleUtils.getRoleName(role).withColor(role.getColor()))
                             .withStyle(ChatFormatting.GREEN),
                     true);
@@ -489,7 +489,7 @@ public class VolunteerOpenDraftState {
             ServerPlayer p = world.getServer().getPlayerList().getPlayer(id);
             if (p != null) {
                 p.displayClientMessage(
-                        Component.translatable("gui.sre.role_rotation.selection_timeout_noargs")
+                        Component.translatable("gui.sre.volunteer_open.selection_timeout")
                                 .withStyle(ChatFormatting.RED),
                         true);
             }
