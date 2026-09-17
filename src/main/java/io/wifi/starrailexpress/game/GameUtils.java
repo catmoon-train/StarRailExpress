@@ -83,6 +83,7 @@ import io.wifi.starrailexpress.content.command.StaminaCommand;
 import io.wifi.starrailexpress.content.entity.FirecrackerEntity;
 import io.wifi.starrailexpress.content.entity.NoteEntity;
 import io.wifi.starrailexpress.content.entity.PlayerBodyEntity;
+import io.wifi.starrailexpress.customitem.CustomItemRuntime;
 import io.wifi.starrailexpress.event.OnGameEnd;
 import io.wifi.starrailexpress.event.OnGameInitialized;
 import io.wifi.starrailexpress.event.OnGameStarted;
@@ -773,6 +774,12 @@ public class GameUtils {
 
             cooldownItems.forEach(
                     item -> cooldowns.addCooldown(item, time));
+
+            // 自定义列车物品：全都共用同一个注册物品，上面那句按 Item 记的原版冷却会被
+            // CustomItemRuntime.isOnCooldown 忽略（已登记的自定义物品只认「玩家 + 物品 id」的组件冷却）。
+            // 这里把「全部」自定义物品按 id 压上同款冷却：安全时间内左键 / 右键都无法使用，
+            // 且因为按 id 记，安全时间内新获得的同 id 物品也一并处于冷却。
+            CustomItemRuntime.applySafeTimeCooldown(player, time);
 
             // cooldowns.addCooldown(ModItems.SP_KNIFE, time);
             // cooldowns.addCooldown(ModItems.STALKER_KNIFE, time);

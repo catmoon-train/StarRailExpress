@@ -637,6 +637,10 @@ public final class CustomItemRuntime {
         if (!isStillHolding(player, data.id)) {
             return false;
         }
+        // 冷却中（含开局安全时间的强制冷却）：不给任何反馈，也不向服务端发包
+        if (isOnCooldown(player, stack)) {
+            return false;
+        }
         // 自动射击期间不再给任何反馈（不摆臂、无后坐力、无音效）
         if (isClientAutoFiring(player, data.id)) {
             return false;
@@ -1523,6 +1527,37 @@ public final class CustomItemRuntime {
             return player.getCooldowns().isOnCooldown(stack.getItem());
         }
         return CustomItemCooldownComponent.KEY.get(player).isOnCooldown(data.id);
+    }
+
+    /**
+     * 开局安全时间：把「全部」自定义物品都按物品 id 压上冷却。
+     *
+     * <p>
+     * 所有自定义物品共用同一个注册物品（{@code starrailexpress:custom_item}），
+     * {@link GameUtils#addItemCooldowns} 加的原版冷却是按 {@link net.minecraft.world.item.Item} 记的，
+     * 而 {@link #isOnCooldown} 对已登记的自定义物品只认 {@link CustomItemCooldownComponent} 的
+     * 「玩家 + 物品 id」冷却，于是安全时间对它们形同虚设。这里改成按 id 压冷却：
+     * 安全时间内左键 / 右键都无法使用；又因为按 id 记，安全时间内新获得的同 id 物品也一并处于冷却。
+     *
+     * @param ticks 冷却时长（tick），与安全时间一致
+     */
+    public static void applySafeTimeCooldown(ServerPlayer player, int ticks) {
+        if (player == null || ticks <= 0) {
+            return;
+        }
+        List<CustomItemData> all = CustomItemLoader.getAllData();
+        if (all.isEmpty()) {
+            return;
+        }
+        List<String> ids = new ArrayList<>(all.size());
+        for (CustomItemData data : all) {
+            if (data != null && data.id != null && !data.id.isEmpty()) {
+                ids.add(data.id);
+            }
+        }
+        if (!ids.isEmpty()) {
+            CustomItemCooldownComponent.KEY.get(player).setCooldowns(ids, ticks);
+        }
     }
 
     private static void consumeItem(ServerPlayer player, ItemStack stack, boolean consume) {
