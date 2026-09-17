@@ -106,11 +106,19 @@ public class CustomItemRenderer implements BuiltinItemRendererRegistry.DynamicIt
             drawFallback(poseStack, buffers, light, overlay);
             return;
         }
-        if (data.holdOrientation() == CustomItemData.HoldOrientation.HORIZONTAL && isHandContext(mode)) {
-            // 「横着拿」：抵掉物品模型自带 display（原版 item/handheld 那套）的旋转与偏移，
-            // 换成原版普通物品（item/generated，苹果那类）的姿态
+        boolean flatHold = data.holdOrientation() == CustomItemData.HoldOrientation.HORIZONTAL
+                && isHandContext(mode);
+        boolean tuned = isHandContext(mode) && data.hasHoldTuning();
+        if (flatHold || tuned) {
             poseStack.pushPose();
-            applyFlatItemHold(poseStack, mode);
+            if (flatHold) {
+                // 「横着拿」：抵掉物品模型自带 display（原版 item/handheld 那套）的旋转与偏移，
+                // 换成原版普通物品（item/generated，苹果那类）的姿态
+                applyFlatItemHold(poseStack, mode);
+            }
+            if (tuned) {
+                applyHoldTuning(data, poseStack);
+            }
             renderAppearance(data, poseStack, buffers, light, overlay);
             poseStack.popPose();
             return;
@@ -183,6 +191,38 @@ public class CustomItemRenderer implements BuiltinItemRendererRegistry.DynamicIt
         float appliedSelfTx = leftHand ? -selfTx : selfTx;
         poseStack.translate((vanillaTx - appliedSelfTx) / scale, (vanillaTy - selfTy) / scale,
                 (vanillaTz - selfTz) / scale);
+    }
+
+    /**
+     * 手持微调：在物品<b>自己的贴图坐标系</b>里平移（1/16 格 = 一个「像素」）并旋转。
+     *
+     * <p>
+     * 为什么需要它：平面贴图的 16×16 是以<b>中心</b>对准手持姿态原点的（{@link #drawQuad} 画的
+     * [0,1]² 经外层 {@code translate(-0.5)} 后正好居中），所以「贴图最底端」并不等于手的位置；
+     * 再叠加姿态本身的倾斜，贴图自己的「下」在第三人称里是斜向下 55°，于是枪柄画到最底行也仍然
+     * 浮在手外面。这里让作者把整张贴图直接推到手心，不必重画贴图。
+     *
+     * <p>
+     * 平移与旋转都写在 display 之后 = 作用在模型空间，也就是贴图自己的坐标系
+     * （X 贴着贴图向右 / Y 向上 / Z 是贴图厚度）。注意倾斜过的姿态会把这两个轴也带歪：
+     * 第三人称下 +Y 让物品往左上走、+Z 往左下走（Z 更偏「上下」、Y 更偏「左右」），
+     * 而 X 大致对应「离身体远近」。想先摆正再调就填 {@code holdRotateX} =
+     * -55（第三人称）/ -25（第一人称）：这个角度正是姿态给贴图加的倾斜，
+     * 绕贴图横向轴转回去之后 Y 就干净地等于「上下」。
+     */
+    private static void applyHoldTuning(CustomItemData data, PoseStack poseStack) {
+        float x = (float) data.holdOffsetX / 16.0F;
+        float y = (float) data.holdOffsetY / 16.0F;
+        float z = (float) data.holdOffsetZ / 16.0F;
+        if (x != 0.0F || y != 0.0F || z != 0.0F) {
+            poseStack.translate(x, y, z);
+        }
+        if (data.holdRotateX != 0.0D || data.holdRotateZ != 0.0D) {
+            // 绕贴图横向轴（X）→ 前后倾（摆平「竖着拿」的倾斜）；绕贴图法线（Z）→ 平面内转正
+            poseStack.mulPose(new org.joml.Quaternionf().rotationXYZ(
+                    (float) Math.toRadians(data.holdRotateX), 0.0F,
+                    (float) Math.toRadians(data.holdRotateZ)));
+        }
     }
 
     /** 按配置画外观（材质来源四选一 + 兜底链）。 */

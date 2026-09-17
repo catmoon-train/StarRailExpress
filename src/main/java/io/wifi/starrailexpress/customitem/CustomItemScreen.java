@@ -221,6 +221,20 @@ public class CustomItemScreen extends CustomEditorScreen {
                 value -> data.invisibleInHand = value);
         r = note(r, PREFIX + ".hint.invisible_in_hand", SREPanelStyle.MUTED);
 
+        // 手持微调：在贴图自己的坐标系里平移 / 旋转，用来把「枪柄浮在手外面」这类问题调到位
+        r = section(r, PREFIX + ".section.hold_tuning");
+        r = note(r, PREFIX + ".hint.hold_tuning", SREPanelStyle.GOLD_DIM, 3);
+        r = numRow(r, PREFIX + ".label.hold_offset_x", data.holdOffsetX, PREFIX + ".unit.pixel",
+                value -> data.holdOffsetX = value);
+        r = numRow(r, PREFIX + ".label.hold_offset_y", data.holdOffsetY, PREFIX + ".unit.pixel",
+                value -> data.holdOffsetY = value);
+        r = numRow(r, PREFIX + ".label.hold_offset_z", data.holdOffsetZ, PREFIX + ".unit.pixel",
+                value -> data.holdOffsetZ = value);
+        r = numRow(r, PREFIX + ".label.hold_rotate_x", data.holdRotateX, PREFIX + ".unit.degree",
+                value -> data.holdRotateX = value);
+        r = numRow(r, PREFIX + ".label.hold_rotate_z", data.holdRotateZ, PREFIX + ".unit.degree",
+                value -> data.holdRotateZ = value);
+
         // 战斗设置：是否允许左键攻击玩家（默认关）
         r = boolRow(r, PREFIX + ".label.allow_left_click_attack", data.allowLeftClickAttack,
                 value -> data.allowLeftClickAttack = value);
