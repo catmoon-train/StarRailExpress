@@ -347,13 +347,39 @@ public class CustomItemData {
     @SerializedName("knockbackOnHit")
     public boolean knockbackOnHit = false;
 
-    /** 命中是否致死（默认关闭）。 */
-    @SerializedName("lethalOnHit")
-    public boolean lethalOnHit = false;
+    /**
+     * 射线命中即致死（默认关闭）。
+     *
+     * <p>
+     * 只要射线打中玩家就立刻致死（自动射击时第一发就会打死目标），因此不会再累计命中次数，
+     * 也不会触发最终效果。
+     */
+    @SerializedName("lethalOnRayHit")
+    public boolean lethalOnRayHit = false;
+
+    /**
+     * 是否只有触发最终效果时才致死（默认关闭）。
+     *
+     * <p>
+     * 累计命中次数达到「命中几次触发最终效果」时把被击中的玩家致死。
+     * 与 {@link #lethalOnRayHit} 互相独立，两个都开时射线命中那一条先生效。
+     */
+    @SerializedName("lethalOnFinal")
+    public boolean lethalOnFinal = false;
 
     /** 命中致死使用的死亡原因（默认「左轮手枪」）。 */
     @SerializedName("lethalDeathReason")
     public String lethalDeathReason = GameConstants.DeathReasons.REVOLVER.toString();
+
+    /**
+     * 旧字段「命中是否致死」（只用于兼容老配置，不再写回 JSON）。
+     *
+     * <p>
+     * 老配置里它等价于「触发最终效果时致死」，{@link #sanitize()} 会把它并入
+     * {@link #lethalOnFinal} 后置空，于是老配置行为不变、新配置也不会留下多余的键。
+     */
+    @SerializedName("lethalOnHit")
+    private Boolean legacyLethalOnHit;
 
     /** 是否为自动枪械。 */
     @SerializedName("autoFire")
@@ -965,6 +991,13 @@ public class CustomItemData {
         useOnlyTeams.removeIf(team -> team == null || team.isBlank());
         if (lethalDeathReason == null || lethalDeathReason.isBlank()) {
             lethalDeathReason = GameConstants.DeathReasons.REVOLVER.toString();
+        }
+        // 老配置的「命中是否致死」= 触发最终效果时致死：并入 lethalOnFinal（两个新开关都关着时才迁移）
+        if (legacyLethalOnHit != null) {
+            if (legacyLethalOnHit && !lethalOnRayHit && !lethalOnFinal) {
+                lethalOnFinal = true;
+            }
+            legacyLethalOnHit = null;
         }
         if (killDeathReason == null || killDeathReason.isBlank()) {
             killDeathReason = GameConstants.DeathReasons.GENERAL_ATTACK.toString();

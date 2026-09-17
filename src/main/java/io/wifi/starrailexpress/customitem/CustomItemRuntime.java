@@ -31,6 +31,7 @@ import io.wifi.starrailexpress.event.OnGameEnd;
 import io.wifi.starrailexpress.event.OnPlayerDeath;
 import io.wifi.starrailexpress.event.OnPlayerDeathWithKiller;
 import io.wifi.starrailexpress.event.ShouldDropOnDeath;
+import io.wifi.starrailexpress.game.GameConstants;
 import io.wifi.starrailexpress.game.GameUtils;
 import io.wifi.starrailexpress.index.SREDataComponentTypes;
 import io.wifi.starrailexpress.index.TMMEntities;
@@ -822,6 +823,12 @@ public final class CustomItemRuntime {
             setAmmo(stack, Math.min(data.maxAmmo, getAmmo(stack, data) + 1));
         }
 
+        // 射线命中即致死：这一枪就把目标打死，不再累计命中次数（也就不会有最终效果）
+        if (data.lethalOnRayHit) {
+            applyLethal(shooter, victim, data);
+            return;
+        }
+
         // 非自动枪械：按「被第几次命中」触发最终效果。
         // 命中标记记在被击中的玩家身上、按物品 id 分开存，超过 hitMarkerTicks 没触发就自动消失
         if (!autoMode) {
@@ -859,11 +866,29 @@ public final class CustomItemRuntime {
     private static void triggerFinalEffect(ServerPlayer shooter, ServerPlayer victim, ItemStack stack,
             CustomItemData data) {
         CustomItemLoader.executeCommands(data.finalHitCommands, victim, shooter);
-        if (data.lethalOnHit && GameUtils.isPlayerAliveAndSurvival(victim)) {
-            GameUtils.killPlayer(victim, true, shooter, parseDeathReason(data.lethalDeathReason,
-                    io.wifi.starrailexpress.game.GameConstants.DeathReasons.REVOLVER));
+        // 「只有触发最终效果时才致死」：致死时机是这里（射线命中致死是另一条独立开关）
+        if (data.lethalOnFinal) {
+            applyLethal(shooter, victim, data);
         }
         applyCooldown(shooter, stack, data.finalCooldownTicks);
+    }
+
+    /**
+     * 命中致死（两个致死开关共用）：按配置的死因打死被击中的玩家，
+     * <b>并把开枪者作为击杀者记录下来</b>。
+     *
+     * <p>
+     * 击杀者必须填 {@code shooter}：小脑（误杀）惩罚挂在 {@code OnTeammateKilledTeammate} 上，
+     * 而那条链在 {@code killer == null} 时直接 return —— 不记攻击者就等于绕开小脑惩罚
+     * （原版左轮打死好人触发的那条判定就是这么走的）。{@code GameUtils.killPlayer} 会把
+     * {@code killer} 一路带给该事件、击杀统计与回放，所以这里不能传 null。
+     */
+    private static void applyLethal(ServerPlayer shooter, ServerPlayer victim, CustomItemData data) {
+        if (victim == null || !GameUtils.isPlayerAliveAndSurvival(victim)) {
+            return;
+        }
+        GameUtils.killPlayer(victim, true, shooter,
+                parseDeathReason(data.lethalDeathReason, GameConstants.DeathReasons.REVOLVER));
     }
 
     // ==================== 弹药系统 ====================

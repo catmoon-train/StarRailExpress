@@ -382,10 +382,18 @@ public class CustomItemScreen extends CustomEditorScreen {
         r = distanceRules(r, data.distanceRules);
         r = commandList(r, PREFIX + ".label.final_hit_commands", data.finalHitCommands);
         r = boolRow(r, PREFIX + ".label.knockback", data.knockbackOnHit, value -> data.knockbackOnHit = value);
-        r = boolRowGatesFields(r, PREFIX + ".label.lethal", data.lethalOnHit, value -> data.lethalOnHit = value);
-        if (data.lethalOnHit) {
+        // 致死拆成两个独立开关：射线命中即致死 / 只有触发最终效果时才致死
+        r = boolRow(r, PREFIX + ".label.lethal_on_ray_hit", data.lethalOnRayHit,
+                value -> data.lethalOnRayHit = value);
+        r = note(r, PREFIX + ".hint.lethal_on_ray_hit", SREPanelStyle.MUTED);
+        r = boolRow(r, PREFIX + ".label.lethal_on_final", data.lethalOnFinal,
+                value -> data.lethalOnFinal = value);
+        r = note(r, PREFIX + ".hint.lethal_on_final", SREPanelStyle.MUTED);
+        // 两个开关都关着时不需要死因（关掉后仍保留已填的值）
+        if (data.lethalOnRayHit || data.lethalOnFinal) {
             r = deathReasonRow(r, PREFIX + ".label.lethal_death_reason", data.lethalDeathReason,
                     value -> data.lethalDeathReason = value);
+            r = note(r, PREFIX + ".hint.lethal_death_reason", SREPanelStyle.GOLD_DIM);
         }
         r = boolRowGatesFields(r, PREFIX + ".label.auto_fire", data.autoFire, value -> data.autoFire = value);
         if (data.autoFire) {
