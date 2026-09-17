@@ -173,6 +173,8 @@
     "info.screen.roleid.chef.simple": "Civilian faction\nShop: snacks, water (throwable).\nEach task gives ingredient.\nRight-click pan with 2 ingredients + food to cook; meals have various effects.",
     "info.screen.roleid.clockmaker": "Civilian faction\nOnly in 12+ player games.\nCan see game time.\nSkill: spend 125 gold to reduce game time by 45s and advance world time by 2000 ticks, speeding up all cooldowns.\nImmune to time stops.\nGame time cannot go below 1:30.\nShop: clock and pocket watch (throwable).",
     "info.screen.roleid.clockmaker.simple": "Civilian faction\nCan see time.\nSkill reduces time and speeds up world time.\nImmune to time stops.",
+    "info.screen.roleid.priest": "Special neutral\nCannot roll naturally. Only a Clockmaker with God's Mission can become the Priest.\nWhen only that Clockmaker and one civilian remain, the Clockmaker becomes the Priest.\nAfter the change, the Priest can pass through doors and blocks with no collision, and grows faster while sprinting up to 500%% speed.\nType each recitation verse in the GUI, then chant for 120 seconds.\nIf nobody kills the Priest during the chant, day/night and match time accelerate until time stops and the good side wins.\nThe match enters a fake ending, waits for the Priest finale, then officially ends and plays the ending theme.",
+    "info.screen.roleid.priest.simple": "Special neutral\nClockmaker with God's Mission transforms when only one civilian remains.\nNo-clip, ramping speed, type verses, chant 120s.\nIf uninterrupted, time accelerates and stops; good side wins.",
     "info.screen.roleid.wayfarer": "Neutral faction\nIndependent win condition.\nStarts with no key or letter, has fake knife and gun.\nCan read additional killer info from corpses; right-click corpse to activate skill, turning fake knife into a one-use knife and getting the corpse's key and letter (once).\nPhase 1 – Pursue: find the killer and kill them with the one-use knife (shield counts as hit; killing wrong person kills you).\nPhase 2 – Exit: die the same way as the corpse.\nPhase 3 – Dream: sleep in a bed to win.\nAfter exiting, you teleport back to the corpse's location.",
     "info.screen.roleid.wayfarer.simple": "Neutral faction\nIndependent win condition.\nNo key or letter; find a corpse to get its key and letter, kill its killer, die the same way.\nAfter correct death, return to the corpse.\nThen sleep in bed to win.",
     "info.screen.roleid.monitor": "Civilian faction\nSkill marks a player and shows their location.\nPassive: sense if a player has died (60s cooldown).\nShop can buy flares (throw to illuminate area for 10s).",
@@ -543,6 +545,8 @@
     "info.screen.roleid.insurance.simple": "Civilian faction\nBuy insurance for 165 gold, then right-click it to choose a death cause and sign it.\nRight-click the signed policy and pay 25 gold to activate it. A matching death is blocked once, the policy disappears, and 25 gold is returned.",
     "info.screen.roleid.rabbit_wansui.simple": "",
     "info.screen.modifier.sunward": "",
+    "info.screen.modifier.gods_mission": "Modifier\nYou cannot tell that you have this modifier.\nLet there be light: Clockmaker only, 30%% chance.\nWhen only you and one civilian remain, you become the Priest and win with civilians.",
+    "info.screen.modifier.gods_mission.simple": "Modifier\nClockmaker only (30%%).\nBecome the Priest when only one civilian remains.",
     "info.screen.modifier.frail": "",
     "info.screen.modifier.rabbit_shape": "",
     "info.screen.modifier.twin_children": ""

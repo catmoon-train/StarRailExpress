@@ -266,6 +266,7 @@ public class NoellesrolesClient implements ClientModInitializer {
                 g.fill(0, 0, g.guiWidth(), g.guiHeight(), 0x33707078);
             }
         });
+        org.agmas.noellesroles.client.event.CommonHudRenderCallback.EVENT.register(PriestHeavenClient::renderHud);
         // 注册游戏结束事件，清除建筑师客户端墙
         {
             NewspaperItem.runner = (stack, hand) -> {
@@ -294,6 +295,10 @@ public class NoellesrolesClient implements ClientModInitializer {
         }
         io.wifi.starrailexpress.event.client.OnGameFinishedClient.EVENT.register(() -> {
             ClientWallManager.clearAll();
+            if (PriestHeavenClient.consumePendingEnding()) {
+                PriestHeavenClient.playEnding();
+            }
+            PriestHeavenClient.reset();
             // 关闭推理师罗盘界面
             Minecraft minecraft = Minecraft.getInstance();
             if (minecraft.screen instanceof ReasonerCompassScreen) {
@@ -537,6 +542,8 @@ public class NoellesrolesClient implements ClientModInitializer {
         ClientPlayNetworking.registerGlobalReceiver(OpenScreenPayload.ID, (payload, context) -> {
             ClientOpenScreenManager.openScreen(payload, context);
         });
+        ClientPlayNetworking.registerGlobalReceiver(org.agmas.noellesroles.packet.PriestHeavenStateS2CPacket.ID,
+                (payload, context) -> context.client().execute(() -> PriestHeavenClient.apply(payload)));
         ClientPlayNetworking.registerGlobalReceiver(LoanContractOpenS2CPacket.ID, (payload, context) ->
                 context.client().execute(() -> context.client().setScreen(new LoanContractScreen(payload))));
         ClientPlayNetworking.registerGlobalReceiver(InsuranceOpenS2CPacket.ID, (payload, context) ->

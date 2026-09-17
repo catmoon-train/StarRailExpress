@@ -45,6 +45,7 @@ import org.agmas.noellesroles.game.roles.neutral.leader.LeaderRole;
 import org.agmas.noellesroles.game.roles.neutral.mafia.MafiaRole;
 import org.agmas.noellesroles.game.roles.neutral.monokuma.MonokumaRole;
 import org.agmas.noellesroles.game.roles.neutral.nian_shou.NianShouRole;
+import org.agmas.noellesroles.game.roles.neutral.priest.PriestRole;
 import org.agmas.noellesroles.game.roles.neutral.puppeteer.PuppeteerPlayerComponent;
 import org.agmas.noellesroles.game.roles.neutral.raven.RavenRole;
 import org.agmas.noellesroles.game.roles.vigilante.genshin.TartagliaRole;
@@ -192,6 +193,7 @@ public class ModRoles {
     public static ResourceLocation CHEF_ID = Noellesroles.id("chef");
     public static ResourceLocation MAGICIAN_ID = Noellesroles.id("magician");
     public static ResourceLocation CLOCKMAKER_ID = Noellesroles.id("clockmaker");
+    public static final ResourceLocation PRIEST_ID = Noellesroles.id("priest");
     public static final ResourceLocation RESCUER_ID = Noellesroles.id("rescuer");
     public static final ResourceLocation FIREFIGHTER_ID = Noellesroles.id("firefighter");
     public static final ResourceLocation ACCOUNTANT_ID = Noellesroles.id("accountant");
@@ -2737,6 +2739,25 @@ public class ModRoles {
             true // 不显示计分板
     )).setRoleData(ClockmakerRoleData::new).setCanSeeTime(true).setCanSeeCoin(true)
             .setDefaultEnableNeededPlayerCount(12);
+
+    /**
+     * 神父：特殊中立，由持有神的使命的钟表匠转变而来，随平民获胜。
+     * 不参与随机刷新。
+     */
+    public static SRERole PRIEST = TMMRoles.registerRole(new PriestRole(
+            PRIEST_ID,
+            new Color(244, 232, 192).getRGB(),
+            RoleType.NEUTRALS,
+            SRERole.MoodType.REAL,
+            Integer.MAX_VALUE,
+            true
+    )).setRoleData(PriestRoleData::new)
+            .setCanSeeTime(true)
+            .setCanSeeCoin(true)
+            .setDefaultMax(0)
+            .setCanBeRandomedByOtherRoles(false)
+            .setCanSetSpawnInfoInConfig(false)
+            .setHiddenForRoleRotation(true);
 
     /**
      * 强盗角色 - 杀手阵营

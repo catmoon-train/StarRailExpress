@@ -54,6 +54,7 @@ import org.agmas.noellesroles.role_data.innocence.AccountantRoleData;
 import org.agmas.noellesroles.role_data.innocence.AlchemistRoleData;
 import org.agmas.noellesroles.game.roles.innocence.attendant.AttendantHandler;
 import org.agmas.noellesroles.role_data.innocence.GhostRoleData;
+import org.agmas.noellesroles.game.roles.neutral.priest.PriestRole;
 import org.agmas.noellesroles.role_data.innocence.ClockmakerRoleData;
 import org.agmas.noellesroles.role_data.innocence.ConductorRoleData;
 import org.agmas.noellesroles.role_data.innocence.NoiseMakerRoleData;
@@ -1279,6 +1280,12 @@ public class ModRolesInitialEventRegister {
                             .ifPresent(ClockmakerRoleData::useSkill);
                     return true;
                 }).build());
+
+        RoleSkill.register(ModRoles.PRIEST, RoleSkill.skill(
+                SRE.id("priest_open_chant"),
+                "skill.noellesroles.priest.open_chant",
+                context -> PriestRole.openChant(context.player())
+        ).showOnHud(true).build());
 
         // 超级亡命徒技能注册：使用技能，蹲下+ G 为特殊模式
         RoleSkill.register(SpecialGameModeRoles.SUPER_LOOSE_END,

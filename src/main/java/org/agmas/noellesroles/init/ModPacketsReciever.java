@@ -876,6 +876,12 @@ public class ModPacketsReciever {
           context.server().execute(() ->
             ProgrammerRole.executeTerminalCommand(context.player(), payload.command())));
 
+    ServerPlayNetworking.registerGlobalReceiver(PriestChantC2SPacket.ID,
+        (payload, context) ->
+          context.server().execute(() ->
+            org.agmas.noellesroles.game.roles.neutral.priest.PriestRole.submitLyric(
+                context.player(), payload.text())));
+
     ServerPlayNetworking.registerGlobalReceiver(org.agmas.noellesroles.packet.BroadcasterC2SPacket.ID,
         (payload, context) -> {
           if (context.player().hasEffect(ModEffects.SKILL_BANED)

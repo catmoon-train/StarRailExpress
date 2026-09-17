@@ -48,6 +48,7 @@ public class NREventRegister {
 
         // 注册疫使胜利检测
         org.agmas.noellesroles.game.roles.neutral.infected.InfectedWinChecker.registerEvent();
+        org.agmas.noellesroles.game.roles.neutral.priest.PriestEventHandler.register();
         org.agmas.noellesroles.game.fake_steve.FakeSteveDirector.register();
         org.agmas.noellesroles.game.MirrorReunionEndEgg.register();
         org.agmas.noellesroles.content.speaker.SpeakerPlayback.register();

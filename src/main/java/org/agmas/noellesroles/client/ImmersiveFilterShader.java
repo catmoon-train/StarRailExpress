@@ -83,6 +83,30 @@ public class ImmersiveFilterShader {
                     () -> mc.getTextureManager().getTexture(BACKROOMS_VHS_NOISE).getId(), 256, 256);
         }
         addRepairEscapePass(mc);
+        addMadeInHeavenPass(mc);
+    }
+
+    private void addMadeInHeavenPass(Minecraft mc) {
+        post.addSinglePassEntry("made_in_heaven", pass -> process(mc.player, () -> {
+            float want = PriestHeavenClient.shaderStrength();
+            if (want <= 0.01f) {
+                return false;
+            }
+            totalTime += 0.016f;
+            var effect = pass.getEffect();
+            if (effect == null) {
+                return false;
+            }
+            var strength = effect.safeGetUniform("Strength");
+            if (strength != null) {
+                strength.set(want);
+            }
+            var time = effect.safeGetUniform("Time");
+            if (time != null) {
+                time.set(totalTime);
+            }
+            return true;
+        }));
     }
 
     private PostProcessor.PostPassEntry addPass(Minecraft mc, String passName, net.minecraft.core.Holder<net.minecraft.world.effect.MobEffect> effectHolder, float defaultStrength) {

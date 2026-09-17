@@ -15,6 +15,7 @@
 
 package org.agmas.noellesroles.client;
 
+import org.agmas.noellesroles.client.screen.PriestChantScreen;
 import org.agmas.noellesroles.client.screen.TerminalScreen;
 import org.agmas.noellesroles.packet.OpenScreenPayload;
 import org.agmas.noellesroles.utils.OpenScreenManager;
@@ -50,6 +51,9 @@ public class ClientOpenScreenManager {
         }
         if (id.equals(OpenScreenManager.PROGRAMMER_TERMINAL_SCREEN)) {
             screen = new TerminalScreen();
+        }
+        if (id.equals(OpenScreenManager.PRIEST_CHANT_SCREEN)) {
+            screen = new PriestChantScreen();
         }
         if (screen != null) {
             final var finalScreen = screen;
