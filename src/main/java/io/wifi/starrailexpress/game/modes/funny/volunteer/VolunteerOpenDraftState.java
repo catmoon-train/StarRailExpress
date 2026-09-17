@@ -22,6 +22,7 @@ import io.wifi.starrailexpress.game.modes.funny.rotation.LightningDraftState;
 import io.wifi.starrailexpress.game.utils.RoleInstance;
 import io.wifi.starrailexpress.progression.ProgressionDataManager;
 import io.wifi.starrailexpress.progression.ProgressionState.FactionCardType;
+import org.agmas.harpymodloader.Harpymodloader;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
@@ -81,8 +82,10 @@ public class VolunteerOpenDraftState {
     public final Map<UUID, Integer> picks = new LinkedHashMap<>();
     /** 左侧玩家列表需要显示为「随机」的玩家。 */
     public final Set<UUID> randomChoosers = new HashSet<>();
-    /** 玩家 -> 仅对该玩家揭晓的池下标（来自卡牌）。 */
+    /** 玩家 -> 仅对该玩家揭晓的池下标（来自阵营卡）。 */
     public final Map<UUID, Set<Integer>> cardReveals = new HashMap<>();
+    /** 玩家 -> 被强制指定的职业在池中的下标（forcerole）。 */
+    public final Map<UUID, Integer> forcedRoleReveals = new LinkedHashMap<>();
     /** 玩家 -> 志愿职业 id。 */
     public final Map<UUID, String> volunteerRoleIds = new LinkedHashMap<>();
     /** 玩家 -> 志愿职业在池中的下标（-1 表示场上没有该职业）。 */
@@ -146,6 +149,18 @@ public class VolunteerOpenDraftState {
         this.phaseTimeLimit = VOLUNTEER_TIME_LIMIT;
         this.holdStartTime = world.getGameTime();
         this.waitingForClients = true;
+
+        // forcerole：被强制指定职业的玩家，在自己的海选池里直接能看到那个职业（加粗橙色）
+        for (UUID id : playerOrder) {
+            SRERole forced = Harpymodloader.FORCED_MODDED_ROLE.get(id);
+            if (forced == null) {
+                continue;
+            }
+            int index = indexOfRole(forced);
+            if (index >= 0) {
+                forcedRoleReveals.put(id, index);
+            }
+        }
     }
 
     // ==================== 一阶段计时：等客户端就绪 ====================
@@ -353,6 +368,7 @@ public class VolunteerOpenDraftState {
             // （1 平民 / 2 中立 / 3 中立-杀手 / 4 杀手 / 5 警长），与卡牌自身的 type 编号不同。
             int cardType = normalizeCardType(rawType);
             Set<Integer> already = cardReveals.getOrDefault(id, Set.of());
+            Integer forcedIndex = forcedRoleReveals.get(id);
             List<Integer> candidates = new ArrayList<>();
             boolean factionInPool = false;
             for (int i = 0; i < pool.size(); i++) {
@@ -361,7 +377,9 @@ public class VolunteerOpenDraftState {
                     continue;
                 }
                 factionInPool = true;
-                if (pickedBy[i] != null || globallyRevealed.contains(i) || already.contains(i)) {
+                if (pickedBy[i] != null || globallyRevealed.contains(i) || already.contains(i)
+                        || (forcedIndex != null && forcedIndex == i)) {
+                    // 已经能看到的（含 forcerole 那个）不再占用卡牌的额外揭示名额
                     continue;
                 }
                 candidates.add(i);
@@ -614,7 +632,7 @@ public class VolunteerOpenDraftState {
         return new LinkedHashSet<>(picks.values());
     }
 
-    /** 该玩家能看到的池下标 -> 职业 id（全局揭晓 + 卡牌揭示 + 自己选的）。 */
+    /** 该玩家能看到的池下标 -> 职业 id（全局揭晓 + 卡牌/强制职业揭示 + 自己选的）。 */
     public Map<Integer, String> visibleRolesFor(UUID id) {
         Map<Integer, String> map = new LinkedHashMap<>();
         for (Integer index : globallyRevealed) {
@@ -626,6 +644,10 @@ public class VolunteerOpenDraftState {
                 map.put(index, roleId(index));
             }
         }
+        Integer forced = forcedRoleReveals.get(id);
+        if (forced != null) {
+            map.put(forced, roleId(forced));
+        }
         int myPick = pickIndexOf(id);
         if (myPick >= 0) {
             map.put(myPick, roleId(myPick));
@@ -633,12 +655,19 @@ public class VolunteerOpenDraftState {
         return map;
     }
 
-    /** 看到的「隐藏职业」下标（自己选中的那个除外，自己选中的可以看真名）。 */
+    /**
+     * 看到的「隐藏职业」下标。
+     *
+     * <p>
+     * 自己选中的那个、以及 forcerole 指定给自己的那个都可以看真名（与职业轮选里
+     * 强制职业会以候选卡片的形式明文出现一致），其余揭晓出来的隐藏职业只显示「隐藏职业」。
+     */
     public Set<Integer> hiddenVisibleFor(UUID id) {
         Set<Integer> hidden = new LinkedHashSet<>();
         int myPick = pickIndexOf(id);
+        Integer forced = forcedRoleReveals.get(id);
         for (Integer index : visibleRolesFor(id).keySet()) {
-            if (index == myPick) {
+            if (index == myPick || (forced != null && forced.equals(index))) {
                 continue;
             }
             SRERole role = pool.get(index).role();
@@ -649,9 +678,20 @@ public class VolunteerOpenDraftState {
         return hidden;
     }
 
-    public Set<Integer> cardRevealedFor(UUID id) {
-        Set<Integer> set = cardReveals.get(id);
-        return set == null ? Set.of() : new LinkedHashSet<>(set);
+    /**
+     * 需要「加粗 + 橙色」显示的额外揭示：阵营卡揭示的，以及 forcerole 指定的那个职业。
+     */
+    public Set<Integer> highlightedRevealsFor(UUID id) {
+        Set<Integer> set = new LinkedHashSet<>();
+        Integer forced = forcedRoleReveals.get(id);
+        if (forced != null) {
+            set.add(forced);
+        }
+        Set<Integer> cards = cardReveals.get(id);
+        if (cards != null) {
+            set.addAll(cards);
+        }
+        return set;
     }
 
     /** 左侧玩家列表用：玩家 -> 职业 id（空串表示显示为「随机」，缺失表示还没选）。 */

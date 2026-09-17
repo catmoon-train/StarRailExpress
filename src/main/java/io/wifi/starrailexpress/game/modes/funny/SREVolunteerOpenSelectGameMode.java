@@ -168,7 +168,7 @@ public class SREVolunteerOpenSelectGameMode extends SREMurderGameMode {
                 draftState.poolRows,
                 draftState.poolCols,
                 draftState.visibleRolesFor(id),
-                draftState.cardRevealedFor(id),
+                draftState.highlightedRevealsFor(id),
                 draftState.hiddenVisibleFor(id),
                 draftState.pickIndexOf(id),
                 draftState.chosenIndices(),
