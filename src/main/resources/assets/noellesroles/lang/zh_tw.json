@@ -3042,7 +3042,6 @@
   "item.noellesroles.bang": "梆",
   "item.noellesroles.bang.tooltip": "一次性道具：持續10秒，每2秒敲擊一次（發出鐘聲）並按周圍玩家人數扣減遊戲時間（每名4秒，本局合計至多1分鐘），同時使周圍玩家獲得1分鐘入夢",
   "message.noellesroles.watchman.bell_used": "鐘聲迴盪，%s名玩家短暫看清了時間。",
-  "message.noellesroles.watchman.gong_used": "鑼聲警示，%s名敵人被壓制。",
   "message.noellesroles.watchman.gong_hit": "鑼聲震耳，你被壓制，無法使用技能與背包！",
   "message.noellesroles.watchman.bang_used": "梆聲響起，%s名玩家陷入入夢。",
   "message.noellesroles.watchman.bang_hit": "梆聲入夢，你陷入了睡意。",

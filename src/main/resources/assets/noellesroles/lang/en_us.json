@@ -2980,7 +2980,6 @@
     "item.noellesroles.bang": "Clapper",
     "item.noellesroles.bang.tooltip": "Single-use: lasts 10 seconds; it strikes every 2 seconds (bell sound) and reduces the game timer by 4 seconds per nearby player (at most 1 minute in total per round), while granting nearby players 1 minute of Enter Dream",
     "message.noellesroles.watchman.bell_used": "The bell echoes; %s players briefly see the time.",
-    "message.noellesroles.watchman.gong_used": "The gong warns; %s enemies are suppressed.",
     "message.noellesroles.watchman.gong_hit": "The gong deafens you; skills and inventory are sealed!",
     "message.noellesroles.watchman.bang_used": "The clapper sounds; %s players fall into a dream.",
     "message.noellesroles.watchman.bang_hit": "The clapper lulls you into a dream.",

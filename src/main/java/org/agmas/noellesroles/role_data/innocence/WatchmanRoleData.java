@@ -136,7 +136,6 @@ public class WatchmanRoleData extends SimpleRoleData {
             return false;
         }
 
-        int affected = 0;
         for (ServerPlayer target : nearbyPlayers(serverPlayer)) {
             if (!isNonInnocentNonVigilante(target)) {
                 continue;
@@ -150,15 +149,11 @@ public class WatchmanRoleData extends SimpleRoleData {
                     Component.translatable("message.noellesroles.watchman.gong_hit")
                             .withStyle(ChatFormatting.DARK_RED),
                     true);
-            affected++;
         }
 
         serverPlayer.getCooldowns().addCooldown(stack.getItem(), itemCooldownTicks(stack.getItem()));
         level.playSound(null, serverPlayer.blockPosition(), SoundEvents.BELL_RESONATE, SoundSource.PLAYERS, 1.5F, 0.6F);
-        serverPlayer.displayClientMessage(
-                Component.translatable("message.noellesroles.watchman.gong_used", affected)
-                        .withStyle(ChatFormatting.GOLD),
-                true);
+        // 使用锣时不给使用者显示「压制了多少人」的 actionbar 提示
         return true;
     }
 
