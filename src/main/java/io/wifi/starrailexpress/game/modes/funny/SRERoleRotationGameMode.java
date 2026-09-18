@@ -91,6 +91,8 @@ public class SRERoleRotationGameMode extends SREMurderGameMode {
                     var gameMode = SREGameWorldComponent.getInstance(serverLevel).getGameMode();
                     if (gameMode instanceof SRERoleRotationGameMode rotationMode) {
                         rotationMode.handlePlayerConfirm(player);
+                    } else if (gameMode instanceof SREVolunteerOpenSelectGameMode volunteerOpenMode) {
+                        volunteerOpenMode.handlePlayerConfirm(player);
                     }
                 }
             });

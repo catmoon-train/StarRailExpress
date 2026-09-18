@@ -1561,9 +1561,13 @@ public class CustomRoleLoader {
                 continue;
 
             // 条件6: 当场上只剩下自己和某职业时 (类似教父)
-            // 优先级低于 TIME 与 LOVER：TIME 时不触发；恋人已赢时让位
-            if (!data.customWinLastWithRoles.isEmpty() && (currentWinStatus == WinStatus.KILLERS
-                    || currentWinStatus == WinStatus.PASSENGERS || currentWinStatus == WinStatus.NO_PLAYER)) {
+            // 说明：该条件不再依赖 currentWinStatus。当「结算计入存活好人 / 结算计入存活杀手」两项均为真时，
+            // 自己（及指定职业）存活会让常规结算一直停留在 NONE（即阻止游戏结束），永远不会进入
+            // KILLERS / PASSENGERS，导致本条件无法触发。因此这里改为按「实际存活构成」判定：
+            // 1) 只剩自己 + 指定职业（无外人）-> 直接独立获胜
+            // 2) 仍有外人存活且常规结算即将发生 -> 阻止游戏结束，直到外人被杀光
+            // 优先级仍低于 TIME 与 LOVER：TIME 时不触发；恋人已赢时让位
+            if (!data.customWinLastWithRoles.isEmpty()) {
 
                 // 统计除自己以外的存活玩家：分成「指定职业」与「外人（非指定职业）」两类
                 boolean specifiedAlive = false;
@@ -1594,25 +1598,28 @@ public class CustomRoleLoader {
                     }
                 }
 
-                // 只要「自己 + 至少一个指定职业」都还活着，条件6 就介入：
-                // 1) 仍有外人存活 -> 阻止游戏结束，直到外人被杀光
-                // 2) 外人已清空（只剩自己 + 指定职业）-> 直接独立获胜，不再判断指定职业阵营
-                if (specifiedAlive) {
-                    if (outsiderAlive) {
-                        // 倒计时归零时不得阻止结束，让 TIME 正常结算
-                        if (!canBlockGameEnd)
-                            return WinStatus.NOT_MODIFY;
-                        // 恋人已赢时让位给恋人
-                        if (loversWin)
-                            return WinStatus.NOT_MODIFY;
-                        return WinStatus.NONE; // 拖延游戏结束，直至非 A/指定职业的玩家全部死亡
-                    }
-
+                // 1) 只剩自己 + 指定职业（无外人）-> 直接独立获胜，不再判断指定职业阵营。
+                // TIME（倒计时归零）时不触发，让 TIME 正常结算，也不阻塞后续更高优先级的条件。
+                // 不再要求 currentWinStatus 为 KILLERS/PASSENGERS，这样即使两项「结算计入存活」都为真、
+                // 常规结算停留在 NONE，也能正常取得独立胜利。
+                if (specifiedAlive && !outsiderAlive && currentWinStatus != WinStatus.TIME) {
                     // 恋人胜利优先级高于条件6：让位给后注册的恋人监听器
                     if (loversWin)
                         return WinStatus.NOT_MODIFY;
                     doCustomWin(serverLevel, data, customPlayer, specifiedWinners);
                     return WinStatus.CUSTOM;
+                }
+
+                // 2) 仍有外人存活、且常规结算即将发生 -> 阻止游戏结束，直到外人被杀光。
+                // 若自己/指定职业已通过「结算计入存活」阻止结算（winStatus 保持 NONE），无需额外干预。
+                if (specifiedAlive && outsiderAlive && canBlockGameEnd
+                        && (currentWinStatus == WinStatus.KILLERS
+                                || currentWinStatus == WinStatus.PASSENGERS
+                                || currentWinStatus == WinStatus.NO_PLAYER)) {
+                    // 恋人已赢时让位给恋人
+                    if (loversWin)
+                        return WinStatus.NOT_MODIFY;
+                    return WinStatus.NONE; // 拖延游戏结束，直至非自己/指定职业的玩家全部死亡
                 }
                 // 自己虽存活，但指定职业已全灭 -> 条件6 不介入，让原胜利方正常结算
                 // （自己已死的情况在上方 customPlayer == null 处就已 continue 跳过）

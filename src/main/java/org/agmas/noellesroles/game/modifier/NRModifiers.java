@@ -203,6 +203,19 @@ public class NRModifiers {
             .setDefaultEnableChance(3000)
             .setAddedVersion("4.4");
 
+    /** 神的使命：仅钟表匠，30% 刷新；只剩钟表匠与一名平民时转变为神父 */
+    public static SREModifier GODS_MISSION = HMLModifiers.registerModifier(new SREModifier(
+            Noellesroles.id("gods_mission"),
+            0xF4E4A6,
+            null,
+            null,
+            false,
+            false))
+            .setHidden(true)
+            .setDefaultMax(1)
+            .setDefaultEnableChance(3000)
+            .setDefaultEnableNeededPlayerCount(12);
+
     /** 瘦子修饰符：模型左右压扁变瘦，并被周围玩家挤压移动 */
     public static SREModifier SKINNY = HMLModifiers.registerModifier(new SREModifier(
             Noellesroles.id("skinny"),
@@ -227,6 +240,8 @@ public class NRModifiers {
         // 胖子与瘦子互斥：同一名玩家身上不会共存（生成时排除 + 运行时兜底），
         // 介绍页也会显示在「互斥修饰符」分组（原 addBothRelatedModifier 的关联展示已被其取代）
         FAT.addTwoWayOpposingModifier(SKINNY);
+        GODS_MISSION.canOnlyBeAppliedTo = new HashSet<>(List.of(ModRoles.CLOCKMAKER));
+        GODS_MISSION.addBothRelatedRole(ModRoles.CLOCKMAKER, ModRoles.PRIEST);
         excludeLeonFromAllModifiers();
         assignModifierComponents();
         TaxedModifier.init();

@@ -70,6 +70,7 @@
     "roles.morphling.MorphlingDummyGunPayloadMixin",
     "roles.nostalgist.NostalgistKnifeImmuneMixin",
     "roles.painter.PainterItemPickupMixin",
+    "roles.priest.PriestDoorCollisionMixin",
     "roles.photographer.PhotographerFramePlaceMixin",
     "roles.photographer.PhotographerMixin",
     "roles.photographer.PhotographFrameEntityMixin",

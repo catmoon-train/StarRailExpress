@@ -48,4 +48,6 @@ public interface OpenScreenManager {
     /** 程序员的终端界面（客户端映射见 ClientOpenScreenManager） */
     ResourceLocation PROGRAMMER_TERMINAL_SCREEN = register(Noellesroles.id("programmer_terminal"),
             Component.translatable("screen.noellesroles.terminal.title"));
+    ResourceLocation PRIEST_CHANT_SCREEN = register(Noellesroles.id("priest_chant"),
+            Component.translatable("screen.noellesroles.priest.title"));
 }

@@ -381,5 +381,8 @@ public class ModPackets {
         ServerPlayNetworking.registerGlobalReceiver(
                 org.agmas.noellesroles.packet.CourierMailReplyC2SPacket.TYPE,
                 org.agmas.noellesroles.packet.CourierMailReplyC2SPacket::handle);
+
+        PayloadTypeRegistry.playC2S().register(PriestChantC2SPacket.ID, PriestChantC2SPacket.CODEC);
+        PayloadTypeRegistry.playS2C().register(PriestHeavenStateS2CPacket.ID, PriestHeavenStateS2CPacket.CODEC);
     }
 }

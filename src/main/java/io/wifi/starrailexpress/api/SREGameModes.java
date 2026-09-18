@@ -72,6 +72,9 @@ public class SREGameModes {
     // Class Change Mode (haiman)
     public static final ResourceLocation CLASS_CHANGE_MODE_ID = SRE.haimanId("class_change");
 
+    // Volunteer Open Select Mode (haiman)
+    public static final ResourceLocation VOLUNTEER_OPEN_SELECT_MODE_ID = SRE.haimanId("volunteer_open_select");
+
     // Tradition Mode (sre)
     public static final ResourceLocation TRADITION_MODE_ID = SRE.shortId("tradition");
 
@@ -125,6 +128,10 @@ public class SREGameModes {
     // Class Change Mode (haiman)
     public static final GameMode CLASS_CHANGE_MODE = registerGameMode(
             new SREClassChangeGameMode(CLASS_CHANGE_MODE_ID));
+
+    // Volunteer Open Select Mode (haiman)
+    public static final GameMode VOLUNTEER_OPEN_SELECT_MODE = registerGameMode(
+            new SREVolunteerOpenSelectGameMode(VOLUNTEER_OPEN_SELECT_MODE_ID));
 
     // Tradition Mode (sre)
     public static final GameMode TRADITION_MODE = registerGameMode(new SRETraditionGameMode(TRADITION_MODE_ID));

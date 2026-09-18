@@ -117,6 +117,7 @@ public class NRGameStateEvents {
             BeeFamilyManager.resetQueenLeaderBonus();
             // 重置疫使时刻状态
             org.agmas.noellesroles.game.roles.neutral.infected.InfectedWinChecker.resetAcceleratedState();
+            org.agmas.noellesroles.game.roles.neutral.priest.PriestHeavenManager.reset(serverLevel);
 
             SREGameWorldComponent gameWorldComponent = SREGameWorldComponent.KEY.get(serverLevel);
             WorldModifierComponent worldModifierComponent = WorldModifierComponent.KEY.get(serverLevel);
@@ -163,6 +164,7 @@ public class NRGameStateEvents {
                 }
             }
             org.agmas.noellesroles.game.roles.neutral.infected.InfectedWinChecker.resetAcceleratedState();
+            org.agmas.noellesroles.game.roles.neutral.priest.PriestHeavenManager.reset(world);
 
             // 清除建筑师客户端墙
             for (ServerPlayer player : world.players()) {

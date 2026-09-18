@@ -31,6 +31,7 @@ import io.wifi.starrailexpress.event.OnGameEnd;
 import io.wifi.starrailexpress.event.OnPlayerDeath;
 import io.wifi.starrailexpress.event.OnPlayerDeathWithKiller;
 import io.wifi.starrailexpress.event.ShouldDropOnDeath;
+import io.wifi.starrailexpress.game.GameConstants;
 import io.wifi.starrailexpress.game.GameUtils;
 import io.wifi.starrailexpress.index.SREDataComponentTypes;
 import io.wifi.starrailexpress.index.TMMEntities;
@@ -214,6 +215,10 @@ public final class CustomItemRuntime {
         // 死亡传递：持有者的职业匹配时，把物品交给附近指定阵营的玩家
         OnPlayerDeath.EVENT.register((player, reason) -> handlePassOnDeath(player));
         OnPlayerDeathWithKiller.EVENT.register((player, killer, reason) -> handlePassOnDeath(player));
+
+        // 被自定义手铐铐住的玩家死亡：手铐自动消失（不掉落），也不再对已成为旁观者的他生效
+        OnPlayerDeath.EVENT.register((player, reason) -> removeCuffOnDeath(player));
+        OnPlayerDeathWithKiller.EVENT.register((player, killer, reason) -> removeCuffOnDeath(player));
 
         // 手持不可见：客户端事件，返回 EMPTY 即可让第一人称 / 第三人称 / 手臂姿势全部隐藏该物品
         if (FabricLoader.getInstance().getEnvironmentType() == EnvType.CLIENT) {
@@ -632,6 +637,10 @@ public final class CustomItemRuntime {
         if (!isStillHolding(player, data.id)) {
             return false;
         }
+        // 冷却中（含开局安全时间的强制冷却）：不给任何反馈，也不向服务端发包
+        if (isOnCooldown(player, stack)) {
+            return false;
+        }
         // 自动射击期间不再给任何反馈（不摆臂、无后坐力、无音效）
         if (isClientAutoFiring(player, data.id)) {
             return false;
@@ -818,6 +827,12 @@ public final class CustomItemRuntime {
             setAmmo(stack, Math.min(data.maxAmmo, getAmmo(stack, data) + 1));
         }
 
+        // 射线命中即致死：这一枪就把目标打死，不再累计命中次数（也就不会有最终效果）
+        if (data.lethalOnRayHit) {
+            applyLethal(shooter, victim, data);
+            return;
+        }
+
         // 非自动枪械：按「被第几次命中」触发最终效果。
         // 命中标记记在被击中的玩家身上、按物品 id 分开存，超过 hitMarkerTicks 没触发就自动消失
         if (!autoMode) {
@@ -855,11 +870,29 @@ public final class CustomItemRuntime {
     private static void triggerFinalEffect(ServerPlayer shooter, ServerPlayer victim, ItemStack stack,
             CustomItemData data) {
         CustomItemLoader.executeCommands(data.finalHitCommands, victim, shooter);
-        if (data.lethalOnHit && GameUtils.isPlayerAliveAndSurvival(victim)) {
-            GameUtils.killPlayer(victim, true, shooter, parseDeathReason(data.lethalDeathReason,
-                    io.wifi.starrailexpress.game.GameConstants.DeathReasons.REVOLVER));
+        // 「只有触发最终效果时才致死」：致死时机是这里（射线命中致死是另一条独立开关）
+        if (data.lethalOnFinal) {
+            applyLethal(shooter, victim, data);
         }
         applyCooldown(shooter, stack, data.finalCooldownTicks);
+    }
+
+    /**
+     * 命中致死（两个致死开关共用）：按配置的死因打死被击中的玩家，
+     * <b>并把开枪者作为击杀者记录下来</b>。
+     *
+     * <p>
+     * 击杀者必须填 {@code shooter}：小脑（误杀）惩罚挂在 {@code OnTeammateKilledTeammate} 上，
+     * 而那条链在 {@code killer == null} 时直接 return —— 不记攻击者就等于绕开小脑惩罚
+     * （原版左轮打死好人触发的那条判定就是这么走的）。{@code GameUtils.killPlayer} 会把
+     * {@code killer} 一路带给该事件、击杀统计与回放，所以这里不能传 null。
+     */
+    private static void applyLethal(ServerPlayer shooter, ServerPlayer victim, CustomItemData data) {
+        if (victim == null || !GameUtils.isPlayerAliveAndSurvival(victim)) {
+            return;
+        }
+        GameUtils.killPlayer(victim, true, shooter,
+                parseDeathReason(data.lethalDeathReason, GameConstants.DeathReasons.REVOLVER));
     }
 
     // ==================== 弹药系统 ====================
@@ -1160,9 +1193,35 @@ public final class CustomItemRuntime {
         return getCuffData(player) != null;
     }
 
+    /**
+     * 玩家死亡时把身上的自定义手铐取下来（手铐<b>自动消失</b>，不掉落）。
+     *
+     * <p>
+     * 光靠 {@code ExtraSlotComponent} 的 {@code NEVER_COPY} 不够：那是复活 / 重置时才清空，
+     * 而死亡到复活这段时间玩家已经是旁观者，手铐还挂在他身上会继续给他挂药水效果。
+     * 两个死亡事件（有 / 无击杀者）都登记，第二次调用取不到手铐，直接返回。
+     */
+    private static void removeCuffOnDeath(Player player) {
+        if (!(player instanceof ServerPlayer serverPlayer) || serverPlayer.level().isClientSide()) {
+            return;
+        }
+        ItemStack cuff = getCuffOn(serverPlayer);
+        CustomItemData data = CustomItemLoader.getData(cuff);
+        if (data == null || data.kind() != CustomItemData.Kind.CUFF) {
+            return;
+        }
+        ExtraSlotComponent.removeSlot(serverPlayer, cuffSlot(data));
+        clearCuffEffects(serverPlayer, data);
+        LAST_POS.remove(serverPlayer.getUUID());
+    }
+
     /** 右键玩家：把这份自定义手铐铐进目标玩家的特殊栏位。 */
     public static InteractionResult cuffPlayer(ServerPlayer user, ItemStack stack, CustomItemData data, Player target) {
         if (!(target instanceof ServerPlayer targetPlayer) || user == targetPlayer) {
+            return InteractionResult.PASS;
+        }
+        // 旁观者（含已死亡的玩家）不能被铐住
+        if (targetPlayer.isSpectator()) {
             return InteractionResult.PASS;
         }
         if (!GameUtils.isPlayerAliveAndSurvival(user) || !GameUtils.isPlayerAliveAndSurvival(targetPlayer)) {
@@ -1304,6 +1363,13 @@ public final class CustomItemRuntime {
                 LAST_POS.remove(player.getUUID());
                 continue;
             }
+            // 旁观者（含已死亡的玩家）：手铐自动消失，且不再给他挂效果 / 限行 / 定时指令
+            if (player.isSpectator()) {
+                ExtraSlotComponent.removeSlot(player, cuffSlot(data));
+                clearCuffEffects(player, data);
+                LAST_POS.remove(player.getUUID());
+                continue;
+            }
             applyCuffEffects(player, data);
             applyCuffRestriction(player, data);
 
@@ -1421,9 +1487,14 @@ public final class CustomItemRuntime {
      * （= 非创造 / 非旁观）。之前多这一层会让「创造 / 旁观状态的真实玩家」被射线静默穿过：
      * 不执行命中指令、不计命中次数，于是 {@code hitsToFinal} 永远到不了，最终效果与最终冷却都不会触发，
      * 而同一个目标用原版左轮是打得到的，排查时极易被误判成「物品没生效」。
+     *
+     * <p>
+     * 只有<b>旁观者</b>是例外：旁观（含死亡后的玩家）永远不是合法目标，所有自定义道具
+     * （枪械射线 / 范围与指向型道具）默认都不对旁观者生效，避免「人已经出局却还被道具打」。
+     * 创造模式的真实玩家仍然可被命中（保持上面的口径）。
      */
     private static boolean isValidTarget(ServerPlayer shooter, Entity entity) {
-        return entity instanceof ServerPlayer player && player != shooter;
+        return entity instanceof ServerPlayer player && player != shooter && !player.isSpectator();
     }
 
     /**
@@ -1456,6 +1527,37 @@ public final class CustomItemRuntime {
             return player.getCooldowns().isOnCooldown(stack.getItem());
         }
         return CustomItemCooldownComponent.KEY.get(player).isOnCooldown(data.id);
+    }
+
+    /**
+     * 开局安全时间：把「全部」自定义物品都按物品 id 压上冷却。
+     *
+     * <p>
+     * 所有自定义物品共用同一个注册物品（{@code starrailexpress:custom_item}），
+     * {@link GameUtils#addItemCooldowns} 加的原版冷却是按 {@link net.minecraft.world.item.Item} 记的，
+     * 而 {@link #isOnCooldown} 对已登记的自定义物品只认 {@link CustomItemCooldownComponent} 的
+     * 「玩家 + 物品 id」冷却，于是安全时间对它们形同虚设。这里改成按 id 压冷却：
+     * 安全时间内左键 / 右键都无法使用；又因为按 id 记，安全时间内新获得的同 id 物品也一并处于冷却。
+     *
+     * @param ticks 冷却时长（tick），与安全时间一致
+     */
+    public static void applySafeTimeCooldown(ServerPlayer player, int ticks) {
+        if (player == null || ticks <= 0) {
+            return;
+        }
+        List<CustomItemData> all = CustomItemLoader.getAllData();
+        if (all.isEmpty()) {
+            return;
+        }
+        List<String> ids = new ArrayList<>(all.size());
+        for (CustomItemData data : all) {
+            if (data != null && data.id != null && !data.id.isEmpty()) {
+                ids.add(data.id);
+            }
+        }
+        if (!ids.isEmpty()) {
+            CustomItemCooldownComponent.KEY.get(player).setCooldowns(ids, ticks);
+        }
     }
 
     private static void consumeItem(ServerPlayer player, ItemStack stack, boolean consume) {

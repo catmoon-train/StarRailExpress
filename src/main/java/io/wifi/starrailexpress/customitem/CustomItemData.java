@@ -136,6 +136,55 @@ public class CustomItemData {
     @SerializedName("holdOrientation")
     public String holdOrientation = HoldOrientation.VERTICAL.name();
 
+    /**
+     * 手持微调：在物品<b>自己的贴图平面</b>上平移（单位 1/16 格，即一个「像素」）。
+     *
+     * <p>
+     * X = 贴图右方为正、Y = 贴图上方为正、Z = 贴图的厚度方向（+ 朝观察者）。
+     *
+     * <p>
+     * 为什么需要它：平面贴图的物品方框（16×16）是把<b>中心</b>对准手持姿态原点的，
+     * 所以「贴图最底端」并不等于手的位置 —— 枪柄画到最底端仍然会浮在手外面。
+     * 用这三个数把整张贴图往手的方向推即可，不必重画贴图。
+     */
+    @SerializedName("holdOffsetX")
+    public double holdOffsetX = 0.0D;
+
+    /** 手持微调 X（见 {@link #holdOffsetX}）。 */
+    @SerializedName("holdOffsetY")
+    public double holdOffsetY = 0.0D;
+
+    /** 手持微调 Z（见 {@link #holdOffsetX}）。 */
+    @SerializedName("holdOffsetZ")
+    public double holdOffsetZ = 0.0D;
+
+    /**
+     * 手持微调：绕贴图横向轴（X 轴）旋转（度）—— 前后倾，用来摆平「竖着拿」的倾斜。
+     *
+     * <p>
+     * 「竖着拿」用的原版 {@code item/handheld} 姿态在世界里等价于「绕贴图横向轴转了 55°（第三人称）
+     * / 25°（第一人称）」，所以竖着画在贴图里的枪，在手上一定是斜着的；填
+     * {@code -55}（第三人称）/ {@code -25}（第一人称）就能把贴图摆正。
+     * 一个数值只能对准一个视角（两个视角的倾斜角不同），另一边想也精确可以拆成两套。
+     */
+    @SerializedName("holdRotateX")
+    public double holdRotateX = 0.0D;
+
+    /**
+     * 手持微调：绕贴图平面法线（Z 轴）旋转（度）—— 平面内转正。
+     *
+     * <p>
+     * 就是「在画面里把这张贴图转个角度」，不影响上面两个轴的含义。
+     */
+    @SerializedName("holdRotateZ")
+    public double holdRotateZ = 0.0D;
+
+    /** 手持微调是否有内容（全 0 时渲染器不必多做一次矩阵运算）。 */
+    public boolean hasHoldTuning() {
+        return holdOffsetX != 0.0D || holdOffsetY != 0.0D || holdOffsetZ != 0.0D
+                || holdRotateX != 0.0D || holdRotateZ != 0.0D;
+    }
+
     // ==================== 基础数据：丢弃 / 死亡 ====================
 
     /** 是否可丢弃（默认否）：为是时玩家可在游戏内主动丢弃该物品。 */
@@ -347,13 +396,39 @@ public class CustomItemData {
     @SerializedName("knockbackOnHit")
     public boolean knockbackOnHit = false;
 
-    /** 命中是否致死（默认关闭）。 */
-    @SerializedName("lethalOnHit")
-    public boolean lethalOnHit = false;
+    /**
+     * 射线命中即致死（默认关闭）。
+     *
+     * <p>
+     * 只要射线打中玩家就立刻致死（自动射击时第一发就会打死目标），因此不会再累计命中次数，
+     * 也不会触发最终效果。
+     */
+    @SerializedName("lethalOnRayHit")
+    public boolean lethalOnRayHit = false;
+
+    /**
+     * 是否只有触发最终效果时才致死（默认关闭）。
+     *
+     * <p>
+     * 累计命中次数达到「命中几次触发最终效果」时把被击中的玩家致死。
+     * 与 {@link #lethalOnRayHit} 互相独立，两个都开时射线命中那一条先生效。
+     */
+    @SerializedName("lethalOnFinal")
+    public boolean lethalOnFinal = false;
 
     /** 命中致死使用的死亡原因（默认「左轮手枪」）。 */
     @SerializedName("lethalDeathReason")
     public String lethalDeathReason = GameConstants.DeathReasons.REVOLVER.toString();
+
+    /**
+     * 旧字段「命中是否致死」（只用于兼容老配置，不再写回 JSON）。
+     *
+     * <p>
+     * 老配置里它等价于「触发最终效果时致死」，{@link #sanitize()} 会把它并入
+     * {@link #lethalOnFinal} 后置空，于是老配置行为不变、新配置也不会留下多余的键。
+     */
+    @SerializedName("lethalOnHit")
+    private Boolean legacyLethalOnHit;
 
     /** 是否为自动枪械。 */
     @SerializedName("autoFire")
@@ -923,6 +998,12 @@ public class CustomItemData {
             // 手工改过的 JSON 可能写成小写，统一成枚举名
             holdOrientation = holdOrientation().name();
         }
+        // 手持微调：位置最多 ±4 格（64 像素），旋转按整圈收口
+        holdOffsetX = clampDouble(holdOffsetX, -64.0D, 64.0D);
+        holdOffsetY = clampDouble(holdOffsetY, -64.0D, 64.0D);
+        holdOffsetZ = clampDouble(holdOffsetZ, -64.0D, 64.0D);
+        holdRotateX = clampDouble(holdRotateX, -360.0D, 360.0D);
+        holdRotateZ = clampDouble(holdRotateZ, -360.0D, 360.0D);
         if (fireButton == null || fireButton.isBlank()) {
             fireButton = FireButton.RIGHT.name();
         }
@@ -965,6 +1046,13 @@ public class CustomItemData {
         useOnlyTeams.removeIf(team -> team == null || team.isBlank());
         if (lethalDeathReason == null || lethalDeathReason.isBlank()) {
             lethalDeathReason = GameConstants.DeathReasons.REVOLVER.toString();
+        }
+        // 老配置的「命中是否致死」= 触发最终效果时致死：并入 lethalOnFinal（两个新开关都关着时才迁移）
+        if (legacyLethalOnHit != null) {
+            if (legacyLethalOnHit && !lethalOnRayHit && !lethalOnFinal) {
+                lethalOnFinal = true;
+            }
+            legacyLethalOnHit = null;
         }
         if (killDeathReason == null || killDeathReason.isBlank()) {
             killDeathReason = GameConstants.DeathReasons.GENERAL_ATTACK.toString();

@@ -86,6 +86,10 @@ public class CustomItem extends Item implements SREItemProperties.LeftClickHurta
                     return InteractionResultHolder.consume(stack);
                 }
                 if (world.isClientSide()) {
+                    // 冷却中（含开局安全时间的强制冷却）：不给任何反馈（不摆臂、无后坐力、无音效）
+                    if (CustomItemRuntime.isOnCooldown(player, stack)) {
+                        return InteractionResultHolder.pass(stack);
+                    }
                     // 自动射击期间该枪械不可用：不给任何反馈（不摆臂、无后坐力、无音效）
                     if (CustomItemRuntime.isClientAutoFiring(player, data.id)) {
                         return InteractionResultHolder.pass(stack);
@@ -142,6 +146,10 @@ public class CustomItem extends Item implements SREItemProperties.LeftClickHurta
                 return InteractionResultHolder.consume(stack);
             }
             case FOOD -> {
+                // 冷却中（含开局安全时间的强制冷却）：不能食用
+                if (CustomItemRuntime.isOnCooldown(player, stack)) {
+                    return InteractionResultHolder.fail(stack);
+                }
                 if (data.isDrink || player.canEat(false)) {
                     player.startUsingItem(hand);
                     return InteractionResultHolder.consume(stack);
@@ -177,6 +185,10 @@ public class CustomItem extends Item implements SREItemProperties.LeftClickHurta
             return InteractionResult.PASS;
         }
         if (!CustomItemRuntime.ensureCanUse(serverPlayer, data)) {
+            return InteractionResult.FAIL;
+        }
+        // 冷却中（含开局安全时间的强制冷却）：不能铐人
+        if (CustomItemRuntime.isOnCooldown(serverPlayer, stack)) {
             return InteractionResult.FAIL;
         }
         return CustomItemRuntime.cuffPlayer(serverPlayer, stack, data, target);
@@ -288,6 +300,10 @@ public class CustomItem extends Item implements SREItemProperties.LeftClickHurta
         }
         // 使用限制不满足：取消这次左键攻击
         if (!CustomItemRuntime.ensureCanUse(attacker, data)) {
+            return false;
+        }
+        // 冷却中（含开局安全时间的强制冷却）：取消这次左键攻击
+        if (CustomItemRuntime.isOnCooldown(attacker, mainhandItem)) {
             return false;
         }
         if (data.kind() != CustomItemData.Kind.VANILLA_WEAPON) {

@@ -216,6 +216,25 @@ public class CustomItemScreen extends CustomEditorScreen {
                 index -> data.holdOrientation = HOLD_ORIENTATIONS[index].name());
         r = note(r, PREFIX + ".hint.hold_orientation", SREPanelStyle.GOLD_DIM);
 
+        // 手持时他人不可见（同占卜师的水晶球：别人看不到你手上拿的这件物品）
+        r = boolRow(r, PREFIX + ".label.invisible_in_hand", data.invisibleInHand,
+                value -> data.invisibleInHand = value);
+        r = note(r, PREFIX + ".hint.invisible_in_hand", SREPanelStyle.MUTED);
+
+        // 手持微调：在贴图自己的坐标系里平移 / 旋转，用来把「枪柄浮在手外面」这类问题调到位
+        r = section(r, PREFIX + ".section.hold_tuning");
+        r = note(r, PREFIX + ".hint.hold_tuning", SREPanelStyle.GOLD_DIM, 3);
+        r = numRow(r, PREFIX + ".label.hold_offset_x", data.holdOffsetX, PREFIX + ".unit.pixel",
+                value -> data.holdOffsetX = value);
+        r = numRow(r, PREFIX + ".label.hold_offset_y", data.holdOffsetY, PREFIX + ".unit.pixel",
+                value -> data.holdOffsetY = value);
+        r = numRow(r, PREFIX + ".label.hold_offset_z", data.holdOffsetZ, PREFIX + ".unit.pixel",
+                value -> data.holdOffsetZ = value);
+        r = numRow(r, PREFIX + ".label.hold_rotate_x", data.holdRotateX, PREFIX + ".unit.degree",
+                value -> data.holdRotateX = value);
+        r = numRow(r, PREFIX + ".label.hold_rotate_z", data.holdRotateZ, PREFIX + ".unit.degree",
+                value -> data.holdRotateZ = value);
+
         // 战斗设置：是否允许左键攻击玩家（默认关）
         r = boolRow(r, PREFIX + ".label.allow_left_click_attack", data.allowLeftClickAttack,
                 value -> data.allowLeftClickAttack = value);
@@ -378,10 +397,18 @@ public class CustomItemScreen extends CustomEditorScreen {
         r = distanceRules(r, data.distanceRules);
         r = commandList(r, PREFIX + ".label.final_hit_commands", data.finalHitCommands);
         r = boolRow(r, PREFIX + ".label.knockback", data.knockbackOnHit, value -> data.knockbackOnHit = value);
-        r = boolRowGatesFields(r, PREFIX + ".label.lethal", data.lethalOnHit, value -> data.lethalOnHit = value);
-        if (data.lethalOnHit) {
+        // 致死拆成两个独立开关：射线命中即致死 / 只有触发最终效果时才致死
+        r = boolRow(r, PREFIX + ".label.lethal_on_ray_hit", data.lethalOnRayHit,
+                value -> data.lethalOnRayHit = value);
+        r = note(r, PREFIX + ".hint.lethal_on_ray_hit", SREPanelStyle.MUTED);
+        r = boolRow(r, PREFIX + ".label.lethal_on_final", data.lethalOnFinal,
+                value -> data.lethalOnFinal = value);
+        r = note(r, PREFIX + ".hint.lethal_on_final", SREPanelStyle.MUTED);
+        // 两个开关都关着时不需要死因（关掉后仍保留已填的值）
+        if (data.lethalOnRayHit || data.lethalOnFinal) {
             r = deathReasonRow(r, PREFIX + ".label.lethal_death_reason", data.lethalDeathReason,
                     value -> data.lethalDeathReason = value);
+            r = note(r, PREFIX + ".hint.lethal_death_reason", SREPanelStyle.GOLD_DIM);
         }
         r = boolRowGatesFields(r, PREFIX + ".label.auto_fire", data.autoFire, value -> data.autoFire = value);
         if (data.autoFire) {

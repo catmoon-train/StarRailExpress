@@ -293,6 +293,17 @@ public class SREPayloadRegister {
                 RoleRotationConfirmC2SPacket.CODEC);
         PayloadTypeRegistry.playS2C().register(RoleRotationSyncS2CPacket.TYPE, RoleRotationSyncS2CPacket.CODEC);
 
+        // 志愿海选模式数据包
+        PayloadTypeRegistry.playC2S().register(
+                io.wifi.starrailexpress.network.packet.VolunteerOpenSelectC2SPacket.TYPE,
+                io.wifi.starrailexpress.network.packet.VolunteerOpenSelectC2SPacket.CODEC);
+        PayloadTypeRegistry.playC2S().register(
+                io.wifi.starrailexpress.network.packet.VolunteerOpenReadyC2SPacket.TYPE,
+                io.wifi.starrailexpress.network.packet.VolunteerOpenReadyC2SPacket.CODEC);
+        PayloadTypeRegistry.playS2C().register(
+                io.wifi.starrailexpress.network.packet.VolunteerOpenSyncS2CPacket.TYPE,
+                io.wifi.starrailexpress.network.packet.VolunteerOpenSyncS2CPacket.CODEC);
+
         // 全局战绩 / 回放查询数据包
         PayloadTypeRegistry.playC2S().register(net.exmo.sre.record.network.RecordListRequestC2SPayload.ID,
                 net.exmo.sre.record.network.RecordListRequestC2SPayload.CODEC);

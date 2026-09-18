@@ -59,6 +59,16 @@ public class NRSounds {
     // 皮革噶的：疯魔模式神秘追杀音效
     public static final SoundEvent MANHUNT_CHASE = registrar.create("noellesroles.manhunt_chase");
     public static final SoundEvent TOMATO_SPLAT = registrar.create("noellesroles.tomato_splat");
+    public static final SoundEvent[] PRIEST_CHANT = new SoundEvent[15];
+    public static final SoundEvent PRIEST_CHANTING;
+    public static final SoundEvent PRIEST_ENDING;
+    static {
+        for (int i = 0; i < PRIEST_CHANT.length; i++) {
+            PRIEST_CHANT[i] = registrar.create("priest.chant." + String.format("%02d", i));
+        }
+        PRIEST_CHANTING = registrar.create("priest.chanting");
+        PRIEST_ENDING = registrar.create("priest.ending");
+    }
     public static final SoundEvent CIRCUS_INDOOR = registrar.create("noellesroles.dasiy_bell");
     public static final SoundEvent FLOWER_OUTDOOR = registrar.create("noellesroles.flower_outdoor");
     public static final SoundEvent MUSIC_INDOOR = registrar.create("noellesroles.music_indoor");

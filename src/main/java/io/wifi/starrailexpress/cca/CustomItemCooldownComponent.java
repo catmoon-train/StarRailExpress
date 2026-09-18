@@ -114,6 +114,34 @@ public class CustomItemCooldownComponent implements RoleComponent, ServerTicking
         KEY.sync(this.player);
     }
 
+    /**
+     * 批量让一批物品进入冷却（只同步一次）。
+     *
+     * <p>
+     * 用于「开局安全时间把全部自定义物品都压上冷却」这类一次性写很多条目的场景：
+     * 逐条调用 {@link #setCooldown(String, int)} 会为每个物品各发一次同步包，这里合并成一次。
+     */
+    public void setCooldowns(Iterable<String> itemIds, int ticks) {
+        if (itemIds == null || ticks <= 0) {
+            return;
+        }
+        long end = now() + ticks;
+        boolean changed = false;
+        for (String itemId : itemIds) {
+            if (itemId == null || itemId.isEmpty()) {
+                continue;
+            }
+            Cooldown cooldown = new Cooldown();
+            cooldown.endTick = end;
+            cooldown.totalTicks = ticks;
+            cooldowns.put(itemId, cooldown);
+            changed = true;
+        }
+        if (changed) {
+            KEY.sync(this.player);
+        }
+    }
+
     /** 立刻清掉某个物品的冷却。 */
     public void clearCooldown(String itemId) {
         if (itemId != null && cooldowns.remove(itemId) != null) {

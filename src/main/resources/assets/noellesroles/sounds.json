@@ -4,5 +4,22 @@
     "sounds": [
       "noellesroles:noellesroles/tomato_splat"
     ]
-  }
+  },
+  "priest.chant.00": { "subtitle": "subtitles.noellesroles.priest.chant", "sounds": [] },
+  "priest.chant.01": { "subtitle": "subtitles.noellesroles.priest.chant", "sounds": [] },
+  "priest.chant.02": { "subtitle": "subtitles.noellesroles.priest.chant", "sounds": [] },
+  "priest.chant.03": { "subtitle": "subtitles.noellesroles.priest.chant", "sounds": [] },
+  "priest.chant.04": { "subtitle": "subtitles.noellesroles.priest.chant", "sounds": [] },
+  "priest.chant.05": { "subtitle": "subtitles.noellesroles.priest.chant", "sounds": [] },
+  "priest.chant.06": { "subtitle": "subtitles.noellesroles.priest.chant", "sounds": [] },
+  "priest.chant.07": { "subtitle": "subtitles.noellesroles.priest.chant", "sounds": [] },
+  "priest.chant.08": { "subtitle": "subtitles.noellesroles.priest.chant", "sounds": [] },
+  "priest.chant.09": { "subtitle": "subtitles.noellesroles.priest.chant", "sounds": [] },
+  "priest.chant.10": { "subtitle": "subtitles.noellesroles.priest.chant", "sounds": [] },
+  "priest.chant.11": { "subtitle": "subtitles.noellesroles.priest.chant", "sounds": [] },
+  "priest.chant.12": { "subtitle": "subtitles.noellesroles.priest.chant", "sounds": [] },
+  "priest.chant.13": { "subtitle": "subtitles.noellesroles.priest.chant", "sounds": [] },
+  "priest.chant.14": { "subtitle": "subtitles.noellesroles.priest.chant", "sounds": [] },
+  "priest.chanting": { "subtitle": "subtitles.noellesroles.priest.chanting", "sounds": [] },
+  "priest.ending": { "subtitle": "subtitles.noellesroles.priest.ending", "sounds": [] }
 }
