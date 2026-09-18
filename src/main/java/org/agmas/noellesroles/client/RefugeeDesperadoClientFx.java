@@ -18,7 +18,9 @@ package org.agmas.noellesroles.client;
 import io.wifi.starrailexpress.SREClientConfig;
 import io.wifi.starrailexpress.client.particle.CustomParticleHandlers;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
+import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.core.particles.DustParticleOptions;
 import net.minecraft.core.particles.ParticleTypes;
@@ -33,6 +35,14 @@ import org.joml.Vector3f;
 public final class RefugeeDesperadoClientFx {
     private static final DustParticleOptions RED_DUST = new DustParticleOptions(new Vector3f(0.92F, 0.08F, 0.08F), 1.15F);
     private static final DustParticleOptions CRIMSON_DUST = new DustParticleOptions(new Vector3f(0.55F, 0.04F, 0.08F), 1.4F);
+
+    /** 登场演出滤镜的血色（暗红），随演出推进逐渐浸透视野。 */
+    private static final int RED_FILTER_RGB = 0xBE1414;
+    /** 滤镜最浓时的不透明度。 */
+    private static final float RED_FILTER_MAX_ALPHA = 0.62F;
+    /** 前 80% 时长逐渐变红，最后 20% 快速褪回。 */
+    private static final float RED_FILTER_RAMP_END = 0.8F;
+    private static final float RED_FILTER_FADE_START = 0.2F;
 
     private static int spawnTicks;
     private static int spawnDuration;
@@ -73,6 +83,38 @@ public final class RefugeeDesperadoClientFx {
 
     public record CameraJitter(float yaw, float pitch, double x, double y, double z) {
         static final CameraJitter NONE = new CameraJitter(0, 0, 0, 0, 0);
+    }
+
+    /**
+     * 亡命徒登场期间的血色滤镜：视野由浅入深逐渐变红，演出尾声褪回。
+     * 由 HUD 渲染回调驱动，与运镜黑边同层绘制。
+     */
+    public static void renderOverlay(GuiGraphics guiGraphics, DeltaTracker deltaTracker) {
+        if (spawnTicks <= 0 || spawnDuration <= 0) {
+            return;
+        }
+        Minecraft client = Minecraft.getInstance();
+        float partial = deltaTracker == null ? 0.0F
+                : Mth.clamp(deltaTracker.getGameTimeDeltaPartialTick(true), 0.0F, 1.0F);
+        float progress = Mth.clamp((spawnDuration - spawnTicks + partial) / (float) spawnDuration, 0.0F, 1.0F);
+        float ramp = Mth.clamp(progress / RED_FILTER_RAMP_END, 0.0F, 1.0F);
+        float fadeOut = Mth.clamp((1.0F - progress) / RED_FILTER_FADE_START, 0.0F, 1.0F);
+        float alpha = RED_FILTER_MAX_ALPHA * ramp * ramp * fadeOut;
+        int a = Mth.clamp((int) (alpha * 255.0F), 0, 255);
+        if (a <= 1) {
+            return;
+        }
+        int width = client.getWindow().getGuiScaledWidth();
+        int height = client.getWindow().getGuiScaledHeight();
+        guiGraphics.fill(0, 0, width, height, (a << 24) | RED_FILTER_RGB);
+        // 上下边缘额外加深，形成血色压视野的暗角。
+        int edgeAlpha = (int) (a * 0.75F);
+        if (edgeAlpha > 1) {
+            int barHeight = Math.max(14, Math.round(height * 0.16F));
+            int edgeColor = (edgeAlpha << 24) | RED_FILTER_RGB;
+            guiGraphics.fill(0, 0, width, barHeight, edgeColor);
+            guiGraphics.fill(0, height - barHeight, width, height, edgeColor);
+        }
     }
 
     private static void startSpawn(Vec3 origin, int durationTicks) {

@@ -1194,6 +1194,8 @@ public class SREClient implements ClientModInitializer {
             }
             FourthRoomCameraDirector.renderOverlay(guiGraphics);
             net.exmo.sre.camera.client.AdvancedCameraDirector.renderOverlay(guiGraphics);
+            // 亡命徒登场演出：与运镜同步的血色滤镜
+            org.agmas.noellesroles.client.RefugeeDesperadoClientFx.renderOverlay(guiGraphics, deltaTick);
         });
         // Run map rules inside the project's frame lifecycle so text remains visible
         // while a Letter is held.

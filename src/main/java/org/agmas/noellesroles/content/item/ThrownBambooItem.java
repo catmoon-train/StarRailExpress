@@ -44,8 +44,8 @@ import org.jetbrains.annotations.NotNull;
 import java.util.List;
 
 /**
- * 竹子 —— 蓄力投掷。松手后生成 3D 竹子投掷物：途中最多挂上 2 名玩家，直到撞墙；
- * 从发射起 10 秒后消失（含钉在墙上的时间）。
+ * 竹子 —— 蓄力投掷。松手后生成 3D 竹子投掷物：途中最多挂上 2 名玩家，撞墙后钉在墙上；
+ * 从发射起 12 秒后消失（含钉在墙上的时间）。
  */
 public class ThrownBambooItem extends Item implements ChargeableItem, TrainWeapon {
 
@@ -97,7 +97,8 @@ public class ThrownBambooItem extends Item implements ChargeableItem, TrainWeapo
             ThrownBambooEntity bamboo = new ThrownBambooEntity(ModEntities.THROWN_BAMBOO, user, world,
                     ModItems.BAMBOO.getDefaultInstance());
             bamboo.setPos(user.getEyePosition());
-            bamboo.shootFromRotation(user, user.getXRot(), user.getYRot(), 0.0f, 2.4f, 1.0f);
+            bamboo.shootFromRotation(user, user.getXRot(), user.getYRot(), 0.0f, ThrownBambooEntity.THROW_SPEED,
+                    1.0f);
             bamboo.setOwner(user);
             world.addFreshEntity(bamboo);
 

@@ -16,31 +16,29 @@
 package org.agmas.noellesroles.client.renderer;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.math.Axis;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.EntityRenderer;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
-import net.minecraft.client.renderer.entity.ItemRenderer;
-import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.client.renderer.texture.TextureAtlas;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
-import net.minecraft.world.item.ItemDisplayContext;
+import net.minecraft.world.phys.Vec3;
 import org.agmas.noellesroles.content.effects.TimeStopEffect;
 import org.agmas.noellesroles.content.entity.BambooSpearEntity;
 import org.agmas.noellesroles.init.ModEffects;
-import org.agmas.noellesroles.init.ModItems;
 
-/** 竹枪：按同步长度沿视线拉伸 3D 竹子模型。 */
+/** 竹枪：从持有者眼前沿视线方向伸出，按同步长度绘制带竹节和尖头的 3D 竹杆。 */
 public class BambooSpearRenderer extends EntityRenderer<BambooSpearEntity> {
 
-    private final ItemRenderer itemRenderer;
+    private static final float RADIUS = 0.09F;
+    private static final float TIP_LENGTH = 0.45F;
+    /** 收回到很短时的最小可见长度，避免长度为 0 时几何体消失得太突兀。 */
+    private static final float MIN_LENGTH = 0.12F;
 
     public BambooSpearRenderer(EntityRendererProvider.Context context) {
         super(context);
-        this.itemRenderer = context.getItemRenderer();
         this.shadowRadius = 0.0f;
     }
 
@@ -53,17 +51,14 @@ public class BambooSpearRenderer extends EntityRenderer<BambooSpearEntity> {
             return;
         }
 
-        float length = Math.max(0.1f, entity.getLength());
-        poseStack.pushPose();
+        float length = Math.max(MIN_LENGTH, entity.getLength());
         float yaw = Mth.lerp(partialTick, entity.yRotO, entity.getYRot());
         float pitch = Mth.lerp(partialTick, entity.xRotO, entity.getXRot());
-        poseStack.mulPose(Axis.YP.rotationDegrees(yaw - 90.0f));
-        poseStack.mulPose(Axis.XP.rotationDegrees(pitch));
-        poseStack.mulPose(Axis.ZP.rotationDegrees(-90.0f));
-        poseStack.scale(1.05f, length, 1.05f);
+        Vec3 direction = entity.calculateViewVector(pitch, yaw);
 
-        this.itemRenderer.renderStatic(ModItems.BAMBOO_SPEAR.getDefaultInstance(), ItemDisplayContext.FIXED,
-                packedLight, OverlayTexture.NO_OVERLAY, poseStack, bufferSource, entity.level(), entity.getId());
+        poseStack.pushPose();
+        BambooPoleGeometry.orient(poseStack, direction);
+        BambooPoleGeometry.render(poseStack, bufferSource, packedLight, 0.0F, length, RADIUS, TIP_LENGTH);
         poseStack.popPose();
         super.render(entity, entityYaw, partialTick, poseStack, bufferSource, packedLight);
     }

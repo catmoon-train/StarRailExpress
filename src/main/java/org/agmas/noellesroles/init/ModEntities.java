@@ -146,7 +146,7 @@ public class ModEntities {
                     .trackedUpdateRate(10)
                     .build());
 
-    /** 投掷竹子：直线飞行，途中最多挂上 2 名玩家，从发射起 10 秒后消失 */
+    /** 投掷竹子：直线飞行，途中最多挂上 2 名玩家，撞墙后钉在墙上，从发射起 12 秒后消失 */
     @SuppressWarnings("deprecation")
     public static final EntityType<ThrownBambooEntity> THROWN_BAMBOO = Registry.register(
             BuiltInRegistries.ENTITY_TYPE,
