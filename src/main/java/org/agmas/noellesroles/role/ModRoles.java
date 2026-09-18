@@ -1636,6 +1636,8 @@ public class ModRoles {
             SRERole.MoodType.FAKE, Integer.MAX_VALUE, true))
             .setCanSeeCoin(true)
             .setCanUseInstinctAndNightVision(false)
+            // 初始金币 175：走通用机制（ModdedRoleAssigned 事件统一按 getInitialCoinCount 设置余额）
+            .setInitialCoinCount(175)
             .setDefaultMax(1)
             .setDefaultEnableChance(5000);
 

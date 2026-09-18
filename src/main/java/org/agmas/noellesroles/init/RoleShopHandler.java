@@ -3688,10 +3688,10 @@ public class RoleShopHandler {
             // 催化剂 - 450金币
             // 使所有感染玩家和中毒玩家致死，但不会使杀手阵营/杀手方中立玩家致死
             INFECTED_SHOP_LIST.add(new ShopEntry(ModItems.CATALYST.getDefaultInstance(), 450, ShopEntry.Type.TOOL));
-            // 乘务员钥匙 - 100金币
-            INFECTED_SHOP_LIST.add(new ShopEntry(ModItems.MASTER_KEY_P.getDefaultInstance(), 100, ShopEntry.Type.TOOL));
-            // 开锁器 - 50金币
-            INFECTED_SHOP_LIST.add(new ShopEntry(TMMItems.LOCKPICK.getDefaultInstance(), 50, ShopEntry.Type.TOOL));
+            // 乘务员钥匙 - 50金币
+            INFECTED_SHOP_LIST.add(new ShopEntry(ModItems.MASTER_KEY_P.getDefaultInstance(), 50, ShopEntry.Type.TOOL));
+            // 开锁器 - 150金币
+            INFECTED_SHOP_LIST.add(new ShopEntry(TMMItems.LOCKPICK.getDefaultInstance(), 150, ShopEntry.Type.TOOL));
             ShopContent.customEntries.put(ModRoles.INFECTED.getIdentifier(), INFECTED_SHOP_LIST);
         }
 
