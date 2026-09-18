@@ -4,6 +4,7 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
@@ -15,6 +16,7 @@ import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.core.BlockPos;
+import org.agmas.noellesroles.spear.SpearCombat;
 import org.agmas.noellesroles.spear.SpearConfig;
 
 import java.util.List;
@@ -25,7 +27,7 @@ import java.util.List;
  * <ul>
  * <li>左键：直刺（穿刺多个目标），需要满蓄力；命中玩家时原版伤害 ×2 转为虚拟伤害。</li>
  * <li>右键：举矛蓄力冲锋，速度越快伤害越高（附带击退 / 击落坐骑）。</li>
- * <li>可附魔「突进」：命中后向前冲刺（见 {@link org.agmas.noellesroles.spear.SpearCombat#applyLunge}）。</li>
+ * <li>可附魔「突进」：命中后向前冲刺。</li>
  * </ul>
  */
 public class NetheriteSpearItem extends Item
@@ -64,6 +66,22 @@ public class NetheriteSpearItem extends Item
         return 72000;
     }
 
+    /** 每 tick 推进一次蓄力冲锋结算（举着矛右键时才生效）。 */
+    @Override
+    public void inventoryTick(ItemStack stack, Level level, Entity entity, int slotId, boolean isSelected) {
+        super.inventoryTick(stack, level, entity, slotId, isSelected);
+        if (level.isClientSide() || !(entity instanceof LivingEntity user)) {
+            return;
+        }
+        if (!user.isUsingItem() || !ItemStack.matches(user.getUseItem(), stack)) {
+            return;
+        }
+        EquipmentSlot slot = user.getUsedItemHand() == InteractionHand.MAIN_HAND
+                ? EquipmentSlot.MAINHAND
+                : EquipmentSlot.OFFHAND;
+        SpearCombat.usageTick(stack, user.getUseItemRemainingTicks(), user, slot);
+    }
+
     /** 矛不能挖方块（创造模式除外）。 */
     @Override
     public boolean canAttackBlock(BlockState state, Level level, BlockPos pos, Player miner) {
@@ -73,7 +91,7 @@ public class NetheriteSpearItem extends Item
     @Override
     public void appendHoverText(ItemStack stack, Item.TooltipContext context, List<Component> tooltip,
             TooltipFlag flag) {
-        int lunge = org.agmas.noellesroles.spear.SpearCombat.lungeLevel(stack);
+        int lunge = SpearCombat.lungeLevel(stack);
         tooltip.add(Component.translatable("item.noellesroles.netherite_spear.tooltip")
                 .withStyle(ChatFormatting.RED));
         tooltip.add(Component.translatable("item.noellesroles.netherite_spear.tooltip.charge")
@@ -86,15 +104,5 @@ public class NetheriteSpearItem extends Item
                         Math.max(0, stack.getMaxDamage() - stack.getDamageValue()), stack.getMaxDamage())
                 .withStyle(ChatFormatting.GRAY));
         super.appendHoverText(stack, context, tooltip, flag);
-    }
-
-    /** 耐久归零后不再允许直刺（与原版工具一致的保护）。 */
-    public boolean isBroken(ItemStack stack) {
-        return stack.getMaxDamage() > 0 && stack.getDamageValue() >= stack.getMaxDamage();
-    }
-
-    /** 主手判定用的槽位（直刺始终使用主手）。 */
-    public static EquipmentSlot mainHandSlot() {
-        return EquipmentSlot.MAINHAND;
     }
 }

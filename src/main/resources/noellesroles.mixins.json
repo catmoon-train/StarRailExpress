@@ -91,8 +91,7 @@
     "time_rewind.ServerPlayerTimeRewindMixin",
     "time_stop.DioSwimPoseMixin",
     "time_stop.ServerPacketBlocker",
-    "spear.LivingEntitySpearMixin",
-    "spear.ItemStackSpearUsageMixin"
+    "spear.LivingEntitySpearMixin"
   ],
   "injectors": {
     "defaultRequire": 1

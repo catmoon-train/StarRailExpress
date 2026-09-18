@@ -42,7 +42,8 @@ public abstract class LivingEntitySpearMixin implements SpearUser {
         this.spear$piercingCooldowns.clear();
     }
 
-    @Inject(method = "handleEntityEvent", at = @At("HEAD"))
+    // require = 0：该注入只用于「冲锋命中后收招动画」的时间记录，找不到目标也不该让游戏崩
+    @Inject(method = "handleEntityEvent", at = @At("HEAD"), require = 0)
     private void spear$markKineticAttack(byte id, CallbackInfo ci) {
         if (id == 2) {
             this.spear$lastKineticAttackTime = ((LivingEntity) (Object) this).level().getGameTime();
