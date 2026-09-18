@@ -20,9 +20,10 @@ import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.Mth;
 import org.agmas.noellesroles.Noellesroles;
 
-public record SpeakerC2SPacket(String trackId, boolean playing) implements CustomPacketPayload {
+public record SpeakerC2SPacket(String trackId, boolean playing, int volume) implements CustomPacketPayload {
     public static final ResourceLocation PACKET_ID = ResourceLocation.fromNamespaceAndPath(Noellesroles.MOD_ID, "speaker");
     public static final Type<SpeakerC2SPacket> ID = new Type<>(PACKET_ID);
     public static final StreamCodec<RegistryFriendlyByteBuf, SpeakerC2SPacket> CODEC =
@@ -36,9 +37,10 @@ public record SpeakerC2SPacket(String trackId, boolean playing) implements Custo
     public void write(FriendlyByteBuf buf) {
         buf.writeUtf(trackId == null ? "" : trackId);
         buf.writeBoolean(playing);
+        buf.writeByte(Mth.clamp(volume, 0, 100));
     }
 
     public static SpeakerC2SPacket read(FriendlyByteBuf buf) {
-        return new SpeakerC2SPacket(buf.readUtf(), buf.readBoolean());
+        return new SpeakerC2SPacket(buf.readUtf(), buf.readBoolean(), buf.readUnsignedByte());
     }
 }

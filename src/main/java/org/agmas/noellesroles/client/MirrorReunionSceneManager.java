@@ -31,6 +31,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientChunkCache;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.player.LocalPlayer;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.client.renderer.LevelRenderer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.block.BlockRenderDispatcher;
@@ -74,9 +75,8 @@ public class MirrorReunionSceneManager {
     private static final int RESERVED_BLACK_TICKS = 30;
     private static final int RESTORE_DURATION_TICKS = 32;
     private static final int SCAN_BUDGET = 20000;
-    private static final int FALL_STARTS_PER_TICK = 320;
     private static final int RESTORE_PER_TICK = 400;
-    private static final int MAX_FALLING = 220;
+    private static final int MAX_FALLING = 400;
     private static final int MAX_RISING = 72;
     private static final float GRAVITY = 0.055f;
     private static final float CAMERA_GRAVITY = 0.038f;
@@ -84,7 +84,7 @@ public class MirrorReunionSceneManager {
     private static final float MAX_CAMERA_FALL = 56.0f;
     private static final float NEAR_ANIM_DIST = 48.0f;
     private static final float NEAR_ANIM_DIST_SQ = NEAR_ANIM_DIST * NEAR_ANIM_DIST;
-    private static final int FALL_LIFE_TICKS = 22;
+    private static final int FALL_LIFE_TICKS = 16;
     private static final int MIN_CULL_RADIUS = 80;
     private static final int MAX_CULL_RADIUS = 256;
     /** 单 tick 位移超过这个距离视为传送，立刻中止场景以免旧原点剔除跟着玩家走。 */
@@ -129,7 +129,6 @@ public class MirrorReunionSceneManager {
     private int collapseStartTicks = DEFAULT_COLLAPSE_START_TICKS;
     private int collapseEndTicks = DEFAULT_COLLAPSE_END_TICKS;
     private int collapseDurationTicks = DEFAULT_COLLAPSE_DURATION_TICKS;
-    private int fallStartsPerTick = FALL_STARTS_PER_TICK;
     private float cameraGravity = CAMERA_GRAVITY;
     private int tickCounter = 0;
     private int radius = 40;
@@ -164,6 +163,30 @@ public class MirrorReunionSceneManager {
         }
         LongOpenHashSet set = hiddenSnapshot;
         return !set.isEmpty() && set.contains(BlockPos.asLong(x, y, z));
+    }
+
+    /**
+     * 药水生效期间本地玩家看不见其他实体（玩家、掉落物、展示框等）。
+     */
+    public static boolean shouldHideEntity(Entity entity) {
+        if (!hideAllowed || !INSTANCE.active) {
+            return false;
+        }
+        Minecraft mc = Minecraft.getInstance();
+        return entity != null && entity != mc.player && entity != mc.getCameraEntity();
+    }
+
+    /**
+     * 告示牌 / 旗帜等方块实体：效果期间全部隐藏，还原时跟随波前。
+     */
+    public static boolean shouldHideBlockEntity(BlockPos pos) {
+        if (!hideAllowed || pos == null) {
+            return false;
+        }
+        if (INSTANCE.active) {
+            return true;
+        }
+        return shouldHideBlock(pos.getX(), pos.getY(), pos.getZ());
     }
 
     public boolean isActive() {
@@ -348,9 +371,16 @@ public class MirrorReunionSceneManager {
             playLocal(level, origin, 0.55f, 0.5f);
         }
         if (tickCounter >= collapseStartTicks) {
-            publishWaveRadius(NEAR_ANIM_DIST * (1.0f - collapseProgress()));
-            tickCollapse(level);
-            spawnFallsOnWave(level);
+            float progress = collapseProgress();
+            float newRadius = NEAR_ANIM_DIST * (1.0f - progress);
+            float prevRadius = publishedCullRadius;
+            publishWaveRadius(newRadius);
+            // 只在本 tick 新隐藏的环带上生成坠落件，禁止事后补队列。
+            if (Float.isNaN(prevRadius)) {
+                spawnFallsOnWave(level, NEAR_ANIM_DIST, newRadius);
+            } else if (prevRadius > newRadius) {
+                spawnFallsOnWave(level, prevRadius, newRadius);
+            }
         }
     }
 
@@ -406,39 +436,12 @@ public class MirrorReunionSceneManager {
             horizDist = next;
         }
         horizDist[n - 1] = dist;
-        if (active && tickCounter >= collapseStartTicks && shouldAlreadyFall(n - 1)) {
-            beginFall(level, packed, state);
-        }
-    }
-
-    private boolean shouldAlreadyFall(int index) {
-        if (orderSize == 0 || packedPos.isEmpty()) {
-            return false;
-        }
-        float progress = collapseProgress();
-        return index < packedPos.size() && horizDist[index] >= maxTrackedDist() * (1.0f - progress);
     }
 
     private boolean shouldCollapse(BlockState state) {
         return !state.isAir() && state.getRenderShape() != RenderShape.INVISIBLE;
     }
 
-    private void tickCollapse(ClientLevel level) {
-        ensureOrder();
-        float progress = collapseProgress();
-        int target = (int) (orderSize * progress);
-        int started = 0;
-        while (orderCursor < target && orderCursor < orderSize && started < fallStartsPerTick) {
-            int index = order[orderCursor++];
-            long packed = packedPos.getLong(index);
-            BlockPos pos = BlockPos.of(packed);
-            BlockState state = level.isLoaded(pos) ? level.getBlockState(pos) : null;
-            if (state != null && shouldCollapse(state)) {
-                beginFall(level, packed, state);
-            }
-            started++;
-        }
-    }
 
     private float collapseProgress() {
         int elapsed = tickCounter - collapseStartTicks;
@@ -479,15 +482,12 @@ public class MirrorReunionSceneManager {
         collapseDurationTicks = Math.max(minCollapse, collapseBudget - collapseStartTicks);
         collapseEndTicks = collapseStartTicks + collapseDurationTicks;
         cameraGravity = gravityForFall(MAX_CAMERA_FALL, CAMERA_FALL_VY0, cameraBudget);
-        float speed = DEFAULT_COLLAPSE_DURATION_TICKS / (float) collapseDurationTicks;
-        fallStartsPerTick = Math.max(FALL_STARTS_PER_TICK, Math.round(FALL_STARTS_PER_TICK * speed));
     }
 
     private void resetTimeline() {
         collapseStartTicks = DEFAULT_COLLAPSE_START_TICKS;
         collapseEndTicks = DEFAULT_COLLAPSE_END_TICKS;
         collapseDurationTicks = DEFAULT_COLLAPSE_DURATION_TICKS;
-        fallStartsPerTick = FALL_STARTS_PER_TICK;
         cameraGravity = CAMERA_GRAVITY;
     }
 
@@ -520,12 +520,6 @@ public class MirrorReunionSceneManager {
         }
     }
 
-    private float maxTrackedDist() {
-        if (orderSize <= 0) {
-            return radius;
-        }
-        return Math.max(1.0f, horizDist[order[0]]);
-    }
 
     private void beginFall(ClientLevel level, long packed, BlockState state) {
         BlockPos pos = BlockPos.of(packed);
@@ -867,32 +861,41 @@ public class MirrorReunionSceneManager {
         return false;
     }
 
-    private void spawnFallsOnWave(ClientLevel level) {
+    /**
+     * 只在波前刚扫过的圆环上生成坠落件。容量满了就跳过，绝不延后到世界已经空了再补。
+     */
+    private void spawnFallsOnWave(ClientLevel level, float outerR, float innerR) {
         if (falling.size() >= MAX_FALLING) {
             return;
         }
-        float r = publishedCullRadius;
-        if (Float.isNaN(r) || r > NEAR_ANIM_DIST + 3.0f) {
+        innerR = Math.max(0.0f, innerR);
+        outerR = Math.min(NEAR_ANIM_DIST + 3.0f, Math.max(outerR, innerR));
+        if (outerR < 0.35f) {
             return;
         }
         int y0 = origin.getY() - Y_DOWN;
         int y1 = origin.getY() + Y_UP;
-        int samples = Mth.clamp((int) (r * 2.8f), 28, 96);
+        int rings = Mth.clamp(Mth.ceil((outerR - innerR) / 1.6f), 1, 8);
         BlockPos.MutableBlockPos cursor = new BlockPos.MutableBlockPos();
-        for (int i = 0; i < samples && falling.size() < MAX_FALLING; i++) {
-            double angle = (i + random.nextFloat()) * (Math.PI * 2.0 / samples);
-            int x = origin.getX() + Mth.floor(Math.cos(angle) * r + (random.nextFloat() - 0.5f) * 2.2f);
-            int z = origin.getZ() + Mth.floor(Math.sin(angle) * r + (random.nextFloat() - 0.5f) * 2.2f);
-            for (int y = y0; y <= y1 && falling.size() < MAX_FALLING; y += 2) {
-                cursor.set(x, y, z);
-                if (!level.isLoaded(cursor)) {
-                    continue;
+        for (int ring = 0; ring < rings && falling.size() < MAX_FALLING; ring++) {
+            float t = rings == 1 ? 0.5f : ring / (float) (rings - 1);
+            float r = Math.max(0.35f, Mth.lerp(t, outerR, innerR));
+            int samples = Mth.clamp((int) (r * 3.2f), 24, 120);
+            for (int i = 0; i < samples && falling.size() < MAX_FALLING; i++) {
+                double angle = (i + random.nextFloat()) * (Math.PI * 2.0 / samples);
+                int x = origin.getX() + Mth.floor(Math.cos(angle) * r + (random.nextFloat() - 0.5f) * 1.6f);
+                int z = origin.getZ() + Mth.floor(Math.sin(angle) * r + (random.nextFloat() - 0.5f) * 1.6f);
+                for (int y = y0; y <= y1 && falling.size() < MAX_FALLING; y += 2) {
+                    cursor.set(x, y, z);
+                    if (!level.isLoaded(cursor)) {
+                        continue;
+                    }
+                    BlockState state = level.getBlockState(cursor);
+                    if (!shouldCollapse(state)) {
+                        continue;
+                    }
+                    beginFall(level, cursor.asLong(), state);
                 }
-                BlockState state = level.getBlockState(cursor);
-                if (!shouldCollapse(state)) {
-                    continue;
-                }
-                beginFall(level, cursor.asLong(), state);
             }
         }
     }

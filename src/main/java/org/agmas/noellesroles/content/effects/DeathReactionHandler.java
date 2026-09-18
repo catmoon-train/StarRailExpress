@@ -27,6 +27,7 @@ import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.Vec3;
+import org.agmas.harpymodloader.events.GameInitializeEvent;
 import org.agmas.noellesroles.game.fake_steve.CowardiceFakeSteveControl;
 import org.agmas.noellesroles.init.ModEffects;
 
@@ -43,8 +44,12 @@ public final class DeathReactionHandler {
     public static final double NEARBY_RANGE = 16.0D;
     public static final int RAGE_SURGE_TICKS = 100;
     public static final int RAGE_SPEED_AMPLIFIER = 1;
+    /** 胆小鬼：触发一次害怕后的冷却（120 秒）。 */
+    public static final int COWARD_FEAR_COOLDOWN_TICKS = 120 * 20;
 
     private static final Map<UUID, UUID> RAGE_LOCK = new ConcurrentHashMap<>();
+    /** 胆小鬼：每名玩家下一次可以触发害怕的游戏刻。 */
+    private static final Map<UUID, Long> COWARD_FEAR_READY_AT = new ConcurrentHashMap<>();
     private static boolean registered;
 
     private DeathReactionHandler() {
@@ -58,10 +63,13 @@ public final class DeathReactionHandler {
         OnPlayerDeath.EVENT.register(DeathReactionHandler::onPlayerDeath);
         ServerTickEvents.END_WORLD_TICK.register(DeathReactionHandler::tickWorld);
         OnGameEnd.EVENT.register((level, game) -> clear());
+        // 开局也清一次：避免上一局的冷却/锁视角状态在未走 OnGameEnd 的开局路径上残留
+        GameInitializeEvent.EVENT.register((level, game, players) -> clear());
     }
 
     public static void clear() {
         RAGE_LOCK.clear();
+        COWARD_FEAR_READY_AT.clear();
         CowardiceFakeSteveControl.clear();
     }
 
@@ -74,7 +82,8 @@ public final class DeathReactionHandler {
             if (observer.getUUID().equals(victim.getUUID()) || !GameUtils.isPlayerAliveAndSurvival(observer)) {
                 continue;
             }
-            if (observer.hasEffect(ModEffects.COWARD) && isInFront(observer, victim)) {
+            if (observer.hasEffect(ModEffects.COWARD) && isInFront(observer, victim)
+                    && tryTriggerCowardFear(observer)) {
                 applyFear(observer);
             }
             boolean nearby = observer.distanceToSqr(victim) <= NEARBY_RANGE * NEARBY_RANGE;
@@ -92,6 +101,29 @@ public final class DeathReactionHandler {
             CowardiceFakeSteveControl.tick(player);
             tickRageLook(player);
         }
+    }
+
+    /**
+     * 胆小鬼触发害怕的冷却：同一名玩家 120 秒内最多被面前有人死亡触发一次。
+     *
+     * <p>
+     * 计时使用游戏内经过的刻数（时停与会议期间会暂停，见 ai_doc.md），
+     * 不回落世界时间——两种时钟混用会让写下的时刻永远追不上，导致该玩家整局再也触发不了。
+     *
+     * @return 冷却已结束时返回 {@code true}，否则返回 {@code false}；返回 {@code true} 时立即写入下一次可用时刻
+     */
+    private static boolean tryTriggerCowardFear(ServerPlayer player) {
+        long ticks = GameUtils.getTicksFromGameStart(player.level());
+        if (ticks <= 0L) {
+            // 游戏时钟尚未开始：不做冷却记账，直接放行
+            return true;
+        }
+        Long readyAt = COWARD_FEAR_READY_AT.get(player.getUUID());
+        if (readyAt != null && ticks < readyAt) {
+            return false;
+        }
+        COWARD_FEAR_READY_AT.put(player.getUUID(), ticks + COWARD_FEAR_COOLDOWN_TICKS);
+        return true;
     }
 
     private static void applyFear(ServerPlayer player) {

@@ -95,5 +95,11 @@ public class CameraMixin {
             camera.setPosition(camera.getPosition().add(jitter.x(), jitter.y(), jitter.z()));
             PlaneCrashClientEffects.applyRoll(this.rotation, jitter.roll());
         }
+        if (org.agmas.noellesroles.client.RefugeeDesperadoClientFx.isTremorActive()) {
+            Camera camera = (Camera) (Object) this;
+            var jitter = org.agmas.noellesroles.client.RefugeeDesperadoClientFx.computeCamera(tickDelta);
+            camera.setRotation(camera.getYRot() + jitter.yaw(), camera.getXRot() + jitter.pitch());
+            camera.setPosition(camera.getPosition().add(jitter.x(), jitter.y(), jitter.z()));
+        }
     }
 }

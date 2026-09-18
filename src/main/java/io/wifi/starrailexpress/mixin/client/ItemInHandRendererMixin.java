@@ -17,6 +17,7 @@ package io.wifi.starrailexpress.mixin.client;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import io.wifi.starrailexpress.event.AllowItemShowInHand;
+import io.wifi.starrailexpress.client.gui.ScopeOverlayRenderer;
 import net.exmo.sre.camera.client.AdvancedCameraDirector;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.renderer.ItemInHandRenderer;
@@ -65,7 +66,7 @@ public class ItemInHandRendererMixin {
 
         // 高级运镜动画期间整只手（含物品）都不渲染，等同原版 F1 的隐藏效果。
         // 在交换字段前直接取消，避免遗留未还原的手持物状态。
-        if (AdvancedCameraDirector.shouldOverride()) {
+        if (AdvancedCameraDirector.shouldOverride() || ScopeOverlayRenderer.shouldHideHands()) {
             ci.cancel();
             return;
         }

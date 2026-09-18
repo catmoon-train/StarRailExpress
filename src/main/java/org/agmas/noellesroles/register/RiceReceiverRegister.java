@@ -90,7 +90,7 @@ public class RiceReceiverRegister {
         ServerPlayNetworking.registerGlobalReceiver(org.agmas.noellesroles.packet.SpeakerC2SPacket.ID,
                 (payload, context) -> {
                     context.server().execute(() -> org.agmas.noellesroles.content.speaker.SpeakerPlayback
-                            .apply(context.player(), payload.trackId(), payload.playing()));
+                            .apply(context.player(), payload.trackId(), payload.playing(), payload.volume()));
                 });
 
         // 鸟兽兽巡飞弹控制：只接受发射者本人、且仍在追踪范围内的控制输入。

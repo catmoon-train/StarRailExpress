@@ -85,6 +85,7 @@ public class NRCombatEvents {
             handleUniversalGunCooldown(player);
             handleJojoDoubleCooldown(player);
             handleButterFingersCooldown(player);
+            DesperadoGunItem.onFired(player);
         });
     }
 

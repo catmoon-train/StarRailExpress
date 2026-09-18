@@ -19,6 +19,7 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
+import net.minecraft.util.Mth;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.player.Player;
@@ -38,6 +39,8 @@ import java.util.function.BiConsumer;
 public class SpeakerItem extends Item {
     public static final String TAG_PLAYING = "SpeakerPlaying";
     public static final String TAG_TRACK = "SpeakerTrack";
+    public static final String TAG_VOLUME = "SpeakerVolume";
+    public static final int DEFAULT_VOLUME = 100;
 
     /** 客户端设置，避免物品类直接引用 Screen。 */
     public static BiConsumer<ItemStack, InteractionHand> openScreenCallback = null;
@@ -61,6 +64,8 @@ public class SpeakerItem extends Item {
         if (isPlaying(stack)) {
             tooltip.add(Component.translatable("item.noellesroles.speaker.tooltip.playing").withStyle(ChatFormatting.GREEN));
         }
+        tooltip.add(Component.translatable("item.noellesroles.speaker.tooltip.volume", getVolume(stack))
+                .withStyle(ChatFormatting.DARK_GRAY));
         super.appendHoverText(stack, context, tooltip, flag);
     }
 
@@ -84,13 +89,29 @@ public class SpeakerItem extends Item {
         return readTag(stack).getString(TAG_TRACK);
     }
 
+    public static int getVolume(ItemStack stack) {
+        if (!isSpeaker(stack)) {
+            return DEFAULT_VOLUME;
+        }
+        CompoundTag tag = readTag(stack);
+        if (!tag.contains(TAG_VOLUME)) {
+            return DEFAULT_VOLUME;
+        }
+        return Mth.clamp(tag.getInt(TAG_VOLUME), 0, 100);
+    }
+
     public static void writeState(ItemStack stack, String trackId, boolean playing) {
+        writeState(stack, trackId, playing, getVolume(stack));
+    }
+
+    public static void writeState(ItemStack stack, String trackId, boolean playing, int volume) {
         if (!isSpeaker(stack)) {
             return;
         }
         CompoundTag tag = readTag(stack);
         tag.putString(TAG_TRACK, trackId == null ? "" : trackId);
         tag.putBoolean(TAG_PLAYING, playing);
+        tag.putInt(TAG_VOLUME, Mth.clamp(volume, 0, 100));
         stack.set(DataComponents.CUSTOM_DATA, CustomData.of(tag));
     }
 

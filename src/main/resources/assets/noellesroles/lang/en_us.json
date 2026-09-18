@@ -2417,7 +2417,7 @@
     "message.noellesroles.priest.chant.mismatch": "That verse does not match.",
     "message.noellesroles.priest.chant.next": "Next verse: %s / %s",
     "message.noellesroles.priest.chant.started.title": "The recitation begins",
-    "message.noellesroles.priest.chant.started.subtitle": "Stop the Priest within 120 seconds, or time will accelerate.",
+    "message.noellesroles.priest.chant.started.subtitle": "Stop the Priest within 25 seconds, or time will accelerate.",
     "message.noellesroles.priest.accel.title": "MADE IN HEAVEN",
     "message.noellesroles.priest.accel.subtitle": "Time is about to accelerate",
     "message.noellesroles.priest.accel.broadcast": "Time is accelerating. Day, night, and the match clock are slipping.",
@@ -2863,8 +2863,22 @@
     "item.noellesroles.baton.tooltip.use": "Left-click to attack, can stun target",
     "item.noellesroles.radio": "Radio",
     "item.noellesroles.speaker": "Portable Speaker",
-    "item.noellesroles.speaker.tooltip": "Right-click to open the panel, pick a track, then hit the red power key to loop it. Plays on your shoulder while on.",
+    "item.noellesroles.speaker.tooltip": "Right-click to open the panel, search or pick a track, then hit Play. While on, a 3D speaker sits on your shoulder.",
     "item.noellesroles.speaker.tooltip.playing": "Playing",
+    "item.noellesroles.speaker.tooltip.volume": "Volume: %s%%",
+    "gui.noellesroles.speaker.title": "Portable Speaker",
+    "gui.noellesroles.speaker.search": "Search tracks...",
+    "gui.noellesroles.speaker.playing": "Playing",
+    "gui.noellesroles.speaker.standby": "Standby",
+    "gui.noellesroles.speaker.volume": "Volume %s%%",
+    "gui.noellesroles.speaker.prev": "Prev",
+    "gui.noellesroles.speaker.next": "Next",
+    "gui.noellesroles.speaker.play": "Play",
+    "gui.noellesroles.speaker.stop": "Stop",
+    "gui.noellesroles.speaker.shuffle": "Shuffle",
+    "gui.noellesroles.speaker.empty": "No matching tracks",
+    "gui.noellesroles.speaker.track_index": "%s / %s",
+    "gui.noellesroles.speaker.hint": "Space toggles · arrows change track · scroll list/volume",
     "gui.noellesroles.speaker.track.psycho_drone": "Psycho Drone",
     "gui.noellesroles.speaker.track.manhunt_chase": "Manhunt",
     "gui.noellesroles.speaker.track.circus": "Circus",
@@ -4518,6 +4532,8 @@
     "announcement.star.goals.barbarian": "Hoard coins, then answer a fatal strike with savage fury.",
     "skill.noellesroles.barbarian.smoke_breath": "Smoke Breath",
     "item.noellesroles.barbarian_knife": "Barbarian Blade",
+    "item.noellesroles.desperado_knife": "Desperado Knife",
+    "item.noellesroles.desperado_gun": "Desperado Gun",
     "message.noellesroles.barbarian.transform": "Your savage instinct deflected the fatal strike — berserk form awakened!",
     "message.noellesroles.barbarian.transform_end": "Your berserk form fades, and your life burns out with it.",
     "message.noellesroles.barbarian.smoke_breath": "You exhale a cloud of thick smoke.",
@@ -4777,7 +4793,7 @@
   ,"effect.noellesroles.motor_dysfunction.description": "You may trip while moving."
   ,"effect.noellesroles.coward": "Coward"
   ,"mob_effect.noellesroles.coward": "Coward"
-  ,"effect.noellesroles.coward.description": "If someone dies in front of you, you sit and tremble for the whole Fear duration."
+  ,"effect.noellesroles.coward.description": "If someone dies in front of you, you sit and tremble for the whole Fear duration (at most once per 120s per player)."
   ,"effect.noellesroles.fear": "Fear"
   ,"mob_effect.noellesroles.fear": "Fear"
   ,"effect.noellesroles.fear.description": "Remain sitting for the whole effect, with a light screen and body tremble."

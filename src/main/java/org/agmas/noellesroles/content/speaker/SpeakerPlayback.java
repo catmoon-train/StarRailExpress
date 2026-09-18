@@ -22,6 +22,7 @@ import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.util.Mth;
 import net.minecraft.world.item.ItemStack;
 import org.agmas.noellesroles.content.item.SpeakerItem;
 import org.agmas.noellesroles.packet.SpeakerS2CPacket;
@@ -34,7 +35,10 @@ import java.util.UUID;
  * 服务端音响开关：写入物品 NBT，并向附近玩家同步播放状态。
  */
 public final class SpeakerPlayback {
-    private static final Map<UUID, String> ACTIVE = new HashMap<>();
+    private record Active(String trackId, int volume) {
+    }
+
+    private static final Map<UUID, Active> ACTIVE = new HashMap<>();
 
     private SpeakerPlayback() {
     }
@@ -47,6 +51,10 @@ public final class SpeakerPlayback {
     }
 
     public static void apply(ServerPlayer player, String trackId, boolean playing) {
+        apply(player, trackId, playing, SpeakerItem.DEFAULT_VOLUME);
+    }
+
+    public static void apply(ServerPlayer player, String trackId, boolean playing, int volume) {
         ItemStack stack = SpeakerItem.findInInventory(player);
         if (stack.isEmpty()) {
             return;
@@ -54,13 +62,14 @@ public final class SpeakerPlayback {
         if (playing && SpeakerTracks.byId(trackId) == null) {
             return;
         }
-        SpeakerItem.writeState(stack, playing ? trackId : SpeakerItem.getTrackId(stack), playing);
+        int clamped = Mth.clamp(volume, 0, 100);
+        SpeakerItem.writeState(stack, playing ? trackId : SpeakerItem.getTrackId(stack), playing, clamped);
         if (playing) {
-            ACTIVE.put(player.getUUID(), trackId);
-            broadcast(player, trackId, true);
+            ACTIVE.put(player.getUUID(), new Active(trackId, clamped));
+            broadcast(player, trackId, true, clamped);
         } else {
             ACTIVE.remove(player.getUUID());
-            broadcast(player, trackId, false);
+            broadcast(player, trackId, false, clamped);
         }
     }
 
@@ -80,7 +89,7 @@ public final class SpeakerPlayback {
                     if (!stack.isEmpty()) {
                         SpeakerItem.writeState(stack, SpeakerItem.getTrackId(stack), false);
                     }
-                    broadcast(player, "", false);
+                    broadcast(player, "", false, SpeakerItem.DEFAULT_VOLUME);
                 }
                 ACTIVE.remove(id);
             }
@@ -93,7 +102,7 @@ public final class SpeakerPlayback {
         }
         ACTIVE.remove(player.getUUID());
         if (broadcast) {
-            broadcast(player, "", false);
+            broadcast(player, "", false, SpeakerItem.DEFAULT_VOLUME);
         }
     }
 
@@ -107,7 +116,7 @@ public final class SpeakerPlayback {
             if (!stack.isEmpty()) {
                 SpeakerItem.writeState(stack, SpeakerItem.getTrackId(stack), false);
             }
-            broadcast(player, "", false);
+            broadcast(player, "", false, SpeakerItem.DEFAULT_VOLUME);
         }
         ACTIVE.clear();
     }
@@ -117,13 +126,15 @@ public final class SpeakerPlayback {
         if (server == null) {
             return;
         }
-        for (Map.Entry<UUID, String> entry : ACTIVE.entrySet()) {
-            ServerPlayNetworking.send(viewer, new SpeakerS2CPacket(entry.getKey(), entry.getValue(), true));
+        for (Map.Entry<UUID, Active> entry : ACTIVE.entrySet()) {
+            Active active = entry.getValue();
+            ServerPlayNetworking.send(viewer,
+                    new SpeakerS2CPacket(entry.getKey(), active.trackId(), true, active.volume()));
         }
     }
 
-    private static void broadcast(ServerPlayer player, String trackId, boolean playing) {
-        SpeakerS2CPacket packet = new SpeakerS2CPacket(player.getUUID(), trackId, playing);
+    private static void broadcast(ServerPlayer player, String trackId, boolean playing, int volume) {
+        SpeakerS2CPacket packet = new SpeakerS2CPacket(player.getUUID(), trackId, playing, volume);
         for (ServerPlayer viewer : PlayerLookup.world(player.serverLevel())) {
             ServerPlayNetworking.send(viewer, packet);
         }

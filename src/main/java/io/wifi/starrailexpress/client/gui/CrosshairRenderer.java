@@ -52,6 +52,8 @@ public class CrosshairRenderer {
             DeltaTracker tickCounter) {
         if (!client.options.getCameraType().isFirstPerson())
             return;
+        if (ScopeOverlayRenderer.shouldHideCrosshair())
+            return;
         RenderSystem.enableBlend();
 
         context.pose().pushPose();

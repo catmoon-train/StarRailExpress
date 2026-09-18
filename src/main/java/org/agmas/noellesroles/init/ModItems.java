@@ -283,6 +283,12 @@ public class ModItems {
     public static final Item BARBARIAN_KNIFE = register(
             new BarbarianKnifeItem(new Item.Properties().stacksTo(1)),
             "barbarian_knife", WEAPONS_GROUP);
+    public static final Item DESPERADO_KNIFE = register(
+            new DesperadoKnifeItem(new Item.Properties().stacksTo(1)),
+            "desperado_knife", WEAPONS_GROUP);
+    public static final Item DESPERADO_GUN = register(
+            new DesperadoGunItem(new Item.Properties().stacksTo(1)),
+            "desperado_gun", WEAPONS_GROUP);
     public static final Item NIAOSHOU_SHOU_KNIFE = register(
             new NiaoshoushouKnifeItem(new Item.Properties().stacksTo(1).durability(4)),
             "niaoshoushou_knife", WEAPONS_GROUP);

@@ -32,7 +32,7 @@ import java.util.List;
  * 音响可选曲目：原版唱片 + 本模组循环/氛围音乐。
  */
 public final class SpeakerTracks {
-    public record Track(String id, Component name, SoundEvent sound) {
+    public record Track(String id, Component name, SoundEvent sound, Item icon) {
     }
 
     private static List<Track> CACHE;
@@ -117,12 +117,17 @@ public final class SpeakerTracks {
     }
 
     private static void disc(List<Track> tracks, Item item, SoundEvent sound) {
-        tracks.add(new Track(idOf(sound), item.getDescription(), sound));
+        ResourceLocation itemId = BuiltInRegistries.ITEM.getKey(item);
+        String path = itemId == null ? "" : itemId.getPath();
+        String song = path.startsWith("music_disc_") ? path.substring("music_disc_".length()) : path;
+        String ns = itemId == null ? "minecraft" : itemId.getNamespace();
+        Component name = Component.translatable("jukebox_song." + ns + "." + song);
+        tracks.add(new Track(idOf(sound), name, sound, item));
     }
 
     private static void mod(List<Track> tracks, SoundEvent sound, String key) {
         tracks.add(new Track(idOf(sound),
-                Component.translatable("gui.noellesroles.speaker.track." + key), sound));
+                Component.translatable("gui.noellesroles.speaker.track." + key), sound, Items.AIR));
     }
 
     private static String idOf(SoundEvent sound) {

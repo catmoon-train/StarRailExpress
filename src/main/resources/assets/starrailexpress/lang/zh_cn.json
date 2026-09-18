@@ -1428,6 +1428,7 @@
     "gui.sre.role_rotation.confirm_waiting": "已确认，等待其他玩家确认…",
     "gui.sre.role_rotation.auto_scroll_on": "自动滚动：开（点击关闭）",
     "gui.sre.role_rotation.auto_scroll_off": "自动滚动：关（点击开启）",
+    "gui.sre.role_rotation.voice_muted": "轮选期间所有人无法语音交流",
     "gui.sre.volunteer_open.title": "志愿海选",
     "gui.sre.volunteer_open.phase_volunteer": "一阶段：选取志愿职业",
     "gui.sre.volunteer_open.phase_open": "二阶段：海选 第 %s/%s 组",

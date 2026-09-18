@@ -1098,7 +1098,8 @@ public class FakeSteveAi {
                 isKillerNeutral(attacker.serverLevel(), target))) {
             return false;
         }
-        boolean derringer = gun && attacker.getMainHandItem().is(TMMItems.DERRINGER);
+        boolean derringer = gun && org.agmas.noellesroles.content.item.DesperadoGunItem
+                .isDerringerWeapon(attacker.getMainHandItem());
         if (requireOriginalRolePermission && role != null
                 && !(gun ? (derringer ? role.onUseDerringer(attacker) : role.onUseGun(attacker))
                         && role.onGunHit(attacker, target)
@@ -2406,7 +2407,7 @@ public class FakeSteveAi {
     private static int findUsableDerringerSlot(ServerPlayer player) {
         for (int slot = 0; slot < 9; slot++) {
             ItemStack stack = player.getInventory().getItem(slot);
-            if (stack.is(TMMItems.DERRINGER)
+            if (org.agmas.noellesroles.content.item.DesperadoGunItem.isDerringerWeapon(stack)
                     && !stack.getOrDefault(SREDataComponentTypes.USED, false)
                     && !player.getCooldowns().isOnCooldown(stack.getItem())) {
                 return slot;
@@ -2423,7 +2424,7 @@ public class FakeSteveAi {
                     || player.getCooldowns().isOnCooldown(stack.getItem())) {
                 continue;
             }
-            if (!stack.is(TMMItems.DERRINGER)
+            if (!org.agmas.noellesroles.content.item.DesperadoGunItem.isDerringerWeapon(stack)
                     || !stack.getOrDefault(SREDataComponentTypes.USED, false)) {
                 return slot;
             }
@@ -2432,7 +2433,8 @@ public class FakeSteveAi {
     }
 
     private static int findDerringerSlot(ServerPlayer player) {
-        return findSlot(player, TMMItems.DERRINGER);
+        int slot = findSlot(player, TMMItems.DERRINGER);
+        return slot >= 0 ? slot : findSlot(player, org.agmas.noellesroles.init.ModItems.DESPERADO_GUN);
     }
 
     private static BlockPos ambushBehind(ServerPlayer target) {

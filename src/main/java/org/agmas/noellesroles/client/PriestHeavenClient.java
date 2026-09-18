@@ -1,15 +1,19 @@
 package org.agmas.noellesroles.client;
 
+import com.mojang.math.Axis;
 import io.wifi.utils.client.betterrender.FakeGuiGraphics;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
 import net.minecraft.sounds.SoundEvent;
+import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.Mth;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.phys.Vec3;
 import org.agmas.noellesroles.game.roles.neutral.priest.PriestHeavenManager;
-import org.agmas.noellesroles.init.NRSounds;
 import org.agmas.noellesroles.packet.PriestHeavenStateS2CPacket;
 
 /**
@@ -22,6 +26,7 @@ public final class PriestHeavenClient {
     public static final int PHASE_CHANTING = 2;
     public static final int PHASE_ACCELERATING = 3;
     public static final int PHASE_FINALE = 4;
+    private static final float OVERHEAD_BLEND_TICKS = 40.0F;
 
     private static int phase = PHASE_IDLE;
     private static int lyricIndex;
@@ -33,6 +38,7 @@ public final class PriestHeavenClient {
     private static boolean endingPlayed;
     private static boolean pendingEnding;
     private static float shaderStrength;
+    private static float cameraLift;
 
     private PriestHeavenClient() {
     }
@@ -49,6 +55,35 @@ public final class PriestHeavenClient {
         return shaderStrength;
     }
 
+    public static boolean isOverheadCamera() {
+        return phase == PHASE_ACCELERATING || phase == PHASE_FINALE;
+    }
+
+    public static float overheadBlend(float tickDelta) {
+        if (!isOverheadCamera()) {
+            cameraLift = 0.0F;
+            return 0.0F;
+        }
+        float elapsed = phase == PHASE_FINALE ? OVERHEAD_BLEND_TICKS : accelElapsed + tickDelta;
+        float t = Mth.clamp(elapsed / OVERHEAD_BLEND_TICKS, 0.0F, 1.0F);
+        cameraLift = t;
+        return t * t * (3.0F - 2.0F * t);
+    }
+
+    public static Vec3 overheadCameraPos(Entity entity, float tickDelta, float blend) {
+        Vec3 eye = entity.getEyePosition(tickDelta);
+        Vec3 above = new Vec3(entity.getX(), entity.getY() + 16.0, entity.getZ());
+        return eye.lerp(above, blend);
+    }
+
+    public static float overheadYaw(Entity entity, float tickDelta) {
+        return entity.getViewYRot(tickDelta);
+    }
+
+    public static float overheadPitch(Entity entity, float tickDelta, float blend) {
+        return Mth.lerp(blend, entity.getViewXRot(tickDelta), 90.0F);
+    }
+
     public static void reset() {
         phase = PHASE_IDLE;
         lyricIndex = 0;
@@ -60,6 +95,7 @@ public final class PriestHeavenClient {
         endingPlayed = false;
         pendingEnding = false;
         shaderStrength = 0;
+        cameraLift = 0;
     }
 
     public static boolean consumePendingEnding() {
@@ -75,7 +111,7 @@ public final class PriestHeavenClient {
         endingPlayed = true;
         Minecraft mc = Minecraft.getInstance();
         if (mc.player != null) {
-            mc.player.playNotifySound(NRSounds.PRIEST_ENDING, SoundSource.MASTER, 1.0F, 1.0F);
+            mc.player.playNotifySound(SoundEvents.END_PORTAL_SPAWN, SoundSource.MASTER, 1.0F, 0.55F);
         }
     }
 
@@ -85,9 +121,12 @@ public final class PriestHeavenClient {
         chantRemain = packet.chantRemain();
         accelElapsed = packet.accelElapsed();
         visualTime = packet.visualTime();
-        localVisualTime = packet.visualTime();
         if (phase == PHASE_IDLE) {
             shaderStrength = 0;
+            localVisualTime = 0;
+            cameraLift = 0;
+        } else if (Math.abs(localVisualTime - packet.visualTime()) > 40) {
+            localVisualTime = packet.visualTime();
         }
         playReservedSound(packet.soundIndex());
     }
@@ -98,22 +137,26 @@ public final class PriestHeavenClient {
             shaderStrength += (0.0F - shaderStrength) * 0.08F;
             return;
         }
+        float last15 = inLast15Seconds() ? 1.0F : 0.0F;
         float target = switch (phase) {
-            case PHASE_TRANSFORMED -> 0.18F;
-            case PHASE_CHANTING -> 0.36F;
-            case PHASE_ACCELERATING -> 0.42F + 0.58F * accelProgress();
+            case PHASE_TRANSFORMED -> 0.22F;
+            case PHASE_CHANTING -> 0.42F;
+            case PHASE_ACCELERATING -> 0.58F + 0.42F * accelProgress();
             case PHASE_FINALE -> 1.0F;
             default -> 0.0F;
         };
-        shaderStrength += (target - shaderStrength) * 0.12F;
+        shaderStrength += (target - shaderStrength) * 0.045F;
 
         float partial = deltaTracker.getGameTimeDeltaPartialTick(false);
+        localVisualTime += (visualTime - localVisualTime) * 0.35F;
         if (phase == PHASE_ACCELERATING || phase == PHASE_FINALE) {
-            clockAngle += 18.0F + accelProgress() * 42.0F;
-            if (phase == PHASE_ACCELERATING) {
-                localVisualTime = Math.max(0.0F, localVisualTime - (1.0F + accelProgress() * 8.0F));
+            float spin = 22.0F + accelProgress() * 78.0F + last15 * 55.0F;
+            if (phase == PHASE_FINALE) {
+                spin *= 0.12F;
             }
+            clockAngle += spin;
             renderClockBackground(graphics, mc, partial);
+            renderFlashOverlay(graphics);
         }
         if (phase == PHASE_CHANTING) {
             int seconds = Math.max(0, chantRemain / 20);
@@ -130,35 +173,72 @@ public final class PriestHeavenClient {
         }
     }
 
+    private static void renderFlashOverlay(FakeGuiGraphics graphics) {
+        int alpha;
+        if (phase == PHASE_FINALE) {
+            alpha = 0x55;
+        } else if (inLast15Seconds()) {
+            alpha = 0x30 + (int) (accelProgress() * 0x20);
+        } else {
+            alpha = 0x10 + (int) (accelProgress() * 0x18);
+        }
+        int color = (alpha << 24) | 0xF4E4A6;
+        graphics.fill(0, 0, graphics.guiWidth(), graphics.guiHeight(), color);
+    }
+
     private static void renderClockBackground(FakeGuiGraphics graphics, Minecraft mc, float partial) {
+        GuiGraphics real = graphics.getDefaultGuiGraphics();
         int cx = graphics.guiWidth() / 2;
         int cy = graphics.guiHeight() / 2;
-        int radius = Math.min(cx, cy) - 28;
-        int ticks = 12;
-        for (int i = 0; i < ticks; i++) {
-            double a = Math.toRadians(clockAngle + i * 30.0);
-            int x1 = cx + (int) (Math.sin(a) * (radius - 18));
-            int y1 = cy - (int) (Math.cos(a) * (radius - 18));
-            int x2 = cx + (int) (Math.sin(a) * radius);
-            int y2 = cy - (int) (Math.cos(a) * radius);
-            graphics.fill(Math.min(x1, x2), Math.min(y1, y2), Math.max(x1, x2) + 2, Math.max(y1, y2) + 2, 0x33F4E4A6);
+        int radius = Math.min(cx, cy) - 18;
+        float angle = clockAngle + partial * (18.0F + accelProgress() * 42.0F);
+
+        for (int i = 0; i < 60; i++) {
+            double a = Math.toRadians(angle + i * 6.0);
+            boolean major = i % 5 == 0;
+            float inner = major ? radius - 22 : radius - 10;
+            int color = major ? 0xCCF4E4A6 : 0x66E8D48B;
+            drawRadial(real, cx, cy, a, inner, radius, major ? 2.4F : 1.1F, color);
         }
-        double hand = Math.toRadians(clockAngle * 3.0);
-        int hx = cx + (int) (Math.sin(hand) * (radius * 0.72));
-        int hy = cy - (int) (Math.cos(hand) * (radius * 0.72));
-        graphics.fill(Math.min(cx, hx), Math.min(cy, hy), Math.max(cx, hx) + 2, Math.max(cy, hy) + 2, 0x66FFFFFF);
+
+        double second = Math.toRadians(angle * 6.0);
+        double minute = Math.toRadians(angle * 1.2);
+        double hour = Math.toRadians(angle * 0.18);
+        if (phase == PHASE_FINALE) {
+            second = 0;
+            minute = 0;
+            hour = 0;
+        }
+        drawRadial(real, cx, cy, hour, 0, radius * 0.46F, 5.0F, 0xE6FFFFFF);
+        drawRadial(real, cx, cy, minute, 0, radius * 0.68F, 3.2F, 0xF0F4E4A6);
+        drawRadial(real, cx, cy, second, -12, radius * 0.86F, 1.6F, 0xFFFFE08A);
+        real.fill(cx - 3, cy - 3, cx + 3, cy + 3, 0xFFFFF4C8);
+
         if (!inLast15Seconds() && phase == PHASE_ACCELERATING) {
-            graphics.drawCenteredString(mc.font, formatTime((int) localVisualTime), cx, 16, 0xAAF4E4A6);
+            graphics.drawCenteredString(mc.font, formatTime((int) localVisualTime), cx, 16, 0xEEF4E4A6);
         }
+    }
+
+    private static void drawRadial(GuiGraphics graphics, int cx, int cy, double angleRad, float inner, float outer,
+            float width, int color) {
+        var pose = graphics.pose();
+        pose.pushPose();
+        pose.translate(cx, cy, 0);
+        pose.mulPose(Axis.ZP.rotation((float) angleRad));
+        int x0 = Math.round(-width / 2.0F);
+        int x1 = Math.max(x0 + 1, Math.round(width / 2.0F));
+        graphics.fill(x0, Math.round(-outer), x1, Math.round(-inner), color);
+        pose.popPose();
     }
 
     private static void renderDramaticTime(FakeGuiGraphics graphics, Minecraft mc) {
         float remain = (PriestHeavenManager.ACCEL_TICKS - accelElapsed) / (float) PriestHeavenManager.LAST_DRAMATIC_TICKS;
         remain = Mth.clamp(remain, 0.0F, 1.0F);
-        float scale = 2.2F + (1.0F - remain) * 4.4F;
-        int jitterX = (int) ((Math.sin(clockAngle * 0.37) + Math.sin(clockAngle * 0.11)) * (2.0 + (1.0F - remain) * 6.0));
-        int jitterY = (int) (Math.cos(clockAngle * 0.29) * (1.0 + (1.0F - remain) * 4.0));
-        String time = formatTime((int) localVisualTime);
+        float intensity = 1.0F - remain;
+        float scale = 2.6F + intensity * 6.2F;
+        int jitterX = (int) ((Math.sin(clockAngle * 0.51) + Math.sin(clockAngle * 0.17)) * (3.0 + intensity * 10.0));
+        int jitterY = (int) (Math.cos(clockAngle * 0.33) * (2.0 + intensity * 7.0));
+        String time = formatTime((int) Math.max(0, localVisualTime));
         Font font = mc.font;
         int cx = graphics.guiWidth() / 2 + jitterX;
         int cy = graphics.guiHeight() / 2 - 10 + jitterY;
@@ -166,10 +246,12 @@ public final class PriestHeavenClient {
         pose.pushPose();
         pose.translate(cx, cy, 0);
         pose.scale(scale, scale, 1.0F);
+        graphics.drawCenteredString(font, time, 1, -3, 0x88FF3030);
+        graphics.drawCenteredString(font, time, -1, -5, 0x8830E0FF);
         graphics.drawCenteredString(font, time, 0, -4, 0xFFFFF4C8);
         pose.popPose();
         graphics.drawCenteredString(font, Component.translatable("hud.noellesroles.priest.accel"),
-                graphics.guiWidth() / 2, cy + (int) (18 * scale), 0xFFE8C86A);
+                graphics.guiWidth() / 2, cy + (int) (18 * Math.min(scale, 5.5F)), 0xFFFFE08A);
     }
 
     private static boolean inLast15Seconds() {
@@ -197,17 +279,33 @@ public final class PriestHeavenClient {
         }
         SoundEvent sound = soundForIndex(soundIndex);
         if (sound != null) {
-            mc.player.playNotifySound(sound, SoundSource.MASTER, 1.0F, 1.0F);
+            mc.player.playNotifySound(sound, SoundSource.MASTER, 1.0F, pitchForIndex(soundIndex));
         }
     }
 
     private static SoundEvent soundForIndex(int soundIndex) {
-        if (soundIndex >= 0 && soundIndex < NRSounds.PRIEST_CHANT.length) {
-            return NRSounds.PRIEST_CHANT[soundIndex];
+        if (soundIndex >= 0 && soundIndex < 15) {
+            return SoundEvents.END_PORTAL_FRAME_FILL;
         }
-        if (soundIndex == PriestHeavenStateS2CPacket.SOUND_CHANTING) {
-            return NRSounds.PRIEST_CHANTING;
+        return switch (soundIndex) {
+            case PriestHeavenStateS2CPacket.SOUND_CHANTING -> SoundEvents.BEACON_ACTIVATE;
+            case PriestHeavenStateS2CPacket.SOUND_TRANSFORM -> SoundEvents.END_PORTAL_SPAWN;
+            case PriestHeavenStateS2CPacket.SOUND_ACCEL -> SoundEvents.ENDER_DRAGON_GROWL;
+            case PriestHeavenStateS2CPacket.SOUND_FINALE -> SoundEvents.WITHER_SPAWN;
+            default -> null;
+        };
+    }
+
+    private static float pitchForIndex(int soundIndex) {
+        if (soundIndex >= 0 && soundIndex < 15) {
+            return 0.82F + soundIndex * 0.03F;
         }
-        return null;
+        if (soundIndex == PriestHeavenStateS2CPacket.SOUND_ACCEL) {
+            return 0.7F;
+        }
+        if (soundIndex == PriestHeavenStateS2CPacket.SOUND_FINALE) {
+            return 0.8F;
+        }
+        return 1.0F;
     }
 }

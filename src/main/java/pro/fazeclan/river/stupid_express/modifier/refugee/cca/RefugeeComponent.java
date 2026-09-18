@@ -270,6 +270,8 @@ public class RefugeeComponent implements AutoSyncedComponent, ServerTickingCompo
 
         // Change role to LOOSE_END and remove REFUGEE modifier
         RoleUtils.changeRole(player, TMMRoles.LOOSE_END, false, false);
+        org.agmas.noellesroles.game.modifier.refugee.RefugeeDesperadoFx.replaceStarterWeapons(player);
+        org.agmas.noellesroles.game.modifier.refugee.RefugeeDesperadoFx.playSpawn(serverLevel, player);
         SRE.REPLAY_MANAGER.recordPlayerRevival(player.getUUID(), TMMRoles.LOOSE_END);
         RoleUtils.sendWelcomeAnnouncement(player);
 

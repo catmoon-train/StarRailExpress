@@ -1425,6 +1425,7 @@
     "gui.sre.role_rotation.confirm_waiting": "已確認，等待其他玩家確認…",
     "gui.sre.role_rotation.auto_scroll_on": "自動滾動：開（點擊關閉）",
     "gui.sre.role_rotation.auto_scroll_off": "自動滾動：關（點擊開啟）",
+    "gui.sre.role_rotation.voice_muted": "輪選期間所有人無法語音交流",
     "gui.sre.volunteer_open.title": "志願海選",
     "gui.sre.volunteer_open.phase_volunteer": "一階段：選取志願職業",
     "gui.sre.volunteer_open.phase_open": "二階段：海選 第 %s/%s 組",

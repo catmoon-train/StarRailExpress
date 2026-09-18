@@ -29,6 +29,7 @@ import io.wifi.starrailexpress.game.GameConstants;
 import io.wifi.starrailexpress.game.GameUtils;
 import io.wifi.starrailexpress.game.modes.SREMurderGameMode;
 import io.wifi.starrailexpress.game.modes.funny.rotation.LightningDraftState;
+import io.wifi.starrailexpress.game.modes.funny.rotation.RotationVoiceMute;
 import io.wifi.starrailexpress.game.roles.SpecialGameModeRoles;
 import io.wifi.starrailexpress.network.packet.RoleRotationConfirmC2SPacket;
 import io.wifi.starrailexpress.network.packet.RoleRotationSelectC2SPacket;
@@ -112,6 +113,9 @@ public class SRERoleRotationGameMode extends SREMurderGameMode {
             p.addEffect(new MobEffectInstance(ModEffects.SKILL_BANED, ROTATION_SAFE_TIME + 40, 10, true, false, false));
             p.addEffect(new MobEffectInstance(ModEffects.CCA_FREEZED, ROTATION_SAFE_TIME + 40, 10, true, false, false));
         }
+
+        // 轮选界面打开期间全员禁言：谁都无法用语音（svc）说话，避免通过语音串通职业选择
+        RotationVoiceMute.apply(world, ROTATION_SAFE_TIME + 40);
 
         // 保底
         final var random = new Random(world.getGameTime());
@@ -197,6 +201,9 @@ public class SRERoleRotationGameMode extends SREMurderGameMode {
             super.tickServerGameLoop(world, gameComp);
             return;
         }
+        // 轮选期间每 tick 补一次禁言：掉线重连的玩家会被 DecServerJoinPlayer 清掉全部效果，
+        // 中途加入的玩家也不该漏掉；时长按剩余轮选时间给，最坏情况也会随总超时自然过期
+        RotationVoiceMute.ensure(world, (int) Math.max(40L, rotationTimeout - world.getGameTime() + 40L));
         // ★ 处理离线玩家
         if (draftState.handleOfflinePlayers(world)) {
             // 状态有变动，广播同步
@@ -273,6 +280,8 @@ public class SRERoleRotationGameMode extends SREMurderGameMode {
     private void completeRoleSelection(ServerLevel world, SREGameWorldComponent gameComp,
             Map<UUID, SRERole> selectedRoles) {
         SRERoleWorldComponent roleComp = SRERoleWorldComponent.KEY.get(world);
+        // 轮选阶段结束：解除全员禁言（svc 语音恢复）
+        RotationVoiceMute.clear(world);
         for (ServerPlayer p : world.players()) {
             SRERole role = selectedRoles.get(p.getUUID());
             if (role != null) {
@@ -324,6 +333,8 @@ public class SRERoleRotationGameMode extends SREMurderGameMode {
         isInRotationPhase = false;
         rotationTimeout = -1;
         draftState = null;
+        // 轮选被强制打断（例如管理员直接结算）时兜底解禁，避免禁言效果残留到下一局
+        RotationVoiceMute.clear(world);
     }
 
     @Override

@@ -13,7 +13,8 @@ public class PriestRoleData extends SimpleRoleData {
 
     public int lyricIndex;
     public int sprintTicks;
-
+    /** 打开咏诵 GUI 后自动奔跑 */
+    public boolean autoSprint;
     public PriestRoleData(RoleDataContext context) {
         super(context);
     }
@@ -29,10 +30,23 @@ public class PriestRoleData extends SimpleRoleData {
             PriestHeavenManager.tickMobility(serverPlayer);
         }
     }
+    @Override
+    public void clientTick() {
+        if (autoSprint) {
+            player.setSprinting(true);
+        }
+        if (PriestHeavenManager.isMovingForSpeedRamp(player) || autoSprint) {
+            sprintTicks = Math.min(PriestHeavenManager.SPEED_RAMP_TICKS, sprintTicks + 1);
+        } else {
+            sprintTicks = Math.max(0, sprintTicks - 2);
+        }
+    }
 
     @Override
     public void writeToSyncNbt(@NotNull CompoundTag tag, HolderLookup.Provider provider) {
         tag.putInt("lyricIndex", lyricIndex);
+        tag.putBoolean("autoSprint", autoSprint);
+        tag.putInt("sprintTicks", sprintTicks);
     }
 
     @Override
@@ -41,5 +55,7 @@ public class PriestRoleData extends SimpleRoleData {
         if (lyricIndex < 0 || lyricIndex > PriestLyrics.COUNT) {
             lyricIndex = 0;
         }
+        autoSprint = tag.contains("autoSprint") && tag.getBoolean("autoSprint");
+        sprintTicks = tag.contains("sprintTicks") ? tag.getInt("sprintTicks") : sprintTicks;
     }
 }

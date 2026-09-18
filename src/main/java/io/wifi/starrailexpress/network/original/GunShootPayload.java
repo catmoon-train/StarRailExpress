@@ -95,7 +95,9 @@ public record GunShootPayload(int target) implements CustomPacketPayload {
 
             // cancel if derringer has been shot
             Boolean isUsed = mainHandStack.getOrDefault(SREDataComponentTypes.USED, false);
-            if (mainHandStack.is(TMMItems.DERRINGER)) {
+            boolean isDerringerWeapon = org.agmas.noellesroles.content.item.DesperadoGunItem
+                    .isDerringerWeapon(mainHandStack);
+            if (isDerringerWeapon) {
                 if (isUsed == null) {
                     isUsed = false;
                 }
@@ -113,7 +115,7 @@ public record GunShootPayload(int target) implements CustomPacketPayload {
                     && hitEntity instanceof ServerPlayer target
                     && target.distanceToSqr(player) < 30 * 30) {
                 Item revolver = TMMItems.REVOLVER;
-                boolean isDerringer = mainHandStack.is(TMMItems.DERRINGER);
+                boolean isDerringer = isDerringerWeapon;
                 ResourceLocation deathReason = isDerringer ? GameConstants.DeathReasons.DERRINGER
                         : GameConstants.DeathReasons.REVOLVER;
                 if (mainHandStack.is(ModItems.EXECUTIONER_GUN)) {
@@ -129,7 +131,7 @@ public record GunShootPayload(int target) implements CustomPacketPayload {
                 }
                 backfire = IsShootBackFire.EVENT.invoker().isShootBackFire(player, target);
                 boolean shouldDropRevolver = game.isInnocent(target) && !player.isCreative()
-                        && mainHandStack.is(TMMItemTags.GUNS) && !mainHandStack.is(TMMItems.DERRINGER);
+                        && mainHandStack.is(TMMItemTags.GUNS) && !isDerringerWeapon;
                 var dropresult = AllowShootRevolverDrop.EVENT.invoker().allowDrop(player, target);
                 if (dropresult.equals(TrueFalseResult.FALSE)) {
                     shouldDropRevolver = false;
@@ -203,7 +205,7 @@ public record GunShootPayload(int target) implements CustomPacketPayload {
                 }
                 backfire = IsShootBackFire.EVENT.invoker().isShootBackFire(player, target);
                 boolean shouldDropRevolver = game.isInnocent(target) && !player.isCreative()
-                        && mainHandStack.is(TMMItemTags.GUNS) && !mainHandStack.is(TMMItems.DERRINGER);
+                        && mainHandStack.is(TMMItemTags.GUNS) && !isDerringerWeapon;
                 var dropresult = AllowShootRevolverDrop.EVENT.invoker().allowDrop(player, target);
                 if (dropresult.equals(TrueFalseResult.FALSE)) {
                     shouldDropRevolver = false;

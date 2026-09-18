@@ -1298,7 +1298,7 @@ public class ModRolesInitialEventRegister {
                 SRE.id("priest_open_chant"),
                 "skill.noellesroles.priest.open_chant",
                 context -> PriestRole.openChant(context.player())
-        ).showOnHud(true).build());
+        ).showOnHud(true).cooldownTicks(0).build());
 
         // 超级亡命徒技能注册：使用技能，蹲下+ G 为特殊模式
         RoleSkill.register(SpecialGameModeRoles.SUPER_LOOSE_END,

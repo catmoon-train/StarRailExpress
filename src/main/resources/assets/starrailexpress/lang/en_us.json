@@ -1406,6 +1406,7 @@
     "gui.sre.role_rotation.confirm_waiting": "Confirmed — waiting for other players…",
     "gui.sre.role_rotation.auto_scroll_on": "Auto-scroll: On (click to disable)",
     "gui.sre.role_rotation.auto_scroll_off": "Auto-scroll: Off (click to enable)",
+    "gui.sre.role_rotation.voice_muted": "Voice chat is disabled for everyone during the role draft",
     "gui.sre.volunteer_open.title": "Volunteer Open Select",
     "gui.sre.volunteer_open.phase_volunteer": "Phase 1: Volunteer Role",
     "gui.sre.volunteer_open.phase_open": "Phase 2: Open Pool — Group %s/%s",

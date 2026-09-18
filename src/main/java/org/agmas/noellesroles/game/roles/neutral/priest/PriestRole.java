@@ -8,7 +8,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 
 /**
- * 神父：由持有「神的使命」的钟表匠在只剩自己与一名平民时转变而来的特殊中立。
+ * 神父：平民阵营，由持有「神的使命」的钟表匠在场上只剩一名平民时转变而来。
  * 随平民获胜；完成咏诵并让时间停止后，好人获胜。
  */
 public class PriestRole extends CustomWinnerRole {

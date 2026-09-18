@@ -105,7 +105,7 @@ public class InputHandler {
         if (ScopeOverlayRenderer.isInScopeView() && client.player != null) {
             ItemStack mainHandItem = client.player.getMainHandItem();
             if (!mainHandItem.is(TMMItems.SNIPER_RIFLE)) {
-                ScopeOverlayRenderer.setInScopeView(false);
+                ScopeOverlayRenderer.forceClose();
             }
         }
 
@@ -117,7 +117,7 @@ public class InputHandler {
                 boolean rightDown = org.lwjgl.glfw.GLFW.glfwGetMouseButton(
                         client.getWindow().getWindow(), GLFW.GLFW_MOUSE_BUTTON_RIGHT) == GLFW.GLFW_PRESS;
                 if (rightDown && !wasRightDown) {
-                    ScopeOverlayRenderer.setInScopeView(!ScopeOverlayRenderer.isInScopeView());
+                    ScopeOverlayRenderer.setInScopeView(!ScopeOverlayRenderer.isWantScoped());
                 }
                 wasRightDown = rightDown;
             }

@@ -13,12 +13,12 @@ import org.agmas.noellesroles.packet.PriestChantC2SPacket;
 import org.lwjgl.glfw.GLFW;
 
 /**
- * 神父咏诵：一次只打出一句台词。
+ * 神父咏诵：一次只打出一句台词。背景保持透明，方便一边打字一边奔跑。
  */
 public class PriestChantScreen extends Screen {
 
-    private static final int PANEL_BG = 0xF2141020;
-    private static final int PANEL_BORDER = 0xFFE8D48B;
+    private static final int PANEL_BG = 0x66141020;
+    private static final int PANEL_BORDER = 0xAAE8D48B;
     private static final int GOLD = 0xFFF4E4A6;
 
     private EditBox input;
@@ -47,6 +47,11 @@ public class PriestChantScreen extends Screen {
                 .withStyle(ChatFormatting.DARK_GRAY));
         this.addRenderableWidget(this.input);
         this.setInitialFocus(this.input);
+    }
+
+    @Override
+    public void renderBackground(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
+        // 不画暗色遮罩，世界保持可见
     }
 
     @Override

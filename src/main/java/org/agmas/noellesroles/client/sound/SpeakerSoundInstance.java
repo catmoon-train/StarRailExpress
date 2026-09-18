@@ -32,12 +32,12 @@ public class SpeakerSoundInstance extends AbstractTickableSoundInstance {
     private final UUID ownerId;
     private boolean released;
 
-    public SpeakerSoundInstance(SoundEvent sound, UUID ownerId, Vec3 pos) {
+    public SpeakerSoundInstance(SoundEvent sound, UUID ownerId, Vec3 pos, float volume) {
         super(sound, SoundSource.PLAYERS, SoundInstance.createUnseededRandom());
         this.ownerId = ownerId;
         this.looping = true;
         this.delay = 0;
-        this.volume = 1.0F;
+        this.volume = Mth.clamp(volume, 0.0F, 1.0F);
         this.pitch = 1.0F;
         this.relative = false;
         this.attenuation = SoundInstance.Attenuation.LINEAR;
@@ -48,6 +48,10 @@ public class SpeakerSoundInstance extends AbstractTickableSoundInstance {
 
     public UUID ownerId() {
         return ownerId;
+    }
+
+    public void setGain(float volume) {
+        this.volume = Mth.clamp(volume, 0.0F, 1.0F);
     }
 
     public void refreshPosition(Player player, float partialTick) {

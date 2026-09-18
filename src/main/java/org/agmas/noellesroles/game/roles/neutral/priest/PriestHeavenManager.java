@@ -26,8 +26,6 @@ import org.agmas.noellesroles.role_data.neutral.PriestRoleData;
 import org.agmas.noellesroles.utils.OpenScreenManager;
 import org.agmas.noellesroles.utils.RoleUtils;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.UUID;
 
 /**
@@ -43,12 +41,13 @@ public final class PriestHeavenManager {
         FINALE
     }
 
-    public static final int CHANT_TICKS = 120 * 20;
+    public static final int CHANT_TICKS = 25 * 20;
     public static final int ACCEL_TICKS = 30 * 20;
     public static final int LAST_DRAMATIC_TICKS = 15 * 20;
     public static final int FINALE_TICKS = 8 * 20;
-    public static final int SPEED_RAMP_TICKS = 8 * 20;
-    public static final double MAX_SPEED_MULTIPLIER = 4.0D;
+    public static final int SPEED_RAMP_TICKS = 4 * 20;
+    /** 最大速度倍率（1000%） */
+    public static final double MAX_SPEED_MULTIPLIER = 10.0D;
     public static final ResourceLocation SPEED_MODIFIER_ID = Noellesroles.id("priest_heaven_speed");
 
     private static Session session;
@@ -63,6 +62,7 @@ public final class PriestHeavenManager {
         public boolean completedSequence;
         public boolean endingSent;
         public int visualTime;
+        public int accelStartTime;
         public boolean frozeGameTime;
     }
 
@@ -79,6 +79,40 @@ public final class PriestHeavenManager {
 
     public static boolean isPriest(ServerPlayer player) {
         return session != null && player != null && player.getUUID().equals(session.priestId);
+    }
+
+    public static boolean shouldAutoRun(net.minecraft.world.entity.player.Player player) {
+        PriestRoleData data = RoleData.getNullable(PriestRoleData.class, player);
+        return data != null && data.autoSprint;
+    }
+
+    public static boolean isMovingForSpeedRamp(net.minecraft.world.entity.player.Player player) {
+        if (player == null) {
+            return false;
+        }
+        if (shouldAutoRun(player) || player.isSprinting()) {
+            return true;
+        }
+        if (Math.abs(player.xxa) > 1.0E-4F || Math.abs(player.zza) > 1.0E-4F) {
+            return true;
+        }
+        return player.getDeltaMovement().horizontalDistanceSqr() > 1.0E-5;
+    }
+
+    /** 叠在游戏写死的 getSpeed 上，走动越久越快，最高约 +1000%。 */
+    public static float movementSpeedMultiplier(net.minecraft.world.entity.player.Player player) {
+        PriestRoleData data = RoleData.getNullable(PriestRoleData.class, player);
+        if (data == null) {
+            return 1.0F;
+        }
+        float ramp = Math.min(1.0F, data.sprintTicks / (float) SPEED_RAMP_TICKS);
+        if (data.autoSprint) {
+            ramp = Math.max(ramp, 0.2F);
+        }
+        if (ramp <= 0.001F) {
+            return 1.0F;
+        }
+        return 1.0F + (float) MAX_SPEED_MULTIPLIER * ramp;
     }
 
     public static void reset() {
@@ -130,20 +164,22 @@ public final class PriestHeavenManager {
             return false;
         }
         WorldModifierComponent modifiers = WorldModifierComponent.KEY.get(level);
-        List<ServerPlayer> alive = new ArrayList<>();
         ServerPlayer clockmaker = null;
-        ServerPlayer civilian = null;
+        int civilians = 0;
         for (ServerPlayer player : level.getPlayers(GameUtils::isPlayerAliveAndSurvival)) {
-            alive.add(player);
             SRERole role = game.getRole(player);
-            if (role != null && role.identifier().equals(ModRoles.CLOCKMAKER_ID)
+            if (role == null) {
+                continue;
+            }
+            if (role.identifier().equals(ModRoles.CLOCKMAKER_ID)
                     && modifiers.isModifier(player, NRModifiers.GODS_MISSION)) {
                 clockmaker = player;
-            } else if (role != null && role.canIncreaseSurvivingInnocents()) {
-                civilian = player;
+            } else if (role.canIncreaseSurvivingInnocents()) {
+                // 只计算平民，不计算杀手和其他中立
+                civilians++;
             }
         }
-        if (alive.size() != 2 || clockmaker == null || civilian == null || clockmaker == civilian) {
+        if (clockmaker == null || civilians != 1) {
             return false;
         }
         transform(level, clockmaker);
@@ -159,6 +195,7 @@ public final class PriestHeavenManager {
         RoleUtils.changeRole(clockmaker, ModRoles.PRIEST, true, true, false, false, true);
         applyMobility(clockmaker);
 
+        // 转职音效由 SOUND_TRANSFORM 在客户端播放，避免空自定义音效槽和双响
         Component title = Component.translatable("message.noellesroles.priest.transform.title")
                 .withStyle(ChatFormatting.GOLD, ChatFormatting.BOLD);
         Component subtitle = Component.translatable("message.noellesroles.priest.transform.subtitle")
@@ -180,7 +217,7 @@ public final class PriestHeavenManager {
                 }
             }
         }));
-        syncToAll(level, PriestHeavenStateS2CPacket.SOUND_NONE);
+        syncToAll(level, PriestHeavenStateS2CPacket.SOUND_TRANSFORM);
     }
 
     public static boolean openChantScreen(ServerPlayer player) {
@@ -223,6 +260,15 @@ public final class PriestHeavenManager {
     private static void startChanting(ServerLevel level) {
         session.phase = Phase.CHANTING;
         session.chantRemain = CHANT_TICKS;
+        // GUI 关闭，结束自动奔跑
+        ServerPlayer priest = level.getServer().getPlayerList().getPlayer(session.priestId);
+        if (priest != null) {
+            PriestRoleData data = RoleData.getNullable(PriestRoleData.class, priest);
+            if (data != null) {
+                data.autoSprint = false;
+                data.sync();
+            }
+        }
         Component title = Component.translatable("message.noellesroles.priest.chant.started.title")
                 .withStyle(ChatFormatting.WHITE, ChatFormatting.BOLD);
         Component subtitle = Component.translatable("message.noellesroles.priest.chant.started.subtitle")
@@ -243,7 +289,8 @@ public final class PriestHeavenManager {
             time.setTimeFrozen(true);
             session.frozeGameTime = true;
         }
-        session.visualTime = time.getTime();
+        session.accelStartTime = Math.max(0, time.getTime());
+        session.visualTime = session.accelStartTime;
         Component title = Component.translatable("message.noellesroles.priest.accel.title")
                 .withStyle(ChatFormatting.LIGHT_PURPLE, ChatFormatting.BOLD);
         Component subtitle = Component.translatable("message.noellesroles.priest.accel.subtitle")
@@ -256,7 +303,7 @@ public final class PriestHeavenManager {
                     Component.translatable("message.noellesroles.priest.accel.broadcast")
                             .withStyle(ChatFormatting.LIGHT_PURPLE, ChatFormatting.BOLD));
         }
-        syncToAll(level, PriestHeavenStateS2CPacket.SOUND_NONE);
+        syncToAll(level, PriestHeavenStateS2CPacket.SOUND_ACCEL);
     }
 
     private static void startFinale(ServerLevel level) {
@@ -276,7 +323,7 @@ public final class PriestHeavenManager {
             SRENetworkMessageUtils.sendTitle(player, title);
             SRENetworkMessageUtils.sendSubtitle(player, subtitle);
         }
-        syncToAll(level, PriestHeavenStateS2CPacket.SOUND_NONE);
+        syncToAll(level, PriestHeavenStateS2CPacket.SOUND_FINALE);
     }
 
     public static void tick(ServerLevel level) {
@@ -308,7 +355,7 @@ public final class PriestHeavenManager {
                 boolean last15 = session.accelElapsed >= ACCEL_TICKS - LAST_DRAMATIC_TICKS;
                 if (session.accelElapsed >= ACCEL_TICKS) {
                     startFinale(level);
-                } else if (last15 || session.accelElapsed % 5 == 0) {
+                } else if (last15 || session.accelElapsed % 2 == 0) {
                     syncToAll(level, PriestHeavenStateS2CPacket.SOUND_NONE);
                 }
             }
@@ -325,19 +372,24 @@ public final class PriestHeavenManager {
             }
         }
     }
-
     private static void accelerateTime(ServerLevel level) {
-        float progress = session.accelElapsed / (float) ACCEL_TICKS;
-        float eased = progress * progress;
-        long dayExtra = 20L + (long) (eased * 800L);
+        float progress = Math.min(1.0F, session.accelElapsed / (float) ACCEL_TICKS);
+        // 前慢后快，结束时一定落到 0
+        float eased = 1.0F - (1.0F - progress) * (1.0F - progress) * (1.0F - progress);
+        SREGameTimeComponent time = SREGameTimeComponent.KEY.get(level);
+        int start = Math.max(session.accelStartTime, 1);
+        int next = Math.max(0, Math.round(start * (1.0F - eased)));
+        if (session.accelElapsed >= ACCEL_TICKS) {
+            next = 0;
+        }
+        time.time = next;
+        session.visualTime = next;
+
+        long dayExtra = 80L + (long) (eased * 2800L);
         level.setDayTime(level.getDayTime() + dayExtra);
 
-        SREGameTimeComponent time = SREGameTimeComponent.KEY.get(level);
-        int extra = 1 + (int) (eased * 20);
-        time.time = Math.max(0, time.time - extra);
-        session.visualTime = time.time;
         boolean last15 = session.accelElapsed >= ACCEL_TICKS - LAST_DRAMATIC_TICKS;
-        if (last15 || session.accelElapsed % 10 == 0) {
+        if (last15 || session.accelElapsed % 2 == 0) {
             time.sync();
         }
     }
@@ -348,13 +400,15 @@ public final class PriestHeavenManager {
         if (data == null) {
             return;
         }
-        if (player.isSprinting()) {
+        // GUI 打开期间自动奔跑；走动/冲刺都会把速度往上堆
+        if (data.autoSprint) {
+            player.setSprinting(true);
+        }
+        if (isMovingForSpeedRamp(player)) {
             data.sprintTicks = Math.min(SPEED_RAMP_TICKS, data.sprintTicks + 1);
         } else {
             data.sprintTicks = Math.max(0, data.sprintTicks - 2);
         }
-        double multiplier = MAX_SPEED_MULTIPLIER * (data.sprintTicks / (double) SPEED_RAMP_TICKS);
-        updateSpeed(player, multiplier);
     }
 
     public static void applyMobility(ServerPlayer player) {
@@ -367,6 +421,11 @@ public final class PriestHeavenManager {
     public static void clearMobility(ServerPlayer player) {
         updateSpeed(player, 0);
         player.removeEffect(ModEffects.NO_COLLIDE);
+        PriestRoleData data = RoleData.getNullable(PriestRoleData.class, player);
+        if (data != null) {
+            data.autoSprint = false;
+        }
+        player.setSprinting(false);
     }
 
     private static void updateSpeed(ServerPlayer player, double multiplier) {

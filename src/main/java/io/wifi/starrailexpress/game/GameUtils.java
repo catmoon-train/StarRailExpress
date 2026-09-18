@@ -1706,7 +1706,7 @@ public class GameUtils {
         for (List<ItemStack> list : player.getInventory().compartments) {
             for (int i = 0; i < list.size(); i++) {
                 ItemStack stack = list.get(i);
-                if (stack.is(TMMItems.DERRINGER)) {
+                if (org.agmas.noellesroles.content.item.DesperadoGunItem.isDerringerWeapon(stack)) {
                     return stack.getOrDefault(SREDataComponentTypes.USED, false);
                 }
             }
@@ -1718,7 +1718,7 @@ public class GameUtils {
         for (List<ItemStack> list : player.getInventory().compartments) {
             for (int i = 0; i < list.size(); i++) {
                 ItemStack stack = list.get(i);
-                if (stack.is(TMMItems.DERRINGER)) {
+                if (org.agmas.noellesroles.content.item.DesperadoGunItem.isDerringerWeapon(stack)) {
                     stack.set(SREDataComponentTypes.USED, !haveBullet);
                     return true;
                 }

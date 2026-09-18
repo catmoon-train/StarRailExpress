@@ -28,7 +28,10 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
+import com.mojang.blaze3d.vertex.PoseStack;
+
 
 @Mixin(GameRenderer.class)
 public class GameRendererMixin {
@@ -45,15 +48,22 @@ public class GameRendererMixin {
 
     @Inject(method = "getFov", at = @At("RETURN"), cancellable = true)
     public void modifyFov(net.minecraft.client.Camera camera, float partialTick, boolean bobbing, CallbackInfoReturnable<Double> cir) {
-        if (ScopeOverlayRenderer.isInScopeView()) {
-            double original = cir.getReturnValue();
-            cir.setReturnValue(original / 3d); // 开镜时将FOV缩小到原来的1/3，实现拉近视角效果
+        float zoom = ScopeOverlayRenderer.getFovMultiplier();
+        if (zoom < 0.999f) {
+            cir.setReturnValue(cir.getReturnValue() * (double) zoom);
             return;
         }
         // 高级相机轨道的 FOV 覆盖（开镜优先级更高，故放在其后）。
         float advancedFov = net.exmo.sre.camera.client.AdvancedCameraDirector.getFovOverride(partialTick);
         if (advancedFov > 0f) {
             cir.setReturnValue((double) advancedFov);
+        }
+    }
+
+    @Inject(method = "bobView", at = @At("HEAD"), cancellable = true)
+    private void tmm$noBobWhenScoped(PoseStack poseStack, float partialTick, CallbackInfo ci) {
+        if (ScopeOverlayRenderer.getScopeProgress() > 0.2f) {
+            ci.cancel();
         }
     }
 }

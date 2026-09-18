@@ -37,6 +37,7 @@ import net.minecraft.util.FormattedCharSequence;
 import net.minecraft.util.Mth;
 import org.agmas.noellesroles.client.NoellesrolesClient;
 import org.agmas.noellesroles.client.screen.RoleIntroduceScreen;
+import org.agmas.noellesroles.init.ModEffects;
 import org.agmas.noellesroles.utils.RoleUtils;
 
 import java.util.*;
@@ -235,6 +236,17 @@ public class RoleRotationScreen extends Screen {
         Component turn = Component.translatable("gui.sre.role_rotation.current_round",
                 RoleRotationCache.getCurrentRoundIndex());
         g.drawString(font, turn, width - PAD - font.width(turn), 10, TEXT, false);
+        // 轮选期间服务端给所有人挂了禁言效果（见 RotationVoiceMute）：标题栏常驻提示，
+        // 免得玩家以为自己的麦克风坏了——动作栏提示只闪一次，很容易被错过
+        if (minecraft != null && minecraft.player != null
+                && minecraft.player.hasEffect(ModEffects.VOICE_SILENCE)) {
+            Component muted = Component.translatable("gui.sre.role_rotation.voice_muted");
+            int mutedX = width - PAD - font.width(turn) - 12 - font.width(muted);
+            // 窗口太窄时宁可不画，也不去压到左边的标题
+            if (mutedX > PAD + font.width(title) + 8) {
+                g.drawString(font, muted, mutedX, 10, RED, false);
+            }
+        }
     }
 
     private void drawPanel(GuiGraphics g, int x, int y, int w, int h) {

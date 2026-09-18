@@ -59,6 +59,7 @@ import net.minecraft.world.level.Level;
 import org.agmas.noellesroles.client.FlashlightLightProvider;
 import org.agmas.noellesroles.content.entity.WheelchairEntity;
 import org.agmas.noellesroles.game.modifier.NRModifiers;
+import org.agmas.noellesroles.game.roles.neutral.priest.PriestHeavenManager;
 import org.agmas.noellesroles.init.ModEffects;
 import org.agmas.noellesroles.utils.RoleUtils;
 import org.jetbrains.annotations.NotNull;
@@ -155,7 +156,8 @@ public abstract class PlayerEntityMixin extends LivingEntity implements PlayerSt
             if (player.hasEffect(ModEffects.MOVE_UPSIDE_DOWN)) {
                 speedModifier *= -1f;
             }
-            return this.isSprinting() ? 0.1f * speedModifier : 0.07f * speedModifier;
+            return (this.isSprinting() ? 0.1f * speedModifier : 0.07f * speedModifier)
+                    * PriestHeavenManager.movementSpeedMultiplier(player);
         } else {
             return original;
         }

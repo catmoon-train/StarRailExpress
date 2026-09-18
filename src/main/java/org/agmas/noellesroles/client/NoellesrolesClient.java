@@ -306,6 +306,7 @@ public class NoellesrolesClient implements ClientModInitializer {
             }
         });
         // 注册HUD渲染
+        org.agmas.noellesroles.client.RefugeeDesperadoClientFx.register();
         LimitedInventoryScreen.NotAllowItemTakePredicates.add(stack -> stack.is(ModItems.BOMB));
 
         BlockEntityRenderers.register(
@@ -531,7 +532,7 @@ public class NoellesrolesClient implements ClientModInitializer {
         ClientPlayNetworking.registerGlobalReceiver(org.agmas.noellesroles.packet.SpeakerS2CPacket.ID,
                 (payload, context) -> context.client().execute(() ->
                         org.agmas.noellesroles.client.sound.SpeakerClientSounds
-                                .apply(payload.playerId(), payload.trackId(), payload.playing())));
+                                .apply(payload.playerId(), payload.trackId(), payload.playing(), payload.volume())));
         ClientPlayNetworking.registerGlobalReceiver(RefreshDimensionsS2CPacket.ID, (payload, context) -> {
             ClientScheduler.schedule(() -> {
                 if (context.client().player != null) {

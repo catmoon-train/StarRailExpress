@@ -31,7 +31,7 @@ import org.agmas.noellesroles.content.item.SpeakerItem;
 import org.agmas.noellesroles.init.ModItems;
 
 /**
- * 物品栏里的音响处于开启状态时，把音响画在右肩上。
+ * 物品栏里的音响处于开启状态时，把 3D 音响模型扛在右肩上。
  */
 public class SpeakerShoulderFeatureRenderer extends RenderLayer<AbstractClientPlayer, PlayerModel<AbstractClientPlayer>> {
     private final ItemStack speakerStack;
@@ -55,12 +55,12 @@ public class SpeakerShoulderFeatureRenderer extends RenderLayer<AbstractClientPl
 
         matrices.pushPose();
         this.getParentModel().body.translateAndRotate(matrices);
-        // 右肩：身体坐标系 X 为正（玩家自身右侧）
-        matrices.translate(-0.28F, 0.18F, 0.02F);
-        matrices.mulPose(Axis.ZP.rotationDegrees(18.0F));
-        matrices.mulPose(Axis.YP.rotationDegrees(200.0F));
-        matrices.mulPose(Axis.XP.rotationDegrees(-8.0F));
-        matrices.scale(0.72F, 0.72F, 0.72F);
+        // 玩家模型：-X 右肩，+Y 向下。先翻正再放到肩头。
+        matrices.translate(-0.30F, 0.02F, 0.02F);
+        matrices.mulPose(Axis.XP.rotationDegrees(180.0F));
+        matrices.mulPose(Axis.YP.rotationDegrees(180.0F));
+        matrices.mulPose(Axis.ZP.rotationDegrees(-18.0F));
+        matrices.scale(0.48F, 0.48F, 0.48F);
 
         Minecraft.getInstance().getItemRenderer().renderStatic(
                 this.speakerStack, ItemDisplayContext.FIXED, light,

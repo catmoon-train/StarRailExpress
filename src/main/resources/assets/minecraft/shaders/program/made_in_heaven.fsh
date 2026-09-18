@@ -15,40 +15,41 @@ void main() {
     float dist = length(toCenter);
     vec2 dir = normalize(toCenter + vec2(0.0001));
 
-    float pulse = 0.5 + 0.5 * sin(Time * 7.0);
-    float warp = Strength * (0.035 + 0.03 * pulse);
-    vec2 streak = dir * warp * (0.35 + dist);
-    vec2 spun = uv;
-    float ang = Strength * 0.35 * sin(Time * 1.7 + dist * 8.0);
+    // 只随 Strength 单向加深，Time 只做缓慢连转，不再用 sin 来回抽
+    float s = clamp(Strength, 0.0, 1.0);
+    float s2 = s * s;
+    float crush = mix(1.0, 0.08, s2);
+    float ang = s * (0.12 + Time * 0.22) + dist * s * 0.35;
     float ca = cos(ang);
     float sa = sin(ang);
-    spun = vec2(
-        toCenter.x * ca - toCenter.y * sa,
-        toCenter.x * sa + toCenter.y * ca
-    ) + center + streak;
+    vec2 crushed = toCenter * crush;
+    vec2 spun = vec2(
+        crushed.x * ca - crushed.y * sa,
+        crushed.x * sa + crushed.y * ca
+    );
+    vec2 warped = center + spun + dir * (s2 * 0.28 * dist);
 
-    float ab = 0.012 * Strength * (0.7 + 0.3 * sin(Time * 5.0));
-    float r = texture(DiffuseSampler, spun + dir * ab).r;
-    float g = texture(DiffuseSampler, spun).g;
-    float b = texture(DiffuseSampler, spun - dir * ab).b;
+    float ab = 0.03 * s2;
+    float r = texture(DiffuseSampler, warped + dir * ab).r;
+    float g = texture(DiffuseSampler, warped).g;
+    float b = texture(DiffuseSampler, warped - dir * ab).b;
     vec3 col = vec3(r, g, b);
 
-    float hue = fract(Time * 0.08 + dist * 0.35);
-    vec3 gold = vec3(1.0, 0.86, 0.45);
-    vec3 violet = vec3(0.72, 0.42, 1.0);
-    vec3 tint = mix(gold, violet, hue);
-    col = mix(col, col * tint * 1.25, Strength * 0.55);
+    vec3 gold = vec3(1.0, 0.86, 0.42);
+    vec3 violet = vec3(0.76, 0.36, 1.0);
+    vec3 tint = mix(gold, violet, clamp(dist * 1.1, 0.0, 1.0));
+    col = mix(col, col * tint * 1.35, s * 0.65);
 
     float gray = dot(col, vec3(0.299, 0.587, 0.114));
-    col = mix(vec3(gray), col, 1.0 + Strength * 0.35);
+    col = mix(vec3(gray), col, 1.0 + s * 0.4);
 
-    float rays = pow(max(0.0, 1.0 - dist), 3.0) * Strength * (0.25 + 0.2 * pulse);
+    float rays = pow(max(0.0, 1.0 - dist), 2.6) * s2 * 0.55;
     col += gold * rays;
 
-    float vignette = smoothstep(1.15, 0.25, dist);
-    col *= mix(1.0, vignette, Strength * 0.45);
+    float vignette = smoothstep(1.2, 0.16, dist);
+    col *= mix(1.0, vignette, s * 0.5);
 
     vec4 base = texture(DiffuseSampler, uv);
-    vec3 finalColor = mix(base.rgb, col, clamp(Strength, 0.0, 1.0));
+    vec3 finalColor = mix(base.rgb, col, s);
     fragColor = vec4(finalColor, base.a);
 }

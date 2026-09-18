@@ -15,6 +15,7 @@
 
 package org.agmas.noellesroles.game.modifier;
 
+import io.wifi.starrailexpress.api.RoleTeam;
 import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.game.GameUtils;
@@ -151,7 +152,7 @@ public class NRModifiers {
             .setDefaultMax(2)
             .setDefaultEnableChance(5000);
 
-    /** 胆小鬼修饰符：持续获得胆小鬼药水，面前有人死亡时坐下并发抖 */
+    /** 胆小鬼修饰符：仅平民可获得；持续获得胆小鬼药水，面前有人死亡时坐下并发抖（触发后有 120 秒冷却） */
     public static SREModifier COWARD = HMLModifiers.registerModifier(new SREModifier(
             Noellesroles.id("coward"),
             0x6B8E6B,
@@ -203,7 +204,7 @@ public class NRModifiers {
             .setDefaultEnableChance(3000)
             .setAddedVersion("4.4");
 
-    /** 神的使命：仅钟表匠，30% 刷新；只剩钟表匠与一名平民时转变为神父 */
+    /** 神的使命：仅钟表匠，30% 刷新；场上只剩一名平民时钟表匠转变为神父（神父不自然刷新） */
     public static SREModifier GODS_MISSION = HMLModifiers.registerModifier(new SREModifier(
             Noellesroles.id("gods_mission"),
             0xF4E4A6,
@@ -237,11 +238,15 @@ public class NRModifiers {
         EXPEDITION.civilianOnly = true;
         EXPEDITION.cannotBeAppliedTo = new HashSet<>(List.of(ModRoles.GHOST));
         INTROVERTED.civilianOnly = true;
+        // 胆小鬼只出现在平民身上（平民：好人阵营且不属于警长阵营，见 RoleTeam.CIVILIAN）
+        COWARD.setCanOnlyBeAppliedToTeam(RoleTeam.CIVILIAN);
         // 胖子与瘦子互斥：同一名玩家身上不会共存（生成时排除 + 运行时兜底），
         // 介绍页也会显示在「互斥修饰符」分组（原 addBothRelatedModifier 的关联展示已被其取代）
         FAT.addTwoWayOpposingModifier(SKINNY);
         GODS_MISSION.canOnlyBeAppliedTo = new HashSet<>(List.of(ModRoles.CLOCKMAKER));
-        GODS_MISSION.addBothRelatedRole(ModRoles.CLOCKMAKER, ModRoles.PRIEST);
+        // 只关联钟表匠：神父由转职产生，不能进关联扩展/名单刷新
+        GODS_MISSION.addBothRelatedRole(ModRoles.CLOCKMAKER);
+        ModRoles.PRIEST.addRelatedModifier(GODS_MISSION);
         excludeLeonFromAllModifiers();
         assignModifierComponents();
         TaxedModifier.init();

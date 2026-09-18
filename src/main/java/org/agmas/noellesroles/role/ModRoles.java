@@ -2768,19 +2768,20 @@ public class ModRoles {
             .setDefaultEnableNeededPlayerCount(12);
 
     /**
-     * 神父：特殊中立，由持有神的使命的钟表匠转变而来，随平民获胜。
-     * 不参与随机刷新。
+     * 神父：平民阵营，由持有神的使命的钟表匠转变而来，随平民获胜。
+     * 不参与自然刷新，也不能被其他角色随机到。
      */
     public static SRERole PRIEST = TMMRoles.registerRole(new PriestRole(
             PRIEST_ID,
             new Color(244, 232, 192).getRGB(),
-            RoleType.NEUTRALS,
+            RoleType.CIVILIAN,
             SRERole.MoodType.REAL,
             Integer.MAX_VALUE,
             true
     )).setRoleData(PriestRoleData::new)
             .setCanSeeTime(true)
             .setCanSeeCoin(true)
+            .setCanUseInstinctAndNightVision(true)
             .setDefaultMax(0)
             .setCanBeRandomedByOtherRoles(false)
             .setCanSetSpawnInfoInConfig(false)

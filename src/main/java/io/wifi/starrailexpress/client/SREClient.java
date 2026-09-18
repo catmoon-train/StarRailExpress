@@ -880,7 +880,7 @@ public class SREClient implements ClientModInitializer {
             context.client().execute(() -> {
                 // 如果倍镜被卸下，退出开镜状态
                 if (!payload.scopeAttached()) {
-                    ScopeOverlayRenderer.setInScopeView(false);
+                    ScopeOverlayRenderer.forceClose();
                 }
             });
         });
