@@ -15,6 +15,7 @@
 
 package org.agmas.noellesroles.game.fake_steve;
 
+import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.api.RoleSkill;
 import io.wifi.starrailexpress.cca.DynamicShopComponent;
@@ -1475,6 +1476,116 @@ public class FakeSteveAi {
                 return;
             }
         }
+    }
+
+    // ==================== 卡死保底（最后一层） ====================
+
+    /** 卡死保底：连续这么久（12 秒）位置都没变化超过 {@link #STUCK_RADIUS} 格，就强制传送回路径点。 */
+    private static final long STUCK_TICKS = 240L;
+
+    /** 卡死保底：判定「位置确实变化过」的半径（格）。 */
+    private static final double STUCK_RADIUS = 2.0D;
+
+    /**
+     * 伪人行为的最后一层保底：连续 12 秒位置都没变化超过 2 格，就直接把它传送到一个记录路径点上。
+     *
+     * <p>
+     * 前面的机制（撞墙折返、A* 重试、路点超时）本质都还是「让它自己走回来」，遇到真的走不出去的情况
+     * （被锁在房间里、被挤进死角、卡在方块缝里）能做的只有原地打转。这一层不再指望它自己解决：
+     * 直接落回玩家生前走过的某个地面点上，从那里继续巡逻。
+     *
+     * <p>
+     * 少数「故意站着不动」的行为（盯着人看、同化、击杀后恢复）不参与计时，否则正常的表演动作会被判成
+     * 卡死，凭空传送一下反而穿帮。
+     *
+     * <p>
+     * 成本：每 tick 只有两次坐标相减；只有判定成立时才做一次有上界的路径点扫描。
+     */
+    static void rescueIfStuck(ServerLevel level, ServerPlayer body, FakeSteveAgentState state) {
+        long now = level.getGameTime();
+        if (state.mode == AgentMode.STARE || state.mode == AgentMode.ASSIMILATE
+                || state.mode == AgentMode.RECOVER) {
+            resetStuckAnchor(state, body, now);
+            return;
+        }
+        if (state.stuckAnchorTick == 0L) {
+            resetStuckAnchor(state, body, now);
+            return;
+        }
+        double dx = body.getX() - state.stuckAnchorX;
+        double dz = body.getZ() - state.stuckAnchorZ;
+        if (dx * dx + dz * dz > STUCK_RADIUS * STUCK_RADIUS) {
+            // 位置变化超过 2 格：重新锚定，12 秒重新计时。
+            resetStuckAnchor(state, body, now);
+            return;
+        }
+        if (now - state.stuckAnchorTick < STUCK_TICKS) {
+            return;
+        }
+        // 到点了：先重新锚定再传送，无论成功与否都不会每 tick 重试。
+        long stuckTicks = now - state.stuckAnchorTick;
+        resetStuckAnchor(state, body, now);
+        teleportToUsableTrailPoint(level, body, state, now, stuckTicks);
+    }
+
+    private static void resetStuckAnchor(FakeSteveAgentState state, ServerPlayer body, long now) {
+        state.stuckAnchorX = body.getX();
+        state.stuckAnchorZ = body.getZ();
+        state.stuckAnchorTick = now;
+    }
+
+    /**
+     * 把身体直接放回最近一个「现在依然可抵达」的记录路径点。
+     *
+     * <p>
+     * 只挑离身体至少 {@link #STUCK_RADIUS} 格的点（原地传送没有意义，也会让保底计时立刻再次命中），
+     * 并且要求它现在还能站住，所以落地后不会卡在方块里、也不会掉到地图外。
+     */
+    private static void teleportToUsableTrailPoint(ServerLevel level, ServerPlayer body,
+            FakeSteveAgentState state, long now, long stuckTicks) {
+        if (!state.trailEnabled || state.trail.size() < 2) {
+            return;
+        }
+        if (state.trailDimension != null && !state.trailDimension.equals(level.dimension())) {
+            return;
+        }
+        BlockPos origin = body.blockPosition();
+        double minSqr = STUCK_RADIUS * STUCK_RADIUS;
+        double bestSqr = Double.MAX_VALUE;
+        int picked = -1;
+        for (int i = 0; i < state.trail.size(); i++) {
+            BlockPos pos = state.trail.get(i);
+            double distanceSqr = pos.distSqr(origin);
+            if (distanceSqr < minSqr || distanceSqr >= bestSqr) {
+                continue;
+            }
+            if (trailPointUsable(level, pos)) {
+                bestSqr = distanceSqr;
+                picked = i;
+            }
+        }
+        if (picked < 0) {
+            return;
+        }
+        BlockPos target = state.trail.get(picked);
+        body.stopRiding();
+        body.stopSleeping();
+        body.teleportTo(target.getX() + 0.5D, target.getY(), target.getZ() + 0.5D);
+        // 传送后把移动 / 寻路 / 轨迹进度全部作废，否则会带着旧目标原地打转。
+        FakeSteveMotionController.clear(body, state);
+        state.trailIndex = picked;
+        state.trailWaypointTick = now;
+        state.trailReverseCooldownUntilTick = now + TRAIL_REVERSE_COOLDOWN_TICKS;
+        state.trailRescanCooldownUntilTick = now + TRAIL_RESCAN_COOLDOWN_TICKS;
+        state.trailRefTick = 0L;
+        state.trailProgressTick = now;
+        state.hasStableRouteYaw = false;
+        state.pathGoal = null;
+        state.path.clear();
+        state.pathRetryAfterTick = 0L;
+        SRE.LOGGER.info("[Fake Steve] " + body.getName().getString() + " stayed inside "
+                + STUCK_RADIUS + " blocks for " + stuckTicks + " ticks (rescue), teleported to trail point "
+                + picked + " " + target.toShortString());
     }
 
     /**

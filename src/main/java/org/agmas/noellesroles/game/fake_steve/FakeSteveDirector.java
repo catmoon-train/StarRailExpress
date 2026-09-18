@@ -331,6 +331,9 @@ public final class FakeSteveDirector {
                 applyControl(player);
                 FakeSteveMotionController.applyServerMotion(player, session.agents.get(id));
                 FakeSteveAi.tick(level, player, session.agents.get(id));
+                // 最后一层保底：连续 12 秒位置都没变化超过 2 格，直接传送回可用的记录路径点。
+                // 放在 tick 之后，这样无论本 tick 走的是哪条行为分支都会被覆盖。
+                FakeSteveAi.rescueIfStuck(level, player, session.agents.get(id));
             } else {
                 FakeSteveMotionController.clear(player, session.agents.get(id));
                 removeControl(player);

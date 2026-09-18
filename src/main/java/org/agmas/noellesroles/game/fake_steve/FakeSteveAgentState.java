@@ -23,6 +23,8 @@ import java.util.List;
 import java.util.Map;
 
 import net.minecraft.core.BlockPos;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.world.level.Level;
 import io.wifi.starrailexpress.cca.SREPlayerTaskComponent;
 
 public final class FakeSteveAgentState {
@@ -137,6 +139,13 @@ public final class FakeSteveAgentState {
     public long trailRescanCooldownUntilTick;
     /** 已完成的折返次数（调试用）。 */
     public int trailLoops;
+    /** 记录这条路线时身体所在的维度：保底传送前用它确认坐标还对得上。 */
+    public ResourceKey<Level> trailDimension;
+    /** 卡死保底锚点：身体没离开该点 {@code STUCK_RADIUS} 格时保持不动，用来给「原地卡死」计时。 */
+    public double stuckAnchorX;
+    public double stuckAnchorZ;
+    /** {@link #stuckAnchorX} 的起始时间（tick）；0 表示尚未初始化。 */
+    public long stuckAnchorTick;
 
     FakeSteveAgentState(UUID playerId, ReplacementCause cause) {
         this.playerId = playerId;

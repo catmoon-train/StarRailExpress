@@ -214,6 +214,8 @@ public final class FakeSteveTrailRecorder {
         state.trailDirection = 1;
         state.trailWaypointTick = 0L;
         state.trailLoops = 0;
+        // 记下这条路线属于哪个维度：卡死保底传送前要确认坐标还对得上。
+        state.trailDimension = player.level().dimension();
         state.trailEnabled = true;
         return true;
     }
