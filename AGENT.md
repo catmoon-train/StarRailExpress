@@ -100,3 +100,6 @@ CustomParticleHandlers.register(id, (level, origin, durationTicks, params) -> {
 
 # 编码
 请使用 `UTF8 without BOM` 编码
+
+# 反编译
+如果你需要反编译，且该反编译后续可能会被用到（即使是其他任务），建议保存在在此项目目录的 `out/<反编译的文件名称（比如minecraft-fabric-1.21.1）>` 中，方便后续使用，且不会被缓存清除。
