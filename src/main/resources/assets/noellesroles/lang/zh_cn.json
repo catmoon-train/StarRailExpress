@@ -4755,7 +4755,7 @@
   "skill.noellesroles.barbarian.smoke_breath": "烟雾吐息",
   "item.noellesroles.barbarian_knife": "野人利刃",
   "item.noellesroles.desperado_knife": "亡命徒之刀",
-  "item.noellesroles.desperado_knife.tooltip": "长按右键蓄力0.2秒，前摇0.1秒后向前挥出剑气\\n碰到剑气的玩家死亡，但不能隔墙\\n挥出后会短距冲刺",
+  "item.noellesroles.desperado_knife.tooltip": "长按右键蓄力0.2秒，前摇0.1秒后向前挥出剑气\n碰到剑气的玩家死亡，但不能隔墙\n挥出后会短距冲刺",
   "item.noellesroles.desperado_gun": "亡命徒之枪",
   "item.noellesroles.desperado_gun.tooltip": "与德林加手枪相同，只能射击一次\n弹道绘制红色粒子光束\n光束附近的玩家获得缓慢V，持续3秒",
   "message.noellesroles.barbarian.transform": "致命一击被野性抵挡——你进入了魔了形态！",
