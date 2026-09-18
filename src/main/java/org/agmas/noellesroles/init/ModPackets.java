@@ -79,6 +79,14 @@ public class ModPackets {
         PayloadTypeRegistry.playC2S().register(BroadcasterC2SPacket.ID, BroadcasterC2SPacket.CODEC);
         PayloadTypeRegistry.playC2S().register(TerminalCommandC2SPacket.ID, TerminalCommandC2SPacket.CODEC);
         PayloadTypeRegistry.playC2S().register(NinjaAbilityC2SPacket.ID, NinjaAbilityC2SPacket.CODEC);
+        // 下界合金矛：客户端左键直刺
+        PayloadTypeRegistry.playC2S().register(
+                org.agmas.noellesroles.packet.SpearStabC2SPacket.ID,
+                org.agmas.noellesroles.packet.SpearStabC2SPacket.CODEC);
+        ServerPlayNetworking.registerGlobalReceiver(
+                org.agmas.noellesroles.packet.SpearStabC2SPacket.ID,
+                (payload, context) -> context.server().execute(() -> org.agmas.noellesroles.spear.SpearCombat
+                        .handleStab(context.player(), payload.entityId())));
 
         // 幽露：自由摄像机进入/退出（S2C）、摄像机位置上报与 ESC 取消（C2S）
         PayloadTypeRegistry.playS2C().register(YouluFreeCamS2CPacket.ID, YouluFreeCamS2CPacket.CODEC);

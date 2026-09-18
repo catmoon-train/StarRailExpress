@@ -368,6 +368,11 @@ public class RoleInitialItems {
         noiseMakerItems.add(() -> ModItems.RADIO.getDefaultInstance());
         INITIAL_ITEMS_MAP.put(ModRoles.NOISEMAKER, noiseMakerItems);
 
+        // 骑兵初始物品 - 超级猪马蹄铁
+        List<Supplier<ItemStack>> cavalryItems = new ArrayList<>();
+        cavalryItems.add(() -> FunnyItems.SUPER_PIG_HORSESHOE.getDefaultInstance());
+        INITIAL_ITEMS_MAP.put(ModRoles.CAVALRY, cavalryItems);
+
         // 画家初始物品 - 画板
         List<Supplier<ItemStack>> painterItems = new ArrayList<>();
         painterItems.add(() -> TMMItems.DRAWING_BOARD.getDefaultInstance());

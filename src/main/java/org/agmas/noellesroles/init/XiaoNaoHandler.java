@@ -126,6 +126,7 @@ public class XiaoNaoHandler {
                                 || deathReason.getPath().equals("stalker_knife")
                                 || deathReason.getPath().equals("heart_attack")
                                 || deathReason.getPath().equals("dream_axe")
+                                || deathReason.getPath().equals("spear")
                                 || deathReason.getPath().equals("gun_shot")
                                 || deathReason.getPath().equals("knife")) {
                             TeamKillViolationHandler.handle(victim, killer, isInnocent, deathReason);
@@ -181,7 +182,8 @@ public class XiaoNaoHandler {
                 || deathReason.getPath().equals("dream_axe")
                 || deathReason.getPath().equals("dream_mace")
                 || deathReason.getPath().equals("dream_diamond_sword")
-                || deathReason.getPath().equals("firework_crossbow");
+                        || deathReason.getPath().equals("firework_crossbow")
+                        || deathReason.getPath().equals("spear");
     }
 
 }

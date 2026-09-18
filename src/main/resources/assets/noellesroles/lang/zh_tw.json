@@ -1669,7 +1669,7 @@
   "itemstack.executioner.psychoitem.item_lore.2": "狂暴時間內射擊冷卻-50%%、槍不會掉落、不會受鎖定目標影響",
   "message.avenger.target_died": "你綁定的目標 %s 被 %s 殺死了",
   "message.note.write_sth": "我應該先寫下點東西",
-  "message.note.put_back": "你花費50\uE782將一張便簽貼到了 %s 的背上",
+  "message.note.put_back": "你花費50將一張便簽貼到了 %s 的背上",
   "message.note.not_enough_money": "你沒有足夠的錢 - 需要%s來將便簽放到人身上",
   "item.noellesroles.giant_note": "巨大便簽",
   "message.arrow.near_by_players": "附近玩家數量：%s",
@@ -2385,7 +2385,7 @@
   "gui.vendingmachine.knob.tooltip": "點擊購買選中商品",
   "gui.vendingmachine.collect.tooltip": "點擊收集商品",
   "gui.vendingmachine.money_display": "%s",
-  "gui.vendingmachine.minigame_token_display": "%s\uE782",
+  "gui.vendingmachine.minigame_token_display": "%s",
   "noellesroles.bought_item": "§a購買成功",
   "noellesroles.not_enough_money": "§4金幣不足",
   "noellesroles.not_enough_minigame_token": "§4小遊戲代幣不足",
@@ -4608,7 +4608,7 @@
   "skill.noellesroles.leather_pig.frenzy": "瘋魔模式",
   "message.noellesroles.leather_pig.frenzy_start": "Dream帶帶帶！瘋魔模式開啟！",
   "message.noellesroles.leather_pig.frenzy_end": "瘋魔模式結束，豬豬歸於平靜。",
-    "message.noellesroles.leather_pig.already_active": "你已經夠瘋魔了！",
+  "message.noellesroles.leather_pig.already_active": "你已經夠瘋魔了！",
   "announcement.star.role.phantom_spirit": "幻靈",
   "announcement.star.goals.phantom_spirit": "與乘客一同活到最後。",
   "skill.noellesroles.phantom_spirit.possess": "附身",
@@ -4642,19 +4642,19 @@
   "effect.noellesroles.keen_hearing": "耳聰",
   "mob_effect.noellesroles.keen_hearing": "耳聰",
   "effect.noellesroles.keen_hearing.description": "周圍聲音變得極小，只能隱約聽見。",
-    "announcement.star.role.barbarian": "野人",
-    "announcement.star.goals.barbarian": "積蓄金幣，在絕境中化作凶獸反擊。",
-    "skill.noellesroles.barbarian.smoke_breath": "煙霧吐息",
-    "item.noellesroles.barbarian_knife": "野人利刃",
-    "item.noellesroles.desperado_knife": "亡命徒之刀",
-    "item.noellesroles.desperado_knife.tooltip": "長按右鍵蓄力0.2秒，前搖0.1秒後向前揮出劍氣\n碰到劍氣的玩家死亡，但不能隔牆\n揮出後會短距衝刺",
-    "item.noellesroles.desperado_gun": "亡命徒之槍",
-    "item.noellesroles.desperado_gun.tooltip": "與德林加手槍相同，只能射擊一次\n彈道繪製紅色粒子光束\n光束附近的玩家獲得緩慢V，持續3秒",
-    "message.noellesroles.barbarian.transform": "致命一擊被野性抵擋——你進入了魔了形態！",
-    "message.noellesroles.barbarian.transform_end": "魔了形態消退，你的生命也隨之燃盡。",
-    "message.noellesroles.barbarian.smoke_breath": "你吐出了一團濃密的煙霧。",
-    "message.noellesroles.barbarian.knife_wrong_target": "野人利刃只能攻擊中立與殺手陣營。",
-    "effect.noellesroles.inventory_baned": "背包封印",
+  "announcement.star.role.barbarian": "野人",
+  "announcement.star.goals.barbarian": "積蓄金幣，在絕境中化作凶獸反擊。",
+  "skill.noellesroles.barbarian.smoke_breath": "煙霧吐息",
+  "item.noellesroles.barbarian_knife": "野人利刃",
+  "item.noellesroles.desperado_knife": "亡命徒之刀",
+  "item.noellesroles.desperado_knife.tooltip": "長按右鍵蓄力0.2秒，前搖0.1秒後向前揮出劍氣\n碰到劍氣的玩家死亡，但不能隔牆\n揮出後會短距衝刺",
+  "item.noellesroles.desperado_gun": "亡命徒之槍",
+  "item.noellesroles.desperado_gun.tooltip": "與德林加手槍相同，只能射擊一次\n彈道繪製紅色粒子光束\n光束附近的玩家獲得緩慢V，持續3秒",
+  "message.noellesroles.barbarian.transform": "致命一擊被野性抵擋——你進入了魔了形態！",
+  "message.noellesroles.barbarian.transform_end": "魔了形態消退，你的生命也隨之燃盡。",
+  "message.noellesroles.barbarian.smoke_breath": "你吐出了一團濃密的煙霧。",
+  "message.noellesroles.barbarian.knife_wrong_target": "野人利刃只能攻擊中立與殺手陣營。",
+  "effect.noellesroles.inventory_baned": "背包封印",
   "mob_effect.noellesroles.inventory_baned": "背包封印",
   "effect.noellesroles.eat_meat_food": "食肉",
   "mob_effect.noellesroles.eat_meat_food": "食肉",
@@ -4894,36 +4894,49 @@
   "message.noellesroles.ailment.appetite_banned": "你現在沒有食慾，無法進食或飲水。",
   "death_reason.noellesroles.missing_lungs": "窒息",
   "item.noellesroles.loan_contract.desc": "右鍵償還貸款本金和利息。",
-  "message.noellesroles.loan.request_pending": "你已有一個等待接受的貸款請求，請等待10秒超時後再試。"
-  ,"item.noellesroles.insurance": "保險"
-  ,"item.noellesroles.insurance.status.unsigned": "狀態：未簽訂"
-  ,"item.noellesroles.insurance.status.signed": "狀態：已簽訂"
-  ,"item.noellesroles.insurance.status.active": "狀態：生效中"
-  ,"item.noellesroles.insurance.reason.knife": "保護死亡原因：刀"
-  ,"item.noellesroles.insurance.reason.revolver": "保護死亡原因：左輪手槍"
-  ,"item.noellesroles.insurance.reason.bat": "保護死亡原因：球棒"
-  ,"item.noellesroles.insurance.reason.grenade": "保護死亡原因：手榴彈"
-  ,"item.noellesroles.insurance.reason.short_shotgun": "保護死亡原因：短管霰彈槍"
-  ,"item.noellesroles.insurance.reason.heart_attack": "保護死亡原因：心臟驟停"
-  ,"item.noellesroles.insurance.reason.throwing_knife": "保護死亡原因：飛刀"
-  ,"item.noellesroles.insurance.reason.other": "保護死亡原因：其他"
-  ,"screen.noellesroles.insurance.title": "保險合約"
-  ,"screen.noellesroles.insurance.instruction": "選擇要保護的死亡原因"
-  ,"screen.noellesroles.insurance.reason.knife": "刀"
-  ,"screen.noellesroles.insurance.reason.revolver": "左輪手槍"
-  ,"screen.noellesroles.insurance.reason.bat": "球棒"
-  ,"screen.noellesroles.insurance.reason.grenade": "手榴彈"
-  ,"screen.noellesroles.insurance.reason.short_shotgun": "短管霰彈槍"
-  ,"screen.noellesroles.insurance.reason.heart_attack": "心臟驟停"
-  ,"screen.noellesroles.insurance.reason.throwing_knife": "飛刀"
-  ,"screen.noellesroles.insurance.reason.other": "其他"
-  ,"screen.noellesroles.insurance.selected": "已選擇：%s"
-  ,"screen.noellesroles.insurance.selected.none": "尚未選擇死亡原因"
-  ,"screen.noellesroles.insurance.confirm": "簽訂保險"
-  ,"screen.noellesroles.insurance.esc": "按 Esc 離開合約頁面"
-  ,"message.noellesroles.insurance.signed": "保險已簽訂。右鍵保險並支付25金幣即可生效。"
-  ,"message.noellesroles.insurance.activated": "保險已生效。"
-  ,"message.noellesroles.insurance.already_active": "這份保險已經生效。"
-  ,"message.noellesroles.insurance.invalid": "無法簽訂這份保險。"
-  ,"message.noellesroles.insurance.protected": "保險生效：本次死亡傷害已被抵擋，並獲得25金幣。"
+  "message.noellesroles.loan.request_pending": "你已有一個等待接受的貸款請求，請等待10秒超時後再試。",
+  "item.noellesroles.insurance": "保險",
+  "item.noellesroles.insurance.status.unsigned": "狀態：未簽訂",
+  "item.noellesroles.insurance.status.signed": "狀態：已簽訂",
+  "item.noellesroles.insurance.status.active": "狀態：生效中",
+  "item.noellesroles.insurance.reason.knife": "保護死亡原因：刀",
+  "item.noellesroles.insurance.reason.revolver": "保護死亡原因：左輪手槍",
+  "item.noellesroles.insurance.reason.bat": "保護死亡原因：球棒",
+  "item.noellesroles.insurance.reason.grenade": "保護死亡原因：手榴彈",
+  "item.noellesroles.insurance.reason.short_shotgun": "保護死亡原因：短管霰彈槍",
+  "item.noellesroles.insurance.reason.heart_attack": "保護死亡原因：心臟驟停",
+  "item.noellesroles.insurance.reason.throwing_knife": "保護死亡原因：飛刀",
+  "item.noellesroles.insurance.reason.other": "保護死亡原因：其他",
+  "screen.noellesroles.insurance.title": "保險合約",
+  "screen.noellesroles.insurance.instruction": "選擇要保護的死亡原因",
+  "screen.noellesroles.insurance.reason.knife": "刀",
+  "screen.noellesroles.insurance.reason.revolver": "左輪手槍",
+  "screen.noellesroles.insurance.reason.bat": "球棒",
+  "screen.noellesroles.insurance.reason.grenade": "手榴彈",
+  "screen.noellesroles.insurance.reason.short_shotgun": "短管霰彈槍",
+  "screen.noellesroles.insurance.reason.heart_attack": "心臟驟停",
+  "screen.noellesroles.insurance.reason.throwing_knife": "飛刀",
+  "screen.noellesroles.insurance.reason.other": "其他",
+  "screen.noellesroles.insurance.selected": "已選擇：%s",
+  "screen.noellesroles.insurance.selected.none": "尚未選擇死亡原因",
+  "screen.noellesroles.insurance.confirm": "簽訂保險",
+  "screen.noellesroles.insurance.esc": "按 Esc 離開合約頁面",
+  "message.noellesroles.insurance.signed": "保險已簽訂。右鍵保險並支付25金幣即可生效。",
+  "message.noellesroles.insurance.activated": "保險已生效。",
+  "message.noellesroles.insurance.already_active": "這份保險已經生效。",
+  "message.noellesroles.insurance.invalid": "無法簽訂這份保險。",
+  "message.noellesroles.insurance.protected": "保險生效：本次死亡傷害已被抵擋，並獲得25金幣。",
+  "announcement.star.role.cavalry": "騎兵",
+  "announcement.star.goals.cavalry": "騎上你的坐騎，用長矛守護列車的秩序！",
+  "item.noellesroles.netherite_spear": "地獄合金矛",
+  "item.noellesroles.netherite_spear.tooltip": "左鍵：蓄力全滿後直刺，可穿透多個目標",
+  "item.noellesroles.netherite_spear.tooltip.charge": "右鍵：舉矛蓄力衝鋒，速度越快傷害越高",
+  "item.noellesroles.netherite_spear.tooltip.lunge": "突進 %s：命中後向前衝刺",
+  "item.noellesroles.netherite_spear.tooltip.durability": "耐久 %s / %s",
+  "enchantment.noellesroles.lunge": "突進",
+  "message.noellesroles.cavalry.shop_already_owned": "你已經擁有矛了",
+  "message.noellesroles.cavalry.shop_lunge_used": "突進附魔一局只能使用一次",
+  "message.noellesroles.cavalry.shop_need_spear": "需要把矛放在快捷欄中",
+  "message.noellesroles.cavalry.shop_already_enchanted": "這把矛已經附魔過突進了",
+  "message.noellesroles.cavalry.shop_lunge_lore": "為快捷欄中的地獄合金矛附魔突進 III（一局一次）"
 }

@@ -5328,5 +5328,18 @@
   "message.noellesroles.terminal.monitor_blackout_already": "监控已经处于失灵状态，指令未执行。",
   "message.noellesroles.terminal.error.usage": "指令格式错误，请输入 /give @s <物品ID> 或 /tp @s room",
   "message.noellesroles.terminal.error.invalid_item": "该物品不在终端可用列表中。",
-  "message.noellesroles.terminal.error.unknown_command": "未知指令，终端无法识别。"
+  "message.noellesroles.terminal.error.unknown_command": "未知指令，终端无法识别。",
+  "announcement.star.role.cavalry": "骑兵",
+  "announcement.star.goals.cavalry": "驾上你的坐骑，用长矛守护列车的秩序！",
+  "item.noellesroles.netherite_spear": "下界合金矛",
+  "item.noellesroles.netherite_spear.tooltip": "左键：满蓄力后直刺，可穿透多个目标",
+  "item.noellesroles.netherite_spear.tooltip.charge": "右键：举矛蓄力冲锋，速度越快伤害越高",
+  "item.noellesroles.netherite_spear.tooltip.lunge": "突进 %s：命中后向前冲刺",
+  "item.noellesroles.netherite_spear.tooltip.durability": "耐久 %s / %s",
+  "enchantment.noellesroles.lunge": "突进",
+  "message.noellesroles.cavalry.shop_already_owned": "你已经拥有了矛",
+  "message.noellesroles.cavalry.shop_lunge_used": "突进附魔一局只能使用一次",
+  "message.noellesroles.cavalry.shop_need_spear": "需要把矛放在快捷栏中",
+  "message.noellesroles.cavalry.shop_already_enchanted": "这把矛已经附魔过突进了",
+  "message.noellesroles.cavalry.shop_lunge_lore": "为快捷栏中的下界合金矛附魔突进 III（一局一次）"
 }

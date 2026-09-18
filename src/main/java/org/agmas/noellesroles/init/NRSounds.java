@@ -79,6 +79,12 @@ public class NRSounds {
     public static final SoundEvent MUSIC_UNWELCOME_SCHOOL = registrar.create("music.unwelcome_school");
     public static final SoundEvent MUSIC_ZENRIANBANKA = registrar.create("music.zenrianbanka");
 
+    // 下界合金矛相关音效
+    public static final SoundEvent SPEAR_ATTACK = registrar.create("noellesroles.spear_attack");
+    public static final SoundEvent SPEAR_HIT = registrar.create("noellesroles.spear_hit");
+    public static final SoundEvent SPEAR_USE = registrar.create("noellesroles.spear_use");
+    public static final SoundEvent SPEAR_LUNGE = registrar.create("noellesroles.spear_lunge");
+
     public static final SoundEvent ROLES_LAODA_SEE_YOU_AGAIN = registrar.create("roles.see_you_again");
     public static final SoundEvent ROLES_FURANDORU_FINAL = registrar.create("roles.furandoru.final");
     public static final SoundEvent ROLES_REMILIA = registrar.create("roles.remilia");

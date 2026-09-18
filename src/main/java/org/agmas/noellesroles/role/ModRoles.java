@@ -1655,6 +1655,31 @@ public class ModRoles {
             .setNeutrals(false).setCanSeeCoin(true)
             .setSpecialMapRole(MapSpecialFeatures.HORSE).setDefaultMax(0)
             .setCanBeRandomedByOtherRoles(false);
+
+    /**
+     * 骑兵角色（警长阵营特殊警长）
+     * - 属于警长阵营 (isInnocent = true, setVigilanteTeam = true)，为特殊警长
+     * - 真实心情系统；体力为平民的 2.5 倍
+     * - 仅在 HORSE 类型地图中刷新（与驯马师一致）
+     * - 开局自带一个超级猪马蹄铁；商店可买下界合金矛 / 突进 III 附魔 / 超级猪马蹄铁
+     * - 开启了 canUseSpVanillaWeapon：可用下界合金矛削他人虚拟血量并击杀（死因 spear）
+     */
+    public static final ResourceLocation CAVALRY_ID = Noellesroles.id("cavalry");
+    public static SRERole CAVALRY = TMMRoles
+            .registerRole(new org.agmas.noellesroles.role.vigilante.CavalryRole(
+                    CAVALRY_ID, new Color(150, 90, 40).getRGB(), true,
+                    false, SRERole.MoodType.REAL,
+                    (int) (TMMRoles.CIVILIAN.getMaxSprintTime() * 2.5), false))
+            .setCanSeeCoin(true)
+            .setVigilanteTeam(true)
+            .setSpecialVigilante(true)
+            .setCanUseSpVanillaWeapon(true)
+            .setSpecialMapRole(MapSpecialFeatures.HORSE)
+            .setDefaultMax(1)
+            .setDefaultEnableChance(3000)
+            .setCanBeRandomedByOtherRoles(false)
+            .setRoleData(org.agmas.noellesroles.role_data.vigilante.CavalryRoleData::new);
+
     public static SRERole HUNTER = TMMRoles
             .registerRole(new NormalRole(HUNTER_ID, new Color(160, 82, 45).getRGB(), false,
                     true, SRERole.MoodType.FAKE, Integer.MAX_VALUE, true))
