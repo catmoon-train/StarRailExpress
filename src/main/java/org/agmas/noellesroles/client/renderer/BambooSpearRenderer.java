@@ -24,18 +24,18 @@ import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.renderer.texture.TextureAtlas;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.Vec3;
 import org.agmas.noellesroles.content.effects.TimeStopEffect;
 import org.agmas.noellesroles.content.entity.BambooSpearEntity;
 import org.agmas.noellesroles.init.ModEffects;
 
-/** 竹枪：从持有者眼前沿视线方向伸出，按同步长度绘制带竹节和尖头的 3D 竹杆。 */
+/** 竹枪：从持有者手部沿视线伸出，长度在客户端插值，伸缩看起来连续。 */
 public class BambooSpearRenderer extends EntityRenderer<BambooSpearEntity> {
 
-    private static final float RADIUS = 0.09F;
-    private static final float TIP_LENGTH = 0.45F;
-    /** 收回到很短时的最小可见长度，避免长度为 0 时几何体消失得太突兀。 */
-    private static final float MIN_LENGTH = 0.12F;
+    private static final float RADIUS = 0.08F;
+    private static final float TIP_LENGTH = 0.38F;
+    private static final float MIN_LENGTH = 0.08F;
 
     public BambooSpearRenderer(EntityRendererProvider.Context context) {
         super(context);
@@ -45,18 +45,32 @@ public class BambooSpearRenderer extends EntityRenderer<BambooSpearEntity> {
     @Override
     public void render(BambooSpearEntity entity, float entityYaw, float partialTick, PoseStack poseStack,
             MultiBufferSource bufferSource, int packedLight) {
-        LocalPlayer player = Minecraft.getInstance().player;
-        if (player != null && player.hasEffect(ModEffects.TIME_STOP)
-                && !TimeStopEffect.clientCanMovePlayers.contains(player.getUUID())) {
+        LocalPlayer viewer = Minecraft.getInstance().player;
+        if (viewer != null && viewer.hasEffect(ModEffects.TIME_STOP)
+                && !TimeStopEffect.clientCanMovePlayers.contains(viewer.getUUID())) {
             return;
         }
 
-        float length = Math.max(MIN_LENGTH, entity.getLength());
-        float yaw = Mth.lerp(partialTick, entity.yRotO, entity.getYRot());
-        float pitch = Mth.lerp(partialTick, entity.xRotO, entity.getXRot());
-        Vec3 direction = entity.calculateViewVector(pitch, yaw);
+        Player owner = entity.getOwner();
+        float length = Math.max(MIN_LENGTH, entity.getInterpolatedLength(partialTick));
+        Vec3 origin;
+        Vec3 direction;
+        if (owner != null) {
+            direction = owner.getViewVector(partialTick);
+            origin = owner.getEyePosition(partialTick).add(0.0, -0.22, 0.0).add(direction.scale(0.28));
+            if (owner == viewer && Minecraft.getInstance().options.getCameraType().isFirstPerson()) {
+                origin = origin.add(direction.scale(0.45));
+            }
+        } else {
+            float yaw = Mth.lerp(partialTick, entity.yRotO, entity.getYRot());
+            float pitch = Mth.lerp(partialTick, entity.xRotO, entity.getXRot());
+            direction = entity.calculateViewVector(pitch, yaw);
+            origin = entity.getPosition(partialTick);
+        }
 
+        Vec3 entityPos = entity.getPosition(partialTick);
         poseStack.pushPose();
+        poseStack.translate(origin.x - entityPos.x, origin.y - entityPos.y, origin.z - entityPos.z);
         BambooPoleGeometry.orient(poseStack, direction);
         BambooPoleGeometry.render(poseStack, bufferSource, packedLight, 0.0F, length, RADIUS, TIP_LENGTH);
         poseStack.popPose();

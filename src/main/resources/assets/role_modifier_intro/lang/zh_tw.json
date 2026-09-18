@@ -545,8 +545,8 @@
   "info.screen.roleid.repair_saboteur.simple": "",
   "info.screen.roleid.repair_collector": "中立獨立勝利職業\n使用 4 次修機道具或補給即可獨立獲勝。",
   "info.screen.roleid.repair_collector.simple": "",
-  "info.screen.roleid.nature_spirit": "殺手陣營\n開局會向全場播報本職業出現。\n技能【葉隱】：按下技能鍵偽裝成腳下的方塊，並對齊到該方塊所在格子。再次按下技能鍵解除偽裝。冷卻60秒。\n商店：\n- 竹槍（130金幣，3點耐久，第二次購買半價，冷卻15秒）\n- 竹子（50金幣，可投擲）\n- 範圍關燈（120金幣）\n- 開鎖器（60金幣）",
-  "info.screen.roleid.nature_spirit.simple": "殺手陣營\n開局全場播報出現。技能鍵偽裝成腳下方塊並對齊格子，冷卻60秒。商店：竹槍（130，3耐久，二次半價，15秒冷卻）、竹子（50）、範圍關燈（120）、開鎖器（60）。",
+  "info.screen.roleid.nature_spirit": "殺手陣營\n開局會向全場播報本職業出現。\n技能【葉隱】：按下技能鍵偽裝成腳下的方塊，並對齊到該方塊所在格子；偽裝期間為第三人稱。再次按下技能鍵解除偽裝。冷卻60秒。",
+  "info.screen.roleid.nature_spirit.simple": "殺手陣營\n開局全場播報出現。技能鍵偽裝成腳下方塊並對齊格子，偽裝時第三人稱，冷卻60秒。",
   "==================== 修飾符 ====================": "",
   "=======修機模式/特殊模式=======": ""
 }

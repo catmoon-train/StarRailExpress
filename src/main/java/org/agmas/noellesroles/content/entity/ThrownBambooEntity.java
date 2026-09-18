@@ -29,6 +29,7 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityDimensions;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.AbstractArrow;
 import net.minecraft.world.item.ItemStack;
@@ -37,6 +38,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.EntityHitResult;
+import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 import org.agmas.noellesroles.init.ModItems;
 
@@ -132,7 +134,9 @@ public class ThrownBambooEntity extends AbstractArrow {
         double side = index <= 0 ? HANG_SIDE : -HANG_SIDE;
         Vec3 forward = this.forward();
         Vec3 right = rightOf(forward);
-        return forward.scale(HANG_FORWARD).add(right.scale(side)).add(0.0, HANG_UP, 0.0);
+        // 钉墙后把人挂在竹杆后方（投掷者一侧），避免穿到墙对面。
+        double along = this.pinned ? -0.95 : HANG_FORWARD;
+        return forward.scale(along).add(right.scale(side)).add(0.0, HANG_UP, 0.0);
     }
 
     @Override
@@ -143,9 +147,7 @@ public class ThrownBambooEntity extends AbstractArrow {
         Vec3 target = this.getPassengerRidingPosition(passenger).subtract(this.getVehicleAttachmentPoint(passenger));
         if (passenger instanceof Player) {
             Vec3 safe = this.findFreeSpot(passenger, target);
-            if (safe != null) {
-                target = safe;
-            }
+            target = safe != null ? safe : this.position();
         }
         moveFunction.accept(passenger, target.x, target.y, target.z);
     }
@@ -230,6 +232,11 @@ public class ThrownBambooEntity extends AbstractArrow {
 
     /** 计算钉墙位置：枪尖扎进墙体 PIN_EMBED，杆身留在墙外，保证挂人的位置不在方块里。 */
     private void pinTo(Vec3 hitLocation, Vec3 dir) {
+        Vec3 flat = new Vec3(dir.x, 0.0, dir.z);
+        if (flat.lengthSqr() < 1.0E-8) {
+            flat = new Vec3(0.0, 0.0, 1.0);
+        }
+        dir = flat.normalize();
         float[] backoffs = { TIP_REACH - PIN_EMBED, TIP_REACH - PIN_EMBED - 0.5F, TIP_REACH * 0.5F, 0.25F };
         Vec3 chosen = hitLocation.subtract(dir.scale(TIP_REACH - PIN_EMBED));
         for (float backoff : backoffs) {
@@ -244,9 +251,9 @@ public class ThrownBambooEntity extends AbstractArrow {
                 break;
             }
         }
-        this.pinPos = chosen;
+        this.pinPos = new Vec3(chosen.x, this.getY(), chosen.z);
         this.pinYaw = this.getYRot();
-        this.pinPitch = this.getXRot();
+        this.pinPitch = 0.0f;
         this.pinned = true;
     }
 
@@ -266,6 +273,14 @@ public class ThrownBambooEntity extends AbstractArrow {
 
     @Override
     public void tick() {
+        if (!this.pinned) {
+            this.setXRot(0.0f);
+            this.xRotO = 0.0f;
+            Vec3 motion = this.getDeltaMovement();
+            if (motion.y != 0.0) {
+                this.setDeltaMovement(motion.x, 0.0, motion.z);
+            }
+        }
         super.tick();
         if (this.tickCount > LIFETIME_TICKS) {
             this.remove(RemovalReason.DISCARDED);
@@ -317,50 +332,56 @@ public class ThrownBambooEntity extends AbstractArrow {
     }
 
     /**
-     * 在 base 附近找一个放得下该实体的空位：优先沿飞行反方向后退，其次向上、向两侧。
-     * 找不到返回 null。
+     * 在 base 附近找空位：只在水平面、沿飞行反方向后退。
+     * 必须能从竹子本体看到该点，避免把人放到墙对面。
      */
     private Vec3 findFreeSpot(Entity entity, Vec3 base) {
         Level level = this.level();
         AABB box = entity.getBoundingBox();
         Vec3 origin = entity.position();
-        if (level.noCollision(box.move(base.subtract(origin)))) {
-            return base;
+        Vec3 locked = new Vec3(base.x, this.getY(), base.z);
+        if (isOpenAndVisible(entity, box, origin, locked)) {
+            return locked;
         }
         Vec3 back = this.forward().reverse();
         Vec3 right = rightOf(back);
-        double minY = level.getMinBuildHeight() + 1.0;
-        double maxY = level.getMaxBuildHeight() - 1.0;
-
         Vec3 best = null;
         double bestDistance = Double.MAX_VALUE;
         for (double backStep = 0.0; backStep <= 2.5; backStep += 0.5) {
-            for (double upStep = 0.0; upStep <= 2.0; upStep += 0.5) {
-                for (double sideStep = -1.5; sideStep <= 1.5; sideStep += 0.5) {
-                    Vec3 candidate = base.add(back.scale(backStep)).add(0.0, upStep, 0.0).add(right.scale(sideStep));
-                    if (candidate.y < minY || candidate.y > maxY) {
-                        continue;
-                    }
-                    if (!level.noCollision(box.move(candidate.subtract(origin)))) {
-                        continue;
-                    }
-                    double distance = candidate.distanceToSqr(base);
-                    if (distance < bestDistance) {
-                        bestDistance = distance;
-                        best = candidate;
-                    }
+            for (double sideStep = -1.0; sideStep <= 1.0; sideStep += 0.5) {
+                Vec3 candidate = new Vec3(
+                        locked.x + back.x * backStep + right.x * sideStep,
+                        this.getY(),
+                        locked.z + back.z * backStep + right.z * sideStep);
+                if (!isOpenAndVisible(entity, box, origin, candidate)) {
+                    continue;
+                }
+                double distance = candidate.distanceToSqr(locked);
+                if (distance < bestDistance) {
+                    bestDistance = distance;
+                    best = candidate;
                 }
             }
         }
         return best;
     }
 
+    private boolean isOpenAndVisible(Entity entity, AABB box, Vec3 origin, Vec3 candidate) {
+        if (!this.level().noCollision(box.move(candidate.subtract(origin)))) {
+            return false;
+        }
+        Vec3 from = this.position();
+        BlockHitResult clip = this.level().clip(new ClipContext(from, candidate, ClipContext.Block.COLLIDER,
+                ClipContext.Fluid.NONE, entity));
+        return clip.getType() == HitResult.Type.MISS || clip.getLocation().distanceToSqr(candidate) < 0.09;
+    }
+
     private Vec3 forward() {
-        Vec3 dir = this.calculateViewVector(this.getXRot(), this.getYRot());
+        Vec3 dir = this.calculateViewVector(0.0f, this.getYRot());
         if (dir.lengthSqr() < 1.0E-8) {
             return new Vec3(0.0, 0.0, 1.0);
         }
-        return dir.normalize();
+        return new Vec3(dir.x, 0.0, dir.z).normalize();
     }
 
     private static Vec3 rightOf(Vec3 dir) {

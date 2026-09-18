@@ -8,6 +8,7 @@ import io.wifi.starrailexpress.game.GameUtils;
 import io.wifi.starrailexpress.index.TMMItems;
 import io.wifi.starrailexpress.util.ShopEntry;
 import net.minecraft.ChatFormatting;
+import net.minecraft.core.Direction;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.BlockParticleOption;
 import net.minecraft.core.particles.ParticleTypes;
@@ -23,6 +24,7 @@ import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.block.RenderShape;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.shapes.VoxelShape;
 import net.minecraft.world.phys.Vec3;
 import org.agmas.noellesroles.config.NoellesRolesConfig;
 import org.agmas.noellesroles.init.ModItems;
@@ -106,8 +108,13 @@ public class NatureSpiritRole extends io.wifi.starrailexpress.api.NormalRole {
             return false;
         }
 
+        VoxelShape shape = state.getCollisionShape(player.level(), floor);
+        double top = shape.isEmpty() ? 1.0 : shape.max(Direction.Axis.Y);
+        if (Double.isNaN(top) || top <= 0.0) {
+            top = 1.0;
+        }
         double x = floor.getX() + 0.5;
-        double y = floor.getY() + 1.0;
+        double y = floor.getY() + top;
         double z = floor.getZ() + 0.5;
         player.connection.teleport(x, y, z, player.getYRot(), player.getXRot());
         player.setDeltaMovement(Vec3.ZERO);

@@ -34,6 +34,7 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.UseAnim;
+import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.level.Level;
 import org.agmas.noellesroles.content.entity.ThrownBambooEntity;
 import org.agmas.noellesroles.init.ModEffects;
@@ -97,8 +98,16 @@ public class ThrownBambooItem extends Item implements ChargeableItem, TrainWeapo
             ThrownBambooEntity bamboo = new ThrownBambooEntity(ModEntities.THROWN_BAMBOO, user, world,
                     ModItems.BAMBOO.getDefaultInstance());
             bamboo.setPos(user.getEyePosition());
-            bamboo.shootFromRotation(user, user.getXRot(), user.getYRot(), 0.0f, ThrownBambooEntity.THROW_SPEED,
-                    1.0f);
+            Vec3 look = user.getLookAngle();
+            Vec3 horiz = new Vec3(look.x, 0.0, look.z);
+            if (horiz.lengthSqr() < 1.0E-6) {
+                float yaw = user.getYRot() * net.minecraft.util.Mth.DEG_TO_RAD;
+                horiz = new Vec3(-net.minecraft.util.Mth.sin(yaw), 0.0, net.minecraft.util.Mth.cos(yaw));
+            }
+            horiz = horiz.normalize();
+            bamboo.shoot(horiz.x, 0.0, horiz.z, ThrownBambooEntity.THROW_SPEED, 1.0f);
+            bamboo.setYRot(user.getYRot());
+            bamboo.setXRot(0.0f);
             bamboo.setOwner(user);
             world.addFreshEntity(bamboo);
 

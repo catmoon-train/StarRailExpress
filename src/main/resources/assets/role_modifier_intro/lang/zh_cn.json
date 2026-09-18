@@ -551,8 +551,8 @@
   "info.screen.roleid.repair_saboteur.simple": "",
   "info.screen.roleid.repair_collector": "中立独立胜利职业\n使用 4 次修机道具或补给即可独立获胜。",
   "info.screen.roleid.repair_collector.simple": "",
-  "info.screen.roleid.nature_spirit": "杀手阵营\n开局会向全场播报本职业出现。\n技能【叶隐】：按下技能键伪装成脚下的方块，并对齐到该方块所在格子。再次按下技能键解除伪装。冷却60秒。\n商店：\n- 竹枪（130金币，3点耐久，第二次购买半价，冷却15秒）\n- 竹子（50金币，可投掷）\n- 范围关灯（120金币）\n- 开锁器（60金币）",
-  "info.screen.roleid.nature_spirit.simple": "杀手阵营\n开局全场播报出现。技能键伪装成脚下方块并对齐格子，冷却60秒。商店：竹枪（130，3耐久，二次半价，15秒冷却）、竹子（50）、范围关灯（120）、开锁器（60）。",
+  "info.screen.roleid.nature_spirit": "杀手阵营\n开局会向全场播报本职业出现。\n技能【叶隐】：按下技能键伪装成脚下的方块，并对齐到该方块所在格子；伪装期间为第三人称。再次按下技能键解除伪装。冷却60秒。",
+  "info.screen.roleid.nature_spirit.simple": "杀手阵营\n开局全场播报出现。技能键伪装成脚下方块并对齐格子，伪装时第三人称，冷却60秒。",
   "==================== 修飾符 ====================": "",
   "=======修機模式/特殊模式=======": ""
 }
