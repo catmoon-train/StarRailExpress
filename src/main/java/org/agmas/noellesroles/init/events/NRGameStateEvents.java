@@ -306,7 +306,7 @@ public class NRGameStateEvents {
             SREGameWorldComponent gameWorldComponent = SREGameWorldComponent.KEY.get(serverLevel);
             boolean hasDio = false, hasRecorder = false, hasCandlebearer = false, hasRaven = false, hasBee = false;
             boolean hasNianShou = false, hasArsonist = false, hasCuckoo = false, hasPelican = false,
-                    hasGodfather = false, hasLeader = false, hasLicensedVillain = false;
+                    hasGodfather = false, hasLeader = false, hasLicensedVillain = false, hasNatureSpirit = false;
             final var all_players = serverLevel.players();
 
             for (var p : all_players) {
@@ -347,6 +347,8 @@ public class NRGameStateEvents {
                     hasLeader = true;
                 } else if (gameWorldComponent.isRole(p, BounsRoles.LICENSED_VILLAIN)) {
                     hasLicensedVillain = true;
+                } else if (gameWorldComponent.isRole(p, ModRoles.NATURE_SPIRIT)) {
+                    hasNatureSpirit = true;
                 }
             }
 
@@ -400,6 +402,15 @@ public class NRGameStateEvents {
                     if (p != null) {
                         BroadcastCommand.BroadcastMessage(p, Component
                                 .translatable("message.noellesroles.raven.entry").withStyle(ChatFormatting.YELLOW));
+                    }
+                });
+            }
+            if (hasNatureSpirit) {
+                all_players.forEach((p) -> {
+                    if (p != null) {
+                        BroadcastCommand.BroadcastMessage(p, Component
+                                .translatable("message.noellesroles.nature_spirit.entry")
+                                .withStyle(ChatFormatting.YELLOW));
                     }
                 });
             }

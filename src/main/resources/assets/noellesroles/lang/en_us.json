@@ -747,9 +747,9 @@
     "item.noellesroles.throwing_axe": "Throwing Axe",
     "item.noellesroles.throwing_axe.tooltip": "Hold right-click to charge 0.8 seconds then throw, can pierce and kill 2 players",
     "item.noellesroles.bamboo": "Bamboo",
-    "item.noellesroles.bamboo.tooltip": "Hold right-click to charge, then throw. Hangs up to 2 players on the bamboo until it hits a wall; disappears 10 seconds after launch.",
+    "item.noellesroles.bamboo.tooltip": "Hold right-click to charge, then throw. Hangs up to 2 players on the bamboo; pins into the wall on impact and disappears 12 seconds after launch.",
     "item.noellesroles.bamboo_spear": "Bamboo Spear",
-    "item.noellesroles.bamboo_spear.tooltip": "Right-click to extend the bamboo forward up to 10 blocks or 3 seconds. Kills a player on hit, then retracts.",
+    "item.noellesroles.bamboo_spear.tooltip": "Right-click to extend the bamboo forward up to 10 blocks or 3 seconds. Kills a player on hit, then retracts. 3 durability, 15s cooldown.",
     "item.noellesroles.adrenaline": "Adrenaline",
     "item.noellesroles.antibiotic": "Antibiotic",
     "item.noellesroles.hedinghong": "Hedinghong",
@@ -4822,4 +4822,13 @@
   ,"effect.noellesroles.puppet_wander": "Puppet Wander"
   ,"mob_effect.noellesroles.puppet_wander": "Puppet Wander"
   ,"message.noellesroles.ailment.appetite_banned": "You have no appetite and cannot eat or drink."
+  ,"announcement.star.role.nature_spirit": "Nature Spirit"
+  ,"announcement.star.goals.nature_spirit": "Hide among the foliage and eliminate every passenger."
+  ,"skill.noellesroles.nature_spirit.camouflage": "Leaf Veil"
+  ,"message.noellesroles.nature_spirit.entry": "A nature spirit whispers in the woods"
+  ,"message.noellesroles.nature_spirit.camouflage.start": "You became the block beneath your feet"
+  ,"message.noellesroles.nature_spirit.camouflage.end": "You returned to your true form"
+  ,"message.noellesroles.nature_spirit.camouflage.fail": "There is no block underfoot to disguise as"
+  ,"item.noellesroles.bamboo_spear.no_durability": "The bamboo spear is broken"
+  ,"item.noellesroles.bamboo_spear.tooltip.durability": "Durability: %s/%s"
 }

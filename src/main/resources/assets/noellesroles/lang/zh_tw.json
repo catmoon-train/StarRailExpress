@@ -778,9 +778,9 @@
   "item.noellesroles.throwing_axe": "飛斧",
   "item.noellesroles.throwing_axe.tooltip": "按住右鍵蓄力0.8秒後投擲飛斧，可穿透擊殺2人",
   "item.noellesroles.bamboo": "竹子",
-  "item.noellesroles.bamboo.tooltip": "長按右鍵蓄力後投擲。途中最多將2名玩家掛在竹子上，直到撞牆；從發射起10秒後消失。",
+  "item.noellesroles.bamboo.tooltip": "長按右鍵蓄力後投擲。途中最多將2名玩家掛在竹子上，撞牆後釘在牆上；從發射起12秒後消失。",
   "item.noellesroles.bamboo_spear": "竹槍",
-  "item.noellesroles.bamboo_spear.tooltip": "右鍵後竹子向前伸長，最長10格或3秒，碰到玩家將其擊殺後收回。",
+  "item.noellesroles.bamboo_spear.tooltip": "右鍵後竹子向前伸長，最長10格或3秒，碰到玩家將其擊殺後收回。3點耐久，冷卻15秒。",
   "item.noellesroles.adrenaline": "腎上腺素",
   "item.noellesroles.antibiotic": "抗生素",
   "item.noellesroles.hedinghong": "鶴頂紅",
@@ -4926,4 +4926,13 @@
   ,"message.noellesroles.insurance.already_active": "這份保險已經生效。"
   ,"message.noellesroles.insurance.invalid": "無法簽訂這份保險。"
   ,"message.noellesroles.insurance.protected": "保險生效：本次死亡傷害已被抵擋，並獲得25金幣。"
+  ,"announcement.star.role.nature_spirit": "自然精靈"
+  ,"announcement.star.goals.nature_spirit": "隱於草木，獵殺所有乘客。"
+  ,"skill.noellesroles.nature_spirit.camouflage": "葉隱"
+  ,"message.noellesroles.nature_spirit.entry": "林間傳來了自然精靈的低語"
+  ,"message.noellesroles.nature_spirit.camouflage.start": "你化作了腳下的方塊"
+  ,"message.noellesroles.nature_spirit.camouflage.end": "你恢復了原形"
+  ,"message.noellesroles.nature_spirit.camouflage.fail": "腳下沒有可以偽裝的方塊"
+  ,"item.noellesroles.bamboo_spear.no_durability": "竹槍已經損壞"
+  ,"item.noellesroles.bamboo_spear.tooltip.durability": "耐久：%s/%s"
 }

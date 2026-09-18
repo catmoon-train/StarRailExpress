@@ -793,9 +793,9 @@
   "item.noellesroles.throwing_axe": "飞斧",
   "item.noellesroles.throwing_axe.tooltip": "按住右键蓄力0.8秒后投掷飞斧，可穿透击杀2人",
   "item.noellesroles.bamboo": "竹子",
-  "item.noellesroles.bamboo.tooltip": "长按右键蓄力后投掷。途中最多将2名玩家挂在竹子上，直到撞墙；从发射起10秒后消失。",
+  "item.noellesroles.bamboo.tooltip": "长按右键蓄力后投掷。途中最多将2名玩家挂在竹子上，撞墙后钉在墙上；从发射起12秒后消失。",
   "item.noellesroles.bamboo_spear": "竹枪",
-  "item.noellesroles.bamboo_spear.tooltip": "右键后竹子向前伸长，最长10格或3秒，碰到玩家将其击杀后收回。",
+  "item.noellesroles.bamboo_spear.tooltip": "右键后竹子向前伸长，最长10格或3秒，碰到玩家将其击杀后收回。3点耐久，冷却15秒。",
   "item.noellesroles.adrenaline": "肾上腺素",
   "item.noellesroles.antibiotic": "抗生素",
   "item.noellesroles.hedinghong": "鹤顶红",
@@ -5328,5 +5328,14 @@
   "message.noellesroles.terminal.monitor_blackout_already": "监控已经处于失灵状态，指令未执行。",
   "message.noellesroles.terminal.error.usage": "指令格式错误，请输入 /give @s <物品ID> 或 /tp @s room",
   "message.noellesroles.terminal.error.invalid_item": "该物品不在终端可用列表中。",
-  "message.noellesroles.terminal.error.unknown_command": "未知指令，终端无法识别。"
+  "message.noellesroles.terminal.error.unknown_command": "未知指令，终端无法识别。",
+  "announcement.star.role.nature_spirit": "自然精灵",
+  "announcement.star.goals.nature_spirit": "隐于草木，猎杀所有乘客。",
+  "skill.noellesroles.nature_spirit.camouflage": "叶隐",
+  "message.noellesroles.nature_spirit.entry": "林间传来了自然精灵的低语",
+  "message.noellesroles.nature_spirit.camouflage.start": "你化作了脚下的方块",
+  "message.noellesroles.nature_spirit.camouflage.end": "你恢复了原形",
+  "message.noellesroles.nature_spirit.camouflage.fail": "脚下没有可以伪装的方块",
+  "item.noellesroles.bamboo_spear.no_durability": "竹枪已经损坏",
+  "item.noellesroles.bamboo_spear.tooltip.durability": "耐久：%s/%s"
 }

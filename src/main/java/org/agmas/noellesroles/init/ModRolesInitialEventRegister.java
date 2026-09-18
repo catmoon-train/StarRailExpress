@@ -93,6 +93,7 @@ import org.agmas.noellesroles.role_data.killer.PartyRoleData;
 import org.agmas.noellesroles.role_data.killer.SpellbreakerRoleData;
 import org.agmas.noellesroles.role_data.killer.WatcherRoleData;
 import org.agmas.noellesroles.role_data.killer.YouluRoleData;
+import org.agmas.noellesroles.game.roles.killer.nature_spirit.NatureSpiritRole;
 import org.agmas.noellesroles.role_data.neutral.NianShouRoleData;
 import org.agmas.noellesroles.role_data.neutral.PelicanRoleData;
 import org.agmas.noellesroles.game.roles.neutral.puppeteer.PuppeteerPlayerComponent;
@@ -1580,6 +1581,17 @@ public class ModRolesInitialEventRegister {
                     return RoleData.getOptional(TomatoHeadRoleData.class, player)
                             .map(data -> data.useTransform(player)).orElse(false);
                 }).cooldownSeconds(90).showOnHud(true).announceToSelf(true).build());
+
+        RoleSkill.register(ModRoles.NATURE_SPIRIT,
+                RoleSkill.skill(SRE.id("nature_spirit_camouflage"), "skill.noellesroles.nature_spirit.camouflage",
+                        context -> {
+                            ServerPlayer player = context.player();
+                            if (player.isSpectator()) {
+                                return false;
+                            }
+                            return NatureSpiritRole.triggerSkill(player);
+                        }).cooldownSeconds(NatureSpiritRole.SKILL_COOLDOWN_SECONDS).showOnHud(true)
+                        .announceToSelf(true).build());
 
     }
 
