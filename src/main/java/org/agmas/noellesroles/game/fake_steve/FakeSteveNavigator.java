@@ -24,6 +24,7 @@ import net.minecraft.world.level.block.SlabBlock;
 import net.minecraft.world.level.block.StairBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.phys.shapes.VoxelShape;
 import net.minecraft.tags.FluidTags;
 
 import java.util.ArrayDeque;
@@ -158,6 +159,36 @@ final class FakeSteveNavigator {
         return false;
     }
 
+    /**
+     * 正前方是否有实体障碍（墙、关着的门、别人放的方块、栅栏）。
+     *
+     * <p>
+     * 用途只有一个：轨迹巡逻时让身体别顶着方块空转（把前进力度放轻）。它<b>不是</b>路径可行性
+     * 判断——{@link FakeSteveAi#driveTrail} 走的路线是玩家生前亲自走出来的，视为始终可走。
+     *
+     * <p>
+     * 注意 {@link #stepSafe} 是「防坠落」判定而不是「防撞墙」判定：前方是实心方块时它反而返回
+     * true（踩上去不会掉下去），所以撞墙必须靠这一层单独判断。
+     *
+     * <p>
+     * 台阶、半砖、可以打开的门都不算墙——原版能直接走上去或推开门。
+     */
+    static boolean wallAhead(ServerLevel level, Vec3 from, Vec3 horizontal) {
+        BlockPos ahead = BlockPos.containing(from.add(horizontal));
+        BlockState state = level.getBlockState(ahead);
+        VoxelShape shape = state.getCollisionShape(level, ahead);
+        if (shape.isEmpty()) {
+            return false;
+        }
+        if (isStepBlock(state)
+                || state.getBlock() instanceof SlabBlock
+                || FakeSteveDoorAccess.isOpenablePassage(state)) {
+            return false;
+        }
+        // 低于 0.6 格的矮碰撞体原版可以直接踩上去，不算墙。
+        return shape.max(Direction.Axis.Y) >= 0.6D;
+    }
+
     /** Nodes hugging an open drop are discouraged so routes keep to the deck. */
     private static boolean dropBeside(ServerLevel level, BlockPos pos) {
         for (Direction direction : HORIZONTAL) {
@@ -274,7 +305,12 @@ final class FakeSteveNavigator {
         return pos.immutable();
     }
 
-    private static boolean standable(ServerLevel level, BlockPos feet) {
+    /**
+     * 身体双脚正好站在 {@code feet} 这一格是否可行。
+     *
+     * <p>包内可见：{@link FakeSteveTrailRecorder} 用它把玩家的实时位置投影成"真正能站的路点"。
+     */
+    static boolean standable(ServerLevel level, BlockPos feet) {
         BlockState feetState = level.getBlockState(feet);
         BlockState headState = level.getBlockState(feet.above());
         var feetShape = feetState.getCollisionShape(level, feet);

@@ -79,6 +79,7 @@ public final class FakeSteveDirector {
         }
         registered = true;
         FakeSteveAi.register();
+        FakeSteveTrailRecorder.register();
 
         OnGameTrueStarted.EVENT.register((level) -> {
             if (!(SREGameWorldComponent.KEY.get(level).getGameMode() instanceof SREMurderGameMode)) {
@@ -251,7 +252,11 @@ public final class FakeSteveDirector {
         if (originalRole != null && originalRole.canUseKiller()) {
             SREPlayerShopComponent.KEY.get(player).addToBalance(200);
         }
-        session.agents.put(player.getUUID(), new FakeSteveAgentState(player.getUUID(), cause));
+        FakeSteveAgentState agentState = new FakeSteveAgentState(player.getUUID(), cause);
+        // 把「生前」的移动路线交给 AI：替换后空闲时优先沿它巡逻，
+        // 不再依赖 A*（见 FakeSteveAi#driveTrail），也就不会再卡在原地转圈。
+        FakeSteveTrailRecorder.capture(player, agentState);
+        session.agents.put(player.getUUID(), agentState);
         applyControl(player);
         checkVictory(player.serverLevel(), session);
         return true;
@@ -365,6 +370,7 @@ public final class FakeSteveDirector {
         Session removed = SESSIONS.remove(level.dimension().location());
         FakeSteveApparitions.cancelAll(level);
         FakeSteveVoiceDetector.clear();
+        FakeSteveTrailRecorder.clearAll();
         if (removed != null && removed.huntPhase) {
             sendHuntScene(level, false);
         }
@@ -527,6 +533,9 @@ public final class FakeSteveDirector {
         state.ambushGoal = null;
         state.ambushTarget = null;
         state.nextPathTick = gameTime;
+        // 被拉回房间后轨迹下标已失效：清掉计时与朝向，下一 tick 会重新吸附到最近的轨迹点。
+        state.trailWaypointTick = 0L;
+        state.hasStableRouteYaw = false;
         state.brain.disengage();
     }
 

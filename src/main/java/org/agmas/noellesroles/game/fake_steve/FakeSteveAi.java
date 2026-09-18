@@ -313,6 +313,14 @@ public class FakeSteveAi {
             return;
         }
 
+        // 「生前轨迹」是纯移动辅助，但优先级高于伪装任务：玩家被替换后身上几乎总是还有未完成任务，
+        // 若让任务先抢走移动权，AI 会一直用 A* 跑去任务点（表现为漫无目的地乱跑），永远走不到轨迹上。
+        // 唯一的例外是狂暴/精神错乱正在追人时，那时的移动不属于「空闲巡逻」。
+        if (!(berserkActive && prey != null)
+                && trailPatrol(level, body, state, now, psychoActive)) {
+            return;
+        }
+
         if (state.mode == AgentMode.DISGUISE_TASK
                 && FakeSteveTaskPlanner.tick(level, body, state)) {
             return;
@@ -1199,6 +1207,332 @@ public class FakeSteveAi {
             }
         }
         return -1;
+    }
+
+    // ==================== 生前轨迹巡逻 ====================
+
+    /** 轨迹巡逻：认为已抵达某个路点的距离（格）。 */
+    private static final double TRAIL_REACH_DISTANCE = 1.2D;
+    /**
+     * 轨迹巡逻：单个路点尝试超过该 tick 数仍未抵达就跳过，避免在一个点上打转。
+     *
+     * <p>
+     * 必须显著大于 {@link #TRAIL_STALL_TICKS}：跳过路点会重置进展统计，如果两者一样长，
+     * 「撞墙 3 秒就折返去找可抵达记录点」这件事永远轮不到执行（跳过总是先发生）。
+     * 于是它只剩兜底作用——「就在附近但怎么也踩不进 1.2 格」这类情况。
+     */
+    private static final long TRAIL_WAYPOINT_TIMEOUT_TICKS = 100L;
+    /** 轨迹巡逻：目标路点远于该距离说明身体被传送过（如猎杀阶段拉回房间），重新吸附到最近的轨迹点。 */
+    private static final double TRAIL_RESNAP_DISTANCE = 40.0D;
+    /**
+     * 轨迹巡逻：身体连续 3 秒（60 tick）没有实际走出 {@link #TRAIL_MIN_PROGRESS_DISTANCE} 格，
+     * 就认定撞墙/被堵死，折返去最近一个「现在依然可抵达」的记录点。
+     *
+     * <p>必须用「身体实际位移」而不是「到路点的距离」——贴墙时的位置抖动会把后者反复刷成有进展。
+     */
+    private static final long TRAIL_STALL_TICKS = 60L;
+    /** 轨迹巡逻：一次折返最多向外看多少个记录点（性能上限）。 */
+    private static final int TRAIL_RESCAN_LIMIT = 32;
+    /** 轨迹巡逻：两次「重新找可抵达记录点」之间的最小间隔，避免反复扫描。 */
+    private static final long TRAIL_RESCAN_COOLDOWN_TICKS = 60L;
+    /** 轨迹巡逻：两次改变方向（掉头 / 端点折返）之间的最小间隔，避免在两个方向之间来回抖。 */
+    private static final long TRAIL_REVERSE_COOLDOWN_TICKS = 40L;
+    /** 轨迹巡逻：身体至少实际走出这么多格才算「有进展」。 */
+    private static final double TRAIL_MIN_PROGRESS_DISTANCE = 0.5D;
+    /** 轨迹巡逻：正前方有障碍时的前进力度——轻轻试探一下即可，不硬磨墙。 */
+    private static final float TRAIL_WALL_FORWARD = 0.3F;
+
+    /**
+     * 「生前轨迹」巡逻：作为移动辅助接管本次移动。
+     *
+     * <p>
+     * 优先级高于伪装任务：{@link FakeSteveTaskPlanner#hasCompletableTask} 对几乎任何玩家都返回
+     * true（开局就会派发任务），如果让任务先抢走移动权，AI 会一直用 A* 跑去任务点、表现为漫无目的
+     * 地乱跑，永远也走不到轨迹上。
+     *
+     * <p>
+     * 它只负责行走，并保留原本的伪装交互节奏；开门、追击、同化、任务交互等其它逻辑都不受影响
+     * （不进入本方法时照旧执行，进入后也只是不走 A* 而已）。
+     *
+     * @return 是否已接管本次移动
+     */
+    private static boolean trailPatrol(ServerLevel level, ServerPlayer body,
+            FakeSteveAgentState state, long now, boolean psychoActive) {
+        if (!state.trailEnabled) {
+            return false;
+        }
+        // 沿用原来的伪装交互节奏（偶尔从餐盘拿点吃的、吃点东西），只是不再重新挑徘徊目标。
+        if (now >= state.nextDecisionTick) {
+            state.nextDecisionTick = now + (psychoActive
+                    ? 10L + level.getRandom().nextInt(15)
+                    : 40L + level.getRandom().nextInt(80));
+            if (!psychoActive && tryInteract(level, body, state, now)) {
+                return true;
+            }
+        }
+        // 走轨迹就不使用 A*：清掉任务/徘徊留下的目标与路径。
+        state.pathGoal = null;
+        state.path.clear();
+        if (!driveTrail(level, body, state, psychoActive ? 0.22D : 0.15D)) {
+            return false;
+        }
+        // 巡逻统一按「伪装空闲」记账，避免 DISGUISE_TASK 的 600 tick 预算反复重置状态。
+        state.mode = AgentMode.DISGUISE_IDLE;
+        return true;
+    }
+
+    /**
+     * 沿被替换玩家「生前」的移动轨迹巡逻。这只是一层「移动辅助」。
+     *
+     * <p>
+     * 记下来的这条路（例如 A→B→C）意味着「这段路玩家亲自走过，始终可行走」，所以伪人只需要
+     * 沿点复现：从 C 返回 B、返回 A，再折返到 B、到 C，循环往复。<b>正常行走时不重新判断路可不可行、
+     * 能不能走</b>——不跑 A*、不做绕人侧移、不做落点检查。
+     *
+     * <p>
+     * 唯一的例外是「撞墙」：连续 {@link #TRAIL_STALL_TICKS}（3 秒）没能真的往前挪动，就折返到
+     * 最近一个「现在依然可抵达」的记录点（见 {@link #resolveTrailStall}），而不是一直顶着障碍物。
+     *
+     * <p>
+     * 它不会像 {@link #follow} 那样卡在原地转圈：A* 的「搜不到路」和侧移被移动租约整包拒绝
+     * 这两档都不存在了；沿路线走时每一步都在靠近下一个路点，移动包必然通过。
+     *
+     * <p>
+     * 其它行为一概不受影响：开门仍走 {@link #openDoorsOnApproach}（同一套规则，硬锁的门一样打不开），
+     * 追击/潜行/同化/任务/伪装交互都在进入这里之前就已经决定好了，本方法只负责行走。
+     *
+     * @return 是否接管了本 tick 的移动（false = 调用方应回退到原来的徘徊逻辑）
+     */
+    static boolean driveTrail(ServerLevel level, ServerPlayer body,
+            FakeSteveAgentState state, double speed) {
+        if (!state.trailEnabled || state.trail.size() < 2) {
+            return false;
+        }
+        long now = level.getGameTime();
+        BlockPos target = advanceTrailTarget(level, body, state, now);
+        if (target == null) {
+            return false;
+        }
+        // 进入路点前先把门打开，避免身体贴着门原地跳。
+        openDoorsOnApproach(level, body, target);
+
+        Vec3 delta = Vec3.atBottomCenterOf(target).subtract(body.position());
+        double horizontalSqr = delta.x * delta.x + delta.z * delta.z;
+        if (horizontalSqr < 0.01D) {
+            if (needsVerticalSwim(body, target.getY() + 0.1D)) {
+                driveVerticalSwim(body, state, target, now, speed);
+                return true;
+            }
+            // 已经站在这一格上：立刻推进到下一个路点，不做无意义的停留。
+            state.trailRefTick = 0L;
+            state.trailProgressTick = now;
+            state.trailWaypointTick = now - TRAIL_WAYPOINT_TIMEOUT_TICKS;
+            advanceTrailTarget(level, body, state, now);
+            idleHold(level, body, state, now);
+            return true;
+        }
+
+        Vec3 direction = new Vec3(delta.x, 0.0D, delta.z).normalize();
+        // wallAhead 只看「鼻子前面那一格是不是实体」，只用来把前进力度放轻（别顶着方块空转），
+        // 不参与任何路径可行性判断——这条路是玩家自己走出来的，视为始终可走。
+        // 真正决定要不要折返的是下面这段「身体实际位移」判定：贴墙抖动、被别人堵住、
+        // 门被锁上导致走不过去，都会在这里被抓到。
+        boolean blocked = FakeSteveNavigator.wallAhead(level, body.position(),
+                direction.scale(0.9D));
+        if (state.trailRefTick == 0L) {
+            state.trailRefX = body.getX();
+            state.trailRefZ = body.getZ();
+            state.trailRefTick = now;
+            state.trailProgressTick = now;
+        } else {
+            double movedX = body.getX() - state.trailRefX;
+            double movedZ = body.getZ() - state.trailRefZ;
+            if (movedX * movedX + movedZ * movedZ
+                    >= TRAIL_MIN_PROGRESS_DISTANCE * TRAIL_MIN_PROGRESS_DISTANCE) {
+                state.trailRefX = body.getX();
+                state.trailRefZ = body.getZ();
+                state.trailProgressTick = now;
+            }
+        }
+        // 撞墙判定：wallAhead 只看正前方、斜穿门口时会瞬时误判，所以真正决定折返的是
+        // 「连续 3 秒没有真的往前走」（贴墙抖动、被别人堵住、门被锁上都算）。
+        if (now - state.trailProgressTick >= TRAIL_STALL_TICKS) {
+            int resumed = resolveTrailStall(level, state, now);
+            if (resumed >= 0) {
+                // 折返成功：直接面向要退回去的那个记录点，原地转身，下一 tick 就沿原路返回。
+                Vec3 back = Vec3.atBottomCenterOf(state.trail.get(resumed)).subtract(body.position());
+                float holdYaw = (float) (Mth.atan2(-back.x, back.z) * Mth.RAD_TO_DEG);
+                state.stableRouteYaw = holdYaw;
+                state.hasStableRouteYaw = true;
+                // 本 tick 先停下转身，不硬顶障碍物。
+                FakeSteveMotionController.hold(body, state, holdYaw,
+                        FakeSteveMotionPolicy.walkingPitch(now, body.getUUID().hashCode(), true));
+                return true;
+            }
+            // 冷却中、或这一段路上一个能站的记录点都没有：本 tick 按原方向继续走，
+            // 交给路点超时和下一次重扫处理，不至于原地冻住。
+        }
+        float nodeYaw = (float) (Mth.atan2(-direction.x, direction.z) * Mth.RAD_TO_DEG);
+        if (!state.hasStableRouteYaw) {
+            state.stableRouteYaw = nodeYaw;
+            state.hasStableRouteYaw = true;
+        } else {
+            state.stableRouteYaw = FakeSteveMotionPolicy.walkingHeading(state.stableRouteYaw, nodeYaw);
+        }
+        boolean stepAhead = FakeSteveNavigator.isStepBlock(level.getBlockState(target))
+                || FakeSteveNavigator.isStepBlock(level.getBlockState(target.below()));
+        boolean ascends = delta.y > 0.20D || stepAhead;
+        boolean jump = wantsJumpOrSwim(level, body, state, target.getY() + 0.1D, ascends, now);
+        boolean sprint = now < state.sprintUntilTick || speed >= 0.22D;
+        // 正前方有障碍时只轻轻试探一下，不硬磨墙；真被挡住会在上面判定后掉头。
+        float forward = blocked ? TRAIL_WALL_FORWARD : 1.0F;
+        FakeSteveMotionController.drive(body, state, forward, 0.0F, jump, sprint, false,
+                state.stableRouteYaw,
+                FakeSteveMotionPolicy.walkingPitch(now, body.getUUID().hashCode(), true),
+                target);
+        return true;
+    }
+
+    /**
+     * 撞墙/被堵满 3 秒后的处理：折返，并退到最近一个「现在依然可抵达」的记录点。
+     *
+     * <p>
+     * 记录点是玩家生前亲自踩过的位置，所以它们本身就是「可用路径」上的点；这里只需要做一次很便宜的
+     * 「现在还能不能站上去」判定（门被锁死、有人往地上放了方块、地板被打掉都会让它失效），
+     * 不需要 A*，也不需要扫描整张地图。
+     *
+     * <p>
+     * 搜索顺序：优先沿「来时的方向」往回找（那段路身体刚刚走过，最可能还是通的），
+     * 其次才向前跨过被堵住的那一小段。每个方向最多看 {@link #TRAIL_RESCAN_LIMIT} 个点，且整次搜索只在
+     * 「连续 {@link #TRAIL_STALL_TICKS} 没走动」这个低频时刻发生一次，常规每 tick 开销仍然为零。
+     *
+     * @return 新的目标记录点下标（同时把巡逻方向改成朝它走）；本次不能折返时返回 -1
+     */
+    private static int resolveTrailStall(ServerLevel level, FakeSteveAgentState state, long now) {
+        int size = state.trail.size();
+        if (size < 2 || now < state.trailRescanCooldownUntilTick) {
+            return -1;
+        }
+        int from = Mth.clamp(state.trailIndex, 0, size - 1);
+        int picked = -1;
+        for (int step = 1; step <= TRAIL_RESCAN_LIMIT && picked < 0; step++) {
+            int back = from - state.trailDirection * step;
+            if (back >= 0 && back < size && trailPointUsable(level, state.trail.get(back))) {
+                picked = back;
+                break;
+            }
+            int forward = from + state.trailDirection * step;
+            if (forward >= 0 && forward < size && trailPointUsable(level, state.trail.get(forward))) {
+                picked = forward;
+                break;
+            }
+        }
+        if (picked < 0) {
+            // 这一段路上一个能站的记录点都没有：先按原方向继续走，等冷却过去再试。
+            state.trailRescanCooldownUntilTick = now + TRAIL_RESCAN_COOLDOWN_TICKS;
+            return -1;
+        }
+        // 朝这个点走过去（它可能在身后，也可能在被堵住的那段前方），并重置进展统计。
+        state.trailDirection = picked < from ? -1 : 1;
+        state.trailIndex = picked;
+        state.trailWaypointTick = now;
+        state.trailReverseCooldownUntilTick = now + TRAIL_REVERSE_COOLDOWN_TICKS;
+        state.trailRescanCooldownUntilTick = now + TRAIL_RESCAN_COOLDOWN_TICKS;
+        state.trailRefTick = 0L;
+        state.trailProgressTick = now;
+        state.hasStableRouteYaw = false;
+        return picked;
+    }
+
+    /**
+     * 记录点现在是否还能站上去。
+     *
+     * <p>
+     * 记录时它一定是可站的（见 {@link FakeSteveTrailRecorder}），运行时再判一次是因为中间可能变了：
+     * 门被锁死、有人在地上放了方块、地板被打掉。判定只是几次方块读取，而且只在「跳点 / 撞墙重扫」
+     * 这种低频时刻调用。
+     */
+    private static boolean trailPointUsable(ServerLevel level, BlockPos pos) {
+        return FakeSteveNavigator.standable(level, pos);
+    }
+
+    /**
+     * 当前路点已经被环境改掉、站不上去了：直接跳到同一方向上下一个「现在依然可抵达」的记录点。
+     *
+     * <p>
+     * 正常前进到新路点时顺手做的一次判定（最多看 {@link #TRAIL_RESCAN_LIMIT} 个点，通常第一个就通过），
+     * 所以「伪人总是尝试去可抵达的记录位置」这件事在常规巡逻里也是成立的，不用等撞墙。
+     */
+    private static void skipUnusableTrailPoints(ServerLevel level, FakeSteveAgentState state) {
+        int size = state.trail.size();
+        for (int step = 0; step <= TRAIL_RESCAN_LIMIT; step++) {
+            int index = state.trailIndex + state.trailDirection * step;
+            if (index < 0 || index >= size) {
+                return;
+            }
+            if (trailPointUsable(level, state.trail.get(index))) {
+                state.trailIndex = index;
+                return;
+            }
+        }
+    }
+
+    /**
+     * 取出当前要走的轨迹点，并在「抵达 / 超时」后推进下标（到端点折返，实现重复巡逻）。
+     */
+    private static BlockPos advanceTrailTarget(ServerLevel level, ServerPlayer body,
+            FakeSteveAgentState state, long now) {
+        int size = state.trail.size();
+        if (size < 2) {
+            return null;
+        }
+        if (state.trailIndex < 0 || state.trailIndex >= size) {
+            state.trailIndex = Mth.clamp(state.trailIndex, 0, size - 1);
+            state.trailWaypointTick = now;
+        }
+        BlockPos current = state.trail.get(state.trailIndex);
+        // 身体被传送过（猎杀阶段拉回房间等）时重新吸附到最近的轨迹点，避免横穿整张图。
+        if (current.distSqr(body.blockPosition()) > TRAIL_RESNAP_DISTANCE * TRAIL_RESNAP_DISTANCE) {
+            int snapped = FakeSteveTrailRecorder.nearestIndex(state.trail, body.blockPosition());
+            if (snapped != state.trailIndex) {
+                state.trailIndex = snapped;
+                state.trailWaypointTick = now;
+                state.trailRefTick = 0L;
+                state.trailProgressTick = now;
+                state.hasStableRouteYaw = false;
+                current = state.trail.get(state.trailIndex);
+            }
+        }
+        if (state.trailWaypointTick == 0L) {
+            state.trailWaypointTick = now;
+        }
+        boolean reached = body.blockPosition().closerThan(current, TRAIL_REACH_DISTANCE);
+        boolean timedOut = now - state.trailWaypointTick > TRAIL_WAYPOINT_TIMEOUT_TICKS;
+        if (!reached && !timedOut) {
+            return current;
+        }
+        int nextIndex = state.trailIndex + state.trailDirection;
+        if (nextIndex < 0 || nextIndex >= size) {
+            // 走到路线端点要折返。折返同样受掉头冷却约束，否则会出现
+            // 「撞墙掉头 → 正好落在端点 → 立刻又折回去」这种原地看着来回抖的情况；
+            // 冷却还没到就停在端点等一会儿（也像自然的巡逻停顿）。
+            if (now < state.trailReverseCooldownUntilTick) {
+                return current;
+            }
+            state.trailDirection = -state.trailDirection;
+            state.trailReverseCooldownUntilTick = now + TRAIL_REVERSE_COOLDOWN_TICKS;
+            state.hasStableRouteYaw = false;
+            state.trailLoops++;
+            nextIndex = state.trailIndex + state.trailDirection;
+        }
+        state.trailIndex = Mth.clamp(nextIndex, 0, size - 1);
+        state.trailWaypointTick = now;
+        // 路点本身被环境改掉（门锁死、地上被放方块）后永远到不了：顺手跳到同方向下一个还能站的记录点。
+        skipUnusableTrailPoints(level, state);
+        // 目标换成新路点：进展统计同步重置，否则会被上一段路的位移误判为「卡住」。
+        state.trailRefTick = 0L;
+        state.trailProgressTick = now;
+        return state.trail.get(state.trailIndex);
     }
 
     static void follow(ServerLevel level, ServerPlayer body, BlockPos goal,
