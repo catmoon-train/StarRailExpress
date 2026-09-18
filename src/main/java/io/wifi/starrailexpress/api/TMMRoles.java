@@ -52,8 +52,8 @@ public class TMMRoles {
             new LooseEndRole(SRE.id("loose_end"), 0x9F0000, false, false, SRERole.MoodType.NONE, -1, false,
                     List.of(new MobEffectInstance(
                             MobEffects.MOVEMENT_SPEED,
-                            30 * 20, // 持续时间 60s（tick）
-                            2, // 等级（0 = 速度 I）
+                            30 * 20, // 持续时间
+                            1, // 等级（0 = 速度 I）速度 II
                             true, // ambient（环境效果，如信标）
                             false, // showParticles（显示粒子）
                             true // showIcon（显示图标）

@@ -145,6 +145,28 @@ public class ModEntities {
                     .trackRangeBlocks(4)
                     .trackedUpdateRate(10)
                     .build());
+
+    /** 投掷竹子：直线飞行，途中最多挂上 2 名玩家，从发射起 10 秒后消失 */
+    @SuppressWarnings("deprecation")
+    public static final EntityType<ThrownBambooEntity> THROWN_BAMBOO = Registry.register(
+            BuiltInRegistries.ENTITY_TYPE,
+            ResourceLocation.fromNamespaceAndPath(Noellesroles.MOD_ID, "thrown_bamboo"),
+            FabricEntityTypeBuilder.<ThrownBambooEntity>create(MobCategory.MISC, ThrownBambooEntity::new)
+                    .dimensions(EntityDimensions.fixed(0.5F, 0.5F))
+                    .trackRangeBlocks(8)
+                    .trackedUpdateRate(1)
+                    .build());
+
+    /** 竹枪延伸体：沿视线伸长最多 10 格 / 3 秒 */
+    @SuppressWarnings("deprecation")
+    public static final EntityType<BambooSpearEntity> BAMBOO_SPEAR = Registry.register(
+            BuiltInRegistries.ENTITY_TYPE,
+            ResourceLocation.fromNamespaceAndPath(Noellesroles.MOD_ID, "bamboo_spear"),
+            FabricEntityTypeBuilder.<BambooSpearEntity>create(MobCategory.MISC, BambooSpearEntity::new)
+                    .dimensions(EntityDimensions.fixed(0.2F, 0.2F))
+                    .trackRangeBlocks(16)
+                    .trackedUpdateRate(1)
+                    .build());
     @SuppressWarnings("deprecation")
 
     public static final EntityType<DanmukuEntity> DANMUKU = Registry.register(

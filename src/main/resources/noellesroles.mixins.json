@@ -33,6 +33,7 @@
     "item.SealedArtifactEatMixin",
     "item.SealedArtifactQuestMixin",
     "item.ThrowingKnifeCooldownMixin",
+    "item.BambooHangRideMixin",
     "modifier.SREPlayerTaskComponentMixin",
     "modifier.StingyPurchaseMixin",
     "modifier.VegetarianFoodMixin",

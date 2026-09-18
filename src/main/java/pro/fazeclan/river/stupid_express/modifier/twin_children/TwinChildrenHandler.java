@@ -7,6 +7,7 @@
 
 package pro.fazeclan.river.stupid_express.modifier.twin_children;
 
+import io.wifi.starrailexpress.api.RoleTeam;
 import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.game.GameUtils;
@@ -24,6 +25,7 @@ import org.agmas.harpymodloader.component.WorldModifierComponent;
 import org.agmas.harpymodloader.events.GameInitializeEvent;
 import org.agmas.harpymodloader.events.ModifierAssigned;
 import org.agmas.harpymodloader.events.ModifierRemoved;
+import org.agmas.harpymodloader.events.ModdedRoleAssigned;
 import org.agmas.harpymodloader.modifiers.ModifierOpposingHelper;
 import org.jetbrains.annotations.Nullable;
 import pro.fazeclan.river.stupid_express.StupidExpress;
@@ -72,6 +74,19 @@ public final class TwinChildrenHandler {
         ModifierRemoved.EVENT.register((player, modifier) -> {
             if (modifier.equals(SEModifiers.TWIN_CHILDREN) && player instanceof ServerPlayer serverPlayer) {
                 removePair(serverPlayer, true);
+            }
+        });
+        // 运行期转职进杀手阵营时立刻解散：双生之子不该出现在杀手身上。
+        // 必须走 removePair（会解除叠乘、回滚半身属性、并清掉双方的修饰符）：
+        // WorldModifierComponent#removeModifier 是组件级操作、不会触发 ModifierRemoved，
+        // 单用它会让 PAIRS 与半身/乘骑状态留在杀手身上直到本局结束。
+        ModdedRoleAssigned.EVENT.register((player, role) -> {
+            if (player == null || !isKillerFaction(role)) {
+                return;
+            }
+            if (WorldModifierComponent.KEY.get(player.serverLevel())
+                    .isModifier(player, SEModifiers.TWIN_CHILDREN)) {
+                removePair(player, true);
             }
         });
         GameInitializeEvent.EVENT.register((level, game, players) -> PAIRS.clear());
@@ -162,7 +177,10 @@ public final class TwinChildrenHandler {
         ServerLevel level = first.serverLevel();
         SREGameWorldComponent game = SREGameWorldComponent.KEY.get(level);
         SRERole firstRole = game.getRole(first);
-        if (factionOf(firstRole) == Faction.INDEPENDENT_NEUTRAL) {
+        // 独立中立与杀手阵营都不给：双生之子只出现在好人阵营
+        // （随机分配层另由 SEModifiers#init 的 setCannotAppliedToTeam 挡住杀手阵营，
+        // 这里覆盖强制分配等绕过路径）
+        if (factionOf(firstRole) == Faction.INDEPENDENT_NEUTRAL || isKillerFaction(firstRole)) {
             rejectAssignment(first);
             return;
         }
@@ -175,6 +193,9 @@ public final class TwinChildrenHandler {
                 .filter(candidate -> !PAIRS.containsKey(candidate.getUUID()))
                 .filter(candidate -> !WorldModifierComponent.KEY.get(level)
                         .isModifier(candidate, SEModifiers.TWIN_CHILDREN))
+                // 同伴也绝不能落在杀手阵营身上：factionOf 把「有杀手能力 / 与杀手一同胜利」的角色
+                // 统统算作 KILLER 桶（含真人杀手），仅凭同桶相等仍可能把杀手配成双生子，故单独排除
+                .filter(candidate -> !isKillerFaction(game.getRole(candidate)))
                 .filter(candidate -> factionOf(game.getRole(candidate)) == factionOf(firstRole))
                 .findFirst().orElse(null);
 
@@ -382,6 +403,18 @@ public final class TwinChildrenHandler {
 
     private static boolean isAlivePlayer(ServerPlayer player) {
         return GameUtils.isPlayerAliveAndSurvival(player);
+    }
+
+    /**
+     * 是否属于杀手阵营（杀手 / 杀手方中立）。
+     *
+     * <p>
+     * 判据与「阵营」标准定义 {@link RoleTeam#KILLER}、{@link RoleTeam#NEUTRAL_KILLER} 一致
+     * （{@code !isInnocent() && (canUseKiller() || isNeutralForKiller())}），
+     * 这样随机分配层的 {@code setCannotAppliedToTeam} 与本类的兜底判定不会出现分歧。
+     */
+    static boolean isKillerFaction(@Nullable SRERole role) {
+        return RoleTeam.KILLER.matches(role) || RoleTeam.NEUTRAL_KILLER.matches(role);
     }
 
     static Faction factionOf(SRERole role) {
