@@ -218,6 +218,8 @@
   "item.noellesroles.loan_contract.desc": "右键偿还贷款本金和利息。",
   "item.noellesroles.insurance.desc": "选择死亡原因签订保险；右键已签订的保险并支付25金币使其生效。",
   "item.noellesroles.spellbreaker_potion.desc": "破咒者专用。瞄准存活玩家使用后，目标在 80 秒内下一次技能会被封印。",
+  "item.noellesroles.gong.desc": "更夫专用的一次性道具。使用后警示周围玩家，使周围非平民/非警长阵营的玩家 10 秒内无法使用技能与背包（参考破法者，但不给予滤镜效果、不显示气泡粒子）。冷却 120 秒（每次购买涨价 25 金币）。",
+  "item.noellesroles.bang.desc": "更夫专用的一次性道具。使用后持续 10 秒，每 2 秒敲击一次（发出钟声）并立即结算：按周围玩家人数扣减游戏时间（每名玩家 4 秒）。整局游戏中梆合计最多减少 1 分钟游戏时间，用尽后再敲不会减少时间（但仍会敲出钟声并给予入梦）。同时使周围玩家获得 1 分钟入梦效果。冷却 120 秒（每次购买涨价 25 金币）。",
   "item.trainmurdermystery.weak_defense_vial.desc": "弱效护盾试剂。亡命徒等可直接右键饮用；普通玩家可倒在托盘上。提供持续约 20 秒、仅能抵挡一次刀伤害的弱效护盾。",
   "item.noellesroles.sanity_meds.desc": "修机模式镇静剂。服用后恢复 40 点理智。黑暗与追捕者靠近时会侵蚀理智。",
   "item.noellesroles.terminal.desc": "程序员专用的终端。右键打开终端界面，输入 /give @s <物品ID> 或 /tp @s room 后按回车执行；成功执行一条指令后终端会被销毁。"

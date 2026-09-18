@@ -29,6 +29,7 @@ import org.agmas.noellesroles.game.roles.innocence.adventurer.AdventurerRole;
 import org.agmas.noellesroles.game.roles.innocence.cake_maker.CakeMakerRole;
 import org.agmas.noellesroles.game.roles.innocence.great_detective.GreatDetectiveRole;
 import org.agmas.noellesroles.game.roles.innocence.mortician.MorticianRole;
+import org.agmas.noellesroles.game.roles.innocence.watchman.WatchmanRole;
 import org.agmas.noellesroles.game.roles.innocence.insurance.InsuranceRole;
 import org.agmas.noellesroles.game.roles.innocence.veteran.VeteranKnifeHandler;
 import org.agmas.noellesroles.game.roles.killer.manipulator.ManipulatorRole;
@@ -367,6 +368,32 @@ public class ModRoles {
     )).setCanSeeCoin(true).setCanBeRandomedByOtherRoles(false)
             .setSpecialMapRole(MapSpecialFeatures.FLY).setDefaultMax(0)
             .setRoleData(PilotRoleData::new);
+
+    // 更夫角色 ID
+    public static final ResourceLocation WATCHMAN_ID = Noellesroles.id("watchman");
+
+    /**
+     * 更夫 - 平民阵营
+     * - 属于平民阵营 (isInnocent = true)
+     * - 不能使用杀手能力 (canUseKiller = false)
+     * - 真实心情系统、标准冲刺时间
+     * - 可以透视到游戏时间 (canSeeTime = true)
+     * - 技能「敲钟」：按下技能键敲钟，使附近玩家短暂透视游戏时间 15 秒（CD 90 秒）
+     * - 商店：锣（100）、梆（100），每次购买价格 +25（冷却固定 120 秒）
+     * - 职业相关规则全部集中在 WatchmanRole / WatchmanRoleData 里
+     */
+    public static SRERole WATCHMAN = TMMRoles.registerRole(new WatchmanRole(
+            WATCHMAN_ID, // 角色 ID
+            new Color(96, 112, 200).getRGB(), // 夜幕蓝 - 代表更夫/夜间报时
+            true, // isInnocent = 平民阵营
+            false, // canUseKiller = 无杀手能力
+            SRERole.MoodType.REAL, // 真实心情
+            TMMRoles.CIVILIAN.getMaxSprintTime(), // 标准冲刺时间
+            true // 可以透视游戏时间
+    ))
+            .setCanSeeCoin(true)
+            .setCanBeRandomedByOtherRoles(true)
+            .setRoleData(WatchmanRoleData::new);
 
     /**
      * 影隼角色 - 杀手阵营

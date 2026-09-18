@@ -526,6 +526,22 @@ public class ModItems {
             "silence_totem", ROLE_ITEMS_GROUP);
 
     /**
+     * 锣（更夫专属，一次性道具）
+     * - 使用后使周围「非平民 / 非警长」阵营玩家 10 秒内无法使用技能与背包
+     */
+    public static final Item GONG = register(
+            new GongItem(new Item.Properties().stacksTo(1)),
+            "gong", ROLE_ITEMS_GROUP);
+
+    /**
+     * 梆（更夫专属，一次性道具）
+     * - 持续 10 秒，每 2 秒按周围玩家人数扣减游戏时间，并使周围玩家获得 1 分钟入梦
+     */
+    public static final Item BANG = register(
+            new BangItem(new Item.Properties().stacksTo(1)),
+            "bang", ROLE_ITEMS_GROUP);
+
+    /**
      * 加固门道具
      * - 工程师专属物品
      * - 在商店以75金币购买

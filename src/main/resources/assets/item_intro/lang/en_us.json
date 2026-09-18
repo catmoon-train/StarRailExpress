@@ -227,6 +227,8 @@
     "item.noellesroles.loan_contract.desc": "Right-click to repay the loan principal and interest.",
     "item.noellesroles.insurance.desc": "Choose a death cause to sign the policy; right-click and pay 25 gold to activate it.",
     "item.noellesroles.spellbreaker_potion.desc": "Spellbreaker only. Use on a living player to seal their next skill for 80 seconds.",
+    "item.noellesroles.gong.desc": "Watchman-only single-use item. On use, nearby players who are neither civilians nor vigilantes cannot use skills or their inventory for 10 seconds (Spellbreaker-style, but without the filter effect and without bubble particles). Cooldown 120s (each extra purchase costs 25 more gold).",
+    "item.noellesroles.bang.desc": "Watchman-only single-use item. Lasts 10 seconds; it strikes every 2 seconds (bell sound) and immediately reduces the game timer by 4 seconds per nearby player. Across the whole round, the clapper can drain at most 1 minute of game time in total; once exhausted, further strikes no longer drain time (but still ring and grant Enter Dream). It also grants nearby players 1 minute of Enter Dream. Cooldown 120s (each extra purchase costs 25 more gold).",
     "item.trainmurdermystery.weak_defense_vial.desc": "Weak shield vial. Desperados can drink it; others can pour it onto a tray. Grants a ~20s weak shield that blocks one knife hit.",
     "item.noellesroles.sanity_meds.desc": "Repair-mode sedative. Restores 40 sanity. Darkness and nearby pursuers still drain sanity."
 }

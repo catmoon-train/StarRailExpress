@@ -78,6 +78,7 @@ import org.agmas.noellesroles.role_data.neutral.RecorderRoleData;
 import org.agmas.noellesroles.role_data.neutral.MorticianBodyMakerRoleData;
 import org.agmas.noellesroles.role_data.innocence.LeatherPigRoleData;
 import org.agmas.noellesroles.role_data.innocence.TomatoHeadRoleData;
+import org.agmas.noellesroles.role_data.innocence.WatchmanRoleData;
 import org.agmas.noellesroles.role_data.neutral.PhantomSpiritRoleData;
 import org.agmas.noellesroles.role_data.neutral.ZhangAngelRoleData;
 import org.agmas.noellesroles.role_data.innocence.MagicianRoleData;
@@ -1019,6 +1020,18 @@ public class ModRolesInitialEventRegister {
                             .ifPresent(SpellbreakerRoleData::useAbility);
                     return true;
                 }).cooldownSeconds(130).build());
+
+        // 更夫技能注册：敲钟，使附近玩家短暂透视游戏时间15秒，冷却90秒
+        RoleSkill.register(ModRoles.WATCHMAN, RoleSkill.skill(
+                SRE.id("watchman_ring_bell"),
+                "skill.noellesroles.watchman.ring_bell",
+                context -> {
+                    ServerPlayer player = context.player();
+                    var data = RoleData.getNullable(WatchmanRoleData.class, player);
+                    if (data == null)
+                        return false;
+                    return data.ringBell();
+                }).cooldownSeconds(90).showOnHud(true).announceToSelf(false).build());
 
         // 侍者技能注册：开启灯光，冷却60秒
         RoleSkill.register(ModRoles.ATTENDANT, RoleSkill.skill(
