@@ -12,6 +12,7 @@ import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.effect.MobEffectInstance;
@@ -172,7 +173,7 @@ public final class LenderRoleHandler {
                 .withStyle(ChatFormatting.GREEN), true);
     }
 
-    /** Deducts the full current debt from the player holding the contract. */
+    /** Deducts the full current debt (principal + interest) from the player holding the contract. */
     public static boolean repayContract(ServerPlayer borrower, ItemStack contract) {
         int due = LoanContractItem.totalDue(contract, borrower.level().getGameTime());
         if (due <= 0 || !MoneyUtils.cost(borrower, due)) {
@@ -180,7 +181,32 @@ public final class LenderRoleHandler {
                     .withStyle(ChatFormatting.RED), true);
             return false;
         }
+        // 借款人还清后，把这笔钱（含累计利息）发给放贷人。
+        creditLender(borrower.serverLevel(), contract, due);
         return true;
+    }
+
+    /**
+     * 把一笔还款（含利息）发放给放贷人。
+     *
+     * <p>合同里记下了放贷人的 UUID；这里只在实际能找到放贷人、且放贷人仍在场存活时入账。
+     * 放贷人已离线或出局时这笔钱作废（借款人那边已经扣款），不做悬空记账。
+     */
+    private static void creditLender(ServerLevel level, ItemStack contract, int amount) {
+        if (amount <= 0) {
+            return;
+        }
+        UUID lenderId = LoanContractItem.lender(contract);
+        if (lenderId == null) {
+            return;
+        }
+        ServerPlayer lender = level.getServer().getPlayerList().getPlayer(lenderId);
+        if (lender == null || !GameUtils.isPlayerAliveAndSurvival(lender)) {
+            return;
+        }
+        MoneyUtils.addToBalance(lender, amount);
+        lender.displayClientMessage(Component.translatable("message.noellesroles.loan.payment_received", amount)
+                .withStyle(ChatFormatting.GOLD), true);
     }
 
     /** Opens the contract form without requiring a real lender request. */
@@ -244,6 +270,8 @@ public final class LenderRoleHandler {
         int paid = Math.min(available, due);
         if (paid > 0) {
             MoneyUtils.addToBalance(borrower, -paid);
+            // 合同到期强制收款：放贷人拿回实际能收齐的部分（含利息），差额作为惩罚不再退给放贷人。
+            creditLender(borrower.serverLevel(), contract, paid);
         }
         int remaining = due - paid;
         if (remaining > 0) {
