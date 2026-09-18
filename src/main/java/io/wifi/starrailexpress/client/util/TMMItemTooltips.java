@@ -60,6 +60,8 @@ public class TMMItemTooltips {
             addKnifeDurabilityHint(itemStack, tooltipList);
             addTooltipForItem(TMMItems.REVOLVER, itemStack, tooltipList);
             addTooltipForItem(TMMItems.DERRINGER, itemStack, tooltipList);
+            addTooltipForItem(ModItems.DESPERADO_KNIFE, itemStack, tooltipList);
+            addTooltipForItem(ModItems.DESPERADO_GUN, itemStack, tooltipList);
             addTooltipForItem(TMMItems.GRENADE, itemStack, tooltipList);
             addTooltipForItem(TMMItems.PSYCHO_MODE, itemStack, tooltipList);
             addTooltipForItem(TMMItems.POISON_VIAL, itemStack, tooltipList);

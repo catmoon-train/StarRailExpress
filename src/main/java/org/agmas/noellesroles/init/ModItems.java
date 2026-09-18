@@ -861,6 +861,15 @@ public class ModItems {
             new ThrowingAxeItem((new Item.Properties()).stacksTo(1)), "throwing_axe",
             WEAPONS_GROUP);
 
+    // 竹子 - 蓄力投掷，途中最多挂上 2 名玩家，从发射起 10 秒后消失
+    public static final Item BAMBOO = register(
+            new ThrownBambooItem((new Item.Properties()).stacksTo(8)), "bamboo",
+            WEAPONS_GROUP);
+    // 竹枪 - 右键沿视线伸长最多 10 格 / 3 秒，命中玩家击杀后收回
+    public static final Item BAMBOO_SPEAR = register(
+            new BambooSpearItem((new Item.Properties()).stacksTo(1)), "bamboo_spear",
+            WEAPONS_GROUP);
+
     // 灵梦的御币
     public static final Item REIMU_GOHEI = register(
             new GoheiItem((new Item.Properties()).stacksTo(1)), "reimu_gohei",

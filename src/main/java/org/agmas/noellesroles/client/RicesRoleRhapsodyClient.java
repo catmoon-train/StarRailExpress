@@ -708,6 +708,10 @@ public class RicesRoleRhapsodyClient {
                 org.agmas.noellesroles.client.renderer.DanmukuRenderer::new);
         EntityRendererRegistry.register(ModEntities.FLYING_AXE,
                 org.agmas.noellesroles.client.renderer.FlyingAxeRenderer::new);
+        EntityRendererRegistry.register(ModEntities.THROWN_BAMBOO,
+                org.agmas.noellesroles.client.renderer.ThrownBambooRenderer::new);
+        EntityRendererRegistry.register(ModEntities.BAMBOO_SPEAR,
+                org.agmas.noellesroles.client.renderer.BambooSpearRenderer::new);
         EntityRendererRegistry.register(ModEntities.FLARE, ThrownItemRenderer::new);
         // 烟雾弹实体渲染器 - 使用飞行物品渲染器
         EntityRendererRegistry.register(ModEntities.SMOKE_GRENADE, ThrownItemRenderer::new);

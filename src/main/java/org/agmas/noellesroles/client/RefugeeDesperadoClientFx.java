@@ -139,7 +139,7 @@ public final class RefugeeDesperadoClientFx {
     private static void paintSlash(ClientLevel level, Vec3 origin, int durationTicks, float[] params) {
         float yaw = params.length > 0 ? params[0] : 0.0F;
         float pitch = params.length > 1 ? params[1] : 0.0F;
-        double length = params.length > 2 ? params[2] : 4.5D;
+        double length = params.length > 2 ? params[2] : 3.45D;
         float strength = params.length > 3 ? params[3] : 1.0F;
         Vec3 forward = lookFromYawPitch(yaw, pitch);
         Vec3 up = new Vec3(0.0D, 1.0D, 0.0D);
@@ -149,25 +149,20 @@ public final class RefugeeDesperadoClientFx {
         } else {
             side = side.normalize();
         }
-        int steps = 18;
-        int arcs = strength > 0.6F ? 5 : 3;
+        int steps = 10;
+        int arcs = strength > 0.6F ? 3 : 2;
         for (int i = 0; i <= steps; i++) {
             double t = i / (double) steps;
             Vec3 along = origin.add(forward.scale(t * length));
-            double arc = Math.sin(t * Math.PI) * (0.35D + strength * 0.85D);
+            double arc = Math.sin(t * Math.PI) * (0.28D + strength * 0.55D);
             for (int a = 0; a < arcs; a++) {
-                double offset = (a / (double) (arcs - 1) - 0.5D) * 1.6D * arc;
-                Vec3 pos = along.add(side.scale(offset)).add(0.0D, Math.sin(t * Math.PI) * 0.15D, 0.0D);
-                level.addParticle(ParticleTypes.SOUL_FIRE_FLAME, pos.x, pos.y, pos.z, 0.0D, 0.01D, 0.0D);
+                double offset = arcs <= 1 ? 0.0D : (a / (double) (arcs - 1) - 0.5D) * 1.35D * arc;
+                Vec3 pos = along.add(side.scale(offset)).add(0.0D, Math.sin(t * Math.PI) * 0.12D, 0.0D);
                 if (i % 2 == 0) {
+                    level.addParticle(ParticleTypes.SOUL_FIRE_FLAME, pos.x, pos.y, pos.z, 0.0D, 0.01D, 0.0D);
+                } else {
                     level.addParticle(CRIMSON_DUST, pos.x, pos.y, pos.z, 0.0D, 0.0D, 0.0D);
                 }
-            }
-        }
-        if (strength > 0.6F) {
-            for (int i = 0; i < 10; i++) {
-                Vec3 pos = origin.add(forward.scale(level.random.nextDouble() * length));
-                level.addParticle(ParticleTypes.FLAME, pos.x, pos.y, pos.z, 0.0D, 0.02D, 0.0D);
             }
         }
     }

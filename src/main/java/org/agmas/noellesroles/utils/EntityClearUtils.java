@@ -78,6 +78,8 @@ public class EntityClearUtils {
                 entity instanceof GrenadeEntity ||
                 entity instanceof SmokeGrenadeEntity ||
                 entity instanceof ThrowingKnifeEntity ||
+                entity instanceof ThrownBambooEntity ||
+                entity instanceof BambooSpearEntity ||
                 entity instanceof ChlorineBombEntity ||
                 entity instanceof PurifyBombEntity ||
                 entity instanceof PoisonGasTankEntity ||

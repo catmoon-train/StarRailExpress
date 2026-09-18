@@ -281,6 +281,7 @@ public class GameConstants {
         public static ResourceLocation NINJA_KNIFE_KILL = Noellesroles.id("ninja_knife_kill");
         public static ResourceLocation SHORT_SHOTGUN = Noellesroles.id("short_shotgun");
         public static ResourceLocation THROWING_KNIFE_HIT = Noellesroles.id("throwing_knife_hit");
+        public static ResourceLocation BAMBOO_SPEAR = Noellesroles.id("bamboo_spear");
         public static ResourceLocation YINYANG_SWORD_AOE = Noellesroles.id("yinyang_sword_aoe");
         public static ResourceLocation FAIL_EXAM = Noellesroles.id("fail_exam");
         public static ResourceLocation BAKA = Noellesroles.id("baka");
