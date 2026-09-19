@@ -245,6 +245,10 @@ public final class SpearCombat {
         Vec3 look = player.getViewVector(1.0F);
         double magnitude = SpearConfig.LUNGE_IMPULSE_PER_LEVEL * level;
         player.push(look.x * magnitude, 0.0D, look.z * magnitude);
+        // Backported-Spears sets both velocityModified and velocityDirty after
+        // applying the impulse. In Mojmap 1.21.1, hurtMarked is the flag that
+        // makes ServerEntity resend the player's changed motion to clients.
+        player.hurtMarked = true;
         player.causeFoodExhaustion(SpearConfig.LUNGE_EXHAUSTION_PER_LEVEL * level);
         player.level().playSound(null, player.getX(), player.getY(), player.getZ(), NRSounds.SPEAR_LUNGE,
                 SoundSource.PLAYERS, 1.0F, 1.0F);
