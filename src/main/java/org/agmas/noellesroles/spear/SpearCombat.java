@@ -74,9 +74,12 @@ public final class SpearCombat {
             hit |= pierce(attacker, slot, result.getEntity(), damage, true, piercing.dealsKnockback(),
                     piercing.dismounts());
         }
+        // Backported-Spears triggers the post-piercing enchantment effect after
+        // every completed stab, even when the collision scan found no target.
+        // Keep the lunge outside the hit-only branch for the same behavior.
+        applyLunge(attacker, stack);
         if (hit) {
             piercing.playHitSound(attacker);
-            applyLunge(attacker, stack);
             if (stack.getMaxDamage() > 0) {
                 stack.hurtAndBreak(1, attacker, slot);
             }
