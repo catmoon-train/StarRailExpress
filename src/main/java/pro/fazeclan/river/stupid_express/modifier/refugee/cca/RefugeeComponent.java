@@ -386,11 +386,17 @@ public class RefugeeComponent implements AutoSyncedComponent, ServerTickingCompo
         };
         // 给予 2 tick 的deathPenalty
         for (var player : players) {
-            var dpc = DeathPenaltyComponent.KEY.get(player);
-            if (dpc.hasPenalty()) {
-                continue;
+            {
+
+                if (players_stats.containsKey(player.getUUID()) &&
+                        playerTimeRewindSnapshots.containsKey(player.getUUID())) {
+                    var dpc = DeathPenaltyComponent.KEY.get(player);
+                    if (dpc.hasPenalty()) {
+                        continue;
+                    }
+                    dpc.setPenalty(2, true);
+                }
             }
-            dpc.setPenalty(2, true);
         }
         for (var player : players) {
             var ppc = SREPlayerPsychoComponent.KEY.get(player);
