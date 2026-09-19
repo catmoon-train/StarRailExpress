@@ -35,9 +35,6 @@ public abstract class HumanoidModelSpearMixin<T extends LivingEntity> {
     @Final
     public ModelPart head;
 
-    @Shadow
-    public float attackTime;
-
     @Inject(method = "poseRightArm", at = @At("TAIL"))
     private void spear$poseRightArm(T entity, CallbackInfo ci) {
         spear$poseArm(entity, this.rightArm, HumanoidArm.RIGHT);
@@ -75,7 +72,8 @@ public abstract class HumanoidModelSpearMixin<T extends LivingEntity> {
     /** 在原版 setupAttackAnimation 中取消剑挥击，改为 Backported-Spears 的直刺曲线。 */
     @Inject(method = "setupAttackAnimation", at = @At("HEAD"), cancellable = true)
     private void spear$setupAttackAnimation(T entity, float ageInTicks, CallbackInfo ci) {
-        if (this.attackTime <= 0.0F) {
+        float attackTime = entity.getAttackAnim(ageInTicks);
+        if (attackTime <= 0.0F) {
             return;
         }
         HumanoidArm attackArm = entity.swingingArm == net.minecraft.world.InteractionHand.MAIN_HAND
@@ -88,7 +86,7 @@ public abstract class HumanoidModelSpearMixin<T extends LivingEntity> {
         this.rightArm.yRot -= this.body.yRot;
         this.leftArm.yRot -= this.body.yRot;
         ModelPart arm = attackArm == HumanoidArm.RIGHT ? this.rightArm : this.leftArm;
-        arm.xRot += SpearAnim.thirdPersonArmPitch(this.attackTime);
+        arm.xRot += SpearAnim.thirdPersonArmPitch(attackTime);
         ci.cancel();
     }
 }
