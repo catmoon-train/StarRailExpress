@@ -121,7 +121,6 @@ public class VolunteerOpenSelectScreen extends Screen {
     private String searchText = "";
     private final List<SRERole> filteredRoles = new ArrayList<>();
     private int lastPhase = -1;
-    private boolean lastCanSelect = false;
 
     public VolunteerOpenSelectScreen() {
         super(Component.translatable("gui.sre.volunteer_open.title").withStyle(ChatFormatting.GOLD));
@@ -164,15 +163,6 @@ public class VolunteerOpenSelectScreen extends Screen {
         }
         updateAutoScroll();
 
-        // 轮到自己所在的组时的提示音（与轮选模式一致）
-        boolean canSelect = VolunteerOpenCache.canSelect();
-        if (canSelect && !lastCanSelect) {
-            Minecraft mc = Minecraft.getInstance();
-            if (mc.player != null) {
-                mc.player.playSound(SoundEvents.VILLAGER_YES, 1.0f, 1.0f);
-            }
-        }
-        lastCanSelect = canSelect;
     }
 
     private void ensureSearchBox() {
@@ -673,7 +663,9 @@ public class VolunteerOpenSelectScreen extends Screen {
         int color = card ? CARD_REVEAL : factionColor(role);
         Component name = RoleUtils.getRoleName(role).copy()
                 .withStyle(style -> style.withColor(color).withBold(card));
-        g.drawCenteredString(font, trim(name.getString(), w - 6), x + w / 2, textY, color);
+        // 不要先转成 String，否则卡牌额外揭示的橙色加粗样式会被丢掉。
+        Component displayedName = Component.literal(trim(name.getString(), w - 6)).withStyle(name.getStyle());
+        g.drawCenteredString(font, displayedName, x + w / 2, textY, color);
     }
 
     private int poolCellBorder(int index, boolean hover) {

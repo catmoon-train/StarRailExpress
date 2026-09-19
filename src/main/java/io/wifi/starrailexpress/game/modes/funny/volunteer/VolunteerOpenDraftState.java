@@ -311,6 +311,12 @@ public class VolunteerOpenDraftState {
             startConfirmPhase();
             return;
         }
+        // 与职业轮选模式进入下一轮时使用同一声铃声；第一组没有“下一轮”提示音。
+        if (groupIndex > 0) {
+            for (ServerPlayer player : world.players()) {
+                RoleUtils.playSound(player, SoundEvents.NOTE_BLOCK_BELL.value(), SoundSource.MASTER, 1.0f, 1.5f);
+            }
+        }
         List<UUID> group = groups.get(groupIndex);
         revealForGroup(group);
         grantCardReveals(world, group);
@@ -360,17 +366,16 @@ public class VolunteerOpenDraftState {
             if (info == null || info.type() != ForceTeamType.CARD) {
                 continue;
             }
-            Integer rawType = info.roleType();
-            // ForceTeamInfo.roleType() 用的是 getRoleType 的编号
-            // （1 平民 / 2 中立 / 3 中立-杀手 / 4 杀手 / 5 警长），与卡牌自身的 type 编号不同。
-            int cardType = normalizeCardType(rawType);
+            int rawType = info.roleType();
+            // 直接通过职业类型枚举匹配，保证普通中立（2）与杀手方中立（3）不会混淆。
+            FactionCardType cardType = FactionCardType.fromRoleType(rawType);
             Set<Integer> already = cardReveals.getOrDefault(id, Set.of());
             Integer forcedIndex = forcedRoleReveals.get(id);
             List<Integer> candidates = new ArrayList<>();
             boolean factionInPool = false;
             for (int i = 0; i < pool.size(); i++) {
                 SRERole role = pool.get(i).role();
-                if (role == null || normalizeCardType(role.getRoleType()) != cardType) {
+                if (role == null || FactionCardType.fromRoleType(role.getRoleType()) != cardType) {
                     continue;
                 }
                 factionInPool = true;
@@ -387,9 +392,8 @@ public class VolunteerOpenDraftState {
                 PlayerRoleWeightManager.ForcePlayerTeam.remove(id);
                 ServerPlayer sp = world.getServer().getPlayerList().getPlayer(id);
                 if (sp != null) {
-                    FactionCardType card = FactionCardType.fromRoleType(rawType);
-                    if (card != FactionCardType.NONE) {
-                        ProgressionDataManager.addFactionCard(sp, card, 1);
+                    if (cardType != FactionCardType.NONE) {
+                        ProgressionDataManager.addFactionCard(sp, cardType, 1);
                     }
                     sp.displayClientMessage(
                             Component.translatable("message.sre.role_rotation.card_limit")
@@ -747,7 +751,4 @@ public class VolunteerOpenDraftState {
         return null;
     }
 
-    private static int normalizeCardType(int rawType) {
-        return rawType == 5 ? 1 : rawType;
-    }
 }

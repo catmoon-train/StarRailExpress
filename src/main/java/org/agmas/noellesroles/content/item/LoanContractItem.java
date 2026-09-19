@@ -58,6 +58,12 @@ public class LoanContractItem extends Item {
         }
     }
 
+    /** Only the lender recorded on this contract may drop it. */
+    public static boolean canBeDroppedBy(ItemStack stack, UUID playerId) {
+        UUID lenderId = lender(stack);
+        return lenderId != null && lenderId.equals(playerId);
+    }
+
     public static int interestAt(ItemStack stack, long gameTime) {
         long elapsed = Math.max(0L, gameTime - createdAt(stack));
         return Math.max(0, (int) (elapsed / LenderRoleHandler.INTEREST_INTERVAL_TICKS) * LenderRoleHandler.INTEREST_STEP);

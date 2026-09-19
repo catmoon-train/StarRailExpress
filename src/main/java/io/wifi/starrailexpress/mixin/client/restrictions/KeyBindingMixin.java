@@ -25,6 +25,8 @@ import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.InteractionResult;
+import org.agmas.noellesroles.content.item.LoanContractItem;
+import org.agmas.noellesroles.init.ModItems;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
@@ -45,6 +47,11 @@ public abstract class KeyBindingMixin {
         final var player = instance.player;
         if (player == null)
             return false;
+        if (!SREClient.isPlayerCreative() && this.same(instance.options.keyDrop)
+                && player.getMainHandItem().is(ModItems.LOAN_CONTRACT)
+                && !LoanContractItem.canBeDroppedBy(player.getMainHandItem(), player.getUUID())) {
+            return true;
+        }
         final var options = instance.options;
         if (ClickAntiCheatClient.isLocked()
                 && (this.same(options.keyAttack) || this.same(options.keyUse))) {
