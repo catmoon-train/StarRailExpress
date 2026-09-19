@@ -201,7 +201,7 @@ public class NRModifiers {
             false))
             .setServerGameTickEvent(FatSkinnyModifier::serverTickFat)
             .setDefaultMax(2)
-            .setDefaultEnableChance(3000)
+            .setDefaultEnableChance(1000)
             .setAddedVersion("4.4");
 
     /** 神的使命：仅钟表匠，30% 刷新；场上只剩一名平民时钟表匠转变为神父（神父不自然刷新） */
@@ -227,7 +227,7 @@ public class NRModifiers {
             false))
             .setServerGameTickEvent(FatSkinnyModifier::serverTickSkinny)
             .setDefaultMax(2)
-            .setDefaultEnableChance(3000)
+            .setDefaultEnableChance(1000)
             .setAddedVersion("4.4");
 
     /**
