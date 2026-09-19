@@ -24,16 +24,22 @@ import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.item.ItemStack;
+import org.agmas.noellesroles.content.item.LoanContractItem;
+import org.agmas.noellesroles.init.ModItems;
 
 public class ServerDropManager {
     public static boolean onDrop(ServerPlayer player, boolean dropAll) {
+        ItemStack itemStack = player.getMainHandItem();
+        if (!player.isCreative() && itemStack.is(ModItems.LOAN_CONTRACT)
+                && !LoanContractItem.canBeDroppedBy(itemStack, player.getUUID())) {
+            return false;
+        }
         if (SRE.isLobby) {
             return true;
         }
         if (!GameUtils.isPlayerAliveAndSurvival(player)) {
             return true;
         }
-        ItemStack itemStack = player.getMainHandItem();
         InteractionResult result = RoleMethodDispatcher.callOnDropItem(player, itemStack);
         if (result == InteractionResult.CONSUME || result == InteractionResult.FAIL
                 || result == InteractionResult.CONSUME_PARTIAL) {
