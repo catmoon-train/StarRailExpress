@@ -682,10 +682,10 @@ public class RoleInstinctRegister {
                 (client, viewer, target, isInstinctEnabled) -> {
                     if (!(target instanceof Player targetPlayer))
                         return TrueFalseAndCustomResult.pass();
-                    if (targetPlayer.isInvisibleTo(viewer))
+                    if (targetPlayer.isInvisible())
                         return TrueFalseAndCustomResult.pass();
                     if (targetPlayer.distanceTo(viewer) <= 5) {
-                        var awpc = RoleData.getOptional(AwesomeRoleData.class, targetPlayer);
+                        var awpc = RoleData.getOptional(AwesomeRoleData.class, viewer);
                         if (awpc.isEmpty() || awpc.get().nearByDeathTime <= 1)
                             return TrueFalseAndCustomResult.pass();
                         int redDepth = (int) (255 * ((float) awpc.get().nearByDeathTime
