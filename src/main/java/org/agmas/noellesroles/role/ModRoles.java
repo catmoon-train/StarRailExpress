@@ -1676,7 +1676,7 @@ public class ModRoles {
             .setCanUseSpVanillaWeapon(true)
             .setSpecialMapRole(MapSpecialFeatures.HORSE)
             .setDefaultMax(1)
-            .setDefaultEnableChance(3000)
+            .setDefaultEnableChance(7000)
             .setCanBeRandomedByOtherRoles(false)
             .setRoleData(org.agmas.noellesroles.role_data.vigilante.CavalryRoleData::new);
 
