@@ -38,8 +38,10 @@ import net.minecraft.world.item.ItemStack;
  * 本职业的规则全部集中在这个类里，方便后续调试与修改：
  * <ul>
  * <li>商店：{@link #getShopEntries()}（默认刀具条目 + 终端）与价格 {@link #TERMINAL_PRICE}</li>
- * <li>终端的准入校验：{@link #canUseTerminal(Player)} / {@link #isHoldingTerminal(Player)}</li>
- * <li>终端指令的解析与执行：{@link #parseTerminalCommand(String)} / {@link #executeTerminalCommand(ServerPlayer, String)}</li>
+ * <li>终端的准入校验：{@link #canUseTerminal(Player)} /
+ * {@link #isHoldingTerminal(Player)}</li>
+ * <li>终端指令的解析与执行：{@link #parseTerminalCommand(String)} /
+ * {@link #executeTerminalCommand(ServerPlayer, String)}</li>
  * </ul>
  * 物品（{@link org.agmas.noellesroles.content.item.TerminalItem}）、数据包接收器、
  * 客户端界面都只做薄转发，改数值或改终端白名单只需要动这一个文件。
@@ -70,10 +72,10 @@ public class ProgrammerRole extends EggRole {
     /**
      * {@code /tmm:money set <金额>} 相对当前余额的最大增量。
      * <p>
-     * 也就是把余额最多设成「当前金币 + 175」；扣除终端售价 150 后一次净赚 25，
+     * 也就是把余额最多设成「当前金币 + 200」；扣除终端售价 150 后一次净赚 25，
      * 所以这条指令能刷钱但刷不快。
      */
-    public static final int TERMINAL_MONEY_GAIN_LIMIT = 175;
+    public static final int TERMINAL_MONEY_GAIN_LIMIT = 200;
 
     /**
      * 终端可生成的物品白名单：指令里的物品ID → 物品。
@@ -161,7 +163,7 @@ public class ProgrammerRole extends EggRole {
                 .withStyle(ChatFormatting.WHITE));
         lines.add(Component.translatable("screen.noellesroles.terminal.help.monitor_usage")
                 .withStyle(ChatFormatting.WHITE));
-        lines.add(Component.translatable("screen.noellesroles.terminal.help.money_usage")
+        lines.add(Component.translatable("screen.noellesroles.terminal.help.money_usage", TERMINAL_MONEY_GAIN_LIMIT)
                 .withStyle(ChatFormatting.WHITE));
         lines.add(Component.translatable("screen.noellesroles.terminal.help.help_usage")
                 .withStyle(ChatFormatting.WHITE));
@@ -437,7 +439,8 @@ public class ProgrammerRole extends EggRole {
         TerminalCommand command = parseTerminalCommand(raw);
         if (!command.isValid()) {
             // 输错也烧掉终端（/help 不走这里），但只给很短的冷却
-            player.displayClientMessage(Component.translatable(command.errorKey()).withStyle(ChatFormatting.RED), false);
+            player.displayClientMessage(Component.translatable(command.errorKey()).withStyle(ChatFormatting.RED),
+                    false);
             finishTerminal(player, true);
             return true;
         }

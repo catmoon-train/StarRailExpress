@@ -1,5 +1,5 @@
 # 注意事项
-在你写代码之前，请阅读 `ai_doc.md` 以及 `docs/*.md`
+在你写代码之前，请阅读 `AGENT.md` / `docs/*.md`
 
 `docs/*.md` 中的 API 可能已过时。以实际为准。
 
