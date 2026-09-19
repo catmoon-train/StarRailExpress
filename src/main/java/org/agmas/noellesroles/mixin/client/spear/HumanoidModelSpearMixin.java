@@ -32,6 +32,10 @@ public abstract class HumanoidModelSpearMixin<T extends LivingEntity> {
 
     @Shadow
     @Final
+    public ModelPart body;
+
+    @Shadow
+    @Final
     public ModelPart head;
 
     @Inject(method = "poseRightArm", at = @At("TAIL"))
@@ -70,6 +74,8 @@ public abstract class HumanoidModelSpearMixin<T extends LivingEntity> {
         // 直刺时手臂的俯仰变化
         float attackAnim = entity.getAttackAnim(Minecraft.getInstance().getTimer().getGameTimeDeltaPartialTick(true));
         if (attackAnim > 0.0F) {
+            // 原版手臂动画以身体为参考系；不扣除身体旋转时，第三人称直刺会偏向一侧。
+            arm.yRot -= this.body.yRot;
             arm.xRot += SpearAnim.thirdPersonArmPitch(attackAnim);
         }
     }

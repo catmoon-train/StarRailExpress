@@ -2,7 +2,7 @@
   "parent": "minecraft:item/generated",
   "gui_light": "front",
   "textures": {
-    "layer0": "noellesroles:item/netherite_spear_in_hand"
+    "layer0": "noellesroles:item/netherite_spear"
   },
   "display": {
     "firstperson_righthand": {

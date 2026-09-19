@@ -4,7 +4,6 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
-import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
@@ -33,8 +32,8 @@ import java.util.List;
 public class NetheriteSpearItem extends Item
         implements SpearConfig.SpearWeapon, io.wifi.starrailexpress.content.item.api.SREItemProperties.TrainWeapon {
 
-    /** 下界合金工具耐久。 */
-    public static final int DURABILITY = 2031;
+    /** 骑兵矛耐久。 */
+    public static final int DURABILITY = 30;
 
     /** 挥击时长 1.15 秒 → 攻速修正 {@code 1 / 1.15 - 4}。 */
     public static final float ATTACK_SPEED_MODIFIER = 1.0F / 1.15F - 4.0F;
@@ -68,9 +67,9 @@ public class NetheriteSpearItem extends Item
 
     /** 每 tick 推进一次蓄力冲锋结算（举着矛右键时才生效）。 */
     @Override
-    public void inventoryTick(ItemStack stack, Level level, Entity entity, int slotId, boolean isSelected) {
-        super.inventoryTick(stack, level, entity, slotId, isSelected);
-        if (level.isClientSide() || !(entity instanceof LivingEntity user)) {
+    public void onUseTick(Level level, LivingEntity user, ItemStack stack, int remainingUseTicks) {
+        super.onUseTick(level, user, stack, remainingUseTicks);
+        if (level.isClientSide()) {
             return;
         }
         if (!user.isUsingItem() || !ItemStack.matches(user.getUseItem(), stack)) {
@@ -79,7 +78,7 @@ public class NetheriteSpearItem extends Item
         EquipmentSlot slot = user.getUsedItemHand() == InteractionHand.MAIN_HAND
                 ? EquipmentSlot.MAINHAND
                 : EquipmentSlot.OFFHAND;
-        SpearCombat.usageTick(stack, user.getUseItemRemainingTicks(), user, slot);
+        SpearCombat.usageTick(stack, remainingUseTicks, user, slot);
     }
 
     /** 矛不能挖方块（创造模式除外）。 */

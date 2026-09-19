@@ -3,12 +3,14 @@ package org.agmas.noellesroles.role.vigilante;
 import io.wifi.starrailexpress.api.NormalRole;
 import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.api.data.RoleData;
+import io.wifi.starrailexpress.event.OnShieldBroken;
 import io.wifi.starrailexpress.util.ShopEntry;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -31,7 +33,7 @@ import java.util.List;
  * <ul>
  * <li>体力为平民的 2.5 倍；</li>
  * <li>开局自带一个超级猪马蹄铁；</li>
- * <li>商店：下界合金矛 100 金币（已拥有时不可购买）、突进 III 附魔 200 金币（一局一次，
+ * <li>商店：下界合金矛 75 金币（已拥有时不可购买）、突进 III 附魔 200 金币（一局一次，
  * 直接给快捷栏里的矛附魔）、超级猪马蹄铁 75 金币。</li>
  * </ul>
  *
@@ -40,13 +42,22 @@ import java.util.List;
 public class CavalryRole extends NormalRole {
 
     /** 下界合金矛售价。 */
-    public static final int SPEAR_PRICE = 100;
+    public static final int SPEAR_PRICE = 75;
     /** 突进 III 附魔售价。 */
     public static final int LUNGE_PRICE = 200;
     /** 超级猪马蹄铁售价。 */
     public static final int HORSESHOE_PRICE = 75;
     /** 商店附魔的突进等级。 */
     public static final int LUNGE_LEVEL = 3;
+
+    static {
+        OnShieldBroken.EVENT.register((victim, killer) -> {
+            CavalryRoleData data = RoleData.getNullable(CavalryRoleData.class, victim);
+            if (data != null) {
+                data.onShieldBrokenWhileMounted();
+            }
+        });
+    }
 
     public CavalryRole(ResourceLocation identifier, int color, boolean isInnocent, boolean canUseKiller,
             SRERole.MoodType moodType, int maxSprintTime, boolean canSeeTime) {
@@ -162,5 +173,12 @@ public class CavalryRole extends NormalRole {
         }
         spear.enchant(holder, level);
         return true;
+    }
+
+    /** 骑兵护盾只对模组提供的三种坐骑生效。 */
+    public static boolean isCavalryMount(Entity vehicle) {
+        return vehicle instanceof org.agmas.noellesroles.content.entity.RainbowHorseEntity
+                || vehicle instanceof org.agmas.noellesroles.content.entity.CanyuesaHorseEntity
+                || vehicle instanceof org.agmas.noellesroles.content.entity.SuperPigHorseEntity;
     }
 }

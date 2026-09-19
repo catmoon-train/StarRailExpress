@@ -1,7 +1,8 @@
 package org.agmas.noellesroles.mixin.client.spear;
 
-import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
+import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
+import com.llamalad7.mixinextras.sugar.Local;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
 import net.minecraft.client.Minecraft;
@@ -33,26 +34,30 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 @Mixin(ItemInHandRenderer.class)
 public class ItemInHandRendererSpearMixin {
 
-    /** 第一人称手持：{@code renderArmWithItem} 里注入直刺与举矛动画。 */
-    @WrapMethod(method = "renderArmWithItem")
-    private void spear$renderFirstPerson(AbstractClientPlayer player, float partialTicks, float pitch,
-            InteractionHand hand, float swingProgress, ItemStack stack, float equippedProgress, PoseStack poseStack,
-            MultiBufferSource buffer, int light, Operation<Void> original) {
-        if (!SpearConfig.isSpear(stack)) {
-            original.call(player, partialTicks, pitch, hand, swingProgress, stack, equippedProgress, poseStack, buffer,
-                    light);
+    /** 第一人称左键：替换原版挥击变换，避免矛仍按剑的轨迹摆动。 */
+    @WrapOperation(method = "renderArmWithItem", at = @At(value = "INVOKE", target =
+            "Lnet/minecraft/client/renderer/ItemInHandRenderer;applyItemArmAttackTransform(" +
+                    "Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/world/entity/HumanoidArm;F)V"))
+    private void spear$renderFirstPersonStab(ItemInHandRenderer instance, PoseStack poseStack, HumanoidArm arm,
+            float swingProgress, Operation<Void> original, @Local(argsOnly = true) ItemStack stack) {
+        if (SpearConfig.isSpear(stack)) {
+            SpearAnim.applyFirstPersonStab(poseStack, swingProgress);
             return;
         }
-        float swing = swingProgress;
-        if (swing > 0.0F) {
-            // 直刺：自己摆一次前刺，并把 swingProgress 归零以屏蔽原版挥击位移
-            SpearAnim.applyFirstPersonStab(poseStack, swing);
-            swing = 0.0F;
-        }
-        if (player.isUsingItem() && player.getUsedItemHand() == hand) {
+        original.call(instance, poseStack, arm, swingProgress);
+    }
+
+    /** 第一人称右键：在原版手臂装备变换之后插入完整的举矛动画。 */
+    @Inject(method = "renderArmWithItem", at = @At(value = "INVOKE", target =
+            "Lnet/minecraft/client/renderer/ItemInHandRenderer;applyItemArmTransform(" +
+                    "Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/world/entity/HumanoidArm;F)V",
+            ordinal = 6, shift = At.Shift.AFTER))
+    private void spear$renderFirstPersonCharge(AbstractClientPlayer player, float partialTicks, float pitch,
+            InteractionHand hand, float swingProgress, ItemStack stack, float equippedProgress, PoseStack poseStack,
+            MultiBufferSource buffer, int light, CallbackInfo ci) {
+        if (SpearConfig.isSpear(stack) && player.isUsingItem() && player.getUsedItemHand() == hand) {
             spear$applyChargePose(poseStack, player, stack, hand, partialTicks);
         }
-        original.call(player, partialTicks, pitch, hand, swing, stack, equippedProgress, poseStack, buffer, light);
     }
 
     /** 举矛蓄力：抬到肩前、随蓄力进度后拉，并带轻微回摆。 */
