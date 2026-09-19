@@ -1,14 +1,3 @@
 {
-  "parent": "minecraft:item/generated",
-  "textures": {
-    "layer0": "noellesroles:item/netherite_spear"
-  },
-  "overrides": [
-    {
-      "predicate": {
-        "noellesroles:in_gui": 0
-      },
-      "model": "noellesroles:item/netherite_spear_in_hand"
-    }
-  ]
+  "parent": "noellesroles:item/netherite_spear_in_hand"
 }
