@@ -388,7 +388,7 @@ public class RefugeeComponent implements AutoSyncedComponent, ServerTickingCompo
         for (var player : players) {
             {
 
-                if (players_stats.containsKey(player.getUUID()) &&
+                if (players_stats.containsKey(player.getUUID()) ||
                         playerTimeRewindSnapshots.containsKey(player.getUUID())) {
                     var dpc = DeathPenaltyComponent.KEY.get(player);
                     if (dpc.hasPenalty()) {
