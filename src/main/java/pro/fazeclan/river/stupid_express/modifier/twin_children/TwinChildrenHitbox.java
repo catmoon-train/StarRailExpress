@@ -13,26 +13,44 @@ public final class TwinChildrenHitbox {
     public static final float VISUAL_STANDING_HEIGHT = 1.8F;
 
     /**
-     * Stacked collision height after half-scale. Tall enough to block 1-block
-     * gaps, short enough that the upper twin's knife/gun is not inside the
-     * lower twin's hitbox.
+     * World-space height of the lower twin's hitbox at {@link #HALF_SCALE_FACTOR}.
+     *
+     * <p>
+     * Deliberately taller than the lower twin's half-scale model (0.9) so the unit
+     * cannot crawl through 1-block gaps. Rendering is left untouched.
      */
     public static final float STACKED_COLLISION_HEIGHT = 1.3F;
 
     /** Half-scale factor applied by the Twin Children attribute modifier. */
     public static final float HALF_SCALE_FACTOR = 0.5F;
 
-    /** Unscaled collision height so that {@code height * 0.5 = 1.1}. */
-    public static final float STACKED_UNSCALED_HEIGHT = STACKED_COLLISION_HEIGHT / HALF_SCALE_FACTOR;
+    /** Unscaled collision height so that {@code height * 0.5 = 1.3}. */
+    public static final float STACKED_UNSCALED_HEIGHT = 2.6F;
 
     /**
-     * Upper twin collision height after half-scale. Shorter than the visual
-     * 0.9 model so the rider is not wrapped by a tall hitbox.
+     * Upper twin collision height after half-scale (0.5 world).
+     *
+     * <p>
+     * The rider is attached so its collision box starts at the lower twin's
+     * collision top ({@code STACKED_UNSCALED_HEIGHT * scale = 1.3}, see
+     * {@link #stackedPassengerAttachmentY}), giving a {@code 1.3..1.8} box: the
+     * whole stack is exactly {@code 1.3 + 0.5 = 1.8} tall with zero overlap. The
+     * rider's model keeps its natural half-scale size (drawn at {@code 1.3..2.2}).
      */
     public static final float UPPER_COLLISION_HEIGHT = 0.5F;
 
-    /** Unscaled collision height so that {@code height * 0.5 = 0.7}. */
-    public static final float UPPER_UNSCALED_HEIGHT = UPPER_COLLISION_HEIGHT / HALF_SCALE_FACTOR;
+    /** Unscaled collision height so that {@code height * 0.5 = 0.5}. */
+    public static final float UPPER_UNSCALED_HEIGHT = 1.0F;
+
+    /**
+     * Collision width kept by both twins after half-scale (0.3 world). The width
+     * is intentionally not trimmed beyond the attribute scale so neither twin
+     * ends up with a slimmer box than the other.
+     */
+    public static final float STACKED_COLLISION_WIDTH = 0.6F;
+
+    /** Unscaled collision width so that {@code width * 0.5 = 0.6}. */
+    private static final float STACKED_UNSCALED_WIDTH = 1.2F;
 
     private TwinChildrenHitbox() {
     }
@@ -53,6 +71,14 @@ public final class TwinChildrenHitbox {
         return heightScaleTo(currentUnscaledHeight, UPPER_UNSCALED_HEIGHT);
     }
 
+    /**
+     * Width multiplier so a stacked twin keeps its {@link #STACKED_COLLISION_WIDTH}
+     * (0.3 world) box; only the height is ever retuned for stacking.
+     */
+    public static float stackedWidthScale(float currentUnscaledWidth) {
+        return heightScaleTo(currentUnscaledWidth, STACKED_UNSCALED_WIDTH);
+    }
+
     static float heightScaleTo(float currentUnscaledHeight, float targetUnscaledHeight) {
         if (currentUnscaledHeight <= 0.01F) {
             return 1.0F;
@@ -61,11 +87,61 @@ public final class TwinChildrenHitbox {
     }
 
     /**
-     * Passenger attachment Y so that after subtracting the rider's vehicle
-     * attachment, their feet sit on the visual head ({@code 1.8 * vehicleScale}).
+     * Passenger attachment Y that puts the rider's feet - and therefore its
+     * collision box - on the lower twin's collision top.
+     *
+     * <p>
+     * {@code Entity#positionRider} ends up at
+     * {@code vehicleY + attachY - rider.getVehicleAttachmentPoint(vehicle).y},
+     * so the rider's own attachment offset has to be added back to land on
+     * {@code STACKED_UNSCALED_HEIGHT * scale = 1.3}. Nothing but
+     * {@code positionRider} reads this value, so the rider's collision is exactly
+     * {@code 1.3..1.8} and cannot overlap the lower twin's {@code 0..1.3} box.
      */
-    public static double headPassengerAttachmentY(float vehicleScale, double passengerVehicleAttachY) {
-        return VISUAL_STANDING_HEIGHT * vehicleScale + passengerVehicleAttachY;
+    public static double stackedPassengerAttachmentY(float vehicleScale, double passengerVehicleAttachY) {
+        return STACKED_UNSCALED_HEIGHT * vehicleScale + passengerVehicleAttachY;
+    }
+
+    /**
+     * Extra scale applied to the <em>lower</em> twin's rendered model.
+     *
+     * <p>
+     * The SCALE attribute only halves the model, so the lower twin would be drawn
+     * 0.9 tall while its gap-blocking collision box is 1.3. Scaling the render
+     * matrix by {@code STACKED_UNSCALED_HEIGHT / VISUAL_STANDING_HEIGHT = 1.444...}
+     * stretches that model to exactly {@link #STACKED_COLLISION_HEIGHT} without
+     * touching the attribute, physics, collision or any other SCALE consumer.
+     */
+    public static float lowerModelScaleFactor() {
+        return STACKED_UNSCALED_HEIGHT / VISUAL_STANDING_HEIGHT;
+    }
+
+    /**
+     * Extra scale applied to the <em>upper</em> twin's rendered model, and to its
+     * collision box as well.
+     *
+     * <p>
+     * The upper twin's entity - and therefore its model - already sits on the
+     * lower twin's collision top ({@code 1.3}) with no extra drop, and its
+     * collision box spans {@code 1.3..1.8}, i.e. 0.5 world. A whole model would be
+     * drawn 0.9 tall and stick out above the pair, so both the model and the box
+     * are taken down to
+     * {@code UPPER_COLLISION_HEIGHT / (VISUAL_STANDING_HEIGHT * HALF_SCALE_FACTOR)
+     * = 0.5 / 0.9 = 0.5556}. The box is scaled uniformly, so the width follows the
+     * height instead of staying at the lower twin's 0.3.
+     */
+    public static float upperModelScaleFactor() {
+        float naturalUpperHeight = VISUAL_STANDING_HEIGHT * HALF_SCALE_FACTOR;
+        return UPPER_COLLISION_HEIGHT / naturalUpperHeight;
+    }
+
+    /**
+     * Width multiplier for the upper twin's collision so it shrinks with
+     * {@link #upperModelScaleFactor()} instead of keeping the lower twin's width.
+     */
+    public static float upperWidthScale(float currentUnscaledWidth) {
+        return heightScaleTo(currentUnscaledWidth,
+                STACKED_UNSCALED_WIDTH * upperModelScaleFactor());
     }
 
     /** World Y of the invisible seat sitting on the lower twin's visual head. */

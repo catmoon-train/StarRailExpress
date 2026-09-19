@@ -26,8 +26,14 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import pro.fazeclan.river.stupid_express.modifier.twin_children.TwinChildrenHandler;
 
 /**
- * Put the upper twin on the visual head instead of the default sitting point,
- * and allow the paired player to ride.
+ * Put the upper twin on the lower twin's collision top instead of the default
+ * sitting point, and allow the paired player to ride.
+ *
+ * <p>
+ * Only {@code Entity#positionRider} reads this attachment, so it is the single
+ * source of truth for the rider's entity position, collision box and synced
+ * coordinates. How the model is drawn on top of that is handled separately by
+ * {@code TwinChildrenRenderMixin}.
  */
 @Mixin(Entity.class)
 public abstract class TwinChildrenAttachMixin {
@@ -39,7 +45,7 @@ public abstract class TwinChildrenAttachMixin {
         if (self instanceof Player vehicle && passenger instanceof Player rider
                 && TwinChildrenHandler.hasHalfScale(vehicle)
                 && TwinChildrenHandler.hasHalfScale(rider)) {
-            double attachY = TwinChildrenHandler.headPassengerAttachmentY(
+            double attachY = TwinChildrenHandler.stackedPassengerAttachmentY(
                     vehicle.getScale(), rider.getVehicleAttachmentPoint(vehicle).y);
             cir.setReturnValue(new Vec3(0.0, attachY, 0.0));
         }

@@ -28,6 +28,7 @@
     "client.modifier.split_personality.SplitPersonalityPlayerHideMixin",
     "client.modifier.split_personality.SplitPersonalityPositionSyncMixin",
     "client.modifier.split_personality.SplitPersonalityVisibilityMixin",
-    "client.modifier.twin_children.TwinChildrenLerpMixin"
+    "client.modifier.twin_children.TwinChildrenLerpMixin",
+    "client.modifier.twin_children.TwinChildrenRenderMixin"
   ]
 }

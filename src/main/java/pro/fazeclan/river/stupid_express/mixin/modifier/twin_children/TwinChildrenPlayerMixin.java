@@ -28,8 +28,9 @@ import pro.fazeclan.river.stupid_express.modifier.twin_children.TwinChildrenHand
 
 /**
  * Lower twin: 1.3-block collision so the unit cannot crawl into 1-block gaps.
- * Upper twin: 0.5-block collision so weapons from above do not sit inside the
- * rider. The upper twin also cannot sneak-dismount.
+ * Upper twin: 0.5-block collision on that box's top (1.3..1.8), so the stack is
+ * exactly one unscaled player tall with no overlapping hitboxes. Models are left
+ * to vanilla rendering. The upper twin also cannot sneak-dismount.
  */
 @Mixin(Player.class)
 public abstract class TwinChildrenPlayerMixin {
@@ -39,19 +40,25 @@ public abstract class TwinChildrenPlayerMixin {
         Player self = (Player) (Object) this;
         if (TwinChildrenHandler.isStackedLower(self)) {
             float heightScale = TwinChildrenHandler.stackedHeightScale(dimensions.height());
-            if (Math.abs(heightScale - 1.0F) <= 1.0e-4F) {
+            float widthScale = TwinChildrenHandler.stackedWidthScale(dimensions.width());
+            if (isIdentity(heightScale) && isIdentity(widthScale)) {
                 return dimensions;
             }
-            return dimensions.scale(1.0F, heightScale).withEyeHeight(dimensions.eyeHeight());
+            return dimensions.scale(widthScale, heightScale).withEyeHeight(dimensions.eyeHeight());
         }
         if (TwinChildrenHandler.isStackedUpper(self)) {
             float heightScale = TwinChildrenHandler.upperHeightScale(dimensions.height());
-            if (Math.abs(heightScale - 1.0F) <= 1.0e-4F) {
+            float widthScale = TwinChildrenHandler.upperWidthScale(dimensions.width());
+            if (isIdentity(heightScale) && isIdentity(widthScale)) {
                 return dimensions;
             }
-            return dimensions.scale(1.0F, heightScale);
+            return dimensions.scale(widthScale, heightScale);
         }
         return dimensions;
+    }
+
+    private static boolean isIdentity(float scale) {
+        return Math.abs(scale - 1.0F) <= 1.0e-4F;
     }
 
     @Inject(method = "wantsToStopRiding", at = @At("HEAD"), cancellable = true)

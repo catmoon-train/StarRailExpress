@@ -42,7 +42,8 @@ import java.util.concurrent.ConcurrentHashMap;
  *
  * <p>Half-scale is only applied while both twins are alive and stacked. Vanilla
  * player passenger attachments sit the rider inside the vehicle, so the upper
- * twin is placed on the visual head. The vehicle player never receives vanilla
+ * twin is placed on the lower twin's model head, which is also the top of the
+ * lower collision box. The vehicle player never receives vanilla
  * passenger-list packets, and tracker interpolation of a rider looks frozen, so
  * the vehicle client is told about the rider every tick and rider lerp is
  * cancelled on clients.
@@ -108,8 +109,24 @@ public final class TwinChildrenHandler {
         return TwinChildrenHitbox.upperHeightScale(currentUnscaledHeight);
     }
 
-    public static double headPassengerAttachmentY(float vehicleScale, double passengerVehicleAttachY) {
-        return TwinChildrenHitbox.headPassengerAttachmentY(vehicleScale, passengerVehicleAttachY);
+    public static float stackedWidthScale(float currentUnscaledWidth) {
+        return TwinChildrenHitbox.stackedWidthScale(currentUnscaledWidth);
+    }
+
+    public static float upperWidthScale(float currentUnscaledWidth) {
+        return TwinChildrenHitbox.upperWidthScale(currentUnscaledWidth);
+    }
+
+    public static double stackedPassengerAttachmentY(float vehicleScale, double passengerVehicleAttachY) {
+        return TwinChildrenHitbox.stackedPassengerAttachmentY(vehicleScale, passengerVehicleAttachY);
+    }
+
+    public static float lowerModelScaleFactor() {
+        return TwinChildrenHitbox.lowerModelScaleFactor();
+    }
+
+    public static float upperModelScaleFactor() {
+        return TwinChildrenHitbox.upperModelScaleFactor();
     }
 
     public static boolean hasHalfScale(Player player) {
@@ -130,6 +147,11 @@ public final class TwinChildrenHandler {
         return hasHalfScale(player)
                 && player.getVehicle() instanceof Player vehicle
                 && hasHalfScale(vehicle);
+    }
+
+    /** Either half of a stacked pair (lower twin or the rider on top of it). */
+    public static boolean stackedTwin(Player player) {
+        return isStackedLower(player) || isStackedUpper(player);
     }
 
     public static boolean shouldStayRiding(Player player) {

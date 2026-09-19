@@ -124,6 +124,10 @@ public class TwinChildrenSeatEntity extends Entity {
     }
 
     @Override
+    protected void positionRider(Entity passenger, MoveFunction moveFunction) {
+        super.positionRider(passenger, moveFunction);
+    }
+    @Override
     protected boolean canAddPassenger(Entity passenger) {
         UUID upperId = getUpperUuid();
         return this.getPassengers().isEmpty()
