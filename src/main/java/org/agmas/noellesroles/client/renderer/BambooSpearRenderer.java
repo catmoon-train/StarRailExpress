@@ -16,54 +16,63 @@
 package org.agmas.noellesroles.client.renderer;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.math.Axis;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.EntityRenderer;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
-import net.minecraft.client.renderer.entity.ItemRenderer;
-import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.client.renderer.texture.TextureAtlas;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
-import net.minecraft.world.item.ItemDisplayContext;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.phys.Vec3;
 import org.agmas.noellesroles.content.effects.TimeStopEffect;
 import org.agmas.noellesroles.content.entity.BambooSpearEntity;
 import org.agmas.noellesroles.init.ModEffects;
-import org.agmas.noellesroles.init.ModItems;
 
-/** 竹枪：按同步长度沿视线拉伸 3D 竹子模型。 */
+/** 竹枪：从持有者手部沿视线伸出，长度在客户端插值，伸缩看起来连续。 */
 public class BambooSpearRenderer extends EntityRenderer<BambooSpearEntity> {
 
-    private final ItemRenderer itemRenderer;
+    private static final float RADIUS = 0.08F;
+    private static final float TIP_LENGTH = 0.38F;
+    private static final float MIN_LENGTH = 0.08F;
 
     public BambooSpearRenderer(EntityRendererProvider.Context context) {
         super(context);
-        this.itemRenderer = context.getItemRenderer();
         this.shadowRadius = 0.0f;
     }
 
     @Override
     public void render(BambooSpearEntity entity, float entityYaw, float partialTick, PoseStack poseStack,
             MultiBufferSource bufferSource, int packedLight) {
-        LocalPlayer player = Minecraft.getInstance().player;
-        if (player != null && player.hasEffect(ModEffects.TIME_STOP)
-                && !TimeStopEffect.clientCanMovePlayers.contains(player.getUUID())) {
+        LocalPlayer viewer = Minecraft.getInstance().player;
+        if (viewer != null && viewer.hasEffect(ModEffects.TIME_STOP)
+                && !TimeStopEffect.clientCanMovePlayers.contains(viewer.getUUID())) {
             return;
         }
 
-        float length = Math.max(0.1f, entity.getLength());
-        poseStack.pushPose();
-        float yaw = Mth.lerp(partialTick, entity.yRotO, entity.getYRot());
-        float pitch = Mth.lerp(partialTick, entity.xRotO, entity.getXRot());
-        poseStack.mulPose(Axis.YP.rotationDegrees(yaw - 90.0f));
-        poseStack.mulPose(Axis.XP.rotationDegrees(pitch));
-        poseStack.mulPose(Axis.ZP.rotationDegrees(-90.0f));
-        poseStack.scale(1.05f, length, 1.05f);
+        Player owner = entity.getOwner();
+        float length = Math.max(MIN_LENGTH, entity.getInterpolatedLength(partialTick));
+        Vec3 origin;
+        Vec3 direction;
+        if (owner != null) {
+            direction = owner.getViewVector(partialTick);
+            origin = owner.getEyePosition(partialTick).add(0.0, -0.22, 0.0).add(direction.scale(0.28));
+            if (owner == viewer && Minecraft.getInstance().options.getCameraType().isFirstPerson()) {
+                origin = origin.add(direction.scale(0.45));
+            }
+        } else {
+            float yaw = Mth.lerp(partialTick, entity.yRotO, entity.getYRot());
+            float pitch = Mth.lerp(partialTick, entity.xRotO, entity.getXRot());
+            direction = entity.calculateViewVector(pitch, yaw);
+            origin = entity.getPosition(partialTick);
+        }
 
-        this.itemRenderer.renderStatic(ModItems.BAMBOO_SPEAR.getDefaultInstance(), ItemDisplayContext.FIXED,
-                packedLight, OverlayTexture.NO_OVERLAY, poseStack, bufferSource, entity.level(), entity.getId());
+        Vec3 entityPos = entity.getPosition(partialTick);
+        poseStack.pushPose();
+        poseStack.translate(origin.x - entityPos.x, origin.y - entityPos.y, origin.z - entityPos.z);
+        BambooPoleGeometry.orient(poseStack, direction);
+        BambooPoleGeometry.render(poseStack, bufferSource, packedLight, 0.0F, length, RADIUS, TIP_LENGTH);
         poseStack.popPose();
         super.render(entity, entityYaw, partialTick, poseStack, bufferSource, packedLight);
     }

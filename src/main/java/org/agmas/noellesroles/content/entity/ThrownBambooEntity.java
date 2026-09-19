@@ -29,29 +29,56 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityDimensions;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.AbstractArrow;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.EntityHitResult;
+import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 import org.agmas.noellesroles.init.ModItems;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 /**
- * 投掷竹子：直线飞行，途中最多将 2 名玩家挂在竹子上，撞墙后钉住；从发射起 10 秒后消失。
+ * 投掷竹子：直线飞行，途中最多将 2 名玩家挂在竹子上；撞墙后钉在墙上不再位移，
+ * 从发射起 12 秒后（含钉墙时间）统一消失。
+ * <p>
+ * 防卡墙：挂人位置 / 下竹位置都会做碰撞检测，一旦会把玩家塞进方块里就自动找最近的空位。
  */
 public class ThrownBambooEntity extends AbstractArrow {
 
     public static final int MAX_HANG = 2;
-    public static final int LIFETIME_TICKS = 20 * 10;
+    /** 从发射到消失的总时长（含钉在墙上的时间）。 */
+    public static final int LIFETIME_TICKS = 20 * 12;
+    /** 发射速度：原 2.4 的 85%。 */
+    public static final float THROW_SPEED = 2.04F;
+
+    /** 渲染用：竹杆枪尖相对实体原点向前的距离（需与 ThrownBambooRenderer 保持一致）。 */
+    public static final float TIP_REACH = 1.75F;
+    /** 渲染用：竹杆尾端相对实体原点向后的距离。 */
+    public static final float TAIL_REACH = 0.45F;
+    /** 钉墙时枪尖扎进墙体的深度。 */
+    private static final float PIN_EMBED = 0.6F;
+
+    private static final double HANG_FORWARD = 0.15;
+    private static final double HANG_SIDE = 0.35;
+    private static final double HANG_UP = 0.15;
 
     private final List<UUID> hungPlayers = new ArrayList<>(2);
+
+    /** 是否已钉在墙上。 */
+    private boolean pinned;
+    private Vec3 pinPos = Vec3.ZERO;
+    private float pinYaw;
+    private float pinPitch;
 
     public ThrownBambooEntity(EntityType<? extends AbstractArrow> entityType, Level level) {
         super(entityType, level);
@@ -67,6 +94,8 @@ public class ThrownBambooEntity extends AbstractArrow {
         this.setBaseDamage(0);
         this.pickup = AbstractArrow.Pickup.DISALLOWED;
     }
+
+    // ------------------------------------------------------------------ 基础行为
 
     @Override
     protected boolean tryPickup(Player player) {
@@ -87,6 +116,13 @@ public class ThrownBambooEntity extends AbstractArrow {
         return false;
     }
 
+    /** 不让它被原版的 60 秒地面计时器清掉，存活时间完全由 LIFETIME_TICKS 决定。 */
+    @Override
+    protected void tickDespawn() {
+    }
+
+    // ------------------------------------------------------------------ 挂人
+
     @Override
     protected boolean canAddPassenger(Entity passenger) {
         return this.getPassengers().size() < MAX_HANG && passenger instanceof Player;
@@ -95,12 +131,32 @@ public class ThrownBambooEntity extends AbstractArrow {
     @Override
     protected Vec3 getPassengerAttachmentPoint(Entity passenger, EntityDimensions dimensions, float scale) {
         int index = this.getPassengers().indexOf(passenger);
-        double side = index <= 0 ? 0.35 : -0.35;
-        return new Vec3(0.0, 0.15, side);
+        double side = index <= 0 ? HANG_SIDE : -HANG_SIDE;
+        Vec3 forward = this.forward();
+        Vec3 right = rightOf(forward);
+        // 钉墙后把人挂在竹杆后方（投掷者一侧），避免穿到墙对面。
+        double along = this.pinned ? -0.95 : HANG_FORWARD;
+        return forward.scale(along).add(right.scale(side)).add(0.0, HANG_UP, 0.0);
+    }
+
+    @Override
+    protected void positionRider(Entity passenger, Entity.MoveFunction moveFunction) {
+        if (!this.hasPassenger(passenger)) {
+            return;
+        }
+        Vec3 target = this.getPassengerRidingPosition(passenger).subtract(this.getVehicleAttachmentPoint(passenger));
+        if (passenger instanceof Player) {
+            Vec3 safe = this.findFreeSpot(passenger, target);
+            target = safe != null ? safe : this.position();
+        }
+        moveFunction.accept(passenger, target.x, target.y, target.z);
     }
 
     @Override
     protected boolean canHitEntity(Entity entity) {
+        if (this.pinned) {
+            return false;
+        }
         if (this.hungPlayers.size() >= MAX_HANG) {
             return false;
         }
@@ -145,26 +201,99 @@ public class ThrownBambooEntity extends AbstractArrow {
     }
 
     @Override
+    public Vec3 getDismountLocationForPassenger(LivingEntity passenger) {
+        Vec3 base = new Vec3(this.getX(), this.getBoundingBox().maxY + 0.05, this.getZ());
+        Vec3 safe = this.findFreeSpot(passenger, base);
+        return safe == null ? base : safe;
+    }
+
+    // ------------------------------------------------------------------ 撞墙 / 钉墙
+
+    @Override
     protected void onHitBlock(BlockHitResult blockHitResult) {
+        if (this.pinned) {
+            this.applyPin();
+            return;
+        }
         super.onHitBlock(blockHitResult);
+        Vec3 dir = this.forward();
+        this.pinTo(blockHitResult.getLocation(), dir);
+        this.setDeltaMovement(Vec3.ZERO);
+        this.applyPin();
         if (!this.level().isClientSide) {
             this.level().playSound(null, this.getX(), this.getY(), this.getZ(), SoundEvents.BAMBOO_WOOD_HIT,
                     SoundSource.PLAYERS, 1.0f, 0.8f);
+            if (this.level() instanceof ServerLevel serverLevel) {
+                Vec3 tip = this.pinPos.add(dir.scale(TIP_REACH));
+                serverLevel.sendParticles(ParticleTypes.CRIT, tip.x, tip.y, tip.z, 8, 0.12, 0.12, 0.12, 0.08);
+            }
         }
     }
 
+    /** 计算钉墙位置：枪尖扎进墙体 PIN_EMBED，杆身留在墙外，保证挂人的位置不在方块里。 */
+    private void pinTo(Vec3 hitLocation, Vec3 dir) {
+        Vec3 flat = new Vec3(dir.x, 0.0, dir.z);
+        if (flat.lengthSqr() < 1.0E-8) {
+            flat = new Vec3(0.0, 0.0, 1.0);
+        }
+        dir = flat.normalize();
+        float[] backoffs = { TIP_REACH - PIN_EMBED, TIP_REACH - PIN_EMBED - 0.5F, TIP_REACH * 0.5F, 0.25F };
+        Vec3 chosen = hitLocation.subtract(dir.scale(TIP_REACH - PIN_EMBED));
+        for (float backoff : backoffs) {
+            if (backoff <= 0.05F) {
+                break;
+            }
+            Vec3 candidate = hitLocation.subtract(dir.scale(backoff));
+            AABB box = new AABB(candidate.x - 0.2, candidate.y - 0.2, candidate.z - 0.2, candidate.x + 0.2,
+                    candidate.y + 0.2, candidate.z + 0.2);
+            if (this.level().noCollision(box)) {
+                chosen = candidate;
+                break;
+            }
+        }
+        this.pinPos = new Vec3(chosen.x, this.getY(), chosen.z);
+        this.pinYaw = this.getYRot();
+        this.pinPitch = 0.0f;
+        this.pinned = true;
+    }
+
+    /** 强制保持钉墙状态（抵消原版 startFalling / 位移 / 旋转抖动）。 */
+    private void applyPin() {
+        this.setDeltaMovement(Vec3.ZERO);
+        this.setPos(this.pinPos.x, this.pinPos.y, this.pinPos.z);
+        this.setYRot(this.pinYaw);
+        this.setXRot(this.pinPitch);
+        this.yRotO = this.pinYaw;
+        this.xRotO = this.pinPitch;
+        this.inGround = true;
+        this.inGroundTime = 1;
+    }
+
+    // ------------------------------------------------------------------ 每 tick
+
     @Override
     public void tick() {
+        if (!this.pinned) {
+            this.setXRot(0.0f);
+            this.xRotO = 0.0f;
+            Vec3 motion = this.getDeltaMovement();
+            if (motion.y != 0.0) {
+                this.setDeltaMovement(motion.x, 0.0, motion.z);
+            }
+        }
         super.tick();
         if (this.tickCount > LIFETIME_TICKS) {
-            this.ejectPassengers();
             this.remove(RemovalReason.DISCARDED);
             return;
+        }
+        if (this.pinned) {
+            this.applyPin();
         }
         if (this.level().isClientSide) {
             return;
         }
         remountHungPlayers();
+        unstickRiders();
     }
 
     private void remountHungPlayers() {
@@ -182,6 +311,88 @@ public class ThrownBambooEntity extends AbstractArrow {
             return false;
         });
     }
+
+    /** 兜底：万一玩家还是嵌在方块里（贴墙飞行 / 斜插墙体），立刻挪到最近的空位。 */
+    private void unstickRiders() {
+        for (Entity passenger : this.getPassengers()) {
+            if (!(passenger instanceof ServerPlayer player)) {
+                continue;
+            }
+            if (this.level().noCollision(player.getBoundingBox())) {
+                continue;
+            }
+            // 兜底：找不到空位就先拉回竹子本身所在的格子（钉墙时该位置已验证是空的）
+            Vec3 safe = this.findFreeSpot(player, player.position());
+            if (safe == null) {
+                safe = this.position();
+            }
+            player.teleportTo(player.serverLevel(), safe.x, safe.y, safe.z, Set.of(), player.getYRot(),
+                    player.getXRot());
+        }
+    }
+
+    /**
+     * 在 base 附近找空位：只在水平面、沿飞行反方向后退。
+     * 必须能从竹子本体看到该点，避免把人放到墙对面。
+     */
+    private Vec3 findFreeSpot(Entity entity, Vec3 base) {
+        Level level = this.level();
+        AABB box = entity.getBoundingBox();
+        Vec3 origin = entity.position();
+        Vec3 locked = new Vec3(base.x, this.getY(), base.z);
+        if (isOpenAndVisible(entity, box, origin, locked)) {
+            return locked;
+        }
+        Vec3 back = this.forward().reverse();
+        Vec3 right = rightOf(back);
+        Vec3 best = null;
+        double bestDistance = Double.MAX_VALUE;
+        for (double backStep = 0.0; backStep <= 2.5; backStep += 0.5) {
+            for (double sideStep = -1.0; sideStep <= 1.0; sideStep += 0.5) {
+                Vec3 candidate = new Vec3(
+                        locked.x + back.x * backStep + right.x * sideStep,
+                        this.getY(),
+                        locked.z + back.z * backStep + right.z * sideStep);
+                if (!isOpenAndVisible(entity, box, origin, candidate)) {
+                    continue;
+                }
+                double distance = candidate.distanceToSqr(locked);
+                if (distance < bestDistance) {
+                    bestDistance = distance;
+                    best = candidate;
+                }
+            }
+        }
+        return best;
+    }
+
+    private boolean isOpenAndVisible(Entity entity, AABB box, Vec3 origin, Vec3 candidate) {
+        if (!this.level().noCollision(box.move(candidate.subtract(origin)))) {
+            return false;
+        }
+        Vec3 from = this.position();
+        BlockHitResult clip = this.level().clip(new ClipContext(from, candidate, ClipContext.Block.COLLIDER,
+                ClipContext.Fluid.NONE, entity));
+        return clip.getType() == HitResult.Type.MISS || clip.getLocation().distanceToSqr(candidate) < 0.09;
+    }
+
+    private Vec3 forward() {
+        Vec3 dir = this.calculateViewVector(0.0f, this.getYRot());
+        if (dir.lengthSqr() < 1.0E-8) {
+            return new Vec3(0.0, 0.0, 1.0);
+        }
+        return new Vec3(dir.x, 0.0, dir.z).normalize();
+    }
+
+    private static Vec3 rightOf(Vec3 dir) {
+        Vec3 right = new Vec3(-dir.z, 0.0, dir.x);
+        if (right.lengthSqr() < 1.0E-6) {
+            return new Vec3(1.0, 0.0, 0.0);
+        }
+        return right.normalize();
+    }
+
+    // ------------------------------------------------------------------ 存档
 
     @Override
     public void remove(RemovalReason reason) {
@@ -207,6 +418,14 @@ public class ThrownBambooEntity extends AbstractArrow {
             list.add(NbtUtils.createUUID(uuid));
         }
         compoundTag.put("HungPlayers", list);
+        compoundTag.putBoolean("Pinned", this.pinned);
+        if (this.pinned) {
+            compoundTag.putDouble("PinX", this.pinPos.x);
+            compoundTag.putDouble("PinY", this.pinPos.y);
+            compoundTag.putDouble("PinZ", this.pinPos.z);
+            compoundTag.putFloat("PinYaw", this.pinYaw);
+            compoundTag.putFloat("PinPitch", this.pinPitch);
+        }
     }
 
     @Override
@@ -216,6 +435,13 @@ public class ThrownBambooEntity extends AbstractArrow {
         ListTag list = compoundTag.getList("HungPlayers", Tag.TAG_INT_ARRAY);
         for (Tag tag : list) {
             hungPlayers.add(NbtUtils.loadUUID(tag));
+        }
+        this.pinned = compoundTag.getBoolean("Pinned");
+        if (this.pinned) {
+            this.pinPos = new Vec3(compoundTag.getDouble("PinX"), compoundTag.getDouble("PinY"),
+                    compoundTag.getDouble("PinZ"));
+            this.pinYaw = compoundTag.getFloat("PinYaw");
+            this.pinPitch = compoundTag.getFloat("PinPitch");
         }
     }
 }

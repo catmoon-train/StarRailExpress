@@ -26,6 +26,7 @@ import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
+import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -40,10 +41,11 @@ import java.util.List;
 
 /**
  * 竹枪 —— 右键后竹子模型沿视线向前伸长，最长 10 格 / 最多 3 秒；碰到玩家即击杀并收回。
+ * 3 点耐久，每次成功释放消耗 1 点；冷却 15 秒。
  */
 public class BambooSpearItem extends Item implements TrainWeapon {
 
-    public static final int COOLDOWN_TICKS = 20 * 4;
+    public static final int COOLDOWN_TICKS = 20 * 15;
 
     public BambooSpearItem(Item.Properties settings) {
         super(settings);
@@ -59,6 +61,13 @@ public class BambooSpearItem extends Item implements TrainWeapon {
         if (user.getCooldowns().isOnCooldown(this) || user.isSpectator() || user.hasEffect(ModEffects.SAFE_TIME)) {
             return InteractionResultHolder.fail(stack);
         }
+        if (stack.getMaxDamage() > 0 && stack.getDamageValue() >= stack.getMaxDamage()) {
+            if (!world.isClientSide) {
+                user.displayClientMessage(Component.translatable("item.noellesroles.bamboo_spear.no_durability")
+                        .withStyle(ChatFormatting.RED), true);
+            }
+            return InteractionResultHolder.fail(stack);
+        }
         if (BambooSpearEntity.hasActiveFor(user)) {
             return InteractionResultHolder.fail(stack);
         }
@@ -69,6 +78,8 @@ public class BambooSpearItem extends Item implements TrainWeapon {
             world.playSound(null, user.getX(), user.getY(), user.getZ(), SoundEvents.TRIDENT_RIPTIDE_1,
                     SoundSource.PLAYERS, 0.8f, 1.35f);
             user.getCooldowns().addCooldown(this, COOLDOWN_TICKS);
+            EquipmentSlot slot = hand == InteractionHand.MAIN_HAND ? EquipmentSlot.MAINHAND : EquipmentSlot.OFFHAND;
+            stack.hurtAndBreak(1, serverPlayer, slot);
         }
         user.swing(hand);
         return InteractionResultHolder.consume(stack);
@@ -78,6 +89,11 @@ public class BambooSpearItem extends Item implements TrainWeapon {
     public void appendHoverText(@NotNull ItemStack stack, @NotNull TooltipContext context,
             @NotNull List<Component> tooltip, @NotNull TooltipFlag flag) {
         tooltip.add(Component.translatable(getDescriptionId() + ".tooltip").withStyle(ChatFormatting.GRAY));
+        if (stack.getMaxDamage() > 0) {
+            tooltip.add(Component.translatable(getDescriptionId() + ".tooltip.durability",
+                    String.format("%d", stack.getMaxDamage() - stack.getDamageValue()),
+                    String.format("%d", stack.getMaxDamage())).withStyle(ChatFormatting.DARK_GREEN));
+        }
         super.appendHoverText(stack, context, tooltip, flag);
     }
 

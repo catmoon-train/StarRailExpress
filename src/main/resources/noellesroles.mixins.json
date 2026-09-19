@@ -168,6 +168,7 @@
     "client.roles.priest.PriestChantInputMixin",
     "client.roles.priest.PriestLocalPlayerMixin",
     "client.roles.priest.PriestHeavenCameraMixin",
+    "client.roles.priest.PriestHeavenHandMixin",
     "client.roles.monokuma.MonokumaInkShaderMixin",
     "client.roles.phantom.PhantomRattatoulieMixin",
     "client.roles.puppeteer.PuppeteerBodyKnifeTargetMixin",

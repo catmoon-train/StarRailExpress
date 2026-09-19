@@ -34,6 +34,7 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.UseAnim;
+import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.level.Level;
 import org.agmas.noellesroles.content.entity.ThrownBambooEntity;
 import org.agmas.noellesroles.init.ModEffects;
@@ -44,8 +45,8 @@ import org.jetbrains.annotations.NotNull;
 import java.util.List;
 
 /**
- * 竹子 —— 蓄力投掷。松手后生成 3D 竹子投掷物：途中最多挂上 2 名玩家，直到撞墙；
- * 从发射起 10 秒后消失（含钉在墙上的时间）。
+ * 竹子 —— 蓄力投掷。松手后生成 3D 竹子投掷物：途中最多挂上 2 名玩家，撞墙后钉在墙上；
+ * 从发射起 12 秒后消失（含钉在墙上的时间）。
  */
 public class ThrownBambooItem extends Item implements ChargeableItem, TrainWeapon {
 
@@ -97,7 +98,16 @@ public class ThrownBambooItem extends Item implements ChargeableItem, TrainWeapo
             ThrownBambooEntity bamboo = new ThrownBambooEntity(ModEntities.THROWN_BAMBOO, user, world,
                     ModItems.BAMBOO.getDefaultInstance());
             bamboo.setPos(user.getEyePosition());
-            bamboo.shootFromRotation(user, user.getXRot(), user.getYRot(), 0.0f, 2.4f, 1.0f);
+            Vec3 look = user.getLookAngle();
+            Vec3 horiz = new Vec3(look.x, 0.0, look.z);
+            if (horiz.lengthSqr() < 1.0E-6) {
+                float yaw = user.getYRot() * net.minecraft.util.Mth.DEG_TO_RAD;
+                horiz = new Vec3(-net.minecraft.util.Mth.sin(yaw), 0.0, net.minecraft.util.Mth.cos(yaw));
+            }
+            horiz = horiz.normalize();
+            bamboo.shoot(horiz.x, 0.0, horiz.z, ThrownBambooEntity.THROW_SPEED, 1.0f);
+            bamboo.setYRot(user.getYRot());
+            bamboo.setXRot(0.0f);
             bamboo.setOwner(user);
             world.addFreshEntity(bamboo);
 

@@ -38,6 +38,7 @@ import org.agmas.noellesroles.game.roles.killer.nostalgist.NostalgistRole;
 import org.agmas.noellesroles.game.roles.killer.undead_lord.UndeadLordRole;
 import org.agmas.noellesroles.game.roles.killer.watcher.WatcherRole;
 import org.agmas.noellesroles.game.roles.killer.wraith_assassin.WraithAssassinRole;
+import org.agmas.noellesroles.game.roles.killer.nature_spirit.NatureSpiritRole;
 import org.agmas.noellesroles.game.roles.neutral.chef.ChefRole;
 import org.agmas.noellesroles.game.roles.neutral.gambler.GamblerRole;
 import org.agmas.noellesroles.game.roles.neutral.jester.JesterHandler;
@@ -287,6 +288,7 @@ public class ModRoles {
     public static final ResourceLocation GUEST_GHOST_ID = Noellesroles.id("guest_ghost");
     public static final ResourceLocation SILENCER_ID = Noellesroles.id("silencer");
     public static final ResourceLocation WATCHER_ID = Noellesroles.id("watcher");
+    public static final ResourceLocation NATURE_SPIRIT_ID = Noellesroles.id("nature_spirit");
     public static final ResourceLocation YOULU_ID = Noellesroles.id("youlu");
     public static final ResourceLocation IMITATOR_ID = Noellesroles.id("imitator");
     public static final ResourceLocation NOSTALGIST_ID = Noellesroles.id("nostalgist");
@@ -2913,6 +2915,19 @@ public class ModRoles {
             true // 隐藏计分板
     )).setRoleData(YouluRoleData::new).setCanSeeCoin(true).setDefaultEnableChance(5000);
 
+    /**
+     * 自然精灵：杀手阵营。技能键伪装成脚下方块并对齐格子；商店有竹枪/竹子/范围关灯/开锁器。
+     */
+    public static SRERole NATURE_SPIRIT = TMMRoles.registerRole(new NatureSpiritRole(
+            NATURE_SPIRIT_ID,
+            new Color(46, 160, 87).getRGB(),
+            false,
+            true,
+            SRERole.MoodType.FAKE,
+            Integer.MAX_VALUE,
+            true
+    )).setCanSeeCoin(true).setDefaultMax(1).setDefaultEnableChance(5000);
+
     // 模仿者 - 杀手角色，右键尸体吃掉获得永久能力
     public static SRERole IMITATOR = TMMRoles.registerRole(new NormalRole(
             IMITATOR_ID,
@@ -3314,6 +3329,7 @@ public class ModRoles {
         MERCENARY.setAddedVersion("4.1");
         CANDLE_BEARER.setAddedVersion("4.0");
         RAVEN.setAddedVersion("4.3");
+        NATURE_SPIRIT.setAddedVersion("4.4");
         REASONER.setAddedVersion("4.3");
         VOICE_CHANGER.setAddedVersion("4.4");
         AMON.setAddedVersion("4.3");

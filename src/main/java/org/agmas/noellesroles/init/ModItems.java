@@ -867,7 +867,7 @@ public class ModItems {
             WEAPONS_GROUP);
     // 竹枪 - 右键沿视线伸长最多 10 格 / 3 秒，命中玩家击杀后收回
     public static final Item BAMBOO_SPEAR = register(
-            new BambooSpearItem((new Item.Properties()).stacksTo(1)), "bamboo_spear",
+            new BambooSpearItem((new Item.Properties()).stacksTo(1).durability(3)), "bamboo_spear",
             WEAPONS_GROUP);
 
     // 灵梦的御币

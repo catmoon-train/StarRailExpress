@@ -1,11 +1,17 @@
 package org.agmas.noellesroles.client;
 
-import com.mojang.math.Axis;
+import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.vertex.BufferBuilder;
+import com.mojang.blaze3d.vertex.BufferUploader;
+import com.mojang.blaze3d.vertex.DefaultVertexFormat;
+import com.mojang.blaze3d.vertex.Tesselator;
+import com.mojang.blaze3d.vertex.VertexFormat;
 import io.wifi.utils.client.betterrender.FakeGuiGraphics;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.network.chat.Component;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
@@ -15,6 +21,7 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.phys.Vec3;
 import org.agmas.noellesroles.game.roles.neutral.priest.PriestHeavenManager;
 import org.agmas.noellesroles.packet.PriestHeavenStateS2CPacket;
+import org.joml.Matrix4f;
 
 /**
  * 神父天堂序列的客户端状态：滤镜强度、全屏时钟 HUD、预留咏诵/尾奏音效。
@@ -27,6 +34,7 @@ public final class PriestHeavenClient {
     public static final int PHASE_ACCELERATING = 3;
     public static final int PHASE_FINALE = 4;
     private static final float OVERHEAD_BLEND_TICKS = 40.0F;
+    private static final float OVERHEAD_HEIGHT = 16.0F;
 
     private static int phase = PHASE_IDLE;
     private static int lyricIndex;
@@ -39,6 +47,10 @@ public final class PriestHeavenClient {
     private static boolean pendingEnding;
     private static float shaderStrength;
     private static float cameraLift;
+    private static Vec3 lockEye;
+    private static Vec3 lockAbove;
+    private static float lockYaw;
+    private static float lockPitch;
 
     private PriestHeavenClient() {
     }
@@ -59,9 +71,14 @@ public final class PriestHeavenClient {
         return phase == PHASE_ACCELERATING || phase == PHASE_FINALE;
     }
 
+    public static boolean isMovementLocked() {
+        return isOverheadCamera();
+    }
+
     public static float overheadBlend(float tickDelta) {
         if (!isOverheadCamera()) {
             cameraLift = 0.0F;
+            clearCameraAnchor();
             return 0.0F;
         }
         float elapsed = phase == PHASE_FINALE ? OVERHEAD_BLEND_TICKS : accelElapsed + tickDelta;
@@ -71,17 +88,21 @@ public final class PriestHeavenClient {
     }
 
     public static Vec3 overheadCameraPos(Entity entity, float tickDelta, float blend) {
-        Vec3 eye = entity.getEyePosition(tickDelta);
-        Vec3 above = new Vec3(entity.getX(), entity.getY() + 16.0, entity.getZ());
-        return eye.lerp(above, blend);
+        ensureCameraAnchor(entity, tickDelta);
+        if (lockEye == null || lockAbove == null) {
+            return entity.getEyePosition(tickDelta);
+        }
+        return lockEye.lerp(lockAbove, blend);
     }
 
     public static float overheadYaw(Entity entity, float tickDelta) {
-        return entity.getViewYRot(tickDelta);
+        ensureCameraAnchor(entity, tickDelta);
+        return lockYaw;
     }
 
     public static float overheadPitch(Entity entity, float tickDelta, float blend) {
-        return Mth.lerp(blend, entity.getViewXRot(tickDelta), 90.0F);
+        ensureCameraAnchor(entity, tickDelta);
+        return Mth.lerp(blend, lockPitch, 90.0F);
     }
 
     public static void reset() {
@@ -96,6 +117,7 @@ public final class PriestHeavenClient {
         pendingEnding = false;
         shaderStrength = 0;
         cameraLift = 0;
+        clearCameraAnchor();
     }
 
     public static boolean consumePendingEnding() {
@@ -116,6 +138,7 @@ public final class PriestHeavenClient {
     }
 
     public static void apply(PriestHeavenStateS2CPacket packet) {
+        int previous = phase;
         phase = packet.phase();
         lyricIndex = packet.lyricIndex();
         chantRemain = packet.chantRemain();
@@ -125,8 +148,12 @@ public final class PriestHeavenClient {
             shaderStrength = 0;
             localVisualTime = 0;
             cameraLift = 0;
+            clearCameraAnchor();
         } else if (Math.abs(localVisualTime - packet.visualTime()) > 40) {
             localVisualTime = packet.visualTime();
+        }
+        if (previous != PHASE_ACCELERATING && previous != PHASE_FINALE && isOverheadCamera()) {
+            clearCameraAnchor();
         }
         playReservedSound(packet.soundIndex());
     }
@@ -134,28 +161,27 @@ public final class PriestHeavenClient {
     public static void renderHud(FakeGuiGraphics graphics, DeltaTracker deltaTracker) {
         Minecraft mc = Minecraft.getInstance();
         if (mc.player == null || phase == PHASE_IDLE) {
-            shaderStrength += (0.0F - shaderStrength) * 0.08F;
+            shaderStrength += (0.0F - shaderStrength) * 0.12F;
             return;
         }
         float last15 = inLast15Seconds() ? 1.0F : 0.0F;
         float target = switch (phase) {
-            case PHASE_TRANSFORMED -> 0.22F;
-            case PHASE_CHANTING -> 0.42F;
-            case PHASE_ACCELERATING -> 0.58F + 0.42F * accelProgress();
+            case PHASE_TRANSFORMED -> 0.45F;
+            case PHASE_CHANTING -> 0.68F;
+            case PHASE_ACCELERATING -> 0.86F + 0.14F * accelProgress();
             case PHASE_FINALE -> 1.0F;
             default -> 0.0F;
         };
-        shaderStrength += (target - shaderStrength) * 0.045F;
+        shaderStrength += (target - shaderStrength) * 0.14F;
 
-        float partial = deltaTracker.getGameTimeDeltaPartialTick(false);
+        float dt = Math.max(0.01F, deltaTracker.getRealtimeDeltaTicks());
         localVisualTime += (visualTime - localVisualTime) * 0.35F;
         if (phase == PHASE_ACCELERATING || phase == PHASE_FINALE) {
-            float spin = 22.0F + accelProgress() * 78.0F + last15 * 55.0F;
-            if (phase == PHASE_FINALE) {
-                spin *= 0.12F;
+            if (phase != PHASE_FINALE) {
+                float dps = 3.2F + accelProgress() * 9.5F + last15 * 6.0F;
+                clockAngle += dps * dt;
             }
-            clockAngle += spin;
-            renderClockBackground(graphics, mc, partial);
+            renderClockBackground(graphics, mc);
             renderFlashOverlay(graphics);
         }
         if (phase == PHASE_CHANTING) {
@@ -173,6 +199,23 @@ public final class PriestHeavenClient {
         }
     }
 
+    private static void ensureCameraAnchor(Entity entity, float tickDelta) {
+        if (lockAbove != null || entity == null || !isOverheadCamera()) {
+            return;
+        }
+        lockEye = entity.getEyePosition(tickDelta);
+        lockAbove = new Vec3(entity.getX(), entity.getY() + OVERHEAD_HEIGHT, entity.getZ());
+        lockYaw = entity.getViewYRot(tickDelta);
+        lockPitch = entity.getViewXRot(tickDelta);
+    }
+
+    private static void clearCameraAnchor() {
+        lockEye = null;
+        lockAbove = null;
+        lockYaw = 0.0F;
+        lockPitch = 0.0F;
+    }
+
     private static void renderFlashOverlay(FakeGuiGraphics graphics) {
         int alpha;
         if (phase == PHASE_FINALE) {
@@ -186,49 +229,91 @@ public final class PriestHeavenClient {
         graphics.fill(0, 0, graphics.guiWidth(), graphics.guiHeight(), color);
     }
 
-    private static void renderClockBackground(FakeGuiGraphics graphics, Minecraft mc, float partial) {
+    private static void renderClockBackground(FakeGuiGraphics graphics, Minecraft mc) {
         GuiGraphics real = graphics.getDefaultGuiGraphics();
-        int cx = graphics.guiWidth() / 2;
-        int cy = graphics.guiHeight() / 2;
-        int radius = Math.min(cx, cy) - 18;
-        float angle = clockAngle + partial * (18.0F + accelProgress() * 42.0F);
+        float cx = graphics.guiWidth() / 2.0F;
+        float cy = graphics.guiHeight() / 2.0F;
+        float radius = Math.min(cx, cy) - 22.0F;
+        float angle = clockAngle;
 
+        RenderSystem.enableBlend();
+        RenderSystem.defaultBlendFunc();
+        RenderSystem.setShader(GameRenderer::getPositionColorShader);
+        Matrix4f matrix = real.pose().last().pose();
+
+        drawDisc(matrix, cx, cy, radius + 10.0F, 0x22000000);
+        drawRing(matrix, cx, cy, radius - 8.0F, radius, 0xE6F4E4A6);
+        drawRing(matrix, cx, cy, radius - 20.0F, radius - 16.0F, 0x88E8D48B);
+
+        BufferBuilder ticks = Tesselator.getInstance().begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_COLOR);
         for (int i = 0; i < 60; i++) {
             double a = Math.toRadians(angle + i * 6.0);
             boolean major = i % 5 == 0;
-            float inner = major ? radius - 22 : radius - 10;
-            int color = major ? 0xCCF4E4A6 : 0x66E8D48B;
-            drawRadial(real, cx, cy, a, inner, radius, major ? 2.4F : 1.1F, color);
+            float inner = major ? radius - 30.0F : radius - 14.0F;
+            float width = major ? 5.0F : 2.2F;
+            int color = major ? 0xF0F4E4A6 : 0x99E8D48B;
+            spoke(ticks, matrix, cx, cy, a, inner, radius - 2.0F, width, color);
         }
 
-        double second = Math.toRadians(angle * 6.0);
-        double minute = Math.toRadians(angle * 1.2);
-        double hour = Math.toRadians(angle * 0.18);
+        double second = Math.toRadians(angle);
+        double minute = Math.toRadians(angle * 0.2);
+        double hour = Math.toRadians(angle * 0.03);
         if (phase == PHASE_FINALE) {
-            second = 0;
-            minute = 0;
-            hour = 0;
+            second = Math.toRadians(clockAngle);
+            minute = Math.toRadians(clockAngle * 0.2);
+            hour = Math.toRadians(clockAngle * 0.03);
         }
-        drawRadial(real, cx, cy, hour, 0, radius * 0.46F, 5.0F, 0xE6FFFFFF);
-        drawRadial(real, cx, cy, minute, 0, radius * 0.68F, 3.2F, 0xF0F4E4A6);
-        drawRadial(real, cx, cy, second, -12, radius * 0.86F, 1.6F, 0xFFFFE08A);
-        real.fill(cx - 3, cy - 3, cx + 3, cy + 3, 0xFFFFF4C8);
+        spoke(ticks, matrix, cx, cy, hour, 0.0F, radius * 0.46F, 7.0F, 0xF0FFFFFF);
+        spoke(ticks, matrix, cx, cy, minute, 0.0F, radius * 0.68F, 4.4F, 0xF5F4E4A6);
+        spoke(ticks, matrix, cx, cy, second, -14.0F, radius * 0.88F, 2.4F, 0xFFFFE08A);
+        BufferUploader.drawWithShader(ticks.buildOrThrow());
+
+        drawDisc(matrix, cx, cy, 6.0F, 0xFFFFF4C8);
+        RenderSystem.disableBlend();
 
         if (!inLast15Seconds() && phase == PHASE_ACCELERATING) {
-            graphics.drawCenteredString(mc.font, formatTime((int) localVisualTime), cx, 16, 0xEEF4E4A6);
+            graphics.drawCenteredString(mc.font, formatTime((int) localVisualTime), (int) cx, 16, 0xEEF4E4A6);
         }
     }
 
-    private static void drawRadial(GuiGraphics graphics, int cx, int cy, double angleRad, float inner, float outer,
-            float width, int color) {
-        var pose = graphics.pose();
-        pose.pushPose();
-        pose.translate(cx, cy, 0);
-        pose.mulPose(Axis.ZP.rotation((float) angleRad));
-        int x0 = Math.round(-width / 2.0F);
-        int x1 = Math.max(x0 + 1, Math.round(width / 2.0F));
-        graphics.fill(x0, Math.round(-outer), x1, Math.round(-inner), color);
-        pose.popPose();
+    private static void drawDisc(Matrix4f matrix, float cx, float cy, float radius, int color) {
+        BufferBuilder buffer = Tesselator.getInstance().begin(VertexFormat.Mode.TRIANGLE_FAN, DefaultVertexFormat.POSITION_COLOR);
+        buffer.addVertex(matrix, cx, cy, 0.0F).setColor(color);
+        int segments = 64;
+        for (int i = 0; i <= segments; i++) {
+            double a = (Math.PI * 2.0 * i) / segments;
+            buffer.addVertex(matrix, cx + (float) Math.sin(a) * radius, cy - (float) Math.cos(a) * radius, 0.0F).setColor(color);
+        }
+        BufferUploader.drawWithShader(buffer.buildOrThrow());
+    }
+
+    private static void drawRing(Matrix4f matrix, float cx, float cy, float inner, float outer, int color) {
+        BufferBuilder buffer = Tesselator.getInstance().begin(VertexFormat.Mode.TRIANGLE_STRIP, DefaultVertexFormat.POSITION_COLOR);
+        int segments = 96;
+        for (int i = 0; i <= segments; i++) {
+            double a = (Math.PI * 2.0 * i) / segments;
+            float sin = (float) Math.sin(a);
+            float cos = (float) Math.cos(a);
+            buffer.addVertex(matrix, cx + sin * inner, cy - cos * inner, 0.0F).setColor(color);
+            buffer.addVertex(matrix, cx + sin * outer, cy - cos * outer, 0.0F).setColor(color);
+        }
+        BufferUploader.drawWithShader(buffer.buildOrThrow());
+    }
+
+    private static void spoke(BufferBuilder buffer, Matrix4f matrix, float cx, float cy, double angle,
+            float inner, float outer, float width, int color) {
+        float nx = (float) Math.sin(angle);
+        float ny = (float) -Math.cos(angle);
+        float px = -ny * width * 0.5F;
+        float py = nx * width * 0.5F;
+        float ix = cx + nx * inner;
+        float iy = cy + ny * inner;
+        float ox = cx + nx * outer;
+        float oy = cy + ny * outer;
+        buffer.addVertex(matrix, ix - px, iy - py, 0.0F).setColor(color);
+        buffer.addVertex(matrix, ix + px, iy + py, 0.0F).setColor(color);
+        buffer.addVertex(matrix, ox + px, oy + py, 0.0F).setColor(color);
+        buffer.addVertex(matrix, ox - px, oy - py, 0.0F).setColor(color);
     }
 
     private static void renderDramaticTime(FakeGuiGraphics graphics, Minecraft mc) {
@@ -236,8 +321,8 @@ public final class PriestHeavenClient {
         remain = Mth.clamp(remain, 0.0F, 1.0F);
         float intensity = 1.0F - remain;
         float scale = 2.6F + intensity * 6.2F;
-        int jitterX = (int) ((Math.sin(clockAngle * 0.51) + Math.sin(clockAngle * 0.17)) * (3.0 + intensity * 10.0));
-        int jitterY = (int) (Math.cos(clockAngle * 0.33) * (2.0 + intensity * 7.0));
+        int jitterX = (int) ((Math.sin(clockAngle * 0.08) + Math.sin(clockAngle * 0.03)) * (2.0 + intensity * 6.0));
+        int jitterY = (int) (Math.cos(clockAngle * 0.05) * (1.5 + intensity * 4.0));
         String time = formatTime((int) Math.max(0, localVisualTime));
         Font font = mc.font;
         int cx = graphics.guiWidth() / 2 + jitterX;

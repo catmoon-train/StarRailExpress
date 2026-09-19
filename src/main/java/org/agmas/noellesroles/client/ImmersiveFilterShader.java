@@ -92,7 +92,7 @@ public class ImmersiveFilterShader {
             if (want <= 0.01f) {
                 return false;
             }
-            totalTime += 0.016f;
+            totalTime += 0.03f + want * 0.05f;
             var effect = pass.getEffect();
             if (effect == null) {
                 return false;

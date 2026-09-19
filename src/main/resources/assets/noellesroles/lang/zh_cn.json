@@ -793,9 +793,9 @@
   "item.noellesroles.throwing_axe": "飞斧",
   "item.noellesroles.throwing_axe.tooltip": "按住右键蓄力0.8秒后投掷飞斧，可穿透击杀2人",
   "item.noellesroles.bamboo": "竹子",
-  "item.noellesroles.bamboo.tooltip": "长按右键蓄力后投掷。途中最多将2名玩家挂在竹子上，直到撞墙；从发射起10秒后消失。",
+  "item.noellesroles.bamboo.tooltip": "长按右键蓄力后投掷。途中最多将2名玩家挂在竹子上，撞墙后钉在墙上；从发射起12秒后消失。",
   "item.noellesroles.bamboo_spear": "竹枪",
-  "item.noellesroles.bamboo_spear.tooltip": "右键后竹子向前伸长，最长10格或3秒，碰到玩家将其击杀后收回。",
+  "item.noellesroles.bamboo_spear.tooltip": "右键后竹子向前伸长，最长10格或3秒，碰到玩家将其击杀后收回。3点耐久，冷却15秒。",
   "item.noellesroles.adrenaline": "肾上腺素",
   "item.noellesroles.antibiotic": "抗生素",
   "item.noellesroles.hedinghong": "鹤顶红",
@@ -5342,4 +5342,31 @@
   "message.noellesroles.cavalry.shop_need_spear": "需要把矛放在快捷栏中",
   "message.noellesroles.cavalry.shop_already_enchanted": "这把矛已经附魔过突进了",
   "message.noellesroles.cavalry.shop_lunge_lore": "为快捷栏中的下界合金矛附魔突进 III（一局一次）"
+  "message.noellesroles.terminal.error.unknown_command": "未知指令，终端无法识别。",
+
+  "announcement.star.role.nature_spirit": "自然精灵",
+  "announcement.star.goals.nature_spirit": "隐于草木，猎杀所有乘客。",
+  "skill.noellesroles.nature_spirit.camouflage": "叶隐",
+  "message.noellesroles.nature_spirit.entry": "林间传来了自然精灵的低语",
+  "message.noellesroles.nature_spirit.camouflage.start": "你化作了脚下的方块",
+  "message.noellesroles.nature_spirit.camouflage.end": "你恢复了原形",
+  "message.noellesroles.nature_spirit.camouflage.fail": "脚下没有可以伪装的方块",
+  "item.noellesroles.bamboo_spear.no_durability": "竹枪已经损坏",
+  "item.noellesroles.bamboo_spear.tooltip.durability": "耐久：%s/%s",
+
+  "announcement.star.role.cavalry": "骑兵",
+  "announcement.star.goals.cavalry": "驾上你的坐骑，用长矛守护列车的秩序！",
+  "item.noellesroles.netherite_spear": "下界合金矛",
+  "item.noellesroles.netherite_spear.tooltip": "左键：满蓄力后直刺，可穿透多个目标",
+  "item.noellesroles.netherite_spear.tooltip.charge": "右键：举矛蓄力冲锋，速度越快伤害越高",
+  "item.noellesroles.netherite_spear.tooltip.lunge": "突进 %s：命中后向前冲刺",
+  "item.noellesroles.netherite_spear.tooltip.durability": "耐久 %s / %s",
+  "enchantment.noellesroles.lunge": "突进",
+  "message.noellesroles.cavalry.shop_already_owned": "你已经拥有了矛",
+  "message.noellesroles.cavalry.shop_lunge_used": "突进附魔一局只能使用一次",
+  "message.noellesroles.cavalry.shop_need_spear": "需要把矛放在快捷栏中",
+  "message.noellesroles.cavalry.shop_already_enchanted": "这把矛已经附魔过突进了",
+  "message.noellesroles.cavalry.shop_lunge_lore": "为快捷栏中的下界合金矛附魔突进 III（一局一次）"
 }
+
+

@@ -46,7 +46,8 @@ public final class DesperadoKnifeItem extends KnifeItem implements ChargeableIte
     public static final int WINDUP_TICKS = 2;
     private static final double SLASH_LENGTH = 3.45D;
     private static final double SLASH_WIDTH = 0.95D;
-    private static final double DASH_SPEED = 1.35D;
+    /** dash 距离相较原始版本削减 40%（原始值 1.35D）。 */
+    private static final double DASH_SPEED = 1.35D * 0.6D;
 
     public DesperadoKnifeItem(Properties properties) {
         super(properties);

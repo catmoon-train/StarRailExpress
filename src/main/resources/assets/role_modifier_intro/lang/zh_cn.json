@@ -553,6 +553,8 @@
   "info.screen.roleid.repair_saboteur.simple": "",
   "info.screen.roleid.repair_collector": "中立独立胜利职业\n使用 4 次修机道具或补给即可独立获胜。",
   "info.screen.roleid.repair_collector.simple": "",
+  "info.screen.roleid.nature_spirit": "杀手阵营\n开局会向全场播报本职业出现。\n技能【叶隐】：按下技能键伪装成脚下的方块，并对齐到该方块所在格子；伪装期间为第三人称。再次按下技能键解除伪装。冷却60秒。",
+  "info.screen.roleid.nature_spirit.simple": "杀手阵营\n开局全场播报出现。技能键伪装成脚下方块并对齐格子，伪装时第三人称，冷却60秒。",
   "==================== 修飾符 ====================": "",
   "=======修機模式/特殊模式=======": ""
 }

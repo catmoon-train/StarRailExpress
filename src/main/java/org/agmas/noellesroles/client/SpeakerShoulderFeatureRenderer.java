@@ -34,6 +34,17 @@ import org.agmas.noellesroles.init.ModItems;
  * 物品栏里的音响处于开启状态时，把 3D 音响模型扛在右肩上。
  */
 public class SpeakerShoulderFeatureRenderer extends RenderLayer<AbstractClientPlayer, PlayerModel<AbstractClientPlayer>> {
+    // ===== 微调参数 =====
+    // 模型空间：+Y 向下、-X 为右肩、单位为方块。
+    // 参考几何：右臂 x ∈ [-0.50, -0.25]，头部 x ∈ [-0.25, 0.25]，肩平面 y = 0。
+    // 音响本体（含 fixed 的 0.85 与下面的 SCALE）底部在锚点下方约 0.253 处，
+    // 所以 OFFSET_Y 取 -0.25 时底部正好坐在肩平面上，而不是插进手臂。
+    private static final float OFFSET_X = -0.40F; // 右肩上方偏外，内缘刚好不蹭到头
+    private static final float OFFSET_Y = -0.25F; // 负值 = 抬高到肩平面之上
+    private static final float OFFSET_Z = 0.00F; // 前后居中
+    private static final float LEAN_DEG = 0.0F; // 外倾角，0 = 端正立在肩上；调大需同步下调 OFFSET_Y
+    private static final float SCALE = 0.48F; // 整体大小（还会再乘模型 fixed 的 0.85）
+
     private final ItemStack speakerStack;
 
     public SpeakerShoulderFeatureRenderer(
@@ -55,12 +66,15 @@ public class SpeakerShoulderFeatureRenderer extends RenderLayer<AbstractClientPl
 
         matrices.pushPose();
         this.getParentModel().body.translateAndRotate(matrices);
-        // 玩家模型：-X 右肩，+Y 向下。先翻正再放到肩头。
-        matrices.translate(-0.30F, 0.02F, 0.02F);
+        // 抬到肩头（y=0 之上），让底部坐在肩膀顶面而不是埋进手臂
+        matrices.translate(OFFSET_X, OFFSET_Y, OFFSET_Z);
+        // 音响模型的 fixed 变换自带 Y 轴 180°，这里再翻一次 X 轴 180° 抵消：
+        // 底部朝下、喇叭/LCD 那一面朝向玩家正前方。
         matrices.mulPose(Axis.XP.rotationDegrees(180.0F));
-        matrices.mulPose(Axis.YP.rotationDegrees(180.0F));
-        matrices.mulPose(Axis.ZP.rotationDegrees(-18.0F));
-        matrices.scale(0.48F, 0.48F, 0.48F);
+        if (LEAN_DEG != 0.0F) {
+            matrices.mulPose(Axis.ZP.rotationDegrees(LEAN_DEG));
+        }
+        matrices.scale(SCALE, SCALE, SCALE);
 
         Minecraft.getInstance().getItemRenderer().renderStatic(
                 this.speakerStack, ItemDisplayContext.FIXED, light,

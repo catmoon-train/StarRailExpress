@@ -16,31 +16,26 @@
 package org.agmas.noellesroles.client.renderer;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.math.Axis;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.EntityRenderer;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
-import net.minecraft.client.renderer.entity.ItemRenderer;
-import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.client.renderer.texture.TextureAtlas;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.util.Mth;
-import net.minecraft.world.item.ItemDisplayContext;
+import net.minecraft.world.phys.Vec3;
 import org.agmas.noellesroles.content.effects.TimeStopEffect;
 import org.agmas.noellesroles.content.entity.ThrownBambooEntity;
 import org.agmas.noellesroles.init.ModEffects;
-import org.agmas.noellesroles.init.ModItems;
 
-/** 投掷竹子：沿飞行方向绘制 3D 竹子物品模型。 */
+/** 投掷竹子：沿飞行方向绘制带竹节和尖头的 3D 竹杆。 */
 public class ThrownBambooRenderer extends EntityRenderer<ThrownBambooEntity> {
 
-    private final ItemRenderer itemRenderer;
+    private static final float RADIUS = 0.085F;
+    private static final float TIP_LENGTH = 0.4F;
 
     public ThrownBambooRenderer(EntityRendererProvider.Context context) {
         super(context);
-        this.itemRenderer = context.getItemRenderer();
         this.shadowRadius = 0.0f;
     }
 
@@ -53,16 +48,11 @@ public class ThrownBambooRenderer extends EntityRenderer<ThrownBambooEntity> {
             return;
         }
 
+        Vec3 direction = entity.getViewVector(partialTick);
         poseStack.pushPose();
-        float yaw = Mth.lerp(partialTick, entity.yRotO, entity.getYRot());
-        float pitch = Mth.lerp(partialTick, entity.xRotO, entity.getXRot());
-        poseStack.mulPose(Axis.YP.rotationDegrees(yaw - 90.0f));
-        poseStack.mulPose(Axis.XP.rotationDegrees(pitch));
-        poseStack.mulPose(Axis.ZP.rotationDegrees(-90.0f));
-        poseStack.scale(1.15f, 2.2f, 1.15f);
-
-        this.itemRenderer.renderStatic(ModItems.BAMBOO.getDefaultInstance(), ItemDisplayContext.FIXED, packedLight,
-                OverlayTexture.NO_OVERLAY, poseStack, bufferSource, entity.level(), entity.getId());
+        BambooPoleGeometry.orient(poseStack, direction);
+        BambooPoleGeometry.render(poseStack, bufferSource, packedLight, -ThrownBambooEntity.TAIL_REACH,
+                ThrownBambooEntity.TIP_REACH, RADIUS, TIP_LENGTH);
         poseStack.popPose();
         super.render(entity, entityYaw, partialTick, poseStack, bufferSource, packedLight);
     }
