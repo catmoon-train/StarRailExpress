@@ -1,4 +1,4 @@
-﻿{
+{
   "=== SODIUM-EXTRA 补充===": "",
   "sodium-extra.option.light_updates_starrailexpress": "关照更新 (已被StarRailExpress强制启用)",
   "sodium-extra.option.light_updates_starrailexpress.tooltip": "处理光照更新。无论此选项是否启用，始终都会更新光照。(已被StarRailExpress强制启用)",

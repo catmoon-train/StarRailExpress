@@ -4938,92 +4938,14 @@
   "message.noellesroles.cavalry.shop_lunge_used": "突進附魔一局只能使用一次",
   "message.noellesroles.cavalry.shop_need_spear": "需要把矛放在快捷欄中",
   "message.noellesroles.cavalry.shop_already_enchanted": "這把矛已經附魔過突進了",
-  "message.noellesroles.cavalry.shop_lunge_lore": "為快捷欄中的地獄合金矛附魔突進 III（一局一次）"
-
-  "message.noellesroles.loan.request_pending": "你已有一個等待接受的貸款請求，請等待10秒超時後再試。"
-  ,"item.noellesroles.insurance": "保險"
-  ,"item.noellesroles.insurance.status.unsigned": "狀態：未簽訂"
-  ,"item.noellesroles.insurance.status.signed": "狀態：已簽訂"
-  ,"item.noellesroles.insurance.status.active": "狀態：生效中"
-  ,"item.noellesroles.insurance.reason.knife": "保護死亡原因：刀"
-  ,"item.noellesroles.insurance.reason.revolver": "保護死亡原因：左輪手槍"
-  ,"item.noellesroles.insurance.reason.bat": "保護死亡原因：球棒"
-  ,"item.noellesroles.insurance.reason.grenade": "保護死亡原因：手榴彈"
-  ,"item.noellesroles.insurance.reason.short_shotgun": "保護死亡原因：短管霰彈槍"
-  ,"item.noellesroles.insurance.reason.heart_attack": "保護死亡原因：心臟驟停"
-  ,"item.noellesroles.insurance.reason.throwing_knife": "保護死亡原因：飛刀"
-  ,"item.noellesroles.insurance.reason.other": "保護死亡原因：其他"
-  ,"screen.noellesroles.insurance.title": "保險合約"
-  ,"screen.noellesroles.insurance.instruction": "選擇要保護的死亡原因"
-  ,"screen.noellesroles.insurance.reason.knife": "刀"
-  ,"screen.noellesroles.insurance.reason.revolver": "左輪手槍"
-  ,"screen.noellesroles.insurance.reason.bat": "球棒"
-  ,"screen.noellesroles.insurance.reason.grenade": "手榴彈"
-  ,"screen.noellesroles.insurance.reason.short_shotgun": "短管霰彈槍"
-  ,"screen.noellesroles.insurance.reason.heart_attack": "心臟驟停"
-  ,"screen.noellesroles.insurance.reason.throwing_knife": "飛刀"
-  ,"screen.noellesroles.insurance.reason.other": "其他"
-  ,"screen.noellesroles.insurance.selected": "已選擇：%s"
-  ,"screen.noellesroles.insurance.selected.none": "尚未選擇死亡原因"
-  ,"screen.noellesroles.insurance.confirm": "簽訂保險"
-  ,"screen.noellesroles.insurance.esc": "按 Esc 離開合約頁面"
-  ,"message.noellesroles.insurance.signed": "保險已簽訂。右鍵保險並支付25金幣即可生效。"
-  ,"message.noellesroles.insurance.activated": "保險已生效。"
-  ,"message.noellesroles.insurance.already_active": "這份保險已經生效。"
-  ,"message.noellesroles.insurance.invalid": "無法簽訂這份保險。"
-  ,"message.noellesroles.insurance.protected": "保險生效：本次死亡傷害已被抵擋，並獲得25金幣。"
-  ,"announcement.star.role.nature_spirit": "自然精靈"
-  ,"announcement.star.goals.nature_spirit": "隱於草木，獵殺所有乘客。"
-  ,"skill.noellesroles.nature_spirit.camouflage": "葉隱"
-  ,"message.noellesroles.nature_spirit.entry": "林間傳來了自然精靈的低語"
-  ,"message.noellesroles.nature_spirit.camouflage.start": "你化作了腳下的方塊"
-  ,"message.noellesroles.nature_spirit.camouflage.end": "你恢復了原形"
-  ,"message.noellesroles.nature_spirit.camouflage.fail": "腳下沒有可以偽裝的方塊"
-  ,"item.noellesroles.bamboo_spear.no_durability": "竹槍已經損壞"
-  ,"item.noellesroles.bamboo_spear.tooltip.durability": "耐久：%s/%s",
-  "message.noellesroles.loan.request_pending": "你已有一個等待接受的貸款請求，請等待10秒超時後再試。",
-  "item.noellesroles.insurance": "保險",
-  "item.noellesroles.insurance.status.unsigned": "狀態：未簽訂",
-  "item.noellesroles.insurance.status.signed": "狀態：已簽訂",
-  "item.noellesroles.insurance.status.active": "狀態：生效中",
-  "item.noellesroles.insurance.reason.knife": "保護死亡原因：刀",
-  "item.noellesroles.insurance.reason.revolver": "保護死亡原因：左輪手槍",
-  "item.noellesroles.insurance.reason.bat": "保護死亡原因：球棒",
-  "item.noellesroles.insurance.reason.grenade": "保護死亡原因：手榴彈",
-  "item.noellesroles.insurance.reason.short_shotgun": "保護死亡原因：短管霰彈槍",
-  "item.noellesroles.insurance.reason.heart_attack": "保護死亡原因：心臟驟停",
-  "item.noellesroles.insurance.reason.throwing_knife": "保護死亡原因：飛刀",
-  "item.noellesroles.insurance.reason.other": "保護死亡原因：其他",
-  "screen.noellesroles.insurance.title": "保險合約",
-  "screen.noellesroles.insurance.instruction": "選擇要保護的死亡原因",
-  "screen.noellesroles.insurance.reason.knife": "刀",
-  "screen.noellesroles.insurance.reason.revolver": "左輪手槍",
-  "screen.noellesroles.insurance.reason.bat": "球棒",
-  "screen.noellesroles.insurance.reason.grenade": "手榴彈",
-  "screen.noellesroles.insurance.reason.short_shotgun": "短管霰彈槍",
-  "screen.noellesroles.insurance.reason.heart_attack": "心臟驟停",
-  "screen.noellesroles.insurance.reason.throwing_knife": "飛刀",
-  "screen.noellesroles.insurance.reason.other": "其他",
-  "screen.noellesroles.insurance.selected": "已選擇：%s",
-  "screen.noellesroles.insurance.selected.none": "尚未選擇死亡原因",
-  "screen.noellesroles.insurance.confirm": "簽訂保險",
-  "screen.noellesroles.insurance.esc": "按 Esc 離開合約頁面",
-  "message.noellesroles.insurance.signed": "保險已簽訂。右鍵保險並支付25金幣即可生效。",
-  "message.noellesroles.insurance.activated": "保險已生效。",
-  "message.noellesroles.insurance.already_active": "這份保險已經生效。",
-  "message.noellesroles.insurance.invalid": "無法簽訂這份保險。",
-  "message.noellesroles.insurance.protected": "保險生效：本次死亡傷害已被抵擋，並獲得25金幣。",
-  "announcement.star.role.cavalry": "騎兵",
-  "announcement.star.goals.cavalry": "騎上你的坐騎，用長矛守護列車的秩序！",
-  "item.noellesroles.netherite_spear": "地獄合金矛",
-  "item.noellesroles.netherite_spear.tooltip": "左鍵：蓄力全滿後直刺，可穿透多個目標",
-  "item.noellesroles.netherite_spear.tooltip.charge": "右鍵：舉矛蓄力衝鋒，速度越快傷害越高",
-  "item.noellesroles.netherite_spear.tooltip.lunge": "突進 %s：命中後向前衝刺",
-  "item.noellesroles.netherite_spear.tooltip.durability": "耐久 %s / %s",
-  "enchantment.noellesroles.lunge": "突進",
-  "message.noellesroles.cavalry.shop_already_owned": "你已經擁有矛了",
-  "message.noellesroles.cavalry.shop_lunge_used": "突進附魔一局只能使用一次",
-  "message.noellesroles.cavalry.shop_need_spear": "需要把矛放在快捷欄中",
-  "message.noellesroles.cavalry.shop_already_enchanted": "這把矛已經附魔過突進了",
-  "message.noellesroles.cavalry.shop_lunge_lore": "為快捷欄中的地獄合金矛附魔突進 III（一局一次）"
+  "message.noellesroles.cavalry.shop_lunge_lore": "為快捷欄中的地獄合金矛附魔突進 III（一局一次）",
+  "announcement.star.role.nature_spirit": "自然精靈",
+  "announcement.star.goals.nature_spirit": "隱於草木，獵殺所有乘客。",
+  "skill.noellesroles.nature_spirit.camouflage": "葉隱",
+  "message.noellesroles.nature_spirit.entry": "林間傳來了自然精靈的低語",
+  "message.noellesroles.nature_spirit.camouflage.start": "你化作了腳下的方塊",
+  "message.noellesroles.nature_spirit.camouflage.end": "你恢復了原形",
+  "message.noellesroles.nature_spirit.camouflage.fail": "腳下沒有可以偽裝的方塊",
+  "item.noellesroles.bamboo_spear.no_durability": "竹槍已經損壞",
+  "item.noellesroles.bamboo_spear.tooltip.durability": "耐久：%s/%s"
 }

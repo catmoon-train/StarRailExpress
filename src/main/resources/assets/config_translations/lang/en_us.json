@@ -1,4 +1,4 @@
-﻿{
+{
     "=== SODIUM-EXTRA 补充===": "",
     "sodium-extra.option.light_updates_starrailexpress": "Watch for updates (forced to be enabled by StarRailExpress)",
     "sodium-extra.option.light_updates_starrailexpress.tooltip": "Handle lighting updates. Lighting is always updated regardless of whether this option is enabled. (Forcibly enabled by StarRailExpress)",

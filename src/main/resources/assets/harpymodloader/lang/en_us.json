@@ -1,4 +1,4 @@
-﻿{
+{
     "argument.harpymodloader.role.notfound": "Passenger identity %s does not exist",
     "argument.harpymodloader.role.found-multiple": "%s has multiple identities",
     "argument.harpymodloader.modifier.notfound": "The entry %s does not exist",
