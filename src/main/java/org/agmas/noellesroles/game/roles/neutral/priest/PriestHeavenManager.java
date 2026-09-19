@@ -13,6 +13,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.entity.ai.attributes.AttributeInstance;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
@@ -75,6 +76,10 @@ public final class PriestHeavenManager {
 
     public static boolean isActive() {
         return session != null && session.phase != Phase.IDLE;
+    }
+
+    public static boolean isCinematicFreeze() {
+        return session != null && (session.phase == Phase.ACCELERATING || session.phase == Phase.FINALE);
     }
 
     public static boolean isPriest(ServerPlayer player) {
@@ -339,6 +344,9 @@ public final class PriestHeavenManager {
         if (priestAlive) {
             applyMobility(priest);
         }
+        if (isCinematicFreeze()) {
+            freezeEveryone(level);
+        }
 
         switch (session.phase) {
             case CHANTING -> {
@@ -395,6 +403,10 @@ public final class PriestHeavenManager {
     }
 
     public static void tickMobility(ServerPlayer player) {
+        if (isCinematicFreeze()) {
+            freezePlayer(player);
+            return;
+        }
         applyMobility(player);
         PriestRoleData data = RoleData.getNullable(PriestRoleData.class, player);
         if (data == null) {
@@ -409,6 +421,20 @@ public final class PriestHeavenManager {
         } else {
             data.sprintTicks = Math.max(0, data.sprintTicks - 2);
         }
+    }
+
+    private static void freezeEveryone(ServerLevel level) {
+        for (ServerPlayer player : level.players()) {
+            freezePlayer(player);
+        }
+    }
+
+    private static void freezePlayer(ServerPlayer player) {
+        player.setDeltaMovement(Vec3.ZERO);
+        player.xxa = 0.0F;
+        player.zza = 0.0F;
+        player.setSprinting(false);
+        player.setJumping(false);
     }
 
     public static void applyMobility(ServerPlayer player) {

@@ -1,6 +1,8 @@
 package org.agmas.noellesroles.mixin.client.roles.priest;
 
 import net.minecraft.client.player.LocalPlayer;
+import net.minecraft.world.phys.Vec3;
+import org.agmas.noellesroles.client.PriestHeavenClient;
 import org.agmas.noellesroles.game.roles.neutral.priest.PriestHeavenManager;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
@@ -8,7 +10,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 /**
- * 咏诵 GUI 打开时不强制移动。关闭 GUI 后，神父走路仍会自动进入冲刺以便加速。
+ * 俯视镜头期间锁死移动。关闭 GUI 后，神父走路仍会自动进入冲刺以便加速。
  */
 @Mixin(value = LocalPlayer.class, priority = 1200)
 public abstract class PriestLocalPlayerMixin {
@@ -19,6 +21,18 @@ public abstract class PriestLocalPlayerMixin {
     private void noellesroles$priestKeepRunning(CallbackInfo ci) {
         LocalPlayer self = (LocalPlayer) (Object) this;
         if (self.input == null) {
+            return;
+        }
+        if (PriestHeavenClient.isMovementLocked()) {
+            self.input.up = false;
+            self.input.down = false;
+            self.input.left = false;
+            self.input.right = false;
+            self.input.jumping = false;
+            self.input.forwardImpulse = 0.0F;
+            self.input.leftImpulse = 0.0F;
+            self.setSprinting(false);
+            self.setDeltaMovement(Vec3.ZERO);
             return;
         }
         if (PriestHeavenManager.shouldAutoRun(self)) {
