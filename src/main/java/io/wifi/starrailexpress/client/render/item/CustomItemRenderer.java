@@ -239,7 +239,7 @@ public class CustomItemRenderer implements BuiltinItemRendererRegistry.DynamicIt
                 }
             }
             case ANIMATED -> {
-                if (drawTextured(data, currentAnimatedFrame(data), poseStack, buffers, light, overlay)) {
+                if (drawAnimated(data, poseStack, buffers, light, overlay)) {
                     return;
                 }
             }
@@ -288,15 +288,39 @@ public class CustomItemRenderer implements BuiltinItemRendererRegistry.DynamicIt
         return true;
     }
 
+    /** 动态物品：模型帧和贴图帧都按同一播放时钟切换。模型帧为空时保持旧的动态贴图行为。 */
+    private static boolean drawAnimated(CustomItemData data, PoseStack poseStack, MultiBufferSource buffers,
+            int light, int overlay) {
+        List<String> modelFrames = data.animatedModelFramePaths();
+        if (!modelFrames.isEmpty()) {
+            int frameIndex = currentAnimatedFrameIndex(data);
+            BakedModel model = resolveConfiguredModel(modelFrames.get(frameIndex % modelFrames.size()));
+            if (model != null) {
+                ResourceLocation texture = currentAnimatedFrame(data);
+                if (texture != null) {
+                    drawModelWithTexture(model, texture, poseStack, buffers, light, overlay);
+                } else {
+                    drawNativeModel(model, poseStack, buffers, light, overlay);
+                }
+                return true;
+            }
+        }
+        return drawTextured(data, currentAnimatedFrame(data), poseStack, buffers, light, overlay);
+    }
+
     /** 动态贴图当前帧的贴图（没配帧 / 帧解析不到返回 null）。 */
     private static ResourceLocation currentAnimatedFrame(CustomItemData data) {
         List<String> frames = data.animatedFramePaths();
         if (frames.isEmpty()) {
             return null;
         }
-        int frameTicks = Math.max(1, data.animatedFrameTicks);
-        int index = (int) (gameTime() / frameTicks % frames.size());
+        int index = currentAnimatedFrameIndex(data) % frames.size();
         return resolvePackTexture(frames.get(index));
+    }
+
+    private static int currentAnimatedFrameIndex(CustomItemData data) {
+        int frameTicks = Math.max(1, data.animatedFrameTicks);
+        return (int) (gameTime() / frameTicks);
     }
 
     /**
@@ -409,11 +433,7 @@ public class CustomItemRenderer implements BuiltinItemRendererRegistry.DynamicIt
             if (texture != null) {
                 drawModelWithTexture(configured, texture, poseStack, buffers, light, overlay);
             } else {
-                poseStack.pushPose();
-                undoSelfCentering(poseStack);
-                minecraft.getItemRenderer().render(DUMMY_STACK, ItemDisplayContext.NONE, false, poseStack, buffers,
-                        light, overlay, configured);
-                poseStack.popPose();
+                drawNativeModel(configured, poseStack, buffers, light, overlay);
             }
             return true;
         }
@@ -427,6 +447,20 @@ public class CustomItemRenderer implements BuiltinItemRendererRegistry.DynamicIt
             return true;
         }
         return false;
+    }
+
+    /** 用模型自身的 atlas 贴图渲染模型（动态模型帧和静态 MODEL 模式共用）。 */
+    private static void drawNativeModel(BakedModel model, PoseStack poseStack, MultiBufferSource buffers,
+            int light, int overlay) {
+        Minecraft minecraft = Minecraft.getInstance();
+        if (minecraft == null || minecraft.getItemRenderer() == null) {
+            return;
+        }
+        poseStack.pushPose();
+        undoSelfCentering(poseStack);
+        minecraft.getItemRenderer().render(DUMMY_STACK, ItemDisplayContext.NONE, false, poseStack, buffers,
+                light, overlay, model);
+        poseStack.popPose();
     }
 
     /**

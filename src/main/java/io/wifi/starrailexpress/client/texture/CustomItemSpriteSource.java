@@ -109,6 +109,9 @@ public class CustomItemSpriteSource implements SpriteSource {
             }
             // ② 「模型地址」指向的模型自带的贴图（沿 parent 链解析）
             collectModelTextures(resourceManager, ids, data.modelPath);
+            for (String modelPath : data.animatedModelFramePaths()) {
+                collectModelTextures(resourceManager, ids, modelPath);
+            }
         }
         return List.copyOf(ids);
     }

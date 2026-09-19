@@ -509,9 +509,12 @@ public final class CustomItemRuntime {
 
         if (mode == TargetMode.LOOKED_PLAYER) {
             HitResult hit = ProjectileUtil.getHitResultOnViewVector(player,
-                    entity -> isValidTarget(player, entity), range);
+                    entity -> isValidTarget(player, entity)
+                            && isTerminalRangeTarget(player.getEyePosition(), entity.getEyePosition(), data), range);
             if (hit instanceof EntityHitResult entityHit && entityHit.getEntity() instanceof ServerPlayer target) {
-                result.add(target);
+                if (isTerminalRangeTarget(player.getEyePosition(), target.getEyePosition(), data)) {
+                    result.add(target);
+                }
             }
             return result;
         }
@@ -528,6 +531,9 @@ public final class CustomItemRuntime {
             Vec3 targetPos = other.getEyePosition();
             double distance = eye.distanceTo(targetPos);
             if (distance > range) {
+                continue;
+            }
+            if (!isTerminalRangeTarget(eye, targetPos, data)) {
                 continue;
             }
             if (mode == TargetMode.CIRCLE) {
@@ -548,6 +554,21 @@ public final class CustomItemRuntime {
             }
         }
         return result;
+    }
+
+    /**
+     * “仅终点玩家”把作用范围收窄到最外侧一格，而不是改变配置的最大距离。
+     * 例如范围为 5 格时，只接受距离 4（含）到 5 格（含）的玩家；默认关闭时不改变旧行为。
+     */
+    private static boolean isTerminalRangeTarget(Vec3 origin, Vec3 target, CustomItemData data) {
+        if (!data.affectOnlyMaxRange) {
+            return true;
+        }
+        double maxRange = Math.max(0.0D, data.range);
+        if (maxRange <= 0.0D) {
+            return false;
+        }
+        return origin.distanceTo(target) >= Math.max(0.0D, maxRange - 1.0D);
     }
 
     // ==================== 枪械道具 ====================

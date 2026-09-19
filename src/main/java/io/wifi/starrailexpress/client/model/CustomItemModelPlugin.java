@@ -63,6 +63,12 @@ public class CustomItemModelPlugin implements ModelLoadingPlugin {
             if (id != null) {
                 ids.add(id);
             }
+            for (String modelPath : data.animatedModelFramePaths()) {
+                ResourceLocation frameId = CustomItemData.resolveModelId(modelPath);
+                if (frameId != null) {
+                    ids.add(frameId);
+                }
+            }
         }
         return ids;
     }

@@ -186,6 +186,8 @@ public class CustomItemScreen extends CustomEditorScreen {
             case ANIMATED -> {
                 r = textLines(r, PREFIX + ".label.animated_textures", data.animatedTextures, LIMIT_PATH,
                         PREFIX + ".hint.animated_textures", PREFIX + ".add_texture");
+                r = textLines(r, PREFIX + ".label.animated_models", data.animatedModels, LIMIT_PATH,
+                        PREFIX + ".hint.animated_models", PREFIX + ".add_model");
                 r = intRow(r, PREFIX + ".label.animated_frame_ticks", data.animatedFrameTicks, PREFIX + ".unit.tick",
                         value -> data.animatedFrameTicks = value);
                 r = modelPathRow(r, true);
@@ -347,6 +349,9 @@ public class CustomItemScreen extends CustomEditorScreen {
             }
             r = numRow(r, PREFIX + ".label.range", data.range, PREFIX + ".unit.blocks",
                     value -> data.range = value);
+            r = boolRowGatesFields(r, PREFIX + ".label.affect_only_max_range", data.affectOnlyMaxRange,
+                    value -> data.affectOnlyMaxRange = value);
+            r = note(r, PREFIX + ".hint.affect_only_max_range", SREPanelStyle.MUTED);
             r = commandList(r, PREFIX + ".label.target_commands", data.targetCommands);
             // 空放（蓄力完成但没命中玩家）：独立冷却数值，只有会打人的道具才有这个概念
             r = numRow(r, PREFIX + ".label.empty_fire_cooldown", data.emptyFireCooldownTicks,
