@@ -90,7 +90,8 @@
     "time_rewind.ServerGamePacketListenerTimeRewindMixin",
     "time_rewind.ServerPlayerTimeRewindMixin",
     "time_stop.DioSwimPoseMixin",
-    "time_stop.ServerPacketBlocker"
+    "time_stop.ServerPacketBlocker",
+    "spear.LivingEntitySpearMixin"
   ],
   "injectors": {
     "defaultRequire": 1
@@ -187,7 +188,10 @@
     "client.time_stop.SoundVolumeMixin",
     "client.time_stop.StatusHudMixin",
     "game.PelicanAliveCheckMixin",
-    "roles.photographer.BlindnessEffectMixin"
+    "roles.photographer.BlindnessEffectMixin",
+    "client.spear.ItemInHandRendererSpearMixin",
+    "client.spear.MinecraftSpearAttackMixin",
+    "client.spear.HumanoidModelSpearMixin"
   ],
   "overwrites": {
     "requireAnnotations": true

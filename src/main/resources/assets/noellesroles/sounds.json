@@ -5,21 +5,102 @@
       "noellesroles:noellesroles/tomato_splat"
     ]
   },
-  "priest.chant.00": { "subtitle": "subtitles.noellesroles.priest.chant", "sounds": [] },
-  "priest.chant.01": { "subtitle": "subtitles.noellesroles.priest.chant", "sounds": [] },
-  "priest.chant.02": { "subtitle": "subtitles.noellesroles.priest.chant", "sounds": [] },
-  "priest.chant.03": { "subtitle": "subtitles.noellesroles.priest.chant", "sounds": [] },
-  "priest.chant.04": { "subtitle": "subtitles.noellesroles.priest.chant", "sounds": [] },
-  "priest.chant.05": { "subtitle": "subtitles.noellesroles.priest.chant", "sounds": [] },
-  "priest.chant.06": { "subtitle": "subtitles.noellesroles.priest.chant", "sounds": [] },
-  "priest.chant.07": { "subtitle": "subtitles.noellesroles.priest.chant", "sounds": [] },
-  "priest.chant.08": { "subtitle": "subtitles.noellesroles.priest.chant", "sounds": [] },
-  "priest.chant.09": { "subtitle": "subtitles.noellesroles.priest.chant", "sounds": [] },
-  "priest.chant.10": { "subtitle": "subtitles.noellesroles.priest.chant", "sounds": [] },
-  "priest.chant.11": { "subtitle": "subtitles.noellesroles.priest.chant", "sounds": [] },
-  "priest.chant.12": { "subtitle": "subtitles.noellesroles.priest.chant", "sounds": [] },
-  "priest.chant.13": { "subtitle": "subtitles.noellesroles.priest.chant", "sounds": [] },
-  "priest.chant.14": { "subtitle": "subtitles.noellesroles.priest.chant", "sounds": [] },
-  "priest.chanting": { "subtitle": "subtitles.noellesroles.priest.chanting", "sounds": [] },
-  "priest.ending": { "subtitle": "subtitles.noellesroles.priest.ending", "sounds": [] }
+  "priest.chant.00": {
+    "subtitle": "subtitles.noellesroles.priest.chant",
+    "sounds": []
+  },
+  "priest.chant.01": {
+    "subtitle": "subtitles.noellesroles.priest.chant",
+    "sounds": []
+  },
+  "priest.chant.02": {
+    "subtitle": "subtitles.noellesroles.priest.chant",
+    "sounds": []
+  },
+  "priest.chant.03": {
+    "subtitle": "subtitles.noellesroles.priest.chant",
+    "sounds": []
+  },
+  "priest.chant.04": {
+    "subtitle": "subtitles.noellesroles.priest.chant",
+    "sounds": []
+  },
+  "priest.chant.05": {
+    "subtitle": "subtitles.noellesroles.priest.chant",
+    "sounds": []
+  },
+  "priest.chant.06": {
+    "subtitle": "subtitles.noellesroles.priest.chant",
+    "sounds": []
+  },
+  "priest.chant.07": {
+    "subtitle": "subtitles.noellesroles.priest.chant",
+    "sounds": []
+  },
+  "priest.chant.08": {
+    "subtitle": "subtitles.noellesroles.priest.chant",
+    "sounds": []
+  },
+  "priest.chant.09": {
+    "subtitle": "subtitles.noellesroles.priest.chant",
+    "sounds": []
+  },
+  "priest.chant.10": {
+    "subtitle": "subtitles.noellesroles.priest.chant",
+    "sounds": []
+  },
+  "priest.chant.11": {
+    "subtitle": "subtitles.noellesroles.priest.chant",
+    "sounds": []
+  },
+  "priest.chant.12": {
+    "subtitle": "subtitles.noellesroles.priest.chant",
+    "sounds": []
+  },
+  "priest.chant.13": {
+    "subtitle": "subtitles.noellesroles.priest.chant",
+    "sounds": []
+  },
+  "priest.chant.14": {
+    "subtitle": "subtitles.noellesroles.priest.chant",
+    "sounds": []
+  },
+  "priest.chanting": {
+    "subtitle": "subtitles.noellesroles.priest.chanting",
+    "sounds": []
+  },
+  "priest.ending": {
+    "subtitle": "subtitles.noellesroles.priest.ending",
+    "sounds": []
+  },
+  "noellesroles.spear_attack": {
+    "subtitle": "subtitles.noellesroles.spear_attack",
+    "sounds": [
+      "noellesroles:spear_attack1",
+      "noellesroles:spear_attack2",
+      "noellesroles:spear_attack3"
+    ]
+  },
+  "noellesroles.spear_hit": {
+    "subtitle": "subtitles.noellesroles.spear_hit",
+    "sounds": [
+      "noellesroles:spear_hit1",
+      "noellesroles:spear_hit2",
+      "noellesroles:spear_hit3"
+    ]
+  },
+  "noellesroles.spear_use": {
+    "subtitle": "subtitles.noellesroles.spear_use",
+    "sounds": [
+      "noellesroles:spear_use"
+    ]
+  },
+  "noellesroles.spear_lunge": {
+    "subtitle": "subtitles.noellesroles.spear_lunge",
+    "sounds": [
+      "noellesroles:spear_lunge1",
+      "noellesroles:spear_lunge2",
+      "noellesroles:spear_lunge3"
+    ]
+  }
 }

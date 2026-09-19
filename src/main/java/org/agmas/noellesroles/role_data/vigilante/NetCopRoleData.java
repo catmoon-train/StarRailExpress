@@ -18,6 +18,7 @@ package org.agmas.noellesroles.role_data.vigilante;
 import io.wifi.starrailexpress.api.data.RoleDataContext;
 import io.wifi.starrailexpress.api.impl.SimpleRoleData;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
+import io.wifi.starrailexpress.cca.SREPlayerMinigameTaskComponent;
 import io.wifi.starrailexpress.cca.SREPlayerMoodComponent;
 import io.wifi.starrailexpress.event.OnPlayerDeathWithKiller;
 import net.minecraft.core.HolderLookup;
@@ -34,6 +35,8 @@ import org.jetbrains.annotations.NotNull;
  * <p>
  * 核心机制：
  * <ul>
+ * <li>完成普通任务获得 {@link #NORMAL_TASK_TOKEN_REWARD} 个游戏代币；</li>
+ * <li>完成小游戏任务额外获得 {@link #MINIGAME_TASK_TOKEN_BONUS} 个游戏代币（在基础奖励之上）；</li>
  * <li>完成小游戏任务额外恢复 30% 理智（理智上限为 1，即 {@code addMood(0.3f)}）；</li>
  * <li>小游戏任务刷新不受轮换模式「2~3 个普通任务」限制（独立计时派发）；</li>
  * <li>商店使用小游戏代币按顺序购买 Dream 铁斧/钻石剑/重锤（见 {@code RoleShopHandler}）；</li>
@@ -46,6 +49,12 @@ public class NetCopRoleData extends SimpleRoleData {
 
     /** Dream 武器击杀后的物品冷却时长（tick）：20 秒。 */
     public static final int KILL_COOLDOWN_TICKS = 20 * 20;
+
+    /** 网警完成普通任务获得的小游戏代币（游戏代币）数量。 */
+    public static final int NORMAL_TASK_TOKEN_REWARD = 1;
+
+    /** 网警完成小游戏任务在基础奖励之外额外获得的小游戏代币（游戏代币）数量。 */
+    public static final int MINIGAME_TASK_TOKEN_BONUS = 1;
 
     static {
         OnPlayerDeathWithKiller.EVENT.register(NetCopRoleData::onKillWithDreamWeapon);
@@ -96,6 +105,38 @@ public class NetCopRoleData extends SimpleRoleData {
             return false;
         }
         SREPlayerMoodComponent.KEY.get(sp).addMood(0.3f);
+        return true;
+    }
+
+    /**
+     * 网警完成普通（Mood）任务时发放 {@link #NORMAL_TASK_TOKEN_REWARD} 个游戏代币。
+     * <p>
+     * 调用点：{@code SREPlayerTaskComponent#serverTick} 中普通任务判定完成时。
+     *
+     * @return 是否实际发放（仅网警生效）
+     */
+    public static boolean grantTokenOnNormalTask(net.minecraft.server.level.ServerPlayer sp) {
+        return addTokens(sp, NORMAL_TASK_TOKEN_REWARD);
+    }
+
+    /**
+     * 网警完成小游戏任务时，在基础代币奖励之外额外发放
+     * {@link #MINIGAME_TASK_TOKEN_BONUS} 个游戏代币。
+     * <p>
+     * 调用点：{@code SREPlayerMinigameTaskComponent#onMinigameBlockCompleted}。
+     *
+     * @return 是否实际发放（仅网警生效）
+     */
+    public static boolean grantBonusTokenAfterMinigame(net.minecraft.server.level.ServerPlayer sp) {
+        return addTokens(sp, MINIGAME_TASK_TOKEN_BONUS);
+    }
+
+    /** 向玩家的「小游戏任务」组件发放游戏代币（当局制代币）。仅网警生效。 */
+    private static boolean addTokens(net.minecraft.server.level.ServerPlayer sp, int amount) {
+        if (amount <= 0 || !isNetCop(sp)) {
+            return false;
+        }
+        SREPlayerMinigameTaskComponent.KEY.get(sp).addTokens(amount);
         return true;
     }
 

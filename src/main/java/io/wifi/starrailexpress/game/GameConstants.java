@@ -307,6 +307,8 @@ public class GameConstants {
         public static ResourceLocation DREAM_DIAMOND_SWORD = Noellesroles.id("dream_diamond_sword");
         public static ResourceLocation DREAM_MACE = Noellesroles.id("dream_mace");
         public static ResourceLocation FIREWORK_CROSSBOW = Noellesroles.id("firework_crossbow");
+        /** 下界合金矛（骑兵）：原版伤害 ×2 转为虚拟伤害，归零时按此死因判死 */
+        public static ResourceLocation SPEAR = Noellesroles.id("spear");
 
         public static ResourceLocation RADIATION = Noellesroles.id("radiation");
         public static ResourceLocation BROKEN_HEART = StupidExpress.id("broken_heart");

@@ -306,6 +306,8 @@ public class SREPlayerTaskComponent implements RoleComponent, ServerTickingCompo
             }
             // 触发附近任务完成联动（狂躁症、渡鸦等）
             if (this.player instanceof ServerPlayer sp) {
+                // 网警：完成普通任务获得游戏代币
+                org.agmas.noellesroles.role_data.vigilante.NetCopRoleData.grantTokenOnNormalTask(sp);
                 notifyNearbyTaskComplete(sp);
             }
         }

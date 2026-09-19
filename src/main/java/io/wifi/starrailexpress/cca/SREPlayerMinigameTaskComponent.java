@@ -356,8 +356,9 @@ public class SREPlayerMinigameTaskComponent implements RoleComponent, ServerTick
                 shop.addToBalance(SREConfig.instance().minigameRotationCoinBonus);
             }
         }
-        // 网警：完成小游戏任务额外恢复 30% 理智
+        // 网警：完成小游戏任务额外恢复 30% 理智，并额外获得游戏代币
         org.agmas.noellesroles.role_data.vigilante.NetCopRoleData.restoreSanityAfterMinigame(sp);
+        org.agmas.noellesroles.role_data.vigilante.NetCopRoleData.grantBonusTokenAfterMinigame(sp);
         if (sp.level() instanceof ServerLevel completedLevel) {
             var completedMode = SREGameWorldComponent.KEY.get(completedLevel).getGameMode();
             if (completedMode != null && completedMode.minigameReplacesMoodTasks()) {

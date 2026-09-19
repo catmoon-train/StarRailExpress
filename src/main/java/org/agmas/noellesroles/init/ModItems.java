@@ -1476,6 +1476,16 @@ public class ModItems {
                     org.agmas.noellesroles.content.item.angler.AnglerOddityItem.Kind.EMPTY_HOOK),
             "angler_empty_hook", ROLE_ITEMS_GROUP);
 
+    /**
+     * 下界合金矛（骑兵专属武器）
+     * - 左键直刺：需要满蓄力；命中玩家时原版伤害 ×2 转为虚拟伤害，死因为 spear
+     * - 右键举矛蓄力冲锋：速度越快伤害越高，并可击退 / 击落坐骑
+     * - 可附魔「突进」：命中后沿视线向前冲刺
+     */
+    public static final Item NETHERITE_SPEAR = register(
+            new NetheriteSpearItem(NetheriteSpearItem.createProperties()),
+            "netherite_spear", ROLE_ITEMS_GROUP, WEAPONS_GROUP);
+
     public static Item register(Item item, String id, ResourceKey<CreativeModeTab>... extraGroups) {
         ResourceKey<CreativeModeTab>[] allGroups = java.util.Arrays.copyOf(extraGroups, extraGroups.length + 1);
         allGroups[extraGroups.length] = NOELLESROLES_ALL_GROUP;
