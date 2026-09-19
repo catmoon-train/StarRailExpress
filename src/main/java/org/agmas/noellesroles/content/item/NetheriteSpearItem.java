@@ -4,7 +4,6 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
-import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
@@ -66,21 +65,6 @@ public class NetheriteSpearItem extends Item
     }
 
     /** 每 tick 推进一次蓄力冲锋结算（举着矛右键时才生效）。 */
-    @Override
-    public void onUseTick(Level level, LivingEntity user, ItemStack stack, int remainingUseTicks) {
-        super.onUseTick(level, user, stack, remainingUseTicks);
-        if (level.isClientSide()) {
-            return;
-        }
-        if (!user.isUsingItem() || !ItemStack.matches(user.getUseItem(), stack)) {
-            return;
-        }
-        EquipmentSlot slot = user.getUsedItemHand() == InteractionHand.MAIN_HAND
-                ? EquipmentSlot.MAINHAND
-                : EquipmentSlot.OFFHAND;
-        SpearCombat.usageTick(stack, remainingUseTicks, user, slot);
-    }
-
     /** 矛不能挖方块（创造模式除外）。 */
     @Override
     public boolean canAttackBlock(BlockState state, Level level, BlockPos pos, Player miner) {

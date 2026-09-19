@@ -47,11 +47,20 @@ public class ItemInHandRendererSpearMixin {
         original.call(instance, poseStack, arm, swingProgress);
     }
 
+    /** 第一人称左键：屏蔽原版剑类挥击产生的位移，直刺曲线由上面的变换接管。 */
+    @WrapOperation(method = "renderArmWithItem", at = @At(value = "INVOKE", target =
+            "Lcom/mojang/blaze3d/vertex/PoseStack;translate(FFF)V", ordinal = 12))
+    private void spear$suppressFirstPersonSwing(PoseStack poseStack, float x, float y, float z,
+            Operation<Void> original, @Local(argsOnly = true) ItemStack stack) {
+        if (!SpearConfig.isSpear(stack)) {
+            original.call(poseStack, x, y, z);
+        }
+    }
+
     /** 第一人称右键：在原版手臂装备变换之后插入完整的举矛动画。 */
     @Inject(method = "renderArmWithItem", at = @At(value = "INVOKE", target =
-            "Lnet/minecraft/client/renderer/ItemInHandRenderer;applyItemArmTransform(" +
-                    "Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/world/entity/HumanoidArm;F)V",
-            ordinal = 6, shift = At.Shift.AFTER))
+            "Lnet/minecraft/world/item/ItemStack;getUseAnimation()" +
+                    "Lnet/minecraft/world/item/UseAnim;", shift = At.Shift.AFTER))
     private void spear$renderFirstPersonCharge(AbstractClientPlayer player, float partialTicks, float pitch,
             InteractionHand hand, float swingProgress, ItemStack stack, float equippedProgress, PoseStack poseStack,
             MultiBufferSource buffer, int light, CallbackInfo ci) {
@@ -106,6 +115,10 @@ public class ItemInHandRendererSpearMixin {
     private void spear$renderThirdPerson(LivingEntity entity, ItemStack stack, ItemDisplayContext context,
             boolean leftHanded, PoseStack poseStack, MultiBufferSource buffer, int light, CallbackInfo ci) {
         if (!SpearConfig.isSpear(stack)) {
+            return;
+        }
+        if (context != ItemDisplayContext.THIRD_PERSON_RIGHT_HAND
+                && context != ItemDisplayContext.THIRD_PERSON_LEFT_HAND) {
             return;
         }
         float partialTicks = Minecraft.getInstance().getTimer().getGameTimeDeltaPartialTick(true);

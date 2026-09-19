@@ -1,6 +1,5 @@
 package org.agmas.noellesroles.mixin.client.spear;
 
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.world.entity.HumanoidArm;
@@ -16,9 +15,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-/**
- * 第三人称：持矛的手臂摆出「直刺」姿态，举矛蓄力时抬臂并带回摆。
- */
+/** 第三人称矛动画：抬矛蓄力，并用直刺曲线替换原版剑挥臂。 */
 @Mixin(HumanoidModel.class)
 public abstract class HumanoidModelSpearMixin<T extends LivingEntity> {
 
@@ -38,6 +35,9 @@ public abstract class HumanoidModelSpearMixin<T extends LivingEntity> {
     @Final
     public ModelPart head;
 
+    @Shadow
+    public float attackTime;
+
     @Inject(method = "poseRightArm", at = @At("TAIL"))
     private void spear$poseRightArm(T entity, CallbackInfo ci) {
         spear$poseArm(entity, this.rightArm, HumanoidArm.RIGHT);
@@ -54,7 +54,6 @@ public abstract class HumanoidModelSpearMixin<T extends LivingEntity> {
         if (!SpearConfig.isSpear(stack)) {
             return;
         }
-        // 持矛待机：手臂向前伸直并略微抬高
         arm.yRot = -0.1F * this.head.yRot;
         arm.xRot = (-(float) Math.PI / 2.0F) + this.head.xRot + 0.8F;
         if (entity.isFallFlying()) {
@@ -71,12 +70,25 @@ public abstract class HumanoidModelSpearMixin<T extends LivingEntity> {
                     - 20.0F * anim.raiseProgressEnd() + 20.0F * anim.lowerProgress()
                     + 10.0F * anim.raiseBackProgress() + 0.6F * anim.swayScaleSlow() * anim.swayIntensity());
         }
-        // 直刺时手臂的俯仰变化
-        float attackAnim = entity.getAttackAnim(Minecraft.getInstance().getTimer().getGameTimeDeltaPartialTick(true));
-        if (attackAnim > 0.0F) {
-            // 原版手臂动画以身体为参考系；不扣除身体旋转时，第三人称直刺会偏向一侧。
-            arm.yRot -= this.body.yRot;
-            arm.xRot += SpearAnim.thirdPersonArmPitch(attackAnim);
+    }
+
+    /** 在原版 setupAttackAnimation 中取消剑挥击，改为 Backported-Spears 的直刺曲线。 */
+    @Inject(method = "setupAttackAnimation", at = @At("HEAD"), cancellable = true)
+    private void spear$setupAttackAnimation(T entity, float ageInTicks, CallbackInfo ci) {
+        if (this.attackTime <= 0.0F) {
+            return;
         }
+        HumanoidArm attackArm = entity.swingingArm == net.minecraft.world.InteractionHand.MAIN_HAND
+                ? entity.getMainArm()
+                : entity.getMainArm().getOpposite();
+        ItemStack stack = attackArm == entity.getMainArm() ? entity.getMainHandItem() : entity.getOffhandItem();
+        if (!SpearConfig.isSpear(stack)) {
+            return;
+        }
+        this.rightArm.yRot -= this.body.yRot;
+        this.leftArm.yRot -= this.body.yRot;
+        ModelPart arm = attackArm == HumanoidArm.RIGHT ? this.rightArm : this.leftArm;
+        arm.xRot += SpearAnim.thirdPersonArmPitch(this.attackTime);
+        ci.cancel();
     }
 }

@@ -2,7 +2,7 @@
   "parent": "minecraft:item/generated",
   "gui_light": "front",
   "textures": {
-    "layer0": "noellesroles:item/netherite_spear"
+    "layer0": "noellesroles:item/netherite_spear_in_hand"
   },
   "display": {
     "firstperson_righthand": {
@@ -25,13 +25,5 @@
       "translation": [ 0, 2, 2 ],
       "scale": [ 1.7, 1.7, 0.85 ]
     }
-  },
-  "overrides": [
-    {
-      "predicate": {
-        "noellesroles:in_gui": 0
-      },
-      "model": "noellesroles:item/netherite_spear_in_hand"
-    }
-  ]
+  }
 }

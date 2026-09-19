@@ -1565,6 +1565,12 @@ public class NoellesrolesClient implements ClientModInitializer {
         // 3. 注册物品提示（如果有自定义物品）
         // registerItemTooltips();
 
+        // Use the normal texture in GUI and the in-hand texture while held/displayed.
+        net.minecraft.client.renderer.item.ItemProperties.registerGeneric(
+                Noellesroles.id("in_gui"),
+                (stack, world, entity, seed) ->
+                        stack.getEntityRepresentation() != null && stack.getFrame() == null ? 0.0F : 1.0F);
+
         // 4. 设置物品回调
         setupItemCallbacks();
 
