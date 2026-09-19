@@ -361,9 +361,6 @@ public class VolunteerOpenDraftState {
                 continue;
             }
             Integer rawType = info.roleType();
-            if (rawType == null) {
-                continue;
-            }
             // ForceTeamInfo.roleType() 用的是 getRoleType 的编号
             // （1 平民 / 2 中立 / 3 中立-杀手 / 4 杀手 / 5 警长），与卡牌自身的 type 编号不同。
             int cardType = normalizeCardType(rawType);
