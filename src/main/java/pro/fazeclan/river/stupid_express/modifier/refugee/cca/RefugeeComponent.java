@@ -242,7 +242,7 @@ public class RefugeeComponent implements AutoSyncedComponent, ServerTickingCompo
                 player.getXRot());
         SREArmorPlayerComponent armorCCA = SREArmorPlayerComponent.KEY.get(player);
         int size = serverLevel.getPlayers(GameUtils::isPlayerAliveAndSurvival).size();
-        armorCCA.addArmor((Math.clamp(size / 6, 1, 6)));
+        armorCCA.addArmor((Math.clamp(size / 6, 1, 3)));
         player.setGameMode(GameType.ADVENTURE);
 
         player.addEffect(ModEffects.of(ModEffects.SAFE_TIME, 10, 1, false, false, true));
