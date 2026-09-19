@@ -1680,6 +1680,7 @@ public class ModRoles {
             .setDefaultMax(1)
             .setDefaultEnableChance(7000)
             .setCanBeRandomedByOtherRoles(false)
+            .setCanPickUpRevolver(false)
             .setRoleData(org.agmas.noellesroles.role_data.vigilante.CavalryRoleData::new);
 
     public static SRERole HUNTER = TMMRoles
