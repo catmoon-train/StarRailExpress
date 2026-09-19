@@ -21,19 +21,24 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.NbtUtils;
 import net.minecraft.nbt.Tag;
+import net.minecraft.network.syncher.EntityDataAccessor;
+import net.minecraft.network.syncher.EntityDataSerializers;
+import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
+import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityDimensions;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.AbstractArrow;
+import net.minecraft.world.entity.projectile.ProjectileUtil;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.BlockHitResult;
@@ -48,17 +53,18 @@ import java.util.Set;
 import java.util.UUID;
 
 /**
- * 投掷竹子：直线飞行，途中最多将 2 名玩家挂在竹子上；撞墙后钉在墙上不再位移，
+ * 投掷竹子：水平直线飞行，途中最多将 2 名玩家挂在竹子上；撞墙后钉在墙上不再位移，
  * 从发射起 12 秒后（含钉墙时间）统一消失。
  * <p>
- * 防卡墙：挂人位置 / 下竹位置都会做碰撞检测，一旦会把玩家塞进方块里就自动找最近的空位。
+ * 防卡墙：挂人位置 / 下竹位置都会做碰撞检测并检查与竹子本体之间无墙阻挡，
+ * 找不到安全位就落地放人，绝不把人传送到墙对面。
  */
 public class ThrownBambooEntity extends AbstractArrow {
 
     public static final int MAX_HANG = 2;
     /** 从发射到消失的总时长（含钉在墙上的时间）。 */
     public static final int LIFETIME_TICKS = 20 * 12;
-    /** 发射速度：原 2.4 的 85%。 */
+    /** 发射速度。 */
     public static final float THROW_SPEED = 2.04F;
 
     /** 渲染用：竹杆枪尖相对实体原点向前的距离（需与 ThrownBambooRenderer 保持一致）。 */
@@ -72,13 +78,23 @@ public class ThrownBambooEntity extends AbstractArrow {
     private static final double HANG_SIDE = 0.35;
     private static final double HANG_UP = 0.15;
 
+    /** 挂人判定的整杆扫掠半径（比原版箭矢命中盒大得多，好命中）。 */
+    private static final double HIT_INFLATE = 0.4;
+
+    /** 渲染朝向：显式同步的水平 yaw，不依赖原版箭矢的旋转插值。 */
+    private static final EntityDataAccessor<Float> FACING_YAW = SynchedEntityData.defineId(ThrownBambooEntity.class,
+            EntityDataSerializers.FLOAT);
+
     private final List<UUID> hungPlayers = new ArrayList<>(2);
 
     /** 是否已钉在墙上。 */
     private boolean pinned;
     private Vec3 pinPos = Vec3.ZERO;
     private float pinYaw;
-    private float pinPitch;
+
+    /** 客户端平滑朝向。 */
+    private float renderYaw;
+    private float prevRenderYaw;
 
     public ThrownBambooEntity(EntityType<? extends AbstractArrow> entityType, Level level) {
         super(entityType, level);
@@ -93,6 +109,32 @@ public class ThrownBambooEntity extends AbstractArrow {
         this.setNoGravity(true);
         this.setBaseDamage(0);
         this.pickup = AbstractArrow.Pickup.DISALLOWED;
+    }
+
+    /** 设置投掷方向：同步朝向并摆正实体旋转（只用于水平飞行）。 */
+    public void setThrownDirection(Vec3 horizontalDirection) {
+        float yaw = yawFrom(horizontalDirection);
+        this.entityData.set(FACING_YAW, yaw);
+        this.setYRot(yaw);
+        this.setXRot(0.0F);
+        this.yRotO = yaw;
+        this.xRotO = 0.0F;
+    }
+
+
+    @Override
+    protected void defineSynchedData(SynchedEntityData.Builder builder) {
+        super.defineSynchedData(builder);
+        builder.define(FACING_YAW, 0.0F);
+    }
+
+    public float getFacingYaw() {
+        return this.entityData.get(FACING_YAW);
+    }
+
+    /** 客户端插值后的渲染朝向。 */
+    public float getRenderYaw(float partialTick) {
+        return Mth.lerp(partialTick, this.prevRenderYaw, this.renderYaw);
     }
 
     // ------------------------------------------------------------------ 基础行为
@@ -147,7 +189,15 @@ public class ThrownBambooEntity extends AbstractArrow {
         Vec3 target = this.getPassengerRidingPosition(passenger).subtract(this.getVehicleAttachmentPoint(passenger));
         if (passenger instanceof Player) {
             Vec3 safe = this.findFreeSpot(passenger, target);
-            target = safe != null ? safe : this.position();
+            if (safe != null) {
+                target = safe;
+            } else if (!this.pinned) {
+                // 飞行中附近没空位：先贴着竹子本体，下一 tick 再检查；仍会卡墙就放下来。
+                moveFunction.accept(passenger, this.getX(), this.getY(), this.getZ());
+                return;
+            } else {
+                target = this.position();
+            }
         }
         moveFunction.accept(passenger, target.x, target.y, target.z);
     }
@@ -177,9 +227,13 @@ public class ThrownBambooEntity extends AbstractArrow {
         if (this.level().isClientSide) {
             return;
         }
-        if (!(entityHitResult.getEntity() instanceof ServerPlayer target)) {
-            return;
+        if (entityHitResult.getEntity() instanceof ServerPlayer target) {
+            this.hangPlayer(target, entityHitResult.getLocation());
         }
+    }
+
+    /** 把玩家挂到竹子上（去重 + 反馈）。 */
+    private void hangPlayer(ServerPlayer target, Vec3 location) {
         if (this.getOwner() != null && target.getUUID().equals(this.getOwner().getUUID())) {
             return;
         }
@@ -192,7 +246,6 @@ public class ThrownBambooEntity extends AbstractArrow {
         this.hungPlayers.add(target.getUUID());
         target.startRiding(this, true);
 
-        Vec3 location = entityHitResult.getLocation();
         ServerLevel serverLevel = target.serverLevel();
         serverLevel.sendParticles(ParticleTypes.CRIT, location.x, location.y + 1.0f, location.z, 10, 0.25, 0.25,
                 0.25, 0.12);
@@ -204,7 +257,11 @@ public class ThrownBambooEntity extends AbstractArrow {
     public Vec3 getDismountLocationForPassenger(LivingEntity passenger) {
         Vec3 base = new Vec3(this.getX(), this.getBoundingBox().maxY + 0.05, this.getZ());
         Vec3 safe = this.findFreeSpot(passenger, base);
-        return safe == null ? base : safe;
+        if (safe != null) {
+            return safe;
+        }
+        Vec3 ground = this.findGroundSpot(passenger, this.getX(), this.getY(), this.getZ());
+        return ground == null ? base : ground;
     }
 
     // ------------------------------------------------------------------ 撞墙 / 钉墙
@@ -216,27 +273,22 @@ public class ThrownBambooEntity extends AbstractArrow {
             return;
         }
         super.onHitBlock(blockHitResult);
-        Vec3 dir = this.forward();
-        this.pinTo(blockHitResult.getLocation(), dir);
+        this.pinTo(blockHitResult.getLocation());
         this.setDeltaMovement(Vec3.ZERO);
         this.applyPin();
         if (!this.level().isClientSide) {
             this.level().playSound(null, this.getX(), this.getY(), this.getZ(), SoundEvents.BAMBOO_WOOD_HIT,
                     SoundSource.PLAYERS, 1.0f, 0.8f);
             if (this.level() instanceof ServerLevel serverLevel) {
-                Vec3 tip = this.pinPos.add(dir.scale(TIP_REACH));
+                Vec3 tip = this.pinPos.add(this.forward().scale(TIP_REACH));
                 serverLevel.sendParticles(ParticleTypes.CRIT, tip.x, tip.y, tip.z, 8, 0.12, 0.12, 0.12, 0.08);
             }
         }
     }
 
     /** 计算钉墙位置：枪尖扎进墙体 PIN_EMBED，杆身留在墙外，保证挂人的位置不在方块里。 */
-    private void pinTo(Vec3 hitLocation, Vec3 dir) {
-        Vec3 flat = new Vec3(dir.x, 0.0, dir.z);
-        if (flat.lengthSqr() < 1.0E-8) {
-            flat = new Vec3(0.0, 0.0, 1.0);
-        }
-        dir = flat.normalize();
+    private void pinTo(Vec3 hitLocation) {
+        Vec3 dir = this.forward();
         float[] backoffs = { TIP_REACH - PIN_EMBED, TIP_REACH - PIN_EMBED - 0.5F, TIP_REACH * 0.5F, 0.25F };
         Vec3 chosen = hitLocation.subtract(dir.scale(TIP_REACH - PIN_EMBED));
         for (float backoff : backoffs) {
@@ -252,8 +304,7 @@ public class ThrownBambooEntity extends AbstractArrow {
             }
         }
         this.pinPos = new Vec3(chosen.x, this.getY(), chosen.z);
-        this.pinYaw = this.getYRot();
-        this.pinPitch = 0.0f;
+        this.pinYaw = this.getFacingYaw();
         this.pinned = true;
     }
 
@@ -262,9 +313,12 @@ public class ThrownBambooEntity extends AbstractArrow {
         this.setDeltaMovement(Vec3.ZERO);
         this.setPos(this.pinPos.x, this.pinPos.y, this.pinPos.z);
         this.setYRot(this.pinYaw);
-        this.setXRot(this.pinPitch);
+        this.setXRot(0.0F);
         this.yRotO = this.pinYaw;
-        this.xRotO = this.pinPitch;
+        this.xRotO = 0.0F;
+        if (this.getFacingYaw() != this.pinYaw) {
+            this.entityData.set(FACING_YAW, this.pinYaw);
+        }
         this.inGround = true;
         this.inGroundTime = 1;
     }
@@ -274,12 +328,20 @@ public class ThrownBambooEntity extends AbstractArrow {
     @Override
     public void tick() {
         if (!this.pinned) {
+            // 保持水平直线飞行，速度恒定，朝向始终跟运动方向。
+            Vec3 motion = this.getDeltaMovement();
+            Vec3 horiz = new Vec3(motion.x, 0.0, motion.z);
+            if (horiz.lengthSqr() > 1.0E-6) {
+                horiz = horiz.normalize().scale(THROW_SPEED);
+                this.setDeltaMovement(horiz.x, 0.0, horiz.z);
+                this.entityData.set(FACING_YAW, yawFrom(horiz));
+            }
             this.setXRot(0.0f);
             this.xRotO = 0.0f;
-            Vec3 motion = this.getDeltaMovement();
-            if (motion.y != 0.0) {
-                this.setDeltaMovement(motion.x, 0.0, motion.z);
-            }
+        }
+        if (this.level().isClientSide) {
+            this.prevRenderYaw = this.renderYaw;
+            this.renderYaw = Mth.rotLerp(0.35F, this.renderYaw, this.getFacingYaw());
         }
         super.tick();
         if (this.tickCount > LIFETIME_TICKS) {
@@ -292,8 +354,31 @@ public class ThrownBambooEntity extends AbstractArrow {
         if (this.level().isClientSide) {
             return;
         }
-        remountHungPlayers();
-        unstickRiders();
+        if (!this.pinned) {
+            this.sweepHang();
+        }
+        this.remountHungPlayers();
+        this.unstickRiders();
+    }
+
+    /** 飞行中用整根竹杆扫掠挂人：命中判定覆盖杆头到杆尾，比原版箭矢判定大得多。 */
+    private void sweepHang() {
+        if (this.hungPlayers.size() >= MAX_HANG) {
+            return;
+        }
+        Vec3 forward = this.forward();
+        Vec3 start = this.position().add(forward.scale(-TAIL_REACH));
+        Vec3 end = this.position().add(forward.scale(TIP_REACH));
+        AABB poleBox = new AABB(start, end).inflate(HIT_INFLATE);
+        EntityHitResult hit = ProjectileUtil.getEntityHitResult(this.level(), this, start, end, poleBox,
+                entity -> entity instanceof ServerPlayer target
+                        && target != this.getOwner()
+                        && GameUtils.isPlayerAliveAndSurvival(target)
+                        && !this.hungPlayers.contains(target.getUUID()),
+                (float) (end.distanceToSqr(start) + 1.0D));
+        if (hit != null && hit.getEntity() instanceof ServerPlayer target) {
+            this.hangPlayer(target, hit.getLocation());
+        }
     }
 
     private void remountHungPlayers() {
@@ -312,7 +397,7 @@ public class ThrownBambooEntity extends AbstractArrow {
         });
     }
 
-    /** 兜底：万一玩家还是嵌在方块里（贴墙飞行 / 斜插墙体），立刻挪到最近的空位。 */
+    /** 兜底：万一玩家还是嵌在方块里，找安全位；找不到就下竹落地，绝不把人传送到墙对面。 */
     private void unstickRiders() {
         for (Entity passenger : this.getPassengers()) {
             if (!(passenger instanceof ServerPlayer player)) {
@@ -321,10 +406,16 @@ public class ThrownBambooEntity extends AbstractArrow {
             if (this.level().noCollision(player.getBoundingBox())) {
                 continue;
             }
-            // 兜底：找不到空位就先拉回竹子本身所在的格子（钉墙时该位置已验证是空的）
             Vec3 safe = this.findFreeSpot(player, player.position());
             if (safe == null) {
-                safe = this.position();
+                safe = this.findGroundSpot(player, this.getX(), this.getY(), this.getZ());
+            }
+            if (safe == null) {
+                if (player.getVehicle() == this) {
+                    player.stopRiding();
+                }
+                this.hungPlayers.remove(player.getUUID());
+                continue;
             }
             player.teleportTo(player.serverLevel(), safe.x, safe.y, safe.z, Set.of(), player.getYRot(),
                     player.getXRot());
@@ -332,14 +423,14 @@ public class ThrownBambooEntity extends AbstractArrow {
     }
 
     /**
-     * 在 base 附近找空位：只在水平面、沿飞行反方向后退。
+     * 在 base 附近找空位：水平面上沿飞行反方向后退，可略向下；
      * 必须能从竹子本体看到该点，避免把人放到墙对面。
      */
     private Vec3 findFreeSpot(Entity entity, Vec3 base) {
-        Level level = this.level();
         AABB box = entity.getBoundingBox();
         Vec3 origin = entity.position();
-        Vec3 locked = new Vec3(base.x, this.getY(), base.z);
+        double lockedY = this.getY();
+        Vec3 locked = new Vec3(base.x, lockedY, base.z);
         if (isOpenAndVisible(entity, box, origin, locked)) {
             return locked;
         }
@@ -349,21 +440,37 @@ public class ThrownBambooEntity extends AbstractArrow {
         double bestDistance = Double.MAX_VALUE;
         for (double backStep = 0.0; backStep <= 2.5; backStep += 0.5) {
             for (double sideStep = -1.0; sideStep <= 1.0; sideStep += 0.5) {
-                Vec3 candidate = new Vec3(
-                        locked.x + back.x * backStep + right.x * sideStep,
-                        this.getY(),
-                        locked.z + back.z * backStep + right.z * sideStep);
-                if (!isOpenAndVisible(entity, box, origin, candidate)) {
-                    continue;
-                }
-                double distance = candidate.distanceToSqr(locked);
-                if (distance < bestDistance) {
-                    bestDistance = distance;
-                    best = candidate;
+                for (double downStep = 0.0; downStep <= 1.5; downStep += 0.5) {
+                    Vec3 candidate = new Vec3(
+                            locked.x + back.x * backStep + right.x * sideStep,
+                            lockedY - downStep,
+                            locked.z + back.z * backStep + right.z * sideStep);
+                    if (!isOpenAndVisible(entity, box, origin, candidate)) {
+                        continue;
+                    }
+                    double distance = candidate.distanceToSqr(locked);
+                    if (distance < bestDistance) {
+                        bestDistance = distance;
+                        best = candidate;
+                    }
                 }
             }
         }
         return best;
+    }
+
+    /** 从竹子位置垂直向下找能站人的点（同侧，有视线）。 */
+    private Vec3 findGroundSpot(Entity entity, double x, double y, double z) {
+        AABB box = entity.getBoundingBox();
+        Vec3 origin = entity.position();
+        double lowest = Math.max(this.level().getMinBuildHeight() + 1.0, y - 4.0);
+        for (double yy = y; yy >= lowest; yy -= 0.25) {
+            Vec3 candidate = new Vec3(x, yy, z);
+            if (isOpenAndVisible(entity, box, origin, candidate)) {
+                return candidate;
+            }
+        }
+        return null;
     }
 
     private boolean isOpenAndVisible(Entity entity, AABB box, Vec3 origin, Vec3 candidate) {
@@ -377,11 +484,8 @@ public class ThrownBambooEntity extends AbstractArrow {
     }
 
     private Vec3 forward() {
-        Vec3 dir = this.calculateViewVector(0.0f, this.getYRot());
-        if (dir.lengthSqr() < 1.0E-8) {
-            return new Vec3(0.0, 0.0, 1.0);
-        }
-        return new Vec3(dir.x, 0.0, dir.z).normalize();
+        float yaw = this.getFacingYaw() * Mth.DEG_TO_RAD;
+        return new Vec3(-Mth.sin(yaw), 0.0, Mth.cos(yaw));
     }
 
     private static Vec3 rightOf(Vec3 dir) {
@@ -390,6 +494,14 @@ public class ThrownBambooEntity extends AbstractArrow {
             return new Vec3(1.0, 0.0, 0.0);
         }
         return right.normalize();
+    }
+
+    private static float yawFrom(Vec3 dir) {
+        Vec3 flat = new Vec3(dir.x, 0.0, dir.z);
+        if (flat.lengthSqr() < 1.0E-6) {
+            return 0.0F;
+        }
+        return (float) (Mth.atan2(-flat.x, flat.z) * Mth.RAD_TO_DEG);
     }
 
     // ------------------------------------------------------------------ 存档
@@ -424,7 +536,6 @@ public class ThrownBambooEntity extends AbstractArrow {
             compoundTag.putDouble("PinY", this.pinPos.y);
             compoundTag.putDouble("PinZ", this.pinPos.z);
             compoundTag.putFloat("PinYaw", this.pinYaw);
-            compoundTag.putFloat("PinPitch", this.pinPitch);
         }
     }
 
@@ -441,7 +552,6 @@ public class ThrownBambooEntity extends AbstractArrow {
             this.pinPos = new Vec3(compoundTag.getDouble("PinX"), compoundTag.getDouble("PinY"),
                     compoundTag.getDouble("PinZ"));
             this.pinYaw = compoundTag.getFloat("PinYaw");
-            this.pinPitch = compoundTag.getFloat("PinPitch");
         }
     }
 }
