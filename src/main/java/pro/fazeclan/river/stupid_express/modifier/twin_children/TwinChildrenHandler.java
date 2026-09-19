@@ -113,10 +113,6 @@ public final class TwinChildrenHandler {
         return TwinChildrenHitbox.stackedWidthScale(currentUnscaledWidth);
     }
 
-    public static float upperWidthScale(float currentUnscaledWidth) {
-        return TwinChildrenHitbox.upperWidthScale(currentUnscaledWidth);
-    }
-
     public static double stackedPassengerAttachmentY(float vehicleScale, double passengerVehicleAttachY) {
         return TwinChildrenHitbox.stackedPassengerAttachmentY(vehicleScale, passengerVehicleAttachY);
     }

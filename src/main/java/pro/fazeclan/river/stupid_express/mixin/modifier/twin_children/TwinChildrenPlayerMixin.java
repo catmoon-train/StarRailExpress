@@ -48,7 +48,7 @@ public abstract class TwinChildrenPlayerMixin {
         }
         if (TwinChildrenHandler.isStackedUpper(self)) {
             float heightScale = TwinChildrenHandler.upperHeightScale(dimensions.height());
-            float widthScale = TwinChildrenHandler.upperWidthScale(dimensions.width());
+            float widthScale = TwinChildrenHandler.stackedWidthScale(dimensions.width());
             if (isIdentity(heightScale) && isIdentity(widthScale)) {
                 return dimensions;
             }

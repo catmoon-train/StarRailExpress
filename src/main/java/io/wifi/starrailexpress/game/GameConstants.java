@@ -106,7 +106,7 @@ public class GameConstants {
     public static int MINIGAME_ROTATION_MAX_NORMAL_TASKS = 3;
     // 理智流失：单个任务从满到空的时间，4分钟→6分钟，减轻任务treadmill
     public static float MOOD_DRAIN = 1f / getInTicks(6, 0);
-    public static int TIME_TO_FIRST_TASK = getInTicks(0, 30);
+    public static int TIME_TO_FIRST_TASK = getInTicks(0, 5);
     public static int MIN_TASK_COOLDOWN = getInTicks(0, 40);
     public static int MAX_TASK_COOLDOWN = getInTicks(1, 15);
 

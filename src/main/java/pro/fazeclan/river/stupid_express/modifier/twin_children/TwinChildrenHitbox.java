@@ -117,31 +117,20 @@ public final class TwinChildrenHitbox {
     }
 
     /**
-     * Extra scale applied to the <em>upper</em> twin's rendered model, and to its
-     * collision box as well.
+     * Extra scale applied to the <em>upper</em> twin's rendered model.
      *
      * <p>
      * The upper twin's entity - and therefore its model - already sits on the
      * lower twin's collision top ({@code 1.3}) with no extra drop, and its
      * collision box spans {@code 1.3..1.8}, i.e. 0.5 world. A whole model would be
-     * drawn 0.9 tall and stick out above the pair, so both the model and the box
-     * are taken down to
+     * drawn 0.9 tall and stick out above the pair, so it is scaled to
      * {@code UPPER_COLLISION_HEIGHT / (VISUAL_STANDING_HEIGHT * HALF_SCALE_FACTOR)
-     * = 0.5 / 0.9 = 0.5556}. The box is scaled uniformly, so the width follows the
-     * height instead of staying at the lower twin's 0.3.
+     * = 0.5 / 0.9 = 0.5556} to fill exactly that box. The collision width is not
+     * tied to it and stays {@link #STACKED_COLLISION_WIDTH}.
      */
     public static float upperModelScaleFactor() {
         float naturalUpperHeight = VISUAL_STANDING_HEIGHT * HALF_SCALE_FACTOR;
         return UPPER_COLLISION_HEIGHT / naturalUpperHeight;
-    }
-
-    /**
-     * Width multiplier for the upper twin's collision so it shrinks with
-     * {@link #upperModelScaleFactor()} instead of keeping the lower twin's width.
-     */
-    public static float upperWidthScale(float currentUnscaledWidth) {
-        return heightScaleTo(currentUnscaledWidth,
-                STACKED_UNSCALED_WIDTH * upperModelScaleFactor());
     }
 
     /** World Y of the invisible seat sitting on the lower twin's visual head. */
