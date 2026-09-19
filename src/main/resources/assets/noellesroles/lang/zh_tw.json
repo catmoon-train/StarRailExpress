@@ -4895,6 +4895,7 @@
   "death_reason.noellesroles.missing_lungs": "窒息",
   "item.noellesroles.loan_contract.desc": "右鍵償還貸款本金和利息。",
 <<<<<<< HEAD
+<<<<<<< HEAD
   "message.noellesroles.loan.request_pending": "你已有一個等待接受的貸款請求，請等待10秒超時後再試。"
   ,"item.noellesroles.insurance": "保險"
   ,"item.noellesroles.insurance.status.unsigned": "狀態：未簽訂"
@@ -4937,6 +4938,8 @@
   ,"item.noellesroles.bamboo_spear.no_durability": "竹槍已經損壞"
   ,"item.noellesroles.bamboo_spear.tooltip.durability": "耐久：%s/%s"
 =======
+=======
+>>>>>>> origin/master
   "message.noellesroles.loan.request_pending": "你已有一個等待接受的貸款請求，請等待10秒超時後再試。",
   "item.noellesroles.insurance": "保險",
   "item.noellesroles.insurance.status.unsigned": "狀態：未簽訂",
@@ -4982,5 +4985,8 @@
   "message.noellesroles.cavalry.shop_need_spear": "需要把矛放在快捷欄中",
   "message.noellesroles.cavalry.shop_already_enchanted": "這把矛已經附魔過突進了",
   "message.noellesroles.cavalry.shop_lunge_lore": "為快捷欄中的地獄合金矛附魔突進 III（一局一次）"
+<<<<<<< HEAD
+>>>>>>> origin/master
+=======
 >>>>>>> origin/master
 }

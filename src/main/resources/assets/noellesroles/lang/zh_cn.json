@@ -5330,6 +5330,7 @@
   "message.noellesroles.terminal.error.invalid_item": "该物品不在终端可用列表中。",
   "message.noellesroles.terminal.error.unknown_command": "未知指令，终端无法识别。",
 <<<<<<< HEAD
+<<<<<<< HEAD
   "announcement.star.role.nature_spirit": "自然精灵",
   "announcement.star.goals.nature_spirit": "隐于草木，猎杀所有乘客。",
   "skill.noellesroles.nature_spirit.camouflage": "叶隐",
@@ -5341,6 +5342,8 @@
   "item.noellesroles.bamboo_spear.tooltip.durability": "耐久：%s/%s"
 }
 =======
+=======
+>>>>>>> origin/master
   "announcement.star.role.cavalry": "骑兵",
   "announcement.star.goals.cavalry": "驾上你的坐骑，用长矛守护列车的秩序！",
   "item.noellesroles.netherite_spear": "下界合金矛",
@@ -5355,4 +5358,7 @@
   "message.noellesroles.cavalry.shop_already_enchanted": "这把矛已经附魔过突进了",
   "message.noellesroles.cavalry.shop_lunge_lore": "为快捷栏中的下界合金矛附魔突进 III（一局一次）"
 }
+<<<<<<< HEAD
+>>>>>>> origin/master
+=======
 >>>>>>> origin/master

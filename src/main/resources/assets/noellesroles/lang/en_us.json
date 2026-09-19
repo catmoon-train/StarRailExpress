@@ -1,5 +1,6 @@
 {
 <<<<<<< HEAD
+<<<<<<< HEAD
     "entity.noellesroles.rainbow_horse": "Hyman Rainbow Horse",
     "item.noellesroles.rainbow_horseshoe": "Rainbow Horseshoe",
     "item.noellesroles.rainbow_horseshoe.tooltip": "Right-click to summon a Hyman Rainbow Horse from the sky, can be ridden by two players, disappears after 120 seconds",
@@ -4677,6 +4678,8 @@
     "mob_effect.noellesroles.tomato_sauce": "Tomato Sauce",
     "subtitles.noellesroles.tomato_splat": "Tomato splat",
 =======
+=======
+>>>>>>> origin/master
   "entity.noellesroles.rainbow_horse": "Hyman Rainbow Horse",
   "item.noellesroles.rainbow_horseshoe": "Rainbow Horseshoe",
   "item.noellesroles.rainbow_horseshoe.tooltip": "Right-click to summon a Hyman Rainbow Horse from the sky, can be ridden by two players, disappears after 120 seconds",
@@ -9352,6 +9355,9 @@
   "mob_effect.noellesroles.tomato_form": "Tomato Form",
   "mob_effect.noellesroles.tomato_sauce": "Tomato Sauce",
   "subtitles.noellesroles.tomato_splat": "Tomato splat",
+<<<<<<< HEAD
+>>>>>>> origin/master
+=======
 >>>>>>> origin/master
   "announcement.star.role.echo_listener": "Echo Listener",
   "announcement.star.role.noellesroles.echo_listener": "Echo Listener",
@@ -9416,6 +9422,7 @@
   "message.noellesroles.loan.penalty.tongue": "You lost your tongue: speech is disabled.",
   "message.noellesroles.loan.penalty.ear": "You lost an ear: Muffled Hearing II.",
   "item.noellesroles.loan_contract.desc": "Right-click to repay the loan principal and interest.",
+<<<<<<< HEAD
 <<<<<<< HEAD
   "message.noellesroles.loan.request_pending": "You already have a pending loan request. Wait 10 seconds for it to expire."
   ,"item.noellesroles.insurance": "Insurance"
@@ -9511,6 +9518,8 @@
   ,"item.noellesroles.bamboo_spear.no_durability": "The bamboo spear is broken"
   ,"item.noellesroles.bamboo_spear.tooltip.durability": "Durability: %s/%s"
 =======
+=======
+>>>>>>> origin/master
   "message.noellesroles.loan.request_pending": "You already have a pending loan request. Wait 10 seconds for it to expire.",
   "item.noellesroles.insurance": "Insurance",
   "item.noellesroles.insurance.status.unsigned": "Status: unsigned",
@@ -9608,5 +9617,8 @@
   "message.noellesroles.cavalry.shop_need_spear": "Put the spear in your hotbar first",
   "message.noellesroles.cavalry.shop_already_enchanted": "This spear is already enchanted with Lunge",
   "message.noellesroles.cavalry.shop_lunge_lore": "Enchants the spear in your hotbar with Lunge III (once per round)"
+<<<<<<< HEAD
+>>>>>>> origin/master
+=======
 >>>>>>> origin/master
 }

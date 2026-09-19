@@ -1,5 +1,6 @@
 {
 <<<<<<< HEAD
+<<<<<<< HEAD
     "item.noellesroles.crystal_ball.desc": "For fortune tellers only. Right-click on the corpse and start casting for 10 seconds (stay still during the period). After completion, the time of death + random murderer clues will be revealed (choose one of three: murderer alive/dead + name, murderer role, murderer global highlight for 1 second). 50% chance of breaking, 60 seconds cooldown. If the divination object is a corpse disguised as a Deathrattle Killer, it is deemed that he stabbed himself to death with a knife.",
     "item.noellesroles.deduction_book.desc": "For the Great Detective. Right-click to review clues; right-click a corpse and stay still to investigate. Each page is one killer; at 3+ clues you may check position or vitality.",
     "item.exposure.photograph_frame.desc": "Special props for photographers. The price is 200 coin, and you can buy up to two times in one game. Can also be placed in Adventure mode. After placing the photo taken by the photographer into the frame, any player who passes through the frame can be teleported to the location where the photo was taken; each time they pass through, they will be blinded for 3 seconds and need to be cooled down for 3 seconds before they can pass through again. The round starts by clearing only the frames placed by the photographer.",
@@ -237,6 +238,8 @@
     "item.trainmurdermystery.weak_defense_vial.desc": "Weak shield vial. Desperados can drink it; others can pour it onto a tray. Grants a ~20s weak shield that blocks one knife hit.",
     "item.noellesroles.sanity_meds.desc": "Repair-mode sedative. Restores 40 sanity. Darkness and nearby pursuers still drain sanity."
 =======
+=======
+>>>>>>> origin/master
   "item.noellesroles.crystal_ball.desc": "For fortune tellers only. Right-click on the corpse and start casting for 10 seconds (stay still during the period). After completion, the time of death + random murderer clues will be revealed (choose one of three: murderer alive/dead + name, murderer role, murderer global highlight for 1 second). 50% chance of breaking, 60 seconds cooldown. If the divination object is a corpse disguised as a Deathrattle Killer, it is deemed that he stabbed himself to death with a knife.",
   "item.noellesroles.deduction_book.desc": "For the Great Detective. Right-click to review clues; right-click a corpse and stay still to investigate. Each page is one killer; at 3+ clues you may check position or vitality.",
   "item.exposure.photograph_frame.desc": "Special props for photographers. The price is 200 coin, and you can buy up to two times in one game. Can also be placed in Adventure mode. After placing the photo taken by the photographer into the frame, any player who passes through the frame can be teleported to the location where the photo was taken; each time they pass through, they will be blinded for 3 seconds and need to be cooled down for 3 seconds before they can pass through again. The round starts by clearing only the frames placed by the photographer.",
@@ -474,5 +477,8 @@
   "item.trainmurdermystery.weak_defense_vial.desc": "Weak shield vial. Desperados can drink it; others can pour it onto a tray. Grants a ~20s weak shield that blocks one knife hit.",
   "item.noellesroles.sanity_meds.desc": "Repair-mode sedative. Restores 40 sanity. Darkness and nearby pursuers still drain sanity.",
   "item.noellesroles.netherite_spear.desc": "The Cavalry's weapon. A fully charged left-click thrust pierces several targets; right-click braces the spear and charges, dealing more damage the faster you move. Damage dealt to players is converted into double virtual damage, and death uses the \"spear\" death reason. Only roles with the special vanilla weapon permission can kill with it."
+<<<<<<< HEAD
+>>>>>>> origin/master
+=======
 >>>>>>> origin/master
 }
