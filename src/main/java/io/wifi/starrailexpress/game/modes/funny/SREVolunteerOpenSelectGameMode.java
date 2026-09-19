@@ -22,6 +22,7 @@ import io.wifi.starrailexpress.cca.SREGameTimeComponent;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.cca.SREPlayerMoodComponent;
 import io.wifi.starrailexpress.cca.SREPlayerShopComponent;
+import io.wifi.starrailexpress.cca.SREPlayerTaskComponent;
 import io.wifi.starrailexpress.cca.SRERoleWorldComponent;
 import io.wifi.starrailexpress.event.OnGameTrueStarted;
 import io.wifi.starrailexpress.game.GameConstants;
@@ -343,6 +344,9 @@ public class SREVolunteerOpenSelectGameMode extends SREMurderGameMode {
             SREPlayerMoodComponent mood = SREPlayerMoodComponent.KEY.get(p);
             mood.setMood(1);
             mood.sync();
+            
+            SREPlayerTaskComponent task = SREPlayerTaskComponent.KEY.get(p);
+            task.nextTaskTimer = GameConstants.TIME_TO_FIRST_TASK;
         });
         OnGameTrueStarted.EVENT.invoker().onGameTrueStarted(world);
         SREGameTimeComponent.KEY.get(world).setTimeFrozen(false);
