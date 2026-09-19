@@ -106,11 +106,9 @@ public class ThrownBambooItem extends Item implements ChargeableItem, TrainWeapo
             }
             horiz = horiz.normalize();
             bamboo.shoot(horiz.x, 0.0, horiz.z, ThrownBambooEntity.THROW_SPEED, 1.0f);
-            bamboo.setYRot(user.getYRot());
-            bamboo.setXRot(0.0f);
+            bamboo.setThrownDirection(horiz);
             bamboo.setOwner(user);
             world.addFreshEntity(bamboo);
-
             ServerLevel serverLevel = serverPlayer.serverLevel();
             serverLevel.players().forEach(p -> serverLevel.playSound(p, bamboo.getX(), bamboo.getY(), bamboo.getZ(),
                     SoundEvents.TRIDENT_THROW, SoundSource.PLAYERS, 1.0f, 1.2f));

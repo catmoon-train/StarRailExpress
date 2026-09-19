@@ -48,7 +48,7 @@ public class ThrownBambooRenderer extends EntityRenderer<ThrownBambooEntity> {
             return;
         }
 
-        Vec3 direction = entity.getViewVector(partialTick);
+        Vec3 direction = Vec3.directionFromRotation(0.0F, entity.getRenderYaw(partialTick));
         poseStack.pushPose();
         BambooPoleGeometry.orient(poseStack, direction);
         BambooPoleGeometry.render(poseStack, bufferSource, packedLight, -ThrownBambooEntity.TAIL_REACH,
