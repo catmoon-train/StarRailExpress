@@ -1571,7 +1571,7 @@ public class NoellesrolesClient implements ClientModInitializer {
                 ModItems.NETHERITE_SPEAR,
                 Noellesroles.id("in_gui"),
                 (stack, world, entity, seed) ->
-                        entity == null && stack.getFrame() == null ? 1.0F : 0.0F);
+                        entity != null && stack.getFrame() == null ? 0.0F : 1.0F);
 
         // 4. 设置物品回调
         setupItemCallbacks();

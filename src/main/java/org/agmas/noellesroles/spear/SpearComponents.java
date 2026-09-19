@@ -45,11 +45,12 @@ public final class SpearComponents {
 
         /** 判断攻击方能否命中该目标。 */
         public static boolean canHit(Entity attacker, Entity target) {
-            if (target == attacker || !target.isAttackable() || target.isInvulnerable() || !target.isAlive()) {
+            if (target == attacker || !target.canBeHitByProjectile() || target.isInvulnerable()
+                    || !target.isAlive()) {
                 return false;
             }
-            // 同一载具上的乘客互不伤害
-            return target.getVehicle() != attacker && attacker.getVehicle() != target;
+            // 同一载具上的乘客互不伤害。
+            return !attacker.isPassengerOfSameVehicle(target);
         }
 
         /** 播放挥矛音效（只给玩家播，避免刷屏）。 */
@@ -124,12 +125,12 @@ public final class SpearComponents {
             if (!(owner instanceof Player) && owner.isPassenger()) {
                 owner = owner.getRootVehicle();
             }
-            net.minecraft.world.phys.Vec3 movement = owner.getDeltaMovement();
-            net.minecraft.world.phys.Vec3 positionalMovement = owner.position()
-                    .subtract(owner.xo, owner.yo, owner.zo);
-            if (positionalMovement.lengthSqr() > movement.lengthSqr()) {
-                movement = positionalMovement;
-            }
+            // Yarn's PlayerEntity#getMovement used by Backported-Spears maps to
+            // Mojmap's getKnownMovement on 1.21.1. Use that value for players;
+            // raw delta movement can be stale/zero during server-side movement.
+            net.minecraft.world.phys.Vec3 movement = owner instanceof Player player
+                    ? player.getKnownMovement()
+                    : owner.position().subtract(owner.xo, owner.yo, owner.zo);
 
             // 乘坐模组坐骑时，玩家本身在部分服务端 tick 中的位移仍可能接近 0，
             // 导致右键冲锋永远达不到原版矛的速度条件。使用坐骑实际位移作为兜底，

@@ -3,6 +3,8 @@ package org.agmas.noellesroles.mixin.client.spear;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.llamalad7.mixinextras.sugar.Local;
+import com.llamalad7.mixinextras.sugar.Share;
+import com.llamalad7.mixinextras.sugar.ref.LocalBooleanRef;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
 import net.minecraft.client.Minecraft;
@@ -63,9 +65,23 @@ public class ItemInHandRendererSpearMixin {
                     "Lnet/minecraft/world/item/UseAnim;", shift = At.Shift.AFTER))
     private void spear$renderFirstPersonCharge(AbstractClientPlayer player, float partialTicks, float pitch,
             InteractionHand hand, float swingProgress, ItemStack stack, float equippedProgress, PoseStack poseStack,
-            MultiBufferSource buffer, int light, CallbackInfo ci) {
+            MultiBufferSource buffer, int light, CallbackInfo ci, @Share("suppress") LocalBooleanRef suppress) {
         if (SpearConfig.isSpear(stack) && player.isUsingItem() && player.getUsedItemHand() == hand) {
             spear$applyChargePose(poseStack, player, stack, hand, partialTicks);
+            suppress.set(true);
+        }
+    }
+
+    /** 参考 Backported-Spears：自定义举矛动作已经包含手部锚点，禁止原版再次叠加装备偏移。 */
+    @WrapOperation(method = "renderArmWithItem", at = @At(value = "INVOKE", target =
+            "Lnet/minecraft/client/renderer/ItemInHandRenderer;applyItemArmTransform(" +
+                    "Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/world/entity/HumanoidArm;F)V",
+            ordinal = 2))
+    private void spear$suppressEquipOffsetForCharge(ItemInHandRenderer instance, PoseStack poseStack,
+            HumanoidArm arm, float equippedProgress, Operation<Void> original,
+            @Share("suppress") LocalBooleanRef suppress) {
+        if (!suppress.get()) {
+            original.call(instance, poseStack, arm, equippedProgress);
         }
     }
 
