@@ -77,6 +77,9 @@ public class ItemInHandRendererSpearMixin {
         SpearAnim.HoldUpAnimation anim = SpearAnim.HoldUpAnimation.play(SpearConfig.kinetic(), used);
         HumanoidArm arm = hand == InteractionHand.MAIN_HAND ? player.getMainArm() : player.getMainArm().getOpposite();
         int side = arm == HumanoidArm.RIGHT ? 1 : -1;
+        // Backported-Spears' vanilla hand anchor. Without it the custom pose
+        // starts from the center and appears on the left side of the screen.
+        poseStack.translate(side * 0.56F, -0.52F, -0.72F);
         poseStack.translate(
                 side * (anim.raiseProgress() * 0.15F + anim.raiseProgressEnd() * -0.05F
                         + anim.swayProgress() * -0.1F + anim.swayScaleSlow() * 0.005F),

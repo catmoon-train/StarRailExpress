@@ -13,6 +13,7 @@ import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -27,6 +28,15 @@ public abstract class LivingEntitySpearMixin implements SpearUser {
     private long spear$lastKineticAttackTime = -1L;
     @Unique
     private final Map<Entity, Long> spear$piercingCooldowns = new HashMap<>();
+
+    /** 使用矛自身的 23 tick 挥击时长，而不是原版默认的 6 tick。 */
+    @Inject(method = "getCurrentSwingDuration", at = @At("HEAD"), cancellable = true)
+    private void spear$useLongerSwing(CallbackInfoReturnable<Integer> cir) {
+        LivingEntity self = (LivingEntity) (Object) this;
+        if (SpearConfig.isSpear(self.getMainHandItem()) || SpearConfig.isSpear(self.getOffhandItem())) {
+            cir.setReturnValue(SpearConfig.SWING.swingTicks());
+        }
+    }
 
     @Inject(method = "startUsingItem", at = @At("HEAD"))
     private void spear$startCharge(InteractionHand hand, CallbackInfo ci) {

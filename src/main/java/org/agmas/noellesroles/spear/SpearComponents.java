@@ -124,9 +124,12 @@ public final class SpearComponents {
             if (!(owner instanceof Player) && owner.isPassenger()) {
                 owner = owner.getRootVehicle();
             }
-            net.minecraft.world.phys.Vec3 movement = owner instanceof Player player
-                    ? player.getDeltaMovement()
-                    : owner.position().subtract(owner.xo, owner.yo, owner.zo);
+            net.minecraft.world.phys.Vec3 movement = owner.getDeltaMovement();
+            net.minecraft.world.phys.Vec3 positionalMovement = owner.position()
+                    .subtract(owner.xo, owner.yo, owner.zo);
+            if (positionalMovement.lengthSqr() > movement.lengthSqr()) {
+                movement = positionalMovement;
+            }
 
             // 乘坐模组坐骑时，玩家本身在部分服务端 tick 中的位移仍可能接近 0，
             // 导致右键冲锋永远达不到原版矛的速度条件。使用坐骑实际位移作为兜底，

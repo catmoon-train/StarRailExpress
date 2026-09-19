@@ -255,7 +255,10 @@ public final class SpearCombat {
         Vec3 look = entity.getViewVector(1.0F);
         Vec3 eye = entity.getEyePosition();
         Vec3 from = eye.add(look.scale(minReach));
-        double forward = entity.getDeltaMovement().dot(look);
+        // A passenger's own delta movement can be zero while the mount is moving.
+        // Keep the collision segment consistent with the mounted-aware speed test.
+        double forward = SpearComponents.KineticWeapon.getAmplifiedMovement(entity)
+                .scale(1.0D / 20.0D).dot(look);
         Vec3 to = eye.add(look.scale(maxReach + Math.max(0.0, forward)));
         return collectPiercingCollisions(entity, eye, from, hitPredicate, to, hitboxMargin);
     }
