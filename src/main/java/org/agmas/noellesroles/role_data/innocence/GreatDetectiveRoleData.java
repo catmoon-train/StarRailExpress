@@ -25,6 +25,7 @@ import io.wifi.starrailexpress.game.GameUtils;
 import io.wifi.starrailexpress.util.SRENetworkMessageUtils;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.HolderLookup;
+import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
@@ -453,12 +454,20 @@ public class GreatDetectiveRoleData extends SimpleRoleData {
     }
 
     private void playChannelStartFx(ServerPlayer sp) {
-        // 推理尸体不播放任何粒子特效，翻书音效仅对大侦探自己客户端播放
+        // 推理尸体粒子仅对大侦探自己显示，翻书音效仅自己可听
+        if (sp.level() instanceof ServerLevel sl) {
+            sl.sendParticles(sp, ParticleTypes.SMOKE, true,
+                    sp.getX(), sp.getY() + 1.2, sp.getZ(), 6, 0.2, 0.2, 0.2, 0.01);
+        }
         sp.playSound(SoundEvents.BOOK_PAGE_TURN, 0.7f, 0.9f);
     }
 
     public void playCompleteFx(ServerPlayer sp) {
-        // 推理尸体不播放任何粒子特效，附魔音效仅对大侦探自己客户端播放
+        // 推理尸体粒子仅对大侦探自己显示，附魔音效仅自己可听
+        if (sp.level() instanceof ServerLevel sl) {
+            sl.sendParticles(sp, ParticleTypes.ENCHANT, true,
+                    sp.getX(), sp.getY() + 1.2, sp.getZ(), 16, 0.3, 0.4, 0.3, 0.12);
+        }
         sp.playSound(SoundEvents.ENCHANTMENT_TABLE_USE, 0.6f, 1.2f);
     }
 
