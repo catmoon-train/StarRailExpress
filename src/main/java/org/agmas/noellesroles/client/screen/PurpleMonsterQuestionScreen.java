@@ -15,11 +15,12 @@ public final class PurpleMonsterQuestionScreen extends Screen {
     // made the screen show only a vertically distorted part of the panel.
     private static final int TEXTURE_WIDTH = 1451;
     private static final int TEXTURE_HEIGHT = 1084;
-    // Full visible panel bounds in the 1536x1536 PNG, including its outer shadow.
-    private static final int SOURCE_X = 120;
-    private static final int SOURCE_Y = 76;
-    private static final int SOURCE_WIDTH = 1200;
-    private static final int SOURCE_HEIGHT = 946;
+    // Draw the complete PNG instead of cropping it to the visible panel. This keeps
+    // the transparent margin and guarantees that the image itself is shown in full.
+    private static final int SOURCE_X = 0;
+    private static final int SOURCE_Y = 0;
+    private static final int SOURCE_WIDTH = TEXTURE_WIDTH;
+    private static final int SOURCE_HEIGHT = TEXTURE_HEIGHT;
     private static final int TITLE_CENTER_X = 1096;
     private static final int TITLE_CENTER_Y = 317;
     private static final int ESCAPE_CENTER_X = 725;
@@ -30,10 +31,14 @@ public final class PurpleMonsterQuestionScreen extends Screen {
     private static final int DESTROY_Y1 = 770;
     private static final int DESTROY_X2 = 1253;
     private static final int DESTROY_Y2 = 895;
-    // Same fixed-panel approach as InsuranceScreen. The source PNG itself is larger than
-    // the panel, so only the complete panel region below is mapped into this size.
+    // Base size used by the previous version. The question panel is intentionally
+    // rendered at a little over half of that size so the complete PNG panel remains
+    // visible without covering the whole screen.
     private static final int PANEL_WIDTH = 512;
     private static final int PANEL_HEIGHT = 404;
+    private static final double PANEL_SCALE = 0.56D;
+    private static final int GUI_MARGIN_LEFT = 20;
+    private static final int GUI_MARGIN_TOP = 30;
     private static final net.minecraft.resources.ResourceLocation BACKGROUND = Noellesroles.id(
             "textures/gui/purple_monster_event_background.png");
     private final UUID eventId;
@@ -46,7 +51,6 @@ public final class PurpleMonsterQuestionScreen extends Screen {
 
     @Override
     public void render(GuiGraphics graphics, int mouseX, int mouseY, float delta) {
-        this.renderBackground(graphics, mouseX, mouseY, delta);
         int width = guiWidth();
         int height = guiHeight(width);
         int left = guiLeft(width);
@@ -101,18 +105,21 @@ public final class PurpleMonsterQuestionScreen extends Screen {
     }
 
     private int guiWidth() {
-        int widthLimit = Math.max(1, Math.min(PANEL_WIDTH, this.width - 20));
-        int heightLimit = Math.max(1, (this.height - 20) * SOURCE_WIDTH / SOURCE_HEIGHT);
-        return Math.min(widthLimit, heightLimit);
+        int preferredWidth = Math.max(1, (int) Math.round(
+                PANEL_WIDTH * PANEL_SCALE * TEXTURE_WIDTH / 1200.0D));
+        int widthLimit = Math.max(1, this.width - GUI_MARGIN_LEFT - 10);
+        int heightLimit = Math.max(1,
+                (this.height - GUI_MARGIN_TOP - 10) * SOURCE_WIDTH / SOURCE_HEIGHT);
+        return Math.min(preferredWidth, Math.min(widthLimit, heightLimit));
     }
 
     private int guiHeight(int width) {
         return width == PANEL_WIDTH ? PANEL_HEIGHT : width * SOURCE_HEIGHT / SOURCE_WIDTH;
     }
 
-    private int guiLeft(int width) { return (this.width - width) / 2; }
+    private int guiLeft(int width) { return Math.min(GUI_MARGIN_LEFT, this.width - width); }
 
-    private int guiTop(int height) { return (this.height - height) / 2; }
+    private int guiTop(int height) { return Math.min(GUI_MARGIN_TOP, this.height - height); }
 
     @Override
     public boolean shouldCloseOnEsc() { return false; }
