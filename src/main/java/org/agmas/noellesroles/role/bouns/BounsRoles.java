@@ -512,11 +512,12 @@ public class BounsRoles {
     public static SRERole FAT_FISH = TMMRoles.registerRole(new FatFishRole(
             FAT_FISH_ID, // 角色 ID
             new Color(70, 130, 200).getRGB(), // 深海蓝
-            RoleType.NEUTRALS_FOR_INNOCENT,
-            SRERole.MoodType.FAKE, // 真实心情
+            RoleType.CIVILIAN,
+            SRERole.MoodType.REAL, // 真实心情
             TMMRoles.CIVILIAN.getMaxSprintTime(), // 标准体力
             false // 不隐藏计分板
     )).setCanSeeCoin(true)
+            .setSpecialMapRole(MapSpecialFeatures.CAN_JUMP)
             .setRoleData(FatFishRoleData::new)
             .setDefaultMax(1)
             .setDefaultEnableChance(200) // 彩蛋刷新率 2%
