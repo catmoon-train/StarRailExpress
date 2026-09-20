@@ -81,6 +81,7 @@ public class BounsRoles {
     public static final ResourceLocation SCOUT_CAPTAIN_ID = id("scout_captain");
     public static final ResourceLocation FOREST_MUSHROOM_ZOMBIE_ID = id("forest_mushroom_zombie");
     public static final ResourceLocation FAT_FISH_ID = id("fat_fish");
+    public static final ResourceLocation PURPLE_MONSTER_ID = id("purple_monster");
 
     public static ResourceLocation id(String path) {
         return ResourceLocation.fromNamespaceAndPath(NAMESPACE, path);
@@ -524,6 +525,24 @@ public class BounsRoles {
             .setDefaultEnableChance(1000) // 彩蛋刷新率 10%
             .setCanBeRandomedByOtherRoles(false);
 
+    /**
+     * 紫怪：只属于特殊中立阵营。它不属于好人方中立，也不属于杀手方中立。
+     * 事件由 PurpleMonsterRole 按实验室地图和理智条件驱动，职业本身不能自然刷新。
+     */
+    public static SRERole PURPLE_MONSTER = TMMRoles.registerRole(new PurpleMonsterRoleDefinition(
+            PURPLE_MONSTER_ID,
+            new Color(151, 72, 214).getRGB(),
+            RoleType.NEUTRALS,
+            MoodType.FAKE,
+            Integer.MAX_VALUE,
+            true))
+            .setNeutrals(true)
+            .setNeutralForInnocent(false)
+            .setNeutralForKiller(false)
+            .setDefaultMax(0)
+            .setCanBeRandomedByOtherRoles(false)
+            .setSpecialMapRolesCondition(features -> features.contains(MapSpecialFeatures.LAB));
+
     public static void init() {
         THRedHouseRoles.init();
         THMountainRoles.init();
@@ -537,6 +556,7 @@ public class BounsRoles {
     }
 
     public static void registerEvents() {
+        PurpleMonsterRole.registerEvents();
         AllowPlayerDeathWithKiller.EVENT.register((player, killer, deathReason) -> {
             SREGameWorldComponent sreGameWorldComponent = SREGameWorldComponent.KEY.get(player.level());
             if (sreGameWorldComponent.isRole(killer, BounsRoles.CAT_KILLER)) {
@@ -587,6 +607,7 @@ public class BounsRoles {
         SCOUT_CAPTAIN.setAddedVersion("4.4");
         FOREST_MUSHROOM_ZOMBIE.setAddedVersion("4.4");
         FAT_FISH.setAddedVersion("4.4");
+        PURPLE_MONSTER.setAddedVersion("4.4");
         // 森蕈僵尸与童子军绑定生成（分配童子军时也会分配森蕈僵尸）；
         // 它的默认刷新数是 0，所以不会自己单独刷新出来。
         SCOUT.addOccupationRole(FOREST_MUSHROOM_ZOMBIE);

@@ -113,6 +113,9 @@ import java.util.function.Predicate;
 
 public class ModPacketsReciever {
   public static void registerPackets() {
+    ServerPlayNetworking.registerGlobalReceiver(PurpleMonsterEventC2SPacket.ID, (payload, context) ->
+        context.server().execute(() -> org.agmas.noellesroles.role.bouns.roles.PurpleMonsterRole
+            .handleAction(context.player(), payload)));
     ServerPlayNetworking.registerGlobalReceiver(LoanContractSubmitC2SPacket.ID, (payload, context) ->
         context.server().execute(() ->
             org.agmas.noellesroles.game.roles.neutral.lender.LenderRoleHandler.submit(

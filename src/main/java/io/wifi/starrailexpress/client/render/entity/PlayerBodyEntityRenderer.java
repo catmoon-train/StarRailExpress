@@ -186,6 +186,10 @@ public class PlayerBodyEntityRenderer<T extends LivingEntity, M extends EntityMo
                 matrixStack.scale(scale, scale, scale);
 
                 int color = bl2 ? 654311423 : FastColor.ARGB32.color(Mth.floor(alpha * 255.0F), 0xFFFFFF);
+                if (GameConstants.DeathReasons.PURPLE_MONSTER_ASSIMILATION.toString()
+                        .equals(livingEntity.getDeathReason())) {
+                    color = FastColor.ARGB32.color(Mth.floor(alpha * 255.0F), 0xA83BE3);
+                }
                 model.renderToBuffer(matrixStack, vertexConsumer, light, q, color);
                 matrixStack.popPose();
             }

@@ -273,6 +273,7 @@ public class GameConstants {
         public static ResourceLocation RECORDER_MISTAKE = Noellesroles.id("recorder_mistake");
         public static ResourceLocation GAMBLE_SELF_KILL = Noellesroles.id("gamble_self_kill");
         public static ResourceLocation WAYFARER_ERROR = Noellesroles.id("wayfarer_error");
+        public static ResourceLocation PURPLE_MONSTER_ASSIMILATION = Noellesroles.id("purple_monster_assimilation");
         public static ResourceLocation NIANSHOU_FIRECRACKERS = Noellesroles.id("nianshou_firecrackers");
         public static ResourceLocation BATON_KILL = Noellesroles.id("baton_kill");
         public static ResourceLocation BOWEN = Noellesroles.id("bowen");

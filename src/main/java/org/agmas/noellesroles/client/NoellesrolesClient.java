@@ -247,6 +247,7 @@ public class NoellesrolesClient implements ClientModInitializer {
     @Override
     public void onInitializeClient() {
         FakeSteveClient.register();
+        PurpleMonsterClient.register();
         // ClientFakeSteveHuntState.register();
         TimeRewindClientEffect.initialize();
         DynamiclightsEntry.registerClientEvents();

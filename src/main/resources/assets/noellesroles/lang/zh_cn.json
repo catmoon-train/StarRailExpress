@@ -5372,5 +5372,11 @@
   "message.noellesroles.fat_fish.feed": "你给 %s 投喂了团子",
   "message.noellesroles.fat_fish.digesting": "大肥鱼还在消化，%s 秒后才能再喂",
   "item.noellesroles.small_dried_fish": "小鱼干",
-  "item.noellesroles.small_dried_fish.tooltip": "吃下恢复 40 点体力；也能拿去投喂大肥鱼"
+  "item.noellesroles.small_dried_fish.tooltip": "吃下恢复 40 点体力；也能拿去投喂大肥鱼",
+  "announcement.star.role.purple_monster": "紫怪",
+  "announcement.star.role.noellesroles.purple_monster": "紫怪",
+  "announcement.star.goals.purple_monster": "同化足够的玩家，然后依附获胜的阵营获胜",
+  "message.noellesroles.purple_monster.welcome": "你已经成为紫怪",
+  "death_reason.noellesroles.purple_monster_assimilation": "紫怪同化",
+  "command.noellesroles.purple_monster.triggered": "已为 %s 触发紫怪事件"
 }

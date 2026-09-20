@@ -56,6 +56,10 @@ public class ModPackets {
                 FakeSteveControlS2CPacket.CODEC);
         PayloadTypeRegistry.playS2C().register(FakeSteveApparitionS2CPacket.ID,
                 FakeSteveApparitionS2CPacket.CODEC);
+        PayloadTypeRegistry.playS2C().register(PurpleMonsterEventS2CPacket.ID,
+                PurpleMonsterEventS2CPacket.CODEC);
+        PayloadTypeRegistry.playC2S().register(PurpleMonsterEventC2SPacket.ID,
+                PurpleMonsterEventC2SPacket.CODEC);
         // PayloadTypeRegistry.playS2C().register(FakeSteveHuntS2CPacket.ID,
         //         FakeSteveHuntS2CPacket.CODEC);
         PayloadTypeRegistry.playC2S().register(FakeSteveApparitionObservationC2SPacket.ID,
