@@ -18,6 +18,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
@@ -168,7 +169,7 @@ public final class PurpleMonsterClient {
                         ? player.getSkin() : DefaultPlayerSkin.get(close.getUUID());
                 state.playerEntity = new SkinRemotePlayer(client, close.getGameProfile(), state.skinPlayer, skin);
             }
-            state.playerEntity.setPos(state.position.x, state.position.y, state.position.z);
+            stabilizeEntity(state.playerEntity, state.position);
             state.playerEntity.setCustomName(Component.literal("unknown"));
             state.playerEntity.setCustomNameVisible(false);
             return state.playerEntity;
@@ -183,8 +184,30 @@ public final class PurpleMonsterClient {
             state.monsterEntity.setNoGravity(true);
             state.monsterEntity.setCustomName(Component.literal("purple_monster"));
         }
-        state.monsterEntity.setPos(state.position.x, state.position.y, state.position.z);
+        stabilizeEntity(state.monsterEntity, state.position);
         return state.monsterEntity;
+    }
+
+    /**
+     * These client-only entities are not in the level tick list. Keep their previous and
+     * current transforms identical, otherwise the camera interpolates from stale values
+     * every frame and appears to shake during the transformation sequence.
+     */
+    private static void stabilizeEntity(Entity entity, Vec3 position) {
+        entity.setPos(position.x, position.y, position.z);
+        entity.xOld = position.x;
+        entity.yOld = position.y;
+        entity.zOld = position.z;
+        entity.xo = position.x;
+        entity.yo = position.y;
+        entity.zo = position.z;
+        entity.setDeltaMovement(Vec3.ZERO);
+        entity.yRotO = entity.getYRot();
+        entity.xRotO = entity.getXRot();
+        if (entity instanceof LivingEntity living) {
+            living.yBodyRot = living.yBodyRotO = living.getYRot();
+            living.yHeadRot = living.yHeadRotO = living.getYRot();
+        }
     }
 
     private static void clear(Minecraft client) {

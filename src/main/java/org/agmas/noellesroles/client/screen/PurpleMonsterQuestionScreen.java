@@ -27,7 +27,10 @@ public final class PurpleMonsterQuestionScreen extends Screen {
     private static final int DESTROY_Y1 = 770;
     private static final int DESTROY_X2 = 1253;
     private static final int DESTROY_Y2 = 895;
-    private static final int MAX_GUI_WIDTH = 320;
+    // Same fixed-panel approach as InsuranceScreen. The source PNG itself is larger than
+    // the panel, so only the complete panel region below is mapped into this size.
+    private static final int PANEL_WIDTH = 512;
+    private static final int PANEL_HEIGHT = 404;
     private static final net.minecraft.resources.ResourceLocation BACKGROUND = Noellesroles.id(
             "textures/gui/purple_monster_event_background.png");
     private final UUID eventId;
@@ -95,11 +98,14 @@ public final class PurpleMonsterQuestionScreen extends Screen {
     }
 
     private int guiWidth() {
-        return Math.min(MAX_GUI_WIDTH, Math.min(this.width - 20,
-                (this.height - 20) * SOURCE_WIDTH / SOURCE_HEIGHT));
+        int widthLimit = Math.max(1, Math.min(PANEL_WIDTH, this.width - 20));
+        int heightLimit = Math.max(1, (this.height - 20) * SOURCE_WIDTH / SOURCE_HEIGHT);
+        return Math.min(widthLimit, heightLimit);
     }
 
-    private int guiHeight(int width) { return width * SOURCE_HEIGHT / SOURCE_WIDTH; }
+    private int guiHeight(int width) {
+        return width == PANEL_WIDTH ? PANEL_HEIGHT : width * SOURCE_HEIGHT / SOURCE_WIDTH;
+    }
 
     private int guiLeft(int width) { return (this.width - width) / 2; }
 
