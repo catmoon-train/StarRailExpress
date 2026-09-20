@@ -184,6 +184,7 @@ public class NRRulePredicateEvents {
 
     private static void registerDropRules() {
         DropRules.canDropItem.addAll(List.of(
+                "noellesroles:small_dried_fish",
                 "exposure:stacked_photographs",
                 "exposure:album",
                 "exposure:photograph",
