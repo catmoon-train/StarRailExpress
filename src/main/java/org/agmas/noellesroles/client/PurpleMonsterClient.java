@@ -20,9 +20,14 @@ import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 import org.agmas.noellesroles.packet.PurpleMonsterEventC2SPacket;
 import org.agmas.noellesroles.packet.PurpleMonsterEventS2CPacket;
+import org.agmas.noellesroles.packet.PurpleMonsterProgressS2CPacket;
 import org.agmas.noellesroles.client.screen.PurpleMonsterPlayerSelectScreen;
 import org.agmas.noellesroles.client.screen.PurpleMonsterQuestionScreen;
 import io.wifi.starrailexpress.index.TMMEntities;
+import io.wifi.starrailexpress.client.SREClient;
+import io.wifi.utils.client.betterrender.FakeGuiGraphics;
+import org.agmas.noellesroles.client.event.CommonHudRenderCallback;
+import org.agmas.noellesroles.role.bouns.BounsRoles;
 
 import java.util.List;
 import java.util.UUID;
@@ -30,6 +35,8 @@ import java.util.UUID;
 /** Client-only hallucination renderer and the two event screens. */
 public final class PurpleMonsterClient {
     private static EventState state;
+    private static int assimilated;
+    private static int assimilationGoal = 1;
     private static boolean registered;
 
     private PurpleMonsterClient() {}
@@ -39,10 +46,16 @@ public final class PurpleMonsterClient {
         registered = true;
         ClientPlayNetworking.registerGlobalReceiver(PurpleMonsterEventS2CPacket.ID,
                 (packet, context) -> context.client().execute(() -> receive(packet)));
-        ClientPlayConnectionEvents.JOIN.register((handler, sender, client) -> clear(client));
-        ClientPlayConnectionEvents.DISCONNECT.register((handler, client) -> clear(client));
+        ClientPlayNetworking.registerGlobalReceiver(PurpleMonsterProgressS2CPacket.ID,
+                (packet, context) -> context.client().execute(() -> {
+                    assimilated = Math.max(0, packet.assimilated());
+                    assimilationGoal = Math.max(1, packet.goal());
+                }));
+        ClientPlayConnectionEvents.JOIN.register((handler, sender, client) -> reset(client));
+        ClientPlayConnectionEvents.DISCONNECT.register((handler, client) -> reset(client));
         ClientTickEvents.END_CLIENT_TICK.register(PurpleMonsterClient::tick);
         WorldRenderEvents.AFTER_TRANSLUCENT.register(PurpleMonsterClient::render);
+        CommonHudRenderCallback.EVENT.register((graphics, delta) -> renderHud(graphics));
     }
 
     private static void receive(PurpleMonsterEventS2CPacket packet) {
@@ -157,6 +170,24 @@ public final class PurpleMonsterClient {
             state.monsterEntity = null;
         }
         state = null;
+    }
+
+    private static void reset(Minecraft client) {
+        clear(client);
+        assimilated = 0;
+        assimilationGoal = 1;
+    }
+
+    private static void renderHud(FakeGuiGraphics graphics) {
+        Minecraft client = Minecraft.getInstance();
+        if (client.player == null || client.level == null || SREClient.gameComponent == null
+                || !SREClient.gameComponent.isRunning()) return;
+        var role = SREClient.getCachedPlayerRole();
+        if (role == null || !role.identifier().equals(BounsRoles.PURPLE_MONSTER.identifier())) return;
+        Component text = Component.translatable("hud.noellesroles.purple_monster.assimilation_progress",
+                assimilated, assimilationGoal);
+        graphics.drawString(client.font, text, 10, graphics.guiHeight() - client.font.lineHeight - 12,
+                0xFFFFFFFF);
     }
 
     private static final class SkinRemotePlayer extends RemotePlayer {

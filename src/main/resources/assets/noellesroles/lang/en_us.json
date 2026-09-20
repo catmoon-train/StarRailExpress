@@ -4860,5 +4860,6 @@
   "announcement.star.goals.purple_monster": "Assimilate enough players, then follow the faction that wins.",
   "message.noellesroles.purple_monster.welcome": "You have become the Purple Monster.",
   "death_reason.noellesroles.purple_monster_assimilation": "Purple Monster Assimilation",
-  "command.noellesroles.purple_monster.triggered": "Triggered a Purple Monster event for %s"
+  "command.noellesroles.purple_monster.triggered": "Triggered a Purple Monster event for %s",
+  "hud.noellesroles.purple_monster.assimilation_progress": "Assimilation progress: %s / %s"
 }

@@ -82,6 +82,7 @@ public final class PurpleMonsterRole {
             updateProximity(level);
             if (level.getGameTime() % EVENT_INTERVAL == 0) tryAutomaticEvent(level, game);
             checkPurpleGaze(level, game);
+            if (level.getGameTime() % 20 == 0) syncProgress(level, game);
         }
         if (!anyRunning) {
             PROXIMITY.clear();
@@ -173,13 +174,33 @@ public final class PurpleMonsterRole {
         EntityDisguise.disguise(target, TMMEntities.PURPLE_MONSTER);
         SREArmorPlayerComponent.KEY.get(target).setArmor(3);
         ASSIMILATED.merge(target.getUUID(), 1, Integer::sum);
+        sendProgress(target);
         target.displayClientMessage(Component.translatable("message.noellesroles.purple_monster.welcome"), false);
         finish();
     }
 
     public static boolean hasReachedGoal(ServerPlayer player) {
-        int goal = Math.max(1, SREGameWorldComponent.KEY.get(player.serverLevel()).getStartingPlayerCount() / 15);
-        return ASSIMILATED.getOrDefault(player.getUUID(), 0) >= goal;
+        return getAssimilationProgress(player) >= getAssimilationGoal(player);
+    }
+
+    private static int getAssimilationProgress(ServerPlayer player) {
+        return ASSIMILATED.getOrDefault(player.getUUID(), 0);
+    }
+
+    private static int getAssimilationGoal(ServerPlayer player) {
+        return Math.max(1, SREGameWorldComponent.KEY.get(player.serverLevel()).getStartingPlayerCount() / 15);
+    }
+
+    private static void syncProgress(ServerLevel level, SREGameWorldComponent game) {
+        for (ServerPlayer player : level.players()) {
+            if (game.isRole(player, BounsRoles.PURPLE_MONSTER) && GameUtils.isPlayerAliveAndSurvival(player))
+                sendProgress(player);
+        }
+    }
+
+    private static void sendProgress(ServerPlayer player) {
+        ServerPlayNetworking.send(player, new org.agmas.noellesroles.packet.PurpleMonsterProgressS2CPacket(
+                getAssimilationProgress(player), getAssimilationGoal(player)));
     }
 
     /** Clears only the hotbar, preserving the standard key and letter items. */

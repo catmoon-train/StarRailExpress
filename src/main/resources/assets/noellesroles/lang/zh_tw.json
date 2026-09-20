@@ -4968,5 +4968,6 @@
   "message.noellesroles.fat_fish.feed": "你給 %s 投餵了糰子",
   "message.noellesroles.fat_fish.digesting": "大肥魚還在消化，%s 秒後才能再餵",
   "item.noellesroles.small_dried_fish": "小魚乾",
-  "item.noellesroles.small_dried_fish.tooltip": "吃下恢復 40 點體力；也能拿去投餵大肥魚"
+  "item.noellesroles.small_dried_fish.tooltip": "吃下恢復 40 點體力；也能拿去投餵大肥魚",
+  "hud.noellesroles.purple_monster.assimilation_progress": "同化進度：%s / %s"
 }

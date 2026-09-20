@@ -5378,5 +5378,6 @@
   "announcement.star.goals.purple_monster": "同化足够的玩家，然后依附获胜的阵营获胜",
   "message.noellesroles.purple_monster.welcome": "你已经成为紫怪",
   "death_reason.noellesroles.purple_monster_assimilation": "紫怪同化",
-  "command.noellesroles.purple_monster.triggered": "已为 %s 触发紫怪事件"
+  "command.noellesroles.purple_monster.triggered": "已为 %s 触发紫怪事件",
+  "hud.noellesroles.purple_monster.assimilation_progress": "同化进度：%s / %s"
 }
