@@ -12,10 +12,21 @@ import java.util.UUID;
 /** PNG-backed question panel with an intentionally disabled first choice. */
 public final class PurpleMonsterQuestionScreen extends Screen {
     private static final int TEXTURE_SIZE = 1536;
-    private static final int SOURCE_X = 122;
-    private static final int SOURCE_Y = 78;
-    private static final int SOURCE_WIDTH = 1196;
-    private static final int SOURCE_HEIGHT = 940;
+    // Full visible panel bounds in the 1536x1536 PNG, including its outer shadow.
+    private static final int SOURCE_X = 120;
+    private static final int SOURCE_Y = 76;
+    private static final int SOURCE_WIDTH = 1200;
+    private static final int SOURCE_HEIGHT = 946;
+    private static final int TITLE_CENTER_X = 1096;
+    private static final int TITLE_CENTER_Y = 317;
+    private static final int ESCAPE_CENTER_X = 725;
+    private static final int ESCAPE_CENTER_Y = 640;
+    private static final int DESTROY_CENTER_X = 733;
+    private static final int DESTROY_CENTER_Y = 831;
+    private static final int DESTROY_X1 = 214;
+    private static final int DESTROY_Y1 = 770;
+    private static final int DESTROY_X2 = 1253;
+    private static final int DESTROY_Y2 = 895;
     private static final int MAX_GUI_WIDTH = 320;
     private static final net.minecraft.resources.ResourceLocation BACKGROUND = Noellesroles.id(
             "textures/gui/purple_monster_event_background.png");
@@ -23,7 +34,7 @@ public final class PurpleMonsterQuestionScreen extends Screen {
     private boolean answered;
 
     public PurpleMonsterQuestionScreen(UUID eventId) {
-        super(Component.literal("想要复仇吗"));
+        super(Component.translatable("screen.noellesroles.purple_monster.question.title"));
         this.eventId = eventId;
     }
 
@@ -37,12 +48,18 @@ public final class PurpleMonsterQuestionScreen extends Screen {
         graphics.blit(BACKGROUND, left, top, width, height, SOURCE_X, SOURCE_Y,
                 SOURCE_WIDTH, SOURCE_HEIGHT, TEXTURE_SIZE, TEXTURE_SIZE);
 
-        graphics.drawCenteredString(this.font, Component.literal("想要复仇吗"), left + width * 81 / 100,
-                top + height * 25 / 100, 0xFFFFFFFF);
-        graphics.drawCenteredString(this.font, Component.literal("不想，我会继续逃"), left + width / 2,
-                top + height * 60 / 100, 0xFFFFFFFF);
-        graphics.drawCenteredString(this.font, Component.literal("想，我要摧毁他"), left + width / 2,
-                top + height * 80 / 100, 0xFFFFFFFF);
+        graphics.drawCenteredString(this.font,
+                Component.translatable("screen.noellesroles.purple_monster.question.title"),
+                sourceToScreenX(left, width, TITLE_CENTER_X), sourceToScreenY(top, height, TITLE_CENTER_Y),
+                0xFFFFFFFF);
+        graphics.drawCenteredString(this.font,
+                Component.translatable("screen.noellesroles.purple_monster.question.escape"),
+                sourceToScreenX(left, width, ESCAPE_CENTER_X), sourceToScreenY(top, height, ESCAPE_CENTER_Y),
+                0xFFFFFFFF);
+        graphics.drawCenteredString(this.font,
+                Component.translatable("screen.noellesroles.purple_monster.question.destroy"),
+                sourceToScreenX(left, width, DESTROY_CENTER_X), sourceToScreenY(top, height, DESTROY_CENTER_Y),
+                0xFFFFFFFF);
     }
 
     @Override
@@ -50,7 +67,7 @@ public final class PurpleMonsterQuestionScreen extends Screen {
         int width = guiWidth();
         int height = guiHeight(width);
         if (button == 0 && inside(mouseX, mouseY, guiLeft(width), guiTop(height), width, height,
-                218, 773, 1250, 900)) answer();
+                DESTROY_X1, DESTROY_Y1, DESTROY_X2, DESTROY_Y2)) answer();
         return true;
     }
 
@@ -67,6 +84,14 @@ public final class PurpleMonsterQuestionScreen extends Screen {
                 && mouseX <= left + (x2 - SOURCE_X) * width / (double) SOURCE_WIDTH
                 && mouseY >= top + (y1 - SOURCE_Y) * height / (double) SOURCE_HEIGHT
                 && mouseY <= top + (y2 - SOURCE_Y) * height / (double) SOURCE_HEIGHT;
+    }
+
+    private static int sourceToScreenX(int left, int width, int sourceX) {
+        return left + (sourceX - SOURCE_X) * width / SOURCE_WIDTH;
+    }
+
+    private static int sourceToScreenY(int top, int height, int sourceY) {
+        return top + (sourceY - SOURCE_Y) * height / SOURCE_HEIGHT;
     }
 
     private int guiWidth() {

@@ -37,7 +37,7 @@ public final class PurpleMonsterPlayerSelectScreen extends Screen {
     private int page;
 
     public PurpleMonsterPlayerSelectScreen(UUID eventId, List<UUID> candidates) {
-        super(Component.literal("选择要摧毁的玩家"));
+        super(Component.translatable("screen.noellesroles.purple_monster.select.title"));
         this.eventId = eventId;
         this.candidates = candidates == null ? List.of() : List.copyOf(candidates);
     }
@@ -53,10 +53,11 @@ public final class PurpleMonsterPlayerSelectScreen extends Screen {
         graphics.fill(0, 0, this.width, this.height, 0x66000000);
         drawPanel(graphics, left, top, panelWidth, panelHeight);
 
-        graphics.drawCenteredString(this.font, Component.literal("选择要摧毁的玩家"),
+        graphics.drawCenteredString(this.font,
+                Component.translatable("screen.noellesroles.purple_monster.select.title"),
                 left + panelWidth / 2, top + 14, 0xFFFFFFFF);
         graphics.drawCenteredString(this.font,
-                Component.literal("第 " + (page + 1) + " / " + pageCount() + " 页"),
+                Component.translatable("screen.noellesroles.purple_monster.select.page", page + 1, pageCount()),
                 left + panelWidth / 2, top + 29, 0xFFBFA9C9);
 
         int slotWidth = (panelWidth - PANEL_MARGIN * 2 - SLOT_GAP * (COLUMNS - 1)) / COLUMNS;
@@ -93,9 +94,11 @@ public final class PurpleMonsterPlayerSelectScreen extends Screen {
 
         int buttonY = top + panelHeight - FOOTER_HEIGHT + 5;
         drawButton(graphics, left + PANEL_MARGIN, buttonY, 72, 22,
-                "上一页", page > 0, mouseX, mouseY);
+                Component.translatable("screen.noellesroles.purple_monster.select.previous"),
+                page > 0, mouseX, mouseY);
         drawButton(graphics, left + panelWidth - PANEL_MARGIN - 72, buttonY, 72, 22,
-                "下一页", page + 1 < pageCount(), mouseX, mouseY);
+                Component.translatable("screen.noellesroles.purple_monster.select.next"),
+                page + 1 < pageCount(), mouseX, mouseY);
     }
 
     @Override
@@ -139,12 +142,12 @@ public final class PurpleMonsterPlayerSelectScreen extends Screen {
         graphics.fill(left + 2, top + 2, left + width - 2, top + height - 2, PANEL_BACKGROUND);
     }
 
-    private void drawButton(GuiGraphics graphics, int x, int y, int width, int height, String label,
+    private void drawButton(GuiGraphics graphics, int x, int y, int width, int height, Component label,
                             boolean enabled, int mouseX, int mouseY) {
         boolean hovered = enabled && inside(mouseX, mouseY, x, y, width, height);
         graphics.fill(x, y, x + width, y + height, enabled && hovered ? SLOT_HOVER
                 : enabled ? BUTTON_BACKGROUND : BUTTON_DISABLED);
-        graphics.drawCenteredString(this.font, Component.literal(label), x + width / 2,
+        graphics.drawCenteredString(this.font, label, x + width / 2,
                 y + (height - this.font.lineHeight) / 2, enabled ? 0xFFFFFFFF : 0xFF777077);
     }
 

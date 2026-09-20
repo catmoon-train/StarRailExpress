@@ -4969,5 +4969,12 @@
   "message.noellesroles.fat_fish.digesting": "大肥魚還在消化，%s 秒後才能再餵",
   "item.noellesroles.small_dried_fish": "小魚乾",
   "item.noellesroles.small_dried_fish.tooltip": "吃下恢復 40 點體力；也能拿去投餵大肥魚",
-  "hud.noellesroles.purple_monster.assimilation_progress": "同化進度：%s / %s"
+  "hud.noellesroles.purple_monster.assimilation_progress": "同化進度：%s / %s",
+  "screen.noellesroles.purple_monster.question.title": "想要復仇嗎",
+  "screen.noellesroles.purple_monster.question.escape": "不想，我會繼續逃",
+  "screen.noellesroles.purple_monster.question.destroy": "想，我要摧毀他",
+  "screen.noellesroles.purple_monster.select.title": "選擇要摧毀的玩家",
+  "screen.noellesroles.purple_monster.select.page": "第 %s / %s 頁",
+  "screen.noellesroles.purple_monster.select.previous": "上一頁",
+  "screen.noellesroles.purple_monster.select.next": "下一頁"
 }

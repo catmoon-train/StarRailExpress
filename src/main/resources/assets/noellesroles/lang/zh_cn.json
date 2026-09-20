@@ -5379,5 +5379,12 @@
   "message.noellesroles.purple_monster.welcome": "你已经成为紫怪",
   "death_reason.noellesroles.purple_monster_assimilation": "紫怪同化",
   "command.noellesroles.purple_monster.triggered": "已为 %s 触发紫怪事件",
-  "hud.noellesroles.purple_monster.assimilation_progress": "同化进度：%s / %s"
+  "hud.noellesroles.purple_monster.assimilation_progress": "同化进度：%s / %s",
+  "screen.noellesroles.purple_monster.question.title": "想要复仇吗",
+  "screen.noellesroles.purple_monster.question.escape": "不想，我会继续逃",
+  "screen.noellesroles.purple_monster.question.destroy": "想，我要摧毁他",
+  "screen.noellesroles.purple_monster.select.title": "选择要摧毁的玩家",
+  "screen.noellesroles.purple_monster.select.page": "第 %s / %s 页",
+  "screen.noellesroles.purple_monster.select.previous": "上一页",
+  "screen.noellesroles.purple_monster.select.next": "下一页"
 }

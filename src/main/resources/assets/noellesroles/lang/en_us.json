@@ -4861,5 +4861,12 @@
   "message.noellesroles.purple_monster.welcome": "You have become the Purple Monster.",
   "death_reason.noellesroles.purple_monster_assimilation": "Purple Monster Assimilation",
   "command.noellesroles.purple_monster.triggered": "Triggered a Purple Monster event for %s",
-  "hud.noellesroles.purple_monster.assimilation_progress": "Assimilation progress: %s / %s"
+  "hud.noellesroles.purple_monster.assimilation_progress": "Assimilation progress: %s / %s",
+  "screen.noellesroles.purple_monster.question.title": "Do you want revenge?",
+  "screen.noellesroles.purple_monster.question.escape": "No, I will keep running",
+  "screen.noellesroles.purple_monster.question.destroy": "Yes, I will destroy them",
+  "screen.noellesroles.purple_monster.select.title": "Choose a player to destroy",
+  "screen.noellesroles.purple_monster.select.page": "Page %s / %s",
+  "screen.noellesroles.purple_monster.select.previous": "Previous",
+  "screen.noellesroles.purple_monster.select.next": "Next"
 }
