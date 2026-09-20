@@ -154,7 +154,7 @@ public class SREVolunteerOpenSelectGameMode extends SREMurderGameMode {
         };
     }
 
-    private VolunteerOpenSyncS2CPacket buildPacket(UUID id, long now) {
+    private VolunteerOpenSyncS2CPacket buildPacket(ServerLevel world, UUID id, long now) {
         return new VolunteerOpenSyncS2CPacket(
                 phaseIndex(draftState.phase),
                 draftState.totalPlayers,
@@ -187,7 +187,7 @@ public class SREVolunteerOpenSelectGameMode extends SREMurderGameMode {
         }
         long now = world.getGameTime();
         for (ServerPlayer p : world.players()) {
-            ServerPlayNetworking.send(p, buildPacket(p.getUUID(), now));
+            ServerPlayNetworking.send(p, buildPacket(world, p.getUUID(), now));
         }
     }
 
@@ -210,6 +210,9 @@ public class SREVolunteerOpenSelectGameMode extends SREMurderGameMode {
         if (!isInDraftPhase || draftState == null) {
             return;
         }
+        if (!draftState.canPlayerParticipate(player.serverLevel(), player.getUUID())) {
+            return;
+        }
         boolean changed;
         if (packet.volunteer()) {
             changed = draftState.submitVolunteer(player.serverLevel(), player, packet.roleId());
@@ -225,6 +228,9 @@ public class SREVolunteerOpenSelectGameMode extends SREMurderGameMode {
         if (!isInDraftPhase || draftState == null) {
             return;
         }
+        if (!draftState.canPlayerParticipate(player.serverLevel(), player.getUUID())) {
+            return;
+        }
         if (!draftState.waitingForClients) {
             return;
         }
@@ -237,6 +243,9 @@ public class SREVolunteerOpenSelectGameMode extends SREMurderGameMode {
 
     public void handlePlayerConfirm(ServerPlayer player) {
         if (!isInDraftPhase || draftState == null) {
+            return;
+        }
+        if (!draftState.canPlayerParticipate(player.serverLevel(), player.getUUID())) {
             return;
         }
         if (draftState.confirm(player.getUUID())) {

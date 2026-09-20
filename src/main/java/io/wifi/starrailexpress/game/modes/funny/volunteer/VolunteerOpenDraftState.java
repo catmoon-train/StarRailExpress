@@ -18,6 +18,7 @@ package io.wifi.starrailexpress.game.modes.funny.volunteer;
 import io.wifi.starrailexpress.SREConfig;
 import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.api.TMMRoles;
+import io.wifi.starrailexpress.cca.ParticipationComponent;
 import io.wifi.starrailexpress.game.modes.funny.rotation.LightningDraftState;
 import io.wifi.starrailexpress.game.utils.RoleInstance;
 import io.wifi.starrailexpress.progression.ProgressionDataManager;
@@ -260,7 +261,7 @@ public class VolunteerOpenDraftState {
      * @return 志愿是否真的发生了变化（没变化就不用广播）
      */
     public boolean submitVolunteer(ServerLevel world, ServerPlayer player, String roleId) {
-        if (phase != Phase.VOLUNTEER) {
+        if (phase != Phase.VOLUNTEER || !canPlayerParticipate(world, player.getUUID())) {
             return false;
         }
         UUID id = player.getUUID();
@@ -288,6 +289,9 @@ public class VolunteerOpenDraftState {
         for (UUID id : playerOrder) {
             ServerPlayer p = world.getServer().getPlayerList().getPlayer(id);
             if (p == null || p.isRemoved()) {
+                continue;
+            }
+            if (!canPlayerParticipate(world, id)) {
                 continue;
             }
             if (!volunteerRoleIds.containsKey(id)) {
@@ -414,7 +418,8 @@ public class VolunteerOpenDraftState {
     }
 
     public boolean processPick(ServerLevel world, ServerPlayer player, int index) {
-        if (phase != Phase.OPEN || groupIndex < 0 || groupIndex >= groups.size()) {
+        if (phase != Phase.OPEN || groupIndex < 0 || groupIndex >= groups.size()
+                || !canPlayerParticipate(world, player.getUUID())) {
             return false;
         }
         UUID id = player.getUUID();
@@ -714,6 +719,12 @@ public class VolunteerOpenDraftState {
             return false;
         }
         return groups.get(groupIndex).contains(id) && !picks.containsKey(id);
+    }
+
+    /** 当前玩家是否属于本局且仍处于参与状态。 */
+    public boolean canPlayerParticipate(ServerLevel world, UUID id) {
+        return id != null && playerOrder.contains(id)
+                && ParticipationComponent.KEY.get(world).isParticipating(id);
     }
 
     private String roleId(int index) {

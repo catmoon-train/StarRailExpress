@@ -522,6 +522,10 @@ public class VolunteerOpenSelectScreen extends Screen {
     private void drawVolunteerPhase(GuiGraphics g, int mouseX, int mouseY) {
         Component header = Component.translatable("gui.sre.volunteer_open.volunteer_header");
         g.drawString(font, header, searchX, rightY + PAD, TEXT, false);
+        if (!VolunteerOpenCache.isLocalPlayerParticipant()) {
+            Component notParticipating = Component.translatable("hud.sre.participation.not_participating");
+            g.drawString(font, notParticipating, searchX + font.width(header) + GAP, rightY + PAD, MUTED, false);
+        }
 
         drawTimer(g);
 
@@ -547,7 +551,8 @@ public class VolunteerOpenSelectScreen extends Screen {
             }
             SRERole role = filteredRoles.get(i);
             boolean isMine = !volunteerId.isEmpty() && volunteerId.equals(role.identifier().toString());
-            boolean hover = inside(mouseX, mouseY, x, y, volCellW, volCellH)
+            boolean hover = VolunteerOpenCache.isLocalPlayerParticipant()
+                    && inside(mouseX, mouseY, x, y, volCellW, volCellH)
                     && mouseY >= volListY && mouseY < volListY + volListH;
             if (hover) {
                 hoveredRoleIndex = i;
@@ -891,7 +896,8 @@ public class VolunteerOpenSelectScreen extends Screen {
     // ==================== 确认按钮 ====================
 
     private boolean isConfirmStageActive() {
-        return VolunteerOpenCache.getPhase() == VolunteerOpenCache.PHASE_CONFIRM
+        return VolunteerOpenCache.isLocalPlayerParticipant()
+                && VolunteerOpenCache.getPhase() == VolunteerOpenCache.PHASE_CONFIRM
                 && VolunteerOpenCache.getConfirmCountdown() > 0
                 && VolunteerOpenCache.isConfirmRequired();
     }
@@ -951,7 +957,8 @@ public class VolunteerOpenSelectScreen extends Screen {
                     return true;
                 }
             }
-            if (VolunteerOpenCache.getPhase() == VolunteerOpenCache.PHASE_VOLUNTEER) {
+            if (VolunteerOpenCache.getPhase() == VolunteerOpenCache.PHASE_VOLUNTEER
+                    && VolunteerOpenCache.isLocalPlayerParticipant()) {
                 if (hoveredRoleIndex >= 0 && hoveredRoleIndex < filteredRoles.size()) {
                     String clickedId = filteredRoles.get(hoveredRoleIndex).identifier().toString();
                     // 一阶段内可以随时改选；重复点已选中的那个就不发包了

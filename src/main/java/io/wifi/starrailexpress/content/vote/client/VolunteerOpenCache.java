@@ -249,6 +249,11 @@ public class VolunteerOpenCache {
         return canSelect;
     }
 
+    /** 本地玩家是否在服务端下发的本局参与名单中。 */
+    public static boolean isLocalPlayerParticipant() {
+        return localPlayerUuid != null && playerOrder.contains(localPlayerUuid);
+    }
+
     public static Set<UUID> getCurrentGroupMembers() {
         return Collections.unmodifiableSet(currentGroupMembers);
     }
