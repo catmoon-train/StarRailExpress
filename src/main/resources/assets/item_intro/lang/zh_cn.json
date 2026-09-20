@@ -227,5 +227,6 @@
   "item.trainmurdermystery.weak_defense_vial.desc": "弱效护盾试剂。亡命徒等可直接右键饮用；普通玩家可倒在托盘上。提供持续约 20 秒、仅能抵挡一次刀伤害的弱效护盾。",
   "item.noellesroles.sanity_meds.desc": "修机模式镇静剂。服用后恢复 40 点理智。黑暗与追捕者靠近时会侵蚀理智。",
   "item.noellesroles.terminal.desc": "程序员专用的终端。右键打开终端界面，输入 /give @s <物品ID> 或 /tp @s room 后按回车执行；成功执行一条指令后终端会被销毁。",
-  "item.noellesroles.netherite_spear.desc": "骑兵的专属武器。左键满蓄力直刺可穿透多个目标；右键举矛蓄力冲锋，速度越快伤害越高。命中玩家时，原版伤害会按 2 倍转化为虚拟伤害，归零时以「矛」为死因判死。只有开启「可使用特殊原版武器」的职业才能用它击杀。"
+  "item.noellesroles.netherite_spear.desc": "骑兵的专属武器。左键满蓄力直刺可穿透多个目标；右键举矛蓄力冲锋，速度越快伤害越高。命中玩家时，原版伤害会按 2 倍转化为虚拟伤害，归零时以「矛」为死因判死。只有开启「可使用特殊原版武器」的职业才能用它击杀。",
+  "item.noellesroles.small_dried_fish.desc": "大肥鱼商店里的小零食。\n食用后恢复 40 点体力。\n因为它算「食物」，别人也可以拿它右键大肥鱼来投喂。"
 }

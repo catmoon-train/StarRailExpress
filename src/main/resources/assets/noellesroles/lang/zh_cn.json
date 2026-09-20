@@ -5370,5 +5370,7 @@
   "message.noellesroles.fat_fish.fed": "%s 给你喂了一口团子",
   "message.noellesroles.conspirator.immune": "%s 免疫你的猜测",
   "message.noellesroles.fat_fish.feed": "你给 %s 投喂了团子",
-  "message.noellesroles.fat_fish.digesting": "大肥鱼还在消化，%s 秒后才能再喂"
+  "message.noellesroles.fat_fish.digesting": "大肥鱼还在消化，%s 秒后才能再喂",
+  "item.noellesroles.small_dried_fish": "小鱼干",
+  "item.noellesroles.small_dried_fish.tooltip": "吃下恢复 40 点体力；也能拿去投喂大肥鱼"
 }

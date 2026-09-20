@@ -4852,5 +4852,7 @@
   "message.noellesroles.fat_fish.fed": "%s fed you a dumpling",
   "message.noellesroles.conspirator.immune": "%s is immune to your guess",
   "message.noellesroles.fat_fish.feed": "You fed %s a dumpling",
-  "message.noellesroles.fat_fish.digesting": "The fat fish is still digesting - try again in %s seconds"
+  "message.noellesroles.fat_fish.digesting": "The fat fish is still digesting - try again in %s seconds",
+  "item.noellesroles.small_dried_fish": "Small Dried Fish",
+  "item.noellesroles.small_dried_fish.tooltip": "Restores 40 stamina; also a valid treat to feed the Fat Fish"
 }

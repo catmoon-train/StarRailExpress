@@ -627,6 +627,14 @@ public class ModItems {
             new ShilijiaItem(new Item.Properties().stacksTo(16)),
             "shilijia", CONSUMABLES_GROUP);
     /**
+     * 小鱼干
+     * - 大肥鱼专属商店的小零食，吃下恢复 {@code SmallDriedFishItem.STAMINA_RESTORE} 点体力
+     * - 也是可以拿去投喂大肥鱼的食物（大肥鱼只认带 FOOD 组件的东西）
+     */
+    public static final Item SMALL_DRIED_FISH = register(
+            new org.agmas.noellesroles.content.item.SmallDriedFishItem(new Item.Properties().stacksTo(16)),
+            "small_dried_fish", CONSUMABLES_GROUP);
+    /**
      * 前人留下的马铠 - 装备到残月萨马/彩虹马时提升移动速度与生命上限
      */
     public static final Item PREDECESSOR_HORSE_ARMOR = register(

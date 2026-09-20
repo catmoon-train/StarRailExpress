@@ -45,7 +45,7 @@ import java.util.List;
  * <li><b>浑水鱼</b>：被动 —— 在水里不缺氧、游得更快、体力恢复更快（见 {@code FatFishRoleData}）；</li>
  * <li><b>圆滚滚</b>：被动 —— 抗击退，且移动时会把撞到的人顶开（见 {@code FatFishRoleData}）；</li>
  * <li><b>投喂团子</b>：其他玩家拿着食物右键它，给它回体力并挂短时再生（{@link #feed}）；</li>
- * <li><b>专属商店</b>：{@link #getShopEntries()} 卖鱼干 / 茶 / 肾上腺素 / 防护药剂。</li>
+ * <li><b>专属商店</b>：{@link #getShopEntries()} 卖鱼干 / 茶 </li>
  * </ol>
  *
  * <p>
@@ -98,7 +98,7 @@ public class FatFishRole extends EggRole {
     public List<ShopEntry> getShopEntries() {
         // 双端都会调用（客户端画商店 / 图标），所以这里不要碰服务端专用东西
         List<ShopEntry> shop = new ArrayList<>();
-        shop.add(new ShopEntry(new ItemStack(ModItems.SHILIJIA), 150, ShopEntry.Type.TOOL));
+        shop.add(new ShopEntry(new ItemStack(ModItems.SMALL_DRIED_FISH), 100, ShopEntry.Type.TOOL));
         shop.add(new ShopEntry(new ItemStack(ModItems.CALMING_TEA), 150, ShopEntry.Type.TOOL));
         return shop;
     }
