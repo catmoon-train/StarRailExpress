@@ -162,6 +162,8 @@ public class FatFishRoleData extends SimpleRoleData {
                 continue;
             }
             other.push(offset.x / horizontal * PUSH_STRENGTH, 0.2D, offset.z / horizontal * PUSH_STRENGTH);
+            // 追踪
+            other.setLastHurtByMob(player);
             other.hurtMarked = true;
             if (other instanceof ServerPlayer serverOther) {
                 serverOther.connection.send(new ClientboundSetEntityMotionPacket(serverOther));
