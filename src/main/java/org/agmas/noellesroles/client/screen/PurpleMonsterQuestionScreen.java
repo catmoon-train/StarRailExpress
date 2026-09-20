@@ -1,9 +1,11 @@
 package org.agmas.noellesroles.client.screen;
 
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
+import net.minecraft.client.resources.sounds.SimpleSoundInstance;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
+import net.minecraft.sounds.SoundEvents;
 import org.agmas.noellesroles.Noellesroles;
 import org.agmas.noellesroles.packet.PurpleMonsterEventC2SPacket;
 
@@ -84,8 +86,15 @@ public final class PurpleMonsterQuestionScreen extends Screen {
     private void answer() {
         if (answered) return;
         answered = true;
+        playButtonClick();
         ClientPlayNetworking.send(new PurpleMonsterEventC2SPacket(eventId,
                 PurpleMonsterEventC2SPacket.Action.ANSWER, null));
+    }
+
+    private void playButtonClick() {
+        if (this.minecraft != null) {
+            this.minecraft.getSoundManager().play(SimpleSoundInstance.forUI(SoundEvents.UI_BUTTON_CLICK, 1.0F));
+        }
     }
 
     private static boolean inside(double mouseX, double mouseY, int left, int top, int width, int height,
@@ -120,6 +129,9 @@ public final class PurpleMonsterQuestionScreen extends Screen {
     private int guiLeft(int width) { return Math.min(GUI_MARGIN_LEFT, this.width - width); }
 
     private int guiTop(int height) { return Math.min(GUI_MARGIN_TOP, this.height - height); }
+
+    @Override
+    public boolean isPauseScreen() { return false; }
 
     @Override
     public boolean shouldCloseOnEsc() { return false; }

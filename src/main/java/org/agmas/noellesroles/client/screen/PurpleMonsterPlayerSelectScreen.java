@@ -5,9 +5,11 @@ import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.PlayerFaceRenderer;
+import net.minecraft.client.resources.sounds.SimpleSoundInstance;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.multiplayer.PlayerInfo;
 import net.minecraft.network.chat.Component;
+import net.minecraft.sounds.SoundEvents;
 import org.agmas.noellesroles.packet.PurpleMonsterEventC2SPacket;
 
 import java.util.List;
@@ -111,11 +113,17 @@ public final class PurpleMonsterPlayerSelectScreen extends Screen {
         int top = (this.height - panelHeight) / 2;
         int buttonY = top + panelHeight - FOOTER_HEIGHT + 5;
         if (inside(mouseX, mouseY, left + PANEL_MARGIN, buttonY, 72, 22)) {
-            if (page > 0) page--;
+            if (page > 0) {
+                playButtonClick();
+                page--;
+            }
             return true;
         }
         if (inside(mouseX, mouseY, left + panelWidth - PANEL_MARGIN - 72, buttonY, 72, 22)) {
-            if (page + 1 < pageCount()) page++;
+            if (page + 1 < pageCount()) {
+                playButtonClick();
+                page++;
+            }
             return true;
         }
 
@@ -132,7 +140,10 @@ public final class PurpleMonsterPlayerSelectScreen extends Screen {
         int localY = (int) (mouseY - gridTop) % (slotHeight + SLOT_GAP);
         if (localX >= slotWidth || localY >= slotHeight) return true;
         int index = page * PAGE_SIZE + row * COLUMNS + column;
-        if (index >= 0 && index < candidates.size()) select(candidates.get(index));
+        if (index >= 0 && index < candidates.size()) {
+            playButtonClick();
+            select(candidates.get(index));
+        }
         return true;
     }
 
@@ -162,6 +173,12 @@ public final class PurpleMonsterPlayerSelectScreen extends Screen {
         if (this.minecraft != null) this.minecraft.setScreen(null);
     }
 
+    private void playButtonClick() {
+        if (this.minecraft != null) {
+            this.minecraft.getSoundManager().play(SimpleSoundInstance.forUI(SoundEvents.UI_BUTTON_CLICK, 1.0F));
+        }
+    }
+
     private int pageCount() { return Math.max(1, (candidates.size() + PAGE_SIZE - 1) / PAGE_SIZE); }
 
     private int panelWidth() { return Math.max(1, Math.min(MAX_PANEL_WIDTH, this.width - 20)); }
@@ -171,6 +188,9 @@ public final class PurpleMonsterPlayerSelectScreen extends Screen {
     private static boolean inside(double mouseX, double mouseY, int x, int y, int width, int height) {
         return mouseX >= x && mouseX < x + width && mouseY >= y && mouseY < y + height;
     }
+
+    @Override
+    public boolean isPauseScreen() { return false; }
 
     @Override
     public boolean shouldCloseOnEsc() { return false; }
