@@ -17,6 +17,9 @@ import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.sounds.SoundEvent;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.ClipContext;
@@ -31,6 +34,8 @@ import org.agmas.noellesroles.api.PlayerClimbState;
 import org.agmas.noellesroles.init.ModEffects;
 import org.agmas.noellesroles.role.bouns.BounsRoles;
 import org.agmas.noellesroles.role_data.innocence.ClimbPoseRoleData;
+
+import java.util.Arrays;
 
 /**
  * 墙壁攀爬实现（参考 PEAK）：童子军、森蕈僵尸、童子军队长，以及任何
@@ -49,7 +54,11 @@ import org.agmas.noellesroles.role_data.innocence.ClimbPoseRoleData;
  * <li><b>开始攀爬</b>：空手右键一面紧贴着的、有碰撞箱的墙（空格不是触发方式，避免误触发）；</li>
  * <li><b>攀爬消耗体力</b>（复用现有冲刺体力 {@link PlayerStaminaGetter}）：
  * 悬挂/下降最省、左右移动居中、向上最费；体力见底立刻脱手；</li>
+ * <li><b>换墙</b>：原来那面墙到头时不会直接掉下去，先看身边是不是还有别的墙可以抓
+ * （拐角的两面墙、柱子、矮墙后面紧跟着的高墙台阶），抓到就换过去继续爬，
+ * 见 {@link #findHuggedWall}；真的一面墙都没有了才脱手；</li>
  * <li><b>脱手</b>：潜行键主动松手、空格直接取消攀爬（不向外弹开）、手上拿到物品、离开墙面自动结束；</li>
+ * <li><b>音效</b>：抓上墙播装备音（pitch 0）、松手播玩家轻落地音，由服务端在权威状态切换时放给附近所有人；</li>
  * <li><b>动作技能</b>：把 {@code player.setPose} 切成站立 / 匍匐两种姿态。</li>
  * </ol>
  *
@@ -99,10 +108,66 @@ public class ScoutRole extends EggRole {
      */
     private static final double WALL_RAY_HEIGHT = 0.25D;
 
-    /** 翻上墙顶时朝墙里挪的水平距离（格） */
-    private static final double CLIMB_OVER_FORWARD = 0.7D;
+    /**
+     * 翻上墙顶时朝墙里挪的水平距离（格，从**身体中心**算起）。
+     *
+     * <p>取 0.99 会让玩家落到墙顶靠里的一侧、身体背面几乎贴上后面那一面墙
+     * （紧贴判定的容差是 {@link #WALL_HUG_TOLERANCE}，0.99 刚好落在里面）：
+     * <ul>
+     * <li>台阶式攀爬（一格矮墙后面紧跟着一格更高的墙）能直接续着往上爬，不用松手重新右键；</li>
+     * <li>留的那 0.01 格是防止包围盒和后面那面墙擦边判定成碰撞，把翻上墙顶整个搞失败；</li>
+     * <li>后面是同一高度的方块（两格厚的墙顶）时也只是站上去，射线打不到墙就自动结束。</li>
+     * </ul>
+     */
+    private static final double CLIMB_OVER_FORWARD = 0.99D;
     /** 翻上墙顶时允许的最大抬升高度（格） */
     private static final double CLIMB_OVER_MAX_UP = 1.25D;
+
+    /** {@code 1 / sqrt(2)}：斜向探测方向的水平分量 */
+    private static final double SQRT_HALF = Math.sqrt(0.5D);
+
+    /**
+     * 找墙用的水平探测方向：4 个正面 + 4 个斜向。
+     *
+     * <p>斜向是给「包围盒角顶在墙上」用的（贴墙角时正面射线可能正好从两块墙的缝里穿过去）。
+     * 顺序只是默认顺序，{@link #findHuggedWall} 会按与当前墙面法线的接近程度重排。
+     */
+    private static final Vec3[] WALL_PROBE_DIRECTIONS = {
+            new Vec3(1.0D, 0.0D, 0.0D), new Vec3(-1.0D, 0.0D, 0.0D),
+            new Vec3(0.0D, 0.0D, 1.0D), new Vec3(0.0D, 0.0D, -1.0D),
+            new Vec3(SQRT_HALF, 0.0D, SQRT_HALF), new Vec3(SQRT_HALF, 0.0D, -SQRT_HALF),
+            new Vec3(-SQRT_HALF, 0.0D, SQRT_HALF), new Vec3(-SQRT_HALF, 0.0D, -SQRT_HALF),
+    };
+
+    // ==================== 音效 ====================
+
+    /** 抓上墙：装备音（{@code item.armor.equip_generic}） */
+    public static final SoundEvent GRAB_SOUND = SoundEvents.ARMOR_EQUIP_GENERIC.value();
+    /** 松手 / 脱手：玩家轻落地音（{@code entity.player.small_fall}） */
+    public static final SoundEvent RELEASE_SOUND = SoundEvents.PLAYER_SMALL_FALL;
+    /** 抓上墙的音量与音高（pitch 0 = 让原版压到最低音，闷一点） */
+    private static final float GRAB_SOUND_VOLUME = 0.8F;
+    private static final float GRAB_SOUND_PITCH = 0.0F;
+    /** 松手的音量与音高 */
+    private static final float RELEASE_SOUND_VOLUME = 0.8F;
+    private static final float RELEASE_SOUND_PITCH = 1.0F;
+
+    /**
+     * 抓墙 / 松手的提示音，放给附近所有人听（和开枪一样属于「世界里的动静」）。
+     *
+     * <p>只在服务端的权威状态切换时播（{@link #startClimb} / {@link #stopClimb}），
+     * 所以客户端本地预判但被服务端拒绝时不会有假提示。
+     */
+    private static void playClimbSound(ServerPlayer player, boolean grabbing) {
+        Level level = player.level();
+        if (level == null) {
+            return;
+        }
+        level.playSound(null, player.getX(), player.getY() + 0.9D, player.getZ(),
+                grabbing ? GRAB_SOUND : RELEASE_SOUND, SoundSource.PLAYERS,
+                grabbing ? GRAB_SOUND_VOLUME : RELEASE_SOUND_VOLUME,
+                grabbing ? GRAB_SOUND_PITCH : RELEASE_SOUND_PITCH);
+    }
 
     public ScoutRole(ResourceLocation identifier, int color, boolean isInnocent, boolean canUseKiller,
             MoodType moodType, int maxSprintTime, boolean canSeeTime) {
@@ -170,6 +235,36 @@ public class ScoutRole extends EggRole {
     }
 
     /**
+     * 沿 {@code dir} 从身体中心探一小段，看是不是顶着一面能攀爬的墙。
+     *
+     * <p>探测长度按方向自适应：玩家包围盒截面近似正方形，中心沿单位方向 {@code dir}
+     * 到包围盒表面的距离就是 {@code 半宽 / max(|dx|,|dz|)}（正面 = 半宽，斜向 = 半宽 × √2），
+     * 再加一个 {@link #WALL_HUG_TOLERANCE} 的容差 —— 所以「必须紧贴」对斜向一样成立。
+     *
+     * @return 命中可攀爬墙面时返回命中结果，否则 {@code null}
+     */
+    private static BlockHitResult probeWall(Player player, Vec3 dir) {
+        Level level = player.level();
+        if (level == null || dir == null) {
+            return null;
+        }
+        double flatLength = Math.max(Math.abs(dir.x), Math.abs(dir.z));
+        if (flatLength < 1.0E-6D) {
+            return null;
+        }
+        double reach = player.getBbWidth() * 0.5D / flatLength + WALL_HUG_TOLERANCE;
+        // 射线取在身体下部（见 WALL_RAY_HEIGHT）：一路爬到脚高过墙顶才判定脱手
+        Vec3 from = player.position().add(0.0D, WALL_RAY_HEIGHT, 0.0D);
+        BlockHitResult hit = level.clip(new ClipContext(from, from.add(dir.scale(reach)),
+                ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, player));
+        if (hit.getType() != HitResult.Type.BLOCK) {
+            return null;
+        }
+        BlockPos pos = hit.getBlockPos();
+        return isClimbableWallBlock(level, pos, level.getBlockState(pos), hit.getDirection()) ? hit : null;
+    }
+
+    /**
      * 玩家是否**紧贴**着这面墙（法线由墙指向玩家，水平单位向量）。
      *
      * <p>判定方式：从身体中心沿「指向墙」的方向做一条短射线，长度正好是
@@ -178,28 +273,50 @@ public class ScoutRole extends EggRole {
      * 开始攀爬和攀爬中的维持都用它。
      */
     public static boolean isHuggingWall(Player player, Vec3 normal) {
-        Level level = player.level();
-        if (level == null || normal == null) {
+        if (player == null || normal == null) {
             return false;
         }
         Vec3 flat = new Vec3(normal.x, 0.0D, normal.z);
         if (flat.lengthSqr() < 1.0E-6D) {
             return false;
         }
-        flat = flat.normalize();
-        // 我们的法线都来自方块的 6 个面，所以沿该轴到包围盒表面的距离就是半宽
-        double halfWidth = player.getBbWidth() * 0.5D;
-        // 射线取在身体下部（见 WALL_RAY_HEIGHT）：一路爬到脚高过墙顶才判定脱手
-        Vec3 from = player.position().add(0.0D, WALL_RAY_HEIGHT, 0.0D);
         // 墙在「中心 - 法线」方向上
-        Vec3 to = from.add(flat.scale(-(halfWidth + WALL_HUG_TOLERANCE)));
-        BlockHitResult hit = level.clip(new ClipContext(from, to,
-                ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, player));
-        if (hit.getType() != HitResult.Type.BLOCK) {
-            return false;
+        return probeWall(player, flat.normalize().scale(-1.0D)) != null;
+    }
+
+    /**
+     * 找出玩家此刻正贴着的墙（攀爬中「换一面墙」用）。
+     *
+     * <p>拐角、台阶、柱子都会让「原来那面墙」的射线先失效，而旁边其实还有墙可以抓；
+     * 这个方法把身边一圈墙面都探一遍，命中优先级是「与 {@code prefer}（当前攀爬的墙）
+     * 夹角越小越先试」：先原方向，再垂直的侧墙，最后才是背后的对墙，斜向穿插其间。
+     *
+     * <p>返回的是**方块面的法线**（轴对齐的水平单位向量），所以即使靠斜向探测命中，
+     * 拿到的也是和原来一样规整的法线，能直接交给 {@link #tryClimbOntoBlock} 等逻辑。
+     *
+     * @return 贴着的那面墙的法线（由墙指向玩家），一面都没贴到返回 {@code null}
+     */
+    public static Vec3 findHuggedWall(Player player, Vec3 prefer) {
+        if (player == null) {
+            return null;
         }
-        return isClimbableWallBlock(level, hit.getBlockPos(), level.getBlockState(hit.getBlockPos()),
-                hit.getDirection());
+        Vec3 current = null;
+        if (prefer != null && prefer.x * prefer.x + prefer.z * prefer.z > 1.0E-6D) {
+            current = new Vec3(prefer.x, 0.0D, prefer.z).normalize();
+        }
+        Vec3[] candidates = WALL_PROBE_DIRECTIONS.clone();
+        if (current != null) {
+            final Vec3 ref = current;
+            // 稳定排序：点积大的（更接近当前墙面）先试
+            Arrays.sort(candidates, (a, b) -> Double.compare(b.dot(ref), a.dot(ref)));
+        }
+        for (Vec3 dir : candidates) {
+            BlockHitResult hit = probeWall(player, dir);
+            if (hit != null) {
+                return Vec3.atLowerCornerOf(hit.getDirection().getNormal());
+            }
+        }
+        return null;
     }
 
     /**
@@ -400,15 +517,20 @@ public class ScoutRole extends EggRole {
         state.normal = normal;
         state.markPosition(player.getX(), player.getY(), player.getZ());
         applyClimbPhysics(player);
+        playClimbSound(player, true);
     }
 
-    /** 服务端结束攀爬：清状态与无重力 */
+    /** 服务端结束攀爬：清状态与无重力（真的从「攀爬中」结束才会放松手音） */
     public static void stopClimb(ServerPlayer player, ClimbState state) {
+        boolean wasClimbing = state.climbing;
         state.climbing = false;
         state.hasLastPos = false;
         if (player != null) {
             player.setNoGravity(false);
             player.resetFallDistance();
+            if (wasClimbing) {
+                playClimbSound(player, false);
+            }
         }
     }
 
@@ -451,6 +573,11 @@ public class ScoutRole extends EggRole {
             return;
         }
         if (state.climbing) {
+            // 已经在攀爬：又收到一次 start 只可能是客户端「换了另一面墙」
+            // （拐角 / 台阶），校验一下确实贴着墙再更新法线，别的一概不动
+            if (normal != null && normal.lengthSqr() > 1.0E-6D && isHuggingWall(player, normal)) {
+                state.normal = normal;
+            }
             return;
         }
         SREGameWorldComponent game = SREGameWorldComponent.KEY.get(player.level());
