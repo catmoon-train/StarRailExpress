@@ -1,4 +1,4 @@
-{
+﻿{
   "entity.noellesroles.rainbow_horse": "海曼彩虹马",
   "item.noellesroles.rainbow_horseshoe": "彩虹马蹄铁",
   "item.noellesroles.rainbow_horseshoe.tooltip": "右键召唤一匹海曼彩虹马从天而降，可两人乘骑，120秒后消失",
@@ -5375,7 +5375,7 @@
   "item.noellesroles.small_dried_fish.tooltip": "吃下恢复 40 点体力；也能拿去投喂大肥鱼",
   "announcement.star.role.purple_monster": "紫怪",
   "announcement.star.role.noellesroles.purple_monster": "紫怪",
-  "announcement.star.goals.purple_monster": "同化足够的玩家，然后依附获胜的阵营获胜",
+  "announcement.star.goals.purple_monster": "为什么...为什么！！！",
   "message.noellesroles.purple_monster.welcome": "你已经成为紫怪",
   "death_reason.noellesroles.purple_monster_assimilation": "紫怪同化",
   "command.noellesroles.purple_monster.triggered": "已为 %s 触发紫怪事件",

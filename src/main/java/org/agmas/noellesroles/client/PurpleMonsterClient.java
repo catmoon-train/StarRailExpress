@@ -122,9 +122,29 @@ public final class PurpleMonsterClient {
     }
 
     private static void lockCamera(Minecraft client) {
-        if (client.level == null) return;
+        if (client.level == null || client.player == null) return;
         Entity entity = fakeEntity(client);
-        if (entity != null && client.getCameraEntity() != entity) client.setCameraEntity(entity);
+        if (entity == null) return;
+
+        // Do not use the hallucination itself as the camera entity. Rendering a
+        // camera entity at its own position puts the camera inside the model.
+        // Keep the camera at the player and lock the player's view toward it.
+        if (client.getCameraEntity() != client.player) client.setCameraEntity(client.player);
+        lookAt(client.player, entity.position().add(0.0, entity.getBbHeight() * 0.6, 0.0));
+    }
+
+    private static void lookAt(net.minecraft.client.player.LocalPlayer player, Vec3 target) {
+        Vec3 delta = target.subtract(player.getEyePosition());
+        double horizontal = Math.sqrt(delta.x * delta.x + delta.z * delta.z);
+        if (horizontal < 1.0E-5D && Math.abs(delta.y) < 1.0E-5D) return;
+        float yaw = (float) (Math.atan2(-delta.x, delta.z) * (180.0D / Math.PI));
+        float pitch = (float) (-(Math.atan2(delta.y, horizontal) * (180.0D / Math.PI)));
+        player.setYRot(yaw);
+        player.setXRot(pitch);
+        player.yRotO = yaw;
+        player.xRotO = pitch;
+        player.yHeadRot = yaw;
+        player.yHeadRotO = yaw;
     }
 
     private static boolean isVisible(Minecraft client, Vec3 feet) {
