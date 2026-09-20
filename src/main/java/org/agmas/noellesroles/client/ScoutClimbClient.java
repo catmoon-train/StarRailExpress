@@ -28,6 +28,9 @@ import org.agmas.noellesroles.role.bouns.roles.ScoutRole;
  * <p>真正让玩家「贴着墙移动」的是 {@code ScoutClimbTravelMixin}；
  * 这里只负责决定「什么时候开始 / 结束攀爬」，以及把开始 / 结束通知服务端。
  *
+ * <p>攀爬中原来那面墙到头（拐角、台阶、柱子边）时，先看身边还有没有别的墙可以抓，
+ * 有就换过去继续爬（{@link ScoutRole#findHuggedWall}），一面都没有才脱手。
+ *
  * <p>攀爬状态挂在 Player 上（{@link ClimbState}，和体力条同一套路子），
  * 两端各自维护、不额外同步：本类只写 {@code predicting}，
  * 服务端只写 {@code climbing}。体力同样是两端各自模拟，所以这里也镜像扣一次。
@@ -137,11 +140,21 @@ public final class ScoutClimbClient {
             // 空格只是取消攀爬：清掉当前攀爬速度，不给任何向外 / 向上的推力
             stopPredict(player, state, Vec3.ZERO);
         } else if (!ScoutRole.isHuggingWall(player, normal)) {
-            // 墙到头了：向上爬时先尝试翻上墙顶（爬上/上岸），翻不上去才按原来的小助力脱手
+            // 原来那面墙到头了：先尝试翻上墙顶（爬上/上岸），再看身边是不是还有别的墙
             boolean movingUp = move[1] > ScoutRole.CLIMB_MOVE_EPSILON;
-            if (movingUp && ScoutRole.tryClimbOntoBlock(player, normal)) {
+            boolean climbedOnto = movingUp && ScoutRole.tryClimbOntoBlock(player, normal);
+            if (climbedOnto) {
+                // 翻上墙顶是瞬移，重新采样，别把这段位移算成一次攀爬动作
+                state.hasLastPos = false;
+            }
+            Vec3 next = ScoutRole.findHuggedWall(player, normal);
+            if (next != null) {
+                // 拐角 / 柱子 / 台阶后面那一面墙：换过去接着爬，不用松手重新右键
+                switchWall(state, next);
+            } else if (climbedOnto) {
                 stopPredict(player, state, null);
             } else {
+                // 一面墙都没有了：向上爬且没翻上去时给一点向外的小助力，其余情况直接松手
                 stopPredict(player, state, movingUp
                         ? new Vec3(-normal.x * 0.22D, 0.34D, -normal.z * 0.22D)
                         : null);
@@ -167,14 +180,22 @@ public final class ScoutClimbClient {
 
     private static boolean tryStart(LocalPlayer player, Vec3 normal) {
         ClimbState state = PlayerClimbState.of(player);
-        if (state == null || state.predicting) {
+        if (state == null) {
             return false;
         }
         if (!player.getMainHandItem().isEmpty()) {
             // 抓墙必须空手
             return false;
         }
-        if (!ScoutRole.roleAllowsClimb(player) || !ScoutRole.hasClimbStamina(player)) {
+        if (!ScoutRole.roleAllowsClimb(player)) {
+            return false;
+        }
+        if (state.predicting) {
+            // 已经在攀爬：右键身边另一面墙 = 把重心换过去（拐角换墙）
+            switchWall(state, normal);
+            return true;
+        }
+        if (!ScoutRole.hasClimbStamina(player)) {
             return false;
         }
         state.predicting = true;
@@ -182,6 +203,21 @@ public final class ScoutClimbClient {
         state.hasLastPos = false;
         ClientPlayNetworking.send(ScoutClimbC2SPacket.start(normal));
         return true;
+    }
+
+    /**
+     * 攀爬中换到另一面墙：更新本地法线并同步给服务端。
+     *
+     * <p>没有新包型 —— 直接复用 {@code start} 包，服务端在「已经在攀爬」时收到它
+     * 只当成一次换墙校验（见 {@link ScoutRole#handleClimbPacket}）。
+     * 法线没变就不发包，免得站在墙角时每 tick 刷包。
+     */
+    private static void switchWall(ClimbState state, Vec3 normal) {
+        if (state.normal.distanceToSqr(normal) < 1.0E-6D) {
+            return;
+        }
+        state.normal = normal;
+        ClientPlayNetworking.send(ScoutClimbC2SPacket.start(normal));
     }
 
     private static void stopPredict(LocalPlayer player, ClimbState state, Vec3 detachVelocity) {
