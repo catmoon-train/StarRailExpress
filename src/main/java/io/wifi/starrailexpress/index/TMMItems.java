@@ -69,7 +69,7 @@ public interface TMMItems {
             SRE.id("sanity"));
     ResourceKey<CreativeModeTab> ROLE_ITEMS_GROUP = ResourceKey.create(Registries.CREATIVE_MODE_TAB,
             SRE.id("role_items"));
-            
+
     ResourceKey<CreativeModeTab> FUNNY_ITEMS_GROUP = ResourceKey.create(Registries.CREATIVE_MODE_TAB,
             SRE.id("funny_item"));
     ResourceKey<CreativeModeTab> MISC_ITEMS_GROUP = ResourceKey.create(Registries.CREATIVE_MODE_TAB,
@@ -94,12 +94,14 @@ public interface TMMItems {
             WEAPONS_GROUP, SRE_ALL_GROUP);
     Item GRENADE = registrar.create("grenade", new GrenadeItem(new Item.Properties().stacksTo(1)), WEAPONS_GROUP,
             SRE_ALL_GROUP);
-    Item STICKY_GRENADE = registrar.create("sticky_grenade", new StickyGrenadeItem(new Item.Properties().stacksTo(1)),
+    Item STICKY_GRENADE = registrar.create("sticky_grenade",
+            new StickyGrenadeItem(new Item.Properties().stacksTo(1)),
             WEAPONS_GROUP, SRE_ALL_GROUP);
     Item TIMED_GRENADE = registrar.create("timed_grenade", new TimedGrenadeItem(new Item.Properties().stacksTo(1)),
             WEAPONS_GROUP, SRE_ALL_GROUP);
     Item FIRECRACKER = registrar.create("firecracker", new FirecrackerItem(new Item.Properties().stacksTo(1)),
             WEAPONS_GROUP, SRE_ALL_GROUP);
+    // 默认手枪
     Item REVOLVER = registrar.create("revolver", new RevolverItem(new Item.Properties().stacksTo(1)),
             WEAPONS_GROUP, SRE_ALL_GROUP);
     Item STANDARD_REVOLVER = registrar.create("standard_revolver",
@@ -115,7 +117,8 @@ public interface TMMItems {
     // === 工具 (TOOLS) ===
     Item KEY = registrar.create("key", new KeyItem(new Item.Properties().stacksTo(1)), TOOLS_GROUP, SRE_ALL_GROUP);
     Item IRON_DOOR_KEY = registrar.create("iron_door_key",
-            new IronDoorKeyItem(new Item.Properties().stacksTo(1).durability(3)), TOOLS_GROUP, SRE_ALL_GROUP);
+            new IronDoorKeyItem(new Item.Properties().stacksTo(1).durability(3)), TOOLS_GROUP,
+            SRE_ALL_GROUP);
     Item LOCKPICK = registrar.create("lockpick", new LockpickItem(new Item.Properties().stacksTo(1)),
             TOOLS_GROUP, SRE_ALL_GROUP);
     Item CROWBAR = registrar.create("crowbar", new CrowbarItem(new Item.Properties().stacksTo(1)), TOOLS_GROUP,
@@ -142,8 +145,10 @@ public interface TMMItems {
             TOOLS_GROUP, SRE_ALL_GROUP);
     Item BODY_BAG = registrar.create("body_bag", new BodyBagItem(new Item.Properties().stacksTo(1)),
             TOOLS_GROUP, SRE_ALL_GROUP);
-    Item LETTER = registrar.create("letter", new LetterItem(new Item.Properties().stacksTo(1)), TOOLS_GROUP, SRE_ALL_GROUP);
-    Item NOTE = registrar.create("note", new NoteItem(new Item.Properties().stacksTo(4)), TOOLS_GROUP, SRE_ALL_GROUP);
+    Item LETTER = registrar.create("letter", new LetterItem(new Item.Properties().stacksTo(1)), TOOLS_GROUP,
+            SRE_ALL_GROUP);
+    Item NOTE = registrar.create("note", new NoteItem(new Item.Properties().stacksTo(4)), TOOLS_GROUP,
+            SRE_ALL_GROUP);
     Item ADMISSION_TICKET = sreRegistrar.create("admission_ticket",
             new AdmissionTicketItem(new Item.Properties().stacksTo(16)), TOOLS_GROUP, SRE_ALL_GROUP);
 
@@ -177,11 +182,14 @@ public interface TMMItems {
             new io.wifi.starrailexpress.content.item.DrawingBoardItem(), EQUIPMENT_GROUP, SRE_ALL_GROUP);
     Item ADMIN_DRAWING_BOARD = sreRegistrar.create("admin_drawing_board",
             new io.wifi.starrailexpress.content.item.AdminDrawingBoardItem(),
-            new net.minecraft.resources.ResourceKey[] { net.minecraft.world.item.CreativeModeTabs.OP_BLOCKS });
+            new net.minecraft.resources.ResourceKey[] {
+                    net.minecraft.world.item.CreativeModeTabs.OP_BLOCKS });
 
     // === 杂项 (MISC) ===
-    Item BLACKOUT = registrar.create("blackout", new BlackoutItem(new Item.Properties().stacksTo(1)), SRE_ALL_GROUP);
-    Item MONITOR_BROKEN = registrar.create("monitor_broken", new MonitorBrokenItem(new Item.Properties().stacksTo(1)),
+    Item BLACKOUT = registrar.create("blackout", new BlackoutItem(new Item.Properties().stacksTo(1)),
+            SRE_ALL_GROUP);
+    Item MONITOR_BROKEN = registrar.create("monitor_broken",
+            new MonitorBrokenItem(new Item.Properties().stacksTo(1)),
             SRE_ALL_GROUP);
     Item PSYCHO_MODE = registrar.create("psycho_mode", new Item(new Item.Properties().stacksTo(1)), SRE_ALL_GROUP);
 
@@ -193,12 +201,14 @@ public interface TMMItems {
 
         // 亡命徒，超级亡命徒，土块 可以直接使用防御药剂
         DefenseItem.canUseByRightClickRolePaths.add(TMMRoles.LOOSE_END.identifier().getPath());
-        DefenseItem.canUseByRightClickRolePaths.add(SpecialGameModeRoles.SUPER_LOOSE_END.identifier().getPath());
+        DefenseItem.canUseByRightClickRolePaths
+                .add(SpecialGameModeRoles.SUPER_LOOSE_END.identifier().getPath());
         DefenseItem.canUseByRightClickRolePaths.add(SpecialGameModeRoles.DIRT.identifier().getPath());
 
         // 亡命徒，超级亡命徒，土块 也可以直接使用弱效护盾试剂
         WeakDefenseItem.canUseByRightClickRolePaths.add(TMMRoles.LOOSE_END.identifier().getPath());
-        WeakDefenseItem.canUseByRightClickRolePaths.add(SpecialGameModeRoles.SUPER_LOOSE_END.identifier().getPath());
+        WeakDefenseItem.canUseByRightClickRolePaths
+                .add(SpecialGameModeRoles.SUPER_LOOSE_END.identifier().getPath());
         WeakDefenseItem.canUseByRightClickRolePaths.add(SpecialGameModeRoles.DIRT.identifier().getPath());
 
         registrar.registerEntries();

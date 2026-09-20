@@ -26,6 +26,7 @@ public class AreasSettingUtils {
         UNDERWATER,
         FLY,
         TRAP,
+        /** 仅骑马地图生成（驯马师、猎人） */
         HORSE,
         /** 仅可跳跃地图生成 */
         CAN_JUMP,
@@ -38,8 +39,9 @@ public class AreasSettingUtils {
         /** 仅拥有状态栏地图生成（mapStatusBar != NONE） */
         MAP_STATUS_BAR,
         /** 仅实验室地图生成（实验室专属职业） */
-        LAB
-        /** 仅骑马地图生成（驯马师、猎人） */
+        LAB,
+        /** 仅爬山地图生成（童子军！！！） */
+        PEAK
     }
 
     public static class StoreableAABB {

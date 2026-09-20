@@ -587,18 +587,41 @@ public final class RoleSkill {
         return beginUse(player, target, requestedSlot, phase, shifted, false);
     }
 
+    /**
+     * 技能释放必须在服务端主线程执行：它会读写世界、CCA 组件与玩家状态。
+     *
+     * <p>所有已知入口本身就在主线程：Fabric 的
+     * {@code ServerPlayNetworkAddon.receive} 会把回调包进
+     * {@code MinecraftServer.execute(...)}，命令与假人 AI 亦在 tick 内调用。
+     * 因此这里<b>不再做跨线程推迟</b>（推迟会掩盖调用方违约，并且在推迟任务仍被判为非主线程时
+     * 会自我递归、把栈撑爆成 StackOverflowError），而是直接报错并放弃本次释放，让违约现场立刻可见。
+     */
     public static boolean beginUse(ServerPlayer player, @Nullable UUID target, int requestedSlot, Phase phase,
             boolean shifted, boolean ignoreEffect) {
         if (player == null) {
             return false;
         }
-        // 技能释放会访问世界与组件状态，必须在服务端主线程执行；非主线程调用时推迟到主线程。
         var server = player.getServer();
+        // 必须主线程！（待测试）
         if (server != null && !server.isSameThread()) {
-            SRE.LOGGER.warn("RoleSkill.beginUse called off the server thread: {}", player.getScoreboardName());
-            server.execute(() -> beginUse(player, target, requestedSlot, phase, shifted, ignoreEffect));
-            // 推迟后无法同步取回 handler 返回值，乐观返回 true（现有调用方都在主线程，此分支仅作兜底）
-            return true;
+            // 只在违约路径构造 Throwable：它提供调用栈，日志会连同堆栈一起打印，
+            // 用来定位是哪条异步链路把技能释放甩到了非主线程。
+            Throwable callSite = new Throwable("off-thread RoleSkill.beginUse call-site");
+            SRE.LOGGER.error(
+                    "RoleSkill.beginUse rejected: called off the server thread. player={} thread={} runningThread={}",
+                    player.getScoreboardName(), Thread.currentThread().getName(),
+                    server.getRunningThread().getName(), callSite);
+            // 若判定用的不是全局那个 MinecraftServer，说明 isSameThread 读的是另一个实例的
+            // serverThread，属于误报而非真异步；这种情况下拒绝执行会误伤全部技能，必须暴露出来。
+            if (server != SRE.SERVER) {
+                SRE.LOGGER.error(
+                        "RoleSkill.beginUse thread check used an unexpected MinecraftServer instance. "
+                                + "playerServer={} playerServerThread={} SRE.SERVER={}",
+                        Integer.toHexString(System.identityHashCode(server)),
+                        server.getRunningThread().getName(),
+                        String.valueOf(SRE.SERVER));
+            }
+            return false;
         }
         SRERole role = getRole(player);
         if (role == null) {

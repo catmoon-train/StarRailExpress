@@ -18,10 +18,12 @@ package io.wifi.starrailexpress.api;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.agmas.noellesroles.utils.RoleUtils;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.Nullable;
 
 import io.wifi.starrailexpress.compat.CrosshairaddonsCompat;
+import io.wifi.starrailexpress.event.OnPlayerDeathWithBody;
 import io.wifi.starrailexpress.game.GameUtils;
 import io.wifi.starrailexpress.index.TMMSounds;
 import net.minecraft.core.particles.ParticleTypes;
@@ -40,6 +42,15 @@ import net.minecraft.world.phys.Vec3;
  */
 public class LooseEndRole extends OriginalRole {
     public ArrayList<MobEffectInstance> playerEffects = new ArrayList<>();
+
+    public static void registerEvents() {
+        OnPlayerDeathWithBody.EVENT.register((victim, killer, deathReason, body) -> {
+            if (RoleUtils.isPlayerTheJob(victim, TMMRoles.LOOSE_END)) {
+                // 清空尸体物品栏
+                body.setCorpseInventoryFromPlayerInventory(null);
+            }
+        });
+    }
 
     public LooseEndRole(ResourceLocation identifier, int color, boolean isInnocent, boolean canUseKiller,
             MoodType moodType, int maxSprintTime, boolean canSeeTime, List<MobEffectInstance> playerEffects) {

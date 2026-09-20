@@ -40,6 +40,8 @@ import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import org.agmas.noellesroles.role_data.innocence.AnglerRoleData;
+import org.agmas.noellesroles.role_data.innocence.ClimbPoseRoleData;
+import org.agmas.noellesroles.role_data.innocence.FatFishRoleData;
 import org.agmas.noellesroles.role_data.innocence.VoodooRoleData;
 import org.agmas.noellesroles.role_data.innocence.DiscMasterRoleData;
 import org.agmas.noellesroles.role_data.innocence.TelegrapherRoleData;
@@ -75,6 +77,10 @@ public class BounsRoles {
     public static final ResourceLocation DISC_MASTER_ID = id("disc_master");
     public static final ResourceLocation ANGLER_ID = id("angler");
     public static final ResourceLocation PROGRAMMER_ID = id("programmer");
+    public static final ResourceLocation SCOUT_ID = id("scout");
+    public static final ResourceLocation SCOUT_CAPTAIN_ID = id("scout_captain");
+    public static final ResourceLocation FOREST_MUSHROOM_ZOMBIE_ID = id("forest_mushroom_zombie");
+    public static final ResourceLocation FAT_FISH_ID = id("fat_fish");
 
     public static ResourceLocation id(String path) {
         return ResourceLocation.fromNamespaceAndPath(NAMESPACE, path);
@@ -188,8 +194,7 @@ public class BounsRoles {
             false,
             SRERole.MoodType.REAL,
             TMMRoles.CIVILIAN.getMaxSprintTime(),
-            false
-    )).setCanSeeCoin(true).setRoleData(AnglerRoleData::new)
+            false)).setCanSeeCoin(true).setRoleData(AnglerRoleData::new)
             // 水下图或实验室图均可刷新（参照网警，用 SpecialMapRolesCondition 表达组合关系）
             .setSpecialMapRolesCondition((t) -> t.contains(MapSpecialFeatures.UNDERWATER)
                     || t.contains(MapSpecialFeatures.LAB))
@@ -209,7 +214,8 @@ public class BounsRoles {
             GameUtils.killPlayer(player, true, null, SRE.wifiId("cat_killer"));
             // 先走默认逻辑，防止傀儡死
             if (!player.isSpectator()) {
-                if (SREGameWorldComponent.KEY.get(player.level()).isRole(player, BounsRoles.CAT_KILLER)) {
+                if (SREGameWorldComponent.KEY.get(player.level()).isRole(player,
+                        BounsRoles.CAT_KILLER)) {
                     GameUtils.forceKillPlayer(player, true, null, SRE.wifiId("cat_killer"));
                 }
             }
@@ -253,14 +259,16 @@ public class BounsRoles {
      * 职业：冷笑
      * 巫毒对立职业
      */
-    public static SRERole LENGXIAO = TMMRoles.registerRole(new EggRole(LENGXIAO_ID, new Color(230, 178, 130).getRGB(),
-            false, true, SRERole.MoodType.FAKE, Integer.MAX_VALUE, true) {
-        @Override
-        public ResourceLocation getPsychoSkin(Player player, boolean isSlim) {
-            ResourceLocation texture = SRE.id("textures/block/plush/lengxiaocn.png");
-            return texture;
-        }
-    }, "creator_team").setDefaultEnableChance(1000).setRoleData(VoodooRoleData::new).addRelatedRole(ModRoles.VOODOO);
+    public static SRERole LENGXIAO = TMMRoles
+            .registerRole(new EggRole(LENGXIAO_ID, new Color(230, 178, 130).getRGB(),
+                    false, true, SRERole.MoodType.FAKE, Integer.MAX_VALUE, true) {
+                @Override
+                public ResourceLocation getPsychoSkin(Player player, boolean isSlim) {
+                    ResourceLocation texture = SRE.id("textures/block/plush/lengxiaocn.png");
+                    return texture;
+                }
+            }, "creator_team").setDefaultEnableChance(1000).setRoleData(VoodooRoleData::new)
+            .addRelatedRole(ModRoles.VOODOO);
 
     public static SRERole LAO_DA = TMMRoles.registerRole(new EggRole(id("lao_da"), new Color(236, 209, 72).getRGB(),
             true, false, SRERole.MoodType.REAL, TMMRoles.CIVILIAN_MAX_SPRINT_TICKS, false) {
@@ -278,7 +286,8 @@ public class BounsRoles {
                 if (p instanceof ServerPlayer sp) {
                     SRENetworkMessageUtils.sendBroadcast(sp,
                             Component.translatable("message.noellesroles.lao_da.death"));
-                    RoleUtils.playSound(sp, NRSounds.ROLES_LAODA_SEE_YOU_AGAIN, SoundSource.MASTER, 0.4f, 1f);
+                    RoleUtils.playSound(sp, NRSounds.ROLES_LAODA_SEE_YOU_AGAIN, SoundSource.MASTER,
+                            0.4f, 1f);
                 }
             }
             return;
@@ -408,6 +417,111 @@ public class BounsRoles {
             .setDefaultEnableChance(2000) // 彩蛋刷新率 20%
             .setAddedVersion("4.4"); // versiontag 4.4
 
+    /**
+     * 童子军角色（参考 PEAK）
+     * - 彩蛋职业（受彩蛋刷新概率影响），只在带 {@link MapSpecialFeatures#PEAK} 特性的爬山图刷新
+     * - 属于乘客阵营 (isInnocent = true, canUseKiller = false)、真实心情
+     * - 2 倍平民体力：空手右键紧贴的墙壁开始攀爬，攀爬时按移动方向消耗体力
+     * - 技能：切换站立 / 匍匐姿态
+     * - 攀爬能力由 {@code setCanClimbWalls(true)} 开启，实现在 {@link ScoutRole} 里
+     */
+    public static SRERole SCOUT = TMMRoles.registerRole(new ScoutRole(
+            SCOUT_ID, // 角色 ID
+            new Color(120, 170, 80).getRGB(), // 童子军绿
+            true, // isInnocent = 乘客阵营
+            false, // canUseKiller = 无杀手能力
+            SRERole.MoodType.REAL, // 真实心情
+            TMMRoles.CIVILIAN.getMaxSprintTime() * 2, // 攀爬需要更多体力
+            false // 不隐藏计分板
+    )).setCanSeeCoin(true)
+            .setRoleData(ClimbPoseRoleData::new)
+            .setCanClimbWalls(true)
+            .addFlag("peak")
+            // 只在爬山地图刷新（枚举里 PEAK 就是为童子军预留的）
+            .setSpecialMapRolesCondition((t) -> t.contains(MapSpecialFeatures.PEAK))
+            .setDefaultMax(1)
+            .setDefaultEnableChance(200) // 彩蛋刷新率 2%
+            .setCanBeRandomedByOtherRoles(false);
+
+    /**
+     * 森蕈僵尸（杀手，参考 PEAK 的追猎者）
+     * - 彩蛋职业，复用童子军那套攀爬逻辑（{@code setCanClimbWalls(true)}）
+     * - 属于杀手阵营 (isInnocent = false, canUseKiller = true)：吃默认杀手商店，不覆写
+     * getShopEntries()
+     * - 只在带 {@link MapSpecialFeatures#PEAK} 特性的爬山图出现
+     * - 默认刷新数 0：不单独刷新，靠 {@link #SCOUT} 的 addOccupationRole 绑定生成
+     * - 技能：与童子军相同的站立 / 匍匐姿态
+     */
+    public static SRERole FOREST_MUSHROOM_ZOMBIE = TMMRoles.registerRole(new ScoutRole(
+            FOREST_MUSHROOM_ZOMBIE_ID, // 角色 ID
+            new Color(96, 116, 66).getRGB(), // 森蕈的菌盖苔绿
+            false, // isInnocent = 杀手阵营
+            true, // canUseKiller = 有杀手能力（默认杀手商店）
+            SRERole.MoodType.FAKE, // 假心情
+            Integer.MAX_VALUE, // 无限攀爬体力
+            true // 显示计分板
+    )).setCanSeeCoin(true)
+            .setRoleData(ClimbPoseRoleData::new)
+            .setCanClimbWalls(true)
+            .addFlag("peak")
+            .setSpecialMapRolesCondition((t) -> t.contains(MapSpecialFeatures.PEAK))
+            .setDefaultMax(0) // 不单独刷新，跟着童子军一起出现
+            .setCanBeRandomedByOtherRoles(false);
+
+    /**
+     * 童子军队长（警长阵营）
+     * - 彩蛋职业，只在带 {@link MapSpecialFeatures#PEAK} 特性的爬山图刷新
+     * - 警长阵营：{@code setVigilanteTeam(true) + setSpecialVigilante(true)}，可以捡枪
+     * - 体力上限是平民的 3 倍（{@link ScoutCaptainRole#STAMINA_MULTIPLIER}）
+     * - 依然是攀爬职业：{@code setCanClimbWalls(true)} + {@link ScoutCaptainRole}
+     * - 吃东西额外回体力：每次吃完一份食物 +{@link ScoutCaptainRole#EAT_STAMINA_RESTORE}（10*5）
+     * - 任务奖励：完成 2 个任务获得制式左轮（手枪）
+     */
+    public static SRERole SCOUT_CAPTAIN = TMMRoles.registerRole(new ScoutCaptainRole(
+            SCOUT_CAPTAIN_ID, // 角色 ID
+            new Color(52, 110, 74).getRGB(), // 深松绿，比童子军更「队长」
+            true, // isInnocent = 乘客 / 警长阵营
+            false, // canUseKiller = 无杀手能力
+            SRERole.MoodType.REAL, // 真实心情
+            TMMRoles.CIVILIAN.getMaxSprintTime() * ScoutCaptainRole.STAMINA_MULTIPLIER, // 3 倍体力
+            false // 不隐藏计分板
+    )).setCanSeeCoin(true)
+            .addFlag("peak")
+            .setVigilanteTeam(true)
+            .setSpecialVigilante(true)
+            .setCanPickUpRevolver(true)
+            .setRoleData(ClimbPoseRoleData::new)
+            .setCanClimbWalls(true)
+            .setSpecialMapRolesCondition((t) -> t.contains(MapSpecialFeatures.PEAK))
+            // 完成 2 个任务获左轮手枪，只触发一次
+            .setTaskReward(2, 1, new ItemStack(TMMItems.REVOLVER))
+            .setDefaultMax(1)
+            .setDefaultEnableChance(200) // 彩蛋刷新率 2%
+            .setCanBeRandomedByOtherRoles(false);
+
+    /**
+     * 大肥鱼（DeepSeek 娘化形象）
+     * - 彩蛋职业 · 乘客阵营，全地图刷新（不限制地图）
+     * - 技能：鲸歌（范围声波震慑，冷却 60s）、摆尾冲刺（冲刺 + 撞飞，冷却 25s）
+     * - 被动：浑水鱼（水下呼吸 / 海豚恩惠 / 水下额外回体力）、圆滚滚（抗击退 + 移动时顶开别人）
+     * - 吃东西会投喂团子：周围 6 格内的友军回体力并挂短时再生
+     * - 专属商店：食力架 / 冷静茶 / 肾上腺素 / 防护药剂
+     * - 免疫阴谋家的猜测（被猜中也不会死）
+     * - 皮肤：assets/noellesroles/textures/entity/player/deepseek.png（细手 Alex 模型）
+     */
+    public static SRERole FAT_FISH = TMMRoles.registerRole(new FatFishRole(
+            FAT_FISH_ID, // 角色 ID
+            new Color(70, 130, 200).getRGB(), // 深海蓝
+            RoleType.NEUTRALS_FOR_INNOCENT,
+            SRERole.MoodType.REAL, // 真实心情
+            TMMRoles.CIVILIAN.getMaxSprintTime(), // 标准体力
+            false // 不隐藏计分板
+    )).setCanSeeCoin(true)
+            .setRoleData(FatFishRoleData::new)
+            .setDefaultMax(1)
+            .setDefaultEnableChance(200) // 彩蛋刷新率 2%
+            .setCanBeRandomedByOtherRoles(false);
+
     public static void init() {
         THRedHouseRoles.init();
         THMountainRoles.init();
@@ -444,7 +558,8 @@ public class BounsRoles {
             SRERole victimRole = gw.getRole(victim);
             if (victimRole != null && !lv.isTargetRole(victimRole)) {
                 // 黑警击杀了非目标阵营玩家：悔恨自尽。forcekill 二次触发时 killer=原受害者（非黑警），不会递归惩罚
-                GameUtils.forceKillPlayer(killer, true, victim, GameConstants.DeathReasons.REGRET_SUICIDE);
+                GameUtils.forceKillPlayer(killer, true, victim,
+                        GameConstants.DeathReasons.REGRET_SUICIDE);
             }
             return true;
         });
@@ -466,5 +581,12 @@ public class BounsRoles {
         BEE_WASP.setAddedVersion("4.4");
         BEE_WORKER.setAddedVersion("4.4");
         HENG_XING_TI.setAddedVersion("4.4");
+        SCOUT.setAddedVersion("4.4");
+        SCOUT_CAPTAIN.setAddedVersion("4.4");
+        FOREST_MUSHROOM_ZOMBIE.setAddedVersion("4.4");
+        FAT_FISH.setAddedVersion("4.4");
+        // 森蕈僵尸与童子军绑定生成（分配童子军时也会分配森蕈僵尸）；
+        // 它的默认刷新数是 0，所以不会自己单独刷新出来。
+        SCOUT.addOccupationRole(FOREST_MUSHROOM_ZOMBIE);
     }
 }

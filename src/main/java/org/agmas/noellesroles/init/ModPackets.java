@@ -156,6 +156,8 @@ public class ModPackets {
         PayloadTypeRegistry.playC2S().register(AmonSelectTargetC2SPacket.ID, AmonSelectTargetC2SPacket.CODEC);
         PayloadTypeRegistry.playC2S().register(ManipulatorControlInputC2SPacket.ID,
                 ManipulatorControlInputC2SPacket.CODEC);
+        // 童子军：空手右键紧贴的墙壁 → 开始攀爬；松手 → 结束攀爬
+        PayloadTypeRegistry.playC2S().register(ScoutClimbC2SPacket.ID, ScoutClimbC2SPacket.CODEC);
         PayloadTypeRegistry.playC2S().register(ManipulatorAbilityC2SPacket.ID,
                 ManipulatorAbilityC2SPacket.CODEC);
         PayloadTypeRegistry.playC2S().register(OpenLockGuiS2CPacket.ID, OpenLockGuiS2CPacket.CODEC);

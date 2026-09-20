@@ -49,6 +49,7 @@ import net.minecraft.world.scores.PlayerTeam;
 import org.agmas.noellesroles.config.NoellesRolesConfig;
 import org.agmas.noellesroles.game.roles.innocence.fool.TarotAssemblyManager;
 import org.agmas.noellesroles.init.ModItems;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Optional;
 import java.util.UUID;
@@ -221,14 +222,19 @@ public class PlayerBodyEntity extends LivingEntity {
     }
 
     // 原有方法（默认同步）
-    public void setCorpseInventoryFromPlayerInventory(Inventory inventory) {
+    public void setCorpseInventoryFromPlayerInventory(@Nullable Inventory inventory) {
         setCorpseInventoryFromPlayerInventory(inventory, true);
     }
 
     // 新重载，可控制是否同步
-    public void setCorpseInventoryFromPlayerInventory(Inventory inventory, boolean sync) {
+    public void setCorpseInventoryFromPlayerInventory(@Nullable Inventory inventory, boolean sync) {
         SimpleContainer inv = getComponent().getCorpseInventory();
-        {
+        if (inventory == null) {
+            for (int i = 0; i < inv.items.size(); i++) {
+                inv.items.set(i, ItemStack.EMPTY);
+            }
+            inv.setChanged();
+        } else {
             // 普通模式：只同步装备和少量物品（保持原有逻辑）
             int[][] mapping = {
                     { 0, 0 }, { 1, 1 }, { 2, 2 }, { 3, 3 }, { 4, 4 }, { 5, 5 }, { 6, 6 }, { 7, 7 }, { 8, 8 },
@@ -255,7 +261,8 @@ public class PlayerBodyEntity extends LivingEntity {
         }
 
         if (sync) {
-            getComponent().sync();
+            // 其实不需要同步
+            // getComponent().sync();
         }
     }
 

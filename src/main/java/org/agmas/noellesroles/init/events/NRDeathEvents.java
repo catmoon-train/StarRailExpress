@@ -16,6 +16,7 @@
 package org.agmas.noellesroles.init.events;
 
 import io.wifi.starrailexpress.SRE;
+import io.wifi.starrailexpress.api.LooseEndRole;
 import io.wifi.starrailexpress.api.SREGameModes;
 import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.api.TMMRoles;
@@ -643,6 +644,7 @@ public class NRDeathEvents {
     // ==================== 事件注册 ====================
 
     public static void register() {
+        LooseEndRole.registerEvents();
         registerAllowPlayerDeath();
         registerAfterShieldAllowPlayerDeath();
         registerOnPlayerDeath();

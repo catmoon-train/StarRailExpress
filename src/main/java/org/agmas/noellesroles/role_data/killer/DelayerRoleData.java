@@ -45,6 +45,7 @@ import org.agmas.noellesroles.api.time.TimeRewindResult;
 import org.agmas.noellesroles.api.time.TimeRewindSnapshot;
 import org.agmas.noellesroles.init.ModEffects;
 import org.agmas.noellesroles.role.ModRoles;
+import org.agmas.noellesroles.utils.RoleUtils;
 import org.jetbrains.annotations.NotNull;
 import java.util.ArrayList;
 import java.util.List;
@@ -339,7 +340,7 @@ public class DelayerRoleData extends SimpleRoleData {
         shop.balance = anchorBalance;
         shop.sync();
 
-        sp.removeAllEffects();
+        RoleUtils.removeAllEffects(sp);
         for (MobEffectInstance effect : effectSnapshot) {
             sp.addEffect(new MobEffectInstance(effect));
         }

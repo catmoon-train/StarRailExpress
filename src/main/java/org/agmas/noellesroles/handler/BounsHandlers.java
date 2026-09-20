@@ -19,8 +19,10 @@ import org.agmas.noellesroles.handler.utils.BeeFamilyManager;
 import org.agmas.noellesroles.game.roles.neutral.leader.LeaderFollowerEffects;
 import org.agmas.noellesroles.init.ModEffects;
 import org.agmas.noellesroles.role.bouns.BounsRoles;
+import org.agmas.noellesroles.role.bouns.roles.FatFishRole;
 import org.agmas.noellesroles.role.bouns.roles.HengXingTiRole;
 import org.agmas.noellesroles.role.bouns.roles.RabbitWansuiRole;
+import org.agmas.noellesroles.role.bouns.roles.ScoutRole;
 import org.agmas.noellesroles.role_data.neutral.LinFamilyRoleData;
 import org.agmas.noellesroles.utils.RoleUtils;
 
@@ -44,6 +46,19 @@ public class BounsHandlers {
         BeeFamilyManager.registerEvents();
         LinFamilyRoleData.registerEvents();
         RabbitWansuiRole.registerEvents();
+        ScoutRole.registerEvents();
+
+        // 大肥鱼：投喂团子（其他玩家拿食物右键它）
+        FatFishRole.registerEvents();
+
+        // 大肥鱼：鲸歌（范围声波震慑）+ 摆尾冲刺（冲刺 + 撞飞）
+        RoleSkill.register(BounsRoles.FAT_FISH,
+                RoleSkill.skill(SRE.id("fat_fish_song"), "skill.noellesroles.fat_fish.song",
+                        FatFishRole::triggerSong).showOnHud(true).recordReplay()
+                        .cooldownSeconds(60).announceToSelf(false).build(),
+                RoleSkill.skill(SRE.id("fat_fish_tail_dash"), "skill.noellesroles.fat_fish.tail_dash",
+                        FatFishRole::triggerTailDash).showOnHud(true).recordReplay()
+                        .cooldownSeconds(25).announceToSelf().build());
         RoleSkill.register(BounsRoles.HENG_XING_TI,
                 RoleSkill.skill(SRE.id("heng_xing_ti"), "skill.noellesroles.heng_xing_ti", (ctx) -> {
                     return HengXingTiRole.triggerSkill(ctx);

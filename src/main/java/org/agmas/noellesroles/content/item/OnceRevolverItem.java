@@ -59,7 +59,8 @@ public class OnceRevolverItem extends SkinableItem {
                 if (role != null && !role.onUseGun(user)) {
                     return InteractionResultHolder.fail(stack);
                 }
-                stack.hurtAndBreak(1, user, EquipmentSlot.MAINHAND);
+                stack.hurtAndBreak(1, user,
+                        hand.equals(InteractionHand.MAIN_HAND) ? EquipmentSlot.MAINHAND : EquipmentSlot.OFFHAND);
             }
 
             HitResult collision = getGunTarget(user);
@@ -81,7 +82,8 @@ public class OnceRevolverItem extends SkinableItem {
             if (role != null && !role.onUseGun(user)) {
                 return InteractionResultHolder.fail(stack);
             }
-            stack.hurtAndBreak(1, user, EquipmentSlot.MAINHAND);
+            stack.hurtAndBreak(1, user,
+                    hand.equals(InteractionHand.MAIN_HAND) ? EquipmentSlot.MAINHAND : EquipmentSlot.OFFHAND);
 
             user.getCooldowns().addCooldown(ModItems.ONCE_REVOLVER, SREConfig.instance().revolverCooldown * 20);
         }

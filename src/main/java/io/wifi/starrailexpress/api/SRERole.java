@@ -883,6 +883,16 @@ public abstract class SRERole extends SREAbstractInfoClass {
     protected boolean canUseSabotage = false;
     protected boolean canJumpManhole = false;
     protected boolean canAcrossFog = false;
+    /**
+     * 是否启用「墙壁攀爬」能力（童子军那套攀爬逻辑，实现在 noellesroles 的 {@code ScoutRole}）。
+     *
+     * <p>默认判定只看这个开关；子类可以覆写 {@link #canClimbWalls(Player)}，
+     * 按玩家状态 / 当前地图做动态判断（例如冒险家只在 PEAK 爬山图上能攀爬）。
+     *
+     * <p>攀爬的运行状态挂在 Player 自己身上（和体力条一样），**不需要**额外绑定 RoleData；
+     * 只有「动作姿态」技能才需要（noellesroles 的 {@code ClimbPoseRoleData}）。
+     */
+    protected boolean canClimbWalls = false;
 
     public boolean isNeutrals() {
         return this.isNeutrals;
@@ -1442,6 +1452,27 @@ public abstract class SRERole extends SREAbstractInfoClass {
 
     public boolean canPickUpRevolver() {
         return this.ableToPickUpRevolver;
+    }
+
+    /** 静态开关：该职业是否配置了墙壁攀爬能力 */
+    public boolean canClimbWalls() {
+        return this.canClimbWalls;
+    }
+
+    /**
+     * 该玩家此刻能否使用墙壁攀爬。
+     * <p>默认返回静态开关；需要按玩家状态 / 地图判断的职业覆写这个方法。
+     *
+     * @param player 目标玩家（判断地图时可用 player.level()）
+     */
+    public boolean canClimbWalls(Player player) {
+        return canClimbWalls();
+    }
+
+    /** 开启 / 关闭该职业的墙壁攀爬能力 */
+    public SRERole setCanClimbWalls(boolean able) {
+        this.canClimbWalls = able;
+        return this;
     }
 
     public SRERole setCanSeeCoin(boolean able) {

@@ -53,6 +53,9 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.tags.TagKey;
+import net.minecraft.world.effect.MobEffect;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.Attribute;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.player.Player;
@@ -78,6 +81,7 @@ import java.util.OptionalInt;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 /**
  * 角色相关工具
@@ -146,10 +150,40 @@ public class RoleUtils extends MCItemsUtils {
         }
     }
 
+    /**
+     * 清除玩家身上的所有药水效果。
+     *
+     * <p>不要直接调用 {@code LivingEntity#removeAllEffects()}：原版实现在迭代
+     * {@code activeEffects} 这个 {@link java.util.HashMap} 的 {@code values()} 时回调
+     * {@code onEffectRemoved}，而 {@code ServerPlayerEntityMixin} 会在这里派发
+     * {@code SimpleMobEffect#onEffectEnded}。只要该回调顺带移除了<b>另一个</b>效果
+     * （例如智力下降结束后 {@code StatusAilmentHandler#endIntellectLock} 会移除
+     * {@code USED_BANED}），HashMap 的 modCount 就会变化，下一次 {@code Iterator#remove()}
+     * 直接抛 {@link java.util.ConcurrentModificationException}，并在死亡流程中把服务器线程打崩。
+     *
+     * <p>这里改为先对效果列表做快照，再按 {@link LivingEntity#removeEffect(net.minecraft.core.Holder)}
+     * 逐个移除：该重载不会触发 {@code onEffectRemoved}，因此回调期间对效果表的任何增删都不会
+     * 再与迭代器冲突；快照中的效果若已被回调移除，用 {@code getEffect} 跳过即可，语义与原版一致。
+     */
     public static boolean removeAllEffects(Player entity) {
-        if (entity.getActiveEffects() != null && !entity.getActiveEffects().isEmpty())
-            return entity.removeAllEffects();
-        return false;
+        if (entity == null) {
+            return false;
+        }
+        // 快照必须在任何移除之前建立（getActiveEffects 返回的是效果表 values() 的视图）。
+        List<Holder<MobEffect>> effects = entity.getActiveEffects().stream()
+                .map(MobEffectInstance::getEffect)
+                .collect(Collectors.toCollection(ArrayList::new));
+        if (effects.isEmpty()) {
+            return false;
+        }
+        boolean removed = false;
+        for (Holder<MobEffect> effect : effects) {
+            if (entity.getEffect(effect) != null) {
+                entity.removeEffect(effect);
+                removed = true;
+            }
+        }
+        return removed;
     }
 
     public static boolean isPlayerHasFreeSlot(@NotNull Player player) {

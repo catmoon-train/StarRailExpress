@@ -37,6 +37,7 @@ import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.entity.player.Player;
 import org.agmas.noellesroles.ConfigWorldComponent;
+import org.agmas.noellesroles.role.bouns.BounsRoles;
 import org.agmas.noellesroles.Noellesroles;
 import org.agmas.noellesroles.role_data.innocence.AgentRoleData;
 import org.agmas.noellesroles.role.ModRoles;
@@ -149,6 +150,16 @@ public class ConspiratorRoleData extends SimpleRoleData {
             return false;
 
         String targetName = target.getName().getString();
+
+        // 大肥鱼免疫阴谋家的猜测：既不算猜中，也不会进入死亡倒计时
+        if (BounsRoles.FAT_FISH_ID.equals(actualRole.identifier())) {
+            serverPlayer.displayClientMessage(
+                    Component.translatable("message.noellesroles.conspirator.immune", targetName)
+                            .withStyle(ChatFormatting.RED),
+                    true);
+            return false;
+        }
+
         broadcastGuessTrace();
 
         // 检查目标是否已经在目标列表中

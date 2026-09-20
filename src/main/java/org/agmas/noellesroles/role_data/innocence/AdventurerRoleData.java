@@ -36,6 +36,14 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
+/**
+ * 冒险家的职业数据（航点能力等）。
+ *
+ * <p>攀爬不在这里：攀爬状态像体力条一样挂在 Player 自己身上
+ * （{@code PlayerClimbState}），所以冒险家只要
+ * {@code AdventurerRole#canClimbWalls(Player)} 返回 true（PEAK 爬山图）就能爬，
+ * 不需要自己的 RoleData 参与。
+ */
 public class AdventurerRoleData extends SimpleRoleData {
 
     /** 节流提示信息的间隔（仅用于避免持续性危害刷屏，不影响免疫本身）。 */
