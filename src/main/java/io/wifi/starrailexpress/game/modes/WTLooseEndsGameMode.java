@@ -36,6 +36,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemCooldowns;
 import net.minecraft.world.item.ItemStack;
+
 import org.agmas.harpymodloader.events.ModdedRoleAssigned;
 
 import java.util.ArrayList;
@@ -117,7 +118,7 @@ public class WTLooseEndsGameMode extends GameMode {
         }
     }
 
-    protected void initRoles(List<ServerPlayer> players, SREGameWorldComponent gameWorldComponent) {
+    protected void initRoles(List<ServerPlayer> players, SREGameWorldComponent gameWorldComponent, ServerLevel world) {
         for (ServerPlayer player : players)
             gameWorldComponent.addRole(player, TMMRoles.LOOSE_END);
     }
@@ -148,7 +149,7 @@ public class WTLooseEndsGameMode extends GameMode {
     public void initializeGame(ServerLevel serverWorld, SREGameWorldComponent gameWorldComponent,
             List<ServerPlayer> players) {
         // 先分配职业再发物品：可以根据职业来分配
-        initRoles(players, gameWorldComponent);
+        initRoles(players, gameWorldComponent, serverWorld);
         initCoolDownItems(players, gameWorldComponent);
         initPlayerItems(players, gameWorldComponent);
         sendWelcomePackets(players, gameWorldComponent, TMMRoles.LOOSE_END);

@@ -42,8 +42,6 @@ import org.agmas.noellesroles.init.SREFumoBlocks;
 import org.agmas.noellesroles.utils.MCItemsUtils;
 import org.lwjgl.glfw.GLFW;
 import org.slf4j.LoggerFactory;
-import org.spongepowered.include.com.google.gson.JsonSyntaxException;
-
 import com.mojang.blaze3d.platform.InputConstants;
 import com.mojang.text2speech.Narrator;
 
@@ -116,7 +114,6 @@ import io.wifi.starrailexpress.event.client.OnGameFinishedClient;
 import io.wifi.starrailexpress.event.client.OnGameStartedClient;
 import io.wifi.starrailexpress.game.GameConstants;
 import io.wifi.starrailexpress.game.GameUtils;
-import io.wifi.starrailexpress.game.data.MapConfig;
 import io.wifi.starrailexpress.game.data.MapStatusBarType;
 import io.wifi.starrailexpress.index.SREDataComponentTypes;
 import io.wifi.starrailexpress.index.SREDisplayBlocks;

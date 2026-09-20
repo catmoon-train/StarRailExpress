@@ -150,7 +150,7 @@ public final class MafiaManager {
 
     public static boolean isRecruitable(ServerPlayer p) {
         var role = SREGameWorldComponent.KEY.get(p.level()).getRole(p);
-        if (role == null || !role.canBeRandomed())
+        if (role == null || !role.canBeRandomedDefination())
             return false;
         // 傀儡师及其操控的假人不可被教父改变职业
         if (role == ModRoles.PUPPETEER)
