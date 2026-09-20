@@ -45,7 +45,7 @@ import java.util.List;
  * <li><b>浑水鱼</b>：被动 —— 在水里不缺氧、游得更快、体力恢复更快（见 {@code FatFishRoleData}）；</li>
  * <li><b>圆滚滚</b>：被动 —— 抗击退，且移动时会把撞到的人顶开（见 {@code FatFishRoleData}）；</li>
  * <li><b>投喂团子</b>：其他玩家拿着食物右键它，给它回体力并挂短时再生（{@link #feed}）；</li>
- * <li><b>专属商店</b>：{@link #getShopEntries()} 卖鱼干 / 茶 </li>
+ * <li><b>专属商店</b>：{@link #getShopEntries()} 卖鱼干 / 茶</li>
  * </ol>
  *
  * <p>
@@ -222,6 +222,7 @@ public class FatFishRole extends EggRole {
             p.addEffect(ModEffects.of(MobEffects.MOVEMENT_SPEED, EAT_AURA_SPEED_TICKS, 1,
                     false, true, true));
         }
+        fish.level().playSound(null, fish.blockPosition(), SoundEvents.GENERIC_EAT, SoundSource.MASTER, 1f, 1f);
         fish.displayClientMessage(
                 Component.translatable("message.noellesroles.fat_fish.fed", feeder.getName())
                         .withStyle(ChatFormatting.LIGHT_PURPLE),
