@@ -1,74 +1,151 @@
 package org.agmas.noellesroles.client.screen;
 
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.PlayerFaceRenderer;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.multiplayer.PlayerInfo;
 import net.minecraft.network.chat.Component;
-import org.agmas.noellesroles.Noellesroles;
 import org.agmas.noellesroles.packet.PurpleMonsterEventC2SPacket;
 
 import java.util.List;
 import java.util.UUID;
 
-/** PNG-backed player selection page with custom hit regions and no code-drawn buttons. */
+/** Dedicated, paged player selector. It intentionally does not render the event PNG. */
+@Environment(EnvType.CLIENT)
 public final class PurpleMonsterPlayerSelectScreen extends Screen {
-    private static final int TEXTURE_SIZE = 1536;
-    private static final int GUI_SIZE = 500;
     private static final int COLUMNS = 4;
-    private static final net.minecraft.resources.ResourceLocation BACKGROUND = Noellesroles.id(
-            "textures/gui/purple_monster_event_background.png");
+    private static final int ROWS = 2;
+    private static final int PAGE_SIZE = COLUMNS * ROWS;
+    private static final int MAX_PANEL_WIDTH = 440;
+    private static final int MAX_PANEL_HEIGHT = 300;
+    private static final int PANEL_MARGIN = 20;
+    private static final int HEADER_HEIGHT = 42;
+    private static final int FOOTER_HEIGHT = 34;
+    private static final int SLOT_GAP = 5;
+    private static final int PANEL_BACKGROUND = 0xF0181420;
+    private static final int PANEL_BORDER = 0xFF8C57A8;
+    private static final int SLOT_BACKGROUND = 0xE02A2034;
+    private static final int SLOT_HOVER = 0xFF624070;
+    private static final int BUTTON_BACKGROUND = 0xFF3A2948;
+    private static final int BUTTON_DISABLED = 0xFF211A28;
+
     private final UUID eventId;
     private final List<UUID> candidates;
+    private int page;
 
     public PurpleMonsterPlayerSelectScreen(UUID eventId, List<UUID> candidates) {
         super(Component.literal("选择要摧毁的玩家"));
         this.eventId = eventId;
-        this.candidates = candidates;
+        this.candidates = candidates == null ? List.of() : List.copyOf(candidates);
     }
 
     @Override
     public void render(GuiGraphics graphics, int mouseX, int mouseY, float delta) {
         this.renderBackground(graphics, mouseX, mouseY, delta);
-        int size = guiSize();
-        int left = guiLeft(size);
-        int top = guiTop(size);
-        graphics.blit(BACKGROUND, left, top, 0, 0, size, size, TEXTURE_SIZE, TEXTURE_SIZE);
-        graphics.drawCenteredString(this.font, Component.literal("选择要摧毁的玩家"), left + size * 72 / 100,
-                top + size * 21 / 100, 0xFFFFFFFF);
-        graphics.drawCenteredString(this.font, Component.literal("点击玩家头像"), left + size / 2,
-                top + size * 42 / 100, 0xFFFFFFFF);
 
-        int cellWidth = size / COLUMNS;
-        int cellHeight = Math.max(32, size / 12);
-        int listTop = top + size * 47 / 100;
-        for (int i = 0; i < candidates.size(); i++) {
-            int x = left + (i % COLUMNS) * cellWidth;
-            int y = listTop + (i / COLUMNS) * cellHeight;
-            PlayerInfo info = playerInfo(candidates.get(i));
-            if (info != null) PlayerFaceRenderer.draw(graphics, info.getSkin(), x + 4, y + 4, 24);
-            String name = info == null ? candidates.get(i).toString().substring(0, 8)
+        int panelWidth = panelWidth();
+        int panelHeight = panelHeight();
+        int left = (this.width - panelWidth) / 2;
+        int top = (this.height - panelHeight) / 2;
+        graphics.fill(0, 0, this.width, this.height, 0x66000000);
+        drawPanel(graphics, left, top, panelWidth, panelHeight);
+
+        graphics.drawCenteredString(this.font, Component.literal("选择要摧毁的玩家"),
+                left + panelWidth / 2, top + 14, 0xFFFFFFFF);
+        graphics.drawCenteredString(this.font,
+                Component.literal("第 " + (page + 1) + " / " + pageCount() + " 页"),
+                left + panelWidth / 2, top + 29, 0xFFBFA9C9);
+
+        int slotWidth = (panelWidth - PANEL_MARGIN * 2 - SLOT_GAP * (COLUMNS - 1)) / COLUMNS;
+        int slotHeight = (panelHeight - HEADER_HEIGHT - FOOTER_HEIGHT - PANEL_MARGIN * 2
+                - SLOT_GAP * (ROWS - 1)) / ROWS;
+        int gridLeft = left + PANEL_MARGIN;
+        int gridTop = top + HEADER_HEIGHT;
+        int first = page * PAGE_SIZE;
+        for (int slot = 0; slot < PAGE_SIZE; slot++) {
+            int index = first + slot;
+            if (index >= candidates.size()) break;
+            int column = slot % COLUMNS;
+            int row = slot / COLUMNS;
+            int x = gridLeft + column * (slotWidth + SLOT_GAP);
+            int y = gridTop + row * (slotHeight + SLOT_GAP);
+            boolean hovered = mouseX >= x && mouseX < x + slotWidth
+                    && mouseY >= y && mouseY < y + slotHeight;
+            graphics.fill(x, y, x + slotWidth, y + slotHeight,
+                    hovered ? SLOT_HOVER : SLOT_BACKGROUND);
+
+            PlayerInfo info = playerInfo(candidates.get(index));
+            if (info != null) {
+                int faceSize = Math.min(32, Math.max(20, slotHeight - 20));
+                PlayerFaceRenderer.draw(graphics, info.getSkin(), x + 7, y + (slotHeight - faceSize) / 2,
+                        faceSize);
+            }
+            String name = info == null ? candidates.get(index).toString().substring(0, 8)
                     : info.getProfile().getName();
-            graphics.drawString(this.font, name, x + 32, y + 10, 0xFFFFFFFF);
+            int textX = x + 46;
+            int maxTextWidth = Math.max(20, slotWidth - 53);
+            graphics.drawString(this.font, this.font.plainSubstrByWidth(name, maxTextWidth), textX,
+                    y + slotHeight / 2 - this.font.lineHeight / 2, 0xFFFFFFFF);
         }
+
+        int buttonY = top + panelHeight - FOOTER_HEIGHT + 5;
+        drawButton(graphics, left + PANEL_MARGIN, buttonY, 72, 22,
+                "上一页", page > 0, mouseX, mouseY);
+        drawButton(graphics, left + panelWidth - PANEL_MARGIN - 72, buttonY, 72, 22,
+                "下一页", page + 1 < pageCount(), mouseX, mouseY);
     }
 
     @Override
     public boolean mouseClicked(double mouseX, double mouseY, int button) {
         if (button != 0) return true;
-        int size = guiSize();
-        int left = guiLeft(size);
-        int listTop = guiTop(size) + size * 47 / 100;
-        int cellWidth = size / COLUMNS;
-        int cellHeight = Math.max(32, size / 12);
-        if (mouseX < left || mouseX >= left + size || mouseY < listTop) return true;
-        int column = (int) ((mouseX - left) / cellWidth);
-        int row = (int) ((mouseY - listTop) / cellHeight);
-        if (column < 0 || column >= COLUMNS || row < 0) return true;
-        int index = row * COLUMNS + column;
-        if (index < candidates.size()) select(candidates.get(index));
+
+        int panelWidth = panelWidth();
+        int panelHeight = panelHeight();
+        int left = (this.width - panelWidth) / 2;
+        int top = (this.height - panelHeight) / 2;
+        int buttonY = top + panelHeight - FOOTER_HEIGHT + 5;
+        if (inside(mouseX, mouseY, left + PANEL_MARGIN, buttonY, 72, 22)) {
+            if (page > 0) page--;
+            return true;
+        }
+        if (inside(mouseX, mouseY, left + panelWidth - PANEL_MARGIN - 72, buttonY, 72, 22)) {
+            if (page + 1 < pageCount()) page++;
+            return true;
+        }
+
+        int slotWidth = (panelWidth - PANEL_MARGIN * 2 - SLOT_GAP * (COLUMNS - 1)) / COLUMNS;
+        int slotHeight = (panelHeight - HEADER_HEIGHT - FOOTER_HEIGHT - PANEL_MARGIN * 2
+                - SLOT_GAP * (ROWS - 1)) / ROWS;
+        int gridLeft = left + PANEL_MARGIN;
+        int gridTop = top + HEADER_HEIGHT;
+        if (mouseX < gridLeft || mouseY < gridTop) return true;
+        int column = (int) ((mouseX - gridLeft) / (slotWidth + SLOT_GAP));
+        int row = (int) ((mouseY - gridTop) / (slotHeight + SLOT_GAP));
+        if (column < 0 || column >= COLUMNS || row < 0 || row >= ROWS) return true;
+        int localX = (int) (mouseX - gridLeft) % (slotWidth + SLOT_GAP);
+        int localY = (int) (mouseY - gridTop) % (slotHeight + SLOT_GAP);
+        if (localX >= slotWidth || localY >= slotHeight) return true;
+        int index = page * PAGE_SIZE + row * COLUMNS + column;
+        if (index >= 0 && index < candidates.size()) select(candidates.get(index));
         return true;
+    }
+
+    private void drawPanel(GuiGraphics graphics, int left, int top, int width, int height) {
+        graphics.fill(left - 2, top - 2, left + width + 2, top + height + 2, 0x99000000);
+        graphics.fill(left, top, left + width, top + height, PANEL_BORDER);
+        graphics.fill(left + 2, top + 2, left + width - 2, top + height - 2, PANEL_BACKGROUND);
+    }
+
+    private void drawButton(GuiGraphics graphics, int x, int y, int width, int height, String label,
+                            boolean enabled, int mouseX, int mouseY) {
+        boolean hovered = enabled && inside(mouseX, mouseY, x, y, width, height);
+        graphics.fill(x, y, x + width, y + height, enabled && hovered ? SLOT_HOVER
+                : enabled ? BUTTON_BACKGROUND : BUTTON_DISABLED);
+        graphics.drawCenteredString(this.font, Component.literal(label), x + width / 2,
+                y + (height - this.font.lineHeight) / 2, enabled ? 0xFFFFFFFF : 0xFF777077);
     }
 
     private PlayerInfo playerInfo(UUID id) {
@@ -82,13 +159,15 @@ public final class PurpleMonsterPlayerSelectScreen extends Screen {
         if (this.minecraft != null) this.minecraft.setScreen(null);
     }
 
-    private int guiSize() {
-        return Math.min(GUI_SIZE, Math.min(this.width - 20, this.height - 20));
+    private int pageCount() { return Math.max(1, (candidates.size() + PAGE_SIZE - 1) / PAGE_SIZE); }
+
+    private int panelWidth() { return Math.max(1, Math.min(MAX_PANEL_WIDTH, this.width - 20)); }
+
+    private int panelHeight() { return Math.max(1, Math.min(MAX_PANEL_HEIGHT, this.height - 20)); }
+
+    private static boolean inside(double mouseX, double mouseY, int x, int y, int width, int height) {
+        return mouseX >= x && mouseX < x + width && mouseY >= y && mouseY < y + height;
     }
-
-    private int guiLeft(int size) { return (this.width - size) / 2; }
-
-    private int guiTop(int size) { return (this.height - size) / 2; }
 
     @Override
     public boolean shouldCloseOnEsc() { return false; }

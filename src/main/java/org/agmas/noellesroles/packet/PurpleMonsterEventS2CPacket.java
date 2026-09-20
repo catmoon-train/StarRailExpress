@@ -14,7 +14,16 @@ import java.util.UUID;
 public record PurpleMonsterEventS2CPacket(UUID eventId, Stage stage, double x, double y, double z,
                                           UUID skinPlayer, List<UUID> candidates)
         implements CustomPacketPayload {
-    public enum Stage { DISGUISE, QUESTION, SELECT, ASSIMILATE, CLOSE }
+    public enum Stage {
+        DISGUISE,
+        REVEAL,
+        QUESTION,
+        SELECT,
+        ASSIMILATE_TRANSFORM,
+        ASSIMILATE,
+        ASSIMILATE_EFFECT,
+        CLOSE
+    }
 
     public static final Type<PurpleMonsterEventS2CPacket> ID = new Type<>(
             ResourceLocation.fromNamespaceAndPath(Noellesroles.MOD_ID, "purple_monster_event"));

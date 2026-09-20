@@ -6,6 +6,8 @@ import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.client.rendering.v1.WorldRenderEvents;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.multiplayer.ClientPacketListener;
+import net.minecraft.client.multiplayer.PlayerInfo;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.player.RemotePlayer;
 import net.minecraft.client.renderer.LevelRenderer;
@@ -13,6 +15,7 @@ import net.minecraft.client.resources.DefaultPlayerSkin;
 import net.minecraft.client.resources.PlayerSkin;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
+import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.level.ClipContext;
@@ -70,13 +73,16 @@ public final class PurpleMonsterClient {
         state.skinPlayer = packet.skinPlayer();
         state.candidates = packet.candidates();
         state.observedTicks = 0;
+        playStageSound(client, packet.stage());
         if (packet.stage() == PurpleMonsterEventS2CPacket.Stage.QUESTION) {
             lockCamera(client);
             client.setScreen(new PurpleMonsterQuestionScreen(state.eventId));
         } else if (packet.stage() == PurpleMonsterEventS2CPacket.Stage.SELECT) {
             lockCamera(client);
             client.setScreen(new PurpleMonsterPlayerSelectScreen(state.eventId, state.candidates));
-        } else if (packet.stage() == PurpleMonsterEventS2CPacket.Stage.ASSIMILATE) {
+        } else if (packet.stage() == PurpleMonsterEventS2CPacket.Stage.ASSIMILATE_TRANSFORM
+                || packet.stage() == PurpleMonsterEventS2CPacket.Stage.ASSIMILATE
+                || packet.stage() == PurpleMonsterEventS2CPacket.Stage.ASSIMILATE_EFFECT) {
             if (client.screen != null) client.setScreen(null);
             lockCamera(client);
         }
@@ -94,8 +100,23 @@ public final class PurpleMonsterClient {
             } else state.observedTicks = 0;
         } else if (state.stage == PurpleMonsterEventS2CPacket.Stage.QUESTION
                 || state.stage == PurpleMonsterEventS2CPacket.Stage.SELECT
+                || state.stage == PurpleMonsterEventS2CPacket.Stage.REVEAL
+                || state.stage == PurpleMonsterEventS2CPacket.Stage.ASSIMILATE_TRANSFORM
                 || state.stage == PurpleMonsterEventS2CPacket.Stage.ASSIMILATE) {
             lockCamera(client);
+        } else if (state.stage == PurpleMonsterEventS2CPacket.Stage.ASSIMILATE_EFFECT) {
+            lockCamera(client);
+        }
+    }
+
+    private static void playStageSound(Minecraft client, PurpleMonsterEventS2CPacket.Stage stage) {
+        if (client.player == null) return;
+        switch (stage) {
+            case REVEAL -> client.player.playSound(SoundEvents.ENDERMAN_AMBIENT, 0.45F, 0.75F);
+            case ASSIMILATE_TRANSFORM -> client.player.playSound(SoundEvents.ENDERMAN_AMBIENT, 0.55F, 0.55F);
+            case ASSIMILATE -> client.player.playSound(SoundEvents.ENDERMAN_TELEPORT, 0.65F, 0.8F);
+            case ASSIMILATE_EFFECT -> client.player.playSound(SoundEvents.ENDERMAN_TELEPORT, 0.8F, 0.55F);
+            default -> { }
         }
     }
 
@@ -139,9 +160,13 @@ public final class PurpleMonsterClient {
                 net.minecraft.world.entity.player.Player close = state.skinPlayer == null ? null
                         : client.level.getPlayerByUUID(state.skinPlayer);
                 if (close == null) return null;
-                PlayerSkin skin = close instanceof AbstractClientPlayer player
+                PlayerInfo info = client.getConnection() == null ? null
+                        : client.getConnection().getPlayerInfo(state.skinPlayer);
+                PlayerSkin skin = info != null && info.getSkin() != null
+                        ? info.getSkin()
+                        : close instanceof AbstractClientPlayer player
                         ? player.getSkin() : DefaultPlayerSkin.get(close.getUUID());
-                state.playerEntity = new SkinRemotePlayer(client, close.getGameProfile(), skin);
+                state.playerEntity = new SkinRemotePlayer(client, close.getGameProfile(), state.skinPlayer, skin);
             }
             state.playerEntity.setPos(state.position.x, state.position.y, state.position.z);
             state.playerEntity.setCustomName(Component.literal("unknown"));
@@ -149,6 +174,7 @@ public final class PurpleMonsterClient {
             return state.playerEntity;
         }
         EntityType<?> type = state.stage == PurpleMonsterEventS2CPacket.Stage.ASSIMILATE
+                || state.stage == PurpleMonsterEventS2CPacket.Stage.ASSIMILATE_EFFECT
                 ? TMMEntities.PURPLE_MONSTER_SECOND : TMMEntities.PURPLE_MONSTER;
         if (state.monsterEntity != null && state.monsterEntity.getType() != type) state.monsterEntity = null;
         if (state.monsterEntity == null) {
@@ -180,6 +206,9 @@ public final class PurpleMonsterClient {
 
     private static void renderHud(FakeGuiGraphics graphics) {
         Minecraft client = Minecraft.getInstance();
+        if (state != null && state.stage == PurpleMonsterEventS2CPacket.Stage.ASSIMILATE_EFFECT) {
+            graphics.fill(0, 0, graphics.guiWidth(), graphics.guiHeight(), 0x552D0747);
+        }
         if (client.player == null || client.level == null || SREClient.gameComponent == null
                 || !SREClient.gameComponent.isRunning()) return;
         var role = SREClient.getCachedPlayerRole();
@@ -191,15 +220,27 @@ public final class PurpleMonsterClient {
     }
 
     private static final class SkinRemotePlayer extends RemotePlayer {
+        private final UUID skinPlayer;
         private final PlayerSkin skin;
 
-        private SkinRemotePlayer(Minecraft client, GameProfile profile, PlayerSkin skin) {
+        private SkinRemotePlayer(Minecraft client, GameProfile profile, UUID skinPlayer, PlayerSkin skin) {
             super(client.level, profile);
+            this.skinPlayer = skinPlayer;
             this.skin = skin;
         }
 
+        /** PlayerRenderer obtains the texture/model from PlayerInfo, so point it at the real close player. */
         @Override
-        public PlayerSkin getSkin() { return skin; }
+        public PlayerInfo getPlayerInfo() {
+            ClientPacketListener connection = Minecraft.getInstance().getConnection();
+            return connection == null ? null : connection.getPlayerInfo(this.skinPlayer);
+        }
+
+        @Override
+        public PlayerSkin getSkin() {
+            PlayerInfo info = getPlayerInfo();
+            return info != null && info.getSkin() != null ? info.getSkin() : skin;
+        }
     }
 
     private static final class EventState {

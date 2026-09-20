@@ -36,11 +36,16 @@ import java.util.*;
 public final class PurpleMonsterRole {
     private static final int EVENT_INTERVAL = 20 * 20;
     private static final int OBSERVE_TICKS = 6 * 20;
+    private static final int REVEAL_TICKS = 20;
     private static final int QUESTION_TICKS = 5 * 20;
+    private static final int SELECT_TICKS = 15 * 20;
+    private static final int TRANSFORM_TICKS = 20;
     private static final int ASSIMILATE_TICKS = 4 * 20;
+    private static final int EFFECT_TICKS = 3 * 20;
     private static final Map<UUID, Map<UUID, Integer>> PROXIMITY = new HashMap<>();
     private static final Map<GazeKey, Integer> MUTUAL_GAZE = new HashMap<>();
-    private static final Map<UUID, Integer> ASSIMILATED = new HashMap<>();
+    /** Progress is recorded only when the controlled player actually becomes a Purple Monster. */
+    private static final Map<UUID, Integer> SUCCESSFUL_ASSIMILATIONS = new HashMap<>();
     private static Event active;
     private static boolean registered;
 
@@ -87,7 +92,7 @@ public final class PurpleMonsterRole {
         if (!anyRunning) {
             PROXIMITY.clear();
             MUTUAL_GAZE.clear();
-            ASSIMILATED.clear();
+            SUCCESSFUL_ASSIMILATIONS.clear();
             if (active != null) finish();
         }
         if (active != null) tickEvent(server);
@@ -101,8 +106,13 @@ public final class PurpleMonsterRole {
             return;
         }
         long now = target.level().getGameTime();
-        if (active.stage == Stage.QUESTION && now >= active.deadline) beginSelection(target);
-        else if (active.stage == Stage.ASSIMILATE && now >= active.deadline) assimilate(target);
+        if (active.stage == Stage.REVEAL && now >= active.deadline) openQuestion(target);
+        else if (active.stage == Stage.QUESTION && now >= active.deadline) beginSelection(target);
+        else if (active.stage == Stage.SELECT && now >= active.deadline) selectionTimeout(target);
+        else if (active.stage == Stage.ASSIMILATE_TRANSFORM && now >= active.deadline) beginSecondForm(target);
+        else if (active.stage == Stage.ASSIMILATE
+                && now >= active.deadline - EFFECT_TICKS) beginAssimilationEffect(target);
+        else if (active.stage == Stage.ASSIMILATE_EFFECT && now >= active.deadline) assimilate(target);
     }
 
     private static void tryAutomaticEvent(ServerLevel level, SREGameWorldComponent game) {
@@ -139,16 +149,23 @@ public final class PurpleMonsterRole {
 
     private static void beginQuestion(ServerPlayer target) {
         if (active == null || active.stage != Stage.DISGUISE) return;
+        active.stage = Stage.REVEAL;
+        active.deadline = target.level().getGameTime() + REVEAL_TICKS;
+        applyControl(target);
+        send(target, PurpleMonsterEventS2CPacket.Stage.REVEAL, target.position(), null, List.of());
+    }
+
+    private static void openQuestion(ServerPlayer target) {
+        if (active == null || active.stage != Stage.REVEAL) return;
         active.stage = Stage.QUESTION;
         active.deadline = target.level().getGameTime() + QUESTION_TICKS;
-        applyControl(target);
         send(target, PurpleMonsterEventS2CPacket.Stage.QUESTION, target.position(), null, List.of());
     }
 
     private static void beginSelection(ServerPlayer target) {
         if (active == null || (active.stage != Stage.QUESTION && active.stage != Stage.SELECT)) return;
         active.stage = Stage.SELECT;
-        active.deadline = 0;
+        active.deadline = target.level().getGameTime() + SELECT_TICKS;
         List<UUID> candidates = target.level().players().stream()
                 .filter(p -> p != target && GameUtils.isPlayerAliveAndSurvival(p))
                 .map(p -> p.getUUID()).toList();
@@ -158,22 +175,44 @@ public final class PurpleMonsterRole {
     private static void selectVictim(ServerPlayer target, UUID selected) {
         ServerPlayer victim = findPlayer(target.getServer(), selected);
         if (victim == null || victim == target || !GameUtils.isPlayerAliveAndSurvival(victim)) return;
+        // This is only the stage-two revenge kill. It must never advance assimilation progress.
         GameUtils.forceKillPlayer(victim, true, target,
                 io.wifi.starrailexpress.game.GameConstants.DeathReasons.PURPLE_MONSTER_ASSIMILATION);
+        active.stage = Stage.ASSIMILATE_TRANSFORM;
+        active.deadline = target.level().getGameTime() + TRANSFORM_TICKS;
+        send(target, PurpleMonsterEventS2CPacket.Stage.ASSIMILATE_TRANSFORM,
+                target.position().add(target.getLookAngle().normalize().scale(2.0)), null, List.of());
+    }
+
+    private static void beginSecondForm(ServerPlayer target) {
+        if (active == null || active.stage != Stage.ASSIMILATE_TRANSFORM) return;
         active.stage = Stage.ASSIMILATE;
         active.deadline = target.level().getGameTime() + ASSIMILATE_TICKS;
         send(target, PurpleMonsterEventS2CPacket.Stage.ASSIMILATE,
                 target.position().add(target.getLookAngle().normalize().scale(2.0)), null, List.of());
     }
 
-    private static void assimilate(ServerPlayer target) {
+    private static void beginAssimilationEffect(ServerPlayer target) {
         if (active == null || active.stage != Stage.ASSIMILATE) return;
+        active.stage = Stage.ASSIMILATE_EFFECT;
+        send(target, PurpleMonsterEventS2CPacket.Stage.ASSIMILATE_EFFECT,
+                target.position().add(target.getLookAngle().normalize().scale(2.0)), null, List.of());
+    }
+
+    private static void selectionTimeout(ServerPlayer target) {
+        if (active == null || active.stage != Stage.SELECT) return;
+        GameUtils.forceKillPlayer(target, true, target,
+                io.wifi.starrailexpress.game.GameConstants.DeathReasons.PURPLE_MONSTER_ASSIMILATION);
+        finish();
+    }
+
+    private static void assimilate(ServerPlayer target) {
+        if (active == null || active.stage != Stage.ASSIMILATE_EFFECT) return;
         clearControl(target);
         clearPurpleMonsterHotbar(target);
         RoleUtils.changeRoleAndSendWelcome(target, BounsRoles.PURPLE_MONSTER);
         EntityDisguise.disguise(target, TMMEntities.PURPLE_MONSTER);
         SREArmorPlayerComponent.KEY.get(target).setArmor(3);
-        ASSIMILATED.merge(target.getUUID(), 1, Integer::sum);
         sendProgress(target);
         target.displayClientMessage(Component.translatable("message.noellesroles.purple_monster.welcome"), false);
         finish();
@@ -184,7 +223,13 @@ public final class PurpleMonsterRole {
     }
 
     private static int getAssimilationProgress(ServerPlayer player) {
-        return ASSIMILATED.getOrDefault(player.getUUID(), 0);
+        return SUCCESSFUL_ASSIMILATIONS.getOrDefault(player.getUUID(), 0);
+    }
+
+    private static void recordSuccessfulAssimilation(ServerPlayer player) {
+        // Progress is advanced by a Purple Monster's mutual-gaze assimilation, not by
+        // the initial transformation or the stage-two revenge kill.
+        SUCCESSFUL_ASSIMILATIONS.merge(player.getUUID(), 1, Integer::sum);
     }
 
     private static int getAssimilationGoal(ServerPlayer player) {
@@ -216,7 +261,8 @@ public final class PurpleMonsterRole {
     }
 
     private static void applyControl(ServerPlayer player) {
-        int duration = QUESTION_TICKS + ASSIMILATE_TICKS + 40;
+        int duration = REVEAL_TICKS + QUESTION_TICKS + SELECT_TICKS + TRANSFORM_TICKS
+                + ASSIMILATE_TICKS + 40;
         if (active == null) return;
         add(player, ModEffects.INVINCIBLE, duration);
         add(player, ModEffects.MOVE_BANED, duration);
@@ -311,6 +357,8 @@ public final class PurpleMonsterRole {
                     if (ticks > 5 * 20) {
                         GameUtils.forceKillPlayer(observer, true, monster,
                                 io.wifi.starrailexpress.game.GameConstants.DeathReasons.PURPLE_MONSTER_ASSIMILATION);
+                        recordSuccessfulAssimilation(monster);
+                        sendProgress(monster);
                         MUTUAL_GAZE.remove(key);
                     }
                 } else MUTUAL_GAZE.remove(key);
@@ -353,7 +401,9 @@ public final class PurpleMonsterRole {
                 new PurpleMonsterEventS2CPacket(active.id, stage, pos.x, pos.y, pos.z, skin, candidates));
     }
 
-    private enum Stage { DISGUISE, QUESTION, SELECT, ASSIMILATE }
+    private enum Stage {
+        DISGUISE, REVEAL, QUESTION, SELECT, ASSIMILATE_TRANSFORM, ASSIMILATE, ASSIMILATE_EFFECT
+    }
 
     private record GazeKey(UUID monster, UUID observer) {}
 
