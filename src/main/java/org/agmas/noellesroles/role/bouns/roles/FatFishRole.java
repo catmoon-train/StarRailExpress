@@ -98,8 +98,8 @@ public class FatFishRole extends EggRole {
     public List<ShopEntry> getShopEntries() {
         // 双端都会调用（客户端画商店 / 图标），所以这里不要碰服务端专用东西
         List<ShopEntry> shop = new ArrayList<>();
-        shop.add(new ShopEntry(new ItemStack(ModItems.SHILIJIA), 60, ShopEntry.Type.TOOL));
-        shop.add(new ShopEntry(new ItemStack(ModItems.CALMING_TEA), 80, ShopEntry.Type.TOOL));
+        shop.add(new ShopEntry(new ItemStack(ModItems.SHILIJIA), 150, ShopEntry.Type.TOOL));
+        shop.add(new ShopEntry(new ItemStack(ModItems.CALMING_TEA), 150, ShopEntry.Type.TOOL));
         shop.add(new ShopEntry(new ItemStack(io.wifi.starrailexpress.index.TMMItems.DEFENSE_VIAL), 500,
                 ShopEntry.Type.TOOL));
         return shop;

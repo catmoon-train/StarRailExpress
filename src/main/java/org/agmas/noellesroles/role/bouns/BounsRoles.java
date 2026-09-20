@@ -513,7 +513,7 @@ public class BounsRoles {
             FAT_FISH_ID, // 角色 ID
             new Color(70, 130, 200).getRGB(), // 深海蓝
             RoleType.NEUTRALS_FOR_INNOCENT,
-            SRERole.MoodType.REAL, // 真实心情
+            SRERole.MoodType.FAKE, // 真实心情
             TMMRoles.CIVILIAN.getMaxSprintTime(), // 标准体力
             false // 不隐藏计分板
     )).setCanSeeCoin(true)
