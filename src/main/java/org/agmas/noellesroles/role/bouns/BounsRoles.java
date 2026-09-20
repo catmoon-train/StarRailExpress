@@ -440,7 +440,7 @@ public class BounsRoles {
             // 只在爬山地图刷新（枚举里 PEAK 就是为童子军预留的）
             .setSpecialMapRolesCondition((t) -> t.contains(MapSpecialFeatures.PEAK))
             .setDefaultMax(1)
-            .setDefaultEnableChance(200) // 彩蛋刷新率 2%
+            .setDefaultEnableChance(8000) // 彩蛋刷新率 2%
             .setCanBeRandomedByOtherRoles(false);
 
     /**
@@ -496,7 +496,8 @@ public class BounsRoles {
             // 完成 2 个任务获左轮手枪，只触发一次
             .setTaskReward(2, 1, new ItemStack(TMMItems.REVOLVER))
             .setDefaultMax(1)
-            .setDefaultEnableChance(200) // 彩蛋刷新率 2%
+            .setSpecialPolice(true)
+            .setDefaultEnableChance(2000)
             .setCanBeRandomedByOtherRoles(false);
 
     /**
@@ -520,7 +521,7 @@ public class BounsRoles {
             .setSpecialMapRole(MapSpecialFeatures.CAN_JUMP)
             .setRoleData(FatFishRoleData::new)
             .setDefaultMax(1)
-            .setDefaultEnableChance(200) // 彩蛋刷新率 2%
+            .setDefaultEnableChance(1000) // 彩蛋刷新率 10%
             .setCanBeRandomedByOtherRoles(false);
 
     public static void init() {

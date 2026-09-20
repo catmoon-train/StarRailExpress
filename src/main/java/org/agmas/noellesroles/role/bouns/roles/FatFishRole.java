@@ -100,8 +100,6 @@ public class FatFishRole extends EggRole {
         List<ShopEntry> shop = new ArrayList<>();
         shop.add(new ShopEntry(new ItemStack(ModItems.SHILIJIA), 150, ShopEntry.Type.TOOL));
         shop.add(new ShopEntry(new ItemStack(ModItems.CALMING_TEA), 150, ShopEntry.Type.TOOL));
-        shop.add(new ShopEntry(new ItemStack(io.wifi.starrailexpress.index.TMMItems.DEFENSE_VIAL), 500,
-                ShopEntry.Type.TOOL));
         return shop;
     }
 
