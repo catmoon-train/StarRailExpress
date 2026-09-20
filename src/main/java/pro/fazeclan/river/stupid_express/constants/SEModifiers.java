@@ -77,7 +77,7 @@ public class SEModifiers {
             false,
             false))
             .setDefaultEnableChance(1000)
-            .setDefaultEnableNeededPlayerCount(12)
+            .setDefaultEnableNeededPlayerCount(16)
             .setHidden(true)
             .addBothRelatedRole(TMMRoles.LOOSE_END);
 
