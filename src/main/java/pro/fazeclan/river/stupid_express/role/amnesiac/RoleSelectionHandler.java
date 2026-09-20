@@ -81,7 +81,7 @@ public class RoleSelectionHandler {
             if (role == null) {
                 return InteractionResult.PASS;
             }
-            if (!role.canBeRandomed()) {
+            if (!role.canBeRandomed(level)) {
                 player.displayClientMessage(
                         Component.translatable("msg.amnesiac.change_role.failed_not_support")
                                 .withStyle(ChatFormatting.RED),

@@ -85,7 +85,7 @@ public class SREAntWarGameMode extends WTLooseEndsGameMode {
     }
 
     @Override
-    protected void initRoles(List<ServerPlayer> players, SREGameWorldComponent gameWorldComponent) {
+    protected void initRoles(List<ServerPlayer> players, SREGameWorldComponent gameWorldComponent, ServerLevel world) {
         for (ServerPlayer player : players) {
             gameWorldComponent.addRole(player, SpecialGameModeRoles.SUPER_LOOSE_END);
         }

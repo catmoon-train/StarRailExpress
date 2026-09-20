@@ -213,7 +213,7 @@ public class LightningDraftState {
         // 生成可替换职业列表（志愿海选模式不往池子里额外添加平民职业）
         if (addReplaceableCivilians) {
             List<SRERole> replaceableTypes = new ArrayList<>(civilianPool.selectRoles(PLAYER_SELECT_COUNT - 1,
-                    role -> role.canBeRandomed()
+                    role -> role.canBeRandomed(world)
                             && role.opposingRoles.isEmpty() && !isSpecialInnocent(role)));
             int size = replaceableTypes.size();
             for (int i = 0; i < PLAYER_SELECT_COUNT - 1 - size; i++) {

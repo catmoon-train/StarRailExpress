@@ -133,14 +133,14 @@ public class SREEvilWarGameMode extends WTLooseEndsGameMode {
 
     }
 
-    public RoleAssignmentPool createEvilWarRolePool() {
+    public RoleAssignmentPool createEvilWarRolePool(Level world) {
         return RoleAssignmentPool.createUnlimited("Killer",
                 role -> !Harpymodloader.VANNILA_ROLES.contains(role) &&
                         role.canUseKiller() &&
                         !role.isInnocent() &&
                         role != TMMRoles.CIVILIAN &&
                         // 禁用角色
-                        role.canBeRandomed() &&
+                        role.canBeRandomed(world) &&
                         !BANED_ROLES.contains(role));
     }
 
@@ -195,7 +195,7 @@ public class SREEvilWarGameMode extends WTLooseEndsGameMode {
     }
 
     @Override
-    protected void initRoles(List<ServerPlayer> players, SREGameWorldComponent gameWorldComponent) {
+    protected void initRoles(List<ServerPlayer> players, SREGameWorldComponent gameWorldComponent,ServerLevel world) {
         // 处理强制角色
         Map<UUID, SRERole> forcedRoles = new HashMap<>(Harpymodloader.FORCED_MODDED_ROLE);
         List<ServerPlayer> playersWithoutForcedRoles = new ArrayList<>();
@@ -229,7 +229,7 @@ public class SREEvilWarGameMode extends WTLooseEndsGameMode {
         }
 
         // 生成杀手池
-        RoleAssignmentPool killerPool = createEvilWarRolePool();
+        RoleAssignmentPool killerPool = createEvilWarRolePool(world);
         List<SRERole> assignedKillers = killerPool.selectRoles(playersWithoutForcedRoles.size() - superLooseEndCount);
         // 打乱需要分配的玩家列表
         Collections.shuffle(playersWithoutForcedRoles);

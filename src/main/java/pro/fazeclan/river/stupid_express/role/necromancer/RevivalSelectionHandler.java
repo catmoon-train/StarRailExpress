@@ -212,7 +212,7 @@ public class RevivalSelectionHandler {
             var roles = new ArrayList<SRERole>();
             // 邪恶战争模式可以复活随机杀手
             if (gameWorldComponent.gameMode instanceof SREEvilWarGameMode evilWarGameMode) {
-                RoleAssignmentPool evilWarKillerPool = evilWarGameMode.createEvilWarRolePool();
+                RoleAssignmentPool evilWarKillerPool = evilWarGameMode.createEvilWarRolePool(level);
                 SRERole role = evilWarKillerPool.selectRole();
                 if (role != null)
                     roles.add(role);

@@ -19,6 +19,7 @@ import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.api.AreasSettingUtils.MapSpecialFeatures;
 import io.wifi.starrailexpress.api.data.RoleData;
 import io.wifi.starrailexpress.api.data.RoleDataContext;
+import io.wifi.starrailexpress.cca.AreasWorldComponent;
 import io.wifi.starrailexpress.cca.SREAbilityPlayerComponent;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.cca.SREPlayerPsychoComponent;
@@ -468,6 +469,23 @@ public abstract class SRERole extends SREAbstractInfoClass {
         return this.canSetSpawnInfoInConfig;
     }
 
+    /**
+     * 是否可以在指定地图被随机
+     * 
+     * @param world
+     * @return
+     */
+    public boolean canBeRandomed(@Nullable Level world) {
+        if (world == null) {
+            return this.canBeRandomed();
+        }
+        AreasWorldComponent cca = AreasWorldComponent.KEY.get(world);
+        if (!canSpawnInMap(cca.mapName, cca.areasSettings)) {
+            return false;
+        }
+        return this.canBeRandomed();
+    }
+
     public boolean canBeRandomed() {
         if (SREDisableManager.isRoleDisabled(this))
             return false;
@@ -886,10 +904,12 @@ public abstract class SRERole extends SREAbstractInfoClass {
     /**
      * 是否启用「墙壁攀爬」能力（童子军那套攀爬逻辑，实现在 noellesroles 的 {@code ScoutRole}）。
      *
-     * <p>默认判定只看这个开关；子类可以覆写 {@link #canClimbWalls(Player)}，
+     * <p>
+     * 默认判定只看这个开关；子类可以覆写 {@link #canClimbWalls(Player)}，
      * 按玩家状态 / 当前地图做动态判断（例如冒险家只在 PEAK 爬山图上能攀爬）。
      *
-     * <p>攀爬的运行状态挂在 Player 自己身上（和体力条一样），**不需要**额外绑定 RoleData；
+     * <p>
+     * 攀爬的运行状态挂在 Player 自己身上（和体力条一样），**不需要**额外绑定 RoleData；
      * 只有「动作姿态」技能才需要（noellesroles 的 {@code ClimbPoseRoleData}）。
      */
     protected boolean canClimbWalls = false;
@@ -1461,7 +1481,8 @@ public abstract class SRERole extends SREAbstractInfoClass {
 
     /**
      * 该玩家此刻能否使用墙壁攀爬。
-     * <p>默认返回静态开关；需要按玩家状态 / 地图判断的职业覆写这个方法。
+     * <p>
+     * 默认返回静态开关；需要按玩家状态 / 地图判断的职业覆写这个方法。
      *
      * @param player 目标玩家（判断地图时可用 player.level()）
      */
