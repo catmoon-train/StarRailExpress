@@ -714,8 +714,9 @@ public class VolunteerOpenDraftState {
         return map;
     }
 
-    public boolean canPlayerSelect(UUID id) {
-        if (phase != Phase.OPEN || groupIndex < 0 || groupIndex >= groups.size()) {
+    public boolean canPlayerSelect(ServerLevel world, UUID id) {
+        if (phase != Phase.OPEN || groupIndex < 0 || groupIndex >= groups.size()
+                || !canPlayerParticipate(world, id)) {
             return false;
         }
         return groups.get(groupIndex).contains(id) && !picks.containsKey(id);

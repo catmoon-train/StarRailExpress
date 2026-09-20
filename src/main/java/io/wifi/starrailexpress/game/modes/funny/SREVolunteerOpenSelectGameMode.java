@@ -177,7 +177,7 @@ public class SREVolunteerOpenSelectGameMode extends SREMurderGameMode {
                 draftState.phase == VolunteerOpenDraftState.Phase.OPEN ? draftState.groupIndex + 1 : 0,
                 draftState.currentGroupMembers(),
                 draftState.groups.size(),
-                draftState.canPlayerSelect(id),
+                draftState.canPlayerSelect(world, id),
                 draftState.volunteerRoleIds.getOrDefault(id, ""));
     }
 
