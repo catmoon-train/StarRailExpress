@@ -147,19 +147,31 @@ public final class PurpleMonsterRole {
         return true;
     }
 
+    /**
+     * Keeps the event entity a short distance in front of the player during
+     * reveal and transformation stages.  The vertical look angle is ignored
+     * so looking up or down cannot move the entity into the player's camera.
+     */
+    private static Vec3 monsterPosition(ServerPlayer target) {
+        Vec3 look = target.getLookAngle();
+        Vec3 horizontal = new Vec3(look.x, 0.0, look.z);
+        if (horizontal.lengthSqr() < 0.001) horizontal = new Vec3(0.0, 0.0, 1.0);
+        return target.position().add(horizontal.normalize().scale(2.5));
+    }
+
     private static void beginQuestion(ServerPlayer target) {
         if (active == null || active.stage != Stage.DISGUISE) return;
         active.stage = Stage.REVEAL;
         active.deadline = target.level().getGameTime() + REVEAL_TICKS;
         applyControl(target);
-        send(target, PurpleMonsterEventS2CPacket.Stage.REVEAL, target.position(), null, List.of());
+        send(target, PurpleMonsterEventS2CPacket.Stage.REVEAL, monsterPosition(target), null, List.of());
     }
 
     private static void openQuestion(ServerPlayer target) {
         if (active == null || active.stage != Stage.REVEAL) return;
         active.stage = Stage.QUESTION;
         active.deadline = target.level().getGameTime() + QUESTION_TICKS;
-        send(target, PurpleMonsterEventS2CPacket.Stage.QUESTION, target.position(), null, List.of());
+        send(target, PurpleMonsterEventS2CPacket.Stage.QUESTION, monsterPosition(target), null, List.of());
     }
 
     private static void beginSelection(ServerPlayer target) {
@@ -169,7 +181,7 @@ public final class PurpleMonsterRole {
         List<UUID> candidates = target.level().players().stream()
                 .filter(p -> p != target && GameUtils.isPlayerAliveAndSurvival(p))
                 .map(p -> p.getUUID()).toList();
-        send(target, PurpleMonsterEventS2CPacket.Stage.SELECT, target.position(), null, candidates);
+        send(target, PurpleMonsterEventS2CPacket.Stage.SELECT, monsterPosition(target), null, candidates);
     }
 
     private static void selectVictim(ServerPlayer target, UUID selected) {
@@ -181,7 +193,7 @@ public final class PurpleMonsterRole {
         active.stage = Stage.ASSIMILATE_TRANSFORM;
         active.deadline = target.level().getGameTime() + TRANSFORM_TICKS;
         send(target, PurpleMonsterEventS2CPacket.Stage.ASSIMILATE_TRANSFORM,
-                target.position().add(target.getLookAngle().normalize().scale(2.0)), null, List.of());
+                monsterPosition(target), null, List.of());
     }
 
     private static void beginSecondForm(ServerPlayer target) {
@@ -189,14 +201,14 @@ public final class PurpleMonsterRole {
         active.stage = Stage.ASSIMILATE;
         active.deadline = target.level().getGameTime() + ASSIMILATE_TICKS;
         send(target, PurpleMonsterEventS2CPacket.Stage.ASSIMILATE,
-                target.position().add(target.getLookAngle().normalize().scale(2.0)), null, List.of());
+                monsterPosition(target), null, List.of());
     }
 
     private static void beginAssimilationEffect(ServerPlayer target) {
         if (active == null || active.stage != Stage.ASSIMILATE) return;
         active.stage = Stage.ASSIMILATE_EFFECT;
         send(target, PurpleMonsterEventS2CPacket.Stage.ASSIMILATE_EFFECT,
-                target.position().add(target.getLookAngle().normalize().scale(2.0)), null, List.of());
+                monsterPosition(target), null, List.of());
     }
 
     private static void selectionTimeout(ServerPlayer target) {

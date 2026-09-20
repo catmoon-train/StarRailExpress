@@ -11,7 +11,10 @@ import java.util.UUID;
 
 /** PNG-backed question panel with an intentionally disabled first choice. */
 public final class PurpleMonsterQuestionScreen extends Screen {
-    private static final int TEXTURE_SIZE = 1536;
+    // Actual PNG dimensions. Passing 1536 here was stretching the source region and
+    // made the screen show only a vertically distorted part of the panel.
+    private static final int TEXTURE_WIDTH = 1451;
+    private static final int TEXTURE_HEIGHT = 1084;
     // Full visible panel bounds in the 1536x1536 PNG, including its outer shadow.
     private static final int SOURCE_X = 120;
     private static final int SOURCE_Y = 76;
@@ -49,7 +52,7 @@ public final class PurpleMonsterQuestionScreen extends Screen {
         int left = guiLeft(width);
         int top = guiTop(height);
         graphics.blit(BACKGROUND, left, top, width, height, SOURCE_X, SOURCE_Y,
-                SOURCE_WIDTH, SOURCE_HEIGHT, TEXTURE_SIZE, TEXTURE_SIZE);
+                SOURCE_WIDTH, SOURCE_HEIGHT, TEXTURE_WIDTH, TEXTURE_HEIGHT);
 
         graphics.drawCenteredString(this.font,
                 Component.translatable("screen.noellesroles.purple_monster.question.title"),
