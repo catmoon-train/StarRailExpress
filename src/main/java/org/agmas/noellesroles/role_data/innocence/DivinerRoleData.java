@@ -31,7 +31,6 @@ import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
-import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.item.ItemCooldowns;
 import net.minecraft.world.item.ItemStack;
@@ -407,27 +406,28 @@ public class DivinerRoleData extends SimpleRoleData {
     // ==================== 特效 ====================
 
     private void playChannelStartFx(ServerPlayer sp) {
+        // 占卜粒子与音效仅对占卜师本人显示 / 播放
         if (sp.level() instanceof ServerLevel sl) {
-            sl.sendParticles(ParticleTypes.SOUL_FIRE_FLAME, sp.getX(), sp.getY() + 1.5, sp.getZ(),
-                    8, 0.3, 0.3, 0.3, 0.02);
-            sl.playSound(null, sp.blockPosition(), SoundEvents.AMETHYST_BLOCK_RESONATE,
-                    SoundSource.PLAYERS, 0.8f, 0.9f);
+            sl.sendParticles(sp, ParticleTypes.SOUL_FIRE_FLAME, true,
+                    sp.getX(), sp.getY() + 1.5, sp.getZ(), 8, 0.3, 0.3, 0.3, 0.02);
+            sp.playSound(SoundEvents.AMETHYST_BLOCK_RESONATE, 0.8f, 0.9f);
         }
     }
 
     private void playChannelTickFx(ServerPlayer sp) {
+        // 占卜粒子仅对占卜师本人显示
         if (sp.level() instanceof ServerLevel sl) {
-            sl.sendParticles(ParticleTypes.ENCHANT, sp.getX(), sp.getY() + 1.5, sp.getZ(),
-                    12, 0.3, 0.6, 0.3, 0.1);
+            sl.sendParticles(sp, ParticleTypes.ENCHANT, true,
+                    sp.getX(), sp.getY() + 1.5, sp.getZ(), 12, 0.3, 0.6, 0.3, 0.1);
         }
     }
 
     private void playCompleteFx(ServerPlayer sp) {
+        // 占卜粒子与音效仅对占卜师本人显示 / 播放
         if (sp.level() instanceof ServerLevel sl) {
-            sl.sendParticles(ParticleTypes.ENCHANT, sp.getX(), sp.getY() + 1.2, sp.getZ(),
-                    24, 0.4, 0.6, 0.4, 0.2);
-            sl.playSound(null, sp.blockPosition(), SoundEvents.AMETHYST_BLOCK_CHIME,
-                    SoundSource.PLAYERS, 1.0f, 1.4f);
+            sl.sendParticles(sp, ParticleTypes.ENCHANT, true,
+                    sp.getX(), sp.getY() + 1.2, sp.getZ(), 24, 0.4, 0.6, 0.4, 0.2);
+            sp.playSound(SoundEvents.AMETHYST_BLOCK_CHIME, 1.0f, 1.4f);
         }
     }
 
