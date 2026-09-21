@@ -110,10 +110,11 @@ public class SREEventRegister {
     }
 
     /**
-     * 职业随机事件（{@link SRERole#setEventEnableChance}）的开局掷骰与结束清理。
+     * 职业随机事件（{@link SRERole#setEventEnableChance(java.util.function.BiConsumer, int)}）的开局掷骰与结束清理。
      * <p>
-     * 事件只在这里注册一次，运行时遍历 {@code TMMRoles.ROLES} 派发，因此职业数量不影响监听器数量，
-     * 自定义职业被注销后也不会残留已失效的监听器。
+     * 监听器只在这里注册一次，派发目标由 {@code TMMRoles} 维护的「声明过事件的职业」列表决定
+     * （见 {@link SRERole#rollAllEventEnableChances}）：未声明事件的职业不参与，
+     * 职业被注销时会自动移出列表，不会残留指向旧实例的监听器。
      */
     private static void registerRoleEventEnableHandlers() {
         OnGameTrueStarted.EVENT.register(SRERole::rollAllEventEnableChances);

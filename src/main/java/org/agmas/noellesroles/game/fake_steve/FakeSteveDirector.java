@@ -129,7 +129,18 @@ public final class FakeSteveDirector {
         });
     }
 
-    /** Called by SRERole after the round-start event roll has completed. */
+    /**
+     * 假史蒂夫事件的开局掷骰回调，由 {@code ModRoles.FAKE_STEVE} 通过
+     * {@link SRERole#setEventEnableChance(java.util.function.BiConsumer, int)} 注册（概率读配置 {@code fakeSteveEnableChance}）。
+     * <p>
+     * 每局正式开局调用一次，总是先按当前存活人数重建本局的 {@link Session}：
+     * <ul>
+     *   <li>{@code enabled == true}：掷中，本局派系事件激活（{@code active}、首个待触发事件、
+     *       公告），并据 {@link #wasEventForceEnabled} 区分命令强开与自然掷中；</li>
+     *   <li>{@code enabled == false}：本局事件不发生，只留下一个未激活的 Session；</li>
+     *   <li>局末（{@code OnGameEnd}）还会以 {@code false} 再调用一次，用于复位。</li>
+     * </ul>
+     */
     public static void onEventEnableStateChanged(ServerLevel level, boolean enabled) {
         if (!(SREGameWorldComponent.KEY.get(level).getGameMode() instanceof SREMurderGameMode)) {
             return;
@@ -138,7 +149,7 @@ public final class FakeSteveDirector {
         Session session = new Session(startingPlayers);
         SESSIONS.put(level.dimension().location(), session);
         if (canGenerate(level) && enabled) {
-            boolean forced = ModRoles.FAKE_STEVE.wasEventForceEnabled(level);
+            boolean forced = ModRoles.FAKE_STEVE.wasEventForceEnabled();
             SRE.LOGGER.info(forced
                     ? "[Fake Steve] Event is enabled by next-round command!"
                     : "[Fake Steve] Event is enabled!");
@@ -191,11 +202,12 @@ public final class FakeSteveDirector {
         if (!canGenerate(level)) {
             return false;
         }
-        return ModRoles.FAKE_STEVE.forceEventEnableNextRound(level);
+        return ModRoles.FAKE_STEVE.forceEventEnableNextRound();
     }
 
-    public static boolean isNextRoundForced(ServerLevel level) {
-        return ModRoles.FAKE_STEVE.isEventForcePending(level);
+    /** 是否已经排过「强制下一局」（事件状态维度通用，因此不需要世界参数）。 */
+    public static boolean isNextRoundForced() {
+        return ModRoles.FAKE_STEVE.isEventForcePending();
     }
 
     public static boolean queueApparition(ServerLevel level) {

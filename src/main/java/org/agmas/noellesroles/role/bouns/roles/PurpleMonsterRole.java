@@ -13,7 +13,6 @@ import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -43,20 +42,10 @@ public final class PurpleMonsterRole {
     private static final Map<GazeKey, Integer> MUTUAL_GAZE = new HashMap<>();
     /** Progress is recorded only when the controlled player actually becomes a Purple Monster. */
     private static final Map<UUID, Integer> SUCCESSFUL_ASSIMILATIONS = new HashMap<>();
-    private static final Set<ResourceLocation> EVENT_ENABLED_DIMENSIONS = new HashSet<>();
     private static Event active;
     private static boolean registered;
 
     private PurpleMonsterRole() {}
-
-    public static void onEventEnableStateChanged(ServerLevel level, boolean enabled) {
-        ResourceLocation dimension = level.dimension().location();
-        if (enabled) {
-            EVENT_ENABLED_DIMENSIONS.add(dimension);
-        } else {
-            EVENT_ENABLED_DIMENSIONS.remove(dimension);
-        }
-    }
 
     public static void registerEvents() {
         if (registered) return;
@@ -123,7 +112,8 @@ public final class PurpleMonsterRole {
     }
 
     private static void tryAutomaticEvent(ServerLevel level, SREGameWorldComponent game) {
-        if (!EVENT_ENABLED_DIMENSIONS.contains(level.dimension().location())
+        // 本局是否掷中由职业的随机事件统一判定（含 LAB 地图限制与禁用状态，状态维度通用），这里只管触发条件
+        if (!BounsRoles.PURPLE_MONSTER.isEventEnabled()
                 || active != null || game.getStartingPlayerCount() <= 18) return;
         if (game.getAllWithRole(BounsRoles.PURPLE_MONSTER).stream().anyMatch(id -> {
             ServerPlayer purple = findPlayer(level.getServer(), id);
