@@ -1437,6 +1437,7 @@
   "gui.sre.volunteer_open.volunteer_blue_hint": "选择志愿后，若海选池内有你选择的志愿职业，则该职业在海选池中会被标记为蓝框(仅你可见)",
   "gui.sre.volunteer_open.pool_header": "海选池",
   "gui.sre.volunteer_open.hide_chosen_roles": "隐藏已选择的职业",
+  "gui.sre.volunteer_open.hide_role_detail": "隐藏职业介绍",
   "gui.sre.volunteer_open.volunteer_done": "✔ 已选志愿（点击其它职业可修改）",
   "gui.sre.volunteer_open.click_to_pick": "点击海选池中的职业进行选择",
   "gui.sre.volunteer_open.hidden_role": "隐藏职业",
