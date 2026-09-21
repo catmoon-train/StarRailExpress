@@ -1415,6 +1415,7 @@
   "gui.sre.volunteer_open.volunteer_blue_hint": "After choosing a volunteer role, if it appears in the open pool it will be outlined in blue during the open selection (visible only to you)",
   "gui.sre.volunteer_open.pool_header": "Open Pool",
   "gui.sre.volunteer_open.hide_chosen_roles": "Hide chosen roles",
+  "gui.sre.volunteer_open.hide_role_detail": "Hide role details",
   "gui.sre.volunteer_open.volunteer_done": "✔ Volunteer submitted (click another role to change)",
   "gui.sre.volunteer_open.click_to_pick": "Click a role in the open pool to choose it",
   "gui.sre.volunteer_open.hidden_role": "Hidden Role",
