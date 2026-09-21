@@ -29,8 +29,6 @@ import io.wifi.starrailexpress.client.gui.screen.ingame.LimitedInventoryScreen;
 import io.wifi.starrailexpress.client.gui.screen.ingame.RoleInventoryScreenExtension;
 import io.wifi.starrailexpress.content.entity.PlayerBodyEntity;
 import io.wifi.starrailexpress.content.gui.PlayerBodyEntityContainer;
-import io.wifi.starrailexpress.event.OnGameEnd;
-import io.wifi.starrailexpress.event.OnGameTrueStarted;
 import io.wifi.starrailexpress.game.data.MapStatusBarType;
 import io.wifi.starrailexpress.index.TMMItems;
 import io.wifi.starrailexpress.util.ShopEntry;
@@ -73,7 +71,8 @@ import java.awt.Color;
 import java.util.*;
 import java.util.function.*;
 
-// 此类AI禁止修改。
+// 禁止AI直接修改，如需修改请询问用户许可。
+// 请先阅读根目录的 AGENT.md 获取项目架构。
 public abstract class SRERole extends SREAbstractInfoClass {
     protected ResourceLocation identifier;
     protected boolean canSetSpawnInfoInConfig = true;
@@ -210,7 +209,6 @@ public abstract class SRERole extends SREAbstractInfoClass {
     private final Set<ResourceLocation> forcedEventDimensions = new HashSet<>();
     private BiConsumer<ServerLevel, Boolean> eventEnableHandler;
     private IntSupplier eventEnableChanceSupplier;
-    private boolean eventEnableHooksRegistered;
 
     protected boolean specialVigilante = false;
     protected boolean refreshableSpecialVigilante = false;
@@ -1648,24 +1646,26 @@ public abstract class SRERole extends SREAbstractInfoClass {
     };
 
     /**
-     * Registers an event which is rolled once when each round starts.
-     * The role's map restrictions and disabled-role state are applied before
-     * the roll.
+     * 为本职业声明一个每局掷一次的随机事件：开局时按 {@code chance} 决定本局是否启用，
+     * 掷骰前会先检查本职业的地图限制与禁用状态。
+     * <p>
+     * 这里<b>不</b>注册任何事件监听器：开局掷骰与结束清理由 {@code SREEventRegister}
+     * 中静态注册的两个监听器统一遍历 {@link TMMRoles#ROLES} 派发
+     * （见 {@link #rollAllEventEnableChances} / {@link #resetAllEventEnableStates}）。
      */
     public SRERole setEventEnableChance(BiConsumer<ServerLevel, Boolean> event, int chance) {
         return setEventEnableChance(event, () -> chance);
     }
 
-    /** Registers a round event with a dynamic chance, useful for config values. */
+    /** 同上，但概率支持动态读取（例如配置项）。 */
     public SRERole setEventEnableChance(BiConsumer<ServerLevel, Boolean> event,
             IntSupplier chanceSupplier) {
         this.eventEnableHandler = event;
         this.eventEnableChanceSupplier = Objects.requireNonNull(chanceSupplier, "chanceSupplier");
-        registerEventEnableHooks();
         return this;
     }
 
-    /** Convenience overload for callbacks which only need the successful roll. */
+    /** 便于只关心「掷中」的回调使用。 */
     public SRERole setEventEnableChance(Consumer<ServerLevel> event, int chance) {
         Objects.requireNonNull(event, "event");
         return setEventEnableChance((level, enabled) -> {
@@ -1675,19 +1675,38 @@ public abstract class SRERole extends SREAbstractInfoClass {
         }, chance);
     }
 
-    /** Registers a round event which is only queried through {@link #isEventEnabled(Level)}. */
+    /** 声明一个只通过 {@link #isEventEnabled(Level)} 查询、不需要回调的事件。 */
     public SRERole setEventEnableChance(int chance) {
         return setEventEnableChance((BiConsumer<ServerLevel, Boolean>) null, chance);
     }
 
-    /** Returns whether this role's event passed its round-start roll. */
+    /**
+     * 掷出所有职业本局的事件启用状态，由 {@code SREEventRegister} 在每局正式开始时调用一次。
+     * <p>
+     * 遍历 {@link TMMRoles#ROLES} 派发，因此职业被注销（例如自定义职业重载）后自然不再参与掷骰，
+     * 也不会留下指向旧实例的监听器。
+     */
+    public static void rollAllEventEnableChances(ServerLevel level) {
+        for (SRERole role : new ArrayList<>(TMMRoles.ROLES.values())) {
+            role.rollEventEnableChance(level);
+        }
+    }
+
+    /** 清空所有职业本局的事件启用状态，由 {@code SREEventRegister} 在每局结束时调用一次。 */
+    public static void resetAllEventEnableStates(ServerLevel level) {
+        for (SRERole role : new ArrayList<>(TMMRoles.ROLES.values())) {
+            role.resetEventEnableState(level);
+        }
+    }
+
+    /** 返回本职业的事件是否通过了本局开局的掷骰。 */
     public boolean isEventEnabled(@Nullable Level level) {
         return level != null
                 && eventEnabledDimensions.contains(level.dimension().location())
                 && !SREDisableManager.isRoleDisabled(this);
     }
 
-    /** Forces this role's event to pass its next round-start roll. */
+    /** 强制本职业的事件在下一局必定掷中。 */
     public boolean forceEventEnableNextRound(@Nullable ServerLevel level) {
         if (level == null || eventEnableChanceSupplier == null) {
             return false;
@@ -1695,33 +1714,21 @@ public abstract class SRERole extends SREAbstractInfoClass {
         return pendingForcedEventDimensions.add(level.dimension().location());
     }
 
-    /** Returns whether the current round was enabled by a forced next-round request. */
+    /** 返回本局是否由「强制下一局」请求启用。 */
     public boolean wasEventForceEnabled(@Nullable Level level) {
         return level != null && forcedEventDimensions.contains(level.dimension().location());
     }
 
-    /** Returns whether a forced enable is waiting for the next round. */
+    /** 返回是否有「强制下一局」的请求在等待下一次开局。 */
     public boolean isEventForcePending(@Nullable Level level) {
         return level != null && pendingForcedEventDimensions.contains(level.dimension().location());
     }
 
-    private void registerEventEnableHooks() {
-        if (eventEnableHooksRegistered) {
+    /** 未声明过 {@link #setEventEnableChance} 的职业不参与掷骰。 */
+    private void rollEventEnableChance(ServerLevel level) {
+        if (eventEnableChanceSupplier == null) {
             return;
         }
-        eventEnableHooksRegistered = true;
-        OnGameTrueStarted.EVENT.register(this::rollEventEnableChance);
-        OnGameEnd.EVENT.register((level, game) -> {
-            ResourceLocation dimension = level.dimension().location();
-            eventEnabledDimensions.remove(dimension);
-            forcedEventDimensions.remove(dimension);
-            if (eventEnableHandler != null) {
-                eventEnableHandler.accept(level, false);
-            }
-        });
-    }
-
-    private void rollEventEnableChance(ServerLevel level) {
         ResourceLocation dimension = level.dimension().location();
         eventEnabledDimensions.remove(dimension);
         forcedEventDimensions.remove(dimension);
@@ -1739,6 +1746,18 @@ public abstract class SRERole extends SREAbstractInfoClass {
         }
         if (eventEnableHandler != null) {
             eventEnableHandler.accept(level, enabled);
+        }
+    }
+
+    private void resetEventEnableState(ServerLevel level) {
+        if (eventEnableChanceSupplier == null) {
+            return;
+        }
+        ResourceLocation dimension = level.dimension().location();
+        eventEnabledDimensions.remove(dimension);
+        forcedEventDimensions.remove(dimension);
+        if (eventEnableHandler != null) {
+            eventEnableHandler.accept(level, false);
         }
     }
 

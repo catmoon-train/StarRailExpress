@@ -20,6 +20,7 @@ import org.agmas.noellesroles.init.RoleShopHandler;
 import com.google.gson.JsonObject;
 import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.SREConfig;
+import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.api.replay.GameReplayData;
 import io.wifi.starrailexpress.api.replay.GameReplayManager;
 import io.wifi.starrailexpress.api.replay.board.ReplayBoardService;
@@ -60,6 +61,7 @@ public class SREEventRegister {
         AFKEventHandler.register();
         PlayerMountainHandler.register();
         io.wifi.starrailexpress.game.modes.funny.mob.MobRiotRules.registerEvents();
+        registerRoleEventEnableHandlers();
 
         // 游戏开始：通知客户端（驱动 OnGameStartedClient 事件），并向本局玩家播放默认开场镜头
         net.exmo.sre.planecrash.PlaneCrashManager.register();
@@ -105,6 +107,17 @@ public class SREEventRegister {
                 io.wifi.starrailexpress.shop.ShopPriceSyncServer.resyncAll(serverLevel.getServer());
             }
         });
+    }
+
+    /**
+     * 职业随机事件（{@link SRERole#setEventEnableChance}）的开局掷骰与结束清理。
+     * <p>
+     * 事件只在这里注册一次，运行时遍历 {@code TMMRoles.ROLES} 派发，因此职业数量不影响监听器数量，
+     * 自定义职业被注销后也不会残留已失效的监听器。
+     */
+    private static void registerRoleEventEnableHandlers() {
+        OnGameTrueStarted.EVENT.register(SRERole::rollAllEventEnableChances);
+        OnGameEnd.EVENT.register((serverLevel, __cca) -> SRERole.resetAllEventEnableStates(serverLevel));
     }
 
     public static void registerServerLifecycleEvents() {
