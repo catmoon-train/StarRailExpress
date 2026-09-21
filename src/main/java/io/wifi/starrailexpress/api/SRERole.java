@@ -208,9 +208,15 @@ public abstract class SRERole extends SREAbstractInfoClass {
     private final Set<ResourceLocation> eventEnabledDimensions = new HashSet<>();
     private final Set<ResourceLocation> pendingForcedEventDimensions = new HashSet<>();
     private final Set<ResourceLocation> forcedEventDimensions = new HashSet<>();
+    private static final Set<SRERole> EVENT_ENABLE_ROLES =
+            Collections.newSetFromMap(new IdentityHashMap<>());
     private BiConsumer<ServerLevel, Boolean> eventEnableHandler;
     private IntSupplier eventEnableChanceSupplier;
-    private boolean eventEnableHooksRegistered;
+
+    static {
+        OnGameTrueStarted.EVENT.register(SRERole::rollEventEnableChances);
+        OnGameEnd.EVENT.register(SRERole::clearEventEnableState);
+    }
 
     protected boolean specialVigilante = false;
     protected boolean refreshableSpecialVigilante = false;
@@ -1661,7 +1667,7 @@ public abstract class SRERole extends SREAbstractInfoClass {
             IntSupplier chanceSupplier) {
         this.eventEnableHandler = event;
         this.eventEnableChanceSupplier = Objects.requireNonNull(chanceSupplier, "chanceSupplier");
-        registerEventEnableHooks();
+        EVENT_ENABLE_ROLES.add(this);
         return this;
     }
 
@@ -1705,20 +1711,21 @@ public abstract class SRERole extends SREAbstractInfoClass {
         return level != null && pendingForcedEventDimensions.contains(level.dimension().location());
     }
 
-    private void registerEventEnableHooks() {
-        if (eventEnableHooksRegistered) {
-            return;
-        }
-        eventEnableHooksRegistered = true;
-        OnGameTrueStarted.EVENT.register(this::rollEventEnableChance);
-        OnGameEnd.EVENT.register((level, game) -> {
+    private static void clearEventEnableState(ServerLevel level, SREGameWorldComponent game) {
+        for (SRERole role : EVENT_ENABLE_ROLES) {
             ResourceLocation dimension = level.dimension().location();
-            eventEnabledDimensions.remove(dimension);
-            forcedEventDimensions.remove(dimension);
-            if (eventEnableHandler != null) {
-                eventEnableHandler.accept(level, false);
+            role.eventEnabledDimensions.remove(dimension);
+            role.forcedEventDimensions.remove(dimension);
+            if (role.eventEnableHandler != null) {
+                role.eventEnableHandler.accept(level, false);
             }
-        });
+        }
+    }
+
+    private static void rollEventEnableChances(ServerLevel level) {
+        for (SRERole role : EVENT_ENABLE_ROLES) {
+            role.rollEventEnableChance(level);
+        }
     }
 
     private void rollEventEnableChance(ServerLevel level) {
