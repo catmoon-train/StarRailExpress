@@ -160,7 +160,7 @@
   "item.noellesroles.youlu_anchor.desc": "幽露专属，商店80金币购买一次。第一次使用放出一颗沿地面向前滑行的球形锚点（仅幽露本人可见），再次使用传送到锚点位置并回收锚点，随后进入30秒冷却。锚点最长存在25秒。",
   "item.noellesroles.youlu_smoke.desc": "幽露专属，商店70金币购买一次。使用后沿视线方向（含上下）放出一团向前推进的烟雾波（可穿墙，非瞬时）：推进途中半径4格内的玩家陷入8秒失明与黑暗，命中后烟雾不会消失、继续前进，总距离12格。冷却60秒。",
   "item.noellesroles.barbarian_knife.desc": "野人仅在魔了形态获得的无限耐久利刃。无冷却，只能攻击中立和杀手阵营。",
-  "item.noellesroles.desperado_knife.desc": "仅难民词条转化的亡命徒获得。继承普通刀的左键击退；右键蓄力0.2秒后前摇0.1秒，向前挥出地狱剑气（距离缩短25%，不能隔墙），碰到剑气的玩家死亡，同时自身短距冲刺。",
+  "item.noellesroles.desperado_knife.desc": "仅难民词条转化的亡命徒获得。继承普通刀的左键击退与右键蓄力刺杀；蓄满力后额外短距冲刺，冲刺本身不造成伤害。",
   "item.noellesroles.desperado_gun.desc": "仅难民词条转化的亡命徒获得。特性与德林加手枪一致，弹道路径绘制红色粒子光束，光束附近的玩家获得缓慢V，持续3秒。",
   "item.noellesroles.chocolate.desc": "美味的巧克力，食用后短时间内san值不会下降。（持续15秒）",
   "item.noellesroles.calming_tea.desc": "安神茶，饮用后减缓san值消耗。（持续60秒）",

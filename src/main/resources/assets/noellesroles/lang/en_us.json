@@ -4537,7 +4537,7 @@
   "skill.noellesroles.barbarian.smoke_breath": "Smoke Breath",
   "item.noellesroles.barbarian_knife": "Barbarian Blade",
   "item.noellesroles.desperado_knife": "Desperado Knife",
-  "item.noellesroles.desperado_knife.tooltip": "Hold right-click for 0.2s, then a 0.1s wind-up slash\nPlayers hit by the wave die; it cannot pass through walls\nYou dash a short distance after the slash",
+  "item.noellesroles.desperado_knife.tooltip": "Hold right-click until fully charged to dash; the dash deals no damage\nDamage matches a normal knife: release a charged stab on a player",
   "item.noellesroles.desperado_gun": "Desperado Gun",
   "item.noellesroles.desperado_gun.tooltip": "Same as a Derringer: one shot\nPaints a red particle beam along the shot\nPlayers near the beam get Slowness V for 3s",
   "message.noellesroles.barbarian.transform": "Your savage instinct deflected the fatal strike — berserk form awakened!",

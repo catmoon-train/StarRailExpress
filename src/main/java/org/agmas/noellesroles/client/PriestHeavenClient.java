@@ -166,10 +166,10 @@ public final class PriestHeavenClient {
         }
         float last15 = inLast15Seconds() ? 1.0F : 0.0F;
         float target = switch (phase) {
-            case PHASE_TRANSFORMED -> 0.45F;
-            case PHASE_CHANTING -> 0.68F;
-            case PHASE_ACCELERATING -> 0.86F + 0.14F * accelProgress();
-            case PHASE_FINALE -> 1.0F;
+            case PHASE_TRANSFORMED -> 0.16F;
+            case PHASE_CHANTING -> 0.28F;
+            case PHASE_ACCELERATING -> 0.72F + 0.18F * accelProgress();
+            case PHASE_FINALE -> 0.88F;
             default -> 0.0F;
         };
         shaderStrength += (target - shaderStrength) * 0.14F;
