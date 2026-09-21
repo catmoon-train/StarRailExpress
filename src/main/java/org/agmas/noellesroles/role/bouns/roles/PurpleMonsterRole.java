@@ -1,8 +1,6 @@
 package org.agmas.noellesroles.role.bouns.roles;
 
-import io.wifi.starrailexpress.api.AreasSettingUtils.MapSpecialFeatures;
 import io.wifi.starrailexpress.api.SRERole;
-import io.wifi.starrailexpress.cca.AreasWorldComponent;
 import io.wifi.starrailexpress.cca.SREArmorPlayerComponent;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.cca.SREPlayerMoodComponent;
@@ -15,6 +13,7 @@ import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -22,8 +21,6 @@ import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
-import org.agmas.harpymodloader.SREDisableManager;
-import org.agmas.noellesroles.Noellesroles;
 import org.agmas.noellesroles.init.ModEffects;
 import org.agmas.noellesroles.packet.PurpleMonsterEventC2SPacket;
 import org.agmas.noellesroles.packet.PurpleMonsterEventS2CPacket;
@@ -46,10 +43,20 @@ public final class PurpleMonsterRole {
     private static final Map<GazeKey, Integer> MUTUAL_GAZE = new HashMap<>();
     /** Progress is recorded only when the controlled player actually becomes a Purple Monster. */
     private static final Map<UUID, Integer> SUCCESSFUL_ASSIMILATIONS = new HashMap<>();
+    private static final Set<ResourceLocation> EVENT_ENABLED_DIMENSIONS = new HashSet<>();
     private static Event active;
     private static boolean registered;
 
     private PurpleMonsterRole() {}
+
+    public static void onEventEnableStateChanged(ServerLevel level, boolean enabled) {
+        ResourceLocation dimension = level.dimension().location();
+        if (enabled) {
+            EVENT_ENABLED_DIMENSIONS.add(dimension);
+        } else {
+            EVENT_ENABLED_DIMENSIONS.remove(dimension);
+        }
+    }
 
     public static void registerEvents() {
         if (registered) return;
@@ -116,9 +123,8 @@ public final class PurpleMonsterRole {
     }
 
     private static void tryAutomaticEvent(ServerLevel level, SREGameWorldComponent game) {
-        if (active != null || !isLab(level) || game.getStartingPlayerCount() <= 18
-                || SREDisableManager.isRoleDisabled(BounsRoles.PURPLE_MONSTER)
-                || mapDisablesRole(level)) return;
+        if (!EVENT_ENABLED_DIMENSIONS.contains(level.dimension().location())
+                || active != null || game.getStartingPlayerCount() <= 18) return;
         if (game.getAllWithRole(BounsRoles.PURPLE_MONSTER).stream().anyMatch(id -> {
             ServerPlayer purple = findPlayer(level.getServer(), id);
             return purple != null && GameUtils.isPlayerAliveAndSurvival(purple);
@@ -137,7 +143,7 @@ public final class PurpleMonsterRole {
     }
 
     private static boolean startEvent(ServerPlayer target, boolean forced) {
-        if (!forced && (!isLab(target.serverLevel()) || !SREGameWorldComponent.KEY.get(target.level()).isRunning()))
+        if (!forced && !SREGameWorldComponent.KEY.get(target.level()).isRunning())
             return false;
         Vec3 spawn = findSpawn(target);
         UUID close = closestPlayer(target);
@@ -387,20 +393,6 @@ public final class PurpleMonsterRole {
         HitResult hit = from.level().clip(new ClipContext(start, to.getEyePosition(), ClipContext.Block.COLLIDER,
                 ClipContext.Fluid.NONE, from));
         return hit.getType() == HitResult.Type.MISS;
-    }
-
-    private static boolean isLab(ServerLevel level) {
-        AreasWorldComponent areas = AreasWorldComponent.KEY.get(level);
-        return areas != null && areas.mapName != null && areas.areasSettings != null
-                && SRERole.getMapFeatures(areas.mapName, areas.areasSettings).contains(MapSpecialFeatures.LAB);
-    }
-
-    private static boolean mapDisablesRole(ServerLevel level) {
-        AreasWorldComponent areas = AreasWorldComponent.KEY.get(level);
-        if (areas == null || areas.areasSettings == null || areas.areasSettings.disabledRoles == null) return false;
-        String id = BounsRoles.PURPLE_MONSTER_ID.toString();
-        return areas.areasSettings.disabledRoles.contains(id)
-                || areas.areasSettings.disabledRoles.contains(BounsRoles.PURPLE_MONSTER_ID.getPath());
     }
 
     private static ServerPlayer findPlayer(MinecraftServer server, UUID id) {

@@ -541,7 +541,8 @@ public class BounsRoles {
             .setNeutralForKiller(false)
             .setDefaultMax(0)
             .setCanBeRandomedByOtherRoles(false)
-            .setSpecialMapRolesCondition(features -> features.contains(MapSpecialFeatures.LAB));
+            .setSpecialMapRolesCondition(features -> features.contains(MapSpecialFeatures.LAB))
+            .setEventEnableChance(PurpleMonsterRole::onEventEnableStateChanged, 6000);
 
     public static void init() {
         THRedHouseRoles.init();

@@ -23,7 +23,6 @@ import io.wifi.starrailexpress.cca.SREPlayerShopComponent;
 import io.wifi.starrailexpress.event.AllowGameEnd;
 import io.wifi.starrailexpress.event.AllowPlayerWin;
 import io.wifi.starrailexpress.event.OnGameEnd;
-import io.wifi.starrailexpress.event.OnGameTrueStarted;
 import io.wifi.starrailexpress.event.OnKillPlayerTriggered;
 import io.wifi.starrailexpress.game.GameConstants;
 import io.wifi.starrailexpress.game.GameUtils;
@@ -44,7 +43,6 @@ import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.player.Player;
 import org.agmas.harpymodloader.component.WorldModifierComponent;
 import org.agmas.noellesroles.Noellesroles;
-import org.agmas.noellesroles.config.NoellesRolesConfig;
 import org.agmas.noellesroles.game.modifier.NRModifiers;
 import org.agmas.noellesroles.init.ModEffects;
 // import org.agmas.noellesroles.packet.FakeSteveHuntS2CPacket;
@@ -52,7 +50,6 @@ import org.agmas.noellesroles.role.ModRoles;
 import org.agmas.noellesroles.utils.RoleUtils;
 
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
@@ -67,7 +64,6 @@ public final class FakeSteveDirector {
     /** Longer than any round, without synchronizing the psycho component every tick. */
     private static final int PERMANENT_PSYCHO_TICKS = Integer.MAX_VALUE;
     private static final Map<ResourceLocation, Session> SESSIONS = new HashMap<>();
-    private static final Set<ResourceLocation> FORCE_NEXT_ROUND = new HashSet<>();
     private static boolean registered;
 
     private FakeSteveDirector() {
@@ -80,29 +76,6 @@ public final class FakeSteveDirector {
         registered = true;
         FakeSteveAi.register();
         FakeSteveTrailRecorder.register();
-
-        OnGameTrueStarted.EVENT.register((level) -> {
-            if (!(SREGameWorldComponent.KEY.get(level).getGameMode() instanceof SREMurderGameMode)) {
-                return;
-            }
-            int startingPlayers = (int) level.getPlayers((p) -> GameUtils.isPlayerAliveAndSurvival(p)).stream().count();
-            Session session = new Session(startingPlayers);
-            SESSIONS.put(level.dimension().location(), session);
-            boolean forced = consumeForceNextRound(level);
-            if (canGenerate(level)
-                    && (forced || level.getRandom().nextInt(10000)
-                    <= NoellesRolesConfig.instance().fakeSteveEnableChance)) {
-                SRE.LOGGER.info(forced
-                        ? "[Fake Steve] Event is enabled by next-round command!"
-                        : "[Fake Steve] Event is enabled!");
-                session.active = true;
-                session.pendingEvents = 1;
-                session.activationSource = forced
-                        ? ActivationSource.COMMAND_NEXT
-                        : ActivationSource.NATURAL_ROLL;
-                announceNaturalEvent(level);
-            }
-        });
 
         OnGameEnd.EVENT.register((level, game) -> clear(level));
         ServerTickEvents.END_WORLD_TICK.register(FakeSteveDirector::tick);
@@ -156,6 +129,28 @@ public final class FakeSteveDirector {
         });
     }
 
+    /** Called by SRERole after the round-start event roll has completed. */
+    public static void onEventEnableStateChanged(ServerLevel level, boolean enabled) {
+        if (!(SREGameWorldComponent.KEY.get(level).getGameMode() instanceof SREMurderGameMode)) {
+            return;
+        }
+        int startingPlayers = (int) level.getPlayers((p) -> GameUtils.isPlayerAliveAndSurvival(p)).stream().count();
+        Session session = new Session(startingPlayers);
+        SESSIONS.put(level.dimension().location(), session);
+        if (canGenerate(level) && enabled) {
+            boolean forced = ModRoles.FAKE_STEVE.wasEventForceEnabled(level);
+            SRE.LOGGER.info(forced
+                    ? "[Fake Steve] Event is enabled by next-round command!"
+                    : "[Fake Steve] Event is enabled!");
+            session.active = true;
+            session.pendingEvents = 1;
+            session.activationSource = forced
+                    ? ActivationSource.COMMAND_NEXT
+                    : ActivationSource.NATURAL_ROLL;
+            announceNaturalEvent(level);
+        }
+    }
+
     public static boolean isEnabled() {
         return !Noellesroles.isRoleDisabled(ModRoles.FAKE_STEVE);
     }
@@ -196,15 +191,11 @@ public final class FakeSteveDirector {
         if (!canGenerate(level)) {
             return false;
         }
-        return FORCE_NEXT_ROUND.add(level.dimension().location());
+        return ModRoles.FAKE_STEVE.forceEventEnableNextRound(level);
     }
 
     public static boolean isNextRoundForced(ServerLevel level) {
-        return level != null && FORCE_NEXT_ROUND.contains(level.dimension().location());
-    }
-
-    private static boolean consumeForceNextRound(ServerLevel level) {
-        return FORCE_NEXT_ROUND.remove(level.dimension().location());
+        return ModRoles.FAKE_STEVE.isEventForcePending(level);
     }
 
     public static boolean queueApparition(ServerLevel level) {

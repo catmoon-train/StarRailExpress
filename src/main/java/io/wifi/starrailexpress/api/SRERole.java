@@ -29,6 +29,8 @@ import io.wifi.starrailexpress.client.gui.screen.ingame.LimitedInventoryScreen;
 import io.wifi.starrailexpress.client.gui.screen.ingame.RoleInventoryScreenExtension;
 import io.wifi.starrailexpress.content.entity.PlayerBodyEntity;
 import io.wifi.starrailexpress.content.gui.PlayerBodyEntityContainer;
+import io.wifi.starrailexpress.event.OnGameEnd;
+import io.wifi.starrailexpress.event.OnGameTrueStarted;
 import io.wifi.starrailexpress.game.data.MapStatusBarType;
 import io.wifi.starrailexpress.index.TMMItems;
 import io.wifi.starrailexpress.util.ShopEntry;
@@ -201,6 +203,14 @@ public abstract class SRERole extends SREAbstractInfoClass {
     public int defaultEnableMaxPlayerCount = -1;
     protected MapSpecialFeatures specialMapRole = MapSpecialFeatures.ALL;
     protected BiPredicate<String, AreasSettings> canSpawnInMapPredicate = null;
+
+    /** Per-round enable state for events owned by this role. */
+    private final Set<ResourceLocation> eventEnabledDimensions = new HashSet<>();
+    private final Set<ResourceLocation> pendingForcedEventDimensions = new HashSet<>();
+    private final Set<ResourceLocation> forcedEventDimensions = new HashSet<>();
+    private BiConsumer<ServerLevel, Boolean> eventEnableHandler;
+    private IntSupplier eventEnableChanceSupplier;
+    private boolean eventEnableHooksRegistered;
 
     protected boolean specialVigilante = false;
     protected boolean refreshableSpecialVigilante = false;
@@ -1636,6 +1646,111 @@ public abstract class SRERole extends SREAbstractInfoClass {
         this.spawnInfo.enableChance = chance;
         return this;
     };
+
+    /**
+     * Registers an event which is rolled once when each round starts.
+     * The role's map restrictions and disabled-role state are applied before
+     * the roll.
+     */
+    public SRERole setEventEnableChance(BiConsumer<ServerLevel, Boolean> event, int chance) {
+        return setEventEnableChance(event, () -> chance);
+    }
+
+    /** Registers a round event with a dynamic chance, useful for config values. */
+    public SRERole setEventEnableChance(BiConsumer<ServerLevel, Boolean> event,
+            IntSupplier chanceSupplier) {
+        this.eventEnableHandler = event;
+        this.eventEnableChanceSupplier = Objects.requireNonNull(chanceSupplier, "chanceSupplier");
+        registerEventEnableHooks();
+        return this;
+    }
+
+    /** Convenience overload for callbacks which only need the successful roll. */
+    public SRERole setEventEnableChance(Consumer<ServerLevel> event, int chance) {
+        Objects.requireNonNull(event, "event");
+        return setEventEnableChance((level, enabled) -> {
+            if (enabled) {
+                event.accept(level);
+            }
+        }, chance);
+    }
+
+    /** Registers a round event which is only queried through {@link #isEventEnabled(Level)}. */
+    public SRERole setEventEnableChance(int chance) {
+        return setEventEnableChance((BiConsumer<ServerLevel, Boolean>) null, chance);
+    }
+
+    /** Returns whether this role's event passed its round-start roll. */
+    public boolean isEventEnabled(@Nullable Level level) {
+        return level != null
+                && eventEnabledDimensions.contains(level.dimension().location())
+                && !SREDisableManager.isRoleDisabled(this);
+    }
+
+    /** Forces this role's event to pass its next round-start roll. */
+    public boolean forceEventEnableNextRound(@Nullable ServerLevel level) {
+        if (level == null || eventEnableChanceSupplier == null) {
+            return false;
+        }
+        return pendingForcedEventDimensions.add(level.dimension().location());
+    }
+
+    /** Returns whether the current round was enabled by a forced next-round request. */
+    public boolean wasEventForceEnabled(@Nullable Level level) {
+        return level != null && forcedEventDimensions.contains(level.dimension().location());
+    }
+
+    /** Returns whether a forced enable is waiting for the next round. */
+    public boolean isEventForcePending(@Nullable Level level) {
+        return level != null && pendingForcedEventDimensions.contains(level.dimension().location());
+    }
+
+    private void registerEventEnableHooks() {
+        if (eventEnableHooksRegistered) {
+            return;
+        }
+        eventEnableHooksRegistered = true;
+        OnGameTrueStarted.EVENT.register(this::rollEventEnableChance);
+        OnGameEnd.EVENT.register((level, game) -> {
+            ResourceLocation dimension = level.dimension().location();
+            eventEnabledDimensions.remove(dimension);
+            forcedEventDimensions.remove(dimension);
+            if (eventEnableHandler != null) {
+                eventEnableHandler.accept(level, false);
+            }
+        });
+    }
+
+    private void rollEventEnableChance(ServerLevel level) {
+        ResourceLocation dimension = level.dimension().location();
+        eventEnabledDimensions.remove(dimension);
+        forcedEventDimensions.remove(dimension);
+
+        boolean mapAllowed = isEventMapAllowed(level);
+        boolean forced = pendingForcedEventDimensions.remove(dimension);
+        boolean enabled = mapAllowed && !SREDisableManager.isRoleDisabled(this)
+                && (forced || RandomSelector.tryChance(
+                        Math.max(0, Math.min(10000, eventEnableChanceSupplier.getAsInt())), 10000));
+        if (enabled) {
+            eventEnabledDimensions.add(dimension);
+            if (forced) {
+                forcedEventDimensions.add(dimension);
+            }
+        }
+        if (eventEnableHandler != null) {
+            eventEnableHandler.accept(level, enabled);
+        }
+    }
+
+    private boolean isEventMapAllowed(ServerLevel level) {
+        AreasWorldComponent areas = AreasWorldComponent.KEY.get(level);
+        if (areas == null || areas.mapName == null || areas.areasSettings == null) {
+            return specialMapRole == MapSpecialFeatures.ALL
+                    && specialMapRolesPredicate == null
+                    && canSpawnInMapPredicate == null;
+        }
+        return canSpawnInMap(areas.mapName, areas.areasSettings);
+    }
 
     /**
      * 给予疯魔物品

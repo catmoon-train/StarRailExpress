@@ -49,6 +49,7 @@ import org.agmas.noellesroles.game.roles.neutral.monokuma.MonokumaRole;
 import org.agmas.noellesroles.game.roles.neutral.nian_shou.NianShouRole;
 import org.agmas.noellesroles.game.roles.neutral.priest.PriestRole;
 import org.agmas.noellesroles.game.roles.neutral.puppeteer.PuppeteerPlayerComponent;
+import org.agmas.noellesroles.game.fake_steve.FakeSteveDirector;
 import org.agmas.noellesroles.game.roles.neutral.raven.RavenRole;
 import org.agmas.noellesroles.game.roles.vigilante.genshin.TartagliaRole;
 import org.agmas.noellesroles.init.ModEffects;
@@ -1810,6 +1811,8 @@ public class ModRoles {
             .setCanBeRandomedByOtherRoles(false)
             .setCanSetSpawnInfoInConfig(false)
             .setDefaultMax(0)
+            .setEventEnableChance(FakeSteveDirector::onEventEnableStateChanged,
+                    () -> org.agmas.noellesroles.config.NoellesRolesConfig.instance().fakeSteveEnableChance)
             .setAddedVersion("4.4");
     public static SRERole VULTURE = TMMRoles
             .registerRole(new NormalRole(VULTURE_ID, new Color(210, 105, 30).getRGB(), false,
