@@ -422,23 +422,42 @@ TMMRoles.addRoleComponents(ModComponents.MY_GLOBAL_COMPONENT); // 仅全局玩�
 
 #### 声明事件 / Declaring an event
 
-四种写法按需**选一种**，都接在 `TMMRoles.registerRole(...)` 返回的职业上
+一次给出两个互不干扰的回调，都接在 `TMMRoles.registerRole(...)` 返回的职业上
 （`chance` 是**万分比**，`6000` = 60%，超出 0–10000 会被裁剪）：
 
+| 重载 | 掷骰回调 | 局末回调 |
+| --- | --- | --- |
+| `setEventEnableChance(BiConsumer<ServerLevel,Boolean>, Consumer<ServerLevel>, int)` | **每次**掷骰都调用；未掷中收到 `(level, false)` | 仅本局掷中过时调用 |
+| `setEventEnableChance(Consumer<ServerLevel>, Consumer<ServerLevel>, int)` | 仅本局掷中时调用 | 仅本局掷中过时调用 |
+| `setEventEnableChance(BiConsumer<ServerLevel,Boolean>, int)` | **每次**掷骰都调用 | 不注册 |
+| `setEventEnableChance(Consumer<ServerLevel>, int)` | 仅本局掷中时调用 | 不注册 |
+| `setEventEnableChance(int)` / `setEventEnableChance(IntSupplier)` | 不注册（触发点自己查 `isEventEnabled()`） | 不注册 |
+
+每个 `chance` 为 `int` 的重载都有对应的 `IntSupplier` 版本（概率每次掷骰重新读，适合绑配置）。
+
+局末回调还可以**单独挂**：`setRoundEventEndHandler(Consumer<ServerLevel>)` 不改变已声明的掷骰回调与概率，
+可以链在任意声明之后（包括上面的纯查询式），先挂后挂都行，也不会被后续的 `setEventEnableChance` 覆盖。
+
 ```java
-// ① 固定概率，且需要知道「本局没启用」：回调必须能处理 false
-.setEventEnableChance((level, enabled) -> {
-    if (enabled) startMyEvent(level);
-}, 6000)
+// 结果回调 + 局末收尾（假史蒂夫的写法）
+.setEventEnableChance(MyEvent::onRollResult, MyEvent::onRoundEnd, 6000)
 
-// ② 概率读配置：每次掷骰都重新取值
-.setEventEnableChance((level, enabled) -> { ... }, () -> MyConfig.instance().myEventChance)
+// 只关心掷中 + 局末收尾
+.setEventEnableChance(level -> startMyEvent(level), MyEvent::onRoundEnd, 6000)
 
-// ③ 只关心「掷中」：不会收到未启用通知
-.setEventEnableChance(level -> startMyEvent(level), 6000)
+// 不要局末回调：第二个参数传 null，或直接用两参重载
+.setEventEnableChance(MyEvent::onRollResult, null, 6000)
 
-// ④ 不要回调，之后按需查询（见「查询 / Querying」）
+// 概率读配置
+.setEventEnableChance(MyEvent::onRollResult, MyEvent::onRoundEnd,
+        () -> MyConfig.instance().myEventChance)
+
+// 只要概率，触发点自己查询
 .setEventEnableChance(6000)
+
+// 查询式声明 + 单独挂收尾（不需要转型、也不用写空掷骰回调）
+.setEventEnableChance(() -> MyConfig.instance().myEventChance)
+.setRoundEventEndHandler(MyEvent::onRoundEnd)
 ```
 
 #### 判定顺序 / Roll order
@@ -452,10 +471,14 @@ TMMRoles.addRoleComponents(ModComponents.MY_GLOBAL_COMPONENT); // 仅全局玩�
 
 三项都通过才算本局启用。注意是**每局一次**，不是每次查询都重掷。
 
-#### 回调契约 / Handler contract
+#### 两个回调 / Two callbacks
 
-- 每次掷骰后收到一次 `(level, enabled)`，`level` 是判定时用的世界（默认主世界）；
-- **局末（`OnGameEnd`）还会收到一次 `(level, false)`**，用它复位自己的本局状态；
+- **掷骰回调**：每局开局掷骰后调用一次，能看到刚写入的本局状态。
+  带 `boolean` 的版本**没掷中也调用**（`(level, false)`），用于处理「启用失败」（例如复位、公告）；
+  `Consumer` 版本只在本局掷中时调用，开场与收尾天然配对。
+- **局末回调**：局末（`OnGameEnd`）清理时调用，**只在本局掷中过时才调用**，且**先于状态清空**执行——
+  回调里 `isEventEnabled()` 仍反映本局结果，方便判断「本局事件跑过了」再做收尾。
+  只注册掷骰回调（不注册局末回调）时，局末不会收到任何通知。
 - 状态不按维度分开：同一职业一份，多维度服务器共用。
 
 #### 查询 / Querying
@@ -499,16 +522,20 @@ boolean pending = ModRoles.FAKE_STEVE.isEventForcePending();
 public static final SRERole MY_ROLE = TMMRoles.registerRole(new NormalRole(...))
         // 只在实验室地图
         .setSpecialMapRolesCondition(features -> features.contains(MapSpecialFeatures.LAB))
-        // 每局 25%，开局拿结果
-        .setEventEnableChance(MyEventHandler::onRoll, 2500);
+        // 每局 25%；第一个是掷骰回调，第二个是局末收尾
+        .setEventEnableChance(MyEventHandler::onRollResult, MyEventHandler::onRoundEnd, 2500);
 
 // 事件本体放在自己的类里，静态方法即可
-public static void onRoll(ServerLevel level, boolean enabled) {
-    if (!enabled) {   // 没掷中时会走到这里，局末（OnGameEnd）也会再走一次
-        resetRoundState();
+public static void onRollResult(ServerLevel level, boolean enabled) {
+    if (!enabled) {          // 没掷中也会走到这里，可用来处理「启用失败」
         return;
     }
-    scheduleMyEvent(level);
+    scheduleMyEvent(level);  // 本局事件开始
+}
+
+/** 只在本局掷中过时才会走到这里；此刻 isEventEnabled() 仍为 true。 */
+public static void onRoundEnd(ServerLevel level) {
+    cleanupMyEvent(level);
 }
 ```
 
@@ -516,13 +543,14 @@ public static void onRoll(ServerLevel level, boolean enabled) {
 
 | 成员 | 说明 |
 |------|------|
-| `SRERole#setEventEnableChance(...)` | 声明事件（4 个重载，见上） |
+| `SRERole#setEventEnableChance(...)` | 声明事件：掷骰回调（带结果 / 仅启用）+ 局末回调 + 概率，见上表 |
+| `SRERole#setRoundEventEndHandler(Consumer<ServerLevel>)` | 单独挂/追加局末回调，不改变已声明的掷骰回调与概率 |
 | `SRERole#hasRoundEvent()` | 是否声明过事件（决定是否参与每局掷骰） |
 | `SRERole#isEventEnabled()` | 本局是否启用（维度通用，查询时复查禁用状态） |
 | `SRERole#forceEventEnableNextRound()` | 强制下一局必定掷中；返回 false 表示已排队 |
 | `SRERole#wasEventForceEnabled()` | 本局是否由命令强开 |
 | `SRERole#isEventForcePending()` | 是否有等待生效的强制请求 |
-| `RoleRoundEvent` | 上述机制的实现：每个职业一个，一份维度通用的本局状态 + 跨局强制请求 |
+| `RoleRoundEvent` | 上述机制的实现：每个职业一个，一份维度通用的本局状态 + 掷骰/局末回调 + 跨局强制请求 |
 | `TMMRoles` | 维护「声明过事件的职业」列表，注销职业时自动移出 |
 
 ---

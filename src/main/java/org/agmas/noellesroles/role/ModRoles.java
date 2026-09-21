@@ -1811,7 +1811,8 @@ public class ModRoles {
             .setCanBeRandomedByOtherRoles(false)
             .setCanSetSpawnInfoInConfig(false)
             .setDefaultMax(0)
-            .setEventEnableChance(FakeSteveDirector::onEventEnableStateChanged,
+            .setEventEnableChance(FakeSteveDirector::onEventRollResult,
+                    FakeSteveDirector::onEventRoundEnd,
                     () -> org.agmas.noellesroles.config.NoellesRolesConfig.instance().fakeSteveEnableChance)
             .setAddedVersion("4.4");
     public static SRERole VULTURE = TMMRoles
