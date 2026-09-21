@@ -29,6 +29,7 @@ import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.components.Checkbox;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.resources.sounds.SimpleSoundInstance;
@@ -99,6 +100,7 @@ public class VolunteerOpenSelectScreen extends Screen {
 
     private int autoToggleX, autoToggleY, autoToggleW;
     private int confirmX, confirmY;
+    private Checkbox hideChosenRolesCheckbox;
 
     // ==================== 状态 ====================
     private int tickCounter;
@@ -138,6 +140,8 @@ public class VolunteerOpenSelectScreen extends Screen {
         if (lastPhase == VolunteerOpenCache.PHASE_VOLUNTEER) {
             refreshRoleList();
             ensureSearchBox();
+        } else if (lastPhase == VolunteerOpenCache.PHASE_OPEN) {
+            ensureHideChosenRolesCheckbox();
         }
     }
 
@@ -157,8 +161,13 @@ public class VolunteerOpenSelectScreen extends Screen {
             if (phase == VolunteerOpenCache.PHASE_VOLUNTEER) {
                 refreshRoleList();
                 ensureSearchBox();
+                removeHideChosenRolesCheckbox();
+            } else if (phase == VolunteerOpenCache.PHASE_OPEN) {
+                removeSearchBox();
+                ensureHideChosenRolesCheckbox();
             } else {
                 removeSearchBox();
+                removeHideChosenRolesCheckbox();
             }
         }
         updateAutoScroll();
@@ -186,6 +195,33 @@ public class VolunteerOpenSelectScreen extends Screen {
             searchBox = null;
             searchText = "";
         }
+    }
+
+    private void ensureHideChosenRolesCheckbox() {
+        if (hideChosenRolesCheckbox != null) {
+            return;
+        }
+        hideChosenRolesCheckbox = Checkbox.builder(
+                Component.translatable("gui.sre.volunteer_open.hide_chosen_roles"), font)
+                .pos(poolX + font.width(Component.translatable("gui.sre.volunteer_open.pool_header")) + GAP,
+                        rightY + PAD - 2)
+                .selected(false)
+                .build();
+        addRenderableWidget(hideChosenRolesCheckbox);
+    }
+
+    private void removeHideChosenRolesCheckbox() {
+        if (hideChosenRolesCheckbox != null) {
+            removeWidget(hideChosenRolesCheckbox);
+            hideChosenRolesCheckbox = null;
+        }
+    }
+
+    private boolean shouldHidePoolCell(int index) {
+        return hideChosenRolesCheckbox != null
+                && hideChosenRolesCheckbox.selected()
+                && index != VolunteerOpenCache.getMyPickIndex()
+                && VolunteerOpenCache.getChosenIndices().contains(index);
     }
 
     private void refreshRoleList() {
@@ -252,6 +288,12 @@ public class VolunteerOpenSelectScreen extends Screen {
         detailY = poolY + poolH + GAP;
         detailW = poolW;
         detailH = Math.max(40, bodyBottom - detailY);
+
+        if (hideChosenRolesCheckbox != null) {
+            hideChosenRolesCheckbox.setX(poolX + font.width(Component.translatable("gui.sre.volunteer_open.pool_header"))
+                    + GAP);
+            hideChosenRolesCheckbox.setY(rightY + PAD - 2);
+        }
 
         // 底部控件
         confirmX = (width - CONFIRM_W) / 2;
@@ -621,6 +663,9 @@ public class VolunteerOpenSelectScreen extends Screen {
             int col = index % cols;
             if (row >= rows) {
                 break;
+            }
+            if (shouldHidePoolCell(index)) {
+                continue;
             }
             int x = gridX + col * (poolCellW + cellGap);
             int y = gridY + row * (poolCellH + cellGap);
