@@ -207,6 +207,8 @@ public abstract class SRERole extends SREAbstractInfoClass {
     private final Set<ResourceLocation> eventEnabledDimensions = new HashSet<>();
     private final Set<ResourceLocation> pendingForcedEventDimensions = new HashSet<>();
     private final Set<ResourceLocation> forcedEventDimensions = new HashSet<>();
+    private static final Set<SRERole> EVENT_ENABLE_ROLES =
+            Collections.newSetFromMap(new IdentityHashMap<>());
     private BiConsumer<ServerLevel, Boolean> eventEnableHandler;
     private IntSupplier eventEnableChanceSupplier;
 
