@@ -30,7 +30,6 @@ import io.wifi.starrailexpress.game.modes.SREMurderGameMode;
 import io.wifi.starrailexpress.util.SRENetworkMessageUtils;
 import io.wifi.starrailexpress.util.TrueFalseResult;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
-import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
@@ -130,24 +129,20 @@ public final class FakeSteveDirector {
     }
 
     /**
-     * 假史蒂夫事件的开局掷骰回调，由 {@code ModRoles.FAKE_STEVE} 通过
-     * {@link SRERole#setEventEnableChance(java.util.function.BiConsumer, int)} 注册（概率读配置 {@code fakeSteveEnableChance}）。
+     * 假史蒂夫事件的掷骰回调，由 {@code ModRoles.FAKE_STEVE} 通过
+     * {@link SRERole#setEventEnableChance(java.util.function.BiConsumer, java.util.function.Consumer, java.util.function.IntSupplier)}
+     * 注册（概率读配置 {@code fakeSteveEnableChance}）。
      * <p>
-     * 每局正式开局调用一次，总是先按当前存活人数重建本局的 {@link Session}：
-     * <ul>
-     *   <li>{@code enabled == true}：掷中，本局派系事件激活（{@code active}、首个待触发事件、
-     *       公告），并据 {@link #wasEventForceEnabled} 区分命令强开与自然掷中；</li>
-     *   <li>{@code enabled == false}：本局事件不发生，只留下一个未激活的 Session；</li>
-     *   <li>局末（{@code OnGameEnd}）还会以 {@code false} 再调用一次，用于复位。</li>
-     * </ul>
+     * 每局正式开局调用一次，<b>没掷中也会调用</b>：总是先按当前存活人数重建本局的 {@link Session}，
+     * 掷中且当前模式允许时才激活本局派系事件（{@code active}、首个待触发事件、公告），并据
+     * {@code ModRoles.FAKE_STEVE.wasEventForceEnabled()} 区分命令强开与自然掷中。
+     * 局末的收尾在 {@link #onEventRoundEnd(ServerLevel)}。
      */
-    public static void onEventEnableStateChanged(ServerLevel level, boolean enabled) {
+    public static void onEventRollResult(ServerLevel level, boolean enabled) {
         if (!(SREGameWorldComponent.KEY.get(level).getGameMode() instanceof SREMurderGameMode)) {
             return;
         }
-        int startingPlayers = (int) level.getPlayers((p) -> GameUtils.isPlayerAliveAndSurvival(p)).stream().count();
-        Session session = new Session(startingPlayers);
-        SESSIONS.put(level.dimension().location(), session);
+        Session session = resetSession(level);
         if (canGenerate(level) && enabled) {
             boolean forced = ModRoles.FAKE_STEVE.wasEventForceEnabled();
             SRE.LOGGER.info(forced
@@ -160,6 +155,27 @@ public final class FakeSteveDirector {
                     : ActivationSource.NATURAL_ROLL;
             announceNaturalEvent(level);
         }
+    }
+
+    /**
+     * 假史蒂夫事件的局末回调：只在本局掷中过时调用，把本局 Session 复位成未激活。
+     * <p>
+     * 真正的清收（取消幻象、清理被替换者的控制器）仍由 {@code OnGameEnd} 上的
+     * {@link #clear(ServerLevel)} 负责，这里只保证状态不跨局残留。
+     */
+    public static void onEventRoundEnd(ServerLevel level) {
+        if (!(SREGameWorldComponent.KEY.get(level).getGameMode() instanceof SREMurderGameMode)) {
+            return;
+        }
+        resetSession(level);
+    }
+
+    /** 按当前存活人数重建本局的 {@link Session}（未激活），返回新实例。 */
+    private static Session resetSession(ServerLevel level) {
+        int startingPlayers = (int) level.getPlayers((p) -> GameUtils.isPlayerAliveAndSurvival(p)).stream().count();
+        Session session = new Session(startingPlayers);
+        SESSIONS.put(level.dimension().location(), session);
+        return session;
     }
 
     public static boolean isEnabled() {

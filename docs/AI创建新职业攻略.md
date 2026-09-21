@@ -139,7 +139,7 @@ public static SRERole PROGRAMMER = TMMRoles.registerRole(new ProgrammerRole(
 | `setTaskReward(int, int, ItemStack...)` / `setKillExtraCoinAwards(int)` | 任务奖励 / 击杀额外金币 |
 | `setPassiveIncome(int)` / `setCanAutoAddMoney(boolean)` / `setInitialCoinCount(int)` | 收入相关 |
 | `setSpecialMapRolesCondition(Predicate<Set<MapSpecialFeatures>>)` | 只在特定地图刷新（如 UNDERWATER / LAB） |
-| `setEventEnableChance(回调, 概率)` / `setEventEnableChance(概率)` | **每局开局掷一次**的职业专属事件：概率 + 地图限制 + 禁用状态，还带管理员「强制下一局」。**不要**为它自己注册 `OnGameTrueStarted` / `OnGameEnd`，详见 `docs/api.md` §职业随机事件 |
+| `setEventEnableChance(掷骰回调, 局末回调, 概率)` / `setEventEnableChance(概率)` / `setEventEnableChance(IntSupplier)` / `setRoundEventEndHandler(局末回调)` | **每局开局掷一次**的职业专属事件：概率 + 地图限制 + 禁用状态，还带管理员「强制下一局」。掷骰回调每次开局都调用（未掷中收到 `false`），局末回调只在本局掷中过时调用、也可单独挂。**不要**为它自己注册 `OnGameTrueStarted` / `OnGameEnd`，详见 `docs/api.md` §职业随机事件 |
 | `setOtherModeRole(true)` / `setHiddenForRoleRotation(true)` | 特殊模式专用 / **轮抽界面隐藏真名**（显示为「随机」并抑制技能播报）。注意它**不会**把职业排除出轮抽候选池，职业仍可能被抽到 |
 | `addRelatedRole(...)` / `addOpposingRole(...)` / `addBothRelatedRole(...)` | 关系（供侦探/任务等系统用） |
 
@@ -571,7 +571,7 @@ ServerPlayNetworking.registerGlobalReceiver(XxxC2SPacket.ID,
 | 回自己房间 | `GameUtils.teleportBackToRoom(player)`（映射表 `GameUtils.roomToPlayer`，**先判断 `containsKey`**，没分配房间时该方法会静默失败/把人变旁观） |
 | 独立胜利 | `RoleUtils.customWinnerWin(serverLevel, GameUtils.WinStatus.CUSTOM, roleId.getPath(), OptionalInt.of(role.color()))` + `CustomWinnerClass.registerCustomWinners()` 加分支 |
 | 死亡事件 | `io.wifi.starrailexpress.event.*`：`AllowPlayerDeath(WithKiller)`（可否决）、`OnPlayerDeath(WithKiller)`（已定局） |
-| 每局开局随机的职业事件 | `.setEventEnableChance(回调, 概率)` 声明一次即可（例：假史蒂夫、紫怪）；开局掷骰 / 局末复位由核心统一派发，状态**维度通用**，想按需查询用 `.isEventEnabled()`。详见 `docs/api.md` §职业随机事件 —— **不要**自己注册 `OnGameTrueStarted` 来掷骰 |
+| 每局开局随机的职业事件 | `.setEventEnableChance(掷骰回调, 局末回调, 概率)` 声明一次即可（例：假史蒂夫、紫怪）；开局掷骰 / 局末收尾由核心统一派发，掷骰回调未掷中时也会收到 `false`，局末回调只在本局掷中过时调用；状态**维度通用**，想按需查询用 `.isEventEnabled()`。详见 `docs/api.md` §职业随机事件 —— **不要**自己注册 `OnGameTrueStarted` 来掷骰 |
 | 背包界面选人列表 | `client/rolescreen/*` + `SRERole.setInventoryScreenExtensionFactory(...)`（**不要 mixin** `LimitedInventoryScreen`） |
 | HUD 自绘（进度条类） | `RoleHudRenderCallback.EVENT.register(roleId, ...)`（冷却显示用 `showOnHud(true)` 就够） |
 

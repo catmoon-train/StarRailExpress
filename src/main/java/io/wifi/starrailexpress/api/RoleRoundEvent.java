@@ -27,11 +27,11 @@ import java.util.function.IntSupplier;
 /**
  * 职业专属随机事件：每局开局掷一次的启用骰，以及由此派生的本局状态与「强制下一局」。
  * <p>
- * 每个职业实例通过 {@link SRERole#setEventEnableChance(BiConsumer, int)} 声明自己的事件，声明过的职业会被
+ * 每个职业实例通过 {@link SRERole#setEventEnableChance} 声明自己的事件，声明过的职业会被
  * {@link TMMRoles} 收录进事件职业列表（职业被注销时自动移出）。之后：
  * <ul>
  *   <li>每局正式开局（{@code OnGameTrueStarted}）由 {@link SRERole#rollAllEventEnableChances} 统一掷骰；</li>
- *   <li>局末（{@code OnGameEnd}）由 {@link SRERole#resetAllEventEnableStates} 清空本局状态。</li>
+ *   <li>局末（{@code OnGameEnd}）由 {@link SRERole#resetAllEventEnableStates} 清理本局状态。</li>
  * </ul>
  * 也就是说，事件监听器只有全局的两个，掷骰开销只与「声明过事件的职业数量」有关。
  *
@@ -46,10 +46,19 @@ import java.util.function.IntSupplier;
  * （{@link SREDisableManager#isRoleDisabled}，含地图 {@code disabledRoles}、配置禁用与轮选）→
  * 概率（已被 {@link #forceNextRound()} 强制时跳过概率）。
  *
- * <h2>回调契约</h2>
- * 回调在<strong>每一次掷骰后</strong>都会收到结果，且局末还会再收到一次 {@code (level, false)}，
- * 因此回调必须能处理「未启用」；只关心掷中的写法见 {@link SRERole#setEventEnableChance(Consumer, int)}。
- * 不需要回调、按需查询的写法见 {@link SRERole#setEventEnableChance(int)} 与 {@link #isEnabled()}。
+ * <h2>两个回调 / Two callbacks</h2>
+ * 声明时一次给出两个互不干扰的回调：
+ * <ul>
+ *   <li><strong>掷骰回调</strong>：每局开局掷骰后调用一次。想连「没掷中」一起处理（例如启用失败时
+ *       复位、公告），用带 {@code boolean} 的 {@link BiConsumer}，未启用时会收到 {@code false}；
+ *       只关心掷中的话用 {@link Consumer}，它只在本局启用时调用。</li>
+ *   <li><strong>局末回调</strong>：{@link #reset} 时调用，<strong>只在本局掷中过时才调用</strong>，
+ *       用于收尾（开场与收尾一一对应）。它<strong>先于状态清空</strong>执行，所以回调里
+ *       {@link #isEnabled()} 仍然反映本局结果。</li>
+ * </ul>
+ * 两者可以一起给，也可以只给一个；只挂局末回调（或配合纯查询式声明）时用
+ * {@link #setRoundEndHandler(Consumer)} 单独注册即可。
+ * 不需要回调、按需查询的写法见 {@link #setChance(IntSupplier)} 与 {@link #isEnabled()}。
  *
  * <h2>状态与跨局语义</h2>
  * {@link #enabled} 与 {@link #forcedByCommand} 每局开局重算、局末清零；{@link #forceRequested} 由
@@ -57,7 +66,7 @@ import java.util.function.IntSupplier;
  * 注意请求只保证跳过概率判定，仍要经过地图限制与禁用状态检查；若那一局被这两项拦下，
  * 请求即被消费而不会顺延到再下一局。
  *
- * @see SRERole#setEventEnableChance(BiConsumer, int)
+ * @see SRERole#setEventEnableChance(BiConsumer, Consumer, int)
  */
 public final class RoleRoundEvent {
 
@@ -68,8 +77,16 @@ public final class RoleRoundEvent {
     private boolean forcedByCommand;
     /** 是否有等待下一次开局生效的强制请求；唯一跨局的标志，局末清理不会动它。 */
     private boolean forceRequested;
-    /** 掷骰结果回调；为 null 表示只通过 {@link #isEnabled()} 查询本局是否启用。 */
-    private BiConsumer<ServerLevel, Boolean> handler;
+    /**
+     * 掷骰回调（带结果）：每次掷骰都调用，未启用时收到 false。
+     * <p>
+     * 与 {@link #enabledHandler} 互斥——两个都声明时以最后声明的那个为准。
+     */
+    private BiConsumer<ServerLevel, Boolean> resultHandler;
+    /** 掷骰回调（仅启用）：只在本局掷中时调用。 */
+    private Consumer<ServerLevel> enabledHandler;
+    /** 局末回调：只在本局掷中过时调用，且先于状态清空执行。 */
+    private Consumer<ServerLevel> roundEndHandler;
     /**
      * 概率供应器，单位万分比；非 null 即表示本职业声明过事件（见 {@link #hasChance()}）。
      * <p>
@@ -88,26 +105,154 @@ public final class RoleRoundEvent {
     }
 
     /**
-     * 声明事件并用固定概率掷骰。
+     * 声明事件：掷骰回调（带结果）+ 局末回调 + 固定概率。
      *
-     * @param event  掷骰结果回调，可为 null（只查询、不需要通知）
-     * @param chance 万分比概率，例如 6000 表示 60%；超出 0–10000 会被裁剪
+     * @param resultHandler   掷骰回调，每次掷骰都调用，未启用时收到 {@code (level, false)}；
+     *                        不需要时可传 null（此时应改用 {@link Consumer} 重载）
+     * @param roundEndHandler 局末回调，只在本局掷中过时调用；可为 null
+     * @param chance          万分比概率，例如 6000 表示 60%；超出 0–10000 会被裁剪
      * @return this，便于链式调用
      */
-    public RoleRoundEvent setChance(BiConsumer<ServerLevel, Boolean> event, int chance) {
-        return setChance(event, () -> chance);
+    public RoleRoundEvent setChance(BiConsumer<ServerLevel, Boolean> resultHandler,
+            Consumer<ServerLevel> roundEndHandler, int chance) {
+        return setChance(resultHandler, roundEndHandler, () -> chance);
     }
 
     /**
-     * 声明事件，概率在每次掷骰时动态读取，适合直接绑定配置项。
+     * 同上，但概率在每次掷骰时动态读取，适合直接绑定配置项。
      *
-     * @param event          掷骰结果回调，可为 null（只查询、不需要通知）
+     * @param resultHandler   掷骰回调（带结果），可为 null
+     * @param roundEndHandler 局末回调（只在本局掷中过时调用），可为 null
+     * @param chanceSupplier  万分比概率供应器；读取值超出 0–10000 会被裁剪
+     * @return this，便于链式调用
+     * @throws NullPointerException {@code chanceSupplier} 为 null 时抛出
+     */
+    public RoleRoundEvent setChance(BiConsumer<ServerLevel, Boolean> resultHandler,
+            Consumer<ServerLevel> roundEndHandler, IntSupplier chanceSupplier) {
+        return apply(resultHandler, null, roundEndHandler, chanceSupplier);
+    }
+
+    /**
+     * 声明事件：掷骰回调（仅启用）+ 局末回调 + 固定概率。
+     *
+     * @param enabledHandler  掷骰回调，只在本局掷中时调用；为 null 表示不注册掷骰回调
+     *                        （字面量 null 需显式转型，只挂局末回调更推荐 {@link #setRoundEndHandler(Consumer)}）
+     * @param roundEndHandler 局末回调，只在本局掷中过时调用；可为 null
+     * @param chance          万分比概率，超出 0–10000 会被裁剪
+     * @return this，便于链式调用
+     */
+    public RoleRoundEvent setChance(Consumer<ServerLevel> enabledHandler,
+            Consumer<ServerLevel> roundEndHandler, int chance) {
+        return setChance(enabledHandler, roundEndHandler, () -> chance);
+    }
+
+    /**
+     * 同上，但概率在每次掷骰时动态读取。
+     *
+     * @param enabledHandler  掷骰回调（仅启用），可为 null
+     * @param roundEndHandler 局末回调（只在本局掷中过时调用），可为 null
+     * @param chanceSupplier  万分比概率供应器；读取值超出 0–10000 会被裁剪
+     * @return this，便于链式调用
+     * @throws NullPointerException {@code chanceSupplier} 为 null 时抛出
+     */
+    public RoleRoundEvent setChance(Consumer<ServerLevel> enabledHandler,
+            Consumer<ServerLevel> roundEndHandler, IntSupplier chanceSupplier) {
+        return apply(null, enabledHandler, roundEndHandler, chanceSupplier);
+    }
+
+    /**
+     * 声明事件：只要掷骰回调（带结果），不要局末回调。
+     *
+     * @param resultHandler 掷骰回调，每次掷骰都调用，可为 null
+     * @param chance        万分比概率，超出 0–10000 会被裁剪
+     * @return this，便于链式调用
+     */
+    public RoleRoundEvent setChance(BiConsumer<ServerLevel, Boolean> resultHandler, int chance) {
+        return setChance(resultHandler, () -> chance);
+    }
+
+    /**
+     * 同上，但概率在每次掷骰时动态读取。
+     *
+     * @param resultHandler  掷骰回调（带结果），可为 null
+     * @param chanceSupplier 万分比概率供应器
+     * @return this，便于链式调用
+     * @throws NullPointerException {@code chanceSupplier} 为 null 时抛出
+     */
+    public RoleRoundEvent setChance(BiConsumer<ServerLevel, Boolean> resultHandler,
+            IntSupplier chanceSupplier) {
+        return apply(resultHandler, null, null, chanceSupplier);
+    }
+
+    /**
+     * 声明事件：只要掷骰回调（仅启用），不要局末回调。
+     *
+     * @param enabledHandler 掷骰回调，只在本局掷中时调用，可为 null
+     * @param chance         万分比概率，超出 0–10000 会被裁剪
+     * @return this，便于链式调用
+     */
+    public RoleRoundEvent setChance(Consumer<ServerLevel> enabledHandler, int chance) {
+        return setChance(enabledHandler, () -> chance);
+    }
+
+    /**
+     * 同上，但概率在每次掷骰时动态读取。
+     *
+     * @param enabledHandler 掷骰回调（仅启用），可为 null
+     * @param chanceSupplier 万分比概率供应器
+     * @return this，便于链式调用
+     * @throws NullPointerException {@code chanceSupplier} 为 null 时抛出
+     */
+    public RoleRoundEvent setChance(Consumer<ServerLevel> enabledHandler,
+            IntSupplier chanceSupplier) {
+        return apply(null, enabledHandler, null, chanceSupplier);
+    }
+
+    /**
+     * 声明事件但不要任何回调：本局是否启用通过 {@link #isEnabled()} 按需查询，
+     * 概率每次掷骰动态读取，适合直接绑定配置项。
+     *
      * @param chanceSupplier 万分比概率供应器；读取值超出 0–10000 会被裁剪
      * @return this，便于链式调用
      * @throws NullPointerException {@code chanceSupplier} 为 null 时抛出
      */
-    public RoleRoundEvent setChance(BiConsumer<ServerLevel, Boolean> event, IntSupplier chanceSupplier) {
-        this.handler = event;
+    public RoleRoundEvent setChance(IntSupplier chanceSupplier) {
+        return apply(null, null, null, chanceSupplier);
+    }
+
+    /**
+     * 单独注册局末回调，不改变已声明的掷骰回调与概率。
+     * <p>
+     * 与 {@code setChance(..., roundEndHandler, ...)} 等价，只是把收尾拆出来单独挂：
+     * 可配合任意声明形式使用（包括 {@code setChance(6000)} / {@code setChance(IntSupplier)}
+     * 这种纯查询式），先挂还是后挂都行——已注册的局末回调不会被后续的 {@code setChance} 覆盖。
+     *
+     * @param roundEndHandler 局末回调，只在本局掷中过时调用，且先于状态清空执行；不能为 null
+     * @return this，便于链式调用
+     * @throws NullPointerException {@code roundEndHandler} 为 null 时抛出
+     */
+    public RoleRoundEvent setRoundEndHandler(Consumer<ServerLevel> roundEndHandler) {
+        this.roundEndHandler = Objects.requireNonNull(roundEndHandler, "roundEndHandler");
+        return this;
+    }
+
+    /**
+     * 所有 {@code setChance} 重载的公共落点：写入回调与概率，并让职业进入事件职业列表。
+     *
+     * @param resultHandler   掷骰回调（带结果），与 {@code enabledHandler} 互斥
+     * @param enabledHandler  掷骰回调（仅启用），与 {@code resultHandler} 互斥
+     * @param roundEndHandler 局末回调；为 null 表示不改动已挂的那个（见 {@link #setRoundEndHandler}）
+     * @param chanceSupplier  概率供应器，不能为 null
+     * @return this，便于链式调用
+     */
+    private RoleRoundEvent apply(BiConsumer<ServerLevel, Boolean> resultHandler,
+            Consumer<ServerLevel> enabledHandler, Consumer<ServerLevel> roundEndHandler,
+            IntSupplier chanceSupplier) {
+        this.resultHandler = resultHandler;
+        this.enabledHandler = enabledHandler;
+        if (roundEndHandler != null) {
+            this.roundEndHandler = roundEndHandler;
+        }
         this.chanceSupplier = Objects.requireNonNull(chanceSupplier, "chanceSupplier");
         // 注册之后再声明的职业在这里入列；注册之前声明的由 TMMRoles#registerRole 收录
         TMMRoles.markEventRole(owner);
@@ -126,9 +271,9 @@ public final class RoleRoundEvent {
     /**
      * 本职业的事件是否通过了本局开局的掷骰。
      * <p>
-     * 状态维度通用：未声明事件、本局未掷中、局末已清理、或职业当前处于禁用状态（含地图
+     * 状态维度通用：未声明事件、本局未掷中、局末清理后、或职业当前处于禁用状态（含地图
      * {@code disabledRoles}、配置禁用与轮选）时都返回 false。禁用状态是每次查询时复查的，
-     * 不只看掷骰那一刻。
+     * 不只看掷骰那一刻。局末回调执行期间仍返回本局结果（见 {@link #reset(ServerLevel)}）。
      *
      * @return 本局该职业的专属事件是否启用
      */
@@ -172,10 +317,10 @@ public final class RoleRoundEvent {
     }
 
     /**
-     * 掷出本职业本局的启用状态（维度通用），并回调 {@link #handler}。
+     * 掷出本职业本局的启用状态（维度通用），并按声明方式回调。
      * <p>
      * 由 {@link SRERole#rollAllEventEnableChances} 在每局正式开局时调用；调用方保证本职业声明过事件
-     * （{@link #hasChance()}），这里仍做一次判空，使本方法自洽。
+     * （{@link #hasChance()}），这里仍做一次判空，使本方法自洽。回调能看到刚写入的本局状态。
      *
      * @param level 判定地图限制用的服务端世界，同时作为回调入参（默认主世界）
      */
@@ -191,16 +336,21 @@ public final class RoleRoundEvent {
                 && (forced || RandomSelector.tryChance(
                         Math.max(0, Math.min(10000, chanceSupplier.getAsInt())), 10000));
         forcedByCommand = enabled && forced;
-        if (handler != null) {
-            handler.accept(level, enabled);
+        if (resultHandler != null) {
+            // 带结果的回调：没掷中也通知一次，便于处理「启用失败」
+            resultHandler.accept(level, enabled);
+        } else if (enabled && enabledHandler != null) {
+            enabledHandler.accept(level);
         }
     }
 
     /**
-     * 清空本职业本局的启用状态，并回调 {@link #handler} 告知未启用。
+     * 收尾本局：先回调局末处理，再清空本局状态。
      * <p>
-     * 由 {@link SRERole#resetAllEventEnableStates} 在每局结束时调用。等待下一次开局的强制请求会保留
-     * （见 {@link #forceRequested}）。
+     * 由 {@link SRERole#resetAllEventEnableStates} 在每局结束时调用。局末回调只在
+     * <strong>本局掷中过</strong>时调用，且此刻 {@link #enabled} 仍为 true——回调里可以用
+     * {@link #isEnabled()} 判断「本局事件跑过」，做对应的收尾；回调返回后才清空状态。
+     * 等待下一次开局的强制请求会保留（见 {@link #forceRequested}）。
      *
      * @param level 作为回调入参的服务端世界（默认主世界）
      */
@@ -208,10 +358,10 @@ public final class RoleRoundEvent {
         if (!hasChance()) {
             return;
         }
+        if (enabled && roundEndHandler != null) {
+            roundEndHandler.accept(level);
+        }
         enabled = false;
         forcedByCommand = false;
-        if (handler != null) {
-            handler.accept(level, false);
-        }
     }
 }
