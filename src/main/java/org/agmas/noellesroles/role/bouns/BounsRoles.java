@@ -542,7 +542,8 @@ public class BounsRoles {
             .setDefaultMax(0)
             .setCanBeRandomedByOtherRoles(false)
             .setSpecialMapRolesCondition(features -> features.contains(MapSpecialFeatures.LAB))
-            .setEventEnableChance(PurpleMonsterRole::onEventEnableStateChanged, 6000);
+            // 每局 60% 且在 LAB 地图才启用；触发条件由 PurpleMonsterRole 按需查询 isEventEnabled
+            .setEventEnableChance(6000);
 
     public static void init() {
         THRedHouseRoles.init();

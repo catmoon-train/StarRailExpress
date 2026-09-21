@@ -203,14 +203,13 @@ public abstract class SRERole extends SREAbstractInfoClass {
     protected MapSpecialFeatures specialMapRole = MapSpecialFeatures.ALL;
     protected BiPredicate<String, AreasSettings> canSpawnInMapPredicate = null;
 
-    /** Per-round enable state for events owned by this role. */
-    private final Set<ResourceLocation> eventEnabledDimensions = new HashSet<>();
-    private final Set<ResourceLocation> pendingForcedEventDimensions = new HashSet<>();
-    private final Set<ResourceLocation> forcedEventDimensions = new HashSet<>();
-    private static final Set<SRERole> EVENT_ENABLE_ROLES =
-            Collections.newSetFromMap(new IdentityHashMap<>());
-    private BiConsumer<ServerLevel, Boolean> eventEnableHandler;
-    private IntSupplier eventEnableChanceSupplier;
+    /**
+     * 本职业的专属随机事件（每局开局掷一次的启用骰、本局状态与「强制下一局」）。
+     * <p>
+     * 机制与状态语义全部在 {@link RoleRoundEvent} 内，这里只持有它；声明入口是
+     * {@link #setEventEnableChance(BiConsumer, int)}，查询入口是 {@link #isEventEnabled()}。
+     */
+    protected final RoleRoundEvent roundEvent = new RoleRoundEvent(this);
 
     protected boolean specialVigilante = false;
     protected boolean refreshableSpecialVigilante = false;
@@ -1648,127 +1647,180 @@ public abstract class SRERole extends SREAbstractInfoClass {
     };
 
     /**
-     * 为本职业声明一个每局掷一次的随机事件：开局时按 {@code chance} 决定本局是否启用，
-     * 掷骰前会先检查本职业的地图限制与禁用状态。
+     * 为本职业声明一个「每局开局掷一次」的专属随机事件（固定概率）。
      * <p>
-     * 这里<b>不</b>注册任何事件监听器：开局掷骰与结束清理由 {@code SREEventRegister}
-     * 中静态注册的两个监听器统一遍历 {@link TMMRoles#ROLES} 派发
-     * （见 {@link #rollAllEventEnableChances} / {@link #resetAllEventEnableStates}）。
+     * 机制的完整说明（判定顺序、回调契约、跨局状态）见 {@link RoleRoundEvent}。声明后本职业会进入
+     * {@link TMMRoles} 的事件职业列表（职业被注销时自动移出），每局正式开局与局末分别由
+     * {@link #rollAllEventEnableChances} / {@link #resetAllEventEnableStates} 统一处理。
+     *
+     * @param event  掷骰结果回调：第一个参数是本局所在的服务端世界，第二个参数是本局是否启用。
+     *               局末会以 {@code false} 再回调一次，因此回调必须能处理「未启用」；可为 null
+     * @param chance 万分比概率，例如 6000 表示 60%；超出 0–10000 会被裁剪
+     * @return this，便于链式调用
      */
     public SRERole setEventEnableChance(BiConsumer<ServerLevel, Boolean> event, int chance) {
-        return setEventEnableChance(event, () -> chance);
-    }
-
-    /** 同上，但概率支持动态读取（例如配置项）。 */
-    public SRERole setEventEnableChance(BiConsumer<ServerLevel, Boolean> event,
-            IntSupplier chanceSupplier) {
-        this.eventEnableHandler = event;
-        this.eventEnableChanceSupplier = Objects.requireNonNull(chanceSupplier, "chanceSupplier");
+        roundEvent.setChance(event, chance);
         return this;
     }
 
-    /** 便于只关心「掷中」的回调使用。 */
-    public SRERole setEventEnableChance(Consumer<ServerLevel> event, int chance) {
+    /**
+     * 同上，但概率在每次掷骰时动态读取，适合直接绑定配置项。
+     *
+     * @param event          掷骰结果回调，可为 null（只查询、不需要通知）
+     * @param chanceSupplier 万分比概率供应器；读取值超出 0–10000 会被裁剪
+     * @return this，便于链式调用
+     * @throws NullPointerException {@code chanceSupplier} 为 null 时抛出
+     */
+    public SRERole setEventEnableChance(BiConsumer<ServerLevel, Boolean> event,
+            IntSupplier chanceSupplier) {
+        roundEvent.setChance(event, chanceSupplier);
+        return this;
+    }
+
+    /**
+     * 同上，但回调只在本局掷中时触发。
+     *
+     * @param event  本局掷中时的回调，不会收到未启用的通知
+     * @param chance 万分比概率，超出 0–10000 会被裁剪
+     * @return this，便于链式调用
+     */
+    public SRERole setEventEnableChance(@NotNull Consumer<ServerLevel> event, int chance) {
         Objects.requireNonNull(event, "event");
-        return setEventEnableChance((level, enabled) -> {
+        roundEvent.setChance((level, enabled) -> {
             if (enabled) {
                 event.accept(level);
             }
         }, chance);
+        return this;
     }
 
-    /** 声明一个只通过 {@link #isEventEnabled(Level)} 查询、不需要回调的事件。 */
+    /**
+     * 只声明事件、不注册回调：本局是否启用通过 {@link #isEventEnabled()} 按需查询。
+     * <p>
+     * 适合「满足条件时才触发」型事件（见 {@code BounsRoles.PURPLE_MONSTER}），
+     * 调用方不必再自己维护一份启用状态。
+     *
+     * @param chance 万分比概率，超出 0–10000 会被裁剪
+     * @return this，便于链式调用
+     */
     public SRERole setEventEnableChance(int chance) {
         return setEventEnableChance((BiConsumer<ServerLevel, Boolean>) null, chance);
     }
 
     /**
-     * 掷出所有职业本局的事件启用状态，由 {@code SREEventRegister} 在每局正式开始时调用一次。
-     * <p>
-     * 遍历 {@link TMMRoles#ROLES} 派发，因此职业被注销（例如自定义职业重载）后自然不再参与掷骰，
-     * 也不会留下指向旧实例的监听器。
+     * 本职业是否声明过专属随机事件，即是否会参与每局开局的掷骰。
+     *
+     * @return 调用过 {@link #setEventEnableChance(BiConsumer, int)} 时为 true
      */
-    public static void rollAllEventEnableChances(ServerLevel level) {
-        for (SRERole role : new ArrayList<>(TMMRoles.ROLES.values())) {
-            role.rollEventEnableChance(level);
-        }
+    public boolean hasRoundEvent() {
+        return roundEvent.hasChance();
     }
 
-    /** 清空所有职业本局的事件启用状态，由 {@code SREEventRegister} 在每局结束时调用一次。 */
-    public static void resetAllEventEnableStates(ServerLevel level) {
-        for (SRERole role : new ArrayList<>(TMMRoles.ROLES.values())) {
-            role.resetEventEnableState(level);
-        }
-    }
-
-    /** 返回本职业的事件是否通过了本局开局的掷骰。 */
-    public boolean isEventEnabled(@Nullable Level level) {
-        return level != null
-                && eventEnabledDimensions.contains(level.dimension().location())
-                && !SREDisableManager.isRoleDisabled(this);
-    }
-
-    /** 强制本职业的事件在下一局必定掷中。 */
-    public boolean forceEventEnableNextRound(@Nullable ServerLevel level) {
-        if (level == null || eventEnableChanceSupplier == null) {
-            return false;
-        }
-        return pendingForcedEventDimensions.add(level.dimension().location());
-    }
-
-    /** 返回本局是否由「强制下一局」请求启用。 */
-    public boolean wasEventForceEnabled(@Nullable Level level) {
-        return level != null && forcedEventDimensions.contains(level.dimension().location());
-    }
-
-    /** 返回是否有「强制下一局」的请求在等待下一次开局。 */
-    public boolean isEventForcePending(@Nullable Level level) {
-        return level != null && pendingForcedEventDimensions.contains(level.dimension().location());
-    }
-
-    /** 未声明过 {@link #setEventEnableChance} 的职业不参与掷骰。 */
-    private void rollEventEnableChance(ServerLevel level) {
-        if (eventEnableChanceSupplier == null) {
+    /**
+     * 掷出所有声明过专属随机事件职业的本局启用状态。
+     * <p>
+     * 由 {@link io.wifi.starrailexpress.register.SREEventRegister#registerEventHandlers()} 注册的监听器
+     * 在每局正式开局时调用一次，只遍历 {@link TMMRoles} 维护的事件职业列表：
+     * 未声明事件的职业完全不参与，也不会有任何回调；已注销的职业自然不在列表里。
+     * <p>
+     * 事件状态是维度通用的（同一职业在所有维度共用一份），{@code level} 只影响地图限制判定与回调入参：
+     * 传 null 时以主世界为准，服务器尚未就绪时直接跳过。
+     *
+     * @param level 本局所在的服务端世界，可为 null（默认主世界）
+     */
+    public static void rollAllEventEnableChances(@Nullable ServerLevel level) {
+        ServerLevel target = resolveEventLevel(level);
+        if (target == null) {
             return;
         }
-        ResourceLocation dimension = level.dimension().location();
-        eventEnabledDimensions.remove(dimension);
-        forcedEventDimensions.remove(dimension);
-
-        boolean mapAllowed = isEventMapAllowed(level);
-        boolean forced = pendingForcedEventDimensions.remove(dimension);
-        boolean enabled = mapAllowed && !SREDisableManager.isRoleDisabled(this)
-                && (forced || RandomSelector.tryChance(
-                        Math.max(0, Math.min(10000, eventEnableChanceSupplier.getAsInt())), 10000));
-        if (enabled) {
-            eventEnabledDimensions.add(dimension);
-            if (forced) {
-                forcedEventDimensions.add(dimension);
-            }
-        }
-        if (eventEnableHandler != null) {
-            eventEnableHandler.accept(level, enabled);
-        }
+        TMMRoles.forEachEventRole(role -> role.roundEvent.roll(target));
     }
 
-    private void resetEventEnableState(ServerLevel level) {
-        if (eventEnableChanceSupplier == null) {
+    /**
+     * 清空所有事件职业本局的启用状态，并以 {@code (level, false)} 回调它们。
+     * <p>
+     * 由 {@link io.wifi.starrailexpress.register.SREEventRegister#registerEventHandlers()} 注册的监听器
+     * 在每局结束时调用一次。等待生效的「强制下一局」请求不受影响，仍然会在下一次开局掷骰时生效。
+     *
+     * @param level 本局所在的服务端世界，可为 null（默认主世界）
+     */
+    public static void resetAllEventEnableStates(@Nullable ServerLevel level) {
+        ServerLevel target = resolveEventLevel(level);
+        if (target == null) {
             return;
         }
-        ResourceLocation dimension = level.dimension().location();
-        eventEnabledDimensions.remove(dimension);
-        forcedEventDimensions.remove(dimension);
-        if (eventEnableHandler != null) {
-            eventEnableHandler.accept(level, false);
-        }
+        TMMRoles.forEachEventRole(role -> role.roundEvent.reset(target));
     }
 
-    private boolean isEventMapAllowed(ServerLevel level) {
+    /**
+     * 解析事件判定使用的世界：优先用调用方给的世界，其次主世界；服务器未就绪时返回 null。
+     *
+     * @param level 调用方手上的世界，可为 null
+     * @return 用于地图限制判定与回调的世界
+     */
+    private static @Nullable ServerLevel resolveEventLevel(@Nullable ServerLevel level) {
+        if (level != null) {
+            return level;
+        }
+        MinecraftServer server = SRE.SERVER;
+        return server == null ? null : server.overworld();
+    }
+
+    /**
+     * 本职业的事件是否通过了本局开局的掷骰。
+     * <p>
+     * 状态维度通用，不需要世界参数。
+     *
+     * @return 本局该职业的专属事件是否启用
+     * @see RoleRoundEvent#isEnabled()
+     */
+    public boolean isEventEnabled() {
+        return roundEvent.isEnabled();
+    }
+
+    /**
+     * 强制本职业的事件在下一局必定掷中（管理员命令用，见 {@code /sre:fake_steve next}）。
+     *
+     * @return 本次是否成功排队；本职业未声明事件或已有等待中的请求时返回 false
+     * @see RoleRoundEvent#forceNextRound()
+     */
+    public boolean forceEventEnableNextRound() {
+        return roundEvent.forceNextRound();
+    }
+
+    /**
+     * 本局是否由「强制下一局」请求掷中，用于区分命令强开与自然掷中
+     * （例如日志文案与 {@code ActivationSource}）。
+     *
+     * @return 本局该职业的事件是否由命令强制启用
+     * @see RoleRoundEvent#wasForcedByCommand()
+     */
+    public boolean wasEventForceEnabled() {
+        return roundEvent.wasForcedByCommand();
+    }
+
+    /**
+     * 是否有「强制下一局」的请求在等待下一次开局。
+     *
+     * @return 是否已排队但尚未生效
+     * @see RoleRoundEvent#isForcePending()
+     */
+    public boolean isEventForcePending() {
+        return roundEvent.isForcePending();
+    }
+
+    /**
+     * 本职业的地图限制是否允许其专属事件在本局发生。
+     * <p>
+     * 供 {@link RoleRoundEvent#roll} 在掷骰前调用；地图信息缺失时，只有完全不限制地图的职业算通过。
+     *
+     * @param level 本局所在的服务端世界
+     * @return 本职业的地图限制是否通过
+     */
+    boolean isEventMapAllowed(ServerLevel level) {
         AreasWorldComponent areas = AreasWorldComponent.KEY.get(level);
         if (areas == null || areas.mapName == null || areas.areasSettings == null) {
-            return specialMapRole == MapSpecialFeatures.ALL
-                    && specialMapRolesPredicate == null
-                    && canSpawnInMapPredicate == null;
+            return false;
         }
         return canSpawnInMap(areas.mapName, areas.areasSettings);
     }

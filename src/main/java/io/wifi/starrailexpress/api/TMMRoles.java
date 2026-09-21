@@ -25,11 +25,25 @@ import net.minecraft.world.item.ItemStack;
 import org.ladysnake.cca.api.v3.component.ComponentKey;
 
 import java.util.*;
+import java.util.function.Consumer;
 
 public class TMMRoles {
     public static final Map<String, SRERole> ROLES_BY_PATH = new HashMap<>();
     public static final Map<ResourceLocation, SRERole> ROLES = new HashMap<>();
     private static final HashSet<String> CACHED_VERSIONS_LIST = new HashSet<>();
+    /**
+     * 声明过专属随机事件（{@link SRERole#setEventEnableChance(java.util.function.BiConsumer, int)}）的职业。
+     * <p>
+     * 每局开局掷骰（{@link SRERole#rollAllEventEnableChances}）与局末清理
+     * （{@link SRERole#resetAllEventEnableStates}）只遍历这一份列表，未声明事件的职业完全不参与，
+     * 派发开销只与事件数量有关而不是职业总数。
+     * <p>
+     * 生命周期由注册流程维护：{@link #registerRole} 收录注册时已声明事件的职业，
+     * {@link SRERole#setEventEnableChance(java.util.function.BiConsumer, int)} 收录注册之后再声明的职业，
+     * {@link #unregisterCustomRole} 注销时把该实例移出列表。
+     * 用 {@link IdentityHashMap} 支持的身份集合，避免职业实现自定义 {@code equals} 时互相顶替。
+     */
+    private static final Set<SRERole> EVENT_ROLES = Collections.newSetFromMap(new IdentityHashMap<>());
     public static final int CIVILIAN_MAX_SPRINT_TICKS = GameConstants.getInTicks(0, 10);
     public static final List<ComponentKey<? extends RoleComponent>> COMPONENT_KEYS = new ArrayList<>();
     public static final SRERole DISCOVERY_CIVILIAN = registerRole(
@@ -97,6 +111,7 @@ public class TMMRoles {
             return false;
         ROLES_BY_PATH.remove(role.identifier.getPath());
         ROLES.remove(role.identifier());
+        EVENT_ROLES.remove(role);
         return true;
     }
 
@@ -117,7 +132,39 @@ public class TMMRoles {
         if (role.getComponentKey() != null) {
             COMPONENT_KEYS.add(role.getComponentKey());
         }
+        // 先声明事件再注册的写法（setEventEnableChance 在 registerRole 之前调用）在这里补收录
+        if (role.hasRoundEvent()) {
+            EVENT_ROLES.add(role);
+        }
         return role;
+    }
+
+    /**
+     * 把一个刚声明了专属随机事件的职业收录进 {@link #EVENT_ROLES}。
+     * <p>
+     * 由 {@link SRERole#setEventEnableChance(java.util.function.BiConsumer, int)} 回调，只收录当前注册表中的那个实例；
+     * 尚未注册（或已被注销）的职业对象不会入列，避免只存在于内存中的实例参与每局掷骰。
+     *
+     * @param role 声明了专属随机事件的职业实例
+     */
+    static void markEventRole(SRERole role) {
+        if (role != null && ROLES.get(role.identifier()) == role) {
+            EVENT_ROLES.add(role);
+        }
+    }
+
+    /**
+     * 遍历所有声明过专属随机事件的职业（顺序不保证）。
+     * <p>
+     * 内部先做快照，遍历过程中注销职业不会抛 {@link java.util.ConcurrentModificationException}，
+     * 已注销的实例也不会再被访问。
+     *
+     * @param action 对每个事件职业执行的操作，例如开局掷骰 / 局末清理
+     */
+    static void forEachEventRole(Consumer<SRERole> action) {
+        for (SRERole role : List.copyOf(EVENT_ROLES)) {
+            action.accept(role);
+        }
     }
 
     public static void addRoleComponents(ComponentKey<? extends RoleComponent> componentKeyToAdd) {
