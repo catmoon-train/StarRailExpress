@@ -10,6 +10,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.tags.BlockTags;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
@@ -39,6 +40,14 @@ public class MushroomScholarRole extends NormalRole {
     @Override
     public List<ShopEntry> getShopEntries() {
         return List.of(new ShopEntry(ModItems.MUSHROOM_SAMPLE.getDefaultInstance(), 150, ShopEntry.Type.TOOL));
+    }
+
+    @Override
+    public InteractionResult onDropItem(Player player, ItemStack item) {
+        if (item.is(ModItems.SAFE_MUSHROOM) || item.is(ModItems.POISONOUS_MUSHROOM)) {
+            return InteractionResult.SUCCESS;
+        }
+        return InteractionResult.PASS;
     }
 
     public static boolean tryOpenCultivation(ServerPlayer player) {
