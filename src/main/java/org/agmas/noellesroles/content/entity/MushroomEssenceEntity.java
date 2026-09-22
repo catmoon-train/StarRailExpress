@@ -3,6 +3,8 @@ package org.agmas.noellesroles.content.entity;
 import io.wifi.starrailexpress.content.entity.no_water_influenced.NoHeavyWaterInfluencedThrowableItemProjectile;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.EntityType;
@@ -35,6 +37,8 @@ public class MushroomEssenceEntity extends NoHeavyWaterInfluencedThrowableItemPr
     protected void onHit(HitResult result) {
         super.onHit(result);
         if (level() instanceof ServerLevel serverLevel) {
+            serverLevel.playSound(null, getX(), getY(), getZ(), SoundEvents.GLASS_BREAK,
+                    SoundSource.NEUTRAL, 1.0F, 1.0F);
             AABB area = new AABB(getX() - 3, getY() - 2, getZ() - 3,
                     getX() + 3, getY() + 2, getZ() + 3);
             for (ServerPlayer player : serverLevel.getEntitiesOfClass(ServerPlayer.class, area,

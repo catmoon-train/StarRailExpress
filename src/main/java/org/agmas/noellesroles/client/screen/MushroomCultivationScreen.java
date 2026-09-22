@@ -47,6 +47,10 @@ public class MushroomCultivationScreen extends Screen {
         graphics.drawCenteredString(font, Component.translatable("screen.noellesroles.mushroom.progress",
                 pours.size(), 3), width / 2, top + 201, 0xFFB8D8FF);
         super.render(graphics, mouseX, mouseY, delta);
+        if (dragging >= 0) {
+            int color = dragging == 0 ? 0xFF55C7A5 : 0xFFB96CFF;
+            drawBottle(graphics, mouseX - 21, mouseY - 29, color, dragging == 0 ? "A" : "B");
+        }
     }
 
     private void drawBottle(GuiGraphics graphics, int x, int y, int color, String label) {

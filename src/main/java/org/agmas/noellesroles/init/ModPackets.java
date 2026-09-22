@@ -133,6 +133,8 @@ public class ModPackets {
         PayloadTypeRegistry.playC2S().register(ChefCookC2SPacket.ID, ChefCookC2SPacket.CODEC);
         PayloadTypeRegistry.playC2S().register(MushroomCultivationC2SPacket.ID,
                 MushroomCultivationC2SPacket.CODEC);
+        PayloadTypeRegistry.playC2S().register(MushroomScholarSkillC2SPacket.ID,
+                MushroomScholarSkillC2SPacket.CODEC);
         PayloadTypeRegistry.playS2C().register(PlayerResetS2CPacket.ID, PlayerResetS2CPacket.CODEC);
 
         PayloadTypeRegistry.playC2S().register(GamblerSelectRoleC2SPacket.ID, GamblerSelectRoleC2SPacket.CODEC);

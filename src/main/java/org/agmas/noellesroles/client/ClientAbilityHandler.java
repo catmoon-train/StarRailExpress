@@ -74,6 +74,12 @@ public class ClientAbilityHandler {
 
         var currentRole = gameWorldComponent.getRole(client.player);
 
+        // 菌菇学者由自己的技能状态决定 G 键释放内容，避免 RoleSkill 的冷却拦截影响技能切换。
+        if (gameWorldComponent.isRole(client.player, ModRoles.MUSHROOM_SCHOLAR)) {
+            ClientPlayNetworking.send(new MushroomScholarSkillC2SPacket(false));
+            return;
+        }
+
         // 模仿者客户端前置逻辑：复制模式无目标→提示，消息技能→打开界面
         if (currentRole != null
                 && gameWorldComponent.isRole(client.player, org.agmas.noellesroles.role.ModRoles.IMITATOR)) {
@@ -213,6 +219,10 @@ public class ClientAbilityHandler {
         var role = gameWorld.getRole(client.player);
 
         // 处理统一技能体系中的模式切换角色（会计、小偷、药剂师、建筑师、葬仪、设陷者、模仿者等）
+        if (gameWorld.isRole(client.player, ModRoles.MUSHROOM_SCHOLAR)) {
+            ClientPlayNetworking.send(new MushroomScholarSkillC2SPacket(true));
+            return;
+        }
         if (gameWorld.isRole(client.player, ModRoles.WIZARD)) {
             ClientPlayNetworking.send(new WizardSwitchSpellC2SPacket());
             return;

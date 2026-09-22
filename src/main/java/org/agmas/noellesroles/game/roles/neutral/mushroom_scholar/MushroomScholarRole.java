@@ -16,6 +16,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import org.agmas.noellesroles.init.ModItems;
 import org.agmas.noellesroles.role.ModRoles;
+import org.agmas.noellesroles.role_data.neutral.MushroomScholarRoleData;
 import org.agmas.noellesroles.utils.RoleUtils;
 import org.jetbrains.annotations.NotNull;
 
@@ -54,6 +55,12 @@ public class MushroomScholarRole extends NormalRole {
         if (!isScholar(player) || !GameUtils.isPlayerAliveAndSurvival(player)) {
             return false;
         }
+        MushroomScholarRoleData data = getData(player);
+        if (data != null && data.cultivationCooldownTicks > 0) {
+            player.displayClientMessage(Component.translatable("hud.noellesroles.mushroom_scholar.cooldown",
+                    (data.cultivationCooldownTicks + 19) / 20), true);
+            return false;
+        }
         if (!canCultivate(player)) {
             player.displayClientMessage(Component.translatable("skill.noellesroles.mushroom_scholar.need_bed"), true);
             return false;
@@ -71,6 +78,12 @@ public class MushroomScholarRole extends NormalRole {
         if (!isScholar(player) || !GameUtils.isPlayerAliveAndSurvival(player)) {
             return false;
         }
+        MushroomScholarRoleData data = getData(player);
+        if (data != null && data.essenceCooldownTicks > 0) {
+            player.displayClientMessage(Component.translatable("hud.noellesroles.mushroom_scholar.cooldown",
+                    (data.essenceCooldownTicks + 19) / 20), true);
+            return false;
+        }
         ItemStack held = player.getMainHandItem();
         boolean poisonous;
         if (held.is(ModItems.SAFE_MUSHROOM)) {
@@ -84,6 +97,10 @@ public class MushroomScholarRole extends NormalRole {
         held.shrink(1);
         RoleUtils.insertOrDropItem(player, (poisonous ? ModItems.POISONOUS_MUSHROOM_ESSENCE
                 : ModItems.MUSHROOM_ESSENCE).getDefaultInstance());
+        if (data != null) {
+            data.essenceCooldownTicks = MushroomScholarRoleData.ESSENCE_COOLDOWN_TICKS;
+            data.sync();
+        }
         return true;
     }
 
@@ -109,6 +126,11 @@ public class MushroomScholarRole extends NormalRole {
         player.getMainHandItem().shrink(1);
         RoleUtils.insertOrDropItem(player, (poisonous ? ModItems.POISONOUS_MUSHROOM
                 : ModItems.SAFE_MUSHROOM).getDefaultInstance());
+        MushroomScholarRoleData data = getData(player);
+        if (data != null) {
+            data.cultivationCooldownTicks = MushroomScholarRoleData.CULTIVATION_COOLDOWN_TICKS;
+            data.sync();
+        }
         player.displayClientMessage(Component.translatable("screen.noellesroles.mushroom.finished"), true);
     }
 
@@ -135,5 +157,9 @@ public class MushroomScholarRole extends NormalRole {
 
     private static boolean isScholar(ServerPlayer player) {
         return SREGameWorldComponent.KEY.get(player.level()).isRole(player, ModRoles.MUSHROOM_SCHOLAR);
+    }
+
+    private static MushroomScholarRoleData getData(ServerPlayer player) {
+        return io.wifi.starrailexpress.api.data.RoleData.getNullable(MushroomScholarRoleData.class, player);
     }
 }

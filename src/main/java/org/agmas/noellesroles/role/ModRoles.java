@@ -1086,6 +1086,7 @@ public class ModRoles {
                     true, false, SRERole.MoodType.REAL,
                     TMMRoles.CIVILIAN.getMaxSprintTime(), false))
             .setCanSeeCoin(true).setCanPickUpRevolver(true)
+            .setRoleData(org.agmas.noellesroles.role_data.neutral.MushroomScholarRoleData::new)
             .setCanSpawnInMap((map, settings) -> settings == null || settings.disabledTasks == null
                     || !settings.disabledTasks.contains("sleep"));
     public static SRERole CAKE_MAKER = TMMRoles.registerRole(

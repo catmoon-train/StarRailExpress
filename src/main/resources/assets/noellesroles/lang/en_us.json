@@ -4919,5 +4919,13 @@
   "shop.noellesroles.magic_apprentice.fire_field": "Flame Field (250 coins)",
   "shop.noellesroles.magic_apprentice.fire_field.desc": "Creates a 5-second burning area centered on the hit player.",
   "shop.noellesroles.magic_apprentice.ice_field": "Frost Field (150 coins)",
-  "shop.noellesroles.magic_apprentice.ice_field.desc": "Creates a 5-second Slowness III area centered on the hit player."
+  "shop.noellesroles.magic_apprentice.ice_field.desc": "Creates a 5-second Slowness III area centered on the hit player.",
+  "message.noellesroles.mushroom_scholar.switch_skill": "Current skill: %s",
+  "hud.noellesroles.mushroom_scholar.toggle_skill": "Press %s to switch skills",
+  "hud.noellesroles.mushroom_scholar.current_skill": "Current skill: %s",
+  "hud.noellesroles.mushroom_scholar.skill.cultivation": "Cultivate Mushrooms",
+  "hud.noellesroles.mushroom_scholar.skill.essence": "Brew Mushroom Essence",
+  "hud.noellesroles.mushroom_scholar.cooldown": "Cooldown: %ss",
+  "hud.noellesroles.mushroom_scholar.ready": "Ready",
+  "hud.noellesroles.magic_apprentice.toggle_spell": "Press %s to switch spells"
 }

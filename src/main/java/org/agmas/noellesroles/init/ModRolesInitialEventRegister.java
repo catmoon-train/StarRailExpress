@@ -1090,7 +1090,7 @@ public class ModRolesInitialEventRegister {
                 RoleSkill.skill(SRE.id("mushroom_scholar_essence"),
                         "skill.noellesroles.mushroom_scholar.essence",
                         context -> MushroomScholarRole.convertHeldMushroom(context.player()))
-                        .shifted(true).modeSwitch(true).cooldownSeconds(90).build());
+                        .shifted(true).cooldownSeconds(90).build());
 
         RoleSkill.register(ModRoles.MAGIC_APPRENTICE,
                 RoleSkill.skill(SRE.id("magic_apprentice_switch"),

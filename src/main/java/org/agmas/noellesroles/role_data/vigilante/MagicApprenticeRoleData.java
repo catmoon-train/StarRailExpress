@@ -173,7 +173,8 @@ public class MagicApprenticeRoleData extends SimpleRoleData {
         Vec3 start = caster.getEyePosition();
         Vec3 direction = caster.getViewVector(1).normalize();
         Vec3 end = start.add(direction.scale(range));
-        AABB search = caster.getBoundingBox().expandTowards(direction.scale(range)).inflate(1.0);
+        // 以视线起点和终点构造搜索盒；原先从玩家脚下的碰撞盒扩展，抬头/低头时会漏掉视线中的玩家。
+        AABB search = new AABB(start, end).inflate(1.0);
         EntityHitResult hit = ProjectileUtil.getEntityHitResult(caster, start, end, search,
                 e -> e instanceof ServerPlayer p && p != caster && GameUtils.isPlayerAliveAndSurvival(p), .25);
         if (hit == null || !(hit.getEntity() instanceof ServerPlayer target)) return null;
