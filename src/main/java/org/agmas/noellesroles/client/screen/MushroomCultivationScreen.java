@@ -40,8 +40,8 @@ public class MushroomCultivationScreen extends Screen {
         graphics.fill(tableLeft, tableTop, tableLeft + 140, tableTop + 105, 0xFF8A6549);
         graphics.fill(tableLeft + 8, tableTop + 8, tableLeft + 132, tableTop + 97, 0xFFB88A61);
         graphics.renderItem(ModItems.MUSHROOM_SAMPLE.getDefaultInstance(), tableLeft + 59, tableTop + 40);
-        drawBottle(graphics, left + 28, top + 85, 0xFF55C7A5, "A");
-        drawBottle(graphics, left + 286, top + 85, 0xFFB96CFF, "B");
+        drawBottle(graphics, left + 28, top + 85, 0xFF55C7A5, "A", true);
+        drawBottle(graphics, left + 286, top + 85, 0xFFB96CFF, "B", true);
         graphics.drawCenteredString(font, Component.translatable("screen.noellesroles.mushroom.drag"),
                 width / 2, top + 184, 0xFFE7E7E7);
         graphics.drawCenteredString(font, Component.translatable("screen.noellesroles.mushroom.progress",
@@ -49,12 +49,12 @@ public class MushroomCultivationScreen extends Screen {
         super.render(graphics, mouseX, mouseY, delta);
         if (dragging >= 0) {
             int color = dragging == 0 ? 0xFF55C7A5 : 0xFFB96CFF;
-            drawBottle(graphics, mouseX - 21, mouseY - 29, color, dragging == 0 ? "A" : "B");
+            drawBottle(graphics, mouseX - 21, mouseY - 29, color, dragging == 0 ? "A" : "B", false);
         }
     }
 
-    private void drawBottle(GuiGraphics graphics, int x, int y, int color, String label) {
-        graphics.fill(x, y, x + 42, y + 58, 0xFF20252E);
+    private void drawBottle(GuiGraphics graphics, int x, int y, int color, String label, boolean background) {
+        if (background) graphics.fill(x, y, x + 42, y + 58, 0xFF20252E);
         graphics.fill(x + 10, y + 16, x + 32, y + 49, color);
         graphics.fill(x + 14, y + 8, x + 28, y + 18, 0xFFD8D8D8);
         graphics.drawCenteredString(font, label, x + 21, y + 62, 0xFFFFFFFF);

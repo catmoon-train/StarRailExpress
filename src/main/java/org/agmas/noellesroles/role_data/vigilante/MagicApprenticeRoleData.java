@@ -20,10 +20,9 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.entity.projectile.ProjectileUtil;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.AABB;
-import net.minecraft.world.phys.EntityHitResult;
+import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 import org.agmas.noellesroles.init.ModEffects;
 import org.agmas.noellesroles.init.ModItems;
@@ -174,14 +173,29 @@ public class MagicApprenticeRoleData extends SimpleRoleData {
         Vec3 direction = caster.getViewVector(1).normalize();
         Vec3 end = start.add(direction.scale(range));
         // 以视线起点和终点构造搜索盒；原先从玩家脚下的碰撞盒扩展，抬头/低头时会漏掉视线中的玩家。
-        AABB search = new AABB(start, end).inflate(1.0);
-        EntityHitResult hit = ProjectileUtil.getEntityHitResult(caster, start, end, search,
-                e -> e instanceof ServerPlayer p && p != caster && GameUtils.isPlayerAliveAndSurvival(p), .25);
-        if (hit == null || !(hit.getEntity() instanceof ServerPlayer target)) return null;
+        ServerPlayer target = null;
+        Vec3 targetHit = null;
+        double closestDistance = Double.MAX_VALUE;
+        for (Player candidate : caster.level().players()) {
+            if (!(candidate instanceof ServerPlayer player) || player == caster
+                    || !GameUtils.isPlayerAliveAndSurvival(player)) {
+                continue;
+            }
+            var hit = player.getBoundingBox().inflate(0.35).clip(start, end);
+            if (hit.isEmpty()) continue;
+            double distance = start.distanceToSqr(hit.get());
+            if (distance < closestDistance) {
+                closestDistance = distance;
+                target = player;
+                targetHit = hit.get();
+            }
+        }
+        if (target == null || targetHit == null) return null;
         if (respectWalls) {
-            var block = caster.level().clip(new net.minecraft.world.level.ClipContext(start, hit.getLocation(),
+            var block = caster.level().clip(new net.minecraft.world.level.ClipContext(start, targetHit,
                     net.minecraft.world.level.ClipContext.Block.COLLIDER, net.minecraft.world.level.ClipContext.Fluid.NONE, caster));
-            if (block.getLocation().distanceTo(start) + .05 < hit.getLocation().distanceTo(start)) return null;
+            if (block.getType() == HitResult.Type.BLOCK
+                    && block.getLocation().distanceToSqr(start) + .04 < closestDistance) return null;
         }
         return target;
     }
