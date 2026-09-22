@@ -1,6 +1,8 @@
 {
   "info.screen.roleid.custom_pending": "請按下技能鍵選擇你的職業",
   "info.screen.roleid.custom_pending.simple": "按技能鍵選擇職業",
+  "info.screen.roleid.magic_apprentice": "警長陣營（特殊警長）\n版本 4.4，啟用機率 50%，擁有被動收入。開局獲得見習法杖。法杖蓄力 0.3 秒釋放法術，成功釋放後統一冷卻 12 秒；每 30 秒恢復 15 點魔力，魔力上限 100。\n火球術：20 格，消耗 5 魔力，命中玩家以「烤糊了」死亡；冰球術：40 格，消耗 5 魔力，施加 5 秒緩慢 II 與挖掘疲勞 V；毒術：20 格，消耗 50 魔力，穿牆施加 12 秒模組中毒；擊退氣流：15 格，消耗 50 魔力，扇形擊退 4 格並記錄傷害；火焰域：12 格，消耗 75 魔力，生成 5 秒燃燒區域；冰雪域：12 格，消耗 65 魔力，生成 5 秒緩慢 III 區域。技能切換鍵只會切換已解鎖法術，法術可在商店購買解鎖。",
+  "info.screen.roleid.magic_apprentice.simple": "警長陣營（特殊警長）\n開局見習法杖，蓄力 0.3 秒釋放法術，成功釋放後冷卻 12 秒。\n魔力上限 100，每 30 秒恢復 15 點；技能切換鍵切換已解鎖法術，商店購買法術。",
   "info.screen.roleid.hide_and_seek_seeker": "請尋找地圖裏的躲藏者。",
   "info.screen.roleid.hide_and_seek_seeker.simple": "尋找地圖裏的躲藏者",
   "info.screen.roleid.discovery_civilian": "平民陣營\n特殊模式專用職業。",

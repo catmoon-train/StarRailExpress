@@ -738,6 +738,9 @@ public class ModItems {
     public static final Item WIZARD_STAFF = register(
             new org.agmas.noellesroles.content.item.WizardStaffItem(new Item.Properties().stacksTo(1)),
             "wizard_staff", ROLE_ITEMS_GROUP);
+    public static final Item APPRENTICE_WAND = register(
+            new org.agmas.noellesroles.content.item.ApprenticeWandItem(new Item.Properties().stacksTo(1)),
+            "apprentice_wand", ROLE_ITEMS_GROUP);
     public static final Item WIZARD_POTION = register(
             new org.agmas.noellesroles.content.item.WizardPotionItem(new Item.Properties().stacksTo(16)),
             "wizard_potion", ROLE_ITEMS_GROUP);

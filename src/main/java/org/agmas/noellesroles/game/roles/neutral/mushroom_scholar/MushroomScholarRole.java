@@ -38,7 +38,7 @@ public class MushroomScholarRole extends NormalRole {
 
     @Override
     public List<ShopEntry> getShopEntries() {
-        return List.of(new ShopEntry(ModItems.MUSHROOM_SAMPLE.getDefaultInstance(), 100, ShopEntry.Type.TOOL));
+        return List.of(new ShopEntry(ModItems.MUSHROOM_SAMPLE.getDefaultInstance(), 150, ShopEntry.Type.TOOL));
     }
 
     public static boolean tryOpenCultivation(ServerPlayer player) {
@@ -49,7 +49,7 @@ public class MushroomScholarRole extends NormalRole {
             player.displayClientMessage(Component.translatable("skill.noellesroles.mushroom_scholar.need_bed"), true);
             return false;
         }
-        if (!player.getInventory().contains(ModItems.MUSHROOM_SAMPLE.getDefaultInstance())) {
+        if (!player.getMainHandItem().is(ModItems.MUSHROOM_SAMPLE)) {
             player.displayClientMessage(Component.translatable("skill.noellesroles.mushroom_scholar.need_sample"), true);
             return false;
         }
@@ -83,7 +83,7 @@ public class MushroomScholarRole extends NormalRole {
                 || pours == null || pours.length != 3 || !canCultivate(player)) {
             return;
         }
-        if (!player.getInventory().contains(ModItems.MUSHROOM_SAMPLE.getDefaultInstance())) {
+        if (!player.getMainHandItem().is(ModItems.MUSHROOM_SAMPLE)) {
             return;
         }
         for (int pour : pours) {
@@ -97,8 +97,7 @@ public class MushroomScholarRole extends NormalRole {
         }
         int right = pours.length - left;
         boolean poisonous = right > left || (right == left && pours[2] == 1);
-        player.getInventory().clearOrCountMatchingItems(stack -> stack.is(ModItems.MUSHROOM_SAMPLE), 1,
-                player.inventoryMenu.getCraftSlots());
+        player.getMainHandItem().shrink(1);
         RoleUtils.insertOrDropItem(player, (poisonous ? ModItems.POISONOUS_MUSHROOM
                 : ModItems.SAFE_MUSHROOM).getDefaultInstance());
         player.displayClientMessage(Component.translatable("screen.noellesroles.mushroom.finished"), true);

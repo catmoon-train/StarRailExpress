@@ -70,6 +70,7 @@ import org.agmas.noellesroles.game.roles.killer.manipulator.InControlCCA;
 import org.agmas.noellesroles.role_data.innocence.BuilderRoleData;
 import org.agmas.noellesroles.role_data.innocence.BarbarianRoleData;
 import org.agmas.noellesroles.role_data.vigilante.JojoRoleData;
+import org.agmas.noellesroles.role_data.vigilante.MagicApprenticeRoleData;
 import org.agmas.noellesroles.role_data.innocence.FortunetellerRoleData;
 import org.agmas.noellesroles.role_data.neutral.AmonRoleData;
 import org.agmas.noellesroles.role_data.neutral.CandleBearerRoleData;
@@ -1090,6 +1091,16 @@ public class ModRolesInitialEventRegister {
                         "skill.noellesroles.mushroom_scholar.essence",
                         context -> MushroomScholarRole.convertHeldMushroom(context.player()))
                         .shifted(true).modeSwitch(true).cooldownSeconds(90).build());
+
+        RoleSkill.register(ModRoles.MAGIC_APPRENTICE,
+                RoleSkill.skill(SRE.id("magic_apprentice_switch"),
+                        "skill.noellesroles.magic_apprentice.switch", context -> {
+                            MagicApprenticeRoleData data = RoleData.getNullable(MagicApprenticeRoleData.class,
+                                    context.player());
+                            if (data == null) return false;
+                            data.cycleSpell();
+                            return true;
+                        }).shifted(true).modeSwitch(true).announceToSelf(false).showOnHud(false).build());
 
         // 变声怪杰技能注册：
         // - 蹲下+技能键(G)：标记准星玩家（冷却20秒）

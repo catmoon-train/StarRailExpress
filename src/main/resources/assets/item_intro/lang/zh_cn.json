@@ -234,5 +234,6 @@
   "item.noellesroles.safe_mushroom.desc": "无毒蘑菇。食用后获得 20 秒负面效果抵抗。",
   "item.noellesroles.poisonous_mushroom.desc": "剧毒蘑菇。食用后获得 20 秒故障与缓慢 I，并获得 3 秒傀儡游走。",
   "item.noellesroles.mushroom_essence.desc": "蘑菇素。右键投掷，命中后使附近玩家获得 20 秒负面效果抵抗。",
-  "item.noellesroles.poisonous_mushroom_essence.desc": "剧毒蘑菇素。右键投掷，命中后使附近玩家获得 20 秒故障与缓慢 I，并获得 3 秒傀儡游走。"
+  "item.noellesroles.poisonous_mushroom_essence.desc": "剧毒蘑菇素。右键投掷，命中后使附近玩家获得 20 秒故障与缓慢 I，并获得 3 秒傀儡游走。",
+  "item.noellesroles.apprentice_wand.desc": "魔法学徒专用见习法杖。右键蓄力 0.3 秒释放当前法术；成功释放后统一冷却 12 秒。技能切换键可在已解锁法术间切换。"
 }

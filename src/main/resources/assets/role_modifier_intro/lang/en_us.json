@@ -1,6 +1,8 @@
 {
   "info.screen.roleid.custom_pending": "Press the skill key to select your role",
   "info.screen.roleid.custom_pending.simple": "Press skill key to select role",
+  "info.screen.roleid.magic_apprentice": "Sheriff faction (Special Sheriff)\nVersion 4.4, 50% enable chance, with passive income. Starts with an Apprentice Wand. Charge for 0.3 seconds to cast; each successful cast has a shared 12-second cooldown. Mana cap 100, regenerating 15 every 30 seconds.\nFireball: 20 blocks, 5 mana, kills with “flamethrower_burned” (烤糊了); Frostball: 40 blocks, 5 mana, Slowness II and Mining Fatigue V for 5 seconds; Poison Ray: 20 blocks, 50 mana, wall-ignoring mod poison for 12 seconds; Repulsion Gust: 15-block cone, 50 mana, knocks players back 4 blocks and records damage; Flame Field: 12 blocks, 75 mana, 5-second burning area; Frost Field: 12 blocks, 65 mana, 5-second Slowness III area. The switch key only cycles unlocked spells, purchased in the shop.",
+  "info.screen.roleid.magic_apprentice.simple": "Sheriff faction (Special Sheriff)\nStarts with an Apprentice Wand: charge 0.3 seconds to cast, then successful casts share a 12-second cooldown.\nMana cap 100, +15 every 30 seconds; switch between purchased spells with the skill-switch key.",
   "info.screen.roleid.hide_and_seek_seeker": "Find the hiders in the map.",
   "info.screen.roleid.hide_and_seek_seeker.simple": "Find the hiders in the map",
   "info.screen.roleid.discovery_civilian": "Civilian faction\nSpecial mode exclusive role.",

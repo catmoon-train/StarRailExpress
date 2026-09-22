@@ -54,6 +54,7 @@ import org.agmas.noellesroles.game.roles.neutral.puppeteer.PuppeteerPlayerCompon
 import org.agmas.noellesroles.game.fake_steve.FakeSteveDirector;
 import org.agmas.noellesroles.game.roles.neutral.raven.RavenRole;
 import org.agmas.noellesroles.game.roles.vigilante.genshin.TartagliaRole;
+import org.agmas.noellesroles.game.roles.vigilante.magic_apprentice.MagicApprenticeRole;
 import org.agmas.noellesroles.init.ModEffects;
 import org.agmas.noellesroles.init.ModItems;
 import org.agmas.noellesroles.role.bouns.BounsRoles;
@@ -229,6 +230,7 @@ public class ModRoles {
     public static final ResourceLocation JADE_GENERAL_ID = Noellesroles.id("jade_general");
     // 巫师角色 ID
     public static final ResourceLocation WIZARD_ID = Noellesroles.id("wizard");
+    public static final ResourceLocation MAGIC_APPRENTICE_ID = Noellesroles.id("magic_apprentice");
     public static final ResourceLocation CAKE_MAKER_ID = Noellesroles.id("cake_maker");
     public static final ResourceLocation ADVENTURER_ID = Noellesroles.id("adventurer");
     public static final ResourceLocation SALTED_FISH_ID = Noellesroles.id("salted_fish");
@@ -600,6 +602,15 @@ public class ModRoles {
     )).setCanSeeCoin(false).setRoleData(WizardRoleData::new).setCanBeRandomedByOtherRoles(false)
             .setNoCoinSystem(true) // 不拥有金币系统，金币数始终为 0
             .setDefaultMax(1).setDefaultEnableChance(2500);
+
+    /** 魔法学徒：特殊警长。法杖法术由独立魔力池驱动，金币收入仍保留为被动收入。 */
+    public static SRERole MAGIC_APPRENTICE = TMMRoles.registerRole(new MagicApprenticeRole(
+            MAGIC_APPRENTICE_ID, new Color(62, 143, 210).getRGB(), true, false,
+            SRERole.MoodType.REAL, TMMRoles.CIVILIAN.getMaxSprintTime(), false))
+            .setVigilanteTeam(true).setSpecialVigilante(true).setCanSeeCoin(true)
+            .setCanAutoAddMoney(true).setPassiveIncome(true)
+            .setRoleData(org.agmas.noellesroles.role_data.vigilante.MagicApprenticeRoleData::new)
+            .setDefaultMax(1).setDefaultEnableChance(5000);
 
     /**
      * 亡灵之主（杀手阵营，控场 / 滚雪球）。
@@ -3235,6 +3246,7 @@ public class ModRoles {
         BUILDER.setAddedVersion("4.2");
         JADE_GENERAL.setAddedVersion("4.3");
         WIZARD.setAddedVersion("4.3");
+        MAGIC_APPRENTICE.setAddedVersion("4.4");
         UNDEAD_LORD.setAddedVersion("4.3");
         GUEST_GHOST.setAddedVersion("4.0");
         MA_CHEN_XU.setAddedVersion("4.0");

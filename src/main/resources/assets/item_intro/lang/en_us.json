@@ -242,5 +242,6 @@
   "item.noellesroles.safe_mushroom.desc": "Safe mushroom. Eating it grants 20 seconds of Negative Effect Resistance.",
   "item.noellesroles.poisonous_mushroom.desc": "Poisonous mushroom. Eating it grants 20 seconds of Glitch and Slowness I, plus 3 seconds of Puppet Wander.",
   "item.noellesroles.mushroom_essence.desc": "Mushroom Essence. Throw it to grant nearby players 20 seconds of Negative Effect Resistance on impact.",
-  "item.noellesroles.poisonous_mushroom_essence.desc": "Poisonous Mushroom Essence. Throw it to grant nearby players 20 seconds of Glitch and Slowness I, plus 3 seconds of Puppet Wander on impact."
+  "item.noellesroles.poisonous_mushroom_essence.desc": "Poisonous Mushroom Essence. Throw it to grant nearby players 20 seconds of Glitch and Slowness I, plus 3 seconds of Puppet Wander on impact.",
+  "item.noellesroles.apprentice_wand.desc": "For the Magic Apprentice. Hold right-click for 0.3 seconds to cast the selected spell; each successful cast has a shared 12-second cooldown."
 }
