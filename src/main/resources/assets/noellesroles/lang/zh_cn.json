@@ -3077,6 +3077,7 @@
   "skill.noellesroles.watchman.ring_bell": "敲钟",
   "effect.noellesroles.enter_dream": "入梦",
   "mob_effect.noellesroles.enter_dream": "入梦",
+  "effect.noellesroles.chat_ban.desc": "拥有该效果的玩家睡觉后回复50%%的理智，并获得对应等级的迅捷效果，触发一次后清除。",
   "effect.noellesroles.time_reveal": "时间透视",
   "mob_effect.noellesroles.time_reveal": "时间透视",
   "item.noellesroles.gong": "锣",
