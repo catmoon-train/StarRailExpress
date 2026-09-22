@@ -608,7 +608,7 @@ public class ModRoles {
             MAGIC_APPRENTICE_ID, new Color(62, 143, 210).getRGB(), true, false,
             SRERole.MoodType.REAL, TMMRoles.CIVILIAN.getMaxSprintTime(), false))
             .setVigilanteTeam(true).setSpecialVigilante(true).setCanSeeCoin(true)
-            .setCanAutoAddMoney(true).setPassiveIncome(true)
+            .setCanAutoAddMoney(true)
             .setRoleData(org.agmas.noellesroles.role_data.vigilante.MagicApprenticeRoleData::new)
             .setDefaultMax(1).setDefaultEnableChance(5000);
 
