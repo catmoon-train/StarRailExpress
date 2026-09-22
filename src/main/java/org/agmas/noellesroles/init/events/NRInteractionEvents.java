@@ -23,6 +23,7 @@ import io.wifi.starrailexpress.game.roles.SpecialGameModeRoles;
 import io.wifi.starrailexpress.index.SREDataComponentTypes;
 import io.wifi.starrailexpress.rules.*;
 import net.fabricmc.fabric.api.event.player.UseEntityCallback;
+import net.fabricmc.fabric.api.event.player.UseBlockCallback;
 import net.fabricmc.fabric.api.event.player.UseItemCallback;
 import net.fabricmc.fabric.api.message.v1.ServerMessageEvents;
 import net.minecraft.ChatFormatting;
@@ -45,6 +46,7 @@ import org.agmas.noellesroles.events.OnShopPurchase;
 import org.agmas.noellesroles.events.OnVendingMachinesBuyItems;
 import org.agmas.noellesroles.game.roles.killer.conspirator.ConspiratorKilledPlayer;
 import org.agmas.noellesroles.game.roles.innocence.insurance.InsuranceRoleHandler;
+import org.agmas.noellesroles.game.roles.innocence.waiter.WaiterRole;
 import org.agmas.noellesroles.role_data.innocence.CakeMakerRoleData;
 import org.agmas.noellesroles.role_data.killer.InsaneKillerRoleData;
 import org.agmas.noellesroles.role_data.killer.NinjaRoleData;
@@ -76,6 +78,7 @@ public class NRInteractionEvents {
 
     public static void register() {
         registerUseEntityCallbacks();
+        registerWaiterCallbacks();
         registerUseItemCallback();
         registerShopEvents();
         registerChatEvents();
@@ -88,6 +91,9 @@ public class NRInteractionEvents {
     // --- UseEntityCallback ---
 
     private static void registerUseEntityCallbacks() {
+        UseEntityCallback.EVENT.register((player, world, hand, entity, hitResult) ->
+                WaiterRole.tryFeed(player, world, hand, entity)
+                        ? InteractionResult.SUCCESS : InteractionResult.PASS);
         // 蛋糕师：原料输入 + 蛋糕食用
         UseEntityCallback.EVENT.register((player, world, hand, entity, hitResult) -> {
             if (world.isClientSide || hand != InteractionHand.MAIN_HAND)
@@ -153,6 +159,16 @@ public class NRInteractionEvents {
                 }
             }
             return InteractionResult.PASS;
+        });
+    }
+
+    private static void registerWaiterCallbacks() {
+        UseBlockCallback.EVENT.register((player, world, hand, hit) -> {
+            if (WaiterRole.tryPurifyTray(player, world, hand, hit.getBlockPos())) {
+                return InteractionResult.SUCCESS;
+            }
+            return WaiterRole.tryTakeFromTray(player, world, hand, hit.getBlockPos())
+                    ? InteractionResult.SUCCESS : InteractionResult.PASS;
         });
     }
 
@@ -321,7 +337,8 @@ public class NRInteractionEvents {
         // 可见毒药
         CanSeePoison.EVENT.register((player) -> {
             SREGameWorldComponent gameWorldComponent = SREGameWorldComponent.KEY.get(player.level());
-            if (gameWorldComponent.isRole((Player) player, ModRoles.BARTENDER))
+            if (gameWorldComponent.isRole((Player) player, ModRoles.BARTENDER)
+                    || gameWorldComponent.isRole((Player) player, ModRoles.WAITER))
                 return true;
             if (gameWorldComponent.isRole((Player) player, ModRoles.POISONER))
                 return true;

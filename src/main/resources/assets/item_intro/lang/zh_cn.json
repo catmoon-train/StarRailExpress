@@ -230,6 +230,7 @@
   "item.noellesroles.netherite_spear.desc": "骑兵的专属武器。左键满蓄力直刺可穿透多个目标；右键举矛蓄力冲锋，速度越快伤害越高。命中玩家时，原版伤害会按 2 倍转化为虚拟伤害，归零时以「矛」为死因判死。只有开启「可使用特殊原版武器」的职业才能用它击杀。",
   "item.noellesroles.small_dried_fish.desc": "大肥鱼商店里的小零食。\n食用后恢复 40 点体力。\n因为它算「食物」，别人也可以拿它右键大肥鱼来投喂。",
   "item.noellesroles.mushroom_sample.desc": "菌菇学者的菌子样本。靠近启用睡觉任务的地图中的床时，可用于开启培育菌子小游戏。",
+  "item.noellesroles.tray_purifying_reagent.desc": "祛毒试剂。放入有毒的食物盘或饮料盘，可清除真毒与假毒，不会影响护盾或弱效护盾。",
   "item.noellesroles.safe_mushroom.desc": "无毒蘑菇。食用后获得 20 秒负面效果抵抗。",
   "item.noellesroles.poisonous_mushroom.desc": "剧毒蘑菇。食用后获得 20 秒故障与缓慢 I，并获得 3 秒傀儡游走。",
   "item.noellesroles.mushroom_essence.desc": "蘑菇素。右键投掷，命中后使附近玩家获得 20 秒负面效果抵抗。",

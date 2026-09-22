@@ -31,6 +31,7 @@ import org.agmas.noellesroles.game.roles.innocence.great_detective.GreatDetectiv
 import org.agmas.noellesroles.game.roles.innocence.mortician.MorticianRole;
 import org.agmas.noellesroles.game.roles.innocence.watchman.WatchmanRole;
 import org.agmas.noellesroles.game.roles.innocence.insurance.InsuranceRole;
+import org.agmas.noellesroles.game.roles.innocence.waiter.WaiterRole;
 import org.agmas.noellesroles.game.roles.innocence.veteran.VeteranKnifeHandler;
 import org.agmas.noellesroles.game.roles.killer.manipulator.ManipulatorRole;
 import org.agmas.noellesroles.game.roles.killer.ninja.NinjaRole;
@@ -164,6 +165,7 @@ public class ModRoles {
     public static ResourceLocation JESTER_ID = Noellesroles.id("jester");
     public static ResourceLocation CONDUCTOR_ID = Noellesroles.id("conductor");
     public static ResourceLocation BARTENDER_ID = Noellesroles.id("bartender");
+    public static ResourceLocation WAITER_ID = Noellesroles.id("waiter");
     public static ResourceLocation NOISEMAKER_ID = Noellesroles.id("noisemaker");
     public static ResourceLocation AWESOME_BINGLUS_ID = Noellesroles.id("awesome_binglus");
     public static ResourceLocation VOODOO_ID = Noellesroles.id("voodoo");
@@ -1157,6 +1159,10 @@ public class ModRoles {
             .registerRole(new NormalRole(BARTENDER_ID, new Color(217, 241, 240).getRGB(), true,
                     false, SRERole.MoodType.REAL, TMMRoles.CIVILIAN.getMaxSprintTime(), false))
             .setComponentKey(FoodDrinkGlowComponent.KEY).setDefaultMax(1);
+    public static SRERole WAITER = TMMRoles
+            .registerRole(new WaiterRole(WAITER_ID, new Color(232, 190, 142).getRGB(), true,
+                    false, SRERole.MoodType.REAL, TMMRoles.CIVILIAN.getMaxSprintTime(), false))
+            .setCanSeeCoin(true).setCanPickUpRevolver(true).setDefaultMax(1);
     public static SRERole NOISEMAKER = TMMRoles
             .registerRole(new NormalRole(NOISEMAKER_ID, new Color(200, 255, 0).getRGB(), true,
                     false, SRERole.MoodType.REAL, TMMRoles.CIVILIAN.getMaxSprintTime(), false) {
@@ -3256,7 +3262,8 @@ public class ModRoles {
         GHOST_EYE.setAddedVersion("4.3");
         WIND_YAOSE.setAddedVersion("3.2");
         CHEF.setAddedVersion("3.2");
-        MUSHROOM_SCHOLAR.setAddedVersion("4.2");
+        WAITER.setAddedVersion("4.4");
+        MUSHROOM_SCHOLAR.setAddedVersion("4.4");
         CAKE_MAKER.setAddedVersion("4.3");
         ADVENTURER.setAddedVersion("4.3");
         WAYFARER.setAddedVersion("3.2");

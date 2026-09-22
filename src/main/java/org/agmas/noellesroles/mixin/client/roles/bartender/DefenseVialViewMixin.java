@@ -44,6 +44,7 @@ public class DefenseVialViewMixin {
                     return;
                 boolean canSeePoison = false;
                 canSeePoison = role.identifier().getPath().equals(ModRoles.BARTENDER.identifier().getPath())
+                        || role.identifier().getPath().equals(ModRoles.WAITER.identifier().getPath())
                         || role.identifier().getPath().equals(ModRoles.POISONER.identifier().getPath());
                 if (!canSeePoison) {
                     if (SREGameWorldComponent.isKillerTeamRoleStatic(role))

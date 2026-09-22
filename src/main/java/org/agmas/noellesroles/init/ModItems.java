@@ -397,6 +397,9 @@ public class ModItems {
     public static final Item ANTIDOTE_REAGENT = register(
             new AntidoteReagentItem(new Item.Properties().stacksTo(16).durability(5)),
             "antidote_reagent", CONSUMABLES_GROUP);
+    public static final Item TRAY_PURIFYING_REAGENT = register(
+            new Item(new Item.Properties().stacksTo(16)),
+            "tray_purifying_reagent", CONSUMABLES_GROUP);
 
     /**
      * 阴谋之书页
