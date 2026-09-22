@@ -110,7 +110,7 @@ public class MagicApprenticeRoleData extends SimpleRoleData {
         ServerPlayer target = rayTarget(caster, 20, true);
         drawRay(caster, ParticleTypes.FLAME, 20, 16);
         if (target != null) {
-            GameUtils.killPlayer(target, false, caster, GameConstants.DeathReasons.FLAMETHROWER_BURNED);
+            GameUtils.killPlayer(target, true, caster, GameConstants.DeathReasons.FLAMETHROWER_BURNED);
         }
         return true;
     }
@@ -241,7 +241,7 @@ public class MagicApprenticeRoleData extends SimpleRoleData {
                     target.setRemainingFireTicks(Math.max(target.getRemainingFireTicks(), 40));
                     int burning = field.burning.merge(target.getUUID(), 1, Integer::sum);
                     if (burning >= 100) {
-                        GameUtils.killPlayer(target, false, caster, GameConstants.DeathReasons.FLAMETHROWER_BURNED);
+                        GameUtils.killPlayer(target, true, caster, GameConstants.DeathReasons.FLAMETHROWER_BURNED);
                         field.burning.remove(target.getUUID());
                     }
                 } else {
