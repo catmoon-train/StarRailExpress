@@ -5399,7 +5399,7 @@
   "screen.noellesroles.purple_monster.select.next": "下一页",
   "skill.noellesroles.mushroom_scholar.cultivate": "培育菌子",
   "skill.noellesroles.mushroom_scholar.essence": "调制蘑菇素",
-  "skill.noellesroles.mushroom_scholar.need_bed": "你必须处在床边 3 格内，且本地图启用了睡觉任务。",
+  "skill.noellesroles.mushroom_scholar.need_bed": "你必须处在床边 3 格内。",
   "skill.noellesroles.mushroom_scholar.need_sample": "你没有菌子样本。",
   "skill.noellesroles.mushroom_scholar.need_mushroom": "请手持可食用的蘑菇。",
   "screen.noellesroles.mushroom.title": "培育菌子",
