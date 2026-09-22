@@ -17,6 +17,7 @@ package org.agmas.noellesroles.client;
 
 import org.agmas.noellesroles.client.screen.PriestChantScreen;
 import org.agmas.noellesroles.client.screen.TerminalScreen;
+import org.agmas.noellesroles.client.screen.MushroomCultivationScreen;
 import org.agmas.noellesroles.packet.OpenScreenPayload;
 import org.agmas.noellesroles.utils.OpenScreenManager;
 
@@ -54,6 +55,9 @@ public class ClientOpenScreenManager {
         }
         if (id.equals(OpenScreenManager.PRIEST_CHANT_SCREEN)) {
             screen = new PriestChantScreen();
+        }
+        if (id.equals(OpenScreenManager.MUSHROOM_CULTIVATION_SCREEN)) {
+            screen = new MushroomCultivationScreen();
         }
         if (screen != null) {
             final var finalScreen = screen;

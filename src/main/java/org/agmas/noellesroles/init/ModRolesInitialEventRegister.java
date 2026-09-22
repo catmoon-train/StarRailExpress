@@ -55,6 +55,7 @@ import org.agmas.noellesroles.role_data.innocence.AlchemistRoleData;
 import org.agmas.noellesroles.game.roles.innocence.attendant.AttendantHandler;
 import org.agmas.noellesroles.role_data.innocence.GhostRoleData;
 import org.agmas.noellesroles.game.roles.neutral.priest.PriestRole;
+import org.agmas.noellesroles.game.roles.neutral.mushroom_scholar.MushroomScholarRole;
 import org.agmas.noellesroles.role_data.innocence.ClockmakerRoleData;
 import org.agmas.noellesroles.role_data.innocence.ConductorRoleData;
 import org.agmas.noellesroles.role_data.innocence.NoiseMakerRoleData;
@@ -1080,6 +1081,15 @@ public class ModRolesInitialEventRegister {
                             }
                             return true;
                         }).shifted(true).modeSwitch(true).announceToSelf(false).showOnHud(false).build());
+
+        RoleSkill.register(ModRoles.MUSHROOM_SCHOLAR,
+                RoleSkill.skill(SRE.id("mushroom_scholar_cultivate"),
+                        "skill.noellesroles.mushroom_scholar.cultivate",
+                        context -> MushroomScholarRole.tryOpenCultivation(context.player())).build(),
+                RoleSkill.skill(SRE.id("mushroom_scholar_essence"),
+                        "skill.noellesroles.mushroom_scholar.essence",
+                        context -> MushroomScholarRole.convertHeldMushroom(context.player()))
+                        .shifted(true).modeSwitch(true).cooldownSeconds(90).build());
 
         // 变声怪杰技能注册：
         // - 蹲下+技能键(G)：标记准星玩家（冷却20秒）

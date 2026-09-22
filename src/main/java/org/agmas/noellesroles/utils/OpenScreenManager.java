@@ -50,4 +50,6 @@ public interface OpenScreenManager {
             Component.translatable("screen.noellesroles.terminal.title"));
     ResourceLocation PRIEST_CHANT_SCREEN = register(Noellesroles.id("priest_chant"),
             Component.translatable("screen.noellesroles.priest.title"));
+    ResourceLocation MUSHROOM_CULTIVATION_SCREEN = register(Noellesroles.id("mushroom_cultivation"),
+            Component.translatable("screen.noellesroles.mushroom.title"));
 }

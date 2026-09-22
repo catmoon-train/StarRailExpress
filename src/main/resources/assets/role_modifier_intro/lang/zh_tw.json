@@ -564,5 +564,7 @@
   "info.screen.roleid.repair_saboteur": "中立獨立勝利職業\n通過修機校準累計 10 點破壞記錄即可獨立獲勝。",
   "info.screen.roleid.repair_saboteur.simple": "",
   "info.screen.roleid.repair_collector": "中立獨立勝利職業\n使用 4 次修機道具或補給即可獨立獲勝。",
-  "info.screen.roleid.repair_collector.simple": ""
+  "info.screen.roleid.repair_collector.simple": "",
+  "info.screen.roleid.mushroom_scholar": "平民陣營\n開局擁有一份菌子樣本，商店可花費 100 金幣購買樣本。\n本職業只在啟用睡覺任務的地圖中生成。\n處在模組床或原版床 3 格內時，按技能鍵打開「培育菌子」小遊戲：將兩種不同顏色的藥水拖到研究台上的菌子樣本，完成 3 次實驗。倒入次數較多的顏色優先決定結果；次數相同則按最後一次倒入的顏色決定。\n實驗完成後獲得無毒蘑菇或劇毒蘑菇。無毒蘑菇食用後獲得 20 秒負面效果抵抗；劇毒蘑菇食用後獲得 20 秒故障、緩慢 I 和 3 秒傀儡遊走。\n使用技能切換鍵切換到第二技能，手持蘑菇時可將其調製為對應蘑菇素，冷卻 90 秒。蘑菇素可投擲，命中方塊或玩家後使周圍玩家獲得對應蘑菇的效果。",
+  "info.screen.roleid.mushroom_scholar.simple": "平民陣營\n只在啟用睡覺任務的地圖中生成。\n床邊 3 格內按技能鍵進行 3 次菌子實驗，獲得無毒或劇毒蘑菇。\n技能切換鍵可調製手持蘑菇，冷卻 90 秒；蘑菇素可以投擲並對附近玩家施加對應效果。"
 }

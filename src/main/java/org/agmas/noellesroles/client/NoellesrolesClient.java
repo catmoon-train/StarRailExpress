@@ -436,6 +436,8 @@ public class NoellesrolesClient implements ClientModInitializer {
             }
         };
         EntityRendererRegistry.register(ModEntities.WHEELCHAIR, WheelchairEntityRenderer::new);
+        EntityRendererRegistry.register(ModEntities.MUSHROOM_ESSENCE,
+                net.minecraft.client.renderer.entity.ThrownItemRenderer::new);
         EntityRendererRegistry.register(ModEntities.MINECART,
                 (c) -> new MinecartRenderer<SREMinecart>(c, ModelLayers.MINECART));
         EntityRendererRegistry.register(ModEntities.WHEELCHAIR_FIELD_ITEM, WheelchairFieldItemRenderer::new);

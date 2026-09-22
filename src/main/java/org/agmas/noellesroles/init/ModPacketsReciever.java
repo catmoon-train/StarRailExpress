@@ -65,6 +65,7 @@ import org.agmas.noellesroles.content.block_entity.LotteryMachineBlockEntity;
 import org.agmas.noellesroles.content.block_entity.VendingMachinesBlockEntity;
 import org.agmas.noellesroles.content.entity.ThrowingKnifeEntity;
 import org.agmas.noellesroles.content.item.ChefFoodItem;
+import org.agmas.noellesroles.game.roles.neutral.mushroom_scholar.MushroomScholarRole;
 import org.agmas.noellesroles.content.item.StalkerKnifeItem;
 import org.agmas.noellesroles.content.item.ThrowingKnife;
 import org.agmas.noellesroles.content.item.ZeroOneFiveShootPayload;
@@ -399,6 +400,8 @@ public class ModPacketsReciever {
       ChefFoodItem.randomModel(cooked_food);
       RoleUtils.insertStackInFreeSlot(player, cooked_food);
     });
+    ServerPlayNetworking.registerGlobalReceiver(MushroomCultivationC2SPacket.ID, (payload, context) ->
+            context.server().execute(() -> MushroomScholarRole.handleCultivationResult(context.player(), payload.pours())));
     ServerPlayNetworking.registerGlobalReceiver(ModPackets.MORPH_PACKET, (payload, context) -> {
       if (context.player().hasEffect(ModEffects.SAFE_TIME))// 安全时间
         return;

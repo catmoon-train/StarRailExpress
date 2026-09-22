@@ -40,6 +40,7 @@ import org.agmas.noellesroles.game.roles.killer.watcher.WatcherRole;
 import org.agmas.noellesroles.game.roles.killer.wraith_assassin.WraithAssassinRole;
 import org.agmas.noellesroles.game.roles.killer.nature_spirit.NatureSpiritRole;
 import org.agmas.noellesroles.game.roles.neutral.chef.ChefRole;
+import org.agmas.noellesroles.game.roles.neutral.mushroom_scholar.MushroomScholarRole;
 import org.agmas.noellesroles.game.roles.neutral.gambler.GamblerRole;
 import org.agmas.noellesroles.game.roles.neutral.jester.JesterHandler;
 import org.agmas.noellesroles.game.roles.neutral.jester.JesterRole;
@@ -194,6 +195,7 @@ public class ModRoles {
     public static ResourceLocation ELF_ID = Noellesroles.id("elf");
     public static ResourceLocation WIND_YAOSE_ID = Noellesroles.id("wind_yaose");
     public static ResourceLocation CHEF_ID = Noellesroles.id("chef");
+    public static final ResourceLocation MUSHROOM_SCHOLAR_ID = Noellesroles.id("mushroom_scholar");
     public static ResourceLocation MAGICIAN_ID = Noellesroles.id("magician");
     public static ResourceLocation CLOCKMAKER_ID = Noellesroles.id("clockmaker");
     public static final ResourceLocation PRIEST_ID = Noellesroles.id("priest");
@@ -1066,6 +1068,13 @@ public class ModRoles {
             .setComponentKey(FoodDrinkGlowComponent.KEY)
             .setTaskReward(1, -1, ModItems.FOOD_STUFF.getDefaultInstance())
             .setTaskRewardSilent(true); // 每完成一个任务给 1 个食材，不限次数，静默发放
+    public static SRERole MUSHROOM_SCHOLAR = TMMRoles.registerRole(
+            new MushroomScholarRole(MUSHROOM_SCHOLAR_ID, new Color(116, 87, 58).getRGB(),
+                    true, false, SRERole.MoodType.REAL,
+                    TMMRoles.CIVILIAN.getMaxSprintTime(), false))
+            .setCanSeeCoin(true).setCanPickUpRevolver(true)
+            .setCanSpawnInMap((map, settings) -> settings == null || settings.disabledTasks == null
+                    || !settings.disabledTasks.contains("sleep"));
     public static SRERole CAKE_MAKER = TMMRoles.registerRole(
             new CakeMakerRole(CAKE_MAKER_ID, new Color(244, 173, 193).getRGB(), true, false,
                     SRERole.MoodType.REAL, TMMRoles.CIVILIAN.getMaxSprintTime(), false))
@@ -3247,6 +3256,7 @@ public class ModRoles {
         GHOST_EYE.setAddedVersion("4.3");
         WIND_YAOSE.setAddedVersion("3.2");
         CHEF.setAddedVersion("3.2");
+        MUSHROOM_SCHOLAR.setAddedVersion("4.2");
         CAKE_MAKER.setAddedVersion("4.3");
         ADVENTURER.setAddedVersion("4.3");
         WAYFARER.setAddedVersion("3.2");
