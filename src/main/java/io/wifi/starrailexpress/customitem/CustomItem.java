@@ -245,9 +245,14 @@ public class CustomItem extends Item implements SREItemProperties.LeftClickHurta
             return;
         }
         if (data.kind() == CustomItemData.Kind.THROWABLE) {
-            // 需要拉栓的投掷物：松手即投出（与手榴弹一致，不要求蓄满）
+            // 需要拉栓的投掷物：必须蓄满「拉栓蓄力时间」才会投出。
+            // 蓄满的那一刻由 finishUsingItem 触发（见下），这里只在「已蓄满但玩家抢先松手」
+            // 的情况下兜底；没蓄满就松手＝这一下不投。
             if (data.throwNeedPin) {
-                CustomItemRuntime.throwCustom(player, stack, data);
+                int charged = getUseDuration(stack, user) - timeCharged;
+                if (charged >= Math.max(1, data.throwPinTicks)) {
+                    CustomItemRuntime.throwCustom(player, stack, data);
+                }
             }
             return;
         }
@@ -286,6 +291,13 @@ public class CustomItem extends Item implements SREItemProperties.LeftClickHurta
                 CustomItemRuntime.completeCharge(player, stack, data);
                 yield stack;
             }
+            case THROWABLE -> {
+                // 拉栓蓄力走满 → 投出（getUseDuration = 拉栓蓄力时间，走满即代表拉栓完成）
+                if (data.throwNeedPin) {
+                    CustomItemRuntime.throwCustom(player, stack, data);
+                }
+                yield stack;
+            }
             default -> super.finishUsingItem(stack, level, entity);
         };
     }
@@ -318,10 +330,15 @@ public class CustomItem extends Item implements SREItemProperties.LeftClickHurta
     @Override
     public int getMaxChargeTime(ItemStack stack, Player player) {
         CustomItemData data = CustomItemLoader.getData(stack);
-        if (data != null && data.kind() == CustomItemData.Kind.CHARGE) {
-            return Math.max(1, data.chargeTicks);
+        if (data == null) {
+            return 0;
         }
-        return 0;
+        return switch (data.kind()) {
+            case CHARGE -> Math.max(1, data.chargeTicks);
+            // 拉栓投掷物同样走蓄力条，玩家才能看清「拉栓蓄力时间」走了多少
+            case THROWABLE -> data.throwNeedPin ? Math.max(1, data.throwPinTicks) : 0;
+            default -> 0;
+        };
     }
 
     @Override

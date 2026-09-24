@@ -41,6 +41,7 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
@@ -63,6 +64,9 @@ import java.util.UUID;
  * </ul>
  */
 public class CustomThrowableEntity extends NoHeavyWaterInfluencedThrowableItemProjectile {
+
+    /** 落地停稳时贴住方块表面的偏移量（同粘性雷）。 */
+    private static final double SURFACE_OFFSET = 0.05D;
 
     /** 已经进入「引爆倒计时」，避免贴地反复触发落地逻辑。 */
     private boolean armed;
@@ -219,24 +223,38 @@ public class CustomThrowableEntity extends NoHeavyWaterInfluencedThrowableItemPr
     @Override
     protected void onHit(HitResult hitResult) {
         CustomItemData data = config();
-        if (data == null || detonated || level().isClientSide()) {
+        if (data == null || detonated) {
             return;
         }
         if (armed) {
-            // 已经进入倒计时：不再重复处理碰撞（延迟 / 粘附都走这里）
+            // 已经进入倒计时（延迟生效落地 / 粘附）：贴住方块表面停稳。
+            // 这里必须处理碰撞，否则忽略碰撞后实体仍会被物理 tick 推着继续下落，
+            // 直接穿过方块沉到地下（爆炸点也跟着跑到地下）。
+            // 客户端同样处理：投掷物在客户端也会自行模拟物理，不处理会看到实体穿地。
+            if (hitResult.getType() == HitResult.Type.BLOCK) {
+                settle(hitResult);
+            }
+            return;
+        }
+        // 延迟生效（滞时雷）：落地弹起后开始倒计时。
+        // 弹起是纯物理表现，两端都做才能保证客户端与实体位置一致；
+        // 倒计时长度以服务端的 fuseTicks 为权威。
+        if (data.throwDelayed && hitResult.getType() == HitResult.Type.BLOCK) {
+            armed = true;
+            bounce();
+            if (!level().isClientSide()) {
+                startFuse((int) Math.round(data.throwDelaySeconds * 20.0D));
+            }
+            return;
+        }
+        // 其余命中判定（粘附玩家 / 立即生效）只在服务端做
+        if (level().isClientSide()) {
             return;
         }
         // 粘附玩家
         if (data.throwSticky && hitResult instanceof EntityHitResult entityHit
                 && entityHit.getEntity() instanceof Player target && target.isAlive()) {
             stickTo(target, data);
-            return;
-        }
-        // 延迟生效（滞时雷）：落地弹起后开始倒计时
-        if (data.throwDelayed && hitResult.getType() == HitResult.Type.BLOCK) {
-            armed = true;
-            bounce();
-            startFuse((int) Math.round(data.throwDelaySeconds * 20.0D));
             return;
         }
         detonate(data);
@@ -259,6 +277,26 @@ public class CustomThrowableEntity extends NoHeavyWaterInfluencedThrowableItemPr
             y = 0.35D;
         }
         setDeltaMovement(delta.x * 0.6D, y, delta.z * 0.6D);
+    }
+
+    /**
+     * 已进入倒计时后落地：把实体贴在方块表面停住（清零速度 + 关重力）。
+     *
+     * <p>
+     * 投掷物基类的位移是纯手动的，碰撞只靠 {@code onHit} 兜住；一旦进入倒计时就不再
+     * 结算碰撞，实体便会一直往下掉落穿地。这里贴住命中面即可让它稳稳停在落点读秒，
+     * 之后爆炸也发生在正确的落点而不是地下。
+     */
+    private void settle(HitResult hitResult) {
+        Vec3 target = position();
+        if (hitResult instanceof BlockHitResult blockHit) {
+            Vec3 normal = Vec3.atLowerCornerOf(blockHit.getDirection().getNormal());
+            target = blockHit.getLocation().add(normal.scale(SURFACE_OFFSET));
+        }
+        setPos(target.x, target.y, target.z);
+        setDeltaMovement(Vec3.ZERO);
+        setNoGravity(true);
+        hasImpulse = true;
     }
 
     private void startFuse(int ticks) {
