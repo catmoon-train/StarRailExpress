@@ -1,5 +1,7 @@
 package org.agmas.noellesroles.game.roles.innocence.insurance;
 
+import io.wifi.starrailexpress.SRE;
+import io.wifi.starrailexpress.api.replay.GameReplayUtils;
 import io.wifi.starrailexpress.event.AllowPlayerDeath;
 import io.wifi.starrailexpress.game.GameConstants;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
@@ -68,6 +70,10 @@ public final class InsuranceRoleHandler {
                     SoundSource.PLAYERS, 1.0F, 1.0F);
             player.displayClientMessage(Component.translatable("message.noellesroles.insurance.protected")
                     .withStyle(ChatFormatting.GREEN), true);
+            // 回放记录：保险生效，挡下本次死亡（记录死因）
+            SRE.REPLAY_MANAGER.recordCustomEvent(Component.translatable("replay.event.insurance.protected",
+                    GameReplayUtils.getReplayPlayerDisplayText(player, true),
+                    GameReplayUtils.getItemDisplayName(deathReason)));
             return false;
         }
         return true;

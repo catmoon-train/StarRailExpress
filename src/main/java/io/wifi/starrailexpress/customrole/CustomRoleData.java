@@ -180,6 +180,20 @@ public class CustomRoleData {
     @SerializedName("customWinSurviveToLast")
     public boolean customWinSurviveToLast = false;
 
+    /**
+     * 「存活到最后」独立胜利的细分模式（取代旧的布尔开关 {@link #customWinSurviveToLast}）：
+     * <ul>
+     * <li>{@code ""}（空）= 关闭</li>
+     * <li>{@code INNOCENT} = 存活到最后顶替平民获胜：平民获胜 / 时间耗尽时，改判为本职业独立胜利；不影响杀手获胜</li>
+     * <li>{@code KILLER} = 存活到最后顶替杀手获胜：杀手获胜时，改判为本职业独立胜利；不影响平民获胜</li>
+     * <li>{@code BOTH} = 存活到最后顶替双方获胜：平民获胜 / 时间耗尽 / 杀手获胜时，均改判为本职业独立胜利</li>
+     * </ul>
+     * 为空时会回退到旧字段（{@code customWinSurviveToLast == true} 等价于 {@code BOTH}）。
+     * 该条件不会「拖延 / 阻止」游戏正常结束。
+     */
+    @SerializedName("customWinSurviveToLastMode")
+    public String customWinSurviveToLastMode = "";
+
     @SerializedName("customWinLastAlive")
     public boolean customWinLastAlive = false;
 
@@ -490,6 +504,52 @@ public class CustomRoleData {
         /** 同阵营队友无视距离限制 */
         @SerializedName("unlimitedTeammate")
         public boolean unlimitedTeammate = false;
+
+        // ==================== 中立同阵营透视（参考教父家族） ====================
+        /**
+         * 是否启用「同阵营」分类。
+         *
+         * <p>启用后基础「看别人」（{@link #seeingOff}/{@link #seeingOn}）不再生效，只生效下面的同阵营自定义本能；
+         * 「被别人看」（{@link #beSeenOff} 等）与范围设置不受影响。
+         */
+        @SerializedName("factionEnabled")
+        public boolean factionEnabled = false;
+
+        /** 拉入同阵营的职业 id（逗号分隔，支持 {@code 命名空间:路径} 或仅路径）。 */
+        @SerializedName("factionRoles")
+        public String factionRoles = "";
+
+        /** 拉入同阵营的修饰符 id（逗号分隔）。 */
+        @SerializedName("factionModifiers")
+        public String factionModifiers = "";
+
+        /** 同阵营玩家无法互相伤害 */
+        @SerializedName("factionNoFriendlyFire")
+        public boolean factionNoFriendlyFire = false;
+
+        /** 看同阵营玩家不受距离限制（不受「透视范围」约束） */
+        @SerializedName("factionUnlimitedRange")
+        public boolean factionUnlimitedRange = false;
+
+        /** 仅能看同阵营玩家（非同阵营玩家无法被透视） */
+        @SerializedName("factionOnly")
+        public boolean factionOnly = false;
+
+        /** 透视同阵营玩家的颜色（直觉关）—— 与「看别人」同款，但不含杀手透视逻辑 */
+        @SerializedName("factionSeeingOff")
+        public String factionSeeingOff = "DEFAULT";
+
+        /** 透视同阵营玩家的颜色（直觉开） */
+        @SerializedName("factionSeeingOn")
+        public String factionSeeingOn = "DEFAULT";
+
+        /** 透视非同阵营玩家的颜色（直觉关）—— 与「看别人」同款，包含所有类型 */
+        @SerializedName("factionOtherSeeingOff")
+        public String factionOtherSeeingOff = "DEFAULT";
+
+        /** 透视非同阵营玩家的颜色（直觉开） */
+        @SerializedName("factionOtherSeeingOn")
+        public String factionOtherSeeingOn = "DEFAULT";
     }
 
     public static class ShopEntryData {

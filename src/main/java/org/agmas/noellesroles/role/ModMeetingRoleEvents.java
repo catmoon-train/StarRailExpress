@@ -116,13 +116,14 @@ public class ModMeetingRoleEvents {
                     GameReplayUtils.getReplayPlayerDisplayText(sp, true)));
         });
 
-        // 呆呆鸟：被投票出局时独立胜利
+        // 呆呆鸟：被投票出局时独立胜利。
+        // 注意：这里必须「放行」这次出局（返回 true），让呆呆鸟真正成为本次投票的结果，
+        // 否则 expelledName 会保持为空，会议结算界面会显示「无人被选出」，与「被投票出局即胜利」矛盾。
         MeetingVoteOutEvent.EVENT.register((level, player) -> {
             var game = SREGameWorldComponent.KEY.get(level);
             if (game != null && game.isRole(player, ModMeetingRoles.DUMMY_BIRD)) {
                 RoleUtils.customWinnerWin(level, GameUtils.WinStatus.CUSTOM,
                         "dummy_bird", java.util.OptionalInt.of(ModMeetingRoles.DUMMY_BIRD.color()));
-                return false;
             }
             return true;
         });

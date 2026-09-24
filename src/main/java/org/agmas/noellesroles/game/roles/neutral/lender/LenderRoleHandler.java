@@ -2,6 +2,7 @@ package org.agmas.noellesroles.game.roles.neutral.lender;
 
 import io.wifi.starrailexpress.api.RoleSkill;
 import io.wifi.starrailexpress.SRE;
+import io.wifi.starrailexpress.api.replay.GameReplayUtils;
 import io.wifi.starrailexpress.cca.SREAbilityPlayerComponent;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.game.GameConstants;
@@ -27,6 +28,7 @@ import org.agmas.noellesroles.role.ModRoles;
 import org.agmas.noellesroles.role.TraitorAndModifiers;
 import org.agmas.noellesroles.utils.MoneyUtils;
 import org.agmas.noellesroles.utils.RoleUtils;
+import org.jetbrains.annotations.Nullable;
 
 
 import java.util.HashMap;
@@ -171,6 +173,11 @@ public final class LenderRoleHandler {
                 .withStyle(ChatFormatting.GOLD), true);
         borrower.displayClientMessage(Component.translatable("message.noellesroles.loan.received", amount)
                 .withStyle(ChatFormatting.GREEN), true);
+        // 回放记录：成功签订贷款合同（记录借款人、放贷人与借款金额）
+        SRE.REPLAY_MANAGER.recordCustomEvent(Component.translatable("replay.event.lender.sign_contract",
+                GameReplayUtils.getReplayPlayerDisplayText(borrower, true),
+                GameReplayUtils.getReplayPlayerDisplayText(lender, true),
+                Component.literal(String.valueOf(amount))));
     }
 
     /** Deducts the full current debt (principal + interest) from the player holding the contract. */
@@ -183,7 +190,26 @@ public final class LenderRoleHandler {
         }
         // 借款人还清后，把这笔钱（含累计利息）发给放贷人。
         creditLender(borrower.serverLevel(), contract, due);
+        // 回放记录：向放贷人还款（记录还款金额）
+        SRE.REPLAY_MANAGER.recordCustomEvent(Component.translatable("replay.event.lender.repay",
+                GameReplayUtils.getReplayPlayerDisplayText(borrower, true),
+                lenderDisplayText(borrower.serverLevel(), contract),
+                Component.literal(String.valueOf(due))));
         return true;
+    }
+
+    /** 从合同里取出放贷人玩家（离线或找不到时返回 null）。 */
+    private static ServerPlayer findLender(ServerLevel level, ItemStack contract) {
+        UUID lenderId = LoanContractItem.lender(contract);
+        if (lenderId == null) {
+            return null;
+        }
+        return level.getServer().getPlayerList().getPlayer(lenderId);
+    }
+
+    /** 放贷人的回放显示文本（放贷人已离线时显示为「未知玩家」）。 */
+    private static Component lenderDisplayText(ServerLevel level, ItemStack contract) {
+        return GameReplayUtils.getReplayPlayerDisplayText(findLender(level, contract), true);
     }
 
     /**
@@ -275,55 +301,66 @@ public final class LenderRoleHandler {
         }
         int remaining = due - paid;
         if (remaining > 0) {
-            applyRandomLimbPenalty(borrower);
+            applyRandomLimbPenalty(borrower, findLender(borrower.serverLevel(), contract));
         }
         borrower.displayClientMessage(Component.translatable("message.noellesroles.loan.forced", due, paid)
                 .withStyle(ChatFormatting.DARK_RED, ChatFormatting.BOLD), true);
     }
 
-    private static void applyRandomLimbPenalty(ServerPlayer player) {
+    /**
+     * 随机卸下借款人一个部位作为违约惩罚。
+     *
+     * @param lender 放贷人（可能已离线/出局，此时为 null）；心脏骤停需要把它记录成攻击者
+     */
+    private static void applyRandomLimbPenalty(ServerPlayer player, @Nullable ServerPlayer lender) {
         switch (player.getRandom().nextInt(8)) {
             case 0 -> {
                 RoleUtils.removeModifier(player, TraitorAndModifiers.NIGHT_OWL);
                 player.addEffect(new MobEffectInstance(MobEffects.BLINDNESS, Integer.MAX_VALUE, 1, false, false, true));
                 player.addEffect(new MobEffectInstance(MobEffects.DARKNESS, Integer.MAX_VALUE, 0, false, false, true));
-                notifyPenalty(player, "eye");
+                notifyPenalty(player, lender, "eye");
             }
             case 1 -> {
-                GameUtils.forceKillPlayer(player, true, null, GameConstants.DeathReasons.HEART_ATTACK);
-                notifyPenalty(player, "heart");
+                // 心脏骤停属于「放贷人造成的死亡」，把放贷人记录为攻击者
+                GameUtils.forceKillPlayer(player, true, lender, GameConstants.DeathReasons.HEART_ATTACK);
+                notifyPenalty(player, lender, "heart");
             }
             case 2 -> {
                 player.addEffect(new MobEffectInstance(ModEffects.USED_BANED, Integer.MAX_VALUE, 0, false, false, true));
-                notifyPenalty(player, "hand");
+                notifyPenalty(player, lender, "hand");
             }
             case 3 -> {
                 player.addEffect(new MobEffectInstance(MobEffects.CONFUSION, Integer.MAX_VALUE, 1, false, false, true));
-                notifyPenalty(player, "liver");
+                notifyPenalty(player, lender, "liver");
             }
             case 4 -> {
                 player.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SLOWDOWN, Integer.MAX_VALUE, 1, false, false, true));
-                notifyPenalty(player, "leg");
+                notifyPenalty(player, lender, "leg");
             }
             case 5 -> {
                 player.addEffect(new MobEffectInstance(ModEffects.LOSS_OF_APPETITE, Integer.MAX_VALUE, 0, false, false, true));
-                notifyPenalty(player, "stomach");
+                notifyPenalty(player, lender, "stomach");
             }
             case 6 -> {
                 player.addEffect(new MobEffectInstance(ModEffects.VOICE_SILENCE, Integer.MAX_VALUE, 0, false, false, true));
                 player.addEffect(new MobEffectInstance(ModEffects.CHAT_BAN, Integer.MAX_VALUE, 0, false, false, true));
-                notifyPenalty(player, "tongue");
+                notifyPenalty(player, lender, "tongue");
             }
             default -> {
                 player.addEffect(new MobEffectInstance(ModEffects.MUFFLED_HEARING, Integer.MAX_VALUE, 1, false, false, true));
-                notifyPenalty(player, "ear");
+                notifyPenalty(player, lender, "ear");
             }
         }
     }
 
-    private static void notifyPenalty(ServerPlayer player, String part) {
+    private static void notifyPenalty(ServerPlayer player, @Nullable ServerPlayer lender, String part) {
         player.displayClientMessage(Component.translatable("message.noellesroles.loan.penalty." + part)
                 .withStyle(ChatFormatting.DARK_RED), true);
+        // 回放记录：<目标玩家> 被 <放贷人玩家> 卸下了 <某个部位>
+        SRE.REPLAY_MANAGER.recordCustomEvent(Component.translatable("replay.event.lender.penalty",
+                GameReplayUtils.getReplayPlayerDisplayText(player, true),
+                GameReplayUtils.getReplayPlayerDisplayText(lender, true),
+                Component.translatable("replay.event.lender.body_part." + part)));
     }
 
     private record Request(UUID lender, UUID target, long createdAt) {

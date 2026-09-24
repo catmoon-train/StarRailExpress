@@ -1,5 +1,7 @@
 package org.agmas.noellesroles.content.item;
 
+import io.wifi.starrailexpress.SRE;
+import io.wifi.starrailexpress.api.replay.GameReplayUtils;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.component.DataComponents;
@@ -85,6 +87,9 @@ public class InsuranceItem extends Item {
         activate(stack);
         player.displayClientMessage(Component.translatable("message.noellesroles.insurance.activated")
                 .withStyle(ChatFormatting.GREEN), true);
+        // 回放记录：成功激活保险
+        SRE.REPLAY_MANAGER.recordCustomEvent(Component.translatable("replay.event.insurance.activate",
+                GameReplayUtils.getReplayPlayerDisplayText(player, true)));
         return InteractionResultHolder.consume(stack);
     }
 

@@ -392,17 +392,24 @@ public class CustomRoleScreen extends CustomEditorScreen {
                         value -> data.customWinTitle = value);
                 r = textRow(r, PREFIX + ".custom_win_subtitle", data.customWinSubtitle, LIMIT_NAME, null,
                         value -> data.customWinSubtitle = value);
-                // 这两项互斥：切换一个要同时刷新另一个的文案，所以重建
-                r = cluster(r, null,
-                        toggleCell(PREFIX + ".custom_win_survive", data.customWinSurviveToLast, value -> {
-                            data.customWinSurviveToLast = value;
-                            if (value) {
+                // 存活到最后（细分模式）：点击在 关闭 → 顶替平民 → 顶替杀手 → 顶替双方 之间循环。
+                // 该条件不会阻碍游戏正常结束，只会在对应胜负下改判为本职业独立胜利。
+                r = cluster(r, PREFIX + ".custom_win_survive_mode",
+                        stateButtonCell(() -> Component.translatable(surviveModeKey(currentSurviveMode()))
+                                .append(Component.literal(" ↻")), () -> {
+                            data.customWinSurviveToLastMode = cycleSurviveMode(currentSurviveMode());
+                            // 使用细分模式后清掉旧布尔字段，避免两处同时生效
+                            data.customWinSurviveToLast = false;
+                            if (!data.customWinSurviveToLastMode.isEmpty()) {
                                 data.customWinLastAlive = false;
                             }
-                        }, true),
+                        }, false));
+                // 与「只剩自己存活」互斥：打开后者时关闭「存活到最后」模式（需要重建刷新文案）
+                r = cluster(r, null,
                         toggleCell(PREFIX + ".custom_win_last_alive", data.customWinLastAlive, value -> {
                             data.customWinLastAlive = value;
                             if (value) {
+                                data.customWinSurviveToLastMode = "";
                                 data.customWinSurviveToLast = false;
                             }
                         }, true));
@@ -519,18 +526,80 @@ public class CustomRoleScreen extends CustomEditorScreen {
             ensureInstinctMode();
             InstinctModeData mode = data.instinctModes.get(0);
 
-            // 看别人
-            r = cluster(r, PREFIX + ".instinct_seeing",
-                    instinctCell(() -> mode.seeingOff, value -> mode.seeingOff = value),
-                    instinctCell(() -> mode.seeingOn, value -> mode.seeingOn = value));
+            // 同阵营分类开关（参考教父家族本能）
+            r = cluster(r, null,
+                    toggleCell(PREFIX + ".instinct_faction_enabled", mode.factionEnabled,
+                            value -> mode.factionEnabled = value, true));
+            if (mode.factionEnabled) {
+                // 将某职业 / 拥有某修饰符的玩家拉入同阵营（逗号分隔）
+                r = textRow(r, PREFIX + ".instinct_faction_roles", mode.factionRoles, LIMIT_TEXT,
+                        PREFIX + ".hint.faction_roles", value -> mode.factionRoles = value.trim());
+                r = textRow(r, PREFIX + ".instinct_faction_modifiers", mode.factionModifiers, LIMIT_TEXT,
+                        PREFIX + ".hint.faction_modifiers", value -> mode.factionModifiers = value.trim());
+                r = cluster(r, null,
+                        toggleCell(PREFIX + ".instinct_faction_no_friendly_fire", mode.factionNoFriendlyFire,
+                                value -> mode.factionNoFriendlyFire = value, false),
+                        toggleCell(PREFIX + ".instinct_faction_unlimited_range", mode.factionUnlimitedRange,
+                                value -> mode.factionUnlimitedRange = value, false));
+                r = cluster(r, null,
+                        toggleCell(PREFIX + ".instinct_faction_only", mode.factionOnly,
+                                value -> mode.factionOnly = value, false));
+                // 同阵营颜色（不含杀手透视逻辑）/ 非同阵营颜色（包含所有）
+                r = cluster(r, PREFIX + ".instinct_faction_seeing",
+                        factionInstinctCell(() -> mode.factionSeeingOff, value -> mode.factionSeeingOff = value),
+                        factionInstinctCell(() -> mode.factionSeeingOn, value -> mode.factionSeeingOn = value));
+                r = cluster(r, PREFIX + ".instinct_faction_other_seeing",
+                        instinctCell(() -> mode.factionOtherSeeingOff, value -> mode.factionOtherSeeingOff = value),
+                        instinctCell(() -> mode.factionOtherSeeingOn, value -> mode.factionOtherSeeingOn = value));
+                if (isCustomType(mode.factionSeeingOff) || isCustomType(mode.factionSeeingOn)) {
+                    r = cluster(r, PREFIX + ".instinct_faction_custom_color",
+                            fixedBox(findFirstCustomHex(mode.factionSeeingOff, mode.factionSeeingOn), 32, 80,
+                                    hint(PREFIX + ".hint.hex"), value -> {
+                                        String hex = value.trim().replaceAll("[^0-9a-fA-F]", "");
+                                        if (hex.isEmpty()) {
+                                            hex = "FF0000";
+                                        }
+                                        String newValue = "CUSTOM(0x" + hex + ")";
+                                        if (isCustomType(mode.factionSeeingOff)) {
+                                            mode.factionSeeingOff = newValue;
+                                        }
+                                        if (isCustomType(mode.factionSeeingOn)) {
+                                            mode.factionSeeingOn = newValue;
+                                        }
+                                    }));
+                }
+                if (isCustomType(mode.factionOtherSeeingOff) || isCustomType(mode.factionOtherSeeingOn)) {
+                    r = cluster(r, PREFIX + ".instinct_faction_other_custom_color",
+                            fixedBox(findFirstCustomHex(mode.factionOtherSeeingOff, mode.factionOtherSeeingOn), 32, 80,
+                                    hint(PREFIX + ".hint.hex"), value -> {
+                                        String hex = value.trim().replaceAll("[^0-9a-fA-F]", "");
+                                        if (hex.isEmpty()) {
+                                            hex = "FF0000";
+                                        }
+                                        String newValue = "CUSTOM(0x" + hex + ")";
+                                        if (isCustomType(mode.factionOtherSeeingOff)) {
+                                            mode.factionOtherSeeingOff = newValue;
+                                        }
+                                        if (isCustomType(mode.factionOtherSeeingOn)) {
+                                            mode.factionOtherSeeingOn = newValue;
+                                        }
+                                    }));
+                }
+            } else {
+                // 看别人（启用同阵营分类后不再生效）
+                r = cluster(r, PREFIX + ".instinct_seeing",
+                        instinctCell(() -> mode.seeingOff, value -> mode.seeingOff = value),
+                        instinctCell(() -> mode.seeingOn, value -> mode.seeingOn = value));
+            }
             // 被看
             r = cluster(r, PREFIX + ".instinct_be_seen",
                     instinctCell(() -> mode.beSeenOff, value -> mode.beSeenOff = value),
                     instinctCell(() -> mode.beSeenOn, value -> mode.beSeenOn = value));
 
             // 自定义颜色输入（当任一字段为 CUSTOM 时显示）
-            boolean hasCustom = isCustomType(mode.seeingOff) || isCustomType(mode.seeingOn)
-                    || isCustomType(mode.beSeenOff) || isCustomType(mode.beSeenOn);
+            boolean baseSeeingCustom = !mode.factionEnabled
+                    && (isCustomType(mode.seeingOff) || isCustomType(mode.seeingOn));
+            boolean hasCustom = baseSeeingCustom || isCustomType(mode.beSeenOff) || isCustomType(mode.beSeenOn);
             if (hasCustom) {
                 // 收集所有 CUSTOM 字段，使用同一个颜色输入
                 r = cluster(r, PREFIX + ".instinct_custom_color",
@@ -540,11 +609,13 @@ public class CustomRoleScreen extends CustomEditorScreen {
                                 hex = "FF0000";
                             }
                             String newValue = "CUSTOM(0x" + hex + ")";
-                            if (isCustomType(mode.seeingOff)) {
-                                mode.seeingOff = newValue;
-                            }
-                            if (isCustomType(mode.seeingOn)) {
-                                mode.seeingOn = newValue;
+                            if (baseSeeingCustom) {
+                                if (isCustomType(mode.seeingOff)) {
+                                    mode.seeingOff = newValue;
+                                }
+                                if (isCustomType(mode.seeingOn)) {
+                                    mode.seeingOn = newValue;
+                                }
                             }
                             if (isCustomType(mode.beSeenOff)) {
                                 mode.beSeenOff = newValue;
@@ -717,6 +788,18 @@ public class CustomRoleScreen extends CustomEditorScreen {
                 () -> Component.literal(instinctTypeDisplay(getter.get()))
                         .append(Component.literal(" ↻").withStyle(style -> style.withColor(SREPanelStyle.MUTED))),
                 () -> setter.accept(cycleInstinctTypeStr(getter.get())),
+                true);
+    }
+
+    /**
+     * 「同阵营颜色」轮回按钮：与 {@link #instinctCell} 同款，但**不提供** {@code KILLER_INSTINCT}
+     * （同阵营透视不走杀手透视逻辑）。
+     */
+    private Cell factionInstinctCell(Supplier<String> getter, Consumer<String> setter) {
+        return stateButtonCell(
+                () -> Component.literal(instinctTypeDisplay(getter.get()))
+                        .append(Component.literal(" ↻").withStyle(style -> style.withColor(SREPanelStyle.MUTED))),
+                () -> setter.accept(cycleInstinctTypeStrNoKiller(getter.get())),
                 true);
     }
 
@@ -943,10 +1026,45 @@ public class CustomRoleScreen extends CustomEditorScreen {
     }
 
     // ══════════════════════════════════════════════════════════════════
+    // 「存活到最后」独立胜利细分模式工具
+    // ══════════════════════════════════════════════════════════════════
+    /** 轮回顺序：关闭 → 顶替平民 → 顶替杀手 → 顶替双方 */
+    private static final String[] SURVIVE_MODE_ORDER = { "", "INNOCENT", "KILLER", "BOTH" };
+
+    /** 当前生效的「存活到最后」模式（兼容旧布尔开关：true → BOTH）。 */
+    private String currentSurviveMode() {
+        String m = data.customWinSurviveToLastMode == null ? ""
+                : data.customWinSurviveToLastMode.trim().toUpperCase(java.util.Locale.ROOT);
+        if (m.equals("INNOCENT") || m.equals("KILLER") || m.equals("BOTH")) {
+            return m;
+        }
+        return data.customWinSurviveToLast ? "BOTH" : "";
+    }
+
+    private static String cycleSurviveMode(String current) {
+        for (int i = 0; i < SURVIVE_MODE_ORDER.length; i++) {
+            if (SURVIVE_MODE_ORDER[i].equals(current)) {
+                return SURVIVE_MODE_ORDER[(i + 1) % SURVIVE_MODE_ORDER.length];
+            }
+        }
+        return "";
+    }
+
+    private static String surviveModeKey(String mode) {
+        String m = mode == null ? "" : mode.trim().toLowerCase(java.util.Locale.ROOT);
+        return PREFIX + ".custom_win_survive_mode." + (m.isEmpty() ? "off" : m);
+    }
+
+    // ══════════════════════════════════════════════════════════════════
     // 直觉系统工具
     // ══════════════════════════════════════════════════════════════════
     private static final String[] INSTINCT_TYPE_NAMES = {
             "DEFAULT", "NONE", "KILLER_INSTINCT", "OBSERVER_ROLE_COLOR", "TARGET_ROLE_COLOR"
+    };
+
+    /** 「同阵营颜色」可用类型：不含 KILLER_INSTINCT（同阵营透视不走杀手透视逻辑）。 */
+    private static final String[] FACTION_INSTINCT_TYPE_NAMES = {
+            "DEFAULT", "NONE", "OBSERVER_ROLE_COLOR", "TARGET_ROLE_COLOR"
     };
 
     /** 确保 data.instinctModes 存在至少一个模式，否则从旧字段自动补全 */
@@ -966,13 +1084,22 @@ public class CustomRoleScreen extends CustomEditorScreen {
 
     /** 将类型字符串循环到下一个预定义类型 */
     private String cycleInstinctTypeStr(String current) {
-        String upper = current.toUpperCase().trim();
+        return cycleInstinctTypeStr(current, INSTINCT_TYPE_NAMES);
+    }
+
+    /** 同阵营颜色轮回：不含 KILLER_INSTINCT。 */
+    private String cycleInstinctTypeStrNoKiller(String current) {
+        return cycleInstinctTypeStr(current, FACTION_INSTINCT_TYPE_NAMES);
+    }
+
+    private String cycleInstinctTypeStr(String current, String[] names) {
+        String upper = current == null ? "" : current.toUpperCase().trim();
         if (upper.startsWith("CUSTOM(")) {
             return "DEFAULT";
         }
-        for (int i = 0; i < INSTINCT_TYPE_NAMES.length; i++) {
-            if (INSTINCT_TYPE_NAMES[i].equals(upper)) {
-                return i + 1 < INSTINCT_TYPE_NAMES.length ? INSTINCT_TYPE_NAMES[i + 1] : "CUSTOM(0xFFE06B65)";
+        for (int i = 0; i < names.length; i++) {
+            if (names[i].equals(upper)) {
+                return i + 1 < names.length ? names[i + 1] : "CUSTOM(0xFFE06B65)";
             }
         }
         return "DEFAULT";
@@ -1020,6 +1147,16 @@ public class CustomRoleScreen extends CustomEditorScreen {
     /** 从模式中提取第一个 CUSTOM 类型的 hex 颜色字符串 */
     private String findFirstCustomHex(InstinctModeData mode) {
         for (String s : new String[] { mode.seeingOff, mode.seeingOn, mode.beSeenOff, mode.beSeenOn }) {
+            if (isCustomType(s)) {
+                return extractCustomHex(s);
+            }
+        }
+        return "FF0000";
+    }
+
+    /** 从若干字段中提取第一个 CUSTOM 类型的 hex 颜色字符串 */
+    private String findFirstCustomHex(String... values) {
+        for (String s : values) {
             if (isCustomType(s)) {
                 return extractCustomHex(s);
             }
