@@ -44,6 +44,12 @@ import java.util.List;
  */
 public class CustomItem extends Item implements SREItemProperties.LeftClickHurtable, ChargeableItem {
 
+    /**
+     * 拉栓投掷物的「使用时长上限」：给一个大值（同原版弓的 72000），
+     * 这样拉满栓之后不会自动结算，玩家可以继续举着瞄准，直到松手才投出。
+     */
+    private static final int PIN_HOLD_DURATION = 72000;
+
     public CustomItem(Properties properties) {
         super(properties);
     }
@@ -132,7 +138,7 @@ public class CustomItem extends Item implements SREItemProperties.LeftClickHurta
             }
             case THROWABLE -> {
                 if (data.throwNeedPin) {
-                    // 需要拉栓：按住右键蓄力，松手投出（同手榴弹）
+                    // 需要拉栓：按住右键拉栓蓄力（蓄力时间决定投掷力度），松手投出
                     if (CustomItemRuntime.isOnCooldown(player, stack)) {
                         return InteractionResultHolder.fail(stack);
                     }
@@ -204,7 +210,8 @@ public class CustomItem extends Item implements SREItemProperties.LeftClickHurta
         }
         return switch (data.kind()) {
             case CHARGE -> Math.max(1, data.chargeTicks);
-            case THROWABLE -> data.throwNeedPin ? Math.max(1, data.throwPinTicks) : 0;
+            // 拉栓投掷物：给大值，蓄满（throwPinTicks）后仍可继续举着，松手才投出
+            case THROWABLE -> data.throwNeedPin ? PIN_HOLD_DURATION : 0;
             case FOOD -> Math.max(1, data.eatTicks);
             default -> 0;
         };
@@ -245,14 +252,14 @@ public class CustomItem extends Item implements SREItemProperties.LeftClickHurta
             return;
         }
         if (data.kind() == CustomItemData.Kind.THROWABLE) {
-            // 需要拉栓的投掷物：必须蓄满「拉栓蓄力时间」才会投出。
-            // 蓄满的那一刻由 finishUsingItem 触发（见下），这里只在「已蓄满但玩家抢先松手」
-            // 的情况下兜底；没蓄满就松手＝这一下不投。
+            // 需要拉栓的投掷物：松开右键即投出。
+            // 「拉栓蓄力时间」决定投掷力度——蓄满＝全力投出，没蓄满也能扔，只是更近；
+            // 蓄满后可以继续举着瞄准，直到松手才投出。
             if (data.throwNeedPin) {
-                int charged = getUseDuration(stack, user) - timeCharged;
-                if (charged >= Math.max(1, data.throwPinTicks)) {
-                    CustomItemRuntime.throwCustom(player, stack, data);
-                }
+                int needed = Math.max(1, data.throwPinTicks);
+                int charged = Math.max(0, getUseDuration(stack, user) - timeCharged);
+                float ratio = Math.min(1.0F, (float) charged / (float) needed);
+                CustomItemRuntime.throwCustom(player, stack, data, ratio);
             }
             return;
         }
@@ -289,13 +296,6 @@ public class CustomItem extends Item implements SREItemProperties.LeftClickHurta
             case CHARGE -> {
                 // 蓄力条自然走满 → 直接触发（无需松手）
                 CustomItemRuntime.completeCharge(player, stack, data);
-                yield stack;
-            }
-            case THROWABLE -> {
-                // 拉栓蓄力走满 → 投出（getUseDuration = 拉栓蓄力时间，走满即代表拉栓完成）
-                if (data.throwNeedPin) {
-                    CustomItemRuntime.throwCustom(player, stack, data);
-                }
                 yield stack;
             }
             default -> super.finishUsingItem(stack, level, entity);
@@ -359,6 +359,12 @@ public class CustomItem extends Item implements SREItemProperties.LeftClickHurta
 
     @Override
     public void onFullyCharged(ItemStack stack, Player player) {
+        CustomItemData data = CustomItemLoader.getData(stack);
+        // 拉栓投掷物蓄满后会一直举着瞄准，蓄力进度长时间停在 100%，
+        // 而该回调每帧都会被调用——这里不再触发屏幕边缘闪光，否则会一直亮着
+        if (data != null && data.kind() == CustomItemData.Kind.THROWABLE) {
+            return;
+        }
         StaminaRenderer.triggerScreenEdgeEffect(Color.pink.getRGB(), 300L, 0.5f);
     }
 

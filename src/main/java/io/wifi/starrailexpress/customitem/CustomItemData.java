@@ -621,11 +621,11 @@ public class CustomItemData {
 
     // ==================== 投掷物 ====================
 
-    /** 是否需要拉栓：为是时按住右键拉栓蓄力，蓄满后投出；为否时右键直接投出并播放拉栓音效。 */
+    /** 是否需要拉栓：为是时按住右键拉栓蓄力、松手投出（蓄满可继续举着瞄准）；为否时右键直接投出并播放拉栓音效。 */
     @SerializedName("throwNeedPin")
     public boolean throwNeedPin = true;
 
-    /** 拉栓/蓄力时间（tick）：必须蓄满该时间才会投出，仅 {@link #throwNeedPin} 为是时有意义。 */
+    /** 拉栓/蓄力时间（tick）：蓄满该时间＝最大投掷力度，未蓄满也能投出、只是更近；仅 {@link #throwNeedPin} 为是时有意义。 */
     @SerializedName("throwPinTicks")
     public int throwPinTicks = 20;
 

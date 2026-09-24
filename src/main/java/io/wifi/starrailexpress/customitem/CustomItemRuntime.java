@@ -1598,8 +1598,21 @@ public final class CustomItemRuntime {
 
     // ==================== 投掷物 ====================
 
-    /** 投出（需要拉栓时由蓄力完成触发，否则直接投掷，两条路都走这里）。 */
+    /** 投出（满力度）：不需要拉栓的投掷物直接右键投出时走这里。 */
     public static void throwCustom(ServerPlayer user, ItemStack stack, CustomItemData data) {
+        throwCustom(user, stack, data, 1.0F);
+    }
+
+    /**
+     * 投出。
+     *
+     * <p>
+     * 需要拉栓的投掷物由 {@code CustomItem.releaseUsing} 传入松手时的蓄力进度：
+     * 蓄力时间决定投掷初速度，没蓄满也能投出，只是扔得近；蓄满＝全力投出。
+     *
+     * @param chargeRatio 拉栓蓄力进度 0~1（1 = 蓄满）
+     */
+    public static void throwCustom(ServerPlayer user, ItemStack stack, CustomItemData data, float chargeRatio) {
         if (isOnCooldown(user, stack)) {
             return;
         }
@@ -1609,7 +1622,7 @@ public final class CustomItemRuntime {
 
         CustomThrowableEntity entity = new CustomThrowableEntity(TMMEntities.CUSTOM_THROWABLE, user, user.level());
         entity.setItem(stack.copyWithCount(1));
-        entity.shootFromRotation(user, user.getXRot(), user.getYRot(), 0.0F, 1.0F, 1.0F);
+        entity.shootFromRotation(user, user.getXRot(), user.getYRot(), 0.0F, throwVelocity(chargeRatio), 1.0F);
         user.level().addFreshEntity(entity);
 
         // 耐久：每次投出算一次使用（耗尽时物品已碎裂）
@@ -1617,6 +1630,12 @@ public final class CustomItemRuntime {
             return;
         }
         stack.shrink(1);
+    }
+
+    /** 拉栓蓄力进度 → 投掷初速度：0 = 随手甩出去，1 = 全力投出（与手榴弹一致的力度曲线）。 */
+    private static float throwVelocity(float chargeRatio) {
+        float ratio = Math.max(0.0F, Math.min(1.0F, chargeRatio));
+        return 0.4F + 0.6F * ratio;
     }
 
     /** 钳子拆除入口（由空手 / 钳子右键投掷物触发）。 */
