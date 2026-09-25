@@ -27,6 +27,7 @@ import org.agmas.noellesroles.utils.RoleUtils;
 import org.jetbrains.annotations.NotNull;
 
 import java.awt.*;
+import java.util.function.Consumer;
 
 /**
  * 阴谋家角色选择 Widget
@@ -37,16 +38,28 @@ public class ConspiratorRoleWidget extends Button {
 
     public final ConspiratorScreen screen;
     public final SRERole role;
+    private final Consumer<SRERole> onPick;
     private final int buttonWidth;
     private final int buttonHeight;
 
     public ConspiratorRoleWidget(ConspiratorScreen screen, int x, int y, int width, int height,
             @NotNull SRERole role, int index) {
+        this(x, y, width, height, role, picked -> screen.onRoleSelected(picked));
+        this.screen = screen;
+    }
+
+    /**
+     * 回调版构造：供其它界面（如独裁之书）复用同一套职业框（含职业颜色渲染），
+     * 不依赖 {@link ConspiratorScreen}。
+     */
+    public ConspiratorRoleWidget(int x, int y, int width, int height,
+            @NotNull SRERole role, Consumer<SRERole> onPick) {
         super(x, y, width, height,
                 ((role == null) ? Component.translatable("announcement.star.role.null") : RoleUtils.getRoleName(role)),
-                (button) -> screen.onRoleSelected(role),
+                (button) -> onPick.accept(role),
                 DEFAULT_NARRATION);
-        this.screen = screen;
+        this.screen = null;
+        this.onPick = onPick;
         this.role = role;
         this.buttonWidth = width;
         this.buttonHeight = height;

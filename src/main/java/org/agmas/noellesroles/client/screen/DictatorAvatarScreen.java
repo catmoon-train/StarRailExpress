@@ -54,25 +54,28 @@ public class DictatorAvatarScreen extends Screen {
             String lower = search.toLowerCase();
             players.removeIf(p -> !p.getName().getString().toLowerCase().contains(lower));
         }
+
+        int startY;
         if (players.isEmpty()) {
-            return;
-        }
+            // 搜索无匹配：保留搜索框（标红提示），否则无法继续输入
+            startY = height / 2 - 20;
+        } else {
+            int columns = Math.min(players.size(), PER_ROW);
+            int rows = (int) Math.ceil(players.size() / (double) PER_ROW);
+            int totalWidth = columns * (AVATAR_SIZE + SPACING) - SPACING;
+            int totalHeight = rows * (AVATAR_SIZE + SPACING) - SPACING;
+            int startX = (width - totalWidth) / 2;
+            startY = (height - totalHeight) / 2 + 14;
 
-        int columns = Math.min(players.size(), PER_ROW);
-        int rows = (int) Math.ceil(players.size() / (double) PER_ROW);
-        int totalWidth = columns * (AVATAR_SIZE + SPACING) - SPACING;
-        int totalHeight = rows * (AVATAR_SIZE + SPACING) - SPACING;
-        int startX = (width - totalWidth) / 2;
-        int startY = (height - totalHeight) / 2 + 14;
-
-        for (int i = 0; i < players.size(); i++) {
-            int col = i % PER_ROW;
-            int row = i / PER_ROW;
-            int x = startX + col * (AVATAR_SIZE + SPACING);
-            int y = startY + row * (AVATAR_SIZE + SPACING);
-            DictatorAvatarWidget widget = new DictatorAvatarWidget(x, y, AVATAR_SIZE, players.get(i), onPick);
-            widgets.add(widget);
-            addRenderableWidget(widget);
+            for (int i = 0; i < players.size(); i++) {
+                int col = i % PER_ROW;
+                int row = i / PER_ROW;
+                int x = startX + col * (AVATAR_SIZE + SPACING);
+                int y = startY + row * (AVATAR_SIZE + SPACING);
+                DictatorAvatarWidget widget = new DictatorAvatarWidget(x, y, AVATAR_SIZE, players.get(i), onPick);
+                widgets.add(widget);
+                addRenderableWidget(widget);
+            }
         }
 
         if (searchWidget == null) {
@@ -84,6 +87,8 @@ public class DictatorAvatarScreen extends Screen {
                 rebuild();
             });
         }
+        searchWidget.setTextColor(players.isEmpty()
+                ? ChatFormatting.RED.getColor() : ChatFormatting.WHITE.getColor());
         addRenderableWidget(searchWidget);
     }
 
