@@ -147,6 +147,9 @@ public interface ModSceneBlocks {
             new IncineratorBlock(Properties.ofFullCopy(Blocks.FURNACE).lightLevel(s -> 13)));
     Block MOVING_PLATFORM = registerBlock("moving_platform",
             new MovingPlatformBlock(Properties.ofFullCopy(Blocks.SMOOTH_STONE)));
+    // 弹跳菇：落在上面会被弹回接近原高度（同粘液块），但走在上面不减速
+    Block BOUNCE_MUSHROOM = registerBlock("bounce_mushroom",
+            new BounceMushroomBlock(Properties.ofFullCopy(Blocks.RED_MUSHROOM_BLOCK)));
     Block HURRICANE_DEVICE = registerBlock("hurricane_device",
             new HurricaneDeviceBlock(Properties.ofFullCopy(Blocks.COPPER_BLOCK).noOcclusion()));
     Block COFFIN = registerBlock("coffin",

@@ -2135,6 +2135,7 @@
   "item_group.noellesroles.quest": "SRE任務點方塊",
   "block.noellesroles.poison_zone": "有毒區域",
   "block.noellesroles.fake_block": "假方塊",
+  "block.noellesroles.bounce_mushroom": "彈跳菇",
   "block.noellesroles.breaking_bridge": "斷橋方塊",
   "block.noellesroles.breaking_bridge.tip": "[%s] 當前裂縫顯示：%s",
   "block.noellesroles.breaking_bridge.set_to": "設定方塊為 %s",
