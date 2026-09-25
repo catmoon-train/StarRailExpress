@@ -58,6 +58,7 @@ import org.agmas.noellesroles.role_data.neutral.AnatmanRoleData;
 import org.agmas.noellesroles.role_data.neutral.AsatyaRoleData;
 import org.agmas.noellesroles.role.bouns.roles.BeeFamilyRole;
 import org.agmas.noellesroles.handler.utils.BeeFamilyManager;
+import org.agmas.noellesroles.utils.MoneyUtils;
 import org.agmas.noellesroles.utils.RoleUtils;
 import org.jetbrains.annotations.Nullable;
 
@@ -87,6 +88,9 @@ public final class LeaderFollowerEffects {
 
     /** 雇佣兵「帮助任意一方结束游戏」解锁状态 */
     private static final Set<UUID> MERCENARY_HELP_UNLOCKED = new HashSet<>();
+
+    /** 失忆患者被领袖转型为杀手后获得的金币数 */
+    private static final int AMNESIAC_KILLER_COINS = 130;
 
     /** 森近霖之助 / 河城荷取（金币依附角色） */
     public static boolean isCoinDependentRole(SRERole role) {
@@ -398,7 +402,7 @@ public final class LeaderFollowerEffects {
         // 其它联动逻辑见 LeaderEventHandler / 技能释放处（其它初学者加入追随者）
     }
 
-    /** 失忆患者：随机变成一名杀手（berandomedbyotherroles 职业除外）；领袖得刀；领袖随杀手获胜 */
+    /** 失忆患者：随机变成一名杀手（berandomedbyotherroles 职业除外）并获得 130 金币；领袖得刀；领袖随杀手获胜 */
     private static void applyAmnesiac(ServerPlayer leader, ServerPlayer follower) {
         ArrayList<SRERole> killerRoles = new ArrayList<>(Noellesroles.getEnableKillerRoles());
         if (killerRoles.isEmpty()) {
@@ -407,6 +411,11 @@ public final class LeaderFollowerEffects {
         Collections.shuffle(killerRoles);
         RoleUtils.changeRole(follower, killerRoles.getFirst());
         RoleUtils.sendWelcomeAnnouncement(follower);
+        // 转型为杀手后获得 130 金币
+        MoneyUtils.addToBalance(follower, AMNESIAC_KILLER_COINS);
+        follower.displayClientMessage(
+                Component.translatable("message.noellesroles.leader.amnesiac_coins", AMNESIAC_KILLER_COINS),
+                true);
         giveItem(leader, TMMItems.KNIFE.getDefaultInstance());
     }
 
