@@ -307,6 +307,7 @@ public class NRGameStateEvents {
             boolean hasDio = false, hasRecorder = false, hasCandlebearer = false, hasRaven = false, hasBee = false;
             boolean hasNianShou = false, hasArsonist = false, hasCuckoo = false, hasPelican = false,
                     hasGodfather = false, hasLeader = false, hasLicensedVillain = false, hasNatureSpirit = false;
+            boolean hasDictator = false;
             final var all_players = serverLevel.players();
 
             for (var p : all_players) {
@@ -349,6 +350,8 @@ public class NRGameStateEvents {
                     hasLicensedVillain = true;
                 } else if (gameWorldComponent.isRole(p, ModRoles.NATURE_SPIRIT)) {
                     hasNatureSpirit = true;
+                } else if (gameWorldComponent.isRole(p, ModRoles.DICTATOR)) {
+                    hasDictator = true;
                 }
             }
 
@@ -435,6 +438,15 @@ public class NRGameStateEvents {
                     if (p != null) {
                         BroadcastCommand.BroadcastMessage(p, Component
                                 .translatable("message.noellesroles.pelican.entry").withStyle(ChatFormatting.YELLOW));
+                    }
+                });
+            }
+            // 独裁者：全场播报（蓝色）
+            if (hasDictator) {
+                all_players.forEach((p) -> {
+                    if (p != null) {
+                        BroadcastCommand.BroadcastMessage(p, Component
+                                .translatable("message.noellesroles.dictator.entry").withStyle(ChatFormatting.BLUE));
                     }
                 });
             }

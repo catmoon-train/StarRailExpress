@@ -89,6 +89,14 @@ public class ModItems {
     public static final Item BONE_BOOK = register(
             new BoneBookItem(new Item.Properties().stacksTo(1)),
             "bone_book", ROLE_ITEMS_GROUP);
+    // 裁决之剑 - 独裁者专属一次性道具：右键尸体选死因与凶手，全对则闪电处决
+    public static final Item JUDGMENT_SWORD = register(
+            new JudgmentSwordItem(new Item.Properties().stacksTo(1)),
+            "judgment_sword", ROLE_ITEMS_GROUP);
+    // 独裁之书 - 独裁者专属一次性道具：猜玩家职业，猜中闪电处决
+    public static final Item DICTATOR_BOOK = register(
+            new DictatorBookItem(new Item.Properties().stacksTo(1)),
+            "dictator_book", ROLE_ITEMS_GROUP);
     public static final Item REASONER_COMPASS = register(
             new ReasonerCompassItem(new Item.Properties().stacksTo(1)),
             "reasoner_compass", ROLE_ITEMS_GROUP);

@@ -194,6 +194,21 @@ public class RoleInstinctRegister {
                     }
                     return TrueFalseAndCustomResult.pass();
                 });
+        // 独裁者：本能只能透视 8 格内的玩家，且所有玩家都显示为自己的颜色
+        RoleInstinctEvents.OBSERVER_HIGHLIGHT_EVENT.register(ModRoles.DICTATOR_ID,
+                (client, self, target, hasInstinct) -> {
+                    if (!hasInstinct || !(target instanceof Player targetPlayer)) {
+                        return TrueFalseAndCustomResult.pass();
+                    }
+                    if (targetPlayer.distanceToSqr(self) > (double) org.agmas.noellesroles.role.vigilante.DictatorRole.INSTINCT_RANGE_SQR) {
+                        return TrueFalseAndCustomResult.disallow();
+                    }
+                    // 无法被透视的职业（小透明/秉烛人/雇佣兵/捣蛋鬼等）
+                    if (isTargetInvisibleToInstinct(targetPlayer)) {
+                        return TrueFalseAndCustomResult.disallow();
+                    }
+                    return TrueFalseAndCustomResult.custom(ModRoles.DICTATOR.color());
+                });
         // 丘比特
         RoleInstinctEvents.OBSERVER_HIGHLIGHT_EVENT.register(ModRoles.CUPID_ID, (client, self, target, hasInstinct) -> {
             {

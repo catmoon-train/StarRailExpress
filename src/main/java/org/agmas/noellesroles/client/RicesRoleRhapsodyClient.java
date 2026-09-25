@@ -44,6 +44,8 @@ import org.agmas.noellesroles.client.screen.*;
 import org.agmas.noellesroles.content.item.AreaMapItem;
 import org.agmas.noellesroles.content.item.ConspiracyPageItem;
 import org.agmas.noellesroles.content.item.DeductionBookItem;
+import org.agmas.noellesroles.content.item.DictatorBookItem;
+import org.agmas.noellesroles.content.item.JudgmentSwordItem;
 import org.agmas.noellesroles.content.item.WrittenNoteItem;
 import org.agmas.noellesroles.role_data.innocence.AthleteRoleData;
 import org.agmas.noellesroles.role_data.innocence.BoxerRoleData;
@@ -132,6 +134,22 @@ public class RicesRoleRhapsodyClient {
             if (client.player == null)
                 return;
             client.setScreen(new ConspiratorScreen());
+        };
+        // 独裁者：裁决之剑（对准尸体才打开死因选择）
+        JudgmentSwordItem.openScreenCallback = () -> {
+            Minecraft client = Minecraft.getInstance();
+            if (client.player == null)
+                return;
+            if (JudgmentSwordItem.findTargetBody(client.player) == null)
+                return;
+            client.setScreen(new DictatorReasonScreen());
+        };
+        // 独裁者：独裁之书（右键直接打开玩家头像 + 职业猜测）
+        DictatorBookItem.openScreenCallback = () -> {
+            Minecraft client = Minecraft.getInstance();
+            if (client.player == null)
+                return;
+            client.setScreen(new DictatorBookScreen());
         };
         DeductionBookItem.openScreenCallback = () -> {
             Minecraft client = Minecraft.getInstance();

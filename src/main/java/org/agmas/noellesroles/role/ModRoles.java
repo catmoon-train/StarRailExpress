@@ -1736,6 +1736,35 @@ public class ModRoles {
             .setCanPickUpRevolver(false)
             .setRoleData(org.agmas.noellesroles.role_data.vigilante.CavalryRoleData::new);
 
+    /**
+     * 独裁者角色（警长阵营特殊警卫）
+     * - 占用 2 个警长位 (setOccupiedRoleCount(2))；仅 18 人及以上对局出现；默认最大 1 人
+     * - 假心情（心情条为蓝色，参考大妖精 setMoodColor）；能看到计分板（构造器最后一项 true）
+     * - 体力为平民的 2.5 倍；拥有被动收入 (setCanAutoAddMoney)；刷新概率 30%
+     * - 本能透视仅 8 格，且所有玩家都显示为自己的颜色（客户端注册见 RoleInstinctRegister）
+     * - 开局自带一把左轮手枪；商店可买裁决之剑（150，每次涨价 25）/ 独裁之书（150，仅一次）
+     * - 死亡时掉落两把左轮手枪
+     */
+    public static final ResourceLocation DICTATOR_ID = Noellesroles.id("dictator");
+    public static SRERole DICTATOR = TMMRoles.registerRole(
+            new org.agmas.noellesroles.role.vigilante.DictatorRole(DICTATOR_ID,
+                    new Color(60, 96, 176).getRGB(), true, false, SRERole.MoodType.FAKE,
+                    (int) (TMMRoles.CIVILIAN.getMaxSprintTime() * 2.5), true))
+            .setCanSeeCoin(true)
+            .setVigilanteTeam(true)
+            .setSpecialVigilante(true)
+            .setOccupiedRoleCount(2)
+            .setDefaultEnableNeededPlayerCount(18)
+            .setDefaultMax(1)
+            .setCanBeRandomedByOtherRoles(false)
+            .setCanAutoAddMoney(true)
+            .setDefaultEnableChance(3000)
+            .setMoodColor(new Color(40, 110, 255))
+            .setCanUseInstinctAndNightVision(true)
+            .setToggledOnInstinctType(InstinctType.OBSERVER_ROLE_COLOR)
+            .setRoleData(org.agmas.noellesroles.role_data.vigilante.DictatorRoleData::new)
+            .setAddedVersion("4.4");
+
     public static SRERole HUNTER = TMMRoles
             .registerRole(new NormalRole(HUNTER_ID, new Color(160, 82, 45).getRGB(), false,
                     true, SRERole.MoodType.FAKE, Integer.MAX_VALUE, true))
