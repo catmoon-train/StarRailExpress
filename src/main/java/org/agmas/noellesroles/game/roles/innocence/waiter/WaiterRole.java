@@ -93,7 +93,7 @@ public class WaiterRole extends NormalRole {
      * （「&lt;传菜员&gt;给&lt;被喂食玩家&gt;喂食了带有 毒/假毒/护盾/弱效护盾 的&lt;食物名&gt;」），
      * 普通食物不记录，避免回放被无关喂食刷屏。
      */
-    private static void recordFeedReplay(ServerPlayer feeder, ServerPlayer target, ItemStack food) {
+    private static void recordFeedReplay(Player feeder, Player target, ItemStack food) {
         boolean poison = food.has(SREDataComponentTypes.POISONER);
         boolean fakePoison = poison && food.has(SREDataComponentTypes.FAKE_POISON);
         boolean armor = food.has(SREDataComponentTypes.ARMORER);
