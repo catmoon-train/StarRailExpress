@@ -113,7 +113,6 @@
   "message.noellesroles.bone_book.offline": "該屍體的主人已在線下，骸骨之書未被消耗",
   "message.noellesroles.bone_book.fake_body": "偽造的屍體無法被骸骨之書復活",
   "message.noellesroles.bone_book.not_dead": "這名玩家還活著，骸骨之書未被消耗",
-  "message.noellesroles.skeleton.hit": "骷髏攻擊！虛擬血量 %s/%s",
   "announcement.star.goals.canada_goose": "我是好人，別殺我！",
   "announcement.star.goals.dummy_bird": "在會議投票中讓自己被投票出局。",
   "announcement.star.win.dummy_bird": "呆呆鳥獲勝",

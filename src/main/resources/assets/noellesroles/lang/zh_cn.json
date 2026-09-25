@@ -113,7 +113,6 @@
   "message.noellesroles.bone_book.offline": "该尸体的主人已离线，骸骨之书未被消耗",
   "message.noellesroles.bone_book.fake_body": "伪造的尸体无法被骸骨之书复活",
   "message.noellesroles.bone_book.not_dead": "这名玩家还活着，骸骨之书未被消耗",
-  "message.noellesroles.skeleton.hit": "骷髅攻击！虚拟血量 %s/%s",
   "announcement.star.goals.canada_goose": "我是好人，别杀我！",
   "announcement.star.goals.dummy_bird": "在会议投票中让自己被投票出局。",
   "announcement.star.win.dummy_bird": "呆呆鸟获胜",

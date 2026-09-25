@@ -65,6 +65,9 @@ public class SkeletonRole extends ExtraEffectRole implements CustomWinnerRoleInt
     /** 每次左键命中造成的虚拟伤害（同 Dream 斧头的虚拟血量结算）。 */
     public static final int PUNCH_VIRTUAL_DAMAGE = 1;
 
+    /** 每次左键命中造成的正常空手伤害（原版空手 = 1 点 / 半颗心）。 */
+    public static final float PUNCH_ATTACK_DAMAGE = 1.0F;
+
     public SkeletonRole(ResourceLocation identifier, int color, boolean isInnocent, boolean canUseKiller,
             MoodType moodType, int maxSprintTime, boolean canSeeTime) {
         super(identifier, color, isInnocent, canUseKiller, moodType, maxSprintTime, canSeeTime);
@@ -171,9 +174,11 @@ public class SkeletonRole extends ExtraEffectRole implements CustomWinnerRoleInt
         DreamHealthComponent.KEY.get(victim).hurt(serverAttacker, PUNCH_VIRTUAL_DAMAGE,
                 GameConstants.DeathReasons.GENERAL_ATTACK);
 
-        int remaining = DreamHealthComponent.KEY.get(victim).getEffectiveHealth(level.getGameTime());
-        serverAttacker.displayClientMessage(Component.translatable("message.noellesroles.skeleton.hit",
-                remaining, DreamHealthComponent.maxHealth()).withStyle(ChatFormatting.WHITE), true);
+        // 正常结算一次空手伤害（含红屏 / 音效 / 击退）。
+        // 返回 SUCCESS_NO_ITEM_USED 会取消原版攻击，所以这里像 Dream 斧头那样手动补上；
+        // invulnerableTime 清零避免被无敌帧吞掉。
+        victim.invulnerableTime = 0;
+        victim.hurt(victim.damageSources().playerAttack(serverAttacker), PUNCH_ATTACK_DAMAGE);
 
         return InteractionResult.SUCCESS_NO_ITEM_USED;
     }

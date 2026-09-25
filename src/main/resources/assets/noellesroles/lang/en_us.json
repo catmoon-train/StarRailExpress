@@ -113,7 +113,6 @@
   "message.noellesroles.bone_book.offline": "The body's owner is offline, the Bone Book was not consumed",
   "message.noellesroles.bone_book.fake_body": "A fake body cannot be revived with a Bone Book",
   "message.noellesroles.bone_book.not_dead": "That player is still alive, the Bone Book was not consumed",
-  "message.noellesroles.skeleton.hit": "Skeleton punch! Virtual health %s/%s",
   "announcement.star.goals.canada_goose": "I'm a good person, don't kill me!",
   "announcement.star.goals.dummy_bird": "Get yourself voted out in a meeting vote.",
   "announcement.star.win.dummy_bird": "Dummy Bird wins",
