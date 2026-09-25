@@ -2,7 +2,7 @@ package org.agmas.noellesroles.client.screen;
 
 import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.client.util.PinYinUtils;
-import io.wifi.starrailexpress.util.RoleUtils;
+import org.agmas.noellesroles.utils.RoleUtils;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.GuiGraphics;

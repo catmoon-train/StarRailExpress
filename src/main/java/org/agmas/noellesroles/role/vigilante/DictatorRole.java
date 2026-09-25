@@ -154,9 +154,20 @@ public class DictatorRole extends NormalRole {
         consumeItem(dictator, JudgmentSwordItem.class);
 
         boolean reasonOk = equalsReason(body.getDeathReason(), deathReasonId);
-        ServerPlayer killer = killerUuid == null ? null
-                : dictator.serverLevel().getServer().getPlayerList().getPlayer(killerUuid);
-        boolean killerOk = killer != null && killer.getUUID().equals(body.getKillerUuid());
+        // 凶手是否猜对只看 UUID 是否与尸体记录一致（目标在线与否不影响「猜对了」这个事实）
+        boolean killerOk = killerUuid != null && killerUuid.equals(body.getKillerUuid());
+
+        // replay 仅在「猜对」时记录：死因、凶手分别记一条
+        if (reasonOk) {
+            SRE.REPLAY_MANAGER.recordCustomEvent(Component.translatable(
+                    "replay.event.dictator.judgment_reason",
+                    GameReplayUtils.getReplayPlayerDisplayText(dictator, true)));
+        }
+        if (killerOk) {
+            SRE.REPLAY_MANAGER.recordCustomEvent(Component.translatable(
+                    "replay.event.dictator.judgment_killer",
+                    GameReplayUtils.getReplayPlayerDisplayText(dictator, true)));
+        }
 
         if (!reasonOk || !killerOk) {
             dictator.displayClientMessage(
@@ -165,6 +176,7 @@ public class DictatorRole extends NormalRole {
                     true);
             return;
         }
+        ServerPlayer killer = dictator.serverLevel().getServer().getPlayerList().getPlayer(killerUuid);
         if (killer == null || !GameUtils.isPlayerAliveAndSurvival(killer)) {
             // 目标已死亡：提示，不触发闪电和死亡（物品已正常消耗）
             dictator.displayClientMessage(
@@ -180,9 +192,6 @@ public class DictatorRole extends NormalRole {
                 Component.translatable("message.noellesroles.dictator.judgment_correct", killer.getName())
                         .withStyle(ChatFormatting.GOLD),
                 true);
-        SRE.REPLAY_MANAGER.recordCustomEvent(Component.translatable("replay.event.dictator.judgment",
-                GameReplayUtils.getReplayPlayerDisplayText(dictator, true),
-                GameReplayUtils.getReplayPlayerDisplayText(killer, true)));
     }
 
     // ==================== 独裁之书 ====================
@@ -212,7 +221,15 @@ public class DictatorRole extends NormalRole {
             return;
         }
         var targetRole = game.getRole(target);
-        if (targetRole == null || !targetRole.identifier().toString().equals(roleId)) {
+        boolean guessOk = targetRole != null && targetRole.identifier().toString().equals(roleId);
+
+        // replay 仅在「猜对身份」时记录
+        if (guessOk) {
+            SRE.REPLAY_MANAGER.recordCustomEvent(Component.translatable(
+                    "replay.event.dictator.guess",
+                    GameReplayUtils.getReplayPlayerDisplayText(dictator, true)));
+        }
+        if (!guessOk) {
             dictator.displayClientMessage(
                     Component.translatable("message.noellesroles.dictator.guess_wrong").withStyle(ChatFormatting.GRAY),
                     true);
@@ -232,10 +249,6 @@ public class DictatorRole extends NormalRole {
                 Component.translatable("message.noellesroles.dictator.guess_correct", target.getName(),
                         RoleUtils.getRoleName(targetRole)).withStyle(ChatFormatting.GOLD),
                 true);
-        SRE.REPLAY_MANAGER.recordCustomEvent(Component.translatable("replay.event.dictator.guess",
-                GameReplayUtils.getReplayPlayerDisplayText(dictator, true),
-                GameReplayUtils.getReplayPlayerDisplayText(target, true),
-                RoleUtils.getRoleName(targetRole)));
     }
 
     // ==================== 工具 ====================
