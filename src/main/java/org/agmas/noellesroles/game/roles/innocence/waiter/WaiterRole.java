@@ -1,6 +1,8 @@
 package org.agmas.noellesroles.game.roles.innocence.waiter;
 
+import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.api.NormalRole;
+import io.wifi.starrailexpress.api.replay.GameReplayUtils;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.content.block_entity.PlateTrayBlockEntity;
 import io.wifi.starrailexpress.content.item.CocktailItem;
@@ -9,6 +11,8 @@ import io.wifi.starrailexpress.index.TMMItems;
 import io.wifi.starrailexpress.util.ShopEntry;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.component.DataComponents;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
@@ -78,7 +82,48 @@ public class WaiterRole extends NormalRole {
             RoleUtils.insertOrDropItem(feeder, remainder.copy());
         }
         feeder.swing(hand, true);
+        recordFeedReplay(feeder, target, held);
         return true;
+    }
+
+    /**
+     * 记录喂食事件回放。
+     *
+     * <p>只有带有<b>毒 / 假毒 / 护盾 / 弱效护盾</b>的食物才记录
+     * （「&lt;传菜员&gt;给&lt;被喂食玩家&gt;喂食了带有 毒/假毒/护盾/弱效护盾 的&lt;食物名&gt;」），
+     * 普通食物不记录，避免回放被无关喂食刷屏。
+     */
+    private static void recordFeedReplay(ServerPlayer feeder, ServerPlayer target, ItemStack food) {
+        boolean poison = food.has(SREDataComponentTypes.POISONER);
+        boolean fakePoison = poison && food.has(SREDataComponentTypes.FAKE_POISON);
+        boolean armor = food.has(SREDataComponentTypes.ARMORER);
+        boolean weakArmor = food.has(SREDataComponentTypes.WEAK_ARMORER);
+        if (!poison && !armor && !weakArmor) {
+            return; // 普通食物不记录
+        }
+        MutableComponent effects = Component.empty();
+        if (poison) {
+            effects.append(Component.translatable(fakePoison
+                    ? "replay.event.waiter.effect.fake_poison"
+                    : "replay.event.waiter.effect.poison"));
+        }
+        if (armor) {
+            if (!effects.getSiblings().isEmpty()) {
+                effects.append("/");
+            }
+            effects.append(Component.translatable("replay.event.waiter.effect.armor"));
+        }
+        if (weakArmor) {
+            if (!effects.getSiblings().isEmpty()) {
+                effects.append("/");
+            }
+            effects.append(Component.translatable("replay.event.waiter.effect.weak_armor"));
+        }
+        SRE.REPLAY_MANAGER.recordCustomEvent(Component.translatable("replay.event.waiter.feed",
+                GameReplayUtils.getReplayPlayerDisplayText(feeder, true),
+                GameReplayUtils.getReplayPlayerDisplayText(target, true),
+                effects,
+                food.getHoverName()));
     }
 
     public static boolean isFoodOrDrink(ItemStack stack) {
