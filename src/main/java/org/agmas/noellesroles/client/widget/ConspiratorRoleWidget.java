@@ -36,7 +36,7 @@ import java.util.function.Consumer;
  */
 public class ConspiratorRoleWidget extends Button {
 
-    public final ConspiratorScreen screen;
+    public ConspiratorScreen screen;
     public final SRERole role;
     private final Consumer<SRERole> onPick;
     private final int buttonWidth;
