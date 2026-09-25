@@ -85,6 +85,10 @@ public class ModItems {
     public static final Item DEDUCTION_BOOK = register(
             new DeductionBookItem(new Item.Properties().stacksTo(1)),
             "deduction_book", ROLE_ITEMS_GROUP);
+    // 骸骨之书 - 一次性道具：对着玩家尸体蓄力 1 秒，把死亡的玩家复活成骷髅
+    public static final Item BONE_BOOK = register(
+            new BoneBookItem(new Item.Properties().stacksTo(1)),
+            "bone_book", ROLE_ITEMS_GROUP);
     public static final Item REASONER_COMPASS = register(
             new ReasonerCompassItem(new Item.Properties().stacksTo(1)),
             "reasoner_compass", ROLE_ITEMS_GROUP);

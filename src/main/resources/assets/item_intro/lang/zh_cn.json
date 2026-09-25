@@ -76,6 +76,7 @@
   "item.noellesroles.fake_body_bag.desc": "假裹尸袋，外观像真的但无法装尸体。",
   "item.noellesroles.delusion_vial.desc": "俗称：假毒，玩家会觉得自己中毒了，无法致死，但是可以被催化剂催化致死。",
   "item.noellesroles.defibrillator.desc": "除颤器，医生职业专属物品，长按右键对玩家使用，如果该玩家在120秒内死亡，则他会在30秒后复活。",
+  "item.noellesroles.bone_book.desc": "一次性道具。手持骸骨之书对准一具玩家尸体长按右键蓄力，蓄满 1 秒自动释放：尸体对应的死亡玩家会在原地复活为「骷髅」职业，全场播放不死图腾音效并向所有人通报。尸体的主人不在线、尸体是伪造的或目标未死亡时，不会消耗。",
   "item.noellesroles.boxing_glove.desc": "拳击手套，斗士职业专属物品，长按右键举起拳套，右键将人击退、眩晕并使身上的所有物品进入冷却。",
   "item.noellesroles.antidote_reagent.desc": "长按右键对玩家使用，可以查看这个玩家是否中毒，有使用次数",
   "item.noellesroles.conspiracy_page.desc": "阴谋家职业专属道具，右键打开页面猜测职业，被猜中的玩家会死亡",

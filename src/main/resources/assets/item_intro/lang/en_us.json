@@ -76,6 +76,7 @@
   "item.noellesroles.fake_body_bag.desc": "Fake body bags look like real ones but cannot contain a body.",
   "item.noellesroles.delusion_vial.desc": "Commonly known as: fake poison, players will feel that they are poisoned and cannot be killed, but they can be catalyzed to death by the catalyst.",
   "item.noellesroles.defibrillator.desc": "Defibrillator, an exclusive item of Doctor",
+  "item.noellesroles.bone_book.desc": "Single-use item. Hold a Bone Book while aiming at a player body and charge for 1 second: the dead player behind that body revives on the spot as a Skeleton, with a Totem of Undying sound and an announcement to everyone. Not consumed when the body's owner is offline, when the body is fake, or when the target is not dead.",
   "item.noellesroles.boxing_glove.desc": "Boxing gloves, an exclusive item for Fighter role. Press and hold the right button to raise the gloves, and right-click to knock back, stun, and put all items on the body on cooldown.",
   "item.noellesroles.antidote_reagent.desc": "Long press the right button to use it on a player to check whether the player is poisoned and how many times it has been used.",
   "item.noellesroles.conspiracy_page.desc": "Conspirator role exclusive props, right-click to open the page to guess role, the player who is guessed will die.",

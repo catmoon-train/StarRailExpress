@@ -8,6 +8,8 @@
   "info.screen.roleid.discovery_civilian": "Civilian faction\nSpecial mode exclusive role.",
   "info.screen.roleid.discovery_civilian.simple": "Civilian faction\nSpecial mode role.",
   "info.screen.roleid.civilian": "Civilian faction\nYou have no special abilities, try to survive this journey.",
+  "info.screen.roleid.skeleton": "Neutral faction\nPEAK climbing-map exclusive role. You never spawn normally and can only appear when a Bone Book revives a dead player.\nYou always look like a vanilla Minecraft Skeleton, so nobody can tell you are a player.\nFake mood, infinite stamina, no instinct / night vision.\nConstant effects: Voice Silence (nobody hears you), Chat Ban (your chat is invisible to everyone) and Speed I.\nYou can climb walls (bare hands required, same as the Scout).\nYour bones are fragile: falling more than 6 blocks kills you instantly.\nLeft-click with empty hands to punch players: each punch deals 1 point of virtual damage, and players killed by you die with the \"General Attack\" death reason.",
+  "info.screen.roleid.skeleton.simple": "Neutral faction\nPEAK climbing-map exclusive, revived by a Bone Book\nAlways looks like a Skeleton, can climb walls, dies from 6-block falls\nEmpty-hand left click deals 1 virtual damage",
   "info.screen.roleid.civilian.simple": "Civilian faction\nNo abilities",
   "info.screen.roleid.killer": "Killer faction\nYou are a normal killer.\nHas basic killer shop.\nYour goal is to kill all civilians.",
   "info.screen.roleid.killer.simple": "Killer faction\nBasic killer role, no extra abilities",

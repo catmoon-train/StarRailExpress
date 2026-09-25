@@ -53,6 +53,7 @@ import org.agmas.noellesroles.game.roles.neutral.priest.PriestRole;
 import org.agmas.noellesroles.game.roles.neutral.puppeteer.PuppeteerPlayerComponent;
 import org.agmas.noellesroles.game.fake_steve.FakeSteveDirector;
 import org.agmas.noellesroles.game.roles.neutral.raven.RavenRole;
+import org.agmas.noellesroles.game.roles.neutral.skeleton.SkeletonRole;
 import org.agmas.noellesroles.game.roles.vigilante.genshin.TartagliaRole;
 import org.agmas.noellesroles.game.roles.vigilante.magic_apprentice.MagicApprenticeRole;
 import org.agmas.noellesroles.init.ModEffects;
@@ -346,6 +347,8 @@ public class ModRoles {
     public static final ResourceLocation SILVER_WING_ID = Noellesroles.id("silver_wing");
 
     public static final ResourceLocation WAYFARER_ID = Noellesroles.id("wayfarer");
+    // 骷髅 - PEAK 爬山图专属中立，只能由骸骨之书复活得到
+    public static final ResourceLocation SKELETON_ID = Noellesroles.id("skeleton");
     public static final ResourceLocation DIO_ID = Noellesroles.id("dio");
     public static final ResourceLocation JOJO_ID = Noellesroles.id("jojo");
 
@@ -1149,6 +1152,28 @@ public class ModRoles {
             .setCanBeRandomedByOtherRoles(false)
             .setCanUseInstinctAndNightVision(true)
             .setDefaultMax(0)
+            .setAddedVersion("4.4");
+
+    // 骷髅：PEAK 爬山图专属中立职业，常态不刷新，只能由骸骨之书把死亡玩家复活而来
+    public static SRERole SKELETON = TMMRoles.registerRole(
+            new SkeletonRole(SKELETON_ID, new Color(199, 195, 191).getRGB(),
+                    false, false, SRERole.MoodType.FAKE,
+                    Integer.MAX_VALUE, true)
+                    // 常态药水效果（ExtraEffectRole 每秒自动续期）：
+                    // 静音（别人听不到他说话）+ 禁用聊天栏（文字聊天没人看得到）+ 速度 1
+                    .addEffect(new MobEffectInstance(ModEffects.VOICE_SILENCE, 30 * 20, 0, true, false, false))
+                    .addEffect(new MobEffectInstance(ModEffects.CHAT_BAN, 30 * 20, 0, true, false, false))
+                    .addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SPEED, 30 * 20, 0, true, false, false)))
+            .setRoleData(SkeletonRoleData::new)
+            .setNeutrals(true)
+            .setCanUseInstinctAndNightVision(false)   // 无法打开本能透视
+            .setCanSeeCoin(true)
+            .setCanPickUpRevolver(false)
+            .setCanClimbWalls(true)                   // 可以爬墙（复用童子军的攀爬系统）
+            .addFlag("peak")
+            .setCanBeRandomedByOtherRoles(false)      // 无法被其它职业（赌徒等）随机到
+            .setSpecialMapRolesCondition((t) -> t.contains(MapSpecialFeatures.PEAK)) // 仅 PEAK 地图
+            .setDefaultMax(0)                         // 常态不刷新
             .setAddedVersion("4.4");
     public static SRERole JESTER = TMMRoles
             .registerRole(new JesterRole(JESTER_ID, new Color(186, 85, 211).getRGB(), false,

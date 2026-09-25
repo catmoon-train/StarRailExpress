@@ -40,6 +40,7 @@ import org.agmas.noellesroles.game.roles.innocence.voodoo.VoodooDeathHandler;
 import org.agmas.noellesroles.game.roles.killer.ma_chen_xu.MaChenXuEventHandler;
 import org.agmas.noellesroles.game.roles.neutral.cuckoo.CuckooEggHandler;
 import org.agmas.noellesroles.game.roles.neutral.gambler.GamblerHandler;
+import org.agmas.noellesroles.game.roles.neutral.skeleton.SkeletonRole;
 import org.agmas.noellesroles.game.roles.vigilante.guard.GuardPlayerHandler;
 import org.agmas.noellesroles.init.ModItems;
 import org.agmas.noellesroles.role.ModRoles;
@@ -189,6 +190,9 @@ public class NRCombatEvents {
         VeteranKnifeHandler.register();
         GamblerHandler.register();
         HoanMeirinFistPunchHandler.register();
+        // 骷髅：空手左键攻击（虚拟伤害）+ 骸骨之书对尸体蓄力
+        SkeletonRole.registerEvents();
+        BoneBookItem.registerEvents();
         BatonHandler.register();
         BoneStaffHandler.register();
         RiotShieldHandler.register();
