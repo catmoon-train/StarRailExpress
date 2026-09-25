@@ -1,8 +1,13 @@
 package org.agmas.noellesroles.game.roles.neutral.skeleton;
 
 import io.wifi.starrailexpress.SRE;
+import io.wifi.starrailexpress.api.CustomWinnerRoleInterface;
 import io.wifi.starrailexpress.api.ExtraEffectRole;
+import io.wifi.starrailexpress.api.SRERole;
+import io.wifi.starrailexpress.api.TMMRoles;
+import io.wifi.starrailexpress.api.data.RoleData;
 import io.wifi.starrailexpress.cca.PlayerBodyEntityComponent;
+import io.wifi.starrailexpress.cca.SREGameRoundEndComponent;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.cca.SREPlayerShopComponent;
 import io.wifi.starrailexpress.content.entity.PlayerBodyEntity;
@@ -31,6 +36,7 @@ import net.minecraft.world.phys.EntityHitResult;
 import org.agmas.noellesroles.game.roles.killer.dream.DreamHealthComponent;
 import org.agmas.noellesroles.init.ModEffects;
 import org.agmas.noellesroles.role.ModRoles;
+import org.agmas.noellesroles.role_data.neutral.SkeletonRoleData;
 import org.agmas.noellesroles.utils.RoleUtils;
 
 /**
@@ -51,7 +57,7 @@ import org.agmas.noellesroles.utils.RoleUtils;
  * 左键攻击逻辑复用红美玲（{@code HoanMeirinFistPunchHandler}）的写法：
  * {@code AllowPlayerPunching} 放行空手攻击 + {@code AttackEntityCallback} 命中结算。
  */
-public class SkeletonRole extends ExtraEffectRole {
+public class SkeletonRole extends ExtraEffectRole implements CustomWinnerRoleInterface {
 
     /** 两次左键攻击之间的冷却（tick），与红美玲一致用屏障物品当通用冷却。 */
     public static final int PUNCH_COOLDOWN_TICKS = 10;
@@ -219,7 +225,90 @@ public class SkeletonRole extends ExtraEffectRole {
         body.remove(Entity.RemovalReason.DISCARDED);
         RoleUtils.sendWelcomeAnnouncement(revived);
 
+        // 记录召唤者：结算时骷髅跟随召唤者获胜（见 didPlayerWin）
+        SkeletonRoleData data = RoleData.getNullable(SkeletonRoleData.class, revived);
+        if (data != null) {
+            data.summoner = user.getUUID();
+        }
+
         stack.consume(1, user);
         return stack;
+    }
+
+    // ==================== 胜利：跟随召唤者 ====================
+
+    /**
+     * 骷髅跟随召唤者获胜：召唤者赢了，被复活的骷髅也跟着赢。
+     *
+     * <p>
+     * 该回调在结算时对每个玩家调用（{@code SREMurderGameMode}），传入的
+     * {@code original} 是默认阵营判定。骷髅自己没有独立胜利条件，
+     * 所以在「召唤者获胜」时改判为胜利，否则维持原判定。
+     */
+    @Override
+    public boolean didPlayerWin(ServerPlayer player, boolean original, GameUtils.WinStatus winStatus) {
+        if (original) {
+            return true;
+        }
+        SkeletonRoleData data = RoleData.getNullable(SkeletonRoleData.class, player);
+        if (data == null || data.summoner == null) {
+            return original;
+        }
+        ServerPlayer summoner = player.serverLevel().getServer().getPlayerList().getPlayer(data.summoner);
+        if (summoner == null) {
+            return original; // 召唤者已离线：按默认判定
+        }
+        SREGameWorldComponent game = SREGameWorldComponent.KEY.get(player.level());
+        SRERole summonerRole = game == null ? null : game.getRole(summoner);
+        if (summonerRole == null || summonerRole instanceof SkeletonRole) {
+            // 召唤者也是骷髅：不跟随（避免骷髅链互相递归）
+            return original;
+        }
+        SREGameRoundEndComponent roundEnd = SREGameRoundEndComponent.KEY.get(player.level());
+        return summonerWon(summoner, summonerRole, winStatus, roundEnd);
+    }
+
+    /**
+     * 判断召唤者是否在本局获胜（复用领袖 {@code LeaderRole} 判定追随者获胜的同款逻辑）。
+     */
+    private boolean summonerWon(ServerPlayer summoner, SRERole summonerRole, GameUtils.WinStatus winStatus,
+            SREGameRoundEndComponent roundEnd) {
+        // 召唤者自己也是自定义胜利职业时，用其自身判定
+        if (summonerRole instanceof CustomWinnerRoleInterface cwr
+                && cwr.didPlayerWin(summoner, false, winStatus)) {
+            return true;
+        }
+        switch (winStatus) {
+            case CUSTOM:
+            case CUSTOM_COMPONENT:
+                if (roundEnd.CustomWinnerPlayers != null
+                        && roundEnd.CustomWinnerPlayers.contains(summoner.getUUID())) {
+                    return true;
+                }
+                if (roundEnd.CustomWinnerID != null
+                        && roundEnd.CustomWinnerID.equals(summonerRole.identifier().getPath())) {
+                    return true;
+                }
+                return roundEnd.CustomWinnerExtraRoleIds != null
+                        && roundEnd.CustomWinnerExtraRoleIds.contains(summonerRole.identifier().getPath());
+            case GAMBLER:
+                return summonerRole.identifier().getPath().equals("gambler");
+            case KILLERS:
+                return summonerRole.winWithKiller();
+            case LOOSE_END:
+                return summonerRole.identifier().equals(TMMRoles.LOOSE_END.identifier());
+            case NIAN_SHOU:
+                return summonerRole.identifier().getPath().equals("nianshou");
+            case LOVERS:
+                return roundEnd.CustomWinnerPlayers != null
+                        && roundEnd.CustomWinnerPlayers.contains(summoner.getUUID());
+            case TIME:
+            case PASSENGERS:
+                return summonerRole.winWithInnocent();
+            case RECORDER:
+                return summonerRole.identifier().getPath().equals("recorder");
+            default:
+                return false;
+        }
     }
 }

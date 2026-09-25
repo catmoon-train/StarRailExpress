@@ -9,6 +9,8 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerPlayer;
 import org.agmas.noellesroles.game.roles.neutral.skeleton.SkeletonRole;
 
+import java.util.UUID;
+
 /**
  * 骷髅职业数据。
  *
@@ -21,6 +23,12 @@ public class SkeletonRoleData extends SimpleRoleData {
 
     /** 骷髅的摔落致死高度（格）。 */
     public static final float FALL_DEATH_HEIGHT = 6.0F;
+
+    /**
+     * 召唤者：使用「骸骨之书」把该玩家复活成骷髅的人。
+     * 结算时骷髅跟随召唤者获胜（见 {@code SkeletonRole#didPlayerWin}）。
+     */
+    public UUID summoner;
 
     public SkeletonRoleData(RoleDataContext context) {
         super(context);
