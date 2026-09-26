@@ -2,7 +2,6 @@ package org.agmas.noellesroles.role_data.neutral;
 
 import io.wifi.starrailexpress.api.data.RoleDataContext;
 import io.wifi.starrailexpress.api.impl.SimpleRoleData;
-import io.wifi.starrailexpress.game.GameConstants;
 import io.wifi.starrailexpress.game.GameUtils;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
@@ -15,14 +14,11 @@ import java.util.UUID;
  * 骷髅职业数据。
  *
  * <p>
- * 骷髅是「骨头拼起来的」，很脆：下落超过 {@link #FALL_DEATH_HEIGHT} 格直接摔死。
- * 判定方式参考地图配置 {@code fallToDeathHeight}（下落距离达到阈值即按
- * {@code fall_damage} 死因判死），区别是这里不依赖地图配置，对骷髅恒为 6 格。
+ * 骷髅是「骨头拼起来的」，很脆：下落超过 {@link SkeletonRole#FALL_DEATH_HEIGHT} 格，落地即按
+ * {@code fall_damage} 死因摔死（判定见 {@link SkeletonRole#onFallOnGround}，不依赖地图配置，
+ * 对骷髅恒为 6 格）。本类只承担数据侧职责：伪装补挂与状态同步。
  */
 public class SkeletonRoleData extends SimpleRoleData {
-
-    /** 骷髅的摔落致死高度（格）。 */
-    public static final float FALL_DEATH_HEIGHT = 6.0F;
 
     /**
      * 召唤者：使用「骸骨之书」把该玩家复活成骷髅的人。
@@ -36,26 +32,9 @@ public class SkeletonRoleData extends SimpleRoleData {
 
     @Override
     public void serverTick() {
-        checkFallDeath();
         // 始终伪装成原版骷髅：掉线重连 / 开局重置会丢掉伪装状态，这里每 tick 兜底补上
         if (player instanceof ServerPlayer serverPlayer && GameUtils.isPlayerAliveAndSurvival(serverPlayer)) {
             SkeletonRole.applySkeletonDisguise(serverPlayer);
-        }
-    }
-
-    /** 下落超过 6 格直接摔死（不需要等到落地才结算）。 */
-    private void checkFallDeath() {
-        if (!(player instanceof ServerPlayer serverPlayer)) {
-            return;
-        }
-        if (!GameUtils.isPlayerAliveAndSurvival(serverPlayer)) {
-            return;
-        }
-        if (serverPlayer.isCreative() || serverPlayer.isSpectator()) {
-            return;
-        }
-        if (serverPlayer.fallDistance > FALL_DEATH_HEIGHT) {
-            GameUtils.killPlayer(serverPlayer, true, null, GameConstants.DeathReasons.FALL_DAMAGE);
         }
     }
 

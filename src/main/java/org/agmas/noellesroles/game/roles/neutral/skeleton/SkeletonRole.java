@@ -15,8 +15,10 @@ import io.wifi.starrailexpress.disguise.EntityDisguise;
 import io.wifi.starrailexpress.event.AllowPlayerPunching;
 import io.wifi.starrailexpress.game.GameConstants;
 import io.wifi.starrailexpress.game.GameUtils;
+import io.wifi.starrailexpress.util.TrueFalseResult;
 import net.fabricmc.fabric.api.event.player.AttackEntityCallback;
 import net.minecraft.ChatFormatting;
+import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
@@ -32,6 +34,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.EntityHitResult;
 import org.agmas.noellesroles.game.roles.killer.dream.DreamHealthComponent;
 import org.agmas.noellesroles.init.ModEffects;
@@ -58,6 +61,9 @@ import org.agmas.noellesroles.utils.RoleUtils;
  * {@code AllowPlayerPunching} 放行空手攻击 + {@code AttackEntityCallback} 命中结算。
  */
 public class SkeletonRole extends ExtraEffectRole implements CustomWinnerRoleInterface {
+
+    /** 骷髅的摔落致死高度（格）。 */
+    public static final float FALL_DEATH_HEIGHT = 6.0F;
 
     /** 两次左键攻击之间的冷却（tick），与红美玲一致用屏障物品当通用冷却。 */
     public static final int PUNCH_COOLDOWN_TICKS = 10;
@@ -86,7 +92,8 @@ public class SkeletonRole extends ExtraEffectRole implements CustomWinnerRoleInt
     /**
      * 骷髅外观：始终伪装成「我的世界原版骷髅」。
      *
-     * <p>用法与紫怪一致（{@code EntityDisguise.disguise(target, TMMEntities.PURPLE_MONSTER)}），
+     * <p>
+     * 用法与紫怪一致（{@code EntityDisguise.disguise(target, TMMEntities.PURPLE_MONSTER)}），
      * 只是这里用的是原版 {@link EntityType#SKELETON}。开局 / 结束时核心会统一清空伪装，
      * 所以拿到职业时和每 tick 都要兜底补上（掉线重连会丢伪装状态）。
      */
@@ -126,6 +133,15 @@ public class SkeletonRole extends ExtraEffectRole implements CustomWinnerRoleInt
         });
         // 命中结算
         AttackEntityCallback.EVENT.register(SkeletonRole::onAttackEntity);
+    }
+
+    @Override
+    public TrueFalseResult onFallOnGround(ServerPlayer player, double y, boolean onGround, BlockState blockState,
+            BlockPos blockPos) {
+        if (player.fallDistance > FALL_DEATH_HEIGHT) {
+            return TrueFalseResult.TRUE;
+        }
+        return TrueFalseResult.PASS;
     }
 
     /**

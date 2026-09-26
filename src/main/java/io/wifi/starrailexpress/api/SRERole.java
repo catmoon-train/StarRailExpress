@@ -36,6 +36,7 @@ import io.wifi.starrailexpress.util.TrueFalseResult;
 import io.wifi.utils.RandomSelector;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.loader.api.FabricLoader;
+import net.minecraft.core.BlockPos;
 import net.minecraft.core.NonNullList;
 import net.minecraft.locale.Language;
 import net.minecraft.network.chat.Component;
@@ -54,6 +55,7 @@ import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
 import org.agmas.harpymodloader.SREDisableManager;
 import org.agmas.harpymodloader.events.ModdedRoleAssigned;
@@ -207,7 +209,8 @@ public abstract class SRERole extends SREAbstractInfoClass {
      * 本职业的专属随机事件（每局开局掷一次的启用骰、本局状态与「强制下一局」）。
      * <p>
      * 机制与状态语义全部在 {@link RoleRoundEvent} 内，这里只持有它；声明入口是
-     * {@link #setEventEnableChance(BiConsumer, int)}，查询入口是 {@link #isEventEnabled()}。
+     * {@link #setEventEnableChance(BiConsumer, int)}，查询入口是
+     * {@link #isEventEnabled()}。
      */
     protected final RoleRoundEvent roundEvent = new RoleRoundEvent(this);
 
@@ -1655,10 +1658,10 @@ public abstract class SRERole extends SREAbstractInfoClass {
      * <p>
      * 两个回调各司其职，互不影响：
      * <ul>
-     *   <li>{@code resultHandler}——<b>每次</b>掷骰后调用，没掷中也会收到 {@code (level, false)}，
-     *       需要处理「启用失败」时用它；</li>
-     *   <li>{@code roundEndHandler}——<b>只在本局掷中过时</b>于局末调用，用于收尾（与开场一一对应）；
-     *       它先于状态清空执行，回调里 {@link #isEventEnabled()} 仍反映本局结果。</li>
+     * <li>{@code resultHandler}——<b>每次</b>掷骰后调用，没掷中也会收到 {@code (level, false)}，
+     * 需要处理「启用失败」时用它；</li>
+     * <li>{@code roundEndHandler}——<b>只在本局掷中过时</b>于局末调用，用于收尾（与开场一一对应）；
+     * 它先于状态清空执行，回调里 {@link #isEventEnabled()} 仍反映本局结果。</li>
      * </ul>
      * 其他写法：概率读配置见 {@link #setEventEnableChance(BiConsumer, Consumer, IntSupplier)}；
      * 只关心掷中见 {@link #setEventEnableChance(Consumer, Consumer, int)}；只要查询见
@@ -1694,7 +1697,8 @@ public abstract class SRERole extends SREAbstractInfoClass {
      * 同上，但掷骰回调只在本局掷中时触发，不需要关心「启用失败」。
      *
      * @param enabledHandler  掷骰回调，只在本局掷中时调用；为 null 表示不注册掷骰回调
-     *                        （字面量 null 需显式转型，只挂局末回调更推荐 {@link #setRoundEventEndHandler(Consumer)}）
+     *                        （字面量 null 需显式转型，只挂局末回调更推荐
+     *                        {@link #setRoundEventEndHandler(Consumer)}）
      * @param roundEndHandler 局末回调，只在本局掷中过时调用；可为 null
      * @param chance          万分比概率，超出 0–10000 会被裁剪
      * @return this，便于链式调用
@@ -1808,7 +1812,8 @@ public abstract class SRERole extends SREAbstractInfoClass {
      * （回调里 {@link #isEventEnabled()} 仍反映本局结果）。
      * <p>
      * 不改变已声明的掷骰回调与概率，因此可以链在任意 {@link #setEventEnableChance} 之后，包括
-     * {@link #setEventEnableChance(int)} / {@link #setEventEnableChance(IntSupplier)} 这类纯查询式声明；
+     * {@link #setEventEnableChance(int)} /
+     * {@link #setEventEnableChance(IntSupplier)} 这类纯查询式声明；
      * 已注册的局末回调也不会被后续的 {@code setEventEnableChance} 覆盖。三参重载里的局末回调
      * 参数与它是同一件事，二选一即可。
      *
@@ -1820,7 +1825,6 @@ public abstract class SRERole extends SREAbstractInfoClass {
         roundEvent.setRoundEndHandler(Objects.requireNonNull(roundEndHandler, "roundEndHandler"));
         return this;
     }
-
 
     /**
      * 本职业是否声明过专属随机事件，即是否会参与每局开局的掷骰。
@@ -1834,7 +1838,9 @@ public abstract class SRERole extends SREAbstractInfoClass {
     /**
      * 掷出所有声明过专属随机事件职业的本局启用状态。
      * <p>
-     * 由 {@link io.wifi.starrailexpress.register.SREEventRegister#registerEventHandlers()} 注册的监听器
+     * 由
+     * {@link io.wifi.starrailexpress.register.SREEventRegister#registerEventHandlers()}
+     * 注册的监听器
      * 在每局正式开局时调用一次，只遍历 {@link TMMRoles} 维护的事件职业列表：
      * 未声明事件的职业完全不参与，也不会有任何回调；已注销的职业自然不在列表里。
      * <p>
@@ -1854,7 +1860,9 @@ public abstract class SRERole extends SREAbstractInfoClass {
     /**
      * 清空所有事件职业本局的启用状态，并以 {@code (level, false)} 回调它们。
      * <p>
-     * 由 {@link io.wifi.starrailexpress.register.SREEventRegister#registerEventHandlers()} 注册的监听器
+     * 由
+     * {@link io.wifi.starrailexpress.register.SREEventRegister#registerEventHandlers()}
+     * 注册的监听器
      * 在每局结束时调用一次。等待生效的「强制下一局」请求不受影响，仍然会在下一次开局掷骰时生效。
      *
      * @param level 本局所在的服务端世界，可为 null（默认主世界）
@@ -2667,5 +2675,63 @@ public abstract class SRERole extends SREAbstractInfoClass {
 
     public boolean isHiddenForRoleRotation() {
         return this.isFlag("inner.role_rotation.hidden");
+    }
+
+    /**
+     * 玩家摔落到地面时触发（服务端，且仅对存活、非创造 / 旁观的玩家生效）。
+     * <p>
+     * 返回值优先级高于 {@link #isFallDamageImmune()}：即使本职业免疫摔落致死，这里返回
+     * {@link TrueFalseResult#TRUE} 仍会判死。
+     * <p>
+     * 根据返回值决定后续行为：
+     * <ul>
+     * <li><b>{@link TrueFalseResult#TRUE}</b> — 判定为摔死（{@code fall_damage} 死因）</li>
+     * <li><b>{@link TrueFalseResult#FALSE}</b> — 判定不摔死，并连同原版落地伤害一起取消</li>
+     * <li><b>{@link TrueFalseResult#PASS}</b> — 不做判断，交给 {@link #isFallDamageImmune()} 与地图的
+     * {@code fallToDeathHeight} 设置</li>
+     * </ul>
+     *
+     * @param player     落地的玩家，不可为 {@code null}
+     * @param y          落地时的 y 坐标
+     * @param onGround   是否已经落地；当前唯一调用点位于落地分支内，恒为 {@code true}
+     * @param blockState 落地所踩方块的状态
+     * @param blockPos   落地所踩方块的位置
+     * @return 本职业的摔落裁决
+     */
+    public TrueFalseResult onFallOnGround(ServerPlayer player, double y, boolean onGround, BlockState blockState,
+            BlockPos blockPos) {
+        return TrueFalseResult.PASS;
+    }
+
+    /**
+     * 是否会被摔死：合并 {@link #onFallOnGround} 与 {@link #isFallDamageImmune()} 后的最终裁决。
+     * <p>
+     * 判定顺序为 {@link #onFallOnGround}（返回 {@code TRUE} / {@code FALSE} 即直接采纳）→
+     * {@link #isFallDamageImmune()}（免疫时不判死）→ {@link TrueFalseResult#PASS}（交给地图设置）。
+     * 判定逻辑固定在本方法内，所以是 {@code final}：要改判定请覆写 {@link #onFallOnGround}
+     * 或调用 {@link #setFallDamageImmune(boolean)}。
+     *
+     * @param player     落地的玩家，不可为 {@code null}
+     * @param y          落地时的 y 坐标
+     * @param onGround   是否已经落地；当前唯一调用点位于落地分支内，恒为 {@code true}
+     * @param blockState 落地所踩方块的状态
+     * @param blockPos   落地所踩方块的位置
+     * @return 最终摔落裁决：
+     *         <ul>
+     *         <li><b>{@link TrueFalseResult#TRUE}</b> — 判定为摔死（{@code fall_damage} 死因）</li>
+     *         <li><b>{@link TrueFalseResult#FALSE}</b> — 判定不摔死，并连同原版落地伤害一起取消</li>
+     *         <li><b>{@link TrueFalseResult#PASS}</b> — 走地图设置判断</li>
+     *         </ul>
+     */
+    public final TrueFalseResult allowFallToDeathInner(ServerPlayer player, double y, boolean onGround, BlockState blockState,
+            BlockPos blockPos) {
+        var result = onFallOnGround(player, y, onGround, blockState, blockPos);
+        if (result != null && result.isTrue())
+            return TrueFalseResult.TRUE;
+        if (result != null && result.isFalse())
+            return TrueFalseResult.FALSE;
+        if (isFallDamageImmune())
+            return TrueFalseResult.FALSE;
+        return TrueFalseResult.PASS;
     }
 }
