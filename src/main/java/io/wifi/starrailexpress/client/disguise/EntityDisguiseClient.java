@@ -20,6 +20,7 @@ import io.wifi.starrailexpress.event.client.OnGameStartedClient;
 import io.wifi.starrailexpress.network.EntityDisguiseSyncPayload;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
+import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
@@ -42,6 +43,12 @@ public final class EntityDisguiseClient {
         EntityDisguiseHud.register();
         OnGameStartedClient.EVENT.register(EntityDisguiseClient::resetClient);
         OnGameFinishedClient.EVENT.register(EntityDisguiseClient::resetClient);
+        ClientPlayConnectionEvents.DISCONNECT.register((a, b) -> {
+            EntityDisguiseClient.resetClient();
+        });
+        ClientPlayConnectionEvents.JOIN.register((a, b, c) -> {
+            EntityDisguiseClient.resetClient();
+        });
     }
 
     /**

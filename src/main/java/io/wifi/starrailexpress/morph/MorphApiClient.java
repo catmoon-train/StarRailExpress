@@ -11,11 +11,11 @@ import io.wifi.starrailexpress.client.util.ClientSkinCache;
 import io.wifi.starrailexpress.event.OnGettingPlayerSkin;
 import io.wifi.starrailexpress.event.OnGettingPlayerSkin.PlayerSkinResult;
 import io.wifi.starrailexpress.event.OnResolveDisplayedSkinOwner;
-import io.wifi.starrailexpress.event.client.OnGameFinishedClient;
 import io.wifi.starrailexpress.event.client.OnGameStartedClient;
 import io.wifi.starrailexpress.hat.HatEquipmentApi;
 import io.wifi.starrailexpress.plush.PlushEquipmentIdentity;
 import io.wifi.starrailexpress.plush.PlushEquipmentManager;
+import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.network.chat.MutableComponent;
@@ -26,13 +26,14 @@ import net.minecraft.client.resources.PlayerSkin.Model;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Player;
 import org.jetbrains.annotations.Nullable;
+
 public class MorphApiClient {
-    
+
     /**
      * 客户端：解析「当前显示的皮肤属于谁」。
      * 先读统一变形覆盖层，再走 {@link OnResolveDisplayedSkinOwner}（帽子 / 职业伪装等）。
      */
-    
+
     public static UUID resolveDisplayedOwnerUuid(AbstractClientPlayer player) {
         if (player == null) {
             return null;
@@ -44,7 +45,7 @@ public class MorphApiClient {
     /**
      * 客户端：当前是否为「无真实玩家可复制」的贴图变形。
      */
-    
+
     public static boolean isTextureMorph(AbstractClientPlayer player) {
         return player != null && ClientMorphCache.get(player.getUUID()).isTexture();
     }
@@ -55,7 +56,7 @@ public class MorphApiClient {
      * 例外：本地观察者处于旁观（无死亡惩罚）/ 创造时，名字不跟随伪装，一律显示本人真实名字
      * （皮肤与附属物仍按伪装渲染，见 {@link #resolveDisplayedOwnerUuid}）。
      */
-    
+
     public static Component getDisplayedName(Player target) {
         if (target == null) {
             return Component.literal("");
@@ -83,7 +84,6 @@ public class MorphApiClient {
         return fallbackName(target.getUUID(), target.getName());
     }
 
-    
     private static Component fallbackName(UUID uuid, Component playerName) {
         var prefix = ClientSkinCache.somePrefix(uuid);
         if (prefix == null) {
@@ -98,7 +98,7 @@ public class MorphApiClient {
      * 即旁观（无死亡惩罚）与创造：判定与 {@code SREClientEvents} 中「旁观不参与变幻」的名牌事件一致。
      * 死亡惩罚下名牌本来就不渲染，故排除。
      */
-    
+
     public static boolean shouldRevealRealName() {
         return !SREClient.hasPenalty() && !SREClient.isPlayerAliveAndInSurvival();
     }
@@ -106,7 +106,7 @@ public class MorphApiClient {
     /**
      * 客户端：显示皮肤拥有者的身份玩偶（无则 {@link ItemStack#EMPTY}）。
      */
-    
+
     public static ItemStack getDisplayedPlushStack(AbstractClientPlayer player) {
         if (player == null || isTextureMorph(player) || HatEquipmentApi.shouldHideBoundCosmetics(player)) {
             return ItemStack.EMPTY;
@@ -129,7 +129,7 @@ public class MorphApiClient {
      *
      * @return 应渲染的物品；不处理时返回 {@code null}
      */
-    
+
     public static @Nullable ItemStack remapHeldPlush(Player player, ItemStack stack, boolean mainHand) {
         if (!(player instanceof AbstractClientPlayer clientPlayer)) {
             return null;
@@ -148,7 +148,7 @@ public class MorphApiClient {
     /**
      * 注册客户端默认解析器（皮肤覆盖层 + 显示拥有者）。应在帽子默认解析器之前调用。
      */
-    
+
     public static void registerClient() {
         OnResolveDisplayedSkinOwner.EVENT.register(player -> {
             if (io.wifi.starrailexpress.SRE.isLobby || io.wifi.starrailexpress.client.SREClient.isInLobby) {
@@ -182,6 +182,13 @@ public class MorphApiClient {
         });
         // 开局 / 结束时清空本地缓存，与服务端的生命周期清理保持一致。
         OnGameStartedClient.EVENT.register(ClientMorphCache::clear);
-        OnGameFinishedClient.EVENT.register(ClientMorphCache::clear);
+        OnGameStartedClient.EVENT.register(ClientMorphCache::clear);
+
+        ClientPlayConnectionEvents.DISCONNECT.register((a, b) -> {
+            ClientMorphCache.clear();
+        });
+        ClientPlayConnectionEvents.JOIN.register((a, b, c) -> {
+            ClientMorphCache.clear();
+        });
     }
 }
