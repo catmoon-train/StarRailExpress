@@ -26,6 +26,7 @@ import io.wifi.starrailexpress.api.replay.GameReplayManager;
 import io.wifi.starrailexpress.api.replay.board.ReplayBoardService;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.cca.SREPlayerPsychoComponent;
+import io.wifi.starrailexpress.content.block.SpaceAirGravityRuntime;
 import io.wifi.starrailexpress.content.vote.VoteManager;
 import io.wifi.starrailexpress.event.*;
 import io.wifi.starrailexpress.game.GameUtils;
@@ -167,6 +168,8 @@ public class SREEventRegister {
             VoteManager.onServerTick();
             ReplayBoardService.tick(serv);
             SceneAssetServer.tick(serv);
+            // 太空空气：此时所有维度的实体都已 tick 完，统一结算本 tick 身处方块的生物的重力
+            SpaceAirGravityRuntime.flush();
         });
         ServerPlayConnectionEvents.JOIN.register((handler, sender, server) -> {
             SRE.isLobby = SREConfig.instance().isLobby;

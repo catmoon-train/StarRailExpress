@@ -18,12 +18,17 @@ package io.wifi.starrailexpress.index;
 import dev.doctor4t.ratatouille.util.registrar.BlockRegistrar;
 import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.content.block.*;
+import net.fabricmc.fabric.api.itemgroup.v1.FabricItemGroup;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.CreativeModeTabs;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Rarity;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.SoundType;
@@ -51,6 +56,18 @@ public interface SREBlocks {
   Block REMOTE_REDSTONE = registerOpBlock("remote_redstone", new RemoteRedstoneBlock(
       (Block.Properties.of().strength(-1.0F, 3600000.8F)
           .mapColor(waterloggedMapColor(MapColor.NONE)).noLootTable().noOcclusion())),
+      new Item.Properties().rarity(Rarity.EPIC));
+  /** 太空空气专用创造物品栏：单独一页，不往 OP 管理员页 / 场景页里塞。 */
+  ResourceKey<CreativeModeTab> SPACE_AIR_CREATIVE_GROUP = ResourceKey.create(Registries.CREATIVE_MODE_TAB,
+      SRE.id("space_air"));
+
+  /**
+   * 太空空气：像空气一样不可见、无碰撞、不参与交互的区域效果方块，任意部位处于其中的生物重力会按档位变化。
+   * 这里不给分页，条目由 {@link #initialize()} 按档位逐个塞（对齐原版灯方块的做法）。
+   */
+  Block SPACE_AIR = blockRegistrar.createWithItem("space_air", new SpaceAirBlock(
+      (Block.Properties.of().replaceable().strength(-1.0F, 3600000.8F)
+          .mapColor(MapColor.NONE).noLootTable().noOcclusion().noCollission())),
       new Item.Properties().rarity(Rarity.EPIC));
 
   // 列车火把
@@ -138,6 +155,18 @@ public interface SREBlocks {
           .of(io.wifi.starrailexpress.customblock.CustomBlockEntity::new, CUSTOM_BLOCK));
 
   static void initialize() {
+    Registry.register(BuiltInRegistries.CREATIVE_MODE_TAB, SPACE_AIR_CREATIVE_GROUP, FabricItemGroup.builder()
+        .title(Component.translatable("item_group.starrailexpress.space_air"))
+        .icon(() -> new ItemStack(SPACE_AIR.asItem()))
+        .build());
+    // 像原版灯方块那样，每个档位各放一个物品（原版是 15→0，这里照抄同样的从高到低），
+    // 图标与名字相同，靠提示里的方块状态值与 modifier 数值区分；中键拾取到的方块也带着自己的档位进物品栏
+    net.fabricmc.fabric.api.itemgroup.v1.ItemGroupEvents.modifyEntriesEvent(SPACE_AIR_CREATIVE_GROUP)
+        .register(entries -> {
+          for (int level = SpaceAirBlock.MAX_LEVEL; level >= 0; level--) {
+            entries.accept(SpaceAirBlock.setGravityOnStack(new ItemStack(SPACE_AIR.asItem()), level));
+          }
+        });
     // SRE 方块现已合并到 ModBlocks.BLOCK_CREATIVE_GROUP，不再单独注册 starrailexpress:misc_block
     // 标签
     blockRegistrar.registerEntries();

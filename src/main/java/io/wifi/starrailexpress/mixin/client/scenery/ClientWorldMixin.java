@@ -117,6 +117,8 @@ public abstract class ClientWorldMixin extends Level {
         // 手持小游戏任务点方块/镶板时显示屏障粒子
         MARKER_PARTICLE_ITEMS.add(TMMBlocks.MINIGAME_QUEST_BLOCK.asItem());
         MARKER_PARTICLE_ITEMS.add(TMMBlocks.MINIGAME_QUEST_PANEL.asItem());
+        // 太空空气默认不渲染，只有手持它时才画出屏障粒子
+        MARKER_PARTICLE_ITEMS.add(SREBlocks.SPACE_AIR.asItem());
     }
 
     @Inject(method = "tick", at = @At("TAIL"))
