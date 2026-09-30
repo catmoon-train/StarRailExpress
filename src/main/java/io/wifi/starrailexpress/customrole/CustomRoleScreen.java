@@ -59,6 +59,16 @@ public class CustomRoleScreen extends CustomEditorScreen {
     private CustomRoleData data = new CustomRoleData();
     private String originalEnglishId = "";
     private int moodIndex;
+    /** 开局入场提示颜色在预设列表里的下标（编辑界面切换按钮时使用，保存前写回 data.entranceHintColor）。 */
+    private int entranceColorIndex = 0;
+
+    /** 开局入场提示可选颜色（与现有入场提示一致，默认 YELLOW）。 */
+    private static final ChatFormatting[] ENTRANCE_COLORS = {
+            ChatFormatting.WHITE, ChatFormatting.YELLOW, ChatFormatting.GOLD, ChatFormatting.RED,
+            ChatFormatting.DARK_RED, ChatFormatting.GREEN, ChatFormatting.DARK_GREEN, ChatFormatting.BLUE,
+            ChatFormatting.DARK_BLUE, ChatFormatting.AQUA, ChatFormatting.DARK_AQUA,
+            ChatFormatting.LIGHT_PURPLE, ChatFormatting.DARK_PURPLE, ChatFormatting.BLACK
+    };
 
     /** 任务列表编辑器里「候选类型」的下标持有者（点按钮循环切换，重建界面后保持）。 */
     private final int[] unrefreshableTaskCursor = { 0 };
@@ -80,6 +90,15 @@ public class CustomRoleScreen extends CustomEditorScreen {
 
     private void syncToggles() {
         moodIndex = "FAKE".equalsIgnoreCase(data.moodType) ? 1 : 0;
+        entranceColorIndex = 0;
+        if (data.entranceHintColor != null) {
+            for (int i = 0; i < ENTRANCE_COLORS.length; i++) {
+                if (ENTRANCE_COLORS[i].name().equalsIgnoreCase(data.entranceHintColor)) {
+                    entranceColorIndex = i;
+                    break;
+                }
+            }
+        }
     }
 
     @Override
@@ -241,6 +260,18 @@ public class CustomRoleScreen extends CustomEditorScreen {
                 toggleCell(PREFIX + ".infinite_sprint", data.infiniteSprint, value -> data.infiniteSprint = value,
                         false),
                 toggleCell(PREFIX + ".can_see_time", data.canSeeTime, value -> data.canSeeTime = value, false));
+
+        // 开局入场提示：输入框输入文本（为空则无提示），按钮选择文本颜色
+        r = section(r, PREFIX + ".entrance_hint_section");
+        r = textRow(r, PREFIX + ".label.entrance_hint", data.entranceHint, LIMIT_TEXT,
+                PREFIX + ".hint.entrance_hint", value -> data.entranceHint = value);
+        r = cluster(r, PREFIX + ".label.entrance_hint_color",
+                stateButtonCell(() -> Component.translatable(PREFIX + ".entrance_hint_color.current",
+                                ENTRANCE_COLORS[entranceColorIndex].name()),
+                        () -> {
+                            entranceColorIndex = (entranceColorIndex + 1) % ENTRANCE_COLORS.length;
+                            data.entranceHintColor = ENTRANCE_COLORS[entranceColorIndex].name();
+                        }, false));
     }
 
     // ══════════════════════════════════════════════════════════════════

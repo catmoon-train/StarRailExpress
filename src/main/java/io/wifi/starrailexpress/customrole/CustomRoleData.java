@@ -428,6 +428,20 @@ public class CustomRoleData {
     @SerializedName("environmentalImmune")
     public Boolean environmentalImmune = null; // 免疫环境致死（窒息/冰冻/干渴等）
 
+    // ============ 开局入场提示 ============
+    /**
+     * 开局入场提示文本：游戏开始时向持有该自定义职业的玩家显示。为空（默认）则不显示任何提示。
+     */
+    @SerializedName("entranceHint")
+    public String entranceHint = "";
+
+    /**
+     * 开局入场提示的文本颜色（{@code ChatFormatting} 枚举名，如 {@code YELLOW}/{@code RED}）。
+     * 为空或非法时回退为 {@code YELLOW}（与原版入场提示一致）。
+     */
+    @SerializedName("entranceHintColor")
+    public String entranceHintColor = "YELLOW";
+
     // ============ 经济 / 金币 ============
     @SerializedName("initialCoinCount")
     public int initialCoinCount = -1; // -1 = 不修改
