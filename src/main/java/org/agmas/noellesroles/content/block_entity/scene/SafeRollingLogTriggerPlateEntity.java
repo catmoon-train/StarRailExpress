@@ -1,0 +1,77 @@
+/*
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ */
+
+package org.agmas.noellesroles.content.block_entity.scene;
+
+import net.minecraft.core.BlockPos;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.AABB;
+import org.agmas.noellesroles.content.block.scene.SafeRollingLogTriggerPlateBlock;
+import org.agmas.noellesroles.init.ModSceneBlocks;
+import org.agmas.noellesroles.scene.SceneEventManager;
+
+import java.util.List;
+
+/**
+ * 安全滚木触发板方块实体：踩踏触发冷却 + 玩家检测 + 破坏任务激活时周期性召唤不会致死的滚木。
+ */
+public class SafeRollingLogTriggerPlateEntity extends BlockEntity {
+
+    /** 踩踏触发冷却。 */
+    public static final int STEP_COOLDOWN = 40;
+    /** 破坏任务期间召唤间隔。 */
+    public static final int SABOTAGE_INTERVAL = 100;
+
+    private long lastTrigger = 0L;
+
+    public SafeRollingLogTriggerPlateEntity(BlockPos pos, BlockState state) {
+        super(ModSceneBlocks.SAFE_ROLLING_LOG_TRIGGER_ENTITY, pos, state);
+    }
+
+    /** 踩踏尝试触发，受冷却限制。 */
+    public boolean tryTrigger(ServerLevel level) {
+        long now = level.getGameTime();
+        if (now - lastTrigger < STEP_COOLDOWN) {
+            return false;
+        }
+        lastTrigger = now;
+        return true;
+    }
+
+    public static void serverTick(Level level, BlockPos pos, BlockState state, SafeRollingLogTriggerPlateEntity be) {
+        if (!(level instanceof ServerLevel serverLevel)) {
+            return;
+        }
+        long now = serverLevel.getGameTime();
+        if (now - be.lastTrigger >= STEP_COOLDOWN && now % 10 == 0) {
+            // expandTowards(0, 1, 0) 向上扩展 1 格以检测站在板上的玩家
+            List<Player> playersOnPlate = serverLevel.getEntitiesOfClass(Player.class,
+                    new AABB(pos).expandTowards(0, 1, 0).inflate(0.2),
+                    p -> p.isAlive() && !p.isSpectator());
+            if (!playersOnPlate.isEmpty() && be.tryTrigger(serverLevel)) {
+                SafeRollingLogTriggerPlateBlock.spawnLog(serverLevel, pos, state.getValue(SafeRollingLogTriggerPlateBlock.FACING));
+            }
+        }
+        // 破坏任务期间周期性召唤
+        if (SceneEventManager.isSabotageActive(serverLevel)
+                && now % SABOTAGE_INTERVAL == 0) {
+            SafeRollingLogTriggerPlateBlock.spawnLog(serverLevel, pos, state.getValue(SafeRollingLogTriggerPlateBlock.FACING));
+        }
+    }
+}
