@@ -17,6 +17,7 @@ package org.agmas.noellesroles.init;
 
 import io.wifi.starrailexpress.api.TMMRoles;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
+import io.wifi.starrailexpress.game.data.MapStatusBarType;
 import io.wifi.starrailexpress.event.AllowPlayerDeathWithKiller;
 import io.wifi.starrailexpress.game.GameConstants;
 import net.minecraft.core.BlockPos;
@@ -37,6 +38,7 @@ import net.minecraft.world.flag.FeatureFlagSet;
 import org.agmas.noellesroles.Noellesroles;
 import org.agmas.noellesroles.component.GhostStateComponent;
 import org.agmas.noellesroles.content.effects.LimpEffect;
+import org.agmas.noellesroles.content.effects.MapStatusBarEffect;
 import org.agmas.noellesroles.content.effects.NegativeEffectResistanceEffect;
 import org.agmas.noellesroles.content.effects.NoCollideEffect;
 import org.agmas.noellesroles.content.effects.PuppetWanderEffect;
@@ -268,6 +270,41 @@ public class ModEffects {
      */
     public static final Holder<MobEffect> VIRTUAL_HEALTH_RESTORE = register("virtual_health_restore",
             new VirtualHealthRestoreEffect(MobEffectCategory.BENEFICIAL, 0xFF6B9D));
+
+    // ───────────────────────── 地图状态条（饥饿 / 口渴 / 保暖 / 污染）─────────────────────────
+    // 每级 1 点：1 级每秒 1 点，2 级每秒 2 点，以此类推（见 MapStatusBarEffect）。
+
+    /** 饥肠辘辘：饥饿状态条每秒 -1（等级越高掉得越快）。 */
+    public static final Holder<MobEffect> STARVING = register("starving",
+            new MapStatusBarEffect(MobEffectCategory.HARMFUL, 0xC9762B, MapStatusBarType.HUNGER, -1));
+
+    /** 口渴：口渴值每秒 -1（等级越高掉得越快）。 */
+    public static final Holder<MobEffect> DEHYDRATION = register("dehydration",
+            new MapStatusBarEffect(MobEffectCategory.HARMFUL, 0x3E7BE0, MapStatusBarType.THIRST, -1));
+
+    /** 冰冷：保暖值每秒 -1（等级越高掉得越快）。 */
+    public static final Holder<MobEffect> CHILLED = register("chilled",
+            new MapStatusBarEffect(MobEffectCategory.HARMFUL, 0x8FD8FF, MapStatusBarType.WARMTH, -1));
+
+    /** 肮脏：污染值每秒 +1（等级越高涨得越快）。 */
+    public static final Holder<MobEffect> FILTHY = register("filthy",
+            new MapStatusBarEffect(MobEffectCategory.HARMFUL, 0x6E7B3A, MapStatusBarType.POLLUTION, 1));
+
+    /** 饱腹：饥饿状态条每秒 +1（等级越高回得越快）。 */
+    public static final Holder<MobEffect> SATIATED = register("satiated",
+            new MapStatusBarEffect(MobEffectCategory.BENEFICIAL, 0xFFC65C, MapStatusBarType.HUNGER, 1));
+
+    /** 保湿：口渴值每秒 +1（等级越高回得越快）。 */
+    public static final Holder<MobEffect> HYDRATED = register("hydrated",
+            new MapStatusBarEffect(MobEffectCategory.BENEFICIAL, 0x5FD8E8, MapStatusBarType.THIRST, 1));
+
+    /** 温暖：保暖值每秒 +1（等级越高回得越快）。 */
+    public static final Holder<MobEffect> WARM = register("warm",
+            new MapStatusBarEffect(MobEffectCategory.BENEFICIAL, 0xFF8A3C, MapStatusBarType.WARMTH, 1));
+
+    /** 洁净：污染值每秒 -1（等级越高降得越快）。 */
+    public static final Holder<MobEffect> CLEANSED = register("cleansed",
+            new MapStatusBarEffect(MobEffectCategory.BENEFICIAL, 0xCDEEF7, MapStatusBarType.POLLUTION, -1));
 
     public static final Holder<MobEffect> WRAITH_DIMENSION = register("wraith_dimension",
             new SimpleMobEffect(MobEffectCategory.NEUTRAL, 0x315B7C));
