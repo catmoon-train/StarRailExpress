@@ -165,7 +165,7 @@ public class RollingLogEntity extends Entity {
                 p.hurt(level.damageSources().generic(), 1.0F);
                 // knockback(strength, x, z) 会把目标推向 -(x, z)，所以这里传滚动方向的反方向：
                 // 滚木朝 (dirX, dirZ) 前进，玩家应被顺势撞飞（远离滚木来向），而不是被推回滚木来的那一侧
-                p.knockback(0.5, -this.dirX, -this.dirZ);
+                p.knockback(2.5, -this.dirX, -this.dirZ);
             } else {
                 GameUtils.forceKillPlayer(p, true, null, GameConstants.DeathReasons.LOG_CRUSH);
             }
