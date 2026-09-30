@@ -88,9 +88,7 @@ public class SpecialGameModeRoles {
       .setCanUseInstinctAndNightVision(true)
       .setDefaultMax(0)
       .setCanBeRandomedByOtherRoles(false)
-      .setNeutrals(true).setOtherModeRole(true)
-      // 特殊中立（土块）
-      .setSpecialNeutral(true);
+      .setNeutrals(true).setOtherModeRole(true);
 
   public static SRERole registerRole(SRERole role) {
     return TMMRoles.registerRole(role);
