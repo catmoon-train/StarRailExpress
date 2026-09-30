@@ -580,6 +580,11 @@ public class EntityInteractionBlockScreen extends Screen {
             super.init();
             this.clearWidgets();
             scrollY = 0;
+            // 切换条件类型后必须清空输入框引用，否则会误用上一次其它条件类型残留的输入值
+            valueInput = null;
+            minutesInput = null;
+            secondsInput = null;
+            stringInput = null;
 
             int centerX = this.width / 2;
 
@@ -1152,8 +1157,9 @@ public class EntityInteractionBlockScreen extends Screen {
             EntityInteractionBlockEntity.TriggerCondition condition = new EntityInteractionBlockEntity.TriggerCondition();
             condition.type = selectedType;
 
-            // 处理时间锚点的分秒输入
-            if (selectedType == EntityInteractionBlockEntity.ConditionType.TIME_ANCHOR) {
+            // 处理时间锚点 / 游戏经过时间的分秒输入
+            if (selectedType == EntityInteractionBlockEntity.ConditionType.TIME_ANCHOR
+                    || selectedType == EntityInteractionBlockEntity.ConditionType.ELAPSED_TIME) {
                 int minutes = 0;
                 int seconds = 0;
                 if (minutesInput != null && !minutesInput.getValue().isEmpty()) {
