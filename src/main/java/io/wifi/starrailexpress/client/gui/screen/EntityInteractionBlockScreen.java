@@ -2493,8 +2493,6 @@ public class EntityInteractionBlockScreen extends Screen {
             // 取消按钮
             addRenderableWidget(Button.builder(Component.translatable("gui.entity_interaction_block.cancel"),
                     b -> this.minecraft.setScreen(parent)).bounds(centerX + 5, this.height - 40, 100, 20).build());
-
-            classifyWidgets();
         }
 
         private void confirm() {
@@ -2685,8 +2683,6 @@ public class EntityInteractionBlockScreen extends Screen {
             // 取消按钮
             addRenderableWidget(Button.builder(Component.translatable("gui.entity_interaction_block.cancel"),
                     b -> this.minecraft.setScreen(parent)).bounds(centerX + 5, this.height - 40, 100, 20).build());
-
-            classifyWidgets();
         }
 
         private void confirm() {
