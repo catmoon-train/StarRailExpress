@@ -60,6 +60,7 @@ public class SetTimerCommand {
           String.format("%02.0f:%02.0f", leftTimeMinutes, leftTimeSeconds2))
           .withStyle(ChatFormatting.GREEN),
           false);
+      return leftTime;
     } catch (Exception e) {
       e.printStackTrace();
       source.sendFailure(Component.literal("Error: ").append(e.getMessage()).withStyle(ChatFormatting.RED));
