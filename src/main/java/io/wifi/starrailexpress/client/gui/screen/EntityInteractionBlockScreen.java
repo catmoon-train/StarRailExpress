@@ -15,10 +15,12 @@
 
 package io.wifi.starrailexpress.client.gui.screen;
 
+import io.wifi.starrailexpress.client.gui.SREPanelStyle;
 import io.wifi.starrailexpress.client.network.EntityInteractionBlockClientNetwork;
 import io.wifi.starrailexpress.content.block_entity.EntityInteractionBlockEntity;
 import io.wifi.starrailexpress.game.GameConstants;
 import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.CycleButton;
 import net.minecraft.client.gui.components.EditBox;
@@ -26,6 +28,7 @@ import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.Mth;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -35,6 +38,15 @@ import java.util.List;
  * 参考k键快捷指令的UI设计
  */
 public class EntityInteractionBlockScreen extends Screen {
+
+    /**
+     * 可滚动内容区里的一个控件及其相对内容区顶部的位置。
+     * 参考 {@link CustomContentManageScreen} 的滚动做法：控件照常参与事件分发，
+     * 渲染时按 scrollOffset 平移坐标并用 scissor 裁剪。
+     */
+    private record Placement(AbstractWidget widget, int relativeY) {
+    }
+
     private final BlockPos blockPos;
     private List<EntityInteractionBlockEntity.TriggerCondition> conditions;
     private List<EntityInteractionBlockEntity.TriggerAction> actions;
@@ -44,6 +56,14 @@ public class EntityInteractionBlockScreen extends Screen {
     private EditBox cooldownInput;
     private int conditionsScrollOffset = 0;
     private int actionsScrollOffset = 0;
+
+    // 列表区域几何（每次 init 更新，供滚轮滚动判断命中区域）
+    private int conditionsAreaY = 0;
+    private int conditionsAreaH = 0;
+    private int actionsAreaY = 0;
+    private int actionsAreaH = 0;
+    private int maxVisibleConditions = 1;
+    private int maxVisibleActions = 1;
     private static final int LINE_HEIGHT = 22;
     private static final int HEADER_HEIGHT = 50;
     private static final int SECTION_TITLE_HEIGHT = 25;
@@ -119,6 +139,8 @@ public class EntityInteractionBlockScreen extends Screen {
     protected void init() {
         super.init();
         this.clearWidgets();
+        // 列表翻页会重建整个界面，先记下冷却输入框的内容，稍后回填
+        String pendingCooldownText = cooldownInput != null ? cooldownInput.getValue() : null;
 
         int centerX = this.width / 2;
         int contentWidth = this.width - 2 * PANEL_MARGIN;
@@ -132,7 +154,8 @@ public class EntityInteractionBlockScreen extends Screen {
 
         cooldownInput = new EditBox(this.font, PANEL_MARGIN + 85, topY, 50, BUTTON_HEIGHT,
                 Component.translatable("gui.entity_interaction_block.cooldown_hint"));
-        cooldownInput.setValue(String.valueOf(cooldownTicks / 20.0));
+        cooldownInput.setValue(pendingCooldownText != null ? pendingCooldownText
+                : String.valueOf(cooldownTicks / 20.0));
         cooldownInput.setFilter(s -> s.matches("[0-9.]*"));
         addRenderableWidget(cooldownInput);
 
@@ -157,6 +180,12 @@ public class EntityInteractionBlockScreen extends Screen {
         int conditionsStartY = HEADER_HEIGHT + SECTION_TITLE_HEIGHT + BUTTON_HEIGHT + 15;
         int actionsStartY = conditionsStartY + conditionsHeight + SECTION_GAP;
 
+        // 记录区域几何，供滚轮滚动判断命中区域
+        conditionsAreaY = conditionsStartY;
+        conditionsAreaH = conditionsHeight;
+        actionsAreaY = actionsStartY;
+        actionsAreaH = actionsHeight;
+
         // ===== 条件区域 =====
         // 条件区域标题栏
         int condTitleY = conditionsStartY - SECTION_TITLE_HEIGHT;
@@ -179,7 +208,7 @@ public class EntityInteractionBlockScreen extends Screen {
 
         // 显示条件列表
         int condContentY = conditionsStartY + 5;
-        int maxVisibleConditions = (conditionsHeight - 10) / LINE_HEIGHT;
+        maxVisibleConditions = Math.max(1, (conditionsHeight - 10) / LINE_HEIGHT);
         int visibleEndIndex = Math.min(conditions.size(), conditionsScrollOffset + maxVisibleConditions);
 
         for (int i = conditionsScrollOffset; i < visibleEndIndex; i++) {
@@ -255,7 +284,7 @@ public class EntityInteractionBlockScreen extends Screen {
 
         // 显示动作列表
         int actionContentY = actionsStartY + 5;
-        int maxVisibleActions = (actionsHeight - 10) / LINE_HEIGHT;
+        maxVisibleActions = Math.max(1, (actionsHeight - 10) / LINE_HEIGHT);
         int actionVisibleEndIndex = Math.min(actions.size(), actionsScrollOffset + maxVisibleActions);
 
         for (int i = actionsScrollOffset; i < actionVisibleEndIndex; i++) {
@@ -543,6 +572,31 @@ public class EntityInteractionBlockScreen extends Screen {
     }
 
     @Override
+    public boolean mouseScrolled(double mouseX, double mouseY, double horizontalScroll, double verticalScroll) {
+        // 条件 / 动作列表支持滚轮滚动（一格一行），区域外交给上层
+        int dir = verticalScroll > 0 ? -1 : (verticalScroll < 0 ? 1 : 0);
+        if (dir != 0 && mouseY >= conditionsAreaY && mouseY < conditionsAreaY + conditionsAreaH) {
+            int max = Math.max(0, conditions.size() - maxVisibleConditions);
+            int next = Mth.clamp(conditionsScrollOffset + dir, 0, max);
+            if (next != conditionsScrollOffset) {
+                conditionsScrollOffset = next;
+                this.init();
+            }
+            return true;
+        }
+        if (dir != 0 && mouseY >= actionsAreaY && mouseY < actionsAreaY + actionsAreaH) {
+            int max = Math.max(0, actions.size() - maxVisibleActions);
+            int next = Mth.clamp(actionsScrollOffset + dir, 0, max);
+            if (next != actionsScrollOffset) {
+                actionsScrollOffset = next;
+                this.init();
+            }
+            return true;
+        }
+        return super.mouseScrolled(mouseX, mouseY, horizontalScroll, verticalScroll);
+    }
+
+    @Override
     public boolean isPauseScreen() {
         return false;
     }
@@ -570,6 +624,17 @@ public class EntityInteractionBlockScreen extends Screen {
         private int scrollY = 0;
         private static final int SCROLL_STEP = 15;
 
+        // ---- 滚动视图（参考 CustomContentManageScreen：平移 + scissor 裁剪）----
+        /** 内容区顶部，与 init 里控件 y 的起始值一致。 */
+        private static final int CONTENT_TOP = 80;
+        private final List<AbstractWidget> fixedWidgets = new ArrayList<>();
+        private final List<Placement> contentPlacements = new ArrayList<>();
+        private int scrollOffset = 0;
+        private int contentHeight = 0;
+        private boolean draggingThumb = false;
+        private int dragStartY = 0;
+        private int dragStartScroll = 0;
+
         public AddConditionScreen(EntityInteractionBlockScreen parent) {
             super(Component.translatable("gui.entity_interaction_block.add_condition"));
             this.parent = parent;
@@ -580,6 +645,7 @@ public class EntityInteractionBlockScreen extends Screen {
             super.init();
             this.clearWidgets();
             scrollY = 0;
+            scrollOffset = 0;
             // 切换条件类型后必须清空输入框引用，否则会误用上一次其它条件类型残留的输入值
             valueInput = null;
             minutesInput = null;
@@ -950,6 +1016,11 @@ public class EntityInteractionBlockScreen extends Screen {
                 }
                 case WORLD_TIME -> {
                     // 世界时间类型
+                    // 先写入默认值：未点击下拉直接确定时，避免 worldTimeType 为 null（判定处 switch 会 NPE）
+                    if (stringInput == null) {
+                        stringInput = new EditBox(font, 0, 0, 0, 0, Component.empty());
+                    }
+                    stringInput.setValue(EntityInteractionBlockEntity.WorldTimeType.DAY.name());
                     addRenderableWidget(CycleButton.<EntityInteractionBlockEntity.WorldTimeType>builder(timeType ->
                                     Component.translatable("world_time." + timeType.name().toLowerCase()))
                             .withValues(EntityInteractionBlockEntity.WorldTimeType.values())
@@ -1092,6 +1163,11 @@ public class EntityInteractionBlockScreen extends Screen {
                 }
                 case NEED_TASK_TYPE -> {
                     // 任务类型
+                    // 先写入默认值：未点击下拉直接确定时，避免 stringValue 为 null 导致条件永不满足
+                    if (stringInput == null) {
+                        stringInput = new EditBox(font, 0, 0, 0, 0, Component.empty());
+                    }
+                    stringInput.setValue("random");
                     addRenderableWidget(CycleButton.<String>builder(taskType ->
                                     Component.translatable("task_type." + taskType))
                             .withValues(TASK_TYPES)
@@ -1142,6 +1218,8 @@ public class EntityInteractionBlockScreen extends Screen {
             // 取消按钮
             addRenderableWidget(Button.builder(Component.translatable("gui.entity_interaction_block.cancel"),
                     b -> this.minecraft.setScreen(parent)).bounds(centerX + 5, this.height - 40, 100, 20).build());
+
+            classifyWidgets();
         }
 
         private EditBox findAndAttachInput(Component message) {
@@ -1226,24 +1304,138 @@ public class EntityInteractionBlockScreen extends Screen {
             this.minecraft.setScreen(parent);
         }
 
+        /** 把控件分成「固定」与「可滚动内容」两类：顶部类型行与底部按钮不参与滚动。 */
+        private void classifyWidgets() {
+            fixedWidgets.clear();
+            contentPlacements.clear();
+            int footerTop = this.height - 50;
+            int maxBottom = CONTENT_TOP;
+            for (var child : this.children()) {
+                if (!(child instanceof AbstractWidget widget)) {
+                    continue;
+                }
+                int y = widget.getY();
+                if (y < CONTENT_TOP || y >= footerTop) {
+                    fixedWidgets.add(widget);
+                } else {
+                    contentPlacements.add(new Placement(widget, y - CONTENT_TOP));
+                    maxBottom = Math.max(maxBottom, y + widget.getHeight());
+                }
+            }
+            contentHeight = Math.max(0, maxBottom - CONTENT_TOP);
+            scrollOffset = Mth.clamp(scrollOffset, 0, maxScroll());
+        }
+
+        private int viewportHeight() {
+            return Math.max(1, (this.height - 50) - CONTENT_TOP);
+        }
+
+        private int maxScroll() {
+            return Math.max(0, contentHeight - viewportHeight());
+        }
+
+        private int thumbHeight() {
+            int track = viewportHeight();
+            int total = track + Math.max(0, maxScroll());
+            return Math.max(SREPanelStyle.SCROLL_MIN_THUMB,
+                    Math.min(track, Math.round(track * ((float) track / Math.max(1, total)))));
+        }
+
+        private int scrollbarX() {
+            return this.width - 14;
+        }
+
+        private static boolean isInRect(double mx, double my, int x, int y, int w, int h) {
+            return mx >= x && mx < x + w && my >= y && my < y + h;
+        }
+
         @Override
         public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
             this.renderBackground(guiGraphics, mouseX, mouseY, partialTick);
             guiGraphics.drawCenteredString(this.font, this.title, this.width / 2, 10, 0xFFFFFF);
-            super.render(guiGraphics, mouseX, mouseY, partialTick);
+            for (AbstractWidget widget : fixedWidgets) {
+                widget.render(guiGraphics, mouseX, mouseY, partialTick);
+            }
+            // 内容区：按 scrollOffset 平移后裁剪绘制；滚出视野的控件不再响应点击
+            int viewTop = CONTENT_TOP;
+            int viewBottom = viewTop + viewportHeight();
+            guiGraphics.enableScissor(0, viewTop, this.width, viewBottom);
+            for (Placement placement : contentPlacements) {
+                int top = viewTop + placement.relativeY() - scrollOffset;
+                placement.widget().setY(top);
+                boolean visible = top + placement.widget().getHeight() > viewTop && top < viewBottom;
+                placement.widget().visible = visible;
+                if (visible) {
+                    placement.widget().render(guiGraphics, mouseX, mouseY, partialTick);
+                }
+            }
+            guiGraphics.disableScissor();
+            drawScrollbar(guiGraphics, mouseX, mouseY);
+        }
+
+        private void drawScrollbar(GuiGraphics g, int mouseX, int mouseY) {
+            int max = maxScroll();
+            if (max <= 0) {
+                return;
+            }
+            int track = viewportHeight();
+            int thumbH = thumbHeight();
+            int span = track - thumbH;
+            int thumbY = CONTENT_TOP + (span <= 0 ? 0 : (int) ((long) span * scrollOffset / max));
+            boolean hover = draggingThumb
+                    || isInRect(mouseX, mouseY, scrollbarX() - 1, thumbY, SREPanelStyle.SCROLL_WIDTH + 2, thumbH);
+            SREPanelStyle.drawScrollbar(g, scrollbarX(), CONTENT_TOP, track, thumbY, thumbH, hover);
         }
 
         @Override
         public boolean mouseScrolled(double mouseX, double mouseY, double horizontalScroll, double verticalScroll) {
-            // 处理鼠标滚轮滚动
-            if (verticalScroll > 0) {
-                scrollY = Math.max(0, scrollY - SCROLL_STEP);
-                this.init();
-            } else if (verticalScroll < 0) {
-                scrollY += SCROLL_STEP;
-                this.init();
+            // 只平移内容，不再重建控件（重建会清空已输入的内容）
+            if (maxScroll() > 0 && mouseY >= CONTENT_TOP && mouseY < CONTENT_TOP + viewportHeight()) {
+                scrollOffset = Mth.clamp(scrollOffset - (int) (verticalScroll * SCROLL_STEP), 0, maxScroll());
+                return true;
             }
-            return true;
+            return super.mouseScrolled(mouseX, mouseY, horizontalScroll, verticalScroll);
+        }
+
+        @Override
+        public boolean mouseClicked(double mouseX, double mouseY, int button) {
+            int max = maxScroll();
+            if (button == 0 && max > 0 && isInRect(mouseX, mouseY, scrollbarX(), CONTENT_TOP,
+                    SREPanelStyle.SCROLL_WIDTH, viewportHeight())) {
+                int thumbH = thumbHeight();
+                int span = viewportHeight() - thumbH;
+                int thumbY = CONTENT_TOP + (span <= 0 ? 0 : (int) ((long) span * scrollOffset / max));
+                if (mouseY >= thumbY && mouseY < thumbY + thumbH) {
+                    draggingThumb = true;
+                    dragStartY = (int) mouseY;
+                    dragStartScroll = scrollOffset;
+                } else if (span > 0) {
+                    int rel = Mth.clamp((int) mouseY - thumbH / 2 - CONTENT_TOP, 0, span);
+                    scrollOffset = Mth.clamp((int) ((long) max * rel / span), 0, max);
+                }
+                return true;
+            }
+            return super.mouseClicked(mouseX, mouseY, button);
+        }
+
+        @Override
+        public boolean mouseDragged(double mouseX, double mouseY, int button, double dragX, double dragY) {
+            if (draggingThumb && maxScroll() > 0) {
+                int span = viewportHeight() - thumbHeight();
+                if (span > 0) {
+                    scrollOffset = Mth.clamp(
+                            dragStartScroll + (int) ((long) ((int) mouseY - dragStartY) * maxScroll() / span),
+                            0, maxScroll());
+                }
+                return true;
+            }
+            return super.mouseDragged(mouseX, mouseY, button, dragX, dragY);
+        }
+
+        @Override
+        public boolean mouseReleased(double mouseX, double mouseY, int button) {
+            draggingThumb = false;
+            return super.mouseReleased(mouseX, mouseY, button);
         }
     }
 
@@ -1268,6 +1460,17 @@ public class EntityInteractionBlockScreen extends Screen {
         private int scrollY = 0;
         private static final int SCROLL_STEP = 15;
 
+        // ---- 滚动视图（参考 CustomContentManageScreen：平移 + scissor 裁剪）----
+        /** 内容区顶部，与 init 里控件 y 的起始值一致。 */
+        private static final int CONTENT_TOP = 80;
+        private final List<AbstractWidget> fixedWidgets = new ArrayList<>();
+        private final List<Placement> contentPlacements = new ArrayList<>();
+        private int scrollOffset = 0;
+        private int contentHeight = 0;
+        private boolean draggingThumb = false;
+        private int dragStartY = 0;
+        private int dragStartScroll = 0;
+
         public AddActionScreen(EntityInteractionBlockScreen parent) {
             super(Component.translatable("gui.entity_interaction_block.add_action"));
             this.parent = parent;
@@ -1278,6 +1481,7 @@ public class EntityInteractionBlockScreen extends Screen {
             super.init();
             this.clearWidgets();
             scrollY = 0;
+            scrollOffset = 0;
             // 切换触发内容类型后必须清空输入框引用，否则会误用上一次其它类型残留的输入值
             valueInput = null;
             stringInput = null;
@@ -1949,6 +2153,8 @@ public class EntityInteractionBlockScreen extends Screen {
             // 取消按钮
             addRenderableWidget(Button.builder(Component.translatable("gui.entity_interaction_block.cancel"),
                     b -> this.minecraft.setScreen(parent)).bounds(centerX + 5, this.height - 40, 100, 20).build());
+
+            classifyWidgets();
         }
 
         private EditBox findAndAttachInput(Component message) {
@@ -2102,23 +2308,138 @@ public class EntityInteractionBlockScreen extends Screen {
             this.minecraft.setScreen(parent);
         }
 
+        /** 把控件分成「固定」与「可滚动内容」两类：顶部类型行与底部按钮不参与滚动。 */
+        private void classifyWidgets() {
+            fixedWidgets.clear();
+            contentPlacements.clear();
+            int footerTop = this.height - 50;
+            int maxBottom = CONTENT_TOP;
+            for (var child : this.children()) {
+                if (!(child instanceof AbstractWidget widget)) {
+                    continue;
+                }
+                int y = widget.getY();
+                if (y < CONTENT_TOP || y >= footerTop) {
+                    fixedWidgets.add(widget);
+                } else {
+                    contentPlacements.add(new Placement(widget, y - CONTENT_TOP));
+                    maxBottom = Math.max(maxBottom, y + widget.getHeight());
+                }
+            }
+            contentHeight = Math.max(0, maxBottom - CONTENT_TOP);
+            scrollOffset = Mth.clamp(scrollOffset, 0, maxScroll());
+        }
+
+        private int viewportHeight() {
+            return Math.max(1, (this.height - 50) - CONTENT_TOP);
+        }
+
+        private int maxScroll() {
+            return Math.max(0, contentHeight - viewportHeight());
+        }
+
+        private int thumbHeight() {
+            int track = viewportHeight();
+            int total = track + Math.max(0, maxScroll());
+            return Math.max(SREPanelStyle.SCROLL_MIN_THUMB,
+                    Math.min(track, Math.round(track * ((float) track / Math.max(1, total)))));
+        }
+
+        private int scrollbarX() {
+            return this.width - 14;
+        }
+
+        private static boolean isInRect(double mx, double my, int x, int y, int w, int h) {
+            return mx >= x && mx < x + w && my >= y && my < y + h;
+        }
+
         @Override
         public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
             this.renderBackground(guiGraphics, mouseX, mouseY, partialTick);
             guiGraphics.drawCenteredString(this.font, this.title, this.width / 2, 10, 0xFFFFFF);
-            super.render(guiGraphics, mouseX, mouseY, partialTick);
+            for (AbstractWidget widget : fixedWidgets) {
+                widget.render(guiGraphics, mouseX, mouseY, partialTick);
+            }
+            // 内容区：按 scrollOffset 平移后裁剪绘制；滚出视野的控件不再响应点击
+            int viewTop = CONTENT_TOP;
+            int viewBottom = viewTop + viewportHeight();
+            guiGraphics.enableScissor(0, viewTop, this.width, viewBottom);
+            for (Placement placement : contentPlacements) {
+                int top = viewTop + placement.relativeY() - scrollOffset;
+                placement.widget().setY(top);
+                boolean visible = top + placement.widget().getHeight() > viewTop && top < viewBottom;
+                placement.widget().visible = visible;
+                if (visible) {
+                    placement.widget().render(guiGraphics, mouseX, mouseY, partialTick);
+                }
+            }
+            guiGraphics.disableScissor();
+            drawScrollbar(guiGraphics, mouseX, mouseY);
+        }
+
+        private void drawScrollbar(GuiGraphics g, int mouseX, int mouseY) {
+            int max = maxScroll();
+            if (max <= 0) {
+                return;
+            }
+            int track = viewportHeight();
+            int thumbH = thumbHeight();
+            int span = track - thumbH;
+            int thumbY = CONTENT_TOP + (span <= 0 ? 0 : (int) ((long) span * scrollOffset / max));
+            boolean hover = draggingThumb
+                    || isInRect(mouseX, mouseY, scrollbarX() - 1, thumbY, SREPanelStyle.SCROLL_WIDTH + 2, thumbH);
+            SREPanelStyle.drawScrollbar(g, scrollbarX(), CONTENT_TOP, track, thumbY, thumbH, hover);
         }
 
         @Override
         public boolean mouseScrolled(double mouseX, double mouseY, double horizontalScroll, double verticalScroll) {
-            if (verticalScroll > 0) {
-                scrollY = Math.max(0, scrollY - SCROLL_STEP);
-                this.init();
-            } else if (verticalScroll < 0) {
-                scrollY += SCROLL_STEP;
-                this.init();
+            // 只平移内容，不再重建控件（重建会清空已输入的内容）
+            if (maxScroll() > 0 && mouseY >= CONTENT_TOP && mouseY < CONTENT_TOP + viewportHeight()) {
+                scrollOffset = Mth.clamp(scrollOffset - (int) (verticalScroll * SCROLL_STEP), 0, maxScroll());
+                return true;
             }
-            return true;
+            return super.mouseScrolled(mouseX, mouseY, horizontalScroll, verticalScroll);
+        }
+
+        @Override
+        public boolean mouseClicked(double mouseX, double mouseY, int button) {
+            int max = maxScroll();
+            if (button == 0 && max > 0 && isInRect(mouseX, mouseY, scrollbarX(), CONTENT_TOP,
+                    SREPanelStyle.SCROLL_WIDTH, viewportHeight())) {
+                int thumbH = thumbHeight();
+                int span = viewportHeight() - thumbH;
+                int thumbY = CONTENT_TOP + (span <= 0 ? 0 : (int) ((long) span * scrollOffset / max));
+                if (mouseY >= thumbY && mouseY < thumbY + thumbH) {
+                    draggingThumb = true;
+                    dragStartY = (int) mouseY;
+                    dragStartScroll = scrollOffset;
+                } else if (span > 0) {
+                    int rel = Mth.clamp((int) mouseY - thumbH / 2 - CONTENT_TOP, 0, span);
+                    scrollOffset = Mth.clamp((int) ((long) max * rel / span), 0, max);
+                }
+                return true;
+            }
+            return super.mouseClicked(mouseX, mouseY, button);
+        }
+
+        @Override
+        public boolean mouseDragged(double mouseX, double mouseY, int button, double dragX, double dragY) {
+            if (draggingThumb && maxScroll() > 0) {
+                int span = viewportHeight() - thumbHeight();
+                if (span > 0) {
+                    scrollOffset = Mth.clamp(
+                            dragStartScroll + (int) ((long) ((int) mouseY - dragStartY) * maxScroll() / span),
+                            0, maxScroll());
+                }
+                return true;
+            }
+            return super.mouseDragged(mouseX, mouseY, button, dragX, dragY);
+        }
+
+        @Override
+        public boolean mouseReleased(double mouseX, double mouseY, int button) {
+            draggingThumb = false;
+            return super.mouseReleased(mouseX, mouseY, button);
         }
     }
 
@@ -2172,6 +2493,8 @@ public class EntityInteractionBlockScreen extends Screen {
             // 取消按钮
             addRenderableWidget(Button.builder(Component.translatable("gui.entity_interaction_block.cancel"),
                     b -> this.minecraft.setScreen(parent)).bounds(centerX + 5, this.height - 40, 100, 20).build());
+
+            classifyWidgets();
         }
 
         private void confirm() {
@@ -2362,6 +2685,8 @@ public class EntityInteractionBlockScreen extends Screen {
             // 取消按钮
             addRenderableWidget(Button.builder(Component.translatable("gui.entity_interaction_block.cancel"),
                     b -> this.minecraft.setScreen(parent)).bounds(centerX + 5, this.height - 40, 100, 20).build());
+
+            classifyWidgets();
         }
 
         private void confirm() {
