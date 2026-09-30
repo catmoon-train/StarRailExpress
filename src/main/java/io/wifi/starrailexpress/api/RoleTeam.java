@@ -53,11 +53,11 @@ public enum RoleTeam {
     /** 偏好中立（好人方中立）：与好人一同胜利的中立。 */
     NEUTRAL_INNOCENT("display.type.role.neutral_innocent", 0xFF44BB66),
     /** 杀手方中立：与杀手一同胜利的中立。 */
-    NEUTRAL_KILLER("display.type.role.neutral_for_killer", 0xFFAA44CC),
+    NEUTRAL_KILLER("display.type.role.neutral_for_killer", 0xFFFE55FE),
     /** 特殊中立：显式标记为特殊中立的中立职业。 */
     NEUTRAL_SPECIAL("display.type.role.neutral_special", 0xFFC8A882),
     /** 事件中立：显式标记为事件中立的中立职业（由局内随机事件决定是否登场）。 */
-    NEUTRAL_EVENT("display.type.role.neutral_event", 0xFFAAAAAA),
+    NEUTRAL_EVENT("display.type.role.neutral_event", 0xFF555555),
     /** 独立胜利中立：不属于偏好 / 杀手方 / 事件 / 特殊中立的其余中立，自动归纳。 */
     NEUTRAL_INDEPENDENT_WIN("display.type.role.neutral_independent_win", 0xFFFFFF55),
     /** 杀手：拥有杀手能力。 */
