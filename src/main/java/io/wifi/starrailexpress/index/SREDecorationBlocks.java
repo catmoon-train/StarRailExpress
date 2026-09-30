@@ -93,6 +93,16 @@ public final class SREDecorationBlocks {
                     BlockBehaviour.Properties.ofFullCopy(Blocks.IRON_BLOCK)));
     public static final Block IRON_BLOCK_SLAB = registerBlock("iron_block_slab",
             new SlabBlock(BlockBehaviour.Properties.ofFullCopy(Blocks.IRON_BLOCK)));
+    public static final Block RED_MUSHROOM_BLOCK_STAIRS = registerBlock("red_mushroom_block_stairs",
+            new StairBlock(Blocks.RED_MUSHROOM_BLOCK.defaultBlockState(),
+                    BlockBehaviour.Properties.ofFullCopy(Blocks.RED_MUSHROOM_BLOCK)));
+    public static final Block RED_MUSHROOM_BLOCK_SLAB = registerBlock("red_mushroom_block_slab",
+            new SlabBlock(BlockBehaviour.Properties.ofFullCopy(Blocks.RED_MUSHROOM_BLOCK)));
+    public static final Block BROWN_MUSHROOM_BLOCK_STAIRS = registerBlock("brown_mushroom_block_stairs",
+            new StairBlock(Blocks.BROWN_MUSHROOM_BLOCK.defaultBlockState(),
+                    BlockBehaviour.Properties.ofFullCopy(Blocks.BROWN_MUSHROOM_BLOCK)));
+    public static final Block BROWN_MUSHROOM_BLOCK_SLAB = registerBlock("brown_mushroom_block_slab",
+            new SlabBlock(BlockBehaviour.Properties.ofFullCopy(Blocks.BROWN_MUSHROOM_BLOCK)));
     public static final Block LIGHT_BLUE_OAK_DOOR = registerBlock("light_blue_oak_door",
             new DoorBlock(BlockSetType.OAK, BlockBehaviour.Properties.ofFullCopy(Blocks.OAK_DOOR)));
     public static final Block LIGHT_BLUE_DIRT_PATH = registerBlock("light_blue_dirt_path",
@@ -308,6 +318,10 @@ public final class SREDecorationBlocks {
             registerBlockItem(DEEP_BLUE_BRICK_SLAB),
             registerBlockItem(IRON_BLOCK_STAIRS),
             registerBlockItem(IRON_BLOCK_SLAB),
+            registerBlockItem(RED_MUSHROOM_BLOCK_STAIRS),
+            registerBlockItem(RED_MUSHROOM_BLOCK_SLAB),
+            registerBlockItem(BROWN_MUSHROOM_BLOCK_STAIRS),
+            registerBlockItem(BROWN_MUSHROOM_BLOCK_SLAB),
             registerBlockItem(LIGHT_BLUE_OAK_DOOR),
             registerBlockItem(LIGHT_BLUE_DIRT_PATH),
             registerStandingAndWallItem(BLUE_TORCH, WALL_BLUE_TORCH),
