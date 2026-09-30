@@ -17,6 +17,8 @@ import org.agmas.noellesroles.game.roles.killer.dream.DreamHealthComponent;
  * <p>{@code /sre:virtual_health get <玩家>}：查询当前虚拟血量。
  * <p>{@code /sre:virtual_health add <玩家> <量>}：增减虚拟血量，支持负数；结果夹在 [0, 上限]，不会致死。
  * <p>{@code /sre:virtual_health set <玩家> <值>}：直接设置虚拟血量；结果夹在 [0, 上限]，不会致死。
+ *
+ * <p>反馈文本全部走翻译键 {@code message.noellesroles.virtual_health.*}。
  */
 public final class VirtualHealthCommand {
     private VirtualHealthCommand() {}
@@ -43,8 +45,10 @@ public final class VirtualHealthCommand {
         DreamHealthComponent health = DreamHealthComponent.KEY.get(target);
         int current = health.currentHealth();
         int max = DreamHealthComponent.maxHealth();
-        context.getSource().sendSuccess(() -> Component.literal(target.getName().getString() + " 的虚拟血量："
-                + current + " / " + max), true);
+        context.getSource().sendSuccess(
+                () -> Component.translatable("message.noellesroles.virtual_health.get", target.getName(), current,
+                        max),
+                true);
         return 1;
     }
 
@@ -54,14 +58,19 @@ public final class VirtualHealthCommand {
         DreamHealthComponent health = DreamHealthComponent.KEY.get(target);
         int result = health.addHealth(amount);
         if (result < 0) {
-            context.getSource().sendFailure(Component.literal("无法调整 " + target.getName().getString() + " 的虚拟血量"));
+            context.getSource().sendFailure(
+                    Component.translatable("message.noellesroles.virtual_health.adjust_failed", target.getName()));
             return 0;
         }
         int max = DreamHealthComponent.maxHealth();
         int finalResult = result;
-        context.getSource().sendSuccess(() -> Component.literal(target.getName().getString()
-                + " 的虚拟血量已" + (amount >= 0 ? "增加 " : "减少 ") + Math.abs(amount)
-                + " 点，当前：" + finalResult + " / " + max), true);
+        Component direction = amount >= 0
+                ? Component.translatable("message.noellesroles.virtual_health.increase")
+                : Component.translatable("message.noellesroles.virtual_health.decrease");
+        context.getSource().sendSuccess(
+                () -> Component.translatable("message.noellesroles.virtual_health.add", target.getName(), direction,
+                        Math.abs(amount), finalResult, max),
+                true);
         return 1;
     }
 
@@ -71,13 +80,16 @@ public final class VirtualHealthCommand {
         DreamHealthComponent health = DreamHealthComponent.KEY.get(target);
         int result = health.setHealth(value);
         if (result < 0) {
-            context.getSource().sendFailure(Component.literal("无法设置 " + target.getName().getString() + " 的虚拟血量"));
+            context.getSource().sendFailure(
+                    Component.translatable("message.noellesroles.virtual_health.set_failed", target.getName()));
             return 0;
         }
         int max = DreamHealthComponent.maxHealth();
         int finalResult = result;
-        context.getSource().sendSuccess(() -> Component.literal(target.getName().getString()
-                + " 的虚拟血量已设为 " + finalResult + " / " + max), true);
+        context.getSource().sendSuccess(
+                () -> Component.translatable("message.noellesroles.virtual_health.set", target.getName(), finalResult,
+                        max),
+                true);
         return 1;
     }
 }
