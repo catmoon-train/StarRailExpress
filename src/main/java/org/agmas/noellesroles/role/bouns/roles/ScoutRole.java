@@ -15,7 +15,9 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.tags.TagKey;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
@@ -223,6 +225,10 @@ public class ScoutRole extends EggRole {
      * <p>要求：面是竖直的、方块有碰撞箱（用户要求），并且不是门 / 活板门 / 栅栏门 / 按钮
      * 这类「右键是用来交互」的方块 —— 免得想开门却抓上了墙。
      */
+    /** 即使满足其它条件也禁止攀爬的方块（默认含原版屏障与 TMM 屏障镶板）。 */
+    private static final TagKey<net.minecraft.world.level.block.Block> NON_CLIMBABLE_WALLS =
+            TagKey.create(Registries.BLOCK, ResourceLocation.fromNamespaceAndPath("noellesroles", "non_climbable_walls"));
+
     public static boolean isClimbableWallBlock(Level level, BlockPos pos, BlockState state, Direction face) {
         if (face.getAxis() == Direction.Axis.Y) {
             return false;
@@ -231,7 +237,8 @@ public class ScoutRole extends EggRole {
             return false;
         }
         return !state.is(BlockTags.DOORS) && !state.is(BlockTags.TRAPDOORS)
-                && !state.is(BlockTags.FENCE_GATES) && !state.is(BlockTags.BUTTONS);
+                && !state.is(BlockTags.FENCE_GATES) && !state.is(BlockTags.BUTTONS)
+                && !state.is(NON_CLIMBABLE_WALLS);
     }
 
     /**
