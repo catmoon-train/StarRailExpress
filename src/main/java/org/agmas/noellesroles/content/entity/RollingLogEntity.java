@@ -161,9 +161,11 @@ public class RollingLogEntity extends Entity {
                 p -> p.isAlive() && !p.isCreative() && !p.isSpectator());
         for (Player p : hit) {
             if (this.safe) {
-                // 安全模式：仅造成 1 点原版伤害并沿滚动方向击退，不会致死
+                // 安全模式：仅造成 1 点原版伤害并击退，不会致死
                 p.hurt(level.damageSources().generic(), 1.0F);
-                p.knockback(0.5, this.dirX, this.dirZ);
+                // knockback(strength, x, z) 会把目标推向 -(x, z)，所以这里传滚动方向的反方向：
+                // 滚木朝 (dirX, dirZ) 前进，玩家应被顺势撞飞（远离滚木来向），而不是被推回滚木来的那一侧
+                p.knockback(0.5, -this.dirX, -this.dirZ);
             } else {
                 GameUtils.forceKillPlayer(p, true, null, GameConstants.DeathReasons.LOG_CRUSH);
             }

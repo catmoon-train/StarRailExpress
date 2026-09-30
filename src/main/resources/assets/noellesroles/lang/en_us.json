@@ -2186,6 +2186,8 @@
   "message.noellesroles.water_valve.all_closed": "All water valves on the field are closed, destruction task completed!",
   "block.noellesroles.rolling_stone_trigger": "Rolling Stone Trigger",
   "block.noellesroles.rolling_log_trigger": "Rolling Log Trigger",
+  "block.noellesroles.safe_rolling_stone_trigger": "Safe Rolling Stone Trigger",
+  "block.noellesroles.safe_rolling_log_trigger": "Safe Rolling Log Trigger",
   "block.noellesroles.train_target": "Train Target",
   "block.noellesroles.incinerator": "Incinerator",
   "block.noellesroles.moving_platform": "Moving Block",
