@@ -1278,6 +1278,13 @@ public class EntityInteractionBlockScreen extends Screen {
             super.init();
             this.clearWidgets();
             scrollY = 0;
+            // 切换触发内容类型后必须清空输入框引用，否则会误用上一次其它类型残留的输入值
+            valueInput = null;
+            stringInput = null;
+            minutesInput = null;
+            secondsInput = null;
+            roleWinDescriptionInput = null;
+            roleWinSubtitleInput = null;
 
             int centerX = this.width / 2;
 
