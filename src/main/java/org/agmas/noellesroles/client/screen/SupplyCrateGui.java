@@ -310,6 +310,14 @@ public class SupplyCrateGui extends Screen {
     // 渲染
     // ══════════════════════════════════════════════════════════════════
 
+    /**
+     * 不渲染原版背景：{@code Screen#render} 内部会调用本方法，
+     * 而 1.21 的默认实现是「模糊 + 半透明渐变」，会把界面文字糊住，这里置空保持完全透明。
+     */
+    @Override
+    public void renderBackground(@NotNull GuiGraphics g, int mouseX, int mouseY, float delta) {
+    }
+
     @Override
     public void render(@NotNull GuiGraphics g, int mouseX, int mouseY, float delta) {
         // 面板背景
