@@ -39,6 +39,9 @@ import java.util.List;
  * 为开启 canUseSpVanillaWeapon 的职业增加烟花弩效果。
  * 原版爆炸结算保持不变；这里额外记录精确命中并扣除周围玩家的虚拟血量。
  *
+ * <p>精确命中不再直接判死，改为扣除 {@link #DIRECT_HIT_VIRTUAL_DAMAGE}（20）点虚拟血量，
+ * 虚拟血量归零才按 {@code firework_crossbow} 死因判死。
+ *
  * <p>溅射伤害默认不会使玩家致死（{@code hurtWithoutKilling}）；
  * 但若射手是<b>杀手职业</b>（{@code isKiller()}，如 Dream / 爆炸狂），
  * 则溅射伤害可以致死（{@code hurt}，死因 {@code firework_crossbow}）。
@@ -49,6 +52,10 @@ public abstract class FireworkRocketMixin {
     private List<FireworkExplosion> getExplosions() {
         throw new AssertionError();
     }
+
+    /** 精确命中造成的虚拟伤害（不再直接判死，虚拟血量归零才死）。 */
+    @Unique
+    private static final int DIRECT_HIT_VIRTUAL_DAMAGE = 20;
 
     @Unique
     private ServerPlayer noellesroles$directHitPlayer;
@@ -84,7 +91,7 @@ public abstract class FireworkRocketMixin {
     }
 
     @Inject(method = "onHitEntity", at = @At("TAIL"))
-    private void noellesroles$killDirectHit(EntityHitResult hitResult, CallbackInfo ci) {
+    private void noellesroles$damageDirectHit(EntityHitResult hitResult, CallbackInfo ci) {
         FireworkRocketEntity rocket = (FireworkRocketEntity) (Object) this;
         if (!(hitResult.getEntity() instanceof ServerPlayer target)
                 || noellesroles$directHitPlayer != target) {
@@ -96,7 +103,9 @@ public abstract class FireworkRocketMixin {
         }
         ServerPlayer shooter = shooterHolder[0];
         if (!shooter.isSpectator() && target != shooter) {
-            GameUtils.killPlayer(target, true, shooter, GameConstants.DeathReasons.FIREWORK_CROSSBOW);
+            // 精确命中：扣 20 点虚拟血量，归零才判死（死因仍为 firework_crossbow）
+            DreamHealthComponent.KEY.get(target).hurt(shooter, DIRECT_HIT_VIRTUAL_DAMAGE,
+                    GameConstants.DeathReasons.FIREWORK_CROSSBOW);
             shooter.getCooldowns().addCooldown(Items.CROSSBOW, 12 * 20);
         }
     }
