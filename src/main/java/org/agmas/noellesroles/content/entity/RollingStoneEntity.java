@@ -52,6 +52,7 @@ public class RollingStoneEntity extends Entity {
     private double dirZ;
     private double velocityY = 0;
     private int life = MAX_LIFE;
+    private boolean safe = false;
 
     public RollingStoneEntity(EntityType<?> type, Level level) {
         super(type, level);
@@ -70,6 +71,20 @@ public class RollingStoneEntity extends Entity {
         return e;
     }
 
+    /** 安全模式：召唤不会致死的滚石（命中仅造成 1 点原版伤害并击退）。 */
+    public static RollingStoneEntity spawnSafe(ServerLevel level, Vec3 pos, Direction dir) {
+        RollingStoneEntity e = new RollingStoneEntity(ModEntities.ROLLING_STONE, level);
+        e.setPos(pos.x, pos.y, pos.z);
+        e.setYRot(dir.toYRot());
+        e.dirX = dir.getStepX();
+        e.dirZ = dir.getStepZ();
+        e.safe = true;
+        e.setDeltaMovement(e.dirX * SPEED, 0, e.dirZ * SPEED);
+        level.addFreshEntity(e);
+        level.playSound(null, e.blockPosition(), SoundEvents.STONE_PLACE, SoundSource.BLOCKS, 1.4F, 0.5F);
+        return e;
+    }
+
     @Override
     protected void defineSynchedData(SynchedEntityData.Builder builder) {
     }
@@ -79,6 +94,7 @@ public class RollingStoneEntity extends Entity {
         this.dirX = tag.getDouble("DirX");
         this.dirZ = tag.getDouble("DirZ");
         this.life = tag.getInt("Life");
+        this.safe = tag.getBoolean("Safe");
     }
 
     @Override
@@ -86,6 +102,7 @@ public class RollingStoneEntity extends Entity {
         tag.putDouble("DirX", this.dirX);
         tag.putDouble("DirZ", this.dirZ);
         tag.putInt("Life", this.life);
+        tag.putBoolean("Safe", this.safe);
     }
 
     @Override
@@ -144,7 +161,13 @@ public class RollingStoneEntity extends Entity {
         List<Player> hit = level.getEntitiesOfClass(Player.class, this.getBoundingBox().inflate(0.15),
                 p -> p.isAlive() && !p.isCreative() && !p.isSpectator());
         for (Player p : hit) {
-            GameUtils.forceKillPlayer(p, true, null, GameConstants.DeathReasons.BOULDER_CRUSH);
+            if (this.safe) {
+                // 安全模式：仅造成 1 点原版伤害并沿滚动方向击退，不会致死
+                p.hurt(level.damageSources().generic(), 1.0F);
+                p.knockback(0.5, this.dirX, this.dirZ);
+            } else {
+                GameUtils.forceKillPlayer(p, true, null, GameConstants.DeathReasons.BOULDER_CRUSH);
+            }
         }
 
         // ── 粒子 + 音效 ──

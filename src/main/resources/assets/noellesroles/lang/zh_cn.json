@@ -2242,6 +2242,8 @@
   "message.noellesroles.water_valve.all_closed": "场上所有水阀已关闭，破坏任务结束！",
   "block.noellesroles.rolling_stone_trigger": "滚石触发板",
   "block.noellesroles.rolling_log_trigger": "滚木触发板",
+  "block.noellesroles.safe_rolling_stone_trigger": "安全滚石触发板",
+  "block.noellesroles.safe_rolling_log_trigger": "安全滚木触发板",
   "block.noellesroles.train_target": "列车标靶",
   "block.noellesroles.incinerator": "焚化炉",
   "block.noellesroles.moving_platform": "移动方块",

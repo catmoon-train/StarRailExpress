@@ -720,7 +720,7 @@ public class NRDeathEvents {
             return true;
         });
 
-        // 小丑精神爆发期间免死 + 窃皮者/斗士/跟踪者免死
+        // 小丑精神爆发期间免死 + 斗士/跟踪者免死（窃皮者皮肤盾已移至护盾之后）
         AllowPlayerDeath.EVENT.register((playerEntity, identifier) -> {
             // 小丑
             if (identifier == GameConstants.DeathReasons.FELL_OUT_OF_TRAIN)
@@ -741,9 +741,6 @@ public class NRDeathEvents {
                 }
             }
 
-            // 窃皮者皮肤死亡免疫
-            if (handleSkincrawlerDeath(playerEntity, identifier))
-                return false;
             // 斗士无敌反制
             if (handleBoxerInvulnerability(playerEntity, identifier))
                 return false;
@@ -769,6 +766,15 @@ public class NRDeathEvents {
         // 傀儡师假人死亡 + 起搏器
         AfterShieldAllowPlayerDeath.EVENT.register((victim, deathReason) -> {
             if (handlePuppeteerDeath(victim, deathReason))
+                return false;
+            return true;
+        });
+
+        // 窃皮者皮肤死亡免疫
+        // 注册在护盾之后：防弹衣、弱效护盾、疯狂模式护甲等其它盾优先消耗，
+        // 只有它们都没挡住时才动用皮肤盾（避免优先触发导致自己被定在原地）。
+        AfterShieldAllowPlayerDeath.EVENT.register((victim, deathReason) -> {
+            if (handleSkincrawlerDeath(victim, deathReason))
                 return false;
             return true;
         });

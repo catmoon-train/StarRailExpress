@@ -139,6 +139,20 @@ public interface ModSceneBlocks {
             "rolling_log_trigger",
             BlockEntityType.Builder.of(RollingLogTriggerPlateEntity::new, ROLLING_LOG_TRIGGER));
 
+    // ───────────────────────── 批次C-2：安全滚石/滚木触发板 ─────────────────────────
+
+    Block SAFE_ROLLING_STONE_TRIGGER = registerBlock("safe_rolling_stone_trigger",
+            new SafeRollingStoneTriggerPlate(Properties.ofFullCopy(Blocks.STONE).noOcclusion()));
+    BlockEntityType<SafeRollingStoneTriggerPlateEntity> SAFE_ROLLING_STONE_TRIGGER_ENTITY = blockEntityRegistrar.create(
+            "safe_rolling_stone_trigger",
+            BlockEntityType.Builder.of(SafeRollingStoneTriggerPlateEntity::new, SAFE_ROLLING_STONE_TRIGGER));
+    Block SAFE_ROLLING_LOG_TRIGGER = registerBlock("safe_rolling_log_trigger",
+            new SafeRollingLogTriggerPlateBlock(
+                    Properties.ofFullCopy(Blocks.OAK_LOG).noOcclusion().mapColor(MapColor.WOOD)));
+    BlockEntityType<SafeRollingLogTriggerPlateEntity> SAFE_ROLLING_LOG_TRIGGER_ENTITY = blockEntityRegistrar.create(
+            "safe_rolling_log_trigger",
+            BlockEntityType.Builder.of(SafeRollingLogTriggerPlateEntity::new, SAFE_ROLLING_LOG_TRIGGER));
+
     // ───────────────────────── 批次D：特殊机关 ─────────────────────────
 
     Block TRAIN_TARGET = registerBlock("train_target",
