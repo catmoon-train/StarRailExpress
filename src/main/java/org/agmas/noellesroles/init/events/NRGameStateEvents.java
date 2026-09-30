@@ -109,6 +109,8 @@ public class NRGameStateEvents {
 
     private static void registerOnGameStarted() {
         OnGameStarted.EVENT.register((serverLevel) -> {
+            // 物资箱：清空上局遗留的物资与领取记录，间隔重新计时并复位开启状态
+            org.agmas.noellesroles.content.block_entity.SupplyCrateBlockEntity.resetAll(serverLevel);
             TarotAssemblyManager.havingMeeting = false;
             HoanMeirinFistPunchHandler.PUNCH_RECORDS.clear();
             RoleShopHandler.resetOldmanEasterEggState();
@@ -150,6 +152,8 @@ public class NRGameStateEvents {
 
     private static void registerOnGameEnd() {
         OnGameEnd.EVENT.register((world, gameWorldComponent) -> {
+            // 物资箱：清空本局物资与领取记录，间隔重新计时并复位开启状态
+            org.agmas.noellesroles.content.block_entity.SupplyCrateBlockEntity.resetAll(world);
             nianShouFirecrackersDistributedThisGame = false;
             HoanMeirinFistPunchHandler.PUNCH_RECORDS.clear();
             RoleShopHandler.resetOldmanEasterEggState();

@@ -312,8 +312,6 @@ public class SupplyCrateGui extends Screen {
 
     @Override
     public void render(@NotNull GuiGraphics g, int mouseX, int mouseY, float delta) {
-        this.renderBackground(g, mouseX, mouseY, delta);
-
         // 面板背景
         g.fill(leftPanelX, leftPanelY, leftPanelX + leftPanelW, leftPanelY + leftPanelH, 0xAA222222);
         g.fill(rightPanelX, rightPanelY, rightPanelX + rightPanelW, rightPanelY + 100, 0xAA222222);
@@ -448,6 +446,10 @@ public class SupplyCrateGui extends Screen {
     @Override
     public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
         if (Minecraft.getInstance().options.keyInventory.matches(keyCode, scanCode)) {
+            // 输入框获得焦点时，E 应作为文本输入交给输入框处理，而不是关闭界面
+            if (getFocused() instanceof EditBox) {
+                return super.keyPressed(keyCode, scanCode, modifiers);
+            }
             onClose();
             return true;
         }

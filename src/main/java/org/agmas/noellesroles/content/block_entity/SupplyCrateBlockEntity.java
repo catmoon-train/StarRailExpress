@@ -51,6 +51,68 @@ public class SupplyCrateBlockEntity extends BlockEntity {
     private long lastRefreshTick = -1;
     private final Set<UUID> claimedPlayers = new HashSet<>(); // 非共享模式下已领取的玩家
 
+    // 按地图名追踪所有物资箱实例（用于游戏结束/开始时统一重置）
+    private static final java.util.concurrent.ConcurrentHashMap<String, java.util.Set<BlockPos>> mapInstances = new java.util.concurrent.ConcurrentHashMap<>();
+    private boolean tracked = false;
+
+    private static String getMapKey(Level level) {
+        var areas = io.wifi.starrailexpress.cca.AreasWorldComponent.KEY.get(level);
+        return areas != null && areas.mapName != null ? areas.mapName : "";
+    }
+
+    private void tryTrack() {
+        if (!tracked && level != null && !level.isClientSide()) {
+            tracked = true;
+            mapInstances
+                    .computeIfAbsent(getMapKey(level), k -> java.util.concurrent.ConcurrentHashMap.newKeySet())
+                    .add(worldPosition);
+        }
+    }
+
+    @Override
+    public void setRemoved() {
+        super.setRemoved();
+        if (level != null && !level.isClientSide()) {
+            var set = mapInstances.get(getMapKey(level));
+            if (set != null) {
+                set.remove(worldPosition);
+            }
+        }
+    }
+
+    /**
+     * 重置本局相关状态：清空当前物资与领取记录，间隔重新计时，并复位方块开启状态。
+     * 配置（物品列表、刷新间隔、刷新/共享开关）保持不变。
+     */
+    public void resetForNewGame() {
+        currentItems.clear();
+        claimedPlayers.clear();
+        lastRefreshTick = -1; // -1 表示下一 tick 重新计时
+        setChanged();
+        if (level == null || level.isClientSide()) return;
+        BlockState state = level.getBlockState(worldPosition);
+        if (state.hasProperty(SupplyCrateBlock.OPENED) && state.getValue(SupplyCrateBlock.OPENED)) {
+            level.setBlockAndUpdate(worldPosition, state.setValue(SupplyCrateBlock.OPENED, false));
+        }
+        if (level instanceof ServerLevel serverLevel) {
+            serverLevel.getChunkSource().blockChanged(worldPosition);
+        }
+    }
+
+    /**
+     * 重置指定世界中所有物资箱的本局状态（游戏结束/开局时调用）
+     */
+    public static void resetAll(Level level) {
+        if (level == null || level.isClientSide()) return;
+        var set = mapInstances.get(getMapKey(level));
+        if (set == null || set.isEmpty()) return;
+        for (BlockPos pos : new ArrayList<>(set)) {
+            if (level.getBlockEntity(pos) instanceof SupplyCrateBlockEntity crate && !crate.isRemoved()) {
+                crate.resetForNewGame();
+            }
+        }
+    }
+
     public SupplyCrateBlockEntity(BlockPos pos, BlockState state) {
         super(ModBlocks.SUPPLY_CRATE_BLOCK_ENTITY, pos, state);
     }
@@ -60,6 +122,8 @@ public class SupplyCrateBlockEntity extends BlockEntity {
      */
     public static void tick(Level level, BlockPos pos, BlockState state, SupplyCrateBlockEntity entity) {
         if (level.isClientSide()) return;
+
+        entity.tryTrack();
 
         long currentTick = level.getGameTime();
         if (entity.lastRefreshTick < 0) {

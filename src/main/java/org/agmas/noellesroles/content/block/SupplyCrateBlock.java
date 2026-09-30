@@ -17,6 +17,7 @@ package org.agmas.noellesroles.content.block;
 
 import com.mojang.serialization.MapCodec;
 
+import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.content.block.api.TaskInstinctShowableInterface;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.core.BlockPos;
@@ -142,6 +143,12 @@ public class SupplyCrateBlock extends BaseEntityBlock implements TaskInstinctSho
             if (player instanceof ServerPlayer serverPlayer) {
                 ServerPlayNetworking.send(serverPlayer, new OpenSupplyCrateScreenS2CPacket(pos));
             }
+            return true;
+        }
+
+        // 游戏未开始/未运行时，不允许领取物资
+        SREGameWorldComponent gameWorld = SREGameWorldComponent.KEY.get(level);
+        if (gameWorld == null || !gameWorld.isRunning()) {
             return true;
         }
 
