@@ -141,6 +141,8 @@ public class EntityInteractionBlockEntity extends BlockEntity {
     private boolean receivedRedstoneSignal = false; // 是否接收到红石信号
     private boolean isOutputtingRedstone = false; // 是否正在输出红石信号
     private int redstoneOutputStrength = 15; // 输出的红石信号强度（0-15）
+    // 上次红石检测的游戏时间（用于按「内置间隔」检测是否继续输出）
+    private long lastRedstoneCheckGameTime = 0;
     // 是否启用碰撞箱
     private boolean collisionEnabled = false;
     private int collisionRemainingTicks = 0;
@@ -458,6 +460,8 @@ public class EntityInteractionBlockEntity extends BlockEntity {
         this.blockCooldownEndGameTime = 0;
         this.playerClicks.clear();
         this.triggeredClicks.clear();
+        this.isOutputtingRedstone = false;
+        this.lastRedstoneCheckGameTime = 0;
         setChanged();
     }
 
@@ -546,9 +550,6 @@ public class EntityInteractionBlockEntity extends BlockEntity {
             }
         }
 
-        // 每tick重置红石输出状态
-        entity.isOutputtingRedstone = false;
-
         // 检查方块冷却（使用经过的时间计算）
         if (entity.isInCooldown(elapsedGameTime)) {
             return; // 冷却期间不处理任何触发
@@ -582,11 +583,22 @@ public class EntityInteractionBlockEntity extends BlockEntity {
             }
         }
 
-        // 如果有玩家触发了条件，且存在 OUTPUT_REDSTONE 动作，则更新红石输出并刷新邻居
+        // 红石输出：触发时置位并保持，直到下一次「内置间隔」检测时条件仍不满足才关闭
+        int checkInterval = Math.max(1, entity.cooldownTicks);
         if (anyPlayerTriggered && entity.isOutputtingRedstone) {
+            // 本次触发即一次检测：记录时刻并保持信号持续输出
+            entity.lastRedstoneCheckGameTime = elapsedGameTime;
             // 刷新方块状态，使红石信号更新
             serverWorld.updateNeighborsAt(pos, state.getBlock());
             serverWorld.updateNeighbourForOutputSignal(pos, state.getBlock());
+        } else if (elapsedGameTime - entity.lastRedstoneCheckGameTime >= checkInterval) {
+            // 到达下一次检测时刻仍未触发 → 条件不再满足，停止输出
+            entity.lastRedstoneCheckGameTime = elapsedGameTime;
+            if (entity.isOutputtingRedstone) {
+                entity.isOutputtingRedstone = false;
+                serverWorld.updateNeighborsAt(pos, state.getBlock());
+                serverWorld.updateNeighbourForOutputSignal(pos, state.getBlock());
+            }
         }
     }
 
