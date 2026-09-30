@@ -36,7 +36,7 @@ import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * Dream（梦魇）虚拟血量组件 —— 挂在<b>所有玩家</b>身上。
+ * Dream（Dream）虚拟血量组件 —— 挂在<b>所有玩家</b>身上。
  *
  * <p>
  * 在所有人眼中每名玩家默认都有 {@code dreamMaxHealth}（默认 20）滴血；
@@ -159,13 +159,25 @@ public class DreamHealthComponent implements RoleComponent {
         init(true);
     }
 
+    /** 是否启用「脱战自动回血」（配置项 {@code dreamHealthRegenEnabled}，默认关闭）。 */
+    public static boolean regenEnabled() {
+        return NoellesRolesConfig.HANDLER.instance().dreamHealthRegenEnabled;
+    }
+
     /**
-     * 按游戏时间推算当前血量：脱战 30s 后每秒恢复 1 点，直至回满。
+     * 按游戏时间推算当前血量。
+     *
+     * <p>脱战回血开关（{@link #regenEnabled()}）开启时：脱战
+     * {@code dreamHealthRegenDelaySeconds} 秒后每秒恢复 1 点，直至回满；
+     * 关闭时：保持受伤后的血量，不再随时间自动回升（仍可用康复药丸 / 康复试剂等手段恢复）。
      */
     public int getEffectiveHealth(long gameTime) {
         int max = maxHealth();
         if (baseHealth >= max || lastHurtGameTime <= 0) {
             return Math.min(baseHealth, max);
+        }
+        if (!regenEnabled()) {
+            return Mth.clamp(baseHealth, 0, max);
         }
         long regenStart = lastHurtGameTime + regenDelayTicks();
         if (gameTime <= regenStart) {
