@@ -16,7 +16,7 @@ import java.util.UUID;
 /**
  * 护士职业数据。
  *
- * <p>记录「可透视的尸体」：因虚拟血量归零（{@code dream_axe}）死亡的玩家，
+ * <p>记录「可透视的尸体」：因虚拟血量归零死亡的玩家（不限具体武器死因），
  * 其尸体自生成起 {@link NurseRole#BODY_GLOW_DURATION_TICKS} tick 内可被护士透视。
  * 只同步给护士本人；客户端 {@code NurseBodyGlowMixin} 据此渲染发光轮廓。
  */

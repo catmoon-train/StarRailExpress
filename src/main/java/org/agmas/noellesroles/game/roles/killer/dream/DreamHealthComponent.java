@@ -31,6 +31,10 @@ import org.jetbrains.annotations.Nullable;
 import org.ladysnake.cca.api.v3.component.ComponentKey;
 import org.ladysnake.cca.api.v3.component.ComponentRegistry;
 
+import java.util.Map;
+import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
+
 /**
  * Dream（梦魇）虚拟血量组件 —— 挂在<b>所有玩家</b>身上。
  *
@@ -54,6 +58,33 @@ public class DreamHealthComponent implements RoleComponent {
     public static final ComponentKey<DreamHealthComponent> KEY = ComponentRegistry.getOrCreate(
             ResourceLocation.fromNamespaceAndPath(Noellesroles.MOD_ID, "dream_health"),
             DreamHealthComponent.class);
+
+    /**
+     * 因虚拟血量归零而被判死的玩家：uuid -> 判死时的游戏时间。
+     * 供护士尸体透视判定（见 {@code NurseRole.onBodySpawn}），
+     * 这样不必逐个枚举武器死因，后续新增虚拟血量武器也能自动覆盖。
+     */
+    private static final Map<UUID, Long> VIRTUAL_HEALTH_DEATH_MARKS = new ConcurrentHashMap<>();
+
+    /**
+     * 一次性消费「该玩家是否刚刚因虚拟血量归零而死」的标记。
+     *
+     * @param uuid     玩家 UUID
+     * @param gameTime 当前游戏时间（服务端）
+     * @return 该玩家是否刚因虚拟血量归零而死
+     */
+    public static boolean consumeVirtualHealthDeath(UUID uuid, long gameTime) {
+        if (uuid == null) {
+            return false;
+        }
+        Long marked = VIRTUAL_HEALTH_DEATH_MARKS.remove(uuid);
+        if (marked == null) {
+            return false;
+        }
+        long delta = gameTime - marked;
+        // 只认「刚刚」打标的死亡，避免陈旧标记影响该玩家之后的其它死法
+        return delta >= 0 && delta <= 40;
+    }
 
     static {
         // 开局重置所有玩家的虚拟血量（本组件不绑定职业 componentKey，自行挂开局事件）
@@ -168,6 +199,8 @@ public class DreamHealthComponent implements RoleComponent {
         if (baseHealth <= 0) {
             baseHealth = 0;
             sync();
+            // 打标：本条命是「虚拟血量归零」判死的（护士尸体透视据此判定，不依赖具体死因）
+            VIRTUAL_HEALTH_DEATH_MARKS.put(sp.getUUID(), gameTime);
             GameUtils.killPlayer(sp, true, attacker, deathReason);
             return true;
         }

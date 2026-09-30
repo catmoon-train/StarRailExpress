@@ -10,7 +10,8 @@ import org.agmas.noellesroles.game.roles.killer.dream.DreamHealthComponent;
  *
  * <p>拥有此效果的玩家<b>每秒恢复 1 点虚拟血量</b>（{@link DreamHealthComponent}）；
  * 等级越高每秒恢复越多（1 级 = 1 点/秒，2 级 = 2 点/秒，以此类推）。
- * 虚拟血量回满后自动停止结算，效果剩余时长自然走完。
+ * 虚拟血量已满时本跳不回血，但效果仍然保留（满血的玩家也能持有），
+ * 因此效果持续期间一旦受伤就会继续回血，直到时长自然走完。
  */
 public class VirtualHealthRestoreEffect extends SimpleMobEffect {
     /** 结算周期：每秒一次。 */
@@ -32,6 +33,10 @@ public class VirtualHealthRestoreEffect extends SimpleMobEffect {
             return false;
         }
         int amount = 1 + amplifier;
-        return DreamHealthComponent.KEY.get(player).restore(amount);
+        // 满血时 restore 返回 false，但这里必须返回 true：
+        // 返回值表示「是否继续保留该效果」，返回 false 会让原版立刻移除效果，
+        // 导致满血玩家拿不到「虚拟血量恢复」，效果持续期间再受伤也无法回血。
+        DreamHealthComponent.KEY.get(player).restore(amount);
+        return true;
     }
 }

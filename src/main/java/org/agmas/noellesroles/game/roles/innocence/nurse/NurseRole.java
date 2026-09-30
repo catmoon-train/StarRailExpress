@@ -12,7 +12,6 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import org.agmas.noellesroles.Noellesroles;
-import org.agmas.noellesroles.role_data.killer.DreamRoleData;
 import org.agmas.noellesroles.init.ModItems;
 import org.agmas.noellesroles.role.ModRoles;
 import org.agmas.noellesroles.role_data.innocence.NurseRoleData;
@@ -66,19 +65,21 @@ public class NurseRole extends NormalRole {
 
     /**
      * 统一事件回调（在 {@code ModRolesInitialEventRegister} 注册一次）：
-     * 玩家因虚拟血量归零（{@code dream_axe}）死亡时，把其尸体标记为
+     * 玩家因虚拟血量归零死亡（不限具体武器死因）时，把其尸体标记为
      * 「护士可在 30 秒内透视」，写入在场所有存活护士的 {@link NurseRoleData} 并同步。
      */
     public static void onBodySpawn(Player victim, Player killer, ResourceLocation deathReason,
             PlayerBodyEntity body) {
-        if (body == null || deathReason == null) {
-            return;
-        }
-        // 仅「虚拟血量条归零而死」（Dream 铁斧死因）触发
-        if (!deathReason.equals(DreamRoleData.DEATH_REASON_DREAM_AXE)) {
+        if (body == null || victim == null) {
             return;
         }
         if (!(body.level() instanceof ServerLevel serverLevel)) {
+            return;
+        }
+        // 只要死亡来自虚拟血量归零即可，不局限于铁斧：
+        // 铁斧 / 钉锤 / 钻石剑 / 矛 / 骷髅拳击等都会由 DreamHealthComponent 打标
+        if (!org.agmas.noellesroles.game.roles.killer.dream.DreamHealthComponent
+                .consumeVirtualHealthDeath(victim.getUUID(), serverLevel.getGameTime())) {
             return;
         }
         long expiry = serverLevel.getGameTime() + BODY_GLOW_DURATION_TICKS;
