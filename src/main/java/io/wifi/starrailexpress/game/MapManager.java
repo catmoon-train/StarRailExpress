@@ -671,7 +671,7 @@ public class MapManager {
                                 : Vec3.ZERO);
                 String assetHash = "";
                 String remoteUrl = "";
-                boolean trusted = false;
+                boolean trusted = true; // 可信快速模式默认开启
                 if (jsonObject.has("sceneAsset") && jsonObject.get("sceneAsset").isJsonObject()) {
                     JsonObject sceneAsset = jsonObject.getAsJsonObject("sceneAsset");
                     if (sceneAsset.has("sha256")) {
@@ -684,7 +684,7 @@ public class MapManager {
                     if (sceneAsset.has("url")) {
                         remoteUrl = sceneAsset.get("url").getAsString().trim();
                     }
-                    trusted = sceneAsset.has("trusted") && sceneAsset.get("trusted").getAsBoolean();
+                    trusted = !sceneAsset.has("trusted") || sceneAsset.get("trusted").getAsBoolean();
                 }
                 areas.setSceneAssetHash(assetHash);
                 areas.setSceneAssetRemoteUrl(remoteUrl);

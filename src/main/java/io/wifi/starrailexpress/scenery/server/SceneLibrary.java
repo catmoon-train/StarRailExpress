@@ -142,7 +142,7 @@ public final class SceneLibrary {
         areas.setSceneDisplayOffset(Vec3.ZERO);
         areas.setSceneAssetHash("");
         areas.setSceneAssetRemoteUrl("");
-        areas.setSceneAssetTrusted(false);
+        areas.setSceneAssetTrusted(true); // 与默认保持一致（可信快速模式默认开）
     }
 
     private static void apply(ServerLevel level, String id, JsonObject root) throws IOException {
@@ -162,7 +162,7 @@ public final class SceneLibrary {
 
         String hash = "";
         String remoteUrl = "";
-        boolean trusted = false;
+        boolean trusted = true; // 可信快速模式默认开启
         if (root.has("asset") && root.get("asset").isJsonObject()) {
             JsonObject asset = root.getAsJsonObject("asset");
             if (asset.has("sha256")) {
@@ -172,7 +172,7 @@ public final class SceneLibrary {
                 }
             }
             remoteUrl = asset.has("url") ? asset.get("url").getAsString().trim() : "";
-            trusted = asset.has("trusted") && asset.get("trusted").getAsBoolean();
+            trusted = !asset.has("trusted") || asset.get("trusted").getAsBoolean();
         }
         areas.setSceneAssetHash(hash);
         areas.setSceneAssetRemoteUrl(remoteUrl);

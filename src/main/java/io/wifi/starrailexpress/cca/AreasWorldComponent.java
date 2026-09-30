@@ -73,7 +73,8 @@ public class AreasWorldComponent implements AutoSyncedComponent {
     private String sceneId = "";
     private String sceneAssetHash = "";
     private String sceneAssetRemoteUrl = "";
-    private boolean sceneAssetTrusted = false;
+    /** 可信快速模式：默认开启（跳过客户端指纹/SHA 校验，避免两端注册表 ID 差异导致场景不加载）。 */
+    private boolean sceneAssetTrusted = true;
     private Vec3 sceneDisplayOffset = Vec3.ZERO;
 
     /** 启用场景任务列表（仅可填场景任务名）。为空表示不启用任何场景任务。 */
@@ -467,7 +468,8 @@ public class AreasWorldComponent implements AutoSyncedComponent {
                 this.sceneAreaConfigured ? ScrollAxis.X : ScrollAxis.NONE);
         this.sceneAssetHash = tag.contains("sceneAssetHash") ? tag.getString("sceneAssetHash") : "";
         this.sceneAssetRemoteUrl = tag.contains("sceneAssetRemoteUrl") ? tag.getString("sceneAssetRemoteUrl") : "";
-        this.sceneAssetTrusted = tag.contains("sceneAssetTrusted") && tag.getBoolean("sceneAssetTrusted");
+        // 缺省即视为开启：老存档没写过这个字段时也要走默认开
+        this.sceneAssetTrusted = !tag.contains("sceneAssetTrusted") || tag.getBoolean("sceneAssetTrusted");
         this.sceneDisplayOffset = getVec3dFromNbt(tag, "sceneDisplayOffset");
         this.mapName = tag.contains("mapName") && !tag.getString("mapName").isBlank()
                 ? tag.getString("mapName")
