@@ -88,9 +88,9 @@ public class SafeRollingStoneTriggerPlate extends BaseEntityBlock {
     }
 
     @Override
-    public void step_on(Level level, BlockPos pos, BlockState state, Entity entity) {
+    public void stepOn(Level level, BlockPos pos, BlockState state, Entity entity) {
         tryTriggerPlate(level, pos, state, entity);
-        super.step_on(level, pos, state, entity);
+        super.stepOn(level, pos, state, entity);
     }
 
     @Override
