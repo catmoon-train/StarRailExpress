@@ -263,6 +263,57 @@ public class DreamHealthComponent implements RoleComponent {
         return true;
     }
 
+    /**
+     * 读取当前虚拟血量（按游戏时间推算后的实际值）。
+     */
+    public int currentHealth() {
+        if (player == null) {
+            return maxHealth();
+        }
+        return getEffectiveHealth(player.level().getGameTime());
+    }
+
+    /**
+     * 直接增加 / 减少虚拟血量，结果夹在 {@code [0, 上限]}，<b>不触发死亡判定</b>。
+     *
+     * @param delta 变化量，正数为增加、负数为减少
+     * @return 变化后的血量；未生效（非服务端玩家 / 玩家不存活）时返回 -1
+     */
+    public int addHealth(int delta) {
+        if (!(player instanceof ServerPlayer sp) || !GameUtils.isPlayerAliveAndSurvival(sp)) {
+            return -1;
+        }
+        long gameTime = sp.level().getGameTime();
+        return applyHealth(getEffectiveHealth(gameTime) + delta, gameTime);
+    }
+
+    /**
+     * 直接设置虚拟血量，结果夹在 {@code [0, 上限]}，<b>不触发死亡判定</b>。
+     *
+     * @param value 目标血量
+     * @return 设置后的血量；未生效（非服务端玩家 / 玩家不存活）时返回 -1
+     */
+    public int setHealth(int value) {
+        if (!(player instanceof ServerPlayer sp) || !GameUtils.isPlayerAliveAndSurvival(sp)) {
+            return -1;
+        }
+        return applyHealth(value, sp.level().getGameTime());
+    }
+
+    /** 写入血量并重置懒回血基线（与 {@link #restore(int)} 保持一致的处理）。 */
+    private int applyHealth(int value, long gameTime) {
+        int max = maxHealth();
+        int next = Mth.clamp(value, 0, max);
+        baseHealth = next;
+        if (next >= max) {
+            lastHurtGameTime = 0; // 回满：进入默认满血态
+        } else {
+            lastHurtGameTime = gameTime;
+        }
+        sync();
+        return next;
+    }
+
     // ── NBT 同步 ───────────────────────────────────────────────
 
     @Override
