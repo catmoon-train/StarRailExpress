@@ -153,7 +153,9 @@ public record KnifeStabPayload(int target) implements CustomPacketPayload {
             if (RoleUtils.isPlayerTheJob(player, THMiscRoles.HOUJUU_NUE)) {
                 modifier = 0.1667f;
             }
-            if (RoleUtils.isPlayerTheModifier(player, TraitorAndModifiers.DESPERATE_FAITH)) {
+            // 绝境信徒：仅在真正触发（成为唯一杀手）后才减少刀冷却
+            if (RoleUtils.isPlayerTheModifier(player, TraitorAndModifiers.DESPERATE_FAITH)
+                    && TraitorAndModifiers.DESPERATE_FAITH_ACTIVATED.contains(player.getUUID())) {
                 modifier *= 0.5f;
             }
             return (int) (GameConstants.ITEM_COOLDOWNS.getOrDefault(TMMItems.KNIFE, 600) * modifier);
