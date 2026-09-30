@@ -940,7 +940,7 @@ public class ModItems {
     public static final Item MINI_BAGUALU = register(
             new MinibagualuItem((new Item.Properties()).stacksTo(1).durability(1)), "mini_bagualu",
             WEAPONS_GROUP);
-    // ==================== Dream（梦魇）专属 ====================
+    // ==================== Dream（Dream）专属 ====================
     /**
      * Dream 的铁斧
      * - 12点耐久，命中消耗1点；商店第二次购买半价

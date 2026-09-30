@@ -632,7 +632,7 @@ public class ModEffects {
      * 漂移逻辑见
      * {@code org.agmas.noellesroles.game.roles.killer.dream.client.DreamClientHandler}
      * （客户端 tick，纯本地视角偏移，不发包）。
-     * Dream（梦魇）狂暴时被"看到"的玩家会获得此效果。
+     * Dream（Dream）狂暴时被"看到"的玩家会获得此效果。
      */
     public static final Holder<MobEffect> TREMBLE = register("tremble",
             new SimpleMobEffect(MobEffectCategory.HARMFUL, 0x8B1A1A));

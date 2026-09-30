@@ -1704,7 +1704,7 @@ public class RoleShopHandler {
             EMBALMER_SHOP.add(new ShopEntry(TMMItems.LOCKPICK.getDefaultInstance(), 100, ShopEntry.Type.TOOL));
         }
 
-        // ==================== Dream（梦魇）商店 ====================
+        // ==================== Dream（Dream）商店 ====================
         {
             var dreamConfig = NoellesRolesConfig.HANDLER.instance();
             // 铁斧 - 135金币，12耐久，第二次购买半价（动态价格，同杀手刀首购折扣）
@@ -3203,7 +3203,7 @@ public class RoleShopHandler {
                     ModRoles.WARLOCK_ID, WARLOCK_SHOP);
         }
 
-        // Dream（梦魇）商店
+        // Dream（Dream）商店
         {
             ShopContent.customEntries.put(
                     ModRoles.DREAM_ID, DREAM_SHOP);

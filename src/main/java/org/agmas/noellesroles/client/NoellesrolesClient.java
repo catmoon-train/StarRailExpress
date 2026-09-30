@@ -254,7 +254,7 @@ public class NoellesrolesClient implements ClientModInitializer {
         // 注册各职业的背包界面扩展（旧版 ScreenMixin 的替代：SRERole 钩子，客户端注册）
         RoleScreenRegister.register();
         NoellesrolesClientAmbientSounds.register();
-        // Dream（梦魇）：颤抖视角漂移 + 虚拟血量条（准星指向受伤玩家时显示）
+        // Dream（Dream）：颤抖视角漂移 + 虚拟血量条（准星指向受伤玩家时显示）
         org.agmas.noellesroles.game.roles.killer.dream.client.DreamClientHandler.register();
         // 破镜重圆：药水驱动的客户端坍缩/还原与坠落方块动画
         MirrorReunionSceneManager.register();

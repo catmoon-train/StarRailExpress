@@ -120,7 +120,7 @@
   "effect.noellesroles.two_dimensional_camera_distance.desc": "2D 鏡頭距離。等級越高鏡頭越遠。",
   "effect.noellesroles.pointer.desc": "顯示滑鼠指針，並讓玩家朝向指針射線命中的方塊/實體。",
   "effect.noellesroles.hakoniwa_vision.desc": "箱庭視野：自動構築當前房間並切開遮擋面。俯視時隱藏屋頂，側視時切開朝向鏡頭的牆。走上屋頂後恢復完整渲染。",
-  "effect.noellesroles.tremble.desc": "雙手發抖：準星/視角緩慢隨機漂移。夢魘狂暴時被看到的玩家會獲得此效果。",
+  "effect.noellesroles.tremble.desc": "雙手發抖：準星/視角緩慢隨機漂移。Dream狂暴時被看到的玩家會獲得此效果。",
   "effect.noellesroles.suika_small.desc": "萃香變小：體型縮小相關狀態。",
   "effect.noellesroles.illiterate.desc": "文盲：客戶端約有 20% 文字會變成亂碼，佈局仍按原文計算。職業介紹等少數介面除外。",
   "effect.noellesroles.blind_vision.desc": "盲視：世界只剩黑白。只有聲音傳播過的地方才會顯現，聲音越大範圍越遠越清晰。",

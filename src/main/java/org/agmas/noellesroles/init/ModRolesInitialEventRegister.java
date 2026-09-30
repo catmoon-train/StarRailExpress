@@ -765,7 +765,7 @@ public class ModRolesInitialEventRegister {
         // 见 WarlockRoleScreenExtension / WarlockDomainWidget /
         // WarlockDomainC2SPacket（冷却记在组件里，60s）。
 
-        // Dream（梦魇）技能注册：制酒 —— 酿一瓶酒，喝下隐身10s（期间无法攻击/无法受伤）
+        // Dream（Dream）技能注册：制酒 —— 酿一瓶酒，喝下隐身10s（期间无法攻击/无法受伤）
         RoleSkill.register(ModRoles.DREAM,
                 RoleSkill.skill(SRE.id("dream_brew"), "skill.noellesroles.dream.brew", context -> {
                     ServerPlayer player = context.player();

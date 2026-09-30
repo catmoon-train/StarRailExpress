@@ -28,7 +28,7 @@ import org.agmas.noellesroles.role_data.killer.DreamRoleData;
 import org.agmas.noellesroles.init.ModEffects;
 
 /**
- * Dream（梦魇）客户端逻辑。
+ * Dream（Dream）客户端逻辑。
  *
  * <ul>
  * <li><b>颤抖</b>（{@link ModEffects#TREMBLE}）：准星/视角每 tick 缓慢随机漂移

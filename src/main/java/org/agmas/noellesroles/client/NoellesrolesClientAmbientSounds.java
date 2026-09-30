@@ -144,7 +144,7 @@ public class NoellesrolesClientAmbientSounds {
               return false;
             },
             0.8f, 10, 10));
-    // Dream（梦魇）狂暴：MANHUNT_CHASE 追杀音乐，狂暴期间全程循环
+    // Dream（Dream）狂暴：MANHUNT_CHASE 追杀音乐，狂暴期间全程循环
     // 用 MASTER 声道（与小丑/猫娘/阿蒙等所有职业狂暴音乐一致）：MUSIC 声道会被玩家
     // 音乐音量滑块静音（很多玩家关掉音乐），导致开狂暴时听不到追杀音乐。
     AmbienceUtil.registerBackgroundAmbience(

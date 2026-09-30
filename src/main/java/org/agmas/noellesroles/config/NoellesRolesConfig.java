@@ -270,10 +270,12 @@ public class NoellesRolesConfig implements ConfigData {
     /** Photographer - 画框传送的最大垂直(Y轴)距离（方块，<=0 表示不限制） */
     public double photographerFrameMaxYDistance = 12.0;
 
-    // ==================== Dream (梦魇) ====================
+    // ==================== Dream (Dream) ====================
     /** Dream - 全员虚拟血量上限（Dream 斧头攻击扣此血量，归零死亡） */
     public int dreamMaxHealth = 20;
-    /** Dream - 脱战多少秒后开始缓慢回血 */
+    /** Dream - 是否启用「脱战自动回虚拟血量」；关闭后残血只能靠康复药丸 / 康复试剂等手段恢复 */
+    public boolean dreamHealthRegenEnabled = false;
+    /** Dream - 脱战多少秒后开始缓慢回血（仅在 {@link #dreamHealthRegenEnabled} 开启时生效） */
     public int dreamHealthRegenDelaySeconds = 15;
     /** Dream - 铁斧平A伤害 */
     public int dreamAxeDamage = 9;

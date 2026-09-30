@@ -43,7 +43,7 @@ import org.agmas.noellesroles.role_data.killer.DreamRoleData;
 import java.util.List;
 
 /**
- * Dream（梦魇）的铁斧。
+ * Dream（Dream）的铁斧。
  *
  * <ul>
  * <li>12 点耐久，每次命中消耗 1 点；第二次购买半价（见商店注册）。</li>

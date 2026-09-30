@@ -3221,7 +3221,7 @@ public class ModRoles {
             .setDefaultMax(1)
             .setCanUseInstinctAndNightVision(true).setCanSeeCoin(true);
 
-    // ==================== Dream（梦魇）====================
+    // ==================== Dream（Dream）====================
     // "噢，皮革噶的，i want to 和你蹦蹦蹦。"
     public static SRERole DREAM = TMMRoles.registerRole(new EggRole(
             DREAM_ID, new Color(0, 168, 107).getRGB(), false,

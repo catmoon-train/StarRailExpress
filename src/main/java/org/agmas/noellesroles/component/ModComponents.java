@@ -59,7 +59,7 @@ public class ModComponents implements EntityComponentInitializer, WorldComponent
       ResourceLocation.fromNamespaceAndPath(Noellesroles.MOD_ID, "ability"),
       SREAbilityPlayerComponent.class);
 
-  /** Dream（梦魇）：全员虚拟血量（默认 20 滴血，只被 Dream 铁斧扣除）。 */
+  /** Dream（Dream）：全员虚拟血量（默认 20 滴血，只被 Dream 铁斧扣除）。 */
   public static final ComponentKey<org.agmas.noellesroles.game.roles.killer.dream.DreamHealthComponent> DREAM_HEALTH = org.agmas.noellesroles.game.roles.killer.dream.DreamHealthComponent.KEY;
 
   public static final ComponentKey<PuppeteerPlayerComponent> PUPPETEER = ComponentRegistry.getOrCreate(
