@@ -908,6 +908,14 @@ public class NRDeathEvents {
                 spearCount--;
             }
         }
+        // 魔法学徒：见习法杖掉落为左轮手枪（参考游侠弓弩）
+        if (gameWorldComponent.isRole(player, ModRoles.MAGIC_APPRENTICE)) {
+            int wandCount = SREItemUtils.clearItem(player, ModItems.APPRENTICE_WAND);
+            while (wandCount > 0) {
+                player.drop(TMMItems.REVOLVER.getDefaultInstance(), false);
+                wandCount--;
+            }
+        }
         // 网警：身上的 Dream 铁斧/钻石剑/重锤 掉落为左轮手枪（参考游侠弓弩）
         if (gameWorldComponent.isRole(player, ModRoles.NET_COP)) {
             int dreamWeaponCount = SREItemUtils.clearItem(player, ModItems.DREAM_AXE)
