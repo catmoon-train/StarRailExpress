@@ -1134,6 +1134,13 @@ public class VolunteerOpenSelectScreen extends Screen {
             if (searchBox.keyPressed(keyCode, scanCode, modifiers)) {
                 return true;
             }
+            // 搜索框持有焦点时，除 ESC 外的按键一律由输入框消费：
+            // EditBox 对普通字母键返回 false（字符输入走 charTyped），不拦截的话
+            // 在搜索框里打字（例如输入包含 u 的英文/拼音）会被下面的职业介绍
+            // 快捷键（默认 U 键）误判，直接跳转介绍界面
+            if (keyCode != 256) {
+                return true;
+            }
         }
         if (keyCode == 256) {
             minecraft.setScreen(new WithParentScreenPauseScreen(this, true));
