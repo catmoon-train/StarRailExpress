@@ -52,6 +52,12 @@ public class PostmanScreenHandler extends AbstractContainerMenu {
     private final Container tradeInventory;
     private final Player player;
     private final UUID targetPlayerUuid;
+    /**
+     * 中央交换槽是否被本页玩家放入/操作过：
+     * 页面构造时会从组件加载对方/自己物品的<b>副本</b>（未触碰），玩家实际放入的才是本体。
+     * 关闭页面时以此区分「返还给关闭者」与「直接清除（防复制）」。
+     */
+    private boolean slotTouched = false;
 
     // 槽位索引常量
     public static final int TRADE_SLOT_INDEX = 0; // 交换物品槽（中央）
@@ -159,16 +165,20 @@ public class PostmanScreenHandler extends AbstractContainerMenu {
         if (player.level().isClientSide)
             return;
 
-        AyayayaRoleData component = AyayayaRoleData.resolve(player);
-
-        if (component == null || !component.isDeliveryActive()) {
-            this.tradeInventory.removeItemNoUpdate(TRADE_SLOT_INDEX);
-            return;
-        }
-
+        // 页面关闭时中央交换槽的物品处理：
+        // - 本页玩家放入/操作过的物品 → 返还给关闭页面的人（placeItemBackInInventory：
+        //   优先放入空余快捷栏，放不下则掉落在地上）；
+        // - 仅页面构造时加载的物品副本（本页玩家未触碰）→ 直接清除，防止复制。
+        // 此前在「快递已被另一方关闭 / 组件已清空」等情况下这里会把物品直接吞掉。
         ItemStack slotItem = this.tradeInventory.removeItemNoUpdate(TRADE_SLOT_INDEX);
-        if (!slotItem.isEmpty()) {
+        if (!slotItem.isEmpty() && slotTouched) {
             player.getInventory().placeItemBackInInventory(slotItem);
+        }
+        slotTouched = false;
+
+        AyayayaRoleData component = AyayayaRoleData.resolve(player);
+        if (component == null || !component.isDeliveryActive()) {
+            return;
         }
 
         UUID otherUuid = component.isViewerReceiver(player)
@@ -266,6 +276,8 @@ public class PostmanScreenHandler extends AbstractContainerMenu {
         @Override
         public void setByPlayer(ItemStack stack) {
             super.setByPlayer(stack);
+            // 玩家实际操作了交换槽（放入/替换）
+            slotTouched = true;
             // 当槽位内容改变时，同步到双方组件
             syncSlotToComponents();
         }
@@ -273,6 +285,8 @@ public class PostmanScreenHandler extends AbstractContainerMenu {
         @Override
         public ItemStack remove(int amount) {
             ItemStack result = super.remove(amount);
+            // 玩家实际操作了交换槽（拿取）
+            slotTouched = true;
             // 当物品被拿取时，同步到双方组件
             syncSlotToComponents();
             return result;
@@ -282,6 +296,7 @@ public class PostmanScreenHandler extends AbstractContainerMenu {
         public void setChanged() {
             super.setChanged();
             // 当槽位标记脏时，也同步
+            slotTouched = true;
             syncSlotToComponents();
         }
 

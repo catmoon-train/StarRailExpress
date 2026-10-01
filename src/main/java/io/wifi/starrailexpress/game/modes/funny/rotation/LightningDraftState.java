@@ -339,6 +339,13 @@ public class LightningDraftState {
         for (ServerPlayer p : sorted) {
             playerOrder.add(p.getUUID());
         }
+        // 指令前置位：把 /sre:draft_priority 标记的玩家移到序号最前（一次性消费，
+        // 志愿海选复用本方法生成顺序，因此同样生效）
+        List<UUID> front = DraftOrderPriority.takePending(playerOrder);
+        if (!front.isEmpty()) {
+            playerOrder.removeAll(front);
+            playerOrder.addAll(0, front);
+        }
         PLAYER_SORT_WEIGHT.clear();
     }
 

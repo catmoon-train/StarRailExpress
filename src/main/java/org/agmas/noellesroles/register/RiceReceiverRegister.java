@@ -417,6 +417,12 @@ public class RiceReceiverRegister {
                         consumeDeliveryBox(postmanPlayer);
 
                         session.init();
+
+                        // 交换已结算：清空双方页面中央槽中残留的物品副本，
+                        // 避免随后关闭页面时把已互换物品的副本返还给玩家（造成复制）
+                        clearTradeSlot(postmanPlayer);
+                        clearTradeSlot(receiverPlayer);
+                        clearTradeSlot(context.player());
                         SRE.REPLAY_MANAGER.recordCustomEvent(
                             Component.translatable("replay.event.shameimaru.exchange_box",
                                 GameReplayUtils.getReplayPlayerDisplayText(postmanPlayer, true),
@@ -927,5 +933,15 @@ public class RiceReceiverRegister {
     private static void consumeDeliveryBox(Player postmanPlayer) {
         // 先检查主手
         SREItemUtils.clearItem(postmanPlayer, ModItems.DELIVERY_BOX, 1);
+    }
+
+    /**
+     * 清空指定玩家当前打开的快递交换页面中央槽的物品副本。
+     * 在交换结算完成、页面即将关闭时调用，防止关闭页面时把已互换物品的副本再次返还。
+     */
+    private static void clearTradeSlot(Player player) {
+        if (player != null && player.containerMenu instanceof org.agmas.noellesroles.client.screen.PostmanScreenHandler menu) {
+            menu.getTradeInventory().removeItemNoUpdate(org.agmas.noellesroles.client.screen.PostmanScreenHandler.TRADE_SLOT_INDEX);
+        }
     }
 }

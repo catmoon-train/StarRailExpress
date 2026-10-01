@@ -251,6 +251,24 @@ public class SingleSelectDraftState {
         for (UUID uuid : noCardUsers) {
             fillNearestSlot(slots, uuid, n);
         }
+
+        // 指令前置位：把 /sre:draft_priority 标记的玩家移到序号最前（从 1 号开始），
+        // 其余玩家按原相对顺序依次后移（一次性消费）
+        List<UUID> front = DraftOrderPriority.takePending(playerOrder.keySet());
+        if (!front.isEmpty()) {
+            List<UUID> others = playerOrder.entrySet().stream()
+                    .filter(e -> !front.contains(e.getKey()))
+                    .sorted(java.util.Comparator.comparingInt(Map.Entry::getValue))
+                    .map(Map.Entry::getKey)
+                    .toList();
+            int next = 1;
+            for (UUID uuid : front) {
+                playerOrder.put(uuid, next++);
+            }
+            for (UUID uuid : others) {
+                playerOrder.put(uuid, next++);
+            }
+        }
     }
 
     private void fillNearestSlot(Integer[] slots, UUID uuid, int n) {

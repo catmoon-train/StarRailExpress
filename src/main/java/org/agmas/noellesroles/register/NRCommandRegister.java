@@ -51,6 +51,7 @@ public class NRCommandRegister {
         PurpleMonsterCommand.register();
         VirtualHealthCommand.register();
         MirrorReunionEndEggCommand.register();
+        DraftPriorityCommand.register();
 
         // 注册疫使测试指令
         org.agmas.noellesroles.commands.InfectedCommand.register();
