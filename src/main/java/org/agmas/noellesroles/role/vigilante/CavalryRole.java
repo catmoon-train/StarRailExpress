@@ -46,7 +46,7 @@ public class CavalryRole extends NormalRole {
     /** 突进 III 附魔售价。 */
     public static final int LUNGE_PRICE = 200;
     /** 超级猪马蹄铁售价。 */
-    public static final int HORSESHOE_PRICE = 75;
+    public static final int HORSESHOE_PRICE = 175;
     /** 商店附魔的突进等级。 */
     public static final int LUNGE_LEVEL = 3;
 
