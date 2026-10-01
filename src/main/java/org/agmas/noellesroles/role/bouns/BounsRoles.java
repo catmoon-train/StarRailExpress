@@ -20,6 +20,7 @@ import io.wifi.starrailexpress.api.AreasSettingUtils.MapSpecialFeatures;
 import io.wifi.starrailexpress.api.EggRole;
 import io.wifi.starrailexpress.api.InstinctType;
 import io.wifi.starrailexpress.api.NormalRole;
+import io.wifi.starrailexpress.api.RoleTeam;
 import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.api.TMMRoles;
 import io.wifi.starrailexpress.api.NormalRole.RoleType;
@@ -503,7 +504,7 @@ public class BounsRoles {
 
     /**
      * 大肥鱼（DeepSeek 娘化形象）
-     * - 彩蛋职业 · 乘客阵营，全地图刷新（不限制地图）
+     * - 彩蛋职业 · 偏好中立（与好人一同获胜），全地图刷新（不限制地图）
      * - 技能：鲸歌（范围声波震慑，冷却 60s）、摆尾冲刺（冲刺 + 撞飞，冷却 25s）
      * - 被动：浑水鱼（水下呼吸 / 海豚恩惠 / 水下额外回体力）、圆滚滚（抗击退 + 移动时顶开别人）
      * - 吃东西会投喂团子：周围 6 格内的友军回体力并挂短时再生
@@ -514,7 +515,7 @@ public class BounsRoles {
     public static SRERole FAT_FISH = TMMRoles.registerRole(new FatFishRole(
             FAT_FISH_ID, // 角色 ID
             new Color(70, 130, 200).getRGB(), // 深海蓝
-            RoleType.CIVILIAN,
+            RoleTeam.NEUTRAL_INNOCENT, // 偏好中立：随好人一同胜利
             SRERole.MoodType.REAL, // 真实心情
             TMMRoles.CIVILIAN.getMaxSprintTime(), // 标准体力
             false // 不隐藏计分板

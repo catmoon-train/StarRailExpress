@@ -48,8 +48,13 @@ public class SupplyCrateBlockEntity extends BlockEntity {
     private int refreshIntervalTicks = 200; // 默认10秒 (20 ticks/秒 * 10)
     private boolean refreshAllSimultaneously = false; // 默认否
     private boolean sharedSupplies = false; // 默认否
+    /**
+     * 全局仅能被拿一次：任何玩家领取后，其他玩家再右键也无法领取（非共享模式的
+     * 「每人一次」升级为「全局一次」）。物资刷新与游戏结束重置时会恢复可领取。
+     */
+    private boolean globalOnceOnly = true; // 默认是
     private long lastRefreshTick = -1;
-    private final Set<UUID> claimedPlayers = new HashSet<>(); // 非共享模式下已领取的玩家
+    private final Set<UUID> claimedPlayers = new HashSet<>(); // 已领取的玩家（非共享/全局一次模式）
 
     // 按地图名追踪所有物资箱实例（用于游戏结束/开始时统一重置）
     private static final java.util.concurrent.ConcurrentHashMap<String, java.util.Set<BlockPos>> mapInstances = new java.util.concurrent.ConcurrentHashMap<>();
@@ -210,8 +215,15 @@ public class SupplyCrateBlockEntity extends BlockEntity {
     public List<ItemStack> claimItems(Player player) {
         if (currentItems.isEmpty()) return Collections.emptyList();
 
+        // 全局仅能拿一次：已有人领取过（刷新/重置会清空记录），任何人都不能再领
+        if (globalOnceOnly && !claimedPlayers.isEmpty()) {
+            return Collections.emptyList();
+        }
+
         if (sharedSupplies) {
             // 共享模式：每个玩家都能领取
+            claimedPlayers.add(player.getUUID());
+            setChanged();
             return new ArrayList<>(currentItems);
         } else {
             // 非共享：只有第一个领取的玩家能拿到
@@ -229,6 +241,8 @@ public class SupplyCrateBlockEntity extends BlockEntity {
      */
     public boolean hasItems(Player player) {
         if (currentItems.isEmpty()) return false;
+        // 全局仅能拿一次：已有人领取过则所有人都不可领
+        if (globalOnceOnly && !claimedPlayers.isEmpty()) return false;
         if (sharedSupplies) return true;
         return !claimedPlayers.contains(player.getUUID());
     }
@@ -266,6 +280,12 @@ public class SupplyCrateBlockEntity extends BlockEntity {
         setChanged();
     }
 
+    public boolean isGlobalOnceOnly() { return globalOnceOnly; }
+    public void setGlobalOnceOnly(boolean v) {
+        this.globalOnceOnly = v;
+        setChanged();
+    }
+
     public List<ItemStack> getCurrentItems() {
         return Collections.unmodifiableList(currentItems);
     }
@@ -299,6 +319,7 @@ public class SupplyCrateBlockEntity extends BlockEntity {
         tag.putInt("refreshIntervalTicks", refreshIntervalTicks);
         tag.putBoolean("refreshAllSimultaneously", refreshAllSimultaneously);
         tag.putBoolean("sharedSupplies", sharedSupplies);
+        tag.putBoolean("globalOnceOnly", globalOnceOnly);
         tag.putLong("lastRefreshTick", lastRefreshTick);
 
         // 保存已领取玩家
@@ -342,6 +363,8 @@ public class SupplyCrateBlockEntity extends BlockEntity {
         if (refreshIntervalTicks <= 0) refreshIntervalTicks = 200;
         refreshAllSimultaneously = tag.getBoolean("refreshAllSimultaneously");
         sharedSupplies = tag.getBoolean("sharedSupplies");
+        // 缺省（旧存档）时保持默认开启
+        globalOnceOnly = tag.contains("globalOnceOnly") ? tag.getBoolean("globalOnceOnly") : true;
         lastRefreshTick = tag.getLong("lastRefreshTick");
 
         claimedPlayers.clear();

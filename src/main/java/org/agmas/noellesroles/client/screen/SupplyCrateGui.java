@@ -64,6 +64,7 @@ public class SupplyCrateGui extends Screen {
     private EditBox intervalInput;
     private Checkbox refreshAllCheckbox;
     private Checkbox sharedCheckbox;
+    private Checkbox globalOnceCheckbox;
     private Button saveButton;
     private Button addRowButton;
 
@@ -140,10 +141,16 @@ public class SupplyCrateGui extends Screen {
         ).pos(rx, ry + 80).selected(false).build();
         addRenderableWidget(sharedCheckbox);
 
+        globalOnceCheckbox = Checkbox.builder(
+                Component.translatable("gui.noellesroles.supply_crate.global_once"),
+                font
+        ).pos(rx, ry + 105).selected(true).build();
+        addRenderableWidget(globalOnceCheckbox);
+
         saveButton = Button.builder(
                 Component.translatable("gui.noellesroles.supply_crate.save"),
                 btn -> saveConfig()
-        ).bounds(rx, ry + 115, 100, 20).build();
+        ).bounds(rx, ry + 140, 100, 20).build();
         addRenderableWidget(saveButton);
 
         // 从已有数据加载
@@ -263,6 +270,15 @@ public class SupplyCrateGui extends Screen {
                     .build();
             addRenderableWidget(sharedCheckbox);
 
+            boolean globalOnce = crate.isGlobalOnceOnly();
+            removeWidget(globalOnceCheckbox);
+            globalOnceCheckbox = Checkbox.builder(
+                    Component.translatable("gui.noellesroles.supply_crate.global_once"), font)
+                    .pos(rightPanelX + 10, rightPanelY + 105)
+                    .selected(globalOnce)
+                    .build();
+            addRenderableWidget(globalOnceCheckbox);
+
             // 重新加载物品列表
             itemRows.clear();
             for (var entry : crate.getConfigItems()) {
@@ -300,7 +316,8 @@ public class SupplyCrateGui extends Screen {
         ClientPlayNetworking.send(new SupplyCrateSaveConfigC2SPacket(
                 blockPos, entries, intervalTicks,
                 refreshAllCheckbox.selected(),
-                sharedCheckbox.selected()
+                sharedCheckbox.selected(),
+                globalOnceCheckbox.selected()
         ));
 
         Minecraft.getInstance().setScreen(null);

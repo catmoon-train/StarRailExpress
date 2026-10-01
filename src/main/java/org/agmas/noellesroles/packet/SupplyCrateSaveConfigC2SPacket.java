@@ -38,7 +38,8 @@ public record SupplyCrateSaveConfigC2SPacket(
         List<SupplyCrateBlockEntity.SupplyCrateEntry> configItems,
         int refreshIntervalTicks,
         boolean refreshAll,
-        boolean shared
+        boolean shared,
+        boolean globalOnceOnly
 ) implements CustomPacketPayload {
     public static final ResourceLocation ID_LOC = ResourceLocation.fromNamespaceAndPath(
             Noellesroles.MOD_ID, "supply_crate_save_config_c2s");
@@ -64,6 +65,7 @@ public record SupplyCrateSaveConfigC2SPacket(
         buf.writeVarInt(refreshIntervalTicks);
         buf.writeBoolean(refreshAll);
         buf.writeBoolean(shared);
+        buf.writeBoolean(globalOnceOnly);
     }
 
     public static SupplyCrateSaveConfigC2SPacket decode(RegistryFriendlyByteBuf buf) {
@@ -79,7 +81,8 @@ public record SupplyCrateSaveConfigC2SPacket(
         int interval = buf.readVarInt();
         boolean refreshAll = buf.readBoolean();
         boolean shared = buf.readBoolean();
-        return new SupplyCrateSaveConfigC2SPacket(pos, entries, interval, refreshAll, shared);
+        boolean globalOnceOnly = buf.readBoolean();
+        return new SupplyCrateSaveConfigC2SPacket(pos, entries, interval, refreshAll, shared, globalOnceOnly);
     }
 
     /**
@@ -98,6 +101,7 @@ public record SupplyCrateSaveConfigC2SPacket(
                 crate.setRefreshIntervalTicks(packet.refreshIntervalTicks());
                 crate.setRefreshAllSimultaneously(packet.refreshAll());
                 crate.setSharedSupplies(packet.shared());
+                crate.setGlobalOnceOnly(packet.globalOnceOnly());
             }
         });
     }

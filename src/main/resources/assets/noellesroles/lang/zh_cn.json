@@ -4541,6 +4541,7 @@
   "gui.noellesroles.supply_crate.seconds": "秒",
   "gui.noellesroles.supply_crate.refresh_all": "是否同时刷新",
   "gui.noellesroles.supply_crate.shared": "是否共享物资",
+  "gui.noellesroles.supply_crate.global_once": "全局仅能拿一次",
   "gui.noellesroles.supply_crate.save": "保存配置",
   "hud.noellesroles.task_instinct.render.supply_crate": "物资箱",
   "hud.noellesroles.task_instinct.render.light_stove": "炉灶",

@@ -4296,6 +4296,7 @@
   "gui.noellesroles.supply_crate.seconds": "seconds",
   "gui.noellesroles.supply_crate.refresh_all": "Refresh all simultaneously",
   "gui.noellesroles.supply_crate.shared": "Shared supply",
+  "gui.noellesroles.supply_crate.global_once": "Claimable only once (global)",
   "gui.noellesroles.supply_crate.save": "Save Config",
   "hud.noellesroles.task_instinct.render.supply_crate": "Supply Crate",
   "hud.noellesroles.task_instinct.render.light_stove": "Stove",
