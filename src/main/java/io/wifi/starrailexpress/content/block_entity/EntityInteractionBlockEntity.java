@@ -460,9 +460,16 @@ public class EntityInteractionBlockEntity extends BlockEntity {
         this.blockCooldownEndGameTime = 0;
         this.playerClicks.clear();
         this.triggeredClicks.clear();
-        this.isOutputtingRedstone = false;
         this.lastRedstoneCheckGameTime = 0;
+        this.timerTick = 0;
+        boolean wasOutputting = this.isOutputtingRedstone;
+        this.isOutputtingRedstone = false;
         setChanged();
+        if (wasOutputting && this.level != null && !this.level.isClientSide) {
+            // 立即刷新红石信号：只清字段不更新邻居的话，相邻红石线会保持通电缓存跨局残留
+            this.level.updateNeighborsAt(this.worldPosition, this.getBlockState().getBlock());
+            this.level.updateNeighbourForOutputSignal(this.worldPosition, this.getBlockState().getBlock());
+        }
     }
 
     // 红石信号相关 getter/setter
@@ -543,14 +550,7 @@ public class EntityInteractionBlockEntity extends BlockEntity {
             if (entity.isOutputtingRedstone || entity.timerTick != 0 || !entity.lastTriggerTime.isEmpty()
                     || !entity.playerClicks.isEmpty() || !entity.triggeredClicks.isEmpty()
                     || entity.blockCooldownEndGameTime != 0 || entity.lastRedstoneCheckGameTime != 0) {
-                boolean wasOutputting = entity.isOutputtingRedstone;
                 entity.resetAllCooldowns();
-                entity.timerTick = 0;
-                if (wasOutputting) {
-                    // 立即刷新红石信号，让相邻红石元件同步熄灭
-                    serverWorld.updateNeighborsAt(pos, state.getBlock());
-                    serverWorld.updateNeighbourForOutputSignal(pos, state.getBlock());
-                }
             }
             return;
         }
@@ -561,6 +561,20 @@ public class EntityInteractionBlockEntity extends BlockEntity {
         long elapsedGameTime = timeComponent.getResetTime() - timeComponent.getTime();
         // 获取剩余时间（tick）
         long remainingTime = timeComponent.getTime();
+
+        // elapsed 回退保护：ADD_TIME / SET_TIME 动作会瞬间增大剩余时间，使 elapsed 变小，
+        // 之前的「未来时间戳」会把玩家触发冷却与红石复查（elapsed - last >= interval）永久锁死。
+        // 检测到回退时把时间基准夹回当前值。
+        if (elapsedGameTime < entity.lastRedstoneCheckGameTime) {
+            entity.lastRedstoneCheckGameTime = elapsedGameTime;
+        }
+        if (!entity.lastTriggerTime.isEmpty()) {
+            entity.lastTriggerTime.replaceAll((uuid, t) -> t > elapsedGameTime ? elapsedGameTime : t);
+        }
+        if (entity.blockCooldownEndGameTime != 0
+                && entity.blockCooldownEndGameTime - elapsedGameTime > entity.blockCooldownTicks) {
+            entity.blockCooldownEndGameTime = (int) (elapsedGameTime + entity.blockCooldownTicks);
+        }
 
         // 处理碰撞箱计时
         if (entity.collisionEnabled) {
@@ -631,6 +645,10 @@ public class EntityInteractionBlockEntity extends BlockEntity {
     public static void onPlayerDeath(ServerLevel world, ServerPlayer victim,
             net.minecraft.resources.ResourceLocation deathReason) {
         if (world == null || victim == null)
+            return;
+        // 游戏未运行（结算期间 / 未开始）：死亡事件不触发任何方块动作
+        SREGameWorldComponent deathGameComponent = SREGameWorldComponent.KEY.get(world);
+        if (deathGameComponent == null || !deathGameComponent.isRunning())
             return;
         String key = getMapKey(world);
         if (key.isEmpty())
@@ -1132,7 +1150,9 @@ public class EntityInteractionBlockEntity extends BlockEntity {
                     yield false; // 玩家不在范围内
                 }
                 // 检查是否在时间窗口内受到玩家伤害
-                yield SREPlayerDamageTrackerComponent.hasPlayerDamage(player, elapsedGameTime);
+                // 注意：受伤记录使用原版 gameTime 计时，这里必须传同一时钟（elapsedGameTime 是
+                // resetTime-time，与原版时间数值差一个量级，会导致 10 秒窗口判定恒为负差值失效）
+                yield SREPlayerDamageTrackerComponent.hasPlayerDamage(player, world.getGameTime());
             }
             case PLAYER_DAMAGED_BY_NON_PLAYER -> {
                 // 玩家受到非玩家来源的原版伤害
@@ -1142,8 +1162,8 @@ public class EntityInteractionBlockEntity extends BlockEntity {
                 if (!checkBox.contains(player.getBoundingBox().getCenter())) {
                     yield false; // 玩家不在范围内
                 }
-                // 检查是否在时间窗口内受到非玩家伤害
-                yield SREPlayerDamageTrackerComponent.hasNonPlayerDamage(player, elapsedGameTime);
+                // 检查是否在时间窗口内受到非玩家伤害（与受伤记录统一使用原版 gameTime）
+                yield SREPlayerDamageTrackerComponent.hasNonPlayerDamage(player, world.getGameTime());
             }
             case REDSTONE_SIGNAL -> {
                 // 实体交互方块接收到红石信号
@@ -1946,7 +1966,9 @@ public class EntityInteractionBlockEntity extends BlockEntity {
         tag.putBoolean("IsTeleportPoint", isTeleportPoint);
         tag.putInt("TeleportPointId", teleportPointId);
         tag.putInt("BlockCooldownTicks", blockCooldownTicks);
-        tag.putInt("BlockCooldownEndGameTime", blockCooldownEndGameTime);
+        // BlockCooldownEndGameTime（基于每局 elapsed 的冷却截止）不持久化：
+        // 它以「本局游戏经过时间」为基准，保存于局内、加载于另一局时语义完全错乱，
+        // 会让方块在下一局开局被幽灵冷却冻结，属于纯运行时状态。
 
         // 任务路标相关
         tag.putBoolean("IsTaskMarker", isTaskMarker);
@@ -1990,7 +2012,8 @@ public class EntityInteractionBlockEntity extends BlockEntity {
         // 使用 contains 检查，避免旧数据或缺失时覆盖默认值 -1
         teleportPointId = tag.contains("TeleportPointId") ? tag.getInt("TeleportPointId") : -1;
         blockCooldownTicks = tag.getInt("BlockCooldownTicks");
-        blockCooldownEndGameTime = tag.getInt("BlockCooldownEndGameTime");
+        // 不再读取 BlockCooldownEndGameTime（旧存档中的残留值直接废弃，见 saveAdditional 注释）
+        blockCooldownEndGameTime = 0;
 
         // 任务路标相关
         isTaskMarker = tag.getBoolean("IsTaskMarker");
