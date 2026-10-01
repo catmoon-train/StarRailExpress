@@ -39,6 +39,8 @@ import java.util.WeakHashMap;
  */
 public final class PlaneCrashManager {
     public static final int INTRO_DURATION_TICKS = 120;
+    /** 开场镜头的收尾时长（客户端渐隐）+ 网络余量，用于服务端判定「开场镜头是否还在播」。 */
+    public static final int INTRO_TAIL_TICKS = 60;
     public static final int TREMOR_DURATION_TICKS = 36;
     public static final int TREMOR_WARN_TICKS = 70;
     private static final int TREMOR_MIN_TICKS = 20 * 60;
@@ -95,8 +97,23 @@ public final class PlaneCrashManager {
             return false;
         }
         runtime.planeId = plane.getId();
+        runtime.introEndTime = GameUtils.getTicksFromGameStart(level) + INTRO_DURATION_TICKS + INTRO_TAIL_TICKS;
         Scheduler.schedule(() -> sendIntro(level, plane), 4);
         return true;
+    }
+
+    /**
+     * 开场飞机坠毁镜头是否仍在播放（含收尾渐隐与网络余量）。
+     *
+     * <p>
+     * 服务端纯本地计时：从 {@link #startIntro} 成功时刻起 {@link #INTRO_DURATION_TICKS}
+     * 加收尾时长。供志愿海选等需要「等开场动画播完再开始阶段计时」的模式使用——
+     * 客户端的运镜镜头包比其它同步包晚几 tick 发送，仅靠客户端上报存在竞态。
+     */
+    public static boolean isIntroPlaying(ServerLevel level) {
+        Runtime runtime = RUNTIMES.get(level);
+        return runtime != null && runtime.introEndTime > 0
+                && GameUtils.getTicksFromGameStart(level) < runtime.introEndTime;
     }
 
     static void onPlaneCrashed(ServerLevel level, float tiltYaw) {
@@ -214,5 +231,7 @@ public final class PlaneCrashManager {
         float tiltYaw;
         int planeId = -1;
         boolean warningSent;
+        /** 开场镜头预计结束的世界游戏时间（getTicksFromGameStart 基准）；-1 = 没有开场镜头。 */
+        long introEndTime = -1;
     }
 }

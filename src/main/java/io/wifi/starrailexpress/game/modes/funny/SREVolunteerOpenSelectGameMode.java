@@ -221,6 +221,12 @@ public class SREVolunteerOpenSelectGameMode extends SREMurderGameMode {
         }
         if (changed) {
             broadcastSync(player.serverLevel());
+        } else {
+            // 选择被拒绝（轮次已切换 / 卡已被占 / 已选过 / 阶段变化等）：
+            // 立即把服务端真实状态单独同步给该玩家，避免其界面基于过期快照继续
+            // 无效点击，最后在组超时被随机补齐、拿到与点击不符的职业。
+            ServerPlayNetworking.send(player, buildPacket(player.serverLevel(), player.getUUID(),
+                    player.serverLevel().getGameTime()));
         }
     }
 
@@ -278,7 +284,11 @@ public class SREVolunteerOpenSelectGameMode extends SREMurderGameMode {
         if (draftState.phase == VolunteerOpenDraftState.Phase.VOLUNTEER && draftState.waitingForClients) {
             boolean allReady = draftState.allUiReady(world);
             boolean timedOut = now - draftState.holdStartTime >= VolunteerOpenDraftState.CLIENT_READY_TIMEOUT;
-            if (allReady || timedOut) {
+            // 服务端兜底：飞机坠毁等地图事件的开场镜头比本模式同步包晚几 tick 才发给客户端，
+            // 存在「镜头刚开始、界面先打开并上报」的竞态——运镜没播完前不开始志愿倒计时，
+            // 否则 8 秒志愿阶段会被约 6.5 秒的坠机动画直接吃掉。
+            boolean introPlaying = net.exmo.sre.planecrash.PlaneCrashManager.isIntroPlaying(world);
+            if ((allReady || timedOut) && !introPlaying) {
                 draftState.startPhaseTiming(now);
                 broadcastSync(world);
             } else if (now % 20 == 0) {
