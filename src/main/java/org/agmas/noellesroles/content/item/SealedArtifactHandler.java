@@ -350,12 +350,16 @@ public final class SealedArtifactHandler {
         }
         ServerPlayer nearest = nearestAlive(player);
         if (nearest != null) {
+            player.level().playSound(null, player.blockPosition(), SoundEvents.BELL_BLOCK,
+                    SoundSource.PLAYERS, 1.0f, 1.0f);
             player.displayClientMessage(Component.translatable("message.noellesroles.sealed.bell_whisper",
                             nearest.getName(), worldDir(player, nearest))
                     .withStyle(ChatFormatting.DARK_AQUA), true);
         }
         if (player.getRandom().nextFloat() < 0.12f) {
             player.addEffect(ModEffects.of(MobEffects.DARKNESS, 40, 0, false, false, true));
+            player.level().playSound(null, player.blockPosition(), SoundEvents.BELL_BLOCK,
+                    SoundSource.PLAYERS, 1.0f, 0.6f);
             player.displayClientMessage(Component.translatable("message.noellesroles.sealed.bell_curse")
                     .withStyle(ChatFormatting.DARK_GRAY), true);
         }

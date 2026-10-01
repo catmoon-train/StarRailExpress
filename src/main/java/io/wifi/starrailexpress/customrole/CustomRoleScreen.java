@@ -481,6 +481,32 @@ public class CustomRoleScreen extends CustomEditorScreen {
             }
         }
 
+        // === 跟随获胜（任何职业均可配置，不要求中立） ===
+        r = section(r, PREFIX + ".follow_win_section");
+        r = cluster(r, null,
+                toggleCell(PREFIX + ".enable_follow_win", data.enableFollowWin,
+                        value -> data.enableFollowWin = value, true));
+        if (data.enableFollowWin) {
+            // 跟随条件：无条件 / 存活到最后 / 在该阵营玩家周围
+            r = cluster(r, PREFIX + ".follow_win_condition",
+                    stateButtonCell(() -> Component.translatable(enumKey(PREFIX + ".follow_win_condition",
+                            currentFollowCondition())).append(Component.literal(" ↻")), () -> {
+                        data.followWinCondition = cycleOption(FOLLOW_CONDITIONS, currentFollowCondition());
+                    }, false));
+            // 跟随阵营：不设置 / 最终结算(不含中立) / 最终结算(含中立) / 仅平民 / 仅杀手
+            r = cluster(r, PREFIX + ".follow_win_faction",
+                    stateButtonCell(() -> Component.translatable(enumKey(PREFIX + ".follow_win_faction",
+                            currentFollowFaction())).append(Component.literal(" ↻")), () -> {
+                        data.followWinFaction = cycleOption(FOLLOW_FACTIONS, currentFollowFaction());
+                    }, false));
+            // 跟随特定职业（填职业 id，默认空）
+            r = textRow(r, PREFIX + ".follow_win_role_id", data.followWinRoleId, LIMIT_PATH,
+                    PREFIX + ".hint.follow_win_role_id", value -> data.followWinRoleId = value.trim());
+            // 跟随带特定修饰符的玩家获胜（填修饰符 id，默认空）
+            r = textRow(r, PREFIX + ".follow_win_modifier_id", data.followWinModifierId, LIMIT_PATH,
+                    PREFIX + ".hint.follow_win_modifier_id", value -> data.followWinModifierId = value.trim());
+        }
+
         // 特殊地图类型限制（枚举按钮，默认 ALL）
         r = cluster(r, PREFIX + ".special_map_role",
                 stateButtonCell(() -> Component.translatable(PREFIX + ".special_map_role.current").append(": ")
@@ -1112,6 +1138,48 @@ public class CustomRoleScreen extends CustomEditorScreen {
     private static String surviveModeKey(String mode) {
         String m = mode == null ? "" : mode.trim().toLowerCase(java.util.Locale.ROOT);
         return PREFIX + ".custom_win_survive_mode." + (m.isEmpty() ? "off" : m);
+    }
+
+    // ══════════════════════════════════════════════════════════════════
+    // 跟随获胜工具
+    // ══════════════════════════════════════════════════════════════════
+    /** 轮回顺序：无条件 → 存活到最后 → 在该阵营玩家周围 */
+    private static final String[] FOLLOW_CONDITIONS = { "UNCONDITIONAL", "SURVIVE_TO_END", "NEAR_FACTION" };
+    /** 轮回顺序：不设置 → 最终结算(不含中立) → 最终结算(含中立) → 仅平民 → 仅杀手 */
+    private static final String[] FOLLOW_FACTIONS = { "NONE", "FINAL_EXCL_NEUTRAL", "FINAL_INCL_NEUTRAL",
+            "INNOCENT_ONLY", "KILLER_ONLY" };
+
+    private String currentFollowCondition() {
+        return normalizeEnumOption(data.followWinCondition, FOLLOW_CONDITIONS, "UNCONDITIONAL");
+    }
+
+    private String currentFollowFaction() {
+        return normalizeEnumOption(data.followWinFaction, FOLLOW_FACTIONS, "NONE");
+    }
+
+    private static String normalizeEnumOption(String value, String[] allowed, String def) {
+        if (value != null) {
+            String v = value.trim().toUpperCase(java.util.Locale.ROOT);
+            for (String a : allowed) {
+                if (a.equals(v)) {
+                    return a;
+                }
+            }
+        }
+        return def;
+    }
+
+    private static String cycleOption(String[] order, String current) {
+        for (int i = 0; i < order.length; i++) {
+            if (order[i].equals(current)) {
+                return order[(i + 1) % order.length];
+            }
+        }
+        return order[0];
+    }
+
+    private static String enumKey(String base, String value) {
+        return base + "." + value.toLowerCase(java.util.Locale.ROOT);
     }
 
     // ══════════════════════════════════════════════════════════════════

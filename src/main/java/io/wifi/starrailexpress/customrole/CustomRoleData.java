@@ -221,6 +221,43 @@ public class CustomRoleData {
     @SerializedName("customWinHeldItem")
     public String customWinHeldItem = "";
 
+    // ============ 跟随获胜（任何职业均可配置，不要求中立 / 独立胜利中立） ============
+    /** 是否启用跟随获胜。启用后结算时按跟随条件与跟随目标改判个人胜负。 */
+    @SerializedName("enableFollowWin")
+    public boolean enableFollowWin = false;
+
+    /**
+     * 跟随条件：
+     * <ul>
+     * <li>{@code UNCONDITIONAL} 无条件跟随（默认）</li>
+     * <li>{@code SURVIVE_TO_END} 存活到最后：结算时该职业玩家必须存活，否则失败</li>
+     * <li>{@code NEAR_FACTION} 在该阵营玩家周围：周围 6 格内需有该阵营的存活玩家（黑白同款条件）</li>
+     * </ul>
+     */
+    @SerializedName("followWinCondition")
+    public String followWinCondition = "UNCONDITIONAL";
+
+    /**
+     * 跟随阵营：
+     * <ul>
+     * <li>{@code NONE} 不设置（默认）</li>
+     * <li>{@code FINAL_EXCL_NEUTRAL} 最终结算阵营（不含中立）：平民获胜 / 时间耗尽 / 杀手获胜</li>
+     * <li>{@code FINAL_INCL_NEUTRAL} 最终结算阵营（含中立）：任何职业胜利，只要还活着就算胜利</li>
+     * <li>{@code INNOCENT_ONLY} 仅平民：仅跟随平民获胜和时间耗尽获胜</li>
+     * <li>{@code KILLER_ONLY} 仅杀手：仅跟随杀手获胜</li>
+     * </ul>
+     */
+    @SerializedName("followWinFaction")
+    public String followWinFaction = "NONE";
+
+    /** 跟随特定职业：填职业 id（支持 {@code 命名空间:路径} 或仅路径），该职业获胜则跟随获胜。为空不启用。 */
+    @SerializedName("followWinRoleId")
+    public String followWinRoleId = "";
+
+    /** 跟随带特定修饰符的玩家获胜：填修饰符 id，带有该修饰符的玩家获胜则跟随获胜。为空不启用。 */
+    @SerializedName("followWinModifierId")
+    public String followWinModifierId = "";
+
     // ============ 职业能力选项 ============
     @SerializedName("initialItems")
     public List<InitialItemEntry> initialItems = new ArrayList<>();

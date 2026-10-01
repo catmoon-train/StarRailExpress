@@ -342,11 +342,11 @@ public class ReasonerRoleData extends SimpleRoleData {
 
     private int aliveKillerCount(ServerLevel level) {
         SREGameWorldComponent game = SREGameWorldComponent.KEY.get(level);
-        List<UUID> killerTeam = game.getAllKillerTeamPlayers();
         int count = 0;
         for (ServerPlayer p : alivePlayers(level)) {
             SRERole role = game.getRole(p);
-            if (role != null && (role.canUseKiller() || killerTeam.contains(p.getUUID()))) {
+            // 仅统计真杀手；杀手方中立（isNeutralForKiller）不算杀手的数量
+            if (role != null && role.isKiller()) {
                 count++;
             }
         }

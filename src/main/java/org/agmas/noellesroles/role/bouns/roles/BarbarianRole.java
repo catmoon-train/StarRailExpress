@@ -67,15 +67,7 @@ public class BarbarianRole extends EggRole {
         if (data == null || !data.isBerserk()) {
             return false;
         }
-        SREGameWorldComponent game = SREGameWorldComponent.KEY.get(player.level());
-        SRERole targetRole = game.getRole(target);
-        if (targetRole == null || !(game.isKillerTeam(target) || targetRole.isNeutrals())) {
-            if (player instanceof ServerPlayer attacker) {
-                attacker.displayClientMessage(Component.translatable("message.noellesroles.barbarian.knife_wrong_target")
-                        .withStyle(ChatFormatting.RED), true);
-            }
-            return false;
-        }
+        // 疯魔（魔了）形态允许无差别攻击，不再限制只能攻击杀手方与中立
         player.getCooldowns().addCooldown(ModItems.BARBARIAN_KNIFE, 6 * 20);
         return true;
     }
