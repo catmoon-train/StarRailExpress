@@ -389,4 +389,17 @@ public class AreasSettings {
     /** 最大可能被选中的修饰符 ID：在保证进入选择池的基础上不限制数量，尽可能多分配。 */
     @Category("roles")
     public HashSet<String> forcedModifiers = new HashSet<>();
+
+    // ==================== scene ====================
+
+    /**
+     * 启用场景任务列表（仅可填场景任务名）。为空表示不启用任何场景任务。
+     *
+     * <p>
+     * 历史上存放在 {@code AreasWorldComponent} 上（地图 JSON 根级 {@code enableSceneTask} 键），
+     * 现迁移到此处，地图配置工具（反射遍历本类）即可直接编辑；
+     * 地图 JSON 的根级键格式保持不变，由 {@code MapManager} 负责双向兼容。
+     */
+    @Category("scene")
+    public HashSet<String> enableSceneTask = new HashSet<>();
 }

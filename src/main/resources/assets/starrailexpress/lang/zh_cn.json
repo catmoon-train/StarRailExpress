@@ -3551,6 +3551,8 @@
   "sre.map_helper.settings.category.map": "地图设置",
   "sre.map_helper.settings.category.meeting": "会议",
   "sre.map_helper.settings.deadInDarknessTime": "黑暗中死亡时间（关灯期间不算）（tick）",
+  "sre.map_helper.settings.enableSceneTask": "启用的场景任务列表",
+  "sre.map_helper.settings.enableSceneTask.@tooltip": "仅可填场景任务名。为空表示不启用任何场景任务。",
   "sre.map_helper.settings.deadInDarknessTime.@tooltip": "小于等于0禁用",
   "sre.map_helper.settings.meetingEnabled": "启用会议系统",
   "sre.map_helper.settings.meetingEnabled.@tooltip": "摇铃会议也需要启用此选项！",

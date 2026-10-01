@@ -141,8 +141,8 @@ public class MapManagerCommand {
                 .requires(source -> source.hasPermission(3))
                 .executes((ctx) -> {
                   var areas = AreasWorldComponent.KEY.get(ctx.getSource().getLevel());
+                  // new AreasSettings() 的所有集合字段（含 enableSceneTask）均为空项
                   areas.areasSettings = new AreasSettings();
-                  areas.enableSceneTask = new HashSet<>();
                   areas.mapName = "new_area";
                   io.wifi.starrailexpress.scenery.server.SceneLibrary.clearScene(areas);
                   areas.sync();
@@ -522,7 +522,8 @@ public class MapManagerCommand {
     sb.append("forcedRoles: ").append(formatDisabledTasks(settingsOf(settings, s -> s.forcedRoles))).append("\n");
     sb.append("forcedModifiers: ").append(formatDisabledTasks(settingsOf(settings, s -> s.forcedModifiers)))
         .append("\n");
-    sb.append("enableSceneTask: ").append(formatDisabledTasks(areas.enableSceneTask));
+    sb.append("enableSceneTask: ")
+        .append(formatDisabledTasks(settingsOf(settings, s -> s.enableSceneTask)));
     source.sendSuccess(
         () -> Component.literal(sb.toString()).withStyle(style -> style.withColor(ChatFormatting.AQUA)),
         false);
@@ -862,19 +863,22 @@ public class MapManagerCommand {
         MapManagerCommand::removeForcedModifiers);
   }
 
-  // enableSceneTask
+  // enableSceneTask（数据在 areasSettings.enableSceneTask）
   private static void addEnableSceneTask(CommandSourceStack source, String taskId) {
     AreasWorldComponent areas = AreasWorldComponent.KEY.get(source.getLevel());
-    if (areas.enableSceneTask == null)
-      areas.enableSceneTask = new HashSet<>();
-    areas.enableSceneTask.add(taskId);
+    if (areas.areasSettings == null)
+      areas.areasSettings = new AreasSettings();
+    if (areas.areasSettings.enableSceneTask == null)
+      areas.areasSettings.enableSceneTask = new HashSet<>();
+    areas.areasSettings.enableSceneTask.add(taskId);
     areas.sync();
     sendSetFeedback(source, "enableSceneTask.add", taskId);
   }
 
   private static void removeEnableSceneTask(CommandSourceStack source, String taskId) {
     AreasWorldComponent areas = AreasWorldComponent.KEY.get(source.getLevel());
-    if (areas.enableSceneTask != null && areas.enableSceneTask.remove(taskId)) {
+    if (areas.areasSettings != null && areas.areasSettings.enableSceneTask != null
+        && areas.areasSettings.enableSceneTask.remove(taskId)) {
       areas.sync();
       sendSetFeedback(source, "enableSceneTask.remove", taskId);
     } else {
@@ -1039,14 +1043,16 @@ public class MapManagerCommand {
     return Commands.literal("enableSceneTask")
         .executes(ctx -> {
           AreasWorldComponent a = AreasWorldComponent.KEY.get(ctx.getSource().getLevel());
-          sendGetFeedback(ctx.getSource(), "enableSceneTask", formatDisabledTasks(a.enableSceneTask));
+          sendGetFeedback(ctx.getSource(), "enableSceneTask",
+              formatDisabledTasks(a.areasSettings == null ? new HashSet<>() : a.areasSettings.enableSceneTask));
           return 1;
         })
         .then(Commands.argument("taskId", StringArgumentType.string())
             .executes(ctx -> {
               String taskId = StringArgumentType.getString(ctx, "taskId");
               AreasWorldComponent a = AreasWorldComponent.KEY.get(ctx.getSource().getLevel());
-              boolean has = a.enableSceneTask != null && a.enableSceneTask.contains(taskId);
+              boolean has = a.areasSettings != null && a.areasSettings.enableSceneTask != null
+                  && a.areasSettings.enableSceneTask.contains(taskId);
               sendGetFeedback(ctx.getSource(), "enableSceneTask.contains(" + taskId + ")", String.valueOf(has));
               return 1;
             }));

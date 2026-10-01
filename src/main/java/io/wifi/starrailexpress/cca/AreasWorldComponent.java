@@ -77,13 +77,14 @@ public class AreasWorldComponent implements AutoSyncedComponent {
     private boolean sceneAssetTrusted = true;
     private Vec3 sceneDisplayOffset = Vec3.ZERO;
 
-    /** 启用场景任务列表（仅可填场景任务名）。为空表示不启用任何场景任务。 */
-    public HashSet<String> enableSceneTask = new HashSet<>();
-
+    /**
+     * 启用场景任务列表（仅可填场景任务名）。为空表示不启用任何场景任务。
+     * 存储已迁移到 {@link AreasSettings#enableSceneTask}（地图配置工具可直接编辑）。
+     */
     public HashSet<String> getEnabledSceneTasks() {
-        if (this.enableSceneTask == null)
+        if (areasSettings == null || areasSettings.enableSceneTask == null)
             return new HashSet<>();
-        return new HashSet<>(this.enableSceneTask);
+        return new HashSet<>(areasSettings.enableSceneTask);
     }
 
     public static class PosWithOrientation {

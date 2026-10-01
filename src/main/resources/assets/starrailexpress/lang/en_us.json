@@ -3508,6 +3508,8 @@
   "sre.map_helper.settings.category.map": "Map Settings",
   "sre.map_helper.settings.category.meeting": "Meeting",
   "sre.map_helper.settings.deadInDarknessTime": "Death time in darkness (ticks, not during blackout)",
+  "sre.map_helper.settings.enableSceneTask": "Enabled Scene Tasks",
+  "sre.map_helper.settings.enableSceneTask.@tooltip": "Only scene task names; empty disables all scene tasks.",
   "sre.map_helper.settings.deadInDarknessTime.@tooltip": "<=0 disables",
   "sre.map_helper.settings.meetingEnabled": "Enable Emergency Meeting System",
   "sre.map_helper.settings.meetingEnabled.@tooltip": "Right-click a corpse to call a meeting.",
