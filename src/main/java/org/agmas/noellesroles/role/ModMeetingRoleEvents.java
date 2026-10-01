@@ -103,6 +103,10 @@ public class ModMeetingRoleEvents {
                 return;
             if (!game.isRole(sp, ModMeetingRoles.CANADA_GOOSE))
                 return;
+            // 无来源死亡（掉入后室 / 黑暗致死 / 环境死亡等，killer 为 null）不触发紧急会议：
+            // 被动语义是「被他人击杀或被鹈鹕吞掉」，需要有一个明确的击杀者作为会议发起人
+            if (killer == null)
+                return;
             // 亡命徒期间（难民触发）：加拿大鹅不强制启用/发起会议
             if (RefugeeComponent.KEY.get(sp.serverLevel()).isAnyRevivals)
                 return;
