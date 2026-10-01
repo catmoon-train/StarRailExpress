@@ -23,6 +23,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.player.Player;
+import io.wifi.starrailexpress.event.OnGameEnd;
 import org.agmas.harpymodloader.events.GameInitializeEvent;
 import org.agmas.noellesroles.Noellesroles;
 import org.agmas.noellesroles.config.NoellesRolesConfig;
@@ -91,6 +92,12 @@ public class DreamHealthComponent implements RoleComponent {
         GameInitializeEvent.EVENT.register((serverLevel, gameWorldComponent, players) -> {
             for (ServerPlayer p : serverLevel.getServer().getPlayerList().getPlayers()) {
                 KEY.get(p).initWhenNecessary();
+            }
+        });
+        // 游戏结束时重置所有玩家的虚拟血量，避免残留到下一局
+        OnGameEnd.EVENT.register((serverLevel, gameWorldComponent) -> {
+            for (ServerPlayer p : serverLevel.getServer().getPlayerList().getPlayers()) {
+                KEY.get(p).init();
             }
         });
     }

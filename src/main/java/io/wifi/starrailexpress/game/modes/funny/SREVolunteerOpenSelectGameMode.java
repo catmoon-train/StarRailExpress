@@ -279,16 +279,14 @@ public class SREVolunteerOpenSelectGameMode extends SREMurderGameMode {
 
         long now = world.getGameTime();
 
-        // 一阶段：等所有玩家的界面真正打开（开局黑幕 / 动画播完）之后才开始计时，
-        // 玩家没上报就最多等 CLIENT_READY_TIMEOUT，避免有人卡住导致整局不动。
+        // 一阶段：等所有玩家的界面真正打开之后才开始计时。
+        // 开场动画（含飞机坠毁）已按轮选同款延后到 OnGameTrueStarted（全部选择结束）才播放，
+        // 选择阶段没有任何运镜，客户端上报即代表界面已就绪。
+        // 兜底：即使有人一直不上报，CLIENT_READY_TIMEOUT（15 秒）后也强制开始倒计时。
         if (draftState.phase == VolunteerOpenDraftState.Phase.VOLUNTEER && draftState.waitingForClients) {
             boolean allReady = draftState.allUiReady(world);
             boolean timedOut = now - draftState.holdStartTime >= VolunteerOpenDraftState.CLIENT_READY_TIMEOUT;
-            // 服务端兜底：飞机坠毁等地图事件的开场镜头比本模式同步包晚几 tick 才发给客户端，
-            // 存在「镜头刚开始、界面先打开并上报」的竞态——运镜没播完前不开始志愿倒计时，
-            // 否则 8 秒志愿阶段会被约 6.5 秒的坠机动画直接吃掉。
-            boolean introPlaying = net.exmo.sre.planecrash.PlaneCrashManager.isIntroPlaying(world);
-            if ((allReady || timedOut) && !introPlaying) {
+            if (allReady || timedOut) {
                 draftState.startPhaseTiming(now);
                 broadcastSync(world);
             } else if (now % 20 == 0) {

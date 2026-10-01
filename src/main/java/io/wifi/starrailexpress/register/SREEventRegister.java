@@ -35,6 +35,7 @@ import io.wifi.starrailexpress.game.data.ServerMapConfig;
 import io.wifi.starrailexpress.game.modes.SREMurderGameMode;
 import io.wifi.starrailexpress.game.modes.funny.SRERoleRotationGameMode;
 import io.wifi.starrailexpress.game.modes.funny.SRERoleRotationSingleSelectGameMode;
+import io.wifi.starrailexpress.game.modes.funny.SREVolunteerOpenSelectGameMode;
 import io.wifi.starrailexpress.network.*;
 import io.wifi.starrailexpress.scenery.server.SceneAssetServer;
 import net.exmo.sre.sync.MysqlPlayerDataStore;
@@ -241,11 +242,12 @@ public class SREEventRegister {
         });
     }
 
-    /** 轮选（闪电轮抽 / 单选）在 OnGameStarted 时职业尚未确定，开场镜头应延后。 */
+    /** 轮选（闪电轮抽 / 单选）与志愿海选在 OnGameStarted 时职业尚未确定，开场镜头应延后。 */
     private static boolean defersIntroUntilRolesChosen(ServerLevel serverLevel) {
         var mode = SREGameWorldComponent.KEY.get(serverLevel).getGameMode();
         return mode instanceof SRERoleRotationGameMode
-                || mode instanceof SRERoleRotationSingleSelectGameMode;
+                || mode instanceof SRERoleRotationSingleSelectGameMode
+                || mode instanceof SREVolunteerOpenSelectGameMode;
     }
 
     private static void sendDefaultIntroIfParticipant(ServerPlayer player) {

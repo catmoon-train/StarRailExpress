@@ -113,9 +113,10 @@ public class VolunteerOpenDraftState {
      * 等客户端的兜底上限（tick）：超时后即使有人没上报也照常开始计时。
      *
      * <p>
-     * 要留够地图开场运镜（开场动画）的时长——客户端在运镜播完之前不会把界面顶出来。
+     * 15 秒强制兜底：开场动画（含飞机坠毁）已延后到全部选择结束之后才播放，
+     * 选择阶段不会被打断；这里只是防止个别客户端卡住不上报导致整局等待。
      */
-    public static final int CLIENT_READY_TIMEOUT = 20 * 20;
+    public static final int CLIENT_READY_TIMEOUT = 15 * 20;
 
     // ===== 确认 =====
     public boolean confirmRequired = false;
