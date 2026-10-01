@@ -271,8 +271,9 @@ public class GameReplayData {
             message = String.valueOf(position);
         } else if (event.details() instanceof ChangeRoleDetails roleDetail) {
             sourcePlayer = roleDetail.player();
-            Role_1 = GameReplayUtils.getRoleNameWithSourceTMMColor(roleDetail.oldRole());
-            Role_2 = GameReplayUtils.getRoleNameWithSourceTMMColor(roleDetail.newRole());
+            // 统一使用权威阵营颜色（RoleTeam）：特殊中立 / 事件中立 / 独立胜利中立等细分不再塌缩成黄色
+            Role_1 = GameReplayUtils.getRoleNameWithRoleColor(roleDetail.oldRole());
+            Role_2 = GameReplayUtils.getRoleNameWithRoleColor(roleDetail.newRole());
             // message = ;
         } else if (event.details() instanceof PlayerRevivalDetails revivalDetails) {
             sourcePlayer = revivalDetails.player();
@@ -293,7 +294,8 @@ public class GameReplayData {
                 }
                 r = trole.identifier().toString();
             }
-            Role_1 = GameReplayUtils.getRoleNameWithSourceTMMColor(r);
+            // 复活后的职业名：统一使用权威阵营颜色（RoleTeam）
+            Role_1 = GameReplayUtils.getRoleNameWithRoleColor(r);
 
             // message = ;
         } else if (event.details() instanceof ArmorBreakDetails ambd) {

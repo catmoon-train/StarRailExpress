@@ -64,16 +64,6 @@ public class GameReplayUtils {
         return Component.translatable("announcement.star.role." + path).withColor(getRoleColor(path));
     }
 
-    public static Component getRoleNameWithSourceTMMColor(String path) {
-        var id = ResourceLocation.tryParse(path);
-        if (id != null) {
-            var name = RoleUtils.getRoleName(id);
-            if (name != null)
-                return name.copy().withStyle(getTMMRoleColor(path));
-        }
-        return Component.translatable("announcement.star.role." + path).withStyle(getTMMRoleColor(path));
-    }
-
     public static Component getReplayPlayerDisplayText(Player player, boolean notNull) {
         if (SRE.REPLAY_MANAGER != null) {
             return getReplayPlayerDisplayText(player, SRE.REPLAY_MANAGER, SRE.REPLAY_MANAGER.currentReplayData,
@@ -109,35 +99,6 @@ public class GameReplayUtils {
             }
         }
         return java.awt.Color.WHITE.getRGB();
-    }
-
-    public static ChatFormatting getTMMRoleColor(String roleId) {
-        if (roleId == null) {
-            return ChatFormatting.WHITE; // 默认颜色
-        }
-        final var first = TMMRoles.ROLES.values().stream().filter(
-                role -> role.identifier().toString().equals(roleId) || role.identifier().getPath().equals(roleId))
-                .findFirst();
-        // 根据角色ID分类
-        if (first.isPresent()) {
-            var role = first.get();
-            if (role != null) {
-                if (role.isVigilanteTeam()) {
-                    return ChatFormatting.AQUA;
-                } else if (role.isInnocent()) {
-                    return ChatFormatting.GREEN;
-                } else if (role.canUseKiller()) {
-                    return ChatFormatting.RED;
-                } else if (role.isNeutralForInnocent()) {
-                    return ChatFormatting.DARK_GREEN;
-                } else if (role.isNeutralForKiller()) {
-                    return ChatFormatting.LIGHT_PURPLE;
-                } else if (!role.isInnocent() || role.isNeutrals()) {
-                    return ChatFormatting.YELLOW;
-                }
-            }
-        }
-        return ChatFormatting.WHITE;
     }
 
     public static Component getReplayPlayerDisplayText(UUID playerUid, GameReplayManager manager,
