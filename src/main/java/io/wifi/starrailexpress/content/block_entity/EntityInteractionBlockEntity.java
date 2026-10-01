@@ -534,6 +534,27 @@ public class EntityInteractionBlockEntity extends BlockEntity {
 
         entity.tryTrack();
 
+        // 游戏未运行（已结束 / 未开始）：停止红石输出并清理触发状态，然后停摆。
+        // 否则结算期间 elapsedGameTime 冻结在已满足阈值，「游戏经过 X」类条件会持续重新
+        // 点亮红石信号；且 elapsed 冻结/回退后「内置间隔」复查（elapsed - lastCheck >= interval）
+        // 永远不成立，信号就会一直保持输出、跨局残留。
+        SREGameWorldComponent gameComponent = SREGameWorldComponent.KEY.get(world);
+        if (gameComponent == null || !gameComponent.isRunning()) {
+            if (entity.isOutputtingRedstone || entity.timerTick != 0 || !entity.lastTriggerTime.isEmpty()
+                    || !entity.playerClicks.isEmpty() || !entity.triggeredClicks.isEmpty()
+                    || entity.blockCooldownEndGameTime != 0 || entity.lastRedstoneCheckGameTime != 0) {
+                boolean wasOutputting = entity.isOutputtingRedstone;
+                entity.resetAllCooldowns();
+                entity.timerTick = 0;
+                if (wasOutputting) {
+                    // 立即刷新红石信号，让相邻红石元件同步熄灭
+                    serverWorld.updateNeighborsAt(pos, state.getBlock());
+                    serverWorld.updateNeighbourForOutputSignal(pos, state.getBlock());
+                }
+            }
+            return;
+        }
+
         // 获取游戏世界组件
         SREGameTimeComponent timeComponent = SREGameTimeComponent.KEY.get(world);
         // 使用 resetTime - time 计算游戏开始后经过的时间（tick）
