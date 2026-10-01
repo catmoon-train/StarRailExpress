@@ -1264,6 +1264,11 @@ public final class CustomItemRuntime {
         applyCuffEffects(targetPlayer, data);
         applyCuffRestriction(targetPlayer, data);
 
+        // 铐上瞬间立即执行一轮「被拷住玩家执行的指令」：
+        // 定时结算（tickCuffs）按 cuffCommandIntervalTicks 周期触发，
+        // 不立即执行的话，铐上后最长要等一个完整周期（周期配得大时观感就是「不执行」）
+        CustomItemLoader.executeCommands(data.cuffCommands, targetPlayer, user);
+
         user.displayClientMessage(
                 Component.translatable("sre.custom_item.cuff.put", targetPlayer.getName().getString()), true);
         targetPlayer.displayClientMessage(
