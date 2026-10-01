@@ -25,6 +25,7 @@ import io.wifi.starrailexpress.customrole.CustomRoleData.InitialItemEntry;
 import io.wifi.starrailexpress.customrole.CustomRoleData.ShopEntryData;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
+import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 
 import java.util.ArrayList;
