@@ -83,6 +83,13 @@ public final class UnifiedSkillHud {
             if (role != null && role.identifier().equals(org.agmas.noellesroles.role.ModRoles.LEADER_ID)) {
                 return;
             }
+            // 文文新闻（ayayaya）的偷取技能是邪恶战争专属（技能执行处有同样的模式门禁）：
+            // 其它模式不显示其技能 HUD
+            if (role != null && role.identifier().equals(org.agmas.noellesroles.role.touhou.THMountainRoles.AYA_ID)
+                    && !(SREClient.gameComponent
+                            .getGameMode() instanceof io.wifi.starrailexpress.game.modes.funny.SREEvilWarGameMode)) {
+                return;
+            }
             List<RoleSkill.Definition> skills = RoleSkill.getDefinitions(role);
             List<RolePassive.Definition> passives = RolePassive.getDefinitions(role);
             if (skills.isEmpty() && passives.isEmpty()) {
