@@ -215,6 +215,13 @@ public class CustomRoleData {
     @SerializedName("customWinLastWithRoles")
     public List<String> customWinLastWithRoles = new ArrayList<>();
 
+    /**
+     * 「只剩自己和指定职业时获胜」中指定职业是否需要存活。默认 {@code true}（需要存活，原行为）。
+     * 设为 {@code false} 时指定职业无需存活——指定职业全灭、场上只剩自己时也能取得该独立胜利。
+     */
+    @SerializedName("customWinLastWithRolesNeedAlive")
+    public boolean customWinLastWithRolesNeedAlive = true;
+
     @SerializedName("customWinTagSleep")
     public String customWinTagSleep = "";
 

@@ -2899,6 +2899,7 @@
   "sre.custom_role.custom_win_survive_mode.both": "顶替双方获胜",
   "sre.custom_role.custom_win_last_alive": "场上只剩自己时获得独立胜利",
   "sre.custom_role.custom_win_with_roles": "只剩自己和指定职业时胜利（用;分隔）",
+  "sre.custom_role.custom_win_with_roles_need_alive": "指定职业是否需存活",
   "sre.custom_role.custom_win_tag_sleep": "拥有标签时躺床取得独立胜利",
   "sre.custom_role.custom_win_held_item": "拥有指定物品时取得独立胜利",
   "sre.custom_role.can_see_body_name": "看到尸体名字",

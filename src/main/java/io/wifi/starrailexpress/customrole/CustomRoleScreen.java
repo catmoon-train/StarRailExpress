@@ -474,6 +474,11 @@ public class CustomRoleScreen extends CustomEditorScreen {
                                 }
                             }
                         });
+                // 指定职业是否需存活：默认开（原行为）；关闭后指定职业全灭、场上只剩自己时也能获胜
+                r = cluster(r, null,
+                        toggleCell(PREFIX + ".custom_win_with_roles_need_alive",
+                                data.customWinLastWithRolesNeedAlive,
+                                value -> data.customWinLastWithRolesNeedAlive = value, true));
                 r = textRow(r, PREFIX + ".custom_win_tag_sleep", data.customWinTagSleep, LIMIT_TEXT,
                         PREFIX + ".hint.customwin_tag", value -> data.customWinTagSleep = value.trim());
                 r = textRow(r, PREFIX + ".custom_win_held_item", data.customWinHeldItem, LIMIT_PATH,

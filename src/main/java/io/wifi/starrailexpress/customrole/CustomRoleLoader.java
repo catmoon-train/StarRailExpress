@@ -1712,11 +1712,16 @@ public class CustomRoleLoader {
                     }
                 }
 
+                // 指定职业是否需要存活（默认 true = 原行为）；关闭后指定职业全灭、场上只剩自己时也能获胜
+                boolean needSpecifiedAlive = data.customWinLastWithRolesNeedAlive;
+
                 // 1) 只剩自己 + 指定职业（无外人）-> 直接独立获胜，不再判断指定职业阵营。
+                // 「指定职业是否需存活」关闭时：无外人存活即可（指定职业是否存活不作要求）。
                 // TIME（倒计时归零）时不触发，让 TIME 正常结算，也不阻塞后续更高优先级的条件。
                 // 不再要求 currentWinStatus 为 KILLERS/PASSENGERS，这样即使两项「结算计入存活」都为真、
                 // 常规结算停留在 NONE，也能正常取得独立胜利。
-                if (specifiedAlive && !outsiderAlive && currentWinStatus != WinStatus.TIME) {
+                if (!outsiderAlive && (!needSpecifiedAlive || specifiedAlive)
+                        && currentWinStatus != WinStatus.TIME) {
                     // 恋人胜利优先级高于条件6：让位给后注册的恋人监听器
                     if (loversWin)
                         return WinStatus.NOT_MODIFY;
@@ -1725,8 +1730,9 @@ public class CustomRoleLoader {
                 }
 
                 // 2) 仍有外人存活、且常规结算即将发生 -> 阻止游戏结束，直到外人被杀光。
+                // 「指定职业是否需存活」关闭时：指定职业全灭也会继续阻止，直至外人死光后由分支1 结算。
                 // 若自己/指定职业已通过「结算计入存活」阻止结算（winStatus 保持 NONE），无需额外干预。
-                if (specifiedAlive && outsiderAlive && canBlockGameEnd
+                if (outsiderAlive && (!needSpecifiedAlive || specifiedAlive) && canBlockGameEnd
                         && (currentWinStatus == WinStatus.KILLERS
                                 || currentWinStatus == WinStatus.PASSENGERS
                                 || currentWinStatus == WinStatus.NO_PLAYER)) {
@@ -1735,7 +1741,7 @@ public class CustomRoleLoader {
                         return WinStatus.NOT_MODIFY;
                     return WinStatus.NONE; // 拖延游戏结束，直至非自己/指定职业的玩家全部死亡
                 }
-                // 自己虽存活，但指定职业已全灭 -> 条件6 不介入，让原胜利方正常结算
+                // 自己虽存活，但（需要存活时）指定职业已全灭 -> 条件6 不介入，让原胜利方正常结算
                 // （自己已死的情况在上方 customPlayer == null 处就已 continue 跳过）
             }
 

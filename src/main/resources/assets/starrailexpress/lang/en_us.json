@@ -2859,6 +2859,7 @@
   "sre.custom_role.custom_win_survive_mode.both": "Replace either side's win",
   "sre.custom_role.custom_win_last_alive": "Win independently when only you remain",
   "sre.custom_role.custom_win_with_roles": "Win when only you and specified roles remain (separate with ;)",
+  "sre.custom_role.custom_win_with_roles_need_alive": "Specified Roles Must Be Alive",
   "sre.custom_role.custom_win_tag_sleep": "Win by sleeping in bed when having a tag",
   "sre.custom_role.custom_win_held_item": "Win when holding a specified item",
   "sre.custom_role.can_see_body_name": "See corpse names",
