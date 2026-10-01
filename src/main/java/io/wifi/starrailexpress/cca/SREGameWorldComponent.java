@@ -1509,6 +1509,9 @@ public class SREGameWorldComponent implements AutoSyncedComponent, ServerTicking
         var role = getRole(player);
         if (role == null)
             return false;
+        if (isDualCountDeadlock(role)) {
+            return false;
+        }
         return role.canIncreaseSurvivingInnocents();
     }
 
@@ -1516,7 +1519,43 @@ public class SREGameWorldComponent implements AutoSyncedComponent, ServerTicking
         var role = getRole(player);
         if (role == null)
             return false;
+        if (isDualCountDeadlock(role)) {
+            return false;
+        }
         return role.canIncreaseSurvivingKillers();
+    }
+
+    /**
+     * 「双重计数」死锁判定与放行。
+     *
+     * <p>
+     * 当一个职业同时被设置了「结算计入好人」与「结算计入杀手」时，它会被同时计入两侧
+     * （相当于一个职业占 1 好人 + 1 杀手共 2 人）。若场上<b>所有</b>存活玩家的职业都是这类
+     * 双重计数职业，好人与杀手计数恒 ≥ 1，常规阵营结算（KILLERS / PASSENGERS）永远无法
+     * 发生，游戏无法结束。
+     *
+     * <p>
+     * 该情况下两个计数方法对双重计数职业均返回 false（放行）：结算流程继续走
+     * AllowGameEnd → CustomWinnerClass 的各职业胜利判断逻辑（独立胜利「只剩自己」
+     * 「只剩自己和指定职业」「存活到最后」、跟随获胜等按各自条件判定结算）。
+     */
+    private boolean isDualCountDeadlock(SRERole role) {
+        // 非双重计数职业快速短路，不做全场遍历
+        if (!role.canIncreaseSurvivingInnocents() || !role.canIncreaseSurvivingKillers()) {
+            return false;
+        }
+        boolean anyDualCounted = false;
+        for (var p : world.players()) {
+            if (!(p instanceof ServerPlayer sp) || !GameUtils.isPlayerAliveAndSurvival(sp)) {
+                continue;
+            }
+            var r = getRole(sp);
+            if (r == null || !r.canIncreaseSurvivingInnocents() || !r.canIncreaseSurvivingKillers()) {
+                return false;
+            }
+            anyDualCounted = true;
+        }
+        return anyDualCounted;
     }
 
     public int refreshPsychoCount(boolean sync) {
