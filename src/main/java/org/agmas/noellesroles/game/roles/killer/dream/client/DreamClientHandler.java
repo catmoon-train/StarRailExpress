@@ -62,9 +62,13 @@ public class DreamClientHandler {
             player.turn(yawDrift / 0.15f, pitchDrift / 0.15f);
         });
 
-        // 虚拟血量条：受伤后才显示；护士始终能看到其它玩家的虚拟血量条
+        // 虚拟血量条：受伤后才显示；只有护士与开了 canUseSpVanillaWeapon 的职业能看到，平民不可见
         OnRenderRoleName.RENDER_PLAYER_EXTRA.register((self, target, context, tickCounter, renderer) -> {
             if (self == null || target == null || self.level() == null) {
+                return;
+            }
+            // 可见性门禁：观察者必须是护士，或开启了 canUseSpVanillaWeapon 的职业
+            if (!canViewerSeeVirtualHealth(self)) {
                 return;
             }
             long gameTime = self.level().getGameTime();
@@ -92,6 +96,22 @@ public class DreamClientHandler {
         var gameComponent = io.wifi.starrailexpress.client.SREClient.gameComponent;
         return gameComponent != null && gameComponent.isRole(viewer,
                 org.agmas.noellesroles.role.ModRoles.NURSE);
+    }
+
+    /**
+     * 观察者能否看到其它玩家的虚拟血量条：
+     * 护士始终可见；开启了 {@code canUseSpVanillaWeapon} 的职业可见；平民等其余职业不可见。
+     */
+    private static boolean canViewerSeeVirtualHealth(Player viewer) {
+        var gameComponent = io.wifi.starrailexpress.client.SREClient.gameComponent;
+        if (gameComponent == null) {
+            return false;
+        }
+        if (isViewerNurse(viewer)) {
+            return true;
+        }
+        io.wifi.starrailexpress.api.SRERole role = gameComponent.getRole(viewer);
+        return role != null && role.canUseSpVanillaWeapon();
     }
 
     /**
