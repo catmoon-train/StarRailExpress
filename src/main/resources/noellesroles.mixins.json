@@ -198,7 +198,11 @@
     "client.spear.ItemInHandRendererSpearMixin",
     "client.spear.MinecraftSpearAttackMixin",
     "client.spear.HumanoidModelSpearMixin",
-    "client.roles.nature_spirit.HumanoidModelBambooSpearMixin"
+    "client.roles.nature_spirit.HumanoidModelBambooSpearMixin",
+    "client.katana.LivingEntityKatanaEventMixin",
+    "client.katana.MinecraftKatanaAttackMixin",
+    "client.katana.ItemInHandRendererKatanaMixin",
+    "client.katana.HumanoidModelKatanaMixin"
   ],
   "overwrites": {
     "requireAnnotations": true

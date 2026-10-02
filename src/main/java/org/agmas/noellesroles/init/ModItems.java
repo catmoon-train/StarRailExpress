@@ -1544,6 +1544,19 @@ public class ModItems {
             new NetheriteSpearItem(NetheriteSpearItem.createProperties()),
             "netherite_spear", ROLE_ITEMS_GROUP, WEAPONS_GROUP);
 
+    /**
+     * 武士刀（三连招近战武器）
+     * - 左键三连招：横扫（6 虚拟伤害 + 0.5 格击退）→ 突刺（7 虚拟伤害 + 2 格突进位移）→ 劈砍（7 虚拟伤害 + 1.5 格击退），
+     *   实际命中玩家后才推进招式；每招附带 1 点原版伤害作为击退载体
+     * - 右键格挡：可格挡死亡原因同防暴盾牌，前摇 0.4s / 有效 1.2s，命中后衔接为 0 前摇；
+     *   格挡成功 -1 耐久（不低于 1），耐久等于 1 时无法格挡
+     * - 击杀玩家后进入 10 秒物品冷却；仅限 canUseSpVanillaWeapon 的职业使用
+     */
+    public static final Item KATANA = register(
+            new org.agmas.noellesroles.content.item.KatanaItem(
+                    org.agmas.noellesroles.content.item.KatanaItem.createProperties()),
+            "katana", ROLE_ITEMS_GROUP, WEAPONS_GROUP);
+
     public static Item register(Item item, String id, ResourceKey<CreativeModeTab>... extraGroups) {
         ResourceKey<CreativeModeTab>[] allGroups = java.util.Arrays.copyOf(extraGroups, extraGroups.length + 1);
         allGroups[extraGroups.length] = NOELLESROLES_ALL_GROUP;

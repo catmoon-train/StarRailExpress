@@ -34,6 +34,21 @@ public class RiotShieldHandler {
         AllowPlayerDeathWithKiller.EVENT.register(RiotShieldHandler::allowDeath);
     }
 
+    /**
+     * 可格挡的死亡原因白名单（防暴盾牌与武士刀共用）。
+     * <p>修改这里即可同时改变防暴盾牌和武士刀的可格挡死亡原因。
+     */
+    public static boolean isBlockableDeathReason(ResourceLocation deathReason) {
+        return deathReason.equals(GameConstants.DeathReasons.REVOLVER)
+                || deathReason.equals(GameConstants.DeathReasons.ARROW)
+                || deathReason.equals(GameConstants.DeathReasons.DERRINGER)
+                || deathReason.equals(GameConstants.DeathReasons.TRIDENT)
+                || deathReason.equals(GameConstants.DeathReasons.KNIFE)
+                || deathReason.equals(GameConstants.DeathReasons.BAT)
+                || deathReason.equals(SRE.TMMId("bat"))
+                || deathReason.equals(GameConstants.DeathReasons.GRENADE);
+    }
+
     public static boolean allowDeath(Player victim, Player attacker,
             ResourceLocation deathReason) {
         if (attacker == null)
@@ -41,14 +56,7 @@ public class RiotShieldHandler {
         if ((attacker.isSpectator())
                 || !GameUtils.isPlayerAliveAndSurvivalIgnoreShitSplit(victim))
             return true;
-        if (!deathReason.equals(GameConstants.DeathReasons.REVOLVER)
-                && !deathReason.equals(GameConstants.DeathReasons.ARROW)
-                && !deathReason.equals(GameConstants.DeathReasons.DERRINGER)
-                && !deathReason.equals(GameConstants.DeathReasons.TRIDENT)
-                && !deathReason.equals(GameConstants.DeathReasons.KNIFE)
-                && !deathReason.equals(GameConstants.DeathReasons.BAT)
-                && !deathReason.equals(SRE.TMMId("bat"))
-                && !deathReason.equals(GameConstants.DeathReasons.GRENADE))
+        if (!isBlockableDeathReason(deathReason))
             return true;
         // 如果受害者正在举盾且主手/副手持有我们的防暴盾，则阻挡并损坏盾
         if (!victim.isUsingItem())

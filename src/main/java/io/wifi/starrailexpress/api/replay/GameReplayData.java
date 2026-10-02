@@ -218,6 +218,7 @@ public class GameReplayData {
         DEATH_REASON_TO_ITEM.put(GameConstants.DeathReasons.ARROW, Items.ARROW);
         DEATH_REASON_TO_ITEM.put(GameConstants.DeathReasons.TRIDENT, Items.TRIDENT);
         DEATH_REASON_TO_ITEM.put(GameConstants.DeathReasons.FIREWORK_CROSSBOW, Items.CROSSBOW);
+        DEATH_REASON_TO_ITEM.put(GameConstants.DeathReasons.KATANA, org.agmas.noellesroles.init.ModItems.KATANA);
         // 注意：FELL_OUT_OF_TRAIN 和 GENERIC 没有对应物品
     }
 

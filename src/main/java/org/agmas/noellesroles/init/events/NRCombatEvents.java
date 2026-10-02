@@ -196,6 +196,8 @@ public class NRCombatEvents {
         BatonHandler.register();
         BoneStaffHandler.register();
         RiotShieldHandler.register();
+        // 武士刀：右键格挡死亡拦截（可格挡死亡原因复用防暴盾牌白名单）
+        org.agmas.noellesroles.katana.KatanaHandler.register();
         BenevolenceSwordHandler.register();
         CuckooEggHandler.register();
         GuardPlayerHandler.register();

@@ -102,5 +102,17 @@
       "noellesroles:spear_lunge2",
       "noellesroles:spear_lunge3"
     ]
+  },
+  "noellesroles.sword_parry_1": {
+    "subtitle": "subtitles.noellesroles.sword_parry_1",
+    "sounds": [
+      "noellesroles:sword_parry_1"
+    ]
+  },
+  "noellesroles.sword_parry_2": {
+    "subtitle": "subtitles.noellesroles.sword_parry_2",
+    "sounds": [
+      "noellesroles:sword_parry_2"
+    ]
   }
 }
