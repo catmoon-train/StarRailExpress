@@ -79,6 +79,9 @@ public class StalkerRoleData extends SimpleRoleData {
     /** 攻击蓄力释放后，技能冷却（3.5 秒） */
     public static final int ATTACK_DASH_SKILL_COOLDOWN = 70;
 
+    /** 攻击冲刺未命中任何玩家时的技能冷却（0.5 秒） */
+    public static final int ATTACK_DASH_MISS_SKILL_COOLDOWN = 10;
+
     /** 潜行者匕首固定攻击冷却（5秒，仅刺客形态命中时写入刀冷却） */
     public static final int KNIFE_ATTACK_COOLDOWN = 5 * 20;
 
@@ -601,7 +604,7 @@ public class StalkerRoleData extends SimpleRoleData {
         double speed = 1.20D + 0.55D * charge;
         int ticks = 7 + Math.round(5.0F * charge);
         beginDash(true, speed, ticks);
-        SRERole.getAbilityComponent(player).setCooldown(ATTACK_DASH_SKILL_COOLDOWN);
+        // 是否命中玩家要到冲刺结算时才知道，冷却在 stopDash() 中按命中结果写入
         sync();
         return true;
     }
@@ -646,6 +649,8 @@ public class StalkerRoleData extends SimpleRoleData {
     }
 
     private void stopDash() {
+        boolean wasAttackDash = this.attackDashActive;
+        int hitCount = this.attackDashHitCount;
         this.isDashing = false;
         this.attackDashActive = false;
         this.attackDashHitCount = 0;
@@ -656,6 +661,11 @@ public class StalkerRoleData extends SimpleRoleData {
         this.lastDashPos = Vec3.ZERO;
         this.dashHasTraveled = false;
         this.dashHitPlayers.clear();
+        // 攻击冲刺结束时按命中结果决定技能冷却：命中玩家 3.5 秒，未命中仅 2 秒
+        if (wasAttackDash && player != null && !player.level().isClientSide) {
+            SRERole.getAbilityComponent(player).setCooldown(
+                    hitCount > 0 ? ATTACK_DASH_SKILL_COOLDOWN : ATTACK_DASH_MISS_SKILL_COOLDOWN);
+        }
     }
 
     /** 主手持猎刀，或主手空着且副手持猎刀时，可以蓄力冲刺。 */

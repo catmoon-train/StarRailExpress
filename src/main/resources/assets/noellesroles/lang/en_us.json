@@ -863,6 +863,7 @@
   "tip.broadcaster": "Press %s to broadcast a message!",
   "tip.noellesroles.cooldown": "Ability available in %ss",
   "tip.noellesroles.no_target": "No target",
+  "tip.noellesroles.bee_queen.owner_left_game": "The owner of this corpse has left the game; skills cannot be used on it",
   "tip.noellesroles.activing": "Ability disappears in %ss",
   "tip.noellesroles.ready": "Ability ready - press G",
   "tip.phantom": "Press %s to become invisible!",

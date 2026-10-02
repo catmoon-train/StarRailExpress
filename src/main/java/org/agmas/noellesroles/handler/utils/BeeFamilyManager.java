@@ -27,6 +27,7 @@ import io.wifi.starrailexpress.api.RoleSkill;
 import io.wifi.starrailexpress.api.RoleSkill.RoleSkillContext;
 import io.wifi.starrailexpress.api.data.RoleData;
 import io.wifi.starrailexpress.api.SRERole;
+import io.wifi.starrailexpress.cca.ParticipationComponent;
 import io.wifi.starrailexpress.cca.PlayerBodyEntityComponent;
 import io.wifi.starrailexpress.cca.SREAbilityPlayerComponent;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
@@ -210,6 +211,15 @@ public class BeeFamilyManager {
                                 true);
                         return false;
                     }
+                    // 已退出游戏的玩家（退出重进过 / 退赛不参与）不能被标记为继承人
+                    if (SREAbilityPlayerComponent.KEY.get(marktargetplayer).hasExited()
+                            || !ParticipationComponent.KEY.get(player.level()).isParticipating(marktargetplayer)) {
+                        player.displayClientMessage(
+                                Component.translatable("tip.noellesroles.bee_queen.owner_left_game")
+                                        .withStyle(ChatFormatting.RED),
+                                true);
+                        return false;
+                    }
                     if (GameUtils.isPlayerAliveAndSurvival(marktargetplayer)) {
                         player.displayClientMessage(
                                 Component.translatable("tip.noellesroles.no_target").withStyle(ChatFormatting.RED),
@@ -271,10 +281,25 @@ public class BeeFamilyManager {
             // check if the selected body can be revived
             var revived = (ServerPlayer) serverLevel.getPlayerByUUID(body.getPlayerUuid());
             if (revived == null) {
+                // 尸体主人已退出游戏（离线），无法复活
+                player.displayClientMessage(
+                        Component.translatable("tip.noellesroles.bee_queen.owner_left_game")
+                                .withStyle(ChatFormatting.RED),
+                        true);
                 return InteractionResult.PASS;
             }
 
             if (!revived.isSpectator()) {
+                return InteractionResult.PASS;
+            }
+
+            // 已退出游戏的玩家（退出重进过 / 退赛不参与）不能被复活
+            if (SREAbilityPlayerComponent.KEY.get(revived).hasExited()
+                    || !ParticipationComponent.KEY.get(level).isParticipating(revived)) {
+                player.displayClientMessage(
+                        Component.translatable("tip.noellesroles.bee_queen.owner_left_game")
+                                .withStyle(ChatFormatting.RED),
+                        true);
                 return InteractionResult.PASS;
             }
             // activate cooldown

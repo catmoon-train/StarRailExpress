@@ -908,6 +908,7 @@
   "tip.broadcaster": "按 %s 广播消息！",
   "tip.noellesroles.cooldown": "能力将在 %ss 后可用",
   "tip.noellesroles.no_target": "没有目标",
+  "tip.noellesroles.bee_queen.owner_left_game": "该尸体的主人已退出游戏，无法对其使用技能",
   "tip.noellesroles.activing": "能力将在 %ss 后消失",
   "tip.noellesroles.ready": "能力可用 - 按%s",
   "tip.phantom": "按 %s 进入隐身状态！",
