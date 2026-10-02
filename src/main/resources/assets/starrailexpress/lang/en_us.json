@@ -1655,6 +1655,8 @@
   "sre.custom_item.label.commands": "Commands on Right-Click",
   "sre.custom_item.label.cooldown": "Cooldown After Use",
   "sre.custom_item.label.consume": "Consume Item",
+  "sre.custom_item.label.consume_on_empty_fire": "Consume After Use (Empty Fire)",
+  "sre.custom_item.hint.consume_on_empty_fire": "Whether an empty fire (charge completed without hitting any player) consumes the item: yes = consumes on empty fire, no = empty fire doesn't consume; successful hits still follow 'Consume Item'. Default: yes.",
   "sre.custom_item.label.charge_anim": "Charge Animation",
   "sre.custom_item.label.charge_anim_first": "First-Person Charge Animation",
   "sre.custom_item.label.charge_anim_third": "Third-Person Charge Animation",

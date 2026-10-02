@@ -491,7 +491,8 @@ public final class CustomItemRuntime {
             }
             // 空放走「独立冷却」：与命中后的冷却无关，默认 0 = 空放不进入冷却
             applyCooldown(player, stack, data.emptyFireCooldownTicks);
-            consumeItem(player, stack, data.consumeItem);
+            // 空放是否消耗单独区分（consumeOnEmptyFire，默认是 = 与命中一致按 consumeItem 消耗）
+            consumeItem(player, stack, data.consumeItem && data.consumeOnEmptyFire);
             return true;
         }
 

@@ -353,6 +353,10 @@ public class CustomItemScreen extends CustomEditorScreen {
                     value -> data.affectOnlyMaxRange = value);
             r = note(r, PREFIX + ".hint.affect_only_max_range", SREPanelStyle.MUTED);
             r = commandList(r, PREFIX + ".label.target_commands", data.targetCommands);
+            // 使用后是否消耗（空放分支）：区分「空放不消耗」与「空放消耗」，默认是 = 空放消耗
+            r = boolRow(r, PREFIX + ".label.consume_on_empty_fire", data.consumeOnEmptyFire,
+                    value -> data.consumeOnEmptyFire = value);
+            r = note(r, PREFIX + ".hint.consume_on_empty_fire", SREPanelStyle.MUTED);
             // 空放（蓄力完成但没命中玩家）：独立冷却数值，只有会打人的道具才有这个概念
             r = numRow(r, PREFIX + ".label.empty_fire_cooldown", data.emptyFireCooldownTicks,
                     PREFIX + ".unit.tick", value -> data.emptyFireCooldownTicks = (int) value);
