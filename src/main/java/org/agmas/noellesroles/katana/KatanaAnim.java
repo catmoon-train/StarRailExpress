@@ -138,6 +138,22 @@ public final class KatanaAnim {
     }
 
     /**
+     * 第三人称劈砍：双手「向内聚拢」的权重曲线（配合角度常数使用）。
+     *
+     * <p>
+     * 举刀（windup）时略向外张开（负值），劈落（strike）时快速向内聚拢到峰值，
+     * 收招（recover）平滑回到自然。聚拢的方向约定与手铐前铐姿势一致
+     * （{@code HandCuffsPoseMixin}：右臂 yRot/zRot 取负、左臂取正，双手向中线收）。
+     *
+     * @return 聚拢权重，约 -0.35 ~ +0.65
+     */
+    public static float slashConverge(float progress) {
+        float[] ph = phases(progress, 0.25F, 0.60F);
+        float wind = ph[0], strike = ph[1], recover = ph[2];
+        return -0.35F * wind + 1.0F * strike - 0.65F * recover;
+    }
+
+    /**
      * 第三人称格挡：右臂抬起横在胸前，刀尖斜向左下。
      *
      * @return {@code [xRot, yRot, zRot]}（弧度）

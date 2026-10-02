@@ -20,7 +20,8 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
  * 第三人称武士刀姿势：
  * <ul>
  * <li>右键格挡：持刀手臂抬起横在胸前，刀尖斜向左下；</li>
- * <li>三连招：横扫（手臂水平扫动）/ 突刺（手臂前伸）/ 劈砍（举刀下劈，双臂）。</li>
+ * <li>三连招：横扫（手臂水平扫动）/ 突刺（手臂前伸）/
+ * 劈砍（举刀下劈，双臂劈落时向内聚拢，参考手铐前铐姿势的收敛方向）。</li>
  * </ul>
  */
 @Mixin(HumanoidModel.class)
@@ -61,8 +62,12 @@ public abstract class HumanoidModelKatanaMixin<T extends LivingEntity> {
                     && KatanaClientState.animatingMove(entity) == KatanaState.MOVE_SLASH
                     && !entity.isUsingItem()) {
                 float[] r = KatanaAnim.thirdPersonSlash(entity.getAttackAnim(0.0F));
+                int side = humanoidArm == HumanoidArm.RIGHT ? 1 : -1;
+                // 劈落时与持刀侧一起向内聚拢，双手在劈落瞬间收向中线（同手铐前铐姿势的收敛方向）
+                float converge = KatanaAnim.slashConverge(entity.getAttackAnim(0.0F));
                 arm.xRot = r[0] + 0.25F;
-                arm.zRot = 0.15F;
+                arm.yRot = -side * 0.7F * converge;
+                arm.zRot = -side * (0.15F + 0.4F * converge);
             }
             return;
         }
@@ -93,9 +98,12 @@ public abstract class HumanoidModelKatanaMixin<T extends LivingEntity> {
             }
             case KatanaState.MOVE_SLASH -> {
                 float[] r = KatanaAnim.thirdPersonSlash(attackAnim);
+                // 劈落时双手向内聚拢（方向与手铐前铐姿势一致：yRot/zRot 朝中线收）；
+                // 举刀时 converge 为负 = 略向外张开，收招回到自然。
+                float converge = KatanaAnim.slashConverge(attackAnim);
                 arm.xRot = r[0];
-                arm.yRot = 0.0F;
-                arm.zRot = side * -0.25F;
+                arm.yRot = -side * 0.7F * converge;
+                arm.zRot = -side * (0.25F + 0.4F * converge);
             }
             default -> {
                 float[] r = KatanaAnim.thirdPersonSweep(attackAnim, side);
