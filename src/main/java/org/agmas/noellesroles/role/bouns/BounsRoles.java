@@ -40,6 +40,7 @@ import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
+import org.agmas.harpymodloader.Harpymodloader;
 import org.agmas.noellesroles.role_data.innocence.AnglerRoleData;
 import org.agmas.noellesroles.role_data.innocence.ClimbPoseRoleData;
 import org.agmas.noellesroles.role_data.innocence.FatFishRoleData;
@@ -442,7 +443,7 @@ public class BounsRoles {
             // 只在爬山地图刷新（枚举里 PEAK 就是为童子军预留的）
             .setSpecialMapRolesCondition((t) -> t.contains(MapSpecialFeatures.PEAK))
             .setDefaultMax(1)
-            .setDefaultEnableChance(8000) // 彩蛋刷新率 2%
+            .setDefaultEnableChance(0) // 彩蛋刷新率 2%
             .setCanBeRandomedByOtherRoles(false);
 
     /**
@@ -451,7 +452,7 @@ public class BounsRoles {
      * - 属于杀手阵营 (isInnocent = false, canUseKiller = true)：吃默认杀手商店，不覆写
      * getShopEntries()
      * - 只在带 {@link MapSpecialFeatures#PEAK} 特性的爬山图出现
-     * - 默认刷新数 0：不单独刷新，靠 {@link #SCOUT} 的 addOccupationRole 绑定生成
+     * - 作为主职业：通过 addOccupationRole 绑定生成 {@link #SCOUT}（见类末尾静态块）
      * - 技能：与童子军相同的站立 / 匍匐姿态
      */
     public static SRERole FOREST_MUSHROOM_ZOMBIE = TMMRoles.registerRole(new ScoutRole(
@@ -467,7 +468,7 @@ public class BounsRoles {
             .setCanClimbWalls(true)
             .addFlag("peak")
             .setSpecialMapRolesCondition((t) -> t.contains(MapSpecialFeatures.PEAK))
-            .setDefaultMax(0) // 不单独刷新，跟着童子军一起出现
+            .setDefaultMax(8000)
             .setCanBeRandomedByOtherRoles(false);
 
     /**
@@ -613,8 +614,8 @@ public class BounsRoles {
         FOREST_MUSHROOM_ZOMBIE.setAddedVersion("4.4");
         FAT_FISH.setAddedVersion("4.4");
         PURPLE_MONSTER.setAddedVersion("4.4");
-        // 森蕈僵尸与童子军绑定生成（分配童子军时也会分配森蕈僵尸）；
-        // 它的默认刷新数是 0，所以不会自己单独刷新出来。
-        SCOUT.addOccupationRole(FOREST_MUSHROOM_ZOMBIE);
+        // 森蕈僵尸与童子军绑定生成（分配森蕈僵尸时也会分配童子军）；
+        // 森蕈僵尸为主职业，童子军为关联职业。
+        Harpymodloader.addOccupationRole(FOREST_MUSHROOM_ZOMBIE, SCOUT);
     }
 }
