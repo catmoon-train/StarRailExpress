@@ -2,6 +2,8 @@ package org.agmas.noellesroles.katana;
 
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.game.GameUtils;
+import net.minecraft.world.effect.MobEffectInstance;
+import org.agmas.noellesroles.init.ModEffects;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvent;
@@ -35,6 +37,9 @@ public final class KatanaCombat {
 
     /** 突刺时给自身的向前冲量（约 2 格位移）。 */
     private static final double THRUST_IMPULSE = 0.9D;
+
+    /** 突刺期间的无碰撞时长（tick）：0.5 秒，覆盖整个突进位移。 */
+    private static final int THRUST_NO_COLLIDE_TICKS = 10;
 
     /** 左键攻击玩家的服务端入口（由 {@link KatanaItem#onServerAttack} 分派）。 */
     public static boolean attack(ServerPlayer attacker, ServerPlayer target, ItemStack stack) {
@@ -78,6 +83,9 @@ public final class KatanaCombat {
             Vec3 look = attacker.getViewVector(1.0F);
             attacker.push(look.x * THRUST_IMPULSE, 0.0D, look.z * THRUST_IMPULSE);
             attacker.hurtMarked = true;
+            // 突刺期间给予短暂无碰撞，保证能穿过玩家
+            attacker.addEffect(new MobEffectInstance(
+                    ModEffects.NO_COLLIDE, THRUST_NO_COLLIDE_TICKS, 0, true, false, false));
         }
 
         // ── 命中判定：目标即原版选中的玩家 ──
