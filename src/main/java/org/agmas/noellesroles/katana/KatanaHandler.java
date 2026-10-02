@@ -59,6 +59,10 @@ public final class KatanaHandler {
         if (stack == null || !stack.is(ModItems.KATANA)) {
             return true;
         }
+        // 职业门禁：只有开启 canUseSpVanillaWeapon 的职业才能用武士刀格挡（双保险）
+        if (!KatanaItem.canPlayerUse(victim)) {
+            return true;
+        }
         // 可格挡的死亡原因同防暴盾牌（共用白名单）
         if (!RiotShieldHandler.isBlockableDeathReason(deathReason)) {
             return true;

@@ -1,5 +1,6 @@
 package org.agmas.noellesroles.content.item;
 
+import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.content.item.api.SREItemProperties;
 import io.wifi.starrailexpress.game.GameConstants;
 import io.wifi.starrailexpress.game.GameUtils;
@@ -62,11 +63,25 @@ public class KatanaItem extends Item
         return stack.getMaxDamage() > 0 && stack.getDamageValue() >= stack.getMaxDamage() - 1;
     }
 
+    /**
+     * 职业门禁：武士刀（攻击与右键格挡）只有开启了
+     * {@code canUseSpVanillaWeapon} 的职业才能使用。双端统一判定。
+     */
+    public static boolean canPlayerUse(Player player) {
+        var gameWorld = SREGameWorldComponent.KEY.get(player.level());
+        var role = gameWorld == null ? null : gameWorld.getRole(player);
+        return role != null && role.canUseSpVanillaWeapon();
+    }
+
     // ── 右键：格挡 ────────────────────────────────────────────────
 
     @Override
     public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand hand) {
         ItemStack stack = player.getItemInHand(hand);
+        // 职业门禁：未授权职业无法开始格挡
+        if (!canPlayerUse(player)) {
+            return InteractionResultHolder.fail(stack);
+        }
         // 耐久等于 1 时无法格挡
         if (isAtLastDurability(stack)) {
             return InteractionResultHolder.fail(stack);

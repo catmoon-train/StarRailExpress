@@ -121,15 +121,18 @@ public final class KatanaCombat {
             DreamHealthComponent.KEY.get(target).hurt(attacker, virtualDamage, KatanaItem.DEATH_REASON);
         }
 
-        // 3. 连招推进：命中才进入下一招式
-        boolean targetDied = !GameUtils.isPlayerAliveAndSurvival(target);
+        // 3. 连招推进：仅在实际命中后推进（未命中保持当前招式）
+        boolean targetDied = vanillaHurt && !GameUtils.isPlayerAliveAndSurvival(target);
         int next;
         if (targetDied) {
-            // 击杀玩家：进入 10 秒冷却，连招回到第一招式
+            // 被武士刀杀死：进入 10 秒冷却，连招回到第一招式
             if (!attacker.isCreative()) {
                 attacker.getCooldowns().addCooldown(stack.getItem(), KatanaState.KILL_COOLDOWN_TICKS);
             }
             next = KatanaState.MOVE_SWEEP;
+        } else if (!vanillaHurt) {
+            // 未命中（如被原版盾牌格挡）：保持当前招式，不推进也不回卷
+            next = move;
         } else if (move == KatanaState.MOVE_SLASH) {
             // 三连招全部命中且目标未死（可能被护盾挡下）→ 无冷却，立即衔接第一招式
             next = KatanaState.MOVE_SWEEP;
@@ -140,9 +143,11 @@ public final class KatanaCombat {
         broadcastNextMove(attacker, next);
 
         // 5. 命中后：刷新衔接格挡窗口 + 清除格挡内置冷却
-        state.linkedUntil = attacker.level().getGameTime() + KatanaState.LINKED_WINDOW_TICKS;
-        state.blockCooldownUntil = 0;
-        KatanaState.broadcast(attacker, KatanaState.EVENT_BLOCK_COOLDOWN_CLEAR);
+        if (vanillaHurt) {
+            state.linkedUntil = attacker.level().getGameTime() + KatanaState.LINKED_WINDOW_TICKS;
+            state.blockCooldownUntil = 0;
+            KatanaState.broadcast(attacker, KatanaState.EVENT_BLOCK_COOLDOWN_CLEAR);
+        }
         return false;
     }
 
