@@ -27,6 +27,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 
 import java.util.Collection;
+import java.util.UUID;
 
 /**
  * 职业选择「前置位」指令。
@@ -42,8 +43,7 @@ public final class DraftPriorityCommand {
     }
 
     public static void register() {
-        CommandRegistrationCallback.EVENT.register((CommandDispatcher<CommandSourceStack> dispatcher,
-                registry, environment) -> dispatcher.register(
+        CommandRegistrationCallback.EVENT.register((dispatcher, registry, environment) -> dispatcher.register(
                 Commands.literal("sre:draft_priority")
                         .requires(source -> source.hasPermission(2))
                         .then(Commands.argument("player", EntityArgument.player())
