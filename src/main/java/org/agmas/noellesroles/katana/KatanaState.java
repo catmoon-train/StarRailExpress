@@ -2,6 +2,7 @@ package org.agmas.noellesroles.katana;
 
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.phys.Vec3;
 import org.agmas.harpymodloader.events.GameInitializeEvent;
 import io.wifi.starrailexpress.event.OnGameEnd;
 
@@ -39,6 +40,14 @@ public final class KatanaState {
     /** 击杀玩家后武士刀进入的物品冷却：10 秒。 */
     public static final int KILL_COOLDOWN_TICKS = 200;
 
+    // ── 突刺（第二招式）位移结算参数 ──
+    /** 突刺位移结算的最长时长（tick）：0.5 秒，与无碰撞效果时长一致。 */
+    public static final int THRUST_DASH_MAX_TICKS = 10;
+    /** 突刺途中碰撞判定的包围盒膨胀（格）。 */
+    public static final double THRUST_HIT_MARGIN = 0.75D;
+    /** 突刺碰撞造成的虚拟伤害。 */
+    public static final int THRUST_VIRTUAL_DAMAGE = 7;
+
     // ── 动画同步用的实体事件字节（客户端在 handleEntityEvent 中消费） ──
     /** 本次攻击使用的招式（100 + 招式编号）。 */
     public static final byte EVENT_MOVE_USED_BASE = 100;
@@ -59,6 +68,33 @@ public final class KatanaState {
         public long linkedUntil;
         /** 本次格挡开始时是否处于衔接窗口内（决定前摇与结束后是否进入内置冷却）。 */
         public boolean blockLinked;
+
+        // ── 突刺（第二招式）位移状态（仅服务端使用） ──
+        /** 是否正在突刺位移中。 */
+        public boolean thrustDashing = false;
+        /** 突刺方向。 */
+        public Vec3 thrustDirection = Vec3.ZERO;
+        /** 上一 tick 所在位置。 */
+        public Vec3 thrustLastPos = Vec3.ZERO;
+        /** 本次突刺是否已经发生过实际位移。 */
+        public boolean thrustHasMoved = false;
+        /** 突刺剩余结算时长（tick）。 */
+        public int thrustTicksLeft = 0;
+        /** 本次突刺碰撞到的玩家数。 */
+        public int thrustHitCount = 0;
+        /** 本次突刺已碰撞的玩家，防止同一目标重复受伤。 */
+        public final Set<UUID> thrustHitPlayers = new HashSet<>();
+
+        /** 结束并清空突刺状态（不动连招进度，推进与否由调用方决定）。 */
+        public void stopThrust() {
+            this.thrustDashing = false;
+            this.thrustTicksLeft = 0;
+            this.thrustDirection = Vec3.ZERO;
+            this.thrustLastPos = Vec3.ZERO;
+            this.thrustHasMoved = false;
+            this.thrustHitCount = 0;
+            this.thrustHitPlayers.clear();
+        }
     }
 
     private static final Map<UUID, PlayerState> STATES = new ConcurrentHashMap<>();
