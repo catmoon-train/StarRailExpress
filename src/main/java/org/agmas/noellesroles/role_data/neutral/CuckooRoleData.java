@@ -162,7 +162,7 @@ public class CuckooRoleData extends SimpleRoleData {
         survivingEggs = Math.max(0, survivingEggs - 1);
         sync();
         if (player instanceof ServerPlayer sp) {
-            sp.displayClientMessage(Component.translatable("message.noellesroles.cuckoo.egg_broken"), false);
+            sp.displayClientMessage(Component.translatable("message.noellesroles.cuckoo.egg_broken"), true);
         }
     }
 
