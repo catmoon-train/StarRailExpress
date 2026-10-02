@@ -1518,6 +1518,9 @@ public class RoleShopHandler {
                                     GameConstants.getBlackoutCooldownGlobal()));
                     player.getCooldowns().addCooldown(ModItems.LIGHTUP,
                             GameConstants.ITEM_COOLDOWNS.getOrDefault(TMMItems.BLACKOUT, 0));
+                    // 记录回放事件「xx释放了开灯」（与关灯的 recordSkillUsed 同款）
+                    SRE.REPLAY_MANAGER.recordSkillUsed(player.getUUID(),
+                            BuiltInRegistries.ITEM.getKey(ModItems.LIGHTUP));
                     return true;
                 }
             });
