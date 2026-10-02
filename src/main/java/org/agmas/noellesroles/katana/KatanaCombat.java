@@ -1,8 +1,11 @@
 package org.agmas.noellesroles.katana;
 
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
+import io.wifi.starrailexpress.event.OnPlayerDeathWithKiller;
 import io.wifi.starrailexpress.game.GameUtils;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.entity.player.Player;
 import org.agmas.noellesroles.init.ModEffects;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -33,6 +36,30 @@ import org.agmas.noellesroles.init.ModItems;
 public final class KatanaCombat {
 
     private KatanaCombat() {
+    }
+
+    static {
+        // 被武士刀杀死 → 武士刀进入 10 秒原版物品冷却。
+        // 注册在「死亡确认后」事件上（参考网警 Dream 武器的做法）：
+        // inline 在攻击结算里检查目标存活不可靠——目标带时间回溯标记（TIME_REWIND_MARK）
+        // 或人格分裂修饰符时，即使已被击杀，GameUtils#isPlayerAliveAndSurvival 仍返回
+        // 存活（见 GameUtils#isPlayerReallyAliveOrDead），导致玩家已死但刀不进冷却。
+        OnPlayerDeathWithKiller.EVENT.register(KatanaCombat::onKillWithKatana);
+    }
+
+    /**
+     * 死亡确认回调：死因为武士刀、且击杀者主手持刀时，给武士刀加 10 秒原版物品冷却。
+     */
+    private static void onKillWithKatana(Player victim, Player killer, ResourceLocation deathReason) {
+        if (!(killer instanceof ServerPlayer sk) || victim == killer) {
+            return;
+        }
+        if (!KatanaItem.DEATH_REASON.equals(deathReason)) {
+            return;
+        }
+        if (!sk.isCreative() && sk.getMainHandItem().is(ModItems.KATANA)) {
+            sk.getCooldowns().addCooldown(ModItems.KATANA, KatanaState.KILL_COOLDOWN_TICKS);
+        }
     }
 
     /** 突刺时给自身的向前冲量（约 2 格位移）。 */
@@ -125,10 +152,10 @@ public final class KatanaCombat {
         boolean targetDied = vanillaHurt && !GameUtils.isPlayerAliveAndSurvival(target);
         int next;
         if (targetDied) {
-            // 被武士刀杀死：进入 10 秒冷却，连招回到第一招式
-            if (!attacker.isCreative()) {
-                attacker.getCooldowns().addCooldown(stack.getItem(), KatanaState.KILL_COOLDOWN_TICKS);
-            }
+            // 被武士刀杀死：连招回到第一招式。
+            // 10 秒击杀冷却统一由 OnPlayerDeathWithKiller 事件在死亡确认后结算——
+            // inline 检查 isPlayerAliveAndSurvival 不可靠（时间回溯标记 / 人格分裂
+            // 状态下目标已死仍会返回"存活"）。
             next = KatanaState.MOVE_SWEEP;
         } else if (!vanillaHurt) {
             // 未命中（如被原版盾牌格挡）：保持当前招式，不推进也不回卷

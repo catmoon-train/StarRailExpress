@@ -67,9 +67,9 @@ public abstract class HumanoidModelKatanaMixin<T extends LivingEntity> {
             return;
         }
 
-        // 格挡：抬臂横在胸前（前摇期间从自然姿势过渡）
+        // 格挡：抬臂横在胸前（前摇 0.4 秒内抬到位；raise 归一化到 0~1）
         if (entity.isUsingItem() && entity.getUseItem().is(ModItems.KATANA)) {
-            float raise = entity.getTicksUsingItem() + 0.0F;
+            float raise = (entity.getTicksUsingItem() + 0.0F) / KatanaState.BLOCK_WINDUP_TICKS;
             float[] r = KatanaAnim.thirdPersonBlock(raise);
             arm.xRot = r[0];
             arm.yRot = r[1];

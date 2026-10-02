@@ -76,7 +76,8 @@ public class ItemInHandRendererKatanaMixin {
                     : (player.getMainArm() == HumanoidArm.RIGHT ? -1 : 1);
             // 原版手部锚点（与矛的自定义姿势一致），否则姿势会从屏幕中心开始
             poseStack.translate(side * 0.56F, -0.52F, -0.72F);
-            float raise = player.getTicksUsingItem() + partialTicks;
+            // raise 归一化到 0~1：前摇 0.4 秒内抬到位
+            float raise = (player.getTicksUsingItem() + partialTicks) / KatanaState.BLOCK_WINDUP_TICKS;
             KatanaAnim.applyFirstPersonBlock(poseStack, raise, side);
             suppress.set(true);
         }
@@ -111,9 +112,10 @@ public class ItemInHandRendererKatanaMixin {
         }
         float partialTicks = net.minecraft.client.Minecraft.getInstance().getTimer().getGameTimeDeltaPartialTick(true);
         int side = leftHanded ? -1 : 1;
-        // 格挡：刀尖转向左下
+        // 格挡：手持刀柄，刀尖转向左下（与矛同款做法：renderItem HEAD 处直接变换 PoseStack）
+        // 前摇 0.4 秒内翻腕到位
         if (entity.isUsingItem() && entity.getUseItem().equals(stack)) {
-            float raise = entity.getTicksUsingItem() + partialTicks;
+            float raise = (entity.getTicksUsingItem() + partialTicks) / KatanaState.BLOCK_WINDUP_TICKS;
             KatanaAnim.applyThirdPersonBlockItem(poseStack, raise, side);
             return;
         }
