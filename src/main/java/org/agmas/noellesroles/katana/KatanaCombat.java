@@ -38,7 +38,11 @@ import java.util.List;
  * </ul>
  *
  * <p>突刺（第二招式）例外：左键时立刻向前位移，伤害与连招推进改由
- * <b>位移途中碰撞到的玩家</b>结算（见 {@link #tickThrusts}）。
+ * <b>位移途中碰撞到的玩家</b>结算（见 {@link #tickThrusts}）。突刺<b>不看准星目标</b>，
+ * 因此左键空挥也会出刀（客户端拦 {@code startAttack} 发
+ * {@code KatanaThrustC2SPacket}，见 {@link #handleThrust}）；位移距离由
+ * {@link KatanaState#THRUST_DISTANCE} 精确截断，连续
+ * {@link KatanaState#THRUST_MAX_MISSES} 次未命中则连招回到第一招式。
  *
  * <p>三连招全部命中且目标<b>未死</b>（例如伤害被护盾挡下）→ 不进入物品冷却，
  * 立即衔接回第一招式；目标<b>被杀死</b> → 武士刀进入 10 秒物品冷却。
@@ -74,45 +78,25 @@ public final class KatanaCombat {
         }
     }
 
-    /** 突刺时给自身的向前冲量（约 2 格位移）。 */
-    private static final double THRUST_IMPULSE = 0.9D;
+    /** 突刺每 tick 施加的水平推进速度；略大于「2 格 / 10 tick」，抗摩擦衰减。 */
+    private static final double THRUST_TICK_SPEED = 0.28D;
+    /** 突刺撞墙检测的前视距离（格）。 */
+    private static final double THRUST_WALL_LOOKAHEAD = 0.32D;
 
     /** 左键攻击玩家的服务端入口（由 {@link KatanaItem#onServerAttack} 分派）。 */
     public static boolean attack(ServerPlayer attacker, ServerPlayer target, ItemStack stack) {
         if (!GameUtils.isPlayerAliveAndSurvival(attacker) || !GameUtils.isPlayerAliveAndSurvival(target)) {
             return false;
         }
-        // 武士刀只有开启了 canUseSpVanillaWeapon 的职业才能使用
-        var gameWorld = SREGameWorldComponent.KEY.get(attacker.level());
-        var role = gameWorld == null ? null : gameWorld.getRole(attacker);
-        if (role == null || !role.canUseSpVanillaWeapon()) {
-            return false;
-        }
-        // 物品冷却中（击杀后的 10 秒冷却）无法攻击
-        if (attacker.getCooldowns().isOnCooldown(stack.getItem())) {
-            return false;
-        }
-        // 与原版剑一致：必须满蓄力
-        if (attacker.getAttackStrengthScale(0.5F) < 1.0F) {
+        if (!canUseKatana(attacker, stack)) {
             return false;
         }
 
         KatanaState.PlayerState state = KatanaState.get(attacker);
         int move = state.nextMove;
 
-        // 广播「本次使用的招式」供客户端播放动画（未命中也要有动画）
-        KatanaState.broadcast(attacker, (byte) (KatanaState.EVENT_MOVE_USED_BASE + move));
+        announceMove(attacker, move);
         attacker.resetAttackStrengthTicker();
-
-        // 每次挥刀（无论是否命中）都按当前招式播放音效
-        SoundEvent swingSound = switch (move) {
-            case KatanaState.MOVE_SWEEP -> SoundEvents.PLAYER_ATTACK_SWEEP;
-            case KatanaState.MOVE_THRUST -> SoundEvents.PLAYER_ATTACK_KNOCKBACK;
-            default -> SoundEvents.PLAYER_ATTACK_CRIT;
-        };
-        if (attacker.level() instanceof ServerLevel serverLevel) {
-            serverLevel.playSound(null, attacker.blockPosition(), swingSound, SoundSource.PLAYERS, 1.0F, 1.0F);
-        }
 
         // 突刺（第二招式）：左键时立刻向前位移，伤害不再在挥刀瞬间对准星目标结算，
         // 而是改由位移途中碰撞到的玩家结算（见 tickThrusts / tickThrust）。
@@ -196,6 +180,60 @@ public final class KatanaCombat {
 
     // ───────────────────────── 突刺（第二招式）位移结算 ─────────────────────────
 
+    /**
+     * 突刺的<b>独立入口</b>：客户端左键 C2S 包（{@code KatanaThrustC2SPacket}）调用。
+     *
+     * <p>与 {@link #attack} 的最大区别：<b>不依赖准星目标</b>，因此左键空挥也会突刺。
+     * 原版左键命中实体才会走到 {@code Player#attack}，空挥只发挥手包，
+     * 所以必须由客户端拦 {@code Minecraft#startAttack} 主动发包。
+     *
+     * <p>连招进度以服务端 {@link KatanaState#nextMove} 为准；客户端的招式预测
+     * 可能与服务端不同步，此时这里会拒绝执行（返回 false），不会误出刀。
+     */
+    public static boolean handleThrust(ServerPlayer attacker, ItemStack stack) {
+        if (!GameUtils.isPlayerAliveAndSurvival(attacker) || !canUseKatana(attacker, stack)) {
+            return false;
+        }
+        KatanaState.PlayerState state = KatanaState.get(attacker);
+        // 服务端权威校验：招式必须是第二招，且当前没有正在进行的突刺
+        if (state.nextMove != KatanaState.MOVE_THRUST || state.thrustDashing) {
+            return false;
+        }
+        announceMove(attacker, KatanaState.MOVE_THRUST);
+        attacker.resetAttackStrengthTicker();
+        startThrustDash(attacker, state);
+        return false;
+    }
+
+    /** 武士刀的使用资格：职业门禁 + 物品冷却 + 满蓄力。 */
+    private static boolean canUseKatana(ServerPlayer attacker, ItemStack stack) {
+        // 武士刀只有开启了 canUseSpVanillaWeapon 的职业才能使用
+        var gameWorld = SREGameWorldComponent.KEY.get(attacker.level());
+        var role = gameWorld == null ? null : gameWorld.getRole(attacker);
+        if (role == null || !role.canUseSpVanillaWeapon()) {
+            return false;
+        }
+        // 物品冷却中（击杀后的 10 秒冷却）无法攻击
+        if (attacker.getCooldowns().isOnCooldown(stack.getItem())) {
+            return false;
+        }
+        // 与原版剑一致：必须满蓄力
+        return attacker.getAttackStrengthScale(0.5F) >= 1.0F;
+    }
+
+    /** 广播「本次使用的招式」供客户端播放动画（未命中也要有动画）+ 播放该招式的挥刀音效。 */
+    private static void announceMove(ServerPlayer attacker, int move) {
+        KatanaState.broadcast(attacker, (byte) (KatanaState.EVENT_MOVE_USED_BASE + move));
+        SoundEvent swingSound = switch (move) {
+            case KatanaState.MOVE_SWEEP -> SoundEvents.PLAYER_ATTACK_SWEEP;
+            case KatanaState.MOVE_THRUST -> SoundEvents.PLAYER_ATTACK_KNOCKBACK;
+            default -> SoundEvents.PLAYER_ATTACK_CRIT;
+        };
+        if (attacker.level() instanceof ServerLevel serverLevel) {
+            serverLevel.playSound(null, attacker.blockPosition(), swingSound, SoundSource.PLAYERS, 1.0F, 1.0F);
+        }
+    }
+
     /** 第二招式突刺：左键时立刻沿视线方向位移，并进入逐 tick 的碰撞伤害结算。 */
     private static void startThrustDash(ServerPlayer attacker, KatanaState.PlayerState state) {
         Vec3 look = attacker.getViewVector(1.0F);
@@ -205,15 +243,27 @@ public final class KatanaCombat {
         state.thrustDashing = true;
         state.thrustDirection = look.normalize();
         state.thrustTicksLeft = KatanaState.THRUST_DASH_MAX_TICKS;
+        // 距离驱动：走满 THRUST_DISTANCE（2 格）即结束，与摩擦系数无关
+        state.thrustRemaining = KatanaState.THRUST_DISTANCE;
         state.thrustHitCount = 0;
         state.thrustHasMoved = false;
         state.thrustLastPos = Vec3.ZERO;
         state.thrustHitPlayers.clear();
-        attacker.push(state.thrustDirection.x * THRUST_IMPULSE, 0.0D, state.thrustDirection.z * THRUST_IMPULSE);
-        attacker.hurtMarked = true;
+        applyThrustVelocity(attacker, state);
         // 突刺期间给予短暂无碰撞，保证能穿过玩家
         attacker.addEffect(new MobEffectInstance(
                 ModEffects.NO_COLLIDE, KatanaState.THRUST_DASH_MAX_TICKS, 0, true, false, false));
+    }
+
+    /**
+     * 覆写水平速度来推进突刺：每 tick 固定给一个速度，抵消摩擦衰减，
+     * 由 {@link KatanaState#THRUST_DISTANCE} 的剩余距离做精确截断。
+     */
+    private static void applyThrustVelocity(ServerPlayer attacker, KatanaState.PlayerState state) {
+        Vec3 current = attacker.getDeltaMovement();
+        attacker.setDeltaMovement(state.thrustDirection.x * THRUST_TICK_SPEED, current.y,
+                state.thrustDirection.z * THRUST_TICK_SPEED);
+        attacker.hurtMarked = true;
     }
 
     /** 每 tick 遍历本世界内正在突刺的玩家，结算位移与碰撞伤害。 */
@@ -232,7 +282,7 @@ public final class KatanaCombat {
     }
 
     /**
-     * 单 tick 突刺结算：即将撞墙或位移停滞时结束突刺；
+     * 单 tick 突刺结算：按「已走距离」精确截断 2 格，撞墙 / 位移停滞时提前结束；
      * 位移途中对碰撞到的玩家造成伤害（1 点原版伤害 + 突刺虚拟伤害）。
      */
     private static void tickThrust(ServerPlayer player, KatanaState.PlayerState state) {
@@ -241,15 +291,18 @@ public final class KatanaCombat {
             state.thrustLastPos = currentPos;
         }
         Vec3 moved = currentPos.subtract(state.thrustLastPos);
-        boolean movedThisTick = moved.lengthSqr() > 0.0025D;
+        // 只按水平位移累计：垂直分量来自跳跃/坠落，不计入突刺距离
+        double movedHorizontal = Math.sqrt(moved.x * moved.x + moved.z * moved.z);
+        boolean movedThisTick = movedHorizontal > 0.0025D;
 
         // 前方即将撞墙：立即结束突刺
-        Vec3 lookAhead = state.thrustDirection.scale(Math.max(THRUST_IMPULSE, 0.35D));
+        Vec3 lookAhead = state.thrustDirection.scale(THRUST_WALL_LOOKAHEAD);
         BlockHitResult wallHit = player.level().clip(new ClipContext(
                 currentPos.add(0, 0.5, 0), currentPos.add(lookAhead).add(0, 0.5, 0),
                 ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, player));
         if (wallHit.getType() != HitResult.Type.MISS
-                && wallHit.getLocation().distanceToSqr(currentPos.add(0, 0.5, 0)) < THRUST_IMPULSE * THRUST_IMPULSE) {
+                && wallHit.getLocation().distanceToSqr(currentPos.add(0, 0.5, 0))
+                        < THRUST_WALL_LOOKAHEAD * THRUST_WALL_LOOKAHEAD) {
             player.setDeltaMovement(Vec3.ZERO);
             endThrust(player, state);
             return;
@@ -264,6 +317,8 @@ public final class KatanaCombat {
 
         if (movedThisTick) {
             state.thrustHasMoved = true;
+            // 累计已走距离：走满 THRUST_DISTANCE 即精确结束，与摩擦 / 冰面无关
+            state.thrustRemaining -= movedHorizontal;
             // 位移途中碰撞到的玩家：按最近距离依次结算伤害（扫掠盒 = 本 tick 位移路径）
             var sweptBox = player.getBoundingBox()
                     .expandTowards(-moved.x, -moved.y, -moved.z)
@@ -293,6 +348,17 @@ public final class KatanaCombat {
         }
 
         state.thrustLastPos = currentPos;
+
+        // 走满 2 格：立即结束突刺（清掉水平速度，避免滑行）
+        if (state.thrustRemaining <= 0.0D) {
+            Vec3 current = player.getDeltaMovement();
+            player.setDeltaMovement(0.0D, current.y, 0.0D);
+            endThrust(player, state);
+            return;
+        }
+
+        // 继续推进下一 tick 的位移
+        applyThrustVelocity(player, state);
         state.thrustTicksLeft--;
         if (state.thrustTicksLeft <= 0) {
             endThrust(player, state);
@@ -311,12 +377,28 @@ public final class KatanaCombat {
         }
     }
 
-    /** 结束突刺：碰撞过玩家则推进到第三招式，未碰撞保持第二招式（可再次突刺）。 */
+    /**
+     * 结束突刺并结算连招：
+     * <ul>
+     * <li>撞到玩家 → 推进到第三招式（劈砍），并清空连续未命中计数；</li>
+     * <li>没撞到 → 连续未命中计数 +1；累计到 {@link KatanaState#THRUST_MAX_MISSES}
+     * 次仍未命中则回到第一招式，否则留在第二招式可再次突刺。</li>
+     * </ul>
+     */
     private static void endThrust(ServerPlayer player, KatanaState.PlayerState state) {
         boolean hit = state.thrustHitCount > 0;
         state.stopThrust();
-        if (hit && state.nextMove == KatanaState.MOVE_THRUST) {
-            state.nextMove = KatanaState.MOVE_SLASH;
+        if (state.nextMove == KatanaState.MOVE_THRUST) {
+            if (hit) {
+                state.thrustMissCount = 0;
+                state.nextMove = KatanaState.MOVE_SLASH;
+            } else {
+                state.thrustMissCount++;
+                if (state.thrustMissCount >= KatanaState.THRUST_MAX_MISSES) {
+                    state.thrustMissCount = 0;
+                    state.nextMove = KatanaState.MOVE_SWEEP;
+                }
+            }
         }
         broadcastNextMove(player, state.nextMove);
     }

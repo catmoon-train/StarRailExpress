@@ -50,8 +50,8 @@ public class SwordsmanRole extends NormalRole {
     public static final int FORGE_AMOUNT = 3;
     /** 淬血持续时间：15 秒。 */
     public static final int QUXUE_DURATION_TICKS = 15 * 20;
-    /** 淬血冷却：15 秒（与持续时间一致，避免无限续）。 */
-    public static final int QUXUE_COOLDOWN_TICKS = 15 * 20;
+    /** 淬血冷却：40 秒。 */
+    public static final int QUXUE_COOLDOWN_TICKS = 40 * 20;
     /** 淬血期间的虚拟血量伤害倍率。 */
     public static final int QUXUE_DAMAGE_MULTIPLIER = 2;
     /** 淬血扣除的自身虚拟血量百分比（<b>按虚拟血量上限计算</b>）。 */

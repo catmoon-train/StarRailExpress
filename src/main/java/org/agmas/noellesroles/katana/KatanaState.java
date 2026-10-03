@@ -43,8 +43,12 @@ public final class KatanaState {
     public static final int KILL_COOLDOWN_TICKS = 200;
 
     // ── 突刺（第二招式）位移结算参数 ──
-    /** 突刺位移结算的最长时长（tick）：0.5 秒，与无碰撞效果时长一致。 */
+    /** 突刺位移的最长时长（tick）：0.5 秒，与无碰撞效果时长一致。 */
     public static final int THRUST_DASH_MAX_TICKS = 10;
+    /** 突刺总距离（格）：走满即结束突刺，与摩擦无关。 */
+    public static final double THRUST_DISTANCE = 2.0D;
+    /** 突刺连续未命中多少次后连招回到第一招式。 */
+    public static final int THRUST_MAX_MISSES = 3;
     /** 突刺途中碰撞判定的包围盒膨胀（格）。 */
     public static final double THRUST_HIT_MARGIN = 0.75D;
     /** 突刺碰撞造成的虚拟伤害。 */
@@ -80,17 +84,22 @@ public final class KatanaState {
         public Vec3 thrustLastPos = Vec3.ZERO;
         /** 本次突刺是否已经发生过实际位移。 */
         public boolean thrustHasMoved = false;
+        /** 突刺剩余距离（格）：走满 {@link #THRUST_DISTANCE} 即结束突刺。 */
+        public double thrustRemaining;
         /** 突刺剩余结算时长（tick）。 */
         public int thrustTicksLeft = 0;
         /** 本次突刺碰撞到的玩家数。 */
         public int thrustHitCount = 0;
+        /** 突刺连续未命中的次数（达到 {@link #THRUST_MAX_MISSES} 后连招回到第一招式）。 */
+        public int thrustMissCount = 0;
         /** 本次突刺已碰撞的玩家，防止同一目标重复受伤。 */
         public final Set<UUID> thrustHitPlayers = new HashSet<>();
 
-        /** 结束并清空突刺状态（不动连招进度，推进与否由调用方决定）。 */
+        /** 结束并清空突刺状态（不动连招进度与未命中计数，推进与否由调用方决定）。 */
         public void stopThrust() {
             this.thrustDashing = false;
             this.thrustTicksLeft = 0;
+            this.thrustRemaining = 0.0D;
             this.thrustDirection = Vec3.ZERO;
             this.thrustLastPos = Vec3.ZERO;
             this.thrustHasMoved = false;

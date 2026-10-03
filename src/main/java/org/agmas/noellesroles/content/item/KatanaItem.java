@@ -22,6 +22,7 @@ import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.level.Level;
 import org.agmas.noellesroles.katana.KatanaCombat;
 import org.agmas.noellesroles.katana.KatanaState;
+import org.agmas.noellesroles.katana.KatanaState;
 
 import java.util.List;
 
@@ -30,7 +31,10 @@ import java.util.List;
  *
  * <ul>
  * <li>左键：按顺序释放三连招，<b>实际命中玩家</b>后才推进到下一招式；
- * 每招固定扣除虚拟血量（6 / 7 / 7）并附带 1 点原版伤害作为击退载体。</li>
+ * 每招固定扣除虚拟血量（6 / 7 / 7）并附带 1 点原版伤害作为击退载体。
+ * 突刺（第二招）<b>不依赖准星目标</b>，左键空挥也会出刀，沿视线向前位移
+ * {@link KatanaState#THRUST_DISTANCE} 格；连续 {@link KatanaState#THRUST_MAX_MISSES}
+ * 次突刺都没碰到玩家则连招回到第一招。</li>
  * <li>右键：格挡（可格挡的死亡原因同防暴盾牌，含 Dream 铁斧 / 钻石剑 / 重锤），
  * 前摇 0.4 秒、有效 1.2 秒；衔接招式命中后的格挡前摇为 0，未衔接的格挡结束后
  * 进入 5 秒内置冷却；<b>格挡只在有效窗口内生效，窗口内不限次数，
