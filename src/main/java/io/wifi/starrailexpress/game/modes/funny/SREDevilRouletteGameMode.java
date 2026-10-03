@@ -36,6 +36,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.component.ItemLore;
 import org.agmas.noellesroles.content.block_entity.DevilRouletteTableEntity;
+import org.agmas.noellesroles.init.ModItems;
 import org.agmas.noellesroles.minigame.DevilRouletteGame;
 import org.agmas.noellesroles.utils.RoleUtils;
 import org.jetbrains.annotations.NotNull;
@@ -117,6 +118,8 @@ public class SREDevilRouletteGameMode extends SREBaseCustomizationGameMode {
             player.getInventory().clearContent();
             // 与其它模式一样发放房间钥匙
             player.addItem(createRoomKey(player));
+            // 给予万能钥匙
+            player.addItem(new ItemStack(ModItems.MASTER_KEY));
             // 添加模式专属物品
             for (Supplier<ItemStack> itemSupplier : sharedItems) {
                 ItemStack itemStack = itemSupplier.get();
