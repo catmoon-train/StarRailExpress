@@ -197,6 +197,11 @@ public class ShortShotgunItem extends Item implements HeldLikeBat, TrainWeapon {
                             continue;
                         }
                         processed.add(target.getId());
+                        // 防暴盾牌格挡：无论本次是致命扇形还是击退扇形，正举盾正面朝向枪口的目标
+                        // 都会被挡下（消耗盾牌 1 点耐久），不吃击杀也不吃伤害与击退
+                        if (RiotShieldHandler.tryBlockAttack(target, player)) {
+                            continue;
+                        }
                         if (lethal) {
                             io.wifi.starrailexpress.game.GameUtils.killPlayer(target, true, player,
                                     Noellesroles.id("short_shotgun"));

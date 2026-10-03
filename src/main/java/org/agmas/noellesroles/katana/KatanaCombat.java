@@ -19,6 +19,7 @@ import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.Vec3;
 import org.agmas.noellesroles.content.item.KatanaItem;
+import org.agmas.noellesroles.content.item.RiotShieldHandler;
 import org.agmas.noellesroles.game.roles.killer.dream.DreamHealthComponent;
 import org.agmas.noellesroles.init.ModItems;
 
@@ -122,6 +123,14 @@ public final class KatanaCombat {
 
         // ── 命中判定：目标即原版选中的玩家 ──
         if (!GameUtils.isPlayerAliveAndSurvival(target)) {
+            broadcastNextMove(attacker, move);
+            return false;
+        }
+
+        // 格挡判定：目标的武士刀格挡有效窗口优先，其次防暴盾牌
+        if (KatanaHandler.tryBlockAttack(target, attacker)
+                || RiotShieldHandler.tryBlockAttack(target, attacker)) {
+            // 与「被原版盾牌格挡」一致，保持当前招式不推进
             broadcastNextMove(attacker, move);
             return false;
         }
@@ -270,6 +279,12 @@ public final class KatanaCombat {
                     .toList();
             for (ServerPlayer target : targets) {
                 state.thrustHitPlayers.add(target.getUUID());
+                // 格挡判定：目标的武士刀格挡有效窗口优先，其次防暴盾牌；
+                // 被挡下不算「实际命中」，连招不推进
+                if (KatanaHandler.tryBlockAttack(target, player)
+                        || RiotShieldHandler.tryBlockAttack(target, player)) {
+                    continue;
+                }
                 state.thrustHitCount++;
                 dealThrustDamage(player, target);
             }

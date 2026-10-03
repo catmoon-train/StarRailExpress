@@ -37,6 +37,7 @@ import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 import org.agmas.noellesroles.config.NoellesRolesConfig;
 import org.agmas.noellesroles.game.roles.killer.dream.DreamHealthComponent;
+import org.agmas.noellesroles.katana.KatanaHandler;
 import org.agmas.noellesroles.role_data.killer.DreamRoleData;
 
 
@@ -90,6 +91,11 @@ public class DreamAxeItem extends Item implements SREItemProperties.LeftClickHur
             attacker.displayClientMessage(Component
                     .translatable("item.noellesroles.dream_axe.no_durability")
                     .withStyle(ChatFormatting.RED), true);
+            return false;
+        }
+        // 格挡判定：武士刀格挡有效窗口优先，其次防暴盾牌
+        if (KatanaHandler.tryBlockAttack(target, attacker)
+                || RiotShieldHandler.tryBlockAttack(target, attacker)) {
             return false;
         }
 

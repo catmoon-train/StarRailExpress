@@ -4944,7 +4944,7 @@
   "item.noellesroles.netherite_spear.tooltip.durability": "Durability %s / %s",
   "item.noellesroles.katana": "Katana",
   "item.noellesroles.katana.tooltip.combo": "Left click combo: Sweep → Thrust → Slash, advances on hit",
-  "item.noellesroles.katana.tooltip.block": "Right click parry: linked parry after a hit has no windup",
+  "item.noellesroles.katana.tooltip.block": "Right click parry: no windup when linked after a hit, unlimited uses while active, each parry costs 1 durability",
   "item.noellesroles.katana.tooltip.no_block": "Durability too low, cannot parry!",
   "item.noellesroles.katana.tooltip.durability": "Durability %s / %s",
   "death_reason.noellesroles.katana": "Katana",

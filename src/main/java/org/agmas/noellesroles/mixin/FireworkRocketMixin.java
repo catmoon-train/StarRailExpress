@@ -24,6 +24,7 @@ import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
+import org.agmas.noellesroles.content.item.RiotShieldHandler;
 import org.agmas.noellesroles.game.roles.killer.dream.DreamHealthComponent;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
@@ -103,6 +104,10 @@ public abstract class FireworkRocketMixin {
         }
         ServerPlayer shooter = shooterHolder[0];
         if (!shooter.isSpectator() && target != shooter) {
+            // 防暴盾牌格挡：目标正举盾正面朝向自己时，精确命中被挡下（消耗盾牌 1 点耐久）
+            if (RiotShieldHandler.tryBlockAttack(target, shooter)) {
+                return;
+            }
             // 精确命中：扣 20 点虚拟血量，归零才判死（死因仍为 firework_crossbow）
             DreamHealthComponent.KEY.get(target).hurt(shooter, DIRECT_HIT_VIRTUAL_DAMAGE,
                     GameConstants.DeathReasons.FIREWORK_CROSSBOW);
@@ -146,6 +151,11 @@ public abstract class FireworkRocketMixin {
                 }
             }
             if (!visible) {
+                continue;
+            }
+
+            // 防暴盾牌格挡：溅射范围内正举盾正面朝向射手的目标被挡下（消耗盾牌 1 点耐久）
+            if (RiotShieldHandler.tryBlockAttack(target, shooter)) {
                 continue;
             }
 

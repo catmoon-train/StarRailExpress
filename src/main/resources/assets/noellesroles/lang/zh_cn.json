@@ -5481,7 +5481,7 @@
   "item.noellesroles.netherite_spear.tooltip.durability": "耐久 %s / %s",
   "item.noellesroles.katana": "武士刀",
   "item.noellesroles.katana.tooltip.combo": "左键三连招：横扫 → 突刺 → 劈砍，命中后才推进招式",
-  "item.noellesroles.katana.tooltip.block": "右键格挡：招式命中后衔接格挡无前摇",
+  "item.noellesroles.katana.tooltip.block": "右键格挡：招式命中后衔接格挡无前摇，有效期内可格挡任意次数，每次格挡消耗 1 点耐久",
   "item.noellesroles.katana.tooltip.no_block": "耐久不足，无法格挡！",
   "item.noellesroles.katana.tooltip.durability": "耐久 %s / %s",
   "death_reason.noellesroles.katana": "武士刀",
