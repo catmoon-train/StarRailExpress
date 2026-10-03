@@ -42,6 +42,7 @@ import org.agmas.noellesroles.role_data.neutral.GodfatherRoleData;
 import org.agmas.noellesroles.role_data.neutral.MercenaryRoleData;
 import org.agmas.noellesroles.role_data.neutral.MonokumaRoleData;
 import org.agmas.noellesroles.role_data.neutral.NianShouRoleData;
+import org.agmas.noellesroles.game.roles.neutral.lender.LenderRoleHandler;
 import org.agmas.noellesroles.game.fake_steve.FakeSteveDirector;
 import org.agmas.noellesroles.game.roles.neutral.panda.PandaState;
 import org.agmas.noellesroles.role_data.neutral.PelicanRoleData;
@@ -91,6 +92,9 @@ public final class LeaderFollowerEffects {
 
     /** 失忆患者被领袖转型为杀手后获得的金币数 */
     private static final int AMNESIAC_KILLER_COINS = 130;
+
+    /** 追随者放贷人立即获得的金币数 */
+    private static final int LENDER_FOLLOWER_COINS = 300;
 
     /** 森近霖之助 / 河城荷取（金币依附角色） */
     public static boolean isCoinDependentRole(SRERole role) {
@@ -203,6 +207,7 @@ public final class LeaderFollowerEffects {
             case "rabbit_wansui" -> applyRabbitWansui(leader, follower);
             case "licensed_villain" -> applyLicensedVillain(leader, follower);
             case "anatman", "asatya" -> applyAnatmanAsatya(leader, follower);
+            case "lender" -> applyLender(leader, follower);
             default -> applyGeneric(leader, follower);
         }
     }
@@ -499,6 +504,24 @@ public final class LeaderFollowerEffects {
             follower.displayClientMessage(
                     Component.translatable("message.noellesroles.leader.asatya_knife"), false);
         }
+    }
+
+    /**
+     * 追随者：放贷人
+     * <ul>
+     * <li>追随者放贷人立即获得 {@value #LENDER_FOLLOWER_COINS} 金币</li>
+     * <li>追随者放贷人的可借贷上限提升至 {@value LenderRoleHandler#FOLLOWER_MAX_PRINCIPAL} 金币</li>
+     * <li>领袖获得一个护盾试剂</li>
+     * </ul>
+     */
+    private static void applyLender(ServerPlayer leader, ServerPlayer follower) {
+        SREPlayerShopComponent.KEY.get(follower).addToBalance(LENDER_FOLLOWER_COINS);
+        giveItem(leader, TMMItems.DEFENSE_VIAL.getDefaultInstance());
+        follower.displayClientMessage(
+                Component.translatable("message.noellesroles.leader.lender_bonus_follower",
+                        LENDER_FOLLOWER_COINS, LenderRoleHandler.FOLLOWER_MAX_PRINCIPAL), false);
+        leader.displayClientMessage(
+                Component.translatable("message.noellesroles.leader.lender_bonus"), false);
     }
 
     /** 在玩家脚下生成物品（背包满时的兜底） */

@@ -20,6 +20,7 @@ import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
+import org.agmas.noellesroles.game.roles.neutral.leader.LeaderFollowerEffects;
 import org.agmas.noellesroles.content.item.LoanContractItem;
 import org.agmas.noellesroles.init.ModEffects;
 import org.agmas.noellesroles.init.ModItems;
@@ -40,6 +41,8 @@ public final class LenderRoleHandler {
     public static final net.minecraft.resources.ResourceLocation SKILL_ID = SRE.id("lender_request");
     public static final int SKILL_COOLDOWN_SECONDS = 80;
     public static final int MAX_PRINCIPAL = 175;
+    /** 领袖「追随者」放贷人的可借贷上限 */
+    public static final int FOLLOWER_MAX_PRINCIPAL = 300;
     public static final int INTEREST_STEP = 25;
     public static final long INTEREST_INTERVAL_TICKS = 45L * 20L;
     private static final long REMINDER_INTERVAL_TICKS = 60L * 20L;
@@ -52,6 +55,19 @@ public final class LenderRoleHandler {
     private static boolean registered;
 
     private LenderRoleHandler() {
+    }
+
+    /**
+     * 该放贷人当前的可借贷上限。
+     * <p>
+     * 常态为 {@link #MAX_PRINCIPAL}（175）；成为领袖的「追随者」后提升为
+     * {@link #FOLLOWER_MAX_PRINCIPAL}（300）。
+     */
+    public static int maxPrincipal(ServerPlayer lender) {
+        if (lender != null && LeaderFollowerEffects.isFollowerOfLeader(lender)) {
+            return FOLLOWER_MAX_PRINCIPAL;
+        }
+        return MAX_PRINCIPAL;
     }
 
     public static void register() {
@@ -122,7 +138,8 @@ public final class LenderRoleHandler {
             ACCEPTED.put(borrower.getUUID(), new Request(lender.getUUID(), borrower.getUUID(), level.getGameTime()));
             SREAbilityPlayerComponent.KEY.get(lender)
                     .setSkillCooldown(SKILL_ID, SKILL_COOLDOWN_SECONDS * 20);
-            ServerPlayNetworking.send(borrower, new LoanContractOpenS2CPacket(lender.getUUID()));
+            ServerPlayNetworking.send(borrower, new LoanContractOpenS2CPacket(lender.getUUID(),
+                    maxPrincipal(lender)));
             borrower.displayClientMessage(Component.translatable("message.noellesroles.loan.accepted")
                     .withStyle(ChatFormatting.GREEN), true);
             return InteractionResult.CONSUME;
@@ -138,15 +155,17 @@ public final class LenderRoleHandler {
                     .withStyle(ChatFormatting.RED), true);
             return;
         }
-        if (amount < 1 || amount > MAX_PRINCIPAL) {
-            borrower.displayClientMessage(Component.translatable("message.noellesroles.loan.invalid_amount", MAX_PRINCIPAL)
-                    .withStyle(ChatFormatting.RED), true);
-            return;
-        }
         boolean debugLoan = borrower.getUUID().equals(lenderId) && borrower.getUUID().equals(request.lender());
         ServerPlayer lender = debugLoan ? borrower : borrower.server.getPlayerList().getPlayer(lenderId);
         if (lender == null || !GameUtils.isPlayerAliveAndSurvival(lender)) {
             borrower.displayClientMessage(Component.translatable("message.noellesroles.loan.lender_unavailable")
+                    .withStyle(ChatFormatting.RED), true);
+            return;
+        }
+        // 上限按放贷人当前实际值判定（领袖的「追随者」放贷人上限为 300）
+        int maxPrincipal = maxPrincipal(lender);
+        if (amount < 1 || amount > maxPrincipal) {
+            borrower.displayClientMessage(Component.translatable("message.noellesroles.loan.invalid_amount", maxPrincipal)
                     .withStyle(ChatFormatting.RED), true);
             return;
         }
@@ -239,7 +258,8 @@ public final class LenderRoleHandler {
     public static void debugAccept(ServerPlayer borrower) {
         long now = borrower.level().getGameTime();
         ACCEPTED.put(borrower.getUUID(), new Request(borrower.getUUID(), borrower.getUUID(), now));
-        ServerPlayNetworking.send(borrower, new LoanContractOpenS2CPacket(borrower.getUUID()));
+        ServerPlayNetworking.send(borrower, new LoanContractOpenS2CPacket(borrower.getUUID(),
+                maxPrincipal(borrower)));
         borrower.displayClientMessage(Component.translatable("message.noellesroles.loan.accepted")
                 .withStyle(ChatFormatting.GREEN), true);
     }

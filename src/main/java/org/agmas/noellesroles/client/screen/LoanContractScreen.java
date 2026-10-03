@@ -21,11 +21,13 @@ public final class LoanContractScreen extends AbstractPixelScreen {
             Noellesroles.MOD_ID, "textures/gui/loan_contract.png");
 
     private final UUID lender;
+    private final int maxPrincipal;
     private EditBox amount;
 
     public LoanContractScreen(LoanContractOpenS2CPacket payload) {
         super(Component.translatable("screen.noellesroles.loan_contract.title"));
         this.lender = payload.lender();
+        this.maxPrincipal = payload.maxPrincipal();
     }
 
     @Override
@@ -64,7 +66,7 @@ public final class LoanContractScreen extends AbstractPixelScreen {
                 left + 28, top + 28, 0x4B2818, false);
         graphics.drawString(font, Component.translatable("screen.noellesroles.loan_contract.amount"),
                 left + 142, top + 112, 0x4B2818, false);
-        graphics.drawString(font, Component.translatable("screen.noellesroles.loan_contract.limit", 175),
+        graphics.drawString(font, Component.translatable("screen.noellesroles.loan_contract.limit", maxPrincipal),
                 left + 142, top + 158, 0x7D3A30, false);
         graphics.drawString(font, Component.translatable("screen.noellesroles.loan_contract.terms"),
                 left + 28, top + 278, 0x4B2818, false);

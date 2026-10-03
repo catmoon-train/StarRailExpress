@@ -1711,6 +1711,8 @@
   "message.noellesroles.leader.anatman_asatya_leader_bonus": "无我与无妄均已追随你，你获得了一把开锁器和一把撬棍",
   "message.noellesroles.leader.lin_family_shield": "你获得了一层护盾",
   "message.noellesroles.leader.lin_family_penalty": "领袖 %s 被击杀，你损失了 30%% 的金币（%s 金币）",
+  "message.noellesroles.leader.lender_bonus_follower": "领袖已将你招募为追随者，你立即获得 %s 金币，且可借贷上限提升至 %s 金币",
+  "message.noellesroles.leader.lender_bonus": "放贷人已成为你的追随者，你获得了一个护盾试剂",
   "==================== 亡语杀手角色 ====================": "",
   "message.noellesroles.insane_killer.ability_deactivated": "伪装已关闭，进入冷却...",
   "message.noellesroles.insane_killer.ability_activated": "伪装已激活！",

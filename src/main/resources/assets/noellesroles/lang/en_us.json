@@ -1665,6 +1665,8 @@
   "message.noellesroles.leader.anatman_asatya_leader_bonus": "Anatman and Asatya now follow you. You received a lockpick and a crowbar",
   "message.noellesroles.leader.lin_family_shield": "You gained a shield",
   "message.noellesroles.leader.lin_family_penalty": "Leader %s was killed, you lost 30%% of your coins (%s coins)",
+  "message.noellesroles.leader.lender_bonus_follower": "The Leader has recruited you as a follower. You immediately gained %s coins, and your max loan amount is raised to %s coins",
+  "message.noellesroles.leader.lender_bonus": "The Lender is now your follower, you received a shield vial",
   "==================== Death-Whisper Killer Role ====================": "",
   "message.noellesroles.insane_killer.ability_deactivated": "Disguise turned off, entering cooldown...",
   "message.noellesroles.insane_killer.ability_activated": "Disguise activated!",

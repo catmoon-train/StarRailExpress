@@ -10,7 +10,7 @@ import org.agmas.noellesroles.Noellesroles;
 import java.util.UUID;
 
 /** Opens the loan contract screen for the player who accepted a request. */
-public record LoanContractOpenS2CPacket(UUID lender) implements CustomPacketPayload {
+public record LoanContractOpenS2CPacket(UUID lender, int maxPrincipal) implements CustomPacketPayload {
     public static final Type<LoanContractOpenS2CPacket> ID = new Type<>(
             ResourceLocation.fromNamespaceAndPath(Noellesroles.MOD_ID, "loan_contract_open"));
     public static final StreamCodec<RegistryFriendlyByteBuf, LoanContractOpenS2CPacket> CODEC =
@@ -23,9 +23,10 @@ public record LoanContractOpenS2CPacket(UUID lender) implements CustomPacketPayl
 
     private void write(FriendlyByteBuf buf) {
         buf.writeUUID(lender);
+        buf.writeVarInt(maxPrincipal);
     }
 
     private static LoanContractOpenS2CPacket read(FriendlyByteBuf buf) {
-        return new LoanContractOpenS2CPacket(buf.readUUID());
+        return new LoanContractOpenS2CPacket(buf.readUUID(), buf.readVarInt());
     }
 }
