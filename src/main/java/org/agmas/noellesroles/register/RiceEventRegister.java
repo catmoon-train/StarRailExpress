@@ -35,6 +35,7 @@ import org.agmas.noellesroles.role.ModRoles;
 import org.agmas.noellesroles.role.touhou.THMiscRoles;
 import org.agmas.noellesroles.role.touhou.roles.THKaenbyouRinRole;
 import org.agmas.noellesroles.role_data.killer.DIORoleData;
+import org.agmas.noellesroles.role_data.innocence.SaltedFishRoleData;
 
 /**
  * Rice's Role Rhapsody 事件注册，
@@ -83,6 +84,12 @@ public class RiceEventRegister {
                 return net.minecraft.world.InteractionResult.PASS;
 
             if (org.agmas.noellesroles.content.entity.DoomedSinnerBodyEntity.isDoomedSinnerBody(body))
+                return net.minecraft.world.InteractionResult.PASS;
+
+            // 咸鱼「晒咸鱼」的假尸体不是真实尸体：本体的本体还在场上（且本体每 tick 把假尸体拉回自己身上），
+            // 吃掉它等于凭空刷一次收益/计数，且假尸体被 discard 后下一 tick 还会重新生成。
+            // 与罪人假尸体、灵媒（MediumRoleData）、本能显示（RoleInstinctRegister）保持同一套排除口径。
+            if (SaltedFishRoleData.isSaltedFishFakeBody(body))
                 return net.minecraft.world.InteractionResult.PASS;
 
             if (gameWorld.isRole(player, ModRoles.DIO)) {

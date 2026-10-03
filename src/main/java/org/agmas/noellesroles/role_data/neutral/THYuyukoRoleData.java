@@ -17,6 +17,7 @@ package org.agmas.noellesroles.role_data.neutral;
 
 import org.agmas.noellesroles.role.touhou.THMiscRoles;
 import org.agmas.noellesroles.role.touhou.roles.THYuyukoRole;
+import org.agmas.noellesroles.role_data.innocence.SaltedFishRoleData;
 import org.agmas.noellesroles.utils.RoleUtils;
 
 import io.wifi.starrailexpress.SRE;
@@ -116,6 +117,10 @@ public class THYuyukoRoleData extends SimpleRoleData {
             return false;
         }
         if (body.isRemoved()) {
+            return false;
+        }
+        // 咸鱼「晒咸鱼」的假尸体不是真实尸体，不能拿来进食计数
+        if (SaltedFishRoleData.isSaltedFishFakeBody(body)) {
             return false;
         }
         ateCount++;
