@@ -86,8 +86,11 @@ public class NoellesrolesClientAmbientSounds {
             },
             1));
 
+    // 芙兰朵露时刻（快进倒计时后）：芙兰朵露存活期间循环播放专属 BGM。
+    // 用 MASTER 声道全场播放（与 Dream 追杀音乐一致）：默认 BackgroundAmbience 的
+    // MUSIC 声道会被玩家音乐音量滑块静音，导致很多玩家听不到。
     AmbienceUtil.registerBackgroundAmbience(
-        new BackgroundAmbience(NRSounds.ROLES_FURANDORU_FINAL,
+        new MyBackgroundAmbience(NRSounds.ROLES_FURANDORU_FINAL, SoundSource.MASTER,
             player -> {
               if (SREClient.gameComponent == null || SREClient.timeComponent == null)
                 return false;
@@ -111,7 +114,7 @@ public class NoellesrolesClientAmbientSounds {
               }
               return false;
             },
-            1));
+            1.0f, 10, 20));
     AmbienceUtil.registerBackgroundAmbience(
         new BackgroundAmbience(NRSounds.ROLES_REMILIA,
             player -> {

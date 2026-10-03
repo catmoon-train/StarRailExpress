@@ -274,15 +274,15 @@ public class GhostRoleData extends SimpleRoleData {
             return;
         if (player.hasEffect(ModEffects.SKILL_BANED))
             return;
-        if (lastStandNotified) {
-            return; // 已经通知过了，不再重复
+
+        SREGameTimeComponent gameTime = SREGameTimeComponent.KEY.get(player.level());
+        if (gameTime == null) {
+            return;
         }
 
-        // 统计存活的平民阵营玩家
+        // 统计存活的双方阵营玩家
         int aliveCivilianCount = 0;
         int aliveKillerCount = 0;
-        SREGameTimeComponent gameTime = SREGameTimeComponent.KEY.get(player.level());
-
         for (var p : player.level().players()) {
             if (!GameUtils.isPlayerAliveAndSurvival(p)) {
                 continue;
@@ -300,16 +300,17 @@ public class GhostRoleData extends SimpleRoleData {
             }
         }
 
-        // 场上只剩下单一阵营+fulan，或者时间还剩1分半。
-        if (gameTime.getTime() <= FURAN_LAST_STAND_TIME
-                || (aliveCivilianCount <= 0 || aliveKillerCount <= 0) && aliveCivilianCount + aliveKillerCount > 0) {
-            // 获取游戏时间
-            if (gameTime != null) {
-                long currentTicks = gameTime.getTime();
-                // 如果当前时间超过2分钟，则设置为2分钟
-                if (currentTicks > FURAN_LAST_STAND_TIME) {
-                    gameTime.setTime(FURAN_LAST_STAND_TIME);
-                }
+        // 芙兰朵露时刻激活条件：时间已快进到阈值内，或场上只剩单一阵营+芙兰朵露
+        boolean momentActive = gameTime.getTime() <= FURAN_LAST_STAND_TIME
+                || (aliveCivilianCount <= 0 || aliveKillerCount <= 0) && aliveCivilianCount + aliveKillerCount > 0;
+        if (!momentActive) {
+            return;
+        }
+
+        if (!lastStandNotified) {
+            // 一次性结算：快进时间 + 全局广播 + 发放风弹 + 回放记录
+            if (gameTime.getTime() > FURAN_LAST_STAND_TIME) {
+                gameTime.setTime(FURAN_LAST_STAND_TIME);
             }
 
             // 发送全局广播
@@ -325,19 +326,28 @@ public class GhostRoleData extends SimpleRoleData {
             });
 
             lastStandNotified = true;
-            this.player.addEffect(new MobEffectInstance(
-                    MobEffects.GLOWING,
-                    (int) FURAN_LAST_STAND_TIME + 20, // 持续时间 60s（tick）
-                    0, // 等级（0 = 速度 I）
-                    true, // ambient（环境效果，如信标）
-                    true, // showParticles（显示粒子）
-                    false // showIcon（显示图标）
-            ));
             sync();
             // 回放记录：芙兰朵露加速时间
             SRE.REPLAY_MANAGER.recordCustomEvent(
                     Component.translatable("replay.event.ghost.accelerate_time",
                             GameReplayUtils.getReplayPlayerDisplayText(player, true)));
+        }
+
+        // 芙兰朵露时刻激活期间持续保证发光：
+        // 难民/亡命徒期间时刻可能提前触发过一次（一次性发光 121 秒，随后自然过期，
+        // 或被亡命徒的时间回溯快照恢复覆盖），而 lastStandNotified 已置位导致发光不再补发，
+        // 再次正式进入时刻时 BGM 照响但发光丢失。这里在时刻激活的每 tick 检查，
+        // 发光缺失或即将过期（<3 秒）时重新施加。
+        MobEffectInstance glowing = player.getEffect(MobEffects.GLOWING);
+        if (glowing == null || glowing.getDuration() < 60) {
+            player.addEffect(new MobEffectInstance(
+                    MobEffects.GLOWING,
+                    (int) FURAN_LAST_STAND_TIME + 20, // 持续时间覆盖整个时刻（tick）
+                    0, // 等级
+                    true, // ambient（环境效果，如信标）
+                    true, // showParticles（显示粒子）
+                    false // showIcon（显示图标）
+            ));
         }
     }
 
