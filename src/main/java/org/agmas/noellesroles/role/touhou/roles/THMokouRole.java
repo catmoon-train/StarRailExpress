@@ -22,7 +22,6 @@ import org.agmas.noellesroles.component.DefibrillatorComponent;
 import org.agmas.noellesroles.component.ModComponents;
 import org.agmas.noellesroles.init.ModItems;
 import org.agmas.noellesroles.role.touhou.THLostForestRoles;
-import org.agmas.noellesroles.utils.RoleUtils;
 import org.jetbrains.annotations.Nullable;
 
 import io.wifi.starrailexpress.api.TouhouRole;
@@ -32,6 +31,7 @@ import io.wifi.starrailexpress.game.GameConstants;
 import io.wifi.starrailexpress.game.GameUtils;
 import io.wifi.starrailexpress.util.ShopEntry;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 import pro.fazeclan.river.stupid_express.modifier.lovers.cca.LoversComponent;
@@ -70,14 +70,39 @@ public class THMokouRole extends TouhouRole {
         return SHOP;
     }
 
+    /**
+     * 统计"场上存活人数"。
+     * <p>
+     * 不直接用 {@code RoleUtils.getAlivePlayers(level)}：它只过滤"非旁观且非创造"，
+     * 会把观战者、退出本局（opt-out）、中途加入以及尚未分配职业的玩家一并算成存活，
+     * 导致实际场上不足 8 人时统计值仍然大于 8，误触发小脑惩罚。
+     * <p>
+     * 这里额外要求玩家已在本局拿到职业，且保持"含自己"的计数口径
+     * （判定发生在被切旁观之前，见 {@code GameMode#killPlayer}），
+     * 与角色文案中"在小于等于 8 人时"的含义一致。
+     */
+    private static int countAliveSurvivors(ServerPlayer victim) {
+        if (!(victim.level() instanceof ServerLevel level))
+            return 0;
+        SREGameWorldComponent gameWorld = SREGameWorldComponent.KEY.get(level);
+        int count = 0;
+        for (var player : level.players()) {
+            if (!(player instanceof ServerPlayer serverPlayer))
+                continue;
+            if (!GameUtils.isPlayerAliveAndSurvival(serverPlayer))
+                continue;
+            if (gameWorld.getRole(serverPlayer) == null)
+                continue;
+            count++;
+        }
+        return count;
+    }
+
     @Override
     public boolean canBeXiaonao(Player victim, Player killer, ResourceLocation deathReason) {
         if (!(victim instanceof ServerPlayer serverVictim))
             return false;
-        int remaningPlayerCount = RoleUtils.getAlivePlayers(serverVictim.serverLevel()).size();
-        if (remaningPlayerCount <= XIAONAO_THRESHOLD)
-            return true;
-        return false;
+        return countAliveSurvivors(serverVictim) <= XIAONAO_THRESHOLD;
     }
 
     @Override
@@ -88,8 +113,7 @@ public class THMokouRole extends TouhouRole {
         // 殉情（链子）死亡时场上人数已因伴侣死亡而减少，若仍按人数阈值判定，
         // 会出现伴侣复活而自己彻底死亡的分裂结果；此时跳过阈值，统一由下方伴侣状态决定去留。
         if (!deathReason.equals(GameConstants.DeathReasons.BROKEN_HEART)) {
-            int remaningPlayerCount = RoleUtils.getAlivePlayers(serverVictim.serverLevel()).size();
-            if (remaningPlayerCount <= NORMAL_DEATH_THRESHOLD) {
+            if (countAliveSurvivors(serverVictim) <= NORMAL_DEATH_THRESHOLD) {
                 THLostForestRoles.recordImmortalPairRealDeath(serverVictim, THLostForestRoles.KAGUYA_ID);
                 return;
             }
