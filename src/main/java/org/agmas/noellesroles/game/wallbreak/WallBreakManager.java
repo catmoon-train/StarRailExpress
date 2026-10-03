@@ -30,6 +30,7 @@ import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.FallingBlock;
 import net.minecraft.world.level.block.LiquidBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
@@ -61,6 +62,7 @@ public final class WallBreakManager {
         ResourceLocation dim = world.dimension().location();
         int r2 = radius * radius;
         int broken = 0;
+        List<BlockPos> brokenPositions = new ArrayList<>();
         for (int dx = -radius; dx <= radius; dx++) {
             for (int dy = -radius; dy <= radius; dy++) {
                 for (int dz = -radius; dz <= radius; dz++) {
@@ -74,8 +76,21 @@ public final class WallBreakManager {
                     }
                     data.add(new WallBreakSavedData.Entry(dim, pos.immutable(), state, restoreAt));
                     world.removeBlock(pos, false);
+                    brokenPositions.add(pos.immutable());
                     broken++;
                 }
+            }
+        }
+        // 连锁移除被拆方块正上方的重力方块（沙子/砂砾等）：
+        // 否则它们会因失去支撑而下落，恢复时原位已被下落的方块占据（或留下空洞），无法原样恢复。
+        // 链条按列自下而上记录；同一爆炸共享同一恢复时刻，恢复按记录顺序执行，会先恢复下方支撑再恢复上方方块。
+        for (BlockPos brokenPos : brokenPositions) {
+            BlockPos above = brokenPos.above();
+            while (world.getBlockState(above).getBlock() instanceof FallingBlock) {
+                BlockState state = world.getBlockState(above);
+                data.add(new WallBreakSavedData.Entry(dim, above.immutable(), state, restoreAt));
+                world.removeBlock(above, false);
+                above = above.above();
             }
         }
         if (broken > 0) {
