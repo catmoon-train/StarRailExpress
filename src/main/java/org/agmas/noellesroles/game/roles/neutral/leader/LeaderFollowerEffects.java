@@ -419,9 +419,11 @@ public final class LeaderFollowerEffects {
         giveItem(leader, TMMItems.KNIFE.getDefaultInstance());
     }
 
-    /** 纵火犯：打火机目标 -2 人 */
+    /** 纵火犯：打火机目标 -2 人；领袖释放技能成功后获得一把刀。 */
     private static void applyArsonist(ServerPlayer leader, ServerPlayer follower) {
-        // 目标 -2 见 LeaderEventHandler / LighterItem 联动（LeaderFollowerEffects 提供静态判定）
+        // 打火机目标 -2：见 LeaderEventHandler / LighterItem 联动（LeaderFollowerEffects 提供静态判定）
+        // 领袖对纵火犯释放完技能 → 给予领袖一把刀
+        giveItem(leader, TMMItems.KNIFE.getDefaultInstance());
     }
 
     /** 森近霖之助 / 河城荷取：金币依附（无即时效果，didPlayerWin 判定） */
