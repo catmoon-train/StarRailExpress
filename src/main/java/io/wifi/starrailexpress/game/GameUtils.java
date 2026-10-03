@@ -1366,6 +1366,12 @@ public class GameUtils {
     public static void resetPlayerAfterGame(ServerPlayer player) {
         resetPlayer(player);
 
+        // 局末修饰符由 harpymodloader:end_game 直接清空，绕过了 ModifierRemoved 事件，
+        // 客户端拿不到尺寸刷新包：兔兔万岁变回的兔子玩家结算后视角会一直停在伪装时的高度
+        // （EntityDisguiseEyeHeightMixin 缓存的 eyeHeight 不会重算）。
+        // 服务端 refreshDimensions 已在 resetPlayer 内做过，这里只需补发客户端刷新。
+        ServerPlayNetworking.send(player, new RefreshDimensionsS2CPacket());
+
         ServerPlayNetworking.send(player, new AnnounceEndingPayload());
         player.removeVehicle();
         AreasWorldComponent.PosWithOrientation spawnPos = null;
