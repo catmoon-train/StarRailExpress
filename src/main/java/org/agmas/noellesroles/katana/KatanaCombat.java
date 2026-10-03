@@ -22,6 +22,8 @@ import org.agmas.noellesroles.content.item.KatanaItem;
 import org.agmas.noellesroles.game.roles.killer.dream.DreamHealthComponent;
 import org.agmas.noellesroles.init.ModItems;
 
+import java.util.List;
+
 /**
  * 武士刀的服务端战斗结算：三连招（横扫 / 突刺 / 劈砍）。
  *
@@ -255,7 +257,11 @@ public final class KatanaCombat {
             var sweptBox = player.getBoundingBox()
                     .expandTowards(-moved.x, -moved.y, -moved.z)
                     .inflate(KatanaState.THRUST_HIT_MARGIN);
-            var targets = player.level().players().stream()
+            // Level#players() 的返回类型是 List<? extends Player>，元素类型是捕获通配符，
+            // 直接 toList() 得到的 List<CAP> 不能按 ServerPlayer 遍历，必须先收敛成 ServerPlayer。
+            List<ServerPlayer> targets = player.level().players().stream()
+                    .filter(ServerPlayer.class::isInstance)
+                    .map(ServerPlayer.class::cast)
                     .filter(t -> !t.equals(player))
                     .filter(GameUtils::isPlayerAliveAndSurvival)
                     .filter(t -> !state.thrustHitPlayers.contains(t.getUUID()))
