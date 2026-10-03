@@ -49,6 +49,7 @@ import org.agmas.noellesroles.game.roles.neutral.gambler.GamblerRole;
 import org.agmas.noellesroles.game.roles.neutral.jester.JesterHandler;
 import org.agmas.noellesroles.game.roles.neutral.jester.JesterRole;
 import org.agmas.noellesroles.game.roles.neutral.leader.LeaderRole;
+import org.agmas.noellesroles.game.roles.neutral.lender.LenderRole;
 import org.agmas.noellesroles.game.roles.neutral.mafia.MafiaRole;
 import org.agmas.noellesroles.game.roles.neutral.monokuma.MonokumaRole;
 import org.agmas.noellesroles.game.roles.neutral.nian_shou.NianShouRole;
@@ -1733,8 +1734,8 @@ public class ModRoles {
                         // 其余（杀手、好人、杀手方中立、好人方中立、自己） → 领袖色
                         return InstinctType.custom(new Color(255, 0, 255).getRGB());
                     }));
-    /** 放贷人：中立阵营，以合同把金币借给其他玩家。 */
-    public static SRERole LENDER = TMMRoles.registerRole(new NormalRole(
+    /** 放贷人：中立阵营，以合同把金币借给其他玩家。存活到最后随任意一方获胜（非独立胜利）。 */
+    public static SRERole LENDER = TMMRoles.registerRole(new LenderRole(
             LENDER_ID, new Color(184, 134, 11).getRGB(), RoleType.NEUTRALS,
             SRERole.MoodType.FAKE, Integer.MAX_VALUE, true))
             .setCanSeeCoin(true)
