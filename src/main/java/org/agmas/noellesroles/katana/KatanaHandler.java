@@ -1,7 +1,10 @@
 package org.agmas.noellesroles.katana;
 
+import io.wifi.starrailexpress.SRE;
+import io.wifi.starrailexpress.api.replay.GameReplayUtils;
 import io.wifi.starrailexpress.event.AllowPlayerDeathWithKiller;
 import io.wifi.starrailexpress.game.GameUtils;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvent;
@@ -109,6 +112,7 @@ public final class KatanaHandler {
 
         // ── 格挡成功 ──
         playParrySound(victim);
+        recordParryReplay(victim);
         // 消耗 1 点耐久（耐久不会降至低于 1）
         if (!victim.isCreative() && stack.getMaxDamage() > 0
                 && stack.getDamageValue() < stack.getMaxDamage() - 1) {
@@ -118,6 +122,15 @@ public final class KatanaHandler {
             }
         }
         return true;
+    }
+
+    /** 格挡成功的回放播报：「xx 成功用武士刀格挡了一次伤害」。 */
+    private static void recordParryReplay(Player victim) {
+        if (!(victim instanceof ServerPlayer sp) || SRE.REPLAY_MANAGER == null) {
+            return;
+        }
+        SRE.REPLAY_MANAGER.recordCustomEvent(Component.translatable("replay.katana.parry",
+                GameReplayUtils.getReplayPlayerDisplayText(sp, true)));
     }
 
     /**

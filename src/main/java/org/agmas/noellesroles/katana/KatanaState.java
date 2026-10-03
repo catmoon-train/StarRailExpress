@@ -101,11 +101,61 @@ public final class KatanaState {
 
     private static final Map<UUID, PlayerState> STATES = new ConcurrentHashMap<>();
 
+    /**
+     * 每名玩家的武士刀<b>虚拟血量伤害倍率</b>；缺省或 1 = 不修改。
+     *
+     * <p>供职业效果挂载，例如剑客「淬血」期间 ×2。与 {@link #STATES} 一样是
+     * 静态 Map + 开局 / 结局事件统一清空。
+     */
+    private static final Map<UUID, Integer> VIRTUAL_DAMAGE_MULTIPLIERS = new ConcurrentHashMap<>();
+
     static {
         // 开局重置所有玩家的连招状态
-        GameInitializeEvent.EVENT.register((serverLevel, gameWorldComponent, players) -> STATES.clear());
+        GameInitializeEvent.EVENT.register((serverLevel, gameWorldComponent, players) -> {
+            STATES.clear();
+            VIRTUAL_DAMAGE_MULTIPLIERS.clear();
+        });
         // 游戏结束时清空，避免残留到下一局
-        OnGameEnd.EVENT.register((serverLevel, gameWorldComponent) -> STATES.clear());
+        OnGameEnd.EVENT.register((serverLevel, gameWorldComponent) -> {
+            STATES.clear();
+            VIRTUAL_DAMAGE_MULTIPLIERS.clear();
+        });
+    }
+
+    /**
+     * 设置该玩家武士刀的虚拟血量伤害倍率。
+     *
+     * @param multiplier 倍率；{@code <= 1} 视为不修改并清除记录
+     */
+    public static void setVirtualDamageMultiplier(Player player, int multiplier) {
+        if (player == null) {
+            return;
+        }
+        if (multiplier <= 1) {
+            VIRTUAL_DAMAGE_MULTIPLIERS.remove(player.getUUID());
+        } else {
+            VIRTUAL_DAMAGE_MULTIPLIERS.put(player.getUUID(), multiplier);
+        }
+    }
+
+    /** 清除该玩家的虚拟血量伤害倍率（退出职业 / 局末时调用）。 */
+    public static void clearVirtualDamageMultiplier(Player player) {
+        if (player != null) {
+            VIRTUAL_DAMAGE_MULTIPLIERS.remove(player.getUUID());
+        }
+    }
+
+    /** 该玩家武士刀的虚拟血量伤害倍率，缺省为 1。 */
+    public static int virtualDamageMultiplier(Player player) {
+        if (player == null) {
+            return 1;
+        }
+        return VIRTUAL_DAMAGE_MULTIPLIERS.getOrDefault(player.getUUID(), 1);
+    }
+
+    /** 按该玩家的倍率缩放武士刀的虚拟血量伤害。 */
+    public static int scaleVirtualDamage(Player attacker, int baseDamage) {
+        return baseDamage * virtualDamageMultiplier(attacker);
     }
 
     /** 获取（必要时创建）玩家的武士刀状态。 */

@@ -498,6 +498,16 @@ public class ModRolesInitialEventRegister {
                                     .reboot(player);
                         }).cooldownSeconds(75).shifted(true).showOnHud(true).announceToSelf(true).build());
 
+        RoleSkill.register(ModRoles.SWORDSMAN,
+                RoleSkill.skill(SRE.id("swordsman_quxue"),
+                        "skill.noellesroles.swordsman.quxue",
+                        context -> org.agmas.noellesroles.role.vigilante.SwordsmanRole.useQuXue(context))
+                        .cooldownTicks(org.agmas.noellesroles.role.vigilante.SwordsmanRole.QUXUE_COOLDOWN_TICKS)
+                        .showOnHud(true)
+                        .recordReplay()
+                        .announceToSelf(false)
+                        .build());
+
         RoleSkill.register(ModRoles.LIN_FAMILY,
                 RoleSkill.skill(SRE.id("lin_family_generosity"),
                         "skill.noellesroles.lin_family.generosity",

@@ -1788,6 +1788,33 @@ public class ModRoles {
             .setAddedVersion("4.4");
 
     /**
+     * 剑客角色（警长阵营特殊警）
+     * - 属于警长阵营 (isInnocent = true, setVigilanteTeam = true)，为特殊警
+     * - 开启了 canUseSpVanillaWeapon：可用武士刀削他人虚拟血量（死因 katana）
+     * - 真实心情系统；25% 刷新概率；单局最多 1 人
+     * - 开局自带一把武士刀
+     * - 技能「淬血」：扣除自身虚拟血量上限 50% 的血量（不会低于 1 点，虚拟血量为 1 时无法使用），
+     * 15 秒内武士刀附带附魔光效、虚拟血量伤害 ×2，并获得速度 II + 急迫 II
+     * - 商店：回复虚拟血量（200 金币，虚拟血量满时不可购买）、
+     * 锻刀（100 金币，回复手上武士刀 3 点耐久，耐久满时不可购买）
+     */
+    public static final ResourceLocation SWORDSMAN_ID = Noellesroles.id("swordsman");
+    public static SRERole SWORDSMAN = TMMRoles
+            .registerRole(new org.agmas.noellesroles.role.vigilante.SwordsmanRole(
+                    SWORDSMAN_ID, new Color(198, 72, 72).getRGB(), true,
+                    false, SRERole.MoodType.REAL, TMMRoles.CIVILIAN.getMaxSprintTime(), false))
+            .setCanSeeCoin(true)
+            .setVigilanteTeam(true)
+            .setSpecialVigilante(true)
+            .setCanUseSpVanillaWeapon(true)
+            .setCanPickUpRevolver(false)
+            .setDefaultMax(1)
+            .setDefaultEnableChance(2500)
+            .setCanBeRandomedByOtherRoles(true)
+            .setRoleData(org.agmas.noellesroles.role_data.vigilante.SwordsmanRoleData::new)
+            .setAddedVersion("4.4");
+
+    /**
      * 独裁者角色（警长阵营特殊警卫）
      * - 占用 2 个警长位 (setOccupiedRoleCount(2))；仅 18 人及以上对局出现；默认最大 1 人
      * - 假心情（心情条为蓝色，参考大妖精 setMoodColor）；能看到计分板（构造器最后一项 true）

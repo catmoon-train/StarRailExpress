@@ -159,7 +159,9 @@ public final class KatanaCombat {
                 case KatanaState.MOVE_THRUST -> 7;
                 default -> 7;
             };
-            DreamHealthComponent.KEY.get(target).hurt(attacker, virtualDamage, KatanaItem.DEATH_REASON);
+            // 经倍率缩放（剑客「淬血」期间 ×2）
+            DreamHealthComponent.KEY.get(target).hurt(attacker,
+                    KatanaState.scaleVirtualDamage(attacker, virtualDamage), KatanaItem.DEATH_REASON);
         }
 
         // 3. 连招推进：仅在实际命中后推进（未命中保持当前招式）
@@ -302,7 +304,9 @@ public final class KatanaCombat {
         target.invulnerableTime = 0;
         boolean vanillaHurt = target.hurt(target.damageSources().playerAttack(attacker), 1.0F);
         if (vanillaHurt && GameUtils.isPlayerAliveAndSurvival(target)) {
-            DreamHealthComponent.KEY.get(target).hurt(attacker, KatanaState.THRUST_VIRTUAL_DAMAGE,
+            // 经倍率缩放（剑客「淬血」期间 ×2）
+            DreamHealthComponent.KEY.get(target).hurt(attacker,
+                    KatanaState.scaleVirtualDamage(attacker, KatanaState.THRUST_VIRTUAL_DAMAGE),
                     KatanaItem.DEATH_REASON);
         }
     }
