@@ -86,22 +86,21 @@ public class SupplyCrateBlockEntity extends BlockEntity {
     }
 
     /**
-     * 重置本局相关状态：清空当前物资与领取记录，间隔重新计时，并复位方块开启状态。
+     * 重置本局相关状态：清空当前物资与领取记录，并<b>立即重新补货</b>，同时复位方块开启状态。
      * 配置（物品列表、刷新间隔、刷新/共享开关）保持不变。
      */
     public void resetForNewGame() {
         currentItems.clear();
         claimedPlayers.clear();
-        lastRefreshTick = -1; // -1 表示下一 tick 重新计时
         setChanged();
-        if (level == null || level.isClientSide()) return;
-        BlockState state = level.getBlockState(worldPosition);
-        if (state.hasProperty(SupplyCrateBlock.OPENED) && state.getValue(SupplyCrateBlock.OPENED)) {
-            level.setBlockAndUpdate(worldPosition, state.setValue(SupplyCrateBlock.OPENED, false));
+        if (level == null || level.isClientSide()) {
+            // 无世界 / 客户端侧：只复位状态，不做补货与计时
+            return;
         }
-        if (level instanceof ServerLevel serverLevel) {
-            serverLevel.getChunkSource().blockChanged(worldPosition);
-        }
+        // 立即补一次货：新一局开始（或上一局结束后）箱子应恢复「有物资可领」，
+        // 否则刷新间隔相当于「重新开始计时」，开局这段等待时间里玩家领不了物资。
+        refreshItems(level);
+        this.lastRefreshTick = level.getGameTime();
     }
 
     /**
