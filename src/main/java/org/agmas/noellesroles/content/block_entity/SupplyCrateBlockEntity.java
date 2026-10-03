@@ -52,7 +52,7 @@ public class SupplyCrateBlockEntity extends BlockEntity {
      * 全局仅能被拿一次：任何玩家领取后，其他玩家再右键也无法领取（非共享模式的
      * 「每人一次」升级为「全局一次」）。物资刷新与游戏结束重置时会恢复可领取。
      */
-    private boolean globalOnceOnly = true; // 默认是
+    private boolean globalOnceOnly = false; // 默认否（可重复领取）
     private long lastRefreshTick = -1;
     private final Set<UUID> claimedPlayers = new HashSet<>(); // 已领取的玩家（非共享/全局一次模式）
 

@@ -144,7 +144,7 @@ public class SupplyCrateGui extends Screen {
         globalOnceCheckbox = Checkbox.builder(
                 Component.translatable("gui.noellesroles.supply_crate.global_once"),
                 font
-        ).pos(rx, ry + 105).selected(true).build();
+        ).pos(rx, ry + 105).selected(false).build();
         addRenderableWidget(globalOnceCheckbox);
 
         saveButton = Button.builder(
