@@ -4982,6 +4982,7 @@
   "message.noellesroles.fake_steve.hunt.subtitle": "回到你的房間。活下去，或成為它們的一員。",
   "message.noellesroles.fake_steve.hunt.broadcast": "偽人數量已佔據多數。所有偽人已進入永久瘋魔，狩獵開始。",
   "message.noellesroles.fake_steve.hunt.recall": "列車再次歸零。所有人已被送回自己的房間。",
+  "replay.event.fake_steve.replaced": "§8🎭§r %s 被偽人替代了",
   "==================== Mini Game: Russian Roulette ====================": "",
   "==================== Main Body ====================": "",
   "announcement.star.role.noellesroles.furandoru": "",

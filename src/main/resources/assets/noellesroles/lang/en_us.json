@@ -4734,6 +4734,7 @@
   "message.noellesroles.fake_steve.hunt.subtitle": "Return to your room. Survive, or join them.",
   "message.noellesroles.fake_steve.hunt.broadcast": "The impostors hold the majority. Every impostor has entered permanent psycho mode. The hunt begins.",
   "message.noellesroles.fake_steve.hunt.recall": "The train resets again. Everyone has been returned to their own room.",
+  "replay.event.fake_steve.replaced": "§8🎭§r %s was replaced by an impostor",
   "commands.noellesroles.mirror_end_egg.enabled": "Broken-mirror ending egg enabled: when the round ends, all players see the collapse first; the screen goes black after sinking, and the game finishes after the effect expires",
   "commands.noellesroles.mirror_end_egg.disabled": "Broken-mirror ending egg disabled",
   "commands.noellesroles.mirror_end_egg.status.on": "Broken-mirror ending egg: on",

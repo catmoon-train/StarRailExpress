@@ -20,6 +20,7 @@ import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.cca.SREPlayerPsychoComponent;
 import io.wifi.starrailexpress.cca.SREPlayerShopComponent;
+import io.wifi.starrailexpress.api.replay.GameReplayUtils;
 import io.wifi.starrailexpress.event.AllowGameEnd;
 import io.wifi.starrailexpress.event.AllowPlayerWin;
 import io.wifi.starrailexpress.event.OnGameEnd;
@@ -267,6 +268,10 @@ public final class FakeSteveDirector {
                 .translatable("message.noellesroles.fake_steve.victim.replaced").withStyle(ChatFormatting.RED));
         WorldModifierComponent modifiers = WorldModifierComponent.KEY.get(player.serverLevel());
         modifiers.addModifier(player.getUUID(), NRModifiers.FAKE_STEVE_REPLACED);
+        // 回放事件：记录「XX 被伪人替代」，只进回放时间线，不做全服播报（替代本身对其他玩家是隐藏信息）
+        SRE.REPLAY_MANAGER.recordCustomEvent(
+                Component.translatable("replay.event.fake_steve.replaced",
+                        GameReplayUtils.getReplayPlayerDisplayText(player, true)));
         var originalRole = SREGameWorldComponent.KEY.get(player.serverLevel()).getRole(player);
         if (originalRole != null && originalRole.canUseKiller()) {
             SREPlayerShopComponent.KEY.get(player).addToBalance(200);
