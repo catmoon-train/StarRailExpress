@@ -29,18 +29,44 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.enchantment.Enchantments;
+import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.HitResult;
+import net.minecraft.world.phys.Vec3;
 import org.agmas.noellesroles.init.ModItems;
 import org.agmas.noellesroles.role.ModRoles;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.UUID;
 
 @Mixin(Player.class)
 public class RiptideTridentMixin {
+
+    /**
+     * 本 tick 起点位置（位移前），用于把撞击判定从「当前点膨胀」升级为「扫掠整段位移」。
+     */
+    @Unique
+    private Vec3 riptideTickStartPos;
+
+    /**
+     * 本 tick 开始时（位移前）是否处于激流冲刺状态。必须在 tick 之前取值：
+     * 原版在玩家互相推挤时会调用 {@code stopAutoSpinAttack()} 打断激流，
+     * 等到位移之后再读 {@code isAutoSpinAttack()} 只会读到 false，判定就永远漏掉了。
+     */
+    @Unique
+    private boolean riptideActiveBeforeTick = false;
+
+    /**
+     * 本次激流已经撞死的目标，避免同一目标因连续多个 tick 的扫掠被反复结算死亡。
+     */
+    @Unique
+    private final Set<UUID> riptideHitTargets = new HashSet<>();
 
     @Inject(method = "tick", at = @At("HEAD"))
     private void noellesroles$checkRiptideCollision(CallbackInfo ci) {
@@ -53,13 +79,18 @@ public class RiptideTridentMixin {
 
         ServerLevel serverLevel = serverPlayer.serverLevel();
 
+        // 记录激流冲刺的起点与起始状态，供 TAIL 的扫掠判定使用。
+        // 放在所有提前 return 之前，保证后续分支无论走哪条路都不会留下过期的状态。
+        this.riptideTickStartPos = player.position();
+        this.riptideActiveBeforeTick = player.isAutoSpinAttack();
+
         // 检查是否能用三叉戟杀人（海王/水鬼等）
         var role = SREGameWorldComponent.KEY.get(serverLevel).getRole(player.getUUID());
         boolean canTridentKill = role != null && role.canKillWithTrident();
         boolean isSeaKing = SREGameWorldComponent.KEY.get(serverLevel).isRole(player.getUUID(), ModRoles.SEA_KING);
         boolean isWaterGhost = SREGameWorldComponent.KEY.get(serverLevel).isRole(player.getUUID(), ModRoles.WATER_GHOST);
 
-        boolean isUsingRiptide = player.isAutoSpinAttack();
+        boolean isUsingRiptide = this.riptideActiveBeforeTick;
 
         // 海王：进入水中自动获得海豚的恩惠
         if (isSeaKing && (player.isInWater() || player.isUnderWater())) {
@@ -167,28 +198,70 @@ public class RiptideTridentMixin {
         if (!isUsingRiptide)
             return;
 
-        // 在激流状态期间持续检测碰撞
-        // 检测碰撞 - 使用扩大的碰撞箱
-        // 对水鬼使用更小的碰撞箱以避免穿墙击杀；另外在判定击杀时检查视线
-        double inflateAmount = isWaterGhost ? 1.0 : 1.5;
-        AABB hitBox = player.getBoundingBox().inflate(inflateAmount);
-        List<ServerPlayer> nearbyPlayers = serverLevel.getEntitiesOfClass(
-                ServerPlayer.class,
-                hitBox);
+        // 撞击判定已迁移到 noellesroles$resolveRiptideHits（tick 的 TAIL）：
+        // 原版激流位移发生在 tick 中途，HEAD 上判定的位置还是「冲出去之前」，
+        // 目标往往是在本 tick 位移之后才进入范围的，加上撞到人时原版会
+        // stopAutoSpinAttack() 打断激流，于是表现为「撞到了、停下了、却没伤害也没死因」。
+    }
 
-        // 遍历所有附近的玩家，可以连续击杀多个
-        for (ServerPlayer target : nearbyPlayers) {
-            if (target != player && !target.isSpectator() && !target.isCreative()) {
-                // 检查目标是否在激流撞击范围内
-                double distance = player.position().distanceTo(target.position());
-                double riptideRange = isWaterGhost ? 2.0 : 2.5;
-                if (distance < riptideRange && GameUtils.isPlayerAliveAndSurvival(target) && player.hasLineOfSight(target)) { // 激流撞击范围
-                    GameUtils.killPlayer(target, true, serverPlayer, SRE.id("trident"));
-                    if (isWaterGhost) {
-                        // 水鬼：激流三叉戟击杀后进入30秒冷却
-                        player.getCooldowns().addCooldown(Items.TRIDENT, 20 * 30);
-                    }
-                }
+    /**
+     * 激流撞击结算：扫掠本 tick 的整段位移，覆盖「一帧高速穿过判定体积」的情况。
+     *
+     * <p>
+     * 判定放在 tick 末尾（位移、推挤、stopAutoSpinAttack 都已发生之后），并且用 tick 起点作为激流状态与视线的基准，
+     * 因此即使本 tick 冲撞被原版打断，也仍能判定出撞到的人。
+     */
+    @Inject(method = "tick", at = @At("TAIL"))
+    private void noellesroles$resolveRiptideHits(CallbackInfo ci) {
+        if (SRE.isLobby)
+            return;
+
+        Player player = (Player) (Object) this;
+        if (!(player instanceof ServerPlayer serverPlayer))
+            return;
+
+        // 本 tick 开始时就没有在激流：不结算。
+        // 注意不能用当前的 isAutoSpinAttack()，撞人时原版会把它置为 false。
+        if (!this.riptideActiveBeforeTick || this.riptideTickStartPos == null)
+            return;
+
+        ServerLevel serverLevel = serverPlayer.serverLevel();
+        var role = SREGameWorldComponent.KEY.get(serverLevel).getRole(player.getUUID());
+        if (role == null || !role.canKillWithTrident())
+            return;
+        if (!player.isInWaterOrRain())
+            return;
+        if (!player.getMainHandItem().is(Items.TRIDENT))
+            return;
+
+        boolean isWaterGhost = SREGameWorldComponent.KEY.get(serverLevel).isRole(player.getUUID(), ModRoles.WATER_GHOST);
+
+        Vec3 from = this.riptideTickStartPos;
+        Vec3 to = player.position();
+
+        // 对水鬼使用更小的判定箱以避免穿墙击杀；命中与否另用视线检查确认
+        double inflateAmount = isWaterGhost ? 1.0 : 1.5;
+        // 覆盖整段位移的包围盒，而不是只取终点：激流 II 单 tick 位移可以超过原来的 2 格判定距离
+        AABB hitBox = new AABB(from, to).inflate(inflateAmount);
+
+        for (ServerPlayer target : serverLevel.getEntitiesOfClass(ServerPlayer.class, hitBox)) {
+            if (target == player || target.isSpectator() || target.isCreative())
+                continue;
+            if (this.riptideHitTargets.contains(target.getUUID()))
+                continue;
+            if (!GameUtils.isPlayerAliveAndSurvival(target))
+                continue;
+            // 视线检查从「冲出去之前」的位置出发，避免被墙挡住却把人撞死
+            Vec3 eye = from.add(0.0, player.getEyeHeight(), 0.0);
+            if (serverLevel.clip(new ClipContext(eye, target.getEyePosition(),
+                    ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, player)).getType() != HitResult.Type.MISS)
+                continue;
+
+            this.riptideHitTargets.add(target.getUUID());
+            GameUtils.killPlayer(target, true, serverPlayer, SRE.id("trident"));
+            if (isWaterGhost) {
+                // 水鬼：激流三叉戟击杀后进入30秒冷却
+                player.getCooldowns().addCooldown(Items.TRIDENT, 20 * 30);
             }
         }
     }
