@@ -1,11 +1,9 @@
 package org.agmas.noellesroles.mixin.client.katana;
 
-import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
 import org.agmas.noellesroles.init.ModItems;
 import org.agmas.noellesroles.katana.client.KatanaClientState;
-import org.agmas.noellesroles.packet.KatanaThrustC2SPacket;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
@@ -14,21 +12,11 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import org.jetbrains.annotations.Nullable;
 
 /**
- * 本地玩家手持武士刀左键瞬间的处理：
+ * 本地玩家手持武士刀左键攻击瞬间：以当前预测的招式立即开始播放动画（零延迟），
+ * 服务端的招式事件随后到达时若为同一招式则不重启动画（见 {@code KatanaClientState}）。
  *
- * <ul>
- * <li>左键命中实体时<b>不拦下</b>原版攻击：照常走 {@code Player#attack} →
- * {@code KatanaItem#onServerAttack}，这是「瞄到人时突刺」的老路径，也是可靠退路。</li>
- * <li>额外 always 发一个 {@link KatanaThrustC2SPacket}：原版左键<b>空挥时不会调
- * {@code Player#attack}</b>（只发挥手包），而突刺完全不看准星目标，所以空挥必须靠
- * 这个自定义通道。服务端 {@code KatanaCombat#handleThrust} 以服务端的
- * {@code nextMove} 为准判定，不是第二招就丢弃；已经在突刺中也会丢弃，
- * 因此与老路径不会重复出刀。</li>
- * <li>顺带以当前预测的招式立即播放动画（零延迟），服务端事件到达时若为同一招式
- * 则不重启动画（见 {@link KatanaClientState}）。</li>
- * </ul>
- *
- * <p>做法参考下界合金矛的 {@code MinecraftSpearAttackMixin}。
+ * <p>纯客户端表现，<b>不拦下也不改动原版攻击</b>：突刺的判定与位移全在服务端
+ * （见 {@code ServerGamePacketListenerImplKatanaMixin} 捕获挥手包）。
  */
 @Mixin(Minecraft.class)
 public class MinecraftKatanaAttackMixin {
@@ -38,7 +26,7 @@ public class MinecraftKatanaAttackMixin {
     public LocalPlayer player;
 
     @Inject(method = "startAttack", at = @At("HEAD"))
-    private void katana$sendThrustPacket(CallbackInfoReturnable<Boolean> cir) {
+    private void katana$optimisticMoveAnim(CallbackInfoReturnable<Boolean> cir) {
         LocalPlayer player = this.player;
         if (player == null || !player.getMainHandItem().is(ModItems.KATANA)) {
             return;
@@ -50,9 +38,6 @@ public class MinecraftKatanaAttackMixin {
         if (player.getAttackStrengthScale(0.0F) < 0.95F) {
             return;
         }
-        // 补上「空挥」这条路：命中实体时这条包会被服务端丢弃，不会重复出刀
-        ClientPlayNetworking.send(new KatanaThrustC2SPacket());
         KatanaClientState.startOptimisticAnim(player);
     }
 }
-

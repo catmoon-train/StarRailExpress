@@ -113,9 +113,11 @@ public class ItemInHandRendererKatanaMixin {
         float partialTicks = net.minecraft.client.Minecraft.getInstance().getTimer().getGameTimeDeltaPartialTick(true);
         int side = leftHanded ? -1 : 1;
         // 格挡：手持刀柄，刀尖转向左下（与矛同款做法：renderItem HEAD 处直接变换 PoseStack）
-        // 前摇 0.4 秒内翻腕到位
+        // 与第三人称手臂同步：衔接格挡瞬间翻腕，普通格挡随前摇渐进
         if (entity.isUsingItem() && entity.getUseItem().equals(stack)) {
-            float raise = (entity.getTicksUsingItem() + partialTicks) / KatanaState.BLOCK_WINDUP_TICKS;
+            float raise = KatanaClientState.isLinkedBlock(entity)
+                    ? 1.0F
+                    : KatanaState.blockRaiseProgress(entity.getTicksUsingItem(), partialTicks);
             KatanaAnim.applyThirdPersonBlockItem(poseStack, raise, side);
             return;
         }

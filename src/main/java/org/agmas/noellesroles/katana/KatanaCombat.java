@@ -22,6 +22,7 @@ import org.agmas.noellesroles.content.item.KatanaItem;
 import org.agmas.noellesroles.content.item.RiotShieldHandler;
 import org.agmas.noellesroles.game.roles.killer.dream.DreamHealthComponent;
 import org.agmas.noellesroles.init.ModItems;
+import org.agmas.noellesroles.spear.SpearConfig;
 
 import java.util.List;
 
@@ -39,9 +40,9 @@ import java.util.List;
  *
  * <p>突刺（第二招式）例外：左键时立刻向前位移，伤害与连招推进改由
  * <b>位移途中碰撞到的玩家</b>结算（见 {@link #tickThrusts}）。突刺<b>不看准星目标</b>，
- * 因此左键空挥也会出刀（客户端拦 {@code startAttack} 发
- * {@code KatanaThrustC2SPacket}，见 {@link #handleThrust}）；位移距离由
- * {@link KatanaState#THRUST_DISTANCE} 精确截断，连续
+ * 因此左键空挥也会出刀（服务端从挥手包反推左键，见
+ * {@code ServerGamePacketListenerImplKatanaMixin} 与 {@link #handleThrust}）；
+ * 冲量与下界合金矛的「突进」II 附魔一致、<b>不做距离截断</b>，连续
  * {@link KatanaState#THRUST_MAX_MISSES} 次未命中则连招回到第一招式。
  *
  * <p>三连招全部命中且目标<b>未死</b>（例如伤害被护盾挡下）→ 不进入物品冷却，
@@ -78,8 +79,14 @@ public final class KatanaCombat {
         }
     }
 
-    /** 突刺起手的冲量（与下界合金矛「突进」附魔同一套写法：给一次冲量，交给摩擦自然衰减）。 */
-    private static final double THRUST_IMPULSE = 0.25D;
+    /**
+     * 突刺起手的冲量：<b>与下界合金矛「突进」II 附魔完全一致</b>
+     * （{@code SpearConfig.LUNGE_IMPULSE_PER_LEVEL × 2}），写法也同
+     * {@code SpearCombat#applyLunge}——给一次冲量，交给摩擦自然衰减。
+     *
+     * <p>刻意<b>不做距离截断</b>：位移多远完全由冲量与摩擦决定，和矛的突进手感一致。
+     */
+    private static final double THRUST_IMPULSE = SpearConfig.LUNGE_IMPULSE_PER_LEVEL * 2;
     /** 突刺撞墙检测的前视距离（格）。 */
     private static final double THRUST_WALL_LOOKAHEAD = 0.32D;
 
@@ -100,7 +107,8 @@ public final class KatanaCombat {
 
         // 突刺（第二招式）：左键时立刻向前位移，伤害不再在挥刀瞬间对准星目标结算，
         // 而是改由位移途中碰撞到的玩家结算（见 tickThrusts / tickThrust）。
-        if (move == KatanaState.MOVE_THRUST) {
+        // 已在突刺中（挥手包入口可能先一步触发）则忽略，避免重复位移
+        if (move == KatanaState.MOVE_THRUST && !state.thrustDashing) {
             startThrustDash(attacker, state);
             return false;
         }
@@ -181,14 +189,15 @@ public final class KatanaCombat {
     // ───────────────────────── 突刺（第二招式）位移结算 ─────────────────────────
 
     /**
-     * 突刺的<b>独立入口</b>：客户端左键 C2S 包（{@code KatanaThrustC2SPacket}）调用。
+     * 突刺的<b>独立入口</b>：由 {@code ServerGamePacketListenerImplKatanaMixin}
+     * 捕获挥手包（左键空挥 / 瞄到人都走这里）后调用。
      *
      * <p>与 {@link #attack} 的最大区别：<b>不依赖准星目标</b>，因此左键空挥也会突刺。
      * 原版左键命中实体才会走到 {@code Player#attack}，空挥只发挥手包，
-     * 所以必须由客户端拦 {@code Minecraft#startAttack} 主动发包。
+     * 所以必须从挥手包反推「刚按了左键」。
      *
-     * <p>连招进度以服务端 {@link KatanaState#nextMove} 为准；客户端的招式预测
-     * 可能与服务端不同步，此时这里会拒绝执行（返回 false），不会误出刀。
+     * <p>连招进度以服务端 {@link KatanaState#nextMove} 为准；已经在突刺中也直接丢弃，
+     * 因此不会与 {@link #attack} 的旧路径重复出刀。
      */
     public static boolean handleThrust(ServerPlayer attacker, ItemStack stack) {
         if (!GameUtils.isPlayerAliveAndSurvival(attacker) || !canUseKatana(attacker, stack)) {
@@ -243,8 +252,6 @@ public final class KatanaCombat {
         state.thrustDashing = true;
         state.thrustDirection = look.normalize();
         state.thrustTicksLeft = KatanaState.THRUST_DASH_MAX_TICKS;
-        // 距离上限：走满 THRUST_DISTANCE（2 格）即结束，与摩擦系数无关
-        state.thrustRemaining = KatanaState.THRUST_DISTANCE;
         state.thrustHitCount = 0;
         state.thrustHasMoved = false;
         state.thrustLastPos = Vec3.ZERO;
@@ -275,8 +282,11 @@ public final class KatanaCombat {
     }
 
     /**
-     * 单 tick 突刺结算：按「已走距离」精确截断 2 格，撞墙 / 位移停滞时提前结束；
+     * 单 tick 突刺结算：撞墙 / 位移停滞时提前结束；
      * 位移途中对碰撞到的玩家造成伤害（1 点原版伤害 + 突刺虚拟伤害）。
+     *
+     * <p>位移距离<b>不做截断</b>，冲量给多少就滑多少（与矛的突进一致），
+     * 只靠 {@link KatanaState#THRUST_DASH_MAX_TICKS} 时长与撞墙 / 卡住来收招。
      */
     private static void tickThrust(ServerPlayer player, KatanaState.PlayerState state) {
         Vec3 currentPos = player.position();
@@ -284,7 +294,7 @@ public final class KatanaCombat {
             state.thrustLastPos = currentPos;
         }
         Vec3 moved = currentPos.subtract(state.thrustLastPos);
-        // 只按水平位移累计：垂直分量来自跳跃/坠落，不计入突刺距离
+        // 只看水平位移：垂直分量来自跳跃 / 坠落，不属于突刺推进
         double movedHorizontal = Math.sqrt(moved.x * moved.x + moved.z * moved.z);
         boolean movedThisTick = movedHorizontal > 0.0025D;
 
@@ -310,8 +320,6 @@ public final class KatanaCombat {
 
         if (movedThisTick) {
             state.thrustHasMoved = true;
-            // 累计已走距离：走满 THRUST_DISTANCE 即精确结束，与摩擦 / 冰面无关
-            state.thrustRemaining -= movedHorizontal;
             // 位移途中碰撞到的玩家：按最近距离依次结算伤害（扫掠盒 = 本 tick 位移路径）
             var sweptBox = player.getBoundingBox()
                     .expandTowards(-moved.x, -moved.y, -moved.z)
@@ -341,14 +349,6 @@ public final class KatanaCombat {
         }
 
         state.thrustLastPos = currentPos;
-
-        // 走满 2 格：立即结束突刺（清掉水平速度，避免滑行）
-        if (state.thrustRemaining <= 0.0D) {
-            Vec3 current = player.getDeltaMovement();
-            player.setDeltaMovement(0.0D, current.y, 0.0D);
-            endThrust(player, state);
-            return;
-        }
 
         state.thrustTicksLeft--;
         if (state.thrustTicksLeft <= 0) {

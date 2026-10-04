@@ -32,8 +32,8 @@ import java.util.List;
  * <ul>
  * <li>左键：按顺序释放三连招，<b>实际命中玩家</b>后才推进到下一招式；
  * 每招固定扣除虚拟血量（6 / 7 / 7）并附带 1 点原版伤害作为击退载体。
- * 突刺（第二招）<b>不依赖准星目标</b>，左键空挥也会出刀，沿视线向前位移
- * {@link KatanaState#THRUST_DISTANCE} 格；连续 {@link KatanaState#THRUST_MAX_MISSES}
+ * 突刺（第二招）<b>不依赖准星目标</b>，左键空挥也会出刀，沿视线向前突进
+ * （冲量与下界合金矛「突进」II 附魔一致）；连续 {@link KatanaState#THRUST_MAX_MISSES}
  * 次突刺都没碰到玩家则连招回到第一招。</li>
  * <li>右键：格挡（可格挡的死亡原因同防暴盾牌，含 Dream 铁斧 / 钻石剑 / 重锤），
  * 前摇 0.4 秒、有效 1.2 秒；衔接招式命中后的格挡前摇为 0，未衔接的格挡结束后
@@ -104,6 +104,12 @@ public class KatanaItem extends Item
             }
             // 记录本次格挡是否衔接招式命中（决定前摇与结束后是否进入内置冷却）
             state.blockLinked = level.getGameTime() <= state.linkedUntil;
+            // 同步给客户端：衔接格挡（0 前摇）要瞬间架刀，普通格挡随前摇渐进抬臂
+            if (player instanceof net.minecraft.server.level.ServerPlayer serverPlayer) {
+                KatanaState.broadcast(serverPlayer, (byte) (state.blockLinked
+                        ? KatanaState.EVENT_BLOCK_START_LINKED
+                        : KatanaState.EVENT_BLOCK_START_NORMAL));
+            }
         }
         player.startUsingItem(hand);
         return InteractionResultHolder.consume(stack);

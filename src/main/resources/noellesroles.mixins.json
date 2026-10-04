@@ -41,6 +41,7 @@
     "modifier.StingyPurchaseMixin",
     "modifier.VegetarianFoodMixin",
     "modifier.taxed.SREPlayerShopComponentTaxedMixin",
+    "network.ServerGamePacketListenerImplKatanaMixin",
     "roles.adventurer.AdventurerDeathImmunityMixin",
     "roles.angler.FishingHookAnglerMixin",
     "roles.awesome_binglus.NoteEntityMixin",

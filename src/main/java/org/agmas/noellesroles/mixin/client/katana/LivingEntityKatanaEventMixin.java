@@ -25,6 +25,9 @@ public class LivingEntityKatanaEventMixin {
             KatanaClientState.onBlockCooldown(self, false);
         } else if (id == KatanaState.EVENT_BLOCK_COOLDOWN_CLEAR) {
             KatanaClientState.onBlockCooldown(self, true);
+        } else if (id == KatanaState.EVENT_BLOCK_START_LINKED
+                || id == KatanaState.EVENT_BLOCK_START_NORMAL) {
+            KatanaClientState.onBlockStart(self, id == KatanaState.EVENT_BLOCK_START_LINKED);
         }
     }
 }

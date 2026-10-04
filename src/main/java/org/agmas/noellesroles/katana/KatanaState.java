@@ -45,8 +45,6 @@ public final class KatanaState {
     // ── 突刺（第二招式）位移结算参数 ──
     /** 突刺位移的最长时长（tick）：0.5 秒，与无碰撞效果时长一致。 */
     public static final int THRUST_DASH_MAX_TICKS = 10;
-    /** 突刺总距离（格）：走满即结束突刺，与摩擦无关。 */
-    public static final double THRUST_DISTANCE = 2.0D;
     /** 突刺连续未命中多少次后连招回到第一招式。 */
     public static final int THRUST_MAX_MISSES = 3;
     /** 突刺途中碰撞判定的包围盒膨胀（格）。 */
@@ -63,6 +61,10 @@ public final class KatanaState {
     public static final byte EVENT_BLOCK_COOLDOWN_START = 120;
     /** 格挡内置冷却清除（命中后刷新）。 */
     public static final byte EVENT_BLOCK_COOLDOWN_CLEAR = 121;
+    /** 本次格挡为「衔接格挡」（无前摇 → 抬臂瞬间到位）。 */
+    public static final byte EVENT_BLOCK_START_LINKED = 122;
+    /** 本次格挡为「普通格挡」（有 0.4 秒前摇 → 抬臂随前摇渐进）。 */
+    public static final byte EVENT_BLOCK_START_NORMAL = 123;
 
     /** 单名玩家的武士刀状态。 */
     public static class PlayerState {
@@ -84,8 +86,6 @@ public final class KatanaState {
         public Vec3 thrustLastPos = Vec3.ZERO;
         /** 本次突刺是否已经发生过实际位移。 */
         public boolean thrustHasMoved = false;
-        /** 突刺剩余距离（格）：走满 {@link #THRUST_DISTANCE} 即结束突刺。 */
-        public double thrustRemaining;
         /** 突刺剩余结算时长（tick）。 */
         public int thrustTicksLeft = 0;
         /** 本次突刺碰撞到的玩家数。 */
@@ -99,7 +99,6 @@ public final class KatanaState {
         public void stopThrust() {
             this.thrustDashing = false;
             this.thrustTicksLeft = 0;
-            this.thrustRemaining = 0.0D;
             this.thrustDirection = Vec3.ZERO;
             this.thrustLastPos = Vec3.ZERO;
             this.thrustHasMoved = false;
@@ -170,6 +169,21 @@ public final class KatanaState {
     /** 获取（必要时创建）玩家的武士刀状态。 */
     public static PlayerState get(Player player) {
         return STATES.computeIfAbsent(player.getUUID(), uuid -> new PlayerState());
+    }
+
+    /**
+     * 格挡抬臂进度（0~1）：<b>普通格挡</b>在 0.4 秒前摇期间线性抬臂。
+     *
+     * <p><b>衔接格挡</b>（招式命中后的 0 前摇格挡，见
+     * {@link PlayerState#blockLinked}）没有前摇时间可言，由调用方直接给 1.0，
+     * 表现为「瞬间架刀」。
+     *
+     * @param ticksUsing    已使用物品的 tick 数
+     * @param partialTicks 本 tick 的插值余量（客户端用）
+     */
+    public static float blockRaiseProgress(int ticksUsing, float partialTicks) {
+        float progress = (ticksUsing + partialTicks) / BLOCK_WINDUP_TICKS;
+        return Math.max(0.0F, Math.min(1.0F, progress));
     }
 
     /** 广播实体事件（服务端专用）。 */

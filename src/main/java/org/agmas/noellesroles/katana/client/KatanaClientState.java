@@ -39,6 +39,8 @@ public final class KatanaClientState {
         int currentMove = KatanaState.MOVE_SWEEP;
         /** 格挡内置冷却截止（游戏时间 tick）。 */
         long blockCooldownUntil;
+        /** 本次格挡是否为「衔接格挡」（0 前摇 → 抬臂瞬间到位）。 */
+        boolean blockLinked;
     }
 
     private static final Map<Integer, Entry> BY_ENTITY_ID = new ConcurrentHashMap<>();
@@ -71,6 +73,20 @@ public final class KatanaClientState {
     public static void onBlockCooldown(LivingEntity entity, boolean clear) {
         Entry entry = get(entity);
         entry.blockCooldownUntil = clear ? 0 : currentGameTime() + BLOCK_INTERNAL_COOLDOWN_TICKS;
+    }
+
+    /** 收到「格挡开始」事件：记录本次是否为无前摇的衔接格挡。 */
+    public static void onBlockStart(LivingEntity entity, boolean linked) {
+        get(entity).blockLinked = linked;
+    }
+
+    /**
+     * 本次格挡是否为「衔接格挡」。
+     *
+     * <p>衔接格挡没有前摇，抬臂进度直接给满（瞬间架刀）；普通格挡则按前摇渐进。
+     */
+    public static boolean isLinkedBlock(LivingEntity entity) {
+        return get(entity).blockLinked;
     }
 
     // ── 乐观预测（本地玩家攻击瞬间） ──

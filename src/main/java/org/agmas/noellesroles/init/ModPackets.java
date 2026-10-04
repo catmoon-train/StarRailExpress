@@ -94,12 +94,6 @@ public class ModPackets {
                 (payload, context) -> context.server().execute(() -> org.agmas.noellesroles.spear.SpearCombat
                         .handleStab(context.player(), payload.entityId())));
 
-        // 武士刀：第二招（突刺）左键空挥也能触发，客户端拦 startAttack 主动发包
-        PayloadTypeRegistry.playC2S().register(KatanaThrustC2SPacket.ID, KatanaThrustC2SPacket.CODEC);
-        ServerPlayNetworking.registerGlobalReceiver(KatanaThrustC2SPacket.ID,
-                (payload, context) -> context.server().execute(() -> org.agmas.noellesroles.katana.KatanaCombat
-                        .handleThrust(context.player(), context.player().getMainHandItem())));
-
         // 幽露：自由摄像机进入/退出（S2C）、摄像机位置上报与 ESC 取消（C2S）
         PayloadTypeRegistry.playS2C().register(YouluFreeCamS2CPacket.ID, YouluFreeCamS2CPacket.CODEC);
         PayloadTypeRegistry.playC2S().register(YouluCamPosC2SPacket.ID, YouluCamPosC2SPacket.CODEC);
