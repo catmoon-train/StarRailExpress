@@ -2666,6 +2666,7 @@
   "item.noellesroles.grosell_travelog.not_charged": "蓄力不足，取消！",
   "item.noellesroles.grosell_travelog.no_target": "沒有瞄準到可放逐的目標！",
   "item.noellesroles.grosell_travelog.banish_success": "已將 %s 放逐進遊記",
+  "item.noellesroles.grosell_travelog.cannot_banish": "%s 無法被放逐",
   "item.noellesroles.grosell_travelog.recall_success": "已將 %s 從遊記中召回",
   "item.noellesroles.grosell_travelog.auto_return": "%s 已自動從遊記中回歸",
   "message.noellesroles.grosell_travelog.banished": "你被放逐進了格羅賽爾遊記，60秒後自動回歸",

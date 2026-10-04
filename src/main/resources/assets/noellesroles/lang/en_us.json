@@ -2562,6 +2562,7 @@
   "item.noellesroles.grosell_travelog.not_charged": "Charge insufficient, cancelled!",
   "item.noellesroles.grosell_travelog.no_target": "No target to banish!",
   "item.noellesroles.grosell_travelog.banish_success": "Banished %s into the travelogue",
+  "item.noellesroles.grosell_travelog.cannot_banish": "%s cannot be banished",
   "item.noellesroles.grosell_travelog.recall_success": "Recalled %s from the travelogue",
   "item.noellesroles.grosell_travelog.auto_return": "%s automatically returned from the travelogue",
   "message.noellesroles.grosell_travelog.banished": "You were banished into Grosell's Travelogue, automatically returns after 60 seconds",

@@ -17,6 +17,7 @@ package org.agmas.noellesroles.content.item;
 
 import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.api.replay.GameReplayUtils;
+import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.event.EarlyKillPlayer;
 import io.wifi.starrailexpress.event.OnGameEnd;
 import io.wifi.starrailexpress.game.GameUtils;
@@ -37,6 +38,7 @@ import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.level.Level;
 import org.agmas.noellesroles.config.NoellesRolesConfig;
 import org.agmas.noellesroles.init.ModEffects;
+import org.agmas.noellesroles.role.ModRoles;
 
 import java.util.List;
 import java.util.Map;
@@ -129,6 +131,10 @@ public final class GroselleJourneyManager {
             return false;
         }
         if (!GameUtils.isPlayerAliveAndSurvival(target) || !GameUtils.isPlayerAliveAndSurvival(banisher)) {
+            return false;
+        }
+        // 鹈鹕无法被放逐：肚内状态同样依赖玩家实体与位置传送，被放逐会破坏其吞噬/吐出流程
+        if (SREGameWorldComponent.KEY.get(target.level()).isRole(target, ModRoles.PELICAN)) {
             return false;
         }
 

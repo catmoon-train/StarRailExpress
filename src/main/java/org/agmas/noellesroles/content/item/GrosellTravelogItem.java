@@ -16,6 +16,7 @@
 package org.agmas.noellesroles.content.item;
 
 import io.wifi.starrailexpress.api.replay.GameReplayUtils;
+import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.game.GameUtils;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.particles.ParticleTypes;
@@ -40,6 +41,7 @@ import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 import org.agmas.noellesroles.config.NoellesRolesConfig;
 import org.agmas.noellesroles.init.ModEffects;
+import org.agmas.noellesroles.role.ModRoles;
 
 import java.util.List;
 import java.util.UUID;
@@ -174,6 +176,13 @@ public class GrosellTravelogItem extends Item {
         if (ModEffects.isInAnyDomain(target)) {
             player.displayClientMessage(Component
                     .translatable("message.noellesroles.domain.already_in_domain")
+                    .withStyle(ChatFormatting.YELLOW), true);
+            return;
+        }
+        // 鹈鹕无法被放逐（与 taro 尊名纸条的同类适配一致，见 message.noellesroles.fool.pelican_cannot_join）
+        if (SREGameWorldComponent.KEY.get(target.level()).isRole(target, ModRoles.PELICAN)) {
+            player.displayClientMessage(Component
+                    .translatable("item.noellesroles.grosell_travelog.cannot_banish", target.getName())
                     .withStyle(ChatFormatting.YELLOW), true);
             return;
         }
