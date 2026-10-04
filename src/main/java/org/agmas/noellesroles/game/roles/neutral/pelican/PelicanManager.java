@@ -23,6 +23,7 @@ import io.wifi.starrailexpress.cca.SREPlayerPsychoComponent;
 import io.wifi.starrailexpress.game.GameUtils;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.fabricmc.fabric.api.message.v1.ServerMessageEvents;
+import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.game.ClientboundSetCameraPacket;
@@ -64,7 +65,80 @@ public final class PelicanManager {
 
     public static void register() {
         ServerTickEvents.END_WORLD_TICK.register(PelicanManager::tick);
+        // 被吞状态只存在于本文件的静态 Map 里（不落 NBT），服务器不重启就一直有效。
+        // 如果不处理重连，玩家退出重进后 tick() 会把他重新拉回鹈鹕身边（旁观 + 锁定鹈鹕视角 +
+        // 只能与鹈鹕/肚内玩家通信），等于「卡在肚子里」。这里在加入时直接解除。
+        ServerPlayConnectionEvents.JOIN.register((handler, sender, server) -> {
+            ServerPlayer player = handler.getPlayer();
+            if (isStashed(player)) {
+                onStashedPlayerReconnect(player);
+            }
+        });
         registerEvents();
+    }
+
+    /**
+     * 被吞玩家重连：解除被吞状态，让他回到正常的死亡（旁观）频道。
+     *
+     * <p>不能复用 {@link #releasePlayer}，那条路径会把玩家恢复成 {@link GameType#ADVENTURE}（复活）；
+     * 这里要的是「被吞过、但已经死了」的状态，所以参照 {@link #onStashedPlayerDeath} 的做法：
+     * 保留死亡/旁观，只清掉肚内身份带来的旁观锁定、禁聊、禁技能与语音隔离。
+     */
+    public static void onStashedPlayerReconnect(ServerPlayer target) {
+        if (target == null) {
+            return;
+        }
+        UUID targetId = target.getUUID();
+        if (!pelicanByStashed.containsKey(targetId)) {
+            return;
+        }
+
+        // 从追踪映射中摘除，pelicanByStashed 是 isStashed 的唯一依据，摘掉即视为不再是肚内玩家
+        UUID pelicanId = pelicanByStashed.remove(targetId);
+        if (pelicanId != null) {
+            Deque<UUID> belly = stashedByPelican.get(pelicanId);
+            if (belly != null) {
+                belly.remove(targetId);
+                if (belly.isEmpty()) {
+                    stashedByPelican.remove(pelicanId);
+                }
+            }
+        }
+        stashedPreviousGameMode.remove(targetId);
+        // 重连即视为已在肚内死亡，避免后续任何释放流程把他复活
+        stashedDead.remove(targetId);
+
+        // 清除吞人时套上的死亡惩罚（内部会把第三人称相机还给自己）与起搏器保护
+        DeathPenaltyComponent.KEY.get(target).init();
+        DefibrillatorComponent.KEY.get(target).init();
+
+        // 清除吞人时添加的禁用技能 / 禁聊天栏 / 禁用物品
+        target.removeEffect(ModEffects.SKILL_BANED);
+        target.removeEffect(ModEffects.CHAT_BAN);
+        target.removeEffect(ModEffects.USED_BANED);
+
+        target.setInvisible(false);
+        // 正常死亡频道：旁观者。已死亡玩家不应被恢复成冒险模式。
+        if (target.gameMode.getGameModeForPlayer() != GameType.SPECTATOR) {
+            target.setGameMode(GameType.SPECTATOR);
+        }
+        GameUtils.normalizeSpectatorFlightAbilities(target);
+        // 解开锁定在鹈鹕身上的第三人称相机
+        target.connection.send(new ClientboundSetCameraPacket(target));
+
+        NoellesrolesVoiceChatPlugin.onPelicanRelease(targetId);
+
+        // 同步清理鹈鹕组件里的肚内列表，避免 HUD 仍显示"肚子里有该玩家"
+        if (pelicanId != null) {
+            ServerPlayer pelican = target.getServer().getPlayerList().getPlayer(pelicanId);
+            if (pelican != null) {
+                PelicanRoleData comp = RoleData.getNullable(PelicanRoleData.class, pelican);
+                if (comp != null) {
+                    comp.bellyPlayerIds.remove(targetId);
+                    comp.sync();
+                }
+            }
+        }
     }
 
     private static void tick(ServerLevel world) {
@@ -85,8 +159,21 @@ public final class PelicanManager {
             UUID pelicanId = entry.getValue();
             ServerPlayer target = server.getPlayerList().getPlayer(targetId);
             ServerPlayer pelican = server.getPlayerList().getPlayer(pelicanId);
-            if (target == null)
+            if (target == null) {
+                // 目标离线：把映射一并清掉。否则玩家重连后仍被 tick() 判定为肚内玩家，
+                // 会被重新拉回鹈鹕身边（旁观 + 视角锁定 + 语音隔离），等于退出重进就卡在肚子里。
+                pelicanByStashed.remove(targetId, pelicanId);
+                stashedPreviousGameMode.remove(targetId);
+                stashedDead.remove(targetId);
+                Deque<UUID> offlineBelly = stashedByPelican.get(pelicanId);
+                if (offlineBelly != null) {
+                    offlineBelly.remove(targetId);
+                    if (offlineBelly.isEmpty()) {
+                        stashedByPelican.remove(pelicanId);
+                    }
+                }
                 continue;
+            }
             if (pelican == null || !GameUtils.isPlayerAliveAndSurvival(pelican)) {
                 releasePlayer(target);
                 continue;
@@ -411,6 +498,9 @@ public final class PelicanManager {
         pelicanByStashed.clear();
         stashedByPelican.clear();
         stashedPreviousGameMode.clear();
+        // 肚内死亡标记同样要清：否则换局后残留的 UUID 会让新一局里对应的释放流程
+        // 误判「该玩家已在肚内死亡」而跳过复活/改模式。
+        stashedDead.clear();
     }
 
     /**

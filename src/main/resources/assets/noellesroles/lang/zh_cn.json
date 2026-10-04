@@ -4237,6 +4237,7 @@
   "message.noellesroles.pelican.cooldown": "吞噬技能冷却中，还需 %s 秒",
   "message.noellesroles.pelican.belly_empty": "你的肚子里没有玩家可以释放",
   "message.noellesroles.pelican.released_one": "你释放了一个玩家",
+  "message.noellesroles.pelican.cannot_use_in_domain": "你处于领域中，无法吞噬或吐出玩家",
   "message.noellesroles.pelican.no_target": "没有足够近的存活玩家可以吞噬",
   "message.noellesroles.pelican.spat_out_dead": "鹈鹕死了，你被吐了出来！",
   "hud.noellesroles.pelican.progress": "吞噬 %s/%s",

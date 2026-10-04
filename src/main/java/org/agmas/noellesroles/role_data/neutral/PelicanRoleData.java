@@ -37,6 +37,7 @@ import net.minecraft.sounds.SoundSource;
 import org.agmas.harpymodloader.component.WorldModifierComponent;
 import org.agmas.noellesroles.config.NoellesRolesConfig;
 import org.agmas.noellesroles.game.roles.neutral.pelican.PelicanManager;
+import org.agmas.noellesroles.init.ModEffects;
 import org.agmas.noellesroles.role.ModRoles;
 import org.agmas.noellesroles.utils.RoleUtils;
 import org.jetbrains.annotations.NotNull;
@@ -103,6 +104,14 @@ public class PelicanRoleData extends SimpleRoleData {
             return false;
         }
         if (target == null) {
+            return false;
+        }
+        // 处于领域（愚者开会 / 咒术师角斗场 / 冒险家游记）时无法吞噬
+        if (ModEffects.isInAnyDomain(sp)) {
+            sp.displayClientMessage(
+                    Component.translatable("message.noellesroles.pelican.cannot_use_in_domain")
+                            .withStyle(ChatFormatting.RED),
+                    true);
             return false;
         }
         if (!GameUtils.isPlayerAliveAndSurvival(target)) {
@@ -184,6 +193,14 @@ public class PelicanRoleData extends SimpleRoleData {
 
     public boolean releaseLast() {
         if (!(player instanceof ServerPlayer sp)) {
+            return false;
+        }
+        // 处于领域（愚者开会 / 咒术师角斗场 / 冒险家游记）时无法吐出
+        if (ModEffects.isInAnyDomain(sp)) {
+            sp.displayClientMessage(
+                    Component.translatable("message.noellesroles.pelican.cannot_use_in_domain")
+                            .withStyle(ChatFormatting.RED),
+                    true);
             return false;
         }
         bellyPlayerIds.removeIf(id -> !PelicanManager.isStashed(id));
