@@ -901,6 +901,14 @@ public class NRDeathEvents {
                 dropCount--;
             }
         }
+        // 剑客：身上的武士刀掉落为左轮手枪（参考游侠弓弩）
+        if (gameWorldComponent.isRole(player, ModRoles.SWORDSMAN)) {
+            int katanaCount = SREItemUtils.clearItem(player, ModItems.KATANA);
+            while (katanaCount > 0) {
+                player.drop(TMMItems.REVOLVER.getDefaultInstance(), false);
+                katanaCount--;
+            }
+        }
         if (gameWorldComponent.isRole(player, ModRoles.CAVALRY)) {
             int spearCount = SREItemUtils.clearItem(player, ModItems.NETHERITE_SPEAR);
             while (spearCount > 0) {
