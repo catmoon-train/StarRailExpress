@@ -78,8 +78,8 @@ public final class KatanaCombat {
         }
     }
 
-    /** 突刺每 tick 施加的水平推进速度；略大于「2 格 / 10 tick」，抗摩擦衰减。 */
-    private static final double THRUST_TICK_SPEED = 0.28D;
+    /** 突刺起手的冲量（与下界合金矛「突进」附魔同一套写法：给一次冲量，交给摩擦自然衰减）。 */
+    private static final double THRUST_IMPULSE = 0.25D;
     /** 突刺撞墙检测的前视距离（格）。 */
     private static final double THRUST_WALL_LOOKAHEAD = 0.32D;
 
@@ -243,27 +243,20 @@ public final class KatanaCombat {
         state.thrustDashing = true;
         state.thrustDirection = look.normalize();
         state.thrustTicksLeft = KatanaState.THRUST_DASH_MAX_TICKS;
-        // 距离驱动：走满 THRUST_DISTANCE（2 格）即结束，与摩擦系数无关
+        // 距离上限：走满 THRUST_DISTANCE（2 格）即结束，与摩擦系数无关
         state.thrustRemaining = KatanaState.THRUST_DISTANCE;
         state.thrustHitCount = 0;
         state.thrustHasMoved = false;
         state.thrustLastPos = Vec3.ZERO;
         state.thrustHitPlayers.clear();
-        applyThrustVelocity(attacker, state);
+        // 沿视线水平方向给一次冲量，之后交给摩擦自然衰减（同「突进」附魔）
+        attacker.push(state.thrustDirection.x * THRUST_IMPULSE, 0.0D,
+                state.thrustDirection.z * THRUST_IMPULSE);
+        // 1.21.1 里 hurtMarked 是让 ServerEntity 把玩家速度变化重发给客户端的标记
+        attacker.hurtMarked = true;
         // 突刺期间给予短暂无碰撞，保证能穿过玩家
         attacker.addEffect(new MobEffectInstance(
                 ModEffects.NO_COLLIDE, KatanaState.THRUST_DASH_MAX_TICKS, 0, true, false, false));
-    }
-
-    /**
-     * 覆写水平速度来推进突刺：每 tick 固定给一个速度，抵消摩擦衰减，
-     * 由 {@link KatanaState#THRUST_DISTANCE} 的剩余距离做精确截断。
-     */
-    private static void applyThrustVelocity(ServerPlayer attacker, KatanaState.PlayerState state) {
-        Vec3 current = attacker.getDeltaMovement();
-        attacker.setDeltaMovement(state.thrustDirection.x * THRUST_TICK_SPEED, current.y,
-                state.thrustDirection.z * THRUST_TICK_SPEED);
-        attacker.hurtMarked = true;
     }
 
     /** 每 tick 遍历本世界内正在突刺的玩家，结算位移与碰撞伤害。 */
@@ -357,8 +350,6 @@ public final class KatanaCombat {
             return;
         }
 
-        // 继续推进下一 tick 的位移
-        applyThrustVelocity(player, state);
         state.thrustTicksLeft--;
         if (state.thrustTicksLeft <= 0) {
             endThrust(player, state);
