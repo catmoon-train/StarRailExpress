@@ -47,11 +47,11 @@ public class BuilderRoleData extends SimpleRoleData {
     /** 开局冷却时间 */
     public static final int INITIAL_COOLDOWN = 2400;
 
-    /** 建造技能冷却时间（90秒 = 1800 tick） */
-    public static final int BUILD_COOLDOWN = 1800;
+    /** 建造技能冷却时间（45秒 = 900 tick） */
+    public static final int BUILD_COOLDOWN = 900;
 
-    /** 墙存在时间（20秒 = 400 tick） */
-    public static final int WALL_DURATION = 400;
+    /** 墙存在时间（25秒 = 500 tick） */
+    public static final int WALL_DURATION = 500;
 
     /** 墙长度（格） */
     public static final int WALL_LENGTH = 4;
