@@ -24,6 +24,7 @@ import org.agmas.noellesroles.utils.MCItemsUtils;
 import org.jetbrains.annotations.Nullable;
 
 import io.wifi.starrailexpress.api.SRERole;
+import io.wifi.starrailexpress.api.TMMRoles;
 import io.wifi.starrailexpress.api.TouhouRole;
 import io.wifi.starrailexpress.cca.SREAbilityPlayerComponent;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
@@ -133,19 +134,22 @@ public class THKaenbyouRinRole extends TouhouRole {
                 SoundEvents.ENDERMAN_TELEPORT, SoundSource.PLAYERS, 0.5F, 1.5F);
         UUID targetUid = body.getPlayerUuid();
         int count = 1;
+        SRERole role = null;
         if (targetUid != null) {
-            var target = player.level().getPlayerByUUID(targetUid);
-            if (target != null) {
-                final var gamecca = SREGameWorldComponent.getInstance(target);
-                final SRERole role = gamecca.getRole(targetUid);
-                if (role == null) {
-                    count = 1;
-                } else if (SREGameWorldComponent.isKillerTeamRoleStatic(role)) {
-                    count = 2;
-                } else if (role.isNeutrals()) {
-                    count = 3;
-                }
+            final var gamecca = SREGameWorldComponent.getInstance(player.level());
+            role = gamecca.getRole(targetUid);
+        }
+        if (role == null) {
+            // 实时阵营拿不到时，退回尸体生成时记录的职业（见 GameUtils.spawnBodyEntity）
+            var bodyComponent = body.getComponent();
+            if (bodyComponent.playerRole != null) {
+                role = TMMRoles.ROLES.get(bodyComponent.playerRole);
             }
+        }
+        if (SREGameWorldComponent.isKillerTeamRoleStatic(role)) {
+            count = 2;
+        } else if (role != null && role.isNeutrals()) {
+            count = 3;
         }
         ItemStack bone = Items.BONE.getDefaultInstance();
         bone.set(DataComponents.MAX_STACK_SIZE, 99);
