@@ -39,15 +39,9 @@ import java.util.concurrent.ConcurrentHashMap;
  * 统一存放“说话者侧”额外语音药水效果的客户端处理：
  *
  * <ul>
- * <li>OpenAL 源级效果（{@code OpenALSoundEvent.Post}，零延迟、原生性能）：
- * <ul>
- * <li>{@code VOICE_HELMET} 远处/头盔声：直接低通滤波（GAINHF 0.3~0.5）</li>
- * <li>{@code VOICE_UNDERWATER} 水下声：低通（0.3~0.6）+ 降低增益 0.7</li>
- * <li>{@code VOICE_REVERB} 混响：EFX REVERB 效果经辅助效果槽（aux send 1）路由</li>
- * </ul>
- * </li>
  * <li>PCM 级效果（{@code ClientReceiveSoundEvent}，在原始音频上传到 OpenAL 之前处理）：
  * <ul>
+ * <li>{@code VOICE_HELMET} 远处/头盔声：低通滤波（截止频率随等级下降）</li>
  * <li>{@code VOICE_SYNTH} 合成人声 / 自动调音：基频检测 + 量化到最近半音 + WSOLA 变调</li>
  * <li>{@code VOICE_DISTORTION} 失真：tanh 软削波</li>
  * <li>{@code VOICE_CHORUS} 合唱：延迟线 + LFO 调制</li>
@@ -56,7 +50,19 @@ import java.util.concurrent.ConcurrentHashMap;
  * <li>{@code VOICE_REVERSE} 倒放：分块缓冲后反向播放</li>
  * </ul>
  * </li>
+ * <li>OpenAL 源级效果（{@code OpenALSoundEvent.Post}，仅混响）：
+ * <ul>
+ * <li>{@code VOICE_REVERB} 混响：EFX REVERB 效果经辅助效果槽（aux send 1）路由</li>
  * </ul>
+ * </li>
+ * </ul>
+ *
+ * <p>
+ * <b>为什么低通不做在 OpenAL 源上：</b>语音源是一次性的，说话结束即销毁、ID 会被 OpenAL 回收并重新分配
+ * 给 Minecraft 的音效通道。在源上挂 {@code AL_DIRECT_FILTER} 会让低通泄漏到世界音效上（表现为音效整体消失），
+ * 且效果结束后没有任何分支负责摘掉它，于是永久静音。改到 PCM 级后只作用于本段语音数据，效果到期自然无残留。
+ * 同理，{@code VOICE_UNDERWATER} 的低通也一并搬到 PCM。
+ * </p>
  *
  * <p>
  * 说话者效果由 {@link org.agmas.noellesroles.voice.VoiceEffectSync} 广播到听者客户端，
@@ -68,10 +74,6 @@ public class VoiceExtraEffectsPlugin implements VoicechatPlugin {
     private static final int SAMPLE_RATE = 48000;
 
     // ---- OpenAL / EFX 常量（显式定义以兼容） ----
-    private static final int AL_FILTER_TYPE = 0x8001;
-    private static final int AL_FILTER_LOWPASS = 0x0003;
-    private static final int AL_FILTER_LOWPASS_GAIN = 0x0001;
-    private static final int AL_FILTER_LOWPASS_GAINHF = 0x0002;
     private static final int AL_DIRECT_FILTER = 0x20005;
     private static final int AL_FILTER_NULL = 0;
     private static final int AL_EFFECT_TYPE = 0x8001;
@@ -97,10 +99,11 @@ public class VoiceExtraEffectsPlugin implements VoicechatPlugin {
     private static volatile boolean efxAvailable = true;
 
     // ---- 每个说话者的 EFX 资源 ----
-    private static final Map<UUID, Integer> LOWPASS_FILTERS = new ConcurrentHashMap<>();
     private static final Map<UUID, int[]> REVERB_RESOURCES = new ConcurrentHashMap<>(); // {slot, effect}
 
     // ---- 每个说话者的 PCM 状态 ----
+    private static final Map<UUID, VoiceLowPassState> HELMET_LOWPASS = new ConcurrentHashMap<>();
+    private static final Map<UUID, VoiceLowPassState> UNDERWATER_LOWPASS = new ConcurrentHashMap<>();
     private static final Map<UUID, HeliumPitchShifter> HELIUM_SHIFTERS = new ConcurrentHashMap<>();
     private static final Map<UUID, HeliumPitchShifter> SYNTH_SHIFTERS = new ConcurrentHashMap<>();
     private static final Map<UUID, Double> SYNTH_RATIO = new ConcurrentHashMap<>();
@@ -132,7 +135,7 @@ public class VoiceExtraEffectsPlugin implements VoicechatPlugin {
         registration.registerEvent(ClientReceiveSoundEvent.EntitySound.class, this::onClientSound);
         registration.registerEvent(ClientReceiveSoundEvent.LocationalSound.class, this::onClientSound);
         registration.registerEvent(ClientReceiveSoundEvent.StaticSound.class, this::onClientSound);
-        ClientTickEvents.END_CLIENT_TICK.register(client -> refreshVoiceSourceEffects());
+        ClientTickEvents.END_CLIENT_TICK.register(client -> clearStaleVoiceEffects());
     }
 
     // =========================================================================
@@ -148,80 +151,84 @@ public class VoiceExtraEffectsPlugin implements VoicechatPlugin {
         if (level == null)
             return;
         VOICE_SOURCES.put(speaker, source);
-        Player localPlayer = SREClient.getMinecraftPlayer();
         Player player = level.getPlayerByUUID(speaker);
         if (player == null) {
             cleanupSpeaker(speaker);
             return;
         }
 
-        int helmet = ModEffects.getVoiceHelmetLevel(player);
-        int underwater = ModEffects.getVoiceUnderwaterLevel(player);
         int reverb = ModEffects.getVoiceReverbLevel(player);
-        int muffledHearing = localPlayer == null ? 0 : ModEffects.getMuffledHearingLevel(localPlayer);
 
-        applyLowPassGain(source, speaker, helmet, underwater, muffledHearing);
+        // 只有混响留在 OpenAL（PCM 做不了混响）。
+        // 低通一律走 PCM：语音 OpenAL 源是一次性的，说话结束即销毁、ID 会被 OpenAL 回收并
+        // 分配给 Minecraft 的音效通道。在源上挂 AL_DIRECT_FILTER 会让低通泄漏到世界音效上
+        // （表现为音效整体消失），而且效果结束后再也没有任何分支负责把它摘掉。
         applyReverb(source, speaker, reverb);
     }
 
-    /** Reapply listener-side voice filters so removing an effect is immediate. */
-    private static void refreshVoiceSourceEffects() {
+    /**
+     * 收敛残留的语音源效果。
+     *
+     * <p>只做清除、绝不做挂载：语音源被回收后 ID 可能已经分配给 Minecraft 的音效通道，
+     * 此时往它身上写任何滤波器都会污染世界音效；而清除是幂等且无害的。
+     */
+    private static void clearStaleVoiceEffects() {
         Level level = SREClient.getMinecraftLevel();
-        if (level == null)
-            return;
-        Player localPlayer = SREClient.getMinecraftPlayer();
-        int muffledHearing = localPlayer == null ? 0 : ModEffects.getMuffledHearingLevel(localPlayer);
         VOICE_SOURCES.forEach((speaker, source) -> {
-            Player player = level.getPlayerByUUID(speaker);
-            if (player == null) {
+            if (!isSourceAlive(source)) {
                 VOICE_SOURCES.remove(speaker, source);
                 return;
             }
-            applyLowPassGain(source, speaker,
-                    ModEffects.getVoiceHelmetLevel(player),
-                    ModEffects.getVoiceUnderwaterLevel(player),
-                    muffledHearing);
+            // 说话者已离开世界：源马上会被回收/复用，现在把效果撤干净，别留给下一个使用者
+            if (level == null || level.getPlayerByUUID(speaker) == null) {
+                clearSourceEffects(source);
+                VOICE_SOURCES.remove(speaker, source);
+            }
         });
     }
 
-    /**
-     * 头盔/水下：低通直接滤波。
-     */
-    private static void applyLowPassGain(int source, UUID speaker, int helmet, int underwater,
-            int muffledHearing) {
-        if (helmet <= 0 && underwater <= 0 && muffledHearing <= 0) {
-            try {
-                AL11.alSourcei(source, AL_DIRECT_FILTER, AL_FILTER_NULL);
-            } catch (Throwable ignored) {
-            }
-            return;
-        }
-        if (!efxAvailable) {
-            // EFX 不可用：无法做低通，也不要写 AL_GAIN（会锁死滑块）。
-            return;
-        }
-
+    /** 校验 OpenAL 源是否仍然存在（不存在说明 ID 已被回收）。 */
+    private static boolean isSourceAlive(int source) {
+        if (source == 0)
+            return false;
         try {
-            int filter = LOWPASS_FILTERS.computeIfAbsent(speaker, k -> EXTEfx.alGenFilters());
-
-            float hf = 1.0f;
-            if (helmet > 0)
-                hf = Math.min(hf, 0.5f - (helmet - 1) * 0.05f); // 0.5 -> 0.3
-            if (underwater > 0)
-                hf = Math.min(hf, 0.6f - (underwater - 1) * 0.075f); // 0.6 -> 0.3
-            if (muffledHearing > 0) {
-                // Level I starts at the old level-V filter strength.
-                float hearingGain = 0.03f * (float) Math.pow(0.65f, Math.max(0, muffledHearing - 1));
-                hf = Math.min(hf, hearingGain);
-            }
-            EXTEfx.alFilteri(filter, AL_FILTER_TYPE, AL_FILTER_LOWPASS);
-            EXTEfx.alFilterf(filter, AL_FILTER_LOWPASS_GAIN, 0.98f);
-            hf = Math.max(0.03f, hf);
-            EXTEfx.alFilterf(filter, AL_FILTER_LOWPASS_GAINHF, hf);
-            AL11.alSourcei(source, AL_DIRECT_FILTER, filter);
+            return AL11.alIsSource(source);
         } catch (Throwable t) {
-            efxAvailable = false;
+            return false;
         }
+    }
+
+    /** 把源上的低通与混响 aux 撤掉，用于源即将被丢弃的场合。 */
+    private static void clearSourceEffects(int source) {
+        if (!isSourceAlive(source))
+            return;
+        try {
+            AL11.alSourcei(source, AL_DIRECT_FILTER, AL_FILTER_NULL);
+        } catch (Throwable ignored) {
+        }
+        try {
+            AL11.alSource3i(source, AL_AUXILIARY_SEND_FILTER, AL_FILTER_NULL, 1, 0);
+        } catch (Throwable ignored) {
+        }
+    }
+
+    /**
+     * 头盔语音低通（PCM 级）。
+     *
+     * <p>不用 {@code AL_DIRECT_FILTER}：那个滤波挂在 OpenAL 源上，而语音源销毁后 ID 会被回收
+     * 给 Minecraft 的音效通道，低通就会泄漏到世界音效上。PCM 级只作用于本段语音数据，
+     * 效果到期后自然没有任何残留。
+     *
+     * <p>截止频率随等级下降：1 级约 3200Hz（只是稍微发闷），5 级约 1180Hz（明显隔着头盔）。
+     */
+    private static short[] helmetLowPassTransform(short[] pcm, UUID speaker, int level) {
+        VoiceLowPassState st = HELMET_LOWPASS.computeIfAbsent(speaker, k -> new VoiceLowPassState(3200.0f, 0.78f, 500.0f));
+        st.configure(level);
+        short[] result = new short[pcm.length];
+        for (int i = 0; i < pcm.length; i++) {
+            result[i] = clamp(st.filter.process(pcm[i]));
+        }
+        return result;
     }
 
     /** 混响：EFX REVERB 经辅助效果槽（aux send 1）路由。 */
@@ -307,6 +314,7 @@ public class VoiceExtraEffectsPlugin implements VoicechatPlugin {
         int stut = ModEffects.getVoiceStutterLevel(player);
         int rev = ModEffects.getVoiceReverseLevel(player);
         int helium = ModEffects.getVoiceHeliumLevel(player);
+        int helmet = ModEffects.getVoiceHelmetLevel(player);
         int underwater = ModEffects.getVoiceUnderwaterLevel(player);
         int echo = ModEffects.getVoiceEchoCount(player);
 
@@ -315,8 +323,17 @@ public class VoiceExtraEffectsPlugin implements VoicechatPlugin {
 
         // 注意：多个效果可叠加，按固定顺序串联处理。
         // 升调（氦气）最先处理，作用在原始信号上，使其余效果叠加在变调后的音频上。
-        if (underwater > 0)
-            pcm = underwaterTransform(pcm, underwater);
+        // 低通类（头盔 / 水下）放在最前面：它们模拟的是"听到的东西"，应先于所有音高/时域处理。
+        if (helmet > 0) {
+            pcm = helmetLowPassTransform(pcm, speaker, helmet);
+        } else {
+            HELMET_LOWPASS.remove(speaker);
+        }
+        if (underwater > 0) {
+            pcm = underwaterTransform(pcm, speaker, underwater);
+        } else {
+            UNDERWATER_LOWPASS.remove(speaker);
+        }
         if (helium > 0)
             pcm = heliumTransform(pcm, speaker, helium);
         if (rev > 0)
@@ -423,17 +440,21 @@ public class VoiceExtraEffectsPlugin implements VoicechatPlugin {
     }
 
     /**
-     * 水下语音的“降音量”部分（PCM 级衰减）。
+     * 水下语音：低通 + 降音量（PCM 级）。
      * <p>
-     * 衰减系数与原本一致：1 级≈0.7，最高 5 级≈0.46。
+     * 衰减系数与原本一致：1 级≈0.7，最高 5 级≈0.46；低通截止频率随等级下降。
      * </p>
      */
-    private static short[] underwaterTransform(short[] pcm, int level) {
+    private static short[] underwaterTransform(short[] pcm, UUID speaker, int level) {
+        VoiceLowPassState st = UNDERWATER_LOWPASS.computeIfAbsent(speaker,
+                k -> new VoiceLowPassState(2400.0f, 0.75f, 400.0f));
+        st.configure(level);
         float gain = Math.max(0.4f, 0.7f - (level - 1) * 0.06f);
+        short[] result = new short[pcm.length];
         for (int i = 0; i < pcm.length; i++) {
-            pcm[i] = clamp(pcm[i] * gain);
+            result[i] = clamp(st.filter.process(pcm[i]) * gain);
         }
-        return pcm;
+        return result;
     }
 
     /**
@@ -623,6 +644,8 @@ public class VoiceExtraEffectsPlugin implements VoicechatPlugin {
     /** 清理某说话者的全部状态与 EFX 资源（说话者离开时调用）。 */
     private static void cleanupSpeaker(UUID speaker) {
         VOICE_SOURCES.remove(speaker);
+        HELMET_LOWPASS.remove(speaker);
+        UNDERWATER_LOWPASS.remove(speaker);
         HELIUM_SHIFTERS.remove(speaker);
         MUFFLED_HEARING_STATE.remove(speaker);
         SYNTH_SHIFTERS.remove(speaker);
@@ -633,13 +656,6 @@ public class VoiceExtraEffectsPlugin implements VoicechatPlugin {
         REVERSE.remove(speaker);
         ECHO.remove(speaker);
 
-        Integer f = LOWPASS_FILTERS.remove(speaker);
-        if (f != null) {
-            try {
-                EXTEfx.alDeleteFilters(f);
-            } catch (Throwable ignored) {
-            }
-        }
         int[] r = REVERB_RESOURCES.remove(speaker);
         if (r != null) {
             try {
@@ -652,13 +668,6 @@ public class VoiceExtraEffectsPlugin implements VoicechatPlugin {
 
     /** 卸载时清理全部 EFX 资源。 */
     public static void cleanupAll() {
-        for (Map.Entry<UUID, Integer> e : LOWPASS_FILTERS.entrySet()) {
-            try {
-                EXTEfx.alDeleteFilters(e.getValue());
-            } catch (Throwable ignored) {
-            }
-        }
-        LOWPASS_FILTERS.clear();
         for (Map.Entry<UUID, int[]> e : REVERB_RESOURCES.entrySet()) {
             int[] r = e.getValue();
             if (r != null) {
@@ -670,6 +679,8 @@ public class VoiceExtraEffectsPlugin implements VoicechatPlugin {
             }
         }
         REVERB_RESOURCES.clear();
+        HELMET_LOWPASS.clear();
+        UNDERWATER_LOWPASS.clear();
         HELIUM_SHIFTERS.clear();
         MUFFLED_HEARING_STATE.clear();
         SYNTH_SHIFTERS.clear();
@@ -763,6 +774,34 @@ public class VoiceExtraEffectsPlugin implements VoicechatPlugin {
             y2 = y1;
             y1 = output;
             return output;
+        }
+    }
+
+    /**
+     * 一阶低通状态：跨语音包保留滤波器系数，避免分块之间出现爆音。
+     *
+     * <p>截止频率 = {@code max(floor, base * decay^(level-1))}，等级越高越闷。
+     */
+    private static final class VoiceLowPassState {
+        final BiquadLowPass filter = new BiquadLowPass();
+        private final float base;
+        private final float decay;
+        private final float floor;
+        private int configuredLevel = -1;
+
+        VoiceLowPassState(float base, float decay, float floor) {
+            this.base = base;
+            this.decay = decay;
+            this.floor = floor;
+        }
+
+        void configure(int level) {
+            if (configuredLevel == level) {
+                return;
+            }
+            float cutoff = Math.max(floor, base * (float) Math.pow(decay, Math.max(0, level - 1)));
+            filter.configure(cutoff, SAMPLE_RATE);
+            configuredLevel = level;
         }
     }
 
