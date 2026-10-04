@@ -292,6 +292,8 @@ public class RecorderScreen extends Screen {
         roles.clear();
         roles.addAll(availableRoleIds);
         roles.removeIf(r -> r != null && r.identifier().equals(org.agmas.noellesroles.role.ModRoles.MERCENARY_ID));
+        // 排除骷髅：骸骨之书复活出来的骷髅不算「可记录身份」，与雇佣兵同理（仅限记录员，阴谋家不受影响）
+        roles.removeIf(r -> r != null && r.identifier().equals(org.agmas.noellesroles.role.ModRoles.SKELETON_ID));
         // 排除所有DNF职业
         roles.removeIf(r -> r != null && IGNORED_ROLE_IDS.contains(r.identifier()));
         // 排除所有修机模式职业
