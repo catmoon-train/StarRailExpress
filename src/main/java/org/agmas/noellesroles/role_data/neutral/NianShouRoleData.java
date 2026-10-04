@@ -59,6 +59,9 @@ public class NianShouRoleData extends SimpleRoleData {
     // 恭喜发财播放计时
     private int gongXiFaCaiTimer = 0;
 
+    // 恭喜发财是否已经触发过（一局只触发一次，触发后不再重置）
+    private boolean gongXiFaCaiTriggered = false;
+
     public NianShouRoleData(RoleDataContext context) {
         super(context);
     }
@@ -72,6 +75,7 @@ public class NianShouRoleData extends SimpleRoleData {
         this.inDarkness = false;
         this.gongXiFaCaiPlaying = false;
         this.gongXiFaCaiTimer = 0;
+        this.gongXiFaCaiTriggered = false;
         sync();
     }
 
@@ -255,9 +259,11 @@ public class NianShouRoleData extends SimpleRoleData {
             // 获取游戏剩余时间
             int remainingTime = io.wifi.starrailexpress.cca.SREGameTimeComponent.KEY.get(serverLevel).getTime();
 
-            // 剩余5分钟（300秒 = 6000 ticks）且未播放过
-            // 只有在剩余时间刚变为6000 ticks时触发（避免重复触发）
-            if (remainingTime == 6000 && !gongXiFaCaiPlaying) {
+            // 剩余时间到达 5 分钟（300秒 = 6000 ticks）时触发，一局只触发一次。
+            // 不能写成 remainingTime == 6000：剩余时间降到 70% 以下后，每次击杀都会加 30s
+            // （SREGameTimeComponent.addKillRewardTime），time 会在这个区间来回跳，
+            // 精确等值永远等不到，导致整段效果静默失效。
+            if (remainingTime <= 6000 && remainingTime > 0 && !gongXiFaCaiTriggered) {
                 // 检查年兽是否存活
                 SREGameWorldComponent gameWorld = SREGameWorldComponent.KEY.get(serverLevel);
                 boolean hasAliveNianShou = false;
@@ -270,6 +276,7 @@ public class NianShouRoleData extends SimpleRoleData {
 
                 if (hasAliveNianShou) {
                     // 播放恭喜发财
+                    gongXiFaCaiTriggered = true;
                     gongXiFaCaiPlaying = true;
                     gongXiFaCaiTimer = 0;
 
@@ -320,6 +327,7 @@ public class NianShouRoleData extends SimpleRoleData {
         this.inDarkness = tag.getBoolean("inDarkness");
         this.gongXiFaCaiPlaying = tag.getBoolean("gongXiFaCaiPlaying");
         this.gongXiFaCaiTimer = tag.getInt("gongXiFaCaiTimer");
+        this.gongXiFaCaiTriggered = tag.getBoolean("gongXiFaCaiTriggered");
     }
 
     @Override
@@ -338,6 +346,7 @@ public class NianShouRoleData extends SimpleRoleData {
         tag.putBoolean("inDarkness", inDarkness);
         tag.putBoolean("gongXiFaCaiPlaying", gongXiFaCaiPlaying);
         tag.putInt("gongXiFaCaiTimer", gongXiFaCaiTimer);
+        tag.putBoolean("gongXiFaCaiTriggered", gongXiFaCaiTriggered);
     }
 
     @Override
@@ -362,5 +371,6 @@ public class NianShouRoleData extends SimpleRoleData {
         this.inDarkness = tag.getBoolean("inDarkness");
         this.gongXiFaCaiPlaying = tag.getBoolean("gongXiFaCaiPlaying");
         this.gongXiFaCaiTimer = tag.getInt("gongXiFaCaiTimer");
+        this.gongXiFaCaiTriggered = tag.getBoolean("gongXiFaCaiTriggered");
     }
 }
