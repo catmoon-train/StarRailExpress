@@ -337,6 +337,20 @@ public class VolunteerOpenDraftState {
         phaseStartTime = world.getGameTime();
         phaseTimeLimit = computeGroupTimeLimit();
         waitingForClients = false;
+        // 轮到本组：给组内所有还没选定的成员播放村民赞成音。
+        // 原来这个音效是由客户端对 canSelect 做「false→true」上升沿检测播放的（见 SREClient）：
+        // 同步包只要因为网络延迟跨过了组切换（上一组的 true 还没落地就被新组的 true 覆盖），
+        // 上升沿就被吃掉，同组里就会有人听不到。服务端在推进分组时统一下发，保证人人听到。
+        for (UUID id : group) {
+            if (picks.containsKey(id)) {
+                // forcerole 已被系统直接锁定的玩家没有可选项，不播
+                continue;
+            }
+            ServerPlayer member = world.getServer().getPlayerList().getPlayer(id);
+            if (member != null) {
+                RoleUtils.playSound(member, SoundEvents.VILLAGER_YES, SoundSource.MASTER, 1.0f, 1.0f);
+            }
+        }
     }
 
     /**
