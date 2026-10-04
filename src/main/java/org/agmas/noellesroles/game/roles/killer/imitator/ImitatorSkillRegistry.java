@@ -40,6 +40,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import org.agmas.noellesroles.config.NoellesRolesConfig;
 import org.agmas.noellesroles.game.roles.innocence.builder.BuilderWallPositions;
+import org.agmas.noellesroles.role_data.innocence.BoxerRoleData;
 import org.agmas.noellesroles.role_data.innocence.NoiseMakerRoleData;
 import org.agmas.noellesroles.role_data.killer.ImitatorRoleData;
 import org.agmas.noellesroles.init.ModEffects;
@@ -334,10 +335,15 @@ public class ImitatorSkillRegistry {
     }
 
     /**
-     * 斗士：1.5秒无敌不死
+     * 斗士：钢筋铁骨，效果与本体斗士完全一致。
+     *
+     * <p>本体是「只挡死亡」：不掉血、不被击退，受伤照常累积，靠
+     * {@code AllowPlayerDeath} 返回 false 免死（见 NRDeathEvents#handleBoxerInvulnerability）。
+     * 所以这里同样只开计数器，不额外挂 setInvulnerable —— 那样反而会比本体更硬。
      */
     private static void executeBoxer(ServerPlayer player, ImitatorRoleData comp) {
-        comp.imitBoxerInvulnTicks = 30; // 1.5秒
+        // 时长与本体一致：2.5 秒 = 50 tick
+        comp.imitBoxerInvulnTicks = BoxerRoleData.INVULNERABILITY_DURATION;
         player.level().playSound(null, player.blockPosition(),
                 TMMSounds.ITEM_PSYCHO_ARMOUR, SoundSource.MASTER, 5.0F, 1.0F);
         player.displayClientMessage(Component.translatable("message.noellesroles.imitator.boxer_activated")

@@ -156,6 +156,13 @@ public class NRDeathEvents {
 
         SREGameWorldComponent gameWorld = SREGameWorldComponent.KEY.get(victim.level());
 
+        // 与本体斗士一致的豁免：摔出列车、挂机、误杀都不吃钢筋铁骨
+        if (deathReason.equals(GameConstants.DeathReasons.FELL_OUT_OF_TRAIN)
+                || deathReason.getPath().equals("death_afk")
+                || deathReason.getPath().equals("shot_innocent")) {
+            return false;
+        }
+
         // 模仿者斗士无敌检测
         if (gameWorld.isRole(victim, ModRoles.IMITATOR)) {
             var imitComp = RoleData.getNullable(ImitatorRoleData.class, victim);
@@ -163,6 +170,35 @@ public class NRDeathEvents {
                 victim.level().playSound(null, victim.blockPosition(),
                         io.wifi.starrailexpress.index.TMMSounds.ITEM_PSYCHO_ARMOUR,
                         SoundSource.MASTER, 5.0F, 1.0F);
+                // 与本体一致：被刀/棍攻击时反制攻击者（弹开 + 缓慢 + 武器进 CD）
+                boolean imitIsKnife = deathReason.equals(GameConstants.DeathReasons.KNIFE);
+                boolean imitIsBat = deathReason.equals(GameConstants.DeathReasons.BAT);
+                if (imitIsKnife || imitIsBat) {
+                    Player imitAttacker = RicesRoleRhapsody.findAttackerWithWeapon(victim, imitIsKnife);
+                    if (imitAttacker != null) {
+                        ItemStack imitWeapon = imitAttacker.getMainHandItem();
+                        imitAttacker.addEffect(new net.minecraft.world.effect.MobEffectInstance(
+                                net.minecraft.world.effect.MobEffects.MOVEMENT_SLOWDOWN,
+                                BoxerRoleData.COUNTER_SLOWNESS_DURATION,
+                                BoxerRoleData.COUNTER_SLOWNESS_AMPLIFIER,
+                                false, true, true));
+                        if (imitWeapon.is(io.wifi.starrailexpress.index.TMMItems.KNIFE)) {
+                            imitAttacker.getCooldowns().addCooldown(imitWeapon.getItem(),
+                                    BoxerRoleData.KNIFE_COOLDOWN);
+                            if (imitAttacker instanceof ServerPlayer imitServerAttacker) {
+                                imitServerAttacker.displayClientMessage(
+                                        Component.translatable("message.noellesroles.boxer.counter_knife"), true);
+                            }
+                        } else if (imitAttacker instanceof ServerPlayer imitServerAttacker) {
+                            imitServerAttacker.displayClientMessage(
+                                    Component.translatable("message.noellesroles.boxer.counter_bat"), true);
+                        }
+                        if (victim instanceof ServerPlayer sp) {
+                            sp.displayClientMessage(Component.translatable(
+                                    "message.noellesroles.boxer.counter_success", imitAttacker.getName()), true);
+                        }
+                    }
+                }
                 if (victim instanceof ServerPlayer sp) {
                     sp.displayClientMessage(Component.translatable(
                             "message.noellesroles.imitator.boxer_blocked")
@@ -178,12 +214,6 @@ public class NRDeathEvents {
         BoxerRoleData boxerComponent = RoleData.getNullable(BoxerRoleData.class, victim);
         if (boxerComponent == null || !boxerComponent.isInvulnerable)
             return false;
-
-        if (deathReason.equals(GameConstants.DeathReasons.FELL_OUT_OF_TRAIN)
-                || deathReason.getPath().equals("death_afk")
-                || deathReason.getPath().equals("shot_innocent")) {
-            return false;
-        }
 
         boolean isKnife = deathReason.equals(GameConstants.DeathReasons.KNIFE);
         boolean isBat = deathReason.equals(GameConstants.DeathReasons.BAT);
