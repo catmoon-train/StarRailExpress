@@ -118,11 +118,89 @@ public final class SceneTaskManager {
         return s != null && s.type == type;
     }
 
+    // ───────────── 与任务组件的对齐（自愈） ─────────────
+
+    /**
+     * 取玩家当前在任务组件里挂着的场景任务类型；没有则返回 null。
+     */
+    private static Type sceneTaskTypeInComponent(ServerPlayer player) {
+        SREPlayerTaskComponent comp = SREPlayerTaskComponent.KEY.get(player);
+        if (comp == null || comp.tasks == null) {
+            return null;
+        }
+        for (SREPlayerTaskComponent.TrainTask task : comp.tasks.values()) {
+            if (task instanceof SREPlayerTaskComponent.SceneTriggeredTask) {
+                try {
+                    return Type.valueOf(task.getName().toUpperCase(Locale.ROOT));
+                } catch (IllegalArgumentException ignored) {
+                    // 非场景任务名，忽略
+                }
+            }
+        }
+        return null;
+    }
+
+    /**
+     * 确保 ACTIVE 里有该玩家对应场景任务的条目；缺失或类型不符时重建（锚点/计时清零）。
+     *
+     * @return 可用的 State；玩家组件里没有该场景任务时返回 null
+     */
+    private static State ensureStateFor(Player player, Type expected) {
+        if (!(player instanceof ServerPlayer sp)) {
+            return null;
+        }
+        State s = ACTIVE.get(player.getUUID());
+        if (s != null && s.type == expected) {
+            return s;
+        }
+        // 组件里确实挂着该场景任务才允许补登记，避免凭交互凭空造任务
+        if (sceneTaskTypeInComponent(sp) != expected) {
+            return null;
+        }
+        State fresh = new State();
+        fresh.type = expected;
+        ACTIVE.put(player.getUUID(), fresh);
+        return fresh;
+    }
+
+    /**
+     * 以任务组件为权威，把 ACTIVE 与之对齐：
+     * <ul>
+     * <li>组件里有场景任务、ACTIVE 里没有（或类型不符）→ 重建条目；</li>
+     * <li>组件里没有场景任务、ACTIVE 里却还挂着 → 清理残留（否则任务已结束后仍能被交互触发）。</li>
+     * </ul>
+     */
+    private static void selfHealWithTaskComponent(ServerLevel level) {
+        for (ServerPlayer player : level.players()) {
+            Type expected = sceneTaskTypeInComponent(player);
+            State s = ACTIVE.get(player.getUUID());
+            if (expected == null) {
+                if (s != null) {
+                    ACTIVE.remove(player.getUUID());
+                }
+                continue;
+            }
+            if (s == null || s.type != expected) {
+                State fresh = new State();
+                fresh.type = expected;
+                ACTIVE.put(player.getUUID(), fresh);
+            }
+        }
+    }
+
     // ───────────── 交互型任务上报 ─────────────
 
     public static void reportStoveLit(Player player, BlockPos stove) {
         State s = ACTIVE.get(player.getUUID());
-        if (s != null && s.type == Type.LIGHT_STOVE) {
+        if (s == null) {
+            // 兜底：任务组件里有该任务、但 ACTIVE 记录丢失（亡命徒回溯 / 重连）时补登记，
+            // 否则这次右键写不进锚点，任务将永远无法完成。
+            s = ensureStateFor(player, Type.LIGHT_STOVE);
+            if (s == null) {
+                return;
+            }
+        }
+        if (s.type == Type.LIGHT_STOVE) {
             s.anchor = stove.immutable();
         }
     }
@@ -194,7 +272,19 @@ public final class SceneTaskManager {
 
     // ───────────── 定时型任务（每世界 tick） ─────────────
 
+    /** 自愈检查的节流计数（每 20 tick ≈ 每秒对齐一次）。 */
+    private static int selfHealCounter = 0;
+
     public static void tick(ServerLevel level) {
+        // 任务组件会被 TimeRewind 回溯（亡命徒时刻结束时整局回滚），而 ACTIVE 是静态表、
+        // 不参与回溯，回溯后两者会失联：组件里还挂着场景任务、ACTIVE 里却没有对应条目，
+        // 于是 reportXxx 写不进锚点、tickXxx 直接 return，任务永远无法完成。
+        // 这里以任务组件为权威周期性对齐，保证任何原因导致的失联都能自愈。
+        if (++selfHealCounter >= 20) {
+            selfHealCounter = 0;
+            selfHealWithTaskComponent(level);
+        }
+
         if (ACTIVE.isEmpty()) {
             return;
         }
@@ -221,10 +311,16 @@ public final class SceneTaskManager {
         if (s.anchor == null) {
             return;
         }
+        // 锚点位置的炉灶在回溯后可能已经不是炉灶方块了，这时清掉锚点让玩家重新点燃一次，
+        // 否则 tick 永远卡在 lit=false，任务无法完成。
+        if (!(level.getBlockState(s.anchor).getBlock()
+                instanceof org.agmas.noellesroles.content.block.scene.StoveBlock)) {
+            s.anchor = null;
+            s.timer = 0;
+            return;
+        }
         boolean lit = level.getBlockState(s.anchor)
-                .getBlock() instanceof org.agmas.noellesroles.content.block.scene.StoveBlock
-                && level.getBlockState(s.anchor)
-                        .getValue(org.agmas.noellesroles.content.block.scene.StoveBlock.LIT);
+                .getValue(org.agmas.noellesroles.content.block.scene.StoveBlock.LIT);
         if (lit && player.distanceToSqr(s.anchor.getX() + 0.5, s.anchor.getY() + 0.5,
                 s.anchor.getZ() + 0.5) <= STOVE_RADIUS * STOVE_RADIUS) {
             if (++s.timer >= STOVE_TICKS) {

@@ -2,7 +2,6 @@ package org.agmas.noellesroles.game.roles.neutral.chef;
 
 import io.wifi.starrailexpress.api.NormalRole;
 import io.wifi.starrailexpress.api.RoleSkill;
-import io.wifi.starrailexpress.api.RoleSkillContext;
 import io.wifi.starrailexpress.api.data.RoleData;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
@@ -31,7 +30,7 @@ public class ChefRole extends NormalRole {
     }
 
     /** 技能：在脚底放置当前模式的「客户端」盘子。 */
-    public static boolean useTrayAbility(RoleSkillContext ctx) {
+    public static boolean useTrayAbility(RoleSkill.RoleSkillContext ctx) {
         ServerPlayer player = ctx.player();
         ChefRoleData data = RoleData.getNullable(ChefRoleData.class, player);
         if (data == null) {
@@ -41,7 +40,7 @@ public class ChefRole extends NormalRole {
     }
 
     /** 技能切换：在「食物盘 / 饮料盘」之间切换。 */
-    public static boolean switchTrayMode(RoleSkillContext ctx) {
+    public static boolean switchTrayMode(RoleSkill.RoleSkillContext ctx) {
         ChefRoleData data = RoleData.getNullable(ChefRoleData.class, ctx.player());
         if (data == null) {
             return false;
