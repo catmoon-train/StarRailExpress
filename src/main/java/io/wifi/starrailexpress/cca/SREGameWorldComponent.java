@@ -919,6 +919,10 @@ public class SREGameWorldComponent implements AutoSyncedComponent, ServerTicking
                     GameUtils.killPlayer(player, false,
                             player.getLastHurtByMob() instanceof Player killerPlayer ? killerPlayer : null,
                             GameConstants.DeathReasons.CANNOT_SWIM);
+                            
+                    player.updateFluidOnEyes();
+                    player.updateInWaterStateAndDoFluidPushing();
+
                     if (GameUtils.isPlayerAliveAndSurvivalIgnoreShitSplit(player)
                             && player.isUnderWater()) {
                         GameUtils.forceKillPlayer(player, false,
@@ -937,6 +941,9 @@ public class SREGameWorldComponent implements AutoSyncedComponent, ServerTicking
                     GameUtils.killPlayer(player, false,
                             player.getLastHurtByMob() instanceof Player killerPlayer ? killerPlayer : null,
                             GameConstants.DeathReasons.CANNOT_SWIM);
+                    player.updateFluidOnEyes();
+                    player.updateInWaterStateAndDoFluidPushing();
+
                     if (GameUtils.isPlayerAliveAndSurvivalIgnoreShitSplit(player)
                             && checkPlayerIsInDeepWater(player, areas)) {
                         GameUtils.forceKillPlayer(player, false,
@@ -972,6 +979,10 @@ public class SREGameWorldComponent implements AutoSyncedComponent, ServerTicking
                     GameUtils.killPlayer(player, false,
                             player.getLastHurtByMob() instanceof Player killerPlayer ? killerPlayer : null,
                             GameConstants.DeathReasons.LAVA);
+                            
+                    player.updateFluidOnEyes();
+                    player.updateInWaterStateAndDoFluidPushing();
+
                     if (GameUtils.isPlayerAliveAndSurvivalIgnoreShitSplit(player)
                             && checkPlayerIsInLava(player, areas)) {
                         GameUtils.forceKillPlayer(player, false,
