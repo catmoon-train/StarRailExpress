@@ -93,6 +93,5 @@ accessible method net/minecraft/client/gui/Gui getCameraPlayer ()Lnet/minecraft/
 accessible method net/minecraft/world/entity/Entity updateInWaterStateAndDoFluidPushing ()Z
 
 accessible method net/minecraft/world/entity/Entity updateFluidOnEyes ()V
- 
 
 accessible field net/minecraft/commands/CommandSourceStack permissionLevel I
