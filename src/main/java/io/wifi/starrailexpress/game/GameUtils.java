@@ -43,6 +43,7 @@ import org.agmas.noellesroles.content.item.RadioItem;
 import org.agmas.noellesroles.game.roles.innocence.hoan_meirin.HoanMeirinFistPunchHandler;
 import org.agmas.noellesroles.init.ModEffects;
 import org.agmas.noellesroles.init.ModItems;
+import org.agmas.noellesroles.init.events.NRDeathEvents;
 import org.agmas.noellesroles.packet.NameTagSyncPayload;
 import org.agmas.noellesroles.packet.RefreshDimensionsS2CPacket;
 import org.agmas.noellesroles.utils.EntityClearUtils;
@@ -1500,6 +1501,10 @@ public class GameUtils {
         if (isPlayerReallyAliveOrDead(p) == SPAliveResult.ALIVE)
             return false;
         return p.isSpectator();
+    }
+
+    public static void reJudgeSpectatorsPenalty(Level level) {
+        NRDeathEvents.reJudgeSpectatorsPenalty(level);
     }
 
     public static boolean isPlayerAliveAndSurvivalIgnoreShitSplit(Player player) {

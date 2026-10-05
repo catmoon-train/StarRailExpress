@@ -306,18 +306,17 @@ public class SREMurderGameMode extends GameMode {
             }
         }
 
-        // 统一将临时存储的修饰符添加到组件中
-        for (Map.Entry<UUID, HashSet<SREModifier>> entry : tempModifierAssignments.entrySet()) {
-            final UUID playerUuid = entry.getKey();
-            final var player = serverWorld.getPlayerByUUID(playerUuid);
-            if (player == null)
+        // 统一将临时存储的修饰符添加到组件中。（遍历玩家，保证玩家必定遍历到！）
+        for (final var player : players) {
+            final UUID playerUuid = player.getUUID();
+            final var modifiers = tempModifierAssignments.getOrDefault(playerUuid, new HashSet<>());
+            if (modifiers == null)
                 continue;
             SRERole role = gameWorldComponent.getRole(playerUuid);
-            final var set = entry.getValue();
             if (player instanceof ServerPlayer sp)
-                role.onAssignedModifiers(sp, set);
+                role.onAssignedModifiers(sp, modifiers);
 
-            for (SREModifier mod : set) {
+            for (SREModifier mod : modifiers) {
                 worldModifierComponent.addModifier(playerUuid, mod, false);
                 ModifierAssigned.EVENT.invoker().assignModifier(player, mod);
             }

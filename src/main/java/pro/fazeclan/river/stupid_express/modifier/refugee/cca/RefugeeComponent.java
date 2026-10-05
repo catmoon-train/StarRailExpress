@@ -582,6 +582,8 @@ public class RefugeeComponent implements AutoSyncedComponent, ServerTickingCompo
         players_stats.clear(); // 清空玩家位置信息，避免浪费资源
         playerTimeRewindSnapshots.clear();
         areaTimeRewindSnapshot = null;
+        
+        GameUtils.reJudgeSpectatorsPenalty(level);
         // Penalty re-evaluation runs after every smooth player and the area have
         // reached their rewind nodes.
         this.sync();
