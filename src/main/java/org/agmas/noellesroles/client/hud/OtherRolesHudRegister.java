@@ -77,6 +77,7 @@ public class OtherRolesHudRegister {
         MorticianHud.register();
         MediumHud.register();
         BuilderHud.register();
+        ChefHud.register();
         PelicanHud.register();
         GodfatherHud.register();
         WarlockHud.register();

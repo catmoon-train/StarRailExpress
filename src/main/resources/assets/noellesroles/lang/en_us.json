@@ -5063,5 +5063,26 @@
   "message.noellesroles.nature_spirit.entry": "A nature spirit's whisper drifts out of the woods",
   "message.noellesroles.nature_spirit.camouflage.start": "You turned into the block beneath you",
   "message.noellesroles.nature_spirit.camouflage.end": "You returned to your true form",
-  "message.noellesroles.nature_spirit.camouflage.fail": "There is no block you can disguise as beneath you"
+  "message.noellesroles.nature_spirit.camouflage.fail": "There is no block you can disguise as beneath you",
+
+  "=============== Chef: client food / drink trays ===============": "",
+  "block.noellesroles.chef_food_tray": "Client Food Tray",
+  "block.noellesroles.chef_drink_tray": "Client Drink Tray",
+  "skill.noellesroles.chef.place_tray": "Place Tray",
+  "skill.noellesroles.chef.switch_tray_mode": "Switch Tray Type",
+  "hud.noellesroles.chef.mode.food": "Food Tray",
+  "hud.noellesroles.chef.mode.drink": "Drink Tray",
+  "hud.noellesroles.chef.mode.hint": "%s to switch",
+  "message.noellesroles.chef.tray_mode_switched": "Tray type: %s",
+  "message.noellesroles.chef.tray_need_ground": "You must stand on ground to place a tray",
+  "message.noellesroles.chef.tray_place_failed": "Cannot place a tray here",
+  "message.noellesroles.chef.tray_placed_food": "Placed a client food tray",
+  "message.noellesroles.chef.tray_placed_drink": "Placed a client drink tray",
+  "message.noellesroles.chef.tray_only_chef_put": "Only the chef can put items into trays",
+  "message.noellesroles.chef.tray_full": "This tray is already full",
+  "message.noellesroles.chef.tray_empty": "This tray is empty",
+  "message.noellesroles.chef.tray_take_cd": "Take cooldown: %s seconds left",
+  "=============== Psychologist: curing negative modifiers ===============": "",
+  "message.noellesroles.psychologist.cured_of_modifier": "Your \"%s\" was cured!",
+  "message.noellesroles.psychologist.cured_modifier": "You cured %s's \"%s\"!"
 }

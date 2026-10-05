@@ -132,6 +132,23 @@ public interface ModBlocks {
             new KillBlockPanel(BlockBehaviour.Properties.of().strength(-1.0f, 3600000.0f).noOcclusion()),
             CreativeModeTabs.OP_BLOCKS, ModSceneBlocks.SCENE_CREATIVE_GROUP);
 
+    // 厨师的「客户端」食物盘 / 饮料盘。
+    // 只注册方块、不给 BlockItem：它们由服务端发 S2C 包让客户端 setBlock 画出来，
+    // 不该被玩家在创造模式 legit 放置（服务端并不承认它们的存在）。
+    // 放在所有其它字段之后声明，避开接口字段的初始化顺序问题。
+    Block CHEF_FOOD_TRAY = registerBlockOnly("chef_food_tray", new ChefTrayBlock.Food(chefTrayProperties()));
+    Block CHEF_DRINK_TRAY = registerBlockOnly("chef_drink_tray", new ChefTrayBlock.Drink(chefTrayProperties()));
+
+    private static BlockBehaviour.Properties chefTrayProperties() {
+        return BlockBehaviour.Properties.of()
+                .noOcclusion()
+                .noCollission()
+                .instabreak()
+                .noLootTable()
+                .strength(-1.0F, 3600000.0F)
+                .sound(SoundType.WOOD);
+    }
+
     static void initialize() {
         Registry.register(BuiltInRegistries.CREATIVE_MODE_TAB, BLOCK_CREATIVE_GROUP, FabricItemGroup.builder()
                 .title(Component.translatable("item_group.noellesroles.block")).icon(() -> {
@@ -174,5 +191,15 @@ public interface ModBlocks {
     @SuppressWarnings("unchecked")
     public static <T extends Block> T registerOpBlock(String id, T block) {
         return blockRegistrar.createWithItem(id, block, CreativeModeTabs.OP_BLOCKS);
+    }
+
+    /**
+     * 只注册方块、不附带 BlockItem，也不进任何创造分页。
+     *
+     * <p>用于「只由客户端画出来、服务端不承认存在」的方块（如厨师的客户端食物盘/饮料盘）。
+     * 这些方块没有物品形态，不能被玩家 legit 放置。
+     */
+    public static <T extends Block> T registerBlockOnly(String id, T block) {
+        return Registry.register(BuiltInRegistries.BLOCK, Noellesroles.id(id), block);
     }
 }

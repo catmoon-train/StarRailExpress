@@ -181,6 +181,9 @@ public class NRGameStateEvents {
             }
             org.agmas.noellesroles.game.roles.innocence.builder.BuilderWallPositions.clearAll();
 
+            // 清除厨师放置的「客户端」食物盘 / 饮料盘（会一直存在到当局结束）
+            org.agmas.noellesroles.game.roles.neutral.chef.ChefTrayManager.clearAll(world);
+
             // 清除冒险家路径点
             io.wifi.starrailexpress.game.data.WaypointVisibilityManager.get(world.getServer())
                     .setWaypointsVisibility(false);

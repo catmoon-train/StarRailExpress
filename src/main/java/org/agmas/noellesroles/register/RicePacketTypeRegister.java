@@ -94,6 +94,10 @@ public class RicePacketTypeRegister {
         PayloadTypeRegistry.playS2C().register(BuilderWallS2CPacket.ID, BuilderWallS2CPacket.CODEC);
         PayloadTypeRegistry.playS2C().register(BuilderRemoveWallS2CPacket.ID, BuilderRemoveWallS2CPacket.CODEC);
 
+        // 注册厨师「客户端」食物盘 / 饮料盘包
+        PayloadTypeRegistry.playS2C().register(ChefTrayS2CPacket.ID, ChefTrayS2CPacket.CODEC);
+        PayloadTypeRegistry.playC2S().register(ChefTrayInteractC2SPacket.ID, ChefTrayInteractC2SPacket.CODEC);
+
         // 注册鸟兽兽巡飞弹控制包
         PayloadTypeRegistry.playC2S().register(NiaoshoushouMissileControlC2SPacket.ID,
                 NiaoshoushouMissileControlC2SPacket.CODEC);

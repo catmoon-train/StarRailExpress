@@ -1,0 +1,21 @@
+{
+  "parent": "minecraft:block/block",
+  "textures": {
+    "particle": "noellesroles:item/a_bottle_of_water",
+    "all": "noellesroles:item/a_bottle_of_water"
+  },
+  "elements": [
+    {
+      "from": [2, 0.2, 2],
+      "to": [14, 1.6, 14],
+      "faces": {
+        "down": { "uv": [2, 2, 14, 14], "texture": "#all", "cullface": "down" },
+        "up": { "uv": [2, 2, 14, 14], "texture": "#all", "cullface": "up" },
+        "north": { "uv": [2, 0.2, 14, 1.6], "texture": "#all" },
+        "south": { "uv": [2, 0.2, 14, 1.6], "texture": "#all" },
+        "west": { "uv": [2, 0.2, 14, 1.6], "texture": "#all" },
+        "east": { "uv": [2, 0.2, 14, 1.6], "texture": "#all" }
+      }
+    }
+  ]
+}

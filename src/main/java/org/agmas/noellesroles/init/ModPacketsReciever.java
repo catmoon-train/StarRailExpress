@@ -400,6 +400,10 @@ public class ModPacketsReciever {
       ChefFoodItem.randomModel(cooked_food);
       RoleUtils.insertStackInFreeSlot(player, cooked_food);
     });
+    ServerPlayNetworking.registerGlobalReceiver(ChefTrayInteractC2SPacket.ID, (payload, context) -> {
+        context.server().execute(() ->
+                org.agmas.noellesroles.game.roles.neutral.chef.ChefTrayManager.onRightClick(context.player(), payload.pos()));
+    });
     ServerPlayNetworking.registerGlobalReceiver(MushroomCultivationC2SPacket.ID, (payload, context) ->
             context.server().execute(() -> MushroomScholarRole.handleCultivationResult(context.player(), payload.pours())));
     ServerPlayNetworking.registerGlobalReceiver(MushroomScholarSkillC2SPacket.ID, (payload, context) ->

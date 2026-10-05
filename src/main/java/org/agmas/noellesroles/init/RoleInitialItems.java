@@ -418,6 +418,13 @@ public class RoleInitialItems {
         dummyBirdItems.add(() -> ModItems.FAKE_KNIFE.getDefaultInstance());
         dummyBirdItems.add(() -> ModItems.FAKE_REVOLVER.getDefaultInstance());
         INITIAL_ITEMS_MAP.put(ModMeetingRoles.DUMMY_BIRD, dummyBirdItems);
+
+        // 大侦探初始物品 - 推理之书
+        // 必须登记在这里（统一的初始物品路线），否则 U 键职业介绍页读不到开局物品；
+        // 大侦探职业数据里的补发逻辑 ensureBook 是幂等的，不会重复给。
+        List<Supplier<ItemStack>> greatDetectiveItems = new ArrayList<>();
+        greatDetectiveItems.add(() -> ModItems.DEDUCTION_BOOK.getDefaultInstance());
+        INITIAL_ITEMS_MAP.put(ModRoles.GREAT_DETECTIVE, greatDetectiveItems);
     }
 
 }

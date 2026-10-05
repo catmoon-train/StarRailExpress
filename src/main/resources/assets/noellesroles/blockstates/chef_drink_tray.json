@@ -1,0 +1,10 @@
+{
+  "variants": {
+    "occupied=false": {
+      "model": "noellesroles:block/chef_drink_tray"
+    },
+    "occupied=true": {
+      "model": "noellesroles:block/chef_drink_tray_filled"
+    }
+  }
+}

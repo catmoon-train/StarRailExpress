@@ -1219,6 +1219,17 @@ public class ModRolesInitialEventRegister {
                             return false;
                         }).shifted(true).modeSwitch(true).announceToSelf(false).showOnHud(false).build());
 
+        // ==================== 厨师技能注册：按 G 放盘子，直接按技能切换键切换盘子类型（无需潜行） ====================
+        RoleSkill.register(ModRoles.CHEF,
+                RoleSkill.skill(SRE.id("chef_place_tray"),
+                        "skill.noellesroles.chef.place_tray",
+                        context -> org.agmas.noellesroles.game.roles.neutral.chef.ChefRole.useTrayAbility(context))
+                        .charges(2).cooldownSeconds(30).showOnHud(true).announceToSelf(false).build(),
+                RoleSkill.skill(SRE.id("chef_switch_tray_mode"),
+                        "skill.noellesroles.chef.switch_tray_mode",
+                        context -> org.agmas.noellesroles.game.roles.neutral.chef.ChefRole.switchTrayMode(context))
+                        .modeSwitch(true).announceToSelf(false).showOnHud(false).build());
+
         // ==================== 葬仪技能注册：普通按 G 使用技能，按技能切换键(Y) 切换模式 ====================
         RoleSkill.register(ModRoles.MORTICIAN_BODYMAKER,
                 RoleSkill.skill(SRE.id("mortician_bodymaker_ability"),

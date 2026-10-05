@@ -296,6 +296,7 @@ public class NoellesrolesClient implements ClientModInitializer {
         }
         io.wifi.starrailexpress.event.client.OnGameFinishedClient.EVENT.register(() -> {
             ClientWallManager.clearAll();
+            ClientChefTrayManager.clearAll();
             if (PriestHeavenClient.consumePendingEnding()) {
                 PriestHeavenClient.playEnding();
             }
@@ -596,6 +597,9 @@ public class NoellesrolesClient implements ClientModInitializer {
                 (payload, context) -> {
                     ClientWallManager.removeWall(payload.wallId());
                 });
+        // 厨师「客户端」食物盘 / 饮料盘
+        ClientPlayNetworking.registerGlobalReceiver(org.agmas.noellesroles.packet.ChefTrayS2CPacket.ID,
+                (payload, context) -> ClientChefTrayManager.handle(payload));
         ClientPlayNetworking.registerGlobalReceiver(CreateCreeperBombAreaPacket.ID, (payload, context) -> {
             final var p = context.player();
             final var level = context.client().level;
@@ -669,6 +673,7 @@ public class NoellesrolesClient implements ClientModInitializer {
                 return;
             ClientSmokeAreaManager.tick();
             ClientWallManager.tick();
+            ClientChefTrayManager.tick();
         });
         // 幽露自由摄像机：每 tick 推进（相机移动/位置上报/ESC 取消/球烟内缓存）
         ClientTickEvents.END_CLIENT_TICK.register(YouluFreeCamClient::tick);

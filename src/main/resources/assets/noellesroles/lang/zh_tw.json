@@ -5592,5 +5592,26 @@
   "hud.noellesroles.mushroom_scholar.skill.essence": "調製蘑菇素",
   "hud.noellesroles.mushroom_scholar.cooldown": "冷卻：%ss",
   "hud.noellesroles.mushroom_scholar.ready": "就緒",
-  "hud.noellesroles.magic_apprentice.toggle_spell": "按 %s 鍵切換法術"
+  "hud.noellesroles.magic_apprentice.toggle_spell": "按 %s 鍵切換法術",
+
+  "=============== 廚師：客戶端食物盤 / 飲料盤 ===============": "",
+  "block.noellesroles.chef_food_tray": "客戶端食物盤",
+  "block.noellesroles.chef_drink_tray": "客戶端飲料盤",
+  "skill.noellesroles.chef.place_tray": "放置盤子",
+  "skill.noellesroles.chef.switch_tray_mode": "切換盤子類型",
+  "hud.noellesroles.chef.mode.food": "食物盤",
+  "hud.noellesroles.chef.mode.drink": "飲料盤",
+  "hud.noellesroles.chef.mode.hint": "%s 切換",
+  "message.noellesroles.chef.tray_mode_switched": "盤子類型：%s",
+  "message.noellesroles.chef.tray_need_ground": "你必須踩在地面上才能放置盤子",
+  "message.noellesroles.chef.tray_place_failed": "這裡無法放置盤子",
+  "message.noellesroles.chef.tray_placed_food": "已放置一個客戶端食物盤",
+  "message.noellesroles.chef.tray_placed_drink": "已放置一個客戶端飲料盤",
+  "message.noellesroles.chef.tray_only_chef_put": "只有廚師可以往盤子裡放東西",
+  "message.noellesroles.chef.tray_full": "這個盤子已經裝滿了",
+  "message.noellesroles.chef.tray_empty": "這個盤子是空的",
+  "message.noellesroles.chef.tray_take_cd": "取用冷卻中，還需 %s 秒",
+  "=============== 心理學家：治癒負面修飾符 ===============": "",
+  "message.noellesroles.psychologist.cured_of_modifier": "你的「%s」被治癒了！",
+  "message.noellesroles.psychologist.cured_modifier": "你治癒了 %s 的「%s」！"
 }

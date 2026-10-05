@@ -232,14 +232,18 @@ public class ClientAbilityHandler {
         // 只能由 潜行+技能键 释放，否则切换键会误放技能。
         var modeSwitch = RoleSkill.getModeSwitchDefinition(role);
         if (modeSwitch.isPresent()) {
-            // 服务端按「潜行技能」子列表取槽位，这里也要用同一子列表的下标
+            // modeSwitch 技能本身可能是「潜行切换」（建筑师、葬仪、设陷者……），
+            // 也可能是「不潜行就能切换」（厨师）。服务端 useUnified 会按 shifted 过滤出
+            // 一个子列表再用 slot 取下标，所以这里必须用同一个 shifted 值、同一个子列表算下标。
+            var definition = modeSwitch.get();
+            boolean shifted = definition.shifted();
             var definitions = RoleSkill.getDefinitions(role);
-            var shiftedDefs = definitions.stream().filter(RoleSkill.Definition::shifted).toList();
+            var subList = definitions.stream().filter(d -> d.shifted() == shifted).toList();
             ClientPlayNetworking.send(new UnifiedSkillInputC2SPacket(
-                    Math.max(0, shiftedDefs.indexOf(modeSwitch.get())),
+                    Math.max(0, subList.indexOf(definition)),
                     RoleSkill.Phase.PRESS,
-                    findTarget(client, modeSwitch.get().targetType()),
-                    true));
+                    findTarget(client, definition.targetType()),
+                    shifted));
             return;
         }
 

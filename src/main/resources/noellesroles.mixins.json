@@ -154,6 +154,8 @@
     "client.roles.angler.FishingHookRendererAnglerMixin",
     "client.roles.bartender.DefenseVialViewMixin",
     "client.roles.builder.BuilderBlockUpdateMixin",
+    "client.roles.chef.ChefTrayUseMixin",
+    "client.roles.chef.ChefTrayBlockUpdateMixin",
     "client.roles.detective.PlaySoundEventMixin",
     "client.roles.glitch_robot.GlitchRobotMoodMixin",
     "client.roles.insane.FixInsaneRenderMixin",

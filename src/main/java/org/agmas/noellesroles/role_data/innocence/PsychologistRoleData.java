@@ -32,9 +32,17 @@ import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.Vec3;
+import org.agmas.harpymodloader.component.WorldModifierComponent;
+import org.agmas.harpymodloader.modifiers.SREModifier;
+import org.agmas.noellesroles.game.modifier.NRModifiers;
 import org.agmas.noellesroles.init.ModEffects;
 import org.agmas.noellesroles.role.ModRoles;
+import org.agmas.noellesroles.role.TraitorAndModifiers;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+import pro.fazeclan.river.stupid_express.constants.SEModifiers;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 public class PsychologistRoleData extends SimpleRoleData {
@@ -233,6 +241,9 @@ public class PsychologistRoleData extends SimpleRoleData {
         targetMood.setMood(FULL_SANITY); // 1.0f 表示满san
         targetMood.sync();
 
+        // 额外效果：随机治愈目标身上的一条负面修饰符
+        cureRandomNegativeModifier(target);
+
         // 播放治疗完成音效
         player.level().playSound(null, target.blockPosition(),
                 SoundEvents.PLAYER_LEVELUP, SoundSource.PLAYERS, 1.0F, 1.5F);
@@ -260,6 +271,61 @@ public class PsychologistRoleData extends SimpleRoleData {
         this.targetLastPos = null;
 
         this.sync();
+    }
+
+    /**
+     * 技能可以治愈的负面修饰符：偏执、狂躁症、晕血症、胆小鬼、暴怒、怯懦。
+     *
+     * <p>放在方法里返回，避免在静态初始化阶段就去触碰其他职业/修饰符注册类。
+     */
+    public static List<SREModifier> curableNegativeModifiers() {
+        return List.of(SEModifiers.PARANOID, TraitorAndModifiers.MANIC, TraitorAndModifiers.HEMOPHOBIA,
+                NRModifiers.COWARD, NRModifiers.RAGE, NRModifiers.COWARDICE);
+    }
+
+    /**
+     * 随机移除目标身上的一条可治愈负面修饰符；返回被治愈的修饰符，没有则返回 null。
+     */
+    @Nullable
+    public SREModifier cureRandomNegativeModifier(Player target) {
+        if (target == null || target.level().isClientSide) {
+            return null;
+        }
+        WorldModifierComponent wmc = WorldModifierComponent.KEY.get(target.level());
+        if (wmc == null) {
+            return null;
+        }
+        List<SREModifier> owned = new ArrayList<>();
+        for (SREModifier modifier : curableNegativeModifiers()) {
+            if (wmc.isModifier(target, modifier)) {
+                owned.add(modifier);
+            }
+        }
+        if (owned.isEmpty()) {
+            return null;
+        }
+        SREModifier chosen = owned.get(target.getRandom().nextInt(owned.size()));
+        wmc.removeModifier(target, chosen, true);
+
+        Component modifierName = modifierDisplayName(chosen);
+        if (target instanceof ServerPlayer serverTarget) {
+            serverTarget.displayClientMessage(
+                    Component.translatable("message.noellesroles.psychologist.cured_of_modifier", modifierName)
+                            .withStyle(ChatFormatting.LIGHT_PURPLE),
+                    true);
+        }
+        if (player instanceof ServerPlayer psychologist) {
+            psychologist.displayClientMessage(
+                    Component.translatable("message.noellesroles.psychologist.cured_modifier",
+                            target.getName(), modifierName).withStyle(ChatFormatting.LIGHT_PURPLE), true);
+        }
+        return chosen;
+    }
+
+    /** 修饰符的显示名：announcement.star.modifier.<命名空间>.<路径> */
+    public static Component modifierDisplayName(SREModifier modifier) {
+        return Component.translatable("announcement.star.modifier."
+                + modifier.identifier().getNamespace() + "." + modifier.identifier().getPath());
     }
 
     /**

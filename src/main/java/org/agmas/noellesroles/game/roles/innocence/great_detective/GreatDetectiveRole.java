@@ -44,6 +44,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
 import org.agmas.harpymodloader.component.WorldModifierComponent;
 import org.agmas.harpymodloader.modifiers.SREModifier;
+import org.agmas.noellesroles.content.entity.DoomedSinnerBodyEntity;
 import org.agmas.noellesroles.game.roles.innocence.great_detective.DetectiveClue.ClueType;
 import org.agmas.noellesroles.init.ModItems;
 import org.agmas.noellesroles.role_data.innocence.GreatDetectiveRoleData;
@@ -69,14 +70,25 @@ public class GreatDetectiveRole extends NormalRole {
 
     @Override
     public InteractionResult rightClickEntity(Player player, Entity victim) {
-        if (!(player instanceof ServerPlayer serverPlayer)) {
+        // 尸体是勘察目标：必须吞掉这一次右键实体交互。
+        // 否则原版在实体交互返回 PASS 之后会继续走物品的 use()，导致推理之书被顺带打开。
+        // 客户端同样要返回 SUCCESS（不需要 RoleData），否则本地就会弹出笔记界面。
+        if (!isInvestigatableBody(victim)) {
             return InteractionResult.PASS;
+        }
+        if (!(player instanceof ServerPlayer serverPlayer)) {
+            return InteractionResult.SUCCESS;
         }
         GreatDetectiveRoleData comp = RoleData.getNullable(GreatDetectiveRoleData.class, serverPlayer);
         if (comp == null) {
-            return InteractionResult.PASS;
+            return InteractionResult.SUCCESS;
         }
         return comp.tryStartChannel(serverPlayer, victim);
+    }
+
+    /** 是否是大侦探可以勘察的尸体（亡语杀手的伪装尸体不算）。 */
+    public static boolean isInvestigatableBody(Entity victim) {
+        return victim instanceof PlayerBodyEntity && !DoomedSinnerBodyEntity.isDoomedSinnerBody(victim);
     }
 
     /** 施法完成后结算勘察结果。 */
