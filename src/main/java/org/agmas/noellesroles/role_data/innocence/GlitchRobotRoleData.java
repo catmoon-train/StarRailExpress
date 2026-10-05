@@ -34,8 +34,13 @@ import org.jetbrains.annotations.NotNull;
 
 public class GlitchRobotRoleData extends SimpleRoleData {
 
+    /** 周期性缓慢的间隔（tick）：30 秒。 */
+    public static final int GLITCH_PERIOD_TICKS = 600;
 
+    /** 周期缓慢效果时长（tick）：3.5 秒。 */
+    public static final int GLITCH_SLOWDOWN_TICKS = 70;
 
+    /** 故障计时器：累计到 {@link #GLITCH_PERIOD_TICKS} 就给自己挂一次缓慢。 */
     public int glitchTimer = 0;
 
     public GlitchRobotRoleData(RoleDataContext context) {
@@ -56,19 +61,37 @@ public class GlitchRobotRoleData extends SimpleRoleData {
     @Override
     public void serverTick() {
         SREGameWorldComponent gameWorld = SREGameWorldComponent.KEY.get(player.level());
+
+        // ① 已经不是故障机器人 → 立刻停掉周期缓慢。
+        //    这层判断不能删：SRERoleDataPlayerComponent#serverInit 只在「新职业带 RoleData」时
+        //    才会替换 roleData 实例；若新职业没有 setRoleData(...)，上一个职业的 RoleData
+        //    会继续被 tick，此时这里就是唯一防线。
         if (!gameWorld.isRole(player, ModRoles.GLITCH_ROBOT)) {
+            resetTimer();
             return;
         }
+        // ② 死亡 / 旁观 / 创造模式 → 不施加，并清零计时器，
+        //    避免复活后带着死亡前的残留值（最多 599）立刻吃一发缓慢。
         if (!GameUtils.isPlayerAliveAndSurvival(player)) {
+            resetTimer();
             return;
         }
 
         // 故障计时器
         glitchTimer++;
-        if (glitchTimer >= 600) { // 30秒
+        if (glitchTimer >= GLITCH_PERIOD_TICKS) { // 30秒
             glitchTimer = 0;
             // 缓慢 10 (Amplifier 9), 3.5秒 (70 ticks)
-            player.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SLOWDOWN, 70, 9, false, false, true));
+            player.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SLOWDOWN, GLITCH_SLOWDOWN_TICKS, 9, false, false,
+                    true));
+        }
+    }
+
+    /** 清零周期计时器（仅服务端需要同步状态时才 sync，避免每 tick 刷包）。 */
+    private void resetTimer() {
+        if (this.glitchTimer != 0) {
+            this.glitchTimer = 0;
+            this.sync();
         }
     }
 
