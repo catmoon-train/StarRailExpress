@@ -15,6 +15,7 @@
 
 package org.agmas.noellesroles.role_data.innocence;
 
+import io.wifi.starrailexpress.api.data.RoleData;
 import io.wifi.starrailexpress.api.data.RoleDataContext;
 import io.wifi.starrailexpress.api.impl.SimpleRoleData;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
@@ -87,11 +88,30 @@ public class DisabledPatientRoleData extends SimpleRoleData {
 
     @Override
     public void clear() {
-        if (player instanceof ServerPlayer sp) {
-            removeGrantedEffects(sp);
-        }
+        clearGrantedEffects(player);
         this.nextGrantTick = 0L;
         this.grantedIds.clear();
+    }
+
+    /**
+     * 移除本局已发放的全部永久负面效果，但保留计时器与发放记录。
+     *
+     * <p>供转职链路兜底调用：职业移除的常规清理走 {@code ModdedRoleRemoved} 事件 →
+     * {@code RoleData#clear()}，但部分转职（如教父死亡还原家族成员、蜜蜂家族失败还原）
+     * 出于避免副作用的考虑显式传了 {@code noEventCall=true}，那条路径上事件根本不会触发，
+     * 负面效果就会一直跟着玩家。清理动作本身是幂等的，正常路径下重复调用无副作用。
+     */
+    public static void clearGrantedEffects(Player player) {
+        if (player == null) {
+            return;
+        }
+        var data = RoleData.getNullable(DisabledPatientRoleData.class, player);
+        if (data == null) {
+            return;
+        }
+        if (player instanceof ServerPlayer sp) {
+            data.removeGrantedEffects(sp);
+        }
     }
 
     @Override
