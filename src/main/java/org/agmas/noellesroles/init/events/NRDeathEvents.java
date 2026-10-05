@@ -366,6 +366,7 @@ public class NRDeathEvents {
 
     public static void handleDeathPenalty(Level level, List<Player> victims, boolean ignoreDoctor,
             boolean ignoreLooseEnd) {
+        NRGameStateEvents.pendingRejudgingSpectatorDeathPeanlty.set(false);
         SREGameWorldComponent gameWorldComponent = SREGameWorldComponent.KEY.get(level);
         boolean doctorAlive = false;
         boolean looseEndAlive = false;
@@ -383,7 +384,7 @@ public class NRDeathEvents {
             }
             if (gameWorldComponent.isRole(player, ModRoles.DOCTOR) && !ignoreDoctor) {
                 doctorAlive = true;
-            } else if (GameUtils.shouldGiveSpectatorDeathPenalty(player)) {
+            } else if (GameUtils.shouldGiveSpectatorsDeathPenalty(player)) {
                 CONSPIRATOR_alive = true;
             }
             if (doctorAlive || CONSPIRATOR_alive) {

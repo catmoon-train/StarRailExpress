@@ -1506,13 +1506,12 @@ public class GameUtils {
     }
 
     public static void reJudgeSpectatorsPenalty(Level world) {
-        // 推迟到下一个tick执行
         if (world.isClientSide)
             return;
         NRDeathEvents.reJudgeSpectatorsPenalty(world);
     }
 
-    public static void reJudgeSpectatorsPenalty() {
+    public static void pendingReJudgeSpectatorsPenalty() {
         // 推迟到下一个tick执行
         NRGameStateEvents.pendingRejudgingSpectatorDeathPeanlty.set(true);
     }
@@ -1670,7 +1669,7 @@ public class GameUtils {
      * @param player
      * @return
      */
-    public static boolean shouldGiveSpectatorDeathPenalty(Player player) {
+    public static boolean shouldGiveSpectatorsDeathPenalty(Player player) {
         var gameWorldComponent = SREGameWorldComponent.getInstance(player);
         if (gameWorldComponent.isRole(player, ModRoles.CONSPIRATOR)
                 // 无我或无妄存活时，与阴谋家一样进入死亡惩罚（视角限制）
@@ -1696,8 +1695,8 @@ public class GameUtils {
             }
         }
         TrainVoicePlugin.resetPlayer(player.getUUID());
-        if (shouldGiveSpectatorDeathPenalty(player)) {
-            reJudgeSpectatorsPenalty(player.level());
+        if (shouldGiveSpectatorsDeathPenalty(player)) {
+            pendingReJudgeSpectatorsPenalty();
         }
         SRE.REPLAY_MANAGER.recordPlayerRevival(player.getUUID(), null);
         player.addEffect(ModEffects.of(ModEffects.SAFE_TIME, 10, 1, false, false, true));
@@ -1724,8 +1723,8 @@ public class GameUtils {
         player.setGameMode(GameType.ADVENTURE);
         TrainVoicePlugin.resetPlayer(player.getUUID());
 
-        if (shouldGiveSpectatorDeathPenalty(player)) {
-            reJudgeSpectatorsPenalty(player.level());
+        if (shouldGiveSpectatorsDeathPenalty(player)) {
+            pendingReJudgeSpectatorsPenalty();
         }
 
         SRE.REPLAY_MANAGER.recordPlayerRevival(player.getUUID(), null);
@@ -1733,7 +1732,6 @@ public class GameUtils {
         if (MeetingManager.isActive()) {
             DefibrillatorComponent.KEY.get(player).triggerDeath(10, null, player.position());
         }
-        GameUtils.reJudgeSpectatorsPenalty();
     }
 
     public static boolean isGameRunning(Player player) {

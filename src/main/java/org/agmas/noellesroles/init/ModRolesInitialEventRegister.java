@@ -150,9 +150,6 @@ public class ModRolesInitialEventRegister {
             if (initialCoin >= 0) {
                 SREPlayerShopComponent.KEY.get(player).setBalance(initialCoin);
             }
-            if (RoleUtils.compareRole(role, ModRoles.CONSPIRATOR)) {
-                ModEventsRegister.reJudgeSpectatorsPenalty(player.level());
-            }
             if (role.identifier().equals(ModRoles.BARTENDER.identifier())) {
                 FoodDrinkGlowComponent.KEY.get(player).init();
             }

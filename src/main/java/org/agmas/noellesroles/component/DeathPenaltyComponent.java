@@ -31,6 +31,8 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
+import pro.fazeclan.river.stupid_express.modifier.refugee.cca.RefugeeComponent;
+
 import org.agmas.noellesroles.api.time.TimeRewindPlayback;
 import org.agmas.noellesroles.init.ModEffects;
 import org.agmas.noellesroles.role.ModRoles;
@@ -70,6 +72,7 @@ public class DeathPenaltyComponent implements RoleComponent, ServerTickingCompon
                 this.init();
                 return;
             }
+
             if (this.penaltyExpiry < 0) {
                 SREGameWorldComponent gameWorldComponent = SREGameWorldComponent.KEY.get(player.level());
                 if (this.penaltyExpiry != -2) {
@@ -92,6 +95,11 @@ public class DeathPenaltyComponent implements RoleComponent, ServerTickingCompon
                     }
                 }
 
+                if (RefugeeComponent.KEY.get(player.level()).isAnyRevivals) {
+                    // 亡命徒时刻卡住不处理death penalty。
+                    return;
+                }
+                
                 // boolean INSANE_alive = false;
                 boolean CONSPIRATOR_alive = false;
                 for (Player p : player.level().players()) {

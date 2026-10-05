@@ -387,7 +387,6 @@ public class RefugeeComponent implements AutoSyncedComponent, ServerTickingCompo
         // 给予 2 tick 的deathPenalty
         for (var player : players) {
             {
-
                 if (players_stats.containsKey(player.getUUID()) ||
                         playerTimeRewindSnapshots.containsKey(player.getUUID())) {
                     var dpc = DeathPenaltyComponent.KEY.get(player);
@@ -454,7 +453,12 @@ public class RefugeeComponent implements AutoSyncedComponent, ServerTickingCompo
         }
         if (vanillaRestored) {
             if (!wasAlive) {
-                SRE.REPLAY_MANAGER.recordPlayerRevival(player.getUUID(), role);
+                {
+                    if (GameUtils.shouldGiveSpectatorsDeathPenalty(player)) {
+                        GameUtils.pendingReJudgeSpectatorsPenalty();
+                    }
+                    SRE.REPLAY_MANAGER.recordPlayerRevival(player.getUUID(), role);
+                }
             }
             if (!gameWorldComponent.isRole(player, BounsRoles.BASEBALL_PLAYER)) {
                 RoleUtils.clearAllSatisfiedItems(player, TMMItems.BAT);
@@ -583,7 +587,7 @@ public class RefugeeComponent implements AutoSyncedComponent, ServerTickingCompo
         playerTimeRewindSnapshots.clear();
         areaTimeRewindSnapshot = null;
         // Penalty re-evaluation runs after every smooth player and the area have
-        GameUtils.reJudgeSpectatorsPenalty();
+        GameUtils.pendingReJudgeSpectatorsPenalty();
         // reached their rewind nodes.
         this.sync();
     }
