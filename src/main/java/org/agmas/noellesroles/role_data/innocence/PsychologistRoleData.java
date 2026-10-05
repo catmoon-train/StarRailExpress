@@ -305,7 +305,7 @@ public class PsychologistRoleData extends SimpleRoleData {
             return null;
         }
         SREModifier chosen = owned.get(target.getRandom().nextInt(owned.size()));
-        wmc.removeModifier(target, chosen, true);
+        wmc.removeModifier(target.getUUID(), chosen, true);
 
         Component modifierName = modifierDisplayName(chosen);
         if (target instanceof ServerPlayer serverTarget) {

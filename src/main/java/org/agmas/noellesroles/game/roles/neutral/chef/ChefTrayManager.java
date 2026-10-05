@@ -119,7 +119,7 @@ public final class ChefTrayManager {
         }
         // 必须踩在地面上
         BlockPos below = pos.below();
-        if (!level.getBlockState(below).isFaceFull(level, below, Direction.UP)) {
+        if (!level.getBlockState(below).isFaceSturdy(level, below, Direction.UP)) {
             chef.displayClientMessage(
                     Component.translatable("message.noellesroles.chef.tray_need_ground").withStyle(ChatFormatting.RED),
                     true);

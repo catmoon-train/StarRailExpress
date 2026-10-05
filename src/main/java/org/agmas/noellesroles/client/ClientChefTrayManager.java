@@ -127,7 +127,7 @@ public class ClientChefTrayManager {
             // 盘子里有货时冒一点点热气，方便远处辨认
             level.addAlwaysVisibleParticle(ParticleTypes.HAPPY_VILLAGER, false,
                     tray.pos.getX() + 0.5D, tray.pos.getY() + 0.4D, tray.pos.getZ() + 0.5D,
-                    0, 0.02D, 0.02D, 0.02D);
+                    0.01D, 0.02D, 0.02D);
         }
     }
 
