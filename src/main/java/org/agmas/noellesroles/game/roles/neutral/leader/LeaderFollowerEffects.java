@@ -359,6 +359,9 @@ public final class LeaderFollowerEffects {
             comp.familyMembers.add(leader.getUUID());
             comp.sync();
         }
+        // 领袖此刻起算 mafia 家族成员：isMafiaTeam() 生效、教父独立胜利能把领袖计入人数
+        org.agmas.noellesroles.game.roles.neutral.mafia.MafiaManager
+                .markLeaderAsGodfatherFamilyMember(leader, follower);
     }
 
     /** 年兽：追随者 +1 护盾试剂、永久夜视 */

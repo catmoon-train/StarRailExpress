@@ -43,6 +43,7 @@ import java.util.UUID;
  * <li>{@link #followerRoleIds}：追随者被招募时的职业 path，用于 HUD 显示职业名</li>
  * <li>{@link #followerNames}：追随者玩家名，用于 HUD 显示</li>
  * <li>{@link #hesitated}：是否已因「犹豫」死亡（避免重复触发）</li>
+ * <li>{@link #mafiaTeamActive}：是否已招募教父（此刻视为 mafia 家族成员）</li>
  * </ul>
  *
  * <p>
@@ -53,6 +54,14 @@ public class LeaderRoleData extends SimpleRoleData {
 
     /** 技能是否已释放（全局仅一次） */
     public boolean skillUsed = false;
+
+    /**
+     * 是否已招募教父。
+     *
+     * <p>为 true 时，这位领袖在服务端被 {@code isMafiaTeam()} 视为 mafia 家族成员，
+     * 客户端则靠本字段被同步给全场后判定（见 {@code RoleInstinctRegister} 的家族透视）。
+     */
+    public boolean mafiaTeamActive = false;
 
     /** 追随者 UUID 列表 */
     public List<UUID> followers = new ArrayList<>();
@@ -86,7 +95,18 @@ public class LeaderRoleData extends SimpleRoleData {
 
     @Override
     public boolean shouldSyncWith(ServerPlayer p) {
-        return isPanda || p == player;
+        // 熊猫形态要全服渲染；招募教父后需要全服知道"这位领袖算家族成员"，
+        // 否则客户端无法把领袖显示成家族成员颜色。
+        return isPanda || mafiaTeamActive || p == player;
+    }
+
+    /** 标记 / 取消「已招募教父」。 */
+    public void setMafiaTeamActive(boolean active) {
+        if (this.mafiaTeamActive == active) {
+            return;
+        }
+        this.mafiaTeamActive = active;
+        this.sync();
     }
 
     @Override
@@ -154,6 +174,7 @@ public class LeaderRoleData extends SimpleRoleData {
     public void writeToSyncNbt(@NotNull CompoundTag tag, HolderLookup.Provider registryLookup) {
         tag.putBoolean("skillUsed", skillUsed);
         tag.putBoolean("hesitated", hesitated);
+        tag.putBoolean("mafiaTeam", mafiaTeamActive);
         tag.putLong("safeTimeTicks", safeTimeTicks);
         tag.putBoolean("panda", isPanda);
         ListTag followerList = new ListTag();
@@ -177,6 +198,7 @@ public class LeaderRoleData extends SimpleRoleData {
     public void readFromSyncNbt(@NotNull CompoundTag tag, HolderLookup.Provider registryLookup) {
         skillUsed = tag.getBoolean("skillUsed");
         hesitated = tag.getBoolean("hesitated");
+        mafiaTeamActive = tag.contains("mafiaTeam") && tag.getBoolean("mafiaTeam");
         safeTimeTicks = tag.contains("safeTimeTicks") ? tag.getLong("safeTimeTicks") : 0;
         isPanda = tag.contains("panda") && tag.getBoolean("panda");
         followers.clear();

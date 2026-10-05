@@ -51,6 +51,24 @@ public class LeaderRole extends CustomWinnerRole implements EggRoleInterface {
     }
 
     /**
+     * 领袖在招募教父之后，视为 mafia 家族成员。
+     *
+     * <p>这让本局的"教父独立胜利"能把领袖算进家族人数：否则场上只剩
+     * 「教父 + 家族成员 + 领袖」时，{@code alive != mafiaAlive}，而教父又阻止游戏结束，
+     * 会导致游戏卡死、无法结算。
+     *
+     * <p>注意 {@code isMafiaTeam()} 是职业级（全局）判定，而领袖一局至多 1 人，
+     * 所以这里用「场上是否存在已加入家族且教父仍存活的领袖」表达是安全的。
+     * 客户端拿不到这个服务端静态表，客户端的家族透视改由
+     * {@code LeaderRoleData.mafiaTeamActive}（已全服同步）判定。
+     */
+    @Override
+    public boolean isMafiaTeam() {
+        return super.isMafiaTeam()
+                || org.agmas.noellesroles.game.roles.neutral.mafia.MafiaManager.hasLivingGodfatherFamilyLeader();
+    }
+
+    /**
      * 领袖胜利判定：仅依附追随者，不独立宣布。
      * <p>
      * 任一追随者在本局被判定为胜利，且领袖仍未获胜时，领袖即随其获胜（无论领袖是否存活）。

@@ -648,6 +648,10 @@ public class RoleInstinctRegister {
             registerGodFamilyInstinct(familyRole);
         }
 
+        // 领袖：招募教父后按家族透视看待自己（家族成员棕框 / 教父天蓝框 / 远处非家族禁止透视）。
+        // 这里直接注册而不是靠 isMafiaTeam()，因为领袖的家族身份是玩家级、且只在招募教父后成立。
+        registerGodFamilyInstinct(ModRoles.LEADER);
+
         // --- 以下从 registerSpecialLogic 迁移过来的角色相关逻辑 ---
         // 皮革噶的：疯魔模式高亮周围玩家
         RoleInstinctEvents.OBSERVER_HIGHLIGHT_EVENT.register(ModRoles.LEATHER_PIG_ID,
@@ -799,25 +803,43 @@ public class RoleInstinctRegister {
                         return TrueFalseAndCustomResult.pass();
                     if (!isInstinctEnabled)
                         return TrueFalseAndCustomResult.pass();
-                    var selfRole = SREClient.gameComponent.getRole(viewer);
-                    if (selfRole == null || !selfRole.isMafiaTeam())
+                    if (!isGodfatherFamilyMember(viewer))
                         return TrueFalseAndCustomResult.pass();
                     if (target instanceof Player targetPlayer) {
-                        var targetRole = SREClient.gameComponent.getRole(targetPlayer);
-                        if (targetRole != null && targetRole.isMafiaTeam()) {
+                        if (isGodfatherFamilyMember(targetPlayer)) {
                             if (SREClient.gameComponent.isRole(targetPlayer, ModRoles.GODFATHER))
                                 return TrueFalseAndCustomResult.custom(new Color(135, 206, 235).getRGB());
                             return TrueFalseAndCustomResult.custom(new Color(139, 69, 19).getRGB());
                         }
-                        // 家族附属成员（如被教父招募的领袖）：虽非 mafia 职业，但已加入家族，
-                        // 在家族透视中同样显示为家族成员颜色
-                        if (isInAnyGodfatherFamily(targetPlayer))
-                            return TrueFalseAndCustomResult.custom(new Color(139, 69, 19).getRGB());
                         if (viewer.distanceTo(targetPlayer) > 20.0D)
                             return TrueFalseAndCustomResult.disallow();
                     }
                     return TrueFalseAndCustomResult.pass();
                 });
+    }
+
+    /**
+     * 该玩家是否属于教父家族（含职业级 mafia 家族成员，以及招募教父后的领袖）。
+     *
+     * <p>领袖本身不是 mafia 职业，但招募教父后应被视为家族成员；这里优先读
+     * {@code LeaderRoleData.mafiaTeamActive}（该状态下会全服同步），
+     * 专用服务器客户端也能正确识别。
+     */
+    private static boolean isGodfatherFamilyMember(Player player) {
+        if (SREClient.gameComponent == null || player == null)
+            return false;
+        var role = SREClient.gameComponent.getRole(player);
+        if (role == null)
+            return false;
+        if (role.identifier().equals(ModRoles.LEADER.identifier())) {
+            var leaderData = RoleData.getNullable(org.agmas.noellesroles.role_data.neutral.LeaderRoleData.class,
+                    player);
+            return leaderData != null && leaderData.mafiaTeamActive;
+        }
+        if (role.isMafiaTeam()) {
+            return true;
+        }
+        return isInAnyGodfatherFamily(player);
     }
 
     /** 玩家是否属于任意教父的家族成员（读取 familyMembers，含被教父招募的领袖等非 mafia 职业） */

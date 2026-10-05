@@ -42,11 +42,14 @@ public class GodfatherRecruitScreen extends Screen {
     protected void init() {
         super.init();
 
-        // 自动收集所有被标记为 isMafiaTeam 的职业（排除教父自身）
+        // 自动收集所有被标记为 isMafiaTeam 的职业（排除教父自身与领袖）
         // 附属模组只要给职业设置 .setMafiaTeam(true)，就会自动出现在教父的招募 GUI 中
+        // 领袖只是"招募教父后反向算作家族成员"，不是可被招募的家族职业，必须排除
         familyRoles.clear();
         for (SRERole role : TMMRoles.ROLES.values()) {
-            if (role.isMafiaTeam() && !role.identifier().equals(ModRoles.GODFATHER.identifier())) {
+            if (role.isMafiaTeam()
+                    && !role.identifier().equals(ModRoles.GODFATHER.identifier())
+                    && !role.identifier().equals(ModRoles.LEADER.identifier())) {
                 familyRoles.add(role);
             }
         }

@@ -49,6 +49,13 @@ import java.util.UUID;
 public final class MafiaManager {
     private static final Map<UUID, UUID> godfatherByMember = new HashMap<>();
     private static final Map<UUID, SRERole> previousRoleByMember = new HashMap<>();
+    /**
+     * 通过「领袖技能」加入家族的领袖：领袖 UUID -> 教父 UUID。
+     *
+     * <p>这类家族成员不是被教父改职来的（不进 {@link #godfatherByMember}），所以教父死亡时
+     * 需要单独清理，否则会留下一个"没有教父的家族成员"，让教父独立胜利永远无法达成。
+     */
+    private static final Map<UUID, UUID> godfatherByLeader = new HashMap<>();
     private static final String MAFIA_SHOP_TAG = "sre_mafia_shop_item";
 
     public static void registerPayloadTypes() {
@@ -78,7 +85,7 @@ public final class MafiaManager {
         OnShopPurchase.EVENT.register((player, entry, price) -> {
             if (!(player instanceof ServerPlayer sp))
                 return;
-            if (!isMafiaMember(sp) || isGodfather(sp))
+            if (!isMafiaCareerMember(sp) || isGodfather(sp))
                 return;
 
             var targetItem = entry.stack().getItem();
@@ -113,7 +120,9 @@ public final class MafiaManager {
             // 动态解析被招募的职业：必须是 isMafiaTeam，且不能是教父自己
             SRERole newRole = RoleUtils.getRole(rolePath);
             if (newRole == null || !newRole.isMafiaTeam()
-                    || newRole.identifier().equals(ModRoles.GODFATHER.identifier())) {
+                    || newRole.identifier().equals(ModRoles.GODFATHER.identifier())
+                    // 领袖只是"招募教父后反向算作家族成员"，本身不是可招募的家族职业
+                    || newRole.identifier().equals(ModRoles.LEADER.identifier())) {
                 player.displayClientMessage(net.minecraft.network.chat.Component
                         .translatable("message.noellesroles.godfather.cannot_recruit"), true);
                 return;
@@ -155,6 +164,9 @@ public final class MafiaManager {
         // 傀儡师及其操控的假人不可被教父改变职业
         if (role == ModRoles.PUPPETEER)
             return false;
+        // 领袖不可被教父招募：招募会把他变成别的家族职业，领袖身份（及其家族标记）就没了
+        if (role.identifier().equals(ModRoles.LEADER.identifier()))
+            return false;
         var puppeteer = org.agmas.noellesroles.component.ModComponents.PUPPETEER.get(p);
         if (puppeteer != null && puppeteer.isControllingPuppet)
             return false;
@@ -174,8 +186,86 @@ public final class MafiaManager {
         return role != null && role.isMafiaTeam();
     }
 
+    /**
+     * 是否"真正的 mafia 家族职业成员"（教父通过招募把玩家改成家族职业的那些人）。
+     *
+     * <p>与 {@link #isMafiaMember} 的区别：领袖招募教父后也会满足 isMafiaMember，
+     * 但他不是家族职业成员，不该享受家族商店物品标记等"按职业成员"处理。
+     */
+    public static boolean isMafiaCareerMember(ServerPlayer p) {
+        var role = SREGameWorldComponent.KEY.get(p.level()).getRole(p);
+        return role != null && role.isMafiaTeam() && !role.identifier().equals(ModRoles.LEADER.identifier());
+    }
+
+    // ==================== 领袖招募教父后加入家族 ====================
+
+    /**
+     * 标记「该领袖已招募教父」，此刻起这位领袖被视为 mafia 家族成员。
+     *
+     * <p>只由服务端调用；客户端通过 {@code LeaderRoleData.mafiaTeamActive} 的同步结果判断。
+     */
+    public static void markLeaderAsGodfatherFamilyMember(ServerPlayer leader, ServerPlayer godfather) {
+        if (leader == null || godfather == null) {
+            return;
+        }
+        godfatherByLeader.put(leader.getUUID(), godfather.getUUID());
+        var data = io.wifi.starrailexpress.api.data.RoleData.getNullable(
+                org.agmas.noellesroles.role_data.neutral.LeaderRoleData.class, leader);
+        if (data != null) {
+            data.setMafiaTeamActive(true);
+        }
+    }
+
+    /** 场上是否存在"已加入教父家族"的存活领袖（服务端权威判定，供 LeaderRole#isMafiaTeam 使用）。 */
+    public static boolean hasLivingGodfatherFamilyLeader() {
+        if (godfatherByLeader.isEmpty()) {
+            return false;
+        }
+        for (var entry : godfatherByLeader.entrySet()) {
+            ServerPlayer leader = resolveOnline(entry.getKey());
+            if (leader == null || !GameUtils.isPlayerAliveAndSurvival(leader)) {
+                continue;
+            }
+            // 教父本人必须还活着，否则"家族"已经不存在
+            ServerPlayer godfather = resolveOnline(entry.getValue());
+            if (godfather == null || !GameUtils.isPlayerAliveAndSurvival(godfather)) {
+                continue;
+            }
+            return true;
+        }
+        return false;
+    }
+
+    /** 取消所有"通过领袖技能加入家族"的标记（局末 / 教父死亡时调用）。 */
+    public static void clearLeaderFamilyMarks() {
+        if (godfatherByLeader.isEmpty()) {
+            return;
+        }
+        for (UUID leaderId : new ArrayList<>(godfatherByLeader.keySet())) {
+            ServerPlayer leader = resolveOnline(leaderId);
+            if (leader == null) {
+                continue;
+            }
+            var data = io.wifi.starrailexpress.api.data.RoleData.getNullable(
+                    org.agmas.noellesroles.role_data.neutral.LeaderRoleData.class, leader);
+            if (data != null) {
+                data.setMafiaTeamActive(false);
+            }
+        }
+        godfatherByLeader.clear();
+    }
+
+    private static ServerPlayer resolveOnline(UUID id) {
+        var server = SRE.SERVER;
+        return server == null ? null : server.getPlayerList().getPlayer(id);
+    }
+
     public static void onGodfatherDeath(ServerPlayer godfather) {
         UUID gfId = godfather.getUUID();
+        // 领袖通过技能加入的家族成员：家族随教父一起消失
+        if (godfatherByLeader.containsValue(gfId)) {
+            clearLeaderFamilyMarks();
+        }
         // 亡命徒时刻（难民修饰符触发）期间，教父死亡不还原家族成员职业
         boolean inLooseEndMoment = RefugeeComponent.KEY.get(godfather.level()).isAnyRevivals;
         for (UUID memberId : new ArrayList<>(godfatherByMember.keySet())) {
@@ -274,6 +364,7 @@ public final class MafiaManager {
     public static void clearAll() {
         godfatherByMember.clear();
         previousRoleByMember.clear();
+        clearLeaderFamilyMarks();
     }
 
     // ==================== 家族商店物品标记 ====================
