@@ -153,7 +153,8 @@ public class RoleUtils extends MCItemsUtils {
     /**
      * 清除玩家身上的所有药水效果。
      *
-     * <p>不要直接调用 {@code LivingEntity#removeAllEffects()}：原版实现在迭代
+     * <p>
+     * 不要直接调用 {@code LivingEntity#removeAllEffects()}：原版实现在迭代
      * {@code activeEffects} 这个 {@link java.util.HashMap} 的 {@code values()} 时回调
      * {@code onEffectRemoved}，而 {@code ServerPlayerEntityMixin} 会在这里派发
      * {@code SimpleMobEffect#onEffectEnded}。只要该回调顺带移除了<b>另一个</b>效果
@@ -161,7 +162,8 @@ public class RoleUtils extends MCItemsUtils {
      * {@code USED_BANED}），HashMap 的 modCount 就会变化，下一次 {@code Iterator#remove()}
      * 直接抛 {@link java.util.ConcurrentModificationException}，并在死亡流程中把服务器线程打崩。
      *
-     * <p>这里改为先对效果列表做快照，再按 {@link LivingEntity#removeEffect(net.minecraft.core.Holder)}
+     * <p>
+     * 这里改为先对效果列表做快照，再按 {@link LivingEntity#removeEffect(net.minecraft.core.Holder)}
      * 逐个移除：该重载不会触发 {@code onEffectRemoved}，因此回调期间对效果表的任何增删都不会
      * 再与迭代器冲突；快照中的效果若已被回调移除，用 {@code getEffect} 跳过即可，语义与原版一致。
      */
@@ -436,14 +438,17 @@ public class RoleUtils extends MCItemsUtils {
         }
         // 触发事件
         if (player instanceof ServerPlayer sp) {
-            if (!noEventCall)
+            if (!noEventCall) {
                 (ModdedRoleAssigned.EVENT.invoker()).assignModdedRole(sp, role);
-            else {
+            } else {
                 // 还是需要初始化一下RoleData类
                 {
                     final var cca = SRERoleDataPlayerComponent.KEY.get(player);
                     cca.init();
                 }
+            }
+            if (GameUtils.shouldGiveSpectatorsDeathPenalty(player)) {
+                GameUtils.pendingReJudgeSpectatorsPenalty();
             }
         }
     }
