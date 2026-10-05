@@ -71,7 +71,7 @@ public abstract class ChefTrayBlock extends Block {
 
     // ==================== 交互：服务端一律不处理 ====================
     // 服务端世界里根本没有这个方块，正常情况下连 use 都不会被调用；
-    // 这里显式返回 PASS，避免任何"服务端存在同名方块"的边界情况下误吞交互。
+    // 这里显式放行，避免任何"服务端存在同名方块"的边界情况下误吞交互。
 
     @Override
     protected InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos, Player player,
@@ -82,7 +82,8 @@ public abstract class ChefTrayBlock extends Block {
     @Override
     protected ItemInteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos,
             Player player, InteractionHand hand, BlockHitResult hit) {
-        return ItemInteractionResult.PASS;
+        // 放行：真正的放入/取出由客户端 mixin 拦截右键后改发 C2S 包处理
+        return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
     }
 
     /** 食物盘。 */
