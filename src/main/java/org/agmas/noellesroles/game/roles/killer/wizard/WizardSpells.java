@@ -30,7 +30,10 @@ import org.agmas.noellesroles.config.NoellesRolesConfig;
 import org.agmas.noellesroles.init.ModItems;
 import org.agmas.noellesroles.role_data.killer.WizardRoleData;
 
+import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
@@ -161,29 +164,61 @@ public final class WizardSpells {
         level.playSound(null, BlockPos.containing(center), SoundEvents.GENERIC_EXPLODE.value(),
                 SoundSource.PLAYERS, 4.0f, 0.9f);
 
-        // 无视墙体的 AoE 击杀（本局火球术累计击杀不超过 wizardFireballMaxKills）
+        // 无视墙体的 AoE 击杀。
+        //
+        // 上限必须「先算清目标集合、再动手」，不能靠在遍历中累加计数来 break：
+        //  GameUtils.killPlayer 走 server.execute()，死亡结算并非永远在本次调用内完成，
+        //  一旦某次击杀被安全时间/护盾/事件否决、或死亡结算延迟，计数就会与实际脱节，
+        //  出现单次爆炸把人杀超上限的情况。这里先按「剩余额度」截断目标列表，
+        //  单次击杀数硬性 <= wizardFireballMaxKills。
+        int maxKills = config().wizardFireballMaxKills;
+        int remaining = Math.max(0, maxKills - comp.fireballKills);
+        Noellesroles.LOGGER.info(
+                "[Wizard] Nine-ring fireball detonated: maxKills(single)={}, used={}, remaining={}",
+                Integer.toString(maxKills), Integer.toString(comp.fireballKills), Integer.toString(remaining));
+        if (maxKills <= 0 || remaining <= 0) {
+            return;
+        }
+
         double r2 = radius * radius;
-        int killed = 0;
+        // ① 收集爆炸半径内的目标（无视墙体），按距离由近到远排序
+        List<Player> candidates = new ArrayList<>();
         for (Player p : level.players()) {
-            if (comp.fireballKills >= config().wizardFireballMaxKills) {
-                break;
-            }
             if (p == caster || !GameUtils.isPlayerAliveAndSurvival(p)) {
                 continue;
             }
-            if (p.position().add(0, p.getBbHeight() / 2, 0).distanceToSqr(center) <= r2) {
-                GameUtils.killPlayer(p, true, caster, Noellesroles.id("wizard_fireball"));
-                killed++;
-                comp.fireballKills++;
+            if (centerDistanceSqr(p, center) <= r2) {
+                candidates.add(p);
             }
         }
+        candidates.sort(Comparator.comparingDouble(p -> centerDistanceSqr(p, center)));
+        // ② 按剩余额度截断，超出的目标只吃爆炸表现、不掉命
+        if (candidates.size() > remaining) {
+            candidates = new ArrayList<>(candidates.subList(0, remaining));
+        }
+
+        // ③ 统一结算（数量已受限）
+        int killed = 0;
+        for (Player p : candidates) {
+            // 二次确认：防止同一 tick 内已被其他来源击杀 / 变成不可击杀状态
+            if (!GameUtils.isPlayerAliveAndSurvival(p)) {
+                continue;
+            }
+            GameUtils.killPlayer(p, true, caster, Noellesroles.id("wizard_fireball"));
+            comp.fireballKills++;
+            killed++;
+        }
         if (killed > 0) {
-            // var comp = WizardRoleData.getNullable(WizardRoleData.class, caster);
             comp.sync();
             comp.onKillWhileShielded();
             caster.getCooldowns().addCooldown(ModItems.WIZARD_STAFF,
                     io.wifi.starrailexpress.game.GameConstants.ITEM_COOLDOWNS.get(
                             io.wifi.starrailexpress.index.TMMItems.KNIFE));
         }
+    }
+
+    /** 玩家身体中心到爆炸中心的距离平方（沿用原判定写法，保证爆炸范围不变）。 */
+    private static double centerDistanceSqr(Player p, Vec3 center) {
+        return p.position().add(0, p.getBbHeight() / 2, 0).distanceToSqr(center);
     }
 }
