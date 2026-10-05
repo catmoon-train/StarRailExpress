@@ -63,6 +63,12 @@ public class EchoListenerRoleData extends SimpleRoleData {
     public void serverTick() {
         if (!(player instanceof ServerPlayer listener))
             return;
+        // 职业自检：本组件的所有被动特性（自动复活、被动收入、盲视、循声定位、恐惧蔓延）
+        // 都只应在玩家仍是循声者时生效。职业被改变后若本实例仍被 tick（例如旧 RoleData 残留），
+        // 这些特性会错误地作用在新职业玩家身上。
+        if (!SREGameWorldComponent.KEY.get(listener.level()).isRole(listener, ModRoles.ECHO_LISTENER)) {
+            return;
+        }
         if (player.isCreative()) {
             return;
         }
@@ -125,6 +131,8 @@ public class EchoListenerRoleData extends SimpleRoleData {
 
     public boolean useSonicWave() {
         if (!(player instanceof ServerPlayer listener) || !GameUtils.isPlayerAliveAndSurvival(listener))
+            return false;
+        if (!SREGameWorldComponent.KEY.get(listener.level()).isRole(listener, ModRoles.ECHO_LISTENER))
             return false;
         SREPlayerShopComponent shop = SREPlayerShopComponent.KEY.get(listener);
         if (shop.balance < 50) {
