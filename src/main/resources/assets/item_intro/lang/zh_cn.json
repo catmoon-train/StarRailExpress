@@ -220,7 +220,7 @@
   "item.noellesroles.sealed_doorless_key.desc": "封印物。右键短距瞬移、可穿越封锁，4 秒后回到原处；落点可能偏移，甚至把你送进危险处。",
   "item.noellesroles.sealed_hungry_purse.desc": "封印物。缓慢产出金币；遭到攻击时会吐出金币。",
   "item.noellesroles.sealed_whisper_bell.desc": "封印物。偶尔告知最近存活者的方位，但铃声也会搅乱视野。",
-  "item.noellesroles.sealed_splintered_compass.desc": "封印物。指向最近的杀手方向；指针偶尔会把你拽去别处。",
+  "item.noellesroles.sealed_splintered_compass.desc": "封印物。指向最近的杀手方向；指针偶尔会颤动，指向错误的方向。右键碎裂罗盘可以得知自己当前朝向的方向。",
   "item.noellesroles.sealed_last_match.desc": "封印物。右键点燃附近的人；火焰也可能回火烧到你自己。",
   "item.noellesroles.tomato.desc": "特码头死后掉落。\n按 Q 键丢出投掷物，落到方块上会变成掉落物。\n走过会绊倒 2 秒并捡起。\n投掷方和被绊倒者的西红柿同时进入 20 秒冷却。\n砸中玩家会把西红柿交给对方，并让对方屏幕糊满番茄酱 3 秒。",
   "item.noellesroles.loan_contract.desc": "右键偿还贷款本金和利息。",
