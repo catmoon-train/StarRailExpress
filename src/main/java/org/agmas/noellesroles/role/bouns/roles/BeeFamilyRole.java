@@ -27,6 +27,7 @@ import io.wifi.starrailexpress.api.EggRole;
 import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.api.data.RoleData;
 import io.wifi.starrailexpress.cca.SREGameRoundEndComponent;
+import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.cca.SREPlayerShopComponent;
 import io.wifi.starrailexpress.game.GameConstants;
 import io.wifi.starrailexpress.game.GameUtils;
@@ -75,6 +76,8 @@ public class BeeFamilyRole extends EggRole implements CustomWinnerRoleInterface 
 
     public static void onDeath(Player victim, @Nullable Player killer, ResourceLocation deathReason) {
         if (!(victim instanceof ServerPlayer player))
+            return;
+        if (!SREGameWorldComponent.getInstance(victim).isSkillAvailable)
             return;
         var role = RoleUtils.getPlayerRole(victim);
         if (role.equals(BounsRoles.BEE_QUEEN)) {
