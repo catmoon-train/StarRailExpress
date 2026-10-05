@@ -39,7 +39,8 @@ import java.util.List;
  *
  * <p>
  * 自身的模型引用到不存在的地方（默认无材质），每个自定义列车物品都是它加上
- * {@link io.wifi.starrailexpress.index.SREDataComponentTypes#CUSTOM_ITEM_ID} 组件，
+ * {@link io.wifi.starrailexpress.index.SREDataComponentTypes#CUSTOM_ITEM_ID}
+ * 组件，
  * 具体行为由 {@link CustomItemRuntime} 按配置分发。
  */
 public class CustomItem extends Item implements SREItemProperties.LeftClickHurtable, ChargeableItem {
@@ -63,6 +64,9 @@ public class CustomItem extends Item implements SREItemProperties.LeftClickHurta
         if (data == null) {
             return InteractionResultHolder.pass(stack);
         }
+        // 冷却不可用
+        if (CustomItemRuntime.isOnCooldown(player, stack) || player.getCooldowns().isOnCooldown(this))
+            return InteractionResultHolder.pass(stack);
         // 使用限制：仅指定职业 / 修饰符 / 阵营可用（服务端权威判定，不满足就不给任何反馈）
         if (!world.isClientSide() && player instanceof ServerPlayer serverPlayer
                 && !CustomItemRuntime.ensureCanUse(serverPlayer, data)) {
