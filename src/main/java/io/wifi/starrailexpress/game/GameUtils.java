@@ -43,8 +43,11 @@ import org.agmas.noellesroles.content.item.RadioItem;
 import org.agmas.noellesroles.game.roles.innocence.hoan_meirin.HoanMeirinFistPunchHandler;
 import org.agmas.noellesroles.init.ModEffects;
 import org.agmas.noellesroles.init.ModItems;
+import org.agmas.noellesroles.init.events.NRDeathEvents;
+import org.agmas.noellesroles.init.events.NRGameStateEvents;
 import org.agmas.noellesroles.packet.NameTagSyncPayload;
 import org.agmas.noellesroles.packet.RefreshDimensionsS2CPacket;
+import org.agmas.noellesroles.role.ModRoles;
 import org.agmas.noellesroles.utils.EntityClearUtils;
 import org.agmas.noellesroles.utils.LocalDateData;
 import org.agmas.noellesroles.utils.MCItemsUtils;
@@ -1502,6 +1505,18 @@ public class GameUtils {
         return p.isSpectator();
     }
 
+    public static void reJudgeSpectatorsPenalty(Level world) {
+        // 推迟到下一个tick执行
+        if (world.isClientSide)
+            return;
+        NRDeathEvents.reJudgeSpectatorsPenalty(world);
+    }
+
+    public static void reJudgeSpectatorsPenalty() {
+        // 推迟到下一个tick执行
+        NRGameStateEvents.pendingRejudgingSpectatorDeathPeanlty.set(true);
+    }
+
     public static boolean isPlayerAliveAndSurvivalIgnoreShitSplit(Player player) {
         return player != null && !player.isSpectator() && !player.isCreative();
     }
@@ -1649,6 +1664,22 @@ public class GameUtils {
         return level.players().stream().filter((p) -> isPlayerAliveAndSurvivalIgnoreShitSplit(p)).count();
     }
 
+    /**
+     * 给阴谋家：旁观者死亡惩罚
+     * 
+     * @param player
+     * @return
+     */
+    public static boolean shouldGiveSpectatorDeathPenalty(Player player) {
+        var gameWorldComponent = SREGameWorldComponent.getInstance(player);
+        if (gameWorldComponent.isRole(player, ModRoles.CONSPIRATOR)
+                // 无我或无妄存活时，与阴谋家一样进入死亡惩罚（视角限制）
+                || gameWorldComponent.isRole(player, ModRoles.ANATMAN)
+                || gameWorldComponent.isRole(player, ModRoles.ASATYA))
+            return true;
+        return false;
+    }
+
     public static void revivePlayerToItsRoom(ServerPlayer player) {
         DeathPenaltyComponent.KEY.get(player).clear();
         DefibrillatorComponent.KEY.get(player).clear();
@@ -1665,6 +1696,9 @@ public class GameUtils {
             }
         }
         TrainVoicePlugin.resetPlayer(player.getUUID());
+        if (shouldGiveSpectatorDeathPenalty(player)) {
+            reJudgeSpectatorsPenalty(player.level());
+        }
         SRE.REPLAY_MANAGER.recordPlayerRevival(player.getUUID(), null);
         player.addEffect(ModEffects.of(ModEffects.SAFE_TIME, 10, 1, false, false, true));
         if (MeetingManager.isActive()) {
@@ -1689,11 +1723,17 @@ public class GameUtils {
         player.teleportTo(x, y, z);
         player.setGameMode(GameType.ADVENTURE);
         TrainVoicePlugin.resetPlayer(player.getUUID());
+
+        if (shouldGiveSpectatorDeathPenalty(player)) {
+            reJudgeSpectatorsPenalty(player.level());
+        }
+
         SRE.REPLAY_MANAGER.recordPlayerRevival(player.getUUID(), null);
 
         if (MeetingManager.isActive()) {
             DefibrillatorComponent.KEY.get(player).triggerDeath(10, null, player.position());
         }
+        GameUtils.reJudgeSpectatorsPenalty();
     }
 
     public static boolean isGameRunning(Player player) {

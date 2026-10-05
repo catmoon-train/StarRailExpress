@@ -583,6 +583,7 @@ public class RefugeeComponent implements AutoSyncedComponent, ServerTickingCompo
         playerTimeRewindSnapshots.clear();
         areaTimeRewindSnapshot = null;
         // Penalty re-evaluation runs after every smooth player and the area have
+        GameUtils.reJudgeSpectatorsPenalty();
         // reached their rewind nodes.
         this.sync();
     }
