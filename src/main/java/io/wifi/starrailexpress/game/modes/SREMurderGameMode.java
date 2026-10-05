@@ -522,16 +522,20 @@ public class SREMurderGameMode extends GameMode {
         }
 
         // ===== 领袖特判 =====
-        // 领袖需要"非杀手方中立"（type 2）职业作为追随者。
-        // 若本次抽选出的中立职业中，除领袖外没有其它 type 2 职业，说明本局领袖没有可招募对象，
+        // 领袖需要一个「能被它招募」的职业作为追随者，即：
+        //   1) 非杀手方中立（type 2，排除 isInnocent / canUseKiller / 亡命徒 / 假史蒂夫 / 非教父的 mafia 家族）；
+        //   2) 其中「好人方中立」（isNeutralForInnocent）只有失忆患者(amnesiac)与初学者(initiate)可被招募，
+        //      其余好人方中立职业一律不可。
+        // 若本次抽选出的中立职业中，除领袖外没有任何可招募对象，说明本局领袖必然空放技能，
         // 将其从池中移除，并补抽等量的中立职业（排除领袖），保证中立名额数量不变。
         long leaderDrawn = assignedNatures.stream()
                 .filter(r -> r != null && ModRoles.LEADER_ID.equals(r.identifier())).count();
         if (leaderDrawn > 0) {
-            boolean hasOtherNonKillerNeutral = assignedNatures.stream()
+            boolean hasRecruitableNeutral = assignedNatures.stream()
                     .anyMatch(r -> r != null && !ModRoles.LEADER_ID.equals(r.identifier())
-                            && PlayerRoleWeightManager.getRoleType(r) == 2);
-            if (!hasOtherNonKillerNeutral) {
+                            && org.agmas.noellesroles.game.roles.neutral.leader.LeaderFollowerEffects
+                                    .isRecruitableRole(r));
+            if (!hasRecruitableNeutral) {
                 assignedNatures.removeIf(r -> r != null && ModRoles.LEADER_ID.equals(r.identifier()));
                 assignedNatures.addAll(neutralsPool.selectRoles((int) leaderDrawn,
                         r -> r != null && !ModRoles.LEADER_ID.equals(r.identifier())));
