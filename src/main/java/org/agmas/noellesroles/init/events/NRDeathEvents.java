@@ -383,7 +383,7 @@ public class NRDeathEvents {
             }
             if (gameWorldComponent.isRole(player, ModRoles.DOCTOR) && !ignoreDoctor) {
                 doctorAlive = true;
-            } else if (GameUtils.shouldGiveSpectatorDeathPenalty(player)) {
+            } else if (GameUtils.shouldGiveSpectatorsDeathPenalty(player)) {
                 CONSPIRATOR_alive = true;
             }
             if (doctorAlive || CONSPIRATOR_alive) {
