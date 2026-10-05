@@ -776,6 +776,38 @@ public class VolunteerOpenDraftState {
         return -1;
     }
 
+    /**
+     * 查询某玩家「当前」应该被蓝框标出的海选池下标。
+     *
+     * @param id 玩家 UUID
+     * @return 应标注蓝框的池下标（{@code -1} 表示没有可标注的志愿职业）
+     */
+    public int volunteerPoolIndexOf(UUID id) {
+        String roleId = volunteerRoleIds.get(id);
+        if (roleId == null || roleId.isBlank()) {
+            return -1;
+        }
+        ResourceLocation loc = ResourceLocation.tryParse(roleId);
+        if (loc == null) {
+            return -1;
+        }
+        int firstMatch = -1;
+        for (int i = 0; i < pool.size(); i++) {
+            SRERole r = pool.get(i).role();
+            if (r == null || !r.identifier().equals(loc)) {
+                continue;
+            }
+            if (firstMatch < 0) {
+                firstMatch = i;
+            }
+            // 优先返回还没被任何人选走的那一份
+            if (i < pickedBy.length && pickedBy[i] == null) {
+                return i;
+            }
+        }
+        return firstMatch;
+    }
+
     private static SRERole resolveRole(String roleId) {
         if (roleId == null || roleId.isBlank()) {
             return null;
