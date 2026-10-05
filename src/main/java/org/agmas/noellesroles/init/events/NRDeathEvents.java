@@ -383,10 +383,7 @@ public class NRDeathEvents {
             }
             if (gameWorldComponent.isRole(player, ModRoles.DOCTOR) && !ignoreDoctor) {
                 doctorAlive = true;
-            } else if (gameWorldComponent.isRole(player, ModRoles.CONSPIRATOR)
-                    // 无我或无妄存活时，与阴谋家一样进入死亡惩罚（视角限制）
-                    || gameWorldComponent.isRole(player, ModRoles.ANATMAN)
-                    || gameWorldComponent.isRole(player, ModRoles.ASATYA)) {
+            } else if (GameUtils.shouldGiveSpectatorDeathPenalty(player)) {
                 CONSPIRATOR_alive = true;
             }
             if (doctorAlive || CONSPIRATOR_alive) {

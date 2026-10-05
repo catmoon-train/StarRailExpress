@@ -83,6 +83,7 @@ import org.agmas.noellesroles.utils.MCItemsUtils;
 import pro.fazeclan.river.stupid_express.constants.SERoles;
 
 import java.util.*;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * 游戏生命周期、服务器 Tick、玩家连接事件处理
@@ -92,7 +93,7 @@ public class NRGameStateEvents {
     private static AttributeModifier noJumpingAttribute = new AttributeModifier(
             Noellesroles.id("no_jumping"), -1.0f, AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL);
     private static final Map<UUID, Vec3> oldmanPigRidePositions = new HashMap<>();
-
+    public static AtomicBoolean pendingRejudgingSpectatorDeathPeanlty = new AtomicBoolean(false);
     /** 本局游戏是否已发放过年兽鞭炮（一局只能有一次） */
     public static boolean nianShouFirecrackersDistributedThisGame = false;
 
@@ -634,6 +635,12 @@ public class NRGameStateEvents {
             TarotAssemblyManager.serverLevelTick(world);
         });
 
+        // pending spectator death penalty checker
+        ServerTickEvents.END_SERVER_TICK.register(server -> {
+            if (pendingRejudgingSpectatorDeathPeanlty.getAndSet(false)) {
+                NRDeathEvents.reJudgeSpectatorsPenalty(server.overworld());
+            }
+        });
         // 老人猪处理
         ServerTickEvents.END_SERVER_TICK.register(server -> {
             var gameWorldComponent = SREGameWorldComponent.KEY.maybeGet(server.overworld()).orElse(null);
