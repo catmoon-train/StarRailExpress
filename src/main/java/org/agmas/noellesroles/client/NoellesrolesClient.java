@@ -327,6 +327,9 @@ public class NoellesrolesClient implements ClientModInitializer {
         BlockEntityRenderers.register(
                 ModBlocks.CHEF_TRAY_BLOCK_ENTITY,
                 org.agmas.noellesroles.client.render.ChefPlateRenderer::new);
+        // cutout 渲染层：剔除盘体贴图的透明像素（与原版食物盘 / 饮料盘同属 cutout 一致）
+        BlockRenderLayerMap.INSTANCE.putBlocks(RenderType.cutout(),
+                ModBlocks.CHEF_FOOD_TRAY, ModBlocks.CHEF_DRINK_TRAY);
 
         BlockRenderLayerMap.INSTANCE.putBlock(ModBlocks.VENDING_MACHINES_BLOCK, RenderType.translucent());
         BlockRenderLayerMap.INSTANCE.putBlock(ModBlocks.LOTTERY_MACHINE_BLOCK, RenderType.translucent());

@@ -70,8 +70,8 @@ public final class ChefTrayManager {
     private static final Map<UUID, Tray> TRAYS = new LinkedHashMap<>();
     /** 坐标 → 盘 id，用于右键时快速定位。 */
     private static final Map<BlockPos, UUID> INDEX = new HashMap<>();
-    /** 玩家 UUID → 下次可取用的游戏时刻。 */
-    private static final Map<UUID, Long> TAKE_READY_AT = new HashMap<>();
+    /** 「玩家 + 盘子」→ 下次可取用的游戏时刻：同一个玩家对不同盘子各自独立冷却。 */
+    private static final Map<String, Long> TAKE_READY_AT = new HashMap<>();
 
     private ChefTrayManager() {
     }
@@ -231,7 +231,8 @@ public final class ChefTrayManager {
         }
 
         long now = player.level().getGameTime();
-        Long readyAt = TAKE_READY_AT.get(player.getUUID());
+        String cooldownKey = takeCooldownKey(player, tray);
+        Long readyAt = TAKE_READY_AT.get(cooldownKey);
         if (readyAt != null && now < readyAt) {
             player.displayClientMessage(Component.translatable("message.noellesroles.chef.tray_take_cd",
                     String.format("%.1f", (readyAt - now) / 20.0F)).withStyle(ChatFormatting.RED), true);
@@ -244,7 +245,7 @@ public final class ChefTrayManager {
         // 不会因为 Inventory.add 找空槽失败而只掉在地上。
         player.setItemInHand(InteractionHand.MAIN_HAND, taken);
         player.playNotifySound(SoundEvents.ITEM_PICKUP, SoundSource.BLOCKS, 1.0F, 0.9F);
-        TAKE_READY_AT.put(player.getUUID(), now + TAKE_COOLDOWN_TICKS);
+        TAKE_READY_AT.put(cooldownKey, now + TAKE_COOLDOWN_TICKS);
         // 取用不消耗存货 → 盘子内容没有变化，不需要再广播 UPDATE
     }
 
@@ -274,6 +275,11 @@ public final class ChefTrayManager {
     private static boolean isChef(ServerPlayer player) {
         SREGameWorldComponent gameWorld = SREGameWorldComponent.KEY.get(player.level());
         return gameWorld != null && gameWorld.isRole(player, ModRoles.CHEF);
+    }
+
+    /** 冷却记录的 key：玩家 + 盘子，让每个盘子的取用冷却各自独立。 */
+    private static String takeCooldownKey(ServerPlayer player, Tray tray) {
+        return player.getUUID() + ":" + tray.id;
     }
 
     /** 内容物变化时通知所有客户端：带上要渲染的那一份物品，供客户端渲染真实模型。 */
