@@ -5083,6 +5083,7 @@
   "message.noellesroles.chef.tray_full": "This tray is already full",
   "message.noellesroles.chef.tray_empty": "This tray is empty",
   "message.noellesroles.chef.tray_take_cd": "Take cooldown: %s seconds left",
+  "message.noellesroles.chef.tray_hand_not_empty": "Your main hand is occupied, free it before taking from a tray",
   "=============== Psychologist: curing negative modifiers ===============": "",
   "message.noellesroles.psychologist.cured_of_modifier": "Your \"%s\" was cured!",
   "message.noellesroles.psychologist.cured_modifier": "You cured %s's \"%s\"!"

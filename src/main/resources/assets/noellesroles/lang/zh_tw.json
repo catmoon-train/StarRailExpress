@@ -5612,6 +5612,7 @@
   "message.noellesroles.chef.tray_full": "這個盤子已經裝滿了",
   "message.noellesroles.chef.tray_empty": "這個盤子是空的",
   "message.noellesroles.chef.tray_take_cd": "取用冷卻中，還需 %s 秒",
+  "message.noellesroles.chef.tray_hand_not_empty": "你的主手有東西，請先騰出主手再取用",
   "=============== 心理學家：治癒負面修飾符 ===============": "",
   "message.noellesroles.psychologist.cured_of_modifier": "你的「%s」被治癒了！",
   "message.noellesroles.psychologist.cured_modifier": "你治癒了 %s 的「%s」！"

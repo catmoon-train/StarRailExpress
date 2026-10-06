@@ -1,20 +1,85 @@
 {
-  "parent": "minecraft:block/block",
   "textures": {
-    "particle": "noellesroles:item/foodstuff",
-    "all": "noellesroles:item/foodstuff"
+    "particle": "wathe:block/food_platter",
+    "tray": "wathe:block/food_platter",
+    "food": "noellesroles:item/foodstuff"
   },
   "elements": [
     {
-      "from": [2, 0.2, 2],
-      "to": [14, 1.6, 14],
+      "from": [2, 0, 2],
+      "to": [14, 1, 14],
       "faces": {
-        "down": { "uv": [2, 2, 14, 14], "texture": "#all", "cullface": "down" },
-        "up": { "uv": [2, 2, 14, 14], "texture": "#all", "cullface": "up" },
-        "north": { "uv": [2, 0.2, 14, 1.6], "texture": "#all" },
-        "south": { "uv": [2, 0.2, 14, 1.6], "texture": "#all" },
-        "west": { "uv": [2, 0.2, 14, 1.6], "texture": "#all" },
-        "east": { "uv": [2, 0.2, 14, 1.6], "texture": "#all" }
+        "down": { "uv": [6.5, 1.5, 12.5, 7.5], "texture": "#tray" },
+        "up": { "uv": [0, 1.5, 6, 7.5], "texture": "#tray" },
+        "north": { "uv": [0, 1, 6, 2], "texture": "#tray" },
+        "south": { "uv": [0, 1, 6, 2], "texture": "#tray" },
+        "east": { "uv": [0, 1, 6, 2], "texture": "#tray" },
+        "west": { "uv": [0, 1, 6, 2], "texture": "#tray" }
+      }
+    },
+    {
+      "from": [14, 0, 2],
+      "to": [16, 1, 14],
+      "rotation": { "origin": [14, 0, 14], "axis": "z", "angle": 22.5 },
+      "faces": {
+        "down": { "uv": [0, 1, 6, 2], "texture": "#tray" },
+        "up": { "uv": [0, 1, 6, 2], "texture": "#tray" },
+        "north": { "uv": [0, 1, 6, 2], "texture": "#tray" },
+        "south": { "uv": [0, 1, 6, 2], "texture": "#tray" },
+        "east": { "uv": [0, 1, 6, 2], "texture": "#tray" },
+        "west": { "uv": [0, 1, 6, 2], "texture": "#tray" }
+      }
+    },
+    {
+      "from": [0, 0, 2],
+      "to": [2, 1, 14],
+      "rotation": { "origin": [2, 0, 2], "axis": "z", "angle": -22.5 },
+      "faces": {
+        "down": { "uv": [0, 1, 6, 2], "texture": "#tray" },
+        "up": { "uv": [0, 1, 6, 2], "texture": "#tray" },
+        "north": { "uv": [0, 1, 6, 2], "texture": "#tray" },
+        "south": { "uv": [0, 1, 6, 2], "texture": "#tray" },
+        "east": { "uv": [0, 1, 6, 2], "texture": "#tray" },
+        "west": { "uv": [0, 1, 6, 2], "texture": "#tray" }
+      }
+    },
+    {
+      "from": [2, 0, 0],
+      "to": [14, 1, 2],
+      "rotation": { "origin": [14, 0, 2], "axis": "x", "angle": 22.5 },
+      "faces": {
+        "down": { "uv": [0, 1, 6, 2], "texture": "#tray" },
+        "up": { "uv": [0, 1, 6, 2], "texture": "#tray" },
+        "north": { "uv": [0, 1, 6, 2], "texture": "#tray" },
+        "south": { "uv": [0, 1, 6, 2], "texture": "#tray" },
+        "east": { "uv": [0, 1, 6, 2], "texture": "#tray" },
+        "west": { "uv": [0, 1, 6, 2], "texture": "#tray" }
+      }
+    },
+    {
+      "from": [2, 0, 14],
+      "to": [14, 1, 16],
+      "rotation": { "origin": [2, 0, 14], "axis": "x", "angle": -22.5 },
+      "faces": {
+        "down": { "uv": [0, 1, 6, 2], "texture": "#tray" },
+        "up": { "uv": [0, 1, 6, 2], "texture": "#tray" },
+        "north": { "uv": [0, 1, 6, 2], "texture": "#tray" },
+        "south": { "uv": [0, 1, 6, 2], "texture": "#tray" },
+        "east": { "uv": [0, 1, 6, 2], "texture": "#tray" },
+        "west": { "uv": [0, 1, 6, 2], "texture": "#tray" }
+      }
+    },
+    {
+      "from": [4.5, 1, 4.5],
+      "to": [11.5, 3, 11.5],
+      "shade": false,
+      "faces": {
+        "down": { "uv": [0, 0, 16, 16], "texture": "#food" },
+        "up": { "uv": [0, 0, 16, 16], "texture": "#food" },
+        "north": { "uv": [0, 0, 16, 16], "texture": "#food" },
+        "south": { "uv": [0, 0, 16, 16], "texture": "#food" },
+        "east": { "uv": [0, 0, 16, 16], "texture": "#food" },
+        "west": { "uv": [0, 0, 16, 16], "texture": "#food" }
       }
     }
   ]

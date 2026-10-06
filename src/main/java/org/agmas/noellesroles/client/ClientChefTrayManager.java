@@ -101,9 +101,15 @@ public class ClientChefTrayManager {
             return;
         }
         for (ClientTray tray : TRAYS.values()) {
-            if (!level.getBlockState(tray.pos).is(tray.selfState().getBlock())) {
-                // 被左键拆掉或被别的方块顶替 → 重新画回来
-                level.setBlock(tray.pos, tray.selfState(), 3);
+            // 必须按「当前应有的状态」恢复，而不是无脑恢复成默认的空盘状态。
+            // 盘子只存在于客户端，服务端不承认它的存在：区块数据（区块更新包）会把该位置刷回空气，
+            // 而 ChefTrayBlockUpdateMixin 只拦了单方块更新包、拦不住区块更新包。
+            // 若这里用 selfState()（occupied=false）恢复，装了食物/饮料的盘子会退化成空盘模型；
+            // 空盘模型 chef_food_tray / chef_drink_tray 的 parent 是外部模组 wathe:block/food_platter，
+            // 于是玩家看到的材质会「变成别的东西」，而不是本模组的装填状态。
+            BlockState want = tray.selfState().setValue(BlockStateProperties.OCCUPIED, tray.filled);
+            if (!level.getBlockState(tray.pos).equals(want)) {
+                level.setBlock(tray.pos, want, 3);
             }
         }
     }

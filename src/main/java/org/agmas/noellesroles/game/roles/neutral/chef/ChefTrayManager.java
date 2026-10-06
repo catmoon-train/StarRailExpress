@@ -11,6 +11,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
+import net.minecraft.world.InteractionHand;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.state.BlockState;
 import org.agmas.noellesroles.init.ModItems;
@@ -180,16 +181,40 @@ public final class ChefTrayManager {
             return;
         }
 
+        // 只有空手时才尝试取出。
+        // 手上有东西就取出会造成「厨师手持食物右键盘子 → 食物被放进盘子又立刻被取回、
+        // 并白白进入 30 秒冷却」这种看起来像凭空消耗冷却的情况。
+        if (!held.isEmpty()) {
+            player.displayClientMessage(
+                    Component.translatable("message.noellesroles.chef.tray_hand_not_empty")
+                            .withStyle(ChatFormatting.YELLOW),
+                    true);
+            return;
+        }
         takeOne(player, tray);
     }
 
-    /** 取出盘子里随机的一份。 */
+    /**
+     * 从盘子里取出一份，直接放进玩家的主手。
+     *
+     * <p>
+     * 主手必须为空：取出的东西要直接给到主手，主手被占时既放不下，也不应该白白消耗掉盘子里的食物。
+     * 取出失败（空盘 / 主手有东西 / 冷却中）一律不会设置冷却，只有真正拿到食物才进入冷却。
+     */
     private static void takeOne(ServerPlayer player, Tray tray) {
         if (tray.items.isEmpty()) {
             player.displayClientMessage(
                     Component.translatable("message.noellesroles.chef.tray_empty").withStyle(ChatFormatting.GRAY), true);
             return;
         }
+        if (!player.getMainHandItem().isEmpty()) {
+            player.displayClientMessage(
+                    Component.translatable("message.noellesroles.chef.tray_hand_not_empty")
+                            .withStyle(ChatFormatting.YELLOW),
+                    true);
+            return;
+        }
+
         long now = player.level().getGameTime();
         Long readyAt = TAKE_READY_AT.get(player.getUUID());
         if (readyAt != null && now < readyAt) {
@@ -200,9 +225,9 @@ public final class ChefTrayManager {
 
         ItemStack taken = tray.items.remove(player.getRandom().nextInt(tray.items.size())).copy();
         taken.setCount(1);
-        if (!player.getInventory().add(taken)) {
-            player.drop(taken, false);
-        }
+        // 直接进主手：保证「冷却结束后右键一定能拿到厨师放进去的那个食物 / 饮料」，
+        // 不会因为 Inventory.add 找空槽失败而只掉在地上。
+        player.setItemInHand(InteractionHand.MAIN_HAND, taken);
         player.playNotifySound(SoundEvents.ITEM_PICKUP, SoundSource.BLOCKS, 1.0F, 0.9F);
         TAKE_READY_AT.put(player.getUUID(), now + TAKE_COOLDOWN_TICKS);
         syncFilled(player.serverLevel(), tray);
