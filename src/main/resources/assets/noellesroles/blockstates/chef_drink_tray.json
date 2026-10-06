@@ -1,7 +1,7 @@
 {
   "variants": {
     "": {
-      "model": "noellesroles:block/chef_drink_tray"
+      "model": "wathe:block/drink_tray"
     }
   }
 }
