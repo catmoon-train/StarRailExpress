@@ -5081,6 +5081,7 @@
   "message.noellesroles.chef.tray_placed_drink": "Placed a client drink tray",
   "message.noellesroles.chef.tray_only_chef_put": "Only the chef can put items into trays",
   "message.noellesroles.chef.tray_full": "This tray is already full",
+  "message.noellesroles.chef.tray_has_item": "This tray already has food in it",
   "message.noellesroles.chef.tray_empty": "This tray is empty",
   "message.noellesroles.chef.tray_take_cd": "Take cooldown: %s seconds left",
   "message.noellesroles.chef.tray_hand_not_empty": "Your main hand is occupied, free it before taking from a tray",

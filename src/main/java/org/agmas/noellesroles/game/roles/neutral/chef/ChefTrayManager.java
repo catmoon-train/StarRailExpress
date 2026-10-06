@@ -171,6 +171,15 @@ public final class ChefTrayManager {
                         true);
                 return;
             }
+            if (!tray.items.isEmpty()) {
+                // 盘子里已经有东西了就不收：盘内物品是「展示 + 无限取用」的，
+                // 塞第二份既渲染不出来（只下发一份代表物品）也没有意义
+                player.displayClientMessage(
+                        Component.translatable("message.noellesroles.chef.tray_has_item")
+                                .withStyle(ChatFormatting.RED),
+                        true);
+                return;
+            }
             if (tray.items.size() >= MAX_ITEMS_PER_TRAY) {
                 player.displayClientMessage(
                         Component.translatable("message.noellesroles.chef.tray_full").withStyle(ChatFormatting.RED),
@@ -247,6 +256,7 @@ public final class ChefTrayManager {
             return;
         }
         for (Tray tray : TRAYS.values()) {
+            level.removeBlockEntity(tray.pos);
             broadcast(level, ChefTrayS2CPacket.remove(tray.id, tray.pos));
         }
         TRAYS.clear();

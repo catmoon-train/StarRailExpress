@@ -323,6 +323,11 @@ public class NoellesrolesClient implements ClientModInitializer {
 
         BlockEntityRenderers.register(SREFumoBlocks.PLUSH_BLOCK_ENTITY, SREPlushBlockEntityRenderer::new);
 
+        // 厨师「客户端」食物盘 / 饮料盘：盘内物品居中渲染，参数与原版食物盘一致
+        BlockEntityRenderers.register(
+                ModBlocks.CHEF_TRAY_BLOCK_ENTITY,
+                org.agmas.noellesroles.client.render.ChefPlateRenderer::new);
+
         BlockRenderLayerMap.INSTANCE.putBlock(ModBlocks.VENDING_MACHINES_BLOCK, RenderType.translucent());
         BlockRenderLayerMap.INSTANCE.putBlock(ModBlocks.LOTTERY_MACHINE_BLOCK, RenderType.translucent());
         // 场景方块：有毒区域 / 迷雾区域 半透明
@@ -331,8 +336,6 @@ public class NoellesrolesClient implements ClientModInitializer {
         BlockRenderLayerMap.INSTANCE.putBlock(
                 org.agmas.noellesroles.init.ModSceneBlocks.FOG_ZONE, RenderType.translucent());
         LoopingMirrorClientRenderer.register();
-        // 厨师食物盘 / 饮料盘：用物品渲染器把盘内的食物与饮料画成真实物品模型
-        ClientChefTrayManager.register();
         // 灌木（树叶贴图）使用 cutout 渲染层
         BlockRenderLayerMap.INSTANCE.putBlock(
                 org.agmas.noellesroles.init.ModSceneBlocks.BUSH, RenderType.cutoutMipped());
