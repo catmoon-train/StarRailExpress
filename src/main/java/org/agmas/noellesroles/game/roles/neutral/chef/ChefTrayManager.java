@@ -35,6 +35,8 @@ import java.util.UUID;
  * <ul>
  * <li>只有厨师能放入，且食物盘只收「烹饪后的食物 / 一包零食」，饮料盘只收「一杯水」；</li>
  * <li>任何玩家都能取，但同一名玩家两次取用之间有 {@link #TAKE_COOLDOWN_TICKS} 冷却；</li>
+ * <li><b>取用不消耗存货</b>：盘子里的食物 / 饮料不会被取走，只是「借」一份给玩家，
+ * 所以同一个盘子可以被多名玩家反复取用，也永远不会因为被取空而消失内容物；</li>
  * <li>盘子会一直存在到当局游戏结束，届时 {@link #clearAll(ServerLevel)} 统一清除。</li>
  * </ul>
  */
@@ -132,7 +134,7 @@ public final class ChefTrayManager {
         TRAYS.put(id, tray);
         INDEX.put(pos, id);
 
-        broadcast(level, ChefTrayS2CPacket.place(id, pos, drink, false));
+        broadcast(level, ChefTrayS2CPacket.place(id, pos, drink, ItemStack.EMPTY));
         level.playSound(null, pos, SoundEvents.WOOD_PLACE, SoundSource.BLOCKS, 0.8F, drink ? 1.4F : 1.0F);
         chef.displayClientMessage(Component.translatable(drink
                 ? "message.noellesroles.chef.tray_placed_drink"
@@ -177,7 +179,7 @@ public final class ChefTrayManager {
             }
             tray.items.add(held.split(1));
             player.playNotifySound(SoundEvents.ITEM_PICKUP, SoundSource.BLOCKS, 1.0F, 1.2F);
-            syncFilled(level, tray);
+            syncContent(level, tray);
             return;
         }
 
@@ -195,10 +197,14 @@ public final class ChefTrayManager {
     }
 
     /**
-     * 从盘子里取出一份，直接放进玩家的主手。
+     * 从盘子里<b>复制</b>一份直接放进玩家的主手（<b>不会把盘子里的食物取走</b>）。
      *
      * <p>
-     * 主手必须为空：取出的东西要直接给到主手，主手被占时既放不下，也不应该白白消耗掉盘子里的食物。
+     * 盘子里的存货是「无限供应」的：这里只读取一份副本发给玩家，{@code tray.items} 保持不变，
+     * 因此冷却结束后右键还能继续取，同一个盘子可以供多名玩家反复取用。
+     *
+     * <p>
+     * 主手必须为空：取出的东西要直接给到主手，主手被占时既放不下，也不该白扣一次冷却。
      * 取出失败（空盘 / 主手有东西 / 冷却中）一律不会设置冷却，只有真正拿到食物才进入冷却。
      */
     private static void takeOne(ServerPlayer player, Tray tray) {
@@ -223,14 +229,14 @@ public final class ChefTrayManager {
             return;
         }
 
-        ItemStack taken = tray.items.remove(player.getRandom().nextInt(tray.items.size())).copy();
+        ItemStack taken = tray.items.get(player.getRandom().nextInt(tray.items.size())).copy();
         taken.setCount(1);
         // 直接进主手：保证「冷却结束后右键一定能拿到厨师放进去的那个食物 / 饮料」，
         // 不会因为 Inventory.add 找空槽失败而只掉在地上。
         player.setItemInHand(InteractionHand.MAIN_HAND, taken);
         player.playNotifySound(SoundEvents.ITEM_PICKUP, SoundSource.BLOCKS, 1.0F, 0.9F);
         TAKE_READY_AT.put(player.getUUID(), now + TAKE_COOLDOWN_TICKS);
-        syncFilled(player.serverLevel(), tray);
+        // 取用不消耗存货 → 盘子内容没有变化，不需要再广播 UPDATE
     }
 
     // ==================== 清理 ====================
@@ -260,9 +266,13 @@ public final class ChefTrayManager {
         return gameWorld != null && gameWorld.isRole(player, ModRoles.CHEF);
     }
 
-    /** 内容物变化时通知所有客户端切换「空 / 满」模型。 */
-    private static void syncFilled(ServerLevel level, Tray tray) {
-        broadcast(level, ChefTrayS2CPacket.update(tray.id, tray.pos, !tray.isEmpty()));
+    /** 内容物变化时通知所有客户端：带上要渲染的那一份物品，供客户端渲染真实模型。 */
+    private static void syncContent(ServerLevel level, Tray tray) {
+        ItemStack shown = tray.items.isEmpty() ? ItemStack.EMPTY : tray.items.get(0).copy();
+        if (!shown.isEmpty()) {
+            shown.setCount(1);
+        }
+        broadcast(level, ChefTrayS2CPacket.update(tray.id, tray.pos, shown));
     }
 
     private static void broadcast(ServerLevel level, ChefTrayS2CPacket packet) {

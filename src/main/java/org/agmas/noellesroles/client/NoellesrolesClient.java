@@ -331,6 +331,8 @@ public class NoellesrolesClient implements ClientModInitializer {
         BlockRenderLayerMap.INSTANCE.putBlock(
                 org.agmas.noellesroles.init.ModSceneBlocks.FOG_ZONE, RenderType.translucent());
         LoopingMirrorClientRenderer.register();
+        // 厨师食物盘 / 饮料盘：用物品渲染器把盘内的食物与饮料画成真实物品模型
+        ClientChefTrayManager.register();
         // 灌木（树叶贴图）使用 cutout 渲染层
         BlockRenderLayerMap.INSTANCE.putBlock(
                 org.agmas.noellesroles.init.ModSceneBlocks.BUSH, RenderType.cutoutMipped());

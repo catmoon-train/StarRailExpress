@@ -11,10 +11,6 @@ import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.block.state.StateDefinition;
-import net.minecraft.world.level.block.state.properties.BlockStateProperties;
-import net.minecraft.world.level.block.state.properties.BooleanProperty;
-import net.minecraft.world.level.block.state.properties.Property;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
@@ -34,20 +30,18 @@ import net.minecraft.world.phys.shapes.VoxelShape;
  */
 public abstract class ChefTrayBlock extends Block {
 
-    /** 盘子里是否有食物 / 饮料，用于切换模型。 */
-    public static final BooleanProperty FILLED = BlockStateProperties.OCCUPIED;
-
-    /** 盘子的选取盒：底部 1~15，高度 2 像素。 */
+    /**
+     * 盘子的选取盒：底部 1~15，高度 2 像素。
+     *
+     * <p>
+     * 盘子刻意<b>不带任何 blockstate 属性</b>：盘子里装的东西由客户端渲染器
+     * （{@code ClientChefTrayManager#renderTrayContents}）直接把真实物品模型画在盘子里，
+     * 不需要也不应该用「空 / 满」变体去切换模型 —— 那只会切出一个贴了物品贴图的方块。
+     */
     protected static final VoxelShape SHAPE = box(1.0D, 0.0D, 1.0D, 15.0D, 2.0D, 15.0D);
 
     protected ChefTrayBlock(Properties properties) {
         super(properties);
-        this.registerDefaultState(this.stateDefinition.any().setValue(FILLED, Boolean.FALSE));
-    }
-
-    @Override
-    protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
-        builder.add(new Property[] { FILLED });
     }
 
     @Override
