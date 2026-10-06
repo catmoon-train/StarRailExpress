@@ -812,7 +812,7 @@
   "item.lores.noellesroles.once_revolver.line2": "It can be bought from vending machines",
   "item.lores.noellesroles.once_revolver.line3": "Killers and neutrals cannot buy this item from vending machines!",
   "item.noellesroles.zero_one_five_gun": "Zero One Five",
-  "item.noellesroles.zero_one_five_gun.tooltip": "Right-click to fire\nCan fire three shots in a row\nHit gives Slowness II for 3 seconds\nTwo hits kill the target\nCooldown 15 seconds after three shots, range 30 blocks",
+  "item.noellesroles.zero_one_five_gun.tooltip": "Right-click to fire\nCan fire three shots in a row\nHit gives Slowness II for 3 seconds\nTwo hits kill the target\nCooldown 15 seconds after three shots, range 30 blocks\nKillers kill a civilian and it drops as a revolver",
   "item.noellesroles.handcuffs": "Handcuffs",
   "item.noellesroles.handcuffs.put": "You handcuffed %s",
   "item.noellesroles.handcuffs.recieved": "You were handcuffed by %s. Press sneak to try breaking free.",

@@ -858,7 +858,7 @@
   "item.lores.noellesroles.once_revolver.line2": "它能從物品售貨機裏買到",
   "item.lores.noellesroles.once_revolver.line3": "殺手以及中立無法從物品售貨機裏購買此物品！",
   "item.noellesroles.zero_one_five_gun": "零一五",
-  "item.noellesroles.zero_one_five_gun.tooltip": "右鍵開槍\n可連續開三槍\n命中給予3秒緩慢II\n命中兩次擊殺目標\n三發後進入15秒冷卻，射程30格",
+  "item.noellesroles.zero_one_five_gun.tooltip": "右鍵開槍\n可連續開三槍\n命中給予3秒緩慢II\n命中兩次擊殺目標\n三發後進入15秒冷卻，射程30格\n殺手擊殺平民後掉落為左輪手槍",
   "item.noellesroles.handcuffs": "手銬",
   "item.noellesroles.handcuffs.put": "你給 %s 戴上了手銬",
   "item.noellesroles.handcuffs.recieved": "你被 %s 戴上了手銬。按下潛行嘗試掙脫。",
