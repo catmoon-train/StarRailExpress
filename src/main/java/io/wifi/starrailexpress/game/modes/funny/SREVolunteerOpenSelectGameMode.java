@@ -173,7 +173,7 @@ public class SREVolunteerOpenSelectGameMode extends SREMurderGameMode {
                 draftState.hiddenVisibleFor(id),
                 draftState.pickIndexOf(id),
                 draftState.chosenIndices(),
-                draftState.volunteerPoolIndex.getOrDefault(id, -1),
+                draftState.volunteerPoolIndexOf(id),
                 draftState.phase == VolunteerOpenDraftState.Phase.OPEN ? draftState.groupIndex + 1 : 0,
                 draftState.currentGroupMembers(),
                 draftState.groups.size(),

@@ -10,14 +10,13 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.EntityBlock;
+import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.block.state.StateDefinition;
-import net.minecraft.world.level.block.state.properties.BlockStateProperties;
-import net.minecraft.world.level.block.state.properties.BooleanProperty;
-import net.minecraft.world.level.block.state.properties.Property;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
+import org.agmas.noellesroles.content.block_entity.ChefPlateBlockEntity;
 
 /**
  * 厨师的「客户端」食物盘 / 饮料盘。
@@ -32,22 +31,30 @@ import net.minecraft.world.phys.shapes.VoxelShape;
  *
  * <p>形状是一个薄盘子（高 2 像素），无碰撞：玩家可以直接走过去。
  */
-public abstract class ChefTrayBlock extends Block {
+public abstract class ChefTrayBlock extends Block implements EntityBlock {
 
-    /** 盘子里是否有食物 / 饮料，用于切换模型。 */
-    public static final BooleanProperty FILLED = BlockStateProperties.OCCUPIED;
-
-    /** 盘子的选取盒：底部 1~15，高度 2 像素。 */
+    /**
+     * 盘子的选取盒：底部 1~15，高度 2 像素。
+     *
+     * <p>
+     * 盘子刻意<b>不带任何 blockstate 属性</b>：盘内物品由
+     * {@code ChefPlateRenderer} 通过方块实体渲染，不需要「空 / 满」变体。
+     */
     protected static final VoxelShape SHAPE = box(1.0D, 0.0D, 1.0D, 15.0D, 2.0D, 15.0D);
 
     protected ChefTrayBlock(Properties properties) {
         super(properties);
-        this.registerDefaultState(this.stateDefinition.any().setValue(FILLED, Boolean.FALSE));
     }
 
+    /**
+     * 必须声明为携带方块实体的方块（{@link EntityBlock}）：
+     * {@code Level.setBlockEntity} 开头会检查 {@code getBlockState(pos).hasBlockEntity()}，
+     * 不满足就<b>静默忽略</b> —— 之前盘内物品一直渲染不出来，就是因为这里没实现 EntityBlock，
+     * 客户端挂上去的 {@link ChefPlateBlockEntity} 根本没进渲染管线。
+     */
     @Override
-    protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
-        builder.add(new Property[] { FILLED });
+    public BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
+        return new ChefPlateBlockEntity(pos, state);
     }
 
     @Override

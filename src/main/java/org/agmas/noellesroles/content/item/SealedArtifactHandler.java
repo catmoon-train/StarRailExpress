@@ -32,6 +32,7 @@ import net.minecraft.core.component.DataComponents;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.sounds.SoundEvent;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
@@ -187,6 +188,7 @@ public final class SealedArtifactHandler {
             case "sealed_vanishing_cloak" -> useCloak(player, stack, item);
             case "sealed_doorless_key" -> useKey(player, stack, item);
             case "sealed_last_match" -> useMatch(player, stack, item);
+            case "sealed_splintered_compass" -> useCompass(player, stack, item);
             default -> InteractionResultHolder.pass(stack);
         };
     }
@@ -365,6 +367,13 @@ public final class SealedArtifactHandler {
         }
     }
 
+    /**
+     * 碎裂罗盘：每 8 秒报一次最近杀手的方向。
+     *
+     * <p>负面效果为「指针漂移」：小概率下指针会指向一个<strong>错误</strong>的方向，
+     * 把玩家往反方向引（不再随机传送）。措辞与真实情况略有差别，玩家能感觉到"这次不太一样"，
+     * 但拿不准是否被坑——这正是负面效果的意义。
+     */
     private static void tickCompass(ServerPlayer player, long gameTime) {
         if (gameTime % 160 != player.getId() % 160) {
             return;
@@ -373,23 +382,17 @@ public final class SealedArtifactHandler {
         if (killer == null) {
             player.displayClientMessage(Component.translatable("message.noellesroles.sealed.compass_empty")
                     .withStyle(ChatFormatting.GRAY), true);
-        } else {
-            player.displayClientMessage(Component.translatable("message.noellesroles.sealed.compass_dir",
-                            worldDir(player, killer)).withStyle(ChatFormatting.RED), true);
+            return;
         }
-        if (player.getRandom().nextFloat() < 0.015f) {
-            Vec3 dest = player.position().add(
-                    (player.getRandom().nextDouble() - 0.5) * 8,
-                    0,
-                    (player.getRandom().nextDouble() - 0.5) * 8);
-            BlockPos stand = findStand(player.serverLevel(), BlockPos.containing(dest));
-            if (stand != null) {
-                player.teleportTo(stand.getX() + 0.5, stand.getY(), stand.getZ() + 0.5);
-                player.displayClientMessage(Component.translatable("message.noellesroles.sealed.compass_drift")
-                        .withStyle(ChatFormatting.RED), true);
-            } else {
-                GameUtils.teleportToRandomRoom(player);
-            }
+        boolean drifted = player.getRandom().nextFloat() < 0.015f;
+        Component dir = drifted ? wrongDirOf(player, killer) : worldDir(player, killer);
+        player.displayClientMessage(
+                Component.translatable(drifted
+                        ? "message.noellesroles.sealed.compass_drift"
+                        : "message.noellesroles.sealed.compass_dir", dir)
+                        .withStyle(drifted ? ChatFormatting.DARK_GRAY : ChatFormatting.RED),
+                true);
+        if (drifted) {
             player.level().playSound(null, player.blockPosition(), SoundEvents.ENDERMAN_TELEPORT,
                     SoundSource.PLAYERS, 0.6f, 0.8f);
         }
@@ -562,28 +565,91 @@ public final class SealedArtifactHandler {
     }
 
     private static Component worldDir(Player from, Player to) {
+        return dirText(dirKeyOf(from, to));
+    }
+
+    /** 罗盘的八个方向 key，顺序固定，便于随机取一个"错误方向"。 */
+    private static final String[] DIR_KEYS = {
+            "north", "south", "east", "west",
+            "northeast", "northwest", "southeast", "southwest"
+    };
+
+    /**
+     * 负面效果：返回一个<strong>与真实方向不同</strong>的方向 key。
+     *
+     * <p>从八方位里排除真实方向后再随机，因此漂移时一定会指错（不会碰巧指对）。
+     */
+    private static Component wrongDirOf(Player from, Player to) {
+        String real = dirKeyOf(from, to);
+        String[] pool = new String[DIR_KEYS.length - 1];
+        int count = 0;
+        for (String key : DIR_KEYS) {
+            if (!key.equals(real)) {
+                pool[count++] = key;
+            }
+        }
+        return dirText(pool[from.getRandom().nextInt(pool.length)]);
+    }
+
+    private static Component dirText(String key) {
+        return Component.translatable("message.noellesroles.sealed.dir." + key);
+    }
+
+    /** 由 from 指向 to 的方位 key（判定与原 worldDir 完全一致）。 */
+    private static String dirKeyOf(Player from, Player to) {
         double dx = to.getX() - from.getX();
         double dz = to.getZ() - from.getZ();
-        double angle = Mth.wrapDegrees(Math.toDegrees(Math.atan2(-dx, dz)));
-        String key;
+        return dirKeyOfAngle(Mth.wrapDegrees(Math.toDegrees(Math.atan2(-dx, dz))));
+    }
+
+    /**
+     * 由玩家 yaw 得到的朝向 key。
+     *
+     * <p>Minecraft 的 yaw 约定与上面的 angle 一致（0 = 南、90 = 西、180 = 北、-90 = 东），
+     * 所以可以直接复用同一套八方位判定。
+     */
+    private static String dirKeyOfYaw(float yaw) {
+        return dirKeyOfAngle(Mth.wrapDegrees(yaw));
+    }
+
+    /** 0 = 南，顺时针为正，八方位切分。 */
+    private static String dirKeyOfAngle(double angle) {
         if (angle >= -22.5 && angle < 22.5) {
-            key = "south";
+            return "south";
         } else if (angle >= 22.5 && angle < 67.5) {
-            key = "southwest";
+            return "southwest";
         } else if (angle >= 67.5 && angle < 112.5) {
-            key = "west";
+            return "west";
         } else if (angle >= 112.5 && angle < 157.5) {
-            key = "northwest";
+            return "northwest";
         } else if (angle >= -67.5 && angle < -22.5) {
-            key = "southeast";
+            return "southeast";
         } else if (angle >= -112.5 && angle < -67.5) {
-            key = "east";
+            return "east";
         } else if (angle >= -157.5 && angle < -112.5) {
-            key = "northeast";
+            return "northeast";
         } else {
-            key = "north";
+            return "north";
         }
-        return Component.translatable("message.noellesroles.sealed.dir." + key);
+    }
+
+    /**
+     * 右键碎裂罗盘：在 actionbar 告知玩家自己当前朝向的方位。
+     *
+     * <p>与被动报时（tickCompass）共用同一套八方位判定，不会出现"指了一个方向、
+     * 玩家转身后键位对不上"的错位。冷却极短，只为防止按住右键刷屏。
+     */
+    private static InteractionResultHolder<ItemStack> useCompass(ServerPlayer player, ItemStack stack, Item item) {
+        Component facing = dirText(dirKeyOfYaw(player.getYRot()));
+        player.displayClientMessage(
+                Component.translatable("message.noellesroles.sealed.compass_facing", facing)
+                        .withStyle(ChatFormatting.AQUA),
+                true);
+        ResourceLocation compassClick = ResourceLocation.withDefaultNamespace("item.compass.click");
+        player.playNotifySound(SoundEvent.createVariableRangeEvent(compassClick),
+                SoundSource.PLAYERS, 0.5f, 1.6f);
+        player.getCooldowns().addCooldown(item, 10);
+        return InteractionResultHolder.success(stack);
     }
 
     private static ItemStack find(Player player, Item item) {

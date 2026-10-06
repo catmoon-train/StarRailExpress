@@ -1853,7 +1853,8 @@ public class RoleShopHandler {
                             return false;
                         }
                     }
-                    return true;
+                    // 必须调用默认实现发放罗盘（否则只扣钱不给货）
+                    return super.onBuy(player);
                 }
             });
         }

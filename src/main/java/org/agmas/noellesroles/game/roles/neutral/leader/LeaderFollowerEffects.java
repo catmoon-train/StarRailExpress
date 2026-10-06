@@ -570,6 +570,59 @@ public final class LeaderFollowerEffects {
     }
 
     /**
+     * 判断该职业能否被领袖招募为追随者（纯职业态判定，不涉及具体玩家）。
+     *
+     * <p>
+     * 规则与 {@link #tryRecruit} 的技能释放筛选完全一致，同时被生成期的「领袖特判」共用，
+     * 避免出现「抽到了领袖却没有任何可招募对象、领袖必然空放技能」的情况：
+     * <ul>
+     * <li>教父：仅可对 {@code isMafiaTeam()} 为 true 的教父释放；</li>
+     * <li>其余目标：必须是非杀手方中立（{@code isNeutrals()} 且 {@code !isNeutralForKiller()}），
+     * 并排除 {@code isInnocent()} 与 {@code canUseKiller()} 的职业；</li>
+     * <li>好人方中立（{@code isNeutralForInnocent()}）：仅失忆患者(amnesiac)与初学者(initiate)例外可招募；</li>
+     * <li>蜜蜂家族：仅蜂后(bee_queen)可招募；</li>
+     * <li>禁止：亡命徒 / 超级亡命徒 / 领袖自身 / 假史蒂夫。</li>
+     * </ul>
+     *
+     * @param role 目标职业
+     * @return 是否可被领袖招募
+     */
+    public static boolean isRecruitableRole(SRERole role) {
+        if (role == null) {
+            return false;
+        }
+        String path = role.identifier().getPath();
+
+        // 禁止：亡命徒 / 超级亡命徒 / 领袖自身
+        if (path.equals("loose_end") || path.equals("super_loose_end") || path.equals("leader")) {
+            return false;
+        }
+
+        // 禁止：假史蒂夫（fake_steve）
+        if (path.equals("fake_steve")) {
+            return false;
+        }
+
+        // 教父：仅可对 isMafiaTeam 为 true 的教父释放
+        if (role.isMafiaTeam()) {
+            return path.equals("godfather");
+        }
+
+        // 中立目标：额外排除无辜者（isInnocent）与可使用杀手能力的目标（canUseKiller）
+        if (!role.isNeutrals() || role.isNeutralForKiller()
+                || role.isInnocent() || role.canUseKiller()) {
+            return false;
+        }
+        // 好人方中立（isNeutralForInnocent）：除失忆患者(amnesiac)与初学者(initiate)外不可招募
+        if (role.isNeutralForInnocent()
+                && !path.equals("amnesiac") && !path.equals("initiate")) {
+            return false;
+        }
+        // 蜜蜂家族：仅可对蜂后释放，其余蜜蜂家族职业（工蜂、胡蜂等）禁止
+        return !(role instanceof BeeFamilyRole) || path.equals("bee_queen");
+    }
+
+    /**
      * 领袖技能释放：将目标招募为追随者。
      *
      * @param leader 领袖
@@ -592,36 +645,15 @@ public final class LeaderFollowerEffects {
         }
         String path = targetRole.identifier().getPath();
 
-        // 禁止：亡命徒 / 超级亡命徒 / 领袖自身
-        if (path.equals("loose_end") || path.equals("super_loose_end") || path.equals("leader")) {
+        // 禁止：被假史蒂夫替换（fake_steve_replaced）的玩家
+        if (FakeSteveDirector.isReplaced(target)) {
             return false;
         }
 
-        // 禁止：假史蒂夫（fake_steve）职业，以及被假史蒂夫替换（fake_steve_replaced）的玩家
-        if (path.equals("fake_steve") || FakeSteveDirector.isReplaced(target)) {
+        // 职业筛选：与生成期「领袖特判」共用 isRecruitableRole，
+        // 保证「能刷出领袖」等价于「场上至少存在一个领袖可招募的对象」
+        if (!isRecruitableRole(targetRole)) {
             return false;
-        }
-
-        // 教父：仅可对 isMafiaTeam 为 true 的教父释放
-        if (targetRole.isMafiaTeam()) {
-            if (!path.equals("godfather")) {
-                return false;
-            }
-        } else {
-            // 中立目标：额外排除无辜者（isInnocent）与可使用杀手能力的目标（canUseKiller）
-            if (!targetRole.isNeutrals() || targetRole.isNeutralForKiller()
-                    || targetRole.isInnocent() || targetRole.canUseKiller()) {
-                return false;
-            }
-            // 好人方中立（isNeutralForInnocent）：除失忆患者(amnesiac)与初学者(initiate)外禁止释放技能
-            if (targetRole.isNeutralForInnocent()
-                    && !path.equals("amnesiac") && !path.equals("initiate")) {
-                return false;
-            }
-            // 蜜蜂家族：仅可对蜂后释放，其余蜜蜂家族职业（工蜂、胡蜂等）禁止
-            if (targetRole instanceof BeeFamilyRole && !path.equals("bee_queen")) {
-                return false;
-            }
         }
 
         // 释放成功：标记技能已用

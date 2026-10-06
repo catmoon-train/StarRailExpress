@@ -139,6 +139,19 @@ public interface ModBlocks {
     Block CHEF_FOOD_TRAY = registerBlockOnly("chef_food_tray", new ChefTrayBlock.Food(chefTrayProperties()));
     Block CHEF_DRINK_TRAY = registerBlockOnly("chef_drink_tray", new ChefTrayBlock.Drink(chefTrayProperties()));
 
+    /**
+     * 厨师盘子的方块实体：承载「盘里装着什么」，由 {@code ChefPlateRenderer} 渲染。
+     *
+     * <p>必须是一个独立类型：{@code BlockEntity} 构造函数会校验 {@code type.isValid(state)}，
+     * 原版的 {@code trainmurdermystery:beverage_plate} 只接受 {@code food_platter} / {@code drink_tray}，
+     * 用厨师的方块状态去 new 它会直接抛异常。
+     *
+     * <p>声明在两个方块字段之后，接口字段按声明顺序初始化，保证 {@code of(...)} 能拿到方块。
+     */
+    BlockEntityType<ChefPlateBlockEntity> CHEF_TRAY_BLOCK_ENTITY = blockEntityRegistrar.create(
+            "chef_tray",
+            BlockEntityType.Builder.of(ChefPlateBlockEntity::new, CHEF_FOOD_TRAY, CHEF_DRINK_TRAY));
+
     private static BlockBehaviour.Properties chefTrayProperties() {
         return BlockBehaviour.Properties.of()
                 .noOcclusion()

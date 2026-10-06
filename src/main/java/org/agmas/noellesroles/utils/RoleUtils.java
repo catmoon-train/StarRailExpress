@@ -72,6 +72,7 @@ import org.agmas.harpymodloader.modded_murder.PlayerRoleWeightManager;
 import org.agmas.harpymodloader.modifiers.HMLModifiers;
 import org.agmas.harpymodloader.modifiers.SREModifier;
 import org.agmas.noellesroles.role.ModRoles;
+import org.agmas.noellesroles.role_data.innocence.DisabledPatientRoleData;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -410,6 +411,7 @@ public class RoleUtils extends MCItemsUtils {
                             player.getInventory().removeItem(itemStack);
                         });
             }
+            DisabledPatientRoleData.clearGrantedEffects(player);
             if (!noEventCall)
                 ((ModdedRoleRemoved) ModdedRoleRemoved.EVENT.invoker()).removeModdedRole(player, oldRole);
         }

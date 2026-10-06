@@ -1301,7 +1301,8 @@ public class ModRoles {
             .registerRole(new NormalRole(BETTER_VIGILANTE_ID, new Color(0, 255, 255).getRGB(), true, false,
                     SRERole.MoodType.FAKE, TMMRoles.CIVILIAN.getMaxSprintTime(), false)
                     .setRoleData(BetterVigilanteRoleData::new))
-            .setCanBeRandomedByOtherRoles(false).setDefaultMax(0);
+            .setCanBeRandomedByOtherRoles(false).setDefaultMax(0)
+            .setCanUseSpVanillaWeapon(true);
     public static SRERole BROADCASTER = TMMRoles
             .registerRole(new NormalRole(BROADCASTER_ID, new Color(0, 255, 0).getRGB(), true,
                     false, SRERole.MoodType.REAL, TMMRoles.CIVILIAN.getMaxSprintTime(), true)

@@ -40,7 +40,8 @@ import java.util.Set;
 
 /** 传菜员的托盘识毒、取餐和喂食逻辑。 */
 public class WaiterRole extends NormalRole {
-    private static final int TRAY_TAKE_LIMIT = 3;
+    /** 传菜员能同时携带的盘子食物 / 饮料上限（厨师盘子机制也复用该常量）。 */
+    public static final int TRAY_TAKE_LIMIT = 3;
 
     public WaiterRole(ResourceLocation identifier, int color, boolean isInnocent,
             boolean canUseKiller, MoodType moodType, int maxSprintTime, boolean canSeeTime) {

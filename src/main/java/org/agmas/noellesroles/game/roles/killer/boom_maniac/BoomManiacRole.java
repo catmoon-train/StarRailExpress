@@ -28,7 +28,7 @@ import java.util.List;
  * <p>职业规则全部集中在本类：
  * <ul>
  * <li>初始物品：一把弩；</li>
- * <li>商店：85 金币购买飞行时间为 3 的小型球状烟花火箭，
+ * <li>商店：60 金币购买飞行时间为 3 的小型球状烟花火箭，
  *     其余为通用杀手商店去掉刀 / 左轮手枪 / 短管霰弹枪 / 疯狂模式（价格沿用配置项）；</li>
  * <li>技能：将主手物品切换至副手（参考网警，见 {@link #swapHeldItem(ServerPlayer)}）。</li>
  * </ul>
@@ -36,7 +36,7 @@ import java.util.List;
 public class BoomManiacRole extends NormalRole {
 
     /** 烟花火箭价格（金币）。 */
-    public static final int FIREWORK_PRICE = 85;
+    public static final int FIREWORK_PRICE = 60;
     /** 烟花火箭飞行时间（Fireworks.Flight）。 */
     public static final int FIREWORK_FLIGHT = 3;
 
@@ -52,7 +52,7 @@ public class BoomManiacRole extends NormalRole {
     }
 
     /**
-     * 专属商店：小型球状烟花火箭（85 金币）+ 通用杀手商店条目
+     * 专属商店：小型球状烟花火箭（60 金币）+ 通用杀手商店条目
      * （去掉刀 / 左轮手枪 / 短管霰弹枪 / 疯狂模式，其余条目价格沿用配置项）。
      */
     @Override

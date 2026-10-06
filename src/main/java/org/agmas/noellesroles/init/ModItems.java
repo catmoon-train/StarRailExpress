@@ -535,7 +535,9 @@ public class ModItems {
      * - 食用后将自己的虚拟血量条补满
      */
     public static final Item RECOVERY_PILL = register(
-            new RecoveryPillItem(new Item.Properties().stacksTo(16)),
+            new RecoveryPillItem((new Item.Properties()).stacksTo(16)
+                    .food((new FoodProperties.Builder()).nutrition(1).saturationModifier(0.1F)
+                            .alwaysEdible().build())),
             "recovery_pill", ROLE_ITEMS_GROUP);
 
     /**
