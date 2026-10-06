@@ -21,6 +21,7 @@ import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.client.SREClient;
 import io.wifi.starrailexpress.content.entity.PlayerBodyEntity;
 import io.wifi.starrailexpress.event.client.OnRenderRoleName;
+import org.agmas.noellesroles.utils.DisguisedBodyUtils;
 import io.wifi.utils.client.betterrender.FakeGuiGraphics;
 import net.exmo.sre.meeting.MeetingManager;
 import net.exmo.sre.meeting.network.MeetingCooldownS2CPayload;
@@ -102,6 +103,11 @@ public final class MeetingReportClientHandler {
         }
         PlayerBodyEntity body = targetedBody(client);
         if (body == null) {
+            return;
+        }
+        // 伪装尸体（咸鱼晒咸鱼、亡语杀手假扮尸体）不可报告：连提示也不显示，
+        // 让玩家无法察觉这具尸体有问题。
+        if (DisguisedBodyUtils.isUnreportableDisguisedBody(body)) {
             return;
         }
 
