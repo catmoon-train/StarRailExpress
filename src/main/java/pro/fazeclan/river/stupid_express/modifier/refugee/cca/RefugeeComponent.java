@@ -273,6 +273,10 @@ public class RefugeeComponent implements AutoSyncedComponent, ServerTickingCompo
         org.agmas.noellesroles.game.modifier.refugee.RefugeeDesperadoFx.replaceStarterWeapons(player);
         org.agmas.noellesroles.game.modifier.refugee.RefugeeDesperadoFx.playSpawn(serverLevel, player);
         SRE.REPLAY_MANAGER.recordPlayerRevival(player.getUUID(), TMMRoles.LOOSE_END);
+
+        player.updateFluidOnEyes();
+        player.updateInWaterStateAndDoFluidPushing();
+
         RoleUtils.sendWelcomeAnnouncement(player);
 
         // 亡命徒复活倒计时归零时，释放鹈鹕肚子里的所有玩家
@@ -459,6 +463,8 @@ public class RefugeeComponent implements AutoSyncedComponent, ServerTickingCompo
                     }
                     SRE.REPLAY_MANAGER.recordPlayerRevival(player.getUUID(), role);
                 }
+                player.updateFluidOnEyes();
+                player.updateInWaterStateAndDoFluidPushing();
             }
             if (!gameWorldComponent.isRole(player, BounsRoles.BASEBALL_PLAYER)) {
                 RoleUtils.clearAllSatisfiedItems(player, TMMItems.BAT);

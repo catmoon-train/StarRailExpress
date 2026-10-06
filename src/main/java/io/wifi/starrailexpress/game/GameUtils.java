@@ -1703,6 +1703,9 @@ public class GameUtils {
         if (MeetingManager.isActive()) {
             DefibrillatorComponent.KEY.get(player).triggerDeath(10, null, player.position());
         }
+
+        player.updateFluidOnEyes();
+        player.updateInWaterStateAndDoFluidPushing();
     }
 
     public static void revivePlayer(ServerPlayer player, double x, double y, double z) {
@@ -1732,6 +1735,9 @@ public class GameUtils {
         if (MeetingManager.isActive()) {
             DefibrillatorComponent.KEY.get(player).triggerDeath(10, null, player.position());
         }
+        
+        player.updateFluidOnEyes();
+        player.updateInWaterStateAndDoFluidPushing();
     }
 
     public static boolean isGameRunning(Player player) {
