@@ -32,6 +32,7 @@ import net.minecraft.core.component.DataComponents;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.sounds.SoundEvent;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
@@ -644,7 +645,9 @@ public final class SealedArtifactHandler {
                 Component.translatable("message.noellesroles.sealed.compass_facing", facing)
                         .withStyle(ChatFormatting.AQUA),
                 true);
-        player.playNotifySound(SoundEvents.COMPASS_CLICK, SoundSource.PLAYERS, 0.5f, 1.6f);
+        ResourceLocation compassClick = ResourceLocation.withDefaultNamespace("item.compass.click");
+        player.playNotifySound(SoundEvent.createVariableRangeEvent(compassClick),
+                SoundSource.PLAYERS, 0.5f, 1.6f);
         player.getCooldowns().addCooldown(item, 10);
         return InteractionResultHolder.success(stack);
     }
