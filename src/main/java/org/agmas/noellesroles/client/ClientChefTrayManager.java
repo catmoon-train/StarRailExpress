@@ -193,8 +193,6 @@ public class ClientChefTrayManager {
             return;
         }
 
-        Vec3 camera = context.camera().getPosition();
-
         for (ClientTray tray : TRAYS.values()) {
             if (tray.content.isEmpty()) {
                 continue;
@@ -210,9 +208,14 @@ public class ClientChefTrayManager {
                     level.getBrightness(LightLayer.SKY, tray.pos));
 
             poseStack.pushPose();
-            // 此时矩阵原点是相机，减去相机位置即得到世界坐标；物品摆在方块正中间
-            poseStack.translate(tray.pos.getX() + 0.5D - camera.x, tray.pos.getY() + itemY - camera.y,
-                    tray.pos.getZ() + 0.5D - camera.z);
+            /*
+             * 直接用绝对世界坐标摆放：WorldRenderEvents 阶段的矩阵已经带上了相机平移，
+             * 这里如果再减一次 camera，物品就会被额外偏移「盘子位置 - 玩家位置」，
+             * 于是它在世界里相对玩家静止，看上去就是「跟着玩家一起动」。
+             * （原版 PlateBlockEntityRenderer 之所以只写 0.5 / centerY 这种局部坐标，
+             *   也正是因为 BlockEntityRenderDispatcher 已经把矩阵平移到了方块位置。）
+             */
+            poseStack.translate(tray.pos.getX() + 0.5D, tray.pos.getY() + itemY, tray.pos.getZ() + 0.5D);
             if (!tray.drink) {
                 // 食物平躺在盘里（和原版一样）；饮料保持直立。均为固定朝向，不做任何自转。
                 poseStack.mulPose(Axis.XP.rotationDegrees(FOOD_TILT_DEGREES));
