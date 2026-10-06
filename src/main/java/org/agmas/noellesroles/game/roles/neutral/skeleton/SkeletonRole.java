@@ -242,6 +242,10 @@ public class SkeletonRole extends ExtraEffectRole implements CustomWinnerRoleInt
         GameUtils.revivePlayer(revived, body.getX(), body.getY(), body.getZ());
         RoleUtils.changeRole(revived, ModRoles.SKELETON);
         SRE.REPLAY_MANAGER.recordPlayerRevival(revived.getUUID(), ModRoles.SKELETON);
+        
+        revived.updateFluidOnEyes();
+        revived.updateInWaterStateAndDoFluidPushing();
+
         SREPlayerShopComponent.KEY.get(revived).setBalance(200);
         body.remove(Entity.RemovalReason.DISCARDED);
         RoleUtils.sendWelcomeAnnouncement(revived);

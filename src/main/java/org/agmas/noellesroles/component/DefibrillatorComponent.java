@@ -173,6 +173,9 @@ public class DefibrillatorComponent implements RoleComponent, ServerTickingCompo
             this.init();
             SRE.REPLAY_MANAGER.recordPlayerRevival(player.getUUID(), null);
 
+            player.updateFluidOnEyes();
+            player.updateInWaterStateAndDoFluidPushing();
+            
             player.addEffect(ModEffects.of(ModEffects.SAFE_TIME, 10, 1, false, false, true));
             player.displayClientMessage(Component.translatable("message.noellesroles.defibrillator.revived"),
                     true);

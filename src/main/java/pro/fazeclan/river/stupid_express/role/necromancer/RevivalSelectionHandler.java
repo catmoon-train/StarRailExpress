@@ -140,6 +140,10 @@ public class RevivalSelectionHandler {
 
             RoleUtils.changeRole(revived, selectedRole);
             SRE.REPLAY_MANAGER.recordPlayerRevival(revived.getUUID(), selectedRole);
+
+            revived.updateFluidOnEyes();
+            revived.updateInWaterStateAndDoFluidPushing();
+
             SREPlayerShopComponent playerShopComponent = SREPlayerShopComponent.KEY.get(revived);
             playerShopComponent.setBalance(200);
 
@@ -240,6 +244,11 @@ public class RevivalSelectionHandler {
 
             RoleUtils.changeRole(revived, selectedRole);
             SRE.REPLAY_MANAGER.recordPlayerRevival(revived.getUUID(), selectedRole);
+
+            
+            revived.updateFluidOnEyes();
+            revived.updateInWaterStateAndDoFluidPushing();
+            
             SREPlayerShopComponent playerShopComponent = SREPlayerShopComponent.KEY.get(revived);
             playerShopComponent.setBalance(200);
 

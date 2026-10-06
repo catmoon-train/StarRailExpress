@@ -139,6 +139,9 @@ public class InsaneKillerRoleData extends SimpleRoleData {
         if (player instanceof ServerPlayer serverPlayer) {
             SRE.REPLAY_MANAGER.recordPlayerRevival(serverPlayer.getUUID(),
                     ModRoles.INSANE_KILLER);
+
+            player.updateFluidOnEyes();
+            player.updateInWaterStateAndDoFluidPushing();
             serverPlayer.sendSystemMessage(
                     Component.translatable("message.insane_killer.revive").withStyle(ChatFormatting.GOLD), true);
             serverPlayer.sendSystemMessage(
@@ -174,7 +177,8 @@ public class InsaneKillerRoleData extends SimpleRoleData {
     /**
      * 是否处于「伪装成尸体」的形态。
      *
-     * <p>此时玩家被渲染成一具躺平的尸体，碰撞箱也要按尸体尺寸走，
+     * <p>
+     * 此时玩家被渲染成一具躺平的尸体，碰撞箱也要按尸体尺寸走，
      * 否则瞄准那具「尸体」时命中的其实是一根看不见的站立碰撞箱。
      */
     public static boolean isCorpseForm(Player player) {
