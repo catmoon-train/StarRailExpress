@@ -155,6 +155,17 @@ public final class PriestHeavenManager {
             return WinStatus.NONE;
         }
         if (isActive() && !session.pendingOfficialEnd) {
+            // 加速与终章是神父主动营造的伪结束：此时局内时间已被冻结，并由 accelerateTime 压向 0，
+            // 必须维持锁局，否则序列会在播完前被判定结束。（冻结时间属于技能效果，不做修改）
+            if (isCinematicFreeze()) {
+                return WinStatus.NONE;
+            }
+            // 转职 / 咏诵阶段局内时间仍在正常流逝：好人阵营胜利（PASSENGERS）与时间归零（TIME）
+            // 都属于正常结算，不该被神父锁局 —— 取消序列并放行原本的胜负判定。
+            if (proposed == WinStatus.PASSENGERS || proposed == WinStatus.TIME) {
+                cancel(level);
+                return WinStatus.NOT_MODIFY;
+            }
             return WinStatus.NONE;
         }
         return WinStatus.NOT_MODIFY;
