@@ -6,14 +6,20 @@ import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionHand;
+import net.minecraft.world.item.BundleItem;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.component.BundleContents;
 import net.minecraft.world.level.block.state.BlockState;
+import org.agmas.harpymodloader.component.WorldModifierComponent;
+import org.agmas.noellesroles.game.modifier.NRModifiers;
+import org.agmas.noellesroles.game.roles.innocence.waiter.WaiterRole;
 import org.agmas.noellesroles.init.ModItems;
 import org.agmas.noellesroles.packet.ChefTrayS2CPacket;
 import org.agmas.noellesroles.role.ModRoles;
@@ -239,6 +245,13 @@ public final class ChefTrayManager {
             return;
         }
 
+        // 携带上限：背包里已经躺着从盘子拿的食物/饮料且没消耗掉时，不允许再拿（静默拒绝）。
+        // 上限随特性放宽：默认 1 份；「饥渴」修饰符 2 份；传菜员 3 份（食物 / 饮料分开计数）。
+        int limit = takeLimit(player);
+        if (countHeldFromTrays(player, tray.drink) >= limit) {
+            return;
+        }
+
         ItemStack taken = tray.items.get(player.getRandom().nextInt(tray.items.size())).copy();
         taken.setCount(1);
         // 直接进主手：保证「冷却结束后右键一定能拿到厨师放进去的那个食物 / 饮料」，
@@ -280,6 +293,67 @@ public final class ChefTrayManager {
     /** 冷却记录的 key：玩家 + 盘子，让每个盘子的取用冷却各自独立。 */
     private static String takeCooldownKey(ServerPlayer player, Tray tray) {
         return player.getUUID() + ":" + tray.id;
+    }
+
+    /**
+     * 该玩家从同一种盘子（食物盘 / 饮料盘）最多能同时携带几份。
+     *
+     * <p>默认 1 份（上一次拿的还没用掉就不能再拿）；「饥渴」修饰符放宽到 2 份；
+     * 传菜员 3 份（与其对原版食物盘 / 饮料盘的 {@code TRAY_TAKE_LIMIT} 一致）。
+     * 同时具备多个特性时取最宽松的一个。食物与饮料分开计数。
+     */
+    private static int takeLimit(ServerPlayer player) {
+        int limit = 1;
+        if (WaiterRole.isWaiter(player)) {
+            limit = Math.max(limit, WaiterRole.TRAY_TAKE_LIMIT);
+        }
+        if (hasHungryModifier(player)) {
+            limit = Math.max(limit, 2);
+        }
+        return limit;
+    }
+
+    private static boolean hasHungryModifier(ServerPlayer player) {
+        WorldModifierComponent modifiers = WorldModifierComponent.getInstance(player.level());
+        return modifiers != null && modifiers.isModifier(player, NRModifiers.HUNGRY);
+    }
+
+    /** 统计玩家背包（含收纳袋内）已有的、对应盘子类型的食物 / 饮料份数。 */
+    private static int countHeldFromTrays(ServerPlayer player, boolean drink) {
+        int count = 0;
+        for (int i = 0; i < player.getInventory().getContainerSize(); i++) {
+            ItemStack stack = player.getInventory().getItem(i);
+            if (stack.isEmpty()) {
+                continue;
+            }
+            if (matchesTrayContent(stack, drink)) {
+                count += stack.getCount();
+                continue;
+            }
+            // 收纳袋里塞的也算，避免塞包绕过上限
+            if (stack.getItem() instanceof BundleItem) {
+                BundleContents contents = stack.get(DataComponents.BUNDLE_CONTENTS);
+                if (contents != null) {
+                    for (ItemStack bundled : contents.items()) {
+                        if (matchesTrayContent(bundled, drink)) {
+                            count += bundled.getCount();
+                        }
+                    }
+                }
+            }
+        }
+        return count;
+    }
+
+    /** 该物品是否属于对应盘子装的东西：饮料盘只认一杯水，食物盘认烹饪食物 / 零食。 */
+    private static boolean matchesTrayContent(ItemStack stack, boolean drink) {
+        if (stack == null || stack.isEmpty()) {
+            return false;
+        }
+        if (drink) {
+            return stack.is(ModItems.A_BOTTLE_OF_WATER);
+        }
+        return stack.is(ModItems.COOKED_FOOD) || stack.is(ModItems.LINGSHI);
     }
 
     /** 内容物变化时通知所有客户端：带上要渲染的那一份物品，供客户端渲染真实模型。 */
