@@ -17,6 +17,7 @@ package io.wifi.starrailexpress.mixin.entity.living;
 
 import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.cca.AreasWorldComponent;
+import io.wifi.starrailexpress.cca.SREGameTimeComponent;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.index.TMMItems;
 import io.wifi.starrailexpress.mixin.entity.EntityMixin;
@@ -56,7 +57,7 @@ public abstract class LivingEntityMixin extends EntityMixin {
     @Inject(method = "decreaseAirSupply", at = @At("HEAD"), cancellable = true)
     private void sre$decreaseAirSupply(int currentAir, CallbackInfoReturnable<Integer> cir) {
         if ((Object) this instanceof Player player) {
-            if (player.hasEffect(ModEffects.SAFE_TIME)) {
+            if (player.hasEffect(ModEffects.SAFE_TIME) || SREGameTimeComponent.KEY.get(player.level()).isTimeFrozen()) {
                 cir.setReturnValue(currentAir);
                 return;
             }
