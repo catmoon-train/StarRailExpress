@@ -52,7 +52,25 @@ public final class CustomItemCooldownKeys {
     /** 冷却键 -> 自定义物品 id（反查，用来判断某个 {@link Item} 是不是我们的键）。 */
     private static final Map<Item, String> BY_KEY = new ConcurrentHashMap<>();
 
+    /**
+     * 「正在造冷却键」的线程局部开关。
+     *
+     * <p>
+     * {@link Item} 的构造函数会调 {@code BuiltInRegistries.ITEM.createIntrusiveHolder(this)}，
+     * 而 Fabric 的 registry sync 会在 mod 初始化之后把 {@code BuiltInRegistries.ITEM} 换成
+     * {@code SyncedRegistry}——它不支持 intrusive holder，会抛
+     * {@code IllegalStateException: This registry can't create intrusive holders}。
+     * 所以运行期 new 出来的 {@link Item} 必须跳过这一步，由
+     * {@code ItemConstructorMixin} 配合这个开关完成（见那边的说明）。
+     */
+    private static final ThreadLocal<Boolean> CREATING_KEY = ThreadLocal.withInitial(() -> Boolean.FALSE);
+
     private CustomItemCooldownKeys() {
+    }
+
+    /** 当前是否正在造冷却键（供 mixin 判断要不要跳过 intrusive holder）。 */
+    public static boolean isCreatingCooldownKey() {
+        return CREATING_KEY.get();
     }
 
     /** 取（并按需创建）某个自定义物品 id 的冷却键；id 为空返回 null。 */
@@ -61,10 +79,15 @@ public final class CustomItemCooldownKeys {
             return null;
         }
         return BY_ID.computeIfAbsent(itemId, id -> {
-            // 未注册的 Item 实例：只当 Map 的键用，永远不会进物品栏、不会被序列化
-            Item key = new Item(new Item.Properties().stacksTo(1));
-            BY_KEY.put(key, id);
-            return key;
+            CREATING_KEY.set(Boolean.TRUE);
+            try {
+                // 未注册的 Item 实例：只当 Map 的键用，永远不会进物品栏、不会被序列化
+                Item key = new Item(new Item.Properties().stacksTo(1));
+                BY_KEY.put(key, id);
+                return key;
+            } finally {
+                CREATING_KEY.set(Boolean.FALSE);
+            }
         });
     }
 
