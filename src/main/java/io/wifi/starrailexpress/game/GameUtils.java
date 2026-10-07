@@ -96,6 +96,7 @@ import io.wifi.starrailexpress.index.SREDataComponentTypes;
 import io.wifi.starrailexpress.index.TMMBlocks;
 import io.wifi.starrailexpress.index.TMMEntities;
 import io.wifi.starrailexpress.index.TMMItems;
+import io.wifi.starrailexpress.index.tag.TMMBlockTags;
 import io.wifi.starrailexpress.index.tag.TMMItemTags;
 import io.wifi.starrailexpress.network.CloseUiPayload;
 import io.wifi.starrailexpress.network.MapDepartCancelPayload;
@@ -1735,7 +1736,7 @@ public class GameUtils {
         if (MeetingManager.isActive()) {
             DefibrillatorComponent.KEY.get(player).triggerDeath(10, null, player.position());
         }
-        
+
         player.updateFluidOnEyes();
         player.updateInWaterStateAndDoFluidPushing();
     }
@@ -1841,5 +1842,14 @@ public class GameUtils {
     public static void refreshPlayerDimension(ServerPlayer player) {
         player.refreshDimensions();
         ServerPlayNetworking.send(player, new RefreshDimensionsS2CPacket());
+    }
+
+    public static boolean isUnderSprinklers(Player player) {
+        for (int y = 0; y < 4; y++) {
+            if (player.level().getBlockState(player.blockPosition().above(y)).is(TMMBlockTags.SPRINKLERS)) {
+                return true;
+            }
+        }
+        return false;
     }
 }

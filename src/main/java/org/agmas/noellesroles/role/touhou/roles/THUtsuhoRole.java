@@ -16,8 +16,8 @@
 package org.agmas.noellesroles.role.touhou.roles;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.agmas.noellesroles.init.ModEffects;
 import org.agmas.noellesroles.init.NRSounds;
@@ -39,16 +39,17 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
 
 public class THUtsuhoRole extends TouhouRole {
-    public static final HashMap<UUID, UtsuhoNeedDrinkInfo> NEED_DRINK_TIME = new HashMap<>();
+    public static final ConcurrentHashMap<UUID, UtsuhoNeedDrinkInfo> NEED_DRINK_TIME = new ConcurrentHashMap<>();
 
     private static record UtsuhoNeedDrinkInfo(long time, ServerPlayer killer) {
     }
 
     public static final int SKILL_RANGE = 4;
     public static final int MAX_PLAYER_COUNT = 6;
-    public static final int DRINK_THRESHOLD = 10 * 20;
+    public static final int DRINK_THRESHOLD = 15 * 20;
 
     public THUtsuhoRole(ResourceLocation identifier, int color, boolean isInnocent, boolean canUseKiller,
             MoodType moodType, int maxSprintTime, boolean canSeeTime) {
@@ -67,6 +68,11 @@ public class THUtsuhoRole extends TouhouRole {
         ArrayList<UUID> needclear = new ArrayList<>();
         ArrayList<ServerPlayer> victims = new ArrayList<>();
         final long timenow = GameUtils.getTicksFromGameStart(level);
+
+        if (timenow % 5 == 0 && GameUtils.isUnderSprinklers(player)) {
+            player.removeEffect(MobEffects.GLOWING);
+        }
+
         for (final var entry : NEED_DRINK_TIME.entrySet()) {
 
             UUID puid = entry.getKey();
@@ -86,8 +92,7 @@ public class THUtsuhoRole extends TouhouRole {
                 victims.add(p);
                 continue;
             }
-
-            if (p.isInWater()) {
+            if (timenow % 5 == 0 && GameUtils.isUnderSprinklers(p)) {
                 p.removeEffect(MobEffects.GLOWING);
                 needclear.add(puid);
             }
@@ -154,13 +159,20 @@ public class THUtsuhoRole extends TouhouRole {
         return true;
     }
 
+    @Override
+    public void onDrink(Player p, ItemStack item) {
+        p.removeEffect(MobEffects.GLOWING);
+    }
+
     public static void playerDrink(Player player) {
         if (player == null)
             return;
         if (!(player instanceof ServerPlayer sp)) {
             return;
         }
-        sp.removeEffect(MobEffects.GLOWING);
-        NEED_DRINK_TIME.remove(sp.getUUID());
+        if (NEED_DRINK_TIME.containsKey(sp.getUUID())) {
+            sp.removeEffect(MobEffects.GLOWING);
+            NEED_DRINK_TIME.remove(sp.getUUID());
+        }
     }
 }

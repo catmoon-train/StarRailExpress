@@ -24,7 +24,6 @@ import io.wifi.starrailexpress.content.block.ToiletBlock;
 import io.wifi.starrailexpress.content.block.entity.SeatEntity;
 import io.wifi.starrailexpress.game.GameConstants;
 import io.wifi.starrailexpress.game.GameUtils;
-import io.wifi.starrailexpress.index.tag.TMMBlockTags;
 import io.wifi.starrailexpress.network.original.TaskCompletePayload;
 import io.wifi.starrailexpress.util.BlockTypeChecker;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
@@ -334,7 +333,7 @@ public class SREPlayerTaskComponent implements RoleComponent, ServerTickingCompo
 
     /**
      * 小游戏顶替 Mood 任务时：回同等 SAN，并走 Mood 完成管线
-     *（{@link io.wifi.starrailexpress.api.RoleMethodDispatcher#callOnFinishQuest}、连击、附近联动）。
+     * （{@link io.wifi.starrailexpress.api.RoleMethodDispatcher#callOnFinishQuest}、连击、附近联动）。
      */
     public void applyMoodEquivalentCompletion(ServerPlayer sp, String quest) {
         if (this.playerMoodComponent == null) {
@@ -401,7 +400,8 @@ public class SREPlayerTaskComponent implements RoleComponent, ServerTickingCompo
                         && nearby instanceof ServerPlayer nearbySp
                         && GameUtils.isPlayerAliveAndSurvival(nearbySp)
                         && gameWorld.isRole(nearbySp, ModRoles.RAVEN)) {
-                    var ravenData = io.wifi.starrailexpress.api.data.RoleData.getNullable(RavenRoleData.class, nearbySp);
+                    var ravenData = io.wifi.starrailexpress.api.data.RoleData.getNullable(RavenRoleData.class,
+                            nearbySp);
                     if (ravenData != null) {
                         ravenData.onNearbyTaskComplete();
                     }
@@ -1200,12 +1200,9 @@ public class SREPlayerTaskComponent implements RoleComponent, ServerTickingCompo
                 this.timer--;
             } else {
                 // 检查头顶4格范围内是否有洒水器
-                for (int y = 0; y < 4; y++) {
-                    if (player.level().getBlockState(player.blockPosition().above(y)).is(TMMBlockTags.SPRINKLERS)
-                            && this.timer > 0) {
-                        this.timer--;
-                        break;
-                    }
+                boolean hasSprinklers = GameUtils.isUnderSprinklers(player);
+                if (hasSprinklers && this.timer > 0) {
+                    this.timer--;
                 }
             }
         }
