@@ -18,7 +18,6 @@ package io.wifi.starrailexpress.customitem;
 import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.api.RoleTeam;
 import io.wifi.starrailexpress.api.SRERole;
-import io.wifi.starrailexpress.cca.CustomItemCooldownComponent;
 import io.wifi.starrailexpress.cca.CustomItemHitMarkerComponent;
 import io.wifi.starrailexpress.cca.ExtraSlotComponent;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
@@ -189,7 +188,7 @@ public final class CustomItemRuntime {
             for (ServerPlayer online : serverLevel.getServer().getPlayerList().getPlayers()) {
                 CustomItemHitMarkerComponent.KEY.get(online).clearAllMarkers();
                 // 冷却同样要清：否则上一局残留的冷却会被带进新的一局
-                CustomItemCooldownComponent.KEY.get(online).clearAllCooldowns();
+                clearCooldowns(online);
             }
             AUTO_FIRES.clear();
             CHARGE_FIRED.clear();
@@ -199,7 +198,7 @@ public final class CustomItemRuntime {
         // 游戏结束时清空所有在线玩家的自定义物品冷却（冷却过的物品不该把冷却带出本局）
         OnGameEnd.EVENT.register((serverLevel, gameWorldComponent) -> {
             for (ServerPlayer online : serverLevel.getServer().getPlayerList().getPlayers()) {
-                CustomItemCooldownComponent.KEY.get(online).clearAllCooldowns();
+                clearCooldowns(online);
             }
         });
 
@@ -1525,66 +1524,40 @@ public final class CustomItemRuntime {
     }
 
     /**
-     * 让某件自定义物品进入冷却。
+     * 让某件自定义物品进入冷却（<b>冷却状态的唯一入口</b>）。
      *
      * <p>
-     * 所有自定义物品共用同一个注册物品，用原版 {@code ItemCooldowns}（按 {@code Item} 记）会让
-     * 不同自定义物品互相顶掉冷却，所以这里按「玩家 + 物品 id」记在
-     * {@link CustomItemCooldownComponent} 上；只有拿不到配置的异常数据才退回原版冷却。
+     * 自定义列车物品<b>没有自己的冷却系统</b>：直接写原版
+     * {@link net.minecraft.world.item.ItemCooldowns}，于是冷却的表现形式（物品栏上的黑色进度条、
+     * 快捷栏秒数、主手百分比、时间静止时不推进、时间回溯时快照）全部沿用原版那一套，
+     * 也自动跟随原版的服务端→客户端同步包，不存在「两套冷却状态」的问题。
+     *
+     * <p>
+     * 所有自定义列车物品共用同一个注册物品 {@code starrailexpress:custom_item}，
+     * 而原版按 {@link net.minecraft.world.item.Item} 记，所以它们<b>共用同一条冷却</b>——
+     * 这与「自定义物品本来就是同一个物品」一致，是统一到原版后的必然结果。
      */
-    private static void applyCooldown(ServerPlayer player, ItemStack stack, int ticks) {
-        if (ticks <= 0) {
+    public static void applyCooldown(ServerPlayer player, ItemStack stack, int ticks) {
+        if (player == null || stack == null || ticks <= 0) {
             return;
         }
-        CustomItemData data = CustomItemLoader.getData(stack);
-        if (data == null || data.id == null || data.id.isEmpty()) {
-            player.getCooldowns().addCooldown(stack.getItem(), ticks);
-            return;
-        }
-        CustomItemCooldownComponent.KEY.get(player).setCooldown(data.id, ticks);
+        player.getCooldowns().addCooldown(stack.getItem(), ticks);
     }
 
-    /** 该玩家手上这件自定义物品是否在冷却中（按物品 id 查，不共用原版冷却）。 */
+    /** 该玩家手上这件自定义物品是否在冷却中（走原版 ItemCooldowns）。 */
     public static boolean isOnCooldown(Player player, ItemStack stack) {
         if (player == null || stack == null || stack.isEmpty()) {
             return false;
         }
-        CustomItemData data = CustomItemLoader.getData(stack);
-        if (data == null || data.id == null || data.id.isEmpty()) {
-            return player.getCooldowns().isOnCooldown(stack.getItem());
-        }
-        return CustomItemCooldownComponent.KEY.get(player).isOnCooldown(data.id);
+        return player.getCooldowns().isOnCooldown(stack.getItem());
     }
 
-    /**
-     * 开局安全时间：把「全部」自定义物品都按物品 id 压上冷却。
-     *
-     * <p>
-     * 所有自定义物品共用同一个注册物品（{@code starrailexpress:custom_item}），
-     * {@link GameUtils#addItemCooldowns} 加的原版冷却是按 {@link net.minecraft.world.item.Item} 记的，
-     * 而 {@link #isOnCooldown} 对已登记的自定义物品只认 {@link CustomItemCooldownComponent} 的
-     * 「玩家 + 物品 id」冷却，于是安全时间对它们形同虚设。这里改成按 id 压冷却：
-     * 安全时间内左键 / 右键都无法使用；又因为按 id 记，安全时间内新获得的同 id 物品也一并处于冷却。
-     *
-     * @param ticks 冷却时长（tick），与安全时间一致
-     */
-    public static void applySafeTimeCooldown(ServerPlayer player, int ticks) {
-        if (player == null || ticks <= 0) {
+    /** 清掉该玩家的自定义列车物品冷却（所有自定义物品共用同一条原版冷却）。 */
+    public static void clearCooldowns(ServerPlayer player) {
+        if (player == null) {
             return;
         }
-        List<CustomItemData> all = CustomItemLoader.getAllData();
-        if (all.isEmpty()) {
-            return;
-        }
-        List<String> ids = new ArrayList<>(all.size());
-        for (CustomItemData data : all) {
-            if (data != null && data.id != null && !data.id.isEmpty()) {
-                ids.add(data.id);
-            }
-        }
-        if (!ids.isEmpty()) {
-            CustomItemCooldownComponent.KEY.get(player).setCooldowns(ids, ticks);
-        }
+        player.getCooldowns().removeCooldown(io.wifi.starrailexpress.index.DevItems.CUSTOM_ITEM);
     }
 
     private static void consumeItem(ServerPlayer player, ItemStack stack, boolean consume) {

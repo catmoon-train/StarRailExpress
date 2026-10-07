@@ -27,42 +27,15 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
+/**
+ * 物品格上的冷却剩余秒数（默认关闭，需在客户端配置里开启）。
+ *
+ * <p>
+ *冷却数据一律取自原版 {@link ItemCooldowns}：自定义列车物品的冷却已经统一写进原版冷却，
+ * 所以这里不需要（也不应该）为它们再单独读一份冷却状态，避免同一件物品出现两套冷却数据。
+ */
 @Mixin(GuiGraphics.class)
 public class ItemCooldownOverlayMixin {
-
-    /**
-     * 自定义列车物品的<b>每物品冷却条</b>：和原版冷却覆盖层同样的画法
-     * （从槽位顶部往下的半透明黑条，随时间缩短），但进度取自
-     * {@link io.wifi.starrailexpress.cca.CustomItemCooldownComponent}（按物品 id 记），
-     * 因为自定义物品共用同一个注册物品、原版 {@code ItemCooldowns} 上什么都没有。
-     */
-    @Inject(method = "renderItemDecorations(Lnet/minecraft/client/gui/Font;Lnet/minecraft/world/item/ItemStack;IILjava/lang/String;)V", at = @At("TAIL"))
-    private void sre$renderCustomItemCooldownBar(Font font, ItemStack stack, int x, int y, String text,
-            CallbackInfo ci) {
-        float progress = sre$customItemCooldownPercent(stack);
-        if (progress <= 0.0F) {
-            return;
-        }
-        GuiGraphics self = (GuiGraphics) (Object) this;
-        int top = y + net.minecraft.util.Mth.floor(16.0F * (1.0F - progress));
-        int bottom = top + net.minecraft.util.Mth.ceil(16.0F * progress);
-        self.fill(net.minecraft.client.renderer.RenderType.guiOverlay(), x, top, x + 16, bottom, Integer.MAX_VALUE);
-    }
-
-    /** 自定义列车物品的每物品冷却进度（1 = 刚开始，0 = 不在冷却 / 不是自定义物品）。 */
-    private static float sre$customItemCooldownPercent(ItemStack stack) {
-        Minecraft mc = Minecraft.getInstance();
-        LocalPlayer player = mc.player;
-        if (player == null || stack == null || stack.isEmpty()) {
-            return 0.0F;
-        }
-        io.wifi.starrailexpress.customitem.CustomItemData data = io.wifi.starrailexpress.customitem.CustomItemLoader
-                .getData(stack);
-        if (data == null || data.id == null || data.id.isEmpty()) {
-            return 0.0F;
-        }
-        return io.wifi.starrailexpress.cca.CustomItemCooldownComponent.KEY.get(player).percent(data.id);
-    }
 
     @Inject(method = "renderItemDecorations(Lnet/minecraft/client/gui/Font;Lnet/minecraft/world/item/ItemStack;IILjava/lang/String;)V", at = @At("TAIL"))
     private void sre$renderCooldownOnItem(Font font, ItemStack stack, int x, int y, String text, CallbackInfo ci) {

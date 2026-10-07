@@ -120,8 +120,7 @@
       "starrailexpress:player_nunchuck",
       "starrailexpress:mailbox",
       "starrailexpress:player_damage_tracker",
-      "starrailexpress:custom_item_hit_marker",
-      "starrailexpress:custom_item_cooldown"
+      "starrailexpress:custom_item_hit_marker"
     ],
     "loom:injected_interfaces": {
       "net/minecraft/class_5483/class_5496": [
