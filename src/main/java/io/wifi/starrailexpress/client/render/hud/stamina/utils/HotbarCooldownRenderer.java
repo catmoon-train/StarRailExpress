@@ -62,9 +62,9 @@ public class HotbarCooldownRenderer {
             ItemStack stack = player.getInventory().getItem(slot);
             if (stack.isEmpty()) continue;
 
-            // 原版冷却（含自定义列车物品：它们的冷却也写在原版 ItemCooldowns 里）
+            // 原版冷却（自定义列车物品的冷却条目也在原版表里，只是键是它专属的那一把）
             int remainingTicks = 0;
-            Item item = stack.getItem();
+            Item item = cooldownKeyOf(stack);
             if (cooldowns.isOnCooldown(item)) {
                 ItemCooldowns.CooldownInstance instance = cooldowns.cooldowns.get(item);
                 if (instance != null) {
@@ -102,8 +102,7 @@ public class HotbarCooldownRenderer {
     public static void renderMainHandCooldown(GuiGraphics context, LocalPlayer player, float delta) {
         ItemStack mainHandStack = player.getMainHandItem();
         ItemCooldowns cooldowns = player.getCooldowns();
-        // 只看原版冷却：自定义列车物品的冷却同样写在原版 ItemCooldowns 里
-        float cooldown = cooldowns.getCooldownPercent(mainHandStack.getItem(), delta);
+        float cooldown = cooldowns.getCooldownPercent(cooldownKeyOf(mainHandStack), delta);
 
         // 检查是否是同一个物品且冷却刚刚结束
         if (lastCooldown > 0 && cooldown == 0 && !playedCooldownSound
@@ -165,7 +164,23 @@ public class HotbarCooldownRenderer {
         }
     }
 
-    // ==================== 冷却秒数文本 ====================
+    // ==================== 冷却键 ====================
+
+    /**
+     * 这件物品在原版 {@link ItemCooldowns} 里的冷却键。
+     *
+     * <p>
+     * 自定义列车物品全都共用同一个注册物品，若直接用 {@code stack.getItem()} 当键，
+     * A 枪的冷却会把 B 刀、绷带、手铐一起顶掉。所以它们各自有一把专属的键
+     * （见 {@code CustomItemCooldownKeys}），冷却条目本身仍然写在原版那张表里。
+     */
+    private static Item cooldownKeyOf(ItemStack stack) {
+        if (stack == null || stack.isEmpty()) {
+            return net.minecraft.world.item.Items.AIR;
+        }
+        Item key = io.wifi.starrailexpress.customitem.CustomItemCooldownKeys.keyFor(stack);
+        return key != null ? key : stack.getItem();
+    }
 
     /** 冷却秒数文本：<10s 一位小数，否则取整。 */
     private static String formatSeconds(int remainingTicks) {

@@ -15,6 +15,8 @@
 
 package org.agmas.noellesroles.scene;
 
+import io.wifi.starrailexpress.customitem.CustomItemCooldownKeys;
+import io.wifi.starrailexpress.customitem.CustomItemRuntime;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundSource;
@@ -171,6 +173,12 @@ public final class SceneEventManager {
             var stack = player.getInventory().getItem(slot);
             if (stack.isEmpty()) continue;
             var item = stack.getItem();
+            // 自定义列车物品：所有自定义物品共用同一个注册物品，用原版 Item 记会牵连全部，
+            // 这里改用该物品专属的冷却键（冷却条目依然写在原版 ItemCooldowns 里）。
+            if (CustomItemCooldownKeys.keyFor(stack) != null) {
+                CustomItemRuntime.applyCooldown(player, stack, ticks);
+                continue;
+            }
             var current = cooldowns.cooldowns.get(item);
             if (current != null && current.endTime - cooldowns.tickCount > ticks) {
                 continue;

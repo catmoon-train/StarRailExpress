@@ -83,6 +83,7 @@ import org.agmas.noellesroles.init.ModItems;
 import org.agmas.noellesroles.utils.RoleUtils;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -1527,37 +1528,106 @@ public final class CustomItemRuntime {
      * 让某件自定义物品进入冷却（<b>冷却状态的唯一入口</b>）。
      *
      * <p>
-     * 自定义列车物品<b>没有自己的冷却系统</b>：直接写原版
-     * {@link net.minecraft.world.item.ItemCooldowns}，于是冷却的表现形式（物品栏上的黑色进度条、
-     * 快捷栏秒数、主手百分比、时间静止时不推进、时间回溯时快照）全部沿用原版那一套，
-     * 也自动跟随原版的服务端→客户端同步包，不存在「两套冷却状态」的问题。
-     *
-     * <p>
-     * 所有自定义列车物品共用同一个注册物品 {@code starrailexpress:custom_item}，
-     * 而原版按 {@link net.minecraft.world.item.Item} 记，所以它们<b>共用同一条冷却</b>——
-     * 这与「自定义物品本来就是同一个物品」一致，是统一到原版后的必然结果。
+     * 冷却条目写在<b>原版</b> {@link net.minecraft.world.item.ItemCooldowns} 里，
+     * 但键是这件物品<b>专属</b>的（见 {@link CustomItemCooldownKeys}）：
+     * 所有自定义列车物品共用同一个注册物品，若直接用 {@code stack.getItem()} 当键，
+     * A 枪进入冷却会把 B 刀、绷带、手铐一起顶掉。换成按自定义物品 id 分配的独立键后，
+     * 不同自定义物品各有各的冷却，而计时、剩余比例、过期清理、时间静止 / 时间回溯
+     * 全部仍是原版那一套逻辑。
      */
     public static void applyCooldown(ServerPlayer player, ItemStack stack, int ticks) {
         if (player == null || stack == null || ticks <= 0) {
             return;
         }
-        player.getCooldowns().addCooldown(stack.getItem(), ticks);
+        net.minecraft.world.item.Item key = CustomItemCooldownKeys.keyFor(stack);
+        if (key == null) {
+            return;
+        }
+        player.getCooldowns().addCooldown(key, ticks);
+        syncCooldown(player, List.of(key), ticks);
     }
 
-    /** 该玩家手上这件自定义物品是否在冷却中（走原版 ItemCooldowns）。 */
+    /** 该玩家手上这件自定义物品是否在冷却中（走原版 ItemCooldowns，按物品 id 独立记）。 */
     public static boolean isOnCooldown(Player player, ItemStack stack) {
         if (player == null || stack == null || stack.isEmpty()) {
             return false;
         }
-        return player.getCooldowns().isOnCooldown(stack.getItem());
+        net.minecraft.world.item.Item key = CustomItemCooldownKeys.keyFor(stack);
+        return key != null && player.getCooldowns().isOnCooldown(key);
     }
 
-    /** 清掉该玩家的自定义列车物品冷却（所有自定义物品共用同一条原版冷却）。 */
+    /**
+     * 开局安全时间：把「全部」自定义物品都压上冷却。
+     *
+     * <p>
+     * 按自定义物品 id 逐个压，所以安全时间内左键 / 右键都无法使用，
+     * 且安全时间内新获得的同 id 物品也一并处于冷却。
+     *
+     * @param ticks 冷却时长（tick），与安全时间一致
+     */
+    public static void applySafeTimeCooldown(ServerPlayer player, int ticks) {
+        if (player == null || ticks <= 0) {
+            return;
+        }
+        List<net.minecraft.world.item.Item> keys = new ArrayList<>();
+        for (CustomItemData data : CustomItemLoader.getAllData()) {
+            if (data == null || data.id == null || data.id.isEmpty()) {
+                continue;
+            }
+            net.minecraft.world.item.Item key = CustomItemCooldownKeys.keyOf(data.id);
+            if (key != null && !keys.contains(key)) {
+                keys.add(key);
+            }
+        }
+        if (keys.isEmpty()) {
+            return;
+        }
+        for (net.minecraft.world.item.Item key : keys) {
+            player.getCooldowns().addCooldown(key, ticks);
+        }
+        // 一次包同步全部，避免逐件发包
+        syncCooldown(player, keys, ticks);
+    }
+
+    /** 清空该玩家的全部自定义物品冷却（每局开始 / 结束时调用）。 */
     public static void clearCooldowns(ServerPlayer player) {
         if (player == null) {
             return;
         }
-        player.getCooldowns().removeCooldown(io.wifi.starrailexpress.index.DevItems.CUSTOM_ITEM);
+        List<net.minecraft.world.item.Item> keys = new ArrayList<>();
+        for (CustomItemData data : CustomItemLoader.getAllData()) {
+            if (data == null || data.id == null || data.id.isEmpty()) {
+                continue;
+            }
+            net.minecraft.world.item.Item key = CustomItemCooldownKeys.keyOf(data.id);
+            if (key != null && player.getCooldowns().cooldowns.containsKey(key) && !keys.contains(key)) {
+                keys.add(key);
+            }
+        }
+        if (keys.isEmpty()) {
+            return;
+        }
+        for (net.minecraft.world.item.Item key : keys) {
+            player.getCooldowns().removeCooldown(key);
+        }
+        // ticks = 0 → 让客户端也立刻解除（否则要等本地表自然过期才消）
+        syncCooldown(player, keys, 0);
+    }
+
+    /** 把原版冷却表里的这些键同步给客户端（键是未注册物品，原版包发不了，只能自己带 id）。 */
+    private static void syncCooldown(ServerPlayer player, Collection<net.minecraft.world.item.Item> keys, int ticks) {
+        List<String> ids = new ArrayList<>(keys.size());
+        for (net.minecraft.world.item.Item key : keys) {
+            String id = CustomItemCooldownKeys.idOf(key);
+            if (id != null) {
+                ids.add(id);
+            }
+        }
+        if (ids.isEmpty()) {
+            return;
+        }
+        net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking.send(player,
+                io.wifi.starrailexpress.network.CustomItemCooldownS2CPayload.of(ids, ticks));
     }
 
     private static void consumeItem(ServerPlayer player, ItemStack stack, boolean consume) {

@@ -127,6 +127,7 @@ import io.wifi.starrailexpress.index.TMMSounds;
 import io.wifi.starrailexpress.morph.MorphApiClient;
 import io.wifi.starrailexpress.network.BreakArmorPayload;
 import io.wifi.starrailexpress.network.CloseUiPayload;
+import io.wifi.starrailexpress.network.CustomItemCooldownS2CPayload;
 import io.wifi.starrailexpress.network.IsLobbyConfigPayload;
 import io.wifi.starrailexpress.network.JoinSpecGroupPayload;
 import io.wifi.starrailexpress.network.MapVotingResultsPayload;
@@ -834,6 +835,7 @@ public class SREClient implements ClientModInitializer {
         TriggerScreenEdgeEffectPayload.registerReceiver();
         RemoveStatusBarPayload.registerReceiver();
         TriggerStatusBarPayload.registerReceiver();
+        CustomItemCooldownS2CPayload.registerReceiver();
 
         // 注册自定义职业同步接收器（客户端）
         io.wifi.starrailexpress.client.network.CustomRoleClientNetwork.register();

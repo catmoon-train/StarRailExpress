@@ -64,9 +64,9 @@ public class CustomItem extends Item implements SREItemProperties.LeftClickHurta
         if (data == null) {
             return InteractionResultHolder.pass(stack);
         }
-        // 冷却不可用（走原版 ItemCooldowns：所有自定义列车物品共用同一个注册物品，
-        // 因此它们共用同一条原版冷却，表现形式与原版物品完全一致）
-        if (player.getCooldowns().isOnCooldown(this))
+        // 冷却不可用（冷却条目存在原版 ItemCooldowns 里，但键是这件自定义物品专属的，
+        // 所以 A 枪的冷却不会牵连 B 刀 / 绷带 / 手铐）
+        if (CustomItemRuntime.isOnCooldown(player, stack))
             return InteractionResultHolder.pass(stack);
         // 使用限制：仅指定职业 / 修饰符 / 阵营可用（服务端权威判定，不满足就不给任何反馈）
         if (!world.isClientSide() && player instanceof ServerPlayer serverPlayer
