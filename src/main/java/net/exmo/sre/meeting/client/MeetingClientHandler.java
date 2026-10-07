@@ -39,6 +39,7 @@ import net.minecraft.world.phys.Vec3;
 
 import org.agmas.noellesroles.client.NoellesrolesClient;
 import org.agmas.noellesroles.init.ModEffects;
+import org.agmas.noellesroles.utils.DisguisedBodyUtils;
 import org.lwjgl.glfw.GLFW;
 
 import io.wifi.starrailexpress.api.AreasSettings.VoteResultProcessor;
@@ -240,7 +241,9 @@ public final class MeetingClientHandler {
                 }
                 var body = MeetingReportClientHandler.targetedBody(client);
                 if (body != null && MeetingReportClientHandler.canPromptBodyMeeting(client)
-                        && MeetingReportClientHandler.cooldownRemainingTicks(client) <= 0) {
+                        && MeetingReportClientHandler.cooldownRemainingTicks(client) <= 0
+                        // 伪装尸体（咸鱼晒咸鱼、亡语杀手假扮尸体）不可报告
+                        && !DisguisedBodyUtils.isUnreportableDisguisedBody(body)) {
                     ClientPlayNetworking.send(
                             new net.exmo.sre.meeting.network.MeetingReportC2SPayload(body.getId()));
                 }

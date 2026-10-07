@@ -1372,8 +1372,8 @@ public class EntityInteractionBlockEntity extends BlockEntity {
                 int cooldownTicks = (int) (action.value * 20);
 
                 if ("*".equals(itemId)) {
-                    player.getCooldowns().addCooldown(player.getMainHandItem().getItem(), cooldownTicks);
-                    player.getCooldowns().addCooldown(player.getOffhandItem().getItem(), cooldownTicks);
+                    applyItemCooldown(player, player.getMainHandItem(), cooldownTicks);
+                    applyItemCooldown(player, player.getOffhandItem(), cooldownTicks);
                 } else {
                     net.minecraft.world.item.Item item = net.minecraft.core.registries.BuiltInRegistries.ITEM
                             .get(net.minecraft.resources.ResourceLocation.parse(itemId));
@@ -1823,6 +1823,26 @@ public class EntityInteractionBlockEntity extends BlockEntity {
             default -> {
             }
         }
+    }
+
+    /**
+     * 给玩家手上这件物品挂上冷却。
+     *
+     * <p>
+     * 自定义列车物品全都共用同一个注册物品，直接按 {@code Item} 记原版冷却会把玩家身上
+     * 所有自定义物品一起点亮；所以这里改走 {@link io.wifi.starrailexpress.customitem.CustomItemRuntime#applyCooldown}，
+     * 按自定义物品 id 各自一把键（冷却条目本身仍然写在原版 {@code ItemCooldowns} 里）。
+     */
+    private static void applyItemCooldown(net.minecraft.server.level.ServerPlayer player,
+            net.minecraft.world.item.ItemStack stack, int cooldownTicks) {
+        if (stack.isEmpty() || cooldownTicks <= 0) {
+            return;
+        }
+        if (io.wifi.starrailexpress.customitem.CustomItemCooldownKeys.keyFor(stack) != null) {
+            io.wifi.starrailexpress.customitem.CustomItemRuntime.applyCooldown(player, stack, cooldownTicks);
+            return;
+        }
+        player.getCooldowns().addCooldown(stack.getItem(), cooldownTicks);
     }
 
     // 传送点注册表 - 用于高效查找传送点（按维度存储，支持同一ID多个位置）

@@ -15,6 +15,8 @@
 
 package io.wifi.starrailexpress.mixin.client.ui;
 
+import io.wifi.starrailexpress.SREClientConfig;
+import io.wifi.starrailexpress.customitem.CustomItemCooldownKeys;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
@@ -23,51 +25,46 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemCooldowns;
 import net.minecraft.world.item.ItemStack;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
+/**
+ * 自定义列车物品的冷却显示适配。
+ *
+ * <p>
+ * 原版冷却覆盖层就画在 {@code GuiGraphics#renderItemDecorations} 里，用的是
+ * {@code getCooldownPercent(stack.getItem(), …)}。自定义物品的冷却条目同样在原版
+ * {@link ItemCooldowns} 里，但键是「按自定义物品 id 分配的专属键」，所以这里把查表改成
+ * 先解析出这把键 —— <b>画出来的仍然是原版那一层覆盖层</b>，表现与原版物品完全一致，
+ * 也没有第二份冷却状态。
+ */
 @Mixin(GuiGraphics.class)
 public class ItemCooldownOverlayMixin {
 
-    /**
-     * 自定义列车物品的<b>每物品冷却条</b>：和原版冷却覆盖层同样的画法
-     * （从槽位顶部往下的半透明黑条，随时间缩短），但进度取自
-     * {@link io.wifi.starrailexpress.cca.CustomItemCooldownComponent}（按物品 id 记），
-     * 因为自定义物品共用同一个注册物品、原版 {@code ItemCooldowns} 上什么都没有。
-     */
-    @Inject(method = "renderItemDecorations(Lnet/minecraft/client/gui/Font;Lnet/minecraft/world/item/ItemStack;IILjava/lang/String;)V", at = @At("TAIL"))
-    private void sre$renderCustomItemCooldownBar(Font font, ItemStack stack, int x, int y, String text,
+    /** 原版正在给哪个物品栈画装饰（含冷却覆盖层）。 */
+    @Unique
+    private ItemStack sre$decoratingStack;
+
+    @Inject(method = "renderItemDecorations(Lnet/minecraft/client/gui/Font;Lnet/minecraft/world/item/ItemStack;IILjava/lang/String;)V", at = @At("HEAD"))
+    private void sre$captureDecoratingStack(Font font, ItemStack stack, int x, int y, String text,
             CallbackInfo ci) {
-        float progress = sre$customItemCooldownPercent(stack);
-        if (progress <= 0.0F) {
-            return;
-        }
-        GuiGraphics self = (GuiGraphics) (Object) this;
-        int top = y + net.minecraft.util.Mth.floor(16.0F * (1.0F - progress));
-        int bottom = top + net.minecraft.util.Mth.ceil(16.0F * progress);
-        self.fill(net.minecraft.client.renderer.RenderType.guiOverlay(), x, top, x + 16, bottom, Integer.MAX_VALUE);
+        this.sre$decoratingStack = stack;
     }
 
-    /** 自定义列车物品的每物品冷却进度（1 = 刚开始，0 = 不在冷却 / 不是自定义物品）。 */
-    private static float sre$customItemCooldownPercent(ItemStack stack) {
-        Minecraft mc = Minecraft.getInstance();
-        LocalPlayer player = mc.player;
-        if (player == null || stack == null || stack.isEmpty()) {
-            return 0.0F;
-        }
-        io.wifi.starrailexpress.customitem.CustomItemData data = io.wifi.starrailexpress.customitem.CustomItemLoader
-                .getData(stack);
-        if (data == null || data.id == null || data.id.isEmpty()) {
-            return 0.0F;
-        }
-        return io.wifi.starrailexpress.cca.CustomItemCooldownComponent.KEY.get(player).percent(data.id);
+    @Redirect(method = "renderItemDecorations(Lnet/minecraft/client/gui/Font;Lnet/minecraft/world/item/ItemStack;IILjava/lang/String;)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/item/ItemCooldowns;getCooldownPercent(Lnet/minecraft/world/item/Item;F)F"))
+    private float sre$customItemCooldownPercent(ItemCooldowns cooldowns, Item item, float partialTick) {
+        Item key = CustomItemCooldownKeys.keyFor(this.sre$decoratingStack);
+        return cooldowns.getCooldownPercent(key != null ? key : item, partialTick);
     }
 
+    /** 物品格上的冷却剩余秒数（默认关闭，需在客户端配置里开启）。 */
     @Inject(method = "renderItemDecorations(Lnet/minecraft/client/gui/Font;Lnet/minecraft/world/item/ItemStack;IILjava/lang/String;)V", at = @At("TAIL"))
     private void sre$renderCooldownOnItem(Font font, ItemStack stack, int x, int y, String text, CallbackInfo ci) {
         // 检查开关：默认关闭，需手动开启
-        if (!io.wifi.starrailexpress.SREClientConfig.instance().showItemCooldownOverlayNum) return;
+        if (!SREClientConfig.instance().showItemCooldownOverlayNum) return;
 
         Minecraft mc = Minecraft.getInstance();
         LocalPlayer player = mc.player;
@@ -75,7 +72,9 @@ public class ItemCooldownOverlayMixin {
         if (stack.isEmpty()) return;
 
         ItemCooldowns cooldowns = player.getCooldowns();
-        Item item = stack.getItem();
+        // 自定义列车物品用自己专属的冷却键，其它物品用原版键
+        Item customKey = CustomItemCooldownKeys.keyFor(stack);
+        Item item = customKey != null ? customKey : stack.getItem();
 
         if (!cooldowns.isOnCooldown(item)) return;
 

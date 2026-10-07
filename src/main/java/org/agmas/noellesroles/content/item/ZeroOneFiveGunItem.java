@@ -18,15 +18,22 @@ package org.agmas.noellesroles.content.item;
 import io.wifi.StarRailExpressID;
 import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
+import io.wifi.starrailexpress.cca.SREPlayerMoodComponent;
 import io.wifi.starrailexpress.client.SREClient;
 import io.wifi.starrailexpress.client.particle.HandParticle;
 import io.wifi.starrailexpress.client.render.TMMRenderLayers;
 import io.wifi.starrailexpress.compat.CrosshairaddonsCompat;
 import io.wifi.starrailexpress.content.item.SkinableItem;
 import io.wifi.starrailexpress.content.item.api.SREItemProperties.DropRevolverWhenDead;
+import io.wifi.starrailexpress.event.AllowShootRevolverDrop;
 import io.wifi.starrailexpress.game.GameConstants;
 import io.wifi.starrailexpress.game.GameUtils;
+import io.wifi.starrailexpress.index.TMMItems;
 import io.wifi.starrailexpress.index.TMMSounds;
+import io.wifi.starrailexpress.network.PacketTracker;
+import io.wifi.starrailexpress.network.original.GunDropPayload;
+import io.wifi.starrailexpress.util.Scheduler;
+import io.wifi.starrailexpress.util.TrueFalseResult;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.minecraft.core.particles.ParticleTypes;
@@ -38,6 +45,7 @@ import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.ProjectileUtil;
 import net.minecraft.world.item.Item;
@@ -60,6 +68,7 @@ import java.util.UUID;
  * 一枪命中给予3秒缓慢2
  * 同一玩家被命中两次则造成击杀
  * 打完三发后进入15秒冷却，射程30格
+ * 杀手阵营击杀平民后，零一五掉落为左轮手枪
  */
 public class ZeroOneFiveGunItem extends SkinableItem implements DropRevolverWhenDead {
 
@@ -183,6 +192,8 @@ public class ZeroOneFiveGunItem extends SkinableItem implements DropRevolverWhen
         if (shooterMarks.containsKey(targetUUID)) {
             GameUtils.killPlayer(target, true, shooter, GameConstants.DeathReasons.ZERO_ONE_FIVE);
             shooterMarks.remove(targetUUID);
+            // 杀手阵营实际击杀平民后，零一五掉落为左轮手枪（与左轮手枪命中平民时的规则一致）
+            tryDropRevolverOnInnocentKill(shooter, target);
         } else {
             target.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SLOWDOWN, HIT_MARK_DURATION, 1, false, false));
             target.serverLevel().sendParticles(
@@ -195,6 +206,55 @@ public class ZeroOneFiveGunItem extends SkinableItem implements DropRevolverWhen
 
     public static int getCooldown() {
         return COOLDOWN;
+    }
+
+    /**
+     * 杀手阵营使用零一五实际击杀平民后，零一五掉落为左轮手枪。
+     *
+     * <p>规则与左轮手枪命中平民时保持一致：清空主手并掉落一把左轮手枪，同时重置心情、
+     * 通知客户端掉落动画。击杀后延迟 1 tick 执行，并在此期间确认目标确实已死亡，
+     * 被护盾 / 免疫挡下而未真正击杀时不会掉落。
+     * 阿蒙（复制品枪）、制式左轮、处刑者等可通过 {@link AllowShootRevolverDrop} 覆盖该行为。
+     */
+    public static void tryDropRevolverOnInnocentKill(ServerPlayer shooter, ServerPlayer target) {
+        if (shooter == null || target == null || shooter.isCreative() || shooter.isSpectator()) {
+            return;
+        }
+        SREGameWorldComponent game = SREGameWorldComponent.KEY.get(shooter.level());
+        // 仅杀手阵营（含杀手方中立）需要为误杀平民付出代价
+        if (!game.isKillerTeam(shooter)) {
+            return;
+        }
+        // 只有击杀平民才掉落
+        if (!game.isInnocent(target)) {
+            return;
+        }
+        if (!shooter.getMainHandItem().is(ModItems.ZERO_ONE_FIVE_GUN)) {
+            return;
+        }
+        // 允许其他机制（阿蒙 / 处刑者 / 制式左轮等）否决掉落
+        TrueFalseResult dropResult = AllowShootRevolverDrop.EVENT.invoker().allowDrop(shooter, target);
+        if (dropResult.equals(TrueFalseResult.FALSE)) {
+            return;
+        }
+
+        Scheduler.schedule(() -> {
+            // 目标确实死亡（未被护盾 / 免疫挡下）才掉落
+            if (GameUtils.isPlayerAliveAndSurvival(target)) {
+                return;
+            }
+            if (!shooter.getMainHandItem().is(ModItems.ZERO_ONE_FIVE_GUN)) {
+                return;
+            }
+            shooter.setItemInHand(InteractionHand.MAIN_HAND, ItemStack.EMPTY);
+            ItemEntity item = shooter.drop(TMMItems.REVOLVER.getDefaultInstance(), false, false);
+            if (item != null) {
+                item.setPickUpDelay(10);
+                item.setThrower(shooter);
+            }
+            PacketTracker.sendToClient(shooter, new GunDropPayload());
+            SREPlayerMoodComponent.KEY.get(shooter).setMood(0);
+        }, 1);
     }
 
     /**

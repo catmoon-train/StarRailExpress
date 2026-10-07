@@ -212,7 +212,14 @@ public abstract class LimitedHandledScreen<T extends AbstractContainerMenu> exte
         name.add(tooltips.getFirst());
         tooltips.removeFirst();
         ItemCooldowns cooldowns = minecraft.player.getCooldowns();
-        ItemCooldowns.CooldownInstance cooldownInstance = cooldowns.cooldowns.get(itemStack.getItem());
+        // 自定义列车物品的冷却键是它专属的那一把（不是共用的注册物品），
+        // 冷却条目本身仍然在原版这张表里
+        net.minecraft.world.item.Item cooldownKey = io.wifi.starrailexpress.customitem.CustomItemCooldownKeys
+                .keyFor(itemStack);
+        if (cooldownKey == null) {
+            cooldownKey = itemStack.getItem();
+        }
+        ItemCooldowns.CooldownInstance cooldownInstance = cooldowns.cooldowns.get(cooldownKey);
         if (cooldownInstance != null) {
             tooltips.add(Component
                     .translatable("item.starrailexpress.limited_inventory.cooldown",

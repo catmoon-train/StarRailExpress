@@ -125,6 +125,8 @@ public class SREPayloadRegister {
                 UpdateNameTagSelectedPayload.CODEC);
         PayloadTypeRegistry.playS2C().register(RemoveStatusBarPayload.ID, RemoveStatusBarPayload.CODEC);
         PayloadTypeRegistry.playS2C().register(TriggerStatusBarPayload.ID, TriggerStatusBarPayload.CODEC);
+        // 自定义列车物品的冷却同步（冷却键是未注册物品，发不了原版 ClientboundCooldownPacket）
+        PayloadTypeRegistry.playS2C().register(CustomItemCooldownS2CPayload.ID, CustomItemCooldownS2CPayload.CODEC);
         PayloadTypeRegistry.playS2C().register(BreakArmorPayload.ID, BreakArmorPayload.CODEC);
         PayloadTypeRegistry.playS2C().register(ShootMuzzleS2CPayload.ID, ShootMuzzleS2CPayload.CODEC);
         PayloadTypeRegistry.playS2C().register(SniperScopeStateS2CPayload.TYPE,

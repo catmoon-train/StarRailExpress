@@ -834,6 +834,7 @@ public class SREClient implements ClientModInitializer {
         TriggerScreenEdgeEffectPayload.registerReceiver();
         RemoveStatusBarPayload.registerReceiver();
         TriggerStatusBarPayload.registerReceiver();
+        io.wifi.starrailexpress.client.network.CustomItemCooldownClientNetwork.register();
 
         // 注册自定义职业同步接收器（客户端）
         io.wifi.starrailexpress.client.network.CustomRoleClientNetwork.register();
