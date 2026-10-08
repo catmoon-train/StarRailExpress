@@ -13,8 +13,8 @@ import net.minecraft.client.gui.components.ChatComponent;
 @Mixin(ChatComponent.class)
 public class ChatLogMixin {
     /**
-     * 拦截玩家聊天消息（带签名验证的正式聊天）
-     * 在消息进入延迟队列之前记录，确保每条消息只被记录一次。
+     * 是否应当阻止保存聊天信息到日志（防止玩家偷窥日志看消息）
+     * 仅拦截客户端，因为服务端没啥必要（（（）））
      */
     @Unique
     private static boolean shouldBlockChatMessage() {
@@ -23,8 +23,12 @@ public class ChatLogMixin {
         if (SREClient.isInLobby) {
             return false;
         }
-        // if(SREClient.cached_player==null) return false;
-
+        if (!SREClient.isGameRunning()) {
+            return false;
+        }
+        if (SREClient.cached_player.hasPermissions(1)){
+            return false;
+        }
         if (SREClient.hasPenalty()) {
             return true;
         }
@@ -40,7 +44,7 @@ public class ChatLogMixin {
      */
     @Inject(method = "logChatMessage", at = @At("HEAD"), cancellable = true)
     private void logChatMessage(GuiMessage guiMessage, CallbackInfo ci) {
-        if(shouldBlockChatMessage()){
+        if (shouldBlockChatMessage()) {
             ci.cancel();
         }
     }
