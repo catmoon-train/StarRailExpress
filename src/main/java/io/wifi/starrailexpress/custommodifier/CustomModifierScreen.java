@@ -273,6 +273,9 @@ public class CustomModifierScreen extends CustomEditorScreen {
         }
         r = listRow(r, PREFIX + ".label.cannot_roles", data.cannotBeAppliedTo, PREFIX + ".hint.role_list");
         r = listRow(r, PREFIX + ".label.only_roles", data.canOnlyBeAppliedTo, PREFIX + ".hint.role_list");
+        // 绑定职业：填了就必然发给这些职业（参考 hinanawi_tenshi 自带夜猫子）
+        r = listRow(r, PREFIX + ".label.bind_roles", data.bindRoles, PREFIX + ".hint.bind_roles");
+        r = note(r, PREFIX + ".hint.bind_roles_intro", SREPanelStyle.BLUE);
     }
 
     /** 一个阵营的「不限 / 仅给该阵营刷新 / 不给该阵营刷新」三态按钮。 */

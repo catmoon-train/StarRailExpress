@@ -19,6 +19,8 @@ import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.api.RoleTeam;
 import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.api.TMMRoles;
+import io.wifi.starrailexpress.customrole.CustomRoleData;
+import io.wifi.starrailexpress.customrole.CustomRoleLoader;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
@@ -192,6 +194,11 @@ public final class CustomModifierLoader {
             modifier.setCanOnlyBeAppliedTo(onlyRoles);
         }
 
+        // 绑定职业：这些职业分配时必然获得本修饰符（介绍页的关联职业在 applyRelations 里补）
+        for (SRERole role : parseRolesFlexible(data.bindRoles)) {
+            modifier.addBoundRole(role);
+        }
+
         // 运行时：每刻检查全局效果 / 条件触发
         CustomModifierRuntime.init();
         modifier.setServerGameTickEvent(player -> CustomModifierRuntime.serverTick(player, modifier));
@@ -233,8 +240,17 @@ public final class CustomModifierLoader {
      * 关联字段（{@code bothRelated*} / {@code related*} / {@code removeRelated*}）仅作用于介绍页面；
      * 互斥字段（{@code twoWayOpposingModifiers} / {@code opposingModifiers}）还会影响生成与运行时
      * （见 {@code ModifierOpposingHelper}）。
+     *
+     * <p>
+     * {@code bindRoles}（绑定职业）除了在 {@link #createModifier} 里声明强制分配外，
+     * 还会写一条单向关联职业，让 U 键介绍页的「关联职业」自动列出被绑定的职业。
+     * 这一步放在关联循环之前，用户显式填的「单向移除关联职业」仍然能覆盖掉它。
      */
     private static void applyRelations(CustomModifierData data, SREModifier modifier) {
+        // 绑定职业 → 介绍页关联职业（单向：只让修饰符页展示绑定关系）
+        for (SRERole role : parseRolesFlexible(data.bindRoles)) {
+            modifier.addRelatedRole(role);
+        }
         for (String id : safe(data.bothRelatedRoles)) {
             SRERole role = findRole(id);
             if (role != null)
@@ -363,6 +379,51 @@ public final class CustomModifierLoader {
         return null;
     }
 
+    /**
+     * 按「id / path / 职业名称」查找职业，供「绑定职业」输入框使用。
+     *
+     * <p>
+     * 绑定职业是给作者手填的，允许直接写中文名称：先按 id / path 找（{@link #findRole}），
+     * 找不到再按显示名匹配。除了当前语言的翻译名，还额外比对
+     * {@code announcement.star.role.<path>} 原始翻译键与自定义职业配置的 {@code displayName}，
+     * 避免服务端语言与填写者不一致时匹配不上。
+     */
+    public static SRERole findRoleFlexible(String configured) {
+        SRERole byId = findRole(configured);
+        if (byId != null) {
+            return byId;
+        }
+        if (configured == null || configured.isBlank()) {
+            return null;
+        }
+        String name = configured.trim();
+        for (var entry : TMMRoles.ROLES.entrySet()) {
+            SRERole role = entry.getValue();
+            ResourceLocation id = entry.getKey();
+            if (role == null || id == null) {
+                continue;
+            }
+            if (nameEquals(role.getName().getString(), name)
+                    || nameEquals("announcement.star.role." + id.getPath(), name)) {
+                return role;
+            }
+            CustomRoleData customData = CustomRoleLoader.getCustomRoleData(id.getPath());
+            if (customData != null && nameEquals(customData.displayName, name)) {
+                return role;
+            }
+        }
+        SRE.LOGGER.warn("[CustomModifier] Unknown bound role: {}", configured);
+        return null;
+    }
+
+    /** 名称比较（忽略大小写与首尾空白，双方为 null / 空时不匹配）。 */
+    private static boolean nameEquals(String a, String b) {
+        if (a == null || a.isBlank() || b == null) {
+            return false;
+        }
+        return a.trim().equalsIgnoreCase(b.trim());
+    }
+
     /** 按「完整 id 或路径」查找修饰符。 */
     public static SREModifier findModifier(String configuredId) {
         if (configuredId == null || configuredId.isBlank())
@@ -384,6 +445,20 @@ public final class CustomModifierLoader {
         HashSet<SRERole> result = new HashSet<>();
         for (String id : safe(ids)) {
             SRERole role = findRole(id);
+            if (role != null)
+                result.add(role);
+        }
+        return result;
+    }
+
+    /**
+     * 宽松版 {@link #parseRoles}：除 id / path 外也接受职业名称（见 {@link #findRoleFlexible}）。
+     * 用于「绑定职业」——作者手填中文名也能生效。
+     */
+    private static HashSet<SRERole> parseRolesFlexible(List<String> ids) {
+        HashSet<SRERole> result = new HashSet<>();
+        for (String id : safe(ids)) {
+            SRERole role = findRoleFlexible(id);
             if (role != null)
                 result.add(role);
         }

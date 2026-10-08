@@ -306,6 +306,20 @@ public class SREMurderGameMode extends GameMode {
             }
         }
 
+        // 绑定职业强制补发：声明了「绑定职业」的修饰符必然发给这些职业的玩家，
+        // 不受刷新数量 / 生成概率 / 玩家修饰符上限限制（等价于内置职业在
+        // SRERole#onAssignedModifiers 里自带修饰符，例如 hinanawi_tenshi 自带夜猫子）。
+        // 放在随机刷新之后、职业自带修饰符之前，保证不与 onAssignedModifiers 的添加互相覆盖。
+        for (ServerPlayer player : players) {
+            SRERole role = gameWorldComponent.getRole(player.getUUID());
+            if (role == null) {
+                continue;
+            }
+            for (SREModifier mod : HMLModifiers.getModifiersBoundToRole(role)) {
+                addModifierAssignment(tempModifierAssignments, player.getUUID(), mod);
+            }
+        }
+
         // 统一将临时存储的修饰符添加到组件中。（遍历玩家，保证玩家必定遍历到！）
         for (final var player : players) {
             final UUID playerUuid = player.getUUID();

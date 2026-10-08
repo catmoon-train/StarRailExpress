@@ -16,6 +16,7 @@
 package org.agmas.harpymodloader.modifiers;
 
 import io.wifi.starrailexpress.SRE;
+import io.wifi.starrailexpress.api.SRERole;
 import net.minecraft.resources.ResourceLocation;
 
 import java.util.ArrayList;
@@ -148,6 +149,26 @@ public class HMLModifiers {
     private static String pathOf(SREModifier modifier) {
         ResourceLocation id = modifier.identifier();
         return id == null ? null : id.getPath();
+    }
+
+    /**
+     * 取所有「绑定了该职业」的修饰符（{@link SREModifier#addBoundRole} 声明）。
+     *
+     * <p>
+     * 分配器在随机刷新结束后用它做强制补发：这些职业的玩家必然拿到这些修饰符，
+     * 不受刷新数量、生成概率与玩家修饰符上限限制。
+     *
+     * @param role 职业，{@code null} 时返回空集合
+     */
+    public static Set<SREModifier> getModifiersBoundToRole(SRERole role) {
+        Set<SREModifier> result = new HashSet<>();
+        if (role == null)
+            return result;
+        for (var m : MODIFIERS) {
+            if (m.isBoundToRole(role))
+                result.add(m);
+        }
+        return result;
     }
 
     public static HashSet<String> getAllFlags() {
