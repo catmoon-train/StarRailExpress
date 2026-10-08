@@ -43,6 +43,21 @@ public class SREModifier extends SREAbstractInfoClass {
     public boolean civilianOnly = false;
     public boolean notVigilante = false;
     /**
+     * 绑定职业：拥有这些职业的玩家在分配修饰符时<b>必然</b>拿到本修饰符。
+     *
+     * <p>
+     * 与 {@link #canOnlyBeAppliedTo}（只有这些职业才可能刷到）方向相反：本字段是「一定发给这些职业」，
+     * 绕过刷新数量、生成概率、玩家修饰符上限等限制，效果等价于内置职业在
+     * {@link SRERole#onAssignedModifiers} 里手动往集合里塞修饰符（例如 {@code hinanawi_tenshi}
+     * 自带「夜猫子」）。声明方式见 {@link #addBoundRole}，生效方式见
+     * {@code SREMurderGameMode.assignModifiers}。
+     *
+     * <p>
+     * 另外，声明绑定职业时该职业会自动出现在本修饰符 U 键介绍页的「关联职业」里
+     * （由自定义修饰符加载器写入 {@link #addRelatedRole}）。
+     */
+    public final HashSet<SRERole> boundRoles = new HashSet<>();
+    /**
      * 互斥修饰符：同一名玩家身上不会同时出现这些修饰符。
      *
      * <p>
@@ -119,6 +134,39 @@ public class SREModifier extends SREAbstractInfoClass {
                 this.relatedRoles.remove(i);
         }
         return this;
+    }
+
+    /**
+     * 添加绑定职业：这些职业的玩家分配时必然获得本修饰符。
+     *
+     * <p>
+     * 与互斥声明一样双向生效（写入 {@link #boundRoles}），介绍页不会自动写关联，
+     * 需要展示时由调用方再 {@link #addBothRelatedRole(SRERole...)} 或
+     * {@link #addRelatedRole(SRERole...)}。
+     *
+     * @param role 绑定的职业，{@code null} 会被忽略
+     * @return this
+     */
+    public SREModifier addBoundRole(SRERole... role) {
+        for (var r : role) {
+            if (r != null)
+                this.boundRoles.add(r);
+        }
+        return this;
+    }
+
+    /** 绑定职业（不可直接修改返回值）。 */
+    public Set<SRERole> getBoundRoles() {
+        return Collections.unmodifiableSet(this.boundRoles);
+    }
+
+    /**
+     * 是否绑定了给定职业。
+     *
+     * @param role 职业，{@code null} 时返回 {@code false}
+     */
+    public boolean isBoundToRole(SRERole role) {
+        return role != null && this.boundRoles.contains(role);
     }
 
     /**

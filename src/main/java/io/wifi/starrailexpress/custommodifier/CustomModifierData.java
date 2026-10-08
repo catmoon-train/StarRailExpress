@@ -124,6 +124,22 @@ public class CustomModifierData {
     @SerializedName("canOnlyBeAppliedTo")
     public List<String> canOnlyBeAppliedTo = new ArrayList<>();
 
+    /**
+     * 绑定职业（可填职业 id 或职业名称，逗号分隔）：这些职业在分配时<b>必然</b>获得本修饰符。
+     *
+     * <p>
+     * 与 {@link #canOnlyBeAppliedTo}（只有这些职业才可能刷到）方向相反：本字段是「一定发给这些职业」，
+     * 绕过 {@code defaultMax} / {@code defaultEnableChance} 与玩家的修饰符上限，
+     * 等价于内置职业在 {@code SRERole#onAssignedModifiers} 里自带修饰符
+     * （例如 {@code hinanawi_tenshi} 自带「夜猫子」）。
+     *
+     * <p>
+     * 加载时会解析成 {@link org.agmas.harpymodloader.modifiers.SREModifier#addBoundRole}，
+     * 并自动写进介绍页的「关联职业」（U 键介绍里能看到绑定给了谁）。
+     */
+    @SerializedName("bindRoles")
+    public List<String> bindRoles = new ArrayList<>();
+
     // ==================== 互斥修饰符 ====================
     /**
      * 双向互斥修饰符（修饰符 id）：双方不会出现在同一名玩家身上。
