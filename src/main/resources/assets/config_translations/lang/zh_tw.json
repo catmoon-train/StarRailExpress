@@ -594,7 +594,7 @@
   "text.autoconfig.noellesroles.option.photographerFrameMaxYDistance": "攝影師 - 畫框傳送的最大垂直(Y軸)距離（方塊，<=0 表示不限制）",
   "text.autoconfig.noellesroles.option.dreamMaxHealth": "Dream - 全員虛擬血量上限（Dream 斧頭攻擊扣此血量，歸零死亡）",
   "text.autoconfig.noellesroles.option.dreamHealthRegenEnabled": "Dream - 是否啟用脫戰自動回虛擬血量（關閉後殘血只能靠康復藥丸 / 康復試劑等手段恢復）",
-  "text.autoconfig.noellesroles.option.dreamHealthRegenDelaySeconds": "Dream - 脫戰多少秒後開始緩慢回血（僅在上項啟用時生效）",
+  "text.autoconfig.noellesroles.option.dreamHealthRegenDelaySeconds": "Dream - 脫戰多少秒後開始緩慢回血（僅在上項開啟時生效）",
   "text.autoconfig.noellesroles.option.dreamAxeDamage": "Dream - 鐵斧平A傷害",
   "text.autoconfig.noellesroles.option.dreamAxeCritDamage": "Dream - 鐵斧跳劈傷害",
   "text.autoconfig.noellesroles.option.dreamAxeBerserkDamage": "Dream - 狂暴時鐵斧平A傷害",

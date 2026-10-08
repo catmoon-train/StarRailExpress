@@ -1679,7 +1679,7 @@
   "sre.custom_item.label.cooldown": "使用後冷卻",
   "sre.custom_item.label.consume": "是否消耗物品",
   "sre.custom_item.label.consume_on_empty_fire": "使用後是否消耗",
-  "sre.custom_item.hint.consume_on_empty_fire": "空放（蓄力完成但沒有命中任何玩家）時是否消耗物品：是 = 空放消耗，否 = 空放不消耗；命中後仍按「是否消耗物品」結算。預設為是。",
+  "sre.custom_item.hint.consume_on_empty_fire": "空放（蓄力完成但沒有命中任何玩家）時是否消耗物品：是 = 空放消耗，否 = 空放不消耗；命中後仍按「是否消耗物品」結算。默認為是。",
   "sre.custom_item.label.charge_anim": "蓄力動作",
   "sre.custom_item.label.charge_anim_first": "第一人稱蓄力動作",
   "sre.custom_item.label.charge_anim_third": "第三人稱蓄力動作",
