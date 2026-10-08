@@ -15,6 +15,11 @@ public class ChatLogMixin {
     /**
      * 是否应当阻止保存聊天信息到日志（防止玩家偷窥日志看消息）
      * 仅拦截客户端，因为服务端没啥必要（（（）））
+     * 大厅不拦截
+     * 管理员不用拦截：没必要
+     * 游戏不启动不用拦截：拦截寂寞
+     * 死亡惩罚要拦截
+     * 活着要拦截
      */
     @Unique
     private static boolean shouldBlockChatMessage() {
