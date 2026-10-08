@@ -94,6 +94,7 @@
     "client.items.HeldItemRendererMixin",
     "client.restrictions.ChatHudMixin",
     "client.restrictions.ChatLogMixin",
+    "client.restrictions.ChatLogReportMixin",
     "client.restrictions.CreativeInventoryScreenMixin",
     "client.restrictions.DebugHudMixin",
     "client.restrictions.EntityRendererMixin",
