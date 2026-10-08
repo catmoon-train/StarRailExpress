@@ -1547,6 +1547,17 @@ public final class CustomItemRuntime {
         syncCooldown(player, List.of(key), ticks);
     }
 
+    public static void applyCooldown(ServerPlayer player, String customId, int ticks) {
+        if (player == null || customId == null || customId.isBlank() || ticks <= 0) {
+            return;
+        }
+        net.minecraft.world.item.Item key = CustomItemCooldownKeys.keyOf(customId);
+        if (key == null) {
+            return;
+        }
+        player.getCooldowns().addCooldown(key, ticks);
+        syncCooldown(player, List.of(key), ticks);
+    }
     /** 该玩家手上这件自定义物品是否在冷却中（走原版 ItemCooldowns，按物品 id 独立记）。 */
     public static boolean isOnCooldown(Player player, ItemStack stack) {
         if (player == null || stack == null || stack.isEmpty()) {

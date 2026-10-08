@@ -22,11 +22,13 @@ import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import io.wifi.starrailexpress.SRE;
+import io.wifi.starrailexpress.SREConfig;
 import io.wifi.starrailexpress.customblock.CustomBlockData;
 import io.wifi.starrailexpress.customblock.CustomBlockEntity;
 import io.wifi.starrailexpress.customblock.CustomBlockLoader;
 import io.wifi.starrailexpress.customitem.CustomItemData;
 import io.wifi.starrailexpress.customitem.CustomItemLoader;
+import io.wifi.starrailexpress.customitem.CustomItemRuntime;
 import net.minecraft.commands.CommandBuildContext;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
@@ -41,6 +43,8 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.Fluids;
+
+import org.agmas.harpymodloader.Harpymodloader;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Collection;
@@ -51,7 +55,8 @@ import java.util.Locale;
  * 自定义内容的统一指令。
  *
  * <ul>
- * <li>{@code /sre:give [<玩家>] block|item <id>[<组件>] [数量]} —— 与原版 {@code /give} 同形：
+ * <li>{@code /sre:give [<玩家>] block|item <id>[<组件>] [数量]} —— 与原版 {@code /give}
+ * 同形：
  * 物品参数支持原版组件语法（{@code [minecraft:custom_name="…",minecraft:unbreakable={}]}），
  * 不写目标玩家时发给自己；</li>
  * <li>{@code /sre:setblock <坐标> <id> [朝向]} —— 放置一个自定义方块。</li>
@@ -69,6 +74,18 @@ public final class CustomContentCommands {
     }
 
     public static void register(CommandDispatcher<CommandSourceStack> dispatcher, CommandBuildContext buildContext) {
+        dispatcher.register(Commands.literal("sre:custom_item_cooldown")
+                .requires(source -> Harpymodloader.officialVerify
+                        && source.hasPermission(SREConfig.instance().cooldownCommandsRequiredPermission))
+                .then(Commands.argument("player", EntityArgument.player())
+                        .then(Commands.argument("id", CustomContentArgument.item(buildContext))
+                                .then(Commands.argument("ticks", IntegerArgumentType.integer(0))
+                                        .executes(context -> {
+                                            CustomItemRuntime.applyCooldown(EntityArgument.getPlayer(context, "player"),
+                                                    CustomContentArgument.getValue(context, "id").id(),
+                                                    IntegerArgumentType.getInteger(context, "ticks"));
+                                            return 1;
+                                        })))));
         LiteralArgumentBuilder<CommandSourceStack> give = Commands.literal("sre:give")
                 .requires(source -> source.hasPermission(2));
         // 不写玩家 = 给自己

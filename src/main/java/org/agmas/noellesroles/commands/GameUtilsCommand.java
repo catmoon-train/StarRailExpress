@@ -86,7 +86,6 @@ import java.util.concurrent.CompletableFuture;
 
 public class GameUtilsCommand {
   public static void register(CommandDispatcher<CommandSourceStack> dispatcher, CommandBuildContext registryAccess) {
-
     dispatcher.register(Commands.literal("cooldown")
         .requires(source -> Harpymodloader.officialVerify
             && source.hasPermission(SREConfig.instance().cooldownCommandsRequiredPermission))
