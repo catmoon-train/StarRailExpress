@@ -69,6 +69,8 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
+
+import org.agmas.noellesroles.game.roles.innocence.fool.TarotAssemblyManager;
 import org.agmas.noellesroles.init.ModEffects;
 import org.agmas.noellesroles.utils.DisguisedBodyUtils;
 import org.agmas.noellesroles.utils.RoleUtils;
@@ -384,7 +386,7 @@ public final class MeetingManager {
                 }
             }
         }
-
+        TarotAssemblyManager.endMeeting(serverLevel);
         level = serverLevel;
         phase = PHASE_INTRO;
         phaseEndTick = now + INTRO_TICKS;
