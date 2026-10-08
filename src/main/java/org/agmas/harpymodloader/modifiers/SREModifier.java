@@ -149,8 +149,10 @@ public class SREModifier extends SREAbstractInfoClass {
      */
     public SREModifier addBoundRole(SRERole... role) {
         for (var r : role) {
-            if (r != null)
+            if (r != null){
                 this.boundRoles.add(r);
+                r.boundModifiers.add(this);
+            }
         }
         return this;
     }

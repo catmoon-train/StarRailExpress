@@ -100,6 +100,7 @@ public abstract class SRERole extends SREAbstractInfoClass {
     protected boolean canXiaonao = false;
     protected Function<RoleDataContext, RoleData> roleDataFunc = null;
 
+    public final HashSet<SREModifier> boundModifiers = new HashSet<>();
     // ---------- 初始金币数 ----------
     protected int initialCoinCount = -1; // -1 = 不修改
     // ---------- 与结束游戏相关 ----------
@@ -2792,7 +2793,8 @@ public abstract class SRERole extends SREAbstractInfoClass {
      * <ul>
      * <li><b>{@link TrueFalseResult#TRUE}</b> — 判定为摔死（{@code fall_damage} 死因）</li>
      * <li><b>{@link TrueFalseResult#FALSE}</b> — 判定不摔死，并连同原版落地伤害一起取消</li>
-     * <li><b>{@link TrueFalseResult#PASS}</b> — 不做判断，交给 {@link #isFallDamageImmune()} 与地图的
+     * <li><b>{@link TrueFalseResult#PASS}</b> — 不做判断，交给
+     * {@link #isFallDamageImmune()} 与地图的
      * {@code fallToDeathHeight} 设置</li>
      * </ul>
      *
@@ -2823,12 +2825,14 @@ public abstract class SRERole extends SREAbstractInfoClass {
      * @param blockPos   落地所踩方块的位置
      * @return 最终摔落裁决：
      *         <ul>
-     *         <li><b>{@link TrueFalseResult#TRUE}</b> — 判定为摔死（{@code fall_damage} 死因）</li>
+     *         <li><b>{@link TrueFalseResult#TRUE}</b> — 判定为摔死（{@code fall_damage}
+     *         死因）</li>
      *         <li><b>{@link TrueFalseResult#FALSE}</b> — 判定不摔死，并连同原版落地伤害一起取消</li>
      *         <li><b>{@link TrueFalseResult#PASS}</b> — 走地图设置判断</li>
      *         </ul>
      */
-    public final TrueFalseResult allowFallToDeathInner(ServerPlayer player, double y, boolean onGround, BlockState blockState,
+    public final TrueFalseResult allowFallToDeathInner(ServerPlayer player, double y, boolean onGround,
+            BlockState blockState,
             BlockPos blockPos) {
         var result = onFallOnGround(player, y, onGround, blockState, blockPos);
         if (result != null && result.isTrue())
@@ -2838,5 +2842,19 @@ public abstract class SRERole extends SREAbstractInfoClass {
         if (isFallDamageImmune())
             return TrueFalseResult.FALSE;
         return TrueFalseResult.PASS;
+    }
+
+    public HashSet<SREModifier> getBoundModifiers() {
+        return this.boundModifiers;
+    }
+
+    public void removeBoundModifier(SREModifier m) {
+        this.boundModifiers.remove(m);
+        m.boundRoles.remove(this);
+    }
+
+    public void addBoundModifier(SREModifier m) {
+        this.boundModifiers.add(m);
+        m.boundRoles.add(this);
     }
 }

@@ -164,10 +164,7 @@ public class HMLModifiers {
         Set<SREModifier> result = new HashSet<>();
         if (role == null)
             return result;
-        for (var m : MODIFIERS) {
-            if (m.isBoundToRole(role))
-                result.add(m);
-        }
+        result.addAll(role.getBoundModifiers());
         return result;
     }
 
