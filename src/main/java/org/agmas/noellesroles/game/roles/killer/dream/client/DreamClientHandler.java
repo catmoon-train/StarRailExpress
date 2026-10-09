@@ -24,6 +24,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.player.Player;
 import org.agmas.noellesroles.game.roles.killer.dream.DreamHealthComponent;
+import org.agmas.noellesroles.game.roles.killer.dream.VirtualShieldComponent;
 import org.agmas.noellesroles.role_data.killer.DreamRoleData;
 import org.agmas.noellesroles.init.ModEffects;
 
@@ -36,6 +37,9 @@ import org.agmas.noellesroles.init.ModEffects;
  * <li><b>虚拟血量条</b>：准星指向玩家时，若其受过伤（虚拟血量未满，见
  * {@link DreamHealthComponent}），在其名字下方绘制红色血条与数值；
  * 通过 {@code OnRenderRoleName.RENDER_PLAYER_EXTRA} 事件挂入，未受伤不显示。</li>
+ * <li><b>虚拟护盾条</b>：目标身上有虚拟护盾（见 {@link VirtualShieldComponent}）时，
+ * 在虚拟血量条<b>上方</b>绘制淡灰色护盾条；护盾为 0 时不渲染。
+ * 可见性门禁与虚拟血量完全一致（护士 / {@code canUseSpVanillaWeapon}）。</li>
  * <li><b>追杀音乐谓词</b>：{@link #isAnyDreamBerserk()} 供
  * {@code NoellesrolesClientAmbientSounds} 驱动
  * {@code NRSounds.MANHUNT_CHASE}。</li>
@@ -45,6 +49,16 @@ import org.agmas.noellesroles.init.ModEffects;
 public class DreamClientHandler {
     /** 血条宽度（RoleNameRenderer 的 0.6 缩放坐标系内）。 */
     private static final int BAR_WIDTH = 60;
+    /** 虚拟护盾条的填充色（淡灰），边框与数值沿用虚拟血量条的样式。 */
+    private static final int SHIELD_BAR_COLOR = 0xFFD0D0D0;
+    private static final int SHIELD_BAR_TEXT_COLOR = 0xFFE6E6E6;
+    /**
+     * 虚拟护盾条相对虚拟血量条的纵向偏移（负数 = 在其上方）。
+     *
+     * <p>虚拟血量条画在 y∈[-1,4]（外层已做过一次 translate(0,20,0)），所以护盾条取
+     * y∈[-6,-1]，正好叠在血量条正上方、两者边框相接，视觉上是一条「护盾在血量前面」的复合血条。
+     */
+    private static final int SHIELD_BAR_Y = -6;
 
     public static void register() {
         // 颤抖：视角缓慢漂移
@@ -62,7 +76,7 @@ public class DreamClientHandler {
             player.turn(yawDrift / 0.15f, pitchDrift / 0.15f);
         });
 
-        // 虚拟血量条：受伤后才显示；只有护士与开了 canUseSpVanillaWeapon 的职业能看到，平民不可见
+        // 虚拟护盾条 + 虚拟血量条；只有护士与开了 canUseSpVanillaWeapon 的职业能看到，平民不可见
         OnRenderRoleName.RENDER_PLAYER_EXTRA.register((self, target, context, tickCounter, renderer) -> {
             if (self == null || target == null || self.level() == null) {
                 return;
@@ -73,7 +87,14 @@ public class DreamClientHandler {
             }
             long gameTime = self.level().getGameTime();
             DreamHealthComponent health = DreamHealthComponent.KEY.get(target);
-            if (!isViewerNurse(self) && !health.shouldShowBar(gameTime)) {
+            int shield = VirtualShieldComponent.KEY.get(target).currentShield();
+            boolean showHealth = isViewerNurse(self) || health.shouldShowBar(gameTime);
+
+            // ① 虚拟护盾条：渲染在虚拟血量条上方；数值为 0 时完全不渲染
+            if (shield > 0) {
+                drawShieldBar(context, renderer, shield);
+            }
+            if (!showHealth) {
                 return;
             }
             int current = health.getEffectiveHealth(gameTime);
@@ -89,6 +110,24 @@ public class DreamClientHandler {
             context.drawString(renderer, text, -renderer.width(text) / 2, y + 6, 0xFFFF6B6B);
             context.pose().translate(0, 16, 0);
         });
+    }
+
+    /**
+     * 画虚拟护盾条（淡灰色），样式与虚拟血量条一致：黑边框 + 填充 + 条形数值文本。
+     *
+     * <p>以护盾上限 {@link VirtualShieldComponent#DEFAULT_SHIELD} 为满条基准；护盾可以超过
+     * 上限（例如指令直接 add 了一个很大的值），此时按「满条」画满并把数值原样写出来。
+     */
+    private static void drawShieldBar(io.wifi.utils.client.betterrender.FakeGuiGraphics context,
+            net.minecraft.client.gui.Font renderer, int shield) {
+        int max = VirtualShieldComponent.DEFAULT_SHIELD;
+        float ratio = max <= 0 ? 1.0F : Mth.clamp(shield / (float) max, 0f, 1f);
+        int half = BAR_WIDTH / 2;
+        int y = SHIELD_BAR_Y;
+        context.fill(-half - 1, y - 1, half + 1, y + 4, 0xAA000000);
+        context.fill(-half, y, -half + (int) (BAR_WIDTH * ratio), y + 3, SHIELD_BAR_COLOR);
+        Component text = Component.literal(String.valueOf(shield));
+        context.drawString(renderer, text, -renderer.width(text) / 2, y + 6, SHIELD_BAR_TEXT_COLOR);
     }
 
     /** 本地玩家（观察者）是否是护士：护士始终能看到其它玩家的虚拟血量条。 */

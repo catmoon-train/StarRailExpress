@@ -129,6 +129,10 @@ public interface TMMItems {
     Item WEAK_DEFENSE_VIAL = registrar.create("weak_defense_vial",
             new WeakDefenseItem(new Item.Properties().stacksTo(1)),
             TOOLS_GROUP, SRE_ALL_GROUP);
+    /** 虚拟护盾试剂：给虚拟血量加一层「点数条」护盾（只挡虚拟血量伤害，挡不住正常死亡）。 */
+    Item VIRTUAL_DEFENSE_VIAL = registrar.create("virtual_defense_vial",
+            new VirtualDefenseItem(new Item.Properties().stacksTo(1)),
+            TOOLS_GROUP, SRE_ALL_GROUP);
     Item DISGUISE_1 = registrar.create("disguise_1",
             new DisguiseItem(new Item.Properties().stacksTo(16), 0),
             TOOLS_GROUP, SRE_ALL_GROUP);
@@ -198,6 +202,7 @@ public interface TMMItems {
         INVISIBLE_ITEMS.add(TMMItems.LETTER);
         INVISIBLE_ITEMS.add(TMMItems.DEFENSE_VIAL);
         INVISIBLE_ITEMS.add(TMMItems.WEAK_DEFENSE_VIAL);
+        INVISIBLE_ITEMS.add(TMMItems.VIRTUAL_DEFENSE_VIAL);
 
         // 亡命徒，超级亡命徒，土块 可以直接使用防御药剂
         DefenseItem.canUseByRightClickRolePaths.add(TMMRoles.LOOSE_END.identifier().getPath());
@@ -210,6 +215,12 @@ public interface TMMItems {
         WeakDefenseItem.canUseByRightClickRolePaths
                 .add(SpecialGameModeRoles.SUPER_LOOSE_END.identifier().getPath());
         WeakDefenseItem.canUseByRightClickRolePaths.add(SpecialGameModeRoles.DIRT.identifier().getPath());
+
+        // 亡命徒，超级亡命徒，土块 也可以直接使用虚拟护盾试剂
+        VirtualDefenseItem.canUseByRightClickRolePaths.add(TMMRoles.LOOSE_END.identifier().getPath());
+        VirtualDefenseItem.canUseByRightClickRolePaths
+                .add(SpecialGameModeRoles.SUPER_LOOSE_END.identifier().getPath());
+        VirtualDefenseItem.canUseByRightClickRolePaths.add(SpecialGameModeRoles.DIRT.identifier().getPath());
 
         registrar.registerEntries();
 

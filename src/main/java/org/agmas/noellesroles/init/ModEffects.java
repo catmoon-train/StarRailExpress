@@ -271,6 +271,16 @@ public class ModEffects {
     public static final Holder<MobEffect> VIRTUAL_HEALTH_RESTORE = register("virtual_health_restore",
             new VirtualHealthRestoreEffect(MobEffectCategory.BENEFICIAL, 0xFF6B9D));
 
+    /**
+     * 同级透视
+     * - 正面（BENEFICIAL）效果，白色
+     * - 仅作为「客户端渲染标记」：持有该效果的玩家之间，<b>药水等级相同</b>时互相透视
+     * （原版发光后处理，描边为纯白框）；等级不同则互相看不见对方的描边。
+     * - 客户端实现见 {@code org.agmas.noellesroles.mixin.client.general.PeerXrayGlowMixin}。
+     */
+    public static final Holder<MobEffect> PEER_XRAY = register("peer_xray",
+            new SimpleMobEffect(MobEffectCategory.BENEFICIAL, 0xFFFFFF));
+
     // ───────────────────────── 地图状态条（饥饿 / 口渴 / 保暖 / 污染）─────────────────────────
     // 每级 1 点：1 级每秒 1 点，2 级每秒 2 点，以此类推（见 MapStatusBarEffect）。
 

@@ -42,6 +42,15 @@ public interface SREDataComponentTypes {
             stringBuilder -> stringBuilder.persistent(Codec.STRING).networkSynchronized(ByteBufCodecs.STRING_UTF8));
     DataComponentType<String> WEAK_ARMORER = register("weak_armorer",
             stringBuilder -> stringBuilder.persistent(Codec.STRING).networkSynchronized(ByteBufCodecs.STRING_UTF8));
+    /**
+     * 虚拟护盾试剂的「放置者」UUID。
+     *
+     * <p>放在食物盘 / 饮料盘上的虚拟护盾试剂，会在盘子方块实体上留下 {@code virtualArmorer}，
+     * 由下一个拿取食物的玩家把这枚标记搬到物品上（与 {@link #ARMORER} / {@link #WEAK_ARMORER}
+     * 完全同一套流程），吃下 / 喝下时才结算成虚拟护盾点数条。</p>
+     */
+    DataComponentType<String> VIRTUAL_ARMORER = register("virtual_armorer",
+            stringBuilder -> stringBuilder.persistent(Codec.STRING).networkSynchronized(ByteBufCodecs.STRING_UTF8));
     DataComponentType<Boolean> USED = register("used",
             stringBuilder -> stringBuilder.persistent(Codec.BOOL).networkSynchronized(ByteBufCodecs.BOOL));
     DataComponentType<String> OWNER = register("owner",

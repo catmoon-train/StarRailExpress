@@ -71,6 +71,7 @@
   "effect.noellesroles.otherworld_aura.desc": "里世界侵蚀：标记处于里世界影响下的好人，驱动客户端滤镜与场景变化。",
   "effect.noellesroles.nostalgist_backworld.desc": "怀旧者里世界标记：维持灰白滤镜并隐藏手持物品。说话/使用物品的封禁由聊天禁止、语音沉默、按键封印等一并施加。",
   "effect.noellesroles.backworld_outline.desc": "里世界同界描边：只有自己也处于里世界时，才能看见同样持有此效果的玩家发光轮廓。",
+  "effect.noellesroles.peer_xray.desc": "同级透视：持有该效果且药水等级相同的玩家会互相透视彼此；等级不同则互相不可见。",
   "effect.noellesroles.wraith_dimension.desc": "冤魂维度：标记玩家正处于冤魂的痛苦维度中。",
   "effect.noellesroles.wraith_manifest.desc": "冤魂显现：冤魂显形期间的状态标记。",
   "effect.noellesroles.footstep_vanish.desc": "脚步消失：其他人听不到你的脚步声，疾跑粒子也不显示。",

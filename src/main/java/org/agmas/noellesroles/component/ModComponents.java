@@ -62,6 +62,9 @@ public class ModComponents implements EntityComponentInitializer, WorldComponent
   /** Dream（Dream）：全员虚拟血量（默认 20 滴血，只被 Dream 铁斧扣除）。 */
   public static final ComponentKey<org.agmas.noellesroles.game.roles.killer.dream.DreamHealthComponent> DREAM_HEALTH = org.agmas.noellesroles.game.roles.killer.dream.DreamHealthComponent.KEY;
 
+  /** 虚拟护盾（虚拟血量前面的点数条护盾）。 */
+  public static final ComponentKey<org.agmas.noellesroles.game.roles.killer.dream.VirtualShieldComponent> VIRTUAL_SHIELD = org.agmas.noellesroles.game.roles.killer.dream.VirtualShieldComponent.KEY;
+
   public static final ComponentKey<PuppeteerPlayerComponent> PUPPETEER = ComponentRegistry.getOrCreate(
       ResourceLocation.fromNamespaceAndPath(Noellesroles.MOD_ID, "puppeteer"),
       PuppeteerPlayerComponent.class);
@@ -178,6 +181,11 @@ public class ModComponents implements EntityComponentInitializer, WorldComponent
     registry.beginRegistration(Player.class, DREAM_HEALTH)
         .respawnStrategy(RespawnCopyStrategy.NEVER_COPY)
         .end(org.agmas.noellesroles.game.roles.killer.dream.DreamHealthComponent::new);
+
+    // 注册虚拟护盾：挂在所有玩家身上，随虚拟血量一并初始化和清空
+    registry.beginRegistration(Player.class, VIRTUAL_SHIELD)
+        .respawnStrategy(RespawnCopyStrategy.NEVER_COPY)
+        .end(org.agmas.noellesroles.game.roles.killer.dream.VirtualShieldComponent::new);
 
     // ==================== 示例：注册更多组件 ====================
     //

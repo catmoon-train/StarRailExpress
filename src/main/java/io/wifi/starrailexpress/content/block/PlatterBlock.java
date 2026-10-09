@@ -160,6 +160,17 @@ public abstract class PlatterBlock extends BaseEntityBlock {
             }
             return InteractionResult.SUCCESS;
         }
+        if (player.getItemInHand(InteractionHand.MAIN_HAND).is(TMMItems.VIRTUAL_DEFENSE_VIAL)
+                && blockEntity.getVirtualArmorer() == null) {
+            blockEntity.setVirtualArmorer(player.getStringUUID());
+            player.getItemInHand(InteractionHand.MAIN_HAND).shrink(1);
+            player.playNotifySound(SoundEvents.BREWING_STAND_BREW, SoundSource.BLOCKS, 0.5f, 1f);
+            if (SRE.REPLAY_MANAGER != null) {
+                SRE.REPLAY_MANAGER.recordItemUse(player.getUUID(),
+                        BuiltInRegistries.ITEM.getKey(TMMItems.VIRTUAL_DEFENSE_VIAL));
+            }
+            return InteractionResult.SUCCESS;
+        }
         if (player.getItemInHand(InteractionHand.MAIN_HAND).is(TMMItems.POISON_VIAL)
                 && blockEntity.getPoisoner() == null) {
             blockEntity.setPoisoner(player.getStringUUID());
@@ -213,6 +224,7 @@ public abstract class PlatterBlock extends BaseEntityBlock {
                 String poisoner = blockEntity.getPoisoner();
                 String armorer = blockEntity.getArmorer();
                 String weakArmorer = blockEntity.getWeakArmorer();
+                String virtualArmorer = blockEntity.getVirtualArmorer();
 
                 if (poisoner != null) {
                     randomItem.set(SREDataComponentTypes.POISONER, poisoner);
@@ -229,6 +241,10 @@ public abstract class PlatterBlock extends BaseEntityBlock {
                 if (weakArmorer != null) {
                     randomItem.set(SREDataComponentTypes.WEAK_ARMORER, weakArmorer);
                     blockEntity.setWeakArmorer(null);
+                }
+                if (virtualArmorer != null) {
+                    randomItem.set(SREDataComponentTypes.VIRTUAL_ARMORER, virtualArmorer);
+                    blockEntity.setVirtualArmorer(null);
                 }
                 player.playNotifySound(SoundEvents.ITEM_PICKUP, SoundSource.BLOCKS, 1f, 1f);
                 randomItem.set(SREDataComponentTypes.TRAY_ITEM, true);

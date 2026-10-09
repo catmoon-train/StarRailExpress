@@ -40,6 +40,8 @@ public abstract class PlateTrayBlockEntity extends BlockEntity {
     public boolean isPoisonFake = false;
     public String armorer = null;
     public String weakArmorer = null;
+    /** 虚拟护盾试剂放置者 UUID；只作用于「下一个」拿取食物的玩家。 */
+    public String virtualArmorer = null;
     public PlateType plate = PlateType.DRINK;
 
     public PlateTrayBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) {
@@ -105,6 +107,15 @@ public abstract class PlateTrayBlockEntity extends BlockEntity {
         this.sync();
     }
 
+    public String getVirtualArmorer() {
+        return this.virtualArmorer;
+    }
+
+    public void setVirtualArmorer(String virtualArmorer) {
+        this.virtualArmorer = virtualArmorer;
+        this.sync();
+    }
+
     public void setPoisoner(String poisoner) {
         this.poisoner = poisoner;
         this.sync();
@@ -135,6 +146,8 @@ public abstract class PlateTrayBlockEntity extends BlockEntity {
             nbt.putString("armorer", this.armorer);
         if (this.weakArmorer != null)
             nbt.putString("weakArmorer", this.weakArmorer);
+        if (this.virtualArmorer != null)
+            nbt.putString("virtualArmorer", this.virtualArmorer);
         nbt.putBoolean("Drink", this.plate == PlateType.DRINK);
     }
 
@@ -153,6 +166,7 @@ public abstract class PlateTrayBlockEntity extends BlockEntity {
         this.isPoisonFake = nbt.contains("isPoisonFake") ? nbt.getBoolean("isPoisonFake") : false;
         this.armorer = nbt.contains("armorer") ? nbt.getString("armorer") : null;
         this.weakArmorer = nbt.contains("weakArmorer") ? nbt.getString("weakArmorer") : null;
+        this.virtualArmorer = nbt.contains("virtualArmorer") ? nbt.getString("virtualArmorer") : null;
         this.plate = nbt.getBoolean("Drink") ? PlateType.DRINK : PlateType.FOOD;
     }
 

@@ -143,6 +143,7 @@
     "client.general.PointerMovementYawMixin",
     "client.general.PointerSprintDirectionMixin",
     "client.general.PointerSprintJumpYawMixin",
+    "client.general.PeerXrayGlowMixin",
     "client.general.SoundEngineListenerMixin",
     "client.general.SpeakerSoundEngineMixin",
     "client.general.ThrowItemMixin",

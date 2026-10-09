@@ -90,8 +90,8 @@ public class WaiterRole extends NormalRole {
     /**
      * 记录喂食事件回放。
      *
-     * <p>只有带有<b>毒 / 假毒 / 护盾 / 弱效护盾</b>的食物才记录
-     * （「&lt;传菜员&gt;给&lt;被喂食玩家&gt;喂食了带有 毒/假毒/护盾/弱效护盾 的&lt;食物名&gt;」），
+     * <p>只有带有<b>毒 / 假毒 / 护盾 / 弱效护盾 / 虚拟护盾</b>的食物才记录
+     * （「&lt;传菜员&gt;给&lt;被喂食玩家&gt;喂食了带有 毒/假毒/护盾/弱效护盾/虚拟护盾 的&lt;食物名&gt;」），
      * 普通食物不记录，避免回放被无关喂食刷屏。
      */
     private static void recordFeedReplay(Player feeder, Player target, ItemStack food) {
@@ -99,7 +99,8 @@ public class WaiterRole extends NormalRole {
         boolean fakePoison = poison && food.has(SREDataComponentTypes.FAKE_POISON);
         boolean armor = food.has(SREDataComponentTypes.ARMORER);
         boolean weakArmor = food.has(SREDataComponentTypes.WEAK_ARMORER);
-        if (!poison && !armor && !weakArmor) {
+        boolean virtualArmor = food.has(SREDataComponentTypes.VIRTUAL_ARMORER);
+        if (!poison && !armor && !weakArmor && !virtualArmor) {
             return; // 普通食物不记录
         }
         MutableComponent effects = Component.empty();
@@ -119,6 +120,12 @@ public class WaiterRole extends NormalRole {
                 effects.append("/");
             }
             effects.append(Component.translatable("replay.event.waiter.effect.weak_armor"));
+        }
+        if (virtualArmor) {
+            if (!effects.getSiblings().isEmpty()) {
+                effects.append("/");
+            }
+            effects.append(Component.translatable("replay.event.waiter.effect.virtual_armor"));
         }
         SRE.REPLAY_MANAGER.recordCustomEvent(Component.translatable("replay.event.waiter.feed",
                 GameReplayUtils.getReplayPlayerDisplayText(feeder, true),
@@ -210,6 +217,7 @@ public class WaiterRole extends NormalRole {
         String poisoner = tray.getPoisoner();
         String armorer = tray.getArmorer();
         String weakArmorer = tray.getWeakArmorer();
+        String virtualArmorer = tray.getVirtualArmorer();
         if (poisoner != null) {
             randomItem.set(SREDataComponentTypes.POISONER, poisoner);
             if (tray.isPoisonFake) {
@@ -225,6 +233,10 @@ public class WaiterRole extends NormalRole {
         if (weakArmorer != null) {
             randomItem.set(SREDataComponentTypes.WEAK_ARMORER, weakArmorer);
             tray.setWeakArmorer(null);
+        }
+        if (virtualArmorer != null) {
+            randomItem.set(SREDataComponentTypes.VIRTUAL_ARMORER, virtualArmorer);
+            tray.setVirtualArmorer(null);
         }
         randomItem.set(SREDataComponentTypes.TRAY_ITEM, true);
         player.playNotifySound(SoundEvents.ITEM_PICKUP, SoundSource.BLOCKS, 1f, 1f);

@@ -27,6 +27,7 @@ import com.mojang.brigadier.tree.LiteralCommandNode;
 import io.wifi.starrailexpress.cca.SREArmorPlayerComponent;
 import io.wifi.starrailexpress.cca.SREWeakArmorPlayerComponent;
 import io.wifi.starrailexpress.game.GameConstants;
+import org.agmas.noellesroles.game.roles.killer.dream.VirtualShieldComponent;
 import net.minecraft.ChatFormatting;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
@@ -42,11 +43,12 @@ import java.util.Set;
 
 /**
  * 统一护盾指令：
- *   sre:shield <normal|timed|weak> <add|set|get|clear> [参数...] [目标...]
+ *   sre:shield <normal|timed|weak|virtual> <add|set|get|clear> [参数...] [目标...]
  *
- * - normal: add/set <层数>  | get | clear
- * - timed:  add/set <层数> <秒> <重置计时器并叠加:true|false> | get | clear
- * - weak:   add/set <层数> <秒> <死亡原因> | get | clear
+ * - normal:  add/set <层数>  | get | clear
+ * - timed:   add/set <层数> <秒> <重置计时器并叠加:true|false> | get | clear
+ * - weak:    add/set <层数> <秒> <死亡原因> | get | clear
+ * - virtual: add/set <虚拟护盾值>  | get | clear（只挡虚拟血量伤害，挡不住正常死亡）
  *
  * 时间单位为秒（内部转换为 tick）。weak 的死亡原因支持 "*"（抵挡任意死亡原因）。
  * 旧指令 tmm:shield / sre:armor 作为重定向保留以兼容。
@@ -55,6 +57,7 @@ public class ShieldCommand {
     private static final String TYPE_NORMAL = "normal";
     private static final String TYPE_TIMED = "timed";
     private static final String TYPE_WEAK = "weak";
+    private static final String TYPE_VIRTUAL = "virtual";
 
     private static final SuggestionProvider<CommandSourceStack> DEATH_REASON_SUGGESTIONS = (ctx, builder) -> {
         builder.suggest("*");
@@ -69,7 +72,8 @@ public class ShieldCommand {
                 .requires(source -> source.hasPermission(2))
                 .then(buildNormal())
                 .then(buildTimed())
-                .then(buildWeak()));
+                .then(buildWeak())
+                .then(buildVirtual()));
         // 兼容旧指令
         dispatcher.register(Commands.literal("sre:armor").redirect(shield));
     }
@@ -165,6 +169,33 @@ public class ShieldCommand {
                 .then(set)
                 .then(get)
                 .then(remove)
+                .then(clear);
+    }
+
+    // ===== virtual =====
+    private static LiteralArgumentBuilder<CommandSourceStack> buildVirtual() {
+        LiteralArgumentBuilder<CommandSourceStack> add = Commands.literal("add")
+                .then(Commands.argument("value", IntegerArgumentType.integer(1))
+                        .executes(ctx -> virtualAdd(ctx, ImmutableList.of(ctx.getSource().getPlayerOrException())))
+                        .then(Commands.argument("targets", EntityArgument.players())
+                                .executes(ctx -> virtualAdd(ctx, EntityArgument.getPlayers(ctx, "targets")))));
+        LiteralArgumentBuilder<CommandSourceStack> set = Commands.literal("set")
+                .then(Commands.argument("value", IntegerArgumentType.integer(0))
+                        .executes(ctx -> virtualSet(ctx, ImmutableList.of(ctx.getSource().getPlayerOrException())))
+                        .then(Commands.argument("targets", EntityArgument.players())
+                                .executes(ctx -> virtualSet(ctx, EntityArgument.getPlayers(ctx, "targets")))));
+        LiteralArgumentBuilder<CommandSourceStack> get = Commands.literal("get")
+                .executes(ctx -> virtualGet(ctx, ImmutableList.of(ctx.getSource().getPlayerOrException())))
+                .then(Commands.argument("targets", EntityArgument.players())
+                        .executes(ctx -> virtualGet(ctx, EntityArgument.getPlayers(ctx, "targets"))));
+        LiteralArgumentBuilder<CommandSourceStack> clear = Commands.literal("clear")
+                .executes(ctx -> virtualClear(ctx, ImmutableList.of(ctx.getSource().getPlayerOrException())))
+                .then(Commands.argument("targets", EntityArgument.players())
+                        .executes(ctx -> virtualClear(ctx, EntityArgument.getPlayers(ctx, "targets"))));
+        return Commands.literal(TYPE_VIRTUAL)
+                .then(add)
+                .then(set)
+                .then(get)
                 .then(clear);
     }
 
@@ -332,6 +363,56 @@ public class ShieldCommand {
         }
         feedback(ctx, Component.translatable("commands.sre.shield.weak.remove", targets.size(), layers));
         return 1;
+    }
+
+    // ===== virtual =====
+    private static int virtualAdd(CommandContext<CommandSourceStack> ctx, Collection<ServerPlayer> targets) {
+        int value = IntegerArgumentType.getInteger(ctx, "value");
+        int applied = 0;
+        for (ServerPlayer e : targets) {
+            int result = VirtualShieldComponent.KEY.get(e).addShield(value);
+            if (result >= 0) {
+                applied++;
+            }
+        }
+        feedback(ctx, Component.translatable("commands.sre.shield.virtual.add", applied, value));
+        return applied;
+    }
+
+    private static int virtualSet(CommandContext<CommandSourceStack> ctx, Collection<ServerPlayer> targets) {
+        int value = IntegerArgumentType.getInteger(ctx, "value");
+        int applied = 0;
+        for (ServerPlayer e : targets) {
+            int result = VirtualShieldComponent.KEY.get(e).setShield(value);
+            if (result >= 0) {
+                applied++;
+            }
+        }
+        feedback(ctx, Component.translatable("commands.sre.shield.virtual.set", applied, value));
+        return applied;
+    }
+
+    private static int virtualGet(CommandContext<CommandSourceStack> ctx, Collection<ServerPlayer> targets) {
+        MutableComponent out = Component.translatable("commands.sre.shield.virtual.get.header")
+                .withStyle(ChatFormatting.GREEN);
+        for (ServerPlayer e : targets) {
+            out.append(Component.translatable("commands.sre.shield.virtual.get.entry", e.getName().getString(),
+                    VirtualShieldComponent.KEY.get(e).currentShield()));
+        }
+        ctx.getSource().sendSuccess(() -> out, true);
+        return 1;
+    }
+
+    private static int virtualClear(CommandContext<CommandSourceStack> ctx, Collection<ServerPlayer> targets) {
+        int applied = 0;
+        for (ServerPlayer e : targets) {
+            int result = VirtualShieldComponent.KEY.get(e).clearShield();
+            if (result >= 0) {
+                applied++;
+            }
+        }
+        feedback(ctx, Component.translatable("commands.sre.shield.virtual.clear", applied));
+        return applied;
     }
 
     private static boolean parseDeathReason(CommandContext<CommandSourceStack> ctx, Set<ResourceLocation> reasons) {

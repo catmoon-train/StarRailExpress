@@ -54,7 +54,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * <ol>
  * <li><b>PACK 资源包贴图</b>：{@link CustomItemData#packTexturePath}，{@code ns:item/x} 与
  * {@code ns:textures/item/x.png} 两种写法都支持，直接从资源包取贴图渲染（不需要进图集），
- * 画成前后两层 = 1 像素厚。</li>
+ * 画成前后两层 + 四面侧壁 = 1 像素厚的实体。</li>
  * <li><b>ANIMATED 导入动态贴图</b>：{@link CustomItemData#animatedTextures}（帧数不限）按
  * {@link CustomItemData#animatedFrameTicks} 循环，每帧都是上面那种平面贴图。</li>
  * <li><b>MODEL 导入立体贴图</b>：{@link CustomItemData#inheritItemTexture} 填物品 id，
@@ -772,7 +772,7 @@ public class CustomItemRenderer implements BuiltinItemRendererRegistry.DynamicIt
     private static final float LAYER_OFFSET = 0.5F / 16.0F;
 
     /**
-     * 在 [0,1]² 平面上画一个 item/generated 风格的物品（<b>前后两层</b>）。
+     * 在 [0,1]² 平面上画一个 item/generated 风格的物品（<b>前后两层 + 四面侧壁</b>）。
      *
      * <p>
      * 只画 z=0.5 的单个平面时，物品是一张没有厚度的纸片（比 1 像素还薄），而且从背面看是空的。
@@ -786,6 +786,12 @@ public class CustomItemRenderer implements BuiltinItemRendererRegistry.DynamicIt
      * 物品栏里能看到的是 z 较小的那一层，所以那一层必须是 (0,0,-1)：给反了整张贴图会暗掉 60%
      * （实测颜色 = 贴图 × 0.40，看起来就是「物品栏里比正常暗一大截」）。
      * 世界里 ±Z 两层的亮度相同（都是 0.74），所以这样给法不影响手持 / 掉落物的观感。
+     *
+     * <p>
+     * <b>侧壁不能省</b>：前后两层之间那 1 像素的厚度如果完全不画几何，从侧面看就是
+     * 「两张互不相连的物品图片浮在空中」，而不是一个厚度为 1 像素的实体。原版
+     * {@code item/generated} 的那个 element 是带 6 个面的，这里把 4 个侧面补齐，
+     * 侧壁的 UV 取贴图对应的<b>那条边</b>（退化 UV），于是颜色沿高度/宽度方向自然过渡。
      */
     private static void drawQuad(PoseStack poseStack, MultiBufferSource buffers, RenderType renderType,
             float u0, float v0, float u1, float v1, int light, int overlay) {
@@ -814,5 +820,45 @@ public class CustomItemRenderer implements BuiltinItemRendererRegistry.DynamicIt
                 .setOverlay(overlay).setLight(light).setNormal(pose, 0.0F, 0.0F, 1.0F);
         consumer.addVertex(matrix, 0.0F, 1.0F, back).setColor(255, 255, 255, 255).setUv(u0, v0)
                 .setOverlay(overlay).setLight(light).setNormal(pose, 0.0F, 0.0F, 1.0F);
+
+        // ── 四面侧壁：把前后两层连成一个 1 像素厚的实体 ──
+        // 顶点顺序按「(v1-v0)×(v2-v0) = 朝外法线」给出，保证正面朝外、不被背面剔除。
+        // 侧壁的 UV 是退化 UV（整条边共用同一个 u 或 v），颜色沿边自然渐变。
+        // ① 左边 x=0，法线 (-1,0,0)，采样贴图左边那一列
+        consumer.addVertex(matrix, 0.0F, 1.0F, front).setColor(255, 255, 255, 255).setUv(u0, v0)
+                .setOverlay(overlay).setLight(light).setNormal(pose, -1.0F, 0.0F, 0.0F);
+        consumer.addVertex(matrix, 0.0F, 0.0F, front).setColor(255, 255, 255, 255).setUv(u0, v1)
+                .setOverlay(overlay).setLight(light).setNormal(pose, -1.0F, 0.0F, 0.0F);
+        consumer.addVertex(matrix, 0.0F, 0.0F, back).setColor(255, 255, 255, 255).setUv(u0, v1)
+                .setOverlay(overlay).setLight(light).setNormal(pose, -1.0F, 0.0F, 0.0F);
+        consumer.addVertex(matrix, 0.0F, 1.0F, back).setColor(255, 255, 255, 255).setUv(u0, v0)
+                .setOverlay(overlay).setLight(light).setNormal(pose, -1.0F, 0.0F, 0.0F);
+        // ② 右边 x=1，法线 (+1,0,0)，采样贴图右边那一列
+        consumer.addVertex(matrix, 1.0F, 0.0F, front).setColor(255, 255, 255, 255).setUv(u1, v1)
+                .setOverlay(overlay).setLight(light).setNormal(pose, 1.0F, 0.0F, 0.0F);
+        consumer.addVertex(matrix, 1.0F, 1.0F, front).setColor(255, 255, 255, 255).setUv(u1, v0)
+                .setOverlay(overlay).setLight(light).setNormal(pose, 1.0F, 0.0F, 0.0F);
+        consumer.addVertex(matrix, 1.0F, 1.0F, back).setColor(255, 255, 255, 255).setUv(u1, v0)
+                .setOverlay(overlay).setLight(light).setNormal(pose, 1.0F, 0.0F, 0.0F);
+        consumer.addVertex(matrix, 1.0F, 0.0F, back).setColor(255, 255, 255, 255).setUv(u1, v1)
+                .setOverlay(overlay).setLight(light).setNormal(pose, 1.0F, 0.0F, 0.0F);
+        // ③ 顶边 y=1，法线 (0,+1,0)，采样贴图最上面那一行
+        consumer.addVertex(matrix, 1.0F, 1.0F, front).setColor(255, 255, 255, 255).setUv(u1, v0)
+                .setOverlay(overlay).setLight(light).setNormal(pose, 0.0F, 1.0F, 0.0F);
+        consumer.addVertex(matrix, 0.0F, 1.0F, front).setColor(255, 255, 255, 255).setUv(u0, v0)
+                .setOverlay(overlay).setLight(light).setNormal(pose, 0.0F, 1.0F, 0.0F);
+        consumer.addVertex(matrix, 0.0F, 1.0F, back).setColor(255, 255, 255, 255).setUv(u0, v0)
+                .setOverlay(overlay).setLight(light).setNormal(pose, 0.0F, 1.0F, 0.0F);
+        consumer.addVertex(matrix, 1.0F, 1.0F, back).setColor(255, 255, 255, 255).setUv(u1, v0)
+                .setOverlay(overlay).setLight(light).setNormal(pose, 0.0F, 1.0F, 0.0F);
+        // ④ 底边 y=0，法线 (0,-1,0)，采样贴图最下面那一行
+        consumer.addVertex(matrix, 0.0F, 0.0F, front).setColor(255, 255, 255, 255).setUv(u0, v1)
+                .setOverlay(overlay).setLight(light).setNormal(pose, 0.0F, -1.0F, 0.0F);
+        consumer.addVertex(matrix, 1.0F, 0.0F, front).setColor(255, 255, 255, 255).setUv(u1, v1)
+                .setOverlay(overlay).setLight(light).setNormal(pose, 0.0F, -1.0F, 0.0F);
+        consumer.addVertex(matrix, 1.0F, 0.0F, back).setColor(255, 255, 255, 255).setUv(u1, v1)
+                .setOverlay(overlay).setLight(light).setNormal(pose, 0.0F, -1.0F, 0.0F);
+        consumer.addVertex(matrix, 0.0F, 0.0F, back).setColor(255, 255, 255, 255).setUv(u0, v1)
+                .setOverlay(overlay).setLight(light).setNormal(pose, 0.0F, -1.0F, 0.0F);
     }
 }

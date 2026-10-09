@@ -200,9 +200,9 @@ public class DreamHealthComponent implements RoleComponent {
     }
 
     /**
-     * 被 Dream 的铁斧命中：扣虚拟血量，归零则判死并归属攻击者。
+     * 被 Dream 的铁斧命中：<b>先扣虚拟护盾</b>，剩余伤害才扣虚拟血量；归零则判死并归属攻击者。
      *
-     * @return 是否实际造成了伤害
+     * @return 是否实际造成了伤害（护盾全部吸收时也算造成了伤害，只是不掉血）
      */
     public boolean hurt(@Nullable ServerPlayer attacker, int damage, ResourceLocation deathReason) {
         if (!(player instanceof ServerPlayer sp) || damage <= 0) {
@@ -211,9 +211,15 @@ public class DreamHealthComponent implements RoleComponent {
         if (!GameUtils.isPlayerAliveAndSurvival(sp)) {
             return false;
         }
+        // 虚拟护盾只抵挡虚拟血量伤害：先在这里吸收，掉多少血由吸收后的剩余伤害决定
+        int remaining = VirtualShieldComponent.KEY.get(sp).absorbVirtualDamage(damage);
+        if (remaining <= 0) {
+            // 护盾把这次伤害全吃掉了：不掉血、不致死，但伤害确实生效（护盾可能被打空）
+            return true;
+        }
         long gameTime = sp.level().getGameTime();
         int current = getEffectiveHealth(gameTime);
-        baseHealth = current - damage;
+        baseHealth = current - remaining;
         lastHurtGameTime = gameTime;
         if (baseHealth <= 0) {
             baseHealth = 0;
@@ -230,6 +236,7 @@ public class DreamHealthComponent implements RoleComponent {
     /**
      * 扣除虚拟血量但始终保留 1 点，不通过 death reason 使玩家死亡。
      * 用于烟花弩的范围溅射伤害；精确命中目标的击杀由烟花弩自身单独处理。
+     * 与 {@link #hurt} 一样<b>先扣虚拟护盾</b>。
      */
     public boolean hurtWithoutKilling(@Nullable ServerPlayer attacker, int damage) {
         if (!(player instanceof ServerPlayer sp) || damage <= 0) {
@@ -238,9 +245,13 @@ public class DreamHealthComponent implements RoleComponent {
         if (!GameUtils.isPlayerAliveAndSurvival(sp)) {
             return false;
         }
+        int remaining = VirtualShieldComponent.KEY.get(sp).absorbVirtualDamage(damage);
+        if (remaining <= 0) {
+            return true;
+        }
         long gameTime = sp.level().getGameTime();
         int current = getEffectiveHealth(gameTime);
-        int appliedDamage = Math.min(damage, Math.max(0, current - 1));
+        int appliedDamage = Math.min(remaining, Math.max(0, current - 1));
         if (appliedDamage <= 0) {
             return false;
         }
