@@ -72,6 +72,7 @@
   "effect.noellesroles.nostalgist_backworld.desc": "Nostalgist otherworld mark: gray filter and hidden held items.",
   "effect.noellesroles.backworld_outline.desc": "Only players who also have this effect can see each other's outlines.",
   "effect.noellesroles.peer_xray.desc": "Peer X-Ray: players with this effect can see each other through blocks as white outlines as long as their effect level matches; different levels cannot see each other.",
+  "effect.noellesroles.instinct_conceal.desc": "Instinct Concealment: while active, nobody can see you through instinct - you have no instinct outline at all, and killer instinct, candle bearer vision and similar effects all fail. The outline returns when the effect ends. It does not affect corpses, which remain visible through instinct.",
   "effect.noellesroles.wraith_dimension.desc": "Marks being inside the wraith's pain dimension.",
   "effect.noellesroles.wraith_manifest.desc": "Wraith manifestation state.",
   "effect.noellesroles.footstep_vanish.desc": "Others cannot hear your footsteps or see sprint particles.",

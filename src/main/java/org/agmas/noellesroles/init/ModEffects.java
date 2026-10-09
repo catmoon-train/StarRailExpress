@@ -282,6 +282,19 @@ public class ModEffects {
     public static final Holder<MobEffect> PEER_XRAY = register("peer_xray",
             new SimpleMobEffect(MobEffectCategory.BENEFICIAL, 0xFFFFFF));
 
+    /**
+     * 本能隐匿：效果持续期间，<b>任何</b>人都无法通过本能看到你（没有本能框）。
+     *
+     * - 正面（BENEFICIAL）效果。
+     * - 实现方式与 {@link #BACKWORLD_OUTLINE} 的「杀手无法透视」一致：在直觉高亮的<b>被看侧</b>
+     *   直接返回 {@code disallow()}，因此对所有职业（杀手、秉烛人、领袖……）一律生效。
+     *   参考 {@code RoleInstinctRegister} 中「小透明」「秉烛人」「怀旧者」的写法。
+     * - 该效果需要让<b>所有</b>客户端读到「目标是否处于隐匿状态」，因此由
+     *   {@code EffectBroadcastSync} 广播出去（隐藏图标与粒子）。
+     */
+    public static final Holder<MobEffect> INSTINCT_CONCEAL = register("instinct_conceal",
+            new SimpleMobEffect(MobEffectCategory.BENEFICIAL, 0x6E5AC8));
+
     // ───────────────────────── 地图状态条（饥饿 / 口渴 / 保暖 / 污染）─────────────────────────
     // 每级 1 点：1 级每秒 1 点，2 级每秒 2 点，以此类推（见 MapStatusBarEffect）。
 
@@ -1070,8 +1083,11 @@ public class ModEffects {
         // 导致手持物品仍显示 / 仍能被杀手透视。
         NostalgistBackworldEffectSync.init();
         BackworldOutlineEffectSync.init();
-        // 同级透视同理：等级必须让所有客户端都能读到，否则「同等级才互相透视」判定永远失败。
-        org.agmas.noellesroles.game.roles.killer.dream.PeerXrayEffectSync.init();
+        // 同级透视 / 本能隐匿同理：这两个效果都要在「别人身上」被客户端读到，
+        // 而原版只把玩家自己的 MobEffect 下发给自己，所以必须广播出去（隐藏图标与粒子）。
+        EffectBroadcastSync.register(PEER_XRAY);
+        EffectBroadcastSync.register(INSTINCT_CONCEAL);
+        EffectBroadcastSync.init();
         WraithDimensionEffectSync.init();
         AllowPlayerDeathWithKiller.EVENT.register((player, killer, deathReason) -> {
             if (pierceDeath) {

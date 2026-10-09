@@ -1019,6 +1019,25 @@ public class RoleInstinctRegister {
 
     // 特殊逻辑中保留不直接属于职业的全局事件
     public static void registerSpecialLogic() {
+        // ── 本能隐匿（INSTINCT_CONCEAL）：目标持有该效果 → 任何人都没有本能框 ──
+        // 与「小透明」「秉烛人」「怀旧者」同样在<b>被看侧</b>返回 disallow()，区别是那三个绑职业、
+        // 本效果绑药水，所以走通用事件（ALIVE_COMMON_BEFORE_EVENT 在 TARGET_HIGHLIGHT_EVENT 之前触发，
+        // 且不需要 targetRole非空，能拦住所有职业的本能框）。
+        // 必须排在同级透视之前：隐匿优先，否则喝了隐匿还会被同级透视白框看见。
+        CommonInstinctEvents.ALIVE_COMMON_BEFORE_EVENT.register((self, target, hasInstinct) -> {
+            if (target instanceof Player targetPlayer && targetPlayer.hasEffect(ModEffects.INSTINCT_CONCEAL)) {
+                return TrueFalseAndCustomResult.disallow();
+            }
+            return TrueFalseAndCustomResult.pass();
+        });
+        // 观察者自己死亡 / 旁观时同样生效
+        CommonInstinctEvents.SPECTATOR_COMMON_EVENT.register((self, target, hasInstinct) -> {
+            if (target instanceof Player targetPlayer && targetPlayer.hasEffect(ModEffects.INSTINCT_CONCEAL)) {
+                return TrueFalseAndCustomResult.disallow();
+            }
+            return TrueFalseAndCustomResult.pass();
+        });
+
         // ── 同级透视（PEER_XRAY）：双方都持有该药水且等级相同 → 互相白色描边（可穿墙） ──
         // 与红海军（better_vigilante）的蓝框走同一条直觉高亮通道，只是这里返回纯白色。
         // 通道：getCachedInstinctHighlight → MinecraftClientMixin#shouldEntityAppearGlowing
