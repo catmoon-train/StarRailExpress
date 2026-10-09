@@ -1019,6 +1019,25 @@ public class RoleInstinctRegister {
 
     // 特殊逻辑中保留不直接属于职业的全局事件
     public static void registerSpecialLogic() {
+        // ── 同级透视（PEER_XRAY）：双方都持有该药水且等级相同 → 互相白色描边（可穿墙） ──
+        // 与红海军（better_vigilante）的蓝框走同一条直觉高亮通道，只是这里返回纯白色。
+        // 通道：getCachedInstinctHighlight → MinecraftClientMixin#shouldEntityAppearGlowing
+        //       → WorldRendererMixin 拦getTeamColor 上色 → 原版 outline 后处理（关闭深度测试，故穿墙）。
+        // 注册在所有其它 ALIVE_COMMON_BEFORE_EVENT 监听器之前：事件是「首个非pass 生效」。
+        CommonInstinctEvents.ALIVE_COMMON_BEFORE_EVENT.register((self, target, hasInstinct) -> {
+            if (!(target instanceof Player targetPlayer) || targetPlayer == self) {
+                return TrueFalseAndCustomResult.pass();
+            }
+            return peerXrayHighlight(self, targetPlayer);
+        });
+        // 观察者自己死亡 / 旁观时同样生效（否则人一死白框就消失）
+        CommonInstinctEvents.SPECTATOR_COMMON_EVENT.register((self, target, hasInstinct) -> {
+            if (!(target instanceof Player targetPlayer) || targetPlayer == self) {
+                return TrueFalseAndCustomResult.pass();
+            }
+            return peerXrayHighlight(self, targetPlayer);
+        });
+
         TouhouInstincts.registerEvents();
 
         // 鬼祟修饰符
@@ -1066,6 +1085,29 @@ public class RoleInstinctRegister {
                 return TrueFalseAndCustomResult.custom(SEModifiers.LOVERS.color());
             return TrueFalseAndCustomResult.pass();
         });
+    }
+
+    /**
+     * 同级透视（{@link ModEffects#PEER_XRAY}）的白框判定。
+     *
+     * <p>与观察者自身持有该药水、且药水等级<b>完全相同</b>的玩家互相显示纯白描边；
+     * 等级不同（I / II / III …）或只有一方有该药水时返回 {@link TrueFalseAndCustomResult#pass()}，
+     * 把结果交还给后续的职业高亮逻辑。
+     *
+     * <p>注意这里<b>不判断</b> {@code hasInstinct}：事件链在 {@code getCommonAliveInstinct}
+     * 里拿到 custom 结果后会直接返回，早于 {@code if (!instinctEnabled) return empty()}，
+     * 所以药水生效与直觉开关无关。
+     */
+    private static TrueFalseAndCustomResult<Integer> peerXrayHighlight(Player self, Player target) {
+        var selfEffect = self.getEffect(ModEffects.PEER_XRAY);
+        if (selfEffect == null) {
+            return TrueFalseAndCustomResult.pass();
+        }
+        var targetEffect = target.getEffect(ModEffects.PEER_XRAY);
+        if (targetEffect == null || selfEffect.getAmplifier() != targetEffect.getAmplifier()) {
+            return TrueFalseAndCustomResult.pass();
+        }
+        return TrueFalseAndCustomResult.custom(Color.WHITE.getRGB());
     }
 
     // ---------- 工具方法 ----------
