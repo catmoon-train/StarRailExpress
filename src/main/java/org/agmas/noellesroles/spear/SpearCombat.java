@@ -66,13 +66,17 @@ public final class SpearCombat {
         SpearComponents.PiercingWeapon piercing = SpearConfig.piercing();
         float damage = (float) attacker.getAttributeValue(Attributes.ATTACK_DAMAGE);
         boolean hit = false;
+        boolean hitPlayer = false;
         for (EntityHitResult result : collectPiercingCollisions(attacker,
                 SpearConfig.ATTACK_RANGE.minReach(),
                 SpearConfig.ATTACK_RANGE.maxReach(),
                 piercing.hitboxMargin(),
                 target -> SpearComponents.PiercingWeapon.canHit(attacker, target))) {
-            hit |= pierce(attacker, slot, result.getEntity(), damage, true, piercing.dealsKnockback(),
+            boolean pierced = pierce(attacker, slot, result.getEntity(), damage, true, piercing.dealsKnockback(),
                     piercing.dismounts());
+            hit |= pierced;
+            // 只有命中玩家才计入耐久消耗（一次直刺最多消耗 1 点）
+            hitPlayer |= pierced && result.getEntity() instanceof Player;
         }
         // Backported-Spears triggers the post-piercing enchantment effect after
         // every completed stab, even when the collision scan found no target.
@@ -80,9 +84,9 @@ public final class SpearCombat {
         applyLunge(attacker, stack);
         if (hit) {
             piercing.playHitSound(attacker);
-            if (stack.getMaxDamage() > 0) {
-                stack.hurtAndBreak(1, attacker, slot);
-            }
+        }
+        if (hitPlayer) {
+            consumeDurability(attacker, stack, slot);
         }
         piercing.playSound(attacker);
         attacker.swing(InteractionHand.MAIN_HAND, false);
@@ -106,6 +110,7 @@ public final class SpearCombat {
         float reachMultiplier = user instanceof Player ? 1.0F : 0.5F;
         double attackDamage = user.getAttributeValue(Attributes.ATTACK_DAMAGE);
         boolean hit = false;
+        boolean hitPlayer = false;
         for (EntityHitResult result : collectPiercingCollisions(user,
                 reachMultiplier * SpearConfig.ATTACK_RANGE.minReach(),
                 reachMultiplier * SpearConfig.ATTACK_RANGE.maxReach(),
@@ -127,7 +132,10 @@ public final class SpearCombat {
                     .map(c -> c.isSatisfied(chargeTicks, forwardSpeed, relativeSpeed, speedMultiplier)).orElse(false);
             if (dismount || knockback || damage) {
                 float hitDamage = (float) attackDamage + Mth.floor(relativeSpeed * kinetic.damageMultiplier());
-                hit |= spearUser.pierce(slot, entity, hitDamage, damage, knockback, dismount);
+                boolean pierced = spearUser.pierce(slot, entity, hitDamage, damage, knockback, dismount);
+                hit |= pierced;
+                // 冲刺命中玩家才计入耐久消耗（同一目标受接触冷却保护，不会每 tick 扣）
+                hitPlayer |= pierced && entity instanceof Player;
             }
         }
         if (hit) {
@@ -135,6 +143,32 @@ public final class SpearCombat {
             // 广播一次受击动作，供客户端计算冲锋收招动画
             user.level().broadcastEntityEvent(user, (byte) 2);
         }
+        if (hitPlayer && consumeDurability(user, stack, slot)) {
+            // 耐久归零、矛已消失：结束蓄力使用状态
+            user.stopUsingItem();
+        }
+    }
+
+    // ───────────────────────── 耐久消耗 ─────────────────────────
+
+    /**
+     * 消耗矛 1 点耐久（命中玩家时调用）。
+     * <p>
+     * 耐久归零（损伤值达到上限）时物品直接消失：{@code hurtAndBreak} 会走原版破损表现
+     * （音效 / 物品破损统计 / 手持槽破损事件），这里再兜底把数量清零，确保一定消失。
+     *
+     * @return 物品是否已因耐久归零而消失
+     */
+    private static boolean consumeDurability(LivingEntity user, ItemStack stack, EquipmentSlot slot) {
+        if (stack.isEmpty() || stack.getMaxDamage() <= 0) {
+            return false;
+        }
+        int damage = stack.getDamageValue() + 1;
+        stack.hurtAndBreak(1, user, slot);
+        if (damage >= stack.getMaxDamage() && !stack.isEmpty()) {
+            stack.setCount(0);
+        }
+        return stack.isEmpty();
     }
 
     // ───────────────────────── 单次命中结算 ─────────────────────────

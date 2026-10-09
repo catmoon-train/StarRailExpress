@@ -31,8 +31,8 @@ import java.util.List;
 public class NetheriteSpearItem extends Item
         implements SpearConfig.SpearWeapon, io.wifi.starrailexpress.content.item.api.SREItemProperties.TrainWeapon {
 
-    /** 骑兵矛耐久。 */
-    public static final int DURABILITY = 30;
+    /** 骑兵矛耐久（10 点：左键直刺 / 右键冲锋命中玩家各消耗 1 点，归零即消失）。 */
+    public static final int DURABILITY = 10;
 
     /** 挥击时长 1.15 秒 → 攻速修正 {@code 1 / 1.15 - 4}。 */
     public static final float ATTACK_SPEED_MODIFIER = 1.0F / 1.15F - 4.0F;
