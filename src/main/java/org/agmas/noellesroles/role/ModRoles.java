@@ -923,7 +923,8 @@ public class ModRoles {
             true // 隐藏计分板
     ).addEffect(new MobEffectInstance(ModEffects.NO_COLLIDE, 99999, 0, false, false, false)))
             .setRoleData(NostalgistRoleData::new).setCanSeeCoin(true)
-            .setCanBeRandomedByOtherRoles(false).setDefaultMax(1).setDefaultEnableChance(2500);
+            .setCanBeRandomedByOtherRoles(false).setDefaultMax(1).setDefaultEnableChance(2500)
+            .setDefaultEnableNeededPlayerCount(12);
 
     public static SRERole WRAITH_ASSASSIN = TMMRoles.registerRole(new WraithAssassinRole(
             WRAITH_ASSASSIN_ID,
