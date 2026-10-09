@@ -276,7 +276,8 @@ public class ModEffects {
      * - 正面（BENEFICIAL）效果，白色
      * - 仅作为「客户端渲染标记」：持有该效果的玩家之间，<b>药水等级相同</b>时互相透视
      * （原版发光后处理，描边为纯白框）；等级不同则互相看不见对方的描边。
-     * - 客户端实现见 {@code org.agmas.noellesroles.mixin.client.general.PeerXrayGlowMixin}。
+     * - 客户端实现见 {@code RoleInstinctRegister#peerXrayHighlight}，
+     *   等级由 {@code PeerXrayEffectSync} 广播给所有客户端。
      */
     public static final Holder<MobEffect> PEER_XRAY = register("peer_xray",
             new SimpleMobEffect(MobEffectCategory.BENEFICIAL, 0xFFFFFF));
@@ -1069,6 +1070,8 @@ public class ModEffects {
         // 导致手持物品仍显示 / 仍能被杀手透视。
         NostalgistBackworldEffectSync.init();
         BackworldOutlineEffectSync.init();
+        // 同级透视同理：等级必须让所有客户端都能读到，否则「同等级才互相透视」判定永远失败。
+        org.agmas.noellesroles.game.roles.killer.dream.PeerXrayEffectSync.init();
         WraithDimensionEffectSync.init();
         AllowPlayerDeathWithKiller.EVENT.register((player, killer, deathReason) -> {
             if (pierceDeath) {

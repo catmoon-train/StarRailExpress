@@ -1103,6 +1103,7 @@ public class RoleInstinctRegister {
         if (selfEffect == null) {
             return TrueFalseAndCustomResult.pass();
         }
+        // 对方的等级来自 PeerXrayEffectSync 的广播（原版不会把别人的药水下发给客户端）。
         var targetEffect = target.getEffect(ModEffects.PEER_XRAY);
         if (targetEffect == null || selfEffect.getAmplifier() != targetEffect.getAmplifier()) {
             return TrueFalseAndCustomResult.pass();
