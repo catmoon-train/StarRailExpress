@@ -5,6 +5,7 @@ import io.wifi.starrailexpress.game.GameUtils;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.Mth;
 import net.minecraft.world.InteractionHand;
@@ -86,7 +87,7 @@ public final class SpearCombat {
             piercing.playHitSound(attacker);
         }
         if (hitPlayer) {
-            consumeDurability(attacker, stack, slot);
+            consumeDurability(attacker, stack);
         }
         piercing.playSound(attacker);
         attacker.swing(InteractionHand.MAIN_HAND, false);
@@ -143,7 +144,7 @@ public final class SpearCombat {
             // 广播一次受击动作，供客户端计算冲锋收招动画
             user.level().broadcastEntityEvent(user, (byte) 2);
         }
-        if (hitPlayer && consumeDurability(user, stack, slot)) {
+        if (hitPlayer && consumeDurability(user, stack)) {
             // 耐久归零、矛已消失：结束蓄力使用状态
             user.stopUsingItem();
         }
@@ -152,23 +153,28 @@ public final class SpearCombat {
     // ───────────────────────── 耐久消耗 ─────────────────────────
 
     /**
-     * 消耗矛 1 点耐久（命中玩家时调用）。
+     * 消耗矛 1 点耐久（左键直刺 / 右键冲锋命中玩家时调用）。
      * <p>
-     * 耐久归零（损伤值达到上限）时物品直接消失：{@code hurtAndBreak} 会走原版破损表现
-     * （音效 / 物品破损统计 / 手持槽破损事件），这里再兜底把数量清零，确保一定消失。
+     * 直接改写 {@code Damage} 分量而不走原版 {@code hurtAndBreak}，避免受其「创造模式 /
+     * 未被该实体持有 / 破损回调」等分支影响导致扣不上或扣了不消失。
+     * 耐久归零时把数量清零，物品立即消失并播放破损音效。
      *
      * @return 物品是否已因耐久归零而消失
      */
-    private static boolean consumeDurability(LivingEntity user, ItemStack stack, EquipmentSlot slot) {
+    private static boolean consumeDurability(LivingEntity user, ItemStack stack) {
         if (stack.isEmpty() || stack.getMaxDamage() <= 0) {
             return false;
         }
-        int damage = stack.getDamageValue() + 1;
-        stack.hurtAndBreak(1, user, slot);
-        if (damage >= stack.getMaxDamage() && !stack.isEmpty()) {
+        int next = stack.getDamageValue() + 1;
+        if (next >= stack.getMaxDamage()) {
+            // 耐久归零：物品直接消失（不依赖原版 hurtAndBreak，避免其分支差异导致扣不上/不消失）
             stack.setCount(0);
+            user.level().playSound(null, user.getX(), user.getY(), user.getZ(), SoundEvents.ITEM_BREAK,
+                    SoundSource.PLAYERS, 0.8F, 0.8F + user.level().getRandom().nextFloat() * 0.4F);
+            return true;
         }
-        return stack.isEmpty();
+        stack.setDamageValue(next);
+        return false;
     }
 
     // ───────────────────────── 单次命中结算 ─────────────────────────
