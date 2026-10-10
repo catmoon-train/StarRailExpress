@@ -18,6 +18,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.component.ItemLore;
 import org.agmas.noellesroles.game.roles.killer.dream.DreamHealthComponent;
+import org.agmas.noellesroles.game.roles.killer.dream.VirtualShieldComponent;
 import org.agmas.noellesroles.init.ModItems;
 import org.agmas.noellesroles.role_data.vigilante.SwordsmanRoleData;
 import org.jetbrains.annotations.NotNull;
@@ -33,7 +34,8 @@ import java.util.List;
  * <li>开局自带一把武士刀；</li>
  * <li>技能「淬血」：扣除自身<b>虚拟血量上限</b> 50% 的血量（不会把虚拟血量扣到 1 以下，
  * 虚拟血量只剩 1 点时无法使用），15 秒内手上武士刀附带附魔光效、
- * 虚拟血量伤害 ×2，并获得速度 II + 急迫 II；</li>
+ * 虚拟血量伤害 ×2，并获得速度 II + 急迫 II；同时把自身虚拟护盾补到
+ * {@link #QUXUE_SHIELD_TOPUP} 点（不足才补，已高于则不覆盖，技能结束后护盾不清除）；</li>
  * <li>商店：回复虚拟血量（200 金币，虚拟血量满时不可购买）、
  * 锻刀（100 金币，回复手上武士刀 3 点耐久，耐久满时不可购买）。</li>
  * </ul>
@@ -58,6 +60,8 @@ public class SwordsmanRole extends NormalRole {
     private static final int QUXUE_SELF_COST_PERCENT = 50;
     /** 虚拟血量只剩这么多点时无法使用淬血。 */
     private static final int QUXUE_MIN_HEALTH = 1;
+    /** 淬血为自己补充的虚拟护盾点数（不足则补到该值，技能结束后不清除）。 */
+    public static final int QUXUE_SHIELD_TOPUP = 20;
 
     public SwordsmanRole(ResourceLocation identifier, int color, boolean isInnocent, boolean canUseKiller,
             SRERole.MoodType moodType, int maxSprintTime, boolean canSeeTime) {
@@ -73,10 +77,14 @@ public class SwordsmanRole extends NormalRole {
     // ───────────────────────── 技能：淬血 ─────────────────────────
 
     /**
-     * 「淬血」：扣自身<b>虚拟血量上限</b> 50% 的血量，换取 15 秒的伤害 ×2 + 附魔光效 + 速度 II / 急迫 II。
+     * 「淬血」：扣自身<b>虚拟血量上限</b> 50% 的血量，换取 15 秒的伤害 ×2 + 附魔光效 + 速度 II / 急迫 II，
+     * 并把自身虚拟护盾补到 {@link #QUXUE_SHIELD_TOPUP} 点。
      *
      * <p>扣减量按虚拟血量上限算而非当前血量，所以血量越低开启越划算；但扣减后
      * 不会低于 1 点，虚拟血量只剩 1 点时无法使用。
+     *
+     * <p>护盾为「补足」而非「限时」：释放时不足 {@link #QUXUE_SHIELD_TOPUP} 点才补到该值，
+     * 已高于该值时保持原有更高护盾；技能结束时不会移除本次补的护盾。
      *
      * @return true 才消耗技能冷却
      */
@@ -100,10 +108,28 @@ public class SwordsmanRole extends NormalRole {
         // 扣除「虚拟血量上限」的 50%（不是当前血量的 50%），但不会把虚拟血量扣到 1 以下
         int cost = DreamHealthComponent.maxHealth() * QUXUE_SELF_COST_PERCENT / 100;
         health.setHealth(Math.max(QUXUE_MIN_HEALTH, current - cost));
+        topUpVirtualShield(player, QUXUE_SHIELD_TOPUP);
         data.activateQuXue(QUXUE_DURATION_TICKS, QUXUE_DAMAGE_MULTIPLIER);
         player.level().playSound(null, player.blockPosition(), SoundEvents.BLAZE_AMBIENT,
                 SoundSource.PLAYERS, 1.0F, 1.0F);
         return true;
+    }
+
+    /**
+     * 把自身虚拟护盾补到至少 {@code target} 点（已有更高护盾时保持不变）。
+     *
+     * <p>与虚拟护盾试剂不同，这里只在<b>不足</b>时补足，因此不会把玩家靠试剂
+     * 攒起来的高额护盾拉低；补上的护盾在技能结束后仍然保留，直到被虚拟血量
+     * 伤害消耗掉或新一局重置。
+     *
+     * @return 补足后的护盾值；未生效（非服务端玩家 / 玩家不存活）时返回 -1
+     */
+    public static int topUpVirtualShield(ServerPlayer player, int target) {
+        VirtualShieldComponent shield = VirtualShieldComponent.KEY.get(player);
+        if (shield.currentShield() >= target) {
+            return shield.currentShield();
+        }
+        return shield.setShield(target);
     }
 
     // ───────────────────────── 商店 ─────────────────────────
