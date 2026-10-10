@@ -555,7 +555,7 @@
     "info.screen.modifier.flexible": "Modifier\nYour sneak speed increases 40%%.",
     "info.screen.modifier.anti_newton": "Modifier\nYour gravity is reduced 20%%.",
     "info.screen.modifier.fake_steve_replaced": "Modifier\nThis modifier can't be obtained naturally\nYour role stays the same, but your body is taken over by a Fake Steve. You can't speak or act, only watch the AI in third person; after death you spectate, and on revival you're taken over again.",
-    "info.screen.modifier.twin_children": "You form a twin hivemind with a same-team player. Each of you is half normal size: one below moves, the other rides on top. If either dies, the hivemind briefly breaks and you return to normal size; once both live again you remerge at half size. Stacked, you can't enter 1-block-high gaps. When one completes a task, the other completes it too if it still has tasks. Independent Neutrals and Killers don't get this. Conflicts with Tall and Short.",
+    "info.screen.modifier.twin_children": "Modifier\nYou form a twin hivemind with a same-team player. Each of you is half normal size: one below moves, the other rides on top. If either dies, the hivemind briefly breaks and you return to normal size; once both live again you remerge at half size. Stacked, you can't enter 1-block-high gaps. When one completes a task, the other completes it too if it still has tasks. Independent Neutrals and Killers don't get this. Conflicts with Tall and Short.",
     "=======修机模式/特殊模式=======": "",
     "info.screen.roleid.repair_survivor": "Escape team\nRepair 5 repair machines, then head to the escape gate to leave. Use toolboxes and parts to speed repairs, and rescue caged teammates.",
     "info.screen.roleid.repair_survivor.simple": "",
