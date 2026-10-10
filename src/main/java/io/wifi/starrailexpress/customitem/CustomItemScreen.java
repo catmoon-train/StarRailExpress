@@ -447,6 +447,8 @@ public class CustomItemScreen extends CustomEditorScreen {
                 value -> data.attackSpeed = value);
         r = numRow(r, PREFIX + ".label.virtual_damage", data.virtualDamage, PREFIX + ".unit.point",
                 value -> data.virtualDamage = (int) value);
+        r = boolRow(r, PREFIX + ".label.ignore_virtual_shield", data.ignoreVirtualShield,
+                value -> data.ignoreVirtualShield = value);
         r = commandList(r, PREFIX + ".label.weapon_commands", data.weaponRightClickCommands);
         r = numRow(r, PREFIX + ".label.weapon_cooldown", data.weaponRightClickCooldownTicks, PREFIX + ".unit.tick",
                 value -> data.weaponRightClickCooldownTicks = (int) value);

@@ -1746,6 +1746,7 @@
   "sre.custom_item.label.bullet_support": "是否支持子彈物品",
   "sre.custom_item.label.attack_speed": "原版攻擊速度",
   "sre.custom_item.label.virtual_damage": "虛擬傷害",
+  "sre.custom_item.label.ignore_virtual_shield": "無視虛擬護盾",
   "sre.custom_item.label.weapon_commands": "右鍵物品執行的指令",
   "sre.custom_item.label.weapon_cooldown": "物品右鍵後進入的冷卻",
   "sre.custom_item.label.kill_cooldown": "削至0時物品進入的冷卻",

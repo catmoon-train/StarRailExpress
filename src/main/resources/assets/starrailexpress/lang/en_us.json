@@ -1746,6 +1746,7 @@
     "sre.custom_item.label.bullet_support": "Supports bullet items",
     "sre.custom_item.label.attack_speed": "Vanilla attack speed",
     "sre.custom_item.label.virtual_damage": "Virtual damage",
+    "sre.custom_item.label.ignore_virtual_shield": "Ignore virtual shield",
     "sre.custom_item.label.weapon_commands": "Commands executed on right-click",
     "sre.custom_item.label.weapon_cooldown": "Cooldown entered after right-click",
     "sre.custom_item.label.kill_cooldown": "Cooldown entered when reduced to 0",

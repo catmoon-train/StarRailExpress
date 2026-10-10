@@ -504,6 +504,15 @@ public class CustomItemData {
     @SerializedName("virtualDamage")
     public int virtualDamage = 4;
 
+    /**
+     * 攻击时是否无视目标的虚拟护盾。
+     *
+     * <p>为 true 时本物品的虚拟伤害直接扣在目标的虚拟血量上，不先被虚拟护盾吸收
+     * （虚拟护盾点数保持不变）；为 false 时按默认流程先扣虚拟护盾。
+     */
+    @SerializedName("ignoreVirtualShield")
+    public boolean ignoreVirtualShield = false;
+
     /** 右键物品执行的指令。 */
     @SerializedName("weaponRightClickCommands")
     public List<String> weaponRightClickCommands = new ArrayList<>();

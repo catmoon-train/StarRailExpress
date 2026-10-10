@@ -207,23 +207,38 @@ public class DreamHealthComponent implements RoleComponent {
      * @return 是否实际造成了伤害（护盾全部吸收时也算造成了伤害，只是不掉血）
      */
     public boolean hurt(@Nullable ServerPlayer attacker, int damage, ResourceLocation deathReason) {
-        return hurt(attacker, damage, deathReason, false);
+        return hurt(attacker, damage, deathReason, false, false);
     }
 
     /**
      * 被 Dream 的铁斧命中：<b>先扣虚拟护盾</b>，剩余伤害才扣虚拟血量；归零则判死并归属攻击者。
      *
      * <p>
-     * {@code ignoreShield} 为 true 时本次伤害<b>无视全部护盾</b>（用于 Dream 重锤）：
+     * {@code ignoreAllShields} 为 true 时本次伤害<b>无视全部护盾</b>（用于 Dream 重锤）：
      * 虚拟护盾不参与吸收、点数保持不变；若这一击足以致死，普通护盾（含限时护盾）
      * 与弱效护盾也会在判死前被清空，不会替玩家挡下这次死亡
      * （参考狙击枪 50 格外的穿透处理）。
      *
-     * @param ignoreShield true 时本次伤害<b>无视护盾</b>，直接打在虚拟血量上
+     * @param ignoreAllShields true 时本次伤害无视<b>全部</b>护盾
      * @return 是否实际造成了伤害（护盾全部吸收时也算造成了伤害，只是不掉血）
      */
     public boolean hurt(@Nullable ServerPlayer attacker, int damage, ResourceLocation deathReason,
-            boolean ignoreShield) {
+            boolean ignoreAllShields) {
+        return hurt(attacker, damage, deathReason, ignoreAllShields, ignoreAllShields);
+    }
+
+    /**
+     * 被 Dream 的铁斧命中：<b>先扣虚拟护盾</b>，剩余伤害才扣虚拟血量；归零则判死并归属攻击者。
+     *
+     * @param ignoreVirtualShield true 时虚拟护盾<b>不参与吸收</b>，伤害直接扣在虚拟血量上
+     *        （虚拟护盾点数保持不变）
+     * @param pierceOtherShields  true 时若这一击足以致死，会在判死前清空普通护盾（含限时护盾）
+     *        与弱效护盾，即连普通护盾一并穿透；false 则只无视虚拟护盾，
+     *        普通护盾仍按原有死亡管线结算
+     * @return 是否实际造成了伤害（护盾全部吸收时也算造成了伤害，只是不掉血）
+     */
+    public boolean hurt(@Nullable ServerPlayer attacker, int damage, ResourceLocation deathReason,
+            boolean ignoreVirtualShield, boolean pierceOtherShields) {
         if (!(player instanceof ServerPlayer sp) || damage <= 0) {
             return false;
         }
@@ -231,7 +246,8 @@ public class DreamHealthComponent implements RoleComponent {
             return false;
         }
         // 虚拟护盾只抵挡虚拟血量伤害：先在这里吸收，掉多少血由吸收后的剩余伤害决定
-        int remaining = ignoreShield ? damage : VirtualShieldComponent.KEY.get(sp).absorbVirtualDamage(damage);
+        int remaining = ignoreVirtualShield ? damage
+                : VirtualShieldComponent.KEY.get(sp).absorbVirtualDamage(damage);
         if (remaining <= 0) {
             // 护盾把这次伤害全吃掉了：不掉血、不致死，但伤害确实生效（护盾可能被打空）
             return true;
@@ -245,7 +261,7 @@ public class DreamHealthComponent implements RoleComponent {
             sync();
             // 打标：本条命是「虚拟血量归零」判死的（护士尸体透视据此判定，不依赖具体死因）
             VIRTUAL_HEALTH_DEATH_MARKS.put(sp.getUUID(), gameTime);
-            if (ignoreShield) {
+            if (pierceOtherShields) {
                 clearAllShields(sp);
             }
             GameUtils.killPlayer(sp, true, attacker, deathReason);

@@ -1022,9 +1022,11 @@ public final class CustomItemRuntime {
 
         DreamHealthComponent health = DreamHealthComponent.KEY.get(target);
         long now = target.level().getGameTime();
+        // ignoreVirtualShield 只绕过虚拟护盾，普通护盾仍按原有死亡管线结算
         boolean damaged = health.hurt(attacker, data.virtualDamage,
                 parseDeathReason(data.killDeathReason,
-                        io.wifi.starrailexpress.game.GameConstants.DeathReasons.GENERAL_ATTACK));
+                        io.wifi.starrailexpress.game.GameConstants.DeathReasons.GENERAL_ATTACK),
+                data.ignoreVirtualShield, false);
 
         // 攻击者 / 被攻击者指令
         CustomItemLoader.executeCommands(data.attackerHitCommands, attacker);
