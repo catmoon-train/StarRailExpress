@@ -929,6 +929,14 @@ public class NRDeathEvents {
                 dropCount--;
             }
         }
+        // 棒球员：身上的球棒掉落为左轮手枪（参考游侠弓弩）
+        if (gameWorldComponent.isRole(player, BounsRoles.BASEBALL_PLAYER)) {
+            int batCount = SREItemUtils.clearItem(player, TMMItems.BAT);
+            while (batCount > 0) {
+                player.drop(TMMItems.REVOLVER.getDefaultInstance(), false);
+                batCount--;
+            }
+        }
         // 剑客：身上的武士刀掉落为左轮手枪（参考游侠弓弩）
         if (gameWorldComponent.isRole(player, ModRoles.SWORDSMAN)) {
             int katanaCount = SREItemUtils.clearItem(player, ModItems.KATANA);

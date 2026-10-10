@@ -139,9 +139,9 @@ public class DreamMaceItem extends MaceItem implements SREItemProperties.LeftCli
             return false;
         }
 
-        // ── 扣虚拟血量（四舍五入，至少 1 点） ──
+        // ── 扣虚拟血量（四舍五入，至少 1 点；无视虚拟护盾，与狙击枪 50 格外同理） ──
         int virtualDamage = Math.max(1, Math.round(damage));
-        if (!DreamHealthComponent.KEY.get(target).hurt(attacker, virtualDamage, DEATH_REASON)) {
+        if (!DreamHealthComponent.KEY.get(target).hurt(attacker, virtualDamage, DEATH_REASON, true)) {
             return false;
         }
 

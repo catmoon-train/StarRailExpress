@@ -546,6 +546,8 @@ public class ThiefRoleData extends SimpleRoleData {
             return true; // 护盾试剂
         if (stack.is(TMMItems.WEAK_DEFENSE_VIAL))
             return true; // 弱效护盾试剂
+        if (stack.is(TMMItems.VIRTUAL_DEFENSE_VIAL))
+            return true; // 虚拟护盾试剂
 
         if (stack.is(TMMItems.KEY))
             return true;
@@ -1033,6 +1035,8 @@ public class ThiefRoleData extends SimpleRoleData {
             return true; // 护盾试剂
         if (stack.is(TMMItems.WEAK_DEFENSE_VIAL))
             return true; // 弱效护盾试剂
+        if (stack.is(TMMItems.VIRTUAL_DEFENSE_VIAL))
+            return true; // 虚拟护盾试剂
 
         if (stack.is(TMMItems.KEY))
             return true; // 钥匙

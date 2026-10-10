@@ -4396,7 +4396,7 @@
     "item.noellesroles.dream_diamond_sword.no_durability": "The diamond sword is already blunted!",
     "death_reason.noellesroles.dream_mace": "Heavy Mace",
     "item.noellesroles.dream_mace": "Dream's Mace",
-    "item.noellesroles.dream_mace.tooltip": "Attacks like a vanilla mace (fall-damage boost/knockback on slam); damage deducts virtual health",
+    "item.noellesroles.dream_mace.tooltip": "Attacks like a vanilla mace (fall-damage boost/knockback on slam); damage deducts virtual health and ignores both virtual shields and normal shields (weak and timed shields included)",
     "item.noellesroles.dream_mace.tooltip.durability": "Durability: %s/%s",
     "item.noellesroles.dream_mace.no_durability": "The mace is already broken!",
     "item.noellesroles.dream_mask": "Giant Screen Mask",

@@ -4397,7 +4397,7 @@
   "item.noellesroles.dream_diamond_sword.no_durability": "鑽石劍已經卷刃了！",
   "death_reason.noellesroles.dream_mace": "重錘",
   "item.noellesroles.dream_mace": "Dream的重錘",
-  "item.noellesroles.dream_mace.tooltip": "攻擊方式與原版重錘一致（下落高度加傷/墜擊擊退），傷害扣除虛擬血量",
+  "item.noellesroles.dream_mace.tooltip": "攻擊方式與原版重錘一致（下落高度加傷/墜擊擊退），傷害扣除虛擬血量，且無視虛擬護盾與普通護盾（含弱效護盾、限時護盾）",
   "item.noellesroles.dream_mace.tooltip.durability": "耐久度: %s/%s",
   "item.noellesroles.dream_mace.no_durability": "重錘已經損壞了！",
   "item.noellesroles.dream_mask": "巨幕面具",
