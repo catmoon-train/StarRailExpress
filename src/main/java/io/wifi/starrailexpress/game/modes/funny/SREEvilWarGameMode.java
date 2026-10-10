@@ -111,7 +111,7 @@ public class SREEvilWarGameMode extends WTLooseEndsGameMode {
         EX_ABILITY_ROLE.add(BounsRoles.CREEPER);
         EX_ABILITY_ROLE.add(ModRoles.STALKER);
         EX_ABILITY_ROLE.add(ModRoles.INSANE_KILLER);
-        // 邪恶战争新增适配职业
+        EX_ABILITY_ROLE.add(ModRoles.SILENT_KILLER);
         EX_ABILITY_ROLE.add(ModRoles.WIZARD);
         EX_ABILITY_ROLE.add(ModRoles.UNDEAD_LORD);
         EX_ABILITY_ROLE.add(ModRoles.EXAMPLER);
