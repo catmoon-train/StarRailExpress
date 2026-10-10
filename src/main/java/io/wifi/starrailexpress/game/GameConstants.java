@@ -342,6 +342,18 @@ public class GameConstants {
         public static ResourceLocation TIMEOUT = Noellesroles.id("timeout");
         public static ResourceLocation BEE_USED_OUT_SKILL = Noellesroles.id("bee_used_out_skill");
 
+        // 封印物致死（SealedArtifactHandler）：扼喉 / 雷击 / 火柴
+        public static ResourceLocation SEALED_CHOKE = Noellesroles.id("sealed_choke");
+        public static ResourceLocation SEALED_LIGHTNING = Noellesroles.id("sealed_lightning");
+        public static ResourceLocation SEALED_MATCH = Noellesroles.id("sealed_match");
+        // 垂钓者（Angler）：体力耗尽而死 / 被钓上钩而死
+        public static ResourceLocation ANGLER_EXHAUSTED = Noellesroles.id("angler_exhausted");
+        public static ResourceLocation ANGLER_CATCH = Noellesroles.id("angler_catch");
+        /** Dream 铁斧死因（与消防斧 fire_axe 区分） */
+        public static ResourceLocation DREAM_AXE = Noellesroles.id("dream_axe");
+        /** 弹幕弹（DanmukuEntity）命中致死 */
+        public static ResourceLocation DANMUKU = Noellesroles.id("danmuku");
+
         private static ResourceLocation itemId(Item item) {
             return BuiltInRegistries.ITEM.getKey(item);
         }
@@ -369,6 +381,7 @@ public class GameConstants {
             set.add(itemId(ModItems.THROWING_AXE));
             set.add(itemId(ModItems.NINJA_SHURIKEN));
             set.add(itemId(ModItems.SCARLET_PERCEPTION_SWORD));
+            set.add(itemId(ModItems.YOUMU_SWORD));
             set.add(GUN_SHOT);
             set.remove(null);
             return set;

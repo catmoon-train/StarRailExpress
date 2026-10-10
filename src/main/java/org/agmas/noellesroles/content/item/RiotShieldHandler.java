@@ -47,7 +47,7 @@ public class RiotShieldHandler {
      * <p>可格挡的远程/投掷武器：
      * <ul>
      * <li>短管霰弹枪（{@code noellesroles:short_shotgun}）</li>
-     * <li>飞斧（{@code noellesroles:throwing_axe}，回退 {@code throwing_axe_hit}）</li>
+     * <li>飞斧（{@code noellesroles:throwing_axe}）</li>
      * <li>飞刀（{@code noellesroles:throwing_knife}，回退 {@code throwing_knife_hit}）</li>
      * <li>手里剑（{@code noellesroles:ninja_shuriken}）</li>
      * <li>爆炸弩（{@code noellesroles:firework_crossbow}）</li>
@@ -69,9 +69,8 @@ public class RiotShieldHandler {
                 || deathReason.equals(GameConstants.DeathReasons.GRENADE)
                 // 短管霰弹枪
                 || deathReason.equals(GameConstants.DeathReasons.SHORT_SHOTGUN)
-                // 飞斧（实体优先用物品自身注册 id 作为死因，回退到固定 id）
-                || deathReason.equals(Noellesroles.id("throwing_axe"))
-                || deathReason.equals(Noellesroles.id("throwing_axe_hit"))
+                // 飞斧（实体用物品自身注册 id 作为死因）
+                || deathReason.equals(ModItems.THROWING_AXE_DEATH_REASON)
                 // 飞刀（同上：物品 id + 回退 id）
                 || deathReason.equals(Noellesroles.id("throwing_knife"))
                 || deathReason.equals(GameConstants.DeathReasons.THROWING_KNIFE_HIT)

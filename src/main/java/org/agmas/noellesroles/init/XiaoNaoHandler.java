@@ -178,7 +178,6 @@ public class XiaoNaoHandler {
                 || deathReason.getPath().equals("wizard_fireball")
                 || deathReason.getPath().equals("undead_infection")
                 || deathReason.getPath().equals("throwing_axe")
-                || deathReason.getPath().equals("throwing_axe_hit")
                 || deathReason.getPath().equals("dream_axe")
                 || deathReason.getPath().equals("dream_mace")
                 || deathReason.getPath().equals("dream_diamond_sword")

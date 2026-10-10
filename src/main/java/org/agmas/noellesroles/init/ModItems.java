@@ -29,6 +29,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.vehicle.AbstractMinecart;
 import net.minecraft.world.food.FoodProperties;
 import net.minecraft.world.food.Foods;
@@ -920,6 +921,13 @@ public class ModItems {
     public static final Item THROWING_AXE = register(
             new ThrowingAxeItem((new Item.Properties()).stacksTo(1)), "throwing_axe",
             WEAPONS_GROUP);
+    /**
+     * 飞斧唯一的死亡原因（与飞斧物品注册 id 一致）。
+     *
+     * <p>飞斧实体命中时优先用自身物品栈的注册 id 作为死因，物品栈为空时回退到这里；
+     * 两者同为 {@code noellesroles:throwing_axe}，不再存在 {@code throwing_axe_hit}。
+     */
+    public static final ResourceLocation THROWING_AXE_DEATH_REASON = Noellesroles.id("throwing_axe");
 
     // 竹子 - 蓄力投掷，途中最多挂上 2 名玩家，从发射起 10 秒后消失
     public static final Item BAMBOO = register(
