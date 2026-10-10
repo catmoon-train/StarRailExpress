@@ -43,6 +43,7 @@
   "commands.changemodifier.player.notification.remove": "成功為玩家 %s 刪除修飾符 %s",
   "commands.changemodifier.player.notification.nothing_change": "對玩家 %s 的修飾符 %s 修改失敗：未知",
   "commands.changemodifier.player.notification.failed.nostart": "修飾符修改失敗：未啟動遊戲！",
+  "commands.changemodifier.player.notification.failed.norole": "修飾符修改失敗：玩家 %s 沒有角色！",
   "announcement.star.modifier": "附加詞條 ",
   "announcement.star.no_modifiers": "沒有附加詞條",
   "commands.tmm.setroleweight.success": "角色 %s 的權重已設置為 %s",

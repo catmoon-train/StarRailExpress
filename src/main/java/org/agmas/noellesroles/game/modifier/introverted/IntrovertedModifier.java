@@ -43,7 +43,8 @@ public final class IntrovertedModifier {
         var gameComponent = SREGameWorldComponent.KEY.get(player.level());
         // 只影响受情绪系统影响的玩家
         SRERole role = gameComponent.getRole(player);
-        if (!role.getMoodType().equals(MoodType.REAL))
+        // 未分配角色（如游戏未开始、角色被清除或换局重置期间）时直接跳过，避免空指针
+        if (role == null || role.getMoodType() != MoodType.REAL)
             return;
 
         SREPlayerMoodComponent mood = SREPlayerMoodComponent.KEY.get(player);

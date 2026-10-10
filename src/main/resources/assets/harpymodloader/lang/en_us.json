@@ -43,6 +43,7 @@
     "commands.changemodifier.player.notification.remove": "Successfully removed modifier %s from player %s",
     "commands.changemodifier.player.notification.nothing_change": "Failed to modify modifier %s on player %s: unknown",
     "commands.changemodifier.player.notification.failed.nostart": "Modifier modification failed: game not started!",
+    "commands.changemodifier.player.notification.failed.norole": "Modifier modification failed: player %s has no role!",
     "announcement.star.modifier": "Modifier: ",
     "announcement.star.no_modifiers": "No modifiers",
     "commands.tmm.setroleweight.success": "Role %s weight set to %s",
