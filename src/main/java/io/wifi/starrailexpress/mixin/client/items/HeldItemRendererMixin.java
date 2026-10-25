@@ -47,15 +47,22 @@ public class HeldItemRendererMixin {
             SREClient.handParticleManager.render(matrices, vertexConsumers, light);
         }
 
-        if (entity instanceof Player playerEntity
-                && (stack.is(TMMItemTags.HELD_LIKE_GUNS_ITEMS)
-                        || (this.mainHandItem.getItem() instanceof HeldLikeRevolver))) {
+        // 只看正在渲染的这只手：副手拿枪时不能被主手物品/主手类型放行，
+        // 否则副手的枪会把枪口位置写进同一个槽位，粒子跑到屏幕右侧。
+        if (entity instanceof Player playerEntity && isHeldLikeGun(stack)) {
             if (playerEntity.getUUID() != Minecraft.getInstance().player.getUUID()) {
                 MatrixParticleManager.muzzlePosForPlayer$set(playerEntity, MatrixUtils.matrixToVec(matrices));
             } else if (!renderMode.firstPerson()) {
                 MatrixParticleManager.muzzlePosForPlayer$set(playerEntity, MatrixUtils.matrixToVec(matrices));
             }
         }
+    }
+
+    /** 该物品本身是否按枪械持握渲染（含副手）。 */
+    private static boolean isHeldLikeGun(ItemStack stack) {
+        return !stack.isEmpty()
+                && (stack.is(TMMItemTags.HELD_LIKE_GUNS_ITEMS)
+                        || stack.getItem() instanceof HeldLikeRevolver);
     }
 
     @ModifyExpressionValue(method = "tick", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/item/ItemStack;matches(Lnet/minecraft/world/item/ItemStack;Lnet/minecraft/world/item/ItemStack;)Z"))
