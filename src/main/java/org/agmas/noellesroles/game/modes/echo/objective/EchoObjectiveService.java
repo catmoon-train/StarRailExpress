@@ -56,7 +56,14 @@ public final class EchoObjectiveService {
     private final Map<String,Long> submissionHighlights=new HashMap<>();
     private final Map<UUID,Resource> resources=new HashMap<>();
     private final Map<UUID,Long> dwell=new HashMap<>();
+    /** 采集故障声纹的传播半径（格）。 */
+    private static final double FAULT_RANGE=48.0D;
     private final Random random=new Random();
+    /** 正在等修机判定的玩家 → 判定 + 目标。同一玩家同时只允许一轮。 */
+    private final Map<UUID,PendingRepair> repairs=new java.util.HashMap<>();
+    /** 一轮修机判定：权威状态机 + 目标（晶簇或黑晶点）。 */
+    private record PendingRepair(org.agmas.noellesroles.game.modes.echo.repair.EchoRepairCheck check,
+                                 String checkId, Target target) { }
     private EchoKeySchedule keys;
     private final org.agmas.noellesroles.game.modes.echo.contract.EchoBlackCrystalState black;
     private boolean started,closed;
@@ -164,6 +171,18 @@ public final class EchoObjectiveService {
     }
     public void grantReward(ServerPlayer player,PackQuality quality,String fact) { reward(player,quality,fact); }
     public void useBlock(ServerPlayer player,BlockPos pos) {
+        // 横板优先：放下/拆除都不进入机器点位流程，未命中则原样落到机器交互。
+        var state = level.getBlockState(pos);
+        if (state.getBlock() instanceof org.agmas.noellesroles.game.modes.echo.content.EchoPalletBlock) {
+            if (org.agmas.noellesroles.game.modes.echo.content.EchoPalletBlock.breakPallet(level, pos, player)) {
+                cancelActor(player);
+                return;
+            }
+            if (org.agmas.noellesroles.game.modes.echo.content.EchoPalletBlock.lower(level, pos, player)) {
+                cancelActor(player);
+                return;
+            }
+        }
         Target target=targets.get(EchoMachineInteractions.root(level,pos));
         if(target==null) { cancelActor(player); return; }
         request(player,target);
@@ -282,6 +301,7 @@ public final class EchoObjectiveService {
     }
     public void tickOperations() {
         long now=match.matchTick();
+        tickRepairs(now);
         for(var action:actions.advance(now,action -> {
             ServerPlayer player=level.getServer().getPlayerList().getPlayer(action.player());
             Target target=resolve(action.target());
@@ -297,12 +317,20 @@ public final class EchoObjectiveService {
             keys.due(now).ifPresent(altar -> { if(spawnKey(altar)) announce("echo.goal.key_supply",altar); });
             for(var beacon:beacons.entrySet()) {
                 Target target=handles.get("BEACON:"+beacon.getKey());
+                // 护送人数只算真正站在信标范围内的站立托运者；reachable 是「目标点可达」，
+                // 与「玩家站得近」无关，不能用来判断护送，否则隔着半张图也算护送。
                 int escorts=(int)match.onlinePlayers().stream().filter(p -> match.standing(p)&&carrier(p)
-                        && p.position().distanceToSqr(target.pos())<=rules.beacon().escortRange()*rules.beacon().escortRange() && reachable(p,target.pos(),rules.beacon().escortRange()+1)
+                        && p.position().distanceToSqr(target.pos())<=rules.beacon().escortRange()*rules.beacon().escortRange()
                         && EchoGateService.box(map.coreArea()).contains(p.position())==EchoGateService.box(map.coreArea()).contains(target.pos())).count();
                 if(beacon.getValue().tick(now,escorts)) {
                     announce("echo.goal.beacon_active",beacon.getKey()); burst(target.pos());
                 }
+                // 占位圈：每 20 tick 刷新一次，提示需要站立的范围；被迟滞时由客户端改色。
+                if(now%20==0 && !beacon.getValue().active())
+                    io.wifi.starrailexpress.util.ParticleFx.sendCustom(level,
+                            org.agmas.noellesroles.game.modes.echo.anim.EchoHuntFxIds.BEACON_RING,
+                            target.pos(),20,(float)rules.beacon().escortRange(),
+                            beacon.getValue().stalled(now)?1F:0F);
             }
         }
         for(var drop:drops.all()) if(now>=drop.expiresAt()) recycle(drop);
@@ -315,18 +343,7 @@ public final class EchoObjectiveService {
         long now=match.matchTick(); EchoRoleData data=data(player);
         switch(target.kind()) {
             case RESCUE -> match.combat().rescue(player,UUID.fromString(target.id()));
-            case CRYSTAL -> {
-                UUID id=UUID.randomUUID(); ledger.register(match.id(),id,Location.cargo(player.getUUID(),data.cargo().size()));
-                resources.put(id,new Resource(EchoDropService.Kind.CRYSTAL,now+rules.signals().cargoIntervalTicks())); data.addCargo(id);
-                nodeReady.put(target.id(),now+rules.logistics().nodeRecoveryTicks());
-                if(!match.cards().consumeSilence(player.getUUID())) { burst(target.pos()); nearby(target.pos(),SoundEvents.AMETHYST_BLOCK_BREAK,24); }
-                if(random.nextDouble()<rules.logistics().bonusPackChance()) reward(player,PackQuality.COMMON,"collect:"+id);
-            }
-            case BLACK_NODE -> {
-                UUID id=UUID.randomUUID(); ledger.register(match.id(),id,Location.cargo(player.getUUID(),data.cargo().size()));
-                black.collect(player.getUUID(),target.id(),id,now); resources.put(id,new Resource(EchoDropService.Kind.BLACK_CRYSTAL,Long.MAX_VALUE));
-                data.addCargo(id); data.projectBlackCargo(blackCount(player)); nearby(target.pos(),SoundEvents.AMETHYST_BLOCK_CHIME,24);
-            }
+            case CRYSTAL, BLACK_NODE -> startRepair(player,target);
             case BLACK_DROPOFF -> {
                 UUID id=data.cargo().stream().filter(black::black).findFirst().orElseThrow();
                 removeCargo(player,id,Location.consumed()); black.consume(id); resources.remove(id); data.projectBlackCargo(blackCount(player));
@@ -335,10 +352,13 @@ public final class EchoObjectiveService {
             case BEACON -> {
                 EchoBeaconState beacon=beacons.get(target.id());
                 if(carrier(player)) {
+                    // 已启动或已满料一律拒绝：不能因为投影慢一帧就把多余晶体塞进去。
+                    if(beacon.active() || !beacon.canSubmit()) throw new IllegalStateException("BEACON_FULL");
                     UUID crystal=data.cargo().getFirst(); removeCargo(player,crystal,Location.consumed());
                     if(!beacon.submit()) throw new IllegalStateException("信标提交计划失效");
                     resources.remove(crystal); match.recordDelivery(player.getUUID());
                     reward(player,PackQuality.RARE,"submit:"+player.getUUID()+":"+target.id());
+                    match.economy().award(player,org.agmas.noellesroles.game.modes.echo.economy.EchoEconomy.Source.SUBMIT,target.id());
                     announce("echo.goal.submitted",target.id());
                     if(!match.cards().consumeSilence(player.getUUID())) {
                         burst(target.pos());
@@ -346,7 +366,8 @@ public final class EchoObjectiveService {
                         EchoAudio.submission(match,target.pos());
                     }
                 } else if(beacon.stall(now,rules.beacon().stallTicks())) {
-                    reward(player,PackQuality.BLACK_MARKET,"stall:"+target.id()); announce("echo.goal.stalled",target.id()); burst(target.pos()); nearby(target.pos(),SoundEvents.RESPAWN_ANCHOR_CHARGE,24);
+                    reward(player,PackQuality.BLACK_MARKET,"stall:"+target.id());
+                    match.economy().award(player,org.agmas.noellesroles.game.modes.echo.economy.EchoEconomy.Source.STALL,target.id()); announce("echo.goal.stalled",target.id()); burst(target.pos()); nearby(target.pos(),SoundEvents.RESPAWN_ANCHOR_CHARGE,24);
                 }
             }
             case ALTAR -> keys.at(target.id()).flatMap(id -> drops.all().stream().filter(d -> d.instanceId().equals(id)).findFirst()).ifPresent(drop -> pickup(player,drop));
@@ -369,6 +390,104 @@ public final class EchoObjectiveService {
         }
     }
     private EchoMapConfig.Crate crate(String id) { return map.supplyCrates().stream().filter(c -> c.id().equals(id)).findFirst().orElseThrow(); }
+    /**
+     * 采集改为修机小游戏：先下发一轮圆环判定，命中才真正产出货物。
+     *
+     * <p>服务端不信任客户端上报的位置（见 {@link org.agmas.noellesroles.game.modes.echo.repair.EchoRepairCheck}）；
+     * 取消、超时或失手都不消耗点位，也不进入节点恢复，玩家可以立刻重试。
+     */
+    private void startRepair(ServerPlayer player,Target target) {
+        if(repairs.containsKey(player.getUUID())) return;
+        var clazz=match.classState(player.getUUID());
+        int zoneBonus=clazz==null?0:clazz.zoneBonus();
+        double accidentScale=clazz==null?1D:clazz.accidentScale();
+        long now=match.matchTick();
+        var check=org.agmas.noellesroles.game.modes.echo.repair.EchoRepairCheck.begin(random,now,zoneBonus,accidentScale);
+        String checkId=UUID.randomUUID().toString();
+        repairs.put(player.getUUID(),new PendingRepair(check,checkId,target));
+        var view=check.view();
+        net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking.send(player,
+                new org.agmas.noellesroles.game.modes.echo.repair.EchoRepairPayload(match.id(),
+                        UUID.fromString(checkId),target.id(),view.speed(),view.zoneStart(),view.zoneWidth(),
+                        view.accident(),view.startedAt(),view.timeoutTicks()));
+        data(player).projectAction(null);
+        actions.cancel(player.getUUID());
+        player.playNotifySound(SoundEvents.AMETHYST_BLOCK_CHIME,SoundSource.PLAYERS,0.5F,1.2F);
+    }
+
+    /**
+     * 结算一次修机判定。
+     *
+     * @param position 客户端上报的指针位置；{@code -1} 表示主动放弃
+     */
+    public void submitRepair(ServerPlayer player,String checkId,int position) {
+        var pending=repairs.get(player.getUUID());
+        if(pending==null || !pending.checkId().equals(checkId)) return;
+        repairs.remove(player.getUUID());
+        long now=match.matchTick();
+        if(position<0) { data(player).projectInteractionError("CANCELLED",now+40); return; }
+        var result=pending.check().submit(now,position);
+        if(result==org.agmas.noellesroles.game.modes.echo.repair.EchoRepairCheck.Result.HIT) {
+            finishRepair(player,pending.target());
+            return;
+        }
+        data(player).projectInteractionError(result.name(),now+40);
+        player.playNotifySound(SoundEvents.NOTE_BLOCK_BASS.value(),SoundSource.PLAYERS,0.6F,0.7F);
+        // 采集故障会泄露位置：附近追捕者收到一次红色圆圈声纹（只给方向，不给坐标）。
+        faultPulse(player);
+    }
+
+    /**
+     * 采集故障声纹：向 {@link #FAULT_RANGE} 内的站立追捕者各发一次方向信号。
+     *
+     * <p>只发方向扇区，不带坐标与 UUID；客户端渲染成红色圆圈。
+     */
+    private void faultPulse(ServerPlayer source) {
+        for(ServerPlayer hunter:match.onlinePlayers()) {
+            if(hunter==source || match.faction(hunter.getUUID())!=EchoFaction.INTERCEPTOR) continue;
+            if(!match.standing(hunter)) continue;
+            if(hunter.distanceToSqr(source)>FAULT_RANGE*FAULT_RANGE) continue;
+            match.cards().signals().pulse(hunter,source,"fault_pulse");
+        }
+    }
+
+    /** 判定命中后真正产出货物；与旧的采集完成逻辑一致。 */
+    private void finishRepair(ServerPlayer player,Target target) {
+        long now=match.matchTick();
+        EchoRoleData data=data(player);
+        if(target.kind()==Kind.BLACK_NODE) {
+            UUID id=UUID.randomUUID(); ledger.register(match.id(),id,Location.cargo(player.getUUID(),data.cargo().size()));
+            black.collect(player.getUUID(),target.id(),id,now);
+            resources.put(id,new Resource(EchoDropService.Kind.BLACK_CRYSTAL,Long.MAX_VALUE));
+            data.addCargo(id); data.projectBlackCargo(blackCount(player));
+            nearby(target.pos(),SoundEvents.AMETHYST_BLOCK_CHIME,24);
+            return;
+        }
+        UUID id=UUID.randomUUID(); ledger.register(match.id(),id,Location.cargo(player.getUUID(),data.cargo().size()));
+        resources.put(id,new Resource(EchoDropService.Kind.CRYSTAL,now+rules.signals().cargoIntervalTicks()));
+        data.addCargo(id);
+        nodeReady.put(target.id(),now+rules.logistics().nodeRecoveryTicks());
+        if(!match.cards().consumeSilence(player.getUUID())) {
+            burst(target.pos()); nearby(target.pos(),SoundEvents.AMETHYST_BLOCK_BREAK,24);
+        }
+        if(random.nextDouble()<rules.logistics().bonusPackChance()) reward(player,PackQuality.COMMON,"collect:"+id);
+        match.economy().award(player,org.agmas.noellesroles.game.modes.echo.economy.EchoEconomy.Source.REPAIR,null);
+    }
+
+    /** 断线、倒地、离开模式或换局时清掉未完成的判定。 */
+    public void cancelRepair(UUID owner) { repairs.remove(owner); }
+
+    /** 每 tick 清掉超时判定，避免玩家挂着界面。 */
+    private void tickRepairs(long now) {
+        if(repairs.isEmpty()) return;
+        repairs.entrySet().removeIf(entry -> {
+            if(!entry.getValue().check().expired(now)) return false;
+            var player=level.getServer().getPlayerList().getPlayer(entry.getKey());
+            if(player!=null) data(player).projectInteractionError("EXPIRED",now+40);
+            return true;
+        });
+    }
+
     private void removeCargo(ServerPlayer player,UUID instance,Location destination) { removeCargo(player.getUUID(),instance,destination); }
     private void removeCargo(UUID owner,UUID instance,Location destination) {
         List<UUID> cargo=match.cargo(owner).items(); int index=cargo.indexOf(instance);

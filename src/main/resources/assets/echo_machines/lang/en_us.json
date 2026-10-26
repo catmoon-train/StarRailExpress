@@ -58,5 +58,9 @@
   "echo.machine.status.evac_open": "Enter the evacuation zone and stay until evacuated",
   "echo.machine.status.overload_ready": "Team overload is available",
   "echo.machine.status.overload_used": "Team overload already spent",
-  "echo.machine.status.unconfigured": "Map machine shell · Saved points drive match state"
+  "echo.machine.status.unconfigured": "Map machine shell · Saved points drive match state",
+  "block.noellesroles.echo_hide_bush": "Echo Hide Bush",
+  "block.noellesroles.echo_pallet": "Freight Pallet",
+  "echo.hide_bush.tooltip": "No collision: standing inside hides you from interceptors outside bushes",
+  "echo.pallet.tooltip": "Carriers lower it to block; interceptors can break it; resets after 30s"
 }

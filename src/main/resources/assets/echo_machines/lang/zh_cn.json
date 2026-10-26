@@ -58,5 +58,9 @@
   "echo.machine.status.evac_open": "进入门后撤离区并停留至撤离完成",
   "echo.machine.status.overload_ready": "可发动全队一次的过载封门",
   "echo.machine.status.overload_used": "全队过载机会已用完",
-  "echo.machine.status.unconfigured": "地图机器外壳 · 对局状态由已保存点位驱动"
+  "echo.machine.status.unconfigured": "地图机器外壳 · 对局状态由已保存点位驱动",
+  "block.noellesroles.echo_hide_bush": "回声草丛",
+  "block.noellesroles.echo_pallet": "货运横板",
+  "echo.hide_bush.tooltip": "无碰撞：站进去会对草丛外的截流者隐身",
+  "echo.pallet.tooltip": "托运者空手右键放下挡路；截流者可拆；放下 30 秒后自动复位"
 }

@@ -7,6 +7,8 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import org.agmas.noellesroles.game.modes.echo.content.EchoMachineBlock;
 import org.agmas.noellesroles.game.modes.echo.content.EchoMachines;
+import org.agmas.noellesroles.game.modes.echo.content.EchoHideBlock;
+import org.agmas.noellesroles.game.modes.echo.content.EchoTerrainBlocks;
 import org.agmas.noellesroles.game.modes.echo.map.manor.EchoManorLayout.Kind;
 import org.agmas.noellesroles.game.modes.echo.map.manor.EchoManorLayout.Layout;
 import org.jetbrains.annotations.Nullable;
@@ -87,6 +89,16 @@ public final class EchoManorScene {
             case PLATE -> (h < 80 ? Blocks.POLISHED_ANDESITE : Blocks.POLISHED_DEEPSLATE).defaultBlockState();
             case TERRACE -> (h < 85 ? Blocks.SMOOTH_STONE : Blocks.POLISHED_ANDESITE).defaultBlockState();
             case TERRACE_WALL -> (h < 75 ? Blocks.STONE_BRICKS : Blocks.MOSSY_STONE_BRICKS).defaultBlockState();
+            // 草丛：无碰撞、可穿行的隐身点，带朝向让模型不完全重复。
+            case BUSH -> EchoTerrainBlocks.HIDE.defaultBlockState()
+                    .setValue(EchoHideBlock.FACING, switch (Math.floorMod(x * 7 + z * 13, 4)) {
+                        case 0 -> Direction.NORTH;
+                        case 1 -> Direction.EAST;
+                        case 2 -> Direction.SOUTH;
+                        default -> Direction.WEST;
+                    });
+            // 矮墙：1 格高，挡视线不挡走位。
+            case LOW_WALL -> (h < 60 ? Blocks.COBBLESTONE_WALL : Blocks.MOSSY_COBBLESTONE_WALL).defaultBlockState();
             case MARKER_CRYSTAL, MARKER_BEACON, MARKER_ALTAR, MARKER_CRATE, MARKER_BLACK_CRATE,
                     MARKER_BLACK_NODE, MARKER_BLACK_DROPOFF, MARKER_BROKER, MARKER_FREE_EXIT, PANEL, MACHINE_PART ->
                     throw new IllegalArgumentException("机器点位必须通过布局映射: " + kind);

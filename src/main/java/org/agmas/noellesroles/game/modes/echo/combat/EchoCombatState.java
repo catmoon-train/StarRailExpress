@@ -27,6 +27,13 @@ public final class EchoCombatState {
     public EchoLifeState life() { return life; }
     public float health() { return health; }
     public boolean controlled(long now) { return now<controlledUntil; }
+    /** 治疗：不超过上限，倒地与淘汰状态不能回复。 */
+    public boolean heal(float amount) {
+        if(!life.standing() || !Float.isFinite(amount) || amount<=0) return false;
+        float before=health;
+        health=Math.min(MAX_HEALTH,health+amount);
+        return health>before;
+    }
     public boolean canAct(long now) { return life.standing() && !controlled(now); }
     public boolean protectedAt(long now) { return now<protectedUntil; }
     public long bleedUntil() { return bleedUntil; }

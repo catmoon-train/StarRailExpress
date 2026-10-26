@@ -26,11 +26,13 @@ public final class EchoHud {
         EchoMachineClient.initialize();
         EchoFacilityMapClient.initialize();
         EchoRollClient.initialize();
+        EchoRepairClient.initialize();
+        EchoShopClient.initialize();
+        EchoBeaconRingClient.register();
         EchoScreenFx.initialize();
         EchoSkillHud.initialize();
         EchoAtmosphereClient.initialize();
         org.agmas.noellesroles.game.modes.echo.anim.EchoHuntClient.initialize();
-        EchoHuntHud.initialize();
         EchoHuntFxClient.initialize();
         ClientTickEvents.END_CLIENT_TICK.register(client -> {
             if(view==null) return;
@@ -108,10 +110,12 @@ public final class EchoHud {
         for (var signal : d.signals()) if (signal.target() == null && d.projectedTick() < signal.until() && n++ < 2) {
             String kind = switch (signal.kind()) {
                 case "salvage" -> "salvage"; case "key_contract" -> "key_contract";
-                case "cargo_pulse" -> "cargo"; case "key_pulse" -> "key";
+                case "cargo_pulse" -> "cargo"; case "key_pulse" -> "key"; case "fault_pulse" -> "fault";
                 default -> "tracking";
             };
-            row(g, tr("signal." + kind, tr("direction." + Math.floorMod(signal.sector(), 8))), infoX, infoY, infoWidth, GOLD);
+            // 故障声纹用红色，其它方向信号保持金色。
+            int signalColor = "fault".equals(kind) ? RED : GOLD;
+            row(g, tr("signal." + kind, tr("direction." + Math.floorMod(signal.sector(), 8))), infoX, infoY, infoWidth, signalColor);
             infoY += 11;
         }
         if (EchoCardClient.selectingSecond()) {

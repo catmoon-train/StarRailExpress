@@ -79,6 +79,12 @@ public final class EchoTradeService {
                 case TRADE_CONFIRM -> {
                     if(trade.confirm(actor.getUUID(),request.tradeVersion(),request.revision(),match.matchTick())) {
                         var event=trade.committed().orElseThrow(); facts.put(trade.id(),event);
+                        // 交易成功：双方各得一次收入，按 tradeId 去重。
+                        for(UUID side:java.util.List.of(event.a(),event.b())) {
+                            var sidePlayer=match.connectedPlayer(side);
+                            if(sidePlayer!=null) match.economy().award(sidePlayer,
+                                    org.agmas.noellesroles.game.modes.echo.economy.EchoEconomy.Source.TRADE,trade.id().toString());
+                        }
                         match.contracts().traded(event); finish(trade,true); return;
                     }
                 }

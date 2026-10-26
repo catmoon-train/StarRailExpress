@@ -43,7 +43,8 @@ public final class EchoSignalService {
         leases.add(new Lease(receiver.getUUID(),target.getUUID(),kind,now+ticks,interval,visible,now));
     }
     public void pulse(ServerPlayer receiver,ServerPlayer source,String kind) {
-        if(!kind.equals("cargo_pulse") && !kind.equals("key_pulse")) throw new IllegalArgumentException("无效周期信号");
+        if(!kind.equals("cargo_pulse") && !kind.equals("key_pulse") && !kind.equals("fault_pulse"))
+            throw new IllegalArgumentException("无效周期信号");
         leases.removeIf(l -> l.owner().equals(receiver.getUUID()) && l.target().equals(source.getUUID()) && l.kind().equals(kind));
         lease(receiver,source,kind,20,20,20);
         var lease=leases.getLast(); cachedSectors.put(lease,sector(receiver.getX(),receiver.getZ(),source.getX(),source.getZ()));

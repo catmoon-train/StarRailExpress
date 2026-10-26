@@ -38,7 +38,6 @@ public final class EchoManorLayout {
     public static final int WIDTH = 200;
     public static final int DEPTH = 200;
     public static final int HEIGHT = 22;
-    /** 地面方块层（玩家站在这格上面）。 */
     public static final int GROUND_Y = 3;
     /** 脚层：所有点位标记方块所在的 y。 */
     public static final int FEET_Y = 4;
@@ -51,6 +50,10 @@ public final class EchoManorLayout {
         LOG, LEAVES, CONTAINER, TABLE, COUNTER, BOOKSHELF, CRATE, DARKSTONE,
         /** 假山岩体 / 苔藓面 / 工业硬地 / 金属平台 / 台地顶面 / 台地挡墙。 */
         ROCK, MOSS, CONCRETE, PLATE, TERRACE, TERRACE_WALL,
+        /** 草丛：无碰撞、可穿行，站进去触发隐身。 */
+        BUSH,
+        /** 矮墙：1 格高，挡视线但不挡走位。 */
+        LOW_WALL,
         MARKER_CRYSTAL, MARKER_BEACON, MARKER_ALTAR, MARKER_CRATE, MARKER_BLACK_CRATE,
         MARKER_BLACK_NODE, MARKER_BLACK_DROPOFF, MARKER_BROKER, MARKER_FREE_EXIT, PANEL, MACHINE_PART;
 
@@ -261,46 +264,108 @@ public final class EchoManorLayout {
         // ---------- 建筑 ----------
 
         /**
-         * 核心枢纽：外墙 6 高的大厅，南北各一扇 8 宽大门；正中是只有东西两扇铁门的小金库。
-         * 关门后金库完全封闭，开门才能拿到核心信标 / 黑市箱 / 免费出口。
+         * 中心庄园：**两层**大宅，是整张图的视觉与玩法重心。
+         *
+         * 一层：外墙 6 高、四向门洞（南北宽门 + 东西侧门）、正中金库（东西两扇铁门）。
+         * 二层：y=11 楼板（中间留中庭天井）、y=12..15 环廊、y=17..19 两级屋顶。
+         * 楼梯：东西各一段，逐级抬升 1 格，canJump=false 时也能走上二层。
+         *
+         * 关键约束：一层与二层**只靠楼梯连通**；金库顶部在 y=10 封死，
+         * 因此不能从二层天井跳进金库，核心区依然只能开门进入。
          */
         private void coreFortress() {
-            fill(84, 116, GROUND_Y, GROUND_Y, 58, 86, Kind.FLOOR);
-            fill(84, 116, GROUND_Y, GROUND_Y, 58, 86, Kind.FLOOR);
-            clear(85, 115, FEET_Y, 9, 59, 85);   // 先掏空大厅，防止假山/台地残留
-            fill(84, 84, FEET_Y, 9, 58, 86, Kind.WALL);
-            fill(116, 116, FEET_Y, 9, 58, 86, Kind.WALL);
-            fill(84, 116, FEET_Y, 9, 58, 58, Kind.WALL);
-            fill(84, 116, FEET_Y, 9, 86, 86, Kind.WALL);
-            clear(96, 103, FEET_Y, 6, 58, 58);   // 北门
-            clear(96, 103, FEET_Y, 6, 86, 86);   // 南门
-            fill(84, 116, 10, 10, 58, 86, Kind.ROOF);
-            fill(86, 114, 11, 11, 60, 84, Kind.ROOF_DARK);
+            // 地基与一层地面
+            fill(80, 120, GROUND_Y, GROUND_Y, 54, 90, Kind.FLOOR);
+            clear(81, 119, FEET_Y, 20, 55, 89);          // 先掏空，防止假山残留
 
-            // 金库本体：只有东西两扇铁门
-            fill(92, 92, FEET_Y, 8, 64, 80, Kind.WALL);
-            fill(108, 108, FEET_Y, 8, 64, 80, Kind.WALL);
-            fill(92, 108, FEET_Y, 8, 64, 64, Kind.WALL);
-            fill(92, 108, FEET_Y, 8, 80, 80, Kind.WALL);
-            clear(93, 107, FEET_Y, 8, 65, 79);   // 金库内部也先掏空
-            fill(92, 92, FEET_Y, 6, 70, 72, Kind.GATE);
-            fill(108, 108, FEET_Y, 6, 70, 72, Kind.GATE);
-            fill(93, 107, 9, 9, 65, 79, Kind.ROOF_DARK);
-            for (int[] corner : new int[][]{{94, 66}, {106, 66}, {94, 78}, {106, 78}}) {
-                fill(corner[0], corner[0], FEET_Y, 7, corner[1], corner[1], Kind.PILLAR);
+            // 一层外墙（6 高）
+            fill(80, 80, FEET_Y, 9, 54, 90, Kind.WALL);
+            fill(120, 120, FEET_Y, 9, 54, 90, Kind.WALL);
+            fill(80, 120, FEET_Y, 9, 54, 54, Kind.WALL);
+            fill(80, 120, FEET_Y, 9, 90, 90, Kind.WALL);
+            clear(97, 103, FEET_Y, 6, 54, 54);            // 北门
+            clear(97, 103, FEET_Y, 6, 90, 90);            // 南门
+            clear(80, 80, FEET_Y, 6, 66, 70);             // 西门
+            clear(120, 120, FEET_Y, 6, 66, 70);           // 东门
+
+            // 二层楼板：中间留中庭天井，让一层大厅有挑高
+            fill(80, 120, 11, 11, 54, 90, Kind.ROOF);
+            clear(92, 108, 11, 11, 66, 78);               // 中庭天井
+            // 二层外墙
+            fill(80, 80, 12, 16, 54, 90, Kind.WALL);
+            fill(120, 120, 12, 16, 54, 90, Kind.WALL);
+            fill(80, 120, 12, 16, 54, 54, Kind.WALL);
+            fill(80, 120, 12, 16, 90, 90, Kind.WALL);
+            // 两级屋顶
+            fill(80, 120, 17, 17, 54, 90, Kind.ROOF);
+            fill(82, 118, 18, 18, 56, 88, Kind.ROOF_DARK);
+            fill(86, 114, 19, 19, 60, 84, Kind.ROOF_DARK);
+
+            // 二层环廊：天井四周各留走道
+            clear(81, 119, 12, 15, 55, 65);               // 北侧走廊
+            clear(81, 119, 12, 15, 79, 89);               // 南侧走廊
+            clear(81, 91, 12, 15, 66, 78);                // 西侧走廊
+            clear(109, 119, 12, 15, 66, 78);              // 东侧走廊
+            // 天井栏杆：1 格高，不挡视线但防止直接掉下去
+            fill(92, 108, 12, 12, 66, 66, Kind.PILLAR);
+            fill(92, 108, 12, 12, 78, 78, Kind.PILLAR);
+            fill(92, 92, 12, 12, 66, 78, Kind.PILLAR);
+            fill(108, 108, 12, 12, 66, 78, Kind.PILLAR);
+            // 二层窗
+            for (int z : new int[]{58, 62, 82, 86}) {
+                put(80, 14, z, Kind.GLASS);
+                put(120, 14, z, Kind.GLASS);
             }
-            for (int z : new int[]{62, 68, 74, 82}) {
-                put(84, 6, z, Kind.GLASS);
-                put(116, 6, z, Kind.GLASS);
+            for (int x : new int[]{86, 94, 106, 114}) {
+                put(x, 14, 54, Kind.GLASS);
+                put(x, 14, 90, Kind.GLASS);
             }
-            for (int x : new int[]{88, 94, 106, 112}) {
-                put(x, 6, 58, Kind.GLASS);
-                put(x, 6, 86, Kind.GLASS);
+            // 一层窗
+            for (int z : new int[]{58, 62, 82, 86}) {
+                put(80, 6, z, Kind.GLASS);
+                put(120, 6, z, Kind.GLASS);
             }
-            // 大厅里的灯柱，撑起室内层次
-            for (int[] lamp : new int[][]{{88, 64}, {112, 64}, {88, 80}, {112, 80}}) {
-                fill(lamp[0], lamp[0], FEET_Y, 8, lamp[1], lamp[1], Kind.PILLAR);
-                put(lamp[0], 9, lamp[1], Kind.LAMP);
+            for (int x : new int[]{86, 94, 106, 114}) {
+                put(x, 6, 54, Kind.GLASS);
+                put(x, 6, 90, Kind.GLASS);
+            }
+
+            // 西侧楼梯：逐级抬升 1 格，禁用跳跃也能走上二层
+            for (int step = 0; step < 8; step++) {
+                int y = FEET_Y + step;
+                int x0 = 82 + step;
+                fill(x0, 87, y, y, 70, 74, Kind.PLATE);
+                clear(x0, 87, y + 1, y + 2, 70, 74);      // 楼梯上方净空
+            }
+            // 东侧楼梯（镜像）
+            for (int step = 0; step < 8; step++) {
+                int y = FEET_Y + step;
+                fill(113 - step, 118, y, y, 70, 74, Kind.PLATE);
+                clear(113 - step, 118, y + 1, y + 2, 70, 74);
+            }
+
+            // 金库：一层正中的封闭小室，只有东西两扇铁门
+            fill(92, 92, FEET_Y, 9, 66, 78, Kind.WALL);
+            fill(108, 108, FEET_Y, 9, 66, 78, Kind.WALL);
+            fill(92, 108, FEET_Y, 9, 66, 66, Kind.WALL);
+            fill(92, 108, FEET_Y, 9, 78, 78, Kind.WALL);
+            clear(93, 107, FEET_Y, 9, 67, 77);            // 金库内部
+            fill(92, 92, FEET_Y, 6, 71, 73, Kind.GATE);
+            fill(108, 108, FEET_Y, 6, 71, 73, Kind.GATE);
+            // 门控面板由 marker(Kind.PANEL, ...) 统一写成 2 格高机器（根 y=4 + 上半 y=5），
+            // 这里不再单独 put，避免只写了上半格导致机器表缺根。
+            // 金库顶部封到二层楼板，避免从二层天井跳进核心区
+            fill(92, 108, 10, 10, 66, 78, Kind.ROOF_DARK);
+
+            // 一层大厅灯柱
+            for (int[] lamp : new int[][]{{86, 60}, {114, 60}, {86, 84}, {114, 84}}) {
+                fill(lamp[0], lamp[0], FEET_Y, 9, lamp[1], lamp[1], Kind.PILLAR);
+                put(lamp[0], 10, lamp[1], Kind.LAMP);
+            }
+            // 二层环廊灯
+            for (int[] lamp : new int[][]{{84, 58}, {116, 58}, {84, 86}, {116, 86}}) {
+                fill(lamp[0], lamp[0], 12, 15, lamp[1], lamp[1], Kind.PILLAR);
+                put(lamp[0], 16, lamp[1], Kind.LAMP);
             }
         }
 
@@ -398,12 +463,77 @@ public final class EchoManorLayout {
             for (int x = 44; x <= 144; x += 12) canvas.lamp(x, 148, 4);
         }
 
-        /** 行道树与零星景观，只放在没有点位、没有建筑的空白带上。 */
+        /**
+         * 灌木带、矮墙与行道树：专门用来打散 200×200 的空旷感。
+         *
+         * <p>三条规则：
+         * <ul>
+         * <li>草丛（{@link Kind#BUSH}）**无碰撞**，只挡视线、提供隐身点，绝不切断通路；</li>
+         * <li>矮墙（{@link Kind#LOW_WALL}）只有 1 格高，挡视线不挡走位；</li>
+         * <li>两者都只沿道路两侧与分区边界铺，不落在任何点位格上（点位在 {@code points()} 里最后校验）。</li>
+         * </ul>
+         */
         private void gardens() {
+            // 行道树：沿主要道路外侧
             for (int[] tree : new int[][]{{12, 72}, {12, 100}, {12, 128}, {188, 72}, {188, 100}, {188, 128},
-                    {44, 90}, {156, 90}, {60, 148}, {140, 148}, {70, 158}, {130, 158}, {100, 146},
-                    {70, 88}, {130, 88}, {50, 62}, {150, 62}, {100, 62}}) {
+                    {44, 90}, {156, 90}, {60, 148}, {140, 148}, {70, 158}, {130, 158},
+                    {70, 88}, {130, 88}, {50, 62}, {150, 62}}) {
                 canvas.tree(tree[0], tree[1], 4);
+            }
+
+            // 草丛：成片铺在道路之间的空地上，制造大量可藏身的位置
+            bushField(30, 58, 62, 70);      // 西侧空地
+            bushField(138, 58, 170, 70);    // 东侧空地
+            bushField(30, 132, 62, 146);    // 西南
+            bushField(138, 132, 170, 146);  // 东南
+            bushField(72, 96, 128, 108);    // 广场西侧
+            bushField(66, 150, 134, 160);   // 南营北缘
+            bushField(40, 76, 50, 60);      // 北院西
+            bushField(148, 76, 176, 90);    // 市场南
+            bushField(18, 96, 28, 120);     // 西侧窄带
+            bushField(172, 96, 184, 120);   // 东侧窄带
+
+            // 矮墙：把大块空地切分成有遮挡的小院，同时不挡走位
+            lowWallRow(34, 66, 58, 66);     // 西区横向隔断
+            lowWallRow(142, 66, 166, 66);   // 东区横向隔断
+            lowWallRow(34, 138, 58, 138);   // 西南横向隔断
+            lowWallRow(142, 138, 166, 138); // 东南横向隔断
+            lowWallCol(66, 76, 66, 94);     // 广场西北竖向隔断
+            lowWallCol(134, 76, 134, 94);   // 广场东北竖向隔断
+            lowWallCol(66, 112, 66, 130);   // 广场西南
+            lowWallCol(134, 112, 134, 130); // 广场东南
+        }
+
+        /** 矩形草丛带：逐格铺，跳过已有实心方块与道路，保证不会盖住铺装。 */
+        private void bushField(int x0, int z0, int x1, int z1) {
+            for (int x = x0; x <= x1; x++) {
+                for (int z = z0; z <= z1; z++) {
+                    // 只在基准平面的空地上铺草丛，避免盖住道路/建筑/台地
+                    if (!at(x, GROUND_Y, z).solid()) continue;
+                    if (at(x, FEET_Y, z) != Kind.AIR) continue;
+                    Kind ground = at(x, GROUND_Y, z);
+                    if (ground == Kind.PATH || ground == Kind.FLOOR || ground == Kind.CONCRETE
+                            || ground == Kind.PLATE || ground == Kind.TERRACE) continue;
+                    // 用坐标哈希留出空隙，避免变成一整块绿色方块
+                    if (Math.floorMod(x * 17 + z * 31, 10) < 3) continue;
+                    put(x, FEET_Y, z, Kind.BUSH);
+                }
+            }
+        }
+
+        /** 横向矮墙：只写 1 格高，遇到非空地自动跳过。 */
+        private void lowWallRow(int x0, int z, int x1, int ignored) {
+            for (int x = x0; x <= x1; x++) {
+                if (!at(x, GROUND_Y, z).solid() || at(x, FEET_Y, z) != Kind.AIR) continue;
+                put(x, FEET_Y, z, Kind.LOW_WALL);
+            }
+        }
+
+        /** 纵向矮墙。 */
+        private void lowWallCol(int x, int z0, int ignored, int z1) {
+            for (int z = z0; z <= z1; z++) {
+                if (!at(x, GROUND_Y, z).solid() || at(x, FEET_Y, z) != Kind.AIR) continue;
+                put(x, FEET_Y, z, Kind.LOW_WALL);
             }
         }
 
@@ -433,7 +563,7 @@ public final class EchoManorLayout {
             for (int dx = 0; dx < model.width(); dx++) for (int dz = -1; dz < model.depth(); dz++) {
                 int cx = machine.x(dx, dz), cz = machine.z(dx, dz);
                 // 通道也必须与机器位于同一区域，不能借清空占地打穿金库或撤离围墙。
-                if ((cx >= 93 && cx < 108 && cz >= 65 && cz < 80) != core
+                if ((cx >= 93 && cx < 108 && cz >= 66 && cz < 79) != core
                         || (cx >= 150 && cx <= 182 && cz >= 152 && cz <= 178)
                         || reservedSpawn(cx, cz))
                     throw new IllegalArgumentException("机器侵入保护区: " + id + " @" + cx + "," + cz);
@@ -446,6 +576,12 @@ public final class EchoManorLayout {
                     machineSpace.add(key);
                     put(cx, cy, cz, Kind.AIR);
                 }
+                // 机器高 2 格（y=4..5），但步行图要求脚、头、头上再一格都为空；
+                // 机器高 2 格（y=4..5），但步行图与通道检查都要求脚、头、头上再一格为空；
+                // 这里对「机器格 + 正面通道格」统一清掉 y=6，否则会被判成没有净空。
+                int clearY = FEET_Y + model.height();
+                if (at(cx, clearY, cz) != Kind.AIR && !machineSpace.contains(Layout.index(cx, clearY, cz)))
+                    put(cx, clearY, cz, Kind.AIR);
                 if (!at(cx, GROUND_Y, cz).solid()) put(cx, GROUND_Y, cz, Kind.PLATE);
             }
             for (int dy = 0; dy < model.height(); dy++) for (int dz = 0; dz < model.depth(); dz++)
@@ -457,7 +593,6 @@ public final class EchoManorLayout {
                 }
             markers.add(root);
         }
-
         private boolean reservedSpawn(int x, int z) {
             if ((x == 100 && z == 92) || (x == 146 && (z == 163 || z == 170))
                     || (x == 100 && z == 100)) return true;
@@ -497,32 +632,47 @@ public final class EchoManorLayout {
             int[][] brokerSpots = {{20, 128}, {44, 136}, {180, 128}, {180, 140}, {100, 144}};
             for (int[] p : brokerSpots) broker(p[0], p[1]);
 
-            beacons.add(new Beacon("outer_a", 40, 96, "open", 6));
+            // 六芒星阵：圆心 = 中央广场 (100,100)，六个顶点按 60° 均匀分布。
+            // 半径 56：足以避开中心庄园（x80..120、z54..90）与撤离门楼，又留在 200×200 图内。
+            // 顶点 = 圆心 + R × (sin θ, -cos θ)，θ = 0/60/120/180/240/300。
+            int[][] hexagram = {
+                    {40, 20},     // 正上 θ=0   晶体（六芒星北尖角，货场西北开阔地）
+                    {148, 72},    // 右上 θ=60  信标
+                    {148, 128},   // 右下 θ=120 晶体
+                    {100, 156},   // 正下 θ=180 信标
+                    {52, 128},    // 左下 θ=240 晶体
+                    {52, 72},     // 左上 θ=300 信标
+            };
+            // 六芒星六顶点：3 晶体 + 2 开放信标 + 1 祭坛。
+            // 信标总数受人数档硬约束（N≤7 为 2 座、N≥8 为 3 座，含 1 座核心），
+            // 所以第 6 个顶点用祭坛占位，六芒星轮廓完整且不破坏校验。
+            crystals.add(new Node("c1", hexagram[0][0], hexagram[0][1], 6));                 // 正上 晶体
+            beacons.add(new Beacon("outer_a", hexagram[1][0], hexagram[1][1], "open", 6));   // 右上 信标
+            crystals.add(new Node("c2", hexagram[2][0], hexagram[2][1], 6));                 // 右下 晶体
+            beacons.add(new Beacon("outer_b", hexagram[3][0], hexagram[3][1], "open", 8));   // 正下 信标
+            crystals.add(new Node("c3", hexagram[4][0], hexagram[4][1], 6));                 // 左下 晶体
+            altars.add(new Point("hexagram_nw", hexagram[5][0], hexagram[5][1]));            // 左上 祭坛
+            // 核心信标在金库内（唯一 region=core）
             beacons.add(new Beacon("core", 100, 73, "core", 6));
-            beacons.add(new Beacon("outer_b", 152, 120, "open", 8));
+            // 全部放在庄园外围的开放地面上，保证不被建筑围死。
+            crystals.add(new Node("c4", 100, 24, 6));
+            crystals.add(new Node("c5", 150, 112, 8));
+            crystals.add(new Node("c6", 20, 177, 8));
             for (Beacon beacon : beacons) marker(Kind.MARKER_BEACON, "beacon/" + beacon.id(), beacon.x(), beacon.z());
-
-            crystals.add(new Node("c1", 26, 44, 6));
-            crystals.add(new Node("c2", 26, 152, 6));
-            crystals.add(new Node("c3", 174, 44, 6));
-            crystals.add(new Node("c4", 148, 140, 6));
-            crystals.add(new Node("c5", 60, 24, 8));
-            crystals.add(new Node("c6", 140, 24, 8));
             for (Node node : crystals) marker(Kind.MARKER_CRYSTAL, "crystal/" + node.id(), node.x(), node.z());
 
             altars.add(new Point("a1", 62, 92));
             altars.add(new Point("a2", 138, 92));
-            altars.add(new Point("a3", 78, 136));
             for (Point altar : altars) marker(Kind.MARKER_ALTAR, "altar/" + altar.id(), altar.x(), altar.z());
 
             int[][] commonCrates = {{30, 84}, {30, 128}, {186, 84}, {188, 116}, {70, 140}, {130, 140},
-                    {60, 60}, {140, 60}, {80, 160}, {120, 160}};
+                    {60, 60}, {140, 60}, {62, 164}, {138, 164}};
             for (int n = 0; n < commonCrates.length; n++) {
                 String id = "s" + (n + 1);
                 crates.add(new Crate(id, commonCrates[n][0], commonCrates[n][1], "COMMON", true));
                 marker(Kind.MARKER_CRATE, "crate/" + id, commonCrates[n][0], commonCrates[n][1]);
             }
-            int[][] blackMarket = {{95, 78}, {104, 78}};
+            int[][] blackMarket = {{96, 74}, {104, 74}};
             for (int n = 0; n < blackMarket.length; n++) {
                 String id = "b" + (n + 1);
                 crates.add(new Crate(id, blackMarket[n][0], blackMarket[n][1], "BLACK_MARKET", false));
@@ -542,8 +692,10 @@ public final class EchoManorLayout {
             marker(Kind.MARKER_FREE_EXIT, "free/" + freeControl.id(), freeControl.x(), freeControl.z());
 
             // 控制台不再嵌墙：根点、完整占地和正面通道都在门外平台。
-            doors.add(new Door("west", 90, 67, new Box(92, 4, 70, 93, 7, 73)));
-            doors.add(new Door("east", 110, 66, new Box(108, 4, 70, 109, 7, 73)));
+            // 门体范围必须与 fill(...Kind.GATE) 完全一致：x 固定、y=4..7、z=71..73（半开区间 71..74）。
+            // 面板在 z=70 的墙上，不在门体里，否则关门时会被一起写空气而留下缺口。
+            doors.add(new Door("west", 90, 70, new Box(92, 4, 71, 93, 7, 74)));
+            doors.add(new Door("east", 110, 70, new Box(108, 4, 71, 109, 7, 74)));
             for (Door door : doors) marker(Kind.PANEL, "core/" + door.id(), door.panelX(), door.panelZ());
             marker(Kind.PANEL, "evac/control", 148, 160);
         }
@@ -552,7 +704,7 @@ public final class EchoManorLayout {
             return new Layout(canvas.snapshot(), List.copyOf(carriers), List.copyOf(interceptors), List.copyOf(brokers),
                     List.copyOf(beacons), List.copyOf(crystals), List.copyOf(altars), List.copyOf(crates),
                     List.copyOf(blackNodes), List.copyOf(blackDropoffs), brokerExit, freeControl,
-                    new SpawnPoint(100, 92, 180.0F), List.copyOf(doors), new Box(93, 4, 65, 108, 9, 80),
+                    new SpawnPoint(100, 96, 180.0F), List.copyOf(doors), new Box(93, 4, 67, 108, 10, 78),
                     new Point("evac_control", 148, 160), new Box(150, 4, 163, 151, 7, 166),
                     new Box(152, 4, 156, 178, 8, 176), new SpawnPoint(146, 163, 270.0F),
                     new Point("exit_drop", 146, 170), new SpawnPoint(100, 100, 180.0F),

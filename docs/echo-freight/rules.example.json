@@ -22,7 +22,7 @@
  },
  "beacon": {
   "requiredCrystals": 3,
-  "chargeSeconds": 100,
+  "chargeSeconds": 50,
   "escortBonus": 0.2,
   "maxEscorts": 3,
   "escortRange": 6,

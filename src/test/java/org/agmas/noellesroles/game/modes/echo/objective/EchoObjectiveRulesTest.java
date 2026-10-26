@@ -10,7 +10,7 @@ class EchoObjectiveRulesTest {
         for(int escorts=0;escorts<=3;escorts++) {
             EchoBeaconState beacon=new EchoBeaconState();
             assertTrue(beacon.submit()); assertTrue(beacon.submit()); assertTrue(beacon.submit()); assertFalse(beacon.submit());
-            int expected=(int)Math.ceil(2000D/(1+0.2*escorts));
+            int expected=(int)Math.ceil((double)org.agmas.noellesroles.game.modes.echo.rules.EchoRuleConfig.DEFAULT.beacon().chargeTicks()/(1+0.2*escorts));
             for(int tick=0;tick<expected-1;tick++) assertFalse(beacon.tick(tick,escorts));
             assertTrue(beacon.tick(expected-1,escorts)); assertTrue(beacon.active()); assertEquals(1000,beacon.progressPermille());
             assertFalse(beacon.stall(expected,20));
@@ -18,15 +18,45 @@ class EchoObjectiveRulesTest {
     }
     @Test void stallPausesChargingWithoutDeductingProgress() {
         EchoBeaconState beacon=new EchoBeaconState(); for(int n=0;n<3;n++) beacon.submit();
-        for(int n=0;n<1000;n++) beacon.tick(n,0);
+        int half=org.agmas.noellesroles.game.modes.echo.rules.EchoRuleConfig.DEFAULT.beacon().chargeTicks()/2;
+        for(int n=0;n<half;n++) beacon.tick(n,0);
         assertEquals(500,beacon.progressPermille());
-        assertTrue(beacon.stall(1000,400)); assertEquals(500,beacon.progressPermille(),"迟滞不扣任何已积累进度");
-        assertFalse(beacon.canStall(1000),"迟滞中不能重复施加");
-        for(int tick=1000;tick<1400;tick++) assertFalse(beacon.tick(tick,3));
+        assertTrue(beacon.stall(half,400)); assertEquals(500,beacon.progressPermille(),"迟滞不扣任何已积累进度");
+        assertFalse(beacon.canStall(half),"迟滞中不能重复施加");
+        for(int tick=half;tick<half+400;tick++) assertFalse(beacon.tick(tick,3));
         assertEquals(500,beacon.progressPermille());
-        assertTrue(beacon.canStall(1400));
-        beacon.tick(1400,0); beacon.tick(1401,0); assertTrue(beacon.progressPermille()>500,"迟滞结束后恢复增长");
+        assertTrue(beacon.canStall(half+400));
+        beacon.tick(half+400,0); beacon.tick(half+401,0); assertTrue(beacon.progressPermille()>500,"迟滞结束后恢复增长");
     }
+    @Test void submitStopsAtRequiredCrystalsAndNeverAfterActive() {
+        EchoBeaconState beacon=new EchoBeaconState();
+        for(int n=0;n<3;n++) assertTrue(beacon.submit(),"第三枚应当成功");
+        assertEquals(3,beacon.delivered());
+        assertFalse(beacon.canSubmit(),"满料后不能再投");
+        assertFalse(beacon.submit(),"满料后提交必须返回 false");
+        assertEquals(3,beacon.delivered(),"多余的提交不能增加计数");
+        int full=org.agmas.noellesroles.game.modes.echo.rules.EchoRuleConfig.DEFAULT.beacon().chargeTicks();
+        for(int tick=0;tick<full;tick++) beacon.tick(tick,0);
+        assertTrue(beacon.active());
+        assertFalse(beacon.canSubmit(),"已启动的信标不能再投料");
+        assertFalse(beacon.submit());
+        assertEquals(3,beacon.delivered());
+    }
+    @Test void escortBonusOnlyAppliesWhenEscortsAreReported() {
+        int full=org.agmas.noellesroles.game.modes.echo.rules.EchoRuleConfig.DEFAULT.beacon().chargeTicks();
+        var alone=new EchoBeaconState(); for(int n=0;n<3;n++) alone.submit();
+        var escorted=new EchoBeaconState(); for(int n=0;n<3;n++) escorted.submit();
+        // 同样 tick 数下，无人护送不应超过有人护送
+        for(int tick=0;tick<full/4;tick++) { alone.tick(tick,0); escorted.tick(tick,3); }
+        assertTrue(escorted.progressPermille()>alone.progressPermille(),
+                "三人护送必须比无人护送更快");
+        // 无人护送时进度只按基础速率增长，不会被护送加成
+        var fresh=new EchoBeaconState(); for(int n=0;n<3;n++) fresh.submit();
+        int quarter=full/4;
+        for(int tick=0;tick<quarter;tick++) fresh.tick(tick,0);
+        assertEquals(250,fresh.progressPermille(),"无人护送时 1/4 时间只能是 25%");
+    }
+
     @Test void boostAdvancesChargingButNeverStartsUnfedBeacon() {
         EchoBeaconState beacon=new EchoBeaconState(); assertFalse(beacon.boost(0,500),"未满料不能加速");
         for(int n=0;n<3;n++) beacon.submit();
@@ -84,8 +114,9 @@ class EchoObjectiveRulesTest {
         var clock=new org.agmas.noellesroles.game.modes.echo.runtime.EchoRoundClock();
         clock.capture(0,1,false); clock.finish(0,false);
         EchoBeaconState beacon=new EchoBeaconState(); for(int n=0;n<3;n++) beacon.submit();
-        for(int tick=0;tick<1999;tick++) beacon.tick(tick,0);
-        clock.capture(1,1,false); assertTrue(beacon.tick(1999,0));
+        int full=org.agmas.noellesroles.game.modes.echo.rules.EchoRuleConfig.DEFAULT.beacon().chargeTicks();
+        for(int tick=0;tick<full-1;tick++) beacon.tick(tick,0);
+        clock.capture(1,1,false); assertTrue(beacon.tick(full-1,0));
         assertTrue(clock.openEvacuation(false));
         assertEquals(org.agmas.noellesroles.game.modes.echo.runtime.EchoRoundClock.Boundary.NONE,clock.finish(2400,false));
         EchoGateState gate=new EchoGateState(); gate.beginEvacuation();

@@ -96,6 +96,35 @@ public final class EchoWorldInteractions {
             var match=EchoSessions.get(context.player().serverLevel());
             if(match!=null && match.result()==null) match.inventoryRequest(context.player(),payload);
         }));
+        // 商店：价格与余额全部由服务端判定，客户端只报「买哪一个」。
+        ServerPlayNetworking.registerGlobalReceiver(org.agmas.noellesroles.game.modes.echo.economy.EchoShopPayload.ID,(payload,context) -> context.server().execute(() -> {
+            var match=EchoSessions.get(context.player().serverLevel());
+            if(match==null || match.result()!=null || !match.id().equals(payload.matchId())) return;
+            var player=context.player();
+            switch(payload.action()) {
+                case BUY_PACK -> {
+                    try {
+                        var offer=org.agmas.noellesroles.game.modes.echo.economy.EchoPackOffer
+                                .valueOf(payload.offerId().toUpperCase(java.util.Locale.ROOT));
+                        match.shop().buyPack(player,offer);
+                    } catch(IllegalArgumentException unknown) { }
+                }
+                case BUY_GOOD -> {
+                    try {
+                        var good=org.agmas.noellesroles.game.modes.echo.economy.EchoShopService.VendingGood
+                                .valueOf(payload.offerId().toUpperCase(java.util.Locale.ROOT));
+                        match.shop().buyGood(player,net.minecraft.core.BlockPos.of(payload.machinePos()),good);
+                    } catch(IllegalArgumentException unknown) { }
+                }
+                case OPEN -> { }
+            }
+        }));
+        // 修机小游戏：只接受本人当前这一轮；判定由服务端按自己的 tick 重算。
+        ServerPlayNetworking.registerGlobalReceiver(org.agmas.noellesroles.game.modes.echo.repair.EchoRepairSubmitPayload.ID,(payload,context) -> context.server().execute(() -> {
+            var match=EchoSessions.get(context.player().serverLevel());
+            if(match!=null && match.result()==null && match.id().equals(payload.matchId()))
+                match.objectives().submitRepair(context.player(),payload.checkId().toString(),payload.position());
+        }));
         ServerPlayNetworking.registerGlobalReceiver(org.agmas.noellesroles.game.modes.echo.specialization.EchoSpecializationSelectPayload.ID,(payload,context) -> context.server().execute(() -> {
             var match=EchoSessions.get(context.player().serverLevel());
             if(match!=null && match.result()==null && match.id().equals(payload.match())) match.selectSpecialization(context.player(),payload.option());

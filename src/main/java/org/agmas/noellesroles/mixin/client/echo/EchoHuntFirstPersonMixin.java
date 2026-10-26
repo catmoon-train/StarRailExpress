@@ -66,7 +66,7 @@ public class EchoHuntFirstPersonMixin {
             var data = EchoRoleDataHolder.of(player);
             float charge = Math.min(1F, (player.getTicksUsingItem() + partialTicks)
                     / org.agmas.noellesroles.game.modes.echo.combat.EchoCutterStrike.CHARGE_TICKS);
-            apply(poseStack, EchoHuntAnim.firstPersonCharge(charge, side, data != null && data.huntInstinct()));
+            apply(poseStack, EchoHuntAnim.firstPersonCharge(charge, side, false));
             return;
         }
         EchoHuntClient.Action action = EchoHuntClient.action(player.getUUID());

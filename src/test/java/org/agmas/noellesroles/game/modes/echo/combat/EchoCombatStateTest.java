@@ -124,12 +124,10 @@ class EchoCombatStateTest {
                 org.agmas.noellesroles.game.modes.echo.state.EchoSpecialization.HUNTER,
                 org.agmas.noellesroles.game.modes.echo.state.EchoSpecialization.SABOTEUR}) {
             var state=new EchoCombatState(spec.combat(org.agmas.noellesroles.game.modes.echo.rules.EchoRuleConfig.DEFAULT));
-            var loop=new EchoHuntLoop(); loop.activateInstinct(0);
-            int charge=loop.chargeTicks(0,state.cutterChargeTicks());
+            int charge=state.cutterChargeTicks();
             assertTrue(state.beginCutter(0)); assertTrue(state.releaseCutter(charge,charge));
             assertTrue(state.snapshot().cutterReadyAt()>=charge+60);
-            loop.onHit(charge,true,1);
-            assertTrue(loop.canCharge(charge)); assertFalse(state.beginCutter(charge+59));
+            assertFalse(state.beginCutter(charge+59),"任何专长都不能把 3 秒地板压掉");
         }
     }
     @Test void everyActualHitAppliesSixSecondsButProtectionAndFriendlyResetDoNot() {
@@ -171,13 +169,13 @@ class EchoCombatStateTest {
         state.recordCutterHit(20,EchoCombatState.Hit.DOWNED);
         assertEquals(616,state.snapshot().cutterReadyAt());
     }
-    @Test void instinctAndDashFinisherCannotBypassDownCooldown() {
-        var state=new EchoCombatState(); var loop=new EchoHuntLoop();
+    @Test void classSkillCannotBypassDownCooldown() {
+        var state=new EchoCombatState();
+        var clazz=new org.agmas.noellesroles.game.modes.echo.classes.EchoClassState(
+                org.agmas.noellesroles.game.modes.echo.classes.EchoClass.RAVAGER);
         assertTrue(state.beginCutter(0)); assertTrue(state.releaseCutter(16));
         state.recordCutterHit(16,EchoCombatState.Hit.DOWNED);
-        loop.activateInstinct(17); loop.onHit(17,true,1);
-        var combo=new org.agmas.noellesroles.game.modes.echo.hunter.EchoRendCombo(); combo.forceFinisher(17);
-        assertTrue(combo.swing(17).finisher()); assertTrue(loop.canCharge(17));
+        assertTrue(clazz.activate(17));
         assertFalse(state.beginCutter(17)); assertFalse(state.beginCutter(135));
         assertTrue(state.beginCutter(136));
     }

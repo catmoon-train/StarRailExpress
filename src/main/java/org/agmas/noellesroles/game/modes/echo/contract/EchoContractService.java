@@ -112,7 +112,10 @@ public final class EchoContractService {
     private void project(UUID owner) {
         var s=state(owner); var p=match.connectedPlayer(owner); if(s==null || p==null) return;
         RoleData.getOptional(EchoRoleData.class,p).ifPresent(d -> d.projectContract(s.snapshot(dropoffs.getOrDefault(owner,""),retireReady(owner))));
-        if(s.succeeded() && notified.add(owner)) p.sendSystemMessage(Component.translatable("echo.contract.succeeded"));
+        if(s.succeeded() && notified.add(owner)) {
+            p.sendSystemMessage(Component.translatable("echo.contract.succeeded"));
+            match.economy().award(p,org.agmas.noellesroles.game.modes.echo.economy.EchoEconomy.Source.CONTRACT,null);
+        }
     }
     public void cleanup() { stays.clear(); keys.clear(); }
 }

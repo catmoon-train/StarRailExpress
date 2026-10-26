@@ -14,16 +14,13 @@ public final class EchoUiGeometryCheck {
         for (int width = 320; width <= 1920; width += 7) {
             for (int height = 240; height <= 1080; height += 11) {
                 var h = new EchoHudLayout(width, height);
-                for (var r : new EchoHudLayout.Rect[] {h.header(), h.context(), h.minimap(), h.hunt(), h.utility(), h.supplies(), h.health(), h.hotbar()}) inside(r, width, height);
+                for (var r : new EchoHudLayout.Rect[] {h.header(), h.context(), h.minimap(), h.utility(), h.supplies(), h.health(), h.hotbar()}) inside(r, width, height);
                 check(h.header().height() <= 40 && h.header().bottom() < h.context().y());
-                check(h.context().right() < h.hunt().x());
                 check(h.header().bottom() + 3 < h.minimap().y());
                 check(h.context().right() + 3 < h.minimap().x());
                 check(h.minimap().width() >= 80 && h.minimap().width() <= 110);
                 check(h.minimap().height() == h.minimap().width());
-                check(h.minimap().bottom() + 14 < h.hunt().y());
-                check(h.hunt().height() <= 24);
-                check(h.context().bottom() < h.utility().y() && h.hunt().bottom() < h.utility().y());
+                check(h.context().bottom() < h.utility().y());
                 check(h.utility().bottom() < h.supplies().y());
                 check(h.supplies().bottom() < h.health().y() && h.health().bottom() < h.hotbar().y());
                 var l = EchoInventoryLayout.of(width, height);

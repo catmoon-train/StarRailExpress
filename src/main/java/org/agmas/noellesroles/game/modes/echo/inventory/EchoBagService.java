@@ -221,6 +221,26 @@ public final class EchoBagService {
         project(owner,d -> d.projectDraft(null));
         var player=match.connectedPlayer(owner); if(player!=null) changed(player);
     }
+    /**
+     * 直接发放一张指定卡牌（商店购买用），不经过抽包三选一。
+     *
+     * <p>仍然走同一套所有权台账：满包时按既有规则落地，不会凭空复制实例。
+     *
+     * @param definitionId 完整卡牌 ID（{@code noellesroles:echo/<id>}）
+     * @return 是否已进入背包或落地
+     */
+    public boolean grantCard(ServerPlayer player,String definitionId,String fact) {
+        var definition=EchoCardRegistry.find(definitionId).orElse(null);
+        if(definition==null) return false;
+        UUID instance=UUID.randomUUID();
+        UUID event=UUID.nameUUIDFromBytes((match.id()+":"+fact).getBytes(StandardCharsets.UTF_8));
+        var resource=EchoResourceInstance.card(match.id(),instance,definition,event);
+        ledger.register(match.id(),instance,new Location(EchoResourceLedger.Kind.PENDING_DELIVERY,null,-1,instance));
+        catalog.put(instance,resource); pending.put(instance,player.getUUID());
+        deliver(instance,player);
+        return catalog.containsKey(instance);
+    }
+
     public void tick() {
         restrictOpening();
         for(var entry:List.copyOf(drafts.entrySet())) {

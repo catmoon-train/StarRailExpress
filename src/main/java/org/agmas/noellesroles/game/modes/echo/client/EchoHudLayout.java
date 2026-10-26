@@ -18,6 +18,5 @@ public record EchoHudLayout(int width, int height) {
         int size = Math.max(80, Math.min(110, height - 154));
         return new Rect(width - size - 8, 44, size, size);
     }
-    public Rect hunt() { var map = minimap(); return new Rect(map.x(), map.bottom() + 16, map.width(), 22); }
     public Rect context() { return new Rect(8, 44, minimap().x() - 16, Math.max(0, height - 118)); }
 }

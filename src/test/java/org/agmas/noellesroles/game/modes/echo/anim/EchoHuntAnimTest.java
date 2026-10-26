@@ -105,17 +105,4 @@ class EchoHuntAnimTest {
         }
     }
 
-    @Test void heartbeatAcceleratesMonotonically() {
-        int previous = EchoHuntLoopInterval.max();
-        for (int focus = 0; focus <= 100; focus += 5) {
-            int interval = org.agmas.noellesroles.game.modes.echo.combat.EchoHuntLoop.heartbeatInterval(focus);
-            assertTrue(interval <= previous);
-            previous = interval;
-        }
-    }
-
-    /** 心跳区间上界的显式记录，避免测试与常量脱钩。 */
-    private static final class EchoHuntLoopInterval {
-        static int max() { return org.agmas.noellesroles.game.modes.echo.combat.EchoHuntLoop.heartbeatInterval(0); }
-    }
 }

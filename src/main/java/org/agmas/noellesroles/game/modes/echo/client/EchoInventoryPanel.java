@@ -109,6 +109,10 @@ public final class EchoInventoryPanel {
         var spec = button(Component.translatable("echo.spec.title"), navX, y + 26, navW, 18,
                 () -> EchoSpecializationClient.open(client));
         spec.active = idle && EchoSpecializationClient.view() != null && !EchoSpecializationClient.view().locked();
+        // 商店入口：卡包随时可买；售货机在准星看向售货机时也能从这里打开。
+        navX = x + 8;
+        button(Component.translatable("echo.shop.tab.packs"), navX, y + 46, navW, 18,
+                () -> EchoShopClient.openPacks(screen)).active = idle;
         for (int n = 0; n < 9; n++) screen.addRoleWidget(new HotbarSlot(n));
         {
             var item = primary();

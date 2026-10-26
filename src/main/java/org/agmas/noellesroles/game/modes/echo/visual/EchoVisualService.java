@@ -7,7 +7,6 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.effect.MobEffectInstance;
 import org.agmas.noellesroles.init.ModEffects;
 import org.agmas.noellesroles.game.modes.echo.EchoGameMode;
-import org.agmas.noellesroles.game.modes.echo.combat.EchoHuntLoop;
 import org.agmas.noellesroles.game.modes.echo.runtime.EchoMatch;
 import org.agmas.noellesroles.game.modes.echo.runtime.EchoSessions;
 import org.agmas.noellesroles.game.modes.echo.state.EchoFaction;
@@ -47,7 +46,7 @@ public final class EchoVisualService {
                 if (!match.present(receiver) || !match.life(receiver.getUUID()).standing()
                         || match.faction(receiver.getUUID()) == EchoFaction.INTERCEPTOR) continue;
                 for (var hunter : hunters) pressure.merge(receiver,
-                        EchoVisualState.pressure(hunter.distanceTo(receiver), EchoHuntLoop.FOCUS_RANGE), Math::max);
+                        EchoVisualState.pressure(hunter.distanceTo(receiver), org.agmas.noellesroles.game.modes.echo.combat.EchoCombatService.PASSIVE_RANGE), Math::max);
             }
             for (var receiver : level.players()) {
                 updateTremble(receiver, EchoVisualState.trembleEligible(active ? match.faction(receiver.getUUID()) : null,

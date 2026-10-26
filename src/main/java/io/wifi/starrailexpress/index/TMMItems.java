@@ -37,6 +37,7 @@ import org.agmas.noellesroles.Noellesroles;
 import org.agmas.noellesroles.content.item.LetterItem;
 import org.agmas.noellesroles.game.modes.echo.content.EchoContent;
 import org.agmas.noellesroles.game.modes.echo.content.EchoMachines;
+import org.agmas.noellesroles.game.modes.echo.content.EchoTerrainBlocks;
 import org.agmas.noellesroles.init.FunnyItems;
 import org.agmas.noellesroles.init.ModItems;
 
@@ -280,6 +281,7 @@ public interface TMMItems {
             entries.accept(EchoContent.SKILL_TOKEN);
             entries.accept(EchoContent.EDITOR);
             EchoMachines.all().forEach(block -> entries.accept(block.asItem()));
+            EchoTerrainBlocks.all().forEach(block -> entries.accept(block.asItem()));
         });
         // 局内道具同步收录进 NoellesRoles 汇总标签页（与 ModItems 的约定一致）
         ItemGroupEvents.modifyEntriesEvent(NOELLESROLES_ALL_GROUP).register(entries -> {

@@ -171,7 +171,14 @@ public final class EchoCardEffects {
     public void updateSpeed(ServerPlayer player) {
         var data=RoleData.getNullable(EchoRoleData.class,player); var speed=player.getAttribute(Attributes.MOVEMENT_SPEED);
         if(speed==null || data==null) return;
-        double amount=state(player.getUUID()).speedDelta(match.matchTick(),data.cargo().isEmpty()?0:data.cargoPenalty(),match.bags().opening(player.getUUID()),match.rules().draft().openingSpeed());
+        long now=match.matchTick();
+        double amount=state(player.getUUID()).speedDelta(now,data.cargo().isEmpty()?0:data.cargoPenalty(),match.bags().opening(player.getUUID()),match.rules().draft().openingSpeed());
+        // 职业增益（追击 / 扛伤）作为独立乘区叠在基线之后，仍然 clamp 到 [0.5,1.5]。
+        var clazz=match.classState(player.getUUID());
+        if(clazz!=null) {
+            double factor=clazz.speedFactor(now);
+            if(Math.abs(factor-1D)>0.005D) amount=Math.max(0.5,Math.min(1.5,(1+amount)*factor))-1;
+        }
         var old=speed.getModifier(SPEED);
         if(old!=null && Double.compare(old.amount(),amount)!=0) speed.removeModifier(SPEED);
         if(amount!=0 && speed.getModifier(SPEED)==null) speed.addTransientModifier(new AttributeModifier(SPEED,amount,AttributeModifier.Operation.ADD_MULTIPLIED_BASE));
