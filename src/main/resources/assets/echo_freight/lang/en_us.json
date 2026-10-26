@@ -682,5 +682,6 @@
   "echo.shop.good.steady_flow.name": "Steady Valve Card",
   "echo.shop.good.steady_flow.desc": "Straight up one Steady Valve card to clear a stall.",
   "echo.shop.good.rare_pack.name": "Rare Supply Pack",
-  "echo.shop.good.rare_pack.desc": "Straight up one rare quality supply pack."
+  "echo.shop.good.rare_pack.desc": "Straight up one rare quality supply pack.",
+  "echo.signal.fault": "Harvest fault (red ring) · %s"
 }

@@ -56,6 +56,8 @@ public final class EchoObjectiveService {
     private final Map<String,Long> submissionHighlights=new HashMap<>();
     private final Map<UUID,Resource> resources=new HashMap<>();
     private final Map<UUID,Long> dwell=new HashMap<>();
+    /** 采集故障声纹的传播半径（格）。 */
+    private static final double FAULT_RANGE=48.0D;
     private final Random random=new Random();
     /** 正在等修机判定的玩家 → 判定 + 目标。同一玩家同时只允许一轮。 */
     private final Map<UUID,PendingRepair> repairs=new java.util.HashMap<>();
@@ -303,12 +305,20 @@ public final class EchoObjectiveService {
             keys.due(now).ifPresent(altar -> { if(spawnKey(altar)) announce("echo.goal.key_supply",altar); });
             for(var beacon:beacons.entrySet()) {
                 Target target=handles.get("BEACON:"+beacon.getKey());
+                // 护送人数只算真正站在信标范围内的站立托运者；reachable 是「目标点可达」，
+                // 与「玩家站得近」无关，不能用来判断护送，否则隔着半张图也算护送。
                 int escorts=(int)match.onlinePlayers().stream().filter(p -> match.standing(p)&&carrier(p)
-                        && p.position().distanceToSqr(target.pos())<=rules.beacon().escortRange()*rules.beacon().escortRange() && reachable(p,target.pos(),rules.beacon().escortRange()+1)
+                        && p.position().distanceToSqr(target.pos())<=rules.beacon().escortRange()*rules.beacon().escortRange()
                         && EchoGateService.box(map.coreArea()).contains(p.position())==EchoGateService.box(map.coreArea()).contains(target.pos())).count();
                 if(beacon.getValue().tick(now,escorts)) {
                     announce("echo.goal.beacon_active",beacon.getKey()); burst(target.pos());
                 }
+                // 占位圈：每 20 tick 刷新一次，提示需要站立的范围；被迟滞时由客户端改色。
+                if(now%20==0 && !beacon.getValue().active())
+                    io.wifi.starrailexpress.util.ParticleFx.sendCustom(level,
+                            org.agmas.noellesroles.game.modes.echo.anim.EchoHuntFxIds.BEACON_RING,
+                            target.pos(),20,(float)rules.beacon().escortRange(),
+                            beacon.getValue().stalled(now)?1F:0F);
             }
         }
         for(var drop:drops.all()) if(now>=drop.expiresAt()) recycle(drop);
@@ -330,6 +340,8 @@ public final class EchoObjectiveService {
             case BEACON -> {
                 EchoBeaconState beacon=beacons.get(target.id());
                 if(carrier(player)) {
+                    // 已启动或已满料一律拒绝：不能因为投影慢一帧就把多余晶体塞进去。
+                    if(beacon.active() || !beacon.canSubmit()) throw new IllegalStateException("BEACON_FULL");
                     UUID crystal=data.cargo().getFirst(); removeCargo(player,crystal,Location.consumed());
                     if(!beacon.submit()) throw new IllegalStateException("信标提交计划失效");
                     resources.remove(crystal); match.recordDelivery(player.getUUID());
@@ -409,6 +421,22 @@ public final class EchoObjectiveService {
         }
         data(player).projectInteractionError(result.name(),now+40);
         player.playNotifySound(SoundEvents.NOTE_BLOCK_BASS.value(),SoundSource.PLAYERS,0.6F,0.7F);
+        // 采集故障会泄露位置：附近追捕者收到一次红色圆圈声纹（只给方向，不给坐标）。
+        faultPulse(player);
+    }
+
+    /**
+     * 采集故障声纹：向 {@link #FAULT_RANGE} 内的站立追捕者各发一次方向信号。
+     *
+     * <p>只发方向扇区，不带坐标与 UUID；客户端渲染成红色圆圈。
+     */
+    private void faultPulse(ServerPlayer source) {
+        for(ServerPlayer hunter:match.onlinePlayers()) {
+            if(hunter==source || match.faction(hunter.getUUID())!=EchoFaction.INTERCEPTOR) continue;
+            if(!match.standing(hunter)) continue;
+            if(hunter.distanceToSqr(source)>FAULT_RANGE*FAULT_RANGE) continue;
+            match.cards().signals().pulse(hunter,source,"fault_pulse");
+        }
     }
 
     /** 判定命中后真正产出货物；与旧的采集完成逻辑一致。 */

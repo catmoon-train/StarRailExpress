@@ -4,6 +4,8 @@ import net.minecraft.resources.ResourceLocation;
 
 /** 回声攻击特效用到的自定义粒子 id（服务端只发 id，形状由客户端画）。 */
 public final class EchoHuntFxIds {
+    /** 信标占位圈：客户端沿半径铺一圈粒子，标示需要站立的范围。 */
+    public static final ResourceLocation BEACON_RING = id("beacon_ring");
     private EchoHuntFxIds() { }
 
     private static ResourceLocation id(String path) {

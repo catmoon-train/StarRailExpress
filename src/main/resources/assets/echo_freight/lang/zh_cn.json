@@ -682,5 +682,6 @@
   "echo.shop.good.steady_flow.name": "稳流阀卡",
   "echo.shop.good.steady_flow.desc": "直接拿到一张稳流阀，用来清除迟滞。",
   "echo.shop.good.rare_pack.name": "稀有物资包",
-  "echo.shop.good.rare_pack.desc": "直接拿到一个稀有品质的物资包。"
+  "echo.shop.good.rare_pack.desc": "直接拿到一个稀有品质的物资包。",
+  "echo.signal.fault": "采集故障（红圈） · %s"
 }

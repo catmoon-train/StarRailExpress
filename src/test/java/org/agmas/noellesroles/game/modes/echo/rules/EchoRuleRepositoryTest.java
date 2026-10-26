@@ -16,7 +16,7 @@ import static org.junit.jupiter.api.Assertions.*;
 class EchoRuleRepositoryTest {
     @TempDir Path root;
     @Test void slowerBeaconAndLongerDownedDefaultsKeepExplicitOverrides() throws Exception {
-        assertEquals(0.6,1200D/EchoRuleConfig.DEFAULT.beacon().chargeTicks(),1e-9);
+        assertEquals(1000,EchoRuleConfig.DEFAULT.beacon().chargeTicks(),"默认充能 50 秒（原 100 秒的一半）");
         assertEquals(1350,EchoRuleConfig.DEFAULT.combat().bleedTicks());
         var custom=EchoRuleRepository.parse("{\"beacon\":{\"chargeSeconds\":60},\"combat\":{\"bleedSeconds\":45}}");
         assertEquals(1200,custom.beacon().chargeTicks()); assertEquals(900,custom.combat().bleedTicks());

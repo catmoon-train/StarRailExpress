@@ -61,7 +61,7 @@ public record EchoRuleConfig(Logistics logistics,Beacon beacon,Gate gate,Combat 
     }
     public static final EchoRuleConfig DEFAULT=new EchoRuleConfig(
             new Logistics(2,0.10,80,400,20,20,1200,40,60,1800,1200,900,2400,80,40,1200,600,0.10),
-            new Beacon(3,2000,0.20,3,6,400,900),
+            new Beacon(3,1000,0.20,3,6,400,900),
             new Gate(300,100,500,400,40,600,12),
             new Combat(12,50,2.75,500,25,160,1350,100,120,60,200,2.5,2.5),
             new Draft(30,200,400,0.5,new Distribution(0.85,0.15,0),new Distribution(0,1,0),new Distribution(0.7,0.3,0),new Distribution(0,0.7,0.3),new Distribution(0.5,0.4,0.1)),

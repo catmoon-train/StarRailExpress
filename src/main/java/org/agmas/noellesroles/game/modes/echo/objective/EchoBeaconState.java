@@ -27,7 +27,9 @@ public final class EchoBeaconState {
     /** 迟滞截止；截止前充能不推进，已积累进度不受影响。 */
     public long stalledUntil() { return stalledUntil; }
     public boolean stalled(long now) { return now<stalledUntil; }
-    public boolean canSubmit() { return delivered<rules.requiredCrystals(); }
+    /** 还能继续投料：未满料且未启动。 */
+    public boolean canSubmit() { return !active() && delivered<rules.requiredCrystals(); }
+    /** 投一枚晶体；已满料或已启动时返回 false 且不改状态。 */
     public boolean submit() { if(!canSubmit()) return false; delivered++; return true; }
     public boolean tick(long now,int escorts) {
         if(escorts<0) throw new IllegalArgumentException("护送人数不能为负");
