@@ -1,0 +1,19 @@
+{
+  "variants": {
+    "facing=north": {
+      "model": "noellesroles:block/echo_hide_bush"
+    },
+    "facing=east": {
+      "model": "noellesroles:block/echo_hide_bush",
+      "y": 90
+    },
+    "facing=south": {
+      "model": "noellesroles:block/echo_hide_bush",
+      "y": 180
+    },
+    "facing=west": {
+      "model": "noellesroles:block/echo_hide_bush",
+      "y": 270
+    }
+  }
+}

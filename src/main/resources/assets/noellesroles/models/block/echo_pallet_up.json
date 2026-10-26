@@ -1,0 +1,105 @@
+{
+  "textures": {
+    "particle": "noellesroles:block/echo_pallet",
+    "board": "noellesroles:block/echo_pallet",
+    "brace": "noellesroles:block/echo_pallet"
+  },
+  "elements": [
+    {
+      "from": [
+        2,
+        0,
+        6
+      ],
+      "to": [
+        14,
+        16,
+        10
+      ],
+      "faces": {
+        "north": {
+          "texture": "#board"
+        },
+        "south": {
+          "texture": "#board"
+        },
+        "east": {
+          "texture": "#board"
+        },
+        "west": {
+          "texture": "#board"
+        },
+        "up": {
+          "texture": "#board"
+        },
+        "down": {
+          "texture": "#board"
+        }
+      }
+    },
+    {
+      "from": [
+        2,
+        0,
+        4
+      ],
+      "to": [
+        5,
+        2,
+        12
+      ],
+      "faces": {
+        "north": {
+          "texture": "#brace"
+        },
+        "east": {
+          "texture": "#brace"
+        },
+        "south": {
+          "texture": "#brace"
+        },
+        "west": {
+          "texture": "#brace"
+        },
+        "up": {
+          "texture": "#brace"
+        },
+        "down": {
+          "texture": "#brace"
+        }
+      }
+    },
+    {
+      "from": [
+        11,
+        0,
+        4
+      ],
+      "to": [
+        14,
+        2,
+        12
+      ],
+      "faces": {
+        "north": {
+          "texture": "#brace"
+        },
+        "east": {
+          "texture": "#brace"
+        },
+        "south": {
+          "texture": "#brace"
+        },
+        "west": {
+          "texture": "#brace"
+        },
+        "up": {
+          "texture": "#brace"
+        },
+        "down": {
+          "texture": "#brace"
+        }
+      }
+    }
+  ]
+}

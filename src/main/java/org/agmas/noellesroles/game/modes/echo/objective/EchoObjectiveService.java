@@ -171,6 +171,18 @@ public final class EchoObjectiveService {
     }
     public void grantReward(ServerPlayer player,PackQuality quality,String fact) { reward(player,quality,fact); }
     public void useBlock(ServerPlayer player,BlockPos pos) {
+        // 横板优先：放下/拆除都不进入机器点位流程，未命中则原样落到机器交互。
+        var state = level.getBlockState(pos);
+        if (state.getBlock() instanceof org.agmas.noellesroles.game.modes.echo.content.EchoPalletBlock) {
+            if (org.agmas.noellesroles.game.modes.echo.content.EchoPalletBlock.breakPallet(level, pos, player)) {
+                cancelActor(player);
+                return;
+            }
+            if (org.agmas.noellesroles.game.modes.echo.content.EchoPalletBlock.lower(level, pos, player)) {
+                cancelActor(player);
+                return;
+            }
+        }
         Target target=targets.get(EchoMachineInteractions.root(level,pos));
         if(target==null) { cancelActor(player); return; }
         request(player,target);

@@ -22,5 +22,5 @@ public final class EchoContent {
     public static final Item EDITOR=Registry.register(BuiltInRegistries.ITEM,
             ResourceLocation.fromNamespaceAndPath("noellesroles","echo_editor"),new EchoEditorItem(new Item.Properties().stacksTo(1)));
     private EchoContent() { }
-    public static void register() { EchoMachines.register(); }
+    public static void register() { EchoMachines.register(); EchoTerrainBlocks.register(); }
 }

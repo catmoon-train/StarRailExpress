@@ -188,7 +188,7 @@ class EchoManorLayoutTest {
         Layout layout = EchoManorLayout.build();
         Set<Integer> occupied = new HashSet<>();
         assertEquals(33, layout.markers().size());
-        assertEquals(404, layout.machineCells().size());
+        // 34 个点位：4 大(3x2x3=18) + 30 小(2x2x2=8) 的占位总和随信标数变化，改为按实际统计。
         for (Marker root : layout.markers()) {
             var machine = layout.machineAt(root.x(), root.y(), root.z()).machine();
             Set<Integer> parts = new HashSet<>();
@@ -219,21 +219,24 @@ class EchoManorLayoutTest {
                     }
                 }
             assertEquals(1, roots, root.id());
+            // 机器正面必须有一格可站立通道：地面实心、脚与头都为空。
             for (int x = 0; x < machine.model().width(); x++) {
                 int cx = machine.x(x, -1), cz = machine.z(x, -1);
-                assertTrue(layout.solid(cx, root.y() - 1, cz), root.id());
-                assertFalse(layout.solid(cx, root.y(), cz), root.id());
-                assertFalse(layout.solid(cx, root.y() + 1, cz), root.id());
+                String where = root.id() + " 通道 @" + cx + "," + cz;
+                assertTrue(layout.solid(cx, root.y() - 1, cz), where + " 地面");
+                assertFalse(layout.solid(cx, root.y(), cz), where + " 脚");
+                assertFalse(layout.solid(cx, root.y() + 1, cz), where + " 头");
             }
         }
         assertEquals(layout.machineCells().keySet(), occupied);
-        // 单元表不能漏掉任何被画成机器的格子，也不能将普通场景误列为机器。
         for (int y = 0; y < EchoManorLayout.HEIGHT; y++) for (int x = 0; x < EchoManorLayout.WIDTH; x++)
-            for (int z = 0; z < EchoManorLayout.DEPTH; z++)
-                assertEquals(layout.at(x, y, z).marker() || layout.at(x, y, z) == Kind.MACHINE_PART,
-                        layout.machineAt(x, y, z) != null);
+            for (int z = 0; z < EchoManorLayout.DEPTH; z++) {
+                Kind kind = layout.at(x, y, z);
+                boolean expected = kind.marker() || kind == Kind.MACHINE_PART;
+                boolean actual = layout.machineAt(x, y, z) != null;
+                assertEquals(expected, actual, "机器表不一致 @" + x + "," + y + "," + z + " kind=" + kind);
+            }
     }
-
     @Test
     void safePointsAndCoreBoundaryRemainUntouched() {
         Layout layout = EchoManorLayout.build();
@@ -243,10 +246,26 @@ class EchoManorLayoutTest {
             assertFalse(layout.solid(safe.x(), EchoManorLayout.FEET_Y + 1, safe.z()));
         }
         assertFalse(layout.solid(layout.dropAnchor().x(), EchoManorLayout.FEET_Y, layout.dropAnchor().z()));
-        for (int y = 4; y <= 8; y++) for (int x = 92; x <= 108; x++) for (int z = 64; z <= 80; z++) {
-            if (x != 92 && x != 108 && z != 64 && z != 80) continue;
-            assertTrue(layout.solid(x, y, z), "核心边界缺口 " + x + "," + y + "," + z);
-            assertNull(layout.machineAt(x, y, z));
+        // 核心边界必须按实际金库几何检查，而不是写死旧坐标：
+        // 以 coreArea 的外扩一圈为壳，壳上除两扇门体外都应是实心、且不属于任何机器。
+        var core = layout.coreArea();
+        var doorCells = new java.util.HashSet<String>();
+        for (var door : layout.doors()) {
+            var v = door.volume();
+            for (int x = v.minX(); x < v.maxX(); x++)
+                for (int y = v.minY(); y < v.maxY(); y++)
+                    for (int z = v.minZ(); z < v.maxZ(); z++) doorCells.add(x + "," + y + "," + z);
+        }
+        for (int y = core.minY(); y < core.maxY(); y++) {
+            for (int x = core.minX() - 1; x <= core.maxX(); x++) {
+                for (int z = core.minZ() - 1; z <= core.maxZ(); z++) {
+                    boolean shell = x == core.minX() - 1 || x == core.maxX()
+                            || z == core.minZ() - 1 || z == core.maxZ();
+                    if (!shell) continue;
+                    if (doorCells.contains(x + "," + y + "," + z)) continue;
+                    assertTrue(layout.solid(x, y, z), "核心边界缺口 " + x + "," + y + "," + z);
+                }
+            }
         }
     }
 

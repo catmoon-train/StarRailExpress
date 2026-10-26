@@ -58,5 +58,9 @@
   "echo.machine.status.evac_open": "進入門後撤離區並停留至撤離完成",
   "echo.machine.status.overload_ready": "可發動全隊一次的過載封門",
   "echo.machine.status.overload_used": "全隊過載機會已用完",
-  "echo.machine.status.unconfigured": "地圖機器外殼 · 對局狀態由已儲存點位驅動"
+  "echo.machine.status.unconfigured": "地圖機器外殼 · 對局狀態由已儲存點位驅動",
+  "block.noellesroles.echo_hide_bush": "回聲草叢",
+  "block.noellesroles.echo_pallet": "貨運橫板",
+  "echo.hide_bush.tooltip": "無碰撞：站進去會對草叢外的截流者隱身",
+  "echo.pallet.tooltip": "託運者空手右鍵放下擋路；截流者可拆；放下 30 秒後自動復位"
 }

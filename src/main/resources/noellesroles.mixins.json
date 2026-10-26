@@ -123,6 +123,7 @@
   },
   "client": [
     "client.echo.EchoTrackingOutlineMixin",
+    "echo.EchoHideRendererMixin",
     "client.echo.EchoFearCameraMixin",
     "client.SteveMiningPredictionMixin",
     "client.AbstractClientPlayerSkinMixin",
