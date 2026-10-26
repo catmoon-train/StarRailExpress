@@ -100,6 +100,21 @@ public class ModPackets {
         PayloadTypeRegistry.playC2S().register(
                 org.agmas.noellesroles.game.modes.echo.specialization.EchoSpecializationSelectPayload.ID,
                 org.agmas.noellesroles.game.modes.echo.specialization.EchoSpecializationSelectPayload.CODEC);
+        // 商店：客户端只发「买哪一个 / 哪台售货机」，价格与余额由服务端判定。
+        PayloadTypeRegistry.playC2S().register(
+                org.agmas.noellesroles.game.modes.echo.economy.EchoShopPayload.ID,
+                org.agmas.noellesroles.game.modes.echo.economy.EchoShopPayload.CODEC);
+        // 售货机打开：服务端 → 本人，只带机器坐标。
+        PayloadTypeRegistry.playS2C().register(
+                org.agmas.noellesroles.game.modes.echo.economy.EchoVendingOpenPayload.ID,
+                org.agmas.noellesroles.game.modes.echo.economy.EchoVendingOpenPayload.CODEC);
+        // 修机小游戏：服务端下发本轮判定，客户端只回传按钮位置。
+        PayloadTypeRegistry.playS2C().register(
+                org.agmas.noellesroles.game.modes.echo.repair.EchoRepairPayload.ID,
+                org.agmas.noellesroles.game.modes.echo.repair.EchoRepairPayload.CODEC);
+        PayloadTypeRegistry.playC2S().register(
+                org.agmas.noellesroles.game.modes.echo.repair.EchoRepairSubmitPayload.ID,
+                org.agmas.noellesroles.game.modes.echo.repair.EchoRepairSubmitPayload.CODEC);
         org.agmas.noellesroles.game.dio.RoadRollerAttack.register();
         PayloadTypeRegistry.playS2C().register(Error404StateS2CPacket.ID, Error404StateS2CPacket.CODEC);
         PayloadTypeRegistry.playS2C().register(Error404FeedbackS2CPacket.ID, Error404FeedbackS2CPacket.CODEC);
