@@ -1,0 +1,7 @@
+{
+  "targets": ["settlement_swap"],
+  "passes": [
+    { "name": "settlement_film", "intarget": "minecraft:main", "outtarget": "settlement_swap" },
+    { "name": "blit", "intarget": "settlement_swap", "outtarget": "minecraft:main" }
+  ]
+}

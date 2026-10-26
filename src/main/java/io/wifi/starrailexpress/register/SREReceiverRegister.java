@@ -46,6 +46,7 @@ public class SREReceiverRegister {
 
     public static void registerGlobalReceivers() {
         SceneAssetNetwork.registerServerReceivers();
+        io.wifi.starrailexpress.settlement.SettlementManager.register();
 
         // 紧急会议系统：服务端核心 + 发言请求
         net.exmo.sre.meeting.MeetingManager.register();

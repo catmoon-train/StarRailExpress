@@ -61,6 +61,17 @@
     "defaultRequire": 1
   },
   "client": [
+    "client.settlement.SettlementCameraMixin",
+    "client.settlement.SettlementGameRendererMixin",
+    "client.settlement.SettlementFinalOverlayMixin",
+    "client.settlement.SettlementLevelMixin",
+    "client.settlement.SettlementBlockEntityMixin",
+    "client.settlement.SettlementGuiMixin",
+    "client.settlement.SettlementEntityMixin",
+    "client.settlement.SettlementParticleMixin",
+    "client.settlement.SettlementSoundMixin",
+    "client.settlement.SettlementInputMixin",
+    "client.settlement.SettlementInteractionMixin",
     "client.CustomCuffBodyPoseMixin",
     "client.CustomCuffKeyBindingMixin",
     "client.CustomCuffPoseMixin",

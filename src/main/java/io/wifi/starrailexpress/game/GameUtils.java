@@ -483,6 +483,11 @@ public class GameUtils {
         if (SREGameWorldComponent.KEY.get(world).isRunning()) {
             return;
         }
+        if (io.wifi.starrailexpress.settlement.SettlementManager.hasViewers()
+                && (forcedReadyPlayers == null || forcedReadyPlayers.isEmpty())) {
+            setForcedReadyPlayers(getStartingPlayers(world).stream().map(ServerPlayer::getUUID).toList());
+        }
+        io.wifi.starrailexpress.settlement.SettlementManager.stopAll(world.getServer());
         if (!AllowGameInitialize.EVENT.invoker().allow(world, gameMode, List.copyOf(getStartingPlayers(world)))) {
             clearForcedReadyPlayers();
             return;
@@ -646,6 +651,7 @@ public class GameUtils {
 
     public static void initializeGame(ServerLevel serverWorld) {
         SREGameWorldComponent gameComponent = SREGameWorldComponent.KEY.get(serverWorld);
+        io.wifi.starrailexpress.settlement.SettlementManager.stopAll(serverWorld.getServer());
         ArrayList<ServerPlayer> readyPlayerList = new ArrayList<>(getStartingPlayers(serverWorld));
         if (io.wifi.starrailexpress.event.DeferGameInitialize.EVENT.invoker()
                 .defer(serverWorld, gameComponent.getGameMode(), List.copyOf(readyPlayerList))) return;
@@ -1149,7 +1155,9 @@ public class GameUtils {
         ParticipationComponent participation = ParticipationComponent.KEY.get(serverWorld);
         return serverWorld.getServer().getPlayerList().getPlayers().stream()
                 .filter(participation::isParticipating)
-                .filter(serverPlayerEntity -> areas.getReadyArea().contains(serverPlayerEntity.position())).toList();
+                .filter(player -> participation.isSettlementViewer(player.getUUID())
+                        || (player.serverLevel() == serverWorld && areas.getReadyArea().contains(player.position())))
+                .toList();
     }
 
     public static final Set<ChunkPos> chunksToClearEntities = new HashSet<>();
@@ -1189,6 +1197,12 @@ public class GameUtils {
         isGameStarted = false;
 
         gameComponent.getGameMode().recordWinStats(world, roundEnd, gameComponent);
+        io.wifi.starrailexpress.settlement.SettlementSnapshot settlement = null;
+        try {
+            settlement = io.wifi.starrailexpress.settlement.SettlementManager.capture(world, roundEnd, gameComponent);
+        } catch (RuntimeException exception) {
+            SRE.LOGGER.error("无法冻结舞台结算，保留原文字回放", exception);
+        }
         // --- 结束新增统计数据更新逻辑 (胜利/失败) ---
         // roundEnd.sync();
         // Show replay to all players
@@ -1248,6 +1262,7 @@ public class GameUtils {
         worldModifierComponent.clearAll();
         worldModifierComponent.sync();
         serverCacheKillState.clear();
+        io.wifi.starrailexpress.settlement.SettlementManager.begin(world, settlement);
     }
 
     public static void recordWinStats(ServerLevel world, GameMode gameMode, SREGameRoundEndComponent roundEnd,
@@ -1689,10 +1704,12 @@ public class GameUtils {
         List<? extends Player> players = world.players();
         AreasWorldComponent areas = AreasWorldComponent.KEY.get(world);
         ParticipationComponent participation = ParticipationComponent.KEY.get(world);
-        return Math.toIntExact(players.stream()
-                .filter(participation::isParticipating)
+        Set<UUID> ready = new HashSet<>(participation.getSettlementViewers());
+        players.stream().filter(participation::isParticipating)
                 .filter(p -> areas.getReadyArea().contains(p.position()))
-                .count());
+                .forEach(p -> ready.add(p.getUUID()));
+        ready.removeIf(id -> !participation.isParticipating(id));
+        return ready.size();
     }
 
     public static int getParticipatingPlayerCount(Level world) {

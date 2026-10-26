@@ -98,6 +98,12 @@ public class SREConfig implements ConfigData {
     // 时长（tick）。实际结局还会再多 1.5 秒。
     public int mirrorReunionEndEggTime = 5 * 20;
 
+    // 结算舞台专用区域：地板中心。内部 33×31×15 会程序化重建，请勿指向建筑。
+    public boolean enableSettlementStage = true;
+    public int settlementStageX = -100000;
+    public int settlementStageY = 0;
+    public int settlementStageZ = 0;
+
     // 随机地图设置
 
     @ConfigEntry.Category(value = "commands")
