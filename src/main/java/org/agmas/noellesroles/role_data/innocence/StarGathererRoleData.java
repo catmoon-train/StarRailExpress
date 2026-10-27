@@ -82,8 +82,6 @@ public class StarGathererRoleData extends SimpleRoleData {
     public static final double SCEPTER_RANGE = 35.0D;
     /** 锁定后到星星出现的延迟（2 秒）。 */
     public static final int SCEPTER_DROP_DELAY_TICKS = 2 * 20;
-    /** 权杖冷却（25 秒）。 */
-    public static final int SCEPTER_COOLDOWN_TICKS = 25 * 20;
     /** 权杖命中玩家后的原版物品冷却（20 秒；只要命中就触发，不要求击杀）。 */
     public static final int SCEPTER_HIT_COOLDOWN_TICKS = 20 * 20;
 
@@ -124,8 +122,6 @@ public class StarGathererRoleData extends SimpleRoleData {
     private long enhanceUntil;
     /** 星之引力定身结束时刻。 */
     private long rootedUntil;
-    /** 权杖冷却结束时刻。 */
-    private long scepterReadyAt;
     /** 待降落的星星：目标 UUID → 剩余 tick。 */
     private final List<PendingStar> pendingStars = new ArrayList<>();
 
@@ -146,7 +142,6 @@ public class StarGathererRoleData extends SimpleRoleData {
         gravityUses = 0;
         enhanceUntil = 0L;
         rootedUntil = 0L;
-        scepterReadyAt = 0L;
         pendingStars.clear();
         pullPending = false;
         sync();
@@ -460,8 +455,18 @@ public class StarGathererRoleData extends SimpleRoleData {
 
     // ── 星之权杖 ────────────────────────────────────────────────
 
+    /**
+     * 权杖是否可用。
+     * <p>
+     * 冷却统一走原版物品冷却（{@code Player#getCooldowns()}），因此这里直接问原版：
+     * 玩家手上/背包里那把权杖是否还在冷却中。
+     */
     public boolean isScepterReady() {
-        return GameUtils.getTicksFromGameStart(player.level()) >= scepterReadyAt;
+        if (!(player instanceof ServerPlayer sp)) {
+            // 客户端：读自己身上的原版冷却表
+            return !player.getCooldowns().isOnCooldown(ModItems.STAR_SCEPTER);
+        }
+        return !sp.getCooldowns().isOnCooldown(ModItems.STAR_SCEPTER);
     }
 
     /**
@@ -476,14 +481,9 @@ public class StarGathererRoleData extends SimpleRoleData {
             return false;
         if (GameUtils.isTimeFrozen(sp.level()))
             return false;
-        if (!data.isScepterReady()) {
-            long now = GameUtils.getTicksFromGameStart(sp.level());
-            int left = (int) Math.max(0L, (data.scepterReadyAt - now + 19L) / 20L);
-            sp.displayClientMessage(Component
-                    .translatable("message.noellesroles.star_gatherer.scepter_cooldown", left)
-                    .withStyle(ChatFormatting.RED), true);
+        // 冷却统一走原版物品冷却；真正加冷却在 StarScepterItem#use 里完成
+        if (sp.getCooldowns().isOnCooldown(ModItems.STAR_SCEPTER))
             return false;
-        }
 
         ServerPlayer target = findScepterTarget(sp);
         if (target == null) {
@@ -495,7 +495,7 @@ public class StarGathererRoleData extends SimpleRoleData {
 
         ServerLevel level = sp.serverLevel();
         data.pendingStars.add(new PendingStar(target.getUUID(), SCEPTER_DROP_DELAY_TICKS));
-        data.scepterReadyAt = GameUtils.getTicksFromGameStart(level) + SCEPTER_COOLDOWN_TICKS;
+        // 冷却由原版物品冷却承担，见 StarScepterItem#use 与星星命中后的刷新
         data.sync();
 
         level.playSound(null, sp.getX(), sp.getY(), sp.getZ(),
@@ -607,7 +607,6 @@ public class StarGathererRoleData extends SimpleRoleData {
         tag.putInt("gravityUses", gravityUses);
         tag.putLong("enhanceUntil", enhanceUntil);
         tag.putLong("rootedUntil", rootedUntil);
-        tag.putLong("scepterReadyAt", scepterReadyAt);
         CompoundTag cds = new CompoundTag();
         for (StarGathererSkill skill : StarGathererSkill.values()) {
             cds.putLong(skill.name(), skillReadyAt[skill.ordinal()]);
@@ -621,7 +620,6 @@ public class StarGathererRoleData extends SimpleRoleData {
         gravityUses = tag.getInt("gravityUses");
         enhanceUntil = tag.getLong("enhanceUntil");
         rootedUntil = tag.getLong("rootedUntil");
-        scepterReadyAt = tag.getLong("scepterReadyAt");
         CompoundTag cds = tag.getCompound("skillReadyAt");
         for (StarGathererSkill skill : StarGathererSkill.values()) {
             skillReadyAt[skill.ordinal()] = cds.getLong(skill.name());

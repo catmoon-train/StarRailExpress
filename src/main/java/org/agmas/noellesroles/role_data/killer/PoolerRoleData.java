@@ -121,8 +121,6 @@ public class PoolerRoleData extends SimpleRoleData {
     /** 四个技能各自的冷却结束时刻（{@link GameUtils#getTicksFromGameStart}）。 */
     private final long[] skillReadyAt = new long[PoolerSkill.values().length];
 
-    /** 月之祝福的冷却结束时刻。 */
-    private long moonBlessingReadyAt;
 
     /** 疯狂模式是否由本职业开启（用于结束时还原手持的三叉戟）。 */
     private boolean tideFrenzy;
@@ -137,7 +135,6 @@ public class PoolerRoleData extends SimpleRoleData {
         for (int i = 0; i < skillReadyAt.length; i++) {
             skillReadyAt[i] = 0L;
         }
-        moonBlessingReadyAt = 0L;
         tideFrenzy = false;
         sync();
     }
@@ -192,7 +189,6 @@ public class PoolerRoleData extends SimpleRoleData {
         for (int i = 0; i < skillReadyAt.length; i++) {
             skillReadyAt[i] = Math.max(now, skillReadyAt[i] - cut);
         }
-        moonBlessingReadyAt = Math.max(now, moonBlessingReadyAt - cut);
         sync();
     }
 
@@ -342,13 +338,18 @@ public class PoolerRoleData extends SimpleRoleData {
 
     // ── 月之祝福（开局自带的物品）─────────────────────────────────
 
+    /** 月之祝福是否可用：直接问原版物品冷却表。 */
     public boolean isMoonBlessingReady() {
-        return GameUtils.getTicksFromGameStart(player.level()) >= moonBlessingReadyAt;
+        return !player.getCooldowns().isOnCooldown(ModItems.MOON_BLESSING);
     }
 
+    /** 月之祝福剩余冷却秒数（读原版冷却表；0 表示就绪）。 */
     public int moonBlessingCooldownSeconds() {
-        long now = GameUtils.getTicksFromGameStart(player.level());
-        return (int) Math.max(0L, (moonBlessingReadyAt - now + 19L) / 20L);
+        float left = player.getCooldowns().getCooldownPercent(ModItems.MOON_BLESSING, 0.0F);
+        if (left <= 0.0F) {
+            return 0;
+        }
+        return Math.max(1, (int) Math.ceil(left * (MOON_BLESSING_COOLDOWN_TICKS / 20.0D)));
     }
 
     /**
@@ -377,11 +378,11 @@ public class PoolerRoleData extends SimpleRoleData {
                 false, false, true));
 
         ServerLevel level = sp.serverLevel();
+        // 冷却统一由原版物品冷却承担（MoonBlessingItem#use 里 addCooldown）
         level.playSound(null, sp.getX(), sp.getY(), sp.getZ(),
                 SoundEvents.AMETHYST_BLOCK_CHIME, SoundSource.PLAYERS, 1.2F, 1.6F);
         level.sendParticles(ParticleTypes.END_ROD, sp.getX(), sp.getY() + 1.0D, sp.getZ(), 24, 0.6D, 0.8D, 0.6D,
                 0.02D);
-        data.moonBlessingReadyAt = GameUtils.getTicksFromGameStart(level) + MOON_BLESSING_COOLDOWN_TICKS;
         data.sync();
         sp.displayClientMessage(Component
                 .translatable("message.noellesroles.pooler.moon_blessing_used")
@@ -570,7 +571,6 @@ public class PoolerRoleData extends SimpleRoleData {
     @Override
     public void writeToSyncNbt(@NotNull CompoundTag tag, HolderLookup.Provider lookup) {
         tag.putInt("selectedSkill", selectedSkill);
-        tag.putLong("moonBlessingReadyAt", moonBlessingReadyAt);
         tag.putBoolean("tideFrenzy", tideFrenzy);
         tag.putInt("cooldownReductionBought", cooldownReductionBought);
         CompoundTag cds = new CompoundTag();
@@ -583,7 +583,6 @@ public class PoolerRoleData extends SimpleRoleData {
     @Override
     public void readFromSyncNbt(@NotNull CompoundTag tag, HolderLookup.Provider lookup) {
         selectedSkill = tag.getInt("selectedSkill");
-        moonBlessingReadyAt = tag.getLong("moonBlessingReadyAt");
         tideFrenzy = tag.getBoolean("tideFrenzy");
         cooldownReductionBought = tag.getInt("cooldownReductionBought");
         CompoundTag cds = tag.getCompound("skillReadyAt");

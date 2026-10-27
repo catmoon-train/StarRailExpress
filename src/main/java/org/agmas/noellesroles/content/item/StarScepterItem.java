@@ -47,7 +47,10 @@ public class StarScepterItem extends Item {
         if (sp.getCooldowns().isOnCooldown(this)) {
             return InteractionResultHolder.fail(stack);
         }
-        StarGathererRoleData.useScepter(sp);
+        if (StarGathererRoleData.useScepter(sp)) {
+            // 冷却统一走原版物品冷却
+            sp.getCooldowns().addCooldown(this, StarGathererRoleData.SCEPTER_HIT_COOLDOWN_TICKS);
+        }
         return InteractionResultHolder.success(stack);
     }
 }
