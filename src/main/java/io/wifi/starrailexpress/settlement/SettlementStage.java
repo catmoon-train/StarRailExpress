@@ -45,14 +45,29 @@ final class SettlementStage {
             int z = (cursor / WIDTH) % DEPTH - 15;
             int y = cursor / (WIDTH*DEPTH);
             BlockState state = Blocks.AIR.defaultBlockState();
+            // 外壳：黑混凝土墙体与顶盖，隔绝外界景物。
             if (y == 0 || y == 14 || Math.abs(x) == 16 || Math.abs(z) == 15)
                 state = Blocks.BLACK_CONCRETE.defaultBlockState();
-            // 克制的暖色脚灯和顶灯，不放火把/粒子等持续音源。
-            if ((y == 0 && z == -2 && x % 4 == 0 && Math.abs(x) <= 12)
-                    || (y == 13 && z == 1 && Math.abs(x) == 8))
-                state = Blocks.SEA_LANTERN.defaultBlockState();
-            if (y == 0 && (z == -3 || z == 9) && Math.abs(x) < 14)
-                state = Blocks.POLISHED_BLACKSTONE.defaultBlockState();
+            // 地板：前排镜面黑石舞台，后排尸体区保持哑光黑，界线清晰。
+            if (y == 0) state = z >= 4
+                    ? Blocks.BLACK_CONCRETE.defaultBlockState()
+                    : Blocks.POLISHED_BLACKSTONE.defaultBlockState();
+            // 台口金线：舞台前沿一道细窄的黄铜镶边，呼应车票配色。
+            if (y == 0 && z == -3 && Math.abs(x) < 14)
+                state = Blocks.WAXED_EXPOSED_COPPER.defaultBlockState();
+            // 脚灯：台口两侧的落地暖光，灯体嵌在地面里而不是悬空。
+            if (y == 0 && z == -4 && (Math.abs(x) == 6 || Math.abs(x) == 12))
+                state = Blocks.WAXED_EXPOSED_COPPER.defaultBlockState();
+            if (y == 1 && z == -4 && (Math.abs(x) == 6 || Math.abs(x) == 12))
+                state = Blocks.LANTERN.defaultBlockState();
+            // 顶灯：三盏吊灯从顶盖垂下，落在舞台中央与两侧。
+            if (y == 13 && z == 0 && (x == -8 || x == 0 || x == 8))
+                state = Blocks.LANTERN.defaultBlockState();
+            // 侧墙装饰：内收一格的立柱 + 黄铜腰线，给封闭空间纵深又不破坏外墙。
+            if ((Math.abs(x) == 14) && z >= -12 && z <= 10) {
+                if (y >= 1 && y <= 13) state = Blocks.POLISHED_BLACKSTONE.defaultBlockState();
+                if (y == 6) state = Blocks.WAXED_EXPOSED_COPPER.defaultBlockState();
+            }
             // 后排保持裸露黑地板：尸体直接堆在台上，不加任何围台/抬台方块。
             BlockPos pos = origin.offset(x,y,z);
             if (!level.getBlockState(pos).equals(state)) level.setBlock(pos,state,2);

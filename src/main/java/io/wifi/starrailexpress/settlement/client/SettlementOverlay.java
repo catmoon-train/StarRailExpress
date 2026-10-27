@@ -110,8 +110,9 @@ public final class SettlementOverlay {
                     baseY + 16, Math.min(380, w - 36), Math.max(18, h / 12));
         }
 
-        // 跳过提示：只在可跳过后出现，短线 + 小字，不做整条填充。
-        if (time >= 100) {
+        // 跳过提示：可跳过后出现，闭幕段收起（此时已无跳过意义，也避免压住谢幕字幕）。
+        boolean closingSoon = time >= snapshot.durationTicks() - 80;
+        if (time >= 100 && !closingSoon) {
             int y = h - letterbox - 9;
             Component skip = Component.translatable("settlement.starrailexpress.skip");
             int textW = Minecraft.getInstance().font.width(skip);
@@ -124,9 +125,46 @@ public final class SettlementOverlay {
         }
 
         curtains(g, w, h, time);
+        // 闭幕：帘布回拢 → 谢幕字幕 → 收灯，最后才整体压黑。
+        closing(g, w, h, time, snapshot.durationTicks(), letterbox);
         float black = (float) (1 - SettlementClient.smooth(time / 40));
-        black = Math.max(black, (float) SettlementClient.smooth((time - snapshot.durationTicks() + 22) / 22));
+        black = Math.max(black, (float) SettlementClient.smooth((time - snapshot.durationTicks() + 26) / 26));
         if (black > 0) g.fill(0, 0, w, h, ((int) (255 * black) << 24));
+    }
+
+    /**
+     * 闭幕段：谢幕字幕淡入，灯光收束到舞台中央，再由 {@link #draw} 整体压黑。
+     * <p>只在最后 80 tick 生效，与开场片名、MVP 聚焦互不重叠。</p>
+     */
+    private static void closing(GuiGraphics g, int w, int h, double time, int duration, int letterbox) {
+        double start = duration - 80;
+        if (time < start) return;
+        float fade = (float) SettlementClient.smooth((time - start) / 18);
+        float out = (float) SettlementClient.smooth((time - (duration - 26)) / 26);
+        float alpha = fade * (1 - out);
+        if (alpha <= .01f) return;
+
+        // 收灯：一圈圈同心渐暗，中央留暖光，避免出现硬边黑色矩形。
+        int cx = w / 2, cy = (int) (h * .42);
+        int rings = 14;
+        int maxR = (int) (Math.hypot(w, h) * .62);
+        for (int i = rings; i >= 1; i--) {
+            int r = maxR * i / rings;
+            int shade = (int) (alpha * 18 * (rings - i + 1) / (float) rings);
+            if (shade <= 0) continue;
+            g.fill(cx - r, cy - r, cx + r, cy + r, shade << 24);
+        }
+
+        // 字幕压在台口下方、贴近画面底缘，绝不与角色身体重叠。
+        int baseY = h - letterbox - Math.max(30, h / 12);
+        int a = (int) (alpha * 255) << 24;
+        Component curtainCall = Component.translatable("settlement.starrailexpress.hud.curtain_call");
+        int lineW = Math.min(200, w / 2);
+        ornament(g, cx, baseY - 10, lineW / 2, (a & 0xFF000000) | (GOLD & 0xFFFFFF));
+        fit(g, curtainCall, cx - lineW, baseY, lineW * 2, (a & 0xFF000000) | (CREAM & 0xFFFFFF), true);
+        fit(g, Component.translatable("settlement.starrailexpress.closing"), cx - lineW, baseY + 16,
+                lineW * 2, (a & 0xFF000000) | (MUTED & 0xFFFFFF), true);
+        ornament(g, cx, baseY + 30, lineW / 2, (a & 0xFF000000) | (GOLD_DIM & 0xFFFFFF));
     }
 
     /** 一条两端渐隐的金线，中心一颗菱形，替代厚重边框。 */
@@ -155,6 +193,9 @@ public final class SettlementOverlay {
 
     private static void curtains(GuiGraphics g, int w, int h, double time) {
         double opened = SettlementClient.smooth((time - 20) / 70);
+        // 闭幕阶段帘布重新合拢，把舞台盖回去。
+        double closed = SettlementClient.smooth((time - (SettlementClient.snapshot().durationTicks() - 70)) / 55);
+        opened *= (1 - closed);
         int side = (int) ((w / 2.0) * (1 - opened));
         // 帷幕移出后仍保留侧帷；褶皱与金色流苏全部本地绘制。
         side = Math.max(Math.max(4, w / 60), side);
