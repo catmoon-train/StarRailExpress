@@ -88,6 +88,7 @@ public final class SettlementStageRenderer {
             model.renderToBuffer(pose, buffer.getBuffer(RenderType.entityTranslucent(skin.texture())),
                     LightTexture.FULL_BRIGHT, OverlayTexture.NO_OVERLAY, tint);
             if (mvp) SettlementCrown.render(pose, buffer, model.head);
+            renderHeldItem(pose, buffer, model, actor, partial);
             pose.popPose();
 
             if (actor.fact.winner() && time < 160) {
@@ -112,6 +113,42 @@ public final class SettlementStageRenderer {
         }
         pose.popPose();
         buffer.endBatch();
+    }
+
+    /**
+     * 回放事件涉及物品时，把该物品握在右手。
+     * <p>只在事件发生的动作窗口内显示，并复用右臂骨骼变换，因此会随动作一起挥动。</p>
+     */
+    private static void renderHeldItem(PoseStack pose, MultiBufferSource buffer, PlayerModel<Player> model,
+                                       SettlementClient.ActorState actor, float partial) {
+        var snapshot = SettlementClient.snapshot();
+        if (snapshot == null || SettlementClient.eventIndex() < 0) return;
+        var events = snapshot.events();
+        int index = SettlementClient.eventIndex();
+        if (index >= events.size()) return;
+        var event = events.get(index);
+        if (event.item() == null || event.item().isBlank()) return;
+        // 只有事件的发起者把物品拿在手上。
+        if (!actor.fact.id().equals(event.source())) return;
+        double action = Math.max(0, 1 - (SettlementClient.tick() + partial - actor.actionAt) / 22);
+        if (action <= 0) return;
+        ResourceLocation id = ResourceLocation.tryParse(event.item());
+        if (id == null) return;
+        var item = net.minecraft.core.registries.BuiltInRegistries.ITEM.getOptional(id).orElse(null);
+        if (item == null || item == net.minecraft.world.item.Items.AIR) return;
+
+        pose.pushPose();
+        model.rightArm.translateAndRotate(pose);
+        // 模型以 1 像素 = 1/16 方块；手掌位于手臂末端，向前下伸出。
+        pose.translate(0, 10f, 0);
+        pose.mulPose(Axis.XP.rotationDegrees(-90));
+        pose.mulPose(Axis.YP.rotationDegrees(180));
+        pose.scale(10f, 10f, 10f);
+        Minecraft.getInstance().getItemRenderer().renderStatic(new net.minecraft.world.item.ItemStack(item),
+                net.minecraft.world.item.ItemDisplayContext.THIRD_PERSON_RIGHT_HAND, LightTexture.FULL_BRIGHT,
+                OverlayTexture.NO_OVERLAY, pose, buffer, Minecraft.getInstance().level,
+                actor.fact.id().hashCode());
+        pose.popPose();
     }
 
     private static void setPose(PlayerModel<Player> model, SettlementClient.ActorState actor,

@@ -2,9 +2,11 @@ package io.wifi.starrailexpress.settlement;
 
 /** 舞台站位和出场节拍的唯一来源；不依赖客户端或注册表，可独立验证。 */
 public final class SettlementChoreography {
-    public static final double REAR_FLOOR = 1.0;
+    /** 尸体直接堆在舞台黑地板上，不额外抬台。 */
+    public static final double REAR_FLOOR = 0;
     public static final double PILE_Z = 6.0;
-    public static final int DROP_START = 105;
+    /** 胜方约在 130 tick 全部落地并摆好动作，尸体随后才开始下落。 */
+    public static final int DROP_START = 150;
     private SettlementChoreography() { }
 
     public record Slot(double x, double y, double z) { }

@@ -79,20 +79,23 @@ public final class SettlementManager {
             var actor = event.actor(); var target = event.target();
             Component text = event.text() == null
                     ? Component.translatable("sre.replay.event." + event.type().name().toLowerCase(Locale.ROOT)) : event.text();
+            // 事件涉及的物品：击杀记凶器，使用/释放技能记所用物品；其余为空。
+            String item = raw == null ? null : raw.itemUsed;
+            if (item != null && (item.isBlank() || "minecraft:air".equals(item))) item = null;
             events.add(new SettlementSnapshot.Event(Math.max(0,event.relativeTimestamp()), event.type().name(),
                     actor == null ? null : actor.uuid(), target == null ? null : target.uuid(),
                     Component.Serializer.toJson(text, world.registryAccess()),
-                    eventRole(raw,actor), changedRole(event,raw,target)));
+                    eventRole(raw,actor), changedRole(event,raw,target), item));
         }
         if (stage) {
             if (events.isEmpty() || !events.getFirst().type().equals("GAME_START"))
                 events.addFirst(new SettlementSnapshot.Event(0,"GAME_START",null,null,
-                        Component.Serializer.toJson(Component.translatable("sre.replay.event.game_start"),world.registryAccess()),null,null));
+                        Component.Serializer.toJson(Component.translatable("sre.replay.event.game_start"),world.registryAccess()),null,null,null));
             if (!events.getLast().type().equals("GAME_END")) {
                 long start = ReplayDisplayUtils.findGameStartTime(replay.currentReplayData);
                 long elapsed = start <= 0 ? events.getLast().time() : Math.max(0,System.currentTimeMillis()-start);
                 events.add(new SettlementSnapshot.Event(elapsed,"GAME_END",null,null,
-                        Component.Serializer.toJson(replay.currentReplayData.getWinningTitle(),world.registryAccess()),null,null));
+                        Component.Serializer.toJson(replay.currentReplayData.getWinningTitle(),world.registryAccess()),null,null,null));
             }
         }
         List<SettlementSnapshot.Actor> actors = new ArrayList<>();
@@ -116,7 +119,7 @@ public final class SettlementManager {
         return new SettlementSnapshot(world.dimension().location().toString(), config.settlementStageX,
                 config.settlementStageY, config.settlementStageZ,
                 Component.Serializer.toJson(replay.currentReplayData.getWinningTitle(),world.registryAccess()),
-                mvp, List.copyOf(actors), List.copyOf(events));
+                mvp, List.copyOf(actors), List.copyOf(SettlementSnapshot.mvpTimeline(mvp, events)));
     }
 
     /**

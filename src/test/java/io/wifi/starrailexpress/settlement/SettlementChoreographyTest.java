@@ -2,6 +2,8 @@ package io.wifi.starrailexpress.settlement;
 
 import org.junit.jupiter.api.Test;
 
+import java.util.UUID;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 /** 舞台编排的纯逻辑回归：站位、排数、尸堆入口与黑化判定。 */
@@ -62,10 +64,38 @@ class SettlementChoreographyTest {
         }
     }
 
-    @Test void pileSitsBehindTheWinners() {
+    @Test void pileSitsBehindTheWinnersOnBareFloor() {
         assertTrue(SettlementChoreography.PILE_Z > SettlementChoreography.winner(0, 8).z() + 1,
                 "尸堆必须在胜方后排之后");
-        assertTrue(SettlementChoreography.REAR_FLOOR > 0, "尸堆展示台应略高于舞台地面");
+        assertEquals(0, SettlementChoreography.REAR_FLOOR, 1e-9,
+                "尸体直接落在舞台地板上，不能再被方块围台抬起来");
+    }
+
+    @Test void corpsesFallAfterWinnersLand() {
+        // 胜方约 130 tick 全部落地并开始摆动作，尸体必须更晚才出现。
+        assertTrue(SettlementChoreography.DROP_START > 130, "尸体不能与胜方同时下落");
+        for (int count = 1; count <= 20; count++) {
+            assertTrue(SettlementChoreography.dropTick(count - 1, count) >= SettlementChoreography.DROP_START);
+            assertTrue(SettlementChoreography.dropTick(count - 1, count) < SettlementSnapshot.INTRO_TICKS,
+                    "全部尸体仍要在开场内落完");
+        }
+    }
+
+    @Test void replayKeepsOnlyMvpRelatedEvents() {
+        UUID mvp = UUID.randomUUID(), other = UUID.randomUUID();
+        var start = new SettlementSnapshot.Event(0, "GAME_START", null, null, "{}", null, null, null);
+        var mine = new SettlementSnapshot.Event(10, "PLAYER_KILL", mvp, other, "{}", null, null, "sre:knife");
+        var theirs = new SettlementSnapshot.Event(20, "PLAYER_KILL", other, UUID.randomUUID(), "{}", null, null, null);
+        var victimOfMvp = new SettlementSnapshot.Event(30, "TASK_COMPLETE", other, null, "{}", null, null, null);
+        var end = new SettlementSnapshot.Event(40, "GAME_END", null, null, "{}", null, null, null);
+        var kept = SettlementSnapshot.mvpTimeline(mvp, java.util.List.of(start, mine, theirs, victimOfMvp, end));
+        assertEquals(3, kept.size(), "只保留 MVP 相关事件与开/终局锚点");
+        assertTrue(kept.contains(mine));
+        assertTrue(kept.contains(start));
+        assertTrue(kept.contains(end));
+        assertFalse(kept.contains(theirs));
+        assertTrue(SettlementSnapshot.involves(mvp, mine));
+        assertFalse(SettlementSnapshot.involves(mvp, theirs));
     }
 
     @Test void silhouetteOnlyFollowsRealDeath() {

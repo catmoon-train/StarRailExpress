@@ -32,7 +32,23 @@ public record SettlementSnapshot(String dimension, double x, double y, double z,
         public int score() { return kills + (killer ? 0 : tasks); }
     }
 
-    /** textJson 保留原回放的翻译键、职业和事件说明；时间是自开局起的毫秒。 */
+    /** textJson 保留原回放的翻译键、职业和事件说明；item 是事件涉及的物品 ID（可为空）。 */
     public record Event(long time, String type, UUID source, UUID target, String textJson,
-                        String sourceRole, String targetRole) { }
+                        String sourceRole, String targetRole, String item) { }
+
+    /** 事件是否与 MVP 直接相关：MVP 是发起者或目标，或 MVP 的换职事件。 */
+    public static boolean involves(UUID mvp, Event event) {
+        if (mvp == null || event == null) return false;
+        return mvp.equals(event.source()) || mvp.equals(event.target());
+    }
+
+    /** 回放只保留 MVP 相关事件，但始终保留开局与终局两条锚点。 */
+    public static List<Event> mvpTimeline(UUID mvp, List<Event> events) {
+        List<Event> kept = new java.util.ArrayList<>();
+        for (Event event : events) {
+            if (involves(mvp, event) || "GAME_START".equals(event.type()) || "GAME_END".equals(event.type()))
+                kept.add(event);
+        }
+        return kept;
+    }
 }

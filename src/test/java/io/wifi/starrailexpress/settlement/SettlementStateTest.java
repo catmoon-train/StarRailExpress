@@ -64,7 +64,7 @@ class SettlementStateTest {
         var passenger = new SettlementSnapshot.Actor(id,"a","civilian",0,true,false,false,2,4);
         assertEquals(3,killer.score()); assertEquals(6,passenger.score());
         var events = java.util.stream.IntStream.range(0,2000)
-                .mapToObj(n -> new SettlementSnapshot.Event(n,"TASK_COMPLETE",id,null,"{}",null,null)).toList();
+                .mapToObj(n -> new SettlementSnapshot.Event(n,"TASK_COMPLETE",id,null,"{}",null,null,null)).toList();
         var snapshot = new SettlementSnapshot("minecraft:overworld",-100000,0,0,"{}",id,List.of(killer),events);
         assertEquals(2000,snapshot.events().size());
         assertEquals(320+2000*3+80,snapshot.durationTicks());
