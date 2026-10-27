@@ -19,6 +19,7 @@ import io.wifi.starrailexpress.progression.ProgressionDataManager;
 
 import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.api.RoleComponent;
+import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.game.GameConstants;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
@@ -34,9 +35,11 @@ import org.ladysnake.cca.api.v3.component.ComponentRegistry;
 import org.ladysnake.cca.api.v3.component.tick.ClientTickingComponent;
 import org.ladysnake.cca.api.v3.component.tick.ServerTickingComponent;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Predicate;
 
 /**
  * 弱效护盾组件
@@ -50,6 +53,14 @@ public class SREWeakArmorPlayerComponent implements RoleComponent, ServerTicking
             SRE.id("weak_armor"), SREWeakArmorPlayerComponent.class);
 
     private final Player player;
+
+    /**
+     * 是否允许给指定职业同步（弱效护盾没有「可被酒保透视」标记，沿用原有规则）。
+     * 参数：
+     * - 第一个SRERole: 可否同步的玩家（接收者）
+     * - 第二个SRERole: 拥有弱效护盾的玩家
+     */
+    public static ArrayList<Predicate<Map.Entry<SRERole, SRERole>>> canSynced = new ArrayList<>();
     private SREGameWorldComponent gameWorldComponent = null;
 
     /** 弱效护盾层数（0 表示没有） */
@@ -217,7 +228,7 @@ public class SREWeakArmorPlayerComponent implements RoleComponent, ServerTicking
             var selfRole = gameWorldComponent.getRole(player);
             var targetRole = gameWorldComponent.getRole(target);
             if (targetRole != null && selfRole != null) {
-                for (var t : SREArmorPlayerComponent.canSynced) {
+                for (var t : canSynced) {
                     if (t.test(Map.entry(targetRole, selfRole))) {
                         return true;
                     }

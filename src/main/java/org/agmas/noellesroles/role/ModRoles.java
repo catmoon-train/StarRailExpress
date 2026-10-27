@@ -3532,7 +3532,7 @@ public class ModRoles {
             SRERole.MoodType.FAKE,
             Integer.MAX_VALUE,
             true
-    )).setCanSeeCoin(true).setDefaultMax(1).setDefaultEnableChance(5000);
+    )).setCanSeeCoin(true).setDefaultMax(1).setDefaultEnableChance(5000).setCanBeRandomedByOtherRoles(false);
 
     // 模仿者 - 杀手角色，右键尸体吃掉获得永久能力
     public static SRERole IMITATOR = TMMRoles.registerRole(new NormalRole(
@@ -3755,12 +3755,12 @@ public class ModRoles {
         BounsRoles.init();
         SREPlayerPoisonComponent.canSyncedRolePaths.add(ModRoles.POISONER_ID.getPath());
         SREPlayerPoisonComponent.canSyncedRolePaths.add(ModRoles.BARTENDER_ID.getPath());
-        SREArmorPlayerComponent.canSynced.add((entry) -> {
+        // 酒保透视护盾：不区分阵营，是否可见由护盾层自身的「可被酒保透视」标记决定
+        SREArmorPlayerComponent.canSynced.add((entry) -> RoleUtils.compareRole(entry.getKey(), ModRoles.BARTENDER));
+        // 弱效护盾没有「可被酒保透视」标记，沿用原有规则：只透视好人阵营的弱效护盾
+        SREWeakArmorPlayerComponent.canSynced.add((entry) -> {
             if (RoleUtils.compareRole(entry.getKey(), ModRoles.BARTENDER)) {
-                if (SREGameWorldComponent.isInnocentRoleStatic(entry.getValue())) {
-                    return true;
-                }
-                return false;
+                return SREGameWorldComponent.isInnocentRoleStatic(entry.getValue());
             }
             return false;
         });

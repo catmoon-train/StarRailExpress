@@ -128,7 +128,7 @@
   "item.noellesroles.antidote.desc": "右键对玩家使用，可以使玩家解毒，使用后进入cd，当场上存在疫使时cd更快。",
   "item.noellesroles.pill.desc": "可食用药丸，医生商店购买为解毒药丸，毒师商店购买为致毒药丸。",
   "item.noellesroles.toxin.desc": "一次性用品，远程武器，右键对玩家使用，可以使瞄准的玩家中毒。",
-  "item.noellesroles.catalyst.desc": "毒师职业专属道具，右键使所有进入中毒状态的玩家死亡。",
+  "item.noellesroles.catalyst.desc": "右键使用：催化场上所有中毒、中假毒或感染的玩家，并使他们立即死亡。\n对杀手阵营与杀手方中立阵营的玩家无效——他们身上的中毒/感染会被直接清除，而不会死亡。\n使用后消耗 1 个催化剂，并进入 75 秒冷却。\n堆叠上限为 1，可在部分职业的商店中购买。",
   "item.noellesroles.bandit_revolver.desc": "强盗和刽子手使用的手枪，射程更近。",
   "item.noellesroles.throwing_axe.desc": "强盗的蓄力投掷武器。按住右键蓄力0.8秒后松手投掷，飞斧直线飞行，最多穿透并击杀2名玩家；随后飞行至墙壁钉住，5秒后消失。蓄力不足0.8秒松手则不发射。投掷后进入3秒冷却，武器本身留在手中可反复使用。",
   "item.noellesroles.bamboo.desc": "蓄力投掷武器。长按右键蓄力0.8秒后松手投出一根3D竹子；直线飞行，途中最多将2名玩家挂在竹子上（无法主动下来），直到撞墙钉住。从发射到消失共10秒（含钉在墙上的时间）。蓄力不足则不发射。",

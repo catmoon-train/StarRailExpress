@@ -81,14 +81,31 @@ public class ShieldCommand {
     private static LiteralArgumentBuilder<CommandSourceStack> buildNormal() {
         LiteralArgumentBuilder<CommandSourceStack> add = Commands.literal("add")
                 .then(Commands.argument("layers", IntegerArgumentType.integer(0))
-                        .executes(ctx -> normalAdd(ctx, ImmutableList.of(ctx.getSource().getPlayerOrException())))
+                        .executes(ctx -> normalAdd(ctx, ImmutableList.of(ctx.getSource().getPlayerOrException()),
+                                false))
+                        .then(Commands.argument("bartenderVisible", BoolArgumentType.bool())
+                                .executes(ctx -> normalAdd(ctx,
+                                        ImmutableList.of(ctx.getSource().getPlayerOrException()),
+                                        BoolArgumentType.getBool(ctx, "bartenderVisible")))
+                                .then(Commands.argument("targets", EntityArgument.players())
+                                        .executes(ctx -> normalAdd(ctx, EntityArgument.getPlayers(ctx, "targets"),
+                                                BoolArgumentType.getBool(ctx, "bartenderVisible")))))
+                        // 旧语法：add <layers> [targets]（默认不可被酒保透视）
                         .then(Commands.argument("targets", EntityArgument.players())
-                                .executes(ctx -> normalAdd(ctx, EntityArgument.getPlayers(ctx, "targets")))));
+                                .executes(ctx -> normalAdd(ctx, EntityArgument.getPlayers(ctx, "targets"), false)))));
         LiteralArgumentBuilder<CommandSourceStack> set = Commands.literal("set")
                 .then(Commands.argument("layers", IntegerArgumentType.integer(0))
-                        .executes(ctx -> normalSet(ctx, ImmutableList.of(ctx.getSource().getPlayerOrException())))
+                        .executes(ctx -> normalSet(ctx, ImmutableList.of(ctx.getSource().getPlayerOrException()),
+                                false))
+                        .then(Commands.argument("bartenderVisible", BoolArgumentType.bool())
+                                .executes(ctx -> normalSet(ctx,
+                                        ImmutableList.of(ctx.getSource().getPlayerOrException()),
+                                        BoolArgumentType.getBool(ctx, "bartenderVisible")))
+                                .then(Commands.argument("targets", EntityArgument.players())
+                                        .executes(ctx -> normalSet(ctx, EntityArgument.getPlayers(ctx, "targets"),
+                                                BoolArgumentType.getBool(ctx, "bartenderVisible")))))
                         .then(Commands.argument("targets", EntityArgument.players())
-                                .executes(ctx -> normalSet(ctx, EntityArgument.getPlayers(ctx, "targets")))));
+                                .executes(ctx -> normalSet(ctx, EntityArgument.getPlayers(ctx, "targets"), false))));
         LiteralArgumentBuilder<CommandSourceStack> get = Commands.literal("get")
                 .executes(ctx -> normalGet(ctx, ImmutableList.of(ctx.getSource().getPlayerOrException())))
                 .then(Commands.argument("targets", EntityArgument.players())
@@ -109,16 +126,39 @@ public class ShieldCommand {
                 .then(Commands.argument("layers", IntegerArgumentType.integer(0))
                         .then(Commands.argument("seconds", IntegerArgumentType.integer(0))
                                 .then(Commands.argument("reset", BoolArgumentType.bool())
-                                        .executes(ctx -> timedAdd(ctx, ImmutableList.of(ctx.getSource().getPlayerOrException())))
+                                        .executes(ctx -> timedAdd(ctx,
+                                                ImmutableList.of(ctx.getSource().getPlayerOrException()), false))
+                                        .then(Commands.argument("bartenderVisible", BoolArgumentType.bool())
+                                                .executes(ctx -> timedAdd(ctx,
+                                                        ImmutableList.of(ctx.getSource().getPlayerOrException()),
+                                                        BoolArgumentType.getBool(ctx, "bartenderVisible")))
+                                                .then(Commands.argument("targets", EntityArgument.players())
+                                                        .executes(ctx -> timedAdd(ctx,
+                                                                EntityArgument.getPlayers(ctx, "targets"),
+                                                                BoolArgumentType.getBool(ctx,
+                                                                        "bartenderVisible")))))
+                                        // 旧语法：add <layers> <seconds> <reset> [targets]（默认不可被酒保透视）
                                         .then(Commands.argument("targets", EntityArgument.players())
-                                                .executes(ctx -> timedAdd(ctx, EntityArgument.getPlayers(ctx, "targets")))))));
+                                                .executes(ctx -> timedAdd(ctx,
+                                                        EntityArgument.getPlayers(ctx, "targets"), false)))))));
         LiteralArgumentBuilder<CommandSourceStack> set = Commands.literal("set")
                 .then(Commands.argument("layers", IntegerArgumentType.integer(0))
                         .then(Commands.argument("seconds", IntegerArgumentType.integer(0))
                                 .then(Commands.argument("reset", BoolArgumentType.bool())
-                                        .executes(ctx -> timedSet(ctx, ImmutableList.of(ctx.getSource().getPlayerOrException())))
+                                        .executes(ctx -> timedSet(ctx,
+                                                ImmutableList.of(ctx.getSource().getPlayerOrException()), false))
+                                        .then(Commands.argument("bartenderVisible", BoolArgumentType.bool())
+                                                .executes(ctx -> timedSet(ctx,
+                                                        ImmutableList.of(ctx.getSource().getPlayerOrException()),
+                                                        BoolArgumentType.getBool(ctx, "bartenderVisible")))
+                                                .then(Commands.argument("targets", EntityArgument.players())
+                                                        .executes(ctx -> timedSet(ctx,
+                                                                EntityArgument.getPlayers(ctx, "targets"),
+                                                                BoolArgumentType.getBool(ctx,
+                                                                        "bartenderVisible")))))
                                         .then(Commands.argument("targets", EntityArgument.players())
-                                                .executes(ctx -> timedSet(ctx, EntityArgument.getPlayers(ctx, "targets")))))));
+                                                .executes(ctx -> timedSet(ctx,
+                                                        EntityArgument.getPlayers(ctx, "targets"), false)))))));
         LiteralArgumentBuilder<CommandSourceStack> get = Commands.literal("get")
                 .executes(ctx -> timedGet(ctx, ImmutableList.of(ctx.getSource().getPlayerOrException())))
                 .then(Commands.argument("targets", EntityArgument.players())
@@ -200,26 +240,27 @@ public class ShieldCommand {
     }
 
     // ===== normal =====
-    private static int normalAdd(CommandContext<CommandSourceStack> ctx, Collection<ServerPlayer> targets) {
+    private static int normalAdd(CommandContext<CommandSourceStack> ctx, Collection<ServerPlayer> targets,
+            boolean bartenderVisible) {
         int layers = IntegerArgumentType.getInteger(ctx, "layers");
         for (ServerPlayer e : targets) {
             SREArmorPlayerComponent c = SREArmorPlayerComponent.KEY.get(e);
-            c.armor += layers;
-            c.sync();
+            c.addArmor(layers, bartenderVisible);
         }
-        feedback(ctx, Component.translatable("commands.sre.shield.normal.add", targets.size(), layers));
+        feedback(ctx, Component.translatable("commands.sre.shield.normal.add", targets.size(), layers,
+                visibilityText(bartenderVisible)));
         return layers * targets.size();
     }
 
-    private static int normalSet(CommandContext<CommandSourceStack> ctx, Collection<ServerPlayer> targets) {
+    private static int normalSet(CommandContext<CommandSourceStack> ctx, Collection<ServerPlayer> targets,
+            boolean bartenderVisible) {
         int layers = IntegerArgumentType.getInteger(ctx, "layers");
         for (ServerPlayer e : targets) {
             SREArmorPlayerComponent c = SREArmorPlayerComponent.KEY.get(e);
-            c.armor = Math.max(0, layers);
-            c.timedArmor.clear();
-            c.sync();
+            c.setArmor(Math.max(0, layers), true, bartenderVisible);
         }
-        feedback(ctx, Component.translatable("commands.sre.shield.normal.set", targets.size(), layers));
+        feedback(ctx, Component.translatable("commands.sre.shield.normal.set", targets.size(), layers,
+                visibilityText(bartenderVisible)));
         return layers * targets.size();
     }
 
@@ -236,29 +277,31 @@ public class ShieldCommand {
     private static int normalClear(CommandContext<CommandSourceStack> ctx, Collection<ServerPlayer> targets) {
         for (ServerPlayer e : targets) {
             SREArmorPlayerComponent c = SREArmorPlayerComponent.KEY.get(e);
-            c.armor = 0;
-            c.sync();
+            c.setArmor(0, false, false);
         }
         feedback(ctx, Component.translatable("commands.sre.shield.normal.clear", targets.size()));
         return 1;
     }
 
     // ===== timed =====
-    private static int timedAdd(CommandContext<CommandSourceStack> ctx, Collection<ServerPlayer> targets) {
+    private static int timedAdd(CommandContext<CommandSourceStack> ctx, Collection<ServerPlayer> targets,
+            boolean bartenderVisible) {
         int layers = IntegerArgumentType.getInteger(ctx, "layers");
         int seconds = IntegerArgumentType.getInteger(ctx, "seconds");
         boolean reset = BoolArgumentType.getBool(ctx, "reset");
         int ticks = seconds * 20;
         for (ServerPlayer e : targets) {
-            SREArmorPlayerComponent.KEY.get(e).addTimedArmor(layers, ticks, reset);
+            SREArmorPlayerComponent.KEY.get(e).addTimedArmor(layers, ticks, reset, bartenderVisible);
         }
         Component resetText = Component.translatable(reset
                 ? "commands.sre.shield.timed.reset_stack" : "commands.sre.shield.timed.reset_only");
-        feedback(ctx, Component.translatable("commands.sre.shield.timed.add", targets.size(), layers, seconds, resetText));
+        feedback(ctx, Component.translatable("commands.sre.shield.timed.add", targets.size(), layers, seconds,
+                resetText, visibilityText(bartenderVisible)));
         return 1;
     }
 
-    private static int timedSet(CommandContext<CommandSourceStack> ctx, Collection<ServerPlayer> targets) {
+    private static int timedSet(CommandContext<CommandSourceStack> ctx, Collection<ServerPlayer> targets,
+            boolean bartenderVisible) {
         int layers = IntegerArgumentType.getInteger(ctx, "layers");
         int seconds = IntegerArgumentType.getInteger(ctx, "seconds");
         boolean reset = BoolArgumentType.getBool(ctx, "reset");
@@ -266,14 +309,15 @@ public class ShieldCommand {
         for (ServerPlayer e : targets) {
             SREArmorPlayerComponent c = SREArmorPlayerComponent.KEY.get(e);
             if (reset) {
-                c.addTimedArmor(layers, ticks, true);
+                c.addTimedArmor(layers, ticks, true, bartenderVisible);
             } else {
-                c.setTimedArmor(layers, ticks);
+                c.setTimedArmor(layers, ticks, bartenderVisible);
             }
         }
         Component resetText = Component.translatable(reset
                 ? "commands.sre.shield.timed.reset_stack" : "commands.sre.shield.timed.set_direct");
-        feedback(ctx, Component.translatable("commands.sre.shield.timed.set", targets.size(), layers, seconds, resetText));
+        feedback(ctx, Component.translatable("commands.sre.shield.timed.set", targets.size(), layers, seconds,
+                resetText, visibilityText(bartenderVisible)));
         return 1;
     }
 
@@ -291,9 +335,7 @@ public class ShieldCommand {
     private static int timedClear(CommandContext<CommandSourceStack> ctx, Collection<ServerPlayer> targets) {
         for (ServerPlayer e : targets) {
             SREArmorPlayerComponent c = SREArmorPlayerComponent.KEY.get(e);
-            c.armor = 0;
-            c.timedArmor.clear();
-            c.sync();
+            c.setArmor(0, true, false);
         }
         feedback(ctx, Component.translatable("commands.sre.shield.timed.clear", targets.size()));
         return 1;
@@ -425,6 +467,12 @@ public class ShieldCommand {
             reasons.add(rl);
         }
         return false;
+    }
+    /** 「是否可被酒保透视」的展示文本。 */
+    private static Component visibilityText(boolean bartenderVisible) {
+        return Component.translatable(bartenderVisible
+                ? "commands.sre.shield.bartender_visible.true"
+                : "commands.sre.shield.bartender_visible.false");
     }
 
     private static void feedback(CommandContext<CommandSourceStack> ctx, Component msg) {

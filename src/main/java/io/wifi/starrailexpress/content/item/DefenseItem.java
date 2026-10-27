@@ -76,14 +76,15 @@ public class DefenseItem extends Item {
                 if (canUseByRightClickRolePaths.contains(role.identifier().getPath())) {
                     if (livingEntity instanceof Player player) {
                         var bartenderComponent = SREArmorPlayerComponent.KEY.get(player);
+                        // 护盾试剂给予的护盾可被酒保透视（不区分阵营）
                         // 超级亡命徒可以无限饮用药剂叠盾
                         if (role == SpecialGameModeRoles.SUPER_LOOSE_END || role == SpecialGameModeRoles.DIRT) {
-                            bartenderComponent.addArmor();
+                            bartenderComponent.addBartenderVisibleArmor();
                             itemStack.consume(1, livingEntity);
                             return itemStack;
                         }
                         else if (bartenderComponent != null) {
-                            bartenderComponent.giveArmor();
+                            bartenderComponent.giveArmor(true);
                             itemStack.consume(1, livingEntity);
                             return itemStack;
                         }

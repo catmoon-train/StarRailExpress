@@ -301,7 +301,8 @@ public abstract class PlayerEntityMixin extends LivingEntity implements PlayerSt
             }
             SREArmorPlayerComponent bartenderPlayerComponent = SREArmorPlayerComponent.KEY.get(this);
             // this.playSound(SoundEvents.SHIELD_BLOCK, 1f, 1f);
-            bartenderPlayerComponent.giveArmor();
+            // 护盾试剂给予的护盾可被酒保透视（不区分阵营）
+            bartenderPlayerComponent.giveArmor(true);
         }
         if (weakArmorer != null) {
             if (SRE.REPLAY_MANAGER != null) {
