@@ -1,5 +1,7 @@
 package io.wifi.starrailexpress.settlement.client;
 
+import io.wifi.starrailexpress.client.MusicBoxAmbientSound;
+import io.wifi.starrailexpress.index.TMMSounds;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.resources.sounds.SimpleSoundInstance;
 import net.minecraft.client.resources.sounds.SoundInstance;
@@ -14,10 +16,37 @@ import java.util.Set;
 public final class SettlementAudio {
     private static final Set<SoundInstance> ALLOWED = Collections.synchronizedSet(
             Collections.newSetFromMap(new IdentityHashMap<>()));
+    /** 演出期间唯一的结算音乐实例；PREPARE/结束时整段停止。 */
+    private static SoundInstance music;
     private SettlementAudio() { }
 
     public static boolean allowed(SoundInstance sound) { return ALLOWED.contains(sound); }
-    static void clear() { ALLOWED.clear(); }
+    static void clear() { stopSettlementMusic(); ALLOWED.clear(); }
+
+    /**
+     * 结算音乐：装配了带结算音效的音乐盒就放该音乐盒的胜利/失败曲，否则回落到默认钢琴结算音。
+     * <p>只由结算演出自己播放，不是原局音轨的重放。</p>
+     *
+     * @param win 本地玩家本局是否胜利
+     */
+    static void playSettlementMusic(boolean win) {
+        stopSettlementMusic();
+        SoundEvent event = MusicBoxAmbientSound.equippedSettlementSound(win);
+        if (event == null) event = win ? TMMSounds.UI_PIANO_WIN : TMMSounds.UI_PIANO_LOSE;
+        SimpleSoundInstance sound = SimpleSoundInstance.forUI(event, 1f, 1f);
+        // 长音只在 SoundEngine 校验一次，但仍留在放行集合里，避免任何重复 play 被过滤掉。
+        ALLOWED.add(sound);
+        music = sound;
+        Minecraft.getInstance().getSoundManager().play(sound);
+    }
+
+    static void stopSettlementMusic() {
+        SoundInstance old = music;
+        music = null;
+        if (old == null) return;
+        ALLOWED.remove(old);
+        Minecraft.getInstance().getSoundManager().stop(old);
+    }
 
     static void cue(String type) {
         SoundEvent event;
