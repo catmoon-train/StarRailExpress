@@ -45,6 +45,20 @@ public class SREClientCommand {
   public static void register() {
     ClientCommandRegistrationCallback.EVENT.register(
         (dispatcher, registryAccess) -> {
+          dispatcher.register(ClientCommandManager.literal("sre:echo_bag").executes(ctx -> {
+            var data=org.agmas.noellesroles.game.modes.echo.client.EchoBagClient.data();
+            if(data==null || data.matchId()==null) { ctx.getSource().sendError(Component.translatable("echo.error.no_active_session")); return 0; }
+            var client=ctx.getSource().getClient();
+            client.setScreen(new io.wifi.starrailexpress.client.gui.screen.ingame.LimitedInventoryScreen(client.player));
+            return 1;
+          }));
+          dispatcher.register(ClientCommandManager.literal("sre:echo_spec").executes(ctx -> {
+            var client=ctx.getSource().getClient();
+            if(!org.agmas.noellesroles.game.modes.echo.client.EchoSpecializationClient.openFromCommand(client)) {
+              ctx.getSource().sendError(Component.translatable("echo.error.too_late")); return 0;
+            }
+            return 1;
+          }));
           dispatcher.register(ClientCommandManager.literal("sre:client")
               .then(
                   ClientCommandManager.literal("resource")
@@ -147,15 +161,11 @@ public class SREClientCommand {
                         return 1;
                       })))
               .then(ClientCommandManager.literal("screen")
-                  .then(ClientCommandManager.literal("role_introduction").executes(context -> {
-                    {
-                      ClientScheduler.schedule(() -> {
-                        context.getSource().getClient()
-                            .setScreen(new RoleIntroduceScreen(context.getSource().getClient().player));
-                      }, 1);
-                    }
-                    return 1;
-                  }))
+                  .then(ClientCommandManager.literal("role_introduction")
+                      .executes(context -> openRoleIntroduction(context, ""))
+                      .then(ClientCommandManager.argument("role", StringArgumentType.word())
+                          .executes(context -> openRoleIntroduction(context,
+                              StringArgumentType.getString(context, "role")))))
                   .then(ClientCommandManager.literal("GameManagePanel")
                       .executes(context -> {
                         if (context.getSource().getPlayer().hasPermissions(2)) {
@@ -223,5 +233,24 @@ public class SREClientCommand {
                         return 1;
                       })))));
         });
+  }
+
+  private static int openRoleIntroduction(
+      com.mojang.brigadier.context.CommandContext<net.fabricmc.fabric.api.client.command.v2.FabricClientCommandSource> context,
+      String path) {
+    ClientScheduler.schedule(() -> {
+      var client = context.getSource().getClient();
+      if (path == null || path.isEmpty()) {
+        client.setScreen(new RoleIntroduceScreen(client.player));
+        return;
+      }
+      var role = io.wifi.starrailexpress.api.TMMRoles.getRoleByPath(path);
+      if (role == null) {
+        client.setScreen(new RoleIntroduceScreen(client.player));
+        return;
+      }
+      RoleIntroduceScreen.openOn(role);
+    }, 1);
+    return 1;
   }
 }

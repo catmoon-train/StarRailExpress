@@ -262,7 +262,24 @@ public class RiptideTridentMixin {
             if (isWaterGhost) {
                 // 水鬼：激流三叉戟击杀后进入30秒冷却
                 player.getCooldowns().addCooldown(Items.TRIDENT, 20 * 30);
+            } else if (SREGameWorldComponent.KEY.get(serverLevel).isRole(player, ModRoles.POOLER)) {
+                // 祈月者：基础 30 秒；水中镜领域内不进冷却；疯狂模式 1/6。
+                org.agmas.noellesroles.role_data.killer.PoolerRoleData.applyTridentKillCooldown(serverPlayer);
             }
+        }
+        for (io.wifi.starrailexpress.traindummy.TrainDummyEntity dummy : serverLevel.getEntitiesOfClass(
+                io.wifi.starrailexpress.traindummy.TrainDummyEntity.class, hitBox,
+                io.wifi.starrailexpress.traindummy.TrainDummyEntity::canReceiveHits)) {
+            if (this.riptideHitTargets.contains(dummy.getUUID())) {
+                continue;
+            }
+            Vec3 eye = from.add(0.0, player.getEyeHeight(), 0.0);
+            if (serverLevel.clip(new ClipContext(eye, dummy.getEyePosition(),
+                    ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, player)).getType() != HitResult.Type.MISS) {
+                continue;
+            }
+            this.riptideHitTargets.add(dummy.getUUID());
+            io.wifi.starrailexpress.traindummy.TrainDummyCombat.applyLethal(dummy, serverPlayer, SRE.id("trident"));
         }
     }
 }

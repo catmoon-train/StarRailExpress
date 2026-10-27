@@ -1,3 +1,6 @@
 {
-  "parent": "item/shears"
+  "parent": "minecraft:item/handheld",
+  "textures": {
+    "layer0": "noellesroles:item/camera_shears"
+  }
 }

@@ -193,6 +193,10 @@ public class NoellesrolesVoiceChatPlugin implements VoicechatPlugin {
               event.cancel();
               return;
             }
+            // 嬉命人·语音互换：把声源换成交换对象（被接管时直接 return）
+            if (EmbalmerVoiceSwapHook.handle(event, api, player)) {
+              return;
+            }
             // 如果发送者被鹈鹕吞噬，单独处理路由：只转发给鹈鹕和肚内玩家，避免默认逻辑忽略旁观者
             if (PelicanManager.isStashed(player)) {
               var bellyReceivers = PelicanManager.getBellyReceivers(player.getUUID());

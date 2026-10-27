@@ -20,7 +20,6 @@ import io.wifi.starrailexpress.index.SREDataComponentTypes;
 import io.wifi.starrailexpress.util.ItemSkinManager;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.loader.api.FabricLoader;
-import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
@@ -43,40 +42,11 @@ public abstract class SkinableItem extends Item {
     @Override
     public void appendHoverText(ItemStack itemStack, TooltipContext tooltipContext, List<Component> list,
             TooltipFlag tooltipFlag) {
-        String itemName = this.getItemSkinType();
-        if (itemName == null)
-            return;
-        Player player = null;
-        if (tooltipContext instanceof Player p) {
-            player = p;
-        } else {
-            player = null;
+        Player player = tooltipContext instanceof Player p ? p : null;
+        if (player == null && FabricLoader.getInstance().getEnvironmentType() == EnvType.CLIENT) {
+            player = SREClientUtils.getClientPlayer();
         }
-        if (player == null) {
-            if (FabricLoader.getInstance().getEnvironmentType().equals(EnvType.CLIENT)) {
-                player = SREClientUtils.getClientPlayer();
-                if (player == null)
-                    return;
-            }
-        }
-
-        String skinName = "default";
-        skinName = ItemSkinManager.getEquippedSkin(player, itemStack);
-        if (skinName == null) {
-            skinName = "default";
-        }
-        ItemSkinManager.Skin skin = ItemSkinManager.Skin.fromString(itemName, skinName);
-
-        if (skin != null) {
-            list.add(Component.translatable("tip.skin").withStyle(style -> style.withColor(Colors.GRAY))
-                    .append(Component.translatableWithFallback(
-                            "screen.sre.skins." + itemName + "." + (skin.tooltipName) + ".name", skin.tooltipName)
-                            .withStyle(style -> style.withColor(skin.getColor()))));
-        } else if (skinName.equals("default") || skinName == null) {
-            list.add(Component.translatable("tip.skin").withStyle(style -> style.withColor(Colors.GRAY))
-                    .append(Component.translatableWithFallback("screen.sre.skins.default", "Default"))
-                    .withStyle(ChatFormatting.GRAY));
-        }
+        ItemSkinManager.appendSkinTooltip(itemStack, list, player);
         super.appendHoverText(itemStack, tooltipContext, list, tooltipFlag);
     }
 
@@ -94,9 +64,7 @@ public abstract class SkinableItem extends Item {
     @Override
     public void inventoryTick(ItemStack itemStack, Level level, Entity entity, int i, boolean bl) {
         if (entity instanceof Player player) {
-            if (itemStack.get(SREDataComponentTypes.SKIN) == null) {
-                itemStack.set(SREDataComponentTypes.SKIN, ItemSkinManager.getEquippedSkin(player, itemStack));
-            }
+            ItemSkinManager.applyEquippedSkin(player, itemStack);
         }
     }
 

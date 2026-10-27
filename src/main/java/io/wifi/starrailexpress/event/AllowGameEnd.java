@@ -19,12 +19,15 @@ import io.wifi.starrailexpress.game.GameUtils;
 import io.wifi.starrailexpress.game.GameUtils.WinStatus;
 import net.fabricmc.fabric.api.event.Event;
 import net.minecraft.server.level.ServerLevel;
+import org.agmas.noellesroles.game.command_block.CommandBlockDirector;
+import org.agmas.noellesroles.game.command_block.CommandBlockWinPriority;
 
 import static net.fabricmc.fabric.api.event.EventFactory.createArrayBacked;
 
 /**
  * 事件接口：决定是否允许游戏结束，以及最终的胜利状态。
  * 首个返回非 {@link WinStatus#NOT_MODIFY} 结果的监听器决定最终胜利状态。
+ * 命令方块模式例外：普通胜负与锁局结果会暂存，优先查找已达成的独立胜利。
  *
  * <p>
  * Event interface to determine whether the game is allowed to end and what the
@@ -55,28 +58,30 @@ public class AllowGameEnd {
      * @see io.wifi.starrailexpress.game.GameUtils.WinStatus
      */
     public static final Event<AllowGameEndInterface> EVENT_END = createArrayBacked(AllowGameEndInterface.class,
-            listeners -> (serverWorld, winStatus, isLooseEndsMode) -> {
-                for (AllowGameEndInterface listener : listeners) {
-                    var a = listener.allowGameEnd(serverWorld, winStatus, isLooseEndsMode);
-                    if (a != null)
-                        if (!a.equals(WinStatus.NOT_MODIFY)) {
-                            return a;
-                        }
-                }
-                return WinStatus.NOT_MODIFY;
-            });
+            listeners -> (serverWorld, winStatus, isLooseEndsMode) ->
+                    invokeListeners(listeners, serverWorld, winStatus, isLooseEndsMode));
 
     public static final Event<AllowGameEndInterface> EVENT_START = createArrayBacked(AllowGameEndInterface.class,
-            listeners -> (serverWorld, winStatus, isLooseEndsMode) -> {
-                for (AllowGameEndInterface listener : listeners) {
-                    var a = listener.allowGameEnd(serverWorld, winStatus, isLooseEndsMode);
-                    if (a != null)
-                        if (!a.equals(WinStatus.NOT_MODIFY)) {
-                            return a;
-                        }
-                }
-                return WinStatus.NOT_MODIFY;
-            });
+            listeners -> (serverWorld, winStatus, isLooseEndsMode) ->
+                    invokeListeners(listeners, serverWorld, winStatus, isLooseEndsMode));
+
+    /** 命令方块模式暂存普通结果，继续查找独立胜利；其它模式保留首次返回规则。 */
+    private static WinStatus invokeListeners(AllowGameEndInterface[] listeners, ServerLevel level,
+            WinStatus proposed, boolean looseEnds) {
+        boolean prioritize = CommandBlockDirector.holdsTheRound(level);
+        WinStatus deferred = WinStatus.NOT_MODIFY;
+        for (AllowGameEndInterface listener : listeners) {
+            WinStatus result = listener.allowGameEnd(level, proposed, looseEnds);
+            if (result == null || result == WinStatus.NOT_MODIFY) {
+                continue;
+            }
+            if (!prioritize || CommandBlockWinPriority.isIndependentWin(level, result)) {
+                return result;
+            }
+            deferred = CommandBlockWinPriority.defer(deferred, result);
+        }
+        return deferred;
+    }
 
     /**
      * 决定游戏是否允许结束以及最终胜利状态。

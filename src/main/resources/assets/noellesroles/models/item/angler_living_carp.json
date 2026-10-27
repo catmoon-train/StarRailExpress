@@ -1,1 +1,1 @@
-{"parent":"minecraft:item/generated","textures":{"layer0":"minecraft:item/cod"}}
+{"parent": "minecraft:item/generated","textures":{"layer0":"noellesroles:item/angler_living_carp"}}

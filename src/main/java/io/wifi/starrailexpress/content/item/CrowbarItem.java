@@ -38,9 +38,14 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import org.agmas.noellesroles.role.touhou.THRedHouseRoles;
 
-public class CrowbarItem extends Item implements AdventureUsable, DoorCustomOpenItem {
+public class CrowbarItem extends SkinableItem implements AdventureUsable, DoorCustomOpenItem {
     public CrowbarItem(Properties settings) {
         super(settings);
+    }
+
+    @Override
+    public String getItemSkinType() {
+        return io.wifi.starrailexpress.util.ItemSkinManager.SkinTypes.CROWBAR;
     }
 
     @Override

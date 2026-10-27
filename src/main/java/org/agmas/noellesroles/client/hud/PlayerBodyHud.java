@@ -205,9 +205,10 @@ public class PlayerBodyHud {
                 String victimName = bodyDeathReasonComponent.getOwnerName();
                 MutableComponent nameMessage = Component.empty();
                 if (victimName != null && !victimName.isBlank()) {
-                    nameMessage = Component
-                            .translatable("hud.coroner.death_info.name",
-                                    victimName);
+                    Component nameArg = victimName.startsWith("trl:")
+                            ? Component.translatable(victimName.substring(4))
+                            : Component.literal(victimName);
+                    nameMessage = Component.translatable("hud.coroner.death_info.name", nameArg);
                 }
                 MutableComponent deathMessage = Component
                         .translatable("hud.coroner.death_info.new", targetBody.tickCount / 20, deathText);

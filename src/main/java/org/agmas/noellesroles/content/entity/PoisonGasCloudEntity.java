@@ -156,6 +156,31 @@ public class PoisonGasCloudEntity extends Entity {
                 exposureTicks.put(player.getUUID(), 0);
             }
         }
+        AABB dummyBox = this.getBoundingBox().inflate(12.0D);
+        for (io.wifi.starrailexpress.traindummy.TrainDummyEntity dummy : serverWorld.getEntitiesOfClass(
+                io.wifi.starrailexpress.traindummy.TrainDummyEntity.class, dummyBox,
+                io.wifi.starrailexpress.traindummy.TrainDummyEntity::canReceiveHits)) {
+            boolean dummyInGas = false;
+            AABB dummyBounds = dummy.getBoundingBox();
+            for (int x = (int) Math.floor(dummyBounds.minX); x <= (int) Math.floor(dummyBounds.maxX) && !dummyInGas; x++) {
+                for (int y = (int) Math.floor(dummyBounds.minY); y <= (int) Math.floor(dummyBounds.maxY) && !dummyInGas; y++) {
+                    for (int z = (int) Math.floor(dummyBounds.minZ); z <= (int) Math.floor(dummyBounds.maxZ) && !dummyInGas; z++) {
+                        if (gasBlocks.contains(new BlockPos(x, y, z))) {
+                            dummyInGas = true;
+                        }
+                    }
+                }
+            }
+            if (!dummyInGas) {
+                continue;
+            }
+            int dummyTicks = exposureTicks.getOrDefault(dummy.getUUID(), 0) + 1;
+            exposureTicks.put(dummy.getUUID(), dummyTicks);
+            if (dummyTicks >= EXPOSURE_THRESHOLD) {
+                io.wifi.starrailexpress.traindummy.TrainDummyCombat.applyPoison(dummy, 60 * 20, false, ownerUuid);
+                exposureTicks.put(dummy.getUUID(), 0);
+            }
+        }
 
         // 粒子效果：取整团毒气的 AABB，每 2 tick 合并成一个包（原实现是逐颗粒子一个包）
         if (!gasBlocks.isEmpty() && age % 2 == 0) {

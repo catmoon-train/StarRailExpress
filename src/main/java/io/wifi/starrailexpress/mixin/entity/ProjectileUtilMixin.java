@@ -38,8 +38,10 @@ public class ProjectileUtilMixin {
             Predicate<Entity> predicate, float f, CallbackInfoReturnable<EntityHitResult> cir) {
         double closestDistance = Double.MAX_VALUE;
         Entity closestEntity = null;
-
-        for (Entity candidate : level.getEntities(entity, aABB, predicate)) {
+        Predicate<Entity> widened = candidate -> predicate.test(candidate)
+                || candidate instanceof io.wifi.starrailexpress.traindummy.TrainDummyEntity dummy
+                        && dummy.canReceiveHits();
+        for (Entity candidate : level.getEntities(entity, aABB, widened)) {
             // 忽略轮椅实体
             if (candidate instanceof WheelchairEntity) {
                 continue;

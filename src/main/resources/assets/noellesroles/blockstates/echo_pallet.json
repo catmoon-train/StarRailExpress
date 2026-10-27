@@ -1,0 +1,64 @@
+{
+  "variants": {
+    "facing=north,down=false,broken=false": {
+      "model": "noellesroles:block/echo_pallet_up"
+    },
+    "facing=north,down=false,broken=true": {
+      "model": "noellesroles:block/echo_pallet_broken"
+    },
+    "facing=north,down=true,broken=false": {
+      "model": "noellesroles:block/echo_pallet_down"
+    },
+    "facing=north,down=true,broken=true": {
+      "model": "noellesroles:block/echo_pallet_broken"
+    },
+    "facing=east,down=false,broken=false": {
+      "model": "noellesroles:block/echo_pallet_up",
+      "y": 90
+    },
+    "facing=east,down=false,broken=true": {
+      "model": "noellesroles:block/echo_pallet_broken",
+      "y": 90
+    },
+    "facing=east,down=true,broken=false": {
+      "model": "noellesroles:block/echo_pallet_down",
+      "y": 90
+    },
+    "facing=east,down=true,broken=true": {
+      "model": "noellesroles:block/echo_pallet_broken",
+      "y": 90
+    },
+    "facing=south,down=false,broken=false": {
+      "model": "noellesroles:block/echo_pallet_up",
+      "y": 180
+    },
+    "facing=south,down=false,broken=true": {
+      "model": "noellesroles:block/echo_pallet_broken",
+      "y": 180
+    },
+    "facing=south,down=true,broken=false": {
+      "model": "noellesroles:block/echo_pallet_down",
+      "y": 180
+    },
+    "facing=south,down=true,broken=true": {
+      "model": "noellesroles:block/echo_pallet_broken",
+      "y": 180
+    },
+    "facing=west,down=false,broken=false": {
+      "model": "noellesroles:block/echo_pallet_up",
+      "y": 270
+    },
+    "facing=west,down=false,broken=true": {
+      "model": "noellesroles:block/echo_pallet_broken",
+      "y": 270
+    },
+    "facing=west,down=true,broken=false": {
+      "model": "noellesroles:block/echo_pallet_down",
+      "y": 270
+    },
+    "facing=west,down=true,broken=true": {
+      "model": "noellesroles:block/echo_pallet_broken",
+      "y": 270
+    }
+  }
+}

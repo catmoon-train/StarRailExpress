@@ -1,0 +1,10 @@
+{
+  "echo_hotbar.tools": "工具 1–3",
+  "echo_hotbar.resources": "物资 4–9 · 右键",
+  "echo_hotbar.reserved": "开包预留",
+  "echo_hotbar.reserved_short": "留",
+  "echo_hotbar.locked": "锁",
+  "echo_hotbar.pack.common": "普通物资包",
+  "echo_hotbar.pack.rare": "稀有物资包",
+  "echo_hotbar.pack.black_market": "黑市物资包"
+}

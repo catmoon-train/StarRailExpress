@@ -38,6 +38,7 @@ import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.item.ItemStack;
 import org.agmas.noellesroles.Noellesroles;
 import org.agmas.noellesroles.role_data.neutral.CandleBearerRoleData;
+import org.agmas.noellesroles.role_data.neutral.DaywalkerRoleData;
 import org.agmas.noellesroles.role_data.neutral.GodfatherRoleData;
 import org.agmas.noellesroles.role_data.neutral.MercenaryRoleData;
 import org.agmas.noellesroles.role_data.neutral.MonokumaRoleData;
@@ -95,6 +96,9 @@ public final class LeaderFollowerEffects {
 
     /** 追随者放贷人立即获得的金币数 */
     private static final int LENDER_FOLLOWER_COINS = 300;
+
+    /** 追随者逐日者立即获得的金币数 */
+    private static final int DAYWALKER_FOLLOWER_COINS = 50;
 
     /** 森近霖之助 / 河城荷取（金币依附角色） */
     public static boolean isCoinDependentRole(SRERole role) {
@@ -208,6 +212,7 @@ public final class LeaderFollowerEffects {
             case "licensed_villain" -> applyLicensedVillain(leader, follower);
             case "anatman", "asatya" -> applyAnatmanAsatya(leader, follower);
             case "lender" -> applyLender(leader, follower);
+            case "daywalker" -> applyDaywalker(leader, follower);
             default -> applyGeneric(leader, follower);
         }
     }
@@ -525,6 +530,34 @@ public final class LeaderFollowerEffects {
                         LENDER_FOLLOWER_COINS, LenderRoleHandler.FOLLOWER_MAX_PRINCIPAL), false);
         leader.displayClientMessage(
                 Component.translatable("message.noellesroles.leader.lender_bonus"), false);
+    }
+
+    /**
+     * 追随者：逐日者
+     * <ul>
+     * <li>「追随者」逐日者立即获得 {@value #DAYWALKER_FOLLOWER_COINS} 金币</li>
+     * <li>逐日者每次完成任务使当局时间每秒快进 0.09 秒（至多 0.85 秒）</li>
+     * <li>「逐日时刻」储存上限变为 150 秒</li>
+     * <li>领袖获得一把开锁器</li>
+     * <li>领袖每完成 4 个任务，为「追随者」逐日者计入 1 个任务（见 LeaderRole#onFinishQuest）</li>
+     * </ul>
+     */
+    private static void applyDaywalker(ServerPlayer leader, ServerPlayer follower) {
+        SREPlayerShopComponent.KEY.get(follower).addToBalance(DAYWALKER_FOLLOWER_COINS);
+        giveItem(leader, TMMItems.LOCKPICK.getDefaultInstance());
+        DaywalkerRoleData comp = RoleData.getNullable(DaywalkerRoleData.class, follower);
+        if (comp != null) {
+            comp.enableLeaderBoost();
+        }
+        follower.displayClientMessage(
+                Component.translatable("message.noellesroles.daywalker.leader_bonus",
+                        DAYWALKER_FOLLOWER_COINS,
+                        DaywalkerRoleData.FAST_FORWARD_PER_TASK_LEADER,
+                        DaywalkerRoleData.FAST_FORWARD_CAP_LEADER,
+                        DaywalkerRoleData.MAX_MOMENTS_WITH_LEADER),
+                false);
+        leader.displayClientMessage(
+                Component.translatable("message.noellesroles.leader.daywalker_bonus"), false);
     }
 
     /** 在玩家脚下生成物品（背包满时的兜底） */

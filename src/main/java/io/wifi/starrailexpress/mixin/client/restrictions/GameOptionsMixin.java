@@ -80,6 +80,10 @@ public class GameOptionsMixin {
                         .anyMatch(predicate -> predicate.test(role))) {
                     return original;
                 }
+                if (RoleVisibilityRules.canUseOtherPersonPlayer.stream()
+                        .anyMatch(predicate -> predicate.test(localPlayer))) {
+                    return original;
+                }
             }
             return CameraType.FIRST_PERSON;
         } else {

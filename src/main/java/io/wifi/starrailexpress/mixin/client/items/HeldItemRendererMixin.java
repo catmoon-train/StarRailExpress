@@ -31,6 +31,7 @@ import net.minecraft.client.renderer.ItemInHandRenderer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.ItemRenderer;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
@@ -73,16 +74,26 @@ public class HeldItemRendererMixin {
         if (entity instanceof LocalPlayer player) {
             stack = noellesroles$resolve(player,stack);
         }
-        if (entity instanceof Player playerEntity
-                && (stack.is(TMMItemTags.HELD_LIKE_GUNS_ITEMS)
-                        || (stack.getItem() instanceof HeldLikeRevolver)
-                        || io.wifi.starrailexpress.customitem.CustomItemLoader.isHeldLikeRevolver(stack))) {
+        // 只按“正在渲染的这只手”判断：副手拿枪不会被主手物品放行，
+        // 主手/副手各存各的枪口，粒子不会串到另一只手。
+        if (entity instanceof Player playerEntity && isHeldLikeGun(stack)) {
+            InteractionHand hand = renderMode == ItemDisplayContext.THIRD_PERSON_LEFT_HAND
+                    || renderMode == ItemDisplayContext.FIRST_PERSON_LEFT_HAND
+                            ? InteractionHand.OFF_HAND : InteractionHand.MAIN_HAND;
             if (playerEntity.getUUID() != Minecraft.getInstance().player.getUUID()) {
-                MatrixParticleManager.muzzlePosForPlayer$set(playerEntity, MatrixUtils.matrixToVec(matrices));
+                MatrixParticleManager.muzzlePosForPlayer$set(playerEntity, hand, MatrixUtils.matrixToVec(matrices));
             } else if (!renderMode.firstPerson()) {
-                MatrixParticleManager.muzzlePosForPlayer$set(playerEntity, MatrixUtils.matrixToVec(matrices));
+                MatrixParticleManager.muzzlePosForPlayer$set(playerEntity, hand, MatrixUtils.matrixToVec(matrices));
             }
         }
+    }
+
+    /** 该物品本身是否按枪械持握渲染（主手/副手一致）。 */
+    private static boolean isHeldLikeGun(ItemStack stack) {
+        return stack != null && !stack.isEmpty()
+                && (stack.is(TMMItemTags.HELD_LIKE_GUNS_ITEMS)
+                        || stack.getItem() instanceof HeldLikeRevolver
+                        || io.wifi.starrailexpress.customitem.CustomItemLoader.isHeldLikeRevolver(stack));
     }
 
     @ModifyExpressionValue(method = "tick", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/item/ItemStack;matches(Lnet/minecraft/world/item/ItemStack;Lnet/minecraft/world/item/ItemStack;)Z"))

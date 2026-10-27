@@ -1,0 +1,254 @@
+{
+  "parent": "minecraft:item/generated",
+  "textures": {
+    "layer0": "echo_hotbar:item/pack_common"
+  },
+  "overrides": [
+    {
+      "predicate": {
+        "custom_model_data": 1
+      },
+      "model": "echo_hotbar:item/pack_common"
+    },
+    {
+      "predicate": {
+        "custom_model_data": 2
+      },
+      "model": "echo_hotbar:item/pack_rare"
+    },
+    {
+      "predicate": {
+        "custom_model_data": 3
+      },
+      "model": "echo_hotbar:item/pack_black_market"
+    },
+    {
+      "predicate": {
+        "custom_model_data": 4
+      },
+      "model": "echo_hotbar:item/reserved"
+    },
+    {
+      "predicate": {
+        "custom_model_data": 100
+      },
+      "model": "echo_hotbar:item/afterimage"
+    },
+    {
+      "predicate": {
+        "custom_model_data": 101
+      },
+      "model": "echo_hotbar:item/black_sniff"
+    },
+    {
+      "predicate": {
+        "custom_model_data": 102
+      },
+      "model": "echo_hotbar:item/cargo_harness"
+    },
+    {
+      "predicate": {
+        "custom_model_data": 103
+      },
+      "model": "echo_hotbar:item/cargo_lining"
+    },
+    {
+      "predicate": {
+        "custom_model_data": 104
+      },
+      "model": "echo_hotbar:item/crystal_sniff"
+    },
+    {
+      "predicate": {
+        "custom_model_data": 105
+      },
+      "model": "echo_hotbar:item/decoy_dummy"
+    },
+    {
+      "predicate": {
+        "custom_model_data": 106
+      },
+      "model": "echo_hotbar:item/door_wedge"
+    },
+    {
+      "predicate": {
+        "custom_model_data": 107
+      },
+      "model": "echo_hotbar:item/double_mask"
+    },
+    {
+      "predicate": {
+        "custom_model_data": 108
+      },
+      "model": "echo_hotbar:item/faction_mask"
+    },
+    {
+      "predicate": {
+        "custom_model_data": 109
+      },
+      "model": "echo_hotbar:item/false_dispatch"
+    },
+    {
+      "predicate": {
+        "custom_model_data": 110
+      },
+      "model": "echo_hotbar:item/false_echo"
+    },
+    {
+      "predicate": {
+        "custom_model_data": 111
+      },
+      "model": "echo_hotbar:item/forged_dispatch"
+    },
+    {
+      "predicate": {
+        "custom_model_data": 112
+      },
+      "model": "echo_hotbar:item/forged_signal"
+    },
+    {
+      "predicate": {
+        "custom_model_data": 113
+      },
+      "model": "echo_hotbar:item/global_pulse"
+    },
+    {
+      "predicate": {
+        "custom_model_data": 114
+      },
+      "model": "echo_hotbar:item/hunt_mark"
+    },
+    {
+      "predicate": {
+        "custom_model_data": 115
+      },
+      "model": "echo_hotbar:item/hunt_pressure"
+    },
+    {
+      "predicate": {
+        "custom_model_data": 116
+      },
+      "model": "echo_hotbar:item/key_disruptor"
+    },
+    {
+      "predicate": {
+        "custom_model_data": 117
+      },
+      "model": "echo_hotbar:item/long_dash"
+    },
+    {
+      "predicate": {
+        "custom_model_data": 118
+      },
+      "model": "echo_hotbar:item/master_key"
+    },
+    {
+      "predicate": {
+        "custom_model_data": 119
+      },
+      "model": "echo_hotbar:item/overload_pulse"
+    },
+    {
+      "predicate": {
+        "custom_model_data": 120
+      },
+      "model": "echo_hotbar:item/pack_hook"
+    },
+    {
+      "predicate": {
+        "custom_model_data": 121
+      },
+      "model": "echo_hotbar:item/pollution_accelerator"
+    },
+    {
+      "predicate": {
+        "custom_model_data": 122
+      },
+      "model": "echo_hotbar:item/purge_stabilizer"
+    },
+    {
+      "predicate": {
+        "custom_model_data": 123
+      },
+      "model": "echo_hotbar:item/purifier"
+    },
+    {
+      "predicate": {
+        "custom_model_data": 124
+      },
+      "model": "echo_hotbar:item/residual_veil"
+    },
+    {
+      "predicate": {
+        "custom_model_data": 125
+      },
+      "model": "echo_hotbar:item/salvage_magnet"
+    },
+    {
+      "predicate": {
+        "custom_model_data": 126
+      },
+      "model": "echo_hotbar:item/short_dash"
+    },
+    {
+      "predicate": {
+        "custom_model_data": 127
+      },
+      "model": "echo_hotbar:item/silent_collector"
+    },
+    {
+      "predicate": {
+        "custom_model_data": 128
+      },
+      "model": "echo_hotbar:item/silent_dummy"
+    },
+    {
+      "predicate": {
+        "custom_model_data": 129
+      },
+      "model": "echo_hotbar:item/silent_rig"
+    },
+    {
+      "predicate": {
+        "custom_model_data": 130
+      },
+      "model": "echo_hotbar:item/sound_key"
+    },
+    {
+      "predicate": {
+        "custom_model_data": 131
+      },
+      "model": "echo_hotbar:item/stabilizer"
+    },
+    {
+      "predicate": {
+        "custom_model_data": 132
+      },
+      "model": "echo_hotbar:item/strong_pollution"
+    },
+    {
+      "predicate": {
+        "custom_model_data": 133
+      },
+      "model": "echo_hotbar:item/team_radar"
+    },
+    {
+      "predicate": {
+        "custom_model_data": 134
+      },
+      "model": "echo_hotbar:item/team_scan"
+    },
+    {
+      "predicate": {
+        "custom_model_data": 135
+      },
+      "model": "echo_hotbar:item/trade_offer"
+    },
+    {
+      "predicate": {
+        "custom_model_data": 136
+      },
+      "model": "echo_hotbar:item/trade_pact"
+    }
+  ]
+}

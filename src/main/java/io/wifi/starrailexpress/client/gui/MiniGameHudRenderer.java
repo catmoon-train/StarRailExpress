@@ -38,9 +38,16 @@ public class MiniGameHudRenderer {
     private static int lastMinigameTokens = -1;
     private static int minigameNoticeTicks = 0;
     private static Component minigameNoticeText = Component.empty();
+    private static int hudBottom = 6;
+
+    /** 本次小游戏提示的局部下边界，包含短暂的任务通知与进度线。 */
+    public static int getHudBottom() {
+        return hudBottom;
+    }
     
     public static void render(@NotNull Player player, Font textRenderer, FakeGuiGraphics context,
             DeltaTracker tickCounter) {
+        hudBottom = 6;
         SREGameWorldComponent gameWorldComponent = SREClient.gameComponent;
         if (gameWorldComponent == null || !gameWorldComponent.isRunning() || !SREClient.isPlayerAliveAndInSurvival())
             return;
@@ -52,10 +59,12 @@ public class MiniGameHudRenderer {
             int lineY = 6 + 10 * HudMoodRenderer.renderers.size() + 8;
             if (minigameTask.hasPendingTask() || minigameNoticeTicks > 0) {
                 renderMinigameTaskHud(textRenderer, context, minigameTask, lineY);
+                hudBottom = lineY + textRenderer.lineHeight + 2;
                 lineY += 12;
             }
             if (minigameTask.hasSabotageTask()) {
                 renderSabotageTaskHud(textRenderer, context, minigameTask, lineY);
+                hudBottom = lineY + textRenderer.lineHeight + 2;
             }
         }
     }

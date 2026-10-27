@@ -26,18 +26,31 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.NotNull;
 
+import io.wifi.starrailexpress.content.item.SkinableItem;
 import io.wifi.starrailexpress.content.item.api.SREItemProperties.DropAndClearItem;
 
-public class LetterItem extends Item implements DropAndClearItem {
+public class LetterItem extends SkinableItem implements DropAndClearItem {
     public static Runnable clientUiOpener = null;
+    /** 客户端替换开局信。返回 true 表示已经打开，不再走地图信。 */
+    public static java.util.function.BooleanSupplier clientReplacementOpener = null;
 
     public LetterItem(Properties properties) {
         super(properties);
     }
 
+    @Override
+    public String getItemSkinType() {
+        return io.wifi.starrailexpress.util.ItemSkinManager.SkinTypes.LETTER;
+    }
+
     public InteractionResultHolder<ItemStack> use(@NotNull Level world, @NotNull Player user, InteractionHand hand) {
-        if (world.isClientSide() && clientUiOpener != null) {
-            clientUiOpener.run();
+        if (world.isClientSide()) {
+            if (clientReplacementOpener != null && clientReplacementOpener.getAsBoolean()) {
+                return InteractionResultHolder.success(user.getItemInHand(hand));
+            }
+            if (clientUiOpener != null) {
+                clientUiOpener.run();
+            }
         }
         return InteractionResultHolder.success(user.getItemInHand(hand));
     }

@@ -134,7 +134,18 @@ public record SniperShootPayload(Action action, int targetOrShooterId, @Nullable
 
                     // 处理实体命中
                     Entity hitEntity = player.serverLevel().getEntity(payload.targetOrShooterId());
-                    if (hitEntity instanceof Player target && target.distanceTo(player) < 200.0) {
+                    if (org.agmas.noellesroles.game.command_block.CommandBlockCracks.isCrack(hitEntity)
+                            && player.distanceTo(hitEntity) <= 200.0D) {
+                        org.agmas.noellesroles.game.command_block.CommandBlockCracks.tryShatterWithWeapon(player, hitEntity);
+                    }
+                    if (hitEntity instanceof io.wifi.starrailexpress.traindummy.TrainDummyEntity dummy
+                            && dummy.canReceiveHits() && dummy.distanceTo(player) < 200.0) {
+                        if (player.distanceTo(dummy) >= 50.0) {
+                            dummy.clearShields();
+                        }
+                        io.wifi.starrailexpress.traindummy.TrainDummyCombat.applyLethal(dummy, player,
+                                GameConstants.DeathReasons.SNIPER_RIFLE);
+                    } else if (hitEntity instanceof Player target && target.distanceTo(player) < 200.0) {
                         var game = SREGameWorldComponent.KEY.get(player.level());
 
                         final var role = game.getRole(player);

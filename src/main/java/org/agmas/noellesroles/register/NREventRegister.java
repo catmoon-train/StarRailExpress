@@ -43,8 +43,6 @@ public class NREventRegister {
         org.agmas.noellesroles.game.roles.neutral.monokuma.MonokumaEventHandler.register();
         org.agmas.noellesroles.game.roles.neutral.amon.AmonEventHandler.register();
         org.agmas.noellesroles.game.roles.neutral.leader.LeaderEventHandler.register();
-        net.exmo.sre.repair.event.RepairCombatEvents.register();
-        net.exmo.sre.repair.event.RepairWorldInteractions.register();
 
         // 注册入梦药水效果处理
         org.agmas.noellesroles.content.effects.DreamEffectHandler.register();
@@ -53,6 +51,7 @@ public class NREventRegister {
         org.agmas.noellesroles.game.roles.neutral.infected.InfectedWinChecker.registerEvent();
         org.agmas.noellesroles.game.roles.neutral.priest.PriestEventHandler.register();
         org.agmas.noellesroles.game.fake_steve.FakeSteveDirector.register();
+        org.agmas.noellesroles.game.command_block.CommandBlockDirector.register();
         org.agmas.noellesroles.game.MirrorReunionEndEgg.register();
         org.agmas.noellesroles.content.speaker.SpeakerPlayback.register();
     }

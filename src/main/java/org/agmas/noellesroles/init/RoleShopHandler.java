@@ -78,7 +78,6 @@ import org.agmas.noellesroles.role_data.neutral.PhantomMusicianRoleData;
 import org.agmas.noellesroles.role.ModRoles;
 import org.agmas.noellesroles.role.TraitorAndModifiers;
 import org.agmas.noellesroles.role.bouns.BounsRoles;
-import net.exmo.sre.repair.role.RepairRoles;
 
 import org.agmas.noellesroles.role.touhou.THMiscRoles;
 import org.agmas.noellesroles.role.touhou.THRedHouseRoles;
@@ -193,101 +192,6 @@ public class RoleShopHandler {
         return rod;
     }
 
-    private static void registerRepairModeShops() {
-        var hunterCommon = new ArrayList<ShopEntry>();
-        hunterCommon.add(new ShopEntry(ModItems.HUNTER_WEAPON.getDefaultInstance(), 45, ShopEntry.Type.WEAPON));
-        hunterCommon.add(new ShopEntry(ModItems.HUNTER_HAMMER.getDefaultInstance(), 58, ShopEntry.Type.WEAPON));
-        hunterCommon.add(new ShopEntry(ModItems.HUNTER_HOOK.getDefaultInstance(), 52, ShopEntry.Type.WEAPON));
-        hunterCommon.add(new ShopEntry(ModItems.HUNTER_CHAIN.getDefaultInstance(), 42, ShopEntry.Type.TOOL));
-        hunterCommon.add(new ShopEntry(new ItemStack(ModBlocks.HUNTER_SNARE.asItem(), 2), 30, ShopEntry.Type.TOOL));
-        hunterCommon
-                .add(new ShopEntry(ModItems.HUNTER_PLUGIN_LACERATION.getDefaultInstance(), 32, ShopEntry.Type.TOOL));
-
-        var warden = new ArrayList<>(hunterCommon);
-        warden.add(new ShopEntry(ModItems.HUNTER_JAMMER.getDefaultInstance(), 60, ShopEntry.Type.TOOL));
-        warden.add(new ShopEntry(new ItemStack(ModBlocks.HUNTER_SNARE.asItem(), 3), 45, ShopEntry.Type.TOOL));
-        warden.add(new ShopEntry(ModItems.HUNTER_PLUGIN_SUPPRESSION.getDefaultInstance(), 38, ShopEntry.Type.TOOL));
-
-        var brute = new ArrayList<>(hunterCommon);
-        brute.add(new ShopEntry(ModItems.HUNTER_BLINK.getDefaultInstance(), 70, ShopEntry.Type.TOOL));
-        brute.add(new ShopEntry(ModItems.ROPE.getDefaultInstance(), 40, ShopEntry.Type.TOOL));
-        brute.add(new ShopEntry(ModItems.HUNTER_PLUGIN_CONCUSSION.getDefaultInstance(), 38, ShopEntry.Type.TOOL));
-
-        var tracker = new ArrayList<>(hunterCommon);
-        tracker.add(new ShopEntry(ModItems.HUNTER_PULSE.getDefaultInstance(), 70, ShopEntry.Type.TOOL));
-        tracker.add(new ShopEntry(ModItems.ROPE.getDefaultInstance(), 40, ShopEntry.Type.TOOL));
-        tracker.add(new ShopEntry(ModItems.HUNTER_PLUGIN_TRACKING.getDefaultInstance(), 34, ShopEntry.Type.TOOL));
-
-        {
-            ShopContent.customEntries.put(RepairRoles.REPAIR_WARDEN_ID, warden);
-        }
-        {
-            ShopContent.customEntries.put(RepairRoles.REPAIR_BRUTE_ID, brute);
-        }
-        {
-            ShopContent.customEntries.put(RepairRoles.REPAIR_TRACKER_ID, tracker);
-        }
-
-        var mechanic = new ArrayList<ShopEntry>();
-        mechanic.add(new ShopEntry(ModItems.REPAIR_TOOLBOX.getDefaultInstance(), 45, ShopEntry.Type.TOOL));
-        mechanic.add(new ShopEntry(new ItemStack(ModItems.SPARE_PARTS, 4), 30, ShopEntry.Type.TOOL));
-        mechanic.add(new ShopEntry(ModItems.REPAIR_CROWBAR.getDefaultInstance(), 40, ShopEntry.Type.TOOL));
-        mechanic.add(new ShopEntry(ModItems.REPAIR_BOLT_CUTTER.getDefaultInstance(), 45, ShopEntry.Type.TOOL));
-        mechanic.add(new ShopEntry(ModItems.REPAIR_FUSE.getDefaultInstance(), 55, ShopEntry.Type.TOOL));
-        mechanic.add(new ShopEntry(ModItems.SMOKE_PELLET.getDefaultInstance(), 25, ShopEntry.Type.TOOL));
-        {
-            ShopContent.customEntries.put(RepairRoles.REPAIR_MECHANIC_ID, mechanic);
-        }
-
-        var medic = new ArrayList<ShopEntry>();
-        medic.add(new ShopEntry(ModItems.RESCUE_FLARE.getDefaultInstance(), 45, ShopEntry.Type.TOOL));
-        medic.add(new ShopEntry(new ItemStack(ModItems.SMOKE_PELLET, 2), 40, ShopEntry.Type.TOOL));
-        medic.add(new ShopEntry(new ItemStack(ModItems.SPARE_PARTS, 3), 25, ShopEntry.Type.TOOL));
-        medic.add(new ShopEntry(ModItems.ESCAPE_GRAPPLE.getDefaultInstance(), 55, ShopEntry.Type.TOOL));
-        {
-            ShopContent.customEntries.put(RepairRoles.REPAIR_MEDIC_ID, medic);
-        }
-
-        var runner = new ArrayList<ShopEntry>();
-        runner.add(new ShopEntry(ModItems.ESCAPE_GRAPPLE.getDefaultInstance(), 45, ShopEntry.Type.TOOL));
-        runner.add(new ShopEntry(ModItems.DECOY_BEACON.getDefaultInstance(), 35, ShopEntry.Type.TOOL));
-        runner.add(new ShopEntry(ModItems.SMOKE_PELLET.getDefaultInstance(), 30, ShopEntry.Type.TOOL));
-        runner.add(new ShopEntry(ModItems.REPAIR_OLD_KEY.getDefaultInstance(), 60, ShopEntry.Type.TOOL));
-        runner.add(new ShopEntry(ModItems.REPAIR_LOCKPICK.getDefaultInstance(), 36, ShopEntry.Type.TOOL));
-        runner.add(new ShopEntry(new ItemStack(ModItems.SPARE_PARTS, 3), 28, ShopEntry.Type.TOOL));
-        {
-            ShopContent.customEntries.put(RepairRoles.REPAIR_RUNNER_ID, runner);
-        }
-
-        var archivist = new ArrayList<ShopEntry>();
-        archivist.add(new ShopEntry(new ItemStack(ModItems.SPARE_PARTS, 5), 35, ShopEntry.Type.TOOL));
-        archivist.add(new ShopEntry(ModItems.REPAIR_TOOLBOX.getDefaultInstance(), 50, ShopEntry.Type.TOOL));
-        archivist.add(new ShopEntry(ModItems.REPAIR_AREA_KEY.getDefaultInstance(), 45, ShopEntry.Type.TOOL));
-        archivist.add(new ShopEntry(ModItems.RESCUE_FLARE.getDefaultInstance(), 45, ShopEntry.Type.TOOL));
-        {
-            ShopContent.customEntries.put(RepairRoles.REPAIR_ARCHIVIST_ID, archivist);
-        }
-
-        var saboteur = new ArrayList<ShopEntry>();
-        saboteur.add(new ShopEntry(ModItems.SMOKE_PELLET.getDefaultInstance(), 30, ShopEntry.Type.TOOL));
-        saboteur.add(new ShopEntry(ModItems.DECOY_BEACON.getDefaultInstance(), 35, ShopEntry.Type.TOOL));
-        saboteur.add(new ShopEntry(new ItemStack(ModItems.SPARE_PARTS, 4), 35, ShopEntry.Type.TOOL));
-        {
-            ShopContent.customEntries.put(RepairRoles.REPAIR_SABOTEUR_ID, saboteur);
-        }
-
-        var collector = new ArrayList<ShopEntry>();
-        collector.add(new ShopEntry(new ItemStack(ModItems.SPARE_PARTS, 4), 28, ShopEntry.Type.TOOL));
-        collector.add(new ShopEntry(ModItems.REPAIR_GEAR_HANDLE.getDefaultInstance(), 50, ShopEntry.Type.TOOL));
-        collector.add(new ShopEntry(ModItems.REPAIR_BATTERY.getDefaultInstance(), 45, ShopEntry.Type.TOOL));
-        collector.add(new ShopEntry(ModItems.REPAIR_VALVE_HANDLE.getDefaultInstance(), 45, ShopEntry.Type.TOOL));
-        collector.add(new ShopEntry(ModItems.RESCUE_FLARE.getDefaultInstance(), 45, ShopEntry.Type.TOOL));
-        collector.add(new ShopEntry(ModItems.DECOY_BEACON.getDefaultInstance(), 35, ShopEntry.Type.TOOL));
-        collector.add(new ShopEntry(new ItemStack(ModItems.SMOKE_PELLET, 2), 40, ShopEntry.Type.TOOL));
-        {
-            ShopContent.customEntries.put(RepairRoles.REPAIR_COLLECTOR_ID, collector);
-        }
-    }
 
     public static boolean isOldmanEasterEggRod(@NotNull ItemStack stack) {
         if (!stack.is(Items.CARROT_ON_A_STICK))
@@ -424,7 +328,6 @@ public class RoleShopHandler {
         // 初始化仇杀客商店
         initializeBloodFeudistShop();
 
-        registerRepairModeShops();
 
         ArrayList<ShopEntry> PELICAN_SHOP = new ArrayList<>();
         ArrayList<ShopEntry> CONSPIRATOR_SHOP = new ArrayList<>();
@@ -2756,6 +2659,7 @@ public class RoleShopHandler {
         // DIO 商店
         {
             List<ShopEntry> entries = new ArrayList<>();
+            entries.add(org.agmas.noellesroles.game.dio.RoadRollerAttack.shopEntry());
             entries.add(new ShopEntry(ModItems.THROWING_KNIFE.getDefaultInstance(), 120,
                     ShopEntry.Type.TOOL));
             entries.add(new ShopEntry(TMMItems.LOCKPICK.getDefaultInstance(),
@@ -2780,6 +2684,37 @@ public class RoleShopHandler {
             });
             ShopContent.customEntries.put(
                     ModRoles.DIO_ID, entries);
+        }
+
+        // 承太郎商店：波纹之力 50 金币，背包已有不可买，购买冷却 90 秒
+        {
+            List<ShopEntry> entries = new ArrayList<>();
+            entries.add(new ShopEntry(ModItems.HAMOON.getDefaultInstance(), 50, ShopEntry.Type.TOOL) {
+                static final int BUY_COOLDOWN = 90 * 20;
+
+                @Override
+                public boolean canBuy(@NotNull Player player) {
+                    if (SREItemUtils.hasItem(player, ModItems.HAMOON)) {
+                        setFailedMessage(Component.translatable("message.noellesroles.hamoon.already_owned"));
+                        return false;
+                    }
+                    if (player.getCooldowns().isOnCooldown(ModItems.HAMOON)) {
+                        setFailedMessage(Component.translatable("message.tip.purchase_failed.cooldown"));
+                        return false;
+                    }
+                    return super.canBuy(player);
+                }
+
+                @Override
+                public boolean onBuy(@NotNull Player player) {
+                    if (!RoleUtils.insertStackInFreeSlot(player, this.stack().copy())) {
+                        return false;
+                    }
+                    player.getCooldowns().addCooldown(ModItems.HAMOON, BUY_COOLDOWN);
+                    return true;
+                }
+            });
+            ShopContent.customEntries.put(ModRoles.JOJO_ID, entries);
         }
 
         // 牢大商店

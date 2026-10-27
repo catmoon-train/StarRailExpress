@@ -35,6 +35,7 @@ public final class RoleScreenRegister {
     public static void register() {
         ModRoles.AMON.setInventoryScreenExtensionFactory(AmonRoleScreenExtension::new);
         ModRoles.MORTICIAN_BODYMAKER.setInventoryScreenExtensionFactory(BodymakerRoleScreenExtension::new);
+        ModRoles.EMBALMER.setInventoryScreenExtensionFactory(EmbalmerRoleScreenExtension::new);
         ModRoles.EXAMPLER.setInventoryScreenExtensionFactory(ExamplerRoleScreenExtension::new);
         ModRoles.MANIPULATOR.setInventoryScreenExtensionFactory(ManipulatorRoleScreenExtension::new);
         ModMeetingRoles.MISSIONARY.setInventoryScreenExtensionFactory(MissionaryRoleScreenExtension::new);

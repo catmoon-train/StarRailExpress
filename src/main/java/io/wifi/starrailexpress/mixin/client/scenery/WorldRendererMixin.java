@@ -27,6 +27,8 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.renderer.FogRenderer;
 import net.minecraft.client.renderer.LevelRenderer;
+import net.minecraft.world.level.material.FogType;
+import org.agmas.noellesroles.game.modes.echo.client.EchoHunterFogClient;
 import net.minecraft.world.effect.MobEffects;
 import org.agmas.noellesroles.client.VerticalLoopingMirrorClient;
 import org.agmas.noellesroles.init.ModEffects;
@@ -37,6 +39,7 @@ import org.spongepowered.asm.mixin.injection.At;
 
 @Mixin(LevelRenderer.class)
 public abstract class WorldRendererMixin {
+    @Unique private static boolean tmm$echoFogApplied;
 
     @WrapOperation(method = "renderLevel", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/LevelRenderer;renderSky(Lorg/joml/Matrix4f;Lorg/joml/Matrix4f;FLnet/minecraft/client/Camera;ZLjava/lang/Runnable;)V"))
     public void tmm$disableSky(LevelRenderer instance, Matrix4f matrix4f, Matrix4f projectionMatrix, float tickDelta,
@@ -49,10 +52,38 @@ public abstract class WorldRendererMixin {
     public void tmm$applyBlizzardFog(Camera camera, FogRenderer.FogMode fogType, float viewDistance, boolean thickFog,
             float tickDelta, Operation<Void> original) {
         if (SREClient.isInLobby) {
+            if(tmm$echoFogApplied) {
+                original.call(camera,fogType,viewDistance,thickFog,tickDelta);
+                tmm$echoFogApplied=false;
+            }
             return;
         }
         if (VerticalLoopingMirrorClient.applyBottomFog(camera)) {
             return;
+        }
+        float echoRadius=EchoHunterFogClient.radius(camera);
+        if(echoRadius>0F) {
+            tmm$echoFogApplied=true;
+            LocalPlayer hunter=Minecraft.getInstance().player;
+            // 底部镜像雾已经优先处理；液体/细雪交还原版及其既有 mixin。
+            if(camera.getFluidInCamera()!=FogType.NONE) {
+                original.call(camera,fogType,viewDistance,thickFog,tickDelta); return;
+            }
+            var vision=hunter.getEffect(ModEffects.VISION_FOG);
+            if(vision!=null) {
+                float end=EchoHunterFogClient.visionEnd(echoRadius,ModEffects.getVisionFogDistance(vision.getAmplifier()));
+                tmm$doFog(Math.max(0F,end-2F),end); return;
+            }
+            if(hunter.hasEffect(MobEffects.BLINDNESS) || hunter.hasEffect(MobEffects.DARKNESS)) {
+                original.call(camera,fogType,viewDistance,thickFog,tickDelta); return;
+            }
+            // 与 VISION_FOG 共用 2 格渐变、球形距离和 RenderSystem 世界雾，不画 HUD 暗角。
+            tmm$doFog(Math.max(0F,echoRadius-2F),echoRadius); return;
+        }
+        if(tmm$echoFogApplied) {
+            // 旁观/退出后的旧路径可能不设置雾，先明确还原再让原有地图/效果雾覆盖。
+            original.call(camera,fogType,viewDistance,thickFog,tickDelta);
+            tmm$echoFogApplied=false;
         }
         if (SREClient.shouldRenderVanillaHud()) {
             if (SREClient.isGameRunning()) {

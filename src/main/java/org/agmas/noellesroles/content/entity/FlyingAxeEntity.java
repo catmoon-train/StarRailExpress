@@ -123,6 +123,9 @@ public class FlyingAxeEntity extends AbstractArrow {
         if (this.hitPlayers.contains(entity.getId())) {
             return false;
         }
+        if (entity instanceof io.wifi.starrailexpress.traindummy.TrainDummyEntity dummy) {
+            return dummy.canReceiveHits() && super.canHitEntity(entity);
+        }
         if (!(entity instanceof Player player)) {
             return false;
         }
@@ -138,7 +141,28 @@ public class FlyingAxeEntity extends AbstractArrow {
         if (this.level().isClientSide) {
             return;
         }
-        if (!(entityHitResult.getEntity() instanceof ServerPlayer target)) {
+        Entity hit = entityHitResult.getEntity();
+        if (hit instanceof io.wifi.starrailexpress.traindummy.TrainDummyEntity dummy && dummy.canReceiveHits()) {
+            if (this.getOwner() != null && dummy.getUUID().equals(this.getOwner().getUUID())) {
+                return;
+            }
+            if (!this.hitPlayers.add(dummy.getId())) {
+                return;
+            }
+            if (this.killedPlayers < MAX_PIERCE && this.getOwner() instanceof ServerPlayer owner) {
+                this.killedPlayers++;
+                owner.getCooldowns().addCooldown(ModItems.THROWING_AXE, 20 * 20);
+                Vec3 location = entityHitResult.getLocation();
+                ServerLevel serverLevel = (ServerLevel) this.level();
+                serverLevel.sendParticles(ParticleTypes.CRIT, location.x, location.y + 1.0f, location.z, 12, 0.3, 0.3,
+                        0.3, 0.2);
+                serverLevel.playSound(null, location.x, location.y, location.z, SoundEvents.PLAYER_ATTACK_SWEEP,
+                        SoundSource.PLAYERS, 1.0f, 0.9f);
+                io.wifi.starrailexpress.traindummy.TrainDummyCombat.applyLethal(dummy, owner, this.deathReason());
+            }
+            return;
+        }
+        if (!(hit instanceof ServerPlayer target)) {
             return;
         }
         if (this.getOwner() != null && target.getUUID().equals(this.getOwner().getUUID())) {

@@ -324,23 +324,8 @@ public class ModWhitelistServerNetworkHandler {
 	 * @return list of mismatches
 	 */
 	private static List<Pair<String, MismatchType>> validateResourcePacks(List<ResourcePackInfo> resourcePacks) {
-		List<Pair<String, MismatchType>> mismatches = new ArrayList<>();
-		
-		if (MWServerConfig.VERIFY_RESOURCE_PACK_HASHES.value()) {
-			// Check if all resource pack hashes are in the allowed list
-			Set<String> allowedHashes = new HashSet<>(MWServerConfig.ALLOWED_RESOURCE_PACK_HASHES.value());
-			allowedHashes.addAll(AllowedHashConfigFiles.loadResourcePackHashes());
-			Set<String> normalizedAllowedHashes = allowedHashes.stream()
-					.map(hash -> hash.toLowerCase(Locale.ROOT))
-					.collect(Collectors.toSet());
-			for (ResourcePackInfo pack : resourcePacks) {
-				if ("excluded".equals(pack.sha256()) || !normalizedAllowedHashes.contains(pack.sha256().toLowerCase(Locale.ROOT))) {
-					mismatches.add(Pair.of("Resource Pack: " + pack.packId(), MismatchType.INSTALLED_BUT_SHOULD_NOT_INSTALL));
-				}
-			}
-		}
-		
-		return mismatches;
+		// Resource-pack hash checks moved to VirtualProxy. This mod no longer kicks for them.
+		return List.of();
 	}
 	
 	/**
@@ -350,22 +335,7 @@ public class ModWhitelistServerNetworkHandler {
 	 * @return list of mismatches
 	 */
 	private static List<Pair<String, MismatchType>> validateShaderPacks(List<ShaderPackInfo> shaderPacks) {
-		List<Pair<String, MismatchType>> mismatches = new ArrayList<>();
-		
-		if (MWServerConfig.VERIFY_SHADER_PACK_HASHES.value()) {
-			// Check if all shader pack hashes are in the allowed list
-			Set<String> allowedHashes = new HashSet<>(MWServerConfig.ALLOWED_SHADER_PACK_HASHES.value());
-			allowedHashes.addAll(AllowedHashConfigFiles.loadShaderPackHashes());
-			Set<String> normalizedAllowedHashes = allowedHashes.stream()
-					.map(hash -> hash.toLowerCase(Locale.ROOT))
-					.collect(Collectors.toSet());
-			for (ShaderPackInfo pack : shaderPacks) {
-				if ("excluded".equals(pack.sha256()) || !normalizedAllowedHashes.contains(pack.sha256().toLowerCase(Locale.ROOT))) {
-					mismatches.add(Pair.of("Shader Pack: " + pack.packId(), MismatchType.INSTALLED_BUT_SHOULD_NOT_INSTALL));
-				}
-			}
-		}
-		
-		return mismatches;
+		// Shader-pack hash checks moved to VirtualProxy. This mod no longer kicks for them.
+		return List.of();
 	}
 }

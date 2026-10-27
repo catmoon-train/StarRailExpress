@@ -35,6 +35,7 @@ import org.agmas.noellesroles.content.item.AreaMapItem;
 
 import java.util.EnumSet;
 import java.util.Objects;
+import org.agmas.noellesroles.game.modes.echo.client.EchoFacilityMapClient;
 
 /**
  * 区域地图数据管理器（纯客户端）。
@@ -81,6 +82,8 @@ public final class AreaMapManager {
 
     private static AABB scannedArea = null;
     private static String scannedMap = null;
+    private static ClientLevel scannedWorld;
+    private static java.util.UUID scannedMatch;
     private static int originX, originZ, minY, maxY;
     private static int sizeX, sizeZ, step = 1;
     private static int totalCells = 0;
@@ -166,7 +169,8 @@ public final class AreaMapManager {
         AABB area = areas.getPlayArea();
         if (area == null || area.getXsize() < 2 || area.getZsize() < 2) return;
 
-        if (!area.equals(scannedArea) || !Objects.equals(areas.mapName, scannedMap)) {
+        if (scannedWorld != mc.level || !area.equals(scannedArea) || !Objects.equals(areas.mapName, scannedMap)
+                || !Objects.equals(EchoFacilityMapClient.match(), scannedMatch)) {
             reinit(mc, area, areas.mapName);
         }
         if (baseTexture == null) return;
@@ -181,7 +185,7 @@ public final class AreaMapManager {
     }
 
     private static boolean needsData(Minecraft mc) {
-        return mc.screen instanceof AreaMapScreen || isHoldingMap(mc.player);
+        return mc.screen instanceof AreaMapScreen || isHoldingMap(mc.player) || EchoFacilityMapClient.inMatch();
     }
 
     private static void reinit(Minecraft mc, AABB area, String mapName) {
@@ -210,6 +214,8 @@ public final class AreaMapManager {
 
         scannedArea = area;
         scannedMap = mapName;
+        scannedWorld = mc.level;
+        scannedMatch = EchoFacilityMapClient.match();
         cursor = 0;
         sliceY = Integer.MIN_VALUE;
         firstPassDone = false;
@@ -221,6 +227,7 @@ public final class AreaMapManager {
         releaseTextures(Minecraft.getInstance());
         scannedArea = null;
         scannedMap = null;
+        scannedWorld = null; scannedMatch = null;
         totalCells = 0;
         cursor = 0;
         sliceY = Integer.MIN_VALUE;

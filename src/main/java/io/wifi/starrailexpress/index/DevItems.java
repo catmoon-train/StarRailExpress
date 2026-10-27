@@ -72,7 +72,10 @@ public class DevItems {
             new io.wifi.starrailexpress.customblock.CustomBlockToolItem(
                     new Item.Properties().stacksTo(1).rarity(Rarity.EPIC)),
             "custom_block_tool");
-
+    public static Item TRAIN_DUMMY_TOOL = register(
+            new io.wifi.starrailexpress.traindummy.TrainDummyToolItem(
+                    new Item.Properties().stacksTo(1).rarity(Rarity.EPIC)),
+            "train_dummy_tool");
     @SuppressWarnings("unchecked")
     public static Item register(Item item, String id) {
         // Create the identifier for the item.

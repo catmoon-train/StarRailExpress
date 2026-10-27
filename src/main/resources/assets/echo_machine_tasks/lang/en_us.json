@@ -1,0 +1,4 @@
+{
+  "echo.machine.tasks.filter": "Echo Freight machines",
+  "echo.machine.tasks.incomplete": "Incomplete machine or non-anchor objective at %s. Place the complete machine again or regenerate the template."
+}

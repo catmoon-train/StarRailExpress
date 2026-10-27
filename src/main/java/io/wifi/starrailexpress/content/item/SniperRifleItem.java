@@ -195,7 +195,8 @@ public class SniperRifleItem extends Item implements HeldLikeRevolver {
                 entity -> entity instanceof Player player && GameUtils.isPlayerAliveAndSurvival(player)
                         || entity instanceof RainbowHorseEntity
                         || entity instanceof CanyuesaHorseEntity
-                        || entity instanceof SuperPigHorseEntity, 200F);
+                        || entity instanceof SuperPigHorseEntity
+                        || org.agmas.noellesroles.game.command_block.CommandBlockCracks.isCrack(entity), 200F);
     }
 
     // 倍镜相关方法

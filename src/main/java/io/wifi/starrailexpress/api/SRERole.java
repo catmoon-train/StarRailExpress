@@ -22,6 +22,7 @@ import io.wifi.starrailexpress.api.data.RoleDataContext;
 import io.wifi.starrailexpress.cca.AreasWorldComponent;
 import io.wifi.starrailexpress.cca.SREAbilityPlayerComponent;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
+import io.wifi.starrailexpress.cca.SREPlayerMoodComponent;
 import io.wifi.starrailexpress.cca.SREPlayerPsychoComponent;
 import io.wifi.starrailexpress.cca.SREPlayerShopComponent;
 import io.wifi.starrailexpress.cca.SREPlayerTaskComponent;
@@ -872,6 +873,44 @@ public abstract class SRERole extends SREAbstractInfoClass {
         return this;
     }
 
+    /**
+     * 设置该职业的心情值上限（默认 1.0）。
+     * <p>
+     * 供开发者在职业定义中使用，例如：{@code new MyRole(...).setMaxMood(1.5f)}，使该职业拥有更高的
+     * 心情值上限。该值只影响夹取上限，不影响心情消耗/恢复等既有逻辑。
+     */
+    public SRERole setMaxMood(float maxMood) {
+        // 保险：职业定义的心情上限不小于 0
+        this.maxMood = Math.max(0f, maxMood);
+        return this;
+    }
+
+    /** 获取该职业定义的心情值上限（默认 1.0）。 */
+    public float getMaxMood() {
+        return this.maxMood;
+    }
+
+    /**
+     * 通用方法：设置指定玩家的心情值上限（覆盖其职业默认上限）。
+     * <p>
+     * 传入负数可清除覆盖，恢复职业默认上限。实际存储于
+     * {@link SREPlayerMoodComponent#setMoodMax(float)}。
+     */
+    public static void setPlayerMoodMax(Player player, float maxMood) {
+        if (player == null) {
+            return;
+        }
+        SREPlayerMoodComponent.KEY.get(player).setMoodMax(maxMood);
+    }
+
+    /** 通用方法：获取指定玩家当前的心情值上限。 */
+    public static float getPlayerMoodMax(Player player) {
+        if (player == null) {
+            return 1.0f;
+        }
+        return SREPlayerMoodComponent.KEY.get(player).getMoodMax();
+    }
+
     public ToIntFunction<Player> getMaxSprintTimeSupplier() {
         return this.customSprintTimeGetter;
     }
@@ -895,6 +934,8 @@ public abstract class SRERole extends SREAbstractInfoClass {
     protected boolean isInnocent;
     protected boolean canUseKiller;
     protected MoodType moodType;
+    /** 该职业的心情值上限（默认 1.0）。仅对心情类型为 REAL 的职业有意义。 */
+    protected float maxMood = 1.0f;
 
     public boolean isAutoReset() {
         return autoReset;

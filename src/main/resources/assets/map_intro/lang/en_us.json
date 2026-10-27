@@ -88,7 +88,6 @@
     "map_intro.block.noellesroles.vending_machines.desc": "Vending machines can be configured with products; players interact with them to buy supplies on the map.",
     "map_intro.block.noellesroles.lottery_machine.desc": "Lottery machines can be configured with a prize pool and weights, used to obtain random rewards on the map.",
     "map_intro.block.noellesroles.devil_roulette_table.desc": "The devil roulette table is a special mechanic of the roulette mode; players gather around it to trigger the roulette game.",
-    "map_intro.block.noellesroles.repair_hotbar_storage.desc": "Searchable barrel cabinets are used for looting gameplay; players can open them and take the items inside.",
     "map_intro.block.noellesroles.supply_crate.desc": "Supply crates provide map supplies; they can be configured to periodically generate specific items.",
     "map_intro.block.noellesroles.kill_block.desc": "Any player who touches a kill block dies instantly. It may contain water.",
     "map_intro.block.noellesroles.kill_block_panel.desc": "Any player who touches a kill block panel dies instantly. It may contain water.",

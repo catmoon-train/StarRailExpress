@@ -144,6 +144,23 @@ public final class CustomThrowableAreas {
                 CustomItemRuntime.applyEffects(player, area.effects);
                 CustomItemLoader.executeCommands(area.commands, player, area.attacker);
             }
+            net.minecraft.world.phys.AABB dummyBox = new net.minecraft.world.phys.AABB(area.center, area.center)
+                    .inflate(area.radius, 4.0D, area.radius);
+            for (io.wifi.starrailexpress.traindummy.TrainDummyEntity dummy : area.level.getEntitiesOfClass(
+                    io.wifi.starrailexpress.traindummy.TrainDummyEntity.class, dummyBox,
+                    io.wifi.starrailexpress.traindummy.TrainDummyEntity::canReceiveHits)) {
+                UUID uuid = dummy.getUUID();
+                if (!insidePlanar(area, dummy.position())) {
+                    area.stayTicksByPlayer.remove(uuid);
+                    continue;
+                }
+                int stay = area.stayTicksByPlayer.merge(uuid, 1, Integer::sum);
+                if (stay < area.stayTicks) {
+                    continue;
+                }
+                area.stayTicksByPlayer.put(uuid, 0);
+                CustomItemRuntime.applyEffects(dummy, area.effects);
+            }
         }
     }
 

@@ -120,6 +120,11 @@ public class DIORoleData extends SimpleRoleData {
     /** 吸食动作剩余时间（tick） */
     public int feedingRemaining = 0;
 
+    /** 压路机购买与使用冷却独立计时，由服务器 tick 驱动，时停中仍推进。 */
+    public int roadRollerBuyCooldown;
+    public int roadRollerUseCooldown;
+    public boolean roadRollerAttacking;
+
     /**
      * 构造函数
      */
@@ -149,6 +154,9 @@ public class DIORoleData extends SimpleRoleData {
         this.tempLifeRemaining = 0;
         this.isFeeding = false;
         this.feedingRemaining = 0;
+        this.roadRollerBuyCooldown = 0;
+        this.roadRollerUseCooldown = 0;
+        this.roadRollerAttacking = false;
 
         this.sync();
     }
@@ -166,6 +174,9 @@ public class DIORoleData extends SimpleRoleData {
         this.tempLifeRemaining = 0;
         this.isFeeding = false;
         this.feedingRemaining = 0;
+        this.roadRollerBuyCooldown = 0;
+        this.roadRollerUseCooldown = 0;
+        this.roadRollerAttacking = false;
 
         this.sync();
     }
@@ -581,6 +592,9 @@ public class DIORoleData extends SimpleRoleData {
         tag.putInt("tempLifeRemaining", this.tempLifeRemaining);
         tag.putBoolean("isFeeding", this.isFeeding);
         tag.putInt("feedingRemaining", this.feedingRemaining);
+        tag.putInt("roadRollerBuyCooldown", this.roadRollerBuyCooldown);
+        tag.putInt("roadRollerUseCooldown", this.roadRollerUseCooldown);
+        tag.putBoolean("roadRollerAttacking", this.roadRollerAttacking);
 
     }
 
@@ -596,6 +610,9 @@ public class DIORoleData extends SimpleRoleData {
         this.tempLifeRemaining = tag.contains("tempLifeRemaining") ? tag.getInt("tempLifeRemaining") : 0;
         this.isFeeding = tag.contains("isFeeding") && tag.getBoolean("isFeeding");
         this.feedingRemaining = tag.contains("feedingRemaining") ? tag.getInt("feedingRemaining") : 0;
+        this.roadRollerBuyCooldown = tag.getInt("roadRollerBuyCooldown");
+        this.roadRollerUseCooldown = tag.getInt("roadRollerUseCooldown");
+        this.roadRollerAttacking = tag.getBoolean("roadRollerAttacking");
 
     }
 
@@ -611,6 +628,8 @@ public class DIORoleData extends SimpleRoleData {
         tag.putInt("tempLifeRemaining", this.tempLifeRemaining);
         tag.putBoolean("isFeeding", this.isFeeding);
         tag.putInt("feedingRemaining", this.feedingRemaining);
+        tag.putInt("roadRollerBuyCooldown", this.roadRollerBuyCooldown);
+        tag.putInt("roadRollerUseCooldown", this.roadRollerUseCooldown);
     }
 
     @Override
@@ -626,10 +645,16 @@ public class DIORoleData extends SimpleRoleData {
         this.tempLifeRemaining = tag.contains("tempLifeRemaining") ? tag.getInt("tempLifeRemaining") : 0;
         this.isFeeding = tag.contains("isFeeding") && tag.getBoolean("isFeeding");
         this.feedingRemaining = tag.contains("feedingRemaining") ? tag.getInt("feedingRemaining") : 0;
+        this.roadRollerBuyCooldown = tag.getInt("roadRollerBuyCooldown");
+        this.roadRollerUseCooldown = tag.getInt("roadRollerUseCooldown");
+        // 回溯不重放正在进行的下砸，统一由服务端流程安全取消。
+        this.roadRollerAttacking = false;
     }
 
     @Override
     public void clientTick() {
+        if (this.roadRollerBuyCooldown > 0) this.roadRollerBuyCooldown--;
+        if (this.roadRollerUseCooldown > 0) this.roadRollerUseCooldown--;
         if (this.timeStopCooldown > 1) {
             this.timeStopCooldown--;
         }

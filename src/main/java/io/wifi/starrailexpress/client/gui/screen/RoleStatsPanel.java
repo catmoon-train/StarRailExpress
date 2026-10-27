@@ -364,7 +364,8 @@ public class RoleStatsPanel extends AbstractWidget {
             g.drawString(Minecraft.getInstance().font, name, x + 40, y + 6, role.getColor());
             g.drawString(Minecraft.getInstance().font, getRoleTypeDisplay(role), x + 40, y + 18, 0xFFAAAAAA);
             if (rs != null) {
-                String brief = "场次: " + rs.getTimesPlayed() + "  胜场: " + rs.getWinsAsRole();
+                String brief = "场次: " + rs.getTimesPlayed() + "  胜场: " + rs.getWinsAsRole()
+                        + "  MVP: " + rs.getMvpsAsRole();
                 g.drawString(Minecraft.getInstance().font, brief, x + 40, y + 28, 0xFFCCCCCC);
             }
         }
@@ -516,6 +517,10 @@ public class RoleStatsPanel extends AbstractWidget {
             drawStatLine(g, font, contentX, contentY - scrollY,
                     "screen." + SRE.MOD_ID + ".player_stats.wins_short",
                     roleStats.getWinsAsRole());
+            contentY += lineH;
+            drawStatLine(g, font, contentX, contentY - scrollY,
+                    "screen." + SRE.MOD_ID + ".player_stats.mvps_short",
+                    roleStats.getMvpsAsRole());
             contentY += lineH;
             drawStatLine(g, font, contentX, contentY - scrollY,
                     "screen." + SRE.MOD_ID + ".player_stats.kills",

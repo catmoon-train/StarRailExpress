@@ -36,9 +36,15 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.DoubleBlockHalf;
 
-public class LockpickItem extends Item implements AdventureUsable {
+public class LockpickItem extends SkinableItem implements AdventureUsable {
     public LockpickItem(Properties settings) {
         super(settings);
+    }
+
+    /** 劣质开锁器（inferior_lockpick）继承本类，共用 {@code lockpick} 皮肤。 */
+    @Override
+    public String getItemSkinType() {
+        return io.wifi.starrailexpress.util.ItemSkinManager.SkinTypes.LOCKPICK;
     }
 
     @Override

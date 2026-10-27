@@ -374,6 +374,11 @@ public class InstinctManager {
             }
         }
 
+        // 命令方块事件的「异常」空壳：杀手阵营按杀手方中立的同款默认橙框透视
+        if (SREClient.gameComponent.isRole(target_player, ModRoles.ABNORMAL)) {
+            return TrueFalseAndCustomResult.custom(Color.ORANGE.getRGB());
+        }
+
         // 默认fallback
         if (target_role == null)
             return TrueFalseAndCustomResult.custom(Color.WHITE.getRGB());

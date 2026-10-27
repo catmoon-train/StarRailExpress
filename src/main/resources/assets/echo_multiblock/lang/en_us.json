@@ -1,0 +1,10 @@
+{
+  "echo_multiblock.tooltip.size": "Physical size: %s wide × %s high × %s deep",
+  "echo_multiblock.tooltip.anchor": "Place at the front-left bottom corner. Clear the entire volume. Breaking any part removes the machine.",
+  "echo_multiblock.place.bounds": "Cannot place: the entire machine must fit inside world and build-height limits.",
+  "echo_multiblock.place.unloaded": "Cannot place: every chunk occupied by the machine must be loaded.",
+  "echo_multiblock.place.occupied": "Cannot place: every cell must be replaceable and contain no block entity.",
+  "echo_multiblock.place.permission": "Cannot place: you need building permission for every cell of the machine.",
+  "echo_multiblock.place.collision": "Cannot place: the machine would collide with a player or entity.",
+  "echo_multiblock.place.changed": "Placement cancelled: the space changed. This placement was rolled back."
+}

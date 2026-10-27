@@ -66,7 +66,7 @@ public class MapScanner {
             var areas = AreasWorldComponent.KEY.get(serverLevel);
             MapScannerManager.loadOrScanAndSaveScannerArea(serverLevel, areas);
             for (var player : serverLevel.players()) {
-                ServerPlayNetworking.send(player, new ScanAllTaskPointsPayload(GameUtils.taskBlocks));
+                ServerPlayNetworking.send(player, new ScanAllTaskPointsPayload(org.agmas.noellesroles.game.modes.echo.content.EchoMachineTasks.snapshot(serverLevel,GameUtils.taskBlocks)));
             }
         });
     }
@@ -175,6 +175,7 @@ public class MapScanner {
         } else if (blockState.getBlock() instanceof SprinklerBlock) {
             GameUtils.taskBlocks.put(savePos, 3);
         } else if (blockState.getBlock() instanceof TaskInstinctShowableInterface it) {
+            if (!it.isTaskInstinctAnchor(blockState)) return;
             int instinctId = it.taskInstinctId();
             GameUtils.taskBlocks.put(savePos, instinctId);
             // 收集小游戏任务点方块的 minigameId（type 14 = MinigameQuestBlock, 15 =

@@ -10,6 +10,7 @@ import io.wifi.starrailexpress.event.OnGameEnd;
 import io.wifi.starrailexpress.event.OnGameStarted;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
+import net.fabricmc.fabric.api.entity.event.v1.ServerLivingEntityEvents;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.core.Holder;
 import net.minecraft.core.particles.DustColorTransitionOptions;
@@ -64,7 +65,9 @@ public final class TimeRewindPlayback {
         if (!INITIALIZED.compareAndSet(false, true)) {
             return;
         }
-        ServerTickEvents.END_SERVER_TICK.register(TimeRewindPlayback::tick);
+        ServerTickEvents.START_SERVER_TICK.register(TimeRewindPlayback::tick);
+        ServerLivingEntityEvents.ALLOW_DEATH.register((entity, source, damage) ->
+                !(entity instanceof ServerPlayer player && isActive(player.getUUID())));
         ServerLifecycleEvents.SERVER_STOPPED.register(server -> SESSIONS.clear());
         // 游戏开始/结束立即取消所有回溯，避免玩家卡在旁观模式或效果状态。
         OnGameEnd.EVENT.register((serverLevel, gameWorldComponent) ->

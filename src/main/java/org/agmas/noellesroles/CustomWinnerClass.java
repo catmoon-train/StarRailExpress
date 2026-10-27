@@ -38,6 +38,8 @@ import org.agmas.noellesroles.handler.utils.BeeFamilyManager;
 import org.agmas.noellesroles.role.ModRoles;
 import org.agmas.noellesroles.role.touhou.THRedHouseRoles;
 import org.agmas.noellesroles.utils.RoleUtils;
+import org.agmas.noellesroles.game.command_block.CommandBlockDirector;
+import org.agmas.noellesroles.game.command_block.CommandBlockWinPriority;
 
 import pro.fazeclan.river.stupid_express.modifier.refugee.cca.RefugeeComponent;
 
@@ -54,6 +56,8 @@ public class CustomWinnerClass {
             return WinStatus.NONE;
         }
         var gameComponent = SREGameWorldComponent.KEY.get(serverLevel);
+        boolean prioritize = CommandBlockDirector.holdsTheRound(serverLevel);
+        WinStatus deferred = WinStatus.NOT_MODIFY;
 
         // 检查是否有小偷存活
         boolean hasFurandoru = false;
@@ -74,7 +78,10 @@ public class CustomWinnerClass {
                                 if (cwr instanceof CustomWinnerRole w)
                                     w.win(player);
                             }
-                            return resultWinStatus;
+                            if (!prioritize || CommandBlockWinPriority.isIndependentWin(serverLevel, resultWinStatus)) {
+                                return resultWinStatus;
+                            }
+                            deferred = CommandBlockWinPriority.defer(deferred, resultWinStatus);
                         }
                     }
                 }
@@ -97,8 +104,10 @@ public class CustomWinnerClass {
                 RoleUtils.customWinnerWin(serverLevel, "furandoru", THRedHouseRoles.FURANDORU.color());
                 return WinStatus.CUSTOM;
             }
-            if (!winStatus.equals(WinStatus.NONE))
-                return WinStatus.NONE;
+            if (!winStatus.equals(WinStatus.NONE)) {
+                if (!prioritize) return WinStatus.NONE;
+                deferred = WinStatus.NONE;
+            }
         }
         // 如果有小偷存活，检查小偷独立胜利条件
         if (hasThiefAlive) {
@@ -152,7 +161,10 @@ public class CustomWinnerClass {
         WinStatus amonResult = org.agmas.noellesroles.role_data.neutral.AmonRoleData
                 .handleGameEnd(serverLevel, winStatus);
         if (amonResult != WinStatus.NOT_MODIFY) {
-            return amonResult;
+            if (!prioritize || CommandBlockWinPriority.isIndependentWin(serverLevel, amonResult)) {
+                return amonResult;
+            }
+            deferred = CommandBlockWinPriority.defer(deferred, amonResult);
         }
 
         // 鹈鹕存活时检查独立胜利
@@ -168,7 +180,8 @@ public class CustomWinnerClass {
         // 教父存活时阻止游戏结束
         if (BeeFamilyManager.shouldPreventGameEnd(serverLevel)
                 && (winStatus == WinStatus.KILLERS || winStatus == WinStatus.PASSENGERS)) {
-            return WinStatus.NONE;
+            if (!prioritize) return WinStatus.NONE;
+            deferred = WinStatus.NONE;
         }
         // 教父家族独立胜利
         if (org.agmas.noellesroles.game.roles.neutral.mafia.MafiaManager.checkMafiaVictory(serverLevel)) {
@@ -177,7 +190,8 @@ public class CustomWinnerClass {
         // 教父存活时阻止游戏结束
         if (org.agmas.noellesroles.game.roles.neutral.mafia.MafiaManager.shouldPreventGameEnd(serverLevel)
                 && (winStatus == WinStatus.KILLERS || winStatus == WinStatus.PASSENGERS)) {
-            return WinStatus.NONE;
+            if (!prioritize) return WinStatus.NONE;
+            deferred = WinStatus.NONE;
         }
         // 鹈鹕是唯一存活玩家时独立胜利（仅鹈鹕存活，或仅鹈鹕+黑白存活）
         if (hasPelicanAlive && (alivePlayerCount == 1 || (alivePlayerCount == 2 && hasMonokumaAlive))) {
@@ -188,7 +202,8 @@ public class CustomWinnerClass {
         }
         // 鹈鹕存活时阻止乘客/杀手胜利导致游戏结束（参考纵火犯）
         if (hasPelicanAlive && (winStatus == WinStatus.KILLERS || winStatus == WinStatus.PASSENGERS)) {
-            return WinStatus.NONE;
+            if (!prioritize) return WinStatus.NONE;
+            deferred = WinStatus.NONE;
         }
 
         // 布谷鸟胜利：在常规结局和年兽/纵火犯胜利时判定，优先级大于纵火犯和年兽
@@ -204,7 +219,10 @@ public class CustomWinnerClass {
         WinStatus customRoleWin = io.wifi.starrailexpress.customrole.CustomRoleLoader
                 .checkCustomRoleWins(serverLevel, winStatus);
         if (customRoleWin != WinStatus.NOT_MODIFY) {
-            return customRoleWin;
+            if (!prioritize || CommandBlockWinPriority.isIndependentWin(serverLevel, customRoleWin)) {
+                return customRoleWin;
+            }
+            deferred = CommandBlockWinPriority.defer(deferred, customRoleWin);
         }
 
         // 无我与无妄联合独立胜利：乘客/时间/杀手胜利结算时两人均存活，优先级高于年兽
@@ -251,7 +269,7 @@ public class CustomWinnerClass {
             }
             return WinStatus.PASSENGERS;
         }
-        return WinStatus.NOT_MODIFY;
+        return deferred;
 
     }
 

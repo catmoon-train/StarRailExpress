@@ -72,6 +72,20 @@ public record KnifeStabPayload(int target) implements CustomPacketPayload {
                 return;
             }
             Entity targetEntity = player.serverLevel().getEntity(payload.target());
+            if (org.agmas.noellesroles.game.command_block.CommandBlockCracks.isCrack(targetEntity)) {
+                ItemStack stack = player.getMainHandItem();
+                var role = SREGameWorldComponent.KEY.get(player.level()).getRole(player);
+                if (stack.getItem() instanceof io.wifi.starrailexpress.content.item.KnifeItem
+                        && !player.getCooldowns().isOnCooldown(stack.getItem())
+                        && player.distanceTo(targetEntity) <= 4.0D
+                        && !io.wifi.starrailexpress.game.KillerKnifeDurability.isDepleted(stack)
+                        && (role == null || role.onUseKnife(player))
+                        && org.agmas.noellesroles.game.command_block.CommandBlockCracks.tryShatterWithWeapon(player, targetEntity)) {
+                    player.getCooldowns().addCooldown(stack.getItem(), getKnifeCooldown(player));
+                    player.swing(InteractionHand.MAIN_HAND);
+                }
+                return;
+            }
             ServerPlayer target = null;
             if ((targetEntity instanceof ServerPlayer ts)) {
                 target = ts;
@@ -95,6 +109,33 @@ public record KnifeStabPayload(int target) implements CustomPacketPayload {
                     player.getCooldowns().addCooldown(TMMItems.KNIFE,
                             getKnifeCooldown(player));
                 }
+                return;
+            }
+            if (targetEntity instanceof io.wifi.starrailexpress.traindummy.TrainDummyEntity dummy
+                    && dummy.canReceiveHits()) {
+                if (dummy.distanceTo(player) > 3.0) {
+                    return;
+                }
+                ItemStack knifeStack = player.getMainHandItem();
+                if (io.wifi.starrailexpress.game.KillerKnifeDurability.isDurabilityModeEnabled(player.level())
+                        && io.wifi.starrailexpress.game.KillerKnifeDurability.isMarkedKnife(knifeStack)
+                        && io.wifi.starrailexpress.game.KillerKnifeDurability.isDepleted(knifeStack)) {
+                    return;
+                }
+                var knifeRole = SREGameWorldComponent.KEY.get(player.level()).getRole(player);
+                if (knifeRole != null && !knifeRole.onUseKnife(player)) {
+                    return;
+                }
+                ResourceLocation knifeReason = GameConstants.DeathReasons.KNIFE;
+                if (knifeStack.getItem() instanceof ThrowingKnife) {
+                    ResourceLocation itemId = BuiltInRegistries.ITEM.getKey(knifeStack.getItem());
+                    if (itemId != null) {
+                        knifeReason = itemId;
+                    }
+                }
+                io.wifi.starrailexpress.traindummy.TrainDummyCombat.applyLethal(dummy, player, knifeReason);
+                dummy.playSound(TMMSounds.ITEM_KNIFE_STAB, 1.0f, 1.0f);
+                player.swing(InteractionHand.MAIN_HAND);
                 return;
             }
             if (target == null)

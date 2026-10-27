@@ -46,6 +46,7 @@ public class SREReceiverRegister {
 
     public static void registerGlobalReceivers() {
         SceneAssetNetwork.registerServerReceivers();
+        io.wifi.starrailexpress.settlement.SettlementManager.register();
 
         // 紧急会议系统：服务端核心 + 发言请求
         net.exmo.sre.meeting.MeetingManager.register();
@@ -87,6 +88,8 @@ public class SREReceiverRegister {
                         payload.matchId()));
         ServerPlayNetworking.registerGlobalReceiver(GunShootPayload.ID, new GunShootPayload.Receiver());
         ServerPlayNetworking.registerGlobalReceiver(SniperShootPayload.TYPE, new SniperShootPayload.Receiver());
+        ServerPlayNetworking.registerGlobalReceiver(TrainDummySpawnC2SPayload.ID,
+                new TrainDummySpawnC2SPayload.Receiver());
         // 自定义枪械「左键发射」请求
         ServerPlayNetworking.registerGlobalReceiver(
                 io.wifi.starrailexpress.network.original.CustomItemFirePayload.TYPE,

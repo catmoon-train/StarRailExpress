@@ -1,6 +1,6 @@
 {
   "parent": "minecraft:item/generated",
   "textures": {
-    "layer0": "minecraft:item/blaze_powder"
+    "layer0": "noellesroles:item/sealed_last_match"
   }
 }

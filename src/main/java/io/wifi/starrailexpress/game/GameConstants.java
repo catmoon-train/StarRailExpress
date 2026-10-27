@@ -299,7 +299,6 @@ public class GameConstants {
         public static ResourceLocation FAIL_EXAM = Noellesroles.id("fail_exam");
         public static ResourceLocation BAKA = Noellesroles.id("baka");
         public static ResourceLocation WATCHER_CALM_KILL = Noellesroles.id("watcher_calm_kill");
-        public static ResourceLocation REPAIR_TRIAL_EXECUTION = Noellesroles.id("repair_trial_execution");
         public static ResourceLocation INFECTION = Noellesroles.id("infection");
         public static ResourceLocation UNDEAD_INFECTION = Noellesroles.id("undead_infection");
         public static ResourceLocation WIZARD_FIREBALL = Noellesroles.id("wizard_fireball");
@@ -353,6 +352,25 @@ public class GameConstants {
         public static ResourceLocation DREAM_AXE = Noellesroles.id("dream_axe");
         /** 弹幕弹（DanmukuEntity）命中致死 */
         public static ResourceLocation DANMUKU = Noellesroles.id("danmuku");
+
+        // 命令方块杀手事件（异常改写池）死因：him / 烛影 / 远境 / Error404 / 白瞳 / 丝线人 /
+        // 实体303 / 死神 / 钟摆 / 纸人 / 雾客 / 石头人投掷物
+        public static ResourceLocation HIM_SWORD = Noellesroles.id("him_sword");
+        public static ResourceLocation HIM_FIREBALL = Noellesroles.id("him_fireball");
+        public static ResourceLocation CANDLE_SNIP = Noellesroles.id("candle_snip");
+        public static ResourceLocation FARLANDS_RIFT = Noellesroles.id("farlands_rift");
+        public static ResourceLocation ERROR_VOID = Noellesroles.id("error_void");
+        public static ResourceLocation ERROR404_PUPPET = Noellesroles.id("error404_puppet");
+        public static ResourceLocation WHITE_EYES_NEEDLE = Noellesroles.id("white_eyes_needle");
+        public static ResourceLocation STRINGER_BLADE = Noellesroles.id("stringer_blade");
+        public static ResourceLocation ENTITY_303_PEEL = Noellesroles.id("entity_303_peel");
+        public static ResourceLocation REAPER_SCYTHE = Noellesroles.id("reaper_scythe");
+        public static ResourceLocation SECOND_NEEDLE = Noellesroles.id("second_needle");
+        public static ResourceLocation PAPER_CUT = Noellesroles.id("paper_cut");
+        public static ResourceLocation FOG_BLADE = Noellesroles.id("fog_blade");
+        public static ResourceLocation STONE_SPEAR = Noellesroles.id("stone_spear");
+        /** 摘星者「星之光环」/「星之引力」召唤的星星砸中致死 */
+        public static ResourceLocation STAR = Noellesroles.id("star");
 
         private static ResourceLocation itemId(Item item) {
             return BuiltInRegistries.ITEM.getKey(item);

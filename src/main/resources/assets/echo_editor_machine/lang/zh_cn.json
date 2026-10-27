@@ -1,0 +1,9 @@
+{
+  "echo.editor.machine.identify": "识别当前机器",
+  "echo.editor.machine.tip": "潜行右键对准机器可直接标记；或在此点「识别当前机器」。只写入草稿，需到保存页保存。非机器会提示失败。",
+  "echo.editor.machine.tooltip": "潜行右键对准回声机器：识别并标记点位（不自动保存）。普通右键仍打开编辑界面。",
+  "echo.editor.machine.hud_hint": "潜行右键机器：识别并标记当前准星机器",
+  "echo.editor.machine.marked": "已识别 %s，记为 %s（%s）。只写入草稿，尚未保存。",
+  "echo.editor.machine.updated": "该机器坐标已有点位，已更新 %s / %s（%s）。尚未保存。",
+  "echo.editor.machine.not_machine": "准星 %s 不是回声机器。请对准 12 种机器外壳，16 格内、已加载。"
+}

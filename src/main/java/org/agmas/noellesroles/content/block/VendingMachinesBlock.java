@@ -102,6 +102,12 @@ public class VendingMachinesBlock extends BaseEntityBlock {
             if (player.level().getBlockState(blockPos).getValue(HALF).equals(DoubleBlockHalf.UPPER)) {
                 blockPos = blockPos.below();
             }
+            // 回响对局里售货机走模式自己的固定商品与限购，不再打开普通职业商店。
+            var echo=org.agmas.noellesroles.game.modes.echo.runtime.EchoSessions.get(serverPlayer.serverLevel());
+            if (echo!=null && echo.present(serverPlayer) && echo.result()==null) {
+                org.agmas.noellesroles.game.modes.echo.economy.EchoVendingOpenPayload.send(serverPlayer,blockPos);
+                return;
+            }
             ServerPlayNetworking.send(serverPlayer, new OpenVendingMachinesScreenS2CPacket(blockPos));
         }
     }

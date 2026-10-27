@@ -247,11 +247,29 @@ public class DreamHealthComponent implements RoleComponent {
         if (!GameUtils.isPlayerAliveAndSurvival(sp)) {
             return false;
         }
+        if (attacker != null && !org.agmas.noellesroles.game.command_block.CommandBlockCombat.allowsHimStrike(attacker, sp)) {
+            return false;
+        }
+        if (sp.hasEffect(org.agmas.noellesroles.init.ModEffects.INVINCIBLE)
+                && org.agmas.noellesroles.game.command_block.DreadlordRole.isDreadlord(sp)) {
+            return false;
+        }
         // 武士刀格挡：所有走虚拟血量的「特殊原版武器」（Dream 铁斧 / 钻石剑 / 重锤、矛、武士刀……）
         // 统一在这里先过一遍格挡判定，命中格挡窗口就放弃本次伤害（消耗武士刀 1 点耐久）。
         // 放在这个总入口而不是逐个武器里写，后续新增同类武器会自动生效。
         if (attacker != null && org.agmas.noellesroles.katana.KatanaHandler.tryBlockAttack(sp, attacker)) {
             return false;
+        }
+        if (attacker != null && attacker != sp
+                && org.agmas.noellesroles.game.command_block.CommandBlockDirector.isActive(sp.serverLevel())
+                && io.wifi.starrailexpress.cca.SREGameWorldComponent.KEY.get(sp.level())
+                        .isRole(sp, org.agmas.noellesroles.role.ModRoles.ENTITY_NULL)) {
+            var data = io.wifi.starrailexpress.api.data.RoleData.getNullable(
+                    org.agmas.noellesroles.role_data.killer.EntityNullRoleData.class, sp);
+            if (data != null && data.deferHit(sp,
+                    () -> hurt(attacker, damage, deathReason, ignoreVirtualShield, pierceOtherShields))) {
+                return true;
+            }
         }
         if (attacker != null) {
             ProgressionDataManager.onVirtualDamageDealt(attacker, damage);

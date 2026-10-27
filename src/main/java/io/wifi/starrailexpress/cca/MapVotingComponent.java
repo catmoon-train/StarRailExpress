@@ -258,6 +258,8 @@ public class MapVotingComponent implements AutoSyncedComponent, CommonTickingCom
     }
 
     public void startVoting(int votingTimeSeconds) {
+        if (world instanceof ServerLevel serverLevel)
+            io.wifi.starrailexpress.settlement.SettlementManager.stopAll(serverLevel.getServer());
         reset();
         this.votingActive = true;
         this.votingPaused = false;

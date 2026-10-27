@@ -23,12 +23,11 @@ import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.phys.Vec3;
 import org.agmas.noellesroles.Noellesroles;
-import org.agmas.noellesroles.component.ModComponents;
-import net.exmo.sre.repair.role.RepairRoleDefinition;
+import org.agmas.noellesroles.game.modes.echo.client.EchoBagClient;
+import org.agmas.noellesroles.game.modes.echo.state.EchoFaction;
 import org.agmas.noellesroles.role.ModRoles;
 import org.agmas.noellesroles.role.touhou.THMountainRoles;
 
-import net.exmo.sre.repair.role.RepairRoles;
 import org.joml.Matrix4f;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
@@ -43,6 +42,11 @@ public class AgentListenStepHandler {
 
     // 缓存
     public static final Stack<SoundInfo> soundInfoPool = new Stack<>();
+    /** 追捕者听声区域：半径 4 内最多持续 2 秒，结束后该区域冷却 8 秒。 */
+    private static final List<ListenZone> zones = new ArrayList<>();
+    private static final double ZONE_RADIUS = 4.0D;
+    private static final int ZONE_ACTIVE_TICKS = 40;
+    private static final int ZONE_COOLDOWN_TICKS = 160;
 
     public static final ResourceLocation ECHO_TEX = ResourceLocation.tryBuild(Noellesroles.MOD_ID,
             "textures/gui/sound_gui.png");
@@ -67,18 +71,20 @@ public class AgentListenStepHandler {
                 inListen = false;
                 return;
             }
-            final var gameWorldComponent = SREClient.gameComponent;
-            if (gameWorldComponent == null) {
-                listening = false;
-                inListen = false;
-                return;
-            }
             if (!canUseListenPassive(mc.player)) {
                 listening = false;
                 inListen = false;
                 return;
             }
             LocalPlayer player = mc.player;
+            long now = mc.level.getGameTime();
+            if (isEchoHunter(player)) {
+                listening = true;
+                inListen = true;
+                zones.removeIf(zone -> now >= zone.until);
+                return;
+            }
+            zones.clear();
 
             if (player.isCrouching()) {
                 if (!listening) {
@@ -97,7 +103,13 @@ public class AgentListenStepHandler {
     }
 
     public static boolean canUseListenPassive(LocalPlayer player) {
-        if (player == null || SREClient.gameComponent == null) {
+        if (player == null) {
+            return false;
+        }
+        if (isEchoHunter(player)) {
+            return true;
+        }
+        if (SREClient.gameComponent == null) {
             return false;
         }
         if (SREClient.gameComponent.isRole(player, ModRoles.AGENT)) {
@@ -106,13 +118,27 @@ public class AgentListenStepHandler {
         if (SREClient.gameComponent.isRole(player, THMountainRoles.KASODANI_KYOUKO)) {
             return true;
         }
-        if (SREClient.gameComponent.isRole(player, RepairRoles.REPAIR_HUNTER)) {
-            return true;
+        return false;
+    }
+    public static boolean isEchoHunter(LocalPlayer player) {
+        if (player == null) {
+            return false;
         }
-        var component = ModComponents.REPAIR_ROLES.get(player);
-        return RepairRoleDefinition.byId(component.activeRole)
-                .map(role -> role.faction == RepairRoleDefinition.Faction.HUNTER)
-                .orElse(false);
+        var echo = EchoBagClient.data();
+        return echo != null && echo.faction() == EchoFaction.INTERCEPTOR && echo.life().standing();
+    }
+
+    /** 追捕者区域门控。true 表示这次声音可以显示；冷却中的区域直接拒绝。 */
+    public static boolean acceptHunterPing(Vec3 pos, long now) {
+        zones.removeIf(zone -> now >= zone.until);
+        for (ListenZone zone : zones) {
+            if (zone.center.distanceToSqr(pos) > ZONE_RADIUS * ZONE_RADIUS) {
+                continue;
+            }
+            return now < zone.coolAt;
+        }
+        zones.add(new ListenZone(pos, now + ZONE_ACTIVE_TICKS, now + ZONE_ACTIVE_TICKS + ZONE_COOLDOWN_TICKS));
+        return true;
     }
 
     public static Vector3f worldToScreen(double worldX, double worldY, double worldZ) {
@@ -160,5 +186,16 @@ public class AgentListenStepHandler {
     public static class SoundInfo {
         public long time;
         public Vec3 pos;
+    }
+    private static final class ListenZone {
+        final Vec3 center;
+        final long coolAt;
+        final long until;
+
+        ListenZone(Vec3 center, long coolAt, long until) {
+            this.center = center;
+            this.coolAt = coolAt;
+            this.until = until;
+        }
     }
 }

@@ -17,6 +17,7 @@ package org.agmas.noellesroles.init.events;
 
 import io.wifi.starrailexpress.api.data.RoleData;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
+import io.wifi.starrailexpress.cca.SREPlayerPsychoComponent;
 import io.wifi.starrailexpress.client.SREClient;
 import io.wifi.starrailexpress.event.OnPlayerDeath;
 import io.wifi.starrailexpress.rules.*;
@@ -30,7 +31,9 @@ import org.agmas.noellesroles.content.entity.PuppeteerBodyEntity;
 import org.agmas.noellesroles.content.entity.SREMinecart;
 import org.agmas.noellesroles.content.entity.WheelchairEntity;
 import org.agmas.noellesroles.game.modes.ChairWheelRaceGame;
+import org.agmas.noellesroles.game.command_block.DreadlordRole;
 import org.agmas.noellesroles.role_data.innocence.SaltedFishRoleData;
+import org.agmas.noellesroles.role_data.killer.DreadlordRoleData;
 import org.agmas.noellesroles.role_data.killer.InsaneKillerRoleData;
 import org.agmas.noellesroles.utils.RoleUtils;
 import org.agmas.noellesroles.init.ModEffects;
@@ -97,6 +100,19 @@ public class NRRulePredicateEvents {
                 .equals(ModRoles.MANIPULATOR_ID)));
         RoleVisibilityRules.canUseOtherPerson.add((role -> role.getIdentifier()
                 .equals(ModRoles.PHANTOM_SPIRIT_ID)));
+        RoleVisibilityRules.canUseOtherPersonPlayer.add(NRRulePredicateEvents::dreadlordPsychoCamera);
+    }
+
+    /** 恐惧魔王只在狂暴中可以切人称，平时仍锁第一人称。 */
+    private static boolean dreadlordPsychoCamera(Player player) {
+        if (!DreadlordRole.isDreadlord(player)) {
+            return false;
+        }
+        if (SREPlayerPsychoComponent.KEY.get(player).getPsychoTicks() > 0) {
+            return true;
+        }
+        DreadlordRoleData data = DreadlordRole.dataOf(player);
+        return data != null && data.isKilling();
     }
 
     // --- CollisionRules ---

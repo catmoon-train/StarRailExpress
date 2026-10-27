@@ -81,6 +81,8 @@ public class LimitedInventoryScreen extends LimitedHandledScreen<InventoryMenu> 
 
     /** 本次打开背包时创建的职业扩展实例（每次打开新建；resize/reinit 复用同一实例）。 */
     private RoleInventoryScreenExtension roleExtension = null;
+    /** 回声模式直接使用本屏幕，不再通过按钮打开第二份背包。 */
+    private org.agmas.noellesroles.game.modes.echo.client.EchoInventoryPanel echoPanel;
 
     public LimitedInventoryScreen(@NotNull LocalPlayer player) {
         super(player.inventoryMenu, player.getInventory(), Component.empty());
@@ -270,6 +272,14 @@ public class LimitedInventoryScreen extends LimitedHandledScreen<InventoryMenu> 
 
     @Override
     protected void init() {
+        if (org.agmas.noellesroles.game.modes.echo.client.EchoHotbar.active()) {
+            super.init();
+            clearWidgets();
+            if (echoPanel == null) echoPanel = new org.agmas.noellesroles.game.modes.echo.client.EchoInventoryPanel(this);
+            echoPanel.init();
+            return;
+        }
+        echoPanel = null;
         LimitedInventoryScreenEvents.INIT.invoker().onInit(this);
         var initRole = getCurrentRole();
         if (roleExtension == null && initRole != null) {
@@ -539,6 +549,7 @@ public class LimitedInventoryScreen extends LimitedHandledScreen<InventoryMenu> 
 
     @Override
     protected void drawBackground(@NotNull GuiGraphics context, float delta, int mouseX, int mouseY) {
+        if (echoPanel != null) { echoPanel.renderBackground(context); return; }
         if (isGameActive()) {
             context.blit(BACKGROUND_TEXTURE, this.x, this.y, 0, 0, this.backgroundWidth, this.backgroundHeight);
         } else {
@@ -582,11 +593,12 @@ public class LimitedInventoryScreen extends LimitedHandledScreen<InventoryMenu> 
 
     @Override
     protected boolean shouldRenderHotbarSlots() {
-        return true;
+        return echoPanel == null;
     }
 
     @Override
     protected int getSlotRenderX(Slot slot) {
+        if (echoPanel != null) return -10000; // 隐藏槽位也不能通过旧坐标收到点击。
         if (!isGameActive() && slot.index >= 36 && slot.index <= 44) {
             return panelLeft() + scaled(HOTBAR_FIRST_X + (slot.index - 36) * HOTBAR_STEP) - this.x;
         }
@@ -613,12 +625,14 @@ public class LimitedInventoryScreen extends LimitedHandledScreen<InventoryMenu> 
     @Override
     public void resize(@NotNull Minecraft minecraft, int width, int height) {
         super.resize(minecraft, width, height);
+        if (echoPanel != null) return;
         refreshShopLayout();
         layoutWaitingMenu();
     }
 
     @Override
     public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
+        if (echoPanel != null && echoPanel.keyPressed(keyCode, scanCode)) return true;
         // 搜索框（EditBox）聚焦时，背包键 E 用于输入字母，不应关闭背包
         if (this.getFocused() instanceof EditBox && this.minecraft != null
                 && this.minecraft.options.keyInventory.matches(keyCode, scanCode)) {
@@ -639,6 +653,11 @@ public class LimitedInventoryScreen extends LimitedHandledScreen<InventoryMenu> 
 
     @Override
     public void render(GuiGraphics context, int mouseX, int mouseY, float delta) {
+        if (echoPanel != null) {
+            super.render(context, mouseX, mouseY, delta);
+            echoPanel.render(context, mouseX, mouseY);
+            return;
+        }
         LimitedInventoryScreenEvents.RENDER.invoker().onRender(this, context, mouseX, mouseY, delta);
         if (roleExtension != null) {
             roleExtension.onInventoryScreenRender(this, context, mouseX, mouseY, delta);
@@ -667,6 +686,29 @@ public class LimitedInventoryScreen extends LimitedHandledScreen<InventoryMenu> 
         }
 
         LimitedInventoryScreenEvents.RENDER_TAIL.invoker().onRender(this, context, mouseX, mouseY, delta);
+    }
+
+    @Override
+    protected void handledScreenTick() {
+        if (echoPanel != null) echoPanel.tick();
+    }
+
+    @Override
+    public boolean mouseScrolled(double mouseX, double mouseY, double horizontal, double vertical) {
+        if (echoPanel != null && echoPanel.mouseScrolled(mouseX, mouseY, vertical)) return true;
+        return super.mouseScrolled(mouseX, mouseY, horizontal, vertical);
+    }
+
+    @Override
+    protected void onMouseClick(Slot slot, int slotId, int button, net.minecraft.world.inventory.ClickType type) {
+        if (echoPanel != null) return;
+        super.onMouseClick(slot, slotId, button, type);
+    }
+
+    @Override
+    public void onClose() {
+        if (echoPanel != null) echoPanel.close();
+        super.onClose();
     }
 
     private void renderOverlayMessageOnScreen(GuiGraphics context, int mouseX, int mouseY, float delta) {

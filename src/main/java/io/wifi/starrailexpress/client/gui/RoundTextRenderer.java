@@ -24,6 +24,7 @@ import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.api.TMMRoles;
 import io.wifi.starrailexpress.cca.SREGameRoundEndComponent;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
+import io.wifi.starrailexpress.client.MusicBoxAmbientSound;
 import io.wifi.starrailexpress.client.SREClient;
 import io.wifi.starrailexpress.content.vote.client.VoteFlowFrame;
 import io.wifi.starrailexpress.client.util.ClientSkinCache;
@@ -47,6 +48,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.FormattedText;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.Mth;
 import net.minecraft.util.FormattedCharSequence;
@@ -788,12 +790,16 @@ public class RoundTextRenderer {
             // 结束界面音效
             if (endTime > 0) {
                 if (endTime == END_DURATION - (GameConstants.FADE_TIME * 2)) {
-                    if (player != null)
+                    if (player != null) {
+                        boolean win = SREGameRoundEndComponent.KEY.get(player.level()).didWin(player.getUUID());
+                        // 装配了带结算音效的音乐盒就替换默认钢琴音，否则（含没装配）走默认
+                        SoundEvent settlement = MusicBoxAmbientSound.equippedSettlementSound(win);
+                        if (settlement == null) {
+                            settlement = win ? TMMSounds.UI_PIANO_WIN : TMMSounds.UI_PIANO_LOSE;
+                        }
                         player.level().playSeededSound(player, player.getX(), player.getY(), player.getZ(),
-                                SREGameRoundEndComponent.KEY.get(player.level()).didWin(player.getUUID())
-                                        ? TMMSounds.UI_PIANO_WIN
-                                        : TMMSounds.UI_PIANO_LOSE,
-                                SoundSource.MASTER, 10f, 1f, player.getRandom().nextLong());
+                                settlement, SoundSource.MASTER, 10f, 1f, player.getRandom().nextLong());
+                    }
                 }
                 endTime--;
             }

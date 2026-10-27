@@ -51,6 +51,15 @@ public class PlayerEntityRendererMixin {
         if (SREClient.gameComponent == null)
             return;
 
+        // 回声追捕者的狂暴形态：固定疯魔默认皮肤，优先于职业皮肤。
+        var echoSkin = org.agmas.noellesroles.game.modes.echo.client.EchoInterceptorSkin
+                .texture(abstractClientPlayerEntity);
+        if (echoSkin != null) {
+            cir.setReturnValue(echoSkin);
+            cir.cancel();
+            return;
+        }
+
         // 获取普通状态下职业皮肤
         SRERole role = SREClient.gameComponent.getRole(abstractClientPlayerEntity.getUUID());
         PlayerSkin.Model model = (abstractClientPlayerEntity.getSkin()).model();
@@ -81,6 +90,13 @@ public class PlayerEntityRendererMixin {
     @ModifyVariable(method = "renderHand", at = @At("STORE"), ordinal = 0)
     private ResourceLocation tmm$psychoArmTexture(ResourceLocation skinTexture) {
         Minecraft client = Minecraft.getInstance();
+        // 回声追捕者的狂暴形态：第一人称手臂也用疯魔默认贴图。
+        if (client.player != null) {
+            var echoSkin = org.agmas.noellesroles.game.modes.echo.client.EchoInterceptorSkin.firstPersonTexture();
+            if (echoSkin != null) {
+                return echoSkin;
+            }
+        }
         if (client.player != null && SREClient.localPlayerPsychoActive) {
             if (SREClient.gameComponent == null)
                 return skinTexture;

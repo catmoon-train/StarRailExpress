@@ -15,18 +15,24 @@
 
 package io.wifi.starrailexpress.util;
 
+import io.wifi.starrailexpress.cca.SREPlayerSkinsComponent;
 import io.wifi.starrailexpress.content.item.Colors;
 import io.wifi.starrailexpress.content.item.SkinableItem;
 import io.wifi.starrailexpress.data.PlayerSkinEconomyManager;
 import io.wifi.starrailexpress.index.SREDataComponentTypes;
+import net.minecraft.ChatFormatting;
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
 /**
  * 皮肤管理工具类，用于处理物品皮肤相关的操作
@@ -173,7 +179,31 @@ public class ItemSkinManager {
         public static final String BAT = "bat";
         public static final String GRENADE = "grenade";
         public static final String HAT = "hat";
+        /** 音乐盒：装配后在对局中循环播放对应曲目，曲目表见 {@link MusicBoxTracks}。 */
+        public static final String MUSIC_BOX = "music_box";
+        // === 以下为后续扩展的可换肤物品（类型名与物品注册名一致） ===
+        public static final String SHORT_SHOTGUN = "short_shotgun";
+        /** 德林加手枪：亡命徒德林加手枪（desperado_gun）共用同一皮肤类型。 */
+        public static final String DERRINGER = "derringer";
+        /** 开锁器：劣质开锁器（inferior_lockpick）共用同一皮肤类型。 */
+        public static final String LOCKPICK = "lockpick";
+        public static final String CROWBAR = "crowbar";
+        public static final String BODY_BAG = "body_bag";
+        public static final String NOTE = "note";
+        public static final String FIRECRACKER = "firecracker";
+        public static final String LETTER = "letter";
+        public static final String HANDCUFFS = "handcuffs";
+        public static final String LOCK = "lock";
+        /** 钥匙：列车钥匙与乘务员钥匙（noellesroles:master_key_p）共用；万能钥匙（master_key）不参与皮肤。 */
+        public static final String KEY = "key";
+        /** 原版弓：分未拉弓 / 蓄力 0~2 三个阶段。 */
+        public static final String BOW = "bow";
+        /** 原版弩：分待机 / 蓄力 0~2 / 装填箭 / 装填烟花阶段。 */
+        public static final String CROSSBOW = "crossbow";
     }
+
+    /** 皮肤选择项中的「随机」伪皮肤名：每次开局从该类型已拥有的皮肤中随机抽取。 */
+    public static final String RANDOM_SKIN = "random";
 
     protected static final HashMap<String, HashMap<String, Skin>> skinMap = new HashMap<>();
     // 皮肤类型ID映射（type name → int ID），用于网络包的高效同步
@@ -197,7 +227,12 @@ public class ItemSkinManager {
 
     static {
         // 初始化皮肤类型ID映射（顺序固定，确保服务端和客户端一致）
-        String[] typeOrder = { SkinTypes.KNIFE, SkinTypes.REVOLVER, SkinTypes.BAT, SkinTypes.GRENADE, SkinTypes.HAT };
+        // 新增类型只能追加到末尾，否则会打乱已同步的整数 ID
+        String[] typeOrder = { SkinTypes.KNIFE, SkinTypes.REVOLVER, SkinTypes.BAT, SkinTypes.GRENADE, SkinTypes.HAT,
+                SkinTypes.MUSIC_BOX,
+                SkinTypes.SHORT_SHOTGUN, SkinTypes.DERRINGER, SkinTypes.LOCKPICK, SkinTypes.CROWBAR,
+                SkinTypes.BODY_BAG, SkinTypes.NOTE, SkinTypes.FIRECRACKER, SkinTypes.LETTER,
+                SkinTypes.HANDCUFFS, SkinTypes.LOCK, SkinTypes.KEY, SkinTypes.BOW, SkinTypes.CROSSBOW };
         for (int i = 0; i < typeOrder.length; i++) {
             registerType(typeOrder[i]);
         }
@@ -250,10 +285,152 @@ public class ItemSkinManager {
      */
     public static String getEquippedSkin(Player player, ItemStack itemStack) {
         // ItemStack数据优先级高于玩家自身
+        String skinName;
         if (itemStack.has(SREDataComponentTypes.SKIN)) {
-            return itemStack.get(SREDataComponentTypes.SKIN);
+            skinName = itemStack.get(SREDataComponentTypes.SKIN);
+        } else {
+            skinName = PlayerSkinEconomyManager.getEquippedSkin(player, itemStack);
         }
-        return PlayerSkinEconomyManager.getEquippedSkin(player, itemStack);
+        return resolveRandomSkin(player, getItemTypeName(itemStack), skinName);
+    }
+
+    /** 判断某个皮肤名是否为「随机」。 */
+    public static boolean isRandomSkin(String skinName) {
+        return skinName != null && RANDOM_SKIN.equalsIgnoreCase(skinName);
+    }
+
+    /**
+     * 把「随机」解析成本局实际使用的皮肤名。
+     * <p>
+     * 解析结果由 {@code SREPlayerSkinsComponent#getResolvedSkin} 提供（开局时服务端抽取并同步），
+     * 若尚未抽取则回退到未装备。
+     */
+    public static String resolveRandomSkin(Player player, String itemTypeName, String skinName) {
+        if (!isRandomSkin(skinName)) {
+            return skinName;
+        }
+        if (player == null) {
+            return "default";
+        }
+        try {
+            String resolved = SREPlayerSkinsComponent.KEY.get(player).getResolvedSkin(itemTypeName);
+            if (resolved != null && !resolved.isBlank() && !isRandomSkin(resolved)) {
+                return resolved;
+            }
+        } catch (Exception ignored) {
+            // 组件尚未挂载（例如极早期渲染），回退到未装备
+        }
+        return "default";
+    }
+
+    /**
+     * 从玩家在该类型下已拥有的皮肤中随机挑一个（不含未装备）。
+     *
+     * @return 抽中的皮肤名；若一个都没有则返回 {@code default}
+     */
+    public static String pickRandomUnlockedSkin(Player player, String itemTypeName) {
+        List<String> pool = new ArrayList<>();
+        if (player != null) {
+            try {
+                Map<String, Boolean> unlocked = SREPlayerSkinsComponent.KEY.get(player)
+                        .getUnlockedSkinsForItemType(itemTypeName);
+                for (Map.Entry<String, Boolean> entry : unlocked.entrySet()) {
+                    String name = entry.getKey();
+                    if (name == null || name.isBlank() || "default".equalsIgnoreCase(name) || isRandomSkin(name)) {
+                        continue;
+                    }
+                    if (Boolean.TRUE.equals(entry.getValue()) && !pool.contains(name)) {
+                        pool.add(name);
+                    }
+                }
+            } catch (Exception ignored) {
+                // 组件缺失时按「无已拥有皮肤」处理
+            }
+        }
+        if (player == null || pool.isEmpty()) {
+            return "default";
+        }
+        return pool.get(player.getRandom().nextInt(pool.size()));
+    }
+
+    /**
+     * 玩家是否对该物品类型选择了「随机」。
+     */
+    public static boolean isRandomSelected(Player player, String itemTypeName) {
+        if (player == null) {
+            return false;
+        }
+        return isRandomSkin(PlayerSkinEconomyManager.getEquippedSkinForItemType(player, itemTypeName));
+    }
+
+    /**
+     * 服务端盖章：把玩家当前装备的皮肤写进物品栈的 {@code SKIN} 组件。
+     * <p>
+     * 原版物品（弓、弩）无法覆写 {@code Item#inventoryTick}，由 mixin 调用本方法。
+     * 组件会随物品栈同步给客户端，这样其他玩家手持的、物品展示框里的、掉在地上的物品
+     * 都能显示持有者自己的皮肤，而不是渲染端本地玩家的皮肤。
+     */
+    public static void applyEquippedSkin(Player player, ItemStack stack) {
+        if (player == null || stack == null || stack.isEmpty()) {
+            return;
+        }
+        String itemType = getItemSkinType(stack.getItem());
+        if (itemType == null) {
+            return;
+        }
+        if (stack.get(SREDataComponentTypes.SKIN) == null) {
+            stack.set(SREDataComponentTypes.SKIN, getEquippedSkin(player, stack));
+        } else if (isRandomSelected(player, itemType)) {
+            // 选择了「随机」：跟随每局开局的抽取结果刷新，避免沿用上一局的快照
+            String resolved = resolveRandomSkin(player, itemType, RANDOM_SKIN);
+            if (!resolved.equals(stack.get(SREDataComponentTypes.SKIN))) {
+                stack.set(SREDataComponentTypes.SKIN, resolved);
+            }
+        }
+    }
+
+    /**
+     * 在物品提示末尾追加「皮肤：xxx」。
+     * <p>
+     * 该皮肤类型还没有任何皮肤（例如弓/弩尚未添加皮肤资源）时不显示，避免无意义提示。
+     *
+     * @param player 物品持有者，可为 {@code null}（此时只读取物品栈上的皮肤组件）
+     */
+    public static void appendSkinTooltip(ItemStack stack, List<Component> tooltip, Player player) {
+        String itemType = getItemSkinType(stack.getItem());
+        if (itemType == null || getSkins(itemType).isEmpty()) {
+            return;
+        }
+        String skinName;
+        if (player != null) {
+            skinName = getEquippedSkin(player, stack);
+        } else {
+            skinName = stack.get(SREDataComponentTypes.SKIN);
+            if (skinName == null || skinName.isBlank()) {
+                return;
+            }
+        }
+        Skin skin = Skin.fromString(itemType, skinName);
+        if (skin != null) {
+            tooltip.add(Component.translatable("tip.skin").withStyle(style -> style.withColor(Colors.GRAY))
+                    .append(Component.translatableWithFallback(
+                            "screen.sre.skins." + itemType + "." + skin.tooltipName + ".name", skin.tooltipName)
+                            .withStyle(style -> style.withColor(skin.getColor()))));
+        } else if ("default".equals(skinName)) {
+            tooltip.add(Component.translatable("tip.skin").withStyle(style -> style.withColor(Colors.GRAY))
+                    .append(Component.translatableWithFallback("screen.sre.skins.default", "Default"))
+                    .withStyle(ChatFormatting.GRAY));
+        }
+    }
+
+    /**
+     * 为实体渲染准备一个带皮肤的 ItemStack 副本。
+     */
+    public static ItemStack applySkinToStack(ItemStack base, String skinName) {
+        ItemStack stack = base.copy();
+        String skin = (skinName == null || skinName.isBlank()) ? "default" : skinName;
+        stack.set(SREDataComponentTypes.SKIN, skin);
+        return stack;
     }
 
     /**
@@ -339,11 +516,45 @@ public class ItemSkinManager {
      * @return 物品类型名称
      */
     public static String getItemTypeName(ItemStack itemStack) {
-        if (itemStack.getItem() instanceof SkinableItem skit) {
-            return skit.getItemSkinType();
-        }
         Item item = itemStack.getItem();
+        String skinType = getItemSkinType(item);
+        if (skinType != null) {
+            return skinType;
+        }
         String itemId = BuiltInRegistries.ITEM.getKey(item).getPath();
         return itemId.toLowerCase();
+    }
+
+    // === 原版物品的皮肤支持 ===
+    // 原版物品（弓、弩等）无法改成 {@link SkinableItem} 的子类，这里显式登记「物品 → 皮肤类型」。
+    private static final Map<Item, String> vanillaSkinItems = new java.util.LinkedHashMap<>();
+
+    /**
+     * 把原版物品登记为某个皮肤类型的持有者，例如
+     * {@code registerVanillaSkinItem(Items.BOW, SkinTypes.BOW)}。
+     */
+    public static void registerVanillaSkinItem(Item item, String itemTypeName) {
+        if (item == null || itemTypeName == null) {
+            return;
+        }
+        vanillaSkinItems.putIfAbsent(item, itemTypeName);
+        if (!skinTypeIdMap.containsKey(itemTypeName)) {
+            registerType(itemTypeName);
+        }
+    }
+
+    /** 已登记的原版可换肤物品（物品 → 皮肤类型）。 */
+    public static Map<Item, String> getVanillaSkinItems() {
+        return vanillaSkinItems;
+    }
+
+    /**
+     * 物品对应的皮肤类型；不可换肤的物品返回 {@code null}。
+     */
+    public static String getItemSkinType(Item item) {
+        if (item instanceof SkinableItem skinable) {
+            return skinable.getItemSkinType();
+        }
+        return vanillaSkinItems.get(item);
     }
 }

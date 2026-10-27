@@ -202,6 +202,43 @@ public class DisabledPatientRoleData extends SimpleRoleData {
         }
     }
 
+    /**
+     * 按残疾患者同一份权重表随机挑一种残疾，并只施加 {@code durationTicks}。
+     *
+     * <p>供命令方块的「命令注入」事件复用，避免另写一份效果表。
+     *
+     * @return 成功施加时返回 true
+     */
+    public static boolean applyRandomTemporary(ServerPlayer player, int durationTicks) {
+        if (player == null || durationTicks <= 0) {
+            return false;
+        }
+        Disability picked = pickWeighted(player);
+        if (picked == null) {
+            return false;
+        }
+        picked.applyTemporary(player, durationTicks);
+        return true;
+    }
+
+    private static Disability pickWeighted(ServerPlayer player) {
+        int totalWeight = 0;
+        for (Disability disability : Disability.values()) {
+            totalWeight += disability.weight;
+        }
+        if (totalWeight <= 0) {
+            return null;
+        }
+        int roll = player.getRandom().nextInt(totalWeight);
+        for (Disability disability : Disability.values()) {
+            roll -= disability.weight;
+            if (roll < 0) {
+                return disability;
+            }
+        }
+        return null;
+    }
+
     public enum Disability {
         BLINDNESS("blindness", 10, spec(MobEffects.BLINDNESS, 0)),
         DARKNESS("darkness", 10, spec(MobEffects.DARKNESS, 0)),
@@ -271,6 +308,31 @@ public class DisabledPatientRoleData extends SimpleRoleData {
                 player.addEffect(ModEffects.of(
                         spec.effect(),
                         EFFECT_DURATION,
+                        spec.amplifier(),
+                        true,
+                        false,
+                        true));
+            }
+        }
+
+        /**
+         * 命令方块「命令注入」用：按同一份权重表随机挑一种残疾，但只持续
+         * {@code durationTicks}，不像职业那样永久生效。已经带有同级或更久的
+         * 同名效果时不降级覆盖。
+         */
+        public void applyTemporary(ServerPlayer player, int durationTicks) {
+            if (durationTicks <= 0) {
+                return;
+            }
+            for (EffectSpec spec : this.effects) {
+                var current = player.getEffect(spec.effect());
+                if (current != null && current.getAmplifier() >= spec.amplifier()
+                        && (current.isInfiniteDuration() || current.getDuration() >= durationTicks)) {
+                    continue;
+                }
+                player.addEffect(ModEffects.of(
+                        spec.effect(),
+                        durationTicks,
                         spec.amplifier(),
                         true,
                         false,

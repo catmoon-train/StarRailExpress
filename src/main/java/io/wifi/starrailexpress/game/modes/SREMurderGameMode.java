@@ -20,7 +20,6 @@ import io.wifi.starrailexpress.SREConfig;
 import io.wifi.starrailexpress.api.CustomWinnerRoleInterface;
 import io.wifi.starrailexpress.api.GameMode;
 import io.wifi.starrailexpress.api.SREGameModes;
-import net.exmo.sre.repair.role.RepairRole;
 import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.api.TMMRoles;
 import io.wifi.starrailexpress.cca.*;
@@ -430,19 +429,17 @@ public class SREMurderGameMode extends GameMode {
         RoleAssignmentPool killerPool = RoleAssignmentPool.create("Killer",
                 role -> !Harpymodloader.VANNILA_ROLES.contains(role) &&
                         !role.isOtherModeRole() &&
-                        !(role instanceof RepairRole) &&
                         !role.isNeutrals() && !role.isNeutralForKiller() &&
                         role.canUseKiller() &&
                         !role.isInnocent() &&
                         role != TMMRoles.CIVILIAN);
         RoleAssignmentPool vigilantePool = RoleAssignmentPool.create("Vigilante",
                 role -> !Harpymodloader.VANNILA_ROLES.contains(role) &&
-                        role.isVigilanteTeam() && !role.isOtherModeRole() && !(role instanceof RepairRole));
+                        role.isVigilanteTeam() && !role.isOtherModeRole());
         // 中立池
         RoleAssignmentPool neutralsPool = RoleAssignmentPool.create("Neutrals",
                 role -> (!Harpymodloader.VANNILA_ROLES.contains(role) &&
                         !role.isOtherModeRole() &&
-                        !(role instanceof RepairRole) &&
                         ((!role.canUseKiller() &&
                                 !role.isInnocent())
                                 || role.isNeutrals())
@@ -453,7 +450,6 @@ public class SREMurderGameMode extends GameMode {
         RoleAssignmentPool civilianPool = RoleAssignmentPool.create("Civilian",
                 role -> !Harpymodloader.VANNILA_ROLES.contains(role) &&
                         !role.isOtherModeRole() &&
-                        !(role instanceof RepairRole) &&
                         !role.isVigilanteTeam() &&
                         !role.canUseKiller() &&
                         !role.isNeutrals() &&
@@ -894,6 +890,12 @@ public class SREMurderGameMode extends GameMode {
 
     public GameUtils.WinStatus allowGameEnd(ServerLevel serverWorld, GameUtils.WinStatus winStatus,
             boolean isLooseEndsMode, SREGameWorldComponent gameWorldComponent) {
+        if (org.agmas.noellesroles.game.command_block.CommandBlockDirector.holdsTheRound(serverWorld)) {
+            return org.agmas.noellesroles.game.command_block.CommandBlockWinPriority.check(serverWorld,
+                    () -> AllowGameEnd.EVENT_START.invoker().allowGameEnd(serverWorld, winStatus, isLooseEndsMode),
+                    () -> CustomWinnerClass.checkWinnerBuiltin(serverWorld, winStatus, isLooseEndsMode),
+                    () -> AllowGameEnd.EVENT_END.invoker().allowGameEnd(serverWorld, winStatus, isLooseEndsMode));
+        }
         var c = AllowGameEnd.EVENT_START.invoker().allowGameEnd(serverWorld,
                 winStatus, false);
         if (c != null && !c.equals(WinStatus.NOT_MODIFY)) {

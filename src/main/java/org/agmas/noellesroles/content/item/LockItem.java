@@ -51,11 +51,16 @@ import java.util.List;
  * - 锁的强度由长度决定
  * </p>
  */
-public class LockItem extends Item implements AdventureUsable {
+public class LockItem extends io.wifi.starrailexpress.content.item.SkinableItem implements AdventureUsable {
     public LockItem(int length, float strength, Properties properties) {
         super(properties);
         this.length = length;
         this.resistance = strength;
+    }
+
+    @Override
+    public String getItemSkinType() {
+        return io.wifi.starrailexpress.util.ItemSkinManager.SkinTypes.LOCK;
     }
 
     /**
@@ -135,6 +140,9 @@ public class LockItem extends Item implements AdventureUsable {
             if (!world.isClientSide) {
                 LockEntity lockEntity = new LockEntity(ModEntities.LOCK_ENTITY, world, length);
                 lockEntity.setResistance(resistance);
+                // 实体沿用手上这把锁的皮肤
+                lockEntity.setSkin(io.wifi.starrailexpress.util.ItemSkinManager.getEquippedSkin(player,
+                        player.getItemInHand(context.getHand())));
                 lockEntity.setPos(getLockEntityPos(context, doorEntity));
                 lockEntity.setXRot(0.f);
                 lockEntity.setYRot(doorEntity.getFacing().toYRot());

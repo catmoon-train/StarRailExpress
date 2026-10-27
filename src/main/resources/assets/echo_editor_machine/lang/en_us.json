@@ -1,0 +1,9 @@
+{
+  "echo.editor.machine.identify": "Identify machine",
+  "echo.editor.machine.tip": "Sneak-right-click a machine to mark it, or press Identify machine. This only edits the draft; save it on the Save tab. Non-machines get a clear failure.",
+  "echo.editor.machine.tooltip": "Sneak-right-click an Echo machine to identify and mark it (not saved). A normal right-click still opens the editor.",
+  "echo.editor.machine.hud_hint": "Sneak-right-click: identify and mark the aimed machine",
+  "echo.editor.machine.marked": "Identified %s as %s (%s). Draft only; not saved.",
+  "echo.editor.machine.updated": "That block already had a point. Updated %s / %s (%s). Not saved.",
+  "echo.editor.machine.not_machine": "Crosshair %s is not an Echo machine. Aim at one of the 12 shells within 16 blocks, in a loaded chunk."
+}

@@ -15,7 +15,6 @@
 
 package org.agmas.noellesroles.register;
 
-import net.exmo.sre.repair.command.*;
 import org.agmas.noellesroles.commands.*;
 
 /**
@@ -40,14 +39,10 @@ public class NRCommandRegister {
         WheelchairFieldItemCommand.register();
         GamblerMiracleCommand.register();
         EggClearCommand.register();
-        RepairShopCommand.register();
-        RepairStartCommand.register();
-        RepairRoleCommand.register();
-        RepairMapCommand.register();
-        RepairPresetCommand.register();
         MurderTimeCommand.register();
         TimeRewindCommand.register();
         FakeSteveCommand.register();
+        CommandBlockCommand.register();
         PurpleMonsterCommand.register();
         VirtualHealthCommand.register();
         MirrorReunionEndEggCommand.register();

@@ -25,6 +25,7 @@ import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 import org.agmas.noellesroles.Noellesroles;
 import org.agmas.noellesroles.game.roles.killer.dream.DreamHealthComponent;
+import org.agmas.noellesroles.content.item.SpecialWeaponHitFeedback;
 import org.agmas.noellesroles.init.NRSounds;
 
 import java.util.ArrayList;
@@ -196,6 +197,9 @@ public final class SpearCombat {
         }
         if (knockback && target instanceof LivingEntity knockable) {
             knockable.knockback(0.4D, attacker.getX() - target.getX(), attacker.getZ() - target.getZ());
+            if (knockable instanceof ServerPlayer victim) {
+                victim.hurtMarked = true;
+            }
         }
 
         boolean hurt = false;
@@ -208,12 +212,14 @@ public final class SpearCombat {
                     if (hurt) {
                         player.causeFoodExhaustion(0.1F);
                         if (GameUtils.isPlayerAliveAndSurvival(victim)) {
-                            // 只给一次轻微原版伤害用于受击动画与音效，不参与击杀判定
-                            victim.invulnerableTime = 0;
-                            victim.hurt(victim.damageSources().playerAttack(player), 1.0F);
+                            SpecialWeaponHitFeedback.hit(player, victim);
+                            SpecialWeaponHitFeedback.knockback(victim, 0.4D,
+                                    attacker.getX() - victim.getX(), attacker.getZ() - victim.getZ());
                         }
                     }
                 }
+            } else if (target instanceof io.wifi.starrailexpress.traindummy.TrainDummyEntity dummy && dealDamage) {
+                hurt = io.wifi.starrailexpress.traindummy.TrainDummyWeapons.hitSpear(player, dummy, damage);
             } else if (dealDamage) {
                 hurt = target.hurt(attacker.damageSources().playerAttack(player), damage);
                 if (hurt) {

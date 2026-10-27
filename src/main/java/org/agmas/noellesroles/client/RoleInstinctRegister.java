@@ -37,6 +37,7 @@ import org.agmas.noellesroles.role_data.killer.ManipulatorRoleData;
 import org.agmas.noellesroles.role_data.neutral.AdmirerRoleData;
 import org.agmas.noellesroles.role_data.neutral.AmonRoleData;
 import org.agmas.noellesroles.role_data.neutral.CandleBearerRoleData;
+import org.agmas.noellesroles.role_data.neutral.DaywalkerRoleData;
 import org.agmas.noellesroles.role_data.neutral.LicensedVillainRoleData;
 import org.agmas.noellesroles.role_data.neutral.MercenaryRoleData;
 import org.agmas.noellesroles.role_data.neutral.GodfatherRoleData;
@@ -379,32 +380,20 @@ public class RoleInstinctRegister {
                     return TrueFalseAndCustomResult.pass();
                 });
 
-        // DIO
-
+        // DIO / JOJO：双方不再互相透视
         RoleInstinctEvents.OBSERVER_HIGHLIGHT_EVENT.register(ModRoles.DIO_ID,
                 (client, viewer, target, isInstinctEnabled) -> {
-                    if (target instanceof Player targetPlayer && GameUtils.isPlayerAliveAndSurvival(targetPlayer)) {
-                        if (targetPlayer.distanceTo(viewer) <= 7) {
-                            if (SREClient.gameComponent.isRole(targetPlayer, ModRoles.JOJO)) {
-                                if (viewer.hasEffect(ModEffects.SKILL_BANED) || viewer.hasEffect(ModEffects.SAFE_TIME))
-                                    return TrueFalseAndCustomResult.pass();
-                                return TrueFalseAndCustomResult.custom(ModRoles.JOJO.color());
-                            }
-                        }
+                    if (target instanceof Player targetPlayer && GameUtils.isPlayerAliveAndSurvival(targetPlayer)
+                            && SREClient.gameComponent.isRole(targetPlayer, ModRoles.JOJO)) {
+                        return TrueFalseAndCustomResult.disallow();
                     }
                     return TrueFalseAndCustomResult.pass();
                 });
-        // JOJO
         RoleInstinctEvents.OBSERVER_HIGHLIGHT_EVENT.register(ModRoles.JOJO_ID,
                 (client, viewer, target, isInstinctEnabled) -> {
-                    if (target instanceof Player targetPlayer && GameUtils.isPlayerAliveAndSurvival(targetPlayer)) {
-                        if (targetPlayer.distanceTo(viewer) <= 5) {
-                            if (SREClient.gameComponent.isRole(targetPlayer, ModRoles.DIO)) {
-                                if (viewer.hasEffect(ModEffects.SKILL_BANED) || viewer.hasEffect(ModEffects.SAFE_TIME))
-                                    return TrueFalseAndCustomResult.pass();
-                                return TrueFalseAndCustomResult.custom(ModRoles.DIO.color());
-                            }
-                        }
+                    if (target instanceof Player targetPlayer && GameUtils.isPlayerAliveAndSurvival(targetPlayer)
+                            && SREClient.gameComponent.isRole(targetPlayer, ModRoles.DIO)) {
+                        return TrueFalseAndCustomResult.disallow();
                     }
                     return TrueFalseAndCustomResult.pass();
                 });
@@ -1067,6 +1056,18 @@ public class RoleInstinctRegister {
             WorldModifierComponent mods = WorldModifierComponent.KEY.get(targetPlayer.level());
             if (mods != null && mods.isModifier(targetPlayer.getUUID(), TraitorAndModifiers.SNEAKY)) {
                 if (self.distanceTo(targetPlayer) <= 8.0)
+                    return TrueFalseAndCustomResult.disallow();
+            }
+            return TrueFalseAndCustomResult.pass();
+        });
+
+        // 逐日者：只有处于其 20 格范围内时才能透视他（超出距离一律不显示高亮）
+        // 与鬼祟修饰符同为「被看侧」距离判定，放在 ALIVE_COMMON_BEFORE_EVENT 最早批次。
+        CommonInstinctEvents.ALIVE_COMMON_BEFORE_EVENT.register((self, target, hasInstinct) -> {
+            if (!(target instanceof Player targetPlayer) || SREClient.gameComponent == null)
+                return TrueFalseAndCustomResult.pass();
+            if (SREClient.gameComponent.isRole(targetPlayer, ModRoles.DAYWALKER)) {
+                if (self.distanceTo(targetPlayer) > DaywalkerRoleData.XRAY_RANGE)
                     return TrueFalseAndCustomResult.disallow();
             }
             return TrueFalseAndCustomResult.pass();

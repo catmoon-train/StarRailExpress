@@ -125,6 +125,8 @@ public class OutsideSoundManager {
                 && SREClient.areaComponent != null
                 && SREClient.areaComponent.areasSettings != null
                 && SREClient.areaComponent.areasSettings.haveOutsideSound
+                // 玩家装配了音乐盒时，音乐盒接管场景背景音，地图背景音让位（淡出后停止）
+                && !MusicBoxAmbientSound.overridesSceneSound()
                 && client.player != null
                 && (GameUtils.isPlayerAliveAndSurvivalIgnoreShitSplit(client.player)
                         || SREClientConfig.instance().bgsoundForSpectator);

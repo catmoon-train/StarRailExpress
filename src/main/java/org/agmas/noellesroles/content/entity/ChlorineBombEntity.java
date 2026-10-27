@@ -98,6 +98,13 @@ public class ChlorineBombEntity extends NoHeavyWaterInfluencedThrowableItemProje
             }
             poisonComponent.sync();
         }
+        for (io.wifi.starrailexpress.traindummy.TrainDummyEntity dummy : world.getEntitiesOfClass(
+                io.wifi.starrailexpress.traindummy.TrainDummyEntity.class, area,
+                io.wifi.starrailexpress.traindummy.TrainDummyEntity::canReceiveHits)) {
+            Player throwerEntity = this.getOwner() instanceof Player owner ? owner : null;
+            io.wifi.starrailexpress.traindummy.TrainDummyCombat.applyPoison(dummy, 300,
+                    false, throwerEntity == null ? null : throwerEntity.getUUID());
+        }
     }
 
     /**

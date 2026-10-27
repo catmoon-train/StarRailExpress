@@ -26,6 +26,7 @@ import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
@@ -43,7 +44,8 @@ import org.agmas.noellesroles.init.NRSounds;
 
 import java.util.List;
 
-public class ShortShotgunItem extends Item implements HeldLikeBat, TrainWeapon {
+public class ShortShotgunItem extends io.wifi.starrailexpress.content.item.SkinableItem
+        implements HeldLikeBat, TrainWeapon {
     /** 最小蓄力时间：0.2秒 = 4刻 */
     private static final int MIN_CHARGE_TICKS = 4;
     private static final int MAX_CHARGE_TICKS = 40;
@@ -55,6 +57,11 @@ public class ShortShotgunItem extends Item implements HeldLikeBat, TrainWeapon {
 
     public ShortShotgunItem(Item.Properties settings) {
         super(settings);
+    }
+
+    @Override
+    public String getItemSkinType() {
+        return io.wifi.starrailexpress.util.ItemSkinManager.SkinTypes.SHORT_SHOTGUN;
     }
 
     @Override
@@ -209,6 +216,20 @@ public class ShortShotgunItem extends Item implements HeldLikeBat, TrainWeapon {
                             target.hurt(player.damageSources().playerAttack(player), 1.0F);
                             // 沿射击方向击退（knockback 内部取反，故传入 -aim）
                             target.knockback(0.5F, -aim.x, -aim.z);
+                        }
+                    }
+                    for (io.wifi.starrailexpress.traindummy.TrainDummyEntity dummy : world.getEntitiesOfClass(
+                            io.wifi.starrailexpress.traindummy.TrainDummyEntity.class, tileBox,
+                            io.wifi.starrailexpress.traindummy.TrainDummyEntity::canReceiveHits)) {
+                        if (processed.contains(dummy.getId()) || !canSeeTarget(world, player, dummy)) {
+                            continue;
+                        }
+                        processed.add(dummy.getId());
+                        if (lethal) {
+                            io.wifi.starrailexpress.traindummy.TrainDummyCombat.applyLethal(dummy, player,
+                                    Noellesroles.id("short_shotgun"));
+                        } else {
+                            dummy.showHit(player);
                         }
                     }
                 }
@@ -417,7 +438,7 @@ public class ShortShotgunItem extends Item implements HeldLikeBat, TrainWeapon {
      * @param target  目标玩家
      * @return true 表示视线畅通，false 表示被方块阻挡
      */
-    private static boolean canSeeTarget(Level world, Player shooter, Player target) {
+    private static boolean canSeeTarget(Level world, Player shooter, Entity target) {
         Vec3 from = shooter.getEyePosition(); // 射击者眼睛位置
         Vec3 to = target.getEyePosition(); // 目标眼睛位置
 

@@ -282,6 +282,11 @@ public class VoiceExtraEffectsPlugin implements VoicechatPlugin {
     // =========================================================================
 
     private void onClientSound(ClientReceiveSoundEvent event) {
+        // SVC 音频线程只读 volatile 演出标记；不读取世界、不影响其他观众的会话。
+        if (io.wifi.starrailexpress.settlement.client.SettlementClient.isActive()) {
+            event.cancel();
+            return;
+        }
         if (event.isCancelled())
             return;
         Player localPlayer = SREClient.getMinecraftPlayer();

@@ -82,6 +82,7 @@ public class TaskInstinctManager {
         result.put(22, Component.translatable("hud.noellesroles.task_instinct.render.task.crop"));
         result.put(23, Component.translatable("hud.noellesroles.task_instinct.render.lottery_machine"));
         result.put(25, Component.translatable("hud.noellesroles.task_instinct.render.manhole"));
+        result.put(26, Component.translatable("echo.machine.tasks.filter"));
         return result;
     }
 

@@ -818,7 +818,7 @@ public class MapIntroduceScreen extends Screen {
                 ModSceneBlocks.HURRICANE_DEVICE.asItem(), ModSceneBlocks.COFFIN.asItem(),
                 ModSceneBlocks.WATER_PUMP.asItem(), ModSceneBlocks.TRASH_CAN.asItem(),
                 ModBlocks.VENDING_MACHINES_BLOCK.asItem(), ModBlocks.LOTTERY_MACHINE_BLOCK.asItem(),
-                ModBlocks.DEVIL_ROULETTE_TABLE.asItem(), ModBlocks.HOTBAR_STORAGE.asItem(),
+                ModBlocks.DEVIL_ROULETTE_TABLE.asItem(),
                 ModBlocks.SUPPLY_CRATE_BLOCK.asItem(), ModBlocks.KILL_BLOCK.asItem(),
                 ModBlocks.KILL_BLOCK_PANEL.asItem(),
                 SREBlocks.TRAIN_LIGHT.asItem(), SREBlocks.REMOTE_REDSTONE.asItem(),

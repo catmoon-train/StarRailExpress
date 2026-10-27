@@ -52,6 +52,13 @@ public class SREPlayerSkinsComponent implements AutoSyncedComponent, ServerTicki
 
     private final Player player;
     private Map<String, String> equippedSkins; // 存储当前装备的皮肤 {itemName -> skinName}
+    /**
+     * 「随机」皮肤的当局解析结果 {itemName -> 实际皮肤名}。
+     * <p>
+     * 装备值为 {@link ItemSkinManager#RANDOM_SKIN} 时，每局开局由服务端抽取并写入这里，再同步给客户端，
+     * 保证同一局内所有端看到的是同一个皮肤。不写入 NBT，属于临时状态。
+     */
+    private Map<String, String> resolvedRandomSkins;
     private Map<String, Map<String, Boolean>> unlockedSkins; // 存储解锁的皮肤 {itemName -> {skinName -> isUnlocked}}
     private Integer lootChance;
     private Integer coinNum;
@@ -63,6 +70,7 @@ public class SREPlayerSkinsComponent implements AutoSyncedComponent, ServerTicki
     public SREPlayerSkinsComponent(Player player) {
         this.player = player;
         this.equippedSkins = new HashMap<>();
+        this.resolvedRandomSkins = new HashMap<>();
         this.unlockedSkins = new HashMap<>();
         this.lootChance = 0;
         this.coinNum = 0;
@@ -290,6 +298,57 @@ public class SREPlayerSkinsComponent implements AutoSyncedComponent, ServerTicki
     }
 
     /**
+     * 获取该物品类型「随机」皮肤的当局解析结果（未抽取时返回 null）。
+     */
+    public String getResolvedSkin(String itemTypeName) {
+        return this.resolvedRandomSkins.get(normalizeItemName(itemTypeName));
+    }
+
+    /**
+     * 获取所有「随机」皮肤的当局解析结果。
+     */
+    public Map<String, String> getResolvedSkins() {
+        return new HashMap<>(this.resolvedRandomSkins);
+    }
+
+    /**
+     * 设置该物品类型「随机」皮肤的当局解析结果（服务端抽取后调用，会同步到客户端）。
+     */
+    public void setResolvedSkin(String itemTypeName, String skinName) {
+        String normalizedItemName = normalizeItemName(itemTypeName);
+        if (skinName == null || skinName.isBlank()) {
+            this.resolvedRandomSkins.remove(normalizedItemName);
+        } else {
+            this.resolvedRandomSkins.put(normalizedItemName, skinName);
+        }
+        markSkinDataChanged();
+    }
+
+    /**
+     * 重新抽取该类型「随机」皮肤（仅服务端有效）。
+     *
+     * @return 抽中的皮肤名
+     */
+    public String rollRandomSkin(String itemTypeName) {
+        String picked = ItemSkinManager.pickRandomUnlockedSkin(this.player, itemTypeName);
+        setResolvedSkin(itemTypeName, picked);
+        return picked;
+    }
+
+    /**
+     * 为该玩家所有已选择「随机」的皮肤类型重新抽取（开局时调用）。
+     */
+    public void rollAllRandomSkins() {
+        for (Map.Entry<String, String> entry : new ArrayList<>(this.equippedSkins.entrySet())) {
+            if (ItemSkinManager.isRandomSkin(entry.getValue())) {
+                String picked = ItemSkinManager.pickRandomUnlockedSkin(this.player, entry.getKey());
+                this.resolvedRandomSkins.put(entry.getKey(), picked);
+            }
+        }
+        markSkinDataChanged();
+    }
+
+    /**
      * 获取所有解锁的皮肤映射
      */
     public Map<String, Map<String, Boolean>> getUnlockedSkins() {
@@ -503,32 +562,48 @@ public class SREPlayerSkinsComponent implements AutoSyncedComponent, ServerTicki
                 this.unlockedSkins.put(itemKey, skinsForItem);
             }
         }
+        // 读取「随机」皮肤的当局解析结果
+        if (compoundTag.contains("resolvedRandomSkins")) {
+            CompoundTag resolvedTag = compoundTag.getCompound("resolvedRandomSkins");
+            this.resolvedRandomSkins.clear();
+            for (String key : resolvedTag.getAllKeys()) {
+                this.resolvedRandomSkins.put(key, resolvedTag.getString(key));
+            }
+        }
     }
 
     @Override
     public void writeSyncPacket(RegistryFriendlyByteBuf buf, ServerPlayer recipient) {
         if (!SREConfig.instance().isItemSkinEnabled) {
-            // 皮肤功能未启用，写入空数据
+            // 皮肤功能未启用，写入空数据（装备 / 解锁 / 随机解析 三段）
+            buf.writeVarInt(0);
             buf.writeVarInt(0);
             buf.writeVarInt(0);
             return;
         }
         // 将装备的皮肤数据编码为整数ID，减少网络传输量
+        // 「随机」没有注册皮肤 ID，统一用 -1 编码
         List<Map.Entry<String, String>> validEquipped = new ArrayList<>();
         for (Map.Entry<String, String> entry : equippedSkins.entrySet()) {
-            if (ItemSkinManager.getSkinTypeId(entry.getKey()) >= 0
-                    && ItemSkinManager.getSkinId(entry.getKey(), entry.getValue()) >= 0) {
+            if (ItemSkinManager.getSkinTypeId(entry.getKey()) < 0) {
+                continue;
+            }
+            if (ItemSkinManager.isRandomSkin(entry.getValue())
+                    || ItemSkinManager.getSkinId(entry.getKey(), entry.getValue()) >= 0) {
                 validEquipped.add(entry);
             }
         }
         buf.writeVarInt(validEquipped.size());
         for (Map.Entry<String, String> entry : validEquipped) {
             buf.writeVarInt(ItemSkinManager.getSkinTypeId(entry.getKey()));
-            buf.writeVarInt(ItemSkinManager.getSkinId(entry.getKey(), entry.getValue()));
+            buf.writeVarInt(ItemSkinManager.isRandomSkin(entry.getValue())
+                    ? -1
+                    : ItemSkinManager.getSkinId(entry.getKey(), entry.getValue()));
         }
 
         if (!SREConfig.instance().isItemSkinManagementEnabled) {
-            // 皮肤管理功能未启用，写入空的解锁数据
+            // 皮肤管理功能未启用，写入空的解锁数据 + 空的随机解析
+            buf.writeVarInt(0);
             buf.writeVarInt(0);
             return;
         }
@@ -557,6 +632,20 @@ public class SREPlayerSkinsComponent implements AutoSyncedComponent, ServerTicki
                 buf.writeVarInt(skinId);
             }
         }
+
+        // 「随机」皮肤的当局解析结果（typeId → skinId），供客户端渲染使用
+        List<Map.Entry<String, String>> validResolved = new ArrayList<>();
+        for (Map.Entry<String, String> entry : resolvedRandomSkins.entrySet()) {
+            if (ItemSkinManager.getSkinTypeId(entry.getKey()) >= 0
+                    && ItemSkinManager.getSkinId(entry.getKey(), entry.getValue()) >= 0) {
+                validResolved.add(entry);
+            }
+        }
+        buf.writeVarInt(validResolved.size());
+        for (Map.Entry<String, String> entry : validResolved) {
+            buf.writeVarInt(ItemSkinManager.getSkinTypeId(entry.getKey()));
+            buf.writeVarInt(ItemSkinManager.getSkinId(entry.getKey(), entry.getValue()));
+        }
     }
 
     @CheckEnvironment(EnvType.CLIENT)
@@ -570,7 +659,10 @@ public class SREPlayerSkinsComponent implements AutoSyncedComponent, ServerTicki
             int skinId = buf.readVarInt();
             String typeName = ItemSkinManager.getSkinTypeById(typeId);
             if (typeName != null) {
-                String skinName = ItemSkinManager.getSkinById(typeName, skinId);
+                // -1 表示「随机」
+                String skinName = skinId < 0
+                        ? ItemSkinManager.RANDOM_SKIN
+                        : ItemSkinManager.getSkinById(typeName, skinId);
                 if (skinName != null) {
                     equippedSkins.put(typeName, skinName);
                 }
@@ -595,6 +687,21 @@ public class SREPlayerSkinsComponent implements AutoSyncedComponent, ServerTicki
             }
             if (typeName != null) {
                 unlockedSkins.put(typeName, skins);
+            }
+        }
+        // 读取「随机」皮肤的当局解析结果
+        resolvedRandomSkins.clear();
+        int resolvedCount = buf.readVarInt();
+        for (int i = 0; i < resolvedCount; i++) {
+            int typeId = buf.readVarInt();
+            int skinId = buf.readVarInt();
+            String typeName = ItemSkinManager.getSkinTypeById(typeId);
+            if (typeName == null) {
+                continue;
+            }
+            String skinName = ItemSkinManager.getSkinById(typeName, skinId);
+            if (skinName != null) {
+                resolvedRandomSkins.put(typeName, skinName);
             }
         }
     }
@@ -633,6 +740,12 @@ public class SREPlayerSkinsComponent implements AutoSyncedComponent, ServerTicki
             unlockedSkinsTag.put(itemEntry.getKey(), skinsForItemTag);
         }
         compoundTag.put("unlockedSkins", unlockedSkinsTag);
+        // 写入「随机」皮肤的当局解析结果（死亡重生 / 存档读回时保持一致，开局会重新抽取）
+        CompoundTag resolvedRandomSkinsTag = new CompoundTag();
+        for (Map.Entry<String, String> entry : this.resolvedRandomSkins.entrySet()) {
+            resolvedRandomSkinsTag.putString(entry.getKey(), entry.getValue());
+        }
+        compoundTag.put("resolvedRandomSkins", resolvedRandomSkinsTag);
         // compoundTag.putBoolean("isNetworkSyncEnabled", isNetworkSyncEnabled);
     }
 }

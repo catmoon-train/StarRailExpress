@@ -1,6 +1,6 @@
 {
   "parent": "minecraft:item/generated",
   "textures": {
-    "layer0": "minecraft:item/tropical_fish"
+    "layer0": "noellesroles:item/small_dried_fish"
   }
 }

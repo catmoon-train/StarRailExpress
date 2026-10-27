@@ -172,6 +172,10 @@ public class TaskBlockOverlayRenderer {
 
     // ✅ 新增：计算多格方块的合并 AABB（坐标相对于 blockPos）
     private static AABB getCombinedAABB(Level world, BlockPos blockPos, BlockState state) {
+        if (state.getBlock() instanceof TaskInstinctShowableInterface task) {
+            AABB custom = task.taskInstinctBounds(world, state, blockPos);
+            if (custom != null) return custom;
+        }
         // 门（DoubleBlockHalf）：上下两格
         // 普通单格方块：用碰撞箱，fallback 用视觉箱
         VoxelShape shape = state.getCollisionShape(world, blockPos);

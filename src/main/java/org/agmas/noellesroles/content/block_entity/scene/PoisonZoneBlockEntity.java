@@ -87,5 +87,17 @@ public class PoisonZoneBlockEntity extends BlockEntity {
                         4, 0.3, 0.02);
             }
         }
+         for (io.wifi.starrailexpress.traindummy.TrainDummyEntity dummy : serverLevel.getEntitiesOfClass(
+                 io.wifi.starrailexpress.traindummy.TrainDummyEntity.class, box,
+                 io.wifi.starrailexpress.traindummy.TrainDummyEntity::canReceiveHits)) {
+             if (dummy.poisonTicks() > 0) {
+                 dummy.acceleratePoison(ZONE_ACCELERATION);
+                 continue;
+             }
+             if (dummy.noteZoneDwell() >= DWELL_TICKS) {
+                 dummy.resetZoneDwell();
+                 io.wifi.starrailexpress.traindummy.TrainDummyCombat.applyPoison(dummy, POISON_TICKS, false, null);
+             }
+         }
     }
 }

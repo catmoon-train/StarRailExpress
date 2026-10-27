@@ -29,7 +29,6 @@ import org.agmas.harpymodloader.modded_murder.PlayerRoleWeightManager;
 import org.agmas.harpymodloader.modded_murder.RoleAssignmentPool;
 import org.agmas.noellesroles.role.ModRoles;
 import org.agmas.noellesroles.utils.RoleUtils;
-import net.exmo.sre.repair.role.RepairRole;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -84,7 +83,6 @@ public class VolunteerDraftState {
         RoleAssignmentPool killerPool = RoleAssignmentPool.create("Killer",
                 role -> !Harpymodloader.VANNILA_ROLES.contains(role) &&
                         !role.isOtherModeRole() &&
-                        !(role instanceof RepairRole) &&
                         role.canUseKiller() &&
                         !role.isInnocent() &&
                         !RoleUtils.compareRole(role, ModRoles.PUPPETEER) &&
@@ -92,18 +90,15 @@ public class VolunteerDraftState {
         RoleAssignmentPool vigilantePool = RoleAssignmentPool.create("Vigilante",
                 role -> !Harpymodloader.VANNILA_ROLES.contains(role) &&
                         role.isVigilanteTeam() &&
-                        !role.isOtherModeRole() &&
-                        !(role instanceof RepairRole));
+                        !role.isOtherModeRole());
         RoleAssignmentPool neutralsPool = RoleAssignmentPool.create("Neutrals",
                 role -> !Harpymodloader.VANNILA_ROLES.contains(role) &&
                         !role.isOtherModeRole() &&
-                        !(role instanceof RepairRole) &&
                         ((!role.canUseKiller() && !role.isInnocent()) || role.isNeutrals()) &&
                         role != TMMRoles.CIVILIAN);
         RoleAssignmentPool civilianPool = RoleAssignmentPool.create("Civilian",
                 role -> !Harpymodloader.VANNILA_ROLES.contains(role) &&
                         !role.isOtherModeRole() &&
-                        !(role instanceof RepairRole) &&
                         !role.isVigilanteTeam() &&
                         !role.canUseKiller() &&
                         !role.isNeutrals() &&

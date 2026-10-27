@@ -630,34 +630,6 @@
   - **没有 `<slot>` 参数**，`player` / `item` 是「添加哪种商品」的互斥分支
 - **用途**: 管理售货机 / 抽奖机的商品（另见 `COMMANDS.md` 的 `goods:export/import/unbind`）
 
-### `cy:repairshop` — 修机商店
-- **权限**: `2`
-- **用途**: 打开修机模式的商店管理界面
-
-### `cy:repair start` — 启动修机
-- **权限**: `2`
-- **结构**: `cy:repair start <minutes>` (int)
-- **用途**: 启动修机模式
-
-### `cy:repairrole` — 修机职业管理
-- **权限**: `2`（`unlock` 子命令）
-- **结构**:
-  - `force <players> <roleId>` — 强制分配修机职业
-  - `clear <players>` — 清除所有修机职业
-- **用途**: 管理修机模式的职业分配
-
-### `cy:repairmap` — 修机地图管理
-- **权限**: `2`
-- **结构**:
-  - `lock ...` / `escape ...` — 维修锁 / 逃脱点管理
-  - 命令名带 **`cy:` 命名空间**
-- **用途**: 管理修机模式地图数据
-
-### `cy:repairpreset` — 修机预设导出
-- **权限**: `2`
-- **结构**: `cy:repairpreset export <mapId> <entryId>`
-- **用途**: 导出修机模式地图预设
-
 ---
 
 ## 四、tmm:game 聚合命令

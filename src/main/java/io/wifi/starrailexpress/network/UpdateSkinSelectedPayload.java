@@ -18,6 +18,7 @@ package io.wifi.starrailexpress.network;
 import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.cca.SREPlayerSkinsComponent;
 import io.wifi.starrailexpress.data.PlayerSkinEconomyManager;
+import io.wifi.starrailexpress.util.ItemSkinManager;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
@@ -51,11 +52,18 @@ public record UpdateSkinSelectedPayload(String id, String name) implements Custo
         ServerPlayNetworking.registerGlobalReceiver(ID, (payload, context) -> {
             context.server().execute(() -> {
                 SREPlayerSkinsComponent skincca = SREPlayerSkinsComponent.KEY.get(context.player());
-                if (!skincca.isSkinUnlockedForItemType(payload.id, payload.name) && !PlayerSkinEconomyManager
-                        .isSkinUnlockedForItemType(context.player(), payload.id, payload.name)) {
+                boolean random = ItemSkinManager.isRandomSkin(payload.name);
+                if (!random
+                        && !skincca.isSkinUnlockedForItemType(payload.id, payload.name) && !PlayerSkinEconomyManager
+                                .isSkinUnlockedForItemType(context.player(), payload.id, payload.name)) {
                     return;
                 }
                 PlayerSkinEconomyManager.setEquippedSkinForItemType(context.player(), payload.id, payload.name);
+                if (random) {
+                    // 选中「随机」时立刻抽一次，避免本局剩余时间一直显示未装备；
+                    // 之后每局开局会由 SkinRandomizer 重新抽取。
+                    skincca.rollRandomSkin(payload.id);
+                }
             });
         });
     }

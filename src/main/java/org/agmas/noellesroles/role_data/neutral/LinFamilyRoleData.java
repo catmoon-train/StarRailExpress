@@ -148,8 +148,6 @@ public class LinFamilyRoleData extends SimpleRoleData {
             () -> ModItems.SCREWDRIVER.getDefaultInstance(),
             () -> ModItems.LOCK_ITEM.getDefaultInstance(),
             () -> ModItems.NOELL_PAPERCLIP.getDefaultInstance(),
-            () -> ModItems.SMOKE_PELLET.getDefaultInstance(),
-            () -> ModItems.DECOY_BEACON.getDefaultInstance(),
             () -> ModItems.FLARE.getDefaultInstance(),
             () -> ModItems.HALLUCINATION_BOTTLE.getDefaultInstance(),
             () -> ModItems.GIANT_NOTE.getDefaultInstance(),
@@ -170,7 +168,6 @@ public class LinFamilyRoleData extends SimpleRoleData {
             () -> ModItems.ROPE.getDefaultInstance(),
             () -> ModItems.PASSBOOK.getDefaultInstance(),
             () -> ModItems.WREATH.getDefaultInstance(),
-            () -> ModItems.SANITY_MEDS.getDefaultInstance(),
             () -> ModItems.AREA_MAP.getDefaultInstance(),
             () -> ModItems.BOXING_GLOVE.getDefaultInstance(),
             () -> ModItems.RIOT_SHIELD.getDefaultInstance(),
@@ -290,9 +287,7 @@ public class LinFamilyRoleData extends SimpleRoleData {
                 || stack.is(ModItems.MASTER_KEY_P)
                 || stack.is(ModItems.NOELL_ARTISAN_KEY)
                 || stack.is(ModItems.NOELL_KEY_BLANK)
-                || stack.is(ModItems.SEALED_DOORLESS_KEY)
-                || stack.is(ModItems.REPAIR_AREA_KEY)
-                || stack.is(ModItems.REPAIR_OLD_KEY);
+                || stack.is(ModItems.SEALED_DOORLESS_KEY);
     }
 
     public static boolean hasGun(Player player) {

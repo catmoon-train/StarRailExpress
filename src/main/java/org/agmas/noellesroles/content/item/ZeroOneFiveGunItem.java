@@ -204,6 +204,27 @@ public class ZeroOneFiveGunItem extends SkinableItem implements DropRevolverWhen
         }
     }
 
+    /** 命中列车假人：第二发致死，不走玩家掉枪。 */
+    public static void onHitDummy(ServerPlayer shooter,
+            io.wifi.starrailexpress.traindummy.TrainDummyEntity dummy) {
+        if (shooter == null || dummy == null || !dummy.canReceiveHits()) {
+            return;
+        }
+        Map<UUID, Integer> shooterMarks = HIT_MARKS.computeIfAbsent(shooter.getUUID(), k -> new HashMap<>());
+        UUID targetUUID = dummy.getUUID();
+        if (shooterMarks.containsKey(targetUUID)) {
+            io.wifi.starrailexpress.traindummy.TrainDummyCombat.applyLethal(dummy, shooter,
+                    GameConstants.DeathReasons.ZERO_ONE_FIVE);
+            shooterMarks.remove(targetUUID);
+            return;
+        }
+        io.wifi.starrailexpress.traindummy.TrainDummyCombat.applyEffect(dummy,
+                new MobEffectInstance(MobEffects.MOVEMENT_SLOWDOWN, HIT_MARK_DURATION, 1, false, false));
+        shooter.serverLevel().sendParticles(ParticleTypes.CAMPFIRE_SIGNAL_SMOKE,
+                dummy.getX(), dummy.getY() + 1, dummy.getZ(), 5, 0.2, 0.2, 0.2, 0.35);
+        shooterMarks.put(targetUUID, HIT_MARK_DURATION);
+    }
+
     public static int getCooldown() {
         return COOLDOWN;
     }

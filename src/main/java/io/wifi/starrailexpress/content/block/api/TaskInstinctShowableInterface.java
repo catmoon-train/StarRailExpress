@@ -21,32 +21,24 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.AABB;
 
 public interface TaskInstinctShowableInterface {
+    /** 仅客户端：是否渲染任务点透视。 */
     @Environment(EnvType.CLIENT)
-
-    /**
-     * 仅客户端：是否渲染
-     * 
-     * @return
-     */
     boolean shouldRenderTaskInstinct(Level level, BlockState state, BlockPos pos, Player player);
 
+    /** 仅客户端：透视颜色。 */
     @Environment(EnvType.CLIENT)
-
-    /**
-     * 仅客户端：渲染颜色
-     * 
-     * @return
-     */
     java.awt.Color taskInstinctRenderColor(BlockState state, BlockPos pos, Player player);
 
-    /**
-     * 需要12+。可不改
-     * 
-     * @return
-     */
-    public default int taskInstinctId() {
-        return 1145;
-    }
+    /** 自定义类型需要使用 12 以上的编号。 */
+    default int taskInstinctId() { return 1145; }
+
+    /** 多格任务方块只扫描主部件；普通方块保持逐格收录。 */
+    default boolean isTaskInstinctAnchor(BlockState state) { return true; }
+
+    /** 自定义透视边界，相对于 pos；null 使用原有碰撞/视觉合并箱。 */
+    @Environment(EnvType.CLIENT)
+    default AABB taskInstinctBounds(Level level, BlockState state, BlockPos pos) { return null; }
 }

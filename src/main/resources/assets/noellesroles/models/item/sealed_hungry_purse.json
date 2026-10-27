@@ -1,6 +1,6 @@
 {
   "parent": "minecraft:item/generated",
   "textures": {
-    "layer0": "minecraft:item/gold_nugget"
+    "layer0": "noellesroles:item/sealed_hungry_purse"
   }
 }

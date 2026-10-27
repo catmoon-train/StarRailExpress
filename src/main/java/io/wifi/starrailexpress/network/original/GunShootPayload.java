@@ -112,6 +112,18 @@ public record GunShootPayload(int target) implements CustomPacketPayload {
             SREGameWorldComponent game = SREGameWorldComponent.KEY.get(player.level());
             Entity hitEntity = player.serverLevel().getEntity(payload.target());
             if (mainHandStack.is(TMMItemTags.GUNS)
+                    && hitEntity instanceof io.wifi.starrailexpress.traindummy.TrainDummyEntity dummy
+                    && dummy.canReceiveHits()
+                    && dummy.distanceToSqr(player) < 30 * 30) {
+                ResourceLocation dummyReason = isDerringerWeapon ? GameConstants.DeathReasons.DERRINGER
+                        : GameConstants.DeathReasons.REVOLVER;
+                if (mainHandStack.is(ModItems.EXECUTIONER_GUN)) {
+                    dummyReason = GameConstants.DeathReasons.EXECUTE;
+                }
+                io.wifi.starrailexpress.traindummy.TrainDummyCombat.applyLethal(dummy, player, dummyReason);
+                return;
+            }
+            if (mainHandStack.is(TMMItemTags.GUNS)
                     && hitEntity instanceof ServerPlayer target
                     && target.distanceToSqr(player) < 30 * 30) {
                 Item revolver = TMMItems.REVOLVER;

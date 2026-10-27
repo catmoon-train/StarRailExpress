@@ -62,7 +62,6 @@ public final class TMMDescEffects {
         addPotion(ModItems.ANTIDOTE);
         addPotion(ModItems.ANTIDOTE_REAGENT);
         addPotion(ModItems.ANGLER_VANILLA_MILK);
-        addPotion(ModItems.SANITY_MEDS);
         addPotion(ModItems.PILL);
         addPotion(ModItems.TOXIN);
         addPotion(ModItems.HALLUCINATION_BOTTLE);

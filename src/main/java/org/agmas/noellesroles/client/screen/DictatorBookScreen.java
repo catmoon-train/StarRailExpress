@@ -135,7 +135,7 @@ public class DictatorBookScreen extends Screen {
     private List<SRERole> guessableRoles() {
         List<SRERole> result = new ArrayList<>();
         for (SRERole role : Noellesroles.getAllRolesSorted(false)) {
-            if (role == null || role instanceof net.exmo.sre.repair.role.RepairRole) {
+            if (role == null) {
                 continue;
             }
             // 好人方中立（随好人胜利的中立，如回声聆听者）不属于「可猜身份」

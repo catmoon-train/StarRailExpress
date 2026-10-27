@@ -170,7 +170,9 @@ public class SREPlushBlockEntity extends BlockEntity {
     }
 
     private void updateOwnerProfile() {
-        if (this.owner != null && !this.owner.isResolved()) {
+        // 已有服务端 UUID 时不要再 resolve()：离线档案没有 textures，会话查询失败或命中别的正版号
+        // 会换掉 UUID，客户端就对不上目标玩家的皮肤。
+        if (this.owner != null && !this.owner.isResolved() && this.owner.id().isEmpty()) {
             this.owner.resolve().thenAcceptAsync((resolvableProfile) -> {
                 this.owner = resolvableProfile;
                 this.setChanged();

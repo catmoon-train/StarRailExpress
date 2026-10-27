@@ -161,12 +161,7 @@ public class SREHelpCommand {
                 new Entry("/item", "item"),
                 new Entry("/goods:add", "goods.add"),
                 new Entry("/goods:remove", "goods.remove"),
-                new Entry("/goods:list", "goods.list"),
-                new Entry("/cy:repairshop", "repairshop"),
-                new Entry("/cy:repair start", "repair"),
-                new Entry("/cy:repairrole", "repairrole"),
-                new Entry("/cy:repairmap", "repairmap"),
-                new Entry("/cy:repairpreset", "repairpreset")));
+                new Entry("/goods:list", "goods.list")));
 
         CATEGORIES.put("misc", List.of(
                 new Entry("/nametag:add", "nametag.add"),

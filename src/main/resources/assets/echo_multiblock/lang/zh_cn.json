@@ -1,0 +1,10 @@
+{
+  "echo_multiblock.tooltip.size": "真实占格：%s 宽 × %s 高 × %s 深",
+  "echo_multiblock.tooltip.anchor": "放置点为正面左下角；需为整台机器留空。拆任一部件会拆除整台。",
+  "echo_multiblock.place.bounds": "无法放置：整台机器必须位于世界边界和建筑高度内。",
+  "echo_multiblock.place.unloaded": "无法放置：机器占用的所有区块都必须已加载。",
+  "echo_multiblock.place.occupied": "无法放置：整台机器需要可替换的空位，且不能覆盖方块实体。",
+  "echo_multiblock.place.permission": "无法放置：你没有机器全部占格的建造权限。",
+  "echo_multiblock.place.collision": "无法放置：机器会与玩家或实体碰撞。",
+  "echo_multiblock.place.changed": "放置已取消：空间发生变化，已还原本次写入。"
+}

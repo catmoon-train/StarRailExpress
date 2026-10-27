@@ -1,6 +1,6 @@
 {
   "parent": "minecraft:item/generated",
   "textures": {
-    "layer0": "minecraft:item/phantom_membrane"
+    "layer0": "noellesroles:item/sealed_vanishing_cloak"
   }
 }

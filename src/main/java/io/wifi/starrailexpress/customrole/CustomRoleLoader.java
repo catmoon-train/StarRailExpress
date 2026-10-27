@@ -404,6 +404,9 @@ public class CustomRoleLoader {
                 mood, maxSprintTime, data.canSeeTime,
                 effects.isEmpty() ? new ArrayList<>() : effects, shop);
 
+        // 心情值(san)上限：默认 1.0，setMaxMood 内部已夹取为 >= 0
+        role.setMaxMood(data.moodMax);
+
         // === 高级定义 ===
         role.setCanSeeCoin(data.canSeeCoin);
         role.addFlag("inner.custom_role");

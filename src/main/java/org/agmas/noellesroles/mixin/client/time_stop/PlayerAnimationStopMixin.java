@@ -52,6 +52,9 @@ public abstract class PlayerAnimationStopMixin
 
             argsOnly = true)
     public AbstractClientPlayer modifyRenderedPlayer(AbstractClientPlayer abstractClientPlayer) {
+        if (org.agmas.noellesroles.client.RoadRollerClient.isPressing(abstractClientPlayer.getUUID())) {
+            return abstractClientPlayer;
+        }
         LocalPlayer player = Minecraft.getInstance().player;
         if (player != null && player.hasEffect(ModEffects.TIME_STOP)) {
             if (TimeStopEffect.clientCanMovePlayers.contains(abstractClientPlayer.getUUID())

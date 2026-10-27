@@ -79,7 +79,7 @@ public class SRE extends StarRailExpressID implements ModInitializer {
     // CollisionRules - canCollide / cantPushableBy / canCollideEntity
     // ArmorRules - canStickArmor
     // DropRules - canDropItem / canDrop
-    // RoleVisibilityRules - canUseOtherPerson
+    // RoleVisibilityRules - canUseOtherPerson / canUseOtherPersonPlayer
 
     public static @NotNull ResourceLocation id(String name) {
         return ResourceLocation.fromNamespaceAndPath(MOD_ID, name);

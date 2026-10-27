@@ -37,7 +37,6 @@ import io.wifi.starrailexpress.game.roles.SpecialGameModeRoles;
 import io.wifi.starrailexpress.game.utils.RoleInstance;
 import io.wifi.starrailexpress.progression.ProgressionDataManager;
 import io.wifi.starrailexpress.progression.ProgressionState.FactionCardType;
-import net.exmo.sre.repair.role.RepairRole;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
@@ -147,25 +146,21 @@ public class LightningDraftState {
         RoleAssignmentPool killerPool = RoleAssignmentPool.create("Killer",
                 role -> !Harpymodloader.VANNILA_ROLES.contains(role) &&
                         !role.isOtherModeRole() &&
-                        !(role instanceof RepairRole) &&
                         role.canUseKiller() && !role.isNeutrals() && !role.isNeutralForKiller() &&
                         !role.isInnocent() &&
                         role != TMMRoles.CIVILIAN);
         RoleAssignmentPool vigilantePool = RoleAssignmentPool.create("Vigilante",
                 role -> !Harpymodloader.VANNILA_ROLES.contains(role) &&
                         role.isVigilanteTeam() &&
-                        !role.isOtherModeRole() &&
-                        !(role instanceof RepairRole));
+                        !role.isOtherModeRole());
         RoleAssignmentPool neutralsPool = RoleAssignmentPool.create("Neutrals",
                 role -> !Harpymodloader.VANNILA_ROLES.contains(role) &&
                         !role.isOtherModeRole() &&
-                        !(role instanceof RepairRole) &&
                         ((!role.canUseKiller() && !role.isInnocent()) || role.isNeutrals()) &&
                         role != TMMRoles.CIVILIAN);
         RoleAssignmentPool civilianPool = RoleAssignmentPool.create("Civilian",
                 role -> !Harpymodloader.VANNILA_ROLES.contains(role) &&
                         !role.isOtherModeRole() &&
-                        !(role instanceof RepairRole) &&
                         !role.isVigilanteTeam() &&
                         !role.canUseKiller() &&
                         !role.isNeutrals() &&
