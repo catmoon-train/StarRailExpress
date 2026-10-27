@@ -54,18 +54,15 @@ public final class SettlementStageRenderer {
             if (info == null && mc.getConnection() != null) info = mc.getConnection().getPlayerInfo(actor.fact.id());
             PlayerSkin skin = info == null ? DefaultPlayerSkin.get(actor.fact.id()) : info.getSkin();
             PlayerModel<Player> model = skin.model() == PlayerSkin.Model.SLIM ? slim : wide;
-            double x = actor.x, y = 0, z = actor.z;
             boolean physical = actor.body.active;
+            // 败方只以落下的尸体出现；不在舞台上先坐成一排，也不先升到天上。
+            if (!actor.fact.winner() && !physical) continue;
+            double x = actor.x, y = actor.y, z = actor.z;
             if (physical) {
                 var middle = actor.body.nodes[1];
                 x = middle.x(partial); y = middle.y(partial); z = middle.z(partial);
-            } else if (actor.fact.winner()) {
-                y = 10.3 * (1 - SettlementClient.smooth((time - 65 - Math.min(12, actor.order * 2)) / 65));
             } else {
-                double rise = SettlementClient.smooth((time - 132 - Math.min(40, actor.order * 2)) / 18);
-                x = actor.x * (1 - rise * .55);
-                z = actor.z + (6 + (actor.order % 3) * .4 - actor.z) * rise;
-                y = 10.5 * rise;
+                y += 10.3 * (1 - SettlementClient.smooth((time - 65 - Math.min(12, actor.order * 2)) / 65));
             }
             double action = Math.max(0, 1 - (time - actor.actionAt) / 22);
             boolean mvp = Objects.equals(actor.fact.id(), snapshot.mvp());
@@ -90,10 +87,11 @@ public final class SettlementStageRenderer {
             int tint = 0xFF000000 | r << 16 | g << 8 | b;
             model.renderToBuffer(pose, buffer.getBuffer(RenderType.entityTranslucent(skin.texture())),
                     LightTexture.FULL_BRIGHT, OverlayTexture.NO_OVERLAY, tint);
+            if (mvp) SettlementCrown.render(pose, buffer, model.head);
             pose.popPose();
 
-            if (actor.fact.winner() && time < 215) {
-                float alpha = (float) (1 - SettlementClient.smooth((time - 180) / 35));
+            if (actor.fact.winner() && time < 160) {
+                float alpha = (float) (1 - SettlementClient.smooth((time - 135) / 25));
                 VertexConsumer lines = buffer.getBuffer(RenderType.lines());
                 line(pose, lines, x - .22, y + 1.45, z, x - .4, 12.8, z, .8f, .72f, .52f, alpha);
                 line(pose, lines, x + .22, y + 1.45, z, x + .4, 12.8, z, .8f, .72f, .52f, alpha);
@@ -101,10 +99,12 @@ public final class SettlementStageRenderer {
             if (action > 0 || mvp) {
                 VertexConsumer lines = buffer.getBuffer(RenderType.lines());
                 float pulse = (float) (mvp ? .35 + .1 * Math.sin(time * .08) : action * .85);
+                double ring = physical ? .5 : .62;
                 for (int i = 0; i < 32; i++) {
                     double a = Math.PI * 2 * i / 32, bAngle = Math.PI * 2 * (i + 1) / 32;
-                    line(pose, lines, x + Math.cos(a) * .7, Math.max(.025, y - (physical ? .85 : 0)), z + Math.sin(a) * .7,
-                            x + Math.cos(bAngle) * .7, Math.max(.025, y - (physical ? .85 : 0)), z + Math.sin(bAngle) * .7,
+                    double base = physical ? y - .85 : y + .03;
+                    line(pose, lines, x + Math.cos(a) * ring, base, z + Math.sin(a) * ring,
+                            x + Math.cos(bAngle) * ring, base, z + Math.sin(bAngle) * ring,
                             .83f, .68f, .22f, pulse);
                 }
             }
@@ -126,16 +126,13 @@ public final class SettlementStageRenderer {
         model.head.xRot = -.06f; model.head.yRot = (float) Math.sin(time * .035) * .07f;
         model.leftArm.zRot = -.08f; model.rightArm.zRot = .08f;
         if (!actor.fact.winner()) {
-            if (!actor.body.active) {
-                model.leftLeg.xRot = model.rightLeg.xRot = -1.35f;
-                model.leftLeg.yRot = -.2f; model.rightLeg.yRot = .2f;
-                model.leftArm.xRot = model.rightArm.xRot = -.55f;
-                model.head.xRot = .28f;
-            } else {
-                float tumble = (float) Math.sin(time * .14 + actor.order) * .22f;
-                model.leftArm.zRot = -.6f + tumble; model.rightArm.zRot = .6f - tumble;
-                model.leftLeg.xRot = .25f + tumble; model.rightLeg.xRot = -.25f - tumble;
-            }
+            // 尸体四肢缓慢停摆；不再有“坐在舞台上”的待机姿势。
+            float tumble = (float) Math.sin(time * .14 + actor.order) * .16f
+                    * (float) (1 - SettlementClient.smooth((time - 185) / 65));
+            model.head.xRot = .18f;
+            model.leftArm.xRot = -.18f; model.rightArm.xRot = .15f;
+            model.leftArm.zRot = -.35f + tumble; model.rightArm.zRot = .35f - tumble;
+            model.leftLeg.xRot = .18f + tumble; model.rightLeg.xRot = -.18f - tumble;
         } else if (actor.fact.killer()) {
             model.head.xRot += .16f * ceremony;
             model.body.yRot = -.12f * ceremony;
@@ -156,7 +153,7 @@ public final class SettlementStageRenderer {
                 model.leftLeg.xRot = .1f * ceremony; model.rightLeg.xRot = -.1f * ceremony;
             }
         }
-        if (action > 0 && SettlementClient.eventIndex() >= 0) {
+        if (actor.fact.winner() && action > 0 && SettlementClient.eventIndex() >= 0) {
             var event = SettlementClient.snapshot().events().get(SettlementClient.eventIndex());
             boolean source = actor.fact.id().equals(event.source());
             if (source) {
@@ -185,21 +182,23 @@ public final class SettlementStageRenderer {
     private static void billboard(PoseStack pose, MultiBufferSource buffer, SettlementClient.ActorState actor,
                                   double x, double y, double z, boolean physical, boolean mvp, double action) {
         Minecraft mc = Minecraft.getInstance();
-        pose.pushPose();
-        pose.translate(x + (physical ? .55 : .8), y + (physical ? .65 : 1.65), z);
-        pose.mulPose(mc.gameRenderer.getMainCamera().rotation());
-        pose.scale(.018f, -.018f, .018f);
+        // 紧凑队列的标签放在头顶；尸堆只给当前事件相关者显示，避免一团重叠文字。
+        if (physical && action <= 0) return;
         Component name = Component.literal(actor.fact.name());
-        Component role;
         ResourceLocation id = ResourceLocation.tryParse(actor.role);
-        role = id == null ? Component.translatable("settlement.starrailexpress.unknown_role") : RoleUtils.getRoleName(id);
+        Component role = id == null
+                ? Component.translatable("settlement.starrailexpress.unknown_role") : RoleUtils.getRoleName(id);
         int color = actor.fact.color() | 0xFF000000;
+        pose.pushPose();
+        pose.translate(x, y + (physical ? .9 : (mvp ? 2.62 : 2.18)), z);
+        pose.mulPose(mc.gameRenderer.getMainCamera().rotation());
+        pose.scale(.011f, -.011f, .011f);
         drawLabel(pose, buffer, name, -5, mvp ? 0xFFD4AF37 : 0xFFFFF4DC);
         drawLabel(pose, buffer, role, 7, color);
         if (mvp) drawLabel(pose, buffer, Component.translatable("settlement.starrailexpress.mvp"), -17, 0xFFD4AF37);
         pose.popPose();
         if (actor.blackness > .25f) {
-            pose.pushPose(); pose.translate(x, y + (physical ? 1.1 : 2.25), z);
+            pose.pushPose(); pose.translate(x, y + (physical ? .95 : 1.55), z - .30);
             pose.mulPose(mc.gameRenderer.getMainCamera().rotation()); pose.scale(.035f, -.035f, .035f);
             drawLabel(pose, buffer, Component.literal("×"), 0, 0xFFE06B65);
             pose.popPose();
@@ -211,7 +210,7 @@ public final class SettlementStageRenderer {
         var lines = mc.font.split(text, 130);
         for (int i = 0; i < Math.min(2, lines.size()); i++)
             mc.font.drawInBatch(lines.get(i), -mc.font.width(lines.get(i)) * .5f, y + i * 10, color, false,
-                    pose.last().pose(), buffer, Font.DisplayMode.NORMAL, 0xB81A1008, LightTexture.FULL_BRIGHT);
+                    pose.last().pose(), buffer, Font.DisplayMode.NORMAL, 0, LightTexture.FULL_BRIGHT);
     }
 
     private static void line(PoseStack pose, VertexConsumer buffer, double ax, double ay, double az,

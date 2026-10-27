@@ -53,10 +53,10 @@ final class SettlementStage {
                 state = Blocks.SEA_LANTERN.defaultBlockState();
             if (y == 0 && (z == -3 || z == 9) && Math.abs(x) < 14)
                 state = Blocks.POLISHED_BLACKSTONE.defaultBlockState();
-            // 后排尸体承接槽：黑色矮墙与客户端物理边界共用尺寸。
-            if (y >= 1 && y <= 2 && ((Math.abs(x) == 2 && z >= 4 && z <= 8)
-                    || ((z == 4 || z == 8) && Math.abs(x) <= 2)))
-                state = Blocks.BLACK_CONCRETE.defaultBlockState();
+            // 后排开放展示台，不设挡住低矮尸堆的围墙。前方二排矮台采用半砖。
+            // 后排开放展示台：只抬高一格，不加任何遮挡尸堆的围墙。
+            if (y == 1 && Math.abs(x) <= 3 && z >= 4 && z <= 8)
+                state = Blocks.POLISHED_BLACKSTONE.defaultBlockState();
             BlockPos pos = origin.offset(x,y,z);
             if (!level.getBlockState(pos).equals(state)) level.setBlock(pos,state,2);
         }

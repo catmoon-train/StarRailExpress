@@ -1,4 +1,9 @@
 {
+    "settlement.starrailexpress.hud.curtain_call": "C U R T A I N   C A L L",
+    "settlement.starrailexpress.hud.kills": "KILLS",
+    "settlement.starrailexpress.hud.tasks": "TASKS",
+    "settlement.starrailexpress.hud.score": "CONTRIBUTION",
+    "settlement.starrailexpress.hud.skip": "Hold Enter to skip",
     "settlement.starrailexpress.subtitle": "STAR RAIL EXPRESS · CURTAIN CALL TICKET",
     "settlement.starrailexpress.cast": "A curtain call for the whole cast",
     "settlement.starrailexpress.mvp": "ROUND MVP",
