@@ -54,18 +54,15 @@ public final class SettlementStageRenderer {
             if (info == null && mc.getConnection() != null) info = mc.getConnection().getPlayerInfo(actor.fact.id());
             PlayerSkin skin = info == null ? DefaultPlayerSkin.get(actor.fact.id()) : info.getSkin();
             PlayerModel<Player> model = skin.model() == PlayerSkin.Model.SLIM ? slim : wide;
-            double x = actor.x, y = 0, z = actor.z;
             boolean physical = actor.body.active;
+            // 败方只以落下的尸体出现；不在舞台上先坐成一排，也不先升到天上。
+            if (!actor.fact.winner() && !physical) continue;
+            double x = actor.x, y = actor.y, z = actor.z;
             if (physical) {
                 var middle = actor.body.nodes[1];
                 x = middle.x(partial); y = middle.y(partial); z = middle.z(partial);
-            } else if (actor.fact.winner()) {
-                y = 10.3 * (1 - SettlementClient.smooth((time - 65 - Math.min(12, actor.order * 2)) / 65));
             } else {
-                double rise = SettlementClient.smooth((time - 132 - Math.min(40, actor.order * 2)) / 18);
-                x = actor.x * (1 - rise * .55);
-                z = actor.z + (6 + (actor.order % 3) * .4 - actor.z) * rise;
-                y = 10.5 * rise;
+                y += 10.3 * (1 - SettlementClient.smooth((time - 65 - Math.min(12, actor.order * 2)) / 65));
             }
             double action = Math.max(0, 1 - (time - actor.actionAt) / 22);
             boolean mvp = Objects.equals(actor.fact.id(), snapshot.mvp());
@@ -90,10 +87,11 @@ public final class SettlementStageRenderer {
             int tint = 0xFF000000 | r << 16 | g << 8 | b;
             model.renderToBuffer(pose, buffer.getBuffer(RenderType.entityTranslucent(skin.texture())),
                     LightTexture.FULL_BRIGHT, OverlayTexture.NO_OVERLAY, tint);
+            if (mvp) SettlementCrown.render(pose, buffer, model.head);
             pose.popPose();
 
-            if (actor.fact.winner() && time < 215) {
-                float alpha = (float) (1 - SettlementClient.smooth((time - 180) / 35));
+            if (actor.fact.winner() && time < 160) {
+                float alpha = (float) (1 - SettlementClient.smooth((time - 135) / 25));
                 VertexConsumer lines = buffer.getBuffer(RenderType.lines());
                 line(pose, lines, x - .22, y + 1.45, z, x - .4, 12.8, z, .8f, .72f, .52f, alpha);
                 line(pose, lines, x + .22, y + 1.45, z, x + .4, 12.8, z, .8f, .72f, .52f, alpha);
@@ -101,10 +99,12 @@ public final class SettlementStageRenderer {
             if (action > 0 || mvp) {
                 VertexConsumer lines = buffer.getBuffer(RenderType.lines());
                 float pulse = (float) (mvp ? .35 + .1 * Math.sin(time * .08) : action * .85);
+                double ring = physical ? .5 : .62;
                 for (int i = 0; i < 32; i++) {
                     double a = Math.PI * 2 * i / 32, bAngle = Math.PI * 2 * (i + 1) / 32;
-                    line(pose, lines, x + Math.cos(a) * .7, Math.max(.025, y - (physical ? .85 : 0)), z + Math.sin(a) * .7,
-                            x + Math.cos(bAngle) * .7, Math.max(.025, y - (physical ? .85 : 0)), z + Math.sin(bAngle) * .7,
+                    double base = physical ? y - .85 : y + .03;
+                    line(pose, lines, x + Math.cos(a) * ring, base, z + Math.sin(a) * ring,
+                            x + Math.cos(bAngle) * ring, base, z + Math.sin(bAngle) * ring,
                             .83f, .68f, .22f, pulse);
                 }
             }
@@ -126,16 +126,13 @@ public final class SettlementStageRenderer {
         model.head.xRot = -.06f; model.head.yRot = (float) Math.sin(time * .035) * .07f;
         model.leftArm.zRot = -.08f; model.rightArm.zRot = .08f;
         if (!actor.fact.winner()) {
-            if (!actor.body.active) {
-                model.leftLeg.xRot = model.rightLeg.xRot = -1.35f;
-                model.leftLeg.yRot = -.2f; model.rightLeg.yRot = .2f;
-                model.leftArm.xRot = model.rightArm.xRot = -.55f;
-                model.head.xRot = .28f;
-            } else {
-                float tumble = (float) Math.sin(time * .14 + actor.order) * .22f;
-                model.leftArm.zRot = -.6f + tumble; model.rightArm.zRot = .6f - tumble;
-                model.leftLeg.xRot = .25f + tumble; model.rightLeg.xRot = -.25f - tumble;
-            }
+            // 尸体四肢缓慢停摆；不再有“坐在舞台上”的待机姿势。
+            float tumble = (float) Math.sin(time * .14 + actor.order) * .16f
+                    * (float) (1 - SettlementClient.smooth((time - 185) / 65));
+            model.head.xRot = .18f;
+            model.leftArm.xRot = -.18f; model.rightArm.xRot = .15f;
+            model.leftArm.zRot = -.35f + tumble; model.rightArm.zRot = .35f - tumble;
+            model.leftLeg.xRot = .18f + tumble; model.rightLeg.xRot = -.18f - tumble;
         } else if (actor.fact.killer()) {
             model.head.xRot += .16f * ceremony;
             model.body.yRot = -.12f * ceremony;
@@ -156,7 +153,7 @@ public final class SettlementStageRenderer {
                 model.leftLeg.xRot = .1f * ceremony; model.rightLeg.xRot = -.1f * ceremony;
             }
         }
-        if (action > 0 && SettlementClient.eventIndex() >= 0) {
+        if (actor.fact.winner() && action > 0 && SettlementClient.eventIndex() >= 0) {
             var event = SettlementClient.snapshot().events().get(SettlementClient.eventIndex());
             boolean source = actor.fact.id().equals(event.source());
             if (source) {
@@ -205,15 +202,19 @@ public final class SettlementStageRenderer {
             // 站立模型头顶约在 y + 1.8，文字整体再抬到头顶上方。
             labelY = y + 2.02;
         }
+        // 尸堆里只给当前事件相关者显示文字，避免一堆名字叠在一起；判定必须在压栈前。
+        double action = Math.max(0, 1 - (SettlementClient.tick() + partial - actor.actionAt) / 22);
+        if (physical && action <= 0) return;
+        Component name = Component.literal(actor.fact.name());
+        ResourceLocation id = ResourceLocation.tryParse(actor.role);
+        Component role = id == null
+                ? Component.translatable("settlement.starrailexpress.unknown_role") : RoleUtils.getRoleName(id);
+        int color = actor.fact.color() | 0xFF000000;
         pose.pushPose();
         pose.translate(labelX, labelY, labelZ);
         pose.mulPose(mc.gameRenderer.getMainCamera().rotation());
-        pose.scale(.018f, -.018f, .018f);
-        Component name = Component.literal(actor.fact.name());
-        Component role;
-        ResourceLocation id = ResourceLocation.tryParse(actor.role);
-        role = id == null ? Component.translatable("settlement.starrailexpress.unknown_role") : RoleUtils.getRoleName(id);
-        int color = actor.fact.color() | 0xFF000000;
+        // 紧凑站位用较小字号，避免相邻玩家标签互相压住。
+        pose.scale(.012f, -.012f, .012f);
         drawLabel(pose, buffer, name, -5, mvp ? 0xFFD4AF37 : 0xFFFFF4DC);
         drawLabel(pose, buffer, role, 7, color);
         if (mvp) drawLabel(pose, buffer, Component.translatable("settlement.starrailexpress.mvp"), -17, 0xFFD4AF37);
@@ -232,7 +233,7 @@ public final class SettlementStageRenderer {
         var lines = mc.font.split(text, 130);
         for (int i = 0; i < Math.min(2, lines.size()); i++)
             mc.font.drawInBatch(lines.get(i), -mc.font.width(lines.get(i)) * .5f, y + i * 10, color, false,
-                    pose.last().pose(), buffer, Font.DisplayMode.NORMAL, 0xB81A1008, LightTexture.FULL_BRIGHT);
+                    pose.last().pose(), buffer, Font.DisplayMode.NORMAL, 0, LightTexture.FULL_BRIGHT);
     }
 
     private static void line(PoseStack pose, VertexConsumer buffer, double ax, double ay, double az,

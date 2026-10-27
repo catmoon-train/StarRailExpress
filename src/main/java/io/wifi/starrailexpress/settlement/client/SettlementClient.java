@@ -7,6 +7,7 @@ import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.settlement.SettlementPayload;
 import io.wifi.starrailexpress.settlement.SettlementRequest;
 import io.wifi.starrailexpress.settlement.SettlementSnapshot;
+import io.wifi.starrailexpress.settlement.SettlementChoreography;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
@@ -177,19 +178,19 @@ public final class SettlementClient {
                 .toList();
         int winner = 0, loser = 0;
         int losers = value.actors().size() - winners.size();
+        physics = new SettlementPhysics(losers, SettlementChoreography.REAR_FLOOR);
         for (var actor : winners) {
-            double slot = winner == 0 ? 0 : ((winner + 1) / 2) * (winner % 2 == 1 ? -1 : 1);
-            double spacing = Math.min(1.8, 25.0 / Math.max(1, winners.size()));
-            addActor(actor, slot * spacing, 0, winner++);
+            var slot = SettlementChoreography.winner(winner, winners.size());
+            addActor(actor, slot.x(), slot.y(), slot.z(), winner++);
         }
         for (var actor : value.actors()) if (!actor.winner()) {
-            double x = ((loser % 13) - (Math.min(losers, 13) - 1) * .5) * 1.7;
-            addActor(actor, x, 5 + Math.min(7, loser / 13) * 1.05, loser++);
+            var slot = SettlementChoreography.drop(loser, losers);
+            addActor(actor, slot.x(), 0, slot.z(), loser++);
         }
     }
 
-    private static void addActor(SettlementSnapshot.Actor actor, double x, double z, int order) {
-        ActorState state = new ActorState(actor, x, z, order);
+    private static void addActor(SettlementSnapshot.Actor actor, double x, double y, double z, int order) {
+        ActorState state = new ActorState(actor, x, y, z, order);
         actors.add(state); byId.put(actor.id(), state); physics.bodies.add(state.body);
     }
 
@@ -214,16 +215,18 @@ public final class SettlementClient {
         }
         if (phase != Phase.PLAYING) return;
         playTick++;
+        int losers = physics.bodies.size() - (int)actors.stream().filter(a -> a.fact.winner()).count();
         for (ActorState actor : actors) {
-            if (!actor.fact.winner() && playTick >= 150 + Math.min(40, actor.order * 2) && !actor.body.active) {
-                // 后排坐姿在短暂升空过渡后真正释放三质点胶囊，而非插值到预排尸堆。
-                actor.body.release(Math.max(-.8,Math.min(.8,actor.x * .12)), 10.5, 5.8 + (actor.order % 3) * .35);
+            if (!actor.fact.winner() && playTick >= SettlementChoreography.dropTick(actor.order, losers) && !actor.body.active) {
+                var drop = SettlementChoreography.drop(actor.order, losers);
+                actor.body.release(drop.x(), drop.y(), drop.z());
             }
-            actor.blackness += ((actor.dead ? 1 : 0) - actor.blackness) * .15f;
+            boolean black = SettlementChoreography.silhouette(actor.fact.dead(), actor.dead);
+            actor.blackness += ((black ? 1 : 0) - actor.blackness) * .12f;
         }
         physics.tick();
         if (playTick == SettlementSnapshot.INTRO_TICKS) {
-            for (ActorState actor : actors) { actor.dead = false; actor.blackness = 0; }
+            for (ActorState actor : actors) actor.dead = actor.fact.dead();
             for (ActorState actor : actors) actor.role = actor.initialRole;
         }
         int next = (playTick - SettlementSnapshot.INTRO_TICKS) / snapshot.eventTicks();
@@ -281,11 +284,7 @@ public final class SettlementClient {
         ActorState source = byId.get(event.source()), target = byId.get(event.target());
         if (source != null) source.actionAt = playTick;
         if (target != null) target.actionAt = playTick;
-        if ("PLAYER_KILL".equals(event.type()) && target != null) target.dead = true;
-        if (("PLAYER_REVIVAL".equals(event.type()) || "REVIVE".equals(event.type()))) {
-            ActorState revived = target != null ? target : source;
-            if (revived != null) revived.dead = false;
-        }
+        // 回放只驱动动作/职业，不改写舞台已冻结的死亡事实；尸堆始终保留在后台。
         // 两个字段分别属于 source/target 的事件时职业，不将 targetRole 误当作 source 的新职业。
         if (source != null && event.sourceRole() != null && !event.sourceRole().isBlank()) source.role = event.sourceRole();
         if (target != null && event.targetRole() != null && !event.targetRole().isBlank()) target.role = event.targetRole();
@@ -347,25 +346,27 @@ public final class SettlementClient {
         double focus = smooth((t - 210) / 55) * (1 - smooth((t - 300) / 20));
         ActorState mvp = byId.get(snapshot.mvp());
         double targetX = mvp == null ? 0 : mvp.x;
-        double targetY = 1.45, targetZ = 0;
+        double targetY = 1.45, targetZ = mvp == null ? -.35 : mvp.z;
         if (t >= SettlementSnapshot.INTRO_TICKS && eventIndex >= 0) {
             var event = snapshot.events().get(eventIndex);
             ActorState source = byId.get(event.source()), target = byId.get(event.target());
             ActorState selected = source != null ? source : target;
             if (selected != null) {
                 targetX = selected.body.active ? selected.body.nodes[1].x : selected.x;
-                targetY = selected.body.active ? selected.body.nodes[1].y + .7 : 1.4;
+                targetY = selected.body.active ? selected.body.nodes[1].y + .7 : selected.y + 1.4;
                 targetZ = selected.body.active ? selected.body.nodes[1].z : selected.z;
-                focus = .3;
+                focus = selected.body.active ? .12 : .3;
             }
         }
-        // 镜头必须留在黑壳内部（正面墙 z=-15）；窄屏通过 FOV 扩展适配，不穿墙拉远。
-        double wideDistance = 12;
+        double wideDistance = 9;
+        // 事件回放时把注视点抬高一点，让角色落在画面中上部，底部留给字幕。
+        boolean replaying = t >= SettlementSnapshot.INTRO_TICKS && eventIndex >= 0;
+        double lift = replaying ? .55 : 0;
         Vec3 desired = new Vec3(snapshot.x() + .5 + targetX * focus,
-                snapshot.y() + 1 + Mth.lerp(focus, 4.2, targetY + 1),
+                snapshot.y() + 1 + Mth.lerp(focus, 5.0, targetY + 1.1) + lift,
                 snapshot.z() + .5 - Mth.lerp(focus, wideDistance, 4.8));
         Vec3 look = new Vec3(snapshot.x() + .5 + targetX * focus,
-                snapshot.y() + 1 + targetY, snapshot.z() + .5 + targetZ);
+                snapshot.y() + 1 + targetY + lift, snapshot.z() + .5 + targetZ);
         long now = System.nanoTime();
         double dt = lastCameraFrame == 0 ? 1 : Math.min(.1, (now - lastCameraFrame) / 1e9);
         lastCameraFrame = now;
@@ -394,7 +395,7 @@ public final class SettlementClient {
 
     static final class ActorState {
         final SettlementSnapshot.Actor fact;
-        final double x, z;
+        final double x, y, z;
         final int order;
         final SettlementPhysics.Body body;
         String role;
@@ -402,8 +403,8 @@ public final class SettlementClient {
         boolean dead;
         float blackness;
         int actionAt = -1000;
-        ActorState(SettlementSnapshot.Actor fact, double x, double z, int order) {
-            this.fact = fact; this.x = x; this.z = z; this.order = order;
+        ActorState(SettlementSnapshot.Actor fact, double x, double y, double z, int order) {
+            this.fact = fact; this.x = x; this.y = y; this.z = z; this.order = order;
             initialRole = role = fact.role(); dead = fact.dead();
             body = new SettlementPhysics.Body(x, 1, z, order);
         }

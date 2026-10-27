@@ -1,5 +1,6 @@
 package io.wifi.starrailexpress.settlement.client;
 
+import io.wifi.starrailexpress.settlement.SettlementChoreography;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -7,9 +8,18 @@ import java.util.Map;
 
 /** 纯数学的三质点刚性胶囊：固定步长、重力、约束、空间散列碰撞及带摩擦的地面反弹。 */
 public final class SettlementPhysics {
-    private static final double RADIUS = .34, SPACING = .54;
+    private static final double RADIUS = .40, SPACING = .54;
     public final List<Body> bodies = new ArrayList<>();
     private final Map<Long, List<Node>> grid = new HashMap<>();
+    private final double halfWidth, halfDepth, floorY;
+
+    public SettlementPhysics() { this(20, SettlementChoreography.REAR_FLOOR); }
+
+    public SettlementPhysics(int count, double floorY) {
+        this.halfWidth = SettlementChoreography.pileHalfWidth(count);
+        this.halfDepth = SettlementChoreography.pileHalfDepth(count);
+        this.floorY = floorY;
+    }
 
     public static final class Node {
         public double x, y, z, px, py, pz, ox, oy, oz;
@@ -36,11 +46,12 @@ public final class SettlementPhysics {
             active = true;
             for (int i = 0; i < 3; i++) {
                 Node n = nodes[i];
-                n.x = n.ox = x + (i - 1) * .18 * Math.cos(twist);
-                n.y = n.oy = y + (i - 1) * .5;
-                n.z = n.oz = z + (i - 1) * .18 * Math.sin(twist);
-                n.px = n.x - .035 * Math.cos(twist);
-                n.py = n.y; n.pz = n.z - .035 * Math.sin(twist);
+                // 横向倾斜释放，败方一出现就是倒伏尸体，不再直立坠落后“站”在地上。
+                n.x = n.ox = x + (i - 1) * .52 * Math.cos(twist);
+                n.y = n.oy = y + (i - 1) * .12;
+                n.z = n.oz = z + (i - 1) * .52 * Math.sin(twist);
+                n.px = n.x - .009 * Math.cos(twist);
+                n.py = n.y; n.pz = n.z - .009 * Math.sin(twist);
             }
         }
     }
@@ -119,21 +130,18 @@ public final class SettlementPhysics {
         b.px=b.x-bvx+ix; b.py=b.y-bvy+iy; b.pz=b.z-bvz+iz;
     }
 
-    private static void floor(Node n) {
-        if (n.y < RADIUS) {
+    private void floor(Node n) {
+        if (n.y < floorY + RADIUS) {
             double vy = n.y - n.py, vx = n.x - n.px, vz = n.z - n.pz;
-            n.y = RADIUS;
+            n.y = floorY + RADIUS;
             n.py = n.y + Math.min(0, vy) * (Math.abs(vy) > .035 ? .28 : 0);
             n.px = n.x - vx * .78; n.pz = n.z - vz * .78;
         }
-        // 后台承接槽与舞台黑石矮墙一致；高于矮墙的尸体仍能自由翻转和相互碰撞。
-        if (n.y < 2 + RADIUS) {
-            double x = Math.max(-1.16, Math.min(1.16,n.x));
-            double z = Math.max(4.84, Math.min(7.16,n.z));
-            if (x != n.x) { n.x = x; n.px = x; }
-            if (z != n.z) { n.z = z; n.pz = z; }
-        }
-        n.x = Math.max(-14.5, Math.min(14.5,n.x));
-        n.z = Math.max(2.5, Math.min(13.5,n.z));
+        // 开放展示台的中央聚拢区；无高墙遮挡，尸体间碰撞决定最终堆高和方向。
+        double x = Math.max(-halfWidth, Math.min(halfWidth, n.x));
+        double z = Math.max(SettlementChoreography.PILE_Z-halfDepth,
+                Math.min(SettlementChoreography.PILE_Z+halfDepth, n.z));
+        if (x != n.x) { n.x = x; n.px = x; }
+        if (z != n.z) { n.z = z; n.pz = z; }
     }
 }

@@ -52,10 +52,10 @@ public abstract class SettlementGameRendererMixin {
     private static double settlement$fovValue() {
         var mc = net.minecraft.client.Minecraft.getInstance();
         double aspect = mc.getWindow().getWidth() / (double) Math.max(1, mc.getWindow().getHeight());
-        double wide = Math.max(60, Math.min(110, Math.toDegrees(2 * Math.atan(13.0 / (12 * aspect)))));
+        double wide = Math.max(46,Math.min(95,Math.toDegrees(2*Math.atan(6.1/(9*aspect)))));
         double t = SettlementClient.tick() + mc.getTimer().getGameTimeDeltaPartialTick(false);
         double a = Math.max(0, Math.min(1, (t - 210) / 55));
         double b = Math.max(0, Math.min(1, (t - 300) / 20));
-        return wide + (42 - wide) * a * a * (3 - 2 * a) * (1 - b * b * (3 - 2 * b));
+        return wide+(38-wide)*a*a*(3-2*a)*(1-b*b*(3-2*b));
     }
 }
