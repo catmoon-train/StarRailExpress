@@ -630,8 +630,12 @@ public class PoolerRoleData extends SimpleRoleData {
         });
 
         // 减少技能冷却 40 秒：每次购买后涨价 25%，最多涨价 2 次
+        // 图标沿用原版时钟，但用自定义名称说明它的用途（原版「时钟」没有语义）
+        ItemStack cdReduceIcon = new ItemStack(Items.CLOCK);
+        cdReduceIcon.set(DataComponents.CUSTOM_NAME,
+                Component.translatable("item.noellesroles.pooler_cd_reduce"));
         shop.add(new io.wifi.starrailexpress.util.ShopEntry(
-                new ItemStack(Items.CLOCK), CD_REDUCE_PRICE,
+                cdReduceIcon, CD_REDUCE_PRICE,
                 io.wifi.starrailexpress.util.ShopEntry.Type.TOOL) {
             @Override
             public boolean canBuy(@NotNull Player buyer) {

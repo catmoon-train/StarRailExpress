@@ -969,7 +969,6 @@
   "item.noellesroles.dogskin_plaster": "狗皮膏藥",
   "item.noellesroles.catalyst": "催化劑",
   "item.noellesroles.catalyst.tooltip": "右鍵可以催化所有中毒/中假毒/感染的玩家，並使他們立即死亡",
-  
   "item.noellesroles.master_key": "萬能鑰匙",
   "item.noellesroles.sheriff_gun_maintenance": "槍械保養工具",
   "item.noellesroles.sheriff_gun_maintenance.tooltip": "右鍵使用來維護你的手槍\n恢復手槍耐久度並重置冷卻時間\n使用後獲得150金幣",
@@ -5785,5 +5784,6 @@
   "hud.noellesroles.star_gatherer.ready": "就緒",
   "hud.noellesroles.star_gatherer.not_ready": "未就緒",
   "hud.noellesroles.star_gatherer.aura": "星之光環 半徑 %s",
-  "hud.noellesroles.star_gatherer.gravity_uses": "星之引力 %s/%s 次"
+  "hud.noellesroles.star_gatherer.gravity_uses": "星之引力 %s/%s 次",
+  "item.noellesroles.pooler_cd_reduce": "月華沙漏（技能冷卻 -40 秒）"
 }

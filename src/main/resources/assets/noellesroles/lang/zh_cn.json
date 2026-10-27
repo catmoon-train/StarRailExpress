@@ -5880,5 +5880,6 @@
   "hud.noellesroles.star_gatherer.ready": "就绪",
   "hud.noellesroles.star_gatherer.not_ready": "未就绪",
   "hud.noellesroles.star_gatherer.aura": "星之光环 半径 %s",
-  "hud.noellesroles.star_gatherer.gravity_uses": "星之引力 %s/%s 次"
+  "hud.noellesroles.star_gatherer.gravity_uses": "星之引力 %s/%s 次",
+  "item.noellesroles.pooler_cd_reduce": "月华沙漏（技能冷却 -40 秒）"
 }
