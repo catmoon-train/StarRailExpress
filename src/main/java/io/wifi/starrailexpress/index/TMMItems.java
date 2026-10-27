@@ -24,6 +24,7 @@ import io.wifi.starrailexpress.api.impl.KnifeChargeableItem;
 import io.wifi.starrailexpress.content.item.*;
 import io.wifi.starrailexpress.game.roles.SpecialGameModeRoles;
 import io.wifi.starrailexpress.index.wathe_bridge.WatheBridgerItems;
+import io.wifi.starrailexpress.util.ItemSkinManager;
 import net.fabricmc.fabric.api.itemgroup.v1.FabricItemGroup;
 import net.fabricmc.fabric.api.itemgroup.v1.ItemGroupEvents;
 import net.minecraft.core.Registry;
@@ -328,6 +329,18 @@ public interface TMMItems {
         SkinableItem.add(TMMItems.LETTER);
         SkinableItem.add(ModItems.HANDCUFFS);
         SkinableItem.add(ModItems.LOCK_ITEM);
+        // 钥匙：列车钥匙（TMMItems.KEY）与乘务员钥匙（noellesroles:master_key_p）共用 key 皮肤，
+        // 这里只登记列车钥匙一个页签；万能钥匙（noellesroles:master_key）不参与皮肤系统。
+        SkinableItem.add(TMMItems.KEY);
+
+        // 原版物品（无法继承 SkinableItem）：登记后由 GeneralModel 统一接管换肤，
+        // 弓/弩的分阶段模型（_pulling_0~2、_arrow、_firework）由 GeneralModelLoadingPlugin 自动识别。
+        ItemSkinManager.registerVanillaSkinItem(net.minecraft.world.item.Items.BOW,
+                ItemSkinManager.SkinTypes.BOW);
+        ItemSkinManager.registerVanillaSkinItem(net.minecraft.world.item.Items.CROSSBOW,
+                ItemSkinManager.SkinTypes.CROSSBOW);
+        SkinableItem.add(net.minecraft.world.item.Items.BOW);
+        SkinableItem.add(net.minecraft.world.item.Items.CROSSBOW);
 
         // 注册蓄力物品
         ChargeableItemRegistry.register(TMMItems.KNIFE, new KnifeChargeableItem());

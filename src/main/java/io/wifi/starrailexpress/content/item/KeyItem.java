@@ -35,9 +35,18 @@ import net.minecraft.world.level.block.state.properties.DoubleBlockHalf;
 
 import java.util.List;
 
-public class KeyItem extends Item implements AdventureUsable {
+public class KeyItem extends SkinableItem implements AdventureUsable {
     public KeyItem(Properties settings) {
         super(settings);
+    }
+
+    /**
+     * 列车钥匙使用 {@code key} 皮肤；乘务员钥匙（noellesroles:master_key_p）同样共用该皮肤类型，
+     * 万能钥匙（noellesroles:master_key）不支持换肤。
+     */
+    @Override
+    public String getItemSkinType() {
+        return io.wifi.starrailexpress.util.ItemSkinManager.SkinTypes.KEY;
     }
 
     @Override

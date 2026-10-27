@@ -16,6 +16,7 @@
 package org.agmas.noellesroles.content.item;
 
 import io.wifi.starrailexpress.content.block.SmallDoorBlock;
+import io.wifi.starrailexpress.content.item.SkinableItem;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.EquipmentSlot;
@@ -25,9 +26,15 @@ import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 
-public class MasterKeyItem extends Item {
+public class MasterKeyItem extends SkinableItem {
     public MasterKeyItem(Properties settings) {
         super(settings);
+    }
+
+    /** 乘务员钥匙与普通钥匙共用 {@code key} 皮肤。 */
+    @Override
+    public String getItemSkinType() {
+        return io.wifi.starrailexpress.util.ItemSkinManager.SkinTypes.KEY;
     }
     public InteractionResult useOn(UseOnContext context) {
         Player player = context.getPlayer();

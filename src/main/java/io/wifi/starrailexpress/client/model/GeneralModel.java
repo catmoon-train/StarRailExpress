@@ -45,13 +45,22 @@ public class GeneralModel implements UnbakedModel, BakedModel {
      */
     private final Map<String, Map<GeneralModelLoadingPlugin.Variant, BakedModel>> bakeModels = new HashMap<>();
     private final UnbakedModel defaultUnbakedModel;
+    /** 物品自身的基准模型位置（不带 item/ 前缀，例如 {@code minecraft:bow}） */
     private final ModelResourceLocation defaultModelLocation;
+    /** 分阶段物品的阶段后缀，如 {@code ""}、{@code "_pulling_0"}、{@code "_arrow"} */
+    private final String stageSuffix;
     private BakedModel defaultBakedModel = null;
     private String itemType;
 
     public GeneralModel(String itemType, ModelResourceLocation defaulLocation, UnbakedModel defaultUnbakedModel) {
+        this(itemType, defaulLocation, "", defaultUnbakedModel);
+    }
+
+    public GeneralModel(String itemType, ModelResourceLocation defaulLocation, String stageSuffix,
+            UnbakedModel defaultUnbakedModel) {
         this.defaultUnbakedModel = defaultUnbakedModel;
         this.defaultModelLocation = defaulLocation;
+        this.stageSuffix = stageSuffix == null ? "" : stageSuffix;
         this.itemType = itemType;
     }
 
@@ -69,14 +78,22 @@ public class GeneralModel implements UnbakedModel, BakedModel {
     public @Nullable BakedModel bake(ModelBaker baker, Function<Material, TextureAtlasSprite> textureGetter,
             ModelState settings) {
         var itml = defaultModelLocation.id();
-        defaultBakedModel = baker.bake(itml.withPath("item/" + itml.getPath()),
+        defaultBakedModel = baker.bake(itml.withPath("item/" + itml.getPath() + stageSuffix),
                 settings);
+        boolean staged = GeneralModelLoadingPlugin.isStaged(itemType);
         for (ItemSkinManager.Skin skin : ItemSkinManager.getSkins(itemType).values()) {
             for (GeneralModelLoadingPlugin.Variant variant : GeneralModelLoadingPlugin.Variant.values()) {
-                var bakedModel = baker.bake(
-                        GeneralModelLoadingPlugin.getModelLocation(itemType, skin.getName(), variant),
-                        settings);
-                if (skin.getName() == "default")
+                // 分阶段物品只用阶段区分模型，不需要手持/GUI 变体
+                if (staged && variant != GeneralModelLoadingPlugin.Variant.DEFAULT) {
+                    continue;
+                }
+                ResourceLocation location = GeneralModelLoadingPlugin.getModelLocation(itemType, skin.getName(),
+                        variant, stageSuffix);
+                if (location == null) {
+                    continue;
+                }
+                var bakedModel = baker.bake(location, settings);
+                if ("default".equals(skin.getName()))
                     continue;
                 // 皮肤已注册但模型文件还没放进来时跳过，避免渲染时 NPE（正常回退到默认模型）
                 if (bakedModel == null)
@@ -104,9 +121,12 @@ public class GeneralModel implements UnbakedModel, BakedModel {
     @Override
     public void emitItemQuads(ItemStack stack, Supplier<RandomSource> randomSupplier, RenderContext context) {
         var mode = context.itemTransformationMode();
-        var variant = mode.firstPerson() || IN_HAND.contains(mode) ? GeneralModelLoadingPlugin.Variant.IN_HAND
-                : GeneralModelLoadingPlugin.Variant.DEFAULT;
-        
+        // 分阶段物品（弓/弩）的阶段已由原版 overrides 拆成独立模型，这里固定用 DEFAULT
+        var variant = (!GeneralModelLoadingPlugin.isStaged(itemType)
+                && (mode.firstPerson() || IN_HAND.contains(mode)))
+                        ? GeneralModelLoadingPlugin.Variant.IN_HAND
+                        : GeneralModelLoadingPlugin.Variant.DEFAULT;
+
         // 从玩家的CCA组件获取皮肤，而不是仅依赖TMMCosmetics
         String skinName = stack.get(SREDataComponentTypes.SKIN);
         if (skinName == null) {
@@ -114,11 +134,20 @@ public class GeneralModel implements UnbakedModel, BakedModel {
         }
         var skin = ItemSkinManager.Skin.fromString(itemType, skinName);
 
-        if (skin != null && bakeModels.containsKey(skin.getName()) && bakeModels.containsKey(skin.getName())
-                && bakeModels.get(skin.getName()).containsKey(variant))
-            bakeModels.get(skin.getName()).get(variant).emitItemQuads(stack, randomSupplier, context);
-        else
-            getDefaultModel().emitItemQuads(stack, randomSupplier, context);
+        Map<GeneralModelLoadingPlugin.Variant, BakedModel> variants = skin == null ? null
+                : bakeModels.get(skin.getName());
+        if (variants != null) {
+            BakedModel baked = variants.get(variant);
+            // 皮肤只提供了 GUI 模型时，手持也退化到同一份皮肤模型，避免露出原版贴图
+            if (baked == null) {
+                baked = variants.get(GeneralModelLoadingPlugin.Variant.DEFAULT);
+            }
+            if (baked != null) {
+                baked.emitItemQuads(stack, randomSupplier, context);
+                return;
+            }
+        }
+        getDefaultModel().emitItemQuads(stack, randomSupplier, context);
     }
 
     /**

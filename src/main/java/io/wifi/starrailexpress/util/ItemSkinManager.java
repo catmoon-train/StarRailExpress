@@ -192,6 +192,12 @@ public class ItemSkinManager {
         public static final String LETTER = "letter";
         public static final String HANDCUFFS = "handcuffs";
         public static final String LOCK = "lock";
+        /** 钥匙：列车钥匙与乘务员钥匙（noellesroles:master_key_p）共用；万能钥匙（master_key）不参与皮肤。 */
+        public static final String KEY = "key";
+        /** 原版弓：分未拉弓 / 蓄力 0~2 三个阶段。 */
+        public static final String BOW = "bow";
+        /** 原版弩：分待机 / 蓄力 0~2 / 装填箭 / 装填烟花阶段。 */
+        public static final String CROSSBOW = "crossbow";
     }
 
     /** 皮肤选择项中的「随机」伪皮肤名：每次开局从该类型已拥有的皮肤中随机抽取。 */
@@ -224,7 +230,7 @@ public class ItemSkinManager {
                 SkinTypes.MUSIC_BOX,
                 SkinTypes.SHORT_SHOTGUN, SkinTypes.DERRINGER, SkinTypes.LOCKPICK, SkinTypes.CROWBAR,
                 SkinTypes.BODY_BAG, SkinTypes.NOTE, SkinTypes.FIRECRACKER, SkinTypes.LETTER,
-                SkinTypes.HANDCUFFS, SkinTypes.LOCK };
+                SkinTypes.HANDCUFFS, SkinTypes.LOCK, SkinTypes.KEY, SkinTypes.BOW, SkinTypes.CROSSBOW };
         for (int i = 0; i < typeOrder.length; i++) {
             registerType(typeOrder[i]);
         }
@@ -448,11 +454,45 @@ public class ItemSkinManager {
      * @return 物品类型名称
      */
     public static String getItemTypeName(ItemStack itemStack) {
-        if (itemStack.getItem() instanceof SkinableItem skit) {
-            return skit.getItemSkinType();
-        }
         Item item = itemStack.getItem();
+        String skinType = getItemSkinType(item);
+        if (skinType != null) {
+            return skinType;
+        }
         String itemId = BuiltInRegistries.ITEM.getKey(item).getPath();
         return itemId.toLowerCase();
+    }
+
+    // === 原版物品的皮肤支持 ===
+    // 原版物品（弓、弩等）无法改成 {@link SkinableItem} 的子类，这里显式登记「物品 → 皮肤类型」。
+    private static final Map<Item, String> vanillaSkinItems = new java.util.LinkedHashMap<>();
+
+    /**
+     * 把原版物品登记为某个皮肤类型的持有者，例如
+     * {@code registerVanillaSkinItem(Items.BOW, SkinTypes.BOW)}。
+     */
+    public static void registerVanillaSkinItem(Item item, String itemTypeName) {
+        if (item == null || itemTypeName == null) {
+            return;
+        }
+        vanillaSkinItems.putIfAbsent(item, itemTypeName);
+        if (!skinTypeIdMap.containsKey(itemTypeName)) {
+            registerType(itemTypeName);
+        }
+    }
+
+    /** 已登记的原版可换肤物品（物品 → 皮肤类型）。 */
+    public static Map<Item, String> getVanillaSkinItems() {
+        return vanillaSkinItems;
+    }
+
+    /**
+     * 物品对应的皮肤类型；不可换肤的物品返回 {@code null}。
+     */
+    public static String getItemSkinType(Item item) {
+        if (item instanceof SkinableItem skinable) {
+            return skinable.getItemSkinType();
+        }
+        return vanillaSkinItems.get(item);
     }
 }
