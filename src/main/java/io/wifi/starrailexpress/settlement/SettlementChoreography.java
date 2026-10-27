@@ -51,8 +51,11 @@ public final class SettlementChoreography {
                 PILE_Z + Math.sin(angle) * radius * .8);
     }
 
-    /** 黑化由真实死亡事实决定；尸堆里的败方另外单独判定。 */
-    public static boolean silhouette(boolean finalDead, boolean replayDead) {
-        return finalDead || replayDead;
+    /**
+     * 只有“获胜阵营里已死亡的人”才变黑。
+     * <p>落败者本身就在后排尸体堆里，保持原本皮肤颜色；存活者无论阵营都不变黑。</p>
+     */
+    public static boolean silhouette(boolean winner, boolean dead) {
+        return winner && dead;
     }
 }

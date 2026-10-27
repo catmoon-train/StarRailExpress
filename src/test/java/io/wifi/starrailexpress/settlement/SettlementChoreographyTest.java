@@ -98,9 +98,10 @@ class SettlementChoreographyTest {
         assertFalse(SettlementSnapshot.involves(mvp, theirs));
     }
 
-    @Test void silhouetteOnlyFollowsRealDeath() {
-        assertTrue(SettlementChoreography.silhouette(true, false));
-        assertTrue(SettlementChoreography.silhouette(false, true));
+    @Test void onlyDeadWinnersTurnBlack() {
+        assertTrue(SettlementChoreography.silhouette(true, true), "获胜阵营的死者要变黑");
+        assertFalse(SettlementChoreography.silhouette(true, false), "获胜阵营的存活者不能变黑");
+        assertFalse(SettlementChoreography.silhouette(false, true), "落败者即使死亡也保持原色");
         assertFalse(SettlementChoreography.silhouette(false, false));
     }
 }

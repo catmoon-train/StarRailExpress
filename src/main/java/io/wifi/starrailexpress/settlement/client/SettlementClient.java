@@ -221,7 +221,8 @@ public final class SettlementClient {
                 var drop = SettlementChoreography.drop(actor.order, losers);
                 actor.body.release(drop.x(), drop.y(), drop.z());
             }
-            boolean black = SettlementChoreography.silhouette(actor.fact.dead(), actor.dead);
+            // 只有获胜阵营里已死亡的人变黑；落败者保持原色，存活者不变黑。
+            boolean black = SettlementChoreography.silhouette(actor.fact.winner(), actor.fact.dead());
             actor.blackness += ((black ? 1 : 0) - actor.blackness) * .12f;
         }
         physics.tick();
