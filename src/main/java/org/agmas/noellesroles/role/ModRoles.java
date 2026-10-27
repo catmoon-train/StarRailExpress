@@ -110,6 +110,7 @@ import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.cca.SREPlayerMoodComponent;
 import io.wifi.starrailexpress.cca.SREPlayerPoisonComponent;
 import io.wifi.starrailexpress.cca.SREPlayerShopComponent;
+import io.wifi.starrailexpress.cca.SREWeakArmorPlayerComponent;
 import io.wifi.starrailexpress.client.gui.RoleAnnouncementTexts;
 import io.wifi.starrailexpress.content.entity.PlayerBodyEntity;
 import io.wifi.starrailexpress.game.GameUtils;
@@ -235,6 +236,10 @@ public class ModRoles {
     public static final ResourceLocation MARTIAL_ARTS_INSTRUCTOR_ID = Noellesroles.id("martial_arts_instructor");
     public static final ResourceLocation SEA_KING_ID = Noellesroles.id("sea_king");
     public static final ResourceLocation WATER_GHOST_ID = Noellesroles.id("water_ghost");
+    /** 祈月者：杀手阵营，只在水下地图刷新，与摘星者绑定生成。 */
+    public static final ResourceLocation POOLER_ID = Noellesroles.id("pooler");
+    /** 摘星者：警长阵营，只在水下地图刷新，只能与祈月者绑定生成。 */
+    public static final ResourceLocation STAR_GATHERER_ID = Noellesroles.id("star_gatherer");
 
     // 飞行员角色 ID
     public static final ResourceLocation PILOT_ID = Noellesroles.id("pilot");
@@ -1910,6 +1915,102 @@ public class ModRoles {
             .setAddedVersion("4.4");
 
     /**
+     * 祈月者 - 杀手阵营（只在水下地图刷新）。
+     * <ul>
+     * <li>常态拥有水下呼吸，可使用三叉戟（{@code setCanKillWithTrident}）</li>
+     * <li>占用 2 个杀手位、刷新概率 50%、只在 18 人及以上对局刷新</li>
+     * <li>与摘星者绑定生成；与水鬼、愚者双向互斥；无法被其它职业随机到</li>
+     * <li>开局：忠诚 III 三叉戟 + 月之祝福；四个可切换技能见 {@code PoolerRoleData}</li>
+     * </ul>
+     */
+    public static SRERole POOLER = TMMRoles.registerRole(new ExtraEffectRole(
+            POOLER_ID,
+            new Color(120, 180, 255).getRGB(), // 月白蓝
+            false, // 杀手阵营
+            true, // 有杀手能力
+            SRERole.MoodType.FAKE,
+            Integer.MAX_VALUE,
+            true) {
+        /** 祈月者的专属商店（三叉戟 / 减冷却 / 关灯 / 开锁器 / 撬棍 / 疯狂模式）。 */
+        @Override
+        public java.util.List<io.wifi.starrailexpress.util.ShopEntry> getShopEntries() {
+            return org.agmas.noellesroles.role_data.killer.PoolerRoleData.buildShopEntries();
+        }
+
+        /** 疯狂模式拿三叉戟而不是球棒，并且职业武器结束时不回收。 */
+        @Override
+        public Item getPsychoItem() {
+            return Items.TRIDENT;
+        }
+
+        @Override
+        public boolean shouldClearGrantedPsychoWeapon(Player player, Item weapon) {
+            return false;
+        }
+    }.addEffect(
+                    new MobEffectInstance(
+                            MobEffects.WATER_BREATHING,
+                            30 * 20,
+                            0,
+                            true,
+                            false,
+                            true)))
+            .setRoleData(org.agmas.noellesroles.role_data.killer.PoolerRoleData::new)
+            .setCanSeeCoin(true)
+            .setCanBeRandomedByOtherRoles(false)
+            .setSpecialMapRole(MapSpecialFeatures.UNDERWATER)
+            .setOccupiedRoleCount(2)
+            .setDefaultMax(1)
+            .setDefaultEnableChance(5000) // 50%
+            .setDefaultEnableNeededPlayerCount(18)
+            .setCanKillWithTrident(true)
+            .setAddedVersion("4.4");
+
+    /**
+     * 摘星者 - 警长阵营（只在水下地图刷新）。
+     * <ul>
+     * <li>常态水下呼吸 + 夜视，可使用三叉戟与特殊原版武器，无法捡起左轮手枪</li>
+     * <li>占用 2 个警长位，最大生成数量 0（只能与祈月者绑定生成），无法被其它职业随机到</li>
+     * <li>开局：星之权杖；被动星之光环见 {@code StarGathererRoleData}</li>
+     * </ul>
+     */
+    public static SRERole STAR_GATHERER = TMMRoles.registerRole(new ExtraEffectRole(
+            STAR_GATHERER_ID,
+            new Color(255, 230, 140).getRGB(), // 星光金
+            true, // 警长阵营走 setVigilanteTeam
+            false, // 无杀手能力
+            SRERole.MoodType.REAL,
+            Integer.MAX_VALUE,
+            false).addEffect(
+                    new MobEffectInstance(
+                            MobEffects.WATER_BREATHING,
+                            30 * 20,
+                            0,
+                            true,
+                            false,
+                            true))
+                    .addEffect(
+                            new MobEffectInstance(
+                                    MobEffects.NIGHT_VISION,
+                                    30 * 20,
+                                    0,
+                                    true,
+                                    false,
+                                    true)))
+            .setRoleData(org.agmas.noellesroles.role_data.innocence.StarGathererRoleData::new)
+            .setCanSeeCoin(true)
+            .setVigilanteTeam(true)
+            .setSpecialPolice(true)
+            .setCanBeRandomedByOtherRoles(false)
+            .setSpecialMapRole(MapSpecialFeatures.UNDERWATER)
+            .setOccupiedRoleCount(2)
+            .setDefaultMax(0)
+            .setCanKillWithTrident(true)
+            .setCanUseSpVanillaWeapon(true)
+            .setCanPickUpRevolver(false)
+            .setAddedVersion("4.4");
+
+    /**
      * 攻城手 - 杀手阵营
      * - 属于杀手阵营 (isInnocent = false, canUseKiller = true)
      * - 假心情系统、无限冲刺时间、在计分板上显示
@@ -3432,7 +3533,7 @@ public class ModRoles {
             SRERole.MoodType.FAKE,
             Integer.MAX_VALUE,
             true
-    )).setCanSeeCoin(true).setDefaultMax(1).setDefaultEnableChance(5000);
+    )).setCanSeeCoin(true).setDefaultMax(1).setDefaultEnableChance(5000).setCanBeRandomedByOtherRoles(false);
 
     // 模仿者 - 杀手角色，右键尸体吃掉获得永久能力
     public static SRERole IMITATOR = TMMRoles.registerRole(new NormalRole(
@@ -3655,12 +3756,12 @@ public class ModRoles {
         BounsRoles.init();
         SREPlayerPoisonComponent.canSyncedRolePaths.add(ModRoles.POISONER_ID.getPath());
         SREPlayerPoisonComponent.canSyncedRolePaths.add(ModRoles.BARTENDER_ID.getPath());
-        SREArmorPlayerComponent.canSynced.add((entry) -> {
+        // 酒保透视护盾：不区分阵营，是否可见由护盾层自身的「可被酒保透视」标记决定
+        SREArmorPlayerComponent.canSynced.add((entry) -> RoleUtils.compareRole(entry.getKey(), ModRoles.BARTENDER));
+        // 弱效护盾没有「可被酒保透视」标记，沿用原有规则：只透视好人阵营的弱效护盾
+        SREWeakArmorPlayerComponent.canSynced.add((entry) -> {
             if (RoleUtils.compareRole(entry.getKey(), ModRoles.BARTENDER)) {
-                if (SREGameWorldComponent.isInnocentRoleStatic(entry.getValue())) {
-                    return true;
-                }
-                return false;
+                return SREGameWorldComponent.isInnocentRoleStatic(entry.getValue());
             }
             return false;
         });
@@ -3702,6 +3803,12 @@ public class ModRoles {
         ModRoles.ANATMAN.addOccupationRole(ModRoles.ASATYA);
         // 无我与年兽互斥生成
         ModRoles.ANATMAN.addTwoWayOpposingRole(ModRoles.NIAN_SHOU);
+
+        // 祈月者与摘星者绑定生成（摘星者最大生成数量为 0，只能靠这条绑定出现）
+        ModRoles.POOLER.addOccupationRole(ModRoles.STAR_GATHERER);
+        // 祈月者与水鬼、愚者互斥生成
+        ModRoles.POOLER.addTwoWayOpposingRole(ModRoles.WATER_GHOST);
+        ModRoles.POOLER.addTwoWayOpposingRole(ModRoles.THE_FOOL);
 
         RoleSkill.register(ModRoles.THE_FOOL, FoolRoleData::useSkill);
 

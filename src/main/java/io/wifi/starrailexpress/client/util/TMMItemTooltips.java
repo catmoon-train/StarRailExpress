@@ -98,6 +98,7 @@ public class TMMItemTooltips {
             addTooltipForItem(FunnyItems.ICE_RED_TEA, itemStack, tooltipList);
             addTooltipForItem(FunnyItems.COOKED_HAIMAN, itemStack, tooltipList);
             addTooltipForItem(ModItems.TOMATO, itemStack, tooltipList);
+            addTooltipForItem(ModItems.CATALYST, itemStack, tooltipList);
 
             addShopRoleTooltip(itemStack, tooltipList);
         });

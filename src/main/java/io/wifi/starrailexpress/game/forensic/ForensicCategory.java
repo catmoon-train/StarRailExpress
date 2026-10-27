@@ -116,6 +116,9 @@ public enum ForensicCategory {
                 || p.contains("bomb") || p.contains("tnt")) {
             return EXPLOSIVE;
         }
+        if (p.contains("star")) {
+            return BLUNT;
+        }
         if (p.contains("fell") || p.contains("fire") || p.contains("burn") || p.contains("crush")
                 || p.contains("suffocat") || p.contains("incinerat") || p.contains("impale")
                 || p.contains("boulder") || p.contains("manhole") || p.contains("stalactite")) {

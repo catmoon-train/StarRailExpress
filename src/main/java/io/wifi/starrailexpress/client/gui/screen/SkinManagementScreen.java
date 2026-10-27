@@ -217,6 +217,11 @@ public class SkinManagementScreen extends Screen {
         if (player != null && TMMItems.SkinableItem != null) {
             for (Item item : TMMItems.SkinableItem) {
                 String itemTypeName = BuiltInRegistries.ITEM.getKey(item).toString();
+                // 该类型还没有任何皮肤时（例如刚接入、皮肤资源尚未添加的弓/弩）不显示空页签
+                String skinType = ItemSkinManager.getItemSkinType(item);
+                if (skinType != null && ItemSkinManager.getSkins(skinType).isEmpty()) {
+                    continue;
+                }
                 categories.add(new CategoryTabData(itemTypeName,
                         Component.literal(getItemShortName(item)), item));
             }

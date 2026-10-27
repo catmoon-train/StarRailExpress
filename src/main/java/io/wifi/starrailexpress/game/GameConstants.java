@@ -369,6 +369,8 @@ public class GameConstants {
         public static ResourceLocation PAPER_CUT = Noellesroles.id("paper_cut");
         public static ResourceLocation FOG_BLADE = Noellesroles.id("fog_blade");
         public static ResourceLocation STONE_SPEAR = Noellesroles.id("stone_spear");
+        /** 摘星者「星之光环」/「星之引力」召唤的星星砸中致死 */
+        public static ResourceLocation STAR = Noellesroles.id("star");
 
         private static ResourceLocation itemId(Item item) {
             return BuiltInRegistries.ITEM.getKey(item);

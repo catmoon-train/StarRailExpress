@@ -135,8 +135,10 @@ public class SkinSelectionList extends ObjectSelectionList<SkinSelectionList.Ski
         for (var entry : unlockedSkins.entrySet()) {
             availableSkins.add(entry.getKey());
         }
-        if (itemType.getItem() instanceof SkinableItem it) {
-            var allSkins = ItemSkinManager.getSkins(it.getItemSkinType());
+        // 支持不能继承 SkinableItem 的原版物品（弓、弩）
+        String skinType = ItemSkinManager.getItemSkinType(itemType.getItem());
+        if (skinType != null) {
+            var allSkins = ItemSkinManager.getSkins(skinType);
             if (allSkins != null) {
                 for (String skinName : allSkins.keySet()) {
                     if (!availableSkins.contains(skinName)) {
@@ -269,10 +271,14 @@ public class SkinSelectionList extends ObjectSelectionList<SkinSelectionList.Ski
             if (ItemSkinManager.isRandomSkin(skinName)) {
                 // 「随机」用金色区别于「未装备」
                 sskinColor = 0xFFD4AF37;
-            } else if (itemType.getItem() instanceof SkinableItem it) {
-                var skin = ItemSkinManager.Skin.fromString(it.getItemSkinType(), skinName);
-                if (skin != null)
-                    sskinColor = skin.getColor();
+            } else {
+                // 支持不能继承 SkinableItem 的原版物品（弓、弩）
+                String skinType = ItemSkinManager.getItemSkinType(itemType.getItem());
+                if (skinType != null) {
+                    var skin = ItemSkinManager.Skin.fromString(skinType, skinName);
+                    if (skin != null)
+                        sskinColor = skin.getColor();
+                }
             }
             this.skinColor = sskinColor;
             // 「随机」恒可选：未拥有任何皮肤时开局会回退到未装备

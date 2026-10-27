@@ -67,7 +67,7 @@ import java.util.*;
 public class AmonRoleData extends SimpleRoleData {
 
 
-    /** 时之虫潜伏成熟时间：90 秒。 */
+    /** 时之虫潜伏成熟时间：75 秒。 */
     public static final int INCUBATION_TICKS = 75 * 20;
     private static final int POSSESSION_REQUIRED_TICKS = 60 * 20;
     /** 终幕「寻找阿蒙」持续时间：80 秒。 */

@@ -248,10 +248,12 @@
 
 ### `sre:shield`（别名 `sre:armor`）— 护盾管理
 - **权限**: `2`
-- **结构**: `sre:shield <normal|timed|weak> add|set|get|clear <layers> [更多参数] [targets]`
-  - 第一段必须是**护盾类型**：`normal` / `timed` / `weak`（所以 `/sre:shield add 5` 是错的，应为 `/sre:shield normal add 5`）
+- **结构**: `sre:shield <normal|timed|weak|virtual> add|set|get|clear <layers> [更多参数] [targets]`
+  - 第一段必须是**护盾类型**：`normal` / `timed` / `weak` / `virtual`（所以 `/sre:shield add 5` 是错的，应为 `/sre:shield normal add 5`）
   - 数量参数名是 `layers`（int >= 0），不是 `amount`
-  - `timed` 额外需要 `<seconds> <reset>`（bool）；`weak` 额外需要 `<seconds> <deathReason>`
+  - `normal` 可选 `<bartenderVisible>`（bool，默认 `false`）：该层护盾是否可被酒保透视
+  - `timed` 额外需要 `<seconds> <reset>`（bool），之后可选 `<bartenderVisible>`（bool，默认 `false`）；`weak` 额外需要 `<seconds> <deathReason>`
+  - `bartenderVisible` 可省略以兼容旧语法；护盾试剂/深渊护盾试剂给予的护盾恒为可透视（不区分阵营）
   - `get` / `clear` 可直接执行或加 `[targets]`
 - **用途**: 管理玩家护盾层数
 

@@ -35,6 +35,7 @@ public final class PlayerStats {
     private int totalLosses;
     private int totalTeamKills;
     private int totalLoversWins;
+    private int totalMvps;
     private int totalCivilianGames;
     private int totalCivilianWins;
     private int totalCivilianKills;
@@ -84,6 +85,7 @@ public final class PlayerStats {
         totalLosses = data.getTotalLosses();
         totalTeamKills = data.getTotalTeamKills();
         totalLoversWins = data.getTotalLoversWins();
+        totalMvps = data.getTotalMvps();
         totalCivilianGames = data.getTotalCivilianGames();
         totalCivilianWins = data.getTotalCivilianWins();
         totalCivilianKills = data.getTotalCivilianKills();
@@ -118,6 +120,7 @@ public final class PlayerStats {
             stats.winsAsRole = roleData.getWinsAsRole();
             stats.lossesAsRole = roleData.getLossesAsRole();
             stats.teamKillsAsRole = roleData.getTeamKillsAsRole();
+            stats.mvpsAsRole = roleData.getMvpsAsRole();
             roleStats.put(id, stats);
         });
     }
@@ -231,6 +234,20 @@ public final class PlayerStats {
 
     public void incrementTotalLoversWins() {
         totalLoversWins++;
+        markDirty();
+    }
+
+    public int getTotalMvps() {
+        return totalMvps;
+    }
+
+    public void setTotalMvps(int value) {
+        totalMvps = value;
+        markDirty();
+    }
+
+    public void incrementTotalMvps() {
+        totalMvps++;
         markDirty();
     }
 
@@ -393,6 +410,7 @@ public final class PlayerStats {
         private int winsAsRole;
         private int lossesAsRole;
         private int teamKillsAsRole;
+        private int mvpsAsRole;
 
         private RoleStats() {
         }
@@ -478,6 +496,20 @@ public final class PlayerStats {
 
         public void incrementTeamKillsAsRole() {
             teamKillsAsRole++;
+            markDirty();
+        }
+
+        public int getMvpsAsRole() {
+            return mvpsAsRole;
+        }
+
+        public void setMvpsAsRole(int value) {
+            mvpsAsRole = value;
+            markDirty();
+        }
+
+        public void incrementMvpsAsRole() {
+            mvpsAsRole++;
             markDirty();
         }
     }

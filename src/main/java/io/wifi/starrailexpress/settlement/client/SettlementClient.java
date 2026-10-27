@@ -109,6 +109,8 @@ public final class SettlementClient {
                 phase = Phase.PLAYING; playTick = 0; eventIndex = -1;
                 lastCameraFrame = 0;
                 SettlementAudio.cue("INTRO");
+                // 演出一开始就放本局胜利/失败对应的结算音乐，PREPARE 已把上一份现场音停掉。
+                SettlementAudio.playSettlementMusic(localWin());
             }
             case SettlementPayload.STOP -> clear();
             default -> { }
@@ -261,6 +263,20 @@ public final class SettlementClient {
             if (mc.level.getChunkSource().getChunk(x, z,
                     net.minecraft.world.level.chunk.status.ChunkStatus.FULL, false) == null) return false;
         return true;
+    }
+
+    /** 本地玩家本局胜负：优先用舞台快照里的本人条目，未参与的旁观者回落到回合结束组件。 */
+    private static boolean localWin() {
+        Minecraft mc = Minecraft.getInstance();
+        if (mc.player == null) return false;
+        ActorState self = byId.get(mc.player.getUUID());
+        if (self != null) return self.fact.winner();
+        if (mc.level == null) return false;
+        try {
+            return io.wifi.starrailexpress.cca.SREGameRoundEndComponent.KEY.get(mc.level).didWin(mc.player.getUUID());
+        } catch (RuntimeException ignored) {
+            return false;
+        }
     }
 
     private static void showEvent(SettlementSnapshot.Event event) {

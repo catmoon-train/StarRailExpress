@@ -738,6 +738,19 @@ public class ModEntities {
                     .build("command_block_marker"));
 
     /**
+     * 摘星者的星星实体 - 追踪目标并俯冲砸死（死因 {@code noellesroles:star}）。
+     * 只有召唤者本人在客户端能看到模型，其余人只看到粒子。
+     */
+    @SuppressWarnings("deprecation")
+    public static final EntityType<StarProjectileEntity> STAR = Registry.register(
+            BuiltInRegistries.ENTITY_TYPE,
+            Noellesroles.id("star"),
+            FabricEntityTypeBuilder.<StarProjectileEntity>create(MobCategory.MISC, StarProjectileEntity::new)
+                    .dimensions(EntityDimensions.fixed(0.6F, 0.6F))
+                    .trackRangeBlocks(96)
+                    .trackedUpdateRate(1)
+                    .build());
+    /**
      * 初始化实体
      * 注册实体属性（LivingEntity 需要）
      */

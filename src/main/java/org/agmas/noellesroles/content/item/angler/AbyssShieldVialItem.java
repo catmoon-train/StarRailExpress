@@ -58,7 +58,7 @@ public class AbyssShieldVialItem extends Item {
     public @NotNull ItemStack finishUsingItem(@NotNull ItemStack stack, @NotNull Level level,
             @NotNull LivingEntity entity) {
         if (!level.isClientSide && entity instanceof Player player && GameUtils.isPlayerAliveAndSurvival(player)) {
-            SREArmorPlayerComponent.KEY.get(player).addArmor();
+            SREArmorPlayerComponent.KEY.get(player).addBartenderVisibleArmor();
             level.playSound(null, player.blockPosition(), SoundEvents.BOTTLE_EMPTY, SoundSource.PLAYERS, 1f, 1.1f);
             stack.shrink(1);
         }

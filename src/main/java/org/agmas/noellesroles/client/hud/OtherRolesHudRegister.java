@@ -109,6 +109,8 @@ public class OtherRolesHudRegister {
         ChinoHeadRideHud.register();
         SilverWingHud.register();
         AsatyaHud.register();
+        PoolerHud.register();
+        StarGathererHud.register();
         // 自定义职业HUD
         CustomRoleHud.register();
     }

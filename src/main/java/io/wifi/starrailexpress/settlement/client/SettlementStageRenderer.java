@@ -108,7 +108,7 @@ public final class SettlementStageRenderer {
                             .83f, .68f, .22f, pulse);
                 }
             }
-            billboard(pose, buffer, actor, x, y, z, physical, mvp, action);
+            billboard(pose, buffer, actor, x, y, z, physical, mvp, partial);
         }
         pose.popPose();
         buffer.endBatch();
@@ -179,10 +179,31 @@ public final class SettlementStageRenderer {
         return (r > 140 && g > 110 && b < 100) || (r > 110 && b > 110 && g < 120);
     }
 
+    /** 名字与职业固定挂在角色头顶；尸体沿体轴取头部端点，再抬到身体上方。 */
     private static void billboard(PoseStack pose, MultiBufferSource buffer, SettlementClient.ActorState actor,
-                                  double x, double y, double z, boolean physical, boolean mvp, double action) {
+                                  double x, double y, double z, boolean physical, boolean mvp, float partial) {
         Minecraft mc = Minecraft.getInstance();
-        // 紧凑队列的标签放在头顶；尸堆只给当前事件相关者显示，避免一团重叠文字。
+        double labelX = x, labelZ = z, labelY;
+        if (physical) {
+            // 三质点胶囊：nodes[2] 是头部端点，模型头顶还要再沿体轴延伸约 .36。
+            var middle = actor.body.nodes[1];
+            var head = actor.body.nodes[2];
+            double dx = head.x(partial) - middle.x(partial), dy = head.y(partial) - middle.y(partial);
+            double dz = head.z(partial) - middle.z(partial);
+            double length = Math.sqrt(dx * dx + dy * dy + dz * dz);
+            if (length > 1e-6) { dx /= length; dy /= length; dz /= length; }
+            else { dx = 0; dy = 1; dz = 0; }
+            labelX = head.x(partial) + dx * .34;
+            labelY = head.y(partial) + dy * .34;
+            labelZ = head.z(partial) + dz * .34;
+            // 躺平的尸体沿体轴延伸只会贴地，按体轴直立程度补世界向上的抬升。
+            labelY += .42 * Math.max(0, 1 - Math.abs(dy));
+        } else {
+            // 站立模型头顶约在 y + 1.8，文字整体再抬到头顶上方。
+            labelY = y + 2.02;
+        }
+        // 尸堆里只给当前事件相关者显示文字，避免一堆名字叠在一起；判定必须在压栈前。
+        double action = Math.max(0, 1 - (SettlementClient.tick() + partial - actor.actionAt) / 22);
         if (physical && action <= 0) return;
         Component name = Component.literal(actor.fact.name());
         ResourceLocation id = ResourceLocation.tryParse(actor.role);
@@ -190,15 +211,17 @@ public final class SettlementStageRenderer {
                 ? Component.translatable("settlement.starrailexpress.unknown_role") : RoleUtils.getRoleName(id);
         int color = actor.fact.color() | 0xFF000000;
         pose.pushPose();
-        pose.translate(x, y + (physical ? .9 : (mvp ? 2.62 : 2.18)), z);
+        pose.translate(labelX, labelY, labelZ);
         pose.mulPose(mc.gameRenderer.getMainCamera().rotation());
-        pose.scale(.011f, -.011f, .011f);
+        // 紧凑站位用较小字号，避免相邻玩家标签互相压住。
+        pose.scale(.012f, -.012f, .012f);
         drawLabel(pose, buffer, name, -5, mvp ? 0xFFD4AF37 : 0xFFFFF4DC);
         drawLabel(pose, buffer, role, 7, color);
         if (mvp) drawLabel(pose, buffer, Component.translatable("settlement.starrailexpress.mvp"), -17, 0xFFD4AF37);
         pose.popPose();
         if (actor.blackness > .25f) {
-            pose.pushPose(); pose.translate(x, y + (physical ? .95 : 1.55), z - .30);
+            // 死亡标记也跟随头顶锚点，压在名字（有 MVP 标签时压在最上层）上方。
+            pose.pushPose(); pose.translate(labelX, labelY + (mvp ? .66 : .44), labelZ);
             pose.mulPose(mc.gameRenderer.getMainCamera().rotation()); pose.scale(.035f, -.035f, .035f);
             drawLabel(pose, buffer, Component.literal("×"), 0, 0xFFE06B65);
             pose.popPose();

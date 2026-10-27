@@ -661,6 +661,16 @@ public class ModEffects {
             new SimpleMobEffect(MobEffectCategory.NEUTRAL, 0x9B59B6));
 
     /**
+     * 领域庇护（摘星者「星之光环」/「庇护强化」授予）：
+     * - 有益效果，淡金色
+     * - 拥有此效果的玩家无法被拉入除愚者会议（{@link #DOMAIN_MARK} amplifier 0）以外的任何领域。
+     * 各领域在拉人前检查 {@link #hasDomainSanctuary(LivingEntity)}；
+     * 摘星者死亡后由 {@code StarGathererRoleData} 统一清除。
+     */
+    public static final Holder<MobEffect> DOMAIN_SANCTUARY = register("domain_sanctuary",
+            new SimpleMobEffect(MobEffectCategory.BENEFICIAL, 0xFFE9A8));
+
+    /**
      * 视野迷雾
      * - 有害效果，灰蓝色
      * - 拥有者视野被浓雾笼罩；等级越高雾的距离越远（看得越远）。
@@ -1102,6 +1112,15 @@ public class ModEffects {
      */
     public static int getDomainMarkLevel(LivingEntity entity) {
         return getAmplifier(entity, DOMAIN_MARK);
+    }
+    /**
+     * 该玩家是否带有「领域庇护」（摘星者光环）。
+     * <p>
+     * 带有庇护的玩家无法被拉入除愚者会议（领域标记 amplifier 0）以外的任何领域；
+     * 各领域在挑人时都调用本方法做前置过滤。
+     */
+    public static boolean hasDomainSanctuary(LivingEntity entity) {
+        return entity != null && entity.hasEffect(DOMAIN_SANCTUARY);
     }
 
     /**
