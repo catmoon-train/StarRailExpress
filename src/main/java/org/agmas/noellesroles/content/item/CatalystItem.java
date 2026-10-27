@@ -15,10 +15,12 @@
 
 package org.agmas.noellesroles.content.item;
 
+import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.cca.SREPlayerPoisonComponent;
 import io.wifi.starrailexpress.game.GameConstants;
 import io.wifi.starrailexpress.game.GameUtils;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.player.Player;
@@ -95,6 +97,10 @@ public class CatalystItem extends Item {
                         }
                     }
                 }
+            }
+            // 记录回放：使用了催化剂
+            if (SRE.REPLAY_MANAGER != null) {
+                SRE.REPLAY_MANAGER.recordItemUse(player.getUUID(), BuiltInRegistries.ITEM.getKey(this));
             }
 
             // 消耗物品并设置冷却

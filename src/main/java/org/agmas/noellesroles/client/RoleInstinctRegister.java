@@ -458,12 +458,13 @@ public class RoleInstinctRegister {
                         var weakArmorComp = io.wifi.starrailexpress.cca.SREWeakArmorPlayerComponent.KEY
                                 .get(targetPlayer);
                         boolean hasWeakArmor = weakArmorComp != null && weakArmorComp.getWeakArmor() > 0;
-                        var targetRole = SREClient.gameComponent.getRole(targetPlayer);
 
-                        if (armorComp.getArmor() > 0 && poisonComp.poisonTicks > 0)
+                        // 客户端拿到的护盾层数已经按「可被酒保透视」过滤过：
+                        // 普通护盾/限时护盾只有护盾试剂给予的层才会同步到酒保这里。
+                        boolean hasVisibleArmor = armorComp.getArmor() > 0;
+                        if (hasVisibleArmor && poisonComp.poisonTicks > 0)
                             return TrueFalseAndCustomResult.custom(new Color(186, 255, 65).getRGB());
-                        if ((armorComp.getArmor() > 0 || hasWeakArmor) &&
-                                (targetRole == null || !targetRole.identifier().equals(ModRoles.WATCHER_ID)))
+                        if (hasVisibleArmor || hasWeakArmor)
                             return TrueFalseAndCustomResult.custom(Color.BLUE.getRGB());
                         if (poisonComp.poisonTicks > 0)
                             return TrueFalseAndCustomResult.custom(Color.RED.getRGB());
