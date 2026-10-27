@@ -7,6 +7,8 @@ import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.api.replay.*;
 import io.wifi.starrailexpress.cca.*;
 import io.wifi.starrailexpress.game.GameUtils;
+import io.wifi.starrailexpress.stats.PlayerStats;
+import io.wifi.starrailexpress.stats.PlayerStatsManager;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
@@ -14,6 +16,7 @@ import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -53,11 +56,13 @@ public final class SettlementManager {
     /** 必须在胜负统计写完、职业和本局统计清空之前调用。失败则退回原有文字结算。 */
     public static SettlementSnapshot capture(ServerLevel world, SREGameRoundEndComponent result,
                                               SREGameWorldComponent game) {
-        if (!SREConfig.instance().enableSettlementStage || result.players.isEmpty()
+        if (result.players.isEmpty()
                 || result.getWinStatus() == GameUtils.WinStatus.NONE
                 || result.getWinStatus() == GameUtils.WinStatus.NO_PLAYER) return null;
         GameReplayManager replay = SRE.REPLAY_MANAGER;
         if (replay == null || replay.currentReplayData == null) return null;
+        // 舞台关闭时仍要统计 MVP，因此只有需要演出时才拼事件文本。
+        boolean stage = SREConfig.instance().enableSettlementStage;
         Map<UUID,Integer> tasks = new HashMap<>();
         List<SettlementSnapshot.Event> events = new ArrayList<>();
         List<GameReplayData.ReplayEvent> rawEvents = replay.currentReplayData.getTimeline();
@@ -68,6 +73,7 @@ public final class SettlementManager {
             if (raw != null && raw.timestamp != event.timestamp()) raw = null;
             if (event.type() == ReplayEventTypes.EventType.TASK_COMPLETE && event.actor() != null)
                 tasks.merge(event.actor().uuid(), 1, Integer::sum);
+            if (!stage) continue;
             // hidden 是回放的公开边界，不能在结算时泄漏内部诊断/私密事件。
             if (event.hidden()) continue;
             var actor = event.actor(); var target = event.target();
@@ -78,14 +84,16 @@ public final class SettlementManager {
                     Component.Serializer.toJson(text, world.registryAccess()),
                     eventRole(raw,actor), changedRole(event,raw,target)));
         }
-        if (events.isEmpty() || !events.getFirst().type().equals("GAME_START"))
-            events.addFirst(new SettlementSnapshot.Event(0,"GAME_START",null,null,
-                    Component.Serializer.toJson(Component.translatable("sre.replay.event.game_start"),world.registryAccess()),null,null));
-        if (!events.getLast().type().equals("GAME_END")) {
-            long start = ReplayDisplayUtils.findGameStartTime(replay.currentReplayData);
-            long elapsed = start <= 0 ? events.getLast().time() : Math.max(0,System.currentTimeMillis()-start);
-            events.add(new SettlementSnapshot.Event(elapsed,"GAME_END",null,null,
-                    Component.Serializer.toJson(replay.currentReplayData.getWinningTitle(),world.registryAccess()),null,null));
+        if (stage) {
+            if (events.isEmpty() || !events.getFirst().type().equals("GAME_START"))
+                events.addFirst(new SettlementSnapshot.Event(0,"GAME_START",null,null,
+                        Component.Serializer.toJson(Component.translatable("sre.replay.event.game_start"),world.registryAccess()),null,null));
+            if (!events.getLast().type().equals("GAME_END")) {
+                long start = ReplayDisplayUtils.findGameStartTime(replay.currentReplayData);
+                long elapsed = start <= 0 ? events.getLast().time() : Math.max(0,System.currentTimeMillis()-start);
+                events.add(new SettlementSnapshot.Event(elapsed,"GAME_END",null,null,
+                        Component.Serializer.toJson(replay.currentReplayData.getWinningTitle(),world.registryAccess()),null,null));
+            }
         }
         List<SettlementSnapshot.Actor> actors = new ArrayList<>();
         for (var entry : result.players) {
@@ -101,12 +109,36 @@ public final class SettlementManager {
                     role != null && role.canUseKiller(), game.getPlayerKills(id), tasks.getOrDefault(id,0)));
         }
         UUID mvp = SettlementSnapshot.selectMvp(actors);
-        if (mvp == null) return null;
+        // 同一份 MVP 判定同时写进统计，避免舞台和战绩对“谁是 MVP”各算一套。
+        recordMvp(world, game, actors, mvp);
+        if (mvp == null || !stage) return null;
         var config = SREConfig.instance();
         return new SettlementSnapshot(world.dimension().location().toString(), config.settlementStageX,
                 config.settlementStageY, config.settlementStageZ,
                 Component.Serializer.toJson(replay.currentReplayData.getWinningTitle(),world.registryAccess()),
                 mvp, List.copyOf(actors), List.copyOf(events));
+    }
+
+    /**
+     * 把本局 MVP 写进玩家统计：玩家总 MVP 次数 +1，其本局职业的 MVP 次数 +1。
+     * <p>只写在线条目：统计条目在断线时才落盘，给离线 UUID 建条目会连同这一局一起丢掉。
+     * 不计入统计的游戏模式（{@link io.wifi.starrailexpress.api.GameMode#shouldRecordPlayerStats()} 为假）
+     * 同样不记 MVP，避免只涨 MVP 不涨场次的畸形数据。</p>
+     */
+    private static void recordMvp(ServerLevel world, SREGameWorldComponent game,
+                                  List<SettlementSnapshot.Actor> actors, UUID mvp) {
+        if (mvp == null || !game.getGameMode().shouldRecordPlayerStats()) return;
+        ServerPlayer player = world.getServer().getPlayerList().getPlayer(mvp);
+        if (player == null) return;
+        PlayerStats stats = PlayerStatsManager.get(player);
+        stats.incrementTotalMvps();
+        SettlementSnapshot.Actor actor = null;
+        for (var candidate : actors) {
+            if (candidate.id().equals(mvp)) { actor = candidate; break; }
+        }
+        if (actor == null || actor.role() == null || actor.role().isBlank()) return;
+        ResourceLocation roleId = ResourceLocation.tryParse(actor.role());
+        if (roleId != null) stats.getOrCreateRoleStats(roleId).incrementMvpsAsRole();
     }
 
     private static String eventRole(GameReplayData.ReplayEvent raw, ReplayPlayerProfile player) {

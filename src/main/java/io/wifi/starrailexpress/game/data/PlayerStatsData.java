@@ -33,6 +33,8 @@ public class PlayerStatsData {
     private int totalLosses;
     private int totalTeamKills;
     private int totalLoversWins;
+    /** 本玩家累计获得结算 MVP 的次数。 */
+    private int totalMvps;
 
     // 阵营统计数据
     private int totalCivilianGames = 0;
@@ -64,6 +66,8 @@ public class PlayerStatsData {
         private int winsAsRole;
         private int lossesAsRole;
         private int teamKillsAsRole;
+        /** 使用该职业时获得结算 MVP 的次数。 */
+        private int mvpsAsRole;
 
         // 默认构造函数用于 Gson
         public RoleStatsData() {}
@@ -115,6 +119,14 @@ public class PlayerStatsData {
 
         public void setTeamKillsAsRole(int teamKillsAsRole) {
             this.teamKillsAsRole = teamKillsAsRole;
+        }
+
+        public int getMvpsAsRole() {
+            return mvpsAsRole;
+        }
+
+        public void setMvpsAsRole(int mvpsAsRole) {
+            this.mvpsAsRole = mvpsAsRole;
         }
     }
 
@@ -200,6 +212,14 @@ public class PlayerStatsData {
 
     public void setTotalLoversWins(int totalLoversWins) {
         this.totalLoversWins = totalLoversWins;
+    }
+
+    public int getTotalMvps() {
+        return totalMvps;
+    }
+
+    public void setTotalMvps(int totalMvps) {
+        this.totalMvps = totalMvps;
     }
 
     // 阵营统计 Getter 和 Setter 方法
