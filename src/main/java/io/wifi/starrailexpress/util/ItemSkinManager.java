@@ -20,7 +20,9 @@ import io.wifi.starrailexpress.content.item.Colors;
 import io.wifi.starrailexpress.content.item.SkinableItem;
 import io.wifi.starrailexpress.data.PlayerSkinEconomyManager;
 import io.wifi.starrailexpress.index.SREDataComponentTypes;
+import net.minecraft.ChatFormatting;
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
@@ -359,6 +361,66 @@ public class ItemSkinManager {
             return false;
         }
         return isRandomSkin(PlayerSkinEconomyManager.getEquippedSkinForItemType(player, itemTypeName));
+    }
+
+    /**
+     * 服务端盖章：把玩家当前装备的皮肤写进物品栈的 {@code SKIN} 组件。
+     * <p>
+     * 原版物品（弓、弩）无法覆写 {@code Item#inventoryTick}，由 mixin 调用本方法。
+     * 组件会随物品栈同步给客户端，这样其他玩家手持的、物品展示框里的、掉在地上的物品
+     * 都能显示持有者自己的皮肤，而不是渲染端本地玩家的皮肤。
+     */
+    public static void applyEquippedSkin(Player player, ItemStack stack) {
+        if (player == null || stack == null || stack.isEmpty()) {
+            return;
+        }
+        String itemType = getItemSkinType(stack.getItem());
+        if (itemType == null) {
+            return;
+        }
+        if (stack.get(SREDataComponentTypes.SKIN) == null) {
+            stack.set(SREDataComponentTypes.SKIN, getEquippedSkin(player, stack));
+        } else if (isRandomSelected(player, itemType)) {
+            // 选择了「随机」：跟随每局开局的抽取结果刷新，避免沿用上一局的快照
+            String resolved = resolveRandomSkin(player, itemType, RANDOM_SKIN);
+            if (!resolved.equals(stack.get(SREDataComponentTypes.SKIN))) {
+                stack.set(SREDataComponentTypes.SKIN, resolved);
+            }
+        }
+    }
+
+    /**
+     * 在物品提示末尾追加「皮肤：xxx」。
+     * <p>
+     * 该皮肤类型还没有任何皮肤（例如弓/弩尚未添加皮肤资源）时不显示，避免无意义提示。
+     *
+     * @param player 物品持有者，可为 {@code null}（此时只读取物品栈上的皮肤组件）
+     */
+    public static void appendSkinTooltip(ItemStack stack, List<Component> tooltip, Player player) {
+        String itemType = getItemSkinType(stack.getItem());
+        if (itemType == null || getSkins(itemType).isEmpty()) {
+            return;
+        }
+        String skinName;
+        if (player != null) {
+            skinName = getEquippedSkin(player, stack);
+        } else {
+            skinName = stack.get(SREDataComponentTypes.SKIN);
+            if (skinName == null || skinName.isBlank()) {
+                return;
+            }
+        }
+        Skin skin = Skin.fromString(itemType, skinName);
+        if (skin != null) {
+            tooltip.add(Component.translatable("tip.skin").withStyle(style -> style.withColor(Colors.GRAY))
+                    .append(Component.translatableWithFallback(
+                            "screen.sre.skins." + itemType + "." + skin.tooltipName + ".name", skin.tooltipName)
+                            .withStyle(style -> style.withColor(skin.getColor()))));
+        } else if ("default".equals(skinName)) {
+            tooltip.add(Component.translatable("tip.skin").withStyle(style -> style.withColor(Colors.GRAY))
+                    .append(Component.translatableWithFallback("screen.sre.skins.default", "Default"))
+                    .withStyle(ChatFormatting.GRAY));
+        }
     }
 
     /**
