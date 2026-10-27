@@ -92,7 +92,7 @@ public class ShieldCommand {
                                                 BoolArgumentType.getBool(ctx, "bartenderVisible")))))
                         // 旧语法：add <layers> [targets]（默认不可被酒保透视）
                         .then(Commands.argument("targets", EntityArgument.players())
-                                .executes(ctx -> normalAdd(ctx, EntityArgument.getPlayers(ctx, "targets"), false)))));
+                                .executes(ctx -> normalAdd(ctx, EntityArgument.getPlayers(ctx, "targets"), false))));
         LiteralArgumentBuilder<CommandSourceStack> set = Commands.literal("set")
                 .then(Commands.argument("layers", IntegerArgumentType.integer(0))
                         .executes(ctx -> normalSet(ctx, ImmutableList.of(ctx.getSource().getPlayerOrException()),
@@ -140,7 +140,7 @@ public class ShieldCommand {
                                         // 旧语法：add <layers> <seconds> <reset> [targets]（默认不可被酒保透视）
                                         .then(Commands.argument("targets", EntityArgument.players())
                                                 .executes(ctx -> timedAdd(ctx,
-                                                        EntityArgument.getPlayers(ctx, "targets"), false)))))));
+                                                        EntityArgument.getPlayers(ctx, "targets"), false))))));
         LiteralArgumentBuilder<CommandSourceStack> set = Commands.literal("set")
                 .then(Commands.argument("layers", IntegerArgumentType.integer(0))
                         .then(Commands.argument("seconds", IntegerArgumentType.integer(0))
@@ -158,7 +158,7 @@ public class ShieldCommand {
                                                                         "bartenderVisible")))))
                                         .then(Commands.argument("targets", EntityArgument.players())
                                                 .executes(ctx -> timedSet(ctx,
-                                                        EntityArgument.getPlayers(ctx, "targets"), false)))))));
+                                                        EntityArgument.getPlayers(ctx, "targets"), false))))));
         LiteralArgumentBuilder<CommandSourceStack> get = Commands.literal("get")
                 .executes(ctx -> timedGet(ctx, ImmutableList.of(ctx.getSource().getPlayerOrException())))
                 .then(Commands.argument("targets", EntityArgument.players())
