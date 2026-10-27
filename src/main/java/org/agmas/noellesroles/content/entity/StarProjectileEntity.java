@@ -30,6 +30,8 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import org.agmas.noellesroles.init.ModEntities;
+import org.agmas.noellesroles.init.ModItems;
+import org.agmas.noellesroles.role_data.innocence.StarGathererRoleData;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
@@ -179,11 +181,18 @@ public class StarProjectileEntity extends Entity {
         if (!hits.isEmpty()) {
             ServerPlayer killer = this.ownerId == null ? null
                     : level.getServer().getPlayerList().getPlayer(this.ownerId);
+            boolean hitAny = false;
             for (ServerPlayer victim : hits) {
                 if (killer == victim) {
                     continue;
                 }
+                hitAny = true;
                 GameUtils.forceKillPlayer(victim, true, killer, GameConstants.DeathReasons.STAR);
+            }
+            // 权杖只要命中玩家（不论是否真的击杀）→ 召唤者进入 20 秒原版物品冷却
+            if (hitAny && killer != null) {
+                killer.getCooldowns().addCooldown(ModItems.STAR_SCEPTER,
+                        StarGathererRoleData.SCEPTER_HIT_COOLDOWN_TICKS);
             }
             this.spent = true;
             implode(level);

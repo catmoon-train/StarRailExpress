@@ -84,6 +84,8 @@ public class StarGathererRoleData extends SimpleRoleData {
     public static final int SCEPTER_DROP_DELAY_TICKS = 2 * 20;
     /** 权杖冷却（25 秒）。 */
     public static final int SCEPTER_COOLDOWN_TICKS = 25 * 20;
+    /** 权杖命中玩家后的原版物品冷却（20 秒；只要命中就触发，不要求击杀）。 */
+    public static final int SCEPTER_HIT_COOLDOWN_TICKS = 20 * 20;
 
     // ── 技能冷却 ────────────────────────────────────────────────
     public static final int ENHANCE_COOLDOWN_TICKS = 90 * 20;
@@ -146,6 +148,7 @@ public class StarGathererRoleData extends SimpleRoleData {
         rootedUntil = 0L;
         scepterReadyAt = 0L;
         pendingStars.clear();
+        pullPending = false;
         sync();
     }
 
@@ -191,6 +194,13 @@ public class StarGathererRoleData extends SimpleRoleData {
 
     public boolean isSkillReady(StarGathererSkill skill) {
         return cooldownSecondsLeft(skill) <= 0;
+    }
+
+    /**
+     * 星之引力本局剩余次数（HUD 用；服务端与客户端都能读同步过来的计数）。
+     */
+    public int gravityUsesLeft() {
+        return Math.max(0, GRAVITY_MAX_USES - gravityUses);
     }
 
     /** 释放当前选中的技能（不带目标）。 */

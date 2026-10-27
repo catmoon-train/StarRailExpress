@@ -5777,5 +5777,12 @@
   "role.noellesroles.pooler": "祈月者",
   "role.noellesroles.pooler.desc": "只在水下地圖生成，必須與摘星者同場。佔據 2 個殺手位，可使用三叉戟並無視水下窒息。擁有奔湧、吞月、水中鏡、稱頌四個可切換技能。",
   "role.noellesroles.star_gatherer": "摘星者",
-  "role.noellesroles.star_gatherer.desc": "只在水下地圖生成，隨祈月者一同出現。佔據 2 個警長位，擁有水下呼吸與夜視，可使用三叉戟與特殊原版武器，但無法撿起左輪手槍。"
+  "role.noellesroles.star_gatherer.desc": "只在水下地圖生成，隨祈月者一同出現。佔據 2 個警長位，擁有水下呼吸與夜視，可使用三叉戟與特殊原版武器，但無法撿起左輪手槍。",
+  "hud.noellesroles.pooler.cd": "冷卻 %ss",
+  "hud.noellesroles.pooler.ready": "就緒",
+  "hud.noellesroles.star_gatherer.cd": "冷卻 %ss",
+  "hud.noellesroles.star_gatherer.ready": "就緒",
+  "hud.noellesroles.star_gatherer.not_ready": "未就緒",
+  "hud.noellesroles.star_gatherer.aura": "星之光環 半徑 %s",
+  "hud.noellesroles.star_gatherer.gravity_uses": "星之引力 %s/%s 次"
 }

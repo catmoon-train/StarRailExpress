@@ -42,6 +42,11 @@ public class StarScepterItem extends Item {
         if (!(user instanceof ServerPlayer sp)) {
             return InteractionResultHolder.success(stack);
         }
+        // 原版物品冷却中（例如上一次权杖刚命中过玩家）→ 直接拒绝，
+        // 避免依赖「原版 use 会被冷却拦截」这一隐含前提
+        if (sp.getCooldowns().isOnCooldown(this)) {
+            return InteractionResultHolder.fail(stack);
+        }
         StarGathererRoleData.useScepter(sp);
         return InteractionResultHolder.success(stack);
     }

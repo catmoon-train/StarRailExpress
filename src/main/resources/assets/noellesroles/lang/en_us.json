@@ -5874,5 +5874,12 @@
   "role.noellesroles.pooler": "Pooler",
   "role.noellesroles.pooler.desc": "Underwater maps only, always alongside the Star Gatherer. Occupies 2 killer slots, may use tridents and never drowns. Has four switchable skills: Tide Surge, Moon Devour, Water Mirror and Praise.",
   "role.noellesroles.star_gatherer": "Star Gatherer",
-  "role.noellesroles.star_gatherer.desc": "Underwater maps only, appearing with the Pooler. Occupies 2 sheriff slots, has Water Breathing and Night Vision, may use tridents and special vanilla weapons, but cannot pick up revolvers."
+  "role.noellesroles.star_gatherer.desc": "Underwater maps only, appearing with the Pooler. Occupies 2 sheriff slots, has Water Breathing and Night Vision, may use tridents and special vanilla weapons, but cannot pick up revolvers.",
+  "hud.noellesroles.pooler.cd": "CD %ss",
+  "hud.noellesroles.pooler.ready": "Ready",
+  "hud.noellesroles.star_gatherer.cd": "CD %ss",
+  "hud.noellesroles.star_gatherer.ready": "Ready",
+  "hud.noellesroles.star_gatherer.not_ready": "Not ready",
+  "hud.noellesroles.star_gatherer.aura": "Star Aura radius %s",
+  "hud.noellesroles.star_gatherer.gravity_uses": "Star Gravity %s/%s uses"
 }

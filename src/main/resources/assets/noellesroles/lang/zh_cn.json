@@ -5873,7 +5873,12 @@
   "announcement.star.win.pooler": "杀手胜利！",
   "announcement.star.win.star_gatherer": "乘客胜利！",
   "role.noellesroles.pooler": "祈月者",
-  "role.noellesroles.pooler.desc": "只在水下地图生成，必须与摘星者同场。占据 2 个杀手位，可使用三叉戟并无视水下窒息。拥有奔涌、吞月、水中镜、称颂四个可切换技能。",
   "role.noellesroles.star_gatherer": "摘星者",
-  "role.noellesroles.star_gatherer.desc": "只在水下地图生成，随祈月者一同出现。占据 2 个警长位，拥有水下呼吸与夜视，可使用三叉戟与特殊原版武器，但无法捡起左轮手枪。"
+  "hud.noellesroles.pooler.cd": "冷却 %ss",
+  "hud.noellesroles.pooler.ready": "就绪",
+  "hud.noellesroles.star_gatherer.cd": "冷却 %ss",
+  "hud.noellesroles.star_gatherer.ready": "就绪",
+  "hud.noellesroles.star_gatherer.not_ready": "未就绪",
+  "hud.noellesroles.star_gatherer.aura": "星之光环 半径 %s",
+  "hud.noellesroles.star_gatherer.gravity_uses": "星之引力 %s/%s 次"
 }
