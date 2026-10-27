@@ -508,6 +508,8 @@ public class NoellesrolesClient implements ClientModInitializer {
                 org.agmas.noellesroles.client.renderer.CanyuesaHorseRenderer::new);
         EntityRendererRegistry.register(ModEntities.SUPER_PIG_HORSE,
                 org.agmas.noellesroles.client.renderer.SuperPigHorseRenderer::new);
+        EntityRendererRegistry.register(ModEntities.STAR,
+                org.agmas.noellesroles.client.renderer.StarProjectileRenderer::new);
         EntityRendererRegistry.register(ModEntities.NIAOSHOU_SHOU_MISSILE,
                 net.minecraft.client.renderer.entity.ThrownItemRenderer::new);
 

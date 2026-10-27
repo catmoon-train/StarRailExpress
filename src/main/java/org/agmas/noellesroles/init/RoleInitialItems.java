@@ -430,6 +430,22 @@ public class RoleInitialItems {
         List<Supplier<ItemStack>> delayerItems = new ArrayList<>();
         delayerItems.add(() -> ModItems.CAMERA_SHEARS.getDefaultInstance());
         INITIAL_ITEMS_MAP.put(ModRoles.DELAYER, delayerItems);
+
+        // 祈月者初始物品 - 忠诚 III 三叉戟 + 月之祝福
+        // （附魔需要访问注册表，因此按物品给出的等级在 RoleInitialItems 里用服务器注册表补）
+        List<Supplier<ItemStack>> poolerItems = new ArrayList<>();
+        poolerItems.add(() -> {
+            ItemStack trident = Items.TRIDENT.getDefaultInstance();
+            trident.set(DataComponents.UNBREAKABLE, new Unbreakable(true));
+            return trident;
+        });
+        poolerItems.add(() -> ModItems.MOON_BLESSING.getDefaultInstance());
+        INITIAL_ITEMS_MAP.put(ModRoles.POOLER, poolerItems);
+
+        // 摘星者初始物品 - 星之权杖
+        List<Supplier<ItemStack>> starGathererItems = new ArrayList<>();
+        starGathererItems.add(() -> ModItems.STAR_SCEPTER.getDefaultInstance());
+        INITIAL_ITEMS_MAP.put(ModRoles.STAR_GATHERER, starGathererItems);
     }
 
 }

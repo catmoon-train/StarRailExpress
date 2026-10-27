@@ -78,6 +78,8 @@ import org.agmas.noellesroles.content.item.ora.OraPunchManager;
 import org.agmas.noellesroles.role_data.vigilante.MagicApprenticeRoleData;
 import org.agmas.noellesroles.role_data.innocence.FortunetellerRoleData;
 import org.agmas.noellesroles.role_data.neutral.AmonRoleData;
+import org.agmas.noellesroles.role_data.innocence.StarGathererRoleData;
+import org.agmas.noellesroles.role_data.killer.PoolerRoleData;
 import org.agmas.noellesroles.role_data.neutral.CandleBearerRoleData;
 import org.agmas.noellesroles.role_data.neutral.DaywalkerRoleData;
 import org.agmas.noellesroles.role_data.neutral.CuckooRoleData;
@@ -1696,6 +1698,73 @@ public class ModRolesInitialEventRegister {
                         }).cooldownSeconds(NatureSpiritRole.SKILL_COOLDOWN_SECONDS).showOnHud(true)
                         .announceToSelf(true).build());
 
+        // 祈月者技能注册：四个技能靠「技能切换键」切换，实际冷却由 PoolerRoleData 自己记账
+        // （这样商店的「减少技能冷却」才能真正缩短剩余时间），所以这里的 cooldownSeconds 为 0。
+        RoleSkill.register(ModRoles.POOLER, RoleSkill.skill(
+                SRE.id("pooler_tide"),
+                "skill.noellesroles.pooler.tide",
+                context -> RoleData.getOptional(PoolerRoleData.class, context.player())
+                        .map(data -> data.tryUseSkill(context.player(), PoolerRoleData.PoolerSkill.TIDE))
+                        .orElse(false))
+                .cooldownSeconds(0).showOnHud(true).announceToSelf(true).build());
+        RoleSkill.register(ModRoles.POOLER, RoleSkill.skill(
+                SRE.id("pooler_moon"),
+                "skill.noellesroles.pooler.moon",
+                context -> RoleData.getOptional(PoolerRoleData.class, context.player())
+                        .map(data -> data.tryUseSkill(context.player(), PoolerRoleData.PoolerSkill.MOON))
+                        .orElse(false))
+                .cooldownSeconds(0).showOnHud(true).announceToSelf(true).build());
+        RoleSkill.register(ModRoles.POOLER, RoleSkill.skill(
+                SRE.id("pooler_aquarium"),
+                "skill.noellesroles.pooler.aquarium",
+                context -> RoleData.getOptional(PoolerRoleData.class, context.player())
+                        .map(data -> data.tryUseSkill(context.player(), PoolerRoleData.PoolerSkill.AQUARIUM))
+                        .orElse(false))
+                .cooldownSeconds(0).showOnHud(true).announceToSelf(true).build());
+        RoleSkill.register(ModRoles.POOLER, RoleSkill.skill(
+                SRE.id("pooler_praise"),
+                "skill.noellesroles.pooler.praise",
+                context -> RoleData.getOptional(PoolerRoleData.class, context.player())
+                        .map(data -> data.tryUseSkill(context.player(), PoolerRoleData.PoolerSkill.PRAISE))
+                        .orElse(false))
+                .cooldownSeconds(0).showOnHud(true).announceToSelf(true).build());
+
+        // 摘星者技能注册：庇护强化（无目标）
+        RoleSkill.register(ModRoles.STAR_GATHERER, RoleSkill.skill(
+                SRE.id("star_gatherer_enhance"),
+                "skill.noellesroles.star_gatherer.enhance",
+                context -> RoleData.getOptional(StarGathererRoleData.class, context.player())
+                        .map(data -> data.tryUseSkill(context.player(),
+                                StarGathererRoleData.StarGathererSkill.ENHANCE, null))
+                        .orElse(false))
+                .cooldownSeconds(0).showOnHud(true).announceToSelf(true).build());
+        // 星之引力（无目标）
+        RoleSkill.register(ModRoles.STAR_GATHERER, RoleSkill.skill(
+                SRE.id("star_gatherer_gravity"),
+                "skill.noellesroles.star_gatherer.gravity",
+                context -> RoleData.getOptional(StarGathererRoleData.class, context.player())
+                        .map(data -> data.tryUseSkill(context.player(),
+                                StarGathererRoleData.StarGathererSkill.GRAVITY, null))
+                        .orElse(false))
+                .cooldownSeconds(0).showOnHud(true).announceToSelf(true).build());
+        // 施舍（需要选目标）
+        RoleSkill.register(ModRoles.STAR_GATHERER, RoleSkill.skill(
+                SRE.id("star_gatherer_alms"),
+                "skill.noellesroles.star_gatherer.alms",
+                context -> {
+                    UUID targetUuid = context.target();
+                    Player target = targetUuid == null ? null
+                            : context.player().level().getPlayerByUUID(targetUuid);
+                    ServerPlayer targetPlayer = target instanceof ServerPlayer tsp ? tsp : null;
+                    return RoleData.getOptional(StarGathererRoleData.class, context.player())
+                            .map(data -> data.tryUseSkill(context.player(),
+                                    StarGathererRoleData.StarGathererSkill.ALMS, targetPlayer))
+                            .orElse(false);
+                })
+                .cooldownSeconds(0).withTarget().showOnHud(true).announceToSelf(true).build());
+
+        // 摘星者相关事件：死亡时权杖变左轮 + 撤销全场庇护；对局结束时清掉星星实体
+        StarGathererRoleData.registerEvents();
     }
 
 }

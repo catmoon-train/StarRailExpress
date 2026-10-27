@@ -1594,6 +1594,20 @@ public class ModItems {
             new org.agmas.noellesroles.game.command_block.item.StevePistonItem(new Item.Properties().stacksTo(16)),
             "steve_piston", ROLE_ITEMS_GROUP, TOOLS_GROUP);
 
+    /**
+     * 月之祝福 —— 祈月者（pooler）开局自带：海豚的恩惠 + 速度 II + 无碰撞 15 秒，冷却 40 秒。
+     */
+    public static final Item MOON_BLESSING = register(
+            new MoonBlessingItem(new Item.Properties().stacksTo(1)),
+            "moon_blessing", ROLE_ITEMS_GROUP, TOOLS_GROUP);
+
+    /**
+     * 星之权杖 —— 摘星者（star_gatherer）开局自带：锁定 35 格内目标，2 秒后星星砸下（死因「星星」）。
+     */
+    public static final Item STAR_SCEPTER = register(
+            new StarScepterItem(new Item.Properties().stacksTo(1)),
+            "star_scepter", ROLE_ITEMS_GROUP, WEAPONS_GROUP);
+
     public static Item register(Item item, String id, ResourceKey<CreativeModeTab>... extraGroups) {
         ResourceKey<CreativeModeTab>[] allGroups = java.util.Arrays.copyOf(extraGroups, extraGroups.length + 1);
         allGroups[extraGroups.length] = NOELLESROLES_ALL_GROUP;

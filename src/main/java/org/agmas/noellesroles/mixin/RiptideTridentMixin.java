@@ -262,6 +262,9 @@ public class RiptideTridentMixin {
             if (isWaterGhost) {
                 // 水鬼：激流三叉戟击杀后进入30秒冷却
                 player.getCooldowns().addCooldown(Items.TRIDENT, 20 * 30);
+            } else if (SREGameWorldComponent.KEY.get(serverLevel).isRole(player, ModRoles.POOLER)) {
+                // 祈月者：基础 30 秒；水中镜领域内不进冷却；疯狂模式 1/6。
+                org.agmas.noellesroles.role_data.killer.PoolerRoleData.applyTridentKillCooldown(serverPlayer);
             }
         }
         for (io.wifi.starrailexpress.traindummy.TrainDummyEntity dummy : serverLevel.getEntitiesOfClass(
