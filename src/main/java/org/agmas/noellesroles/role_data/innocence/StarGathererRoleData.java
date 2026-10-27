@@ -112,8 +112,6 @@ public class StarGathererRoleData extends SimpleRoleData {
         }
     }
 
-    /** 当前选中的技能（切换键循环）。 */
-    private int selectedSkill;
     /** 各技能冷却结束时刻（{@link GameUtils#getTicksFromGameStart}）。 */
     private final long[] skillReadyAt = new long[StarGathererSkill.values().length];
     /** 星之引力已使用次数。 */
@@ -135,7 +133,6 @@ public class StarGathererRoleData extends SimpleRoleData {
 
     @Override
     public void init() {
-        selectedSkill = 0;
         for (int i = 0; i < skillReadyAt.length; i++) {
             skillReadyAt[i] = 0L;
         }
@@ -162,22 +159,16 @@ public class StarGathererRoleData extends SimpleRoleData {
 
     // ── 当前选中技能 ────────────────────────────────────────────
 
+    /**
+     * 当前选中的技能。
+     * <p>
+     * 切换键由统一技能系统 {@code SREAbilityPlayerComponent} 记账，这里只读它的权威
+     * slot，本类不再自己存一份；服务端与客户端读到的永远是同一个值。
+     */
     public StarGathererSkill getSelectedSkill() {
         StarGathererSkill[] values = StarGathererSkill.values();
-        return values[Math.floorMod(selectedSkill, values.length)];
-    }
-
-    /** 技能切换键：切到下一个技能。 */
-    public StarGathererSkill cycleSkill(ServerPlayer sp) {
-        StarGathererSkill[] values = StarGathererSkill.values();
-        selectedSkill = Math.floorMod(selectedSkill + 1, values.length);
-        sync();
-        StarGathererSkill now = getSelectedSkill();
-        sp.displayClientMessage(Component
-                .translatable("message.noellesroles.star_gatherer.skill_switched",
-                        Component.translatable(now.nameKey))
-                .withStyle(ChatFormatting.AQUA), true);
-        return now;
+        int slot = io.wifi.starrailexpress.cca.SREAbilityPlayerComponent.KEY.get(player).getSelectedSkill();
+        return values[Math.floorMod(slot, values.length)];
     }
 
     /** 某技能剩余冷却秒数；0 表示可用。 */
@@ -600,7 +591,6 @@ public class StarGathererRoleData extends SimpleRoleData {
 
     @Override
     public void writeToSyncNbt(@NotNull CompoundTag tag, HolderLookup.Provider lookup) {
-        tag.putInt("selectedSkill", selectedSkill);
         tag.putInt("gravityUses", gravityUses);
         tag.putLong("enhanceUntil", enhanceUntil);
         tag.putLong("rootedUntil", rootedUntil);
@@ -613,7 +603,6 @@ public class StarGathererRoleData extends SimpleRoleData {
 
     @Override
     public void readFromSyncNbt(@NotNull CompoundTag tag, HolderLookup.Provider lookup) {
-        selectedSkill = tag.getInt("selectedSkill");
         gravityUses = tag.getInt("gravityUses");
         enhanceUntil = tag.getLong("enhanceUntil");
         rootedUntil = tag.getLong("rootedUntil");

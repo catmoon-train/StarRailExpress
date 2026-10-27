@@ -1706,28 +1706,28 @@ public class ModRolesInitialEventRegister {
                 context -> RoleData.getOptional(PoolerRoleData.class, context.player())
                         .map(data -> data.tryUseSkill(context.player(), PoolerRoleData.PoolerSkill.TIDE))
                         .orElse(false))
-                .cooldownSeconds(0).showOnHud(true).announceToSelf(true).build());
+                .cooldownSeconds(0).showOnHud(false).announceToSelf(true).build());
         RoleSkill.register(ModRoles.POOLER, RoleSkill.skill(
                 SRE.id("pooler_moon"),
                 "skill.noellesroles.pooler.moon",
                 context -> RoleData.getOptional(PoolerRoleData.class, context.player())
                         .map(data -> data.tryUseSkill(context.player(), PoolerRoleData.PoolerSkill.MOON))
                         .orElse(false))
-                .cooldownSeconds(0).showOnHud(true).announceToSelf(true).build());
+                .cooldownSeconds(0).showOnHud(false).announceToSelf(true).build());
         RoleSkill.register(ModRoles.POOLER, RoleSkill.skill(
                 SRE.id("pooler_aquarium"),
                 "skill.noellesroles.pooler.aquarium",
                 context -> RoleData.getOptional(PoolerRoleData.class, context.player())
                         .map(data -> data.tryUseSkill(context.player(), PoolerRoleData.PoolerSkill.AQUARIUM))
                         .orElse(false))
-                .cooldownSeconds(0).showOnHud(true).announceToSelf(true).build());
+                .cooldownSeconds(0).showOnHud(false).announceToSelf(true).build());
         RoleSkill.register(ModRoles.POOLER, RoleSkill.skill(
                 SRE.id("pooler_praise"),
                 "skill.noellesroles.pooler.praise",
                 context -> RoleData.getOptional(PoolerRoleData.class, context.player())
                         .map(data -> data.tryUseSkill(context.player(), PoolerRoleData.PoolerSkill.PRAISE))
                         .orElse(false))
-                .cooldownSeconds(0).showOnHud(true).announceToSelf(true).build());
+                .cooldownSeconds(0).showOnHud(false).announceToSelf(true).build());
 
         // 摘星者技能注册：庇护强化（无目标）
         RoleSkill.register(ModRoles.STAR_GATHERER, RoleSkill.skill(
@@ -1737,7 +1737,7 @@ public class ModRolesInitialEventRegister {
                         .map(data -> data.tryUseSkill(context.player(),
                                 StarGathererRoleData.StarGathererSkill.ENHANCE, null))
                         .orElse(false))
-                .cooldownSeconds(0).showOnHud(true).announceToSelf(true).build());
+                .cooldownSeconds(0).showOnHud(false).announceToSelf(true).build());
         // 星之引力（无目标）
         RoleSkill.register(ModRoles.STAR_GATHERER, RoleSkill.skill(
                 SRE.id("star_gatherer_gravity"),
@@ -1746,7 +1746,7 @@ public class ModRolesInitialEventRegister {
                         .map(data -> data.tryUseSkill(context.player(),
                                 StarGathererRoleData.StarGathererSkill.GRAVITY, null))
                         .orElse(false))
-                .cooldownSeconds(0).showOnHud(true).announceToSelf(true).build());
+                .cooldownSeconds(0).showOnHud(false).announceToSelf(true).build());
         // 施舍（需要选目标）
         RoleSkill.register(ModRoles.STAR_GATHERER, RoleSkill.skill(
                 SRE.id("star_gatherer_alms"),
@@ -1761,7 +1761,7 @@ public class ModRolesInitialEventRegister {
                                     StarGathererRoleData.StarGathererSkill.ALMS, targetPlayer))
                             .orElse(false);
                 })
-                .cooldownSeconds(0).withTarget().showOnHud(true).announceToSelf(true).build());
+                .cooldownSeconds(0).withTarget().showOnHud(false).announceToSelf(true).build());
 
         // 摘星者相关事件：死亡时权杖变左轮 + 撤销全场庇护；对局结束时清掉星星实体
         StarGathererRoleData.registerEvents();

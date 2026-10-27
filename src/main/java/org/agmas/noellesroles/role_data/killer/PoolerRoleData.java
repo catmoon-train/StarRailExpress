@@ -22,6 +22,7 @@ import io.wifi.starrailexpress.api.impl.SimpleRoleData;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.cca.SREPlayerPsychoComponent;
 import io.wifi.starrailexpress.index.TMMItems;
+import io.wifi.starrailexpress.game.DiscountShopEntry;
 import io.wifi.starrailexpress.game.GameConstants;
 import io.wifi.starrailexpress.game.GameUtils;
 import net.minecraft.ChatFormatting;
@@ -116,9 +117,6 @@ public class PoolerRoleData extends SimpleRoleData {
         }
     }
 
-    /** 当前选中的技能（由「技能切换键」Y 循环）。 */
-    private int selectedSkill;
-
     /** 四个技能各自的冷却结束时刻（{@link GameUtils#getTicksFromGameStart}）。 */
     private final long[] skillReadyAt = new long[PoolerSkill.values().length];
 
@@ -132,7 +130,6 @@ public class PoolerRoleData extends SimpleRoleData {
 
     @Override
     public void init() {
-        selectedSkill = 0;
         for (int i = 0; i < skillReadyAt.length; i++) {
             skillReadyAt[i] = 0L;
         }
@@ -150,24 +147,16 @@ public class PoolerRoleData extends SimpleRoleData {
         return player;
     }
 
-    // ── 当前选中技能 ────────────────────────────────────────────
-
+    /**
+     * 当前选中的技能。
+     * <p>
+     * 切换键由统一技能系统 {@code SREAbilityPlayerComponent} 记账，这里只读它的权威
+     * slot，本类不再自己存一份；服务端与客户端读到的永远是同一个值。
+     */
     public PoolerSkill getSelectedSkill() {
         PoolerSkill[] values = PoolerSkill.values();
-        return values[Math.floorMod(selectedSkill, values.length)];
-    }
-
-    /** 技能切换键：切到下一个技能。返回切换后的技能。 */
-    public PoolerSkill cycleSkill(ServerPlayer serverPlayer) {
-        PoolerSkill[] values = PoolerSkill.values();
-        selectedSkill = Math.floorMod(selectedSkill + 1, values.length);
-        sync();
-        PoolerSkill now = getSelectedSkill();
-        serverPlayer.displayClientMessage(Component
-                .translatable("message.noellesroles.pooler.skill_switched",
-                        Component.translatable(now.nameKey))
-                .withStyle(ChatFormatting.AQUA), true);
-        return now;
+        int slot = io.wifi.starrailexpress.cca.SREAbilityPlayerComponent.KEY.get(player).getSelectedSkill();
+        return values[Math.floorMod(slot, values.length)];
     }
 
     /** 指教某技能还要冷却多少秒；0 表示可用。 */
@@ -506,28 +495,24 @@ public class PoolerRoleData extends SimpleRoleData {
         return PoolerDomainManager.domainKindOf(player.getUUID()) == PoolerDomainManager.Kind.AQUARIUM;
     }
 
-    // ── 商店用的小工具 ──────────────────────────────────────────
+    // ── 商店 ────────────────────────────────────────────────────
 
-    /** 商店「减少技能冷却」条目：最多买 2 次。 */
+    /**
+     * 商店「减少技能冷却」：把所有技能剩余冷却各减 40 秒。
+     * <p>
+     * 可购买次数由 {@link io.wifi.starrailexpress.cca.DynamicShopComponent} 的购买计数
+     * 记账（见 {@code buildShopEntries()} 里 {@link DiscountShopEntry} 的
+     * {@code maxDiscountCount}），本类不再自己存计数。
+     */
     public boolean buyCooldownReduction() {
         if (!(player instanceof ServerPlayer sp))
             return false;
-        if (cooldownReductionBought >= 2) {
-            sp.displayClientMessage(Component
-                    .translatable("message.noellesroles.pooler.cd_reduce_max")
-                    .withStyle(ChatFormatting.RED), true);
-            return false;
-        }
-        cooldownReductionBought++;
         reduceAllCooldowns(SHOP_CD_REDUCE_SECONDS);
         sp.displayClientMessage(Component
                 .translatable("message.noellesroles.pooler.cd_reduced", SHOP_CD_REDUCE_SECONDS)
                 .withStyle(ChatFormatting.AQUA), true);
         return true;
     }
-
-    /** 已购买「减少技能冷却」的次数。 */
-    public int cooldownReductionBought;
 
     // ── 判断 / tick ────────────────────────────────────────────
 
@@ -571,9 +556,7 @@ public class PoolerRoleData extends SimpleRoleData {
 
     @Override
     public void writeToSyncNbt(@NotNull CompoundTag tag, HolderLookup.Provider lookup) {
-        tag.putInt("selectedSkill", selectedSkill);
         tag.putBoolean("tideFrenzy", tideFrenzy);
-        tag.putInt("cooldownReductionBought", cooldownReductionBought);
         CompoundTag cds = new CompoundTag();
         for (PoolerSkill skill : PoolerSkill.values()) {
             cds.putLong(skill.name(), skillReadyAt[skill.ordinal()]);
@@ -583,9 +566,7 @@ public class PoolerRoleData extends SimpleRoleData {
 
     @Override
     public void readFromSyncNbt(@NotNull CompoundTag tag, HolderLookup.Provider lookup) {
-        selectedSkill = tag.getInt("selectedSkill");
         tideFrenzy = tag.getBoolean("tideFrenzy");
-        cooldownReductionBought = tag.getInt("cooldownReductionBought");
         CompoundTag cds = tag.getCompound("skillReadyAt");
         for (PoolerSkill skill : PoolerSkill.values()) {
             skillReadyAt[skill.ordinal()] = cds.getLong(skill.name());
@@ -602,47 +583,55 @@ public class PoolerRoleData extends SimpleRoleData {
     public static final int CD_REDUCE_PRICE = 150;
     /** 「减少技能冷却」每次购买涨价的百分比（最多 2 次）。 */
     public static final int CD_REDUCE_MARKUP_PERCENT = 25;
+    /** 三叉戟 / 减少技能冷却的价格阶梯最多生效次数。 */
+    public static final int PRICE_STEP_MAX_TIMES = 2;
     /** 疯狂模式（祈月者版）价格。 */
     public static final int FRENZY_PRICE = 325;
 
     /**
-     * 祈月者的商店：三叉戟（130 金币，每买一次降 25，最多降 2 次）、
-     * 减少技能冷却 40 秒（150 金币，每买一次涨 25%，最多涨 2 次）、
+     * 祈月者的商店：三叉戟（130 金币，每次购买降 25%，最多降 2 次）、
+     * 减少技能冷却 40 秒（150 金币，每次购买涨 25%，最多涨 2 次）、
      * 关灯 / 开锁器 / 撬棍（配置价）、疯狂模式（配置价，祈月者特殊版）。
+     * <p>
+     * 价格阶梯一律用项目既有的 {@link DiscountShopEntry}：它的 {@code maxDiscountCount}
+     * 就是「只生效 N 次」，{@code discount} 为负即加价，购买次数与显示价都由
+     * {@code DynamicShopComponent} 记账，本类不再自己维护任何价格状态。
      */
     public static java.util.List<io.wifi.starrailexpress.util.ShopEntry> buildShopEntries() {
         java.util.List<io.wifi.starrailexpress.util.ShopEntry> shop = new java.util.ArrayList<>();
 
-        // 三叉戟：每次购买后降价 25 金币，最多降价 2 次
-        shop.add(new io.wifi.starrailexpress.util.ShopEntry(
-                new ItemStack(Items.TRIDENT), TRIDENT_PRICE,
+        // 三叉戟：给附魔版三叉戟，每次购买降价 25%（最多 2 次）
+        shop.add(new DiscountShopEntry(Items.TRIDENT.getDefaultInstance(), TRIDENT_PRICE,
+                TRIDENT_DISCOUNT_PERCENT, PRICE_STEP_MAX_TIMES, false,
                 io.wifi.starrailexpress.util.ShopEntry.Type.WEAPON) {
             @Override
             public boolean onBuy(@NotNull Player buyer) {
                 if (!(buyer instanceof ServerPlayer sp))
                     return false;
                 ItemStack trident = createBlessedTrident(sp.serverLevel());
+                // 先塞进背包，失败就不算购买（不记账、不扣钱、不涨价）
                 if (!io.wifi.starrailexpress.util.SREItemUtils.insertStackInFreeSlot(sp, trident))
                     return false;
-                applyFlatPriceStep(sp, trident.getDescriptionId(), -TRIDENT_DISCOUNT_PERCENT, 2);
+                super.applyPurchaseDiscount(buyer);
                 return true;
             }
         });
 
-        // 减少技能冷却 40 秒：每次购买后涨价 25%，最多涨价 2 次
-        // 图标沿用原版时钟，但用自定义名称说明它的用途（原版「时钟」没有语义）
+        // 减少技能冷却 40 秒：每次购买涨价 25%（最多 2 次）
+        // 图标沿用原版时钟，用自定义名称说明用途（原版「时钟」没有语义）
         ItemStack cdReduceIcon = new ItemStack(Items.CLOCK);
         cdReduceIcon.set(DataComponents.CUSTOM_NAME,
                 Component.translatable("item.noellesroles.pooler_cd_reduce"));
-        shop.add(new io.wifi.starrailexpress.util.ShopEntry(
-                cdReduceIcon, CD_REDUCE_PRICE,
+        shop.add(new DiscountShopEntry(cdReduceIcon, CD_REDUCE_PRICE,
+                -CD_REDUCE_MARKUP_PERCENT, PRICE_STEP_MAX_TIMES, false,
                 io.wifi.starrailexpress.util.ShopEntry.Type.TOOL) {
             @Override
             public boolean canBuy(@NotNull Player buyer) {
-                PoolerRoleData data = of(buyer);
-                if (!RoleData.isAttached(data) || data.cooldownReductionBought >= 2)
-                    return false;
-                return super.canBuy(buyer);
+                // 购买次数、价格阶梯都由项目既有的 DynamicShopComponent /
+                // DiscountShopEntry 记账：买满 PRICE_STEP_MAX_TIMES 次后不可再买。
+                int bought = io.wifi.starrailexpress.cca.DynamicShopComponent.KEY.get(buyer)
+                        .getPurchaseCount(io.wifi.starrailexpress.cca.DynamicShopComponent.keyOf(this.stack()));
+                return RoleData.isAttached(of(buyer)) && bought < PRICE_STEP_MAX_TIMES && super.canBuy(buyer);
             }
 
             @Override
@@ -652,8 +641,7 @@ public class PoolerRoleData extends SimpleRoleData {
                     return false;
                 if (!data.buyCooldownReduction())
                     return false;
-                applyFlatPriceStep(buyer, "noellesroles:pooler_cd_reduce",
-                        CD_REDUCE_MARKUP_PERCENT, 2);
+                super.applyPurchaseDiscount(buyer);
                 return true;
             }
         });
@@ -696,23 +684,6 @@ public class PoolerRoleData extends SimpleRoleData {
         });
 
         return shop;
-    }
-
-    /**
-     * 按「购买次数」给某个价格键挂固定增减价（{@code percent} 为负表示降价）。
-     * 用 {@link io.wifi.starrailexpress.cca.DynamicShopComponent} 记录购买次数，
-     * 商店 UI 与服务端扣费读的都是同一个实际价格。
-     */
-    private static void applyFlatPriceStep(Player buyer, String priceKey, int percent, int maxTimes) {
-        if (!(buyer instanceof ServerPlayer sp))
-            return;
-        io.wifi.starrailexpress.cca.DynamicShopComponent dynamicShop =
-                io.wifi.starrailexpress.cca.DynamicShopComponent.KEY.get(sp);
-        int bought = dynamicShop.getPurchaseCount(priceKey);
-        if (bought < maxTimes) {
-            dynamicShop.setPercentDiscount(priceKey, -percent * (bought + 1));
-        }
-        dynamicShop.recordPurchase(priceKey);
     }
 
     /** 便于商店条目等外部代码消费（避免重复写 null 判断）。 */
