@@ -583,7 +583,7 @@ public class PoolerRoleData extends SimpleRoleData {
     public static final int CD_REDUCE_PRICE = 150;
     /** 「减少技能冷却」每次购买涨价的百分比（最多 2 次）。 */
     public static final int CD_REDUCE_MARKUP_PERCENT = 25;
-    /** 三叉戟 / 减少技能冷却的价格阶梯最多生效次数。 */
+    /** 三叉戟 / 减少技能冷却的价格阶梯最多生效次数（超过后价格保持不变）。 */
     public static final int PRICE_STEP_MAX_TIMES = 2;
     /** 疯狂模式（祈月者版）价格。 */
     public static final int FRENZY_PRICE = 325;
@@ -593,8 +593,9 @@ public class PoolerRoleData extends SimpleRoleData {
      * 减少技能冷却 40 秒（150 金币，每次购买涨 25%，最多涨 2 次）、
      * 关灯 / 开锁器 / 撬棍（配置价）、疯狂模式（配置价，祈月者特殊版）。
      * <p>
-     * 价格阶梯一律用项目既有的 {@link DiscountShopEntry}：它的 {@code maxDiscountCount}
-     * 就是「只生效 N 次」，{@code discount} 为负即加价，购买次数与显示价都由
+     * 价格阶梯一律用项目既有的 {@link DiscountShopEntry}：{@code discount} 为负即加价，
+     * {@code maxDiscountCount} 是「价格最多变化几次」而不是购买上限 —— 阶梯走完 2 次后
+     * 仍可继续购买，只是价格固定在第 2 次的价格上。购买次数与显示价都由
      * {@code DynamicShopComponent} 记账，本类不再自己维护任何价格状态。
      */
     public static java.util.List<io.wifi.starrailexpress.util.ShopEntry> buildShopEntries() {
@@ -627,11 +628,9 @@ public class PoolerRoleData extends SimpleRoleData {
                 io.wifi.starrailexpress.util.ShopEntry.Type.TOOL) {
             @Override
             public boolean canBuy(@NotNull Player buyer) {
-                // 购买次数、价格阶梯都由项目既有的 DynamicShopComponent /
-                // DiscountShopEntry 记账：买满 PRICE_STEP_MAX_TIMES 次后不可再买。
-                int bought = io.wifi.starrailexpress.cca.DynamicShopComponent.KEY.get(buyer)
-                        .getPurchaseCount(io.wifi.starrailexpress.cca.DynamicShopComponent.keyOf(this.stack()));
-                return RoleData.isAttached(of(buyer)) && bought < PRICE_STEP_MAX_TIMES && super.canBuy(buyer);
+                // 只管数据挂载；能不能买、价格多少都由 DiscountShopEntry +
+                // DynamicShopComponent 决定（阶梯走完后仍可买，价格不再变化）。
+                return RoleData.isAttached(of(buyer)) && super.canBuy(buyer);
             }
 
             @Override
