@@ -462,11 +462,8 @@ public class StarGathererRoleData extends SimpleRoleData {
      * 玩家手上/背包里那把权杖是否还在冷却中。
      */
     public boolean isScepterReady() {
-        if (!(player instanceof ServerPlayer sp)) {
-            // 客户端：读自己身上的原版冷却表
-            return !player.getCooldowns().isOnCooldown(ModItems.STAR_SCEPTER);
-        }
-        return !sp.getCooldowns().isOnCooldown(ModItems.STAR_SCEPTER);
+        // Player#getCooldowns() 服务端与客户端都有，直接读原版冷却表即可
+        return !player.getCooldowns().isOnCooldown(ModItems.STAR_SCEPTER);
     }
 
     /**
