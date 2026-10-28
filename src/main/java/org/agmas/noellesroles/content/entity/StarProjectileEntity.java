@@ -281,11 +281,8 @@ public class StarProjectileEntity extends Entity {
             return;
         }
 
-        // 撞到方块 → 消散
-        if (this.ascendTicks <= 0 && !level.noCollision(this, this.getBoundingBox().deflate(0.05D))) {
-            this.spent = true;
-            implode(level);
-        }
+        // 不检测方块碰撞：星星是「追踪坠落」的星之审判，必须能穿墙命中目标。
+        // 这里刻意不做 noCollision 判定，让它一路穿过地形追到人身上再引爆。
     }
 
     private void implode(ServerLevel level) {
