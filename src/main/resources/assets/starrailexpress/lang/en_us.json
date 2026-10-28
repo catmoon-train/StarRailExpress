@@ -1,9 +1,4 @@
 {
-    "screen.sre.skins.mvp_animation_title": "MVP Animation",
-    "screen.sre.skins.mvp_animation.ender_dragon.name": "Ender Dragon · End's Ovation",
-    "screen.sre.skins.mvp_animation.ender_dragon.desc": "Own this skin and become MVP to bring the End, a circling dragon and violet victory rays to the settlement.",
-    "screen.sre.skins.no_mvp_animation": "Automatic (owned skins first)",
-    "screen.sre.skins.mvp_animation_empty": "No MVP animations available",
     "settlement.starrailexpress.hud.curtain_call": "C U R T A I N   C A L L",
     "settlement.starrailexpress.closing": "CURTAIN DOWN · LIGHTS OUT",
     "settlement.starrailexpress.hud.kills": "KILLS",
