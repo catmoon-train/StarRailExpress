@@ -95,8 +95,16 @@ public class GeneralModel implements UnbakedModel, BakedModel {
                 var bakedModel = baker.bake(location, settings);
                 if ("default".equals(skin.getName()))
                     continue;
-                // 皮肤已注册但模型文件还没放进来时跳过，避免渲染时 NPE（正常回退到默认模型）
+                // 皮肤已注册但模型文件缺失（例如弩未绘制「装填烟花」阶段贴图）时跳过，
+                // 回退到该阶段的原版模型（GeneralModel 的默认模型即原版 <类型>_<阶段>，
+                // 如 minecraft:item/crossbow_firework），避免露出紫黑缺失材质。
                 if (bakedModel == null)
+                    continue;
+                // 分阶段皮肤（弓/弩）若某阶段模型文件缺失（例如弩未绘制「装填烟花」贴图），
+                // 跳过该皮肤阶段模型，回退到原版对应阶段模型（GeneralModel 的默认模型即
+                // 原版 <类型>_<阶段>，如 minecraft:item/crossbow_firework），避免紫黑缺失材质。
+                var missing = Minecraft.getInstance().getModelManager().getMissingModel();
+                if (GeneralModelLoadingPlugin.isStaged(itemType) && missing != null && bakedModel == missing)
                     continue;
                 if (bakeModels.containsKey(skin.getName()))
                     bakeModels.get(skin.getName()).put(variant, bakedModel);
