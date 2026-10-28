@@ -19,6 +19,8 @@ import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.index.TMMItems;
 import io.wifi.starrailexpress.util.ItemSkinManager;
 import net.fabricmc.fabric.api.client.model.loading.v1.ModelLoadingPlugin;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.resources.model.ModelBakery;
 import net.minecraft.client.resources.model.ModelResourceLocation;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
@@ -115,6 +117,31 @@ public class GeneralModelLoadingPlugin implements ModelLoadingPlugin {
                 : "_%s".formatted(variant.getSerializedName());
 
         return SRE.id("item/skins/%s/%s%s%s".formatted(MODEL_ID.id().getPath(), skin, suffix, variantPart));
+    }
+    /**
+     * 判断一个模型 id 对应的 JSON 是否真实存在于资源包中。
+     * <p>
+     * <b>不能用「烘焙结果 == ModelManager.getMissingModel()」判断缺失</b>：
+     * <ul>
+     * <li>模型烘焙发生在 {@code ModelManager.apply} 之前，此刻 {@code missingModel}
+     * 还是上一轮的旧实例（首次加载时为 {@code null}）；</li>
+     * <li>{@code ModelBakery} 对缺失模型返回的是<b>当轮新建</b>的 missing 实例。</li>
+     * </ul>
+     * 两者永远不相等，缺失模型会被当成有效皮肤缓存下来，渲染成紫黑方块。
+     * 因此改为在烘焙前直接查文件：缺失就跳过，由调用方回退到原版模型。
+     *
+     * @return 资源管理器尚未就绪时返回 {@code true}（不做判断，保持原有行为）
+     */
+    public static boolean modelFileExists(ResourceLocation modelId) {
+        Minecraft minecraft = Minecraft.getInstance();
+        if (minecraft == null) {
+            return true;
+        }
+        var resourceManager = minecraft.getResourceManager();
+        if (resourceManager == null) {
+            return true;
+        }
+        return resourceManager.getResource(ModelBakery.MODEL_LISTER.idToFile(modelId)).isPresent();
     }
 
     @Override

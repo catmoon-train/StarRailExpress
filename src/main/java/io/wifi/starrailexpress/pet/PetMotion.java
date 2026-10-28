@@ -119,10 +119,27 @@ public final class PetMotion {
     }
 
     /**
+     * 随从开始「追主人」的触发距离（格）。
+     * <p>
+     * 用户要的语义不是「永远贴在背后」，而是<b>留有余量</b>：
+     * 玩家静止、或只是小幅走动时，随从原地待着（玩家可以转身看着它）；
+     * 只有当它被落下超过这个距离，才开始追到主人身后。
+     */
+    public static final double FOLLOW_TRIGGER_DISTANCE = 5.0D;
+
+    /**
+     * 判定随从是否需要开始追随。
+     *
+     * @param distanceSqr 随从与主人的水平距离平方
+     */
+    public static boolean shouldStartFollowing(double distanceSqr) {
+        return distanceSqr > FOLLOW_TRIGGER_DISTANCE * FOLLOW_TRIGGER_DISTANCE;
+    }
+
+    /**
      * 期望位置的 Y 分量。
      *
      * @param ownerY       主人脚部 Y
-     * @param ownerHeight  主人碰撞箱高度
      * @param tick         游戏刻，用于待机浮动
      */
     public static double desiredY(PetMotionProfile profile, double ownerY, float ownerHeight, long tick) {

@@ -38,7 +38,11 @@ import java.util.concurrent.ConcurrentHashMap;
  * <p>
  * 运动策略：
  * <ul>
- * <li><b>陆行类</b>：跟在主人身后 + 地面吸附，永远踩在方块上；</li>
+ * <li><b>待机</b>：主人静止或只小幅走动时，随从<b>原地不动</b>，玩家可以转身看着它；</li>
+ * <li><b>追随</b>：一旦被主人落下超过
+ * {@link PetMotion#FOLLOW_TRIGGER_DISTANCE} 格，才追到主人身后
+ * （按 {@code bodyYaw} 反推背后点，不会跑到正面挡视线）；</li>
+ * <li><b>陆行类</b>：追随过程中做地面吸附，永远踩在方块上；</li>
  * <li><b>飞行类</b>：浮在主人头部上方偏后，带轻微上下浮动；</li>
  * <li>两者都受 {@link PetMotionProfile#MAX_DISTANCE} 硬钳制——主人传送 / 换维度 /
  * 重生时随从不会留在原地，最迟 1 tick 就被拉回 5 格内。</li>
@@ -46,8 +50,6 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 @Environment(EnvType.CLIENT)
 public final class ClientPetMotion {
-
-
 
     /** 每名玩家的运动状态。 */
     private static final Map<UUID, State> STATES = new ConcurrentHashMap<>();
@@ -156,13 +158,23 @@ public final class ClientPetMotion {
             state.prevZ = state.z;
         }
 
-        // 期望位置：始终位于主人身后（跟随主人身体朝向，而不是绕圈）。
-        // 用 bodyYaw 而非 headYaw：玩家转头看四周时随从不应跟着甩来甩去。
-        float behindAngle = PetMotion.behindAngle(owner.yBodyRot);
-        double[] offset = state.offset;
-        PetMotion.offsetFromAngle(behindAngle, profile.orbitRadius(), offset);
-        double targetX = ownerX + offset[0];
-        double targetZ = ownerZ + offset[1];
+        // 期望位置：默认「原地不动」，只有被主人落下超过 5 格时才追到身后。
+        // 这样玩家静止、或小幅走动时可以转身看着它，随从不会跟着甩来甩去。
+        // 用 bodyYaw 而非 headYaw：玩家转头看四周时随从不应跟着移动。
+        double currentDistanceSqr = PetMotion.horizontalDistanceSqr(state.x, state.z, ownerX, ownerZ);
+        boolean chasing = PetMotion.shouldStartFollowing(currentDistanceSqr);
+        double targetX;
+        double targetZ;
+        if (chasing) {
+            double[] offset = state.offset;
+            PetMotion.offsetFromAngle(PetMotion.behindAngle(owner.yBodyRot), profile.orbitRadius(), offset);
+            targetX = ownerX + offset[0];
+            targetZ = ownerZ + offset[1];
+        } else {
+            // 未超出范围：目标点就是当前位置，随从待在原地
+            targetX = state.x;
+            targetZ = state.z;
+        }
         double targetY = PetMotion.desiredY(profile, ownerY, owner.getBbHeight(), tick);
 
         // 指数平滑逼近（20 TPS → dt = 0.05s）

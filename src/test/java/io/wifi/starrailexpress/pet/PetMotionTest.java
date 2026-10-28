@@ -188,6 +188,25 @@ class PetMotionTest {
         double distance = Math.sqrt(offset[0] * offset[0] + offset[1] * offset[1]);
         assertTrue(distance <= PetMotionProfile.MAX_DISTANCE + 1.0E-6D, "背后偏移不得超过 5 格");
     }
+
+    // ─── 追随触发距离 ──────────────────────────────────────────────────────
+
+    @Test
+    void followingDoesNotTriggerWhenOwnerIsClose() {
+        // 玩家站着不动 / 小幅走动：随从应当待在原地
+        assertFalse(PetMotion.shouldStartFollowing(0.0D), "距离 0 不应开始追随");
+        assertFalse(PetMotion.shouldStartFollowing(4.0D * 4.0D), "4 格内不应开始追随");
+        assertFalse(PetMotion.shouldStartFollowing(5.0D * 5.0D), "恰好 5 格仍在容差内，不应开始追随");
+    }
+
+    @Test
+    void followingTriggersOnlyBeyondFiveBlocks() {
+        assertTrue(PetMotion.shouldStartFollowing(5.01D * 5.01D), "超过 5 格必须开始追随");
+        assertTrue(PetMotion.shouldStartFollowing(20.0D * 20.0D), "远距离必须开始追随");
+        assertEquals(5.0D, PetMotion.FOLLOW_TRIGGER_DISTANCE, EPS,
+                "触发距离应与需求的 5 格一致");
+    }
+
     @Test
     void flyerHoversAboveOwnerHead() {
         PetMotionProfile flyer = PetMotionProfile.defaults(PetMotionProfile.Kind.FLYER);

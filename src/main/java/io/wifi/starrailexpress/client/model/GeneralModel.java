@@ -21,6 +21,8 @@ import io.wifi.starrailexpress.util.ItemSkinManager;
 import net.fabricmc.fabric.api.renderer.v1.render.RenderContext;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.block.model.BakedQuad;
+import net.minecraft.client.renderer.block.model.BlockModel;
+import net.minecraft.client.renderer.block.model.ItemModelGenerator;
 import net.minecraft.client.renderer.block.model.ItemOverrides;
 import net.minecraft.client.renderer.block.model.ItemTransforms;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
@@ -44,6 +46,8 @@ public class GeneralModel implements UnbakedModel, BakedModel {
      * indexed by skin, then variant!
      */
     private final Map<String, Map<GeneralModelLoadingPlugin.Variant, BakedModel>> bakeModels = new HashMap<>();
+    /** 复刻 ModelBakery 的 item/generated 生成逻辑（原字段是包私有，无法直接引用）。 */
+    private static final ItemModelGenerator GENERATOR = new ItemModelGenerator();
     private final UnbakedModel defaultUnbakedModel;
     /** 物品自身的基准模型位置（不带 item/ 前缀，例如 {@code minecraft:bow}） */
     private final ModelResourceLocation defaultModelLocation;
@@ -77,10 +81,20 @@ public class GeneralModel implements UnbakedModel, BakedModel {
     @Override
     public @Nullable BakedModel bake(ModelBaker baker, Function<Material, TextureAtlasSprite> textureGetter,
             ModelState settings) {
-        // 直接烘焙已经拿到的 defaultUnbakedModel，而不是 baker.bake(同一个 id)：
-        // 后者会重新走一遍 ModelBakery 的加载/包装流程，容易踩到「烘焙中再烘焙自己」
-        // 的重入问题，也会让本类被重复包装成 GeneralModel。
-        defaultBakedModel = defaultUnbakedModel.bake(baker, textureGetter, settings);
+        // 关键：item/generated 系模型（刀 / 枪 / 匕首等皮肤）必须经过
+        // ItemModelGenerator 把 2D 贴图生成为 3D 面，否则模型没有任何几何体、
+        // 渲染出来是空的。ModelBakery$ModelBakerImpl.bakeUncached 内部有这条分支，
+        // 但它只在「通过 id 烘焙」时生效，且这里不能再用同 id 调 baker.bake(...)
+        // （会重入正在烘焙的 top-level）。因此就地复刻同一套逻辑：
+        //   rootModel == GENERATION_MARKER → generateBlockModel 后再 bake
+        //   其它（含 builtin/entity、block 模型）→ 直接 bake
+        if (defaultUnbakedModel instanceof BlockModel blockModel
+                && blockModel.getRootModel() == ModelBakery.GENERATION_MARKER) {
+            BlockModel generated = GENERATOR.generateBlockModel(textureGetter, blockModel);
+            defaultBakedModel = blockModel.bake(baker, generated, textureGetter, settings, false);
+        } else {
+            defaultBakedModel = defaultUnbakedModel.bake(baker, textureGetter, settings);
+        }
         boolean staged = GeneralModelLoadingPlugin.isStaged(itemType);
         for (ItemSkinManager.Skin skin : ItemSkinManager.getSkins(itemType).values()) {
             for (GeneralModelLoadingPlugin.Variant variant : GeneralModelLoadingPlugin.Variant.values()) {
@@ -93,26 +107,25 @@ public class GeneralModel implements UnbakedModel, BakedModel {
                 if (location == null) {
                     continue;
                 }
-                var bakedModel = baker.bake(location, settings);
-                if ("default".equals(skin.getName()))
+                // 皮肤模型文件缺失（例如弩没有绘制「装填烟花」阶段的贴图）时，
+                // 必须在烘焙前就跳过。一旦交给 baker.bake，ModelBakery 会把
+                // 「当轮新建的 missing 实例」烘进结果并缓存成有效皮肤，
+                // 渲染出来就是紫黑方块；而且它还会打印一条误导性的
+                // Unable to load model 警告。
+                // 跳过之后 emitItemQuads 查不到该阶段的皮肤模型，会自动回退到
+                // GeneralModel 的默认模型——也就是原版同名阶段模型
+                // （如 minecraft:item/crossbow_firework）。
+                if (!GeneralModelLoadingPlugin.modelFileExists(location)) {
                     continue;
-                // 皮肤已注册但模型文件缺失（例如弩未绘制「装填烟花」阶段贴图）时跳过，
-                // 回退到该阶段的原版模型（GeneralModel 的默认模型即原版 <类型>_<阶段>，
-                // 如 minecraft:item/crossbow_firework），避免露出紫黑缺失材质。
-                if (bakedModel == null)
-                    continue;
-                // 分阶段皮肤（弓/弩）若某阶段模型文件缺失（例如弩未绘制「装填烟花」贴图），
-                // 跳过该皮肤阶段模型，回退到原版对应阶段模型（GeneralModel 的默认模型即
-                // 原版 <类型>_<阶段>，如 minecraft:item/crossbow_firework），避免紫黑缺失材质。
-                var missing = Minecraft.getInstance().getModelManager().getMissingModel();
-                if (GeneralModelLoadingPlugin.isStaged(itemType) && missing != null && bakedModel == missing)
-                    continue;
-                if (bakeModels.containsKey(skin.getName()))
-                    bakeModels.get(skin.getName()).put(variant, bakedModel);
-                else {
-                    bakeModels.put(skin.getName(), new HashMap<>());
-                    bakeModels.get(skin.getName()).put(variant, bakedModel);
                 }
+                var bakedModel = baker.bake(location, settings);
+                if (bakedModel == null) {
+                    continue;
+                }
+                if ("default".equals(skin.getName())) {
+                    continue;
+                }
+                bakeModels.computeIfAbsent(skin.getName(), k -> new HashMap<>()).put(variant, bakedModel);
             }
         }
 
@@ -147,8 +160,10 @@ public class GeneralModel implements UnbakedModel, BakedModel {
                 : bakeModels.get(skin.getName());
         if (variants != null) {
             BakedModel baked = variants.get(variant);
-            // 皮肤只提供了 GUI 模型时，手持也退化到同一份皮肤模型，避免露出原版贴图
-            if (baked == null) {
+            // 分阶段物品（弓/弩）绝不跨阶段回退：拿「待发」模型去画「装填烟花」
+            // 会变成一张不匹配的贴图，正确做法是回退原版同名阶段模型。
+            if (baked == null && !GeneralModelLoadingPlugin.isStaged(itemType)) {
+                // 皮肤只提供了 GUI 模型时，手持也退化到同一份皮肤模型，避免露出原版贴图
                 baked = variants.get(GeneralModelLoadingPlugin.Variant.DEFAULT);
             }
             if (baked != null) {
