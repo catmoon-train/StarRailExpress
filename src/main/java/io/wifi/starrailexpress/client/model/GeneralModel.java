@@ -81,17 +81,21 @@ public class GeneralModel implements UnbakedModel, BakedModel {
     @Override
     public @Nullable BakedModel bake(ModelBaker baker, Function<Material, TextureAtlasSprite> textureGetter,
             ModelState settings) {
-        // 关键：item/generated 系模型（刀 / 枪 / 匕首等皮肤）必须经过
-        // ItemModelGenerator 把 2D 贴图生成为 3D 面，否则模型没有任何几何体、
-        // 渲染出来是空的。ModelBakery$ModelBakerImpl.bakeUncached 内部有这条分支，
-        // 但它只在「通过 id 烘焙」时生效，且这里不能再用同 id 调 baker.bake(...)
-        // （会重入正在烘焙的 top-level）。因此就地复刻同一套逻辑：
-        //   rootModel == GENERATION_MARKER → generateBlockModel 后再 bake
-        //   其它（含 builtin/entity、block 模型）→ 直接 bake
+        // 关键：item/generated 系模型（刀 / 枪 / 匕首等平面贴图物品）本身没有 elements，
+        // 它的几何体要靠 ItemModelGenerator 从贴图生成，否则烘出来是个空模型 ——
+        // 表现就是「默认材质全透明」。
+        //
+        // ModelBakery$ModelBakerImpl.bakeUncached 里有这条分支，但它只走「按 id 烘焙」，
+        // 而这里不能再用同一个 id 调 baker.bake(...)（会重入正在烘焙的 top-level）。
+        // 所以就地复刻：先 generateBlockModel 得到带 elements 的模型，再烘「生成出来的那一份」。
+        //
+        // 注意：不能写成 blockModel.bake(baker, generated, ...)。
+        // 那个重载的第 2 个参数只用来取 ItemOverrides，几何体仍然取自 this.getElements()
+        // （即原始的空模型），传进去的 generated 会被整个丢弃。
         if (defaultUnbakedModel instanceof BlockModel blockModel
                 && blockModel.getRootModel() == ModelBakery.GENERATION_MARKER) {
             BlockModel generated = GENERATOR.generateBlockModel(textureGetter, blockModel);
-            defaultBakedModel = blockModel.bake(baker, generated, textureGetter, settings, false);
+            defaultBakedModel = generated.bake(baker, textureGetter, settings);
         } else {
             defaultBakedModel = defaultUnbakedModel.bake(baker, textureGetter, settings);
         }
