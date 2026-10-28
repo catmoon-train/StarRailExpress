@@ -10,7 +10,9 @@ import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.phys.Vec3;
 import org.agmas.noellesroles.game.modes.echo.inventory.*;
+import org.agmas.noellesroles.game.modes.echo.objective.EchoBeaconState;
 import org.agmas.noellesroles.game.modes.echo.objective.EchoObjectiveService;
+
 import org.agmas.noellesroles.game.modes.echo.runtime.EchoMatch;
 import org.agmas.noellesroles.game.modes.echo.state.*;
 import java.util.*;
@@ -110,7 +112,22 @@ public final class EchoCardEffects {
                 signals.outline(target,player,"reveal",ticks(c,"revealSelfTicks"));
                 target.sendSystemMessage(Component.translatable("echo.signal.marked")); yield true;
             }
-            case "decoy_dummy","silent_dummy","afterimage","residual_veil","false_echo","false_dispatch","forged_signal","forged_dispatch" -> scene(player,c,request);
+            case "decoy_dummy","silent_dummy","afterimage","residual_veil","false_echo","false_dispatch","forged_signal","forged_dispatch",
+                 "cargo_bait","key_bait","decoy_swap","shadow_step","phantom_stride" -> scene(player,c,request);
+            case "beacon_anchor","beacon_lock" -> {
+                var beacon=targetBeacon(player,request.point(),param(c,"range"));
+                if(!beacon.stall(now,ticks(c,"stallTicks"))) yield false;
+                match.objectives().cardStalled(player,beacon); yield true;
+            }
+            case "snare_trap","hard_snare" -> {
+                Vec3 point=scenes.ground(player,request.point(),param(c,"range"));
+                if(!scenes.addTrap(player,point,ticks(c,"holdTicks"),ticks(c,"holdImmunityTicks"),param(c,"triggerRange"),ticks(c,"durationTicks"))) yield false;
+                yield true;
+            }
+            case "armor_patch" -> state.armor(now,ticks(c,"charges"));
+            case "courier_instinct" -> signals.courierInstinct(player,ticks(c,"durationTicks"),ticks(c,"intervalTicks"),param(c,"range"));
+            case "signal_relay","relay_network" -> relay(player,target(player,request.second(),param(c,"range")),c,now);
+            case "silent_route","hunter_blind" -> state.add(Marker.SILENCE,new Mark(c.id(),now+ticks(c,"durationTicks"),ticks(c,"charges"),0,false,0),now);
             case "faction_mask","double_mask" -> state.disguise(new Mask(c.id(),rank,now+ticks(c,"durationTicks"),ticks(c,"suppressedKeyPulses")),now);
             case "pack_hook" -> {
                 var victim=target(player,request.second(),param(c,"range")); String cooldown="hook:"+victim.getUUID();
@@ -132,19 +149,23 @@ public final class EchoCardEffects {
     }
     private boolean scene(ServerPlayer player,EchoCardDefinition c,EchoInventoryPayload request) {
         long now=match.matchTick(); var status=state(player.getUUID()); String id=c.shortId();
-        boolean image=id.equals("afterimage") || id.equals("residual_veil");
-        boolean dummy=id.equals("decoy_dummy") || id.equals("silent_dummy");
+        boolean image=id.equals("afterimage") || id.equals("residual_veil") || id.equals("shadow_step") || id.equals("phantom_stride");
+        boolean dummy=id.equals("decoy_dummy") || id.equals("silent_dummy") || id.equals("cargo_bait");
         String group=id.startsWith("false_")?"false_submit":"forgery";
         if(!image && !dummy && !status.ready(group,now)) reject("COOLDOWN");
         Vec3 p=image?player.position():scenes.ground(player,request.point(),param(c,"range"));
         var kind=image?EchoSceneState.Kind.IMAGE:id.equals("silent_dummy")?EchoSceneState.Kind.SILENT_DUMMY:dummy?EchoSceneState.Kind.DUMMY:
-                id.startsWith("false_")?EchoSceneState.Kind.SUBMISSION:id.equals("forged_dispatch")?EchoSceneState.Kind.DISPATCH:
+                id.equals("key_bait")?EchoSceneState.Kind.KEY_FAKE:id.startsWith("false_")?EchoSceneState.Kind.SUBMISSION:
+                id.equals("forged_dispatch")?EchoSceneState.Kind.DISPATCH:
                 request.option()==0?EchoSceneState.Kind.STALL:EchoSceneState.Kind.SUBMISSION;
         if(id.equals("forged_signal") && request.option()!=0 && request.option()!=1) reject("NO_TARGET");
-        int duration=image?ticks(c,"imageTicks"):dummy?ticks(c,"durationTicks"):id.startsWith("false_")?ticks(c,"highlightTicks"):ticks(c,"durationTicks");
+        int duration=image?ticks(c,"imageTicks"):dummy||kind==EchoSceneState.Kind.KEY_FAKE?ticks(c,"durationTicks"):id.startsWith("false_")?ticks(c,"highlightTicks"):ticks(c,"durationTicks");
+        // 假钥匙只误导钥匙脉冲，因此只在有 deceptionTicks 时挂诱导窗口；其它场景保持 0。
+        int deception=id.equals("silent_dummy") || id.equals("key_bait")?ticks(c,"deceptionTicks"):0;
         List<EchoSceneState.Spec> specs=new ArrayList<>();
-        specs.add(new EchoSceneState.Spec(kind,EchoSceneService.point(p),player.getYRot(),0,duration,kind==EchoSceneState.Kind.DUMMY?ticks(c,"soundIntervalTicks"):kind.submission()?0:-1,
-                id.equals("silent_dummy")?ticks(c,"deceptionTicks"):0,param(c,"deceptionRange"),param(c,"soundRange")));
+        specs.add(new EchoSceneState.Spec(kind,EchoSceneService.point(p),player.getYRot(),0,duration,
+                kind==EchoSceneState.Kind.DUMMY?ticks(c,"soundIntervalTicks"):kind==EchoSceneState.Kind.KEY_FAKE?-1:kind.submission()?0:-1,
+                deception,param(c,"deceptionRange"),param(c,"soundRange")));
         if(id.equals("false_dispatch")) {
             Vec3 second=scenes.ground(player,request.secondPoint(),param(c,"range"));
             if(p.distanceToSqr(second)<Math.pow(param(c,"minSeparation"),2)) reject("OUT_OF_RANGE");
@@ -153,12 +174,52 @@ public final class EchoCardEffects {
         int rank=c.tier()==EchoCardDefinition.Tier.UPGRADED?2:1;
         if(image && !status.canBoost(rank,now) || !scenes.state().canAdd(player.getUUID(),specs,now)) return false;
         if(!scenes.add(player,specs)) return false;
+        // 残影类只在有 speedTicks 时给移速，避免把 imageTicks 误当加速时长。
         if(image) status.boost(new Boost(c.id(),rank,now+ticks(c,"speedTicks"),param(c,"speedBonus")),now);
-        if(!image && !dummy) status.cooldown(group,now+ticks(c,"cooldownTicks"));
+        if(!image && !dummy && kind!=EchoSceneState.Kind.KEY_FAKE) status.cooldown(group,now+ticks(c,"cooldownTicks"));
         return true;
     }
     public void breakMask(UUID owner) { state(owner).breakMask(); }
     public boolean suppressKeyPulse(UUID owner) { return state(owner).suppressKeyPulse(match.matchTick()); }
+    /**
+     * 卡牌直接迟滞一座信标（发货方锚定 / 截流者加固）。
+     *
+     * <p>只认已配置的信标交互点，按交互点解析归属；不做远程或穿墙操作。
+     */
+    private EchoBeaconState targetBeacon(ServerPlayer player,Vec3 point,double range) {
+        if(!Double.isFinite(point.x) || !Double.isFinite(point.y) || !Double.isFinite(point.z)) reject("NO_TARGET");
+        if(player.getEyePosition().distanceToSqr(point)>range*range) reject("OUT_OF_RANGE");
+        return match.objectives().beaconAt(point).orElseThrow(() -> new IllegalStateException("NO_TARGET"));
+    }
+    /** 信号中继：把目标队友接下来的采集/提交声光转给本人，只做授权投影。 */
+    private boolean relay(ServerPlayer player,ServerPlayer target,EchoCardDefinition c,long now) {
+        if(match.faction(target.getUUID())!=match.faction(player.getUUID())) reject("NO_TARGET");
+        String group="relay:"+target.getUUID();
+        if(!state(player.getUUID()).ready(group,now)) reject("COOLDOWN");
+        if(!signals.relay(player,target,ticks(c,"durationTicks"),ticks(c,"charges"),param(c,"relayRange"))) return false;
+        state(player.getUUID()).cooldown(group,now+ticks(c,"durationTicks")); return true;
+    }
+    /** 陷阱触发：由场景tick调用，命中才消耗，不刷新旧定身。 */
+    public void tickTraps() {
+        long now=match.matchTick();
+        for(var trap:scenes.traps()) for(ServerPlayer target:match.onlinePlayers()) {
+            if(!match.standing(target) || target.getUUID().equals(trap.owner())) continue;
+            if(match.faction(target.getUUID())==EchoFaction.INTERCEPTOR) continue;
+            if(target.position().distanceToSqr(EchoSceneService.vec(trap.point()))>trap.triggerRange()*trap.triggerRange()) continue;
+            if(!state(target.getUUID()).hold(now,trap.holdTicks(),trap.immunityTicks())) continue;
+            scenes.consumeTrap(trap,now); updateSpeed(target);
+            target.sendSystemMessage(Component.translatable("echo.signal.snared")); break;
+        }
+    }
+    public boolean held(UUID owner) { return state(owner).held(match.matchTick()); }
+    public long heldUntil(UUID owner) { return state(owner).heldUntil(); }
+    /** 护甲一次性免疫：命中后立即清零并提示本人。 */
+    public boolean absorb(UUID owner) {
+        if(!state(owner).consumeArmor()) return false;
+        var player=match.connectedPlayer(owner);
+        if(player!=null) player.sendSystemMessage(Component.translatable("echo.signal.armor_broken"));
+        return true;
+    }
     private ServerPlayer target(ServerPlayer actor,UUID id,double range) {
         var target=level.getServer().getPlayerList().getPlayer(id);
         if(target==null || target==actor || !match.present(target) || !match.life(id).standing()) reject("NO_TARGET");
@@ -191,7 +252,7 @@ public final class EchoCardEffects {
             UUID equipped=selected.get(player.getUUID());
             if(equipped!=null && match.bags().inventory(player.getUUID()).find(equipped).isEmpty()) clearSelection(player);
         }
-        scenes.tick(); signals.tick();
+        scenes.tick(); signals.tick(); tickTraps();
     }
     private void clearSelection(ServerPlayer player) {
         selected.remove(player.getUUID()); RoleData.getOptional(EchoRoleData.class,player).ifPresent(d -> d.projectSelected(null));

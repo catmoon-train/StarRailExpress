@@ -98,8 +98,44 @@
 
 ## 7. 定义校验与验收
 
-初始化必须验证：37 个唯一 ID，21 BASE、16 UPGRADED；每个基础卡归属且仅归属一个配方组；16 个组各有一个产物；每个组存在可获取的两输入路径；所有权重正整数；效果处理器与翻译/图标键存在。
+初始化必须验证：54 个唯一 ID，31 BASE、23 UPGRADED；每个基础卡归属且仅归属一个配方组；23 个组各有一个产物；每个组存在可获取的两输入路径；所有权重正整数；效果处理器与翻译/图标键存在。
 
 同一 `SHARED:ACCESS` 玩家最多一 KEY 不妨碍合成：两门撑可合万能钥匙；声纹钥匙+门撑也可；两钥匙因为携带上限不能放同包，但不需要为它开例外。合成会清交易来源，因此钥匙贩子需把合成后的钥匙重新真实交易。
 
 验收按“成功一次、失败不扣、目标失效、叠加、掉线、结算清理、接收方正确”七项逐卡覆盖。高级卡不是名称占位：表中每种效果都要落到对应服务与测试，才算首发卡池完成。
+
+## 8. 第二批功能性卡（17 张，扩池到 54）
+
+> 这一批的目标是**改变局面**而不是再叠一层数值：共享信息、封锁目标、布设陷阱、一次性免伤。全部复用既有台账与投影，**没有新增网络包**。
+
+| ID / 名称 | 系列 / 品质 / weight / 方式 | 目标与效果 | 失败/反制与执行点 |
+|---|---|---|---|
+| `signal_relay` 信号中继 | RELAY / C / 10 / A | 同阵营队友 <=16 格；60 秒内他每次采集/提交都给你一次方向脉冲 | 非同阵营拒绝；方向-only 不带坐标；`SignalService.relay` |
+| `beacon_anchor` 信标锚定 | LOCK / R / 7 / A | 充能中信标 <=3 格，迟滞 20 秒，不扣进度 | 与迟滞共用单一计时器，不叠加；未满料/已启动拒绝；`EchoBeaconState.stall` |
+| `shadow_step` 影步 | STEALTH / C / 10 / A | 自身；4 秒原地假影 + 3 秒 +20% 移速 | 与旧残影共享单一机动源，不叠强度；`EchoCardEffects.scene` |
+| `courier_instinct` 信使直觉 | INTEL / C / 10 / A | 64 格内最近货主方向 10 秒，每 2 秒刷新扇区 | 无货主拒绝；只给扇区不给姓名/坐标；`SignalService.courierInstinct` |
+| `silent_route` 静默路线 | SILENCE / C / 10 / A | 自身；下一次成功采集/提交静默 | 与静默采集器共用同一标记，不许叠加；`EchoEffectState.Marker.SILENCE` |
+| `snare_trap` 捕网陷阱 | SNARE / R / 7 / A | LOS 地面 <=10 格布设 6 秒陷阱；非追捕者踩中定身 5 秒 | 定身只锁水平位移，可转身/用卡；10 秒免疫窗口；`EchoCardEffects.tickTraps` |
+| `cargo_bait` 货物诱饵 | DECOY / C / 10 / A | 30 秒诱饵，每 4 秒 28 格采集声，前 5 秒误导货物嗅探 | 不产生真实货物/占点；只改扇区；`EchoSceneState.deception` |
+| `key_bait` 假钥匙 | KEY_BAIT / R / 7 / A | 20 秒假钥匙，前 5 秒把钥匙脉冲引向它 | 只误导 `key_pulse`，不影响真实钥匙；`EchoSceneService.keyDeception` |
+| `armor_patch` 护甲补丁 | SELF_PRESERVE / R / 7 / A | 完全免疫下一次非处决伤害 | 命中前消耗，不进后摇/控制/掉落链；`EchoCombatService.applyDamage` |
+| `decoy_swap` 幻影替换 | DECOY / C / 10 / A | 8 格内幻影 12 秒 + 3 秒高亮 | 无碰撞不改阵营，可被空手拆除；`SceneService.dismantle` |
+| `relay_network` 中继网络 | RELAY / E / 3 / A（配方 `CARRIER:RELAY`） | 20 格内队友接下来两次采集/提交各给你方向，45 秒 | 一份授权覆盖两次，用尽失效；`SignalService.relay` 计数 |
+| `beacon_lock` 信标锁 | LOCK / E / 3 / A（`CARRIER:LOCK`） | 充能中信标 <=3 格，迟滞 40 秒 | 同计时器不叠加；`EchoBeaconState.stall` |
+| `phantom_stride` 幻影疾行 | STEALTH / E / 3 / A（`CARRIER:STEALTH`） | 8 秒假影 + 5 秒 +32% 移速 | 共享单一机动源；`EchoEffectState.Boost` |
+| `hunter_blind` 猎手致盲 | SILENCE / E / 3 / A（`INTERCEPTOR:SILENCE`） | 自身接下来两次采集/提交不出声纹脉冲 | 同标记家族不叠加；`Marker.SILENCE` |
+| `hard_snare` 强化捕网 | SNARE / E / 3 / A（`INTERCEPTOR:SNARE`） | 12 格内陷阱 8 秒；踩中定身 8 秒 | 免疫窗口 8 秒，已定身不刷新；`tickTraps` |
+| `fake_key_cache` 双假钥匙 | KEY_BAIT / E / 3 / A（`INTERCEPTOR:KEY_BAIT`） | 两处假钥匙 30 秒，前 8 秒诱导钥匙脉冲 | 两点间距 >=5 格否则整体拒绝；`deception(..., KEY_FAKE)` |
+| `mirror_double` 镜像双影 | DECOY / E / 3 / A（`BROKER:DECOY`） | 两道幻影 20 秒 + 4 秒高亮 | 两点间距 >=4 格，成对原子校验；`EchoSceneState.canAdd` |
+
+### 新机制的边界
+
+| 机制 | 规则 |
+|---|---|
+| 定身（`hold`） | 独立于倒地/控制的第三种状态：只锁水平位移与移速基线，**不进** `EchoCombatState.controlled`、不解除蓄力、不禁用卡牌与交互。带免疫窗口，重复触发不刷新旧截止 |
+| 护甲（`armor`） | 命中前先消耗；一次性、不叠层；强制淘汰与环境伤害照常生效；被吸收时不触发受击反馈、击退与掉落 |
+| 中继（`relay`） | 授权按 `(接收者, 目标)` 去重覆盖，不叠时长；只投递方向扇区，次数用尽即失效 |
+| 假钥匙（`KEY_FAKE`） | 与静默假人共享场景台账但**不共享诱导查询**：`deception` 按 `Kind` 过滤，货物嗅探不会被假钥匙改写 |
+| 陷阱（`Trap`） | 不生成实体、不进碰撞；每人最多 2 个、全场 16 个；只在服务端按 tick 判定并一次性消耗 |
+
+时间统一使用比赛 tick；暂停期间陷阱倒计时与定身截止都不推进。

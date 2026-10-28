@@ -19,7 +19,7 @@ class EchoCardAssetsTest {
             assertTrue(image.getColorModel().hasAlpha(),card.id());
             assertTrue(hashes.add(HexFormat.of().formatHex(MessageDigest.getInstance("SHA-256").digest(Files.readAllBytes(path)))),card.id());
         }
-        assertEquals(37,hashes.size());
+        assertEquals(EchoCardRegistry.all().size(),hashes.size());
     }
     @Test void toolsHaveTheirOwnReadableTexturesAndModelsReferenceThem() throws Exception {
         for(String tool:List.of("echo_cutter","echo_card_proxy")) {

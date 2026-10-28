@@ -5,11 +5,13 @@ import java.util.*;
 /** 有界幻象台账；没有实体、碰撞、资源或任务身份，时间只接受比赛tick。 */
 public final class EchoSceneState {
     public enum Kind {
-        DUMMY, SILENT_DUMMY, IMAGE, SUBMISSION, STALL, DISPATCH;
-        public boolean decoy() { return this==DUMMY || this==SILENT_DUMMY || this==IMAGE; }
+        DUMMY, SILENT_DUMMY, IMAGE, SUBMISSION, STALL, DISPATCH, KEY_FAKE;
+        public boolean decoy() { return this==DUMMY || this==SILENT_DUMMY || this==IMAGE || this==KEY_FAKE; }
         public boolean submission() { return this==SUBMISSION || this==DISPATCH; }
         /** 假迟滞光：只影响观感，不改变任何信标状态。 */
         public boolean stall() { return this==STALL || this==DISPATCH; }
+        /** 声音母题：假钥匙用钥匙环声，其余用采集/提交声。 */
+        public boolean keyFake() { return this==KEY_FAKE; }
     }
     public record Point(double x,double y,double z) {
         public Point { if(!Double.isFinite(x) || !Double.isFinite(y) || !Double.isFinite(z)) throw new IllegalArgumentException("无效场景位置"); }
@@ -55,13 +57,39 @@ public final class EchoSceneState {
         return List.copyOf(due);
     }
     public Optional<Scene> deception(Point observer,long now) {
-        return scenes.values().stream().filter(s -> s.kind()==Kind.SILENT_DUMMY && s.active(now) && now-s.start()<s.deceptionTicks() && s.point().distanceSqr(observer)<=s.deceptionRange()*s.deceptionRange())
+        return deception(observer,now,Kind.SILENT_DUMMY);
+    }
+    /** 静默假人优先诱导嗅探；假钥匙只诱导钥匙脉冲，不参与货物嗅探。 */
+    public Optional<Scene> deception(Point observer,long now,Kind kind) {
+        Objects.requireNonNull(kind);
+        return scenes.values().stream().filter(s -> s.kind()==kind && s.active(now) && now-s.start()<s.deceptionTicks() && s.point().distanceSqr(observer)<=s.deceptionRange()*s.deceptionRange())
                 .min(Comparator.comparingDouble(s -> s.point().distanceSqr(observer)));
     }
     public boolean dismantle(UUID id,long now) {
         Scene scene=scenes.get(id); if(scene==null || !scene.kind().decoy() || !scene.active(now)) return false;
         scenes.remove(id); sounded.remove(id); return true;
     }
-    public void depart(UUID owner) { scenes.values().removeIf(s -> s.owner().equals(owner)); sounded.keySet().retainAll(scenes.keySet()); }
-    public void clear() { scenes.clear(); sounded.clear(); }
+    public void depart(UUID owner) { scenes.values().removeIf(s -> s.owner().equals(owner)); sounded.keySet().retainAll(scenes.keySet()); departTraps(owner); }
+    public void clear() { scenes.clear(); sounded.clear(); clearTraps(); }
+
+    // 陷阱：不生成实体、不进碰撞，只在服务端按 tick 判定并一次性消耗。
+    public record Trap(UUID id,UUID owner,Point point,int holdTicks,int immunityTicks,double triggerRange,long until) {
+        public Trap { if(holdTicks<1 || immunityTicks<0 || !(triggerRange>0)) throw new IllegalArgumentException("无效陷阱参数"); }
+        public boolean active(long now) { return now<until; }
+    }
+    private final List<Trap> traps=new ArrayList<>();
+    /** 场景层不持有比赛时钟；读取时用服务端最近一次写入的 tick 过滤过期项。 */
+    private long trapClock;
+    public void clock(long now) { trapClock=now; }
+    public List<Trap> traps() { traps.removeIf(t -> !t.active(trapClock)); return List.copyOf(traps); }
+    public boolean addTrap(UUID owner,Point point,int holdTicks,int immunityTicks,double triggerRange,int durationTicks,long now) {
+        Objects.requireNonNull(owner); Objects.requireNonNull(point); clock(now);
+        traps.removeIf(t -> !t.active(now));
+        if(durationTicks<1 || traps.size()>=16 || traps.stream().filter(t -> t.owner().equals(owner)).count()>=2) return false;
+        traps.add(new Trap(UUID.randomUUID(),owner,point,holdTicks,immunityTicks,triggerRange,now+durationTicks));
+        return true;
+    }
+    public void consumeTrap(Trap trap,long now) { clock(now); traps.removeIf(t -> t.id().equals(trap.id())); }
+    public void departTraps(UUID owner) { traps.removeIf(t -> t.owner().equals(owner)); }
+    public void clearTraps() { traps.clear(); }
 }

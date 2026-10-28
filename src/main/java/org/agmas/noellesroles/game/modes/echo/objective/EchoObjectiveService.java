@@ -142,6 +142,21 @@ public final class EchoObjectiveService {
             default -> false;
         };
     }
+    /** 卡牌直接迟滞后由卡服务回调，只补经济与播报，不重复改信标状态。 */
+    public void cardStalled(ServerPlayer player,EchoBeaconState beacon) {
+        long now=match.matchTick();
+        beacons.entrySet().stream().filter(e -> e.getValue()==beacon).map(Map.Entry::getKey).findFirst().ifPresent(id -> {
+            reward(player,PackQuality.BLACK_MARKET,"stall:"+id);
+            match.economy().award(player,org.agmas.noellesroles.game.modes.echo.economy.EchoEconomy.Source.STALL,id);
+            announce("echo.goal.stalled",id); submissionHighlights.put(id,now+200);
+        });
+    }
+    /** 按交互点解析信标；未配置的点返回空，卡牌不会因此改状态。 */
+    public Optional<EchoBeaconState> beaconAt(Vec3 point) {
+        Target target=targets.get(EchoMachineInteractions.root(level,BlockPos.containing(point)));
+        if(target==null || target.kind()!=Kind.BEACON) return Optional.empty();
+        return Optional.ofNullable(beacons.get(target.id()));
+    }
     public void startOperations() {
         if(started) return;
         started=true;

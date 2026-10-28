@@ -10,9 +10,9 @@ import static org.agmas.noellesroles.game.modes.echo.cards.EchoCardDefinition.*;
 
 class EchoCardRegistryTest {
     @Test void allDefinitionsHaveOneRecipeAndPositiveWeights() {
-        assertEquals(37,EchoCardRegistry.all().size());
-        assertEquals(21,EchoCardRegistry.all().stream().filter(c -> c.tier()==Tier.BASE).count());
-        assertEquals(16,EchoCardRegistry.recipes().size());
+        assertEquals(54,EchoCardRegistry.all().size());
+        assertEquals(31,EchoCardRegistry.all().stream().filter(c -> c.tier()==Tier.BASE).count());
+        assertEquals(23,EchoCardRegistry.recipes().size());
         for(var card:EchoCardRegistry.all()) {
             assertTrue(card.weight()>0);
             assertFalse(card.params().isEmpty());

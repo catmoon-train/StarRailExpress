@@ -8,7 +8,8 @@ import java.util.*;
 public record EchoCardDefinition(String id, EchoFaction drawFaction, Set<EchoFaction> allowedFactions,
                                   Series series, Tier tier, Rarity rarity, int weight, Activation activation,
                                   Target target, String effectHandlerId, Map<String, Double> params) {
-    public enum Series { SILENCE, DECOY, MOBILITY, LOGISTICS, COUNTER, INTEL, ACCESS, TRACKING, SABOTAGE, HUNT, TRADE, DISGUISE, SELF_PRESERVE, SALVAGE, FORGERY }
+    public enum Series { SILENCE, DECOY, MOBILITY, LOGISTICS, COUNTER, INTEL, ACCESS, TRACKING, SABOTAGE, HUNT, TRADE, DISGUISE, SELF_PRESERVE, SALVAGE, FORGERY, RELAY, STEALTH, LOCK, SNARE, KEY_BAIT }
+    /** RELAY / STEALTH / LOCK / SNARE / KEY_BAIT 是第二批系列，各自只与同系列基础卡合成。 */
     public enum Tier { BASE, UPGRADED }
     public enum Rarity { COMMON, RARE, EPIC }
     public enum Activation { ACTIVE, PASSIVE, KEY }

@@ -53,6 +53,24 @@ public final class EchoCardRegistry {
         cards.add(up("residual_veil",BROKER,SELF_PRESERVE,ACTIVE,SELF,p("imageTicks",120,"speedTicks",80,"speedBonus",0.25)));
         cards.add(up("salvage_magnet",BROKER,SALVAGE,ACTIVE,DIRECTION,p("range",48,"durationTicks",400,"pickupRange",4,"packs",1)));
         cards.add(up("forged_dispatch",BROKER,FORGERY,ACTIVE,GROUND,p("range",12,"durationTicks",100,"cooldownTicks",300)));
+        // 第二批功能性卡：更偏“改变局面”而不是纯数值；每张都复用既有台账，不新增网络包。
+        cards.add(base("signal_relay",CARRIER,RELAY,Rarity.COMMON,10,ACTIVE,PLAYER,p("range",16,"durationTicks",600,"charges",1,"relayRange",12)));
+        cards.add(base("beacon_anchor",CARRIER,LOCK,Rarity.RARE,7,ACTIVE,BEACON,p("range",3,"stallTicks",400)));
+        cards.add(base("shadow_step",CARRIER,STEALTH,Rarity.COMMON,10,ACTIVE,SELF,p("imageTicks",40,"speedTicks",60,"speedBonus",0.20)));
+        cards.add(base("courier_instinct",CARRIER,INTEL,Rarity.COMMON,10,ACTIVE,DIRECTION,p("range",64,"durationTicks",200,"intervalTicks",40)));
+        cards.add(base("silent_route",INTERCEPTOR,SILENCE,Rarity.COMMON,10,ACTIVE,SELF,p("durationTicks",400,"charges",1)));
+        cards.add(base("snare_trap",INTERCEPTOR,SNARE,Rarity.RARE,7,ACTIVE,GROUND,p("range",10,"holdTicks",100,"holdImmunityTicks",200,"triggerRange",2.5)));
+        cards.add(base("cargo_bait",INTERCEPTOR,DECOY,Rarity.COMMON,10,ACTIVE,GROUND,p("range",12,"durationTicks",600,"soundIntervalTicks",80,"soundRange",28)));
+        cards.add(base("key_bait",INTERCEPTOR,KEY_BAIT,Rarity.RARE,7,ACTIVE,GROUND,p("range",12,"durationTicks",400,"deceptionTicks",100,"deceptionRange",20)));
+        cards.add(base("armor_patch",BROKER,SELF_PRESERVE,Rarity.RARE,7,ACTIVE,SELF,p("durationTicks",1200,"charges",1)));
+        cards.add(base("decoy_swap",BROKER,DECOY,Rarity.COMMON,10,ACTIVE,GROUND,p("range",8,"durationTicks",240,"highlightTicks",60)));
+        cards.add(up("relay_network",CARRIER,RELAY,ACTIVE,PLAYER,p("range",20,"durationTicks",900,"charges",2,"relayRange",20)));
+        cards.add(up("beacon_lock",CARRIER,LOCK,ACTIVE,BEACON,p("range",3,"stallTicks",800)));
+        cards.add(up("phantom_stride",CARRIER,STEALTH,ACTIVE,SELF,p("imageTicks",80,"speedTicks",100,"speedBonus",0.32)));
+        cards.add(up("hunter_blind",INTERCEPTOR,SILENCE,ACTIVE,SELF,p("durationTicks",600,"charges",2)));
+        cards.add(up("hard_snare",INTERCEPTOR,SNARE,ACTIVE,GROUND,p("range",12,"holdTicks",160,"holdImmunityTicks",160,"triggerRange",3.0)));
+        cards.add(up("fake_key_cache",INTERCEPTOR,KEY_BAIT,ACTIVE,GROUND_PAIR,p("range",12,"minSeparation",5,"durationTicks",600,"deceptionTicks",160,"deceptionRange",24)));
+        cards.add(up("mirror_double",BROKER,DECOY,ACTIVE,GROUND_PAIR,p("range",10,"minSeparation",4,"durationTicks",400,"highlightTicks",80)));
         Map<String,EchoCardDefinition> definitions = new LinkedHashMap<>();
         Map<String,EchoCardDefinition> recipes = new LinkedHashMap<>();
         Set<String> baseGroups = new HashSet<>();
@@ -61,7 +79,8 @@ public final class EchoCardRegistry {
             if(card.tier()==Tier.BASE) baseGroups.add(card.recipeGroup());
             else if(recipes.putIfAbsent(card.recipeGroup(),card)!=null) throw new IllegalStateException("重复高级产物");
         }
-        if(definitions.size()!=37 || recipes.size()!=16 || !recipes.keySet().equals(baseGroups)) throw new IllegalStateException("首发卡池/配方不闭合");
+        // 37 → 54：新增 17 张（31 基础 / 23 高级）；配方闭合条件同步收紧，避免半成品卡池。
+        if(definitions.size()!=54 || recipes.size()!=23 || !recipes.keySet().equals(baseGroups)) throw new IllegalStateException("卡池/配方不闭合");
         DEFINITIONS = Collections.unmodifiableMap(definitions);
         RECIPES = Collections.unmodifiableMap(recipes);
     }

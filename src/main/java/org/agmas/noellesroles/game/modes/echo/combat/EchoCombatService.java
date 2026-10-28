@@ -310,6 +310,8 @@ public final class EchoCombatService {
     private EchoCombatState.Hit applyDamage(ServerPlayer victim,ServerPlayer killer,ResourceLocation reason,boolean force,boolean environmental,float amount) {
         if(match.result()!=null || match.faction(victim.getUUID())==null || victim.level()!=level) return EchoCombatState.Hit.IGNORED;
         if(!force && (!match.phase().acceptsActions() || SREGameTimeComponent.KEY.get(level).isTimeFrozen())) return EchoCombatState.Hit.IGNORED;
+        // 护甲补丁：命中前先消耗一层，完全免疫本次伤害，不进后摇/控制/掉落链。
+        if(!force && match.cards().absorb(victim.getUUID())) { project(victim,true); return EchoCombatState.Hit.IGNORED; }
         EchoCombatState state=match.state(victim.getUUID());
         EchoCombatState.Hit hit=state.damage(match.matchTick(),force,match.faction(victim.getUUID())==EchoFaction.INTERCEPTOR,amount);
         if(hit==EchoCombatState.Hit.IGNORED) return hit;
@@ -388,7 +390,9 @@ public final class EchoCombatService {
         boolean paused=SREGameTimeComponent.KEY.get(level).isTimeFrozen();
         var shove=knockbacks.get(player.getUUID());
         if(shove!=null && !EchoCutterStrike.pushing(shove,now,paused)) { knockbacks.remove(player.getUUID()); shove=null; }
-        if(state.life()==EchoLifeState.DOWNED || state.controlled(now)) {
+        // 定身（陷阱）不进控制链：只锁水平位移，仍可转身、交互与使用卡牌。
+        boolean held=match.cards().held(player.getUUID());
+        if(state.life()==EchoLifeState.DOWNED || state.controlled(now) || held) {
             Vec3 anchor=anchors.computeIfAbsent(player.getUUID(),id -> player.position());
             player.stopUsingItem(); player.setSprinting(false); player.fallDistance=0;
             if(shove!=null && state.life()==EchoLifeState.DOWNED && !paused) advanceKnockback(player,shove);

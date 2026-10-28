@@ -22,6 +22,12 @@ public final class EchoSceneService {
     private final EchoSceneState state=new EchoSceneState();
     public EchoSceneService(EchoMatch match,ServerLevel level) { this.match=match; this.level=level; }
     public EchoSceneState state() { return state; }
+    /** 已布下的陷阱快照；触发判定在 {@code EchoCardEffects.tickTraps} 里做，保持场景层无战斗依赖。 */
+    public List<Trap> traps() { return state.traps(); }
+    public boolean addTrap(ServerPlayer owner,Vec3 point,int holdTicks,int immunityTicks,double triggerRange,int durationTicks) {
+        return state.addTrap(owner.getUUID(),point(point),holdTicks,immunityTicks,triggerRange,durationTicks,match.matchTick());
+    }
+    public void consumeTrap(Trap trap,long now) { state.consumeTrap(trap,now); }
     public static Point point(Vec3 p) { return new Point(p.x,p.y,p.z); }
     public static Vec3 vec(Point p) { return new Vec3(p.x(),p.y(),p.z()); }
     /** 只接受地板上表面且有容身空间的落点；不能从客户端构造墙内/空中幻象。 */
@@ -40,6 +46,10 @@ public final class EchoSceneService {
     }
     public boolean add(ServerPlayer player,List<Spec> specs) { return state.add(player.getUUID(),specs,match.matchTick()); }
     public Optional<Vec3> deception(ServerPlayer observer) { return state.deception(point(observer.position()),match.matchTick()).map(s -> vec(s.point())); }
+    /** 假钥匙只误导钥匙脉冲；与货物嗅探分开查询，避免互相顶替。 */
+    public Optional<Vec3> keyDeception(ServerPlayer observer) {
+        return state.deception(point(observer.position()),match.matchTick(),Kind.KEY_FAKE).map(s -> vec(s.point()));
+    }
     /** 使用空手右键的同一输入；假人没有真实实体，不会遮挡战斗射线。 */
     public boolean dismantle(ServerPlayer player) {
         if(!match.standing(player) || match.faction(player.getUUID())!=EchoFaction.INTERCEPTOR || !player.getMainHandItem().isEmpty()) return false;
@@ -54,9 +64,11 @@ public final class EchoSceneService {
     }
     public void tick() {
         long now=match.matchTick();
+        state.clock(now);
         for(var scene:state.dueSounds(now)) {
             Vec3 pos=vec(scene.point());
             if(scene.kind().submission()) org.agmas.noellesroles.game.modes.echo.objective.EchoAudio.submission(match,pos);
+            else if(scene.kind().keyFake()) org.agmas.noellesroles.game.modes.echo.objective.EchoAudio.nearby(match,pos,SoundEvents.ITEM_PICKUP,scene.soundRange(),0.8F);
             else org.agmas.noellesroles.game.modes.echo.objective.EchoAudio.nearby(match,pos,SoundEvents.AMETHYST_BLOCK_CHIME,scene.soundRange(),1.5F);
         }
         for(ServerPlayer receiver:match.onlinePlayers()) {

@@ -48,7 +48,7 @@ public record EchoCardTuning(Map<String,Map<String,Double>> overrides) {
         else if(key.equals("clearStall")) { min=1; max=1; integer=true; }
         else if(key.equals("speedBonus")) { min=0.01; max=0.5; }
         else if(key.equals("speedPenalty") || key.equals("cargoPenalty")) { min=0; max=1; }
-        else if(key.toLowerCase(Locale.ROOT).endsWith("range") || key.equals("minSeparation")) { min=0.5; max=128; }
+        else if(key.toLowerCase(Locale.ROOT).endsWith("range") || key.equals("minSeparation") || key.equals("triggerRange")) { min=0.5; max=128; }
         else throw new IllegalArgumentException("未定义边界的卡牌字段: "+key);
         if(value<min || value>max || integer && value!=Math.rint(value)) throw new IllegalArgumentException(key+"超出边界或不是整数");
     }

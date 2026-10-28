@@ -111,6 +111,7 @@ public final class EchoHud {
             String kind = switch (signal.kind()) {
                 case "salvage" -> "salvage"; case "key_contract" -> "key_contract";
                 case "cargo_pulse" -> "cargo"; case "key_pulse" -> "key"; case "fault_pulse" -> "fault";
+                case "relay" -> "relay";
                 default -> "tracking";
             };
             // 故障声纹用红色，其它方向信号保持金色。

@@ -13,6 +13,26 @@ GOLD = '#d4af37'
 DARK = '#1a1008'
 COLORS = {'CARRIER': '#72c17b', 'INTERCEPTOR': '#e06b65', 'BROKER': '#e0b85e'}
 
+# 同一系列/阵营会产出多张卡，因此为按卡定制的母题单独走一张表；
+# 未列出的卡仍然落到系列通用画法，保持旧图标不变。
+CARD_MOTIFS = {
+    'beacon_anchor': 'anchor',
+    'beacon_lock': 'anchor_lock',
+    'silent_route': 'route',
+    'hunter_blind': 'blind',
+    'armor_patch': 'armor',
+    'decoy_swap': 'swap',
+    'cargo_bait': 'bait',
+    'key_bait': 'key_bait',
+    'shadow_step': 'step',
+    'phantom_stride': 'stride',
+    'courier_instinct': 'instinct',
+    'snare_trap': 'snare',
+    'hard_snare': 'snare_hard',
+    'fake_key_cache': 'key_cache',
+    'mirror_double': 'mirror',
+}
+
 
 def icon(card, faction, series, upgraded):
     im = Image.new('RGBA', (32, 32), (0, 0, 0, 0))
@@ -40,7 +60,100 @@ def icon(card, faction, series, upgraded):
         line((x-5, y+5, x+5, y+5), color)
         line((x-4, y+15, x, y+10, x+4, y+15), color)
 
-    if series == 'SILENCE':
+    motif = CARD_MOTIFS.get(card)
+    if motif == 'anchor':
+        # 信标锚定：塔身 + 底部锁锚。
+        d.polygon(((16, 4), (21, 13), (19, 22), (13, 22), (11, 13)), outline=CREAM)
+        line((16, 20, 16, 9, 13, 12), CREAM)
+        line((9, 24, 23, 24, 23, 20), ink)
+        d.arc((11, 18, 21, 28), 0, 180, fill=ink, width=2)
+    elif motif == 'anchor_lock':
+        d.polygon(((16, 4), (21, 13), (19, 21), (13, 21), (11, 13)), outline=CREAM)
+        line((16, 19, 16, 9), CREAM)
+        ring((20, 18, 27, 25), GOLD, 2)
+        line((23, 21, 25, 23), GOLD, 1)
+        line((8, 25, 13, 25), ink)
+    elif motif == 'route':
+        # 静默路线：折线路径 + 消音斜杠。
+        line((5, 24, 12, 17, 12, 11, 20, 11, 20, 6), CREAM)
+        d.ellipse((8, 21, 12, 25), fill=ink)
+        d.ellipse((18, 4, 22, 8), fill=ink)
+        line((6, 8, 26, 26), ink, 2)
+    elif motif == 'blind':
+        # 猎手致盲：睁眼被两道斜线遮住。
+        d.arc((5, 10, 27, 22), 0, 180, fill=CREAM, width=2)
+        d.arc((5, 10, 27, 22), 180, 360, fill=CREAM, width=2)
+        d.ellipse((14, 13, 18, 19), fill=ink)
+        line((6, 25, 26, 7), ink, 2)
+        line((6, 7, 26, 25), ink, 2)
+    elif motif == 'armor':
+        # 护甲补丁：盾形 + 十字补片。
+        d.polygon(((16, 5), (26, 10), (24, 22), (16, 27), (8, 22), (6, 10)), outline=CREAM)
+        line((16, 10, 16, 22), GOLD)
+        line((11, 16, 21, 16), GOLD)
+    elif motif == 'swap':
+        # 幻影替换：两个箭头首尾相接。
+        arrow(12, 11)
+        line((24, 21, 12, 21, 12, 18, 6, 24, 12, 28, 12, 25, 24, 25), CREAM)
+        line((6, 8, 12, 8), ink)
+    elif motif == 'bait':
+        # 货物诱饵：货箱挂在钩上。
+        box((9, 16, 22, 26), ink)
+        line((15, 16, 15, 26), CREAM, 1)
+        line((16, 5, 16, 13, 21, 8), CREAM)
+        d.ellipse((20, 4, 24, 8), outline=ink)
+    elif motif == 'key_bait':
+        # 假钥匙：钥匙环 + 齿，带伪造印记。
+        ring((6, 8, 15, 17), CREAM, 2)
+        line((13, 15, 25, 27), CREAM, 2)
+        line((21, 23, 24, 20), ink)
+        line((24, 26, 27, 23), ink)
+        line((18, 6, 27, 15), GOLD, 1)
+    elif motif == 'step':
+        # 影步：脚印 + 残影斜线。
+        d.polygon(((19, 8), (24, 10), (22, 17), (17, 15)), fill=ink, outline=CREAM)
+        d.polygon(((13, 18), (18, 20), (16, 26), (11, 24)), fill=ink, outline='#8f8f8f')
+        line((6, 12, 10, 12), ink)
+        line((5, 18, 9, 18), ink)
+    elif motif == 'stride':
+        d.polygon(((20, 6), (26, 9), (23, 17), (17, 14)), fill=ink, outline=GOLD)
+        d.polygon(((14, 17), (20, 20), (17, 27), (11, 24)), fill=ink, outline='#8f8f8f')
+        line((5, 10, 10, 10), GOLD)
+        line((4, 16, 9, 16), GOLD)
+        line((3, 22, 8, 22), GOLD)
+    elif motif == 'instinct':
+        # 信使直觉：罗盘 + 指向点。
+        ring((6, 6, 26, 26), ink)
+        d.polygon(((16, 9), (20, 19), (16, 17), (12, 19)), fill=CREAM)
+        d.ellipse((22, 8, 25, 11), fill=GOLD)
+        line((16, 16, 24, 8), ink, 1)
+    elif motif == 'snare':
+        # 捕网：环 + 网线。
+        ring((7, 7, 25, 25), CREAM, 2)
+        line((7, 7, 25, 25), ink, 1)
+        line((25, 7, 7, 25), ink, 1)
+        line((16, 7, 16, 25), ink, 1)
+        line((7, 16, 25, 16), ink, 1)
+    elif motif == 'snare_hard':
+        ring((5, 5, 27, 27), GOLD, 2)
+        ring((11, 11, 21, 21), CREAM, 1)
+        line((5, 5, 27, 27), ink, 1)
+        line((27, 5, 5, 27), ink, 1)
+        line((16, 3, 16, 29), ink, 1)
+        line((3, 16, 29, 16), ink, 1)
+    elif motif == 'key_cache':
+        # 双假钥匙仓：两只钥匙 + 底部货架。
+        ring((4, 8, 12, 16), CREAM, 2)
+        line((10, 14, 18, 22), CREAM, 2)
+        ring((15, 14, 23, 22), GOLD, 2)
+        line((21, 20, 27, 26), GOLD, 2)
+        line((6, 26, 26, 26), ink, 2)
+    elif motif == 'mirror':
+        # 镜像双影：左右对称人形。
+        figure(11, 8, CREAM)
+        figure(21, 8, '#8f8f8f')
+        line((16, 5, 16, 27), ink, 1)
+    elif series == 'SILENCE':
         # 静音声筒；升级版双次密封环。
         box((7, 13, 11, 19), CREAM)
         d.polygon(((11, 13), (17, 8), (17, 24), (11, 19)), outline=CREAM)
@@ -219,6 +332,17 @@ def icon(card, faction, series, upgraded):
             line((5, 19, 8, 19), ink)
         else:
             line((12, 22, 24, 12), ink, 3)
+    elif series == 'RELAY':
+        # 中继：两个节点 + 中继弧，升级版多加一跳。
+        d.ellipse((6, 9, 12, 15), outline=CREAM)
+        d.ellipse((20, 17, 26, 23), outline=CREAM)
+        d.arc((9, 6, 23, 24), 300, 60, fill=ink, width=2)
+        line((12, 12, 20, 20), ink)
+        if upgraded:
+            d.ellipse((14, 6, 19, 11), outline=GOLD)
+            line((17, 12, 21, 16), GOLD, 1)
+        else:
+            line((16, 10, 18, 13), ink, 1)
     else:
         raise ValueError((card, series))
     if upgraded:
@@ -233,7 +357,8 @@ def main():
     parser.add_argument('--sheet', type=Path, help='可选联络表输出；临时预览请放会话scratch')
     args = parser.parse_args()
     cards = re.findall(r'cards\.add\((base|up)\("([a-z_]+)",([A-Z_]+),([A-Z_]+),', REGISTRY.read_text(encoding='utf-8'))
-    assert len(cards) == 37 and len({c[1] for c in cards}) == 37
+    # 数量与卡牌注册表保持一致：54 张 = 31 基础 + 23 高级。
+    assert len(cards) == 54 and len({c[1] for c in cards}) == 54, (len(cards), len({c[1] for c in cards}))
     OUT.mkdir(parents=True, exist_ok=True)
     images = []
     for tier, name, faction, series in cards:
@@ -241,9 +366,9 @@ def main():
         im.save(OUT / f'{name}.png', optimize=True)
         images.append((name, im))
     digests = {hashlib.sha256((OUT / f'{name}.png').read_bytes()).hexdigest() for _, name, _, _ in cards}
-    assert len(digests) == 37, '卡牌图标不能重复'
+    assert len(digests) == len(cards), '卡牌图标不能重复'
     if args.sheet:
-        sheet = Image.new('RGB', (7 * 160, 6 * 100), '#18120a')
+        sheet = Image.new('RGB', (7 * 160, 8 * 100), '#18120a')
         d = ImageDraw.Draw(sheet)
         for n, (name, im) in enumerate(images):
             x, y = (n % 7) * 160, (n // 7) * 100
@@ -251,7 +376,7 @@ def main():
             d.text((x + 2, y + 73), name, fill=CREAM)
         args.sheet.parent.mkdir(parents=True, exist_ok=True)
         sheet.save(args.sheet)
-    print('37 distinct 64x64 RGBA card icons generated')
+    print(f'{len(cards)} distinct 64x64 RGBA card icons generated')
 
 
 if __name__ == '__main__':

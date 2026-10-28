@@ -43,6 +43,31 @@
 - 非对局时瞄准机器也会显示名称，但明确标注为地图机器外壳。
 
 三语文案独立放在 `assets/echo_machines/lang/{zh_cn,zh_tw,en_us}.json`，避免与其他 HUD 文案冲突。
+## 模型重做（第二批）
+
+12 台机器现在各有**独立构建函数**（`tools/echo-freight/generate_multiblock_models.py` 里的
+`build_echo_*`），不再共用 `beacon()` / `extractor()` / `console()` / `crate()` / `market()` /
+`dropoff()` / `altar()` 少数模板换配色。剪影刻意拉开：
+
+| 机器 | 造型要点 | 整体元素数 |
+|---|---|---|
+| `echo_beacon` | 八角台基 + 四角立柱 + 收窄塔身 + 四面凸出 2.2 的发光面板 + 悬浮核心 + 三段王冠天线 | 56 |
+| `echo_core_beacon` | 宽扁阶梯共鸣台 + 4 根三级内收支撑臂 + 5 层菱形晶体 + 金冠环（明显矮于开放信标） | 52 |
+| `echo_crystal_extractor` | 贯通传送带 + 滚轮 + 双侧栏 + 采集仓 + 三爪夹钳 + 双排气筒 + 压力表 | 49 |
+| `echo_black_crystal_extractor` | 低矮晶洞 + 阶梯尖刺簇 + 中央坑口 + 紫色封印环 + 侧抽取管 | 55 |
+| `echo_key_altar` | 阶梯台座 + 钥匙槽立柱 + 左右音叉 + 共鸣背板 + 双翼能量柱 | 53 |
+| `echo_supply_crate` | 木箱主体 + 金属包角 + 提手 + 锁扣 + 顶部标签板 | 46 |
+| `echo_black_market` | 保险箱体 + 转盘 + 紫色封印 + 投币口 + 招牌灯 | 49 |
+| `echo_black_dropoff` | 斜置漏斗 + 抽取管 + 接收口 + 指示灯 + 支架 | 45 |
+| `echo_core_console` | 斜面操作台 + 屏幕 + 钥匙孔槽 + 立柱指示灯 + 侧面散热片 | 42 |
+| `echo_free_exit` | 门框 + 绿色箭头 + 光柱 + 台阶 + 指示牌 | 40 |
+| `echo_evacuation_console` | 橙金警示终端 + 拉杆 + 旋转警示灯 + 喇叭口 + 底座 | 46 |
+| `echo_broker_exit` | 黄铜票据终端 + 票据出口 + 柜台面 + 铃铛 + 招牌 | 44 |
+
+契约不变：`part = x + 3*z + 9*y`、大机器 3×2×3 / 小机器 2×2×2 且只有 8 个实心编号、
+四朝向 blockstate 各 72 个 variant、整体物品模型元素落位在 x/z ∈ [-16,32]、y ∈ [0,32]、
+无 `rotation`、UV 全部落在 0..16。生成器仍是幂等的：连跑两次 `git status` 不产生二次变化。
+
 大型模型与分块资源由 `tools/echo-freight/generate_multiblock_models.py` 生成，
 旧单格生成器已禁止直接运行，防止覆盖新的 PART 状态；**不要运行 datagen**。
 

@@ -320,3 +320,14 @@
 - **修正**：`EchoWebBolt` 原先只有 `advanceTick()` 记账，服务端逐子步推进时 `ticks` 永不增长会让弹永不消失——拆出 `countTick()` 并在 `resolveBolt` 显式调用。
 - 完整 build 成功，JUnit 全项目**245 项**（回声 232 项），失败/错误/跳过 0；隔离 `runServer` 到达 `Done (1.286s)`，无新增 mixin/注册错误（日志中其余警告均为既有）。
 - **仍未验证**：18 tick 连段窗口的真实手感、终结技 +1.0 格在墙角/斜坡/楼梯的射线一致性、0.45 格命中球对高速横移目标的命中率、黏网与冲撞控制叠加后的移速观感、`CLAW`/`WEAVE` 母题下的手臂穿模、12 人局 4 块场地的客户端粒子开销、SAFE 末期切换职业的投影时序、重连后 `echoHunterClass` 的 NBT 恢复。清单见 [15 §7](15-hunter-classes.md)。
+
+### 阶段14：机器模型重做 + 第二批功能性卡
+
+- **机器模型重做**：`tools/echo-freight/generate_multiblock_models.py` 删除共用的 `beacon()/extractor()/console()/crate()/market()/dropoff()/altar()` 模板，改为 12 个独立构建函数（`build_echo_*`），并新增 `quad()`（按中心镜像成组件）、`taper()`（阶梯收缩晶体）、`disc()`（无 rotation 的三层方盒圆盘）。12 台元素数 40–56（原 ~34），全部 ≥40；剪影刻意拉开（开放信标细高 32.0 / 核心信标宽扁 25.4 / 黑晶低矮 23.2 等）。契约未变：`part = x + 3*z + 9*y`、四朝向各 72 variant、整体模型 x/z ∈ [-16,32]、y ∈ [0,32]、无 `rotation`、UV 全部 0..16；生成器幂等（连跑两次 `git status` 无变化）。
+- **卡池 37 → 54**：新增 17 张（10 基础 + 7 高级），引入 5 个新系列 `RELAY / STEALTH / LOCK / SNARE / KEY_BAIT`，并保持「每配方组恰有一个高级产物」闭合（23 组）。新卡全部落到既有服务，**没有新增网络包**：`signal_relay/relay_network`（`EchoSignalService.relay`）、`beacon_anchor/beacon_lock`（`EchoBeaconState.stall` + `EchoObjectiveService.cardStalled`）、`shadow_step/phantom_stride`（场景假影 + 单一机动源）、`courier_instinct`（`courierInstinct` 方向扇区）、`silent_route/hunter_blind`（`Marker.SILENCE`）、`snare_trap/hard_snare`（`EchoSceneState.Trap` + `EchoCardEffects.tickTraps`）、`cargo_bait/decoy_swap/mirror_double`（场景诱饵）、`key_bait/fake_key_cache`（`Kind.KEY_FAKE` 只诱导钥匙脉冲）、`armor_patch`（`EchoCombatService.applyDamage` 前置吸收）。
+- **新机制边界**：定身是独立于倒地/控制的第三态——只锁水平位移与移速基线，**不进** `EchoCombatState.controlled`、不解除蓄力、不禁用卡牌与交互，并带免疫窗口不刷新旧截止；护甲一次性、不叠层、强制淘汰与环境伤害照常；中继按 `(接收者,目标)` 覆盖不叠时长且只投方向扇区；`deception` 按 `Kind` 过滤，假钥匙不会改写货物嗅探（`EchoSceneService.keyDeception`）。
+- **资源**：`generate_icons.py` 改为按卡母题（`CARD_MOTIFS`）优先，新增 17 套独立像素母题并加 `RELAY` 系列画法；54 张 64×64 RGBA 图标 SHA-256 全不相同。三语 `echo_freight` 各 743 键且键集一致（新增 51 卡牌键 + 4 参数键 + 3 提示键），写回保持 CRLF、无 BOM。
+- **调参**：`EchoCardTuning` 补 `triggerRange` 边界（0.5–128），其余新参数沿用 `*Ticks` / `*range` 既有规则，未放宽任何校验。
+- **测试**：新增 `EchoFunctionalCardTest` 10 项（配方组唯一产物、三阵营可抽到新卡、定身免疫与不刷新、护甲单次且不叠层、陷阱数量与比赛 tick 过期、假钥匙不污染货物嗅探、双诱饵原子拒绝、三语键齐备、跨系列不可合成、通道标记单次消费）；`EchoCardRegistryTest` 与 `EchoCardAssetsTest` 计数改为从注册表推导。
+- 完整 build 成功，JUnit 全项目 **417 项**，失败/错误/跳过 0。
+- **仍未验证（需游戏内）**：12 台新模型在四朝向下的接缝与遮挡、GUI 物品栏缩放下的辨识度；陷阱定身在斜坡/楼梯/载具上的水平锁位移手感；护甲抵消时的客户端受击反馈缺失是否引起误判；中继/直觉方向扇区在高密度对局的信息过载；54 张卡池的抽包分布与高级卡出现率。

@@ -15,6 +15,8 @@ import java.util.*;
 public final class EchoSignalService {
     private record Lease(UUID owner,UUID target,String kind,long end,int interval,int visible,long start) { }
     private record GroundLease(UUID owner,String handle,long start,long end,double range) { }
+    private record Relay(UUID owner,UUID target,long until,int charges,double range) { }
+    private final List<Relay> relays=new ArrayList<>();
     private final EchoMatch match;
     private final ServerLevel level;
     private final List<Lease> leases=new ArrayList<>();
@@ -48,6 +50,44 @@ public final class EchoSignalService {
         leases.removeIf(l -> l.owner().equals(receiver.getUUID()) && l.target().equals(source.getUUID()) && l.kind().equals(kind));
         lease(receiver,source,kind,20,20,20);
         var lease=leases.getLast(); cachedSectors.put(lease,sector(receiver.getX(),receiver.getZ(),source.getX(),source.getZ()));
+    }
+    /**
+     * 信号中继：目标队友下一次采集/提交声光同时投给本人。
+     *
+     * <p>只在被授权者（同一阵营）之间成立；一次使用可覆盖多次事件，次数用尽即失效。
+     */
+    public boolean relay(ServerPlayer receiver,ServerPlayer target,int ticks,int charges,double range) {
+        if(receiver==null || target==null || charges<1 || ticks<1) return false;
+        if(!alive(receiver) || !alive(target)) return false;
+        if(match.faction(receiver.getUUID())!=match.faction(target.getUUID())) return false;
+        relays.removeIf(r -> r.owner().equals(receiver.getUUID()) && r.target().equals(target.getUUID()));
+        relays.add(new Relay(receiver.getUUID(),target.getUUID(),match.matchTick()+ticks,charges,range));
+        return true;
+    }
+    /** 采集/提交事件回调：有中继授权时给本人补一条方向信号，不额外泄露坐标。 */
+    public void relayEvent(ServerPlayer source) {
+        long now=match.matchTick();
+        relays.removeIf(r -> now>=r.until() || r.charges()<1);
+        for(Relay relay:relays) {
+            if(!relay.target().equals(source.getUUID())) continue;
+            ServerPlayer receiver=player(relay.owner());
+            if(!alive(receiver) || receiver.distanceToSqr(source)>relay.range()*relay.range()) continue;
+            var lease=new Lease(receiver.getUUID(),source.getUUID(),"relay",now+40,40,40,now);
+            leases.removeIf(l -> l.owner().equals(receiver.getUUID()) && l.target().equals(source.getUUID()) && l.kind().equals("relay"));
+            leases.add(lease);
+            cachedSectors.put(lease,sector(receiver.getX(),receiver.getZ(),source.getX(),source.getZ()));
+            relays.set(relays.indexOf(relay),new Relay(relay.owner(),relay.target(),relay.until(),relay.charges()-1,relay.range()));
+        }
+        relays.removeIf(r -> r.charges()<1);
+    }
+    /** 信使直觉：把范围内最近货主的方向与剩余距离档位一次性给本人。 */
+    public boolean courierInstinct(ServerPlayer actor,int ticks,int interval,double range) {
+        long now=match.matchTick();
+        if(!alive(actor) || ticks<1 || interval<1) return false;
+        var carriers=carriers(actor,1).stream().filter(p -> actor.distanceToSqr(p)<=range*range).toList();
+        if(carriers.isEmpty()) throw new IllegalStateException("NO_TARGET");
+        for(ServerPlayer target:carriers) lease(actor,target,"tracking",ticks,interval,interval);
+        return true;
     }
     public boolean salvage(ServerPlayer actor,EchoCardDefinition card) {
         long now=match.matchTick(); int duration=EchoCardEffects.ticks(card,"durationTicks");
@@ -98,7 +138,9 @@ public final class EchoSignalService {
                 for(Lease l:leases) if(l.owner().equals(receiver.getUUID()) && (now-l.start())%l.interval()<l.visible()) {
                     ServerPlayer target=player(l.target());
                     if(EchoSignalView.directionOnly(l.kind())) {
-                        Vec3 position=l.kind().equals("tracking")?match.cards().scenes().deception(receiver).orElse(target.position()):target.position();
+                        // 假钥匙只误导钥匙脉冲；静默假人只误导货物嗅探，互不串用。
+                        Vec3 position=l.kind().equals("tracking")?match.cards().scenes().deception(receiver).orElse(target.position()):
+                                l.kind().equals("key_pulse")?match.cards().scenes().keyDeception(receiver).orElse(target.position()):target.position();
                         int sector=sector(receiver.getX(),receiver.getZ(),position.x,position.z);
                         if((now-l.start())%l.interval()==0) cachedSectors.put(l,sector);
                         views.add(new EchoSignalView(l.kind(),null,cachedSectors.getOrDefault(l,sector),Math.min(l.end(),l.start()+((now-l.start())/l.interval()+1)*l.interval())));
@@ -118,9 +160,9 @@ public final class EchoSignalService {
         cachedSectors.keySet().retainAll(leases); cachedGround.keySet().retainAll(ground);
     }
     public static int sector(double ox,double oz,double x,double z) { return Math.floorMod((int)Math.round(Math.atan2(z-oz,x-ox)/(Math.PI/4)),8); }
-    public void depart(UUID owner) { leases.removeIf(l -> l.owner().equals(owner) || l.target().equals(owner)); ground.removeIf(l -> l.owner().equals(owner)); }
+    public void depart(UUID owner) { leases.removeIf(l -> l.owner().equals(owner) || l.target().equals(owner)); ground.removeIf(l -> l.owner().equals(owner)); relays.removeIf(r -> r.owner().equals(owner) || r.target().equals(owner)); }
     public void cleanup() {
-        leases.clear(); ground.clear(); cachedSectors.clear(); cachedGround.clear();
+        leases.clear(); ground.clear(); cachedSectors.clear(); cachedGround.clear(); relays.clear();
         for(ServerPlayer player:match.onlinePlayers()) RoleData.getOptional(EchoRoleData.class,player).ifPresent(d -> d.projectSignals(List.of()));
     }
 }
