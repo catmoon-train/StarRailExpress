@@ -62,6 +62,14 @@ public class SREPlayerSkinsComponent implements AutoSyncedComponent, ServerTicki
     private Map<String, Map<String, Boolean>> unlockedSkins; // 存储解锁的皮肤 {itemName -> {skinName -> isUnlocked}}
     private Integer lootChance;
     private Integer coinNum;
+    /**
+     * 是否把随从展示给其他玩家。
+     * <p>
+     * 仅在大厅（游戏未开始）生效：对局中所有客户端的可见性判定会无条件屏蔽他人的随从，
+     * 因此本字段只是「主人愿意公开」的声明，不是「现在别人能看到」的保证。
+     * 默认 {@code false}（只有主人自己可见）。
+     */
+    private boolean petPublic = false;
     private boolean isNetworkSyncEnabled = false;
     private boolean syncMode = false;
     private volatile boolean databaseSyncQueued = false;
@@ -290,6 +298,29 @@ public class SREPlayerSkinsComponent implements AutoSyncedComponent, ServerTicki
         markSkinDataChanged();
     }
 
+
+    /**
+     * 是否把随从展示给其他玩家（默认 {@code false}）。
+     * <p>
+     * 服务端权威；客户端的可见性判定还会额外叠加「游戏是否已开始」与本地客户端配置。
+     */
+    public boolean isPetPublic() {
+        return this.petPublic;
+    }
+
+    /**
+     * 设置「把随从展示给其他玩家」。
+     *
+     * @return 是否实际发生了变化（未变化时不会触发同步）
+     */
+    public boolean setPetPublic(boolean petPublic) {
+        if (this.petPublic == petPublic) {
+            return false;
+        }
+        this.petPublic = petPublic;
+        markSkinDataChanged();
+        return true;
+    }
     /**
      * 获取所有装备的皮肤映射
      */
@@ -570,6 +601,8 @@ public class SREPlayerSkinsComponent implements AutoSyncedComponent, ServerTicki
                 this.resolvedRandomSkins.put(key, resolvedTag.getString(key));
             }
         }
+        // 读取「随从是否展示给其他玩家」
+        this.petPublic = compoundTag.contains("petPublic") && compoundTag.getBoolean("petPublic");
     }
 
     @Override
@@ -746,6 +779,10 @@ public class SREPlayerSkinsComponent implements AutoSyncedComponent, ServerTicki
             resolvedRandomSkinsTag.putString(entry.getKey(), entry.getValue());
         }
         compoundTag.put("resolvedRandomSkins", resolvedRandomSkinsTag);
+        // 写入「随从是否展示给其他玩家」（默认 false 不占包体）
+        if (this.petPublic) {
+            compoundTag.putBoolean("petPublic", true);
+        }
         // compoundTag.putBoolean("isNetworkSyncEnabled", isNetworkSyncEnabled);
     }
 }

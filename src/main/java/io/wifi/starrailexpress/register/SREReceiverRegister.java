@@ -70,6 +70,7 @@ public class SREReceiverRegister {
 
         UpdateSkinSelectedPayload.registerReceiver();
         UpdateNameTagSelectedPayload.registerReceiver();
+        UpdatePetPublicPayload.registerReceiver();
         // 服务端处理客户端投票包
         ServerPlayNetworking.registerGlobalReceiver(VoteCastC2SPacket.TYPE, (packet, context) -> {
             VoteManager.handleVoteCast(context.player(), packet.optionIndices());

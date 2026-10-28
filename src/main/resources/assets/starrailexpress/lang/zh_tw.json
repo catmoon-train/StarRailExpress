@@ -1,4 +1,4 @@
-﻿{
+{
   "=== END ===": "",
   "=== 遊戲管理UI ===": "",
   "============ 地圖構建助手 ============": "",
@@ -2712,6 +2712,9 @@
   "screen.sre.skins.search_hint": "輸入關鍵字過濾...",
   "screen.sre.skins.hide_all_hats": "隱藏帽子",
   "screen.sre.skins.show_own_hat_only": "僅顯示自己",
+  "screen.sre.skins.pet_title": "隨從",
+  "screen.sre.skins.show_pet_to_others": "展示給其他玩家",
+  "screen.sre.skins.no_pet": "未裝備隨從",
   "screen.starrailexpress.cooking_count": "%s / %s",
   "screen.starrailexpress.cooking_hint": "A/D=移動 接住目標食材",
   "screen.starrailexpress.cooking_minigame": "烹飪小遊戲",
