@@ -145,6 +145,14 @@ public class SREClientConfig implements ConfigData {
     @ConfigEntry.Gui.Tooltip
     public boolean showOwnHatOnly = false; // 只显示自己的帽子
 
+    @Category("skin")
+    @ConfigEntry.Gui.Tooltip
+    public boolean hideAllPets = false; // 不显示任何随从（包括自己的）
+
+    @Category("skin")
+    @ConfigEntry.Gui.Tooltip
+    public boolean showOwnPetOnly = false; // 只显示自己的随从，忽略他人勾选「展示给其他玩家」
+
     public boolean isUltraPerfMode() {
         return ultraPerfMode;
     }

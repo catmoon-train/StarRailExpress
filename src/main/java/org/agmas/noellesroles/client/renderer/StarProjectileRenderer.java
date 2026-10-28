@@ -71,13 +71,19 @@ public class StarProjectileRenderer extends EntityRenderer<StarProjectileEntity>
         this.shadowStrength = 0.0F;
     }
 
+    /**
+     * 渲染器级剔除。
+     * <p>
+     * 不调 {@code super.shouldRender(...)}：它依赖实体包围盒做视锥剔除，
+     * 而星星是缩放后的薄片，包围盒与模型对不上，很容易被整颗剔掉。
+     * 与项目内 {@code CrashPlaneEntityRenderer} 一样直接返回 true，
+     * 可见性只由下面的 {@link #isVisibleToLocalPlayer} 决定。
+     */
     @Override
-    public boolean shouldRender(StarProjectileEntity entity, net.minecraft.client.renderer.culling.Frustum frustum,
+    public boolean shouldRender(StarProjectileEntity entity,
+            net.minecraft.client.renderer.culling.Frustum frustum,
             double camX, double camY, double camZ) {
-        if (!isVisibleToLocalPlayer(entity)) {
-            return false;
-        }
-        return super.shouldRender(entity, frustum, camX, camY, camZ);
+        return isVisibleToLocalPlayer(entity);
     }
 
     /** 召唤者与旁观者可见；其他存活玩家看不到模型。 */
@@ -113,7 +119,10 @@ public class StarProjectileRenderer extends EntityRenderer<StarProjectileEntity>
         matrices.mulPose(Axis.XP.rotationDegrees(-18.0F));
         matrices.scale(MODEL_SCALE, MODEL_SCALE, MODEL_SCALE);
 
-        VertexConsumer consumer = buffers.getBuffer(net.minecraft.client.renderer.RenderType.entityCutout(TEXTURE));
+        // 用 entityCutoutNoCull：星星是薄片，背面剔除会让它在某些角度整个消失。
+        // 参考项目内 CrashPlaneEntityRenderer 的写法。
+        VertexConsumer consumer = buffers
+                .getBuffer(net.minecraft.client.renderer.RenderType.entityCutoutNoCull(TEXTURE));
         Matrix4f pose = matrices.last().pose();
         // 星星自带发光，用满亮度光照，夜里也能看见
         int packedLight = LightTexture.FULL_BRIGHT;
@@ -125,9 +134,14 @@ public class StarProjectileRenderer extends EntityRenderer<StarProjectileEntity>
         super.render(entity, yaw, tickDelta, matrices, buffers, light);
     }
 
-    /** 画出一个方块的 6 个面（贴图取整张 16×16 的纯色区域，UV 直接用 0..16）。 */
+    /**
+     * 画出一个方块的 6 个面。
+     * <p>
+     * 贴图是 16×16 纯色，采样必须落在贴图内部：UV 用 (0.5, 0.5) 单点即可，
+     * 之前的 0..1 会落在贴图最外圈像素边界上，容易采到邻接/边缘而发虚。
+     */
     private static void drawBox(VertexConsumer c, Matrix4f m, Box b, int light) {
-        float u0 = 0.0F, u1 = 1.0F, v0 = 0.0F, v1 = 1.0F;
+        float u0 = 0.5F, u1 = 0.5F, v0 = 0.5F, v1 = 0.5F;
         int alpha = 255;
         int r = 255, g = 255, bl = 255;
         int overlay = OverlayTexture.NO_OVERLAY;
@@ -177,9 +191,11 @@ public class StarProjectileRenderer extends EntityRenderer<StarProjectileEntity>
 
     /**
      * 读取并缓存模型方块。模型坐标是 Blockbench 的 y 向下，这里翻转成 Minecraft 的 y 向上。
+     * <p>
+     * 读取失败时**不缓存空结果**并打日志，否则一次资源重载前的失败会让星星永久隐形。
      */
     private static List<Box> boxes() {
-        if (boxes != null) {
+        if (boxes != null && !boxes.isEmpty()) {
             return boxes;
         }
         List<Box> list = new ArrayList<>();
@@ -199,15 +215,24 @@ public class StarProjectileRenderer extends EntityRenderer<StarProjectileEntity>
                     list.add(new Box(fx, -ty, fz, tx, -fy, tz));
                 }
             }
-        } catch (Exception ignored) {
-            // 模型缺失时退化为不渲染，不影响游戏逻辑
+        } catch (Exception e) {
+            // 不要把失败结果缓存下来，资源重载后还能重试；同时打日志便于排查
+            org.agmas.noellesroles.Noellesroles.LOGGER.error(
+                    "Failed to load star model {}: {}", MODEL, e.toString());
+            return List.of();
         }
         boxes = list;
-        return boxes;
+        return list;
     }
 
+    /**
+     * 实体渲染管线的贴图：必须返回星星自己的贴图。
+     * <p>
+     * 之前返回的是 {@link TextureAtlas#LOCATION_BLOCKS}（方块图集），与 render 里
+     * {@code entityCutout(TEXTURE)} 用的贴图不一致，导致整颗星星渲染失败（全透明）。
+     */
     @Override
     public ResourceLocation getTextureLocation(StarProjectileEntity entity) {
-        return TextureAtlas.LOCATION_BLOCKS;
+        return TEXTURE;
     }
 }

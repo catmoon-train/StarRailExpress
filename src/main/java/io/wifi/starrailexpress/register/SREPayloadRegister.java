@@ -150,6 +150,10 @@ public class SREPayloadRegister {
                 io.wifi.starrailexpress.network.MorphSyncPayload.CODEC);
         PayloadTypeRegistry.playS2C().register(io.wifi.starrailexpress.network.PlushEquipmentSyncPayload.ID,
                 io.wifi.starrailexpress.network.PlushEquipmentSyncPayload.CODEC);
+        PayloadTypeRegistry.playS2C().register(io.wifi.starrailexpress.network.PetSyncPayload.ID,
+                io.wifi.starrailexpress.network.PetSyncPayload.CODEC);
+        PayloadTypeRegistry.playC2S().register(io.wifi.starrailexpress.network.UpdatePetPublicPayload.ID,
+                io.wifi.starrailexpress.network.UpdatePetPublicPayload.CODEC);
         PayloadTypeRegistry.playS2C().register(io.wifi.starrailexpress.network.RoleRosterSyncPayload.ID,
                 io.wifi.starrailexpress.network.RoleRosterSyncPayload.CODEC);
         PayloadTypeRegistry.playS2C().register(io.wifi.starrailexpress.sponsor.SponsorListPayload.ID,

@@ -200,6 +200,11 @@ public class ItemSkinManager {
         public static final String BOW = "bow";
         /** 原版弩：分待机 / 蓄力 0~2 / 装填箭 / 装填烟花阶段。 */
         public static final String CROSSBOW = "crossbow";
+        /**
+         * 随从：装配后以客户端虚拟实体形式跟随主人，仅改变外观、不替换任何装备。
+         * 材质与建模由附属模组（sre-skin）提供，本体只负责状态、同步与运动。
+         */
+        public static final String PET = "pet";
     }
 
     /** 皮肤选择项中的「随机」伪皮肤名：每次开局从该类型已拥有的皮肤中随机抽取。 */
@@ -232,7 +237,8 @@ public class ItemSkinManager {
                 SkinTypes.MUSIC_BOX,
                 SkinTypes.SHORT_SHOTGUN, SkinTypes.DERRINGER, SkinTypes.LOCKPICK, SkinTypes.CROWBAR,
                 SkinTypes.BODY_BAG, SkinTypes.NOTE, SkinTypes.FIRECRACKER, SkinTypes.LETTER,
-                SkinTypes.HANDCUFFS, SkinTypes.LOCK, SkinTypes.KEY, SkinTypes.BOW, SkinTypes.CROSSBOW };
+                SkinTypes.HANDCUFFS, SkinTypes.LOCK, SkinTypes.KEY, SkinTypes.BOW, SkinTypes.CROSSBOW,
+                SkinTypes.PET };
         for (int i = 0; i < typeOrder.length; i++) {
             registerType(typeOrder[i]);
         }

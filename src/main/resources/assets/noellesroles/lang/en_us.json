@@ -5647,5 +5647,13 @@
   "=============== 心理学家：治愈负面修饰符 ===============": "",
   "message.noellesroles.psychologist.cured_of_modifier": "Your \"%s\" has been cured!",
   "message.noellesroles.psychologist.cured_modifier": "You cured %s's \"%s\"!",
-  "item.noellesroles.pooler_cd_reduce": "Moonsand Hourglass (Skill CD -40s)"
-}
+  "item.noellesroles.pooler_cd_reduce": "Moonsand Hourglass (Skill CD -40s)",
+  "item.noellesroles.steve_pickaxe": "Iron Pickaxe",
+  "item.noellesroles.steve_pickaxe.durability": "Remaining mining uses: %s / %s",
+  "item.noellesroles.steve_diamond_pickaxe": "Diamond Pickaxe",
+  "item.noellesroles.steve_boat": "Boat",
+  "item.noellesroles.steve_minecart": "Minecart",
+  "item.noellesroles.steve_golden_apple": "Golden Apple",
+  "item.noellesroles.steve_piston": "Piston",
+  "message.noellesroles.steve.inventory_full": "Inventory is full; purchase failed, materials not deducted."
+  }

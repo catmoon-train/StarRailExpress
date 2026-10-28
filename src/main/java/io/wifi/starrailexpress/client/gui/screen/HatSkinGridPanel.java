@@ -155,6 +155,10 @@ public class HatSkinGridPanel extends AbstractWidget {
         if (ItemSkinManager.SkinTypes.MUSIC_BOX.equals(skinType)) {
             return Items.JUKEBOX;
         }
+        // 随从没有图标物品，用「缰绳」表示"一只跟着你的小家伙"
+        if (ItemSkinManager.SkinTypes.PET.equals(skinType)) {
+            return Items.LEAD;
+        }
         String namespace = "hat".equals(skinType) ? HAT_ITEM_NAMESPACE : "sre_cosmetics";
         Item fallback = "hat".equals(skinType) ? Items.LEATHER_HELMET : Items.LEATHER;
         return BuiltInRegistries.ITEM
@@ -402,6 +406,7 @@ public class HatSkinGridPanel extends AbstractWidget {
                     case "backpack" -> "screen.sre.skins.no_backpack";
                     case "hand_accessory" -> "screen.sre.skins.no_hand";
                     case "music_box" -> "screen.sre.skins.no_music_box";
+                    case "pet" -> "screen.sre.skins.no_pet";
                     default -> "screen.sre.skins.no_hat";
                 };
                 return Component.translatable(noneKey);

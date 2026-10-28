@@ -72,10 +72,24 @@ public class StarGathererRoleData extends SimpleRoleData {
     public static final double AURA_RADIUS = 6.0D;
     /** 「庇护强化」期间的光环半径。 */
     public static final double AURA_RADIUS_ENHANCED = 10.0D;
-    /** 光环刷新间隔（tick）。 */
+    /** 光环刷新间隔（tick）：每 1 秒刷一次，保证庇护不会掉。 */
     public static final int AURA_REFRESH_TICKS = 20;
-    /** 光环授予的庇护持续时间（比刷新间隔略长，避免闪断）。 */
-    public static final int AURA_SANCTUARY_TICKS = AURA_REFRESH_TICKS + 10;
+    /**
+     * 光环授予的庇护持续时间。
+     * <p>
+     * 必须明显长于刷新间隔，否则客户端会在剩余时间不足 10 秒时让图标闪烁。
+     */
+    public static final int AURA_SANCTUARY_TICKS = 60 * 20;
+
+    /**
+     * 自身常驻效果（水下呼吸 / 夜视）的刷新间隔：每 20 tick（1 秒）补一次。
+     * <p>
+     * 与 {@code ExtraEffectRole} 的检查频率一致，但这里是**无条件**补满，
+     * 不再等剩余时间掉到 21 tick 才补。
+     */
+    public static final int SELF_EFFECT_REFRESH_TICKS = 20;
+    /** 自身常驻效果的持续时间：60 秒，远高于夜视开始闪烁的 10 秒。 */
+    public static final int SELF_EFFECT_DURATION_TICKS = 60 * 20;
 
     // ── 星之权杖 ────────────────────────────────────────────────
     /** 权杖攻击距离（格）。 */
@@ -414,7 +428,25 @@ public class StarGathererRoleData extends SimpleRoleData {
         return now < enhanceUntil ? AURA_RADIUS_ENHANCED : AURA_RADIUS;
     }
 
-    /** 给光环内的所有存活玩家补潮涌能量 + 领域庇护；光环外的庇护不主动撤销（等自然过期）。 */
+    /**
+     * 续摘星者自己的常驻效果：水下呼吸 + 夜视，每次无条件补满 60 秒。
+     * <p>
+     * 每 20 tick（1 秒）调用一次，剩余时间始终 ≥ 59 秒，远高于夜视开始闪烁的
+     * 10 秒，因此不会出现闪烁。
+     */
+    private void refreshSelfEffects(ServerPlayer sp) {
+        sp.addEffect(new MobEffectInstance(MobEffects.WATER_BREATHING,
+                SELF_EFFECT_DURATION_TICKS, 0, true, false, true));
+        sp.addEffect(new MobEffectInstance(MobEffects.NIGHT_VISION,
+                SELF_EFFECT_DURATION_TICKS, 0, true, false, true));
+    }
+
+    /**
+     * 给光环内的所有存活玩家补潮涌能量 + 领域庇护；光环外的庇护不主动撤销（等自然过期）。
+     * <p>
+     * 庇护时长 {@link #AURA_SANCTUARY_TICKS}（60 秒）远大于刷新间隔（1 秒），
+     * 所以图标不会在剩余不足 10 秒时闪烁。
+     */
     private void refreshAura(ServerPlayer sp) {
         ServerLevel level = sp.serverLevel();
         double radius = currentAuraRadius();
@@ -428,11 +460,8 @@ public class StarGathererRoleData extends SimpleRoleData {
             target.addEffect(new MobEffectInstance(ModEffects.DOMAIN_SANCTUARY, AURA_SANCTUARY_TICKS, 0,
                     false, false, true));
         }
-        // 光环边缘的呼吸感粒子（每 2 秒一次）
-        if (level.getGameTime() % 40 == 0) {
-            level.sendParticles(ParticleTypes.END_ROD, sp.getX(), sp.getY() + 1.0D, sp.getZ(),
-                    24, radius * 0.85D, 0.6D, radius * 0.85D, 0.0D);
-        }
+        // 不给光环画任何粒子：sendParticles 是服务端广播，会给 32 格内所有玩家发包，
+        // 等于把摘星者的庇护范围暴露给别人。庇护范围只在本职业 HUD 上显示。
     }
 
     /** 清除全场所有「领域庇护」—— 摘星者死亡时调用。 */
@@ -546,6 +575,13 @@ public class StarGathererRoleData extends SimpleRoleData {
         }
 
         long now = GameUtils.getTicksFromGameStart(level);
+
+        // ── 自身常驻效果：每 5 秒补一次 30 秒 ──────────────────
+        // ExtraEffectRole 只在剩余 ≤ 21 tick 时才补，夜视会掉到 10 秒以下开始闪烁。
+        // 这里自己每 5 秒把水下呼吸 / 夜视续到 30 秒，保证永远远高于 10 秒。
+        if (level.getGameTime() % SELF_EFFECT_REFRESH_TICKS == 0) {
+            refreshSelfEffects(sp);
+        }
 
         // 光环刷新
         if (level.getGameTime() % AURA_REFRESH_TICKS == 0) {

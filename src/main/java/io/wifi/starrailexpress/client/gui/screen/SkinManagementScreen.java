@@ -94,8 +94,13 @@ public class SkinManagementScreen extends Screen {
             return ItemSkinManager.SkinTypes.MUSIC_BOX.equals(id);
         }
 
+        /** 随从：一组可装配的皮肤，没有图标物品，复用卡片网格。 */
+        boolean isPetTab() {
+            return ItemSkinManager.SkinTypes.PET.equals(id);
+        }
+
         boolean isGridTab() {
-            return isHatTab() || isAccessoryTab() || isMusicBoxTab();
+            return isHatTab() || isAccessoryTab() || isMusicBoxTab() || isPetTab();
         }
 
         boolean isNameTagTab() {
@@ -127,6 +132,8 @@ public class SkinManagementScreen extends Screen {
     private NameTagList nameTagList;
     private EditBox searchBox;
     private ToggleCheckbox hideAllHatsCheck;
+    /** 随从页签专用：是否展示给其他玩家（服务端权威，勾选后立即发包） */
+    private ToggleCheckbox petPublicCheck;
     private ToggleCheckbox showOwnHatCheck;
     private Button backButton;
     private Button refreshButton;
@@ -208,6 +215,13 @@ public class SkinManagementScreen extends Screen {
         initCategoryArea(categoryHeight, categoryMarginT, titleMarginT + titleHeight);
         initSearchBox(searchHeight, titleMarginT + titleHeight + categoryMarginT + categoryHeight + searchGap);
         initHatConfigCheckboxes(titleMarginT, titleMarginT + titleHeight);
+        // 随从页签额外提供「展示给其他玩家」；其它页签不显示该项
+        if (!categories.isEmpty() && selectedCategory < categories.size()
+                && categories.get(selectedCategory).isPetTab()) {
+            initPetPublicCheckbox(titleMarginT, titleMarginT + titleHeight);
+        } else {
+            petPublicCheck = null;
+        }
         initContentArea();
         initButtonArea(isCompact);
     }
@@ -234,6 +248,11 @@ public class SkinManagementScreen extends Screen {
         if (ItemSkinManager.getSkins().containsKey(ItemSkinManager.SkinTypes.MUSIC_BOX)) {
             categories.add(new CategoryTabData(ItemSkinManager.SkinTypes.MUSIC_BOX,
                     Component.translatable("screen.sre.skins.music_box_title"), Items.JUKEBOX));
+        }
+        // 随从标签（随从由内容模组注册，没有随从皮肤时不显示）
+        if (ItemSkinManager.getSkins().containsKey(ItemSkinManager.SkinTypes.PET)) {
+            categories.add(new CategoryTabData(ItemSkinManager.SkinTypes.PET,
+                    Component.translatable("screen.sre.skins.pet_title"), Items.LEAD));
         }
         // 名片（称号）标签
         categories.add(new CategoryTabData("name_tag",
@@ -363,6 +382,33 @@ public class SkinManagementScreen extends Screen {
         addRenderableWidget(showOwnHatCheck);
     }
 
+    /**
+     * 随从页签的「展示给其他玩家」勾选框。
+     * <p>
+     * 与帽子那两个本地开关不同，这一项是<b>服务端权威</b>的玩家状态：
+     * 勾选后立刻发 {@link io.wifi.starrailexpress.network.UpdatePetPublicPayload}，
+     * 由服务端写入组件并在下一轮扫描时广播给其他客户端。
+     */
+    private void initPetPublicCheckbox(int titleY, int totalTitleH) {
+        if (player == null) {
+            return;
+        }
+        var component = io.wifi.starrailexpress.cca.SREPlayerSkinsComponent.KEY.getNullable(player);
+        if (component == null) {
+            return;
+        }
+        int checkH = 14;
+        int checkW = 140;
+        int checkY = titleY + (totalTitleH - checkH) / 2;
+        int startX = width - 10 - checkW;
+        petPublicCheck = new ToggleCheckbox(startX, checkY, checkW, checkH,
+                Component.translatable("screen.sre.skins.show_pet_to_others"),
+                component.isPetPublic(),
+                v -> ClientPlayNetworking.send(
+                        new io.wifi.starrailexpress.network.UpdatePetPublicPayload(v)));
+        addRenderableWidget(petPublicCheck);
+    }
+
     private void selectCategory(int index) {
         if (index == selectedCategory && contentAlpha > 0.95f) {
             return;
@@ -415,12 +461,16 @@ public class SkinManagementScreen extends Screen {
         addRenderableWidget(new ItemInfoPanel(rightPanelX, listTop - 25, rightPanelWidth, 20, itemStack));
     }
 
-    /** 装备帽子或背部 / 手部饰品：发送到服务端；帽子沿用本地乐观更新。 */
+    /** 装备帽子 / 饰品 / 随从：发送到服务端；帽子与随从沿用本地乐观更新。 */
     private void equipGridSkin(String skinName) {
         CategoryTabData tab = categories.get(selectedCategory);
         ClientPlayNetworking.send(new UpdateSkinSelectedPayload(tab.id, skinName));
         if (player != null && tab.isHatTab()) {
             ClientHatEquipmentCache.setLocalOptimistic(player.getUUID(), skinName);
+        }
+        if (player != null && tab.isPetTab()) {
+            // 自己的随从立刻换上，不必等 5 秒一轮的服务端扫描
+            io.wifi.starrailexpress.client.pet.ClientPetCache.applyLocalOptimistic(player.getUUID(), skinName);
         }
     }
 
@@ -689,8 +739,8 @@ public class SkinManagementScreen extends Screen {
             return ItemStack.EMPTY;
         }
         CategoryTabData selectedTab = categories.get(selectedCategory);
-        if (selectedTab.isMusicBoxTab()) {
-            // 音乐盒不是手持物品，预览里不摆道具
+        if (selectedTab.isMusicBoxTab() || selectedTab.isPetTab()) {
+            // 音乐盒 / 随从都不是手持物品，预览里不摆道具
             return ItemStack.EMPTY;
         }
         if (selectedTab.isGridTab() || selectedTab.isNameTagTab()) {

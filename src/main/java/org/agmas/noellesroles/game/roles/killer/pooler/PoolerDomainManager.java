@@ -61,17 +61,22 @@ import java.util.UUID;
  * 实现方式与咒术师的灰髓之境一致（{@code WarlockDomainManager}）：
  * 场景在虚空高空现搭、领域状态放在静态表里、由全局 server tick 驱动，
  * 中途掉线 / 游戏结束都会强制收场，绝不把玩家留在虚空里。
- * <p>
- * <b>坐标约定：所有领域场景只沿 Z 轴（主世界水平方向）排布</b>，X 固定为 0，
- * Y 统一取 200（虚空高空），彼此靠 Z 拉开距离。两个新领域分别放在既有三处场景
- * 的西侧与东侧空白区，保证与任何既有场景都不重叠：
+ * <b>坐标约定：所有领域场景只沿 Z 轴（主世界水平方向）排布</b>，X 固定为 0.5，
+ * Y 统一取 200（虚空高空），彼此靠 Z 拉开距离：
  * <pre>
  * 咒术师灰髓之境  X = 0.5, Y = 200, Z = -20000.5
  * 愚者塔罗会      X = 0.5, Y = 200, Z = +20000.5
  * 冒险家游记      X = 0.5, Y = 200, Z = +21000.5
- * 祈月者·水中镜   X = 0.5, Y = 200, Z = -30000.5   （水缸半径 14）
- * 祈月者·月球     X = 0.5, Y = 200, Z = -31000.5   （月面半径 18）
+ * 祈月者·水中镜   X = 0.5, Y = 200, Z = +22000.5   （水缸半径 14）
+ * 祈月者·月球     X = 0.5, Y = 200, Z = +23000.5   （月面半径 18）
  * </pre>
+ * <p>
+ * <b>Z 必须 ≥ 19000</b>：{@code SREGameWorldComponent#playerEnvironmentDetection}
+ * 只对 {@code player.getZ() < 19000} 的玩家做环境检测，越界即按
+ * {@code FELL_OUT_OF_TRAIN}（列车碾压）击杀。把领域放在 +22000 / +23000
+ * 就能天然跳过这套检测，不需要往玩家身上加任何豁免效果。
+ * （咒术师放在 -20000.5 之所以没事，是因为它另外给玩家挂了
+ * {@code NOSTALGIST_BACKWORLD} 走里世界豁免；祈月者不走那条路。）
  */
 public final class PoolerDomainManager {
 
@@ -79,10 +84,14 @@ public final class PoolerDomainManager {
     private static final double DOMAIN_X = 0.5D;
     private static final double DOMAIN_Y = 200.0D;
 
-    /** 月球领域的 Z。 */
-    public static final double MOON_Z = -31000.5D;
-    /** 水中镜（水缸）领域的 Z。 */
-    public static final double TANK_Z = -30000.5D;
+    /**
+     * 月球领域的 Z。
+     * <p>
+     * 必须 ≥ 19000，否则玩家一进去就被环境检测判为「掉出列车」而碾压致死。
+     */
+    public static final double MOON_Z = 23000.5D;
+    /** 水中镜（水缸）领域的 Z（同样必须 ≥ 19000）。 */
+    public static final double TANK_Z = 22000.5D;
 
     /** 领域持续时间（30 秒）。 */
     public static final int DURATION_TICKS = 30 * 20;
@@ -221,7 +230,8 @@ public final class PoolerDomainManager {
         ActiveDomain domain = new ActiveDomain(caster.getUUID(), Kind.MOON, level,
                 GameUtils.getTicksFromGameStart(level) + DURATION_TICKS);
 
-        pullIn(domain, caster, DOMAIN_X, MOON_Z, true);
+        // 施法者本人**不**被拉进月球：留在原地观察，领域结束后也不需要传送回来。
+        // （之前 pullIn(caster) 会把祈月者一起拉进去，导致他也吃月面环境、也被碾压。）
         int index = 0;
         for (ServerPlayer target : targets) {
             double angle = Math.PI * 2.0D * index / Math.max(1, targets.size());
@@ -497,14 +507,21 @@ public final class PoolerDomainManager {
         }
     }
 
+    /**
+     * 领域活动范围。
+     * <p>
+     * 下沿必须紧贴地板（Y = DOMAIN_Y 就是站立面，地板在 -1），否则
+     * {@code GameUtils.limitPlayerToBox} 允许玩家掉到 {@code minY - 20} 的虚空，
+     * 一落地就被列车判定碾压。这里把下沿抬到 DOMAIN_Y，只留 1 格容差。
+     */
     private static AABB boundsOf(Kind kind) {
         if (kind == Kind.MOON) {
             return new AABB(
-                    DOMAIN_X - MOON_BOUND_RADIUS, DOMAIN_Y - 2, MOON_Z - MOON_BOUND_RADIUS,
+                    DOMAIN_X - MOON_BOUND_RADIUS, DOMAIN_Y, MOON_Z - MOON_BOUND_RADIUS,
                     DOMAIN_X + MOON_BOUND_RADIUS, DOMAIN_Y + MOON_BOUND_HEIGHT, MOON_Z + MOON_BOUND_RADIUS);
         }
         return new AABB(
-                DOMAIN_X - TANK_BOUND_RADIUS, DOMAIN_Y - 2, TANK_Z - TANK_BOUND_RADIUS,
+                DOMAIN_X - TANK_BOUND_RADIUS, DOMAIN_Y, TANK_Z - TANK_BOUND_RADIUS,
                 DOMAIN_X + TANK_BOUND_RADIUS, DOMAIN_Y + TANK_BOUND_HEIGHT, TANK_Z + TANK_BOUND_RADIUS);
     }
 
