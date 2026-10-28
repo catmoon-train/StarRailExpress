@@ -155,9 +155,12 @@ public class HatSkinGridPanel extends AbstractWidget {
         if (ItemSkinManager.SkinTypes.MUSIC_BOX.equals(skinType)) {
             return Items.JUKEBOX;
         }
-        // 随从没有图标物品，用「缰绳」表示"一只跟着你的小家伙"
+        // 随从：用其载体物品（GeckoLib GeoItem，itemskins:pet_<id>）渲染本体模型，
+        // 效果与帽子 / 背饰一致；找不到对应载体物品时回退到「缰绳」图标。
         if (ItemSkinManager.SkinTypes.PET.equals(skinType)) {
-            return Items.LEAD;
+            return BuiltInRegistries.ITEM
+                    .getOptional(ResourceLocation.fromNamespaceAndPath("itemskins", "pet_" + skinName))
+                    .orElse(Items.LEAD);
         }
         if (ItemSkinManager.SkinTypes.MVP_ANIMATION.equals(skinType)) return Items.DRAGON_HEAD;
         String namespace = "hat".equals(skinType) ? HAT_ITEM_NAMESPACE : "sre_cosmetics";
