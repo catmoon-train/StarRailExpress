@@ -42,9 +42,10 @@ public final class PelicanMeetingHandler {
                         // 标记为鹈鹕吞噬死亡，Kill 但不留尸体
                         GameUtils.forceKillPlayer(target, false, pelican,
                                 io.wifi.starrailexpress.game.GameConstants.DeathReasons.PELICAN_EATEN);
-                        // 从肚中移除
-                        PelicanManager.markStashedDead(targetId);
-                        belly.remove(targetId);
+                        // 被消化杀死：立刻退出鹈鹕语音组、从鹈鹕肚子里出来，并进入正常的死亡频道。
+                        // onStashedPlayerDeath 会摘除肚内追踪、清除语音隔离/禁聊/禁技能效果、
+                        // 解锁相机并调用 onPelicanRelease 退出鹈鹕语音组，使其回到正常死亡（旁观）状态。
+                        PelicanManager.onStashedPlayerDeath(target);
                     } else {
                         PelicanManager.markStashedDead(targetId);
                         belly.remove(targetId);
