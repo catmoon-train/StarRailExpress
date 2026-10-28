@@ -31,7 +31,7 @@ class SettlementChoreographyTest {
             long rows = rowHeights.size();
             assertTrue(rows <= 2, "胜方最多两排，实际 " + rows + " 排（" + count + " 人）");
             assertTrue(maxZ - minZ <= 1.9, "两排间距不能拉得太开");
-            assertTrue(maxX - minX <= 10.01, "站位必须收在舞台中央区域");
+            assertTrue(maxX - minX <= 13.01, "站位必须收在舞台中央区域");
         }
     }
 
@@ -42,7 +42,7 @@ class SettlementChoreographyTest {
                     var a = SettlementChoreography.winner(i, count);
                     var b = SettlementChoreography.winner(j, count);
                     double distance = Math.hypot(a.x() - b.x(), a.z() - b.z());
-                    assertTrue(distance > .8, "两名胜方不能挤在同一点：" + distance);
+                    assertTrue(distance > 1.0, "胜方要拉开间距，不能挤在一起：" + distance);
                 }
             }
         }
@@ -96,6 +96,21 @@ class SettlementChoreographyTest {
         assertFalse(kept.contains(theirs));
         assertTrue(SettlementSnapshot.involves(mvp, mine));
         assertFalse(SettlementSnapshot.involves(mvp, theirs));
+    }
+
+    @Test void livingWinnersStandInTheMiddleAndDeadOnTheSides() {
+        UUID mvp = UUID.randomUUID();
+        var alive = new SettlementSnapshot.Actor(UUID.randomUUID(), "a", "", 0, true, false, false, 3, 0);
+        var dead = new SettlementSnapshot.Actor(UUID.randomUUID(), "d", "", 0, true, true, false, 1, 0);
+        var center = new SettlementSnapshot.Actor(mvp, "m", "", 0, true, false, false, 5, 0);
+        var ordered = SettlementChoreography.winnerOrder(java.util.List.of(dead, alive, center), mvp);
+        assertEquals(center, ordered.get(0), "MVP 必须排第一（正中）");
+        assertEquals(alive, ordered.get(1), "存活者应排在死亡者内侧");
+        assertEquals(dead, ordered.get(2), "死亡者应被推到两侧");
+        // 4 人时序号 2、3 分列两侧最外层，死亡者排在它们的位置上。
+        double inner = Math.abs(SettlementChoreography.winner(1, 4).x());
+        double outer = Math.abs(SettlementChoreography.winner(2, 4).x());
+        assertTrue(outer > inner, "外侧序号必须比内侧更远离中心：" + outer + " vs " + inner);
     }
 
     @Test void onlyDeadWinnersTurnBlack() {

@@ -173,9 +173,9 @@ public final class SettlementClient {
     }
 
     private static void arrange(SettlementSnapshot value) {
-        List<SettlementSnapshot.Actor> winners = value.actors().stream().filter(SettlementSnapshot.Actor::winner)
-                .sorted((a, b) -> Boolean.compare(Objects.equals(b.id(), value.mvp()), Objects.equals(a.id(), value.mvp())))
-                .toList();
+        // 存活者居中、死亡者分列两侧，MVP 永远正中。
+        List<SettlementSnapshot.Actor> winners = SettlementChoreography.winnerOrder(
+                value.actors().stream().filter(SettlementSnapshot.Actor::winner).toList(), value.mvp());
         int winner = 0, loser = 0;
         int losers = value.actors().size() - winners.size();
         physics = new SettlementPhysics(losers, SettlementChoreography.REAR_FLOOR);
@@ -278,6 +278,11 @@ public final class SettlementClient {
         } catch (RuntimeException ignored) {
             return false;
         }
+    }
+
+    /** 获胜阵营里已死亡的角色才标 X；落败者在尸堆里不标。 */
+    static boolean isDeathMarked(ActorState actor) {
+        return actor != null && actor.fact.winner() && actor.fact.dead();
     }
 
     private static void showEvent(SettlementSnapshot.Event event) {

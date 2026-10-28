@@ -82,8 +82,9 @@ public final class SettlementStageRenderer {
             // 此模型坐标朝 -Z，恰好面向舞台正面相机。
             pose.scale(-1, -1, 1); pose.translate(0, -1.501, 0);
             setPose(model, actor, time, action, mvp);
+            // 死亡只做轻微去色：皮肤保留原样，仅整体压暗一点点，靠头顶 X 表达死亡。
             float dark = actor.blackness;
-            int r = (int) (255 - 230 * dark), g = (int) (255 - 235 * dark), b = (int) (255 - 235 * dark);
+            int r = (int) (255 - 46 * dark), g = (int) (255 - 50 * dark), b = (int) (255 - 58 * dark);
             int tint = 0xFF000000 | r << 16 | g << 8 | b;
             model.renderToBuffer(pose, buffer.getBuffer(RenderType.entityTranslucent(skin.texture())),
                     LightTexture.FULL_BRIGHT, OverlayTexture.NO_OVERLAY, tint);
@@ -256,7 +257,9 @@ public final class SettlementStageRenderer {
         drawLabel(pose, buffer, role, 7, color);
         if (mvp) drawLabel(pose, buffer, Component.translatable("settlement.starrailexpress.mvp"), -17, 0xFFD4AF37);
         pose.popPose();
-        if (actor.blackness > .25f) {
+        // 死亡标记按“获胜阵营且已死亡”显示，与轻微灰化无关。
+        boolean marked = SettlementClient.isDeathMarked(actor);
+        if (marked) {
             // 死亡标记也跟随头顶锚点，压在名字（有 MVP 标签时压在最上层）上方。
             pose.pushPose(); pose.translate(labelX, labelY + (mvp ? .66 : .44), labelZ);
             pose.mulPose(mc.gameRenderer.getMainCamera().rotation()); pose.scale(.035f, -.035f, .035f);
