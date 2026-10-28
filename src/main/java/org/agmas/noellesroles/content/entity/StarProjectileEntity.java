@@ -158,6 +158,40 @@ public class StarProjectileEntity extends Entity {
         return false;
     }
 
+    /**
+     * 视锥剔除用的包围盒。
+     * <p>
+     * 实体本身只有 0.6×0.6，但模型按 {@code MODEL_SCALE} 缩放后半径约 0.75 格、
+     * 还会上下浮动，再加上渲染时整体上移 0.55 格。如果沿用实体默认包围盒，
+     * 镜头稍微偏一点整颗星星就会被剔除掉（表现为「看不见」）。这里放大到能
+     * 完整覆盖模型与浮动范围。
+     */
+    @Override
+    public net.minecraft.world.phys.AABB getBoundingBoxForCulling() {
+        return this.getBoundingBox().inflate(1.6D).expandTowards(0.0D, 1.2D, 0.0D);
+    }
+
+    /**
+     * 取景距离。
+     * <p>
+     * 实体本身只有 0.6 格，默认的「按包围盒算取景距离」在几十格外就会整颗不画
+     * （表现为「看不见」）。这里固定放大到 {@link #RENDER_RANGE}，与
+     * {@code BambooSpearEntity} 的处理一致。
+     */
+    @Override
+    public boolean shouldRender(double camX, double camY, double camZ) {
+        if (!this.isAlive()) {
+            return false;
+        }
+        double dx = camX - this.getX();
+        double dy = camY - this.getY();
+        double dz = camZ - this.getZ();
+        return dx * dx + dy * dy + dz * dz < RENDER_RANGE * RENDER_RANGE;
+    }
+
+    /** 星星的最大可见距离（格）。 */
+    private static final double RENDER_RANGE = 128.0D;
+
     @Override
     public void tick() {
         super.tick();

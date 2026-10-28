@@ -182,9 +182,11 @@ public class StarProjectileRenderer extends EntityRenderer<StarProjectileEntity>
 
     /**
      * 读取并缓存模型方块。模型坐标是 Blockbench 的 y 向下，这里翻转成 Minecraft 的 y 向上。
+     * <p>
+     * 读取失败时**不缓存空结果**并打日志，否则一次资源重载前的失败会让星星永久隐形。
      */
     private static List<Box> boxes() {
-        if (boxes != null) {
+        if (boxes != null && !boxes.isEmpty()) {
             return boxes;
         }
         List<Box> list = new ArrayList<>();
@@ -204,11 +206,14 @@ public class StarProjectileRenderer extends EntityRenderer<StarProjectileEntity>
                     list.add(new Box(fx, -ty, fz, tx, -fy, tz));
                 }
             }
-        } catch (Exception ignored) {
-            // 模型缺失时退化为不渲染，不影响游戏逻辑
+        } catch (Exception e) {
+            // 不要把失败结果缓存下来，资源重载后还能重试；同时打日志便于排查
+            org.agmas.noellesroles.Noellesroles.LOGGER.error(
+                    "Failed to load star model {}: {}", MODEL, e.toString());
+            return List.of();
         }
         boxes = list;
-        return boxes;
+        return list;
     }
 
     /**

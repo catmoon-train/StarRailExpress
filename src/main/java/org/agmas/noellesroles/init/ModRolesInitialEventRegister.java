@@ -1703,6 +1703,10 @@ public class ModRolesInitialEventRegister {
         // 拆成多次调用只会留下最后一个技能，技能切换键就永远切不动。
         // 实际冷却由 PoolerRoleData 自己记账（这样商店的「减少技能冷却」才能真正
         // 缩短剩余时间），所以这里的 cooldownSeconds 为 0。
+        // 领域管理器必须在注册技能时一起挂上全局 tick 与「对局结束清理」钩子。
+        // 漏掉这行会导致领域永不结束：ACTIVE 残留 → 之后再放领域直接返回 false，
+        // 而且 ACTIVE 是静态表，连下一局也放不出来（玩家还会被 limitPlayerToBox 永远关在领域里）。
+        org.agmas.noellesroles.game.roles.killer.pooler.PoolerDomainManager.register();
         RoleSkill.register(ModRoles.POOLER,
                 RoleSkill.skill(
                         SRE.id("pooler_tide"),

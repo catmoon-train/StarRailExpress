@@ -38,6 +38,8 @@ import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.item.enchantment.ItemEnchantments;
+import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
@@ -292,17 +294,41 @@ public class PoolerRoleData extends SimpleRoleData {
     /**
      * 清空三叉戟的全部附魔，只挂上指定的一种：
      * {@code toRiptide = true} → 激流 III；{@code false} → 忠诚 III。
+     * <p>
+     * 关键顺序：**先**把目标附魔加上，**再**把不需要的附魔删掉。
+     * 之前是「先 remove 再 enchant」，一旦 enchant 因为取不到 holder 而失败，
+     * 三叉戟就会变成「附魔被清空但新附魔没加上」——正是游戏里看到的现象。
      */
     private static void applyTridentEnchant(ItemStack stack, ServerLevel level, boolean toRiptide) {
-        stack.remove(DataComponents.ENCHANTMENTS);
-        net.minecraft.core.Holder<Enchantment> holder = level.registryAccess()
-                .registryOrThrow(Registries.ENCHANTMENT).holders()
-                .filter(h -> h.is(toRiptide ? Enchantments.RIPTIDE : Enchantments.LOYALTY))
-                .findFirst()
+        var key = toRiptide ? Enchantments.RIPTIDE : Enchantments.LOYALTY;
+        var opposite = toRiptide ? Enchantments.LOYALTY : Enchantments.RIPTIDE;
+
+        // 1. 先加目标附魔（stack.enchant 是项目里已验证可用的写法）
+        net.minecraft.core.Holder<Enchantment> target = level.registryAccess()
+                .registryOrThrow(Registries.ENCHANTMENT)
+                .getHolder(key)
                 .orElse(null);
-        if (holder != null) {
-            stack.enchant(holder, 3);
+        if (target == null) {
+            return; // 取不到就整个不动，绝不留下无附魔的三叉戟
         }
+        stack.enchant(target, 3);
+
+        // 2. 再把相反的附魔删掉（enchantments 是独立组件，需整表重写）
+        var enchantments = stack.getOrDefault(DataComponents.ENCHANTMENTS, ItemEnchantments.EMPTY);
+        if (enchantments.isEmpty()) {
+            return;
+        }
+        var oppositeHolder = level.registryAccess()
+                .registryOrThrow(Registries.ENCHANTMENT)
+                .getHolder(opposite)
+                .orElse(null);
+        if (oppositeHolder == null || !enchantments.keySet().contains(oppositeHolder)) {
+            return;
+        }
+        // ItemEnchantments 不可变，用 Mutable 重建后写回
+        ItemEnchantments.Mutable mutable = new ItemEnchantments.Mutable(enchantments);
+        mutable.removeIf(h -> h.equals(oppositeHolder));
+        stack.set(DataComponents.ENCHANTMENTS, mutable.toImmutable());
     }
 
     // ── 二技能：吞月 ────────────────────────────────────────────
