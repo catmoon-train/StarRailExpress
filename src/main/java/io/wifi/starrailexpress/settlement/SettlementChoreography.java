@@ -1,5 +1,9 @@
 package io.wifi.starrailexpress.settlement;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
+
 /** 舞台站位和出场节拍的唯一来源；不依赖客户端或注册表，可独立验证。 */
 public final class SettlementChoreography {
     /** 尸体直接堆在舞台黑地板上，不额外抬台。 */
@@ -11,21 +15,44 @@ public final class SettlementChoreography {
 
     public record Slot(double x, double y, double z) { }
 
-    /** MVP 是索引 0，前排正中；七人以内一排，更多人两排错位，不再铺满整个舞台。 */
+    /** 单人站位间距；比之前更松，避免角色挤成一团。 */
+    public static final double WINNER_SPACING = 1.35;
+
+    /**
+     * 胜方站位：存活者居中、已死亡者排到两侧。
+     * <p>索引 0 视为 MVP（站在正中），其余按 {@link #winnerOrder} 排出的顺序依次向外铺开。</p>
+     */
     public static Slot winner(int index, int count) {
         if (count < 1 || index < 0 || index >= count) throw new IllegalArgumentException("无效胜方序号");
-        int front = count <= 7 ? count : (count + 1) / 2;
-        boolean back = index >= front;
-        int rowCount = back ? count - front : front;
-        int local = back ? index - front : index;
-        double spacing = Math.min(1.05, 10.0 / Math.max(1, rowCount - 1));
-        double x = back ? (local - (rowCount - 1) * .5) * spacing : centerOut(local) * spacing;
-        // 后排稍高，保证两排都看得见；前排保持舞台地面。
-        return new Slot(x, back ? .5 : 0, back ? 1.35 : -.35);
+        double spacing = Math.min(WINNER_SPACING, 12.0 / Math.max(1, count - 1));
+        double x = spread(index) * spacing;
+        // 人数多时只把最外侧的人放到后排，保证仍最多两排。
+        boolean back = count > 9 && Math.abs(x) > spacing * 2.6;
+        return new Slot(x, back ? .5 : 0, back ? 1.25 : -.35);
     }
 
-    private static double centerOut(int index) {
-        return index == 0 ? 0 : ((index + 1) / 2) * (index % 2 == 1 ? -1 : 1);
+    /**
+     * 排序胜方：MVP 第一，然后存活者由内向外，最后是已死亡者。
+     * <p>这样中间站的都是活着的人，死亡者被推到两边。</p>
+     */
+    public static List<SettlementSnapshot.Actor> winnerOrder(List<SettlementSnapshot.Actor> winners, UUID mvp) {
+        List<SettlementSnapshot.Actor> ordered = new ArrayList<>();
+        SettlementSnapshot.Actor center = null;
+        for (var actor : winners) if (mvp != null && mvp.equals(actor.id())) center = actor;
+        if (center != null) ordered.add(center);
+        for (var actor : winners) if (actor != center && !actor.dead()) ordered.add(actor);
+        for (var actor : winners) if (actor != center && actor.dead()) ordered.add(actor);
+        return ordered;
+    }
+
+    /**
+     * 由内向外对称铺开：0 居中，1 左、2 右、3 再外左、4 再外右……
+     * <p>序号越大离中心越远，配合 {@link #winnerOrder} 就能把死亡者稳定推到两侧。</p>
+     */
+    private static double spread(int index) {
+        if (index == 0) return 0;
+        double ring = (index + 1) / 2.0;
+        return index % 2 == 1 ? -ring : ring;
     }
 
     /** 尸堆承接区的半宽/半深：收得很紧，少量尸体也会互相压住形成高度。 */
