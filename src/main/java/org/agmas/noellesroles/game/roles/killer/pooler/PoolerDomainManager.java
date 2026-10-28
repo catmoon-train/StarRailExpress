@@ -253,7 +253,7 @@ public final class PoolerDomainManager {
                 "message.noellesroles.pooler.moon_subtitle", ChatFormatting.WHITE);
         caster.displayClientMessage(Component
                 .translatable("message.noellesroles.pooler.moon_open", targets.size())
-                .withStyle(ChatFormatting.AQUA), false);
+                .withStyle(ChatFormatting.AQUA), true);
         recordDomain(caster, "replay.event.pooler.moon", targets.size());
         return true;
     }
@@ -321,7 +321,7 @@ public final class PoolerDomainManager {
                 "message.noellesroles.pooler.aquarium_subtitle", ChatFormatting.AQUA);
         caster.displayClientMessage(Component
                 .translatable("message.noellesroles.pooler.aquarium_open", domain.victims.size())
-                .withStyle(ChatFormatting.AQUA), false);
+                .withStyle(ChatFormatting.AQUA), true);
         recordDomain(caster, "replay.event.pooler.aquarium", domain.victims.size());
         return true;
     }

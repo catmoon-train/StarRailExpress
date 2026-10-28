@@ -273,7 +273,7 @@ public class StarGathererRoleData extends SimpleRoleData {
                 40, 2.0D, 1.0D, 2.0D, 0.08D);
         sp.displayClientMessage(Component
                 .translatable("message.noellesroles.star_gatherer.enhance_used", (int) AURA_RADIUS_ENHANCED)
-                .withStyle(ChatFormatting.AQUA), false);
+                .withStyle(ChatFormatting.AQUA), true);
         return true;
     }
 
@@ -297,7 +297,7 @@ public class StarGathererRoleData extends SimpleRoleData {
                 60, 2.0D, 2.0D, 2.0D, 0.3D);
         sp.displayClientMessage(Component
                 .translatable("message.noellesroles.star_gatherer.gravity_used")
-                .withStyle(ChatFormatting.AQUA), false);
+                .withStyle(ChatFormatting.AQUA), true);
         return true;
     }
 
@@ -341,7 +341,7 @@ public class StarGathererRoleData extends SimpleRoleData {
                 SoundEvents.PLAYER_ATTACK_CRIT, SoundSource.PLAYERS, 1.2F, 0.6F);
         sp.displayClientMessage(Component
                 .translatable("message.noellesroles.star_gatherer.gravity_pulled", stolen)
-                .withStyle(ChatFormatting.AQUA), false);
+                .withStyle(ChatFormatting.AQUA), true);
     }
 
     // ── 技能三：施舍 ────────────────────────────────────────────
@@ -392,11 +392,11 @@ public class StarGathererRoleData extends SimpleRoleData {
         target.displayClientMessage(Component
                 .translatable("message.noellesroles.star_gatherer.alms_received", sp.getName(),
                         hand.getHoverName())
-                .withStyle(ChatFormatting.GOLD), false);
+                .withStyle(ChatFormatting.GOLD), true);
         sp.displayClientMessage(Component
                 .translatable("message.noellesroles.star_gatherer.alms_used", target.getName(),
                         hand.getHoverName())
-                .withStyle(ChatFormatting.AQUA), false);
+                .withStyle(ChatFormatting.AQUA), true);
         return true;
     }
 
@@ -521,7 +521,7 @@ public class StarGathererRoleData extends SimpleRoleData {
                 30, 0.6D, 1.0D, 0.6D, 0.4D);
         sp.displayClientMessage(Component
                 .translatable("message.noellesroles.star_gatherer.scepter_locked", target.getName())
-                .withStyle(ChatFormatting.AQUA), false);
+                .withStyle(ChatFormatting.AQUA), true);
         return true;
     }
 

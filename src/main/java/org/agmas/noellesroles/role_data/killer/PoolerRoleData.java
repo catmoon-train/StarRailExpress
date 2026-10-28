@@ -530,15 +530,17 @@ public class PoolerRoleData extends SimpleRoleData {
 
     /**
      * 三叉戟击杀后的物品冷却：基础 30 秒；
-     * 处于水中镜领域内时 0（不进入冷却）；疯狂模式中为 1/6。
+     * 处于水中镜领域内时 0（不进入冷却，优先级高于疯狂模式）；疯狂模式中为 1/6。
      */
     public static void applyTridentKillCooldown(ServerPlayer killer) {
+        // 水中镜领域内的击杀不走任何冷却：无论是否处于疯狂模式都不进冷却
+        if (isInAquarium(killer)) {
+            return;
+        }
         int ticks = TRIDENT_KILL_COOLDOWN_TICKS;
         PoolerRoleData data = RoleData.getNullable(PoolerRoleData.class, killer);
         if (RoleData.isAttached(data) && data.isTideFrenzy()) {
             ticks = TRIDENT_KILL_COOLDOWN_PSYCHO;
-        } else if (isInAquarium(killer)) {
-            return;
         }
         killer.getCooldowns().addCooldown(Items.TRIDENT, ticks);
     }
