@@ -14,7 +14,7 @@
   "settlement.starrailexpress.score": "贡献分  %s",
   "settlement.starrailexpress.personal": "MVP 记录：%s 击杀 · %s 任务 · %s 贡献分",
   "settlement.starrailexpress.event": "事件 %s / %s   ·   原局时间 %s",
-  "settlement.starrailexpress.skip": "长按 Enter 跳过 · 本地事件提示音，非原局录音",
+  "settlement.starrailexpress.skip": "长按 Enter 跳过",
   "settlement.starrailexpress.unreadable": "无法显示此回放文本",
   "settlement.starrailexpress.unknown_role": "未知职业",
   "=== END ===": "",
