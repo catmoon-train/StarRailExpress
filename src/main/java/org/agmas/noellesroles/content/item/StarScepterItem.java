@@ -17,7 +17,6 @@ package org.agmas.noellesroles.content.item;
 
 import io.wifi.starrailexpress.api.ChargeableItem;
 import net.minecraft.core.particles.ParticleTypes;
-import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
@@ -28,6 +27,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.UseAnim;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
+import org.agmas.noellesroles.init.ModItems;
 import org.agmas.noellesroles.role_data.innocence.StarGathererRoleData;
 
 /**
@@ -71,22 +71,43 @@ public class StarScepterItem extends Item implements ChargeableItem {
         }
     }
 
+    /**
+     * 蓄力中的杖端粒子。
+     * <p>
+     * <b>只发给使用者本人</b>：{@code ServerLevel#sendParticles} 是向周围 32 格内
+     * 所有玩家广播，别人也能看到摘星者在蓄力，等于暴露位置。这里直接构造
+     * {@link ClientboundLevelParticlesPacket} 只塞给使用者自己的连接。
+     * <p>
+     * 另外先校验手里拿的确实是星之权杖，避免粒子挂到别的物品上。
+     */
     @Override
     public void onUseTick(Level level, LivingEntity entity, ItemStack stack, int remainingUseTicks) {
-        if (!(level instanceof ServerLevel sl) || !(entity instanceof ServerPlayer sp)) {
+        if (!(entity instanceof ServerPlayer sp)) {
+            return;
+        }
+        // 只在「正拿着星之权杖」时生效
+        if (!stack.is(ModItems.STAR_SCEPTER)) {
             return;
         }
         int chargeTime = getUseDuration(stack, entity) - remainingUseTicks;
         if (chargeTime < MAX_CHARGE_TICKS / 2) {
             return; // 蓄力不足时不显示，保持隐蔽
         }
-        // 杖端凝聚星光：先用少量 END_ROD 提示已进入可释放状态
+
         Vec3 look = sp.getViewVector(1.0f).normalize();
         Vec3 tip = sp.getEyePosition().add(look.scale(0.8)).add(0, -0.2, 0);
-        sl.sendParticles(ParticleTypes.END_ROD, tip.x, tip.y, tip.z, 1, 0.05, 0.05, 0.05, 0.0);
+        // 仅发送给使用者自己
+        sendParticleToSelf(sp, ParticleTypes.END_ROD, tip);
         if (chargeTime % 2 == 0) {
-            sl.sendParticles(ParticleTypes.ENCHANT, tip.x, tip.y, tip.z, 1, 0.04, 0.04, 0.04, 0.0);
+            sendParticleToSelf(sp, ParticleTypes.ENCHANT, tip);
         }
+    }
+
+    /** 把单颗粒子只发给这一个玩家（不进网络广播）。 */
+    private static void sendParticleToSelf(ServerPlayer sp, net.minecraft.core.particles.SimpleParticleType type,
+            Vec3 pos) {
+        sp.connection.send(new net.minecraft.network.protocol.game.ClientboundLevelParticlesPacket(
+                type, false, pos.x, pos.y, pos.z, 0.05F, 0.05F, 0.05F, 0.0F, 1));
     }
 
     @Override
