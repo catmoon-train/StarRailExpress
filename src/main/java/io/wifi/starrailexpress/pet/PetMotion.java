@@ -65,7 +65,7 @@ public final class PetMotion {
         return current + delta * clamp01(factor);
     }
 
-    /** 把角度折回 (-180, 180]。 */
+    /** 把角度折回 [-180, 180)。180° 会被折成 -180°，与 Minecraft 的 Mth.wrapDegrees 一致。 */
     public static float wrapDegrees(float degrees) {
         float wrapped = degrees % 360.0F;
         if (wrapped >= 180.0F) {

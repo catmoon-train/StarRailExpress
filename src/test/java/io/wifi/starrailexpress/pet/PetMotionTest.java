@@ -90,16 +90,20 @@ class PetMotionTest {
         assertEquals(0.0F, PetMotion.wrapDegrees(360.0F), 1.0E-4F);
         assertEquals(90.0F, PetMotion.wrapDegrees(450.0F), 1.0E-4F);
         assertEquals(-90.0F, PetMotion.wrapDegrees(-450.0F), 1.0E-4F);
-        assertEquals(180.0F, PetMotion.wrapDegrees(180.0F), 1.0E-4F);
+        assertEquals(-180.0F, PetMotion.wrapDegrees(180.0F), 1.0E-4F,
+                "180° 折成 -180°，与 Mth.wrapDegrees 一致");
     }
 
     @Test
     void lerpAngleTakesShortestArc() {
-        // 从 170° 到 -170°：最短路径是 +20°，不是 -340°
-        float result = PetMotion.lerpAngle(170.0F, -170.0F, 1.0F);
-        float normalized = PetMotion.wrapDegrees(result);
-        assertEquals(180.0F, Math.abs(normalized), 1.0E-3F,
-                "走最短弧会经过 ±180，而不是绕回 0");
+        // 170° → -170°：最短弧是跨过 ±180（走 +20°），不是反向绕 -340°
+        float step = PetMotion.lerpAngle(170.0F, -170.0F, 0.5F);
+        // 走 +20° 的一半 => 180°，折回后是 -180
+        assertEquals(-180.0F, PetMotion.wrapDegrees(step), 1.0E-3F,
+                "应当朝 +方向跨过 ±180，而不是反向绕一大圈");
+        // 若错误地走长弧（-340°），一半会得到 0°
+        assertFalse(Math.abs(PetMotion.wrapDegrees(step)) < 1.0F,
+                "不应走长弧（长弧的中点会落在 0° 附近）");
     }
 
     @Test
