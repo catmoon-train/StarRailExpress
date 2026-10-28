@@ -134,6 +134,47 @@ public class GeneralModelLoadingPlugin implements ModelLoadingPlugin {
                 }
             }
         }
+        // 弓 / 弩的「拉弦 / 装填」阶段模型是 overrides 的依赖模型，不是 top-level，
+        // 因此不会被上面的 modifyModelOnLoad 包装成 GeneralModel —— 直接渲染原版贴图，
+        // 表现为「皮肤只在待发状态生效，一拉弦就变回原版」。
+        // modifyModelBeforeBake 会在每个模型（含 overrides 依赖）烘焙前触发，
+        // 且不改动缓存里的 unbaked 模型（不会污染把它当 parent 的其它模型），正合此处需要。
+        pluginContext.modifyModelBeforeBake().register((unbakedModel, context) -> {
+            ResourceLocation resourceId = context.resourceId();
+            if (resourceId == null) {
+                return unbakedModel;
+            }
+            // resourceId 形如 minecraft:item/bow_pulling_1
+            String path = resourceId.getPath();
+            if (!path.startsWith("item/")) {
+                return unbakedModel;
+            }
+            path = path.substring("item/".length());
+            for (var entry : BASE_MODELS.entrySet()) {
+                String itemType = entry.getKey();
+                List<String> stages = STAGE_SUFFIXES.get(itemType);
+                // 只有分阶段类型（弓 / 弩）才有依赖阶段模型需要接管
+                if (stages == null) {
+                    continue;
+                }
+                for (ModelResourceLocation base : entry.getValue()) {
+                    if (!base.id().getNamespace().equals(resourceId.getNamespace())) {
+                        continue;
+                    }
+                    String basePath = base.id().getPath();
+                    if (!path.startsWith(basePath)) {
+                        continue;
+                    }
+                    String suffix = path.substring(basePath.length());
+                    // 只接管明确登记过的阶段后缀，避免误伤同前缀的无关模型
+                    if (!stages.contains(suffix)) {
+                        continue;
+                    }
+                    return new GeneralModel(itemType, base, suffix, unbakedModel);
+                }
+            }
+            return unbakedModel;
+        });
 
         pluginContext.modifyModelOnLoad().register((unbakedModel, context) -> {
             if (context.topLevelId() != null) {

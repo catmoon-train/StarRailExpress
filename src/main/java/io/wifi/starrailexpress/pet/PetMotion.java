@@ -87,30 +87,35 @@ public final class PetMotion {
     }
 
     /**
-     * 环绕相位随时间的推进量：走一圈 {@code periodSeconds} 秒。
+     * 由「方向角」求水平偏移量（单位：格）。
      * <p>
-     * 用「绕主人转圈」而不是「直线追尾」，是因为陆行随从需要始终落在方块地面上；
-     * 环绕时它只在小半径内移动，地面吸附几乎不需要向下深扫。
+     * <b>不要用 {@code cos/sin(angle)} 直接算：</b>Minecraft 的 yaw 与数学极角不同源。
+     * 实体 yaw=0 朝 +Z（南），yaw=90 朝 -X（西），因此前方向量是
+     * {@code (-sin(yaw), cos(yaw))}，而不是 {@code (cos, sin)}。
+     * 早期版本直接用极角公式，会让「身后」偏移落到侧面。
+     *
+     * @param angle 方向角（度），与实体 yaw 同一约定
+     * @param out   长度 ≥ 2 的输出数组，写回 {@code [dx, dz]}，不分配对象
      */
-    public static double orbitAngle(long tick, float periodSeconds) {
-        if (periodSeconds <= 0.0F) {
-            return 0.0D;
-        }
-        return (tick / 20.0D) * (Math.PI * 2.0D) / periodSeconds;
+    public static void offsetFromAngle(float angle, float radius, double[] out) {
+        double radians = Math.toRadians(angle);
+        out[0] = -Math.sin(radians) * radius;
+        out[1] = Math.cos(radians) * radius;
     }
 
     /**
-     * 期望位置的 X 分量：主人位置 + 环绕偏移。
+     * 随从相对主人的「背后偏移」方向角（度）。
+     * <p>
+     * 用主人身体朝向 {@code bodyYaw} 反推出背后方向，而不是让随从绕圈：
+     * 用户要求随从<b>始终跟在身后</b>，绕圈会让它跑到正面挡住视线。
+     * <p>
+     * 坐标系与 Minecraft 一致：yaw=0 时玩家正面朝 +Z，此时背后是 -Z，
+     * 对应方向角 {@code bodyYaw + 180}。
      *
-     * @param angle 环绕相位（弧度）
+     * @param bodyYaw 主人身体朝向（度）
      */
-    public static double desiredX(double ownerX, float orbitRadius, double angle) {
-        return ownerX + Math.cos(angle) * orbitRadius;
-    }
-
-    /** 期望位置的 Z 分量。 */
-    public static double desiredZ(double ownerZ, float orbitRadius, double angle) {
-        return ownerZ + Math.sin(angle) * orbitRadius;
+    public static float behindAngle(float bodyYaw) {
+        return wrapDegrees(bodyYaw + 180.0F);
     }
 
     /**

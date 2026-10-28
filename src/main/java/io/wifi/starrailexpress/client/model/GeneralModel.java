@@ -77,9 +77,10 @@ public class GeneralModel implements UnbakedModel, BakedModel {
     @Override
     public @Nullable BakedModel bake(ModelBaker baker, Function<Material, TextureAtlasSprite> textureGetter,
             ModelState settings) {
-        var itml = defaultModelLocation.id();
-        defaultBakedModel = baker.bake(itml.withPath("item/" + itml.getPath() + stageSuffix),
-                settings);
+        // 直接烘焙已经拿到的 defaultUnbakedModel，而不是 baker.bake(同一个 id)：
+        // 后者会重新走一遍 ModelBakery 的加载/包装流程，容易踩到「烘焙中再烘焙自己」
+        // 的重入问题，也会让本类被重复包装成 GeneralModel。
+        defaultBakedModel = defaultUnbakedModel.bake(baker, textureGetter, settings);
         boolean staged = GeneralModelLoadingPlugin.isStaged(itemType);
         for (ItemSkinManager.Skin skin : ItemSkinManager.getSkins(itemType).values()) {
             for (GeneralModelLoadingPlugin.Variant variant : GeneralModelLoadingPlugin.Variant.values()) {

@@ -33,13 +33,13 @@ import java.util.concurrent.ConcurrentHashMap;
 /**
  * 客户端随从运动状态（每名玩家至多一个）。
  * <p>
- * 纯客户端推导：位置只依赖「主人当前坐标 + 时间」，不接收任何位置包。
- * 每 tick 推进一次，渲染时按帧插值（{@link #renderX} 等字段）。
+ * 纯客户端推导：位置只依赖「主人当前坐标 + 身体朝向」，不接收任何位置包。
+ * 每 tick 推进一次，渲染时按帧插值。
  * <p>
  * 运动策略：
  * <ul>
- * <li><b>陆行类</b>：绕主人小半径环绕 + 地面吸附，永远踩在方块上；</li>
- * <li><b>飞行类</b>：浮在主人头部上方，带轻微上下浮动；</li>
+ * <li><b>陆行类</b>：跟在主人身后 + 地面吸附，永远踩在方块上；</li>
+ * <li><b>飞行类</b>：浮在主人头部上方偏后，带轻微上下浮动；</li>
  * <li>两者都受 {@link PetMotionProfile#MAX_DISTANCE} 硬钳制——主人传送 / 换维度 /
  * 重生时随从不会留在原地，最迟 1 tick 就被拉回 5 格内。</li>
  * </ul>
@@ -47,8 +47,7 @@ import java.util.concurrent.ConcurrentHashMap;
 @Environment(EnvType.CLIENT)
 public final class ClientPetMotion {
 
-    /** 陆行类绕主人一圈的时长（秒）。 */
-    private static final float WALKER_ORBIT_PERIOD = 14.0F;
+
 
     /** 每名玩家的运动状态。 */
     private static final Map<UUID, State> STATES = new ConcurrentHashMap<>();
@@ -157,10 +156,13 @@ public final class ClientPetMotion {
             state.prevZ = state.z;
         }
 
-        // 期望位置
-        double angle = PetMotion.orbitAngle(tick, WALKER_ORBIT_PERIOD);
-        double targetX = PetMotion.desiredX(ownerX, profile.orbitRadius(), angle);
-        double targetZ = PetMotion.desiredZ(ownerZ, profile.orbitRadius(), angle);
+        // 期望位置：始终位于主人身后（跟随主人身体朝向，而不是绕圈）。
+        // 用 bodyYaw 而非 headYaw：玩家转头看四周时随从不应跟着甩来甩去。
+        float behindAngle = PetMotion.behindAngle(owner.yBodyRot);
+        double[] offset = state.offset;
+        PetMotion.offsetFromAngle(behindAngle, profile.orbitRadius(), offset);
+        double targetX = ownerX + offset[0];
+        double targetZ = ownerZ + offset[1];
         double targetY = PetMotion.desiredY(profile, ownerY, owner.getBbHeight(), tick);
 
         // 指数平滑逼近（20 TPS → dt = 0.05s）
@@ -251,5 +253,8 @@ public final class ClientPetMotion {
         boolean initialized;
         /** 复用同一个数组返回，避免每帧分配。 */
         final double[] out = new double[3];
+        /** 复用同一个数组承载「背后偏移」，避免每 tick 分配。 */
+        final double[] offset = new double[2];
     }
 }
+

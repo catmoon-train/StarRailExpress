@@ -150,16 +150,44 @@ class PetMotionTest {
     // ─── 期望位置 ──────────────────────────────────────────────────────────
 
     @Test
-    void orbitPositionStaysOnRadius() {
-        for (long tick = 0; tick < 400; tick += 37) {
-            double angle = PetMotion.orbitAngle(tick, 14.0F);
-            double x = PetMotion.desiredX(10.0D, 2.0F, angle);
-            double z = PetMotion.desiredZ(20.0D, 2.0F, angle);
-            double radius = Math.sqrt((x - 10.0D) * (x - 10.0D) + (z - 20.0D) * (z - 20.0D));
-            assertEquals(2.0D, radius, 1.0E-6D, "环绕半径必须恒定");
+    void behindOffsetStaysOnRadius() {
+        double[] offset = new double[2];
+        for (float bodyYaw = -360.0F; bodyYaw <= 360.0F; bodyYaw += 37.0F) {
+            PetMotion.offsetFromAngle(PetMotion.behindAngle(bodyYaw), 2.0F, offset);
+            double radius = Math.sqrt(offset[0] * offset[0] + offset[1] * offset[1]);
+            assertEquals(2.0D, radius, 1.0E-6D, "背后偏移半径必须恒定");
         }
     }
 
+    @Test
+    void behindAngleIsOppositeToBodyYaw() {
+        // yaw=0 时玩家正面朝 +Z，背后应为 -Z
+        double[] offset = new double[2];
+        PetMotion.offsetFromAngle(PetMotion.behindAngle(0.0F), 2.0F, offset);
+        assertEquals(0.0D, offset[0], 1.0E-6D, "yaw=0 时背后偏移不应有 X 分量");
+        assertEquals(-2.0D, offset[1], 1.0E-6D, "yaw=0 时背后应在 -Z 方向");
+    }
+
+    @Test
+    void offsetFollowsMinecraftYawConvention() {
+        double[] offset = new double[2];
+        // yaw=90 时实体正面朝 -X，因此「前方」偏移应在 -X
+        PetMotion.offsetFromAngle(90.0F, 1.0F, offset);
+        assertEquals(-1.0D, offset[0], 1.0E-6D, "yaw=90 的前方是 -X");
+        assertEquals(0.0D, offset[1], 1.0E-6D);
+        // 背后与前方严格相反
+        PetMotion.offsetFromAngle(PetMotion.behindAngle(90.0F), 1.0F, offset);
+        assertEquals(1.0D, offset[0], 1.0E-6D, "yaw=90 的背后是 +X");
+        assertEquals(0.0D, offset[1], 1.0E-6D);
+    }
+
+    @Test
+    void behindOffsetStaysWithinMaxDistance() {
+        double[] offset = new double[2];
+        PetMotion.offsetFromAngle(PetMotion.behindAngle(37.0F), PetMotionProfile.MAX_DISTANCE, offset);
+        double distance = Math.sqrt(offset[0] * offset[0] + offset[1] * offset[1]);
+        assertTrue(distance <= PetMotionProfile.MAX_DISTANCE + 1.0E-6D, "背后偏移不得超过 5 格");
+    }
     @Test
     void flyerHoversAboveOwnerHead() {
         PetMotionProfile flyer = PetMotionProfile.defaults(PetMotionProfile.Kind.FLYER);

@@ -1,6 +1,6 @@
 {
   "parent": "minecraft:item/generated",
   "textures": {
-    "layer0": "noellesroles:block/echo_pallet_up"
+    "layer0": "noellesroles:block/echo_pallet"
   }
 }
