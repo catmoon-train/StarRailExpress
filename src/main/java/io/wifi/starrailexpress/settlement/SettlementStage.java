@@ -7,21 +7,47 @@ import net.minecraft.world.level.block.state.BlockState;
 import java.util.HashSet;
 import java.util.Set;
 
-/** 每 tick 有界写入的封闭黑箱舞台。坐标指定地板中心，内部不生成有行为的实体。 */
+/**
+ * 每 tick 有界写入的封闭黑箱舞台。坐标指定地板中心，内部不生成有行为的实体。
+ *
+ * <p>方块摆放分两层：
+ * <ul>
+ * <li>本体负责中性的舞台骨架（黑箱外壳、镜面黑石地板、台口金线、脚灯、顶灯、侧墙）；</li>
+ * <li>皮肤可选的方块覆盖由客户端注册表提供——但服务端拿不到客户端注册表，
+ * 因此这里只接受一个「方块覆盖器」回调，由 {@code SettlementManager}
+ * 在服务端侧按快照里的皮肤 ID 解析后传入。未提供时完全走默认摆放。</li>
+ * </ul>
+ */
 final class SettlementStage {
     private static final int WIDTH = 33, DEPTH = 31, HEIGHT = 15;
     final ServerLevel level;
     final BlockPos origin;
     private final Set<Long> tickets = new HashSet<>();
     private int cursor;
-    private final boolean enderDragon;
+    /** 皮肤方块覆盖器；{@code null} 表示不覆盖。 */
+    private final BlockOverride override;
     private int pinCursor;
 
-    SettlementStage(ServerLevel level, BlockPos origin, boolean enderDragon) {
+    /**
+     * 皮肤方块覆盖器。
+     *
+     * <p>服务端不认识具体皮肤，只把快照里的皮肤 ID 交出去；
+     * 覆盖逻辑由注册在服务端的实现决定（当前无内置实现，默认返回 {@code null}）。
+     */
+    @FunctionalInterface
+    interface BlockOverride {
+        /**
+         * @return 要放置的方块，或 {@code null} 表示用默认摆放
+         */
+        BlockState blockAt(int x, int y, int z);
+    }
+
+    SettlementStage(ServerLevel level, BlockPos origin, BlockOverride override) {
         this.level = level;
         this.origin = origin;
-        this.enderDragon = enderDragon;
+        this.override = override;
     }
+
 
     /** 只撤销本次新增的强加载票据，保留管理员已有的票据。 */
     boolean pinTick() {
@@ -70,16 +96,10 @@ final class SettlementStage {
                 if (y >= 1 && y <= 13) state = Blocks.POLISHED_BLACKSTONE.defaultBlockState();
                 if (y == 6) state = Blocks.WAXED_EXPOSED_COPPER.defaultBlockState();
             }
-            // 后排保持裸露黑地板：尸体直接堆在台上，不加任何围台/抬台方块。
-            if (enderDragon) {
-                state = y == 0 ? Blocks.END_STONE.defaultBlockState()
-                        : y == 14 || Math.abs(x) == 16 || Math.abs(z) == 15
-                        ? Blocks.BLACK_CONCRETE.defaultBlockState() : Blocks.AIR.defaultBlockState();
-                // 后景黑曜石柱，不挡住前排获胜者和后台尸堆。
-                if (Math.abs(x) >= 11 && Math.abs(x) <= 12 && (z == 10 || z == 11)
-                        && y >= 1 && y <= 10) state = Blocks.OBSIDIAN.defaultBlockState();
-                if (y == 1 && (z == -4 || z == 8) && (Math.abs(x) == 8 || Math.abs(x) == 12))
-                    state = Blocks.END_ROD.defaultBlockState();
+            // 皮肤方块覆盖：只有注册了覆盖器的皮肤才接管，未注册时保持上面的中性舞台。
+            if (override != null) {
+                BlockState overridden = override.blockAt(x, y, z);
+                if (overridden != null) state = overridden;
             }
             BlockPos pos = origin.offset(x,y,z);
             if (!level.getBlockState(pos).equals(state)) level.setBlock(pos,state,2);

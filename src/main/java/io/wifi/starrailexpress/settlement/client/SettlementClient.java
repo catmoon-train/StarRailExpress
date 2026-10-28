@@ -220,7 +220,16 @@ public final class SettlementClient {
         }
         if (phase != Phase.PLAYING) return;
         playTick++;
-        if (snapshot.enderDragon() && playTick == 140) SettlementAudio.cue("ENDER_DRAGON");
+        // 皮肤专属音效：本体只问「这个 tick 有没有专属音效」，
+        // 具体播放什么由已注册的皮肤实现决定。
+        SettlementSkin skin = SettlementSkins.byId(snapshot.mvpSkin());
+        if (skin != null) {
+            try {
+                skin.cueSound(playTick);
+            } catch (RuntimeException error) {
+                SRE.LOGGER.warn("结算皮肤音效回调失败: {}", snapshot.mvpSkin(), error);
+            }
+        }
         int losers = physics.bodies.size() - (int)actors.stream().filter(a -> a.fact.winner()).count();
         for (ActorState actor : actors) {
             if (!actor.fact.winner() && playTick >= SettlementChoreography.dropTick(actor.order, losers) && !actor.body.active) {
@@ -345,7 +354,7 @@ public final class SettlementClient {
         title = eventText = Component.empty(); actors.clear(); byId.clear();
         physics = new SettlementPhysics(); lastCameraFrame = 0;
         SettlementAudio.clear(); SettlementPostEffect.close();
-        SettlementDragonScene.clear();
+        // 皮肤布景由各自实现自行清理；本体不持有具体皮肤的静态状态。
     }
 
     /** 每帧平滑一次，交由独立高优先级 Camera.setup 注入调用。 */
@@ -375,8 +384,16 @@ public final class SettlementClient {
         // 事件回放时把注视点抬高一点，让角色落在画面中上部，底部留给字幕。
         boolean replaying = t >= SettlementSnapshot.INTRO_TICKS && eventIndex >= 0;
         double lift = replaying ? .55 : 0;
-        // 末地开场给上空盘旋的龙留出构图，聚焦 MVP 时平滑回到原人物镜头。
-        if (snapshot.enderDragon() && !replaying) lift += 1.2 * (1 - smooth((t - 180) / 45));
+        // 皮肤可要求额外抬高机位（例如给高空盘旋的背景生物留构图）。
+        // 本体不知道那是龙还是别的什么，只把抬升量加进来。
+        SettlementSkin cameraSkin = SettlementSkins.byId(snapshot.mvpSkin());
+        if (cameraSkin != null) {
+            try {
+                lift += cameraSkin.cameraLift(t);
+            } catch (RuntimeException error) {
+                SRE.LOGGER.warn("结算皮肤镜头回调失败: {}", snapshot.mvpSkin(), error);
+            }
+        }
         Vec3 desired = new Vec3(snapshot.x() + .5 + targetX * focus,
                 snapshot.y() + 1 + Mth.lerp(focus, 5.0, targetY + 1.1) + lift,
                 snapshot.z() + .5 - Mth.lerp(focus, wideDistance, 4.8));

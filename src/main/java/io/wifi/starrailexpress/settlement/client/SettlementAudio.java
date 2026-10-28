@@ -48,11 +48,16 @@ public final class SettlementAudio {
         Minecraft.getInstance().getSoundManager().stop(old);
     }
 
+    /**
+     * 通用事件提示音。
+     *
+     * <p>皮肤专属音效不走这里：{@code SettlementSkin#cueSound(int)} 的实现
+     * 自行决定播放什么（见 {@link #playCue(SoundEvent, float)}）。
+     */
     static void cue(String type) {
         SoundEvent event;
         float pitch = 1;
         switch (type) {
-            case "ENDER_DRAGON" -> event = SoundEvents.ENDER_DRAGON_DEATH;
             case "INTRO" -> { event = SoundEvents.NOTE_BLOCK_CHIME.value(); pitch = .75f; }
             case "PLAYER_KILL" -> { event = SoundEvents.NOTE_BLOCK_BASS.value(); pitch = .65f; }
             case "PLAYER_REVIVAL", "REVIVE" -> { event = SoundEvents.NOTE_BLOCK_BELL.value(); pitch = 1.3f; }
@@ -60,7 +65,16 @@ public final class SettlementAudio {
             case "CHANGE_ROLE" -> event = SoundEvents.NOTE_BLOCK_CHIME.value();
             default -> { event = SoundEvents.NOTE_BLOCK_HAT.value(); pitch = .9f; }
         }
-        // 非位置音效，是结算专用的事件提示，不声称还原原局音轨。
+        playCue(event, pitch);
+    }
+
+    /**
+     * 播放一次结算专用提示音（供皮肤实现复用）。
+     *
+     * <p>非位置音效，是结算专用的事件提示，不声称还原原局音轨。
+     */
+    public static void playCue(SoundEvent event, float pitch) {
+        if (event == null) return;
         SimpleSoundInstance sound = SimpleSoundInstance.forUI(event, pitch, .32f);
         ALLOWED.add(sound);
         try { Minecraft.getInstance().getSoundManager().play(sound); }

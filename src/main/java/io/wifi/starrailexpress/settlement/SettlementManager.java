@@ -117,15 +117,33 @@ public final class SettlementManager {
         if (mvp == null || !stage) return null;
         ServerPlayer mvpPlayer = world.getServer().getPlayerList().getPlayer(mvp);
         // 以服务端持有记录为准；其他获胜者或观众的皮肤不能改变本次 MVP 场景。
-        boolean dragon = mvpPlayer != null && Boolean.TRUE.equals(
-                SREPlayerSkinsComponent.KEY.get(mvpPlayer).getUnlockedSkinsForItemType(
-                        io.wifi.starrailexpress.util.ItemSkinManager.SkinTypes.MVP_ANIMATION).get("ender_dragon"));
+        // 本体不解释皮肤 ID：这里只把「MVP 实际装备的那款皮肤」原样写进快照，
+        // 具体布景由客户端的 SettlementSkins 注册表按 ID 分发。
+        String mvpSkin = resolveMvpSkin(world, mvpPlayer);
         var config = SREConfig.instance();
         return new SettlementSnapshot(world.dimension().location().toString(), config.settlementStageX,
                 config.settlementStageY, config.settlementStageZ,
                 Component.Serializer.toJson(replay.currentReplayData.getWinningTitle(),world.registryAccess()),
                 mvp, List.copyOf(actors), List.copyOf(SettlementSnapshot.mvpTimeline(mvp, events)),
-                dragon ? "ender_dragon" : "default");
+                mvpSkin);
+    }
+
+    /**
+     * 取本局 MVP 装备的结算皮肤 ID（{@code SkinTypes.MVP_ANIMATION} 槽位）。
+     *
+     * <p>只信任服务端记录，不读客户端上报；MVP 不在线或没解锁任何皮肤时返回
+     * {@link SettlementSnapshot#DEFAULT_SKIN}，结算照常进行但没有额外布景。
+     * <p>本体在这里<b>不做</b>任何具体皮肤判断——返回什么 ID 完全由玩家装备决定。
+     */
+    private static String resolveMvpSkin(ServerLevel world, ServerPlayer mvpPlayer) {
+        if (mvpPlayer == null) return SettlementSnapshot.DEFAULT_SKIN;
+        Map<String, Boolean> skins = SREPlayerSkinsComponent.KEY.get(mvpPlayer)
+                .getUnlockedSkinsForItemType(io.wifi.starrailexpress.util.ItemSkinManager.SkinTypes.MVP_ANIMATION);
+        String equipped = SREPlayerSkinsComponent.KEY.get(mvpPlayer)
+                .getEquippedSkin(io.wifi.starrailexpress.util.ItemSkinManager.SkinTypes.MVP_ANIMATION);
+        if (equipped != null && !equipped.isBlank() && Boolean.TRUE.equals(skins.get(equipped)))
+            return equipped;
+        return SettlementSnapshot.DEFAULT_SKIN;
     }
 
     /**
@@ -210,7 +228,10 @@ public final class SettlementManager {
         }
         if (parts.size() > 512) return;
         session = UUID.randomUUID(); snapshot = frozen; fragments = List.copyOf(parts);
-        stage = new SettlementStage(world,origin,frozen.enderDragon()); built = false;
+        // 舞台方块覆盖：服务端不认识具体皮肤，因此这里恒传 null，
+        // 全部使用本体的中性舞台。需要皮肤专属地形时，由服务端侧的
+        // 注册实现按 frozen.mvpSkin() 解析后传入（当前无内置实现）。
+        stage = new SettlementStage(world,origin,(SettlementStage.BlockOverride) null); built = false;
         for (var actor : frozen.actors()) {
             ServerPlayer player = server.getPlayerList().getPlayer(actor.id());
             if (player == null || !ServerPlayNetworking.canSend(player,SettlementPayload.ID)) continue;

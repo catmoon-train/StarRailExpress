@@ -4,16 +4,34 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.UUID;
 
-/** 停局后冻结的舞台事实；客户端只能演出，不能修改胜负或统计。 */
+/**
+ * 停局后冻结的舞台事实；客户端只能演出，不能修改胜负或统计。
+ *
+ * @param mvpSkin 本局 MVP 装备的结算皮肤 ID；{@code "default"} 表示无额外布景。
+ *                本体不解释这个字符串，具体表现由客户端的
+ *                {@code SettlementSkins} 注册表按 ID 分发。
+ */
 public record SettlementSnapshot(String dimension, double x, double y, double z, String titleJson,
                                  UUID mvp, List<Actor> actors, List<Event> events, String mvpSkin) {
+    /** 无额外布景的默认皮肤 ID。 */
+    public static final String DEFAULT_SKIN = "default";
+
     /** 兼容旧快照与未指定皮肤的结算。 */
     public SettlementSnapshot(String dimension, double x, double y, double z, String titleJson,
                               UUID mvp, List<Actor> actors, List<Event> events) {
-        this(dimension, x, y, z, titleJson, mvp, actors, events, "default");
+        this(dimension, x, y, z, titleJson, mvp, actors, events, DEFAULT_SKIN);
     }
 
-    public boolean enderDragon() { return "ender_dragon".equals(mvpSkin); }
+    /**
+     * 本局是否使用了「非默认」结算皮肤。
+     * <p>
+     * 本体只关心「有没有额外布景」，不再知道任何具体皮肤 ID；
+     * 具体是哪一款由客户端注册表按 {@link #mvpSkin()} 解析。
+     */
+    public boolean hasSkin() {
+        return mvpSkin != null && !mvpSkin.isBlank() && !DEFAULT_SKIN.equals(mvpSkin);
+    }
+
     public static final int INTRO_TICKS = 320;
     public static final int HOLD_TICKS = 30;
     public static final int SKIP_AFTER_TICKS = 100;
