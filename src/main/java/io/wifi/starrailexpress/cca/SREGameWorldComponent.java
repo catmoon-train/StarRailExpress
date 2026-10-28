@@ -58,6 +58,7 @@ import org.agmas.noellesroles.api.time.TimeRewind;
 import org.agmas.noellesroles.content.item.GroselleJourneyManager;
 import org.agmas.noellesroles.game.roles.innocence.fool.TarotAssemblyManager;
 import org.agmas.noellesroles.game.roles.killer.manipulator.InControlCCA;
+import org.agmas.noellesroles.game.roles.killer.pooler.PoolerDomainManager;
 import org.agmas.noellesroles.init.ModEffects;
 import org.agmas.noellesroles.init.ModItems;
 import org.agmas.noellesroles.utils.RoleUtils;
@@ -998,7 +999,8 @@ public class SREGameWorldComponent implements AutoSyncedComponent, ServerTicking
         } else {
             gameCCA.playerBannedBlockTime.remove(player.getUUID());
             perPlayerDarknessTime.remove(player.getUUID());
-            if (!TarotAssemblyManager.havingMeeting) {
+            if (!TarotAssemblyManager.havingMeeting
+                    && !PoolerDomainManager.isInDomain(player.getUUID())) {
                 GameUtils.killPlayer(player, false,
                         player.getLastHurtByMob() instanceof Player killerPlayer ? killerPlayer : null,
                         GameConstants.DeathReasons.FELL_OUT_OF_TRAIN);
