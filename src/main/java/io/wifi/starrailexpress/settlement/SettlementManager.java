@@ -228,10 +228,11 @@ public final class SettlementManager {
         }
         if (parts.size() > 512) return;
         session = UUID.randomUUID(); snapshot = frozen; fragments = List.copyOf(parts);
-        // 舞台方块覆盖：服务端不认识具体皮肤，因此这里恒传 null，
-        // 全部使用本体的中性舞台。需要皮肤专属地形时，由服务端侧的
-        // 注册实现按 frozen.mvpSkin() 解析后传入（当前无内置实现）。
-        stage = new SettlementStage(world,origin,(SettlementStage.BlockOverride) null); built = false;
+        // 舞台地形：按快照里的皮肤 ID 查服务端地形注册表；
+        // 未注册（或默认皮肤）时传 null，使用本体中性舞台。
+        SettlementTerrains.Terrain terrain = SettlementTerrains.byId(frozen.mvpSkin());
+        stage = new SettlementStage(world, origin,
+                terrain == null ? null : terrain::blockAt); built = false;
         for (var actor : frozen.actors()) {
             ServerPlayer player = server.getPlayerList().getPlayer(actor.id());
             if (player == null || !ServerPlayNetworking.canSend(player,SettlementPayload.ID)) continue;
