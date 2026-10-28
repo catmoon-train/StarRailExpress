@@ -5,6 +5,8 @@ import io.wifi.starrailexpress.api.replay.GameReplayUtils;
 import io.wifi.starrailexpress.content.item.KnifeItem;
 import io.wifi.starrailexpress.event.AllowPlayerDeathWithKiller;
 import io.wifi.starrailexpress.event.OnGameEnd;
+import io.wifi.starrailexpress.event.OnKillPlayerTriggered;
+import io.wifi.starrailexpress.util.TrueFalseResult;
 import io.wifi.starrailexpress.game.GameUtils;
 import io.wifi.starrailexpress.index.TMMItems;
 import net.minecraft.ChatFormatting;
@@ -12,6 +14,7 @@ import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.protocol.game.ClientboundCooldownPacket;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -63,7 +66,7 @@ public final class TailorClothesHandler {
     /** 攻击者主手物品被额外附加的冷却（tick，5 秒）。 */
     public static final int COOLDOWN_PENALTY_TICKS = 100;
     /** 冷却惩罚的暂存窗口（tick）：攻击自身的冷却通常在同一个 tick 内落下，窗口仅用于兜底。 */
-    public static final int PENALTY_WINDOW_TICKS = 100;
+    public static final int PENALTY_WINDOW_TICKS = 200;
 
     /**
      * 攻击者冷却表 -> 待结算的冷却惩罚。
@@ -81,6 +84,7 @@ public final class TailorClothesHandler {
 
     /** 注册「裁缝的衣服」的抵挡事件（由 {@code NRCombatEvents.registerWeaponHandlers()} 调用）。 */
     public static void register() {
+        OnKillPlayerTriggered.EVENT.register(TailorClothesHandler::onKillPlayerTriggered);
         AllowPlayerDeathWithKiller.EVENT.register(TailorClothesHandler::allowDeathWithKiller);
         OnGameEnd.EVENT.register((serverLevel, gameWorldComponent) -> COOLDOWN_PENALTIES.clear());
     }
@@ -124,23 +128,47 @@ public final class TailorClothesHandler {
         return false;
     }
 
+    /**
+     * 命中即登记冷却惩罚。
+     *
+     * <p>{@link AllowPlayerDeathWithKiller} 位于死亡链较后段（{@code role.allowDeath} 之后），
+     * 目标被角色能力拦下时根本走不到，因此这里在死亡链最早期再登记一次；
+     * 两次登记内容相同、键相同，属于幂等覆盖。</p>
+     */
+    private static TrueFalseResult onKillPlayerTriggered(Player victim, boolean spawnBody, Player killer,
+            ResourceLocation deathReason, boolean forceDeath) {
+        if (killer instanceof ServerPlayer attacker && victim instanceof ServerPlayer wearer
+                && attacker != wearer && !GameUtils.isForcedDeathInProgress()
+                && isWearingTailorClothes(wearer)) {
+            applyCooldownPenalty(attacker);
+        }
+        return TrueFalseResult.PASS;
+    }
+
     // ==================== 冷却惩罚 ====================
 
     /** 给攻击者暂存一条「主手物品进入冷却时额外 +5 秒」的惩罚。 */
     public static void applyCooldownPenalty(ServerPlayer attacker) {
+        Set<Item> items = new HashSet<>();
         ItemStack mainHand = attacker.getMainHandItem();
         if (mainHand.isEmpty()) {
-            return;
-        }
-        Set<Item> items = new HashSet<>();
-        items.add(mainHand.getItem());
-        if (mainHand.getItem() instanceof KnifeItem) {
-            // 刀系攻击的原版冷却统一落在 TMMItems.KNIFE 上（见 KnifeStabPayload），一并计入
-            items.add(TMMItems.KNIFE);
+            // 投掷三叉戟等投掷武器命中时主手为空，冷却落在三叉戟本身（见 TridentMixin）。
+            items.add(Items.TRIDENT);
+        } else {
+            // 只锁定主手这一件物品：枪械命中会一次性给所有枪加冷却，若把同类物品都纳入匹配，
+            // 惩罚会被最先落到的那把枪消费掉，主手枪反而拿不到 +5 秒。
+            items.add(mainHand.getItem());
+            if (mainHand.getItem() instanceof KnifeItem) {
+                // 刀系攻击的原版冷却统一落在 TMMItems.KNIFE 上（见 KnifeStabPayload），一并计入
+                items.add(TMMItems.KNIFE);
+            }
         }
         ItemCooldowns cooldowns = attacker.getCooldowns();
         COOLDOWN_PENALTIES.put(cooldowns,
                 new CooldownPenalty(items, COOLDOWN_PENALTY_TICKS, cooldowns.tickCount + PENALTY_WINDOW_TICKS));
+        // 主手物品此刻可能已经在冷却中（枪械的冷却先于命中结算落下），直接延长那条冷却；
+        // 没能延长时保留待结算记录，交给下一次 onCooldownStarted 结算。
+        extendActiveCooldown(attacker);
     }
 
     /**
@@ -165,6 +193,52 @@ public final class TailorClothesHandler {
         }
         COOLDOWN_PENALTIES.remove(cooldowns);
         return penalty.extraTicks();
+    }
+
+    /**
+     * 直接给攻击者主手物品的<b>当前</b>冷却追加惩罚时长。
+     *
+     * <p>{@link #consumeCooldownPenalty} 只在该物品「下一次进入冷却」时生效；若物品此刻已经在
+     * 冷却中（例如枪械命中的冷却先落下、投掷三叉戟命中时主手已空），那条待结算的惩罚就永远
+     * 等不到下一次进入冷却。这里直接把现有冷却的结束时间往后推，并补发冷却包同步客户端。</p>
+     *
+     * @return 是否确实延长了某个正在冷却的物品
+     */
+    public static boolean extendActiveCooldown(ServerPlayer attacker) {
+        ItemCooldowns cooldowns = attacker.getCooldowns();
+        CooldownPenalty penalty = COOLDOWN_PENALTIES.get(cooldowns);
+        if (penalty == null) {
+            return false;
+        }
+        if (cooldowns.tickCount > penalty.expireTick()) {
+            COOLDOWN_PENALTIES.remove(cooldowns);
+            return false;
+        }
+        ItemCooldowns.CooldownInstance instance = null;
+        Item target = null;
+        for (Item item : penalty.items()) {
+            ItemCooldowns.CooldownInstance candidate = cooldowns.cooldowns.get(item);
+            if (candidate == null) {
+                continue;
+            }
+            // 只延长真正还没结束的那条冷却
+            if (candidate.endTime <= cooldowns.tickCount) {
+                continue;
+            }
+            instance = candidate;
+            target = item;
+            break;
+        }
+        if (instance == null || target == null) {
+            return false;
+        }
+        COOLDOWN_PENALTIES.remove(cooldowns);
+        int newEnd = instance.endTime + penalty.extraTicks();
+        cooldowns.cooldowns.put(target,
+                new ItemCooldowns.CooldownInstance(instance.startTime, newEnd));
+        // 服务端冷却表已改，客户端需要重新收一次冷却包才能看到延长后的读条
+        attacker.connection.send(new ClientboundCooldownPacket(target, newEnd - cooldowns.tickCount));
+        return true;
     }
 
     /** 暂存的冷却惩罚：作用于哪些物品、附加多少 tick、何时过期。 */
