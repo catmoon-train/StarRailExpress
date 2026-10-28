@@ -71,13 +71,19 @@ public class StarProjectileRenderer extends EntityRenderer<StarProjectileEntity>
         this.shadowStrength = 0.0F;
     }
 
+    /**
+     * 渲染器级剔除。
+     * <p>
+     * 不调 {@code super.shouldRender(...)}：它依赖实体包围盒做视锥剔除，
+     * 而星星是缩放后的薄片，包围盒与模型对不上，很容易被整颗剔掉。
+     * 与项目内 {@code CrashPlaneEntityRenderer} 一样直接返回 true，
+     * 可见性只由下面的 {@link #isVisibleToLocalPlayer} 决定。
+     */
     @Override
-    public boolean shouldRender(StarProjectileEntity entity, net.minecraft.client.renderer.culling.Frustum frustum,
+    public boolean shouldRender(StarProjectileEntity entity,
+            net.minecraft.client.renderer.culling.Frustum frustum,
             double camX, double camY, double camZ) {
-        if (!isVisibleToLocalPlayer(entity)) {
-            return false;
-        }
-        return super.shouldRender(entity, frustum, camX, camY, camZ);
+        return isVisibleToLocalPlayer(entity);
     }
 
     /** 召唤者与旁观者可见；其他存活玩家看不到模型。 */
@@ -113,7 +119,10 @@ public class StarProjectileRenderer extends EntityRenderer<StarProjectileEntity>
         matrices.mulPose(Axis.XP.rotationDegrees(-18.0F));
         matrices.scale(MODEL_SCALE, MODEL_SCALE, MODEL_SCALE);
 
-        VertexConsumer consumer = buffers.getBuffer(net.minecraft.client.renderer.RenderType.entityCutout(TEXTURE));
+        // 用 entityCutoutNoCull：星星是薄片，背面剔除会让它在某些角度整个消失。
+        // 参考项目内 CrashPlaneEntityRenderer 的写法。
+        VertexConsumer consumer = buffers
+                .getBuffer(net.minecraft.client.renderer.RenderType.entityCutoutNoCull(TEXTURE));
         Matrix4f pose = matrices.last().pose();
         // 星星自带发光，用满亮度光照，夜里也能看见
         int packedLight = LightTexture.FULL_BRIGHT;

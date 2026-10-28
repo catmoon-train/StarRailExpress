@@ -70,6 +70,11 @@ public class StarProjectileEntity extends Entity {
     public StarProjectileEntity(EntityType<?> type, Level level) {
         super(type, level);
         this.noPhysics = true;
+        this.setNoGravity(true);
+        // 关键：关掉实体级剔除。星星本体只有 0.6 格、模型却是缩放后的薄片，
+        // 只要镜头稍微偏一点就会被 EntityRenderDispatcher 剔掉（表现为全透明）。
+        // 参考项目内 CrashPlaneEntity 的写法。
+        this.noCulling = true;
     }
 
     /**
@@ -191,6 +196,17 @@ public class StarProjectileEntity extends Entity {
 
     /** 星星的最大可见距离（格）。 */
     private static final double RENDER_RANGE = 128.0D;
+
+    /**
+     * 取景距离平方判定。
+     * <p>
+     * 与 {@code CrashPlaneEntity} 的写法一致：实体很小，用默认值会在几十格外
+     * 整颗不画。这里显式放大。
+     */
+    @Override
+    public boolean shouldRenderAtSqrDistance(double distanceSqr) {
+        return distanceSqr < RENDER_RANGE * RENDER_RANGE;
+    }
 
     @Override
     public void tick() {
