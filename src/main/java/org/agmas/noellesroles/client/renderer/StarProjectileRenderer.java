@@ -125,9 +125,14 @@ public class StarProjectileRenderer extends EntityRenderer<StarProjectileEntity>
         super.render(entity, yaw, tickDelta, matrices, buffers, light);
     }
 
-    /** 画出一个方块的 6 个面（贴图取整张 16×16 的纯色区域，UV 直接用 0..16）。 */
+    /**
+     * 画出一个方块的 6 个面。
+     * <p>
+     * 贴图是 16×16 纯色，采样必须落在贴图内部：UV 用 (0.5, 0.5) 单点即可，
+     * 之前的 0..1 会落在贴图最外圈像素边界上，容易采到邻接/边缘而发虚。
+     */
     private static void drawBox(VertexConsumer c, Matrix4f m, Box b, int light) {
-        float u0 = 0.0F, u1 = 1.0F, v0 = 0.0F, v1 = 1.0F;
+        float u0 = 0.5F, u1 = 0.5F, v0 = 0.5F, v1 = 0.5F;
         int alpha = 255;
         int r = 255, g = 255, bl = 255;
         int overlay = OverlayTexture.NO_OVERLAY;
@@ -206,8 +211,14 @@ public class StarProjectileRenderer extends EntityRenderer<StarProjectileEntity>
         return boxes;
     }
 
+    /**
+     * 实体渲染管线的贴图：必须返回星星自己的贴图。
+     * <p>
+     * 之前返回的是 {@link TextureAtlas#LOCATION_BLOCKS}（方块图集），与 render 里
+     * {@code entityCutout(TEXTURE)} 用的贴图不一致，导致整颗星星渲染失败（全透明）。
+     */
     @Override
     public ResourceLocation getTextureLocation(StarProjectileEntity entity) {
-        return TextureAtlas.LOCATION_BLOCKS;
+        return TEXTURE;
     }
 }

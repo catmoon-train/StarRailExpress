@@ -232,18 +232,28 @@ public class PoolerRoleData extends SimpleRoleData {
 
     // ── 一技能：奔涌 ────────────────────────────────────────────
 
-    /** 把身上所有三叉戟换成「激流 III」（不保留其它附魔），并播放海潮特效。 */
+    /**
+     * 奔涌：在「激流 III」与「忠诚 III」之间**来回切换**身上所有三叉戟的附魔。
+     * <p>
+     * 每次释放都会先清空三叉戟的全部附魔，再按当前状态挂上另一种，所以
+     * 第一次按 = 全换激流 III，第二次按 = 全换回忠诚 III，如此往复。
+     * 改完物品后必须 {@code broadcastChanges()}，否则客户端背包里的附魔不会刷新。
+     */
     private boolean doTide(ServerPlayer sp) {
         ServerLevel level = sp.serverLevel();
-        int changed = 0;
         List<ItemStack> trunks = new ArrayList<>();
         trunks.addAll(sp.getInventory().items);
         trunks.addAll(sp.getInventory().offhand);
         trunks.addAll(sp.getInventory().armor);
+
+        int changed = 0;
         for (ItemStack stack : trunks) {
             if (stack.isEmpty() || !stack.is(Items.TRIDENT))
                 continue;
-            applyRiptide(stack, level);
+            // 以「当前是否已有激流」决定这次换成哪一种：
+            // 已有激流 → 换回忠诚；没有激流 → 换激流。
+            boolean toRiptide = !hasEnchantment(stack, Enchantments.RIPTIDE);
+            applyTridentEnchant(stack, level, toRiptide);
             changed++;
         }
         if (changed <= 0) {
@@ -252,6 +262,9 @@ public class PoolerRoleData extends SimpleRoleData {
                     .withStyle(ChatFormatting.RED), true);
             return false;
         }
+
+        // 物品 NBT 变了必须让客户端背包同步，否则手里看不到附魔变化
+        sp.inventoryMenu.broadcastChanges();
 
         level.playSound(null, sp.getX(), sp.getY(), sp.getZ(),
                 SoundEvents.TRIDENT_RIPTIDE_3.value(), SoundSource.PLAYERS, 1.2F, 1.0F);
@@ -265,16 +278,30 @@ public class PoolerRoleData extends SimpleRoleData {
         return true;
     }
 
-    /** 清空三叉戟的所有附魔，只保留激流 III。 */
-    private static void applyRiptide(ItemStack stack, ServerLevel level) {
+    /** 判断物品身上是否带某个附魔。 */
+    private static boolean hasEnchantment(ItemStack stack,
+            net.minecraft.resources.ResourceKey<Enchantment> enchantment) {
+        for (var entry : stack.getEnchantments().entrySet()) {
+            if (entry.getKey().is(enchantment)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * 清空三叉戟的全部附魔，只挂上指定的一种：
+     * {@code toRiptide = true} → 激流 III；{@code false} → 忠诚 III。
+     */
+    private static void applyTridentEnchant(ItemStack stack, ServerLevel level, boolean toRiptide) {
         stack.remove(DataComponents.ENCHANTMENTS);
-        net.minecraft.core.Holder<Enchantment> riptide = level.registryAccess()
+        net.minecraft.core.Holder<Enchantment> holder = level.registryAccess()
                 .registryOrThrow(Registries.ENCHANTMENT).holders()
-                .filter(holder -> holder.is(Enchantments.RIPTIDE))
+                .filter(h -> h.is(toRiptide ? Enchantments.RIPTIDE : Enchantments.LOYALTY))
                 .findFirst()
                 .orElse(null);
-        if (riptide != null) {
-            stack.enchant(riptide, 3);
+        if (holder != null) {
+            stack.enchant(holder, 3);
         }
     }
 

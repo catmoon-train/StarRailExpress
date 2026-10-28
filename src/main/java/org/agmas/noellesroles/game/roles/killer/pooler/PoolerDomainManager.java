@@ -221,7 +221,8 @@ public final class PoolerDomainManager {
         ActiveDomain domain = new ActiveDomain(caster.getUUID(), Kind.MOON, level,
                 GameUtils.getTicksFromGameStart(level) + DURATION_TICKS);
 
-        pullIn(domain, caster, DOMAIN_X, MOON_Z, true);
+        // 施法者本人**不**被拉进月球：留在原地观察，领域结束后也不需要传送回来。
+        // （之前 pullIn(caster) 会把祈月者一起拉进去，导致他也吃月面环境、也被碾压。）
         int index = 0;
         for (ServerPlayer target : targets) {
             double angle = Math.PI * 2.0D * index / Math.max(1, targets.size());
@@ -497,14 +498,21 @@ public final class PoolerDomainManager {
         }
     }
 
+    /**
+     * 领域活动范围。
+     * <p>
+     * 下沿必须紧贴地板（Y = DOMAIN_Y 就是站立面，地板在 -1），否则
+     * {@code GameUtils.limitPlayerToBox} 允许玩家掉到 {@code minY - 20} 的虚空，
+     * 一落地就被列车判定碾压。这里把下沿抬到 DOMAIN_Y，只留 1 格容差。
+     */
     private static AABB boundsOf(Kind kind) {
         if (kind == Kind.MOON) {
             return new AABB(
-                    DOMAIN_X - MOON_BOUND_RADIUS, DOMAIN_Y - 2, MOON_Z - MOON_BOUND_RADIUS,
+                    DOMAIN_X - MOON_BOUND_RADIUS, DOMAIN_Y, MOON_Z - MOON_BOUND_RADIUS,
                     DOMAIN_X + MOON_BOUND_RADIUS, DOMAIN_Y + MOON_BOUND_HEIGHT, MOON_Z + MOON_BOUND_RADIUS);
         }
         return new AABB(
-                DOMAIN_X - TANK_BOUND_RADIUS, DOMAIN_Y - 2, TANK_Z - TANK_BOUND_RADIUS,
+                DOMAIN_X - TANK_BOUND_RADIUS, DOMAIN_Y, TANK_Z - TANK_BOUND_RADIUS,
                 DOMAIN_X + TANK_BOUND_RADIUS, DOMAIN_Y + TANK_BOUND_HEIGHT, TANK_Z + TANK_BOUND_RADIUS);
     }
 

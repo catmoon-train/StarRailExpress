@@ -19,6 +19,8 @@ import io.wifi.starrailexpress.game.GameConstants;
 import io.wifi.starrailexpress.game.GameUtils;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.syncher.EntityDataAccessor;
+import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -35,6 +37,7 @@ import org.agmas.noellesroles.role_data.innocence.StarGathererRoleData;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 /**
@@ -45,6 +48,10 @@ import java.util.UUID;
  * 但粒子与音效是服务端广播的，受害者能看到星星砸下来的光。
  */
 public class StarProjectileEntity extends Entity {
+
+    /** 同步字段：召唤者 UUID（客户端渲染器据此决定这颗星星是否可见）。 */
+    private static final EntityDataAccessor<Optional<UUID>> DATA_OWNER =
+            SynchedEntityData.defineId(StarProjectileEntity.class, EntityDataSerializers.OPTIONAL_UUID);
 
     /** 追星目标。 */
     @Nullable
@@ -77,11 +84,17 @@ public class StarProjectileEntity extends Entity {
         StarProjectileEntity star = new StarProjectileEntity(ModEntities.STAR, level);
         star.setPos(from.x, from.y, from.z);
         star.targetId = target == null ? null : target.getUUID();
-        star.ownerId = owner == null ? null : owner.getUUID();
+        star.setOwnerUuid(owner == null ? null : owner.getUUID());
         level.addFreshEntity(star);
         level.playSound(null, star.blockPosition(), SoundEvents.AMETHYST_BLOCK_CHIME,
                 SoundSource.PLAYERS, 1.2F, 1.8F);
         return star;
+    }
+
+    /** 写入召唤者 UUID：同时写本地字段与同步字段（客户端靠同步字段判断可见性）。 */
+    private void setOwnerUuid(@Nullable UUID uuid) {
+        this.ownerId = uuid;
+        this.entityData.set(DATA_OWNER, Optional.ofNullable(uuid));
     }
 
     @Nullable
@@ -89,19 +102,38 @@ public class StarProjectileEntity extends Entity {
         return this.targetId;
     }
 
+    /**
+     * 召唤者 UUID。
+     * <p>
+     * 优先读同步字段：客户端只有同步字段，服务端两者都有。这样渲染器的
+     * 可见性判断在两侧都能拿到正确结果。
+     */
     @Nullable
     public UUID getOwnerId() {
+        Optional<UUID> synced = this.entityData.get(DATA_OWNER);
+        if (synced != null && synced.isPresent()) {
+            return synced.get();
+        }
         return this.ownerId;
     }
 
+    /**
+     * 同步给客户端的字段。
+     * <p>
+     * {@code ownerId} 必须同步，否则客户端拿不到召唤者 UUID，
+     * {@code StarProjectileRenderer#isVisibleToLocalPlayer} 永远返回 false，
+     * 星星在客户端就完全不渲染（看起来全透明）。
+     */
     @Override
     protected void defineSynchedData(SynchedEntityData.Builder builder) {
+        builder.define(DATA_OWNER, Optional.empty());
     }
 
     @Override
     protected void readAdditionalSaveData(CompoundTag tag) {
         this.targetId = tag.hasUUID("Target") ? tag.getUUID("Target") : null;
-        this.ownerId = tag.hasUUID("Owner") ? tag.getUUID("Owner") : null;
+        // 走 setOwnerUuid 而不是直接赋值，保证同步字段一起写好
+        setOwnerUuid(tag.hasUUID("Owner") ? tag.getUUID("Owner") : null);
         this.life = tag.getInt("Life");
     }
 

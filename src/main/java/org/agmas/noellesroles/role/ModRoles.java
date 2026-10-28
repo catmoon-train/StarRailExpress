@@ -1984,7 +1984,7 @@ public class ModRoles {
             false).addEffect(
                     new MobEffectInstance(
                             MobEffects.WATER_BREATHING,
-                            30 * 20,
+                            60 * 20,
                             0,
                             true,
                             false,
@@ -1992,7 +1992,7 @@ public class ModRoles {
                     .addEffect(
                             new MobEffectInstance(
                                     MobEffects.NIGHT_VISION,
-                                    30 * 20,
+                                    60 * 20,
                                     0,
                                     true,
                                     false,
