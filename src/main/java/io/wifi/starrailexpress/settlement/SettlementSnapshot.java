@@ -6,7 +6,14 @@ import java.util.UUID;
 
 /** 停局后冻结的舞台事实；客户端只能演出，不能修改胜负或统计。 */
 public record SettlementSnapshot(String dimension, double x, double y, double z, String titleJson,
-                                 UUID mvp, List<Actor> actors, List<Event> events) {
+                                 UUID mvp, List<Actor> actors, List<Event> events, String mvpSkin) {
+    /** 兼容旧快照与未指定皮肤的结算。 */
+    public SettlementSnapshot(String dimension, double x, double y, double z, String titleJson,
+                              UUID mvp, List<Actor> actors, List<Event> events) {
+        this(dimension, x, y, z, titleJson, mvp, actors, events, "default");
+    }
+
+    public boolean enderDragon() { return "ender_dragon".equals(mvpSkin); }
     public static final int INTRO_TICKS = 320;
     public static final int HOLD_TICKS = 30;
     public static final int SKIP_AFTER_TICKS = 100;

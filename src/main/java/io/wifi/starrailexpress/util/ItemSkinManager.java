@@ -205,6 +205,8 @@ public class ItemSkinManager {
          * 材质与建模由附属模组（sre-skin）提供，本体只负责状态、同步与运动。
          */
         public static final String PET = "pet";
+        /** MVP 专属结算场景，只改变演出，不影响胜负与奖励。 */
+        public static final String MVP_ANIMATION = "mvp_animation";
     }
 
     /** 皮肤选择项中的「随机」伪皮肤名：每次开局从该类型已拥有的皮肤中随机抽取。 */
@@ -238,11 +240,12 @@ public class ItemSkinManager {
                 SkinTypes.SHORT_SHOTGUN, SkinTypes.DERRINGER, SkinTypes.LOCKPICK, SkinTypes.CROWBAR,
                 SkinTypes.BODY_BAG, SkinTypes.NOTE, SkinTypes.FIRECRACKER, SkinTypes.LETTER,
                 SkinTypes.HANDCUFFS, SkinTypes.LOCK, SkinTypes.KEY, SkinTypes.BOW, SkinTypes.CROSSBOW,
-                SkinTypes.PET };
+                SkinTypes.PET, SkinTypes.MVP_ANIMATION };
         for (int i = 0; i < typeOrder.length; i++) {
             registerType(typeOrder[i]);
         }
         // 更新：可以不提供默认材质
+        registerACustomSkin(SkinTypes.MVP_ANIMATION, "ender_dragon", QualityColor.LEGENDARY.getColor());
     }
 
     public static ResourceLocation getResourceLocationOfItem(Item item) {

@@ -159,6 +159,7 @@ public class HatSkinGridPanel extends AbstractWidget {
         if (ItemSkinManager.SkinTypes.PET.equals(skinType)) {
             return Items.LEAD;
         }
+        if (ItemSkinManager.SkinTypes.MVP_ANIMATION.equals(skinType)) return Items.DRAGON_HEAD;
         String namespace = "hat".equals(skinType) ? HAT_ITEM_NAMESPACE : "sre_cosmetics";
         Item fallback = "hat".equals(skinType) ? Items.LEATHER_HELMET : Items.LEATHER;
         return BuiltInRegistries.ITEM
@@ -271,7 +272,8 @@ public class HatSkinGridPanel extends AbstractWidget {
         if (cards.size() <= 1) {
             String emptyKey = ItemSkinManager.SkinTypes.MUSIC_BOX.equals(skinType)
                     ? "screen.sre.skins.music_box_empty"
-                    : "screen.sre.skins.hat_empty";
+                    : ItemSkinManager.SkinTypes.MVP_ANIMATION.equals(skinType)
+                    ? "screen.sre.skins.mvp_animation_empty" : "screen.sre.skins.hat_empty";
             Component hint = Component.translatable(emptyKey);
             graphics.drawCenteredString(Minecraft.getInstance().font, hint,
                     getX() + width / 2, getY() + height / 2 - 4, TEXT_EMPTY);
@@ -407,6 +409,7 @@ public class HatSkinGridPanel extends AbstractWidget {
                     case "hand_accessory" -> "screen.sre.skins.no_hand";
                     case "music_box" -> "screen.sre.skins.no_music_box";
                     case "pet" -> "screen.sre.skins.no_pet";
+                    case "mvp_animation" -> "screen.sre.skins.no_mvp_animation";
                     default -> "screen.sre.skins.no_hat";
                 };
                 return Component.translatable(noneKey);

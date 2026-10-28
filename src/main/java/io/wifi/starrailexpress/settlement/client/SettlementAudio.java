@@ -52,6 +52,7 @@ public final class SettlementAudio {
         SoundEvent event;
         float pitch = 1;
         switch (type) {
+            case "ENDER_DRAGON" -> event = SoundEvents.ENDER_DRAGON_DEATH;
             case "INTRO" -> { event = SoundEvents.NOTE_BLOCK_CHIME.value(); pitch = .75f; }
             case "PLAYER_KILL" -> { event = SoundEvents.NOTE_BLOCK_BASS.value(); pitch = .65f; }
             case "PLAYER_REVIVAL", "REVIVE" -> { event = SoundEvents.NOTE_BLOCK_BELL.value(); pitch = 1.3f; }

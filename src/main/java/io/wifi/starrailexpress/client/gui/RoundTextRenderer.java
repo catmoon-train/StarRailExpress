@@ -787,6 +787,8 @@ public class RoundTextRenderer {
                     welcomeExitTicks--;
                 }
             }
+            // MVP 独占画面期间不消耗胜负 HUD 的可见时间，也不重复播放被隔离的结算音。
+            if (io.wifi.starrailexpress.settlement.client.SettlementClient.isActive()) return;
             // 结束界面音效
             if (endTime > 0) {
                 if (endTime == END_DURATION - (GameConstants.FADE_TIME * 2)) {
@@ -845,6 +847,12 @@ public class RoundTextRenderer {
         welcomeTime = 0;
         welcomeExitTicks = 0;
         endTime = END_DURATION;
+    }
+
+    /** 舞台退出后直接显示完整胜负 HUD，不重播演出中已播放的结算音乐。 */
+    public static void resumeAfterSettlement() {
+        startEnd();
+        endTime = END_DURATION - GameConstants.FADE_TIME * 2 - 1;
     }
 
     /**

@@ -14,11 +14,13 @@ final class SettlementStage {
     final BlockPos origin;
     private final Set<Long> tickets = new HashSet<>();
     private int cursor;
+    private final boolean enderDragon;
     private int pinCursor;
 
-    SettlementStage(ServerLevel level, BlockPos origin) {
+    SettlementStage(ServerLevel level, BlockPos origin, boolean enderDragon) {
         this.level = level;
         this.origin = origin;
+        this.enderDragon = enderDragon;
     }
 
     /** 只撤销本次新增的强加载票据，保留管理员已有的票据。 */
@@ -69,6 +71,16 @@ final class SettlementStage {
                 if (y == 6) state = Blocks.WAXED_EXPOSED_COPPER.defaultBlockState();
             }
             // 后排保持裸露黑地板：尸体直接堆在台上，不加任何围台/抬台方块。
+            if (enderDragon) {
+                state = y == 0 ? Blocks.END_STONE.defaultBlockState()
+                        : y == 14 || Math.abs(x) == 16 || Math.abs(z) == 15
+                        ? Blocks.BLACK_CONCRETE.defaultBlockState() : Blocks.AIR.defaultBlockState();
+                // 后景黑曜石柱，不挡住前排获胜者和后台尸堆。
+                if (Math.abs(x) >= 11 && Math.abs(x) <= 12 && (z == 10 || z == 11)
+                        && y >= 1 && y <= 10) state = Blocks.OBSIDIAN.defaultBlockState();
+                if (y == 1 && (z == -4 || z == 8) && (Math.abs(x) == 8 || Math.abs(x) == 12))
+                    state = Blocks.END_ROD.defaultBlockState();
+            }
             BlockPos pos = origin.offset(x,y,z);
             if (!level.getBlockState(pos).equals(state)) level.setBlock(pos,state,2);
         }

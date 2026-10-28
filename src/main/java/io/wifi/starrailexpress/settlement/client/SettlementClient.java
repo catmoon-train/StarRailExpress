@@ -112,7 +112,12 @@ public final class SettlementClient {
                 // 演出一开始就放本局胜利/失败对应的结算音乐，PREPARE 已把上一份现场音停掉。
                 SettlementAudio.playSettlementMusic(localWin());
             }
-            case SettlementPayload.STOP -> clear();
+            case SettlementPayload.STOP -> {
+                clear();
+                if (mc.level != null && !SREGameWorldComponent.KEY.get(mc.level).isRunning()
+                        && !MapVotingComponent.KEY.get(mc.level).isVotingActive())
+                    io.wifi.starrailexpress.client.gui.RoundTextRenderer.resumeAfterSettlement();
+            }
             default -> { }
         }
     }
@@ -215,6 +220,7 @@ public final class SettlementClient {
         }
         if (phase != Phase.PLAYING) return;
         playTick++;
+        if (snapshot.enderDragon() && playTick == 140) SettlementAudio.cue("ENDER_DRAGON");
         int losers = physics.bodies.size() - (int)actors.stream().filter(a -> a.fact.winner()).count();
         for (ActorState actor : actors) {
             if (!actor.fact.winner() && playTick >= SettlementChoreography.dropTick(actor.order, losers) && !actor.body.active) {
@@ -339,6 +345,7 @@ public final class SettlementClient {
         title = eventText = Component.empty(); actors.clear(); byId.clear();
         physics = new SettlementPhysics(); lastCameraFrame = 0;
         SettlementAudio.clear(); SettlementPostEffect.close();
+        SettlementDragonScene.clear();
     }
 
     /** 每帧平滑一次，交由独立高优先级 Camera.setup 注入调用。 */
@@ -368,6 +375,8 @@ public final class SettlementClient {
         // 事件回放时把注视点抬高一点，让角色落在画面中上部，底部留给字幕。
         boolean replaying = t >= SettlementSnapshot.INTRO_TICKS && eventIndex >= 0;
         double lift = replaying ? .55 : 0;
+        // 末地开场给上空盘旋的龙留出构图，聚焦 MVP 时平滑回到原人物镜头。
+        if (snapshot.enderDragon() && !replaying) lift += 1.2 * (1 - smooth((t - 180) / 45));
         Vec3 desired = new Vec3(snapshot.x() + .5 + targetX * focus,
                 snapshot.y() + 1 + Mth.lerp(focus, 5.0, targetY + 1.1) + lift,
                 snapshot.z() + .5 - Mth.lerp(focus, wideDistance, 4.8));

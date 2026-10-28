@@ -49,6 +49,7 @@ public final class SettlementStageRenderer {
         Vec3 camera = context.camera().getPosition();
         pose.pushPose();
         pose.translate(snapshot.x() + .5 - camera.x, snapshot.y() + 1 - camera.y, snapshot.z() + .5 - camera.z);
+        if (snapshot.enderDragon()) SettlementDragonScene.render(pose, buffer, time);
         for (var actor : SettlementClient.actors) {
             var info = ClientSkinCache.getCachedPlayerInfo(actor.fact.id());
             if (info == null && mc.getConnection() != null) info = mc.getConnection().getPlayerInfo(actor.fact.id());
@@ -110,6 +111,8 @@ public final class SettlementStageRenderer {
                             .83f, .68f, .22f, pulse);
                 }
             }
+            if (snapshot.enderDragon() && actor.fact.winner())
+                SettlementDragonScene.winnerRays(pose, buffer, x, y, z, time, actor.order);
             billboard(pose, buffer, actor, x, y, z, physical, mvp, partial);
         }
         pose.popPose();

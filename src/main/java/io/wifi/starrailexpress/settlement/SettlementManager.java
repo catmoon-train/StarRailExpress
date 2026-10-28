@@ -115,11 +115,17 @@ public final class SettlementManager {
         // 同一份 MVP 判定同时写进统计，避免舞台和战绩对“谁是 MVP”各算一套。
         recordMvp(world, game, actors, mvp);
         if (mvp == null || !stage) return null;
+        ServerPlayer mvpPlayer = world.getServer().getPlayerList().getPlayer(mvp);
+        // 以服务端持有记录为准；其他获胜者或观众的皮肤不能改变本次 MVP 场景。
+        boolean dragon = mvpPlayer != null && Boolean.TRUE.equals(
+                SREPlayerSkinsComponent.KEY.get(mvpPlayer).getUnlockedSkinsForItemType(
+                        io.wifi.starrailexpress.util.ItemSkinManager.SkinTypes.MVP_ANIMATION).get("ender_dragon"));
         var config = SREConfig.instance();
         return new SettlementSnapshot(world.dimension().location().toString(), config.settlementStageX,
                 config.settlementStageY, config.settlementStageZ,
                 Component.Serializer.toJson(replay.currentReplayData.getWinningTitle(),world.registryAccess()),
-                mvp, List.copyOf(actors), List.copyOf(SettlementSnapshot.mvpTimeline(mvp, events)));
+                mvp, List.copyOf(actors), List.copyOf(SettlementSnapshot.mvpTimeline(mvp, events)),
+                dragon ? "ender_dragon" : "default");
     }
 
     /**
@@ -204,7 +210,7 @@ public final class SettlementManager {
         }
         if (parts.size() > 512) return;
         session = UUID.randomUUID(); snapshot = frozen; fragments = List.copyOf(parts);
-        stage = new SettlementStage(world,origin); built = false;
+        stage = new SettlementStage(world,origin,frozen.enderDragon()); built = false;
         for (var actor : frozen.actors()) {
             ServerPlayer player = server.getPlayerList().getPlayer(actor.id());
             if (player == null || !ServerPlayNetworking.canSend(player,SettlementPayload.ID)) continue;

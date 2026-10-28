@@ -99,8 +99,12 @@ public class SkinManagementScreen extends Screen {
             return ItemSkinManager.SkinTypes.PET.equals(id);
         }
 
+        boolean isMvpAnimationTab() {
+            return ItemSkinManager.SkinTypes.MVP_ANIMATION.equals(id);
+        }
+
         boolean isGridTab() {
-            return isHatTab() || isAccessoryTab() || isMusicBoxTab() || isPetTab();
+            return isHatTab() || isAccessoryTab() || isMusicBoxTab() || isPetTab() || isMvpAnimationTab();
         }
 
         boolean isNameTagTab() {
@@ -254,6 +258,8 @@ public class SkinManagementScreen extends Screen {
             categories.add(new CategoryTabData(ItemSkinManager.SkinTypes.PET,
                     Component.translatable("screen.sre.skins.pet_title"), Items.LEAD));
         }
+        categories.add(new CategoryTabData(ItemSkinManager.SkinTypes.MVP_ANIMATION,
+                Component.translatable("screen.sre.skins.mvp_animation_title"), Items.DRAGON_HEAD));
         // 名片（称号）标签
         categories.add(new CategoryTabData("name_tag",
                 Component.translatable("screen.sre.skins.name_tag_title"), Items.NAME_TAG));
@@ -739,8 +745,8 @@ public class SkinManagementScreen extends Screen {
             return ItemStack.EMPTY;
         }
         CategoryTabData selectedTab = categories.get(selectedCategory);
-        if (selectedTab.isMusicBoxTab() || selectedTab.isPetTab()) {
-            // 音乐盒 / 随从都不是手持物品，预览里不摆道具
+        if (selectedTab.isMusicBoxTab() || selectedTab.isPetTab() || selectedTab.isMvpAnimationTab()) {
+            // 非手持外观，预览里不摆道具。
             return ItemStack.EMPTY;
         }
         if (selectedTab.isGridTab() || selectedTab.isNameTagTab()) {
