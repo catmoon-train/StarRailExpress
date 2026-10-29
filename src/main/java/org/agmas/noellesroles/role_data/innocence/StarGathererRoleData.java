@@ -501,7 +501,6 @@ public class StarGathererRoleData extends SimpleRoleData {
         if (!alive) {
             clearAllSanctuary(level);
             return;
-            return;
         }
 
         long now = GameUtils.getTicksFromGameStart(level);
