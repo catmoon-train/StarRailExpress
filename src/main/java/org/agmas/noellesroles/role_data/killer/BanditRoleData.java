@@ -84,6 +84,11 @@ public class BanditRoleData extends SimpleRoleData {
             SREPlayerShopComponent killerShop = SREPlayerShopComponent.KEY.get(player);
             killerShop.balance += stolenAmount;
             killerShop.sync();
+            // 金币账本：强盗记「掠夺收入」，受害者记「被小偷偷取」
+            org.agmas.noellesroles.game.economy.MoneyFlow.recordIncome(player,
+                    org.agmas.noellesroles.game.economy.MoneyFlow.IncomeType.PLUNDER, stolenAmount);
+            org.agmas.noellesroles.game.economy.MoneyFlow.recordExpense(victim,
+                    org.agmas.noellesroles.game.economy.MoneyFlow.ExpenseType.STOLEN, stolenAmount, null);
 
             // 通知强盗
             serverPlayer.displayClientMessage(

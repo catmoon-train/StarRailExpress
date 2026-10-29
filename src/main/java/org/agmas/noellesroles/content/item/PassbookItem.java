@@ -95,6 +95,9 @@ public class PassbookItem extends Item {
 
         int depositAmount = Math.min(balance, MAX_STORED_BALANCE);
 
+        // 金币账本：存钱属于「存折支出」（须在扣款之前登记）
+        org.agmas.noellesroles.game.economy.MoneyFlow.recordExpense(player,
+                org.agmas.noellesroles.game.economy.MoneyFlow.ExpenseType.PASSBOOK, depositAmount, null);
         // 仅扣除实际存入的金币
         shopComponent.balance -= depositAmount;
         shopComponent.sync();
@@ -117,6 +120,9 @@ public class PassbookItem extends Item {
         SREPlayerShopComponent shopComponent = SREPlayerShopComponent.KEY.get(player);
         shopComponent.balance += balance;
         shopComponent.sync();
+        // 金币账本：取钱属于「存折收入」
+        org.agmas.noellesroles.game.economy.MoneyFlow.recordIncome(player,
+                org.agmas.noellesroles.game.economy.MoneyFlow.IncomeType.PASSBOOK, balance);
 
         // 通知玩家
         player.displayClientMessage(

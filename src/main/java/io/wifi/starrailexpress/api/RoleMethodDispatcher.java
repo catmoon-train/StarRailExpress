@@ -97,8 +97,11 @@ public class RoleMethodDispatcher {
             // 平民/中立完成任务：本人获得金币，并以此喂养场上所有杀手（任务驱动收入）
             if (grantDefaultMoney && (role.isInnocent() || role.isNeutrals())) {
                 SREPlayerShopComponent shopComponent = SREPlayerShopComponent.KEY.get(player);
-                shopComponent.addToBalance(
-                        (int) ((SREConfig.instance().civilianTaskReward + streakBonus) * rewardMultiplier));
+                int reward = (int) ((SREConfig.instance().civilianTaskReward + streakBonus) * rewardMultiplier);
+                // 金币账本：完成任务收入（必须先于余额变动登记，供兜底认领）
+                org.agmas.noellesroles.game.economy.MoneyFlow.recordIncome(player,
+                        org.agmas.noellesroles.game.economy.MoneyFlow.IncomeType.TASK, reward);
+                shopComponent.addToBalance(reward);
             } else if (grantDefaultMoney && role.isKiller() && !role.isNeutrals() && !role.isInnocent()) {
                 // 任意杀手完成一个任务 -> 每个杀手获得 killerTaskIncome
                 int killerGain = (int) (SREConfig.instance().killerTaskIncome * rewardMultiplier);
@@ -106,6 +109,9 @@ public class RoleMethodDispatcher {
                     player.level().players().forEach(a -> {
                         SRERole aRole = getCurrentRole(a);
                         if (aRole != null && aRole.canUseKiller() && !aRole.isNeutrals() && !aRole.isInnocent()) {
+                            // 金币账本：杀手任务收入
+                            org.agmas.noellesroles.game.economy.MoneyFlow.recordIncome(a,
+                                    org.agmas.noellesroles.game.economy.MoneyFlow.IncomeType.TASK, killerGain);
                             SREPlayerShopComponent.KEY.get(a).addToBalance(killerGain);
                         }
                     });

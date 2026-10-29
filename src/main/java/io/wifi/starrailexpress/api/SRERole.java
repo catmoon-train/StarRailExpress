@@ -2805,6 +2805,9 @@ public abstract class SRERole extends SREAbstractInfoClass {
      */
     public void grantKillCoin(Player killer) {
         if (killCoin > 0) {
+            // 金币账本：职业击杀额外金币（击杀玩家收入）
+            org.agmas.noellesroles.game.economy.MoneyFlow.recordIncome(killer,
+                    org.agmas.noellesroles.game.economy.MoneyFlow.IncomeType.KILL, killCoin);
             SREPlayerShopComponent.KEY.get(killer).addToBalance(killCoin);
         }
     }

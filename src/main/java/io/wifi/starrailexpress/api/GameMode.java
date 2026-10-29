@@ -833,6 +833,9 @@ public abstract class GameMode {
                     if (shouldGiveKillerBalance(victim, killer, deathReason)) {
                         int gift = OnGiveKillerBalance.EVENT.invoker().onGiveKillerBalance(victim, killer, deathReason);
                         gift += GameConstants.getMoneyPerKill();
+                        // 金币账本：击杀玩家收入（必须先于余额变动登记，供兜底认领）
+                        org.agmas.noellesroles.game.economy.MoneyFlow.recordIncome(killer,
+                                org.agmas.noellesroles.game.economy.MoneyFlow.IncomeType.KILL, gift);
                         SREPlayerShopComponent.KEY.get(killer).addToBalance(gift);
                     }
                     {

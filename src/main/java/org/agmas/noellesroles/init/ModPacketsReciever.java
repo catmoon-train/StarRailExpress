@@ -196,6 +196,12 @@ public class ModPacketsReciever {
               } else {
                 if (OnVendingMachinesBuyItems.EVENT.invoker().allowBuy(player, entry)) {
                   if (entry.onBuy(player)) {
+                    // 金币账本：售货机购物记一笔「售货机支出」（必须在扣款之前登记，供兜底认领）
+                    if (entry.currency() == ShopEntry.Currency.MONEY) {
+                      org.agmas.noellesroles.game.economy.MoneyFlow.recordExpense(player,
+                          org.agmas.noellesroles.game.economy.MoneyFlow.ExpenseType.VENDING,
+                          entry.price(), null);
+                    }
                     entry.spendCurrency(player);
                     String vendingItemId = BuiltInRegistries.ITEM.getKey(entry.stack().getItem()).toString();
                     ProgressionDataManager.onVendingBuy(player, vendingItemId);

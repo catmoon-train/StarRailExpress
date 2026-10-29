@@ -51,6 +51,13 @@ public class DeathPenaltyComponent implements RoleComponent, ServerTickingCompon
     // 仅服务端
     public UUID limitCameraUUID = null;
     public boolean morePenalty = true;
+    /**
+     * 整局死亡惩罚（仅服务端）：本局未参与游戏的玩家会被强制施加死亡惩罚，
+     * 且不因复活、阴谋家/无我死亡、计时到期等任何情况解除，只在游戏结束或重新参与后清除。
+     * <p>
+     * 不写入同步 NBT；客户端通过同步下来的 {@code penaltyExpiry = -1} 判定为「无限期惩罚」。
+     */
+    public boolean stickyPenalty = false;
 
     // 客户端+服务端
     public Vec3 limitPos = null;
@@ -65,6 +72,10 @@ public class DeathPenaltyComponent implements RoleComponent, ServerTickingCompon
     }
 
     public void check() {
+        // 整局死亡惩罚：不接受任何自动解除条件
+        if (this.stickyPenalty) {
+            return;
+        }
         if (!this.hasPenalty()) {
             return;
         } else {
@@ -72,7 +83,6 @@ public class DeathPenaltyComponent implements RoleComponent, ServerTickingCompon
                 this.init();
                 return;
             }
-
             if (this.penaltyExpiry < 0) {
                 SREGameWorldComponent gameWorldComponent = SREGameWorldComponent.KEY.get(player.level());
                 if (this.penaltyExpiry != -2) {
@@ -169,6 +179,10 @@ public class DeathPenaltyComponent implements RoleComponent, ServerTickingCompon
      * 仅服务端有效。
      */
     public void setPenaltyWithPositionLimit(long durationTicks, Vec3 pos, boolean morePenalty) {
+        // 整局死亡惩罚期间不接受其它惩罚覆盖
+        if (this.stickyPenalty) {
+            return;
+        }
         if (!(player instanceof ServerPlayer sp)) {
             return;
         }
@@ -196,6 +210,10 @@ public class DeathPenaltyComponent implements RoleComponent, ServerTickingCompon
      * 仅服务端有效。
      */
     public void setPenaltyWithCameraLimit(long durationTicks, Entity cameraEntity, boolean morePenalty) {
+        // 整局死亡惩罚期间不接受其它惩罚覆盖
+        if (this.stickyPenalty) {
+            return;
+        }
         if (!(player instanceof ServerPlayer sp)) {
             return;
         }
@@ -214,6 +232,10 @@ public class DeathPenaltyComponent implements RoleComponent, ServerTickingCompon
     }
 
     public void setPenalty(long durationTicks, boolean morePenalty) {
+        // 整局死亡惩罚期间不接受其它惩罚覆盖
+        if (this.stickyPenalty) {
+            return;
+        }
         this.morePenalty = morePenalty;
         if (durationTicks < 0) {
             this.penaltyExpiry = -1;
@@ -222,6 +244,39 @@ public class DeathPenaltyComponent implements RoleComponent, ServerTickingCompon
         }
         this.penaltyExpiry = SRE.getTicksFromGameStart() + durationTicks;
         sync();
+    }
+
+    /**
+     * 设置 / 取消「整局死亡惩罚」。
+     * <p>
+     * 开启后惩罚不限时（客户端收到 {@code penaltyExpiry = -1}），且不会被复活、计时到期、
+     * 阴谋家/无我死亡等任何常规条件解除；只有本方法显式传入 {@code false} 才恢复常规逻辑。
+     * 仅服务端有效。
+     *
+     * @param sticky true = 施加整局惩罚，false = 解除并回到正常状态
+     */
+    public void setStickyPenalty(boolean sticky) {
+        if (player.level().isClientSide) {
+            return;
+        }
+        if (sticky) {
+            if (this.stickyPenalty) {
+                return;
+            }
+            this.stickyPenalty = true;
+            this.penaltyExpiry = -1;
+            this.morePenalty = true;
+            this.limitPos = null;
+            this.limitCameraUUID = null;
+            this.chatEnabled = true;
+            sync();
+        } else {
+            if (!this.stickyPenalty) {
+                return;
+            }
+            this.stickyPenalty = false;
+            this.init();
+        }
     }
 
     public boolean hasStrictPenalty() {
@@ -246,6 +301,9 @@ public class DeathPenaltyComponent implements RoleComponent, ServerTickingCompon
     }
 
     public boolean hasPenalty() {
+        // 整局死亡惩罚：始终视为有惩罚，且不参与计时到期转换
+        if (this.stickyPenalty)
+            return true;
         if (isRewinding())
             return true;
         if (this.penaltyExpiry == 0)
@@ -261,6 +319,10 @@ public class DeathPenaltyComponent implements RoleComponent, ServerTickingCompon
 
     @Override
     public void init() {
+        // 整局死亡惩罚不能被任何常规清除路径解除（复活回房、游戏重置等）
+        if (this.stickyPenalty) {
+            return;
+        }
         this.penaltyExpiry = 0;
         if (!player.level().isClientSide) {
             if (limitCameraUUID != null) {
@@ -323,6 +385,12 @@ public class DeathPenaltyComponent implements RoleComponent, ServerTickingCompon
             return;
 
         if (!SREGameWorldComponent.KEY.get(this.player.level()).isRunning()) {
+            // 游戏结束：整局死亡惩罚也随之结束（本局限定，不跨局残留）
+            if (this.stickyPenalty) {
+                this.stickyPenalty = false;
+                this.init();
+                return;
+            }
             if (this.hasPenalty()) {
                 this.clear();
             }

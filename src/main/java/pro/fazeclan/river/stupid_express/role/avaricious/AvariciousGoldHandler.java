@@ -119,6 +119,9 @@ public class AvariciousGoldHandler {
             int totalPayout = nearbyPlayers * payoutPerPlayer;
             // 确保不超过150金币上限
             totalPayout = Math.min(totalPayout, 150);
+            // 金币账本：扒手扒窃记「扒窃收入」（必须在改余额之前登记，供 addToBalance 兜底认领）
+            org.agmas.noellesroles.game.economy.MoneyFlow.recordIncome(player,
+                    org.agmas.noellesroles.game.economy.MoneyFlow.IncomeType.PICKPOCKET, totalPayout);
             SREPlayerShopComponent.KEY.get(player).addToBalance(totalPayout);
             player.playNotifySound(TMMSounds.UI_SHOP_BUY, SoundSource.PLAYERS, 10.0f, 0.5f);
         }
