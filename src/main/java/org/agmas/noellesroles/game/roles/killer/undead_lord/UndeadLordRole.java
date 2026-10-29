@@ -17,8 +17,11 @@ package org.agmas.noellesroles.game.roles.killer.undead_lord;
 
 import io.wifi.starrailexpress.SREConfig;
 import io.wifi.starrailexpress.api.EggRole;
+import io.wifi.starrailexpress.api.RoleSkill;
 import io.wifi.starrailexpress.api.data.RoleData;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
+import io.wifi.starrailexpress.content.entity.PlayerBodyEntity;
+import io.wifi.starrailexpress.game.GameUtils;
 import io.wifi.starrailexpress.index.TMMItems;
 import io.wifi.starrailexpress.util.ShopEntry;
 import net.minecraft.ChatFormatting;
@@ -32,6 +35,9 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.component.ItemLore;
+import net.minecraft.world.level.ClipContext;
+import net.minecraft.world.phys.Vec3;
+import org.agmas.noellesroles.role.ModRoles;
 import org.agmas.noellesroles.config.NoellesRolesConfig;
 import org.agmas.noellesroles.role_data.killer.UndeadLordRoleData;
 import org.jetbrains.annotations.NotNull;
@@ -44,14 +50,123 @@ import java.util.List;
  * 专属商店精简为四件核心道具：骨杖、瘟疫之雾、亡者召唤符、感染增幅器（外加通用撬棍、开锁器）。
  */
 public class UndeadLordRole extends EggRole {
+    public static final ResourceLocation COMMAND_SKILL_ID = ResourceLocation.fromNamespaceAndPath(
+            "noellesroles", "undead_lord_command");
+    public static final ResourceLocation SUMMON_SKILL_ID = ResourceLocation.fromNamespaceAndPath(
+            "noellesroles", "undead_lord_summon");
 
     public UndeadLordRole(ResourceLocation identifier, int color, boolean isInnocent,
             boolean canUseKiller, MoodType moodType, int maxSprintTime, boolean hideScoreboard) {
         super(identifier, color, isInnocent, canUseKiller, moodType, maxSprintTime, hideScoreboard);
+        // 固定注册，复用技能键与 Shift+技能键；冷却由成功施法时读取当前配置。
+        RoleSkill.register(this,
+                RoleSkill.skill(COMMAND_SKILL_ID, "skill.noellesroles.undead_lord.command",
+                        UndeadLordRole::commandSkill).noCastCCA(true).recordReplay().announceToSelf().build(),
+                RoleSkill.skill(SUMMON_SKILL_ID, "skill.noellesroles.undead_lord.summon",
+                        UndeadLordRole::summonSkill).shifted(true).noCastCCA(true)
+                        .recordReplay().announceToSelf().build());
     }
 
     private static NoellesRolesConfig config() {
         return NoellesRolesConfig.HANDLER.instance();
+    }
+
+    /** 成功击杀钩子在死亡保护判定之后触发；不监听尸体或普通伤害事件。 */
+    @Override
+    public void onKill(Player victim, boolean spawnBody, Player killer, ResourceLocation deathReason) {
+        if (!(killer instanceof ServerPlayer lord) || !(victim instanceof ServerPlayer killed)
+                || killer == victim || !canAct(lord) || !GameUtils.isPlayerAliveAndSurvival(killed)) return;
+        UndeadLordRoleData data = RoleData.getNullable(UndeadLordRoleData.class, lord);
+        if (data != null) data.onSuccessfulKill(killed);
+    }
+
+    public static boolean canAct(ServerPlayer player) {
+        var world = SREGameWorldComponent.KEY.get(player.level());
+        return world.isRunning() && world.isRole(player, ModRoles.UNDEAD_LORD)
+                && GameUtils.isPlayerAliveAndSurvival(player);
+    }
+
+    /** 忽略客户端传来的 target，使用服务器眼位、朝向和方块射线选择最近玩家。 */
+    public static boolean commandSkill(RoleSkill.RoleSkillContext context) {
+        ServerPlayer player = context.player();
+        if (!canAct(player) || !context.skillReady() || context.phase() != RoleSkill.Phase.PRESS) return false;
+        var data = RoleData.getNullable(UndeadLordRoleData.class, player);
+        if (data == null || data.getActiveUndeadCount() == 0) {
+            fail(player, "no_undead");
+            return false;
+        }
+        double range = config().undeadLordCommandRange;
+        if (!Double.isFinite(range) || range <= 0) return false;
+        ServerPlayer target = aimedPlayer(player, range);
+        var world = SREGameWorldComponent.KEY.get(player.level());
+        if (target == null || player.isAlliedTo(target)
+                || world.getRole(target) == null
+                || SREGameWorldComponent.isKillerTeamRoleStatic(world.getRole(target))) {
+            fail(player, "no_target");
+            return false;
+        }
+        if (!data.commandUndead(target.getUUID(), secondsToTicks(config().undeadLordCommandDurationSeconds))) {
+            fail(player, "no_undead");
+            return false;
+        }
+        context.setSkillCooldown(secondsToTicks(config().undeadLordCommandCooldownSeconds));
+        return true;
+    }
+
+    public static boolean summonSkill(RoleSkill.RoleSkillContext context) {
+        ServerPlayer player = context.player();
+        if (!canAct(player) || !context.skillReady() || context.phase() != RoleSkill.Phase.PRESS) return false;
+        var data = RoleData.getNullable(UndeadLordRoleData.class, player);
+        if (data == null) return false;
+        if (data.getSouls() < 1) {
+            fail(player, "no_souls");
+            return false;
+        }
+        if (!data.trySoulSummon()) {
+            fail(player, "summon_failed");
+            return false;
+        }
+        context.setSkillCooldown(secondsToTicks(config().undeadLordSummonCooldownSeconds));
+        return true;
+    }
+
+    private static int secondsToTicks(int seconds) {
+        return (int) Math.max(0, Math.min(Integer.MAX_VALUE, (long) seconds * 20));
+    }
+
+    private static void fail(ServerPlayer player, String key) {
+        player.displayClientMessage(Component.translatable("message.noellesroles.undead_lord." + key)
+                .withStyle(ChatFormatting.RED), true);
+    }
+
+    private static Vec3 visibleRayEnd(ServerPlayer player, double range) {
+        Vec3 start = player.getEyePosition();
+        Vec3 end = start.add(player.getLookAngle().scale(range));
+        return player.serverLevel().clip(new ClipContext(start, end, ClipContext.Block.COLLIDER,
+                ClipContext.Fluid.NONE, player)).getLocation();
+    }
+
+    private static ServerPlayer aimedPlayer(ServerPlayer player, double range) {
+        Vec3 start = player.getEyePosition();
+        Vec3 end = visibleRayEnd(player, range);
+        ServerPlayer closest = null;
+        double nearest = start.distanceToSqr(end);
+        for (ServerPlayer candidate : player.serverLevel().players()) {
+            if (candidate == player || !GameUtils.isPlayerAliveAndSurvival(candidate)) continue;
+            var hit = candidate.getBoundingBox().inflate(0.1).clip(start, end);
+            if (hit.isPresent() && start.distanceToSqr(hit.get()) <= nearest) {
+                closest = candidate;
+                nearest = start.distanceToSqr(hit.get());
+            }
+        }
+        return closest;
+    }
+
+    /** 复苏交互也重新验证服务器瞄准射线，最多 3 格，不采信客户端 hitResult。 */
+    public static boolean canReachCorpse(ServerPlayer player, PlayerBodyEntity body) {
+        if (body.isRemoved() || body.level() != player.level()) return false;
+        Vec3 start = player.getEyePosition();
+        return body.getBoundingBox().inflate(0.1).clip(start, visibleRayEnd(player, 3.0)).isPresent();
     }
 
     @Override

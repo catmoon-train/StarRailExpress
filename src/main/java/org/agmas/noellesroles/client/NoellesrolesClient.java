@@ -533,6 +533,7 @@ public class NoellesrolesClient implements ClientModInitializer {
         org.agmas.noellesroles.client.ClientAmonState.register();
         ScoutClimbClient.register();
         FatFishSkinHandler.register();
+        org.agmas.noellesroles.game.halloween.HalloweenClient.register();
         CommonClientHudRenderer.registerRenderersEvent();
         WorldRenderEvents.AFTER_TRANSLUCENT.register((renderContext) -> {
             TaskBlockOverlayRenderer.render(renderContext);

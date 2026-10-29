@@ -301,6 +301,10 @@ public class VoiceExtraEffectsPlugin implements VoicechatPlugin {
         if (level == null)
             return;
 
+        // 万圣亡魂夜：听者授权快照先处理，旁观者实体尚未跟踪到时也不能漏出清晰原声。
+        pcm = org.agmas.noellesroles.game.halloween.village.VillageGhostAudio.transform(speaker, pcm);
+        event.setRawAudio(pcm);
+
         Player player = level.getPlayerByUUID(speaker);
         if (player == null) {
             cleanupSpeaker(speaker);

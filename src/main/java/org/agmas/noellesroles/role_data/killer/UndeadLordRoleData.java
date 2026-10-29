@@ -34,6 +34,7 @@ import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.BossEvent;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.GameType;
+import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import org.agmas.noellesroles.config.NoellesRolesConfig;
 import org.agmas.noellesroles.content.entity.UndeadEntity;
@@ -45,6 +46,101 @@ import java.util.*;
 public class UndeadLordRoleData extends SimpleRoleData {
 
     public static final ResourceLocation INFECTION_DEATH_REASON = GameConstants.DeathReasons.UNDEAD_INFECTION;
+
+    /** 纯逻辑灵魂池；同一玩家同一死亡 tick 的重复回调不重复奖励，复活后可再次正常击杀。 */
+    public static final class SoulPool {
+        private int souls;
+        private int maximum;
+        private final Map<UUID, Long> creditedKills = new HashMap<>();
+
+        public void reset(int initial, int max) {
+            maximum = Math.max(0, max);
+            souls = Math.max(0, Math.min(initial, maximum));
+            creditedKills.clear();
+        }
+
+        public int souls() { return souls; }
+        public int maximum() { return maximum; }
+
+        public boolean creditKill(UUID victim, long deathTick) {
+            Long previous = creditedKills.put(victim, deathTick);
+            if (previous != null && previous.longValue() == deathTick) return false;
+            if (souls >= maximum) return false;
+            souls++;
+            return true;
+        }
+
+        public boolean spend() {
+            if (souls <= 0) return false;
+            souls--;
+            return true;
+        }
+
+        public void clear() {
+            souls = 0;
+            creditedKills.clear();
+        }
+    }
+
+    private final SoulPool soulPool = new SoulPool();
+    private long raiseReadyAt;
+    /** 用游戏时钟计时，会议/暂停期间不偷跑尸体复苏冷却。 */
+    public int getRaiseCooldownTicks() {
+        if (ignoreUndeadCap) return 0; // 保留邪恶战争的无冷却复苏。
+        return (int) Math.max(0, Math.min(Integer.MAX_VALUE,
+                raiseReadyAt - GameUtils.getTicksFromGameStart(player.level())));
+    }
+
+    public int getSouls() { return soulPool.souls(); }
+    public int maxSouls() { return soulPool.maximum(); }
+
+    /** 只从职业成功击杀钩子调用；尸体交互、失败攻击和感染注入均不产生灵魂。 */
+    public void onSuccessfulKill(ServerPlayer victim) {
+        if (soulPool.creditKill(victim.getUUID(), player.level().getGameTime())) sync();
+    }
+
+    /** 成功生成实体后才提交消耗；调用方在服务器主线程完成整个事务。 */
+    public void finishCorpseRaise() {
+        soulPool.spend();
+        raiseReadyAt = GameUtils.getTicksFromGameStart(player.level())
+                + Math.max(0L, (long) config().undeadLordReviveCooldownSeconds * 20);
+        sync();
+    }
+
+    /** 无尸体起步：在身边寻找有空间的位置，失败不消耗灵魂。 */
+    public boolean trySoulSummon() {
+        if (!(player.level() instanceof ServerLevel level) || getSouls() < 1 || !canRaiseFromCorpse()) {
+            return false;
+        }
+        for (int i = 0; i < 8; i++) {
+            double angle = Math.PI * i / 4;
+            Vec3 pos = player.position().add(Math.cos(angle) * 1.5, 0, Math.sin(angle) * 1.5);
+            AABB bounds = new AABB(pos.x - 0.3, pos.y, pos.z - 0.3,
+                    pos.x + 0.3, pos.y + 1.8, pos.z + 0.3);
+            if (!level.noCollision(bounds) || !level.getWorldBorder().isWithinBounds(bounds)) continue;
+            if (!spawnUndeadAt(level, pos, randomSkinUuid(level),
+                    (int) Math.min(Integer.MAX_VALUE,
+                            Math.max(1L, config().undeadLordSummonLifetimeSeconds) * 20))) return false;
+            soulPool.spend();
+            sync();
+            return true;
+        }
+        return false;
+    }
+
+    /** 目标阵营、距离、视线由职业技能预先验证，这里仅指挥自己的有效亡灵。 */
+    public boolean commandUndead(UUID target, int durationTicks) {
+        if (!(player instanceof ServerPlayer)) return false;
+        boolean commanded = false;
+        for (UUID id : new ArrayList<>(ownedUndead)) {
+            UndeadEntity undead = findOwnedUndead(id);
+            if (undead != null) {
+                undead.setHalloweenTarget(target, durationTicks);
+                commanded = true;
+            }
+        }
+        return commanded;
+    }
 
     /** 现存亡灵实体 UUID。 */
     private final List<UUID> ownedUndead = new ArrayList<>();
@@ -67,7 +163,7 @@ public class UndeadLordRoleData extends SimpleRoleData {
 
     // ===== 同步给客户端用于 HUD =====
     public int syncedUndeadCount = 0;
-    public int syncedMaxUndead = 1;
+    public int syncedMaxUndead = 4;
     public boolean syncedAmpActive = false;
 
     private static final class FogZone {
@@ -82,6 +178,7 @@ public class UndeadLordRoleData extends SimpleRoleData {
 
     public UndeadLordRoleData(RoleDataContext context) {
         super(context);
+        soulPool.reset(config().undeadLordInitialSouls, config().undeadLordMaxSouls);
     }
 
     @Override
@@ -95,18 +192,19 @@ public class UndeadLordRoleData extends SimpleRoleData {
 
     @Override
     public void init() {
-        clearState();
+        clear();
+        soulPool.reset(config().undeadLordInitialSouls, config().undeadLordMaxSouls);
         sync();
     }
 
     @Override
     public void clear() {
-        // 移除所有亡灵与血条
-        if (player.level() instanceof ServerLevel serverLevel) {
-            for (UUID id : new ArrayList<>(ownedUndead)) {
-                var e = serverLevel.getEntity(id);
-                if (e != null) {
-                    e.discard();
+        // 换职业或局末时即使玩家已跨维度，也要清除其全部亡灵。
+        if (player instanceof ServerPlayer sp) {
+            for (ServerLevel level : sp.server.getAllLevels()) {
+                for (UUID id : new ArrayList<>(ownedUndead)) {
+                    var entity = level.getEntity(id);
+                    if (entity != null) entity.discard();
                 }
             }
         }
@@ -118,6 +216,8 @@ public class UndeadLordRoleData extends SimpleRoleData {
     }
 
     private void clearState() {
+        soulPool.clear();
+        raiseReadyAt = 0;
         ownedUndead.clear();
         infection.clear();
         deathTimers.clear();
@@ -125,6 +225,8 @@ public class UndeadLordRoleData extends SimpleRoleData {
         fogZones.clear();
         infectionAmpTicks = 0;
         summonCharmCooldown = 0;
+        ignoreUndeadCap = false;
+        boostUndeadSpeed = false;
         syncedUndeadCount = 0;
         syncedMaxUndead = maxActiveUndead();
         syncedAmpActive = false;
@@ -133,34 +235,30 @@ public class UndeadLordRoleData extends SimpleRoleData {
     // ==================== 亡灵管理 ====================
 
     public int getActiveUndeadCount() {
+        pruneUndead();
         return ownedUndead.size();
     }
 
-    /**
-     * 当前可同时存在的亡灵上限：基于开局人数动态计算 {@code 人数/6 + 1}，最多 4 个。
-     * 超出该上限时，被感染致死的玩家不再转化为亡灵，而是直接留下尸体。
-     */
+    /** 普通模式统一上限为配置值且不超过 4；邪恶战争保留无限上限接口。 */
     public int maxActiveUndead() {
-        SREGameWorldComponent gwc = SREGameWorldComponent.KEY.get(player.level());
-        int basePlayers = (gwc != null && gwc.getStartingPlayerCount() > 0)
-                ? gwc.getStartingPlayerCount()
-                : player.level().players().size();
-        return Math.min(4, basePlayers / 6 + 1);
+        return ignoreUndeadCap ? Integer.MAX_VALUE : Math.max(0,
+                Math.min(4, Math.min(config().undeadLordMaxActive, config().undeadLordHardCap)));
     }
 
     public boolean canRaiseFromCorpse() {
+        pruneUndead();
         return ignoreUndeadCap || ownedUndead.size() < maxActiveUndead();
     }
 
     /** 在指定位置召唤亡灵，返回是否成功（受硬上限保护）。 */
     public boolean spawnUndeadAt(ServerLevel serverLevel, Vec3 pos, UUID skinUuid, int lifetimeTicks) {
-        if (!ignoreUndeadCap && ownedUndead.size() >= config().undeadLordHardCap) {
+        if (!canRaiseFromCorpse()) {
             return false;
         }
         UndeadEntity undead = new UndeadEntity(ModEntities.UNDEAD, serverLevel);
         undead.moveTo(pos.x, pos.y, pos.z, player.getYRot(), 0f);
         undead.setup(player, skinUuid, lifetimeTicks);
-        serverLevel.addFreshEntity(undead);
+        if (!serverLevel.addFreshEntity(undead)) return false;
         if (boostUndeadSpeed) {
             // 邪恶战争：亡灵移动速度 +200%（Speed X，等级 9）
             undead.addEffect(new net.minecraft.world.effect.MobEffectInstance(
@@ -177,6 +275,23 @@ public class UndeadLordRoleData extends SimpleRoleData {
             syncedUndeadCount = ownedUndead.size();
             sync();
         }
+    }
+
+    private UndeadEntity findOwnedUndead(UUID id) {
+        if (!(player instanceof ServerPlayer sp)) return null;
+        for (ServerLevel level : sp.server.getAllLevels()) {
+            if (level.getEntity(id) instanceof UndeadEntity undead && undead.isAlive()
+                    && player.getUUID().equals(undead.getOwnerUuid())) return undead;
+        }
+        return null;
+    }
+
+    private boolean pruneUndead() {
+        if (!(player instanceof ServerPlayer)) return false;
+        int before = ownedUndead.size();
+        ownedUndead.removeIf(id -> findOwnedUndead(id) == null);
+        syncedUndeadCount = ownedUndead.size();
+        return before != ownedUndead.size();
     }
 
     // ==================== 感染 ====================
@@ -213,7 +328,7 @@ public class UndeadLordRoleData extends SimpleRoleData {
     // ==================== 商店效果 ====================
 
     /**
-     * 亡者召唤符购买入口：受 60 秒冷却与亡灵上限限制。
+     * 亡者召唤符购买入口：受独立配置冷却与统一亡灵上限限制，不消耗灵魂。
      * <p>
      * 冷却中或已达上限时拒绝（返回 false，不扣金币）；否则按剩余容量召唤并进入冷却。
      *
@@ -228,13 +343,16 @@ public class UndeadLordRoleData extends SimpleRoleData {
                     (summonCharmCooldown + 19) / 20).withStyle(ChatFormatting.RED), true);
             return false;
         }
+        pruneUndead();
         int capacity = ignoreUndeadCap ? Integer.MAX_VALUE : maxActiveUndead() - ownedUndead.size();
         if (capacity <= 0) {
             sp.displayClientMessage(Component.translatable("message.noellesroles.undead_lord.charm_full",
                     maxActiveUndead()).withStyle(ChatFormatting.RED), true);
             return false;
         }
+        int before = getActiveUndeadCount();
         summonTemporaryUndead(Math.min(count, capacity), lifetimeTicks);
+        if (getActiveUndeadCount() <= before) return false;
         summonCharmCooldown = config().undeadLordCharmCooldownSeconds * 20;
         sync();
         return true;
@@ -332,15 +450,10 @@ public class UndeadLordRoleData extends SimpleRoleData {
             summonCharmCooldown--;
         }
 
-        // 清理失效的亡灵引用
-        int before = ownedUndead.size();
-        ownedUndead.removeIf(id -> !(serverLevel.getEntity(id) instanceof UndeadEntity));
-        if (ownedUndead.size() != before) {
-            syncedUndeadCount = ownedUndead.size();
-            dirty = true;
-        }
+        // 生成前也会清理，避免同一 tick 的亡灵死亡占用名额。
+        dirty |= pruneUndead();
 
-        // 动态亡灵上限（基于开局人数）同步给客户端 HUD
+        // 同步普通模式 / 邪恶战争亡灵上限。
         int max = maxActiveUndead();
         if (max != syncedMaxUndead) {
             syncedMaxUndead = max;
@@ -510,6 +623,12 @@ public class UndeadLordRoleData extends SimpleRoleData {
         tag.putInt("undeadCount", syncedUndeadCount);
         tag.putInt("maxUndead", syncedMaxUndead);
         tag.putBoolean("ampActive", syncedAmpActive);
+        tag.putInt("souls", getSouls());
+        tag.putInt("maxSouls", maxSouls());
+        tag.putLong("raiseReadyAt", raiseReadyAt);
+        tag.putBoolean("ignoreUndeadCap", ignoreUndeadCap);
+        tag.putInt("summonCharmCooldown", summonCharmCooldown);
+        tag.putInt("infectionAmpTicks", infectionAmpTicks);
     }
 
     @Override
@@ -517,6 +636,11 @@ public class UndeadLordRoleData extends SimpleRoleData {
         syncedUndeadCount = tag.getInt("undeadCount");
         syncedMaxUndead = tag.getInt("maxUndead");
         syncedAmpActive = tag.getBoolean("ampActive");
+        soulPool.reset(tag.getInt("souls"), tag.getInt("maxSouls"));
+        raiseReadyAt = tag.getLong("raiseReadyAt");
+        ignoreUndeadCap = tag.getBoolean("ignoreUndeadCap");
+        summonCharmCooldown = tag.getInt("summonCharmCooldown");
+        infectionAmpTicks = tag.getInt("infectionAmpTicks");
     }
 
 }

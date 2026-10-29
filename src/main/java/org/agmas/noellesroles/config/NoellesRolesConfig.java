@@ -389,10 +389,10 @@ public class NoellesRolesConfig implements ConfigData {
     public double wizardBlinkDistance = 8.0;
 
     // ==================== Undead Lord (亡灵之主) ====================
-    /** Undead Lord - Raise-from-corpse skill cooldown in seconds */
-    public int undeadLordReviveCooldownSeconds = 45;
-    /** Undead Lord - Max undead raised from corpses that can coexist (skill cap) */
-    public int undeadLordMaxActive = 3;
+    /** 亡灵之主：尸体复苏冷却（秒），复用旧配置名。 */
+    public int undeadLordReviveCooldownSeconds = 20;
+    /** 亡灵之主：普通模式亡灵上限（最大 4）。 */
+    public int undeadLordMaxActive = 4;
     /** Undead Lord - Absolute hard cap of simultaneous undead (incl. conversions/charm) */
     public int undeadLordHardCap = 8;
     /** Undead Lord - Infection decay per second (percent) */
@@ -423,6 +423,20 @@ public class NoellesRolesConfig implements ConfigData {
     public int undeadLordBoneStaffPrice = 130;
     /** Undead Lord - Real damage each undead deals to a player per attack (HP, 0=disabled) */
     public double undeadLordUndeadAttackDamage = 1.0;
+    /** 亡灵之主：开局灵魂数。 */
+    public int undeadLordInitialSouls = 2;
+    /** 亡灵之主：灵魂上限。 */
+    public int undeadLordMaxSouls = 6;
+    /** 亡灵之主：亡魂号令冷却（秒）。 */
+    public int undeadLordCommandCooldownSeconds = 20;
+    /** 亡灵之主：亡魂号令追击持续时间（秒）。 */
+    public int undeadLordCommandDurationSeconds = 8;
+    /** 亡灵之主：亡魂号令服务器瞄准距离（格）。 */
+    public double undeadLordCommandRange = 24;
+    /** 亡灵之主：冥火招魂冷却（秒），与旧商店召唤符独立。 */
+    public int undeadLordSummonCooldownSeconds = 30;
+    /** 亡灵之主：冥火招魂亡灵寿命（秒）。 */
+    public int undeadLordSummonLifetimeSeconds = 60;
 
     /** 格罗赛尔游记 (Groselle Travelog) - 放逐目标坐标 X */
     public int grosellTravelogBanishX = -100;
