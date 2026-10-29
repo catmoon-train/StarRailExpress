@@ -790,8 +790,12 @@ public class SREMurderGameMode extends GameMode {
                 // passive money
                 if (gameWorldComponent.canAutoAddMoney(player)) {
                     Integer balanceToAdd = GameConstants.getPassiveMoneyTicker().apply(serverWorld.getGameTime());
-                    if (balanceToAdd > 0)
+                    if (balanceToAdd > 0) {
+                        // 金币账本：被动收入
+                        org.agmas.noellesroles.game.economy.MoneyFlow.recordIncome(player,
+                                org.agmas.noellesroles.game.economy.MoneyFlow.IncomeType.PASSIVE, balanceToAdd);
                         SREPlayerShopComponent.KEY.get(player).addToBalance(balanceToAdd);
+                    }
                 }
                 // passive minigame token（被动游戏币收入：每次自然增加 1 枚游戏币）
                 if (gameWorldComponent.canAutoAddMiniGameToken(player)) {
@@ -803,6 +807,10 @@ public class SREMurderGameMode extends GameMode {
                 if (gameWorldComponent.isRole(player, TMMRoles.VIGILANTE)
                         && !GameUtils.isPlayerEliminated(player)
                         && serverWorld.getGameTime() % VIGILANTE_PASSIVE_MONEY_INTERVAL_TICKS == 0) {
+                    // 金币账本：警长被动收入
+                    org.agmas.noellesroles.game.economy.MoneyFlow.recordIncome(player,
+                            org.agmas.noellesroles.game.economy.MoneyFlow.IncomeType.PASSIVE,
+                            VIGILANTE_PASSIVE_MONEY_AMOUNT);
                     SREPlayerShopComponent.KEY.get(player).addToBalance(VIGILANTE_PASSIVE_MONEY_AMOUNT);
                 }
 

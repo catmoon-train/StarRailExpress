@@ -57,6 +57,9 @@ public class MagnatePassiveIncomeHandler {
             }
 
             SREPlayerShopComponent shop = SREPlayerShopComponent.KEY.get(player);
+            // 金币账本：富豪修饰符的固定进账属于「被动收入」（必须在改余额之前登记，供兜底认领）
+            org.agmas.noellesroles.game.economy.MoneyFlow.recordIncome(player,
+                    org.agmas.noellesroles.game.economy.MoneyFlow.IncomeType.PASSIVE, PASSIVE_INCOME_AMOUNT);
             shop.addToBalance(PASSIVE_INCOME_AMOUNT);
             shop.sync();
         }

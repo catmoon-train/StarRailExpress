@@ -93,6 +93,7 @@ import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.cca.SREPlayerMoodComponent;
 import io.wifi.starrailexpress.cca.SREPlayerPoisonComponent;
 import io.wifi.starrailexpress.cca.SREPlayerShopComponent;
+import io.wifi.starrailexpress.cca.SREWeakArmorPlayerComponent;
 import io.wifi.starrailexpress.client.gui.RoleAnnouncementTexts;
 import io.wifi.starrailexpress.content.entity.PlayerBodyEntity;
 import io.wifi.starrailexpress.game.GameUtils;
@@ -1402,8 +1403,10 @@ public class ModRoles {
      * - 在计分板上显示
      * - 被动：每60秒获得25金币
      * - 技能：蹲下按技能键切换收入/支出模式，直接按技能键花费175金币发动技能
-     * - 收入模式：查看目标玩家金币量是否超过300
-     * - 支出模式：查看半径4格内玩家30秒内总支出金币数量的大致范围
+     * - 收入模式：查看目标玩家最近一次的金币收入来源
+     * （被动/任务/击杀/扒窃/偷窃/掠夺/存折/技能/其它/无收入，扒窃、偷窃、掠夺优先显示）
+     * - 支出模式：标记目标玩家，30秒后得知其金币支出渠道
+     * （商店购买优先并带商品名，另有售货机/技能/被偷/存折/其它/无支出）
      * - 专属商店：存折(100金币)
      */
     // 会计角色 - 乘客阵营

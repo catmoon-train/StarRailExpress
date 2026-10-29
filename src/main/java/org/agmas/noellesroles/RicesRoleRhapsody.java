@@ -166,7 +166,8 @@ public class RicesRoleRhapsody {
      * 注册事件监听
      */
     private static void registerEvents() {
-
+        org.agmas.noellesroles.game.economy.MoneyFlowEvents.register();
+        org.agmas.noellesroles.game.penalty.NonParticipantPenaltyManager.register();
     }
 
     /**

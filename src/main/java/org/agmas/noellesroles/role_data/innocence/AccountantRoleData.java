@@ -27,12 +27,23 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.entity.player.Player;
+import org.agmas.noellesroles.game.economy.MoneyFlow;
 import org.agmas.noellesroles.role.ModRoles;
 
+import java.util.Optional;
+import java.util.UUID;
+
+/**
+ * 会计的职业数据。
+ * <p>
+ * 两个技能共用同一套金币流水账本（{@link MoneyFlow}）：
+ * <ul>
+ * <li><b>收入</b>：查看目标玩家最近一次的金币收入来源。若目标有扒窃 / 偷窃 / 掠夺记录，
+ * 优先显示该行为。</li>
+ * <li><b>支出</b>：标记目标玩家，30 秒后得知其金币支出渠道（商店购买优先，带商品名）。</li>
+ * </ul>
+ */
 public class AccountantRoleData extends SimpleRoleData {
-
-    /** 组件键 */
-
 
     /** 被动收入金币数 */
     public static final int PASSIVE_INCOME_AMOUNT = 25;
@@ -43,21 +54,14 @@ public class AccountantRoleData extends SimpleRoleData {
     /** 技能花费金币数 */
     public static final int SKILL_COST = 175;
 
-    /** 收入金币查询阈值 */
-    public static final int INCOME_QUERY_THRESHOLD = 300;
-
-    /** 支出查询半径（4格） */
-    public static final double EXPENSE_QUERY_RADIUS = 4.0;
-
-    /** 支出查询时间范围（20秒 = 400 tick） */
-    public static final int EXPENSE_QUERY_TIME_RANGE = 20 * 20;
+    /** 支出查询时间范围：标记后 30 秒出结果（30 * 20 = 600 tick） */
+    public static final int EXPENSE_QUERY_TIME_RANGE = 30 * 20;
 
     /** 收入模式 */
     public static final int MODE_INCOME = 0;
 
     /** 支出模式 */
     public static final int MODE_EXPENSE = 1;
-
 
     /** 被动收入计时器 */
     private int passiveIncomeTimer = 0;
@@ -66,21 +70,17 @@ public class AccountantRoleData extends SimpleRoleData {
     private int currentMode = MODE_INCOME;
 
     /** 标记的玩家UUID */
-    private java.util.UUID markedPlayerUUID = null;
+    private UUID markedPlayerUUID = null;
 
-    /** 标记时的金币数 */
-    private int markedPlayerInitialBalance = 0;
+    /** 标记时的时间戳（用于确定支出查询窗口） */
+    private long markStartGameTime = 0;
 
     /** 标记计时器（tick） */
     private int markTimer = 0;
 
-    /**
-     * 构造函数
-     */
     public AccountantRoleData(RoleDataContext context) {
         super(context);
     }
-
 
     @Override
     public void readFromSyncNbt(CompoundTag tag, HolderLookup.Provider registryLookup) {
@@ -90,10 +90,8 @@ public class AccountantRoleData extends SimpleRoleData {
         if (tag.hasUUID("MarkedPlayerUUID")) {
             this.markedPlayerUUID = tag.getUUID("MarkedPlayerUUID");
         }
-        this.markedPlayerInitialBalance = tag.getInt("MarkedPlayerInitialBalance");
+        this.markStartGameTime = tag.getLong("MarkStartGameTime");
     }
-
-
 
     @Override
     public void writeToSyncNbt(CompoundTag tag, HolderLookup.Provider registryLookup) {
@@ -103,7 +101,7 @@ public class AccountantRoleData extends SimpleRoleData {
         if (this.markedPlayerUUID != null) {
             tag.putUUID("MarkedPlayerUUID", this.markedPlayerUUID);
         }
-        tag.putInt("MarkedPlayerInitialBalance", this.markedPlayerInitialBalance);
+        tag.putLong("MarkStartGameTime", this.markStartGameTime);
     }
 
     @Override
@@ -111,7 +109,7 @@ public class AccountantRoleData extends SimpleRoleData {
         this.passiveIncomeTimer = 0;
         this.currentMode = MODE_INCOME;
         this.markedPlayerUUID = null;
-        this.markedPlayerInitialBalance = 0;
+        this.markStartGameTime = 0;
         this.markTimer = 0;
         sync();
     }
@@ -128,12 +126,13 @@ public class AccountantRoleData extends SimpleRoleData {
             return;
         if (!gameWorldComponent.isRunning())
             return;
-        // 检查玩家是否是会计角色
         if (!gameWorldComponent.isRole(player, ModRoles.ACCOUNTANT)) {
             return;
         }
-        // 处理被动收入 - 只在游戏开始后且玩家是会计时生效
+
         boolean shouldSync = false;
+
+        // 被动收入
         if (passiveIncomeTimer > 0) {
             passiveIncomeTimer--;
             // 每10秒同步一次到客户端，确保HUD准确更新
@@ -141,37 +140,36 @@ public class AccountantRoleData extends SimpleRoleData {
                 shouldSync = true;
             }
         } else {
-            // 检查游戏是否正在运行
             givePassiveIncome();
             passiveIncomeTimer = PASSIVE_INCOME_INTERVAL;
             shouldSync = true;
         }
 
-        // 处理标记计时器
+        // 支出查询倒计时
         if (markTimer > 0) {
             markTimer--;
             if (markTimer == 0 && markedPlayerUUID != null) {
-                // 20秒到期，检查金币变化
-                checkMarkedPlayerBalance();
+                reportMarkedPlayerExpense();
             }
         }
 
-        // 如果需要同步，发送数据到客户端
         if (shouldSync) {
             sync();
         }
     }
 
     /**
-     * 给予被动收入
+     * 给予被动收入。
+     * <p>
+     * 走 {@code addToBalance} 以保持客户端同步；余额变动前先登记「被动收入」，
+     * 这样账本不会把这笔记成「其它收入」。
      */
     private void givePassiveIncome() {
         if (!(player instanceof ServerPlayer serverPlayer))
             return;
 
-        SREPlayerShopComponent shopComponent = SREPlayerShopComponent.KEY.get(player);
-        shopComponent.balance += PASSIVE_INCOME_AMOUNT;
-        shopComponent.sync();
+        MoneyFlow.recordIncome(player, MoneyFlow.IncomeType.PASSIVE, PASSIVE_INCOME_AMOUNT);
+        SREPlayerShopComponent.KEY.get(player).addToBalance(PASSIVE_INCOME_AMOUNT);
 
         serverPlayer.displayClientMessage(
                 Component.translatable("message.noellesroles.accountant.passive_income", PASSIVE_INCOME_AMOUNT)
@@ -183,11 +181,7 @@ public class AccountantRoleData extends SimpleRoleData {
      * 切换模式（蹲下按技能键）
      */
     public void toggleMode() {
-        if (currentMode == MODE_INCOME) {
-            currentMode = MODE_EXPENSE;
-        } else {
-            currentMode = MODE_INCOME;
-        }
+        currentMode = currentMode == MODE_INCOME ? MODE_EXPENSE : MODE_INCOME;
 
         if (player instanceof ServerPlayer serverPlayer) {
             Component message;
@@ -206,13 +200,13 @@ public class AccountantRoleData extends SimpleRoleData {
 
     /**
      * 使用技能（直接按技能键）
+     *
      * @return 是否成功释放技能
      */
     public boolean useAbility() {
         if (!(player instanceof ServerPlayer serverPlayer))
             return false;
 
-        // 根据当前模式执行技能
         if (currentMode == MODE_INCOME) {
             return executeIncomeSkill(serverPlayer);
         } else {
@@ -220,199 +214,7 @@ public class AccountantRoleData extends SimpleRoleData {
         }
     }
 
-    /**
-     * 执行收入模式技能
-     * 查看准星对准的玩家的金币量是否超过300
-     * @return 是否成功释放技能
-     */
-    private boolean executeIncomeSkill(ServerPlayer serverPlayer) {
-        // 获取准星对准的玩家
-        Player target = getTargetPlayer(serverPlayer);
-        if (target == null) {
-            serverPlayer.displayClientMessage(
-                    Component.translatable("message.noellesroles.accountant.no_target")
-                            .withStyle(ChatFormatting.RED),
-                    true);
-            return false;
-        }
-
-        // 检查金币是否足够
-        SREPlayerShopComponent shopComponent = SREPlayerShopComponent.KEY.get(player);
-        if (shopComponent.balance < SKILL_COST) {
-            serverPlayer.displayClientMessage(
-                    Component.translatable("message.noellesroles.accountant.insufficient_funds", SKILL_COST)
-                            .withStyle(ChatFormatting.RED),
-                    true);
-            return false;
-        }
-
-        // 扣除金币
-        shopComponent.balance -= SKILL_COST;
-        shopComponent.sync();
-
-        // 播放钟的声音
-        serverPlayer.level().playSound(null, serverPlayer.getX(), serverPlayer.getY(), serverPlayer.getZ(),
-                SoundEvents.BELL_BLOCK, SoundSource.PLAYERS, 0.5F, 1.0F);
-
-        // 检查目标玩家金币数量
-        SREPlayerShopComponent targetShop = SREPlayerShopComponent.KEY.get(target);
-        int targetBalance = targetShop.balance;
-
-        if (targetBalance >= INCOME_QUERY_THRESHOLD) {
-            // 金币超过300，给予提示
-            serverPlayer.displayClientMessage(
-                    Component
-                            .translatable("message.noellesroles.accountant.income.rich", target.getName(),
-                                    targetBalance)
-                            .withStyle(ChatFormatting.GREEN),
-                    true);
-        } else {
-            // 金币未超过300，给予提示
-            serverPlayer.displayClientMessage(
-                    Component
-                            .translatable("message.noellesroles.accountant.income.poor", target.getName(),
-                                    targetBalance)
-                            .withStyle(ChatFormatting.YELLOW),
-                    true);
-        }
-        return true;
-    }
-
-    /**
-     * 执行支出模式技能
-     * 标记一名玩家，20秒后对比其金币数变化
-     * @return 是否成功释放技能
-     */
-    private boolean executeExpenseSkill(ServerPlayer serverPlayer) {
-        // 获取准星对准的玩家
-        Player target = getTargetPlayer(serverPlayer);
-        if (target == null) {
-            serverPlayer.displayClientMessage(
-                    Component.translatable("message.noellesroles.accountant.no_target")
-                            .withStyle(ChatFormatting.RED),
-                    true);
-            return false;
-        }
-
-        // 检查金币是否足够
-        SREPlayerShopComponent shopComponent = SREPlayerShopComponent.KEY.get(player);
-        if (shopComponent.balance < SKILL_COST) {
-            serverPlayer.displayClientMessage(
-                    Component.translatable("message.noellesroles.accountant.insufficient_funds", SKILL_COST)
-                            .withStyle(ChatFormatting.RED),
-                    true);
-            return false;
-        }
-
-        // 扣除金币
-        shopComponent.balance -= SKILL_COST;
-        shopComponent.sync();
-
-        // 播放翻书声
-        serverPlayer.level().playSound(null, serverPlayer.getX(), serverPlayer.getY(), serverPlayer.getZ(),
-                SoundEvents.BOOK_PAGE_TURN, SoundSource.PLAYERS, 1.0F, 1.0F);
-
-        // 标记玩家
-        markedPlayerUUID = target.getUUID();
-        SREPlayerShopComponent targetShop = SREPlayerShopComponent.KEY.get(target);
-        markedPlayerInitialBalance = targetShop.balance;
-        markTimer = EXPENSE_QUERY_TIME_RANGE;
-
-        // 给会计提示
-        serverPlayer.displayClientMessage(
-                Component.translatable("message.noellesroles.accountant.expense.marked", target.getName())
-                        .withStyle(ChatFormatting.AQUA),
-                true);
-
-        sync();
-        return true;
-    }
-
-    /**
-     * 检查被标记玩家的金币数变化
-     * 判断是否上升/下降超过100金币
-     */
-    private void checkMarkedPlayerBalance() {
-        if (!(player instanceof ServerPlayer serverPlayer))
-            return;
-
-        // 查找被标记的玩家
-        Player target = null;
-        for (Player p : player.level().players()) {
-            if (p.getUUID().equals(markedPlayerUUID)) {
-                target = p;
-                break;
-            }
-        }
-
-        if (target == null) {
-            // 玩家已离线
-            serverPlayer.displayClientMessage(
-                    Component.translatable("message.noellesroles.accountant.expense.player_left")
-                            .withStyle(ChatFormatting.GRAY),
-                    true);
-            clearMark();
-            return;
-        }
-
-        // 对比金币数
-        SREPlayerShopComponent targetShop = SREPlayerShopComponent.KEY.get(target);
-        int currentBalance = targetShop.balance;
-        int difference = currentBalance - markedPlayerInitialBalance;
-
-        if (difference > 100) {
-            // 金币上升超过100
-            serverPlayer.displayClientMessage(
-                    Component.translatable("message.noellesroles.accountant.expense.increased_over_100",
-                            target.getName(), difference)
-                            .withStyle(ChatFormatting.GOLD),
-                    true);
-        } else if (difference < -100) {
-            // 金币下降超过100
-            serverPlayer.displayClientMessage(
-                    Component.translatable("message.noellesroles.accountant.expense.decreased_over_100",
-                            target.getName(), -difference)
-                            .withStyle(ChatFormatting.DARK_RED),
-                    true);
-        } else if (difference > 0) {
-            // 金币上升但未超过100
-            serverPlayer.displayClientMessage(
-                    Component.translatable("message.noellesroles.accountant.expense.increased",
-                            target.getName(), difference)
-                            .withStyle(ChatFormatting.GREEN),
-                    true);
-        } else if (difference < 0) {
-            // 金币下降但未超过100
-            serverPlayer.displayClientMessage(
-                    Component.translatable("message.noellesroles.accountant.expense.decreased",
-                            target.getName(), -difference)
-                            .withStyle(ChatFormatting.RED),
-                    true);
-        } else {
-            // 金币不变
-            serverPlayer.displayClientMessage(
-                    Component.translatable("message.noellesroles.accountant.expense.unchanged",
-                            target.getName())
-                            .withStyle(ChatFormatting.GRAY),
-                    true);
-        }
-
-        clearMark();
-    }
-
-    /**
-     * 清除标记
-     */
-    private void clearMark() {
-        this.markedPlayerUUID = null;
-        this.markedPlayerInitialBalance = 0;
-        this.markTimer = 0;
-        sync();
-    }
-
-    /**
-     * 获取准星对准的玩家
-     */
+    /** 找到准星对准的玩家 */
     private Player getTargetPlayer(ServerPlayer player) {
         double minDistance = 5.0;
         Player target = null;
@@ -425,7 +227,6 @@ public class AccountantRoleData extends SimpleRoleData {
 
             double distance = player.distanceTo(otherPlayer);
             if (distance <= minDistance) {
-                // 检查是否在准星方向
                 net.minecraft.world.phys.Vec3 eyePos = player.getEyePosition();
                 net.minecraft.world.phys.Vec3 lookVec = player.getLookAngle().normalize();
                 net.minecraft.world.phys.Vec3 toTarget = otherPlayer.position().subtract(eyePos).normalize();
@@ -442,16 +243,167 @@ public class AccountantRoleData extends SimpleRoleData {
         return target;
     }
 
+    /** 检查金币并扣费；不足时提示并返回 false */
+    private boolean tryPaySkillCost(ServerPlayer serverPlayer) {
+        SREPlayerShopComponent shopComponent = SREPlayerShopComponent.KEY.get(player);
+        if (shopComponent.balance < SKILL_COST) {
+            serverPlayer.displayClientMessage(
+                    Component.translatable("message.noellesroles.accountant.insufficient_funds", SKILL_COST)
+                            .withStyle(ChatFormatting.RED),
+                    true);
+            return false;
+        }
+        shopComponent.balance -= SKILL_COST;
+        shopComponent.sync();
+        return true;
+    }
+
     /**
-     * 获取当前模式
+     * 收入技能：查看目标玩家最近一次的金币收入来源。
      */
+    private boolean executeIncomeSkill(ServerPlayer serverPlayer) {
+        Player target = getTargetPlayer(serverPlayer);
+        if (target == null) {
+            serverPlayer.displayClientMessage(
+                    Component.translatable("message.noellesroles.accountant.no_target")
+                            .withStyle(ChatFormatting.RED),
+                    true);
+            return false;
+        }
+        if (!tryPaySkillCost(serverPlayer))
+            return false;
+
+        // 播放钟的声音
+        serverPlayer.level().playSound(null, serverPlayer.getX(), serverPlayer.getY(), serverPlayer.getZ(),
+                SoundEvents.BELL_BLOCK, SoundSource.PLAYERS, 0.5F, 1.0F);
+
+        Optional<MoneyFlow.IncomeEntry> entry = MoneyFlow.queryIncome(target);
+        Component source = entry
+                .map(e -> incomeSourceComponent(e.type()))
+                .orElseGet(() -> incomeSourceComponent(MoneyFlow.IncomeType.NONE));
+
+        serverPlayer.displayClientMessage(
+                Component.translatable("message.noellesroles.accountant.income.report",
+                        target.getName(), source).withStyle(ChatFormatting.GREEN),
+                true);
+        return true;
+    }
+
+    /**
+     * 支出技能：标记目标玩家，30 秒后得知其支出渠道。
+     */
+    private boolean executeExpenseSkill(ServerPlayer serverPlayer) {
+        Player target = getTargetPlayer(serverPlayer);
+        if (target == null) {
+            serverPlayer.displayClientMessage(
+                    Component.translatable("message.noellesroles.accountant.no_target")
+                            .withStyle(ChatFormatting.RED),
+                    true);
+            return false;
+        }
+        if (!tryPaySkillCost(serverPlayer))
+            return false;
+
+        // 播放翻书声
+        serverPlayer.level().playSound(null, serverPlayer.getX(), serverPlayer.getY(), serverPlayer.getZ(),
+                SoundEvents.BOOK_PAGE_TURN, SoundSource.PLAYERS, 1.0F, 1.0F);
+
+        markedPlayerUUID = target.getUUID();
+        markStartGameTime = player.level().getGameTime();
+        markTimer = EXPENSE_QUERY_TIME_RANGE;
+
+        serverPlayer.displayClientMessage(
+                Component.translatable("message.noellesroles.accountant.expense.marked", target.getName(),
+                        EXPENSE_QUERY_TIME_RANGE / 20).withStyle(ChatFormatting.AQUA),
+                true);
+
+        sync();
+        return true;
+    }
+
+    /**
+     * 30 秒到期：报告被标记玩家的支出渠道。
+     */
+    private void reportMarkedPlayerExpense() {
+        if (!(player instanceof ServerPlayer serverPlayer))
+            return;
+
+        UUID marked = markedPlayerUUID;
+        Player target = marked == null ? null : serverPlayer.server.getPlayerList().getPlayer(marked);
+        if (target == null) {
+            serverPlayer.displayClientMessage(
+                    Component.translatable("message.noellesroles.accountant.expense.player_left")
+                            .withStyle(ChatFormatting.GRAY),
+                    true);
+            clearMark();
+            return;
+        }
+
+        Optional<MoneyFlow.ExpenseEntry> entry = MoneyFlow.queryExpense(target, markStartGameTime,
+                markStartGameTime + EXPENSE_QUERY_TIME_RANGE);
+        Component channel = entry
+                .map(this::expenseChannelComponent)
+                .orElseGet(() -> expenseChannelComponent(null));
+
+        serverPlayer.displayClientMessage(
+                Component.translatable("message.noellesroles.accountant.expense.report",
+                        target.getName(), channel).withStyle(ChatFormatting.AQUA),
+                true);
+
+        clearMark();
+    }
+
+    /** 收入来源的展示文本 */
+    private Component incomeSourceComponent(MoneyFlow.IncomeType type) {
+        return Component.translatable("message.noellesroles.accountant.income.type." + incomeKey(type));
+    }
+
+    private static String incomeKey(MoneyFlow.IncomeType type) {
+        return switch (type) {
+            case PASSIVE -> "passive";
+            case TASK -> "task";
+            case KILL -> "kill";
+            case PICKPOCKET -> "pickpocket";
+            case STEAL -> "steal";
+            case PLUNDER -> "plunder";
+            case PASSBOOK -> "passbook";
+            case SKILL -> "skill";
+            case OTHER -> "other";
+            case NONE -> "none";
+        };
+    }
+
+    /** 支出渠道的展示文本；商店购买会带上商品名 */
+    private Component expenseChannelComponent(MoneyFlow.ExpenseEntry entry) {
+        if (entry == null)
+            return Component.translatable("message.noellesroles.accountant.expense.type.none");
+        return switch (entry.type()) {
+            case SHOP -> entry.detail() != null
+                    ? Component.translatable("message.noellesroles.accountant.expense.type.shop", entry.detail())
+                    : Component.translatable("message.noellesroles.accountant.expense.type.shop.unknown");
+            case VENDING -> Component.translatable("message.noellesroles.accountant.expense.type.vending");
+            case SKILL -> Component.translatable("message.noellesroles.accountant.expense.type.skill");
+            case STOLEN -> Component.translatable("message.noellesroles.accountant.expense.type.stolen");
+            case PASSBOOK -> Component.translatable("message.noellesroles.accountant.expense.type.passbook");
+            case OTHER -> Component.translatable("message.noellesroles.accountant.expense.type.other");
+            case NONE -> Component.translatable("message.noellesroles.accountant.expense.type.none");
+        };
+    }
+
+    /** 清除标记 */
+    private void clearMark() {
+        this.markedPlayerUUID = null;
+        this.markStartGameTime = 0;
+        this.markTimer = 0;
+        sync();
+    }
+
+    /** 获取当前模式 */
     public int getCurrentMode() {
         return currentMode;
     }
 
-    /**
-     * 获取被动收入剩余时间（秒）
-     */
+    /** 获取被动收入剩余时间（秒） */
     public int getPassiveIncomeRemainingSeconds() {
         return (passiveIncomeTimer + 19) / 20;
     }

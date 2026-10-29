@@ -107,6 +107,11 @@ public class SREPlayerShopComponent implements RoleComponent, ServerTickingCompo
         if (tryConvertWizardBalance(amount)) {
             return;
         }
+        // 金币账本（会计技能）：所有未分类的余额变动在此兜底记成「其它收入 / 其它支出」。
+        // 已知来源（击杀/任务/被动/扒窃/偷窃/掠夺/存折/商店/售货机/技能）会在改余额前先用
+        // MoneyFlow.recordIncome / recordExpense 认领本刻变动，因此这里不会重复记账。
+        // 性能：每次仅 2 次 HashMap 访问，不遍历、不分配对象。
+        org.agmas.noellesroles.game.economy.MoneyFlow.onBalanceChange(this.player, amount);
         this.setBalance(this.balance + amount);
     }
 
@@ -235,6 +240,12 @@ public class SREPlayerShopComponent implements RoleComponent, ServerTickingCompo
                 this.total_cost += price;
             }
             ProgressionDataManager.onCurrencySpent(this.player.getUUID(), currency, price);
+            // 金币账本：商店购买支出（带商品名，会计的支出查询优先展示这一条）
+            if (currency == ShopEntry.Currency.MONEY) {
+                org.agmas.noellesroles.game.economy.MoneyFlow.recordExpense(this.player,
+                        org.agmas.noellesroles.game.economy.MoneyFlow.ExpenseType.SHOP, price,
+                        entry.stack().getDisplayName());
+            }
             currency.add(this.player, -price);
             // 手榴弹购买后记录购买时间
             if (entry.stack().is(TMMItems.GRENADE)) {
