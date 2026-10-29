@@ -328,6 +328,11 @@ public class AreasSettings {
 
     // ==================== 地图事件 / Map Events ====================
 
+    /** 万圣节小镇活动：双南瓜灯 NPC、敲门、亡魂夜与活动道具，仅谋杀模式生效。 */
+    @Category("event")
+    public boolean halloweenEventEnabled = false;
+
+
     /** 是否启用飞机坠落事件：开局刷新一架撞向地图中心的飞机，周期性震颤，建筑内会在客户端生成虚假火焰。 */
     @Category("event")
     public boolean planeCrashEventEnabled = false;

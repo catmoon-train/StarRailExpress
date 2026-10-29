@@ -1,4 +1,11 @@
 {
+  "announcement.star.role.pumpkin_spirit": "Pumpkin Spirit",
+  "announcement.star.goals.pumpkin_spirit": "Collect pumpkins equal to four times the starting player count to win alone. Dropping and picking them up again does not count.",
+  "announcement.star.win.pumpkin_spirit": "The Pumpkin Spirit collected enough pumpkins!",
+  "skill.noellesroles.pumpkin_spirit.bat": "Bat Form",
+  "hud.noellesroles.pumpkin_spirit.progress": "Pumpkins collected: %s / %s",
+  "hud.noellesroles.pumpkin_spirit.suppressed": "Suppressed by a Desperado: revival and victory disabled",
+  "message.noellesroles.pumpkin_spirit.killed": "You killed the Pumpkin Spirit! You wear a pumpkin head and receive Slowness I for 20 seconds.",
     "entity.noellesroles.rainbow_horse": "Haiman Rainbow Horse",
     "item.noellesroles.rainbow_horseshoe": "Rainbow Horseshoe",
     "item.noellesroles.rainbow_horseshoe.tooltip": "Right-click to summon a Haiman Rainbow Horse from the sky. Two players can ride it. It disappears after 120 seconds.",

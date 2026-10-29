@@ -557,6 +557,7 @@ public class NoellesrolesClient implements ClientModInitializer {
         DreadlordSkinHandler.register();
         DreadlordDreadClient.register();
         DreadlordClientFx.register();
+        org.agmas.noellesroles.game.halloween.HalloweenClient.register();
         CommonClientHudRenderer.registerRenderersEvent();
         WorldRenderEvents.AFTER_TRANSLUCENT.register((renderContext) -> {
             TaskBlockOverlayRenderer.render(renderContext);

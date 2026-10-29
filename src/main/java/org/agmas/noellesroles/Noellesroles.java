@@ -188,6 +188,7 @@ public class Noellesroles implements ModInitializer {
         HSRConstants.init();
         // 初始化模组角色列表
         ModRoles.init();
+        org.agmas.noellesroles.game.halloween.pumpkin.PumpkinSpiritRole.register();
         org.agmas.noellesroles.game.modes.echo.EchoBootstrap.initialize();
         // 初始化修饰符
         NRModifiers.init();
@@ -206,6 +207,7 @@ public class Noellesroles implements ModInitializer {
 
         // 世界系统与事件处理器注册
         NREventRegister.registerWorldSystemsAndEvents();
+        org.agmas.noellesroles.game.halloween.HalloweenRuntime.register();
 
         // 咖啡师「抱兔兔上头顶」的乘骑状态机
         org.agmas.noellesroles.role.anime.chino.ChinoHeadRideManager.register();
