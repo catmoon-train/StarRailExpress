@@ -36,7 +36,6 @@ import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
-import net.minecraft.world.phys.Vec3;
 import org.agmas.noellesroles.content.entity.StarProjectileEntity;
 import org.agmas.noellesroles.init.ModEffects;
 import org.agmas.noellesroles.init.ModItems;
@@ -44,7 +43,6 @@ import org.agmas.noellesroles.role.ModRoles;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -54,8 +52,10 @@ import java.util.List;
  * （{@link ModEffects#DOMAIN_SANCTUARY}，持有者无法被拉入除愚者会议以外的任何领域）；
  * 摘星者死亡时立即清除全场所有庇护。
  * <p>
- * <b>星之权杖</b>（{@link ModItems#STAR_SCEPTER}）：右击锁定视线 35 格内最近的玩家，
+ * <b>星之权杖</b>（{@link ModItems#STAR_SCEPTER}）：右击蓄力锁定视线 35 格内最近的玩家，
  * 2 秒后召唤一颗能穿墙的追踪星星砸向目标（死因「星星」）。摘星者死亡后权杖变成左轮手枪。
+ * <b>权杖本身不绑定职业</b>：规则实现在 {@code StarScepterItem}，任何持有者都能正常使用，
+ * 本类只保留 HUD 用的 {@link #isScepterReady()} 与死亡换枪逻辑。
  * <p>
  * <b>技能</b>（切换键 Y 切换、G 释放）：
  * <ul>
@@ -134,13 +134,6 @@ public class StarGathererRoleData extends SimpleRoleData {
     private long enhanceUntil;
     /** 星之引力定身结束时刻。 */
     private long rootedUntil;
-    /** 待降落的星星：目标 UUID → 剩余 tick。 */
-    private final List<PendingStar> pendingStars = new ArrayList<>();
-
-    /** 一颗待降落的星星。 */
-    private record PendingStar(java.util.UUID target, int ticksLeft) {
-    }
-
     public StarGathererRoleData(RoleDataContext context) {
         super(context);
     }
@@ -153,7 +146,6 @@ public class StarGathererRoleData extends SimpleRoleData {
         gravityUses = 0;
         enhanceUntil = 0L;
         rootedUntil = 0L;
-        pendingStars.clear();
         pullPending = false;
         sync();
     }
@@ -486,68 +478,6 @@ public class StarGathererRoleData extends SimpleRoleData {
         return !player.getCooldowns().isOnCooldown(ModItems.STAR_SCEPTER);
     }
 
-    /**
-     * 使用星之权杖：锁定视线方向 {@value #SCEPTER_RANGE} 格内最近的玩家，
-     * {@value #SCEPTER_DROP_DELAY_TICKS} tick 后星星从高空砸下。
-     */
-    public static boolean useScepter(ServerPlayer sp) {
-        StarGathererRoleData data = RoleData.getNullable(StarGathererRoleData.class, sp);
-        if (!RoleData.isAttached(data))
-            return false;
-        if (!GameUtils.isPlayerAliveAndSurvival(sp))
-            return false;
-        if (GameUtils.isTimeFrozen(sp.level()))
-            return false;
-        // 冷却统一走原版物品冷却；真正加冷却在 StarScepterItem#use 里完成
-        if (sp.getCooldowns().isOnCooldown(ModItems.STAR_SCEPTER))
-            return false;
-
-        ServerPlayer target = findScepterTarget(sp);
-        if (target == null) {
-            sp.displayClientMessage(Component
-                    .translatable("message.noellesroles.star_gatherer.scepter_no_target")
-                    .withStyle(ChatFormatting.RED), true);
-            return false;
-        }
-
-        ServerLevel level = sp.serverLevel();
-        data.pendingStars.add(new PendingStar(target.getUUID(), SCEPTER_DROP_DELAY_TICKS));
-        // 冷却由原版物品冷却承担，见 StarScepterItem#use 与星星命中后的刷新
-        data.sync();
-
-        level.playSound(null, sp.getX(), sp.getY(), sp.getZ(),
-                SoundEvents.AMETHYST_BLOCK_CHIME, SoundSource.PLAYERS, 1.4F, 1.2F);
-        level.sendParticles(ParticleTypes.ENCHANT, target.getX(), target.getY() + 1.0D, target.getZ(),
-                30, 0.6D, 1.0D, 0.6D, 0.4D);
-        sp.displayClientMessage(Component
-                .translatable("message.noellesroles.star_gatherer.scepter_locked", target.getName())
-                .withStyle(ChatFormatting.AQUA), true);
-        return true;
-    }
-
-    /** 视线方向 35 格内、夹角最小的存活玩家。 */
-    @Nullable
-    private static ServerPlayer findScepterTarget(ServerPlayer sp) {
-        Vec3 eye = sp.getEyePosition();
-        Vec3 look = sp.getLookAngle().normalize();
-        ServerPlayer best = null;
-        double bestDot = 0.94D; // 约 20 度锥形
-        for (ServerPlayer candidate : sp.serverLevel().getEntitiesOfClass(ServerPlayer.class,
-                sp.getBoundingBox().inflate(SCEPTER_RANGE),
-                p -> p != sp && GameUtils.isPlayerAliveAndSurvival(p) && !p.isSpectator())) {
-            Vec3 to = candidate.getEyePosition().subtract(eye);
-            double dist = to.length();
-            if (dist > SCEPTER_RANGE || dist < 0.001D)
-                continue;
-            double dot = to.normalize().dot(look);
-            if (dot > bestDot) {
-                bestDot = dot;
-                best = candidate;
-            }
-        }
-        return best;
-    }
-
     // ── 判断 / tick ────────────────────────────────────────────
 
     private boolean isActiveStarGatherer(ServerPlayer sp) {
@@ -570,7 +500,7 @@ public class StarGathererRoleData extends SimpleRoleData {
         // 摘星者死亡 → 立刻撤掉全场庇护
         if (!alive) {
             clearAllSanctuary(level);
-            pendingStars.clear();
+            return;
             return;
         }
 
@@ -599,28 +529,6 @@ public class StarGathererRoleData extends SimpleRoleData {
             executePull(sp);
         }
 
-        // 待降落的星星
-        if (!pendingStars.isEmpty()) {
-            List<PendingStar> remaining = new ArrayList<>(pendingStars.size());
-            for (PendingStar star : pendingStars) {
-                int left = star.ticksLeft() - 1;
-                if (left > 0) {
-                    remaining.add(new PendingStar(star.target(), left));
-                    continue;
-                }
-                ServerPlayer target = level.getServer().getPlayerList().getPlayer(star.target());
-                if (target == null || !GameUtils.isPlayerAliveAndSurvival(target)) {
-                    continue;
-                }
-                // 星星从目标上方 24 格的高空落下
-                Vec3 from = new Vec3(target.getX(), target.getY() + 24.0D, target.getZ());
-                StarProjectileEntity.spawn(level, from, target, sp);
-                level.playSound(null, target.blockPosition(), SoundEvents.BEACON_DEACTIVATE,
-                        SoundSource.PLAYERS, 1.2F, 0.7F);
-            }
-            pendingStars.clear();
-            pendingStars.addAll(remaining);
-        }
     }
 
     // ── 同步 ────────────────────────────────────────────────────

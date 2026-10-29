@@ -1775,6 +1775,8 @@ public class ModRolesInitialEventRegister {
 
         // 摘星者相关事件：死亡时权杖变左轮 + 撤销全场庇护；对局结束时清掉星星实体
         StarGathererRoleData.registerEvents();
+        // 星之权杖不绑定职业：待降落的星星由全局 tick 推进，任何持有者释放都能正常落下
+        org.agmas.noellesroles.content.item.StarScepterItem.registerTick();
     }
 
 }
