@@ -194,14 +194,22 @@ public final class ClientPetMotion {
         state.y = newY;
         state.z = newZ;
 
-        // 5 格硬钳制：任何异常（传送、换维度、重生）都不会让随从留在远处
+        // 硬钳制只在「真正异常」时兜底（传送 / 换维度 / 重生）：
+        // 正常追随由上面的指数平滑完成，不能每 tick 把位置直接拉到边界，
+        // 否则表现为「瞬移」。这里的阈值取得比跟随触发距离更宽，
+        // 只有明显超出（例如主人瞬移 30 格）才触发。
         state.out[0] = state.x;
         state.out[1] = state.y;
         state.out[2] = state.z;
-        if (PetMotion.clampToOwner(state.out, ownerX, ownerY, ownerZ)) {
+        if (PetMotion.exceedsTeleportThreshold(state.out, ownerX, ownerY, ownerZ)) {
+            PetMotion.clampToOwner(state.out, ownerX, ownerY, ownerZ);
             state.x = state.out[0];
             state.y = state.out[1];
             state.z = state.out[2];
+            // 传送兜底时同步上一帧位置，避免渲染端插值出一条长直线
+            state.prevX = state.x;
+            state.prevY = state.y;
+            state.prevZ = state.z;
         }
 
         // 朝向：朝运动方向；几乎静止时保持上一帧朝向，避免抽搐

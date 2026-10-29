@@ -45,7 +45,13 @@ public record PetMotionProfile(Kind kind, float orbitRadius, float hoverHeight, 
         FLYER
     }
 
-    /** 需求：随从始终在主人 5 格范围内。 */
+    /**
+     * 硬钳制的最大距离（格）。
+     * <p>
+     * 只作为传送 / 换维度 / 重生时的兜底，<b>不参与正常追随</b>：
+     * 正常追随由指数平滑完成，随从会自己跑过来。
+     * 这里保持 5 格是因为皮肤目录里 {@code orbitRadius} 的合法性依赖它。
+     */
     public static final float MAX_DISTANCE = 5.0F;
 
     /** 陆行随从默认参数：绕得远一点，贴地。 */

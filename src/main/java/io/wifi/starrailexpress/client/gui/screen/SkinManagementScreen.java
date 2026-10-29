@@ -219,16 +219,11 @@ public class SkinManagementScreen extends Screen {
         initCategoryArea(categoryHeight, categoryMarginT, titleMarginT + titleHeight);
         initSearchBox(searchHeight, titleMarginT + titleHeight + categoryMarginT + categoryHeight + searchGap);
         initHatConfigCheckboxes(titleMarginT, titleMarginT + titleHeight);
-        // 随从页签额外提供「展示给其他玩家」；其它页签不显示该项
-        if (!categories.isEmpty() && selectedCategory < categories.size()
-                && categories.get(selectedCategory).isPetTab()) {
-            initPetPublicCheckbox(titleMarginT, titleMarginT + titleHeight);
-        } else {
-            petPublicCheck = null;
-        }
+        // 「展示给其他玩家」常驻显示（不限随从页签），且必须放在帽子开关的下一行，
+        // 否则会与「隐藏全部帽子 / 仅显示自己的帽子」叠在同一个 y 上。
+        initPetPublicCheckbox(titleMarginT, titleMarginT + titleHeight);
         initContentArea();
         initButtonArea(isCompact);
-    }
 
     private void rebuildCategories() {
         categories.clear();
@@ -405,7 +400,10 @@ public class SkinManagementScreen extends Screen {
         }
         int checkH = 14;
         int checkW = 140;
-        int checkY = titleY + (totalTitleH - checkH) / 2;
+        // 帽子开关占标题栏那一行（checkY），本项必须放到它下面一行：
+        // 标题栏高 totalTitleH，行高 checkH，行距 2 像素。
+        int hatRowY = titleY + (totalTitleH - checkH) / 2;
+        int checkY = hatRowY + checkH + 2;
         int startX = width - 10 - checkW;
         petPublicCheck = new ToggleCheckbox(startX, checkY, checkW, checkH,
                 Component.translatable("screen.sre.skins.show_pet_to_others"),

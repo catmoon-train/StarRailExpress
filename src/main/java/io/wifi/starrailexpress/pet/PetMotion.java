@@ -135,6 +135,26 @@ public final class PetMotion {
     public static boolean shouldStartFollowing(double distanceSqr) {
         return distanceSqr > FOLLOW_TRIGGER_DISTANCE * FOLLOW_TRIGGER_DISTANCE;
     }
+    /**
+     * 「明显超出」的判定阈值（格）：超过这个距离才认为发生了传送 / 换维度 /
+     * 重生这类异常，需要硬钳制兜底。
+     * <p>
+     * 必须显著大于 {@link #FOLLOW_TRIGGER_DISTANCE}：正常追随完全由指数平滑完成，
+     * 如果每 tick 都钳制到边界，随从就会贴着边界「瞬移」而不是平滑跑过来。
+     */
+    public static final double TELEPORT_THRESHOLD = 24.0D;
+
+    /**
+     * 是否已经远到「只能是传送导致的」。
+     *
+     * @param pos 随从位置 {@code [x, y, z]}
+     */
+    public static boolean exceedsTeleportThreshold(double[] pos, double ownerX, double ownerY, double ownerZ) {
+        double dx = pos[0] - ownerX;
+        double dy = pos[1] - ownerY;
+        double dz = pos[2] - ownerZ;
+        return dx * dx + dy * dy + dz * dz > TELEPORT_THRESHOLD * TELEPORT_THRESHOLD;
+    }
 
     /**
      * 期望位置的 Y 分量。
