@@ -21,7 +21,7 @@
   "item.noellesroles.halloween_soul_link": "灵魂链接",
   "item.noellesroles.halloween_soul_link.tooltip": "右键3格内玩家邀请链接，需对方在GUI同意。消耗一枚；两人不能相距超过10格，共享护盾，一方死亡另一方也死。链接后潜行空手右键伙伴，打开同一份27格共享栏（不复制原背包物品）。",
   "item.noellesroles.halloween_bone_sword": "骨剑",
-  "item.noellesroles.halloween_bone_sword.tooltip": "主手左键4格内可见的真实可交互尸体：50%销尸，50%销尸并生成死者外观的亡灵。16次使用，冷却0.5秒。同一尸体只结算一次，亡灵数量达到上限时仍会销尸。",
+  "item.noellesroles.halloween_bone_sword.tooltip": "主手左键4格内可见的真实可交互尸体：50%销尸，50%销尸并生成死者外观的亡灵。3点耐久，每成功处理一具尸体消耗1点，冷却30秒；无效点击不消耗。同一尸体只结算一次，亡灵数量达到上限时仍会销尸。",
   "item.noellesroles.halloween_coin": "万圣硬币",
   "item.noellesroles.halloween_coin.tooltip": "右键消耗，立即获得 5 金币。",
   "item.noellesroles.halloween_fright_gun": "惊魂枪",

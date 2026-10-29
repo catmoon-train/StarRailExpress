@@ -71,7 +71,7 @@ import java.util.UUID;
 public final class HalloweenCombat {
     public static final double SAW_RANGE = 3.0;
     public static final double GUN_RANGE = 30.0;
-    public static final int BONE_USES = 16;
+    public static final int BONE_USES = HalloweenRewardRules.BONE_DURABILITY;
     public static final int GUN_USES = 6;
     private static final ResourceLocation SAW_DEATH = id("blood_saw");
     private static final ResourceLocation GUN_DEATH = id("fright_gun");
@@ -278,6 +278,8 @@ public final class HalloweenCombat {
             }
             return InteractionResult.SUCCESS;
         }
+        if (!level.isClientSide && stack.is(HalloweenItems.BONE_SWORD)
+                && !migrateBoneDurability(stack)) return InteractionResult.SUCCESS;
         if (!isCombatItem(stack)) return InteractionResult.PASS;
         if (stack.is(HalloweenItems.BONE_SWORD) && player instanceof ServerPlayer p
                 && entity instanceof PlayerBodyEntity body && hand == InteractionHand.MAIN_HAND && canAct(p)
@@ -291,9 +293,13 @@ public final class HalloweenCombat {
             Vec3 pos = body.position();
             if (claimBody(r, body)) {
                 body.discard();
-                spendUse(p, stack, BONE_USES);
-                r.boneReady.put(p.getUUID(), r.state.now() + 10);
-                p.getCooldowns().addCooldown(HalloweenItems.BONE_SWORD, 10);
+                stack.setDamageValue(stack.getDamageValue() + 1);
+                if (stack.getDamageValue() >= BONE_USES) {
+                    stack.shrink(1);
+                    p.onEquippedItemBroken(HalloweenItems.BONE_SWORD, EquipmentSlot.MAINHAND);
+                }
+                r.boneReady.put(p.getUUID(), r.state.now() + HalloweenRewardRules.BONE_COOLDOWN_TICKS);
+                p.getCooldowns().addCooldown(HalloweenItems.BONE_SWORD, HalloweenRewardRules.BONE_COOLDOWN_TICKS);
                 if (p.getRandom().nextBoolean()) spawnUndead(p.serverLevel(), p, skin, pos,
                         HalloweenConfig.get().undeadLifetimeTicks, null);
             }
@@ -592,7 +598,25 @@ public final class HalloweenCombat {
     }
 
     private static void give(ServerPlayer player, ItemStack stack) {
+        org.agmas.noellesroles.game.halloween.pumpkin.PumpkinSpiritHandler.onRewardStack(player, stack);
         if (!player.getInventory().add(stack) && !stack.isEmpty()) player.drop(stack, false);
+    }
+
+    /** 将旧骨剑次数迁移为真实耐久；已经使用三次的旧剑不恢复耐久。 */
+    public static boolean migrateBoneDurability(ItemStack stack) {
+        if (stack.isEmpty() || !stack.is(HalloweenItems.BONE_SWORD)) return false;
+        CompoundTag tag = stack.getOrDefault(DataComponents.CUSTOM_DATA, CustomData.EMPTY).copyTag();
+        if (!tag.contains("HalloweenCombatUses") && stack.getMaxDamage() == BONE_USES
+                && stack.getDamageValue() < BONE_USES) return true;
+        int damage = HalloweenRewardRules.migratedBoneDamage(stack.getDamageValue(), tag.getInt("HalloweenCombatUses"));
+        stack.set(DataComponents.MAX_DAMAGE, BONE_USES);
+        stack.setDamageValue(damage);
+        if (tag.contains("HalloweenCombatUses")) {
+            tag.remove("HalloweenCombatUses");
+            stack.set(DataComponents.CUSTOM_DATA, CustomData.of(tag));
+        }
+        if (damage >= BONE_USES) { stack.shrink(1); return false; }
+        return true;
     }
 
     private static void spendUse(ServerPlayer p, ItemStack stack, int limit) {

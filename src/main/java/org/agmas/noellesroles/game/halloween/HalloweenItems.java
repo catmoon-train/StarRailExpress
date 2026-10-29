@@ -21,7 +21,7 @@ public final class HalloweenItems {
     public static final Item CANDY_BAG = basic("candy_bag", Action.BAG);
     public static final Item PUMPKIN = basic("pumpkin", Action.NONE);
     public static final Item SOUL_LINK = register("soul_link", new HalloweenItem(new Item.Properties().stacksTo(1), Action.NONE));
-    public static final Item BONE_SWORD = register("bone_sword", new HalloweenItem(new Item.Properties().stacksTo(1), Action.NONE));
+    public static final Item BONE_SWORD = register("bone_sword", new HalloweenItem(new Item.Properties().durability(HalloweenRewardRules.BONE_DURABILITY), Action.NONE));
     public static final Item COIN = basic("coin", Action.COIN);
     public static final Item FRIGHT_GUN = register("fright_gun", new HalloweenItem(new Item.Properties().stacksTo(1), Action.NONE));
     public static final Item SOUL_CONTRACT = basic("soul_contract", Action.NONE);

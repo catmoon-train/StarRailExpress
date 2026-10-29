@@ -1,4 +1,11 @@
 {
+  "announcement.star.role.pumpkin_spirit": "南瓜精",
+  "announcement.star.goals.pumpkin_spirit": "累計獲得開局人數×4個南瓜，獨立獲勝。丟棄再撿不計數。",
+  "announcement.star.win.pumpkin_spirit": "南瓜精收集了足夠的南瓜！",
+  "skill.noellesroles.pumpkin_spirit.bat": "化身蝙蝠",
+  "hud.noellesroles.pumpkin_spirit.progress": "累計南瓜：%s / %s",
+  "hud.noellesroles.pumpkin_spirit.suppressed": "亡命徒壓制中：無法復活或獲勝",
+  "message.noellesroles.pumpkin_spirit.killed": "你殺死了南瓜精！你被戴上南瓜頭，並獲得緩速 I，持續20秒。",
   "entity.noellesroles.rainbow_horse": "海曼彩虹馬",
   "item.noellesroles.rainbow_horseshoe": "彩虹馬蹄鐵",
   "item.noellesroles.rainbow_horseshoe.tooltip": "右鍵召喚一匹海曼彩虹馬從天而降，可兩人乘騎，120秒後消失",

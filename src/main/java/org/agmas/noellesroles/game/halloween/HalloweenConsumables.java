@@ -222,6 +222,7 @@ public final class HalloweenConsumables {
         while (count > 0) {
             int amount = Math.min(count, item.getDefaultMaxStackSize());
             ItemStack stack = new ItemStack(item, amount);
+            org.agmas.noellesroles.game.halloween.pumpkin.PumpkinSpiritHandler.onRewardStack(player, stack);
             if (!player.getInventory().add(stack)) player.drop(stack, false);
             count -= amount;
         }

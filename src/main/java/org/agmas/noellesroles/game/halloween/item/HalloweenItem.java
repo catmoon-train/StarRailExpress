@@ -38,9 +38,18 @@ public class HalloweenItem extends Item {
         boolean used = action == Action.PRESIDENT ? PumpkinHideouts.place(sp, null)
                 : HalloweenConsumables.use(sp, action);
         if (!used) return InteractionResultHolder.fail(stack);
+        if (action == Action.CANDY)
+            org.agmas.noellesroles.game.halloween.pumpkin.PumpkinSpiritHandler.onCandyConsumed(sp, stack);
         stack.consume(1, player);
         player.getCooldowns().addCooldown(this, 5);
         return InteractionResultHolder.consume(stack);
+    }
+
+    @Override
+    public void inventoryTick(ItemStack stack, Level level, net.minecraft.world.entity.Entity entity,
+                              int slot, boolean selected) {
+        if (!level.isClientSide && this == org.agmas.noellesroles.game.halloween.HalloweenItems.BONE_SWORD)
+            org.agmas.noellesroles.game.halloween.HalloweenCombat.migrateBoneDurability(stack);
     }
 
     @Override

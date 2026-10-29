@@ -237,6 +237,7 @@ public final class HalloweenVillage {
         HalloweenConfig config = HalloweenConfig.get();
         NEXT_KNOCK.put(level.getServer(), now + Math.max(1, config.knockCooldownTicks));
         level.playSound(null, door, SoundEvents.WOOD_HIT, SoundSource.BLOCKS, 1, .7F);
+        org.agmas.noellesroles.game.halloween.pumpkin.PumpkinSpiritHandler.onDoorKnocked(player);
         switch (VillageRules.knockReward(level.random.nextInt(100))) {
             case 0 -> give(player, new ItemStack(HalloweenItems.PUMPKIN, 1 + level.random.nextInt(2)));
             case 1 -> HalloweenCombat.spawnUndead(level, null, player.getUUID(), player.position(), config.knockUndeadTicks, player.getUUID());
@@ -298,6 +299,8 @@ public final class HalloweenVillage {
         var shop = SREPlayerShopComponent.KEY.get(player);
         var role = SREGameWorldComponent.KEY.get(player.level()).getRole(player);
         if (coins < 0 || (coins > 0 && (shop.balance < coins || role == null || role.hasNoCoinSystem()))) return false;
+        if (reward.is(HalloweenItems.PUMPKIN))
+            org.agmas.noellesroles.game.halloween.pumpkin.PumpkinSpiritHandler.markSettled(reward);
         List<ItemStack> plan = VillageInventory.plan(player.getInventory().items, pumpkins, reward, amount, STACKS);
         if (plan == null) return false;
         // 主线程、无回调提交：两个币种和商品作为一个事务；不调用会部分插入的 Inventory.add。
@@ -305,6 +308,8 @@ public final class HalloweenVillage {
         if (coins > 0) shop.setBalance(shop.balance - coins);
         player.getInventory().setChanged();
         player.inventoryMenu.broadcastChanges();
+        if (reward.is(HalloweenItems.PUMPKIN))
+            org.agmas.noellesroles.game.halloween.pumpkin.PumpkinSpiritHandler.onFreshPickup(player, amount);
         return true;
     }
 
@@ -317,6 +322,7 @@ public final class HalloweenVillage {
     };
 
     private static void give(ServerPlayer player, ItemStack stack) {
+        org.agmas.noellesroles.game.halloween.pumpkin.PumpkinSpiritHandler.onRewardStack(player, stack);
         if (!player.getInventory().add(stack) && !stack.isEmpty()) player.drop(stack, false);
         player.inventoryMenu.broadcastChanges();
     }
