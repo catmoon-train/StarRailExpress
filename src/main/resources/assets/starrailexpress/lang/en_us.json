@@ -2703,6 +2703,8 @@
     "screen.sre.skins.hat_title": "Hats/Accessories",
     "screen.sre.skins.hat_empty": "No hats available (requires a hat content mod)",
     "screen.sre.skins.no_hat": "No hat",
+  "screen.sre.skins.random": "Random",
+  "screen.sre.skins.random.desc": "A random owned skin is picked at the start of each round",
     "screen.sre.skins.backpack": "Back",
     "screen.sre.skins.hand_accessory": "Hand",
     "screen.sre.skins.no_backpack": "No back accessory",

@@ -2685,6 +2685,8 @@
   "screen.sre.skins.hat_title": "帽子/飾品",
   "screen.sre.skins.hat_empty": "暫無可用帽子（需要帽子內容模組）",
   "screen.sre.skins.no_hat": "無帽子",
+  "screen.sre.skins.random": "隨機",
+  "screen.sre.skins.random.desc": "每局開始時從已擁有的皮膚中隨機選一個",
   "screen.sre.skins.backpack": "背部飾品",
   "screen.sre.skins.hand_accessory": "手部飾品",
   "screen.sre.skins.no_backpack": "無背飾",

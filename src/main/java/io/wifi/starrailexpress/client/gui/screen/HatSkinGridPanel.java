@@ -115,6 +115,11 @@ public class HatSkinGridPanel extends AbstractWidget {
         this.equippedHat = skinsComponent.getEquippedSkin(skinType);
 
         cards.add(new HatCard("default", null, 0xFF9AA0AA, true));
+        // 「随机」：每局开局由服务端在已拥有的皮肤里重抽一次（见
+        // SREPlayerSkinsComponent#rollAllRandomSkins）。以前只有列表式
+        // SkinSelectionList 有这个条目，网格式的帽子 / 饰品 / 音乐盒 /
+        // 随从 / MVP 因此无法选随机，这里补齐，让所有皮肤类型都支持。
+        cards.add(new HatCard(ItemSkinManager.RANDOM_SKIN, null, 0xFFD4AF37, true));
 
         Map<String, ItemSkinManager.Skin> hatSkins = ItemSkinManager.getSkins(skinType);
         List<Map.Entry<String, ItemSkinManager.Skin>> sorted = new ArrayList<>(hatSkins.entrySet());
@@ -123,7 +128,8 @@ public class HatSkinGridPanel extends AbstractWidget {
                 .thenComparing(Map.Entry::getKey));
         for (Map.Entry<String, ItemSkinManager.Skin> entry : sorted) {
             String name = entry.getKey();
-            if ("default".equals(name)) {
+            // 「随机」是伪皮肤，不参与普通卡片列表（上面已单独加过）
+            if ("default".equals(name) || ItemSkinManager.isRandomSkin(name)) {
                 continue;
             }
             Item item = iconFor(name);
@@ -134,7 +140,9 @@ public class HatSkinGridPanel extends AbstractWidget {
         // 搜索过滤
         if (filter != null && !filter.isEmpty()) {
             String f = filter.toLowerCase(java.util.Locale.ROOT);
-            cards.removeIf(c -> !"default".equals(c.skinName) && !c.displayName().getString().toLowerCase(java.util.Locale.ROOT).contains(f));
+            cards.removeIf(c -> !"default".equals(c.skinName)
+                    && !ItemSkinManager.isRandomSkin(c.skinName)
+                    && !c.displayName().getString().toLowerCase(java.util.Locale.ROOT).contains(f));
         }
 
         int columns = columns();
@@ -272,7 +280,11 @@ public class HatSkinGridPanel extends AbstractWidget {
         graphics.fill(getX(), getY(), getX() + width, getY() + 1, PANEL_BORDER);
         graphics.fill(getX(), getY() + height - 1, getX() + width, getY() + height, PANEL_BORDER);
 
-        if (cards.size() <= 1) {
+        // 只有「未装备」一张卡时说明该类型没有任何皮肤，显示空提示。
+        // 「随机」卡也常驻，所以要按「有没有真实皮肤」判断，不能只看 cards.size()。
+        boolean hasRealSkin = cards.stream().anyMatch(c -> !"default".equals(c.skinName)
+                && !ItemSkinManager.isRandomSkin(c.skinName));
+        if (!hasRealSkin) {
             String emptyKey = ItemSkinManager.SkinTypes.MUSIC_BOX.equals(skinType)
                     ? "screen.sre.skins.music_box_empty"
                     : ItemSkinManager.SkinTypes.MVP_ANIMATION.equals(skinType)
@@ -406,6 +418,10 @@ public class HatSkinGridPanel extends AbstractWidget {
         }
 
         Component displayName() {
+            // 「随机」：显示图标位留空（画骰子符号），名称走通用翻译键。
+            if (ItemSkinManager.isRandomSkin(skinName)) {
+                return Component.translatableWithFallback("screen.sre.skins.random", "Random");
+            }
             if ("default".equals(skinName)) {
                 String noneKey = switch (skinType) {
                     case "backpack" -> "screen.sre.skins.no_backpack";

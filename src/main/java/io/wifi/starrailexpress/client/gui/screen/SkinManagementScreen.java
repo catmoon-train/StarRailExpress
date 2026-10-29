@@ -224,6 +224,7 @@ public class SkinManagementScreen extends Screen {
         initPetPublicCheckbox(titleMarginT, titleMarginT + titleHeight);
         initContentArea();
         initButtonArea(isCompact);
+    }
 
     private void rebuildCategories() {
         categories.clear();
@@ -469,6 +470,12 @@ public class SkinManagementScreen extends Screen {
     private void equipGridSkin(String skinName) {
         CategoryTabData tab = categories.get(selectedCategory);
         ClientPlayNetworking.send(new UpdateSkinSelectedPayload(tab.id, skinName));
+        // 选中「随机」时不能做本地乐观更新：RANDOM_SKIN 不是真实皮肤 ID，
+        // 写进缓存会让渲染端拿着无效 ID 去找模型/贴图。服务端收到后会立刻
+        // rollRandomSkin 抽一次并同步回来，等那一次同步即可。
+        if (ItemSkinManager.isRandomSkin(skinName)) {
+            return;
+        }
         if (player != null && tab.isHatTab()) {
             ClientHatEquipmentCache.setLocalOptimistic(player.getUUID(), skinName);
         }
