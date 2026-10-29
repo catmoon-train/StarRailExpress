@@ -90,33 +90,43 @@ public final class ClientPetCache {
      * 渲染层唯一入口：返回「此刻应当渲染的随从皮肤 ID」，空串表示不渲染。
      * <p>
      * 已经合入本地配置与游戏状态，调用方无需再判断任何可见性条件。
+     * <p>
+     * <b>这是每帧热路径</b>（每个可见玩家每帧一次），因此：
+     * <ul>
+     * <li>先用最便宜的「未装备」判断短路——绝大多数玩家没装随从；</li>
+     * <li>游戏阶段只在「他人随从」分支才查，自己/未装备的路径完全不碰组件；</li>
+     * <li>本地配置只读一次到局部变量，避免重复 {@code instance()} 调用。</li>
+     * </ul>
      */
     public static String getVisibleSkinId(AbstractClientPlayer player) {
         if (player == null) {
             return "";
         }
-        String skinId = getSkinId(player.getUUID());
-        if (skinId.isBlank()) {
+        UUID uuid = player.getUUID();
+        PetSyncPayload.Entry entry = ENTRIES.get(uuid);
+        // 最便宜的一步：没有条目（或没装随从）直接返回，不碰任何配置/组件
+        if (entry == null || !entry.hasPet()) {
             return "";
         }
-        if (isLocalPlayer(player)) {
+        SREClientConfig config = SREClientConfig.instance();
+        Minecraft minecraft = Minecraft.getInstance();
+        if (minecraft.player != null && minecraft.player.getUUID().equals(uuid)) {
             // 自己的随从：除非本地配置要求全隐藏，否则一直可见
-            return SREClientConfig.instance().hideAllPets ? "" : skinId;
+            return config.hideAllPets ? "" : entry.skinId();
         }
         // 他人勾选公开也不一定看：本地可以只留自己的
-        if (SREClientConfig.instance().showOwnPetOnly) {
+        if (config.showOwnPetOnly) {
             return "";
         }
         // 他人的随从：必须公开 + 游戏未开始（含开局淡入的 STARTING 阶段）
-        if (!isShared(player.getUUID())) {
+        if (!entry.shared()) {
             return "";
         }
-        return isLobbyPhase() ? skinId : "";
+        return isLobbyPhase(minecraft) ? entry.skinId() : "";
     }
 
     /** 游戏是否处于「大厅」阶段（只有此阶段他人随从才可见）。 */
-    private static boolean isLobbyPhase() {
-        Minecraft minecraft = Minecraft.getInstance();
+    private static boolean isLobbyPhase(Minecraft minecraft) {
         if (minecraft.level == null) {
             return false;
         }

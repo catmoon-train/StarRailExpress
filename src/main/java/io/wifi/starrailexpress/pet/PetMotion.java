@@ -136,16 +136,18 @@ public final class PetMotion {
         return distanceSqr > FOLLOW_TRIGGER_DISTANCE * FOLLOW_TRIGGER_DISTANCE;
     }
     /**
-     * 「明显超出」的判定阈值（格）：超过这个距离才认为发生了传送 / 换维度 /
-     * 重生这类异常，需要硬钳制兜底。
+     * 「强制瞬移」的判定阈值（格）：超过这个距离才认为发生了传送 / 换维度 /
+     * 重生这类异常，直接把随从拉到主人身边。
      * <p>
-     * 必须显著大于 {@link #FOLLOW_TRIGGER_DISTANCE}：正常追随完全由指数平滑完成，
-     * 如果每 tick 都钳制到边界，随从就会贴着边界「瞬移」而不是平滑跑过来。
+     * 用户要求：<b>5 格内平滑跟随，只有超过 30 格才强制瞬移。</b>
+     * 因此这个值必须显著大于 {@link #FOLLOW_TRIGGER_DISTANCE}——两者之间的
+     * 整个区间都交给指数平滑跑过去，不能一超阈值就把位置拉回边界，
+     * 否则视觉上就是「闪现」。
      */
-    public static final double TELEPORT_THRESHOLD = 24.0D;
+    public static final double TELEPORT_THRESHOLD = 30.0D;
 
     /**
-     * 是否已经远到「只能是传送导致的」。
+     * 是否已经远到「只能是传送导致的」，需要强制瞬移。
      *
      * @param pos 随从位置 {@code [x, y, z]}
      */
@@ -154,6 +156,26 @@ public final class PetMotion {
         double dy = pos[1] - ownerY;
         double dz = pos[2] - ownerZ;
         return dx * dx + dy * dy + dz * dz > TELEPORT_THRESHOLD * TELEPORT_THRESHOLD;
+    }
+
+    /**
+     * 强制瞬移：把随从直接放到主人身后 {@code radius} 格处。
+     * <p>
+     * 与 {@link #clampToOwner} 的区别：钳制是把位置「拉回到某个半径的球面上」，
+     * 保留原本方向（可能仍在半空、或落在主人正前方）；瞬移则按主人身体朝向
+     * 放到背后，语义上等价于「重新出现在该出现的位置」。
+     * <p>
+     * 只在 {@link #exceedsTeleportThreshold} 成立时调用。
+     *
+     * @param out    长度 ≥ 3 的输出数组，写回 {@code [x, y, z]}
+     * @param radius 落在主人身后的水平距离（格）
+     */
+    public static void teleportBehindOwner(double[] out, float bodyYaw, double ownerX, double ownerY, double ownerZ,
+            double radius, double[] scratch) {
+        offsetFromAngle(behindAngle(bodyYaw), (float) radius, scratch);
+        out[0] = ownerX + scratch[0];
+        out[1] = ownerY;
+        out[2] = ownerZ + scratch[1];
     }
 
     /**
@@ -203,21 +225,23 @@ public final class PetMotion {
         }
         return fallbackY;
     }
-
     /**
-     * 5 格硬钳制：把随从位置拉回主人 {@link PetMotionProfile#MAX_DISTANCE} 格内。
+     * 硬钳制：把随从位置拉回主人 {@code maxDistance} 格内（保留方向）。
      * <p>
-     * 结果写回 {@code out}（长度 ≥ 3 的数组，{@code [x, y, z]}），不分配对象。
+     * <b>正常追随不该用它。</b>追随由指数平滑完成；这里只作为
+     * 「位置数据明显不合理」时的兜底。半径由调用方传入，
+     * 不再固定取 {@link PetMotionProfile#MAX_DISTANCE}——
+     * 那个 5 格是「环绕半径的合法上限」，不是「随从允许离主人多远」。
      *
      * @return 是否发生了钳制
      */
-    public static boolean clampToOwner(double[] out, double ownerX, double ownerY, double ownerZ) {
+    public static boolean clampToOwner(double[] out, double ownerX, double ownerY, double ownerZ,
+            double maxDistance) {
         double dx = out[0] - ownerX;
         double dy = out[1] - ownerY;
         double dz = out[2] - ownerZ;
         double distanceSqr = dx * dx + dy * dy + dz * dz;
-        double max = PetMotionProfile.MAX_DISTANCE;
-        if (distanceSqr <= max * max) {
+        if (distanceSqr <= maxDistance * maxDistance) {
             return false;
         }
         double distance = Math.sqrt(distanceSqr);
@@ -228,11 +252,22 @@ public final class PetMotion {
             out[2] = ownerZ;
             return true;
         }
-        double scale = max / distance;
+        double scale = maxDistance / distance;
         out[0] = ownerX + dx * scale;
         out[1] = ownerY + dy * scale;
         out[2] = ownerZ + dz * scale;
         return true;
+    }
+
+    /**
+     * 兼容旧签名的钳制：固定使用 {@link PetMotionProfile#MAX_DISTANCE}。
+     *
+     * @deprecated 正常追随路径请改用 {@link #teleportBehindOwner}；
+     *             这个重载只服务于单元测试与历史调用点。
+     */
+    @Deprecated
+    public static boolean clampToOwner(double[] out, double ownerX, double ownerY, double ownerZ) {
+        return clampToOwner(out, ownerX, ownerY, ownerZ, PetMotionProfile.MAX_DISTANCE);
     }
 
     /** 两点水平距离的平方（判断「是否走了足够远、需要重新吸附地面」）。 */

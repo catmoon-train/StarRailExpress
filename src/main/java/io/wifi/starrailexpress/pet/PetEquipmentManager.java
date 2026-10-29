@@ -28,8 +28,10 @@ import net.minecraft.world.entity.player.Player;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -74,6 +76,10 @@ public final class PetEquipmentManager {
 
     /**
      * 获取服务端权威的某玩家随从状态（未装备时 {@link PetSyncPayload.Entry#hasPet()} 为 false）。
+     * <p>
+     * 组件只取一次：{@code getEquippedSkin} 与 {@code isPetPublic} 都会各自
+     * {@code KEY.get(player)}，如果分别调用就是两次组件查询。本方法被
+     * 「每 5 秒 × 在线玩家数」调用，合并后能省掉一半。
      */
     public static PetSyncPayload.Entry getServerPetState(Player player) {
         if (player == null || !SREConfig.instance().isItemSkinEnabled) {
@@ -124,9 +130,15 @@ public final class PetEquipmentManager {
         if (server.getTickCount() % SCAN_INTERVAL_TICKS != 0) {
             return;
         }
+        List<ServerPlayer> players = server.getPlayerList().getPlayers();
+        // 一次性收集在线 UUID：末尾清理 LAST_KNOWN 时用它做 O(1) 判断。
+        // 早期实现用 server.getPlayerList().getPlayer(uuid) 逐个查，
+        // 那是按名字/列表线性扫描，在 removeIf 里等于 O(n²)。
+        Set<UUID> online = new HashSet<>(Math.max(4, players.size() * 2));
         Map<UUID, PetSyncPayload.Entry> changes = null;
-        for (ServerPlayer player : server.getPlayerList().getPlayers()) {
+        for (ServerPlayer player : players) {
             UUID uuid = player.getUUID();
+            online.add(uuid);
             PetSyncPayload.Entry current = getServerPetState(player);
             PetSyncPayload.Entry last = LAST_KNOWN.get(uuid);
             boolean same = last != null
@@ -142,17 +154,19 @@ public final class PetEquipmentManager {
             }
         }
         // 清理已离线玩家的记录（双保险，DISCONNECT 事件已处理）
-        LAST_KNOWN.keySet().removeIf(uuid -> server.getPlayerList().getPlayer(uuid) == null);
+        if (!LAST_KNOWN.isEmpty()) {
+            LAST_KNOWN.keySet().retainAll(online);
+        }
 
         if (changes == null || changes.isEmpty()) {
             return;
         }
         // 先筛出能接收的客户端，没有可接收者则连包都不用组
         List<ServerPlayer> recipients = null;
-        for (ServerPlayer recipient : server.getPlayerList().getPlayers()) {
+        for (ServerPlayer recipient : players) {
             if (ServerPlayNetworking.canSend(recipient, PetSyncPayload.ID)) {
                 if (recipients == null) {
-                    recipients = new ArrayList<>();
+                    recipients = new ArrayList<>(players.size());
                 }
                 recipients.add(recipient);
             }
@@ -160,6 +174,8 @@ public final class PetEquipmentManager {
         if (recipients == null) {
             return;
         }
+        // 同一个 payload 实例发给所有人：encode 只被调用一次（按接收者各写一次缓冲），
+        // 不要在循环里重复构造 payload。
         PetSyncPayload payload = PetSyncPayload.incremental(changes);
         for (ServerPlayer recipient : recipients) {
             ServerPlayNetworking.send(recipient, payload);

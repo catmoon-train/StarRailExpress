@@ -26,7 +26,9 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.shapes.VoxelShape;
 
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -52,6 +54,18 @@ import java.util.concurrent.ConcurrentHashMap;
 public final class ClientPetMotion {
 
     /** 每名玩家的运动状态。 */
+    /**
+     * 皮肤 ID → 运动类型 的缓存。
+     * <p>
+     * 皮肤 ID 只有个位数种，而 {@link #kindOf} 在「每 tick × 每个可见随从」
+     * 的路径上被调用；缓存后既省掉 {@code toLowerCase} 的字符串分配，
+     * 也省掉一次 {@code contains} 扫描。
+     */
+
+    /** 地面采样器缓存（按 level 复用，避免每 tick 每随从新建 lambda）。 */
+    private static PetMotion.GroundSampler GROUND_SAMPLER;
+    private static ClientLevel GROUND_SAMPLER_LEVEL;
+    private static final Map<String, PetMotionProfile.Kind> KIND_CACHE = new ConcurrentHashMap<>();
     private static final Map<UUID, State> STATES = new ConcurrentHashMap<>();
 
     private ClientPetMotion() {
@@ -69,19 +83,27 @@ public final class ClientPetMotion {
             return;
         }
         long tick = level.getGameTime();
-        // 先把不再可见的随从状态清掉（卸下 / 取消公开 / 开局）
-        STATES.keySet().removeIf(uuid -> {
-            AbstractClientPlayer player = findPlayer(minecraft, uuid);
-            return player == null || ClientPetCache.getVisibleSkinId(player).isBlank();
-        });
+        // 单次遍历同时完成「清理失效状态」与「推进可见随从」。
+        // 早期实现先 removeIf 再循环，每个玩家每 tick 要算两遍
+        // ClientPetCache.getVisibleSkinId（内部还有组件查询与配置读取），
+        // 多人场景下这正好是两倍的无效开销。
+        Set<UUID> alive = new HashSet<>(level.players().size() * 2);
         for (AbstractClientPlayer player : level.players()) {
+            UUID uuid = player.getUUID();
+            alive.add(uuid);
             String skinId = ClientPetCache.getVisibleSkinId(player);
             if (skinId.isBlank()) {
+                // 不可见就丢弃状态，下次重新出现时从头平滑（避免从旧位置飞过来）
+                STATES.remove(uuid);
                 continue;
             }
             PetMotionProfile profile = PetMotionProfile.defaults(kindOf(skinId));
-            State state = STATES.computeIfAbsent(player.getUUID(), id -> new State());
+            State state = STATES.computeIfAbsent(uuid, id -> new State());
             advance(state, player, profile, level, tick);
+        }
+        // 清掉已经离开视野/退出游戏的残留状态（例如玩家被卸载出客户端世界）
+        if (!STATES.isEmpty()) {
+            STATES.keySet().retainAll(alive);
         }
     }
 
@@ -128,11 +150,20 @@ public final class ClientPetMotion {
      * 皮肤 ID 里含 {@code fly} 视为飞行类，其余按陆行类处理；
      * 真正权威的类型来自 sre-skin 的目录，但这里只决定运动曲线，
      * 猜错的代价仅仅是「随从浮起来或贴地」，不影响正确性。
+     * <p>
+     * 结果按 ID 缓存：{@code toLowerCase} 每次都会新建字符串，而本方法在
+     * 「每 tick × 每个可见随从」的路径上，缓存后彻底消除这份分配。
      */
     private static PetMotionProfile.Kind kindOf(String skinId) {
-        return skinId.toLowerCase(java.util.Locale.ROOT).contains("fly")
+        PetMotionProfile.Kind cached = KIND_CACHE.get(skinId);
+        if (cached != null) {
+            return cached;
+        }
+        PetMotionProfile.Kind kind = skinId.toLowerCase(java.util.Locale.ROOT).contains("fly")
                 ? PetMotionProfile.Kind.FLYER
                 : PetMotionProfile.Kind.WALKER;
+        KIND_CACHE.put(skinId, kind);
+        return kind;
     }
 
     private static void advance(State state, AbstractClientPlayer owner, PetMotionProfile profile,
@@ -157,10 +188,10 @@ public final class ClientPetMotion {
             state.prevY = state.y;
             state.prevZ = state.z;
         }
-
-        // 期望位置：默认「原地不动」，只有被主人落下超过 5 格时才追到身后。
-        // 这样玩家静止、或小幅走动时可以转身看着它，随从不会跟着甩来甩去。
-        // 用 bodyYaw 而非 headYaw：玩家转头看四周时随从不应跟着移动。
+        // 期望位置：
+        // 未超出触发距离时原地不动（玩家可转身看着它）；
+        // 一旦超出，目标点就是主人身后 orbitRadius 处——随从以指数平滑跑过去，
+        // 距离越远每 tick 位移越大，视觉上就是「小跑跟上」而不是闪现。
         double currentDistanceSqr = PetMotion.horizontalDistanceSqr(state.x, state.z, ownerX, ownerZ);
         boolean chasing = PetMotion.shouldStartFollowing(currentDistanceSqr);
         double targetX;
@@ -194,19 +225,19 @@ public final class ClientPetMotion {
         state.y = newY;
         state.z = newZ;
 
-        // 硬钳制只在「真正异常」时兜底（传送 / 换维度 / 重生）：
-        // 正常追随由上面的指数平滑完成，不能每 tick 把位置直接拉到边界，
-        // 否则表现为「瞬移」。这里的阈值取得比跟随触发距离更宽，
-        // 只有明显超出（例如主人瞬移 30 格）才触发。
+        // 唯一的强制瞬移：只有超过 TELEPORT_THRESHOLD（30 格）才认为发生了
+        // 传送 / 换维度 / 重生这类异常。5~30 格之间全部交给上面的平滑完成，
+        // 绝不能在正常追随路径上钳制位置，否则就是「闪现」。
         state.out[0] = state.x;
         state.out[1] = state.y;
         state.out[2] = state.z;
         if (PetMotion.exceedsTeleportThreshold(state.out, ownerX, ownerY, ownerZ)) {
-            PetMotion.clampToOwner(state.out, ownerX, ownerY, ownerZ);
+            PetMotion.teleportBehindOwner(state.out, owner.yBodyRot, ownerX, ownerY, ownerZ,
+                    profile.orbitRadius(), state.offset);
             state.x = state.out[0];
             state.y = state.out[1];
             state.z = state.out[2];
-            // 传送兜底时同步上一帧位置，避免渲染端插值出一条长直线
+            // 瞬移时同步上一帧位置，避免渲染端插值出一条横穿屏幕的长线
             state.prevX = state.x;
             state.prevY = state.y;
             state.prevZ = state.z;
@@ -230,7 +261,14 @@ public final class ClientPetMotion {
      * 于是随从会停在上一格高度，不会沉进水里。
      */
     private static PetMotion.GroundSampler groundSampler(ClientLevel level) {
-        return (x, y, z) -> {
+        // 复用：level 未变时直接返回上一次的采样器。
+        // 早期实现每次调用都新建一个 lambda 实例，而这条路径在
+        // 「每 tick × 每个陆行随从」上，纯属无意义的分配。
+        PetMotion.GroundSampler cached = GROUND_SAMPLER;
+        if (cached != null && GROUND_SAMPLER_LEVEL == level) {
+            return cached;
+        }
+        PetMotion.GroundSampler sampler = (x, y, z) -> {
             BlockPos pos = BlockPos.containing(x, y, z);
             BlockState state = level.getBlockState(pos);
             VoxelShape shape = state.getCollisionShape(level, pos);
@@ -245,18 +283,9 @@ public final class ClientPetMotion {
             }
             return top;
         };
-    }
-
-    private static AbstractClientPlayer findPlayer(Minecraft minecraft, UUID uuid) {
-        if (minecraft.level == null) {
-            return null;
-        }
-        for (AbstractClientPlayer player : minecraft.level.players()) {
-            if (player.getUUID().equals(uuid)) {
-                return player;
-            }
-        }
-        return null;
+        GROUND_SAMPLER = sampler;
+        GROUND_SAMPLER_LEVEL = level;
+        return sampler;
     }
 
     /** 单名玩家的运动状态。 */

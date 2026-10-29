@@ -207,6 +207,66 @@ class PetMotionTest {
                 "触发距离应与需求的 5 格一致");
     }
 
+    // ─── 30 格强制瞬移 / 5~30 格平滑跟随 ──────────────────────────────────
+
+    @Test
+    void teleportThresholdIsThirtyBlocks() {
+        assertEquals(30.0D, PetMotion.TELEPORT_THRESHOLD, EPS,
+                "用户要求：只有超过 30 格才强制瞬移");
+    }
+
+    @Test
+    void nearbyPetIsNotTeleported() {
+        // 10 格、25 格都在平滑跟随区间内，绝不能触发瞬移
+        double[] at10 = {10.0D, 0.0D, 0.0D};
+        assertFalse(PetMotion.exceedsTeleportThreshold(at10, 0.0D, 0.0D, 0.0D),
+                "10 格必须由平滑跟随处理，不能瞬移");
+        double[] at25 = {25.0D, 0.0D, 0.0D};
+        assertFalse(PetMotion.exceedsTeleportThreshold(at25, 0.0D, 0.0D, 0.0D),
+                "25 格仍应平滑跟随");
+        double[] at30 = {30.0D, 0.0D, 0.0D};
+        assertFalse(PetMotion.exceedsTeleportThreshold(at30, 0.0D, 0.0D, 0.0D),
+                "恰好 30 格仍在容差内");
+    }
+
+    @Test
+    void farPetIsTeleported() {
+        double[] at31 = {31.0D, 0.0D, 0.0D};
+        assertTrue(PetMotion.exceedsTeleportThreshold(at31, 0.0D, 0.0D, 0.0D),
+                "超过 30 格必须瞬移");
+        double[] at100 = {100.0D, 0.0D, 0.0D};
+        assertTrue(PetMotion.exceedsTeleportThreshold(at100, 0.0D, 0.0D, 0.0D));
+    }
+
+    @Test
+    void teleportPlacesPetBehindOwner() {
+        double[] out = new double[3];
+        double[] scratch = new double[2];
+        // 主人朝 +Z（yaw=0），背后应是 -Z
+        PetMotion.teleportBehindOwner(out, 0.0F, 5.0D, 64.0D, 5.0D, 2.0D, scratch);
+        assertEquals(5.0D, out[0], EPS, "yaw=0 时背后偏移无 X 分量");
+        assertEquals(64.0D, out[1], EPS, "瞬移后 Y 对齐主人");
+        assertEquals(3.0D, out[2], EPS, "yaw=0 时背后是 -Z，距离 2 格");
+    }
+
+    @Test
+    void smoothFollowNeverJumpsWithinThirtyBlocks() {
+        // 模拟：随从在 20 格外，每 tick 用 WALKER 的刚度逼近，位置必须单调靠近且步长有界
+        PetMotionProfile profile = PetMotionProfile.defaults(PetMotionProfile.Kind.WALKER);
+        double petX = 20.0D;
+        double ownerX = 0.0D;
+        double maxStep = 0.0D;
+        for (int i = 0; i < 100; i++) {
+            double next = PetMotion.approach(petX, ownerX, profile.stiffness(), 0.05D);
+            double step = Math.abs(next - petX);
+            maxStep = Math.max(maxStep, step);
+            assertTrue(next <= petX + EPS, "必须单调靠近，不能过冲");
+            petX = next;
+        }
+        assertTrue(maxStep < 5.0D, "单 tick 位移必须远小于 5 格，否则视觉上就是闪现");
+        assertTrue(Math.abs(petX - ownerX) < 0.5D, "足够多 tick 后必须接近目标");
+    }
+
     @Test
     void flyerHoversAboveOwnerHead() {
         PetMotionProfile flyer = PetMotionProfile.defaults(PetMotionProfile.Kind.FLYER);

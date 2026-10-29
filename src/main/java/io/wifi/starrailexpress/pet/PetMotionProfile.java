@@ -54,10 +54,17 @@ public record PetMotionProfile(Kind kind, float orbitRadius, float hoverHeight, 
      */
     public static final float MAX_DISTANCE = 5.0F;
 
-    /** 陆行随从默认参数：绕得远一点，贴地。 */
-    public static final PetMotionProfile WALKER = new PetMotionProfile(Kind.WALKER, 2.2F, 0.0F, 10.0F, 0.0F);
-    /** 飞行随从默认参数：贴着主人转小圈，浮在头顶。 */
-    public static final PetMotionProfile FLYER = new PetMotionProfile(Kind.FLYER, 1.0F, 0.55F, 14.0F, 0.06F);
+    /**
+     * 陆行随从默认参数：绕得远一点，贴地。
+     * <p>
+     * {@code stiffness} 决定追随的「手感速度」。指数平滑每 tick 的逼近比例是
+     * {@code 1 - e^(-k·0.05)}：k=10 时约 39%，也就是 2~3 tick 就把几格的差距走完，
+     * 视觉上接近闪现。这里取 4.0（约 18%/tick），十几 tick 跑完一段距离，
+     * 既跟得上跑动的玩家，又看得出是在「走过来」。
+     */
+    public static final PetMotionProfile WALKER = new PetMotionProfile(Kind.WALKER, 2.2F, 0.0F, 4.0F, 0.0F);
+    /** 飞行随从默认参数：贴着主人转小圈，浮在头顶；比陆行稍快一点，但仍需平滑。 */
+    public static final PetMotionProfile FLYER = new PetMotionProfile(Kind.FLYER, 1.0F, 0.55F, 6.0F, 0.06F);
 
     public PetMotionProfile {
         if (kind == null) {
