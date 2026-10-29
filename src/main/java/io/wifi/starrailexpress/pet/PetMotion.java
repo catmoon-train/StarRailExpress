@@ -54,6 +54,116 @@ public final class PetMotion {
     }
 
     /**
+     * 追随的<b>最大速度</b>（格/秒）。
+     * <p>
+     * 参考玩家原版速度：步行约 {@code 4.317} 格/秒、疾跑约 {@code 5.612} 格/秒。
+     * 随从取 {@code 5.0}——比步行略快，才能追上一直走的主人；
+     * 但<b>这个上限只有在距离足够远时才会达到</b>，见 {@link #ARRIVE_DAMPING}。
+     * <p>
+     * 早期实现没有速度上限，只用指数平滑（{@code stiffness = 4}）逼近目标：
+     * 从 5 格外起，第一 tick 就走掉 18% 的距离 ≈ 0.9 格，
+     * 换算成每秒约 18 格——是玩家步行的 4 倍，视觉上就是「闪现」。
+     */
+    public static final double WALK_MAX_SPEED = 5.0D;
+
+    /** 飞行类随从的最大速度（格/秒）：略快于陆行，符合「飘着追」的手感。 */
+    public static final double FLY_MAX_SPEED = 6.0D;
+
+    /**
+     * 追随加速度（格/秒²）。
+     * <p>
+     * 只限速度不限加速度，随从会在 1 tick 内从静止变成满速——看起来像被弹射。
+     * 取 {@code 6.0}：从静止到 5 格/秒需要约 {@code 0.83} 秒，
+     * 起步过程肉眼可见，符合「小跑跟上来」的手感。
+     * <p>
+     * 早期取 {@code 16}，0.31 秒就加到满速，几乎等于没有加速过程。
+     */
+    public static final double FOLLOW_ACCELERATION = 6.0D;
+
+    /** 到达目标点的停止半径（格）：进入该范围就把期望速度归零，避免在目标点反复抖动。 */
+    public static final double ARRIVE_RADIUS = 0.25D;
+
+    /**
+     * 距离→速度的换算系数：期望速度 = {@code min(maxSpeed, 距离 × 该系数)}。
+     * <p>
+     * <b>这是「不再瞬移」的关键。</b>取 {@code 1.2} 的含义是：
+     * 距离每多 1 格，速度上限只提高 1.2 格/秒。于是——
+     * <ul>
+     * <li>差 1 格（刚越过 5 格触发距离）：速度上限仅 {@code 1.2} 格/秒，
+     *     约为玩家步行的 28%，肉眼是「慢慢走过来」；</li>
+     * <li>差 5 格：速度上限 {@code 6.0}，被 {@code maxSpeed} 截到 5.0，
+     *     比步行略快，能追上；</li>
+     * <li>差 10 格以上：恒定 {@code maxSpeed}，不会越远越快。</li>
+     * </ul>
+     * <p>
+     * <b>早期取 {@code 4.0}</b>，导致差 1 格时速度上限就有 {@code 4.0} 格/秒
+     * （接近步行全速），0.3 秒就到位——这正是用户反馈的「6 格距离只差 1 格，
+     * 却像瞬间移动」的成因。
+     * <p>
+     * 没有这一项，随从会以满速冲过目标点再折返，表现为「来回抽动」。
+     */
+    private static final double ARRIVE_DAMPING = 1.2D;
+
+    /**
+     * 速度限幅的追随一步（就地修改 {@code pos} 与 {@code vel}）。
+     * <p>
+     * 这是「平滑移动」的核心：<b>先按距离算期望速度，再限加速度，最后才积分位置</b>。
+     * 与指数平滑（{@link #approach}）的区别是位移天然有上限，
+     * 不会因为距离远就产生一次巨大的跳跃。
+     *
+     * @param pos      当前位置 {@code [x, y, z]}，会被改写
+     * @param vel      当前速度 {@code [vx, vy, vz]}（格/秒），会被改写
+     * @param maxSpeed 本步允许的最大速度（格/秒）
+     * @param accel    本步允许的最大加速度（格/秒²）
+     * @param dt       步长（秒）
+     */
+    public static void followStep(double[] pos, double[] vel, double targetX, double targetY, double targetZ,
+            double maxSpeed, double accel, double dt) {
+        if (dt <= 0.0D) {
+            return;
+        }
+        double dx = targetX - pos[0];
+        double dy = targetY - pos[1];
+        double dz = targetZ - pos[2];
+        double distance = Math.sqrt(dx * dx + dy * dy + dz * dz);
+
+        // 期望速度：够近就停，否则朝目标、按距离阻尼降速、再受 maxSpeed 上限
+        double desiredX = 0.0D;
+        double desiredY = 0.0D;
+        double desiredZ = 0.0D;
+        if (distance > ARRIVE_RADIUS) {
+            double speed = Math.min(maxSpeed, distance * ARRIVE_DAMPING);
+            double inv = speed / distance;
+            desiredX = dx * inv;
+            desiredY = dy * inv;
+            desiredZ = dz * inv;
+        }
+
+        // 限加速度：速度只能朝期望值「挪」有限的一小步
+        double maxDelta = accel * dt;
+        vel[0] = approachClamped(vel[0], desiredX, maxDelta);
+        vel[1] = approachClamped(vel[1], desiredY, maxDelta);
+        vel[2] = approachClamped(vel[2], desiredZ, maxDelta);
+
+        // 积分位置（速度单位是格/秒，dt 是秒）
+        pos[0] += vel[0] * dt;
+        pos[1] += vel[1] * dt;
+        pos[2] += vel[2] * dt;
+    }
+
+    /** 把 {@code current} 朝 {@code target} 移动，单步不超过 {@code maxDelta}。 */
+    private static double approachClamped(double current, double target, double maxDelta) {
+        double delta = target - current;
+        if (delta > maxDelta) {
+            return current + maxDelta;
+        }
+        if (delta < -maxDelta) {
+            return current - maxDelta;
+        }
+        return target;
+    }
+
+    /**
      * 角度插值，走最短弧（跨越 ±180° 不会绕远路）。
      *
      * @param current 当前角度（度）

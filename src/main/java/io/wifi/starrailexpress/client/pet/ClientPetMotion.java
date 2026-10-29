@@ -187,11 +187,16 @@ public final class ClientPetMotion {
             state.prevX = state.x;
             state.prevY = state.y;
             state.prevZ = state.z;
+            // 新出现的随从从静止开始，避免带着上一位主人的残余速度
+            state.vel[0] = 0.0D;
+            state.vel[1] = 0.0D;
+            state.vel[2] = 0.0D;
         }
         // 期望位置：
-        // 未超出触发距离时原地不动（玩家可转身看着它）；
-        // 一旦超出，目标点就是主人身后 orbitRadius 处——随从以指数平滑跑过去，
-        // 距离越远每 tick 位移越大，视觉上就是「小跑跟上」而不是闪现。
+        // 一旦被落下超过触发距离，目标点就是主人身后 orbitRadius 处。
+        // 注意：这里只给出「目标点」，真正的位移由 PetMotion.followStep 以
+        // 有上限的速度积分出来——不再用指数平滑直接改坐标，否则距离越远
+        // 单 tick 位移越大（18%/tick × 远距离），视觉上就是闪现。
         double currentDistanceSqr = PetMotion.horizontalDistanceSqr(state.x, state.z, ownerX, ownerZ);
         boolean chasing = PetMotion.shouldStartFollowing(currentDistanceSqr);
         double targetX;
@@ -208,17 +213,22 @@ public final class ClientPetMotion {
         }
         double targetY = PetMotion.desiredY(profile, ownerY, owner.getBbHeight(), tick);
 
-        // 指数平滑逼近（20 TPS → dt = 0.05s）
+        // 速度限幅的平滑追随（20 TPS → dt = 0.05s）
+        // 参考原版实体：位移有上限才是「平滑移动」，帧间插值只负责抹平 20Hz 台阶。
         float dt = 0.05F;
-        double newX = PetMotion.approach(state.x, targetX, profile.stiffness(), dt);
-        double newZ = PetMotion.approach(state.z, targetZ, profile.stiffness(), dt);
-        double newY;
-        if (profile.isFlyer()) {
-            newY = PetMotion.approach(state.y, targetY, profile.stiffness(), dt);
-        } else {
-            // 陆行类：先平滑靠近期望高度，再吸附到实际地面，保证踩在方块上
-            double smoothed = PetMotion.approach(state.y, targetY, profile.stiffness(), dt);
-            newY = PetMotion.snapToGround(groundSampler(level), newX, smoothed, newZ, targetY);
+        double maxSpeed = profile.isFlyer() ? PetMotion.FLY_MAX_SPEED : PetMotion.WALK_MAX_SPEED;
+        state.pos[0] = state.x;
+        state.pos[1] = state.y;
+        state.pos[2] = state.z;
+        PetMotion.followStep(state.pos, state.vel, targetX, targetY, targetZ,
+                maxSpeed, PetMotion.FOLLOW_ACCELERATION, dt);
+        double newX = state.pos[0];
+        double newY = state.pos[1];
+        double newZ = state.pos[2];
+        if (!profile.isFlyer()) {
+            // 陆行类：贴地。snapToGround 只会把 Y 拉到该列地面高度，
+            // 幅度最多 GROUND_SCAN_DEPTH 格；配合速度上限不会产生跳跃。
+            newY = PetMotion.snapToGround(groundSampler(level), newX, newY, newZ, targetY);
         }
 
         state.x = newX;
@@ -226,7 +236,7 @@ public final class ClientPetMotion {
         state.z = newZ;
 
         // 唯一的强制瞬移：只有超过 TELEPORT_THRESHOLD（30 格）才认为发生了
-        // 传送 / 换维度 / 重生这类异常。5~30 格之间全部交给上面的平滑完成，
+        // 传送 / 换维度 / 重生这类异常。5~30 格之间全部交给上面的速度积分，
         // 绝不能在正常追随路径上钳制位置，否则就是「闪现」。
         state.out[0] = state.x;
         state.out[1] = state.y;
@@ -241,6 +251,10 @@ public final class ClientPetMotion {
             state.prevX = state.x;
             state.prevY = state.y;
             state.prevZ = state.z;
+            // 速度必须一起清零：否则瞬移后残余速度会把随从又带出去
+            state.vel[0] = 0.0D;
+            state.vel[1] = 0.0D;
+            state.vel[2] = 0.0D;
         }
 
         // 朝向：朝运动方向；几乎静止时保持上一帧朝向，避免抽搐
@@ -304,6 +318,10 @@ public final class ClientPetMotion {
         final double[] out = new double[3];
         /** 复用同一个数组承载「背后偏移」，避免每 tick 分配。 */
         final double[] offset = new double[2];
+        /** 位置暂存，供 {@link PetMotion#followStep} 就地积分，避免每 tick 分配。 */
+        final double[] pos = new double[3];
+        /** 当前速度（格/秒），速度限幅平滑追随的状态量。 */
+        final double[] vel = new double[3];
     }
 }
 
