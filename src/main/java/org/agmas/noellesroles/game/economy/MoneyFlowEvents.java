@@ -4,6 +4,7 @@ import io.wifi.starrailexpress.cca.SREPlayerShopComponent;
 import io.wifi.starrailexpress.event.OnGameEnd;
 import io.wifi.starrailexpress.event.OnGameStarted;
 import io.wifi.starrailexpress.event.OnRoleSkillUse;
+import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
 import net.minecraft.world.entity.player.Player;
 
 import java.util.HashMap;
@@ -37,6 +38,10 @@ public final class MoneyFlowEvents {
         // 一局一份账本
         OnGameStarted.EVENT.register(serverLevel -> MoneyFlow.resetAll());
         OnGameEnd.EVENT.register((serverLevel, gameWorldComponent) -> MoneyFlow.resetAll());
+
+        // 玩家断线即丢弃其流水，避免长局累积（每局还会 resetAll，双保险）
+        ServerPlayConnectionEvents.DISCONNECT.register(
+                (handler, server) -> MoneyFlow.reset(handler.getPlayer().getUUID()));
     }
 
     private static boolean onSkillBefore(Player player, io.wifi.starrailexpress.api.SRERole role) {

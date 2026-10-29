@@ -339,8 +339,10 @@ public class AccountantRoleData extends SimpleRoleData {
             return;
         }
 
-        Optional<MoneyFlow.ExpenseEntry> entry = MoneyFlow.queryExpense(target, markStartGameTime,
-                markStartGameTime + EXPENSE_QUERY_TIME_RANGE);
+        // 严格 30 秒窗口：以「标记时刻」为起点、当前刻为终点回看（共 600 tick，含两端恰好 30s）
+        long now = serverPlayer.level().getGameTime();
+        long from = Math.max(markStartGameTime, now - EXPENSE_QUERY_TIME_RANGE);
+        Optional<MoneyFlow.ExpenseEntry> entry = MoneyFlow.queryExpense(target, from, now);
         Component channel = entry
                 .map(this::expenseChannelComponent)
                 .orElseGet(() -> expenseChannelComponent(null));
