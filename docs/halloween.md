@@ -19,6 +19,9 @@ NPC 使用项目已有 `starrailexpress:textures/block/plush/canyuesama.png` 本
 奖励池、兑换价格及活动时长在世界根目录 `halloween.json` 中调整，下局重新读取。
 完整参数与默认表见 [道具说明](halloween-items.md)、[小镇说明](halloween-village.md)、[战斗说明](halloween-combat.md)。
 
+本轮新增南瓜精、独立任务掉落、橙色天空与背景音乐占位，骨剑调整为3耐久/30秒冷却。
+玩家完整更新说明见 [万圣节小镇更新公告](halloween-player-update.md)。
+
 ## 灵魂链接
 
 手持灵魂链接，右键三格内另一存活玩家发起邀请。对方在确认界面点击绿色羊毛接受、红色羊毛拒绝；15 秒不回应失效。

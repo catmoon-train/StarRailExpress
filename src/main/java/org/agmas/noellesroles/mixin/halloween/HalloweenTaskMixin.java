@@ -14,6 +14,10 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 public abstract class HalloweenTaskMixin {
     @Inject(method = "callOnFinishQuest(Lnet/minecraft/world/entity/player/Player;Ljava/lang/String;IZ)V", at = @At("TAIL"))
     private static void halloween$quest(Player player, String quest, int streak, boolean parallel, CallbackInfo ci) {
-        if (player instanceof ServerPlayer serverPlayer) HalloweenCombat.onTaskCompleted(serverPlayer);
+        if (player instanceof ServerPlayer serverPlayer) {
+            HalloweenCombat.onTaskCompleted(serverPlayer);
+            org.agmas.noellesroles.game.halloween.HalloweenTaskRewards.onTaskCompleted(serverPlayer);
+            org.agmas.noellesroles.game.halloween.pumpkin.PumpkinSpiritHandler.onTaskCompleted(serverPlayer);
+        }
     }
 }

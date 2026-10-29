@@ -14,13 +14,12 @@ import net.minecraft.world.level.Level;
 import org.agmas.harpymodloader.events.OnGamePlayerRolesConfirm;
 import org.agmas.noellesroles.role.ModRoles;
 
-import java.util.HashSet;
 import java.util.Set;
 
 /** 万圣节活动统一入口；地图未显式启用时不改变普通游戏。 */
 public final class HalloweenRuntime {
     private static boolean registered;
-    private static final Set<ServerLevel> SESSIONS = new HashSet<>();
+    private static final java.util.Map<ServerLevel, Long> SESSIONS = new java.util.HashMap<>();
 
     private HalloweenRuntime() {}
 
@@ -32,7 +31,7 @@ public final class HalloweenRuntime {
     }
 
     public static boolean isEnabled(Level level) {
-        return isMapEnabled(level) && (level.isClientSide || SESSIONS.contains(level))
+        return isMapEnabled(level) && (level.isClientSide || SESSIONS.containsKey(level))
                 && SREGameWorldComponent.KEY.get(level).getGameStatus() == SREGameWorldComponent.GameStatus.ACTIVE;
     }
 
@@ -46,11 +45,17 @@ public final class HalloweenRuntime {
         if (registered) return;
         registered = true;
         HalloweenItems.initialize();
+        org.agmas.noellesroles.game.halloween.ambience.HalloweenAmbience.register();
         HalloweenNetwork.register();
         HalloweenSoulLinks.register();
+        org.agmas.noellesroles.game.halloween.pumpkin.PumpkinSpiritHandler.register();
         HalloweenCombat.register();
         net.fabricmc.fabric.api.event.lifecycle.v1.ServerWorldEvents.UNLOAD.register((server, level) -> clear(level));
-        io.wifi.starrailexpress.event.OnTrainAreaHaveReseted.EVENT.register(HalloweenRuntime::clear);
+        io.wifi.starrailexpress.event.OnTrainAreaHaveReseted.EVENT.register(level -> {
+            Long started = SESSIONS.get(level);
+            // initializeGame 在 OnGameStarted 后同 tick 通知地图就绪；只清旧会话。
+            if (!HalloweenRewardRules.keepsFreshSession(started, level.getGameTime())) clear(level);
+        });
         io.wifi.starrailexpress.event.OnRoleSkillUse.BEFORE.register((player, role) ->
                 !HalloweenCombat.isActionLocked(player) && !HalloweenPactRole.isPact(player));
         io.wifi.starrailexpress.event.AllowPlayerDeath.EVENT.register((victim, reason) ->
@@ -61,7 +66,7 @@ public final class HalloweenRuntime {
             clear(level);
             if (isMapEnabled(level)) {
                 HalloweenConfig.reload(level.getServer());
-                SESSIONS.add(level);
+                SESSIONS.put(level, level.getGameTime());
             }
         });
         HalloweenVillage.register();
@@ -75,7 +80,7 @@ public final class HalloweenRuntime {
             roles.put(selected, ModRoles.UNDEAD_LORD);
         });
         ServerTickEvents.END_WORLD_TICK.register(level -> {
-            if (!SESSIONS.contains(level)) return;
+            if (!SESSIONS.containsKey(level)) return;
             var status = SREGameWorldComponent.KEY.get(level).getGameStatus();
             if (!isMapEnabled(level) || status == SREGameWorldComponent.GameStatus.INACTIVE) {
                 clear(level);
@@ -95,7 +100,7 @@ public final class HalloweenRuntime {
             if (level.getGameTime() % 20 == 0) HalloweenNetwork.sync(level);
         });
         ServerLifecycleEvents.SERVER_STOPPED.register(server -> {
-            for (ServerLevel level : Set.copyOf(SESSIONS)) clear(level);
+            for (ServerLevel level : Set.copyOf(SESSIONS.keySet())) clear(level);
             SESSIONS.clear();
         });
     }

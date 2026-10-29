@@ -1,0 +1,10 @@
+{
+  "music.town": {
+    "sounds": [
+      {
+        "name": "halloween:music/town",
+        "stream": true
+      }
+    ]
+  }
+}

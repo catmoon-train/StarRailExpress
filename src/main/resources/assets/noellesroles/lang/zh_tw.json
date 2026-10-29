@@ -1,4 +1,11 @@
 {
+  "announcement.star.role.pumpkin_spirit": "南瓜精",
+  "announcement.star.goals.pumpkin_spirit": "累計獲得開局人數×4個南瓜，獨立獲勝。丟棄再撿不計數。",
+  "announcement.star.win.pumpkin_spirit": "南瓜精收集了足夠的南瓜！",
+  "skill.noellesroles.pumpkin_spirit.bat": "化身蝙蝠",
+  "hud.noellesroles.pumpkin_spirit.progress": "累計南瓜：%s / %s",
+  "hud.noellesroles.pumpkin_spirit.suppressed": "亡命徒壓制中：無法復活或獲勝",
+  "message.noellesroles.pumpkin_spirit.killed": "你殺死了南瓜精！你被戴上南瓜頭，並獲得緩速 I，持續20秒。",
   "item.noellesroles.echo_cutter": "截流器",
   "item.noellesroles.echo_cutter.desc": "截流者專用，固定快捷欄首格。按住右鍵蓄力0.8秒，蓄滿後鬆手立即攻擊，無額外前搖；提前鬆手取消且不消耗冷卻。每刀一心半，兩刀倒地，救起後保護結束再中刀淘汰。有效命中播放受擊動畫並短暫擊退。揮空至少冷卻3秒，實際命中至少冷卻6秒，並使自己獲得3秒緩慢I。不能攻擊倒地者或隊友，不能丟棄或交易。",
   "echo.skill.shove": "推擋（成功後冷卻25秒）",
