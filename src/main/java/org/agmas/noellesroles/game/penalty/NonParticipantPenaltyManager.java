@@ -56,10 +56,11 @@ public final class NonParticipantPenaltyManager {
         boolean running = gameWorld != null && gameWorld.isRunning();
 
         if (!running) {
-            // 游戏结束：清掉本次的提示缓存，等待下一局
+            // 游戏未运行：清掉提示缓存，并把残留的整局惩罚解掉（下一局重新判定）
             if (wasRunning) {
                 wasRunning = false;
                 notified.clear();
+                clearStickyPenalties(server);
             }
             return;
         }
@@ -93,6 +94,16 @@ public final class NonParticipantPenaltyManager {
                 }
             } else {
                 notified.remove(player.getUUID());
+            }
+        }
+    }
+
+    /** 游戏结束时兜底：把所有仍带整局惩罚的玩家恢复（DeathPenaltyComponent 自身也会在非运行态自愈） */
+    private static void clearStickyPenalties(MinecraftServer server) {
+        for (ServerPlayer player : server.getPlayerList().getPlayers()) {
+            DeathPenaltyComponent penalty = ModComponents.DEATH_PENALTY.get(player);
+            if (penalty != null && penalty.stickyPenalty) {
+                penalty.setStickyPenalty(false);
             }
         }
     }
