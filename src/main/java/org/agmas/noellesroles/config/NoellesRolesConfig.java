@@ -96,6 +96,12 @@ public class NoellesRolesConfig implements ConfigData {
     @ConfigEntry.Category(value = "detail")
     public int fakeSteveEnableChance = 1;
 
+    /**
+     * 命令方块（祸患的终端）启用概率，万分比。
+     */
+    @ConfigEntry.Category(value = "detail")
+    public int commandBlockEnableChance = 80;
+
     @ConfigEntry.Category(value = "detail")
     public int chanceOfTouhouRoles = 5;
     @ConfigEntry.Category(value = "detail")

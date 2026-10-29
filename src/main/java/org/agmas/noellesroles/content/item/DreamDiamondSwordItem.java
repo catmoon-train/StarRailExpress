@@ -131,9 +131,12 @@ public class DreamDiamondSwordItem extends SwordItem implements SREItemPropertie
             return false;
         }
 
-        // ── 原版伤害公式：属性伤害 × 蓄力缩放 ──
-        float damage = (float) attacker.getAttributeValue(Attributes.ATTACK_DAMAGE);
+        // 冷却未满时不能攻击（与原版武器一致，不能靠最低 1 点伤害绕过冷却）
         float charge = attacker.getAttackStrengthScale(0.5F);
+        if (charge < 1.0F) {
+            return false;
+        }
+        float damage = (float) attacker.getAttributeValue(Attributes.ATTACK_DAMAGE);
         damage *= 0.2F + charge * charge * 0.8F;
         attacker.resetAttackStrengthTicker();
         if (damage <= 0.0F) {
@@ -161,11 +164,8 @@ public class DreamDiamondSwordItem extends SwordItem implements SREItemPropertie
 
         mainhandItem.hurtAndBreak(1, attacker, EquipmentSlot.MAINHAND);
 
-        // 受击反馈：红屏动画 + 音效 + 原版击退（1 点伤害本身不参与击杀判定）
-        if (GameUtils.isPlayerAliveAndSurvival(target)) {
-            target.invulnerableTime = 0;
-            target.hurt(target.damageSources().playerAttack(attacker), 1.0F);
-        }
+        // 反馈不再使用真实伤害，避免被对局拦截或重复触发伤害回调。
+        SpecialWeaponHitFeedback.melee(attacker, target, fullCharge && attacker.isSprinting());
 
         if (attacker.level() instanceof ServerLevel serverLevel) {
             // 横扫：对周围玩家各造成 1 点虚拟伤害（原版无附魔横扫伤害 = 1 + 0×damage）+ 轻击退
@@ -182,11 +182,14 @@ public class DreamDiamondSwordItem extends SwordItem implements SREItemPropertie
                     }
                     if (DreamHealthComponent.KEY.get(nearby).hurt(attacker, 1, DEATH_REASON)
                             && GameUtils.isPlayerAliveAndSurvival(nearby)) {
-                        nearby.knockback(0.4F,
+                        SpecialWeaponHitFeedback.hit(attacker, nearby);
+                        SpecialWeaponHitFeedback.knockback(nearby, 0.4F,
                                 Math.sin(attacker.getYRot() * (Math.PI / 180.0D)),
                                 -Math.cos(attacker.getYRot() * (Math.PI / 180.0D)));
                     }
                 }
+                io.wifi.starrailexpress.traindummy.TrainDummyWeapons.sweep(attacker,
+                        target.getBoundingBox().inflate(1.0D, 0.25D, 1.0D), 1, DEATH_REASON);
                 attacker.sweepAttack();
                 serverLevel.playSound(null, attacker.blockPosition(), SoundEvents.PLAYER_ATTACK_SWEEP,
                         SoundSource.PLAYERS, 1.0F, 1.0F);

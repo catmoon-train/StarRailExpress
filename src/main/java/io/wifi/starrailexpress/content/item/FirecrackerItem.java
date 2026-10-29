@@ -27,9 +27,14 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
 
-public class FirecrackerItem extends Item implements AdventureUsable {
+public class FirecrackerItem extends SkinableItem implements AdventureUsable {
     public FirecrackerItem(Properties settings) {
         super(settings);
+    }
+
+    @Override
+    public String getItemSkinType() {
+        return io.wifi.starrailexpress.util.ItemSkinManager.SkinTypes.FIRECRACKER;
     }
 
     @Override
@@ -43,6 +48,9 @@ public class FirecrackerItem extends Item implements AdventureUsable {
 
                 firecracker.setPos(spawnPos.x(), spawnPos.y(), spawnPos.z());
                 firecracker.setYRot(player.getYHeadRot());
+                // 实体沿用手上这个鞭炮的皮肤
+                firecracker.setSkin(io.wifi.starrailexpress.util.ItemSkinManager.getEquippedSkin(player,
+                        player.getItemInHand(context.getHand())));
                 world.addFreshEntity(firecracker);
                 if (!player.isCreative()) {
                     // 不再记录，太刷屏

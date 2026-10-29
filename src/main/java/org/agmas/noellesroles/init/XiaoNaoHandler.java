@@ -128,7 +128,8 @@ public class XiaoNaoHandler {
                                 || deathReason.getPath().equals("dream_axe")
                                 || deathReason.getPath().equals("spear")
                                 || deathReason.getPath().equals("gun_shot")
-                                || deathReason.getPath().equals("knife")) {
+                                || deathReason.getPath().equals("knife")
+                                || deathReason.getPath().equals(GameConstants.DeathReasons.STAR.getPath())) {
                             TeamKillViolationHandler.handle(victim, killer, isInnocent, deathReason);
                         }
                     }
@@ -173,6 +174,7 @@ public class XiaoNaoHandler {
                 || deathReason.getPath().equals("manhole_suffocation")
                 || deathReason.getPath().equals("stalactite_impale")
                 || deathReason.getPath().equals("flamethrower_burned")
+                || deathReason.getPath().equals(GameConstants.DeathReasons.STAR.getPath())
                 || deathReason.getPath().equals("boulder_crush")
                 || deathReason.getPath().equals("wizard_fire_arrow")
                 || deathReason.getPath().equals("wizard_fireball")

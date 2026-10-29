@@ -138,6 +138,9 @@ public class InputHandler {
             final MapVotingComponent mapVotingComponent = MapVotingComponent.KEY.get(client.level);
             if (mapVotingComponent.isVotingActive()) {
                 client.setScreen(MapVoteScreen.create());
+            } else if (org.agmas.noellesroles.game.modes.echo.client.EchoFacilityMapClient.inMatch()) {
+                if (client.screen == null) client.setScreen(new org.agmas.noellesroles.client.screen.AreaMapScreen());
+                else if (client.screen instanceof org.agmas.noellesroles.client.screen.AreaMapScreen) client.screen.onClose();
             } else if (ClientVoteCache.canReOpen() && !isVoteScreenOpen(client.screen)) {
                 client.setScreen(createVoteScreen());
             }

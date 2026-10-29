@@ -320,7 +320,7 @@ public class NRGameStateEvents {
             boolean hasDio = false, hasRecorder = false, hasCandlebearer = false, hasRaven = false, hasBee = false;
             boolean hasNianShou = false, hasArsonist = false, hasCuckoo = false, hasPelican = false,
                     hasGodfather = false, hasLeader = false, hasLicensedVillain = false, hasNatureSpirit = false;
-            boolean hasDictator = false;
+            boolean hasDictator = false, hasDaywalker = false;
             final var all_players = serverLevel.players();
 
             for (var p : all_players) {
@@ -353,6 +353,8 @@ public class NRGameStateEvents {
                     hasArsonist = true;
                 } else if (gameWorldComponent.isRole(p, ModRoles.CUCKOO)) {
                     hasCuckoo = true;
+                } else if (gameWorldComponent.isRole(p, ModRoles.DAYWALKER)) {
+                    hasDaywalker = true;
                 } else if (gameWorldComponent.isRole(p, ModRoles.PELICAN)) {
                     hasPelican = true;
                 } else if (gameWorldComponent.isRole(p, ModRoles.GODFATHER)) {
@@ -443,6 +445,15 @@ public class NRGameStateEvents {
                     if (p != null) {
                         BroadcastCommand.BroadcastMessage(p, Component
                                 .translatable("message.noellesroles.cuckoo.entry").withStyle(ChatFormatting.YELLOW));
+                    }
+                });
+            }
+            // 逐日者：出场播报（与布谷鸟/纵火犯等一致，场上存在该职业即向所有玩家广播）
+            if (hasDaywalker) {
+                all_players.forEach((p) -> {
+                    if (p != null) {
+                        BroadcastCommand.BroadcastMessage(p, Component
+                                .translatable("message.noellesroles.daywalker.entry").withStyle(ChatFormatting.YELLOW));
                     }
                 });
             }

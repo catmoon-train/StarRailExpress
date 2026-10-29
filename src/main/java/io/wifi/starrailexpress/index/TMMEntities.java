@@ -117,5 +117,6 @@ public interface TMMEntities {
         FabricDefaultAttributeRegistry.register(PLAYER_BODY, PlayerBodyEntity.createAttributes());
         FabricDefaultAttributeRegistry.register(PURPLE_MONSTER, PurpleMonsterEntity.createAttributes());
         FabricDefaultAttributeRegistry.register(PURPLE_MONSTER_SECOND, PurpleMonsterSecondEntity.createAttributes());
+        io.wifi.starrailexpress.traindummy.TrainDummyEntity.init();
     }
 }

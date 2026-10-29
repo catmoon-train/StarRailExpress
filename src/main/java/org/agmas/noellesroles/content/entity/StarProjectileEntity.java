@@ -1,0 +1,302 @@
+/*
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ */
+
+package org.agmas.noellesroles.content.entity;
+
+import io.wifi.starrailexpress.game.GameConstants;
+import io.wifi.starrailexpress.game.GameUtils;
+import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.syncher.EntityDataAccessor;
+import net.minecraft.network.syncher.EntityDataSerializers;
+import net.minecraft.network.syncher.SynchedEntityData;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.Vec3;
+import org.agmas.noellesroles.init.ModEntities;
+import org.agmas.noellesroles.init.ModItems;
+import org.jetbrains.annotations.Nullable;
+
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
+
+/**
+ * 摘星者「星之权杖」/「星之引力」召唤的追踪星星。
+ * <p>
+ * 星星升到目标头顶后俯冲追击目标，命中即用死因 {@link GameConstants.DeathReasons#STAR}（"星星"）击杀，
+ * 撞方块或寿命耗尽即消散。只有摘星者自己能看到这颗星星（客户端渲染器按召唤者 UUID 过滤），
+ * 但粒子与音效是服务端广播的，受害者能看到星星砸下来的光。
+ */
+public class StarProjectileEntity extends Entity {
+
+    /** 同步字段：召唤者 UUID（客户端渲染器据此决定这颗星星是否可见）。 */
+    private static final EntityDataAccessor<Optional<UUID>> DATA_OWNER =
+            SynchedEntityData.defineId(StarProjectileEntity.class, EntityDataSerializers.OPTIONAL_UUID);
+
+    /** 追星目标。 */
+    @Nullable
+    private UUID targetId;
+    /** 召唤者（摘星者本人，用于把击杀记到他头上、并做客户端可见性过滤）。 */
+    @Nullable
+    private UUID ownerId;
+
+    /** 升空阶段：先升到目标头顶再俯冲。 */
+    private int ascendTicks = 10;
+    /** 剩余寿命（tick）。 */
+    private int life = 120;
+    /** 是否已经命中 / 撞毁，避免重复结算。 */
+    private boolean spent;
+
+    public StarProjectileEntity(EntityType<?> type, Level level) {
+        super(type, level);
+        this.noPhysics = true;
+        this.setNoGravity(true);
+        // 关键：关掉实体级剔除。星星本体只有 0.6 格、模型却是缩放后的薄片，
+        // 只要镜头稍微偏一点就会被 EntityRenderDispatcher 剔掉（表现为全透明）。
+        // 参考项目内 CrashPlaneEntity 的写法。
+        this.noCulling = true;
+    }
+
+    /**
+     * 生成一颗追踪星星。
+     *
+     * @param from   起点（通常在高空）
+     * @param target 追踪目标
+     * @param owner  召唤者，可为 null
+     */
+    public static StarProjectileEntity spawn(ServerLevel level, Vec3 from, @Nullable ServerPlayer target,
+            @Nullable ServerPlayer owner) {
+        StarProjectileEntity star = new StarProjectileEntity(ModEntities.STAR, level);
+        star.setPos(from.x, from.y, from.z);
+        star.targetId = target == null ? null : target.getUUID();
+        star.setOwnerUuid(owner == null ? null : owner.getUUID());
+        level.addFreshEntity(star);
+        level.playSound(null, star.blockPosition(), SoundEvents.AMETHYST_BLOCK_CHIME,
+                SoundSource.PLAYERS, 1.2F, 1.8F);
+        return star;
+    }
+
+    /** 写入召唤者 UUID：同时写本地字段与同步字段（客户端靠同步字段判断可见性）。 */
+    private void setOwnerUuid(@Nullable UUID uuid) {
+        this.ownerId = uuid;
+        this.entityData.set(DATA_OWNER, Optional.ofNullable(uuid));
+    }
+
+    @Nullable
+    public UUID getTargetId() {
+        return this.targetId;
+    }
+
+    /**
+     * 召唤者 UUID。
+     * <p>
+     * 优先读同步字段：客户端只有同步字段，服务端两者都有。这样渲染器的
+     * 可见性判断在两侧都能拿到正确结果。
+     */
+    @Nullable
+    public UUID getOwnerId() {
+        Optional<UUID> synced = this.entityData.get(DATA_OWNER);
+        if (synced != null && synced.isPresent()) {
+            return synced.get();
+        }
+        return this.ownerId;
+    }
+
+    /**
+     * 同步给客户端的字段。
+     * <p>
+     * {@code ownerId} 必须同步，否则客户端拿不到召唤者 UUID，
+     * {@code StarProjectileRenderer#isVisibleToLocalPlayer} 永远返回 false，
+     * 星星在客户端就完全不渲染（看起来全透明）。
+     */
+    @Override
+    protected void defineSynchedData(SynchedEntityData.Builder builder) {
+        builder.define(DATA_OWNER, Optional.empty());
+    }
+
+    @Override
+    protected void readAdditionalSaveData(CompoundTag tag) {
+        this.targetId = tag.hasUUID("Target") ? tag.getUUID("Target") : null;
+        // 走 setOwnerUuid 而不是直接赋值，保证同步字段一起写好
+        setOwnerUuid(tag.hasUUID("Owner") ? tag.getUUID("Owner") : null);
+        this.life = tag.getInt("Life");
+    }
+
+    @Override
+    protected void addAdditionalSaveData(CompoundTag tag) {
+        if (this.targetId != null) {
+            tag.putUUID("Target", this.targetId);
+        }
+        if (this.ownerId != null) {
+            tag.putUUID("Owner", this.ownerId);
+        }
+        tag.putInt("Life", this.life);
+    }
+
+    @Override
+    public boolean isPickable() {
+        return false;
+    }
+
+    @Override
+    public boolean isAttackable() {
+        return false;
+    }
+
+    /**
+     * 视锥剔除用的包围盒。
+     * <p>
+     * 实体本身只有 0.6×0.6，但模型按 {@code MODEL_SCALE} 缩放后半径约 0.75 格、
+     * 还会上下浮动，再加上渲染时整体上移 0.55 格。如果沿用实体默认包围盒，
+     * 镜头稍微偏一点整颗星星就会被剔除掉（表现为「看不见」）。这里放大到能
+     * 完整覆盖模型与浮动范围。
+     */
+    @Override
+    public net.minecraft.world.phys.AABB getBoundingBoxForCulling() {
+        return this.getBoundingBox().inflate(1.6D).expandTowards(0.0D, 1.2D, 0.0D);
+    }
+
+    /**
+     * 取景距离。
+     * <p>
+     * 实体本身只有 0.6 格，默认的「按包围盒算取景距离」在几十格外就会整颗不画
+     * （表现为「看不见」）。这里固定放大到 {@link #RENDER_RANGE}，与
+     * {@code BambooSpearEntity} 的处理一致。
+     */
+    @Override
+    public boolean shouldRender(double camX, double camY, double camZ) {
+        if (!this.isAlive()) {
+            return false;
+        }
+        double dx = camX - this.getX();
+        double dy = camY - this.getY();
+        double dz = camZ - this.getZ();
+        return dx * dx + dy * dy + dz * dz < RENDER_RANGE * RENDER_RANGE;
+    }
+
+    /** 星星的最大可见距离（格）。 */
+    private static final double RENDER_RANGE = 128.0D;
+
+    /**
+     * 取景距离平方判定。
+     * <p>
+     * 与 {@code CrashPlaneEntity} 的写法一致：实体很小，用默认值会在几十格外
+     * 整颗不画。这里显式放大。
+     */
+    @Override
+    public boolean shouldRenderAtSqrDistance(double distanceSqr) {
+        return distanceSqr < RENDER_RANGE * RENDER_RANGE;
+    }
+
+    @Override
+    public void tick() {
+        super.tick();
+        if (this.spent) {
+            return;
+        }
+        if (!(this.level() instanceof ServerLevel level)) {
+            return;
+        }
+
+        // 纯粹的拖尾粒子（每 tick 一包，数量很小）
+        level.sendParticles(ParticleTypes.END_ROD, this.getX(), this.getY(), this.getZ(),
+                3, 0.15D, 0.15D, 0.15D, 0.0D);
+
+        if (--this.life <= 0) {
+            vanish(level);
+            return;
+        }
+
+        ServerPlayer target = this.targetId == null ? null
+                : level.getServer().getPlayerList().getPlayer(this.targetId);
+
+        // 目标死亡 / 掉线 → 原地消散
+        if (target == null || !GameUtils.isPlayerAliveAndSurvival(target)) {
+            vanish(level);
+            return;
+        }
+
+        Vec3 pos = this.position();
+        Vec3 goal;
+        if (this.ascendTicks > 0) {
+            // 先垂直升到目标头顶 4 格处
+            this.ascendTicks--;
+            goal = new Vec3(target.getX(), target.getY() + 4.0D, target.getZ());
+        } else {
+            // 俯冲：直接追向目标胸口
+            goal = new Vec3(target.getX(), target.getY() + 0.8D, target.getZ());
+        }
+
+        Vec3 delta = goal.subtract(pos);
+        double distance = delta.length();
+        if (distance > 0.0001D) {
+            double speed = this.ascendTicks > 0 ? 0.6D : 1.4D;
+            Vec3 step = delta.normalize().scale(Math.min(speed, distance));
+            this.setPos(pos.x + step.x, pos.y + step.y, pos.z + step.z);
+        }
+        this.setDeltaMovement(Vec3.ZERO);
+
+        // 命中判定
+        AABB hitBox = this.getBoundingBox().inflate(0.85D);
+        List<ServerPlayer> hits = level.getEntitiesOfClass(ServerPlayer.class, hitBox,
+                p -> GameUtils.isPlayerAliveAndSurvival(p) && !p.isSpectator());
+        if (!hits.isEmpty()) {
+            ServerPlayer killer = this.ownerId == null ? null
+                    : level.getServer().getPlayerList().getPlayer(this.ownerId);
+            boolean hitAny = false;
+            for (ServerPlayer victim : hits) {
+                if (killer == victim) {
+                    continue;
+                }
+                hitAny = true;
+                GameUtils.forceKillPlayer(victim, true, killer, GameConstants.DeathReasons.STAR);
+            }
+            // 权杖只要命中玩家（不论是否真的击杀）→ 召唤者进入 20 秒原版物品冷却
+            if (hitAny && killer != null) {
+                killer.getCooldowns().addCooldown(ModItems.STAR_SCEPTER,
+                        org.agmas.noellesroles.content.item.StarScepterItem.SCEPTER_HIT_COOLDOWN_TICKS);
+            }
+            this.spent = true;
+            implode(level);
+            return;
+        }
+
+        // 不检测方块碰撞：星星是「追踪坠落」的星之审判，必须能穿墙命中目标。
+        // 这里刻意不做 noCollision 判定，让它一路穿过地形追到人身上再引爆。
+    }
+
+    private void implode(ServerLevel level) {
+        level.sendParticles(ParticleTypes.FLASH, this.getX(), this.getY(), this.getZ(), 1, 0.0D, 0.0D, 0.0D, 0.0D);
+        level.sendParticles(ParticleTypes.END_ROD, this.getX(), this.getY(), this.getZ(),
+                40, 0.5D, 0.5D, 0.5D, 0.15D);
+        level.playSound(null, this.blockPosition(), SoundEvents.AMETHYST_BLOCK_BREAK,
+                SoundSource.PLAYERS, 1.5F, 1.2F);
+        this.discard();
+    }
+
+    private void vanish(ServerLevel level) {
+        this.spent = true;
+        level.sendParticles(ParticleTypes.END_ROD, this.getX(), this.getY(), this.getZ(),
+                12, 0.3D, 0.3D, 0.3D, 0.05D);
+        this.discard();
+    }
+}

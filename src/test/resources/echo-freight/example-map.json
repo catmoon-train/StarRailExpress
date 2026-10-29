@@ -1,0 +1,54 @@
+{
+  "schemaVersion": 1, "mapId": "season1/echo_station", "coordinateSpace": "template",
+  "coreArea": {"minX":-12,"minY":64,"minZ":-10,"maxX":13,"maxY":72,"maxZ":11},
+  "carrierSpawns": [
+    {"x":-45.5,"y":64,"z":35.5,"yaw":0,"pitch":0}, {"x":-35.5,"y":64,"z":40.5,"yaw":0,"pitch":0},
+    {"x":-25.5,"y":64,"z":45.5,"yaw":0,"pitch":0}, {"x":-15.5,"y":64,"z":50.5,"yaw":0,"pitch":0},
+    {"x":15.5,"y":64,"z":50.5,"yaw":0,"pitch":0}, {"x":25.5,"y":64,"z":45.5,"yaw":0,"pitch":0},
+    {"x":35.5,"y":64,"z":40.5,"yaw":0,"pitch":0}, {"x":45.5,"y":64,"z":35.5,"yaw":0,"pitch":0}
+  ],
+  "interceptorSpawns": [{"x":-30.5,"y":64,"z":-45.5,"yaw":180,"pitch":0},{"x":30.5,"y":64,"z":-45.5,"yaw":180,"pitch":0}],
+  "brokerSpawns": [{"x":-50.5,"y":64,"z":0.5,"yaw":90,"pitch":0},{"x":50.5,"y":64,"z":0.5,"yaw":-90,"pitch":0}],
+  "beacons": [
+    {"id":"outer_a","pos":{"x":-36.5,"y":64,"z":0.5},"region":"open","minPlayers":6},
+    {"id":"core","pos":{"x":0.5,"y":64,"z":0.5},"region":"core","minPlayers":6},
+    {"id":"outer_b","pos":{"x":36.5,"y":64,"z":0.5},"region":"open","minPlayers":8}
+  ],
+  "crystalNodes": [
+    {"id":"c1","pos":{"x":-48.5,"y":64,"z":15.5},"minPlayers":6}, {"id":"c2","pos":{"x":-32.5,"y":64,"z":25.5},"minPlayers":6},
+    {"id":"c3","pos":{"x":32.5,"y":64,"z":25.5},"minPlayers":6}, {"id":"c4","pos":{"x":48.5,"y":64,"z":15.5},"minPlayers":6},
+    {"id":"c5","pos":{"x":-40.5,"y":64,"z":-15.5},"minPlayers":8}, {"id":"c6","pos":{"x":40.5,"y":64,"z":-15.5},"minPlayers":8}
+  ],
+  "altars": [{"id":"a1","pos":{"x":-45.5,"y":64,"z":-30.5}},{"id":"a2","pos":{"x":45.5,"y":64,"z":30.5}},{"id":"a3","pos":{"x":0.5,"y":64,"z":55.5}}],
+  "supplyCrates": [
+    {"id":"s1","pos":{"x":-55.5,"y":64,"z":30.5},"minPlayers":6,"quality":"COMMON","repeatable":true},
+    {"id":"s2","pos":{"x":-40.5,"y":64,"z":45.5},"minPlayers":6,"quality":"COMMON","repeatable":true},
+    {"id":"s3","pos":{"x":-25.5,"y":64,"z":-30.5},"minPlayers":6,"quality":"COMMON","repeatable":true},
+    {"id":"s4","pos":{"x":25.5,"y":64,"z":-30.5},"minPlayers":6,"quality":"COMMON","repeatable":true},
+    {"id":"s5","pos":{"x":40.5,"y":64,"z":45.5},"minPlayers":6,"quality":"COMMON","repeatable":true},
+    {"id":"s6","pos":{"x":55.5,"y":64,"z":30.5},"minPlayers":6,"quality":"COMMON","repeatable":true},
+    {"id":"s7","pos":{"x":-50.5,"y":64,"z":-10.5},"minPlayers":8,"quality":"COMMON","repeatable":true},
+    {"id":"s8","pos":{"x":50.5,"y":64,"z":-10.5},"minPlayers":8,"quality":"COMMON","repeatable":true},
+    {"id":"s9","pos":{"x":-15.5,"y":64,"z":25.5},"minPlayers":9,"quality":"COMMON","repeatable":true},
+    {"id":"s10","pos":{"x":15.5,"y":64,"z":25.5},"minPlayers":9,"quality":"COMMON","repeatable":true},
+    {"id":"b1","pos":{"x":-6.5,"y":64,"z":-4.5},"minPlayers":6,"quality":"BLACK_MARKET","repeatable":false},
+    {"id":"b2","pos":{"x":6.5,"y":64,"z":-4.5},"minPlayers":6,"quality":"BLACK_MARKET","repeatable":false}
+  ],
+  "coreGate": {
+    "doors": [
+      {"id":"west","controlPos":{"x":-14.5,"y":65,"z":0.5},"volume":{"minX":-12,"minY":64,"minZ":-1,"maxX":-11,"maxY":67,"maxZ":2}},
+      {"id":"east","controlPos":{"x":14.5,"y":65,"z":0.5},"volume":{"minX":12,"minY":64,"minZ":-1,"maxX":13,"maxY":67,"maxZ":2}}
+    ],
+    "freeExit":{"id":"service_exit","controlPos":{"x":0.5,"y":65,"z":8.5},"outsideSafe":{"x":0.5,"y":64,"z":15.5,"yaw":0,"pitch":0}}
+  },
+  "evacuation": {
+    "controlPos":{"x":0.5,"y":65,"z":37.5},
+    "doorVolume":{"minX":-2,"minY":64,"minZ":40,"maxX":3,"maxY":67,"maxZ":41},
+    "zone":{"minX":-3,"minY":64,"minZ":41,"maxX":4,"maxY":68,"maxZ":46},
+    "outsideSafe":{"x":0.5,"y":64,"z":38.5,"yaw":0,"pitch":0},"exitDropAnchor":{"x":5.5,"y":64,"z":38.5}
+  },
+  "blackCrystalNodes":[{"id":"black_w","pos":{"x":-50.5,"y":64,"z":-20.5}},{"id":"black_e","pos":{"x":50.5,"y":64,"z":-20.5}}],
+  "blackDropoffs":[{"id":"drop_w","pos":{"x":-50.5,"y":64,"z":45.5}},{"id":"drop_e","pos":{"x":50.5,"y":64,"z":45.5}}],
+  "brokerExit":{"id":"broker_exit","pos":{"x":0.5,"y":64,"z":-50.5}},
+  "spectatorPos":{"x":0.5,"y":75,"z":30.5,"yaw":180,"pitch":30}
+}

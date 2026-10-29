@@ -112,6 +112,12 @@ public class SREEventRegister {
                 io.wifi.starrailexpress.shop.ShopPriceSyncServer.resyncAll(serverLevel.getServer());
             }
         });
+        // 开局：为所有选择了「随机」皮肤的物品类型重新抽取一次（结果同步给客户端用于渲染）
+        OnGameStarted.EVENT.register(serverLevel -> {
+            for (net.minecraft.server.level.ServerPlayer player : serverLevel.players()) {
+                io.wifi.starrailexpress.cca.SREPlayerSkinsComponent.KEY.get(player).rollAllRandomSkins();
+            }
+        });
     }
 
     /**
@@ -254,6 +260,12 @@ public class SREEventRegister {
     }
 
     private static void sendDefaultIntroIfParticipant(ServerPlayer player) {
+        // 回响托运站由模式自己发一条开局运镜（追捕方 → 逃脱方 → 设施 → 回到本人），
+        // 这里跳过默认的「远处俯视玩家」镜头，避免两条轨道互相抢占导演。
+        if (SREGameWorldComponent.KEY.get(player.serverLevel()).getGameMode()
+                instanceof org.agmas.noellesroles.game.modes.echo.EchoGameMode) {
+            return;
+        }
         if (player.gameMode.getGameModeForPlayer() == GameType.ADVENTURE) {
             net.exmo.sre.camera.AdvancedCameraCommand.sendIntro(player,
                     net.exmo.sre.camera.AdvancedCameraCommand.DEFAULT_INTRO_DURATION,

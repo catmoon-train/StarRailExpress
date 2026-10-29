@@ -134,6 +134,9 @@ public class GeneralStatsPanel extends AbstractWidget {
         drawStatPair(g, areaX, statY,
                 "screen." + SRE.MOD_ID + ".player_stats.total_lovers_wins",
                 String.valueOf(stats.getTotalLoversWins()));
+        drawStatPair(g, rightX, statY,
+                "screen." + SRE.MOD_ID + ".player_stats.total_mvps",
+                String.valueOf(stats.getTotalMvps()));
 
         currentY = statY + 30;
 

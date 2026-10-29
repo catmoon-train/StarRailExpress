@@ -352,7 +352,6 @@
     "text.autoconfig.starrailexpress.option.startingMoney": "Starting coins",
     "text.autoconfig.starrailexpress.option.shortShotgunPrice": "Sawed-off shotgun",
     "text.autoconfig.starrailexpress.option.teamKillViolationEnabled": "Teammate kill violation detection config",
-    "text.autoconfig.starrailexpress.option.enableRepairMode": "Enable repair mode",
     "text.autoconfig.starrailexpress.option.teamKillViolationThreshold": "Teammate kill count threshold within the window",
     "text.autoconfig.starrailexpress.option.teamKillViolationWindowSeconds": "Detection time window (seconds)",
     "text.autoconfig.starrailexpress.option.teamKillViolationMcFunction": "mcfunction executed when detection triggers",
@@ -712,5 +711,6 @@
     "text.autoconfig.noellesroles.option.manipulatorMarkReward": "Manipulator - coins rewarded on a successful mark",
     "text.autoconfig.noellesroles.option.manipulatorTargetDeathReward": "Manipulator - coins rewarded if the target dies during control",
     "text.autoconfig.noellesroles.option.chanceOfSilencer": "Silencer spawn chance (%)",
-    "text.autoconfig.starrailexpress.option.downloadVanillaLanguageFile": "Server: download the vanilla language file matching the above language id from Mojang and apply it, cached to sre_lang_cache in the game root (requires loadServerLanguageId to be set and not en_us)"
+    "text.autoconfig.starrailexpress.option.downloadVanillaLanguageFile": "Server: download the vanilla language file matching the above language id from Mojang and apply it, cached to sre_lang_cache in the game root (requires loadServerLanguageId to be set and not en_us)",
+    "text.autoconfig.noellesroles.option.commandBlockEnableChance": "Command block enable chance (1/10000)"
 }

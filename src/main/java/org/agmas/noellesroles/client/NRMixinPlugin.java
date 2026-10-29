@@ -40,6 +40,11 @@ public class NRMixinPlugin implements IMixinConfigPlugin {
         if (mixinClassName.endsWith("LamBugFix") && !IS_LAMBDYNLIGHTS_LOADED) {
             return false;
         }
+        if ((mixinClassName.endsWith("DreadlordFloatSodiumMixin")
+                || mixinClassName.endsWith("RoadRollerSodiumMixin"))
+                && !FabricLoader.getInstance().isModLoaded("sodium")) {
+            return false;
+        }
         if (!FabricLoader.getInstance().isModLoaded("invmove")) {
             if (mixinClassName.contains("org.agmas.noellesroles.mixin.client.compat.inv_move"))
                 return false;

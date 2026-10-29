@@ -1,0 +1,4 @@
+{
+  "echo.machine.tasks.filter": "回声托运站机器",
+  "echo.machine.tasks.incomplete": "机器结构不完整或标记的不是主点：%s。请重新放置整台机器或重新生成模板。"
+}

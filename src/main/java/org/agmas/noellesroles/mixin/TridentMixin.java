@@ -26,6 +26,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.projectile.ThrownTrident;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.phys.EntityHitResult;
+import org.agmas.noellesroles.role.ModRoles;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -56,9 +57,14 @@ public class TridentMixin {
         if (!thrower.isSpectator()) {
             GameUtils.killPlayer(player, true, thrower, SRE.id("trident"));
         }
-        thrower.getCooldowns().addCooldown(Items.TRIDENT,
-                GameConstants.ITEM_COOLDOWNS.getOrDefault(Items.TRIDENT,
-                        GameConstants.ITEM_COOLDOWNS.getOrDefault(TMMItems.REVOLVER, 0)));
+        // 祈月者：基础 30 秒；水中镜领域内不进冷却；疯狂模式 1/6。
+        if (SREGameWorldComponent.KEY.get(thrower.level()).isRole(thrower, ModRoles.POOLER)) {
+            org.agmas.noellesroles.role_data.killer.PoolerRoleData.applyTridentKillCooldown(thrower);
+        } else {
+            thrower.getCooldowns().addCooldown(Items.TRIDENT,
+                    GameConstants.ITEM_COOLDOWNS.getOrDefault(Items.TRIDENT,
+                            GameConstants.ITEM_COOLDOWNS.getOrDefault(TMMItems.REVOLVER, 0)));
+        }
     }
 
     @Inject(method = "onHitEntity", at = @At("HEAD"))

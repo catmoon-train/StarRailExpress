@@ -218,6 +218,18 @@ public class NRModifiers {
             .setDefaultEnableNeededPlayerCount(12)
             .setAddedVersion("4.4");
 
+    /** 命令方块标记的异常。开局可见，不参与自然刷新。 */
+    public static SREModifier ABNORMAL = HMLModifiers.registerModifier(new SREModifier(
+            Noellesroles.id("abnormal"),
+            0xB45ADC,
+            null,
+            null,
+            false,
+            false))
+            .setDefaultMax(0)
+            .setDefaultEnableChance(0)
+            .setAddedVersion("4.4");
+
     /** 瘦子修饰符：模型左右压扁变瘦，并被周围玩家挤压移动 */
     public static SREModifier SKINNY = HMLModifiers.registerModifier(new SREModifier(
             Noellesroles.id("skinny"),

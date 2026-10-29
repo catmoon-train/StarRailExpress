@@ -1,0 +1,13 @@
+{
+  "echo.map.title": "回声托运站 · 区域地图",
+  "echo.map.open_hint": "%s 打开大地图",
+  "echo.map.close_hint": "%s / ESC 关闭",
+  "echo.map.facilities": "设施",
+  "echo.map.evacuation_zone": "撤离区域",
+  "echo.map.facility_number": "%s · %s号",
+  "echo.map.coordinates": "位置：%s / %s / %s",
+  "echo.map.syncing": "正在同步设施…",
+  "echo.map.north": "北",
+  "echo.map.hunt_focus": "锁定 %s%%",
+  "echo.map.hunt_instinct": "本能 · %s%%"
+}

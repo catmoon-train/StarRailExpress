@@ -53,9 +53,12 @@ import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
 
 import org.agmas.harpymodloader.component.WorldModifierComponent;
+import org.agmas.noellesroles.api.time.TimeRewindPlayback;
+import org.agmas.noellesroles.api.time.TimeRewind;
 import org.agmas.noellesroles.content.item.GroselleJourneyManager;
 import org.agmas.noellesroles.game.roles.innocence.fool.TarotAssemblyManager;
 import org.agmas.noellesroles.game.roles.killer.manipulator.InControlCCA;
+import org.agmas.noellesroles.game.roles.killer.pooler.PoolerDomainManager;
 import org.agmas.noellesroles.init.ModEffects;
 import org.agmas.noellesroles.init.ModItems;
 import org.agmas.noellesroles.utils.RoleUtils;
@@ -816,8 +819,10 @@ public class SREGameWorldComponent implements AutoSyncedComponent, ServerTicking
         {
             if (this.gameStatus == GameStatus.ACTIVE || this.gameStatus == GameStatus.INITIATING) {
                 var alivePlayers = new ArrayList<>(serverWorld.players());
-                alivePlayers.removeIf(p -> !GameUtils.isPlayerAliveAndSurvivalIgnoreShitSplit(p));
-                if (alivePlayers.size() <= 0) {
+                // 回溯期间的旁观者只是临时保护状态，仍属于尚未离场的玩家。
+                alivePlayers.removeIf(p -> !GameUtils.isPlayerAliveAndSurvivalIgnoreShitSplit(p)
+                        && !TimeRewind.isSmoothRewinding(p));
+                if (alivePlayers.isEmpty() && (gameMode == null || gameMode.shouldStopWhenNoPlayers())) {
                     SREGameRoundEndComponent.KEY.get(serverWorld).setRoundEndData(
                             new ArrayList<>(serverWorld.players()),
                             WinStatus.NO_PLAYER);
@@ -840,7 +845,8 @@ public class SREGameWorldComponent implements AutoSyncedComponent, ServerTicking
                             continue;
                         }
 
-                        if (gameMode.enableEnvironmentDetection()) {
+                        if (gameMode.enableEnvironmentDetection()
+                                && !TimeRewindPlayback.isActive(player.getUUID())) {
                             playerEnvironmentDetection(player, areas, this);
                         }
                         if (world.getGameTime() % 40 == 0) {
@@ -883,8 +889,6 @@ public class SREGameWorldComponent implements AutoSyncedComponent, ServerTicking
         if (player.isSpectator() || player.isCreative())
             return;
         SREGameWorldComponent gameWorldComponent = SREGameWorldComponent.KEY.get(player.level());
-        if (gameWorldComponent.gameMode == SREGameModes.REPAIR_ESCAPE_MODE)
-            return;
         if (GroselleJourneyManager.isBanished(player.getUUID())) {
             return;
         }
@@ -995,7 +999,8 @@ public class SREGameWorldComponent implements AutoSyncedComponent, ServerTicking
         } else {
             gameCCA.playerBannedBlockTime.remove(player.getUUID());
             perPlayerDarknessTime.remove(player.getUUID());
-            if (!TarotAssemblyManager.havingMeeting) {
+            if (!TarotAssemblyManager.havingMeeting
+                    && !PoolerDomainManager.isInDomain(player.getUUID())) {
                 GameUtils.killPlayer(player, false,
                         player.getLastHurtByMob() instanceof Player killerPlayer ? killerPlayer : null,
                         GameConstants.DeathReasons.FELL_OUT_OF_TRAIN);

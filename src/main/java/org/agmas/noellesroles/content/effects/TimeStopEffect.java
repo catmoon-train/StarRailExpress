@@ -56,6 +56,8 @@ public class TimeStopEffect extends MobEffect {
     public static int freezeTime = 0;
     public static int freezeStatedTime = 0;
     public static int freezeMaxTime = 0;
+    /** 时停发起者独立于可移动名单，后者可能因其他玩家死亡清理效果而被清空。 */
+    public static UUID timeStopOwner;
     //
     // public static boolean hasCooldown(Player player){
     // return player.getCooldowns().isOnCooldown(Items.BIRCH_LOG);
@@ -81,6 +83,7 @@ public class TimeStopEffect extends MobEffect {
     }
 
     public static void triggerStart(ServerPlayer serverPlayer, int time, Component displaySkillTitle) {
+        timeStopOwner = serverPlayer.getUUID();
         canMovePlayers.clear();
         canMovePlayers.add(serverPlayer.getUUID());
         SREGameWorldComponent gameWorldComponent = SREGameWorldComponent.KEY.get(serverPlayer.level());

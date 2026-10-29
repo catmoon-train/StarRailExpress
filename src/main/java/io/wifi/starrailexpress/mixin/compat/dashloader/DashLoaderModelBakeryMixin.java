@@ -31,7 +31,8 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 @Mixin(value = ModelBakery.class, priority = 1500)
 public abstract class DashLoaderModelBakeryMixin {
 
-    @Inject(method = "addExtraModel", at = @At("HEAD"), cancellable = true, require = 0)
+    // Fabric 添加的方法不在 Mojang 映射中，保留其稳定名称。
+    @Inject(method = "addExtraModel", at = @At("HEAD"), cancellable = true, require = 0, remap = false)
     private void sre$skipNullExtraModel(ResourceLocation id, CallbackInfo ci) {
         if (id == null) {
             SRE.LOGGER.warn("[SRE] Skipped a null extra model while DashLoader is present.");

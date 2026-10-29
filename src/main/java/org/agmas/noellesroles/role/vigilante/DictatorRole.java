@@ -23,7 +23,7 @@ import net.minecraft.world.item.ItemStack;
 import org.agmas.noellesroles.Noellesroles;
 import org.agmas.noellesroles.content.item.DictatorBookItem;
 import org.agmas.noellesroles.content.item.JudgmentSwordItem;
-import org.agmas.noellesroles.content.item.WatchmanShopEntry;
+import org.agmas.noellesroles.content.item.SteppedPriceShopEntry;
 import org.agmas.noellesroles.init.ModItems;
 import org.agmas.noellesroles.role.ModRoles;
 import org.agmas.noellesroles.role_data.vigilante.DictatorRoleData;
@@ -82,7 +82,7 @@ public class DictatorRole extends NormalRole {
     public List<ShopEntry> getShopEntries() {
         return List.of(
                 // 裁决之剑：150 金币，每购买一次涨价 25 金币
-                new WatchmanShopEntry(ModItems.JUDGMENT_SWORD, 150, 25, ShopEntry.Type.TOOL),
+                new SteppedPriceShopEntry(ModItems.JUDGMENT_SWORD, 150, 25, ShopEntry.Type.TOOL),
                 // 独裁之书：150 金币，仅能购买一次
                 new ShopEntry(ModItems.DICTATOR_BOOK.getDefaultInstance(), 150, ShopEntry.Type.TOOL) {
                     @Override

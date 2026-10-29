@@ -249,6 +249,25 @@ public class BombItem extends Item {
 
             return InteractionResultHolder.consume(stack);
         }
+        if (hitResult != null
+                && hitResult.getEntity() instanceof io.wifi.starrailexpress.traindummy.TrainDummyEntity dummy
+                && dummy.canReceiveHits()) {
+            if (blockHitResult.getType() == HitResult.Type.BLOCK
+                    && eyePosition.distanceTo(blockHitResult.getLocation()) < eyePosition.distanceTo(dummy.getEyePosition())) {
+                return InteractionResultHolder.pass(stack);
+            }
+            stack.shrink(1);
+            if (player instanceof ServerPlayer killer) {
+                io.wifi.starrailexpress.traindummy.TrainDummyCombat.applyLethal(dummy, killer,
+                        GameConstants.DeathReasons.BOMB_DEATH);
+            } else {
+                io.wifi.starrailexpress.traindummy.TrainDummyCombat.applyLethal(dummy, null,
+                        GameConstants.DeathReasons.BOMB_DEATH);
+            }
+            level.playSound(null, dummy.blockPosition(), SoundEvents.GENERIC_EXPLODE.value(), SoundSource.PLAYERS, 2.0f,
+                    1.0f);
+            return InteractionResultHolder.consume(stack);
+        }
 
         return InteractionResultHolder.pass(stack);
     }

@@ -126,6 +126,14 @@ public final class WarlockDomainManager {
                     .withStyle(ChatFormatting.RED), true);
             return false;
         }
+        // 带「领域庇护」（摘星者光环）的玩家无法被拉入任何领域
+        if (ModEffects.hasDomainSanctuary(victim)) {
+            warlock.displayClientMessage(Component
+                    .translatable("message.noellesroles.domain.sanctuary_blocked",
+                            victim.getName())
+                    .withStyle(ChatFormatting.GOLD), true);
+            return false;
+        }
         ServerLevel level = warlock.serverLevel();
 
         new WarlockDomainSceneBuilder(level)

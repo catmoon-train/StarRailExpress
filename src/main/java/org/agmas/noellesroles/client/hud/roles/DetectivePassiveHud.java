@@ -91,7 +91,7 @@ public class DetectivePassiveHud {
 
                 poseStack.popPose();
 
-                if (mc.level.getGameTime() - info.time > 20) {
+                if (mc.level.getGameTime() - info.time > (isEchoHunter(mc.player) ? 40 : 20)) {
                     soundInfoPool.push(soundInfos.remove(i));
                 }
             }

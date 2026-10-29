@@ -44,6 +44,19 @@ public class FirecrackerEntityRenderer extends EntityRenderer<FirecrackerEntity>
         this(context, 1.0F);
     }
 
+    /** 按皮肤缓存渲染用 ItemStack，避免每帧新建。 */
+    private final java.util.Map<String, net.minecraft.world.item.ItemStack> skinnedStacks = new java.util.HashMap<>();
+
+    private net.minecraft.world.item.ItemStack stackFor(FirecrackerEntity entity) {
+        String skin = entity.getSkin();
+        if (skin == null || skin.isBlank() || "default".equals(skin)) {
+            return TMMItems.FIRECRACKER.getDefaultInstance();
+        }
+        return skinnedStacks.computeIfAbsent(skin,
+                name -> io.wifi.starrailexpress.util.ItemSkinManager.applySkinToStack(
+                        TMMItems.FIRECRACKER.getDefaultInstance(), name));
+    }
+
     @Override
     public void render(FirecrackerEntity entity, float yaw, float tickDelta, PoseStack matrices, MultiBufferSource vertexConsumers, int light) {
         if (entity.tickCount >= 2 || !(this.entityRenderDispatcher.camera.getEntity().distanceToSqr(entity) < 12.25)) {
@@ -54,7 +67,7 @@ public class FirecrackerEntityRenderer extends EntityRenderer<FirecrackerEntity>
             matrices.mulPose(Axis.XP.rotationDegrees(90));
             this.itemRenderer
                     .renderStatic(
-                            TMMItems.FIRECRACKER.getDefaultInstance(), ItemDisplayContext.GROUND, light, OverlayTexture.NO_OVERLAY, matrices, vertexConsumers, entity.level(), entity.getId()
+                            stackFor(entity), ItemDisplayContext.GROUND, light, OverlayTexture.NO_OVERLAY, matrices, vertexConsumers, entity.level(), entity.getId()
                     );
             matrices.popPose();
             super.render(entity, yaw, tickDelta, matrices, vertexConsumers, light);

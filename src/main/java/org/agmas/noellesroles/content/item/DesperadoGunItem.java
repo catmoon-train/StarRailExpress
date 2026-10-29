@@ -62,6 +62,14 @@ public final class DesperadoGunItem extends DerringerItem {
                         && distanceToSegmentSqr(player.getEyePosition(), eye, end) <= SLOW_RADIUS * SLOW_RADIUS)) {
             nearby.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SLOWDOWN, SLOW_TICKS, 4, false, true, true));
         }
+        for (io.wifi.starrailexpress.traindummy.TrainDummyEntity dummy : level.getEntitiesOfClass(
+                io.wifi.starrailexpress.traindummy.TrainDummyEntity.class, beamBox,
+                io.wifi.starrailexpress.traindummy.TrainDummyEntity::canReceiveHits)) {
+            if (distanceToSegmentSqr(dummy.getEyePosition(), eye, end) <= SLOW_RADIUS * SLOW_RADIUS) {
+                io.wifi.starrailexpress.traindummy.TrainDummyCombat.applyEffect(dummy,
+                        new MobEffectInstance(MobEffects.MOVEMENT_SLOWDOWN, SLOW_TICKS, 4, false, true, true));
+            }
+        }
     }
 
     private static double distanceToSegmentSqr(Vec3 point, Vec3 from, Vec3 to) {

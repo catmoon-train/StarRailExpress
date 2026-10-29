@@ -20,6 +20,8 @@ import io.wifi.starrailexpress.index.TMMParticles;
 import io.wifi.starrailexpress.index.TMMSounds;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.syncher.EntityDataAccessor;
+import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundSource;
@@ -29,8 +31,20 @@ import net.minecraft.world.level.Level;
 import org.joml.Vector3d;
 
 public class FirecrackerEntity extends Entity {
+    /** 皮肤名：鞭炮实体跟随物品皮肤渲染。 */
+    private static final EntityDataAccessor<String> SKIN = SynchedEntityData.defineId(FirecrackerEntity.class,
+            EntityDataSerializers.STRING);
+
     public FirecrackerEntity(EntityType<?> type, Level world) {
         super(type, world);
+    }
+
+    public String getSkin() {
+        return this.entityData.get(SKIN);
+    }
+
+    public void setSkin(String skinName) {
+        this.entityData.set(SKIN, skinName == null || skinName.isBlank() ? "default" : skinName);
     }
 
     @Override
@@ -53,16 +67,18 @@ public class FirecrackerEntity extends Entity {
 
     @Override
     protected void defineSynchedData(SynchedEntityData.Builder builder) {
-
+        builder.define(SKIN, "default");
     }
 
     @Override
     protected void readAdditionalSaveData(CompoundTag nbt) {
-
+        if (nbt.contains("Skin")) {
+            this.setSkin(nbt.getString("Skin"));
+        }
     }
 
     @Override
     protected void addAdditionalSaveData(CompoundTag nbt) {
-
+        nbt.putString("Skin", this.getSkin());
     }
 }

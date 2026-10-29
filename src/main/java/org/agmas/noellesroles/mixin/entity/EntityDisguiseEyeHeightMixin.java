@@ -20,7 +20,9 @@ import net.minecraft.world.entity.EntityDimensions;
 import net.minecraft.world.entity.Pose;
 import net.minecraft.world.entity.player.Player;
 
+import org.agmas.noellesroles.game.command_block.DreadlordRole;
 import org.agmas.noellesroles.game.modifier.NRModifiers;
+import org.agmas.noellesroles.role_data.killer.DreadlordRoleData;
 import org.agmas.noellesroles.role_data.innocence.LeatherPigRoleData;
 import org.agmas.noellesroles.role_data.innocence.TomatoHeadRoleData;
 import org.agmas.noellesroles.role_data.neutral.PhantomSpiritRoleData;
@@ -50,6 +52,10 @@ public abstract class EntityDisguiseEyeHeightMixin {
     }
 
     private EntityDimensions getResult(Player self, EntityDimensions original, Pose pose) {
+        EntityDimensions dread = dreadlordBody(self, original);
+        if (dread != null) {
+            return dread;
+        }
         if (PhantomSpiritRoleData.isDisguised(self)) {
             EntityDimensions allay = EntityType.ALLAY.getDimensions();
             if (pose == Pose.SLEEPING || pose == Pose.SWIMMING || pose == Pose.SPIN_ATTACK) {
@@ -71,5 +77,21 @@ public abstract class EntityDisguiseEyeHeightMixin {
             return original.withEyeHeight(eyeHeight);
         }
         return original;
+    }
+
+    /** 杀戮形态只放大模型。碰撞箱和眼睛都除回原来的尺寸，否则过不了原来能过的墙，视角也会抬高。 */
+    private static EntityDimensions dreadlordBody(Player self, EntityDimensions original) {
+        if (!DreadlordRole.isDreadlord(self)) {
+            return null;
+        }
+        DreadlordRoleData data = DreadlordRole.dataOf(self);
+        if (data == null || !data.isKilling()) {
+            return null;
+        }
+        float scale = (float) self.getAttributeValue(net.minecraft.world.entity.ai.attributes.Attributes.SCALE);
+        if (scale <= 1.01F) {
+            return null;
+        }
+        return original.scale(1.0F / scale, 1.0F / scale);
     }
 }

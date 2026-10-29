@@ -79,7 +79,7 @@ public class SRE extends StarRailExpressID implements ModInitializer {
     // CollisionRules - canCollide / cantPushableBy / canCollideEntity
     // ArmorRules - canStickArmor
     // DropRules - canDropItem / canDrop
-    // RoleVisibilityRules - canUseOtherPerson
+    // RoleVisibilityRules - canUseOtherPerson / canUseOtherPersonPlayer
 
     public static @NotNull ResourceLocation id(String name) {
         return ResourceLocation.fromNamespaceAndPath(MOD_ID, name);
@@ -119,6 +119,7 @@ public class SRE extends StarRailExpressID implements ModInitializer {
         io.wifi.starrailexpress.morph.MorphManager.registerEvents();
         io.wifi.starrailexpress.disguise.EntityDisguiseManager.registerEvents();
         io.wifi.starrailexpress.plush.PlushEquipmentManager.registerEvents();
+        io.wifi.starrailexpress.pet.PetEquipmentManager.registerEvents();
         net.exmo.sre.sync.EquippedSkinsDatabaseSync.registerEvents();
         ProgressionDataManager.registerEvents();
         io.wifi.starrailexpress.backpack.BackpackManager.registerEvents();

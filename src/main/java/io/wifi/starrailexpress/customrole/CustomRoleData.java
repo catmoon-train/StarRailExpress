@@ -66,6 +66,10 @@ public class CustomRoleData {
     @SerializedName("moodType")
     public String moodType = "REAL";
 
+    /** 该职业的心情值(san)上限，默认 1.0；对应 {@code SRERole#setMaxMood}。 */
+    @SerializedName("moodMax")
+    public float moodMax = 1.0f;
+
     @SerializedName("sprintMultiplier")
     public double sprintMultiplier = 1.0;
 

@@ -104,6 +104,7 @@ public class VoteManager {
             return null;
         if (currentSession != null && currentSession.isEnded())
             clear();
+        io.wifi.starrailexpress.settlement.SettlementManager.stopAll(server);
         VoteSession session = new VoteSession(title, options, showResults, syncIntervalTicks,
                 durationTicks, customEnd, allowReVote, targetPlayers, maxSelectCount, typeId);
         optionsSent = false;

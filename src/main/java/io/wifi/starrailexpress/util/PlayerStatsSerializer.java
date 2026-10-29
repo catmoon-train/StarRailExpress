@@ -57,6 +57,7 @@ public final class PlayerStatsSerializer {
         data.setTotalLosses(stats.getTotalLosses());
         data.setTotalTeamKills(stats.getTotalTeamKills());
         data.setTotalLoversWins(stats.getTotalLoversWins());
+        data.setTotalMvps(stats.getTotalMvps());
         data.setTotalCivilianGames(stats.getTotalCivilianGames());
         data.setTotalCivilianWins(stats.getTotalCivilianWins());
         data.setTotalCivilianKills(stats.getTotalCivilianKills());
@@ -83,6 +84,7 @@ public final class PlayerStatsSerializer {
             roleData.setWinsAsRole(roleStats.getWinsAsRole());
             roleData.setLossesAsRole(roleStats.getLossesAsRole());
             roleData.setTeamKillsAsRole(roleStats.getTeamKillsAsRole());
+            roleData.setMvpsAsRole(roleStats.getMvpsAsRole());
             roles.put(roleId.toString(), roleData);
         });
         data.setRoleStats(roles);

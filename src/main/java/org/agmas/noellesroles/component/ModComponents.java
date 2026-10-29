@@ -21,7 +21,6 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
 import org.agmas.noellesroles.ConfigWorldComponent;
 import org.agmas.noellesroles.Noellesroles;
-import net.exmo.sre.repair.component.RepairRolePlayerComponent;
 import org.agmas.noellesroles.content.entity.DoomedSinnerBodyEntity;
 import org.agmas.noellesroles.game.roles.killer.manipulator.InControlCCA;
 import org.agmas.noellesroles.game.roles.neutral.puppeteer.PuppeteerPlayerComponent;
@@ -89,10 +88,6 @@ public class ModComponents implements EntityComponentInitializer, WorldComponent
 
   // 氦气变声组件 - 独立同步给所有玩家
   public static final ComponentKey<HeliumBuzzPlayerComponent> HELIUM_BUZZ = HeliumBuzzPlayerComponent.KEY;
-
-  public static final ComponentKey<RepairRolePlayerComponent> REPAIR_ROLES = ComponentRegistry.getOrCreate(
-      ResourceLocation.fromNamespaceAndPath(Noellesroles.MOD_ID, "repair_roles"),
-      RepairRolePlayerComponent.class);
 
   // 疫使组件 - 杀手方中立阵营，病毒感染
   public static final ComponentKey<InfectedPlayerComponent> INFECTED = ComponentRegistry.getOrCreate(
@@ -167,10 +162,6 @@ public class ModComponents implements EntityComponentInitializer, WorldComponent
     registry.beginRegistration(Player.class, GhostStateComponent.KEY)
         .respawnStrategy(RespawnCopyStrategy.NEVER_COPY)
         .end(GhostStateComponent::new);
-
-    registry.beginRegistration(Player.class, REPAIR_ROLES)
-        .respawnStrategy(RespawnCopyStrategy.ALWAYS_COPY)
-        .end(RepairRolePlayerComponent::new);
 
     // 注册疫使组件 - 杀手方中立阵营，病毒感染
     registry.beginRegistration(Player.class, INFECTED)

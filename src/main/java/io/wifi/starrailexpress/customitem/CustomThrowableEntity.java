@@ -323,10 +323,25 @@ public class CustomThrowableEntity extends NoHeavyWaterInfluencedThrowableItemPr
         // 投掷者：范围指令里的 <attacker> 指他
         Entity thrower = getOwner();
         ServerPlayer attacker = thrower instanceof ServerPlayer serverPlayer ? serverPlayer : null;
-        for (ServerPlayer target : targets) {
-            CustomItemLoader.executeCommands(data.throwHitCommands, target, attacker);
-            CustomItemRuntime.applyEffects(target, data.throwHitEffects);
-        }
+         for (ServerPlayer target : targets) {
+             CustomItemLoader.executeCommands(data.throwHitCommands, target, attacker);
+             CustomItemRuntime.applyEffects(target, data.throwHitEffects);
+         }
+         ResourceLocation dummyReason = data.throwExplode
+                 ? CustomItemRuntime.parseDeathReason(data.throwDeathReason, GameConstants.DeathReasons.GRENADE)
+                 : null;
+         for (io.wifi.starrailexpress.traindummy.TrainDummyEntity dummy : serverLevel.getEntitiesOfClass(
+                 io.wifi.starrailexpress.traindummy.TrainDummyEntity.class,
+                new net.minecraft.world.phys.AABB(center, center).inflate(radius),
+                 io.wifi.starrailexpress.traindummy.TrainDummyEntity::canReceiveHits)) {
+             if (dummy.position().distanceTo(center) > radius) {
+                 continue;
+             }
+             CustomItemRuntime.applyEffects(dummy, data.throwHitEffects);
+             if (dummyReason != null) {
+                 io.wifi.starrailexpress.traindummy.TrainDummyCombat.applyLethal(dummy, attacker, dummyReason);
+             }
+         }
         if (data.throwExplode) {
             explode(serverLevel, center, targets, data);
         }

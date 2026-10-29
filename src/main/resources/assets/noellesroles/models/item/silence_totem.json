@@ -1,6 +1,6 @@
 {
   "parent": "minecraft:item/generated",
   "textures": {
-    "layer0": "minecraft:item/totem_of_undying"
+    "layer0": "noellesroles:item/silence_totem"
   }
 }

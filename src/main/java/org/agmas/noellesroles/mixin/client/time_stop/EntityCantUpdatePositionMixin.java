@@ -36,6 +36,7 @@ public abstract class EntityCantUpdatePositionMixin extends Entity {
 
     @Inject(method = "lerpTo", at = @At("HEAD"), cancellable = true)
     public void lerpTo(double d, double e, double f, float g, float h, int i, CallbackInfo ci) {
+        if (this.level().isClientSide && org.agmas.noellesroles.client.RoadRollerClient.isPressing(this.getUUID())) return;
         if (this.level().isClientSide) {
             if (Minecraft.getInstance().player.hasEffect((ModEffects.TIME_STOP))) {
                 if (TimeStopEffect.clientCanMovePlayers.contains(Minecraft.getInstance().player.getUUID())) {

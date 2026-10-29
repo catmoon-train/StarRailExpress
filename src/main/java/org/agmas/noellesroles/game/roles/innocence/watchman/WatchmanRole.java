@@ -3,7 +3,7 @@ package org.agmas.noellesroles.game.roles.innocence.watchman;
 import io.wifi.starrailexpress.api.NormalRole;
 import io.wifi.starrailexpress.util.ShopEntry;
 import net.minecraft.resources.ResourceLocation;
-import org.agmas.noellesroles.content.item.WatchmanShopEntry;
+import org.agmas.noellesroles.content.item.SteppedPriceShopEntry;
 import org.agmas.noellesroles.init.ModItems;
 
 import java.util.ArrayList;
@@ -37,8 +37,8 @@ public class WatchmanRole extends NormalRole {
     @Override
     public List<ShopEntry> getShopEntries() {
         ArrayList<ShopEntry> shop = new ArrayList<>();
-        shop.add(new WatchmanShopEntry(ModItems.GONG, GONG_BASE_PRICE, PRICE_STEP, ShopEntry.Type.TOOL));
-        shop.add(new WatchmanShopEntry(ModItems.BANG, BANG_BASE_PRICE, PRICE_STEP, ShopEntry.Type.TOOL));
+        shop.add(new SteppedPriceShopEntry(ModItems.GONG, GONG_BASE_PRICE, PRICE_STEP, ShopEntry.Type.TOOL));
+        shop.add(new SteppedPriceShopEntry(ModItems.BANG, BANG_BASE_PRICE, PRICE_STEP, ShopEntry.Type.TOOL));
         return shop;
     }
 }

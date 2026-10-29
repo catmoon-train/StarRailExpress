@@ -1,0 +1,97 @@
+{
+  "credit": "echo multiblock original machine",
+  "textures": {
+    "particle": "noellesroles:block/echo_large_black",
+    "hull": "noellesroles:block/echo_large_hull",
+    "frame": "noellesroles:block/echo_large_frame",
+    "brass": "noellesroles:block/echo_large_brass",
+    "gold": "noellesroles:block/echo_large_gold",
+    "brown": "noellesroles:block/echo_large_brown",
+    "energy": "noellesroles:block/echo_large_energy",
+    "void": "noellesroles:block/echo_large_void",
+    "crystal": "noellesroles:block/echo_large_crystal",
+    "black": "noellesroles:block/echo_large_black",
+    "slot": "noellesroles:block/echo_large_slot",
+    "mouth": "noellesroles:block/echo_large_mouth",
+    "pipe": "noellesroles:block/echo_large_pipe",
+    "vent": "noellesroles:block/echo_large_vent",
+    "crate": "noellesroles:block/echo_large_crate",
+    "seal": "noellesroles:block/echo_large_seal",
+    "screen": "noellesroles:block/echo_large_screen",
+    "exit": "noellesroles:block/echo_large_exit",
+    "hazard": "noellesroles:block/echo_large_hazard",
+    "ticket": "noellesroles:block/echo_large_ticket",
+    "green": "noellesroles:block/echo_large_green",
+    "orange": "noellesroles:block/echo_large_orange"
+  },
+  "elements": [
+    {
+      "from": [
+        6.32,
+        0.0,
+        6.32
+      ],
+      "to": [
+        9.68,
+        3.6,
+        9.68
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            6.32,
+            0.0,
+            9.68,
+            0.36
+          ],
+          "texture": "#void"
+        },
+        "south": {
+          "uv": [
+            6.32,
+            0.0,
+            9.68,
+            0.36
+          ],
+          "texture": "#void"
+        },
+        "west": {
+          "uv": [
+            6.32,
+            0.0,
+            9.68,
+            0.36
+          ],
+          "texture": "#void"
+        },
+        "east": {
+          "uv": [
+            6.32,
+            0.0,
+            9.68,
+            0.36
+          ],
+          "texture": "#void"
+        },
+        "up": {
+          "uv": [
+            6.32,
+            6.32,
+            9.68,
+            9.68
+          ],
+          "texture": "#void"
+        },
+        "down": {
+          "uv": [
+            6.32,
+            6.32,
+            9.68,
+            9.68
+          ],
+          "texture": "#void"
+        }
+      }
+    }
+  ]
+}

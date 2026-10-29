@@ -1,6 +1,6 @@
 {
   "parent": "minecraft:item/generated",
   "textures": {
-    "layer0": "minecraft:item/recovery_compass_16"
+    "layer0": "noellesroles:item/sealed_splintered_compass"
   }
 }

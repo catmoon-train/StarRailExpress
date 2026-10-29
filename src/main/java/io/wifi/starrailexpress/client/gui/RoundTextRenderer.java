@@ -24,6 +24,7 @@ import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.api.TMMRoles;
 import io.wifi.starrailexpress.cca.SREGameRoundEndComponent;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
+import io.wifi.starrailexpress.client.MusicBoxAmbientSound;
 import io.wifi.starrailexpress.client.SREClient;
 import io.wifi.starrailexpress.content.vote.client.VoteFlowFrame;
 import io.wifi.starrailexpress.client.util.ClientSkinCache;
@@ -47,6 +48,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.FormattedText;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.Mth;
 import net.minecraft.util.FormattedCharSequence;
@@ -785,15 +787,21 @@ public class RoundTextRenderer {
                     welcomeExitTicks--;
                 }
             }
+            // MVP 独占画面期间不消耗胜负 HUD 的可见时间，也不重复播放被隔离的结算音。
+            if (io.wifi.starrailexpress.settlement.client.SettlementClient.isActive()) return;
             // 结束界面音效
             if (endTime > 0) {
                 if (endTime == END_DURATION - (GameConstants.FADE_TIME * 2)) {
-                    if (player != null)
+                    if (player != null) {
+                        boolean win = SREGameRoundEndComponent.KEY.get(player.level()).didWin(player.getUUID());
+                        // 装配了带结算音效的音乐盒就替换默认钢琴音，否则（含没装配）走默认
+                        SoundEvent settlement = MusicBoxAmbientSound.equippedSettlementSound(win);
+                        if (settlement == null) {
+                            settlement = win ? TMMSounds.UI_PIANO_WIN : TMMSounds.UI_PIANO_LOSE;
+                        }
                         player.level().playSeededSound(player, player.getX(), player.getY(), player.getZ(),
-                                SREGameRoundEndComponent.KEY.get(player.level()).didWin(player.getUUID())
-                                        ? TMMSounds.UI_PIANO_WIN
-                                        : TMMSounds.UI_PIANO_LOSE,
-                                SoundSource.MASTER, 10f, 1f, player.getRandom().nextLong());
+                                settlement, SoundSource.MASTER, 10f, 1f, player.getRandom().nextLong());
+                    }
                 }
                 endTime--;
             }
@@ -839,6 +847,12 @@ public class RoundTextRenderer {
         welcomeTime = 0;
         welcomeExitTicks = 0;
         endTime = END_DURATION;
+    }
+
+    /** 舞台退出后直接显示完整胜负 HUD，不重播演出中已播放的结算音乐。 */
+    public static void resumeAfterSettlement() {
+        startEnd();
+        endTime = END_DURATION - GameConstants.FADE_TIME * 2 - 1;
     }
 
     /**

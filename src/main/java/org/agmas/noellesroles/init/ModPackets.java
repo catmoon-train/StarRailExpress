@@ -15,7 +15,6 @@
 
 package org.agmas.noellesroles.init;
 
-import net.exmo.sre.repair.network.*;
 import io.wifi.starrailexpress.network.packet.EditNewspaperPacket;
 import io.wifi.starrailexpress.network.packet.EnableTaskHighlightPacket;
 import io.wifi.starrailexpress.network.packet.ShowCustomNewspaperPacket;
@@ -50,6 +49,79 @@ public class ModPackets {
     public static final CustomPacketPayload.Type<ImitatorSwitchSlotC2SPacket> IMITATOR_SWITCH_SLOT_PACKET = ImitatorSwitchSlotC2SPacket.TYPE;
 
     public static void registerPackets() {
+        PayloadTypeRegistry.playS2C().register(
+                org.agmas.noellesroles.game.modes.echo.visual.EchoVisualPayload.ID,
+                org.agmas.noellesroles.game.modes.echo.visual.EchoVisualPayload.CODEC);
+        PayloadTypeRegistry.playS2C().register(
+                org.agmas.noellesroles.game.modes.echo.objective.EchoSoundPayload.ID,
+                org.agmas.noellesroles.game.modes.echo.objective.EchoSoundPayload.CODEC);
+        PayloadTypeRegistry.playS2C().register(
+                org.agmas.noellesroles.game.modes.echo.specialization.EchoSpecializationPayload.ID,
+                org.agmas.noellesroles.game.modes.echo.specialization.EchoSpecializationPayload.CODEC);
+        PayloadTypeRegistry.playS2C().register(
+                org.agmas.noellesroles.game.modes.echo.rules.EchoRulesPayload.ID,
+                org.agmas.noellesroles.game.modes.echo.rules.EchoRulesPayload.CODEC);
+        PayloadTypeRegistry.playS2C().register(
+                org.agmas.noellesroles.game.modes.echo.objective.EchoPublicPayload.ID,
+                org.agmas.noellesroles.game.modes.echo.objective.EchoPublicPayload.CODEC);
+        PayloadTypeRegistry.playS2C().register(
+                org.agmas.noellesroles.game.modes.echo.objective.EchoMachinePayload.ID,
+                org.agmas.noellesroles.game.modes.echo.objective.EchoMachinePayload.CODEC);
+        PayloadTypeRegistry.playS2C().register(
+                org.agmas.noellesroles.game.modes.echo.map.EchoFacilityMapPayload.ID,
+                org.agmas.noellesroles.game.modes.echo.map.EchoFacilityMapPayload.CODEC);
+        PayloadTypeRegistry.playS2C().register(
+                org.agmas.noellesroles.game.modes.echo.map.EchoMapPreviewPayload.ID,
+                org.agmas.noellesroles.game.modes.echo.map.EchoMapPreviewPayload.CODEC);
+        PayloadTypeRegistry.playS2C().register(
+                org.agmas.noellesroles.game.modes.echo.runtime.EchoIntroPayload.ID,
+                org.agmas.noellesroles.game.modes.echo.runtime.EchoIntroPayload.CODEC);
+        PayloadTypeRegistry.playS2C().register(
+                org.agmas.noellesroles.game.modes.echo.anim.EchoHuntPayload.ID,
+                org.agmas.noellesroles.game.modes.echo.anim.EchoHuntPayload.CODEC);
+        PayloadTypeRegistry.playS2C().register(
+                org.agmas.noellesroles.game.modes.echo.anim.EchoRollPayload.ID,
+                org.agmas.noellesroles.game.modes.echo.anim.EchoRollPayload.CODEC);
+        PayloadTypeRegistry.playC2S().register(
+                org.agmas.noellesroles.game.modes.echo.action.EchoRollRequest.ID,
+                org.agmas.noellesroles.game.modes.echo.action.EchoRollRequest.CODEC);
+        PayloadTypeRegistry.playS2C().register(
+                org.agmas.noellesroles.game.modes.echo.editor.EchoEditorStatePayload.ID,
+                org.agmas.noellesroles.game.modes.echo.editor.EchoEditorStatePayload.CODEC);
+        PayloadTypeRegistry.playC2S().register(
+                org.agmas.noellesroles.game.modes.echo.editor.EchoEditorActionPayload.ID,
+                org.agmas.noellesroles.game.modes.echo.editor.EchoEditorActionPayload.CODEC);
+        PayloadTypeRegistry.playC2S().register(
+                org.agmas.noellesroles.game.modes.echo.action.EchoCancelActionPayload.ID,
+                org.agmas.noellesroles.game.modes.echo.action.EchoCancelActionPayload.CODEC);
+        PayloadTypeRegistry.playC2S().register(
+                org.agmas.noellesroles.game.modes.echo.inventory.EchoInventoryPayload.ID,
+                org.agmas.noellesroles.game.modes.echo.inventory.EchoInventoryPayload.CODEC);
+        PayloadTypeRegistry.playC2S().register(
+                org.agmas.noellesroles.game.modes.echo.specialization.EchoSpecializationSelectPayload.ID,
+                org.agmas.noellesroles.game.modes.echo.specialization.EchoSpecializationSelectPayload.CODEC);
+        // 商店：客户端只发「买哪一个 / 哪台售货机」，价格与余额由服务端判定。
+        PayloadTypeRegistry.playC2S().register(
+                org.agmas.noellesroles.game.modes.echo.economy.EchoShopPayload.ID,
+                org.agmas.noellesroles.game.modes.echo.economy.EchoShopPayload.CODEC);
+        // 售货机打开：服务端 → 本人，只带机器坐标。
+        PayloadTypeRegistry.playS2C().register(
+                org.agmas.noellesroles.game.modes.echo.economy.EchoVendingOpenPayload.ID,
+                org.agmas.noellesroles.game.modes.echo.economy.EchoVendingOpenPayload.CODEC);
+        // 修机小游戏：服务端下发本轮判定，客户端只回传按钮位置。
+        PayloadTypeRegistry.playS2C().register(
+                org.agmas.noellesroles.game.modes.echo.repair.EchoRepairPayload.ID,
+                org.agmas.noellesroles.game.modes.echo.repair.EchoRepairPayload.CODEC);
+        PayloadTypeRegistry.playC2S().register(
+                org.agmas.noellesroles.game.modes.echo.repair.EchoRepairSubmitPayload.ID,
+                org.agmas.noellesroles.game.modes.echo.repair.EchoRepairSubmitPayload.CODEC);
+        org.agmas.noellesroles.game.dio.RoadRollerAttack.register();
+        PayloadTypeRegistry.playS2C().register(Error404StateS2CPacket.ID, Error404StateS2CPacket.CODEC);
+        PayloadTypeRegistry.playS2C().register(Error404FeedbackS2CPacket.ID, Error404FeedbackS2CPacket.CODEC);
+        PayloadTypeRegistry.playC2S().register(Error404ActionC2SPacket.ID, Error404ActionC2SPacket.CODEC);
+        ServerPlayNetworking.registerGlobalReceiver(Error404ActionC2SPacket.ID,
+                (payload, context) -> context.server().execute(() ->
+                        org.agmas.noellesroles.game.command_block.Error404Role.handleAction(context.player(), payload)));
         PayloadTypeRegistry.playS2C().register(RefreshDimensionsS2CPacket.ID,
                 RefreshDimensionsS2CPacket.CODEC);
         PayloadTypeRegistry.playS2C().register(FakeSteveControlS2CPacket.ID,
@@ -60,6 +132,8 @@ public class ModPackets {
                 PurpleMonsterEventS2CPacket.CODEC);
         PayloadTypeRegistry.playS2C().register(PurpleMonsterProgressS2CPacket.ID,
                 PurpleMonsterProgressS2CPacket.CODEC);
+        PayloadTypeRegistry.playS2C().register(org.agmas.noellesroles.packet.CommandBlockProgressS2CPacket.ID,
+                org.agmas.noellesroles.packet.CommandBlockProgressS2CPacket.CODEC);
         PayloadTypeRegistry.playC2S().register(PurpleMonsterEventC2SPacket.ID,
                 PurpleMonsterEventC2SPacket.CODEC);
         // PayloadTypeRegistry.playS2C().register(FakeSteveHuntS2CPacket.ID,
@@ -177,43 +251,6 @@ public class ModPackets {
                 OpenVendingMachinesScreenS2CPacket.CODEC);
         PayloadTypeRegistry.playS2C().register(OpenSupplyCrateScreenS2CPacket.ID,
                 OpenSupplyCrateScreenS2CPacket.CODEC);
-        PayloadTypeRegistry.playS2C().register(OpenRepairStationScreenS2CPacket.ID,
-                OpenRepairStationScreenS2CPacket.CODEC);
-        PayloadTypeRegistry.playS2C().register(RepairCoinRewardS2CPacket.ID,
-                RepairCoinRewardS2CPacket.CODEC);
-        PayloadTypeRegistry.playS2C().register(RepairCombatFeedbackS2CPacket.ID,
-                RepairCombatFeedbackS2CPacket.CODEC);
-        PayloadTypeRegistry.playS2C().register(MapStatusBarSyncS2CPacket.ID, MapStatusBarSyncS2CPacket.CODEC);
-        PayloadTypeRegistry.playC2S().register(RepairStationActionC2SPacket.ID,
-                RepairStationActionC2SPacket.CODEC);
-        ServerPlayNetworking.registerGlobalReceiver(RepairStationActionC2SPacket.ID,
-                RepairStationActionC2SPacket::handle);
-        PayloadTypeRegistry.playS2C().register(OpenRepairRoleSelectionS2CPacket.ID,
-                OpenRepairRoleSelectionS2CPacket.CODEC);
-        PayloadTypeRegistry.playS2C().register(OpenRepairRoleShopS2CPacket.ID,
-                OpenRepairRoleShopS2CPacket.CODEC);
-        PayloadTypeRegistry.playC2S().register(RepairRoleSelectC2SPacket.ID, RepairRoleSelectC2SPacket.CODEC);
-        PayloadTypeRegistry.playC2S().register(RepairRoleShopPurchaseC2SPacket.ID,
-                RepairRoleShopPurchaseC2SPacket.CODEC);
-        PayloadTypeRegistry.playC2S().register(RepairPrimarySkillC2SPacket.ID,
-                RepairPrimarySkillC2SPacket.CODEC);
-        PayloadTypeRegistry.playC2S().register(RepairCarryStruggleC2SPacket.ID,
-                RepairCarryStruggleC2SPacket.CODEC);
-        PayloadTypeRegistry.playC2S().register(RepairSearchBeginC2SPacket.ID, RepairSearchBeginC2SPacket.CODEC);
-        PayloadTypeRegistry.playC2S().register(RepairSearchCancelC2SPacket.ID,
-                RepairSearchCancelC2SPacket.CODEC);
-        ServerPlayNetworking.registerGlobalReceiver(RepairRoleSelectC2SPacket.ID,
-                RepairRoleSelectC2SPacket::handle);
-        ServerPlayNetworking.registerGlobalReceiver(RepairRoleShopPurchaseC2SPacket.ID,
-                RepairRoleShopPurchaseC2SPacket::handle);
-        ServerPlayNetworking.registerGlobalReceiver(RepairPrimarySkillC2SPacket.ID,
-                RepairPrimarySkillC2SPacket::handle);
-        ServerPlayNetworking.registerGlobalReceiver(RepairCarryStruggleC2SPacket.ID,
-                RepairCarryStruggleC2SPacket::handle);
-        ServerPlayNetworking.registerGlobalReceiver(RepairSearchBeginC2SPacket.ID,
-                RepairSearchBeginC2SPacket::handle);
-        ServerPlayNetworking.registerGlobalReceiver(RepairSearchCancelC2SPacket.ID,
-                RepairSearchCancelC2SPacket::handle);
 
         PayloadTypeRegistry.playS2C().register(ReasonerOpenScreenS2CPacket.ID,
                 ReasonerOpenScreenS2CPacket.CODEC);
@@ -336,10 +373,17 @@ public class ModPackets {
         // 注册嬉命人网络包
         PayloadTypeRegistry.playC2S().register(EmbalmerC2SPacket.ID, EmbalmerC2SPacket.CODEC);
         PayloadTypeRegistry.playS2C().register(EmbalmerSkinSwapS2CPacket.ID, EmbalmerSkinSwapS2CPacket.CODEC);
+        PayloadTypeRegistry.playC2S().register(org.agmas.noellesroles.packet.EmbalmerVoiceSwapC2SPacket.ID,
+                org.agmas.noellesroles.packet.EmbalmerVoiceSwapC2SPacket.CODEC);
+        PayloadTypeRegistry.playS2C().register(org.agmas.noellesroles.packet.EmbalmerPaletteS2CPacket.ID,
+                org.agmas.noellesroles.packet.EmbalmerPaletteS2CPacket.CODEC);
 
         // 注册窃皮者网络包
         PayloadTypeRegistry.playC2S().register(SkincrawlerC2SPacket.ID, SkincrawlerC2SPacket.CODEC);
         PayloadTypeRegistry.playS2C().register(SkincrawlerSkinS2CPacket.ID, SkincrawlerSkinS2CPacket.CODEC);
+
+        // 注册反重力方块状态同步网络包（S2C，客户端接收器在 NoellesrolesClient）
+        PayloadTypeRegistry.playS2C().register(GravityFlipS2CPacket.ID, GravityFlipS2CPacket.CODEC);
 
         // 注册阿蒙夺舍皮肤顶替网络包
         PayloadTypeRegistry.playS2C().register(org.agmas.noellesroles.packet.AmonSkinS2CPacket.ID,
@@ -410,5 +454,8 @@ public class ModPackets {
 
         PayloadTypeRegistry.playC2S().register(PriestChantC2SPacket.ID, PriestChantC2SPacket.CODEC);
         PayloadTypeRegistry.playS2C().register(PriestHeavenStateS2CPacket.ID, PriestHeavenStateS2CPacket.CODEC);
+
+        // 注册地图状态栏同步网络包（S2C，客户端接收器在 NoellesrolesClient）
+        PayloadTypeRegistry.playS2C().register(MapStatusBarSyncS2CPacket.ID, MapStatusBarSyncS2CPacket.CODEC);
     }
 }

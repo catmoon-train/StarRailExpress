@@ -345,13 +345,14 @@ public class BambooSpearEntity extends Entity {
         Vec3 end = origin.add(look.scale(length));
 
         if (!retracting && !this.killed) {
-            AABB sweep = new AABB(origin, end).inflate(HIT_INFLATE);
-            // 用不带距离上限的重载：扫掠盒本身已经只覆盖「杆根 → 杆尖」这一段，
-            // 距离参数再传 length*length 反而会在短杆阶段把命中全部筛掉。
-            EntityHitResult entityHit = ProjectileUtil.getEntityHitResult(serverLevel, this, origin, end, sweep,
-                    entity -> entity instanceof ServerPlayer target
+            AABB sweep = new AABB(origin, end).inflate(0.35);
+            EntityHitResult entityHit = ProjectileUtil.getEntityHitResult(serverOwner, origin, end, sweep,
+                    entity -> (entity instanceof ServerPlayer target
                             && target != serverOwner
-                            && GameUtils.isPlayerAliveAndSurvival(target));
+                            && GameUtils.isPlayerAliveAndSurvival(target))
+                            || (entity instanceof io.wifi.starrailexpress.traindummy.TrainDummyEntity dummy
+                                    && dummy.canReceiveHits()),
+                    length * length);
             if (entityHit != null && entityHit.getEntity() instanceof ServerPlayer target) {
                 this.killed = true;
                 retracting = true;
@@ -360,6 +361,17 @@ public class BambooSpearEntity extends Entity {
                 serverLevel.playSound(null, hit.x, hit.y, hit.z, SoundEvents.PLAYER_ATTACK_CRIT, SoundSource.PLAYERS,
                         1.0f, 1.1f);
                 GameUtils.killPlayer(target, true, serverOwner, Noellesroles.id("bamboo_spear"));
+                length = (float) origin.distanceTo(hit);
+            } else if (entityHit != null
+                    && entityHit.getEntity() instanceof io.wifi.starrailexpress.traindummy.TrainDummyEntity dummy) {
+                this.killed = true;
+                retracting = true;
+                Vec3 hit = entityHit.getLocation();
+                serverLevel.sendParticles(ParticleTypes.CRIT, hit.x, hit.y, hit.z, 12, 0.2, 0.2, 0.2, 0.15);
+                serverLevel.playSound(null, hit.x, hit.y, hit.z, SoundEvents.PLAYER_ATTACK_CRIT, SoundSource.PLAYERS,
+                        1.0f, 1.1f);
+                io.wifi.starrailexpress.traindummy.TrainDummyCombat.applyLethal(dummy, serverOwner,
+                        Noellesroles.id("bamboo_spear"));
                 length = (float) origin.distanceTo(hit);
             }
         }

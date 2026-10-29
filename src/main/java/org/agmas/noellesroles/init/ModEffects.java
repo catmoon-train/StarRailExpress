@@ -17,6 +17,7 @@ package org.agmas.noellesroles.init;
 
 import io.wifi.starrailexpress.api.TMMRoles;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
+import io.wifi.starrailexpress.cca.SREPlayerMoodComponent;
 import io.wifi.starrailexpress.game.data.MapStatusBarType;
 import io.wifi.starrailexpress.event.AllowPlayerDeathWithKiller;
 import io.wifi.starrailexpress.game.GameConstants;
@@ -37,6 +38,7 @@ import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.flag.FeatureFlagSet;
 import org.agmas.noellesroles.Noellesroles;
 import org.agmas.noellesroles.component.GhostStateComponent;
+import org.agmas.noellesroles.content.effects.GravityFlipEffect;
 import org.agmas.noellesroles.content.effects.LimpEffect;
 import org.agmas.noellesroles.content.effects.MapStatusBarEffect;
 import org.agmas.noellesroles.content.effects.NegativeEffectResistanceEffect;
@@ -142,6 +144,10 @@ public class ModEffects {
     // 看其他生物都是倒立的
     public static final Holder<MobEffect> UPSIDE_DOWN = register("upside_down",
             new SimpleMobEffect(MobEffectCategory.HARMFUL, 0xFFFFFF));
+    /**
+     * 重力颠倒：垂直方向的重力反向（向天空坠落、撞天花板才算落地、跳跃改为向下蹬）。
+     */
+    public static final Holder<MobEffect> GRAVITY_FLIP = register("gravity_flip", new GravityFlipEffect());
     /**
      * 傀儡游走（操控者·失控之躯）
      * - 有害效果
@@ -372,6 +378,28 @@ public class ModEffects {
      */
     public static final Holder<MobEffect> MOOD_REGENERATION = register("mood_regeneration",
             new SimpleMobEffect(MobEffectCategory.BENEFICIAL, 0x7AF2D2));
+
+    /**
+     * 每级「san值上限提升」效果提供的心情值上限加成。
+     */
+    public static final float MOOD_MAX_BONUS_PER_LEVEL = 0.5f;
+
+    /**
+     * san值上限提升
+     * - 有益效果
+     * - 每级提升 0.5 点心情值上限
+     * - 效果结束恢复原本上限（只改上限，不直接改变当前心情值）
+     */
+    public static final Holder<MobEffect> MOOD_MAX_BOOST = register("mood_max_boost",
+            new SimpleMobEffect(MobEffectCategory.BENEFICIAL, 0x4FC3F7) {
+                @Override
+                public void onEffectEnded(ServerPlayer player) {
+                    var mood = SREPlayerMoodComponent.KEY.get(player);
+                    // 效果结束后按恢复后的上限重新夹取当前心情值（只降不升）
+                    mood.setMood(mood.getMood());
+                }
+            });
+
     /**
      * 无敌
      */
@@ -633,6 +661,16 @@ public class ModEffects {
             new SimpleMobEffect(MobEffectCategory.NEUTRAL, 0x9B59B6));
 
     /**
+     * 领域庇护（摘星者「星之光环」/「庇护强化」授予）：
+     * - 有益效果，淡金色
+     * - 拥有此效果的玩家无法被拉入除愚者会议（{@link #DOMAIN_MARK} amplifier 0）以外的任何领域。
+     * 各领域在拉人前检查 {@link #hasDomainSanctuary(LivingEntity)}；
+     * 摘星者死亡后由 {@code StarGathererRoleData} 统一清除。
+     */
+    public static final Holder<MobEffect> DOMAIN_SANCTUARY = register("domain_sanctuary",
+            new SimpleMobEffect(MobEffectCategory.BENEFICIAL, 0xFFE9A8));
+
+    /**
      * 视野迷雾
      * - 有害效果，灰蓝色
      * - 拥有者视野被浓雾笼罩；等级越高雾的距离越远（看得越远）。
@@ -773,6 +811,23 @@ public class ModEffects {
     public static final Holder<MobEffect> COGNITIVE_BIAS = register("cognitive_bias",
             new SimpleMobEffect(MobEffectCategory.HARMFUL, 0x9A6BB5));
 
+    /** 惧意：所有人看见自己被注视，皮肤和名牌一起乱，并持续掉理智。 */
+    public static final Holder<MobEffect> DREADLORD_DREAD = register("dreadlord_dread",
+            new SimpleMobEffect(MobEffectCategory.HARMFUL, 0x2A0830) {
+                @Override
+                public boolean applyEffectTick(LivingEntity entity, int amplifier) {
+                    if (entity instanceof ServerPlayer player && player.tickCount % 20 == 0) {
+                        SREPlayerMoodComponent.KEY.get(player).addMood(-0.03F);
+                    }
+                    return true;
+                }
+
+                @Override
+                public boolean shouldApplyEffectTickThisTick(int duration, int amplifier) {
+                    return true;
+                }
+            });
+
     /**
      * 食欲不振：无法食用食物和饮品。
      */
@@ -908,6 +963,11 @@ public class ModEffects {
             return 0f;
         }
         return 0.005f * (amp + 1);
+    }
+
+    /** 获取「san值上限提升」效果的等级（amplifier，未拥有时为 -1）。 */
+    public static int getMoodMaxBonusAmplifier(LivingEntity entity) {
+        return getAmplifier(entity, MOOD_MAX_BOOST);
     }
 
     public static boolean hasInfiniteStamina(LivingEntity entity) {
@@ -1053,6 +1113,15 @@ public class ModEffects {
     public static int getDomainMarkLevel(LivingEntity entity) {
         return getAmplifier(entity, DOMAIN_MARK);
     }
+    /**
+     * 该玩家是否带有「领域庇护」（摘星者光环）。
+     * <p>
+     * 带有庇护的玩家无法被拉入除愚者会议（领域标记 amplifier 0）以外的任何领域；
+     * 各领域在挑人时都调用本方法做前置过滤。
+     */
+    public static boolean hasDomainSanctuary(LivingEntity entity) {
+        return entity != null && entity.hasEffect(DOMAIN_SANCTUARY);
+    }
 
     /**
      * 玩家当前是否处于任意一个三大领域中（即拥有领域标记效果）。
@@ -1109,6 +1178,8 @@ public class ModEffects {
         // 而原版只把玩家自己的 MobEffect 下发给自己，所以必须广播出去（隐藏图标与粒子）。
         EffectBroadcastSync.register(PEER_XRAY);
         EffectBroadcastSync.register(INSTINCT_CONCEAL);
+        // 重力颠倒要让玩家在「别人眼中」也倒立渲染，所以同样需要广播（隐藏图标与粒子）。
+        EffectBroadcastSync.register(GRAVITY_FLIP);
         EffectBroadcastSync.init();
         WraithDimensionEffectSync.init();
         AllowPlayerDeathWithKiller.EVENT.register((player, killer, deathReason) -> {

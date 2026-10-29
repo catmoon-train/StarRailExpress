@@ -1527,6 +1527,25 @@ SomeEvent.EVENT.register((param1, param2) -> { /* ... */ });
 
 ### 游戏生命周期事件
 
+#### `AllowGameInitialize` — 破坏性开局初始化前的准入闸门
+
+**类型：** 可否决；默认允许，任一监听器返回 `false` 即拒绝。位置：`io.wifi.starrailexpress.event.AllowGameInitialize`。
+
+```java
+AllowGameInitialize.EVENT.register((serverLevel, gameMode, readyPlayers) -> {
+    // readyPlayers 为只读名单；非本扩展模式直接返回 true。
+    return true;
+});
+```
+
+`GameUtils.startGame` 在重载地图前作一次早期检查；`initializeGame` 在清理组件、切换玩家模式及调用开局事件前再作最终检查，并复用该次锁定名单。监听器须无破坏性副作用，失败时自行说明原因。最终拒绝会清 forced-ready、复位启动标志/fade、同步 INACTIVE 并发送地图出发取消提示，不触发正式开局或胜负统计。其它模式无拒绝监听时保持默认放行。
+
+#### `DeferGameInitialize` — 地图重置后的异步准备闸门
+
+位置：`io.wifi.starrailexpress.event.DeferGameInitialize`。监听签名`(serverLevel, gameMode, readyPlayers) -> boolean`；名单由原开局流程计算并只读传入。任一返回true则仅推迟本tick初始化，仍保持STARTING，下个准备tick再询问；返回false继续AllowGameInitialize最终否决检查。默认false，其它模式不变。
+
+此入口已经过地图重载/复制，尚未清理组件或分配身份，适合每tick推进有界的路线/资源准备。监听器不得同步等待线程或执行无界扫描，必须自行限制任务/总等待期限并在完成、失败、卸载/停止时清理。异步失败应结束等待，再由AllowGameInitialize返回false复用统一取消流程，不能把失败当作就绪。Echo的每局路线许可在最终否决入口一次性消费，不复用重置前证明。
+
 #### `AllowGameEnd` — 是否允许游戏结束
 
 **类型:** 可拦截，首个非 `NOT_MODIFY` 返回值生效。

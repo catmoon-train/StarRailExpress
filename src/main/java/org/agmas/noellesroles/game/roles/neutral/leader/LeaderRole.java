@@ -27,9 +27,11 @@ import io.wifi.starrailexpress.cca.SREPlayerShopComponent;
 import io.wifi.starrailexpress.game.GameUtils.WinStatus;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.player.Player;
 
 import java.util.UUID;
 
+import org.agmas.noellesroles.role_data.neutral.DaywalkerRoleData;
 import org.agmas.noellesroles.role_data.neutral.LeaderRoleData;
 
 /**
@@ -66,6 +68,32 @@ public class LeaderRole extends CustomWinnerRole implements EggRoleInterface {
     public boolean isMafiaTeam() {
         return super.isMafiaTeam()
                 || org.agmas.noellesroles.game.roles.neutral.mafia.MafiaManager.hasLivingGodfatherFamilyLeader();
+    }
+
+    /**
+     * 领袖完成任务：每完成 {@value DaywalkerRoleData#LEADER_TASKS_PER_CREDIT} 个任务，
+     * 为「追随者」逐日者计入 1 个任务（视为逐日者完成了 1 个任务，并应用逐日者的相关效果）。
+     */
+    @Override
+    public void onFinishQuest(Player player, String quest) {
+        super.onFinishQuest(player, quest);
+        if (!(player instanceof ServerPlayer serverPlayer)) {
+            return;
+        }
+        LeaderRoleData data = RoleData.getNullable(LeaderRoleData.class, serverPlayer);
+        if (data == null || data.followers.isEmpty()) {
+            return;
+        }
+        for (UUID followerId : data.followers) {
+            ServerPlayer follower = serverPlayer.serverLevel().getServer().getPlayerList().getPlayer(followerId);
+            if (follower == null) {
+                continue;
+            }
+            DaywalkerRoleData daywalker = RoleData.getNullable(DaywalkerRoleData.class, follower);
+            if (daywalker != null) {
+                daywalker.creditLeaderTask();
+            }
+        }
     }
 
     /**

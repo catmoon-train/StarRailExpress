@@ -1,0 +1,7 @@
+{
+  "credit": "echo multiblock unused part",
+  "textures": {
+    "particle": "noellesroles:block/echo_large_screen"
+  },
+  "elements": []
+}

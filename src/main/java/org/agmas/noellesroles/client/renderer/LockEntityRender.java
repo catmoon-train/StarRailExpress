@@ -42,6 +42,19 @@ public class LockEntityRender extends EntityRenderer<LockEntity> {
         this(context, 1.0f);
     }
 
+    /** 按皮肤缓存渲染用 ItemStack，避免每帧新建。 */
+    private final java.util.Map<String, net.minecraft.world.item.ItemStack> skinnedStacks = new java.util.HashMap<>();
+
+    private net.minecraft.world.item.ItemStack stackFor(LockEntity entity) {
+        String skin = entity.getSkin();
+        if (skin == null || skin.isBlank() || "default".equals(skin)) {
+            return ModItems.LOCK_ITEM.getDefaultInstance();
+        }
+        return skinnedStacks.computeIfAbsent(skin,
+                name -> io.wifi.starrailexpress.util.ItemSkinManager.applySkinToStack(
+                        ModItems.LOCK_ITEM.getDefaultInstance(), name));
+    }
+
     @Override
     public void render(LockEntity entity, float yaw, float tickDelta, PoseStack poseStack, MultiBufferSource multiBufferSource, int light) {
         if (entity.tickCount >= 2 || !(this.entityRenderDispatcher.camera.getEntity().distanceToSqr(entity) < 12.25)) {
@@ -52,7 +65,7 @@ public class LockEntityRender extends EntityRenderer<LockEntity> {
             poseStack.mulPose(Axis.XP.rotationDegrees(entity.getXRot()));
             this.itemRenderer
                     .renderStatic(
-                            ModItems.LOCK_ITEM.getDefaultInstance(), ItemDisplayContext.GROUND, light,
+                            stackFor(entity), ItemDisplayContext.GROUND, light,
                             OverlayTexture.NO_OVERLAY, poseStack, multiBufferSource, entity.level(), entity.getId()
                     );
             poseStack.popPose();

@@ -74,6 +74,7 @@ public class HatSkinGridPanel extends AbstractWidget {
     private static final int SCROLL_THUMB_HL = 0xAAD4AF37;
 
     private final SREPlayerSkinsComponent skinsComponent;
+    private final String skinType;
     private final Consumer<String> onHatSelected;
     private final List<HatCard> cards = new ArrayList<>();
 
@@ -91,8 +92,15 @@ public class HatSkinGridPanel extends AbstractWidget {
 
     public HatSkinGridPanel(int x, int y, int width, int height,
             SREPlayerSkinsComponent skinsComponent, Consumer<String> onHatSelected, String searchFilter) {
+        this(x, y, width, height, skinsComponent, "hat", onHatSelected, searchFilter);
+    }
+
+    public HatSkinGridPanel(int x, int y, int width, int height,
+            SREPlayerSkinsComponent skinsComponent, String skinType,
+            Consumer<String> onHatSelected, String searchFilter) {
         super(x, y, width, height, Component.empty());
         this.skinsComponent = skinsComponent;
+        this.skinType = skinType == null || skinType.isBlank() ? "hat" : skinType;
         this.onHatSelected = onHatSelected;
         rebuild(searchFilter);
     }
@@ -104,11 +112,11 @@ public class HatSkinGridPanel extends AbstractWidget {
 
     public final void rebuild(String filter) {
         cards.clear();
-        this.equippedHat = skinsComponent.getEquippedSkin("hat");
+        this.equippedHat = skinsComponent.getEquippedSkin(skinType);
 
         cards.add(new HatCard("default", null, 0xFF9AA0AA, true));
 
-        Map<String, ItemSkinManager.Skin> hatSkins = ItemSkinManager.getSkins("hat");
+        Map<String, ItemSkinManager.Skin> hatSkins = ItemSkinManager.getSkins(skinType);
         List<Map.Entry<String, ItemSkinManager.Skin>> sorted = new ArrayList<>(hatSkins.entrySet());
         sorted.sort(Comparator
                 .comparing((Map.Entry<String, ItemSkinManager.Skin> e) -> !isUnlocked(e.getKey()))
@@ -118,9 +126,7 @@ public class HatSkinGridPanel extends AbstractWidget {
             if ("default".equals(name)) {
                 continue;
             }
-            Item item = BuiltInRegistries.ITEM
-                    .getOptional(ResourceLocation.fromNamespaceAndPath(HAT_ITEM_NAMESPACE, name))
-                    .orElse(Items.LEATHER_HELMET);
+            Item item = iconFor(name);
             int color = entry.getValue() != null ? entry.getValue().getColor() : 0xFFFFFFFF;
             cards.add(new HatCard(name, new ItemStack(item), color, isUnlocked(name)));
         }
@@ -138,7 +144,30 @@ public class HatSkinGridPanel extends AbstractWidget {
     }
 
     private boolean isUnlocked(String skinName) {
-        return "default".equals(skinName) || skinsComponent.isSkinUnlockedForItemType("hat", skinName);
+        return "default".equals(skinName) || skinsComponent.isSkinUnlockedForItemType(skinType, skinName);
+    }
+
+    /**
+     * 卡片图标：帽子 / 饰品用各自模组注册的物品，
+     * 音乐盒没有对应物品，统一用唱片机图标。
+     */
+    private Item iconFor(String skinName) {
+        if (ItemSkinManager.SkinTypes.MUSIC_BOX.equals(skinType)) {
+            return Items.JUKEBOX;
+        }
+        // 随从：用其载体物品（GeckoLib GeoItem，itemskins:pet_<id>）渲染本体模型，
+        // 效果与帽子 / 背饰一致；找不到对应载体物品时回退到「缰绳」图标。
+        if (ItemSkinManager.SkinTypes.PET.equals(skinType)) {
+            return BuiltInRegistries.ITEM
+                    .getOptional(ResourceLocation.fromNamespaceAndPath("itemskins", "pet_" + skinName))
+                    .orElse(Items.LEAD);
+        }
+        if (ItemSkinManager.SkinTypes.MVP_ANIMATION.equals(skinType)) return Items.DRAGON_HEAD;
+        String namespace = "hat".equals(skinType) ? HAT_ITEM_NAMESPACE : "sre_cosmetics";
+        Item fallback = "hat".equals(skinType) ? Items.LEATHER_HELMET : Items.LEATHER;
+        return BuiltInRegistries.ITEM
+                .getOptional(ResourceLocation.fromNamespaceAndPath(namespace, skinName))
+                .orElse(fallback);
     }
 
     private int columns() {
@@ -244,7 +273,11 @@ public class HatSkinGridPanel extends AbstractWidget {
         graphics.fill(getX(), getY() + height - 1, getX() + width, getY() + height, PANEL_BORDER);
 
         if (cards.size() <= 1) {
-            Component hint = Component.translatable("screen.sre.skins.hat_empty");
+            String emptyKey = ItemSkinManager.SkinTypes.MUSIC_BOX.equals(skinType)
+                    ? "screen.sre.skins.music_box_empty"
+                    : ItemSkinManager.SkinTypes.MVP_ANIMATION.equals(skinType)
+                    ? "screen.sre.skins.mvp_animation_empty" : "screen.sre.skins.hat_empty";
+            Component hint = Component.translatable(emptyKey);
             graphics.drawCenteredString(Minecraft.getInstance().font, hint,
                     getX() + width / 2, getY() + height / 2 - 4, TEXT_EMPTY);
         }
@@ -374,10 +407,18 @@ public class HatSkinGridPanel extends AbstractWidget {
 
         Component displayName() {
             if ("default".equals(skinName)) {
-                return Component.translatable("screen.sre.skins.no_hat");
+                String noneKey = switch (skinType) {
+                    case "backpack" -> "screen.sre.skins.no_backpack";
+                    case "hand_accessory" -> "screen.sre.skins.no_hand";
+                    case "music_box" -> "screen.sre.skins.no_music_box";
+                    case "pet" -> "screen.sre.skins.no_pet";
+                    case "mvp_animation" -> "screen.sre.skins.no_mvp_animation";
+                    default -> "screen.sre.skins.no_hat";
+                };
+                return Component.translatable(noneKey);
             }
             return Component.translatableWithFallback(
-                    "screen.sre.skins.hat." + skinName.toLowerCase(java.util.Locale.ROOT) + ".name",
+                    "screen.sre.skins." + skinType + "." + skinName.toLowerCase(java.util.Locale.ROOT) + ".name",
                     formatName(skinName));
         }
 

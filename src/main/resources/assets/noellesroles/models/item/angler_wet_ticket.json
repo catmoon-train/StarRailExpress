@@ -1,1 +1,1 @@
-{"parent":"minecraft:item/generated","textures":{"layer0":"minecraft:item/name_tag"}}
+{"parent": "minecraft:item/generated","textures":{"layer0":"noellesroles:item/angler_wet_ticket"}}

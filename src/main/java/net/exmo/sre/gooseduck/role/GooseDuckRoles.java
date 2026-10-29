@@ -25,7 +25,7 @@ import java.awt.Color;
 /**
  * 鹅鸭杀模式职业注册：鹅（好人 / 乘客阵营）与鸭（伪装在鹅群中的杀手）。
  * <p>
- * 参照修机模式（{@code RepairRoles}）的写法，用 {@link TMMRoles#registerRole} 注册，
+ * 用 {@link TMMRoles#registerRole} 注册，
  * 基类 {@link GooseDuckRole} 已把它们标记为「其他模式职业」，因此不会污染谋杀职业池。
  */
 public final class GooseDuckRoles {

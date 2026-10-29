@@ -55,6 +55,6 @@ public class UndeadGunTargetMixin {
                 result = wireResult;
             }
         }
-        cir.setReturnValue(result);
+        cir.setReturnValue(org.agmas.noellesroles.game.command_block.CommandBlockCracks.prefer(user, result, 20.0F));
     }
 }

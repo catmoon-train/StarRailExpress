@@ -15,7 +15,6 @@
 
 package org.agmas.noellesroles.client.screen;
 
-import net.exmo.sre.repair.role.*;
 
 import com.mojang.blaze3d.vertex.VertexConsumer;
 
@@ -31,6 +30,7 @@ import io.wifi.starrailexpress.index.TMMDescEffects;
 import io.wifi.starrailexpress.index.TMMDescItems;
 import io.wifi.starrailexpress.util.ShopEntry;
 import net.minecraft.ChatFormatting;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.screens.Screen;
@@ -58,6 +58,7 @@ import org.agmas.harpymodloader.modded_murder.PlayerRoleWeightManager;
 import org.agmas.harpymodloader.modifiers.HMLModifiers;
 import org.agmas.harpymodloader.modifiers.SREModifier;
 import org.agmas.noellesroles.Noellesroles;
+import org.agmas.noellesroles.game.modes.echo.EchoRoles;
 import org.agmas.noellesroles.component.DeathPenaltyComponent;
 import org.agmas.noellesroles.init.RoleInitialItems;
 import org.agmas.noellesroles.init.RoleShopHandler;
@@ -95,14 +96,14 @@ public class RoleIntroduceScreen extends Screen {
     }
 
     // ══════════════════════════════════════════════════════════════════
-    // 【模式切换】四种模式：全部、谋杀、修机、过滤
+    // 【模式切换】全部、当前、谋杀、过滤
     // ══════════════════════════════════════════════════════════════════
     public enum IntroductionGameMode {
         ALL("screen.roleintroduce.mode.all", 0xFF55DD88),
         CURRENT("screen.roleintroduce.mode.current", 0xFF56A5AE),
         CURRENT_ROUND("screen.roleintroduce.mode.current_round", 0xFF56A5AE),
         MURDER("screen.roleintroduce.mode.murder", 0xFFCC2233),
-        REPAIR("screen.roleintroduce.mode.repair", 0xFF44AACC),
+        ECHO("screen.roleintroduce.mode.echo", 0xFF44BB66),
         FILTER("screen.roleintroduce.mode.flag", 0xFF11AA33);
 
         public final String labelKey;
@@ -342,6 +343,24 @@ public class RoleIntroduceScreen extends Screen {
         this.currentMode = IntroductionGameMode.CURRENT;
 
     }
+    /** 从信件等入口打开，并停在这个职业上。用全部模式，避免本局过滤把隐藏池职业丢掉。 */
+    public static void openOn(SRERole role) {
+        RoleIntroduceScreen screen = new RoleIntroduceScreen();
+        screen.selectedRole = role;
+        screen.currentMode = IntroductionGameMode.ALL;
+        screen.selectedCategoryIndex = categoryFor(role);
+        Minecraft.getInstance().setScreen(screen);
+    }
+
+    private static int categoryFor(SRERole role) {
+        for (int i = 1; i < CATEGORIES.size(); i++) {
+            if (CATEGORIES.get(i).filter.test(role)) {
+                return i;
+            }
+        }
+        return 0;
+    }
+
 
     @Override
     protected void init() {
@@ -360,10 +379,39 @@ public class RoleIntroduceScreen extends Screen {
         refreshFilter();
         if (selectedRole == null && !filteredItems.isEmpty())
             selectedRole = filteredItems.get(0);
+        ensurePinnedVisible();
         clearPrevStatus();
         onSelectionChanged();
         setFocusArea(FocusArea.SEARCH);
     }
+    private void ensurePinnedVisible() {
+        if (!(selectedRole instanceof SRERole role)) {
+            return;
+        }
+        if (indexOfSelected(role) < 0) {
+            selectedCategoryIndex = 0;
+            inNeutralSubMenu = false;
+            refreshFilter();
+        }
+        int idx = indexOfSelected(role);
+        if (idx < 0) {
+            return;
+        }
+        if (filteredItems.get(idx) != selectedRole) {
+            selectedRole = filteredItems.get(idx);
+        }
+        listScrollOffset = Mth.clamp(idx * (CARD_H + CARD_SPACING), 0, maxListScroll);
+    }
+
+    private int indexOfSelected(SRERole role) {
+        for (int i = 0; i < filteredItems.size(); i++) {
+            if (filteredItems.get(i) instanceof SRERole other && other.identifier().equals(role.identifier())) {
+                return i;
+            }
+        }
+        return -1;
+    }
+
 
     private void removeAPrevStatus() {
         if (!prevRole.isEmpty())
@@ -537,8 +585,8 @@ public class RoleIntroduceScreen extends Screen {
     private boolean matchesMode(SRERole role) {
         return switch (currentMode) {
             case ALL -> true;
-            case MURDER -> !isRepairRole(role) && !role.isOtherModeRole();
-            case REPAIR -> isRepairRole(role);
+            case MURDER -> !role.isOtherModeRole();
+            case ECHO -> role.getFlags().contains(EchoRoles.ECHO_MODE_FLAG);
             case FILTER -> matchesFlagFilter(role);
             case CURRENT -> {
                 if (this.minecraft.player == null || SREClient.gameComponent == null)
@@ -573,15 +621,12 @@ public class RoleIntroduceScreen extends Screen {
         return true;
     }
 
-    private boolean isRepairRole(SRERole role) {
-        return role instanceof RepairRole;
-    }
 
     private boolean matchesModifierMode(SREModifier mod) {
         return switch (currentMode) {
             case ALL -> true;
             case MURDER -> !mod.isOtherModeRole();
-            case REPAIR -> false;
+            case ECHO -> false;
             case FILTER -> matchesFlagFilter(mod);
             case CURRENT -> {
                 if (this.minecraft.player == null || SREClient.modifierComponent == null)
@@ -613,8 +658,8 @@ public class RoleIntroduceScreen extends Screen {
         String path = BuiltInRegistries.ITEM.getKey(item).getPath();
         return switch (currentMode) {
             case ALL -> true;
-            case MURDER -> !isRepairItem(path) && !isOtherModeItem(path);
-            case REPAIR -> isRepairItem(path);
+            case MURDER -> !isOtherModeItem(path);
+            case ECHO -> false;
             case FILTER -> filterFlags.isEmpty();
             case CURRENT -> {
                 if (this.minecraft.player == null || this.minecraft.player.getInventory() == null)
@@ -627,12 +672,6 @@ public class RoleIntroduceScreen extends Screen {
         };
     }
 
-    private boolean isRepairItem(String path) {
-        return path.equals("repair_toolbox") || path.equals("spare_parts") || path.equals("rescue_flare")
-                || path.equals("hunter_chain") || path.equals("hunter_pulse") || path.equals("hunter_blink")
-                || path.equals("hunter_jammer") || path.equals("smoke_pellet") || path.equals("decoy_beacon")
-                || path.equals("escape_grapple");
-    }
 
     private boolean isOtherModeItem(String path) {
         return path.equals("magnifying_glass") || path.equals("chewing") || path.equals("clip")
@@ -642,7 +681,8 @@ public class RoleIntroduceScreen extends Screen {
 
     private boolean matchesEffectMode(IntroMobEffect effect) {
         return switch (currentMode) {
-            case ALL, MURDER, REPAIR -> true;
+            case ALL, MURDER -> true;
+            case ECHO -> false;
             case FILTER -> filterFlags.isEmpty();
             case CURRENT -> this.minecraft != null && this.minecraft.player != null
                     && this.minecraft.player.hasEffect(effect.holder);
@@ -1859,19 +1899,8 @@ public class RoleIntroduceScreen extends Screen {
     protected boolean shouldHideModeButton(IntroductionGameMode mode) {
         if (SREClient.gameComponent != null && SREClient.gameComponent.isRunning()) {
             boolean dontShowCurrentRound = !SREClient.isPlayerSpectatingOrCreative() || SREClient.hasPenalty();
-            if (SREClient.gameComponent.getGameMode().identifier.equals(SREGameModes.REPAIR_ESCAPE_ID)) {
-                if (mode == IntroductionGameMode.MURDER)
-                    return true;
-                if (!dontShowCurrentRound)
-                    if (mode == IntroductionGameMode.REPAIR)
-                        return true;
-            } else {
-                if (mode == IntroductionGameMode.REPAIR)
-                    return true;
-                if (!dontShowCurrentRound)
-                    if (mode == IntroductionGameMode.MURDER)
-                        return true;
-            }
+            if (!dontShowCurrentRound && mode == IntroductionGameMode.MURDER)
+                return true;
 
             if (dontShowCurrentRound) {
                 if (mode == IntroductionGameMode.CURRENT_ROUND)
@@ -1883,7 +1912,7 @@ public class RoleIntroduceScreen extends Screen {
             if (mode == IntroductionGameMode.CURRENT_ROUND)
                 return true;
         }
-        return isSmallUI() && (mode == IntroductionGameMode.REPAIR || mode == IntroductionGameMode.MURDER
+        return isSmallUI() && (mode == IntroductionGameMode.MURDER
                 || mode == IntroductionGameMode.CURRENT_ROUND);
     }
 

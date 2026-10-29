@@ -43,7 +43,6 @@ import io.wifi.starrailexpress.util.Scheduler;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.Mth;
 import net.minecraft.util.Unit;
 import net.minecraft.world.InteractionResult;
@@ -193,7 +192,10 @@ public abstract class PlayerEntityMixin extends LivingEntity implements PlayerSt
 
                 if (this.isSprinting()) {
                     sprintingTicks = Math.max(sprintingTicks - 1, 0);
-                    ProgressionDataManager.onStaminaConsumed((ServerPlayer) (Object) this, 1);
+                    // aiStep 在客户端 LocalPlayer 上也会执行，强转 ServerPlayer 会崩溃，必须先判断
+                    if ((Object) this instanceof ServerPlayer serverPlayer) {
+                        ProgressionDataManager.onStaminaConsumed(serverPlayer, 1);
+                    }
                 } else {
                     sprintingTicks = Math.min(sprintingTicks + staminaRecoveryRate, maxSprintTimeWithEffects);
                 }

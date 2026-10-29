@@ -39,6 +39,41 @@ public class ParticipationComponent implements AutoSyncedComponent {
 
     private final Level world;
     private final Set<UUID> optedOutPlayers = new HashSet<>();
+    // 仅网络同步的舞台成员，不随存档持久化，避免重启后残留登车人数。
+    private final Set<UUID> settlementViewers = new HashSet<>();
+
+    public Set<UUID> getSettlementViewers() { return Set.copyOf(settlementViewers); }
+
+    public boolean isSettlementViewer(UUID id) { return settlementViewers.contains(id); }
+
+    public void setSettlementViewers(Set<UUID> viewers) {
+        if (settlementViewers.equals(viewers)) return;
+        settlementViewers.clear();
+        settlementViewers.addAll(viewers);
+        sync();
+    }
+
+    @Override
+    public void writeSyncPacket(net.minecraft.network.RegistryFriendlyByteBuf buf, ServerPlayer recipient) {
+        CompoundTag tag = new CompoundTag();
+        writeToNbt(tag, buf.registryAccess());
+        ListTag list = new ListTag();
+        settlementViewers.forEach(id -> list.add(StringTag.valueOf(id.toString())));
+        tag.put("SettlementViewers", list);
+        buf.writeNbt(tag);
+    }
+
+    @Override
+    public void applySyncPacket(net.minecraft.network.RegistryFriendlyByteBuf buf) {
+        CompoundTag tag = buf.readNbt();
+        if (tag == null) return;
+        readFromNbt(tag, buf.registryAccess());
+        settlementViewers.clear();
+        for (Tag entry : tag.getList("SettlementViewers", Tag.TAG_STRING)) {
+            try { settlementViewers.add(UUID.fromString(entry.getAsString())); }
+            catch (IllegalArgumentException ignored) { }
+        }
+    }
 
     public ParticipationComponent(Level world) {
         this.world = world;

@@ -1,0 +1,9 @@
+{
+  "echo.roll.hud": "翻滚 [%s+%s] · %s",
+  "echo.roll.seconds": "%s秒",
+  "echo.roll.ready": "就绪",
+  "echo.roll.cooldown": "翻滚冷却：还剩 %s 秒",
+  "echo.roll.grounded": "翻滚需要站在地面，且不能在载具、使用物品或游泳中发动",
+  "echo.match.started": "回声托运站对局开始",
+  "echo.match.result": "回声托运站对局结算：%s"
+}

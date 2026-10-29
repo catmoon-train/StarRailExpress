@@ -35,6 +35,7 @@ import io.wifi.starrailexpress.api.data.RoleData;
 import org.agmas.noellesroles.role_data.neutral.RavenRoleData;
 import org.agmas.noellesroles.content.item.*;
 import org.agmas.noellesroles.game.roles.innocence.hoan_meirin.HoanMeirinFistPunchHandler;
+import org.agmas.noellesroles.game.roles.innocence.tailor.TailorClothesHandler;
 import org.agmas.noellesroles.game.roles.innocence.veteran.VeteranKnifeHandler;
 import org.agmas.noellesroles.game.roles.innocence.voodoo.VoodooDeathHandler;
 import org.agmas.noellesroles.game.roles.killer.ma_chen_xu.MaChenXuEventHandler;
@@ -202,6 +203,8 @@ public class NRCombatEvents {
         CuckooEggHandler.register();
         GuardPlayerHandler.register();
         GroselleJourneyManager.register();
+        // 裁缝的衣服：抵挡伤害 / 攻击者冷却惩罚（AllowPlayerDeathWithKiller）
+        TailorClothesHandler.register();
     }
 
     // --- 战斗相关的角色事件 ---

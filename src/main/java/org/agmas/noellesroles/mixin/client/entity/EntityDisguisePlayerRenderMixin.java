@@ -27,6 +27,7 @@ import org.agmas.noellesroles.client.PandaDisguiseRenderer;
 import org.agmas.noellesroles.client.RabbitDisguiseRenderer;
 import org.agmas.noellesroles.client.RoleDisguiseResolver;
 import org.agmas.noellesroles.client.TomatoHeadDisguiseRenderer;
+import org.agmas.noellesroles.client.DreadlordClientFx;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -45,6 +46,10 @@ public abstract class EntityDisguisePlayerRenderMixin {
     private void noellesroles$renderLeatherPigAsPig(AbstractClientPlayer player, float yaw, float tickDelta,
             PoseStack poseStack, MultiBufferSource bufferSource, int packedLight, CallbackInfo ci) {
         RoleDisguiseResolver.Flags flags = RoleDisguiseResolver.resolve(player);
+        if (DreadlordClientFx.renderDark(player, poseStack, bufferSource, packedLight)) {
+            ci.cancel();
+            return;
+        }
 
         if (flags.panda) {
             if (PandaDisguiseRenderer.render(player, yaw, tickDelta, poseStack, bufferSource, packedLight)) {

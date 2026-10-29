@@ -52,13 +52,16 @@ public class NunchuckItem extends Item {
                 }
             }
 
-            // 获取目标
-            Player target = getTargetPlayer(user);
-            if (target != null) {
-                // 右键：向左击退 (direction = 0)
-                // Shift+右键：向前击退 (direction = 3)
+            HitResult hit = ProjectileUtil.getHitResultOnViewVector(user,
+                    entity -> (entity instanceof Player player && GameUtils.isPlayerAliveAndSurvival(player))
+                            || (entity instanceof io.wifi.starrailexpress.traindummy.TrainDummyEntity dummy
+                                    && dummy.canReceiveHits())
+                            || org.agmas.noellesroles.game.command_block.CommandBlockCracks.isCrack(entity),
+                    4.0F);
+            int targetId = hit instanceof EntityHitResult entityHit ? entityHit.getEntity().getId() : -1;
+            if (targetId >= 0) {
                 int direction = user.isShiftKeyDown() ? 3 : 0;
-                ClientPlayNetworking.send(new NunchuckHitPayload(target.getId(), direction));
+                ClientPlayNetworking.send(new NunchuckHitPayload(targetId, direction));
             }
         } else {
             // 服务端检查角色权限

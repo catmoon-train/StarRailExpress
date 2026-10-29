@@ -119,6 +119,12 @@ public class ServerPlayerEntityMixin {
             }
         }
         var mainhandItem = self.getMainHandItem();
+        if (target instanceof io.wifi.starrailexpress.traindummy.TrainDummyEntity trainDummy
+                && io.wifi.starrailexpress.traindummy.TrainDummyWeapons.handleAttack(self, trainDummy, mainhandItem)) {
+            CrosshairaddonsCompat.onAttack(target);
+            ci.cancel();
+            return;
+        }
         if (!self.getCooldowns().isOnCooldown(TMMItems.BAT) && mainhandItem.is(TMMItems.BAT)
                 && self.getAttackStrengthScale(0.75F) >= 1f) {
             if (target instanceof ServerPlayer playerTarget) {

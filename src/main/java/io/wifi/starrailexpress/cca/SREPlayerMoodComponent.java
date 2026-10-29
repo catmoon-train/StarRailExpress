@@ -49,6 +49,14 @@ public class SREPlayerMoodComponent implements RoleComponent, ServerTickingCompo
             SREPlayerMoodComponent.class);
     private final Player player;
     private float mood = 1f;
+    /** 默认心情值上限。 */
+    public static final float DEFAULT_MOOD_MAX = 1f;
+    /**
+     * 玩家心情值上限的临时覆盖值。
+     * 负数（-1f）表示未覆盖，使用职业定义的上限（默认 1.0）；
+     * 覆盖值本身会被夹取到 &gt;=0，因此允许设为 0（或 0~1 之间的任意合法上限）。
+     */
+    private float customMaxMood = -1f;
     public SREPlayerTaskComponent playerTaskComponent;
     private final HashMap<UUID, ItemStack> psychosisItems = new HashMap<>();
     private static List<Item> cachedPsychosisItems = null;
@@ -148,8 +156,9 @@ public class SREPlayerMoodComponent implements RoleComponent, ServerTickingCompo
         }
 
         float moodRegen = ModEffects.getMoodRegenPerTick(this.player);
-        if (moodRegen > 0f && this.mood < 1f) {
-            this.mood = Math.min(1f, this.mood + moodRegen);
+        float maxMood = getMoodMax();
+        if (moodRegen > 0f && this.mood < maxMood) {
+            this.mood = Math.min(maxMood, this.mood + moodRegen);
         }
 
         if (this.isLowerThanMid()) {
@@ -214,8 +223,9 @@ public class SREPlayerMoodComponent implements RoleComponent, ServerTickingCompo
             }
 
             float moodRegen = ModEffects.getMoodRegenPerTick(this.player);
-            if (moodRegen > 0f && this.mood < 1f) {
-                this.mood = Math.min(1f, this.mood + moodRegen);
+            float maxMood = getMoodMax();
+            if (moodRegen > 0f && this.mood < maxMood) {
+                this.mood = Math.min(maxMood, this.mood + moodRegen);
                 if (this.player.tickCount % 200 == 0) {
                     shouldSync = true;
                 }
@@ -243,6 +253,67 @@ public class SREPlayerMoodComponent implements RoleComponent, ServerTickingCompo
             return 1;
     }
 
+    /**
+     * 获取该玩家当前的心情值上限（与当前心情值无关）。
+     * <p>
+     * 计算规则：
+     * <ol>
+     * <li>若通过 {@link #setMoodMax(float)} 覆盖了上限，则以覆盖值为基础；</li>
+     * <li>否则取当前职业通过 {@link SRERole#setMaxMood(float)} 定义的上限（默认 1.0）；</li>
+     * <li>再叠加「san值上限提升」药水效果：每级 +0.5。</li>
+     * </ol>
+     * 该值仅作为心情值的夹取上限，不会主动改变当前心情值。
+     */
+    public float getMoodMax() {
+        float max;
+        if (this.customMaxMood >= 0f) {
+            // 已通过 setMoodMax 显式覆盖：可为 0~1 之间的任意上限（含 0）
+            max = this.customMaxMood;
+        } else {
+            SRERole role = SREGameWorldComponent.KEY.get(this.player.level()).getRole(this.player);
+            max = role != null ? role.getMaxMood() : DEFAULT_MOOD_MAX;
+        }
+        if (max < 0f) {
+            // 职业定义异常（负数）时回退到默认上限
+            max = DEFAULT_MOOD_MAX;
+        }
+        int amp = ModEffects.getMoodMaxBonusAmplifier(this.player);
+        if (amp >= 0) {
+            max += ModEffects.MOOD_MAX_BONUS_PER_LEVEL * (amp + 1);
+        }
+        // 保险：心情值上限永远不小于 0
+        return Math.max(0f, max);
+    }
+
+    /**
+     * 通用方法：设置该玩家的心情值上限（覆盖职业默认值）。
+     * <p>
+     * 传入负数可清除覆盖，恢复为职业定义的上限；传入 0 或 0~1 之间的数值则作为新的上限。
+     * 任何覆盖值都会被夹取到 &gt;=0。修改后会把当前心情值夹取到新上限内
+     * （只降不升，不会主动填充心情）。
+     */
+    public void setMoodMax(float maxMood) {
+        if (maxMood < 0f) {
+            // 负数视为清除覆盖，恢复职业默认上限
+            this.customMaxMood = -1f;
+        } else {
+            // 保险：显式设置的上限不小于 0
+            this.customMaxMood = Math.max(0f, maxMood);
+        }
+        float max = getMoodMax();
+        if (this.mood > max) {
+            this.mood = max;
+        } else if (this.mood < 0f) {
+            this.mood = 0f;
+        }
+        this.sync();
+    }
+
+    /** 清除 {@link #setMoodMax(float)} 设置的上限覆盖，恢复职业默认上限。 */
+    public void resetMoodMax() {
+        setMoodMax(-1f);
+    }
+
     public void setMood(float mood) {
         if (ModEffects.hasFullMoodLock(this.player)) {
             if (this.mood != 1f) {
@@ -252,13 +323,14 @@ public class SREPlayerMoodComponent implements RoleComponent, ServerTickingCompo
             return;
         }
         SRERole role = SREGameWorldComponent.KEY.get(this.player.level()).getRole(player);
-        if (this.mood > 1f)
-            this.mood = 1f;
+        float maxMood = getMoodMax();
+        if (this.mood > maxMood)
+            this.mood = maxMood;
         else if (this.mood < 0f)
             this.mood = 0f;
 
         if (role != null && role.getMoodType() == SRERole.MoodType.REAL) {
-            float clampedMood = Math.clamp(mood, 0, 1);
+            float clampedMood = Math.clamp(mood, 0f, maxMood);
             // 只有当情绪变化超过0.05时才同步（减少网络占用）
             if (Math.abs(this.mood - clampedMood) > 0.01f) {
                 this.mood = clampedMood;

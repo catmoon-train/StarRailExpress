@@ -47,7 +47,19 @@ public class NoteEntity extends Entity {
     private static final EntityDataAccessor<String> LINE4 = SynchedEntityData.defineId(NoteEntity.class,
             EntityDataSerializers.STRING);
 
+    /** 皮肤名：便签实体跟随物品皮肤渲染。 */
+    private static final EntityDataAccessor<String> SKIN = SynchedEntityData.defineId(NoteEntity.class,
+            EntityDataSerializers.STRING);
+
     public final int seed;
+
+    public String getSkin() {
+        return this.entityData.get(SKIN);
+    }
+
+    public void setSkin(String skinName) {
+        this.entityData.set(SKIN, skinName == null || skinName.isBlank() ? "default" : skinName);
+    }
 
     public NoteEntity(EntityType<?> type, Level world) {
         super(type, world);
@@ -143,11 +155,13 @@ public class NoteEntity extends Entity {
         builder.define(LINE2, "");
         builder.define(LINE3, "");
         builder.define(LINE4, "");
+        builder.define(SKIN, "default");
     }
 
     @Override
     protected void addAdditionalSaveData(@NotNull CompoundTag nbt) {
         nbt.putInt("Direction", this.entityData.get(DIRECTION));
+        nbt.putString("Skin", this.getSkin());
         boolean isRaw = false;
         String line1 = (this.entityData.get(LINE1));
         String line2 = (this.entityData.get(LINE2));
@@ -180,6 +194,8 @@ public class NoteEntity extends Entity {
     protected void readAdditionalSaveData(@NotNull CompoundTag nbt) {
         if (nbt.contains("Direction"))
             this.entityData.set(DIRECTION, nbt.getInt("Direction"));
+        if (nbt.contains("Skin"))
+            this.setSkin(nbt.getString("Skin"));
 
         // 兼容旧版本
         boolean isRawText = true;

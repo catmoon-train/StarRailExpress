@@ -77,12 +77,21 @@ public class HudMoodRenderer {
     public static Random random = new Random();
     public static float arrowProgress = 1f;
     public static float moodRender = 0f;
+    /** 心情条填充比例（= mood / 心情上限，夹取到 0~1），默认上限 1.0 时与 moodRender 等价。 */
+    public static float moodRatio = 0f;
     public static float moodOffset = 0f;
     public static float moodAlpha = 0f;
+    private static int hudBottom = 6;
+
+    /** 本次心情/任务 HUD 的局部下边界，不含用户配置的整体偏移。 */
+    public static int getHudBottom() {
+        return hudBottom;
+    }
 
     @Environment(EnvType.CLIENT)
     public static void renderHud(@NotNull Player player, Font textRenderer, FakeGuiGraphics context,
             DeltaTracker tickCounter) {
+        hudBottom = 6;
         SREGameWorldComponent gameWorldComponent = SREClient.gameComponent;
         if (gameWorldComponent == null || !gameWorldComponent.isRunning() || !SREClient.isPlayerAliveAndInSurvival()
                 || !gameWorldComponent.getGameMode().hasMood())
@@ -95,11 +104,14 @@ public class HudMoodRenderer {
         SREPlayerMoodComponent component = SREPlayerMoodComponent.KEY.get(player);
         float oldMood = moodRender;
         moodRender = Mth.lerp(delta / 4, moodRender, component.getMood());
+        float moodMax = Math.max(1f, component.getMoodMax());
+        moodRatio = Mth.clamp(moodRender / moodMax, 0f, 1f);
         moodAlpha = Mth.lerp(delta / 8, moodAlpha, renderers.isEmpty() ? 0f : 1f);
         
         SREPlayerPsychoComponent psycho = SREPlayerPsychoComponent.KEY.get(player);
         if (psycho.getPsychoTicks() > 0) {
             renderPsycho(player, textRenderer, context, psycho);
+            hudBottom = 23;
             return;
         }
         
@@ -137,6 +149,7 @@ public class HudMoodRenderer {
             context.drawString(textRenderer, renderer.text, 22, 6,
                     whiteColor | ((int) (renderer.alpha * 255) << 24), false);
             context.pose().popPose();
+            hudBottom = Math.max(hudBottom, Mth.ceil(6 + 10 * renderer.offset + textRenderer.lineHeight));
             if (maxRenderer == null || renderer.offset > maxRenderer.offset)
                 maxRenderer = renderer;
         }
@@ -151,6 +164,10 @@ public class HudMoodRenderer {
                 renderKiller(textRenderer, context, role.getMoodColor(), role);
             } else if (role.getMoodType() == SRERole.MoodType.REAL) {
                 renderCivilian(textRenderer, context, oldMood, role.getMoodColor(), role);
+            }
+            if (role.getMoodType() == SRERole.MoodType.FAKE || role.getMoodType() == SRERole.MoodType.REAL) {
+                hudBottom = Math.max(hudBottom, Mth.ceil(Math.max(23 + 3 * moodOffset,
+                        9 + textRenderer.lineHeight + 10 * moodOffset)));
             }
         }
         arrowProgress = Mth.lerp(delta / 8, arrowProgress, 0f);

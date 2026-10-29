@@ -88,7 +88,6 @@
   "map_intro.block.noellesroles.vending_machines.desc": "自动售货机可配置商品，玩家可与其交互购买地图内补给。",
   "map_intro.block.noellesroles.lottery_machine.desc": "抽奖机可配置奖池和权重，用于地图内获得随机奖励。",
   "map_intro.block.noellesroles.devil_roulette_table.desc": "轮盘赌桌是轮盘赌模式的特殊玩法，玩家可围绕赌桌触发轮盘赌游戏。",
-  "map_intro.block.noellesroles.repair_hotbar_storage.desc": "可搜索木桶柜用于搜刮玩法，玩家可打开并取得其中物品。",
   "map_intro.block.noellesroles.supply_crate.desc": "物资箱用于地图补给，可配置并周期性生成特定物资。",
   "map_intro.block.noellesroles.kill_block.desc": "碰到击杀方块的玩家立刻死亡，可含水。",
   "map_intro.block.noellesroles.kill_block_panel.desc": "碰到击杀方块镶板的玩家立刻死亡，可含水。",

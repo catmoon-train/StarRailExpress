@@ -21,6 +21,7 @@ import net.minecraft.world.phys.Vec3;
 import org.agmas.noellesroles.content.item.KatanaItem;
 import org.agmas.noellesroles.content.item.RiotShieldHandler;
 import org.agmas.noellesroles.game.roles.killer.dream.DreamHealthComponent;
+import org.agmas.noellesroles.content.item.SpecialWeaponHitFeedback;
 import org.agmas.noellesroles.init.ModItems;
 import org.agmas.noellesroles.spear.SpearConfig;
 
@@ -32,7 +33,7 @@ import java.util.List;
  * <p>招式只在<b>实际命中玩家</b>后按顺序推进（未命中保持当前招式）。
  * 每次命中都会：
  * <ul>
- * <li>造成 1 点原版伤害作为击退载体（虚拟血量的扣除建立在原版伤害实际生效之上）；</li>
+ * <li>虚拟伤害成功后独立发送受击动画、音效和击退，不造成原版伤害；</li>
  * <li>扣除目标虚拟血量（横扫 6 / 突刺 7 / 劈砍 7），归零按「武士刀」死因判死；</li>
  * <li>每次挥刀（无论是否命中）按当前招式播放音效；</li>
  * <li>命中后刷新衔接格挡窗口（0 前摇）并清除格挡内置冷却。</li>
@@ -121,43 +122,40 @@ public final class KatanaCombat {
 
         // 格挡判定：目标的武士刀格挡有效窗口优先，其次防暴盾牌
         if (KatanaHandler.tryBlockAttack(target, attacker)
-                || RiotShieldHandler.tryBlockAttack(target, attacker)) {
+                || RiotShieldHandler.tryBlockAttack(target, attacker)
+                || target.isDamageSourceBlocked(target.damageSources().playerAttack(attacker))) {
             // 与「被原版盾牌格挡」一致，保持当前招式不推进
             broadcastNextMove(attacker, move);
             return false;
         }
 
-        // 1. 1 点原版伤害（击退载体）：虚拟血量的扣除建立在原版伤害实际生效之上
-        target.invulnerableTime = 0;
-        boolean vanillaHurt = target.hurt(target.damageSources().playerAttack(attacker), 1.0F);
-        if (vanillaHurt && GameUtils.isPlayerAliveAndSurvival(target)) {
-            // 追加击退：横扫 0.5 格 / 突刺不追加 / 劈砍 1.5 格
+        // 虚拟伤害只结算一次，反馈不再依赖会被对局拦截的原版 hurt。
+        int virtualDamage = switch (move) {
+            case KatanaState.MOVE_SWEEP -> 6;
+            case KatanaState.MOVE_THRUST -> 7;
+            default -> 7;
+        };
+        boolean hit = DreamHealthComponent.KEY.get(target).hurt(attacker,
+                KatanaState.scaleVirtualDamage(attacker, virtualDamage), KatanaItem.DEATH_REASON);
+        if (hit && GameUtils.isPlayerAliveAndSurvival(target)) {
+            SpecialWeaponHitFeedback.hit(attacker, target);
+            SpecialWeaponHitFeedback.knockback(target, 0.4D,
+                    attacker.getX() - target.getX(), attacker.getZ() - target.getZ());
+            // 保留招式追加击退：横扫 0.5 / 突刺无追加 / 劈砍 1.5。
             float knockback = switch (move) {
                 case KatanaState.MOVE_SWEEP -> 0.5F;
                 case KatanaState.MOVE_SLASH -> 1.5F;
                 default -> 0.0F;
             };
-            if (knockback > 0.0F && GameUtils.isPlayerAliveAndSurvival(target)) {
-                target.knockback(knockback,
+            if (knockback > 0.0F) {
+                SpecialWeaponHitFeedback.knockback(target, knockback,
                         Math.sin(attacker.getYRot() * (Math.PI / 180.0D)),
                         -Math.cos(attacker.getYRot() * (Math.PI / 180.0D)));
             }
         }
 
-        // 2. 虚拟血量伤害（仅在原版伤害命中的前提下扣除）
-        if (vanillaHurt && GameUtils.isPlayerAliveAndSurvival(target)) {
-            int virtualDamage = switch (move) {
-                case KatanaState.MOVE_SWEEP -> 6;
-                case KatanaState.MOVE_THRUST -> 7;
-                default -> 7;
-            };
-            // 经倍率缩放（剑客「淬血」期间 ×2）
-            DreamHealthComponent.KEY.get(target).hurt(attacker,
-                    KatanaState.scaleVirtualDamage(attacker, virtualDamage), KatanaItem.DEATH_REASON);
-        }
-
         // 3. 连招推进：仅在实际命中后推进（未命中保持当前招式）
-        boolean targetDied = vanillaHurt && !GameUtils.isPlayerAliveAndSurvival(target);
+        boolean targetDied = hit && !GameUtils.isPlayerAliveAndSurvival(target);
         int next;
         if (targetDied) {
             // 被武士刀杀死：连招回到第一招式。
@@ -165,8 +163,8 @@ public final class KatanaCombat {
             // inline 检查 isPlayerAliveAndSurvival 不可靠（时间回溯标记 / 人格分裂
             // 状态下目标已死仍会返回"存活"）。
             next = KatanaState.MOVE_SWEEP;
-        } else if (!vanillaHurt) {
-            // 未命中（如被原版盾牌格挡）：保持当前招式，不推进也不回卷
+        } else if (!hit) {
+            // 虚拟伤害未生效：保持当前招式，不推进也不回卷
             next = move;
         } else if (move == KatanaState.MOVE_SLASH) {
             // 三连招全部命中且目标未死（可能被护盾挡下）→ 无冷却，立即衔接第一招式
@@ -178,7 +176,7 @@ public final class KatanaCombat {
         broadcastNextMove(attacker, next);
 
         // 5. 命中后：刷新衔接格挡窗口 + 清除格挡内置冷却
-        if (vanillaHurt) {
+        if (hit) {
             state.linkedUntil = attacker.level().getGameTime() + KatanaState.LINKED_WINDOW_TICKS;
             state.blockCooldownUntil = 0;
             KatanaState.broadcast(attacker, KatanaState.EVENT_BLOCK_COOLDOWN_CLEAR);
@@ -266,6 +264,34 @@ public final class KatanaCombat {
                 ModEffects.NO_COLLIDE, KatanaState.THRUST_DASH_MAX_TICKS, 0, true, false, false));
     }
 
+    public static boolean attackDummy(ServerPlayer attacker, io.wifi.starrailexpress.traindummy.TrainDummyEntity dummy) {
+        if (dummy == null || !dummy.canReceiveHits() || !canUseKatana(attacker, attacker.getMainHandItem())) {
+            return false;
+        }
+        KatanaState.PlayerState state = KatanaState.get(attacker);
+        int move = state.nextMove;
+        announceMove(attacker, move);
+        attacker.resetAttackStrengthTicker();
+        if (move == KatanaState.MOVE_THRUST && !state.thrustDashing) {
+            startThrustDash(attacker, state);
+            return true;
+        }
+        int virtualDamage = move == KatanaState.MOVE_SWEEP ? 6 : 7;
+        boolean hurt = io.wifi.starrailexpress.traindummy.TrainDummyCombat.applyVirtualDamage(dummy, attacker,
+                KatanaState.scaleVirtualDamage(attacker, virtualDamage), KatanaItem.DEATH_REASON, false, false);
+        boolean died = hurt && dummy.virtualHp() <= 0;
+        int next = died || (hurt && move == KatanaState.MOVE_SLASH) ? KatanaState.MOVE_SWEEP
+                : hurt ? move + 1 : move;
+        state.nextMove = next;
+        broadcastNextMove(attacker, next);
+        if (hurt) {
+            state.linkedUntil = attacker.level().getGameTime() + KatanaState.LINKED_WINDOW_TICKS;
+            state.blockCooldownUntil = 0;
+            KatanaState.broadcast(attacker, KatanaState.EVENT_BLOCK_COOLDOWN_CLEAR);
+        }
+        return true;
+    }
+
     /** 每 tick 遍历本世界内正在突刺的玩家，结算位移与碰撞伤害。 */
     private static void tickThrusts(ServerLevel world) {
         for (ServerPlayer player : world.players()) {
@@ -283,7 +309,7 @@ public final class KatanaCombat {
 
     /**
      * 单 tick 突刺结算：撞墙 / 位移停滞时提前结束；
-     * 位移途中对碰撞到的玩家造成伤害（1 点原版伤害 + 突刺虚拟伤害）。
+     * 位移途中对碰撞到的玩家造成突刺虚拟伤害，并发送独立反馈。
      *
      * <p>位移距离<b>不做截断</b>，冲量给多少就滑多少（与矛的突进一致），
      * 只靠 {@link KatanaState#THRUST_DASH_MAX_TICKS} 时长与撞墙 / 卡住来收招。
@@ -356,15 +382,17 @@ public final class KatanaCombat {
         }
     }
 
-    /** 突刺碰撞伤害：1 点原版伤害（击退载体）+ 突刺虚拟伤害，死因为武士刀。 */
+    /** 突刺碰撞伤害：虚拟伤害成功后发送独立反馈，死因仍为武士刀。 */
     private static void dealThrustDamage(ServerPlayer attacker, ServerPlayer target) {
-        target.invulnerableTime = 0;
-        boolean vanillaHurt = target.hurt(target.damageSources().playerAttack(attacker), 1.0F);
-        if (vanillaHurt && GameUtils.isPlayerAliveAndSurvival(target)) {
-            // 经倍率缩放（剑客「淬血」期间 ×2）
-            DreamHealthComponent.KEY.get(target).hurt(attacker,
-                    KatanaState.scaleVirtualDamage(attacker, KatanaState.THRUST_VIRTUAL_DAMAGE),
-                    KatanaItem.DEATH_REASON);
+        if (target.isDamageSourceBlocked(target.damageSources().playerAttack(attacker))) {
+            return;
+        }
+        if (DreamHealthComponent.KEY.get(target).hurt(attacker,
+                KatanaState.scaleVirtualDamage(attacker, KatanaState.THRUST_VIRTUAL_DAMAGE),
+                KatanaItem.DEATH_REASON) && GameUtils.isPlayerAliveAndSurvival(target)) {
+            SpecialWeaponHitFeedback.hit(attacker, target);
+            SpecialWeaponHitFeedback.knockback(target, 0.4D,
+                    attacker.getX() - target.getX(), attacker.getZ() - target.getZ());
         }
     }
 

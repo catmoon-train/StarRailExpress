@@ -54,6 +54,18 @@ public class NoteEntityRenderer extends EntityRenderer<NoteEntity> {
         this(context, 1.0F);
     }
 
+    /** 按皮肤缓存渲染用 ItemStack，避免每帧新建。 */
+    private final java.util.Map<String, ItemStack> skinnedStacks = new java.util.HashMap<>();
+
+    private ItemStack stackFor(NoteEntity note) {
+        String skin = note.getSkin();
+        if (skin == null || skin.isBlank() || "default".equals(skin)) {
+            return this.noteStack;
+        }
+        return skinnedStacks.computeIfAbsent(skin,
+                name -> io.wifi.starrailexpress.util.ItemSkinManager.applySkinToStack(this.noteStack, name));
+    }
+
     @Override
     public boolean shouldRender(NoteEntity note, Frustum frustum, double camX, double camY, double camZ) {
         double dx = note.getX() - camX;
@@ -79,7 +91,7 @@ public class NoteEntityRenderer extends EntityRenderer<NoteEntity> {
         matrices.translate(0, Math.floorMod(note.seed, 24) * .0001f, 0);
         matrices.mulPose(Axis.XP.rotationDegrees(90));
         matrices.scale(this.scale * .4f, this.scale * .4f, this.scale * .4f);
-        this.itemRenderer.renderStatic(this.noteStack, ItemDisplayContext.FIXED, light, OverlayTexture.NO_OVERLAY,
+        this.itemRenderer.renderStatic(stackFor(note), ItemDisplayContext.FIXED, light, OverlayTexture.NO_OVERLAY,
                 matrices, vertexConsumers, note.level(), note.getId());
         matrices.popPose();
         super.render(note, yaw, tickDelta, matrices, vertexConsumers, light);

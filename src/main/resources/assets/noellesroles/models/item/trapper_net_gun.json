@@ -1,7 +1,7 @@
 {
 	"parent": "item/generated",
 	"textures": {
-		"layer0": "minecraft:block/cobweb"
+		"layer0": "noellesroles:item/trapper_net_gun"
 	},
 	"display": {
 		"thirdperson_righthand": {

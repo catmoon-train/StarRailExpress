@@ -37,11 +37,18 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 import org.agmas.noellesroles.init.ModItems;
 
-public class HandCuffsItem extends Item {
+import io.wifi.starrailexpress.content.item.SkinableItem;
+
+public class HandCuffsItem extends SkinableItem {
     public static final int MAX_DAMAGE = 10;
 
     public HandCuffsItem(Item.Properties settings) {
         super(settings.durability(10));
+    }
+
+    @Override
+    public String getItemSkinType() {
+        return io.wifi.starrailexpress.util.ItemSkinManager.SkinTypes.HANDCUFFS;
     }
 
     public static final ResourceLocation SLOT_HANDCUFFS = SRE.id("handcuffs");

@@ -32,6 +32,12 @@ import org.agmas.noellesroles.client.NoellesrolesClient;
 import org.agmas.noellesroles.client.TaskBlockOverlayRenderer;
 import org.agmas.noellesroles.client.map.AreaMapManager;
 import org.agmas.noellesroles.client.map.AreaMapPointCategory;
+import org.agmas.noellesroles.game.modes.echo.client.EchoFacilityMapClient;
+import org.agmas.noellesroles.game.modes.echo.map.EchoFacilityMapPayload;
+import org.agmas.noellesroles.game.modes.echo.state.EchoMachineView;
+import java.util.List;
+import java.util.Objects;
+import java.util.UUID;
 
 import java.util.Map;
 
@@ -78,9 +84,42 @@ public class AreaMapScreen extends Screen {
     private int sideX0, sideY0, sideX1, sideY1;
     // 分类列表区域（在右侧面板内）
     private int catListY0, catListY1;
+    private final boolean echoMode = EchoFacilityMapClient.inMatch();
+    private UUID echoMatch = EchoFacilityMapClient.match();
+    private record Legend(Component name, int color, AreaMapPointCategory area, EchoMachineView.Type facility) { }
+
+    private List<Legend> categories() {
+        return echoMode ? EchoFacilityMapClient.types().stream().map(type -> new Legend(
+                Component.translatable(type.nameKey()), EchoFacilityMapClient.color(type), null, type)).toList()
+                : java.util.Arrays.stream(AreaMapPointCategory.values()).map(cat -> new Legend(cat.getName(), cat.color, cat, null)).toList();
+    }
+    private boolean enabled(Legend cat) { return echoMode ? EchoFacilityMapClient.visible(cat.facility()) : AreaMapManager.visibleCategories.contains(cat.area()); }
+    private void toggle(Legend cat) {
+        if (echoMode) EchoFacilityMapClient.toggle(cat.facility());
+        else if (!AreaMapManager.visibleCategories.remove(cat.area())) AreaMapManager.visibleCategories.add(cat.area());
+    }
+    private float minimumZoom() { return echoMode ? 0.05F : MIN_ZOOM; }
+    private void initializeView() {
+        if (echoMode) { panCX = AreaMapManager.getSizeX()/2D; panCZ = AreaMapManager.getSizeZ()/2D; }
+        else recenter();
+        zoom = fitZoom(); viewInited = true;
+    }
+
+    @Override public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
+        if (echoMode && io.wifi.starrailexpress.client.InputHandler.getOpenVotingScreenKeybind().matches(keyCode, scanCode)) {
+            onClose(); return true;
+        }
+        return super.keyPressed(keyCode, scanCode, modifiers);
+    }
+    @Override public void tick() {
+        if (!echoMode) return;
+        UUID current = EchoFacilityMapClient.match();
+        if (!EchoFacilityMapClient.inMatch() || echoMatch != null && current != null && !Objects.equals(echoMatch, current)) { onClose(); return; }
+        if (echoMatch == null) echoMatch = current;
+    }
 
     public AreaMapScreen() {
-        super(Component.translatable("gui.noellesroles.area_map.title"));
+        super(EchoFacilityMapClient.inMatch() ? EchoFacilityMapClient.tr("title") : Component.translatable("gui.noellesroles.area_map.title"));
     }
 
     @Override
@@ -97,9 +136,7 @@ public class AreaMapScreen extends Screen {
         catListY0 = sideY0 + 66;
         catListY1 = sideY1 - 6;
         if (!viewInited && AreaMapManager.hasData()) {
-            recenter();
-            zoom = fitZoom();
-            viewInited = true;
+            initializeView();
         }
     }
 
@@ -107,7 +144,7 @@ public class AreaMapScreen extends Screen {
         int nx = Math.max(1, AreaMapManager.getSizeX());
         int nz = Math.max(1, AreaMapManager.getSizeZ());
         float fit = Math.min((canvasX1 - canvasX0 - 20) / (float) nx, (canvasY1 - canvasY0 - 20) / (float) nz);
-        return Mth.clamp(fit, MIN_ZOOM, MAX_ZOOM);
+        return Mth.clamp(fit, minimumZoom(), MAX_ZOOM);
     }
 
     private void recenter() {
@@ -139,13 +176,15 @@ public class AreaMapScreen extends Screen {
         super.render(g, mouseX, mouseY, partialTick);
 
         if (!viewInited && AreaMapManager.hasData()) {
-            recenter();
-            zoom = fitZoom();
-            viewInited = true;
+            initializeView();
         }
 
         // 标题
         g.drawString(font, title.copy().withStyle(ChatFormatting.BOLD), PAD + 2, 12, GOLD);
+        if (echoMode) {
+            Component close = EchoFacilityMapClient.tr("close_hint", io.wifi.starrailexpress.client.InputHandler.getOpenVotingScreenKeybind().getTranslatedKeyMessage());
+            g.drawString(font, close, width - PAD - font.width(close), 12, MUTED, false);
+        }
 
         renderCanvas(g, mouseX, mouseY);
         renderSidePanel(g, mouseX, mouseY);
@@ -154,7 +193,9 @@ public class AreaMapScreen extends Screen {
         Component hint = Component.translatable(AreaMapManager.mode3d
                 ? "gui.noellesroles.area_map.hint3d"
                 : "gui.noellesroles.area_map.hint");
+        g.enableScissor(canvasX0 + 2, height - PAD - 13, canvasX1 - 2, height - PAD - 1);
         g.drawString(font, hint, canvasX0 + 4, height - PAD - 12, MUTED, false);
+        g.disableScissor();
     }
 
     // ==================== 地图画布 ====================
@@ -191,19 +232,25 @@ public class AreaMapScreen extends Screen {
         // 任务点
         BlockPos hovered = null;
         AreaMapPointCategory hoveredCat = null;
-        for (Map.Entry<BlockPos, Integer> entry : NoellesrolesClient.taskBlocks.entrySet()) {
-            AreaMapPointCategory cat = AreaMapPointCategory.byTypeId(entry.getValue());
-            if (cat == null || !AreaMapManager.visibleCategories.contains(cat)) continue;
-            if (drawPoint(g, ccx, ccy, entry.getKey(), cat.color, lift, mouseX, mouseY)) {
-                hovered = entry.getKey();
-                hoveredCat = cat;
+        EchoFacilityMapPayload.Entry hoveredFacility = null;
+        if (echoMode) {
+            for (var facility : EchoFacilityMapClient.entries())
+                if (EchoFacilityMapClient.visible(facility.type()) && drawFacility(g, fake, ccx, ccy, facility, lift, mouseX, mouseY)) hoveredFacility = facility;
+        } else {
+            for (Map.Entry<BlockPos, Integer> entry : NoellesrolesClient.taskBlocks.entrySet()) {
+                AreaMapPointCategory cat = AreaMapPointCategory.byTypeId(entry.getValue());
+                if (cat == null || !AreaMapManager.visibleCategories.contains(cat)) continue;
+                if (drawPoint(g, ccx, ccy, entry.getKey(), cat.color, lift, mouseX, mouseY)) {
+                    hovered = entry.getKey();
+                    hoveredCat = cat;
+                }
             }
-        }
-        if (AreaMapManager.visibleCategories.contains(AreaMapPointCategory.DOOR)) {
-            for (BlockPos door : TaskBlockOverlayRenderer.RoomDoorPositions) {
-                if (drawPoint(g, ccx, ccy, door, AreaMapPointCategory.DOOR.color, lift, mouseX, mouseY)) {
-                    hovered = door;
-                    hoveredCat = AreaMapPointCategory.DOOR;
+            if (AreaMapManager.visibleCategories.contains(AreaMapPointCategory.DOOR)) {
+                for (BlockPos door : TaskBlockOverlayRenderer.RoomDoorPositions) {
+                    if (drawPoint(g, ccx, ccy, door, AreaMapPointCategory.DOOR.color, lift, mouseX, mouseY)) {
+                        hovered = door;
+                        hoveredCat = AreaMapPointCategory.DOOR;
+                    }
                 }
             }
         }
@@ -211,6 +258,13 @@ public class AreaMapScreen extends Screen {
         renderPlayerMarker(g, ccx, ccy, lift);
 
         g.disableScissor();
+        if (echoMode && !EchoFacilityMapClient.ready())
+            g.drawString(font, EchoFacilityMapClient.tr("syncing"), canvasX0 + 4, canvasY0 + 16, MUTED, false);
+        if (hoveredFacility != null && isInRect(mouseX, mouseY, canvasX0, canvasY0, canvasX1-canvasX0, canvasY1-canvasY0)) {
+            var tip = EchoFacilityMapClient.name(hoveredFacility).copy().append("\n").append(EchoFacilityMapClient.tr("coordinates",
+                    (int) Math.floor(hoveredFacility.x()), (int) Math.floor(hoveredFacility.y()), (int) Math.floor(hoveredFacility.z())));
+            g.renderTooltip(font, font.split(tip, Math.min(240, width-16)), mouseX, mouseY);
+        }
 
         // 首遍扫描进度
         if (!AreaMapManager.isFirstPassDone()) {
@@ -283,6 +337,15 @@ public class AreaMapScreen extends Screen {
         return Math.abs(mouseX - sx) <= 3 && Math.abs(mouseY - sy) <= 3;
     }
 
+    private boolean drawFacility(GuiGraphics g, FakeGuiGraphics fake, int ccx, int ccy, EchoFacilityMapPayload.Entry entry,
+                                  float lift, int mouseX, int mouseY) {
+        var point = cellToScreen(AreaMapManager.worldToCellX(entry.x()), AreaMapManager.worldToCellZ(entry.z()), ccx, ccy, lift);
+        int sx = (int) Math.round(point[0]), sy = (int) Math.round(point[1]);
+        if (sx < canvasX0-5 || sx > canvasX1+5 || sy < canvasY0-5 || sy > canvasY1+5) return false;
+        EchoFacilityMapClient.drawMarker(fake, entry.type(), sx, sy, false);
+        return Math.abs(mouseX-sx) <= 6 && Math.abs(mouseY-sy) <= 6;
+    }
+
     private void renderPlayerMarker(GuiGraphics g, int ccx, int ccy, float lift) {
         Player player = Minecraft.getInstance().player;
         if (player == null) return;
@@ -327,47 +390,57 @@ public class AreaMapScreen extends Screen {
         y += 18;
 
         // 任务点标题 + 全选/清空
-        g.drawString(font, Component.translatable("gui.noellesroles.area_map.points")
-                .withStyle(ChatFormatting.GOLD, ChatFormatting.BOLD), x, y, GOLD, false);
+        Component pointsTitle = echoMode ? EchoFacilityMapClient.tr("facilities") : Component.translatable("gui.noellesroles.area_map.points");
+        // 为两侧操作永久留位，长英文标题也不跨入全选/清空。
         Component all = Component.translatable("gui.noellesroles.area_map.all");
         Component none = Component.translatable("gui.noellesroles.area_map.none");
         int noneX = sideX1 - 6 - font.width(none);
         int allX = noneX - 6 - font.width(all);
+        g.drawString(font, font.plainSubstrByWidth(pointsTitle.getString(), Math.max(1, allX - x - 4)), x, y, GOLD, false);
         boolean hoverAll = isInRect(mouseX, mouseY, allX - 1, y - 1, font.width(all) + 2, 10);
         boolean hoverNone = isInRect(mouseX, mouseY, noneX - 1, y - 1, font.width(none) + 2, 10);
         g.drawString(font, all, allX, y, hoverAll ? GOLD : MUTED, false);
         g.drawString(font, none, noneX, y, hoverNone ? GOLD : MUTED, false);
 
         // 分类列表（可滚动）
-        AreaMapPointCategory[] cats = AreaMapPointCategory.values();
+        var cats = categories();
         int rowH = 13;
         int listH = catListY1 - catListY0;
-        int contentH = cats.length * rowH;
+        int contentH = cats.size() * rowH;
         double maxScroll = Math.max(0, contentH - listH);
         catScroll = Mth.clamp(catScroll, 0, maxScroll);
 
+        Component hoveredCategory = null;
+        var markerGraphics = new FakeGuiGraphics(g, true);
         g.enableScissor(sideX0 + 1, catListY0, sideX1 - 1, catListY1);
         int rowY = catListY0 - (int) catScroll;
-        for (AreaMapPointCategory cat : cats) {
-            boolean enabled = AreaMapManager.visibleCategories.contains(cat);
+        for (Legend cat : cats) {
+            boolean enabled = enabled(cat);
             boolean hover = isInRect(mouseX, mouseY, sideX0 + 1, rowY, sideX1 - sideX0 - 2, rowH)
                     && mouseY >= catListY0 && mouseY < catListY1;
             if (hover) {
                 g.fill(sideX0 + 1, rowY, sideX1 - 1, rowY + rowH, 0x22FFFFFF);
+                hoveredCategory = cat.name();
             }
             // 勾选框
             int boxX = x;
             int boxY = rowY + 2;
             g.renderOutline(boxX, boxY, 9, 9, enabled ? GOLD : 0xFF5A4530);
             if (enabled) {
-                g.fill(boxX + 2, boxY + 2, boxX + 7, boxY + 7, cat.color);
+                g.fill(boxX + 2, boxY + 2, boxX + 7, boxY + 7, cat.color());
             }
             // 色点 + 名称
-            g.fill(x + 13, rowY + 4, x + 18, rowY + 9, cat.color);
-            g.drawString(font, cat.getName(), x + 22, rowY + 3, enabled ? TEXT : MUTED, false);
+            if (echoMode) EchoFacilityMapClient.drawMarker(markerGraphics, cat.facility(), x + 17, rowY + 7, true);
+            else g.fill(x + 13, rowY + 4, x + 18, rowY + 9, cat.color());
+            String label = cat.name().getString();
+            int maxLabel = sideX1 - x - 27;
+            if (font.width(label) > maxLabel) label = font.plainSubstrByWidth(label, maxLabel-font.width("…")) + "…";
+            g.drawString(font, label, x + 24, rowY + 3, enabled ? TEXT : MUTED, false);
             rowY += rowH;
         }
         g.disableScissor();
+        if (echoMode && cats.isEmpty()) g.drawString(font, EchoFacilityMapClient.tr("syncing"), x, catListY0 + 3, MUTED, false);
+        if (hoveredCategory != null) g.renderTooltip(font, font.split(hoveredCategory, Math.min(240, width - 16)), mouseX, mouseY);
 
         // 滚动条
         if (maxScroll > 0) {
@@ -421,12 +494,14 @@ public class AreaMapScreen extends Screen {
         int noneX = sideX1 - 6 - font.width(none);
         int allX = noneX - 6 - font.width(all);
         if (button == 0 && isInRect((int) mouseX, (int) mouseY, allX - 1, headY - 1, font.width(all) + 2, 10)) {
-            AreaMapManager.visibleCategories.addAll(java.util.List.of(AreaMapPointCategory.values()));
+            if (echoMode) EchoFacilityMapClient.showAll(true);
+            else AreaMapManager.visibleCategories.addAll(java.util.List.of(AreaMapPointCategory.values()));
             playClick();
             return true;
         }
         if (button == 0 && isInRect((int) mouseX, (int) mouseY, noneX - 1, headY - 1, font.width(none) + 2, 10)) {
-            AreaMapManager.visibleCategories.clear();
+            if (echoMode) EchoFacilityMapClient.showAll(false);
+            else AreaMapManager.visibleCategories.clear();
             playClick();
             return true;
         }
@@ -434,12 +509,9 @@ public class AreaMapScreen extends Screen {
         if (button == 0 && mouseX >= sideX0 + 1 && mouseX <= sideX1 - 1
                 && mouseY >= catListY0 && mouseY < catListY1) {
             int idx = (int) ((mouseY - catListY0 + catScroll) / 13);
-            AreaMapPointCategory[] cats = AreaMapPointCategory.values();
-            if (idx >= 0 && idx < cats.length) {
-                AreaMapPointCategory cat = cats[idx];
-                if (!AreaMapManager.visibleCategories.remove(cat)) {
-                    AreaMapManager.visibleCategories.add(cat);
-                }
+            var cats = categories();
+            if (idx >= 0 && idx < cats.size()) {
+                toggle(cats.get(idx));
                 playClick();
                 return true;
             }
@@ -490,7 +562,7 @@ public class AreaMapScreen extends Screen {
         // 画布缩放（2D 下以鼠标位置为锚点）
         if (isInRect((int) mouseX, (int) mouseY, canvasX0, canvasY0, canvasX1 - canvasX0, canvasY1 - canvasY0)) {
             float oldZoom = zoom;
-            zoom = Mth.clamp(zoom * (float) Math.pow(1.2, verticalAmount), MIN_ZOOM, MAX_ZOOM);
+            zoom = Mth.clamp(zoom * (float) Math.pow(1.2, verticalAmount), minimumZoom(), MAX_ZOOM);
             if (!AreaMapManager.mode3d && zoom != oldZoom) {
                 int ccx = (canvasX0 + canvasX1) / 2;
                 int ccy = (canvasY0 + canvasY1) / 2;

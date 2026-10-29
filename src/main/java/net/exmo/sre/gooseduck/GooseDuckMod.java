@@ -28,7 +28,7 @@ import net.minecraft.resources.ResourceLocation;
  * 里调用一次 {@link #init()}（与 {@code ModEffects.init()} 等子系统装配一致）。
  */
 public final class GooseDuckMod {
-    /** 模式 ID：{@code canyuesama:goose_duck}，与作者其它模式（修机 / 第四房间）同命名空间。 */
+    /** 模式 ID：{@code canyuesama:goose_duck}，与作者其它模式（第四房间）同命名空间。 */
     public static final ResourceLocation GOOSE_DUCK_MODE_ID = StarRailExpressID.canyueId("goose_duck");
 
     private GooseDuckMod() {

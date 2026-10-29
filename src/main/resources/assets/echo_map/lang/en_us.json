@@ -1,0 +1,13 @@
+{
+  "echo.map.title": "Echo Freight · Area Map",
+  "echo.map.open_hint": "%s: Map",
+  "echo.map.close_hint": "%s / ESC: Close",
+  "echo.map.facilities": "Facilities",
+  "echo.map.evacuation_zone": "Evacuation zone",
+  "echo.map.facility_number": "%s · #%s",
+  "echo.map.coordinates": "Position: %s / %s / %s",
+  "echo.map.syncing": "Syncing facilities…",
+  "echo.map.north": "N",
+  "echo.map.hunt_focus": "Focus %s%%",
+  "echo.map.hunt_instinct": "Instinct %s%%"
+}

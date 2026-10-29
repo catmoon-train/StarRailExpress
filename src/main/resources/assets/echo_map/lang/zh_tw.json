@@ -1,0 +1,13 @@
+{
+  "echo.map.title": "回聲託運站 · 區域地圖",
+  "echo.map.open_hint": "%s 開啟大地圖",
+  "echo.map.close_hint": "%s / ESC 關閉",
+  "echo.map.facilities": "設施",
+  "echo.map.evacuation_zone": "撤離區域",
+  "echo.map.facility_number": "%s · %s號",
+  "echo.map.coordinates": "位置：%s / %s / %s",
+  "echo.map.syncing": "正在同步設施…",
+  "echo.map.north": "北",
+  "echo.map.hunt_focus": "鎖定 %s%%",
+  "echo.map.hunt_instinct": "本能 · %s%%"
+}

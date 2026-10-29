@@ -58,6 +58,7 @@ public class GiantNoteItem extends io.wifi.starrailexpress.content.item.NoteItem
                         } else {
                             var note = createNoteEntity(world);
                             if (note == null) return InteractionResult.PASS;
+                            note.setSkin(io.wifi.starrailexpress.util.ItemSkinManager.getEquippedSkin(player, itemStack));
 
                             playerShopComponent.addToBalance(-50);
 
@@ -113,6 +114,8 @@ public class GiantNoteItem extends io.wifi.starrailexpress.content.item.NoteItem
         Direction side = context.getClickedFace();
         note.setDirection(side);
         note.setLines(component.text);
+        note.setSkin(io.wifi.starrailexpress.util.ItemSkinManager.getEquippedSkin(player,
+                player.getItemInHand(context.getHand())));
         Vec3 hitPos = context.getClickLocation().add(context.getClickLocation().subtract(player.getEyePosition()).normalize().scale(-.01f)).subtract(0, note.getBbHeight() / 2f, 0);
         note.setPos(hitPos.x(), hitPos.y(), hitPos.z());
         world.addFreshEntity(note);

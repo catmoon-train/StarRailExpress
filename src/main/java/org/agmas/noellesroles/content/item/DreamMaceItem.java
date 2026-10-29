@@ -147,11 +147,8 @@ public class DreamMaceItem extends MaceItem implements SREItemProperties.LeftCli
 
         mainhandItem.hurtAndBreak(1, attacker, EquipmentSlot.MAINHAND);
 
-        // 受击反馈：红屏动画 + 音效 + 原版击退（1 点伤害本身不参与击杀判定）
-        if (GameUtils.isPlayerAliveAndSurvival(target)) {
-            target.invulnerableTime = 0;
-            target.hurt(target.damageSources().playerAttack(attacker), 1.0F);
-        }
+        // 只产生反馈，不通过真实伤害管线。
+        SpecialWeaponHitFeedback.melee(attacker, target, fullCharge && attacker.isSprinting());
 
         if (smash) {
             // 原版坠击落地效果：免摔落伤害 + 砸地音效 + 范围击退

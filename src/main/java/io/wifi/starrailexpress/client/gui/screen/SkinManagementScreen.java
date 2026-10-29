@@ -84,6 +84,29 @@ public class SkinManagementScreen extends Screen {
             return "hat".equals(id);
         }
 
+        /** 背部 / 手部饰品走帽子同款网格，皮肤类型由页签 id 决定。 */
+        boolean isAccessoryTab() {
+            return "backpack".equals(id) || "hand_accessory".equals(id);
+        }
+
+        /** 音乐盒同样只是一组可装配的皮肤，复用卡片网格。 */
+        boolean isMusicBoxTab() {
+            return ItemSkinManager.SkinTypes.MUSIC_BOX.equals(id);
+        }
+
+        /** 随从：一组可装配的皮肤，没有图标物品，复用卡片网格。 */
+        boolean isPetTab() {
+            return ItemSkinManager.SkinTypes.PET.equals(id);
+        }
+
+        boolean isMvpAnimationTab() {
+            return ItemSkinManager.SkinTypes.MVP_ANIMATION.equals(id);
+        }
+
+        boolean isGridTab() {
+            return isHatTab() || isAccessoryTab() || isMusicBoxTab() || isPetTab() || isMvpAnimationTab();
+        }
+
         boolean isNameTagTab() {
             return "name_tag".equals(id);
         }
@@ -113,6 +136,8 @@ public class SkinManagementScreen extends Screen {
     private NameTagList nameTagList;
     private EditBox searchBox;
     private ToggleCheckbox hideAllHatsCheck;
+    /** 随从页签专用：是否展示给其他玩家（服务端权威，勾选后立即发包） */
+    private ToggleCheckbox petPublicCheck;
     private ToggleCheckbox showOwnHatCheck;
     private Button backButton;
     private Button refreshButton;
@@ -169,8 +194,11 @@ public class SkinManagementScreen extends Screen {
         int titleMarginT = isCompact ? 6 : 10;
         int categoryHeight = isCompact ? 20 : 24;
         int categoryMarginT = isCompact ? 5 : 8;
+        int searchGap = 4;
+        int searchHeight = categoryHeight;
         int gapBelowCategory = isCompact ? 5 : 8;
-        this.listTop = titleMarginT + titleHeight + categoryMarginT + categoryHeight + gapBelowCategory;
+        this.listTop = titleMarginT + titleHeight + categoryMarginT + categoryHeight
+                + searchGap + searchHeight + gapBelowCategory;
         int bottomPadding = isCompact ? 30 : 48;
         this.listHeight = this.height - listTop - bottomPadding;
 
@@ -189,8 +217,15 @@ public class SkinManagementScreen extends Screen {
         }
 
         initCategoryArea(categoryHeight, categoryMarginT, titleMarginT + titleHeight);
-        initSearchBox(categoryHeight, titleMarginT + titleHeight);
+        initSearchBox(searchHeight, titleMarginT + titleHeight + categoryMarginT + categoryHeight + searchGap);
         initHatConfigCheckboxes(titleMarginT, titleMarginT + titleHeight);
+        // 随从页签额外提供「展示给其他玩家」；其它页签不显示该项
+        if (!categories.isEmpty() && selectedCategory < categories.size()
+                && categories.get(selectedCategory).isPetTab()) {
+            initPetPublicCheckbox(titleMarginT, titleMarginT + titleHeight);
+        } else {
+            petPublicCheck = null;
+        }
         initContentArea();
         initButtonArea(isCompact);
     }
@@ -200,12 +235,31 @@ public class SkinManagementScreen extends Screen {
         if (player != null && TMMItems.SkinableItem != null) {
             for (Item item : TMMItems.SkinableItem) {
                 String itemTypeName = BuiltInRegistries.ITEM.getKey(item).toString();
+                // 该类型还没有任何皮肤时（例如刚接入、皮肤资源尚未添加的弓/弩）不显示空页签
+                String skinType = ItemSkinManager.getItemSkinType(item);
+                if (skinType != null && ItemSkinManager.getSkins(skinType).isEmpty()) {
+                    continue;
+                }
                 categories.add(new CategoryTabData(itemTypeName,
                         Component.literal(getItemShortName(item)), item));
             }
         }
         categories.add(new CategoryTabData("hat",
                 Component.translatable("screen.sre.skins.hat_title"), Items.LEATHER_HELMET));
+        addAccessoryTab("backpack", "screen.sre.skins.backpack", Items.LEATHER_CHESTPLATE);
+        addAccessoryTab("hand_accessory", "screen.sre.skins.hand_accessory", Items.LEATHER);
+        // 音乐盒标签（曲目由内容模组注册，没有音乐盒皮肤时不显示）
+        if (ItemSkinManager.getSkins().containsKey(ItemSkinManager.SkinTypes.MUSIC_BOX)) {
+            categories.add(new CategoryTabData(ItemSkinManager.SkinTypes.MUSIC_BOX,
+                    Component.translatable("screen.sre.skins.music_box_title"), Items.JUKEBOX));
+        }
+        // 随从标签（随从由内容模组注册，没有随从皮肤时不显示）
+        if (ItemSkinManager.getSkins().containsKey(ItemSkinManager.SkinTypes.PET)) {
+            categories.add(new CategoryTabData(ItemSkinManager.SkinTypes.PET,
+                    Component.translatable("screen.sre.skins.pet_title"), Items.LEAD));
+        }
+        categories.add(new CategoryTabData(ItemSkinManager.SkinTypes.MVP_ANIMATION,
+                Component.translatable("screen.sre.skins.mvp_animation_title"), Items.DRAGON_HEAD));
         // 名片（称号）标签
         categories.add(new CategoryTabData("name_tag",
                 Component.translatable("screen.sre.skins.name_tag_title"), Items.NAME_TAG));
@@ -268,13 +322,40 @@ public class SkinManagementScreen extends Screen {
         }
     }
 
-    private void initSearchBox(int categoryHeight, int categoryY) {
-        searchBox = new EditBox(font, rightPanelX, categoryY, rightPanelWidth, categoryHeight,
+    private void addAccessoryTab(String skinType, String labelKey, Item fallbackIcon) {
+        if (!ItemSkinManager.getSkins().containsKey(skinType)) {
+            return;
+        }
+        Item icon = fallbackIcon;
+        for (String name : ItemSkinManager.getSkins(skinType).keySet()) {
+            if ("default".equals(name)) {
+                continue;
+            }
+            var located = BuiltInRegistries.ITEM.getOptional(
+                    ResourceLocation.fromNamespaceAndPath("sre_cosmetics", name));
+            if (located.isPresent()) {
+                icon = located.get();
+                break;
+            }
+        }
+        categories.add(new CategoryTabData(skinType, Component.translatable(labelKey), icon));
+    }
+
+    private void initSearchBox(int searchHeight, int searchY) {
+        int searchX = contentX;
+        int searchWidth = leftPanelWidth;
+        searchBox = new EditBox(font, searchX, searchY, searchWidth, searchHeight,
                 Component.translatable("screen.sre.skins.search"));
         searchBox.setMaxLength(50);
+        searchBox.setBordered(true);
+        searchBox.setValue(searchFilter);
         searchBox.setResponder(text -> {
-            searchFilter = text.toLowerCase();
-            refreshSkinPanels();
+            String next = text.toLowerCase(java.util.Locale.ROOT);
+            if (next.equals(searchFilter)) {
+                return;
+            }
+            searchFilter = next;
+            applySearchFilter();
         });
         searchBox.setHint(Component.translatable("screen.sre.skins.search_hint").withStyle(ChatFormatting.DARK_GRAY));
         addRenderableWidget(searchBox);
@@ -307,6 +388,33 @@ public class SkinManagementScreen extends Screen {
         addRenderableWidget(showOwnHatCheck);
     }
 
+    /**
+     * 随从页签的「展示给其他玩家」勾选框。
+     * <p>
+     * 与帽子那两个本地开关不同，这一项是<b>服务端权威</b>的玩家状态：
+     * 勾选后立刻发 {@link io.wifi.starrailexpress.network.UpdatePetPublicPayload}，
+     * 由服务端写入组件并在下一轮扫描时广播给其他客户端。
+     */
+    private void initPetPublicCheckbox(int titleY, int totalTitleH) {
+        if (player == null) {
+            return;
+        }
+        var component = io.wifi.starrailexpress.cca.SREPlayerSkinsComponent.KEY.getNullable(player);
+        if (component == null) {
+            return;
+        }
+        int checkH = 14;
+        int checkW = 140;
+        int checkY = titleY + (totalTitleH - checkH) / 2;
+        int startX = width - 10 - checkW;
+        petPublicCheck = new ToggleCheckbox(startX, checkY, checkW, checkH,
+                Component.translatable("screen.sre.skins.show_pet_to_others"),
+                component.isPetPublic(),
+                v -> ClientPlayNetworking.send(
+                        new io.wifi.starrailexpress.network.UpdatePetPublicPayload(v)));
+        addRenderableWidget(petPublicCheck);
+    }
+
     private void selectCategory(int index) {
         if (index == selectedCategory && contentAlpha > 0.95f) {
             return;
@@ -332,9 +440,9 @@ public class SkinManagementScreen extends Screen {
             return;
         }
         CategoryTabData selectedTab = categories.get(selectedCategory);
-        if (selectedTab.isHatTab()) {
+        if (selectedTab.isGridTab()) {
             hatGrid = new HatSkinGridPanel(contentX, listTop, leftPanelWidth, listHeight,
-                    skinsComponent, this::equipHat, searchFilter);
+                    skinsComponent, selectedTab.id, this::equipGridSkin, searchFilter);
             addRenderableWidget(hatGrid);
             return;
         }
@@ -359,11 +467,16 @@ public class SkinManagementScreen extends Screen {
         addRenderableWidget(new ItemInfoPanel(rightPanelX, listTop - 25, rightPanelWidth, 20, itemStack));
     }
 
-    /** 装备帽子：发送到服务端并做本地乐观更新（预览即时生效） */
-    private void equipHat(String skinName) {
-        ClientPlayNetworking.send(new UpdateSkinSelectedPayload("hat", skinName));
-        if (player != null) {
+    /** 装备帽子 / 饰品 / 随从：发送到服务端；帽子与随从沿用本地乐观更新。 */
+    private void equipGridSkin(String skinName) {
+        CategoryTabData tab = categories.get(selectedCategory);
+        ClientPlayNetworking.send(new UpdateSkinSelectedPayload(tab.id, skinName));
+        if (player != null && tab.isHatTab()) {
             ClientHatEquipmentCache.setLocalOptimistic(player.getUUID(), skinName);
+        }
+        if (player != null && tab.isPetTab()) {
+            // 自己的随从立刻换上，不必等 5 秒一轮的服务端扫描
+            io.wifi.starrailexpress.client.pet.ClientPetCache.applyLocalOptimistic(player.getUUID(), skinName);
         }
     }
 
@@ -632,8 +745,11 @@ public class SkinManagementScreen extends Screen {
             return ItemStack.EMPTY;
         }
         CategoryTabData selectedTab = categories.get(selectedCategory);
-        if (selectedTab.isHatTab() || selectedTab.isNameTagTab()) {
+        if (selectedTab.isMusicBoxTab() || selectedTab.isPetTab() || selectedTab.isMvpAnimationTab()) {
+            // 非手持外观，预览里不摆道具。
             return ItemStack.EMPTY;
+        }
+        if (selectedTab.isGridTab() || selectedTab.isNameTagTab()) {
         }
         ItemStack preview = new ItemStack(selectedTab.iconItem);
         preview.set(io.wifi.starrailexpress.index.SREDataComponentTypes.SKIN,
@@ -670,6 +786,13 @@ public class SkinManagementScreen extends Screen {
 
     @Override
     public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
+        if (searchBox != null && searchBox.isFocused()) {
+            if (keyCode == 256) {
+                searchBox.setFocused(false);
+                return true;
+            }
+            return searchBox.keyPressed(keyCode, scanCode, modifiers);
+        }
         if (super.keyPressed(keyCode, scanCode, modifiers)) {
             return true;
         }
@@ -690,6 +813,29 @@ public class SkinManagementScreen extends Screen {
             return true;
         }
         return false;
+    }
+
+    @Override
+    public boolean charTyped(char codePoint, int modifiers) {
+        if (searchBox != null && searchBox.isFocused()) {
+            return searchBox.charTyped(codePoint, modifiers);
+        }
+        return super.charTyped(codePoint, modifiers);
+    }
+
+    /** 只重筛当前列表，不重建搜索框，避免输入时焦点被清掉。 */
+    private void applySearchFilter() {
+        if (skinList != null) {
+            skinList.rebuild(searchFilter);
+            return;
+        }
+        if (hatGrid != null) {
+            hatGrid.rebuild(searchFilter);
+            return;
+        }
+        if (nameTagList != null) {
+            nameTagList.rebuild(searchFilter);
+        }
     }
 
     @Override

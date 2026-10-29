@@ -1,0 +1,51 @@
+{
+  "textures": {
+    "particle": "noellesroles:block/echo_pallet",
+    "board": "noellesroles:block/echo_pallet",
+    "brace": "noellesroles:block/echo_pallet"
+  },
+  "elements": [
+    {
+      "from": [
+        3,
+        0,
+        8
+      ],
+      "to": [
+        14,
+        12,
+        11
+      ],
+      "faces": {
+        "north": {
+          "texture": "#board"
+        },
+        "south": {
+          "texture": "#board"
+        },
+        "east": {
+          "texture": "#board"
+        },
+        "west": {
+          "texture": "#board"
+        },
+        "up": {
+          "texture": "#board"
+        },
+        "down": {
+          "texture": "#board"
+        }
+      },
+      "rotation": {
+        "origin": [
+          3,
+          0,
+          9
+        ],
+        "axis": "z",
+        "angle": -18,
+        "rescale": true
+      }
+    }
+  ]
+}

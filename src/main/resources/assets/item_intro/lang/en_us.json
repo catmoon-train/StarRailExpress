@@ -243,5 +243,11 @@
     "item.noellesroles.recovery_pill.desc": "A recovery pill. Eating fully refills your virtual health bar.",
     "item.noellesroles.recovery_reagent.desc": "A recovery reagent. Right-click to throw; on landing, players within a 4-block radius gain virtual health recovery for 30 seconds.",
     "item.noellesroles.poisonous_mushroom_essence.desc": "Highly poisonous mushroom essence. Right-click to throw; on hit, nearby players gain 20 seconds of Glitch and Slowness I, and 3 seconds of Puppet Wander.",
-    "item.noellesroles.apprentice_wand.desc": "The Magic Apprentice's apprentice wand. Right-click to charge 0.3 seconds and release the current spell; after a successful release, uniform 12-second cooldown. The skill-switch key cycles between unlocked spells."
+    "item.noellesroles.apprentice_wand.desc": "The Magic Apprentice's apprentice wand. Right-click to charge 0.3 seconds and release the current spell; after a successful release, uniform 12-second cooldown. The skill-switch key cycles between unlocked spells.",
+    "item.noellesroles.steve_pickaxe.desc": "Steve's starting iron pickaxe. Hold left-click to mine task nodes; one mining completes every 1 second. Each mining randomly yields 1 plank, iron ingot, gold ingot, or diamond, consuming 1 durability; breaks after 32 minings.",
+    "item.noellesroles.steve_diamond_pickaxe.desc": "Steve material shop: 3 diamonds. Can only mine task nodes, each mining randomly yields 1 plank, iron ingot, gold ingot, or diamond. Mines once every 0.5 seconds, 128 durability, breaks when depleted.",
+    "item.noellesroles.steve_boat.desc": "Steve material shop: 5 planks. Right-click in a space with enough room to place a vanilla oak boat; right-click again to ride it.",
+    "item.noellesroles.steve_minecart.desc": "Steve material shop: 5 iron ingots. Right-click on rails to place and ride a minecart.",
+    "item.noellesroles.steve_golden_apple.desc": "Steve material shop: 8 gold ingots. Hold right-click to eat, gaining a 20-second weak shield that only blocks knives.",
+    "item.noellesroles.steve_piston.desc": "Steve material shop: 4 iron ingots. Right-click consumes one piston and builds a wall lasting 25 seconds, sharing a 45-second cooldown with Steve's skill."
 }

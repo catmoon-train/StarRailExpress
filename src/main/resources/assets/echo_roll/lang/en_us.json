@@ -1,0 +1,9 @@
+{
+  "echo.roll.hud": "Roll [%s+%s] · %s",
+  "echo.roll.seconds": "%ss",
+  "echo.roll.ready": "Ready",
+  "echo.roll.cooldown": "Roll recharges in %s seconds",
+  "echo.roll.grounded": "Stand on the ground; do not ride, use an item or swim to roll",
+  "echo.match.started": "Echo Freight match started",
+  "echo.match.result": "Echo Freight match result: %s"
+}

@@ -1,0 +1,274 @@
+{
+  "variants": {
+    "facing=north,part=0": {
+      "model": "noellesroles:block/echo_black_crystal_extractor_part0"
+    },
+    "facing=north,part=1": {
+      "model": "noellesroles:block/echo_black_crystal_extractor_part1"
+    },
+    "facing=north,part=2": {
+      "model": "noellesroles:block/echo_black_crystal_extractor_part2"
+    },
+    "facing=north,part=3": {
+      "model": "noellesroles:block/echo_black_crystal_extractor_part3"
+    },
+    "facing=north,part=4": {
+      "model": "noellesroles:block/echo_black_crystal_extractor_part4"
+    },
+    "facing=north,part=5": {
+      "model": "noellesroles:block/echo_black_crystal_extractor_part5"
+    },
+    "facing=north,part=6": {
+      "model": "noellesroles:block/echo_black_crystal_extractor_part6"
+    },
+    "facing=north,part=7": {
+      "model": "noellesroles:block/echo_black_crystal_extractor_part7"
+    },
+    "facing=north,part=8": {
+      "model": "noellesroles:block/echo_black_crystal_extractor_part8"
+    },
+    "facing=north,part=9": {
+      "model": "noellesroles:block/echo_black_crystal_extractor_part9"
+    },
+    "facing=north,part=10": {
+      "model": "noellesroles:block/echo_black_crystal_extractor_part10"
+    },
+    "facing=north,part=11": {
+      "model": "noellesroles:block/echo_black_crystal_extractor_part11"
+    },
+    "facing=north,part=12": {
+      "model": "noellesroles:block/echo_black_crystal_extractor_part12"
+    },
+    "facing=north,part=13": {
+      "model": "noellesroles:block/echo_black_crystal_extractor_part13"
+    },
+    "facing=north,part=14": {
+      "model": "noellesroles:block/echo_black_crystal_extractor_part14"
+    },
+    "facing=north,part=15": {
+      "model": "noellesroles:block/echo_black_crystal_extractor_part15"
+    },
+    "facing=north,part=16": {
+      "model": "noellesroles:block/echo_black_crystal_extractor_part16"
+    },
+    "facing=north,part=17": {
+      "model": "noellesroles:block/echo_black_crystal_extractor_part17"
+    },
+    "facing=east,part=0": {
+      "model": "noellesroles:block/echo_black_crystal_extractor_part0",
+      "y": 90
+    },
+    "facing=east,part=1": {
+      "model": "noellesroles:block/echo_black_crystal_extractor_part1",
+      "y": 90
+    },
+    "facing=east,part=2": {
+      "model": "noellesroles:block/echo_black_crystal_extractor_part2",
+      "y": 90
+    },
+    "facing=east,part=3": {
+      "model": "noellesroles:block/echo_black_crystal_extractor_part3",
+      "y": 90
+    },
+    "facing=east,part=4": {
+      "model": "noellesroles:block/echo_black_crystal_extractor_part4",
+      "y": 90
+    },
+    "facing=east,part=5": {
+      "model": "noellesroles:block/echo_black_crystal_extractor_part5",
+      "y": 90
+    },
+    "facing=east,part=6": {
+      "model": "noellesroles:block/echo_black_crystal_extractor_part6",
+      "y": 90
+    },
+    "facing=east,part=7": {
+      "model": "noellesroles:block/echo_black_crystal_extractor_part7",
+      "y": 90
+    },
+    "facing=east,part=8": {
+      "model": "noellesroles:block/echo_black_crystal_extractor_part8",
+      "y": 90
+    },
+    "facing=east,part=9": {
+      "model": "noellesroles:block/echo_black_crystal_extractor_part9",
+      "y": 90
+    },
+    "facing=east,part=10": {
+      "model": "noellesroles:block/echo_black_crystal_extractor_part10",
+      "y": 90
+    },
+    "facing=east,part=11": {
+      "model": "noellesroles:block/echo_black_crystal_extractor_part11",
+      "y": 90
+    },
+    "facing=east,part=12": {
+      "model": "noellesroles:block/echo_black_crystal_extractor_part12",
+      "y": 90
+    },
+    "facing=east,part=13": {
+      "model": "noellesroles:block/echo_black_crystal_extractor_part13",
+      "y": 90
+    },
+    "facing=east,part=14": {
+      "model": "noellesroles:block/echo_black_crystal_extractor_part14",
+      "y": 90
+    },
+    "facing=east,part=15": {
+      "model": "noellesroles:block/echo_black_crystal_extractor_part15",
+      "y": 90
+    },
+    "facing=east,part=16": {
+      "model": "noellesroles:block/echo_black_crystal_extractor_part16",
+      "y": 90
+    },
+    "facing=east,part=17": {
+      "model": "noellesroles:block/echo_black_crystal_extractor_part17",
+      "y": 90
+    },
+    "facing=south,part=0": {
+      "model": "noellesroles:block/echo_black_crystal_extractor_part0",
+      "y": 180
+    },
+    "facing=south,part=1": {
+      "model": "noellesroles:block/echo_black_crystal_extractor_part1",
+      "y": 180
+    },
+    "facing=south,part=2": {
+      "model": "noellesroles:block/echo_black_crystal_extractor_part2",
+      "y": 180
+    },
+    "facing=south,part=3": {
+      "model": "noellesroles:block/echo_black_crystal_extractor_part3",
+      "y": 180
+    },
+    "facing=south,part=4": {
+      "model": "noellesroles:block/echo_black_crystal_extractor_part4",
+      "y": 180
+    },
+    "facing=south,part=5": {
+      "model": "noellesroles:block/echo_black_crystal_extractor_part5",
+      "y": 180
+    },
+    "facing=south,part=6": {
+      "model": "noellesroles:block/echo_black_crystal_extractor_part6",
+      "y": 180
+    },
+    "facing=south,part=7": {
+      "model": "noellesroles:block/echo_black_crystal_extractor_part7",
+      "y": 180
+    },
+    "facing=south,part=8": {
+      "model": "noellesroles:block/echo_black_crystal_extractor_part8",
+      "y": 180
+    },
+    "facing=south,part=9": {
+      "model": "noellesroles:block/echo_black_crystal_extractor_part9",
+      "y": 180
+    },
+    "facing=south,part=10": {
+      "model": "noellesroles:block/echo_black_crystal_extractor_part10",
+      "y": 180
+    },
+    "facing=south,part=11": {
+      "model": "noellesroles:block/echo_black_crystal_extractor_part11",
+      "y": 180
+    },
+    "facing=south,part=12": {
+      "model": "noellesroles:block/echo_black_crystal_extractor_part12",
+      "y": 180
+    },
+    "facing=south,part=13": {
+      "model": "noellesroles:block/echo_black_crystal_extractor_part13",
+      "y": 180
+    },
+    "facing=south,part=14": {
+      "model": "noellesroles:block/echo_black_crystal_extractor_part14",
+      "y": 180
+    },
+    "facing=south,part=15": {
+      "model": "noellesroles:block/echo_black_crystal_extractor_part15",
+      "y": 180
+    },
+    "facing=south,part=16": {
+      "model": "noellesroles:block/echo_black_crystal_extractor_part16",
+      "y": 180
+    },
+    "facing=south,part=17": {
+      "model": "noellesroles:block/echo_black_crystal_extractor_part17",
+      "y": 180
+    },
+    "facing=west,part=0": {
+      "model": "noellesroles:block/echo_black_crystal_extractor_part0",
+      "y": 270
+    },
+    "facing=west,part=1": {
+      "model": "noellesroles:block/echo_black_crystal_extractor_part1",
+      "y": 270
+    },
+    "facing=west,part=2": {
+      "model": "noellesroles:block/echo_black_crystal_extractor_part2",
+      "y": 270
+    },
+    "facing=west,part=3": {
+      "model": "noellesroles:block/echo_black_crystal_extractor_part3",
+      "y": 270
+    },
+    "facing=west,part=4": {
+      "model": "noellesroles:block/echo_black_crystal_extractor_part4",
+      "y": 270
+    },
+    "facing=west,part=5": {
+      "model": "noellesroles:block/echo_black_crystal_extractor_part5",
+      "y": 270
+    },
+    "facing=west,part=6": {
+      "model": "noellesroles:block/echo_black_crystal_extractor_part6",
+      "y": 270
+    },
+    "facing=west,part=7": {
+      "model": "noellesroles:block/echo_black_crystal_extractor_part7",
+      "y": 270
+    },
+    "facing=west,part=8": {
+      "model": "noellesroles:block/echo_black_crystal_extractor_part8",
+      "y": 270
+    },
+    "facing=west,part=9": {
+      "model": "noellesroles:block/echo_black_crystal_extractor_part9",
+      "y": 270
+    },
+    "facing=west,part=10": {
+      "model": "noellesroles:block/echo_black_crystal_extractor_part10",
+      "y": 270
+    },
+    "facing=west,part=11": {
+      "model": "noellesroles:block/echo_black_crystal_extractor_part11",
+      "y": 270
+    },
+    "facing=west,part=12": {
+      "model": "noellesroles:block/echo_black_crystal_extractor_part12",
+      "y": 270
+    },
+    "facing=west,part=13": {
+      "model": "noellesroles:block/echo_black_crystal_extractor_part13",
+      "y": 270
+    },
+    "facing=west,part=14": {
+      "model": "noellesroles:block/echo_black_crystal_extractor_part14",
+      "y": 270
+    },
+    "facing=west,part=15": {
+      "model": "noellesroles:block/echo_black_crystal_extractor_part15",
+      "y": 270
+    },
+    "facing=west,part=16": {
+      "model": "noellesroles:block/echo_black_crystal_extractor_part16",
+      "y": 270
+    },
+    "facing=west,part=17": {
+      "model": "noellesroles:block/echo_black_crystal_extractor_part17",
+      "y": 270
+    }
+  }
+}

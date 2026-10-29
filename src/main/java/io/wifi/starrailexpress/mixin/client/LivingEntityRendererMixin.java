@@ -69,6 +69,11 @@ public abstract class LivingEntityRendererMixin<T extends LivingEntity, M extend
     @Inject(method = "isEntityUpsideDown", at = @At("HEAD"), cancellable = true)
     private static void sre$isEntityUpsideDown(LivingEntity livingEntity, CallbackInfoReturnable<Boolean> cir) {
         if (livingEntity instanceof Player player) {
+            // 重力颠倒：玩家自身倒过来渲染
+            if (org.agmas.noellesroles.content.effects.GravityFlipEffect.isFlipped(player)) {
+                cir.setReturnValue(true);
+                return;
+            }
             if (SREClient.cached_player != null && SREClient.cached_player.hasEffect(ModEffects.UPSIDE_DOWN)) {
                 cir.setReturnValue(true);
                 return;

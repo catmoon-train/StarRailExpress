@@ -36,6 +36,18 @@ import java.util.ArrayList;
  * 当长度为6，强度在0.05~0.1时，失败概率为15%~30%
  */
 public class LockEntity extends Entity {
+    /** 皮肤名：锁实体跟随物品皮肤渲染。 */
+    private static final net.minecraft.network.syncher.EntityDataAccessor<String> SKIN = SynchedEntityData.defineId(
+            LockEntity.class, net.minecraft.network.syncher.EntityDataSerializers.STRING);
+
+    public String getSkin() {
+        return this.entityData.get(SKIN);
+    }
+
+    public void setSkin(String skinName) {
+        this.entityData.set(SKIN, skinName == null || skinName.isBlank() ? "default" : skinName);
+    }
+
     public LockEntity(EntityType<?> entityType, Level level) {
         super(entityType, level);
         this.length = 2;
@@ -52,17 +64,19 @@ public class LockEntity extends Entity {
 
     @Override
     protected void defineSynchedData(SynchedEntityData.Builder builder) {
-
+        builder.define(SKIN, "default");
     }
 
     @Override
     protected void readAdditionalSaveData(CompoundTag compoundTag) {
-
+        if (compoundTag.contains("Skin")) {
+            this.setSkin(compoundTag.getString("Skin"));
+        }
     }
 
     @Override
     protected void addAdditionalSaveData(CompoundTag compoundTag) {
-
+        compoundTag.putString("Skin", this.getSkin());
     }
 
     public void resetSeries() {

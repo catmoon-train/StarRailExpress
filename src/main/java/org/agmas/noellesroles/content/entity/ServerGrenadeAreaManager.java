@@ -76,6 +76,16 @@ public class ServerGrenadeAreaManager {
                 targets.add(player.getUUID());
             }
         }
+        for (io.wifi.starrailexpress.traindummy.TrainDummyEntity dummy : world.getEntitiesOfClass(
+                io.wifi.starrailexpress.traindummy.TrainDummyEntity.class, box,
+                io.wifi.starrailexpress.traindummy.TrainDummyEntity::canReceiveHits)) {
+            double dx = dummy.getX() - position.x;
+            double dz = dummy.getZ() - position.z;
+            if (dx * dx + dz * dz <= radius * radius) {
+                dummy.setRemainingFireTicks(Math.max(dummy.getRemainingFireTicks(), delayTicks));
+                targets.add(dummy.getUUID());
+            }
+        }
         if (!targets.isEmpty()) {
             pendingFireKills.add(new PendingFireKill(world, targets, Math.max(1, delayTicks), owner));
         }
@@ -131,6 +141,12 @@ public class ServerGrenadeAreaManager {
                 ServerPlayer target = world.getServer().getPlayerList().getPlayer(targetId);
                 if (target != null && target.level() == world && GameUtils.isPlayerAliveAndSurvival(target)) {
                     GameUtils.killPlayer(target, true, killer, GameConstants.DeathReasons.FLAMETHROWER_BURNED);
+                    continue;
+                }
+                if (world.getEntity(targetId) instanceof io.wifi.starrailexpress.traindummy.TrainDummyEntity dummy
+                        && dummy.canReceiveHits()) {
+                    io.wifi.starrailexpress.traindummy.TrainDummyCombat.applyLethal(dummy, killer,
+                            GameConstants.DeathReasons.FLAMETHROWER_BURNED);
                 }
             }
             return true;
@@ -147,6 +163,7 @@ public class ServerGrenadeAreaManager {
         private int tickCounter = 0;
         /** 燃烧弹：每名玩家已连续站立的 tick 数。 */
         private final Map<UUID, Integer> standTicks = new HashMap<>();
+        private final Map<UUID, Integer> dummyStandTicks = new HashMap<>();
 
         Area(ServerLevel world, Vec3 center, double radius, int durationTicks, Type type, UUID owner) {
             this.world = world;
@@ -173,6 +190,7 @@ public class ServerGrenadeAreaManager {
             } else {
                 applyFire(inside);
             }
+            applyDummyArea();
             return false;
         }
 
@@ -223,6 +241,41 @@ public class ServerGrenadeAreaManager {
             }
             // 离开区域的玩家重置计时（不再连续）
             standTicks.keySet().retainAll(insideIds);
+        }
+
+        private void applyDummyArea() {
+            AABB box = new AABB(center.x - radius, center.y - 1, center.z - radius,
+                    center.x + radius, center.y + 3, center.z + radius);
+            java.util.Set<UUID> insideIds = new java.util.HashSet<>();
+            for (io.wifi.starrailexpress.traindummy.TrainDummyEntity dummy : world.getEntitiesOfClass(
+                    io.wifi.starrailexpress.traindummy.TrainDummyEntity.class, box,
+                    io.wifi.starrailexpress.traindummy.TrainDummyEntity::canReceiveHits)) {
+                double dx = dummy.getX() - center.x;
+                double dz = dummy.getZ() - center.z;
+                if (dx * dx + dz * dz > radius * radius) {
+                    continue;
+                }
+                insideIds.add(dummy.getUUID());
+                if (type == Type.SLIME) {
+                    if (tickCounter % 5 == 0) {
+                        io.wifi.starrailexpress.traindummy.TrainDummyCombat.applyEffect(dummy,
+                                new MobEffectInstance(MobEffects.MOVEMENT_SLOWDOWN, 20, 2, false, false, true));
+                        io.wifi.starrailexpress.traindummy.TrainDummyCombat.applyEffect(dummy,
+                                new MobEffectInstance(ModEffects.JUMP_DECREASE, 20, 100, false, false, false));
+                    }
+                    continue;
+                }
+                dummy.setRemainingFireTicks(Math.max(dummy.getRemainingFireTicks(), 20));
+                int ticks = dummyStandTicks.merge(dummy.getUUID(), 1, Integer::sum);
+                int killTicks = type == Type.NIAOSHOU_FIRE ? NIAOSHOU_FIRE_KILL_TICKS : FIRE_KILL_TICKS;
+                if (ticks >= killTicks) {
+                    dummyStandTicks.remove(dummy.getUUID());
+                    ServerPlayer killer = owner == null ? null : world.getServer().getPlayerList().getPlayer(owner);
+                    io.wifi.starrailexpress.traindummy.TrainDummyCombat.applyLethal(dummy, killer,
+                            GameConstants.DeathReasons.FLAMETHROWER_BURNED);
+                }
+            }
+            dummyStandTicks.keySet().retainAll(insideIds);
         }
 
         private void spawnParticles() {
