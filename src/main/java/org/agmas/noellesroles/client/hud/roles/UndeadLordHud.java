@@ -23,10 +23,11 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.util.CommonColors;
 import org.agmas.noellesroles.client.event.RoleHudRenderCallback;
 import org.agmas.noellesroles.role_data.killer.UndeadLordRoleData;
+import org.agmas.noellesroles.game.roles.killer.undead_lord.UndeadLordRole;
 import org.agmas.noellesroles.role.ModRoles;
 
 /**
- * 亡灵之主 HUD：右下角显示现存亡灵数量、复苏冷却、感染增幅状态。
+ * 亡灵之主 HUD：沿用右下角文字风格，显示魂/亡灵、两主动技能与独立复苏冷却。
  */
 public class UndeadLordHud {
 
@@ -47,30 +48,45 @@ public class UndeadLordHud {
             int screenHeight = client.getWindow().getGuiScaledHeight();
             int x = screenWidth - 10;
             int y = screenHeight - 20;
+            int step = font.lineHeight + 2;
 
-            // 现存亡灵数量
-            Component countText = Component.translatable("hud.noellesroles.undead_lord.count",
-                    comp.syncedUndeadCount, Math.max(1, comp.syncedMaxUndead));
-            context.drawString(font, countText, x - font.width(countText), y - font.lineHeight - 2, 0x9457FF);
+            Component souls = Component.translatable("hud.noellesroles.undead_lord.souls",
+                    comp.getSouls(), comp.maxSouls());
+            context.drawString(font, souls, x - font.width(souls), y - step * 4, 0xB8E6FF);
 
-            // 复苏冷却 / 就绪
-            Component skillText;
-            int color;
-            if (ability.cooldown > 0) {
-                int seconds = (ability.cooldown + 19) / 20;
-                skillText = Component.translatable("hud.noellesroles.undead_lord.cooldown", seconds);
-                color = CommonColors.RED;
-            } else {
-                skillText = Component.translatable("hud.noellesroles.undead_lord.ready");
-                color = CommonColors.GREEN;
-            }
-            context.drawString(font, skillText, x - font.width(skillText), y, color);
+            Component count = Component.translatable("hud.noellesroles.undead_lord.count",
+                    comp.syncedUndeadCount, comp.ignoreUndeadCap ? "∞" : comp.syncedMaxUndead);
+            context.drawString(font, count, x - font.width(count), y - step * 3, 0x9457FF);
 
-            // 感染增幅
+            int commandCd = ability.getSkillState(UndeadLordRole.COMMAND_SKILL_ID).cooldown;
+            Component command = Component.translatable("hud.noellesroles.undead_lord.command",
+                    Component.keybind("key.noellesroles.ability"), status(commandCd));
+            context.drawString(font, command, x - font.width(command), y - step * 2,
+                    commandCd > 0 ? CommonColors.RED : CommonColors.GREEN);
+
+            int summonCd = ability.getSkillState(UndeadLordRole.SUMMON_SKILL_ID).cooldown;
+            Component summon = Component.translatable("hud.noellesroles.undead_lord.summon",
+                    Component.keybind("key.sneak"), Component.keybind("key.noellesroles.ability"), status(summonCd));
+            context.drawString(font, summon, x - font.width(summon), y - step,
+                    summonCd > 0 || comp.getSouls() < 1 ? CommonColors.RED : CommonColors.GREEN);
+
+            int raiseCd = comp.getRaiseCooldownTicks();
+            Component raise = raiseCd > 0
+                    ? Component.translatable("hud.noellesroles.undead_lord.cooldown", (raiseCd + 19) / 20)
+                    : Component.translatable("hud.noellesroles.undead_lord.ready");
+            context.drawString(font, raise, x - font.width(raise), y,
+                    raiseCd > 0 || comp.getSouls() < 1 ? CommonColors.RED : CommonColors.GREEN);
+
             if (comp.syncedAmpActive) {
-                Component ampText = Component.translatable("hud.noellesroles.undead_lord.amp");
-                context.drawString(font, ampText, x - font.width(ampText), y - (font.lineHeight + 2) * 2, 0xFFAA00);
+                Component amp = Component.translatable("hud.noellesroles.undead_lord.amp");
+                context.drawString(font, amp, x - font.width(amp), y - step * 5, 0xFFAA00);
             }
         });
+    }
+
+    private static Component status(int ticks) {
+        return ticks > 0
+                ? Component.translatable("hud.noellesroles.undead_lord.skill_cooldown", (ticks + 19) / 20)
+                : Component.translatable("hud.noellesroles.undead_lord.skill_ready");
     }
 }

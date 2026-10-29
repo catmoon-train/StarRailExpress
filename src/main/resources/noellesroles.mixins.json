@@ -5,6 +5,11 @@
   "compatibilityLevel": "JAVA_21",
   "plugin": "org.agmas.noellesroles.client.NRMixinPlugin",
   "mixins": [
+    "halloween.HalloweenArmorMixin",
+    "halloween.HalloweenShopMixin",
+    "halloween.HalloweenTaskMixin",
+    "halloween.HalloweenPlayerActionsMixin",
+    "halloween.village.VillageSoulTrackingMixin",
     "AbstractContainerMenuMixin",
     "network.EchoHotbarPacketMixin",
     "DecServerJoinPlayer",
@@ -122,6 +127,7 @@
     "defaultRequire": 1
   },
   "client": [
+    "halloween.village.VillageLightTextureMixin",
     "client.echo.EchoTrackingOutlineMixin",
     "echo.EchoHideRendererMixin",
     "client.echo.EchoFearCameraMixin",

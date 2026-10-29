@@ -193,6 +193,8 @@ public class NoellesrolesVoiceChatPlugin implements VoicechatPlugin {
               event.cancel();
               return;
             }
+            // 亡魂夜额外转发真实旁观者语音；只读主线程发布的活动路由，不改变原组频道。
+            org.agmas.noellesroles.game.halloween.village.VillageGhostVoice.forward(event, player.getUUID());
             // 嬉命人·语音互换：把声源换成交换对象（被接管时直接 return）
             if (EmbalmerVoiceSwapHook.handle(event, api, player)) {
               return;
