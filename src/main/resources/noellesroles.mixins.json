@@ -9,6 +9,7 @@
     "halloween.HalloweenShopMixin",
     "halloween.HalloweenTaskMixin",
     "halloween.HalloweenPlayerActionsMixin",
+    "halloween.PumpkinHideoutScaleMixin",
     "halloween.village.VillageSoulTrackingMixin",
     "halloween.pumpkin.PumpkinPlayerMixin",
     "halloween.pumpkin.PumpkinDeathMixin",

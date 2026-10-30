@@ -7,7 +7,7 @@
   "text.autoconfig.noellesroles.option.undeadLordSummonCooldownSeconds": "亡灵之主 - 冥火招魂冷却（秒）",
   "text.autoconfig.noellesroles.option.undeadLordSummonLifetimeSeconds": "亡灵之主 - 冥火招魂亡灵寿命（秒）",
   "item.noellesroles.halloween_pumpkin_president": "南瓜总统",
-  "item.noellesroles.halloween_pumpkin_president.tooltip": "右键地面放置南瓜据点。进入后缩小至正常体型的14%，速度变为7%，可见据点边界；走出范围或再次右键退出。主人潜行右键可回收，背包需有空间。",
+  "item.noellesroles.halloween_pumpkin_president.tooltip": "右键地面放置南瓜据点。进入后缩小至正常体型的6%，速度变为5%，可见据点边界；走出范围或再次右键退出。主人潜行右键可回收，背包需有空间。",
   "item.noellesroles.halloween_blood_saw": "献血锯子",
   "item.noellesroles.halloween_blood_saw.tooltip": "刀具商店额外出售，200金币，8耐久。主手右键瞄准3格内玩家胸口，双方锁定0.5秒后尝试击杀，护盾与免死仍有效。启动耗1耐久，受伤等会中断。成功锯杀15秒后尸体处掉落心脏，死者已复活则取消。",
   "item.noellesroles.halloween_heart": "心脏",
