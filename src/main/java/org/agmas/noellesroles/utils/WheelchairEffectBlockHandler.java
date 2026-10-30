@@ -49,7 +49,7 @@ public class WheelchairEffectBlockHandler {
         if (wheelchair.level() instanceof ServerLevel serverLevel) {
             // 尝试多种位置检测：优先使用玩家脚下的方块（与 ChairWheelRaceGame 保持一致），
             // 其次检查轮椅所在方块与下方方块，覆盖边界情况。
-            BlockPos playerPos = player != null ? player.getOnPos().above(-1) : null;
+            BlockPos playerPos = player != null ? player.getOnPos() : null;
             BlockPos entityPos = wheelchair.blockPosition();
             BlockPos belowEntity = entityPos.below();
 
