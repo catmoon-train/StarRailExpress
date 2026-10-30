@@ -35,6 +35,7 @@ import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import org.agmas.noellesroles.game.halloween.HalloweenItems;
 import org.agmas.noellesroles.game.halloween.HalloweenRuntime;
+import org.agmas.noellesroles.game.halloween.online.OnlinePumpkinIncome;
 import org.agmas.noellesroles.init.ModEffects;
 import org.agmas.noellesroles.utils.RoleUtils;
 
@@ -341,14 +342,14 @@ public final class PumpkinSpiritHandler {
     /** 给现有奖励栈使用：在插入/掉落前调用，所有职业都要调用，转移物不重复结算。 */
     public static void onRewardStack(ServerPlayer recipient, ItemStack stack) {
         if (!active(recipient.serverLevel()) || !stack.is(HalloweenItems.PUMPKIN) || stack.isEmpty()) return;
-        if (settled(stack)) return;
-        markSettled(stack);
-        credit(recipient, stack.getCount());
+        // 官网记录发生在职业限制之前；原南瓜精累计/跨十奖励保持原入口且只计一次。
+        credit(recipient, OnlinePumpkinIncome.rewardCredit(recipient, stack));
     }
 
     public static boolean settled(ItemStack stack) {
-        // 永久的已入账标记而非 owner：跨玩家共享和跨局旧物品也不能重新刷。
-        return stack.getOrDefault(DataComponents.CUSTOM_DATA, CustomData.EMPTY).copyTag().getBoolean(SETTLED);
+        // 失败凭据尚未写盘（原 SETTLED 位为 false），但也是已获得的游戏物，转手不能重新发行收益。
+        return OnlinePumpkinIncome.hasReceipt(stack)
+                || stack.getOrDefault(DataComponents.CUSTOM_DATA, CustomData.EMPTY).copyTag().getBoolean(SETTLED);
     }
     public static void markSettled(ItemStack stack) {
         CustomData.update(DataComponents.CUSTOM_DATA, stack, tag -> tag.putBoolean(SETTLED, true));
@@ -358,7 +359,10 @@ public final class PumpkinSpiritHandler {
     }
 
     /** 拾取 mixin 只为成功插入的数量记账；剩余地上栈保留未领取状态。 */
-    public static void onFreshPickup(ServerPlayer p, int count) { credit(p, count); }
+    public static void onFreshPickup(ServerPlayer p, int count) {
+        OnlinePumpkinIncome.pickup(p, count);
+        credit(p, count);
+    }
     private static void credit(ServerPlayer p, int count) {
         if (count <= 0 || !active(p.serverLevel()) || !isSpirit(p)) return;
         int bags = state(p).credit(count);
