@@ -153,22 +153,9 @@ public final class HalloweenConsumables {
         }
     }
 
-    /** 由南瓜模块维护；更改时立即同步速度，保留糖果和其它来源的效果。 */
-    static void ownerSpeed(ServerPlayer player, boolean inside) {
-        Buffs buffs = inside ? state(player) : STATES.getOrDefault(player.serverLevel(), Map.of()).get(player.getUUID());
-        if (buffs == null) return;
-        buffs.ownerInside = inside && canUse(player);
-        if (!canUse(player)) restore(buffs);
-        else updateEffects(buffs, player.serverLevel().getGameTime());
-    }
-
     private static void updateEffects(Buffs buffs, long now) {
         int speedDuration = (int) Math.max(0, buffs.candyUntil - now);
-        if (buffs.ownerInside) {
-            long remaining = buffs.speed.appliedUntil - now;
-            speedDuration = buffs.speed.applied && buffs.speed.amplifier == 1 && remaining > 20 ? (int) remaining : 200;
-        }
-        buffs.speed.update(buffs.player, now, buffs.ownerInside ? 1 : 0, speedDuration);
+        buffs.speed.update(buffs.player, now, 0, speedDuration);
         buffs.night.update(buffs.player, now, 0, (int) Math.max(0, buffs.nightUntil - now));
         if (buffs.staminaUntil > now) {
             var role = SREGameWorldComponent.KEY.get(buffs.player.level()).getRole(buffs.player);
@@ -239,7 +226,6 @@ public final class HalloweenConsumables {
         final EffectLease night = new EffectLease(MobEffects.NIGHT_VISION);
         long candyUntil, staminaUntil, nightUntil;
         int costumeTicks;
-        boolean ownerInside;
         Buffs(ServerPlayer player) { this.player = player; }
     }
 
