@@ -36,7 +36,7 @@ import java.util.UUID;
 /** 固定南瓜据点：原版展示实体 + 可交互实体，不放置/移除任何地图方块。 */
 public final class PumpkinHideouts {
     private static final String TAG = "noellesroles_halloween_hideout";
-    private static final ResourceLocation SCALE_ID = ResourceLocation.fromNamespaceAndPath("noellesroles", "halloween_hideout_scale");
+    private static final ResourceLocation SCALE_ID = PumpkinHideoutRules.SCALE_MODIFIER_ID;
     private static final ResourceLocation SPEED_ID = ResourceLocation.fromNamespaceAndPath("noellesroles", "halloween_hideout_speed");
     private static final Map<ServerLevel, State> STATES = new IdentityHashMap<>();
     private static boolean initialized;
@@ -213,7 +213,7 @@ public final class PumpkinHideouts {
         if (state.hideouts.isEmpty() && state.guests.isEmpty()) STATES.remove(level);
     }
 
-    /** 所有进入者速度降为正常的 7%，退出仅撤销本据点的临时修饰符。 */
+    /** 所有进入者速度降为正常的 5%，退出仅撤销本据点的临时修饰符。 */
     private static void hideoutSpeed(ServerPlayer player, boolean inside) {
         AttributeInstance speed = player.getAttribute(Attributes.MOVEMENT_SPEED);
         if (speed == null) return;

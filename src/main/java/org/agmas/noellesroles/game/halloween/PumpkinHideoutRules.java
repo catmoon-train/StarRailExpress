@@ -1,12 +1,14 @@
 package org.agmas.noellesroles.game.halloween;
 
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 
 /** 南瓜据点服务端判定和客户端边界共用的尺寸，避免显示范围与实际退出范围不同。 */
 public final class PumpkinHideoutRules {
-    public static final double SCALE = 0.35 * 0.4;
-    public static final double SPEED_MULTIPLIER = 0.1 * 0.7;
+    public static final ResourceLocation SCALE_MODIFIER_ID = ResourceLocation.fromNamespaceAndPath("noellesroles", "halloween_hideout_scale");
+    public static final double SCALE = 0.06;
+    public static final double SPEED_MULTIPLIER = 0.05;
     private static final double HALF_WIDTH = 0.8;
     private static final double BELOW = 0.35;
     private static final double ABOVE = 1.05;
