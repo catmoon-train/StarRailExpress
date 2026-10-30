@@ -21,6 +21,14 @@ import me.shedaniel.autoconfig.ConfigData;
 import me.shedaniel.autoconfig.annotation.Config;
 import me.shedaniel.autoconfig.annotation.ConfigEntry;
 import me.shedaniel.autoconfig.annotation.ConfigEntry.Gui.Tooltip;
+import me.shedaniel.autoconfig.AutoConfig;
+import me.shedaniel.autoconfig.serializer.GsonConfigSerializer;
+import net.fabricmc.loader.api.FabricLoader;
+import org.agmas.noellesroles.game.halloween.online.OnlineConfig;
+import org.agmas.noellesroles.game.halloween.online.OnlineConfigMigration;
+
+import java.io.IOException;
+import java.nio.file.Files;
 
 import java.util.ArrayList;
 
@@ -31,9 +39,62 @@ import java.util.ArrayList;
  */
 @Config(name = "starrailexpress")
 public class SREConfig implements ConfigData {
-    // 存储默认配置值 - 在静态初始化块中设置
-    public static ConfigClassHandler<SREConfig> HANDLER = new ConfigClassHandler<>(
-            SREConfig.class);
+    private static boolean halloweenConfigReady = true;
+    // 必须在 AutoConfig 首次 load/save 补全默认字段前检查旧主文件。
+    public static ConfigClassHandler<SREConfig> HANDLER = createHandler();
+
+    private static ConfigClassHandler<SREConfig> createHandler() {
+        var directory = FabricLoader.getInstance().getConfigDir();
+        var main = directory.resolve("starrailexpress.json");
+        try {
+            OnlineConfigMigration.migrate(main, directory.resolve("halloween-online.json"));
+        } catch (IOException ex) {
+            halloweenConfigReady = false;
+            org.slf4j.LoggerFactory.getLogger(SREConfig.class).error(
+                    "[HalloweenOnline] 南瓜币配置迁移失败；保留原文件并禁止本次运行写回主配置，请修复后重启。同步失败关闭。");
+        }
+        // 仅为 SRE 主配置跳过构造时的自动 save，避免丢失未知字段或覆盖迁移失败的原文件。
+        // 不改变通用 ConfigClassHandler；正常的后续手动保存仍沿用原 API。
+        return new ConfigClassHandler<>(SREConfig.class) {
+            @Override
+            public void register() {
+                AutoConfig.register(SREConfig.class, (definition, type) -> new GsonConfigSerializer<>(definition, type) {
+                    private boolean initialSave = true;
+
+                    @Override
+                    public void serialize(SREConfig config) throws SerializationException {
+                        if (!halloweenConfigReady) return;
+                        if (initialSave) {
+                            initialSave = false;
+                            if (Files.exists(main)) return;
+                        }
+                        super.serialize(config);
+                    }
+
+                    @Override
+                    public SREConfig deserialize() throws SerializationException {
+                        try {
+                            SREConfig config = super.deserialize();
+                            if (config == null) throw new IllegalArgumentException();
+                            return config;
+                        } catch (SerializationException | RuntimeException ex) {
+                            halloweenConfigReady = false;
+                            // AutoConfig 会记录异常链；不要传入含密码/旧密钥的原异常。
+                            throw new SerializationException(new IOException("Invalid SRE configuration; contents omitted"));
+                        }
+                    }
+                });
+            }
+        };
+    }
+
+    /** 服务端启动时取六项快照，之后修改配置需重启；迁移失败时不能启用队列。 */
+    public OnlineConfig halloweenOnlineConfig() {
+        if (!halloweenConfigReady) throw new IllegalStateException("Halloween configuration unavailable");
+        return OnlineConfig.fromSettings(mysqlHalloweenSyncEnabled, mysqlHalloweenEarningsTable,
+                mysqlHalloweenCreateTableIfMissing, mysqlHalloweenFlushIntervalSeconds,
+                mysqlHalloweenBatchSize, mysqlHalloweenStatementTimeoutSeconds);
+    }
             
     // 服务端：加载模组本地翻译文件id（输入auto自动检测环境，留空不加载）
     public String loadServerLanguageId = "";
@@ -424,6 +485,29 @@ public class SREConfig implements ConfigData {
     public int mysqlSyncPoolSize = 4;
     @ConfigEntry.Category(value = "sync")
     public int mysqlSyncConnectTimeoutMs = 5000;
+
+    // 南瓜币队列复用上述连接；服务器本地配置，不添加 @ConfigSync。
+    @ConfigEntry.Category(value = "sync")
+    @Tooltip
+    public boolean mysqlHalloweenSyncEnabled = false;
+    @ConfigEntry.Category(value = "sync")
+    @Tooltip
+    public String mysqlHalloweenEarningsTable = "";
+    @ConfigEntry.Category(value = "sync")
+    @Tooltip
+    public boolean mysqlHalloweenCreateTableIfMissing = true;
+    @ConfigEntry.Category(value = "sync")
+    @Tooltip
+    @ConfigEntry.BoundedDiscrete(min = 1, max = 86400)
+    public int mysqlHalloweenFlushIntervalSeconds = 30;
+    @ConfigEntry.Category(value = "sync")
+    @Tooltip
+    @ConfigEntry.BoundedDiscrete(min = 1, max = 128)
+    public int mysqlHalloweenBatchSize = 128;
+    @ConfigEntry.Category(value = "sync")
+    @Tooltip
+    @ConfigEntry.BoundedDiscrete(min = 1, max = 60)
+    public int mysqlHalloweenStatementTimeoutSeconds = 10;
 
     @ConfigEntry.Category(value = "sponsor")
     @Tooltip(count = 2)
