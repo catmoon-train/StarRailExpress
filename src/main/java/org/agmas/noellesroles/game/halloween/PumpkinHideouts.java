@@ -1,6 +1,7 @@
 package org.agmas.noellesroles.game.halloween;
 
 import net.fabricmc.fabric.api.event.player.UseEntityCallback;
+import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
@@ -54,8 +55,13 @@ public final class PumpkinHideouts {
             State state = STATES.get(sp.serverLevel());
             Hideout hideout = state == null ? null : state.hideouts.get(entity.getUUID());
             if (hideout == null) return InteractionResult.FAIL;
+            if (sp.distanceToSqr(hideout.feet) > 36 || !sp.hasLineOfSight(hideout.target)) return InteractionResult.FAIL;
             // interactAt / interact 可能在同一次点击内重复到达；必须先防重，再切换进入/退出。
             if (!state.interactions.tryUse(player.getUUID(), level.getGameTime())) return InteractionResult.CONSUME;
+            if (player.isShiftKeyDown() && hideout.owner.equals(player.getUUID())) {
+                pickUp(sp, state, hideout);
+                return InteractionResult.CONSUME;
+            }
             Guest guest = state.guests.get(player.getUUID());
             if (guest != null) {
                 state.guests.remove(player.getUUID());
@@ -125,6 +131,31 @@ public final class PumpkinHideouts {
         return true;
     }
 
+    /** 只有主人可以回收；背包无法收下时保留据点，成功后安全退出全部住客。 */
+    private static void pickUp(ServerPlayer player, State state, Hideout hideout) {
+        ItemStack item = new ItemStack(HalloweenItems.PUMPKIN_PRESIDENT);
+        if (!player.getInventory().add(item)) {
+            message(player, "hideout_pickup_full");
+            return;
+        }
+        state.hideouts.remove(hideout.target.getUUID());
+        hideout.discard();
+        state.guests.values().removeIf(guest -> {
+            if (guest.hideout != hideout) return false;
+            restore(guest, true);
+            return true;
+        });
+        player.getInventory().setChanged();
+        player.inventoryMenu.broadcastChanges();
+        message(player, "hideout_picked_up");
+    }
+
+    private static void syncBoundary(ServerPlayer player, Hideout hideout) {
+        if (!ServerPlayNetworking.canSend(player, PumpkinHideoutS2CPayload.ID)) return;
+        ServerPlayNetworking.send(player, new PumpkinHideoutS2CPayload(player.serverLevel().dimension().location(),
+                hideout == null ? null : BlockPos.containing(hideout.feet)));
+    }
+
     private static void enter(ServerPlayer player, State state, Hideout hideout) {
         if (player.isPassenger() || player.isSleeping() || player.distanceToSqr(hideout.feet) > 36) return;
         AttributeInstance scale = player.getAttribute(Attributes.SCALE);
@@ -133,7 +164,7 @@ public final class PumpkinHideouts {
         // 使用独占临时 modifier，绝不改 base value，也不清除别的缩放 modifier。
         scale.removeModifier(SCALE_ID);
         double original = player.getAttributeValue(Attributes.SCALE);
-        double factor = Math.min(0.35, 0.35 / Math.max(0.01, original));
+        double factor = Math.min(PumpkinHideoutRules.SCALE, PumpkinHideoutRules.SCALE / Math.max(0.01, original));
         scale.addTransientModifier(new AttributeModifier(SCALE_ID, factor - 1, AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL));
         player.refreshDimensions();
         AABB destination = player.getBoundingBox().move(hideout.feet.subtract(player.position()));
@@ -148,6 +179,7 @@ public final class PumpkinHideouts {
         player.setDeltaMovement(Vec3.ZERO);
         player.fallDistance = 0;
         hideoutSpeed(player, true);
+        syncBoundary(player, hideout);
         message(player, "hideout_enter");
     }
 
@@ -168,26 +200,26 @@ public final class PumpkinHideouts {
             ServerPlayer player = guest.player;
             Vec3 feet = guest.hideout.feet;
             Vec3 position = player.position();
-            boolean outside = Math.abs(position.x - feet.x) > 0.8 || Math.abs(position.z - feet.z) > 0.8
-                    || position.y < feet.y - 0.35 || position.y > feet.y + 1.05;
+            boolean outside = !PumpkinHideoutRules.contains(feet, position);
             if (outside || player.serverLevel() != level || !level.players().contains(player)
                     || !HalloweenConsumables.canUse(player) || guest.hideout.target.isRemoved()) {
                 restore(guest, false);
                 return true;
             }
             hideoutSpeed(player, true);
+            if (level.getGameTime() % 20 == 0) syncBoundary(player, guest.hideout);
             return false;
         });
         if (state.hideouts.isEmpty() && state.guests.isEmpty()) STATES.remove(level);
     }
 
-    /** 所有进入者移动速度乘以 0.1，退出仅撤销本据点的临时修饰符。 */
+    /** 所有进入者速度降为正常的 7%，退出仅撤销本据点的临时修饰符。 */
     private static void hideoutSpeed(ServerPlayer player, boolean inside) {
         AttributeInstance speed = player.getAttribute(Attributes.MOVEMENT_SPEED);
         if (speed == null) return;
         if (!inside) speed.removeModifier(SPEED_ID);
         else if (!speed.hasModifier(SPEED_ID))
-            speed.addTransientModifier(new AttributeModifier(SPEED_ID, -0.9,
+            speed.addTransientModifier(new AttributeModifier(SPEED_ID, PumpkinHideoutRules.SPEED_MULTIPLIER - 1,
                     AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL));
     }
 
@@ -198,6 +230,7 @@ public final class PumpkinHideouts {
         if (scale != null) scale.removeModifier(SCALE_ID);
         player.refreshDimensions();
         hideoutSpeed(player, false);
+        syncBoundary(player, null);
         if (!player.isAlive() || player.isRemoved()) return;
         ServerLevel level = player.serverLevel();
         Vec3 destination = !explicitExit && safe(level, player, player.position()) ? player.position() : null;
