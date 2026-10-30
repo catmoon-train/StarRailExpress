@@ -159,15 +159,15 @@ public final class EarningsStore implements AutoCloseable {
         if (!checksum(payload).equals(line.substring(split + 1))) throw new IllegalArgumentException();
         String[] parts = payload.split(" ", -1);
         if (parts[0].equals("S") && parts.length == 2 && serverId == null && seen.isEmpty()) {
-            serverId = BridgeProtocol.canonicalUuid(parts[1]);
+            serverId = Earning.canonicalUuid(parts[1]);
         } else if (parts[0].equals("E") && parts.length == 5 && serverId != null) {
-            Earning entry = new Earning(BridgeProtocol.canonicalUuid(parts[1]), BridgeProtocol.canonicalUuid(parts[2]),
+            Earning entry = new Earning(Earning.canonicalUuid(parts[1]), Earning.canonicalUuid(parts[2]),
                     Integer.parseInt(parts[3]), Long.parseLong(parts[4]));
             if (seen.putIfAbsent(entry.id(), entry) != null) throw new IllegalArgumentException();
             pending.put(entry.id(), entry);
         } else if (parts[0].equals("A") && parts.length == 2 && serverId != null) {
             for (String value : parts[1].split(",", -1)) {
-                UUID id = BridgeProtocol.canonicalUuid(value);
+                UUID id = Earning.canonicalUuid(value);
                 if (!seen.containsKey(id)) throw new IllegalArgumentException();
                 pending.remove(id);
             }
