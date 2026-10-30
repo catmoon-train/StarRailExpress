@@ -1,13 +1,5 @@
 package org.agmas.noellesroles.game.halloween.online;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-
-import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.StandardOpenOption;
 
 /** 南瓜收益数据库队列配置；连接凭据复用服务器已有 MySQL 配置，绝不发给客户端。 */
 public final class OnlineConfig {
@@ -19,21 +11,18 @@ public final class OnlineConfig {
     public int batchSize = 128;
     public int statementTimeoutSeconds = 10;
 
-    public static OnlineConfig load(Path file) throws IOException {
-        Gson gson = new GsonBuilder().setPrettyPrinting().create();
-        if (!Files.exists(file)) {
-            Files.createDirectories(file.getParent());
-            Files.writeString(file, gson.toJson(new OnlineConfig()) + "\n", StandardCharsets.UTF_8,
-                    StandardOpenOption.CREATE_NEW);
-        }
-        try (var reader = Files.newBufferedReader(file, StandardCharsets.UTF_8)) {
-            OnlineConfig config = gson.fromJson(reader, OnlineConfig.class);
-            if (config == null) throw new IOException("Empty halloween-online configuration");
-            return config;
-        } catch (RuntimeException ex) {
-            // 旧文件可能仍含已经弃用的 HTTP 密钥，错误时也不输出配置原文。
-            throw new IOException("Invalid halloween-online configuration JSON");
-        }
+    /** 将服务器主配置复制成独立运行快照；不读写独立配置文件。 */
+    public static OnlineConfig fromSettings(boolean enabled, String earningsTable, boolean createTableIfMissing,
+                                            int flushIntervalSeconds, int batchSize, int statementTimeoutSeconds) {
+        OnlineConfig config = new OnlineConfig();
+        config.enabled = enabled;
+        config.earningsTable = earningsTable;
+        config.createTableIfMissing = createTableIfMissing;
+        config.flushIntervalSeconds = flushIntervalSeconds;
+        config.batchSize = batchSize;
+        config.statementTimeoutSeconds = statementTimeoutSeconds;
+        config.validate();
+        return config;
     }
 
     public void validate() {

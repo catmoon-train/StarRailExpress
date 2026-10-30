@@ -3,7 +3,7 @@ package org.agmas.noellesroles.game.halloween.online;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
-import net.fabricmc.loader.api.FabricLoader;
+import io.wifi.starrailexpress.SREConfig;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.storage.LevelResource;
@@ -57,10 +57,10 @@ public final class HalloweenOnlineSync {
         SERVERS.put(server, state);
         EarningsStore store = null;
         try {
-            OnlineConfig config = OnlineConfig.load(FabricLoader.getInstance().getConfigDir().resolve("halloween-online.json"));
+            OnlineConfig config = SREConfig.instance().halloweenOnlineConfig();
             state.enabled = config.enabled;
             if (!config.enabled) {
-                LOGGER.info("[HalloweenOnline] 官网南瓜币数据库同步未启用；请配置现有 MySQL 玩家同步及 config/halloween-online.json 的 enabled。启用前收益不补记。");
+                LOGGER.info("[HalloweenOnline] 官网南瓜币数据库同步未启用；请在 config/starrailexpress.json 的 MySQL/sync 配置组设置 mysqlHalloweenSyncEnabled，并启用已有 mysqlPlayerSyncEnabled。启用前收益不补记。");
                 return;
             }
             config.validate();
