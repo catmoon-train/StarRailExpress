@@ -23,6 +23,8 @@
 | `halloween_bone_sword` / `halloween_fright_gun` / `halloween_soul_link` | 本模块只注册 Item、模型与说明，动作留给战斗/链接模块 |
 | `halloween_pumpkin_helmet` / `halloween_pumpkin_chestplate` / `halloween_pumpkin_leggings` / `halloween_pumpkin_boots` | 四件南瓜套装，可放入对应装备槽，橙色皮革外观，无常驻护甲属性 |
 
+15 件活动物品始终收录于 **NoellesRoles 汇总创造栏**，并按用途分别加入武器、装备、消耗品、工具和杂项创造栏；不要求当前地图开启活动。职业介绍界面的「物品」分类也收录全部道具及中文说明，可按物品名、拼音或 `noellesroles:halloween_` ID 搜索；请使用「全部」或「谋杀」模式筛选，当前持有筛选仍只显示背包里的物品。
+
 糖果限时效果默认 600 tick（30 秒），再次食用刷新对应增益到期时间，不叠盾层数。临时盾抵挡一次伤害并消耗，未触发则 30 秒后过期。跳过任务优先移除一个普通 Mood/场景任务，没有时移除一个待办小游戏任务；不发任务完成奖励、不增加魂契任务计数，不清除全局破坏任务；没有任务时仍保留速度奖励。无限体力通过现有 `PlayerStaminaGetter` 对应的 `StaminaCommand` 接口每 tick 补到职业当前体力上限并同步，不改动其它无限体力 buff。
 
 套装穿齐时挡一次伤害，随后四件全部消失。穿齐累计 2400 tick（120 秒）给 1 个糖果袋；脱下只暂停，不重置，不补发脱下期间的奖励，重穿不能刷袋。糖果盾先于套装消耗。死亡、离线或结束清除此玩家的累计穿戴时间。
