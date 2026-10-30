@@ -25,7 +25,8 @@ public final class VillageNpc extends PathfinderMob {
         setInvulnerable(true);
         setSilent(true);
         setPersistenceRequired();
-        noPhysics = true;
+        // 不受推挤由 isPushable 控制；仍须参与方块碰撞，不能用 noPhysics 禁用墙体碰撞。
+        noPhysics = false;
     }
 
     public static AttributeSupplier.Builder attributes() {
