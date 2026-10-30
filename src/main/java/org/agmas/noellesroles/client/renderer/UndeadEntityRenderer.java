@@ -17,10 +17,14 @@ package org.agmas.noellesroles.client.renderer;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
-import io.wifi.starrailexpress.client.model.TMMModelLayers;
 import io.wifi.starrailexpress.client.util.ClientSkinCache;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.PlayerModel;
+import net.minecraft.client.model.geom.PartPose;
+import net.minecraft.client.model.geom.builders.CubeDeformation;
+import net.minecraft.client.model.geom.builders.CubeListBuilder;
+import net.minecraft.client.model.geom.builders.LayerDefinition;
+import net.minecraft.client.model.geom.builders.MeshDefinition;
 import net.minecraft.client.multiplayer.PlayerInfo;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
@@ -33,13 +37,12 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import org.agmas.noellesroles.content.entity.UndeadEntity;
 
-import java.awt.*;
 import java.util.UUID;
 
 /**
- * 亡灵实体渲染器：与傀儡本体（{@link PuppeteerBodyEntityRenderer}）同款，
- * 直接以玩家模型渲染死者皮肤并驱动行走动画；区别在于叠加更强的白色覆盖，
- * 使皮肤显得苍白（亡灵感）。灰紫雾气仍由服务端粒子表现。
+ * 亡灵使用独立的半身玩家网格：保留皮肤、头部、双臂及 slim 差异，去掉腰部以下。
+ * 整体仅绘制一次半透明主体，避免基类不透明主体叠加后使 alpha 失效。
+ * 苍白覆盖、灰紫雾气与寿命末期闪烁保持不变；不修改共享 NPC 模型层。
  */
 public class UndeadEntityRenderer extends LivingEntityRenderer<UndeadEntity, PlayerModel<UndeadEntity>> {
 
@@ -51,8 +54,18 @@ public class UndeadEntityRenderer extends LivingEntityRenderer<UndeadEntity, Pla
     private final PlayerModel<UndeadEntity> slimModel;
 
     public UndeadEntityRenderer(EntityRendererProvider.Context ctx) {
-        super(ctx, new PlayerModel<>(ctx.bakeLayer(TMMModelLayers.PLAYER_BODY), false), 0.5F);
-        this.slimModel = new PlayerModel<>(ctx.bakeLayer(TMMModelLayers.PLAYER_BODY_SLIM), true);
+        super(ctx, createGhostModel(false), 0.0F);
+        this.slimModel = createGhostModel(true);
+    }
+
+    /** 本地烘焙裁短的躯干与外套；只影响亡灵，不注册或替换共享模型层。 */
+    private static PlayerModel<UndeadEntity> createGhostModel(boolean slim) {
+        MeshDefinition mesh = PlayerModel.createMesh(CubeDeformation.NONE, slim);
+        mesh.getRoot().addOrReplaceChild("body", CubeListBuilder.create().texOffs(16, 16)
+                .addBox(-4.0F, 0.0F, -2.0F, 8.0F, 6.0F, 4.0F), PartPose.ZERO);
+        mesh.getRoot().addOrReplaceChild("jacket", CubeListBuilder.create().texOffs(16, 32)
+                .addBox(-4.0F, 0.0F, -2.0F, 8.0F, 6.0F, 4.0F, new CubeDeformation(0.25F)), PartPose.ZERO);
+        return new PlayerModel<>(LayerDefinition.create(mesh, 64, 64).bakeRoot(), slim);
     }
 
     /** 亡灵不显示名牌。 */
@@ -64,13 +77,9 @@ public class UndeadEntityRenderer extends LivingEntityRenderer<UndeadEntity, Pla
     /** 依据死者皮肤的模型类型选择宽臂 / 纤细玩家模型。 */
     private PlayerModel<UndeadEntity> pickModel(UndeadEntity entity) {
         UUID skinUuid = entity.getSkinUuid();
-        if (skinUuid != null) {
-            PlayerInfo info = ClientSkinCache.getCachedPlayerInfo(skinUuid);
-            if (info != null && info.getSkin().model() == PlayerSkin.Model.SLIM) {
-                return this.slimModel;
-            }
-        }
-        return this.model;
+        PlayerInfo info = skinUuid == null ? null : ClientSkinCache.getCachedPlayerInfo(skinUuid);
+        PlayerSkin skin = info != null ? info.getSkin() : DefaultPlayerSkin.get(skinUuid == null ? DEFAULT_SKIN : skinUuid);
+        return skin.model() == PlayerSkin.Model.SLIM ? this.slimModel : this.model;
     }
 
     @Override
@@ -87,7 +96,9 @@ public class UndeadEntityRenderer extends LivingEntityRenderer<UndeadEntity, Pla
         boolean bl = this.isBodyVisible(entity);
         boolean bl2 = !bl && !entity.isInvisibleTo(client.player);
         boolean bl3 = client.shouldEntityAppearGlowing(entity);
-        RenderType renderLayer = this.getRenderType(entity, bl, bl2, bl3);
+        // 直接选半透明管线；不可调用 super.render 再叠一层幽灵，否则底层仍不透明。
+        RenderType renderLayer = bl || bl2 ? RenderType.entityTranslucent(getTextureLocation(entity))
+                : bl3 ? RenderType.outline(getTextureLocation(entity)) : null;
 
         matrices.pushPose();
         doRender(entity, tickDelta, matrices, vertexConsumers, light, model, renderLayer, bl2);
@@ -115,7 +126,7 @@ public class UndeadEntityRenderer extends LivingEntityRenderer<UndeadEntity, Pla
         this.scale(livingEntity, matrixStack, g);
         matrixStack.translate(0.0F, -1.501F, 0.0F);
 
-        // 行走动画：使用实体自身的 limbSwing，迈腿而非平滑滑行
+        // 保留双臂的移动动画，双腿与裤腿在动画计算后始终隐藏。
         float o = 0.0F;
         float p = 0.0F;
         if (!livingEntity.isPassenger() && livingEntity.isAlive()) {
@@ -128,12 +139,16 @@ public class UndeadEntityRenderer extends LivingEntityRenderer<UndeadEntity, Pla
 
         model.prepareMobModel(livingEntity, p, o, g);
         model.setupAnim(livingEntity, p, o, n, k, m);
+        model.leftLeg.visible = false;
+        model.rightLeg.visible = false;
+        model.leftPants.visible = false;
+        model.rightPants.visible = false;
 
         if (renderLayer != null) {
             VertexConsumer vertexConsumer = vertexConsumerProvider.getBuffer(renderLayer);
             // 较强的白色覆盖让皮肤偏白（苍白亡灵感）
             int overlay = getOverlayCoords(livingEntity, this.getWhiteOverlayProgress(livingEntity, g));
-            int color = invisibleToOthers ? 654311423 : new Color(1f, 1f, 1f, 1f).getRGB();
+            int color = invisibleToOthers ? 0x26FFFFFF : 0x80FFFFFF; // 正常 alpha ≈ 0.50。
             model.renderToBuffer(matrixStack, vertexConsumer, light, overlay, color);
         }
         matrixStack.popPose();

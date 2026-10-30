@@ -1,4 +1,13 @@
 {
+  "announcement.star.role.night_event": "Night Event",
+  "announcement.star.goals.night_event": "Lights stay off, vision is capped at 16 blocks, everyone starts with a flashlight, and the dead become wandering ghosts.",
+  "message.noellesroles.night.title": "Night Falls",
+  "message.noellesroles.night.subtitle": "Lights out · 16-block vision · The dead become ghosts",
+  "message.noellesroles.night.rules": "[Night Event] Lights remain off and everyone's vision is capped at 16 blocks. Participants receive a lit flashlight; right-click to toggle it. Dead players leave an autonomous ghost that attacks within 12 blocks. Undead Lord summons still actively pursue players.",
+  "message.noellesroles.night.transformed": "You left a wandering ghost. It acts on its own while you spectate.",
+  "command.noellesroles.night.next_forced": "Night Event queued for the next supported round. The current round is unchanged.",
+  "command.noellesroles.night.already_queued": "A Night Event request is already queued.",
+  "text.autoconfig.noellesroles.option.nightEventEnableChance": "Night Event chance (per 10,000; default 0)",
   "announcement.star.role.pumpkin_spirit": "Pumpkin Spirit",
   "announcement.star.goals.pumpkin_spirit": "Collect pumpkins equal to four times the starting player count to win alone. Dropping and picking them up again does not count.",
   "announcement.star.win.pumpkin_spirit": "The Pumpkin Spirit collected enough pumpkins!",
