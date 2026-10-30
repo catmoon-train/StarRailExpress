@@ -340,7 +340,8 @@ public final class HalloweenCombat {
             }
         }
         // 血锯在 NPC 附近仍只转换一次；心脏使用尸体位置快照，不再生成第二只亡灵。
-        if ((GUN_DEATH.equals(reason) && reason.equals(r.attempts.get(uuid))) || nearReaper) {
+        if (!org.agmas.noellesroles.game.night.NightEvent.isActive(level)
+                && ((GUN_DEATH.equals(reason) && reason.equals(r.attempts.get(uuid))) || nearReaper)) {
             if (body != null && legalBody(body) && claimBody(r, body)) {
                 Vec3 pos = body.position();
                 UUID skin = body.getPlayerUuid();

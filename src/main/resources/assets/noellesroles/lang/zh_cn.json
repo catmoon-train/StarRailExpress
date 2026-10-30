@@ -1,4 +1,13 @@
 {
+  "announcement.star.role.night_event": "黑夜事件",
+  "announcement.star.goals.night_event": "本局永久关灯，视野最远16格；每人获赠手电筒，死者将化为游荡亡灵。",
+  "message.noellesroles.night.title": "黑夜降临",
+  "message.noellesroles.night.subtitle": "整局关灯 · 16格视野 · 死者化为亡灵",
+  "message.noellesroles.night.rules": "【黑夜事件】本局灯光持续关闭，所有人的视野最多16格。参赛者已获赠点亮的手电筒，可右键开关。死亡后将在原地化为游荡亡灵，靠近12格会被攻击；亡灵之主召唤的亡灵仍会主动追击。",
+  "message.noellesroles.night.transformed": "你已化为游荡亡灵；亡灵自行行动，你继续旁观。",
+  "command.noellesroles.night.next_forced": "已安排下一局可用对局触发黑夜事件（当前局不变）。",
+  "command.noellesroles.night.already_queued": "已有等待中的黑夜事件请求，不会重复安排。",
+  "text.autoconfig.noellesroles.option.nightEventEnableChance": "黑夜事件概率（万分比，默认0）",
   "announcement.star.role.pumpkin_spirit": "南瓜精",
   "announcement.star.goals.pumpkin_spirit": "累计获得开局人数×4个南瓜，独立获胜。丢弃再捡不计数。",
   "announcement.star.win.pumpkin_spirit": "南瓜精收集了足够的南瓜！",

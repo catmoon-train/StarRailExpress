@@ -2183,6 +2183,21 @@ public class ModRoles {
             .addFlag("Command_Role")
             .setAddedVersion("4.5");
 
+    /** 黑夜事件元数据：不分配给玩家，不占职业名额，默认只由命令触发。 */
+    public static final SRERole NIGHT_EVENT = TMMRoles.registerRole(
+            new EggRole(Noellesroles.id("night_event"), new Color(42, 30, 64).getRGB(),
+                    false, false, SRERole.MoodType.FAKE, Integer.MAX_VALUE, true))
+            .setNeutrals(true)
+            .setNeutralForKiller(false)
+            .setCanBeRandomedByOtherRoles(false)
+            .setCanSetSpawnInfoInConfig(false)
+            .setDefaultMax(0)
+            .setHiddenForRoleRotation(true)
+            .setEventEnableChance(org.agmas.noellesroles.game.night.NightEvent::onEventRollResult,
+                    org.agmas.noellesroles.game.night.NightEvent::clear,
+                    org.agmas.noellesroles.game.night.NightEvent::chance)
+            .setEventNeutral(true);
+
     /** 方块石头人。只由命令方块事件改写产生。 */
     public static final SRERole STONE_MAN = TMMRoles.registerRole(
             new StoneManRole(STONE_MAN_ID, new Color(130, 130, 130).getRGB(),

@@ -54,12 +54,75 @@ public class SREWorldBlackoutComponent implements AutoSyncedComponent, ServerTic
     private final Level world;
     public final List<BlackoutDetails> blackouts = new ArrayList<>();
     public int blackOutRemainingTicks = 0;
+    /** 只同步本局黑夜标记；地图灯光原值单独保存，修电不能提前解除。 */
+    private boolean nightEventActive;
+    private final java.util.Map<BlockPos, NightLight> nightLights = new java.util.LinkedHashMap<>();
+
+    private record NightLight(String blockId, boolean lit, boolean active) {}
+
+    public boolean isNightEventActive() { return nightEventActive; }
+
+    public void startNightEvent() {
+        if (nightEventActive) return;
+        reset();
+        nightEventActive = true;
+        enforceNightLights();
+        blackOutRemainingTicks = 20;
+        sync();
+    }
+
+    /** 局末专用：先撤销锁定，再按原值恢复；不走会被黑夜保护拦截的普通 reset。 */
+    public void endNightEvent() {
+        if (!nightEventActive && nightLights.isEmpty()) return;
+        nightEventActive = false;
+        restoreNightLights();
+        blackOutRemainingTicks = 0;
+        sync();
+    }
+
+    private void enforceNightLights() {
+        for (BlockPos point : GameUtils.resetPoints) {
+            if (!world.hasChunkAt(point)) continue;
+            BlockState state = world.getBlockState(point);
+            if (!state.hasProperty(BlockStateProperties.LIT) || !state.hasProperty(TMMProperties.ACTIVE)) continue;
+            nightLights.putIfAbsent(point.immutable(), new NightLight(
+                    BuiltInRegistries.BLOCK.getKey(state.getBlock()).toString(),
+                    state.getValue(BlockStateProperties.LIT), state.getValue(TMMProperties.ACTIVE)));
+            if (state.getValue(BlockStateProperties.LIT) || state.getValue(TMMProperties.ACTIVE)) {
+                world.setBlockAndUpdate(point, state.setValue(BlockStateProperties.LIT, false)
+                        .setValue(TMMProperties.ACTIVE, false));
+            }
+        }
+    }
+
+    private void restoreNightLights() {
+        for (var entry : nightLights.entrySet()) {
+            BlockPos pos = entry.getKey();
+            BlockState state = world.getBlockState(pos);
+            NightLight original = entry.getValue();
+            if (BuiltInRegistries.BLOCK.getKey(state.getBlock()).toString().equals(original.blockId())
+                    && state.hasProperty(BlockStateProperties.LIT) && state.hasProperty(TMMProperties.ACTIVE)) {
+                world.setBlockAndUpdate(pos, state.setValue(BlockStateProperties.LIT, original.lit())
+                        .setValue(TMMProperties.ACTIVE, original.active()));
+            }
+        }
+        nightLights.clear();
+    }
 
     public SREWorldBlackoutComponent(Level world) {
         this.world = world;
     }
 
     public void reset() {
+        if (nightEventActive && SREGameWorldComponent.KEY.get(world).getGameStatus()
+                == SREGameWorldComponent.GameStatus.ACTIVE) {
+            enforceNightLights();
+            return;
+        }
+        if (nightEventActive || !nightLights.isEmpty()) {
+            nightEventActive = false;
+            restoreNightLights();
+        }
         for (BlackoutDetails detail : this.blackouts)
             detail.end(this.world);
         this.blackouts.clear();
@@ -70,6 +133,16 @@ public class SREWorldBlackoutComponent implements AutoSyncedComponent, ServerTic
 
     @Override
     public void serverTick() {
+        if (nightEventActive) {
+            if (SREGameWorldComponent.KEY.get(world).getGameStatus() != SREGameWorldComponent.GameStatus.ACTIVE) {
+                endNightEvent();
+            } else {
+                blackOutRemainingTicks = 20;
+                // 只写实际改变的灯；每秒兜底发现新加载区块，不制造无限时长的普通停电记录。
+                if (world.getGameTime() % 20 == 0) enforceNightLights();
+                return;
+            }
+        }
         if (SREGameTimeComponent.KEY.get(world).isTimeFrozen()) {
             return;
         }
@@ -94,7 +167,7 @@ public class SREWorldBlackoutComponent implements AutoSyncedComponent, ServerTic
     }
 
     public boolean isBlackoutActive() {
-        return this.blackOutRemainingTicks > 0;
+        return nightEventActive || this.blackOutRemainingTicks > 0;
     }
 
     public boolean triggerBlackout() {
@@ -111,6 +184,7 @@ public class SREWorldBlackoutComponent implements AutoSyncedComponent, ServerTic
      * @return
      */
     public boolean triggerBlackout(BlockPos center, int distance, boolean haveSound, int duration) {
+        if (nightEventActive) return false;
         for (var pos : GameUtils.resetPoints) {
             if (pos.distSqr(center) > distance * distance)
                 continue;
@@ -136,6 +210,7 @@ public class SREWorldBlackoutComponent implements AutoSyncedComponent, ServerTic
     }
 
     public boolean triggerBlackout(boolean haveSound, int duration) {
+        if (nightEventActive) return false;
 
         for (var pos : GameUtils.resetPoints) {
             BlockState state = this.world.getBlockState(pos);
@@ -204,13 +279,25 @@ public class SREWorldBlackoutComponent implements AutoSyncedComponent, ServerTic
         for (BlackoutDetails detail : this.blackouts)
             list.add(detail.writeToNbt());
         tag.put("blackouts", list);
+        ListTag night = new ListTag();
+        for (var entry : nightLights.entrySet()) {
+            CompoundTag light = new CompoundTag();
+            light.putLong("pos", entry.getKey().asLong());
+            light.putString("block", entry.getValue().blockId());
+            light.putBoolean("lit", entry.getValue().lit());
+            light.putBoolean("active", entry.getValue().active());
+            night.add(light);
+        }
+        tag.put("nightLights", night);
     }
 
     public void writeToSyncNbt(CompoundTag tag, HolderLookup.Provider registryLookup) {
         tag.putInt("bt", blackOutRemainingTicks);
+        tag.putBoolean("nightEvent", nightEventActive);
     }
 
     public void readFromSyncNbt(CompoundTag tag, HolderLookup.Provider registryLookup) {
+        nightEventActive = tag.getBoolean("nightEvent");
         if (tag.contains("bt")) {
             blackOutRemainingTicks = tag.getInt("bt");
         } else {
@@ -242,6 +329,15 @@ public class SREWorldBlackoutComponent implements AutoSyncedComponent, ServerTic
 
     @Override
     public void readFromNbt(@NotNull CompoundTag tag, HolderLookup.Provider registryLookup) {
+        // 服务器重启不恢复旧对局；留下的灯光快照只用于回滚地图，不能让黑夜污染下一局。
+        nightEventActive = false;
+        nightLights.clear();
+        for (Tag element : tag.getList("nightLights", 10)) {
+            CompoundTag light = (CompoundTag) element;
+            nightLights.put(BlockPos.of(light.getLong("pos")), new NightLight(light.getString("block"),
+                    light.getBoolean("lit"), light.getBoolean("active")));
+        }
+        restoreNightLights();
         this.blackouts.clear();
         for (Tag element : tag.getList("blackouts", 10)) {
             BlackoutDetails detail = new BlackoutDetails((CompoundTag) element);

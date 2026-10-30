@@ -40,6 +40,7 @@ import org.spongepowered.asm.mixin.injection.At;
 @Mixin(LevelRenderer.class)
 public abstract class WorldRendererMixin {
     @Unique private static boolean tmm$echoFogApplied;
+    @Unique private static boolean tmm$nightFogApplied;
 
     @WrapOperation(method = "renderLevel", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/LevelRenderer;renderSky(Lorg/joml/Matrix4f;Lorg/joml/Matrix4f;FLnet/minecraft/client/Camera;ZLjava/lang/Runnable;)V"))
     public void tmm$disableSky(LevelRenderer instance, Matrix4f matrix4f, Matrix4f projectionMatrix, float tickDelta,
@@ -51,6 +52,27 @@ public abstract class WorldRendererMixin {
     @WrapOperation(method = "renderLevel", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/FogRenderer;setupFog(Lnet/minecraft/client/Camera;Lnet/minecraft/client/renderer/FogRenderer$FogMode;FZF)V"))
     public void tmm$applyBlizzardFog(Camera camera, FogRenderer.FogMode fogType, float viewDistance, boolean thickFog,
             float tickDelta, Operation<Void> original) {
+        boolean night = org.agmas.noellesroles.game.night.NightEvent.isActive(Minecraft.getInstance().level);
+        if (tmm$nightFogApplied && !night) {
+            original.call(camera, fogType, viewDistance, thickFog, tickDelta);
+            tmm$nightFogApplied = false;
+        }
+        try {
+            tmm$applyExistingFog(camera, fogType, viewDistance, thickFog, tickDelta, original);
+        } finally {
+            // 在现有地图雾、视野迷雾及液体雾之后统一封顶；F1、夜视、旁观均不能放宽上限。
+            if (night) {
+                tmm$nightFogApplied = true;
+                float end = org.agmas.noellesroles.game.night.NightRoundState.fogEnd(RenderSystem.getShaderFogEnd());
+                float start = org.agmas.noellesroles.game.night.NightRoundState.fogStart(RenderSystem.getShaderFogStart(), end);
+                tmm$doFog(start, end);
+            }
+        }
+    }
+
+    @Unique
+    private void tmm$applyExistingFog(Camera camera, FogRenderer.FogMode fogType, float viewDistance, boolean thickFog,
+                                     float tickDelta, Operation<Void> original) {
         if (SREClient.isInLobby) {
             if(tmm$echoFogApplied) {
                 original.call(camera,fogType,viewDistance,thickFog,tickDelta);
