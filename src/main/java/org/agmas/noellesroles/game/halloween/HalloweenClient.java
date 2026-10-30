@@ -20,6 +20,7 @@ public final class HalloweenClient {
 
     public static void register() {
         HalloweenVillageClient.register();
+        PumpkinHideoutClient.register();
         org.agmas.noellesroles.game.halloween.ambience.HalloweenAmbienceClient.register();
         org.agmas.noellesroles.game.halloween.pumpkin.client.PumpkinSpiritClient.register();
         ClientPlayNetworking.registerGlobalReceiver(HalloweenNetwork.Snapshot.ID, (snapshot, context) ->

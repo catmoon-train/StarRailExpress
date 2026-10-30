@@ -49,7 +49,10 @@ public final class HalloweenNetwork {
         @Override public Type<? extends CustomPacketPayload> type() { return ID; }
     }
 
-    public static void register() { PayloadTypeRegistry.playS2C().register(Snapshot.ID, Snapshot.CODEC); }
+    public static void register() {
+        PayloadTypeRegistry.playS2C().register(Snapshot.ID, Snapshot.CODEC);
+        PayloadTypeRegistry.playS2C().register(PumpkinHideoutS2CPayload.ID, PumpkinHideoutS2CPayload.CODEC);
+    }
 
     public static void sync(ServerLevel level) {
         List<State> states = level.players().stream().limit(1024)
