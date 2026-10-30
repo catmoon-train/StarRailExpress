@@ -45,6 +45,7 @@ public final class HalloweenRuntime {
         if (registered) return;
         registered = true;
         HalloweenItems.initialize();
+        org.agmas.noellesroles.game.halloween.online.HalloweenOnlineSync.register();
         org.agmas.noellesroles.game.halloween.ambience.HalloweenAmbience.register();
         HalloweenNetwork.register();
         HalloweenSoulLinks.register();
