@@ -60,16 +60,22 @@ public final class HalloweenOnlineSync {
             OnlineConfig config = OnlineConfig.load(FabricLoader.getInstance().getConfigDir().resolve("halloween-online.json"));
             state.enabled = config.enabled;
             if (!config.enabled) {
-                LOGGER.info("[HalloweenOnline] 官网南瓜币同步未启用；请在 config/halloween-online.json 配置 HTTPS、bridgeSecret 和 enabled。启用前收益不补记。");
+                LOGGER.info("[HalloweenOnline] 官网南瓜币数据库同步未启用；请配置现有 MySQL 玩家同步及 config/halloween-online.json 的 enabled。启用前收益不补记。");
                 return;
             }
-            var endpoint = config.endpoint();
+            config.validate();
+            String table = config.tableName(net.exmo.sre.sync.MysqlPlayerDataStore.tablePrefix());
             store = new EarningsStore(server.getWorldPath(LevelResource.ROOT).resolve("halloween-online"));
-            state.sender = new EarningsSender(store, BridgeTransport.http(endpoint, config.requestTimeoutSeconds), config,
+            var sink = new JdbcEarningsSink(() -> {
+                var source = net.exmo.sre.sync.MysqlPlayerDataStore.getDataSource();
+                if (source == null) throw new java.sql.SQLException("Shared game database unavailable");
+                return source.getConnection();
+            }, table, config.statementTimeoutSeconds, config.createTableIfMissing);
+            state.sender = new EarningsSender(store, sink, config,
                     System::currentTimeMillis, () -> ThreadLocalRandom.current().nextLong(), LOGGER::warn);
             state.sender.requestFlush();
             state.sender.start();
-            LOGGER.info("[HalloweenOnline] 官网南瓜币同步已启用；历史未确认收益将继续补传");
+            LOGGER.info("[HalloweenOnline] 官网南瓜币数据库同步已启用；历史未确认收益将继续批量写入共享游戏库");
         } catch (IOException | RuntimeException ex) {
             // 不打印配置、URL、异常正文（它们可能包含 secret）。失败关闭，不能结算掉未落盘的凭据。
             state.enabled = true;

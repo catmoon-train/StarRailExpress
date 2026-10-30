@@ -11,10 +11,10 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
 import java.util.function.LongSupplier;
 
-/** 纯 Java 批量发送器：服务器线程只写 WAL，HTTP 仅在单一后台线程运行。 */
+/** 纯 Java 批量发送器：服务器线程只写 WAL，数据库事务仅在单一后台线程运行。 */
 public final class EarningsSender implements AutoCloseable {
     private final EarningsStore store;
-    private final BridgeTransport transport;
+    private final EarningsSink sink;
     private final OnlineConfig config;
     private final LongSupplier clock;
     private final LongSupplier jitter;
@@ -22,15 +22,14 @@ public final class EarningsSender implements AutoCloseable {
     private final AtomicBoolean expedite = new AtomicBoolean();
     private ScheduledExecutorService worker;
     private List<Earning> batch;
-    private byte[] body;
     private long retryAt;
     private int failures;
     private long lastWarning = Long.MIN_VALUE;
 
-    public EarningsSender(EarningsStore store, BridgeTransport transport, OnlineConfig config,
+    public EarningsSender(EarningsStore store, EarningsSink sink, OnlineConfig config,
                           LongSupplier clock, LongSupplier jitter, Consumer<String> warning) {
         this.store = store;
-        this.transport = transport;
+        this.sink = sink;
         this.config = config;
         this.clock = clock;
         this.jitter = jitter;
@@ -62,19 +61,16 @@ public final class EarningsSender implements AutoCloseable {
                 if (entries.size() < config.batchSize && !early
                         && now - entries.getFirst().earnedAt() < config.flushIntervalSeconds * 1000L) return false;
                 batch = entries;
-                body = BridgeProtocol.body(store.serverId(), UUID.randomUUID(), batch);
             }
-            // 重发保持原 batchId/body/entry ids，但使用新的时间戳及签名。
-            BridgeTransport.Reply reply = transport.post(body, now, BridgeProtocol.signature(config.bridgeSecret, now, body));
-            Set<UUID> ack = BridgeProtocol.acknowledgements(reply.status(), reply.body());
+            // 收益 ID / 来源世界 / 获得时间重试时不变；数据库 commit 后才有确认。
+            Set<UUID> ack = new java.util.HashSet<>(sink.persist(store.serverId(), batch));
             Set<UUID> sent = new java.util.HashSet<>();
             for (Earning entry : batch) sent.add(entry.id());
             ack.retainAll(sent); // 包含并发新增事件的未知 ACK 也不能删除它。
             store.acknowledge(ack);
             if (batch.stream().anyMatch(entry -> store.isPending(entry.id())))
-                throw new IOException("Bridge acknowledgement incomplete; retaining unacknowledged earnings");
+                throw new IOException("Database acknowledgement incomplete; retaining unacknowledged earnings");
             batch = null;
-            body = null;
             failures = 0;
             retryAt = 0;
             return true;
@@ -87,14 +83,14 @@ public final class EarningsSender implements AutoCloseable {
             retryAt = clock.getAsLong() + Math.min(300_000L, base + Math.floorMod(jitter.getAsLong(), base / 4 + 1));
             if (lastWarning == Long.MIN_VALUE || now - lastWarning >= 60_000L) {
                 // 只记录类别；异常/响应正文可能包含敏感数据，不能直接打印。
-                warning.accept("Halloween bridge retry pending (" + ex.getClass().getSimpleName() + "); outbox retained");
+                warning.accept("Halloween database retry pending (" + ex.getClass().getSimpleName() + "); outbox retained");
                 lastWarning = now;
             }
             return false;
         }
     }
 
-    /** 最多等待三秒；未确认记录始终留盘，不能为关服无限等待网络。 */
+    /** 最多等待三秒；未确认记录始终留盘，不能为关服无限等待数据库。 */
     @Override
     public void close() throws IOException {
         if (worker != null) {
