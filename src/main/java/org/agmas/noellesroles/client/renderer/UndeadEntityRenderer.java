@@ -20,9 +20,7 @@ import com.mojang.blaze3d.vertex.VertexConsumer;
 import io.wifi.starrailexpress.client.util.ClientSkinCache;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.PlayerModel;
-import net.minecraft.client.model.geom.PartPose;
 import net.minecraft.client.model.geom.builders.CubeDeformation;
-import net.minecraft.client.model.geom.builders.CubeListBuilder;
 import net.minecraft.client.model.geom.builders.LayerDefinition;
 import net.minecraft.client.model.geom.builders.MeshDefinition;
 import net.minecraft.client.multiplayer.PlayerInfo;
@@ -40,7 +38,7 @@ import org.agmas.noellesroles.content.entity.UndeadEntity;
 import java.util.UUID;
 
 /**
- * 亡灵使用独立的半身玩家网格：保留皮肤、头部、双臂及 slim 差异，去掉腰部以下。
+ * 亡灵使用独立的玩家网格：保留完整躯干、外套、头部、双臂及 slim 差异，仅隐藏双腿。
  * 整体仅绘制一次半透明主体，避免基类不透明主体叠加后使 alpha 失效。
  * 苍白覆盖、灰紫雾气与寿命末期闪烁保持不变；不修改共享 NPC 模型层。
  */
@@ -58,13 +56,9 @@ public class UndeadEntityRenderer extends LivingEntityRenderer<UndeadEntity, Pla
         this.slimModel = createGhostModel(true);
     }
 
-    /** 本地烘焙裁短的躯干与外套；只影响亡灵，不注册或替换共享模型层。 */
+    /** 本地烘焙完整玩家网格；仅隐藏腿部，不裁短躯干或替换共享模型层。 */
     private static PlayerModel<UndeadEntity> createGhostModel(boolean slim) {
         MeshDefinition mesh = PlayerModel.createMesh(CubeDeformation.NONE, slim);
-        mesh.getRoot().addOrReplaceChild("body", CubeListBuilder.create().texOffs(16, 16)
-                .addBox(-4.0F, 0.0F, -2.0F, 8.0F, 6.0F, 4.0F), PartPose.ZERO);
-        mesh.getRoot().addOrReplaceChild("jacket", CubeListBuilder.create().texOffs(16, 32)
-                .addBox(-4.0F, 0.0F, -2.0F, 8.0F, 6.0F, 4.0F, new CubeDeformation(0.25F)), PartPose.ZERO);
         return new PlayerModel<>(LayerDefinition.create(mesh, 64, 64).bakeRoot(), slim);
     }
 
