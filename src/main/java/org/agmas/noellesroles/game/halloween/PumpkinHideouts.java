@@ -36,6 +36,7 @@ import java.util.UUID;
 public final class PumpkinHideouts {
     private static final String TAG = "noellesroles_halloween_hideout";
     private static final ResourceLocation SCALE_ID = ResourceLocation.fromNamespaceAndPath("noellesroles", "halloween_hideout_scale");
+    private static final ResourceLocation SPEED_ID = ResourceLocation.fromNamespaceAndPath("noellesroles", "halloween_hideout_speed");
     private static final Map<ServerLevel, State> STATES = new IdentityHashMap<>();
     private static boolean initialized;
 
@@ -53,6 +54,8 @@ public final class PumpkinHideouts {
             State state = STATES.get(sp.serverLevel());
             Hideout hideout = state == null ? null : state.hideouts.get(entity.getUUID());
             if (hideout == null) return InteractionResult.FAIL;
+            // interactAt / interact 可能在同一次点击内重复到达；必须先防重，再切换进入/退出。
+            if (!state.interactions.tryUse(player.getUUID(), level.getGameTime())) return InteractionResult.CONSUME;
             Guest guest = state.guests.get(player.getUUID());
             if (guest != null) {
                 state.guests.remove(player.getUUID());
@@ -144,7 +147,7 @@ public final class PumpkinHideouts {
         player.teleportTo(hideout.feet.x, hideout.feet.y, hideout.feet.z);
         player.setDeltaMovement(Vec3.ZERO);
         player.fallDistance = 0;
-        HalloweenConsumables.ownerSpeed(player, hideout.owner.equals(player.getUUID()));
+        hideoutSpeed(player, true);
         message(player, "hideout_enter");
     }
 
@@ -172,10 +175,20 @@ public final class PumpkinHideouts {
                 restore(guest, false);
                 return true;
             }
-            HalloweenConsumables.ownerSpeed(player, guest.hideout.owner.equals(player.getUUID()));
+            hideoutSpeed(player, true);
             return false;
         });
         if (state.hideouts.isEmpty() && state.guests.isEmpty()) STATES.remove(level);
+    }
+
+    /** 所有进入者移动速度乘以 0.1，退出仅撤销本据点的临时修饰符。 */
+    private static void hideoutSpeed(ServerPlayer player, boolean inside) {
+        AttributeInstance speed = player.getAttribute(Attributes.MOVEMENT_SPEED);
+        if (speed == null) return;
+        if (!inside) speed.removeModifier(SPEED_ID);
+        else if (!speed.hasModifier(SPEED_ID))
+            speed.addTransientModifier(new AttributeModifier(SPEED_ID, -0.9,
+                    AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL));
     }
 
     /** 先恢复尺寸，再检查真正的完整碰撞箱；必要时移到据点旁或进入前的安全位置。 */
@@ -184,7 +197,7 @@ public final class PumpkinHideouts {
         AttributeInstance scale = player.getAttribute(Attributes.SCALE);
         if (scale != null) scale.removeModifier(SCALE_ID);
         player.refreshDimensions();
-        HalloweenConsumables.ownerSpeed(player, false);
+        hideoutSpeed(player, false);
         if (!player.isAlive() || player.isRemoved()) return;
         ServerLevel level = player.serverLevel();
         Vec3 destination = !explicitExit && safe(level, player, player.position()) ? player.position() : null;
@@ -245,6 +258,7 @@ public final class PumpkinHideouts {
 
     static void removePlayer(Player player) {
         for (State state : new ArrayList<>(STATES.values())) {
+            state.interactions.remove(player.getUUID());
             Guest guest = state.guests.remove(player.getUUID());
             if (guest != null) restore(guest, false);
             state.hideouts.values().removeIf(hideout -> {
@@ -267,6 +281,7 @@ public final class PumpkinHideouts {
     private static final class State {
         final Map<UUID, Hideout> hideouts = new LinkedHashMap<>();
         final Map<UUID, Guest> guests = new HashMap<>();
+        final PumpkinHideoutInteractionGate interactions = new PumpkinHideoutInteractionGate();
     }
 
     private record Hideout(UUID owner, Vec3 feet, Display.ItemDisplay display, Interaction target) {
