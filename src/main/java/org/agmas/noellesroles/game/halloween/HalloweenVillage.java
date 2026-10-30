@@ -13,6 +13,7 @@ import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.fabricmc.fabric.api.object.builder.v1.entity.FabricDefaultAttributeRegistry;
+import net.exmo.sre.subtitle.SubtitleS2CPayload;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -30,7 +31,6 @@ import net.minecraft.world.entity.MobCategory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.DoorBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.DoubleBlockHalf;
@@ -220,7 +220,7 @@ public final class HalloweenVillage {
                 || !state.bounds.contains(Vec3.atCenterOf(position))
                 || player.getEyePosition().distanceToSqr(Vec3.atCenterOf(position)) > 25) return;
         BlockState block = level.getBlockState(position);
-        if (!(block.getBlock() instanceof DoorBlock) && !(block.getBlock() instanceof SmallDoorBlock)) return;
+        if (!(block.getBlock() instanceof SmallDoorBlock)) return;
         BlockPos door = block.hasProperty(BlockStateProperties.DOUBLE_BLOCK_HALF)
                 && block.getValue(BlockStateProperties.DOUBLE_BLOCK_HALF) == DoubleBlockHalf.UPPER ? position.below() : position;
         // 防止伪造隔墙/越界右键包，只认可当前视线命中的同一扇门（上下半统一）。
@@ -231,7 +231,7 @@ public final class HalloweenVillage {
         long now = level.getServer().overworld().getGameTime();
         long next = NEXT_KNOCK.getOrDefault(level.getServer(), 0L);
         if (!VillageRules.cooldownReady(now, next)) {
-            player.displayClientMessage(Component.translatable("halloween.village.knock_cooldown", (next - now + 19) / 20), true);
+            knockNotice(player, "knock_cooldown", (next - now + 19) / 20);
             return;
         }
         HalloweenConfig config = HalloweenConfig.get();
@@ -248,6 +248,14 @@ public final class HalloweenVillage {
             VillageNpc candy = spawnNpc(level, player.position().add(player.getLookAngle().scale(-1.5)), true);
             state.candy.put(candy, level.getGameTime() + config.candyNpcLifetimeTicks);
         }
+        knockNotice(player, "knock_success");
+    }
+
+    private static void knockNotice(ServerPlayer player, String key, Object... args) {
+        if (!ServerPlayNetworking.canSend(player, SubtitleS2CPayload.ID)) return;
+        ServerPlayNetworking.send(player, new SubtitleS2CPayload(
+                Component.translatable("halloween.village." + key, args), Component.empty(),
+                60, 0xFFFFCC80, false, SubtitleS2CPayload.POS_TOP, false));
     }
 
     private static VillageNpc spawnNpc(ServerLevel level, Vec3 position, boolean candy) {
