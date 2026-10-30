@@ -147,13 +147,19 @@ public final class HalloweenConfig {
             cleanTrades = defaultTrades();
         } else for (Trade entry : trades) {
             if (entry != null && validId(entry.item, validItem)
-                    && !entry.item.equals("noellesroles:halloween_soul_contract")
+                    && isVillageTradeAllowed(entry.item)
                     && entry.count > 0 && entry.count <= 64 && entry.pumpkins >= 0 && entry.pumpkins <= 4096
                     && entry.coins >= 0 && entry.coins <= 1000000 && (entry.pumpkins > 0 || entry.coins > 0)) {
                 cleanTrades.add(entry);
-            } else warn.accept("忽略无效 trades 条目（禁止直接出售魂契、负价格或免费商品）");
+            } else warn.accept("忽略无效 trades 条目（禁止直接出售魂契和献血锯子、负价格或免费商品）");
         }
         trades = cleanTrades;
+    }
+
+    /** 固定 NPC 禁售物品；旧配置和交易请求都必须遵循同一限制。 */
+    static boolean isVillageTradeAllowed(String item) {
+        return item != null && !item.equals("noellesroles:halloween_soul_contract")
+                && !item.equals("noellesroles:halloween_blood_saw");
     }
 
     private static boolean validId(String id, Predicate<String> validItem) {
@@ -206,8 +212,7 @@ public final class HalloweenConfig {
                 new Trade("noellesroles:halloween_pumpkin_boots", 1, 3, 5),
                 new Trade("noellesroles:halloween_bone_sword", 1, 6, 15),
                 new Trade("noellesroles:halloween_soul_link", 1, 8, 20),
-                new Trade("noellesroles:halloween_fright_gun", 1, 10, 30),
-                new Trade("noellesroles:halloween_blood_saw", 1, 12, 40)));
+                new Trade("noellesroles:halloween_fright_gun", 1, 10, 30)));
     }
 
     public static class Loot {

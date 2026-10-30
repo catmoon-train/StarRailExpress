@@ -35,6 +35,7 @@
 - 分帧扫描只读取已加载区块的 `getChunkNow`，**没有 `getChunk/loadChunk` 或强制区块票据**。每 tick 最多读取 `min(scanBlocksPerTick,65536)` 个方块、探测 64 个区块候选；玩家附近 3×3 区块优先，每区块保存扫描进度。未加载区块在后续有限遍历中重试，找到两个灯即停止扫描。
 - 两处各生成一个不可伤害、不存档、不推挤的玩家模型 NPC。渲染器直接绑定本地 `starrailexpress:textures/block/plush/canyuesama.png`，标准 64×64 玩家 UV；不使用 skull、在线 GameProfile 或 Mojang 下载。
 - 右键打开服务端商品快照。界面为棕黑渐变、金色描边、滚动裁剪和 hover 高亮；ESC 返回游戏，无新增按键绑定。
+- 万圣残月不直接出售献血锯子（`noellesroles:halloween_blood_saw`）或魂契；旧 `trades` 配置会过滤禁售项，商品展示和实际交易均重新校验，拒绝时不扣费。刀具商店与其他获取途径不变。
 - 交易请求只含 NPC UUID、服务端随机 nonce、商品索引；不接受客户端价格、数量或物品。服务端重新验证所属 NPC、同世界、距离 ≤4 格、视线、存活、安全期、商店禁用、金币权限、20 秒会话有效期，并在执行前作废 nonce。
 - 南瓜只从主物品栏/快捷栏扣除；金币是 `SREPlayerShopComponent.balance`，不是活动金币道具。先在副本完成南瓜扣费和所有商品装包，成功后在服务端主线程一次提交双币与物品。空间不够、金币不足或职业无金币系统时，完全不扣费，也不在地上丢弃购买商品。扣费腾出的格子可以装商品；合并堆叠保留组件。
 - 持 `SOUL_CONTRACT` 右键残月（主副手均支持），只有 `HalloweenCombat.acceptPact` 返回 true 后才消耗一枚。任务与复活时序由战斗模块处理。

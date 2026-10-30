@@ -276,6 +276,7 @@ public final class HalloweenVillage {
             if (offers.size() >= 128) break;
             ResourceLocation id = trade == null || trade.item == null ? null : ResourceLocation.tryParse(trade.item);
             if (id != null && BuiltInRegistries.ITEM.containsKey(id) && trade.count > 0 && trade.count <= 4096
+                    && HalloweenConfig.isVillageTradeAllowed(id.toString())
                     && trade.pumpkins >= 0 && trade.coins >= 0 && (trade.pumpkins > 0 || trade.coins > 0)
                     && !BuiltInRegistries.ITEM.get(id).getDefaultInstance().isEmpty()) {
                 offers.add(new VillagePackets.Offer(id, trade.count, trade.pumpkins, trade.coins));
@@ -297,6 +298,11 @@ public final class HalloweenVillage {
                 || !(player.serverLevel().getEntity(packet.npc()) instanceof VillageNpc npc) || npc.isCandy()
                 || !canInteract(player, npc) || player.hasEffect(ModEffects.SHOP_BANNED)) return;
         var offer = session.offers.get(packet.index());
+        if (!HalloweenConfig.isVillageTradeAllowed(offer.item().toString())) {
+            message(player, "trade_failed");
+            openShop(player, npc);
+            return;
+        }
         ItemStack reward = new ItemStack(BuiltInRegistries.ITEM.get(offer.item()));
         boolean success = deliver(player, offer.pumpkins(), offer.coins(), reward, offer.count());
         message(player, success ? "trade_success" : "trade_failed");
