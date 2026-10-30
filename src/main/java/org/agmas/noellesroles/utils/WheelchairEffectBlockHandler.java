@@ -26,6 +26,9 @@ import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.block.Blocks;
 import org.agmas.noellesroles.content.entity.WheelchairEntity;
+
+import java.util.ArrayList;
+import java.util.List;
 import org.agmas.noellesroles.game.modes.ChairWheelRaceGame;
 
 /**
@@ -47,15 +50,18 @@ public class WheelchairEffectBlockHandler {
      */
     public static void checkAndApplyEffects(WheelchairEntity wheelchair, Player player) {
         if (wheelchair.level() instanceof ServerLevel serverLevel) {
-            // 尝试多种位置检测：优先使用玩家脚下的方块（与 ChairWheelRaceGame 保持一致），
-            // 其次检查轮椅所在方块与下方方块，覆盖边界情况。
-            BlockPos playerPos = player != null ? player.getOnPos() : null;
+            // 垂直方向 ±3 格内的方块均参与检测（与 ChairWheelRaceGame 终点判定保持一致）
+            List<BlockPos> checkPositions = new ArrayList<>();
+            if (player != null) {
+                BlockPos playerBase = player.getOnPos();
+                for (int dy = -3; dy <= 3; dy++) {
+                    checkPositions.add(playerBase.above(dy));
+                }
+            }
             BlockPos entityPos = wheelchair.blockPosition();
-            BlockPos belowEntity = entityPos.below();
-
-            BlockPos[] checkPositions = playerPos != null
-                    ? new BlockPos[] { playerPos, entityPos, belowEntity }
-                    : new BlockPos[] { entityPos, belowEntity };
+            for (int dy = -3; dy <= 3; dy++) {
+                checkPositions.add(entityPos.above(dy));
+            }
 
             // 只有在轮椅比赛模式（ChairWheelRaceGame）运行时才生效
             var gameC = SREGameWorldComponent.KEY.get(serverLevel);

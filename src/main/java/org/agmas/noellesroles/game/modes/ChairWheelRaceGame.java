@@ -92,7 +92,15 @@ public class ChairWheelRaceGame extends GameMode {
         serverLevel.players().forEach(player -> {
             if (GameUtils.isPlayerAliveAndSurvival(player)) {
                 if (player.getVehicle() instanceof WheelchairEntity wheelchairEntity) {
-                    if (serverLevel.getBlockState(player.getOnPos()).getBlock() == Blocks.DIAMOND_BLOCK) {
+                    BlockPos base = player.getOnPos();
+                    boolean onDiamond = false;
+                    for (int dy = -3; dy <= 3; dy++) {
+                        if (serverLevel.getBlockState(base.above(dy)).is(Blocks.DIAMOND_BLOCK)) {
+                            onDiamond = true;
+                            break;
+                        }
+                    }
+                    if (onDiamond) {
                         isWin.add(player);
                         player.startRiding(wheelchairEntity);
                         wheelchairEntity.remove(Entity.RemovalReason.DISCARDED);
