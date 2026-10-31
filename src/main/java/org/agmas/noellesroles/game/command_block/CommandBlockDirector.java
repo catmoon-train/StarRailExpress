@@ -552,6 +552,8 @@ public final class CommandBlockDirector {
         // 变成异常（中立空壳）时清掉只适用于旧阵营的修饰符，避免平民专属修饰符跟到中立身上
         RoleUtils.removeInapplicableModifiers(player, ModRoles.ABNORMAL);
         RoleUtils.addModifier(player, NRModifiers.ABNORMAL);
+        // 变成异常职业后给玩家发送欢迎报幕
+        RoleUtils.sendWelcomeAnnouncement(player);
         PacketTracker.sendToClient(player,
                 new SubtitleS2CPayload(Component.translatable("message.noellesroles.command_block.preview",
                         role.getName()), Component.empty(), 80, 0xFFE7D4FF, false,
