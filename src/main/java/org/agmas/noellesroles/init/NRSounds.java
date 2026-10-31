@@ -78,6 +78,7 @@ public class NRSounds {
     public static final SoundEvent MUSIC_SAKURA_MOYU = registrar.create("music.sakura_moyu");
     public static final SoundEvent MUSIC_UNWELCOME_SCHOOL = registrar.create("music.unwelcome_school");
     public static final SoundEvent MUSIC_ZENRIANBANKA = registrar.create("music.zenrianbanka");
+    public static final SoundEvent MUSIC_HALLOWEEN = registrar.create("music.halloween_music");
 
     // 下界合金矛相关音效
     public static final SoundEvent SPEAR_ATTACK = registrar.create("noellesroles.spear_attack");
