@@ -33,3 +33,7 @@ Computer Use 工具返回 `cua-driver not installed`，不能操作当前启动�
 已将 `build/libs/starrailexpress.jar` 替换到 `D:/StarRailHarpyExpress/versions/SRE4.3/mods/star_rail_express-4.3.0.jar`，安装 SHA-256 为 `8a82f55eb1d544dceddfebf28a4ae952b378f0fc96d10e2cd7eb1ecd2877a0bc`。确认该实例没有运行中的 Minecraft 后才替换，未结束现有启动器。产物包含当前工作区已有的其他代码改动，本次未修改它们。
 
 旧 JAR 备份：`D:/StarRailHarpyExpress/versions/SRE4.3/PCL/loading-optimization-backup/star_rail_express-4.3.0.12de288b570c.jar`。若要回退，先退出游戏，再将备份复制覆盖 `mods/star_rail_express-4.3.0.jar`；不要在 `mods` 内并存两份 SRE 模组。
+
+## 后续 DashLoader 适配
+
+新增 12 个客户端兼容 Mixin，恢复缓存完整保存、提前缓存装载、文件内容失效、保存/重载屏障，以及自定义模型与 JSON parent 的热缓存回退。详见 [DashLoader 兼容说明](dashloader-compat.md)。隔离资源加载验证通过；当前工作区已有竹矛 Mixin 的 `@Shadow attackTime` 启动错误仍未修改，本轮新产物未覆盖上一轮已安装 JAR。
