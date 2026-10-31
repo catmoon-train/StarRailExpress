@@ -150,6 +150,9 @@ public class SkinManagementScreen extends Screen {
     private int categoryPage = 0;
     private int categoryPageSize = 6;
     private String searchFilter = "";
+    /** 「仅显示 3D 皮肤」筛选：切页签时保留，跨面板共享 */
+    private boolean only3dFilter = false;
+    private ToggleCheckbox only3dCheck;
 
     // ─── 动画状态 ───────────────────────────────────────────────────────────
     private long openTimeMs = -1L;
@@ -337,9 +340,21 @@ public class SkinManagementScreen extends Screen {
         categories.add(new CategoryTabData(skinType, Component.translatable(labelKey), icon));
     }
 
+    /**
+     * 搜索框 + 其右侧的「仅显示 3D 皮肤」筛选按钮。
+     * <p>
+     * 两者同处一行：搜索框占剩余宽度，筛选按钮固定贴右，保证窄屏下搜索框
+     * 仍保留可输入宽度（最小 80 px）。
+     */
     private void initSearchBox(int searchHeight, int searchY) {
+        // 「仅显示 3D 皮肤」按钮：文案较长，按字号实测宽度并夹在当前面板宽度内
+        Component filterLabel = Component.translatable("screen.sre.skins.only_3d");
+        int boxSize = Math.min(12, Math.max(8, searchHeight - 2));
+        int filterWidth = Math.min(leftPanelWidth / 2, font.width(filterLabel) + boxSize + 16);
+        int gap = 4;
+        int searchWidth = Math.max(80, leftPanelWidth - filterWidth - gap);
+
         int searchX = contentX;
-        int searchWidth = leftPanelWidth;
         searchBox = new EditBox(font, searchX, searchY, searchWidth, searchHeight,
                 Component.translatable("screen.sre.skins.search"));
         searchBox.setMaxLength(50);
@@ -355,6 +370,14 @@ public class SkinManagementScreen extends Screen {
         });
         searchBox.setHint(Component.translatable("screen.sre.skins.search_hint").withStyle(ChatFormatting.DARK_GRAY));
         addRenderableWidget(searchBox);
+
+        // 紧跟搜索框右侧：一键只看当前类别下的 3D 皮肤
+        only3dCheck = new ToggleCheckbox(searchX + searchWidth + gap, searchY,
+                filterWidth, searchHeight, filterLabel, only3dFilter, v -> {
+                    only3dFilter = v;
+                    applySearchFilter();
+                });
+        addRenderableWidget(only3dCheck);
     }
 
     private void initHatConfigCheckboxes(int titleY, int totalTitleH) {
@@ -441,7 +464,7 @@ public class SkinManagementScreen extends Screen {
         CategoryTabData selectedTab = categories.get(selectedCategory);
         if (selectedTab.isGridTab()) {
             hatGrid = new HatSkinGridPanel(contentX, listTop, leftPanelWidth, listHeight,
-                    skinsComponent, selectedTab.id, this::equipGridSkin, searchFilter);
+                    skinsComponent, selectedTab.id, this::equipGridSkin, searchFilter, only3dFilter);
             addRenderableWidget(hatGrid);
             return;
         }
@@ -828,14 +851,19 @@ public class SkinManagementScreen extends Screen {
         return super.charTyped(codePoint, modifiers);
     }
 
-    /** 只重筛当前列表，不重建搜索框，避免输入时焦点被清掉。 */
+    /**
+     * 只重筛当前列表，不重建搜索框，避免输入时焦点被清掉。
+     * <p>
+     * 搜索词与「仅显示 3D 皮肤」由同一入口下发，保证两者可以叠加：
+     * 先按 3D 筛，再按匹配度排序。
+     */
     private void applySearchFilter() {
         if (skinList != null) {
             skinList.rebuild(searchFilter);
             return;
         }
         if (hatGrid != null) {
-            hatGrid.rebuild(searchFilter);
+            hatGrid.rebuild(searchFilter, only3dFilter);
             return;
         }
         if (nameTagList != null) {

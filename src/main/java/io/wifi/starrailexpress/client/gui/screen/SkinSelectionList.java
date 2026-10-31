@@ -72,6 +72,8 @@ public class SkinSelectionList extends ObjectSelectionList<SkinSelectionList.Ski
     private boolean draggingScrollbar = false;
     private String searchFilter;
 
+    /** 当前搜索词（已归一化），供排序与过滤共用 */
+    private String searchQuery = "";
     /** Suffix appended when a string is truncated. */
     private static final String ELLIPSIS = "...";
 
@@ -92,14 +94,33 @@ public class SkinSelectionList extends ObjectSelectionList<SkinSelectionList.Ski
         rebuild(this.searchFilter);
     }
 
-    /** 按关键词重筛已收集的皮肤，不重建控件，搜索框可以保持焦点。 */
+    /**
+     * 按关键词重筛已收集的皮肤，不重建控件，搜索框可以保持焦点。
+     * <p>
+     * 关键词会同时比对「本地化中文名 / 全拼 / 拼音首字母 / 皮肤 ID」，
+     * 并<b>按匹配度排序</b>（原来是只按 ID 子串过滤，所以搜中文或拼音
+     * 要么命中不到、要么把对应皮肤排到很后面）。
+     */
     public void rebuild(String filter) {
         this.searchFilter = filter != null ? filter.toLowerCase(java.util.Locale.ROOT) : "";
+        this.searchQuery = ItemSkinSearch.normalize(filter);
         clearEntries();
         for (String skinName : availableSkins) {
+            // 搜索过滤：匹配分 0 表示不命中（输入为空时不过滤）
+            if (!searchQuery.isEmpty() && scoreOf(skinName) <= ItemSkinSearch.SCORE_NONE) {
+                continue;
+            }
             this.addEntry(new SkinEntry(skinName));
         }
         children().sort((o1, o2) -> {
+            // 有搜索词时先按匹配度排：搜什么先出什么
+            if (!searchQuery.isEmpty()) {
+                int s1 = scoreOf(o1.skinName);
+                int s2 = scoreOf(o2.skinName);
+                if (s1 != s2) {
+                    return Integer.compare(s2, s1);
+                }
+            }
             if (o1.isUnlocked != o2.isUnlocked) {
                 return o1.isUnlocked ? -1 : 1;
             }
@@ -116,12 +137,42 @@ public class SkinSelectionList extends ObjectSelectionList<SkinSelectionList.Ski
         // 「未装备」固定第一位，「随机」固定第二位（不参与排序与搜索过滤）
         this.children().addFirst(new SkinEntry("default"));
         this.children().add(1, new SkinEntry(ItemSkinManager.RANDOM_SKIN));
-        if (!this.searchFilter.isEmpty()) {
-            this.children().removeIf(e -> {
-                if ("default".equals(e.skinName) || ItemSkinManager.isRandomSkin(e.skinName)) return false;
-                return !e.skinName.toLowerCase(java.util.Locale.ROOT).contains(this.searchFilter);
-            });
+    }
+
+    /**
+     * 皮肤名的匹配分：中文名 / 全拼 / 首字母 / ID 综合打分。
+     * <p>
+     * 走的是和网格板（{@code HatSkinGridPanel}）同一套 {@link ItemSkinSearch}，
+     * 保证两种列表页的搜索行为一致。
+     */
+    private int scoreOf(String skinName) {
+        if (searchQuery.isEmpty()) {
+            return ItemSkinSearch.SCORE_EXACT;
         }
+        return ItemSkinSearch.score(searchQuery,
+                Component.translatableWithFallback(nameKeyOf(skinName), formatSkinName(skinName)),
+                skinName);
+    }
+
+    /** 皮肤名对应的本地化键（与 {@code SkinEntry.render} 里用的完全一致）。 */
+    private String nameKeyOf(String skinName) {
+        var rl = ResourceLocation.tryParse(itemTypeName);
+        String itemTypeKey = (rl != null) ? rl.getPath() : itemTypeName;
+        return "screen.sre.skins." + itemTypeKey + "." + skinName.toLowerCase(java.util.Locale.ROOT) + ".name";
+    }
+
+    /** {@code xinglan_revolver} → {@code Xinglan Revolver}（缺翻译时的兜底显示名）。 */
+    private static String formatSkinName(String skinName) {
+        String[] parts = skinName.split("[_\\-]");
+        StringBuilder result = new StringBuilder();
+        for (String part : parts) {
+            if (!part.isEmpty()) {
+                result.append(Character.toUpperCase(part.charAt(0)))
+                        .append(part.substring(1).toLowerCase())
+                        .append(' ');
+            }
+        }
+        return result.toString().trim();
     }
 
     private String getItemTypeName(ItemStack itemStack) {
@@ -471,16 +522,7 @@ public class SkinSelectionList extends ObjectSelectionList<SkinSelectionList.Ski
         }
 
         private String formatSkinName(String skinName) {
-            String[] parts = skinName.split("[_\\-]");
-            StringBuilder result = new StringBuilder();
-            for (String part : parts) {
-                if (!part.isEmpty()) {
-                    result.append(Character.toUpperCase(part.charAt(0)))
-                            .append(part.substring(1).toLowerCase())
-                            .append(" ");
-                }
-            }
-            return result.toString().trim();
+            return SkinSelectionList.formatSkinName(skinName);
         }
 
         @Override
