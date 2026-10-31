@@ -51,7 +51,7 @@ public abstract class PumpkinPlayerMixin {
     private void pumpkin$dropHead(ItemStack stack, boolean random, boolean retainOwner,
             CallbackInfoReturnable<ItemEntity> cir) {
         if (PumpkinHeads.temporary(stack)) cir.setReturnValue(null);
-        else if ((Object) this instanceof ServerPlayer sp) PumpkinSpiritHandler.onRewardStack(sp, stack);
+        else if ((Object) this instanceof ServerPlayer sp) PumpkinSpiritHandler.recordExistingStack(sp, stack);
     }
 
     @Inject(method = "drop(Lnet/minecraft/world/item/ItemStack;ZZ)Lnet/minecraft/world/entity/item/ItemEntity;",

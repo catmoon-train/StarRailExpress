@@ -33,15 +33,13 @@ import java.util.function.Consumer;
  * 复古列车风格的资源加载覆盖层（替换原版 Mojang Logo / 资源重载界面）。
  * <p>
  * 背景使用静态 background.png，叠加暗角、金色星轨进度条与轮换提示。
- * 整条时间线为：黑屏淡入 → 加载 → 进度满后停留 → 淡出回黑。
+ * 加载中淡入；资源就绪后立即交接，不为完成动画阻塞主菜单、进服或转服。
  */
 @Environment(EnvType.CLIENT)
 public class StarRailLoadingOverlay extends Overlay {
 
     // ── 时间线（毫秒） ────────────────────────────────────────
     private static final long ENTER_MS = 650;
-    private static final long COMPLETE_HOLD_MS = 950;
-    private static final long EXIT_MS = 700;
     private static final long TIP_INTERVAL_MS = 4200;
     private static final long TIP_FADE_MS = 320;
 
@@ -60,7 +58,6 @@ public class StarRailLoadingOverlay extends Overlay {
     private final boolean fadeIn;
 
     private long startMillis = -1L;
-    private long completeMillis = -1L;
     private boolean finished;
     private float displayProgress;
 
@@ -91,46 +88,40 @@ public class StarRailLoadingOverlay extends Overlay {
             startMillis = now;
         }
 
-        float enterAlpha = fadeIn ? LoadingFx.smoothstep((now - startMillis) / (float) ENTER_MS) : 1.0F;
-        float exitAlpha = 1.0F;
-        if (completeMillis >= 0L) {
-            long exitElapsed = now - (completeMillis + COMPLETE_HOLD_MS);
-            if (exitElapsed >= 0L) {
-                exitAlpha = 1.0F - LoadingFx.smoothstep(exitElapsed / (float) EXIT_MS);
-                if (exitElapsed >= EXIT_MS) {
-                    this.minecraft.setOverlay(null);
-                    return;
-                }
+        // 先交接再绘制背景，避免加载完成后仍解码/上传一帧视频并强制等待淡出。
+        if (!finished && reload.isDone()) {
+            finished = true;
+            Optional<Throwable> failure;
+            try {
+                reload.checkExceptions();
+                failure = Optional.empty();
+            } catch (Throwable t) {
+                failure = Optional.of(t);
             }
+            onFinish.accept(failure);
+            // 失败回调可能已经安装新的恢复加载层，不能把它清掉。
+            if (minecraft.getOverlay() == this) {
+                minecraft.setOverlay(null);
+            }
+            if (minecraft.screen != null) {
+                minecraft.screen.init(minecraft, w, h);
+            }
+            return;
         }
-        float alpha = enterAlpha * exitAlpha;
+        float alpha = fadeIn ? LoadingFx.smoothstep((now - startMillis) / (float) ENTER_MS) : 1.0F;
 
         SreUiStyle.renderLoadingBackdrop(g, w, h, partialTick, alpha);
 
-        float target = completeMillis >= 0L ? 1.0F
-                : LoadingFx.clamp01(reload.getActualProgress());
+        float target = LoadingFx.clamp01(reload.getActualProgress());
         displayProgress += (target - displayProgress) * 0.10F;
         if (target - displayProgress < 0.002F) {
             displayProgress = target;
         }
 
-        boolean ready = completeMillis >= 0L && displayProgress > 0.999F;
+        boolean ready = false;
         drawProgress(g, w, h, alpha, ready);
         drawTip(g, w, h, alpha, now, ready);
 
-        if (!finished && reload.isDone()) {
-            finished = true;
-            completeMillis = now;
-            try {
-                reload.checkExceptions();
-                onFinish.accept(Optional.empty());
-            } catch (Throwable t) {
-                onFinish.accept(Optional.of(t));
-            }
-            if (minecraft.screen != null) {
-                minecraft.screen.init(minecraft, w, h);
-            }
-        }
     }
 
     private void drawProgress(GuiGraphics g, int w, int h, float alpha, boolean ready) {

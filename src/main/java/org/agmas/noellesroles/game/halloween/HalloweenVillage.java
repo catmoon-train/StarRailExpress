@@ -6,6 +6,7 @@ import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.cca.SREPlayerShopComponent;
 import io.wifi.starrailexpress.content.block.SmallDoorBlock;
 import io.wifi.starrailexpress.game.GameUtils;
+import io.wifi.starrailexpress.util.SRENetworkMessageUtils;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerWorldEvents;
 import net.fabricmc.fabric.api.event.player.UseBlockCallback;
@@ -13,7 +14,6 @@ import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.fabricmc.fabric.api.object.builder.v1.entity.FabricDefaultAttributeRegistry;
-import net.exmo.sre.subtitle.SubtitleS2CPayload;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -46,10 +46,9 @@ public final class HalloweenVillage {
             EntityType.Builder.of(VillageNpc::new, MobCategory.MISC).sized(.6F, 1.8F)
                     .clientTrackingRange(8).updateInterval(2).noSave().build("halloween_village_npc"));
     private static final Map<ServerLevel, State> STATES = new IdentityHashMap<>();
-    private static final Map<MinecraftServer, Long> NEXT_KNOCK = new WeakHashMap<>();
+    // 按服务器隔离、按玩家计时；换门、换维度或重连不能绕过个人冷却。
+    private static final Map<MinecraftServer, Map<UUID, Long>> NEXT_KNOCK = new WeakHashMap<>();
     private static boolean registered;
-    private static Level clientNightLevel;
-    private static boolean clientNight;
     private static int candyReward = 1;
 
     private HalloweenVillage() {}
@@ -116,23 +115,8 @@ public final class HalloweenVillage {
             return expired;
         });
         state.sessions.values().removeIf(session -> now > session.expires);
-        boolean night = VillageRules.isNight(now - state.started, config.nightStartTicks,
-                config.nightDurationTicks, config.nightIntervalTicks);
-        boolean changed = state.night != night;
-        state.night = night;
-        VillageGhostVoice.publish(level, night);
-        if (changed || now % 20 == 0) {
-            List<UUID> souls = night ? level.players().stream().filter(Player::isSpectator)
-                    .map(Player::getUUID).limit(1024).toList() : List.of();
-            int phase = (int) ((now - state.started) % 12000);
-            for (ServerPlayer player : level.players()) {
-                boolean eligible = night && GameUtils.isPlayerAliveAndSurvival(player);
-                sendNight(player, new VillagePackets.Night(eligible, phase, config.nightDarkThreshold,
-                        eligible ? souls : List.of()));
-                if (changed && eligible) message(player, "night_start");
-                else if (changed && !night) message(player, "night_end");
-            }
-        }
+        // 亡魂夜已移除：不再生成旁观者名单或发布向活人的语音转发路由。
+        VillageGhostVoice.clear(level);
     }
 
     /**
@@ -185,14 +169,11 @@ public final class HalloweenVillage {
                 && npc.distanceToSqr(player) <= radius * radius);
     }
 
-    public static boolean isGhostNight(Level level) {
-        if (level.isClientSide) return clientNightLevel == level && clientNight;
-        State state = STATES.get(level);
-        return state != null && state.night && HalloweenRuntime.isEnabled(level);
-    }
+    /** 亡魂夜事件已移除，保留查询签名供旧调用方兼容。 */
+    public static boolean isGhostNight(Level level) { return false; }
 
-    /** 客户端只接收服务端授权状态，不能据此改变任何服务端规则。 */
-    public static void setClientNight(Level level, boolean active) { clientNightLevel = level; clientNight = active; }
+    /** 兼容旧客户端状态入口，不再接受亡魂夜激活。 */
+    public static void setClientNight(Level level, boolean active) {}
 
     public static boolean owns(VillageNpc npc) {
         if (!(npc.level() instanceof ServerLevel level) || !HalloweenRuntime.isEnabled(level)) return false;
@@ -247,14 +228,15 @@ public final class HalloweenVillage {
                 net.minecraft.world.level.ClipContext.Block.OUTLINE, net.minecraft.world.level.ClipContext.Fluid.NONE, player));
         if (!ray.getBlockPos().equals(position) && !ray.getBlockPos().equals(door) && !ray.getBlockPos().equals(door.above())) return;
         long now = level.getServer().overworld().getGameTime();
-        long next = NEXT_KNOCK.getOrDefault(level.getServer(), 0L);
+        Map<UUID, Long> nextKnocks = NEXT_KNOCK.computeIfAbsent(level.getServer(), server -> new HashMap<>());
+        long next = nextKnocks.getOrDefault(player.getUUID(), 0L);
         if (!VillageRules.cooldownReady(now, next)) {
             knockNotice(player, "knock_cooldown", (next - now + 19) / 20);
             return;
         }
         HalloweenConfig config = HalloweenConfig.get();
-        NEXT_KNOCK.put(level.getServer(), now + Math.max(1, config.knockCooldownTicks));
-        level.playSound(null, door, SoundEvents.WOOD_HIT, SoundSource.BLOCKS, 1, .7F);
+        nextKnocks.put(player.getUUID(), now + Math.max(1, config.knockCooldownTicks));
+        player.playNotifySound(SoundEvents.ZOMBIE_ATTACK_WOODEN_DOOR, SoundSource.PLAYERS, 0.8F, 1.2F);
         org.agmas.noellesroles.game.halloween.pumpkin.PumpkinSpiritHandler.onDoorKnocked(player);
         switch (VillageRules.knockReward(level.random.nextInt(100))) {
             case 0 -> give(player, new ItemStack(HalloweenItems.PUMPKIN, 1 + level.random.nextInt(2)));
@@ -274,10 +256,9 @@ public final class HalloweenVillage {
     }
 
     private static void knockNotice(ServerPlayer player, String key, Object... args) {
-        if (!ServerPlayNetworking.canSend(player, SubtitleS2CPayload.ID)) return;
-        ServerPlayNetworking.send(player, new SubtitleS2CPayload(
-                Component.translatable("halloween.village." + key, args), Component.empty(),
-                60, 0xFFFFCC80, false, SubtitleS2CPayload.POS_TOP, false));
+        SRENetworkMessageUtils.sendTitleTime(player, 5, 40, 10);
+        SRENetworkMessageUtils.sendSubtitle(player, Component.empty());
+        SRENetworkMessageUtils.sendTitle(player, Component.translatable("halloween.village." + key, args));
     }
 
     /** 先创建并登记到 State，再由调用方加入世界，避免实体回调观察到未登记的归属。 */
@@ -333,12 +314,20 @@ public final class HalloweenVillage {
     }
 
     private static boolean deliver(ServerPlayer player, int pumpkins, int coins, ItemStack reward, int amount) {
+        if (HalloweenSoulLinks.isItemBorrower(player)) return false;
         var shop = SREPlayerShopComponent.KEY.get(player);
         var role = SREGameWorldComponent.KEY.get(player.level()).getRole(player);
         if (coins < 0 || (coins > 0 && (shop.balance < coins || role == null || role.hasNoCoinSystem()))) return false;
-        if (reward.is(HalloweenItems.PUMPKIN))
+        reward = reward.copy(); // 不把本次发货标记写回商品模板，后续购买仍是新物品。
+        boolean pumpkinReward = reward.is(HalloweenItems.PUMPKIN);
+        if (pumpkinReward) {
+            reward.setCount(amount);
+            HalloweenPumpkinRewards.adjust(player, reward);
+            amount = reward.getCount();
+            reward.setCount(1); // 作为带有结算标记的发货模板，实际数量由 amount 决定。
             org.agmas.noellesroles.game.halloween.pumpkin.PumpkinSpiritHandler.markSettled(reward);
-        List<ItemStack> plan = VillageInventory.plan(player.getInventory().items, pumpkins, reward, amount, STACKS);
+        }
+        List<ItemStack> plan = VillageInventory.plan(player.getInventory().items, pumpkins, reward, amount, STACKS, true);
         if (plan == null) return false;
         // 主线程、无回调提交：两个币种和商品作为一个事务；不调用会部分插入的 Inventory.add。
         for (int i = 0; i < plan.size(); i++) player.getInventory().items.set(i, plan.get(i));
@@ -372,17 +361,15 @@ public final class HalloweenVillage {
     private static final class State {
         final String map;
         final AABB bounds;
-        final long started;
         final Map<BlockPos, VillageNpc> reapers = new LinkedHashMap<>();
         final Map<VillageNpc, Long> candy = new IdentityHashMap<>();
         final Map<UUID, Session> sessions = new HashMap<>();
         final Map<UUID, Long> lastInteract = new HashMap<>();
         long lastTick = Long.MIN_VALUE;
-        boolean night;
         /** 当前固定残月所在的方块；null 表示地图未设置坐标。 */
         BlockPos reaperKey;
         State(ServerLevel level, String map, AABB bounds) {
-            this.map = map; this.bounds = bounds; started = level.getGameTime();
+            this.map = map; this.bounds = bounds;
         }
     }
 }

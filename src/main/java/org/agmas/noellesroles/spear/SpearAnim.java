@@ -74,6 +74,12 @@ public final class SpearAnim {
         }
     }
 
+    /** 竹枪按同步杆长播放直刺：伸长对应前刺，回收对应收招。 */
+    public static float bambooStabProgress(float extension, boolean retracting) {
+        float length = Mth.clamp(extension, 0.0F, 1.0F);
+        return retracting ? 0.4F + (1.0F - length) * 0.6F : length * 0.2F;
+    }
+
     /** 直刺动画的前段（0 ~ 0.05 进度）。 */
     private static float stabPullBack(float progress) {
         return -(Mth.cos((float) Math.PI * Mth.clamp(Mth.inverseLerp(progress, 0.0F, 0.05F), 0.0F, 1.0F)) - 1.0F) / 2.0F;

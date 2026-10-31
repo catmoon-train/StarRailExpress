@@ -147,7 +147,7 @@ public final class PumpkinSpiritHandler {
             PumpkinHeads.tick(level);
             if (!active(level)) return;
             for (ServerPlayer p : level.players()) {
-                for (int i = 0; i < p.getInventory().getContainerSize(); i++) onRewardStack(p, p.getInventory().getItem(i));
+                for (int i = 0; i < p.getInventory().getContainerSize(); i++) recordExistingStack(p, p.getInventory().getItem(i));
             }
         });
     }
@@ -341,8 +341,14 @@ public final class PumpkinSpiritHandler {
 
     /** 给现有奖励栈使用：在插入/掉落前调用，所有职业都要调用，转移物不重复结算。 */
     public static void onRewardStack(ServerPlayer recipient, ItemStack stack) {
+        org.agmas.noellesroles.game.halloween.HalloweenPumpkinRewards.adjust(recipient, stack);
+        recordExistingStack(recipient, stack);
+    }
+
+    /** 背包扫描和旧物转交仅登记来源，不视作新活动奖励，不扣减物品。 */
+    public static void recordExistingStack(ServerPlayer recipient, ItemStack stack) {
+        if (org.agmas.noellesroles.game.halloween.HalloweenSoulLinks.isItemBorrower(recipient)) return;
         if (!active(recipient.serverLevel()) || !stack.is(HalloweenItems.PUMPKIN) || stack.isEmpty()) return;
-        // 官网记录发生在职业限制之前；原南瓜精累计/跨十奖励保持原入口且只计一次。
         credit(recipient, OnlinePumpkinIncome.rewardCredit(recipient, stack));
     }
 

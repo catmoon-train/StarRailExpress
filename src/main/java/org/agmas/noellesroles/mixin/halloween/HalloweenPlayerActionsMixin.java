@@ -2,6 +2,8 @@ package org.agmas.noellesroles.mixin.halloween;
 
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.network.ServerGamePacketListenerImpl;
+import net.minecraft.network.protocol.game.ServerboundPlayerActionPacket;
+import org.agmas.noellesroles.game.halloween.HalloweenSoulLinks;
 import org.agmas.noellesroles.game.halloween.HalloweenCombat;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -22,5 +24,21 @@ public abstract class HalloweenPlayerActionsMixin {
         if (!player.server.isSameThread() || !HalloweenCombat.isActionLocked(player)) return;
         player.containerMenu.broadcastFullState();
         ci.cancel();
+    }
+    @Inject(method = "handlePlayerAction", at = @At("HEAD"), cancellable = true)
+    private void halloween$linkDropAction(ServerboundPlayerActionPacket packet, CallbackInfo ci) {
+        if (!player.server.isSameThread() || !HalloweenSoulLinks.isItemBorrower(player)) return;
+        switch (packet.getAction()) {
+            case DROP_ITEM, DROP_ALL_ITEMS, SWAP_ITEM_WITH_OFFHAND -> {
+                player.containerMenu.broadcastFullState();
+                ci.cancel();
+            }
+            default -> { }
+        }
+    }
+
+    @Inject(method = "handleContainerButtonClick", at = @At("HEAD"), cancellable = true)
+    private void halloween$linkContainerButton(CallbackInfo ci) {
+        if (player.server.isSameThread() && HalloweenSoulLinks.isItemBorrower(player)) ci.cancel();
     }
 }

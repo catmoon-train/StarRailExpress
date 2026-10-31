@@ -15,14 +15,17 @@
 
 package org.agmas.noellesroles.mixin.client.roles.nature_spirit;
 
+import net.minecraft.client.model.EntityModel;
 import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.client.model.geom.ModelPart;
+import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.HumanoidArm;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import org.agmas.noellesroles.content.entity.BambooSpearEntity;
 import org.agmas.noellesroles.init.ModItems;
+import org.agmas.noellesroles.spear.SpearAnim;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -32,21 +35,11 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 /**
- * 第三人称竹刀姿态：竹刀伸出期间把持刀那条手臂沿视线方向前伸，
- * 这样外部视角看到的竹杆是从手里刺出去的，而不是从身体里穿出来。
- * <p>
- * 竹杆本身整根压在「眼睛 → 视线」这条射线上（见 {@link BambooSpearEntity#poleBase}），
- * 也就是位于眼睛高度，所以手臂除了前伸还要再抬约 17°，掌心才正好托在杆根附近
- * （肩膀比眼睛低 0.25 格，不抬的话竹杆会从手背上方半格处飘过去）。
- * <p>
- * 只在竹刀实体存在期间生效（{@link BambooSpearEntity#isClientActiveOwner}），
- * 单纯拿着竹刀走路仍是原版持物姿态。
+ * 竹枪复用 spear 的第三人称直刺曲线，以同步实体的杆长驱动手臂。
+ * 不依赖本地挥手时长，远端玩家与最后一点耐久碎裂后仍能看到完整动作。
  */
 @Mixin(HumanoidModel.class)
 public abstract class HumanoidModelBambooSpearMixin<T extends LivingEntity> {
-
-    /** 手臂前伸之后再抬起的弧度（≈17°），把掌心抬到竹杆所在的眼睛高度。 */
-    private static final float HAND_RAISE = 0.30F;
 
     @Shadow
     @Final
@@ -75,16 +68,38 @@ public abstract class HumanoidModelBambooSpearMixin<T extends LivingEntity> {
         if (!(entity instanceof Player player)) {
             return;
         }
-        ItemStack stack = entity.getMainArm() == humanoidArm ? entity.getMainHandItem() : entity.getOffhandItem();
-        if (!stack.is(ModItems.BAMBOO_SPEAR)) {
+        BambooSpearEntity bamboo = BambooSpearEntity.getClientActiveSpear(player);
+        InteractionHand hand = entity.getMainArm() == humanoidArm ? InteractionHand.MAIN_HAND : InteractionHand.OFF_HAND;
+        ItemStack stack = entity.getItemInHand(hand);
+        if (!stack.is(ModItems.BAMBOO_SPEAR) && (bamboo == null || bamboo.getAttackHand() != hand)) {
             return;
         }
-        if (!BambooSpearEntity.isClientActiveOwner(player)) {
-            return;
+        arm.xRot = (-(float) Math.PI / 2.0F) + this.head.xRot + 0.8F;
+        if (entity.isFallFlying()) {
+            arm.xRot -= 0.9599311F;
         }
-        // 手臂前伸（比水平再抬 HAND_RAISE）并跟随俯仰角：竹杆在眼睛高度，两边必须同步改。
-        arm.xRot = (-(float) Math.PI / 2.0F - HAND_RAISE) + this.head.xRot;
-        arm.yRot = this.head.yRot;
+        arm.yRot = -0.1F * this.head.yRot;
         arm.zRot = 0.0F;
+    }
+
+    /** 覆盖原版横挥，只驱动实际攻击的那只手；模型传入的是实体年龄而非 partialTick。 */
+    @Inject(method = "setupAttackAnimation", at = @At("HEAD"), cancellable = true)
+    private void bambooSpear$stab(T entity, float ageInTicks, CallbackInfo ci) {
+        if (!(entity instanceof Player player)) {
+            return;
+        }
+        BambooSpearEntity bamboo = BambooSpearEntity.getClientActiveSpear(player);
+        InteractionHand hand = bamboo != null ? bamboo.getAttackHand() : entity.swingingArm;
+        // attackTime 定义在 EntityModel 父类，不能在 HumanoidModel 上声明 @Shadow。
+        float attackTime = ((EntityModel<?>) (Object) this).attackTime;
+        if (hand == null || (bamboo == null && (!entity.getItemInHand(hand).is(ModItems.BAMBOO_SPEAR)
+                || attackTime <= 0.0F))) {
+            return;
+        }
+        float progress = bamboo != null ? bamboo.getStabProgress(ageInTicks - entity.tickCount) : attackTime;
+        HumanoidArm attackArm = hand == InteractionHand.MAIN_HAND ? entity.getMainArm() : entity.getMainArm().getOpposite();
+        ModelPart arm = attackArm == HumanoidArm.RIGHT ? this.rightArm : this.leftArm;
+        arm.xRot += SpearAnim.thirdPersonArmPitch(progress);
+        ci.cancel();
     }
 }

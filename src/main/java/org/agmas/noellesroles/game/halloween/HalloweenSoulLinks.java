@@ -14,7 +14,6 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.SimpleMenuProvider;
-import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.ChestMenu;
@@ -32,7 +31,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
-/** 灵魂链接：服务端邀请、单一共享容器、共享盾池及同生共死。 */
+/** 灵魂链接：发起者背包实时借用、共享盾池及同生共死。 */
 public final class HalloweenSoulLinks {
     private static final Map<UUID, Link> LINKS = new HashMap<>();
     private static final Map<UUID, Invite> INVITES = new HashMap<>();
@@ -47,7 +46,6 @@ public final class HalloweenSoulLinks {
     private static final class Link {
         final ServerLevel level;
         final UUID first, second;
-        final SimpleContainer inventory = new SimpleContainer(27);
         Vec3 lastFirst, lastSecond;
         Link(ServerPlayer a, ServerPlayer b) {
             level = a.serverLevel();
@@ -64,19 +62,22 @@ public final class HalloweenSoulLinks {
             if (hand != InteractionHand.MAIN_HAND || !(entity instanceof Player target)
                     || !HalloweenRuntime.isEnabled(level)) return InteractionResult.PASS;
             boolean proposing = player.getItemInHand(hand).is(HalloweenItems.SOUL_LINK);
-            boolean opening = player.isShiftKeyDown() && player.getItemInHand(hand).isEmpty()
-                    && target.getUUID().equals(partnerId(player));
-            if (!proposing && !opening) return InteractionResult.PASS;
+            if (!proposing) return InteractionResult.PASS;
             if (level.isClientSide) return InteractionResult.SUCCESS;
             if (!(player instanceof ServerPlayer sender) || !(target instanceof ServerPlayer recipient)
                     || sender == recipient || !canAct(sender) || !canAct(recipient) || !sender.hasLineOfSight(recipient)
                     || sender.distanceToSqr(recipient) > 9) return InteractionResult.FAIL;
-            if (recipient.getUUID().equals(partnerId(sender))) {
-                openShared(sender, LINKS.get(sender.getUUID()));
-            } else if (proposing) invite(sender, recipient, hand);
+            invite(sender, recipient, hand);
             return InteractionResult.SUCCESS;
         });
         OnPlayerDeathWithKiller.FINAL_EVENT.register((victim, killer, reason) -> dieTogether(victim));
+        // 正式死亡后、掉落物结算前分离伙伴镜像，防止重复掉落共享物品。
+        io.wifi.starrailexpress.event.OnPlayerDeath.EVENT.register((player, reason) -> {
+            if (player instanceof ServerPlayer sp && isItemBorrower(sp)) HalloweenLinkItems.clear(sp);
+        });
+        io.wifi.starrailexpress.event.OnPlayerDeathWithBody.EVENT.register((victim, killer, reason, body) -> {
+            if (isItemBorrower(victim)) body.setCorpseInventoryFromPlayerInventory(null);
+        });
         ServerPlayConnectionEvents.DISCONNECT.register((handler, server) -> {
             ServerPlayer player = handler.player;
             Link link = LINKS.get(player.getUUID());
@@ -124,6 +125,7 @@ public final class HalloweenSoulLinks {
         sender.getItemInHand(invite.hand).shrink(1);
         sender.getInventory().setChanged();
         sender.containerMenu.broadcastChanges();
+        HalloweenLinkItems.sync(sender, recipient);
         HalloweenNetwork.sync(invite.level);
         SREArmorPlayerComponent.KEY.get(sender).sync();
         SREArmorPlayerComponent.KEY.get(recipient).sync();
@@ -131,10 +133,25 @@ public final class HalloweenSoulLinks {
         recipient.displayClientMessage(Component.translatable("halloween.link.established"), false);
     }
 
-    private static void openShared(ServerPlayer player, Link link) {
+    /** second 始终为接受邀请者，first 始终为消耗灵魂链接道具的发起者。 */
+    public static boolean isItemBorrower(Player player) {
+        Link link = LINKS.get(player.getUUID());
+        return link != null && link.second.equals(player.getUUID());
+    }
+
+    public static ServerPlayer itemOwner(ServerPlayer borrower) {
+        Link link = LINKS.get(borrower.getUUID());
+        if (link == null || !link.second.equals(borrower.getUUID()) || link.level != borrower.serverLevel()) return null;
+        ServerPlayer owner = link.level.getServer().getPlayerList().getPlayer(link.first);
+        return owner != null && owner.serverLevel() == link.level ? owner : null;
+    }
+
+    public static void syncItems(ServerPlayer player) {
+        Link link = LINKS.get(player.getUUID());
         if (link == null) return;
-        player.openMenu(new SimpleMenuProvider((id, inv, p) -> new SharedMenu(id, inv, link),
-                Component.translatable("halloween.link.inventory")));
+        ServerPlayer owner = link.level.getServer().getPlayerList().getPlayer(link.first);
+        ServerPlayer borrower = link.level.getServer().getPlayerList().getPlayer(link.second);
+        if (owner != null && borrower != null) HalloweenLinkItems.sync(owner, borrower);
     }
 
     public static UUID partnerId(Player player) {
@@ -203,6 +220,7 @@ public final class HalloweenSoulLinks {
                 remove(link, true);
                 continue;
             }
+            HalloweenLinkItems.sync(a, b);
             double limit = HalloweenConfig.get().linkDistance;
             if (!HalloweenLinkRules.within(a.distanceToSqr(b), limit)) {
                 boolean firstMoved = a.position().distanceToSqr(link.lastFirst)
@@ -223,17 +241,8 @@ public final class HalloweenSoulLinks {
     private static void remove(Link link, boolean drop) {
         if (!LINKS.remove(link.first, link)) return;
         LINKS.remove(link.second, link);
-        Vec3 pos = link.lastFirst;
-        for (UUID id : Set.of(link.first, link.second)) {
-            ServerPlayer player = link.level.getServer().getPlayerList().getPlayer(id);
-            if (player != null && player.containerMenu instanceof SharedMenu menu && menu.link == link)
-                player.closeContainer();
-        }
-        for (int i = 0; i < link.inventory.getContainerSize(); i++) {
-            ItemStack stack = link.inventory.removeItemNoUpdate(i);
-            if (drop && !stack.isEmpty()) link.level.addFreshEntity(new ItemEntity(link.level,
-                    pos.x, pos.y + .3, pos.z, stack));
-        }
+        ServerPlayer borrower = link.level.getServer().getPlayerList().getPlayer(link.second);
+        if (borrower != null) HalloweenLinkItems.clear(borrower);
         HalloweenNetwork.sync(link.level);
     }
 
@@ -244,19 +253,6 @@ public final class HalloweenSoulLinks {
                 || level.getServer().getPlayerList().getPlayer(id).level() == level);
     }
 
-    private static final class SharedMenu extends ChestMenu {
-        final Link link;
-        SharedMenu(int id, Inventory inventory, Link link) {
-            super(MenuType.GENERIC_9x3, id, inventory, link.inventory, 3);
-            this.link = link;
-        }
-        @Override public boolean stillValid(Player player) {
-            Player other = partner(player);
-            return LINKS.get(player.getUUID()) == link && GameUtils.isPlayerAliveAndSurvival(player)
-                    && other != null && GameUtils.isPlayerAliveAndSurvival(other)
-                    && HalloweenLinkRules.within(player.distanceToSqr(other), HalloweenConfig.get().linkDistance);
-        }
-    }
 
     private static final class ConsentMenu extends ChestMenu {
         private final Invite invite;

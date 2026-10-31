@@ -11,6 +11,15 @@ public final class NightUndeadRules {
 
     private NightUndeadRules() {}
 
+    /** 来源专属 RGB：活动游魂橙金、领主亡灵淡紫，黑夜和野生亡灵保持原色。 */
+    public static int visualColor(Source source) {
+        return switch (source) {
+            case HALLOWEEN -> 0xFFB35C;
+            case LORD -> 0xB58AFF;
+            default -> 0xFFFFFF;
+        };
+    }
+
     /** 黑夜亡灵可持续整局，延命道具不能让接近上限的寿命溢出为负。 */
     public static int extendLifetime(int remaining, int extra) {
         return (int) Math.clamp((long) remaining + extra, 0L, (long) Integer.MAX_VALUE);

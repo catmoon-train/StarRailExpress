@@ -40,7 +40,7 @@ import java.util.UUID;
 /**
  * 亡灵使用独立的玩家网格：保留完整躯干、外套、头部、双臂及 slim 差异，仅隐藏双腿。
  * 整体仅绘制一次半透明主体，避免基类不透明主体叠加后使 alpha 失效。
- * 苍白覆盖、灰紫雾气与寿命末期闪烁保持不变；不修改共享 NPC 模型层。
+ * 按服务端来源颜色区分活动游魂与领主亡灵，保留原皮肤、透明度和寿命末期闪烁。
  */
 public class UndeadEntityRenderer extends LivingEntityRenderer<UndeadEntity, PlayerModel<UndeadEntity>> {
 
@@ -142,7 +142,8 @@ public class UndeadEntityRenderer extends LivingEntityRenderer<UndeadEntity, Pla
             VertexConsumer vertexConsumer = vertexConsumerProvider.getBuffer(renderLayer);
             // 较强的白色覆盖让皮肤偏白（苍白亡灵感）
             int overlay = getOverlayCoords(livingEntity, this.getWhiteOverlayProgress(livingEntity, g));
-            int color = invisibleToOthers ? 0x26FFFFFF : 0x80FFFFFF; // 正常 alpha ≈ 0.50。
+            int alpha = invisibleToOthers ? 0x26000000 : 0x80000000;
+            int color = alpha | (livingEntity.getVisualColor() & 0xFFFFFF);
             model.renderToBuffer(matrixStack, vertexConsumer, light, overlay, color);
         }
         matrixStack.popPose();
@@ -154,10 +155,10 @@ public class UndeadEntityRenderer extends LivingEntityRenderer<UndeadEntity, Pla
         matrices.scale(g, g, g);
     }
 
-    /** 恒定的白色覆盖：让亡灵皮肤整体偏白。 */
+    /** 有来源色时降低白色覆盖，避免橙金和淡紫被冲淡；其它来源沿用原苍白效果。 */
     @Override
     protected float getWhiteOverlayProgress(UndeadEntity livingEntity, float f) {
-        return PALE_OVERLAY;
+        return livingEntity.getVisualColor() == 0xFFFFFF ? PALE_OVERLAY : 0.15F;
     }
 
     @Override

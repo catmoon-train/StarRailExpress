@@ -55,6 +55,7 @@ public final class PumpkinHideouts {
             State state = STATES.get(sp.serverLevel());
             Hideout hideout = state == null ? null : state.hideouts.get(entity.getUUID());
             if (hideout == null) return InteractionResult.FAIL;
+            if (PumpkinHideoutRules.expired(level.getGameTime(), hideout.expiresAt)) return InteractionResult.FAIL;
             if (sp.distanceToSqr(hideout.feet) > 36 || !sp.hasLineOfSight(hideout.target)) return InteractionResult.FAIL;
             // interactAt / interact 可能在同一次点击内重复到达；必须先防重，再切换进入/退出。
             if (!state.interactions.tryUse(player.getUUID(), level.getGameTime())) return InteractionResult.CONSUME;
@@ -126,7 +127,8 @@ public final class PumpkinHideouts {
         target.addTag(TAG);
         if (!level.addFreshEntity(display)) return false;
         if (!level.addFreshEntity(target)) { display.discard(); return false; }
-        state.hideouts.put(target.getUUID(), new Hideout(player.getUUID(), feet, display, target));
+        state.hideouts.put(target.getUUID(), new Hideout(player.getUUID(), feet, display, target,
+                level.getGameTime() + PumpkinHideoutRules.LIFETIME_TICKS));
         message(player, "hideout_placed");
         return true;
     }
@@ -189,7 +191,8 @@ public final class PumpkinHideouts {
         if (state == null) return;
         state.hideouts.values().removeIf(hideout -> {
             ServerPlayer owner = level.getServer().getPlayerList().getPlayer(hideout.owner);
-            if (hideout.display.isRemoved() || hideout.target.isRemoved() || owner == null
+            if (PumpkinHideoutRules.expired(level.getGameTime(), hideout.expiresAt)
+                    || hideout.display.isRemoved() || hideout.target.isRemoved() || owner == null
                     || owner.serverLevel() != level || !HalloweenConsumables.canUse(owner)) {
                 hideout.discard();
                 return true;
@@ -203,7 +206,7 @@ public final class PumpkinHideouts {
             boolean outside = !PumpkinHideoutRules.contains(feet, position);
             if (outside || player.serverLevel() != level || !level.players().contains(player)
                     || !HalloweenConsumables.canUse(player) || guest.hideout.target.isRemoved()) {
-                restore(guest, false);
+                restore(guest, guest.hideout.target.isRemoved());
                 return true;
             }
             hideoutSpeed(player, true);
@@ -317,7 +320,7 @@ public final class PumpkinHideouts {
         final PumpkinHideoutInteractionGate interactions = new PumpkinHideoutInteractionGate();
     }
 
-    private record Hideout(UUID owner, Vec3 feet, Display.ItemDisplay display, Interaction target) {
+    private record Hideout(UUID owner, Vec3 feet, Display.ItemDisplay display, Interaction target, long expiresAt) {
         void discard() { display.discard(); target.discard(); }
     }
     private record Guest(ServerPlayer player, Hideout hideout, Vec3 entry) {}

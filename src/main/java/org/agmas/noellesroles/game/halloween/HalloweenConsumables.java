@@ -52,7 +52,7 @@ public final class HalloweenConsumables {
         switch (action) {
             case HEART, COIN -> {
                 SREPlayerShopComponent shop = SREPlayerShopComponent.KEY.get(player);
-                int gain = action == Action.HEART ? 50 : 5;
+                int gain = action == Action.HEART ? 25 : 5;
                 shop.setBalance((int) Math.min(Integer.MAX_VALUE, (long) shop.balance + gain));
                 message(player, "coins", gain);
             }
@@ -60,7 +60,7 @@ public final class HalloweenConsumables {
                 Buffs buffs = state(player);
                 long until = player.serverLevel().getGameTime() + HalloweenConfig.get().candyDurationTicks;
                 buffs.candyUntil = Math.max(buffs.candyUntil, until);
-                int outcome = player.getRandom().nextInt(4);
+                int outcome = HalloweenRewardRules.candyEffect(player.getRandom().nextInt(100));
                 switch (outcome) {
                     case 0 -> io.wifi.starrailexpress.cca.SREArmorPlayerComponent.KEY.get(player)
                             .addTimedArmor(1, HalloweenConfig.get().candyDurationTicks);
@@ -73,15 +73,18 @@ public final class HalloweenConsumables {
                 message(player, "candy_" + outcome);
             }
             case BAG -> {
-                HalloweenConfig.Loot loot = HalloweenConfig.rollLoot(HalloweenConfig.get().loot, player.getRandom().nextDouble());
+                var role = SREGameWorldComponent.KEY.get(player.level()).getRole(player);
+                boolean innocent = role != null && role.isInnocent();
+                HalloweenConfig.Loot loot = HalloweenConfig.rollCandyBagLoot(HalloweenConfig.get().loot,
+                        player.getRandom().nextDouble(), innocent);
                 if (loot == null) return false;
                 ResourceLocation id = ResourceLocation.tryParse(loot.item);
                 if (id == null || !BuiltInRegistries.ITEM.containsKey(id)) return false;
                 Item item = BuiltInRegistries.ITEM.get(id);
                 if (item == net.minecraft.world.item.Items.AIR) return false;
                 // 先消耗袋子由物品调用方完成；满背包奖励落在脚下，不会吞掉奖励。
-                give(player, item, loot.count);
-                message(player, "bag", Component.translatable(item.getDescriptionId()), loot.count);
+                int awarded = give(player, item, loot.count);
+                message(player, "bag", Component.translatable(item.getDescriptionId()), awarded);
             }
             default -> { return false; }
         }
@@ -169,6 +172,12 @@ public final class HalloweenConsumables {
         }
     }
 
+    /** 误杀小脑属于惩罚死亡，南瓜套不能格挡，也不消耗套装。 */
+    public static boolean tryBlockDamage(Player player, ResourceLocation reason) {
+        if (io.wifi.starrailexpress.game.GameConstants.DeathReasons.SHOT_INNOCENT.equals(reason)) return false;
+        return tryBlockDamage(player);
+    }
+
     /** 供统一死亡拦截调用；返回 true 表示本次伤害被本模块消耗的盾或套装挡住。 */
     public static boolean tryBlockDamage(Player player) {
         if (!(player instanceof ServerPlayer sp) || !canUse(player)) return false;
@@ -205,15 +214,18 @@ public final class HalloweenConsumables {
         buffs.night.clear(buffs.player, now);
     }
 
-    private static void give(ServerPlayer player, Item item, int count) {
+    private static int give(ServerPlayer player, Item item, int count) {
+        int awarded = 0;
         while (count > 0) {
             int amount = Math.min(count, item.getDefaultMaxStackSize());
             ItemStack stack = new ItemStack(item, amount);
             org.agmas.noellesroles.game.halloween.pumpkin.PumpkinSpiritHandler.onRewardStack(player, stack);
+            awarded += stack.getCount();
             if (!player.getInventory().add(stack)) player.drop(stack, false);
             count -= amount;
         }
         player.containerMenu.broadcastChanges();
+        return awarded;
     }
 
     private static void message(ServerPlayer player, String key, Object... args) {

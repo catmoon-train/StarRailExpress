@@ -17,11 +17,11 @@ class HalloweenConfigTest {
     @Test void requiredDefaultsAreStable() throws Exception {
         HalloweenConfig config = new HalloweenConfig();
         Map<String, Integer> expected = Map.ofEntries(
-                Map.entry("knockCooldownTicks", 300), Map.entry("knockUndeadTicks", 200),
+                Map.entry("knockCooldownTicks", 700), Map.entry("knockUndeadTicks", 200),
                 Map.entry("candyNpcLifetimeTicks", 600), Map.entry("undeadLifetimeTicks", 1800),
-                Map.entry("maxEventUndead", 32), Map.entry("gunCooldownTicks", 200),
+                Map.entry("maxEventUndead", 32), Map.entry("gunCooldownTicks", 600),
                 Map.entry("gunFreezeTicks", 100), Map.entry("gunShieldSuppressionTicks", 600),
-                Map.entry("sawChargeTicks", 10), Map.entry("heartDelayTicks", 300),
+                Map.entry("sawChargeTicks", 12), Map.entry("heartDelayTicks", 300),
                 Map.entry("candyDurationTicks", 600), Map.entry("costumeBagIntervalTicks", 2400),
                 Map.entry("linkInviteTicks", 300), Map.entry("npcKillRadius", 8),
                 Map.entry("pactReviveTicks", 1200), Map.entry("questTaskCount", 3),
@@ -30,6 +30,22 @@ class HalloweenConfigTest {
         for (var entry : expected.entrySet()) assertEquals(entry.getValue(), HalloweenConfig.class.getField(entry.getKey()).getInt(config));
         assertEquals(10, config.linkDistance);
         assertEquals(0.2, config.candyNpcChance);
+    }
+
+    @Test void oldKnockCooldownUsesThirtyFiveSecondsButLongerValuesSurvive() {
+        for (int ticks : new int[] {1, 300, 460, 699, 700, 900}) {
+            HalloweenConfig config = GSON.fromJson("{\"knockCooldownTicks\":" + ticks + "}", HalloweenConfig.class);
+            config.validate(id -> true, ignored -> {});
+            assertEquals(Math.max(700, ticks), config.knockCooldownTicks);
+        }
+    }
+
+    @Test void oldSawWindupUsesTwelveTicksButLongerCustomValuesSurvive() {
+        for (int ticks : new int[] {1, 10, 11, 12, 20}) {
+            HalloweenConfig config = GSON.fromJson("{\"sawChargeTicks\":" + ticks + "}", HalloweenConfig.class);
+            config.validate(id -> true, ignored -> {});
+            assertEquals(Math.max(12, ticks), config.sawChargeTicks);
+        }
     }
 
     @Test void gsonPartialFilesKeepDefaultsAndCustomPoolsRoundTrip() {

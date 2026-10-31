@@ -12,6 +12,7 @@ final class HalloweenCombatState {
     private final Set<UUID> claimedBodies = new HashSet<>();
     private final Set<UUID> acceptedPacts = new HashSet<>();
     private final Map<UUID, Integer> tasks = new HashMap<>();
+    private boolean contractIssued;
 
     long now() { return ticks; }
 
@@ -21,9 +22,22 @@ final class HalloweenCombatState {
 
     boolean claimBody(UUID body) { return body != null && claimedBodies.add(body); }
 
-    boolean acceptPact(UUID player) { return acceptedPacts.add(player); }
+    boolean acceptPact(UUID player) {
+        return player != null && !hasAnyAcceptedPact() && acceptedPacts.add(player);
+    }
+
+    boolean hasAnyAcceptedPact() { return !acceptedPacts.isEmpty(); }
 
     boolean hasAcceptedPact(UUID player) { return acceptedPacts.contains(player); }
+
+    boolean hasIssuedContract() { return contractIssued; }
+
+    /** 每三个真实任务才调用一次；20% 命中且全局没有魂契时原子占用发放名额。 */
+    boolean tryIssueContract(int roll, boolean occupied) {
+        if (contractIssued || hasAnyAcceptedPact() || occupied || roll < 0 || roll >= 20) return false;
+        contractIssued = true;
+        return true;
+    }
 
     boolean completeTask(UUID player, int required) {
         int count = tasks.getOrDefault(player, 0) + 1;

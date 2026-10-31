@@ -22,9 +22,9 @@ public final class FakeSteveRules {
     public static final int FACE_TO_FACE_TICKS = 5 * 20;
     public static final int ASSIMILATION_TICKS = 3 * 20;
     public static final long HUNT_ROOM_RECALL_INTERVAL_TICKS = 90L * 20L;
-    /** 真正死亡后等待多久再掷「回到自己房间复活」的骰子。 */
+    /** 真正死亡后等待 35 秒，再检查是否仍死亡并结算复活。 */
     public static final long DEATH_REVIVE_DELAY_TICKS = 35L * 20L;
-    /** 等待结束时仍处于死亡状态，则有该百分比概率复活。 */
+    /** 等待结束时仍处于死亡状态，则有 15% 概率复活并被夺舍。 */
     public static final int DEATH_REVIVE_CHANCE_PERCENT = 15;
 
     private FakeSteveRules() {
@@ -65,7 +65,7 @@ public final class FakeSteveRules {
         return uninterruptedTicks >= FACE_TO_FACE_TICKS;
     }
 
-    /** 掷骰：{@code rollPercent} 落在 [0,15) 时才复活（15%）。 */
+    /** 掷骰：随机数落在 [0,15) 时才复活并被夺舍（15%）。 */
     public static boolean shouldReviveAfterDeath(int rollPercent) {
         return rollPercent >= 0 && rollPercent < DEATH_REVIVE_CHANCE_PERCENT;
     }

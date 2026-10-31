@@ -18,15 +18,16 @@ package org.agmas.noellesroles.game.fake_steve;
 import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
+import io.wifi.starrailexpress.cca.AreasWorldComponent;
+import io.wifi.starrailexpress.content.entity.PlayerBodyEntity;
+import io.wifi.starrailexpress.event.OnPlayerDeathWithKiller;
 import io.wifi.starrailexpress.cca.SREPlayerPsychoComponent;
 import io.wifi.starrailexpress.cca.SREPlayerShopComponent;
 import io.wifi.starrailexpress.api.replay.GameReplayUtils;
-import io.wifi.starrailexpress.content.entity.PlayerBodyEntity;
 import io.wifi.starrailexpress.event.AllowGameEnd;
 import io.wifi.starrailexpress.event.AllowPlayerWin;
 import io.wifi.starrailexpress.event.OnGameEnd;
 import io.wifi.starrailexpress.event.OnKillPlayerTriggered;
-import io.wifi.starrailexpress.event.OnPlayerDeath;
 import io.wifi.starrailexpress.game.GameConstants;
 import io.wifi.starrailexpress.game.GameUtils;
 import io.wifi.starrailexpress.game.modes.SREMurderGameMode;
@@ -54,6 +55,7 @@ import org.agmas.noellesroles.utils.RoleUtils;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
@@ -101,22 +103,20 @@ public final class FakeSteveDirector {
             return TrueFalseResult.PASS;
         });
 
-        // 伪人事件期间玩家真正死亡（已成为旁观者）时登记一次复活计时：
-        // 35 秒后若仍处于死亡状态，再掷 15% 的骰子决定是否让其在自己的房间复活。
-        OnPlayerDeath.EVENT.register((player, deathReason) -> {
-            if (!(player instanceof ServerPlayer serverPlayer)) {
+        // 最终死亡回调才登记，避免护盾拦截或假死触发；每名玩家每局只给一次机会。
+        OnPlayerDeathWithKiller.FINAL_EVENT.register((victim, killer, reason) -> {
+            if (!(victim instanceof ServerPlayer player) || !isReallyDead(player) || isReplaced(player)) {
                 return;
             }
-            ServerLevel level = serverPlayer.serverLevel();
-            if (!canGenerate(level) || !isRoundAcceptingCommands(level)) {
-                return;
-            }
+            ServerLevel level = player.serverLevel();
             Session session = session(level);
-            if (session == null || !session.active) {
-                return;
+            if (session != null && session.active && !session.victoryDeclared
+                    && canGenerate(level) && isRoundAcceptingCommands(level)
+                    && SREGameWorldComponent.KEY.get(level).getRole(player) != null
+                    && session.deathReviveAttempted.add(player.getUUID())) {
+                session.pendingDeathRevives.put(player.getUUID(),
+                        level.getGameTime() + FakeSteveRules.DEATH_REVIVE_DELAY_TICKS);
             }
-            session.pendingDeathRevives.put(serverPlayer.getUUID(),
-                    level.getGameTime() + FakeSteveRules.DEATH_REVIVE_DELAY_TICKS);
         });
 
         AllowGameEnd.EVENT_END.register((level, proposed, looseEnds) -> {
@@ -197,7 +197,11 @@ public final class FakeSteveDirector {
     private static Session resetSession(ServerLevel level) {
         int startingPlayers = (int) level.getPlayers((p) -> GameUtils.isPlayerAliveAndSurvival(p)).stream().count();
         Session session = new Session(startingPlayers);
-        SESSIONS.put(level.dimension().location(), session);
+        Session previous = SESSIONS.put(level.dimension().location(), session);
+        if (previous != null) {
+            previous.pendingDeathRevives.clear();
+            previous.deathReviveAttempted.clear();
+        }
         return session;
     }
 
@@ -342,63 +346,57 @@ public final class FakeSteveDirector {
         }
     }
 
-    /**
-     * 推进本局的「死亡后复活」计时：到点的玩家立即结算一次 15% 骰子。
-     * <p>
-     * 计时只存在于当前 {@link Session} 里，局末 {@link #clear(ServerLevel)} / 重开
-     * {@link #resetSession(ServerLevel)} 会整只换掉，因此不会跨局残留。
-     */
+    /** 排除分裂人格、回溯等仍被游戏判定为存活的旁观状态。 */
+    private static boolean isReallyDead(ServerPlayer player) {
+        return player.isSpectator() && !GameUtils.isPlayerAliveAndSurvival(player);
+    }
+
+    /** 仅推进当前局的计时；提前复活、离线或换世界即作废，结算后不重复掷骰。 */
     private static void tickDeathRevives(ServerLevel level, Session session) {
-        if (session.pendingDeathRevives.isEmpty()) {
+        if (session(level) != session || !session.active || session.victoryDeclared
+                || !canGenerate(level) || !isRoundAcceptingCommands(level)) {
+            session.pendingDeathRevives.clear();
             return;
         }
-        long now = level.getGameTime();
-        for (UUID id : new ArrayList<>(session.pendingDeathRevives.keySet())) {
-            Long attemptTick = session.pendingDeathRevives.get(id);
-            if (attemptTick == null || now < attemptTick) {
+        for (UUID id : Set.copyOf(session.pendingDeathRevives.keySet())) {
+            ServerPlayer player = level.getServer().getPlayerList().getPlayer(id);
+            if (player == null || player.serverLevel() != level || !isReallyDead(player) || isReplaced(player)) {
+                session.pendingDeathRevives.remove(id);
+                continue;
+            }
+            if (level.getGameTime() < session.pendingDeathRevives.get(id)) {
                 continue;
             }
             session.pendingDeathRevives.remove(id);
-            ServerPlayer player = level.getServer().getPlayerList().getPlayer(id);
-            if (player == null || player.serverLevel() != level) {
-                continue;
-            }
             tryReviveDeadPlayer(level, session, player);
         }
     }
 
-    /**
-     * 死亡 35 秒后仍处于死亡状态时掷 15% 骰子，命中就在自己的房间复活并清掉旧尸体。
-     * <p>
-     * 进入这里必须重新确认一次上下文：本局仍在进行、事件仍激活、玩家确实还死着
-     * （被其它途径救起、分裂人格的假死、已经被取代的都不算），任何一条不满足就放弃。
-     */
+    /** 35 秒后仍真正死亡时按 15% 概率在自己房间复活并被伪人夺舍；上下文变化均取消。 */
     private static void tryReviveDeadPlayer(ServerLevel level, Session session, ServerPlayer player) {
-        if (!session.active || session.victoryDeclared || !canGenerate(level)) {
+        if (session(level) != session || !session.active || session.victoryDeclared
+                || !canGenerate(level) || !isRoundAcceptingCommands(level)
+                || player.serverLevel() != level || !isReallyDead(player) || isReplaced(player)
+                || SREGameWorldComponent.KEY.get(level).getRole(player) == null) {
             return;
         }
-        if (SREGameWorldComponent.KEY.get(level).getGameStatus() != SREGameWorldComponent.GameStatus.ACTIVE) {
+        Integer room = GameUtils.roomToPlayer.get(player.getUUID());
+        if (room == null || GameUtils.getSpawnPos(AreasWorldComponent.KEY.get(level), room) == null
+                || !FakeSteveRules.shouldReviveAfterDeath(level.random.nextInt(100))) {
             return;
         }
-        // 仍处于死亡期间：必须是旁观状态，且没有被「假死」类机制算成存活。
-        if (!player.isSpectator() || GameUtils.isPlayerAliveAndSurvival(player)) {
-            return;
-        }
-        if (isReplaced(player)) {
-            return;
-        }
-        if (!FakeSteveRules.shouldReviveAfterDeath(level.random.nextInt(100))) {
-            return;
-        }
-        // 复活前清掉该玩家还留在场上的旧尸体，避免复活后场上多出一具自己的尸体。
-        clearPlayerBodies(level, player);
         GameUtils.revivePlayerToItsRoom(player);
+        if (!GameUtils.isPlayerAliveAndSurvival(player)) return;
+        clearPlayerBodies(level, player);
+        // 复活只恢复玩家实体，必须走正式夺舍入口才能登记修饰符、AI 和控制状态。
+        if (session(level) != session || session.victoryDeclared || !isRoundAcceptingCommands(level)
+                || !replace(player, ReplacementCause.DEATH_REVIVE)) return;
         SRENetworkMessageUtils.sendActionbar(player, Component
                 .translatable("message.noellesroles.fake_steve.death.revive")
-                .withStyle(ChatFormatting.GOLD));
+                .withStyle(ChatFormatting.RED));
     }
 
-    /** 清掉该玩家在场上的全部尸体（含重复残留的多具）。 */
+    /** 快照遍历后清掉该玩家在场上的全部旧尸体，不影响其他玩家尸体。 */
     private static void clearPlayerBodies(ServerLevel level, ServerPlayer player) {
         ArrayList<PlayerBodyEntity> bodies = new ArrayList<>();
         for (var entity : level.getAllEntities()) {
@@ -406,11 +404,7 @@ public final class FakeSteveDirector {
                 bodies.add(body);
             }
         }
-        for (PlayerBodyEntity body : bodies) {
-            if (!body.isRemoved()) {
-                body.discard();
-            }
-        }
+        bodies.forEach(PlayerBodyEntity::discard);
     }
 
     private static void tick(ServerLevel level) {
@@ -425,13 +419,12 @@ public final class FakeSteveDirector {
             session.pendingDeathRevives.clear();
             FakeSteveApparitions.cancelAll(level);
         }
-        if (!session.active
+        if (!generating || !session.active || session.victoryDeclared
                 || SREGameWorldComponent.KEY.get(level).getGameStatus() != SREGameWorldComponent.GameStatus.ACTIVE) {
-            // 本局尚未开始或已经结束：计时器一律作废，防止下一把还在跑。
+            // 本局尚未开始或已经结束：计时器一律作废。
             session.pendingDeathRevives.clear();
             return;
         }
-        // 只有「本局事件仍激活且游戏仍在进行」时才推进死亡复活计时。
         tickDeathRevives(level, session);
 
         if (generating) {
@@ -511,6 +504,8 @@ public final class FakeSteveDirector {
             sendHuntScene(level, false);
         }
         if (removed != null) {
+            removed.pendingDeathRevives.clear();
+            removed.deathReviveAttempted.clear();
             for (UUID id : removed.agents.keySet()) {
                 ServerPlayer player = level.getServer().getPlayerList().getPlayer(id);
                 if (player != null) {
@@ -711,11 +706,9 @@ public final class FakeSteveDirector {
     private static final class Session {
         private final int startingPlayers;
         private final Map<UUID, FakeSteveAgentState> agents = new HashMap<>();
-        /**
-         * 本局「死亡 35 秒后复活」计时：玩家 UUID → 结算用的 gameTime。
-         * 只属于当前 Session，局末/重开整只丢弃，不会跨局残留。
-         */
+        /** 只属于当前 Session，局末/重开丢弃，不能跨局执行。 */
         private final Map<UUID, Long> pendingDeathRevives = new HashMap<>();
+        private final Set<UUID> deathReviveAttempted = new HashSet<>();
         private boolean active;
         private boolean huntPhase;
         private boolean victoryDeclared;

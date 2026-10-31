@@ -12,11 +12,11 @@
 
 | ID（去掉命名空间） | 用途 |
 |---|---|
-| `halloween_pumpkin_president` | 对准地面右键放置南瓜据点，成功才消耗；每人默认最多 3 个、每世界 128 个 |
-| `halloween_heart` | 右键消耗，立即 +50 金币 |
+| `halloween_pumpkin_president` | 对准地面右键放置南瓜据点，成功才消耗；存在 10 秒后消失，不返还道具；每人默认最多 3 个、每世界 128 个 |
+| `halloween_heart` | 右键消耗，立即 +25 金币 |
 | `halloween_coin` | 右键消耗，立即 +5 金币 |
-| `halloween_candy` | 右键消耗，速度 I；另等概率（各 25%）获得临时盾、跳过当前任务、无限体力或夜视 |
-| `halloween_candy_bag` | 右键消耗，从 `loot` 权重池抽一项；满背包时奖励掉落在脚下 |
+| `halloween_candy` | 右键消耗，速度 I；额外 10% 获得临时盾，跳过当前任务、无限体力、夜视各 30% |
+| `halloween_candy_bag` | 右键消耗，从 `loot` 权重池抽一项；好人阵营（平民与警长）先排除献血锯子再按剩余权重抽取，兼容旧配置；没有可用奖励时不消耗袋子，满背包奖励落脚下 |
 | `halloween_pumpkin` | 活动交易货币，不可当方块放置 |
 | `halloween_soul_contract` | 魂契任务道具，本模块只注册，不自动授予，也不列入默认糖果袋或商店 |
 | `halloween_blood_saw` | 8 点耐久；本模块只注册 Item、模型与说明，不实现武器动作 |
@@ -28,6 +28,7 @@
 糖果限时效果默认 600 tick（30 秒），再次食用刷新对应增益到期时间，不叠盾层数。临时盾抵挡一次伤害并消耗，未触发则 30 秒后过期。跳过任务优先移除一个普通 Mood/场景任务，没有时移除一个待办小游戏任务；不发任务完成奖励、不增加魂契任务计数，不清除全局破坏任务；没有任务时仍保留速度奖励。无限体力通过现有 `PlayerStaminaGetter` 对应的 `StaminaCommand` 接口每 tick 补到职业当前体力上限并同步，不改动其它无限体力 buff。
 
 套装穿齐时挡一次伤害，随后四件全部消失。穿齐累计 2400 tick（120 秒）给 1 个糖果袋；脱下只暂停，不重置，不补发脱下期间的奖励，重穿不能刷袋。糖果盾先于套装消耗。死亡、离线或结束清除此玩家的累计穿戴时间。
+- 误杀小脑惩罚（`SHOT_INNOCENT`）不触发南瓜套格挡，不消耗套装，也不会因穿戴南瓜套而免除惩罚死亡；其他职业既有判定保持不变。
 
 ### 南瓜据点
 
@@ -38,6 +39,7 @@
 - 主人潜行主手右键自己的南瓜据点可回收为一个南瓜总统道具；背包满时拒绝回收并保留据点。成功回收会移除展示/交互实体，并安全退出内部所有玩家；非主人不能回收。
 - 只有实际进入者会看到橙色据点边界线框及贴地水平轮廓，显示范围和服务端退出判定共用一份规则。进入/退出时单独下发状态，停留时每秒刷新；退出、回收、断线、换世界或状态失效后不再显示。
 - 主人离线、死亡、换世界或据点实体卸载时移除据点，并安全退出其中玩家。活动结束移除全部据点。
+- 放置成功起 200 tick（10 秒）后自动移除据点，内部玩家安全退出并恢复体型、速度及边界显示；到期后不能进入或回收。不使用独立延迟任务，局末清理不会留下跨局计时。
 - 放置检查距离、边界、干燥地面、实体/方块碰撞、与已有据点间距及至少一个原尺寸出口；在据点内不能再放置据点。
 - 恢复时重新检查完整碰撞箱，必要时移到附近可站立点或进入前位置；不拆墙、不替换方块。展示与交互实体不存盘，避免服务器重启残留失去运行状态的据点。
 - 速度和夜视使用独立所有权记录，退出/结束仅撤销可确认属于本模块的效果，恢复此前仍未到期的效果及期间加入的原版隐藏效果链；不会直接清空玩家的速度效果。
@@ -52,11 +54,11 @@
 
 | 字段 | 默认值 | 字段 | 默认值 |
 |---|---:|---|---:|
-| `knockCooldownTicks` | 300 | `knockUndeadTicks` | 200 |
+| `knockCooldownTicks` | 700 | `knockUndeadTicks` | 200 |
 | `candyNpcLifetimeTicks` | 600 | `undeadLifetimeTicks` | 1800 |
 | `maxEventUndead` | 32 | `gunCooldownTicks` | 200 |
 | `gunFreezeTicks` | 100 | `gunShieldSuppressionTicks` | 600 |
-| `sawChargeTicks` | 10 | `heartDelayTicks` | 300 |
+| `sawChargeTicks` | 12 | `heartDelayTicks` | 300 |
 | `candyDurationTicks` | 600 | `costumeBagIntervalTicks` | 2400 |
 | `linkInviteTicks` | 300 | `npcKillRadius` | 8 |
 | `pactReviveTicks` | 1200 | `questTaskCount` | 3 |
@@ -66,7 +68,7 @@
 | `candyNpcChance` | 0.2 | `maxHideouts` | 128 |
 | `gunSummonCount` | 3 | `candyNpcRewardCount` | 1 |
 
-本模块直接使用 `candyDurationTicks`、`costumeBagIntervalTicks`、据点数量上限和 `loot`。其它固定字段提供给活动的村庄、夜晚、战斗、魂契模块；例如 `heartDelayTicks` 不改变心脏道具立即兑换 50 金币的行为。
+本模块直接使用 `candyDurationTicks`、`costumeBagIntervalTicks`、据点数量上限和 `loot`。其它固定字段提供给活动的村庄、夜晚、战斗、魂契模块；例如 `heartDelayTicks` 不改变心脏道具立即兑换 25 金币的行为。`sawChargeTicks` 最低 12 tick（0.6 秒），旧配置不足时恢复为 12，更长配置保留。
 
 时间/计数通常为 1..1728000；`nightStartTicks`、`nightDarkThreshold`、`maxEventUndead` 允许 0。特殊上限：亮度 15、NPC 杀伤半径 128、亡灵/据点数量 1024、每人据点 128、链接距离 (0,128]、NPC 糖果概率 [0,1]。
 
