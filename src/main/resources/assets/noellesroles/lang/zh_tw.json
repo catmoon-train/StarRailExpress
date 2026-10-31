@@ -1,7 +1,8 @@
 {
   "hud.noellesroles.virtual_health": "虛擬血量 %s / %s",
   "announcement.star.role.night_event": "黑夜事件",
-  "announcement.star.goals.night_event": "本局永久關燈，視野最遠16格；每人獲贈手電筒，死者將化為遊蕩亡靈。",
+  "announcement.star.goals.night_event": "本局永久關燈，視野最遠16格；每人獲贈手電筒；死者將化為遊蕩亡靈，靠近12格的存活玩家會被攻擊。",
+  "announcement.star.goals.halloween_pact": "跟隨復活時最近的非依附存活玩家陣營獲勝。",
   "message.noellesroles.night.title": "黑夜降臨",
   "message.noellesroles.night.subtitle": "整局關燈 · 16格視野 · 死者化為亡靈",
   "message.noellesroles.night.rules": "【黑夜事件】本局燈光持續關閉，所有人的視野最多16格。參賽者已獲贈點亮的手電筒，可右鍵開關。死亡後將在原地化為遊蕩亡靈，靠近12格會被攻擊；亡靈之主召喚的亡靈仍會主動追擊。",

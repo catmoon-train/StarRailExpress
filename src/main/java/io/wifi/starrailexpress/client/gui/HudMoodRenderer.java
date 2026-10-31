@@ -66,14 +66,8 @@ public class HudMoodRenderer {
      * <p>
      * 心情条长度曾绑定任务文本宽度（{@code moodTextWidth - 8}），导致任务名短时心情条很短、
      * 任务名长时心情条很长。现改为固定长度，心情值只决定填充比例。
-     * <p>
-     * 取值推导（按原公式 {@code moodTextWidth - 8}，以「吃东西」任务为基准）：
-     * 任务文本 = 前缀 + 任务名，即「你可以假装去」+「吃零食」=「你可以假装去吃零食」，共 9 个汉字；
-     * Minecraft 汉字（unihex 16px 字形）宽度为 9px/字，故 moodTextWidth = 9 × 9 = 81，
-     * 心情条全长 = 81 - 8 = 73。
-     * （平民侧前缀「你感觉想去」为 8 个汉字，对应长度为 8 × 9 - 8 = 64，取较长者 73。）
      */
-    public static final float MOOD_BAR_WIDTH = 73f;
+    public static final float MOOD_BAR_WIDTH = 150f;
     public static Random random = new Random();
     public static float arrowProgress = 1f;
     public static float moodRender = 0f;

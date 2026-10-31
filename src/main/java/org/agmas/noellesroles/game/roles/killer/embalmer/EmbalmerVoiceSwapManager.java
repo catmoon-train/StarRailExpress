@@ -19,12 +19,16 @@ import io.wifi.starrailexpress.event.OnGameEnd;
 import io.wifi.starrailexpress.game.GameUtils;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.Vec3;
 import org.agmas.noellesroles.Noellesroles;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -33,10 +37,14 @@ import java.util.concurrent.ConcurrentHashMap;
 /**
  * 嬉命人·语音互换。
  *
- * <p>原理：不交换音频数据，只交换「声音发出的实体」。A 说话时，声音从 B 所在的位置发出
+ * <p>原理：不交换音频数据，只交换「声音发出的位置」。A 说话时，声音从 B 所在的位置发出
  * （语音 HUD 上显示的说话人仍是 A）。配对是双向的，因此 A、B 两人的语音发声位置互换。
  *
  * <p>服务端权威；客户端通过 {@code EmbalmerRoleData#voiceSwapCooldown} 读取冷却。
+ *
+ * <p>线程模型（与 {@code VillageGhostVoice} 一致）：主线程维护 {@link #LINKS}，并把结果发布成
+ * 不可变快照 {@link #ROUTES}；SVC 语音线程只读这个快照，不触碰 CCA、玩家列表或实体坐标。
+ * 这样语音线程不会因读到半更新状态、或抛出被 SVC 吞掉的异常，让整次转发音信全无。
  *
  * <p>结束条件：游戏结束、持续时间到时、参与互换的任意一方死亡（变成旁观者 / 离开冒险模式）、
  * 任意一方离线或换维度。
@@ -51,7 +59,16 @@ public final class EmbalmerVoiceSwapManager {
     private record Link(UUID partner, long until) {
     }
 
+    /**
+     * 语音线程可见的路由：说话者 → 声源位置 + 到期时间。
+     * 只含不可变数据，语音线程不会再触碰游戏世界。
+     */
+    public record Route(UUID speaker, UUID body, Vec3 origin, long until) {
+    }
+
     private static final Map<UUID, Link> LINKS = new ConcurrentHashMap<>();
+    /** 主线程发布、语音线程读取的不可变快照。 */
+    private static volatile Map<UUID, Route> ROUTES = Map.of();
 
     private EmbalmerVoiceSwapManager() {
     }
@@ -73,6 +90,7 @@ public final class EmbalmerVoiceSwapManager {
         remove(second.getUUID());
         LINKS.put(first.getUUID(), new Link(second.getUUID(), until));
         LINKS.put(second.getUUID(), new Link(first.getUUID(), until));
+        publish(first.getServer());
         Noellesroles.LOGGER.info("[Embalmer] Voice swap established: {} <-> {} for {} ticks",
                 first.getName().getString(), second.getName().getString(), DURATION_TICKS);
     }
@@ -90,10 +108,24 @@ public final class EmbalmerVoiceSwapManager {
         if (reverse != null && reverse.partner().equals(player)) {
             LINKS.remove(old.partner());
         }
+        // 立即把这条路由从语音线程可见的快照里摘掉，避免解除后仍从旧位置发声
+        ROUTES = removeRoute(ROUTES, player, old.partner());
+    }
+
+    /** 从快照里剔除一对路由（不改动 {@link #LINKS}）。 */
+    private static Map<UUID, Route> removeRoute(Map<UUID, Route> current, UUID first, UUID second) {
+        if (current.isEmpty()) {
+            return current;
+        }
+        Map<UUID, Route> next = new HashMap<>(current);
+        next.remove(first);
+        next.remove(second);
+        return Map.copyOf(next);
     }
 
     public static void clear() {
         LINKS.clear();
+        ROUTES = Map.of();
     }
 
     public static boolean isSwapped(UUID player) {
@@ -101,11 +133,32 @@ public final class EmbalmerVoiceSwapManager {
     }
 
     /**
-     * 返回说话者的声音应当从哪个玩家身上发出；没有配对（或已过期）时返回 {@code null}，
+     * 语音线程用：返回说话者当前应当使用的声源路由，没有配对（或已过期）时返回 {@code null}。
+     *
+     * <p>只读 {@link #ROUTES} 快照，不读取玩家实体与 CCA，因此可以安全地在 SVC 线程调用。
+     */
+    @Nullable
+    public static Route route(UUID speaker) {
+        if (speaker == null) {
+            return null;
+        }
+        Route route = ROUTES.get(speaker);
+        if (route == null) {
+            return null;
+        }
+        // 快照由主线程按时清理；这里再按系统时间兜底，避免过期路由继续转发
+        return System.currentTimeMillis() >= route.until() ? null : route;
+    }
+
+    /**
+     * 主线程用：返回说话者当前的声音宿主；没有配对（或已过期）时返回 {@code null}，
      * 此时走原版默认广播。
      */
     @Nullable
     public static ServerPlayer voiceBody(ServerPlayer speaker) {
+        if (speaker == null) {
+            return null;
+        }
         // 说话者自己已经死亡/旁观：立即结束这一对互换
         if (!isSwapTargetValid(speaker.level(), speaker)) {
             remove(speaker.getUUID());
@@ -128,16 +181,54 @@ public final class EmbalmerVoiceSwapManager {
         return partner;
     }
 
+    /**
+     * 由主线程重建并发布路由快照。
+     *
+     * <p>每次配对变化、以及每个 tick 都会调用一次，保证声源位置跟随对方移动。
+     *
+     * @param server 主线程的服务器实例，用于解析玩家；语音线程不会调用本方法
+     */
+    private static void publish(MinecraftServer server) {
+        if (server == null) {
+            ROUTES = Map.of();
+            return;
+        }
+        if (LINKS.isEmpty()) {
+            ROUTES = Map.of();
+            return;
+        }
+        long nowMillis = System.currentTimeMillis();
+        Map<UUID, Route> next = new HashMap<>();
+        for (Map.Entry<UUID, Link> entry : LINKS.entrySet()) {
+            UUID speaker = entry.getKey();
+            Link link = entry.getValue();
+            ServerPlayer self = server.getPlayerList().getPlayer(speaker);
+            ServerPlayer body = server.getPlayerList().getPlayer(link.partner());
+            if (self == null || body == null
+                    || !isSwapTargetValid(self.level(), self)
+                    || !isSwapTargetValid(self.level(), body)) {
+                continue;
+            }
+            // 剩余 tick 换算成墙钟毫秒，供语音线程判断过期
+            long remainTicks = Math.max(0L, link.until() - self.level().getGameTime());
+            long untilMillis = nowMillis + remainTicks * 50L;
+            next.put(speaker, new Route(speaker, link.partner(), body.position(), untilMillis));
+        }
+        ROUTES = Map.copyOf(next);
+    }
+
     /** 参与语音互换者必须是在同一维度、且存活（冒险模式）的玩家。 */
-    private static boolean isSwapTargetValid(net.minecraft.world.level.Level level, ServerPlayer player) {
+    private static boolean isSwapTargetValid(@Nullable Level level, ServerPlayer player) {
         return player != null
                 && !player.isRemoved()
+                && level != null
                 && player.level() == level
                 && GameUtils.isPlayerAliveAndSurvival(player);
     }
 
     private static void tick(ServerLevel world) {
         if (LINKS.isEmpty()) {
+            ROUTES = Map.of();
             return;
         }
         long now = world.getGameTime();
@@ -158,5 +249,7 @@ public final class EmbalmerVoiceSwapManager {
         for (UUID id : broken) {
             remove(id);
         }
+        // 每一 tick 重新发布，声源位置才会跟随对方移动
+        publish(world.getServer());
     }
 }

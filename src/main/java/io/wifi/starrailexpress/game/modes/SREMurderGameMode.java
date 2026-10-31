@@ -781,8 +781,12 @@ public class SREMurderGameMode extends GameMode {
         boolean civilianAlive = false;
         boolean killerAlive = false;
         boolean anyAlive = false;
-        if (!shouldPausePassiveMoneyGiven(serverWorld)) {
-            for (ServerPlayer player : serverWorld.players()) {
+        // 时停（tickRateManager 冻结）期间暂停被动收入，但存活扫描必须无条件执行。
+        // 旧写法把整段扫描包在时停门控里，冻结期间三个标志恒为 false，
+        // 会被下方判定误读成「场上无人存活」，直接把对局判成 NO_PLAYER（无人获胜）并结束。
+        boolean pausePassiveIncome = shouldPausePassiveMoneyGiven(serverWorld);
+        for (ServerPlayer player : serverWorld.players()) {
+            if (!pausePassiveIncome) {
                 // passive money
                 if (gameWorldComponent.canAutoAddMoney(player)) {
                     Integer balanceToAdd = GameConstants.getPassiveMoneyTicker().apply(serverWorld.getGameTime());
@@ -809,18 +813,24 @@ public class SREMurderGameMode extends GameMode {
                             VIGILANTE_PASSIVE_MONEY_AMOUNT);
                     SREPlayerShopComponent.KEY.get(player).addToBalance(VIGILANTE_PASSIVE_MONEY_AMOUNT);
                 }
-
-                // check if some civilians are still alive
-                if (gameWorldComponent.canIncreaseSurvivingInnocents(player) && !GameUtils.isPlayerEliminated(player)) {
-                    civilianAlive = true;
-                }
-                if (gameWorldComponent.canIncreaseSurvivingKillers(player) && !GameUtils.isPlayerEliminated(player)) {
-                    killerAlive = true;
-                }
-                if (GameUtils.isPlayerAliveAndSurvival(player)) {
-                    anyAlive = true;
-                }
             }
+
+            // check if some civilians are still alive
+            if (gameWorldComponent.canIncreaseSurvivingInnocents(player) && !GameUtils.isPlayerEliminated(player)) {
+                civilianAlive = true;
+            }
+            if (gameWorldComponent.canIncreaseSurvivingKillers(player) && !GameUtils.isPlayerEliminated(player)) {
+                killerAlive = true;
+            }
+            if (GameUtils.isPlayerAliveAndSurvival(player)) {
+                anyAlive = true;
+            }
+        }
+
+        // 保险：时停/会议期间死亡与时间推进都被冻结，扫描为空只可能是瞬时异常状态，
+        // 不应据此结束对局；解冻后的下一个 tick 会重新正常判定。
+        if (pausePassiveIncome && !anyAlive) {
+            return;
         }
 
         // check killer win condition (killed all civilians)

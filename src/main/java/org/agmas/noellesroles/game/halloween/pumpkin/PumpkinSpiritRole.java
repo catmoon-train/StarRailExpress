@@ -36,7 +36,8 @@ public final class PumpkinSpiritRole extends CustomWinnerRole {
 
     /** 必须早于职业刷新配置加载调用；可重复调用但不重复注册。 */
     public static SRERole register() {
-        if (registered == null) registered = TMMRoles.registerRole(new PumpkinSpiritRole());
+        if (registered == null) registered = TMMRoles.registerRole(new PumpkinSpiritRole())
+                .setAddedVersion("4.5");
         return registered;
     }
 

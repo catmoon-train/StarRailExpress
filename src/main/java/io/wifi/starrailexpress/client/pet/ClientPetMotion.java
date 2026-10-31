@@ -159,9 +159,9 @@ public final class ClientPetMotion {
         if (cached != null) {
             return cached;
         }
-        PetMotionProfile.Kind kind = skinId.toLowerCase(java.util.Locale.ROOT).contains("fly")
-                ? PetMotionProfile.Kind.FLYER
-                : PetMotionProfile.Kind.WALKER;
+        // 权威来源：附属模组在皮肤目录里显式登记的类型（见 PetMotionProfile#registerKind）。
+        // 未登记时该方法内部回退到「ID 含 fly 即飞行」的旧启发式。
+        PetMotionProfile.Kind kind = PetMotionProfile.kindOf(skinId);
         KIND_CACHE.put(skinId, kind);
         return kind;
     }

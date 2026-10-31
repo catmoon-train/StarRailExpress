@@ -1966,7 +1966,7 @@ public class ModRoles {
             .setDefaultEnableChance(5000) // 50%
             .setDefaultEnableNeededPlayerCount(18)
             .setCanKillWithTrident(true)
-            .setAddedVersion("4.4");
+            .setAddedVersion("4.5");
 
     /**
      * 摘星者 - 警长阵营（只在水下地图刷新）。
@@ -2010,7 +2010,7 @@ public class ModRoles {
             .setCanKillWithTrident(true)
             .setCanUseSpVanillaWeapon(true)
             .setCanPickUpRevolver(false)
-            .setAddedVersion("4.4");
+            .setAddedVersion("4.5");
 
     /**
      * 攻城手 - 杀手阵营
@@ -2196,7 +2196,8 @@ public class ModRoles {
             .setEventEnableChance(org.agmas.noellesroles.game.night.NightEvent::onEventRollResult,
                     org.agmas.noellesroles.game.night.NightEvent::clear,
                     org.agmas.noellesroles.game.night.NightEvent::chance)
-            .setEventNeutral(true);
+            .setEventNeutral(true)
+            .setAddedVersion("4.5");
 
     /** 方块石头人。只由命令方块事件改写产生。 */
     public static final SRERole STONE_MAN = TMMRoles.registerRole(

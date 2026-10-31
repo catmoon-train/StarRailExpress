@@ -1,7 +1,8 @@
 {
     "hud.noellesroles.virtual_health": "Virtual Health %s / %s",
   "announcement.star.role.night_event": "Night Event",
-  "announcement.star.goals.night_event": "Lights stay off, vision is capped at 16 blocks, everyone starts with a flashlight, and the dead become wandering ghosts.",
+  "announcement.star.goals.night_event": "Lights stay off, vision is capped at 16 blocks, everyone starts with a flashlight; the dead become wandering undead and attack living players within 12 blocks.",
+  "announcement.star.goals.halloween_pact": "Win alongside the faction of the nearest non-attached living player at your revival.",
   "message.noellesroles.night.title": "Night Falls",
   "message.noellesroles.night.subtitle": "Lights out · 16-block vision · The dead become ghosts",
   "message.noellesroles.night.rules": "[Night Event] Lights remain off and everyone's vision is capped at 16 blocks. Participants receive a lit flashlight; right-click to toggle it. Dead players leave an autonomous ghost that attacks within 12 blocks. Undead Lord summons still actively pursue players.",
