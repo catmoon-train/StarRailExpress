@@ -106,4 +106,61 @@ public record PetMotionProfile(Kind kind, float orbitRadius, float hoverHeight, 
     public PetMotionProfile withHoverHeight(float height) {
         return new PetMotionProfile(kind, orbitRadius, height, stiffness, bobAmplitude);
     }
+
+    // ────────────────────────────────────────────────────────────────
+    // 随从运动类型的显式登记表
+    // ────────────────────────────────────────────────────────────────
+    // 随从皮肤由附属模组（sre-skin）的皮肤目录定义，主模组不持有那份目录。
+    // 早期实现用「皮肤 ID 里是否含 fly 子串」来猜运动类型，这要求每个 ID
+    // 自带 fly 字样才能飞：`mini_wither`、`halloween_canyue` 这类名字
+    // 不含 fly 的飞行随从会被误判成陆行类，表现为「贴地走」而不是「浮在头顶」。
+    //
+    // 现在改为显式登记：附属模组在自己的初始化阶段把「ID → 运动类型」写进
+    // 这张表，主模组只查表；查不到时才回退到旧的子串猜测（保证既有皮肤
+    // 不登记也照旧工作）。
+    private static final java.util.Map<String, Kind> REGISTERED_KINDS =
+            new java.util.concurrent.ConcurrentHashMap<>();
+
+    /**
+     * 登记某个随从皮肤的运动类型。由附属模组的皮肤目录在初始化时调用。
+     *
+     * <p>重复登记同一 ID 会覆盖旧值（后注册者优先），便于附属模组热重载。
+     *
+     * @param skinId 皮肤 ID（与皮肤注册表里的一致）
+     * @param kind   运动类型；{@code null} 表示撤销登记、回退到子串猜测
+     */
+    public static void registerKind(String skinId, Kind kind) {
+        if (skinId == null || skinId.isBlank()) {
+            return;
+        }
+        if (kind == null) {
+            REGISTERED_KINDS.remove(skinId);
+        } else {
+            REGISTERED_KINDS.put(skinId, kind);
+        }
+    }
+
+    /**
+     * 取某个随从皮肤的运动类型。
+     *
+     * <p>优先用 {@link #registerKind} 登记的值；未登记时回退到
+     * 「ID 含 {@code fly} 即飞行」的旧启发式，保证不登记的既有皮肤行为不变。
+     */
+    public static Kind kindOf(String skinId) {
+        if (skinId == null || skinId.isBlank()) {
+            return Kind.WALKER;
+        }
+        Kind registered = REGISTERED_KINDS.get(skinId);
+        if (registered != null) {
+            return registered;
+        }
+        return skinId.toLowerCase(java.util.Locale.ROOT).contains("fly")
+                ? Kind.FLYER
+                : Kind.WALKER;
+    }
+
+    /** 清空登记表（断开连接 / 切换存档时用，避免跨世界残留）。 */
+    public static void clearRegisteredKinds() {
+        REGISTERED_KINDS.clear();
+    }
 }
