@@ -13,10 +13,15 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import org.agmas.noellesroles.game.halloween.HalloweenVillage;
 
-/** 活动专用、无存档 NPC；皮肤由本地玩家模型渲染器提供，不查询在线档案。 */
+/** 活动专用、无存档 NPC；固定兑换与临时发糖共用万圣残月形象，不查询在线档案。 */
 public final class VillageNpc extends PathfinderMob {
+    // 仅控制领糖交互与寿命，不控制外观或显示名称。
     private static final EntityDataAccessor<Boolean> CANDY = SynchedEntityData.defineId(
             VillageNpc.class, EntityDataSerializers.BOOLEAN);
+    private boolean eventManaged;
+
+    /** 仅活动创建的实例参与活动归属清理；/summon 展示实例不应首 tick 消失。 */
+    public void markEventManaged() { eventManaged = true; }
 
     public VillageNpc(EntityType<? extends PathfinderMob> type, Level level) {
         super(type, level);
@@ -49,6 +54,6 @@ public final class VillageNpc extends PathfinderMob {
 
     @Override public void tick() {
         super.tick();
-        if (!level().isClientSide && !HalloweenVillage.owns(this)) discard();
+        if (!level().isClientSide && eventManaged && !HalloweenVillage.owns(this)) discard();
     }
 }

@@ -17,4 +17,7 @@ public final class VillageRules {
     }
 
     public static boolean cooldownReady(long now, long next) { return now >= next; }
+
+    /** 地图设置里的残月坐标；(0,0,0) 视为未设置，此时不生成固定残月。 */
+    public static boolean isSpawnConfigured(int x, int y, int z) { return x != 0 || y != 0 || z != 0; }
 }

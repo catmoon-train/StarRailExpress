@@ -26,8 +26,7 @@ class HalloweenConfigTest {
                 Map.entry("linkInviteTicks", 300), Map.entry("npcKillRadius", 8),
                 Map.entry("pactReviveTicks", 1200), Map.entry("questTaskCount", 3),
                 Map.entry("nightStartTicks", 2400), Map.entry("nightDurationTicks", 1200),
-                Map.entry("nightIntervalTicks", 3600), Map.entry("nightDarkThreshold", 5),
-                Map.entry("scanBlocksPerTick", 8192));
+                Map.entry("nightIntervalTicks", 3600), Map.entry("nightDarkThreshold", 5));
         for (var entry : expected.entrySet()) assertEquals(entry.getValue(), HalloweenConfig.class.getField(entry.getKey()).getInt(config));
         assertEquals(10, config.linkDistance);
         assertEquals(0.2, config.candyNpcChance);
@@ -64,7 +63,6 @@ class HalloweenConfigTest {
         HalloweenConfig config = new HalloweenConfig();
         config.candyDurationTicks = 0;
         config.costumeBagIntervalTicks = Integer.MAX_VALUE;
-        config.scanBlocksPerTick = Integer.MAX_VALUE;
         config.nightDarkThreshold = 16;
         config.linkDistance = -1;
         config.candyNpcChance = 1.01;
@@ -73,7 +71,6 @@ class HalloweenConfigTest {
         config.validate(id -> true, ignored -> {});
         assertEquals(600, config.candyDurationTicks);
         assertEquals(2400, config.costumeBagIntervalTicks);
-        assertEquals(8192, config.scanBlocksPerTick);
         assertEquals(5, config.nightDarkThreshold);
         assertEquals(10, config.linkDistance);
         assertEquals(0.2, config.candyNpcChance);

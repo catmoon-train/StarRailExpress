@@ -22,6 +22,7 @@ import io.wifi.ConfigCompact.annotation.Category;
 import io.wifi.ConfigCompact.annotation.ConfigSync;
 import io.wifi.starrailexpress.api.AreasSettingUtils.MapSpecialFeatures;
 import io.wifi.starrailexpress.api.AreasSettingUtils.StoreableAABB;
+import io.wifi.starrailexpress.api.AreasSettingUtils.StoreableBlockPos;
 import io.wifi.starrailexpress.api.AreasSettingUtils.StoreableVec3;
 import io.wifi.starrailexpress.game.data.MapStatusBarType;
 import io.wifi.starrailexpress.util.TrueFalseResult;
@@ -328,10 +329,19 @@ public class AreasSettings {
 
     // ==================== 地图事件 / Map Events ====================
 
-    /** 万圣节小镇活动：双南瓜灯 NPC、敲门、亡魂夜与活动道具，仅谋杀模式生效。 */
+    /** 万圣节小镇活动：固定坐标 NPC、敲门、亡魂夜与活动道具，仅谋杀模式生效。 */
     @Category("event")
     public boolean halloweenEventEnabled = false;
 
+    /**
+     * 万圣残月的固定生成坐标（脚底所在方块）。
+     *
+     * <p>
+     * (0,0,0) 表示未设置，此时不生成固定兑换 NPC；敲门出现的临时残月不受影响。
+     * 不要求落在 resetPasteArea 内，只要求该区块已加载。
+     */
+    @Category("event")
+    public StoreableBlockPos halloweenNpcSpawnPos = new StoreableBlockPos(0, 0, 0);
 
     /** 是否启用飞机坠落事件：开局刷新一架撞向地图中心的飞机，周期性震颤，建筑内会在客户端生成虚假火焰。 */
     @Category("event")

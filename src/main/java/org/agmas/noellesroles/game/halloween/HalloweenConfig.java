@@ -48,7 +48,6 @@ public final class HalloweenConfig {
     public int nightDurationTicks = 1200;
     public int nightIntervalTicks = 3600;
     public int nightDarkThreshold = 5;
-    public int scanBlocksPerTick = 8192;
     public double linkDistance = 10;
     public double candyNpcChance = 0.2;
     public int maxHideoutsPerPlayer = 3;
@@ -111,7 +110,6 @@ public final class HalloweenConfig {
                     case "candyNpcRewardCount" -> 64;
                     case "maxEventUndead", "maxHideouts" -> 1024;
                     case "maxHideoutsPerPlayer" -> 128;
-                    case "scanBlocksPerTick" -> 1048576;
                     default -> 1728000;
                 };
                 if (value < min || value > max) {

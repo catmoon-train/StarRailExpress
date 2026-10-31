@@ -517,6 +517,10 @@ public class MapManager {
         if (settings.forcedModifiers == null) {
             settings.forcedModifiers = new HashSet<>();
         }
+        // 旧地图 JSON 没有这个字段；Gson 也可能给出显式 null。
+        if (settings.halloweenNpcSpawnPos == null) {
+            settings.halloweenNpcSpawnPos = new io.wifi.starrailexpress.api.AreasSettingUtils.StoreableBlockPos(0, 0, 0);
+        }
         return settings;
     }
 
