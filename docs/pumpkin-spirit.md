@@ -5,7 +5,7 @@
 1. **职业注册时序**：在 `ModRoles.init()` 完成后、职业刷新配置加载**之前**调用
    `PumpkinSpiritRole.register()`，已经接入 `Noellesroles.onInitialize()`；幂等且不另注册同 ID。
    构造器设置普通池、独立中立、默认单局 1 人、默认启用权重 10000、禁止其他职业随机得到。
-   自然候选额外检查 `settings.halloweenEventEnabled` 和实际 `SREGameModes.MURDER`；管理员指定不走候选校验。
+   自然候选检查 `settings.halloweenEventEnabled` 和谋杀模式及其派生模式（包括轮抽、志愿），不再只认 `SREGameModes.MURDER`；沿用候选启用、地图和单局最多1人的限制。管理员指定不走候选校验。
 2. `HalloweenRuntime.register()` 固定一次调用 `PumpkinSpiritHandler.register()`，放在
    `HalloweenCombat.register()` **之前**，确保南瓜精攻击替换先于活动武器回调拦截。
    所有事件和统一 RoleSkill 在这里一次注册；职业自身通过 `RoleData.serverTick()` 推进，不需要 Runtime.tick。

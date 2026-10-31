@@ -43,7 +43,6 @@ public final class PumpkinSpiritRole extends CustomWinnerRole {
 
     @Override public boolean canBeRandomed(Level world) {
         return world != null && HalloweenRuntime.isMapEnabled(world)
-                && SREGameWorldComponent.KEY.get(world).gameMode == io.wifi.starrailexpress.api.SREGameModes.MURDER
                 && super.canBeRandomed(world);
     }
 

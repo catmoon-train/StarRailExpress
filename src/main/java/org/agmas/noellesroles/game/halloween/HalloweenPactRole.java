@@ -25,7 +25,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
-/** 魂契复活后的玩家亡灵：独立职业、空手近战，胜利阵营在复活时锁定。 */
+/** 魂契复活后的玩家亡灵：独立职业、无法攻击，胜利阵营在复活时锁定。 */
 public final class HalloweenPactRole extends NormalRole implements CustomWinnerRoleInterface {
     public static final ResourceLocation ID = ResourceLocation.fromNamespaceAndPath("noellesroles", "halloween_pact");
     private static SRERole instance;
@@ -117,7 +117,6 @@ public final class HalloweenPactRole extends NormalRole implements CustomWinnerR
         ResourceLocation followedRole;
         boolean killerWin;
         boolean innocentWin;
-        long meleeReadyAt;
 
         public Data(RoleDataContext context) { super(context); }
 

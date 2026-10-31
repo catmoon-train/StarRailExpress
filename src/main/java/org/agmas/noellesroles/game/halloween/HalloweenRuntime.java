@@ -60,9 +60,9 @@ public final class HalloweenRuntime {
         io.wifi.starrailexpress.event.OnRoleSkillUse.BEFORE.register((player, role) ->
                 !HalloweenCombat.isActionLocked(player) && !HalloweenPactRole.isPact(player));
         io.wifi.starrailexpress.event.AllowPlayerDeath.EVENT.register((victim, reason) ->
-                GameUtils.isForcedDeathInProgress() || !HalloweenConsumables.tryBlockDamage(victim));
+                GameUtils.isForcedDeathInProgress() || !HalloweenConsumables.tryBlockDamage(victim, reason));
         io.wifi.starrailexpress.event.AllowPlayerDeathWithKiller.EVENT.register((victim, killer, reason) ->
-                GameUtils.isForcedDeathInProgress() || !HalloweenConsumables.tryBlockDamage(victim));
+                GameUtils.isForcedDeathInProgress() || !HalloweenConsumables.tryBlockDamage(victim, reason));
         OnGameStarted.EVENT.register(level -> {
             clear(level);
             if (isMapEnabled(level)) {

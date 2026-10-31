@@ -36,21 +36,27 @@ public final class HalloweenCombatStateTest {
         check(state.completeTask(bob, 2), "配置任务阈值生效");
         check(state.completeTask(bob, 0), "非法阈值防御性钳制为一");
 
+        check(!state.hasAnyAcceptedPact(), "新局没有魂契占用");
+        check(!state.acceptPact(null), "无效玩家不得占用名额");
         check(state.acceptPact(alice), "每局首次魂契可接受");
         check(state.hasAcceptedPact(alice), "接受记录存在");
         check(!state.acceptPact(alice), "不可重复登记，死亡后也不能再买复活");
-        check(state.acceptPact(bob), "另一玩家可以登记");
+        check(state.hasAnyAcceptedPact(), "首次交付占用整局唯一名额");
+        check(!state.acceptPact(bob), "另一玩家不可登记第二份魂契");
+        check(!state.hasAcceptedPact(bob), "登记失败不留下资格");
         state.disconnect(alice);
         check(!state.acceptPact(alice), "掉线重连不恢复一次性资格");
+        check(!state.acceptPact(bob), "首位玩家掉线也不释放本局名额");
         state.completeTask(alice, 3);
         state.disconnect(alice);
         check(!state.completeTask(alice, 3), "掉线清理未完成任务计数");
 
         HalloweenCombatState nextRound = new HalloweenCombatState();
         check(nextRound.now() == 0, "新局时钟重置");
+        check(!nextRound.hasAnyAcceptedPact(), "新局释放魂契名额");
         check(nextRound.acceptPact(alice), "新局可以重新获得一次性资格");
         check(nextRound.claimBody(corpse), "尸体事务不跨局泄漏");
         check(state.now() == 10, "多个世界状态互不推进");
-        System.out.println("HalloweenCombatStateTest: 26 checks passed");
+        System.out.println("HalloweenCombatStateTest: passed");
     }
 }

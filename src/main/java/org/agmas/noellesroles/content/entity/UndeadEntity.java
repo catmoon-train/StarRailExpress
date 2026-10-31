@@ -74,6 +74,9 @@ public class UndeadEntity extends PathfinderMob {
     /** 是否进入消散预警（剩余 10 秒），客户端用于闪烁渲染。 */
     private static final EntityDataAccessor<Boolean> FLICKERING = SynchedEntityData.defineId(
             UndeadEntity.class, EntityDataSerializers.BOOLEAN);
+    /** 服务端按真实来源设置，客户端直接读取，不能通过主人是否存在推测颜色。 */
+    private static final EntityDataAccessor<Integer> VISUAL_COLOR = SynchedEntityData.defineId(
+            UndeadEntity.class, EntityDataSerializers.INT);
 
     public static final int DEFAULT_LIFETIME = 90 * 20;
     private static final int WARNING_FADE_TICKS = 30 * 20;
@@ -140,6 +143,7 @@ public class UndeadEntity extends PathfinderMob {
         super.defineSynchedData(builder);
         builder.define(SKIN_UUID, Optional.empty());
         builder.define(FLICKERING, false);
+        builder.define(VISUAL_COLOR, NightUndeadRules.visualColor(Source.WILD));
     }
 
     /** 初始化亡灵：设置召唤者、皮肤来源与持续时间。 */
@@ -174,6 +178,7 @@ public class UndeadEntity extends PathfinderMob {
 
     private void resetSource(Source source) {
         this.source = source;
+        this.entityData.set(VISUAL_COLOR, NightUndeadRules.visualColor(source));
         this.spawnAnchor = null;
         this.wanderTarget = null;
         this.returningToAnchor = false;
@@ -193,6 +198,8 @@ public class UndeadEntity extends PathfinderMob {
         this.retargetCooldown = 0;
         this.setTarget(null);
     }
+
+    public int getVisualColor() { return this.entityData.get(VISUAL_COLOR); }
 
     public UUID getSkinUuid() {
         return this.entityData.get(SKIN_UUID).orElse(null);
@@ -591,6 +598,7 @@ public class UndeadEntity extends PathfinderMob {
         super.readAdditionalSaveData(tag);
         source = NightUndeadRules.restoreSource(tag.getString("UndeadSource"),
                 tag.getBoolean("Halloween"), tag.hasUUID("OwnerUUID"));
+        this.entityData.set(VISUAL_COLOR, NightUndeadRules.visualColor(source));
         ownerUuid = !isNight() && tag.hasUUID("OwnerUUID") ? tag.getUUID("OwnerUUID") : null;
         ownerCache = null;
         // 旧档没有锚点时取本次加载位置，避免回到世界原点。

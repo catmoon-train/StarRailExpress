@@ -26,6 +26,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.Mth;
+import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.player.Player;
@@ -39,15 +40,17 @@ import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 import org.agmas.noellesroles.Noellesroles;
 import org.agmas.noellesroles.init.ModItems;
+import org.agmas.noellesroles.spear.SpearAnim;
 import org.jetbrains.annotations.Nullable;
 
+import java.lang.ref.WeakReference;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
 /**
- * 竹刀延伸体：右键后从持有者眼前沿视线慢慢伸长，最长 10 格、<b>1.5 秒</b>伸到底；
+ * 竹刀延伸体：右键后从持有者眼前沿视线慢慢伸长，最长 10 格、<b>1.95 秒</b>伸到底；
  * 命中玩家则目标立即死亡、竹刀收回（耐久由 {@code BambooSpearItem} 在释放时扣 1 点）。
  *
  * <p>
@@ -69,9 +72,9 @@ import java.util.UUID;
 public class BambooSpearEntity extends Entity {
 
     public static final float MAX_LENGTH = 10.0f;
-    /** 伸到最长所需的时间：1.5 秒。 */
-    public static final int EXTEND_TICKS = 30;
-    public static final int RETRACT_TICKS = 10;
+    /** 伸出与回收时间均在原来的 30 / 10 tick 基础上增加 30%。 */
+    public static final int EXTEND_TICKS = 39;
+    public static final int RETRACT_TICKS = 13;
 
     /**
      * 杆根相对眼睛的前推距离（单位：格）。
@@ -91,6 +94,8 @@ public class BambooSpearEntity extends Entity {
             BambooSpearEntity.class, EntityDataSerializers.OPTIONAL_UUID);
     private static final EntityDataAccessor<Boolean> RETRACTING = SynchedEntityData.defineId(BambooSpearEntity.class,
             EntityDataSerializers.BOOLEAN);
+    private static final EntityDataAccessor<Boolean> OFF_HAND = SynchedEntityData.defineId(BambooSpearEntity.class,
+            EntityDataSerializers.BOOLEAN);
     // 每 tick 由服务端把权威的「眼睛位置」与「视线方向」同步给客户端，渲染端用同一套
     // 静态方法推出杆根，保证「屏幕上的方向」与「实际命中的方向」完全一致，
     // 且始终跟随持有者当前视角（不会卡在发射瞬间的朝向）。
@@ -108,14 +113,11 @@ public class BambooSpearEntity extends Entity {
             EntityDataSerializers.FLOAT);
 
     /**
-     * 客户端侧「哪些玩家正在放竹刀」：UUID → 最后一次客户端 tick 时的世界时间。
-     * <p>
-     * 渲染端（手臂姿态 mixin）每帧都要问，所以用一张表代替遍历实体；只在客户端 tick /
-     * 实体移除时写，读写都在客户端主线程。存时间戳而不是单纯存 UUID 是为了自愈——
-     * 退出重进时客户端世界是整个丢掉的，不保证每个实体都走过 {@link #remove}，
-     * 残留条目会因为时间戳对不上而自动失效。
+     * 客户端活跃竹枪索引：供两种视角按同一根实体的同步长度播放 spear 直刺曲线。
+     * 仅接受同一世界中、本 tick 或上一 tick 更新过的实体，避免切世界后的旧姿态残留。
      */
-    private static final Map<UUID, Long> CLIENT_ACTIVE_OWNERS = new HashMap<>();
+    private static final Map<UUID, WeakReference<BambooSpearEntity>> CLIENT_ACTIVE_OWNERS = new HashMap<>();
+    private long clientActiveTick = -1L;
 
     private boolean killed;
     private float clientLength;
@@ -138,8 +140,9 @@ public class BambooSpearEntity extends Entity {
         this.setNoGravity(true);
     }
 
-    public void setup(ServerPlayer owner) {
+    public void setup(ServerPlayer owner, InteractionHand hand) {
         this.entityData.set(OWNER_UUID, Optional.of(owner.getUUID()));
+        this.entityData.set(OFF_HAND, hand == InteractionHand.OFF_HAND);
         this.setPos(owner.getEyePosition());
         this.setYRot(owner.getYRot());
         this.setXRot(owner.getXRot());
@@ -168,17 +171,39 @@ public class BambooSpearEntity extends Entity {
         return this.entityData.get(OWNER_UUID).orElse(null);
     }
 
-    /** 客户端：该玩家是否正在放竹刀（渲染手臂姿态用）。只认这一 tick 或上一 tick 刚更新过的条目。 */
+    /** 客户端：该玩家是否正在释放竹枪。 */
     public static boolean isClientActiveOwner(@Nullable Player player) {
+        return getClientActiveSpear(player) != null;
+    }
+
+    /** 客户端读取同步实体，不依赖本地挥手包；旁观者和最后一点耐久同样能播放动作。 */
+    public static @Nullable BambooSpearEntity getClientActiveSpear(@Nullable Player player) {
         if (player == null) {
-            return false;
+            return null;
         }
-        Long stamp = CLIENT_ACTIVE_OWNERS.get(player.getUUID());
-        if (stamp == null) {
-            return false;
+        WeakReference<BambooSpearEntity> reference = CLIENT_ACTIVE_OWNERS.get(player.getUUID());
+        BambooSpearEntity spear = reference == null ? null : reference.get();
+        if (spear == null) {
+            CLIENT_ACTIVE_OWNERS.remove(player.getUUID());
+            return null;
         }
         long now = player.level().getGameTime();
-        return stamp == now || stamp == now - 1L;
+        if (spear.level() != player.level() || spear.isRemoved()
+                || (spear.clientActiveTick != now && spear.clientActiveTick != now - 1L)) {
+            CLIENT_ACTIVE_OWNERS.remove(player.getUUID(), reference);
+            return null;
+        }
+        return spear;
+    }
+
+    public InteractionHand getAttackHand() {
+        return this.entityData.get(OFF_HAND) ? InteractionHand.OFF_HAND : InteractionHand.MAIN_HAND;
+    }
+
+    /** 将伸出 / 回收长度映射到 spear 的前刺 / 收招阶段，双视角共用进度。 */
+    public float getStabProgress(float partialTick) {
+        return SpearAnim.bambooStabProgress(getInterpolatedLength(Mth.clamp(partialTick, 0.0F, 1.0F)) / MAX_LENGTH,
+                isRetracting());
     }
 
     /** 插值后的眼睛位置，未就绪返回 null。 */
@@ -264,6 +289,7 @@ public class BambooSpearEntity extends Entity {
         builder.define(LENGTH, 0.0f);
         builder.define(OWNER_UUID, Optional.empty());
         builder.define(RETRACTING, false);
+        builder.define(OFF_HAND, false);
         builder.define(EYE_X, 0.0f);
         builder.define(EYE_Y, 0.0f);
         builder.define(EYE_Z, 0.0f);
@@ -288,7 +314,8 @@ public class BambooSpearEntity extends Entity {
             this.clientDir = dir;
             UUID owner = getOwnerUuid();
             if (owner != null) {
-                CLIENT_ACTIVE_OWNERS.put(owner, this.level().getGameTime());
+                this.clientActiveTick = this.level().getGameTime();
+                CLIENT_ACTIVE_OWNERS.put(owner, new WeakReference<>(this));
             }
             return;
         }
@@ -397,7 +424,7 @@ public class BambooSpearEntity extends Entity {
         if (this.level().isClientSide) {
             UUID owner = getOwnerUuid();
             if (owner != null) {
-                CLIENT_ACTIVE_OWNERS.remove(owner);
+                CLIENT_ACTIVE_OWNERS.computeIfPresent(owner, (uuid, reference) -> reference.get() == this ? null : reference);
             }
         }
         super.remove(reason);
@@ -438,6 +465,7 @@ public class BambooSpearEntity extends Entity {
             this.entityData.set(OWNER_UUID, Optional.of(compoundTag.getUUID("OwnerUuid")));
         }
         this.entityData.set(RETRACTING, compoundTag.getBoolean("Retracting"));
+        this.entityData.set(OFF_HAND, compoundTag.getBoolean("OffHand"));
         this.killed = compoundTag.getBoolean("Killed");
         this.entityData.set(LENGTH, compoundTag.getFloat("Length"));
     }
@@ -449,6 +477,7 @@ public class BambooSpearEntity extends Entity {
             compoundTag.putUUID("OwnerUuid", owner);
         }
         compoundTag.putBoolean("Retracting", isRetracting());
+        compoundTag.putBoolean("OffHand", getAttackHand() == InteractionHand.OFF_HAND);
         compoundTag.putBoolean("Killed", this.killed);
         compoundTag.putFloat("Length", getLength());
     }

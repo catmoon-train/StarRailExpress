@@ -4,7 +4,6 @@ import io.wifi.starrailexpress.api.data.RoleData;
 import io.wifi.starrailexpress.cca.SREGameTimeComponent;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.content.entity.PlayerBodyEntity;
-import io.wifi.starrailexpress.event.AllowPlayerPunching;
 import io.wifi.starrailexpress.event.OnGameEnd;
 import io.wifi.starrailexpress.event.OnPlayerDeathWithBody;
 import io.wifi.starrailexpress.event.OnPlayerDeathWithKiller;
@@ -21,6 +20,7 @@ import net.fabricmc.fabric.api.event.player.UseEntityCallback;
 import net.fabricmc.fabric.api.event.player.UseItemCallback;
 import net.fabricmc.fabric.api.networking.v1.PlayerLookup;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
+import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.core.Holder;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.nbt.CompoundTag;
@@ -72,10 +72,9 @@ public final class HalloweenCombat {
     public static final double SAW_RANGE = 3.0;
     public static final double GUN_RANGE = 30.0;
     public static final int BONE_USES = HalloweenRewardRules.BONE_DURABILITY;
-    public static final int GUN_USES = 6;
+    public static final int GUN_USES = HalloweenRewardRules.GUN_USES;
     private static final ResourceLocation SAW_DEATH = id("blood_saw");
     private static final ResourceLocation GUN_DEATH = id("fright_gun");
-    private static final ResourceLocation PACT_DEATH = id("pact_melee");
     private static final Map<ServerLevel, Round> ROUNDS = new IdentityHashMap<>();
     private static boolean registered;
     private static int gunSummonCount = 3;
@@ -120,8 +119,6 @@ public final class HalloweenCombat {
             }
             return InteractionResult.PASS;
         });
-        AllowPlayerPunching.EVENT.register(p -> HalloweenPactRole.isPact(p) && p.getMainHandItem().isEmpty()
-                && !p.hasEffect(ModEffects.SAFE_TIME) && !isActionLocked(p));
         OnPlayerDeathWithBody.EVENT.register((victim, killer, reason, body) -> {
             if (victim instanceof ServerPlayer sp && active(sp.serverLevel())) {
                 round(sp.serverLevel()).bodies.put(sp.getUUID(), body);
@@ -195,6 +192,8 @@ public final class HalloweenCombat {
         if (hand != InteractionHand.MAIN_HAND || !stack.is(HalloweenItems.BLOOD_SAW) || !canAct(p)
                 || HalloweenPactRole.isPact(p) || !stack.isItemEnabled(p.level().enabledFeatures())
                 || p.getCooldowns().isOnCooldown(stack.getItem()) || p.isPassenger()) return false;
+        Round r = round(p.serverLevel());
+        if (r.sawReady.getOrDefault(p.getUUID(), 0L) > r.state.now()) return false;
         ServerPlayer target = rayPlayer(p, SAW_RANGE);
         if (target == null || !validPair(p, target) || target.isPassenger() || isActionLocked(target)) return false;
         Vec3 chest = target.position().add(0, target.getBbHeight() * 0.65, 0);
@@ -203,7 +202,8 @@ public final class HalloweenCombat {
                 .clip(p.getEyePosition(), end).isEmpty() || !visible(p, chest)) return false;
         // 启动即耗耐久；取消不能免费重试。最后一点耐久在动作结束/取消时再真正碎裂。
         stack.setDamageValue(stack.getDamageValue() + 1);
-        Round r = round(p.serverLevel());
+        r.sawReady.put(p.getUUID(), r.state.now() + HalloweenRewardRules.SAW_COOLDOWN_TICKS);
+        p.getCooldowns().addCooldown(HalloweenItems.BLOOD_SAW, HalloweenRewardRules.SAW_COOLDOWN_TICKS);
         Saw saw = new Saw(p, target, stack, p.getInventory().selected, r.state.now() + HalloweenConfig.get().sawChargeTicks);
         r.saws.put(p.getUUID(), saw);
         p.stopUsingItem();
@@ -212,8 +212,10 @@ public final class HalloweenCombat {
         target.closeContainer();
         saw.actorLock.enforce();
         saw.targetLock.enforce();
-        p.serverLevel().playSound(null, p.blockPosition(), SoundEvents.UI_STONECUTTER_TAKE_RESULT,
-                SoundSource.PLAYERS, 1, 0.6f);
+        syncSaw(saw, r.state.now(), false);
+        sawSound(saw);
+        target.displayClientMessage(Component.translatable("message.noellesroles.halloween.saw_attacked",
+                p.getDisplayName()), false);
         return true;
     }
 
@@ -222,13 +224,20 @@ public final class HalloweenCombat {
         ItemStack stack = p.getItemInHand(hand);
         if (hand != InteractionHand.MAIN_HAND || !stack.is(HalloweenItems.FRIGHT_GUN) || !canAct(p)
                 || HalloweenPactRole.isPact(p) || !stack.isItemEnabled(p.level().enabledFeatures())) return false;
+        if (stack.getOrDefault(DataComponents.CUSTOM_DATA, CustomData.EMPTY).copyTag().getInt("HalloweenCombatUses") >= GUN_USES) {
+            stack.shrink(1); // 旧存量已用满三次不能再开第四枪。
+            p.getInventory().setChanged();
+            p.containerMenu.broadcastChanges();
+            return false;
+        }
         Round r = round(p.serverLevel());
         if (r.gunReady.getOrDefault(p.getUUID(), 0L) > r.state.now() || p.getCooldowns().isOnCooldown(stack.getItem())) return false;
         ServerPlayer target = rayPlayer(p, GUN_RANGE);
         // 射中安全期玩家不扣次数；打空/打墙是正常开火，会扣次数并冷却。
         if (target != null && (!validPair(p, target) || isActionLocked(target))) return false;
-        r.gunReady.put(p.getUUID(), r.state.now() + HalloweenConfig.get().gunCooldownTicks);
-        p.getCooldowns().addCooldown(HalloweenItems.FRIGHT_GUN, HalloweenConfig.get().gunCooldownTicks);
+        int cooldown = HalloweenRewardRules.gunCooldown(HalloweenConfig.get().gunCooldownTicks);
+        r.gunReady.put(p.getUUID(), r.state.now() + cooldown);
+        p.getCooldowns().addCooldown(HalloweenItems.FRIGHT_GUN, cooldown);
         spendUse(p, stack, GUN_USES);
         gunFx(p, target);
         if (target == null) return true;
@@ -261,23 +270,9 @@ public final class HalloweenCombat {
     }
 
     private static InteractionResult attack(Player player, Level level, InteractionHand hand, Entity entity, @Nullable EntityHitResult hit) {
-        if (isActionLocked(player)) return InteractionResult.FAIL;
+        // 双端拦截所有实体攻击；魂契亡灵没有普通伤害或点击击杀能力。
+        if (isActionLocked(player) || HalloweenPactRole.isPact(player)) return InteractionResult.FAIL;
         ItemStack stack = player.getItemInHand(hand);
-        if (HalloweenPactRole.isPact(player)) {
-            if (player instanceof ServerPlayer p && entity instanceof ServerPlayer target && canAct(p)
-                    && hand == InteractionHand.MAIN_HAND && stack.isEmpty() && validPair(p, target)
-                    && p.distanceToSqr(target) <= 9 && visible(p, target.getBoundingBox().getCenter())
-                    && rayPlayer(p, 3) == target) {
-                var data = RoleData.getNullable(HalloweenPactRole.Data.class, p);
-                Round r = round(p.serverLevel());
-                if (data != null && r.state.now() >= data.meleeReadyAt) {
-                    data.meleeReadyAt = r.state.now() + 40;
-                    // 简单近战保留真实盾/免死链；不赋予刀、枪或原职业技能。
-                    GameUtils.killPlayer(target, true, p, PACT_DEATH);
-                }
-            }
-            return InteractionResult.SUCCESS;
-        }
         if (!level.isClientSide && stack.is(HalloweenItems.BONE_SWORD)
                 && !migrateBoneDurability(stack)) return InteractionResult.SUCCESS;
         if (!isCombatItem(stack)) return InteractionResult.PASS;
@@ -335,6 +330,12 @@ public final class HalloweenCombat {
                 && HalloweenVillage.isNearReaper(victim);
         if (nearReaper) give((ServerPlayer) killer, new ItemStack(HalloweenItems.PUMPKIN));
         if (SAW_DEATH.equals(reason) && reason.equals(r.attempts.get(uuid))) {
+            // 仅最终死亡成功后一次爆发；护盾、免死或中断不会生成击杀粒子。
+            io.wifi.starrailexpress.util.ParticleFx.burst(level,
+                    new net.minecraft.core.particles.BlockParticleOption(net.minecraft.core.particles.ParticleTypes.BLOCK,
+                            net.minecraft.world.level.block.Blocks.REDSTONE_BLOCK.defaultBlockState()),
+                    victim.getX(), victim.getY() + victim.getBbHeight() * 0.6, victim.getZ(),
+                    28, 0.3, 0.45, 0.3, 0.12);
             if (body != null && !body.isRemoved() && !body.getComponent().isFakeBody && r.heartDeaths.add(body.getUUID())) {
                 r.hearts.put(uuid, new Heart(body, body.position(), r.state.now() + HalloweenConfig.get().heartDelayTicks));
             }
@@ -403,12 +404,15 @@ public final class HalloweenCombat {
         }
     }
 
-    /** NPC 调用：自行消耗背包中一张魂契，每人每局只登记一次，重连不重置次数。 */
+    /** NPC 调用：自行消耗一张魂契，占用全服本局唯一名额，死亡或重连不释放。 */
     public static boolean acceptPact(ServerPlayer p) {
         if (!canAct(p) || HalloweenPactRole.isPact(p) || !HalloweenVillage.isNearReaper(p)) return false;
         Round r = round(p.serverLevel());
         if (ROUNDS.entrySet().stream().anyMatch(e -> e.getKey().getServer() == p.getServer()
-                && e.getValue().state.hasAcceptedPact(p.getUUID()))) return false;
+                && e.getValue().state.hasAnyAcceptedPact())) {
+            p.displayClientMessage(Component.translatable("message.noellesroles.halloween.pact_limit"), false);
+            return false;
+        }
         for (List<ItemStack> compartment : p.getInventory().compartments) {
             for (ItemStack stack : compartment) {
                 if (stack.is(HalloweenItems.SOUL_CONTRACT)) {
@@ -428,10 +432,32 @@ public final class HalloweenCombat {
     public static void onTaskCompleted(ServerPlayer p) {
         if (!active(p.serverLevel()) || paused(p.serverLevel()) || !alive(p) || HalloweenPactRole.isPact(p)) return;
         Round r = round(p.serverLevel());
-        if (r.state.completeTask(p.getUUID(), HalloweenConfig.get().questTaskCount)) {
+        if (r.state.completeTask(p.getUUID(), 3)
+                && r.state.tryIssueContract(p.getRandom().nextInt(100), contractOccupied(p))) {
             give(p, new ItemStack(HalloweenItems.SOUL_CONTRACT));
             p.displayClientMessage(Component.translatable("message.noellesroles.halloween.contract_earned"), false);
         }
+    }
+
+    /** 发放记录覆盖掉落、转交和离线；额外检查旧存量、指令物品及所有维度。 */
+    private static boolean contractOccupied(ServerPlayer player) {
+        if (ROUNDS.entrySet().stream().anyMatch(e -> e.getKey().getServer() == player.getServer()
+                && (e.getValue().state.hasIssuedContract() || e.getValue().state.hasAnyAcceptedPact()))) return true;
+        for (ServerPlayer other : player.getServer().getPlayerList().getPlayers()) {
+            for (List<ItemStack> compartment : other.getInventory().compartments) {
+                for (ItemStack stack : compartment) if (stack.is(HalloweenItems.SOUL_CONTRACT)) return true;
+            }
+            if (other.containerMenu.getCarried().is(HalloweenItems.SOUL_CONTRACT)) return true;
+            for (int slot = 0; slot < other.getEnderChestInventory().getContainerSize(); slot++) {
+                if (other.getEnderChestInventory().getItem(slot).is(HalloweenItems.SOUL_CONTRACT)) return true;
+            }
+        }
+        for (ServerLevel level : player.getServer().getAllLevels()) {
+            for (Entity entity : level.getAllEntities()) {
+                if (entity instanceof ItemEntity item && item.getItem().is(HalloweenItems.SOUL_CONTRACT)) return true;
+            }
+        }
+        return false;
     }
 
     public static void tick(ServerLevel level) {
@@ -451,6 +477,8 @@ public final class HalloweenCombat {
             if (!saw.valid(level)) { endSaw(r, saw); continue; }
             saw.actorLock.enforce();
             saw.targetLock.enforce();
+            if (level.getGameTime() % 2 == 0) syncSaw(saw, r.state.now(), paused);
+            if (!paused && r.state.now() < saw.endsAt && r.state.now() % 5 == 0) sawSound(saw);
             if (!paused && r.state.now() >= saw.endsAt) {
                 endSaw(r, saw);
                 if (validPair(saw.actor, saw.target)) attemptKill(r, saw.actor, saw.target, SAW_DEATH);
@@ -472,6 +500,8 @@ public final class HalloweenCombat {
                 if (left > 0) p.getCooldowns().addCooldown(HalloweenItems.FRIGHT_GUN, (int) left);
                 long bone = r.boneReady.getOrDefault(p.getUUID(), 0L) - r.state.now();
                 if (bone > 0) p.getCooldowns().addCooldown(HalloweenItems.BONE_SWORD, (int) bone);
+                long saw = r.sawReady.getOrDefault(p.getUUID(), 0L) - r.state.now();
+                if (saw > 0) p.getCooldowns().addCooldown(HalloweenItems.BLOOD_SAW, (int) saw);
             }
             return;
         }
@@ -549,6 +579,7 @@ public final class HalloweenCombat {
             for (ServerPlayer p : level.players()) {
                 p.getCooldowns().removeCooldown(HalloweenItems.FRIGHT_GUN);
                 p.getCooldowns().removeCooldown(HalloweenItems.BONE_SWORD);
+                p.getCooldowns().removeCooldown(HalloweenItems.BLOOD_SAW);
                 if (r.pactVisuals.contains(p.getUUID())) p.setGlowingTag(false);
             }
         }
@@ -571,12 +602,14 @@ public final class HalloweenCombat {
         r.bodies.remove(uuid);
         r.gunReady.remove(uuid);
         r.boneReady.remove(uuid);
+        r.sawReady.remove(uuid);
         r.state.disconnect(uuid);
         ServerPlayer p = level.getServer().getPlayerList().getPlayer(uuid);
         boolean hadVisual = r.pactVisuals.remove(uuid);
         if (p != null) {
             p.getCooldowns().removeCooldown(HalloweenItems.FRIGHT_GUN);
             p.getCooldowns().removeCooldown(HalloweenItems.BONE_SWORD);
+            p.getCooldowns().removeCooldown(HalloweenItems.BLOOD_SAW);
             if (hadVisual) p.setGlowingTag(false);
         }
     }
@@ -590,12 +623,33 @@ public final class HalloweenCombat {
     private static void endSaw(Round r, Saw saw) { r.saws.remove(saw.actor.getUUID()); releaseSaw(saw); }
 
     private static void releaseSaw(Saw saw) {
+        sendSaw(saw.actor, 0, saw.totalTicks, false, false);
+        sendSaw(saw.target, 0, saw.totalTicks, true, false);
         saw.actorLock.release();
         saw.targetLock.release();
         if (!saw.stack.isEmpty() && saw.stack.getDamageValue() >= saw.stack.getMaxDamage()) {
             saw.stack.shrink(1);
             saw.actor.onEquippedItemBroken(HalloweenItems.BLOOD_SAW, EquipmentSlot.MAINHAND);
         }
+    }
+
+    /** 倒计时只同步给使用者和被锯者，不广播目标信息。 */
+    private static void syncSaw(Saw saw, long now, boolean paused) {
+        int remaining = (int) Math.max(0, saw.endsAt - now);
+        sendSaw(saw.actor, remaining, saw.totalTicks, false, paused);
+        sendSaw(saw.target, remaining, saw.totalTicks, true, paused);
+    }
+
+    private static void sendSaw(ServerPlayer player, int remaining, int total, boolean victim, boolean paused) {
+        if (ServerPlayNetworking.canSend(player, HalloweenSawS2CPayload.ID))
+            ServerPlayNetworking.send(player, new HalloweenSawS2CPayload(
+                    player.serverLevel().dimension().location(), remaining, total, victim, paused));
+    }
+
+    /** 短促机械切割声；不使用循环音轨，中断后不再播放。 */
+    private static void sawSound(Saw saw) {
+        saw.actor.playNotifySound(SoundEvents.UI_STONECUTTER_TAKE_RESULT, SoundSource.PLAYERS, 0.7F, 0.6F);
+        saw.target.playNotifySound(SoundEvents.UI_STONECUTTER_TAKE_RESULT, SoundSource.PLAYERS, 0.7F, 0.6F);
     }
 
     private static void give(ServerPlayer player, ItemStack stack) {
@@ -676,6 +730,7 @@ public final class HalloweenCombat {
         final Map<UUID, Saw> saws = new HashMap<>();
         final Map<UUID, Lock> freezes = new HashMap<>();
         final Map<UUID, Long> suppressed = new HashMap<>(), gunReady = new HashMap<>(), boneReady = new HashMap<>(), undead = new HashMap<>();
+        final Map<UUID, Long> sawReady = new HashMap<>();
         final Map<UUID, ResourceLocation> attempts = new HashMap<>();
         final Map<UUID, PlayerBodyEntity> bodies = new HashMap<>();
         final Map<UUID, Heart> hearts = new HashMap<>();
@@ -694,10 +749,12 @@ public final class HalloweenCombat {
         final int targetSlot;
         final ItemStack targetStack;
         final long endsAt;
+        final int totalTicks;
         final Lock actorLock, targetLock;
 
         Saw(ServerPlayer actor, ServerPlayer target, ItemStack stack, int slot, long endsAt) {
             this.actor = actor; this.target = target; this.stack = stack; this.slot = slot; this.endsAt = endsAt;
+            totalTicks = Math.max(1, HalloweenConfig.get().sawChargeTicks);
             actorHurt = actor.hurtTime; targetHurt = target.hurtTime;
             actorHealth = actor.getHealth(); targetHealth = target.getHealth();
             targetSlot = target.getInventory().selected; targetStack = target.getMainHandItem();

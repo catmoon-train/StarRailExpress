@@ -52,6 +52,7 @@ public final class HalloweenNetwork {
     public static void register() {
         PayloadTypeRegistry.playS2C().register(Snapshot.ID, Snapshot.CODEC);
         PayloadTypeRegistry.playS2C().register(PumpkinHideoutS2CPayload.ID, PumpkinHideoutS2CPayload.CODEC);
+        PayloadTypeRegistry.playS2C().register(HalloweenSawS2CPayload.ID, HalloweenSawS2CPayload.CODEC);
     }
 
     public static void sync(ServerLevel level) {

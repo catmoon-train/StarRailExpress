@@ -9,6 +9,19 @@ import java.util.UUID;
 import static org.junit.jupiter.api.Assertions.*;
 
 class PumpkinHideoutInteractionGateTest {
+    @Test void hideoutExpiresAfterTenSecondsAndCannotBeRecoveredAtDeadline() throws Exception {
+        assertEquals(200, PumpkinHideoutRules.LIFETIME_TICKS);
+        assertFalse(PumpkinHideoutRules.expired(1199, 1200));
+        assertTrue(PumpkinHideoutRules.expired(1200, 1200));
+        assertTrue(PumpkinHideoutRules.expired(1201, 1200));
+        String source = Files.readString(Path.of(
+                "src/main/java/org/agmas/noellesroles/game/halloween/PumpkinHideouts.java"));
+        assertTrue(source.contains("level.getGameTime() + PumpkinHideoutRules.LIFETIME_TICKS"));
+        assertTrue(source.contains("if (PumpkinHideoutRules.expired(level.getGameTime(), hideout.expiresAt)) return InteractionResult.FAIL;"));
+        assertTrue(source.contains("restore(guest, guest.hideout.target.isRemoved())"));
+        assertTrue(source.contains("hideout.discard()"));
+    }
+
     @Test void firstClickAtTickZeroIsAcceptedButDuplicatePacketsAreNot() {
         var gate = new PumpkinHideoutInteractionGate();
         UUID player = UUID.randomUUID();

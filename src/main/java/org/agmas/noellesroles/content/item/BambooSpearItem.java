@@ -40,7 +40,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.List;
 
 /**
- * 竹刀 —— 右键后竹子沿视线向前伸长，最长 10 格、<b>1.5 秒</b>伸到底；碰到玩家即击杀并立刻收回。
+ * 竹刀 —— 右键后竹子沿视线向前伸长，最长 10 格、<b>1.95 秒</b>伸到底；碰到玩家即击杀并立刻收回。
  * 3 点耐久，每次成功释放消耗 1 点；冷却 15 秒。
  */
 public class BambooSpearItem extends Item implements TrainWeapon {
@@ -73,7 +73,7 @@ public class BambooSpearItem extends Item implements TrainWeapon {
         }
         if (!world.isClientSide && user instanceof ServerPlayer serverPlayer) {
             BambooSpearEntity spear = new BambooSpearEntity(ModEntities.BAMBOO_SPEAR, world);
-            spear.setup(serverPlayer);
+            spear.setup(serverPlayer, hand);
             world.addFreshEntity(spear);
             world.playSound(null, user.getX(), user.getY(), user.getZ(), SoundEvents.TRIDENT_RIPTIDE_1,
                     SoundSource.PLAYERS, 0.8f, 1.35f);

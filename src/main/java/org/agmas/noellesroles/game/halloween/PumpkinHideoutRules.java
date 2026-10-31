@@ -9,11 +9,15 @@ public final class PumpkinHideoutRules {
     public static final ResourceLocation SCALE_MODIFIER_ID = ResourceLocation.fromNamespaceAndPath("noellesroles", "halloween_hideout_scale");
     public static final double SCALE = 0.06;
     public static final double SPEED_MULTIPLIER = 0.05;
+    public static final int LIFETIME_TICKS = 10 * 20;
     private static final double HALF_WIDTH = 0.8;
     private static final double BELOW = 0.35;
     private static final double ABOVE = 1.05;
 
     private PumpkinHideoutRules() {}
+
+    /** 到期 tick 即失效，交互和世界清理使用同一边界。 */
+    public static boolean expired(long now, long expiresAt) { return now >= expiresAt; }
 
     public static AABB bounds(Vec3 feet) {
         return new AABB(feet.x - HALF_WIDTH, feet.y - BELOW, feet.z - HALF_WIDTH,

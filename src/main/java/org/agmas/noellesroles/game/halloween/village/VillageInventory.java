@@ -17,7 +17,12 @@ public final class VillageInventory {
 
     /** 返回 null 表示余额或背包空间不足，原始列表及其元素始终不被修改。 */
     public static <T> List<T> plan(List<T> original, int price, T reward, int amount, Slots<T> slots) {
-        if (price < 0 || amount < 1 || amount > 4096 || slots.limit(reward) < 1) return null;
+        return plan(original, price, reward, amount, slots, false);
+    }
+
+    /** 允许阵营收益减半后奖励为零，仍按原价完成支付；普通调用继续拒绝零数量。 */
+    public static <T> List<T> plan(List<T> original, int price, T reward, int amount, Slots<T> slots, boolean allowEmptyReward) {
+        if (price < 0 || amount < (allowEmptyReward ? 0 : 1) || amount > 4096 || slots.limit(reward) < 1) return null;
         long balance = 0;
         List<T> result = new ArrayList<>(original.size());
         for (T stack : original) {

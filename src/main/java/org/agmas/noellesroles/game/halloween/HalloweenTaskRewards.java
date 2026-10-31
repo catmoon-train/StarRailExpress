@@ -7,7 +7,7 @@ import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 
-/** 只由真实任务完成钩子调用；三个奖励分别抽取，可同时掉落。 */
+/** 只由真实任务完成钩子调用；必掉 1～2 个南瓜，糖果与糖果袋独立抽取。 */
 public final class HalloweenTaskRewards {
     private HalloweenTaskRewards() {}
 
@@ -16,14 +16,17 @@ public final class HalloweenTaskRewards {
                 || SREGameTimeComponent.KEY.get(player.level()).isTimeFrozen()) return;
         var random = player.getRandom();
         var loot = HalloweenRewardRules.taskLoot(random.nextDouble(), random.nextDouble(), random.nextDouble());
-        if (loot.pumpkin()) drop(player, HalloweenItems.PUMPKIN);
-        if (loot.candy()) drop(player, HalloweenItems.CANDY);
-        if (loot.bag()) drop(player, HalloweenItems.CANDY_BAG);
+        drop(player, HalloweenItems.PUMPKIN, loot.pumpkinCount());
+        if (loot.candy()) drop(player, HalloweenItems.CANDY, 1);
+        if (loot.bag()) drop(player, HalloweenItems.CANDY_BAG, 1);
     }
 
-    private static void drop(ServerPlayer player, Item item) {
+    private static void drop(ServerPlayer player, Item item, int count) {
+        ItemStack reward = new ItemStack(item, count);
+        HalloweenPumpkinRewards.adjust(player, reward);
+        if (reward.isEmpty()) return;
         ItemEntity entity = new ItemEntity(player.serverLevel(), player.getX(), player.getY() + .25,
-                player.getZ(), new ItemStack(item));
+                player.getZ(), reward);
         entity.setDefaultPickUpDelay();
         player.serverLevel().addFreshEntity(entity);
     }

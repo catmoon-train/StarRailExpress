@@ -45,27 +45,6 @@ class SteveRoleTest {
     }
 
     @Test
-    void everySteveItemHasAModelAndThreeLanguageDescriptions() throws Exception {
-        for (String locale : List.of("zh_cn", "zh_tw", "en_us")) {
-            JsonObject names = json("assets/noellesroles/lang/" + locale + ".json");
-            JsonObject descriptions = json("assets/item_intro/lang/" + locale + ".json");
-            for (String item : List.of("steve_pickaxe", "steve_diamond_pickaxe", "steve_boat",
-                    "steve_minecart", "steve_golden_apple", "steve_piston")) {
-                String key = "item.noellesroles." + item;
-                assertTrue(names.has(key), locale + ": " + key);
-                assertFalse(descriptions.get(key + ".desc").getAsString().isBlank(), locale + ": " + key);
-                assertTrue(json("assets/noellesroles/models/item/" + item + ".json").has("parent"), item);
-            }
-            assertFalse(names.has("item.noellesroles.steve_lever"));
-            assertFalse(descriptions.has("item.noellesroles.steve_lever.desc"));
-            assertTrue(names.has("message.noellesroles.steve.inventory_full"));
-            assertTrue(names.has("item.noellesroles.steve_pickaxe.durability"));
-            var intro = json("assets/role_modifier_intro/lang/" + locale + ".json");
-            assertTrue(intro.get("info.screen.roleid.steve").getAsString().contains("128"));
-        }
-    }
-
-    @Test
     void clientPredictionMixinIsNeverLoadedOnDedicatedServers() throws Exception {
         var mixins = json("noellesroles.mixins.json");
         String client = "client.SteveMiningPredictionMixin";

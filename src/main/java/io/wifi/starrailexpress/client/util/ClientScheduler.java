@@ -31,7 +31,7 @@ public class ClientScheduler {
    public static class ScheduledTask {
       private int ticksLeft;
       private final Runnable action;
-      private boolean cancelled = false;
+      private volatile boolean cancelled = false;
 
       public ScheduledTask(int delayTicks, Runnable action) {
          this.ticksLeft = delayTicks;
@@ -42,6 +42,8 @@ public class ClientScheduler {
          if (this.cancelled) {
             return true;
          } else if (--this.ticksLeft <= 0) {
+            // 先完成再调用，回调重入或抛错都不能让同一任务再次执行。
+            this.cancelled = true;
             this.action.run();
             return true;
          } else {
@@ -54,8 +56,14 @@ public class ClientScheduler {
       }
    }
 
+   /** 快照迭代允许回调新增任务；不能在 removeIf 的谓词内执行用户回调。 */
+   static void tickTasks() {
+      for (ScheduledTask task : TASKS) {
+         if (task.tick()) TASKS.remove(task);
+      }
+   }
+
    public static void init() {
-      ClientTickEvents.END_WORLD_TICK
-            .register((client) -> TASKS.removeIf(ScheduledTask::tick));
+      ClientTickEvents.END_WORLD_TICK.register(client -> tickTasks());
    }
 }

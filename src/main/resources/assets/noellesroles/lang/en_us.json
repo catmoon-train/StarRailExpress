@@ -904,7 +904,7 @@
     "item.noellesroles.bamboo": "Bamboo",
     "item.noellesroles.bamboo.tooltip": "Hold right-click to charge, then throw. Can skewer up to 2 players on the bamboo. It pins to a wall on impact; pinned players cannot move. Disappears 10s after launch.",
     "item.noellesroles.bamboo_spear": "Bamboo Spear",
-    "item.noellesroles.bamboo_spear.tooltip": "Right-click to extend the bamboo forward, up to 10 blocks, fully extended in 1.5s. Kills any player hit, then retracts. 3 durability, 15s cooldown.",
+    "item.noellesroles.bamboo_spear.tooltip": "Right-click to thrust like a spear, extending up to 10 blocks in 1.95s. Kills any player hit, then retracts. Animation visible in third person. 3 durability, 15s cooldown.",
     "item.noellesroles.adrenaline": "Adrenaline",
     "item.noellesroles.antibiotic": "Antibiotic",
     "item.noellesroles.lightup": "Light On",

@@ -9,6 +9,14 @@
     "halloween.HalloweenShopMixin",
     "halloween.HalloweenTaskMixin",
     "halloween.HalloweenPlayerActionsMixin",
+    "halloween.HalloweenLinkInventoryMixin",
+    "halloween.HalloweenLinkPlayerMixin",
+    "halloween.HalloweenLinkMenuMixin",
+    "halloween.HalloweenLinkGiveMixin",
+    "halloween.HalloweenLinkUseMixin",
+    "halloween.HalloweenLinkLivingMixin",
+    "halloween.HalloweenLinkEquipmentMixin",
+    "halloween.HalloweenLinkContainerMixin",
     "halloween.PumpkinHideoutScaleMixin",
     "halloween.village.VillageSoulTrackingMixin",
     "halloween.pumpkin.PumpkinPlayerMixin",
@@ -134,6 +142,8 @@
     "defaultRequire": 1
   },
   "client": [
+    "client.KnifeGlintRenderMixin",
+    "client.KnifeGlintStackMixin",
     "halloween.ambience.HalloweenSkyColorMixin",
     "halloween.ambience.HalloweenSkyFogMixin",
     "halloween.ambience.HalloweenSkyMoonMixin",

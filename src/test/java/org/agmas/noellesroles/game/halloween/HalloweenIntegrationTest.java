@@ -13,13 +13,66 @@ import static org.junit.jupiter.api.Assertions.*;
 class HalloweenIntegrationTest {
     @Test void combatStateMachineChecksRunInGradle() { HalloweenCombatStateTest.main(new String[0]); }
 
-    @Test void knockingDistributionAndGlobalCooldownBoundaries() {
+    @Test void pactCannotAttackAndOnlyOneContractCanBeAcceptedAcrossWorlds() throws Exception {
+        String combat = Files.readString(Path.of(
+                "src/main/java/org/agmas/noellesroles/game/halloween/HalloweenCombat.java"));
+        String attack = combat.substring(combat.indexOf("private static InteractionResult attack("),
+                combat.indexOf("private static void attemptKill("));
+        assertTrue(attack.contains("if (isActionLocked(player) || HalloweenPactRole.isPact(player)) return InteractionResult.FAIL;"));
+        assertFalse(attack.contains("GameUtils.killPlayer"));
+        assertFalse(combat.contains("AllowPlayerPunching.EVENT.register"));
+        assertTrue(combat.contains("e.getKey().getServer() == p.getServer()"));
+        assertTrue(combat.contains("e.getValue().state.hasAnyAcceptedPact()"));
+    }
+
+    @Test void staminaProgressionOnlyReceivesServerPlayers() throws Exception {
+        String mixin = Files.readString(Path.of(
+                "src/main/java/io/wifi/starrailexpress/mixin/entity/player/PlayerEntityMixin.java"));
+        assertTrue(mixin.contains("if ((Object) this instanceof ServerPlayer serverPlayer)"));
+        assertTrue(mixin.contains("ProgressionDataManager.onStaminaConsumed(serverPlayer, 1)"));
+        assertFalse(mixin.contains("onStaminaConsumed((ServerPlayer) (Object) this"));
+    }
+
+    @Test void knockingDistributionAndCooldownBoundaries() {
         int[] outcomes = new int[3];
         for (int roll = 0; roll < 100; roll++) outcomes[VillageRules.knockReward(roll)]++;
         assertArrayEquals(new int[]{60, 30, 10}, outcomes);
         assertThrows(IllegalArgumentException.class, () -> VillageRules.knockReward(100));
         assertFalse(VillageRules.cooldownReady(299, 300));
         assertTrue(VillageRules.cooldownReady(300, 300));
+    }
+
+    @Test void ghostNightEventCannotActivateOrRenderEffects() throws Exception {
+        String village = Files.readString(Path.of(
+                "src/main/java/org/agmas/noellesroles/game/halloween/HalloweenVillage.java"));
+        String client = Files.readString(Path.of(
+                "src/main/java/org/agmas/noellesroles/game/halloween/HalloweenVillageClient.java"));
+        assertTrue(village.contains("isGhostNight(Level level) { return false; }"));
+        assertFalse(village.contains("VillageRules.isNight("));
+        assertFalse(village.contains("VillageGhostVoice.publish("));
+        assertFalse(village.contains("message(player, \"night_start\")"));
+        assertTrue(client.contains("shadeLightmap(int color) { return color; }"));
+        assertFalse(client.contains("WorldRenderEvents"));
+        assertFalse(client.contains("packet.active()"));
+        assertFalse(client.contains("VillageGhostAudio.setAllowed"));
+    }
+
+    @Test void knockingUsesPersonalCooldownVanillaTitleAndSuccessSound() throws Exception {
+        String village = Files.readString(Path.of(
+                "src/main/java/org/agmas/noellesroles/game/halloween/HalloweenVillage.java"));
+        assertTrue(village.contains("Map<MinecraftServer, Map<UUID, Long>> NEXT_KNOCK"));
+        assertTrue(village.contains("NEXT_KNOCK.computeIfAbsent(level.getServer()"));
+        assertTrue(village.contains("nextKnocks.getOrDefault(player.getUUID(), 0L)"));
+        assertTrue(village.contains("nextKnocks.put(player.getUUID(), now + Math.max(1, config.knockCooldownTicks))"));
+        assertTrue(village.contains("SRENetworkMessageUtils.sendTitle(player, Component.translatable(\"halloween.village.\" + key, args))"));
+        assertTrue(village.contains("SRENetworkMessageUtils.sendTitleTime(player, 5, 40, 10)"));
+        assertTrue(village.contains("SRENetworkMessageUtils.sendSubtitle(player, Component.empty())"));
+        assertTrue(village.contains("player.playNotifySound(SoundEvents.ZOMBIE_ATTACK_WOODEN_DOOR"));
+        assertTrue(village.indexOf("if (!VillageRules.cooldownReady(now, next))")
+                < village.indexOf("player.playNotifySound(SoundEvents.ZOMBIE_ATTACK_WOODEN_DOOR"));
+        assertFalse(village.contains("player.displayClientMessage(Component.translatable(\"halloween.village.\" + key, args), true)"));
+        assertFalse(village.contains("SubtitleS2CPayload"));
+        assertTrue(village.contains("NEXT_KNOCK.remove(level.getServer())"));
     }
 
     /** 固定残月只认地图坐标；(0,0,0) 等于未设置，旧的双南瓜灯扫描已移除。 */
@@ -73,6 +126,15 @@ class HalloweenIntegrationTest {
         assertEquals(new Stack("candy", 2), bought.getFirst());
         assertEquals(4, original.getFirst().count);
         assertNull(VillageInventory.plan(original, 5, new Stack("candy", 1), 1, SLOTS));
+    }
+
+    @Test void reducedRewardMayBeZeroWithoutChangingOriginalPaymentPlan() {
+        var original = List.of(new Stack("pumpkin", 4), new Stack("stone", 64));
+        assertNull(VillageInventory.plan(original, 2, new Stack("pumpkin", 1), 0, SLOTS));
+        var plan = VillageInventory.plan(original, 2, new Stack("pumpkin", 1), 0, SLOTS, true);
+        assertNotNull(plan);
+        assertEquals(2, plan.getFirst().count);
+        assertEquals(4, original.getFirst().count);
     }
 
     @Test void registeredMixinsAndItemResourcesExist() throws Exception {

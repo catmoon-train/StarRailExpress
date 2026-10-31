@@ -26,24 +26,26 @@ public final class HalloweenConfig {
     private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
     private static volatile HalloweenConfig instance = new HalloweenConfig();
 
-    public int knockCooldownTicks = 300;
+    public int knockCooldownTicks = 700;
     public int knockUndeadTicks = 200;
     public int candyNpcLifetimeTicks = 600;
     public int undeadLifetimeTicks = 1800;
     public int maxEventUndead = 32;
-    public int gunCooldownTicks = 200;
+    public int gunCooldownTicks = 600;
     public int gunFreezeTicks = 100;
     public int gunSummonCount = 3;
     public int candyNpcRewardCount = 1;
     public int gunShieldSuppressionTicks = 600;
-    public int sawChargeTicks = 10;
+    public int sawChargeTicks = 12;
     public int heartDelayTicks = 300;
     public int candyDurationTicks = 600;
     public int costumeBagIntervalTicks = 2400;
     public int linkInviteTicks = 300;
     public int npcKillRadius = 8;
     public int pactReviveTicks = 1200;
+    // 兼容旧配置保留；魂契现固定每 3 个真实任务进行一次 20% 抽取。
     public int questTaskCount = 3;
+    // 旧亡魂夜字段仅为配置文件兼容而保留，事件已移除，不再读取这些值触发。
     public int nightStartTicks = 2400;
     public int nightDurationTicks = 1200;
     public int nightIntervalTicks = 3600;
@@ -101,6 +103,8 @@ public final class HalloweenConfig {
                 int value = field.getInt(this);
                 int min = switch (field.getName()) {
                     case "nightStartTicks", "nightDarkThreshold", "maxEventUndead" -> 0;
+                    case "sawChargeTicks" -> 12;
+                    case "knockCooldownTicks" -> 700;
                     default -> 1;
                 };
                 int max = switch (field.getName()) {
@@ -162,6 +166,12 @@ public final class HalloweenConfig {
 
     private static boolean validId(String id, Predicate<String> validItem) {
         return id != null && id.matches("[a-z0-9_.-]+:[a-z0-9/._-]+") && validItem.test(id);
+    }
+
+    /** 好人阵营糖果袋先移除血锯条目，再按剩余权重抽取，兼容旧配置。 */
+    static Loot rollCandyBagLoot(List<Loot> pool, double roll, boolean innocent) {
+        return rollLoot(pool.stream().filter(entry -> !innocent
+                || !"noellesroles:halloween_blood_saw".equals(entry.item)).toList(), roll);
     }
 
     /** 抽签区间为 [0,1)，长整型累计避免可配置权重相加溢出。 */
