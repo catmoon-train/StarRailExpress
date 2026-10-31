@@ -31,9 +31,6 @@
       "org.agmas.noellesroles.Noellesroles",
       "io.wifi.starrailexpress.SRE"
     ],
-    "server": [
-      "net.exmo.sre.mod_whitelist.server.ModWhitelistServer"
-    ],
     "cardinal-components": [
       "org.agmas.noellesroles.component.ModComponents",
       "org.agmas.noellesroles.cca.NRComponents",

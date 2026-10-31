@@ -13,7 +13,7 @@
   "sre_commands.category.game": "遊戲工具 (tmm:game)",
   "sre_commands.category.harpy": "職業 - HarpyModLoader",
   "sre_commands.category.noelle": "職業 - Noelle's Roles",
-  "sre_commands.category.misc": "名簽 / 白名單",
+  "sre_commands.category.misc": "名簽",
   "sre_commands.category.client": "客戶端",
   "sre_commands.category.mixin": "Mixin 覆寫",
 
@@ -248,11 +248,6 @@
   "sre_commands.nametag.clear.desc": "清除玩家的所有名簽。",
   "sre_commands.nametag.sync.name": "同步名簽",
   "sre_commands.nametag.sync.desc": "將玩家名簽同步到所有客戶端。",
-
-  "sre_commands.mw.reload.name": "重載白名單",
-  "sre_commands.mw.reload.desc": "重新加載模組白名單配置。",
-  "sre_commands.mw.maxplayers.name": "最大玩家數",
-  "sre_commands.mw.maxplayers.desc": "查看或設置伺服器最大玩家數。",
 
   "sre_commands.sre.client.name": "客戶端設置",
   "sre_commands.sre.client.desc": "客戶端指令, 用於本地設置、介面與配置(僅在客戶端執行)。",

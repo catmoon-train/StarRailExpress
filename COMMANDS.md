@@ -13,7 +13,7 @@
 - [三、游戏工具组（tmm:game）](#三游戏工具组tmmgame)
 - [四、职业 — HarpyModLoader](#四职业--harpymodloader)
 - [五、职业 — Noelle's Roles](#五职业--noelles-roles)
-- [六、名签 / 模组白名单](#六名签--模组白名单)
+- [六、名签](#六名签)
 - [七、客户端命令](#七客户端命令)
 - [八、Mixin 覆写](#八mixin-覆写)
 - [附录：商品与修机管理](#附录商品与修机管理)
@@ -402,7 +402,7 @@
 
 ---
 
-## 六、名签 / 模组白名单
+## 六、名签
 
 | 命令 | 用途 |
 |---|---|
@@ -413,8 +413,6 @@
 | `/nametag:list <玩家>` | 列出玩家的所有名签 |
 | `/nametag:clear <玩家>` | 清除玩家的所有名签 |
 | `/nametag:sync <玩家>` | 将玩家名签同步到所有客户端 |
-| `/mw:reload` | 重新加载模组白名单配置 |
-| `/mw:maxplayers [数量]` | 查看或设置服务器最大玩家数 |
 
 ---
 
@@ -461,4 +459,4 @@
 - 服务器后台命令只能在服务器控制台执行，不能由玩家执行；某些命令需要特定的游戏状态才能执行。
 - 参数用 `[]` 包围表示可选，`<>` 包围表示必需。
 - 游戏内实时清单与点击填入：`/sre:help`（可加分类名如 `/sre:help core`、`/sre:help content`；管理员用 `/sre:help export_missing` 可导出“已注册但未登记 / 登记但未注册”的差异到 `sre_missing_commands.txt`）。
-- 未在本文件逐条展开但确实存在的命令族：`sre:area_manager`、`sre:repair*` / `cy:repair*`、`sre:occupation_role`、`mw:*`、`tmm:game <子命令>` 等，请以 `/sre:help` 或源码为准。
+- 未在本文件逐条展开但确实存在的命令族：`sre:area_manager`、`sre:repair*` / `cy:repair*`、`sre:occupation_role`、`tmm:game <子命令>` 等，请以 `/sre:help` 或源码为准。

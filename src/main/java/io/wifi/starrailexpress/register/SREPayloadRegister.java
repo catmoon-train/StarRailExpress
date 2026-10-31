@@ -61,31 +61,8 @@ public class SREPayloadRegister {
         PayloadTypeRegistry.playC2S().register(
                 io.wifi.starrailexpress.shop.network.ShopPriceRequestC2SPayload.TYPE,
                 io.wifi.starrailexpress.shop.network.ShopPriceRequestC2SPayload.CODEC);
-        // Mod Whitelist Payload
         PayloadTypeRegistry.playS2C().register(VoteSyncS2CPacket.TYPE, VoteSyncS2CPacket.CODEC);
         PayloadTypeRegistry.playC2S().register(VoteCastC2SPacket.TYPE, VoteCastC2SPacket.CODEC);
-        PayloadTypeRegistry.playC2S().register(
-                net.exmo.sre.mod_whitelist.common.network.ModWhitelistPayload.ID,
-                net.exmo.sre.mod_whitelist.common.network.ModWhitelistPayload.CODEC);
-        PayloadTypeRegistry.playC2S().register(
-                net.exmo.sre.mod_whitelist.common.network.ResourcePackWhitelistPayload.ID,
-                net.exmo.sre.mod_whitelist.common.network.ResourcePackWhitelistPayload.CODEC);
-        PayloadTypeRegistry.playC2S().register(
-                net.exmo.sre.mod_whitelist.common.network.ShaderPackWhitelistPayload.ID,
-                net.exmo.sre.mod_whitelist.common.network.ShaderPackWhitelistPayload.CODEC);
-
-        PayloadTypeRegistry.playS2C().register(
-                net.exmo.sre.mod_whitelist.common.network.ModWhitelistConfigPayload.ID,
-                net.exmo.sre.mod_whitelist.common.network.ModWhitelistConfigPayload.CODEC);
-
-        // JAR 密钥认证（挑战-应答）
-        PayloadTypeRegistry.playS2C().register(
-                net.exmo.sre.mod_whitelist.common.network.JarAuthChallengePayload.ID,
-                net.exmo.sre.mod_whitelist.common.network.JarAuthChallengePayload.CODEC);
-        PayloadTypeRegistry.playC2S().register(
-                net.exmo.sre.mod_whitelist.common.network.JarAuthResponsePayload.ID,
-                net.exmo.sre.mod_whitelist.common.network.JarAuthResponsePayload.CODEC);
-
         PayloadTypeRegistry.playS2C().register(ModVersionPacket.ID, ModVersionPacket.CODEC);
         PayloadTypeRegistry.playC2S().register(ModVersionPacket.ID, ModVersionPacket.CODEC);
         PayloadTypeRegistry.playS2C().register(CustomNarratorPacket.ID, CustomNarratorPacket.CODEC);

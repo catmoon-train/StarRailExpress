@@ -256,6 +256,7 @@ public class NoellesrolesClient implements ClientModInitializer {
         NoellesrolesClientAmbientSounds.register();
         // Dream（Dream）：颤抖视角漂移 + 虚拟血量条（准星指向受伤玩家时显示）
         org.agmas.noellesroles.game.roles.killer.dream.client.DreamClientHandler.register();
+        org.agmas.noellesroles.client.hud.VirtualHealthHud.register();
         // 破镜重圆：药水驱动的客户端坍缩/还原与坠落方块动画
         MirrorReunionSceneManager.register();
         // 区域地图物品：客户端扫描 playArea 生成地图纹理 + 手持时 HUD 小地图

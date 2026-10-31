@@ -225,8 +225,7 @@ public class ServerUtilsCommands {
   }
 
   /**
-   * Handles the mw:maxplayers get command
-   * Displays the current maximum player count
+   * 查询服务器当前人数与最大玩家数。
    */
   public static int getMaxPlayers(CommandContext<CommandSourceStack> context) {
     CommandSourceStack source = context.getSource();
@@ -268,8 +267,7 @@ public class ServerUtilsCommands {
   }
 
   /**
-   * Handles the mw:maxplayers set command
-   * Sets the maximum player count
+   * 设置服务器最大玩家数。
    */
   public static int setMaxPlayers(CommandContext<CommandSourceStack> context) {
     CommandSourceStack source = context.getSource();

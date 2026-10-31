@@ -175,9 +175,7 @@ public class SREHelpCommand {
                 new Entry("/nametag:get", "nametag.get"),
                 new Entry("/nametag:list", "nametag.list"),
                 new Entry("/nametag:clear", "nametag.clear"),
-                new Entry("/nametag:sync", "nametag.sync"),
-                new Entry("/mw:reload", "mw.reload"),
-                new Entry("/mw:maxplayers", "mw.maxplayers")));
+                new Entry("/nametag:sync", "nametag.sync")));
 
         CATEGORIES.put("client", List.of(
                 new Entry("/sre:client", "sre.client"),

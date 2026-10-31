@@ -167,9 +167,6 @@ import io.wifi.starrailexpress.util.PoisonComponentUtils;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import net.exmo.sre.EXSREClient;
 import net.exmo.sre.loading.FrameAnimationRenderer;
-import net.exmo.sre.mod_whitelist.client.ModWhitelistClient;
-import net.exmo.sre.mod_whitelist.client.network.ModWhitelistClientNetworkHandler;
-import net.exmo.sre.mod_whitelist.common.network.ModWhitelistConfigPayload;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.blockrenderlayer.v1.BlockRenderLayerMap;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
@@ -330,8 +327,6 @@ public class SREClient implements ClientModInitializer {
         ClientConfigEvents.register();
         initNetworkStatisticsClient();
         new EXSREClient().onInitializeClient();
-        // Load config
-        ModWhitelistClient.onInitializeClient();
         // ModVersionPacket
         checkCustomSkinLoader();
         // Initialize ScreenParticle
@@ -965,11 +960,6 @@ public class SREClient implements ClientModInitializer {
             GameUtils.roomToPlayer.clear();
             GameUtils.roomToPlayer.putAll(data);
         });
-        ClientPlayNetworking.registerGlobalReceiver(ModWhitelistConfigPayload.ID, (payload, context) -> {
-            ModWhitelistClientNetworkHandler.handleModWhitelistConfigPayload(payload, context);
-            ModWhitelistClientNetworkHandler.sendModWhitelistPayload();
-        });
-        net.exmo.sre.mod_whitelist.client.network.JarAuthClientHandler.register();
         // 紧急会议：客户端摄像机导演 + HUD
         net.exmo.sre.meeting.client.MeetingClientHandler.register();
         net.exmo.sre.meeting.client.MeetingHud.register();
