@@ -11,7 +11,6 @@
 - [三、Noelle's Roles 命令](#三noelles-roles-命令)
 - [四、tmm:game 聚合命令](#四tmmgame-聚合命令)
 - [五、名签系统 (NameTag)](#五名签系统-nametag)
-- [六、模组白名单 (MW)](#六模组白名单-mw)
 - [七、皮肤同步](#七皮肤同步)
 - [八、sre:area_manager 区域管理器](#八srearea_manager-区域管理器)
 - [九、sre:replay_screen 回放屏幕](#九srereplay_screen-回放屏幕)
@@ -845,21 +844,6 @@
 - **权限**: `2`
 - **结构**: `<target>` (Player)
 - **用途**: 同步名签到所有客户端
-
----
-
-## 六、模组白名单 (MW)
-
-### `mw:reload` — 重载白名单
-- **权限**: `3`
-- **用途**: 重新加载模组白名单配置
-
-### `mw:maxplayers` — 最大玩家数
-- **权限**: `3`
-- **结构**:
-  - `get` — 查看当前最大玩家数
-  - `set <count>` — 设置最大玩家数
-- **用途**: 查看/设置服务器最大玩家数
 
 ---
 

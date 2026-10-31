@@ -2531,19 +2531,6 @@ boolean joined = MeetingApi.isParticipant(playerUuid);
 
 ---
 
-## 客户端 JAR 密钥认证 / Client JAR Key Authentication
-
-**包 / Package:** `net.exmo.sre.mod_whitelist`（默认**关闭**）
-
-发布者用外部工具 `tools/sign_sre_jar.py`（无 Python 的主机用等效的 `tools/sign_sre_jar.ps1`）
-把随机密钥嵌入最终 jar（`sre_auth_key.txt`），
-服务端与所有客户端运行**同一份签名 jar**。玩家入服时服务端下发一次性 nonce，双方各自计算
-`HMAC-SHA256(密钥, 自身jar摘要|nonce|版本)` 比对 —— jar 被修改 / 未签名 / 版本不符即被断开。
-在 `config/starrailexpress-config.json` 中设置 `"ENABLE_JAR_KEY_AUTH": true` 启用；
-可与既有的 `VERIFY_STARRAILEXPRESS_HASHES` 哈希白名单叠加。
-
----
-
 ## 背包界面 API / Inventory Screen API
 
 限位背包界面（`LimitedInventoryScreen`）的扩展 API。**不要再用 mixin 改背包界面**；

@@ -25,7 +25,6 @@ import io.wifi.starrailexpress.content.command.argument.SkinArgumentType;
 import io.wifi.starrailexpress.content.command.argument.TimeOfDayArgumentType;
 import io.wifi.starrailexpress.content.vote.command.SREVoteCommand;
 import io.wifi.starrailexpress.schedule.ScheduleManager;
-import net.exmo.sre.mod_whitelist.server.command.ModWhitelistCommand;
 import net.fabricmc.fabric.api.command.v2.ArgumentTypeRegistry;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 import net.minecraft.commands.synchronization.SingletonArgumentInfo;
@@ -54,7 +53,6 @@ public class SRECommandRegister {
         ScheduleManager.registerEvents();
         CommandRegistrationCallback.EVENT.register(((dispatcher, registryAccess, environment) -> {
             ServerUtilsCommands.register(dispatcher, registryAccess, environment);
-            ModWhitelistCommand.registerGlobal(dispatcher);
             SREHelpCommand.register(dispatcher);
             SREVoteCommand.register(dispatcher, registryAccess);
             NarratorCommand.register(dispatcher, registryAccess);

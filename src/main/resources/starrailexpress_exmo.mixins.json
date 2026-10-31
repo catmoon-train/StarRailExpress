@@ -11,11 +11,9 @@
   "client": [
     "client.AbstractSelectionListMixin",
     "client.ConnectScreenMixin",
-    "client.IrisShaderReload",
     "client.IsNightVisionMixin",
     "client.JoinMultiplayerScreenMixin",
     "client.LoadingScreenMixin",
-    "client.OnResourcePackReload",
     "client.VolumeGetMixin",
     "client.WindowsTitleMixin",
     "client.side.ClientChunkCacheMixin",

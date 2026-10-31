@@ -1,4 +1,5 @@
 {
+  "hud.noellesroles.virtual_health": "虛擬血量 %s / %s",
   "announcement.star.role.night_event": "黑夜事件",
   "announcement.star.goals.night_event": "本局永久關燈，視野最遠16格；每人獲贈手電筒，死者將化為遊蕩亡靈。",
   "message.noellesroles.night.title": "黑夜降臨",

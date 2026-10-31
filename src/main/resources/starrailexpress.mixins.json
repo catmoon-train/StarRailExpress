@@ -55,7 +55,6 @@
     "server.MotdMixin",
     "server.PlayerDiscard",
     "util.EntitySelectorMixin",
-    "whitelist.ServerHandshakePacketListenerImplMixin",
     "world.ChunkSerializerMixin",
     "world.SceneAssetDirtyMixin"
   ],
@@ -147,6 +146,6 @@
     "gui.ScreenDrawableGetMixin",
     "input.KeyboardHandlerMixin",
     "input.MouseHandlerMixin",
-    "whitelist.ClientLoginPacketMixin"
+    "ClientLoginPacketMixin"
   ]
 }

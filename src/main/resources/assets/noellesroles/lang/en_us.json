@@ -1,4 +1,5 @@
 {
+    "hud.noellesroles.virtual_health": "Virtual Health %s / %s",
   "announcement.star.role.night_event": "Night Event",
   "announcement.star.goals.night_event": "Lights stay off, vision is capped at 16 blocks, everyone starts with a flashlight, and the dead become wandering ghosts.",
   "message.noellesroles.night.title": "Night Falls",
