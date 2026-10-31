@@ -62,14 +62,13 @@
 | `pactReviveTicks` | 1200 | `questTaskCount` | 3 |
 | `nightStartTicks` | 2400 | `nightDurationTicks` | 1200 |
 | `nightIntervalTicks` | 3600 | `nightDarkThreshold` | 5 |
-| `scanBlocksPerTick` | 8192 | `linkDistance` | 10 |
-| `candyNpcChance` | 0.2 | `maxHideoutsPerPlayer` | 3 |
-| `maxHideouts` | 128 | | |
+| `linkDistance` | 10 | `maxHideoutsPerPlayer` | 3 |
+| `candyNpcChance` | 0.2 | `maxHideouts` | 128 |
 | `gunSummonCount` | 3 | `candyNpcRewardCount` | 1 |
 
 本模块直接使用 `candyDurationTicks`、`costumeBagIntervalTicks`、据点数量上限和 `loot`。其它固定字段提供给活动的村庄、夜晚、战斗、魂契模块；例如 `heartDelayTicks` 不改变心脏道具立即兑换 50 金币的行为。
 
-时间/计数通常为 1..1728000；`nightStartTicks`、`nightDarkThreshold`、`maxEventUndead` 允许 0。特殊上限：亮度 15、NPC 杀伤半径 128、亡灵/据点数量 1024、每人据点 128、扫描预算 1048576、链接距离 (0,128]、NPC 糖果概率 [0,1]。
+时间/计数通常为 1..1728000；`nightStartTicks`、`nightDarkThreshold`、`maxEventUndead` 允许 0。特殊上限：亮度 15、NPC 杀伤半径 128、亡灵/据点数量 1024、每人据点 128、链接距离 (0,128]、NPC 糖果概率 [0,1]。
 
 `gunSummonCount` 范围 1..32，控制惊魂枪换位分支召唤数量；`candyNpcRewardCount` 范围 1..64，控制临时糖果 NPC 一次性赠礼数量。糖果临时盾进入通用限时护盾池，参与灵魂链接共享，并受惊魂枪禁盾影响。
 

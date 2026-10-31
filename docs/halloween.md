@@ -14,8 +14,8 @@
 也可用地图开发工具的「地图事件」设置，或原有地图设置命令修改该字段后保存地图。
 不要仅靠地图名称判断活动。普通地图不受活动机制影响。
 
-地图中放两个原版或列车发光南瓜灯，两处都用于生成万圣残月。
-NPC 使用项目已有 `starrailexpress:textures/block/plush/canyuesama.png` 本地皮肤，不依赖联网拉取。
+在地图事件的 `halloweenNpcSpawnPos` 填写方块坐标即可生成唯一的固定万圣残月；不需要再摆南瓜灯，`(0,0,0)` 表示不生成。
+固定万圣残月和敲门出现的原“糖果使者”统一名称与玩家魔女形象：使用本地皮肤、魔女帽、扫帚与手持南瓜，无联网下载；固定兑换与临时发糖的原有规则不变。模型说明见 [万圣残月模型](halloween-canyue-model.md)。
 奖励池、兑换价格及活动时长在世界根目录 `halloween.json` 中调整，下局重新读取。
 完整参数与默认表见 [道具说明](halloween-items.md)、[小镇说明](halloween-village.md)、[战斗说明](halloween-combat.md)。
 

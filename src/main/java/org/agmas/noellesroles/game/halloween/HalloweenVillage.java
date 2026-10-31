@@ -109,20 +109,7 @@ public final class HalloweenVillage {
         if (state.lastTick == now) return;
         state.lastTick = now;
         HalloweenConfig config = HalloweenConfig.get();
-        State active = state;
-        if (state.reapers.size() < 2) state.scanner.tick(level, config.scanBlocksPerTick, lamp -> {
-            if (active.reapers.size() < 2 && !active.reapers.containsKey(lamp)) {
-                VillageNpc npc = spawnNpc(level, Vec3.atBottomCenterOf(lamp.above()), false);
-                active.reapers.put(lamp.immutable(), npc);
-            }
-        });
-        // NPC 失去区块时不加载区块；重新加载后旧实例会由 owns 检查丢弃。
-        for (var entry : state.reapers.entrySet()) {
-            VillageNpc npc = entry.getValue();
-            if (npc.isRemoved() && level.hasChunkAt(entry.getKey())) {
-                entry.setValue(spawnNpc(level, Vec3.atBottomCenterOf(entry.getKey().above()), false));
-            }
-        }
+        syncReaper(level, state, areas);
         state.candy.entrySet().removeIf(entry -> {
             boolean expired = now >= entry.getValue() || entry.getKey().isRemoved();
             if (expired) entry.getKey().discard();
@@ -145,6 +132,37 @@ public final class HalloweenVillage {
                 if (changed && eligible) message(player, "night_start");
                 else if (changed && !night) message(player, "night_end");
             }
+        }
+    }
+
+    /**
+     * 固定残月只按地图设置 {@code halloweenNpcSpawnPos} 生成一个，不再扫描地图里的南瓜灯。
+     *
+     * <p>
+     * 坐标留空（0,0,0）时不生成；坐标被改动时丢弃旧实例并在新坐标重建；
+     * 区块未加载时不主动加载区块，等玩家靠近后下一 tick 再生成。
+     */
+    private static void syncReaper(ServerLevel level, State state, AreasWorldComponent areas) {
+        var settings = areas.areasSettings;
+        BlockPos configured = settings == null || settings.halloweenNpcSpawnPos == null ? null
+                : settings.halloweenNpcSpawnPos.toBlockPos();
+        if (configured != null && !VillageRules.isSpawnConfigured(configured.getX(), configured.getY(), configured.getZ()))
+            configured = null;
+        if (!Objects.equals(configured, state.reaperKey)) {
+            state.reapers.values().forEach(VillageNpc::discard);
+            state.reapers.clear();
+            state.reaperKey = configured == null ? null : configured.immutable();
+        }
+        if (state.reaperKey == null) return;
+        VillageNpc npc = state.reapers.get(state.reaperKey);
+        if (npc != null && !npc.isRemoved()) return;
+        // 与旧版一致：不因 NPC 缺失而加载区块。
+        if (!level.hasChunkAt(state.reaperKey)) return;
+        VillageNpc created = createNpc(level, Vec3.atBottomCenterOf(state.reaperKey), false);
+        state.reapers.put(state.reaperKey, created);
+        if (!level.addFreshEntity(created)) {
+            state.reapers.remove(state.reaperKey, created);
+            created.discard();
         }
     }
 
@@ -245,8 +263,12 @@ public final class HalloweenVillage {
         }
         // 与 60/30/10 的奖励独立抽样，每个临时 NPC 全服只能成功领取一次。
         if (level.random.nextDouble() < config.candyNpcChance) {
-            VillageNpc candy = spawnNpc(level, player.position().add(player.getLookAngle().scale(-1.5)), true);
+            VillageNpc candy = createNpc(level, player.position().add(player.getLookAngle().scale(-1.5)), true);
             state.candy.put(candy, level.getGameTime() + config.candyNpcLifetimeTicks);
+            if (!level.addFreshEntity(candy)) {
+                state.candy.remove(candy);
+                candy.discard();
+            }
         }
         knockNotice(player, "knock_success");
     }
@@ -258,14 +280,15 @@ public final class HalloweenVillage {
                 60, 0xFFFFCC80, false, SubtitleS2CPayload.POS_TOP, false));
     }
 
-    private static VillageNpc spawnNpc(ServerLevel level, Vec3 position, boolean candy) {
+    /** 先创建并登记到 State，再由调用方加入世界，避免实体回调观察到未登记的归属。 */
+    private static VillageNpc createNpc(ServerLevel level, Vec3 position, boolean candy) {
         VillageNpc npc = NPC.create(level);
         if (npc == null) throw new IllegalStateException("halloween_village_npc");
+        npc.markEventManaged();
         npc.setCandy(candy);
         npc.moveTo(position.x, position.y, position.z, 0, 0);
-        npc.setCustomName(Component.translatable(candy ? "halloween.village.candy_npc" : "halloween.village.reaper"));
+        npc.setCustomName(Component.translatable("halloween.village.reaper"));
         npc.setCustomNameVisible(true);
-        level.addFreshEntity(npc);
         return npc;
     }
 
@@ -350,15 +373,16 @@ public final class HalloweenVillage {
         final String map;
         final AABB bounds;
         final long started;
-        final VillageScanner scanner;
         final Map<BlockPos, VillageNpc> reapers = new LinkedHashMap<>();
         final Map<VillageNpc, Long> candy = new IdentityHashMap<>();
         final Map<UUID, Session> sessions = new HashMap<>();
         final Map<UUID, Long> lastInteract = new HashMap<>();
         long lastTick = Long.MIN_VALUE;
         boolean night;
+        /** 当前固定残月所在的方块；null 表示地图未设置坐标。 */
+        BlockPos reaperKey;
         State(ServerLevel level, String map, AABB bounds) {
-            this.map = map; this.bounds = bounds; started = level.getGameTime(); scanner = new VillageScanner(bounds, level);
+            this.map = map; this.bounds = bounds; started = level.getGameTime();
         }
     }
 }

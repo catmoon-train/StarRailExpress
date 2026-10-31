@@ -22,6 +22,31 @@ class HalloweenIntegrationTest {
         assertTrue(VillageRules.cooldownReady(300, 300));
     }
 
+    /** 固定残月只认地图坐标；(0,0,0) 等于未设置，旧的双南瓜灯扫描已移除。 */
+    @Test void fixedReaperSpawnPositionComesFromMapSettingsOnly() throws Exception {
+        assertFalse(VillageRules.isSpawnConfigured(0, 0, 0));
+        assertTrue(VillageRules.isSpawnConfigured(35073, 20, 20000));
+        assertTrue(VillageRules.isSpawnConfigured(0, 20, 0));
+        assertFalse(Files.exists(Path.of(
+                "src/main/java/org/agmas/noellesroles/game/halloween/village/VillageScanner.java")));
+    }
+
+    @Test void npcOwnershipIsRegisteredBeforeWorldInsertionAndSummonsAreNotAutoDiscarded() throws Exception {
+        String village = Files.readString(Path.of(
+                "src/main/java/org/agmas/noellesroles/game/halloween/HalloweenVillage.java"));
+        String npc = Files.readString(Path.of(
+                "src/main/java/org/agmas/noellesroles/game/halloween/village/VillageNpc.java"));
+        assertTrue(npc.contains("eventManaged && !HalloweenVillage.owns(this)"));
+        assertTrue(village.contains("npc.markEventManaged()"));
+        assertTrue(village.indexOf("state.reapers.put(state.reaperKey, created)")
+                < village.indexOf("level.addFreshEntity(created)"));
+        assertTrue(village.indexOf("state.candy.put(candy,")
+                < village.indexOf("level.addFreshEntity(candy)"));
+        String factory = village.substring(village.indexOf("private static VillageNpc createNpc"),
+                village.indexOf("private static void openShop"));
+        assertFalse(factory.contains("addFreshEntity"));
+    }
+
     @Test void ghostNightHasExactStartEndAndRepeat() {
         assertFalse(VillageRules.isNight(2399, 2400, 1200, 3600));
         assertTrue(VillageRules.isNight(2400, 2400, 1200, 3600));
