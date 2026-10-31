@@ -52,8 +52,6 @@
   "message.noellesroles.halloween.hideout_picked_up": "已回收南瓜总统，内部玩家已安全退出。",
   "message.noellesroles.halloween.hideout_pickup_full": "背包空间不足，未回收南瓜总统。请腾出空间后重试。",
   "announcement.star.role.halloween_pact": "魂契亡灵",
-  "info.screen.roleid.halloween_pact": "魂契给予你一次复生。不能使用原职业技能、拾取或使用物品，只能空手近战：3格内每2秒尝试击杀一次，仍受护盾与免死限制。你始终发光并散发灵魂粒子；胜利跟随复活时最近的非依附存活玩家阵营（包括中立/自定义阵营），不会再次复活。",
-  "info.screen.roleid.halloween_pact.simple": "一次性魂契复生；空手近战；跟随复活时最近存活玩家的阵营。",
   "message.noellesroles.halloween.pact_wait": "魂契已生效。你可自由旁观，%s秒后将以亡灵身份复活。",
   "message.noellesroles.halloween.pact_accepted": "已交付魂契：本局下一次死亡后可复生一次。掉线、换图或本局结束将取消待复生资格。",
   "message.noellesroles.halloween.pact_revived": "你已成为魂契亡灵！跟随阵营：%s。空手攻击，不能使用物品或再次复生。",

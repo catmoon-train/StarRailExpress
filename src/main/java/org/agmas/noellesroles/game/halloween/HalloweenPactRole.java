@@ -44,7 +44,9 @@ public final class HalloweenPactRole extends NormalRole implements CustomWinnerR
 
     /** 双端初始化阶段调用；不写入中央职业清单。 */
     public static void register() {
-        if (instance == null) instance = TMMRoles.registerRole(new HalloweenPactRole());
+        if (instance == null) instance = TMMRoles.registerRole(new HalloweenPactRole())
+                .setSpecialNeutral(true)
+                .setAddedVersion("4.5");
     }
 
     public static SRERole role() { return instance; }
