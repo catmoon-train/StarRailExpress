@@ -631,18 +631,21 @@ public class ModPacketsReciever {
     });
 
     // 咒术师·领域展开：背包点选一名已被诅咒且存活的目标，对其展开领域（校验/冷却由组件内部处理）
+    // 展开领域会批量 setBlock / teleportTo / 改动静态领域表，必须切回服务端主线程执行。
     ServerPlayNetworking.registerGlobalReceiver(
         org.agmas.noellesroles.packet.WarlockDomainC2SPacket.ID, (payload, context) -> {
-          if (context.player().hasEffect(ModEffects.SAFE_TIME))
-            return;
-          if (payload.target() == null)
-            return;
-          SREGameWorldComponent gameWorldComponent = (SREGameWorldComponent) SREGameWorldComponent.KEY
-              .get(context.player().level());
-          if (gameWorldComponent.isRole(context.player(), ModRoles.WARLOCK)) {
-            RoleData.getOptional(WarlockRoleData.class, context.player())
-                .ifPresent(d -> d.tryOpenDomainOn(payload.target()));
-          }
+          context.server().execute(() -> {
+            if (context.player().hasEffect(ModEffects.SAFE_TIME))
+              return;
+            if (payload.target() == null)
+              return;
+            SREGameWorldComponent gameWorldComponent = (SREGameWorldComponent) SREGameWorldComponent.KEY
+                .get(context.player().level());
+            if (gameWorldComponent.isRole(context.player(), ModRoles.WARLOCK)) {
+              RoleData.getOptional(WarlockRoleData.class, context.player())
+                  .ifPresent(d -> d.tryOpenDomainOn(payload.target()));
+            }
+          });
         });
 
     // 船长舱门调度：选择目标房间门或取消

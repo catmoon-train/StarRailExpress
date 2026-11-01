@@ -45,7 +45,6 @@ import org.agmas.noellesroles.init.ModEffects;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
@@ -142,6 +141,12 @@ public final class WarlockDomainManager {
         ActiveDomain domain = new ActiveDomain(warlock.getUUID(), level,
                 GameUtils.getTicksFromGameStart(level) + DURATION_TICKS);
 
+        // 先登记领域，再拉人。isInDomain() 只查 ACTIVE：若先 teleportTo 再 put，
+        // 中间这段时间两名玩家已经站在 Y=201 的虚空里（超出 playArea.maxY），
+        // 环境判定的 FELL_OUT_OF_TRAIN 就会因为 isInDomain() == false 而杀掉其中一人，
+        // 表现为「偶尔一人留在领域、另一人被丢出去」。
+        ACTIVE.put(warlock.getUUID(), domain);
+
         // 咒术师站上祭坛中心，被诅咒者被拉到一侧
         pullIn(domain, warlock, DOMAIN_X, DOMAIN_Z, true);
         // 消耗该目标的诅咒 / 咒物
@@ -150,7 +155,6 @@ public final class WarlockDomainManager {
         domain.victims.add(victim.getUUID());
         pullIn(domain, victim, DOMAIN_X + 8.0D, DOMAIN_Z, false);
 
-        ACTIVE.put(warlock.getUUID(), domain);
         comp.domainOpen = true;
         comp.domainEndTick = domain.endTick;
         comp.sync();
@@ -183,9 +187,14 @@ public final class WarlockDomainManager {
         player.addEffect(new MobEffectInstance(ModEffects.BLACK_MONITOR, 20, 0, false, false, false));
         player.addEffect(new MobEffectInstance(ModEffects.NOSTALGIST_BACKWORLD, DURATION_TICKS + 40, 0,
                 false, false, false));
-        // 标记所处领域：咒术师角斗场领域 = 2 级（amplifier 1）
-        player.addEffect(new MobEffectInstance(ModEffects.DOMAIN_MARK, -1, 1, false, false,
+        // 标记所处领域：咒术师角斗场领域 = 2 级（amplifier 1）。
+        // 时长必须有限：end() 会跳过旁观者，死亡玩家身上的标记没人清，
+        // 无限时长的标记会让 isInAnyDomain() 永久为真，之后再也进不了任何领域。
+        player.addEffect(new MobEffectInstance(ModEffects.DOMAIN_MARK, DURATION_TICKS + 40, 1, false, false,
                 true));
+        // 蚀骨之咒会附带 PLAYER_ISOLATION（客户端隐藏其他所有玩家模型与名字）。
+        // 若诅咒后紧接开领域，残留的隔离会让被拉入者看到一个空祭场，误以为「领域里没有咒术师」。
+        player.removeEffect(ModEffects.PLAYER_ISOLATION);
         if (isWarlock) {
             player.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SPEED, DURATION_TICKS, 0,
                     false, false, false));
@@ -238,21 +247,26 @@ public final class WarlockDomainManager {
             return;
         }
 
-        // 边界约束 + 氛围粒子
+        // 边界约束 + 清理域内掉落物（用领域所在维度，而不是主世界）
         AABB bounds = domainBounds();
-        // bounds
-        List<ItemEntity> items = server.overworld().getEntitiesOfClass(ItemEntity.class, bounds);
-        if (items != null) {
-            for (var t : items) {
-                t.discard();
-            }
+        for (ItemEntity item : level.getEntitiesOfClass(ItemEntity.class, bounds)) {
+            item.discard();
         }
 
+        // 越界者拉回祭场中心附近：limitPlayerToBox 有 50/20 格容差且钳到边界之外，
+        // 掉出雾墙的人会被吸附在祭场外几十格的虚空里（人还在领域表里，空间上却已分开）。
         for (UUID uuid : domain.returnPositions.keySet()) {
             ServerPlayer participant = server.getPlayerList().getPlayer(uuid);
-            if (participant != null && GameUtils.isPlayerAliveAndSurvival(participant)) {
-                GameUtils.limitPlayerToBox(participant, bounds);
-            }
+            if (participant == null || !GameUtils.isPlayerAliveAndSurvival(participant))
+                continue;
+            if (bounds.contains(participant.position()))
+                continue;
+            double angle = Math.atan2(participant.getZ() - DOMAIN_Z, participant.getX() - DOMAIN_X);
+            participant.teleportTo(level,
+                    DOMAIN_X + Math.cos(angle) * 4.0D, DOMAIN_Y + 1.0D, DOMAIN_Z + Math.sin(angle) * 4.0D,
+                    Set.of(), participant.getYRot(), participant.getXRot());
+            participant.setDeltaMovement(0.0D, 0.0D, 0.0D);
+            participant.fallDistance = 0.0F;
         }
         if (gameTime % 10 == 0) {
             level.sendParticles(ParticleTypes.ASH, DOMAIN_X, DOMAIN_Y + 3.0D, DOMAIN_Z, 30,
@@ -269,19 +283,23 @@ public final class WarlockDomainManager {
         for (Map.Entry<UUID, ReturnPos> entry : domain.returnPositions.entrySet()) {
             ServerPlayer participant = server.getPlayerList().getPlayer(entry.getKey());
             ReturnPos pos = entry.getValue();
-            if (participant != null && !participant.isSpectator()) {
-                participant.teleportTo(level, pos.x(), pos.y(), pos.z(), Set.of(), pos.yaw(), pos.pitch());
-                participant.setDeltaMovement(0.0D, 0.0D, 0.0D);
-                participant.fallDistance = 0.0F;
-                participant.removeEffect(ModEffects.NOSTALGIST_BACKWORLD);
-                participant.removeEffect(ModEffects.DOMAIN_MARK);
-                participant.addEffect(new MobEffectInstance(ModEffects.BLACK_MONITOR, 15, 0, false, false, false));
-                participant.displayClientMessage(Component
-                        .translatable(brokenByDeath
-                                ? "message.noellesroles.warlock.domain_broken"
-                                : "message.noellesroles.warlock.domain_end")
-                        .withStyle(ChatFormatting.GRAY), true);
-            }
+            if (participant == null)
+                continue;
+            // 效果清理不能跳过旁观者/已死者：否则 DOMAIN_MARK 永远留在身上，
+            // isInAnyDomain() 一直为真，此人之后再也无法被拉入任何领域。
+            participant.removeEffect(ModEffects.NOSTALGIST_BACKWORLD);
+            participant.removeEffect(ModEffects.DOMAIN_MARK);
+            if (participant.isSpectator())
+                continue;
+            participant.teleportTo(level, pos.x(), pos.y(), pos.z(), Set.of(), pos.yaw(), pos.pitch());
+            participant.setDeltaMovement(0.0D, 0.0D, 0.0D);
+            participant.fallDistance = 0.0F;
+            participant.addEffect(new MobEffectInstance(ModEffects.BLACK_MONITOR, 15, 0, false, false, false));
+            participant.displayClientMessage(Component
+                    .translatable(brokenByDeath
+                            ? "message.noellesroles.warlock.domain_broken"
+                            : "message.noellesroles.warlock.domain_end")
+                    .withStyle(ChatFormatting.GRAY), true);
         }
 
         // 域内产生的尸体送回死者原位，避免留在虚空泄露信息
