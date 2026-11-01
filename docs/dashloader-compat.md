@@ -99,3 +99,24 @@
 验证：资源相关 JUnit **50 项通过**（新增 7 项，包含 8192 状态去重、资源栈顺序和百万警告精确计数）。隔离 Fabric 中，临时测试模组故意从缓存排除红石线和栅栏的 **1328 个方块状态**，检查完整缓存保存、LOAD 命中及 1328 个状态的粒子贴图与四边形数量和冷加载一致；实际方块定义调用次数为每块 1 次。输出 `SRE_BLOCKSTATE_FALLBACK_PASS`。另直接调用原版加载器制造 1296 个缺失 variant，实际日志仅三条样例，预算记录省略 1293 条，输出 `SRE_BLOCKSTATE_WARN_BUDGET_PASS`。客户端正常退出，Gradle 退出码 0。
 
 测试专用缓存排除、调用计数与已有竹矛 Mixin 临时排除均仅存在 scratch 自检模组，不在正式 JAR。上述是针对缺失状态回退的真实客户端验证，不冒充完整 Amendments/Supplementaries 实例验收。用户所述 500 MB 的那段活跃日志当时不在实例 `latest.log` 路径，本轮未删除、截断或清空任何用户日志、资源包或缓存。修复产物仍为 `build/libs/starrailexpress.jar`，未自动覆盖实例。
+
+## WATUT 辅助粒子图集复用已释放图片
+
+用户日志：`CustomParticleEngine.reload` → DashLoader `uploadCached` → `NativeImage.upload` 抛出 `Image is not allocated.`，随后原版资源恢复逻辑移除选中的资源包。
+
+核对实际 WATUT 1.2.7 与 DashLoader 5.1.0-beta.8：WATUT 构造一个独立 `TextureAtlas`，却复用原版 `minecraft:textures/atlas/particles.png` ID。DashLoader 只按图集 ID 保存一组 `FutureTask<NativeImage>`；第一次上传以 `close=true` 释放图片，第二个图集再次取得同一 FutureTask 的结果，便访问已释放的图片。冷加载时还存在同 ID 辅助图集覆盖主图集磁盘缓存的问题。
+
+新增 `DashParticleAtlasMixin`：仅让纹理管理器登记的主粒子图集消费/写入该缓存；其他同名粒子图集保留正常拼接与逐精灵上传，但不读写主图集缓存。不禁用 WATUT、不关闭全局图集缓存、不吞异常，也不修改用户资源包选择。
+
+读取侧通过 MixinSquared 在 DashLoader 已把共享 `cached` 设为 false、尚未访问 `AtlasModule.ATLASES` 的位置返回，保证后续 `shouldBuildAtlas` 仍执行正常精灵上传。保存侧在原 `saveAtlas` 入口返回。不要在新回调中直接捕获原处理方法中位于 `CallbackInfo` 后面的共享 LocalRef 参数，否则可能产生缺参调用及无效字节码。
+
+`SREMixinPlugin` 复用 DashLoader 的 `ConfigHandler.shouldApplyMixin` 判断有效开关（包含用户配置、模组声明与 VulkanMod 自动关闭），仅在原图集钩子存在时加载此兼容 Mixin；未安装 DashLoader 时仍走原有安装检查。当前共 17 个 DashLoader 兼容 Mixin。没有新增正式依赖或更改模组版本。
+
+### 验证
+
+- 最终 `./gradlew test remapJar runClient -I <scratch>/particle-atlas-smoke.init.gradle --offline --console=plain` 成功，现有 702 项 JUnit 测试全部通过，0 失败、错误或跳过。
+- 真实隔离客户端加载 MC 1.21.1 / Fabric Loader 0.19.3 / DashLoader 5.1.0-beta.8 / WATUT 1.2.7 / CoroUtil 1.3.8。完成冷加载保存（SAVE）、相同内容热缓存重载（LOAD）、强制刷新重新保存（SAVE），输出 `SRE_PARTICLE_ATLAS_COLD_WARM_FRESH_PASS checks=36`，正常关闭，Gradle 退出码 0。
+- 三阶段均额外构造带固定颜色精灵的同名辅助粒子图集，读取 GPU 图集像素确认正常上传；检查其上传前后的全部缓存文件 SHA-256 不变，主粒子图集注册对象不变。主图集缓存未被绕过，50 个图集缓存文件在冷/热/强制刷新后三阶段内容一致。
+- 另一个独立客户端明确配置 `CACHE_ATLASES=false`，验证兼容钩子未加载、图集缓存目录未生成、其他缓存仍完成保存，输出 `SRE_PARTICLE_ATLAS_DISABLED_PASS` 后正常关闭，Gradle 退出码 0。
+
+临时测试入口、带色精灵、配置及游戏目录仅在 scratch，不进入正式 JAR。本轮未连接服务器或验证真实多人 WATUT 动画；未替换用户实例 JAR、删除缓存或恢复已经被原版取消勾选的资源包。正式产物仍为 `build/libs/starrailexpress.jar`。

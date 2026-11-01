@@ -156,6 +156,7 @@
     "compat.dashloader.DashBlockModelParentMixin",
     "compat.dashloader.DashFactoryBindingMixin",
     "compat.dashloader.DashBlockStateFallbackMixin",
+    "compat.dashloader.DashParticleAtlasMixin",
     "compat.lightspeed.PackPathIndexMixin",
     "compat.sodium.HakoniwaLevelSliceMixin",
     "compat.sodium.SceneSectionCollectorMixin",
