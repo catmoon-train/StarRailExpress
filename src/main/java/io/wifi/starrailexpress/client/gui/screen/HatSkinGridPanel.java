@@ -18,6 +18,7 @@ package io.wifi.starrailexpress.client.gui.screen;
 import io.wifi.starrailexpress.cca.SREPlayerSkinsComponent;
 import io.wifi.starrailexpress.client.gui.anim.GuiAnim;
 import io.wifi.starrailexpress.util.ItemSkinManager;
+import io.wifi.starrailexpress.util.ItemSkin3dRegistry;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.Minecraft;
@@ -85,6 +86,10 @@ public class HatSkinGridPanel extends AbstractWidget {
     /** 由父界面每帧注入的帧间隔（秒），保证全界面动画使用同一时间步 */
     private float frameDelta = 0.016f;
     private boolean draggingScrollbar = false;
+    /** 当前搜索词（已归一化），用于重建时复用 */
+    private String searchQuery = "";
+    /** 是否只显示 3D 皮肤（由父界面的筛选按钮控制） */
+    private boolean only3d = false;
 
     public void setFrameDelta(float frameDelta) {
         this.frameDelta = frameDelta;
@@ -98,11 +103,20 @@ public class HatSkinGridPanel extends AbstractWidget {
     public HatSkinGridPanel(int x, int y, int width, int height,
             SREPlayerSkinsComponent skinsComponent, String skinType,
             Consumer<String> onHatSelected, String searchFilter) {
+        this(x, y, width, height, skinsComponent, skinType, onHatSelected, searchFilter, false);
+    }
+
+    /**
+     * @param only3d 是否只显示 3D（Geo）皮肤
+     */
+    public HatSkinGridPanel(int x, int y, int width, int height,
+            SREPlayerSkinsComponent skinsComponent, String skinType,
+            Consumer<String> onHatSelected, String searchFilter, boolean only3d) {
         super(x, y, width, height, Component.empty());
         this.skinsComponent = skinsComponent;
         this.skinType = skinType == null || skinType.isBlank() ? "hat" : skinType;
         this.onHatSelected = onHatSelected;
-        rebuild(searchFilter);
+        rebuild(searchFilter, only3d);
     }
 
     /** 重新收集帽子皮肤数据（刷新或装备变化后调用） */
@@ -111,7 +125,25 @@ public class HatSkinGridPanel extends AbstractWidget {
     }
 
     public final void rebuild(String filter) {
+        rebuild(filter, only3d);
+    }
+
+    /**
+     * 重建卡片列表。
+     * <p>
+     * 过滤顺序：先按「仅显示 3D 皮肤」筛掉非 3D 条目，再按搜索匹配度排序。
+     * 排序规则（关键，修「搜中文/拼音不先出对应皮肤」的问题）：
+     * <ol>
+     *   <li>有搜索词时<b>按匹配分从高到低</b>排；</li>
+     *   <li>分数相同时未解锁的沉底，再按皮肤 ID 保证顺序稳定；</li>
+     *   <li>没有搜索词时匹配分恒为 0，等价于原来的「未解锁沉底 + 字典序」。</li>
+     * </ol>
+     * 「未装备 / 随机」两张伪卡片不参与搜索过滤，始终钉在最前面。
+     */
+    public final void rebuild(String filter, boolean only3d) {
         cards.clear();
+        this.only3d = only3d;
+        this.searchQuery = ItemSkinSearch.normalize(filter);
         this.equippedHat = skinsComponent.getEquippedSkin(skinType);
 
         cards.add(new HatCard("default", null, 0xFF9AA0AA, true));
@@ -123,8 +155,10 @@ public class HatSkinGridPanel extends AbstractWidget {
 
         Map<String, ItemSkinManager.Skin> hatSkins = ItemSkinManager.getSkins(skinType);
         List<Map.Entry<String, ItemSkinManager.Skin>> sorted = new ArrayList<>(hatSkins.entrySet());
+        // 先按「匹配分高 → 未解锁沉底 → 皮肤 ID」排一次
         sorted.sort(Comparator
-                .comparing((Map.Entry<String, ItemSkinManager.Skin> e) -> !isUnlocked(e.getKey()))
+                .comparingInt((Map.Entry<String, ItemSkinManager.Skin> e) -> -scoreOf(e.getKey()))
+                .thenComparing(e -> !isUnlocked(e.getKey()))
                 .thenComparing(Map.Entry::getKey));
         for (Map.Entry<String, ItemSkinManager.Skin> entry : sorted) {
             String name = entry.getKey();
@@ -132,17 +166,17 @@ public class HatSkinGridPanel extends AbstractWidget {
             if ("default".equals(name) || ItemSkinManager.isRandomSkin(name)) {
                 continue;
             }
+            // 「仅显示 3D 皮肤」筛选
+            if (only3d && !is3dSkin(name)) {
+                continue;
+            }
+            // 搜索过滤：匹配分 0 表示不命中（输入为空时恒为满分，不过滤）
+            if (!searchQuery.isEmpty() && scoreOf(name) <= ItemSkinSearch.SCORE_NONE) {
+                continue;
+            }
             Item item = iconFor(name);
             int color = entry.getValue() != null ? entry.getValue().getColor() : 0xFFFFFFFF;
             cards.add(new HatCard(name, new ItemStack(item), color, isUnlocked(name)));
-        }
-
-        // 搜索过滤
-        if (filter != null && !filter.isEmpty()) {
-            String f = filter.toLowerCase(java.util.Locale.ROOT);
-            cards.removeIf(c -> !"default".equals(c.skinName)
-                    && !ItemSkinManager.isRandomSkin(c.skinName)
-                    && !c.displayName().getString().toLowerCase(java.util.Locale.ROOT).contains(f));
         }
 
         int columns = columns();
@@ -151,8 +185,80 @@ public class HatSkinGridPanel extends AbstractWidget {
         scroll = Mth.clamp(scroll, 0, maxScroll());
     }
 
+    /** 当前皮肤名对应的匹配分（按中文名 / 拼音 / 首字母 / ID 综合打分）。 */
+    private int scoreOf(String skinName) {
+        if (searchQuery.isEmpty()) {
+            return ItemSkinSearch.SCORE_EXACT;
+        }
+        return ItemSkinSearch.score(searchQuery, displayNameOf(skinName), skinName);
+    }
+
     private boolean isUnlocked(String skinName) {
         return "default".equals(skinName) || skinsComponent.isSkinUnlockedForItemType(skinType, skinName);
+    }
+
+    /**
+     * 该皮肤是否走了 3D（Geo）模型。
+     * <p>
+     * 判定来源见 {@link ItemSkin3dRegistry}：内容模组显式登记优先，
+     * 资源探测（{@code assets/*}{@code /geo/**.geo.json}）兜底。
+     */
+    private boolean is3dSkin(String skinName) {
+        return ItemSkin3dRegistry.is3d(skinType, skinName);
+    }
+
+    /**
+     * 皮肤的显示名（搜索与卡片标题共用同一套翻译键）。
+     * <p>
+     * 伪皮肤（未装备 / 随机）返回空串，避免「无帽子」这类字样被搜索命中。
+     */
+    private Component displayNameOf(String skinName) {
+        if (skinName == null || "default".equals(skinName) || ItemSkinManager.isRandomSkin(skinName)) {
+            return Component.empty();
+        }
+        return Component.translatableWithFallback(
+                "screen.sre.skins." + skinType + "." + skinName.toLowerCase(java.util.Locale.ROOT) + ".name",
+                formatSkinName(skinName));
+    }
+
+    /** {@code xinglan_revolver} → {@code Xinglan Revolver}（缺翻译时的兜底显示名）。 */
+    private static String formatSkinName(String raw) {
+        StringBuilder result = new StringBuilder();
+        for (String part : raw.split("[_\\-]")) {
+            if (!part.isEmpty()) {
+                result.append(Character.toUpperCase(part.charAt(0)))
+                        .append(part.substring(1).toLowerCase()).append(' ');
+            }
+        }
+        return result.toString().trim();
+    }
+
+    /** 当前卡片列表（只读快照，供父界面统计与调试使用）。 */
+    public List<String> visibleSkinNames() {
+        List<String> names = new ArrayList<>(cards.size());
+        for (HatCard card : cards) {
+            names.add(card.skinName);
+        }
+        return names;
+    }
+
+    /** 当前类型下总共登记了多少个 3D 皮肤（不受搜索词影响）。 */
+    public int total3dSkins() {
+        int count = 0;
+        for (String name : ItemSkinManager.getSkins(skinType).keySet()) {
+            if ("default".equals(name) || ItemSkinManager.isRandomSkin(name)) {
+                continue;
+            }
+            if (is3dSkin(name)) {
+                count++;
+            }
+        }
+        return count;
+    }
+
+    /** 当前是否处于「仅显示 3D 皮肤」模式。 */
+    public boolean isOnly3d() {
+        return only3d;
     }
 
     /**
@@ -433,20 +539,8 @@ public class HatSkinGridPanel extends AbstractWidget {
                 };
                 return Component.translatable(noneKey);
             }
-            return Component.translatableWithFallback(
-                    "screen.sre.skins." + skinType + "." + skinName.toLowerCase(java.util.Locale.ROOT) + ".name",
-                    formatName(skinName));
-        }
-
-        private String formatName(String raw) {
-            StringBuilder result = new StringBuilder();
-            for (String part : raw.split("[_\\-]")) {
-                if (!part.isEmpty()) {
-                    result.append(Character.toUpperCase(part.charAt(0)))
-                            .append(part.substring(1).toLowerCase()).append(' ');
-                }
-            }
-            return result.toString().trim();
+            // 与搜索用的显示名共用同一实现，保证「看到的名字」和「搜得到」一致
+            return HatSkinGridPanel.this.displayNameOf(skinName);
         }
     }
 }

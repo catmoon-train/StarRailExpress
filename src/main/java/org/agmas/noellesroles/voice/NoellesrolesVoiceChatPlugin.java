@@ -176,14 +176,23 @@ public class NoellesrolesVoiceChatPlugin implements VoicechatPlugin {
         var vctplayer = vcplayer.getPlayer();
         if (vctplayer != null) {
           var player = (ServerPlayer) vctplayer;
+          // 沉默语音只依赖玩家本身，必须排在一切转发之前，否则会出现"先转发再静音"的绕过。
+          if (player.hasEffect(ModEffects.VOICE_SILENCE)) {
+            event.cancel();
+            return;
+          }
+          // 嬉命人·语音互换：把声源换成交换对象（被接管时直接 return）。
+          //
+          // 刻意排在 CCA 判空之前：本回调跑在 SVC 语音线程，若这里取不到
+          // SREGameWorldComponent，旧写法会让整段逻辑被静默跳过 —— 技能提示成功、
+          // 冷却开始走，但语音完全没变化，日志里也不会留下任何错误。
+          // 语音互换只依赖主线程发布的不可变路由快照，不需要游戏状态就能工作。
+          if (EmbalmerVoiceSwapHook.handle(event, api, player)) {
+            return;
+          }
           FakeSteveVoiceDetector.onMicrophone(event, player);
           SREGameWorldComponent gameWorldComponent = SREGameWorldComponent.KEY.get(player.level());
           if (gameWorldComponent != null) {
-            // 检查沉默语音效果
-            if (player != null && player.hasEffect(ModEffects.VOICE_SILENCE)) {
-              event.cancel();
-              return;
-            }
             if (shouldMutePhantomSpirit(player, gameWorldComponent)) {
               event.cancel();
               return;
@@ -195,10 +204,6 @@ public class NoellesrolesVoiceChatPlugin implements VoicechatPlugin {
             }
             // 亡魂夜额外转发真实旁观者语音；只读主线程发布的活动路由，不改变原组频道。
             org.agmas.noellesroles.game.halloween.village.VillageGhostVoice.forward(event, player.getUUID());
-            // 嬉命人·语音互换：把声源换成交换对象（被接管时直接 return）
-            if (EmbalmerVoiceSwapHook.handle(event, api, player)) {
-              return;
-            }
             // 如果发送者被鹈鹕吞噬，单独处理路由：只转发给鹈鹕和肚内玩家，避免默认逻辑忽略旁观者
             if (PelicanManager.isStashed(player)) {
               var bellyReceivers = PelicanManager.getBellyReceivers(player.getUUID());

@@ -61,9 +61,12 @@ public final class EmbalmerVoiceSwapManager {
 
     /**
      * 语音线程可见的路由：说话者 → 声源位置 + 到期时间。
-     * 只含不可变数据，语音线程不会再触碰游戏世界。
+     *
+     * <p>只含不可变数据，语音线程不会再触碰游戏世界：连记录听众用的维度也在这里一并发布，
+     * 避免在 SVC 语音线程上调用 {@code ServerPlayer#serverLevel()}（跨线程访问服务端世界
+     * 一旦被 {@code dispatchEvent} 吞掉异常，就会表现为「技能毫无反应」）。
      */
-    public record Route(UUID speaker, UUID body, Vec3 origin, long until) {
+    public record Route(UUID speaker, UUID body, Vec3 origin, ServerLevel level, long until) {
     }
 
     private static final Map<UUID, Link> LINKS = new ConcurrentHashMap<>();
@@ -126,10 +129,6 @@ public final class EmbalmerVoiceSwapManager {
     public static void clear() {
         LINKS.clear();
         ROUTES = Map.of();
-    }
-
-    public static boolean isSwapped(UUID player) {
-        return player != null && LINKS.containsKey(player);
     }
 
     /**
@@ -212,7 +211,7 @@ public final class EmbalmerVoiceSwapManager {
             // 剩余 tick 换算成墙钟毫秒，供语音线程判断过期
             long remainTicks = Math.max(0L, link.until() - self.level().getGameTime());
             long untilMillis = nowMillis + remainTicks * 50L;
-            next.put(speaker, new Route(speaker, link.partner(), body.position(), untilMillis));
+            next.put(speaker, new Route(speaker, link.partner(), body.position(), self.serverLevel(), untilMillis));
         }
         ROUTES = Map.copyOf(next);
     }
@@ -231,6 +230,8 @@ public final class EmbalmerVoiceSwapManager {
             ROUTES = Map.of();
             return;
         }
+        // END_WORLD_TICK 对每个已加载维度各触发一次；配对双方可能不在当前 world，
+        // 因此不能用 tick 传入的 world 做存活校验，否则末地/下界先 tick 时会把配对误删。
         long now = world.getGameTime();
         List<UUID> broken = new ArrayList<>();
         for (Map.Entry<UUID, Link> entry : LINKS.entrySet()) {
@@ -242,7 +243,9 @@ public final class EmbalmerVoiceSwapManager {
             }
             ServerPlayer selfPlayer = world.getServer().getPlayerList().getPlayer(self);
             ServerPlayer partner = world.getServer().getPlayerList().getPlayer(link.partner());
-            if (!isSwapTargetValid(world, selfPlayer) || !isSwapTargetValid(world, partner)) {
+            // 以「说话者自己的维度」为基准：双方必须在同一维度且都存活
+            if (selfPlayer == null || !isSwapTargetValid(selfPlayer.level(), selfPlayer)
+                    || !isSwapTargetValid(selfPlayer.level(), partner)) {
                 broken.add(self);
             }
         }
