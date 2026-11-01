@@ -192,6 +192,27 @@ public final class DashLoaderCompat {
     }
 
 
+    /** DashLoader 记录的是逐状态模型；调用方必须按方块去重后加载完整定义。 */
+    public static java.util.Set<net.minecraft.resources.ResourceLocation> missingBlockIds() {
+        try {
+            Class<?> module = Class.forName("dev.notalpha.dashloader.client.model.ModelModule");
+            Class<?> status = Class.forName("dev.notalpha.dashloader.api.cache.CacheStatus");
+            Object load = status.getField("LOAD").get(null);
+            Object missing = module.getField("MISSING_READ").get(null);
+            Object value = missing.getClass().getMethod("get", status).invoke(missing, load);
+            if (!(value instanceof java.util.Map<?, ?> map)) {
+                throw new IllegalStateException("DashLoader LOAD has no missing blockstate map");
+            }
+            java.util.List<net.minecraft.client.resources.model.ModelResourceLocation> models = new java.util.ArrayList<>();
+            for (Object model : map.values()) {
+                models.add((net.minecraft.client.resources.model.ModelResourceLocation) model);
+            }
+            return BlockStateJsonFallback.uniqueBlocks(models);
+        } catch (ReflectiveOperationException error) {
+            throw new IllegalStateException("Cannot read DashLoader missing blockstate models", error);
+        }
+    }
+
     public static net.minecraft.server.packs.resources.ResourceManager fallbackResources() {
         return cacheLoad ? currentResources : null;
     }

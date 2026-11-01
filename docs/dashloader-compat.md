@@ -87,3 +87,15 @@
 验证：6 个新增回归用例；资源相关测试合计 **43 项通过**，`remapJar` 成功。隔离 Fabric 中实际调用已注入的 `FactoryBinding.create`，确认直接/多层嵌套异常保持原对象、正常工厂返回不变、普通构造失败继续包装上报；输出 `SRE_DASH_NESTED_FACTORY_PASS`，进程退出码 0。此测试验证日志中的异常传播缺陷，不冒充已运行完整 Supplementaries 整合包的缓存保存及外观验收。
 
 修复产物：`build/libs/starrailexpress.jar`；本次未覆盖实例 JAR，未修改已有竹矛或其他无关用户改动。
+
+## 方块状态警告风暴与热缓存回退修复
+
+用户截图显示 `amendments:wall_soul_lantern` 的逐 variant 警告刷屏。实际 DashLoader 5.1.0-beta.8 的 `BlockStatesLoaderMixin` 在 LOAD 时遍历 `MISSING_READ.values()`：每个状态均调用一次整块 `loadBlockStateDefinitions`，而 `BakedModelManagerOverride` 已跳过方块状态 JSON 扫描。对 N 个未缓存状态，会把整个 N 状态定义重复处理 N 次，缺失警告和 CPU 成本可扩大为 O(N²)。上一修复允许不支持序列化的模型成功落入 MISSING_READ 后，暴露了这条原有回退缺陷。
+
+新增 `DashBlockStateFallbackMixin`：读取缺失模型表后按方块 ID 去重，每块仅处理一次；按当前资源管理器的完整资源栈补读 `blockstates/<id>.json`，保留覆盖顺序。只修改 LOAD 回退路径，冷加载和其他模型缓存保留；无法读取或不存在的定义仍报告真实错误并走原版缺失模型兜底。
+
+新增客户端 `BlockStateWarningMixin`：只对完全匹配的逐 variant 缺失警告限量。同一次模型加载中，每个 JSON 保留前三条详细警告，结束时汇总省略数量；其他 WARN/ERROR 不变，每次重载预算重新计算。不修改日志等级，不删除旧日志。DashLoader 兼容 Mixin 现共 16 个，另有这个不依赖 DashLoader 的客户端警告汇总 Mixin。
+
+验证：资源相关 JUnit **50 项通过**（新增 7 项，包含 8192 状态去重、资源栈顺序和百万警告精确计数）。隔离 Fabric 中，临时测试模组故意从缓存排除红石线和栅栏的 **1328 个方块状态**，检查完整缓存保存、LOAD 命中及 1328 个状态的粒子贴图与四边形数量和冷加载一致；实际方块定义调用次数为每块 1 次。输出 `SRE_BLOCKSTATE_FALLBACK_PASS`。另直接调用原版加载器制造 1296 个缺失 variant，实际日志仅三条样例，预算记录省略 1293 条，输出 `SRE_BLOCKSTATE_WARN_BUDGET_PASS`。客户端正常退出，Gradle 退出码 0。
+
+测试专用缓存排除、调用计数与已有竹矛 Mixin 临时排除均仅存在 scratch 自检模组，不在正式 JAR。上述是针对缺失状态回退的真实客户端验证，不冒充完整 Amendments/Supplementaries 实例验收。用户所述 500 MB 的那段活跃日志当时不在实例 `latest.log` 路径，本轮未删除、截断或清空任何用户日志、资源包或缓存。修复产物仍为 `build/libs/starrailexpress.jar`，未自动覆盖实例。
