@@ -5,6 +5,6 @@ public final class KnifeGlintRules {
     private KnifeGlintRules() {}
     public static Boolean foil(boolean realKnife, boolean fakeKnife, boolean civilianOrNeutral) {
         if (fakeKnife) return Boolean.FALSE;
-        return realKnife && civilianOrNeutral ? Boolean.TRUE : null;
+        return realKnife ? Boolean.valueOf(civilianOrNeutral) : null;
     }
 }
