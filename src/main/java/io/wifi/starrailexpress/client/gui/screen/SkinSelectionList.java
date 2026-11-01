@@ -72,6 +72,10 @@ public class SkinSelectionList extends ObjectSelectionList<SkinSelectionList.Ski
     private boolean draggingScrollbar = false;
     private String searchFilter;
 
+    /** 是否只显示 3D（Geo）皮肤；由父界面的筛选按钮下发 */
+    private boolean only3d = false;
+    /** 当前列表项的皮肤类型（列表页签 = 物品 id 的 path） */
+    private String skinTypeName = "";
     /** 当前搜索词（已归一化），供排序与过滤共用 */
     private String searchQuery = "";
     /** Suffix appended when a string is truncated. */
@@ -81,6 +85,17 @@ public class SkinSelectionList extends ObjectSelectionList<SkinSelectionList.Ski
             int x, int width, int height, int y, ItemStack itemType,
             SREPlayerSkinsComponent skinsComponent, Consumer<String> onSkinSelected,
             String searchFilter) {
+        this(parentScreen, mc, x, width, height, y, itemType, skinsComponent, onSkinSelected,
+                searchFilter, false);
+    }
+
+    /**
+     * @param only3d 是否只显示 3D（Geo）皮肤
+     */
+    public SkinSelectionList(SkinManagementScreen parentScreen, Minecraft mc,
+            int x, int width, int height, int y, ItemStack itemType,
+            SREPlayerSkinsComponent skinsComponent, Consumer<String> onSkinSelected,
+            String searchFilter, boolean only3d) {
         super(mc, width, height, y, ENTRY_HEIGHT);
         this.setX(x);
 
@@ -90,8 +105,31 @@ public class SkinSelectionList extends ObjectSelectionList<SkinSelectionList.Ski
         this.skinsComponent = skinsComponent;
         this.onSkinSelected = onSkinSelected;
         this.searchFilter = searchFilter != null ? searchFilter.toLowerCase(java.util.Locale.ROOT) : "";
+        this.skinTypeName = skinTypeOf(itemType);
         collectAvailableSkins();
-        rebuild(this.searchFilter);
+        rebuild(this.searchFilter, only3d);
+    }
+
+    /**
+     * 物品 → 皮肤类型名（用于 3D 判定）。
+     * <p>
+     * 优先用 {@link ItemSkinManager#getItemSkinType(Item)}（弓/弩这类原版物品
+     * 已显式登记），否则退回物品 id 的 path —— 与翻译键用的是同一个键，
+     * 保证「名字键」和「3D 判定键」不会错位。
+     */
+    private static String skinTypeOf(ItemStack stack) {
+        Item item = stack.getItem();
+        String registered = ItemSkinManager.getItemSkinType(item);
+        if (registered != null) {
+            return registered;
+        }
+        var rl = BuiltInRegistries.ITEM.getKey(item);
+        return rl == null ? "" : rl.getPath();
+    }
+
+    /** 兼容旧调用：保留当前 3D 筛选状态。 */
+    public void rebuild(String filter) {
+        rebuild(filter, only3d);
     }
 
     /**
@@ -101,11 +139,17 @@ public class SkinSelectionList extends ObjectSelectionList<SkinSelectionList.Ski
      * 并<b>按匹配度排序</b>（原来是只按 ID 子串过滤，所以搜中文或拼音
      * 要么命中不到、要么把对应皮肤排到很后面）。
      */
-    public void rebuild(String filter) {
+    public void rebuild(String filter, boolean only3d) {
         this.searchFilter = filter != null ? filter.toLowerCase(java.util.Locale.ROOT) : "";
         this.searchQuery = ItemSkinSearch.normalize(filter);
+        this.only3d = only3d;
         clearEntries();
         for (String skinName : availableSkins) {
+            // 「仅显示 3D 皮肤」筛选：刀 / 弓 / 手铐 / 左轮 / 手雷 / 信件都是列表页签，
+            // 必须在这里同样过滤，否则勾选按钮对它们完全没反应
+            if (only3d && !is3dSkin(skinName)) {
+                continue;
+            }
             // 搜索过滤：匹配分 0 表示不命中（输入为空时不过滤）
             if (!searchQuery.isEmpty() && scoreOf(skinName) <= ItemSkinSearch.SCORE_NONE) {
                 continue;
@@ -137,6 +181,15 @@ public class SkinSelectionList extends ObjectSelectionList<SkinSelectionList.Ski
         // 「未装备」固定第一位，「随机」固定第二位（不参与排序与搜索过滤）
         this.children().addFirst(new SkinEntry("default"));
         this.children().add(1, new SkinEntry(ItemSkinManager.RANDOM_SKIN));
+    }
+    /**
+     * 该皮肤是否走了 3D（Geo）模型。
+     * <p>
+     * 判定来源见 {@link io.wifi.starrailexpress.util.ItemSkin3dRegistry}：
+     * 内容模组显式登记优先，{@code assets/*}{@code /geo/**.geo.json} 资源探测兜底。
+     */
+    private boolean is3dSkin(String skinName) {
+        return io.wifi.starrailexpress.util.ItemSkin3dRegistry.is3d(skinTypeName, skinName);
     }
 
     /**

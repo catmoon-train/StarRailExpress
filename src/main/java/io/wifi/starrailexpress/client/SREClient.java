@@ -321,6 +321,25 @@ public class SREClient implements ClientModInitializer {
         io.wifi.starrailexpress.client.disguise.EntityDisguiseClient.registerClient();
         io.wifi.starrailexpress.hat.HatEquipmentApi.registerDefaultOwnerResolvers();
         io.wifi.starrailexpress.client.pet.PetClientDriver.register();
+        // 皮肤页「仅显示 3D 皮肤」的资源探测兜底：附属模组会自己显式登记，
+        // 但主模组 / 其它内容模组自带的 geo 皮肤没人登记，这里扫一遍
+        // assets/*/geo/**.geo.json 把文件名当皮肤 ID 收集起来。
+        // 必须挂在资源重载之后：启动期资源还没就绪，扫描会得到空集。
+        net.fabricmc.fabric.api.resource.ResourceManagerHelper.get(
+                net.minecraft.server.packs.PackType.CLIENT_RESOURCES)
+                .registerReloadListener(new net.fabricmc.fabric.api.resource.SimpleSynchronousResourceReloadListener() {
+                    @Override
+                    public net.minecraft.resources.ResourceLocation getFabricId() {
+                        return net.minecraft.resources.ResourceLocation.fromNamespaceAndPath(
+                                "starrailexpress", "skin_3d_probe");
+                    }
+
+                    @Override
+                    public void onResourceManagerReload(
+                            net.minecraft.server.packs.resources.ResourceManager manager) {
+                        io.wifi.starrailexpress.util.ItemSkin3dRegistry.probeGeoResources(manager);
+                    }
+                });
         net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents.DISCONNECT
                 .register((handler, client) -> {
                     io.wifi.starrailexpress.client.hat.ClientHatEquipmentCache.clear();

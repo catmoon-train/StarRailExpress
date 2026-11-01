@@ -483,7 +483,7 @@ public class SkinManagementScreen extends Screen {
                 contentX, leftPanelWidth, listHeight, listTop, itemStack, skinsComponent,
                 skinName -> ClientPlayNetworking.send(
                         new UpdateSkinSelectedPayload(ItemSkinManager.getItemTypeName(itemStack), skinName)),
-                searchFilter);
+                searchFilter, only3dFilter);
         addRenderableWidget(skinList);
 
         addRenderableWidget(new ItemInfoPanel(rightPanelX, listTop - 25, rightPanelWidth, 20, itemStack));
@@ -859,7 +859,7 @@ public class SkinManagementScreen extends Screen {
      */
     private void applySearchFilter() {
         if (skinList != null) {
-            skinList.rebuild(searchFilter);
+            skinList.rebuild(searchFilter, only3dFilter);
             return;
         }
         if (hatGrid != null) {

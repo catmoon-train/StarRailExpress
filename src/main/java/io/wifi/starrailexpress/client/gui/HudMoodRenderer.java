@@ -67,7 +67,7 @@ public class HudMoodRenderer {
      * 心情条长度曾绑定任务文本宽度（{@code moodTextWidth - 8}），导致任务名短时心情条很短、
      * 任务名长时心情条很长。现改为固定长度，心情值只决定填充比例。
      */
-    public static final float MOOD_BAR_WIDTH = 150f;
+    public static final float MOOD_BAR_WIDTH = 120f;
     public static Random random = new Random();
     public static float arrowProgress = 1f;
     public static float moodRender = 0f;
