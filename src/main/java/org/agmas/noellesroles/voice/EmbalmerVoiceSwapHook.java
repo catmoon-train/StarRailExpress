@@ -16,7 +16,6 @@
 package org.agmas.noellesroles.voice;
 
 import de.maxhenkel.voicechat.api.Position;
-import de.maxhenkel.voicechat.api.ServerLevel;
 import de.maxhenkel.voicechat.api.VoicechatConnection;
 import de.maxhenkel.voicechat.api.VoicechatServerApi;
 import de.maxhenkel.voicechat.api.events.MicrophonePacketEvent;
@@ -65,7 +64,7 @@ public final class EmbalmerVoiceSwapHook {
         }
 
         // 语音线程上任何异常都会被 SVC 的 dispatchEvent 吞成一行 error，且不取消默认广播。
-        // 这里显式兜底：记一次带上下文的日志，然后放行默认广播，至少不会「悄无声息」。
+        // 这里显式兜底：记一次带上下文的错误日志，然后放行默认广播，至少不会「悄无声息」。
         try {
             MicrophonePacket packet = event.getPacket();
             boolean whispering = packet.isWhispering();
@@ -82,8 +81,9 @@ public final class EmbalmerVoiceSwapHook {
                     .distance(distance)
                     .build();
 
-            // 以「声源位置（交换对象）」为圆心，向语音可达范围内的玩家逐个转发
-            ServerLevel level = api.fromServerLevel(speaker.serverLevel());
+            // 维度同样来自主线程快照：语音线程上不调用 speaker.serverLevel()，
+            // 避免跨线程访问服务端世界抛异常后被 SVC 吞成「毫无反应」。
+            var level = api.fromServerLevel(route.level());
             double maxDistance = Math.max(distance, api.getBroadcastRange());
             for (de.maxhenkel.voicechat.api.ServerPlayer listener : api.getPlayersInRange(level, position,
                     maxDistance)) {
