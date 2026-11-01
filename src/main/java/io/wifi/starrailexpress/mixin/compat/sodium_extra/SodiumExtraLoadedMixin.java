@@ -15,15 +15,18 @@
 
 package io.wifi.starrailexpress.mixin.compat.sodium_extra;
 
-import me.flashyreese.mods.sodiumextra.client.SodiumExtraClientMod;
-import net.minecraft.world.level.Level;
+import me.flashyreese.mods.sodiumextra.client.config.SodiumExtraGameOptions;
+import net.minecraft.resources.ResourceLocation;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-@Mixin(value = Level.class)
-public class SodiumExtraLoadedMixin {
-
-    static {
-        // 用初始化类的特性修改默认选项
-        SodiumExtraClientMod.options().renderSettings.lightUpdates = true;
+/** 全局及逐类型粒子开关不得隐藏技能线索；不对 Extra 早加载主入口进行注入。 */
+@Mixin(value = SodiumExtraGameOptions.ParticleSettings.class, remap = false)
+public abstract class SodiumExtraLoadedMixin {
+    @Inject(method = "isParticleEnabled", at = @At("HEAD"), cancellable = true)
+    private void sre$keepGameplayParticles(ResourceLocation particle, CallbackInfoReturnable<Boolean> cir) {
+        cir.setReturnValue(true);
     }
 }

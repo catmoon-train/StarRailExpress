@@ -54,8 +54,23 @@ public class SREMixinPlugin implements IMixinConfigPlugin {
                 && mixinClassName.contains("io.wifi.starrailexpress.mixin.compat.dashloader")) {
             return false;
         }
+        if (mixinClassName.equals("io.wifi.starrailexpress.mixin.compat.dashloader.DashParticleAtlasMixin")) {
+            try {
+                // 复用 DashLoader 的有效开关（包含配置、模组声明及 VulkanMod），不能要求已禁用的钩子存在。
+                return (boolean) Class.forName("dev.notalpha.dashloader.config.ConfigHandler")
+                        .getMethod("shouldApplyMixin", String.class)
+                        .invoke(null, "dev.notalpha.dashloader.mixin.option.cache.SpriteAtlasTextureMixin");
+            } catch (ReflectiveOperationException error) {
+                throw new IllegalStateException("Cannot check DashLoader atlas cache option", error);
+            }
+        }
         if (!FabricLoader.getInstance().isModLoaded("lightspeed")
                 && mixinClassName.contains("io.wifi.starrailexpress.mixin.compat.lightspeed.")) {
+            return false;
+        }
+        if (mixinClassName.contains("io.wifi.starrailexpress.mixin.compat.supplementaries.CarpetPistonPlaceholderMixin")
+                && (!FabricLoader.getInstance().isModLoaded("carpet")
+                    || !FabricLoader.getInstance().isModLoaded("supplementaries"))) {
             return false;
         }
         return true;
