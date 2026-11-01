@@ -152,10 +152,27 @@ public final class HalloweenConfig {
                     && isVillageTradeAllowed(entry.item)
                     && entry.count > 0 && entry.count <= 64 && entry.pumpkins >= 0 && entry.pumpkins <= 4096
                     && entry.coins >= 0 && entry.coins <= 1000000 && (entry.pumpkins > 0 || entry.coins > 0)) {
+                migrateDefaultTradePrice(entry);
                 cleanTrades.add(entry);
             } else warn.accept("忽略无效 trades 条目（禁止直接出售魂契和献血锯子、负价格或免费商品）");
         }
         trades = cleanTrades;
+    }
+
+    /** 仅迁移旧默认定价；新价格不会重复加价，自定义商品数量及定价保持不变。 */
+    private static void migrateDefaultTradePrice(Trade entry) {
+        if (entry.count != 1) return;
+        int oldPumpkins = switch (entry.item) {
+            case "noellesroles:halloween_fright_gun" -> 10;
+            case "noellesroles:halloween_pumpkin_helmet", "noellesroles:halloween_pumpkin_boots" -> 3;
+            case "noellesroles:halloween_pumpkin_chestplate" -> 5;
+            case "noellesroles:halloween_pumpkin_leggings" -> 4;
+            default -> -1;
+        };
+        boolean gun = "noellesroles:halloween_fright_gun".equals(entry.item);
+        if (entry.pumpkins == oldPumpkins && entry.coins == (gun ? 30 : 5)) {
+            entry.pumpkins += gun ? 7 : 2;
+        }
     }
 
     /** 固定 NPC 禁售物品；旧配置和交易请求都必须遵循同一限制。 */
@@ -214,13 +231,13 @@ public final class HalloweenConfig {
                 new Trade("noellesroles:halloween_candy_bag", 1, 3, 0),
                 new Trade("noellesroles:halloween_pumpkin_president", 1, 5, 10),
                 new Trade("noellesroles:halloween_heart", 1, 8, 0),
-                new Trade("noellesroles:halloween_pumpkin_helmet", 1, 3, 5),
-                new Trade("noellesroles:halloween_pumpkin_chestplate", 1, 5, 5),
-                new Trade("noellesroles:halloween_pumpkin_leggings", 1, 4, 5),
-                new Trade("noellesroles:halloween_pumpkin_boots", 1, 3, 5),
+                new Trade("noellesroles:halloween_pumpkin_helmet", 1, 5, 5),
+                new Trade("noellesroles:halloween_pumpkin_chestplate", 1, 7, 5),
+                new Trade("noellesroles:halloween_pumpkin_leggings", 1, 6, 5),
+                new Trade("noellesroles:halloween_pumpkin_boots", 1, 5, 5),
                 new Trade("noellesroles:halloween_bone_sword", 1, 6, 15),
                 new Trade("noellesroles:halloween_soul_link", 1, 8, 20),
-                new Trade("noellesroles:halloween_fright_gun", 1, 10, 30)));
+                new Trade("noellesroles:halloween_fright_gun", 1, 17, 30)));
     }
 
     public static class Loot {

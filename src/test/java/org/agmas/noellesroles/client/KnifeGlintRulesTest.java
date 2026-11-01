@@ -8,7 +8,9 @@ import static org.junit.jupiter.api.Assertions.*;
 class KnifeGlintRulesTest {
     @Test void realKnifeGlowsForCivilianOrNeutralButFakeNeverDoes() {
         assertEquals(Boolean.TRUE, KnifeGlintRules.foil(true, false, true));
-        assertNull(KnifeGlintRules.foil(true, false, false));
+        // 杀手等非平民/中立阵营必须覆盖原有光泽，而不是回退到物品默认值。
+        assertEquals(Boolean.FALSE, KnifeGlintRules.foil(true, false, false));
+        assertNull(KnifeGlintRules.foil(false, false, false));
         assertNull(KnifeGlintRules.foil(false, false, true));
         assertEquals(Boolean.FALSE, KnifeGlintRules.foil(true, true, true));
         assertEquals(Boolean.FALSE, KnifeGlintRules.foil(true, true, false));
