@@ -54,6 +54,10 @@ public class SREMixinPlugin implements IMixinConfigPlugin {
                 && mixinClassName.contains("io.wifi.starrailexpress.mixin.compat.dashloader")) {
             return false;
         }
+        if (mixinClassName.equals("io.wifi.starrailexpress.mixin.compat.dashloader.DashMoonlightNestedModelMixin")
+                && !FabricLoader.getInstance().isModLoaded("moonlight")) {
+            return false;
+        }
         if (mixinClassName.equals("io.wifi.starrailexpress.mixin.compat.dashloader.DashParticleAtlasMixin")) {
             try {
                 // 复用 DashLoader 的有效开关（包含配置、模组声明及 VulkanMod），不能要求已禁用的钩子存在。

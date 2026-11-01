@@ -28,6 +28,19 @@ public final class ModelJsonFallback {
         }
     }
 
+    /** 嵌套模型加载器需要可解析父模型的定义，而非已经烘焙好的缓存包装。 */
+    public static UnbakedModel definition(ResourceManager resources, ResourceLocation id, UnbakedModel cached) {
+        if (resources == null || cached == null || cached instanceof BlockModel) {
+            return cached;
+        }
+        try {
+            BlockModel raw = load(resources, id.withPath(path -> "models/" + path + ".json"));
+            return raw == null ? cached : raw;
+        } catch (IOException error) {
+            throw new UncheckedIOException("Cannot read nested model definition " + id, error);
+        }
+    }
+
     /** JSON parent 必须是 BlockModel，不能直接沿用 DashLoader 的已烘焙模型包装。 */
     public static Function<ResourceLocation, UnbakedModel> parents(ResourceManager resources,
                                                                  Function<ResourceLocation, UnbakedModel> delegate) {

@@ -85,4 +85,69 @@ class ModelJsonFallbackTest {
                     .apply(ResourceLocation.parse("test:item/example")));
         }
     }
+
+    private net.minecraft.client.resources.model.UnbakedModel cachedWrapper() {
+        return (net.minecraft.client.resources.model.UnbakedModel) java.lang.reflect.Proxy.newProxyInstance(
+                getClass().getClassLoader(), new Class[]{net.minecraft.client.resources.model.UnbakedModel.class},
+                (proxy, method, args) -> null);
+    }
+
+    @Test void nestedCachedDefinitionIsReadAsBlockModel() throws Exception {
+        write(root, "{\"parent\":\"minecraft:block/block\",\"textures\":{\"particle\":\"test:block/frame\"}}");
+        try (var resources = new MultiPackResourceManager(PackType.CLIENT_RESOURCES, List.of(pack(root)))) {
+            var raw = ModelJsonFallback.definition(resources, ResourceLocation.parse("test:item/example"), cachedWrapper());
+            assertInstanceOf(net.minecraft.client.renderer.block.model.BlockModel.class, raw);
+            assertTrue(raw.getDependencies().contains(ResourceLocation.parse("minecraft:block/block")));
+        }
+    }
+
+    @Test void nestedDefinitionRespectsResourcePackOverrides() throws Exception {
+        Path low = Files.createDirectory(root.resolve("low"));
+        Path high = Files.createDirectory(root.resolve("high"));
+        write(low, "{\"parent\":\"minecraft:block/block\"}");
+        write(high, "{\"parent\":\"minecraft:block/cube_all\"}");
+        try (var resources = new MultiPackResourceManager(PackType.CLIENT_RESOURCES, List.of(pack(low), pack(high)))) {
+            var raw = ModelJsonFallback.definition(resources, ResourceLocation.parse("test:item/example"), cachedWrapper());
+            assertTrue(raw.getDependencies().contains(ResourceLocation.parse("minecraft:block/cube_all")));
+        }
+    }
+
+    @Test void coldDefinitionsAreNotReparsed() throws Exception {
+        write(root, "{broken");
+        var original = net.minecraft.client.renderer.block.model.BlockModel.fromString("{}");
+        var wrapper = cachedWrapper();
+        var id = ResourceLocation.parse("test:item/example");
+        assertSame(wrapper, ModelJsonFallback.definition(null, id, wrapper));
+        try (var resources = new MultiPackResourceManager(PackType.CLIENT_RESOURCES, List.of(pack(root)))) {
+            assertSame(original, ModelJsonFallback.definition(resources, id, original));
+            assertNull(ModelJsonFallback.definition(resources, id, null));
+        }
+    }
+
+    @Test void missingNestedDefinitionKeepsOriginalFailureSemantics() throws Exception {
+        var wrapper = cachedWrapper();
+        try (var resources = new MultiPackResourceManager(PackType.CLIENT_RESOURCES, List.of(pack(root)))) {
+            assertSame(wrapper, ModelJsonFallback.definition(resources,
+                    ResourceLocation.parse("test:item/missing"), wrapper));
+        }
+    }
+
+    @Test void malformedNestedDefinitionIsNotSilentlyReplaced() throws Exception {
+        write(root, "{broken");
+        try (var resources = new MultiPackResourceManager(PackType.CLIENT_RESOURCES, List.of(pack(root)))) {
+            assertThrows(RuntimeException.class, () -> ModelJsonFallback.definition(resources,
+                    ResourceLocation.parse("test:item/example"), cachedWrapper()));
+        }
+    }
+
+    @Test void nestedReadFailureKeepsOriginalIOException() {
+        var cause = new java.io.IOException("test read failure");
+        var resource = new net.minecraft.server.packs.resources.Resource(pack(root), () -> { throw cause; });
+        var resources = (net.minecraft.server.packs.resources.ResourceManager) java.lang.reflect.Proxy.newProxyInstance(
+                getClass().getClassLoader(), new Class[]{net.minecraft.server.packs.resources.ResourceManager.class},
+                (proxy, method, args) -> Optional.of(resource));
+        var error = assertThrows(java.io.UncheckedIOException.class, () -> ModelJsonFallback.definition(resources,
+                ResourceLocation.parse("test:item/example"), cachedWrapper()));
+        assertSame(cause, error.getCause());
+    }
 }

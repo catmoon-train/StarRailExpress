@@ -120,3 +120,35 @@
 - 另一个独立客户端明确配置 `CACHE_ATLASES=false`，验证兼容钩子未加载、图集缓存目录未生成、其他缓存仍完成保存，输出 `SRE_PARTICLE_ATLAS_DISABLED_PASS` 后正常关闭，Gradle 退出码 0。
 
 临时测试入口、带色精灵、配置及游戏目录仅在 scratch，不进入正式 JAR。本轮未连接服务器或验证真实多人 WATUT 动画；未替换用户实例 JAR、删除缓存或恢复已经被原版取消勾选的资源包。正式产物仍为 `build/libs/starrailexpress.jar`。
+
+## Supplementaries 黑板热缓存缺失模型
+
+SRE4.3 实例日志在首次启动和资源重载时均记录了全部 8 个 `supplementaries:blackboard` 状态的 `ClassCastException`：`UnbakedBakedModel` 不能转为 `BlockModel`，表现为紫黑缺失模型。
+
+Supplementaries 4.0.2 的黑板模型使用 `supplementaries:blackboard` 加载器，`frame` 引用 `supplementaries:special_models/block/blackboard_frame`。Moonlight 3.7.2 的 `CustomModelLoader.parseModel` 对这个嵌套引用先调用 `ModelBaker.getModel`，然后立即强转为 `BlockModel`。DashLoader 热缓存返回的是已烘焙包装，异常发生在 `resolveParents` 之前，因此原有 parent 回退无法覆盖。
+
+新增 `DashMoonlightNestedModelMixin`：只包装上述第一次定义查询；热缓存期间遇到非 `BlockModel` 时，从当前资源管理器按需补读原始 JSON，继续执行 Moonlight 原有父模型解析、变换与动态烘焙。不把黑板绘图序列化成静态模型，不全局关闭模型或图集缓存，不吞掉 JSON/IO 错误；已有 `BlockModel`、无资源管理器、空返回及缺失 JSON 保持原语义。`SREMixinPlugin` 同时要求 DashLoader 和 Moonlight 存在。当前共 18 个 DashLoader 兼容 Mixin。
+
+### 验证
+
+- 最终 `test remapJar runClient` 成功；当前工作区 JUnit **712 项通过，0 失败/错误/跳过**。本修复新增 6 个定义回退测试，覆盖普通/热缓存模型、资源包优先级、缺失、坏 JSON 和 IO 原因传播。
+- 真实隔离客户端使用 MC 1.21.1、Fabric 0.19.3、DashLoader 5.1.0-beta.8、Supplementaries 4.0.2、Moonlight 3.7.2。仅在对照组通过临时 MixinSquared 入口停用新钩子，确认 `LOAD` 后 **8 个状态全部变成缺失模型**，输出 `SRE_BLACKBOARD_BASELINE_REPRODUCED missing_states=8 checks=5385`。
+- 启用补丁后，冷加载、热缓存、强制刷新三阶段比较全部 8 个状态的边框/绘图四边形（含 UV/朝向/精灵）和实际上传到 GPU 的 16×16 绘图像素。17 份签名一致，输出 `SRE_BLACKBOARD_COLD_WARM_FRESH_PASS checks=10781`。其中包含场景查询短路的 12 项隔离检查，见 `performance-wifi-playtest.md`。
+- Moonlight 动态资源包在首次生成后会改变缓存键；测试允许最多两次有限预热，必须随后真正进入 `LOAD`，不能把第二次 `SAVE` 当作热缓存验证。本次实际需要一次预热。
+- 接口中的注入处理方法须为私有静态方法；初版公开静态方法被 Mixin 拒绝，已修正并重新通过完整测试及真实客户端回归。正式 JAR 的目标描述符已检查为 intermediary，且不含任何临时测试入口或 Java Agent。
+
+正式产物 `build/libs/starrailexpress.jar`，SHA-256：`5c81d682a1da8499914a12be571d56af53c5ee2d4f3f97baa62d110b42435b19`。未改模组版本、生产依赖或服务器校验。
+
+### 实例部署与更新源限制
+
+旧 JAR 和选项已备份至 `D:/StarRailHarpyExpress/versions/SRE4.3/PCL/blackboard-scene-fix-20261102-015130/`，旧包 SHA-256 为 `b5ede651616dd63f89a14447781d8714caf9e5a8a65de0236c099ef24a3c7f02`。确认客户端退出后才替换 `mods/star_rail_express-4.3.0.jar`。
+
+第一次普通重启时，实例自带 mod-loading-screen 1.0.5 的 Packwiz 自动更新将新包恢复成旧哈希，旧黑板错误再次出现；不能把磁盘复制成功当成最终运行成功。随后重新安装，并仅对本次调试启动使用更新器官方 `autoUpdate=false` 参数，保留原有 Java agents、安全守卫和永久 `autoUpdate=true` 配置。要在以后正常自动更新中保留修复，仍需将新 JAR 及哈希同步到整合包更新源；本仓库没有修改该远端源。
+
+回退：先正常退出客户端，再将备份目录内的同名旧 JAR 复制覆盖实例 JAR。不要把备份 JAR 放在 `mods/` 并存加载。未删除用户缓存、存档、资源包或服务器资料。
+
+### 当前实例验证
+
+在保留全部原有模组的 SRE4.3 / Fabric 0.20.1 实例中，验证器仅在渲染线程读取模型并执行两次正常资源重载。初始加载及两次重载各检查 8 个状态：均保留 `BlackboardBakedModel`，粒子贴图均为 `supplementaries:block/blackboard_side`，三次签名相同；最后一次确认 `cacheLoad=true`，结果 `ok=true, hotCacheVerified=true`。启动后再次校验实例 JAR 哈希与上述修复产物一致。
+
+本次停在主菜单验证资源链路，没有把它描述成已在新包下重新完成多人对局或全部 Iris 光影外观验收。永久更新配置仍未修改，远端更新源同步限制仍然存在。
