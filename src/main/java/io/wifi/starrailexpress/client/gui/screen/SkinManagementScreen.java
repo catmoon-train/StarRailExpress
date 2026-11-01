@@ -16,7 +16,6 @@
 package io.wifi.starrailexpress.client.gui.screen;
 
 import io.wifi.starrailexpress.cca.SREPlayerSkinsComponent;
-import io.wifi.starrailexpress.SREClientConfig;
 import io.wifi.starrailexpress.client.gui.anim.GuiAnim;
 import io.wifi.starrailexpress.client.hat.ClientHatEquipmentCache;
 import io.wifi.starrailexpress.index.TMMItems;
@@ -135,10 +134,6 @@ public class SkinManagementScreen extends Screen {
     private HatSkinGridPanel hatGrid;
     private NameTagList nameTagList;
     private EditBox searchBox;
-    private ToggleCheckbox hideAllHatsCheck;
-    /** 随从页签专用：是否展示给其他玩家（服务端权威，勾选后立即发包） */
-    private ToggleCheckbox petPublicCheck;
-    private ToggleCheckbox showOwnHatCheck;
     private Button backButton;
     private Button refreshButton;
 
@@ -221,14 +216,9 @@ public class SkinManagementScreen extends Screen {
 
         initCategoryArea(categoryHeight, categoryMarginT, titleMarginT + titleHeight);
         initSearchBox(searchHeight, titleMarginT + titleHeight + categoryMarginT + categoryHeight + searchGap);
-        initHatConfigCheckboxes(titleMarginT, titleMarginT + titleHeight);
-        // 「展示给其他玩家」常驻显示（不限随从页签），且必须放在帽子开关的下一行，
-        // 否则会与「隐藏全部帽子 / 仅显示自己的帽子」叠在同一个 y 上。
-        initPetPublicCheckbox(titleMarginT, titleMarginT + titleHeight);
         initContentArea();
         initButtonArea(isCompact);
     }
-
     private void rebuildCategories() {
         categories.clear();
         if (player != null && TMMItems.SkinableItem != null) {
@@ -378,63 +368,6 @@ public class SkinManagementScreen extends Screen {
                     applySearchFilter();
                 });
         addRenderableWidget(only3dCheck);
-    }
-
-    private void initHatConfigCheckboxes(int titleY, int totalTitleH) {
-        SREClientConfig config = SREClientConfig.instance();
-        int checkH = 14;
-        int checkW = 100;
-        int gap = 4;
-        int checkY = titleY + (totalTitleH - checkH) / 2;
-        int startX = width - 10 - checkW * 2 - gap;
-
-        hideAllHatsCheck = new ToggleCheckbox(startX, checkY, checkW, checkH,
-                Component.translatable("screen.sre.skins.hide_all_hats"),
-                config.hideAllHats,
-                v -> {
-                    config.hideAllHats = v;
-                    config.reload();
-                });
-        addRenderableWidget(hideAllHatsCheck);
-
-        showOwnHatCheck = new ToggleCheckbox(startX + checkW + gap, checkY, checkW, checkH,
-                Component.translatable("screen.sre.skins.show_own_hat_only"),
-                config.showOwnHatOnly,
-                v -> {
-                    config.showOwnHatOnly = v;
-                    config.reload();
-                });
-        addRenderableWidget(showOwnHatCheck);
-    }
-
-    /**
-     * 随从页签的「展示给其他玩家」勾选框。
-     * <p>
-     * 与帽子那两个本地开关不同，这一项是<b>服务端权威</b>的玩家状态：
-     * 勾选后立刻发 {@link io.wifi.starrailexpress.network.UpdatePetPublicPayload}，
-     * 由服务端写入组件并在下一轮扫描时广播给其他客户端。
-     */
-    private void initPetPublicCheckbox(int titleY, int totalTitleH) {
-        if (player == null) {
-            return;
-        }
-        var component = io.wifi.starrailexpress.cca.SREPlayerSkinsComponent.KEY.getNullable(player);
-        if (component == null) {
-            return;
-        }
-        int checkH = 14;
-        int checkW = 140;
-        // 帽子开关占标题栏那一行（checkY），本项必须放到它下面一行：
-        // 标题栏高 totalTitleH，行高 checkH，行距 2 像素。
-        int hatRowY = titleY + (totalTitleH - checkH) / 2;
-        int checkY = hatRowY + checkH + 2;
-        int startX = width - 10 - checkW;
-        petPublicCheck = new ToggleCheckbox(startX, checkY, checkW, checkH,
-                Component.translatable("screen.sre.skins.show_pet_to_others"),
-                component.isPetPublic(),
-                v -> ClientPlayNetworking.send(
-                        new io.wifi.starrailexpress.network.UpdatePetPublicPayload(v)));
-        addRenderableWidget(petPublicCheck);
     }
 
     private void selectCategory(int index) {

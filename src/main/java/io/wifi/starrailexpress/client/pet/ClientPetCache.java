@@ -118,6 +118,11 @@ public final class ClientPetCache {
         if (config.showOwnPetOnly) {
             return "";
         }
+        // 「隐藏指定皮肤」勾了随从类别：他人随从一律不显示（即使对方勾了公开）
+        if (!io.wifi.starrailexpress.client.util.SkinVisibility.isVisible(player,
+                io.wifi.starrailexpress.util.ItemSkinManager.SkinTypes.PET)) {
+            return "";
+        }
         // 他人的随从：必须公开 + 游戏未开始（含开局淡入的 STARTING 阶段）
         if (!entry.shared()) {
             return "";

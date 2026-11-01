@@ -153,6 +153,38 @@ public class SREClientConfig implements ConfigData {
     @ConfigEntry.Gui.Tooltip
     public boolean showOwnPetOnly = false; // 只显示自己的随从，忽略他人勾选「展示给其他玩家」
 
+    /**
+     * 「隐藏指定皮肤」：这里列出的皮肤<b>类别</b>（{@link io.wifi.starrailexpress.util.ItemSkinManager.SkinTypes}
+     * 里的类型名，如 {@code knife} / {@code revolver} / {@code hat} / {@code backpack} / {@code pet}）
+     * 对其他玩家不再展示，一律回退到默认外观；<b>自己的皮肤不受影响</b>。
+     * <p>
+     * 音乐盒、称号、MVP 结算动画不参与此过滤（它们不影响他人身上的渲染）。
+     * 用 {@code List} 而非 {@code Set} 是为了让 autoconfig 的 GSON 序列化结果稳定可读。
+     */
+    @Category("skin")
+    @ConfigEntry.Gui.Excluded
+    public java.util.List<String> hiddenSkinTypes = new java.util.ArrayList<>();
+
+    /** 该皮肤类别是否被本地配置隐藏（不区分对象）。 */
+    public boolean isSkinTypeHidden(String skinType) {
+        return skinType != null && hiddenSkinTypes != null && hiddenSkinTypes.contains(skinType);
+    }
+
+    /** 设置某皮肤类别的隐藏状态；变更后立即写回本地配置文件。 */
+    public void setSkinTypeHidden(String skinType, boolean hidden) {
+        if (skinType == null || skinType.isBlank()) {
+            return;
+        }
+        if (hiddenSkinTypes == null) {
+            hiddenSkinTypes = new java.util.ArrayList<>();
+        }
+        boolean changed = hidden
+                ? !hiddenSkinTypes.contains(skinType) && hiddenSkinTypes.add(skinType)
+                : hiddenSkinTypes.remove(skinType);
+        if (changed) {
+            reload();
+        }
+    }
     public boolean isUltraPerfMode() {
         return ultraPerfMode;
     }

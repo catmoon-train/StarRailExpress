@@ -300,7 +300,14 @@ public class ItemSkinManager {
         } else {
             skinName = PlayerSkinEconomyManager.getEquippedSkin(player, itemStack);
         }
-        return resolveRandomSkin(player, getItemTypeName(itemStack), skinName);
+        String resolved = resolveRandomSkin(player, getItemTypeName(itemStack), skinName);
+        // 客户端「饰品设置 → 隐藏指定皮肤」：他人该类别皮肤回退默认；自己的不受影响。
+        // 只在客户端生效，服务端逻辑（掉落 / 判定 / 同步）完全不受影响。
+        if (player != null && player.level().isClientSide()) {
+            resolved = io.wifi.starrailexpress.client.util.SkinVisibility
+                    .filter(player, getItemTypeName(itemStack), resolved);
+        }
+        return resolved;
     }
 
     /** 判断某个皮肤名是否为「随机」。 */

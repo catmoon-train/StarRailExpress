@@ -220,6 +220,11 @@ public final class HatEquipmentApi {
         if (config.showOwnHatOnly && !player.getUUID().equals(Minecraft.getInstance().player.getUUID())) {
             return "default";
         }
+        // 客户端配置：隐藏指定皮肤 —— 勾了 hat 类别后他人的帽子一律回退默认
+        if (!io.wifi.starrailexpress.client.util.SkinVisibility.isVisible(player,
+                io.wifi.starrailexpress.util.ItemSkinManager.SkinTypes.HAT)) {
+            return "default";
+        }
         // DISGUISE 伪装效果（含渡鸦的伪装）下隐藏帽子
         if (player.hasEffect(org.agmas.noellesroles.init.ModEffects.DISGUISE)) {
             return "default";
