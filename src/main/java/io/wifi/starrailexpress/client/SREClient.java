@@ -45,7 +45,6 @@ import org.slf4j.LoggerFactory;
 import com.mojang.blaze3d.platform.InputConstants;
 import com.mojang.text2speech.Narrator;
 
-import dev.doctor4t.ratatouille.client.util.OptionLocker;
 import dev.doctor4t.ratatouille.client.util.ambience.AmbienceUtil;
 import dev.doctor4t.ratatouille.client.util.ambience.BackgroundAmbience;
 import io.wifi.ConfigCompact.ClientConfigEvents;
@@ -180,7 +179,6 @@ import net.fabricmc.fabric.api.client.rendering.v1.EntityRendererRegistry;
 import net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.CameraType;
-import net.minecraft.client.CloudStatus;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
@@ -557,24 +555,14 @@ public class SREClient implements ClientModInitializer {
             timeComponent = null;
             io.wifi.starrailexpress.anticheat.ClickAntiCheatClient.clear();
         });
-        // Lock options
-        OptionLocker.overrideOption("gamma", 0d);
-        if (getLockedRenderDistance(SREConfig.isUltraPerfMode()) != null) {
-            OptionLocker.overrideOption("renderDistance",
-                    getLockedRenderDistance(SREConfig.isUltraPerfMode()));
+        // 公平性选项由 LockedOptionInstanceMixin 在构造、读写与按钮层统一锁定。
+        // 不再向已被屏蔽的 Ratatouille OptionLocker 注册无效规则。
+        if (net.fabricmc.loader.api.FabricLoader.getInstance().isModLoaded("sodium")) {
+            SodiumOptionsEnforcer.register();
         }
-        OptionLocker.overrideOption("showSubtitles", false);
-        OptionLocker.overrideOption("autoJump", false);
-        OptionLocker.overrideOption("renderClouds", CloudStatus.OFF);
-        OptionLocker.overrideSoundCategoryVolume("music", 0.0);
-        OptionLocker.overrideSoundCategoryVolume("record", 0.1);
-        OptionLocker.overrideSoundCategoryVolume("weather", 1.0);
-        OptionLocker.overrideSoundCategoryVolume("block", 1.0);
-        OptionLocker.overrideSoundCategoryVolume("hostile", 1.0);
-        OptionLocker.overrideSoundCategoryVolume("neutral", 1.0);
-        OptionLocker.overrideSoundCategoryVolume("player", 1.0);
-        OptionLocker.overrideSoundCategoryVolume("ambient", 1.0);
-        OptionLocker.overrideSoundCategoryVolume("voice", 1.0);
+        if (net.fabricmc.loader.api.FabricLoader.getInstance().isModLoaded("sodium-extra")) {
+            SodiumExtraOptionsEnforcer.register();
+        }
 
         // 客户端接收器 (在客户端初始化中调用)
         VoteClientReceiver.register();
