@@ -77,3 +77,13 @@
 开发 `runClient` 的临时 init script 添加实例中已有的 DashLoader、Lightspeed、Architectury 和 Forge Config API Port；仅为开发类路径展开 DashLoader 自带的 Hyphen/Taski/Zstd JAR。不得因此新增正式依赖。
 
 中文 DashLoader 文件名在该 Windows 开发运行参数链中发生乱码，临时自检使用同字节 ASCII 文件名副本，实例文件名未更改。所有临时脚本、缓存、游戏目录和自检模组均位于会话 scratch。生产包中不包含测试客户端入口，不会自动进服、自动退出或停用竹矛功能。
+
+## 嵌套 Supplementaries 模型导致整份缓存保存失败
+
+用户日志：`FactoryBinding.create` 构造 `DashMultipartBakedModel` 时，内部 `RopeBuntingsBakedModel` 不支持序列化，抛出 `RegistryAddException`。DashLoader 将该异常包装为普通 `RuntimeException`，导致 `ModelModule.save` 原有的逐模型回退捕获不到它，最终整份缓存被判失败并删除。
+
+新增 `DashFactoryBindingMixin`，仅在异常原因链中确实存在 `RegistryAddException` 时还原原异常，让 multipart/weighted 顶层模型交回 DashLoader 原有回退。不将动态彩旗强行序列化、不移除 Supplementaries，也不吞掉普通构造错误。当前共 15 个 DashLoader 兼容 Mixin。原因链按对象身份防循环，只匹配异常类型，不根据错误消息或 suppressed 异常猜测。
+
+验证：6 个新增回归用例；资源相关测试合计 **43 项通过**，`remapJar` 成功。隔离 Fabric 中实际调用已注入的 `FactoryBinding.create`，确认直接/多层嵌套异常保持原对象、正常工厂返回不变、普通构造失败继续包装上报；输出 `SRE_DASH_NESTED_FACTORY_PASS`，进程退出码 0。此测试验证日志中的异常传播缺陷，不冒充已运行完整 Supplementaries 整合包的缓存保存及外观验收。
+
+修复产物：`build/libs/starrailexpress.jar`；本次未覆盖实例 JAR，未修改已有竹矛或其他无关用户改动。

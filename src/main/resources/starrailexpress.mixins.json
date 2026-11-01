@@ -151,6 +151,7 @@
     "compat.dashloader.DashFabricPackMixin",
     "compat.dashloader.DashModelFallbackMixin",
     "compat.dashloader.DashBlockModelParentMixin",
+    "compat.dashloader.DashFactoryBindingMixin",
     "compat.lightspeed.PackPathIndexMixin",
     "compat.sodium.HakoniwaLevelSliceMixin",
     "compat.sodium.SodiumWorldRendererMixin",
