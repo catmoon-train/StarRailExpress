@@ -58,6 +58,11 @@ public class SREMixinPlugin implements IMixinConfigPlugin {
                 && mixinClassName.contains("io.wifi.starrailexpress.mixin.compat.lightspeed.")) {
             return false;
         }
+        if (mixinClassName.contains("io.wifi.starrailexpress.mixin.compat.supplementaries.CarpetPistonPlaceholderMixin")
+                && (!FabricLoader.getInstance().isModLoaded("carpet")
+                    || !FabricLoader.getInstance().isModLoaded("supplementaries"))) {
+            return false;
+        }
         return true;
     }
 
