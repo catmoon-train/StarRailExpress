@@ -16,6 +16,7 @@
 package net.exmo.mixin.client.side;
 
 import io.wifi.starrailexpress.SRE;
+import io.wifi.starrailexpress.compat.SceneSectionCollectorAccess;
 import io.wifi.starrailexpress.scenery.client.SceneAssetClient;
 import it.unimi.dsi.fastutil.longs.Long2ReferenceMap;
 import net.caffeinemc.mods.sodium.client.render.chunk.ChunkUpdateTypes;
@@ -81,10 +82,15 @@ public abstract class RenderSectionManagerMixin {
                     recovered++;
                 }
             }
-            if (section == null || section.getLastVisibleFrame() == frame) {
+            if (section == null) {
                 continue;
             }
             section.setLastVisibleFrame(frame);
+            // Iris 阴影使用 TreeSectionCollector，它已访问的区段不一定带有本帧可见标记。
+            // 必须查询当前收集器，不能把同一 region 的 256 个槽位再追加一次。
+            if (((SceneSectionCollectorAccess) collector).sre$hasVisited(section)) {
+                continue;
+            }
             int queuedBeforeVisit = initialBuildQueue.size();
             collector.visit(section);
             int pending = section.getPendingUpdate();
