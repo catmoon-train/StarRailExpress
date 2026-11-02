@@ -47,36 +47,37 @@ import java.util.function.Predicate;
  * <p>
  * 参照 {@link RollingStoneEntity} 的滚动物理，但把石头换成了原版雪块，并且尺寸会随玩法变化：
  * <ul>
- * <li>基础尺寸 {@link #BASE_SIZE}（0.5），最大 {@link #MAX_SIZE}（6），
+ * <li>基础尺寸 {@link #BASE_SIZE}（0.5），最大 {@link #MAX_SIZE}（10），
  * 任何一次缩尺寸把它压到 {@link #BASE_SIZE} 以下就整体消失（化掉）；</li>
  * <li>雪傀儡在雪/雪块上每移动 4 格，没有雪球就推出一颗，已有雪球就把它撑大 0.1；</li>
  * <li>不在雪/冰类方块上时每 3 秒缩小 0.1；</li>
- * <li>被雪傀儡「推出」后才会造成伤害：1 点原版伤害 + 尺寸×3.6 虚拟血量伤害
+ * <li>被雪傀儡「推出」后才会造成伤害：1 点原版伤害 + 尺寸×2.4 虚拟血量伤害
  * （死因 {@code snowball_crush}，击杀者为推球的雪傀儡）、尺寸×1.3 的击退、
- * 按尺寸给缓慢 I~III；</li>
+ * 按尺寸占比给缓慢 I~III；</li>
  * <li>撞墙反弹并缩尺寸 1，随后摩擦减速直到停下。</li>
  * </ul>
  *
  * <p>
- * <b>物理模型</b>（尺寸越大越重、越难被表面形变拖住，因此滚得更远，但反弹更弱）：
+ * <b>物理模型</b>（尺寸越大越重、越难被表面形变拖住，因此滚得更远，但反弹更弱）。
+ * 所有系数都按 {@link #sizeRatio} 归一化后插值，端点固定、改上限不会破坏曲线：
  * <ul>
- * <li>初速度 {@code v0 = 0.42 + 0.035 × size}；</li>
- * <li>每 tick 摩擦 {@code f = 1 - (0.024 - 0.0028 × size)}，下限 0.985（滚动阻力随质量增大而相对减小）；</li>
- * <li>撞墙恢复系数 {@code e = 0.34 - 0.02 × size}，下限 0.12（雪越厚越软，反弹越弱）；</li>
+ * <li>初速度 {@code v0}：0.4375 → 0.6275；</li>
+ * <li>每 tick 摩擦 {@code f}：0.985 → 0.993（始终 &lt; 1，避免雪球越滚越快）；</li>
+ * <li>撞墙恢复系数 {@code e}：0.33 → 0.22（雪越厚越软，反弹越弱）；</li>
  * <li>水平速度低于 {@link #STOP_SPEED} 视为停住。</li>
  * </ul>
  *
  * <p>
- * <b>碰撞</b>：雪球不是方块，靠每 tick 把重叠的玩家水平推开来实现「挡人」，
- * 同时通过 {@code CanCollideWith} 关闭硬碰撞（见 {@code SnowGolemRole.registerEvents()}），
- * 于是玩家不会被它顶起来站在头上（与项目里「不允许站在别的玩家头上」同一套做法）。
+ * <b>碰撞</b>：雪球是实心实体（{@link #canBeCollidedWith()} 返回 {@code true}），
+ * 玩家不能穿过去，也不能站到球顶（站上去会被每 tick 的水平推开顶下来）。
+ * {@code SnowGolemRole.registerEvents()} 只对「两颗雪球之间」和「雪球与自己人」关掉碰撞。
  */
 public class SnowballRollEntity extends Entity {
 
     /** 基础（初始）尺寸：雪傀儡在雪上走满 4 格推出来的那颗雪球。 */
     public static final float BASE_SIZE = 0.5F;
     /** 最大尺寸。 */
-    public static final float MAX_SIZE = 6.0F;
+    public static final float MAX_SIZE = 10.0F;
     /** 单次「长大」的增量。 */
     public static final float GROW_STEP = 0.1F;
     /** 单次缩小的增量。 */
@@ -345,16 +346,40 @@ public class SnowballRollEntity extends Entity {
         this.velocityY = 0.0D;
     }
 
+    /**
+     * 尺寸在 [{@link #BASE_SIZE}, {@link #MAX_SIZE}] 内的归一化比例：0 = 最小，1 = 上限。
+     *
+     * <p>
+     * 所有与尺寸相关的系数都按这个比例线性插值，而不是直接乘尺寸——这样以后调整
+     * {@link #MAX_SIZE} 只要改一个常量，曲线端点和手感不会跟着跑偏。
+     */
+    private static double sizeRatio(float size) {
+        double span = MAX_SIZE - BASE_SIZE;
+        if (span <= 0.0D) {
+            return 0.0D;
+        }
+        return Math.max(0.0D, Math.min(1.0D, (size - BASE_SIZE) / span));
+    }
+
+    /** 初速度：最小 0.4375 → 上限 0.6275（越大越猛，但不会失控）。 */
     private static double launchSpeed(float size) {
-        return 0.42D + 0.035D * size;
+        return 0.4375D + 0.19D * sizeRatio(size);
     }
 
+    /**
+     * 每 tick 的摩擦系数（乘在水平速度上）：0.985 → 0.993。
+     *
+     * <p>
+     * 必须始终 {@code < 1}。旧公式是 {@code 1 - (0.024 - 0.0028 × size)}，
+     * 在 size &gt; 8.57 时会超过 1，雪球会越滚越快，所以这里改成有界插值。
+     */
     private static double frictionOf(float size) {
-        return Math.max(0.985D, 1.0D - (0.024D - 0.0028D * size));
+        return 0.985D + 0.008D * sizeRatio(size);
     }
 
+    /** 撞墙恢复系数：0.33 → 0.22（雪越厚越软，反弹越弱）。 */
     private static double restitutionOf(float size) {
-        return Math.max(0.12D, 0.34D - 0.02D * size);
+        return 0.33D - 0.11D * sizeRatio(size);
     }
 
     private static Vec3 horizontalLook(ServerPlayer player) {
@@ -612,8 +637,8 @@ public class SnowballRollEntity extends Entity {
             serverVictim.invulnerableTime = 0;
             serverVictim.hurt(level.damageSources().generic(), 1.0F);
 
-            // 虚拟血量：尺寸 × 3.6，归零时死因为「雪球碾压」，击杀者为推球的雪傀儡
-            int virtualDamage = Math.max(1, Math.round(size * 3.6F));
+            // 虚拟血量：尺寸 × 2.4，归零时死因为「雪球碾压」，击杀者为推球的雪傀儡
+            int virtualDamage = Math.max(1, Math.round(size * 2.4F));
             DreamHealthComponent.KEY.get(serverVictim).hurt(launcher, virtualDamage,
                     GameConstants.DeathReasons.SNOWBALL_CRUSH);
 
@@ -621,8 +646,10 @@ public class SnowballRollEntity extends Entity {
             if (GameUtils.isPlayerAliveAndSurvival(serverVictim)) {
                 serverVictim.knockback(size * 1.3D, -nx, -nz);
                 serverVictim.hurtMarked = true;
-                // 缓慢：<2 缓慢 I；2~4 缓慢 II；>4 缓慢 III
-                int amplifier = size < 2.0F ? 0 : (size <= 4.0F ? 1 : 2);
+                // 缓慢按「尺寸占比」分三档（按新上限 10 重新分段）：
+                // 下 1/3 缓慢 I，中 1/3 缓慢 II，上 1/3 缓慢 III
+                double ratio = sizeRatio(size);
+                int amplifier = ratio < 1.0D / 3.0D ? 0 : (ratio < 2.0D / 3.0D ? 1 : 2);
                 serverVictim.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SLOWDOWN, 100, amplifier,
                         false, true, true));
             }
