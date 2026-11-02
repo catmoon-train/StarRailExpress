@@ -100,6 +100,7 @@
     "client.MixinGameRenderer",
     "client.PlayerEntityRendererMixin",
     "client.PlayerSkinManagerMixin",
+    "client.HttpTextureUploadMixin",
     "client.TrueDarknessLightmapTextureManagerMixin",
     "client.hakoniwa.HakoniwaEntityCullMixin",
     "client.hakoniwa.HakoniwaRenderChunkRegionMixin",
