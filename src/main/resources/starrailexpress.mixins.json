@@ -158,6 +158,7 @@
     "compat.dashloader.DashBlockStateFallbackMixin",
     "compat.dashloader.DashParticleAtlasMixin",
     "compat.dashloader.DashMoonlightNestedModelMixin",
+    "compat.iris.IrisWorldTextBatchingSourceMixin",
     "compat.lightspeed.PackPathIndexMixin",
     "compat.sodium.HakoniwaLevelSliceMixin",
     "compat.sodium.SceneSectionCollectorMixin",

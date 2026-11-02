@@ -816,7 +816,10 @@ public class SREClient implements ClientModInitializer {
                 }));
         // 连接刚建立（还没登录、没收到服务端任何数据）就清一次：严格意义上的「进服前」，
         // 保证上一台服务器 / 单机残留的自定义内容不会参与这次连接的渲染与判定
-        ClientPlayConnectionEvents.INIT.register((handler, client) -> clearCustomContentCaches());
+        ClientPlayConnectionEvents.INIT.register((handler, client) -> {
+            ClientPlayerDataCache.clear();
+            clearCustomContentCaches();
+        });
         ClientPlayConnectionEvents.JOIN.register((handler, sender, client) -> {
             FourthRoomClientState.clear();
             FourthRoomCameraDirector.clear();
@@ -834,6 +837,7 @@ public class SREClient implements ClientModInitializer {
             net.exmo.sre.subtitle.client.SubtitleHUD.INSTANCE.clear();
             SceneAssetClient.clearRuntime();
             ClientPlayerStatsCache.clear();
+            ClientPlayerDataCache.clear();
             RoleRotationCache.clear();
             io.wifi.starrailexpress.client.gui.OpeningPresentationCoordinator.clear();
             // 清理自定义内容（职业 / 修饰符 / 列车物品 / 方块）客户端缓存，

@@ -40,12 +40,44 @@ public final class ClientPlayerDataCache {
                     if (previous != null && previous.updatedAt > updatedAt) {
                         return previous;
                     }
-                    return new PartRecord(json, updatedAt);
+                    return new PartRecord(json, updatedAt, "economy".equals(part) ? decodeEconomy(json) : null);
                 });
     }
 
     public static EconomyState economy(UUID playerUuid) {
         return read(playerUuid, "economy", EconomyState.class, new EconomyState());
+    }
+
+    /** 渲染专用只读查询：同步时解码一次，不在每件物品、每帧重建整份经济数据。 */
+    public static String getEquippedSkin(UUID playerUuid, String itemType) {
+        EconomyState state = cachedEconomy(playerUuid);
+        return state == null ? "default" : state.getEquippedSkin(itemType);
+    }
+
+    /** 只返回查询结果，不向调用者暴露可变的缓存状态。 */
+    public static boolean isSkinUnlocked(UUID playerUuid, String itemType, String skinName) {
+        if ("default".equals(skinName)) {
+            return true;
+        }
+        EconomyState state = cachedEconomy(playerUuid);
+        return state != null && state.isSkinUnlocked(itemType, skinName);
+    }
+
+    private static EconomyState cachedEconomy(UUID playerUuid) {
+        if (playerUuid == null) {
+            return null;
+        }
+        Map<String, PartRecord> parts = PARTS.get(playerUuid);
+        PartRecord record = parts == null ? null : parts.get("economy");
+        return record == null ? null : record.economy;
+    }
+
+    private static EconomyState decodeEconomy(String json) {
+        try {
+            return GSON.fromJson(json, EconomyState.class);
+        } catch (RuntimeException ignored) {
+            return null;
+        }
     }
 
     public static ProgressionState progression(UUID playerUuid) {
@@ -77,7 +109,7 @@ public final class ClientPlayerDataCache {
         }
     }
 
-    private record PartRecord(String json, long updatedAt) {
+    private record PartRecord(String json, long updatedAt, EconomyState economy) {
     }
 
     public static final class EconomyState {
@@ -88,17 +120,21 @@ public final class ClientPlayerDataCache {
         public long version;
 
         public String getEquippedSkin(String itemType) {
-            if (itemType == null || itemType.isBlank()) {
+            if (itemType == null || itemType.isBlank() || equipped == null) {
                 return "default";
             }
-            return equipped.getOrDefault(itemType, "default");
+            String skin = equipped.get(itemType);
+            return skin == null ? "default" : skin;
         }
 
         public boolean isSkinUnlocked(String itemType, String skinName) {
             if ("default".equals(skinName)) {
                 return true;
             }
-            Map<String, Boolean> skins = unlocked.get(itemType);
+            if (itemType == null || skinName == null) {
+                return false;
+            }
+            Map<String, Boolean> skins = unlocked == null ? null : unlocked.get(itemType);
             return skins != null && Boolean.TRUE.equals(skins.get(skinName));
         }
     }

@@ -93,8 +93,7 @@ public final class PlayerSkinEconomyManager {
     public static String getEquippedSkinForItemType(Player player, String itemType) {
         if (player.level().isClientSide()) {
             return io.wifi.starrailexpress.client.data.ClientPlayerDataCache
-                    .economy(player.getUUID())
-                    .getEquippedSkin(normalizeItemName(itemType));
+                    .getEquippedSkin(player.getUUID(), normalizeItemName(itemType));
         }
         return get(player.getUUID()).state.equipped.getOrDefault(normalizeItemName(itemType), "default");
     }
@@ -119,8 +118,7 @@ public final class PlayerSkinEconomyManager {
         }
         if (player.level().isClientSide()) {
             return io.wifi.starrailexpress.client.data.ClientPlayerDataCache
-                    .economy(player.getUUID())
-                    .isSkinUnlocked(normalizedType, skinName);
+                    .isSkinUnlocked(player.getUUID(), normalizedType, skinName);
         }
         Map<String, Boolean> skins = get(player.getUUID()).state.unlocked.get(normalizedType);
         return skins != null && Boolean.TRUE.equals(skins.get(skinName));

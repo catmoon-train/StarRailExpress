@@ -19,6 +19,7 @@ import com.mojang.blaze3d.vertex.BufferBuilder;
 import com.mojang.blaze3d.vertex.ByteBufferBuilder;
 import com.mojang.blaze3d.vertex.MeshData;
 import com.mojang.blaze3d.vertex.VertexConsumer;
+import io.wifi.starrailexpress.compat.WorldTextBatchingSource;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 
@@ -40,11 +41,7 @@ import java.util.List;
  */
 public class TextBatchingBuffer implements MultiBufferSource {
 
-    /**
-     * Buffer shared by sign text rendering: sign text glyphs are batched here
-     * per {@code renderSignText} call and flushed at the end of that call while
-     * the world's camera model-view matrix is still active.
-     */
+    /** 不具备世界合批能力时使用的告示牌文字缓冲，仍在每面告示牌结束时刷新。 */
     public static final TextBatchingBuffer SIGN_TEXT = new TextBatchingBuffer();
 
     /**
@@ -57,6 +54,11 @@ public class TextBatchingBuffer implements MultiBufferSource {
     private final List<Capture> captures = new ArrayList<>(2);
     private RenderType lastType;
     private BufferBuilder lastBuilder;
+
+    /** 优先使用渲染器提供的完整世界合批源；原版等其它来源保留原有回退。 */
+    public static MultiBufferSource signTextSource(MultiBufferSource worldSource) {
+        return worldSource instanceof WorldTextBatchingSource ? worldSource : SIGN_TEXT;
+    }
 
     @Override
     public VertexConsumer getBuffer(RenderType renderType) {
