@@ -84,6 +84,16 @@ public final class ChinoHeadRideManager {
     /** 骑乘期间向载具客户端补发乘客列表包的间隔（tick）。 */
     private static final int PASSENGER_RESYNC_INTERVAL = 20;
 
+    /**
+     * 骑乘期间允许的最大「载具—乘客」距离（格）。
+     * <p>
+     * 超过即视为被外力拆开（领域传送、列车碾压弹回、命令传送、跨维度等），
+     * 立刻松手。参考双生之子 {@code TwinChildrenHandler#MAX_BIND_TELEPORT_DISTANCE}
+     * 的做法：宁可拆开，也不要把人一起拖进两万格外的虚空。
+     */
+    public static final double MAX_RIDE_DISTANCE = 20.0D;
+    private static final double MAX_RIDE_DISTANCE_SQ = MAX_RIDE_DISTANCE * MAX_RIDE_DISTANCE;
+
     /** 玩家模型站立高度（未缩放），用来把乘客放到载具的视觉头顶。 */
     public static final float PLAYER_VISUAL_HEIGHT = 1.8F;
 
@@ -211,6 +221,85 @@ public final class ChinoHeadRideManager {
             return false;
         }
         return CARRIED_RIDERS.contains(player.getUUID()) || isRidingChino(player, player.getVehicle());
+    }
+
+    /**
+     * 瞬间传送前置钩子（由 {@code ChinoHeadRideTeleportMixin} 在 {@code teleportTo} 前调用）。
+     * <p>
+     * 对应双生之子的 {@code TwinChildrenHandler#onTeleportStarting}：如果这次传送的落点
+     * 离「另一名参与者」超过 {@link #MAX_RIDE_DISTANCE} 格，就先把抱起来的状态解除，
+     * 再让传送生效。否则下一 tick 的 {@code positionRider} 会把乘客一并拖到两万格外的领域，
+     * 领域崩解时人留在虚空 / 被列车碾死。
+     *
+     * <p>两种方向都要处理：
+     * <ul>
+     * <li>咖啡师本人被传送（载具跑了）→ 就地松手，兔兔留在原处；</li>
+     * <li>头上的兔兔被传送（乘客跑了）→ 直接松手，兔兔随传送离开。</li>
+     * </ul>
+     *
+     * @param player 即将被传送的玩家
+     * @param destX  传送目标 X
+     * @param destY  传送目标 Y
+     * @param destZ  传送目标 Z
+     */
+    public static void onTeleportStarting(ServerPlayer player, double destX, double destY, double destZ) {
+        if (player == null || RIDES.isEmpty()) {
+            return;
+        }
+        // 情况一：被传送的是载具（咖啡师）——头上的兔兔留在原地
+        RideState asVehicle = RIDES.get(player.getUUID());
+        if (asVehicle != null) {
+            ServerPlayer rider = player.server.getPlayerList().getPlayer(asVehicle.rider);
+            if (rider != null && isFarFrom(destX, destY, destZ, rider)) {
+                // placeRider=false：不把兔兔一起搬走
+                release(player.getUUID(), asVehicle, player, rider, false);
+                notifyRideBroken(player, rider);
+            }
+            return;
+        }
+        // 情况二：被传送的是乘客（兔兔）——咖啡师留在原地
+        UUID vehicleId = findVehicleOfCarriedRider(player.getUUID());
+        if (vehicleId == null) {
+            return;
+        }
+        RideState state = RIDES.get(vehicleId);
+        ServerPlayer vehicle = player.server.getPlayerList().getPlayer(vehicleId);
+        if (state == null || vehicle == null || isFarFrom(destX, destY, destZ, vehicle)) {
+            release(vehicleId, state, vehicle, player, false);
+            notifyRideBroken(vehicle, player);
+        }
+    }
+
+    /** 目标点与参照玩家的距离是否超过 {@link #MAX_RIDE_DISTANCE}。 */
+    private static boolean isFarFrom(double x, double y, double z, ServerPlayer reference) {
+        double dx = x - reference.getX();
+        double dy = y - reference.getY();
+        double dz = z - reference.getZ();
+        return dx * dx + dy * dy + dz * dz > MAX_RIDE_DISTANCE_SQ;
+    }
+
+    /** 找出把该玩家抱在头顶的载具 UUID（没有则返回 null）。 */
+    @Nullable
+    private static UUID findVehicleOfCarriedRider(UUID riderId) {
+        for (Map.Entry<UUID, RideState> entry : RIDES.entrySet()) {
+            if (entry.getValue().rider.equals(riderId)) {
+                return entry.getKey();
+            }
+        }
+        return null;
+    }
+
+    /** 因远距离传送被动松手时，给双方一句提示，避免玩家以为是自己掉下来的。 */
+    private static void notifyRideBroken(@Nullable ServerPlayer vehicle, @Nullable ServerPlayer rider) {
+        Component message = Component
+                .translatable("message.noellesroles.chino_head_ride.broken_by_teleport")
+                .withStyle(ChatFormatting.YELLOW);
+        if (vehicle != null) {
+            vehicle.displayClientMessage(message, true);
+        }
+        if (rider != null) {
+            rider.displayClientMessage(message, true);
+        }
     }
 
     /** 该乘客是否正被指定载具抱着（供挂点 / 站位混入精确放行）。 */
@@ -392,6 +481,14 @@ public final class ChinoHeadRideManager {
                 continue;
             }
 
+            // 兜底：未经 teleportTo 钩子的远距离位移（列车碾压弹回、命令 / 插件传送、
+            // 领域把人吸走等）同样立刻松手，绝不让 positionRider 把人一起拖过去。
+            // 对应双生之子 TwinChildrenHandler#updateMount 的距离兜底。
+            if (vehicle.distanceToSqr(rider) > MAX_RIDE_DISTANCE_SQ) {
+                release(vehicleId, state, vehicle, rider, false);
+                notifyRideBroken(vehicle, rider);
+                continue;
+            }
             long now = GameUtils.getTicksFromGameStart(rider.level());
             state.rememberVehiclePos(vehicle);
             ejectUnregisteredPassengers(vehicle, state);

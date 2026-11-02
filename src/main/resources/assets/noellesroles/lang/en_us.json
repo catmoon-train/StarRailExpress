@@ -4141,6 +4141,7 @@
     "message.noellesroles.chino_head_ride.cooldown": "Cannot carry anyone yet; wait %ss",
     "message.noellesroles.chino_head_ride.released": "You were put down",
     "message.noellesroles.chino_head_ride.no_rider": "There is no rabbit on your head",
+    "message.noellesroles.chino_head_ride.broken_by_teleport": "Too far apart — released automatically",
     "announcement.star.role.hoto_kokoa": "Hot Cocoa Baker",
     "announcement.star.goals.hoto_kokoa": "Fluffy~",
     "==================== 彩蛋修饰符 ====================": "",

@@ -3956,6 +3956,7 @@
   "message.noellesroles.chino_head_ride.cooldown": "还不能抱人，需等待 %s 秒",
   "message.noellesroles.chino_head_ride.released": "你被放了下来",
   "message.noellesroles.chino_head_ride.no_rider": "你头上没有兔兔",
+  "message.noellesroles.chino_head_ride.broken_by_teleport": "距离过远，已自动松手",
   "announcement.star.role.hoto_kokoa": "热可可面包师",
   "announcement.star.goals.hoto_kokoa": "毛茸茸~",
   "==================== 彩蛋修饰符 ====================": "",
