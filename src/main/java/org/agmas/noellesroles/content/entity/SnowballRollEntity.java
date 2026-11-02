@@ -31,10 +31,15 @@ import org.agmas.noellesroles.game.roles.neutral.snow_golem.SnowGolemRole;
 import org.agmas.noellesroles.init.ModEntities;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
+import java.util.function.Predicate;
 
 /**
  * 雪傀儡推出的大雪球。
@@ -100,6 +105,10 @@ public class SnowballRollEntity extends Entity {
      * 只有真的跑起来撞才会扣雪球尺寸。
      */
     private static final double BUMP_MIN_SPEED = 0.22D;
+    /** 追踪玩家位置的额外半径（格）：要比推开半径大一圈，保证刚接触那一 tick 已有上一 tick 位置。 */
+    private static final double TRACK_PADDING = 2.5D;
+    /** 单 tick 水平位移平方超过这个值就当作传送，不参与撞击判定。 */
+    private static final double MAX_TRACKED_DELTA_SQR = 4.0D;
     /** 能自动滚上去的台阶高度（一格）。 */
     private static final double STEP_UP_HEIGHT = 1.0D;
     /** 向下找地面时最多扫描几格。 */
@@ -126,6 +135,21 @@ public class SnowballRollEntity extends Entity {
     /** 每个玩家最近的撞击 / 命中 tick，避免同一 tick 内重复结算。 */
     private final Map<UUID, Integer> bumpTicks = new HashMap<>();
     private final Map<UUID, Integer> hitTicks = new HashMap<>();
+
+    /**
+     * 玩家上一 tick 的位置，用来算真实水平速度。
+     *
+     * <p>
+     * 服务端没有可信的玩家速度：{@code ServerGamePacketListenerImpl} 接收移动包后直接设定位置，
+     * 从不调用 {@code setDeltaMovement}，所以玩家实体的 deltaMovement 不是走路速度；
+     * 而 {@code xo/zo} 会在 {@code setOldPosAndRot()} 里被重置成当前位置，位移恒为 0。
+     * 只能由实体自己记住上一 tick 的位置。
+     */
+    private final Map<UUID, Vec3> trackedPlayerPos = new HashMap<>();
+    /** {@link #pushPlayersOut} 复用的临时集合，避免每 tick 新建（每 tick 都会跑一次）。 */
+    private final Set<UUID> nearbyPlayersScratch = new HashSet<>();
+    /** {@link #queryNearbyPlayers} 复用的结果列表，避免每 tick 分配一个新的 List。 */
+    private final List<Player> playerScratch = new ArrayList<>();
 
     public SnowballRollEntity(EntityType<?> type, Level level) {
         super(type, level);
@@ -221,6 +245,27 @@ public class SnowballRollEntity extends Entity {
         return getOwnerId() != null;
     }
 
+    /** 把雪球推出去的那个玩家（用于伤害归属）；没有则返回 {@code null}。 */
+    @Nullable
+    public UUID getLauncherId() {
+        return this.launcherId;
+    }
+
+    /**
+     * 这个实体是不是「属于」这颗雪球的人（推它的人或把它推出去的人）。
+     *
+     * <p>
+     * 用于把这两类实体排除在硬碰撞之外，否则雪傀儡会被自己推着的球顶住走不动。
+     */
+    public boolean isOwnedBy(Entity entity) {
+        UUID id = entity.getUUID();
+        UUID owner = getOwnerId();
+        if (owner != null && owner.equals(id)) {
+            return true;
+        }
+        return this.launcherId != null && this.launcherId.equals(id);
+    }
+
     @Override
     public EntityDimensions getDimensions(Pose pose) {
         float size = Math.max(0.05F, getSize());
@@ -236,6 +281,25 @@ public class SnowballRollEntity extends Entity {
     @Override
     public boolean isPushable() {
         return false;
+    }
+
+    /**
+     * 实心：玩家不能穿过雪球。
+     *
+     * <p>
+     * 这是本项目「实心实体」的惯例（见 {@code MovingPlatformEntity} / {@code PigeonEntity}）。
+     * 之前雪球没有覆写这个方法（{@code Entity} 默认返回 {@code false}），
+     * 而 {@code CanCollideWith.ENTITY} 又对雪球一律返回 {@code FALSE}
+     * （{@code EntityMixin.tmm$solid} 里等于直接 {@code return false}），
+     * 两件事叠加把硬碰撞彻底关掉了。
+     *
+     * <p>
+     * 只靠每 tick 的服务端 {@code push()} 挡不住人：玩家位置由客户端上报、
+     * 服务端只是给他加一点反向速度，玩家一直按前进就能直接走过去。
+     */
+    @Override
+    public boolean canBeCollidedWith() {
+        return true;
     }
 
     @Override
@@ -359,7 +423,15 @@ public class SnowballRollEntity extends Entity {
         double tx = owner.getX() + dir.x * offset;
         double tz = owner.getZ() + dir.z * offset;
         double ty = owner.getY();
-        double moved = Math.sqrt((tx - getX()) * (tx - getX()) + (tz - getZ()) * (tz - getZ()));
+        double dx = tx - getX();
+        double dz = tz - getZ();
+        double moved = Math.sqrt(dx * dx + dz * dz);
+        // 雪傀儡站着不动、也没转身时，目标点与当前位置重合：直接返回。
+        // 省掉每 tick 的 setPos（会重建一次 AABB）和 setYRot（会标脏朝向），
+        // 站着不动的雪球因此完全不产生追踪包。
+        if (moved < 1.0E-4D && Math.abs(ty - getY()) < 1.0E-4D) {
+            return;
+        }
         this.setPos(tx, ty, tz);
         this.setYRot(yawOf(dir.x, dir.z));
         addRoll(moved);
@@ -522,8 +594,8 @@ public class SnowballRollEntity extends Entity {
         double nz = speed > 1.0E-4D ? dir.z / speed : 1.0D;
         ServerPlayer launcher = launcher(level);
 
-        for (Player victim : level.getEntitiesOfClass(Player.class, this.getBoundingBox().inflate(0.15D),
-                p -> p.isAlive() && !p.isCreative() && !p.isSpectator())) {
+        this.queryNearbyPlayers(level, 0.15D);
+        for (Player victim : this.playerScratch) {
             if (isOwner(victim) || !GameUtils.isPlayerAliveAndSurvival(victim)) {
                 continue;
             }
@@ -583,13 +655,33 @@ public class SnowballRollEntity extends Entity {
     private void pushPlayersOut(ServerLevel level, @Nullable ServerPlayer owner) {
         double radius = getSize() * 0.5D;
         double minDistance = radius + 0.32D;
-        for (Player player : level.getEntitiesOfClass(Player.class, this.getBoundingBox().inflate(0.05D),
-                p -> p.isAlive() && !p.isCreative() && !p.isSpectator())) {
+        // 查询范围要比「推开范围」大一圈：玩家冲进来的第一 tick 就已经有上一 tick 的位置，
+        // 才能算出真正的入射速度。只在接触范围内查的话，第一 tick 没有历史位移，
+        // 而这一 tick 我们已经把人推开了，之后就再也读不到「朝雪球冲」的速度了。
+        Set<UUID> seen = this.nearbyPlayersScratch;
+        seen.clear();
+        this.queryNearbyPlayers(level, TRACK_PADDING);
+        for (Player player : this.playerScratch) {
             if (isOwner(player)) {
                 continue;
             }
-            double dx = player.getX() - getX();
-            double dz = player.getZ() - getZ();
+            UUID id = player.getUUID();
+            Vec3 now = new Vec3(player.getX(), player.getY(), player.getZ());
+            Vec3 last = this.trackedPlayerPos.put(id, now);
+            seen.add(id);
+            if (last == null) {
+                continue;
+            }
+            double vx = now.x - last.x;
+            double vz = now.z - last.z;
+            if (vx * vx + vz * vz > MAX_TRACKED_DELTA_SQR) {
+                // 传送 / 复活 / 跨维度：单 tick 位移过大，不当作移动
+                vx = 0.0D;
+                vz = 0.0D;
+            }
+
+            double dx = now.x - getX();
+            double dz = now.z - getZ();
             double distance = Math.sqrt(dx * dx + dz * dz);
             if (distance >= minDistance) {
                 continue;
@@ -601,27 +693,39 @@ public class SnowballRollEntity extends Entity {
             }
             double nx = dx / distance;
             double nz = dz / distance;
+
+            // 其它玩家「撞」雪球：只有以跑步速度撞上来才扣尺寸。
+            // 正常走路撞上去只会被挡住，不会把雪球撞小。
+            //
+            // 判定必须在 push 之前：player.push() 会改写玩家的运动状态，
+            // 推力方向又正好与入射方向相反（最多 0.5，比冲刺速度 0.28 还大），
+            // 先推再判等于把入射速度抹掉，永远判不成撞击。
+            boolean runningIn = !isLaunched() && player instanceof ServerPlayer
+                    && isRunningInto(vx, vz, nx, nz);
+
             double force = Math.min(0.5D, (minDistance - distance) * 0.65D + 0.02D);
             player.push(nx * force, 0.0D, nz * force);
             player.hurtMarked = true;
 
-            // 其它玩家「撞」雪球：只有以跑步速度撞上来才扣尺寸。
-            // 正常走路撞上去只会被挡住（上面的 push 已经把人推开），不会把雪球撞小。
-            if (!isLaunched() && player instanceof ServerPlayer serverPlayer
-                    && isRunningInto(serverPlayer, nx, nz)) {
-                Integer last = this.bumpTicks.get(serverPlayer.getUUID());
-                if (last == null || this.tickCount - last >= BUMP_COOLDOWN_TICKS) {
-                    this.bumpTicks.put(serverPlayer.getUUID(), this.tickCount);
-                    spawnSnowParticles(8);
-                    level.playSound(null, this.blockPosition(), SoundEvents.SNOW_BREAK, SoundSource.BLOCKS,
-                            0.7F, 1.3F);
-                    shrink(BUMP_SHRINK);
-                    if (isRemoved()) {
-                        return;
-                    }
-                }
+            if (!runningIn) {
+                continue;
+            }
+            ServerPlayer bumper = (ServerPlayer) player;
+            Integer lastBump = this.bumpTicks.get(bumper.getUUID());
+            if (lastBump != null && this.tickCount - lastBump < BUMP_COOLDOWN_TICKS) {
+                continue;
+            }
+            this.bumpTicks.put(bumper.getUUID(), this.tickCount);
+            spawnSnowParticles(8);
+            level.playSound(null, this.blockPosition(), SoundEvents.SNOW_BREAK, SoundSource.BLOCKS,
+                    0.7F, 1.3F);
+            shrink(BUMP_SHRINK);
+            if (isRemoved()) {
+                return;
             }
         }
+        // 清掉已经离开范围的玩家，避免长期占用内存
+        this.trackedPlayerPos.keySet().retainAll(seen);
         if (owner != null && !isHeld() && !isLaunched()) {
             // 空转的雪球：雪傀儡可以重新接住（不需要对准）
             tryCatch(level, owner);
@@ -629,6 +733,23 @@ public class SnowballRollEntity extends Entity {
     }
 
     // ==================== 工具 ====================
+
+    /** 与玩家相关的查询都只要这三种：活着、非创造、非旁观。 */
+    private static final Predicate<Player> ALIVE_PLAYER = p -> p.isAlive()
+            && !p.isCreative() && !p.isSpectator();
+
+    /**
+     * 查 {@code inflate} 范围内的玩家，结果写进复用的 {@link #playerScratch}。
+     *
+     * <p>
+     * 用 {@code Level#getEntities(EntityTypeTest, AABB, Predicate, List)} 直接填已有 List；
+     * {@code getEntitiesOfClass(...)} 每次都会新建一个 ArrayList，而这个查询每 tick 都要跑一次。
+     */
+    private void queryNearbyPlayers(ServerLevel level, double inflate) {
+        this.playerScratch.clear();
+        level.getEntities(EntityType.PLAYER, this.getBoundingBox().inflate(inflate),
+                ALIVE_PLAYER, this.playerScratch);
+    }
 
     /**
      * 该玩家是不是「以跑步速度朝雪球撞过来」。
@@ -640,20 +761,18 @@ public class SnowballRollEntity extends Entity {
      * <li><b>是撞过来而不是被推开</b>：速度方向与「玩家 → 雪球」的方向点积为正，
      * 也就是玩家在往雪球这边走。否则被雪球推着后退时也会被算成撞击。</li>
      * </ul>
-     *
-     * @param player 玩家
-     * @param nx     雪球 → 玩家的水平单位方向 X
-     * @param nz     雪球 → 玩家的水平单位方向 Z
+     * @param vx 玩家本 tick 的水平位移 X（服务端权威值，见 {@code trackedPlayerPos}）
+     * @param vz 玩家本 tick 的水平位移 Z
+     * @param nx 雪球 → 玩家的水平单位方向 X
+     * @param nz 雪球 → 玩家的水平单位方向 Z
      */
-    private static boolean isRunningInto(Player player, double nx, double nz) {
-        Vec3 velocity = player.getDeltaMovement();
-        double speed = Math.sqrt(velocity.x * velocity.x + velocity.z * velocity.z);
+    private static boolean isRunningInto(double vx, double vz, double nx, double nz) {
+        double speed = Math.sqrt(vx * vx + vz * vz);
         if (speed < BUMP_MIN_SPEED) {
             return false;
         }
         // 玩家 → 雪球的方向正好是 -(nx, nz)
-        double towards = velocity.x * -nx + velocity.z * -nz;
-        return towards > 0.0D;
+        return vx * -nx + vz * -nz > 0.0D;
     }
 
     private boolean isOwner(Player player) {

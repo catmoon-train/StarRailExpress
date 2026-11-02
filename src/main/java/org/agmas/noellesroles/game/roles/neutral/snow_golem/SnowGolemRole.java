@@ -249,7 +249,6 @@ public class SnowGolemRole extends NormalRole {
         if (data == null) {
             return;
         }
-        SnowballRollEntity ball = data.heldBall(player.serverLevel());
         Vec3 pos = player.position();
         if (data.lastX == Double.MIN_VALUE) {
             data.lastX = pos.x;
@@ -264,6 +263,14 @@ public class SnowGolemRole extends NormalRole {
             return;
         }
         data.snowDistance += moved;
+        if (data.snowDistance < SNOW_STEP_DISTANCE) {
+            // 绝大多数 tick 走这里：还没走满 4 格，不需要知道雪球在哪
+            return;
+        }
+        // 只有真的要推 / 撑大时，才去维度里查一次雪球。
+        // heldBall 内部是 level.getEntities(...)，会分配一个 List；放在这里可以
+        // 把「每 tick 一次实体查询」降到「每 4 格一次」。
+        SnowballRollEntity ball = data.heldBall(player.serverLevel());
         while (data.snowDistance >= SNOW_STEP_DISTANCE) {
             data.snowDistance -= SNOW_STEP_DISTANCE;
             if (ball == null || ball.isRemoved()) {
@@ -350,9 +357,17 @@ public class SnowGolemRole extends NormalRole {
             }
         });
 
-        // 雪球不参与硬碰撞（否则玩家会站到雪球头上），挡人靠实体每 tick 主动推开
+        // 雪球是实心的（见 SnowballRollEntity#canBeCollidedWith），玩家不能穿过去。
+        // 这里只关掉两种不该碰撞的组合，其余一律 PASS 交给原版/其它规则决定：
+        // 1) 两颗雪球之间：否则会互相顶住、叠起来；
+        // 2) 雪球与自己人（正在推它的人 / 把它推出去的人）：否则雪傀儡会顶着自己的球走不动。
         CanCollideWith.ENTITY.register((self, other) -> {
-            if (self instanceof SnowballRollEntity || other instanceof SnowballRollEntity) {
+            if (self instanceof SnowballRollEntity ball) {
+                if (other instanceof SnowballRollEntity || ball.isOwnedBy(other)) {
+                    return TrueFalseResult.FALSE;
+                }
+            }
+            if (other instanceof SnowballRollEntity ball && ball.isOwnedBy(self)) {
                 return TrueFalseResult.FALSE;
             }
             return TrueFalseResult.PASS;

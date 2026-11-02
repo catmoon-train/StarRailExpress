@@ -656,7 +656,9 @@ public class ModEntities {
      * <p>
      * 碰撞箱是「基础尺寸」的固定 1.0×1.0，实际大小由实体自己的 SynchedEntityData 同步并按尺寸缩放
      * （{@link SnowballRollEntity#getDimensions}），这样尺寸变化不需要重注册 EntityType。
-     * 追踪距离 128 与滚石一致：雪球是高速移动的东西，视距内掉线会很难看。
+     * 追踪距离取 48（比滚石的 128 小）：雪球大部分时间是被雪傀儡推着走的，
+     * 128 格会让附近所有玩家整局都在收它的位置/元数据包。48 格已覆盖正常交战视距，
+     * 覆盖面积只有 128 的约 1/7。
      */
     @SuppressWarnings("deprecation")
     public static final EntityType<SnowballRollEntity> SNOWBALL_ROLL = Registry.register(
@@ -664,7 +666,7 @@ public class ModEntities {
             Noellesroles.id("snowball_roll"),
             FabricEntityTypeBuilder.<SnowballRollEntity>create(MobCategory.MISC, SnowballRollEntity::new)
                     .dimensions(EntityDimensions.fixed(1.0F, 1.0F))
-                    .trackRangeBlocks(128)
+                    .trackRangeBlocks(48)
                     .trackedUpdateRate(2)
                     .build());
 
