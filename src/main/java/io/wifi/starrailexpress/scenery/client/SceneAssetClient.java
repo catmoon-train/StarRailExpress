@@ -91,7 +91,7 @@ public final class SceneAssetClient {
 
     private static final Long2ObjectOpenHashMap<LevelChunk> CHUNKS = new Long2ObjectOpenHashMap<>();
     private static final LongOpenHashSet ACTIVE_SECTIONS = new LongOpenHashSet();
-    private static long[] activeSectionSnapshot = new long[0];
+    private static long[] activeSectionSnapshot = it.unimi.dsi.fastutil.longs.LongArrays.EMPTY_ARRAY;
     private static final LongOpenHashSet NOTIFIED_CHUNKS = new LongOpenHashSet();
     private static final List<PreviewBlock> PREVIEW_BLOCKS = new ArrayList<>();
     private static final int MAX_PREVIEW_BLOCKS = 50_000;
@@ -314,7 +314,7 @@ public final class SceneAssetClient {
         }
         CHUNKS.clear();
         ACTIVE_SECTIONS.clear();
-        activeSectionSnapshot = new long[0];
+        activeSectionSnapshot = it.unimi.dsi.fastutil.longs.LongArrays.EMPTY_ARRAY;
         NOTIFIED_CHUNKS.clear();
         PREVIEW_BLOCKS.clear();
         ScenePreviewRenderer.release();
@@ -325,20 +325,23 @@ public final class SceneAssetClient {
     }
 
     public static LevelChunk getRemoteChunk(int chunkX, int chunkZ) {
-        return isFormalSceneVisible() ? CHUNKS.get(ChunkPos.asLong(chunkX, chunkZ)) : null;
+        // 普通世界的区块查询绝大多数不会命中远程场景，避免每次都查询 AutoConfig。
+        LevelChunk candidate = CHUNKS.get(ChunkPos.asLong(chunkX, chunkZ));
+        return candidate != null && isFormalSceneVisible() ? candidate : null;
     }
 
     public static boolean isActiveSection(int sectionX, int sectionY, int sectionZ) {
-        return isFormalSceneVisible()
-                && ACTIVE_SECTIONS.contains(SectionPos.asLong(sectionX, sectionY, sectionZ));
+        return ACTIVE_SECTIONS.contains(SectionPos.asLong(sectionX, sectionY, sectionZ))
+                && isFormalSceneVisible();
     }
 
     public static long[] activeSections() {
-        return isFormalSceneVisible() ? activeSectionSnapshot : new long[0];
+        return activeSectionSnapshot.length > 0 && isFormalSceneVisible()
+                ? activeSectionSnapshot : it.unimi.dsi.fastutil.longs.LongArrays.EMPTY_ARRAY;
     }
 
     public static boolean hasActiveAsset() {
-        return isFormalSceneVisible() && currentAsset != null && !ACTIVE_SECTIONS.isEmpty();
+        return currentAsset != null && !ACTIVE_SECTIONS.isEmpty() && isFormalSceneVisible();
     }
 
     public static void openSceneManager(List<String> sceneIds, String currentSceneId) {
@@ -1190,7 +1193,7 @@ public final class SceneAssetClient {
     }
 
     private static boolean isFormalSceneVisible() {
-        return isMovingSceneEnabled() && sceneWasRunning && isScenePlacementSafe();
+        return sceneWasRunning && isScenePlacementSafe() && isMovingSceneEnabled();
     }
 
     private static void updateSceneLifecycle() {
