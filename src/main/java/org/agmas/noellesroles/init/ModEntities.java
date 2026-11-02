@@ -650,6 +650,24 @@ public class ModEntities {
                     .trackedUpdateRate(2)
                     .build());
 
+    /**
+     * 雪傀儡推出的大雪球。
+     *
+     * <p>
+     * 碰撞箱是「基础尺寸」的固定 1.0×1.0，实际大小由实体自己的 SynchedEntityData 同步并按尺寸缩放
+     * （{@link SnowballRollEntity#getDimensions}），这样尺寸变化不需要重注册 EntityType。
+     * 追踪距离 128 与滚石一致：雪球是高速移动的东西，视距内掉线会很难看。
+     */
+    @SuppressWarnings("deprecation")
+    public static final EntityType<SnowballRollEntity> SNOWBALL_ROLL = Registry.register(
+            BuiltInRegistries.ENTITY_TYPE,
+            Noellesroles.id("snowball_roll"),
+            FabricEntityTypeBuilder.<SnowballRollEntity>create(MobCategory.MISC, SnowballRollEntity::new)
+                    .dimensions(EntityDimensions.fixed(1.0F, 1.0F))
+                    .trackRangeBlocks(128)
+                    .trackedUpdateRate(2)
+                    .build());
+
     /** 命令方块投掷物：石头、火球和石枪都沿抛物线飞。石枪命中后飞回手里。 */
     @SuppressWarnings("deprecation")
     public static final EntityType<CommandBlockThrownEntity> COMMAND_BLOCK_THROWN = Registry.register(

@@ -126,6 +126,8 @@
     "announcement.star.goals.wayfarer": "Flowers fall helplessly, swallows return like old friends.",
     "announcement.star.role.skeleton": "Skeleton",
     "announcement.star.goals.skeleton": "Walk on as a skeleton: climb walls and run nimbly, traverse the mountains, aid the Killer team, or survive alone.",
+    "announcement.star.role.snow_golem": "Snow Golem",
+    "announcement.star.goals.snow_golem": "Walk between snow and fire: roll up snowballs and push them forward, and never let yourself melt.",
     "announcement.star.role.dictator": "Dictator",
     "announcement.star.goals.dictator": "Order is mine to decree: use the revolver and the Sword of Judgment to bring every sinner to their end.",
     "message.noellesroles.dictator.entry": "He says: I am order, I am the end",
@@ -5679,5 +5681,11 @@
     "message.noellesroles.chef.tray_hand_not_empty": "Your main hand is occupied; please clear it before taking",
     "=============== 心理学家：治愈负面修饰符 ===============": "",
     "message.noellesroles.psychologist.cured_of_modifier": "Your \"%s\" has been cured!",
-    "message.noellesroles.psychologist.cured_modifier": "You cured %s's \"%s\"!"
+    "message.noellesroles.psychologist.cured_modifier": "You cured %s's \"%s\"!",
+    "role.noellesroles.snow_golem": "Snow Golem",
+    "skill.noellesroles.snow_golem.push_snowball": "Push Snowball",
+    "message.noellesroles.snow_golem.no_snowball": "You have no snowball to push right now",
+    "entity.noellesroles.snowball_roll": "Big Snowball",
+    "death_reason.noellesroles.melt": "Melted",
+    "death_reason.noellesroles.snowball_crush": "Snowball Crush"
 }

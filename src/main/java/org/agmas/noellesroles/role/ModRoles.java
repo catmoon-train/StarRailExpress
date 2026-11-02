@@ -55,6 +55,7 @@ import org.agmas.noellesroles.game.roles.neutral.mafia.MafiaRole;
 import org.agmas.noellesroles.game.roles.neutral.monokuma.MonokumaRole;
 import org.agmas.noellesroles.game.roles.neutral.nian_shou.NianShouRole;
 import org.agmas.noellesroles.game.roles.neutral.priest.PriestRole;
+import org.agmas.noellesroles.game.roles.neutral.snow_golem.SnowGolemRole;
 import org.agmas.noellesroles.game.roles.neutral.puppeteer.PuppeteerPlayerComponent;
 import org.agmas.noellesroles.game.fake_steve.FakeSteveDirector;
 import org.agmas.noellesroles.game.command_block.CommandBlockDirector;
@@ -108,12 +109,14 @@ import io.wifi.starrailexpress.api.data.RoleData;
 import io.wifi.starrailexpress.cca.SREArmorPlayerComponent;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.cca.SREPlayerMoodComponent;
+import io.wifi.starrailexpress.cca.SREPlayerTaskComponent;
 import io.wifi.starrailexpress.cca.SREPlayerPoisonComponent;
 import io.wifi.starrailexpress.cca.SREPlayerShopComponent;
 import io.wifi.starrailexpress.cca.SREWeakArmorPlayerComponent;
 import io.wifi.starrailexpress.client.gui.RoleAnnouncementTexts;
 import io.wifi.starrailexpress.content.entity.PlayerBodyEntity;
 import io.wifi.starrailexpress.game.GameUtils;
+import io.wifi.starrailexpress.game.data.MapStatusBarType;
 import io.wifi.starrailexpress.index.TMMItems;
 import io.wifi.starrailexpress.index.tag.TMMItemTags;
 import io.wifi.starrailexpress.util.TrueFalseResult;
@@ -394,6 +397,8 @@ public class ModRoles {
     public static final ResourceLocation WAYFARER_ID = Noellesroles.id("wayfarer");
     // 骷髅 - PEAK 爬山图专属中立，只能由骸骨之书复活得到
     public static final ResourceLocation SKELETON_ID = Noellesroles.id("skeleton");
+    // 雪傀儡 - 只在有「保暖值」状态栏的地图刷新的好人方中立
+    public static final ResourceLocation SNOW_GOLEM_ID = Noellesroles.id("snow_golem");
     public static final ResourceLocation DIO_ID = Noellesroles.id("dio");
     public static final ResourceLocation JOJO_ID = Noellesroles.id("jojo");
 
@@ -1293,6 +1298,39 @@ public class ModRoles {
             // 特殊中立
             .setSpecialNeutral(true)
             .setAddedVersion("4.4");
+
+    /**
+     * 雪傀儡 —— 好人方中立，只在「有保暖值状态栏」的地图刷新。
+     *
+     * <p>
+     * 规则本体见 {@link org.agmas.noellesroles.game.roles.snow_golem.SnowGolemRole}，这里只做注册：
+     * <ul>
+     * <li>{@code RoleType.NEUTRALS_FOR_INNOCENT} = 好人方中立（与乘客同阵营胜利）；</li>
+     * <li>{@code setCanBeRandomedByOtherRoles(false)}：不能被赌徒等职业随机到；</li>
+     * <li>{@code setCanSpawnInMap}：直接读地图配置 {@code AreasSettings.mapStatusBar}，
+     * 只有 {@link MapStatusBarType#WARMTH} 的地图才进候选池——{@code MapSpecialFeatures.MAP_STATUS_BAR}
+     * 是「任意状态条」（口渴 / 饥饿 / 污染都算），不能用来限定保暖值地图；</li>
+     * <li>{@code addUnrefreshableTasks(LIGHT_STOVE)}：不刷新「取暖」任务——
+     * 这是任务生成时的黑名单（{@code SRERole.canRefreshTask}），比老人那种「刷出来再跳过」更彻底；</li>
+     * <li>概率 3000/10000，最多 1 个。</li>
+     * </ul>
+     */
+    public static SRERole SNOW_GOLEM = TMMRoles.registerRole(
+            new SnowGolemRole(SNOW_GOLEM_ID, new Color(226, 240, 255).getRGB(),
+                    RoleType.NEUTRALS_FOR_INNOCENT, SRERole.MoodType.REAL,
+                    TMMRoles.CIVILIAN.getMaxSprintTime(), false))
+            .setRoleData(SnowGolemRoleData::new)
+            .setNeutrals(true)
+            .setNeutralForInnocent(true)
+            .setCanBeRandomedByOtherRoles(false)
+            // 只有「保暖值」地图才刷新：直接判定地图配置，而不是 MAP_STATUS_BAR（任意状态条都算）
+            .setCanSpawnInMap((mapId, settings) -> settings != null
+                    && settings.mapStatusBar == MapStatusBarType.WARMTH)
+            .addUnrefreshableTasks(SREPlayerTaskComponent.Task.LIGHT_STOVE)
+            .setCanSeeCoin(true)
+            .setDefaultMax(1)
+            .setDefaultEnableChance(3000)
+            .setAddedVersion("4.5");
     public static SRERole JESTER = TMMRoles
             .registerRole(new JesterRole(JESTER_ID, new Color(186, 85, 211).getRGB(), false,
                     false, SRERole.MoodType.FAKE, Integer.MAX_VALUE, true))

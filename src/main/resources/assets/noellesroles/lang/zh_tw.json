@@ -197,6 +197,8 @@
   "announcement.star.goals.wayfarer": "無可奈何花落去，似曾相識燕歸來。",
   "announcement.star.role.skeleton": "骷髏",
   "announcement.star.goals.skeleton": "以一具骸骨的姿態繼續行走：靈活地爬牆與奔跑，在山間穿行，幫助殺手，或獨自求生。",
+  "announcement.star.role.snow_golem": "雪傀儡",
+  "announcement.star.goals.snow_golem": "在雪與火之間行走：堆起雪球推向前方，別讓自己融化。",
   "announcement.star.role.dictator": "獨裁者",
   "announcement.star.goals.dictator": "秩序由我裁定：用左輪與裁決之劍讓所有罪人接受終局。",
   "message.noellesroles.dictator.entry": "他說：我即秩序，我即終局",
@@ -5817,5 +5819,11 @@
   "hud.noellesroles.star_gatherer.not_ready": "未就緒",
   "hud.noellesroles.star_gatherer.aura": "星之光環 半徑 %s",
   "hud.noellesroles.star_gatherer.gravity_uses": "星之引力 %s/%s 次",
-  "item.noellesroles.pooler_cd_reduce": "月華沙漏（技能冷卻 -40 秒）"
+  "item.noellesroles.pooler_cd_reduce": "月華沙漏（技能冷卻 -40 秒）",
+  "role.noellesroles.snow_golem": "雪傀儡",
+  "skill.noellesroles.snow_golem.push_snowball": "推出雪球",
+  "message.noellesroles.snow_golem.no_snowball": "現在沒有可以推出的雪球",
+  "entity.noellesroles.snowball_roll": "大雪球",
+  "death_reason.noellesroles.melt": "融化",
+  "death_reason.noellesroles.snowball_crush": "雪球碾壓"
 }

@@ -540,6 +540,17 @@ public class ModRolesInitialEventRegister {
                         .announceToSelf(false)
                         .build());
 
+        // 雪傀儡【推出雪球】：把正在推的雪球猛地推出去（没有雪球时返回 false，不消耗冷却）
+        RoleSkill.register(ModRoles.SNOW_GOLEM,
+                RoleSkill.skill(SRE.id("snow_golem_push_snowball"),
+                        "skill.noellesroles.snow_golem.push_snowball",
+                        context -> org.agmas.noellesroles.game.roles.neutral.snow_golem.SnowGolemRole
+                                .launchSnowball(context.player()))
+                        .cooldownSeconds(3)
+                        .showOnHud(true)
+                        .announceToSelf(false)
+                        .build());
+
         RoleSkill.register(ModRoles.LIN_FAMILY,
                 RoleSkill.skill(SRE.id("lin_family_generosity"),
                         "skill.noellesroles.lin_family.generosity",

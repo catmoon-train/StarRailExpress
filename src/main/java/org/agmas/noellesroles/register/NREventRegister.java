@@ -43,6 +43,8 @@ public class NREventRegister {
         org.agmas.noellesroles.game.roles.neutral.monokuma.MonokumaEventHandler.register();
         org.agmas.noellesroles.game.roles.neutral.amon.AmonEventHandler.register();
         org.agmas.noellesroles.game.roles.neutral.leader.LeaderEventHandler.register();
+        // 雪傀儡：伪装、融化被动、雪球碰撞与开局 / 局末清场
+        org.agmas.noellesroles.game.roles.neutral.snow_golem.SnowGolemRole.registerEvents();
 
         // 注册入梦药水效果处理
         org.agmas.noellesroles.content.effects.DreamEffectHandler.register();
