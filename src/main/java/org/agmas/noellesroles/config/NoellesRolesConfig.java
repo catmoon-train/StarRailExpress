@@ -100,11 +100,11 @@ public class NoellesRolesConfig implements ConfigData {
      * 命令方块（祸患的终端）启用概率，万分比。
      */
     @ConfigEntry.Category(value = "detail")
-    public int commandBlockEnableChance = 80;
+    public int commandBlockEnableChance = 1000;
 
-    /** 黑夜事件自然出现概率，万分比；默认不出现，管理员可用 /sre:night next 强制下一局。 */
+    /** 黑夜事件自然出现概率，万分比（200 = 2%）；管理员可用 /sre:night next 强制下一局。 */
     @ConfigEntry.Category(value = "detail")
-    public int nightEventEnableChance = 0;
+    public int nightEventEnableChance = 200;
 
     @ConfigEntry.Category(value = "detail")
     public int chanceOfTouhouRoles = 5;

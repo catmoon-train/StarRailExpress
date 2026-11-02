@@ -16,7 +16,6 @@ import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.api.TMMRoles;
 import io.wifi.starrailexpress.game.modes.SREMurderGameMode;
 import io.wifi.starrailexpress.game.utils.RoleInstance;
-import org.agmas.noellesroles.role.ModRoles;
 import pro.fazeclan.river.stupid_express.StupidExpress;
 
 /**
@@ -39,7 +38,8 @@ public class CommandBlockRolePoolMixin {
         List<SRERole> enabledRoles = StupidExpress.getEnableRoles();
         enabledRoles.removeIf(role -> role == TMMRoles.CIVILIAN || !role.isInnocent()
                 || role.isVigilanteTeam() || role.canUseKiller() || role.isNeutrals()
-                || role.isOtherModeRole() || CommandBlockRules.isExcluded(role) || role == ModRoles.MAGICIAN);
+                || role.isOtherModeRole() || CommandBlockRules.isExcluded(role)
+                || CommandBlockRules.isEventBanned(role));
         RoleAssignmentPool replacementPool = RoleAssignmentPool.create("CommandBlockCivilian", enabledRoles::contains);
         RoleAssignmentPool repeatPool = RoleAssignmentPool.createUnlimited("CommandBlockCivilianFallback",
                 enabledRoles::contains);
@@ -53,7 +53,8 @@ public class CommandBlockRolePoolMixin {
         boolean changed = false;
         for (RoleInstance instance : original) {
             if (instance != null && (CommandBlockRules.isExcluded(instance.role())
-                    || instance.role() == ModRoles.MAGICIAN || instance.role() == TMMRoles.CIVILIAN)) {
+                    || CommandBlockRules.isEventBanned(instance.role())
+                    || instance.role() == TMMRoles.CIVILIAN)) {
                 SRERole replacement = replacementPool.selectRole();
                 if (replacement == null) {
                     replacement = repeatPool.selectRole();

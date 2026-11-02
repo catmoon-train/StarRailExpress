@@ -133,6 +133,7 @@
     "roles.warlock.WarlockDomainDeathImmunityMixin",
     "roles.writter.WrittenBookMixin",
     "scene.SnowballWarmthMixin",
+    "scene.PowderSnowWalkMixin",
     "time_rewind.ServerGamePacketListenerTimeRewindMixin",
     "time_rewind.ServerPlayerTimeRewindMixin",
     "time_stop.DioSwimPoseMixin",

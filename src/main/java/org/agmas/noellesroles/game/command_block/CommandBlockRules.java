@@ -6,6 +6,7 @@ import org.agmas.harpymodloader.SREDisableManager;
 import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.api.TMMRoles;
 import org.agmas.noellesroles.role.ModRoles;
+import org.agmas.noellesroles.role.touhou.THRedHouseRoles;
 
 /**
  * 命令方块事件的纯规则：杀手位占用、绑定职业互斥、破坏配额。
@@ -62,6 +63,24 @@ public final class CommandBlockRules {
             }
         }
         return false;
+    }
+
+    /**
+     * 命令方块事件局里<b>绝不允许出现</b>的职业（事件与它们的玩法互斥）。
+     *
+     * <p>
+     * 目前是：魔术师（伪装成别人的职业，会破坏事件局的杀手位语义）、
+     * 芙兰朵露（{@link THRedHouseRoles#FURANDORU}）、阿蒙（{@link ModRoles#AMON}）。
+     *
+     * <p>
+     * 与 {@link #isExcluded(SRERole)} 的区别：{@code isExcluded} 描述的是「抽象改写池的候选资格」
+     * （杀手/绑定职业/池内职业等），这里是「事件局点名禁用的职业」。
+     * 抽取结果里一旦出现这些职业，{@code CommandBlockRolePoolMixin} 会把它替换成平民职业。
+     */
+    public static boolean isEventBanned(SRERole role) {
+        return role == ModRoles.MAGICIAN
+                || role == THRedHouseRoles.FURANDORU
+                || role == ModRoles.AMON;
     }
 
     /**
