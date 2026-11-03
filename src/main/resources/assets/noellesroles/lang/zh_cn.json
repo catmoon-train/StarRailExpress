@@ -13,6 +13,8 @@
   "announcement.star.role.pumpkin_spirit": "南瓜精",
   "announcement.star.goals.pumpkin_spirit": "累计获得开局人数×4个南瓜，独立获胜。丢弃再捡不计数。",
   "announcement.star.win.pumpkin_spirit": "南瓜精收集了足够的南瓜！",
+  "announcement.star.role.halloween_event": "万圣节事件",
+  "announcement.star.goals.halloween_event": "不给糖就捣蛋。",
   "skill.noellesroles.pumpkin_spirit.bat": "化身蝙蝠",
   "hud.noellesroles.pumpkin_spirit.progress": "累计南瓜：%s / %s",
   "hud.noellesroles.pumpkin_spirit.suppressed": "亡命徒压制中：无法复活或获胜",

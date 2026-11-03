@@ -2237,6 +2237,24 @@ public class ModRoles {
             .setEventNeutral(true)
             .setAddedVersion("4.5");
 
+    /**
+     * 万圣节事件元数据：不分配给玩家，不占职业名额。
+     * 仅在启用了万圣节配置（settings.halloweenEventEnabled）的谋杀地图中必定生效，
+     * 因此不需要设置事件发生概率；具体玩法由 HalloweenRuntime 按地图配置统一开关。
+     */
+    public static final SRERole HALLOWEEN_EVENT = TMMRoles.registerRole(
+            new EggRole(Noellesroles.id("halloween_event"), new Color(142, 68, 173).getRGB(),
+                    false, false, SRERole.MoodType.FAKE, Integer.MAX_VALUE, true))
+            .setNeutrals(true)
+            .setNeutralForKiller(false)
+            .setCanBeRandomedByOtherRoles(false)
+            .setCanSetSpawnInfoInConfig(false)
+            .setDefaultMax(0)
+            .setHiddenForRoleRotation(true)
+            .setEventNeutral(true)
+            .setCanSpawnInMap((map, settings) -> settings != null && settings.halloweenEventEnabled)
+            .setAddedVersion("4.5");
+
     /** 方块石头人。只由命令方块事件改写产生。 */
     public static final SRERole STONE_MAN = TMMRoles.registerRole(
             new StoneManRole(STONE_MAN_ID, new Color(130, 130, 130).getRGB(),
