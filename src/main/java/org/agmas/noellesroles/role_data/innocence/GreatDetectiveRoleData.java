@@ -245,6 +245,10 @@ public class GreatDetectiveRoleData extends SimpleRoleData {
         if (!(target instanceof PlayerBodyEntity body) || DoomedSinnerBodyEntity.isDoomedSinnerBody(target)) {
             return InteractionResult.PASS;
         }
+        // 待复活尸体不能被勘察
+        if (org.agmas.noellesroles.utils.AnatmanAsatyaCorpseGuard.denyInteraction(body, sp)) {
+            return InteractionResult.FAIL;
+        }
 
         UUID corpseUuid = body.getUUID();
         if (hasUsedCorpse(corpseUuid)) {

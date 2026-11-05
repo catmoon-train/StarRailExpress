@@ -42,6 +42,7 @@ import org.agmas.noellesroles.Noellesroles;
 import org.agmas.noellesroles.content.effects.TimeStopEffect;
 import org.agmas.noellesroles.init.ModEffects;
 import org.agmas.noellesroles.role.ModRoles;
+import org.agmas.noellesroles.utils.AnatmanAsatyaCorpseGuard;
 import org.jetbrains.annotations.NotNull;
 import org.joml.Vector3f;
 
@@ -303,6 +304,9 @@ public class DIORoleData extends SimpleRoleData {
                 || org.agmas.noellesroles.content.entity.DoomedSinnerBodyEntity.isDoomedSinnerBody(corpse))
             return false;
         if (!(player instanceof ServerPlayer serverPlayer))
+            return false;
+        // 待复活尸体（如无我/无妄的搭档仍存活时）不允许被吸食
+        if (AnatmanAsatyaCorpseGuard.denyInteraction((PlayerBodyEntity) corpse, player))
             return false;
 
         // 检查距离

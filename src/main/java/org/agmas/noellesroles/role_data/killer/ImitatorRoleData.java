@@ -223,6 +223,12 @@ public class ImitatorRoleData extends SimpleRoleData {
         }
 
         PlayerBodyEntity corpse = bodies.getFirst();
+        // 待复活尸体不能被拟态者读取职业
+        if (org.agmas.noellesroles.utils.AnatmanAsatyaCorpseGuard.denyInteraction(corpse, sp)) {
+            chargingCorpseUuid = null;
+            this.sync();
+            return;
+        }
         UUID deadPlayerUuid = corpse.getPlayerUuid();
         if (deadPlayerUuid == null) {
             chargingCorpseUuid = null;

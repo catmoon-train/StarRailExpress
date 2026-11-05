@@ -12,6 +12,7 @@ import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.core.particles.DustParticleOptions;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
+import org.agmas.noellesroles.utils.ReplayEventLog;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
@@ -100,6 +101,10 @@ public class MagicApprenticeRoleData extends SimpleRoleData {
         if (success) {
             mana = Mth.clamp(mana - spell.cost, 0f, maxMana());
             sync();
+            // 回放记录：xxx 使用法杖释放了 xx
+            ReplayEventLog.record("replay.event.wand.spell", ReplayEventLog.player(caster),
+                    Component.translatable(
+                            "hud.noellesroles.magic_apprentice.spell." + spell.name().toLowerCase()));
             caster.level().playSound(null, caster.blockPosition(), SoundEvents.BLAZE_SHOOT,
                     SoundSource.PLAYERS, .8f, spell == Spell.FROSTBALL ? 1.6f : 1.0f);
         }

@@ -52,6 +52,13 @@ public class RiceEventRegister {
             if (world.isClientSide())
                 return net.minecraft.world.InteractionResult.PASS;
 
+            // 待复活尸体（如无我/无妄搭档仍存活时）不允许被秉烛、吸食、收走等任何右键交互
+            if (entity instanceof PlayerBodyEntity pendingBody
+                    && org.agmas.noellesroles.utils.AnatmanAsatyaCorpseGuard
+                            .denyInteraction(pendingBody, player)) {
+                return net.minecraft.world.InteractionResult.FAIL;
+            }
+
             // 检查玩家是否存活
             if (!GameUtils.isPlayerAliveAndSurvival(player))
                 return net.minecraft.world.InteractionResult.PASS;

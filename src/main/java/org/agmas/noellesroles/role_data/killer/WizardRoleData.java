@@ -32,6 +32,7 @@ import net.minecraft.core.HolderLookup;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
+import org.agmas.noellesroles.utils.ReplayEventLog;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
@@ -450,6 +451,9 @@ public class WizardRoleData extends SimpleRoleData {
             explosionArmed = false;
             sync();
             WizardSpells.castNineRingFireball(this, sp);
+            // 回放记录：xxx 使用法杖释放了 xx
+            ReplayEventLog.record("replay.event.wand.spell", ReplayEventLog.player(sp),
+                    Component.translatable("replay.event.wand.spell.nine_ring_fireball"));
         } else {
             if (sp.getCooldowns().isOnCooldown(ModItems.WIZARD_STAFF)) {
                 return;
@@ -459,6 +463,9 @@ public class WizardRoleData extends SimpleRoleData {
                         SoundSource.PLAYERS, 0.8f, 1.2f);
             }
             WizardSpells.castFireArrow(this, sp);
+            // 回放记录：xxx 使用法杖释放了 xx
+            ReplayEventLog.record("replay.event.wand.spell", ReplayEventLog.player(sp),
+                    Component.translatable("replay.event.wand.spell.fire_arrow"));
         }
     }
 

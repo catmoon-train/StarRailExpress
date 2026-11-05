@@ -169,6 +169,10 @@ public class MediumRoleData extends SimpleRoleData {
                     true);
             return false;
         }
+        // 待复活尸体不能被通灵
+        if (org.agmas.noellesroles.utils.AnatmanAsatyaCorpseGuard.denyInteraction(body, medium)) {
+            return false;
+        }
         UUID deadUuid = body.getPlayerUuid();
         if (deadUuid == null) {
             medium.displayClientMessage(

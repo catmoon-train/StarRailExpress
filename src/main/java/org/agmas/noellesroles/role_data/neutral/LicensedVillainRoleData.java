@@ -27,6 +27,7 @@ import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
+import org.agmas.noellesroles.utils.ReplayEventLog;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundSource;
@@ -35,6 +36,7 @@ import net.minecraft.world.level.Level;
 import org.agmas.noellesroles.role.bouns.BounsRoles;
 import org.agmas.noellesroles.utils.RoleUtils;
 import org.jetbrains.annotations.NotNull;
+import pro.fazeclan.river.stupid_express.modifier.refugee.cca.RefugeeComponent;
 
 import java.util.OptionalInt;
 
@@ -127,6 +129,11 @@ public class LicensedVillainRoleData extends SimpleRoleData {
         if (alive > 0 && alive * 100 < playerCount * MOMENT_ALIVE_PERCENT) {
             if (momentTriggeredGuard)
                 return;
+            // 亡命徒时刻（由难民修饰符触发）期间不触发黑警时刻：
+            // 此时存活人数常被压到阈值以下，且整局状态会在时刻结束时被时间回溯还原。
+            // 必须在置 momentTriggeredGuard 之前返回，否则本局黑警时刻会永久失效。
+            if (RefugeeComponent.KEY.get(player.level()).isAnyRevivals)
+                return;
             momentTriggeredGuard = true;
             triggerLicensedVillainMoment(gameWorld);
         }
@@ -135,6 +142,9 @@ public class LicensedVillainRoleData extends SimpleRoleData {
     /** 黑警时刻触发：广播、发放德林加、播放音效、决定目标阵营并同步给所有黑警。 */
     private void triggerLicensedVillainMoment(SREGameWorldComponent gameWorld) {
         ServerLevel level = (ServerLevel) player.level();
+
+        // 回放记录：黑警时刻触发
+        ReplayEventLog.record("replay.event.moment.licensed_villain", ReplayEventLog.player(player));
 
         // 以触发时在场（存活）玩家为基准统计三大阵营数量
         int killerCount = 0;

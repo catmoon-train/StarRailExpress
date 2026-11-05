@@ -15,6 +15,7 @@
 
 package org.agmas.noellesroles.role_data.innocence;
 
+import io.wifi.starrailexpress.api.data.RoleData;
 import io.wifi.starrailexpress.api.data.RoleDataContext;
 import io.wifi.starrailexpress.api.impl.SimpleRoleData;
 import io.wifi.starrailexpress.SRE;
@@ -28,6 +29,7 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
+import org.agmas.noellesroles.utils.ReplayEventLog;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.effect.MobEffectInstance;
@@ -248,10 +250,38 @@ public class GhostRoleData extends SimpleRoleData {
 
             lastStandNotified = true;
             sync();
-            // 回放记录：小透明加速时间
-            SRE.REPLAY_MANAGER.recordCustomEvent(
-                    Component.translatable("replay.event.ghost.accelerate_time",
-                            GameReplayUtils.getReplayPlayerDisplayText(player, true)));
+            // 回放记录：小透明加速时间（若芙兰朵露也加速过，由其分支补一条「共同加速」）
+            recordAccelerateTime(false);
+        }
+    }
+
+    /**
+     * 记录「加速时间」的回放事件：区分小透明、芙兰朵露、以及两者共同加速。
+     * 两人都触发过时，由后触发的一方补一条共同加速事件，不会重复记录两条共同加速。
+     */
+    private void recordAccelerateTime(boolean furanBranch) {
+        SREGameWorldComponent game = SREGameWorldComponent.KEY.get(player.level());
+        boolean ghostNotified = false;
+        boolean furanNotified = false;
+        for (var p : player.level().players()) {
+            if (!GameUtils.isPlayerAliveAndSurvival(p))
+                continue;
+            GhostRoleData data = RoleData.getNullable(GhostRoleData.class, p);
+            if (data == null || !data.lastStandNotified)
+                continue;
+            if (game.isRole(p, ModRoles.GHOST))
+                ghostNotified = true;
+            if (game.isRole(p, THRedHouseRoles.FURANDORU))
+                furanNotified = true;
+        }
+        if (furanBranch && ghostNotified && furanNotified) {
+            ReplayEventLog.record("replay.event.ghost.accelerate_time.both");
+        } else if (furanBranch) {
+            ReplayEventLog.record("replay.event.ghost.accelerate_time.furandoru",
+                    ReplayEventLog.player(player));
+        } else {
+            ReplayEventLog.record("replay.event.ghost.accelerate_time.ghost",
+                    ReplayEventLog.player(player));
         }
     }
 
@@ -327,10 +357,10 @@ public class GhostRoleData extends SimpleRoleData {
 
             lastStandNotified = true;
             sync();
-            // 回放记录：芙兰朵露加速时间
-            SRE.REPLAY_MANAGER.recordCustomEvent(
-                    Component.translatable("replay.event.ghost.accelerate_time",
-                            GameReplayUtils.getReplayPlayerDisplayText(player, true)));
+            // 回放记录：芙兰朵露加速时间（若小透明也已加速，则记为「共同加速」）
+            recordAccelerateTime(true);
+            // 回放记录：芙兰朵露时刻触发
+            ReplayEventLog.record("replay.event.moment.furandoru", ReplayEventLog.player(player));
         }
 
         // 芙兰朵露时刻激活期间持续保证发光：

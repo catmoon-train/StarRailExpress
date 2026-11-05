@@ -155,6 +155,10 @@ public class DictatorRole extends NormalRole {
                     true);
             return;
         }
+        // 待复活尸体不能被审判
+        if (org.agmas.noellesroles.utils.AnatmanAsatyaCorpseGuard.denyInteraction(body, dictator)) {
+            return;
+        }
 
         // 无论正确与否，使用后裁决之剑消失
         consumeItem(dictator, JudgmentSwordItem.class);

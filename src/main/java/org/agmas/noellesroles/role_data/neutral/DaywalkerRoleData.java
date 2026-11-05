@@ -11,6 +11,7 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
+import org.agmas.noellesroles.utils.ReplayEventLog;
 import net.minecraft.network.protocol.game.ClientboundStopSoundPacket;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -214,6 +215,8 @@ public class DaywalkerRoleData extends SimpleRoleData {
             if (!finalChaseActive) {
                 finalChaseActive = true;
                 changed = true;
+                // 回放记录：逐日者时刻触发
+                ReplayEventLog.record("replay.event.moment.daywalker", ReplayEventLog.player(player));
                 // 全场先播放一次提示音效（master 类型）
                 if (player.level() instanceof ServerLevel serverLevel) {
                     serverLevel.playSound(null,
@@ -398,6 +401,9 @@ public class DaywalkerRoleData extends SimpleRoleData {
                 Component.translatable("message.noellesroles.daywalker.skill_used", consumed)
                         .withStyle(ChatFormatting.AQUA),
                 true);
+        // 回放记录：逐日者释放技能加速了多久的时间
+        ReplayEventLog.record("replay.event.daywalker.skill_accelerate",
+                ReplayEventLog.player(player), consumed);
         return true;
     }
 
@@ -445,6 +451,9 @@ public class DaywalkerRoleData extends SimpleRoleData {
                 int refunded = Math.min(timeComp.getResetTime(), timeComp.getTime() + refundSeconds * 20);
                 timeComp.setTime(refunded);
             }
+            // 回放记录：逐日者死后返还了多久的时间
+            ReplayEventLog.record("replay.event.daywalker.refund_time",
+                    ReplayEventLog.player(player), refundSeconds);
         }
         sync();
     }

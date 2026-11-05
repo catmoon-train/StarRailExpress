@@ -27,6 +27,7 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.network.chat.Component;
+import org.agmas.noellesroles.utils.ReplayEventLog;
 import net.minecraft.network.protocol.game.ClientboundSetSubtitleTextPacket;
 import net.minecraft.network.protocol.game.ClientboundSetTitleTextPacket;
 import net.minecraft.network.protocol.game.ClientboundSetTitlesAnimationPacket;
@@ -239,6 +240,10 @@ public final class PoolerDomainManager {
             double z = MOON_Z + Math.sin(angle) * 9.0D;
             domain.victims.add(target.getUUID());
             pullIn(domain, target, x, z, false);
+            // 回放记录：xxx 将 xxx 拉入了 xx 领域
+            ReplayEventLog.record("replay.event.pooler.pull_domain",
+                    ReplayEventLog.player(caster), ReplayEventLog.name(target),
+                    Component.translatable("replay.event.pooler.domain.moon"));
             index++;
         }
 
@@ -307,6 +312,10 @@ public final class PoolerDomainManager {
             double z = TANK_Z + Math.sin(angle) * 8.0D;
             domain.victims.add(target.getUUID());
             pullIn(domain, target, x, z, false);
+            // 回放记录：xxx 将 xxx 拉入了 xx 领域
+            ReplayEventLog.record("replay.event.pooler.pull_domain",
+                    ReplayEventLog.player(caster), ReplayEventLog.name(target),
+                    Component.translatable("replay.event.pooler.domain.aquarium"));
             index++;
         }
 

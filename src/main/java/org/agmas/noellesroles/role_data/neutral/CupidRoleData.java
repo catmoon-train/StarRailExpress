@@ -26,6 +26,7 @@ import net.minecraft.core.HolderLookup;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
+import org.agmas.noellesroles.utils.ReplayEventLog;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
@@ -128,6 +129,10 @@ public class CupidRoleData extends SimpleRoleData {
         }
 
         bindLovers(firstTarget, target, modifiers);
+        // 回放记录：xxx 将 xxx 和 xxx 缔结成了恋人
+        ReplayEventLog.record("replay.event.cupid.linked",
+                ReplayEventLog.player(cupid), ReplayEventLog.name(firstTarget),
+                ReplayEventLog.name(target));
         clearMark();
         cupid.displayClientMessage(Component.translatable("message.noellesroles.cupid.linked",
                 firstTarget.getDisplayName(), target.getDisplayName()).withStyle(ChatFormatting.GOLD), true);

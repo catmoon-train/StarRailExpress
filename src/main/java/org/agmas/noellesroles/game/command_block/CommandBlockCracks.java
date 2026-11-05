@@ -26,6 +26,7 @@ import io.wifi.starrailexpress.util.Scheduler;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.network.chat.Component;
+import org.agmas.noellesroles.utils.ReplayEventLog;
 import net.minecraft.ChatFormatting;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -176,6 +177,9 @@ public final class CommandBlockCracks {
             level.sendParticles(ParticleTypes.CRIT, at.x, at.y + 0.8D, at.z, 16, 0.3D, 0.5D, 0.3D, 0.05D);
             level.playSound(null, at.x, at.y, at.z, SoundEvents.GLASS_BREAK, SoundSource.PLAYERS, 0.7F, 0.7F);
             CommandBlockDirector.addDestruction(level);
+            // 回放记录：命令方块事件中摧毁裂隙
+            ReplayEventLog.record("replay.event.command_block.crack_destroyed",
+                    ReplayEventLog.player(shooter));
         }
         shooter.displayClientMessage(Component.translatable("message.noellesroles.command_block.crack_hit"), true);
         return true;

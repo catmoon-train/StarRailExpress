@@ -362,6 +362,10 @@ public class MorticianBodyMakerRoleData extends SimpleRoleData {
             if (org.agmas.noellesroles.content.entity.DoomedSinnerBodyEntity.isDoomedSinnerBody(body)) {
                 continue;
             }
+            // 待复活尸体（如无我/无妄的搭档仍存活时）不能被殡仪员拖动/查看
+            if (body.isNonInteractable()) {
+                continue;
+            }
 
             Vec3 bodyPos = body.position();
             Vec3 toBody = bodyPos.subtract(eyePos);
@@ -517,6 +521,14 @@ public class MorticianBodyMakerRoleData extends SimpleRoleData {
             }
         }
 
+        // 拖动途中尸体被标记为待复活（如无我/无妄搭档倒下）时立即松手，避免继续拖走
+        if (this.draggedBody != null && this.draggedBody.isNonInteractable()) {
+            this.draggedBody = null;
+            this.draggedBodyUuid = null;
+            this.cooldown = DRAG_COOLDOWN;
+            this.sync();
+        }
+
         // 更新拖动的尸体位置（举在头顶2.1格高处，做出类似举起三叉戟的动作）
         if (this.draggedBody != null && this.draggedBody.isAlive()) {
             Vec3 playerPos = player.position();
@@ -573,6 +585,10 @@ public class MorticianBodyMakerRoleData extends SimpleRoleData {
                                 player.getX() + 5, player.getY() + 5, player.getZ() + 5));
                 for (PlayerBodyEntity body : bodies) {
                     if (org.agmas.noellesroles.content.entity.DoomedSinnerBodyEntity.isDoomedSinnerBody(body)) {
+                        continue;
+                    }
+                    // 待复活尸体不能重新绑定为拖动目标
+                    if (body.isNonInteractable()) {
                         continue;
                     }
                     if (body.getUUID().equals(this.draggedBodyUuid)) {

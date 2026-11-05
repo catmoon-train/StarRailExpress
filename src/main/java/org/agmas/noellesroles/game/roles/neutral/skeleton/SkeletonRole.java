@@ -20,6 +20,7 @@ import net.fabricmc.fabric.api.event.player.AttackEntityCallback;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
+import org.agmas.noellesroles.utils.ReplayEventLog;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
@@ -250,6 +251,9 @@ public class SkeletonRole extends ExtraEffectRole implements CustomWinnerRoleInt
         GameUtils.revivePlayer(revived, body.getX(), body.getY(), body.getZ());
         RoleUtils.changeRole(revived, ModRoles.SKELETON);
         SRE.REPLAY_MANAGER.recordPlayerRevival(revived.getUUID(), ModRoles.SKELETON);
+        // 回放记录：xxx 使用骸骨之书复活了 xxx
+        ReplayEventLog.record("replay.event.bone_book.revive",
+                ReplayEventLog.player(user), ReplayEventLog.name(revived));
         
         revived.updateFluidOnEyes();
         revived.updateInWaterStateAndDoFluidPushing();
