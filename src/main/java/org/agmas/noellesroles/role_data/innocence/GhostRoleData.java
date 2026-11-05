@@ -31,6 +31,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import org.agmas.noellesroles.utils.ReplayEventLog;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
@@ -261,8 +262,8 @@ public class GhostRoleData extends SimpleRoleData {
      */
     private void recordAccelerateTime(boolean furanBranch) {
         SREGameWorldComponent game = SREGameWorldComponent.KEY.get(player.level());
-        boolean ghostNotified = false;
-        boolean furanNotified = false;
+        Player ghostPlayer = null;
+        Player furanPlayer = null;
         for (var p : player.level().players()) {
             if (!GameUtils.isPlayerAliveAndSurvival(p))
                 continue;
@@ -270,18 +271,19 @@ public class GhostRoleData extends SimpleRoleData {
             if (data == null || !data.lastStandNotified)
                 continue;
             if (game.isRole(p, ModRoles.GHOST))
-                ghostNotified = true;
+                ghostPlayer = p;
             if (game.isRole(p, THRedHouseRoles.FURANDORU))
-                furanNotified = true;
+                furanPlayer = p;
         }
-        if (furanBranch && ghostNotified && furanNotified) {
-            ReplayEventLog.record("replay.event.ghost.accelerate_time.both");
+        if (furanBranch && ghostPlayer != null && furanPlayer != null) {
+            ReplayEventLog.record("replay.event.ghost.accelerate_time.both",
+                    ReplayEventLog.name(ghostPlayer), ReplayEventLog.name(furanPlayer));
         } else if (furanBranch) {
             ReplayEventLog.record("replay.event.ghost.accelerate_time.furandoru",
-                    ReplayEventLog.player(player));
+                    ReplayEventLog.name(player));
         } else {
             ReplayEventLog.record("replay.event.ghost.accelerate_time.ghost",
-                    ReplayEventLog.player(player));
+                    ReplayEventLog.name(player));
         }
     }
 
