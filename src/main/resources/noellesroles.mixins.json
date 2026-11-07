@@ -54,7 +54,6 @@
     "client.general.GhostStatePlayerRenderer",
     "fake_steve.FakeSteveServerInputMixin",
     "item.SealedArtifactEatMixin",
-    "item.ThrowingKnifeCooldownMixin",
     "item.ItemStackSpearMixin",
     "item.BambooHangRideMixin",
     "modifier.VegetarianFoodMixin",
