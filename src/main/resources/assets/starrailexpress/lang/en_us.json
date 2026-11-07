@@ -3904,6 +3904,7 @@
     "replay.event.modifier.rebel": "§c⚔️§r %s's Rebel modifier was triggered",
     "replay.event.modifier.expedition": "§b🧭§r %s's Expedition modifier was triggered",
     "replay.event.modifier.gods_mission": "§6✝️§r %s's God's Mission modifier was triggered",
+    "replay.event.modifier.black_white": "§0🐼§r %s's Black & White modifier was triggered",
     "replay.event.command_block.crack_destroyed": "§9💥§r %s destroyed a rift",
     "replay.event.pooler.pull_domain": "§5🌑§r %s pulled %s into the %s domain",
     "replay.event.pooler.domain.moon": "Moon Swallower",

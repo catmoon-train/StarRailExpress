@@ -3886,6 +3886,7 @@
   "replay.event.modifier.rebel": "§c⚔️§r %s 的起義軍修飾符被觸發",
   "replay.event.modifier.expedition": "§b🧭§r %s 的遠征隊修飾符被觸發",
   "replay.event.modifier.gods_mission": "§6✝️§r %s 的神的使命修飾符被觸發",
+  "replay.event.modifier.black_white": "§0🐼§r %s 的黑白修飾符被觸發",
   "replay.event.command_block.crack_destroyed": "§9💥§r %s 摧毀了一條裂隙",
   "replay.event.pooler.pull_domain": "§5🌑§r %s 將 %s 拉入了 %s 領域",
   "replay.event.pooler.domain.moon": "吞月",
