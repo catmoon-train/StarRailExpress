@@ -217,20 +217,19 @@ public class DaywalkerRoleData extends SimpleRoleData {
                 changed = true;
                 // 回放记录：逐日者时刻触发
                 ReplayEventLog.record("replay.event.moment.daywalker", ReplayEventLog.player(player));
-                // 全场先播放一次提示音效（master 类型）
                 if (player.level() instanceof ServerLevel serverLevel) {
-                    serverLevel.playSound(null,
-                            player.getX(), player.getY(), player.getZ(),
-                            SoundEvents.ILLUSIONER_PREPARE_BLINDNESS,
-                            SoundSource.MASTER, 1.0F, 1.0F);
-                    // 提示音效结束后，再开始播放逐日者音乐（master 类型）
+                    for (ServerPlayer listener : serverLevel.players()) {
+                        listener.playNotifySound(SoundEvents.ILLUSIONER_PREPARE_BLINDNESS,
+                                SoundSource.MASTER, 1.0F, 1.0F);
+                    }
+                    // 提示音效结束后，再开始播放逐日者音乐（master 类型，同样全场逐人发包）
                     Scheduler.schedule(() -> {
-                        if (player.level() instanceof ServerLevel sl
+                        if (serverLevel == player.level()
                                 && GameUtils.isPlayerAliveAndSurvival(player)) {
-                            sl.playSound(null,
-                                    player.getX(), player.getY(), player.getZ(),
-                                    NRSounds.DAYWALKER,
-                                    SoundSource.MASTER, 1.0F, 1.0F);
+                            for (ServerPlayer listener : serverLevel.players()) {
+                                listener.playNotifySound(NRSounds.DAYWALKER,
+                                        SoundSource.MASTER, 1.0F, 1.0F);
+                            }
                         }
                     }, 30);
                     // 全场广播：终末追逐已经开始（不透露逐日者身份）
@@ -436,8 +435,8 @@ public class DaywalkerRoleData extends SimpleRoleData {
             }
         }
         // 结束终末追逐音效（参考亡命徒 StopSound 的停播写法）：
-        // 逐日者音乐是以全场广播方式播放的一次性音效，死亡后不会自行停止，
-        // 这里向全场发送停播包，按「音效 ID + MASTER 声道」精确停掉逐日者音乐。
+        // 逐日者音乐是开场时逐名玩家发包播放的一次性音效，死亡后不会自行停止，
+        // 这里同样向全场发送停播包，按「音效 ID + MASTER 声道」精确停掉逐日者音乐。
         if (wasFinalChaseActive && player.level() instanceof ServerLevel serverLevel) {
             for (ServerPlayer other : serverLevel.players()) {
                 other.connection.send(new ClientboundStopSoundPacket(
