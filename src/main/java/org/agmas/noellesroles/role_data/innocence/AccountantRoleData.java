@@ -289,7 +289,7 @@ public class AccountantRoleData extends SimpleRoleData {
                 true);
         // 回放记录：xxx 查询了 xxx 的收入，结果为 xxx
         ReplayEventLog.record("replay.event.accountant.query_income",
-                ReplayEventLog.player(serverPlayer), ReplayEventLog.name(target), source);
+                ReplayEventLog.player(serverPlayer), ReplayEventLog.player(target), source);
         return true;
     }
 
@@ -322,7 +322,7 @@ public class AccountantRoleData extends SimpleRoleData {
                 true);
         // 回放记录：xxx 查询了 xxx 的支出状况
         ReplayEventLog.record("replay.event.accountant.query_expense",
-                ReplayEventLog.player(serverPlayer), ReplayEventLog.name(target));
+                ReplayEventLog.player(serverPlayer), ReplayEventLog.player(target));
 
         sync();
         return true;

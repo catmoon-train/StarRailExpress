@@ -319,7 +319,7 @@ public class StarGathererRoleData extends SimpleRoleData {
                 other.getInventory().setItem(slot, ItemStack.EMPTY);
                 // 回放记录：xxx 吸引了 xxx 背包中的 xx
                 ReplayEventLog.record("replay.event.star_gatherer.gravity_pull",
-                        ReplayEventLog.player(sp), ReplayEventLog.name(other), stack.getHoverName());
+                        ReplayEventLog.player(sp), ReplayEventLog.player(other), stack.getHoverName());
                 // 同类只留一件；已经有一件的话就直接丢弃
                 if (SREItemUtils.countItem(sp, stack.getItem()) > 0 || !SREItemUtils.insertStackInFreeSlot(sp, stack.copy())) {
                     // 丢弃：掉在原地，不进入任何人的背包
@@ -395,7 +395,7 @@ public class StarGathererRoleData extends SimpleRoleData {
                 .withStyle(ChatFormatting.AQUA), true);
         // 回放记录：xxx 给予了 xxx xx
         ReplayEventLog.record("replay.event.star_gatherer.alms",
-                ReplayEventLog.player(sp), ReplayEventLog.name(target), hand.getHoverName());
+                ReplayEventLog.player(sp), ReplayEventLog.player(target), hand.getHoverName());
         return true;
     }
 

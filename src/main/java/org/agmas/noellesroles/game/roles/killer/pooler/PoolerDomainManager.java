@@ -242,7 +242,7 @@ public final class PoolerDomainManager {
             pullIn(domain, target, x, z, false);
             // 回放记录：xxx 将 xxx 拉入了 xx 领域
             ReplayEventLog.record("replay.event.pooler.pull_domain",
-                    ReplayEventLog.player(caster), ReplayEventLog.name(target),
+                    ReplayEventLog.player(caster), ReplayEventLog.player(target),
                     Component.translatable("replay.event.pooler.domain.moon"));
             index++;
         }
@@ -314,7 +314,7 @@ public final class PoolerDomainManager {
             pullIn(domain, target, x, z, false);
             // 回放记录：xxx 将 xxx 拉入了 xx 领域
             ReplayEventLog.record("replay.event.pooler.pull_domain",
-                    ReplayEventLog.player(caster), ReplayEventLog.name(target),
+                    ReplayEventLog.player(caster), ReplayEventLog.player(target),
                     Component.translatable("replay.event.pooler.domain.aquarium"));
             index++;
         }

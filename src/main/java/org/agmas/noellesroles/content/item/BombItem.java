@@ -250,7 +250,7 @@ public class BombItem extends Item {
                                 || (lastFrom.equals(target.getUUID()) && lastTo.equals(player.getUUID())));
                 if (!repeatedPair) {
                     ReplayEventLog.record("replay.event.bomb.pass",
-                            ReplayEventLog.player(player), ReplayEventLog.name(target));
+                            ReplayEventLog.player(player), ReplayEventLog.player(target));
                 }
                 tag.putUUID("lastFrom", player.getUUID());
                 tag.putUUID("lastTo", target.getUUID());

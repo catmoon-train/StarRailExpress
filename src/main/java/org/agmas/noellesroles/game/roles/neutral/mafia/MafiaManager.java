@@ -154,7 +154,7 @@ public final class MafiaManager {
             comp.sync();
             // 回放记录：xxx 招募了 xxx
             ReplayEventLog.record("replay.event.godfather.recruit",
-                    ReplayEventLog.player(player), ReplayEventLog.name(tgt));
+                    ReplayEventLog.player(player), ReplayEventLog.player(tgt));
 
             // 被招募者：发送欢迎报幕
             RoleUtils.sendWelcomeAnnouncement(tgt, newRole);

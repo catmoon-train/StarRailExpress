@@ -131,8 +131,8 @@ public class CupidRoleData extends SimpleRoleData {
         bindLovers(firstTarget, target, modifiers);
         // 回放记录：xxx 将 xxx 和 xxx 缔结成了恋人
         ReplayEventLog.record("replay.event.cupid.linked",
-                ReplayEventLog.player(cupid), ReplayEventLog.name(firstTarget),
-                ReplayEventLog.name(target));
+                ReplayEventLog.player(cupid), ReplayEventLog.player(firstTarget),
+                ReplayEventLog.player(target));
         clearMark();
         cupid.displayClientMessage(Component.translatable("message.noellesroles.cupid.linked",
                 firstTarget.getDisplayName(), target.getDisplayName()).withStyle(ChatFormatting.GOLD), true);

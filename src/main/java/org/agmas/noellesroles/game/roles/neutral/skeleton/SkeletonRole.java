@@ -253,7 +253,7 @@ public class SkeletonRole extends ExtraEffectRole implements CustomWinnerRoleInt
         SRE.REPLAY_MANAGER.recordPlayerRevival(revived.getUUID(), ModRoles.SKELETON);
         // 回放记录：xxx 使用骸骨之书复活了 xxx
         ReplayEventLog.record("replay.event.bone_book.revive",
-                ReplayEventLog.player(user), ReplayEventLog.name(revived));
+                ReplayEventLog.player(user), ReplayEventLog.player(revived));
         
         revived.updateFluidOnEyes();
         revived.updateInWaterStateAndDoFluidPushing();

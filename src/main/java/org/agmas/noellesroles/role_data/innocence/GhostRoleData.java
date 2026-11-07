@@ -277,13 +277,13 @@ public class GhostRoleData extends SimpleRoleData {
         }
         if (furanBranch && ghostPlayer != null && furanPlayer != null) {
             ReplayEventLog.record("replay.event.ghost.accelerate_time.both",
-                    ReplayEventLog.name(ghostPlayer), ReplayEventLog.name(furanPlayer));
+                    ReplayEventLog.player(ghostPlayer), ReplayEventLog.player(furanPlayer));
         } else if (furanBranch) {
             ReplayEventLog.record("replay.event.ghost.accelerate_time.furandoru",
-                    ReplayEventLog.name(player));
+                    ReplayEventLog.player(player));
         } else {
             ReplayEventLog.record("replay.event.ghost.accelerate_time.ghost",
-                    ReplayEventLog.name(player));
+                    ReplayEventLog.player(player));
         }
     }
 

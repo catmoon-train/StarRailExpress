@@ -43,12 +43,26 @@ public final class ReplayEventLog {
         }
     }
 
-    /** 回放里统一使用的玩家名（带职业着色）。 */
+    /**
+     * 回放里统一使用的玩家名（带职业着色）。
+     *
+     * <p>
+     * 事件回放中所有「玩家」占位符都应当用这个：它会在名字后追加当前职业并着色，
+     * 与时间线里其它事件保持一致的显示样式。只有确实需要裸名字时才用 {@link #name(Player)}。
+     * </p>
+     */
     public static Component player(Player player) {
         return GameReplayUtils.getReplayPlayerDisplayText(player, true);
     }
 
-    /** 纯玩家名，用于明确要求「xxx」而非职业着色名的文案。 */
+    /**
+     * 纯玩家名（不带职业）。
+     *
+     * <p>
+     * <b>不要</b>用它来填事件回放里的玩家占位符——那样只有裸名字，和 {@link #player(Player)}
+     * 产出的「名字 (职业)」混在同一条回放里会明显不一致。当前仅保留作工具方法备用。
+     * </p>
+     */
     public static Component name(Player player) {
         return player == null ? Component.literal("?") : player.getName();
     }

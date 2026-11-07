@@ -1635,8 +1635,8 @@ public class ModPacketsReciever {
           comp.sync();
           // 回放记录：xxx 交换了 xxx 和 xxx 的声带
           ReplayEventLog.record("replay.event.embalmer.voice_swap",
-              ReplayEventLog.player(player), ReplayEventLog.name(first),
-              ReplayEventLog.name(second));
+              ReplayEventLog.player(player), ReplayEventLog.player(first),
+              ReplayEventLog.player(second));
 
           player.displayClientMessage(
               Component.translatable("message.noellesroles.embalmer.voice_swap.done", first.getName(),
