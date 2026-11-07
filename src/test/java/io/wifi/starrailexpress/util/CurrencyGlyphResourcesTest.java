@@ -15,16 +15,16 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * 货币图标字形（Unicode 私有使用区）回归测试。
  * <p>
- * 历史问题：翻译工具会把语言文件里的私有使用区字符改写成别的码位（例如 {@code \uE781} 变成
- * {@code \uE000} 或被吞掉），导致金币/代币图标显示成方块或消失。
+ * 历史问题：翻译工具会把语言文件里的私有使用区字符改写成别的码位，或被吞掉，
+ * 导致金币/代币图标显示成方块或消失。
  * 现在字形码位由 {@link ShopEntry.Currency#iconText()} 硬编码提供，语言文件只保留 {@code %s}，
  * 本测试确保这条约定不被破坏。
  */
 class CurrencyGlyphResourcesTest {
 
     /** 代码里硬编码的货币字形码位，必须与 font/default.json 的注册一致。 */
-    private static final String MONEY_GLYPH = "\uE000";
-    private static final String TOKEN_GLYPH = "\uE001";
+    private static final String MONEY_GLYPH = "\uE781";
+    private static final String TOKEN_GLYPH = "\uE782";
 
     /** 价格/金额类翻译键：文案里只允许出现占位符，不允许出现货币字形。 */
     private static final String[][] AMOUNT_KEYS = {
@@ -42,9 +42,9 @@ class CurrencyGlyphResourcesTest {
     void fontRegistersTheHardcodedCurrencyGlyphs() throws Exception {
         List<String> chars = registeredBitmapChars("assets/minecraft/font/default.json");
         assertTrue(chars.contains(MONEY_GLYPH),
-                "font/default.json 必须把金币图标注册到 \\uE000，实际: " + chars);
+                "font/default.json 必须把金币图标注册到 \\uE781，实际: " + chars);
         assertTrue(chars.contains(TOKEN_GLYPH),
-                "font/default.json 必须把代币图标注册到 \\uE001，实际: " + chars);
+                "font/default.json 必须把代币图标注册到 \\uE782，实际: " + chars);
     }
 
     @Test

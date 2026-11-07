@@ -113,7 +113,7 @@ public class StoreRenderer {
         public void render(Font renderer, @NotNull GuiGraphics context, int x, int y, int colour, float delta) {
             context.pose().pushPose();
             context.pose().translate(x, y, 0);
-            context.drawString(renderer, "\uE000", 0, 0, colour);
+            context.drawString(renderer, ShopEntry.Currency.MONEY.iconText(), 0, 0, colour);
             int offset = -8;
             for (ScrollingDigit digit : this.digits) {
                 context.pose().pushPose();
@@ -130,7 +130,7 @@ public class StoreRenderer {
         }
 
         public int getWidth(Font renderer) {
-            int iconWidth = renderer.width("\uE000");
+            int iconWidth = renderer.width(ShopEntry.Currency.MONEY.iconText());
             int digitWidth = this.digits.size() * 8;
             return iconWidth + digitWidth;
         }

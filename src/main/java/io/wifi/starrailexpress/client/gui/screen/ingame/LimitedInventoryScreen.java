@@ -859,7 +859,7 @@ public class LimitedInventoryScreen extends LimitedHandledScreen<InventoryMenu> 
                 effectivePrice = DynamicShopComponent.KEY.get(clientPlayer)
                         .effectivePrice(liveEntry.stack(), basePrice);
             }
-            // 价格按条目货币类型显示：默认金币（\uE000 图标）；游戏代币用对应翻译键（带代币图标字形）
+            // 价格按条目货币类型显示：数字 + 该货币的字形（字形码位由 ShopEntry.Currency.iconText() 提供）
             ShopEntry.Currency currency = liveEntry.currency() == null
                     ? ShopEntry.Currency.MONEY
                     : liveEntry.currency();
