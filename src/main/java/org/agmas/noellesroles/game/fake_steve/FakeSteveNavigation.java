@@ -24,6 +24,7 @@ final class FakeSteveNavigation {
         Vec3 remaining = end.subtract(body.position());
         if (FakeSteveTraversalPolicy.reached(remaining.x, remaining.y, remaining.z)) {
             state.path.clear();
+            state.pathReached = true;
             state.pathFailureCount = 0;
             hold(body, state);
             return;
@@ -37,7 +38,12 @@ final class FakeSteveNavigation {
                 || body.distanceToSqr(FakeSteveNavigator.point(level, next)) > 36.0D);
         if (FakeSteveTraversalPolicy.repath(state.path.isEmpty(), invalid, changed, now, state.nextPathTick)) {
             state.path.clear();
-            state.path.addAll(FakeSteveNavigator.find(level, body, destination, pursuit));
+            FakeSteveNavigator.Result result =
+                    FakeSteveNavigator.search(level, body, destination, pursuit);
+            state.path.addAll(result.path());
+            // 记录「是否真的到达」：false 时 path 只是离目标最近的一段，不能当成已到达。
+            state.pathReached = result.reached();
+            state.pathSearchVisited = result.visited();
             state.plannedGoal = destination.immutable();
             state.nextPathTick = now + (pursuit ? 12L : 30L);
             invalid = false;
@@ -91,14 +97,18 @@ final class FakeSteveNavigation {
             hold(body, state);
             return;
         }
+        // 跳跃与水中上浮共用同一个按键，必须服从同一份地图约束（FakeSteveNavRules）：
+        // 禁跳地图不按跳跃键；禁游地图不为了浮起来按跳跃键（否则会一直保持在水面，
+        // 眼睛不入水，CANNOT_SWIM 的环境判死永远不触发）。
+        FakeSteveNavRules rules = FakeSteveNavRules.of(level, body);
         boolean wet = body.isInWater() || body.isUnderWater();
         boolean climbing = body.onClimbable();
         int lift = FakeSteveNavigator.lift(level, body.blockPosition());
-        boolean jump = wet && FakeSteveNavigator.swimmingAllowed(level)
+        boolean jump = wet && rules.canSwim()
                 && FakeSteveTraversalPolicy.swimUp(lift, body.getY(), target.y);
         boolean crouch = wet && FakeSteveTraversalPolicy.swimDown(lift, body.getY(), target.y);
         if (!wet && !climbing && delta.y > 0.6D && body.onGround()
-                && SREGameWorldComponent.KEY.get(level).isJumpAvailable() && now >= state.nextJumpTick) {
+                && rules.canJump() && now >= state.nextJumpTick) {
             jump = true;
             state.nextJumpTick = now + 10L;
         }

@@ -546,7 +546,11 @@ public class FakeSteveAi {
             candidates.add(body.blockPosition().offset(level.random.nextInt(25) - 12, 0,
                     level.random.nextInt(25) - 12));
         }
-        candidates = candidates.stream().map(pos -> FakeSteveNavigator.normalize(level, pos)).distinct()
+        // 候选点先用一次「便宜的」站立判定筛掉，再按距离排序取最近的几个。
+        // 注意这里不能对每个候选都跑一次完整 A*：旧实现最多会连跑 4 次全量搜索，
+        // 每次都要读上万次方块状态，是伪人 AI 最贵的一条路径。
+        List<BlockPos> ordered = candidates.stream()
+                .map(pos -> FakeSteveNavigator.normalize(level, pos)).distinct()
                 .filter(pos -> body.distanceToSqr(Vec3.atCenterOf(pos)) >= 9.0D
                         && body.distanceToSqr(Vec3.atCenterOf(pos)) <= 48.0D * 48.0D)
                 .filter(pos -> state.unreachableGoals.getOrDefault(pos, 0L) <= now)
@@ -554,12 +558,18 @@ public class FakeSteveAi {
                 .filter(pos -> FakeSteveNavigator.standable(level, pos))
                 .sorted(Comparator.comparingDouble(pos -> Math.abs(body.distanceToSqr(Vec3.atCenterOf(pos)) - 144)
                         + Math.floorMod(pos.hashCode() ^ body.getId() ^ (int) (now / 200), 80)))
-                .limit(4).toList();
-        for (BlockPos candidate : candidates) {
-            var route = FakeSteveNavigator.find(level, body, candidate);
-            if (FakeSteveNavigator.reaches(route, candidate)) {
+                .limit(3).toList();
+        // 共享同一个 SearchWorld：候选之间大量方块重叠，缓存可以复用，
+        // 也让「失败的候选」不会重复付出整份方块读取成本。
+        FakeSteveNavigator.SearchWorld world = new FakeSteveNavigator.SearchWorld(level, body);
+        for (BlockPos candidate : ordered) {
+            FakeSteveNavigator.Result result =
+                    FakeSteveNavigator.search(world, candidate, false);
+            if (result.reached()) {
                 state.path.clear();
-                state.path.addAll(route);
+                state.path.addAll(result.path());
+                state.pathReached = true;
+                state.pathSearchVisited = result.visited();
                 state.plannedGoal = candidate;
                 state.nextPathTick = now + 30;
                 state.navigationNode = null;
