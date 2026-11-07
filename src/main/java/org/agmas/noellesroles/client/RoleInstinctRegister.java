@@ -32,6 +32,7 @@ import org.agmas.noellesroles.role_data.innocence.AwesomeRoleData;
 import org.agmas.noellesroles.role_data.innocence.FoolRoleData;
 import org.agmas.noellesroles.role_data.innocence.MonitorRoleData;
 import org.agmas.noellesroles.role_data.killer.ExecutionerRoleData;
+import org.agmas.noellesroles.role_data.killer.WraithAssassinRoleData;
 import org.agmas.noellesroles.role_data.killer.InsaneKillerRoleData;
 import org.agmas.noellesroles.role_data.killer.ManipulatorRoleData;
 import org.agmas.noellesroles.role_data.neutral.AdmirerRoleData;
@@ -593,9 +594,12 @@ public class RoleInstinctRegister {
                     if (target instanceof Player targetPlayer && targetPlayer != viewer
                             && SREClient.isPlayerAliveAndInSurvival()) {
                         int san = Math.round(SREPlayerMoodComponent.KEY.get(targetPlayer).getMood() * 100.0f);
-                        if (san < 10)
+                        // 阈值直接引用职业数值，避免与 RoleData 里的判定脱节：
+                        // 蓝框 = 已被压到 LOW_SAN_BLUE 以下（可被未显现的冤魂突击命中 / 附近会被压迫）
+                        // 黄框 = LOW_SAN_YELLOW 以下（会吃到厉鬼嚎叫），但还没低到蓝色档
+                        if (san < WraithAssassinRoleData.LOW_SAN_BLUE)
                             return TrueFalseAndCustomResult.custom(0x2C8DFF);
-                        if (san < 30)
+                        if (san < WraithAssassinRoleData.LOW_SAN_YELLOW)
                             return TrueFalseAndCustomResult.custom(0xFFD84A);
                     }
                     return TrueFalseAndCustomResult.pass();

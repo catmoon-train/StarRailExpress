@@ -61,7 +61,11 @@ public class EntityMixin {
     @Inject(method = "move", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/Entity;vibrationAndSoundEffectsFromBlock(Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/block/state/BlockState;ZZLnet/minecraft/world/phys/Vec3;)Z", ordinal = 0))
     public void moving(MoverType p_19973_, Vec3 p_19974_, CallbackInfo ci) {
         Entity self = (Entity) (Object) this;
-        if (self instanceof ServerPlayer serverPlayer) {
+        // 只有真的发生了水平位移才算「操作」。
+        // move() 对零位移不会提前返回（只有 noPhysics / PISTON + Vec3.ZERO 才早退），
+        // 站在原地的玩家每 tick 都会走到这里；若无条件 updateActivity()，
+        // lastActionTime 每 tick 被清零，AFK 计时永远累积不到阈值（幽幽子的「静止玩家」判定因此失效）。
+        if (self instanceof ServerPlayer serverPlayer && p_19974_.horizontalDistanceSqr() > 1.0E-7D) {
             // 更新该玩家的最后移动时间
             SREPlayerAFKComponent.KEY.maybeGet(serverPlayer).ifPresent(SREPlayerAFKComponent::updateActivity);
 

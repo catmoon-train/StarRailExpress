@@ -37,12 +37,22 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.entity.player.Player;
+import java.util.UUID;
 
 public class THYuyukoRoleData extends SimpleRoleData {
     public static final int AFK_THRESHOLD = 10 * 20;
+    /** 吞玩家技能 id（用于失败时退还冷却）。 */
+    private static final net.minecraft.resources.ResourceLocation EAT_PLAYER_SKILL_ID = SRE.id("yuyuko/eat_player");
+    /** 发起击杀后等待几个 tick 再结算结果（死亡链经 server.execute() 排队，下一 tick 必然已完成）。 */
+    private static final int PENDING_EAT_RESOLVE_TICKS = 1;
+
     public int ateCount = 0;
     public int winnerNeedCount = 0;
     public int instinctLeft = 0;
+
+    /** 待结算的「吞玩家」目标（击杀已发起，结果待下一 tick 确认）。 */
+    private java.util.UUID pendingEatTarget = null;
+    private int pendingEatTicks = 0;
 
     public THYuyukoRoleData(RoleDataContext context) {
         super(context);
@@ -98,26 +108,51 @@ public class THYuyukoRoleData extends SimpleRoleData {
             return false;
         }
 
-        // 先发起吞噬（非强制死亡）：目标可能被护盾、无敌、职业免死等原因挡下
+        // 先发起吞噬（非强制死亡）：目标可能被护盾、无敌、职业免死等原因挡下。
+        //
+        // GameUtils.killPlayer 走 server.execute()：在主线程的 tick 内它是「排队」而非内联执行
+        // （BlockableEventLoop.executeIfPossible → scheduleExecutables() 在 reentrantCount != 0 时成立，
+        // 只把任务塞进队列），所以这里读不到死亡结果。
+        // 因此先返回 true 让技能正常进入冷却，再由 serverTick 在下一个 tick 结算：
+        // 目标死了才算吃成功（计数 + 奖励），没死则退还冷却并提示被挡下。
         GameUtils.killPlayer(t, false, player, GameConstants.DeathReasons.YUYUKO_EATEN);
-        // killPlayer 在主线程内联执行，此处即可同步拿到死亡结果。
-        // 只有目标真正死亡（不再处于存活状态）才算吞噬成功；
-        // 若伤害被盾 / 无敌 / 其它原因挡下，目标仍然存活，则不算被吃掉，不计胜利进度。
-        if (GameUtils.isPlayerAliveAndSurvival(target)) {
+        pendingEatTarget = target.getUUID();
+        pendingEatTicks = PENDING_EAT_RESOLVE_TICKS;
+        return true;
+    }
+
+    /** 结算一次「吞玩家」的结果（由 {@link #serverTick()} 在下一 tick 调用）。 */
+    private void resolvePendingEat() {
+        UUID targetId = pendingEatTarget;
+        pendingEatTarget = null;
+        pendingEatTicks = 0;
+        if (targetId == null) {
+            return;
+        }
+        ServerPlayer target = player.getServer() == null ? null
+                : player.getServer().getPlayerList().getPlayer(targetId);
+        if (target != null && GameUtils.isPlayerAliveAndSurvival(target)) {
+            // 目标仍然存活 → 被护盾 / 无敌 / 职业免死挡下：退还冷却，不计胜利进度
+            io.wifi.starrailexpress.cca.SREAbilityPlayerComponent.KEY.get(player)
+                    .setSkillCooldown(EAT_PLAYER_SKILL_ID, 0);
             player.displayClientMessage(Component
                     .translatable("message.noellesroles.yuyuko.player.failed", target.getName(),
                             Component.translatable("message.noellesroles.yuyuko.player.failed.blocked"))
                     .withStyle(ChatFormatting.RED), true);
-            return false;
+            return;
         }
-        player.displayClientMessage(Component.translatable("message.noellesroles.yuyuko.success", t.getName()),
+        // 目标已死亡（或已离场）→ 吞噬成功
+        player.displayClientMessage(
+                Component.translatable("message.noellesroles.yuyuko.success",
+                        target != null ? target.getName() : Component.literal("?")),
                 true);
-        SRE.REPLAY_MANAGER.recordCustomEvent(Component.translatable("replay.noellesroles.yuyuko.eat",
-                GameReplayUtils.getReplayPlayerDisplayText(player, true),
-                GameReplayUtils.getReplayPlayerDisplayText(target, true)));
+        if (target != null) {
+            SRE.REPLAY_MANAGER.recordCustomEvent(Component.translatable("replay.noellesroles.yuyuko.eat",
+                    GameReplayUtils.getReplayPlayerDisplayText(player, true),
+                    GameReplayUtils.getReplayPlayerDisplayText(target, true)));
+        }
         ateCount++;
         endEat();
-        return true;
     }
 
     public boolean tryEat(PlayerBodyEntity body) {
@@ -175,6 +210,12 @@ public class THYuyukoRoleData extends SimpleRoleData {
 
     @Override
     public void serverTick() {
+        if (pendingEatTicks > 0) {
+            pendingEatTicks--;
+            if (pendingEatTicks == 0) {
+                resolvePendingEat();
+            }
+        }
         if (instinctLeft > 0) {
             instinctLeft--;
             if (instinctLeft <= 0) {

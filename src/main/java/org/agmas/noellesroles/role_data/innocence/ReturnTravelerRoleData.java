@@ -45,10 +45,14 @@ import org.agmas.noellesroles.utils.RoleUtils;
 import org.jetbrains.annotations.NotNull;
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
+import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 
 public class ReturnTravelerRoleData extends SimpleRoleData {
 
@@ -84,12 +88,17 @@ public class ReturnTravelerRoleData extends SimpleRoleData {
     public static final double LAST_TRAIN_RADIUS = 12.0D;
 
     /**
-     * 全局记录：当前正被归途旅人关在里世界中的玩家。
-     * 用于死亡拦截（里世界中的人不会被杀手杀死），不依赖共享的描边效果，
+     * 全局记录：当前正被归途旅人关在里世界中的玩家 → 里世界到期时刻（{@code getGameTime()}）。
+     * 用于死亡拦截（里世界中的人不会被杀手杀死），同时负责到期收尾，不依赖共享的描边效果，
      * 因此不会误伤布袋鬼里世界的目标。
+     *
+     * <p>
+     * 之所以放在静态表而不是各自的 RoleData 里：末班车在施法瞬间会把施法者转职为平民，
+     * 转职会 {@code clear()} 掉 {@code ReturnTravelerRoleData}，受害者名单与倒计时会一起丢失。
+     * </p>
      */
-    private static final Set<UUID> BACKWORLD_VICTIMS = new HashSet<>();
-
+    private static final Map<UUID, Long> BACKWORLD_EXPIRY = new HashMap<>();
+    private static boolean backworldTickRegistered = false;
 
     /** 当前选中的技能模式（同步给自己，用于 HUD 提示）。 */
     public int currentMode = MODE_OLD_FERRY;
@@ -112,6 +121,19 @@ public class ReturnTravelerRoleData extends SimpleRoleData {
     /** 末班车里世界剩余 tick。 */
     private int lastTrainBackworld = 0;
 
+    /**
+     * 旧日渡口在「释放瞬间」锁定的目标 UUID。
+     *
+     * <p>
+     * 范围判定必须在按下技能的那一瞬完成：前摇 2 秒内玩家会跑动，
+     * 若等到前摇结束再按距离筛选，被锁定的目标可能已经跑出圈、圈外的路人反而被拉进来。
+     * 前摇结束时只对这份名单做合法性复核（存活 / 未被别的里世界占用），不再重新判定距离。
+     * </p>
+     */
+    private final List<UUID> oldFerrySnapshot = new ArrayList<>();
+    /** 末班车在「释放瞬间」锁定的目标 UUID，语义同 {@link #oldFerrySnapshot}。 */
+    private final List<UUID> lastTrainSnapshot = new ArrayList<>();
+
     /** 旧日渡口受害者。 */
     private final Set<UUID> oldFerryVictims = new HashSet<>();
     /** 末班车受害者。 */
@@ -130,7 +152,13 @@ public class ReturnTravelerRoleData extends SimpleRoleData {
 
     @Override
     public void init() {
-        releaseAllVictims();
+        // init() 会在一局开始 / 转职时被调用。这里不能顺手清空受害者：
+        // 末班车把施法者转职为平民时会走到 clear() → init()，
+        // 而那时受害者刚刚被拉进里世界（详见 releaseAllVictims 的注释）。
+        oldFerrySnapshot.clear();
+        lastTrainSnapshot.clear();
+        oldFerryVictims.clear();
+        lastTrainVictims.clear();
         currentMode = MODE_OLD_FERRY;
         lastTrainUsed = false;
         lastTrainActive = false;
@@ -194,6 +222,16 @@ public class ReturnTravelerRoleData extends SimpleRoleData {
                     String.format("%.1f", oldFerryCooldown / 20.0F)).withStyle(ChatFormatting.RED), true);
             return false;
         }
+        // 范围判定在释放瞬间完成，锁定最近的最多 2 名合法目标（前摇结束后不再重新判定距离）。
+        oldFerrySnapshot.clear();
+        oldFerrySnapshot.addAll(snapshotTargets(serverPlayer, OLD_FERRY_RADIUS, OLD_FERRY_MAX_TARGETS));
+        if (oldFerrySnapshot.isEmpty()) {
+            serverPlayer.displayClientMessage(
+                    Component.translatable("message.noellesroles.return_traveler.old_ferry.no_target")
+                            .withStyle(ChatFormatting.RED),
+                    true);
+            return false;
+        }
 
         oldFerryWindup = OLD_FERRY_WINDUP_TICKS;
         spawnFerryOpenEffect(serverPlayer);
@@ -203,6 +241,49 @@ public class ReturnTravelerRoleData extends SimpleRoleData {
                 true);
         sync();
         return true;
+    }
+
+    /**
+     * 里世界到期时间的统一时钟（主世界 gameTime）。
+     *
+     * <p>
+     * 登记与回收必须读同一个时钟：登记用施法者所在维度的 gameTime、回收用 overworld 的 gameTime，
+     * 一旦两者不同（里世界维度、下界/末地地图）就会立刻判定为过期或永不过期。
+     * </p>
+     */
+    private static long backworldClock(ServerPlayer reference) {
+        return reference.getServer() != null
+                ? reference.getServer().overworld().getGameTime()
+                : reference.level().getGameTime();
+    }
+    /**
+     * 在「释放瞬间」按距离锁定目标，返回按距离由近到远、最多 {@code maxTargets} 个的 UUID。
+     * <p>
+     * 只做一次半径筛选与排序，之后的流程（前摇结束 / 施法）只按这份名单复核合法性，
+     * 避免前摇期间玩家跑动导致「锁定的人跑了、圈外的人反而被拉进来」。
+     * </p>
+     */
+    private static List<UUID> snapshotTargets(ServerPlayer caster, double radius, int maxTargets) {
+        ServerLevel level = caster.serverLevel();
+        SREGameWorldComponent gameWorld = SREGameWorldComponent.KEY.get(level);
+        List<ServerPlayer> candidates = new ArrayList<>();
+        for (ServerPlayer other : level.players()) {
+            if (other == caster)
+                continue;
+            if (!isValidBackworldTarget(gameWorld, other))
+                continue;
+            if (other.distanceTo(caster) > radius)
+                continue;
+            candidates.add(other);
+        }
+        candidates.sort(Comparator.comparingDouble(caster::distanceTo));
+        List<UUID> result = new ArrayList<>(Math.min(candidates.size(), Math.max(0, maxTargets)));
+        for (ServerPlayer target : candidates) {
+            if (result.size() >= maxTargets)
+                break;
+            result.add(target.getUUID());
+        }
+        return result;
     }
 
     /**
@@ -230,29 +311,20 @@ public class ReturnTravelerRoleData extends SimpleRoleData {
         level.playSound(null, x, y, z, SoundEvents.PORTAL_TRIGGER, SoundSource.PLAYERS, 0.8F, 0.6F);
     }
 
-    /** 前摇结束：把 4 格内最近的 2 名玩家拉入里世界，归途旅人本人也一并进入里世界。 */
+    /** 前摇结束：把释放瞬间锁定的目标拉入里世界，归途旅人本人也一并进入里世界。 */
     private void startOldFerryBackworld(ServerPlayer serverPlayer) {
-        ServerLevel level = serverPlayer.serverLevel();
-        SREGameWorldComponent gameWorld = SREGameWorldComponent.KEY.get(level);
-
-        List<ServerPlayer> candidates = new ArrayList<>();
-        for (ServerPlayer other : level.players()) {
-            if (other == serverPlayer)
-                continue;
-            if (!isValidBackworldTarget(gameWorld, other))
-                continue;
-            if (other.distanceTo(serverPlayer) > OLD_FERRY_RADIUS)
-                continue;
-            candidates.add(other);
-        }
-        candidates.sort(Comparator.comparingDouble(serverPlayer::distanceTo));
+        SREGameWorldComponent gameWorld = SREGameWorldComponent.KEY.get(serverPlayer.level());
 
         oldFerryVictims.clear();
-        for (ServerPlayer target : candidates) {
+        // 只用释放瞬间锁定的名单，不再重新按距离判定（见 snapshotTargets 的注释）
+        for (UUID uuid : oldFerrySnapshot) {
             if (oldFerryVictims.size() >= OLD_FERRY_MAX_TARGETS)
                 break;
-            oldFerryVictims.add(target.getUUID());
-            BACKWORLD_VICTIMS.add(target.getUUID());
+            ServerPlayer target = serverPlayer.server.getPlayerList().getPlayer(uuid);
+            if (target == null || !isValidBackworldTarget(gameWorld, target))
+                continue;
+            oldFerryVictims.add(uuid);
+            BACKWORLD_EXPIRY.put(uuid, backworldClock(serverPlayer) + OLD_FERRY_BACKWORLD_TICKS);
             spawnEnterBackworldEffect(target);
             applyBackworldEffects(target, OLD_FERRY_BACKWORLD_TICKS);
             target.displayClientMessage(
@@ -268,7 +340,8 @@ public class ReturnTravelerRoleData extends SimpleRoleData {
 
         // 归途旅人本人也拉入里世界（与受害者身处同一里世界，获得隐身/禁言/禁用物品等效果）
         oldFerryVictims.add(serverPlayer.getUUID());
-        BACKWORLD_VICTIMS.add(serverPlayer.getUUID());
+        BACKWORLD_EXPIRY.put(serverPlayer.getUUID(),
+                backworldClock(serverPlayer) + OLD_FERRY_BACKWORLD_TICKS);
         spawnEnterBackworldEffect(serverPlayer);
         applyBackworldEffects(serverPlayer, OLD_FERRY_BACKWORLD_TICKS);
         serverPlayer.displayClientMessage(
@@ -294,7 +367,7 @@ public class ReturnTravelerRoleData extends SimpleRoleData {
                 removeBackworldEffects(target);
                 spawnCollapseEffect(target);
             }
-            BACKWORLD_VICTIMS.remove(uuid);
+            BACKWORLD_EXPIRY.remove(uuid);
         }
         oldFerryVictims.clear();
         oldFerryBackworld = 0;
@@ -334,6 +407,11 @@ public class ReturnTravelerRoleData extends SimpleRoleData {
 
         lastTrainUsed = true;
         lastTrainWindup = LAST_TRAIN_WINDUP_TICKS;
+        // 范围判定在释放瞬间完成：锁定 12 格内所有合法目标（无人数上限）。
+        // 前摇结束后只对这份名单做合法性复核，不再重新判定距离，
+        // 否则前摇 3 秒里跑出圈的人会逃掉、圈外的人反而被拉进来。
+        lastTrainSnapshot.clear();
+        lastTrainSnapshot.addAll(snapshotTargets(serverPlayer, LAST_TRAIN_RADIUS, Integer.MAX_VALUE));
         ServerLevel level = serverPlayer.serverLevel();
         level.playSound(null, serverPlayer.getX(), serverPlayer.getY(), serverPlayer.getZ(),
                 SoundEvents.PORTAL_TRIGGER, SoundSource.PLAYERS, 1.0F, 0.4F);
@@ -345,22 +423,21 @@ public class ReturnTravelerRoleData extends SimpleRoleData {
         return true;
     }
 
-    /** 前摇结束：把 12 格内除自己以外的所有玩家拉入里世界 30 秒。 */
+    /** 前摇结束：把释放瞬间锁定的目标拉入里世界 30 秒，随后施法者转为平民。 */
     private void startLastTrainBackworld(ServerPlayer serverPlayer) {
-        ServerLevel level = serverPlayer.serverLevel();
-        SREGameWorldComponent gameWorld = SREGameWorldComponent.KEY.get(level);
+        SREGameWorldComponent gameWorld = SREGameWorldComponent.KEY.get(serverPlayer.level());
 
         lastTrainVictims.clear();
-        for (ServerPlayer other : level.players()) {
-            if (other == serverPlayer)
+        // 只用释放瞬间锁定的名单，不再重新按距离判定
+        for (UUID uuid : lastTrainSnapshot) {
+            ServerPlayer other = serverPlayer.server.getPlayerList().getPlayer(uuid);
+            if (other == null || other == serverPlayer)
                 continue;
             if (!isValidBackworldTarget(gameWorld, other))
                 continue;
-            if (other.distanceTo(serverPlayer) > LAST_TRAIN_RADIUS)
-                continue;
 
-            lastTrainVictims.add(other.getUUID());
-            BACKWORLD_VICTIMS.add(other.getUUID());
+            lastTrainVictims.add(uuid);
+            BACKWORLD_EXPIRY.put(uuid, backworldClock(serverPlayer) + LAST_TRAIN_BACKWORLD_TICKS);
             spawnEnterBackworldEffect(other);
             applyBackworldEffects(other, LAST_TRAIN_BACKWORLD_TICKS);
             other.displayClientMessage(
@@ -387,13 +464,15 @@ public class ReturnTravelerRoleData extends SimpleRoleData {
                 Component.translatable("message.noellesroles.return_traveler.last_train.open",
                         lastTrainVictims.size()).withStyle(ChatFormatting.GOLD),
                 true);
+        // 先同步再转职：changeRole 会 clear() 掉这份 RoleData，之后 sync() 已无意义
+        // （受害者名单与倒计时都在 BACKWORLD_EXPIRY 里，由全局 tick 收尾）。
+        sync();
         RoleUtils.changeRole(serverPlayer, TMMRoles.CIVILIAN);
         RoleUtils.sendWelcomeAnnouncement(serverPlayer, TMMRoles.CIVILIAN);
         serverPlayer.displayClientMessage(
                 Component.translatable("message.noellesroles.return_traveler.last_train.leave")
                         .withStyle(ChatFormatting.GREEN, ChatFormatting.BOLD),
                 true);
-        sync();
     }
 
     /** 末班车里世界结束（时间到 / 主动下车）。 */
@@ -404,7 +483,7 @@ public class ReturnTravelerRoleData extends SimpleRoleData {
                 removeBackworldEffects(target);
                 spawnCollapseEffect(target);
             }
-            BACKWORLD_VICTIMS.remove(uuid);
+            BACKWORLD_EXPIRY.remove(uuid);
         }
         lastTrainVictims.clear();
         lastTrainBackworld = 0;
@@ -515,7 +594,14 @@ public class ReturnTravelerRoleData extends SimpleRoleData {
         }
     }
 
-    /** 剔除已经掉线/死亡的人并清除其里世界效果（药水已直接给满技能时长，无需每 tick 续期）。 */
+    /**
+     * 剔除已经掉线/死亡的人并清除其里世界效果（药水已直接给满技能时长，无需每 tick 续期）。
+     *
+     * <p>
+     * 这里只做本 RoleData 视角的清理：{@link #BACKWORLD_EXPIRY} 的登记由
+     * {@link #registerEvents()} 的全局 tick 统一回收，避免两处各自维护同一份状态。
+     * </p>
+     */
     private void maintainBackworld(ServerPlayer owner, Set<UUID> victims) {
         if (victims.isEmpty()) {
             return;
@@ -523,7 +609,6 @@ public class ReturnTravelerRoleData extends SimpleRoleData {
         victims.removeIf(uuid -> {
             ServerPlayer target = owner.server.getPlayerList().getPlayer(uuid);
             if (target == null || !GameUtils.isPlayerAliveAndSurvival(target)) {
-                BACKWORLD_VICTIMS.remove(uuid);
                 if (target != null) {
                     removeBackworldEffects(target);
                 }
@@ -611,26 +696,23 @@ public class ReturnTravelerRoleData extends SimpleRoleData {
         return true;
     }
 
-    /** 释放所有被困者（游戏结束 / 归途旅人退场）。 */
+    /**
+     * 释放本 RoleData 持有的受害者名单。
+     *
+     * <p>
+     * <b>不再</b>在这里移除受害者的里世界效果或 {@link #BACKWORLD_EXPIRY} 记录：
+     * 末班车会在施法瞬间把施法者转职为平民，转职链路会 {@code clear()} 掉这份 RoleData，
+     * 若此时顺手清空受害者，刚被拉进里世界的人会当场被放出来（技能等于没生效）。
+     * 里世界效果本身有固定时长，由 {@link #registerEvents()} 注册的全局 tick 按
+     * {@link #BACKWORLD_EXPIRY} 统一收尾。
+     * </p>
+     */
     private void releaseAllVictims() {
-        if (!(player instanceof ServerPlayer serverPlayer)) {
-            BACKWORLD_VICTIMS.removeAll(oldFerryVictims);
-            BACKWORLD_VICTIMS.removeAll(lastTrainVictims);
-            oldFerryVictims.clear();
-            lastTrainVictims.clear();
-            return;
-        }
-        Set<UUID> all = new HashSet<>(oldFerryVictims);
-        all.addAll(lastTrainVictims);
-        for (UUID uuid : all) {
-            ServerPlayer target = serverPlayer.server.getPlayerList().getPlayer(uuid);
-            if (target != null) {
-                removeBackworldEffects(target);
-            }
-            BACKWORLD_VICTIMS.remove(uuid);
-        }
         oldFerryVictims.clear();
         lastTrainVictims.clear();
+        oldFerryBackworld = 0;
+        lastTrainBackworld = 0;
+        lastTrainActive = false;
         if (player.hasEffect(ModEffects.BACKWORLD_OUTLINE)) {
             player.removeEffect(ModEffects.BACKWORLD_OUTLINE);
         }
@@ -639,11 +721,43 @@ public class ReturnTravelerRoleData extends SimpleRoleData {
     public static void registerEvents() {
         // 被归途旅人拉进里世界的玩家在里世界中不会被杀手杀死（掉出列车的环境即死除外）
         AllowPlayerDeathWithKiller.EVENT.register((victim, killer, deathReason) -> {
-            if (victim != null && BACKWORLD_VICTIMS.contains(victim.getUUID())
+            if (victim != null && BACKWORLD_EXPIRY.containsKey(victim.getUUID())
                     && !GameConstants.DeathReasons.FELL_OUT_OF_TRAIN.equals(deathReason)) {
                 return false;
             }
             return true;
+        });
+
+        if (backworldTickRegistered) {
+            return;
+        }
+        backworldTickRegistered = true;
+        // 里世界到期清理必须走全局 tick：受害者随时可能与归途旅人解绑
+        // （末班车把施法者转成平民、施法者死亡/退场、RoleData 被 clear 掉），
+        // 那时已经没有任何 RoleData.serverTick 会替他们收尾。
+        ServerTickEvents.END_SERVER_TICK.register(server -> {
+            if (BACKWORLD_EXPIRY.isEmpty()) {
+                return;
+            }
+            // 对局结束时统一收尾：里世界状态不跨局残留，否则下一局会误挡死亡。
+            boolean running = SREGameWorldComponent.KEY.get(server.overworld()).isRunning();
+            long now = server.overworld().getGameTime();
+            Iterator<Map.Entry<UUID, Long>> it = BACKWORLD_EXPIRY.entrySet().iterator();
+            while (it.hasNext()) {
+                Map.Entry<UUID, Long> entry = it.next();
+                ServerPlayer target = server.getPlayerList().getPlayer(entry.getKey());
+                boolean expired = !running || now >= entry.getValue();
+                if (target != null && !expired && GameUtils.isPlayerAliveAndSurvival(target)) {
+                    continue;
+                }
+                if (target != null) {
+                    removeBackworldEffects(target);
+                    if (expired && running) {
+                        spawnCollapseEffect(target);
+                    }
+                }
+                it.remove();
+            }
         });
     }
 

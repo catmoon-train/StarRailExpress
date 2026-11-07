@@ -122,6 +122,12 @@ public class MonokumaEventHandler {
             // 玩家
             if (!RoleUtils.isPlayerTheJob(player, ModRoles.MONOKUMA)
                     && ((comp != null && comp.phase <= 1) || (comp == null))) {
+                // 「误杀平民而亡」是惩罚性死亡，不能拿它去抵消、更不能把它当成一次攻击来触发黑白变身。
+                // 否则拥有黑白修饰符的警长/义警误杀平民后不但不会死，还会当场变成黑白。
+                // 参考起义军的同款豁免：TraitorAndModifiers 的 AllowPlayerDeathWithKiller 处理。
+                if (GameConstants.DeathReasons.SHOT_INNOCENT.equals(deathReason)) {
+                    return true;
+                }
                 // 注意：直接在死亡事件回调里同步执行换职业 / 启动疯狂，会让其中任何异常顺着
                 // “攻击者攻击封包”的调用栈抛出，导致触发黑白的玩家（如义警）掉线。
                 // 这里只同步取消死亡，把繁重的狂暴触发推迟到干净的服务端任务栈上执行并捕获异常。

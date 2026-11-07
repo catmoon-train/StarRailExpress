@@ -70,7 +70,7 @@ public class WizardRoleData extends SimpleRoleData {
     public int shadowCooldownTicks = 0;
     public int explosionCooldownTicks = 0;
     public int blinkCooldownTicks = 0;
-    /** 九环火球术本局累计击杀数（上限 {@code wizardFireballMaxKills}，达到后无法再施放）。 */
+    /** 九环火球术本局累计击杀数（仅作统计；单次上限见 {@code wizardFireballMaxKills}）。 */
     public int fireballKills = 0;
 
     private boolean gaveStartingItems = false;
@@ -362,7 +362,10 @@ public class WizardRoleData extends SimpleRoleData {
     }
 
     private boolean castExplosion(ServerPlayer sp) {
-        if (fireballKills >= config().wizardFireballMaxKills) {
+        // 注意：这里不再按本局累计击杀数封禁施放。
+        // wizardFireballMaxKills 是「一次九环火球最多杀几人」，上限在 WizardSpells.explode 里按单次结算。
+        // 旧逻辑用累计额度，巫师杀掉 3 人后就永久无法再用这个技能，与配置语义不符。
+        if (config().wizardFireballMaxKills <= 0) {
             sp.displayClientMessage(Component.translatable("message.noellesroles.wizard.fireball_kill_limit",
                     config().wizardFireballMaxKills).withStyle(ChatFormatting.RED), true);
             return false;

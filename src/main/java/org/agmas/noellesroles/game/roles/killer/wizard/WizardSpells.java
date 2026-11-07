@@ -169,14 +169,14 @@ public final class WizardSpells {
         // 上限必须「先算清目标集合、再动手」，不能靠在遍历中累加计数来 break：
         //  GameUtils.killPlayer 走 server.execute()，死亡结算并非永远在本次调用内完成，
         //  一旦某次击杀被安全时间/护盾/事件否决、或死亡结算延迟，计数就会与实际脱节，
-        //  出现单次爆炸把人杀超上限的情况。这里先按「剩余额度」截断目标列表，
+        //  出现单次爆炸把人杀超上限的情况。这里先按上限截断目标列表，
         //  单次击杀数硬性 <= wizardFireballMaxKills。
-        int maxKills = config().wizardFireballMaxKills;
-        int remaining = Math.max(0, maxKills - comp.fireballKills);
-        Noellesroles.LOGGER.info(
-                "[Wizard] Nine-ring fireball detonated: maxKills(single)={}, used={}, remaining={}",
-                Integer.toString(maxKills), Integer.toString(comp.fireballKills), Integer.toString(remaining));
-        if (maxKills <= 0 || remaining <= 0) {
+        //
+        //  wizardFireballMaxKills 的语义是「一次九环火球最多杀几人」，
+        //  因此这里只做单次上限，不再扣减本局累计击杀数（comp.fireballKills 仅作统计）。
+        //  之前的写法用累计额度，巫师杀够 3 人后再次施放会因为额度为 0 而完全不生效。
+        int maxKills = Math.max(0, config().wizardFireballMaxKills);
+        if (maxKills <= 0) {
             return;
         }
 
@@ -192,9 +192,9 @@ public final class WizardSpells {
             }
         }
         candidates.sort(Comparator.comparingDouble(p -> centerDistanceSqr(p, center)));
-        // ② 按剩余额度截断，超出的目标只吃爆炸表现、不掉命
-        if (candidates.size() > remaining) {
-            candidates = new ArrayList<>(candidates.subList(0, remaining));
+        // ② 按单次上限截断，超出的目标只吃爆炸表现、不掉命
+        if (candidates.size() > maxKills) {
+            candidates = new ArrayList<>(candidates.subList(0, maxKills));
         }
 
         // ③ 统一结算（数量已受限）
