@@ -1,6 +1,5 @@
 package org.agmas.noellesroles.game.fake_steve;
 
-import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;

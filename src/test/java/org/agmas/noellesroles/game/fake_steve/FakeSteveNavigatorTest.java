@@ -220,6 +220,60 @@ class FakeSteveNavigatorTest {
                 "落差上限 0 格时一格下落也必须拒绝");
     }
 
+    // ---------------------------------------------------------------- 搜索内核的规则判定
+
+    /**
+     * {@link FakeSteveNavigator.SearchWorld#canStep} 是三条地图约束的唯一落地处，
+     * 所以直接对它的纯逻辑做断言，而不是再手写一份邻接模拟（那样测的是测试自己）。
+     */
+    @Test
+    void canStepHonoursJumpSwimAndFallRules() {
+        FakeSteveNavRules noJump = new FakeSteveNavRules(false, true, 3.0D);
+        FakeSteveNavRules canJump = new FakeSteveNavRules(true, true, 3.0D);
+
+        GridWorld world = new GridWorld();
+        world.open(new BlockPos(0, 0, 0));
+        world.plateau(new BlockPos(1, 0, 0));
+
+        FakeSteveNavigator.SearchWorld jumpable = searchWorld(world, canJump);
+        assertTrue(jumpable.canStep(new BlockPos(0, 0, 0), new BlockPos(1, 0, 0), 1.0D, false, false),
+                "允许跳跃时一格抬升可以走");
+
+        FakeSteveNavigator.SearchWorld blocked = searchWorld(world, noJump);
+        assertFalse(blocked.canStep(new BlockPos(0, 0, 0), new BlockPos(1, 0, 0), 1.0D, false, false),
+                "禁跳时整格高台不可走");
+        // 超过跳跃上限：即使允许跳跃也拒绝。
+        assertFalse(jumpable.canStep(new BlockPos(0, 0, 0), new BlockPos(1, 0, 0),
+                FakeSteveNavigator.MAX_JUMP_RISE + 0.01D, false, false),
+                "超过跳跃上限必须拒绝");
+        // 落差上限：0 格时任何下落都拒绝。
+        FakeSteveNavigator.SearchWorld noFall =
+                searchWorld(world, new FakeSteveNavRules(true, true, 0.0D));
+        assertFalse(noFall.canStep(new BlockPos(0, 1, 0), new BlockPos(0, 0, 0), -1.0D, false, false),
+                "落差上限 0 格时一格下落必须拒绝");
+        assertTrue(jumpable.canStep(new BlockPos(0, 1, 0), new BlockPos(0, 0, 0), -1.0D, false, false),
+                "落差上限 3 格时一格下落允许");
+    }
+
+    /** 禁游地图里水面不能作为落脚点：standable 直接为 false。 */
+    @Test
+    void waterIsNotStandableWhenSwimmingIsBanned() {
+        GridWorld world = new GridWorld();
+        world.open(new BlockPos(0, 0, 0));
+        world.water(new BlockPos(1, 0, 0));
+
+        assertFalse(searchWorld(world, new FakeSteveNavRules(true, false, 3.0D))
+                        .standable(new BlockPos(1, 0, 0)),
+                "禁游时水面不可站");
+        assertTrue(searchWorld(world, new FakeSteveNavRules(true, true, 3.0D))
+                        .standable(new BlockPos(1, 0, 0)),
+                "允许游泳时水面可站");
+    }
+
+    private static FakeSteveNavigator.SearchWorld searchWorld(GridWorld world, FakeSteveNavRules rules) {
+        return new FakeSteveNavigator.SearchWorld(world, rules);
+    }
+
     // ---------------------------------------------------------------- 工具
 
     private static PathResult search(GridWorld world, BlockPos start, BlockPos goal,

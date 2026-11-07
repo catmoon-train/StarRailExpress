@@ -72,6 +72,10 @@ final class FakeSteveNavigator {
      * 也保证运行时按同一条规则就能走到规划出来的那个节点。
      */
     private static final int[] VERTICAL_OFFSETS = {0, 1, -1, -2, -3};
+    /** 危险邻居（火/岩浆/伤害方块）的额外代价，对齐原版 {@code FIRE_IN_NEIGHBOR} 的 8。 */
+    static final double DAMAGING_NEIGHBOR_COST = 8.0D;
+    /** 水岸（相邻格是水）的额外代价，对齐原版 {@code WATER_BORDER} 的 8。 */
+    static final double WATER_BORDER_COST = 8.0D;
     /** 跳跃可以到达的最大抬升（格）：玩家跳跃上限约 1.25 格。 */
     static final double MAX_JUMP_RISE = 1.25D;
     /** 旧网格适配器共用的水平邻接顺序，保留路线判定的确定性。 */
@@ -303,11 +307,15 @@ final class FakeSteveNavigator {
         /** 其他玩家的位置快照：每次搜索取一次，避免在邻居循环里反复遍历玩家列表。 */
         private final List<Vec3> crowd;
 
+        /** 非空时表示这是一次「网格图」搜索（单元测试专用），方块来源全部走它。 */
+        private final FakeSteveNavWorld grid;
         private final Map<BlockPos, Boolean> standableCache = new HashMap<>();
         private final Map<BlockPos, Double> heightCache = new HashMap<>();
         private final Map<BlockPos, Boolean> waterCache = new HashMap<>();
         private final Map<BlockPos, Boolean> climbableCache = new HashMap<>();
         private final Map<BlockPos, Boolean> dangerousCache = new HashMap<>();
+        /** 危险邻居 / 水岸的代价缓存：每个节点只扫一次 24 邻域。 */
+        private final Map<BlockPos, Double> malusCache = new HashMap<>();
         private final Map<BlockPos, Boolean> stepCache = new HashMap<>();
         private final Map<BlockPos, Boolean> passageCache = new HashMap<>();
 
@@ -316,10 +324,21 @@ final class FakeSteveNavigator {
             this.mover = mover;
             this.origin = mover != null ? mover.blockPosition() : null;
             this.rules = FakeSteveNavRules.of(level, mover);
+            this.grid = null;
             this.crowd = mover == null ? List.of()
                     : level.players().stream()
                             .filter(p -> p != mover && p.isAlive() && !p.isSpectator())
                             .map(ServerPlayer::position).toList();
+        }
+
+        /** 只用于测试的构造器：把方块来源换成网格图，其余逻辑与生产完全一致。 */
+        SearchWorld(FakeSteveNavWorld grid, FakeSteveNavRules rules) {
+            this.level = null;
+            this.mover = null;
+            this.origin = null;
+            this.rules = rules;
+            this.grid = grid;
+            this.crowd = List.of();
         }
 
         /** 本次搜索的起点格（搜索半径与起终点归一化都以它为基准）。 */
@@ -350,7 +369,7 @@ final class FakeSteveNavigator {
         double standingY(BlockPos feet) {
             Double cached = heightCache.get(feet);
             if (cached != null) return cached;
-            double height = FakeSteveNavigator.standingY(level, feet);
+            double height = grid != null ? grid.standY(feet) : FakeSteveNavigator.standingY(level, feet);
             heightCache.put(feet, height);
             return height;
         }
@@ -361,21 +380,23 @@ final class FakeSteveNavigator {
 
         boolean water(BlockPos pos) {
             return waterCache.computeIfAbsent(pos.immutable(), p ->
-                    level.getBlockState(p).getFluidState().is(FluidTags.WATER));
+                    grid != null ? grid.isWater(p)
+                            : level.getBlockState(p).getFluidState().is(FluidTags.WATER));
         }
 
         boolean climbable(BlockPos pos) {
             return climbableCache.computeIfAbsent(pos.immutable(), p ->
-                    level.getBlockState(p).is(BlockTags.CLIMBABLE));
+                    grid == null && level.getBlockState(p).is(BlockTags.CLIMBABLE));
         }
 
         boolean stepBlock(BlockPos pos) {
             return stepCache.computeIfAbsent(pos.immutable(), p ->
-                    isStepBlock(level.getBlockState(p)));
+                    grid != null ? grid.stepBlock(p) : isStepBlock(level.getBlockState(p)));
         }
 
         boolean dangerous(BlockPos pos) {
             return dangerousCache.computeIfAbsent(pos.immutable(), p -> {
+                if (grid != null) return false;
                 BlockState state = level.getBlockState(p);
                 // 气泡柱下方的岩浆块也是伤害面，AI 不应以站上去为电梯入口。
                 return state.getFluidState().is(FluidTags.LAVA) || state.is(Blocks.FIRE)
@@ -385,15 +406,54 @@ final class FakeSteveNavigator {
             });
         }
 
+
+        /**
+         * 周围 24 格的「危险邻居」代价，对应原版 {@code FIRE_IN_NEIGHBOR} /
+         * {@code DAMAGING_IN_NEIGHBOR} / {@code WATER_BORDER}。
+         *
+         * <p>
+         * 原版对每个节点的 24 邻域（不含自身、上方、下方）扫一遍，遇到火/岩浆、伤害方块、
+         * 水就给出 8 的额外代价。这里只做「有危险邻居就加固定代价」的近似——本模组不需要
+         * 区分具体是哪种危险，重点是让 A* 愿意从岩浆块旁边绕开，而不是擦着走过去。
+         *
+         * <p>
+         * 代价：伤害方块邻居 {@link #DAMAGING_NEIGHBOR_COST}，水邻居 {@link #WATER_BORDER_COST}。
+         * 结果按节点缓存，避免同一次搜索里反复扫同一片邻域。
+         */
+        double neighbourMalus(BlockPos feet) {
+            Double cached = malusCache.get(feet);
+            if (cached != null) return cached;
+            double malus = 0.0D;
+            if (grid == null) {
+                for (int dx = -1; dx <= 1 && malus == 0.0D; dx++) {
+                    for (int dy = -1; dy <= 1 && malus == 0.0D; dy++) {
+                        for (int dz = -1; dz <= 1; dz++) {
+                            if (dx == 0 && dy == 0 && dz == 0) continue;
+                            // 原版排除「上方」与「下方」两格，只扫同一层的斜向与正侧向。
+                            if (dx == 0 && dz == 0) continue;
+                            BlockPos side = feet.offset(dx, dy, dz);
+                            if (dangerous(side)) {
+                                malus = DAMAGING_NEIGHBOR_COST;
+                                break;
+                            }
+                            if (malus == 0.0D && water(side)) malus = WATER_BORDER_COST;
+                        }
+                    }
+                }
+            }
+            malusCache.put(feet.immutable(), malus);
+            return malus;
+        }
         /** 路径简化时必须保留的节点：门（要停下来开）与台阶（要抬脚）。 */
         boolean preserveNode(BlockPos feet) {
+            if (grid != null) return grid.preserveNode(feet);
             return passage(feet) || stepBlock(feet);
         }
 
         boolean standable(BlockPos feet) {
             Boolean cached = standableCache.get(feet);
             if (cached != null) return cached;
-            boolean result = evaluate(feet);
+            boolean result = grid != null ? grid.standable(feet) : evaluate(feet);
             standableCache.put(feet.immutable(), result);
             return result;
         }
@@ -454,7 +514,8 @@ final class FakeSteveNavigator {
                         if (!corridor(from, target)) continue;
                         result.add(new FakeStevePathSearch.Edge<>(next.immutable(),
                                 (dx != 0 && dz != 0 ? 1.414D : 1.0D) + Math.abs(rise) * 0.35D
-                                        + (water(next) ? 0.4D : 0) + crowdCost(target)));
+                                        + (water(next) ? 0.4D : 0) + crowdCost(target)
+                                        + neighbourMalus(next)));
                         break;
                     }
                 }
@@ -488,6 +549,8 @@ final class FakeSteveNavigator {
         }
 
         boolean corridor(Vec3 from, Vec3 to) {
+            // 网格图没有真实碰撞体，可达性已经由 standable/canStep 表达，这里直接放行。
+            if (grid != null) return true;
             double dy = to.y - from.y;
             double length = from.distanceTo(to);
             if (length > 8.0D || Math.abs(dy) > 3.1D) return false;
