@@ -59,8 +59,19 @@ public final class FakeSteveAgentState {
     public double lastMoveZ;
     public long lastMoveTick;
     public BlockPos pathGoal;
-    public BlockPos lastWanderGoal;
+    /**
+     * 上一次寻路是否真的到达了目标。
+     *
+     * <p>
+     * {@code false} 表示 {@link #path} 只是「离目标最近的一段」——身体能走到哪儿算哪儿，
+     * 之后必须重新寻路，不能把这段路当成已经到达。
+     */
+    public boolean pathReached;
+    /** 上一次寻路展开的节点数（调试用；也用于发现「预算被打满」这种配置问题）。 */
+    public int pathSearchVisited;
+    /** 当前 A* 路线（已做共线合并）。{@link #pathReached} 为 false 时只是「最接近目标的一段」。 */
     public final ArrayDeque<BlockPos> path = new ArrayDeque<>();
+    public BlockPos lastWanderGoal;
     public long motionSequence;
     public FakeSteveMotionPolicy.Lease motionLease;
     public boolean motionSprint;

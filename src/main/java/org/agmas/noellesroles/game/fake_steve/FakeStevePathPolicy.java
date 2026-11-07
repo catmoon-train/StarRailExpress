@@ -15,13 +15,30 @@
 
 package org.agmas.noellesroles.game.fake_steve;
 
-/** Pure guards for navigation recovery and movement actions. */
+/**
+ * 寻路与移动的纯规则：不读世界、不持有状态，因此每一条都能被单元测试直接断言。
+ *
+ * <p>
+ * 与寻路相关的常数（{@link #STEP_HEIGHT}、{@link #VERTICAL_ORDER}）集中在这里，
+ * 让 {@link FakeSteveNavigator} 的搜索内核不掺杂魔法数字。
+ */
 final class FakeStevePathPolicy {
+    /** 原版玩家不需要跳跃输入就能迈上去的最大高度（0.6 格）。 */
+    static final double STEP_HEIGHT = 0.6D;
+    /**
+     * 同一水平坐标上尝试落脚的高度顺序：同层 → 上一层 → 下一层。
+     *
+     * <p>
+     * 顺序固定，因此「上层能站就跳上去」这种副作用不会发生；
+     * 也保证 A* 给出一条路时，运行时按同一条规则就能走上去。
+     */
+    static final int[] VERTICAL_ORDER = { 0, 1, -1 };
     private static final int[] LEVEL_OR_DESCEND = { 0, -1 };
     private static final int[] LEVEL_ASCEND_OR_DESCEND = { 0, 1, -1 };
 
     private FakeStevePathPolicy() {
     }
+
 
     static boolean shouldJump(boolean onGround, boolean ascends, long now, long nextJumpTick) {
         return onGround && ascends && now >= nextJumpTick;
@@ -58,12 +75,12 @@ final class FakeStevePathPolicy {
         return collisionEmpty || stair || slab || door;
     }
 
-    /** A stair flight is a 1-block grid step but only a half-block vanilla step-up. */
+    /** 一格高度的台阶/楼梯相当于半格抬升，可以直接走上去；其他抬升按 0.6 格上限。 */
     static boolean canAscendWithoutJump(double verticalRise, boolean destinationIsStep) {
         if (destinationIsStep && verticalRise <= 1.0D) {
             return true;
         }
-        return verticalRise <= 0.6D;
+        return verticalRise <= STEP_HEIGHT;
     }
 
     static boolean shouldFaceNextNode(float lookYaw, float nodeYaw) {
@@ -79,11 +96,6 @@ final class FakeStevePathPolicy {
 
     static boolean shouldAbandonIdleGoal(int pathFailures) {
         return pathFailures >= 4;
-    }
-
-    /** Route nodes beside an open drop cost more, so the body hugs the deck. */
-    static int edgePenalty(boolean dropBeside) {
-        return dropBeside ? 4 : 0;
     }
 
     static boolean needsRecalculation(int stuckTicks) {
@@ -110,18 +122,21 @@ final class FakeStevePathPolicy {
         return !onGround || targetY > bodyY + 0.2D;
     }
 
-    /** Open water (no floor) is legal but more expensive than a deck walk. */
+    /**
+     * 游泳相关的额外代价。节点类型本身已经给出水面代价（{@link FakeStevePathType#WATER}），
+     * 这里只补「完全没有支撑的开放水面」那一档，避免身体在深水里被 A* 当作捷径。
+     */
     static int swimPenalty(boolean openWater) {
         return openWater ? 3 : 0;
-    }
-
-    static boolean countsAsClimbing(boolean verticalProgress, boolean inWater) {
-        return verticalProgress || inWater;
     }
 
     static boolean shouldSprintForPursuit(boolean pursuingHuman, boolean psychoActive,
                                           boolean crowdBlocked) {
         return !crowdBlocked && (pursuingHuman || psychoActive);
+    }
+
+    static boolean countsAsClimbing(boolean verticalProgress, boolean inWater) {
+        return verticalProgress || inWater;
     }
 
     static boolean isWalkThroughFootLayer(boolean collisionEmpty, double collisionMaxY) {
@@ -132,7 +147,7 @@ final class FakeStevePathPolicy {
 
     /** A vanilla player can step up 0.6 blocks without a jump input. */
     static boolean canStepUpWithoutJump(double verticalRise) {
-        return verticalRise <= 0.6D;
+        return verticalRise <= STEP_HEIGHT;
     }
 
     static int[] verticalOffsets(boolean jumpsAllowed, boolean swimming) {

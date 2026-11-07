@@ -18,7 +18,6 @@ package org.agmas.noellesroles.game.fake_steve;
 import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.api.RoleSkill;
-import io.wifi.starrailexpress.cca.AreasWorldComponent;
 import io.wifi.starrailexpress.cca.DynamicShopComponent;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.cca.SREPlayerPsychoComponent;
@@ -73,6 +72,20 @@ public class FakeSteveAi {
     /** How long a body stays committed to one prey before re-evaluating. */
     private static final long PREY_COMMIT_TICKS = 80L;
     private static final int STRIKE_NONE = 0;
+    /** 目标点缓存容差：目标移动超过这个距离就当作换了目标，重算路线。 */
+    private static final double GOAL_REUSE_DISTANCE = 3.0D;
+    /**
+     * 路线节点到达判定（格）。
+     *
+     * <p>
+     * 路线已经做过共线合并，节点之间可能跨好几格，所以判定必须明显大于 1：
+     * 否则身体会停在节点前半格处反复「到达 → 重算」。
+     */
+    private static final double NODE_REACH_DISTANCE = 1.6D;
+    /** 路线的定期刷新间隔（tick）。原版 {@code PathNavigation} 同样约 20 tick 重算一次。 */
+    private static final long PATH_REFRESH_TICKS = 20L;
+    /** 一次寻路失败后的重试间隔（tick）。 */
+    private static final long PATH_RETRY_TICKS = 8L;
     private static final int STRIKE_KILLED = 1;
     private static final int STRIKE_BUSY = 2;
     private static final double GRENADE_MIN_RANGE = 4.0D;
@@ -1667,10 +1680,28 @@ public class FakeSteveAi {
         return state.trail.get(state.trailIndex);
     }
 
+    /**
+     * 沿 A* 路线走向 {@code goal}（每 tick 调用一次）。
+     *
+     * <p>
+     * 路线由 {@link FakeSteveNavigator} 给出，节点已经做过共线合并，只剩拐点、门与台阶。
+     * 本方法只做三件事：<b>推进节点</b>、<b>把下一个节点变成移动输入</b>、<b>判断有没有真的在前进</b>。
+     *
+     * <p>
+     * 与旧实现的差别：
+     * <ul>
+     * <li>节点是稀疏的，到达判定放宽到 {@link #NODE_REACH_DISTANCE}，并且一次 tick 可以连续推进多个节点，
+     * 不会出现「站在节点上反复判定同一格」的原地抖动；</li>
+     * <li>要不要跳按<b>目标格的真实站立高度差</b>算（半砖/楼梯算半格），不再靠「前面是不是台阶方块」猜；</li>
+     * <li>搜不到路时不立刻放弃：先尝试朝目标直线走一小段（{@link #tryStepToward}），
+     * 连续失败才累计 {@code pathFailureCount} 并退避。</li>
+     * </ul>
+     */
     static void follow(ServerLevel level, ServerPlayer body, BlockPos goal,
             FakeSteveAgentState state, double speed) {
         long now = level.getGameTime();
-        boolean changedGoal = state.pathGoal == null || !state.pathGoal.closerThan(goal, 3.0);
+        boolean changedGoal = state.pathGoal == null
+                || !state.pathGoal.closerThan(goal, GOAL_REUSE_DISTANCE);
         if (changedGoal) {
             state.hasStableRouteYaw = false;
             state.crowdedTicks = 0;
@@ -1679,81 +1710,68 @@ public class FakeSteveAi {
             state.lastPathDistanceSqr = Double.MAX_VALUE;
             state.lastPathProgressTick = now;
             state.pathFailureCount = 0;
+            state.pathReached = false;
         }
         if (!changedGoal && now < state.pathRetryAfterTick) {
-            FakeSteveMotionController.hold(body, state, body.getYRot(),
-                    FakeSteveMotionPolicy.walkingPitch(now, body.getUUID().hashCode(), true));
+            holdInPlace(body, state, now);
             return;
         }
-        if (state.path.isEmpty() || changedGoal
-                || now >= state.nextPathTick) {
-            state.pathGoal = goal.immutable();
-            state.path.clear();
-            boolean explicitTarget = state.mode == AgentMode.STALK
-                    || state.mode == AgentMode.HUNT
-                    || state.mode == AgentMode.ASSIMILATE;
-            state.path.addAll(FakeSteveNavigator.find(level, body, goal, explicitTarget));
-            state.nextPathTick = now + 20L;
-            state.lastPathDistanceSqr = Double.MAX_VALUE;
-            state.lastPathProgressTick = now;
+        // 已经站在目标格上：不要再为了同一个点每 20 tick 跑一次 A*。
+        if ((state.path.isEmpty() || state.pathReached)
+                && body.blockPosition().closerThan(goal, 1.5D)
+                && !needsVerticalSwim(body, goal.getY() + 0.1D)) {
+            holdInPlace(body, state, now);
+            return;
         }
-        BlockPos next = state.path.peekFirst();
+        if (state.path.isEmpty() || changedGoal || now >= state.nextPathTick) {
+            planRoute(level, body, goal, state, now);
+        }
+        BlockPos ahead = state.path.peekFirst();
+        boolean doorAhead = ahead != null && openDoorsOnApproach(level, body, ahead);
+        BlockPos next = advanceToNextNode(body, state);
         if (next == null) {
-            if (body.blockPosition().closerThan(goal, 1.0D)
+            // 节点已经全部走完：只要身体已经在目标附近就算到达，不要为了最后半格判成寻路失败。
+            if (body.blockPosition().closerThan(goal, 2.0D)
                     && !needsVerticalSwim(body, goal.getY() + 0.1D)) {
-                FakeSteveMotionController.hold(body, state, body.getYRot(),
-                        FakeSteveMotionPolicy.walkingPitch(now, body.getUUID().hashCode(), true));
+                state.pathReached = true;
+                holdInPlace(body, state, now);
                 return;
             }
             if (tryStepToward(level, body, goal, state, now, speed)) {
                 return;
             }
-            if (FakeStevePathPolicy.shouldAbandonIdleGoal(state.pathFailureCount + 1)) {
-                backOffPath(level, body, state, now);
-            } else {
-                state.pathFailureCount++;
-                state.nextPathTick = now + 8L;
-                state.pathRetryAfterTick = now + 8L;
-            }
-            FakeSteveMotionController.hold(body, state, body.getYRot(),
-                    FakeSteveMotionPolicy.walkingPitch(now, body.getUUID().hashCode(), true));
+            failRoute(level, body, state, now);
+            holdInPlace(body, state, now);
             return;
         }
-        // Open the node while it is still in the route.  A closed door used to be
-        // removed as "reached" first, which left the client jumping against it.
-        boolean doorAhead = openDoorsOnApproach(level, body, next);
-        if (body.blockPosition().closerThan(next, 1.0)) {
-            state.path.removeFirst();
-            next = state.path.peekFirst();
-            if (next == null)
-                return;
-        }
+        // 进入路点前先把门打开，避免身体贴着门原地跳。
         doorAhead |= openDoorsOnApproach(level, body, next);
         Vec3 delta = Vec3.atBottomCenterOf(next).subtract(body.position());
-        if (delta.horizontalDistanceSqr() < 0.01) {
+        double distanceSqr = delta.lengthSqr();
+        if (delta.horizontalDistanceSqr() < 0.01D) {
             if (needsVerticalSwim(body, next.getY() + 0.1D)) {
                 driveVerticalSwim(body, state, next, now, speed);
             }
             return;
         }
-        double distanceSqr = delta.lengthSqr();
         if (distanceSqr < state.lastPathDistanceSqr - 0.15D) {
             state.lastPathDistanceSqr = distanceSqr;
             state.lastPathProgressTick = now;
             state.pathFailureCount = 0;
         } else if (FakeStevePathPolicy.hasStalled(state.lastPathDistanceSqr, distanceSqr,
                 state.lastPathProgressTick, now)) {
+            // 80 tick 都没靠近下一个节点：路线作废，立刻重算。
             state.path.clear();
+            state.pathReached = false;
             state.nextPathTick = now;
             state.pathFailureCount++;
             if (FakeStevePathPolicy.shouldAbandonIdleGoal(state.pathFailureCount)) {
                 backOffPath(level, body, state, now);
             }
-            FakeSteveMotionController.hold(body, state, body.getYRot(),
-                    FakeSteveMotionPolicy.walkingPitch(now, body.getUUID().hashCode(), true));
+            holdInPlace(body, state, now);
             return;
         }
-        Vec3 direction = new Vec3(delta.x, 0.0, delta.z).normalize();
+        Vec3 direction = new Vec3(delta.x, 0.0D, delta.z).normalize();
         boolean pursuingHuman = state.mode == AgentMode.STALK || state.mode == AgentMode.HUNT;
         boolean psychoActive = SREPlayerPsychoComponent.KEY.get(body).inPsycho();
         List<FakeSteveCrowdAvoidance.NearbyPlayer> nearbyPlayers = psychoActive ? List.of()
@@ -1777,10 +1795,10 @@ public class FakeSteveAi {
         }
         if (avoidance.shouldRepath()) {
             state.path.clear();
+            state.pathReached = false;
             state.nextPathTick = now;
             state.crowdedTicks = 0;
-            FakeSteveMotionController.hold(body, state, body.getYRot(),
-                    FakeSteveMotionPolicy.walkingPitch(now, body.getUUID().hashCode(), true));
+            holdInPlace(body, state, now);
             return;
         }
         float nodeYaw = (float) (Mth.atan2(-direction.x, direction.z) * Mth.RAD_TO_DEG);
@@ -1825,6 +1843,7 @@ public class FakeSteveAi {
             pathForward = 0.0F;
             if (pathStrafe == 0.0F) {
                 state.path.clear();
+                state.pathReached = false;
                 state.nextPathTick = Math.min(state.nextPathTick, now + 10L);
                 state.hasStableRouteYaw = false;
                 state.sprintUntilTick = 0L;
@@ -1834,13 +1853,66 @@ public class FakeSteveAi {
         double worldZ = direction.z * pathForward - direction.x * pathStrafe;
         FakeSteveMotionPolicy.LocalMove local = FakeSteveMotionPolicy.toLocal(
                 state.stableRouteYaw, worldX, worldZ);
-        boolean stepAhead = FakeSteveNavigator.isStepBlock(level.getBlockState(next))
-                || FakeSteveNavigator.isStepBlock(level.getBlockState(next.below()));
-        boolean ascends = delta.y > 0.20D || stepAhead;
-        boolean jump = wantsJumpOrSwim(level, body, state, next.getY() + 0.1D, ascends, now);
+        double standY = FakeSteveNavigator.standingSurfaceY(level, next);
+        boolean ascends = standY > body.getY() + 0.20D;
+        boolean jump = wantsJumpOrSwim(level, body, state, standY, ascends, now);
         FakeSteveMotionController.drive(body, state, local.forward(), local.strafe(), jump, sprint,
                 false, state.stableRouteYaw,
                 FakeSteveMotionPolicy.walkingPitch(now, body.getUUID().hashCode(), true), next);
+    }
+
+    /** 跑一次 A*，把结果写回 state（路线、是否到达、节点预算）。 */
+    private static void planRoute(ServerLevel level, ServerPlayer body, BlockPos goal,
+            FakeSteveAgentState state, long now) {
+        state.pathGoal = goal.immutable();
+        state.path.clear();
+        boolean explicitTarget = state.mode == AgentMode.STALK
+                || state.mode == AgentMode.HUNT
+                || state.mode == AgentMode.ASSIMILATE;
+        FakeSteveNavigator.PathResult result =
+                FakeSteveNavigator.search(level, body, goal, explicitTarget);
+        state.path.addAll(result.path());
+        state.pathReached = result.reached();
+        state.pathSearchVisited = result.visited();
+        state.nextPathTick = now + PATH_REFRESH_TICKS;
+        state.lastPathDistanceSqr = Double.MAX_VALUE;
+        state.lastPathProgressTick = now;
+    }
+
+    /**
+     * 取下一个路点；身体已经站在节点上时连续推进。
+     *
+     * <p>
+     * 节点是共线合并后的稀疏点，一次可能跨好几格，所以这里用 while 而不是 if：
+     * 否则会出现「推进一格 → 下一 tick 又推进一格 → 每格都要修正朝向」的抖动。
+     */
+    private static BlockPos advanceToNextNode(ServerPlayer body, FakeSteveAgentState state) {
+        BlockPos next = state.path.peekFirst();
+        while (next != null && body.blockPosition().closerThan(next, NODE_REACH_DISTANCE)) {
+            state.path.removeFirst();
+            next = state.path.peekFirst();
+        }
+        return next;
+    }
+
+    /** 搜不到路、也没法直线前进：累计失败，必要时退避（交给 {@link #backOffPath}）。 */
+    private static void failRoute(ServerLevel level, ServerPlayer body,
+            FakeSteveAgentState state, long now) {
+        state.path.clear();
+        state.pathReached = false;
+        state.pathFailureCount++;
+        if (FakeStevePathPolicy.shouldAbandonIdleGoal(state.pathFailureCount)) {
+            backOffPath(level, body, state, now);
+            return;
+        }
+        state.nextPathTick = now + PATH_RETRY_TICKS;
+        state.pathRetryAfterTick = now + PATH_RETRY_TICKS;
+    }
+
+    /** 原地保持（不输入移动向量），同时维持自然的目光。 */
+    private static void holdInPlace(ServerPlayer body, FakeSteveAgentState state, long now) {
+        FakeSteveMotionController.hold(body, state, body.getYRot(),
+                FakeSteveMotionPolicy.walkingPitch(now, body.getUUID().hashCode(), true));
     }
 
     private static boolean isPursuitTarget(FakeSteveAgentState state, UUID playerId,
@@ -1859,7 +1931,13 @@ public class FakeSteveAi {
         return nodes;
     }
 
-    /** Walk or step-up toward the goal when A* has no remaining node, instead of freezing. */
+    /**
+     * 路线为空时朝目标直线走一小段，而不是立刻冻结。
+     *
+     * <p>
+     * 这是「A* 搜不到但眼前其实能走」的兜底（目标就在身边、或者只差一个台阶）。
+     * 跳跃同样按真实高度差判断，避免对着半砖反复跳。
+     */
     private static boolean tryStepToward(ServerLevel level, ServerPlayer body, BlockPos goal,
             FakeSteveAgentState state, long now, double speed) {
         Vec3 target = Vec3.atBottomCenterOf(goal);
@@ -1882,13 +1960,10 @@ public class FakeSteveAi {
         if (!FakeSteveNavigator.stepSafe(level, body.position(), horizontal.scale(1.15D))) {
             return false;
         }
-        BlockPos ahead = BlockPos.containing(body.position().add(horizontal.scale(1.0D)));
-        boolean stepAhead = FakeSteveNavigator.isStepBlock(level.getBlockState(ahead))
-                || FakeSteveNavigator.isStepBlock(level.getBlockState(goal))
-                || FakeSteveNavigator.isStepBlock(level.getBlockState(goal.below()));
+        double standY = FakeSteveNavigator.standingSurfaceY(level, goal);
         float yaw = (float) (Mth.atan2(-horizontal.x, horizontal.z) * Mth.RAD_TO_DEG);
-        boolean jump = wantsJumpOrSwim(level, body, state, goal.getY() + 0.1D,
-                delta.y > 0.20D || stepAhead, now);
+        boolean jump = wantsJumpOrSwim(level, body, state, standY,
+                standY > body.getY() + 0.20D, now);
         boolean sprint = now < state.sprintUntilTick || speed >= 0.22D;
         FakeSteveMotionController.drive(body, state, 1.0F, 0.0F, jump, sprint, false, yaw,
                 FakeSteveMotionPolicy.walkingPitch(now, body.getUUID().hashCode(), true),
@@ -1905,26 +1980,29 @@ public class FakeSteveAi {
         // 保持上浮（wantsJumpOrSwim 持续按跳跃 + driveVerticalSwim），让身体始终浮在水面、
         // 眼睛不入水，于是 isUnderWater() 恒为 false，落水死亡永远不触发。这里直接放弃上浮，
         // 让身体正常下沉，交由 SREGameWorldComponent#playerEnvironmentDetection 正常判死。
-        if (isSwimmingBanned(body)) {
+        if (!inWater(body)) {
             return false;
         }
-        return FakeStevePathPolicy.shouldHoldSwim(inWater(body), body.onGround(),
+        if (FakeSteveNavRules.of(body.serverLevel(), body).swimmingBanned()) {
+            return false;
+        }
+        return FakeStevePathPolicy.shouldHoldSwim(true, body.onGround(),
                 body.getY(), targetY);
     }
 
-    /** 当前地图是否禁止游泳：任一水下 / 深水 / 游泳判定被关闭，落水即会被环境检测击杀。 */
-    private static boolean isSwimmingBanned(ServerPlayer body) {
-        var areas = AreasWorldComponent.KEY.get(body.level()).areasSettings;
-        if (areas == null) {
-            return false;
-        }
-        return !areas.canSimpleSwim || !areas.canUnderWater || !areas.allowInDeepWater;
-    }
-
+    /**
+     * 跳跃输入。
+     *
+     * <p>
+     * 跳跃与「水中上浮」共用同一个按键，所以两者必须服从同一份地图约束
+     * （{@link FakeSteveNavRules}）：禁跳地图不按跳跃键，禁游地图不为了浮起来按跳跃键。
+     * 否则 {@code KeyBindingMixin} 在客户端把跳跃键抑制掉，服务端却仍在下发跳跃租约，
+     * 表现为身体贴着台阶原地抽搐。
+     */
     private static boolean wantsJumpOrSwim(ServerLevel level, ServerPlayer body,
             FakeSteveAgentState state, double targetY, boolean ascends, long now) {
-        boolean jumpsAllowed = SREGameWorldComponent.KEY.get(level).isJumpAvailable();
-        boolean jump = FakeStevePathPolicy.shouldJump(jumpsAllowed, body.onGround(),
+        FakeSteveNavRules rules = FakeSteveNavRules.of(level, body);
+        boolean jump = FakeStevePathPolicy.shouldJump(rules.canJump(), body.onGround(),
                 ascends, now, state.nextJumpTick)
                 || needsVerticalSwim(body, targetY);
         if (jump && !inWater(body)) {
@@ -1945,6 +2023,7 @@ public class FakeSteveAi {
     private static void backOffPath(ServerLevel level, ServerPlayer body,
                                     FakeSteveAgentState state, long now) {
         state.path.clear();
+        state.pathReached = false;
         state.lastPathDistanceSqr = Double.MAX_VALUE;
         state.lastPathProgressTick = now;
         state.pathFailureCount++;
