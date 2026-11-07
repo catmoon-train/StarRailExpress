@@ -43,11 +43,13 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.Mth;
+import net.minecraft.tags.FluidTags;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LightLayer;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.CollisionContext;
@@ -63,6 +65,7 @@ import org.agmas.noellesroles.game.roles.killer.pooler.PoolerDomainManager;
 import org.agmas.noellesroles.init.ModEffects;
 import org.agmas.noellesroles.init.ModItems;
 import org.agmas.noellesroles.utils.RoleUtils;
+import pro.fazeclan.river.stupid_express.modifier.twin_children.TwinChildrenHandler;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.ladysnake.cca.api.v3.component.ComponentKey;
@@ -944,7 +947,7 @@ public class SREGameWorldComponent implements AutoSyncedComponent, ServerTicking
                     player.updateInWaterStateAndDoFluidPushing();
 
                     if (GameUtils.isPlayerAliveAndSurvivalIgnoreShitSplit(player)
-                            && player.isUnderWater()) {
+                            && isHeadUnderWater(player)) {
                         GameUtils.forceKillPlayer(player, false,
                                 player.getLastHurtByMob() instanceof Player killerPlayer ? killerPlayer : null,
                                 GameConstants.DeathReasons.CANNOT_SWIM);
@@ -1211,15 +1214,15 @@ public class SREGameWorldComponent implements AutoSyncedComponent, ServerTicking
     }
 
     private static boolean checkPlayerUnderwater(ServerPlayer player) {
-        return player.isUnderWater();
+        return isHeadUnderWater(player);
     }
 
     private static boolean checkPlayerIsInDeepWater(ServerPlayer player, AreasWorldComponent areas) {
-        if (player.isUnderWater()) {
+        if (isHeadUnderWater(player)) {
             return true;
         }
         if (player.getVehicle() != null) {
-            if (player.getVehicle().isUnderWater())
+            if (isHeadUnderWater(player.getVehicle()))
                 return true;
         }
 
@@ -1235,9 +1238,9 @@ public class SREGameWorldComponent implements AutoSyncedComponent, ServerTicking
     }
 
     private static boolean checkPlayerIsSwiming(ServerPlayer player, AreasWorldComponent areas) {
-        if (!player.isUnderWater()) {
+        if (!isHeadUnderWater(player)) {
             if (player.getVehicle() != null) {
-                if (!player.getVehicle().isUnderWater())
+                if (!isHeadUnderWater(player.getVehicle()))
                     return false;
             } else {
                 return false;
@@ -1255,6 +1258,33 @@ public class SREGameWorldComponent implements AutoSyncedComponent, ServerTicking
             return true;
         }
         return false;
+    }
+
+    /**
+     * 头部（眼睛）是否浸在水中。
+     *
+     * <p>
+     * 不能直接用 {@link net.minecraft.world.entity.Entity#isUnderWater()} 判定下方双生之子：
+     * 它读 {@code wasEyeInWater}，而眼高会被 SCALE 属性一起缩放（{@code LivingEntity#getDimensions}
+     * 走 {@code EntityDimensions.scale(scale)}，宽度/高度/眼高同时乘缩放）。下方双生之子被半身缩放后
+     * 眼高只剩 {@code 1.62 * 0.5 = 0.81}，正常走进 1 格浅水就会「眼睛入水」，而普通玩家 1.62 的眼高
+     * 不会。该组合整体仍是 1.8 高（下方 0..1.3 + 上方 1.3..1.8），因此下方玩家的头顶判定必须按
+     * 普通玩家眼高算，才与一般玩家一致。其余实体（含上方双生之子与各类载具）保持原版语义。
+     */
+    private static boolean isHeadUnderWater(net.minecraft.world.entity.Entity entity) {
+        if (entity == null) {
+            return false;
+        }
+        if (!(entity instanceof Player player) || !TwinChildrenHandler.isStackedLower(player)) {
+            return entity.isUnderWater();
+        }
+        double eyeY = TwinChildrenHandler.headCheckEyeY(player);
+        BlockPos eyePos = BlockPos.containing(entity.getX(), eyeY, entity.getZ());
+        FluidState fluid = entity.level().getFluidState(eyePos);
+        if (fluid.isEmpty() || !fluid.is(FluidTags.WATER)) {
+            return false;
+        }
+        return eyeY < eyePos.getY() + fluid.getHeight(entity.level(), eyePos);
     }
 
     private void tickCommon() {

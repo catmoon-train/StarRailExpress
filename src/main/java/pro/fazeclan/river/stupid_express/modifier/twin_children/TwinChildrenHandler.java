@@ -60,6 +60,14 @@ public final class TwinChildrenHandler {
     public static final float VISUAL_STANDING_HEIGHT = TwinChildrenHitbox.VISUAL_STANDING_HEIGHT;
     public static final float STACKED_UNSCALED_HEIGHT = TwinChildrenHitbox.STACKED_UNSCALED_HEIGHT;
 
+    /**
+     * 普通玩家站立时的眼高（未缩放），即 {@code Player.STANDING_DIMENSIONS.eyeHeight()} = 1.62。
+     *
+     * <p>写成常量而不是去读那个静态字段，是为了避免本类在极早期加载时触发 {@code Player}
+     * 的静态初始化。
+     */
+    public static final float NORMAL_EYE_HEIGHT = 1.62F;
+
     private static final float HEIGHT_REFRESH_EPSILON = 0.05F;
 
     /**
@@ -162,6 +170,23 @@ public final class TwinChildrenHandler {
     /** Either half of a stacked pair (lower twin or the rider on top of it). */
     public static boolean stackedTwin(Player player) {
         return isStackedLower(player) || isStackedUpper(player);
+    }
+
+    /**
+     * 「头顶（眼睛）是否入水」这类判定应当使用的眼睛 Y 坐标。
+     *
+     * <p>下方双生子被半身缩放后眼高只剩 {@code 1.62 * 0.5 = 0.81}，比正常玩家低一半，
+     * 于是「正常走进 1 格浅水」就会被判成眼睛在水下（普通玩家不会）。这一对组合整体仍是
+     * 1.8 高（下方 0..1.3 + 上方 1.3..1.8），所以下方玩家的头顶判定必须按普通玩家的眼高
+     * {@link #NORMAL_EYE_HEIGHT} 来算，才与一般玩家一致。
+     *
+     * @return 判定用眼睛 Y；非「下方双生子」时就是 {@code player.getEyeY()}
+     */
+    public static double headCheckEyeY(Player player) {
+        if (player != null && isStackedLower(player)) {
+            return player.getY() + NORMAL_EYE_HEIGHT;
+        }
+        return player.getEyeY();
     }
 
     public static boolean shouldStayRiding(Player player) {
