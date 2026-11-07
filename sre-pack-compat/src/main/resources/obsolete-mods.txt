@@ -3,3 +3,9 @@
 # 默认没有启用任何删除项；填写后重新打包，下次启动命中将退出游戏并弹窗清理。
 # 示例（取消注释才会启用）：
 # old-mod-1.0.0.jar
+WalksyLib-0.9.96+1.21.jar
+fastboot-1.21.x-v1.3.jar
+viewbobbingmod-1.6.jar
+mc-skin-unlocker-1.0.2.jar
+framepacer-1.2-1.15-1.21.11-multiloader.jar
+[修复GPU内存泄漏] gpumemleakfix-fabric-1.21-1.8.jar
