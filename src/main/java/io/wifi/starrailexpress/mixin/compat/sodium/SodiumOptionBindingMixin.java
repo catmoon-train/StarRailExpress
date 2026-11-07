@@ -34,6 +34,6 @@ public abstract class SodiumOptionBindingMixin<T> {
 
     @Inject(method = "getControlHiddenWhenDisabled", at = @At("RETURN"), cancellable = true)
     private void sre$keepLockedControlsVisible(CallbackInfoReturnable<Boolean> cir) {
-        if (SodiumOptionPolicy.isLocked(sre$id)) cir.setReturnValue(false);
+        if (SodiumOptionPolicy.isLocked(sre$id)) cir.setReturnValue(SodiumOptionPolicy.isHidden(sre$id));
     }
 }

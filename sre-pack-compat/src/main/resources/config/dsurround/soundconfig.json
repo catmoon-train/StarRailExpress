@@ -1,0 +1,41 @@
+[
+  {
+    "action": "block",
+    "soundEventId": "minecraft:block.water.ambient"
+  },
+  {
+    "action": "cull",
+    "soundEventId": "minecraft:entity.chicken.ambient"
+  },
+  {
+    "action": "cull",
+    "soundEventId": "minecraft:entity.cow.ambient"
+  },
+  {
+    "action": "cull",
+    "soundEventId": "minecraft:entity.ender_dragon.death",
+    "volumeScale": 10
+  },
+  {
+    "action": "cull",
+    "soundEventId": "minecraft:entity.llama.ambient"
+  },
+  {
+    "action": "cull",
+    "soundEventId": "minecraft:entity.pig.ambient"
+  },
+  {
+    "action": "cull",
+    "soundEventId": "minecraft:entity.sheep.ambient"
+  },
+  {
+    "action": "cull",
+    "soundEventId": "minecraft:entity.wither.death",
+    "volumeScale": 10
+  },
+  {
+    "action": "cull",
+    "soundEventId": "minecraft:entity.wither.spawn",
+    "volumeScale": 10
+  }
+]

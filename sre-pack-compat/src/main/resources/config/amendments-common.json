@@ -1,0 +1,100 @@
+{
+  "lectern": {
+    "improved_screen": true
+  },
+  "fireball": {
+    "thrown_cooldown": 10,
+    "dragon_charge": true,
+    "gravity": true,
+    "deflectable": false,
+    "fire_charges_throwable": true,
+    "fire_charges_dispenser_behavior": true,
+    "improved_explosions": true
+  },
+  "snowball": {
+    "freeze_ticks": 35
+  },
+  "hanging_signs": {
+    "items_on_signs": true
+  },
+  "cauldron": {
+    "enhanced_cauldron": true,
+    "hand_crafting": true,
+    "in_world_crafting": true,
+    "dye_water": true,
+    "dye_recipes_per_layer": 4,
+    "potion_recipes_per_layer": 2,
+    "potions_mixing": "ON",
+    "potion_mixing_limit": 8,
+    "inverse_potions": {
+      "minecraft:mining_fatigue": "minecraft:haste",
+      "minecraft:unluck": "minecraft:luck",
+      "minecraft:weakness": "minecraft:strength",
+      "minecraft:instant_health": "minecraft:instant_damage",
+      "minecraft:speed": "minecraft:slowness",
+      "minecraft:strength": "minecraft:weakness",
+      "minecraft:instant_damage": "minecraft:instant_health",
+      "minecraft:luck": "minecraft:unluck",
+      "minecraft:haste": "minecraft:mining_fatigue",
+      "minecraft:slowness": "minecraft:speed"
+    },
+    "connect_to_fences": true,
+    "consistent_lava_layers": false
+  },
+  "tripwire_hook": {
+    "tool_hook": true
+  },
+  "carpets": {
+    "carpeted_stairs": true,
+    "carpeted_slabs": true
+  },
+  "cake": {
+    "double_cake": true,
+    "directional_cake": true
+  },
+  "mob_head": {
+    "skull_piles": true,
+    "skull_candles": true,
+    "multiple_candles": true
+  },
+  "flower_pot": {
+    "hanging_pot": true
+  },
+  "lantern": {
+    "wall_lanterns": true,
+    "high_priority": true,
+    "falling_lanterns": "ON"
+  },
+  "bell": {
+    "chain_ringing": true,
+    "chain_length": 16
+  },
+  "banners": {
+    "ceiling_banners": true
+  },
+  "connections": {
+    "fences_to_walls_and_bars": true,
+    "wooden_to_nether_fences": true,
+    "wall_signs": true
+  },
+  "misc": {
+    "dye_blocks": false,
+    "passenger_no_suffocation": false,
+    "pets_follow_teleports": true
+  },
+  "container_pickup": {
+    "held_container_pickup": "OFFHAND",
+    "pickup_sound": true
+  },
+  "torch": {
+    "torch_fire": true,
+    "torch_fire_offhand": false,
+    "torch_fire_duration": 2
+  },
+  "lily_pad": {
+    "better_lilypads": true
+  },
+  "bubble_column": {
+    "bubble_column_grates": true
+  }
+}

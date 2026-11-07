@@ -32,6 +32,7 @@ public final class SodiumExtraOptionPolicy {
         protectedFog.blindnessDistanceBlocks = protectedFog.darknessDistanceBlocks = protectedFog.lavaDistanceBlocks = 0;
         protectedFog.powderSnowDistanceBlocks = protectedFog.waterDistanceBlocks = 0;
         options.extraSettings.cloudHeightOverride = options.extraSettings.paniniProjection = options.extraSettings.instantSneak = false;
+        options.extraSettings.preventShaders = false;
         return options;
     }
 }

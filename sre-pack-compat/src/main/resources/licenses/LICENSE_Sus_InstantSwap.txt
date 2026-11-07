@@ -1,0 +1,176 @@
+                   GNU LESSER GENERAL PUBLIC LICENSE
+                       Version 3, 29 June 2007
+
+ Copyright (C) 2007 Free Software Foundation, Inc. <https://fsf.org/>
+ Everyone is permitted to copy and distribute verbatim copies of this
+ license document, but changing it is not allowed.
+
+[This is the license for the library: a set of derivative works that may
+ be distributed under the terms of Section 6 of the GNU GPL, but which
+ may also be distributed under the terms of the ordinary GNU LGPL.]
+
+                            Preamble
+
+  The GNU Lesser General Public License (LGPL) is a free software license
+that allows developers to use the covered library in proprietary programs,
+while ensuring that modifications to the library itself remain free software.
+
+  When we speak of free software, we are referring to freedom, not price.
+Our General Public Licenses are designed to make sure that you have the
+freedom to distribute copies of free software (and charge for them if you
+wish), that you receive source code or can get it if you want it, that
+you can change the software or use pieces of it in new free programs, and
+that you know you can do these things.
+
+  To protect your rights, we need to prevent others from denying you these
+rights or asking you to surrender the rights. Therefore, you have certain
+responsibilities if you distribute copies of the library, or if you modify it.
+
+  For example, if you distribute copies of the library, whether gratis or
+for a fee, you must pass on to the recipients the same freedoms that you
+received. You must make sure that they, too, receive or can get the source
+code. And you must show them these terms so they know their rights.
+
+  Developers that use the GNU LGPL protect your rights with two steps:
+(1) assert copyright on the library, and (2) offer you this License
+which gives you legal permission to copy, distribute and/or modify the
+library.
+
+  To protect each distributor, the LGPL clearly explains that there is no
+warranty for the library. For both users' and authors' sake, the LGPL
+requires that modified versions be marked as changed, so that their problems
+will not be attributed erroneously to the original authors.
+
+  The precise terms and conditions for copying, distribution and modification
+follow. Pay close attention to the difference between a "work based on the
+library" and a "work that uses the library". The former contains code from
+the library, while the latter only uses the library's interface.
+
+                       TERMS AND CONDITIONS
+
+  0. Additional Definitions.
+
+  "This License" refers to version 3 of the GNU Lesser General Public License.
+
+  "The Library" refers to a copyrightable work licensed under this License,
+also called a "covered work".
+
+  An "Application" is any work that makes use of the Library, including
+where the Library is incorporated into the Application.
+
+  The "Minimal Corresponding Source" for a work means the Corresponding
+Source (as defined in the GNU GPL) for the work, excluding the System
+Libraries of the Application.
+
+  The "Corresponding Application Code" means the object code and/or source
+code for the Application, including any data and utility programs needed for
+reproducing the Combined Work from the Application, but excluding the System
+Libraries of the Combined Work.
+
+  1. Exception to Section 3 of the GNU GPL.
+
+  You may convey a covered work under sections 3 and 4 of this License
+without being bound by section 3 of the GNU GPL.
+
+  2. Conveying Modified Versions.
+
+  If you modify a copy of the Library, and in your modifications add a
+module, you may convey the resulting object code under terms of your choice,
+provided that you also meet all of these conditions:
+
+    a) The modified work must itself be a software library.
+    b) You must serve the purpose of allowing the use of the library in a
+       wide variety of applications.
+    c) You must not impose any further restrictions on the use of the
+       library.
+
+  3. Object Code Incorporated into an Application.
+
+  You may convey an object code version of the Library with an Application,
+provided that you also convey the Minimal Corresponding Source and the
+Corresponding Application Code under terms that allow the user to modify the
+Library and recompile the Application to use the modified Library.
+
+  4. Combined Works.
+
+  You may convey a Combined Work under terms of your choice, provided that
+you also meet all of these conditions:
+
+    a) The Combined Work includes a copy of the same work released under
+       this License.
+    b) You must give prominent notice with each copy of the Combined Work
+       that the Library is used in it and that the Library and its use are
+       covered by this License.
+    c) You must provide a copy of this License.
+    d) If the Combined Work is a user product, it must be possible for the
+       user to modify the Library and recompile the Application.
+
+  5. Combined Libraries.
+
+  You may place library facilities that are a work based on the Library
+side by side in a single library together with other library facilities
+that are not Applications, provided that you also meet all of these
+conditions:
+
+    a) The combined library must be a library.
+    b) You must give prominent notice with the combined library that part of
+       it is a work based on the Library, and explaining where to find the
+       accompanying uncombined form of the same work.
+    c) You must provide a copy of this License.
+    d) If the combined library is a user product, it must be possible for
+       the user to modify the Library and recompile the combined library.
+
+  6. Revised Versions of the GNU LGPL.
+
+  The Free Software Foundation may publish revised and/or new versions of
+the GNU Lesser General Public License from time to time. Such new versions
+will be similar in spirit to the present version, but may differ in detail
+to address new problems or concerns.
+
+  Each version is given a distinguishing version number. If the Library
+specifies that a certain numbered version of the GNU Lesser General Public
+License "or any later version" applies to it, you have the option of
+following the terms and conditions either of that numbered version or of
+any later version published by the Free Software Foundation. If the Library
+does not specify a version number of the GNU Lesser General Public License,
+you may choose any version ever published by the Free Software Foundation.
+
+  If the Library specifies that a proxy can decide whether future versions
+of the GNU Lesser General Public License can be used, that proxy's public
+statement of acceptance of a version permanently authorizes you to choose
+that version for the Library.
+
+           HOW TO APPLY THESE TERMS TO YOUR NEW LIBRARY
+
+  If you develop a new library, and you want it to be of the greatest
+possible use to the public, the best way to achieve this is to make it
+free software that everyone can redistribute and change under these terms.
+
+  To do so, attach the following notices to the library. It is safest
+to attach them to the start of each source file to most effectively state
+the exclusion of warranty; and each file should have at least the
+"copyright" line and a pointer to where the full notice is found.
+
+    <one line to give the library's name and a brief idea of what it does.>
+    Copyright (C) <year>  <name of author>
+
+    This library is free software: you can redistribute it and/or modify
+    it under the terms of the GNU Lesser General Public License as published
+    by the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This library is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU Lesser General Public License for more details.
+
+    You should have received a copy of the GNU Lesser General Public
+    License along with this library.  If not, see
+    <https://www.gnu.org/licenses/>.
+
+  Also add information on how to contact you by electronic and paper mail.
+
+  You should also get your employer (if you work as a programmer) or
+school, if any, to sign a "copyright disclaimer" for the library, if
+necessary. For more information on this, and how to apply and follow the
+GNU LGPL, see <https://www.gnu.org/licenses/>.

@@ -1,0 +1,15 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "io.wifi.srepackcompat.mixin.runtime",
+  "plugin": "io.wifi.srepackcompat.SrePackCompatMixinPlugin",
+  "compatibilityLevel": "JAVA_21",
+  "client": [
+    "FramePacerMixin",
+    "TextureUrlMixin",
+    "TexturePropertyMixin",
+    "TextureServicesKeyMixin",
+    "RenderTargetLifetimeMixin"
+  ],
+  "injectors": { "defaultRequire": 1 }
+}

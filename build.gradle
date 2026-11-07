@@ -132,6 +132,8 @@ dependencies {
     modImplementation "maven.modrinth:modmenu:11.0.3"
     modRuntimeOnly("org.anarres:jcpp:${jcpp_version}")
     modRuntimeOnly fileTree(dir: 'runtime_mods', include: '*.jar')
+    // 整合包补丁独立发布，仅在开发运行时加载，不嵌入核心 JAR。
+    runtimeOnly project(path: ':sre-pack-compat', configuration: 'namedElements')
     modImplementation("io.github.douira:glsl-transformer:${glslTransformer_version}")
 
     testImplementation platform("org.junit:junit-bom:5.11.4")

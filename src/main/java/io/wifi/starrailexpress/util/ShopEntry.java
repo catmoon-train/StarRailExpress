@@ -142,7 +142,7 @@ public class ShopEntry extends dev.doctor4t.wathe.util.ShopEntry {
 
             @Override
             public String iconText() {
-                return "\uE781";
+                return "\uE000";
             }
         },
         MINIGAME_TOKEN("minigame_token", "gui.vendingmachine.minigame_token_display", 0xFF7CFCA0) {
@@ -153,7 +153,7 @@ public class ShopEntry extends dev.doctor4t.wathe.util.ShopEntry {
 
             @Override
             public String iconText() {
-                return "\uE782";
+                return "\uE001";
             }
 
             @Override

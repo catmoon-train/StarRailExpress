@@ -1,0 +1,154 @@
+{
+  "enabled": {
+    "value": "ON"
+  },
+  "showHudFps": {
+    "value": "ON"
+  },
+  "downscale": {
+    "value": "OFF"
+  },
+  "fastFboBlit": {
+    "value": "ON"
+  },
+  "numberOfPasses": 3,
+  "maxFps": 30,
+  "screenMaxFps": 20,
+  "map": {
+    "hand": {
+      "enabled": {
+        "value": "AUTO"
+      }
+    },
+    "camera_overlays": {
+      "enabled": {
+        "value": "AUTO"
+      }
+    },
+    "crosshair": {
+      "enabled": {
+        "value": "AUTO"
+      }
+    },
+    "hotbar": {
+      "enabled": {
+        "value": "AUTO"
+      }
+    },
+    "experience_level": {
+      "enabled": {
+        "value": "AUTO"
+      }
+    },
+    "effects": {
+      "enabled": {
+        "value": "AUTO"
+      }
+    },
+    "boss_overlay": {
+      "enabled": {
+        "value": "AUTO"
+      }
+    },
+    "sleep_overlay": {
+      "enabled": {
+        "value": "AUTO"
+      }
+    },
+    "demo_overlay": {
+      "enabled": {
+        "value": "AUTO"
+      }
+    },
+    "debug_overlay": {
+      "enabled": {
+        "value": "AUTO"
+      }
+    },
+    "scoreboard": {
+      "enabled": {
+        "value": "AUTO"
+      }
+    },
+    "overlay_message": {
+      "enabled": {
+        "value": "AUTO"
+      }
+    },
+    "title": {
+      "enabled": {
+        "value": "AUTO"
+      }
+    },
+    "chat": {
+      "enabled": {
+        "value": "OFF"
+      }
+    },
+    "tab_list": {
+      "enabled": {
+        "value": "AUTO"
+      }
+    },
+    "subtitle_overlay": {
+      "enabled": {
+        "value": "AUTO"
+      }
+    },
+    "saving_indicator": {
+      "enabled": {
+        "value": "AUTO"
+      }
+    },
+    "unknown_element": {
+      "enabled": {
+        "value": "AUTO"
+      }
+    },
+    "architectury": {
+      "enabled": {
+        "value": "AUTO"
+      }
+    },
+    "supplementaries": {
+      "enabled": {
+        "value": "AUTO"
+      }
+    },
+    "com_github_srrapero720_waterconfig": {
+      "enabled": {
+        "value": "AUTO"
+      }
+    },
+    "cullify": {
+      "enabled": {
+        "value": "AUTO"
+      }
+    },
+    "exposure": {
+      "enabled": {
+        "value": "AUTO"
+      }
+    },
+    "minopp": {
+      "enabled": {
+        "value": "AUTO"
+      }
+    },
+    "_unknown_": {
+      "enabled": {
+        "value": "AUTO"
+      }
+    },
+    "starrailexpress": {
+      "enabled": {
+        "value": "AUTO"
+      }
+    },
+    "virtual_proxy_manger": {
+      "enabled": {
+        "value": "AUTO"
+      }
+    }
+  }
+}

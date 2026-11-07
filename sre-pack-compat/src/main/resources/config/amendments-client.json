@@ -1,0 +1,95 @@
+{
+  "general": {
+    "tooltip_hints": true,
+    "texture_pack_support": false,
+    "dynamic_assets_generation_mode": "CACHED"
+  },
+  "sign": {
+    "pixel_consistent": true,
+    "text_color_multiplier": 1.2,
+    "sign_blacklist": []
+  },
+  "projectiles": {
+    "snowball_3d": true,
+    "extra_particles": true,
+    "slimeball_3d": true,
+    "fireball_3d": true,
+    "ghast_fireball_trail": true,
+    "dragon_fireball_trail": true,
+    "charges_tumble": true,
+    "projectiles_tumble": false,
+    "dragon_fireball": {
+      "dragon_breath_emissive": true
+    }
+  },
+  "lily_pad": {
+    "y_offset": -0.016625
+  },
+  "bell": {
+    "chain_attachment": true
+  },
+  "brewing_stand": {
+    "brewing_stand_colors": true
+  },
+  "arrows": {
+    "crossbows_colors": true
+  },
+  "buckets": {
+    "axolotl_variants": true
+  },
+  "tripwire_hook": {
+    "fast_hooks": false
+  },
+  "hanging_sign": {
+    "item_pixel_scale": 10.0,
+    "swinging_signs": true,
+    "sign_attachment": true,
+    "swing_physics": {
+      "frequency": 0.6000000238418579,
+      "collision_considers_entity_hitbox": true,
+      "collision_inertia": 1.0,
+      "collision_force": 15.0,
+      "min_angle": 0.7999996542930603,
+      "max_angle": 60.0,
+      "damping": 0.5249999761581421
+    }
+  },
+  "lantern": {
+    "fast_lanterns": false,
+    "entity_shading": true,
+    "swing_physics": {
+      "frequency": 0.6000000238418579,
+      "collision_considers_entity_hitbox": true,
+      "collision_inertia": 1.0,
+      "collision_force": 15.0,
+      "min_angle": 0.7999996542930603,
+      "max_angle": 60.0,
+      "damping": 0.5249999761581421
+    },
+    "lantern_item_size": 0.625,
+    "lantern_item_holding": true,
+    "lantern_item_holding_up": false
+  },
+  "cauldron": {
+    "potion_texture": true
+  },
+  "jukebox": {
+    "new_model": true,
+    "disc_spin": true
+  },
+  "misc": {
+    "torch_item_holding": true,
+    "torch_item_size": 1.0,
+    "torch_item_flame": false,
+    "candle_holder_item_holding": true,
+    "candle_holder_item_size": 0.625,
+    "fixed_holding_animations": false,
+    "campfire_smoke_through_blocks": false,
+    "villager_trade_buttons": true,
+    "hotbar_slot_animation": {
+      "speed": 2.5,
+      "wrap": true,
+      "opaque_behavior": "IN_BACKGROUND"
+    }
+  }
+}

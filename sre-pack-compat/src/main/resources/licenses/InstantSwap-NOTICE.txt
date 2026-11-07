@@ -1,0 +1,15 @@
+Su's Instant Swap / 探囊取物
+Original author: Su_Crispy
+Project: https://github.com/SuCrispy/Sus-InstantSwap
+Original artifact: Sus_InstantSwap-2.0.0-Fabric1.21.1.jar
+Original declared license: LGPL-3.0
+
+SRE Pack Compat integrates an adapted implementation of this feature.
+The input state machine, screen lifecycle, cursor placement, config screen,
+and inventory operations have been rewritten/adapted to the host module.
+Existing config field names and translation/keybinding identifiers are retained.
+The original JAR is not embedded. The host module remains GPL-3.0-only.
+
+The accompanying LICENSE_Sus_InstantSwap.txt reproduces the license text
+supplied in the original artifact (line endings normalized).
+Publish corresponding source, including these notices, alongside binaries.

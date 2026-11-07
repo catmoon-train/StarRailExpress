@@ -1,0 +1,4 @@
+accessWidener v2 named
+
+# DashLoader 缓存指纹只读访问 ZIP 来源，不改变资源包生命周期。
+accessible class net/minecraft/server/packs/FilePackResources$SharedZipFileAccess

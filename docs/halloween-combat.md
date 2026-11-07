@@ -7,7 +7,7 @@
 - 真实任务完成的成功分支调用一次 `onTaskCompleted(ServerPlayer)`，不能在金币到账、任务 UI 同步、假任务或客户端完成包入口直接调用。
 - `acceptPact(ServerPlayer)` **内部已验证并消耗一张背包魂契**，返回 true 后 NPC **不能再 shrink**。并行 Village 当前实现曾在 true 分支再次扣除，请父代理去掉这次重复扣除。失败不扣物品。
 - NPC 近场击杀的 **一南瓜奖励和尸体转 AI 都由 Combat 的 FINAL_EVENT 负责**，Runtime/Village 不要再发奖或转换。本模块调用 `HalloweenVillage.isNearReaper(victim)`；同一尸体只有一次原子占用。
-- 购买血锯的 200 金币商店挂接由父代理完成：必须检查玩家当前 `ShopContent` 计算后的条目中实际存在 `TMMItems.KNIFE`，不能只检查 killer 标记。本模块不修改商店注册，也不将购买资格误当作持有后的使用资格。
+- 献血锯子仅在杀手阵营玩家的背包商店追加，售价 200 金币；同时要求当前 `ShopContent` 计算后的条目实际包含 `KnifeItem` 刀具。刷新和购买时均检查杀手阵营，转职后的旧商店页面不能绕过购买限制；持有后的使用资格不受此限制影响。
 - 护盾 getter/消费处由父代理按 `isShieldSuppressed(Player)` 禁用；本模块不清空护盾数据。共享状态 S2C 也由父代理按该服务端布尔值同步，恢复/死亡/复活/clear 时要同步 false。
 - 额外可配置项：建议 Config 增加 `public int gunSummonCount = 3`，加载/重载后调用 `HalloweenCombat.configureGunSummonCount(value)`（0..32）。未接线前缺省为 3；这是唯一额外配置接线，不在本模块编辑 Config。
 - 自定义 C2S 包入口建议额外拒绝 `HalloweenCombat.isActionLocked(player)` 与 `HalloweenPactRole.isPact(player)`；锯子已有 MOVE/TURN/USED/SKILL/INVENTORY/SHOP 禁用效果、位置锁和 Fabric 交互拦截。Village 的敲门、购买等附加行为应先检查 USED_BANED/锁定，不能因监听器先运行而绕过限制。
