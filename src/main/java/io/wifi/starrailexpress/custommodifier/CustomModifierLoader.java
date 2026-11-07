@@ -198,17 +198,21 @@ public final class CustomModifierLoader {
             modifier.setCanOnlyBeAppliedToTeam(onlyTeams);
         }
         // 生成限制：职业
-        HashSet<SRERole> cannotRoles = parseRoles(data.cannotBeAppliedTo);
+        //
+        // 这里必须用「宽松解析」（id / path / 职业显示名 / 原始翻译键），并且解析失败要留日志：
+        // 老实现用严格解析 + 「解析结果为空就跳过 setCanOnlyBeAppliedTo」，作者照介绍页填了中文职业名
+        // 时整个白名单会被静默丢掉，限制看起来「填了但不生效」（修饰符照样刷给所有职业）。
+        HashSet<SRERole> cannotRoles = parseRoles(data.cannotBeAppliedTo, "cannotBeAppliedTo", data.englishId);
         if (!cannotRoles.isEmpty()) {
             modifier.setCannotBeAppliedTo(cannotRoles);
         }
-        HashSet<SRERole> onlyRoles = parseRoles(data.canOnlyBeAppliedTo);
+        HashSet<SRERole> onlyRoles = parseRoles(data.canOnlyBeAppliedTo, "canOnlyBeAppliedTo", data.englishId);
         if (!onlyRoles.isEmpty()) {
             modifier.setCanOnlyBeAppliedTo(onlyRoles);
         }
 
         // 绑定职业：这些职业分配时必然获得本修饰符（介绍页的关联职业在 applyRelations 里补）
-        for (SRERole role : parseRolesFlexible(data.bindRoles)) {
+        for (SRERole role : parseRolesFlexible(data.bindRoles, "bindRoles", data.englishId)) {
             modifier.addBoundRole(role);
         }
 
@@ -261,7 +265,7 @@ public final class CustomModifierLoader {
      */
     private static void applyRelations(CustomModifierData data, SREModifier modifier) {
         // 绑定职业 → 介绍页关联职业（单向：只让修饰符页展示绑定关系）
-        for (SRERole role : parseRolesFlexible(data.bindRoles)) {
+        for (SRERole role : parseRolesFlexible(data.bindRoles, "bindRoles", data.englishId)) {
             modifier.addRelatedRole(role);
         }
         for (String id : safe(data.bothRelatedRoles)) {
@@ -461,26 +465,41 @@ public final class CustomModifierLoader {
 
     // ==================== 工具 ====================
 
-    private static HashSet<SRERole> parseRoles(List<String> ids) {
+    /**
+     * 把配置里的职业 id 列表解析成职业实例。
+     *
+     * <p>
+     * 用宽松解析（{@link #findRoleFlexible}：id / path / 显示名 / 原始翻译键），并对每个解析失败的
+     * 条目记一条日志。老实现用严格 {@link #findRole} 且不报错，作者填了中文职业名时这一整条限制会
+     * 被<b>静默丢掉</b>——配置看着填了，运行时限制却完全不存在。
+     *
+     * @param field 配置字段名（仅用于日志定位）
+     */
+    private static HashSet<SRERole> parseRoles(List<String> ids, String field, String modifierId) {
         HashSet<SRERole> result = new HashSet<>();
         for (String id : safe(ids)) {
-            SRERole role = findRole(id);
-            if (role != null)
+            SRERole role = findRoleFlexible(id);
+            if (role != null) {
                 result.add(role);
+            } else {
+                SRE.LOGGER.warn("[CustomModifier] {} of '{}' references unknown role '{}' (ignored)",
+                        field, modifierId, id);
+            }
         }
         return result;
     }
 
-    /**
-     * 宽松版 {@link #parseRoles}：除 id / path 外也接受职业名称（见 {@link #findRoleFlexible}）。
-     * 用于「绑定职业」——作者手填中文名也能生效。
-     */
-    private static HashSet<SRERole> parseRolesFlexible(List<String> ids) {
+    /** 宽松版职业解析（id / path / 显示名 / 原始翻译键），失败只记日志。 */
+    private static HashSet<SRERole> parseRolesFlexible(List<String> ids, String field, String modifierId) {
         HashSet<SRERole> result = new HashSet<>();
         for (String id : safe(ids)) {
             SRERole role = findRoleFlexible(id);
-            if (role != null)
+            if (role != null) {
                 result.add(role);
+            } else {
+                SRE.LOGGER.warn("[CustomModifier] {} of '{}' references unknown role '{}' (ignored)",
+                        field, modifierId, id);
+            }
         }
         return result;
     }

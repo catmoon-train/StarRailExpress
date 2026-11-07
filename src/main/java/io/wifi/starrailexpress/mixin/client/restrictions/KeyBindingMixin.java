@@ -20,6 +20,7 @@ import io.wifi.starrailexpress.anticheat.ClickAntiCheatClient;
 import io.wifi.starrailexpress.api.RoleMethodDispatcher;
 import io.wifi.starrailexpress.client.SREClient;
 import io.wifi.starrailexpress.content.item.api.SREItemProperties.DropAndClearItem;
+import io.wifi.starrailexpress.customitem.CustomItemRuntime;
 import io.wifi.starrailexpress.rules.DropRules;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
@@ -70,6 +71,14 @@ public abstract class KeyBindingMixin {
             }
             if (player.getMainHandItem().getItem() instanceof DropAndClearItem)
                 return false;
+            // 自定义列车物品的丢弃限制是硬判定：不参与下面的「或」逻辑，
+            // 否则任何一个 canDrop 谓词（例如林家「手持非钥匙即可丢」）都会把它整体放行。
+            if (CustomItemRuntime.isCustomItem(player.getMainHandItem())) {
+                if (CustomItemRuntime.canDropCustomItem(player) && instance.screen == null) {
+                    return false;
+                }
+                return true;
+            }
             if (DropRules.canDropItem
                     .contains(BuiltInRegistries.ITEM.getKey(player.getMainHandItem().getItem()).toString())
                     || DropRules.canDrop.stream().anyMatch((p) -> {

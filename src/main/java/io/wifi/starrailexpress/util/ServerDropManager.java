@@ -18,6 +18,7 @@ package io.wifi.starrailexpress.util;
 import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.api.RoleMethodDispatcher;
 import io.wifi.starrailexpress.content.item.api.SREItemProperties.DropAndClearItem;
+import io.wifi.starrailexpress.customitem.CustomItemRuntime;
 import io.wifi.starrailexpress.game.GameUtils;
 import io.wifi.starrailexpress.rules.DropRules;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -49,6 +50,13 @@ public class ServerDropManager {
         }
         if (itemStack.getItem() instanceof DropAndClearItem)
             return true;
+
+        // 自定义列车物品的「是否可丢弃 / 仅特定职业可丢弃」是硬判定：
+        // 不能再参与下面的 canDropItem / canDrop 的「或」逻辑，否则任何一个注册的
+        // canDrop 谓词（例如林家「手持非钥匙即可丢」）都会把自定义物品的限制整体放行。
+        if (CustomItemRuntime.isCustomItem(itemStack)) {
+            return CustomItemRuntime.canDropCustomItem(player);
+        }
 
         if (DropRules.canDropItem
                 .contains(BuiltInRegistries.ITEM.getKey(itemStack.getItem()).toString())

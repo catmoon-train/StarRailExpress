@@ -959,13 +959,20 @@ public class CustomItemData {
         }
     }
 
-    /** 把「逗号分隔的 id 串」拆成列表（去掉空白与空项）。 */
+    /**
+     * 把「分隔的 id 串」拆成列表（去掉空白与空项）。
+     *
+     * <p>
+     * 分隔符同时接受英文逗号与<b>中文逗号</b>、分号、空白：这两个输入框是给人手填的，
+     * 只认英文逗号时，写成「职业甲，职业乙」会被当成<b>一个</b>职业 id，导致限制永远不成立
+     * （配置看起来填了、实际一次都没匹配上）。
+     */
     public static List<String> splitIds(String csv) {
         List<String> result = new ArrayList<>();
         if (csv == null || csv.isBlank()) {
             return result;
         }
-        for (String part : csv.split(",")) {
+        for (String part : csv.split("[,，;；\\s]+")) {
             String id = part.trim();
             if (!id.isEmpty()) {
                 result.add(id);

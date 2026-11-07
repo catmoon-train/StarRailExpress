@@ -18,6 +18,7 @@ package io.wifi.starrailexpress.customitem;
 import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.api.RoleTeam;
 import io.wifi.starrailexpress.api.SRERole;
+import io.wifi.starrailexpress.api.TMMRoles;
 import io.wifi.starrailexpress.cca.CustomItemHitMarkerComponent;
 import io.wifi.starrailexpress.cca.ExtraSlotComponent;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
@@ -25,6 +26,8 @@ import io.wifi.starrailexpress.cca.SREPlayerMoodComponent;
 import io.wifi.starrailexpress.content.item.api.SREItemProperties;
 import io.wifi.starrailexpress.customitem.CustomItemData.TargetMode;
 import io.wifi.starrailexpress.custommodifier.CustomModifierLoader;
+import io.wifi.starrailexpress.customrole.CustomRoleData;
+import io.wifi.starrailexpress.customrole.CustomRoleLoader;
 import io.wifi.starrailexpress.event.AllowItemShowInHand;
 import io.wifi.starrailexpress.event.OnGameEnd;
 import io.wifi.starrailexpress.event.OnPlayerDeath;
@@ -89,6 +92,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.UUID;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -118,6 +122,8 @@ public final class CustomItemRuntime {
      */
     private static final Map<String, Long> CLIENT_AUTO_FIRE = new ConcurrentHashMap<>();
 
+    /** 使用限制里「一个职业都解析不到」的告警去重：{@code 物品id|字段名}。 */
+    private static final Set<String> UNRESOLVED_USE_LIMIT_WARNED = ConcurrentHashMap.newKeySet();
     private static boolean initialized = false;
 
     /** 自动射击运行时状态。 */
@@ -236,13 +242,24 @@ public final class CustomItemRuntime {
     // ==================== 丢弃 / 死亡处理 ====================
 
     /**
+     * 该物品栈是否为自定义列车物品。
+     *
+     * <p>
+     * 供 {@code ServerDropManager} / {@code KeyBindingMixin} 这类「多个来源或起来判定」的
+     * 地方做硬性分流：自定义物品只认它自己的丢弃配置，不能靠别的规则被放行。
+     */
+    public static boolean isCustomItem(ItemStack stack) {
+        return stack != null && !stack.isEmpty() && CustomItemLoader.getData(stack) != null;
+    }
+
+    /**
      * 自定义列车物品是否允许被该玩家主动丢弃。
      *
      * <p>
-     * 非自定义物品直接返回 false（不影响原有 DropRules 判定）；自定义物品遵循：
+     * 非自定义物品返回 false（调用方需先用 {@link #isCustomItem} 分流）；自定义物品遵循：
      * 填写了「仅特定职业可丢弃」→ 只有该职业能丢；否则看「是否可丢弃」。
      */
-    private static boolean canDropCustomItem(Player player) {
+    public static boolean canDropCustomItem(Player player) {
         ItemStack stack = player.getMainHandItem();
         CustomItemData data = CustomItemLoader.getData(stack);
         if (data == null) {
@@ -254,23 +271,102 @@ public final class CustomItemRuntime {
         return data.canDropItem;
     }
 
-    /** 玩家当前职业是否匹配配置里填的职业 id（支持 {@code ns:path} 与纯 path，大小写不敏感）。 */
+    /**
+     * 玩家当前职业是否匹配配置里填的职业 id。
+     *
+     * <p>
+     * 兼容三种写法（大小写不敏感）：
+     * <ul>
+     * <li>完整 id：{@code noellesroles:accountant}</li>
+     * <li>仅路径：{@code accountant}</li>
+     * <li>职业显示名 / 原始翻译键（{@code announcement.star.role.<path>}）：这两栏是给人手填的，
+     * 与「自定义修饰符 → 绑定职业」同一口径（{@code CustomModifierLoader#findRoleFlexible}），
+     * 避免作者照介绍页抄中文名却永远匹配不上、限制看起来「没生效」。</li>
+     * </ul>
+     */
     public static boolean roleMatches(Player player, String configuredRoleId) {
         if (player == null || configuredRoleId == null || configuredRoleId.isBlank()) {
             return false;
         }
         SREGameWorldComponent gameWorld = SREGameWorldComponent.KEY.get(player.level());
         SRERole role = gameWorld == null ? null : gameWorld.getRole(player);
-        if (role == null || role.identifier() == null) {
+        return roleIdMatches(role, configuredRoleId);
+    }
+
+    /** 单个职业与配置值的匹配（{@link #roleMatches} 的纯函数版本，也供批量校验复用）。 */
+    private static boolean roleIdMatches(SRERole role, String configuredRoleId) {
+        if (role == null || role.identifier() == null || configuredRoleId == null) {
+            return false;
+        }
+        String wanted = configuredRoleId.trim();
+        if (wanted.isEmpty()) {
+            return false;
+        }
+        ResourceLocation identifier = role.identifier();
+        ResourceLocation parsed = ResourceLocation.tryParse(wanted);
+        if (parsed != null && parsed.equals(identifier)) {
+            return true;
+        }
+        String path = wanted.contains(":") ? wanted.substring(wanted.indexOf(':') + 1) : wanted;
+        if (identifier.getPath().equalsIgnoreCase(path)) {
+            return true;
+        }
+        // 显示名 / 原始翻译键兜底：手填中文职业名也能命中（与「绑定职业」同一口径）。
+        // 注意服务端通常没有语言资源，getName().getString() 会退回翻译键本身，
+        // 所以这里还要额外比对自定义职业配置里的 displayName。
+        try {
+            if (role.getName() != null && wanted.equalsIgnoreCase(role.getName().getString())) {
+                return true;
+            }
+        } catch (Exception ignored) {
+            // 忽略：继续走后面的兜底匹配
+        }
+        String rolePath = identifier.getPath();
+        if (wanted.equalsIgnoreCase("announcement.star.role." + rolePath)) {
+            return true;
+        }
+        CustomRoleData customData = CustomRoleLoader.getCustomRoleData(rolePath);
+        return customData != null && customData.displayName != null
+                && wanted.equalsIgnoreCase(customData.displayName.trim());
+    }
+
+    /**
+     * 配置里填的职业 id 能否在「已注册职业」里解析出任意一个职业。
+     *
+     * <p>
+     * 只用于区分「玩家职业不匹配」（正常拒绝，不报错）与「配置写错」（职业 id 不存在，需要提示作者）：
+     * 后者在旧实现里会表现为「限制填了却完全不生效」。
+     */
+    private static boolean roleResolvable(String configuredRoleId) {
+        if (configuredRoleId == null || configuredRoleId.isBlank()) {
             return false;
         }
         String wanted = configuredRoleId.trim();
         ResourceLocation parsed = ResourceLocation.tryParse(wanted);
-        if (parsed != null && parsed.equals(role.identifier())) {
+        if (parsed != null && TMMRoles.ROLES.get(parsed) != null) {
             return true;
         }
         String path = wanted.contains(":") ? wanted.substring(wanted.indexOf(':') + 1) : wanted;
-        return role.identifier().getPath().equalsIgnoreCase(path);
+        for (SRERole role : TMMRoles.ROLES.values()) {
+            if (role == null || role.identifier() == null) {
+                continue;
+            }
+            if (role.identifier().getPath().equalsIgnoreCase(path)
+                    || roleIdMatches(role, wanted)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /** 使用限制里的职业 id 一个都解析不到时提示作者（每件物品每次运行只提示一次）。 */
+    private static void warnUnresolvedUseLimit(CustomItemData data, String field, List<String> ids) {
+        String key = (data.id == null ? "" : data.id) + "|" + field;
+        if (!UNRESOLVED_USE_LIMIT_WARNED.add(key)) {
+            return;
+        }
+        SRE.LOGGER.warn("[CustomItem] {} of '{}' matches no registered role {} — the item is unusable until fixed",
+                field, data.id, ids);
     }
 
     // ==================== 使用限制（仅指定职业 / 修饰符 / 阵营） ====================
@@ -297,6 +393,22 @@ public final class CustomItemRuntime {
                 }
             }
             if (!matched) {
+                // 不放行。只有「一个条目都解析不到职业」才说明配置写错了（职业 id 拼错 / 职业已被删除），
+                // 这时补一条日志；否则就是正常的「职业不匹配」，不该刷日志。
+                // 解析要遍历整张职业表，所以放在告警去重之后：每件物品每次运行最多算一次。
+                String warnKey = (data.id == null ? "" : data.id) + "|useOnlyRoles";
+                if (!UNRESOLVED_USE_LIMIT_WARNED.contains(warnKey)) {
+                    boolean anyResolved = false;
+                    for (String roleId : roles) {
+                        if (roleResolvable(roleId)) {
+                            anyResolved = true;
+                            break;
+                        }
+                    }
+                    if (!anyResolved) {
+                        warnUnresolvedUseLimit(data, "useOnlyRoles", roles);
+                    }
+                }
                 return false;
             }
         }
@@ -436,6 +548,9 @@ public final class CustomItemRuntime {
 
     /** 基础道具：右键执行指令 + 冷却 + 是否消耗。 */
     public static void executeBasic(ServerPlayer player, ItemStack stack, CustomItemData data) {
+        if (!ensureCanUse(player, data)) {
+            return;
+        }
         if (isOnCooldown(player, stack)) {
             return;
         }
@@ -457,6 +572,9 @@ public final class CustomItemRuntime {
      * @return 是否成功触发（触发了才走冷却与消耗）
      */
     public static boolean completeCharge(ServerPlayer player, ItemStack stack, CustomItemData data) {
+        if (!ensureCanUse(player, data)) {
+            return false;
+        }
         if (isOnCooldown(player, stack)) {
             return false;
         }
@@ -1003,6 +1121,9 @@ public final class CustomItemRuntime {
 
     /** 特殊原版物品右键：执行指令 + 冷却。 */
     public static void useVanillaWeapon(ServerPlayer player, ItemStack stack, CustomItemData data) {
+        if (!ensureCanUse(player, data)) {
+            return;
+        }
         if (isOnCooldown(player, stack)) {
             return;
         }
@@ -1018,6 +1139,9 @@ public final class CustomItemRuntime {
      */
     public static boolean onVanillaWeaponAttack(ServerPlayer attacker, ServerPlayer target, ItemStack stack,
             CustomItemData data) {
+        if (!ensureCanUse(attacker, data)) {
+            return false;
+        }
         if (!GameUtils.isPlayerAliveAndSurvival(attacker) || !GameUtils.isPlayerAliveAndSurvival(target)) {
             return false;
         }
@@ -1065,6 +1189,9 @@ public final class CustomItemRuntime {
 
     /** 食物 / 饮料食用后的统一处理（指令 + 冷却 + 与 Cocktail 一致的饮食表现）。 */
     public static void onFoodConsumed(ServerPlayer player, ItemStack stack, CustomItemData data) {
+        if (!ensureCanUse(player, data)) {
+            return;
+        }
         if (data.isDrink) {
             SREPlayerMoodComponent.KEY.get(player).drinkCocktail();
             FoodDrinkGlowComponent.playerDrink(player, stack);
@@ -1255,6 +1382,9 @@ public final class CustomItemRuntime {
 
     /** 右键玩家：把这份自定义手铐铐进目标玩家的特殊栏位。 */
     public static InteractionResult cuffPlayer(ServerPlayer user, ItemStack stack, CustomItemData data, Player target) {
+        if (!ensureCanUse(user, data)) {
+            return InteractionResult.FAIL;
+        }
         if (!(target instanceof ServerPlayer targetPlayer) || user == targetPlayer) {
             return InteractionResult.PASS;
         }
@@ -1753,6 +1883,9 @@ public final class CustomItemRuntime {
      * @param chargeRatio 拉栓蓄力进度 0~1（1 = 蓄满）
      */
     public static void throwCustom(ServerPlayer user, ItemStack stack, CustomItemData data, float chargeRatio) {
+        if (!ensureCanUse(user, data)) {
+            return;
+        }
         if (isOnCooldown(user, stack)) {
             return;
         }
