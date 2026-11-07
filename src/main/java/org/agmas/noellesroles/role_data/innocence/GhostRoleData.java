@@ -332,7 +332,7 @@ public class GhostRoleData extends SimpleRoleData {
             }
         }
 
-        // 芙兰朵露时刻激活条件：时间已快进到阈值内，或场上只剩单一阵营+芙兰朵露
+        // 恶魔之妹时刻激活条件：时间已快进到阈值内，或场上只剩单一阵营+芙兰朵露
         boolean momentActive = gameTime.getTime() <= FURAN_LAST_STAND_TIME
                 || (aliveCivilianCount <= 0 || aliveKillerCount <= 0) && aliveCivilianCount + aliveKillerCount > 0;
         if (!momentActive) {
@@ -361,11 +361,11 @@ public class GhostRoleData extends SimpleRoleData {
             sync();
             // 回放记录：芙兰朵露加速时间（若小透明也已加速，则记为「共同加速」）
             recordAccelerateTime(true);
-            // 回放记录：芙兰朵露时刻触发
+            // 回放记录：恶魔之妹时刻触发
             ReplayEventLog.record("replay.event.moment.furandoru", ReplayEventLog.player(player));
         }
 
-        // 芙兰朵露时刻激活期间持续保证发光：
+        // 恶魔之妹时刻激活期间持续保证发光：
         // 难民/亡命徒期间时刻可能提前触发过一次（一次性发光 121 秒，随后自然过期，
         // 或被亡命徒的时间回溯快照恢复覆盖），而 lastStandNotified 已置位导致发光不再补发，
         // 再次正式进入时刻时 BGM 照响但发光丢失。这里在时刻激活的每 tick 检查，
