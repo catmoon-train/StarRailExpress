@@ -1409,8 +1409,8 @@ public class RoleIntroduceScreen extends Screen {
                     ShopEntry.Currency currency = entry.currency() != null ? entry.currency()
                             : ShopEntry.Currency.MONEY;
                     Component nameText = stack.getHoverName().copy().withStyle(ChatFormatting.WHITE);
-                    Component priceText = Component.translatable("screen.roleintroduce.shop.price", entry.price())
-                            .append(currency.iconText())
+                    Component priceText = Component.translatable("screen.roleintroduce.shop.price",
+                            currency.amountText(entry.price()))
                             .withColor(currency.color());
 
                     int textX = x + 32;

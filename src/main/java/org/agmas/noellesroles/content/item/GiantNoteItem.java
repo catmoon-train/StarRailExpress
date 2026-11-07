@@ -18,6 +18,7 @@ package org.agmas.noellesroles.content.item;
 import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.cca.SREPlayerNoteComponent;
 import io.wifi.starrailexpress.cca.SREPlayerShopComponent;
+import io.wifi.starrailexpress.util.ShopEntry;
 import net.minecraft.core.Direction;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
@@ -67,7 +68,7 @@ public class GiantNoteItem extends io.wifi.starrailexpress.content.item.NoteItem
                             note.setPos(livingEntity.getX(), livingEntity.getY() + 1, livingEntity.getZ());
                             note.setDirection(Direction.EAST);
                             note.setLines(component.text);
-                                serverPlayer.displayClientMessage(Component.translatable("message.note.put_back", livingEntity.getName()).withColor(Mth.hsvToRgb(0.0F, 1.0F, 0.6F)), true);
+                                serverPlayer.displayClientMessage(Component.translatable("message.note.put_back", ShopEntry.Currency.MONEY.amountText(50), livingEntity.getName()).withColor(Mth.hsvToRgb(0.0F, 1.0F, 0.6F)), true);
 
                             world.addFreshEntity(note);
                             if (!serverPlayer.isCreative()) {
@@ -81,7 +82,7 @@ public class GiantNoteItem extends io.wifi.starrailexpress.content.item.NoteItem
                         }
                     }
                 } else {
-                    serverPlayer.displayClientMessage(Component.translatable("message.note.not_enough_money",50).withColor(Mth.hsvToRgb(0.0F, 1.0F, 0.6F)), true);
+                    serverPlayer.displayClientMessage(Component.translatable("message.note.not_enough_money", ShopEntry.Currency.MONEY.amountText(50)).withColor(Mth.hsvToRgb(0.0F, 1.0F, 0.6F)), true);
                 }
             }
         }

@@ -18,6 +18,7 @@ package io.wifi.starrailexpress.util;
 import io.wifi.starrailexpress.cca.SREPlayerMinigameTaskComponent;
 import io.wifi.starrailexpress.cca.SREPlayerShopComponent;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -124,7 +125,7 @@ public class ShopEntry extends dev.doctor4t.wathe.util.ShopEntry {
      * @param weight
      */
     public enum Currency {
-        MONEY("money", "gui.vendingmachine.money_display", 0xFFFFD700) {
+        MONEY("money", "gui.vendingmachine.money_display", "sre.custom_role.shop.currency.money", 0xFFFFD700) {
             @Override
             public int getBalance(@NotNull Player player) {
                 return SREPlayerShopComponent.KEY.get(player).balance;
@@ -145,7 +146,8 @@ public class ShopEntry extends dev.doctor4t.wathe.util.ShopEntry {
                 return "\uE000";
             }
         },
-        MINIGAME_TOKEN("minigame_token", "gui.vendingmachine.minigame_token_display", 0xFF7CFCA0) {
+        MINIGAME_TOKEN("minigame_token", "gui.vendingmachine.minigame_token_display",
+                "sre.custom_role.shop.currency.minigame_token", 0xFF7CFCA0) {
             @Override
             public int getBalance(@NotNull Player player) {
                 return SREPlayerMinigameTaskComponent.KEY.get(player).getTokens();
@@ -169,11 +171,13 @@ public class ShopEntry extends dev.doctor4t.wathe.util.ShopEntry {
 
         private final String serializedName;
         private final String priceTranslationKey;
+        private final String displayNameKey;
         private final int color;
 
-        Currency(String serializedName, String priceTranslationKey, int color) {
+        Currency(String serializedName, String priceTranslationKey, String displayNameKey, int color) {
             this.serializedName = serializedName;
             this.priceTranslationKey = priceTranslationKey;
+            this.displayNameKey = displayNameKey;
             this.color = color;
         }
 
@@ -190,6 +194,31 @@ public class ShopEntry extends dev.doctor4t.wathe.util.ShopEntry {
 
         public String priceTranslationKey() {
             return this.priceTranslationKey;
+        }
+
+        /** 货币名字的翻译键（不含图标，用于切换货币等纯文本场合）。 */
+        public String displayNameKey() {
+            return this.displayNameKey;
+        }
+
+        /**
+         * 「数量 + 货币图标」的文本片段，例如 {@code 120} 后跟一枚金币图标。
+         * <p>
+         * 图标码位由 {@link #iconText()} 硬编码提供，语言文件里只留 {@code %s} 占位，
+         * 避免翻译工具把私有使用区字形改写成乱码方块。
+         */
+        public Component amountText(int amount) {
+            return Component.literal(Integer.toString(amount)).append(this.iconText());
+        }
+
+        /**
+         * 用本货币的价格翻译键格式化数量。
+         * <p>
+         * 价格翻译键的文案只包含 {@code %s}（数量），图标一律由代码追加，
+         * 语言文件无法修改货币字形。
+         */
+        public MutableComponent formatAmount(int amount) {
+            return Component.translatable(this.priceTranslationKey(), this.amountText(amount));
         }
 
         public int color() {
@@ -216,6 +245,12 @@ public class ShopEntry extends dev.doctor4t.wathe.util.ShopEntry {
             return Arrays.stream(values()).map(Currency::serializedName).toList();
         }
 
+        /**
+         * 货币图标字形（Unicode 私有使用区码位）。
+         * <p>
+         * 必须与 {@code assets/minecraft/font/default.json} 中注册的字符一致。
+         * 该码位刻意写死在代码里，不允许由语言文件提供。
+         */
         public abstract String iconText();
     }
 }

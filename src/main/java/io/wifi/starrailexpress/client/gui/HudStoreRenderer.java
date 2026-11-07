@@ -19,6 +19,7 @@ import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.cca.SREPlayerMinigameTaskComponent;
 import io.wifi.starrailexpress.cca.SREPlayerShopComponent;
+import io.wifi.starrailexpress.util.ShopEntry;
 import io.wifi.utils.client.betterrender.FakeGuiGraphics;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.player.LocalPlayer;
@@ -61,7 +62,8 @@ public class HudStoreRenderer {
             // 小游戏代币（货币）：显示在金币左边同一水平线
             SREPlayerMinigameTaskComponent minigameTask = SREPlayerMinigameTaskComponent.KEY.get(player);
             if (minigameTask != null && minigameTask.getTokens() > 0) {
-                Component tokenText = Component.translatable("hud.sre.game_token", minigameTask.getTokens());
+                Component tokenText = Component.translatable("hud.sre.game_token",
+                        ShopEntry.Currency.MINIGAME_TOKEN.amountText(minigameTask.getTokens()));
                 int spacing = 8;
                 int coinWidth = view.getWidth(renderer);
                 int tokenX = coinX - coinWidth - spacing - renderer.width(tokenText)+8;
@@ -72,7 +74,8 @@ public class HudStoreRenderer {
             // 小游戏代币（货币）：无金币时显示在右上角
             SREPlayerMinigameTaskComponent minigameTask = SREPlayerMinigameTaskComponent.KEY.get(player);
             if (minigameTask != null && minigameTask.getTokens() > 0) {
-                Component tokenText = Component.translatable("hud.sre.game_token", minigameTask.getTokens());
+                Component tokenText = Component.translatable("hud.sre.game_token",
+                        ShopEntry.Currency.MINIGAME_TOKEN.amountText(minigameTask.getTokens()));
                 int tokenX = context.guiWidth() - 4 - renderer.width(tokenText);
                 int tokenY = 6;
                 context.drawString(renderer, tokenText, tokenX, tokenY, 0xFFFFD700, false);

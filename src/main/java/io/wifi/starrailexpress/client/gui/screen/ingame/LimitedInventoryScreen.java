@@ -863,10 +863,8 @@ public class LimitedInventoryScreen extends LimitedHandledScreen<InventoryMenu> 
             ShopEntry.Currency currency = liveEntry.currency() == null
                     ? ShopEntry.Currency.MONEY
                     : liveEntry.currency();
-            MutableComponent price = currency == ShopEntry.Currency.MONEY
-                    ? Component.literal(effectivePrice + "\uE000")
-                    : Component.translatable(currency.priceTranslationKey(), effectivePrice)
-                            .withColor(currency.color());
+            MutableComponent price = currency.formatAmount(effectivePrice)
+                    .withColor(currency.color());
             int displayX = this.getX() - 4 - this.screen.font.width(price) / 2;
             int displayY = this.getY() - 9;
             List<Component> renders = new ArrayList<>();

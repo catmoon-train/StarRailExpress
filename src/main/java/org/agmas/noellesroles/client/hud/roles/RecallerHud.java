@@ -51,7 +51,8 @@ public class RecallerHud {
                         NoellesrolesClient.abilityBind.getTranslatedKeyMessage());
             } else {
                 if (playerShopComponent.balance < 100) {
-                    line = Component.translatable("tip.recaller.not_enough_money");
+                    line = Component.translatable("tip.recaller.not_enough_money",
+                            ShopEntry.Currency.MONEY.amountText(100));
                 }
             }
 

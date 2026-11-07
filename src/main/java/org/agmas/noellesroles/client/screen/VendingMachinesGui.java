@@ -864,7 +864,7 @@ public class VendingMachinesGui extends AbstractPixelScreen {
     }
 
     private Component formatPrice(VendingGoods goods) {
-        return Component.translatable(goods.currency.priceTranslationKey(), goods.price);
+        return goods.currency.formatAmount(goods.price);
     }
 
     private int getTotalRows() {
@@ -1165,8 +1165,8 @@ public class VendingMachinesGui extends AbstractPixelScreen {
         int balance = SREPlayerShopComponent.KEY.get(this.minecraft.player).balance;
         int tokens = SREPlayerMinigameTaskComponent.KEY.get(this.minecraft.player).getTokens();
 
-        Component moneyText = Component.translatable("gui.vendingmachine.money_display", balance);
-        Component tokenText = Component.translatable("gui.vendingmachine.minigame_token_display", tokens);
+        Component moneyText = ShopEntry.Currency.MONEY.formatAmount(balance);
+        Component tokenText = ShopEntry.Currency.MINIGAME_TOKEN.formatAmount(tokens);
 
         int textWidth = Math.max(this.font.width(moneyText), this.font.width(tokenText));
         int xPos = this.width - textWidth - 10;

@@ -94,7 +94,7 @@ public class TicketOfficeShopScreen extends Screen {
 
         // 价格行：用翻译键渲染（含自定义字体货币图标）
         int priceY = t + 84;
-        Component priceText = Component.translatable(currency.priceTranslationKey(), data.getInt("Price"));
+        Component priceText = currency.formatAmount(data.getInt("Price"));
         g.drawString(font, priceText, l + 28, priceY + 1, currency.color(), false);
 
         // 使用次数

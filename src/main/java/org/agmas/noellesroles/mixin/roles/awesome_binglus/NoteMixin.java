@@ -19,6 +19,7 @@ import io.wifi.starrailexpress.SRE;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.cca.SREPlayerNoteComponent;
 import io.wifi.starrailexpress.cca.SREPlayerShopComponent;
+import io.wifi.starrailexpress.util.ShopEntry;
 import io.wifi.starrailexpress.content.entity.NoteEntity;
 import io.wifi.starrailexpress.index.TMMEntities;
 import io.wifi.starrailexpress.index.TMMItems;
@@ -84,7 +85,7 @@ public abstract class NoteMixin {
                                 note.setDirection(Direction.EAST);
                                 note.setLines(component.text);
                                 player.displayClientMessage(
-                                        Component.translatable("message.note.put_back", livingEntity.getName())
+                                        Component.translatable("message.note.put_back", ShopEntry.Currency.MONEY.amountText(50), livingEntity.getName())
                                                 .withColor(Mth.hsvToRgb(0.0F, 1.0F, 0.6F)),
                                         true);
 
@@ -104,7 +105,7 @@ public abstract class NoteMixin {
                         }
                     }
                 } else {
-                    player.displayClientMessage(Component.translatable("message.note.not_enough_money",50)
+                    player.displayClientMessage(Component.translatable("message.note.not_enough_money", ShopEntry.Currency.MONEY.amountText(50))
                             .withColor(Mth.hsvToRgb(0.0F, 1.0F, 0.6F)), true);
                     cir.setReturnValue(InteractionResult.PASS);
                     return;

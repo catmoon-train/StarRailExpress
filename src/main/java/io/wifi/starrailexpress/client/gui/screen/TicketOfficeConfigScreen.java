@@ -59,11 +59,11 @@ public class TicketOfficeConfigScreen extends Screen {
         addRenderableWidget(priceBox);
         addRenderableWidget(usesBox);
         addRenderableWidget(maxPurchasesBox);
-        addRenderableWidget(Button.builder(Component.translatable(currency.priceTranslationKey()), b -> {
+        addRenderableWidget(Button.builder(Component.translatable(currency.displayNameKey()), b -> {
             this.currency = this.currency == ShopEntry.Currency.MONEY
                     ? ShopEntry.Currency.MINIGAME_TOKEN
                     : ShopEntry.Currency.MONEY;
-            b.setMessage(Component.translatable(this.currency.priceTranslationKey()));
+            b.setMessage(Component.translatable(this.currency.displayNameKey()));
         }).bounds(panelX + 164, y + 30, 72, 20).build());
         addRenderableWidget(Button.builder(Component.translatable("gui.done"), b -> saveAndClose())
                 .bounds(panelX + 40, y + 120, 76, 20).build());
