@@ -5,6 +5,7 @@ import net.fabricmc.fabric.api.event.Event;
 import net.fabricmc.fabric.api.event.EventFactory;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.InteractionHand;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.Level;
@@ -57,6 +58,16 @@ public final class ItemGameplayEvents {
                 return false;
             });
 
+    /** 服务端刀击即将写入冷却，原参数已求值；未进入冷却分支时不触发。 */
+    public static final Event<KnifeCooldown> BEFORE_KNIFE_COOLDOWN = EventFactory.createArrayBacked(
+            KnifeCooldown.class, listeners -> (player, targetId) -> {
+                for (KnifeCooldown listener : listeners) listener.beforeCooldown(player, targetId);
+            });
+
+    @FunctionalInterface
+    public interface KnifeCooldown {
+        void beforeCooldown(ServerPlayer player, int targetId);
+    }
     @FunctionalInterface
     public interface BeforeUse {
         void onUse(Item item, Level level, Player player, InteractionHand hand);

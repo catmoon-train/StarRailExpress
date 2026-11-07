@@ -59,7 +59,7 @@ class GameUtilsRefactorTest {
         String death = read(GAME + "GameDeath.java");
         assertTrue(death.indexOf("BEFORE_KILL.invoker()") < death.indexOf("server.execute("));
         assertTrue(death.indexOf("FakeSteveDirector.isForcedHuntAttack") < death.indexOf("forcedDeathInProgress = forceDeath;"));
-        assertTrue(death.contains("finally {\n            forcedDeathInProgress = previousForced;"));
+        assertTrue(Pattern.compile("finally\\s*\\{\\s*forcedDeathInProgress = previousForced;").matcher(death).find());
         String scheduler = read(GAME + "GameTaskScheduler.java");
         assertTrue(scheduler.indexOf("if (registered) return;") < scheduler.indexOf("ServerEntityEvents.ENTITY_LOAD.register"));
         assertFalse(scheduler.contains("GameUtilityRoleHooks"));

@@ -28,6 +28,7 @@ public class NREventRegister {
         org.agmas.noellesroles.init.events.GameUtilityRoleHooks.register();
         org.agmas.noellesroles.init.events.ShopRoleEventHandlers.register();
         org.agmas.noellesroles.init.events.CoreGameplayRoleEvents.register();
+        org.agmas.noellesroles.init.events.KnifeCooldownRoleEvents.register();
         // 注册C4系统
         org.agmas.noellesroles.game.c4.C4Detonation.register();
         org.agmas.noellesroles.game.c4.PliersDefuseManager.register();

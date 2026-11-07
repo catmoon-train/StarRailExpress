@@ -25,6 +25,9 @@ import io.wifi.starrailexpress.game.KillerKnifeDurability;
 import io.wifi.starrailexpress.game.roles.SpecialGameModeRoles;
 import io.wifi.starrailexpress.index.TMMItems;
 import io.wifi.starrailexpress.index.TMMSounds;
+import io.wifi.starrailexpress.event.ItemGameplayEvents;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemCooldowns;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -86,7 +89,7 @@ public record KnifeStabPayload(int target) implements CustomPacketPayload {
                         && !io.wifi.starrailexpress.game.KillerKnifeDurability.isDepleted(stack)
                         && (role == null || role.onUseKnife(player))
                         && org.agmas.noellesroles.game.command_block.CommandBlockCracks.tryShatterWithWeapon(player, targetEntity)) {
-                    player.getCooldowns().addCooldown(stack.getItem(), getKnifeCooldown(player));
+                    applyKnifeCooldown(player.getCooldowns(), stack.getItem(), getKnifeCooldown(player), player, targetId);
                     player.swing(InteractionHand.MAIN_HAND);
                 }
                 return;
@@ -111,8 +114,7 @@ public record KnifeStabPayload(int target) implements CustomPacketPayload {
                         && !SREGameWorldComponent.KEY.get(player.level()).isRole(player, TMMRoles.LOOSE_END)
                         && !SREGameWorldComponent.KEY.get(player.level()).isRole(player,
                                 SpecialGameModeRoles.SUPER_LOOSE_END)) {
-                    player.getCooldowns().addCooldown(TMMItems.KNIFE,
-                            getKnifeCooldown(player));
+                    applyKnifeCooldown(player.getCooldowns(), TMMItems.KNIFE, getKnifeCooldown(player), player, targetId);
                 }
                 return;
             }
@@ -190,10 +192,16 @@ public record KnifeStabPayload(int target) implements CustomPacketPayload {
                     && !SREGameWorldComponent.KEY.get(player.level()).isRole(player, TMMRoles.LOOSE_END)
                     && !SREGameWorldComponent.KEY.get(player.level()).isRole(player,
                             SpecialGameModeRoles.SUPER_LOOSE_END)) {
-                cooldowns.addCooldown(TMMItems.KNIFE, getKnifeCooldown(player));
+                applyKnifeCooldown(cooldowns, TMMItems.KNIFE, getKnifeCooldown(player), player, targetId);
             }
         }
 
+        /** 保留原 INVOKE 前的通知时点，冷却对象、物品与时长在监听器之前完成求值。 */
+        private static void applyKnifeCooldown(ItemCooldowns cooldowns, Item item, int ticks,
+                ServerPlayer player, int targetId) {
+            ItemGameplayEvents.BEFORE_KNIFE_COOLDOWN.invoker().beforeCooldown(player, targetId);
+            cooldowns.addCooldown(item, ticks);
+        }
         private static int getKnifeCooldown(ServerPlayer player) {
             float modifier = 1f;
             if (RoleUtils.isPlayerTheJob(player, THMiscRoles.HOUJUU_NUE)) {
