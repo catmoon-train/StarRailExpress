@@ -18,6 +18,7 @@ package org.agmas.noellesroles.role_data.neutral;
 import io.wifi.starrailexpress.api.data.RoleData;
 import io.wifi.starrailexpress.api.data.RoleDataContext;
 import io.wifi.starrailexpress.api.impl.SimpleRoleData;
+import io.wifi.starrailexpress.api.TMMRoles;
 import io.wifi.starrailexpress.cca.PlayerBodyEntityComponent;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
 import io.wifi.starrailexpress.content.entity.PlayerBodyEntity;
@@ -63,6 +64,7 @@ import org.agmas.noellesroles.role.ModRoles;
 import org.agmas.noellesroles.utils.RoleUtils;
 import org.jetbrains.annotations.NotNull;
 import pro.fazeclan.river.stupid_express.constants.SEItems;
+import pro.fazeclan.river.stupid_express.modifier.refugee.cca.RefugeeComponent;
 import java.util.*;
 
 public class AmonRoleData extends SimpleRoleData {
@@ -240,8 +242,8 @@ public class AmonRoleData extends SimpleRoleData {
 
         // 安全网：若游戏本应结束（平民或杀手胜利）但 handleGameEnd 未能触发终幕，
         // 由服务端 tick 兜底启动，确保持有成熟宿主的阿蒙不会因时序问题错过终幕。
-        if (!maturedHosts.isEmpty() && isGameEnding(amon, game)) {
-            startFinale();
+        // 亡命徒时刻期间 startFinale() 会拒绝启动，此时不要提前 return，继续正常潜伏逻辑。
+        if (!maturedHosts.isEmpty() && isGameEnding(amon, game) && startFinale()) {
             return;
         }
 
@@ -686,8 +688,10 @@ public class AmonRoleData extends SimpleRoleData {
             } else if (pendingStatus != GameUtils.WinStatus.NONE && comp.maturedHosts.size() >= 1) {
                 // 仅在常规游戏「本应结束」时（杀手/乘客/超时等结算）才进入终幕；
                 // 若 pendingStatus 为 NONE（场上平民与杀手都还活着），不可提前触发阿蒙时刻。
-                comp.startFinale();
-                block = true;
+                // 亡命徒（难民修饰符变来的）期间 startFinale() 会拒绝启动，此时不阻断结算。
+                if (comp.startFinale()) {
+                    block = true;
+                }
             }
         }
         return block ? GameUtils.WinStatus.NONE : GameUtils.WinStatus.NOT_MODIFY;
@@ -714,10 +718,23 @@ public class AmonRoleData extends SimpleRoleData {
         return !innocentAlive || !killerAlive;
     }
 
-    /** 开启终幕：寄宿体回归为备用能力、窃取全场物品、发光、全服播报。 */
-    private void startFinale() {
+    /**
+     * 开启终幕（阿蒙时刻）：寄宿体回归为备用能力、窃取全场物品、发光、全服播报。
+     *
+     * <p>
+     * <b>亡命徒时刻期间不允许触发</b>：难民修饰符复活成亡命徒后，{@code RefugeeComponent.isAnyRevivals}
+     * 为 true 的整段时间里，全服处于亡命徒专属流程（技能禁用、时间冻结/回拨、结算由亡命徒接管）。
+     * 此时若启动阿蒙时刻，会和亡命徒的「最后的挣扎」表现与胜负判定互相打架，故直接跳过本次触发；
+     * 亡命徒流程结束后（{@code isAnyRevivals} 归位 false）下一个 tick / 下一次结算会重新尝试。
+     *
+     * @return true 表示已进入终幕；false 表示未开启（条件不满足或处于亡命徒时刻）。
+     */
+    private boolean startFinale() {
         if (!(player instanceof ServerPlayer amon) || !(amon.level() instanceof ServerLevel level))
-            return;
+            return false;
+        // 亡命徒（难民修饰符变来的）期间禁止触发阿蒙时刻。
+        if (isDesperadoMoment(level))
+            return false;
         finalePhase = true;
         finaleTicks = FINALE_TICKS;
         reserveLives = maturedHosts.size();
@@ -740,6 +757,26 @@ public class AmonRoleData extends SimpleRoleData {
         // 回放记录：阿蒙时刻触发
         ReplayEventLog.record("replay.event.moment.amon", ReplayEventLog.player(amon));
         sync();
+        return true;
+    }
+
+    /**
+     * 当前是否处于「亡命徒时刻」（难民修饰符复活成亡命徒后的整段时间）。
+     *
+     * <p>
+     * 除了 {@link RefugeeComponent#isAnyRevivals}，还兜底检查场上是否存在存活的亡命徒
+     * （{@code TMMRoles.LOOSE_END}）——若 {@code isAnyRevivals} 因时序问题已被复位但亡命徒仍在场上，
+     * 同样不应让阿蒙时刻插进来。
+     */
+    private static boolean isDesperadoMoment(ServerLevel level) {
+        if (RefugeeComponent.KEY.get(level).isAnyRevivals)
+            return true;
+        SREGameWorldComponent game = SREGameWorldComponent.KEY.get(level);
+        for (ServerPlayer p : level.players()) {
+            if (game.isRole(p, TMMRoles.LOOSE_END) && GameUtils.isPlayerAliveAndSurvival(p))
+                return true;
+        }
+        return false;
     }
 
     /**
