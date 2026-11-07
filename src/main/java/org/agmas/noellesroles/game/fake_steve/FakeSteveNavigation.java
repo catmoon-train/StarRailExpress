@@ -17,7 +17,7 @@ final class FakeSteveNavigation {
         long now = level.getGameTime();
         boolean pursuit = state.mode == AgentMode.HUNT || state.mode == AgentMode.STALK
                 || state.mode == AgentMode.ASSIMILATE;
-        BlockPos destination = FakeSteveNavigator.normalize(level, goal);
+        BlockPos destination = FakeSteveNavigator.approach(level, goal);
         state.pathGoal = destination;
         Vec3 end = FakeSteveNavigator.point(level, destination);
         Vec3 remaining = end.subtract(body.position());
@@ -33,6 +33,8 @@ final class FakeSteveNavigation {
                         || state.plannedGoal.getY() != destination.getY()
                 : !state.plannedGoal.equals(destination));
         BlockPos next = state.path.peekFirst();
+        // 路点失效检查用「便宜的」站立判定即可：这里只想知道下一步是不是还能踩，
+        // 不需要为它单独建一份 SearchWorld 缓存。
         boolean invalid = next != null && (!FakeSteveNavigator.standable(level, next)
                 || body.distanceToSqr(FakeSteveNavigator.point(level, next)) > 36.0D);
         if (FakeSteveTraversalPolicy.repath(state.path.isEmpty(), invalid, changed, now, state.nextPathTick)) {

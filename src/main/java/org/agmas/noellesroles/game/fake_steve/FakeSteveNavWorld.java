@@ -65,6 +65,11 @@ interface FakeSteveNavWorld {
         return false;
     }
 
+
+    /** 该格是否为伤害方块（岩浆/火/仙人掌）。只影响邻居代价，不决定可站性。 */
+    default boolean isDangerous(BlockPos feet) {
+        return false;
+    }
     /** 路径简化时必须保留的节点：门（要停下来开）与台阶（要抬脚）。 */
     boolean preserveNode(BlockPos feet);
 

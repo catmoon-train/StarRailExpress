@@ -270,6 +270,89 @@ class FakeSteveNavigatorTest {
                 "允许游泳时水面可站");
     }
 
+    // ---------------------------------------------------------------- 与原版裁剪参数对齐
+
+    /**
+     * 原版 {@code PathFinder} 的「到达范围 r」：目标格不可站时，走到它旁边就算到达。
+     *
+     * <p>
+     * 不加这条时，只要任务方块悬空/被占住，A* 永远返回「未到达」，上层每 30 tick 重搜一次。
+     */
+    @Test
+    void unreachableGoalAcceptsManhattanNeighbour() {
+        GridWorld world = new GridWorld();
+        world.open(new BlockPos(0, 0, 0));
+        world.open(new BlockPos(1, 0, 0));
+        world.open(new BlockPos(2, 0, 0));
+        // 目标格 (3,0,0) 不开：不可站。
+        BlockPos goal = new BlockPos(3, 0, 0);
+
+        assertFalse(searchWorld(world, FakeSteveNavRules.PERMISSIVE).standable(goal),
+                "前提：目标格必须不可站");
+        var result = FakeSteveNavigator.search(searchWorld(world, FakeSteveNavRules.PERMISSIVE),
+                new BlockPos(0, 0, 0), goal, false);
+        assertTrue(result.reached(), "目标不可站时应接受相邻可站格：" + result.path());
+        assertEquals(new BlockPos(2, 0, 0), result.path().peekLast(),
+                "路线终点应是紧邻目标的那个可站格");
+    }
+
+    /**
+     * 原版「最大距离 l」：累计几何路径距离超过上限就剪掉，不允许绕地球一圈。
+     *
+     * <p>
+     * 直接断言 {@link FakeStevePathSearch} 的剪枝语义（用整数节点做最小复现）。
+     */
+    @Test
+    void maxPathDistancePrunesDetours() {
+        // 直线 0→1→…→20（每步代价 1、长度 1），外加一条「一步跳到终点但几何距离 40」的捷径。
+        java.util.function.Function<Integer, List<FakeStevePathSearch.Edge<Integer>>> edges = node -> {
+            List<FakeStevePathSearch.Edge<Integer>> list = new ArrayList<>();
+            if (node >= 0 && node < 20) list.add(new FakeStevePathSearch.Edge<>(node + 1, 1.0D));
+            if (node == 0) list.add(new FakeStevePathSearch.Edge<>(20, 1.0D, 40.0D));
+            return list;
+        };
+
+        // 不限制距离：那条「代价 1」的捷径更便宜，A* 必然选它。
+        var unlimited = FakeStevePathSearch.find(0, n -> n == 20,
+                n -> Math.abs(20 - n), edges, 512);
+        assertTrue(unlimited.complete());
+        assertEquals(1, unlimited.path().size(), "不限制时应走代价更小的捷径：" + unlimited.path());
+
+        // 限制 25：捷径的几何长度 40 超限被剪；直线累计长度 20 仍在预算内。
+        var pruned = FakeStevePathSearch.find(0, n -> n == 20,
+                n -> Math.abs(20 - n), edges, 512, 25.0D);
+        assertTrue(pruned.complete(), "捷径被剪掉后仍应沿直线到达：" + pruned.path());
+        assertEquals(20, pruned.path().size(), "被剪掉的应是那条 40 格长的捷径：" + pruned.path());
+    }
+
+    /** 节点预算随目标距离缩放：贴脸目标不应该保留满额预算。 */
+    @Test
+    void budgetScalesWithGoalDistance() {
+        GridWorld near = new GridWorld();
+        near.open(new BlockPos(0, 0, 0));
+        near.open(new BlockPos(1, 0, 0));
+        var nearWorld = searchWorld(near, FakeSteveNavRules.PERMISSIVE);
+        var nearResult = FakeSteveNavigator.search(nearWorld, new BlockPos(0, 0, 0),
+                new BlockPos(1, 0, 0), false);
+        assertTrue(nearResult.reached());
+        assertTrue(nearResult.visited() <= 32,
+                "一格外的目标不应展开几十个节点：" + nearResult.visited());
+    }
+
+    /** 危险邻居（岩浆/火）加固定代价，让 A* 愿意绕开而不是擦着走。 */
+    @Test
+    void dangerousNeighbourAddsCost() {
+        GridWorld world = new GridWorld();
+        world.open(new BlockPos(0, 0, 0));
+        world.dangerous(new BlockPos(1, 0, 0));
+        var searchWorld = searchWorld(world, FakeSteveNavRules.PERMISSIVE);
+        assertEquals(FakeSteveNavigator.DAMAGING_NEIGHBOR_COST,
+                searchWorld.neighbourMalus(new BlockPos(0, 0, 0)), 1.0E-9D,
+                "岩浆旁边必须加代价");
+        assertEquals(0.0D, searchWorld.neighbourMalus(new BlockPos(0, 0, 5)), 1.0E-9D,
+                "远离岩浆不应加代价");
+    }
+
     private static FakeSteveNavigator.SearchWorld searchWorld(GridWorld world, FakeSteveNavRules rules) {
         return new FakeSteveNavigator.SearchWorld(world, rules);
     }
@@ -316,10 +399,21 @@ class FakeSteveNavigatorTest {
         private final Set<BlockPos> open = new HashSet<>();
         private final Set<BlockPos> water = new HashSet<>();
         private final Set<BlockPos> steps = new HashSet<>();
+        private final Set<BlockPos> dangerous = new HashSet<>();
         private final Map<BlockPos, Double> heights = new HashMap<>();
 
         void open(BlockPos pos) {
             open.add(pos.immutable());
+        }
+
+        /** 伤害方块（岩浆/火）：只影响邻居代价，不影响可站性。 */
+        void dangerous(BlockPos pos) {
+            dangerous.add(pos.immutable());
+        }
+
+        @Override
+        public boolean isDangerous(BlockPos pos) {
+            return dangerous.contains(pos);
         }
 
         /** 沿一条轴向直线打通所有格子（含两端）。 */
