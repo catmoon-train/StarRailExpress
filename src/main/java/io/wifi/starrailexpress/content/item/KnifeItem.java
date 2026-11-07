@@ -148,6 +148,10 @@ public class KnifeItem extends SkinableItem implements TrainWeapon {
     }
 
     public static HitResult getKnifeTarget(Player user) {
+        HitResult clientTarget = io.wifi.starrailexpress.event.ItemGameplayEvents.KNIFE_TARGET.invoker().query(user);
+        if (clientTarget != null) {
+            return clientTarget;
+        }
         return ProjectileUtil.getHitResultOnViewVector(user,
                 entity -> {
                     // if (entity instanceof PuppeteerBodyEntity puppeteerBodyEntity){

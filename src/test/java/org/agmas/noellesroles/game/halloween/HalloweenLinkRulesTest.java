@@ -52,8 +52,15 @@ class HalloweenLinkRulesTest {
         assertFalse(items.contains(".copy()"));
         assertFalse(items.contains("prepareNewRewardCopy"));
         assertTrue(items.contains("USING.remove()"));
-        for (String name : List.of("Inventory", "Player", "Menu", "Give", "Use", "Living", "Equipment", "Container"))
+        for (String name : List.of("Inventory", "Player", "Menu", "Use", "Living", "Equipment", "Container"))
             assertTrue(java.nio.file.Files.exists(root.resolve("mixin/halloween/HalloweenLink" + name + "Mixin.java")));
+        String give = java.nio.file.Files.readString(java.nio.file.Path.of(
+                "src/main/java/io/wifi/starrailexpress/util/SREItemUtils.java"));
+        assertTrue(give.contains("ItemTransferEvents.ALLOW_HOTBAR_INSERT.invoker().allow(player, sstack)"));
+        assertTrue(give.indexOf("ItemTransferEvents.ALLOW_HOTBAR_INSERT") < give.indexOf("sstack.copy()"));
+        String giveHooks = java.nio.file.Files.readString(root.resolve("init/events/ShopRoleEventHandlers.java"));
+        assertTrue(giveHooks.contains("ItemTransferEvents.ALLOW_HOTBAR_INSERT.register"));
+        assertTrue(giveHooks.contains("!HalloweenSoulLinks.isItemBorrower(player)"));
         String inventory = java.nio.file.Files.readString(root.resolve("mixin/halloween/HalloweenLinkInventoryMixin.java"));
         assertTrue(inventory.contains("method = \"save\""));
         assertTrue(inventory.contains("method = \"dropAll\""));

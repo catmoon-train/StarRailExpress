@@ -33,6 +33,14 @@ public final class FakeSteveBrain {
             return intent(false, false, false, false, false, true);
         }
 
+        // 战斗抢占社交凝视，避免猎杀期间仍对着目标停步表演。
+        if (snapshot.huntReady()) {
+            armed = false;
+            lookAwayTicks = 0;
+            mode = AgentMode.HUNT;
+            return intent(false, true, false, false, false, false);
+        }
+
         if (snapshot.engagementTriggered()) {
             armed = true;
             lookAwayTicks = 0;
@@ -59,10 +67,6 @@ public final class FakeSteveBrain {
             return intent(true, false, false, false, false, false);
         }
 
-        if (snapshot.huntReady()) {
-            mode = AgentMode.HUNT;
-            return intent(false, true, false, false, false, false);
-        }
         if (snapshot.assimilationReady()) {
             mode = AgentMode.ASSIMILATE;
             return intent(false, true, false, true, false, false);

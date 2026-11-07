@@ -40,6 +40,7 @@ public class DrawingBoardItem extends Item {
 
     @Override
     public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand hand) {
+        io.wifi.starrailexpress.event.ItemGameplayEvents.BEFORE_USE.invoker().onUse(this, level, player, hand);
         ItemStack stack = player.getItemInHand(hand);
 
         // 无论服务端还是客户端都应该成功，防止物品被消耗

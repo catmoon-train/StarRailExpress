@@ -122,6 +122,9 @@ public abstract class PlatterBlock extends BaseEntityBlock {
     @Override
     protected InteractionResult useWithoutItem(BlockState state, @NotNull Level world, BlockPos pos, Player player,
             BlockHitResult hit) {
+        InteractionResult override = io.wifi.starrailexpress.event.GameplayExtensionEvents.PLATTER_USE.invoker()
+                .use(state, world, pos, player, hit);
+        if (override != null) return override;
         if (world.isClientSide) {
             return InteractionResult.SUCCESS;
         }

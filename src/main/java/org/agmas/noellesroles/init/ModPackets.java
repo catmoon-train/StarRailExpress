@@ -21,7 +21,11 @@ import io.wifi.starrailexpress.network.packet.ShowCustomNewspaperPacket;
 import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
+import org.agmas.noellesroles.client.gunfx.GunTracerS2CPacket;
+import org.agmas.noellesroles.client.gunfx.StalkerDashTrailS2CPacket;
+import org.agmas.noellesroles.client.gunfx.StalkerPierceFxS2CPacket;
 import org.agmas.noellesroles.content.item.ZeroOneFiveShootPayload;
+import org.agmas.noellesroles.content.item.spear.SpearCombat;
 import org.agmas.noellesroles.packet.*;
 
 public class ModPackets {
@@ -49,6 +53,10 @@ public class ModPackets {
     public static final CustomPacketPayload.Type<ImitatorSwitchSlotC2SPacket> IMITATOR_SWITCH_SLOT_PACKET = ImitatorSwitchSlotC2SPacket.TYPE;
 
     public static void registerPackets() {
+        PayloadTypeRegistry.playC2S().register(CloneDoctorActionC2SPacket.ID, CloneDoctorActionC2SPacket.CODEC);
+        PayloadTypeRegistry.playS2C().register(CloneDoctorStateS2CPacket.ID, CloneDoctorStateS2CPacket.CODEC);
+        PayloadTypeRegistry.playC2S().register(IdentityScannerRequestC2SPacket.ID, IdentityScannerRequestC2SPacket.CODEC);
+        PayloadTypeRegistry.playS2C().register(IdentityScannerStateS2CPacket.ID, IdentityScannerStateS2CPacket.CODEC);
         PayloadTypeRegistry.playS2C().register(
                 org.agmas.noellesroles.game.modes.echo.visual.EchoVisualPayload.ID,
                 org.agmas.noellesroles.game.modes.echo.visual.EchoVisualPayload.CODEC);
@@ -165,7 +173,7 @@ public class ModPackets {
                 org.agmas.noellesroles.packet.SpearStabC2SPacket.CODEC);
         ServerPlayNetworking.registerGlobalReceiver(
                 org.agmas.noellesroles.packet.SpearStabC2SPacket.ID,
-                (payload, context) -> context.server().execute(() -> org.agmas.noellesroles.spear.SpearCombat
+                (payload, context) -> context.server().execute(() -> SpearCombat
                         .handleStab(context.player(), payload.entityId())));
 
         // 幽露：自由摄像机进入/退出（S2C）、摄像机位置上报与 ESC 取消（C2S）
@@ -313,12 +321,12 @@ public class ModPackets {
         PayloadTypeRegistry.playC2S().register(ZeroOneFiveShootPayload.ID, ZeroOneFiveShootPayload.CODEC);
 
         // 注册枪械射击轨迹网络包
-        PayloadTypeRegistry.playS2C().register(org.agmas.noellesroles.gunfx.GunTracerS2CPacket.ID,
-                org.agmas.noellesroles.gunfx.GunTracerS2CPacket.CODEC);
-        PayloadTypeRegistry.playS2C().register(org.agmas.noellesroles.gunfx.StalkerDashTrailS2CPacket.ID,
-                org.agmas.noellesroles.gunfx.StalkerDashTrailS2CPacket.CODEC);
-        PayloadTypeRegistry.playS2C().register(org.agmas.noellesroles.gunfx.StalkerPierceFxS2CPacket.ID,
-                org.agmas.noellesroles.gunfx.StalkerPierceFxS2CPacket.CODEC);
+        PayloadTypeRegistry.playS2C().register(GunTracerS2CPacket.ID,
+                GunTracerS2CPacket.CODEC);
+        PayloadTypeRegistry.playS2C().register(StalkerDashTrailS2CPacket.ID,
+                StalkerDashTrailS2CPacket.CODEC);
+        PayloadTypeRegistry.playS2C().register(StalkerPierceFxS2CPacket.ID,
+                StalkerPierceFxS2CPacket.CODEC);
 
         // 注册鹈鹕网络包
         PayloadTypeRegistry.playC2S().register(PelicanEatC2SPacket.ID, PelicanEatC2SPacket.CODEC);

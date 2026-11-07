@@ -39,8 +39,8 @@ import net.minecraft.world.phys.shapes.EntityCollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import org.agmas.noellesroles.content.block_entity.scene.LoopingMirrorBlockEntity;
-import org.agmas.noellesroles.scene.LoopingMirrorManager;
-import org.agmas.noellesroles.scene.VerticalLoopingMirrorManager;
+import org.agmas.noellesroles.client.scene.LoopingMirrorManager;
+import org.agmas.noellesroles.client.scene.VerticalLoopingMirrorManager;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;

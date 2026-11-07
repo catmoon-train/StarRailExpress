@@ -46,6 +46,8 @@ public class TimeRenderer {
         cachedCanSeeTime = gameWorldComponent.isRunning() &&
                 (role != null && role.canSeeTime() || GameUtils.isPlayerSpectatingOrCreative(player)
                         || SREClient.cachedCanSeeTime);
+        cachedCanSeeTime = io.wifi.starrailexpress.event.client.ClientGameplayEvents.TIME_VISIBILITY.invoker()
+                .modify(player, cachedCanSeeTime);
         if (cachedCanSeeTime) {
             final var timeCCA = SREGameTimeComponent.KEY.get(player.level());
             int time = timeCCA.getTime();

@@ -1,0 +1,8 @@
+{
+  "variants": {
+    "facing=north": { "model": "noellesroles:block/identity_scanner" },
+    "facing=east": { "model": "noellesroles:block/identity_scanner", "y": 90 },
+    "facing=south": { "model": "noellesroles:block/identity_scanner", "y": 180 },
+    "facing=west": { "model": "noellesroles:block/identity_scanner", "y": 270 }
+  }
+}

@@ -56,7 +56,7 @@ public final class FakeSteveMotionController {
         state.motionSprint = sprint;
         state.motionCrouch = crouch;
         state.motionLease = new FakeSteveMotionPolicy.Lease(++state.motionSequence,
-                state.moveExpiresAtTick, routePoint.getX() + 0.5D, routePoint.getZ() + 0.5D,
+                state.moveExpiresAtTick, player.getX(), player.getZ(),
                 ROUTE_CORRIDOR_RADIUS, MAX_CLIENT_STEP);
         ServerPlayNetworking.send(player, new FakeSteveControlS2CPacket(
                 state.motionSequence, LEASE_TICKS, forward, strafe, jump, sprint,

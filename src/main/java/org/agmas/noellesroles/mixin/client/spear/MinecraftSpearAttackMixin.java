@@ -6,7 +6,7 @@ import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.item.ItemStack;
 import org.agmas.noellesroles.packet.SpearStabC2SPacket;
-import org.agmas.noellesroles.spear.SpearConfig;
+import org.agmas.noellesroles.content.item.spear.SpearConfig;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;

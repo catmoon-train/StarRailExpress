@@ -8,7 +8,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
-import org.agmas.noellesroles.katana.KatanaState;
+import org.agmas.noellesroles.content.item.katana.KatanaState;
 import org.agmas.noellesroles.role.vigilante.SwordsmanRole;
 
 /**

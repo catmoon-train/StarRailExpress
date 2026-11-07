@@ -35,7 +35,7 @@ import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.phys.Vec3;
 import io.wifi.starrailexpress.game.GameConstants;
 import org.agmas.noellesroles.game.roles.killer.dream.DreamHealthComponent;
-import org.agmas.noellesroles.katana.KatanaHandler;
+import org.agmas.noellesroles.content.item.katana.KatanaHandler;
 
 import java.util.List;
 

@@ -25,6 +25,7 @@ import io.wifi.starrailexpress.index.TMMItems;
 import io.wifi.starrailexpress.index.TMMSounds;
 import io.wifi.starrailexpress.progression.ProgressionDataManager;
 import io.wifi.starrailexpress.util.ShopEntry;
+import io.wifi.starrailexpress.event.ShopEvents;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.HolderLookup;
@@ -55,6 +56,29 @@ public class SREPlayerShopComponent implements RoleComponent, ServerTickingCompo
     public long grenadeLastPurchaseTime = 0;
     // 仅服务端存储：
     public int total_cost = 0;
+
+    private int displayedBalance;
+    private int actualBalance;
+    private boolean hasNegativeCoins;
+
+    public int getActualBalance() {
+        return actualBalance;
+    }
+
+    public int getDisplayedBalance() {
+        return displayedBalance;
+    }
+
+    public boolean hasNegativeBalanceDisplay() {
+        return hasNegativeCoins;
+    }
+
+    /** 仅保存展示状态，展示策略由 BEFORE_SET_BALANCE 的监听器决定。 */
+    public void setBalancePresentation(int actual, int displayed, boolean negative) {
+        actualBalance = actual;
+        displayedBalance = displayed;
+        hasNegativeCoins = negative;
+    }
 
     public SREPlayerShopComponent(Player player) {
         this.player = player;
@@ -103,20 +127,38 @@ public class SREPlayerShopComponent implements RoleComponent, ServerTickingCompo
         return this.player == player;
     }
 
+    private boolean suppressIncome;
+
+    /** 执行任务能力而不叠加其金币收入；保留能力消耗，退出（含异常）后恢复正常收入。 */
+    public void runWithoutIncome(Runnable action) {
+        boolean previous = suppressIncome;
+        suppressIncome = true;
+        try {
+            action.run();
+        } finally {
+            suppressIncome = previous;
+        }
+    }
+
     public void addToBalance(int amount) {
-        if (tryConvertWizardBalance(amount)) {
+        // 通用收入转换先于收入抑制、余额接管与账本通知。
+        amount = ShopEvents.MODIFY_INCOME.invoker().modify(this.player, amount);
+        if (suppressIncome && amount > 0) {
             return;
         }
-        // 金币账本（会计技能）：所有未分类的余额变动在此兜底记成「其它收入 / 其它支出」。
-        // 已知来源（击杀/任务/被动/扒窃/偷窃/掠夺/存折/商店/售货机/技能）会在改余额前先用
-        // MoneyFlow.recordIncome / recordExpense 认领本刻变动，因此这里不会重复记账。
-        // 性能：每次仅 2 次 HashMap 访问，不遍历、不分配对象。
-        org.agmas.noellesroles.game.economy.MoneyFlow.onBalanceChange(this.player, amount);
+        if (ShopEvents.HANDLE_BALANCE.invoker().handle(this, amount)) {
+            return;
+        }
+        ShopEvents.BALANCE_DELTA.invoker().onDelta(this.player, amount);
         this.setBalance(this.balance + amount);
     }
 
     public void setBalance(int amount) {
-        if (tryConvertWizardBalance(amount)) {
+        ShopEvents.BEFORE_SET_BALANCE.invoker().beforeSet(this, amount);
+        if (suppressIncome && amount > this.balance) {
+            return;
+        }
+        if (ShopEvents.HANDLE_BALANCE.invoker().handle(this, amount)) {
             return;
         }
         if (this.balance != amount) {
@@ -130,34 +172,6 @@ public class SREPlayerShopComponent implements RoleComponent, ServerTickingCompo
         }
     }
 
-    private boolean tryConvertWizardBalance(int amount) {
-        if (this.player.level().isClientSide) {
-            return false;
-        }
-        SREGameWorldComponent gameWorld = SREGameWorldComponent.KEY.get(this.player.level());
-        if (gameWorld == null) {
-            return false;
-        }
-        var role = gameWorld.getRole(this.player);
-        // 不具有金币系统的职业：金币数始终为 0
-        if (role == null || !role.hasNoCoinSystem()) {
-            return false;
-        }
-        // 巫师专属：正向金额转换为魔素
-        if (role == org.agmas.noellesroles.role.ModRoles.WIZARD && amount > 0) {
-            var wizardData = io.wifi.starrailexpress.api.data.RoleData.getNullable(
-                    org.agmas.noellesroles.role_data.killer.WizardRoleData.class, this.player);
-            if (wizardData != null) {
-                wizardData.addMana(
-                        amount * org.agmas.noellesroles.config.NoellesRolesConfig.HANDLER.instance().wizardManaPerCoin);
-            }
-        }
-        if (this.balance != 0) {
-            this.balance = 0;
-            this.sync();
-        }
-        return true;
-    }
 
     public void tryBuy(int index) {
         if (index < 0 || index >= getShopEntries().size())
@@ -240,12 +254,7 @@ public class SREPlayerShopComponent implements RoleComponent, ServerTickingCompo
                 this.total_cost += price;
             }
             ProgressionDataManager.onCurrencySpent(this.player.getUUID(), currency, price);
-            // 金币账本：商店购买支出（带商品名，会计的支出查询优先展示这一条）
-            if (currency == ShopEntry.Currency.MONEY) {
-                org.agmas.noellesroles.game.economy.MoneyFlow.recordExpense(this.player,
-                        org.agmas.noellesroles.game.economy.MoneyFlow.ExpenseType.SHOP, price,
-                        entry.stack().getDisplayName());
-            }
+            ShopEvents.BEFORE_PAYMENT.invoker().beforePayment(this.player, entry, currency, price);
             currency.add(this.player, -price);
             // 手榴弹购买后记录购买时间
             if (entry.stack().is(TMMItems.GRENADE)) {
@@ -256,9 +265,13 @@ public class SREPlayerShopComponent implements RoleComponent, ServerTickingCompo
                         new ClientboundSoundPacket(BuiltInRegistries.SOUND_EVENT.wrapAsHolder(TMMSounds.UI_SHOP_BUY),
                                 SoundSource.PLAYERS, player.getX(), player.getY(), player.getZ(), 1.0f,
                                 0.9f + this.player.getRandom().nextFloat() * 0.2f, player.getRandom().nextLong()));
-                SRE.REPLAY_MANAGER.recordStoreBuy(player.getUUID(),
-                        BuiltInRegistries.ITEM.getKey(entry.stack().getItem()), entry.stack().getCount(),
-                        price);
+                // 原 INVOKE 注入在回放参数求值后触发，事件不能改变本次回放条目。
+                var replay = SRE.REPLAY_MANAGER;
+                var buyerId = player.getUUID();
+                var itemId = BuiltInRegistries.ITEM.getKey(entry.stack().getItem());
+                int count = entry.stack().getCount();
+                ShopEvents.PURCHASE_SUCCESS.invoker().onSuccess(this, index);
+                replay.recordStoreBuy(buyerId, itemId, count, price);
             }
         } else {
             Component reason = null;

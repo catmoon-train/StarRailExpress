@@ -367,6 +367,7 @@ public class MapVotingComponent implements AutoSyncedComponent, CommonTickingCom
     private String resolveGameMode() {
         String resultGameMode = SREGameModes.MURDER.identifier.toString();
         for (ResourceLocation key : SREGameModes.GAME_MODES.keySet()) {
+            if (key.equals(io.wifi.starrailexpress.training.TrainingGameMode.ID)) continue;
             if (key.getPath().equals(presetGameMode)) {
                 return key.toString();
             }
@@ -376,6 +377,7 @@ public class MapVotingComponent implements AutoSyncedComponent, CommonTickingCom
 
     private GameMode resolveGameModeObject() {
         for (ResourceLocation key : SREGameModes.GAME_MODES.keySet()) {
+            if (key.equals(io.wifi.starrailexpress.training.TrainingGameMode.ID)) continue;
             if (key.getPath().equals(presetGameMode)) {
                 GameMode mode = SREGameModes.GAME_MODES.get(key);
                 if (mode != null) {

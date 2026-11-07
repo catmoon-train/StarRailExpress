@@ -33,7 +33,7 @@ import net.minecraft.world.level.chunk.LevelChunk;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import org.agmas.noellesroles.content.block_entity.scene.LoopingMirrorBlockEntity;
-import org.agmas.noellesroles.scene.LoopingMirrorLoop;
+import org.agmas.noellesroles.client.scene.LoopingMirrorLoop;
 
 import java.util.HashSet;
 import java.util.List;

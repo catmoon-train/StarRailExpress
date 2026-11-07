@@ -36,6 +36,10 @@ public class SREMixinPlugin implements IMixinConfigPlugin {
 
     @Override
     public boolean shouldApplyMixin(String targetClassName, String mixinClassName) {
+        if (!FabricLoader.getInstance().isModLoaded("modernui")
+                && mixinClassName.contains("io.wifi.starrailexpress.mixin.compat.modernui.")) {
+            return false;
+        }
         if (!FabricLoader.getInstance().isModLoaded("sodium-extra")) {
             if (mixinClassName.contains("io.wifi.starrailexpress.mixin.compat.sodium_extra"))
                 return false;

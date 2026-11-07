@@ -46,7 +46,7 @@ public final class SettlementPostEffect {
             int w = mc.getMainRenderTarget().width, h = mc.getMainRenderTarget().height;
             if (w != width || h != height) { chain.resize(w, h); width = w; height = h; }
             chain.setUniform("SettlementTime", (SettlementClient.tick() + partialTick) / 20f);
-            chain.setUniform("SettlementBlur", (float) (1 - SettlementClient.smooth((SettlementClient.tick() + partialTick) / 45)) * 3.5f);
+            chain.setUniform("SettlementBlur", (float) (1 - SettlementClient.smooth((SettlementClient.tick() + partialTick) / 45)) * 1.8f);
             chain.process(partialTick);
         } catch (Exception error) {
             close(); failed = true;

@@ -30,6 +30,7 @@ import org.agmas.harpymodloader.modded_murder.PlayerRoleWeightManager;
 import org.agmas.harpymodloader.modifiers.SREModifier;
 import org.agmas.noellesroles.api.time.TimeRewind;
 import org.agmas.noellesroles.client.blood.BloodMain;
+import org.agmas.noellesroles.client.scene.SceneServerEvents;
 import org.agmas.noellesroles.commands.ModColorArgument;
 import org.agmas.noellesroles.commands.PresetCommand;
 import org.agmas.noellesroles.config.NoellesRolesConfig;
@@ -233,7 +234,7 @@ public class Noellesroles implements ModInitializer {
         ModBlocks.initialize();
         SREFumoBlocks.initialize();
         org.agmas.noellesroles.init.ModSceneBlocks.initialize();
-        org.agmas.noellesroles.scene.SceneServerEvents.register();
+        SceneServerEvents.register();
 
         // 注册血液粒子工厂
         Registry.register(BuiltInRegistries.PARTICLE_TYPE, Noellesroles.id("deathblood"),

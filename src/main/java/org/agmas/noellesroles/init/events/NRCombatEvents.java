@@ -30,6 +30,7 @@ import net.minecraft.world.item.ItemStack;
 import org.agmas.harpymodloader.component.WorldModifierComponent;
 import org.agmas.noellesroles.ConfigWorldComponent;
 import org.agmas.noellesroles.config.NoellesRolesConfig;
+import org.agmas.noellesroles.content.item.katana.KatanaHandler;
 import org.agmas.noellesroles.role_data.killer.ExecutionerRoleData;
 import io.wifi.starrailexpress.api.data.RoleData;
 import org.agmas.noellesroles.role_data.neutral.RavenRoleData;
@@ -198,7 +199,7 @@ public class NRCombatEvents {
         BoneStaffHandler.register();
         RiotShieldHandler.register();
         // 武士刀：右键格挡死亡拦截（可格挡死亡原因复用防暴盾牌白名单）
-        org.agmas.noellesroles.katana.KatanaHandler.register();
+        KatanaHandler.register();
         BenevolenceSwordHandler.register();
         CuckooEggHandler.register();
         GuardPlayerHandler.register();

@@ -60,7 +60,11 @@ public record KnifeStabPayload(int target) implements CustomPacketPayload {
     public static class Receiver implements ServerPlayNetworking.PlayPayloadHandler<KnifeStabPayload> {
         @Override
         public void receive(@NotNull KnifeStabPayload payload, ServerPlayNetworking.@NotNull Context context) {
-            ServerPlayer player = context.player();
+            stab(context.player(), payload.target());
+        }
+
+        /** 网络玩家与训练假人共享的服务端刀击入口。 */
+        public static void stab(ServerPlayer player, int targetId) {
             if (io.wifi.starrailexpress.anticheat.ClickAntiCheat.isLocked(player)) {
                 return;
             }
@@ -71,7 +75,8 @@ public record KnifeStabPayload(int target) implements CustomPacketPayload {
                     || org.agmas.noellesroles.content.effects.StatusAilmentHandler.isIntellectLocked(player)) {
                 return;
             }
-            Entity targetEntity = player.serverLevel().getEntity(payload.target());
+            Entity targetEntity = player.serverLevel().getEntity(targetId);
+            if (targetEntity != null && !io.wifi.starrailexpress.training.TrainingRules.canInteract(player, targetEntity)) return;
             if (org.agmas.noellesroles.game.command_block.CommandBlockCracks.isCrack(targetEntity)) {
                 ItemStack stack = player.getMainHandItem();
                 var role = SREGameWorldComponent.KEY.get(player.level()).getRole(player);
@@ -189,7 +194,7 @@ public record KnifeStabPayload(int target) implements CustomPacketPayload {
             }
         }
 
-        private int getKnifeCooldown(ServerPlayer player) {
+        private static int getKnifeCooldown(ServerPlayer player) {
             float modifier = 1f;
             if (RoleUtils.isPlayerTheJob(player, THMiscRoles.HOUJUU_NUE)) {
                 modifier = 0.1667f;

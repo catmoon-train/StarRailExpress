@@ -11,7 +11,6 @@ import java.util.Set;
 public final class SodiumOptionPolicy {
     private static final Set<String> EXTRA_TRUE = Set.of(
             "animations_all", "animate_water", "animate_lava", "animate_fire", "animate_portal", "block_animations", "animate_sculk_sensor",
-            "particles_all", "rain_splash_particles", "block_break_particles", "block_breaking_particles",
             "sky", "stars", "sun", "moon", "rain_snow", "biome_colors", "sky_colors",
             "light_updates", "item_frame", "armor_stands", "paintings", "beacon_beam", "enchanting_table_book", "piston",
             "item_frame_name_tag", "player_name_tag");
@@ -42,7 +41,7 @@ public final class SodiumOptionPolicy {
             };
         }
         if (id.getNamespace().equals("sodium-extra")) {
-            if (EXTRA_TRUE.contains(path) || path.startsWith("particle.")) return true;
+            if (EXTRA_TRUE.contains(path)) return true;
             if (EXTRA_FALSE.contains(path)) return false;
             if (path.equals("single_fog") || path.startsWith("fog.") || path.startsWith("protected_gameplay_fog.")) return 0;
             if (path.equals("fog_start") || path.startsWith("fog_start.") || path.equals("cloud_fog") || path.startsWith("cloud_fog.")) return 100;

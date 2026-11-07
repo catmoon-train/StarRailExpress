@@ -344,7 +344,7 @@ public class ReasonerRoleData extends SimpleRoleData {
         SREGameWorldComponent game = SREGameWorldComponent.KEY.get(level);
         int count = 0;
         for (ServerPlayer p : alivePlayers(level)) {
-            SRERole role = game.getRole(p);
+            SRERole role = game.getAllegianceRole(p);
             // 仅统计真杀手；杀手方中立（isNeutralForKiller）不算杀手的数量
             if (role != null && role.isKiller()) {
                 count++;
@@ -358,7 +358,7 @@ public class ReasonerRoleData extends SimpleRoleData {
     }
 
     private boolean isInnocentNonNeutral(ServerPlayer target) {
-        SRERole role = SREGameWorldComponent.KEY.get(target.level()).getRole(target);
+        SRERole role = SREGameWorldComponent.KEY.get(target.level()).getAllegianceRole(target);
         return role != null && role.isInnocent() && !role.canUseKiller() && !role.isNeutrals();
     }
 

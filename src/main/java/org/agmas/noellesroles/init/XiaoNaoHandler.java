@@ -40,6 +40,7 @@ public class XiaoNaoHandler {
     public static void registerEvent() {
         TeamKillViolationHandler.registerEvent();
         OnTeammateKilledTeammate.EVENT.register((victim, killer, isInnocent, deathReason) -> {
+            if (io.wifi.starrailexpress.training.TrainingRules.suppressFriendlyPenalty(victim)) return;
             if (killer == null)
                 return;
             if (victim.getUUID().equals(killer.getUUID()))
@@ -48,6 +49,10 @@ public class XiaoNaoHandler {
             final SREGameWorldComponent gameWorldComponent = SREGameWorldComponent.KEY.get(victim.level());
             if (GameUtils.isPlayerAliveAndSurvival(killer)) {
                 if (isInnocent) {
+                    // 复制了好人能力的克隆仍是杀手：双方任一为实际杀手，都不算好人误杀。
+                    if (gameWorldComponent.isKillerTeam(killer) || gameWorldComponent.isKillerTeam(victim)) {
+                        return;
+                    }
                     if (gameWorldComponent.isRole(victim, TMMRoles.DISCOVERY_CIVILIAN)) {
                         // 跳过游客惩罚
                         return;
@@ -111,8 +116,8 @@ public class XiaoNaoHandler {
                         }
                     }
                 } else {
-                    var victimRole = gameWorldComponent.getRole(victim);
-                    var killerRole = gameWorldComponent.getRole(victim);
+                    var victimRole = gameWorldComponent.getAllegianceRole(victim);
+                    var killerRole = gameWorldComponent.getAllegianceRole(killer);
                     if (victimRole == null || killerRole == null)
                         return;
                     if (victimRole.isKiller() && !victimRole.isNeutrals() && killerRole.isKiller()

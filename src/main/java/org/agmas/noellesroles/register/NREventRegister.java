@@ -25,6 +25,9 @@ import org.agmas.noellesroles.init.ModEventsRegister;
 public class NREventRegister {
 
     public static void registerWorldSystemsAndEvents() {
+        org.agmas.noellesroles.init.events.GameUtilityRoleHooks.register();
+        org.agmas.noellesroles.init.events.ShopRoleEventHandlers.register();
+        org.agmas.noellesroles.init.events.CoreGameplayRoleEvents.register();
         // 注册C4系统
         org.agmas.noellesroles.game.c4.C4Detonation.register();
         org.agmas.noellesroles.game.c4.PliersDefuseManager.register();
@@ -45,6 +48,8 @@ public class NREventRegister {
         org.agmas.noellesroles.game.roles.neutral.leader.LeaderEventHandler.register();
         // 雪傀儡：伪装、融化被动、雪球碰撞与开局 / 局末清场
         org.agmas.noellesroles.game.roles.neutral.snow_golem.SnowGolemRole.registerEvents();
+        org.agmas.noellesroles.game.roles.killer.clone_doctor.CloneDoctorRole.registerEvents();
+        org.agmas.noellesroles.game.scanner.IdentityScannerService.registerEvents();
 
         // 注册入梦药水效果处理
         org.agmas.noellesroles.content.effects.DreamEffectHandler.register();

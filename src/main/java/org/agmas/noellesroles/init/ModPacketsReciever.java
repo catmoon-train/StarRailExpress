@@ -117,6 +117,14 @@ import java.util.function.Predicate;
 
 public class ModPacketsReciever {
   public static void registerPackets() {
+    ServerPlayNetworking.registerGlobalReceiver(org.agmas.noellesroles.packet.IdentityScannerRequestC2SPacket.ID,
+        (payload, context) -> context.server().execute(() ->
+            org.agmas.noellesroles.game.scanner.IdentityScannerService.handleRequest(
+                context.player(), payload.pos(), payload.scan())));
+    ServerPlayNetworking.registerGlobalReceiver(org.agmas.noellesroles.packet.CloneDoctorActionC2SPacket.ID,
+        (payload, context) -> context.server().execute(() ->
+            org.agmas.noellesroles.game.roles.killer.clone_doctor.CloneDoctorRole.handleAction(
+                context.player(), payload.target(), payload.returnToSelf())));
     ServerPlayNetworking.registerGlobalReceiver(PurpleMonsterEventC2SPacket.ID, (payload, context) ->
         context.server().execute(() -> org.agmas.noellesroles.role.bouns.roles.PurpleMonsterRole
             .handleAction(context.player(), payload)));
@@ -1011,19 +1019,30 @@ public class ModPacketsReciever {
         });
 
     ServerPlayNetworking.registerGlobalReceiver(ModPackets.ABILITY_PACKET, (payload, context) -> {
+      if (org.agmas.noellesroles.game.fake_steve.FakeSteveDirector.handleAbilityInput(context.player())) return;
       if (context.player().hasEffect(ModEffects.SAFE_TIME))// 安全时间
         return;
       RoleSkill.beginUseShifted(context.player());
     });
     ServerPlayNetworking.registerGlobalReceiver(UnifiedSkillInputC2SPacket.ID, (payload, context) -> {
+      if (org.agmas.noellesroles.game.fake_steve.FakeSteveDirector.isReplaced(context.player())) {
+        if (payload.phase() == RoleSkill.Phase.PRESS) {
+          org.agmas.noellesroles.game.fake_steve.FakeSteveDirector.handleAbilityInput(context.player());
+        }
+        return;
+      }
       if (context.player().hasEffect(ModEffects.SAFE_TIME)) {
         return;
       }
       RoleSkill.beginUse(context.player(), payload.target(), payload.slot(), payload.phase(), payload.forceShifted());
     });
-    ServerPlayNetworking.registerGlobalReceiver(UnifiedSkillSelectC2SPacket.ID,
-        (payload, context) -> RoleSkill.selectSkill(context.player(), payload.slot()));
+    ServerPlayNetworking.registerGlobalReceiver(UnifiedSkillSelectC2SPacket.ID, (payload, context) -> {
+      if (!org.agmas.noellesroles.game.fake_steve.FakeSteveDirector.isReplaced(context.player())) {
+        RoleSkill.selectSkill(context.player(), payload.slot());
+      }
+    });
     ServerPlayNetworking.registerGlobalReceiver(AbilityWithTargetC2SPacket.ID, (payload, context) -> {
+      if (org.agmas.noellesroles.game.fake_steve.FakeSteveDirector.handleAbilityInput(context.player())) return;
       RoleSkill.beginUseShiftedWithTarget(context.player(), payload.target());
     });
     ServerPlayNetworking.registerGlobalReceiver(ModPackets.INSANE_KILLER_ABILITY_PACKET, (payload, context) -> {

@@ -81,6 +81,7 @@ public class NoteEntity extends Entity {
                     this.getY() + randomGiver.get() + this.getBbHeight() / 2f, this.getZ() + randomGiver.get(), 0, 0,
                     0);
         }
+        io.wifi.starrailexpress.event.GameplayExtensionEvents.AFTER_NOTE_TICK.invoker().accept(this);
     }
 
     public Component[] getLines() {

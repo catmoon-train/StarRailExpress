@@ -27,10 +27,10 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import org.agmas.noellesroles.init.ModSceneBlocks;
-import org.agmas.noellesroles.scene.LoopingMirrorLoop;
-import org.agmas.noellesroles.scene.LoopingMirrorManager;
-import org.agmas.noellesroles.scene.VerticalLoopingMirrorLoop;
-import org.agmas.noellesroles.scene.VerticalLoopingMirrorManager;
+import org.agmas.noellesroles.client.scene.LoopingMirrorLoop;
+import org.agmas.noellesroles.client.scene.LoopingMirrorManager;
+import org.agmas.noellesroles.client.scene.VerticalLoopingMirrorLoop;
+import org.agmas.noellesroles.client.scene.VerticalLoopingMirrorManager;
 import org.jetbrains.annotations.Nullable;
 
 /**

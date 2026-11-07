@@ -24,24 +24,19 @@ import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
+import org.agmas.noellesroles.client.scene.SceneRuntimeEvents;
 import org.agmas.noellesroles.client.screen.ModScreenHandlers;
 import org.agmas.noellesroles.component.ModComponents;
 import org.agmas.noellesroles.game.roles.neutral.puppeteer.PuppeteerPlayerComponent;
-import org.agmas.noellesroles.role_data.innocence.AgentRoleData;
-import org.agmas.noellesroles.role_data.innocence.BuilderRoleData;
-import org.agmas.noellesroles.role_data.innocence.PsychologistRoleData;
 import org.agmas.noellesroles.role_data.neutral.AdmirerRoleData;
 import org.agmas.noellesroles.init.FunnyItems;
 import org.agmas.noellesroles.init.ModEffects;
 import org.agmas.noellesroles.init.ModEntities;
 import org.agmas.noellesroles.packet.*;
-import org.agmas.noellesroles.role_data.killer.ConspiratorRoleData;
 import org.agmas.noellesroles.role_data.killer.StalkerRoleData;
-import org.agmas.noellesroles.role_data.killer.TrapperRoleData;
 import org.agmas.noellesroles.register.RiceEventRegister;
 import org.agmas.noellesroles.register.RiceReceiverRegister;
 import org.agmas.noellesroles.role.ModRoles;
-import org.agmas.noellesroles.role.bouns.BounsRoles;
 
 import java.util.ArrayList;
 
@@ -121,7 +116,7 @@ public class RicesRoleRhapsody {
 
         // 8. 注册事件监听
         registerEvents();
-        org.agmas.noellesroles.scene.SceneRuntimeEvents.register();
+        SceneRuntimeEvents.register();
 
         // 9. 注册模仿者技能映射
         org.agmas.noellesroles.game.roles.killer.imitator.ImitatorSkillRegistry.registerAll();

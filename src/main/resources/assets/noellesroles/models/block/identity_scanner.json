@@ -1,0 +1,21 @@
+{
+  "parent": "minecraft:block/block",
+  "textures": {
+    "front": "noellesroles:block/identity_scanner_front",
+    "side": "noellesroles:block/identity_scanner_side",
+    "top": "noellesroles:block/identity_scanner_top",
+    "bottom": "noellesroles:block/identity_scanner_bottom",
+    "particle": "noellesroles:block/identity_scanner_side"
+  },
+  "elements": [{
+    "from": [0, 0, 0], "to": [16, 16, 16],
+    "faces": {
+      "north": { "texture": "#front", "cullface": "north" },
+      "south": { "texture": "#side", "cullface": "south" },
+      "east": { "texture": "#side", "cullface": "east" },
+      "west": { "texture": "#side", "cullface": "west" },
+      "up": { "texture": "#top", "cullface": "up" },
+      "down": { "texture": "#bottom", "cullface": "down" }
+    }
+  }]
+}

@@ -19,6 +19,7 @@ import io.wifi.starrailexpress.SREConfig;
 import io.wifi.starrailexpress.api.SRERole;
 import io.wifi.starrailexpress.api.TMMRoles;
 import io.wifi.starrailexpress.cca.SREPlayerShopComponent;
+import io.wifi.starrailexpress.event.ShopEvents;
 import io.wifi.starrailexpress.index.TMMItems;
 import io.wifi.starrailexpress.util.SREItemUtils;
 import io.wifi.starrailexpress.util.ShopEntry;
@@ -178,7 +179,7 @@ public class ShopContent {
                 result = getDefaultKnifeEntries();
             }
         }
-        return result;
+        return ShopEvents.MODIFY_ENTRIES.invoker().modify(role, player, result);
     }
 
     public static ShopEntry createSheriffBulletEntry() {

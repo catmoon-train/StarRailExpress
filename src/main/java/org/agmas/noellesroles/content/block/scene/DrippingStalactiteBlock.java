@@ -37,7 +37,7 @@ import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.level.block.state.properties.DripstoneThickness;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
-import org.agmas.noellesroles.scene.SceneParticles;
+import org.agmas.noellesroles.client.scene.SceneParticles;
 
 import java.util.List;
 

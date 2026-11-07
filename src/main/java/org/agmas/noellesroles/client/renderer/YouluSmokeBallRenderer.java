@@ -27,8 +27,8 @@ import net.minecraft.resources.ResourceLocation;
 import org.agmas.noellesroles.content.entity.YouluSmokeBallEntity;
 
 /**
- * 幽露球烟渲染器：一团缓慢起伏的黑色半透明烟雾球（自制球体网格）。
- * 从内外均可见；球内玩家另受视野迷雾 + 黑雾（见 {@code YouluFogColorMixin}）。
+ * 幽露球烟渲染器：固定范围的不透明内核配合缓慢起伏、消散的外层烟雾。
+ * 幽露只看见淡色轮廓；其他玩家在烟内无法看见世界。野人共用烟球保留原有外观。
  *
  * <p>消散特效（生命后 18%）：烟雾粒子逐渐变淡、加速扩散、颜色由深变浅、
  * 透明度逐渐降低至完全消失，后期加入轻微向上飘散动效，模拟自然上升消散的物理表现。</p>
@@ -66,12 +66,21 @@ public class YouluSmokeBallRenderer extends EntityRenderer<YouluSmokeBallEntity>
         poseStack.pushPose();
 
         float radius = entity.getRadius();
+        boolean youluSmoke = !entity.isBarbarianSmoke();
+        boolean seeThrough = youluSmoke
+                && org.agmas.noellesroles.client.YouluSmokeClient.canSeeThroughSmoke();
+        if (youluSmoke && !seeThrough) {
+            // 固定实心范围覆盖整个有效期，不随外层显现/消散动画变透明或漂移。
+            SphereRenderHelper.renderSphere(poseStack,
+                    bufferSource.getBuffer(RenderType.entityCutoutNoCull(TEXTURE)),
+                    radius, 14, 28, 15, 15, 18, 255, packedLight);
+        }
         // 缓慢起伏（独立于消散，始终存在）
         float pulse = (float) Math.sin((entity.tickCount + partialTick) * 0.05) * 0.03f + 1.0f;
 
         // 初始显现动画：前 APPEAR_TICKS tick 内 alpha 从 0 平滑过渡到 1
         float appearProgress = Math.min(1.0f, (entity.tickCount + partialTick) / APPEAR_TICKS);
-        float appearAlpha = smoothstep(appearProgress);
+        float appearAlpha = smoothstep(appearProgress) * (seeThrough ? 0.12f : 1.0f);
 
         // 消散进度计算
         float lifeProgress = entity.tickCount / entity.getMaxLifetime();

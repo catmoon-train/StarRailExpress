@@ -45,7 +45,7 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 import org.agmas.noellesroles.content.block_entity.scene.LoopingMirrorBlockEntity;
-import org.agmas.noellesroles.scene.VerticalLoopingMirrorLoop;
+import org.agmas.noellesroles.client.scene.VerticalLoopingMirrorLoop;
 import org.joml.Vector3f;
 
 import java.util.HashMap;

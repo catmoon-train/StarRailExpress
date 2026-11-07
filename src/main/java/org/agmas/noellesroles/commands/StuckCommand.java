@@ -46,6 +46,8 @@ public class StuckCommand {
     }
 
     protected static int stuckDeal(CommandContext<CommandSourceStack> context) {
+        Integer override = io.wifi.starrailexpress.event.GameplayExtensionEvents.STUCK_COMMAND.invoker().handle(context);
+        if (override != null) return override;
         try {
             ServerPlayer player = context.getSource().getPlayer();
             if (player == null)

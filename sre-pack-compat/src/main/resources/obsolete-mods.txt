@@ -8,4 +8,6 @@ fastboot-1.21.x-v1.3.jar
 viewbobbingmod-1.6.jar
 mc-skin-unlocker-1.0.2.jar
 framepacer-1.2-1.15-1.21.11-multiloader.jar
+starrail-express-item-skin-mod-1.0.0-2.jar
 [修复GPU内存泄漏] gpumemleakfix-fabric-1.21-1.8.jar
+Sus_InstantSwap-2.0.0-Fabric1.21.1.jar

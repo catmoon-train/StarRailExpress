@@ -98,6 +98,7 @@ public class RoleUtils extends MCItemsUtils {
 
     public static void customWinnerWin(ServerLevel serverWorld, GameUtils.WinStatus WinStatus,
             @Nullable String winnerId, @Nullable OptionalInt winnerColor) {
+        if (io.wifi.starrailexpress.training.TrainingRules.isTrainingWorld(serverWorld)) return;
         var roundComponent = SREGameRoundEndComponent.KEY.get(serverWorld);
         if (winnerId != null) {
             if (roundComponent != null) {

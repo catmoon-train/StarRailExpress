@@ -22,6 +22,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.block.entity.BlockEntity;
+import org.agmas.noellesroles.client.scene.SceneEventManager;
 
 /**
  * 小游戏任务点方块 — 服务端网络处理
@@ -82,7 +83,7 @@ public class MinigameQuestServerNetwork {
                         return;
                     }
                     questBe.setLastSabotageTime(now);
-                    org.agmas.noellesroles.scene.SceneEventManager.startSabotage(level,
+                    SceneEventManager.startSabotage(level,
                             questBe.getSabotageDuration() * 20);
                     level.playSound(null, pos, net.minecraft.sounds.SoundEvents.ELDER_GUARDIAN_CURSE,
                             net.minecraft.sounds.SoundSource.BLOCKS, 1.0F, 1.0F);

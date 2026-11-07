@@ -29,7 +29,7 @@ import net.minecraft.world.level.block.state.BlockState;
 
 import org.agmas.noellesroles.content.block.scene.BreakingBridgeBlock;
 import org.agmas.noellesroles.content.block.scene.DrippingStalactiteBlock;
-import org.agmas.noellesroles.scene.SceneEventManager;
+import org.agmas.noellesroles.client.scene.SceneEventManager;
 
 /**
  * 场景方块事件触发指令 /sre:sceneevent。

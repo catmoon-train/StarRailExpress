@@ -110,6 +110,8 @@ public class RoleCountManager {
 
     // 获取实际使用的杀手数量（考虑强制设置或自动计算）
     public static int getKillerCount(int playerCount) {
+        Integer override = io.wifi.starrailexpress.event.GameplayExtensionEvents.KILLER_COUNT_OVERRIDE.invoker().get(playerCount);
+        if (override != null) return override;
         if (forcedKillerCount >= 0) {
             return Math.min(forcedKillerCount, playerCount); // 确保不超过玩家总数
         } else {

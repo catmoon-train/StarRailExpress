@@ -37,10 +37,10 @@ import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
 import org.agmas.noellesroles.content.block.scene.LoopingMirrorBlock;
 import org.agmas.noellesroles.content.block_entity.scene.LoopingMirrorBlockEntity;
-import org.agmas.noellesroles.scene.LoopingMirrorLoop;
-import org.agmas.noellesroles.scene.LoopingMirrorManager;
-import org.agmas.noellesroles.scene.LoopingMirrorPlane;
-import org.agmas.noellesroles.scene.VerticalLoopingMirrorManager;
+import org.agmas.noellesroles.client.scene.LoopingMirrorLoop;
+import org.agmas.noellesroles.client.scene.LoopingMirrorManager;
+import org.agmas.noellesroles.client.scene.LoopingMirrorPlane;
+import org.agmas.noellesroles.client.scene.VerticalLoopingMirrorManager;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;

@@ -38,7 +38,8 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 public abstract class FakeSteveServerInputMixin {
     private boolean noellesroles$fakeSteveOwnsBody() {
         ServerGamePacketListenerImpl self = (ServerGamePacketListenerImpl) (Object) this;
-        return !self.player.isSpectator() && FakeSteveDirector.isReplaced(self.player);
+        return !self.player.isSpectator() && FakeSteveDirector.isReplaced(self.player)
+                && !FakeSteveDirector.isManualControl(self.player);
     }
 
     @Inject(method = "handleMovePlayer", at = @At("HEAD"), cancellable = true)

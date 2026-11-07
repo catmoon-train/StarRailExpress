@@ -19,6 +19,7 @@ import io.wifi.starrailexpress.api.data.RoleData;
 import io.wifi.starrailexpress.network.original.KnifeStabPayload;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.server.level.ServerPlayer;
+import org.agmas.noellesroles.game.fake_steve.FakeSteveDirector;
 import org.agmas.noellesroles.role_data.killer.NostalgistRoleData;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
@@ -41,7 +42,8 @@ public class NostalgistKnifeImmuneMixin {
         ServerPlayer attacker = context.player();
         if (attacker.serverLevel().getEntity(payload.target()) instanceof ServerPlayer target) {
             NostalgistRoleData comp = RoleData.getNullable(NostalgistRoleData.class, target);
-            if (comp != null && comp.isActiveBackWorld()) {
+            if (comp != null && comp.isActiveBackWorld()
+                    && !FakeSteveDirector.isForcedHuntAttack(attacker, target)) {
                 ci.cancel();
             }
         }

@@ -46,6 +46,16 @@ import java.util.Set;
  * NoellesRoles 修饰符注册类
  */
 public class NRModifiers {
+    /** 克隆博士的固有身份，禁止进入任何随机修饰符池。 */
+    public static final SREModifier CLONED_PERSON = HMLModifiers.registerModifier(new SREModifier(
+            Noellesroles.id("cloned_person"), 0x69C6A1, null, null, false, false) {
+        @Override
+        public int getRoundMaxCount(net.minecraft.server.level.ServerLevel level,
+                SREGameWorldComponent game, List<ServerPlayer> players, String mapName) {
+            return 0;
+        }
+    }).setCanSetSpawnInfoInConfig(false).setDefaultEnableChance(0).setDefaultMax(0);
+
     /** 体弱修饰符。拥有此修饰符的无需完成跑步任务：它会自动完成。 */
     public static final SREModifier FRAIL = HMLModifiers.registerModifier(new SREModifier(
             Noellesroles.id("frail"),

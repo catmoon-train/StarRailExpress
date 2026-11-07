@@ -15,6 +15,10 @@ public final class SrePackCompatClient implements ClientModInitializer {
 
     @Override
     public void onInitializeClient() {
+        if (FabricLoader.getInstance().isModLoaded("voicechat")) {
+            ClientTickEvents.END_CLIENT_TICK.register(client ->
+                    io.wifi.srepackcompat.voice.VoicechatReconnect.tick());
+        }
         if (!FabricLoader.getInstance().isModLoaded("gpumemleakfix")) {
             ClientTickEvents.END_CLIENT_TICK.register(client -> RenderTargetCleanup.tick());
         }

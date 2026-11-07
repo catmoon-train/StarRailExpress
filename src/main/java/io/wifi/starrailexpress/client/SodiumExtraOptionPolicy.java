@@ -11,10 +11,6 @@ public final class SodiumExtraOptionPolicy {
         var animation = options.animationSettings;
         animation.animation = animation.water = animation.lava = animation.fire = animation.portal = true;
         animation.blockAnimations = animation.sculkSensor = true;
-        var particles = options.particleSettings;
-        particles.particles = particles.rainSplash = particles.blockBreak = particles.blockBreaking = true;
-        // 缺省本就启用；删除拒绝项比每个粒子渲染时重新遍历所有注册 ID 更轻。
-        if (!particles.otherMap.isEmpty()) particles.otherMap.clear();
         var details = options.detailSettings;
         details.sky = details.sun = details.moon = details.stars = details.rainSnow = details.biomeColors = details.skyColors = true;
         var render = options.renderSettings;

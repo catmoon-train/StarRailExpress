@@ -95,10 +95,7 @@ public final class SettlementStageRenderer {
             float dark = actor.blackness;
             int r = (int) (255 - 46 * dark), g = (int) (255 - 50 * dark), b = (int) (255 - 58 * dark);
             int tint = 0xFF000000 | r << 16 | g << 8 | b;
-            model.renderToBuffer(pose, buffer.getBuffer(RenderType.entityTranslucent(skin.texture())),
-                    LightTexture.FULL_BRIGHT, OverlayTexture.NO_OVERLAY, tint);
-            if (mvp) SettlementCrown.render(pose, buffer, model.head);
-            renderHeldItem(pose, buffer, model, actor, partial);
+            renderActor(pose, buffer, model, actor, skin, tint, mvp, partial);
             pose.popPose();
 
             if (actor.fact.winner() && time < 160) {
@@ -109,14 +106,14 @@ public final class SettlementStageRenderer {
             }
             if (action > 0 || mvp) {
                 VertexConsumer lines = buffer.getBuffer(RenderType.lines());
-                float pulse = (float) (mvp ? .35 + .1 * Math.sin(time * .08) : action * .85);
+                float pulse = (float) (mvp ? .26 + .06 * Math.sin(time * .055) : action * .65);
                 double ring = physical ? .5 : .62;
                 for (int i = 0; i < 32; i++) {
                     double a = Math.PI * 2 * i / 32, bAngle = Math.PI * 2 * (i + 1) / 32;
                     double base = physical ? y - .85 : y + .03;
                     line(pose, lines, x + Math.cos(a) * ring, base, z + Math.sin(a) * ring,
                             x + Math.cos(bAngle) * ring, base, z + Math.sin(bAngle) * ring,
-                            .83f, .68f, .22f, pulse);
+                            .82f, .28f, .24f, pulse);
                 }
             }
             // 皮肤专属的获胜者特效（本体不区分是哪款皮肤）
@@ -132,6 +129,26 @@ public final class SettlementStageRenderer {
         }
         pose.popPose();
         buffer.endBatch();
+    }
+
+    /** 先画双腿，再让整个上半身绕腰部联动；不能只旋转 body 这个独立方块。 */
+    private static void renderActor(PoseStack pose, MultiBufferSource buffer, PlayerModel<Player> model,
+                                    SettlementClient.ActorState actor, PlayerSkin skin, int tint,
+                                    boolean mvp, float partial) {
+        VertexConsumer vertices = buffer.getBuffer(RenderType.entityTranslucent(skin.texture()));
+        for (var part : java.util.List.of(model.leftLeg, model.rightLeg, model.leftPants, model.rightPants))
+            part.render(pose, vertices, LightTexture.FULL_BRIGHT, OverlayTexture.NO_OVERLAY, tint);
+        pose.pushPose();
+        SettlementRig.upperBody(pose, model.body.xRot, model.body.yRot, model.body.zRot);
+        // 躯干旋转已移到父级，清除本地旋转，外套不能再重复弯一次。
+        model.body.xRot = model.body.yRot = model.body.zRot = 0;
+        model.jacket.copyFrom(model.body);
+        for (var part : java.util.List.of(model.body, model.jacket, model.head, model.hat,
+                model.leftArm, model.rightArm, model.leftSleeve, model.rightSleeve))
+            part.render(pose, vertices, LightTexture.FULL_BRIGHT, OverlayTexture.NO_OVERLAY, tint);
+        if (mvp) SettlementCrown.render(pose, buffer, model.head);
+        renderHeldItem(pose, buffer, model, actor, partial);
+        pose.popPose();
     }
 
     /**
@@ -158,11 +175,10 @@ public final class SettlementStageRenderer {
 
         pose.pushPose();
         model.rightArm.translateAndRotate(pose);
-        // 模型以 1 像素 = 1/16 方块；手掌位于手臂末端，向前下伸出。
-        pose.translate(0, 10f, 0);
+        // ModelPart 已转换到方块单位，不能再把像素坐标和十倍缩放直接用于物品。
         pose.mulPose(Axis.XP.rotationDegrees(-90));
         pose.mulPose(Axis.YP.rotationDegrees(180));
-        pose.scale(10f, 10f, 10f);
+        pose.translate(-1 / 16f, .125, -.625);
         Minecraft.getInstance().getItemRenderer().renderStatic(new net.minecraft.world.item.ItemStack(item),
                 net.minecraft.world.item.ItemDisplayContext.THIRD_PERSON_RIGHT_HAND, LightTexture.FULL_BRIGHT,
                 OverlayTexture.NO_OVERLAY, pose, buffer, Minecraft.getInstance().level,
@@ -177,9 +193,11 @@ public final class SettlementStageRenderer {
                 model.leftPants, model.rightPants)) part.resetPose();
         model.setAllVisible(true); model.young = false; model.crouching = false; model.riding = false;
         model.attackTime = 0; model.swimAmount = 0;
-        float ceremony = (float) SettlementClient.smooth((time - 140) / 25);
-        float wave = (float) Math.sin((time - 140) * .18);
-        model.head.xRot = -.06f; model.head.yRot = (float) Math.sin(time * .035) * .07f;
+        double phase = actor.order * .67;
+        float ceremony = (float) SettlementClient.smooth((time - 140 - actor.order % 5 * 2) / 25);
+        float wave = (float) Math.sin((time - 140) * .14 + phase);
+        float celebration = (float) (1 - SettlementClient.smooth((time - 205) / 65));
+        model.head.xRot = -.035f; model.head.yRot = (float) Math.sin(time * .025 + phase) * .05f;
         model.leftArm.zRot = -.08f; model.rightArm.zRot = .08f;
         if (!actor.fact.winner()) {
             // 尸体四肢缓慢停摆；不再有“坐在舞台上”的待机姿势。
@@ -197,16 +215,16 @@ public final class SettlementStageRenderer {
             model.leftArm.zRot = -.24f * ceremony; model.rightArm.zRot = .24f * ceremony;
             model.leftLeg.xRot = -.07f * ceremony; model.rightLeg.xRot = .07f * ceremony;
         } else if (neutralRole(actor)) {
-            float bow = (float) Math.sin(SettlementClient.smooth((time - 145) / 65) * Math.PI) * ceremony;
-            model.body.xRot = .5f * bow; model.head.xRot = .5f * bow;
-            model.leftArm.xRot = model.rightArm.xRot = -.38f * bow;
+            float bow = (float) Math.sin(SettlementClient.smooth((time - 145 - actor.order % 4 * 3) / 55) * Math.PI) * ceremony;
+            model.body.xRot = .42f * bow; model.head.xRot = .08f * bow;
+            model.leftArm.xRot = model.rightArm.xRot = -.18f * bow;
         } else {
-            model.rightArm.xRot = -2.6f * ceremony;
-            model.rightArm.zRot = (.35f + wave * .22f) * ceremony;
-            model.head.zRot = .06f * ceremony;
+            model.rightArm.xRot = (-.12f - 2.05f * celebration) * ceremony;
+            model.rightArm.zRot = (.12f + (.12f + wave * .12f) * celebration) * ceremony;
+            model.head.zRot = (float) Math.sin(phase) * .035f * ceremony;
             if (mvp) {
-                model.leftArm.xRot = -.7f * ceremony; model.leftArm.zRot = -.25f * ceremony;
-                model.leftLeg.xRot = .1f * ceremony; model.rightLeg.xRot = -.1f * ceremony;
+                model.leftArm.xRot = -.48f * ceremony; model.leftArm.zRot = -.2f * ceremony;
+                model.body.yRot = -.08f * ceremony;
             }
         }
         if (actor.fact.winner() && action > 0 && SettlementClient.eventIndex() >= 0) {
@@ -270,28 +288,33 @@ public final class SettlementStageRenderer {
         pose.translate(labelX, labelY, labelZ);
         pose.mulPose(mc.gameRenderer.getMainCamera().rotation());
         // 紧凑站位用较小字号，避免相邻玩家标签互相压住。
-        pose.scale(.012f, -.012f, .012f);
-        drawLabel(pose, buffer, name, -5, mvp ? 0xFFD4AF37 : 0xFFFFF4DC);
+        pose.scale(.014f, -.014f, .014f);
+        drawLabel(pose, buffer, name, -5, mvp ? 0xFFF3D49A : 0xFFF5EEDC);
         drawLabel(pose, buffer, role, 7, color);
         if (mvp) drawLabel(pose, buffer, Component.translatable("settlement.starrailexpress.mvp"), -17, 0xFFD4AF37);
         pose.popPose();
         // 死亡标记按“获胜阵营且已死亡”显示，与轻微灰化无关。
         boolean marked = SettlementClient.isDeathMarked(actor);
         if (marked) {
-            // 死亡标记也跟随头顶锚点，压在名字（有 MVP 标签时压在最上层）上方。
-            pose.pushPose(); pose.translate(labelX, labelY + (mvp ? .66 : .44), labelZ);
-            pose.mulPose(mc.gameRenderer.getMainCamera().rotation()); pose.scale(.035f, -.035f, .035f);
-            drawLabel(pose, buffer, Component.literal("×"), 0, 0xFFE06B65);
+            // 小号印记与姓名并排，不再在每个人上方竖起一排巨大红叉。
+            pose.pushPose(); pose.translate(labelX, labelY, labelZ);
+            pose.mulPose(mc.gameRenderer.getMainCamera().rotation()); pose.scale(.014f, -.014f, .014f);
+            float offset = Math.min(88, mc.font.width(name)) * .5f + 7;
+            mc.font.drawInBatch("×", -offset - 5, -5, 0xFFCA6256, false,
+                    pose.last().pose(), buffer, Font.DisplayMode.NORMAL, 0, LightTexture.FULL_BRIGHT);
             pose.popPose();
         }
     }
 
     private static void drawLabel(PoseStack pose, MultiBufferSource buffer, Component text, int y, int color) {
         Minecraft mc = Minecraft.getInstance();
-        var lines = mc.font.split(text, 130);
-        for (int i = 0; i < Math.min(2, lines.size()); i++)
-            mc.font.drawInBatch(lines.get(i), -mc.font.width(lines.get(i)) * .5f, y + i * 10, color, false,
-                    pose.last().pose(), buffer, Font.DisplayMode.NORMAL, 0, LightTexture.FULL_BRIGHT);
+        // 名称与职业各占一行；长名称缩小，而不是换行压进职业文字。
+        int width = mc.font.width(text);
+        float scale = Math.min(1, 88f / Math.max(1, width));
+        pose.pushPose(); pose.translate(0, y, 0); pose.scale(scale, scale, 1);
+        mc.font.drawInBatch(text, -width * .5f, 0, color, false,
+                pose.last().pose(), buffer, Font.DisplayMode.NORMAL, 0, LightTexture.FULL_BRIGHT);
+        pose.popPose();
     }
 
     private static void line(PoseStack pose, VertexConsumer buffer, double ax, double ay, double az,

@@ -35,14 +35,15 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
-import org.agmas.harpymodloader.component.WorldModifierComponent;
 import org.agmas.noellesroles.Noellesroles;
-import org.agmas.noellesroles.game.modifier.NRModifiers;
 import org.agmas.noellesroles.packet.FakeSteveApparitionObservationC2SPacket;
 import org.agmas.noellesroles.packet.FakeSteveApparitionS2CPacket;
 import org.agmas.noellesroles.packet.FakeSteveControlS2CPacket;
 import org.agmas.noellesroles.game.fake_steve.FakeSteveMotionPolicy;
 import org.agmas.noellesroles.game.fake_steve.FakeSteveApparitionLifecycle;
+import org.agmas.noellesroles.game.fake_steve.FakeSteveDirector;
+import org.agmas.noellesroles.init.ModEffects;
+import org.agmas.noellesroles.packet.AbilityC2SPacket;
 
 import java.io.InputStream;
 import java.util.UUID;
@@ -74,8 +75,8 @@ public final class FakeSteveClient {
         ClientTickEvents.END_CLIENT_TICK.register(FakeSteveClient::tick);
         WorldRenderEvents.AFTER_TRANSLUCENT.register(FakeSteveClient::render);
         AllowOtherCameraType.EVENT.register((original, player) -> {
-            if (!player.isSpectator() && WorldModifierComponent.KEY.get(player.level())
-                    .isModifier(player, NRModifiers.FAKE_STEVE_REPLACED)) {
+            if (!player.isSpectator() && FakeSteveDirector.isReplaced(player)
+                    && player.hasEffect(ModEffects.MOVE_BANED)) {
                 return AllowOtherCameraType.ReturnCameraType.THIRD_PERSON_BACK;
             }
             return AllowOtherCameraType.ReturnCameraType.NO_CHANGE;
@@ -85,6 +86,13 @@ public final class FakeSteveClient {
     private static void clearRuntime() {
         apparition = null;
         motion = null;
+    }
+
+    /** 先于原职业、潜行副技能和持续技能处理，统一复用现有技能包。 */
+    public static boolean handleAbilityKey(Minecraft client, boolean pressed) {
+        if (client.player == null || !FakeSteveDirector.isReplaced(client.player)) return false;
+        if (pressed) ClientPlayNetworking.send(new AbilityC2SPacket());
+        return true;
     }
 
     private static void onControl(FakeSteveControlS2CPacket packet) {
@@ -101,17 +109,16 @@ public final class FakeSteveClient {
 
     public static void applyAiInput(Input input) {
         Minecraft client = Minecraft.getInstance();
+        if (client.player != null && (client.player.isSpectator()
+                || !client.player.hasEffect(ModEffects.MOVE_BANED))) {
+            motion = null;
+            return;
+        }
         if (motion == null || client.level == null || client.player == null
                 || client.level.getGameTime() > motion.expiresAtTick) {
             motion = null;
             return;
         }
-        input.forwardImpulse = motion.forward;
-        input.leftImpulse = motion.strafe;
-        input.up = motion.forward > 0.0F;
-        input.down = motion.forward < 0.0F;
-        input.left = motion.strafe > 0.0F;
-        input.right = motion.strafe < 0.0F;
         input.jumping = motion.jump;
         input.shiftKeyDown = motion.crouch;
         client.player.setSprinting(motion.sprint);
@@ -120,6 +127,14 @@ public final class FakeSteveClient {
         client.player.setYHeadRot(client.player.getYRot());
         client.player.setXRot(FakeSteveMotionPolicy.turnToward(
                 client.player.getXRot(), motion.targetPitch));
+        var local = FakeSteveMotionPolicy.reframe(motion.forward, motion.strafe,
+                motion.targetYaw, client.player.getYRot());
+        input.forwardImpulse = local.forward();
+        input.leftImpulse = local.strafe();
+        input.up = local.forward() > 0.0F;
+        input.down = local.forward() < 0.0F;
+        input.left = local.strafe() > 0.0F;
+        input.right = local.strafe() < 0.0F;
     }
 
     private static void onPacket(FakeSteveApparitionS2CPacket packet) {

@@ -1,0 +1,4 @@
+{
+  "serversApiUrl": "http://47.100.247.184:20001/api/servers/online",
+  "useVanillaMultiplayer": false
+}

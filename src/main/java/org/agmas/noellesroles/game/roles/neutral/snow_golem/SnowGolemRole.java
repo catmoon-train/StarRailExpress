@@ -22,11 +22,12 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
-import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
+import org.agmas.noellesroles.client.scene.MapStatusBarRuntime;
+import org.agmas.noellesroles.client.scene.SceneTaskManager;
 import org.agmas.noellesroles.content.block.scene.StoveBlock;
 import org.agmas.noellesroles.content.entity.SnowballRollEntity;
 import org.agmas.noellesroles.game.roles.killer.dream.DreamHealthComponent;
@@ -35,9 +36,6 @@ import org.agmas.noellesroles.init.ModSceneBlocks;
 import org.agmas.noellesroles.role.ModRoles;
 import org.agmas.noellesroles.role_data.neutral.SnowGolemRoleData;
 import org.jetbrains.annotations.Nullable;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * 雪傀儡 —— 只在「拥有保暖值状态栏」的地图刷新的好人方中立职业。
@@ -108,9 +106,9 @@ public class SnowGolemRole extends NormalRole {
 
     /** 保暖值地图里不该有保暖值：把该玩家的保暖值清掉。 */
     private static void clearWarmth(ServerPlayer player) {
-        var type = org.agmas.noellesroles.scene.MapStatusBarRuntime.getTrackedType(player);
+        var type = MapStatusBarRuntime.getTrackedType(player);
         if (type == MapStatusBarType.WARMTH) {
-            org.agmas.noellesroles.scene.MapStatusBarRuntime.setValue(player, MapStatusBarType.WARMTH, 0);
+            MapStatusBarRuntime.setValue(player, MapStatusBarType.WARMTH, 0);
         }
     }
 
@@ -336,8 +334,8 @@ public class SnowGolemRole extends NormalRole {
         }
         // 并列任务标记与场景任务登记都要一起清，否则 SceneTaskManager 会把它自愈回来
         tasks.parallelTaskTypes.remove(taskType);
-        org.agmas.noellesroles.scene.SceneTaskManager.clear(player,
-                org.agmas.noellesroles.scene.SceneTaskManager.Type.LIGHT_STOVE);
+        SceneTaskManager.clear(player,
+                SceneTaskManager.Type.LIGHT_STOVE);
         tasks.sync();
         return true;
     }

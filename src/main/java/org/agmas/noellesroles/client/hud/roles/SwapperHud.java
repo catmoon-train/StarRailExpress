@@ -26,6 +26,8 @@ import org.agmas.noellesroles.client.event.RoleHudRenderCallback;
 import org.agmas.noellesroles.role_data.killer.SwapperRoleData;
 import org.agmas.noellesroles.role.ModRoles;
 
+import java.util.Locale;
+
 public final class SwapperHud {
     public static void register() {
         RoleHudRenderCallback.EVENT.register(ModRoles.SWAPPER_ID, (context, deltaTracker) -> {
@@ -38,6 +40,13 @@ public final class SwapperHud {
             Font font = client.font;
             int sw = context.guiWidth();
             int sy = context.guiHeight();
+
+            if (swapper.get().isSwapping) {
+                String seconds = String.format(Locale.ROOT, "%.1f", swapper.get().swapTimer / 20.0F);
+                Component swapText = Component.translatable("hud.noellesroles.swapper.swap_countdown", seconds)
+                        .withStyle(ChatFormatting.GOLD);
+                context.drawString(font, swapText, sw - font.width(swapText) - 8, sy - 48, 0xFFFFFF);
+            }
 
             Component frontText = cooldownLine(
                     swapper.get().frontSwapCooldown,

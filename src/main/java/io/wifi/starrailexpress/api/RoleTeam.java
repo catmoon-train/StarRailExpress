@@ -16,6 +16,8 @@
 package io.wifi.starrailexpress.api;
 
 import net.minecraft.network.chat.Component;
+import io.wifi.starrailexpress.cca.SREGameWorldComponent;
+import net.minecraft.world.entity.player.Player;
 
 /**
  * 职业阵营（用于「按阵营」限制 / 筛选，例如修饰符的 {@code setCannotAppliedToTeam}）。
@@ -107,6 +109,16 @@ public enum RoleTeam {
             case NEUTRAL_INDEPENDENT_WIN -> role.isIndependentWinNeutral();
             case KILLER -> !role.isInnocent() && role.canUseKiller();
         };
+    }
+
+    /** 玩家维度的实际阵营判断；职业池筛选仍使用 {@link #matches(SRERole)}。 */
+    public boolean matchesPlayer(Player player) {
+        return player != null && matches(SREGameWorldComponent.getInstance(player).getAllegianceRole(player));
+    }
+
+    /** 取得玩家实际阵营，不改变复制职业本身的静态阵营。 */
+    public static RoleTeam ofPlayer(Player player) {
+        return player == null ? null : of(SREGameWorldComponent.getInstance(player).getAllegianceRole(player));
     }
 
     /**

@@ -49,6 +49,7 @@ import org.agmas.harpymodloader.component.WorldModifierComponent;
 import org.agmas.harpymodloader.events.ModifierAssigned;
 import org.agmas.harpymodloader.events.ModifierRemoved;
 import org.agmas.harpymodloader.modifiers.SREModifier;
+import org.agmas.noellesroles.client.scene.SceneEventManager;
 import org.agmas.noellesroles.component.InfectedPlayerComponent;
 import org.agmas.noellesroles.component.ModComponents;
 import org.agmas.noellesroles.utils.RoleUtils;
@@ -1554,7 +1555,7 @@ public class EntityInteractionBlockEntity extends BlockEntity {
             }
             case TRIGGER_SABOTAGE -> {
                 int duration = action.sabotageDuration > 0 ? action.sabotageDuration : 60;
-                org.agmas.noellesroles.scene.SceneEventManager.startSabotage(world, duration * 20);
+                SceneEventManager.startSabotage(world, duration * 20);
             }
             case SET_TIMED_SHIELD -> {
                 // 给予限时护盾：叠加 1 层，重置计时器
@@ -1599,7 +1600,8 @@ public class EntityInteractionBlockEntity extends BlockEntity {
                 command = replaceRelativeCoordinates(command, pos);
                 world.getServer().getCommands().performPrefixedCommand(
                         world.getServer().createCommandSourceStack()
-                                .withPermission(SREConfig.instance().entityInteractionBlockEntityPermission)
+                                .withPermission(io.wifi.starrailexpress.game.ElevatedBlockCommandPermission.resolve(
+                                        SREConfig.instance().entityInteractionBlockEntityPermission))
                                 .withLevel(world),
                         command);
             }

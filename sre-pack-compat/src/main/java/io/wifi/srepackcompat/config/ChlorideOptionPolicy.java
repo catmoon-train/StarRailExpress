@@ -15,7 +15,7 @@ public final class ChlorideOptionPolicy {
     private ChlorideOptionPolicy() { }
 
     public static boolean isLocked(ResourceLocation id) {
-        return id != null && id.getNamespace().equals("chloride");
+        return id != null && id.getNamespace().equals("chloride") && !id.getPath().equals("full_screen");
     }
 
     public static synchronized void enforce() {
@@ -36,6 +36,8 @@ public final class ChlorideOptionPolicy {
             try (var nativeFile = NativeConfigFile.copyOf(path);
                  var reader = (AutoCloseable) formatClass.getMethod("createReader", Path.class).invoke(format, nativeFile.path())) {
                 Map<String, Object> entries = (Map<String, Object>) readerApi.getMethod("entries").invoke(reader);
+                entries = new java.util.HashMap<>(entries);
+                entries.remove("fullscreen.mode"); // 窗口模式由用户选择，不在下一 tick 恢复。
                 Class<?> config = Class.forName("me.srrapero720.chloride.ChlorideConfig", true, loader);
                 var result = new ChlorideConfigSnapshot(config, entries, ResourceLocation::parse);
                 LoggerFactory.getLogger(ChlorideOptionPolicy.class).info("Chloride 已锁定 {} 项内置设置", result.size());

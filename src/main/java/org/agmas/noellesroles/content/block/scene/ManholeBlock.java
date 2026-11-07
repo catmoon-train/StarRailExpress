@@ -45,8 +45,8 @@ import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import org.agmas.noellesroles.content.block_entity.scene.ManholeBlockEntity;
 import org.agmas.noellesroles.init.ModSceneBlocks;
-import org.agmas.noellesroles.scene.ManholeRegistry;
-import org.agmas.noellesroles.scene.SceneRoleAccess;
+import org.agmas.noellesroles.client.scene.ManholeRegistry;
+import org.agmas.noellesroles.client.scene.SceneRoleAccess;
 import org.jetbrains.annotations.Nullable;
 
 import java.awt.*;

@@ -116,6 +116,13 @@ public interface ModBlocks {
             "chef_tray",
             BlockEntityType.Builder.of(ChefPlateBlockEntity::new, CHEF_FOOD_TRAY, CHEF_DRINK_TRAY));
 
+    Block IDENTITY_SCANNER = registerBlockMultiTab("identity_scanner",
+            new IdentityScannerBlock(BlockBehaviour.Properties.of().strength(-1.0F, 3600000.0F)
+                    .noLootTable().sound(SoundType.METAL)),
+            BLOCK_CREATIVE_GROUP, ModSceneBlocks.SCENE_CREATIVE_GROUP);
+    BlockEntityType<IdentityScannerBlockEntity> IDENTITY_SCANNER_BLOCK_ENTITY = blockEntityRegistrar.create(
+            "identity_scanner", BlockEntityType.Builder.of(IdentityScannerBlockEntity::new, IDENTITY_SCANNER));
+
     private static BlockBehaviour.Properties chefTrayProperties() {
         return BlockBehaviour.Properties.of()
                 .noOcclusion()

@@ -74,6 +74,7 @@ public class SkinSelectionList extends ObjectSelectionList<SkinSelectionList.Ski
 
     /** 是否只显示 3D（Geo）皮肤；由父界面的筛选按钮下发 */
     private boolean only3d = false;
+    private ItemSkinManager.QualityColor qualityFilter;
     /** 当前列表项的皮肤类型（列表页签 = 物品 id 的 path） */
     private String skinTypeName = "";
     /** 当前搜索词（已归一化），供排序与过滤共用 */
@@ -140,14 +141,26 @@ public class SkinSelectionList extends ObjectSelectionList<SkinSelectionList.Ski
      * 要么命中不到、要么把对应皮肤排到很后面）。
      */
     public void rebuild(String filter, boolean only3d) {
+        rebuild(filter, only3d, qualityFilter);
+    }
+
+    /** 搜索、3D 与品质条件可同时生效；null 表示全部品质。 */
+    public void rebuild(String filter, boolean only3d, ItemSkinManager.QualityColor quality) {
+        String nextQuery = ItemSkinSearch.normalize(filter);
+        boolean changed = !nextQuery.equals(searchQuery) || this.only3d != only3d || qualityFilter != quality;
+        this.qualityFilter = quality;
         this.searchFilter = filter != null ? filter.toLowerCase(java.util.Locale.ROOT) : "";
-        this.searchQuery = ItemSkinSearch.normalize(filter);
+        this.searchQuery = nextQuery;
         this.only3d = only3d;
         clearEntries();
         for (String skinName : availableSkins) {
             // 「仅显示 3D 皮肤」筛选：刀 / 弓 / 手铐 / 左轮 / 手雷 / 信件都是列表页签，
             // 必须在这里同样过滤，否则勾选按钮对它们完全没反应
             if (only3d && !is3dSkin(skinName)) {
+                continue;
+            }
+            ItemSkinManager.Skin skin = ItemSkinManager.getSkinFromName(skinTypeName, skinName);
+            if (quality != null && (skin == null || skin.getColor() != quality.getColor())) {
                 continue;
             }
             // 搜索过滤：匹配分 0 表示不命中（输入为空时不过滤）
@@ -181,6 +194,10 @@ public class SkinSelectionList extends ObjectSelectionList<SkinSelectionList.Ski
         // 「未装备」固定第一位，「随机」固定第二位（不参与排序与搜索过滤）
         this.children().addFirst(new SkinEntry("default"));
         this.children().add(1, new SkinEntry(ItemSkinManager.RANDOM_SKIN));
+        if (changed) {
+            draggingScrollbar = false;
+            setScrollAmount(0);
+        }
     }
     /**
      * 该皮肤是否走了 3D（Geo）模型。

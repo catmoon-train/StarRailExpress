@@ -86,7 +86,8 @@ public final class ProgressionDataManager {
 
     /** 通行证任务仅在开启系统且 MySQL 可用时生效。 */
     public static boolean isActive() {
-        return SREConfig.instance().enableProgressionSystem && isDatabaseEnabled();
+        return !io.wifi.starrailexpress.training.TrainingRules.isIsolated()
+                && SREConfig.instance().enableProgressionSystem && isDatabaseEnabled();
     }
 
     public static ProgressionState get(ServerPlayer player) {
@@ -670,6 +671,7 @@ public final class ProgressionDataManager {
     }
 
     private static void onJoin(ServerPlayer player) {
+        if (io.wifi.starrailexpress.training.TrainingRules.isTrainingWorld(player.level())) return;
         Entry entry = getEntry(player.getUUID());
         entry.online = true;
         send(player, entry);
@@ -732,6 +734,7 @@ public final class ProgressionDataManager {
     }
 
     private static void tick(MinecraftServer server) {
+        if (io.wifi.starrailexpress.training.TrainingRules.isTrainingServer(server)) return;
         long now = System.currentTimeMillis();
         for (ServerPlayer player : server.getPlayerList().getPlayers()) {
             Entry entry = ENTRIES.get(player.getUUID());
@@ -806,7 +809,8 @@ public final class ProgressionDataManager {
     }
 
     private static boolean isDatabaseEnabled() {
-        return SREConfig.instance().mysqlPlayerSyncEnabled && MysqlPlayerDataStore.isAvailable();
+        return !io.wifi.starrailexpress.training.TrainingRules.isIsolated()
+                && SREConfig.instance().mysqlPlayerSyncEnabled && MysqlPlayerDataStore.isAvailable();
     }
 
     private static Map<String, String> buildPayloads(Entry entry) {

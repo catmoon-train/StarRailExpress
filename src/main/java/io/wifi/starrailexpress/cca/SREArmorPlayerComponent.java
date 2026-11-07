@@ -288,10 +288,14 @@ public class SREArmorPlayerComponent implements RoleComponent, ServerTickingComp
     }
 
     public int getAllArmorCount() {
+        Integer override = io.wifi.starrailexpress.event.GameplayExtensionEvents.ARMOR_COUNT_OVERRIDE.invoker().get(player);
+        if (override != null) return override;
         return this.armor + timedArmor.values().stream().mapToInt(Integer::intValue).sum();
     }
 
     public boolean triggerAndRemoveArmor(int amount) {
+        Boolean override = io.wifi.starrailexpress.event.GameplayExtensionEvents.ARMOR_CONSUME_OVERRIDE.invoker().consume(player, amount);
+        if (override != null) return override;
         // 先移除限时护盾
         while (amount > 0 && !timedArmor.isEmpty()) {
             Map.Entry<Long, Integer> first = timedArmor.firstEntry();
@@ -331,6 +335,7 @@ public class SREArmorPlayerComponent implements RoleComponent, ServerTickingComp
 
     @Override
     public boolean shouldSyncWith(ServerPlayer target) {
+        if (io.wifi.starrailexpress.event.GameplayExtensionEvents.ALLOW_ARMOR_SYNC.invoker().allow(player, target)) return true;
         if (target == this.player)
             return true;
         // 酒保透视：只有存在可透视护盾时才同步，避免泄露不可见的护盾

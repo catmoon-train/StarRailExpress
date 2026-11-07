@@ -46,6 +46,10 @@ public class SREReceiverRegister {
 
     public static void registerGlobalReceivers() {
         SceneAssetNetwork.registerServerReceivers();
+        io.wifi.starrailexpress.training.TrainingRules.register();
+        ServerPlayNetworking.registerGlobalReceiver(io.wifi.starrailexpress.training.TrainingActionPayload.ID,
+                (payload, context) -> context.server().execute(() ->
+                        io.wifi.starrailexpress.training.TrainingRules.handle(context.player(), payload)));
         io.wifi.starrailexpress.settlement.SettlementManager.register();
 
         // 紧急会议系统：服务端核心 + 发言请求

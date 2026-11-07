@@ -43,6 +43,7 @@ public class ClientAbilityHandler {
     private static int heldSlot = -1;
 
     public static void handler(Minecraft client) {
+        if (FakeSteveClient.handleAbilityKey(client, true)) return;
 
         SREGameWorldComponent gameWorldComponent = (SREGameWorldComponent) SREGameWorldComponent.KEY
                 .get(client.player.level());
@@ -157,6 +158,11 @@ public class ClientAbilityHandler {
             heldSlot = -1;
             return;
         }
+        if (org.agmas.noellesroles.game.fake_steve.FakeSteveDirector.isReplaced(client.player)) {
+            unifiedSkillHeld = false;
+            heldSlot = -1;
+            return;
+        }
         SREGameWorldComponent gameWorld = SREGameWorldComponent.KEY.get(client.level);
         var role = gameWorld.getRole(client.player);
         if (!RoleSkill.hasUnifiedSkills(role)) {
@@ -190,6 +196,7 @@ public class ClientAbilityHandler {
         if (client.player == null || client.level == null) {
             return;
         }
+        if (org.agmas.noellesroles.game.fake_steve.FakeSteveDirector.isReplaced(client.player)) return;
 
         // ==================== 傀儡师：优先检测操控假人状态 ====================
         // 必须放在所有角色之前，因为傀儡师操控假人时角色会临时变成其他杀手

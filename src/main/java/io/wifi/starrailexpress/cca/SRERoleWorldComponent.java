@@ -213,7 +213,7 @@ public class SRERoleWorldComponent implements AutoSyncedComponent, ServerTicking
     public List<UUID> getAllKillerTeamPlayers() {
         List<UUID> ret = new ArrayList<>();
         roles.forEach((uuid, playerRole) -> {
-            if ((isKillerTeamRole(playerRole))) {
+            if (SREGameWorldComponent.KEY.get(world).isKillerTeam(uuid)) {
                 ret.add(uuid);
             }
         });
@@ -224,7 +224,8 @@ public class SRERoleWorldComponent implements AutoSyncedComponent, ServerTicking
     public List<UUID> getAllKillerPlayers() {
         List<UUID> ret = new ArrayList<>();
         roles.forEach((uuid, playerRole) -> {
-            if ((playerRole.canUseKiller() && !playerRole.isNeutrals())) {
+            SRERole allegiance = SREGameWorldComponent.KEY.get(world).getAllegianceRole(uuid);
+            if (allegiance != null && allegiance.canUseKiller() && !allegiance.isNeutrals()) {
                 ret.add(uuid);
             }
         });
@@ -258,15 +259,15 @@ public class SRERoleWorldComponent implements AutoSyncedComponent, ServerTicking
     }
 
     public boolean isNeutralForKiller(@NotNull Player player) {
-        return getRole(player) != null && getRole(player).isNeutralForKiller();
+        return SREGameWorldComponent.KEY.get(world).isNeutralForKiller(player);
     }
 
     public boolean canUseKillerFeatures(@NotNull Player player) {
-        return getRole(player) != null && getRole(player).canUseKiller();
+        return SREGameWorldComponent.KEY.get(world).canUseKillerFeatures(player);
     }
 
     public boolean isInnocent(@NotNull Player player) {
-        return getRole(player) != null && getRole(player).isInnocent();
+        return SREGameWorldComponent.KEY.get(world).isInnocent(player);
     }
 
     public void clearRoleMap(boolean sync) {
@@ -308,7 +309,7 @@ public class SRERoleWorldComponent implements AutoSyncedComponent, ServerTicking
     }
 
     public boolean canSeeKillerTeammate(Player player) {
-        return getRole(player) != null && getRole(player).canSeeTeammateKillerRole();
+        return SREGameWorldComponent.KEY.get(world).canSeeKillerTeammate(player);
     }
 
     public boolean isKillerTeamRole(SRERole role) {
@@ -322,16 +323,7 @@ public class SRERoleWorldComponent implements AutoSyncedComponent, ServerTicking
     }
 
     public boolean isKillerTeam(Player player) {
-        if (player != null) {
-            var role = this.getRole(player);
-            if (role == null)
-                return false;
-            if (role.canUseKiller())
-                return true;
-            if (role.isNeutralForKiller())
-                return true;
-        }
-        return false;
+        return SREGameWorldComponent.KEY.get(world).isKillerTeam(player);
     }
 
     public static boolean isKillerTeamRoleStatic(SRERole role) {

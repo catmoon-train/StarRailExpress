@@ -47,15 +47,12 @@ public abstract class SettlementGameRendererMixin {
         GameRenderer renderer = (GameRenderer) (Object) this;
         // 覆盖眩晕/重力反转等世界投影修改，保留原版透视构造；不影响最终 GUI 投影。
         matrix.set(renderer.getProjectionMatrix(settlement$fovValue()));
+        matrix.rotateZ(SettlementClient.cameraRoll(net.minecraft.client.Minecraft.getInstance()
+                .getTimer().getGameTimeDeltaPartialTick(false)));
     }
 
     private static double settlement$fovValue() {
         var mc = net.minecraft.client.Minecraft.getInstance();
-        double aspect = mc.getWindow().getWidth() / (double) Math.max(1, mc.getWindow().getHeight());
-        double wide = Math.max(46,Math.min(95,Math.toDegrees(2*Math.atan(6.1/(9*aspect)))));
-        double t = SettlementClient.tick() + mc.getTimer().getGameTimeDeltaPartialTick(false);
-        double a = Math.max(0, Math.min(1, (t - 210) / 55));
-        double b = Math.max(0, Math.min(1, (t - 300) / 20));
-        return wide+(38-wide)*a*a*(3-2*a)*(1-b*b*(3-2*b));
+        return SettlementClient.cameraFov(mc.getTimer().getGameTimeDeltaPartialTick(false));
     }
 }

@@ -183,6 +183,10 @@ public class ModRoles {
     public static ResourceLocation id(String path) {
         return Noellesroles.id(path);
     }
+
+    public static final ResourceLocation CLONE_DOCTOR_ID = Noellesroles.id("clone_doctor");
+    public static final SRERole CLONE_DOCTOR = TMMRoles.registerRole(
+            new org.agmas.noellesroles.game.roles.killer.clone_doctor.CloneDoctorRole());
     // ==================== 角色 ID 定义 ====================
     // 建议格式：MOD_ID:role_name
 

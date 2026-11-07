@@ -54,6 +54,14 @@ public class SwapperRoleData extends SimpleRoleData {
     }
 
     @Override
+    public void clientTick() {
+        // 起止状态由服务端同步，客户端只递减 HUD 倒计时，避免每 tick 发包。
+        if (isSwapping && swapTimer > 0) {
+            swapTimer--;
+        }
+    }
+
+    @Override
     public void serverTick() {
         if (frontSwapCooldown > 0) {
             frontSwapCooldown--;

@@ -50,7 +50,7 @@ import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 import org.agmas.noellesroles.content.entity.UndeadEntity;
 import org.agmas.noellesroles.content.effects.StatusAilmentHandler;
-import org.agmas.noellesroles.gunfx.GunTracers;
+import org.agmas.noellesroles.client.gunfx.GunTracers;
 import org.agmas.noellesroles.init.ModEffects;
 import org.agmas.noellesroles.init.ModEntities;
 import org.agmas.noellesroles.utils.RoleUtils;

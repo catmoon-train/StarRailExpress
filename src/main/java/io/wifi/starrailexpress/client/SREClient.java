@@ -308,6 +308,7 @@ public class SREClient implements ClientModInitializer {
 
     @Override
     public void onInitializeClient() {
+        io.wifi.starrailexpress.training.client.TrainingClient.register();
         io.wifi.starrailexpress.client.render.ShaderPackFog.register();
         io.wifi.starrailexpress.settlement.client.SettlementClient.register();
         LetterNewspaperBuilder.init();
@@ -1590,8 +1591,13 @@ public class SREClient implements ClientModInitializer {
     public static float bodyHUDScale = 0.6f;
 
     public static boolean isInstinctEnabled() {
-        boolean canUseInstinct = isKiller();
         final var player = Minecraft.getInstance().player;
+        var override = io.wifi.starrailexpress.event.client.ClientGameplayEvents.INSTINCT_OVERRIDE.invoker()
+                .query(player);
+        if (!override.isPass()) {
+            return override.isTrue();
+        }
+        boolean canUseInstinct = isKiller();
         if (SREClient.gameComponent != null) {
             var role = SREClient.gameComponent.getRole(player);
             if (role != null) {

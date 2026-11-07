@@ -14,7 +14,7 @@
     "modmenu": ["io.wifi.srepackcompat.swap.SwapModMenu"]
   },
   "mixins": ["sre-pack-compat.mixins.json", "sre-pack-compat-particles.mixins.json", "sre-pack-compat-swap.mixins.json", "sre-pack-compat-chloride.mixins.json", "sre-pack-compat-settings.mixins.json", "sre-pack-compat-runtime.mixins.json"],
-  "breaks": { "susinstantswap": "*" },
+  "breaks": {},
   "depends": {
     "fabricloader": ">=0.16.0",
     "minecraft": "1.21.1",

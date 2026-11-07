@@ -17,6 +17,8 @@ package org.agmas.noellesroles.content.entity;
 
 import com.mojang.authlib.GameProfile;
 import io.wifi.starrailexpress.cca.SREGameWorldComponent;
+import io.wifi.starrailexpress.game.GameUtils;
+import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.syncher.EntityDataAccessor;
@@ -28,8 +30,11 @@ import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.damagesource.DamageTypes;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.Pose;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.Vec3;
 import org.agmas.noellesroles.Noellesroles;
 import org.agmas.noellesroles.component.ModComponents;
 import org.agmas.noellesroles.game.roles.neutral.puppeteer.PuppeteerPlayerComponent;
@@ -56,6 +61,12 @@ public class PuppeteerBodyEntity extends LivingEntity {
     /** 所有者 UUID */
     private static final EntityDataAccessor<Optional<UUID>> OWNER_UUID = SynchedEntityData.defineId(
             PuppeteerBodyEntity.class, EntityDataSerializers.OPTIONAL_UUID);
+
+    /** 克隆替身与普通傀儡共用实体类型，但不继承伤害转移和十分钟寿命。 */
+    private static final EntityDataAccessor<Boolean> CLONE_SUBSTITUTE = SynchedEntityData.defineId(
+            PuppeteerBodyEntity.class, EntityDataSerializers.BOOLEAN);
+    private static final EntityDataAccessor<Direction> SUBSTITUTE_DIRECTION = SynchedEntityData.defineId(
+            PuppeteerBodyEntity.class, EntityDataSerializers.DIRECTION);
     // 不会被自然刷新
     private boolean persistenceRequired = false;
 
@@ -73,6 +84,8 @@ public class PuppeteerBodyEntity extends LivingEntity {
 
     /** 所有者玩家引用（缓存） */
     private Player ownerCache = null;
+    /** 替身固定在制作时的坐标，避免水流等物理影响使其离开记录位置。 */
+    private Vec3 substitutePosition;
 
     public boolean isPersistenceRequired() {
         return this.persistenceRequired;
@@ -117,6 +130,8 @@ public class PuppeteerBodyEntity extends LivingEntity {
     protected void defineSynchedData(SynchedEntityData.Builder builder) {
         super.defineSynchedData(builder);
         builder.define(OWNER_UUID, Optional.empty());
+        builder.define(CLONE_SUBSTITUTE, false);
+        builder.define(SUBSTITUTE_DIRECTION, Direction.SOUTH);
     }
 
     /**
@@ -138,6 +153,63 @@ public class PuppeteerBodyEntity extends LivingEntity {
             this.setCustomNameVisible(false);
             this.setPose(owner.getPose());
         }
+    }
+
+    /** 启用独立替身模式；所有者仅用于目标存活判定和皮肤，不是制造者。 */
+    public void configureCloneSubstitute(Direction direction) {
+        this.entityData.set(CLONE_SUBSTITUTE, true);
+        this.entityData.set(SUBSTITUTE_DIRECTION, direction);
+        this.setNoGravity(true);
+        this.setDeltaMovement(Vec3.ZERO);
+        this.substitutePosition = position();
+        // 只设置睡姿，不占用真实床，也不会清掉其他玩家的床占用。
+        this.setPose(Pose.SLEEPING);
+        this.setBoundingBox(this.makeBoundingBox());
+    }
+
+    /** 是否为克隆博士的独立替身。 */
+    public boolean isCloneSubstitute() {
+        return this.entityData != null && this.entityData.get(CLONE_SUBSTITUTE);
+    }
+
+    @Override
+    public Direction getBedOrientation() {
+        return isCloneSubstitute() ? this.entityData.get(SUBSTITUTE_DIRECTION) : super.getBedOrientation();
+    }
+
+    @Override
+    public void onSyncedDataUpdated(EntityDataAccessor<?> accessor) {
+        super.onSyncedDataUpdated(accessor);
+        if ((CLONE_SUBSTITUTE.equals(accessor) || SUBSTITUTE_DIRECTION.equals(accessor)) && isCloneSubstitute()) {
+            this.setBoundingBox(this.makeBoundingBox());
+        }
+    }
+
+    @Override
+    protected AABB makeBoundingBox() {
+        if (!isCloneSubstitute()) {
+            return super.makeBoundingBox();
+        }
+        Direction direction = getBedOrientation();
+        double x = getX() - direction.getStepX() * 0.8D;
+        double z = getZ() - direction.getStepZ() * 0.8D;
+        double halfX = direction.getAxis() == Direction.Axis.X ? 1.0D : 0.3D;
+        double halfZ = direction.getAxis() == Direction.Axis.Z ? 1.0D : 0.3D;
+        return new AABB(x - halfX, getY(), z - halfZ, x + halfX, getY() + 0.4D, z + halfZ);
+    }
+
+    @Override
+    public boolean shouldBeSaved() {
+        // 替身只属于当前对局；区块卸载后不能留下无保护记录的持久假人。
+        return !isCloneSubstitute() && super.shouldBeSaved();
+    }
+
+    @Override
+    public void remove(RemovalReason reason) {
+        if (isCloneSubstitute() && !level().isClientSide() && isSleeping()) {
+            stopSleeping();
+        }
+        super.remove(reason);
     }
 
     /**
@@ -190,6 +262,23 @@ public class PuppeteerBodyEntity extends LivingEntity {
         super.tick();
         if (level().isClientSide())
             return;
+        if (isCloneSubstitute()) {
+            Player target = getOwner();
+            if (!SREGameWorldComponent.KEY.get(level()).isRunning()
+                    || !(target instanceof ServerPlayer serverTarget) || serverTarget.hasDisconnected()
+                    || target.level() != level() || !target.isAlive()
+                    || !GameUtils.isPlayerAliveAndSurvival(target)) {
+                discard();
+                return;
+            }
+            if (substitutePosition != null) {
+                this.setPos(substitutePosition);
+            }
+            this.setDeltaMovement(Vec3.ZERO);
+            this.setPose(Pose.SLEEPING);
+            this.setBoundingBox(this.makeBoundingBox());
+            return;
+        }
         if (this.persistenceRequired) {
             return;
         }
@@ -217,6 +306,12 @@ public class PuppeteerBodyEntity extends LivingEntity {
     public boolean playerHurt(Player player, ResourceLocation deathReason) {
         if (level().isClientSide())
             return false;
+        if (org.agmas.noellesroles.game.roles.killer.clone_doctor.CloneDoctorSessionManager.blocksDamage(player))
+            return false;
+        if (isCloneSubstitute()) {
+            discard();
+            return true;
+        }
         Player owner = getOwner();
         if (owner != null) {
             // 通知傀儡师组件本体死亡
@@ -245,6 +340,13 @@ public class PuppeteerBodyEntity extends LivingEntity {
     public boolean hurt(DamageSource source, float amount) {
         if (level().isClientSide())
             return false;
+        if (isCloneSubstitute()) {
+            if (amount <= 0 || isInvulnerableTo(source) || source.is(DamageTypes.IN_WALL)) {
+                return false;
+            }
+            discard();
+            return true;
+        }
 
         if (source.is(DamageTypes.IN_WALL))
             return false;
@@ -294,6 +396,10 @@ public class PuppeteerBodyEntity extends LivingEntity {
 
     @Override
     public void die(DamageSource damageSource) {
+        if (isCloneSubstitute()) {
+            discard();
+            return;
+        }
         super.die(damageSource);
 
         // 确保通知傀儡师

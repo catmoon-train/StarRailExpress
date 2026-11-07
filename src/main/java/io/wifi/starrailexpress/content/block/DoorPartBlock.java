@@ -66,6 +66,9 @@ public abstract class DoorPartBlock extends BaseEntityBlock {
 
     @Override
     public VoxelShape getCollisionShape(BlockState state, BlockGetter world, BlockPos pos, CollisionContext context) {
+        VoxelShape override = io.wifi.starrailexpress.event.GameplayExtensionEvents.DOOR_COLLISION.invoker()
+                .get(state, world, pos, context);
+        if (override != null) return override;
         if (state.getValue(OPEN) && !shouldHaveCollisionShapeWhenOpen(state, world, pos, context)) {
             return Shapes.empty();
         }

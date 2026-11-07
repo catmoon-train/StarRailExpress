@@ -15,6 +15,7 @@
 
 package io.wifi.starrailexpress.util;
 
+import io.wifi.starrailexpress.event.ItemTransferEvents;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.entity.player.Player;
@@ -169,6 +170,7 @@ public class SREItemUtils {
     }
 
     public static boolean insertStackInFreeSlot(@NotNull Player player, ItemStack sstack) {
+        if (!ItemTransferEvents.ALLOW_HOTBAR_INSERT.invoker().allow(player, sstack)) return false;
         var stackToInsert = sstack.copy();
         for (int i = 0; i < 9; ++i) {
             ItemStack stack = player.getInventory().getItem(i);

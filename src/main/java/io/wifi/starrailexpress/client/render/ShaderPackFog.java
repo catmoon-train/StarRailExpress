@@ -87,8 +87,9 @@ public final class ShaderPackFog {
             shader.safeGetUniform("InverseProjection").set(new Matrix4f(projection).invert());
             shader.safeGetUniform("InverseModelView").set(new Matrix4f(modelView).invert());
             shader.safeGetUniform("FogRange").set(start, end);
-            shader.safeGetUniform("FogShape").set(shape);
-            shader.safeGetUniform("FogColor").set(color[0], color[1], color[2]);
+            // 避开原版自动填充的 FogShape/FogColor，后者固定写入四分量颜色。
+            shader.safeGetUniform("SreFogShape").set(shape);
+            shader.safeGetUniform("SreFogColor").set(color[0], color[1], color[2]);
             RenderSystem.setShader(() -> shader);
             BufferBuilder quad = Tesselator.getInstance().begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION);
             quad.addVertex(-1, -1, 0);

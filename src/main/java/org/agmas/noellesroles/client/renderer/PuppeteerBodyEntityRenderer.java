@@ -20,6 +20,7 @@ import com.mojang.blaze3d.vertex.VertexConsumer;
 import io.wifi.starrailexpress.client.SREClient;
 import io.wifi.starrailexpress.client.model.TMMModelLayers;
 import io.wifi.starrailexpress.client.util.ClientSkinCache;
+import net.minecraft.core.Direction;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.EntityModel;
 import net.minecraft.client.model.HumanoidModel;
@@ -36,6 +37,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.Pose;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.AABB;
 import org.agmas.noellesroles.content.entity.PuppeteerBodyEntity;
@@ -135,6 +137,15 @@ public class PuppeteerBodyEntityRenderer<T extends LivingEntity, M extends Entit
                 k *= -1.0F;
             }
 
+            if (livingEntity.isCloneSubstitute() && livingEntity.hasPose(Pose.SLEEPING)) {
+                Direction direction = livingEntity.getBedOrientation();
+                float offset = livingEntity.getEyeHeight(Pose.STANDING) - 0.1F;
+                // 与原版睡姿保持一致：实体坐标是头部，模型原点移向床尾。
+                matrixStack.translate(-direction.getStepX() * offset, 0.0F,
+                        -direction.getStepZ() * offset);
+                k = 0.0F;
+                m = 0.0F;
+            }
             float lx = livingEntity.getScale();
             matrixStack.scale(lx, lx, lx);
             float n = this.getAttackAnim(livingEntity, g);

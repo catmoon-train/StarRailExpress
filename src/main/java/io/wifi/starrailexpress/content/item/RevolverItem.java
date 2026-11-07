@@ -103,6 +103,10 @@ public class RevolverItem extends SkinableItem implements HeldLikeRevolver {
     }
 
     public static HitResult getGunTarget(Player user) {
+        HitResult clientTarget = io.wifi.starrailexpress.event.ItemGameplayEvents.REVOLVER_TARGET.invoker().query(user);
+        if (clientTarget != null) {
+            return clientTarget;
+        }
         return SREHitManager.getTarget(user, HitType.GUN, 20f);
     }
 

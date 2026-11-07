@@ -260,6 +260,9 @@ public class SREEventRegister {
     }
 
     private static void sendDefaultIntroIfParticipant(ServerPlayer player) {
+        if (!io.wifi.starrailexpress.event.GameplayExtensionEvents.ALLOW_DEFAULT_INTRO.invoker().allow(player)) {
+            return;
+        }
         // 回响托运站由模式自己发一条开局运镜（追捕方 → 逃脱方 → 设施 → 回到本人），
         // 这里跳过默认的「远处俯视玩家」镜头，避免两条轨道互相抢占导演。
         if (SREGameWorldComponent.KEY.get(player.serverLevel()).getGameMode()

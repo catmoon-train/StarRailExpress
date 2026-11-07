@@ -219,7 +219,7 @@ public class GhostRoleData extends SimpleRoleData {
             if (!GameUtils.isPlayerAliveAndSurvival(p)) {
                 continue;
             }
-            var role = gameWorld.getRole(p.getUUID());
+            var role = gameWorld.getAllegianceRole(p);
             if (role == null) {
                 continue;
             }
@@ -319,7 +319,7 @@ public class GhostRoleData extends SimpleRoleData {
             if (!GameUtils.isPlayerAliveAndSurvival(p)) {
                 continue;
             }
-            var role = gameWorld.getRole(p.getUUID());
+            var role = gameWorld.getAllegianceRole(p);
             if (role == null) {
                 continue;
             }

@@ -19,7 +19,7 @@ import io.wifi.starrailexpress.network.original.SniperShootPayload;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
-import org.agmas.noellesroles.gunfx.GunTracers;
+import org.agmas.noellesroles.client.gunfx.GunTracers;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;

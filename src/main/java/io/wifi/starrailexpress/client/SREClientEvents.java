@@ -193,7 +193,6 @@ public class SREClientEvents {
             if (target == null)
                 return null;
             if (SREClient.gameComponent != null) {
-                var selfRole = SREClient.gameComponent.getRole(player);
                 if (SREClient.gameComponent.isRole(target, ModRoles.MAGICIAN)
                         || SREClient.gameComponent.isRole(target, THLostForestRoles.KAGUYA)) {
                     var roleR = RoleData.getOptional(MagicianRoleData.class, target)
@@ -206,7 +205,7 @@ public class SREClientEvents {
                                 "message.magician.magician_are_playing_as",
                                 RoleUtils.getRoleNameWithColor(roleR)));
                     }
-                    if (SREGameWorldComponent.isKillerTeamRoleStatic(selfRole) && selfRole.canSeeTeammateKillerRole()) {
+                    if (SREClient.gameComponent.isKillerTeam(player) && SREClient.gameComponent.canSeeKillerTeammate(player)) {
                         return TrueFalseAndCustomResult.custom(RoleUtils.getRoleName(roleR));
                     }
                 }

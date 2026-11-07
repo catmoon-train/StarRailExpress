@@ -10,6 +10,16 @@ repositories.addAll(rootProject.repositories)
 
 loom {
     accessWidenerPath = file('src/main/resources/sre-pack-compat.accesswidener')
+    // 兼容包由主客户端加载，不单独创建可启动的客户端运行配置。
+    runs {
+        remove(getByName('client'))
+    }
+}
+
+// Loom 保留已移除配置的禁用任务；清掉独立启动准备，避免裸 runClient 连带处理它。
+tasks.named('runClient') {
+    enabled = false
+    setDependsOn([])
 }
 
 dependencies {
@@ -21,6 +31,8 @@ dependencies {
     modCompileOnly "maven.modrinth:modmenu:11.0.3"
     // 与核心相同的可选 Sodium 0.8 配置 API；不内嵌、不增加运行时硬依赖。
     modCompileOnly "maven.modrinth:sodium:${rootProject.sodium_version}-fabric"
+    // 复用核心已有映射依赖；调用接口同时核对用户提供的 2.6.27，不内嵌语音模组。
+    modCompileOnly "maven.modrinth:simple-voice-chat:fabric-${rootProject.voicechat_version}"
     include(implementation(annotationProcessor('com.github.bawnorton.mixinsquared:mixinsquared-fabric:0.3.7-beta.1')))
     testImplementation platform('org.junit:junit-bom:5.11.4')
     testImplementation 'org.junit.jupiter:junit-jupiter'

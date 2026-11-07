@@ -59,7 +59,9 @@ public class ToiletBlock extends CouchBlock implements EntityBlock {
     }
 
     @Override
-    public InteractionResult useWithoutItem(BlockState state, Level world, BlockPos pos, Player player, BlockHitResult hit) {
+    public InteractionResult useWithoutItem(BlockState state, Level world, BlockPos pos, Player interactingPlayer, BlockHitResult hit) {
+        Player player = io.wifi.starrailexpress.event.GameplayExtensionEvents.MOUNT_PLAYER.invoker()
+                .apply(state, world, pos, interactingPlayer, hit);
         // 检查玩家是否手持马桶毒药（主手或副手）
         if (!player.isCreative()) {
             ItemStack mainHandItem = player.getItemInHand(InteractionHand.MAIN_HAND);

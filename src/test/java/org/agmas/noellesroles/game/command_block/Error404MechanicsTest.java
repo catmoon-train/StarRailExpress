@@ -72,6 +72,24 @@ class Error404MechanicsTest {
         assertFalse(a.contains(player));
     }
 
+    @Test void chasingOnlyMovesAndDamageRequiresADetonator() throws Exception {
+        String source = java.nio.file.Files.readString(java.nio.file.Path.of(
+                "src/main/java/org/agmas/noellesroles/game/command_block/Error404Role.java"));
+        int start = source.indexOf("public static void tickPuppet(");
+        String chase = source.substring(start, source.indexOf("private static boolean validDestination", start));
+        assertTrue(chase.contains("puppet.updateDestination(target.position())"));
+        assertTrue(chase.contains("puppet.setPos("));
+        assertFalse(chase.contains("tryKill("));
+        assertFalse(chase.contains("killPlayer("));
+        assertFalse(chase.contains(".hurt("));
+        assertFalse(chase.contains("puppet.swing("));
+        int detonation = source.indexOf("private static boolean remoteDetonate(");
+        String explosion = source.substring(detonation, start);
+        assertTrue(explosion.contains("findItem(actor, ModItems.ERROR_DETONATOR)"));
+        assertTrue(explosion.contains("detonator.isEmpty()"));
+        assertTrue(explosion.contains("detonator.shrink(1)"));
+    }
+
     @Test void countdownUsesCeilingAndNeverGoesNegative() {
         assertEquals(15, Error404Exposure.secondsLeft(300, 0));
         assertEquals(15, Error404Exposure.secondsLeft(300, 1));

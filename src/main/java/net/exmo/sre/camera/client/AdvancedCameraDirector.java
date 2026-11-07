@@ -122,6 +122,10 @@ public final class AdvancedCameraDirector {
      * 与普通轨道一样计入 {@link #isTrackActive()}，以便规则卡 / welcome 与运镜同步。
      */
     public static void startEntityFocus(int entityId, int durationTicks, boolean blackBars) {
+        if (!io.wifi.starrailexpress.event.client.ClientGameplayEvents.ALLOW_ENTITY_FOCUS.invoker()
+                .allow(entityId, durationTicks, blackBars)) {
+            return;
+        }
         Minecraft minecraft = Minecraft.getInstance();
         LocalPlayer player = minecraft.player;
         if (player == null || durationTicks <= 0) {

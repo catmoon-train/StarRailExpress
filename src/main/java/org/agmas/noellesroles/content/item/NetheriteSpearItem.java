@@ -14,8 +14,8 @@ import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.core.BlockPos;
-import org.agmas.noellesroles.spear.SpearCombat;
-import org.agmas.noellesroles.spear.SpearConfig;
+import org.agmas.noellesroles.content.item.spear.SpearCombat;
+import org.agmas.noellesroles.content.item.spear.SpearConfig;
 
 import java.util.List;
 

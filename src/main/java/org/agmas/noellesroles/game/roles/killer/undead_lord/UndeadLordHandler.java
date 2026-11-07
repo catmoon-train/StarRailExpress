@@ -56,7 +56,7 @@ public class UndeadLordHandler {
                 return fail(lord, "message.noellesroles.undead_lord.fake_body");
             }
             if (bodyData.nonInteractable) {
-                return fail(lord, "message.noellesroles.corpse.pending_revive");
+                return InteractionResult.FAIL;
             }
             // 已复活玩家遗留的尸体不能再使用；离线死者的合法尸体仍可复苏。
             ServerPlayer deceased = lord.server.getPlayerList().getPlayer(body.getPlayerUuid());

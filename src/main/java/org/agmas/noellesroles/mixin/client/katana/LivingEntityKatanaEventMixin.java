@@ -1,8 +1,8 @@
 package org.agmas.noellesroles.mixin.client.katana;
 
 import net.minecraft.world.entity.LivingEntity;
-import org.agmas.noellesroles.katana.KatanaState;
-import org.agmas.noellesroles.katana.client.KatanaClientState;
+import org.agmas.noellesroles.content.item.katana.KatanaState;
+import org.agmas.noellesroles.content.item.katana.client.KatanaClientState;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;

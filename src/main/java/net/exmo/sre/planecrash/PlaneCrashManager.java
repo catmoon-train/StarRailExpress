@@ -194,6 +194,9 @@ public final class PlaneCrashManager {
     }
 
     private static void sendIntro(ServerLevel level, CrashPlaneEntity plane) {
+        if (!io.wifi.starrailexpress.event.GameplayExtensionEvents.ALLOW_PLANE_INTRO.invoker().allow(level, plane)) {
+            return;
+        }
         if (!plane.isAlive()) {
             return;
         }

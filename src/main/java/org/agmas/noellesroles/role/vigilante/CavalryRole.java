@@ -19,8 +19,8 @@ import org.agmas.noellesroles.Noellesroles;
 import org.agmas.noellesroles.init.FunnyItems;
 import org.agmas.noellesroles.init.ModItems;
 import org.agmas.noellesroles.role_data.vigilante.CavalryRoleData;
-import org.agmas.noellesroles.spear.SpearCombat;
-import org.agmas.noellesroles.spear.SpearConfig;
+import org.agmas.noellesroles.content.item.spear.SpearCombat;
+import org.agmas.noellesroles.content.item.spear.SpearConfig;
 import org.agmas.noellesroles.utils.MCItemsUtils;
 import org.jetbrains.annotations.NotNull;
 

@@ -182,11 +182,16 @@ public class SREClientConfig implements ConfigData {
                 ? !hiddenSkinTypes.contains(skinType) && hiddenSkinTypes.add(skinType)
                 : hiddenSkinTypes.remove(skinType);
         if (changed) {
-            reload();
+            save();
         }
     }
     public boolean isUltraPerfMode() {
         return ultraPerfMode;
+    }
+
+    /** 将当前客户端设置写入本地文件，不重新读取或替换内存中的配置。 */
+    public void save() {
+        HANDLER.save();
     }
 
     /**

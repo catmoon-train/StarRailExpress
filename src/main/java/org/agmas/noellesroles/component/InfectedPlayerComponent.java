@@ -141,6 +141,9 @@ public class InfectedPlayerComponent implements RoleComponent, ServerTickingComp
      * 感染玩家
      */
     public void infect(Player infectorPlayer) {
+        if (!io.wifi.starrailexpress.event.GameplayExtensionEvents.ALLOW_INFECTION.invoker().allow(this.player, infectorPlayer)) {
+            return;
+        }
         if (this.infectedTicks <= 0) {
             this.infectedTicks = 1;
             this.infector = infectorPlayer.getUUID();

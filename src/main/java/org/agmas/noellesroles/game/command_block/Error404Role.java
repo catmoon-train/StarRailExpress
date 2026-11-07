@@ -459,17 +459,12 @@ public class Error404Role extends NormalRole {
             return;
         }
         if (!isHighDimension(owner)) { puppet.stop(); return; }
-        long now = level.getGameTime();
         if (puppet.order() == 2) {
             ServerPlayer target = level.getServer().getPlayerList().getPlayer(puppet.attackTarget());
             if (target == null || target.level() != level || !GameUtils.isPlayerAliveAndSurvival(target)
                     || isHunter(target)) { puppet.stop(); return; }
             if (puppet.distanceToSqr(target) <= 2.4 * 2.4 && puppet.hasLineOfSight(target)) {
-                if (now >= puppet.attackAt()) {
-                    puppet.setAttackAt(now + 20);
-                    puppet.swing(net.minecraft.world.InteractionHand.MAIN_HAND);
-                    CommandBlockCombat.tryKill(owner, target, Noellesroles.id("error404_puppet"), false);
-                }
+                // 追击只负责贴近目标；伤害只能通过消耗引爆器展开错误空间造成。
                 return;
             }
             puppet.updateDestination(target.position());
@@ -604,7 +599,7 @@ public class Error404Role extends NormalRole {
             @Override public boolean canBuy(Player player) {
                 return super.canBuy(player) && findItem(player, ModItems.ERROR_TERMINAL).isEmpty();
             }
-        }, new ShopEntry(ModItems.ERROR_DETONATOR.getDefaultInstance(), 100, ShopEntry.Type.TOOL),
+        }, new ShopEntry(ModItems.ERROR_DETONATOR.getDefaultInstance(), 50, ShopEntry.Type.TOOL),
                 new ShopEntry(ModItems.ERROR_ACCELERATOR.getDefaultInstance(), 80, ShopEntry.Type.TOOL));
     }
 
