@@ -64,6 +64,7 @@ import org.agmas.noellesroles.game.roles.killer.manipulator.InControlCCA;
 import org.agmas.noellesroles.game.roles.killer.pooler.PoolerDomainManager;
 import org.agmas.noellesroles.init.ModEffects;
 import org.agmas.noellesroles.init.ModItems;
+import org.agmas.noellesroles.role.anime.AnimeRoles;
 import org.agmas.noellesroles.utils.RoleUtils;
 import pro.fazeclan.river.stupid_express.modifier.twin_children.TwinChildrenHandler;
 import org.jetbrains.annotations.NotNull;
@@ -1264,27 +1265,59 @@ public class SREGameWorldComponent implements AutoSyncedComponent, ServerTicking
      * 头部（眼睛）是否浸在水中。
      *
      * <p>
-     * 不能直接用 {@link net.minecraft.world.entity.Entity#isUnderWater()} 判定下方双生之子：
+     * 不能直接用 {@link net.minecraft.world.entity.Entity#isUnderWater()} 判定体型被强制缩小的玩家：
      * 它读 {@code wasEyeInWater}，而眼高会被 SCALE 属性一起缩放（{@code LivingEntity#getDimensions}
-     * 走 {@code EntityDimensions.scale(scale)}，宽度/高度/眼高同时乘缩放）。下方双生之子被半身缩放后
-     * 眼高只剩 {@code 1.62 * 0.5 = 0.81}，正常走进 1 格浅水就会「眼睛入水」，而普通玩家 1.62 的眼高
-     * 不会。该组合整体仍是 1.8 高（下方 0..1.3 + 上方 1.3..1.8），因此下方玩家的头顶判定必须按
-     * 普通玩家眼高算，才与一般玩家一致。其余实体（含上方双生之子与各类载具）保持原版语义。
+     * 走 {@code EntityDimensions.scale(scale)}，宽度/高度/眼高同时乘缩放）。典型受害者：
+     * <ul>
+     * <li>下方双生之子：半身缩放后眼高只剩 {@code 1.62 * 0.5 = 0.81}，但叠起来整体仍是 1.8 高；</li>
+     * <li>卡布奇诺咖啡师：{@code ChinoRole#onAssignedModifiers} 强制给侏儒修饰符
+     * （{@code TraitorAndModifiers#DWARF_MODIFIER}，{@code -0.33} 乘算 → 缩放 {@code 0.67}），
+     * 站立眼高 {@code 1.62 * 0.67 = 1.085}、蹲下 {@code 1.27 * 0.67 = 0.851}。</li>
+     * </ul>
+     * 两者都会在「普通玩家走进 1 格浅水完全没事」的水面高度（水源约 0.875）被判成眼睛入水。因此对
+     * {@link #needsNormalEyeHeight(Player)} 为真的玩家按普通玩家站立眼高判定，其余实体（含上方双生
+     * 之子与各类载具）保持原版语义。
      */
     private static boolean isHeadUnderWater(net.minecraft.world.entity.Entity entity) {
         if (entity == null) {
             return false;
         }
-        if (!(entity instanceof Player player) || !TwinChildrenHandler.isStackedLower(player)) {
+        if (!(entity instanceof Player player) || !needsNormalEyeHeight(player)) {
             return entity.isUnderWater();
         }
-        double eyeY = TwinChildrenHandler.headCheckEyeY(player);
+        double eyeY = headCheckEyeY(player);
         BlockPos eyePos = BlockPos.containing(entity.getX(), eyeY, entity.getZ());
         FluidState fluid = entity.level().getFluidState(eyePos);
         if (fluid.isEmpty() || !fluid.is(FluidTags.WATER)) {
             return false;
         }
         return eyeY < eyePos.getY() + fluid.getHeight(entity.level(), eyePos);
+    }
+
+    /**
+     * 「头顶（眼睛）入水」判定是否需要按正常体型玩家的眼高来算。
+     *
+     * <p>目前两类玩家会被强制缩小体型，导致 {@code getEyeY()} 低于普通玩家、进浅水即被判成眼睛入水：
+     * 下方双生之子（半身缩放）与卡布奇诺咖啡师（强制侏儒修饰符 {@code -0.33} 乘算 → {@code 0.67}）。
+     * 判定按「与正常玩家一致」统一放宽，不会因此漏判真正的深水。
+     */
+    private static boolean needsNormalEyeHeight(Player player) {
+        if (player == null) {
+            return false;
+        }
+        if (TwinChildrenHandler.isStackedLower(player)) {
+            return true;
+        }
+        SREGameWorldComponent game = getInstance(player);
+        return game != null && game.isRole(player, AnimeRoles.KAFU_CHINO);
+    }
+
+    /** 见 {@link #needsNormalEyeHeight(Player)}；蹲下也按站立眼高算，判定只会更宽松。 */
+    private static double headCheckEyeY(Player player) {
+        if (player != null && TwinChildrenHandler.isStackedLower(player)) {
+            return TwinChildrenHandler.stackedHeadCheckEyeY(player);
+        }
+        return player == null ? 0.0D : player.getY() + TwinChildrenHandler.NORMAL_EYE_HEIGHT;
     }
 
     private void tickCommon() {

@@ -173,20 +173,16 @@ public final class TwinChildrenHandler {
     }
 
     /**
-     * 「头顶（眼睛）是否入水」这类判定应当使用的眼睛 Y 坐标。
-     *
-     * <p>下方双生子被半身缩放后眼高只剩 {@code 1.62 * 0.5 = 0.81}，比正常玩家低一半，
-     * 于是「正常走进 1 格浅水」就会被判成眼睛在水下（普通玩家不会）。这一对组合整体仍是
-     * 1.8 高（下方 0..1.3 + 上方 1.3..1.8），所以下方玩家的头顶判定必须按普通玩家的眼高
-     * {@link #NORMAL_EYE_HEIGHT} 来算，才与一般玩家一致。
-     *
-     * @return 判定用眼睛 Y；非「下方双生子」时就是 {@code player.getEyeY()}
+     * 「头顶（眼睛）是否入水」这类判定对下方双生之子应当使用的眼睛 Y 坐标。
+     * <p>下方双生之子被半身缩放后眼高只剩 {@code 1.62 * 0.5 = 0.81}，比正常玩家低一半；但叠起来
+     * 整体仍是 1.8 高（下方 0..1.3 + 上方 1.3..1.8），头顶就是普通玩家的头顶，所以必须按普通玩家
+     * 站立眼高 {@link #NORMAL_EYE_HEIGHT} 来算。判定入口见 {@code SREGameWorldComponent#isHeadUnderWater}。
      */
-    public static double headCheckEyeY(Player player) {
+    public static double stackedHeadCheckEyeY(Player player) {
         if (player != null && isStackedLower(player)) {
             return player.getY() + NORMAL_EYE_HEIGHT;
         }
-        return player.getEyeY();
+        return player == null ? 0.0D : player.getEyeY();
     }
 
     public static boolean shouldStayRiding(Player player) {
