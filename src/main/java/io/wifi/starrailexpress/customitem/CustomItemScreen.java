@@ -20,6 +20,7 @@ import io.wifi.starrailexpress.client.gui.SREPanelStyle;
 import io.wifi.starrailexpress.client.gui.screen.CustomEditorScreen;
 import io.wifi.starrailexpress.client.render.item.CustomItemRenderer;
 import io.wifi.starrailexpress.customitem.CustomItemData.ChargeAnim;
+import io.wifi.starrailexpress.customitem.CustomItemData.ChargeRelease;
 import io.wifi.starrailexpress.customitem.CustomItemData.FireButton;
 import io.wifi.starrailexpress.customitem.CustomItemData.HoldOrientation;
 import io.wifi.starrailexpress.customitem.CustomItemData.HoldPose;
@@ -64,6 +65,7 @@ public class CustomItemScreen extends CustomEditorScreen {
     private static final TextureMode[] TEXTURE_MODES = TextureMode.values();
     private static final ChargeAnim[] CHARGE_ANIMS = ChargeAnim.values();
     private static final ThirdPose[] THIRD_POSES = ThirdPose.values();
+    private static final ChargeRelease[] CHARGE_RELEASES = ChargeRelease.values();
     private static final TargetMode[] TARGET_MODES = TargetMode.values();
     private static final HoldPose[] HOLD_POSES = HoldPose.values();
     private static final HoldOrientation[] HOLD_ORIENTATIONS = HoldOrientation.values();
@@ -334,6 +336,10 @@ public class CustomItemScreen extends CustomEditorScreen {
         r = note(r, PREFIX + ".hint.charge_anim_split", SREPanelStyle.GOLD_DIM);
         r = numRow(r, PREFIX + ".label.charge_time", data.chargeTicks, PREFIX + ".unit.tick",
                 value -> data.chargeTicks = (int) value);
+        // 释放方式：蓄满就自动触发（默认，老配置行为不变）/ 蓄满后继续举着，松手才触发
+        r = enumRow(r, PREFIX + ".label.charge_release", PREFIX + ".charge_release", data.chargeRelease(),
+                index -> data.chargeRelease = CHARGE_RELEASES[index].name());
+        r = note(r, PREFIX + ".hint.charge_release", SREPanelStyle.MUTED);
         r = commandList(r, PREFIX + ".label.self_commands", data.selfCommands);
         r = numRow(r, PREFIX + ".label.cooldown", data.cooldownTicks, PREFIX + ".unit.tick",
                 value -> data.cooldownTicks = (int) value);

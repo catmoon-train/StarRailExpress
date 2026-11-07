@@ -51,6 +51,14 @@ public class CustomItem extends Item implements SREItemProperties.LeftClickHurta
      */
     private static final int PIN_HOLD_DURATION = 72000;
 
+    /**
+     * 「蓄力后松开释放」蓄满后会一直举着，蓄力进度长时间停在 100%，
+     * 而 {@code onFullyCharged} 每帧都会被调用 —— 这里按间隔去重，避免屏幕边缘闪光一直亮着。
+     */
+    private static final long ON_RELEASE_FLASH_INTERVAL = 40L;
+    private static String lastOnReleaseFlashId = "";
+    private static long lastOnReleaseFlashTick = Long.MIN_VALUE / 2;
+
     public CustomItem(Properties properties) {
         super(properties);
     }
@@ -214,7 +222,11 @@ public class CustomItem extends Item implements SREItemProperties.LeftClickHurta
             return 0;
         }
         return switch (data.kind()) {
-            case CHARGE -> Math.max(1, data.chargeTicks);
+            // 「蓄力后松开释放」：给大值（同拉栓），蓄满后继续举着，松手才结算；
+            // 「蓄力后自动释放」：使用时长 = 蓄力时间，走满即由 finishUsingItem 结算
+            case CHARGE -> data.chargeRelease() == CustomItemData.ChargeRelease.ON_RELEASE
+                    ? PIN_HOLD_DURATION
+                    : Math.max(1, data.chargeTicks);
             // 拉栓投掷物：给大值，蓄满（throwPinTicks）后仍可继续举着，松手才投出
             case THROWABLE -> data.throwNeedPin ? PIN_HOLD_DURATION : 0;
             case FOOD -> Math.max(1, data.eatTicks);
@@ -299,8 +311,12 @@ public class CustomItem extends Item implements SREItemProperties.LeftClickHurta
                 yield stack;
             }
             case CHARGE -> {
-                // 蓄力条自然走满 → 直接触发（无需松手）
-                CustomItemRuntime.completeCharge(player, stack, data);
+                // 蓄力条自然走满 → 直接触发（无需松手）。
+                // 「蓄力后松开释放」不在这里结算：它把使用时长放到了 72000，
+                // 由 releaseUsing 按「是否蓄满」决定，举着不放就一直不触发。
+                if (data.chargeRelease() == CustomItemData.ChargeRelease.AUTO) {
+                    CustomItemRuntime.completeCharge(player, stack, data);
+                }
                 yield stack;
             }
             default -> super.finishUsingItem(stack, level, entity);
@@ -369,6 +385,16 @@ public class CustomItem extends Item implements SREItemProperties.LeftClickHurta
         // 而该回调每帧都会被调用——这里不再触发屏幕边缘闪光，否则会一直亮着
         if (data != null && data.kind() == CustomItemData.Kind.THROWABLE) {
             return;
+        }
+        // 「蓄力后松开释放」同样会一直举着：这里按间隔去重，蓄满只闪一次而不是每帧都闪
+        if (data != null && data.kind() == CustomItemData.Kind.CHARGE
+                && data.chargeRelease() == CustomItemData.ChargeRelease.ON_RELEASE) {
+            long now = player.level().getGameTime();
+            if (data.id.equals(lastOnReleaseFlashId) && now - lastOnReleaseFlashTick < ON_RELEASE_FLASH_INTERVAL) {
+                return;
+            }
+            lastOnReleaseFlashId = data.id;
+            lastOnReleaseFlashTick = now;
         }
         StaminaRenderer.triggerScreenEdgeEffect(Color.pink.getRGB(), 300L, 0.5f);
     }

@@ -285,6 +285,21 @@ public class CustomItemData {
     @SerializedName("chargeAnimThird")
     public String chargeAnimThird = "";
 
+    /**
+     * 蓄力道具的<b>释放方式</b>（{@link ChargeRelease} 名称）。
+     *
+     * <p>
+     * 默认 {@link ChargeRelease#AUTO} = 蓄力条走满就自动触发（老配置行为不变）；
+     * {@link ChargeRelease#ON_RELEASE} = 蓄力条走满后<b>继续举着</b>，直到松开右键才触发。
+     *
+     * <p>
+     * 与投掷物的「是否需要拉栓」是两套独立机制：投掷物的拉栓走的是
+     * {@code releaseUsing} + 蓄力力度，而这里的松开释放决定「什么时候真正结算
+     * {@code completeCharge}」。
+     */
+    @SerializedName("chargeRelease")
+    public String chargeRelease = ChargeRelease.AUTO.name();
+
     /** 蓄力时间（tick）。 */
     @SerializedName("chargeTicks")
     public int chargeTicks = 20;
@@ -866,6 +881,14 @@ public class CustomItemData {
         return ThirdPose.parse(chargeAnimThird);
     }
 
+    /**
+     * 蓄力释放方式：空 / 非法值 → {@link ChargeRelease#AUTO}（蓄力条走满自动触发），
+     * 所以老配置的行为不变。
+     */
+    public ChargeRelease chargeRelease() {
+        return ChargeRelease.parse(chargeRelease);
+    }
+
     public TargetMode targetMode() {
         try {
             return TargetMode.valueOf(targetMode);
@@ -1030,6 +1053,12 @@ public class CustomItemData {
         if (chargeAnimThird != null && !chargeAnimThird.isBlank()) {
             // 手工改过的 JSON 可能写成小写 / 老的第一人称动作名（EAT / DRINK → 跟随第一人称），统一成枚举名
             chargeAnimThird = thirdPose().name();
+        }
+        if (chargeRelease == null || chargeRelease.isBlank()) {
+            chargeRelease = ChargeRelease.AUTO.name();
+        } else {
+            // 手工改过的 JSON 可能写成小写，统一成枚举名
+            chargeRelease = chargeRelease().name();
         }
         if (targetMode == null || targetMode.isBlank()) {
             targetMode = TargetMode.CIRCLE.name();
@@ -1332,6 +1361,32 @@ public class CustomItemData {
                 }
             }
             return FOLLOW;
+        }
+    }
+
+    /**
+     * 蓄力道具的<b>释放方式</b>（{@link #chargeRelease} 用）。
+     *
+     * <p>
+     * 只对「蓄力道具」有效：投掷物的拉栓是另一套机制，不受这里影响。
+     */
+    public enum ChargeRelease {
+        /** 蓄力条走满就自动触发（默认，老配置行为不变）。 */
+        AUTO,
+        /** 蓄力条走满后继续举着，松开右键才触发；没蓄满就松手 = 什么都不发生。 */
+        ON_RELEASE;
+
+        /** 解析配置字符串（大小写不敏感）。空 / 非法值回退 {@link #AUTO}。 */
+        public static ChargeRelease parse(String value) {
+            if (value == null || value.isBlank()) {
+                return AUTO;
+            }
+            for (ChargeRelease release : values()) {
+                if (release.name().equalsIgnoreCase(value.trim())) {
+                    return release;
+                }
+            }
+            return AUTO;
         }
     }
 
