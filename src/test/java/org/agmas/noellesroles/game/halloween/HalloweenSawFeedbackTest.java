@@ -37,6 +37,7 @@ class HalloweenSawFeedbackTest {
         assertTrue(source.contains("HalloweenRuntime.isMapEnabled(world)"));
         assertFalse(source.contains("SREGameModes.MURDER"));
         assertTrue(source.contains("super.canBeRandomed(world)"));
-        assertTrue(source.contains("Math.min(1, configured)"));
+        assertFalse(source.contains("getRoundMaxCount"), "本局名额走基类与职业声明，不再特殊覆写");
+        assertTrue(source.contains("setDefaultMax(1)"));
     }
 }
